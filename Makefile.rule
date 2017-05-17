@@ -1,0 +1,111 @@
+###################################################################################################
+#                                                                                                 #
+# This file is part of HPIPM.                                                                     #
+#                                                                                                 #
+# HPIPM -- High Performance Interior Point Method.                                                #
+# Copyright (C) 2017 by Gianluca Frison.                                                          #
+# Developed at IMTEK (University of Freiburg) under the supervision of Moritz Diehl.              #
+# All rights reserved.                                                                            #
+#                                                                                                 #
+# HPMPC is free software; you can redistribute it and/or                                          #
+# modify it under the terms of the GNU Lesser General Public                                      #
+# License as published by the Free Software Foundation; either                                    #
+# version 2.1 of the License, or (at your option) any later version.                              #
+#                                                                                                 #
+# HPMPC is distributed in the hope that it will be useful,                                        #
+# but WITHOUT ANY WARRANTY; without even the implied warranty of                                  #
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.                                            #
+# See the GNU Lesser General Public License for more details.                                     #
+#                                                                                                 #
+# You should have received a copy of the GNU Lesser General Public                                #
+# License along with HPMPC; if not, write to the Free Software                                    #
+# Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA                  #
+#                                                                                                 #
+# Author: Gianluca Frison, gianluca.frison (at) imtek.uni-freiburg.de                             #
+#                                                                                                 #
+###################################################################################################
+
+# Target architecture
+TARGET = GENERIC
+
+# BLAS and LAPACK version (for LA=BLAS in BLASFEO)
+REF_BLAS = 0
+#REF_BLAS = OPENBLAS
+#REF_BLAS = NETLIB
+#REF_BLAS = MKL
+#REF_BLAS = BLIS
+#REF_BLAS = ATLAS
+
+# operative system
+UNAME_S := $(shell uname -s)
+ifeq ($(UNAME_S),Linux)
+    OS = LINUX
+endif
+ifeq ($(UNAME_S),Darwin)
+    OS = MAC
+endif
+#OS = LINUX
+#OS = MAC
+#OS = WINDOWS
+
+# C Compiler
+CC = gcc
+#CC = clang
+#CC = x86_64-w64-mingw32-gcc
+
+# Installation directory
+PREFIX = /opt
+
+# BLASFEO installation directory
+BLASFEO_PATH = /opt/blasfeo
+
+# compiler / assembler / linker flags
+CFLAGS  = 
+ASFLAGS = 
+LDFLAGS =
+
+# optimization flags
+CFLAGS += -O2 -fPIC
+
+# debugging flags
+#CFLAGS  += -g #-Wall -pedantic -Wfloat-equal #-pg
+#ASFLAGS += -g
+
+# definirions
+ifeq ($(OS), LINUX)
+CFLAGS  += -DOS_LINUX
+ASFLAGS += -DOS_LINUX
+endif
+ifeq ($(OS), MAC)
+CFLAGS  += -DOS_MAC
+ASFLAGS += -DOS_MAC
+endif
+ifeq ($(OS), WINDOWS)
+CFLAGS  += -DOS_WINDOWS
+ASFLAGS += -DOS_WINDOWS
+endif
+
+ifeq ($(REF_BLAS), 0)
+CFLAGS  += 
+endif
+ifeq ($(REF_BLAS), OPENBLAS)
+CFLAGS  += -DREF_BLAS_OPENBLAS -I/opt/openblas/include
+endif
+ifeq ($(REF_BLAS), BLIS)
+CFLAGS  += -DREF_BLAS_BLIS -std=c99
+endif
+ifeq ($(REF_BLAS), NETLIB)
+CFLAGS  += -DREF_BLAS_NETLIB
+endif
+ifeq ($(REF_BLAS), MKL)
+CFLAGS  += -DREF_BLAS_MKL -m64 -I/opt/intel/mkl/include
+endif
+ifeq ($(REF_BLAS), ATLAS)
+CFLAGS  += -DREF_BLAS_ATLAS
+endif
+
+# architecture-specific flags
+ifeq ($(TARGET), GENERIC)
+CFLAGS  += -DTARGET_GENERIC
+endif
+
