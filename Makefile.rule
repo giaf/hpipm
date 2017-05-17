@@ -59,30 +59,27 @@ PREFIX = /opt
 # BLASFEO installation directory
 BLASFEO_PATH = /opt/blasfeo
 
-# compiler / assembler / linker flags
+# compiler flags
 CFLAGS  = 
-ASFLAGS = 
-LDFLAGS =
 
 # optimization flags
 CFLAGS += -O2 -fPIC
 
 # debugging flags
 #CFLAGS  += -g #-Wall -pedantic -Wfloat-equal #-pg
-#ASFLAGS += -g
+
+# search directories
+CFLAGS += -I$(BLASFEO_PATH)/include
 
 # definirions
 ifeq ($(OS), LINUX)
 CFLAGS  += -DOS_LINUX
-ASFLAGS += -DOS_LINUX
 endif
 ifeq ($(OS), MAC)
 CFLAGS  += -DOS_MAC
-ASFLAGS += -DOS_MAC
 endif
 ifeq ($(OS), WINDOWS)
 CFLAGS  += -DOS_WINDOWS
-ASFLAGS += -DOS_WINDOWS
 endif
 
 ifeq ($(REF_BLAS), 0)

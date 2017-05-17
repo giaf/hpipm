@@ -33,7 +33,7 @@ ifeq ($(TARGET), GENERIC)
 OBJS +=
 endif
 
-OBJS +=
+OBJS += ocp_kkt/d_cond.o ocp_kkt/d_part_cond.o
 
 all: clean static_library
 

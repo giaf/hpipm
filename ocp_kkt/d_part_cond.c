@@ -25,39 +25,14 @@
 *                                                                                                 *
 **************************************************************************************************/
 
+#include <math.h>
+#include <stdlib.h>
+#include <stdio.h>
 
-
-// TODO create and allocate and free for each struct !!!
-
-
-
-struct d_ocp_qp
-	{
-	int NN;
-	int *nx;
-	int *nu;
-	int *nb;
-	int **idxb;
-	int *ng;
-	struct d_strmat *sBAbt;
-	struct d_strvec *sb;
-	struct d_strmat *sRSQrq;
-	struct d_strvec *srq;
-	struct d_strmat *sDCt;
-	struct d_strvec *sd;
-	};
+#include <blasfeo_target.h>
+#include <blasfeo_common.h>
+#include <blasfeo_d_blas.h>
+#include <blasfeo_d_aux.h>
 
 
 
-struct d_cond_mem
-	{
-	struct d_strmat *sGamma;
-	struct d_strmat *sL;
-	};
-
-
-
-struct d_cond_work
-	{
-	int *cond_RSQrq_N2nx3_sizes;
-	};
