@@ -33,11 +33,15 @@ ifeq ($(TARGET), GENERIC)
 OBJS +=
 endif
 
+# auxiliary
+OBJS += auxiliary/d_aux.o
+# ocp kkt
 OBJS += ocp_kkt/d_cond.o ocp_kkt/d_part_cond.o
 
 all: clean static_library
 
 static_library: target
+	( cd auxiliary; $(MAKE) obj)
 	( cd ocp_kkt; $(MAKE) obj)
 	ar rcs libhpipm.a $(OBJS) 
 	cp libhpipm.a ./lib/
@@ -46,6 +50,7 @@ static_library: target
 	@echo
 
 shared_library: target
+	( cd auxiliary; $(MAKE) obj)
 	( cd ocp_kkt; $(MAKE) obj)
 	gcc -shared -o libhpipm.so $(OBJS)
 	cp libhpipm.so ./lib/

@@ -27,36 +27,17 @@
 
 include ../Makefile.rule
 
-LIBS =
+OBJS =
 
-LIBS += $(BLASFEO_PATH)/lib/libblasfeo.a
-
-ifeq ($(REF_BLAS), 0)
-LIBS += -lm 
-endif
-ifeq ($(REF_BLAS), OPENBLAS)
-LIBS += /opt/openblas/lib/libopenblas.a -pthread -lgfortran -lm
-endif
-ifeq ($(REF_BLAS), BLIS)
-LIBS += /opt/netlib/liblapack.a /opt/blis/lib/libblis.a -lgfortran -lm -fopenmp
-endif
-ifeq ($(REF_BLAS), NETLIB)
-LIBS += /opt/netlib/liblapack.a /opt/netlib/libblas.a -lgfortran -lm
-endif
-ifeq ($(REF_BLAS), MKL)
-LIBS += -Wl,--start-group /opt/intel/mkl/lib/intel64/libmkl_gf_lp64.a /opt/intel/mkl/lib/intel64/libmkl_core.a /opt/intel/mkl/lib/intel64/libmkl_sequential.a -Wl,--end-group -ldl -lpthread -lm
-endif
-ifeq ($(REF_BLAS), ATLAS)
-LIBS += /opt/atlas/lib/liblapack.a /opt/atlas/lib/libcblas.a /opt/atlas/lib/libf77blas.a /opt/atlas/lib/libatlas.a -lgfortran -lm
+ifeq ($(TARGET), GENERIC)
+OBJS +=
 endif
 
-OBJS_TEST = tools.o test_d_cond.o
+OBJS += d_aux.o
 
-obj: $(OBJS_TEST)
-	$(CC) -o test.out $(OBJS_TEST) -L. libhpipm.a $(LIBS) #-pg
+obj: $(OBJS)
 
 clean:
 	rm -f *.o
-	rm -f test.out
-	rm -f libhpipm.a
+	rm -f *.s
 

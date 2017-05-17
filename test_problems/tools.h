@@ -1,11 +1,9 @@
 /**************************************************************************************************
 *                                                                                                 *
-* This file is part of HPIPM.                                                                     *
+* This file is part of HPMPC.                                                                     *
 *                                                                                                 *
-* HPIPM -- High Performance Interior Point Method.                                                *
-* Copyright (C) 2017 by Gianluca Frison.                                                          *
-* Developed at IMTEK (University of Freiburg) under the supervision of Moritz Diehl.              *
-* All rights reserved.                                                                            *
+* HPMPC -- Library for High-Performance implementation of solvers for MPC.                        *
+* Copyright (C) 2014-2015 by Technical University of Denmark. All rights reserved.                *
 *                                                                                                 *
 * HPMPC is free software; you can redistribute it and/or                                          *
 * modify it under the terms of the GNU Lesser General Public                                      *
@@ -21,58 +19,19 @@
 * License along with HPMPC; if not, write to the Free Software                                    *
 * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA                  *
 *                                                                                                 *
-* Author: Gianluca Frison, gianluca.frison (at) imtek.uni-freiburg.de                             *
+* Author: Gianluca Frison, giaf (at) dtu.dk                                                       *
 *                                                                                                 *
 **************************************************************************************************/
 
+void dgemm_nn_3l(int m, int n, int k, double *A, int lda , double *B, int ldb, double *C, int ldc);
+void daxpy_3l(int n, double da, double *dx, double *dy);
+void dscal_3l(int n, double da, double *dx);
 
+/* copies a matrix into another matrix */
+void dmcopy(int row, int col, double *ptrA, int lda, double *ptrB, int ldb);
 
-#include <blasfeo_target.h>
-#include <blasfeo_common.h>
+/* solution of a system of linear equations */
+void dgesv_3l(int n, int nrhs, double *A, int lda, int *ipiv, double *B, int ldb, int *info);
 
-
-
-// TODO create and allocate and free for each struct !!!
-
-
-
-struct d_ocp_qp
-	{
-	int NN;
-	int *nx;
-	int *nu;
-	int *nb;
-	int **idxb;
-	int *ng;
-	struct d_strmat *sBAbt;
-	struct d_strvec *sb;
-	struct d_strmat *sRSQrq;
-	struct d_strvec *srq;
-	struct d_strmat *sDCt;
-	struct d_strvec *slb;
-	struct d_strvec *sub;
-	struct d_strvec *slg;
-	struct d_strvec *sug;
-	};
-
-
-
-struct d_cond_mem
-	{
-	struct d_strmat *sGamma;
-	struct d_strmat *sL;
-	};
-
-
-
-struct d_cond_work
-	{
-	int *cond_RSQrq_N2nx3_sizes;
-	};
-
-
-
-int d_size_ocp_qp(int N, int *nx, int *nu, int *nb, int *ng);
-void d_create_ocp_qp(int N, int *nx, int *nu, int *nb, int *ng, struct d_ocp_qp *str_out, void *memory);
-void d_cast_ocp_qp(int N, int *nx, int *nu, int *nb, int **idxb, int *ng, struct d_strmat *sBAbt, struct d_strvec *sb, struct d_strmat *sRSQrq, struct d_strvec *srq, struct d_strmat *sDCt, struct d_strvec *slb, struct d_strvec *sub, struct d_strvec *slg, struct d_strvec *sug, struct d_ocp_qp *str_out);
-void d_copy_ocp_qp(struct d_ocp_qp *str_in, struct d_ocp_qp *str_out);
+/* matrix exponential */
+void expm(int row, double *A);

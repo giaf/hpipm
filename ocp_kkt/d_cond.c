@@ -269,6 +269,7 @@ void d_cond_RSQrq_N2nx3(int N, struct d_ocp_qp *str_in, int idx_in, struct d_ocp
 
 
 
+#if 0
 int d_cond_DCtd_workspace_size(int N, struct d_ocp_qp *str_in, int idx_in)
 	{
 
@@ -504,6 +505,7 @@ void d_cond_DCtd(int N, struct d_ocp_qp *str_in, int idx_in, struct d_ocp_qp *st
 	return;
 
 	}
+#endif
 
 
 
