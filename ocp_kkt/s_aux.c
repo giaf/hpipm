@@ -33,23 +33,28 @@
 
 #include <blasfeo_target.h>
 #include <blasfeo_common.h>
-#include <blasfeo_d_aux.h>
+#include <blasfeo_s_aux.h>
 
-#include "../include/hpipm_d_dense_kkt.h"
+#include "../include/hpipm_s_ocp_kkt.h"
 
 
-#define CREATE_STRMAT d_create_strmat
-#define CREATE_STRVEC d_create_strvec
-#define DENSE_QP d_dense_qp
-#define GECP_LIBSTR dgecp_libstr
-#define SIZE_STRMAT d_size_strmat
-#define SIZE_STRVEC d_size_strvec
-#define VECCP_LIBSTR dveccp_libstr
 
-#define SIZE_DENSE_QP d_size_dense_qp
-#define CREATE_DENSE_QP d_create_dense_qp
-#define COPY_DENSE_QP d_copy_dense_qp
+#define CREATE_STRMAT s_create_strmat
+#define CREATE_STRVEC s_create_strvec
+#define GECP_LIBSTR sgecp_libstr
+#define OCP_QP s_ocp_qp
+#define STRMAT s_strmat
+#define STRVEC s_strvec
+#define SIZE_STRMAT s_size_strmat
+#define SIZE_STRVEC s_size_strvec
+#define VECCP_LIBSTR sveccp_libstr
+
+#define CAST_OCP_QP s_cast_ocp_qp
+#define COPY_OCP_QP s_copy_ocp_qp
+#define CREATE_OCP_QP s_create_ocp_qp
+#define SIZE_OCP_QP s_size_ocp_qp
 
 
 
 #include "x_aux.c"
+

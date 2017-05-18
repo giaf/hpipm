@@ -27,29 +27,33 @@
 
 
 
-#if defined(RUNTIME_CHECKS)
-#include <stdlib.h>
-#endif
-
 #include <blasfeo_target.h>
 #include <blasfeo_common.h>
-#include <blasfeo_d_aux.h>
-
-#include "../include/hpipm_d_dense_kkt.h"
-
-
-#define CREATE_STRMAT d_create_strmat
-#define CREATE_STRVEC d_create_strvec
-#define DENSE_QP d_dense_qp
-#define GECP_LIBSTR dgecp_libstr
-#define SIZE_STRMAT d_size_strmat
-#define SIZE_STRVEC d_size_strvec
-#define VECCP_LIBSTR dveccp_libstr
-
-#define SIZE_DENSE_QP d_size_dense_qp
-#define CREATE_DENSE_QP d_create_dense_qp
-#define COPY_DENSE_QP d_copy_dense_qp
 
 
 
-#include "x_aux.c"
+struct s_dense_qp
+	{
+	int nv; // number of variables
+	int ne; // number of equality constraints
+	int nb; // number of box constraints
+	int *idxb; // index of box constraints
+	int ng; // number of general constraints
+	struct s_strmat sA;
+	struct s_strvec sb;
+	struct s_strmat sQ;
+	struct s_strvec sq;
+	struct s_strmat sCt;
+	struct s_strvec slb;
+	struct s_strvec sub;
+	struct s_strvec slg;
+	struct s_strvec sug;
+	};
+
+
+
+//
+int s_size_dense_qp(int nv, int ne, int nb, int ng);
+//
+void s_create_dense_qp(int nv, int ne, int nb, int ng, struct s_dense_qp *str_out, void *memory);
+

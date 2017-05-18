@@ -35,8 +35,10 @@ endif
 
 # dense kkt
 OBJS += dense_kkt/d_aux.o
+OBJS += dense_kkt/s_aux.o
 # ocp kkt
 OBJS += ocp_kkt/d_aux.o ocp_kkt/d_cond.o ocp_kkt/d_part_cond.o
+OBJS += ocp_kkt/s_aux.o
 
 all: clean static_library
 

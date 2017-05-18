@@ -27,29 +27,52 @@
 
 
 
-#if defined(RUNTIME_CHECKS)
-#include <stdlib.h>
-#endif
-
 #include <blasfeo_target.h>
 #include <blasfeo_common.h>
-#include <blasfeo_d_aux.h>
-
-#include "../include/hpipm_d_dense_kkt.h"
-
-
-#define CREATE_STRMAT d_create_strmat
-#define CREATE_STRVEC d_create_strvec
-#define DENSE_QP d_dense_qp
-#define GECP_LIBSTR dgecp_libstr
-#define SIZE_STRMAT d_size_strmat
-#define SIZE_STRVEC d_size_strvec
-#define VECCP_LIBSTR dveccp_libstr
-
-#define SIZE_DENSE_QP d_size_dense_qp
-#define CREATE_DENSE_QP d_create_dense_qp
-#define COPY_DENSE_QP d_copy_dense_qp
 
 
 
-#include "x_aux.c"
+struct s_ocp_qp
+	{
+	int NN; // hotizon lenght
+	int *nx; // number of states
+	int *nu; // number of inputs
+	int *nb; // number of box constraints
+	int **idxb; // index of box constraints
+	int *ng; // number of general constraints
+	struct s_strmat *sBAbt;
+	struct s_strvec *sb;
+	struct s_strmat *sRSQrq;
+	struct s_strvec *srq;
+	struct s_strmat *sDCt;
+	struct s_strvec *slb;
+	struct s_strvec *sub;
+	struct s_strvec *slg;
+	struct s_strvec *sug;
+	};
+
+
+
+struct s_cond_mem
+	{
+	struct s_strmat *sGamma;
+	struct s_strmat *sL;
+	};
+
+
+
+struct s_cond_work
+	{
+	int *cond_RSQrq_N2nx3_sizes;
+	};
+
+
+
+//
+int s_size_ocp_qp(int N, int *nx, int *nu, int *nb, int *ng);
+//
+void s_create_ocp_qp(int N, int *nx, int *nu, int *nb, int *ng, struct s_ocp_qp *str_out, void *memory);
+//
+void s_cast_ocp_qp(int N, int *nx, int *nu, int *nb, int **idxb, int *ng, struct s_strmat *sBAbt, struct s_strvec *sb, struct s_strmat *sRSQrq, struct s_strvec *srq, struct s_strmat *sDCt, struct s_strvec *slb, struct s_strvec *sub, struct s_strvec *slg, struct s_strvec *sug, struct s_ocp_qp *str_out);
+//
+void s_copy_ocp_qp(struct s_ocp_qp *str_in, struct s_ocp_qp *str_out);
