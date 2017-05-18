@@ -593,7 +593,7 @@ int main()
 	v_zeros_align(&mem_out, size_out);
 
 	struct d_ocp_qp str_out;
-	d_create_ocp_qp(N, nx, nu, nb, ng, &str_out, mem_out);
+	d_create_ocp_qp(N-1, nx, nu, nb, ng, &str_out, mem_out);
 	d_copy_ocp_qp(&str_in, &str_out);
 
 	d_print_strmat(str_out.sBAbt[0].m, str_out.sBAbt[0].n, str_out.sBAbt+0, 0, 0);

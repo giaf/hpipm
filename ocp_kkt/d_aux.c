@@ -27,6 +27,10 @@
 
 
 
+#if defined(RUNTIME_CHECKS)
+#include <stdlib.h>
+#endif
+
 #include <blasfeo_target.h>
 #include <blasfeo_common.h>
 #include <blasfeo_d_aux.h>
@@ -79,6 +83,10 @@ void d_create_ocp_qp(int N, int *nx, int *nu, int *nb, int *ng, struct d_ocp_qp 
 	{
 
 	int ii;
+
+
+	// horizon length
+	str_out->NN = N;
 
 
 	// int pointer stuff
@@ -283,12 +291,6 @@ void d_cast_ocp_qp(int N, int *nx, int *nu, int *nb, int **idxb, int *ng, struct
 void d_copy_ocp_qp(struct d_ocp_qp *str_in, struct d_ocp_qp *str_out)
 	{
 
-	// TODO check dimensions
-//	str_out->nx[ii] == str_in->nx[ii];
-//	str_out->nu[ii] == str_in->nu[ii];
-//	str_out->nb[ii] == str_in->nb[ii];
-//	str_out->ng[ii] == str_in->ng[ii];
-
 	int N = str_in->NN;
 	int *nx = str_in->nx;
 	int *nu = str_in->nu;
@@ -297,18 +299,49 @@ void d_copy_ocp_qp(struct d_ocp_qp *str_in, struct d_ocp_qp *str_out)
 
 	int ii, jj;
 
+#if defined(RUNTIME_CHECKS)
+	if(str_out->NN != str_in->NN)
+		{
+		printf("\nError : d_copy_ocp_qp : str_out->NN != str_out->NN : %d != %d\n\n", str_out->NN, str_in->NN);
+		exit(1);
+		}
+	for(ii=0; ii<=N; ii++)
+		{
+		if(str_out->nx[ii] != str_in->nx[ii])
+			{
+			printf("\nError : d_copy_ocp_qp : str_out->nx[%d] != str_out->nx[%d] : %d != %d\n\n", ii, ii, str_out->nx[ii], str_in->nx[ii]);
+			exit(1);
+			}
+		if(str_out->nu[ii] != str_in->nu[ii])
+			{
+			printf("\nError : d_copy_ocp_qp : str_out->nu[%d] != str_out->nu[%d] : %d != %d\n\n", ii, ii, str_out->nu[ii], str_in->nu[ii]);
+			exit(1);
+			}
+		if(str_out->nb[ii] != str_in->nb[ii])
+			{
+			printf("\nError : d_copy_ocp_qp : str_out->nb[%d] != str_out->nb[%d] : %d != %d\n\n", ii, ii, str_out->nb[ii], str_in->nb[ii]);
+			exit(1);
+			}
+		if(str_out->ng[ii] != str_in->ng[ii])
+			{
+			printf("\nError : d_copy_ocp_qp : str_out->ng[%d] != str_out->ng[%d] : %d != %d\n\n", ii, ii, str_out->ng[ii], str_in->ng[ii]);
+			exit(1);
+			}
+		}
+#endif
+
 	for(ii=0; ii<N; ii++)
 		{
 		for(jj=0; jj<str_in->nb[ii]; jj++) str_out->idxb[ii][jj] = str_in->idxb[ii][jj];
-		dgecp_libstr(nx[ii]+nu[ii]+1, nx[ii+1], 1.0, str_in->sBAbt+ii, 0, 0, str_out->sBAbt+ii, 0, 0);
-		dveccp_libstr(nx[ii+1], 1.0, str_in->sb+ii, 0, str_out->sb+ii, 0);
-		dgecp_libstr(nx[ii]+nu[ii]+1, nu[ii]+nx[ii], 1.0, str_in->sRSQrq+ii, 0, 0, str_out->sRSQrq+ii, 0, 0);
-		dveccp_libstr(nu[ii]+nx[ii], 1.0, str_in->srq+ii, 0, str_out->srq+ii, 0);
-		dgecp_libstr(nx[ii]+nu[ii], ng[ii], 1.0, str_in->sDCt+ii, 0, 0, str_out->sDCt+ii, 0, 0);
-		dveccp_libstr(nb[ii], 1.0, str_in->slb+ii, 0, str_out->slb+ii, 0);
-		dveccp_libstr(nb[ii], 1.0, str_in->sub+ii, 0, str_out->sub+ii, 0);
-		dveccp_libstr(ng[ii], 1.0, str_in->slg+ii, 0, str_out->slg+ii, 0);
-		dveccp_libstr(ng[ii], 1.0, str_in->sug+ii, 0, str_out->sug+ii, 0);
+		dgecp_libstr(nx[ii]+nu[ii]+1, nx[ii+1], str_in->sBAbt+ii, 0, 0, str_out->sBAbt+ii, 0, 0);
+		dveccp_libstr(nx[ii+1], str_in->sb+ii, 0, str_out->sb+ii, 0);
+		dgecp_libstr(nx[ii]+nu[ii]+1, nu[ii]+nx[ii], str_in->sRSQrq+ii, 0, 0, str_out->sRSQrq+ii, 0, 0);
+		dveccp_libstr(nu[ii]+nx[ii], str_in->srq+ii, 0, str_out->srq+ii, 0);
+		dgecp_libstr(nx[ii]+nu[ii], ng[ii], str_in->sDCt+ii, 0, 0, str_out->sDCt+ii, 0, 0);
+		dveccp_libstr(nb[ii], str_in->slb+ii, 0, str_out->slb+ii, 0);
+		dveccp_libstr(nb[ii], str_in->sub+ii, 0, str_out->sub+ii, 0);
+		dveccp_libstr(ng[ii], str_in->slg+ii, 0, str_out->slg+ii, 0);
+		dveccp_libstr(ng[ii], str_in->sug+ii, 0, str_out->sug+ii, 0);
 		}
 
 	return;

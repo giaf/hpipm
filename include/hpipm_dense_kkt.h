@@ -32,47 +32,28 @@
 
 
 
-struct d_ocp_qp
+struct d_dense_qp
 	{
-	int NN; // hotizon lenght
-	int *nx; // number of states
-	int *nu; // number of inputs
-	int *nb; // number of box constraints
-	int **idxb; // index of box constraints
-	int *ng; // number of general constraints
-	struct d_strmat *sBAbt;
-	struct d_strvec *sb;
-	struct d_strmat *sRSQrq;
-	struct d_strvec *srq;
-	struct d_strmat *sDCt;
-	struct d_strvec *slb;
-	struct d_strvec *sub;
-	struct d_strvec *slg;
-	struct d_strvec *sug;
-	};
-
-
-
-struct d_cond_mem
-	{
-	struct d_strmat *sGamma;
-	struct d_strmat *sL;
-	};
-
-
-
-struct d_cond_work
-	{
-	int *cond_RSQrq_N2nx3_sizes;
+	int nv; // number of variables
+	int ne; // number of equality constraints
+	int nb; // number of box constraints
+	int *idxb; // index of box constraints
+	int ng; // number of general constraints
+	struct d_strmat sA;
+	struct d_strvec sb;
+	struct d_strmat sQ;
+	struct d_strvec sq;
+	struct d_strmat sCt;
+	struct d_strvec slb;
+	struct d_strvec sub;
+	struct d_strvec slg;
+	struct d_strvec sug;
 	};
 
 
 
 //
-int d_size_ocp_qp(int N, int *nx, int *nu, int *nb, int *ng);
+int d_size_dense_qp(int nv, int ne, int nb, int ng);
 //
-void d_create_ocp_qp(int N, int *nx, int *nu, int *nb, int *ng, struct d_ocp_qp *str_out, void *memory);
-//
-void d_cast_ocp_qp(int N, int *nx, int *nu, int *nb, int **idxb, int *ng, struct d_strmat *sBAbt, struct d_strvec *sb, struct d_strmat *sRSQrq, struct d_strvec *srq, struct d_strmat *sDCt, struct d_strvec *slb, struct d_strvec *sub, struct d_strvec *slg, struct d_strvec *sug, struct d_ocp_qp *str_out);
-//
-void d_copy_ocp_qp(struct d_ocp_qp *str_in, struct d_ocp_qp *str_out);
+void d_create_dense_qp(int nv, int ne, int nb, int ng, struct d_dense_qp *str_out, void *memory);
+

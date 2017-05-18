@@ -64,7 +64,7 @@ void d_cond_BAbt(int N, struct d_ocp_qp *str_in, int idx_in, struct d_ocp_qp *st
 	nu_tmp = 0;
 	ii = 0;
 	// B & A & b
-	dgecp_libstr(nu[0]+nx[0]+1, nx[1], 1.0, &sBAbt[0], 0, 0, &sGamma[0], 0, 0);
+	dgecp_libstr(nu[0]+nx[0]+1, nx[1], &sBAbt[0], 0, 0, &sGamma[0], 0, 0);
 	//
 	nu_tmp += nu[0];
 	ii++;
@@ -76,7 +76,7 @@ void d_cond_BAbt(int N, struct d_ocp_qp *str_in, int idx_in, struct d_ocp_qp *st
 		// Gamma * A^T
 		dgemm_nn_libstr(nu_tmp+nx[0]+1, nx[ii+1], nx[ii], 1.0, &sGamma[ii-1], 0, 0, &sBAbt[ii], nu[ii], 0, 0.0, &sGamma[ii], nu[ii], 0, &sGamma[ii], nu[ii], 0); // Gamma * A^T
 
-		dgecp_libstr(nu[ii], nx[ii+1], 1.0, &sBAbt[ii], 0, 0, &sGamma[ii], 0, 0);
+		dgecp_libstr(nu[ii], nx[ii+1], &sBAbt[ii], 0, 0, &sGamma[ii], 0, 0);
 
 		nu_tmp += nu[ii];
 
@@ -84,7 +84,7 @@ void d_cond_BAbt(int N, struct d_ocp_qp *str_in, int idx_in, struct d_ocp_qp *st
 		}
 	
 	// B & A & b
-	dgecp_libstr(nu_tmp+nx[0]+1, nx[N], 1.0, &sGamma[N-1], 0, 0, &sBAbt2[0], 0, 0);
+	dgecp_libstr(nu_tmp+nx[0]+1, nx[N], &sGamma[N-1], 0, 0, &sBAbt2[0], 0, 0);
 	// b
 	drowex_libstr(nx[N], 1.0, &sBAbt2[0], 0, 0, &sb2[0], 0);
 
@@ -170,7 +170,7 @@ void d_cond_RSQrq_N2nx3(int N, struct d_ocp_qp *str_in, int idx_in, struct d_ocp
 	// early return
 	if(N==0)
 		{
-		dgecp_libstr(nu[0]+nx[0]+1, nu[0]+nx[0], 1.0, &sRSQrq[0], 0, 0, &sRSQrq2[0], 0, 0);
+		dgecp_libstr(nu[0]+nx[0]+1, nu[0]+nx[0], &sRSQrq[0], 0, 0, &sRSQrq2[0], 0, 0);
 		return;
 		}
 
@@ -186,10 +186,10 @@ void d_cond_RSQrq_N2nx3(int N, struct d_ocp_qp *str_in, int idx_in, struct d_ocp
 	// final stage 
 	nub -= nu[N];
 
-	dgecp_libstr(nu[N]+nx[N]+1, nu[N]+nx[N], 1.0, &sRSQrq[N], 0, 0, &sL[N], 0, 0);
+	dgecp_libstr(nu[N]+nx[N]+1, nu[N]+nx[N], &sRSQrq[N], 0, 0, &sL[N], 0, 0);
 
 	// D
-	dtrcp_l_libstr(nu[N], 1.0, &sL[N], 0, 0, &sRSQrq2[0], nuf, nuf);
+	dtrcp_l_libstr(nu[N], &sL[N], 0, 0, &sRSQrq2[0], nuf, nuf);
 
 	dgemm_nn_libstr(nub+nx[0]+1, nu[N], nx[N], 1.0, &sGamma[N-1], 0, 0, &sL[N], nu[N], 0, 0.0, &sRSQrq2[0], nuf+nu[N], nuf, &sRSQrq2[0], nuf+nu[N], nuf);
 
@@ -209,7 +209,7 @@ void d_cond_RSQrq_N2nx3(int N, struct d_ocp_qp *str_in, int idx_in, struct d_ocp
 		d_create_strmat(nu[N-nn-1]+nx[N-nn-1]+1, nx[N-nn], &sBAbtL, workspace+sizes[0]);
 
 #if defined(LA_HIGH_PERFORMANCE)
-		dgecp_libstr(nx[N-nn]+1, nx[N-nn], 1.0, &sL[N-nn], nu[N-nn], nu[N-nn], &sLx, 0, 0);
+		dgecp_libstr(nx[N-nn]+1, nx[N-nn], &sL[N-nn], nu[N-nn], nu[N-nn], &sLx, 0, 0);
 
 		dpotrf_l_mn_libstr(nx[N-nn]+1, nx[N-nn], &sLx, 0, 0, &sLx, 0, 0);
 
@@ -224,7 +224,7 @@ void d_cond_RSQrq_N2nx3(int N, struct d_ocp_qp *str_in, int idx_in, struct d_ocp
 		dsyrk_ln_mn_libstr(nu[N-nn-1]+nx[N-nn-1]+1, nu[N-nn-1]+nx[N-nn-1], nx[N-nn], 1.0, &sBAbtL, 0, 0, &sBAbtL, 0, 0, 1.0, &sRSQrq[N-nn-1], 0, 0, &sL[N-nn-1], 0, 0);
 
 		// D
-		dtrcp_l_libstr(nu[N-nn-1], 1.0, &sL[N-nn-1], 0, 0, &sRSQrq2[0], nuf, nuf);
+		dtrcp_l_libstr(nu[N-nn-1], &sL[N-nn-1], 0, 0, &sRSQrq2[0], nuf, nuf);
 
 		dgemm_nn_libstr(nub+nx[0]+1, nu[N-nn-1], nx[N-nn-1], 1.0, &sGamma[N-nn-2], 0, 0, &sL[N-nn-1], nu[N-nn-1], 0, 0.0, &sRSQrq2[0], nuf+nu[N-nn-1], nuf, &sRSQrq2[0], nuf+nu[N-nn-1], nuf);
 
@@ -242,7 +242,7 @@ void d_cond_RSQrq_N2nx3(int N, struct d_ocp_qp *str_in, int idx_in, struct d_ocp
 	d_create_strmat(nu[N-nn-1]+nx[N-nn-1]+1, nx[N-nn], &sBAbtL, workspace+sizes[0]);
 	
 #if defined(LA_HIGH_PERFORMANCE)
-	dgecp_libstr(nx[N-nn]+1, nx[N-nn], 1.0, &sL[N-nn], nu[N-nn], nu[N-nn], &sLx, 0, 0);
+	dgecp_libstr(nx[N-nn]+1, nx[N-nn], &sL[N-nn], nu[N-nn], nu[N-nn], &sLx, 0, 0);
 
 	dpotrf_l_mn_libstr(nx[N-nn]+1, nx[N-nn], &sLx, 0, 0, &sLx, 0, 0);
 
@@ -257,9 +257,9 @@ void d_cond_RSQrq_N2nx3(int N, struct d_ocp_qp *str_in, int idx_in, struct d_ocp
 	dsyrk_ln_mn_libstr(nu[N-nn-1]+nx[N-nn-1]+1, nu[N-nn-1]+nx[N-nn-1], nx[N-nn], 1.0, &sBAbtL, 0, 0, &sBAbtL, 0, 0, 1.0, &sRSQrq[N-nn-1], 0, 0, &sL[N-nn-1], 0, 0);
 
 	// D, M, m, P, p
-//	dgecp_libstr(nu[0]+nx[0]+1, nu[0]+nx[0], 1.0, &sL[N-nn-1], 0, 0, &sRSQrq2[0], nuf, nuf); // TODO dtrcp for 'rectangular' matrices
-	dtrcp_l_libstr(nu[0]+nx[0], 1.0, &sL[N-nn-1], 0, 0, &sRSQrq2[0], nuf, nuf); // TODO dtrcp for 'rectangular' matrices
-	dgecp_libstr(1, nu[0]+nx[0], 1.0, &sL[N-nn-1], nu[0]+nx[0], 0, &sRSQrq2[0], nuf+nu[0]+nx[0], nuf); // TODO dtrcp for 'rectangular' matrices
+//	dgecp_libstr(nu[0]+nx[0]+1, nu[0]+nx[0], &sL[N-nn-1], 0, 0, &sRSQrq2[0], nuf, nuf); // TODO dtrcp for 'rectangular' matrices
+	dtrcp_l_libstr(nu[0]+nx[0], &sL[N-nn-1], 0, 0, &sRSQrq2[0], nuf, nuf); // TODO dtrcp for 'rectangular' matrices
+	dgecp_libstr(1, nu[0]+nx[0], &sL[N-nn-1], nu[0]+nx[0], 0, &sRSQrq2[0], nuf+nu[0]+nx[0], nuf); // TODO dtrcp for 'rectangular' matrices
 	// m p
 	drowex_libstr(nu[0]+nx[0], 1.0, &sRSQrq2[0], 0, 0, &srq2[0], 0);
 
@@ -397,7 +397,7 @@ void d_cond_DCtd(int N, struct d_ocp_qp *str_in, int idx_in, struct d_ocp_qp *st
 				tmp = dgeex1_libstr(&sGamma[N-1-ii], idx_gammab, idx_g);
 				d2[nb2+0*nt2+ig] = ptr_d[0*nt0+jj] - tmp;
 				d2[nb2+1*nt2+ig] = ptr_d[1*nt0+jj] - tmp;
-				dgecp_libstr(idx_gammab, 1, 1.0, &sGamma[N-ii-1], 0, idx_g, &sDCt2[0], nu_tmp, ig);
+				dgecp_libstr(idx_gammab, 1, &sGamma[N-ii-1], 0, idx_g, &sDCt2[0], nu_tmp, ig);
 				ig++;
 				}
 			}
@@ -445,7 +445,7 @@ void d_cond_DCtd(int N, struct d_ocp_qp *str_in, int idx_in, struct d_ocp_qp *st
 
 			c_ptr = (char *) workspace;
 
-			dgecp_libstr(nu0, ng0, 1.0, &sDCt[N-ii], 0, 0, &sDCt2[0], nu_tmp, nbg+ng_tmp);
+			dgecp_libstr(nu0, ng0, &sDCt[N-ii], 0, 0, &sDCt2[0], nu_tmp, nbg+ng_tmp);
 
 			nu_tmp += nu0;
 
@@ -456,8 +456,8 @@ void d_cond_DCtd(int N, struct d_ocp_qp *str_in, int idx_in, struct d_ocp_qp *st
 
 			dgemm_nt_libstr(nu2+nx[0]-nu_tmp, ng0, nx0, 1.0, &sGamma[N-1-ii], 0, 0, &sC, 0, 0, 0.0, &sDCt2[0], nu_tmp, nbg+ng_tmp, &sDCt2[0], nu_tmp, nbg+ng_tmp);
 
-			dveccp_libstr(ng0, 1.0, &sd[N-ii], nb0+0*nt0, sd2, nb2+0*nt2+nbg+ng_tmp);
-			dveccp_libstr(ng0, 1.0, &sd[N-ii], nb0+1*nt0, sd2, nb2+1*nt2+nbg+ng_tmp);
+			dveccp_libstr(ng0, &sd[N-ii], nb0+0*nt0, sd2, nb2+0*nt2+nbg+ng_tmp);
+			dveccp_libstr(ng0, &sd[N-ii], nb0+1*nt0, sd2, nb2+1*nt2+nbg+ng_tmp);
 
 			d_create_strvec(nx0, &sGammab, (void *) c_ptr);
 			c_ptr += sGammab.memory_size;
@@ -493,10 +493,10 @@ void d_cond_DCtd(int N, struct d_ocp_qp *str_in, int idx_in, struct d_ocp_qp *st
 	if(ng0>0)
 		{
 
-		dgecp_libstr(nu0+nx0, ng0, 1.0, &sDCt[0], 0, 0, &sDCt2[0], nu_tmp, nbg+ng_tmp);
+		dgecp_libstr(nu0+nx0, ng0, &sDCt[0], 0, 0, &sDCt2[0], nu_tmp, nbg+ng_tmp);
 
-		dveccp_libstr(ng0, 1.0, &sd[0], nb0+0*nt0, sd2, nb2+0*nt2+nbg+ng_tmp);
-		dveccp_libstr(ng0, 1.0, &sd[0], nb0+1*nt0, sd2, nb2+1*nt2+nbg+ng_tmp);
+		dveccp_libstr(ng0, &sd[0], nb0+0*nt0, sd2, nb2+0*nt2+nbg+ng_tmp);
+		dveccp_libstr(ng0, &sd[0], nb0+1*nt0, sd2, nb2+1*nt2+nbg+ng_tmp);
 
 //		ng_tmp += ng[N-ii];
 

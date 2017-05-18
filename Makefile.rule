@@ -59,6 +59,10 @@ PREFIX = /opt
 # BLASFEO installation directory
 BLASFEO_PATH = /opt/blasfeo
 
+# enable runtine checks
+#RUNTIME_CHECKS = 0
+RUNTIME_CHECKS = 1
+
 # compiler flags
 CFLAGS  = 
 
@@ -99,6 +103,10 @@ CFLAGS  += -DREF_BLAS_MKL -m64 -I/opt/intel/mkl/include
 endif
 ifeq ($(REF_BLAS), ATLAS)
 CFLAGS  += -DREF_BLAS_ATLAS
+endif
+
+ifeq ($(RUNTIME_CHECKS), 1)
+CFLAGS += -DRUNTIME_CHECKS
 endif
 
 # architecture-specific flags
