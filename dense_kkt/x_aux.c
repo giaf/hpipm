@@ -27,25 +27,85 @@
 
 
 
-int SIZE_DENSE_QP(int nv, int ne, int nb, int ng)
+int SIZE_DENSE_QP_DIM(struct DENSE_QP_DIM *qp_dim)
 	{
+
+	int size = 0;
+
+	return size;
+	}
+
+
+
+int SIZE_DENSE_QP_VEC(struct DENSE_QP_DIM *qp_dim)
+	{
+
+	// extract problem dimension
+	int nv = qp_dim->nv;
+	int ne = qp_dim->ne;
+	int nb = qp_dim->nb;
+	int nc = qp_dim->nc;
+
+	int size = 0;
+
+	size += 6*sizeof(struct STRVEC);
+
+	size += 1*SIZE_STRVEC(nv); // g
+	size += 1*SIZE_STRVEC(ne); // be
+	size += 2*SIZE_STRVEC(nb); // lb ub
+	size += 2*SIZE_STRVEC(nc); // lc uc
+	size += 1*nb*sizeof(int); // idxb
+
+	size = (size+63)/64*64; // make multiple of typical cache line size
+
+	return size;
+	}
+
+
+
+int SIZE_DENSE_QP_MAT(struct DENSE_QP_DIM *qp_dim)
+	{
+
+	// extract problem dimension
+	int nv = qp_dim->nv;
+	int ne = qp_dim->ne;
+	int nb = qp_dim->nb;
+	int nc = qp_dim->nc;
+
+	int size = 0;
+
+	size += 3*sizeof(struct STRMAT);
+
+	size += 1*SIZE_STRMAT(nv, nv); // H
+	size += 1*SIZE_STRMAT(ne, nv); // A
+	size += 1*SIZE_STRMAT(nv, nc); // Ct
+
+	size = (size+63)/64*64; // make multiple of typical cache line size
+
+	return size;
+	}
+
+
+
+int SIZE_DENSE_QP(struct DENSE_QP_DIM *qp_dim)
+	{
+
+	int nv = qp_dim->nv;
+	int ne = qp_dim->ne;
+	int nb = qp_dim->nb;
+	int nc = qp_dim->nc;
 
 	int ii;
 
 	int size = 0;
 
-	size += nb*sizeof(int);
-
-	size += SIZE_STRMAT(nv, nv); // Q
-	size += SIZE_STRVEC(nv); // q
-	size += SIZE_STRMAT(ne, nv); // A
-	size += SIZE_STRVEC(ne); // b
-	size += 2*SIZE_STRVEC(nb); // lb ub
-	size += SIZE_STRMAT(nv, ng); // Ct
-	size += 2*SIZE_STRVEC(ng); // lg ug
-
-	size = (size+63)/64*64; // make multiple of typical cache line size
-	size += 64; // align to typical cache line size
+	size += sizeof(struct DENSE_QP_DIM);
+	size += SIZE_DENSE_QP_DIM(qp_dim);
+	size += sizeof(struct DENSE_QP_VEC);
+	size += SIZE_DENSE_QP_VEC(qp_dim);
+	size += sizeof(struct DENSE_QP_MAT);
+	size += SIZE_DENSE_QP_MAT(qp_dim);
+	size += 1*sizeof(void (*)(void));
 	
 	return size;
 
@@ -53,7 +113,273 @@ int SIZE_DENSE_QP(int nv, int ne, int nb, int ng)
 
 
 
-void CREATE_DENSE_QP(int nv, int ne, int nb, int ng, struct DENSE_QP *str_out, void *memory)
+void CREATE_DENSE_QP_DIM(struct DENSE_QP_DIM *qp_dim, struct DENSE_QP_DIM *qp_dim_out, void *memory)
+	{
+
+	// memory size
+	qp_dim_out->mem_size = SIZE_DENSE_QP_DIM(qp_dim);
+
+	return;
+
+	}
+
+
+
+void CREATE_DENSE_QP_VEC(struct DENSE_QP_DIM *qp_dim, struct DENSE_QP_VEC *qp_vec, void *memory)
+	{
+
+	int nv = qp_dim->nv;
+	int ne = qp_dim->ne;
+	int nb = qp_dim->nb;
+	int nc = qp_dim->nc;
+
+	// vector struct stuff
+	struct STRVEC *sv_ptr = (struct STRVEC *) memory;
+
+	// g
+	qp_vec->g = sv_ptr;
+	sv_ptr += 1;
+
+	// be
+	qp_vec->be = sv_ptr;
+	sv_ptr += 1;
+
+	// lb
+	qp_vec->lb = sv_ptr;
+	sv_ptr += 1;
+
+	// ub
+	qp_vec->ub = sv_ptr;
+	sv_ptr += 1;
+
+	// lc
+	qp_vec->lc = sv_ptr;
+	sv_ptr += 1;
+
+	// uc
+	qp_vec->uc = sv_ptr;
+	sv_ptr += 1;
+
+
+	// int stuff
+	int *i_ptr;
+	i_ptr = (int *) sv_ptr;
+
+	// idxb
+	qp_vec->idxb = i_ptr;
+	i_ptr += nb;
+
+
+	// align to typical cache line size
+	long long l_ptr = (long long) i_ptr;
+	l_ptr = (l_ptr+63)/64*64;
+
+
+	// double stuff
+	void *v_ptr;
+	v_ptr = (void *) l_ptr;
+
+	// q
+	CREATE_STRVEC(nv, qp_vec->g, v_ptr);
+	v_ptr += qp_vec->g->memory_size;
+
+	// b
+	CREATE_STRVEC(ne, qp_vec->be, v_ptr);
+	v_ptr += qp_vec->be->memory_size;
+
+	// lb
+	CREATE_STRVEC(nb, qp_vec->lb, v_ptr);
+	v_ptr += qp_vec->lb->memory_size;
+
+	// ub
+	CREATE_STRVEC(nb, qp_vec->ub, v_ptr);
+	v_ptr += qp_vec->ub->memory_size;
+
+	// lg
+	CREATE_STRVEC(nc, qp_vec->lc, v_ptr);
+	v_ptr += qp_vec->lc->memory_size;
+
+	// ug
+	CREATE_STRVEC(nc, qp_vec->uc, v_ptr);
+	v_ptr += qp_vec->uc->memory_size;
+
+	// memory size
+	qp_vec->mem_size = SIZE_DENSE_QP_VEC(qp_dim);
+
+	return;
+
+	}
+
+
+
+void CREATE_DENSE_QP_MAT(struct DENSE_QP_DIM *qp_dim, struct DENSE_QP_MAT *qp_mat, void *memory)
+	{
+
+	int nv = qp_dim->nv;
+	int ne = qp_dim->ne;
+	int nb = qp_dim->nb;
+	int nc = qp_dim->nc;
+
+	// vector struct stuff
+	struct STRMAT *sm_ptr = (struct STRMAT *) memory;
+
+	// H
+	qp_mat->H = sm_ptr;
+	sm_ptr += 1;
+
+	// A
+	qp_mat->A = sm_ptr;
+	sm_ptr += 1;
+
+	// Ct
+	qp_mat->Ct = sm_ptr;
+	sm_ptr += 1;
+
+
+
+	// align to typical cache line size
+	long long l_ptr = (long long) sm_ptr;
+	l_ptr = (l_ptr+63)/64*64;
+
+
+	// double stuff
+	void *v_ptr;
+	v_ptr = (void *) l_ptr;
+
+	// H
+	CREATE_STRMAT(nv, nv, qp_mat->H, v_ptr);
+	v_ptr += qp_mat->H->memory_size;
+
+	// A
+	CREATE_STRMAT(ne, nv, qp_mat->A, v_ptr);
+	v_ptr += qp_mat->A->memory_size;
+
+	// H
+	CREATE_STRMAT(nv, nc, qp_mat->Ct, v_ptr);
+	v_ptr += qp_mat->Ct->memory_size;
+
+	// memory size
+	qp_mat->mem_size = SIZE_DENSE_QP_MAT(qp_dim);
+
+	return;
+
+	}
+
+
+
+void CREATE_DENSE_QP(struct DENSE_QP_DIM *qp_dim, struct DENSE_QP *qp, void *memory)
+	{
+
+	int nv = qp_dim->nv;
+	int ne = qp_dim->ne;
+	int nb = qp_dim->nb;
+	int nc = qp_dim->nc;
+
+	qp->dim = memory;
+	memory += sizeof(struct DENSE_QP_DIM);
+
+	qp->vec = memory;
+	memory += sizeof(struct DENSE_QP_VEC);
+
+	qp->mat = memory;
+	memory += sizeof(struct DENSE_QP_MAT);
+
+	CREATE_DENSE_QP_DIM(qp_dim, qp->dim, memory);
+	memory += qp->dim->mem_size;
+
+	CREATE_DENSE_QP_VEC(qp_dim, qp->vec, memory);
+	memory += qp->vec->mem_size;
+
+	CREATE_DENSE_QP_MAT(qp_dim, qp->mat, memory);
+	memory += qp->mat->mem_size;
+
+	return;
+	}
+
+
+
+void INIT_DENSE_QP_DIM(int nv, int ne, int nb, int nc, struct DENSE_QP_DIM *qp_dim_out)
+	{
+
+	qp_dim_out->nv = nv;
+	qp_dim_out->ne = ne;
+	qp_dim_out->nb = nb;
+	qp_dim_out->nc = nc;
+
+	return;
+
+	}
+
+
+
+void INIT_DENSE_QP_VEC(struct DENSE_QP_DIM *qp_dim, struct STRVEC *g, struct STRVEC *be, struct STRVEC *lb, struct STRVEC *ub, struct STRVEC *lc, struct STRVEC *uc, struct DENSE_QP_VEC *qp_vec)
+	{
+
+	int nv = qp_dim->nv;
+	int ne = qp_dim->ne;
+	int nb = qp_dim->nb;
+	int nc = qp_dim->nc;
+
+	dveccp_libstr(nv, g, 0, qp_vec->g, 0);
+	dveccp_libstr(ne, be, 0, qp_vec->be, 0);
+	dveccp_libstr(nb, lb, 0, qp_vec->lb, 0);
+	dveccp_libstr(nb, ub, 0, qp_vec->ub, 0);
+	dveccp_libstr(nc, lc, 0, qp_vec->lc, 0);
+	dveccp_libstr(nc, uc, 0, qp_vec->uc, 0);
+
+	return;
+
+	}
+
+
+
+void INIT_DENSE_QP_MAT(struct DENSE_QP_DIM *qp_dim, struct STRMAT *H, struct STRMAT *A, struct STRMAT *Ct, struct DENSE_QP_MAT *qp_mat)
+	{
+
+	int nv = qp_dim->nv;
+	int ne = qp_dim->ne;
+	int nb = qp_dim->nb;
+	int nc = qp_dim->nc;
+
+	dgecp_libstr(nv, nv, H, 0, 0, qp_mat->H, 0, 0);
+	dgecp_libstr(ne, nv, A, 0, 0, qp_mat->A, 0, 0);
+	dgecp_libstr(nv, nc, Ct, 0, 0, qp_mat->Ct, 0, 0);
+
+	return;
+
+	}
+
+
+
+void INIT_DENSE_QP(struct DENSE_QP_DIM *qp_dim, struct STRVEC *g, struct STRVEC *be, struct STRVEC *lb, struct STRVEC *ub, struct STRVEC *lc, struct STRVEC *uc, struct STRMAT *H, struct STRMAT *A, struct STRMAT *Ct, struct DENSE_QP *qp)
+	{
+
+	INIT_DENSE_QP_DIM(qp_dim->nv, qp_dim->ne, qp_dim->nb, qp_dim->nc, qp->dim);
+	INIT_DENSE_QP_VEC(qp->dim, g, be, lb, ub, lc, uc, qp->vec);
+	INIT_DENSE_QP_MAT(qp->dim, H, A, Ct, qp->mat);
+
+	return;
+
+	}
+
+
+
+void CAST_DENSE_QP_DIM(int nv, int ne, int nb, int nc, struct DENSE_QP_DIM *qp_dim_out)
+	{
+
+	qp_dim_out->nv = nv;
+	qp_dim_out->ne = ne;
+	qp_dim_out->nb = nb;
+	qp_dim_out->nc = nc;
+
+	return;
+
+	}
+
+
+
+#if 0
+void CREATE_DENSE_QP(struct DENSE_QP_DIM *qp_dim, struct DENSE_QP *qp_out, void *memory)
 	{
 
 	int ii;
@@ -116,9 +442,11 @@ void CREATE_DENSE_QP(int nv, int ne, int nb, int ng, struct DENSE_QP *str_out, v
 	return;
 
 	}
+#endif
 
 
 
+#if 0
 void COPY_DENSE_QP(struct DENSE_QP *str_in, struct DENSE_QP *str_out)
 	{
 
@@ -161,5 +489,6 @@ void COPY_DENSE_QP(struct DENSE_QP *str_in, struct DENSE_QP *str_out)
 	return;
 
 	}
+#endif
 
 

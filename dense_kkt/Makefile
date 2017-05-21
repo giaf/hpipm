@@ -34,7 +34,7 @@ OBJS +=
 endif
 
 OBJS += d_aux.o
-OBJS += s_aux.o
+#OBJS += s_aux.o
 
 obj: $(OBJS)
 

@@ -29,64 +29,111 @@
 
 #include <blasfeo_target.h>
 #include <blasfeo_common.h>
+#include <blasfeo_d_aux.h>
+#include <blasfeo_d_blas.h>
 
 
 
-struct d_dense_qp_dim
+void d_init_var_hard(int N, int *nx, int *nu, int *nb, int **hidxb, int *ng, struct d_strvec *hsux, struct d_strvec *hspi, struct d_strmat *hsDCt, struct d_strvec *hsdb, struct d_strvec *hst, struct d_strvec *hslam, double mu0, int warm_start)
 	{
-	int nv; // number of variables
-	int ne; // number of equality constraints
-	int nb; // number of box constraints
-	int nc; // number of general constraints
-	int mem_size; // memory size in bytes
-	};
 
-struct d_dense_qp_vec
-	{
-	struct d_strvec *g; // gradient
-	struct d_strvec *be; // dynamics vector
-	struct d_strvec *lb; // lower bound
-	struct d_strvec *ub; // upper bound
-	struct d_strvec *lc; // lower constraint
-	struct d_strvec *uc; // upper constraint
-	int *idxb; // index of box constraints
-	int mem_size; // memory size in bytes
-	};
+	int jj, ll, ii;
 
-struct d_dense_qp_mat
-	{
-	struct d_strmat *H; // hessian
-	struct d_strmat *A; // dynamics matrix
-	struct d_strmat *Ct; // constraints matrix
-	int mem_size; // memory size in bytes
-	};
+	double *ptr_ux, *ptr_pi, *ptr_db, *ptr_t, *ptr_lam;
 
-struct d_dense_qp
-	{
-	struct d_dense_qp_dim *dim;
-	struct d_dense_qp_vec *vec;
-	struct d_dense_qp_mat *mat;
-	void (*d_compute_Ctv) (void *qp_dim, void *qp_mat, struct d_strvec *v, struct d_strvec *Ctv); // computes Ct * v
-	int mem_size; // memory size in bytes
-	};
+	int nb0, ng0, nt0;
+	
+	double thr0 = 0.1; // minimum vale of t (minimum distance from a constraint)
 
 
+	// cold start
+	if(warm_start==0)
+		{
+		for(jj=0; jj<=N; jj++)
+			{
+			ptr_ux = hsux[jj].pa;
+			for(ll=0; ll<nu[jj]+nx[jj]; ll++)
+				{
+				ptr_ux[ll] = 0.0;
+				}
+			}
+		}
 
-//
-int d_size_dense_qp_dim(struct d_dense_qp_dim *qp_dim);
-int d_size_dense_qp_vec(struct d_dense_qp_dim *qp_dim);
-int d_size_dense_qp_mat(struct d_dense_qp_dim *qp_dim);
-int d_size_dense_qp(struct d_dense_qp_dim *qp_dim);
-//
-void d_create_dense_qp_dim(struct d_dense_qp_dim *qp_dim, struct d_dense_qp_dim *qp_dim_out, void *memory);
-void d_create_dense_qp_vec(struct d_dense_qp_dim *qp_dim, struct d_dense_qp_vec *qp_vec, void *memory);
-void d_create_dense_qp_mat(struct d_dense_qp_dim *qp_dim, struct d_dense_qp_mat *qp_mat, void *memory);
-void d_create_dense_qp(struct d_dense_qp_dim *qp_dim, struct d_dense_qp *qp, void *memory);
-//
-void d_init_dense_qp_dim(int nv, int ne, int nb, int nc, struct d_dense_qp_dim *qp_dim_out);
-void d_init_dense_qp_vec(struct d_dense_qp_dim *qp_dim, struct d_strvec *g, struct d_strvec *be, struct d_strvec *lb, struct d_strvec *ub, struct d_strvec *lc, struct d_strvec *uc, struct d_dense_qp_vec *qp_vec);
-void d_init_dense_qp_mat(struct d_dense_qp_dim *qp_dim, struct d_strmat *H, struct d_strmat *A, struct d_strmat *Ct, struct d_dense_qp_mat *qp_mat);
-void d_init_dense_qp(struct d_dense_qp_dim *qp_dim, struct d_strvec *g, struct d_strvec *be, struct d_strvec *lb, struct d_strvec *ub, struct d_strvec *lc, struct d_strvec *uc, struct d_strmat *H, struct d_strmat *A, struct d_strmat *Ct, struct d_dense_qp *qp);
-//
-void d_cast_dense_qp_dim(int nv, int ne, int nb, int nc, struct d_dense_qp_dim *qp_dim_out);
+
+	// check bounds & initialize multipliers
+	for(jj=0; jj<=N; jj++)
+		{
+		nb0 = nb[jj];
+		nt0 = nb[jj]+ng[jj];
+		ptr_ux = hsux[jj].pa;
+		ptr_db = hsdb[jj].pa;
+		ptr_lam = hslam[jj].pa;
+		ptr_t = hst[jj].pa;
+		for(ll=0; ll<nb0; ll++)
+			{
+			ptr_t[ll]     = - ptr_db[ll]     + ptr_ux[hidxb[jj][ll]];
+			ptr_t[nt0+ll] =   ptr_db[nt0+ll] - ptr_ux[hidxb[jj][ll]];
+			if(ptr_t[ll] < thr0)
+				{
+				if(ptr_t[nt0+ll] < thr0)
+					{
+					ptr_ux[hidxb[jj][ll]] = ( - ptr_db[nt0+ll] + ptr_db[ll])*0.5;
+					ptr_t[ll]     = thr0; //- hdb[jj][ll]     + hux[jj][hidxb[jj][ll]];
+					ptr_t[nt0+ll] = thr0; //  hdb[jj][nt0+ll] - hux[jj][hidxb[jj][ll]];
+					}
+				else
+					{
+					ptr_t[ll] = thr0;
+					ptr_ux[hidxb[jj][ll]] = ptr_db[ll] + thr0;
+					}
+				}
+			else if(ptr_t[nt0+ll] < thr0)
+				{
+				ptr_t[nt0+ll] = thr0;
+				ptr_ux[hidxb[jj][ll]] = ptr_db[nt0+ll] - thr0;
+				}
+			ptr_lam[ll]     = mu0/ptr_t[ll];
+			ptr_lam[nt0+ll] = mu0/ptr_t[nt0+ll];
+			}
+		}
+
+
+	// initialize pi
+	for(jj=1; jj<=N; jj++)
+		{
+		ptr_pi = hspi[jj].pa;
+		for(ll=0; ll<nx[jj]; ll++)
+			ptr_pi[ll] = 0.0; // initialize multipliers to zero
+		}
+
+
+	// TODO find a better way to initialize general constraints
+	for(jj=0; jj<=N; jj++)
+		{
+		nb0 = nb[jj];
+		ng0 = ng[jj];
+		nt0 = nb0 + ng0;
+		if(ng0>0)
+			{
+			ptr_t   = hst[jj].pa;
+			ptr_lam = hslam[jj].pa;
+			ptr_db  = hsdb[jj].pa;
+			dgemv_t_libstr(nu[jj]+nx[jj], ng0, 1.0, &hsDCt[jj], 0, 0, &hsux[jj], 0, 0.0, &hst[jj], nb0, &hst[jj], nb0);
+			for(ll=nb0; ll<nb0+ng0; ll++)
+				{
+				ptr_t[ll+nt0] = - ptr_t[ll];
+				ptr_t[ll]     -= ptr_db[ll];
+				ptr_t[ll+nt0] += ptr_db[ll+nt0];
+				ptr_t[ll]     = fmax( thr0, ptr_t[ll] );
+				ptr_t[nt0+ll] = fmax( thr0, ptr_t[nt0+ll] );
+				ptr_lam[ll]     = mu0/ptr_t[ll];
+				ptr_lam[nt0+ll] = mu0/ptr_t[nt0+ll];
+				}
+			}
+		}
+
+	}
+
+
+
 

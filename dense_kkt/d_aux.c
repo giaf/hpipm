@@ -40,15 +40,32 @@
 
 #define CREATE_STRMAT d_create_strmat
 #define CREATE_STRVEC d_create_strvec
+#define DENSE_QP_DIM d_dense_qp_dim
+#define DENSE_QP_VEC d_dense_qp_vec
+#define DENSE_QP_MAT d_dense_qp_mat
 #define DENSE_QP d_dense_qp
 #define GECP_LIBSTR dgecp_libstr
 #define SIZE_STRMAT d_size_strmat
 #define SIZE_STRVEC d_size_strvec
-#define VECCP_LIBSTR dveccp_libstr
+#define STRMAT d_strmat
+#define STRVEC d_strvec
+//#define VECCP_LIBSTR dveccp_libstr
 
+#define SIZE_DENSE_QP_DIM d_size_dense_qp_dim
+#define SIZE_DENSE_QP_VEC d_size_dense_qp_vec
+#define SIZE_DENSE_QP_MAT d_size_dense_qp_mat
 #define SIZE_DENSE_QP d_size_dense_qp
+#define CREATE_DENSE_QP_DIM d_create_dense_qp_dim
+#define CREATE_DENSE_QP_VEC d_create_dense_qp_vec
+#define CREATE_DENSE_QP_MAT d_create_dense_qp_mat
 #define CREATE_DENSE_QP d_create_dense_qp
-#define COPY_DENSE_QP d_copy_dense_qp
+#define INIT_DENSE_QP_DIM d_init_dense_qp_dim
+#define INIT_DENSE_QP_VEC d_init_dense_qp_vec
+#define INIT_DENSE_QP_MAT d_init_dense_qp_mat
+#define INIT_DENSE_QP d_init_dense_qp
+#define CAST_DENSE_QP_DIM d_cast_dense_qp_dim
+//#define CREATE_DENSE_QP d_create_dense_qp
+//#define COPY_DENSE_QP d_copy_dense_qp
 
 
 

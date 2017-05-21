@@ -32,16 +32,15 @@
 
 
 
-struct d_dense_qp_dim
+struct d_qp_dim
 	{
 	int nv; // number of variables
 	int ne; // number of equality constraints
 	int nb; // number of box constraints
 	int nc; // number of general constraints
-	int mem_size; // memory size in bytes
 	};
 
-struct d_dense_qp_vec
+struct d_qp_vec
 	{
 	struct d_strvec *g; // gradient
 	struct d_strvec *be; // dynamics vector
@@ -50,43 +49,17 @@ struct d_dense_qp_vec
 	struct d_strvec *lc; // lower constraint
 	struct d_strvec *uc; // upper constraint
 	int *idxb; // index of box constraints
-	int mem_size; // memory size in bytes
 	};
 
-struct d_dense_qp_mat
+struct d_qp_mat
 	{
-	struct d_strmat *H; // hessian
-	struct d_strmat *A; // dynamics matrix
-	struct d_strmat *Ct; // constraints matrix
-	int mem_size; // memory size in bytes
 	};
 
-struct d_dense_qp
+struct d_qp
 	{
-	struct d_dense_qp_dim *dim;
-	struct d_dense_qp_vec *vec;
-	struct d_dense_qp_mat *mat;
-	void (*d_compute_Ctv) (void *qp_dim, void *qp_mat, struct d_strvec *v, struct d_strvec *Ctv); // computes Ct * v
-	int mem_size; // memory size in bytes
+	struct d_qp_dim *dim;
+	struct d_qp_vec *vec;
+	struct d_qp_mat *mat;
+	void (*d_compute_Ct) (void *qp_dim, void *qp_mat, struct d_strvec *v, struct d_strvec *Ctv); // computes Ct * v
 	};
-
-
-
-//
-int d_size_dense_qp_dim(struct d_dense_qp_dim *qp_dim);
-int d_size_dense_qp_vec(struct d_dense_qp_dim *qp_dim);
-int d_size_dense_qp_mat(struct d_dense_qp_dim *qp_dim);
-int d_size_dense_qp(struct d_dense_qp_dim *qp_dim);
-//
-void d_create_dense_qp_dim(struct d_dense_qp_dim *qp_dim, struct d_dense_qp_dim *qp_dim_out, void *memory);
-void d_create_dense_qp_vec(struct d_dense_qp_dim *qp_dim, struct d_dense_qp_vec *qp_vec, void *memory);
-void d_create_dense_qp_mat(struct d_dense_qp_dim *qp_dim, struct d_dense_qp_mat *qp_mat, void *memory);
-void d_create_dense_qp(struct d_dense_qp_dim *qp_dim, struct d_dense_qp *qp, void *memory);
-//
-void d_init_dense_qp_dim(int nv, int ne, int nb, int nc, struct d_dense_qp_dim *qp_dim_out);
-void d_init_dense_qp_vec(struct d_dense_qp_dim *qp_dim, struct d_strvec *g, struct d_strvec *be, struct d_strvec *lb, struct d_strvec *ub, struct d_strvec *lc, struct d_strvec *uc, struct d_dense_qp_vec *qp_vec);
-void d_init_dense_qp_mat(struct d_dense_qp_dim *qp_dim, struct d_strmat *H, struct d_strmat *A, struct d_strmat *Ct, struct d_dense_qp_mat *qp_mat);
-void d_init_dense_qp(struct d_dense_qp_dim *qp_dim, struct d_strvec *g, struct d_strvec *be, struct d_strvec *lb, struct d_strvec *ub, struct d_strvec *lc, struct d_strvec *uc, struct d_strmat *H, struct d_strmat *A, struct d_strmat *Ct, struct d_dense_qp *qp);
-//
-void d_cast_dense_qp_dim(int nv, int ne, int nb, int nc, struct d_dense_qp_dim *qp_dim_out);
 
