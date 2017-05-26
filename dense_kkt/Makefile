@@ -33,8 +33,8 @@ ifeq ($(TARGET), GENERIC)
 OBJS +=
 endif
 
-OBJS += d_aux.o
-#OBJS += s_aux.o
+OBJS += d_aux_dense_qp.o d_ipm2_hard_dense_qp.o
+OBJS += s_aux_dense_qp.o
 
 obj: $(OBJS)
 
@@ -42,5 +42,5 @@ clean:
 	rm -f *.o
 	rm -f *.s
 
-d_aux.o: d_aux.c x_aux.c
-s_aux.o: s_aux.c x_aux.c
+d_aux_dense_qp.o: d_aux_dense_qp.c x_aux_dense_qp.c
+s_aux_dense_qp.o: s_aux_dense_qp.c x_aux_dense_qp.c

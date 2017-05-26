@@ -27,7 +27,8 @@
 
 
 
-#include "../include/hpipm_ipm2_hard_revcom.h"
+#include "../include/hpipm_d_ipm2_hard_revcom.h"
+#include "../include/hpipm_d_aux_ipm_hard.h"
 
 
 

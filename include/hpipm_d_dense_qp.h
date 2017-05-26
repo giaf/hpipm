@@ -27,46 +27,37 @@
 
 
 
-#if defined(RUNTIME_CHECKS)
-#include <stdlib.h>
-#endif
-
 #include <blasfeo_target.h>
 #include <blasfeo_common.h>
-#include <blasfeo_d_aux.h>
-
-#include "../include/hpipm_d_dense_kkt.h"
-
-
-#define CREATE_STRMAT d_create_strmat
-#define CREATE_STRVEC d_create_strvec
-#define DENSE_QP_DIM d_dense_qp_dim
-#define DENSE_QP_VEC d_dense_qp_vec
-#define DENSE_QP_MAT d_dense_qp_mat
-#define DENSE_QP d_dense_qp
-#define GECP_LIBSTR dgecp_libstr
-#define SIZE_STRMAT d_size_strmat
-#define SIZE_STRVEC d_size_strvec
-#define STRMAT d_strmat
-#define STRVEC d_strvec
-//#define VECCP_LIBSTR dveccp_libstr
-
-#define SIZE_DENSE_QP_DIM d_size_dense_qp_dim
-#define SIZE_DENSE_QP_VEC d_size_dense_qp_vec
-#define SIZE_DENSE_QP_MAT d_size_dense_qp_mat
-#define SIZE_DENSE_QP d_size_dense_qp
-#define CREATE_DENSE_QP_DIM d_create_dense_qp_dim
-#define CREATE_DENSE_QP_VEC d_create_dense_qp_vec
-#define CREATE_DENSE_QP_MAT d_create_dense_qp_mat
-#define CREATE_DENSE_QP d_create_dense_qp
-#define INIT_DENSE_QP_DIM d_init_dense_qp_dim
-#define INIT_DENSE_QP_VEC d_init_dense_qp_vec
-#define INIT_DENSE_QP_MAT d_init_dense_qp_mat
-#define INIT_DENSE_QP d_init_dense_qp
-#define CAST_DENSE_QP_DIM d_cast_dense_qp_dim
-//#define CREATE_DENSE_QP d_create_dense_qp
-//#define COPY_DENSE_QP d_copy_dense_qp
 
 
 
-#include "x_aux.c"
+struct d_dense_qp
+	{
+	struct d_strmat *H; // hessian
+	struct d_strmat *A; // dynamics matrix
+	struct d_strmat *Ct; // constraints matrix
+	struct d_strvec *g; // gradient
+	struct d_strvec *be; // dynamics vector
+	struct d_strvec *lb; // lower bound
+	struct d_strvec *ub; // upper bound
+	struct d_strvec *lg; // lower constraint
+	struct d_strvec *ug; // upper constraint
+	int *idxb; // index of box constraints
+	int nv; // number of variables
+	int ne; // number of equality constraints
+	int nb; // number of box constraints
+	int ng; // number of general constraints
+	int mem_size; // memory size in bytes
+	};
+
+
+
+//
+int d_size_dense_qp(int nv, int ne, int nb, int ng);
+//
+void d_create_dense_qp(int nv, int ne, int nb, int ng, struct d_dense_qp *qp, void *memory);
+//
+void d_init_dense_qp(struct d_strmat *H, struct d_strmat *A, struct d_strmat *C, struct d_strvec *g, struct d_strvec *be, struct d_strvec *lb, struct d_strvec *ub, struct d_strvec *lg, struct d_strvec *ug, int *idxb, struct d_dense_qp *qp);
+//
+

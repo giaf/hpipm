@@ -25,32 +25,9 @@
 *                                                                                                 *
 **************************************************************************************************/
 
-
-
-#if defined(RUNTIME_CHECKS)
-#include <stdlib.h>
-#endif
-
-#include <blasfeo_target.h>
-#include <blasfeo_common.h>
-#include <blasfeo_s_aux.h>
-
-#include "../include/hpipm_s_dense_kkt.h"
-
-
-#define CREATE_STRMAT s_create_strmat
-#define CREATE_STRVEC s_create_strvec
-#define DENSE_QP s_dense_qp
-#define GECP_LIBSTR sgecp_libstr
-#define SIZE_STRMAT s_size_strmat
-#define SIZE_STRVEC s_size_strvec
-#define VECCP_LIBSTR sveccp_libstr
-
-#define SIZE_DENSE_QP s_size_dense_qp
-#define CREATE_DENSE_QP s_create_dense_qp
-#define COPY_DENSE_QP s_copy_dense_qp
-
-
-
-#include "x_aux.c"
-
+//
+void d_update_hessian_gradient_res_hard(struct d_ipm2_hard_revcom_workspace *workspace);
+//
+void d_compute_alpha_res_hard(struct d_ipm2_hard_revcom_workspace *workspace);
+//
+void d_update_var_res_hard(struct d_ipm2_hard_revcom_workspace *workspace);

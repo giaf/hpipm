@@ -32,7 +32,7 @@
 #include <blasfeo_d_aux.h>
 #include <blasfeo_d_blas.h>
 
-#include "../include/hpipm_ipm2_hard_revcom.h"
+#include "../include/hpipm_d_ipm2_hard_revcom.h"
 
 
 

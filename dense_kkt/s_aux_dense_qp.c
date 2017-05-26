@@ -27,33 +27,42 @@
 
 
 
+
+#if defined(RUNTIME_CHECKS)
+#include <stdlib.h>
+#endif
+
 #include <blasfeo_target.h>
 #include <blasfeo_common.h>
+#include <blasfeo_s_aux.h>
+
+#include "../include/hpipm_s_dense_qp.h"
+
+
+#define CREATE_STRMAT s_create_strmat
+#define CREATE_STRVEC s_create_strvec
+#define DENSE_QP_DIM s_dense_qp_dim
+#define DENSE_QP_VEC s_dense_qp_vec
+#define DENSE_QP_MAT s_dense_qp_mat
+#define DENSE_QP s_dense_qp
+#define GECP_LIBSTR sgecp_libstr
+#define SIZE_STRMAT s_size_strmat
+#define SIZE_STRVEC s_size_strvec
+#define STRMAT s_strmat
+#define STRVEC s_strvec
+#define VECCP_LIBSTR sveccp_libstr
+
+#define SIZE_DENSE_QP s_size_dense_qp
+#define CREATE_DENSE_QP s_create_dense_qp
+#define INIT_DENSE_QP_DIM s_init_dense_qp_dim
+#define INIT_DENSE_QP_VEC s_init_dense_qp_vec
+#define INIT_DENSE_QP_MAT s_init_dense_qp_mat
+#define INIT_DENSE_QP s_init_dense_qp
+#define CAST_DENSE_QP_DIM s_cast_dense_qp_dim
+//#define CREATE_DENSE_QP s_create_dense_qp
+//#define COPY_DENSE_QP s_copy_dense_qp
 
 
 
-struct s_dense_qp
-	{
-	int nv; // number of variables
-	int ne; // number of equality constraints
-	int nb; // number of box constraints
-	int *idxb; // index of box constraints
-	int ng; // number of general constraints
-	struct s_strmat sA;
-	struct s_strvec sb;
-	struct s_strmat sQ;
-	struct s_strvec sq;
-	struct s_strmat sCt;
-	struct s_strvec slb;
-	struct s_strvec sub;
-	struct s_strvec slg;
-	struct s_strvec sug;
-	};
-
-
-
-//
-int s_size_dense_qp(int nv, int ne, int nb, int ng);
-//
-void s_create_dense_qp(int nv, int ne, int nb, int ng, struct s_dense_qp *str_out, void *memory);
+#include "x_aux_dense_qp.c"
 

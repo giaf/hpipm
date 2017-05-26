@@ -34,11 +34,13 @@ OBJS +=
 endif
 
 # dense kkt
-OBJS += dense_kkt/d_aux.o
-#OBJS += dense_kkt/s_aux.o
+OBJS += dense_kkt/d_aux_dense_qp.o dense_kkt/d_ipm2_hard_dense_qp.o
+OBJS += dense_kkt/s_aux_dense_qp.o
 # ocp kkt
 OBJS += ocp_kkt/d_aux.o ocp_kkt/d_cond.o ocp_kkt/d_part_cond.o
 OBJS += ocp_kkt/s_aux.o
+# ipm
+OBJS += ipm/d_aux_ipm_hard.o ipm/d_ipm2_hard_revcom.o
 
 all: clean static_library
 

@@ -38,7 +38,7 @@
 #include <blasfeo_d_aux.h>
 #include <blasfeo_d_blas.h>
 
-#include "../include/hpipm_d_dense_kkt.h"
+#include "../include/hpipm_d_dense_qp.h"
 
 #include "tools.h"
 
@@ -60,17 +60,18 @@ int main()
 	int nv = 2;
 	int ne = 1;
 	int nb = 2;
-	int nc = 0;
+	int ng = 0;
 
-	double H[] = {4, 1, 1, 2};
-	double g[] = {1, 1};
-	double A[] = {1, 1};
-	double be[] = {1};
-	double lb[] = {0, 0};
+	double H[] = {4.0, 1.0, 1.0, 2.0};
+	double g[] = {1.0, 1.0};
+	double A[] = {1.0, 1.0};
+	double be[] = {1.0};
+	double lb[] = {0.0, 0.0};
 	double ub[] = {INFINITY, INFINITY};
-	double Ct[] = {};
-	double lc[] = {};
-	double uc[] = {};
+	int idxb[] = {0, 1};
+	double C[] = {};
+	double lg[] = {};
+	double ug[] = {};
 
 /************************************************
 * data struct
@@ -84,9 +85,9 @@ int main()
 	d_allocate_strmat(ne, nv, &sA);
 	d_cvt_mat2strmat(ne, nv, A, 1, &sA, 0, 0);
 
-	struct d_strmat sCt;
-	d_allocate_strmat(nv, nc, &sCt);
-	d_cvt_mat2strmat(nv, nc, Ct, 0, &sCt, 0, 0);
+	struct d_strmat sC;
+	d_allocate_strmat(nv, ng, &sC);
+	d_cvt_mat2strmat(nv, ng, C, 0, &sC, 0, 0);
 
 	struct d_strvec sg;
 	d_allocate_strvec(nv, &sg);
@@ -104,62 +105,35 @@ int main()
 	d_allocate_strvec(nb, &sub);
 	d_cvt_vec2strvec(nb, ub, &sub, 0);
 
-	struct d_strvec slc;
-	d_allocate_strvec(nc, &slc);
-	d_cvt_vec2strvec(nc, lc, &slc, 0);
+	struct d_strvec slg;
+	d_allocate_strvec(ng, &slg);
+	d_cvt_vec2strvec(ng, lg, &slg, 0);
 
-	struct d_strvec suc;
-	d_allocate_strvec(nc, &suc);
-	d_cvt_vec2strvec(nc, uc, &suc, 0);
+	struct d_strvec sug;
+	d_allocate_strvec(ng, &sug);
+	d_cvt_vec2strvec(ng, ug, &sug, 0);
 
 /************************************************
 * problem struct
 ************************************************/	
 
-	struct d_dense_qp_dim qp_dim;
-	d_cast_dense_qp_dim(nv, ne, nb, nc, &qp_dim);
-	printf("\n%d %d %d %d\n", qp_dim.nv, qp_dim.ne, qp_dim.nb, qp_dim.nc);
-
-	int qp_size = d_size_dense_qp(&qp_dim);
+	int qp_size = d_size_dense_qp(nv, ne, nb, ng);
 	printf("\nqp size = %d\n", qp_size);
 	void *qp_mem = malloc(qp_size);
 
-#if 0
-	void *ptr = qp_mem;
-
-	struct d_dense_qp_vec qp_vec;
-	d_create_dense_qp_vec(&qp_dim, &qp_vec, ptr);
-	ptr += d_size_dense_qp_vec(&qp_dim);
-	d_init_dense_qp_vec(&qp_dim, &sg, &sbe, &slb, &sub, &slc, &suc, &qp_vec);
-	d_print_strvec(nv, qp_vec.g, 0);
-	d_print_strvec(ne, qp_vec.be, 0);
-	d_print_strvec(nb, qp_vec.lb, 0);
-	d_print_strvec(nb, qp_vec.ub, 0);
-	d_print_strvec(nc, qp_vec.lc, 0);
-	d_print_strvec(nc, qp_vec.uc, 0);
-
-	struct d_dense_qp_mat qp_mat;
-	d_create_dense_qp_mat(&qp_dim, &qp_mat, ptr);
-	ptr += d_size_dense_qp_mat(&qp_dim);
-	d_init_dense_qp_mat(&qp_dim, &sH, &sA, &sCt, &qp_mat);
-	d_print_strmat(nv, nv, qp_mat.H, 0, 0);
-	d_print_strmat(ne, nv, qp_mat.A, 0, 0);
-	d_print_strmat(nv, nc, qp_mat.Ct, 0, 0);
-#else
 	struct d_dense_qp qp;
-	d_create_dense_qp(&qp_dim, &qp, qp_mem);
-	d_init_dense_qp(&qp_dim, &sg, &sbe, &slb, &sub, &slc, &suc, &sH, &sA, &sCt, &qp);
+	d_create_dense_qp(nv, ne, nb, ng, &qp, qp_mem);
+	d_init_dense_qp(&sH, &sA, &sC, &sg, &sbe, &slb, &sub, &slg, &sug, idxb, &qp);
 
-	d_print_strmat(nv, nv, qp.mat->H, 0, 0);
-	d_print_strmat(ne, nv, qp.mat->A, 0, 0);
-	d_print_strmat(nv, nc, qp.mat->Ct, 0, 0);
-	d_print_strvec(nv, qp.vec->g, 0);
-	d_print_strvec(ne, qp.vec->be, 0);
-	d_print_strvec(nb, qp.vec->lb, 0);
-	d_print_strvec(nb, qp.vec->ub, 0);
-	d_print_strvec(nc, qp.vec->lc, 0);
-	d_print_strvec(nc, qp.vec->uc, 0);
-#endif
+	d_print_strmat(nv, nv, qp.H, 0, 0);
+	d_print_strmat(ne, nv, qp.A, 0, 0);
+	d_print_strmat(nv, ng, qp.Ct, 0, 0);
+	d_print_strvec(nv, qp.g, 0);
+	d_print_strvec(ne, qp.be, 0);
+	d_print_strvec(nb, qp.lb, 0);
+	d_print_strvec(nb, qp.ub, 0);
+	d_print_strvec(ng, qp.lg, 0);
+	d_print_strvec(ng, qp.ug, 0);
 
 /************************************************
 * free memory
