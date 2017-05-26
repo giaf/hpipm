@@ -27,8 +27,26 @@
 
 
 
+// status
+#define IPMCORE_ERROR -1
+#define IPMCORE_WAITING 0
+#define IPMCORE_MEMSIZE 1
+#define IPMCORE_MEMPART 2
+#define IPMCORE_INIT 3
+#define IPMCORE_FACT_SOLVE_KKT_COMP_DV 4
+#define IPMCORE_COMP_RES 5
+#define IPMCORE_STOP 6
+
+// entry
+#define ITER_RES 0
+#define ALPHA_RES 1
+#define EXIT_RES 2
+
+
+
 struct d_ipm2_hard_revcom_workspace
 	{
+	void *mem; // memory
 	double *v; // primal variables
 	double *pi; // equality constraints multipliers
 	double *lam; // inequality constraints multipliers
@@ -41,21 +59,37 @@ struct d_ipm2_hard_revcom_workspace
 	double *t_lg; // lower general constraints slacks
 	double *t_ub; // upper bound slacks
 	double *t_ug; // upper general constraints slacks
-	double *t_inv; // inverse of inequality constraints slacks
+	double *t_inv; // inverse of t
 	double *dv; // step in v
+	double *dpi; // step in pi
 	double *dlam; // step in lam
 	double *dt; // step in t
+	double *dt_lb; // step in t_lb
+	double *dt_ub; // step in t_ub
+	double *dt_lg; // step in t_lg
+	double *dt_ug; // step in t_ug
+	double *res_q; // q-residuals
+	double *res_b; // b-residuals
+	double *res_d; // d-residuals
+	double *res_m; // m-residuals
 	double *Qx; // Hessian update
 	double *qx; // gradient update
-	double *res_m; // m-residuals
-	double *res_d; // d-residuals
 	double *Dv; // holds the product D*v
+	double *conv_stat; // convergence statistics
+	int *idxb; // index of box constraints
 	double alpha; // step length
+	double alpha_min; // exit cond on step lenght
+	double sigma; // centering XXX
+	double mu; // duality measuere
+	double mu_max; // exit cond on mu
 	int nv; // number of primal variables
 	int ne; // number of equality constraints
 	int nb; // number of two-sized bounds
 	int ng; // number of two-sized constraints
 	int status; // status
+	int entry; // entry point
 	int memsize; // memory size (in bytes) of workspace
+	int iter; // iteration number
+	int iter_max; // exit cond on iter mumber
 	};
 	

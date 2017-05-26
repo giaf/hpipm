@@ -25,85 +25,19 @@
 #                                                                                                 #
 ###################################################################################################
 
-include ./Makefile.rule
+include ../Makefile.rule
 
-OBJS = 
+OBJS =
 
 ifeq ($(TARGET), GENERIC)
 OBJS +=
 endif
 
-# dense kkt
-OBJS += dense_kkt/d_aux.o
-#OBJS += dense_kkt/s_aux.o
-# ocp kkt
-OBJS += ocp_kkt/d_aux.o ocp_kkt/d_cond.o ocp_kkt/d_part_cond.o
-OBJS += ocp_kkt/s_aux.o
+OBJS += d_aux_hard.o ipm2_hard_revcom.o
+OBJS +=
 
-all: clean static_library
-
-static_library: target
-	( cd auxiliary; $(MAKE) obj)
-	( cd dense_kkt; $(MAKE) obj)
-	( cd ocp_kkt; $(MAKE) obj)
-	( cd ipm; $(MAKE) obj)
-	ar rcs libhpipm.a $(OBJS) 
-	cp libhpipm.a ./lib/
-	@echo
-	@echo " libhpipm.a static library build complete."
-	@echo
-
-shared_library: target
-	( cd auxiliary; $(MAKE) obj)
-	( cd dense_kkt; $(MAKE) obj)
-	( cd ocp_kkt; $(MAKE) obj)
-	( cd ipm; $(MAKE) obj)
-	gcc -shared -o libhpipm.so $(OBJS)
-	cp libhpipm.so ./lib/
-	@echo
-	@echo " libhpipm.so shared library build complete."
-	@echo
-
-target:
-	touch ./include/hpipm_target.h
-ifeq ($(TARGET), GENERIC)
-	echo "#ifndef TARGET_GENERIC" > ./include/hpipm_target.h
-	echo "#define TARGET_GENERIC" >> ./include/hpipm_target.h
-	echo "#endif" >> ./include/hpipm_target.h
-endif
-
-install_static:
-	mkdir -p $(PREFIX)/hpipm
-	mkdir -p $(PREFIX)/hpipm/lib
-	cp -f libhpipm.a $(PREFIX)/hpipm/lib/
-	mkdir -p $(PREFIX)/hpipm/include
-	cp -f ./include/*.h $(PREFIX)/hpipm/include/
-
-install_shared:
-	mkdir -p $(PREFIX)/hpipm
-	mkdir -p $(PREFIX)/hpipm/lib
-	cp -f libhpipm.so $(PREFIX)/hpipm/lib/
-	mkdir -p $(PREFIX)/hpipm/include
-	cp -f ./include/*.h $(PREFIX)/hpipm/include/
-
-test_problem:
-	cp libhpipm.a ./test_problems/libhpipm.a
-	make -C test_problems obj
-	@echo
-	@echo " Test problem build complete."
-	@echo
-
-run:
-	./test_problems/test.out
+obj: $(OBJS)
 
 clean:
-	rm -f libhpipm.a
-	rm -f libhpipm.so
-	rm -f ./lib/libhpipm.a
-	rm -f ./lib/libhpipm.so
-	make -C auxiliary clean
-	make -C dense_kkt clean
-	make -C ocp_kkt clean
-	make -C ipm clean
-	make -C test_problems clean
-
+	rm -f *.o
+	rm -f *.s
