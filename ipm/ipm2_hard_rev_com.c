@@ -27,116 +27,49 @@
 
 
 
-#include <blasfeo_target.h>
-#include <blasfeo_common.h>
-#include <blasfeo_d_aux.h>
-#include <blasfeo_d_blas.h>
+#define IPMCORE_WAITING 0
+#define IPMCORE_MEMSIZE 1
+#define IPMCORE_MEMPART 2
 
 
 
-void d_update_hessian_gradient_res_hard(struct ipm2_hard_revcom_workspace *workspace);
+void d_ipm2_hard_revcom(struct ipm2_hard_revcom_workspace *workspace)
 	{
 
 	// extract workspace members
-	int nb = workspace->nb;
-	int ng = workspace->ng;
-	double *lam = workspace->lam;
-	double *t = workspace->t;
-	double *res_m = workspace->res_m;
-	double *res_d = workspace->res_d;
-	double *t_inv = workspace->t_inv;
-	double *Qx = workspace->Qx;
-	double *qx = workspace->qx;
+	int status = workspace->status;
 
 	// local variables
-	int nt = nb+ng;
-	int ii;
+	int it0;
 
-	for(ii=0; ii<nt; ii++)
+	switch(status)
 		{
-
-		t_inv[ii]     = 1.0/t[ii];
-		t_inv[ii+nt0] = 1.0/t[ii+nt0];
-		// TODO mask out unconstrained components for one-sided
-		Qx[ii] = t_inv[ii]*lam[ii] \
-		       + t_inv[ii+nt0]*lam[ii+nt0];
-		qx[ii] = t_inv[ii]*(res_m[ii]-lam[ii]*res_d[ii]) \
-		       - t_inv[ii+nt0]*(res_m[ii+nt0]+lam[ii+nt0]*res_d[ii+nt0]);
-
+		case IPMCORE_MEMSIZE:	goto memsize;
+		case IPMCORE_MEMPART:	goto mempart;
+		case IPMCORE_WAITING:	goto waiting;
 		}
+
+
+
+	/* compute memory size of work space */
+memsize:
+	
+	it0 = 0;
+
+	workspace->memsize = it0;
+
+	return;
+
+
+
+mempart:
+	
+	return;
+
+
+
+waiting:
 	
 	return;
 
 	}
-
-
-
-void d_compute_alpha_res_hard(struct ipm2_hard_revcom_workspace *workspace);
-	{
-	
-	// extract workspace members
-	int nb = workspace->nb;
-	int ng = workspace->ng;
-	double *lam = workspace->lam;
-	double *t = workspace->t;
-	double *dv = workspace->dv;
-	double *dlam = workspace->dlam;
-	double *dt = workspace->dt;
-	double *res_d = workspace->res_d;
-	double *t_inv = workspace->t_inv;
-	double *Dv = workspace->Dv;
-	double alpha = workspace->alpha;
-	
-	// local variables
-	int nt = nb+ng;
-	int ii;
-
-	// box constraints // TODO dvecex_sp_libstr
-	for(ii=0; ii<nb; ii++)
-		dt[ii] = dv[idxb[ii]];
-
-	// general constraints TODO call back for that
-//	dgemv_t_libstr(nx0+nu0, ng0, 1.0, &hsDCt[jj], 0, 0, &hsdux[jj], 0, 0.0, &hsdt[jj], nb0, &hsdt[jj], nb0);
-	for(ii=0; ii<ng; ii++)
-		dt_lg[ii] = Dv[ii];
-
-	for(ii=0; ii<nt; ii++)
-		{
-
-		dt[ii+nt0] = - dt[ii];
-
-		dt[ii+0]   -= res_d[ii+0];
-		dt[ii+nt0] += res_d[ii+nt0];
-
-		dlam[ii+0]   = - t_inv[ii+0]   * ( lam[ii+0]*dt[ii+0]     + res_m[ii+0] );
-		dlam[ii+nt0] = - t_inv[ii+nt0] * ( lam[ii+nt0]*dt[ii+nt0] + res_m[ii+nt0] );
-
-		if( -alpha*dlam[ii+0]>lam[ii+0] )
-			{
-			alpha = - lam[ii+0] / dlam[ii+0];
-			}
-		if( -alpha*dlam[ii+nt0]>lam[ii+nt0] )
-			{
-			alpha = - lam[ii+nt0] / dlam[ii+nt0];
-			}
-		if( -alpha*dt[ii+0]>t[ii+0] )
-			{
-			alpha = - t[ii+0] / dt[ii+0];
-			}
-		if( -alpha*dt[ii+nt0]>t[ii+nt0] )
-			{
-			alpha = - t[ii+nt0] / dt[ii+nt0];
-			}
-
-		}
-
-	// store alpha
-	workspace->alpha = alpha;
-
-	return;
-	
-	}
-
-
-
-
