@@ -27,42 +27,55 @@
 
 
 
-
-#if defined(RUNTIME_CHECKS)
-#include <stdlib.h>
-#endif
-
 #include <blasfeo_target.h>
 #include <blasfeo_common.h>
-#include <blasfeo_s_aux.h>
-
-#include "../include/hpipm_s_dense_qp.h"
-
-
-#define CREATE_STRMAT s_create_strmat
-#define CREATE_STRVEC s_create_strvec
-#define DENSE_QP_DIM s_dense_qp_dim
-#define DENSE_QP_VEC s_dense_qp_vec
-#define DENSE_QP_MAT s_dense_qp_mat
-#define DENSE_QP s_dense_qp
-#define GECP_LIBSTR sgecp_libstr
-#define SIZE_STRMAT s_size_strmat
-#define SIZE_STRVEC s_size_strvec
-#define STRMAT s_strmat
-#define STRVEC s_strvec
-#define VECCP_LIBSTR sveccp_libstr
-
-#define MEMSIZE_DENSE_QP s_memsize_dense_qp
-#define CREATE_DENSE_QP s_create_dense_qp
-#define INIT_DENSE_QP_DIM s_init_dense_qp_dim
-#define INIT_DENSE_QP_VEC s_init_dense_qp_vec
-#define INIT_DENSE_QP_MAT s_init_dense_qp_mat
-#define INIT_DENSE_QP s_init_dense_qp
-#define CAST_DENSE_QP_DIM s_cast_dense_qp_dim
-//#define CREATE_DENSE_QP s_create_dense_qp
-//#define COPY_DENSE_QP s_copy_dense_qp
 
 
 
-#include "x_aux_dense_qp.c"
+struct d_ipm2_hard_dense_qp_workspace
+	{
+	struct d_ipm2_hard_revcom_qp_workspace *revcom_workspace;
+	struct d_strvec *d; // constraint
+	struct d_strvec *d_lb; // lower box constraint
+	struct d_strvec *d_ub; // upper box constraint
+	struct d_strvec *d_lg; // lower general constraint
+	struct d_strvec *d_ug; // upper general constraint
+	struct d_strvec *v; // primal variables
+	struct d_strvec *pi; // equality constraints multipliers
+	struct d_strvec *lam; // inequality constraints multipliers
+	struct d_strvec *lam_lb; // inequality constraints multipliers, lower box constraint
+	struct d_strvec *lam_ub; // inequality constraints multipliers, upper box constraint
+	struct d_strvec *lam_lg; // inequality constraints multipliers, lower general constraint
+	struct d_strvec *lam_ug; // inequality constraints multipliers, upper general constraint
+	struct d_strvec *t; // inequality constraints slacks
+	struct d_strvec *t_lb; // inequality constraints slacks, lower box constraint
+	struct d_strvec *t_ub; // inequality constraints slacks, upper box constraint
+	struct d_strvec *t_lg; // inequality constraints slacks, lower general constraint
+	struct d_strvec *t_ug; // inequality constraints slacks, upper general constraint
+	struct d_strvec *dv; // step in v
+	struct d_strvec *dpi; // step in pi
+	struct d_strvec *dlam; // step in lam
+	struct d_strvec *dt; // step in t
+	struct d_strvec *res_q; // q-residuals
+	struct d_strvec *res_b; // b-residuals
+	struct d_strvec *res_d; // d-residuals
+	struct d_strvec *res_m; // m-residuals
+	struct d_strvec *Dv; // holds the product D*v
+	};
 
+
+
+struct d_ipm2_hard_dense_qp_arg
+	{
+	double alpha_min; // exit cond on step length
+	double mu_max; // exit cond on duality measure
+	double mu0; // initial value for duality measure
+	int iter_max; // exit cond in iter number
+	};
+
+
+
+//
+int d_memsize_ipm2_hard_dense_qp(struct d_dense_qp *qp, struct d_ipm2_hard_dense_qp_arg *arg);
+//
+void d_create_ipm2_hard_dense_qp(struct d_dense_qp *qp, struct d_ipm2_hard_dense_qp_arg *arg, struct d_ipm2_hard_dense_qp_workspace *workspace, void *mem);

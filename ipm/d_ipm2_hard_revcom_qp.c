@@ -27,12 +27,135 @@
 
 
 
-#include "../include/hpipm_d_ipm2_hard_revcom.h"
+#include "../include/hpipm_d_ipm2_hard_revcom_qp.h"
 #include "../include/hpipm_d_aux_ipm_hard.h"
 
 
 
-void d_ipm2_hard_revcom(struct d_ipm2_hard_revcom_workspace *workspace)
+int d_memsize_ipm2_hard_revcom_qp(int nv, int ne, int nb, int ng, int iter_max)
+	{
+
+	int size;
+
+	int nv0 = nv;
+	int ne0 = ne;
+	int nb0 = nb;
+	int ng0 = ng;
+// if target avx
+// nv0 = ...
+
+	size = 0;
+
+	size += 3*nv0*sizeof(double); // v dv res_q
+	size += 3*ne0*sizeof(double); // pi dpi res_b
+	size += 7*(2*nb0+2*ng0)*sizeof(double); // d lam t dlam dt res_d res_m
+	size += 2*nb0*sizeof(double); // Qx qx
+	size += ng0*sizeof(double); // Dv
+	size += 5*iter_max*sizeof(double); // conv_stat
+	size += nb*sizeof(int); // idxb
+
+	size = (size+63)/64*64; // make multiple of cache line size
+
+	return size;
+
+	}
+
+
+
+void d_create_ipm2_hard_revcom_qp(struct d_ipm2_hard_revcom_qp_workspace *workspace, void *mem)
+	{
+
+	int nv = workspace->nv;
+	int ne = workspace->ne;
+	int nb = workspace->nb;
+	int ng = workspace->ng;
+
+	int nv0 = nv;
+	int ne0 = ne;
+	int nb0 = nb;
+	int ng0 = ng;
+// if target avx
+// nv0 = ...
+
+	workspace->memsize = d_memsize_ipm2_hard_revcom_qp(nv, ne, nb, ng, workspace->iter_max);
+
+	double *d_ptr = (double *) mem;
+
+	workspace->d = d_ptr; // d
+	workspace->d_lb = d_ptr; // d_lb
+	workspace->d_lg = d_ptr+nb0; // d_lg
+	workspace->d_ub = d_ptr+nb0+ng0; // d_ub
+	workspace->d_ug = d_ptr+2*nb0+ng0; // d_ug
+	d_ptr += 2*nb0+2*ng0;
+
+	workspace->v = d_ptr; // v
+	d_ptr += nv0;
+
+	workspace->pi = d_ptr; // pi
+	d_ptr += ne0;
+
+	workspace->lam = d_ptr; // lam
+	workspace->lam_lb = d_ptr; // lam_lb
+	workspace->lam_lg = d_ptr+nb0; // lam_lg
+	workspace->lam_ub = d_ptr+nb0+ng0; // lam_ub
+	workspace->lam_ug = d_ptr+2*nb0+ng0; // lam_ug
+	d_ptr += 2*nb0+2*ng0;
+
+	workspace->t = d_ptr; // t
+	workspace->t_lb = d_ptr; // t_lb
+	workspace->t_lg = d_ptr+nb0; // t_lg
+	workspace->t_ub = d_ptr+nb0+ng0; // t_ub
+	workspace->t_ug = d_ptr+2*nb0+ng0; // t_ug
+	d_ptr += 2*nb0+2*ng0;
+
+	workspace->dv = d_ptr; // dv
+	d_ptr += nv0;
+
+	workspace->dpi = d_ptr; // dpi
+	d_ptr += ne0;
+
+	workspace->dlam = d_ptr; // dlam
+	d_ptr += 2*nb0+2*ng0;
+
+	workspace->dt = d_ptr; // dt
+	d_ptr += 2*nb0+2*ng0;
+
+	workspace->res_q = d_ptr; // res_q
+	d_ptr += nv0;
+
+	workspace->res_b = d_ptr; // res_b
+	d_ptr += ne0;
+
+	workspace->res_d = d_ptr; // res_d
+	d_ptr += 2*nb0+2*ng0;
+
+	workspace->res_m = d_ptr; // res_m
+	d_ptr += 2*nb0+2*ng0;
+
+	workspace->Qx = d_ptr; // Qx
+	d_ptr += nb0;
+
+	workspace->qx = d_ptr; // qx
+	d_ptr += nb0;
+
+	workspace->Dv = d_ptr; // Dv
+	d_ptr += ng0;
+
+	workspace->conv_stat = d_ptr; // conv_stat
+	d_ptr += 5*workspace->iter_max;
+
+	int *i_ptr = (int *) d_ptr;
+
+	workspace->idxb = i_ptr; // idxb
+	i_ptr += nb;
+
+	return;
+
+	}
+
+
+
+void d_ipm2_hard_revcom_qp(struct d_ipm2_hard_revcom_qp_workspace *workspace)
 	{
 
 	int status, entry;
@@ -41,119 +164,33 @@ void d_ipm2_hard_revcom(struct d_ipm2_hard_revcom_workspace *workspace)
 	double *dptr;
 	int *iptr;
 
-	status = workspace->status;
 
-	switch(status)
-		{
-		case IPMCORE_MEMSIZE:	goto memsize;
-		case IPMCORE_MEMPART:	goto mempart;
-		case IPMCORE_INIT	:	goto init;
-		case IPMCORE_WAITING:	goto waiting;
-		}
-	workspace->status = IPMCORE_ERROR;
-	return;
+
+	workspace->status = IPMCORE_WAITING;
 
 
 
-	/* compute memory size of work space */
-memsize:
-	
-	nb = workspace->nb;
-	nv0 = workspace->nv;
-	ne0 = workspace->ne;
-	nb0 = workspace->nb;
-	ng0 = workspace->ng;
-// if target avx
-// nv0 = ...
-
-	it0 = 0;
-
-	it0 += 3*nv0*sizeof(double); // v dv res_q
-	it0 += 3*ne0*sizeof(double); // pi dpi res_b
-	it0 += 6*(2*nb0+2*ng0)*sizeof(double); // lam t dlam dt res_d res_m
-	it0 += 2*nb0*sizeof(double); // Qx qx
-	it0 += ng0*sizeof(double); // Dv
-	it0 += 5*workspace->iter_max*sizeof(double); // conv_stat
-	it0 += nb*sizeof(int); // idxb
-
-// make multiple of cache line size?
-
-	workspace->memsize = it0;
-
-	return;
-
-
-
-	/* partition workspace memory */
-mempart:
-	
-	nb = workspace->nb;
-	nv0 = workspace->nv;
-	ne0 = workspace->ne;
-	nb0 = workspace->nb;
-	ng0 = workspace->ng;
-// if target avx
-// nv0 = ...
-
-	dptr = (double *) workspace->mem;
-	workspace->v = dptr; // v
-	dptr += nv0;
-	workspace->pi = dptr; // pi
-	dptr += ne0;
-	workspace->lam = dptr; // lam
-	dptr += 2*nb0+2*ng0;
-	workspace->t = dptr; // t
-	dptr += 2*nb0+2*ng0;
-	workspace->dv = dptr; // dv
-	dptr += nv0;
-	workspace->dpi = dptr; // dpi
-	dptr += ne0;
-	workspace->dlam = dptr; // dlam
-	dptr += 2*nb0+2*ng0;
-	workspace->dt = dptr; // dt
-	dptr += 2*nb0+2*ng0;
-	workspace->res_q = dptr; // res_q
-	dptr += nv0;
-	workspace->res_b = dptr; // res_b
-	dptr += ne0;
-	workspace->res_d = dptr; // res_d
-	dptr += 2*nb0+2*ng0;
-	workspace->res_m = dptr; // res_m
-	dptr += 2*nb0+2*ng0;
-	workspace->Qx = dptr; // Qx
-	dptr += nb0;
-	workspace->qx = dptr; // qx
-	dptr += nb0;
-	workspace->Dv = dptr; // Dv
-	dptr += ng0;
-	workspace->conv_stat = dptr; // conv_stat
-	dptr += 5*workspace->iter_max;
-	iptr = (int *) dptr;
-	workspace->idxb = iptr; // idxb
-	iptr += nb;
-
-	return;
-
-
-
-init:
-	
-	workspace->sigma = 0.0;
-
-	return;
-
-
-
-waiting:
-	
 	entry = workspace->entry;
 
 	switch(entry)
 		{
+		case INIT_RES:	goto init_res;
 		case ITER_RES:	goto iter_res;
 		case ALPHA_RES:	goto alpha_res;
 		case EXIT_RES:	goto exit_res;
 		}
+	workspace->status = IPMCORE_ERROR;
+
+	return;
+
+
+
+	/* initialize */
+init_res:
+	
+	d_init_var_hard(workspace);
+
+//	workspace->sigma = 10.0; // XXX
 
 	return;
 

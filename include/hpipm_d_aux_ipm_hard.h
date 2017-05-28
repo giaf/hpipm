@@ -26,8 +26,10 @@
 **************************************************************************************************/
 
 //
-void d_update_hessian_gradient_res_hard(struct d_ipm2_hard_revcom_workspace *workspace);
+void d_init_var_hard(struct d_ipm2_hard_revcom_qp_workspace *workspace);
 //
-void d_compute_alpha_res_hard(struct d_ipm2_hard_revcom_workspace *workspace);
+void d_update_hessian_gradient_res_hard(struct d_ipm2_hard_revcom_qp_workspace *workspace);
 //
-void d_update_var_res_hard(struct d_ipm2_hard_revcom_workspace *workspace);
+void d_compute_alpha_res_hard(struct d_ipm2_hard_revcom_qp_workspace *workspace);
+//
+void d_update_var_res_hard(struct d_ipm2_hard_revcom_qp_workspace *workspace);

@@ -38,11 +38,11 @@ struct d_dense_qp
 	struct d_strmat *A; // dynamics matrix
 	struct d_strmat *Ct; // constraints matrix
 	struct d_strvec *g; // gradient
-	struct d_strvec *be; // dynamics vector
-	struct d_strvec *lb; // lower bound
-	struct d_strvec *ub; // upper bound
-	struct d_strvec *lg; // lower constraint
-	struct d_strvec *ug; // upper constraint
+	struct d_strvec *b; // dynamics vector
+	struct d_strvec *d_lb; // lower bound
+	struct d_strvec *d_ub; // upper bound
+	struct d_strvec *d_lg; // lower constraint
+	struct d_strvec *d_ug; // upper constraint
 	int *idxb; // index of box constraints
 	int nv; // number of variables
 	int ne; // number of equality constraints
@@ -54,10 +54,10 @@ struct d_dense_qp
 
 
 //
-int d_size_dense_qp(int nv, int ne, int nb, int ng);
+int d_memsize_dense_qp(int nv, int ne, int nb, int ng);
 //
 void d_create_dense_qp(int nv, int ne, int nb, int ng, struct d_dense_qp *qp, void *memory);
 //
-void d_init_dense_qp(struct d_strmat *H, struct d_strmat *A, struct d_strmat *C, struct d_strvec *g, struct d_strvec *be, struct d_strvec *lb, struct d_strvec *ub, struct d_strvec *lg, struct d_strvec *ug, int *idxb, struct d_dense_qp *qp);
+void d_init_dense_qp(struct d_strmat *H, struct d_strmat *A, struct d_strmat *C, struct d_strvec *g, struct d_strvec *b, struct d_strvec *d_lb, struct d_strvec *d_ub, struct d_strvec *d_lg, struct d_strvec *d_ug, int *idxb, struct d_dense_qp *qp);
 //
 

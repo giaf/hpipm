@@ -32,11 +32,93 @@
 #include <blasfeo_d_aux.h>
 #include <blasfeo_d_blas.h>
 
-#include "../include/hpipm_d_ipm2_hard_revcom.h"
+#include "../include/hpipm_d_ipm2_hard_revcom_qp.h"
 
 
 
-void d_update_hessian_gradient_res_hard(struct d_ipm2_hard_revcom_workspace *workspace)
+void d_init_var_hard(struct d_ipm2_hard_revcom_qp_workspace *workspace)
+	{
+
+	// extract workspace members
+	double *d_lb = workspace->d_lb;
+	double *d_ub = workspace->d_ub;
+	double *v = workspace->v;
+	double *pi = workspace->pi;
+	double *lam_lb = workspace->lam_lb;
+	double *lam_ub = workspace->lam_ub;
+	double *lam_lg = workspace->lam_lg;
+	double *lam_ug = workspace->lam_ug;
+	double *t_lb = workspace->t_lb;
+	double *t_ub = workspace->t_ub;
+	double *t_lg = workspace->t_lg;
+	double *t_ug = workspace->t_ug;
+	int *idxb = workspace->idxb;
+	double mu0 = workspace->mu0;
+	int nv = workspace->nv;
+	int ne = workspace->ne;
+	int nb = workspace->nb;
+	int ng = workspace->ng;
+
+	// local variables
+	int ii;
+	int idxb0;
+	double thr0 = 0.1;
+
+	// cold start
+
+	for(ii=0; ii<nv; ii++)
+		{
+		v[ii] = 0.0;
+		}
+	
+	for(ii=0; ii<ne; ii++)
+		{
+		pi[ii] = 0.0;
+		}
+	
+	for(ii=0; ii<nb; ii++)
+		{
+		idxb0 = idxb[ii];
+		t_lb[ii] = - d_lb[ii] + v[idxb0];
+		t_ub[ii] =   d_ub[ii] - v[idxb0];
+		if(t_lb[ii]<thr0)
+			{
+			if(t_ub[ii]<thr0)
+				{
+				v[idxb0] = 0.5*(d_lb[ii] - d_ub[ii]);
+				t_lb[ii] = thr0;
+				t_ub[ii] = thr0;
+				}
+			else
+				{
+				t_lb[ii] = thr0;
+				v[idxb0] = d_lb[ii] + thr0;
+				}
+			}
+		else if(t_ub[ii]<thr0)
+			{
+			t_ub[ii] = thr0;
+			v[idxb0] = d_ub[ii] - thr0;
+			}
+		lam_lb[ii] = mu0/t_lb[ii];
+		lam_ub[ii] = mu0/t_ub[ii];
+		}
+	
+	for(ii=0; ii<ng; ii++)
+		{
+		t_lg[ii] = 1.0;
+		t_ug[ii] = 1.0;
+		lam_lg[ii] = mu0/t_lg[ii];
+		lam_ug[ii] = mu0/t_ug[ii];
+		}
+
+	return;
+
+	}
+
+
+
+void d_update_hessian_gradient_res_hard(struct d_ipm2_hard_revcom_qp_workspace *workspace)
 	{
 
 	// extract workspace members
@@ -73,7 +155,7 @@ void d_update_hessian_gradient_res_hard(struct d_ipm2_hard_revcom_workspace *wor
 
 
 
-void d_compute_alpha_res_hard(struct d_ipm2_hard_revcom_workspace *workspace)
+void d_compute_alpha_res_hard(struct d_ipm2_hard_revcom_qp_workspace *workspace)
 	{
 	
 	// extract workspace members
@@ -145,7 +227,7 @@ void d_compute_alpha_res_hard(struct d_ipm2_hard_revcom_workspace *workspace)
 
 
 
-void d_update_var_res_hard(struct d_ipm2_hard_revcom_workspace *workspace)
+void d_update_var_res_hard(struct d_ipm2_hard_revcom_qp_workspace *workspace)
 	{
 	
 	// extract workspace members

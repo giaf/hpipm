@@ -51,7 +51,7 @@
 #define STRVEC d_strvec
 #define VECCP_LIBSTR dveccp_libstr
 
-#define SIZE_DENSE_QP d_size_dense_qp
+#define MEMSIZE_DENSE_QP d_memsize_dense_qp
 #define CREATE_DENSE_QP d_create_dense_qp
 #define INIT_DENSE_QP_DIM d_init_dense_qp_dim
 #define INIT_DENSE_QP_VEC d_init_dense_qp_vec
