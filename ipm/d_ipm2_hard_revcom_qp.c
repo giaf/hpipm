@@ -48,7 +48,7 @@ int d_memsize_ipm2_hard_revcom_qp(int nv, int ne, int nb, int ng, int iter_max)
 
 	size += 3*nv0*sizeof(double); // v dv res_g
 	size += 3*ne0*sizeof(double); // pi dpi res_b
-	size += 6*(2*nb0+2*ng0)*sizeof(double); // lam t dlam dt res_d res_m
+	size += 7*(2*nb0+2*ng0)*sizeof(double); // lam t dlam dt res_d res_m t_inv
 	size += 2*nb0*sizeof(double); // Qx qx
 	size += ng0*sizeof(double); // Dv
 	size += 5*iter_max*sizeof(double); // conv_stat
@@ -127,6 +127,9 @@ void d_create_ipm2_hard_revcom_qp(struct d_ipm2_hard_revcom_qp_workspace *worksp
 	d_ptr += 2*nb0+2*ng0;
 
 	workspace->res_m = d_ptr; // res_m
+	d_ptr += 2*nb0+2*ng0;
+
+	workspace->t_inv = d_ptr; // t_inv
 	d_ptr += 2*nb0+2*ng0;
 
 	workspace->Qx = d_ptr; // Qx

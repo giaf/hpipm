@@ -42,9 +42,12 @@ int d_memsize_ipm2_hard_dense_qp(struct d_dense_qp *qp, struct d_ipm2_hard_dense
 
 	int size = 0;
 
-	size += 26*sizeof(struct d_strvec); // v pi lam lam_lb lam_ub lam_lg lam_ug t t_lb t_ub t_lg t_ug dv dpi dlam dt res_g res_b res_d res_d_lb res_d_ub res_d_lg res_d_ug res_m Dv tmp_nb
+	size += 29*sizeof(struct d_strvec); // v pi lam lam_lb lam_ub lam_lg lam_ug t t_lb t_ub t_lg t_ug dv dpi dlam dt res_g res_b res_d res_d_lb res_d_ub res_d_lg res_d_ug res_m Qx qx Dv l tmp_nb
+	size += 1*sizeof(struct d_strmat); // AL
 
 	size += d_size_strvec(qp->nb); // tmp_nb
+	size += d_size_strvec(qp->nv); // l
+	size += d_size_strmat(qp->nv+qp->ne, qp->nv); // AL
 
 	size += d_memsize_ipm2_hard_revcom_qp(qp->nv, qp->ne, qp->nb, qp->ng, arg->iter_max);
 
@@ -72,8 +75,15 @@ void d_create_ipm2_hard_dense_qp(struct d_dense_qp *qp, struct d_ipm2_hard_dense
 	struct d_ipm2_hard_revcom_qp_workspace *rwork = workspace->revcom_workspace;
 
 
+	// matrix struct
+	struct d_strmat *sm_ptr = (struct d_strmat *) sr_ptr;
+
+	workspace->AL = sm_ptr;
+	sm_ptr += 1;
+
+
 	// vector struct
-	struct d_strvec *sv_ptr = (struct d_strvec *) sr_ptr;
+	struct d_strvec *sv_ptr = (struct d_strvec *) sm_ptr;
 
 	workspace->v = sv_ptr;
 	sv_ptr += 1;
@@ -123,7 +133,13 @@ void d_create_ipm2_hard_dense_qp(struct d_dense_qp *qp, struct d_ipm2_hard_dense
 	sv_ptr += 1;
 	workspace->res_m = sv_ptr;
 	sv_ptr += 1;
+	workspace->Qx = sv_ptr;
+	sv_ptr += 1;
+	workspace->qx = sv_ptr;
+	sv_ptr += 1;
 	workspace->Dv = sv_ptr;
+	sv_ptr += 1;
+	workspace->l = sv_ptr;
 	sv_ptr += 1;
 	workspace->tmp_nb = sv_ptr;
 	sv_ptr += 1;
@@ -136,6 +152,12 @@ void d_create_ipm2_hard_dense_qp(struct d_dense_qp *qp, struct d_ipm2_hard_dense
 
 	// void stuf
 	void *v_ptr = (void *) l_ptr;
+
+	d_create_strmat(nv+ne, nv, workspace->AL, v_ptr);
+	v_ptr += workspace->AL->memory_size;
+
+	d_create_strvec(nv, workspace->l, v_ptr);
+	v_ptr += workspace->l->memory_size;
 
 	d_create_strvec(nb, workspace->tmp_nb, v_ptr);
 	v_ptr += workspace->tmp_nb->memory_size;
@@ -178,6 +200,8 @@ void d_create_ipm2_hard_dense_qp(struct d_dense_qp *qp, struct d_ipm2_hard_dense
 	d_create_strvec(ng, workspace->res_d_lg, rwork->res_d_lg);
 	d_create_strvec(ng, workspace->res_d_ug, rwork->res_d_ug);
 	d_create_strvec(2*nb+2*ng, workspace->res_m, rwork->res_m);
+	d_create_strvec(nb+ng, workspace->Qx, rwork->Qx);
+	d_create_strvec(nb+ng, workspace->qx, rwork->qx);
 	d_create_strvec(ng, workspace->Dv, rwork->Dv);
 
 
@@ -211,20 +235,24 @@ void d_solve_ipm2_hard_dense_qp(struct d_dense_qp *qp, struct d_ipm2_hard_dense_
 	d_ipm2_hard_revcom_qp(rwork);
 
 	// XXX hard-code solution for debug
-	workspace->v->pa[0] = 0.25;
-	workspace->v->pa[1] = 0.75;
-	workspace->pi->pa[0] = 2.75;
-	workspace->lam_lb->pa[0] = 0.0;
-	workspace->lam_lb->pa[1] = 0.0;
-	workspace->lam_ub->pa[0] = 0.0;
-	workspace->lam_ub->pa[1] = 0.0;
-	workspace->t_lb->pa[0] = 1.25;
-	workspace->t_lb->pa[1] = 1.75;
-	workspace->t_ub->pa[0] = 1.75;
-	workspace->t_ub->pa[1] = 1.25;
+//	workspace->v->pa[0] = 0.25;
+//	workspace->v->pa[1] = 0.75;
+//	workspace->pi->pa[0] = 2.75;
+//	workspace->lam_lb->pa[0] = 0.0;
+//	workspace->lam_lb->pa[1] = 0.0;
+//	workspace->lam_ub->pa[0] = 0.0;
+//	workspace->lam_ub->pa[1] = 0.0;
+//	workspace->t_lb->pa[0] = 1.25;
+//	workspace->t_lb->pa[1] = 1.75;
+//	workspace->t_ub->pa[0] = 1.75;
+//	workspace->t_ub->pa[1] = 1.25;
 
 	// compute residuals
 	d_compute_res_dense_qp(qp, workspace);
+	rwork->mu = workspace->res_mu;
+
+	// fact and solve kkt
+	d_fact_solve_kkt_step_dense_qp(qp, workspace);
 
 	return;
 
