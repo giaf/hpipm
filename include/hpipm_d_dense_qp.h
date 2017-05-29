@@ -39,10 +39,11 @@ struct d_dense_qp
 	struct d_strmat *Ct; // constraints matrix
 	struct d_strvec *g; // gradient
 	struct d_strvec *b; // dynamics vector
-	struct d_strvec *d_lb; // lower bound
-	struct d_strvec *d_ub; // upper bound
-	struct d_strvec *d_lg; // lower constraint
-	struct d_strvec *d_ug; // upper constraint
+	struct d_strvec *d; // constraint
+	struct d_strvec *d_lb; // lower box constraint
+	struct d_strvec *d_ub; // upper box constraint
+	struct d_strvec *d_lg; // lower general constraint
+	struct d_strvec *d_ug; // upper general constraint
 	int *idxb; // index of box constraints
 	int nv; // number of variables
 	int ne; // number of equality constraints

@@ -46,6 +46,7 @@
 #define DENSE_QP_MAT s_dense_qp_mat
 #define DENSE_QP s_dense_qp
 #define GECP_LIBSTR sgecp_libstr
+#define REAL float
 #define SIZE_STRMAT s_size_strmat
 #define SIZE_STRVEC s_size_strvec
 #define STRMAT s_strmat

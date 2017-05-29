@@ -134,6 +134,7 @@ int main()
 	d_print_strmat(nv, ng, qp.Ct, 0, 0);
 	d_print_strvec(nv, qp.g, 0);
 	d_print_strvec(ne, qp.b, 0);
+	d_print_strvec(2*nb+2*ng, qp.d, 0);
 	d_print_strvec(nb, qp.d_lb, 0);
 	d_print_strvec(nb, qp.d_ub, 0);
 	d_print_strvec(ng, qp.d_lg, 0);
@@ -159,10 +160,19 @@ int main()
 	d_solve_ipm2_hard_dense_qp(&qp, &workspace);
 
 	printf("\n%f\n\n", workspace.revcom_workspace->sigma);
+
+	printf("\nsolution\n\n");
 	d_print_strvec(nv, workspace.v, 0);
 	d_print_strvec(ne, workspace.pi, 0);
 	d_print_strvec(2*nb+2*ng, workspace.lam, 0);
 	d_print_strvec(2*nb+2*ng, workspace.t, 0);
+
+	printf("\nresiduals\n\n");
+	d_print_strvec(nv, workspace.res_g, 0);
+	d_print_strvec(ne, workspace.res_b, 0);
+	d_print_strvec(2*nb+2*ng, workspace.res_d, 0);
+	d_print_strvec(2*nb+2*ng, workspace.res_m, 0);
+	printf("\n%f\n\n", workspace.res_mu);
 
 /************************************************
 * free memory

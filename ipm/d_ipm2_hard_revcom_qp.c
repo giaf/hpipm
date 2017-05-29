@@ -46,9 +46,9 @@ int d_memsize_ipm2_hard_revcom_qp(int nv, int ne, int nb, int ng, int iter_max)
 
 	size = 0;
 
-	size += 3*nv0*sizeof(double); // v dv res_q
+	size += 3*nv0*sizeof(double); // v dv res_g
 	size += 3*ne0*sizeof(double); // pi dpi res_b
-	size += 7*(2*nb0+2*ng0)*sizeof(double); // d lam t dlam dt res_d res_m
+	size += 6*(2*nb0+2*ng0)*sizeof(double); // lam t dlam dt res_d res_m
 	size += 2*nb0*sizeof(double); // Qx qx
 	size += ng0*sizeof(double); // Dv
 	size += 5*iter_max*sizeof(double); // conv_stat
@@ -74,19 +74,12 @@ void d_create_ipm2_hard_revcom_qp(struct d_ipm2_hard_revcom_qp_workspace *worksp
 	int ne0 = ne;
 	int nb0 = nb;
 	int ng0 = ng;
-// if target avx
+// if target avx NO!!!!
 // nv0 = ...
 
 	workspace->memsize = d_memsize_ipm2_hard_revcom_qp(nv, ne, nb, ng, workspace->iter_max);
 
 	double *d_ptr = (double *) mem;
-
-	workspace->d = d_ptr; // d
-	workspace->d_lb = d_ptr; // d_lb
-	workspace->d_lg = d_ptr+nb0; // d_lg
-	workspace->d_ub = d_ptr+nb0+ng0; // d_ub
-	workspace->d_ug = d_ptr+2*nb0+ng0; // d_ug
-	d_ptr += 2*nb0+2*ng0;
 
 	workspace->v = d_ptr; // v
 	d_ptr += nv0;
@@ -120,13 +113,17 @@ void d_create_ipm2_hard_revcom_qp(struct d_ipm2_hard_revcom_qp_workspace *worksp
 	workspace->dt = d_ptr; // dt
 	d_ptr += 2*nb0+2*ng0;
 
-	workspace->res_q = d_ptr; // res_q
+	workspace->res_g = d_ptr; // res_g
 	d_ptr += nv0;
 
 	workspace->res_b = d_ptr; // res_b
 	d_ptr += ne0;
 
 	workspace->res_d = d_ptr; // res_d
+	workspace->res_d_lb = d_ptr;
+	workspace->res_d_lg = d_ptr+nb0;
+	workspace->res_d_ub = d_ptr+nb0+ng0;
+	workspace->res_d_ug = d_ptr+2*nb0+ng0;
 	d_ptr += 2*nb0+2*ng0;
 
 	workspace->res_m = d_ptr; // res_m

@@ -71,9 +71,13 @@ struct d_ipm2_hard_revcom_qp_workspace
 	double *dt_ub; // step in t_ub
 	double *dt_lg; // step in t_lg
 	double *dt_ug; // step in t_ug
-	double *res_q; // q-residuals
+	double *res_g; // q-residuals
 	double *res_b; // b-residuals
 	double *res_d; // d-residuals
+	double *res_d_lb; // d-residuals
+	double *res_d_ub; // d-residuals
+	double *res_d_lg; // d-residuals
+	double *res_d_ug; // d-residuals
 	double *res_m; // m-residuals
 	double *Qx; // Hessian update
 	double *qx; // gradient update

@@ -29,55 +29,55 @@
 
 #include <blasfeo_target.h>
 #include <blasfeo_common.h>
+#include <blasfeo_d_aux.h>
+#include <blasfeo_d_blas.h>
+
+#include "../include/hpipm_d_dense_qp.h"
+#include "../include/hpipm_d_ipm2_hard_dense_qp.h"
 
 
 
-struct d_ipm2_hard_dense_qp_workspace
+void d_compute_res_dense_qp(struct d_dense_qp *qp, struct d_ipm2_hard_dense_qp_workspace *workspace)
 	{
-	struct d_ipm2_hard_revcom_qp_workspace *revcom_workspace;
-	struct d_strvec *v; // primal variables
-	struct d_strvec *pi; // equality constraints multipliers
-	struct d_strvec *lam; // inequality constraints multipliers
-	struct d_strvec *lam_lb; // inequality constraints multipliers, lower box constraint
-	struct d_strvec *lam_ub; // inequality constraints multipliers, upper box constraint
-	struct d_strvec *lam_lg; // inequality constraints multipliers, lower general constraint
-	struct d_strvec *lam_ug; // inequality constraints multipliers, upper general constraint
-	struct d_strvec *t; // inequality constraints slacks
-	struct d_strvec *t_lb; // inequality constraints slacks, lower box constraint
-	struct d_strvec *t_ub; // inequality constraints slacks, upper box constraint
-	struct d_strvec *t_lg; // inequality constraints slacks, lower general constraint
-	struct d_strvec *t_ug; // inequality constraints slacks, upper general constraint
-	struct d_strvec *dv; // step in v
-	struct d_strvec *dpi; // step in pi
-	struct d_strvec *dlam; // step in lam
-	struct d_strvec *dt; // step in t
-	struct d_strvec *res_g; // q-residuals
-	struct d_strvec *res_b; // b-residuals
-	struct d_strvec *res_d; // d-residuals
-	struct d_strvec *res_d_lb; // d-residuals
-	struct d_strvec *res_d_ub; // d-residuals
-	struct d_strvec *res_d_lg; // d-residuals
-	struct d_strvec *res_d_ug; // d-residuals
-	struct d_strvec *res_m; // m-residuals
-	struct d_strvec *Dv; // holds the product D*v
-	struct d_strvec *tmp_nb; // work space of size nb
-	double nt_inv; // 1.0/nt, where nt is the total number of constraints
-	double res_mu; // mu-residual
-	};
+
+	int nv = qp->nv;
+	int ne = qp->ne;
+	int nb = qp->nb;
+	int ng = qp->ng;
+
+	double mu;
+
+	// res g
+	dsymv_l_libstr(nv, nv, 1.0, qp->H, 0, 0, workspace->v, 0, 1.0, qp->g, 0, workspace->res_g, 0);
+
+	if(nb>0)
+		{
+		// res_g
+		daxpy_libstr(nb, -1.0, workspace->lam_lb, 0, workspace->lam_ub, 0, workspace->tmp_nb, 0);
+		dvecad_sp_libstr(nb, 1.0, workspace->tmp_nb, 0, qp->idxb, workspace->res_g, 0);
+		// res_d
+		dvecex_sp_libstr(nb, -1.0, qp->idxb, workspace->v, 0, workspace->res_d_lb, 0);
+		dveccp_libstr(nb, workspace->res_d_lb, 0, workspace->res_d_ub, 0);
+		daxpy_libstr(nb, 1.0, qp->d_lb, 0, workspace->res_d_lb, 0, workspace->res_d_lb, 0);
+		daxpy_libstr(nb, 1.0, qp->d_ub, 0, workspace->res_d_ub, 0, workspace->res_d_ub, 0);
+		daxpy_libstr(nb, 1.0, workspace->t_lb, 0, workspace->res_d_lb, 0, workspace->res_d_lb, 0);
+		daxpy_libstr(nb, -1.0, workspace->t_ub, 0, workspace->res_d_ub, 0, workspace->res_d_ub, 0);
+		}
+
+	if(ng>0)
+		{
+		// TODO
+		}
+	
+	// res b, res g
+	dgemv_nt_libstr(ne, nv, -1.0, -1.0, qp->A, 0, 0, workspace->v, 0, workspace->pi, 0, 1.0, 1.0, qp->b, 0, workspace->res_g, 0, workspace->res_b, 0, workspace->res_g, 0);
+
+	// res_mu
+	mu = dvecmuldot_libstr(2*nb+2*ng, workspace->lam, 0, workspace->t, 0, workspace->res_m, 0);
+
+	workspace->res_mu = mu*workspace->nt_inv;
 
 
+	return;
 
-struct d_ipm2_hard_dense_qp_arg
-	{
-	double alpha_min; // exit cond on step length
-	double mu_max; // exit cond on duality measure
-	double mu0; // initial value for duality measure
-	int iter_max; // exit cond in iter number
-	};
-
-
-
-//
-int d_memsize_ipm2_hard_dense_qp(struct d_dense_qp *qp, struct d_ipm2_hard_dense_qp_arg *arg);
-//
-void d_create_ipm2_hard_dense_qp(struct d_dense_qp *qp, struct d_ipm2_hard_dense_qp_arg *arg, struct d_ipm2_hard_dense_qp_workspace *workspace, void *mem);
+	}

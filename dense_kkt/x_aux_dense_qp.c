@@ -32,13 +32,12 @@ int MEMSIZE_DENSE_QP(int nv, int ne, int nb, int ng)
 
 	int size = 0;
 
-	size += 6*sizeof(struct STRVEC); // g b lb ub lg ug
+	size += 7*sizeof(struct STRVEC); // g b d d_lb d_ub d_lg d_ug
 	size += 3*sizeof(struct STRMAT); // H A Ct
 
 	size += 1*SIZE_STRVEC(nv); // g
 	size += 1*SIZE_STRVEC(ne); // b
-	size += 2*SIZE_STRVEC(nb); // d_lb d_ub
-	size += 2*SIZE_STRVEC(ng); // d_lg d_ug
+	size += SIZE_STRVEC(2*nb+2*ng); // d
 	size += 1*nb*sizeof(int); // idxb
 
 	size += 1*SIZE_STRMAT(nv, nv); // H
@@ -83,6 +82,9 @@ void CREATE_DENSE_QP(int nv, int ne, int nb, int ng, struct DENSE_QP *qp, void *
 	sv_ptr += 1;
 
 	qp->b = sv_ptr;
+	sv_ptr += 1;
+
+	qp->d = sv_ptr;
 	sv_ptr += 1;
 
 	qp->d_lb = sv_ptr;
@@ -131,17 +133,12 @@ void CREATE_DENSE_QP(int nv, int ne, int nb, int ng, struct DENSE_QP *qp, void *
 	CREATE_STRVEC(ne, qp->b, v_ptr);
 	v_ptr += qp->b->memory_size;
 
-	CREATE_STRVEC(nb, qp->d_lb, v_ptr);
-	v_ptr += qp->d_lb->memory_size;
-
-	CREATE_STRVEC(nb, qp->d_ub, v_ptr);
-	v_ptr += qp->d_ub->memory_size;
-
-	CREATE_STRVEC(ng, qp->d_lg, v_ptr);
-	v_ptr += qp->d_lg->memory_size;
-
-	CREATE_STRVEC(ng, qp->d_ug, v_ptr);
-	v_ptr += qp->d_ug->memory_size;
+	CREATE_STRVEC(2*nb+2*ng, qp->d, v_ptr);
+	CREATE_STRVEC(nb, qp->d_lb, v_ptr+0*sizeof(REAL));
+	CREATE_STRVEC(ng, qp->d_lg, v_ptr+(nb)*sizeof(REAL));
+	CREATE_STRVEC(nb, qp->d_ub, v_ptr+(nb+ng)*sizeof(REAL));
+	CREATE_STRVEC(ng, qp->d_ug, v_ptr+(2*nb+ng)*sizeof(REAL));
+	v_ptr += qp->d->memory_size;
 
 	qp->mem_size = MEMSIZE_DENSE_QP(nv, ne, nb, ng);
 
