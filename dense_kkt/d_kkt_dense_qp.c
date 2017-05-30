@@ -158,8 +158,8 @@ void d_fact_solve_kkt_step_dense_qp(struct d_dense_qp *qp, struct d_ipm2_hard_de
 
 	if(nb>0)
 		{
-		ddiaad_libspstr(nb, qp->idxb, 1.0, ws->Qx, 0, ws->Lv, 0, 0);
-		dvecad_libspstr(nb, qp->idxb, 1.0, ws->qx, 0, ws->lv, 0);
+		ddiaad_sp_libstr(nb, 1.0, ws->Qx, 0, qp->idxb, ws->Lv, 0, 0);
+		dvecad_sp_libstr(nb, 1.0, ws->qx, 0, qp->idxb, ws->lv, 0);
 		}
 
 	dpotrf_l_libstr(nv, ws->Lv, 0, 0, ws->Lv, 0, 0);
