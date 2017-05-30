@@ -63,6 +63,10 @@ struct d_ipm2_hard_revcom_qp_workspace
 	double *t_ub; // upper box constraints slacks
 	double *t_ug; // upper general constraints slacks
 	double *t_inv; // inverse of t
+	double *t_inv_lb; // inverse of t
+	double *t_inv_ub; // inverse of t
+	double *t_inv_lg; // inverse of t
+	double *t_inv_ug; // inverse of t
 	double *dv; // step in v
 	double *dpi; // step in pi
 	double *dlam; // step in lam
@@ -79,11 +83,15 @@ struct d_ipm2_hard_revcom_qp_workspace
 	double *res_d_lg; // d-residuals
 	double *res_d_ug; // d-residuals
 	double *res_m; // m-residuals
+	double *res_m_lb; // m-residuals
+	double *res_m_ub; // m-residuals
+	double *res_m_lg; // m-residuals
+	double *res_m_ug; // m-residuals
 	double *Qx; // Hessian update
 	double *qx; // gradient update
 	double *Dv; // holds the product D*v
 	double *conv_stat; // convergence statistics
-	int *idxb; // index of box constraints
+	int *idxb; // index of box constraints XXX remove ???
 	double alpha; // step length
 	double alpha_min; // exit cond on step lenght
 	double sigma; // centering XXX

@@ -88,17 +88,24 @@ void d_create_ipm2_hard_revcom_qp(struct d_ipm2_hard_revcom_qp_workspace *worksp
 	d_ptr += ne0;
 
 	workspace->lam = d_ptr; // lam
-	workspace->lam_lb = d_ptr; // lam_lb
-	workspace->lam_lg = d_ptr+nb0; // lam_lg
-	workspace->lam_ub = d_ptr+nb0+ng0; // lam_ub
-	workspace->lam_ug = d_ptr+2*nb0+ng0; // lam_ug
+	workspace->lam_lb = d_ptr;
+	workspace->lam_lg = d_ptr+nb0;
+	workspace->lam_ub = d_ptr+nb0+ng0;
+	workspace->lam_ug = d_ptr+2*nb0+ng0;
 	d_ptr += 2*nb0+2*ng0;
 
 	workspace->t = d_ptr; // t
-	workspace->t_lb = d_ptr; // t_lb
-	workspace->t_lg = d_ptr+nb0; // t_lg
-	workspace->t_ub = d_ptr+nb0+ng0; // t_ub
-	workspace->t_ug = d_ptr+2*nb0+ng0; // t_ug
+	workspace->t_lb = d_ptr;
+	workspace->t_lg = d_ptr+nb0;
+	workspace->t_ub = d_ptr+nb0+ng0;
+	workspace->t_ug = d_ptr+2*nb0+ng0;
+	d_ptr += 2*nb0+2*ng0;
+
+	workspace->t_inv = d_ptr; // t_inv
+	workspace->t_inv_lb = d_ptr;
+	workspace->t_inv_lg = d_ptr+nb0;
+	workspace->t_inv_ub = d_ptr+nb0+ng0;
+	workspace->t_inv_ug = d_ptr+2*nb0+ng0;
 	d_ptr += 2*nb0+2*ng0;
 
 	workspace->dv = d_ptr; // dv
@@ -127,9 +134,10 @@ void d_create_ipm2_hard_revcom_qp(struct d_ipm2_hard_revcom_qp_workspace *worksp
 	d_ptr += 2*nb0+2*ng0;
 
 	workspace->res_m = d_ptr; // res_m
-	d_ptr += 2*nb0+2*ng0;
-
-	workspace->t_inv = d_ptr; // t_inv
+	workspace->res_m_lb = d_ptr;
+	workspace->res_m_lg = d_ptr+nb0;
+	workspace->res_m_ub = d_ptr+nb0+ng0;
+	workspace->res_m_ug = d_ptr+2*nb0+ng0;
 	d_ptr += 2*nb0+2*ng0;
 
 	workspace->Qx = d_ptr; // Qx

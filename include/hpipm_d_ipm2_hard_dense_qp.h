@@ -62,8 +62,11 @@ struct d_ipm2_hard_dense_qp_workspace
 	struct d_strvec *Qx; // hessian update
 	struct d_strvec *qx; // gradient update
 	struct d_strvec *Dv; // holds the product D*v
+	struct d_strmat *Lv; //
 	struct d_strmat *AL; //
-	struct d_strvec *l; //
+	struct d_strmat *Le; //
+	struct d_strvec *lv; //
+	struct d_strvec *le; //
 	struct d_strvec *tmp_nb; // work space of size nb
 	double nt_inv; // 1.0/nt, where nt is the total number of constraints
 	double res_mu; // mu-residual

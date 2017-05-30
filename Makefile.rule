@@ -70,7 +70,7 @@ CFLAGS  =
 CFLAGS += -O2 -fPIC
 
 # debugging flags
-#CFLAGS  += -g #-Wall -pedantic -Wfloat-equal #-pg
+CFLAGS  += -g #-Wall -pedantic -Wfloat-equal #-pg
 
 # search directories
 CFLAGS += -I$(BLASFEO_PATH)/include

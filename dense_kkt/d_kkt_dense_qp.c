@@ -94,11 +94,16 @@ void d_compute_Qx_qx_step_dense_qp(struct d_dense_qp *qp, struct d_ipm2_hard_den
 
 	struct d_ipm2_hard_revcom_qp_workspace *rws = ws->revcom_workspace;
 
-	double *lam = rws->lam;
-	double *t = rws->t;
-	double *res_m = rws->res_m;
-	double *res_d = rws->res_d;
-	double *t_inv = rws->t_inv;
+	double *lam_lb = rws->lam_lb;
+	double *lam_ub = rws->lam_ub;
+	double *t_lb = rws->t_lb;
+	double *t_ub = rws->t_ub;
+	double *res_m_lb = rws->res_m;
+	double *res_m_ub = rws->res_m;
+	double *res_d_lb = rws->res_d;
+	double *res_d_ub = rws->res_d;
+	double *t_inv_lb = rws->t_inv_lb;
+	double *t_inv_ub = rws->t_inv_ub;
 	double *Qx = rws->Qx;
 	double *qx = rws->qx;
 
@@ -109,13 +114,13 @@ void d_compute_Qx_qx_step_dense_qp(struct d_dense_qp *qp, struct d_ipm2_hard_den
 	for(ii=0; ii<nt; ii++)
 		{
 
-		t_inv[ii]    = 1.0/t[ii];
-		t_inv[ii+nt] = 1.0/t[ii+nt];
+		t_inv_lb[ii] = 1.0/t_lb[ii];
+		t_inv_ub[ii] = 1.0/t_ub[ii];
 		// TODO mask out unconstrained components for one-sided
-		Qx[ii] = t_inv[ii]*lam[ii] \
-		       + t_inv[ii+nt]*lam[ii+nt];
-		qx[ii] = t_inv[ii]*(res_m[ii]-lam[ii]*res_d[ii]) \
-		       - t_inv[ii+nt]*(res_m[ii+nt]+lam[ii+nt]*res_d[ii+nt]);
+		Qx[ii] = t_inv_lb[ii]*lam_lb[ii] \
+		       + t_inv_ub[ii]*lam_ub[ii];
+		qx[ii] = t_inv_lb[ii]*(res_m_lb[ii]-lam_lb[ii]*res_d_lb[ii]) \
+		       - t_inv_ub[ii]*(res_m_ub[ii]+lam_ub[ii]*res_d_ub[ii]);
 
 		}
 		return;
@@ -124,6 +129,16 @@ void d_compute_Qx_qx_step_dense_qp(struct d_dense_qp *qp, struct d_ipm2_hard_den
 
 
 
+void d_compute_lam_t_step_dense_qp(struct d_dense_qp *qp, struct d_ipm2_hard_dense_qp_workspace *ws)
+	{
+
+	return;
+
+	}
+
+
+
+// range-space (Schur complement) method
 void d_fact_solve_kkt_step_dense_qp(struct d_dense_qp *qp, struct d_ipm2_hard_dense_qp_workspace *ws)
 	{
 
@@ -132,27 +147,44 @@ void d_fact_solve_kkt_step_dense_qp(struct d_dense_qp *qp, struct d_ipm2_hard_de
 	int nb = qp->nb;
 	int ng = qp->ng;
 
-	d_compute_Qx_qx_step_dense_qp(qp, ws);
+	if(nb>0 | ng>0)
+		{
+		d_compute_Qx_qx_step_dense_qp(qp, ws);
+		}
 
-	dtrcp_l_libstr(nv, qp->H, 0, 0, ws->AL, 0, 0);
-	dgecp_libstr(ne, nv, qp->A, 0, 0, ws->AL, qp->nv, 0);
-	d_print_strmat(nv+ne, nv, ws->AL, 0, 0);
-	d_print_strvec(nb, ws->Qx, 0);
+	dtrcp_l_libstr(nv, qp->H, 0, 0, ws->Lv, 0, 0);
 
-	dveccp_libstr(nv, qp->g, 0, ws->l, 0);
-	d_print_strvec(nv, ws->l, 0);
-	d_print_strvec(nb, ws->qx, 0);
+	dveccp_libstr(nv, qp->g, 0, ws->lv, 0);
 
 	if(nb>0)
 		{
-		ddiaad_libspstr(nb, qp->idxb, 1.0, ws->Qx, 0, ws->AL, 0, 0);
-		dvecad_libspstr(nb, qp->idxb, 1.0, ws->qx, 0, ws->l, 0);
+		ddiaad_libspstr(nb, qp->idxb, 1.0, ws->Qx, 0, ws->Lv, 0, 0);
+		dvecad_libspstr(nb, qp->idxb, 1.0, ws->qx, 0, ws->lv, 0);
 		}
-	d_print_strmat(nv+ne, nv, ws->AL, 0, 0);
-	d_print_strvec(nv, ws->l, 0);
 
-	dpotrf_l_mn_libstr(nv+ne, nv, ws->AL, 0, 0, ws->AL, 0, 0);
-	d_print_strmat(nv+ne, nv, ws->AL, 0, 0);
+	dpotrf_l_libstr(nv, ws->Lv, 0, 0, ws->Lv, 0, 0);
+
+	dgecp_libstr(ne, nv, qp->A, 0, 0, ws->AL, 0, 0);
+	dtrsm_rltn_libstr(ne, nv, 1.0, ws->Lv, 0, 0, qp->A, 0, 0, ws->AL, 0, 0);
+
+	dgese_libstr(ne, ne, 0.0, ws->Le, 0, 0);
+	dsyrk_dpotrf_ln_libstr(ne, ne, nv, ws->AL, 0, 0, ws->AL, 0, 0, ws->Le, 0, 0, ws->Le, 0, 0);
+
+	dtrsv_lnn_libstr(nv, ws->Lv, 0, 0, ws->lv, 0, ws->lv, 0);
+
+	dgemv_n_libstr(ne, nv, 1.0, ws->AL, 0, 0, ws->lv, 0, 1.0, qp->b, 0, ws->le, 0);
+
+	dtrsv_lnn_libstr(ne, ws->Le, 0, 0, ws->le, 0, ws->le, 0);
+	dtrsv_ltn_libstr(ne, ws->Le, 0, 0, ws->le, 0, ws->pi, 0);
+
+	dgemv_t_libstr(ne, nv, 1.0, qp->A, 0, 0, ws->pi, 0, -1.0, qp->g, 0, ws->lv, 0);
+	dtrsv_lnn_libstr(nv, ws->Lv, 0, 0, ws->lv, 0, ws->lv, 0);
+	dtrsv_ltn_libstr(nv, ws->Lv, 0, 0, ws->lv, 0, ws->v, 0);
+
+	if(nb>0 | ng>0)
+		{
+		d_compute_lam_t_step_dense_qp(qp, ws);
+		}
 
 	return;
 
