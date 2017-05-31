@@ -70,6 +70,10 @@ struct d_ipm2_hard_revcom_qp_workspace
 	double *dv; // step in v
 	double *dpi; // step in pi
 	double *dlam; // step in lam
+	double *dlam_lb; //
+	double *dlam_lg; //
+	double *dlam_ub; //
+	double *dlam_ug; //
 	double *dt; // step in t
 	double *dt_lb; // step in t_lb
 	double *dt_ub; // step in t_ub

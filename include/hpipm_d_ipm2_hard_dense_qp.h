@@ -51,6 +51,10 @@ struct d_ipm2_hard_dense_qp_workspace
 	struct d_strvec *dpi; // step in pi
 	struct d_strvec *dlam; // step in lam
 	struct d_strvec *dt; // step in t
+	struct d_strvec *dt_lb; //
+	struct d_strvec *dt_ub; //
+	struct d_strvec *dt_lg; //
+	struct d_strvec *dt_ug; //
 	struct d_strvec *res_g; // q-residuals
 	struct d_strvec *res_b; // b-residuals
 	struct d_strvec *res_d; // d-residuals
@@ -66,7 +70,6 @@ struct d_ipm2_hard_dense_qp_workspace
 	struct d_strmat *AL; //
 	struct d_strmat *Le; //
 	struct d_strvec *lv; //
-	struct d_strvec *le; //
 	struct d_strvec *tmp_nb; // work space of size nb
 	double nt_inv; // 1.0/nt, where nt is the total number of constraints
 	double res_mu; // mu-residual

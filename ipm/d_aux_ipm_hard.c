@@ -161,6 +161,7 @@ void d_compute_alpha_res_hard(struct d_ipm2_hard_revcom_qp_workspace *workspace)
 	// extract workspace members
 	int nb = workspace->nb;
 	int ng = workspace->ng;
+
 	int *idxb = workspace->idxb;
 	double *lam = workspace->lam;
 	double *t = workspace->t;

@@ -115,9 +115,17 @@ void d_create_ipm2_hard_revcom_qp(struct d_ipm2_hard_revcom_qp_workspace *worksp
 	d_ptr += ne0;
 
 	workspace->dlam = d_ptr; // dlam
+	workspace->dlam_lb = d_ptr;
+	workspace->dlam_lg = d_ptr+nb0;
+	workspace->dlam_ub = d_ptr+nb0+ng0;
+	workspace->dlam_ug = d_ptr+2*nb0+ng0;
 	d_ptr += 2*nb0+2*ng0;
 
 	workspace->dt = d_ptr; // dt
+	workspace->dt_lb = d_ptr;
+	workspace->dt_lg = d_ptr+nb0;
+	workspace->dt_ub = d_ptr+nb0+ng0;
+	workspace->dt_ug = d_ptr+2*nb0+ng0;
 	d_ptr += 2*nb0+2*ng0;
 
 	workspace->res_g = d_ptr; // res_g

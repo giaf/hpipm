@@ -71,7 +71,7 @@ int main()
 //	double d_lb[] = {0.0, 0.0};
 //	double d_ub[] = {INFINITY, INFINITY};
 	double d_lb[] = {-1.0, -1.0};
-	double d_ub[] = {2.0, 2.0};
+	double d_ub[] = {0.5, 0.5};
 	int idxb[] = {0, 1};
 	double C[] = {};
 	double d_lg[] = {};
@@ -157,22 +157,55 @@ int main()
 	struct d_ipm2_hard_dense_qp_workspace workspace;
 	d_create_ipm2_hard_dense_qp(&qp, &arg, &workspace, ipm_mem);
 
-	d_solve_ipm2_hard_dense_qp(&qp, &workspace);
+	int rep, nrep=1000;
 
-	printf("\n%f\n\n", workspace.revcom_workspace->sigma);
+	struct timeval tv0, tv1;
+
+	gettimeofday(&tv0, NULL); // start
+
+	for(rep=0; rep<nrep; rep++)
+		{
+		d_solve_ipm2_hard_dense_qp(&qp, &workspace);
+		}
+
+	gettimeofday(&tv1, NULL); // stop
+
+	double time0 = (tv1.tv_sec-tv0.tv_sec)/(nrep+0.0)+(tv1.tv_usec-tv0.tv_usec)/(nrep*1e6);
+
+	gettimeofday(&tv0, NULL); // start
+
+	for(rep=0; rep<nrep; rep++)
+		{
+		d_solve_ipm2_hard_dense_qp(&qp, &workspace);
+		}
+
+	gettimeofday(&tv1, NULL); // stop
+
+	double time1 = (tv1.tv_sec-tv0.tv_sec)/(nrep+0.0)+(tv1.tv_usec-tv0.tv_usec)/(nrep*1e6);
+
+	printf("\nsol time = %e %e [s]\n\n", time0, time1);
 
 	printf("\nsolution\n\n");
-	d_print_strvec(nv, workspace.v, 0);
-	d_print_strvec(ne, workspace.pi, 0);
-	d_print_strvec(2*nb+2*ng, workspace.lam, 0);
-	d_print_strvec(2*nb+2*ng, workspace.t, 0);
+	printf("\nv\n");
+	d_print_tran_strvec(nv, workspace.v, 0);
+	printf("\npi\n");
+	d_print_tran_strvec(ne, workspace.pi, 0);
+	printf("\nlam\n");
+	d_print_tran_strvec(2*nb+2*ng, workspace.lam, 0);
+	printf("\nt\n");
+	d_print_tran_strvec(2*nb+2*ng, workspace.t, 0);
 
 	printf("\nresiduals\n\n");
-	d_print_strvec(nv, workspace.res_g, 0);
-	d_print_strvec(ne, workspace.res_b, 0);
-	d_print_strvec(2*nb+2*ng, workspace.res_d, 0);
-	d_print_strvec(2*nb+2*ng, workspace.res_m, 0);
-	printf("\n%f\n\n", workspace.res_mu);
+	printf("\nres_g\n");
+	d_print_e_tran_strvec(nv, workspace.res_g, 0);
+	printf("\nres_b\n");
+	d_print_e_tran_strvec(ne, workspace.res_b, 0);
+	printf("\nres_d\n");
+	d_print_e_tran_strvec(2*nb+2*ng, workspace.res_d, 0);
+	printf("\nres_m\n");
+	d_print_e_tran_strvec(2*nb+2*ng, workspace.res_m, 0);
+	printf("\nres_mu\n");
+	printf("\n%e\n\n", workspace.res_mu);
 
 /************************************************
 * free memory
