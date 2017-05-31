@@ -25,11 +25,11 @@
 *                                                                                                 *
 **************************************************************************************************/
 
+
+
 //
-void d_compute_Qx_qx_hard_qp(struct d_ipm2_hard_revcom_qp_workspace *rws);
+void d_init_var_hard_dense_qp(struct d_dense_qp *qp, struct d_ipm2_hard_dense_qp_workspace *ws);
 //
-void d_compute_lam_t_hard_qp(struct d_ipm2_hard_revcom_qp_workspace *rws);
+void d_compute_res_hard_dense_qp(struct d_dense_qp *qp, struct d_ipm2_hard_dense_qp_workspace *ws);
 //
-void d_compute_alpha_hard_qp(struct d_ipm2_hard_revcom_qp_workspace *rws);
-//
-void d_update_var_hard_qp(struct d_ipm2_hard_revcom_qp_workspace *rws);
+void d_fact_solve_kkt_step_hard_dense_qp(struct d_dense_qp *qp, struct d_ipm2_hard_dense_qp_workspace *ws);

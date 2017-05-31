@@ -65,7 +65,6 @@ struct d_ipm2_hard_dense_qp_workspace
 	struct d_strvec *res_m; // m-residuals
 	struct d_strvec *Qx; // hessian update
 	struct d_strvec *qx; // gradient update
-	struct d_strvec *Dv; // holds the product D*v
 	struct d_strmat *Lv; //
 	struct d_strmat *AL; //
 	struct d_strmat *Le; //

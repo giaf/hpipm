@@ -34,6 +34,8 @@
 #include "../include/hpipm_d_dense_qp.h"
 #include "../include/hpipm_d_ipm2_hard_dense_qp.h"
 #include "../include/hpipm_d_ipm2_hard_revcom_qp.h"
+#include "../include/hpipm_d_aux_ipm_hard.h"
+#include "../include/hpipm_d_kkt_dense_qp.h"
 
 
 
@@ -47,7 +49,7 @@ int d_memsize_ipm2_hard_dense_qp(struct d_dense_qp *qp, struct d_ipm2_hard_dense
 
 	int size = 0;
 
-	size += 33*sizeof(struct d_strvec); // v pi lam lam_lb lam_ub lam_lg lam_ug t t_lb t_ub t_lg t_ug dv dpi dlam dt dt_lb dt_ub dt_lg dt_ug res_g res_b res_d res_d_lb res_d_ub res_d_lg res_d_ug res_m Qx qx Dv lv tmp_nb
+	size += 32*sizeof(struct d_strvec); // v pi lam lam_lb lam_ub lam_lg lam_ug t t_lb t_ub t_lg t_ug dv dpi dlam dt dt_lb dt_ub dt_lg dt_ug res_g res_b res_d res_d_lb res_d_ub res_d_lg res_d_ug res_m Qx qx lv tmp_nb
 	size += 3*sizeof(struct d_strmat); // Lv AL Le
 
 	size += d_size_strvec(nb); // tmp_nb
@@ -159,8 +161,6 @@ void d_create_ipm2_hard_dense_qp(struct d_dense_qp *qp, struct d_ipm2_hard_dense
 	sv_ptr += 1;
 	workspace->qx = sv_ptr;
 	sv_ptr += 1;
-	workspace->Dv = sv_ptr;
-	sv_ptr += 1;
 	workspace->lv = sv_ptr;
 	sv_ptr += 1;
 	workspace->tmp_nb = sv_ptr;
@@ -234,7 +234,6 @@ void d_create_ipm2_hard_dense_qp(struct d_dense_qp *qp, struct d_ipm2_hard_dense
 	d_create_strvec(2*nb+2*ng, workspace->res_m, rwork->res_m);
 	d_create_strvec(nb+ng, workspace->Qx, rwork->Qx);
 	d_create_strvec(nb+ng, workspace->qx, rwork->qx);
-	d_create_strvec(ng, workspace->Dv, rwork->Dv);
 
 
 	workspace->nt_inv = 1.0/(2*nb+2*ng);
@@ -250,11 +249,6 @@ void d_solve_ipm2_hard_dense_qp(struct d_dense_qp *qp, struct d_ipm2_hard_dense_
 
 	struct d_ipm2_hard_revcom_qp_workspace *rws = ws->revcom_workspace;
 
-	int nv = qp->nv;
-	int ne = qp->ne;
-	int nb = qp->nb;
-	int ng = qp->ng;
-
 	// alias qp vectors into revcom workspace
 	rws->d = qp->d->pa;
 	rws->d_lb = qp->d_lb->pa;
@@ -263,8 +257,7 @@ void d_solve_ipm2_hard_dense_qp(struct d_dense_qp *qp, struct d_ipm2_hard_dense_
 	rws->d_ug = qp->d_ug->pa;
 
 	// init solver
-	rws->entry = INIT_RES;
-	d_ipm2_hard_revcom_qp(rws);
+	d_init_var_hard_dense_qp(qp, ws);
 
 #if 0
 	// XXX hard-code solution for debug
@@ -282,7 +275,7 @@ void d_solve_ipm2_hard_dense_qp(struct d_dense_qp *qp, struct d_ipm2_hard_dense_
 #endif
 
 	// compute residuals
-	d_compute_res_dense_qp(qp, ws);
+	d_compute_res_hard_dense_qp(qp, ws);
 	rws->mu = ws->res_mu;
 
 #if 0
@@ -297,19 +290,19 @@ void d_solve_ipm2_hard_dense_qp(struct d_dense_qp *qp, struct d_ipm2_hard_dense_
 #endif
 
 	int kk;
-	for(kk=0; kk<10; kk++)
+	for(kk=0; kk<rws->iter_max; kk++)
 		{
 
 //		printf("\niter %d\n", kk);
 
 		// fact and solve kkt
-		d_fact_solve_kkt_step_dense_qp(qp, ws);
+		d_fact_solve_kkt_step_hard_dense_qp(qp, ws);
 
 		// alpha
-		d_compute_alpha_dense_qp(rws);
+		d_compute_alpha_hard_qp(rws);
 
 		//
-		d_update_var_dense_qp(rws);
+		d_update_var_hard_qp(rws);
 
 #if 0
 		printf("\nv\n");
@@ -323,7 +316,7 @@ void d_solve_ipm2_hard_dense_qp(struct d_dense_qp *qp, struct d_ipm2_hard_dense_
 #endif
 
 		// compute residuals
-		d_compute_res_dense_qp(qp, ws);
+		d_compute_res_hard_dense_qp(qp, ws);
 		rws->mu = ws->res_mu;
 #if 0
 

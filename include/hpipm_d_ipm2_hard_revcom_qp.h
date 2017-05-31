@@ -93,9 +93,7 @@ struct d_ipm2_hard_revcom_qp_workspace
 	double *res_m_ug; // m-residuals
 	double *Qx; // Hessian update
 	double *qx; // gradient update
-	double *Dv; // holds the product D*v
 	double *conv_stat; // convergence statistics
-	int *idxb; // index of box constraints XXX remove ???
 	double alpha; // step length
 	double alpha_min; // exit cond on step lenght
 	double sigma; // centering XXX

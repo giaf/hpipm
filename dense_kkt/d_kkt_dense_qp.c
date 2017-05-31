@@ -35,10 +35,97 @@
 #include "../include/hpipm_d_dense_qp.h"
 #include "../include/hpipm_d_ipm2_hard_dense_qp.h"
 #include "../include/hpipm_d_ipm2_hard_revcom_qp.h"
+#include "../include/hpipm_d_aux_ipm_hard.h"
 
 
 
-void d_compute_res_dense_qp(struct d_dense_qp *qp, struct d_ipm2_hard_dense_qp_workspace *workspace)
+void d_init_var_hard_dense_qp(struct d_dense_qp *qp, struct d_ipm2_hard_dense_qp_workspace *ws)
+	{
+
+	struct d_ipm2_hard_revcom_qp_workspace *rws = ws->revcom_workspace;
+
+	// extract rws members
+	int nv = qp->nv;
+	int ne = qp->ne;
+	int nb = qp->nb;
+	int ng = qp->ng;
+
+	double *d_lb = qp->d_lb->pa;
+	double *d_ub = qp->d_ub->pa;
+	int *idxb = qp->idxb;
+
+	double *v = rws->v;
+	double *pi = rws->pi;
+	double *lam_lb = rws->lam_lb;
+	double *lam_ub = rws->lam_ub;
+	double *lam_lg = rws->lam_lg;
+	double *lam_ug = rws->lam_ug;
+	double *t_lb = rws->t_lb;
+	double *t_ub = rws->t_ub;
+	double *t_lg = rws->t_lg;
+	double *t_ug = rws->t_ug;
+	double mu0 = rws->mu0;
+
+	// local variables
+	int ii;
+	int idxb0;
+	double thr0 = 0.1;
+
+	// cold start
+
+	for(ii=0; ii<nv; ii++)
+		{
+		v[ii] = 0.0;
+		}
+	
+	for(ii=0; ii<ne; ii++)
+		{
+		pi[ii] = 0.0;
+		}
+	
+	for(ii=0; ii<nb; ii++)
+		{
+		idxb0 = idxb[ii];
+		t_lb[ii] = - d_lb[ii] + v[idxb0];
+		t_ub[ii] =   d_ub[ii] - v[idxb0];
+		if(t_lb[ii]<thr0)
+			{
+			if(t_ub[ii]<thr0)
+				{
+				v[idxb0] = 0.5*(d_lb[ii] - d_ub[ii]);
+				t_lb[ii] = thr0;
+				t_ub[ii] = thr0;
+				}
+			else
+				{
+				t_lb[ii] = thr0;
+				v[idxb0] = d_lb[ii] + thr0;
+				}
+			}
+		else if(t_ub[ii]<thr0)
+			{
+			t_ub[ii] = thr0;
+			v[idxb0] = d_ub[ii] - thr0;
+			}
+		lam_lb[ii] = mu0/t_lb[ii];
+		lam_ub[ii] = mu0/t_ub[ii];
+		}
+	
+	for(ii=0; ii<ng; ii++)
+		{
+		t_lg[ii] = 1.0;
+		t_ug[ii] = 1.0;
+		lam_lg[ii] = mu0/t_lg[ii];
+		lam_ug[ii] = mu0/t_ug[ii];
+		}
+
+	return;
+
+	}
+
+
+
+void d_compute_res_hard_dense_qp(struct d_dense_qp *qp, struct d_ipm2_hard_dense_qp_workspace *ws)
 	{
 
 	int nv = qp->nv;
@@ -49,20 +136,20 @@ void d_compute_res_dense_qp(struct d_dense_qp *qp, struct d_ipm2_hard_dense_qp_w
 	double mu;
 
 	// res g
-	dsymv_l_libstr(nv, nv, 1.0, qp->H, 0, 0, workspace->v, 0, 1.0, qp->g, 0, workspace->res_g, 0);
+	dsymv_l_libstr(nv, nv, 1.0, qp->H, 0, 0, ws->v, 0, 1.0, qp->g, 0, ws->res_g, 0);
 
 	if(nb>0)
 		{
 		// res_g
-		daxpy_libstr(nb, -1.0, workspace->lam_lb, 0, workspace->lam_ub, 0, workspace->tmp_nb, 0);
-		dvecad_sp_libstr(nb, 1.0, workspace->tmp_nb, 0, qp->idxb, workspace->res_g, 0);
+		daxpy_libstr(nb, -1.0, ws->lam_lb, 0, ws->lam_ub, 0, ws->tmp_nb, 0);
+		dvecad_sp_libstr(nb, 1.0, ws->tmp_nb, 0, qp->idxb, ws->res_g, 0);
 		// res_d
-		dvecex_sp_libstr(nb, -1.0, qp->idxb, workspace->v, 0, workspace->res_d_lb, 0);
-		dveccp_libstr(nb, workspace->res_d_lb, 0, workspace->res_d_ub, 0);
-		daxpy_libstr(nb, 1.0, qp->d_lb, 0, workspace->res_d_lb, 0, workspace->res_d_lb, 0);
-		daxpy_libstr(nb, 1.0, qp->d_ub, 0, workspace->res_d_ub, 0, workspace->res_d_ub, 0);
-		daxpy_libstr(nb, 1.0, workspace->t_lb, 0, workspace->res_d_lb, 0, workspace->res_d_lb, 0);
-		daxpy_libstr(nb, -1.0, workspace->t_ub, 0, workspace->res_d_ub, 0, workspace->res_d_ub, 0);
+		dvecex_sp_libstr(nb, -1.0, qp->idxb, ws->v, 0, ws->res_d_lb, 0);
+		dveccp_libstr(nb, ws->res_d_lb, 0, ws->res_d_ub, 0);
+		daxpy_libstr(nb, 1.0, qp->d_lb, 0, ws->res_d_lb, 0, ws->res_d_lb, 0);
+		daxpy_libstr(nb, 1.0, qp->d_ub, 0, ws->res_d_ub, 0, ws->res_d_ub, 0);
+		daxpy_libstr(nb, 1.0, ws->t_lb, 0, ws->res_d_lb, 0, ws->res_d_lb, 0);
+		daxpy_libstr(nb, -1.0, ws->t_ub, 0, ws->res_d_ub, 0, ws->res_d_ub, 0);
 		}
 
 	if(ng>0)
@@ -71,109 +158,21 @@ void d_compute_res_dense_qp(struct d_dense_qp *qp, struct d_ipm2_hard_dense_qp_w
 		}
 	
 	// res b, res g
-	dgemv_nt_libstr(ne, nv, -1.0, -1.0, qp->A, 0, 0, workspace->v, 0, workspace->pi, 0, 1.0, 1.0, qp->b, 0, workspace->res_g, 0, workspace->res_b, 0, workspace->res_g, 0);
+	dgemv_nt_libstr(ne, nv, -1.0, -1.0, qp->A, 0, 0, ws->v, 0, ws->pi, 0, 1.0, 1.0, qp->b, 0, ws->res_g, 0, ws->res_b, 0, ws->res_g, 0);
 
 	// res_mu
-	mu = dvecmuldot_libstr(2*nb+2*ng, workspace->lam, 0, workspace->t, 0, workspace->res_m, 0);
+	mu = dvecmuldot_libstr(2*nb+2*ng, ws->lam, 0, ws->t, 0, ws->res_m, 0);
 
-	workspace->res_mu = mu*workspace->nt_inv;
+	ws->res_mu = mu*ws->nt_inv;
 
 
 	return;
 
 	}
-
-
-void d_compute_Qx_qx_step_dense_qp(struct d_ipm2_hard_revcom_qp_workspace *rws)
-	{
-
-	int nv = rws->nv;
-	int ne = rws->ne;
-	int nb = rws->nb;
-	int ng = rws->ng;
-
-	double *lam_lb = rws->lam_lb;
-	double *lam_ub = rws->lam_ub;
-	double *t_lb = rws->t_lb;
-	double *t_ub = rws->t_ub;
-	double *res_m_lb = rws->res_m_lb;
-	double *res_m_ub = rws->res_m_ub;
-	double *res_d_lb = rws->res_d_lb;
-	double *res_d_ub = rws->res_d_ub;
-	double *t_inv_lb = rws->t_inv_lb;
-	double *t_inv_ub = rws->t_inv_ub;
-	double *Qx = rws->Qx;
-	double *qx = rws->qx;
-
-	// local variables
-	int nt = nb+ng;
-	int ii;
-
-	for(ii=0; ii<nt; ii++)
-		{
-
-		t_inv_lb[ii] = 1.0/t_lb[ii];
-		t_inv_ub[ii] = 1.0/t_ub[ii];
-		// TODO mask out unconstrained components for one-sided
-		Qx[ii] = t_inv_lb[ii]*lam_lb[ii] \
-		       + t_inv_ub[ii]*lam_ub[ii];
-		qx[ii] = t_inv_lb[ii]*(res_m_lb[ii]-lam_lb[ii]*res_d_lb[ii]) \
-		       - t_inv_ub[ii]*(res_m_ub[ii]+lam_ub[ii]*res_d_ub[ii]);
-
-		}
-		return;
-
-	}
-
-
-
-void d_compute_lam_t_step_dense_qp(struct d_ipm2_hard_revcom_qp_workspace *rws)
-	{
-
-	int nv = rws->nv;
-	int ne = rws->ne;
-	int nb = rws->nb;
-	int ng = rws->ng;
-
-	double *lam_lb = rws->lam_lb;
-	double *lam_ub = rws->lam_ub;
-	double *dlam_lb = rws->dlam_lb;
-	double *dlam_ub = rws->dlam_ub;
-	double *dt_lb = rws->dt_lb;
-	double *dt_ub = rws->dt_ub;
-	double *res_d_lb = rws->res_d_lb;
-	double *res_d_ub = rws->res_d_ub;
-	double *res_m_lb = rws->res_m_lb;
-	double *res_m_ub = rws->res_m_ub;
-	double *t_inv_lb = rws->t_inv_lb;
-	double *t_inv_ub = rws->t_inv_ub;
-
-	// local variables
-	int ii;
-	int nt = nb+ng;
-
-	for(ii=0; ii<nt; ii++)
-		{
-
-		dt_ub[ii] = - dt_lb[ii];
-
-		dt_lb[ii] -= res_d_lb[ii];
-		dt_ub[ii] += res_d_ub[ii];
-
-		// TODO compute lamda alone ???
-		dlam_lb[ii] = - t_inv_lb[ii] * (lam_lb[ii]*dt_lb[ii] + res_m_lb[ii]);
-		dlam_ub[ii] = - t_inv_ub[ii] * (lam_ub[ii]*dt_ub[ii] + res_m_ub[ii]);
-
-		}
-	
-	return;
-
-	}
-
 
 
 // range-space (Schur complement) method
-void d_fact_solve_kkt_step_dense_qp(struct d_dense_qp *qp, struct d_ipm2_hard_dense_qp_workspace *ws)
+void d_fact_solve_kkt_step_hard_dense_qp(struct d_dense_qp *qp, struct d_ipm2_hard_dense_qp_workspace *ws)
 	{
 
 	int nv = qp->nv;
@@ -185,7 +184,7 @@ void d_fact_solve_kkt_step_dense_qp(struct d_dense_qp *qp, struct d_ipm2_hard_de
 
 	if(nb>0 | ng>0)
 		{
-		d_compute_Qx_qx_step_dense_qp(rws);
+		d_compute_Qx_qx_hard_qp(rws);
 		}
 
 	dtrcp_l_libstr(nv, qp->H, 0, 0, ws->Lv, 0, 0);
@@ -231,119 +230,10 @@ void d_fact_solve_kkt_step_dense_qp(struct d_dense_qp *qp, struct d_ipm2_hard_de
 
 	if(nb>0 | ng>0)
 		{
-		d_compute_lam_t_step_dense_qp(rws);
+		d_compute_lam_t_hard_qp(rws);
 		}
 
 	return;
 
 	}
-
-
-
-void d_compute_alpha_dense_qp(struct d_ipm2_hard_revcom_qp_workspace *rws)
-	{
-	
-	// extract workspace members
-	int nb = rws->nb;
-	int ng = rws->ng;
-
-	double *lam_lb = rws->lam_lb;
-	double *lam_ub = rws->lam_ub;
-	double *t_lb = rws->t_lb;
-	double *t_ub = rws->t_ub;
-	double *dlam_lb = rws->dlam_lb;
-	double *dlam_ub = rws->dlam_ub;
-	double *dt_lb = rws->dt_lb;
-	double *dt_ub = rws->dt_ub;
-
-	double alpha = 1.0;
-	
-	// local variables
-	int nt = nb+ng;
-	int ii;
-
-	for(ii=0; ii<nt; ii++)
-		{
-
-		if( -alpha*dlam_lb[ii+0]>lam_lb[ii+0] )
-			{
-			alpha = - lam_lb[ii+0] / dlam_lb[ii+0];
-			}
-		if( -alpha*dlam_ub[ii]>lam_ub[ii] )
-			{
-			alpha = - lam_ub[ii] / dlam_ub[ii];
-			}
-		if( -alpha*dt_lb[ii+0]>t_lb[ii+0] )
-			{
-			alpha = - t_lb[ii+0] / dt_lb[ii+0];
-			}
-		if( -alpha*dt_ub[ii]>t_ub[ii] )
-			{
-			alpha = - t_ub[ii] / dt_ub[ii];
-			}
-
-		}
-
-	// store alpha
-	rws->alpha = alpha;
-
-	return;
-
-	}
-	
-
-
-void d_update_var_dense_qp(struct d_ipm2_hard_revcom_qp_workspace *rws)
-	{
-	
-	// extract workspace members
-	int nv = rws->nv;
-	int ne = rws->ne;
-	int nb = rws->nb;
-	int ng = rws->ng;
-
-	double *v = rws->v;
-	double *pi = rws->pi;
-	double *lam = rws->lam;
-	double *t = rws->t;
-	double *dv = rws->dv;
-	double *dpi = rws->dpi;
-	double *dlam = rws->dlam;
-	double *dt = rws->dt;
-	double alpha = 0.995*rws->alpha;
-
-	// local variables
-	int nt = nb+ng;
-	int ii;
-
-	// update v
-	for(ii=0; ii<nv; ii++)
-		{
-		v[ii] += alpha * dv[ii];
-		}
-
-	// update pi
-	for(ii=0; ii<ne; ii++)
-		{
-		pi[ii] += alpha * dpi[ii];
-		}
-
-	// update lam
-	for(ii=0; ii<2*nt; ii++)
-		{
-		lam[ii] += alpha * dlam[ii];
-		}
-
-	// update t
-	for(ii=0; ii<2*nt; ii++)
-		{
-		t[ii] += alpha * dt[ii];
-		}
-	
-	return;
-
-	}
-
-
-
 

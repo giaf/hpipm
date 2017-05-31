@@ -36,101 +36,26 @@
 
 
 
-void d_init_var_hard(struct d_ipm2_hard_revcom_qp_workspace *workspace)
+void d_compute_Qx_qx_hard_qp(struct d_ipm2_hard_revcom_qp_workspace *rws)
 	{
 
-	// extract workspace members
-	double *d_lb = workspace->d_lb;
-	double *d_ub = workspace->d_ub;
-	double *v = workspace->v;
-	double *pi = workspace->pi;
-	double *lam_lb = workspace->lam_lb;
-	double *lam_ub = workspace->lam_ub;
-	double *lam_lg = workspace->lam_lg;
-	double *lam_ug = workspace->lam_ug;
-	double *t_lb = workspace->t_lb;
-	double *t_ub = workspace->t_ub;
-	double *t_lg = workspace->t_lg;
-	double *t_ug = workspace->t_ug;
-	int *idxb = workspace->idxb;
-	double mu0 = workspace->mu0;
-	int nv = workspace->nv;
-	int ne = workspace->ne;
-	int nb = workspace->nb;
-	int ng = workspace->ng;
+	int nv = rws->nv;
+	int ne = rws->ne;
+	int nb = rws->nb;
+	int ng = rws->ng;
 
-	// local variables
-	int ii;
-	int idxb0;
-	double thr0 = 0.1;
-
-	// cold start
-
-	for(ii=0; ii<nv; ii++)
-		{
-		v[ii] = 0.0;
-		}
-	
-	for(ii=0; ii<ne; ii++)
-		{
-		pi[ii] = 0.0;
-		}
-	
-	for(ii=0; ii<nb; ii++)
-		{
-		idxb0 = idxb[ii];
-		t_lb[ii] = - d_lb[ii] + v[idxb0];
-		t_ub[ii] =   d_ub[ii] - v[idxb0];
-		if(t_lb[ii]<thr0)
-			{
-			if(t_ub[ii]<thr0)
-				{
-				v[idxb0] = 0.5*(d_lb[ii] - d_ub[ii]);
-				t_lb[ii] = thr0;
-				t_ub[ii] = thr0;
-				}
-			else
-				{
-				t_lb[ii] = thr0;
-				v[idxb0] = d_lb[ii] + thr0;
-				}
-			}
-		else if(t_ub[ii]<thr0)
-			{
-			t_ub[ii] = thr0;
-			v[idxb0] = d_ub[ii] - thr0;
-			}
-		lam_lb[ii] = mu0/t_lb[ii];
-		lam_ub[ii] = mu0/t_ub[ii];
-		}
-	
-	for(ii=0; ii<ng; ii++)
-		{
-		t_lg[ii] = 1.0;
-		t_ug[ii] = 1.0;
-		lam_lg[ii] = mu0/t_lg[ii];
-		lam_ug[ii] = mu0/t_ug[ii];
-		}
-
-	return;
-
-	}
-
-
-
-void d_update_hessian_gradient_res_hard(struct d_ipm2_hard_revcom_qp_workspace *workspace)
-	{
-
-	// extract workspace members
-	int nb = workspace->nb;
-	int ng = workspace->ng;
-	double *lam = workspace->lam;
-	double *t = workspace->t;
-	double *res_m = workspace->res_m;
-	double *res_d = workspace->res_d;
-	double *t_inv = workspace->t_inv;
-	double *Qx = workspace->Qx;
-	double *qx = workspace->qx;
+	double *lam_lb = rws->lam_lb;
+	double *lam_ub = rws->lam_ub;
+	double *t_lb = rws->t_lb;
+	double *t_ub = rws->t_ub;
+	double *res_m_lb = rws->res_m_lb;
+	double *res_m_ub = rws->res_m_ub;
+	double *res_d_lb = rws->res_d_lb;
+	double *res_d_ub = rws->res_d_ub;
+	double *t_inv_lb = rws->t_inv_lb;
+	double *t_inv_ub = rws->t_inv_ub;
+	double *Qx = rws->Qx;
+	double *qx = rws->qx;
 
 	// local variables
 	int nt = nb+ng;
@@ -139,13 +64,57 @@ void d_update_hessian_gradient_res_hard(struct d_ipm2_hard_revcom_qp_workspace *
 	for(ii=0; ii<nt; ii++)
 		{
 
-		t_inv[ii]    = 1.0/t[ii];
-		t_inv[ii+nt] = 1.0/t[ii+nt];
+		t_inv_lb[ii] = 1.0/t_lb[ii];
+		t_inv_ub[ii] = 1.0/t_ub[ii];
 		// TODO mask out unconstrained components for one-sided
-		Qx[ii] = t_inv[ii]*lam[ii] \
-		       + t_inv[ii+nt]*lam[ii+nt];
-		qx[ii] = t_inv[ii]*(res_m[ii]-lam[ii]*res_d[ii]) \
-		       - t_inv[ii+nt]*(res_m[ii+nt]+lam[ii+nt]*res_d[ii+nt]);
+		Qx[ii] = t_inv_lb[ii]*lam_lb[ii] \
+		       + t_inv_ub[ii]*lam_ub[ii];
+		qx[ii] = t_inv_lb[ii]*(res_m_lb[ii]-lam_lb[ii]*res_d_lb[ii]) \
+		       - t_inv_ub[ii]*(res_m_ub[ii]+lam_ub[ii]*res_d_ub[ii]);
+
+		}
+		return;
+
+	}
+
+
+
+void d_compute_lam_t_hard_qp(struct d_ipm2_hard_revcom_qp_workspace *rws)
+	{
+
+	int nv = rws->nv;
+	int ne = rws->ne;
+	int nb = rws->nb;
+	int ng = rws->ng;
+
+	double *lam_lb = rws->lam_lb;
+	double *lam_ub = rws->lam_ub;
+	double *dlam_lb = rws->dlam_lb;
+	double *dlam_ub = rws->dlam_ub;
+	double *dt_lb = rws->dt_lb;
+	double *dt_ub = rws->dt_ub;
+	double *res_d_lb = rws->res_d_lb;
+	double *res_d_ub = rws->res_d_ub;
+	double *res_m_lb = rws->res_m_lb;
+	double *res_m_ub = rws->res_m_ub;
+	double *t_inv_lb = rws->t_inv_lb;
+	double *t_inv_ub = rws->t_inv_ub;
+
+	// local variables
+	int ii;
+	int nt = nb+ng;
+
+	for(ii=0; ii<nt; ii++)
+		{
+
+		dt_ub[ii] = - dt_lb[ii];
+
+		dt_lb[ii] -= res_d_lb[ii];
+		dt_ub[ii] += res_d_ub[ii];
+
+		// TODO compute lamda alone ???
+		dlam_lb[ii] = - t_inv_lb[ii] * (lam_lb[ii]*dt_lb[ii] + res_m_lb[ii]);
+		dlam_ub[ii] = - t_inv_ub[ii] * (lam_ub[ii]*dt_ub[ii] + res_m_ub[ii]);
 
 		}
 	
@@ -155,96 +124,77 @@ void d_update_hessian_gradient_res_hard(struct d_ipm2_hard_revcom_qp_workspace *
 
 
 
-void d_compute_alpha_res_hard(struct d_ipm2_hard_revcom_qp_workspace *workspace)
+void d_compute_alpha_hard_qp(struct d_ipm2_hard_revcom_qp_workspace *rws)
 	{
 	
 	// extract workspace members
-	int nb = workspace->nb;
-	int ng = workspace->ng;
+	int nb = rws->nb;
+	int ng = rws->ng;
 
-	int *idxb = workspace->idxb;
-	double *lam = workspace->lam;
-	double *t = workspace->t;
-	double *dv = workspace->dv;
-	double *dlam = workspace->dlam;
-	double *dt = workspace->dt;
-	double *dt_lb = workspace->dt_lb;
-	double *dt_lg = workspace->dt_lg;
-	double *res_d = workspace->res_d;
-	double *res_m = workspace->res_m;
-	double *t_inv = workspace->t_inv;
-	double *Dv = workspace->Dv;
-	double alpha = workspace->alpha;
+	double *lam_lb = rws->lam_lb;
+	double *lam_ub = rws->lam_ub;
+	double *t_lb = rws->t_lb;
+	double *t_ub = rws->t_ub;
+	double *dlam_lb = rws->dlam_lb;
+	double *dlam_ub = rws->dlam_ub;
+	double *dt_lb = rws->dt_lb;
+	double *dt_ub = rws->dt_ub;
+
+	double alpha = 1.0;
 	
 	// local variables
 	int nt = nb+ng;
 	int ii;
 
-	// box constraints
-	for(ii=0; ii<nb; ii++)
-		dt_lb[ii] = dv[idxb[ii]];
-
-	// general constraints TODO call back for that
-//	dgemv_t_libstr(nx0+nu0, ng0, 1.0, &hsDCt[jj], 0, 0, &hsdux[jj], 0, 0.0, &hsdt[jj], nb0, &hsdt[jj], nb0);
-	for(ii=0; ii<ng; ii++)
-		dt_lg[ii] = Dv[ii];
-
 	for(ii=0; ii<nt; ii++)
 		{
 
-		dt[ii+nt] = - dt[ii];
-
-		dt[ii+0]  -= res_d[ii+0];
-		dt[ii+nt] += res_d[ii+nt];
-
-		dlam[ii+0]  = - t_inv[ii+0]  * ( lam[ii+0]*dt[ii+0]   + res_m[ii+0] );
-		dlam[ii+nt] = - t_inv[ii+nt] * ( lam[ii+nt]*dt[ii+nt] + res_m[ii+nt] );
-
-		if( -alpha*dlam[ii+0]>lam[ii+0] )
+		if( -alpha*dlam_lb[ii+0]>lam_lb[ii+0] )
 			{
-			alpha = - lam[ii+0] / dlam[ii+0];
+			alpha = - lam_lb[ii+0] / dlam_lb[ii+0];
 			}
-		if( -alpha*dlam[ii+nt]>lam[ii+nt] )
+		if( -alpha*dlam_ub[ii]>lam_ub[ii] )
 			{
-			alpha = - lam[ii+nt] / dlam[ii+nt];
+			alpha = - lam_ub[ii] / dlam_ub[ii];
 			}
-		if( -alpha*dt[ii+0]>t[ii+0] )
+		if( -alpha*dt_lb[ii+0]>t_lb[ii+0] )
 			{
-			alpha = - t[ii+0] / dt[ii+0];
+			alpha = - t_lb[ii+0] / dt_lb[ii+0];
 			}
-		if( -alpha*dt[ii+nt]>t[ii+nt] )
+		if( -alpha*dt_ub[ii]>t_ub[ii] )
 			{
-			alpha = - t[ii+nt] / dt[ii+nt];
+			alpha = - t_ub[ii] / dt_ub[ii];
 			}
 
 		}
 
 	// store alpha
-	workspace->alpha = alpha;
+	rws->alpha = alpha;
 
 	return;
-	
+
 	}
+	
 
 
-
-void d_update_var_res_hard(struct d_ipm2_hard_revcom_qp_workspace *workspace)
+void d_update_var_hard_qp(struct d_ipm2_hard_revcom_qp_workspace *rws)
 	{
 	
 	// extract workspace members
-	int nv = workspace->nv;
-	int ne = workspace->ne;
-	int nb = workspace->nb;
-	int ng = workspace->ng;
-	double *v = workspace->v;
-	double *pi = workspace->pi;
-	double *lam = workspace->lam;
-	double *t = workspace->t;
-	double *dv = workspace->dv;
-	double *dpi = workspace->dpi;
-	double *dlam = workspace->dlam;
-	double *dt = workspace->dt;
-	double alpha = workspace->alpha;
+	int nv = rws->nv;
+	int ne = rws->ne;
+	int nb = rws->nb;
+	int ng = rws->ng;
+
+	double *v = rws->v;
+	double *pi = rws->pi;
+	double *lam = rws->lam;
+	double *t = rws->t;
+	double *dv = rws->dv;
+	double *dpi = rws->dpi;
+	double *dlam = rws->dlam;
+	double *dt = rws->dt;
+	double alpha = 0.995*rws->alpha;
 
 	// local variables
 	int nt = nb+ng;
@@ -277,4 +227,5 @@ void d_update_var_res_hard(struct d_ipm2_hard_revcom_qp_workspace *workspace)
 	return;
 
 	}
+
 

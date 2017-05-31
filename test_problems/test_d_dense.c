@@ -71,7 +71,7 @@ int main()
 //	double d_lb[] = {0.0, 0.0};
 //	double d_ub[] = {INFINITY, INFINITY};
 	double d_lb[] = {-1.0, -1.0};
-	double d_ub[] = {0.5, 0.5};
+	double d_ub[] = {1.5, 0.5};
 	int idxb[] = {0, 1};
 	double C[] = {};
 	double d_lg[] = {};
