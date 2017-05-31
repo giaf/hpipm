@@ -37,7 +37,7 @@ int MEMSIZE_DENSE_QP(int nv, int ne, int nb, int ng)
 
 	size += 1*SIZE_STRVEC(nv); // g
 	size += 1*SIZE_STRVEC(ne); // b
-	size += SIZE_STRVEC(2*nb+2*ng); // d
+	size += 1*SIZE_STRVEC(2*nb+2*ng); // d
 	size += 1*nb*sizeof(int); // idxb
 
 	size += 1*SIZE_STRMAT(nv, nv); // H
@@ -45,6 +45,7 @@ int MEMSIZE_DENSE_QP(int nv, int ne, int nb, int ng)
 	size += 1*SIZE_STRMAT(nv, ng); // Ct
 
 	size = (size+63)/64*64; // make multiple of typical cache line size
+	size += 1*64; // align once to typical cache line size
 	
 	return size;
 
@@ -110,13 +111,13 @@ void CREATE_DENSE_QP(int nv, int ne, int nb, int ng, struct DENSE_QP *qp, void *
 
 
 	// align to typical cache line size
-	long long l_ptr = (long long) i_ptr;
-	l_ptr = (l_ptr+63)/64*64;
+	size_t s_ptr = (size_t) i_ptr;
+	s_ptr = (s_ptr+63)/64*64;
 
 
 	// double stuff
 	void *v_ptr;
-	v_ptr = (void *) l_ptr;
+	v_ptr = (void *) s_ptr;
 
 	CREATE_STRMAT(nv, nv, qp->H, v_ptr);
 	v_ptr += qp->H->memory_size;

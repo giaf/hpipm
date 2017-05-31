@@ -68,8 +68,11 @@ struct d_ipm2_hard_dense_qp_workspace
 	struct d_strmat *Lv; //
 	struct d_strmat *AL; //
 	struct d_strmat *Le; //
+	struct d_strmat *Ctx; //
 	struct d_strvec *lv; //
 	struct d_strvec *tmp_nb; // work space of size nb
+	struct d_strvec *tmp_ng0; // work space of size nb
+	struct d_strvec *tmp_ng1; // work space of size nb
 	double nt_inv; // 1.0/nt, where nt is the total number of constraints
 	double res_mu; // mu-residual
 	};

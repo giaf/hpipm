@@ -60,9 +60,9 @@ int main()
 ************************************************/	
 
 	int nv = 2;
-	int ne = 1;
-	int nb = 2;
-	int ng = 0;
+	int ne = 0;
+	int nb = 0;
+	int ng = 2;
 
 	double H[] = {4.0, 1.0, 1.0, 2.0};
 	double g[] = {1.0, 1.0};
@@ -73,9 +73,9 @@ int main()
 	double d_lb[] = {-1.0, -1.0};
 	double d_ub[] = {1.5, 0.5};
 	int idxb[] = {0, 1};
-	double C[] = {};
-	double d_lg[] = {};
-	double d_ug[] = {};
+	double C[] = {1.0, 0.0, 0.0, 1.0};
+	double d_lg[] = {-1.0, -1.0};
+	double d_ug[] = {1.5, 0.5};
 
 /************************************************
 * data struct
@@ -83,15 +83,15 @@ int main()
 
 	struct d_strmat sH;
 	d_allocate_strmat(nv, nv, &sH);
-	d_cvt_mat2strmat(nv, nv, H, 2, &sH, 0, 0);
+	d_cvt_mat2strmat(nv, nv, H, nv, &sH, 0, 0);
 
 	struct d_strmat sA;
 	d_allocate_strmat(ne, nv, &sA);
-	d_cvt_mat2strmat(ne, nv, A, 1, &sA, 0, 0);
+	d_cvt_mat2strmat(ne, nv, A, ne, &sA, 0, 0);
 
 	struct d_strmat sC;
 	d_allocate_strmat(nv, ng, &sC);
-	d_cvt_mat2strmat(nv, ng, C, 0, &sC, 0, 0);
+	d_cvt_mat2strmat(nv, ng, C, nv, &sC, 0, 0);
 
 	struct d_strvec sg;
 	d_allocate_strvec(nv, &sg);

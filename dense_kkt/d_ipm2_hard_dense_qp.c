@@ -49,19 +49,22 @@ int d_memsize_ipm2_hard_dense_qp(struct d_dense_qp *qp, struct d_ipm2_hard_dense
 
 	int size = 0;
 
-	size += 32*sizeof(struct d_strvec); // v pi lam lam_lb lam_ub lam_lg lam_ug t t_lb t_ub t_lg t_ug dv dpi dlam dt dt_lb dt_ub dt_lg dt_ug res_g res_b res_d res_d_lb res_d_ub res_d_lg res_d_ug res_m Qx qx lv tmp_nb
-	size += 3*sizeof(struct d_strmat); // Lv AL Le
+	size += 34*sizeof(struct d_strvec); // v pi lam lam_lb lam_ub lam_lg lam_ug t t_lb t_ub t_lg t_ug dv dpi dlam dt dt_lb dt_ub dt_lg dt_ug res_g res_b res_d res_d_lb res_d_ub res_d_lg res_d_ug res_m Qx qx lv tmp_nb tmp_ng0 tmp_ng1
+	size += 4*sizeof(struct d_strmat); // Lv AL Le Ctx
 
-	size += d_size_strvec(nb); // tmp_nb
-	size += d_size_strvec(nv); // lv
-	size += d_size_strmat(nv, nv); // Lv
-	size += d_size_strmat(ne, nv); // AL
-	size += d_size_strmat(ne, ne); // Le
+	size += 1*d_size_strvec(nb); // tmp_nb
+	size += 2*d_size_strvec(ng); // tmp_ng0 tmp_ng1
+	size += 1*d_size_strvec(nv); // lv
+	size += 1*d_size_strmat(nv, nv); // Lv
+	size += 1*d_size_strmat(ne, nv); // AL
+	size += 1*d_size_strmat(ne, ne); // Le
+	size += 1*d_size_strmat(nv, ng); // Ctx
 
 	size += 1*sizeof(struct d_ipm2_hard_revcom_qp_workspace);
-	size += d_memsize_ipm2_hard_revcom_qp(qp->nv, qp->ne, qp->nb, qp->ng, arg->iter_max);
+	size += 1*d_memsize_ipm2_hard_revcom_qp(qp->nv, qp->ne, qp->nb, qp->ng, arg->iter_max);
 
-	size += 1^64; // update to typical cache line size
+	size = (size+63)/64*64; // make multiple of typical cache line size
+	size += 1*64; // align once to typical cache line size
 
 	return size;
 
@@ -95,6 +98,8 @@ void d_create_ipm2_hard_dense_qp(struct d_dense_qp *qp, struct d_ipm2_hard_dense
 	workspace->AL = sm_ptr;
 	sm_ptr += 1;
 	workspace->Le = sm_ptr;
+	sm_ptr += 1;
+	workspace->Ctx = sm_ptr;
 	sm_ptr += 1;
 
 
@@ -165,15 +170,19 @@ void d_create_ipm2_hard_dense_qp(struct d_dense_qp *qp, struct d_ipm2_hard_dense
 	sv_ptr += 1;
 	workspace->tmp_nb = sv_ptr;
 	sv_ptr += 1;
+	workspace->tmp_ng0 = sv_ptr;
+	sv_ptr += 1;
+	workspace->tmp_ng1 = sv_ptr;
+	sv_ptr += 1;
 
 
 	// align to typicl cache line size
-	long long l_ptr = (long long) sv_ptr;
-	l_ptr = (l_ptr+63)/64*64;
+	size_t s_ptr = (size_t) sv_ptr;
+	s_ptr = (s_ptr+63)/64*64;
 
 
 	// void stuf
-	void *v_ptr = (void *) l_ptr;
+	void *v_ptr = (void *) s_ptr;
 
 	d_create_strmat(nv, nv, workspace->Lv, v_ptr);
 	v_ptr += workspace->Lv->memory_size;
@@ -184,11 +193,20 @@ void d_create_ipm2_hard_dense_qp(struct d_dense_qp *qp, struct d_ipm2_hard_dense
 	d_create_strmat(ne, ne, workspace->Le, v_ptr);
 	v_ptr += workspace->Le->memory_size;
 
+	d_create_strmat(nv, ng, workspace->Ctx, v_ptr);
+	v_ptr += workspace->Ctx->memory_size;
+
 	d_create_strvec(nv, workspace->lv, v_ptr);
 	v_ptr += workspace->lv->memory_size;
 
 	d_create_strvec(nb, workspace->tmp_nb, v_ptr);
 	v_ptr += workspace->tmp_nb->memory_size;
+
+	d_create_strvec(ng, workspace->tmp_ng0, v_ptr);
+	v_ptr += workspace->tmp_ng0->memory_size;
+
+	d_create_strvec(ng, workspace->tmp_ng1, v_ptr);
+	v_ptr += workspace->tmp_ng1->memory_size;
 
 	rwork->nv = nv;
 	rwork->ne = ne;
