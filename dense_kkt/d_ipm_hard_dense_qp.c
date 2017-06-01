@@ -32,14 +32,14 @@
 #include <blasfeo_d_aux.h>
 
 #include "../include/hpipm_d_dense_qp.h"
-#include "../include/hpipm_d_ipm2_hard_dense_qp.h"
-#include "../include/hpipm_d_ipm2_hard_revcom_qp.h"
+#include "../include/hpipm_d_ipm_hard_dense_qp.h"
+#include "../include/hpipm_d_ipm_hard_revcom_qp.h"
 #include "../include/hpipm_d_aux_ipm_hard.h"
 #include "../include/hpipm_d_kkt_dense_qp.h"
 
 
 
-int d_memsize_ipm2_hard_dense_qp(struct d_dense_qp *qp, struct d_ipm2_hard_dense_qp_arg *arg)
+int d_memsize_ipm_hard_dense_qp(struct d_dense_qp *qp, struct d_ipm_hard_dense_qp_arg *arg)
 	{
 
 	int nv = qp->nv;
@@ -60,8 +60,8 @@ int d_memsize_ipm2_hard_dense_qp(struct d_dense_qp *qp, struct d_ipm2_hard_dense
 	size += 1*d_size_strmat(ne, ne); // Le
 	size += 1*d_size_strmat(nv, ng); // Ctx
 
-	size += 1*sizeof(struct d_ipm2_hard_revcom_qp_workspace);
-	size += 1*d_memsize_ipm2_hard_revcom_qp(qp->nv, qp->ne, qp->nb, qp->ng, arg->iter_max);
+	size += 1*sizeof(struct d_ipm_hard_revcom_qp_workspace);
+	size += 1*d_memsize_ipm_hard_revcom_qp(qp->nv, qp->ne, qp->nb, qp->ng, arg->iter_max);
 
 	size = (size+63)/64*64; // make multiple of typical cache line size
 	size += 1*64; // align once to typical cache line size
@@ -72,7 +72,7 @@ int d_memsize_ipm2_hard_dense_qp(struct d_dense_qp *qp, struct d_ipm2_hard_dense
 
 
 
-void d_create_ipm2_hard_dense_qp(struct d_dense_qp *qp, struct d_ipm2_hard_dense_qp_arg *arg, struct d_ipm2_hard_dense_qp_workspace *workspace, void *mem)
+void d_create_ipm_hard_dense_qp(struct d_dense_qp *qp, struct d_ipm_hard_dense_qp_arg *arg, struct d_ipm_hard_dense_qp_workspace *workspace, void *mem)
 	{
 
 	int nv = qp->nv;
@@ -82,12 +82,12 @@ void d_create_ipm2_hard_dense_qp(struct d_dense_qp *qp, struct d_ipm2_hard_dense
 
 
 	// revcom struct
-	struct d_ipm2_hard_revcom_qp_workspace *sr_ptr = mem;
+	struct d_ipm_hard_revcom_qp_workspace *sr_ptr = mem;
 
 	// revcom workspace
 	workspace->revcom_workspace = sr_ptr;
 	sr_ptr += 1;
-	struct d_ipm2_hard_revcom_qp_workspace *rwork = workspace->revcom_workspace;
+	struct d_ipm_hard_revcom_qp_workspace *rwork = workspace->revcom_workspace;
 
 
 	// matrix struct
@@ -213,7 +213,7 @@ void d_create_ipm2_hard_dense_qp(struct d_dense_qp *qp, struct d_ipm2_hard_dense
 	rwork->nb = nb;
 	rwork->ng = ng;
 	rwork->iter_max = arg->iter_max;
-	d_create_ipm2_hard_revcom_qp(rwork, v_ptr);
+	d_create_ipm_hard_revcom_qp(rwork, v_ptr);
 	v_ptr += workspace->revcom_workspace->memsize;
 
 	rwork->alpha_min = arg->alpha_min;
@@ -262,10 +262,10 @@ void d_create_ipm2_hard_dense_qp(struct d_dense_qp *qp, struct d_ipm2_hard_dense
 
 
 
-void d_solve_ipm2_hard_dense_qp(struct d_dense_qp *qp, struct d_ipm2_hard_dense_qp_workspace *ws)
+void d_solve_ipm_hard_dense_qp(struct d_dense_qp *qp, struct d_ipm_hard_dense_qp_workspace *ws)
 	{
 
-	struct d_ipm2_hard_revcom_qp_workspace *rws = ws->revcom_workspace;
+	struct d_ipm_hard_revcom_qp_workspace *rws = ws->revcom_workspace;
 
 	// alias qp vectors into revcom workspace
 	rws->d = qp->d->pa;

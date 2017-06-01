@@ -32,9 +32,9 @@
 
 
 
-struct d_ipm2_hard_dense_qp_workspace
+struct d_ipm_hard_dense_qp_workspace
 	{
-	struct d_ipm2_hard_revcom_qp_workspace *revcom_workspace;
+	struct d_ipm_hard_revcom_qp_workspace *revcom_workspace;
 	struct d_strvec *v; // primal variables
 	struct d_strvec *pi; // equality constraints multipliers
 	struct d_strvec *lam; // inequality constraints multipliers
@@ -79,7 +79,7 @@ struct d_ipm2_hard_dense_qp_workspace
 
 
 
-struct d_ipm2_hard_dense_qp_arg
+struct d_ipm_hard_dense_qp_arg
 	{
 	double alpha_min; // exit cond on step length
 	double mu_max; // exit cond on duality measure
@@ -90,6 +90,8 @@ struct d_ipm2_hard_dense_qp_arg
 
 
 //
-int d_memsize_ipm2_hard_dense_qp(struct d_dense_qp *qp, struct d_ipm2_hard_dense_qp_arg *arg);
+int d_memsize_ipm_hard_dense_qp(struct d_dense_qp *qp, struct d_ipm_hard_dense_qp_arg *arg);
 //
-void d_create_ipm2_hard_dense_qp(struct d_dense_qp *qp, struct d_ipm2_hard_dense_qp_arg *arg, struct d_ipm2_hard_dense_qp_workspace *workspace, void *mem);
+void d_create_ipm_hard_dense_qp(struct d_dense_qp *qp, struct d_ipm_hard_dense_qp_arg *arg, struct d_ipm_hard_dense_qp_workspace *ws, void *mem);
+//
+void d_solve_ipm_hard_dense_qp(struct d_dense_qp *qp, struct d_ipm_hard_dense_qp_workspace *ws);

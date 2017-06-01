@@ -59,6 +59,7 @@ int d_memsize_dense_qp(int nv, int ne, int nb, int ng);
 //
 void d_create_dense_qp(int nv, int ne, int nb, int ng, struct d_dense_qp *qp, void *memory);
 //
-void d_init_dense_qp(struct d_strmat *H, struct d_strmat *A, struct d_strmat *C, struct d_strvec *g, struct d_strvec *b, struct d_strvec *d_lb, struct d_strvec *d_ub, struct d_strvec *d_lg, struct d_strvec *d_ug, int *idxb, struct d_dense_qp *qp);
+void d_cvt_colmaj_to_dense_qp(double *H, double *A, double *C, double *g, double *b, double *d_lb, double *d_ub, double *d_lg, double *d_ug, int *idxb, struct d_dense_qp *qp);
 //
+void d_cvt_libstr_to_dense_qp(struct d_strmat *H, struct d_strmat *A, struct d_strmat *C, struct d_strvec *g, struct d_strvec *b, struct d_strvec *d_lb, struct d_strvec *d_ub, struct d_strvec *d_lg, struct d_strvec *d_ug, int *idxb, struct d_dense_qp *qp);
 

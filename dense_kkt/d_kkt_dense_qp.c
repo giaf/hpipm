@@ -33,16 +33,16 @@
 #include <blasfeo_d_blas.h>
 
 #include "../include/hpipm_d_dense_qp.h"
-#include "../include/hpipm_d_ipm2_hard_dense_qp.h"
-#include "../include/hpipm_d_ipm2_hard_revcom_qp.h"
+#include "../include/hpipm_d_ipm_hard_dense_qp.h"
+#include "../include/hpipm_d_ipm_hard_revcom_qp.h"
 #include "../include/hpipm_d_aux_ipm_hard.h"
 
 
 
-void d_init_var_hard_dense_qp(struct d_dense_qp *qp, struct d_ipm2_hard_dense_qp_workspace *ws)
+void d_init_var_hard_dense_qp(struct d_dense_qp *qp, struct d_ipm_hard_dense_qp_workspace *ws)
 	{
 
-	struct d_ipm2_hard_revcom_qp_workspace *rws = ws->revcom_workspace;
+	struct d_ipm_hard_revcom_qp_workspace *rws = ws->revcom_workspace;
 
 	// extract rws members
 	int nv = qp->nv;
@@ -125,7 +125,7 @@ void d_init_var_hard_dense_qp(struct d_dense_qp *qp, struct d_ipm2_hard_dense_qp
 
 
 
-void d_compute_res_hard_dense_qp(struct d_dense_qp *qp, struct d_ipm2_hard_dense_qp_workspace *ws)
+void d_compute_res_hard_dense_qp(struct d_dense_qp *qp, struct d_ipm_hard_dense_qp_workspace *ws)
 	{
 
 	int nv = qp->nv;
@@ -177,7 +177,7 @@ void d_compute_res_hard_dense_qp(struct d_dense_qp *qp, struct d_ipm2_hard_dense
 
 
 // range-space (Schur complement) method
-void d_fact_solve_kkt_step_hard_dense_qp(struct d_dense_qp *qp, struct d_ipm2_hard_dense_qp_workspace *ws)
+void d_fact_solve_kkt_step_hard_dense_qp(struct d_dense_qp *qp, struct d_ipm_hard_dense_qp_workspace *ws)
 	{
 
 	int nv = qp->nv;
@@ -185,7 +185,7 @@ void d_fact_solve_kkt_step_hard_dense_qp(struct d_dense_qp *qp, struct d_ipm2_ha
 	int nb = qp->nb;
 	int ng = qp->ng;
 
-	struct d_ipm2_hard_revcom_qp_workspace *rws = ws->revcom_workspace;
+	struct d_ipm_hard_revcom_qp_workspace *rws = ws->revcom_workspace;
 
 	if(nb>0 | ng>0)
 		{

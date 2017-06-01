@@ -27,12 +27,12 @@
 
 
 
-#include "../include/hpipm_d_ipm2_hard_revcom_qp.h"
+#include "../include/hpipm_d_ipm_hard_revcom_qp.h"
 #include "../include/hpipm_d_aux_ipm_hard.h"
 
 
 
-int d_memsize_ipm2_hard_revcom_qp(int nv, int ne, int nb, int ng, int iter_max)
+int d_memsize_ipm_hard_revcom_qp(int nv, int ne, int nb, int ng, int iter_max)
 	{
 
 	int size;
@@ -60,7 +60,7 @@ int d_memsize_ipm2_hard_revcom_qp(int nv, int ne, int nb, int ng, int iter_max)
 
 
 
-void d_create_ipm2_hard_revcom_qp(struct d_ipm2_hard_revcom_qp_workspace *workspace, void *mem)
+void d_create_ipm_hard_revcom_qp(struct d_ipm_hard_revcom_qp_workspace *workspace, void *mem)
 	{
 
 	int nv = workspace->nv;
@@ -75,7 +75,7 @@ void d_create_ipm2_hard_revcom_qp(struct d_ipm2_hard_revcom_qp_workspace *worksp
 // if target avx NO!!!!
 // nv0 = ...
 
-	workspace->memsize = d_memsize_ipm2_hard_revcom_qp(nv, ne, nb, ng, workspace->iter_max);
+	workspace->memsize = d_memsize_ipm_hard_revcom_qp(nv, ne, nb, ng, workspace->iter_max);
 
 	double *d_ptr = (double *) mem;
 

@@ -41,6 +41,8 @@
 
 #define CREATE_STRMAT s_create_strmat
 #define CREATE_STRVEC s_create_strvec
+#define CVT_MAT2STRMAT s_cvt_mat2strmat
+#define CVT_VEC2STRVEC s_cvt_vec2strvec
 #define DENSE_QP_DIM s_dense_qp_dim
 #define DENSE_QP_VEC s_dense_qp_vec
 #define DENSE_QP_MAT s_dense_qp_mat
@@ -55,10 +57,8 @@
 
 #define MEMSIZE_DENSE_QP s_memsize_dense_qp
 #define CREATE_DENSE_QP s_create_dense_qp
-#define INIT_DENSE_QP_DIM s_init_dense_qp_dim
-#define INIT_DENSE_QP_VEC s_init_dense_qp_vec
-#define INIT_DENSE_QP_MAT s_init_dense_qp_mat
-#define INIT_DENSE_QP s_init_dense_qp
+#define CVT_COLMAJ_TO_DENSE_QP s_cvt_colmaj_to_dense_qp
+#define CVT_LIBSTR_TO_DENSE_QP s_cvt_libstr_to_dense_qp
 #define CAST_DENSE_QP_DIM s_cast_dense_qp_dim
 //#define CREATE_DENSE_QP s_create_dense_qp
 //#define COPY_DENSE_QP s_copy_dense_qp

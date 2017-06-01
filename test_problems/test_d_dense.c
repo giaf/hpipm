@@ -39,8 +39,7 @@
 #include <blasfeo_d_blas.h>
 
 #include "../include/hpipm_d_dense_qp.h"
-#include "../include/hpipm_d_ipm2_hard_dense_qp.h"
-#include "../include/hpipm_d_ipm2_hard_revcom_qp.h"
+#include "../include/hpipm_d_ipm_hard_dense_qp.h"
 
 #include "tools.h"
 
@@ -61,8 +60,8 @@ int main()
 
 	int nv = 2;
 	int ne = 0;
-	int nb = 0;
-	int ng = 2;
+	int nb = 2;
+	int ng = 0;
 
 	double H[] = {4.0, 1.0, 1.0, 2.0};
 	double g[] = {1.0, 1.0};
@@ -78,46 +77,6 @@ int main()
 	double d_ug[] = {1.5, 0.5};
 
 /************************************************
-* data struct
-************************************************/	
-
-	struct d_strmat sH;
-	d_allocate_strmat(nv, nv, &sH);
-	d_cvt_mat2strmat(nv, nv, H, nv, &sH, 0, 0);
-
-	struct d_strmat sA;
-	d_allocate_strmat(ne, nv, &sA);
-	d_cvt_mat2strmat(ne, nv, A, ne, &sA, 0, 0);
-
-	struct d_strmat sC;
-	d_allocate_strmat(nv, ng, &sC);
-	d_cvt_mat2strmat(nv, ng, C, nv, &sC, 0, 0);
-
-	struct d_strvec sg;
-	d_allocate_strvec(nv, &sg);
-	d_cvt_vec2strvec(nv, g, &sg, 0);
-
-	struct d_strvec sb;
-	d_allocate_strvec(ne, &sb);
-	d_cvt_vec2strvec(ne, b, &sb, 0);
-
-	struct d_strvec sd_lb;
-	d_allocate_strvec(nb, &sd_lb);
-	d_cvt_vec2strvec(nb, d_lb, &sd_lb, 0);
-
-	struct d_strvec sd_ub;
-	d_allocate_strvec(nb, &sd_ub);
-	d_cvt_vec2strvec(nb, d_ub, &sd_ub, 0);
-
-	struct d_strvec sd_lg;
-	d_allocate_strvec(ng, &sd_lg);
-	d_cvt_vec2strvec(ng, d_lg, &sd_lg, 0);
-
-	struct d_strvec sd_ug;
-	d_allocate_strvec(ng, &sd_ug);
-	d_cvt_vec2strvec(ng, d_ug, &sd_ug, 0);
-
-/************************************************
 * problem struct
 ************************************************/	
 
@@ -127,7 +86,7 @@ int main()
 
 	struct d_dense_qp qp;
 	d_create_dense_qp(nv, ne, nb, ng, &qp, qp_mem);
-	d_init_dense_qp(&sH, &sA, &sC, &sg, &sb, &sd_lb, &sd_ub, &sd_lg, &sd_ug, idxb, &qp);
+	d_cvt_colmaj_to_dense_qp(H, A, C, g, b, d_lb, d_ub, d_lg, d_ug, idxb, &qp);
 
 	d_print_strmat(nv, nv, qp.H, 0, 0);
 	d_print_strmat(ne, nv, qp.A, 0, 0);
@@ -144,18 +103,18 @@ int main()
 * ipm
 ************************************************/	
 
-	struct d_ipm2_hard_dense_qp_arg arg;
+	struct d_ipm_hard_dense_qp_arg arg;
 	arg.alpha_min = 1e-8;
 	arg.mu_max = 1e-12;
 	arg.iter_max = 10;
 	arg.mu0 = 1.0;
 
-	int ipm_size = d_memsize_ipm2_hard_dense_qp(&qp, &arg);
+	int ipm_size = d_memsize_ipm_hard_dense_qp(&qp, &arg);
 	printf("\nipm size = %d\n", ipm_size);
 	void *ipm_mem = malloc(ipm_size);
 
-	struct d_ipm2_hard_dense_qp_workspace workspace;
-	d_create_ipm2_hard_dense_qp(&qp, &arg, &workspace, ipm_mem);
+	struct d_ipm_hard_dense_qp_workspace workspace;
+	d_create_ipm_hard_dense_qp(&qp, &arg, &workspace, ipm_mem);
 
 	int rep, nrep=1000;
 
@@ -165,7 +124,7 @@ int main()
 
 	for(rep=0; rep<nrep; rep++)
 		{
-		d_solve_ipm2_hard_dense_qp(&qp, &workspace);
+		d_solve_ipm_hard_dense_qp(&qp, &workspace);
 		}
 
 	gettimeofday(&tv1, NULL); // stop
@@ -176,7 +135,7 @@ int main()
 
 	for(rep=0; rep<nrep; rep++)
 		{
-		d_solve_ipm2_hard_dense_qp(&qp, &workspace);
+		d_solve_ipm_hard_dense_qp(&qp, &workspace);
 		}
 
 	gettimeofday(&tv1, NULL); // stop
@@ -211,15 +170,6 @@ int main()
 * free memory
 ************************************************/	
 
-	d_free_strmat(&sH);
-	d_free_strmat(&sA);
-	d_free_strmat(&sC);
-	d_free_strvec(&sg);
-	d_free_strvec(&sb);
-	d_free_strvec(&sd_lb);
-	d_free_strvec(&sd_ub);
-	d_free_strvec(&sd_lg);
-	d_free_strvec(&sd_ug);
 	free(qp_mem);
 	free(ipm_mem);
 

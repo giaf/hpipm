@@ -32,11 +32,11 @@
 #include <blasfeo_d_aux.h>
 #include <blasfeo_d_blas.h>
 
-#include "../include/hpipm_d_ipm2_hard_revcom_qp.h"
+#include "../include/hpipm_d_ipm_hard_revcom_qp.h"
 
 
 
-void d_compute_Qx_qx_hard_qp(struct d_ipm2_hard_revcom_qp_workspace *rws)
+void d_compute_Qx_qx_hard_qp(struct d_ipm_hard_revcom_qp_workspace *rws)
 	{
 
 	int nv = rws->nv;
@@ -79,7 +79,7 @@ void d_compute_Qx_qx_hard_qp(struct d_ipm2_hard_revcom_qp_workspace *rws)
 
 
 
-void d_compute_lam_t_hard_qp(struct d_ipm2_hard_revcom_qp_workspace *rws)
+void d_compute_lam_t_hard_qp(struct d_ipm_hard_revcom_qp_workspace *rws)
 	{
 
 	int nv = rws->nv;
@@ -124,7 +124,7 @@ void d_compute_lam_t_hard_qp(struct d_ipm2_hard_revcom_qp_workspace *rws)
 
 
 
-void d_compute_alpha_hard_qp(struct d_ipm2_hard_revcom_qp_workspace *rws)
+void d_compute_alpha_hard_qp(struct d_ipm_hard_revcom_qp_workspace *rws)
 	{
 	
 	// extract workspace members
@@ -177,7 +177,7 @@ void d_compute_alpha_hard_qp(struct d_ipm2_hard_revcom_qp_workspace *rws)
 	
 
 
-void d_update_var_hard_qp(struct d_ipm2_hard_revcom_qp_workspace *rws)
+void d_update_var_hard_qp(struct d_ipm_hard_revcom_qp_workspace *rws)
 	{
 	
 	// extract workspace members

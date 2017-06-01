@@ -115,7 +115,7 @@ void CREATE_DENSE_QP(int nv, int ne, int nb, int ng, struct DENSE_QP *qp, void *
 	s_ptr = (s_ptr+63)/64*64;
 
 
-	// double stuff
+	//  stuff
 	void *v_ptr;
 	v_ptr = (void *) s_ptr;
 
@@ -149,7 +149,34 @@ void CREATE_DENSE_QP(int nv, int ne, int nb, int ng, struct DENSE_QP *qp, void *
 
 
 
-void INIT_DENSE_QP(struct STRMAT *H, struct STRMAT *A, struct STRMAT *C, struct STRVEC *g, struct STRVEC *b, struct STRVEC *d_lb, struct STRVEC *d_ub, struct STRVEC *d_lg, struct STRVEC *d_ug, int *idxb, struct DENSE_QP *qp)
+void CVT_COLMAJ_TO_DENSE_QP(REAL *H, REAL *A, REAL *C, REAL *g, REAL *b, REAL *d_lb, REAL *d_ub, REAL *d_lg, REAL *d_ug, int *idxb, struct DENSE_QP *qp)
+	{
+
+	int ii;
+
+	int nv = qp->nv;
+	int ne = qp->ne;
+	int nb = qp->nb;
+	int ng = qp->ng;
+
+	CVT_MAT2STRMAT(nv, nv, H, nv, qp->H, 0, 0);
+	CVT_MAT2STRMAT(ne, nv, A, ne, qp->A, 0, 0);
+	CVT_MAT2STRMAT(ng, nv, C, ng, qp->Ct, 0, 0);
+	CVT_VEC2STRVEC(nv, g, qp->g, 0);
+	CVT_VEC2STRVEC(ne, b, qp->b, 0);
+	CVT_VEC2STRVEC(nb, d_lb, qp->d_lb, 0);
+	CVT_VEC2STRVEC(nb, d_ub, qp->d_ub, 0);
+	CVT_VEC2STRVEC(ng, d_lg, qp->d_lg, 0);
+	CVT_VEC2STRVEC(ng, d_ug, qp->d_ug, 0);
+	for(ii=0; ii<nb; ii++) qp->idxb[ii] = idxb[ii];
+
+	return;
+
+	}
+
+
+
+void CVT_LIBSTR_TO_DENSE_QP(struct STRMAT *H, struct STRMAT *A, struct STRMAT *C, struct STRVEC *g, struct STRVEC *b, struct STRVEC *d_lb, struct STRVEC *d_ub, struct STRVEC *d_lg, struct STRVEC *d_ug, int *idxb, struct DENSE_QP *qp)
 	{
 
 	int ii;
