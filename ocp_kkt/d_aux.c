@@ -35,7 +35,7 @@
 #include <blasfeo_common.h>
 #include <blasfeo_d_aux.h>
 
-#include "../include/hpipm_d_ocp_kkt.h"
+#include "../include/hpipm_d_ocp_qp.h"
 
 
 

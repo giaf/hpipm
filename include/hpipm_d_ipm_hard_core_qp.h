@@ -27,39 +27,80 @@
 
 
 
-#include <blasfeo_target.h>
-#include <blasfeo_common.h>
-
-
-
-struct d_qp_dim
+struct d_ipm_hard_core_qp_workspace
 	{
-	int nv; // number of variables
+	double *d; // constraints
+	double *d_lb; // lower box constraints
+	double *d_ub; // upper box constraints
+	double *d_lg; // lower general constraints
+	double *d_ug; // upper general constraints
+	double *v; // primal variables
+	double *pi; // equality constraints multipliers
+	double *lam; // inequality constraints multipliers
+	double *lam_lb; // lower bounds multipliers
+	double *lam_lg; // lower general constraints multipliers
+	double *lam_ub; // upper bounds multipliers
+	double *lam_ug; // upper general constraints multipliers
+	double *t; // inequality constraints slacks
+	double *t_lb; // lower box constraints slacks
+	double *t_lg; // lower general constraints slacks
+	double *t_ub; // upper box constraints slacks
+	double *t_ug; // upper general constraints slacks
+	double *t_inv; // inverse of t
+	double *t_inv_lb; // inverse of t
+	double *t_inv_ub; // inverse of t
+	double *t_inv_lg; // inverse of t
+	double *t_inv_ug; // inverse of t
+	double *dv; // step in v
+	double *dpi; // step in pi
+	double *dlam; // step in lam
+	double *dlam_lb; //
+	double *dlam_lg; //
+	double *dlam_ub; //
+	double *dlam_ug; //
+	double *dt; // step in t
+	double *dt_lb; // step in t_lb
+	double *dt_ub; // step in t_ub
+	double *dt_lg; // step in t_lg
+	double *dt_ug; // step in t_ug
+	double *res_g; // q-residuals
+	double *res_b; // b-residuals
+	double *res_d; // d-residuals
+	double *res_d_lb; // d-residuals
+	double *res_d_ub; // d-residuals
+	double *res_d_lg; // d-residuals
+	double *res_d_ug; // d-residuals
+	double *res_m; // m-residuals
+	double *res_m_lb; // m-residuals
+	double *res_m_ub; // m-residuals
+	double *res_m_lg; // m-residuals
+	double *res_m_ug; // m-residuals
+	double *Qx; // Hessian update
+	double *qx; // gradient update
+	double *conv_stat; // convergence statistics
+	double alpha; // step length
+	double alpha_min; // exit cond on step lenght
+	double sigma; // centering XXX
+	double mu; // duality measuere
+	double mu0; // initial duality measuere
+	double mu_max; // exit cond on mu
+	int nv; // number of primal variables
 	int ne; // number of equality constraints
-	int nb; // number of box constraints
-	int nc; // number of general constraints
+	int nb; // number of two-sized bounds
+	int ng; // number of two-sized constraints
+	int status; // status
+	int entry; // entry point
+	int memsize; // memory size (in bytes) of workspace
+	int iter; // iteration number
+	int iter_max; // exit cond on iter mumber
 	};
 
-struct d_qp_vec
-	{
-	struct d_strvec *g; // gradient
-	struct d_strvec *be; // dynamics vector
-	struct d_strvec *lb; // lower bound
-	struct d_strvec *ub; // upper bound
-	struct d_strvec *lc; // lower constraint
-	struct d_strvec *uc; // upper constraint
-	int *idxb; // index of box constraints
-	};
 
-struct d_qp_mat
-	{
-	};
 
-struct d_qp
-	{
-	struct d_qp_dim *dim;
-	struct d_qp_vec *vec;
-	struct d_qp_mat *mat;
-	void (*d_compute_Ct) (void *qp_dim, void *qp_mat, struct d_strvec *v, struct d_strvec *Ctv); // computes Ct * v
-	};
+//
+int d_memsize_ipm_hard_core_qp(int nv, int ne, int nb, int ng, int iter_max);
+//
 
+void d_create_ipm_hard_core_qp(struct d_ipm_hard_core_qp_workspace *workspace, void *mem);
+//
+void d_ipm_hard_core_qp(struct d_ipm_hard_core_qp_workspace *workspace);

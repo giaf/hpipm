@@ -34,7 +34,7 @@
 
 struct d_ipm_hard_dense_qp_workspace
 	{
-	struct d_ipm_hard_revcom_qp_workspace *revcom_workspace;
+	struct d_ipm_hard_core_qp_workspace *core_workspace;
 	struct d_strvec *v; // primal variables
 	struct d_strvec *pi; // equality constraints multipliers
 	struct d_strvec *lam; // inequality constraints multipliers
