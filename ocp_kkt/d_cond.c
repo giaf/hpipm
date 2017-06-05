@@ -35,10 +35,11 @@
 #include <blasfeo_d_aux.h>
 
 #include "../include/hpipm_d_ocp_qp.h"
+#include "../include/hpipm_d_cond.h"
 
 
 
-void d_cond_BAbt(int N, struct d_ocp_qp *str_in, int idx_in, struct d_ocp_qp *str_out, int idx_out, struct d_cond_mem *str_mem, int idx_mem)
+void d_cond_BAbt(int N, struct d_ocp_qp *qp_in, int idx_in, struct d_ocp_qp *qp_out, int idx_out, struct d_cond_mem *qp_mem, int idx_mem)
 	{
 
 	// early return
@@ -46,16 +47,16 @@ void d_cond_BAbt(int N, struct d_ocp_qp *str_in, int idx_in, struct d_ocp_qp *st
 		return;
 
 	// extract input members
-	int *nx = str_in->nx + idx_in;
-	int *nu = str_in->nu + idx_in;
-	struct d_strmat *sBAbt = str_in->sBAbt + idx_in;
+	int *nx = qp_in->nx + idx_in;
+	int *nu = qp_in->nu + idx_in;
+	struct d_strmat *BAbt = qp_in->BAbt + idx_in;
 
 	// extract output members
-	struct d_strmat *sBAbt2 = str_out->sBAbt + idx_out;
-	struct d_strvec *sb2 = str_out->sb + idx_out;
+	struct d_strmat *BAbt2 = qp_out->BAbt + idx_out;
+	struct d_strvec *b2 = qp_out->b + idx_out;
 
 	// extract memory members
-	struct d_strmat *sGamma = str_mem->sGamma + idx_mem;
+	struct d_strmat *Gamma = qp_mem->Gamma + idx_mem;
 
 	int ii, jj;
 
@@ -64,7 +65,7 @@ void d_cond_BAbt(int N, struct d_ocp_qp *str_in, int idx_in, struct d_ocp_qp *st
 	nu_tmp = 0;
 	ii = 0;
 	// B & A & b
-	dgecp_libstr(nu[0]+nx[0]+1, nx[1], &sBAbt[0], 0, 0, &sGamma[0], 0, 0);
+	dgecp_libstr(nu[0]+nx[0]+1, nx[1], &BAbt[0], 0, 0, &Gamma[0], 0, 0);
 	//
 	nu_tmp += nu[0];
 	ii++;
@@ -74,19 +75,19 @@ void d_cond_BAbt(int N, struct d_ocp_qp *str_in, int idx_in, struct d_ocp_qp *st
 		// TODO check for equal pointers and avoid copy
 
 		// Gamma * A^T
-		dgemm_nn_libstr(nu_tmp+nx[0]+1, nx[ii+1], nx[ii], 1.0, &sGamma[ii-1], 0, 0, &sBAbt[ii], nu[ii], 0, 0.0, &sGamma[ii], nu[ii], 0, &sGamma[ii], nu[ii], 0); // Gamma * A^T
+		dgemm_nn_libstr(nu_tmp+nx[0]+1, nx[ii+1], nx[ii], 1.0, &Gamma[ii-1], 0, 0, &BAbt[ii], nu[ii], 0, 0.0, &Gamma[ii], nu[ii], 0, &Gamma[ii], nu[ii], 0); // Gamma * A^T
 
-		dgecp_libstr(nu[ii], nx[ii+1], &sBAbt[ii], 0, 0, &sGamma[ii], 0, 0);
+		dgecp_libstr(nu[ii], nx[ii+1], &BAbt[ii], 0, 0, &Gamma[ii], 0, 0);
 
 		nu_tmp += nu[ii];
 
-		dgead_libstr(1, nx[ii+1], 1.0, &sBAbt[ii], nu[ii]+nx[ii], 0, &sGamma[ii], nu_tmp+nx[0], 0);
+		dgead_libstr(1, nx[ii+1], 1.0, &BAbt[ii], nu[ii]+nx[ii], 0, &Gamma[ii], nu_tmp+nx[0], 0);
 		}
 	
 	// B & A & b
-	dgecp_libstr(nu_tmp+nx[0]+1, nx[N], &sGamma[N-1], 0, 0, &sBAbt2[0], 0, 0);
+	dgecp_libstr(nu_tmp+nx[0]+1, nx[N], &Gamma[N-1], 0, 0, &BAbt2[0], 0, 0);
 	// b
-	drowex_libstr(nx[N], 1.0, &sBAbt2[0], 0, 0, &sb2[0], 0);
+	drowex_libstr(nx[N], 1.0, &BAbt2[0], 0, 0, &b2[0], 0);
 
 	return;
 
@@ -96,7 +97,7 @@ void d_cond_BAbt(int N, struct d_ocp_qp *str_in, int idx_in, struct d_ocp_qp *st
 
 // workspace_sizes[0] : Lx
 // workspace_sizes[1] : BAbtL
-int d_cond_RSQrq_N2nx3_workspace_size(int N, struct d_ocp_qp *str_in, int idx_in, struct d_cond_work *str_work, int idx_work)
+int d_cond_RSQrq_N2nx3_workspace_size(int N, struct d_ocp_qp *qp_in, int idx_in, struct d_cond_work *qp_work, int idx_work)
 	{
 
 	// early return
@@ -104,11 +105,11 @@ int d_cond_RSQrq_N2nx3_workspace_size(int N, struct d_ocp_qp *str_in, int idx_in
 		return 0;
 
 	// extract input members
-	int *nx = str_in->nx + idx_in;
-	int *nu = str_in->nu + idx_in;
+	int *nx = qp_in->nx + idx_in;
+	int *nu = qp_in->nu + idx_in;
 
 	// extract workspace members
-	int *sizes = str_work->cond_RSQrq_N2nx3_sizes + idx_work;
+	int *sizes = qp_work->cond_RSQrq_N2nx3_sizes + idx_work;
 
 	int ii;
 	int tmp;
@@ -139,7 +140,7 @@ int d_cond_RSQrq_N2nx3_workspace_size(int N, struct d_ocp_qp *str_in, int idx_in
 
 
 
-void d_cond_RSQrq_N2nx3(int N, struct d_ocp_qp *str_in, int idx_in, struct d_ocp_qp *str_out, int idx_out, struct d_cond_mem *str_mem, int idx_mem, struct d_cond_work *str_work, int idx_work, void *workspace)
+void d_cond_RSQrq_N2nx3(int N, struct d_ocp_qp *qp_in, int idx_in, struct d_ocp_qp *qp_out, int idx_out, struct d_cond_mem *qp_mem, int idx_mem, struct d_cond_work *qp_work, int idx_work, void *workspace)
 	{
 
 	// early return
@@ -147,30 +148,30 @@ void d_cond_RSQrq_N2nx3(int N, struct d_ocp_qp *str_in, int idx_in, struct d_ocp
 		return;
 
 	// extract input members
-	int *nx = str_in->nx + idx_in;
-	int *nu = str_in->nu + idx_in;
-	struct d_strmat *sBAbt = str_in->sBAbt + idx_in;
-	struct d_strmat *sRSQrq = str_in->sRSQrq + idx_in;
+	int *nx = qp_in->nx + idx_in;
+	int *nu = qp_in->nu + idx_in;
+	struct d_strmat *BAbt = qp_in->BAbt + idx_in;
+	struct d_strmat *RSQrq = qp_in->RSQrq + idx_in;
 
 	// extract output members
-	struct d_strmat *sRSQrq2 = str_out->sRSQrq + idx_out;
-	struct d_strvec *srq2 = str_out->srq + idx_out;
+	struct d_strmat *RSQrq2 = qp_out->RSQrq + idx_out;
+	struct d_strvec *rq2 = qp_out->rq + idx_out;
 
 	// extract memory members
-	struct d_strmat *sGamma = str_mem->sGamma + idx_mem;
-	struct d_strmat *sL = str_mem->sL + idx_mem;
+	struct d_strmat *Gamma = qp_mem->Gamma + idx_mem;
+	struct d_strmat *L = qp_mem->L + idx_mem;
 
 	// extract workspace members
-	int *sizes = str_work->cond_RSQrq_N2nx3_sizes;
+	int *sizes = qp_work->cond_RSQrq_N2nx3_sizes;
 
 	// declare workspace matrices
-	struct d_strmat sLx;
-	struct d_strmat sBAbtL;
+	struct d_strmat Lx;
+	struct d_strmat BAbtL;
 
 	// early return
 	if(N==0)
 		{
-		dgecp_libstr(nu[0]+nx[0]+1, nu[0]+nx[0], &sRSQrq[0], 0, 0, &sRSQrq2[0], 0, 0);
+		dgecp_libstr(nu[0]+nx[0]+1, nu[0]+nx[0], &RSQrq[0], 0, 0, &RSQrq2[0], 0, 0);
 		return;
 		}
 
@@ -186,15 +187,15 @@ void d_cond_RSQrq_N2nx3(int N, struct d_ocp_qp *str_in, int idx_in, struct d_ocp
 	// final stage 
 	nub -= nu[N];
 
-	dgecp_libstr(nu[N]+nx[N]+1, nu[N]+nx[N], &sRSQrq[N], 0, 0, &sL[N], 0, 0);
+	dgecp_libstr(nu[N]+nx[N]+1, nu[N]+nx[N], &RSQrq[N], 0, 0, &L[N], 0, 0);
 
 	// D
-	dtrcp_l_libstr(nu[N], &sL[N], 0, 0, &sRSQrq2[0], nuf, nuf);
+	dtrcp_l_libstr(nu[N], &L[N], 0, 0, &RSQrq2[0], nuf, nuf);
 
-	dgemm_nn_libstr(nub+nx[0]+1, nu[N], nx[N], 1.0, &sGamma[N-1], 0, 0, &sL[N], nu[N], 0, 0.0, &sRSQrq2[0], nuf+nu[N], nuf, &sRSQrq2[0], nuf+nu[N], nuf);
+	dgemm_nn_libstr(nub+nx[0]+1, nu[N], nx[N], 1.0, &Gamma[N-1], 0, 0, &L[N], nu[N], 0, 0.0, &RSQrq2[0], nuf+nu[N], nuf, &RSQrq2[0], nuf+nu[N], nuf);
 
 	// m
-	dgead_libstr(1, nu[N], 1.0, &sL[N], nu[N]+nx[N], 0, &sRSQrq2[0], nu2+nx[0], nuf);
+	dgead_libstr(1, nu[N], 1.0, &L[N], nu[N]+nx[N], 0, &RSQrq2[0], nu2+nx[0], nuf);
 
 	nuf += nu[N];
 
@@ -205,31 +206,31 @@ void d_cond_RSQrq_N2nx3(int N, struct d_ocp_qp *str_in, int idx_in, struct d_ocp
 		{	
 		nub -= nu[N-nn-1];
 
-		d_create_strmat(nx[N-nn]+1, nx[N-nn], &sLx, workspace+0);
-		d_create_strmat(nu[N-nn-1]+nx[N-nn-1]+1, nx[N-nn], &sBAbtL, workspace+sizes[0]);
+		d_create_strmat(nx[N-nn]+1, nx[N-nn], &Lx, workspace+0);
+		d_create_strmat(nu[N-nn-1]+nx[N-nn-1]+1, nx[N-nn], &BAbtL, workspace+sizes[0]);
 
 #if defined(LA_HIGH_PERFORMANCE)
-		dgecp_libstr(nx[N-nn]+1, nx[N-nn], &sL[N-nn], nu[N-nn], nu[N-nn], &sLx, 0, 0);
+		dgecp_libstr(nx[N-nn]+1, nx[N-nn], &L[N-nn], nu[N-nn], nu[N-nn], &Lx, 0, 0);
 
-		dpotrf_l_mn_libstr(nx[N-nn]+1, nx[N-nn], &sLx, 0, 0, &sLx, 0, 0);
+		dpotrf_l_mn_libstr(nx[N-nn]+1, nx[N-nn], &Lx, 0, 0, &Lx, 0, 0);
 
-		dtrmm_rlnn_libstr(nu[N-nn-1]+nx[N-nn-1]+1, nx[N-nn], 1.0, &sLx, 0, 0, &sBAbt[N-nn-1], 0, 0, &sBAbtL, 0, 0);
+		dtrmm_rlnn_libstr(nu[N-nn-1]+nx[N-nn-1]+1, nx[N-nn], 1.0, &Lx, 0, 0, &BAbt[N-nn-1], 0, 0, &BAbtL, 0, 0);
 #else
-		dpotrf_l_mn_libstr(nx[N-nn]+1, nx[N-nn], &sL[N-nn], nu[N-nn], nu[N-nn], &sLx, 0, 0);
+		dpotrf_l_mn_libstr(nx[N-nn]+1, nx[N-nn], &L[N-nn], nu[N-nn], nu[N-nn], &Lx, 0, 0);
 
-		dtrmm_rlnn_libstr(nu[N-nn-1]+nx[N-nn-1]+1, nx[N-nn], 1.0, &sLx, 0, 0, &sBAbt[N-nn-1], 0, 0, &sBAbtL, 0, 0);
+		dtrmm_rlnn_libstr(nu[N-nn-1]+nx[N-nn-1]+1, nx[N-nn], 1.0, &Lx, 0, 0, &BAbt[N-nn-1], 0, 0, &BAbtL, 0, 0);
 #endif
-		dgead_libstr(1, nx[N-nn], 1.0, &sLx, nx[N-nn], 0, &sBAbtL, nu[N-nn-1]+nx[N-nn-1], 0);
+		dgead_libstr(1, nx[N-nn], 1.0, &Lx, nx[N-nn], 0, &BAbtL, nu[N-nn-1]+nx[N-nn-1], 0);
 
-		dsyrk_ln_mn_libstr(nu[N-nn-1]+nx[N-nn-1]+1, nu[N-nn-1]+nx[N-nn-1], nx[N-nn], 1.0, &sBAbtL, 0, 0, &sBAbtL, 0, 0, 1.0, &sRSQrq[N-nn-1], 0, 0, &sL[N-nn-1], 0, 0);
+		dsyrk_ln_mn_libstr(nu[N-nn-1]+nx[N-nn-1]+1, nu[N-nn-1]+nx[N-nn-1], nx[N-nn], 1.0, &BAbtL, 0, 0, &BAbtL, 0, 0, 1.0, &RSQrq[N-nn-1], 0, 0, &L[N-nn-1], 0, 0);
 
 		// D
-		dtrcp_l_libstr(nu[N-nn-1], &sL[N-nn-1], 0, 0, &sRSQrq2[0], nuf, nuf);
+		dtrcp_l_libstr(nu[N-nn-1], &L[N-nn-1], 0, 0, &RSQrq2[0], nuf, nuf);
 
-		dgemm_nn_libstr(nub+nx[0]+1, nu[N-nn-1], nx[N-nn-1], 1.0, &sGamma[N-nn-2], 0, 0, &sL[N-nn-1], nu[N-nn-1], 0, 0.0, &sRSQrq2[0], nuf+nu[N-nn-1], nuf, &sRSQrq2[0], nuf+nu[N-nn-1], nuf);
+		dgemm_nn_libstr(nub+nx[0]+1, nu[N-nn-1], nx[N-nn-1], 1.0, &Gamma[N-nn-2], 0, 0, &L[N-nn-1], nu[N-nn-1], 0, 0.0, &RSQrq2[0], nuf+nu[N-nn-1], nuf, &RSQrq2[0], nuf+nu[N-nn-1], nuf);
 
 		// m
-		dgead_libstr(1, nu[N-nn-1], 1.0, &sL[N-nn-1], nu[N-nn-1]+nx[N-nn-1], 0, &sRSQrq2[0], nu2+nx[0], nuf);
+		dgead_libstr(1, nu[N-nn-1], 1.0, &L[N-nn-1], nu[N-nn-1]+nx[N-nn-1], 0, &RSQrq2[0], nu2+nx[0], nuf);
 
 		nuf += nu[N-nn-1];
 
@@ -238,30 +239,30 @@ void d_cond_RSQrq_N2nx3(int N, struct d_ocp_qp *str_in, int idx_in, struct d_ocp
 	// first stage
 	nn = N-1;
 
-	d_create_strmat(nx[N-nn]+1, nx[N-nn], &sLx, workspace+0);
-	d_create_strmat(nu[N-nn-1]+nx[N-nn-1]+1, nx[N-nn], &sBAbtL, workspace+sizes[0]);
+	d_create_strmat(nx[N-nn]+1, nx[N-nn], &Lx, workspace+0);
+	d_create_strmat(nu[N-nn-1]+nx[N-nn-1]+1, nx[N-nn], &BAbtL, workspace+sizes[0]);
 	
 #if defined(LA_HIGH_PERFORMANCE)
-	dgecp_libstr(nx[N-nn]+1, nx[N-nn], &sL[N-nn], nu[N-nn], nu[N-nn], &sLx, 0, 0);
+	dgecp_libstr(nx[N-nn]+1, nx[N-nn], &L[N-nn], nu[N-nn], nu[N-nn], &Lx, 0, 0);
 
-	dpotrf_l_mn_libstr(nx[N-nn]+1, nx[N-nn], &sLx, 0, 0, &sLx, 0, 0);
+	dpotrf_l_mn_libstr(nx[N-nn]+1, nx[N-nn], &Lx, 0, 0, &Lx, 0, 0);
 
-	dtrmm_rlnn_libstr(nu[N-nn-1]+nx[N-nn-1]+1, nx[N-nn], 1.0, &sLx, 0, 0, &sBAbt[N-nn-1], 0, 0, &sBAbtL, 0, 0);
+	dtrmm_rlnn_libstr(nu[N-nn-1]+nx[N-nn-1]+1, nx[N-nn], 1.0, &Lx, 0, 0, &BAbt[N-nn-1], 0, 0, &BAbtL, 0, 0);
 #else
-	dpotrf_l_mn_libstr(nx[N-nn]+1, nx[N-nn], &sL[N-nn], nu[N-nn], nu[N-nn], &sLx, 0, 0);
+	dpotrf_l_mn_libstr(nx[N-nn]+1, nx[N-nn], &L[N-nn], nu[N-nn], nu[N-nn], &Lx, 0, 0);
 
-	dtrmm_rlnn_libstr(nu[N-nn-1]+nx[N-nn-1]+1, nx[N-nn], 1.0, &sLx, 0, 0, &sBAbt[N-nn-1], 0, 0, &sBAbtL, 0, 0);
+	dtrmm_rlnn_libstr(nu[N-nn-1]+nx[N-nn-1]+1, nx[N-nn], 1.0, &Lx, 0, 0, &BAbt[N-nn-1], 0, 0, &BAbtL, 0, 0);
 #endif
-	dgead_libstr(1, nx[N-nn], 1.0, &sLx, nx[N-nn], 0, &sBAbtL, nu[N-nn-1]+nx[N-nn-1], 0);
+	dgead_libstr(1, nx[N-nn], 1.0, &Lx, nx[N-nn], 0, &BAbtL, nu[N-nn-1]+nx[N-nn-1], 0);
 
-	dsyrk_ln_mn_libstr(nu[N-nn-1]+nx[N-nn-1]+1, nu[N-nn-1]+nx[N-nn-1], nx[N-nn], 1.0, &sBAbtL, 0, 0, &sBAbtL, 0, 0, 1.0, &sRSQrq[N-nn-1], 0, 0, &sL[N-nn-1], 0, 0);
+	dsyrk_ln_mn_libstr(nu[N-nn-1]+nx[N-nn-1]+1, nu[N-nn-1]+nx[N-nn-1], nx[N-nn], 1.0, &BAbtL, 0, 0, &BAbtL, 0, 0, 1.0, &RSQrq[N-nn-1], 0, 0, &L[N-nn-1], 0, 0);
 
 	// D, M, m, P, p
-//	dgecp_libstr(nu[0]+nx[0]+1, nu[0]+nx[0], &sL[N-nn-1], 0, 0, &sRSQrq2[0], nuf, nuf); // TODO dtrcp for 'rectangular' matrices
-	dtrcp_l_libstr(nu[0]+nx[0], &sL[N-nn-1], 0, 0, &sRSQrq2[0], nuf, nuf); // TODO dtrcp for 'rectangular' matrices
-	dgecp_libstr(1, nu[0]+nx[0], &sL[N-nn-1], nu[0]+nx[0], 0, &sRSQrq2[0], nuf+nu[0]+nx[0], nuf); // TODO dtrcp for 'rectangular' matrices
+//	dgecp_libstr(nu[0]+nx[0]+1, nu[0]+nx[0], &L[N-nn-1], 0, 0, &RSQrq2[0], nuf, nuf); // TODO dtrcp for 'rectangular' matrices
+	dtrcp_l_libstr(nu[0]+nx[0], &L[N-nn-1], 0, 0, &RSQrq2[0], nuf, nuf); // TODO dtrcp for 'rectangular' matrices
+	dgecp_libstr(1, nu[0]+nx[0], &L[N-nn-1], nu[0]+nx[0], 0, &RSQrq2[0], nuf+nu[0]+nx[0], nuf); // TODO dtrcp for 'rectangular' matrices
 	// m p
-	drowex_libstr(nu[0]+nx[0], 1.0, &sRSQrq2[0], 0, 0, &srq2[0], 0);
+	drowex_libstr(nu[0]+nx[0], 1.0, &RSQrq2[0], 0, 0, &rq2[0], 0);
 
 	return;
 
@@ -270,7 +271,7 @@ void d_cond_RSQrq_N2nx3(int N, struct d_ocp_qp *str_in, int idx_in, struct d_ocp
 
 
 #if 0
-int d_cond_DCtd_workspace_size(int N, struct d_ocp_qp *str_in, int idx_in)
+int d_cond_DCtd_workspace_size(int N, struct d_ocp_qp *qp_in, int idx_in)
 	{
 
 	// early return
@@ -278,8 +279,8 @@ int d_cond_DCtd_workspace_size(int N, struct d_ocp_qp *str_in, int idx_in)
 		return 0;
 
 	// extract input members
-	int *nx = str_in->nx + idx_in;
-	int *ng = str_in->ng + idx_in;
+	int *nx = qp_in->nx + idx_in;
+	int *ng = qp_in->ng + idx_in;
 
 	int ii;
 	int tmp;
@@ -300,7 +301,7 @@ int d_cond_DCtd_workspace_size(int N, struct d_ocp_qp *str_in, int idx_in)
 
 
 
-void d_cond_DCtd(int N, struct d_ocp_qp *str_in, int idx_in, struct d_ocp_qp *str_out, int idx_out, struct d_cond_mem *str_mem, int idx_mem, void *workspace)
+void d_cond_DCtd(int N, struct d_ocp_qp *qp_in, int idx_in, struct d_ocp_qp *qp_out, int idx_out, struct d_cond_mem *qp_mem, int idx_mem, void *workspace)
 	{
 
 	// early return
@@ -308,21 +309,21 @@ void d_cond_DCtd(int N, struct d_ocp_qp *str_in, int idx_in, struct d_ocp_qp *st
 		return;
 
 	// extract input members
-	int *nx = str_in->nx + idx_in;
-	int *nu = str_in->nu + idx_in;
-	int *nb = str_in->nb + idx_in;
-	int *ng = str_in->ng + idx_in;
-	int **idxb = str_in->idxb + idx_in;
-	struct d_strmat *sDCt = str_in->sDCt + idx_in;
-	struct d_strvec *sd = str_in->sd + idx_in;
+	int *nx = qp_in->nx + idx_in;
+	int *nu = qp_in->nu + idx_in;
+	int *nb = qp_in->nb + idx_in;
+	int *ng = qp_in->ng + idx_in;
+	int **idxb = qp_in->idxb + idx_in;
+	struct d_strmat *sDCt = qp_in->sDCt + idx_in;
+	struct d_strvec *sd = qp_in->sd + idx_in;
 
 	// extract output members
-	struct d_strmat *sDCt2 = str_out->sDCt + idx_out;
-	struct d_strvec *sd2 = str_out->sd + idx_out;
-	int **idxb2 = str_out->idxb + idx_out;
+	struct d_strmat *sDCt2 = qp_out->sDCt + idx_out;
+	struct d_strvec *sd2 = qp_out->sd + idx_out;
+	int **idxb2 = qp_out->idxb + idx_out;
 
 	// extract memory members
-	struct d_strmat *sGamma = str_mem->sGamma + idx_mem;
+	struct d_strmat *sGamma = qp_mem->sGamma + idx_mem;
 
 
 	double *d2 = sd2->pa; // TODO use VECEL instead !!!
@@ -358,7 +359,7 @@ void d_cond_DCtd(int N, struct d_ocp_qp *str_in, int idx_in, struct d_ocp_qp *st
 	int nt2 = nb2 + ng2;
 
 	// set constraint matrix to zero (it's 2 lower triangular matrices atm)
-	dgese_libstr(nu2+nx2, ng2, 0.0, &sDCt2[0], 0, 0);
+	dgese_libstr(nu2+nx2, ng2, 0.0, &DCt2[0], 0, 0);
 
 	// box constraints
 
@@ -394,10 +395,10 @@ void d_cond_DCtd(int N, struct d_ocp_qp *str_in, int idx_in, struct d_ocp_qp *st
 			else // state: general constraint
 				{
 				idx_g = idxb[N-ii][jj]-nu0;
-				tmp = dgeex1_libstr(&sGamma[N-1-ii], idx_gammab, idx_g);
+				tmp = dgeex1_libstr(&Gamma[N-1-ii], idx_gammab, idx_g);
 				d2[nb2+0*nt2+ig] = ptr_d[0*nt0+jj] - tmp;
 				d2[nb2+1*nt2+ig] = ptr_d[1*nt0+jj] - tmp;
-				dgecp_libstr(idx_gammab, 1, &sGamma[N-ii-1], 0, idx_g, &sDCt2[0], nu_tmp, ig);
+				dgecp_libstr(idx_gammab, 1, &Gamma[N-ii-1], 0, idx_g, &DCt2[0], nu_tmp, ig);
 				ig++;
 				}
 			}
@@ -445,31 +446,31 @@ void d_cond_DCtd(int N, struct d_ocp_qp *str_in, int idx_in, struct d_ocp_qp *st
 
 			c_ptr = (char *) workspace;
 
-			dgecp_libstr(nu0, ng0, &sDCt[N-ii], 0, 0, &sDCt2[0], nu_tmp, nbg+ng_tmp);
+			dgecp_libstr(nu0, ng0, &DCt[N-ii], 0, 0, &DCt2[0], nu_tmp, nbg+ng_tmp);
 
 			nu_tmp += nu0;
 
-			d_create_strmat(ng0, nx0, &sC, (void *) c_ptr);
+			d_create_strmat(ng0, nx0, &C, (void *) c_ptr);
 			c_ptr += sC.memory_size;
 
-			dgetr_libstr(nx0, ng0, 1.0, &sDCt[N-ii], nu0, 0, &sC, 0, 0);
+			dgetr_libstr(nx0, ng0, 1.0, &DCt[N-ii], nu0, 0, &C, 0, 0);
 
-			dgemm_nt_libstr(nu2+nx[0]-nu_tmp, ng0, nx0, 1.0, &sGamma[N-1-ii], 0, 0, &sC, 0, 0, 0.0, &sDCt2[0], nu_tmp, nbg+ng_tmp, &sDCt2[0], nu_tmp, nbg+ng_tmp);
+			dgemm_nt_libstr(nu2+nx[0]-nu_tmp, ng0, nx0, 1.0, &Gamma[N-1-ii], 0, 0, &C, 0, 0, 0.0, &DCt2[0], nu_tmp, nbg+ng_tmp, &DCt2[0], nu_tmp, nbg+ng_tmp);
 
-			dveccp_libstr(ng0, &sd[N-ii], nb0+0*nt0, sd2, nb2+0*nt2+nbg+ng_tmp);
-			dveccp_libstr(ng0, &sd[N-ii], nb0+1*nt0, sd2, nb2+1*nt2+nbg+ng_tmp);
+			dveccp_libstr(ng0, &d[N-ii], nb0+0*nt0, sd2, nb2+0*nt2+nbg+ng_tmp);
+			dveccp_libstr(ng0, &d[N-ii], nb0+1*nt0, sd2, nb2+1*nt2+nbg+ng_tmp);
 
-			d_create_strvec(nx0, &sGammab, (void *) c_ptr);
+			d_create_strvec(nx0, &Gammab, (void *) c_ptr);
 			c_ptr += sGammab.memory_size;
-			d_create_strvec(ng0, &sCGammab, (void *) c_ptr);
+			d_create_strvec(ng0, &CGammab, (void *) c_ptr);
 			c_ptr += sCGammab.memory_size;
 
-			drowex_libstr(nx0, 1.0, &sGamma[N-1-ii], nu2+nx[0]-nu_tmp, 0, &sGammab, 0);
+			drowex_libstr(nx0, 1.0, &Gamma[N-1-ii], nu2+nx[0]-nu_tmp, 0, &Gammab, 0);
 
-			dgemv_n_libstr(ng0, nx0, 1.0, &sC, 0, 0, &sGammab, 0, 0.0, &sCGammab, 0, &sCGammab, 0);
+			dgemv_n_libstr(ng0, nx0, 1.0, &C, 0, 0, &Gammab, 0, 0.0, &CGammab, 0, &CGammab, 0);
 
-			daxpy_libstr(ng0, -1.0, &sCGammab, 0, sd2, nb2+0*nt2+nbg+ng_tmp, sd2, nb2+0*nt2+nbg+ng_tmp);
-			daxpy_libstr(ng0, -1.0, &sCGammab, 0, sd2, nb2+1*nt2+nbg+ng_tmp, sd2, nb2+1*nt2+nbg+ng_tmp);
+			daxpy_libstr(ng0, -1.0, &CGammab, 0, sd2, nb2+0*nt2+nbg+ng_tmp, sd2, nb2+0*nt2+nbg+ng_tmp);
+			daxpy_libstr(ng0, -1.0, &CGammab, 0, sd2, nb2+1*nt2+nbg+ng_tmp, sd2, nb2+1*nt2+nbg+ng_tmp);
 
 			ng_tmp += ng0;
 			
@@ -493,10 +494,10 @@ void d_cond_DCtd(int N, struct d_ocp_qp *str_in, int idx_in, struct d_ocp_qp *st
 	if(ng0>0)
 		{
 
-		dgecp_libstr(nu0+nx0, ng0, &sDCt[0], 0, 0, &sDCt2[0], nu_tmp, nbg+ng_tmp);
+		dgecp_libstr(nu0+nx0, ng0, &DCt[0], 0, 0, &DCt2[0], nu_tmp, nbg+ng_tmp);
 
-		dveccp_libstr(ng0, &sd[0], nb0+0*nt0, sd2, nb2+0*nt2+nbg+ng_tmp);
-		dveccp_libstr(ng0, &sd[0], nb0+1*nt0, sd2, nb2+1*nt2+nbg+ng_tmp);
+		dveccp_libstr(ng0, &d[0], nb0+0*nt0, sd2, nb2+0*nt2+nbg+ng_tmp);
+		dveccp_libstr(ng0, &d[0], nb0+1*nt0, sd2, nb2+1*nt2+nbg+ng_tmp);
 
 //		ng_tmp += ng[N-ii];
 

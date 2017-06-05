@@ -32,17 +32,17 @@
 
 
 
-struct d_ocp_qp
+struct s_ocp_qp
 	{
-	struct d_strmat *BAbt;
-	struct d_strvec *b;
-	struct d_strmat *RSQrq;
-	struct d_strvec *rq;
-	struct d_strmat *DCt;
-	struct d_strvec *lb;
-	struct d_strvec *ub;
-	struct d_strvec *lg;
-	struct d_strvec *ug;
+	struct s_strmat *BAbt;
+	struct s_strvec *b;
+	struct s_strmat *RSQrq;
+	struct s_strvec *rq;
+	struct s_strmat *DCt;
+	struct s_strvec *lb;
+	struct s_strvec *ub;
+	struct s_strvec *lg;
+	struct s_strvec *ug;
 	int *nx; // number of states
 	int *nu; // number of inputs
 	int *nb; // number of box constraints
@@ -55,12 +55,12 @@ struct d_ocp_qp
 
 
 //
-int d_memsize_ocp_qp(int N, int *nx, int *nu, int *nb, int *ng);
+int s_memsize_ocp_qp(int N, int *nx, int *nu, int *nb, int *ng);
 //
-void d_create_ocp_qp(int N, int *nx, int *nu, int *nb, int *ng, struct d_ocp_qp *qp, void *memory);
+void s_create_ocp_qp(int N, int *nx, int *nu, int *nb, int *ng, struct s_ocp_qp *qp, void *memory);
 //
-void d_cvt_colmaj_to_ocp_qp(double **A, double **B, double **b, double **Q, double **S, double **R, double **q, double **r, double **lb, double **ub, double **C, double **D, double **lg, double **ug, struct d_ocp_qp *qp);
+void s_cvt_colmaj_to_ocp_qp(float **A, float **B, float **b, float **Q, float **S, float **R, float **q, float **r, float **lb, float **ub, float **C, float **D, float **lg, float **ug, struct s_ocp_qp *qp);
 //
-//void d_cast_ocp_qp(int N, int *nx, int *nu, int *nb, int **idxb, int *ng, struct d_strmat *sBAbt, struct d_strvec *sb, struct d_strmat *sRSQrq, struct d_strvec *srq, struct d_strmat *sDCt, struct d_strvec *slb, struct d_strvec *sub, struct d_strvec *slg, struct d_strvec *sug, struct d_ocp_qp *str_out);
+//void s_cast_ocp_qp(int N, int *nx, int *nu, int *nb, int **idxb, int *ng, struct s_strmat *sBAbt, struct s_strvec *sb, struct s_strmat *sRSQrq, struct s_strvec *srq, struct s_strmat *sDCt, struct s_strvec *slb, struct s_strvec *sub, struct s_strvec *slg, struct s_strvec *sug, struct s_ocp_qp *str_out);
 //
-void d_copy_ocp_qp(struct d_ocp_qp *qp_in, struct d_ocp_qp *qp_out);
+void s_copy_ocp_qp(struct s_ocp_qp *qp_in, struct s_ocp_qp *qp_out);

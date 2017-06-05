@@ -149,7 +149,7 @@ void CREATE_DENSE_QP(int nv, int ne, int nb, int ng, struct DENSE_QP *qp, void *
 
 
 
-void CVT_COLMAJ_TO_DENSE_QP(REAL *H, REAL *A, REAL *C, REAL *g, REAL *b, REAL *d_lb, REAL *d_ub, REAL *d_lg, REAL *d_ug, int *idxb, struct DENSE_QP *qp)
+void CVT_COLMAJ_TO_DENSE_QP(REAL *H, REAL *g, REAL *A, REAL *b, int *idxb, REAL *d_lb, REAL *d_ub, REAL *C, REAL *d_lg, REAL *d_ug, struct DENSE_QP *qp)
 	{
 
 	int ii;

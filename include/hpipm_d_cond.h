@@ -21,58 +21,21 @@
 * License along with HPMPC; if not, write to the Free Software                                    *
 * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA                  *
 *                                                                                                 *
-* Author: Gianluca Frison, gianluca.frison (at) imtek.uni-freiburg.de                             *
+* Author: Gianluca Frison, gianluca.frison (at) imtek.uni-freiburg.de                             *                          
 *                                                                                                 *
 **************************************************************************************************/
 
-
-
-#include <blasfeo_target.h>
-#include <blasfeo_common.h>
-
-
-
-struct s_ocp_qp
+struct d_cond_mem
 	{
-	int NN; // hotizon lenght
-	int *nx; // number of states
-	int *nu; // number of inputs
-	int *nb; // number of box constraints
-	int **idxb; // index of box constraints
-	int *ng; // number of general constraints
-	struct s_strmat *sBAbt;
-	struct s_strvec *sb;
-	struct s_strmat *sRSQrq;
-	struct s_strvec *srq;
-	struct s_strmat *sDCt;
-	struct s_strvec *slb;
-	struct s_strvec *sub;
-	struct s_strvec *slg;
-	struct s_strvec *sug;
+	struct d_strmat *Gamma;
+	struct d_strmat *L;
 	};
 
 
 
-struct s_cond_mem
-	{
-	struct s_strmat *sGamma;
-	struct s_strmat *sL;
-	};
-
-
-
-struct s_cond_work
+struct d_cond_work
 	{
 	int *cond_RSQrq_N2nx3_sizes;
+	int NN; // hotizon lenght
+	int mem_size; // memory size in bytes
 	};
-
-
-
-//
-int s_size_ocp_qp(int N, int *nx, int *nu, int *nb, int *ng);
-//
-void s_create_ocp_qp(int N, int *nx, int *nu, int *nb, int *ng, struct s_ocp_qp *str_out, void *memory);
-//
-void s_cast_ocp_qp(int N, int *nx, int *nu, int *nb, int **idxb, int *ng, struct s_strmat *sBAbt, struct s_strvec *sb, struct s_strmat *sRSQrq, struct s_strvec *srq, struct s_strmat *sDCt, struct s_strvec *slb, struct s_strvec *sub, struct s_strvec *slg, struct s_strvec *sug, struct s_ocp_qp *str_out);
-//
-void s_copy_ocp_qp(struct s_ocp_qp *str_in, struct s_ocp_qp *str_out);
