@@ -60,8 +60,8 @@ int main()
 
 	int nv = 2;
 	int ne = 0;
-	int nb = 2;
-	int ng = 0;
+	int nb = 0;
+	int ng = 2;
 
 	double H[] = {4.0, 1.0, 1.0, 2.0};
 	double g[] = {1.0, 1.0};

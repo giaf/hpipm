@@ -27,6 +27,8 @@
 
 
 
+#include <math.h>
+
 #include <blasfeo_target.h>
 #include <blasfeo_common.h>
 #include <blasfeo_d_aux.h>
@@ -71,18 +73,24 @@ void d_init_var_hard_dense_qp(struct d_dense_qp *qp, struct d_ipm_hard_dense_qp_
 	int idxb0;
 	double thr0 = 0.1;
 
+	// warm start TODO
+
+
 	// cold start
 
+	// primal variables
 	for(ii=0; ii<nv; ii++)
 		{
 		v[ii] = 0.0;
 		}
 	
+	// equality constraints
 	for(ii=0; ii<ne; ii++)
 		{
 		pi[ii] = 0.0;
 		}
 	
+	// box constraints
 	for(ii=0; ii<nb; ii++)
 		{
 		idxb0 = idxb[ii];
@@ -111,10 +119,19 @@ void d_init_var_hard_dense_qp(struct d_dense_qp *qp, struct d_ipm_hard_dense_qp_
 		lam_ub[ii] = mu0/t_ub[ii];
 		}
 	
+	// inequality constraints
+	dgemv_t_libstr(nv, ng, 1.0, qp->Ct, 0, 0, ws->v, 0, 0.0, ws->t_lg, 0, ws->t_lg, 0);
 	for(ii=0; ii<ng; ii++)
 		{
-		t_lg[ii] = 1.0;
-		t_ug[ii] = 1.0;
+		t_ug[ii] = t_lg[ii];
+		t_lg[ii] -= d_lb[ii];
+		t_ug[ii] += d_ub[ii];
+		t_lg[ii] = fmax( thr0, t_lb[ii] );
+		t_ug[ii] = fmax( thr0, t_ub[ii] );
+//		if(t_lb[ii]<thr0) t_lg[ii] = thr0;
+//		if(t_ub[ii]<thr0) t_ug[ii] = thr0;
+//		t_lg[ii] = 1.0;
+//		t_ug[ii] = 1.0;
 		lam_lg[ii] = mu0/t_lg[ii];
 		lam_ug[ii] = mu0/t_ug[ii];
 		}
