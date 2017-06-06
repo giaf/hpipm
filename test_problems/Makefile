@@ -51,7 +51,8 @@ LIBS += /opt/atlas/lib/liblapack.a /opt/atlas/lib/libcblas.a /opt/atlas/lib/libf
 endif
 
 #OBJS_TEST = tools.o test_d_cond.o
-OBJS_TEST = test_d_dense.o
+#OBJS_TEST = test_d_dense.o
+OBJS_TEST = tools.o test_d_ocp.o
 
 obj: $(OBJS_TEST)
 	$(CC) -o test.out $(OBJS_TEST) -L. libhpipm.a $(LIBS) #-pg

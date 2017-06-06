@@ -23,6 +23,7 @@
 *                                                                                                 *
 **************************************************************************************************/
 
+void dgemv_n_3l(int m, int n, double *A, int lda , double *x, double *z);
 void dgemm_nn_3l(int m, int n, int k, double *A, int lda , double *B, int ldb, double *C, int ldc);
 void daxpy_3l(int n, double da, double *dx, double *dy);
 void dscal_3l(int n, double da, double *dx);

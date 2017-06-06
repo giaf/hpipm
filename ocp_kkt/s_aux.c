@@ -41,8 +41,12 @@
 
 #define CREATE_STRMAT s_create_strmat
 #define CREATE_STRVEC s_create_strvec
+#define CVT_MAT2STRMAT s_cvt_mat2strmat
+#define CVT_TRAN_MAT2STRMAT s_cvt_tran_mat2strmat
+#define CVT_VEC2STRVEC s_cvt_vec2strvec
 #define GECP_LIBSTR sgecp_libstr
 #define OCP_QP s_ocp_qp
+#define REAL float
 #define STRMAT s_strmat
 #define STRVEC s_strvec
 #define SIZE_STRMAT s_size_strmat
@@ -52,7 +56,8 @@
 #define CAST_OCP_QP s_cast_ocp_qp
 #define COPY_OCP_QP s_copy_ocp_qp
 #define CREATE_OCP_QP s_create_ocp_qp
-#define SIZE_OCP_QP s_size_ocp_qp
+#define CVT_COLMAJ_TO_OCP_QP s_cvt_colmaj_to_ocp_qp
+#define MEMSIZE_OCP_QP s_memsize_ocp_qp
 
 
 

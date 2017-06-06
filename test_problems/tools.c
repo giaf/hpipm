@@ -31,9 +31,27 @@
 
 
 
-/************************************************
- matrix-matrix multiplication
-************************************************/
+// matrix-vector multiplication
+void dgemv_n_3l(int m, int n, double *A, int lda , double *x, double *z)
+	{
+	
+	int ii, jj;
+	
+	for(ii=0; ii<m; ii++)
+		{
+		z[ii] = 0.0;
+		for(jj=0; jj<n; jj++)
+			{
+			z[ii] += A[ii+lda*jj] * x[jj];
+			}
+		}
+	
+	return;
+	
+	}
+
+
+// matrix-matrix multiplication
 void dgemm_nn_3l(int m, int n, int k, double *A, int lda , double *B, int ldb, double *C, int ldc)
 	{
 	

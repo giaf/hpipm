@@ -27,7 +27,7 @@
 
 
 
-int SIZE_OCP_QP(int N, int *nx, int *nu, int *nb, int *ng)
+int MEMSIZE_OCP_QP(int N, int *nx, int *nu, int *nb, int *ng)
 	{
 
 	int ii;
@@ -74,7 +74,7 @@ void CREATE_OCP_QP(int N, int *nx, int *nu, int *nb, int *ng, struct OCP_QP *str
 
 
 	// horizon length
-	str_out->NN = N;
+	str_out->N = N;
 
 
 	// int pointer stuff
@@ -251,10 +251,10 @@ void CREATE_OCP_QP(int N, int *nx, int *nu, int *nb, int *ng, struct OCP_QP *str
 
 
 
-void d_cast_ocp_qp(int N, int *nx, int *nu, int *nb, int **idxb, int *ng, struct STRMAT *BAbt, struct STRVEC *b, struct STRMAT *RSQrq, struct STRVEC *rq, struct STRMAT *DCt, struct STRVEC *lb, struct STRVEC *ub, struct STRVEC *lg, struct STRVEC *ug, struct OCP_QP *qp)
+void CAST_OCP_QP(int N, int *nx, int *nu, int *nb, int **idxb, int *ng, struct STRMAT *BAbt, struct STRVEC *b, struct STRMAT *RSQrq, struct STRVEC *rq, struct STRMAT *DCt, struct STRVEC *lb, struct STRVEC *ub, struct STRVEC *lg, struct STRVEC *ug, struct OCP_QP *qp)
 	{
 
-	qp->NN = N;
+	qp->N = N;
 	qp->nx = nx;
 	qp->nu = nu;
 	qp->nb = nb;
@@ -276,10 +276,62 @@ void d_cast_ocp_qp(int N, int *nx, int *nu, int *nb, int **idxb, int *ng, struct
 
 
 
+void CVT_COLMAJ_TO_OCP_QP(REAL **A, REAL **B, REAL **b, REAL **Q, REAL **S, REAL **R, REAL **q, REAL **r, int **idxb, REAL **lb, REAL **ub, REAL **C, REAL **D, REAL **lg, REAL **ug, struct OCP_QP *qp)
+	{
+
+	int N = qp->N;
+	int *nx = qp->nx;
+	int *nu = qp->nu;
+	int *nb = qp->nb;
+	int *ng = qp->ng;
+
+	int ii, jj;
+
+	for(ii=0; ii<N; ii++)
+		{
+		CVT_TRAN_MAT2STRMAT(nx[ii+1], nu[ii], B[ii], nx[ii+1], qp->BAbt+ii, 0, 0);
+		CVT_TRAN_MAT2STRMAT(nx[ii+1], nx[ii], A[ii], nx[ii+1], qp->BAbt+ii, nu[ii], 0);
+		CVT_TRAN_MAT2STRMAT(nx[ii+1], 1, b[ii], nx[ii+1], qp->BAbt+ii, nu[ii]+nx[ii], 0);
+		CVT_VEC2STRVEC(nx[ii+1], b[ii], qp->b+ii, 0);
+		}
+	
+	for(ii=0; ii<=N; ii++)
+		{
+		CVT_MAT2STRMAT(nu[ii], nu[ii], R[ii], nu[ii], qp->RSQrq+ii, 0, 0);
+		CVT_TRAN_MAT2STRMAT(nu[ii], nx[ii], S[ii], nu[ii], qp->RSQrq+ii, nu[ii], 0);
+		CVT_TRAN_MAT2STRMAT(nx[ii], nx[ii], Q[ii], nx[ii], qp->RSQrq+ii, nu[ii], nu[ii]);
+		CVT_TRAN_MAT2STRMAT(nu[ii], 1, r[ii], nu[ii], qp->RSQrq+ii, nu[ii]+nx[ii], 0);
+		CVT_TRAN_MAT2STRMAT(nx[ii], 1, q[ii], nx[ii], qp->RSQrq+ii, nu[ii]+nx[ii], nu[ii]);
+		CVT_VEC2STRVEC(nu[ii], r[ii], qp->rq+ii, 0);
+		CVT_VEC2STRVEC(nx[ii], q[ii], qp->rq+ii, nu[ii]);
+		}
+	
+	for(ii=0; ii<=N; ii++)
+		{
+		for(jj=0; jj<nb[ii]; jj++)
+			qp->idxb[ii][jj] = idxb[ii][jj];
+		CVT_VEC2STRVEC(nb[ii], lb[ii], qp->lb+ii, 0);
+		CVT_VEC2STRVEC(nb[ii], ub[ii], qp->ub+ii, 0);
+		}
+	
+	for(ii=0; ii<=N; ii++)
+		{
+		CVT_TRAN_MAT2STRMAT(ng[ii], nu[ii], D[ii], ng[ii], qp->DCt+ii, 0, 0);
+		CVT_TRAN_MAT2STRMAT(ng[ii], nx[ii], C[ii], ng[ii], qp->DCt+ii, nu[ii], 0);
+		CVT_VEC2STRVEC(ng[ii], lg[ii], qp->lg+ii, 0);
+		CVT_VEC2STRVEC(ng[ii], ug[ii], qp->ug+ii, 0);
+		}
+
+	return;
+
+	}
+
+
+
 void COPY_OCP_QP(struct OCP_QP *qp_in, struct OCP_QP *qp_out)
 	{
 
-	int N = qp_in->NN;
+	int N = qp_in->N;
 	int *nx = qp_in->nx;
 	int *nu = qp_in->nu;
 	int *nb = qp_in->nb;
@@ -288,9 +340,9 @@ void COPY_OCP_QP(struct OCP_QP *qp_in, struct OCP_QP *qp_out)
 	int ii, jj;
 
 #if defined(RUNTIME_CHECKS)
-	if(qp_out->NN != qp_in->NN)
+	if(qp_out->N != qp_in->N)
 		{
-		printf("\nError : x_copy_ocp_qp : qp_out->NN != qp_out->NN : %d != %d\n\n", qp_out->NN, qp_in->NN);
+		printf("\nError : x_copy_ocp_qp : qp_out->N != qp_out->N : %d != %d\n\n", qp_out->N, qp_in->N);
 		exit(1);
 		}
 	for(ii=0; ii<=N; ii++)

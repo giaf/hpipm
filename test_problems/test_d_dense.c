@@ -41,8 +41,6 @@
 #include "../include/hpipm_d_dense_qp.h"
 #include "../include/hpipm_d_ipm_hard_dense_qp.h"
 
-#include "tools.h"
-
 
 
 #define PRINT 1
@@ -55,7 +53,7 @@ int main()
 	int ii;
 
 /************************************************
-* problem dimension and data
+* qp dimension and data
 ************************************************/	
 
 	int nv = 2;
@@ -77,7 +75,7 @@ int main()
 	double d_ug[] = {1.5, 0.5};
 
 /************************************************
-* problem struct
+* qp struct
 ************************************************/	
 
 	int qp_size = d_memsize_dense_qp(nv, ne, nb, ng);
