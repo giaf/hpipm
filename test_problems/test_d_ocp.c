@@ -39,7 +39,7 @@
 #include <blasfeo_d_blas.h>
 
 #include "../include/hpipm_d_ocp_qp.h"
-//#include "../include/hpipm_d_ipm_hard_ocp_qp.h"
+#include "../include/hpipm_d_ipm_hard_ocp_qp.h"
 
 #include "tools.h"
 
@@ -477,6 +477,54 @@ int main()
 * ipm
 ************************************************/	
 
+	struct d_ipm_hard_ocp_qp_arg arg;
+	arg.alpha_min = 1e-8;
+	arg.mu_max = 1e-12;
+	arg.iter_max = 10;
+	arg.mu0 = 1.0;
+
+	int ipm_size = d_memsize_ipm_hard_ocp_qp(&qp, &arg);
+	printf("\nipm size = %d\n", ipm_size);
+	void *ipm_mem = malloc(ipm_size);
+
+	struct d_ipm_hard_ocp_qp_workspace workspace;
+	d_create_ipm_hard_ocp_qp(&qp, &arg, &workspace, ipm_mem);
+
+	d_solve_ipm_hard_ocp_qp(&qp, &workspace);
+
+	printf("\nsolution\n\n");
+	printf("\nux\n");
+	for(ii=0; ii<=N; ii++)
+		d_print_tran_strvec(nu[ii]+nx[ii], workspace.ux+ii, 0);
+	printf("\npi\n");
+	for(ii=0; ii<N; ii++)
+		d_print_tran_strvec(nx[ii+1], workspace.pi+ii, 0);
+	printf("\nlam_lb\n");
+	for(ii=0; ii<=N; ii++)
+		d_print_tran_strvec(nb[ii], workspace.lam_lb+ii, 0);
+	printf("\nlam_ub\n");
+	for(ii=0; ii<=N; ii++)
+		d_print_tran_strvec(nb[ii], workspace.lam_ub+ii, 0);
+	printf("\nlam_lg\n");
+	for(ii=0; ii<=N; ii++)
+		d_print_tran_strvec(ng[ii], workspace.lam_lg+ii, 0);
+	printf("\nlam_ug\n");
+	for(ii=0; ii<=N; ii++)
+		d_print_tran_strvec(ng[ii], workspace.lam_ug+ii, 0);
+	printf("\nt_lb\n");
+	for(ii=0; ii<=N; ii++)
+		d_print_tran_strvec(nb[ii], workspace.t_lb+ii, 0);
+	printf("\nt_ub\n");
+	for(ii=0; ii<=N; ii++)
+		d_print_tran_strvec(nb[ii], workspace.t_ub+ii, 0);
+	printf("\nt_lg\n");
+	for(ii=0; ii<=N; ii++)
+		d_print_tran_strvec(ng[ii], workspace.t_lg+ii, 0);
+	printf("\nt_ug\n");
+	for(ii=0; ii<=N; ii++)
+		d_print_tran_strvec(ng[ii], workspace.t_ug+ii, 0);
+
+
 	// TODO
 
 /************************************************
@@ -511,6 +559,9 @@ int main()
 	d_free(DCN);
 	d_free(lgN);
 	d_free(ugN);
+
+	free(qp_mem);
+	free(ipm_mem);
 
 /************************************************
 * return
