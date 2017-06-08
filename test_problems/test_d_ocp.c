@@ -471,6 +471,7 @@ int main()
 		d_print_tran_strvec(qp.ng[ii], qp.lg+ii, 0);
 	for(ii=0; ii<=N; ii++)
 		d_print_tran_strvec(qp.ng[ii], qp.ug+ii, 0);
+	return;
 #endif
 
 /************************************************
@@ -481,7 +482,7 @@ int main()
 	arg.alpha_min = 1e-8;
 	arg.mu_max = 1e-12;
 	arg.iter_max = 10;
-	arg.mu0 = 1.0;
+	arg.mu0 = 2.0;
 
 	int ipm_size = d_memsize_ipm_hard_ocp_qp(&qp, &arg);
 	printf("\nipm size = %d\n", ipm_size);
@@ -490,8 +491,33 @@ int main()
 	struct d_ipm_hard_ocp_qp_workspace workspace;
 	d_create_ipm_hard_ocp_qp(&qp, &arg, &workspace, ipm_mem);
 
-	d_solve_ipm_hard_ocp_qp(&qp, &workspace);
+	int rep, nrep=1000;
 
+	struct timeval tv0, tv1;
+
+	gettimeofday(&tv0, NULL); // start
+
+	for(rep=0; rep<nrep; rep++)
+		{
+		d_solve_ipm_hard_ocp_qp(&qp, &workspace);
+		}
+
+	gettimeofday(&tv1, NULL); // stop
+
+	double time0 = (tv1.tv_sec-tv0.tv_sec)/(nrep+0.0)+(tv1.tv_usec-tv0.tv_usec)/(nrep*1e6);
+
+	gettimeofday(&tv0, NULL); // start
+
+	for(rep=0; rep<nrep; rep++)
+		{
+		d_solve_ipm_hard_ocp_qp(&qp, &workspace);
+		}
+
+	gettimeofday(&tv1, NULL); // stop
+
+	double time1 = (tv1.tv_sec-tv0.tv_sec)/(nrep+0.0)+(tv1.tv_usec-tv0.tv_usec)/(nrep*1e6);
+
+#if 1
 	printf("\nsolution\n\n");
 	printf("\nux\n");
 	for(ii=0; ii<=N; ii++)
@@ -524,8 +550,41 @@ int main()
 	for(ii=0; ii<=N; ii++)
 		d_print_tran_strvec(ng[ii], workspace.t_ug+ii, 0);
 
+	printf("\nresiduals\n\n");
+	printf("\nres_g\n");
+	for(ii=0; ii<=N; ii++)
+		d_print_e_tran_strvec(nu[ii]+nx[ii], workspace.res_g+ii, 0);
+	printf("\nres_b\n");
+	for(ii=0; ii<N; ii++)
+		d_print_e_tran_strvec(nx[ii+1], workspace.res_b+ii, 0);
+	printf("\nres_m_lb\n");
+	for(ii=0; ii<=N; ii++)
+		d_print_e_tran_strvec(nb[ii], workspace.res_m_lb+ii, 0);
+	printf("\nres_m_ub\n");
+	for(ii=0; ii<=N; ii++)
+		d_print_e_tran_strvec(nb[ii], workspace.res_m_ub+ii, 0);
+	printf("\nres_m_lg\n");
+	for(ii=0; ii<=N; ii++)
+		d_print_e_tran_strvec(ng[ii], workspace.res_m_lg+ii, 0);
+	printf("\nres_m_ug\n");
+	for(ii=0; ii<=N; ii++)
+		d_print_e_tran_strvec(ng[ii], workspace.res_m_ug+ii, 0);
+	printf("\nres_d_lb\n");
+	for(ii=0; ii<=N; ii++)
+		d_print_e_tran_strvec(nb[ii], workspace.res_d_lb+ii, 0);
+	printf("\nres_d_ub\n");
+	for(ii=0; ii<=N; ii++)
+		d_print_e_tran_strvec(nb[ii], workspace.res_d_ub+ii, 0);
+	printf("\nres_d_lg\n");
+	for(ii=0; ii<=N; ii++)
+		d_print_e_tran_strvec(ng[ii], workspace.res_d_lg+ii, 0);
+	printf("\nres_d_ug\n");
+	for(ii=0; ii<=N; ii++)
+		d_print_e_tran_strvec(ng[ii], workspace.res_d_ug+ii, 0);
+	printf("\nres_mu\n%f\n", workspace.res_mu);
+#endif
 
-	// TODO
+	printf("\nsol time = %e %e [s]\n\n", time0, time1);
 
 /************************************************
 * free memory

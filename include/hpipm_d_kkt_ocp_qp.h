@@ -29,5 +29,8 @@
 
 
 //
-
 void d_init_var_hard_ocp_qp(struct d_ocp_qp *qp, struct d_ipm_hard_ocp_qp_workspace *ws);
+//
+void d_compute_res_hard_ocp_qp(struct d_ocp_qp *qp, struct d_ipm_hard_ocp_qp_workspace *ws);
+//
+void d_fact_solve_kkt_step_hard_ocp_qp(struct d_ocp_qp *qp, struct d_ipm_hard_ocp_qp_workspace *ws);

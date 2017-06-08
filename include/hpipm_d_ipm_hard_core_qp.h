@@ -76,7 +76,11 @@ struct d_ipm_hard_core_qp_workspace
 	double *res_m_lg; // m-residuals
 	double *res_m_ug; // m-residuals
 	double *Qx; // Hessian update
+	double *Qx_lb; // Hessian update
+	double *Qx_lg; // Hessian update
 	double *qx; // gradient update
+	double *qx_lb; // gradient update
+	double *qx_lg; // gradient update
 	double *conv_stat; // convergence statistics
 	double alpha; // step length
 	double alpha_min; // exit cond on step lenght

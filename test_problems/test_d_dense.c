@@ -103,7 +103,7 @@ int main()
 
 	struct d_ipm_hard_dense_qp_arg arg;
 	arg.alpha_min = 1e-8;
-	arg.mu_max = 1e-12;
+	arg.mu_max = 1e-32;
 	arg.iter_max = 10;
 	arg.mu0 = 1.0;
 

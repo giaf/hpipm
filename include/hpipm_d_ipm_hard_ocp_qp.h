@@ -38,15 +38,44 @@ struct d_ipm_hard_ocp_qp_workspace
 	struct d_ipm_hard_core_qp_workspace *core_workspace;
 	struct d_strvec *ux;
 	struct d_strvec *pi;
+	struct d_strvec *lam;
 	struct d_strvec *lam_lb;
 	struct d_strvec *lam_ub;
 	struct d_strvec *lam_lg;
 	struct d_strvec *lam_ug;
+	struct d_strvec *t;
 	struct d_strvec *t_lb;
 	struct d_strvec *t_ub;
 	struct d_strvec *t_lg;
 	struct d_strvec *t_ug;
+	struct d_strvec *dux;
+	struct d_strvec *dpi;
+	struct d_strvec *dt_lb;
+	struct d_strvec *dt_lg;
+	struct d_strvec *res_g; // q-residuals
+	struct d_strvec *res_b; // b-residuals
+	struct d_strvec *res_d; // d-residuals XXX remove ???
+	struct d_strvec *res_d_lb; // d-residuals
+	struct d_strvec *res_d_ub; // d-residuals
+	struct d_strvec *res_d_lg; // d-residuals
+	struct d_strvec *res_d_ug; // d-residuals
+	struct d_strvec *res_m; // m-residuals
+	struct d_strvec *res_m_lb; // m-residuals
+	struct d_strvec *res_m_ub; // m-residuals
+	struct d_strvec *res_m_lg; // m-residuals
+	struct d_strvec *res_m_ug; // m-residuals
+	struct d_strvec *Qx_lb; // hessian update
+	struct d_strvec *Qx_lg; // hessian update
+	struct d_strvec *qx_lb; // gradient update
+	struct d_strvec *qx_lg; // gradient update
+	struct d_strvec *tmp_nbM; // work space of size nbM
+	struct d_strvec *tmp_nxM; // work space of size nxM
+	struct d_strvec *Pb; // Pb
+	struct d_strmat *L;
+	struct d_strmat *AL0;
+	struct d_strmat *AL1;
 	double nt_inv; // 1.0/nt, where nt is the total number of constraints
+	double res_mu; // mu-residual
 	double mu0;
 	};
 
@@ -64,4 +93,8 @@ struct d_ipm_hard_ocp_qp_arg
 
 //
 int d_memsize_ipm_hard_ocp_qp(struct d_ocp_qp *qp, struct d_ipm_hard_ocp_qp_arg *arg);
+//
+void d_create_ipm_hard_ocp_qp(struct d_ocp_qp *qp, struct d_ipm_hard_ocp_qp_arg *arg, struct d_ipm_hard_ocp_qp_workspace *ws, void *mem);
+//
+void d_solve_ipm_hard_ocp_qp(struct d_ocp_qp *qp, struct d_ipm_hard_ocp_qp_workspace *ws);
 

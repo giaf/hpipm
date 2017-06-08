@@ -49,12 +49,12 @@ struct d_ipm_hard_dense_qp_workspace
 	struct d_strvec *t_ug; // inequality constraints slacks, upper general constraint
 	struct d_strvec *dv; // step in v
 	struct d_strvec *dpi; // step in pi
-	struct d_strvec *dlam; // step in lam
-	struct d_strvec *dt; // step in t
+	struct d_strvec *dlam; // step in lam XXX needed ???
+	struct d_strvec *dt; // step in t XXX needed ???
 	struct d_strvec *dt_lb; //
-	struct d_strvec *dt_ub; //
+	struct d_strvec *dt_ub; // XXX needed ???
 	struct d_strvec *dt_lg; //
-	struct d_strvec *dt_ug; //
+	struct d_strvec *dt_ug; // XXX needed ???
 	struct d_strvec *res_g; // q-residuals
 	struct d_strvec *res_b; // b-residuals
 	struct d_strvec *res_d; // d-residuals
