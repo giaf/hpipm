@@ -38,7 +38,9 @@
 #include <blasfeo_d_aux.h>
 #include <blasfeo_d_blas.h>
 
-#include "../include/hpipm_d_ocp_kkt.h"
+#include "../include/hpipm_d_ocp_qp.h"
+#include "../include/hpipm_d_dense_qp.h"
+#include "../include/hpipm_d_cond.h"
 
 #include "tools.h"
 
@@ -141,13 +143,23 @@ void mass_spring_system(double Ts, int nx, int nu, int N, double *A, double *B, 
 int main()
 	{
 
-	int ii;
 
-	int N = 10;
-	int nx_ = 8;
-	int nu_ = 3;
+	// local variables
+
+	int ii, jj;
+	
+
+
+	// problem size
+
+	int nx_ = 8; // number of states (it has to be even for the mass-spring system test problem)
+	int nu_ = 3; // number of inputs (controllers) (it has to be at least 1 and at most nx/2 for the mass-spring system test problem)
+	int N  = 5; // horizon lenght
+
+
 
 	// stage-wise variant size
+
 	int nx[N+1];
 #if KEEP_X0
 	nx[0] = nx_;
@@ -156,6 +168,7 @@ int main()
 #endif
 	for(ii=1; ii<=N; ii++)
 		nx[ii] = nx_;
+//	nx[N] = 0;
 
 	int nu[N+1];
 	for(ii=0; ii<N; ii++)
@@ -173,9 +186,10 @@ int main()
 	nb[N] = nx[N]/2;
 
 	int ng[N+1];
-	for(ii=0; ii<=N; ii++)
+	ng[0] = 0;
+	for(ii=1; ii<N; ii++)
 		ng[ii] = 0;
-		
+	ng[N] = 0;
 
 /************************************************
 * dynamical system
@@ -185,77 +199,31 @@ int main()
 
 	double *B; d_zeros(&B, nx_, nu_); // inputs matrix
 
-	double *b; d_zeros_align(&b, nx_, 1); // states offset
-	double *x0; d_zeros_align(&x0, nx_, 1); // initial state
+	double *b; d_zeros(&b, nx_, 1); // states offset
+	double *x0; d_zeros(&x0, nx_, 1); // initial state
 
 	double Ts = 0.5; // sampling time
 	mass_spring_system(Ts, nx_, nu_, N, A, B, b, x0);
 	
-	for(ii=0; ii<nx_; ii++)
-		b[ii] = 0.1;
+	for(jj=0; jj<nx_; jj++)
+		b[jj] = 0.1;
 	
-	for(ii=0; ii<nx_; ii++)
-		x0[ii] = 0;
+	for(jj=0; jj<nx_; jj++)
+		x0[jj] = 0;
 	x0[0] = 2.5;
 	x0[1] = 2.5;
+
+	double *b0; d_zeros(&b0, nx_, 1);
+	dgemv_n_3l(nx_, nx_, A, nx_, x0, b0);
+	daxpy_3l(nx_, 1.0, b, b0);
 
 #if PRINT
 	d_print_mat(nx_, nx_, A, nx_);
 	d_print_mat(nx_, nu_, B, nu_);
 	d_print_mat(1, nx_, b, 1);
 	d_print_mat(1, nx_, x0, 1);
+	d_print_mat(1, nx_, b0, 1);
 #endif
-
-	struct d_strmat sA;
-	d_allocate_strmat(nx_, nx_, &sA);
-	d_cvt_mat2strmat(nx_, nx_, A, nx_, &sA, 0, 0);
-#if PRINT
-	d_print_strmat(nx_, nx_, &sA, 0, 0);
-#endif
-
-	struct d_strvec sx0;
-	d_allocate_strvec(nx_, &sx0);
-	d_cvt_vec2strvec(nx_, x0, &sx0, 0);
-#if PRINT
-	d_print_tran_strvec(nx_, &sx0, 0);
-#endif
-
-	struct d_strvec sb0;
-	d_allocate_strvec(nx_, &sb0);
-	d_cvt_vec2strvec(nx_, b, &sb0, 0);
-#if PRINT
-	d_print_tran_strvec(nx_, &sb0, 0);
-#endif
-#if ! KEEP_X0
-	dgemv_n_libstr(nx_, nx_, 1.0, &sA, 0, 0, &sx0, 0, 1.0, &sb0, 0, &sb0, 0);
-#endif
-#if PRINT
-	d_print_tran_strvec(nx_, &sb0, 0);
-#endif
-
-	struct d_strmat sBAbt0;
-	d_allocate_strmat(nu[0]+nx[0]+1, nx[1], &sBAbt0);
-	d_cvt_tran_mat2strmat(nx[1], nu[0], B, nx_, &sBAbt0, 0, 0);
-	d_cvt_tran_mat2strmat(nx[1], nx[0], A, nx_, &sBAbt0, nu[0], 0);
-	drowin_libstr(nx[1], 1.0, &sb0, 0, &sBAbt0, nu[0]+nx[0], 0);
-#if PRINT
-	d_print_strmat(nu[0]+nx[0]+1, nx[1], &sBAbt0, 0, 0);
-#endif
-
-	struct d_strmat sBAbt1;
-	struct d_strvec sb1;
-	if(N>1)
-		{
-		d_allocate_strmat(nu[1]+nx[1]+1, nx[2], &sBAbt1);
-		d_cvt_tran_mat2strmat(nx[2], nu[1], B, nx_, &sBAbt1, 0, 0);
-		d_cvt_tran_mat2strmat(nx[2], nx[1], A, nx_, &sBAbt1, nu[1], 0);
-		d_cvt_tran_mat2strmat(nx[2], 1, b, nx_, &sBAbt1, nu[1]+nx[1], 0);
-#if PRINT
-		d_print_strmat(nu[1]+nx[1]+1, nx[2], &sBAbt1, 0, 0);
-#endif
-		d_allocate_strvec(nx_, &sb1);
-		d_cvt_vec2strvec(nx_, b, &sb1, 0);
-		}
 
 /************************************************
 * cost function
@@ -267,7 +235,7 @@ int main()
 	double *R; d_zeros(&R, nu_, nu_);
 	for(ii=0; ii<nu_; ii++) R[ii*(nu_+1)] = 2.0;
 
-	double *S; d_zeros(&S, nu_, nx_); // S=0, so no need to update r0
+	double *S; d_zeros(&S, nu_, nx_);
 
 	double *q; d_zeros(&q, nx_, 1);
 	for(ii=0; ii<nx_; ii++) q[ii] = 0.1;
@@ -275,61 +243,17 @@ int main()
 	double *r; d_zeros(&r, nu_, 1);
 	for(ii=0; ii<nu_; ii++) r[ii] = 0.2;
 
-	struct d_strmat sRSQrq0;
-	struct d_strvec srq0;
-	d_allocate_strmat(nu[0]+nx[0]+1, nu[0]+nx[0], &sRSQrq0);
-	d_cvt_mat2strmat(nu[0], nu[0], R, nu_, &sRSQrq0, 0, 0);
-	d_cvt_tran_mat2strmat(nu[0], nx[0], S, nu_, &sRSQrq0, nu[0], 0);
-	d_cvt_mat2strmat(nx[0], nx[0], Q, nx_, &sRSQrq0, nu[0], nu[0]);
-	d_cvt_tran_mat2strmat(nu[0], 1, r, nu_, &sRSQrq0, nu[0]+nx[0], 0);
-	d_cvt_tran_mat2strmat(nx[0], 1, q, nx_, &sRSQrq0, nu[0]+nx[0], nu[0]);
-#if PRINT
-	d_print_strmat(nu[0]+nx[0]+1, nu[0]+nx[0], &sRSQrq0, 0, 0);
-#endif
-	d_allocate_strvec(nu[0]+nx[0], &srq0);
-	d_cvt_vec2strvec(nu[0], r, &srq0, 0);
-	d_cvt_vec2strvec(nx[0], q, &srq0, nu[0]);
-#if PRINT
-	d_print_tran_strvec(nu[0]+nx[0], &srq0, 0);
-#endif
+	double *r0; d_zeros(&r0, nu_, 1);
+	dgemv_n_3l(nu_, nx_, S, nu_, x0, r0);
+	daxpy_3l(nu_, 1.0, r, r0);
 
-	struct d_strmat sRSQrq1;
-	struct d_strvec srq1;
-	if(N>1)
-		{
-		d_allocate_strmat(nu[1]+nx[1]+1, nu[1]+nx[1], &sRSQrq1);
-		d_cvt_mat2strmat(nu[1], nu[1], R, nu_, &sRSQrq1, 0, 0);
-		d_cvt_tran_mat2strmat(nu[1], nx[1], S, nu_, &sRSQrq1, nu[1], 0);
-		d_cvt_mat2strmat(nx[1], nx[1], Q, nx_, &sRSQrq1, nu[1], nu[1]);
-		d_cvt_tran_mat2strmat(nu[1], 1, r, nu_, &sRSQrq1, nu[1]+nx[1], 0);
-		d_cvt_tran_mat2strmat(nx[1], 1, q, nx_, &sRSQrq1, nu[1]+nx[1], nu[1]);
 #if PRINT
-		d_print_strmat(nu[1]+nx[1]+1, nu[1]+nx[1], &sRSQrq1, 0, 0);
-#endif
-		d_allocate_strvec(nu[1]+nx[1], &srq1);
-		d_cvt_vec2strvec(nu[1], r, &srq1, 0);
-		d_cvt_vec2strvec(nx[1], q, &srq1, nu[1]);
-#if PRINT
-		d_print_tran_strvec(nu[1]+nx[1], &srq1, 0);
-#endif
-		}
-
-	struct d_strmat sRSQrqN;
-	struct d_strvec srqN;
-	d_allocate_strmat(nu[N]+nx[N]+1, nu[N]+nx[N], &sRSQrqN);
-	d_cvt_mat2strmat(nu[N], nu[N], R, nu_, &sRSQrqN, 0, 0);
-	d_cvt_tran_mat2strmat(nu[N], nx[N], S, nu_, &sRSQrqN, nu[N], 0);
-	d_cvt_mat2strmat(nx[N], nx[N], Q, nx_, &sRSQrqN, nu[N], nu[N]);
-	d_cvt_tran_mat2strmat(nu[N], 1, r, nu_, &sRSQrqN, nu[N]+nx[N], 0);
-	d_cvt_tran_mat2strmat(nx[N], 1, q, nx_, &sRSQrqN, nu[N]+nx[N], nu[N]);
-#if PRINT
-	d_print_strmat(nu[N]+nx[N]+1, nu[N]+nx[N], &sRSQrqN, 0, 0);
-#endif
-	d_allocate_strvec(nu[N]+nx[N], &srqN);
-	d_cvt_vec2strvec(nu[N], r, &srqN, 0);
-	d_cvt_vec2strvec(nx[N], q, &srqN, nu[N]);
-#if PRINT
-	d_print_tran_strvec(nu[N]+nx[N], &srqN, 0);
+	d_print_mat(nx_, nx_, Q, nx_);
+	d_print_mat(nu_, nu_, R, nu_);
+	d_print_mat(nu_, nx_, S, nu_);
+	d_print_mat(1, nx_, q, 1);
+	d_print_mat(1, nu_, r, 1);
+	d_print_mat(1, nu_, r0, 1);
 #endif
 
 	// maximum element in cost functions
@@ -340,264 +264,264 @@ int main()
 ************************************************/	
 
 	int *idxb0; int_zeros(&idxb0, nb[0], 1);
-	double *d0; d_zeros(&d0, 2*nb[0]+2*ng[0], 1);
+	double *lb0; d_zeros(&lb0, nb[0], 1);
+	double *ub0; d_zeros(&ub0, nb[0], 1);
+	double *lg0; d_zeros(&lg0, ng[0], 1);
+	double *ug0; d_zeros(&ug0, ng[0], 1);
 	for(ii=0; ii<nb[0]; ii++)
 		{
-//		if(0) // input
 		if(ii<nu[0]) // input
 			{
-			d0[ii]             = - 0.5; // umin
-			d0[nb[0]+ng[0]+ii] =   0.5; // umax
+			lb0[ii] = - 0.5; // umin
+			ub0[ii] =   0.5; // umax
 			}
 		else // state
 			{
-			d0[ii]             = - 4.0; // xmin
-			d0[nb[0]+ng[0]+ii] =   4.0; // xmax
+			lb0[ii] = - 4.0; // xmin
+			ub0[ii] =   4.0; // xmax
 			}
-//		idxb0[ii] = nu[0]+nx[0]/2+ii;
 		idxb0[ii] = ii;
 		}
 	for(ii=0; ii<ng[0]; ii++)
 		{
 		if(ii<nu[0]) // input
 			{
-			d0[nb[0]+ii]             = - 0.5; // umin
-			d0[nb[0]+ng[0]+nb[0]+ii] =   0.5; // umax
+			lg0[ii] = - 0.5; // umin
+			ug0[ii] =   0.5; // umax
 			}
 		else // state
 			{
-			d0[nb[0]+ii]             = - 4.0; // xmin
-			d0[nb[0]+ng[0]+nb[0]+ii] =   4.0; // xmax
+			lg0[ii] = - 4.0; // xmin
+			ug0[ii] =   4.0; // xmax
 			}
 		}
-#if PRINT
-	int_print_mat(1, nb[0], idxb0, 1);
-	d_print_mat(1, 2*nb[0]+2*ng[0], d0, 1);
-#endif
 
 	int *idxb1; int_zeros(&idxb1, nb[1], 1);
-	double *d1; d_zeros(&d1, 2*nb[1]+2*ng[1], 1);
+	double *lb1; d_zeros(&lb1, nb[1], 1);
+	double *ub1; d_zeros(&ub1, nb[1], 1);
+	double *lg1; d_zeros(&lg1, ng[1], 1);
+	double *ug1; d_zeros(&ug1, ng[1], 1);
 	for(ii=0; ii<nb[1]; ii++)
 		{
-//		if(0) // input
 		if(ii<nu[1]) // input
 			{
-			d1[ii]             = - 0.5; // umin
-			d1[nb[1]+ng[1]+ii] =   0.5; // umax
+			lb1[ii] = - 0.5; // umin
+			ub1[ii] =   0.5; // umax
 			}
 		else // state
 			{
-			d1[ii]             = - 4.0; // xmin
-			d1[nb[1]+ng[1]+ii] =   4.0; // xmax
+			lb1[ii] = - 4.0; // xmin
+			ub1[ii] =   4.0; // xmax
 			}
 		idxb1[ii] = ii;
-//		idxb1[ii] = nu[1]+nx[1]/2+ii;
 		}
 	for(ii=0; ii<ng[1]; ii++)
 		{
 		if(ii<nu[1]) // input
 			{
-			d1[nb[1]+ii]             = - 0.5; // umin
-			d1[nb[1]+ng[1]+nb[1]+ii] =   0.5; // umax
+			lg1[ii] = - 0.5; // umin
+			ug1[ii] =   0.5; // umax
 			}
 		else // state
 			{
-			d1[nb[1]+ii]             = - 4.0; // xmin
-			d1[nb[1]+ng[1]+nb[1]+ii] =   4.0; // xmax
+			lg1[ii] = - 4.0; // xmin
+			ug1[ii] =   4.0; // xmax
 			}
 		}
-#if PRINT
-	int_print_mat(1, nb[1], idxb1, 1);
-	d_print_mat(1, 2*nb[1]+2*ng[1], d1, 1);
-#endif
+
 
 	int *idxbN; int_zeros(&idxbN, nb[N], 1);
-	double *dN; d_zeros(&dN, 2*nb[N]+2*ng[N], 1);
+	double *lbN; d_zeros(&lbN, nb[N], 1);
+	double *ubN; d_zeros(&ubN, nb[N], 1);
+	double *lgN; d_zeros(&lgN, ng[N], 1);
+	double *ugN; d_zeros(&ugN, ng[N], 1);
 	for(ii=0; ii<nb[N]; ii++)
 		{
-		dN[ii]             = - 4.0; // xmin
-		dN[nb[N]+ng[N]+ii] =   4.0; // xmax
+		lbN[ii] = - 4.0; // xmin
+		ubN[ii] =   4.0; // xmax
 		idxbN[ii] = ii;
 		}
 	for(ii=0; ii<ng[N]; ii++)
 		{
-		dN[nb[N]+ii]             = - 4.0; // dmin
-		dN[nb[N]+ng[N]+nb[N]+ii] =   4.0; // dmax
+		lgN[ii] = - 4.0; // dmin
+		ugN[ii] =   4.0; // dmax
 		}
-#if PRINT
-	int_print_mat(1, nb[N], idxbN, 1);
-	d_print_mat(1, 2*nb[N]+2*ng[N], dN, 1);
-#endif
 
 	double *DC0; d_zeros(&DC0, ng[0], nu[0]+nx[0]);
-	for(ii=0; ii<ng[0]; ii++)
-		DC0[ii*(ng[0]+1)] = 1.0;
+//	for(ii=0; ii<ng[0]; ii++)
+//		DC0[ii*(ng[0]+1)] = 1.0;
+
 	double *DC1; d_zeros(&DC1, ng[1], nu[1]+nx[1]);
-	for(ii=0; ii<ng[1]; ii++)
-		DC1[ii*(ng[1]+1)] = 1.0;
+//	for(ii=0; ii<ng[1]; ii++)
+//		DC1[ii*(ng[1]+1)] = 1.0;
+
 	double *DCN; d_zeros(&DCN, ng[N], nx[N]);
-	for(ii=0; ii<ng[N]; ii++)
-		DCN[ii*(ng[N]+1)] = 1.0;
+//	for(ii=0; ii<ng[N]; ii++)
+//		DCN[ii*(ng[N]+1)] = 1.0;
 
-	struct d_strmat sDCt0;
-	d_allocate_strmat(nu[0]+nx[0], ng[0], &sDCt0);
-	d_cvt_tran_mat2strmat(ng[0], nu[0]+nx[0], DC0, ng[0], &sDCt0, 0, 0);
-#if PRINT
-	d_print_strmat(nu[0]+nx[0], ng[0], &sDCt0, 0, 0);
-#endif
-	struct d_strvec slb0;
-	struct d_strvec sub0;
-	struct d_strvec slg0;
-	struct d_strvec sug0;
-	d_allocate_strvec(nb[0], &slb0);
-	d_allocate_strvec(nb[0], &sub0);
-	d_allocate_strvec(ng[0], &slg0);
-	d_allocate_strvec(ng[0], &sug0);
-	d_cvt_vec2strvec(nb[0], d0+0, &slb0, 0);
-	d_cvt_vec2strvec(nb[0], d0+nb[0], &sub0, 0);
-	d_cvt_vec2strvec(ng[0], d0+2*nb[0], &slg0, 0);
-	d_cvt_vec2strvec(ng[0], d0+2*nb[0]+ng[0], &sug0, 0);
-#if PRINT
-	d_print_tran_strvec(nb[0], &slb0, 0);
-	d_print_tran_strvec(nb[0], &sub0, 0);
-	d_print_tran_strvec(ng[0], &slg0, 0);
-	d_print_tran_strvec(ng[0], &sug0, 0);
-#endif
+	double *C;
+	double *D;
 
-	struct d_strmat sDCt1;
-	d_allocate_strmat(nu[1]+nx[1], ng[1], &sDCt1);
-	d_cvt_tran_mat2strmat(ng[1], nu[1]+nx[1], DC1, ng[1], &sDCt1, 0, 0);
 #if PRINT
-	d_print_strmat(nu[1]+nx[1], ng[1], &sDCt1, 0, 0);
-#endif
-	struct d_strvec slb1;
-	struct d_strvec sub1;
-	struct d_strvec slg1;
-	struct d_strvec sug1;
-	d_allocate_strvec(nb[1], &slb1);
-	d_allocate_strvec(nb[1], &sub1);
-	d_allocate_strvec(ng[1], &slg1);
-	d_allocate_strvec(ng[1], &sug1);
-	d_cvt_vec2strvec(nb[1], d1+0, &slb1, 0);
-	d_cvt_vec2strvec(nb[1], d1+nb[1], &sub1, 0);
-	d_cvt_vec2strvec(ng[1], d1+2*nb[1], &slg1, 0);
-	d_cvt_vec2strvec(ng[1], d1+2*nb[1]+ng[1], &sug1, 0);
-#if PRINT
-	d_print_tran_strvec(nb[1], &slb1, 0);
-	d_print_tran_strvec(nb[1], &sub1, 0);
-	d_print_tran_strvec(ng[1], &slg1, 0);
-	d_print_tran_strvec(ng[1], &sug1, 0);
-#endif
-
-	struct d_strmat sDCtN;
-	d_allocate_strmat(nx[N], ng[N], &sDCtN);
-	d_cvt_tran_mat2strmat(ng[N], nx[N], DCN, ng[N], &sDCtN, 0, 0);
-#if PRINT
-	d_print_strmat(nx[N], ng[N], &sDCtN, 0, 0);
-#endif
-	struct d_strvec slbN;
-	struct d_strvec subN;
-	struct d_strvec slgN;
-	struct d_strvec sugN;
-	d_allocate_strvec(nb[N], &slbN);
-	d_allocate_strvec(nb[N], &subN);
-	d_allocate_strvec(ng[N], &slgN);
-	d_allocate_strvec(ng[N], &sugN);
-	d_cvt_vec2strvec(nb[N], dN+0, &slbN, 0);
-	d_cvt_vec2strvec(nb[N], dN+nb[N], &subN, 0);
-	d_cvt_vec2strvec(ng[N], dN+2*nb[N], &slgN, 0);
-	d_cvt_vec2strvec(ng[N], dN+2*nb[N]+ng[N], &sugN, 0);
-#if PRINT
-	d_print_tran_strvec(nb[N], &slbN, 0);
-	d_print_tran_strvec(nb[N], &subN, 0);
-	d_print_tran_strvec(ng[N], &slgN, 0);
-	d_print_tran_strvec(ng[N], &sugN, 0);
+	int_print_mat(1, nb[0], idxb0, 1);
+	d_print_mat(1, nb[0], lb0, 1);
+	d_print_mat(1, nb[0], ub0, 1);
+	int_print_mat(1, nb[1], idxb1, 1);
+	d_print_mat(1, nb[1], lb1, 1);
+	d_print_mat(1, nb[1], ub1, 1);
+	int_print_mat(1, nb[N], idxbN, 1);
+	d_print_mat(1, nb[N], lbN, 1);
+	d_print_mat(1, nb[N], ubN, 1);
 #endif
 
 /************************************************
-* libstr ip2 solver
+* array of matrices
 ************************************************/	
 
-	struct d_strmat hsBAbt[N];
-	struct d_strvec hsb[N];
-	struct d_strmat hsRSQrq[N+1];
-	struct d_strvec hsrq[N+1];
-	struct d_strmat hsDCt[N+1];
-	struct d_strvec hslb[N+1];
-	struct d_strvec hsub[N+1];
-	struct d_strvec hslg[N+1];
-	struct d_strvec hsug[N+1];
+	double *hA[N];
+	double *hB[N];
+	double *hb[N];
+	double *hQ[N+1];
+	double *hS[N+1];
+	double *hR[N+1];
+	double *hq[N+1];
+	double *hr[N+1];
+	double *hlb[N+1];
+	double *hub[N+1];
+	double *hlg[N+1];
+	double *hug[N+1];
+	double *hC[N+1];
+	double *hD[N+1];
 	int *hidxb[N+1];
-//	struct d_strvec hsux[N+1];
-//	struct d_strvec hspi[N+1];
-//	struct d_strvec hslam[N+1];
-//	struct d_strvec hst[N+1];
 
-	hsBAbt[0] = sBAbt0;
-	hsb[0] = sb0;
-	hsRSQrq[0] = sRSQrq0;
-	hsrq[0] = srq0;
-	hsDCt[0] = sDCt0;
-	hslb[0] = slb0;
-	hsub[0] = sub0;
-	hslg[0] = slg0;
-	hsug[0] = sug0;
+	hA[0] = A;
+	hB[0] = B;
+	hb[0] = b0;
+	hQ[0] = Q;
+	hS[0] = S;
+	hR[0] = R;
+	hq[0] = q;
+	hr[0] = r0;
 	hidxb[0] = idxb0;
-//	d_allocate_strvec(nu[0]+nx[0], &hsux[0]);
-//	d_allocate_strvec(nx[1], &hspi[1]);
-//	d_allocate_strvec(2*nb[0]+2*ng[0], &hslam[0]);
-//	d_allocate_strvec(2*nb[0]+2*ng[0], &hst[0]);
+	hlb[0] = lb0;
+	hub[0] = ub0;
+	hlg[0] = lg0;
+	hug[0] = ug0;
+	hC[0] = C;
+	hD[0] = D;
 	for(ii=1; ii<N; ii++)
 		{
-		hsBAbt[ii] = sBAbt1;
-		hsb[ii] = sb1;
-		hsRSQrq[ii] = sRSQrq1;
-		hsrq[ii] = srq1;
-		hsDCt[ii] = sDCt1;
-		hslb[ii] = slb1;
-		hsub[ii] = sub1;
-		hslg[ii] = slg1;
-		hsug[ii] = sug1;
+		hA[ii] = A;
+		hB[ii] = B;
+		hb[ii] = b;
+		hQ[ii] = Q;
+		hS[ii] = S;
+		hR[ii] = R;
+		hq[ii] = q;
+		hr[ii] = r;
 		hidxb[ii] = idxb1;
-//		d_allocate_strvec(nu[ii]+nx[ii], &hsux[ii]);
-//		d_allocate_strvec(nx[ii+1], &hspi[ii+1]);
-//		d_allocate_strvec(2*nb[ii]+2*ng[ii], &hslam[ii]);
-//		d_allocate_strvec(2*nb[ii]+2*ng[ii], &hst[ii]);
+		hlb[ii] = lb1;
+		hub[ii] = ub1;
+		hlg[ii] = lg1;
+		hug[ii] = ug1;
+		hC[ii] = C;
+		hD[ii] = D;
 		}
-	hsRSQrq[N] = sRSQrqN;
-	hsrq[N] = srqN;
-	hsDCt[N] = sDCtN;
-	hslb[N] = slbN;
-	hsub[N] = subN;
-	hslg[N] = slgN;
-	hsug[N] = sugN;
+	hQ[N] = Q;
+	hS[N] = S;
+	hR[N] = R;
+	hq[N] = q;
+	hr[N] = r;
 	hidxb[N] = idxbN;
-//	d_allocate_strvec(nu[N]+nx[N], &hsux[N]);
-//	d_allocate_strvec(2*nb[N]+2*ng[N], &hslam[N]);
-//	d_allocate_strvec(2*nb[N]+2*ng[N], &hst[N]);
+	hlb[N] = lbN;
+	hub[N] = ubN;
+	hlg[N] = lgN;
+	hug[N] = ugN;
+	hC[N] = C;
+	hD[N] = D;
 	
 /************************************************
-* ocp qp structure
+* ocp qp
 ************************************************/	
+	
+	int ocp_qp_size = d_memsize_ocp_qp(N, nx, nu, nb, ng);
+	printf("\nqp size = %d\n", ocp_qp_size);
+	void *ocp_qp_mem = malloc(ocp_qp_size);
 
-	struct d_ocp_qp str_in;
-	d_cast_ocp_qp(N, nx, nu, nb, hidxb, ng, hsBAbt, hsb, hsRSQrq, hsrq, hsDCt, hslb, hsub, hslg, hsug, &str_in);
+	struct d_ocp_qp ocp_qp;
+	d_create_ocp_qp(N, nx, nu, nb, ng, &ocp_qp, ocp_qp_mem);
+	d_cvt_colmaj_to_ocp_qp(hA, hB, hb, hQ, hS, hR, hq, hr, hidxb, hlb, hub, hC, hD, hlg, hug, &ocp_qp);
+#if 1
+	printf("\nN = %d\n", ocp_qp.N);
+	for(ii=0; ii<N; ii++)
+		d_print_strmat(ocp_qp.nu[ii]+ocp_qp.nx[ii]+1, ocp_qp.nx[ii+1], ocp_qp.BAbt+ii, 0, 0);
+	for(ii=0; ii<N; ii++)
+		d_print_tran_strvec(ocp_qp.nx[ii+1], ocp_qp.b+ii, 0);
+	for(ii=0; ii<=N; ii++)
+		d_print_strmat(ocp_qp.nu[ii]+ocp_qp.nx[ii]+1, ocp_qp.nu[ii]+ocp_qp.nx[ii], ocp_qp.RSQrq+ii, 0, 0);
+	for(ii=0; ii<=N; ii++)
+		d_print_tran_strvec(ocp_qp.nu[ii]+ocp_qp.nx[ii], ocp_qp.rq+ii, 0);
+	for(ii=0; ii<=N; ii++)
+		int_print_mat(1, nb[ii], ocp_qp.idxb[ii], 1);
+	for(ii=0; ii<=N; ii++)
+		d_print_tran_strvec(ocp_qp.nb[ii], ocp_qp.d_lb+ii, 0);
+	for(ii=0; ii<=N; ii++)
+		d_print_tran_strvec(ocp_qp.nb[ii], ocp_qp.d_ub+ii, 0);
+	for(ii=0; ii<=N; ii++)
+		d_print_strmat(ocp_qp.nu[ii]+ocp_qp.nx[ii], ocp_qp.ng[ii], ocp_qp.DCt+ii, 0, 0);
+	for(ii=0; ii<=N; ii++)
+		d_print_tran_strvec(ocp_qp.ng[ii], ocp_qp.d_lg+ii, 0);
+	for(ii=0; ii<=N; ii++)
+		d_print_tran_strvec(ocp_qp.ng[ii], ocp_qp.d_ug+ii, 0);
+#endif
 
-	d_print_strmat(str_in.sBAbt[0].m, str_in.sBAbt[0].n, str_in.sBAbt+0, 0, 0);
-	d_print_strmat(str_in.sBAbt[1].m, str_in.sBAbt[1].n, str_in.sBAbt+1, 0, 0);
+/************************************************
+* dense qp
+************************************************/	
+	
+	int nvc = 0;
+	int nec = 0;
+	int nbc = 0;
+	int ngc = 0;
 
-	int size_out = d_size_ocp_qp(N, nx, nu, nb, ng);
-	printf("\nocp qp size = %d\n\n", size_out);
+	d_compute_qp_size_ocp2dense(N, nx, nu, nb, hidxb, ng, &nvc, &nec, &nbc, &ngc);
+	printf("\nnv = %d, ne = %d, nb = %d, ng = %d\n\n", nvc, nec, nbc, ngc);
 
-	void *mem_out;
-	v_zeros_align(&mem_out, size_out);
+	int dense_qp_size = d_memsize_dense_qp(nvc, nec, nbc, ngc);
+	printf("\nqp size = %d\n", dense_qp_size);
+	void *dense_qp_mem = malloc(dense_qp_size);
 
-	struct d_ocp_qp str_out;
-	d_create_ocp_qp(N, nx, nu, nb, ng, &str_out, mem_out);
-	d_copy_ocp_qp(&str_in, &str_out);
+	struct d_dense_qp dense_qp;
+	d_create_dense_qp(nvc, nec, nbc, ngc, &dense_qp, dense_qp_mem);
 
-	d_print_strmat(str_out.sBAbt[0].m, str_out.sBAbt[0].n, str_out.sBAbt+0, 0, 0);
-	d_print_strmat(str_out.sBAbt[1].m, str_out.sBAbt[1].n, str_out.sBAbt+1, 0, 0);
+	int cond_size = d_memsize_cond_qp_ocp2dense(&ocp_qp, &dense_qp);
+	printf("\ncond size = %d\n", cond_size);
+	void *cond_mem = malloc(cond_size);
+
+	struct d_cond_qp_ocp2dense_workspace cond_ws;
+	d_create_cond_qp_ocp2dense(&ocp_qp, &dense_qp, &cond_ws, cond_mem);
+
+	d_cond_qp_ocp2dense(&ocp_qp, &dense_qp, &cond_ws);
+
+#if 1
+	d_print_strmat(nvc, nvc, dense_qp.H, 0, 0);
+	d_print_strmat(nec, nvc, dense_qp.A, 0, 0);
+	d_print_strmat(nvc, ngc, dense_qp.Ct, 0, 0);
+	d_print_tran_strvec(nvc, dense_qp.g, 0);
+	d_print_tran_strvec(nec, dense_qp.b, 0);
+	d_print_tran_strvec(2*nbc+2*ngc, dense_qp.d, 0);
+	d_print_tran_strvec(nbc, dense_qp.d_lb, 0);
+	d_print_tran_strvec(nbc, dense_qp.d_ub, 0);
+	d_print_tran_strvec(ngc, dense_qp.d_lg, 0);
+	d_print_tran_strvec(ngc, dense_qp.d_ug, 0);
+#endif
+
+	int nu_tmp = 0;
+	for(ii=0; ii<N; ii++)
+		{
+		nu_tmp += nu[ii];
+		d_print_strmat(nu_tmp+nx[0]+1, nx[ii+1], cond_ws.Gamma+ii, 0, 0);
+		}
 
 /************************************************
 * free memory
@@ -607,64 +531,34 @@ int main()
 	d_free(B);
 	d_free(b);
 	d_free(x0);
+	d_free(Q);
+	d_free(R);
+	d_free(S);
+	d_free(q);
+	d_free(r);
+	d_free(r0);
 	int_free(idxb0);
-	d_free(d0);
+	d_free(lb0);
+	d_free(ub0);
 	int_free(idxb1);
-	d_free(d1);
+	d_free(lb1);
+	d_free(ub1);
 	int_free(idxbN);
-	d_free(dN);
+	d_free(lbN);
+	d_free(ubN);
+	d_free(DC0);
+	d_free(lg0);
+	d_free(ug0);
+	d_free(DC1);
+	d_free(lg1);
+	d_free(ug1);
+	d_free(DCN);
+	d_free(lgN);
+	d_free(ugN);
 
-	d_free_strmat(&sA);
-	d_free_strvec(&sx0);
-	d_free_strmat(&sBAbt0);
-	d_free_strvec(&sb0);
-	d_free_strmat(&sRSQrq0);
-	d_free_strvec(&srq0);
-	d_free_strmat(&sRSQrqN);
-	d_free_strvec(&srqN);
-	d_free_strmat(&sDCt0);
-	d_free_strvec(&slb0);
-	d_free_strvec(&sub0);
-	d_free_strvec(&slg0);
-	d_free_strvec(&sug0);
-	d_free_strmat(&sDCt1);
-	d_free_strvec(&slb1);
-	d_free_strvec(&sub1);
-	d_free_strvec(&slg1);
-	d_free_strvec(&sug1);
-	d_free_strmat(&sDCtN);
-	d_free_strvec(&slbN);
-	d_free_strvec(&subN);
-	d_free_strvec(&slgN);
-	d_free_strvec(&sugN);
-	if(N>1)
-		{
-		d_free_strmat(&sBAbt1);
-		d_free_strvec(&sb1);
-		d_free_strmat(&sRSQrq1);
-		d_free_strvec(&srq1);
-		}
-//	d_free_strvec(&hsux[0]);
-//	d_free_strvec(&hspi[1]);
-//	d_free_strvec(&hslam[0]);
-//	d_free_strvec(&hst[0]);
-//	d_free_strvec(&hsrrq[0]);
-//	d_free_strvec(&hsrb[0]);
-	for(ii=1; ii<N; ii++)
-		{
-//		d_free_strvec(&hsux[ii]);
-//		d_free_strvec(&hspi[ii+1]);
-//		d_free_strvec(&hslam[ii]);
-//		d_free_strvec(&hst[ii]);
-//		d_free_strvec(&hsrrq[ii]);
-//		d_free_strvec(&hsrb[ii]);
-		}
-//	d_free_strvec(&hsux[N]);
-//	d_free_strvec(&hslam[N]);
-//	d_free_strvec(&hst[N]);
-//	d_free_strvec(&hsrrq[N]);
-
-	v_free_align(mem_out);
+	free(ocp_qp_mem);
+	free(dense_qp_mem);
+	free(cond_mem);
 
 /************************************************
 * return
@@ -672,6 +566,4 @@ int main()
 
 	return 0;
 
-	}
-
-	
+	}	

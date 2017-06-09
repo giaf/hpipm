@@ -35,11 +35,73 @@
 #include <blasfeo_d_aux.h>
 
 #include "../include/hpipm_d_ocp_qp.h"
+#include "../include/hpipm_d_dense_qp.h"
 #include "../include/hpipm_d_cond.h"
 
 
 
-void d_cond_BAbt(int N, struct d_ocp_qp *qp_in, int idx_in, struct d_ocp_qp *qp_out, int idx_out, struct d_cond_mem *qp_mem, int idx_mem)
+
+void d_compute_Gamma(struct d_ocp_qp *ocp_qp, struct d_cond_qp_ocp2dense_workspace *cond_ws)
+	{
+
+	int N = ocp_qp->N;
+
+	// early return
+	if(N<0)
+		return;
+
+	// extract input members
+	int *nx = ocp_qp->nx;
+	int *nu = ocp_qp->nu;
+	struct d_strmat *BAbt = ocp_qp->BAbt;
+
+	// extract memory members
+	struct d_strmat *Gamma = cond_ws->Gamma;
+
+	int ii, jj;
+
+	int nu_tmp;
+
+	nu_tmp = 0;
+	ii = 0;
+	// B & A & b
+	dgecp_libstr(nu[0]+nx[0]+1, nx[1], &BAbt[0], 0, 0, &Gamma[0], 0, 0);
+	//
+	nu_tmp += nu[0];
+	ii++;
+
+	for(ii=1; ii<N; ii++)
+		{
+		// TODO check for equal pointers and avoid copy
+
+		// Gamma * A^T
+		dgemm_nn_libstr(nu_tmp+nx[0]+1, nx[ii+1], nx[ii], 1.0, &Gamma[ii-1], 0, 0, &BAbt[ii], nu[ii], 0, 0.0, &Gamma[ii], nu[ii], 0, &Gamma[ii], nu[ii], 0); // Gamma * A^T
+
+		dgecp_libstr(nu[ii], nx[ii+1], &BAbt[ii], 0, 0, &Gamma[ii], 0, 0);
+
+		nu_tmp += nu[ii];
+
+		dgead_libstr(1, nx[ii+1], 1.0, &BAbt[ii], nu[ii]+nx[ii], 0, &Gamma[ii], nu_tmp+nx[0], 0);
+		}
+	
+	return;
+
+	}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+void d_cond_BAbt(int N, struct d_ocp_qp *ocp_qp, int idx_in, struct d_strmat *BAbt2, struct d_strvec *b2, struct d_cond_qp_ocp2dense_workspace *cond_ws)
 	{
 
 	// early return
@@ -47,16 +109,12 @@ void d_cond_BAbt(int N, struct d_ocp_qp *qp_in, int idx_in, struct d_ocp_qp *qp_
 		return;
 
 	// extract input members
-	int *nx = qp_in->nx + idx_in;
-	int *nu = qp_in->nu + idx_in;
-	struct d_strmat *BAbt = qp_in->BAbt + idx_in;
-
-	// extract output members
-	struct d_strmat *BAbt2 = qp_out->BAbt + idx_out;
-	struct d_strvec *b2 = qp_out->b + idx_out;
+	int *nx = ocp_qp->nx + idx_in;
+	int *nu = ocp_qp->nu + idx_in;
+	struct d_strmat *BAbt = ocp_qp->BAbt + idx_in;
 
 	// extract memory members
-	struct d_strmat *Gamma = qp_mem->Gamma + idx_mem;
+	struct d_strmat *Gamma = cond_ws->Gamma;
 
 	int ii, jj;
 

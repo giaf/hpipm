@@ -37,18 +37,21 @@ endif
 OBJS += dense_kkt/d_aux_dense_qp.o dense_kkt/d_kkt_dense_qp.o dense_kkt/d_ipm_hard_dense_qp.o
 OBJS += dense_kkt/s_aux_dense_qp.o
 # ocp kkt
-OBJS += ocp_kkt/d_aux.o ocp_kkt/d_kkt_ocp_qp.o ocp_kkt/d_ipm_hard_ocp_qp.o ocp_kkt/d_cond.o ocp_kkt/d_part_cond.o
+OBJS += ocp_kkt/d_aux.o ocp_kkt/d_kkt_ocp_qp.o ocp_kkt/d_ipm_hard_ocp_qp.o
 OBJS += ocp_kkt/s_aux.o
 # ipm
 OBJS += ipm/d_aux_ipm_hard.o ipm/d_ipm_hard_core_qp.o
+# cond
+OBJS += cond/d_aux_cond.o cond/d_cond.o cond/d_part_cond.o
 
 all: clean static_library
 
 static_library: target
 	( cd auxiliary; $(MAKE) obj)
+	( cd cond; $(MAKE) obj)
 	( cd dense_kkt; $(MAKE) obj)
-	( cd ocp_kkt; $(MAKE) obj)
 	( cd ipm; $(MAKE) obj)
+	( cd ocp_kkt; $(MAKE) obj)
 	ar rcs libhpipm.a $(OBJS) 
 	cp libhpipm.a ./lib/
 	@echo
@@ -57,9 +60,10 @@ static_library: target
 
 shared_library: target
 	( cd auxiliary; $(MAKE) obj)
+	( cd cond; $(MAKE) obj)
 	( cd dense_kkt; $(MAKE) obj)
-	( cd ocp_kkt; $(MAKE) obj)
 	( cd ipm; $(MAKE) obj)
+	( cd ocp_kkt; $(MAKE) obj)
 	gcc -shared -o libhpipm.so $(OBJS)
 	cp libhpipm.so ./lib/
 	@echo
@@ -104,8 +108,9 @@ clean:
 	rm -f ./lib/libhpipm.a
 	rm -f ./lib/libhpipm.so
 	make -C auxiliary clean
+	make -C cond clean
 	make -C dense_kkt clean
-	make -C ocp_kkt clean
 	make -C ipm clean
+	make -C ocp_kkt clean
 	make -C test_problems clean
 

@@ -27,35 +27,5 @@
 
 
 
-struct d_cond_qp_ocp2dense_workspace
-	{
-	struct d_strmat *Gamma;
-	};
-
-
-
-struct d_cond_mem
-	{
-	struct d_strmat *Gamma;
-	struct d_strmat *L;
-	};
-
-
-
-struct d_cond_work
-	{
-	int *cond_RSQrq_N2nx3_sizes;
-	int NN; // hotizon lenght
-	int mem_size; // memory size in bytes
-	};
-
-
-
 //
-void d_compute_qp_size_ocp2dense(int N, int *nx, int *nu, int *nb, int **idxb, int *ng, int *nvc, int *nec, int *nbc, int *ngc);
-//
-int d_memsize_cond_qp_ocp2dense(struct d_ocp_qp *ocp_qp, struct d_dense_qp *dense_qp); // XXX + args for algorithm type ???
-//
-void d_create_cond_qp_ocp2dense(struct d_ocp_qp *ocp_qp, struct d_dense_qp *dense_qp, struct d_cond_qp_ocp2dense_workspace *cond_ws, void *mem);
-//
-void d_cond_qp_ocp2dense(struct d_ocp_qp *ocp_qp, struct d_dense_qp *dense_qp, struct d_cond_qp_ocp2dense_workspace *cond_ws);
+void d_compute_Gamma(struct d_ocp_qp *ocp_qp, struct d_cond_qp_ocp2dense_workspace *cond_ws);

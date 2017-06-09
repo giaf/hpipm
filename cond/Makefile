@@ -33,8 +33,8 @@ ifeq ($(TARGET), GENERIC)
 OBJS +=
 endif
 
-OBJS += d_aux.o d_kkt_ocp_qp.o d_ipm_hard_ocp_qp.o
-OBJS += s_aux.o
+OBJS += d_aux_cond.o d_cond.o d_part_cond.o
+OBJS += 
 
 obj: $(OBJS)
 
@@ -42,5 +42,3 @@ clean:
 	rm -f *.o
 	rm -f *.s
 
-d_aux.o: d_aux.c x_aux.c
-s_aux.o: s_aux.c x_aux.c
