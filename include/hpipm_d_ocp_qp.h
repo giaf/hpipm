@@ -39,10 +39,10 @@ struct d_ocp_qp
 	struct d_strmat *RSQrq;
 	struct d_strvec *rq;
 	struct d_strmat *DCt;
-	struct d_strvec *lb;
-	struct d_strvec *ub;
-	struct d_strvec *lg;
-	struct d_strvec *ug;
+	struct d_strvec *d_lb;
+	struct d_strvec *d_ub;
+	struct d_strvec *d_lg;
+	struct d_strvec *d_ug;
 	int *nx; // number of states
 	int *nu; // number of inputs
 	int *nb; // number of box constraints

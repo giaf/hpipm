@@ -37,7 +37,7 @@ int MEMSIZE_OCP_QP(int N, int *nx, int *nu, int *nb, int *ng)
 	size += 4*(N+1)*sizeof(int); // nx nu nb ng
 	size += (N+1)*sizeof(int *); // idxb
 	size += (1*N+2*(N+1))*sizeof(struct STRMAT); // BAbt ; RSqrq DCt
-	size += (1*N+5*(N+1))*sizeof(struct STRVEC); // b ; rq lb ub lg ug
+	size += (1*N+5*(N+1))*sizeof(struct STRVEC); // b ; rq d_lb d_ub d_lg d_ug
 
 	for(ii=0; ii<N; ii++)
 		{
@@ -47,16 +47,16 @@ int MEMSIZE_OCP_QP(int N, int *nx, int *nu, int *nb, int *ng)
 		size += SIZE_STRMAT(nu[ii]+nx[ii]+1, nu[ii]+nx[ii]); // RSQrq
 		size += SIZE_STRVEC(nu[ii]+nx[ii]); // rq
 		size += SIZE_STRMAT(nu[ii]+nx[ii], ng[ii]); // DCt
-		size += 2*SIZE_STRVEC(nb[ii]); // lb ub
-		size += 2*SIZE_STRVEC(ng[ii]); // lg ug
+		size += 2*SIZE_STRVEC(nb[ii]); // d_lb d_ub
+		size += 2*SIZE_STRVEC(ng[ii]); // d_lg d_ug
 		}
 	ii = N;
 	size += nb[ii]*sizeof(int); // idxb
 	size += SIZE_STRMAT(nu[ii]+nx[ii]+1, nu[ii]+nx[ii]); // RSQrq
 	size += SIZE_STRVEC(nu[ii]+nx[ii]); // rq
 	size += SIZE_STRMAT(nu[ii]+nx[ii], ng[ii]); // DCt
-	size += 2*SIZE_STRVEC(nb[ii]); // lb ub
-	size += 2*SIZE_STRVEC(ng[ii]); // lg ug
+	size += 2*SIZE_STRVEC(nb[ii]); // d_lb d_ub
+	size += 2*SIZE_STRVEC(ng[ii]); // d_lg d_ug
 
 	size = (size+63)/64*64; // make multiple of typical cache line size
 	size += 64; // align to typical cache line size
@@ -113,20 +113,20 @@ void CREATE_OCP_QP(int N, int *nx, int *nu, int *nb, int *ng, struct OCP_QP *str
 	str_out->rq = sv_ptr;
 	sv_ptr += N+1;
 
-	// lb
-	str_out->lb = sv_ptr;
+	// d_lb
+	str_out->d_lb = sv_ptr;
 	sv_ptr += N+1;
 
-	// ub
-	str_out->ub = sv_ptr;
+	// d_ub
+	str_out->d_ub = sv_ptr;
 	sv_ptr += N+1;
 
-	// lg
-	str_out->lg = sv_ptr;
+	// d_lg
+	str_out->d_lg = sv_ptr;
 	sv_ptr += N+1;
 
-	// ug
-	str_out->ug = sv_ptr;
+	// d_ug
+	str_out->d_ug = sv_ptr;
 	sv_ptr += N+1;
 
 
@@ -217,32 +217,32 @@ void CREATE_OCP_QP(int N, int *nx, int *nu, int *nb, int *ng, struct OCP_QP *str
 		v_ptr += (str_out->rq+ii)->memory_size;
 		}
 
-	// lb
+	// d_lb
 	for(ii=0; ii<=N; ii++)
 		{
-		CREATE_STRVEC(nb[ii], str_out->lb+ii, v_ptr);
-		v_ptr += (str_out->lb+ii)->memory_size;
+		CREATE_STRVEC(nb[ii], str_out->d_lb+ii, v_ptr);
+		v_ptr += (str_out->d_lb+ii)->memory_size;
 		}
 
-	// ub
+	// d_ub
 	for(ii=0; ii<=N; ii++)
 		{
-		CREATE_STRVEC(nb[ii], str_out->ub+ii, v_ptr);
-		v_ptr += (str_out->ub+ii)->memory_size;
+		CREATE_STRVEC(nb[ii], str_out->d_ub+ii, v_ptr);
+		v_ptr += (str_out->d_ub+ii)->memory_size;
 		}
 
-	// lg
+	// d_lg
 	for(ii=0; ii<=N; ii++)
 		{
-		CREATE_STRVEC(ng[ii], str_out->lg+ii, v_ptr);
-		v_ptr += (str_out->lg+ii)->memory_size;
+		CREATE_STRVEC(ng[ii], str_out->d_lg+ii, v_ptr);
+		v_ptr += (str_out->d_lg+ii)->memory_size;
 		}
 
-	// ug
+	// d_ug
 	for(ii=0; ii<=N; ii++)
 		{
-		CREATE_STRVEC(ng[ii], str_out->ug+ii, v_ptr);
-		v_ptr += (str_out->ug+ii)->memory_size;
+		CREATE_STRVEC(ng[ii], str_out->d_ug+ii, v_ptr);
+		v_ptr += (str_out->d_ug+ii)->memory_size;
 		}
 
 	return;
@@ -251,7 +251,7 @@ void CREATE_OCP_QP(int N, int *nx, int *nu, int *nb, int *ng, struct OCP_QP *str
 
 
 
-void CAST_OCP_QP(int N, int *nx, int *nu, int *nb, int **idxb, int *ng, struct STRMAT *BAbt, struct STRVEC *b, struct STRMAT *RSQrq, struct STRVEC *rq, struct STRMAT *DCt, struct STRVEC *lb, struct STRVEC *ub, struct STRVEC *lg, struct STRVEC *ug, struct OCP_QP *qp)
+void CAST_OCP_QP(int N, int *nx, int *nu, int *nb, int **idxb, int *ng, struct STRMAT *BAbt, struct STRVEC *b, struct STRMAT *RSQrq, struct STRVEC *rq, struct STRMAT *DCt, struct STRVEC *d_lb, struct STRVEC *d_ub, struct STRVEC *d_lg, struct STRVEC *d_ug, struct OCP_QP *qp)
 	{
 
 	qp->N = N;
@@ -265,10 +265,10 @@ void CAST_OCP_QP(int N, int *nx, int *nu, int *nb, int **idxb, int *ng, struct S
 	qp->RSQrq = RSQrq;
 	qp->rq = rq;
 	qp->DCt = DCt;
-	qp->lb = lb;
-	qp->ub = ub;
-	qp->lg = lg;
-	qp->ug = ug;
+	qp->d_lb = d_lb;
+	qp->d_ub = d_ub;
+	qp->d_lg = d_lg;
+	qp->d_ug = d_ug;
 
 	return;
 
@@ -276,7 +276,7 @@ void CAST_OCP_QP(int N, int *nx, int *nu, int *nb, int **idxb, int *ng, struct S
 
 
 
-void CVT_COLMAJ_TO_OCP_QP(REAL **A, REAL **B, REAL **b, REAL **Q, REAL **S, REAL **R, REAL **q, REAL **r, int **idxb, REAL **lb, REAL **ub, REAL **C, REAL **D, REAL **lg, REAL **ug, struct OCP_QP *qp)
+void CVT_COLMAJ_TO_OCP_QP(REAL **A, REAL **B, REAL **b, REAL **Q, REAL **S, REAL **R, REAL **q, REAL **r, int **idxb, REAL **d_lb, REAL **d_ub, REAL **C, REAL **D, REAL **d_lg, REAL **d_ug, struct OCP_QP *qp)
 	{
 
 	int N = qp->N;
@@ -310,16 +310,16 @@ void CVT_COLMAJ_TO_OCP_QP(REAL **A, REAL **B, REAL **b, REAL **Q, REAL **S, REAL
 		{
 		for(jj=0; jj<nb[ii]; jj++)
 			qp->idxb[ii][jj] = idxb[ii][jj];
-		CVT_VEC2STRVEC(nb[ii], lb[ii], qp->lb+ii, 0);
-		CVT_VEC2STRVEC(nb[ii], ub[ii], qp->ub+ii, 0);
+		CVT_VEC2STRVEC(nb[ii], d_lb[ii], qp->d_lb+ii, 0);
+		CVT_VEC2STRVEC(nb[ii], d_ub[ii], qp->d_ub+ii, 0);
 		}
 	
 	for(ii=0; ii<=N; ii++)
 		{
 		CVT_TRAN_MAT2STRMAT(ng[ii], nu[ii], D[ii], ng[ii], qp->DCt+ii, 0, 0);
 		CVT_TRAN_MAT2STRMAT(ng[ii], nx[ii], C[ii], ng[ii], qp->DCt+ii, nu[ii], 0);
-		CVT_VEC2STRVEC(ng[ii], lg[ii], qp->lg+ii, 0);
-		CVT_VEC2STRVEC(ng[ii], ug[ii], qp->ug+ii, 0);
+		CVT_VEC2STRVEC(ng[ii], d_lg[ii], qp->d_lg+ii, 0);
+		CVT_VEC2STRVEC(ng[ii], d_ug[ii], qp->d_ug+ii, 0);
 		}
 
 	return;
@@ -378,10 +378,10 @@ void COPY_OCP_QP(struct OCP_QP *qp_in, struct OCP_QP *qp_out)
 		GECP_LIBSTR(nx[ii]+nu[ii]+1, nu[ii]+nx[ii], qp_in->RSQrq+ii, 0, 0, qp_out->RSQrq+ii, 0, 0);
 		VECCP_LIBSTR(nu[ii]+nx[ii], qp_in->rq+ii, 0, qp_out->rq+ii, 0);
 		GECP_LIBSTR(nx[ii]+nu[ii], ng[ii], qp_in->DCt+ii, 0, 0, qp_out->DCt+ii, 0, 0);
-		VECCP_LIBSTR(nb[ii], qp_in->lb+ii, 0, qp_out->lb+ii, 0);
-		VECCP_LIBSTR(nb[ii], qp_in->ub+ii, 0, qp_out->ub+ii, 0);
-		VECCP_LIBSTR(ng[ii], qp_in->lg+ii, 0, qp_out->lg+ii, 0);
-		VECCP_LIBSTR(ng[ii], qp_in->ug+ii, 0, qp_out->ug+ii, 0);
+		VECCP_LIBSTR(nb[ii], qp_in->d_lb+ii, 0, qp_out->d_lb+ii, 0);
+		VECCP_LIBSTR(nb[ii], qp_in->d_ub+ii, 0, qp_out->d_ub+ii, 0);
+		VECCP_LIBSTR(ng[ii], qp_in->d_lg+ii, 0, qp_out->d_lg+ii, 0);
+		VECCP_LIBSTR(ng[ii], qp_in->d_ug+ii, 0, qp_out->d_ug+ii, 0);
 		}
 
 	return;

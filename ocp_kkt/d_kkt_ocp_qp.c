@@ -91,8 +91,8 @@ void d_init_var_hard_ocp_qp(struct d_ocp_qp *qp, struct d_ipm_hard_ocp_qp_worksp
 	for(ii=0; ii<=N; ii++)
 		{
 		ux = ws->ux[ii].pa;
-		d_lb = qp->lb[ii].pa;
-		d_ub = qp->ub[ii].pa;
+		d_lb = qp->d_lb[ii].pa;
+		d_ub = qp->d_ub[ii].pa;
 		lam_lb = ws->lam_lb[ii].pa;
 		lam_ub = ws->lam_ub[ii].pa;
 		t_lb = ws->t_lb[ii].pa;
@@ -133,8 +133,8 @@ void d_init_var_hard_ocp_qp(struct d_ocp_qp *qp, struct d_ipm_hard_ocp_qp_worksp
 		t_ug = ws->t_ug[ii].pa;
 		lam_lg = ws->lam_lg[ii].pa;
 		lam_ug = ws->lam_ug[ii].pa;
-		d_lg = qp->lg[ii].pa;
-		d_ug = qp->ug[ii].pa;
+		d_lg = qp->d_lg[ii].pa;
+		d_ug = qp->d_ug[ii].pa;
 		ux = ws->ux[ii].pa;
 		dgemv_t_libstr(nu[ii]+nx[ii], ng[ii], 1.0, qp->DCt+ii, 0, 0, ws->ux+ii, 0, 0.0, ws->t_lg+ii, 0, ws->t_lg+ii, 0);
 		for(jj=0; jj<ng[ii]; jj++)
@@ -201,8 +201,8 @@ void d_compute_res_hard_ocp_qp(struct d_ocp_qp *qp, struct d_ipm_hard_ocp_qp_wor
 
 			dvecex_sp_libstr(nb0, -1.0, qp->idxb[ii], ws->ux+ii, 0, ws->res_d_lb+ii, 0);
 			dveccp_libstr(nb0, ws->res_d_lb+ii, 0, ws->res_d_ub+ii, 0);
-			daxpy_libstr(nb0, 1.0, qp->lb+ii, 0, ws->res_d_lb+ii, 0, ws->res_d_lb+ii, 0);
-			daxpy_libstr(nb0, 1.0, qp->ub+ii, 0, ws->res_d_ub+ii, 0, ws->res_d_ub+ii, 0);
+			daxpy_libstr(nb0, 1.0, qp->d_lb+ii, 0, ws->res_d_lb+ii, 0, ws->res_d_lb+ii, 0);
+			daxpy_libstr(nb0, 1.0, qp->d_ub+ii, 0, ws->res_d_ub+ii, 0, ws->res_d_ub+ii, 0);
 			daxpy_libstr(nb0, 1.0, ws->t_lb+ii, 0, ws->res_d_lb+ii, 0, ws->res_d_lb+ii, 0);
 			daxpy_libstr(nb0, -1.0, ws->t_ub+ii, 0, ws->res_d_ub+ii, 0, ws->res_d_ub+ii, 0);
 
