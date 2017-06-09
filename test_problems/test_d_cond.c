@@ -41,6 +41,7 @@
 #include "../include/hpipm_d_ocp_qp.h"
 #include "../include/hpipm_d_dense_qp.h"
 #include "../include/hpipm_d_cond.h"
+#include "../include/hpipm_d_ipm_hard_dense_qp.h"
 
 #include "tools.h"
 
@@ -524,6 +525,73 @@ int main()
 		}
 
 /************************************************
+* ipm
+************************************************/	
+
+	struct d_ipm_hard_dense_qp_arg dense_arg;
+	dense_arg.alpha_min = 1e-8;
+	dense_arg.mu_max = 1e-12;
+	dense_arg.iter_max = 10;
+	dense_arg.mu0 = 1.0;
+
+	int dense_ipm_size = d_memsize_ipm_hard_dense_qp(&dense_qp, &dense_arg);
+	printf("\ndense ipm size = %d\n", dense_ipm_size);
+	void *dense_ipm_mem = malloc(dense_ipm_size);
+
+	struct d_ipm_hard_dense_qp_workspace dense_workspace;
+	d_create_ipm_hard_dense_qp(&dense_qp, &dense_arg, &dense_workspace, dense_ipm_mem);
+
+	int rep, nrep=1000;
+
+	struct timeval tv0, tv1;
+
+	gettimeofday(&tv0, NULL); // start
+
+	for(rep=0; rep<nrep; rep++)
+		{
+		d_solve_ipm_hard_dense_qp(&dense_qp, &dense_workspace);
+		}
+
+	gettimeofday(&tv1, NULL); // stop
+
+	double time0 = (tv1.tv_sec-tv0.tv_sec)/(nrep+0.0)+(tv1.tv_usec-tv0.tv_usec)/(nrep*1e6);
+
+	gettimeofday(&tv0, NULL); // start
+
+	for(rep=0; rep<nrep; rep++)
+		{
+		d_solve_ipm_hard_dense_qp(&dense_qp, &dense_workspace);
+		}
+
+	gettimeofday(&tv1, NULL); // stop
+
+	double time1 = (tv1.tv_sec-tv0.tv_sec)/(nrep+0.0)+(tv1.tv_usec-tv0.tv_usec)/(nrep*1e6);
+
+	printf("\nsol time = %e %e [s]\n\n", time0, time1);
+
+	printf("\nsolution\n\n");
+	printf("\nv\n");
+	d_print_tran_strvec(nvc, dense_workspace.v, 0);
+	printf("\npi\n");
+	d_print_tran_strvec(nec, dense_workspace.pi, 0);
+	printf("\nlam\n");
+	d_print_tran_strvec(2*nbc+2*ngc, dense_workspace.lam, 0);
+	printf("\nt\n");
+	d_print_tran_strvec(2*nbc+2*ngc, dense_workspace.t, 0);
+
+	printf("\nresiduals\n\n");
+	printf("\nres_g\n");
+	d_print_e_tran_strvec(nvc, dense_workspace.res_g, 0);
+	printf("\nres_b\n");
+	d_print_e_tran_strvec(nec, dense_workspace.res_b, 0);
+	printf("\nres_d\n");
+	d_print_e_tran_strvec(2*nbc+2*ngc, dense_workspace.res_d, 0);
+	printf("\nres_m\n");
+	d_print_e_tran_strvec(2*nbc+2*ngc, dense_workspace.res_m, 0);
+	printf("\nres_mu\n");
+	printf("\n%e\n\n", dense_workspace.res_mu);
+
+/************************************************
 * free memory
 ************************************************/	
 
@@ -559,6 +627,7 @@ int main()
 	free(ocp_qp_mem);
 	free(dense_qp_mem);
 	free(cond_mem);
+	free(dense_ipm_mem);
 
 /************************************************
 * return

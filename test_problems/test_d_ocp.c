@@ -581,7 +581,7 @@ int main()
 	printf("\nres_d_ug\n");
 	for(ii=0; ii<=N; ii++)
 		d_print_e_tran_strvec(ng[ii], workspace.res_d_ug+ii, 0);
-	printf("\nres_mu\n%f\n", workspace.res_mu);
+	printf("\nres_mu\n%e\n", workspace.res_mu);
 #endif
 
 	printf("\nsol time = %e %e [s]\n\n", time0, time1);

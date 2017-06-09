@@ -194,6 +194,8 @@ void d_cond_qp_ocp2dense(struct d_ocp_qp *ocp_qp, struct d_dense_qp *dense_qp, s
 
 	d_cond_RSQrq_N2nx3(ocp_qp, dense_qp->Hg, dense_qp->g, cond_ws);
 
+	d_cond_DCtd(ocp_qp, dense_qp->idxb, dense_qp->d_lb, dense_qp->d_ub, dense_qp->Ct, dense_qp->d_lg, dense_qp->d_ug, cond_ws);
+
 	return;
 
 	}

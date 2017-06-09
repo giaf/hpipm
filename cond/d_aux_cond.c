@@ -352,40 +352,45 @@ int d_cond_DCtd_workspace_size(int N, struct d_ocp_qp *qp_in, int idx_in)
 
 
 
-#if 0
-void d_cond_DCtd(int N, struct d_ocp_qp *qp_in, int idx_in, struct d_ocp_qp *qp_out, int idx_out, struct d_cond_mem *qp_mem, int idx_mem, void *workspace)
+void d_cond_DCtd(struct d_ocp_qp *ocp_qp, int *idxb2, struct d_strvec *d_lb2, struct d_strvec *d_ub2, struct d_strmat *DCt2, struct d_strvec *d_lg2, struct d_strvec *d_ug2, struct d_cond_qp_ocp2dense_workspace *cond_ws)
 	{
+
+	int N = ocp_qp->N;
 
 	// early return
 	if(N<0)
 		return;
 
 	// extract input members
-	int *nx = qp_in->nx + idx_in;
-	int *nu = qp_in->nu + idx_in;
-	int *nb = qp_in->nb + idx_in;
-	int *ng = qp_in->ng + idx_in;
-	int **idxb = qp_in->idxb + idx_in;
-	struct d_strmat *sDCt = qp_in->sDCt + idx_in;
-	struct d_strvec *sd = qp_in->sd + idx_in;
+	int *nx = ocp_qp->nx;
+	int *nu = ocp_qp->nu;
+	int *nb = ocp_qp->nb;
+	int *ng = ocp_qp->ng;
 
-	// extract output members
-	struct d_strmat *sDCt2 = qp_out->sDCt + idx_out;
-	struct d_strvec *sd2 = qp_out->sd + idx_out;
-	int **idxb2 = qp_out->idxb + idx_out;
+	int **idxb = ocp_qp->idxb;
+	struct d_strvec *d_lb = ocp_qp->d_lb;
+	struct d_strvec *d_ub = ocp_qp->d_ub;
+	struct d_strmat *DCt = ocp_qp->DCt;
+	struct d_strvec *d_lg = ocp_qp->d_lg;
+	struct d_strvec *d_ug = ocp_qp->d_ug;
 
 	// extract memory members
-	struct d_strmat *sGamma = qp_mem->sGamma + idx_mem;
+	struct d_strmat *Gamma = cond_ws->Gamma;
 
 
-	double *d2 = sd2->pa; // TODO use VECEL instead !!!
-	double *ptr_d;
+	double *d_lb3 = d_lb2->pa;
+	double *d_ub3 = d_ub2->pa;
+	double *d_lg3 = d_lg2->pa;
+	double *d_ug3 = d_ug2->pa;
+
+	double *ptr_d_lb;
+	double *ptr_d_ub;
 	
 	int nu_tmp, ng_tmp;
 
 	int ii, jj;
 
-	int nu0, nx0, nb0, ng0, nt0;
+	int nu0, nx0, nb0, ng0;
 
 	// problem size
 
@@ -432,24 +437,24 @@ void d_cond_DCtd(int N, struct d_ocp_qp *qp_in, int idx_in, struct d_ocp_qp *qp_
 		nu0 = nu[N-ii];
 		nb0 = nb[N-ii];
 		ng0 = ng[N-ii];
-		nt0 = nb0 + ng0;
 		nu_tmp += nu0;
-		ptr_d = sd[N-ii].pa;
+		ptr_d_lb = d_lb[N-ii].pa;
+		ptr_d_ub = d_ub[N-ii].pa;
 		for(jj=0; jj<nb0; jj++)
 			{
 			if(idxb[N-ii][jj]<nu0) // input: box constraint
 				{
-				d2[0*nt2+ib] = ptr_d[0*nt0+jj];
-				d2[1*nt2+ib] = ptr_d[1*nt0+jj];
-				idxb2[0][ib] = nu_tmp - nu0 + idxb[N-ii][jj];
+				d_lb3[ib] = ptr_d_lb[jj];
+				d_ub3[ib] = ptr_d_ub[jj];
+				idxb2[ib] = nu_tmp - nu0 + idxb[N-ii][jj];
 				ib++;
 				}
 			else // state: general constraint
 				{
 				idx_g = idxb[N-ii][jj]-nu0;
 				tmp = dgeex1_libstr(&Gamma[N-1-ii], idx_gammab, idx_g);
-				d2[nb2+0*nt2+ig] = ptr_d[0*nt0+jj] - tmp;
-				d2[nb2+1*nt2+ig] = ptr_d[1*nt0+jj] - tmp;
+				d_lg3[ig] = ptr_d_lb[jj] - tmp;
+				d_ug3[ig] = ptr_d_ub[jj] - tmp;
 				dgecp_libstr(idx_gammab, 1, &Gamma[N-ii-1], 0, idx_g, &DCt2[0], nu_tmp, ig);
 				ig++;
 				}
@@ -461,17 +466,18 @@ void d_cond_DCtd(int N, struct d_ocp_qp *qp_in, int idx_in, struct d_ocp_qp *qp_
 	nu0 = nu[0];
 	nb0 = nb[0];
 	ng0 = ng[0];
-	nt0 = nb0 + ng0;
 	nu_tmp += nu0;
-	ptr_d = sd[0].pa;
+	ptr_d_lb = d_lb[0].pa;
+	ptr_d_ub = d_ub[0].pa;
 	for(jj=0; jj<nb0; jj++)
 		{
-		d2[0*nt2+ib] = ptr_d[0*nt0+jj];
-		d2[1*nt2+ib] = ptr_d[1*nt0+jj];
-		idxb2[0][ib] = nu_tmp - nu0 + idxb[0][jj];
+		d_lb3[ib] = ptr_d_lb[jj];
+		d_ub3[ib] = ptr_d_ub[jj];
+		idxb2[ib] = nu_tmp - nu0 + idxb[0][jj];
 		ib++;
 		}
 
+#if 0
 	// XXX for now, just shift after box-to-general constraints
 	// better interleave them, to keep the block lower trianlgular structure !!!
 
@@ -509,8 +515,8 @@ void d_cond_DCtd(int N, struct d_ocp_qp *qp_in, int idx_in, struct d_ocp_qp *qp_
 
 			dgemm_nt_libstr(nu2+nx[0]-nu_tmp, ng0, nx0, 1.0, &Gamma[N-1-ii], 0, 0, &C, 0, 0, 0.0, &DCt2[0], nu_tmp, nbg+ng_tmp, &DCt2[0], nu_tmp, nbg+ng_tmp);
 
-			dveccp_libstr(ng0, &d[N-ii], nb0+0*nt0, sd2, nb2+0*nt2+nbg+ng_tmp);
-			dveccp_libstr(ng0, &d[N-ii], nb0+1*nt0, sd2, nb2+1*nt2+nbg+ng_tmp);
+			dveccp_libstr(ng0, &d[N-ii], nb0+0*nt0, d2, nb2+0*nt2+nbg+ng_tmp);
+			dveccp_libstr(ng0, &d[N-ii], nb0+1*nt0, d2, nb2+1*nt2+nbg+ng_tmp);
 
 			d_create_strvec(nx0, &Gammab, (void *) c_ptr);
 			c_ptr += sGammab.memory_size;
@@ -521,8 +527,8 @@ void d_cond_DCtd(int N, struct d_ocp_qp *qp_in, int idx_in, struct d_ocp_qp *qp_
 
 			dgemv_n_libstr(ng0, nx0, 1.0, &C, 0, 0, &Gammab, 0, 0.0, &CGammab, 0, &CGammab, 0);
 
-			daxpy_libstr(ng0, -1.0, &CGammab, 0, sd2, nb2+0*nt2+nbg+ng_tmp, sd2, nb2+0*nt2+nbg+ng_tmp);
-			daxpy_libstr(ng0, -1.0, &CGammab, 0, sd2, nb2+1*nt2+nbg+ng_tmp, sd2, nb2+1*nt2+nbg+ng_tmp);
+			daxpy_libstr(ng0, -1.0, &CGammab, 0, d2, nb2+0*nt2+nbg+ng_tmp, d2, nb2+0*nt2+nbg+ng_tmp);
+			daxpy_libstr(ng0, -1.0, &CGammab, 0, d2, nb2+1*nt2+nbg+ng_tmp, d2, nb2+1*nt2+nbg+ng_tmp);
 
 			ng_tmp += ng0;
 			
@@ -548,17 +554,17 @@ void d_cond_DCtd(int N, struct d_ocp_qp *qp_in, int idx_in, struct d_ocp_qp *qp_
 
 		dgecp_libstr(nu0+nx0, ng0, &DCt[0], 0, 0, &DCt2[0], nu_tmp, nbg+ng_tmp);
 
-		dveccp_libstr(ng0, &d[0], nb0+0*nt0, sd2, nb2+0*nt2+nbg+ng_tmp);
-		dveccp_libstr(ng0, &d[0], nb0+1*nt0, sd2, nb2+1*nt2+nbg+ng_tmp);
+		dveccp_libstr(ng0, &d[0], nb0+0*nt0, d2, nb2+0*nt2+nbg+ng_tmp);
+		dveccp_libstr(ng0, &d[0], nb0+1*nt0, d2, nb2+1*nt2+nbg+ng_tmp);
 
 //		ng_tmp += ng[N-ii];
 
 		}
+#endif
 
 	return;
 
 	}
-#endif
 
 
 
