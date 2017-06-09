@@ -34,7 +34,7 @@
 
 struct s_dense_qp
 	{
-	struct s_strmat *H; // hessian
+	struct s_strmat *Hg; // hessian and gradient
 	struct s_strmat *A; // dynamics matrix
 	struct s_strmat *Ct; // constraints matrix
 	struct s_strvec *g; // gradient

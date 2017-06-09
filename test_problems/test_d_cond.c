@@ -504,7 +504,7 @@ int main()
 	d_cond_qp_ocp2dense(&ocp_qp, &dense_qp, &cond_ws);
 
 #if 1
-	d_print_strmat(nvc, nvc, dense_qp.H, 0, 0);
+	d_print_strmat(nvc+1, nvc, dense_qp.Hg, 0, 0);
 	d_print_strmat(nec, nvc, dense_qp.A, 0, 0);
 	d_print_strmat(nvc, ngc, dense_qp.Ct, 0, 0);
 	d_print_tran_strvec(nvc, dense_qp.g, 0);

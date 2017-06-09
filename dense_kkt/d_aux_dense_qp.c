@@ -41,13 +41,16 @@
 #define CREATE_STRMAT d_create_strmat
 #define CREATE_STRVEC d_create_strvec
 #define CVT_MAT2STRMAT d_cvt_mat2strmat
+#define CVT_TRAN_MAT2STRMAT d_cvt_tran_mat2strmat
 #define CVT_VEC2STRVEC d_cvt_vec2strvec
 #define DENSE_QP_DIM d_dense_qp_dim
 #define DENSE_QP_VEC d_dense_qp_vec
 #define DENSE_QP_MAT d_dense_qp_mat
 #define DENSE_QP d_dense_qp
 #define GECP_LIBSTR dgecp_libstr
+#define GETR_LIBSTR dgetr_libstr
 #define REAL double
+#define ROWIN_LIBSTR drowin_libstr
 #define SIZE_STRMAT d_size_strmat
 #define SIZE_STRVEC d_size_strvec
 #define STRMAT d_strmat

@@ -33,14 +33,14 @@ int MEMSIZE_DENSE_QP(int nv, int ne, int nb, int ng)
 	int size = 0;
 
 	size += 7*sizeof(struct STRVEC); // g b d d_lb d_ub d_lg d_ug
-	size += 3*sizeof(struct STRMAT); // H A Ct
+	size += 3*sizeof(struct STRMAT); // Hg A Ct
 
 	size += 1*SIZE_STRVEC(nv); // g
 	size += 1*SIZE_STRVEC(ne); // b
 	size += 1*SIZE_STRVEC(2*nb+2*ng); // d
 	size += 1*nb*sizeof(int); // idxb
 
-	size += 1*SIZE_STRMAT(nv, nv); // H
+	size += 1*SIZE_STRMAT(nv+1, nv); // Hg
 	size += 1*SIZE_STRMAT(ne, nv); // A
 	size += 1*SIZE_STRMAT(nv, ng); // Ct
 
@@ -66,7 +66,7 @@ void CREATE_DENSE_QP(int nv, int ne, int nb, int ng, struct DENSE_QP *qp, void *
 	// matrix struct stuff
 	struct STRMAT *sm_ptr = (struct STRMAT *) memory;
 
-	qp->H = sm_ptr;
+	qp->Hg = sm_ptr;
 	sm_ptr += 1;
 
 	qp->A = sm_ptr;
@@ -119,8 +119,8 @@ void CREATE_DENSE_QP(int nv, int ne, int nb, int ng, struct DENSE_QP *qp, void *
 	void *v_ptr;
 	v_ptr = (void *) s_ptr;
 
-	CREATE_STRMAT(nv, nv, qp->H, v_ptr);
-	v_ptr += qp->H->memory_size;
+	CREATE_STRMAT(nv+1, nv, qp->Hg, v_ptr);
+	v_ptr += qp->Hg->memory_size;
 
 	CREATE_STRMAT(ne, nv, qp->A, v_ptr);
 	v_ptr += qp->A->memory_size;
@@ -159,9 +159,10 @@ void CVT_COLMAJ_TO_DENSE_QP(REAL *H, REAL *g, REAL *A, REAL *b, int *idxb, REAL 
 	int nb = qp->nb;
 	int ng = qp->ng;
 
-	CVT_MAT2STRMAT(nv, nv, H, nv, qp->H, 0, 0);
+	CVT_MAT2STRMAT(nv, nv, H, nv, qp->Hg, 0, 0);
+	CVT_TRAN_MAT2STRMAT(nv, 1, g, nv, qp->Hg, nv, 0);
 	CVT_MAT2STRMAT(ne, nv, A, ne, qp->A, 0, 0);
-	CVT_MAT2STRMAT(ng, nv, C, ng, qp->Ct, 0, 0);
+	CVT_TRAN_MAT2STRMAT(ng, nv, C, ng, qp->Ct, 0, 0);
 	CVT_VEC2STRVEC(nv, g, qp->g, 0);
 	CVT_VEC2STRVEC(ne, b, qp->b, 0);
 	CVT_VEC2STRVEC(nb, d_lb, qp->d_lb, 0);
@@ -186,9 +187,10 @@ void CVT_LIBSTR_TO_DENSE_QP(struct STRMAT *H, struct STRMAT *A, struct STRMAT *C
 	int nb = qp->nb;
 	int ng = qp->ng;
 
-	GECP_LIBSTR(nv, nv, H, 0, 0, qp->H, 0, 0);
+	GECP_LIBSTR(nv, nv, H, 0, 0, qp->Hg, 0, 0);
+	ROWIN_LIBSTR(nv, 1.0, g, 0, qp->Hg, nv, 0);
 	GECP_LIBSTR(ne, nv, A, 0, 0, qp->A, 0, 0);
-	GECP_LIBSTR(ng, nv, C, 0, 0, qp->Ct, 0, 0);
+	GETR_LIBSTR(ng, nv, C, 0, 0, qp->Ct, 0, 0);
 	VECCP_LIBSTR(nv, g, 0, qp->g, 0);
 	VECCP_LIBSTR(ne, b, 0, qp->b, 0);
 	VECCP_LIBSTR(nb, d_lb, 0, qp->d_lb, 0);

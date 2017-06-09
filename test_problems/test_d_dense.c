@@ -86,7 +86,7 @@ int main()
 	d_create_dense_qp(nv, ne, nb, ng, &qp, qp_mem);
 	d_cvt_colmaj_to_dense_qp(H, g, A, b, idxb, d_lb, d_ub, C, d_lg, d_ug, &qp);
 
-	d_print_strmat(nv, nv, qp.H, 0, 0);
+	d_print_strmat(nv+1, nv, qp.Hg, 0, 0);
 	d_print_strmat(ne, nv, qp.A, 0, 0);
 	d_print_strmat(nv, ng, qp.Ct, 0, 0);
 	d_print_strvec(nv, qp.g, 0);

@@ -153,7 +153,7 @@ void d_compute_res_hard_dense_qp(struct d_dense_qp *qp, struct d_ipm_hard_dense_
 	double mu;
 
 	// res g
-	dsymv_l_libstr(nv, nv, 1.0, qp->H, 0, 0, ws->v, 0, 1.0, qp->g, 0, ws->res_g, 0);
+	dsymv_l_libstr(nv, nv, 1.0, qp->Hg, 0, 0, ws->v, 0, 1.0, qp->g, 0, ws->res_g, 0);
 
 	if(nb>0)
 		{
@@ -209,7 +209,7 @@ void d_fact_solve_kkt_step_hard_dense_qp(struct d_dense_qp *qp, struct d_ipm_har
 		d_compute_Qx_qx_hard_qp(rws);
 		}
 
-	dtrcp_l_libstr(nv, qp->H, 0, 0, ws->Lv, 0, 0);
+	dtrcp_l_libstr(nv, qp->Hg, 0, 0, ws->Lv, 0, 0);
 
 	dveccp_libstr(nv, ws->res_g, 0, ws->lv, 0);
 

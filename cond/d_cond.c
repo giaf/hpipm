@@ -82,15 +82,23 @@ void d_compute_qp_size_ocp2dense(int N, int *nx, int *nu, int *nb, int **idxb, i
 int d_memsize_cond_qp_ocp2dense(struct d_ocp_qp *ocp_qp, struct d_dense_qp *dense_qp) // XXX + args for algorithm type ???
 	{
 
+	int ii;
+
 	int N = ocp_qp->N;
 	int *nx = ocp_qp->nx;
 	int *nu = ocp_qp->nu;
 
-	int ii;
+	int nxM = 0;
+	int nuM = 0;
+	for(ii=0; ii<=N; ii++)	
+		{
+		nxM = nx[ii]>nxM ? nx[ii] : nxM;
+		nuM = nu[ii]>nuM ? nu[ii] : nuM;
+		}
 
 	int size = 0;
 
-	size += (0+1*(N+1))*sizeof(struct d_strmat); // Gamma
+	size += (2+2*(N+1))*sizeof(struct d_strmat); // Gamma L Lx AL
 
 	int nu_tmp = 0;
 	for(ii=0; ii<N; ii++)
@@ -98,6 +106,10 @@ int d_memsize_cond_qp_ocp2dense(struct d_ocp_qp *ocp_qp, struct d_dense_qp *dens
 		nu_tmp += nu[ii];
 		size += d_size_strmat(nu_tmp+nx[0]+1, nx[ii+1]); // Gamma
 		}
+	for(ii=0; ii<=N; ii++) 
+		size += d_size_strmat(nu[ii]+nx[ii]+1, nu[ii]+nx[ii]); // L
+	size += d_size_strmat(nxM+1, nxM); // Lx
+	size += d_size_strmat(nuM+nxM+1, nxM); // AL
 
 	size = (size+63)/64*64; // make multiple of typical cache line size
 	size += 1*64; // align once to typical cache line size
@@ -111,11 +123,19 @@ int d_memsize_cond_qp_ocp2dense(struct d_ocp_qp *ocp_qp, struct d_dense_qp *dens
 void d_create_cond_qp_ocp2dense(struct d_ocp_qp *ocp_qp, struct d_dense_qp *dense_qp, struct d_cond_qp_ocp2dense_workspace *cond_ws, void *mem)
 	{
 
+	int ii;
+
 	int N = ocp_qp->N;
 	int *nx = ocp_qp->nx;
 	int *nu = ocp_qp->nu;
 
-	int ii;
+	int nxM = 0;
+	int nuM = 0;
+	for(ii=0; ii<=N; ii++)	
+		{
+		nxM = nx[ii]>nxM ? nx[ii] : nxM;
+		nuM = nu[ii]>nuM ? nu[ii] : nuM;
+		}
 
 
 	// matrix struct
@@ -123,6 +143,12 @@ void d_create_cond_qp_ocp2dense(struct d_ocp_qp *ocp_qp, struct d_dense_qp *dens
 
 	cond_ws->Gamma = sm_ptr;
 	sm_ptr += N+1;
+	cond_ws->L = sm_ptr;
+	sm_ptr += N+1;
+	cond_ws->Lx = sm_ptr;
+	sm_ptr += 1;
+	cond_ws->AL = sm_ptr;
+	sm_ptr += 1;
 
 
 	// vector struct
@@ -144,6 +170,15 @@ void d_create_cond_qp_ocp2dense(struct d_ocp_qp *ocp_qp, struct d_dense_qp *dens
 		d_create_strmat(nu_tmp+nx[0]+1, nx[ii+1], cond_ws->Gamma+ii, v_ptr);
 		v_ptr += (cond_ws->Gamma+ii)->memory_size;
 		}
+	for(ii=0; ii<=N; ii++)
+		{
+		d_create_strmat(nu[ii]+nx[ii]+1, nu[ii]+nx[ii], cond_ws->L+ii, v_ptr);
+		v_ptr += (cond_ws->L+ii)->memory_size;
+		}
+	d_create_strmat(nxM+1, nxM, cond_ws->Lx, v_ptr);
+	v_ptr += cond_ws->Lx->memory_size;
+	d_create_strmat(nuM+nxM+1, nxM, cond_ws->AL, v_ptr);
+	v_ptr += cond_ws->AL->memory_size;
 
 
 	return;
@@ -156,6 +191,8 @@ void d_cond_qp_ocp2dense(struct d_ocp_qp *ocp_qp, struct d_dense_qp *dense_qp, s
 	{
 
 	d_compute_Gamma(ocp_qp, cond_ws);
+
+	d_cond_RSQrq_N2nx3(ocp_qp, dense_qp->Hg, dense_qp->g, cond_ws);
 
 	return;
 
