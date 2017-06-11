@@ -142,8 +142,10 @@ void d_init_var_hard_ocp_qp(struct d_ocp_qp *qp, struct d_ipm_hard_ocp_qp_worksp
 			t_ug[jj] = - t_lg[jj];
 			t_lg[jj] -= d_lg[jj];
 			t_ug[jj] += d_ug[jj];
-			t_lg[jj] = fmax(thr0, t_lg[jj]);
-			t_ug[jj] = fmax(thr0, t_ug[jj]);
+//			t_lg[jj] = fmax(thr0, t_lg[jj]);
+//			t_ug[jj] = fmax(thr0, t_ug[jj]);
+			t_lg[jj] = thr0>t_lg[jj] ? thr0 : t_lg[jj];
+			t_ug[jj] = thr0>t_ug[jj] ? thr0 : t_ug[jj];
 			lam_lg[jj] = mu0/t_lg[jj];
 			lam_ug[jj] = mu0/t_ug[jj];
 			}

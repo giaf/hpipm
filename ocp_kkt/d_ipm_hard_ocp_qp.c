@@ -452,7 +452,7 @@ void d_create_ipm_hard_ocp_qp(struct d_ocp_qp *qp, struct d_ipm_hard_ocp_qp_arg 
 		d_create_strvec(nb[ii], workspace->qx_lb+ii, v_ptr);
 		v_ptr += (nb[ii])*sizeof(double);
 		}
-
+	workspace->stat = rwork->stat;
 
 
 
@@ -480,7 +480,7 @@ void d_solve_ipm_hard_ocp_qp(struct d_ocp_qp *qp, struct d_ipm_hard_ocp_qp_works
 	cws->mu = ws->res_mu;
 
 	int kk;
-	for(kk=0; kk<cws->iter_max; kk++)
+	for(kk=0; kk<cws->iter_max & cws->mu>cws->mu_max; kk++)
 		{
 
 		// fact and solve kkt
@@ -488,7 +488,7 @@ void d_solve_ipm_hard_ocp_qp(struct d_ocp_qp *qp, struct d_ipm_hard_ocp_qp_works
 
 		// alpha
 		d_compute_alpha_hard_qp(cws);
-//		cws->alpha = 1.0; // XXX
+		cws->stat[5*kk+1] = cws->alpha;
 
 		//
 		d_update_var_hard_qp(cws);
@@ -496,9 +496,12 @@ void d_solve_ipm_hard_ocp_qp(struct d_ocp_qp *qp, struct d_ipm_hard_ocp_qp_works
 		// compute residuals
 		d_compute_res_hard_ocp_qp(qp, ws);
 		cws->mu = ws->res_mu;
+		cws->stat[5*kk+2] = ws->res_mu;
 
 //		break;
 		}
+	
+	ws->iter = kk;
 	
 	return;
 

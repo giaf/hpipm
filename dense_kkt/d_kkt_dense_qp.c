@@ -54,6 +54,8 @@ void d_init_var_hard_dense_qp(struct d_dense_qp *qp, struct d_ipm_hard_dense_qp_
 
 	double *d_lb = qp->d_lb->pa;
 	double *d_ub = qp->d_ub->pa;
+	double *d_lg = qp->d_lg->pa;
+	double *d_ug = qp->d_ug->pa;
 	int *idxb = qp->idxb;
 
 	double *v = rws->v;
@@ -124,14 +126,12 @@ void d_init_var_hard_dense_qp(struct d_dense_qp *qp, struct d_ipm_hard_dense_qp_
 	for(ii=0; ii<ng; ii++)
 		{
 		t_ug[ii] = t_lg[ii];
-		t_lg[ii] -= d_lb[ii];
-		t_ug[ii] += d_ub[ii];
-		t_lg[ii] = fmax( thr0, t_lb[ii] );
-		t_ug[ii] = fmax( thr0, t_ub[ii] );
-//		if(t_lb[ii]<thr0) t_lg[ii] = thr0;
-//		if(t_ub[ii]<thr0) t_ug[ii] = thr0;
-//		t_lg[ii] = 1.0;
-//		t_ug[ii] = 1.0;
+		t_lg[ii] -= d_lg[ii];
+		t_ug[ii] += d_ug[ii];
+		t_lg[ii] = fmax( thr0, t_lg[ii] );
+		t_ug[ii] = fmax( thr0, t_ug[ii] );
+//		t_lg[ii] = thr0>t_lg[ii] ? thr0 : t_lg[ii];
+//		t_ug[ii] = thr0>t_ug[ii] ? thr0 : t_ug[ii];
 		lam_lg[ii] = mu0/t_lg[ii];
 		lam_ug[ii] = mu0/t_ug[ii];
 		}

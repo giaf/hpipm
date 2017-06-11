@@ -144,53 +144,6 @@ void d_cond_BAbt(int N, struct d_ocp_qp *ocp_qp, int idx_in, struct d_strmat *BA
 
 
 
-#if 0
-// workspace_sizes[0] : Lx
-// workspace_sizes[1] : BAbtL
-int d_cond_RSQrq_N2nx3_workspace_size(int N, struct d_ocp_qp *qp_in, int idx_in, struct d_cond_work *qp_work, int idx_work)
-	{
-
-	// early return
-	if(N<0)
-		return 0;
-
-	// extract input members
-	int *nx = qp_in->nx + idx_in;
-	int *nu = qp_in->nu + idx_in;
-
-	// extract workspace members
-	int *sizes = qp_work->cond_RSQrq_N2nx3_sizes + idx_work;
-
-	int ii;
-	int tmp;
-
-	int size = 0;
-
-	// Lx
-	sizes[0] = 0;
-	for(ii=1; ii<=N; ii++)
-		{
-		tmp = d_size_strmat(nx[ii]+1, nx[ii]);
-		sizes[0] = tmp>sizes[0] ? tmp : sizes[0];
-		}
-
-	// BAbtL
-	sizes[1] = 0;
-	for(ii=0; ii<N; ii++)
-		{
-		tmp = d_size_strmat(nu[ii]+nx[ii]+1, nx[ii+1]);
-		sizes[1] = tmp>sizes[1] ? tmp : sizes[1];
-		}
-	
-	size += sizes[0];
-	size += sizes[1];
-
-	return size;
-	}
-#endif
-
-
-
 void d_cond_RSQrq_N2nx3(struct d_ocp_qp *ocp_qp, struct d_strmat *RSQrq2, struct d_strvec *rq2, struct d_cond_qp_ocp2dense_workspace *cond_ws)
 	{
 

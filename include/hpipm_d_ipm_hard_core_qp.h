@@ -81,7 +81,7 @@ struct d_ipm_hard_core_qp_workspace
 	double *qx; // gradient update
 	double *qx_lb; // gradient update
 	double *qx_lg; // gradient update
-	double *conv_stat; // convergence statistics
+	double *stat; // convergence statistics
 	double alpha; // step length
 	double alpha_min; // exit cond on step lenght
 	double sigma; // centering XXX
@@ -92,10 +92,7 @@ struct d_ipm_hard_core_qp_workspace
 	int ne; // number of equality constraints
 	int nb; // number of two-sized bounds
 	int ng; // number of two-sized constraints
-	int status; // status
-	int entry; // entry point
 	int memsize; // memory size (in bytes) of workspace
-	int iter; // iteration number
 	int iter_max; // exit cond on iter mumber
 	};
 

@@ -50,7 +50,7 @@ int d_memsize_ipm_hard_core_qp(int nv, int ne, int nb, int ng, int iter_max)
 	size += 3*ne0*sizeof(double); // pi dpi res_b
 	size += 7*(2*nb0+2*ng0)*sizeof(double); // lam t dlam dt res_d res_m t_inv
 	size += 2*(nb0+ng0)*sizeof(double); // Qx qx
-	size += 5*iter_max*sizeof(double); // conv_stat
+	size += 5*iter_max*sizeof(double); // stat
 
 	size = (size+63)/64*64; // make multiple of cache line size
 
@@ -156,7 +156,7 @@ void d_create_ipm_hard_core_qp(struct d_ipm_hard_core_qp_workspace *workspace, v
 	workspace->qx_lg = d_ptr+nb0;
 	d_ptr += nb0+ng0;
 
-	workspace->conv_stat = d_ptr; // conv_stat
+	workspace->stat = d_ptr; // stat
 	d_ptr += 5*workspace->iter_max;
 
 	int *i_ptr = (int *) d_ptr;

@@ -252,6 +252,7 @@ void d_create_ipm_hard_dense_qp(struct d_dense_qp *qp, struct d_ipm_hard_dense_q
 	d_create_strvec(2*nb+2*ng, workspace->res_m, rwork->res_m);
 	d_create_strvec(nb+ng, workspace->Qx, rwork->Qx);
 	d_create_strvec(nb+ng, workspace->qx, rwork->qx);
+	workspace->stat = rwork->stat;
 
 
 	workspace->nt_inv = 1.0/(2*nb+2*ng);
@@ -265,14 +266,14 @@ void d_create_ipm_hard_dense_qp(struct d_dense_qp *qp, struct d_ipm_hard_dense_q
 void d_solve_ipm_hard_dense_qp(struct d_dense_qp *qp, struct d_ipm_hard_dense_qp_workspace *ws)
 	{
 
-	struct d_ipm_hard_core_qp_workspace *rws = ws->core_workspace;
+	struct d_ipm_hard_core_qp_workspace *cws = ws->core_workspace;
 
 	// alias qp vectors into core workspace
-	rws->d = qp->d->pa;
-	rws->d_lb = qp->d_lb->pa;
-	rws->d_ub = qp->d_ub->pa;
-	rws->d_lg = qp->d_lg->pa;
-	rws->d_ug = qp->d_ug->pa;
+	cws->d = qp->d->pa;
+	cws->d_lb = qp->d_lb->pa;
+	cws->d_ub = qp->d_ub->pa;
+	cws->d_lg = qp->d_lg->pa;
+	cws->d_ug = qp->d_ug->pa;
 
 	// init solver
 	d_init_var_hard_dense_qp(qp, ws);
@@ -294,7 +295,7 @@ void d_solve_ipm_hard_dense_qp(struct d_dense_qp *qp, struct d_ipm_hard_dense_qp
 
 	// compute residuals
 	d_compute_res_hard_dense_qp(qp, ws);
-	rws->mu = ws->res_mu;
+	cws->mu = ws->res_mu;
 
 #if 0
 	printf("\nres_g\n");
@@ -308,19 +309,18 @@ void d_solve_ipm_hard_dense_qp(struct d_dense_qp *qp, struct d_ipm_hard_dense_qp
 #endif
 
 	int kk;
-	for(kk=0; kk<rws->iter_max; kk++)
+	for(kk=0; kk<cws->iter_max & cws->mu>cws->mu_max; kk++)
 		{
-
-//		printf("\niter %d\n", kk);
 
 		// fact and solve kkt
 		d_fact_solve_kkt_step_hard_dense_qp(qp, ws);
 
 		// alpha
-		d_compute_alpha_hard_qp(rws);
+		d_compute_alpha_hard_qp(cws);
+		cws->stat[5*kk+1] = cws->alpha;
 
 		//
-		d_update_var_hard_qp(rws);
+		d_update_var_hard_qp(cws);
 
 #if 0
 		printf("\nv\n");
@@ -335,7 +335,8 @@ void d_solve_ipm_hard_dense_qp(struct d_dense_qp *qp, struct d_ipm_hard_dense_qp
 
 		// compute residuals
 		d_compute_res_hard_dense_qp(qp, ws);
-		rws->mu = ws->res_mu;
+		cws->mu = ws->res_mu;
+		cws->stat[5*kk+2] = ws->res_mu;
 #if 0
 
 		printf("\nres_g\n");
@@ -349,6 +350,8 @@ void d_solve_ipm_hard_dense_qp(struct d_dense_qp *qp, struct d_ipm_hard_dense_qp
 #endif
 
 		}
+
+	ws->iter = kk;
 
 	return;
 

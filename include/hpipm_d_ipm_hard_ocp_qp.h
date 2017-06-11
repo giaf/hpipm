@@ -74,9 +74,11 @@ struct d_ipm_hard_ocp_qp_workspace
 	struct d_strmat *L;
 	struct d_strmat *AL0;
 	struct d_strmat *AL1;
+	double *stat; // convergence statistics
 	double nt_inv; // 1.0/nt, where nt is the total number of constraints
 	double res_mu; // mu-residual
 	double mu0;
+	int iter; // iteration number
 	};
 
 

@@ -149,6 +149,10 @@ int main()
 
 	int ii, jj;
 	
+	int rep, nrep=1000;
+
+	struct timeval tv0, tv1;
+
 
 
 	// problem size
@@ -452,6 +456,7 @@ int main()
 	struct d_ocp_qp ocp_qp;
 	d_create_ocp_qp(N, nx, nu, nb, ng, &ocp_qp, ocp_qp_mem);
 	d_cvt_colmaj_to_ocp_qp(hA, hB, hb, hQ, hS, hR, hq, hr, hidxb, hlb, hub, hC, hD, hlg, hug, &ocp_qp);
+
 #if 1
 	printf("\nN = %d\n", ocp_qp.N);
 	for(ii=0; ii<N; ii++)
@@ -502,7 +507,16 @@ int main()
 	struct d_cond_qp_ocp2dense_workspace cond_ws;
 	d_create_cond_qp_ocp2dense(&ocp_qp, &dense_qp, &cond_ws, cond_mem);
 
-	d_cond_qp_ocp2dense(&ocp_qp, &dense_qp, &cond_ws);
+	gettimeofday(&tv0, NULL); // start
+
+	for(rep=0; rep<nrep; rep++)
+		{
+		d_cond_qp_ocp2dense(&ocp_qp, &dense_qp, &cond_ws);
+		}
+
+	gettimeofday(&tv1, NULL); // stop
+
+	double time_cond = (tv1.tv_sec-tv0.tv_sec)/(nrep+0.0)+(tv1.tv_usec-tv0.tv_usec)/(nrep*1e6);
 
 #if 1
 	d_print_strmat(nvc+1, nvc, dense_qp.Hg, 0, 0);
@@ -517,12 +531,14 @@ int main()
 	d_print_tran_strvec(ngc, dense_qp.d_ug, 0);
 #endif
 
+#if 0
 	int nu_tmp = 0;
 	for(ii=0; ii<N; ii++)
 		{
 		nu_tmp += nu[ii];
 		d_print_strmat(nu_tmp+nx[0]+1, nx[ii+1], cond_ws.Gamma+ii, 0, 0);
 		}
+#endif
 
 /************************************************
 * ipm
@@ -531,7 +547,7 @@ int main()
 	struct d_ipm_hard_dense_qp_arg dense_arg;
 	dense_arg.alpha_min = 1e-8;
 	dense_arg.mu_max = 1e-12;
-	dense_arg.iter_max = 10;
+	dense_arg.iter_max = 20;
 	dense_arg.mu0 = 1.0;
 
 	int dense_ipm_size = d_memsize_ipm_hard_dense_qp(&dense_qp, &dense_arg);
@@ -541,10 +557,6 @@ int main()
 	struct d_ipm_hard_dense_qp_workspace dense_workspace;
 	d_create_ipm_hard_dense_qp(&dense_qp, &dense_arg, &dense_workspace, dense_ipm_mem);
 
-	int rep, nrep=1000;
-
-	struct timeval tv0, tv1;
-
 	gettimeofday(&tv0, NULL); // start
 
 	for(rep=0; rep<nrep; rep++)
@@ -554,20 +566,8 @@ int main()
 
 	gettimeofday(&tv1, NULL); // stop
 
-	double time0 = (tv1.tv_sec-tv0.tv_sec)/(nrep+0.0)+(tv1.tv_usec-tv0.tv_usec)/(nrep*1e6);
+	double time_dense_ipm = (tv1.tv_sec-tv0.tv_sec)/(nrep+0.0)+(tv1.tv_usec-tv0.tv_usec)/(nrep*1e6);
 
-	gettimeofday(&tv0, NULL); // start
-
-	for(rep=0; rep<nrep; rep++)
-		{
-		d_solve_ipm_hard_dense_qp(&dense_qp, &dense_workspace);
-		}
-
-	gettimeofday(&tv1, NULL); // stop
-
-	double time1 = (tv1.tv_sec-tv0.tv_sec)/(nrep+0.0)+(tv1.tv_usec-tv0.tv_usec)/(nrep*1e6);
-
-	printf("\nsol time = %e %e [s]\n\n", time0, time1);
 
 	printf("\nsolution\n\n");
 	printf("\nv\n");
@@ -590,6 +590,12 @@ int main()
 	d_print_e_tran_strvec(2*nbc+2*ngc, dense_workspace.res_m, 0);
 	printf("\nres_mu\n");
 	printf("\n%e\n\n", dense_workspace.res_mu);
+
+	printf("\nipm iter = %d\n", dense_workspace.iter);
+	printf("\nsigma\t\talpha_aff\tmu_aff\t\talpha\t\tmu\n");
+	d_print_e_tran_mat(5, dense_workspace.iter, dense_workspace.stat, 5);
+
+	printf("\ncond time = %e [s], dense ipm time = %e [s]\n\n", time_cond, time_dense_ipm);
 
 /************************************************
 * free memory

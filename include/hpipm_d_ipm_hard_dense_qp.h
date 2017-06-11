@@ -73,8 +73,10 @@ struct d_ipm_hard_dense_qp_workspace
 	struct d_strvec *tmp_nb; // work space of size nb
 	struct d_strvec *tmp_ng0; // work space of size nb
 	struct d_strvec *tmp_ng1; // work space of size nb
+	double *stat; // convergence statistics
 	double nt_inv; // 1.0/nt, where nt is the total number of constraints
 	double res_mu; // mu-residual
+	int iter; // iteration number
 	};
 
 

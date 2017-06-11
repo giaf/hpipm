@@ -481,7 +481,7 @@ int main()
 	struct d_ipm_hard_ocp_qp_arg arg;
 	arg.alpha_min = 1e-8;
 	arg.mu_max = 1e-12;
-	arg.iter_max = 10;
+	arg.iter_max = 20;
 	arg.mu0 = 2.0;
 
 	int ipm_size = d_memsize_ipm_hard_ocp_qp(&qp, &arg);
@@ -504,18 +504,7 @@ int main()
 
 	gettimeofday(&tv1, NULL); // stop
 
-	double time0 = (tv1.tv_sec-tv0.tv_sec)/(nrep+0.0)+(tv1.tv_usec-tv0.tv_usec)/(nrep*1e6);
-
-	gettimeofday(&tv0, NULL); // start
-
-	for(rep=0; rep<nrep; rep++)
-		{
-		d_solve_ipm_hard_ocp_qp(&qp, &workspace);
-		}
-
-	gettimeofday(&tv1, NULL); // stop
-
-	double time1 = (tv1.tv_sec-tv0.tv_sec)/(nrep+0.0)+(tv1.tv_usec-tv0.tv_usec)/(nrep*1e6);
+	double time_ocp_ipm = (tv1.tv_sec-tv0.tv_sec)/(nrep+0.0)+(tv1.tv_usec-tv0.tv_usec)/(nrep*1e6);
 
 #if 1
 	printf("\nsolution\n\n");
@@ -581,10 +570,15 @@ int main()
 	printf("\nres_d_ug\n");
 	for(ii=0; ii<=N; ii++)
 		d_print_e_tran_strvec(ng[ii], workspace.res_d_ug+ii, 0);
-	printf("\nres_mu\n%e\n", workspace.res_mu);
+	printf("\nres_mu\n");
+	printf("\n%e\n\n", workspace.res_mu);
 #endif
 
-	printf("\nsol time = %e %e [s]\n\n", time0, time1);
+	printf("\nipm iter = %d\n", workspace.iter);
+	printf("\nsigma\t\talpha_aff\tmu_aff\t\talpha\t\tmu\n");
+	d_print_e_tran_mat(5, workspace.iter, workspace.stat, 5);
+
+	printf("\nocp ipm time = %e [s]\n\n", time_ocp_ipm);
 
 /************************************************
 * free memory
