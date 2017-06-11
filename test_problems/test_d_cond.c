@@ -180,6 +180,7 @@ int main()
 		nu[ii] = nu_;
 	nu[N] = 0;
 
+#if 1
 	int nb[N+1];
 #if KEEP_X0
 	nb[0] = nu[0]+nx[0]/2;
@@ -195,6 +196,39 @@ int main()
 	for(ii=1; ii<N; ii++)
 		ng[ii] = 0;
 	ng[N] = 0;
+#elif 0
+	int nb[N+1];
+	nb[0] = 0;
+	for(ii=1; ii<N; ii++)
+		nb[ii] = 0;
+	nb[N] = 0;
+
+	int ng[N+1];
+#if KEEP_X0
+	ng[0] = nu[0]+nx[0]/2;
+#else
+	ng[0] = nu[0];
+#endif
+	for(ii=1; ii<N; ii++)
+		ng[ii] = nu[1]+nx[1]/2;
+	ng[N] = nx[N]/2;
+#else
+	int nb[N+1];
+	nb[0] = nu[0];
+	for(ii=1; ii<N; ii++)
+		nb[ii] = nu[ii];
+	nb[N] = nu[N];
+
+	int ng[N+1];
+#if KEEP_X0
+	ng[0] = nx[0]/2;
+#else
+	ng[0] = 0;
+#endif
+	for(ii=1; ii<N; ii++)
+		ng[ii] = nx[1]/2;
+	ng[N] = nx[N]/2;
+#endif
 
 /************************************************
 * dynamical system
@@ -269,114 +303,134 @@ int main()
 ************************************************/	
 
 	int *idxb0; int_zeros(&idxb0, nb[0], 1);
-	double *lb0; d_zeros(&lb0, nb[0], 1);
-	double *ub0; d_zeros(&ub0, nb[0], 1);
-	double *lg0; d_zeros(&lg0, ng[0], 1);
-	double *ug0; d_zeros(&ug0, ng[0], 1);
+	double *d_lb0; d_zeros(&d_lb0, nb[0], 1);
+	double *d_ub0; d_zeros(&d_ub0, nb[0], 1);
+	double *d_lg0; d_zeros(&d_lg0, ng[0], 1);
+	double *d_ug0; d_zeros(&d_ug0, ng[0], 1);
 	for(ii=0; ii<nb[0]; ii++)
 		{
 		if(ii<nu[0]) // input
 			{
-			lb0[ii] = - 0.5; // umin
-			ub0[ii] =   0.5; // umax
+			d_lb0[ii] = - 0.5; // umin
+			d_ub0[ii] =   0.5; // umax
 			}
 		else // state
 			{
-			lb0[ii] = - 4.0; // xmin
-			ub0[ii] =   4.0; // xmax
+			d_lb0[ii] = - 4.0; // xmin
+			d_ub0[ii] =   4.0; // xmax
 			}
 		idxb0[ii] = ii;
 		}
 	for(ii=0; ii<ng[0]; ii++)
 		{
-		if(ii<nu[0]) // input
+		if(ii<nu[0]-nb[0]) // input
 			{
-			lg0[ii] = - 0.5; // umin
-			ug0[ii] =   0.5; // umax
+			d_lg0[ii] = - 0.5; // umin
+			d_ug0[ii] =   0.5; // umax
 			}
 		else // state
 			{
-			lg0[ii] = - 4.0; // xmin
-			ug0[ii] =   4.0; // xmax
+			d_lg0[ii] = - 4.0; // xmin
+			d_ug0[ii] =   4.0; // xmax
 			}
 		}
 
 	int *idxb1; int_zeros(&idxb1, nb[1], 1);
-	double *lb1; d_zeros(&lb1, nb[1], 1);
-	double *ub1; d_zeros(&ub1, nb[1], 1);
-	double *lg1; d_zeros(&lg1, ng[1], 1);
-	double *ug1; d_zeros(&ug1, ng[1], 1);
+	double *d_lb1; d_zeros(&d_lb1, nb[1], 1);
+	double *d_ub1; d_zeros(&d_ub1, nb[1], 1);
+	double *d_lg1; d_zeros(&d_lg1, ng[1], 1);
+	double *d_ug1; d_zeros(&d_ug1, ng[1], 1);
 	for(ii=0; ii<nb[1]; ii++)
 		{
 		if(ii<nu[1]) // input
 			{
-			lb1[ii] = - 0.5; // umin
-			ub1[ii] =   0.5; // umax
+			d_lb1[ii] = - 0.5; // umin
+			d_ub1[ii] =   0.5; // umax
 			}
 		else // state
 			{
-			lb1[ii] = - 4.0; // xmin
-			ub1[ii] =   4.0; // xmax
+			d_lb1[ii] = - 4.0; // xmin
+			d_ub1[ii] =   4.0; // xmax
 			}
 		idxb1[ii] = ii;
 		}
 	for(ii=0; ii<ng[1]; ii++)
 		{
-		if(ii<nu[1]) // input
+		if(ii<nu[1]-nb[1]) // input
 			{
-			lg1[ii] = - 0.5; // umin
-			ug1[ii] =   0.5; // umax
+			d_lg1[ii] = - 0.5; // umin
+			d_ug1[ii] =   0.5; // umax
 			}
 		else // state
 			{
-			lg1[ii] = - 4.0; // xmin
-			ug1[ii] =   4.0; // xmax
+			d_lg1[ii] = - 4.0; // xmin
+			d_ug1[ii] =   4.0; // xmax
 			}
 		}
 
 
 	int *idxbN; int_zeros(&idxbN, nb[N], 1);
-	double *lbN; d_zeros(&lbN, nb[N], 1);
-	double *ubN; d_zeros(&ubN, nb[N], 1);
-	double *lgN; d_zeros(&lgN, ng[N], 1);
-	double *ugN; d_zeros(&ugN, ng[N], 1);
+	double *d_lbN; d_zeros(&d_lbN, nb[N], 1);
+	double *d_ubN; d_zeros(&d_ubN, nb[N], 1);
+	double *d_lgN; d_zeros(&d_lgN, ng[N], 1);
+	double *d_ugN; d_zeros(&d_ugN, ng[N], 1);
 	for(ii=0; ii<nb[N]; ii++)
 		{
-		lbN[ii] = - 4.0; // xmin
-		ubN[ii] =   4.0; // xmax
+		d_lbN[ii] = - 4.0; // xmin
+		d_ubN[ii] =   4.0; // xmax
 		idxbN[ii] = ii;
 		}
-	for(ii=0; ii<ng[N]; ii++)
+	for(; ii<ng[N]; ii++)
 		{
-		lgN[ii] = - 4.0; // dmin
-		ugN[ii] =   4.0; // dmax
+		d_lgN[ii] = - 4.0; // dmin
+		d_ugN[ii] =   4.0; // dmax
 		}
 
-	double *DC0; d_zeros(&DC0, ng[0], nu[0]+nx[0]);
-//	for(ii=0; ii<ng[0]; ii++)
-//		DC0[ii*(ng[0]+1)] = 1.0;
+	double *C0; d_zeros(&C0, ng[0], nx[0]);
+	double *D0; d_zeros(&D0, ng[0], nu[0]);
+	for(ii=0; ii<nu[0]-nb[0] & ii<ng[0]; ii++)
+		D0[ii+(nb[0]+ii)*ng[0]] = 1.0;
+	for(; ii<ng[0]; ii++)
+		C0[ii+(nb[0]+ii-nu[0])*ng[0]] = 1.0;
 
-	double *DC1; d_zeros(&DC1, ng[1], nu[1]+nx[1]);
-//	for(ii=0; ii<ng[1]; ii++)
-//		DC1[ii*(ng[1]+1)] = 1.0;
+	double *C1; d_zeros(&C1, ng[1], nx[1]);
+	double *D1; d_zeros(&D1, ng[1], nu[1]);
+	for(ii=0; ii<nu[1]-nb[1] & ii<ng[1]; ii++)
+		D1[ii+(nb[1]+ii)*ng[1]] = 1.0;
+	for(; ii<ng[1]; ii++)
+		C1[ii+(nb[1]+ii-nu[1])*ng[1]] = 1.0;
 
-	double *DCN; d_zeros(&DCN, ng[N], nx[N]);
-//	for(ii=0; ii<ng[N]; ii++)
-//		DCN[ii*(ng[N]+1)] = 1.0;
-
-	double *C;
-	double *D;
+	double *CN; d_zeros(&CN, ng[N], nx[N]);
+	double *DN; d_zeros(&DN, ng[N], nu[N]);
+	for(ii=nb[N]; ii<nu[N] & ii<ng[N]; ii++)
+		DN[ii*(ng[N]+1)] = 1.0;
+	for(; ii<ng[N]; ii++)
+		CN[ii+(ii-nu[N])*ng[N]] = 1.0;
 
 #if PRINT
+	// box constraints
 	int_print_mat(1, nb[0], idxb0, 1);
-	d_print_mat(1, nb[0], lb0, 1);
-	d_print_mat(1, nb[0], ub0, 1);
+	d_print_mat(1, nb[0], d_lb0, 1);
+	d_print_mat(1, nb[0], d_ub0, 1);
 	int_print_mat(1, nb[1], idxb1, 1);
-	d_print_mat(1, nb[1], lb1, 1);
-	d_print_mat(1, nb[1], ub1, 1);
+	d_print_mat(1, nb[1], d_lb1, 1);
+	d_print_mat(1, nb[1], d_ub1, 1);
 	int_print_mat(1, nb[N], idxbN, 1);
-	d_print_mat(1, nb[N], lbN, 1);
-	d_print_mat(1, nb[N], ubN, 1);
+	d_print_mat(1, nb[N], d_lbN, 1);
+	d_print_mat(1, nb[N], d_ubN, 1);
+	// general constraints
+	d_print_mat(1, ng[0], d_lg0, 1);
+	d_print_mat(1, ng[0], d_ug0, 1);
+	d_print_mat(ng[0], nu[0], D0, ng[0]);
+	d_print_mat(ng[0], nx[0], C0, ng[0]);
+	d_print_mat(1, ng[1], d_lg1, 1);
+	d_print_mat(1, ng[1], d_ug1, 1);
+	d_print_mat(ng[1], nu[1], D1, ng[1]);
+	d_print_mat(ng[1], nx[1], C1, ng[1]);
+	d_print_mat(1, ng[N], d_lgN, 1);
+	d_print_mat(1, ng[N], d_ugN, 1);
+	d_print_mat(ng[N], nu[N], DN, ng[N]);
+	d_print_mat(ng[N], nx[N], CN, ng[N]);
 #endif
 
 /************************************************
@@ -391,10 +445,10 @@ int main()
 	double *hR[N+1];
 	double *hq[N+1];
 	double *hr[N+1];
-	double *hlb[N+1];
-	double *hub[N+1];
-	double *hlg[N+1];
-	double *hug[N+1];
+	double *hd_lb[N+1];
+	double *hd_ub[N+1];
+	double *hd_lg[N+1];
+	double *hd_ug[N+1];
 	double *hC[N+1];
 	double *hD[N+1];
 	int *hidxb[N+1];
@@ -408,12 +462,12 @@ int main()
 	hq[0] = q;
 	hr[0] = r0;
 	hidxb[0] = idxb0;
-	hlb[0] = lb0;
-	hub[0] = ub0;
-	hlg[0] = lg0;
-	hug[0] = ug0;
-	hC[0] = C;
-	hD[0] = D;
+	hd_lb[0] = d_lb0;
+	hd_ub[0] = d_ub0;
+	hd_lg[0] = d_lg0;
+	hd_ug[0] = d_ug0;
+	hC[0] = C0;
+	hD[0] = D0;
 	for(ii=1; ii<N; ii++)
 		{
 		hA[ii] = A;
@@ -425,12 +479,12 @@ int main()
 		hq[ii] = q;
 		hr[ii] = r;
 		hidxb[ii] = idxb1;
-		hlb[ii] = lb1;
-		hub[ii] = ub1;
-		hlg[ii] = lg1;
-		hug[ii] = ug1;
-		hC[ii] = C;
-		hD[ii] = D;
+		hd_lb[ii] = d_lb1;
+		hd_ub[ii] = d_ub1;
+		hd_lg[ii] = d_lg1;
+		hd_ug[ii] = d_ug1;
+		hC[ii] = C1;
+		hD[ii] = D1;
 		}
 	hQ[N] = Q;
 	hS[N] = S;
@@ -438,12 +492,12 @@ int main()
 	hq[N] = q;
 	hr[N] = r;
 	hidxb[N] = idxbN;
-	hlb[N] = lbN;
-	hub[N] = ubN;
-	hlg[N] = lgN;
-	hug[N] = ugN;
-	hC[N] = C;
-	hD[N] = D;
+	hd_lb[N] = d_lbN;
+	hd_ub[N] = d_ubN;
+	hd_lg[N] = d_lgN;
+	hd_ug[N] = d_ugN;
+	hC[N] = CN;
+	hD[N] = DN;
 	
 /************************************************
 * ocp qp
@@ -455,7 +509,7 @@ int main()
 
 	struct d_ocp_qp ocp_qp;
 	d_create_ocp_qp(N, nx, nu, nb, ng, &ocp_qp, ocp_qp_mem);
-	d_cvt_colmaj_to_ocp_qp(hA, hB, hb, hQ, hS, hR, hq, hr, hidxb, hlb, hub, hC, hD, hlg, hug, &ocp_qp);
+	d_cvt_colmaj_to_ocp_qp(hA, hB, hb, hQ, hS, hR, hq, hr, hidxb, hd_lb, hd_ub, hC, hD, hd_lg, hd_ug, &ocp_qp);
 
 #if 1
 	printf("\nN = %d\n", ocp_qp.N);
@@ -612,23 +666,26 @@ int main()
 	d_free(r);
 	d_free(r0);
 	int_free(idxb0);
-	d_free(lb0);
-	d_free(ub0);
+	d_free(d_lb0);
+	d_free(d_ub0);
 	int_free(idxb1);
-	d_free(lb1);
-	d_free(ub1);
+	d_free(d_lb1);
+	d_free(d_ub1);
 	int_free(idxbN);
-	d_free(lbN);
-	d_free(ubN);
-	d_free(DC0);
-	d_free(lg0);
-	d_free(ug0);
-	d_free(DC1);
-	d_free(lg1);
-	d_free(ug1);
-	d_free(DCN);
-	d_free(lgN);
-	d_free(ugN);
+	d_free(d_lbN);
+	d_free(d_ubN);
+	d_free(C0);
+	d_free(D0);
+	d_free(d_lg0);
+	d_free(d_ug0);
+	d_free(C1);
+	d_free(D1);
+	d_free(d_lg1);
+	d_free(d_ug1);
+	d_free(CN);
+	d_free(DN);
+	d_free(d_lgN);
+	d_free(d_ugN);
 
 	free(ocp_qp_mem);
 	free(dense_qp_mem);

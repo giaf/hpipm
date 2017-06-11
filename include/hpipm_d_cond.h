@@ -33,10 +33,13 @@ struct d_cond_qp_ocp2dense_workspace
 	struct d_strmat *L;
 	struct d_strmat *Lx;
 	struct d_strmat *AL;
+	struct d_strvec *Gammab;
+	struct d_strvec *tmp_ngM;
 	};
 
 
 
+// TODO remove !!!!!
 struct d_cond_mem
 	{
 	struct d_strmat *Gamma;
@@ -45,6 +48,7 @@ struct d_cond_mem
 
 
 
+// TODO remove !!!!!
 struct d_cond_work
 	{
 	int *cond_RSQrq_N2nx3_sizes;

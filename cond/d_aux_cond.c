@@ -57,6 +57,7 @@ void d_compute_Gamma(struct d_ocp_qp *ocp_qp, struct d_cond_qp_ocp2dense_workspa
 
 	// extract memory members
 	struct d_strmat *Gamma = cond_ws->Gamma;
+	struct d_strvec *Gammab = cond_ws->Gammab;
 
 	int ii, jj;
 
@@ -66,7 +67,10 @@ void d_compute_Gamma(struct d_ocp_qp *ocp_qp, struct d_cond_qp_ocp2dense_workspa
 	ii = 0;
 	// B & A & b
 	dgecp_libstr(nu[0]+nx[0]+1, nx[1], &BAbt[0], 0, 0, &Gamma[0], 0, 0);
-	//
+	// b
+	drowex_libstr(nx[1], 1.0, &Gamma[0], nu[0]+nx[0], 0, &Gammab[0], 0);
+
+
 	nu_tmp += nu[0];
 	ii++;
 
@@ -82,6 +86,8 @@ void d_compute_Gamma(struct d_ocp_qp *ocp_qp, struct d_cond_qp_ocp2dense_workspa
 		nu_tmp += nu[ii];
 
 		dgead_libstr(1, nx[ii+1], 1.0, &BAbt[ii], nu[ii]+nx[ii], 0, &Gamma[ii], nu_tmp+nx[0], 0);
+
+		drowex_libstr(nx[ii+1], 1.0, &Gamma[ii], nu_tmp+nx[0], 0, &Gammab[ii], 0);
 		}
 	
 	return;
@@ -329,6 +335,8 @@ void d_cond_DCtd(struct d_ocp_qp *ocp_qp, int *idxb2, struct d_strvec *d_lb2, st
 
 	// extract memory members
 	struct d_strmat *Gamma = cond_ws->Gamma;
+	struct d_strvec *Gammab = cond_ws->Gammab;
+	struct d_strvec *tmp_ngM = cond_ws->tmp_ngM;
 
 
 	double *d_lb3 = d_lb2->pa;
@@ -430,15 +438,10 @@ void d_cond_DCtd(struct d_ocp_qp *ocp_qp, int *idxb2, struct d_strvec *d_lb2, st
 		ib++;
 		}
 
-#if 0
 	// XXX for now, just shift after box-to-general constraints
 	// better interleave them, to keep the block lower trianlgular structure !!!
 
 	// general constraints
-
-	struct d_strmat sC;
-	struct d_strvec sGammab;
-	struct d_strvec sCGammab;
 
 	char *c_ptr;
 
@@ -450,38 +453,23 @@ void d_cond_DCtd(struct d_ocp_qp *ocp_qp, int *idxb2, struct d_strvec *d_lb2, st
 		nx0 = nx[N-ii];
 		nu0 = nu[N-ii];
 		ng0 = ng[N-ii];
-		nt0 = nb0 + ng0;
 
 		if(ng0>0)
 			{
 
-			c_ptr = (char *) workspace;
-
-			dgecp_libstr(nu0, ng0, &DCt[N-ii], 0, 0, &DCt2[0], nu_tmp, nbg+ng_tmp);
+			dgecp_libstr(nu0, ng0, &DCt[N-ii], 0, 0, DCt2, nu_tmp, nbg+ng_tmp);
 
 			nu_tmp += nu0;
 
-			d_create_strmat(ng0, nx0, &C, (void *) c_ptr);
-			c_ptr += sC.memory_size;
+			dgemm_nn_libstr(nu2+nx[0]-nu_tmp, ng0, nx0, 1.0, &Gamma[N-1-ii], 0, 0, &DCt[N-ii], nu0, 0, 0.0, DCt2, nu_tmp, nbg+ng_tmp, DCt2, nu_tmp, nbg+ng_tmp);
 
-			dgetr_libstr(nx0, ng0, 1.0, &DCt[N-ii], nu0, 0, &C, 0, 0);
+			dveccp_libstr(ng0, &d_lg[N-ii], 0, d_lg2, nbg+ng_tmp);
+			dveccp_libstr(ng0, &d_ug[N-ii], 0, d_ug2, nbg+ng_tmp);
 
-			dgemm_nt_libstr(nu2+nx[0]-nu_tmp, ng0, nx0, 1.0, &Gamma[N-1-ii], 0, 0, &C, 0, 0, 0.0, &DCt2[0], nu_tmp, nbg+ng_tmp, &DCt2[0], nu_tmp, nbg+ng_tmp);
+			dgemv_t_libstr(nx0, ng0, 1.0, &DCt[N-ii], nu0, 0, &Gammab[N-ii-1], 0, 0.0, tmp_ngM, 0, tmp_ngM, 0);
 
-			dveccp_libstr(ng0, &d[N-ii], nb0+0*nt0, d2, nb2+0*nt2+nbg+ng_tmp);
-			dveccp_libstr(ng0, &d[N-ii], nb0+1*nt0, d2, nb2+1*nt2+nbg+ng_tmp);
-
-			d_create_strvec(nx0, &Gammab, (void *) c_ptr);
-			c_ptr += sGammab.memory_size;
-			d_create_strvec(ng0, &CGammab, (void *) c_ptr);
-			c_ptr += sCGammab.memory_size;
-
-			drowex_libstr(nx0, 1.0, &Gamma[N-1-ii], nu2+nx[0]-nu_tmp, 0, &Gammab, 0);
-
-			dgemv_n_libstr(ng0, nx0, 1.0, &C, 0, 0, &Gammab, 0, 0.0, &CGammab, 0, &CGammab, 0);
-
-			daxpy_libstr(ng0, -1.0, &CGammab, 0, d2, nb2+0*nt2+nbg+ng_tmp, d2, nb2+0*nt2+nbg+ng_tmp);
-			daxpy_libstr(ng0, -1.0, &CGammab, 0, d2, nb2+1*nt2+nbg+ng_tmp, d2, nb2+1*nt2+nbg+ng_tmp);
+			daxpy_libstr(ng0, -1.0, tmp_ngM, 0, d_lg2, nbg+ng_tmp, d_lg2, nbg+ng_tmp);
+			daxpy_libstr(ng0, -1.0, tmp_ngM, 0, d_ug2, nbg+ng_tmp, d_ug2, nbg+ng_tmp);
 
 			ng_tmp += ng0;
 			
@@ -500,20 +488,18 @@ void d_cond_DCtd(struct d_ocp_qp *ocp_qp, int *idxb2, struct d_strvec *d_lb2, st
 	nx0 = nx[0];
 	nu0 = nu[0];
 	ng0 = ng[0];
-	nt0 = nb0 + ng0;
 
 	if(ng0>0)
 		{
 
-		dgecp_libstr(nu0+nx0, ng0, &DCt[0], 0, 0, &DCt2[0], nu_tmp, nbg+ng_tmp);
+		dgecp_libstr(nu0+nx0, ng0, &DCt[0], 0, 0, DCt2, nu_tmp, nbg+ng_tmp);
 
-		dveccp_libstr(ng0, &d[0], nb0+0*nt0, d2, nb2+0*nt2+nbg+ng_tmp);
-		dveccp_libstr(ng0, &d[0], nb0+1*nt0, d2, nb2+1*nt2+nbg+ng_tmp);
+		dveccp_libstr(ng0, &d_lg[0], 0, d_lg2, nbg+ng_tmp);
+		dveccp_libstr(ng0, &d_ug[0], 0, d_ug2, nbg+ng_tmp);
 
 //		ng_tmp += ng[N-ii];
 
 		}
-#endif
 
 	return;
 

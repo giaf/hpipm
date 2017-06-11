@@ -87,18 +87,22 @@ int d_memsize_cond_qp_ocp2dense(struct d_ocp_qp *ocp_qp, struct d_dense_qp *dens
 	int N = ocp_qp->N;
 	int *nx = ocp_qp->nx;
 	int *nu = ocp_qp->nu;
+	int *ng = ocp_qp->ng;
 
 	int nxM = 0;
 	int nuM = 0;
+	int ngM = 0;
 	for(ii=0; ii<=N; ii++)	
 		{
 		nxM = nx[ii]>nxM ? nx[ii] : nxM;
 		nuM = nu[ii]>nuM ? nu[ii] : nuM;
+		ngM = ng[ii]>ngM ? ng[ii] : ngM;
 		}
 
 	int size = 0;
 
 	size += (2+2*(N+1))*sizeof(struct d_strmat); // Gamma L Lx AL
+	size += (1+1*(N+1))*sizeof(struct d_strvec); // Gammab tmp_ngM
 
 	int nu_tmp = 0;
 	for(ii=0; ii<N; ii++)
@@ -110,6 +114,9 @@ int d_memsize_cond_qp_ocp2dense(struct d_ocp_qp *ocp_qp, struct d_dense_qp *dens
 		size += d_size_strmat(nu[ii]+nx[ii]+1, nu[ii]+nx[ii]); // L
 	size += d_size_strmat(nxM+1, nxM); // Lx
 	size += d_size_strmat(nuM+nxM+1, nxM); // AL
+	for(ii=0; ii<N; ii++) 
+		size += d_size_strvec(nx[ii+1]); // Gammab
+	size += d_size_strvec(ngM); // tmp_ngM
 
 	size = (size+63)/64*64; // make multiple of typical cache line size
 	size += 1*64; // align once to typical cache line size
@@ -128,13 +135,16 @@ void d_create_cond_qp_ocp2dense(struct d_ocp_qp *ocp_qp, struct d_dense_qp *dens
 	int N = ocp_qp->N;
 	int *nx = ocp_qp->nx;
 	int *nu = ocp_qp->nu;
+	int *ng = ocp_qp->ng;
 
 	int nxM = 0;
 	int nuM = 0;
+	int ngM = 0;
 	for(ii=0; ii<=N; ii++)	
 		{
 		nxM = nx[ii]>nxM ? nx[ii] : nxM;
 		nuM = nu[ii]>nuM ? nu[ii] : nuM;
+		ngM = ng[ii]>ngM ? ng[ii] : ngM;
 		}
 
 
@@ -153,6 +163,11 @@ void d_create_cond_qp_ocp2dense(struct d_ocp_qp *ocp_qp, struct d_dense_qp *dens
 
 	// vector struct
 	struct d_strvec *sv_ptr = (struct d_strvec *) sm_ptr;
+
+	cond_ws->Gammab = sv_ptr;
+	sv_ptr += N+1;
+	cond_ws->tmp_ngM = sv_ptr;
+	sv_ptr += 1;
 
 
 	// align to typicl cache line size
@@ -179,6 +194,13 @@ void d_create_cond_qp_ocp2dense(struct d_ocp_qp *ocp_qp, struct d_dense_qp *dens
 	v_ptr += cond_ws->Lx->memory_size;
 	d_create_strmat(nuM+nxM+1, nxM, cond_ws->AL, v_ptr);
 	v_ptr += cond_ws->AL->memory_size;
+	for(ii=0; ii<N; ii++)
+		{
+		d_create_strvec(nx[ii+1], cond_ws->Gammab+ii, v_ptr);
+		v_ptr += (cond_ws->Gammab+ii)->memory_size;
+		}
+	d_create_strvec(ngM, cond_ws->tmp_ngM, v_ptr);
+	v_ptr += cond_ws->tmp_ngM->memory_size;
 
 
 	return;
