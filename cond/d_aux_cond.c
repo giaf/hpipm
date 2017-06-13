@@ -507,4 +507,144 @@ void d_cond_DCtd(struct d_ocp_qp *ocp_qp, int *idxb2, struct d_strvec *d_lb2, st
 
 
 
+void d_expand_sol(struct d_ocp_qp *ocp_qp, struct d_strvec *vc, struct d_strvec *pic, struct d_strvec *lam_lbc, struct d_strvec *lam_ubc, struct d_strvec *lam_lgc, struct d_strvec *lam_ugc, struct d_strvec *t_lbc, struct d_strvec *t_ubc, struct d_strvec *t_lgc, struct d_strvec *t_ugc, struct d_strvec *ux, struct d_strvec *pi, struct d_strvec *lam_lb, struct d_strvec *lam_ub, struct d_strvec *lam_lg, struct d_strvec *lam_ug, struct d_strvec *t_lb, struct d_strvec *t_ub, struct d_strvec *t_lg, struct d_strvec *t_ug, struct d_strvec *tmp_nuxM, struct d_strvec *tmp_ngM)
+	{
 
+	int N = ocp_qp->N;
+	int *nu = ocp_qp->nu;
+	int *nx = ocp_qp->nx;
+	int *nb = ocp_qp->nb;
+	int *ng = ocp_qp->ng;
+
+	struct d_strmat *BAbt = ocp_qp->BAbt;
+	struct d_strvec *b = ocp_qp->b;
+	int **idxb = ocp_qp->idxb;
+	struct d_strmat *RSQrq = ocp_qp->RSQrq;
+	struct d_strvec *rq = ocp_qp->rq;
+	struct d_strmat *DCt = ocp_qp->DCt;
+
+	int ii, jj;
+
+	// inputs & initial states
+	int nu_tmp = 0;
+	// final stages: copy only input
+	for(ii=0; ii<N; ii++)
+		{
+		dveccp_libstr(nu[N-ii], vc, nu_tmp, ux+(N-ii), 0);
+		nu_tmp += nu[N-ii];
+		}
+	// first stage: copy input and state
+	dveccp_libstr(nu[0]+nx[0], vc, nu_tmp, ux+0, 0);
+
+	// compute missing states by simulation within each block
+	for(ii=0; ii<N; ii++)
+		{
+		dgemv_t_libstr(nu[ii]+nx[ii], nx[ii+1], 1.0, BAbt+ii, 0, 0, ux+ii, 0, 1.0, b+ii, 0, ux+(ii+1), nu[ii+1]);
+		}
+
+	// slack variables and ineq lagrange multipliers
+	int nbb = 0;
+	int nbg = 0;
+	int ngg = 0;
+	double *ptr_lam_lb;
+	double *ptr_lam_ub;
+	double *ptr_lam_lg;
+	double *ptr_lam_ug;
+	double *ptr_t_lb;
+	double *ptr_t_ub;
+	double *ptr_t_lg;
+	double *ptr_t_ug;
+	double *ptr_lam_lbc = lam_lbc->pa;
+	double *ptr_lam_ubc = lam_ubc->pa;
+	double *ptr_lam_lgc = lam_lgc->pa;
+	double *ptr_lam_ugc = lam_ugc->pa;
+	double *ptr_t_lbc = t_lbc->pa;
+	double *ptr_t_ubc = t_ubc->pa;
+	double *ptr_t_lgc = t_lgc->pa;
+	double *ptr_t_ugc = t_ugc->pa;
+	// final stages
+	for(ii=0; ii<N; ii++)
+		{
+		ptr_lam_lb = (lam_lb+(N-ii))->pa;
+		ptr_lam_ub = (lam_ub+(N-ii))->pa;
+		ptr_t_lb = (t_lb+(N-ii))->pa;
+		ptr_t_ub = (t_ub+(N-ii))->pa;
+		for(jj=0; jj<nb[N-ii]; jj++)
+			{
+			if(idxb[N-ii][jj]<nu[N-ii])
+				{
+				// box as box
+				ptr_lam_lb[jj] = ptr_lam_lbc[nbb];
+				ptr_lam_ub[jj] = ptr_lam_ubc[nbb];
+				ptr_t_lb[jj] = ptr_t_lbc[nbb];
+				ptr_t_ub[jj] = ptr_t_ubc[nbb];
+				nbb++;
+				}
+			else
+				{
+				// box as general XXX change when decide where nbg are placed wrt ng
+				ptr_lam_lb[jj] = ptr_lam_lgc[nbg];
+				ptr_lam_ub[jj] = ptr_lam_ugc[nbg];
+				ptr_t_lb[jj] = ptr_t_lgc[nbg];
+				ptr_t_ub[jj] = ptr_t_ugc[nbg];
+				nbg++;
+				}
+			}
+		}
+	// process as vectors ???
+	for(ii=0; ii<N; ii++)
+		{
+		ptr_lam_lg = (lam_lg+(N-ii))->pa;
+		ptr_lam_ug = (lam_ug+(N-ii))->pa;
+		ptr_t_lg = (t_lg+(N-ii))->pa;
+		ptr_t_ug = (t_ug+(N-ii))->pa;
+		for(jj=0; jj<ng[N-ii]; ng++)
+			{
+			// gnenral as general
+			ptr_lam_lg[jj] = ptr_lam_lgc[ngg];
+			ptr_lam_ug[jj] = ptr_lam_ugc[ngg];
+			ptr_t_lg[jj] = ptr_t_lgc[ngg];
+			ptr_t_ug[jj] = ptr_t_ugc[ngg];
+			ngg++;
+			}
+		}
+	// first stage
+	// all box as box
+	dveccp_libstr(nb[0], lam_lbc, nbb, lam_lb+0, 0);
+	dveccp_libstr(nb[0], lam_ubc, nbb, lam_ub+0, 0);
+	dveccp_libstr(nb[0], t_lbc, nbb, t_lb+0, 0);
+	dveccp_libstr(nb[0], t_ubc, nbb, t_ub+0, 0);
+	// all general as general
+	dveccp_libstr(ng[0], lam_lgc, ngg, lam_lg+0, 0);
+	dveccp_libstr(ng[0], lam_ugc, ngg, lam_ug+0, 0);
+	dveccp_libstr(ng[0], t_lgc, ngg, t_lg+0, 0);
+	dveccp_libstr(ng[0], t_ugc, ngg, t_ug+0, 0);
+
+	// lagrange multipliers of equality constraints
+	double *ptr_nuxM = tmp_nuxM->pa;
+	double *ptr_ngM = tmp_ngM->pa;
+	// last stage
+	dsymv_l_libstr(nx[N], nx[N], 1.0, RSQrq+N, nu[N], nu[N], ux+N, nu[N], 1.0, rq+N, nu[N], pi+(N-1), 0);
+	// TODO avoid to multiply by R and B (i.e. the u part)
+	for(ii=0; ii<N-1; ii++)
+		{
+		ptr_lam_lb = (lam_lb+N-1-ii)->pa;
+		ptr_lam_ub = (lam_ub+N-1-ii)->pa;
+		ptr_lam_lg = (lam_lg+N-1-ii)->pa;
+		ptr_lam_ug = (lam_ug+N-1-ii)->pa;
+		dveccp_libstr(nu[N-1-ii]+nx[N-1-ii], rq+(N-1-ii), 0, tmp_nuxM, 0);
+		for(jj=0; jj<nb[N-1-ii]; jj++)
+			ptr_nuxM[idxb[N-1-ii][jj]] += ptr_lam_ub[jj] - ptr_lam_lb[jj];
+		dsymv_l_libstr(nu[N-1-ii]+nx[N-1-ii], nu[N-1-ii]+nx[N-1-ii], 1.0, RSQrq+(N-1-ii), 0, 0, ux+(N-1-ii), 0, 1.0, tmp_nuxM, 0, tmp_nuxM, 0);
+		dgemv_n_libstr(nu[N-1-ii]+nx[N-1-ii], nx[N-ii], 1.0, BAbt+(N-1-ii), 0, 0, pi+(N-1-ii), 0, 1.0, tmp_nuxM, 0, tmp_nuxM, 0);
+		for(jj=0; jj<ng[N-1-ii]; jj++)
+			ptr_ngM[jj] = ptr_lam_ug[jj] - ptr_lam_lg[jj];
+		dgemv_n_libstr(nu[N-1-ii]+nx[N-1-ii], ng[N-1-ii], 1.0, DCt+(N-1-ii), 0, 0, tmp_ngM, 0, 1.0, tmp_nuxM, 0, tmp_nuxM, 0);
+
+		dveccp_libstr(nx[N-1-ii], tmp_nuxM, nu[N-1-ii], pi+(N-2-ii), 0);
+		}
+	
+
+	return;
+
+	}

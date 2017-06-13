@@ -40,8 +40,8 @@
 
 #include "../include/hpipm_d_ocp_qp.h"
 #include "../include/hpipm_d_dense_qp.h"
-#include "../include/hpipm_d_cond.h"
 #include "../include/hpipm_d_ipm_hard_dense_qp.h"
+#include "../include/hpipm_d_cond.h"
 
 #include "tools.h"
 
@@ -650,6 +650,44 @@ int main()
 	d_print_e_tran_mat(5, dense_workspace.iter, dense_workspace.stat, 5);
 
 	printf("\ncond time = %e [s], dense ipm time = %e [s]\n\n", time_cond, time_dense_ipm);
+
+/************************************************
+* expand solution
+************************************************/	
+
+	d_expand_sol_dense2ocp(&ocp_qp, &dense_workspace, &cond_ws);
+
+	printf("\nfull space solution\n\n");
+	printf("\nux\n");
+	for(ii=0; ii<=N; ii++)
+		d_print_tran_strvec(nu[ii]+nx[ii], cond_ws.ux+ii, 0);
+	printf("\npi\n");
+	for(ii=0; ii<N; ii++)
+		d_print_tran_strvec(nx[ii+1], cond_ws.pi+ii, 0);
+	printf("\nlam_lb\n");
+	for(ii=0; ii<=N; ii++)
+		d_print_tran_strvec(nb[ii], cond_ws.lam_lb+ii, 0);
+	printf("\nlam_ub\n");
+	for(ii=0; ii<=N; ii++)
+		d_print_tran_strvec(nb[ii], cond_ws.lam_ub+ii, 0);
+	printf("\nlam_lg\n");
+	for(ii=0; ii<=N; ii++)
+		d_print_tran_strvec(ng[ii], cond_ws.lam_lg+ii, 0);
+	printf("\nlam_ug\n");
+	for(ii=0; ii<=N; ii++)
+		d_print_tran_strvec(ng[ii], cond_ws.lam_ug+ii, 0);
+	printf("\nt_lb\n");
+	for(ii=0; ii<=N; ii++)
+		d_print_tran_strvec(nb[ii], cond_ws.t_lb+ii, 0);
+	printf("\nt_ub\n");
+	for(ii=0; ii<=N; ii++)
+		d_print_tran_strvec(nb[ii], cond_ws.t_ub+ii, 0);
+	printf("\nt_lg\n");
+	for(ii=0; ii<=N; ii++)
+		d_print_tran_strvec(ng[ii], cond_ws.t_lg+ii, 0);
+	printf("\nt_ug\n");
+	for(ii=0; ii<=N; ii++)
+		d_print_tran_strvec(ng[ii], cond_ws.t_ug+ii, 0);
 
 /************************************************
 * free memory
