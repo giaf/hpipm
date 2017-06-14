@@ -27,38 +27,29 @@
 
 
 
-#if defined(RUNTIME_CHECKS)
-#include <stdlib.h>
-#endif
-
 #include <blasfeo_target.h>
 #include <blasfeo_common.h>
-#include <blasfeo_d_aux.h>
-
-#include "../include/hpipm_d_ocp_qp.h"
 
 
 
-#define CREATE_STRMAT d_create_strmat
-#define CREATE_STRVEC d_create_strvec
-#define CVT_MAT2STRMAT d_cvt_mat2strmat
-#define CVT_TRAN_MAT2STRMAT d_cvt_tran_mat2strmat
-#define CVT_VEC2STRVEC d_cvt_vec2strvec
-#define GECP_LIBSTR dgecp_libstr
-#define OCP_QP d_ocp_qp
-#define REAL double
-#define STRMAT d_strmat
-#define STRVEC d_strvec
-#define SIZE_STRMAT d_size_strmat
-#define SIZE_STRVEC d_size_strvec
-#define VECCP_LIBSTR dveccp_libstr
-
-#define CAST_OCP_QP d_cast_ocp_qp
-#define COPY_OCP_QP d_copy_ocp_qp
-#define CREATE_OCP_QP d_create_ocp_qp
-#define CVT_COLMAJ_TO_OCP_QP d_cvt_colmaj_to_ocp_qp
-#define MEMSIZE_OCP_QP d_memsize_ocp_qp
+struct d_ocp_qp_sol
+	{
+	struct d_strvec *ux;
+	struct d_strvec *pi;
+	struct d_strvec *lam_lb;
+	struct d_strvec *lam_ub;
+	struct d_strvec *lam_lg;
+	struct d_strvec *lam_ug;
+	struct d_strvec *t_lb;
+	struct d_strvec *t_ub;
+	struct d_strvec *t_lg;
+	struct d_strvec *t_ug;
+	};
 
 
 
-#include "x_aux.c"
+//
+int d_memsize_ocp_qp_sol(int N, int *nx, int *nu, int *nb, int *ng);
+//
+void d_create_ocp_qp_sol(int N, int *nx, int *nu, int *nb, int *ng, struct d_ocp_qp_sol *qp_sol, void *memory);
+

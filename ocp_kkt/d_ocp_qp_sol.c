@@ -33,33 +33,21 @@
 
 #include <blasfeo_target.h>
 #include <blasfeo_common.h>
-#include <blasfeo_s_aux.h>
+#include <blasfeo_d_aux.h>
 
-#include "../include/hpipm_s_ocp_qp.h"
-
-
-
-#define CREATE_STRMAT s_create_strmat
-#define CREATE_STRVEC s_create_strvec
-#define CVT_MAT2STRMAT s_cvt_mat2strmat
-#define CVT_TRAN_MAT2STRMAT s_cvt_tran_mat2strmat
-#define CVT_VEC2STRVEC s_cvt_vec2strvec
-#define GECP_LIBSTR sgecp_libstr
-#define OCP_QP s_ocp_qp
-#define REAL float
-#define STRMAT s_strmat
-#define STRVEC s_strvec
-#define SIZE_STRMAT s_size_strmat
-#define SIZE_STRVEC s_size_strvec
-#define VECCP_LIBSTR sveccp_libstr
-
-#define CAST_OCP_QP s_cast_ocp_qp
-#define COPY_OCP_QP s_copy_ocp_qp
-#define CREATE_OCP_QP s_create_ocp_qp
-#define CVT_COLMAJ_TO_OCP_QP s_cvt_colmaj_to_ocp_qp
-#define MEMSIZE_OCP_QP s_memsize_ocp_qp
+#include "../include/hpipm_d_ocp_qp_sol.h"
 
 
 
-#include "x_aux.c"
+#define CREATE_STRVEC d_create_strvec
+#define OCP_QP_SOL d_ocp_qp_sol
+#define REAL double
+#define STRVEC d_strvec
+#define SIZE_STRVEC d_size_strvec
 
+#define CREATE_OCP_QP d_create_ocp_qp
+#define MEMSIZE_OCP_QP d_memsize_ocp_qp
+
+
+
+#include "x_ocp_qp_sol.c"

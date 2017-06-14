@@ -39,6 +39,7 @@
 #include <blasfeo_d_blas.h>
 
 #include "../include/hpipm_d_dense_qp.h"
+#include "../include/hpipm_d_dense_qp_sol.h"
 #include "../include/hpipm_d_ipm_hard_dense_qp.h"
 
 
@@ -98,6 +99,17 @@ int main()
 	d_print_strvec(ng, qp.d_ug, 0);
 
 /************************************************
+* qp sol struct
+************************************************/	
+
+	int qp_size_sol = d_memsize_dense_qp_sol(nv, ne, nb, ng);
+	printf("\nqp sol size = %d\n", qp_size_sol);
+	void *qp_mem_sol = malloc(qp_size_sol);
+
+	struct d_dense_qp_sol qp_sol;
+	d_create_dense_qp_sol(nv, ne, nb, ng, &qp_sol, qp_mem_sol);
+
+/************************************************
 * ipm
 ************************************************/	
 
@@ -134,10 +146,22 @@ int main()
 	d_print_tran_strvec(nv, workspace.v, 0);
 	printf("\npi\n");
 	d_print_tran_strvec(ne, workspace.pi, 0);
-	printf("\nlam\n");
-	d_print_tran_strvec(2*nb+2*ng, workspace.lam, 0);
-	printf("\nt\n");
-	d_print_tran_strvec(2*nb+2*ng, workspace.t, 0);
+	printf("\nlam_lb\n");
+	d_print_tran_strvec(nb, workspace.lam_lb, 0);
+	printf("\nlam_ub\n");
+	d_print_tran_strvec(nb, workspace.lam_ub, 0);
+	printf("\nlam_lg\n");
+	d_print_tran_strvec(ng, workspace.lam_lg, 0);
+	printf("\nlam_ug\n");
+	d_print_tran_strvec(ng, workspace.lam_ug, 0);
+	printf("\nt_lb\n");
+	d_print_tran_strvec(nb, workspace.t_lb, 0);
+	printf("\nt_ub\n");
+	d_print_tran_strvec(nb, workspace.t_ub, 0);
+	printf("\nt_lg\n");
+	d_print_tran_strvec(ng, workspace.t_lg, 0);
+	printf("\nt_ug\n");
+	d_print_tran_strvec(ng, workspace.t_ug, 0);
 
 	printf("\nresiduals\n\n");
 	printf("\nres_g\n");
@@ -162,6 +186,7 @@ int main()
 ************************************************/	
 
 	free(qp_mem);
+	free(qp_mem_sol);
 	free(ipm_mem);
 
 /************************************************

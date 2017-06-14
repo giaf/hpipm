@@ -67,4 +67,4 @@
 
 
 
-#include "x_aux_dense_qp.c"
+#include "x_dense_qp.c"
