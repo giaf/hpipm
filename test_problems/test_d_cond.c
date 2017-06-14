@@ -216,10 +216,10 @@ int main()
 	ng[N] = nx[N]/2;
 #else
 	int nb[N+1];
-	nb[0] = nu[0];
+	nb[0] = nu[0] + nx[0]/2;
 	for(ii=1; ii<N; ii++)
-		nb[ii] = nu[ii];
-	nb[N] = nu[N];
+		nb[ii] = nu[ii] + nx[ii]/2;
+	nb[N] = nu[N] + nx[N]/2;
 
 	int ng[N+1];
 #if KEEP_X0
@@ -382,7 +382,7 @@ int main()
 		d_ubN[ii] =   4.0; // xmax
 		idxbN[ii] = ii;
 		}
-	for(; ii<ng[N]; ii++)
+	for(ii=0; ii<ng[N]; ii++)
 		{
 		d_lgN[ii] = - 4.0; // dmin
 		d_ugN[ii] =   4.0; // dmax
@@ -404,10 +404,10 @@ int main()
 
 	double *CN; d_zeros(&CN, ng[N], nx[N]);
 	double *DN; d_zeros(&DN, ng[N], nu[N]);
-	for(ii=nb[N]; ii<nu[N] & ii<ng[N]; ii++)
-		DN[ii*(ng[N]+1)] = 1.0;
+	for(ii=0; ii<nu[N]-nb[N] & ii<ng[N]; ii++)
+		DN[ii+(nb[N]+ii)*ng[N]] = 1.0;
 	for(; ii<ng[N]; ii++)
-		CN[ii+(ii-nu[N])*ng[N]] = 1.0;
+		CN[ii+(nb[N]+ii-nu[N])*ng[N]] = 1.0;
 
 #if PRINT
 	// box constraints

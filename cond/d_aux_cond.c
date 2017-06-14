@@ -611,13 +611,13 @@ void d_expand_sol(struct d_ocp_qp *ocp_qp, struct d_dense_qp_sol *dense_qp_sol, 
 		ptr_lam_ug = (lam_ug+(N-ii))->pa;
 		ptr_t_lg = (t_lg+(N-ii))->pa;
 		ptr_t_ug = (t_ug+(N-ii))->pa;
-		for(jj=0; jj<ng[N-ii]; ng++)
+		for(jj=0; jj<ng[N-ii]; jj++)
 			{
 			// gnenral as general
-			ptr_lam_lg[jj] = ptr_lam_lgc[ngg];
-			ptr_lam_ug[jj] = ptr_lam_ugc[ngg];
-			ptr_t_lg[jj] = ptr_t_lgc[ngg];
-			ptr_t_ug[jj] = ptr_t_ugc[ngg];
+			ptr_lam_lg[jj] = ptr_lam_lgc[nbg+ngg];
+			ptr_lam_ug[jj] = ptr_lam_ugc[nbg+ngg];
+			ptr_t_lg[jj] = ptr_t_lgc[nbg+ngg];
+			ptr_t_ug[jj] = ptr_t_ugc[nbg+ngg];
 			ngg++;
 			}
 		}
