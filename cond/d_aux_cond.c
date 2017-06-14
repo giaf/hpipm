@@ -35,7 +35,9 @@
 #include <blasfeo_d_aux.h>
 
 #include "../include/hpipm_d_ocp_qp.h"
+#include "../include/hpipm_d_ocp_qp_sol.h"
 #include "../include/hpipm_d_dense_qp.h"
+#include "../include/hpipm_d_dense_qp_sol.h"
 #include "../include/hpipm_d_cond.h"
 
 
@@ -507,7 +509,7 @@ void d_cond_DCtd(struct d_ocp_qp *ocp_qp, int *idxb2, struct d_strvec *d_lb2, st
 
 
 
-void d_expand_sol(struct d_ocp_qp *ocp_qp, struct d_strvec *vc, struct d_strvec *pic, struct d_strvec *lam_lbc, struct d_strvec *lam_ubc, struct d_strvec *lam_lgc, struct d_strvec *lam_ugc, struct d_strvec *t_lbc, struct d_strvec *t_ubc, struct d_strvec *t_lgc, struct d_strvec *t_ugc, struct d_strvec *ux, struct d_strvec *pi, struct d_strvec *lam_lb, struct d_strvec *lam_ub, struct d_strvec *lam_lg, struct d_strvec *lam_ug, struct d_strvec *t_lb, struct d_strvec *t_ub, struct d_strvec *t_lg, struct d_strvec *t_ug, struct d_strvec *tmp_nuxM, struct d_strvec *tmp_ngM)
+void d_expand_sol(struct d_ocp_qp *ocp_qp, struct d_dense_qp_sol *dense_qp_sol, struct d_strvec *ux, struct d_strvec *pi, struct d_strvec *lam_lb, struct d_strvec *lam_ub, struct d_strvec *lam_lg, struct d_strvec *lam_ug, struct d_strvec *t_lb, struct d_strvec *t_ub, struct d_strvec *t_lg, struct d_strvec *t_ug, struct d_strvec *tmp_nuxM, struct d_strvec *tmp_ngM)
 	{
 
 	int N = ocp_qp->N;
@@ -522,6 +524,17 @@ void d_expand_sol(struct d_ocp_qp *ocp_qp, struct d_strvec *vc, struct d_strvec 
 	struct d_strmat *RSQrq = ocp_qp->RSQrq;
 	struct d_strvec *rq = ocp_qp->rq;
 	struct d_strmat *DCt = ocp_qp->DCt;
+
+	struct d_strvec *vc = dense_qp_sol->v;
+	struct d_strvec *pic = dense_qp_sol->pi;
+	struct d_strvec *lam_lbc = dense_qp_sol->lam_lb;
+	struct d_strvec *lam_ubc = dense_qp_sol->lam_ub;
+	struct d_strvec *lam_lgc = dense_qp_sol->lam_lg;
+	struct d_strvec *lam_ugc = dense_qp_sol->lam_ug;
+	struct d_strvec *t_lbc = dense_qp_sol->t_lb;
+	struct d_strvec *t_ubc = dense_qp_sol->t_ub;
+	struct d_strvec *t_lgc = dense_qp_sol->t_lg;
+	struct d_strvec *t_ugc = dense_qp_sol->t_ug;
 
 	int ii, jj;
 

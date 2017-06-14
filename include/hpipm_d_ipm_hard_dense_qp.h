@@ -35,18 +35,6 @@
 struct d_ipm_hard_dense_qp_workspace
 	{
 	struct d_ipm_hard_core_qp_workspace *core_workspace;
-	struct d_strvec *v; // primal variables
-	struct d_strvec *pi; // equality constraints multipliers
-	struct d_strvec *lam; // inequality constraints multipliers
-	struct d_strvec *lam_lb; // inequality constraints multipliers, lower box constraint
-	struct d_strvec *lam_ub; // inequality constraints multipliers, upper box constraint
-	struct d_strvec *lam_lg; // inequality constraints multipliers, lower general constraint
-	struct d_strvec *lam_ug; // inequality constraints multipliers, upper general constraint
-	struct d_strvec *t; // inequality constraints slacks
-	struct d_strvec *t_lb; // inequality constraints slacks, lower box constraint
-	struct d_strvec *t_ub; // inequality constraints slacks, upper box constraint
-	struct d_strvec *t_lg; // inequality constraints slacks, lower general constraint
-	struct d_strvec *t_ug; // inequality constraints slacks, upper general constraint
 	struct d_strvec *dv; // step in v
 	struct d_strvec *dpi; // step in pi
 	struct d_strvec *dlam; // step in lam XXX needed ???
@@ -96,4 +84,4 @@ int d_memsize_ipm_hard_dense_qp(struct d_dense_qp *qp, struct d_ipm_hard_dense_q
 //
 void d_create_ipm_hard_dense_qp(struct d_dense_qp *qp, struct d_ipm_hard_dense_qp_arg *arg, struct d_ipm_hard_dense_qp_workspace *ws, void *mem);
 //
-void d_solve_ipm_hard_dense_qp(struct d_dense_qp *qp, struct d_ipm_hard_dense_qp_workspace *ws);
+void d_solve_ipm_hard_dense_qp(struct d_dense_qp *qp, struct d_dense_qp_sol *qp_sol, struct d_ipm_hard_dense_qp_workspace *ws);

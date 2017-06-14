@@ -35,13 +35,14 @@
 #include <blasfeo_d_blas.h>
 
 #include "../include/hpipm_d_dense_qp.h"
+#include "../include/hpipm_d_dense_qp_sol.h"
 #include "../include/hpipm_d_ipm_hard_dense_qp.h"
 #include "../include/hpipm_d_ipm_hard_core_qp.h"
 #include "../include/hpipm_d_aux_ipm_hard.h"
 
 
 
-void d_init_var_hard_dense_qp(struct d_dense_qp *qp, struct d_ipm_hard_dense_qp_workspace *ws)
+void d_init_var_hard_dense_qp(struct d_dense_qp *qp, struct d_dense_qp_sol *qp_sol, struct d_ipm_hard_dense_qp_workspace *ws)
 	{
 
 	struct d_ipm_hard_core_qp_workspace *rws = ws->core_workspace;
@@ -58,16 +59,16 @@ void d_init_var_hard_dense_qp(struct d_dense_qp *qp, struct d_ipm_hard_dense_qp_
 	double *d_ug = qp->d_ug->pa;
 	int *idxb = qp->idxb;
 
-	double *v = rws->v;
-	double *pi = rws->pi;
-	double *lam_lb = rws->lam_lb;
-	double *lam_ub = rws->lam_ub;
-	double *lam_lg = rws->lam_lg;
-	double *lam_ug = rws->lam_ug;
-	double *t_lb = rws->t_lb;
-	double *t_ub = rws->t_ub;
-	double *t_lg = rws->t_lg;
-	double *t_ug = rws->t_ug;
+	double *v = qp_sol->v->pa;
+	double *pi = qp_sol->pi->pa;
+	double *lam_lb = qp_sol->lam_lb->pa;
+	double *lam_ub = qp_sol->lam_ub->pa;
+	double *lam_lg = qp_sol->lam_lg->pa;
+	double *lam_ug = qp_sol->lam_ug->pa;
+	double *t_lb = qp_sol->t_lb->pa;
+	double *t_ub = qp_sol->t_ub->pa;
+	double *t_lg = qp_sol->t_lg->pa;
+	double *t_ug = qp_sol->t_ug->pa;
 	double mu0 = rws->mu0;
 
 	// local variables
@@ -122,7 +123,7 @@ void d_init_var_hard_dense_qp(struct d_dense_qp *qp, struct d_ipm_hard_dense_qp_
 		}
 	
 	// inequality constraints
-	dgemv_t_libstr(nv, ng, 1.0, qp->Ct, 0, 0, ws->v, 0, 0.0, ws->t_lg, 0, ws->t_lg, 0);
+	dgemv_t_libstr(nv, ng, 1.0, qp->Ct, 0, 0, qp_sol->v, 0, 0.0, qp_sol->t_lg, 0, qp_sol->t_lg, 0);
 	for(ii=0; ii<ng; ii++)
 		{
 		t_ug[ii] = t_lg[ii];
@@ -142,7 +143,7 @@ void d_init_var_hard_dense_qp(struct d_dense_qp *qp, struct d_ipm_hard_dense_qp_
 
 
 
-void d_compute_res_hard_dense_qp(struct d_dense_qp *qp, struct d_ipm_hard_dense_qp_workspace *ws)
+void d_compute_res_hard_dense_qp(struct d_dense_qp *qp, struct d_dense_qp_sol *qp_sol, struct d_ipm_hard_dense_qp_workspace *ws)
 	{
 
 	int nv = qp->nv;
@@ -150,40 +151,51 @@ void d_compute_res_hard_dense_qp(struct d_dense_qp *qp, struct d_ipm_hard_dense_
 	int nb = qp->nb;
 	int ng = qp->ng;
 
+	struct d_strvec *v = qp_sol->v;
+	struct d_strvec *pi = qp_sol->pi;
+	struct d_strvec *lam_lb = qp_sol->lam_lb;
+	struct d_strvec *lam_ub = qp_sol->lam_ub;
+	struct d_strvec *lam_lg = qp_sol->lam_lg;
+	struct d_strvec *lam_ug = qp_sol->lam_ug;
+	struct d_strvec *t_lb = qp_sol->t_lb;
+	struct d_strvec *t_ub = qp_sol->t_ub;
+	struct d_strvec *t_lg = qp_sol->t_lg;
+	struct d_strvec *t_ug = qp_sol->t_ug;
+
 	double mu;
 
 	// res g
-	dsymv_l_libstr(nv, nv, 1.0, qp->Hg, 0, 0, ws->v, 0, 1.0, qp->g, 0, ws->res_g, 0);
+	dsymv_l_libstr(nv, nv, 1.0, qp->Hg, 0, 0, v, 0, 1.0, qp->g, 0, ws->res_g, 0);
 
 	if(nb>0)
 		{
 		// res_g
-		daxpy_libstr(nb, -1.0, ws->lam_lb, 0, ws->lam_ub, 0, ws->tmp_nb, 0);
+		daxpy_libstr(nb, -1.0, lam_lb, 0, lam_ub, 0, ws->tmp_nb, 0);
 		dvecad_sp_libstr(nb, 1.0, ws->tmp_nb, 0, qp->idxb, ws->res_g, 0);
 		// res_d
-		dvecex_sp_libstr(nb, -1.0, qp->idxb, ws->v, 0, ws->res_d_lb, 0);
+		dvecex_sp_libstr(nb, -1.0, qp->idxb, v, 0, ws->res_d_lb, 0);
 		dveccp_libstr(nb, ws->res_d_lb, 0, ws->res_d_ub, 0);
 		daxpy_libstr(nb, 1.0, qp->d_lb, 0, ws->res_d_lb, 0, ws->res_d_lb, 0);
 		daxpy_libstr(nb, 1.0, qp->d_ub, 0, ws->res_d_ub, 0, ws->res_d_ub, 0);
-		daxpy_libstr(nb, 1.0, ws->t_lb, 0, ws->res_d_lb, 0, ws->res_d_lb, 0);
-		daxpy_libstr(nb, -1.0, ws->t_ub, 0, ws->res_d_ub, 0, ws->res_d_ub, 0);
+		daxpy_libstr(nb, 1.0, t_lb, 0, ws->res_d_lb, 0, ws->res_d_lb, 0);
+		daxpy_libstr(nb, -1.0, t_ub, 0, ws->res_d_ub, 0, ws->res_d_ub, 0);
 		}
 
 	if(ng>0)
 		{
-		daxpy_libstr(ng, -1.0, ws->lam_lg, 0, ws->lam_ug, 0, ws->tmp_ng0, 0);
-		daxpy_libstr(ng, 1.0, ws->t_lg, 0, qp->d_lg, 0, ws->res_d_lg, 0);
-		daxpy_libstr(ng, -1.0, ws->t_ug, 0, qp->d_ug, 0, ws->res_d_ug, 0);
-		dgemv_nt_libstr(nv, ng, 1.0, 1.0, qp->Ct, 0, 0, ws->tmp_ng0, 0, ws->v, 0, 1.0, 0.0, ws->res_g, 0, ws->tmp_ng1, 0, ws->res_g, 0, ws->tmp_ng1, 0);
+		daxpy_libstr(ng, -1.0, lam_lg, 0, lam_ug, 0, ws->tmp_ng0, 0);
+		daxpy_libstr(ng, 1.0, t_lg, 0, qp->d_lg, 0, ws->res_d_lg, 0);
+		daxpy_libstr(ng, -1.0, t_ug, 0, qp->d_ug, 0, ws->res_d_ug, 0);
+		dgemv_nt_libstr(nv, ng, 1.0, 1.0, qp->Ct, 0, 0, ws->tmp_ng0, 0, v, 0, 1.0, 0.0, ws->res_g, 0, ws->tmp_ng1, 0, ws->res_g, 0, ws->tmp_ng1, 0);
 		daxpy_libstr(ng, -1.0, ws->tmp_ng1, 0, ws->res_d_lg, 0, ws->res_d_lg, 0);
 		daxpy_libstr(ng, -1.0, ws->tmp_ng1, 0, ws->res_d_ug, 0, ws->res_d_ug, 0);
 		}
 	
 	// res b, res g
-	dgemv_nt_libstr(ne, nv, -1.0, -1.0, qp->A, 0, 0, ws->v, 0, ws->pi, 0, 1.0, 1.0, qp->b, 0, ws->res_g, 0, ws->res_b, 0, ws->res_g, 0);
+	dgemv_nt_libstr(ne, nv, -1.0, -1.0, qp->A, 0, 0, v, 0, pi, 0, 1.0, 1.0, qp->b, 0, ws->res_g, 0, ws->res_b, 0, ws->res_g, 0);
 
 	// res_mu
-	mu = dvecmuldot_libstr(2*nb+2*ng, ws->lam, 0, ws->t, 0, ws->res_m, 0);
+	mu = dvecmuldot_libstr(2*nb+2*ng, lam_lb, 0, t_lb, 0, ws->res_m, 0);
 
 	ws->res_mu = mu*ws->nt_inv;
 

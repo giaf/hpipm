@@ -35,8 +35,9 @@
 #include <blasfeo_d_aux.h>
 
 #include "../include/hpipm_d_ocp_qp.h"
+#include "../include/hpipm_d_ocp_qp_sol.h"
 #include "../include/hpipm_d_dense_qp.h"
-#include "../include/hpipm_d_ipm_hard_dense_qp.h"
+#include "../include/hpipm_d_dense_qp_sol.h"
 #include "../include/hpipm_d_cond.h"
 #include "../include/hpipm_d_aux_cond.h"
 
@@ -124,7 +125,7 @@ int d_memsize_cond_qp_ocp2dense(struct d_ocp_qp *ocp_qp, struct d_dense_qp *dens
 	int size = 0;
 
 	size += (2+2*(N+1))*sizeof(struct d_strmat); // Gamma L Lx AL
-	size += (4+11*(N+1))*sizeof(struct d_strvec); // Gammab tmp_ngM ux pi lam lam_lb lam_ub lam_lg lam_ug t t_lb t_ub t_lg t_ug tmp_nuxM
+	size += (2+1*(N+1))*sizeof(struct d_strvec); // Gammab tmp_ngM tmp_nuxM
 
 	int nu_tmp = 0;
 	for(ii=0; ii<N; ii++)
@@ -139,9 +140,6 @@ int d_memsize_cond_qp_ocp2dense(struct d_ocp_qp *ocp_qp, struct d_dense_qp *dens
 	for(ii=0; ii<N; ii++) 
 		size += 1*d_size_strvec(nx[ii+1]); // Gammab
 	size += d_size_strvec(ngM); // tmp_ngM
-	size += 1*d_size_strvec(nvt); // ux
-	size += 1*d_size_strvec(net); // pi
-	size += 2*d_size_strvec(2*nbt+2*ngt); // lam t
 	size += 1*d_size_strvec(nuM+nxM); // tmp_nuxM
 	size += 1*d_size_strvec(ngM); // tmp_ngM
 
@@ -216,30 +214,6 @@ void d_create_cond_qp_ocp2dense(struct d_ocp_qp *ocp_qp, struct d_dense_qp *dens
 	sv_ptr += N+1;
 	cond_ws->tmp_ngM = sv_ptr;
 	sv_ptr += 1;
-	cond_ws->ux = sv_ptr;
-	sv_ptr += N+1;
-	cond_ws->pi = sv_ptr;
-	sv_ptr += N+1;
-	cond_ws->lam = sv_ptr;
-	sv_ptr += 1;
-	cond_ws->lam_lb = sv_ptr;
-	sv_ptr += N+1;
-	cond_ws->lam_ub = sv_ptr;
-	sv_ptr += N+1;
-	cond_ws->lam_lg = sv_ptr;
-	sv_ptr += N+1;
-	cond_ws->lam_ug = sv_ptr;
-	sv_ptr += N+1;
-	cond_ws->t = sv_ptr;
-	sv_ptr += 1;
-	cond_ws->t_lb = sv_ptr;
-	sv_ptr += N+1;
-	cond_ws->t_ub = sv_ptr;
-	sv_ptr += N+1;
-	cond_ws->t_lg = sv_ptr;
-	sv_ptr += N+1;
-	cond_ws->t_ug = sv_ptr;
-	sv_ptr += N+1;
 	cond_ws->tmp_nuxM = sv_ptr;
 	sv_ptr += 1;
 
@@ -277,65 +251,6 @@ void d_create_cond_qp_ocp2dense(struct d_ocp_qp *ocp_qp, struct d_dense_qp *dens
 	d_create_strvec(ngM, cond_ws->tmp_ngM, v_ptr);
 	v_ptr += cond_ws->tmp_ngM->memory_size;
 	v_tmp = v_ptr;
-	v_ptr += d_size_strvec(nvt);
-	for(ii=0; ii<=N; ii++)
-		{
-		d_create_strvec(nu[ii]+nx[ii], cond_ws->ux+ii, v_tmp);
-		v_tmp += (nu[ii]+nx[ii])*sizeof(double);
-		}
-	v_tmp = v_ptr;
-	v_ptr += d_size_strvec(net);
-	for(ii=0; ii<N; ii++)
-		{
-		d_create_strvec(nx[ii+1], cond_ws->pi+ii, v_tmp);
-		v_tmp += (nx[ii+1])*sizeof(double);
-		}
-	v_tmp = v_ptr;
-	v_ptr += d_size_strvec(2*nbt+2*ngt);
-	d_create_strvec(2*nbt+2*ngt, cond_ws->lam, v_tmp);
-	for(ii=0; ii<=N; ii++)
-		{
-		d_create_strvec(nb[ii], cond_ws->lam_lb+ii, v_tmp);
-		v_tmp += (nb[ii])*sizeof(double);
-		}
-	for(ii=0; ii<=N; ii++)
-		{
-		d_create_strvec(ng[ii], cond_ws->lam_lg+ii, v_tmp);
-		v_tmp += (ng[ii])*sizeof(double);
-		}
-	for(ii=0; ii<=N; ii++)
-		{
-		d_create_strvec(nb[ii], cond_ws->lam_ub+ii, v_tmp);
-		v_tmp += (nb[ii])*sizeof(double);
-		}
-	for(ii=0; ii<=N; ii++)
-		{
-		d_create_strvec(ng[ii], cond_ws->lam_ug+ii, v_tmp);
-		v_tmp += (ng[ii])*sizeof(double);
-		}
-	v_tmp = v_ptr;
-	v_ptr += d_size_strvec(2*nbt+2*ngt);
-	d_create_strvec(2*nbt+2*ngt, cond_ws->t, v_tmp);
-	for(ii=0; ii<=N; ii++)
-		{
-		d_create_strvec(nb[ii], cond_ws->t_lb+ii, v_tmp);
-		v_tmp += (nb[ii])*sizeof(double);
-		}
-	for(ii=0; ii<=N; ii++)
-		{
-		d_create_strvec(ng[ii], cond_ws->t_lg+ii, v_tmp);
-		v_tmp += (ng[ii])*sizeof(double);
-		}
-	for(ii=0; ii<=N; ii++)
-		{
-		d_create_strvec(nb[ii], cond_ws->t_ub+ii, v_tmp);
-		v_tmp += (nb[ii])*sizeof(double);
-		}
-	for(ii=0; ii<=N; ii++)
-		{
-		d_create_strvec(ng[ii], cond_ws->t_ug+ii, v_tmp);
-		v_tmp += (ng[ii])*sizeof(double);
-		}
 	d_create_strvec(nuM+nxM, cond_ws->tmp_nuxM, v_ptr);
 	v_ptr += cond_ws->tmp_nuxM->memory_size;
 
@@ -360,10 +275,10 @@ void d_cond_qp_ocp2dense(struct d_ocp_qp *ocp_qp, struct d_dense_qp *dense_qp, s
 
 
 
-void d_expand_sol_dense2ocp(struct d_ocp_qp *ocp_qp, struct d_ipm_hard_dense_qp_workspace *dense_ws, struct d_cond_qp_ocp2dense_workspace *cond_ws)
+void d_expand_sol_dense2ocp(struct d_ocp_qp *ocp_qp, struct d_dense_qp_sol *dense_qp_sol, struct d_ocp_qp_sol *ocp_qp_sol, struct d_cond_qp_ocp2dense_workspace *cond_ws)
 	{
 
-	d_expand_sol(ocp_qp, dense_ws->v, dense_ws->pi, dense_ws->lam_lb, dense_ws->lam_ub, dense_ws->lam_lg, dense_ws->lam_ug, dense_ws->t_lb, dense_ws->t_ub, dense_ws->t_lg, dense_ws->t_ug, cond_ws->ux, cond_ws->pi, cond_ws->lam_lb, cond_ws->lam_ub, cond_ws->lam_lg, cond_ws->lam_ug, cond_ws->t_lb, cond_ws->t_ub, cond_ws->t_lg, cond_ws->t_ug, cond_ws->tmp_nuxM, cond_ws->tmp_ngM);
+	d_expand_sol(ocp_qp, dense_qp_sol, ocp_qp_sol->ux, ocp_qp_sol->pi, ocp_qp_sol->lam_lb, ocp_qp_sol->lam_ub, ocp_qp_sol->lam_lg, ocp_qp_sol->lam_ug, ocp_qp_sol->t_lb, ocp_qp_sol->t_ub, ocp_qp_sol->t_lg, ocp_qp_sol->t_ug, cond_ws->tmp_nuxM, cond_ws->tmp_ngM);
 
 	return;
 

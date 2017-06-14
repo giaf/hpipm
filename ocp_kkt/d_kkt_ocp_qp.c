@@ -35,13 +35,14 @@
 #include <blasfeo_d_blas.h>
 
 #include "../include/hpipm_d_ocp_qp.h"
+#include "../include/hpipm_d_ocp_qp_sol.h"
 #include "../include/hpipm_d_ipm_hard_ocp_qp.h"
 #include "../include/hpipm_d_ipm_hard_core_qp.h"
 #include "../include/hpipm_d_aux_ipm_hard.h"
 
 
 
-void d_init_var_hard_ocp_qp(struct d_ocp_qp *qp, struct d_ipm_hard_ocp_qp_workspace *ws)
+void d_init_var_hard_ocp_qp(struct d_ocp_qp *qp, struct d_ocp_qp_sol *qp_sol, struct d_ipm_hard_ocp_qp_workspace *ws)
 	{
 
 //	struct d_ipm_hard_core_qp_workspace *cws = ws->core_workspace;
@@ -70,7 +71,7 @@ void d_init_var_hard_ocp_qp(struct d_ocp_qp *qp, struct d_ipm_hard_ocp_qp_worksp
 	// ux
 	for(ii=0; ii<=N; ii++)
 		{
-		ux = ws->ux[ii].pa;
+		ux = qp_sol->ux[ii].pa;
 		for(jj=0; jj<nu[ii]+nx[ii]; jj++)
 			{
 			ux[jj] = 0.0;
@@ -80,7 +81,7 @@ void d_init_var_hard_ocp_qp(struct d_ocp_qp *qp, struct d_ipm_hard_ocp_qp_worksp
 	// pi
 	for(ii=0; ii<N; ii++)
 		{
-		pi = ws->pi[ii].pa;
+		pi = qp_sol->pi[ii].pa;
 		for(jj=0; jj<nx[ii+1]; jj++)
 			{
 			pi[jj] = 0.0;
@@ -90,13 +91,13 @@ void d_init_var_hard_ocp_qp(struct d_ocp_qp *qp, struct d_ipm_hard_ocp_qp_worksp
 	// box constraints
 	for(ii=0; ii<=N; ii++)
 		{
-		ux = ws->ux[ii].pa;
+		ux = qp_sol->ux[ii].pa;
 		d_lb = qp->d_lb[ii].pa;
 		d_ub = qp->d_ub[ii].pa;
-		lam_lb = ws->lam_lb[ii].pa;
-		lam_ub = ws->lam_ub[ii].pa;
-		t_lb = ws->t_lb[ii].pa;
-		t_ub = ws->t_ub[ii].pa;
+		lam_lb = qp_sol->lam_lb[ii].pa;
+		lam_ub = qp_sol->lam_ub[ii].pa;
+		t_lb = qp_sol->t_lb[ii].pa;
+		t_ub = qp_sol->t_ub[ii].pa;
 		idxb = qp->idxb[ii];
 		for(jj=0; jj<nb[ii]; jj++)
 			{
@@ -129,14 +130,14 @@ void d_init_var_hard_ocp_qp(struct d_ocp_qp *qp, struct d_ipm_hard_ocp_qp_worksp
 	// general constraints
 	for(ii=0; ii<=N; ii++)
 		{
-		t_lg = ws->t_lg[ii].pa;
-		t_ug = ws->t_ug[ii].pa;
-		lam_lg = ws->lam_lg[ii].pa;
-		lam_ug = ws->lam_ug[ii].pa;
+		t_lg = qp_sol->t_lg[ii].pa;
+		t_ug = qp_sol->t_ug[ii].pa;
+		lam_lg = qp_sol->lam_lg[ii].pa;
+		lam_ug = qp_sol->lam_ug[ii].pa;
 		d_lg = qp->d_lg[ii].pa;
 		d_ug = qp->d_ug[ii].pa;
-		ux = ws->ux[ii].pa;
-		dgemv_t_libstr(nu[ii]+nx[ii], ng[ii], 1.0, qp->DCt+ii, 0, 0, ws->ux+ii, 0, 0.0, ws->t_lg+ii, 0, ws->t_lg+ii, 0);
+		ux = qp_sol->ux[ii].pa;
+		dgemv_t_libstr(nu[ii]+nx[ii], ng[ii], 1.0, qp->DCt+ii, 0, 0, qp_sol->ux+ii, 0, 0.0, qp_sol->t_lg+ii, 0, qp_sol->t_lg+ii, 0);
 		for(jj=0; jj<ng[ii]; jj++)
 			{
 			t_ug[jj] = - t_lg[jj];
@@ -158,7 +159,7 @@ void d_init_var_hard_ocp_qp(struct d_ocp_qp *qp, struct d_ipm_hard_ocp_qp_worksp
 
 
 
-void d_compute_res_hard_ocp_qp(struct d_ocp_qp *qp, struct d_ipm_hard_ocp_qp_workspace *ws)
+void d_compute_res_hard_ocp_qp(struct d_ocp_qp *qp, struct d_ocp_qp_sol *qp_sol, struct d_ipm_hard_ocp_qp_workspace *ws)
 	{
 
 	// loop index
@@ -173,6 +174,17 @@ void d_compute_res_hard_ocp_qp(struct d_ocp_qp *qp, struct d_ipm_hard_ocp_qp_wor
 
 	int nbt = ws->core_workspace->nb;
 	int ngt = ws->core_workspace->ng;
+
+	struct d_strvec *ux = qp_sol->ux;
+	struct d_strvec *pi = qp_sol->pi;
+	struct d_strvec *lam_lb = qp_sol->lam_lb;
+	struct d_strvec *lam_ub = qp_sol->lam_ub;
+	struct d_strvec *lam_lg = qp_sol->lam_lg;
+	struct d_strvec *lam_ug = qp_sol->lam_ug;
+	struct d_strvec *t_lb = qp_sol->t_lb;
+	struct d_strvec *t_ub = qp_sol->t_ub;
+	struct d_strvec *t_lg = qp_sol->t_lg;
+	struct d_strvec *t_ug = qp_sol->t_ug;
 
 	int nx0, nx1, nu0, nu1, nb0, ng0;
 
@@ -191,22 +203,22 @@ void d_compute_res_hard_ocp_qp(struct d_ocp_qp *qp, struct d_ipm_hard_ocp_qp_wor
 		dveccp_libstr(nu0+nx0, qp->rq+ii, 0, ws->res_g+ii, 0);
 
 		if(ii>0)
-			daxpy_libstr(nx0, -1.0, ws->pi+(ii-1), 0, ws->res_g+ii, nu0, ws->res_g+ii, nu0);
+			daxpy_libstr(nx0, -1.0, pi+(ii-1), 0, ws->res_g+ii, nu0, ws->res_g+ii, nu0);
 
-		dsymv_l_libstr(nu0+nx0, nu0+nx0, 1.0, qp->RSQrq+ii, 0, 0, ws->ux+ii, 0, 1.0, ws->res_g+ii, 0, ws->res_g+ii, 0);
+		dsymv_l_libstr(nu0+nx0, nu0+nx0, 1.0, qp->RSQrq+ii, 0, 0, ux+ii, 0, 1.0, ws->res_g+ii, 0, ws->res_g+ii, 0);
 
 		if(nb0>0)
 			{
 
-			daxpy_libstr(nb0, -1.0, ws->lam_lb+ii, 0, ws->lam_ub+ii, 0, ws->tmp_nbM, 0);
+			daxpy_libstr(nb0, -1.0, lam_lb+ii, 0, lam_ub+ii, 0, ws->tmp_nbM, 0);
 			dvecad_sp_libstr(nb0, 1.0, ws->tmp_nbM, 0, qp->idxb[ii], ws->res_g+ii, 0);
 
-			dvecex_sp_libstr(nb0, -1.0, qp->idxb[ii], ws->ux+ii, 0, ws->res_d_lb+ii, 0);
+			dvecex_sp_libstr(nb0, -1.0, qp->idxb[ii], ux+ii, 0, ws->res_d_lb+ii, 0);
 			dveccp_libstr(nb0, ws->res_d_lb+ii, 0, ws->res_d_ub+ii, 0);
 			daxpy_libstr(nb0, 1.0, qp->d_lb+ii, 0, ws->res_d_lb+ii, 0, ws->res_d_lb+ii, 0);
 			daxpy_libstr(nb0, 1.0, qp->d_ub+ii, 0, ws->res_d_ub+ii, 0, ws->res_d_ub+ii, 0);
-			daxpy_libstr(nb0, 1.0, ws->t_lb+ii, 0, ws->res_d_lb+ii, 0, ws->res_d_lb+ii, 0);
-			daxpy_libstr(nb0, -1.0, ws->t_ub+ii, 0, ws->res_d_ub+ii, 0, ws->res_d_ub+ii, 0);
+			daxpy_libstr(nb0, 1.0, t_lb+ii, 0, ws->res_d_lb+ii, 0, ws->res_d_lb+ii, 0);
+			daxpy_libstr(nb0, -1.0, t_ub+ii, 0, ws->res_d_ub+ii, 0, ws->res_d_ub+ii, 0);
 
 			}
 
@@ -224,15 +236,15 @@ void d_compute_res_hard_ocp_qp(struct d_ocp_qp *qp, struct d_ipm_hard_ocp_qp_wor
 			nu1 = nu[ii+1];
 			nx1 = nx[ii+1];
 
-			daxpy_libstr(nx1, -1.0, ws->ux+(ii+1), nu1, qp->b+ii, 0, ws->res_b+ii, 0);
+			daxpy_libstr(nx1, -1.0, ux+(ii+1), nu1, qp->b+ii, 0, ws->res_b+ii, 0);
 
-			dgemv_nt_libstr(nu0+nx0, nx1, 1.0, 1.0, qp->BAbt+ii, 0, 0, ws->pi+ii, 0, ws->ux+ii, 0, 1.0, 1.0, ws->res_g+ii, 0, ws->res_b+ii, 0, ws->res_g+ii, 0, ws->res_b+ii, 0);
+			dgemv_nt_libstr(nu0+nx0, nx1, 1.0, 1.0, qp->BAbt+ii, 0, 0, pi+ii, 0, ux+ii, 0, 1.0, 1.0, ws->res_g+ii, 0, ws->res_b+ii, 0, ws->res_g+ii, 0, ws->res_b+ii, 0);
 
 			}
 
 		}
 
-	mu += dvecmuldot_libstr(2*nbt+2*ngt, ws->lam, 0, ws->t, 0, ws->res_m, 0);
+	mu += dvecmuldot_libstr(2*nbt+2*ngt, lam_lb, 0, t_lb, 0, ws->res_m, 0);
 
 	ws->res_mu = mu*ws->nt_inv;
 

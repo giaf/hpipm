@@ -32,6 +32,7 @@
 #include <blasfeo_d_aux.h>
 
 #include "../include/hpipm_d_ocp_qp.h"
+#include "../include/hpipm_d_ocp_qp_sol.h"
 #include "../include/hpipm_d_ipm_hard_ocp_qp.h"
 #include "../include/hpipm_d_ipm_hard_core_qp.h"
 #include "../include/hpipm_d_aux_ipm_hard.h"
@@ -84,7 +85,7 @@ int d_memsize_ipm_hard_ocp_qp(struct d_ocp_qp *qp, struct d_ipm_hard_ocp_qp_arg 
 
 	int size = 0;
 
-	size += (6+(N+1)*27)*sizeof(struct d_strvec); // ux pi lam lam_lb lam_ub lam_lg lam_ug t t_lb t_ub t_lg t_ug dux dpi dt_lb dt_lg res_g res_b res_d res_d_lb res_d_ub res_d_lg res_d_ug res_m res_m_lb res_m_ub res_m_lg res_m_ug Qx_lb qx_lb Pb tmp_nbM tmp_nxM
+	size += (4+(N+1)*17)*sizeof(struct d_strvec); // dux dpi dt_lb dt_lg res_g res_b res_d res_d_lb res_d_ub res_d_lg res_d_ug res_m res_m_lb res_m_ub res_m_lg res_m_ug Qx_lb qx_lb Pb tmp_nbM tmp_nxM
 	size += (2+(N+1)*1)*sizeof(struct d_strmat); // L AL0 AL1
 
 	size += 1*d_size_strvec(nbM); // tmp_nbM
@@ -172,30 +173,6 @@ void d_create_ipm_hard_ocp_qp(struct d_ocp_qp *qp, struct d_ipm_hard_ocp_qp_arg 
 	// vector struct
 	struct d_strvec *sv_ptr = (struct d_strvec *) sm_ptr;
 
-	workspace->ux = sv_ptr;
-	sv_ptr += N+1;
-	workspace->pi = sv_ptr;
-	sv_ptr += N+1;
-	workspace->lam = sv_ptr;
-	sv_ptr += 1;
-	workspace->lam_lb = sv_ptr;
-	sv_ptr += N+1;
-	workspace->lam_ub = sv_ptr;
-	sv_ptr += N+1;
-	workspace->lam_lg = sv_ptr;
-	sv_ptr += N+1;
-	workspace->lam_ug = sv_ptr;
-	sv_ptr += N+1;
-	workspace->t = sv_ptr;
-	sv_ptr += 1;
-	workspace->t_lb = sv_ptr;
-	sv_ptr += N+1;
-	workspace->t_ub = sv_ptr;
-	sv_ptr += N+1;
-	workspace->t_lg = sv_ptr;
-	sv_ptr += N+1;
-	workspace->t_ug = sv_ptr;
-	sv_ptr += N+1;
 	workspace->dux = sv_ptr;
 	sv_ptr += N+1;
 	workspace->dpi = sv_ptr;
@@ -288,70 +265,6 @@ void d_create_ipm_hard_ocp_qp(struct d_ocp_qp *qp, struct d_ipm_hard_ocp_qp_arg 
 
 
 	// alias members of workspace and core_workspace
-	v_ptr = rwork->v;
-	for(ii=0; ii<=N; ii++)
-		{
-		d_create_strvec(nu[ii]+nx[ii], workspace->ux+ii, v_ptr);
-		v_ptr += (nu[ii]+nx[ii])*sizeof(double);
-		}
-	v_ptr = rwork->pi;
-	for(ii=0; ii<N; ii++)
-		{
-		d_create_strvec(nx[ii+1], workspace->pi+ii, v_ptr);
-		v_ptr += (nx[ii+1])*sizeof(double);
-		}
-	v_ptr = rwork->lam;
-	d_create_strvec(2*nbt+2*ngt, workspace->lam, v_ptr);
-	v_ptr = rwork->lam_lb;
-	for(ii=0; ii<=N; ii++)
-		{
-		d_create_strvec(nb[ii], workspace->lam_lb+ii, v_ptr);
-		v_ptr += (nb[ii])*sizeof(double);
-		}
-	v_ptr = rwork->lam_ub;
-	for(ii=0; ii<=N; ii++)
-		{
-		d_create_strvec(nb[ii], workspace->lam_ub+ii, v_ptr);
-		v_ptr += (nb[ii])*sizeof(double);
-		}
-	v_ptr = rwork->lam_lg;
-	for(ii=0; ii<=N; ii++)
-		{
-		d_create_strvec(ng[ii], workspace->lam_lg+ii, v_ptr);
-		v_ptr += (ng[ii])*sizeof(double);
-		}
-	v_ptr = rwork->lam_ug;
-	for(ii=0; ii<=N; ii++)
-		{
-		d_create_strvec(ng[ii], workspace->lam_ug+ii, v_ptr);
-		v_ptr += (ng[ii])*sizeof(double);
-		}
-	v_ptr = rwork->t;
-	d_create_strvec(2*nbt+2*ngt, workspace->t, v_ptr);
-	v_ptr = rwork->t_lb;
-	for(ii=0; ii<=N; ii++)
-		{
-		d_create_strvec(nb[ii], workspace->t_lb+ii, v_ptr);
-		v_ptr += (nb[ii])*sizeof(double);
-		}
-	v_ptr = rwork->t_ub;
-	for(ii=0; ii<=N; ii++)
-		{
-		d_create_strvec(nb[ii], workspace->t_ub+ii, v_ptr);
-		v_ptr += (nb[ii])*sizeof(double);
-		}
-	v_ptr = rwork->t_lg;
-	for(ii=0; ii<=N; ii++)
-		{
-		d_create_strvec(ng[ii], workspace->t_lg+ii, v_ptr);
-		v_ptr += (ng[ii])*sizeof(double);
-		}
-	v_ptr = rwork->t_ug;
-	for(ii=0; ii<=N; ii++)
-		{
-		d_create_strvec(ng[ii], workspace->t_ug+ii, v_ptr);
-		v_ptr += (ng[ii])*sizeof(double);
-		}
 	v_ptr = rwork->dv;
 	for(ii=0; ii<=N; ii++)
 		{
@@ -465,18 +378,36 @@ void d_create_ipm_hard_ocp_qp(struct d_ocp_qp *qp, struct d_ipm_hard_ocp_qp_arg 
 
 
 
-void d_solve_ipm_hard_ocp_qp(struct d_ocp_qp *qp, struct d_ipm_hard_ocp_qp_workspace *ws)
+void d_solve_ipm_hard_ocp_qp(struct d_ocp_qp *qp, struct d_ocp_qp_sol *qp_sol, struct d_ipm_hard_ocp_qp_workspace *ws)
 	{
 
 	struct d_ipm_hard_core_qp_workspace *cws = ws->core_workspace;
 
-	// alias qp vectors into core workspace
+	// alias qp vectors into qp
+	cws->d_lb = qp->d_lb->pa;
+	cws->d_ub = qp->d_ub->pa;
+	cws->d_lg = qp->d_lg->pa;
+	cws->d_ug = qp->d_ug->pa;
+
+	// alias qp vectors into qp_sol
+	cws->v = qp_sol->ux->pa;
+	cws->pi = qp_sol->pi->pa;
+	cws->lam = qp_sol->lam_lb->pa;
+	cws->lam_lb = qp_sol->lam_lb->pa;
+	cws->lam_ub = qp_sol->lam_ub->pa;
+	cws->lam_lg = qp_sol->lam_lg->pa;
+	cws->lam_ug = qp_sol->lam_ug->pa;
+	cws->t = qp_sol->t_lb->pa;
+	cws->t_lb = qp_sol->t_lb->pa;
+	cws->t_ub = qp_sol->t_ub->pa;
+	cws->t_lg = qp_sol->t_lg->pa;
+	cws->t_ug = qp_sol->t_ug->pa;
 
 	// init solver
-	d_init_var_hard_ocp_qp(qp, ws);
+	d_init_var_hard_ocp_qp(qp, qp_sol, ws);
 
 	// compute residuals
-	d_compute_res_hard_ocp_qp(qp, ws);
+	d_compute_res_hard_ocp_qp(qp, qp_sol, ws);
 	cws->mu = ws->res_mu;
 
 	int kk;
@@ -494,7 +425,7 @@ void d_solve_ipm_hard_ocp_qp(struct d_ocp_qp *qp, struct d_ipm_hard_ocp_qp_works
 		d_update_var_hard_qp(cws);
 
 		// compute residuals
-		d_compute_res_hard_ocp_qp(qp, ws);
+		d_compute_res_hard_ocp_qp(qp, qp_sol, ws);
 		cws->mu = ws->res_mu;
 		cws->stat[5*kk+2] = ws->res_mu;
 

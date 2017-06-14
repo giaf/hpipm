@@ -46,9 +46,9 @@ int d_memsize_ipm_hard_core_qp(int nv, int ne, int nb, int ng, int iter_max)
 
 	size = 0;
 
-	size += 3*nv0*sizeof(double); // v dv res_g
-	size += 3*ne0*sizeof(double); // pi dpi res_b
-	size += 7*(2*nb0+2*ng0)*sizeof(double); // lam t dlam dt res_d res_m t_inv
+	size += 2*nv0*sizeof(double); // dv res_g
+	size += 2*ne0*sizeof(double); // dpi res_b
+	size += 5*(2*nb0+2*ng0)*sizeof(double); // dlam dt res_d res_m t_inv
 	size += 2*(nb0+ng0)*sizeof(double); // Qx qx
 	size += 5*iter_max*sizeof(double); // stat
 
@@ -78,26 +78,6 @@ void d_create_ipm_hard_core_qp(struct d_ipm_hard_core_qp_workspace *workspace, v
 	workspace->memsize = d_memsize_ipm_hard_core_qp(nv, ne, nb, ng, workspace->iter_max);
 
 	double *d_ptr = (double *) mem;
-
-	workspace->v = d_ptr; // v
-	d_ptr += nv0;
-
-	workspace->pi = d_ptr; // pi
-	d_ptr += ne0;
-
-	workspace->lam = d_ptr; // lam
-	workspace->lam_lb = d_ptr;
-	workspace->lam_lg = d_ptr+nb0;
-	workspace->lam_ub = d_ptr+nb0+ng0;
-	workspace->lam_ug = d_ptr+2*nb0+ng0;
-	d_ptr += 2*nb0+2*ng0;
-
-	workspace->t = d_ptr; // t
-	workspace->t_lb = d_ptr;
-	workspace->t_lg = d_ptr+nb0;
-	workspace->t_ub = d_ptr+nb0+ng0;
-	workspace->t_ug = d_ptr+2*nb0+ng0;
-	d_ptr += 2*nb0+2*ng0;
 
 	workspace->t_inv = d_ptr; // t_inv
 	workspace->t_inv_lb = d_ptr;

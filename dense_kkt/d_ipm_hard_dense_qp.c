@@ -32,6 +32,7 @@
 #include <blasfeo_d_aux.h>
 
 #include "../include/hpipm_d_dense_qp.h"
+#include "../include/hpipm_d_dense_qp_sol.h"
 #include "../include/hpipm_d_ipm_hard_dense_qp.h"
 #include "../include/hpipm_d_ipm_hard_core_qp.h"
 #include "../include/hpipm_d_aux_ipm_hard.h"
@@ -49,7 +50,7 @@ int d_memsize_ipm_hard_dense_qp(struct d_dense_qp *qp, struct d_ipm_hard_dense_q
 
 	int size = 0;
 
-	size += 34*sizeof(struct d_strvec); // v pi lam lam_lb lam_ub lam_lg lam_ug t t_lb t_ub t_lg t_ug dv dpi dlam dt dt_lb dt_ub dt_lg dt_ug res_g res_b res_d res_d_lb res_d_ub res_d_lg res_d_ug res_m Qx qx lv tmp_nb tmp_ng0 tmp_ng1
+	size += 22*sizeof(struct d_strvec); // dv dpi dlam dt dt_lb dt_ub dt_lg dt_ug res_g res_b res_d res_d_lb res_d_ub res_d_lg res_d_ug res_m Qx qx lv tmp_nb tmp_ng0 tmp_ng1
 	size += 4*sizeof(struct d_strmat); // Lv AL Le Ctx
 
 	size += 1*d_size_strvec(nb); // tmp_nb
@@ -106,30 +107,6 @@ void d_create_ipm_hard_dense_qp(struct d_dense_qp *qp, struct d_ipm_hard_dense_q
 	// vector struct
 	struct d_strvec *sv_ptr = (struct d_strvec *) sm_ptr;
 
-	workspace->v = sv_ptr;
-	sv_ptr += 1;
-	workspace->pi = sv_ptr;
-	sv_ptr += 1;
-	workspace->lam = sv_ptr;
-	sv_ptr += 1;
-	workspace->lam_lb = sv_ptr;
-	sv_ptr += 1;
-	workspace->lam_ub = sv_ptr;
-	sv_ptr += 1;
-	workspace->lam_lg = sv_ptr;
-	sv_ptr += 1;
-	workspace->lam_ug = sv_ptr;
-	sv_ptr += 1;
-	workspace->t = sv_ptr;
-	sv_ptr += 1;
-	workspace->t_lb = sv_ptr;
-	sv_ptr += 1;
-	workspace->t_ub = sv_ptr;
-	sv_ptr += 1;
-	workspace->t_lg = sv_ptr;
-	sv_ptr += 1;
-	workspace->t_ug = sv_ptr;
-	sv_ptr += 1;
 	workspace->dv = sv_ptr;
 	sv_ptr += 1;
 	workspace->dpi = sv_ptr;
@@ -222,18 +199,6 @@ void d_create_ipm_hard_dense_qp(struct d_dense_qp *qp, struct d_ipm_hard_dense_q
 
 
 	// alias members of workspace and core_workspace
-	d_create_strvec(nv, workspace->v, rwork->v);
-	d_create_strvec(ne, workspace->pi, rwork->pi);
-	d_create_strvec(2*nb+2*ng, workspace->lam, rwork->lam);
-	d_create_strvec(nb, workspace->lam_lb, rwork->lam_lb);
-	d_create_strvec(nb, workspace->lam_ub, rwork->lam_ub);
-	d_create_strvec(ng, workspace->lam_lg, rwork->lam_lg);
-	d_create_strvec(ng, workspace->lam_ug, rwork->lam_ug);
-	d_create_strvec(2*nb+2*ng, workspace->t, rwork->t);
-	d_create_strvec(nb, workspace->t_lb, rwork->t_lb);
-	d_create_strvec(nb, workspace->t_ub, rwork->t_ub);
-	d_create_strvec(ng, workspace->t_lg, rwork->t_lg);
-	d_create_strvec(ng, workspace->t_ug, rwork->t_ug);
 	d_create_strvec(nv, workspace->dv, rwork->dv);
 	d_create_strvec(ne, workspace->dpi, rwork->dpi);
 	d_create_strvec(2*nb+2*ng, workspace->dlam, rwork->dlam);
@@ -263,20 +228,34 @@ void d_create_ipm_hard_dense_qp(struct d_dense_qp *qp, struct d_ipm_hard_dense_q
 
 
 
-void d_solve_ipm_hard_dense_qp(struct d_dense_qp *qp, struct d_ipm_hard_dense_qp_workspace *ws)
+void d_solve_ipm_hard_dense_qp(struct d_dense_qp *qp, struct d_dense_qp_sol *qp_sol, struct d_ipm_hard_dense_qp_workspace *ws)
 	{
 
 	struct d_ipm_hard_core_qp_workspace *cws = ws->core_workspace;
 
-	// alias qp vectors into core workspace
-	cws->d = qp->d->pa;
+	// alias qp vectors into qp
+	cws->d = qp->d->pa; // TODO REMOVE
 	cws->d_lb = qp->d_lb->pa;
 	cws->d_ub = qp->d_ub->pa;
 	cws->d_lg = qp->d_lg->pa;
 	cws->d_ug = qp->d_ug->pa;
 
+	// alias qp vectors into qp_sol
+	cws->v = qp_sol->v->pa;
+	cws->pi = qp_sol->pi->pa;
+	cws->lam = qp_sol->lam_lb->pa;
+	cws->lam_lb = qp_sol->lam_lb->pa;
+	cws->lam_ub = qp_sol->lam_ub->pa;
+	cws->lam_lg = qp_sol->lam_lg->pa;
+	cws->lam_ug = qp_sol->lam_ug->pa;
+	cws->t = qp_sol->t_lb->pa;
+	cws->t_lb = qp_sol->t_lb->pa;
+	cws->t_ub = qp_sol->t_ub->pa;
+	cws->t_lg = qp_sol->t_lg->pa;
+	cws->t_ug = qp_sol->t_ug->pa;
+
 	// init solver
-	d_init_var_hard_dense_qp(qp, ws);
+	d_init_var_hard_dense_qp(qp, qp_sol, ws);
 
 #if 0
 	// XXX hard-code solution for debug
@@ -294,7 +273,7 @@ void d_solve_ipm_hard_dense_qp(struct d_dense_qp *qp, struct d_ipm_hard_dense_qp
 #endif
 
 	// compute residuals
-	d_compute_res_hard_dense_qp(qp, ws);
+	d_compute_res_hard_dense_qp(qp, qp_sol, ws);
 	cws->mu = ws->res_mu;
 
 #if 0
@@ -334,7 +313,7 @@ void d_solve_ipm_hard_dense_qp(struct d_dense_qp *qp, struct d_ipm_hard_dense_qp
 #endif
 
 		// compute residuals
-		d_compute_res_hard_dense_qp(qp, ws);
+		d_compute_res_hard_dense_qp(qp, qp_sol, ws);
 		cws->mu = ws->res_mu;
 		cws->stat[5*kk+2] = ws->res_mu;
 #if 0

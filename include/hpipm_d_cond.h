@@ -27,6 +27,10 @@
 
 
 
+#include <blasfeo_target.h>
+#include <blasfeo_common.h>
+
+
 
 struct d_cond_qp_ocp2dense_workspace
 	{
@@ -36,38 +40,7 @@ struct d_cond_qp_ocp2dense_workspace
 	struct d_strmat *AL;
 	struct d_strvec *Gammab;
 	struct d_strvec *tmp_ngM;
-	struct d_strvec *ux;
-	struct d_strvec *pi;
-	struct d_strvec *lam;
-	struct d_strvec *lam_lb;
-	struct d_strvec *lam_ub;
-	struct d_strvec *lam_lg;
-	struct d_strvec *lam_ug;
-	struct d_strvec *t;
-	struct d_strvec *t_lb;
-	struct d_strvec *t_ub;
-	struct d_strvec *t_lg;
-	struct d_strvec *t_ug;
 	struct d_strvec *tmp_nuxM;
-	};
-
-
-
-// TODO remove !!!!!
-struct d_cond_mem
-	{
-	struct d_strmat *Gamma;
-	struct d_strmat *L;
-	};
-
-
-
-// TODO remove !!!!!
-struct d_cond_work
-	{
-	int *cond_RSQrq_N2nx3_sizes;
-	int NN; // hotizon lenght
-	int mem_size; // memory size in bytes
 	};
 
 
@@ -81,4 +54,4 @@ void d_create_cond_qp_ocp2dense(struct d_ocp_qp *ocp_qp, struct d_dense_qp *dens
 //
 void d_cond_qp_ocp2dense(struct d_ocp_qp *ocp_qp, struct d_dense_qp *dense_qp, struct d_cond_qp_ocp2dense_workspace *cond_ws);
 //
-void d_expand_sol_dense2ocp(struct d_ocp_qp *ocp_qp, struct d_ipm_hard_dense_qp_workspace *dense_ws, struct d_cond_qp_ocp2dense_workspace *cond_ws);
+void d_expand_sol_dense2ocp(struct d_ocp_qp *ocp_qp, struct d_dense_qp_sol *dense_qp_sol, struct d_ocp_qp_sol *ocp_qp_sol, struct d_cond_qp_ocp2dense_workspace *cond_ws);

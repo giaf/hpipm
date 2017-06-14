@@ -36,18 +36,6 @@
 struct d_ipm_hard_ocp_qp_workspace
 	{
 	struct d_ipm_hard_core_qp_workspace *core_workspace;
-	struct d_strvec *ux;
-	struct d_strvec *pi;
-	struct d_strvec *lam;
-	struct d_strvec *lam_lb;
-	struct d_strvec *lam_ub;
-	struct d_strvec *lam_lg;
-	struct d_strvec *lam_ug;
-	struct d_strvec *t;
-	struct d_strvec *t_lb;
-	struct d_strvec *t_ub;
-	struct d_strvec *t_lg;
-	struct d_strvec *t_ug;
 	struct d_strvec *dux;
 	struct d_strvec *dpi;
 	struct d_strvec *dt_lb;
@@ -98,5 +86,5 @@ int d_memsize_ipm_hard_ocp_qp(struct d_ocp_qp *qp, struct d_ipm_hard_ocp_qp_arg 
 //
 void d_create_ipm_hard_ocp_qp(struct d_ocp_qp *qp, struct d_ipm_hard_ocp_qp_arg *arg, struct d_ipm_hard_ocp_qp_workspace *ws, void *mem);
 //
-void d_solve_ipm_hard_ocp_qp(struct d_ocp_qp *qp, struct d_ipm_hard_ocp_qp_workspace *ws);
+void d_solve_ipm_hard_ocp_qp(struct d_ocp_qp *qp, struct d_ocp_qp_sol *qp_sol, struct d_ipm_hard_ocp_qp_workspace *ws);
 

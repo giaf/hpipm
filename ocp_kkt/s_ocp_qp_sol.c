@@ -45,8 +45,8 @@
 #define STRVEC s_strvec
 #define SIZE_STRVEC s_size_strvec
 
-#define CREATE_OCP_QP s_create_ocp_qp
-#define MEMSIZE_OCP_QP s_memsize_ocp_qp
+#define CREATE_OCP_QP_SOL s_create_ocp_qp_sol
+#define MEMSIZE_OCP_QP_SOL s_memsize_ocp_qp_sol
 
 
 
