@@ -61,8 +61,7 @@ struct d_ipm_hard_ocp_qp_workspace
 	struct d_strvec *tmp_ngM; // work space of size ngM
 	struct d_strvec *Pb; // Pb
 	struct d_strmat *L;
-	struct d_strmat *AL0;
-	struct d_strmat *AL1;
+	struct d_strmat *AL;
 	double *stat; // convergence statistics
 	double nt_inv; // 1.0/nt, where nt is the total number of constraints
 	double res_mu; // mu-residual

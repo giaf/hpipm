@@ -194,7 +194,7 @@ int main()
 	for(ii=1; ii<N; ii++)
 		ng[ii] = 0;
 	ng[N] = 0;
-#elif 1
+#elif 0
 	int nb[N+1];
 	nb[0] = 0;
 	for(ii=1; ii<N; ii++)
