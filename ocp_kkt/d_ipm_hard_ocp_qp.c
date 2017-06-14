@@ -85,11 +85,12 @@ int d_memsize_ipm_hard_ocp_qp(struct d_ocp_qp *qp, struct d_ipm_hard_ocp_qp_arg 
 
 	int size = 0;
 
-	size += (4+(N+1)*17)*sizeof(struct d_strvec); // dux dpi dt_lb dt_lg res_g res_b res_d res_d_lb res_d_ub res_d_lg res_d_ug res_m res_m_lb res_m_ub res_m_lg res_m_ug Qx_lb qx_lb Pb tmp_nbM tmp_nxM
+	size += (5+(N+1)*17)*sizeof(struct d_strvec); // dux dpi dt_lb dt_lg res_g res_b res_d res_d_lb res_d_ub res_d_lg res_d_ug res_m res_m_lb res_m_ub res_m_lg res_m_ug Qx_lb qx_lb Pb tmp_nbM tmp_nxM tmp_ngM
 	size += (2+(N+1)*1)*sizeof(struct d_strmat); // L AL0 AL1
 
 	size += 1*d_size_strvec(nbM); // tmp_nbM
 	size += 1*d_size_strvec(nxM); // tmp_nxM
+	size += 2*d_size_strvec(nxM); // tmp_ngM
 	for(ii=0; ii<N; ii++) size += 1*d_size_strvec(nx[ii+1]);
 	for(ii=0; ii<=N; ii++) size += 1*d_size_strmat(nu[ii]+nx[ii]+1, nu[ii]+nx[ii]); // L
 	size += 2*d_size_strmat(nuM+nxM+1, nxM+ngM); // AL0 AL1
@@ -215,6 +216,8 @@ void d_create_ipm_hard_ocp_qp(struct d_ocp_qp *qp, struct d_ipm_hard_ocp_qp_arg 
 	sv_ptr += 1;
 	workspace->tmp_nxM = sv_ptr;
 	sv_ptr += 1;
+	workspace->tmp_ngM = sv_ptr;
+	sv_ptr += 2;
 
 
 	// align to typicl cache line size
@@ -248,6 +251,12 @@ void d_create_ipm_hard_ocp_qp(struct d_ocp_qp *qp, struct d_ipm_hard_ocp_qp_arg 
 
 	d_create_strvec(nxM, workspace->tmp_nxM, v_ptr);
 	v_ptr += workspace->tmp_nxM->memory_size;
+
+	d_create_strvec(ngM, workspace->tmp_ngM+0, v_ptr);
+	v_ptr += (workspace->tmp_ngM+0)->memory_size;
+
+	d_create_strvec(ngM, workspace->tmp_ngM+1, v_ptr);
+	v_ptr += (workspace->tmp_ngM+1)->memory_size;
 
 
 

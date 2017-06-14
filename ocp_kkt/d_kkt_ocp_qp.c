@@ -175,6 +175,17 @@ void d_compute_res_hard_ocp_qp(struct d_ocp_qp *qp, struct d_ocp_qp_sol *qp_sol,
 	int nbt = ws->core_workspace->nb;
 	int ngt = ws->core_workspace->ng;
 
+	struct d_strmat *BAbt = qp->BAbt;
+	struct d_strmat *RSQrq = qp->RSQrq;
+	struct d_strmat *DCt = qp->DCt;
+	struct d_strvec *b = qp->b;
+	struct d_strvec *rq = qp->rq;
+	struct d_strvec *d_lb = qp->d_lb;
+	struct d_strvec *d_ub = qp->d_ub;
+	struct d_strvec *d_lg = qp->d_lg;
+	struct d_strvec *d_ug = qp->d_ug;
+	int **idxb = qp->idxb;
+
 	struct d_strvec *ux = qp_sol->ux;
 	struct d_strvec *pi = qp_sol->pi;
 	struct d_strvec *lam_lb = qp_sol->lam_lb;
@@ -185,6 +196,15 @@ void d_compute_res_hard_ocp_qp(struct d_ocp_qp *qp, struct d_ocp_qp_sol *qp_sol,
 	struct d_strvec *t_ub = qp_sol->t_ub;
 	struct d_strvec *t_lg = qp_sol->t_lg;
 	struct d_strvec *t_ug = qp_sol->t_ug;
+
+	struct d_strvec *res_g = ws->res_g;
+	struct d_strvec *res_b = ws->res_b;
+	struct d_strvec *res_d_lb = ws->res_d_lb;
+	struct d_strvec *res_d_ub = ws->res_d_ub;
+	struct d_strvec *res_d_lg = ws->res_d_lg;
+	struct d_strvec *res_d_ug = ws->res_d_ug;
+	struct d_strvec *tmp_ngM = ws->tmp_ngM;
+	struct d_strvec *tmp_nbM = ws->tmp_nbM;
 
 	int nx0, nx1, nu0, nu1, nb0, ng0;
 
@@ -200,32 +220,40 @@ void d_compute_res_hard_ocp_qp(struct d_ocp_qp *qp, struct d_ocp_qp_sol *qp_sol,
 		nb0 = nb[ii];
 		ng0 = ng[ii];
 
-		dveccp_libstr(nu0+nx0, qp->rq+ii, 0, ws->res_g+ii, 0);
+		dveccp_libstr(nu0+nx0, rq+ii, 0, res_g+ii, 0);
 
 		if(ii>0)
-			daxpy_libstr(nx0, -1.0, pi+(ii-1), 0, ws->res_g+ii, nu0, ws->res_g+ii, nu0);
+			daxpy_libstr(nx0, -1.0, pi+(ii-1), 0, res_g+ii, nu0, res_g+ii, nu0);
 
-		dsymv_l_libstr(nu0+nx0, nu0+nx0, 1.0, qp->RSQrq+ii, 0, 0, ux+ii, 0, 1.0, ws->res_g+ii, 0, ws->res_g+ii, 0);
+		dsymv_l_libstr(nu0+nx0, nu0+nx0, 1.0, RSQrq+ii, 0, 0, ux+ii, 0, 1.0, res_g+ii, 0, res_g+ii, 0);
 
 		if(nb0>0)
 			{
 
-			daxpy_libstr(nb0, -1.0, lam_lb+ii, 0, lam_ub+ii, 0, ws->tmp_nbM, 0);
-			dvecad_sp_libstr(nb0, 1.0, ws->tmp_nbM, 0, qp->idxb[ii], ws->res_g+ii, 0);
+			daxpy_libstr(nb0, -1.0, lam_lb+ii, 0, lam_ub+ii, 0, tmp_nbM, 0);
+			dvecad_sp_libstr(nb0, 1.0, tmp_nbM, 0, idxb[ii], res_g+ii, 0);
 
-			dvecex_sp_libstr(nb0, -1.0, qp->idxb[ii], ux+ii, 0, ws->res_d_lb+ii, 0);
-			dveccp_libstr(nb0, ws->res_d_lb+ii, 0, ws->res_d_ub+ii, 0);
-			daxpy_libstr(nb0, 1.0, qp->d_lb+ii, 0, ws->res_d_lb+ii, 0, ws->res_d_lb+ii, 0);
-			daxpy_libstr(nb0, 1.0, qp->d_ub+ii, 0, ws->res_d_ub+ii, 0, ws->res_d_ub+ii, 0);
-			daxpy_libstr(nb0, 1.0, t_lb+ii, 0, ws->res_d_lb+ii, 0, ws->res_d_lb+ii, 0);
-			daxpy_libstr(nb0, -1.0, t_ub+ii, 0, ws->res_d_ub+ii, 0, ws->res_d_ub+ii, 0);
+			dvecex_sp_libstr(nb0, -1.0, idxb[ii], ux+ii, 0, res_d_lb+ii, 0);
+			dveccp_libstr(nb0, res_d_lb+ii, 0, res_d_ub+ii, 0);
+			daxpy_libstr(nb0, 1.0, d_lb+ii, 0, res_d_lb+ii, 0, res_d_lb+ii, 0);
+			daxpy_libstr(nb0, 1.0, d_ub+ii, 0, res_d_ub+ii, 0, res_d_ub+ii, 0);
+			daxpy_libstr(nb0, 1.0, t_lb+ii, 0, res_d_lb+ii, 0, res_d_lb+ii, 0);
+			daxpy_libstr(nb0, -1.0, t_ub+ii, 0, res_d_ub+ii, 0, res_d_ub+ii, 0);
 
 			}
 
-		if(ng0>0)
+		if(ng0>0) // TODO merge with bounds as much as possible
 			{
 
-			// TODO
+			daxpy_libstr(ng0, -1.0, lam_lg+ii, 0, lam_ug+ii, 0, tmp_ngM+0, 0);
+
+			daxpy_libstr(ng0,  1.0, t_lg+ii, 0, d_lg+ii, 0, res_d_lg+ii, 0);
+			daxpy_libstr(ng0, -1.0, t_ug+ii, 0, d_ug+ii, 0, res_d_ug+ii, 0);
+
+			dgemv_nt_libstr(nu0+nx0, ng0, 1.0, 1.0, DCt+ii, 0, 0, tmp_ngM+0, 0, ux+ii, 0, 1.0, 0.0, res_g+ii, 0, tmp_ngM+1, 0, res_g+ii, 0, tmp_ngM+1, 0);
+
+			daxpy_libstr(ng0, -1.0, tmp_ngM+1, 0, res_d_lg+ii, 0, res_d_lg+ii, 0);
+			daxpy_libstr(ng0, -1.0, tmp_ngM+1, 0, res_d_ug+ii, 0, res_d_ug+ii, 0);
 
 			}
 
@@ -236,9 +264,9 @@ void d_compute_res_hard_ocp_qp(struct d_ocp_qp *qp, struct d_ocp_qp_sol *qp_sol,
 			nu1 = nu[ii+1];
 			nx1 = nx[ii+1];
 
-			daxpy_libstr(nx1, -1.0, ux+(ii+1), nu1, qp->b+ii, 0, ws->res_b+ii, 0);
+			daxpy_libstr(nx1, -1.0, ux+(ii+1), nu1, b+ii, 0, res_b+ii, 0);
 
-			dgemv_nt_libstr(nu0+nx0, nx1, 1.0, 1.0, qp->BAbt+ii, 0, 0, pi+ii, 0, ux+ii, 0, 1.0, 1.0, ws->res_g+ii, 0, ws->res_b+ii, 0, ws->res_g+ii, 0, ws->res_b+ii, 0);
+			dgemv_nt_libstr(nu0+nx0, nx1, 1.0, 1.0, BAbt+ii, 0, 0, pi+ii, 0, ux+ii, 0, 1.0, 1.0, res_g+ii, 0, res_b+ii, 0, res_g+ii, 0, res_b+ii, 0);
 
 			}
 

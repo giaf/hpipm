@@ -151,6 +151,8 @@ void d_compute_res_hard_dense_qp(struct d_dense_qp *qp, struct d_dense_qp_sol *q
 	int nb = qp->nb;
 	int ng = qp->ng;
 
+	// TODO extract qp arguments !!!!!
+
 	struct d_strvec *v = qp_sol->v;
 	struct d_strvec *pi = qp_sol->pi;
 	struct d_strvec *lam_lb = qp_sol->lam_lb;
