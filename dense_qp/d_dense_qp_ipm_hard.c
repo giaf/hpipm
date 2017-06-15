@@ -56,10 +56,10 @@ int d_memsize_ipm_hard_dense_qp(struct d_dense_qp *qp, struct d_ipm_hard_dense_q
 	size += 1*d_size_strvec(nb); // tmp_nb
 	size += 2*d_size_strvec(ng); // tmp_ng0 tmp_ng1
 	size += 1*d_size_strvec(nv); // lv
-	size += 1*d_size_strmat(nv, nv); // Lv
+	size += 1*d_size_strmat(nv+1, nv); // Lv
 	size += 1*d_size_strmat(ne, nv); // AL
 	size += 1*d_size_strmat(ne, ne); // Le
-	size += 1*d_size_strmat(nv, ng); // Ctx
+	size += 1*d_size_strmat(nv+1, ng); // Ctx
 
 	size += 1*sizeof(struct d_ipm_hard_core_qp_workspace);
 	size += 1*d_memsize_ipm_hard_core_qp(qp->nv, qp->ne, qp->nb, qp->ng, arg->iter_max);
@@ -161,7 +161,7 @@ void d_create_ipm_hard_dense_qp(struct d_dense_qp *qp, struct d_ipm_hard_dense_q
 	// void stuf
 	void *v_ptr = (void *) s_ptr;
 
-	d_create_strmat(nv, nv, workspace->Lv, v_ptr);
+	d_create_strmat(nv+1, nv, workspace->Lv, v_ptr);
 	v_ptr += workspace->Lv->memory_size;
 
 	d_create_strmat(ne, nv, workspace->AL, v_ptr);
@@ -170,7 +170,7 @@ void d_create_ipm_hard_dense_qp(struct d_dense_qp *qp, struct d_ipm_hard_dense_q
 	d_create_strmat(ne, ne, workspace->Le, v_ptr);
 	v_ptr += workspace->Le->memory_size;
 
-	d_create_strmat(nv, ng, workspace->Ctx, v_ptr);
+	d_create_strmat(nv+1, ng, workspace->Ctx, v_ptr);
 	v_ptr += workspace->Ctx->memory_size;
 
 	d_create_strvec(nv, workspace->lv, v_ptr);

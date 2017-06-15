@@ -215,6 +215,24 @@ void d_fact_solve_kkt_step_hard_dense_qp(struct d_dense_qp *qp, struct d_ipm_har
 	int ne = qp->ne;
 	int nb = qp->nb;
 	int ng = qp->ng;
+	struct d_strmat *Hg = qp->Hg;
+	struct d_strmat *A = qp->A;
+	struct d_strmat *Ct = qp->Ct;
+	int *idxb = qp->idxb;
+
+	struct d_strmat *Lv = ws->Lv;
+	struct d_strmat *Le = ws->Le;
+	struct d_strmat *Ctx = ws->Ctx;
+	struct d_strmat *AL = ws->AL;
+	struct d_strvec *lv = ws->lv;
+	struct d_strvec *dv = ws->dv;
+	struct d_strvec *dpi = ws->dpi;
+	struct d_strvec *dt_lb = ws->dt_lb;
+	struct d_strvec *dt_lg = ws->dt_lg;
+	struct d_strvec *res_g = ws->res_g;
+	struct d_strvec *res_b = ws->res_b;
+	struct d_strvec *Qx = ws->Qx;
+	struct d_strvec *qx = ws->qx;
 
 	struct d_ipm_hard_core_qp_workspace *rws = ws->core_workspace;
 
@@ -223,62 +241,111 @@ void d_fact_solve_kkt_step_hard_dense_qp(struct d_dense_qp *qp, struct d_ipm_har
 		d_compute_Qx_qx_hard_qp(rws);
 		}
 
-	dtrcp_l_libstr(nv, qp->Hg, 0, 0, ws->Lv, 0, 0);
-
-	dveccp_libstr(nv, ws->res_g, 0, ws->lv, 0);
-
-	if(nb>0)
-		{
-		ddiaad_sp_libstr(nb, 1.0, ws->Qx, 0, qp->idxb, ws->Lv, 0, 0);
-		dvecad_sp_libstr(nb, 1.0, ws->qx, 0, qp->idxb, ws->lv, 0);
-		}
-
-	if(ng>0)
-		{
-		dgemv_n_libstr(nv, ng, 1.0, qp->Ct, 0, 0, ws->qx, nb, 1.0, ws->lv, 0, ws->lv, 0);
-		dgemm_r_diag_libstr(nv, ng, 1.0, qp->Ct, 0, 0, ws->Qx, nb, 0.0, ws->Ctx, 0, 0, ws->Ctx, 0, 0);
-		dsyrk_dpotrf_ln_libstr(nv, nv, ng, ws->Ctx, 0, 0, qp->Ct, 0, 0, ws->Lv, 0, 0, ws->Lv, 0, 0);
-		}
-	else
-		{
-		dpotrf_l_libstr(nv, ws->Lv, 0, 0, ws->Lv, 0, 0);
-		}
-
-	dveccp_libstr(nv, ws->lv, 0, ws->dv, 0);
-
 	if(ne>0)
 		{
-		dgecp_libstr(ne, nv, qp->A, 0, 0, ws->AL, 0, 0);
-		dtrsm_rltn_libstr(ne, nv, 1.0, ws->Lv, 0, 0, qp->A, 0, 0, ws->AL, 0, 0);
+		dtrcp_l_libstr(nv, Hg, 0, 0, Lv, 0, 0);
 
-		dgese_libstr(ne, ne, 0.0, ws->Le, 0, 0);
-		dsyrk_dpotrf_ln_libstr(ne, ne, nv, ws->AL, 0, 0, ws->AL, 0, 0, ws->Le, 0, 0, ws->Le, 0, 0);
+		dveccp_libstr(nv, res_g, 0, lv, 0);
 
-		dtrsv_lnn_libstr(nv, ws->Lv, 0, 0, ws->lv, 0, ws->lv, 0);
+		if(nb>0)
+			{
+			ddiaad_sp_libstr(nb, 1.0, Qx, 0, idxb, Lv, 0, 0);
+			dvecad_sp_libstr(nb, 1.0, qx, 0, idxb, lv, 0);
+			}
 
-		dgemv_n_libstr(ne, nv, 1.0, ws->AL, 0, 0, ws->lv, 0, 1.0, ws->res_b, 0, ws->dpi, 0);
+		if(ng>0)
+			{
+			dgemv_n_libstr(nv, ng, 1.0, Ct, 0, 0, qx, nb, 1.0, lv, 0, lv, 0);
+			dgemm_r_diag_libstr(nv, ng, 1.0, Ct, 0, 0, Qx, nb, 0.0, Ctx, 0, 0, Ctx, 0, 0);
+			dsyrk_dpotrf_ln_libstr(nv, nv, ng, Ctx, 0, 0, Ct, 0, 0, Lv, 0, 0, Lv, 0, 0);
+			}
+		else
+			{
+			dpotrf_l_libstr(nv, Lv, 0, 0, Lv, 0, 0);
+			}
 
-		dtrsv_lnn_libstr(ne, ws->Le, 0, 0, ws->dpi, 0, ws->dpi, 0);
-		dtrsv_ltn_libstr(ne, ws->Le, 0, 0, ws->dpi, 0, ws->dpi, 0);
+		dveccp_libstr(nv, lv, 0, dv, 0);
 
-		dgemv_t_libstr(ne, nv, 1.0, qp->A, 0, 0, ws->dpi, 0, -1.0, ws->dv, 0, ws->dv, 0);
+		dgecp_libstr(ne, nv, A, 0, 0, AL, 0, 0);
+		dtrsm_rltn_libstr(ne, nv, 1.0, Lv, 0, 0, A, 0, 0, AL, 0, 0);
+
+		dgese_libstr(ne, ne, 0.0, Le, 0, 0);
+		dsyrk_dpotrf_ln_libstr(ne, ne, nv, AL, 0, 0, AL, 0, 0, Le, 0, 0, Le, 0, 0);
+
+		dtrsv_lnn_libstr(nv, Lv, 0, 0, lv, 0, lv, 0);
+
+		dgemv_n_libstr(ne, nv, 1.0, AL, 0, 0, lv, 0, 1.0, res_b, 0, dpi, 0);
+
+		dtrsv_lnn_libstr(ne, Le, 0, 0, dpi, 0, dpi, 0);
+		dtrsv_ltn_libstr(ne, Le, 0, 0, dpi, 0, dpi, 0);
+
+		dgemv_t_libstr(ne, nv, 1.0, A, 0, 0, dpi, 0, -1.0, dv, 0, dv, 0);
+
+		dtrsv_lnn_libstr(nv, Lv, 0, 0, dv, 0, dv, 0);
+		dtrsv_ltn_libstr(nv, Lv, 0, 0, dv, 0, dv, 0);
 		}
 	else
 		{
-		dvecsc_libstr(nv, -1.0, ws->dv, 0);
-		}
+#if 0
+		dtrcp_l_libstr(nv, Hg, 0, 0, Lv, 0, 0);
+		dveccp_libstr(nv, res_g, 0, lv, 0);
 
-	dtrsv_lnn_libstr(nv, ws->Lv, 0, 0, ws->dv, 0, ws->dv, 0);
-	dtrsv_ltn_libstr(nv, ws->Lv, 0, 0, ws->dv, 0, ws->dv, 0);
+		if(nb>0)
+			{
+			ddiaad_sp_libstr(nb, 1.0, Qx, 0, idxb, Lv, 0, 0);
+			dvecad_sp_libstr(nb, 1.0, qx, 0, idxb, lv, 0);
+			}
+
+		if(ng>0)
+			{
+			dgemm_r_diag_libstr(nv, ng, 1.0, Ct, 0, 0, Qx, nb, 0.0, Ctx, 0, 0, Ctx, 0, 0);
+			dgemv_n_libstr(nv, ng, 1.0, Ct, 0, 0, qx, nb, 1.0, lv, 0, lv, 0);
+			dsyrk_dpotrf_ln_libstr(nv, nv, ng, Ctx, 0, 0, Ct, 0, 0, Lv, 0, 0, Lv, 0, 0); // TODO _mn_ routine in BLASFEO !!!
+			}
+		else
+			{
+			dpotrf_l_libstr(nv, Lv, 0, 0, Lv, 0, 0);
+			}
+
+		dveccp_libstr(nv, lv, 0, dv, 0);
+		dvecsc_libstr(nv, -1.0, dv, 0);
+
+		dtrsv_lnn_libstr(nv, Lv, 0, 0, dv, 0, dv, 0);
+		dtrsv_ltn_libstr(nv, Lv, 0, 0, dv, 0, dv, 0);
+#else
+		dtrcp_l_libstr(nv, Hg, 0, 0, Lv, 0, 0);
+		drowin_libstr(nv, 1.0, res_g, 0, Lv, nv, 0);
+
+		if(nb>0)
+			{
+			ddiaad_sp_libstr(nb, 1.0, Qx, 0, idxb, Lv, 0, 0);
+			drowad_sp_libstr(nb, 1.0, qx, 0, idxb, Lv, nv, 0);
+			}
+
+		if(ng>0)
+			{
+			dgemm_r_diag_libstr(nv, ng, 1.0, Ct, 0, 0, Qx, nb, 0.0, Ctx, 0, 0, Ctx, 0, 0);
+			drowin_libstr(ng, 1.0, qx, nb, Ctx, nv, 0);
+			dsyrk_dpotrf_ln_libstr(nv+1, nv, ng, Ctx, 0, 0, Ct, 0, 0, Lv, 0, 0, Lv, 0, 0); // TODO _mn_ routine in BLASFEO !!!
+			}
+		else
+			{
+			dpotrf_l_mn_libstr(nv+1, nv, Lv, 0, 0, Lv, 0, 0);
+			}
+
+		drowex_libstr(nv, -1.0, Lv, nv, 0, dv, 0);
+		dtrsv_ltn_libstr(nv, Lv, 0, 0, dv, 0, dv, 0);
+#endif
+		}
 
 	if(nb>0)
 		{
-		dvecex_sp_libstr(nb, 1.0, qp->idxb, ws->dv, 0, ws->dt_lb, 0);
+		dvecex_sp_libstr(nb, 1.0, idxb, dv, 0, dt_lb, 0);
 		}
 
 	if(ng>0)
 		{
-		dgemv_t_libstr(nv, ng, 1.0, qp->Ct, 0, 0, ws->dv, 0, 0.0, ws->dt_lg, 0, ws->dt_lg, 0);
+		dgemv_t_libstr(nv, ng, 1.0, Ct, 0, 0, dv, 0, 0.0, dt_lg, 0, dt_lg, 0);
 		}
 
 	if(nb>0 | ng>0)
