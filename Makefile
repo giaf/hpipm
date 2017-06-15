@@ -47,7 +47,6 @@ OBJS += cond/d_cond_aux.o cond/d_cond.o cond/d_part_cond.o
 all: clean static_library
 
 static_library: target
-	( cd auxiliary; $(MAKE) obj)
 	( cd cond; $(MAKE) obj)
 	( cd core_qp; $(MAKE) obj)
 	( cd dense_qp; $(MAKE) obj)
@@ -59,7 +58,6 @@ static_library: target
 	@echo
 
 shared_library: target
-	( cd auxiliary; $(MAKE) obj)
 	( cd cond; $(MAKE) obj)
 	( cd core_qp; $(MAKE) obj)
 	( cd dense_qp; $(MAKE) obj)
@@ -107,7 +105,6 @@ clean:
 	rm -f libhpipm.so
 	rm -f ./lib/libhpipm.a
 	rm -f ./lib/libhpipm.so
-	make -C auxiliary clean
 	make -C cond clean
 	make -C core_qp clean
 	make -C dense_qp clean
