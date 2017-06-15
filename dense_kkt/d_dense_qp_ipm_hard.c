@@ -33,10 +33,10 @@
 
 #include "../include/hpipm_d_dense_qp.h"
 #include "../include/hpipm_d_dense_qp_sol.h"
-#include "../include/hpipm_d_ipm_hard_dense_qp.h"
-#include "../include/hpipm_d_ipm_hard_core_qp.h"
-#include "../include/hpipm_d_aux_ipm_hard.h"
-#include "../include/hpipm_d_kkt_dense_qp.h"
+#include "../include/hpipm_d_dense_qp_ipm_hard.h"
+#include "../include/hpipm_d_core_qp_ipm_hard.h"
+#include "../include/hpipm_d_core_qp_ipm_hard_aux.h"
+#include "../include/hpipm_d_dense_qp_kkt.h"
 
 
 

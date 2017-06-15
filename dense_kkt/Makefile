@@ -33,7 +33,7 @@ ifeq ($(TARGET), GENERIC)
 OBJS +=
 endif
 
-OBJS += d_dense_qp.o d_dense_qp_sol.o d_kkt_dense_qp.o d_ipm_hard_dense_qp.o
+OBJS += d_dense_qp.o d_dense_qp_sol.o d_dense_qp_kkt.o d_dense_qp_ipm_hard.o
 OBJS += s_dense_qp.o s_dense_qp_sol.o
 
 obj: $(OBJS)

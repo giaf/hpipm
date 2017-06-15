@@ -40,7 +40,7 @@
 
 #include "../include/hpipm_d_dense_qp.h"
 #include "../include/hpipm_d_dense_qp_sol.h"
-#include "../include/hpipm_d_ipm_hard_dense_qp.h"
+#include "../include/hpipm_d_dense_qp_ipm_hard.h"
 
 
 

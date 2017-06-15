@@ -42,7 +42,7 @@
 #include "../include/hpipm_d_ocp_qp_sol.h"
 #include "../include/hpipm_d_dense_qp.h"
 #include "../include/hpipm_d_dense_qp_sol.h"
-#include "../include/hpipm_d_ipm_hard_dense_qp.h"
+#include "../include/hpipm_d_dense_qp_ipm_hard.h"
 #include "../include/hpipm_d_cond.h"
 
 #include "tools.h"

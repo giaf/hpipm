@@ -39,7 +39,7 @@
 #include "../include/hpipm_d_dense_qp.h"
 #include "../include/hpipm_d_dense_qp_sol.h"
 #include "../include/hpipm_d_cond.h"
-#include "../include/hpipm_d_aux_cond.h"
+#include "../include/hpipm_d_cond_aux.h"
 
 
 

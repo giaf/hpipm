@@ -33,7 +33,7 @@ ifeq ($(TARGET), GENERIC)
 OBJS +=
 endif
 
-OBJS += d_aux_cond.o d_cond.o d_part_cond.o
+OBJS += d_cond_aux.o d_cond.o d_part_cond.o
 OBJS += 
 
 obj: $(OBJS)

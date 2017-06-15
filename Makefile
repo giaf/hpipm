@@ -34,15 +34,15 @@ OBJS +=
 endif
 
 # dense kkt
-OBJS += dense_kkt/d_dense_qp.o dense_kkt/d_dense_qp_sol.o dense_kkt/d_kkt_dense_qp.o dense_kkt/d_ipm_hard_dense_qp.o
+OBJS += dense_kkt/d_dense_qp.o dense_kkt/d_dense_qp_sol.o dense_kkt/d_dense_qp_kkt.o dense_kkt/d_dense_qp_ipm_hard.o
 OBJS += dense_kkt/s_dense_qp.o dense_kkt/s_dense_qp_sol.o
 # ocp kkt
-OBJS += ocp_kkt/d_ocp_qp.o ocp_kkt/d_ocp_qp_sol.o ocp_kkt/d_kkt_ocp_qp.o ocp_kkt/d_ipm_hard_ocp_qp.o
+OBJS += ocp_kkt/d_ocp_qp.o ocp_kkt/d_ocp_qp_sol.o ocp_kkt/d_ocp_qp_kkt.o ocp_kkt/d_ocp_qp_ipm_hard.o
 OBJS += ocp_kkt/s_ocp_qp.o ocp_kkt/s_ocp_qp_sol.o
 # ipm
-OBJS += ipm/d_aux_ipm_hard.o ipm/d_ipm_hard_core_qp.o
+OBJS += ipm/d_core_qp_ipm_hard_aux.o ipm/d_core_qp_ipm_hard.o
 # cond
-OBJS += cond/d_aux_cond.o cond/d_cond.o cond/d_part_cond.o
+OBJS += cond/d_cond_aux.o cond/d_cond.o cond/d_part_cond.o
 
 all: clean static_library
 
