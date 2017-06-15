@@ -565,8 +565,8 @@ int main()
 
 	for(rep=0; rep<nrep; rep++)
 		{
-		d_solve_ipm_hard_ocp_qp(&qp, &qp_sol, &workspace);
-//		d_solve_ipm2_hard_ocp_qp(&qp, &qp_sol, &workspace);
+//		d_solve_ipm_hard_ocp_qp(&qp, &qp_sol, &workspace);
+		d_solve_ipm2_hard_ocp_qp(&qp, &qp_sol, &workspace);
 		}
 
 	gettimeofday(&tv1, NULL); // stop

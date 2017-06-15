@@ -320,10 +320,10 @@ void d_fact_solve_kkt_step_hard_ocp_qp(struct d_ocp_qp *qp, struct d_ipm_hard_oc
 
 	struct d_ipm_hard_core_qp_workspace *cws = ws->core_workspace;
 
-	if(nb>0 | ng>0)
-		{
+//	if(nb>0 | ng>0)
+//		{
 		d_compute_Qx_qx_hard_qp(cws);
-		}
+//		}
 
 	// factorization and backward substitution
 
@@ -367,7 +367,6 @@ void d_fact_solve_kkt_step_hard_ocp_qp(struct d_ocp_qp *qp, struct d_ipm_hard_oc
 
 		if(ng[N-ii-1]>0)
 			{
-			// TODO
 			dgemm_r_diag_libstr(nu[N-ii-1]+nx[N-ii-1], ng[N-ii-1], 1.0, DCt+N-ii-1, 0, 0, Qx_lg+N-ii-1, 0, 0.0, AL+0, 0, nx[N-ii], AL+0, 0, nx[N-ii]);
 			drowin_libstr(ng[N-ii-1], 1.0, qx_lg+N-ii-1, 0, AL+0, nu[N-ii-1]+nx[N-ii-1], nx[N-ii]);
 			dgecp_libstr(nu[N-ii-1]+nx[N-ii-1], nx[N-ii], AL+0, 0, 0, AL+1, 0, 0);
@@ -412,22 +411,156 @@ void d_fact_solve_kkt_step_hard_ocp_qp(struct d_ocp_qp *qp, struct d_ipm_hard_oc
 
 
 
-	if(nb>0)
-		{
+//	if(nb>0)
+//		{
 		for(ii=0; ii<=N; ii++)
 			dvecex_sp_libstr(nb[ii], 1.0, idxb[ii], dux+ii, 0, dt_lb+ii, 0);
-		}
+//		}
 
-	if(ng>0)
-		{
+//	if(ng>0)
+//		{
 		for(ii=0; ii<=N; ii++)
 			dgemv_t_libstr(nu[ii]+nx[ii], ng[ii], 1.0, DCt+ii, 0, 0, dux+ii, 0, 0.0, dt_lg+ii, 0, dt_lg+ii, 0);
+//		}
+
+//	if(nb>0 | ng>0)
+//		{
+		d_compute_lam_t_hard_qp(cws);
+//		}
+
+	return;
+
+	}
+
+
+
+// backward Riccati recursion
+void d_solve_kkt_step_hard_ocp_qp(struct d_ocp_qp *qp, struct d_ipm_hard_ocp_qp_workspace *ws)
+	{
+
+	int N = qp->N;
+	int *nx = qp->nx;
+	int *nu = qp->nu;
+	int *nb = qp->nb;
+	int *ng = qp->ng;
+
+	struct d_strmat *BAbt = qp->BAbt;
+	struct d_strmat *RSQrq = qp->RSQrq;
+	struct d_strmat *DCt = qp->DCt;
+	int **idxb = qp->idxb;
+
+	struct d_strmat *L = ws->L;
+	struct d_strmat *AL = ws->AL;
+	struct d_strvec *res_b = ws->res_b;
+	struct d_strvec *res_g = ws->res_g;
+	struct d_strvec *dux = ws->dux;
+	struct d_strvec *dpi = ws->dpi;
+	struct d_strvec *dt_lb = ws->dt_lb;
+	struct d_strvec *dt_lg = ws->dt_lg;
+	struct d_strvec *qx_lg = ws->qx_lg;
+	struct d_strvec *qx_lb = ws->qx_lb;
+	struct d_strvec *Pb = ws->Pb;
+	struct d_strvec *tmp_nxM = ws->tmp_nxM;
+
+	//
+	int ii;
+
+	struct d_ipm_hard_core_qp_workspace *cws = ws->core_workspace;
+
+//	if(nb>0 | ng>0)
+//		{
+		d_compute_Qx_qx_hard_qp(cws);
+//		}
+
+	// backward substitution
+
+	// last stage
+	dveccp_libstr(nu[N]+nx[N], res_g+N, 0, dux+N, 0);
+	if(nb[N]>0)
+		{
+		dvecad_sp_libstr(nb[N], 1.0, qx_lb+N, 0, idxb[N], dux+N, 0);
+		}
+	// general constraints
+	if(ng[N]>0)
+		{
+		dgemv_n_libstr(nu[N]+nx[N], ng[N], 1.0, DCt+N, 0, 0, qx_lg+N, 0, 1.0, dux+N, 0, dux+N, 0);
 		}
 
-	if(nb>0 | ng>0)
+	// middle stages
+	for(ii=0; ii<N-1; ii++)
 		{
-		d_compute_lam_t_hard_qp(cws);
+		dveccp_libstr(nu[N-ii-1]+nx[N-ii-1], res_g+N-ii-1, 0, dux+N-ii-1, 0);
+		if(nb[N-ii-1]>0)
+			{
+			dvecad_sp_libstr(nb[N-ii-1], 1.0, qx_lb+N-ii-1, 0, idxb[N-ii-1], dux+N-ii-1, 0);
+			}
+		if(ng[N-ii-1]>0)
+			{
+			dgemv_n_libstr(nu[N-ii-1]+nx[N-ii-1], ng[N-ii-1], 1.0, DCt+N-ii-1, 0, 0, qx_lg+N-ii-1, 0, 1.0, dux+N-ii-1, 0, dux+N-ii-1, 0);
+			}
+		daxpy_libstr(nx[N-ii], 1.0, dux+N-ii, nu[N-ii], Pb+N-ii-1, 0, tmp_nxM, 0);
+		dgemv_n_libstr(nu[N-ii-1]+nx[N-ii-1], nx[N-ii], 1.0, BAbt+N-ii-1, 0, 0, tmp_nxM, 0, 1.0, dux+N-ii-1, 0, dux+N-ii-1, 0);
+		dtrsv_lnn_mn_libstr(nu[N-ii-1]+nx[N-ii-1], nu[N-ii-1], L+N-ii-1, 0, 0, dux+N-ii-1, 0, dux+N-ii-1, 0);
 		}
+
+	// first stage
+	ii = N-1;
+	dveccp_libstr(nu[N-ii-1]+nx[N-ii-1], res_g+N-ii-1, 0, dux+N-ii-1, 0);
+	if(nb[N-ii-1]>0)
+		{
+		dvecad_sp_libstr(nb[N-ii-1], 1.0, qx_lb+N-ii-1, 0, idxb[N-ii-1], dux+N-ii-1, 0);
+		}
+	if(ng[N-ii-1]>0)
+		{
+		dgemv_n_libstr(nu[N-ii-1]+nx[N-ii-1], ng[N-ii-1], 1.0, DCt+N-ii-1, 0, 0, qx_lg+N-ii-1, 0, 1.0, dux+N-ii-1, 0, dux+N-ii-1, 0);
+		}
+	daxpy_libstr(nx[N-ii], 1.0, dux+N-ii, nu[N-ii], Pb+N-ii-1, 0, tmp_nxM, 0);
+	dgemv_n_libstr(nu[N-ii-1]+nx[N-ii-1], nx[N-ii], 1.0, BAbt+N-ii-1, 0, 0, tmp_nxM, 0, 1.0, dux+N-ii-1, 0, dux+N-ii-1, 0);
+	dtrsv_lnn_mn_libstr(nu[N-ii-1]+nx[N-ii-1], nu[N-ii-1]+nx[N-ii-1], L+N-ii-1, 0, 0, dux+N-ii-1, 0, dux+N-ii-1, 0);
+
+	// first stage
+	ii = 0;
+	dveccp_libstr(nx[ii+1], dux+ii+1, nu[ii+1], dpi+ii, 0);
+	dvecsc_libstr(nu[ii]+nx[ii], -1.0, dux+ii, 0);
+	dtrsv_ltn_mn_libstr(nu[ii]+nx[ii], nu[ii]+nx[ii], L+ii, 0, 0, dux+ii, 0, dux+ii, 0);
+	dgemv_t_libstr(nu[ii]+nx[ii], nx[ii+1], 1.0, BAbt+ii, 0, 0, dux+ii, 0, 1.0, res_b+ii, 0, dux+ii+1, nu[ii+1]);
+	dveccp_libstr(nx[ii+1], dux+ii+1, nu[ii+1], tmp_nxM, 0);
+	dtrmv_ltn_libstr(nx[ii+1], nx[ii+1], L+ii+1, nu[ii+1], nu[ii+1], tmp_nxM, 0, tmp_nxM, 0);
+	dtrmv_lnn_libstr(nx[ii+1], nx[ii+1], L+ii+1, nu[ii+1], nu[ii+1], tmp_nxM, 0, tmp_nxM, 0);
+	daxpy_libstr(nx[ii+1], 1.0, tmp_nxM, 0, dpi+ii, 0, dpi+ii, 0);
+
+	// middle stages
+	for(ii=1; ii<N; ii++)
+		{
+		dveccp_libstr(nx[ii+1], dux+ii+1, nu[ii+1], dpi+ii, 0);
+		dvecsc_libstr(nu[ii], -1.0, dux+ii, 0);
+		dtrsv_ltn_mn_libstr(nu[ii]+nx[ii], nu[ii], L+ii, 0, 0, dux+ii, 0, dux+ii, 0);
+//		return;
+		dgemv_t_libstr(nu[ii]+nx[ii], nx[ii+1], 1.0, BAbt+ii, 0, 0, dux+ii, 0, 1.0, res_b+ii, 0, dux+ii+1, nu[ii+1]);
+		dveccp_libstr(nx[ii+1], dux+ii+1, nu[ii+1], tmp_nxM, 0);
+		dtrmv_ltn_libstr(nx[ii+1], nx[ii+1], L+ii+1, nu[ii+1], nu[ii+1], tmp_nxM, 0, tmp_nxM, 0);
+		dtrmv_lnn_libstr(nx[ii+1], nx[ii+1], L+ii+1, nu[ii+1], nu[ii+1], tmp_nxM, 0, tmp_nxM, 0);
+		daxpy_libstr(nx[ii+1], 1.0, tmp_nxM, 0, dpi+ii, 0, dpi+ii, 0);
+		}
+
+
+
+//	if(nb>0)
+//		{
+		for(ii=0; ii<=N; ii++)
+			dvecex_sp_libstr(nb[ii], 1.0, idxb[ii], dux+ii, 0, dt_lb+ii, 0);
+//		}
+
+//	if(ng>0)
+//		{
+		for(ii=0; ii<=N; ii++)
+			dgemv_t_libstr(nu[ii]+nx[ii], ng[ii], 1.0, DCt+ii, 0, 0, dux+ii, 0, 0.0, dt_lg+ii, 0, dt_lg+ii, 0);
+//		}
+
+//	if(nb>0 | ng>0)
+//		{
+		d_compute_lam_t_hard_qp(cws);
+//		}
 
 	return;
 

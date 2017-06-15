@@ -628,8 +628,8 @@ int main()
 
 	for(rep=0; rep<nrep; rep++)
 		{
-		d_solve_ipm_hard_dense_qp(&dense_qp, &dense_qp_sol, &dense_workspace);
-//		d_solve_ipm2_hard_dense_qp(&dense_qp, &dense_qp_sol, &dense_workspace);
+//		d_solve_ipm_hard_dense_qp(&dense_qp, &dense_qp_sol, &dense_workspace);
+		d_solve_ipm2_hard_dense_qp(&dense_qp, &dense_qp_sol, &dense_workspace);
 		}
 
 	gettimeofday(&tv1, NULL); // stop

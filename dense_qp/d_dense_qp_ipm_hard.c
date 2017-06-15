@@ -344,8 +344,8 @@ void d_solve_ipm2_hard_dense_qp(struct d_dense_qp *qp, struct d_dense_qp_sol *qp
 
 		d_compute_centering_correction_hard_qp(cws);
 
-		// fact and solve kkt TODO implement solve alone !!!!!
-		d_fact_solve_kkt_step_hard_dense_qp(qp, ws);
+		// fact and solve kkt
+		d_solve_kkt_step_hard_dense_qp(qp, ws);
 
 		// alpha
 		d_compute_alpha_hard_qp(cws);

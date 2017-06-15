@@ -360,3 +360,105 @@ void d_fact_solve_kkt_step_hard_dense_qp(struct d_dense_qp *qp, struct d_ipm_har
 
 	}
 
+
+
+// range-space (Schur complement) method
+void d_solve_kkt_step_hard_dense_qp(struct d_dense_qp *qp, struct d_ipm_hard_dense_qp_workspace *ws)
+	{
+
+	int nv = qp->nv;
+	int ne = qp->ne;
+	int nb = qp->nb;
+	int ng = qp->ng;
+	struct d_strmat *A = qp->A;
+	struct d_strmat *Ct = qp->Ct;
+	int *idxb = qp->idxb;
+
+	struct d_strmat *Lv = ws->Lv;
+	struct d_strmat *Le = ws->Le;
+	struct d_strmat *Ctx = ws->Ctx;
+	struct d_strmat *AL = ws->AL;
+	struct d_strvec *lv = ws->lv;
+	struct d_strvec *dv = ws->dv;
+	struct d_strvec *dpi = ws->dpi;
+	struct d_strvec *dt_lb = ws->dt_lb;
+	struct d_strvec *dt_lg = ws->dt_lg;
+	struct d_strvec *res_g = ws->res_g;
+	struct d_strvec *res_b = ws->res_b;
+	struct d_strvec *qx = ws->qx;
+
+	struct d_ipm_hard_core_qp_workspace *rws = ws->core_workspace;
+
+	if(nb>0 | ng>0)
+		{
+		d_compute_qx_hard_qp(rws);
+		}
+
+	if(ne>0)
+		{
+		dveccp_libstr(nv, res_g, 0, lv, 0);
+
+		if(nb>0)
+			{
+			dvecad_sp_libstr(nb, 1.0, qx, 0, idxb, lv, 0);
+			}
+
+		if(ng>0)
+			{
+			dgemv_n_libstr(nv, ng, 1.0, Ct, 0, 0, qx, nb, 1.0, lv, 0, lv, 0);
+			}
+
+		dveccp_libstr(nv, lv, 0, dv, 0);
+
+		dtrsv_lnn_libstr(nv, Lv, 0, 0, lv, 0, lv, 0);
+
+		dgemv_n_libstr(ne, nv, 1.0, AL, 0, 0, lv, 0, 1.0, res_b, 0, dpi, 0);
+
+		dtrsv_lnn_libstr(ne, Le, 0, 0, dpi, 0, dpi, 0);
+		dtrsv_ltn_libstr(ne, Le, 0, 0, dpi, 0, dpi, 0);
+
+		dgemv_t_libstr(ne, nv, 1.0, A, 0, 0, dpi, 0, -1.0, dv, 0, dv, 0);
+
+		dtrsv_lnn_libstr(nv, Lv, 0, 0, dv, 0, dv, 0);
+		dtrsv_ltn_libstr(nv, Lv, 0, 0, dv, 0, dv, 0);
+		}
+	else
+		{
+		dveccp_libstr(nv, res_g, 0, lv, 0);
+
+		if(nb>0)
+			{
+			dvecad_sp_libstr(nb, 1.0, qx, 0, idxb, lv, 0);
+			}
+
+		if(ng>0)
+			{
+			dgemv_n_libstr(nv, ng, 1.0, Ct, 0, 0, qx, nb, 1.0, lv, 0, lv, 0);
+			}
+
+		dveccp_libstr(nv, lv, 0, dv, 0);
+		dvecsc_libstr(nv, -1.0, dv, 0);
+
+		dtrsv_lnn_libstr(nv, Lv, 0, 0, dv, 0, dv, 0);
+		dtrsv_ltn_libstr(nv, Lv, 0, 0, dv, 0, dv, 0);
+		}
+
+	if(nb>0)
+		{
+		dvecex_sp_libstr(nb, 1.0, idxb, dv, 0, dt_lb, 0);
+		}
+
+	if(ng>0)
+		{
+		dgemv_t_libstr(nv, ng, 1.0, Ct, 0, 0, dv, 0, 0.0, dt_lg, 0, dt_lg, 0);
+		}
+
+	if(nb>0 | ng>0)
+		{
+		d_compute_lam_t_hard_qp(rws);
+		}
+
+	return;
+
+	}
+

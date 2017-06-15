@@ -513,9 +513,17 @@ void d_solve_ipm2_hard_ocp_qp(struct d_ocp_qp *qp, struct d_ocp_qp_sol *qp_sol, 
 
 		d_compute_centering_correction_hard_qp(cws);
 
-		// fact and solve kkt TODO implement solve alone !!!!!
-		d_fact_solve_kkt_step_hard_ocp_qp(qp, ws);
+		// fact and solve kkt
+		d_solve_kkt_step_hard_ocp_qp(qp, ws);
 
+#if 0
+int ii;
+for(ii=0; ii<=qp->N; ii++)
+	d_print_tran_strvec(qp->nu[ii]+qp->nx[ii], ws->dux+ii, 0);
+for(ii=0; ii<qp->N; ii++)
+	d_print_tran_strvec(qp->nx[ii+1], ws->dpi+ii, 0);
+exit(1);
+#endif
 		// alpha
 		d_compute_alpha_hard_qp(cws);
 		cws->stat[5*kk+3] = cws->alpha;

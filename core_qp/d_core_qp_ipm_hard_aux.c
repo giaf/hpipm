@@ -129,45 +129,32 @@ void d_compute_alpha_hard_qp(struct d_ipm_hard_core_qp_workspace *rws)
 	int ng = rws->ng;
 
 	double *lam_lb = rws->lam_lb;
-//	double *lam_ub = rws->lam_ub;
 	double *t_lb = rws->t_lb;
-//	double *t_ub = rws->t_ub;
 	double *dlam_lb = rws->dlam_lb;
-//	double *dlam_ub = rws->dlam_ub;
 	double *dt_lb = rws->dt_lb;
-//	double *dt_ub = rws->dt_ub;
 
-	double alpha = 1.0;
+	double alpha = - 1.0;
 	
 	// local variables
 	int nt = nb+ng;
 	int ii;
 
-//	for(ii=0; ii<nt; ii++)
 	for(ii=0; ii<2*nt; ii++)
 		{
 
-		if( -alpha*dlam_lb[ii+0]>lam_lb[ii+0] )
+		if( alpha*dlam_lb[ii+0]>lam_lb[ii+0] )
 			{
-			alpha = - lam_lb[ii+0] / dlam_lb[ii+0];
+			alpha = lam_lb[ii+0] / dlam_lb[ii+0];
 			}
-//		if( -alpha*dlam_ub[ii]>lam_ub[ii] )
-//			{
-//			alpha = - lam_ub[ii] / dlam_ub[ii];
-//			}
-		if( -alpha*dt_lb[ii+0]>t_lb[ii+0] )
+		if( alpha*dt_lb[ii+0]>t_lb[ii+0] )
 			{
-			alpha = - t_lb[ii+0] / dt_lb[ii+0];
+			alpha = t_lb[ii+0] / dt_lb[ii+0];
 			}
-//		if( -alpha*dt_ub[ii]>t_ub[ii] )
-//			{
-//			alpha = - t_ub[ii] / dt_ub[ii];
-//			}
 
 		}
 
 	// store alpha
-	rws->alpha = alpha;
+	rws->alpha = - alpha;
 
 	return;
 
@@ -244,7 +231,9 @@ void d_compute_mu_aff_hard_qp(struct d_ipm_hard_core_qp_workspace *rws)
 	double *ptr_t = rws->t_lb;
 	double *ptr_dlam = rws->dlam_lb;
 	double *ptr_dt = rws->dt_lb;
-	double alpha = 0.995*rws->alpha;
+	double alpha = rws->alpha;
+//	if(alpha<1.0)
+		alpha *= 0.995;
 
 	double mu = 0;
 

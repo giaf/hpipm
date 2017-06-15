@@ -58,9 +58,9 @@ int main()
 ************************************************/	
 
 	int nv = 2;
-	int ne = 0;
-	int nb = 0;
-	int ng = 2;
+	int ne = 1;
+	int nb = 2;
+	int ng = 0;
 
 	double H[] = {4.0, 1.0, 1.0, 2.0};
 	double g[] = {1.0, 1.0};
@@ -134,8 +134,8 @@ int main()
 
 	for(rep=0; rep<nrep; rep++)
 		{
-		d_solve_ipm_hard_dense_qp(&qp, &qp_sol, &workspace);
-//		d_solve_ipm2_hard_dense_qp(&qp, &qp_sol, &workspace);
+//		d_solve_ipm_hard_dense_qp(&qp, &qp_sol, &workspace);
+		d_solve_ipm2_hard_dense_qp(&qp, &qp_sol, &workspace);
 		}
 
 	gettimeofday(&tv1, NULL); // stop
