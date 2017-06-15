@@ -39,8 +39,6 @@
 void d_compute_Qx_qx_hard_qp(struct d_ipm_hard_core_qp_workspace *rws)
 	{
 
-	int nv = rws->nv;
-	int ne = rws->ne;
 	int nb = rws->nb;
 	int ng = rws->ng;
 
@@ -73,7 +71,8 @@ void d_compute_Qx_qx_hard_qp(struct d_ipm_hard_core_qp_workspace *rws)
 		       - t_inv_ub[ii]*(res_m_ub[ii]+lam_ub[ii]*res_d_ub[ii]);
 
 		}
-		return;
+
+	return;
 
 	}
 
@@ -82,8 +81,6 @@ void d_compute_Qx_qx_hard_qp(struct d_ipm_hard_core_qp_workspace *rws)
 void d_compute_lam_t_hard_qp(struct d_ipm_hard_core_qp_workspace *rws)
 	{
 
-	int nv = rws->nv;
-	int ne = rws->ne;
 	int nb = rws->nb;
 	int ng = rws->ng;
 
@@ -132,13 +129,13 @@ void d_compute_alpha_hard_qp(struct d_ipm_hard_core_qp_workspace *rws)
 	int ng = rws->ng;
 
 	double *lam_lb = rws->lam_lb;
-	double *lam_ub = rws->lam_ub;
+//	double *lam_ub = rws->lam_ub;
 	double *t_lb = rws->t_lb;
-	double *t_ub = rws->t_ub;
+//	double *t_ub = rws->t_ub;
 	double *dlam_lb = rws->dlam_lb;
-	double *dlam_ub = rws->dlam_ub;
+//	double *dlam_ub = rws->dlam_ub;
 	double *dt_lb = rws->dt_lb;
-	double *dt_ub = rws->dt_ub;
+//	double *dt_ub = rws->dt_ub;
 
 	double alpha = 1.0;
 	
@@ -146,25 +143,26 @@ void d_compute_alpha_hard_qp(struct d_ipm_hard_core_qp_workspace *rws)
 	int nt = nb+ng;
 	int ii;
 
-	for(ii=0; ii<nt; ii++)
+//	for(ii=0; ii<nt; ii++)
+	for(ii=0; ii<2*nt; ii++)
 		{
 
 		if( -alpha*dlam_lb[ii+0]>lam_lb[ii+0] )
 			{
 			alpha = - lam_lb[ii+0] / dlam_lb[ii+0];
 			}
-		if( -alpha*dlam_ub[ii]>lam_ub[ii] )
-			{
-			alpha = - lam_ub[ii] / dlam_ub[ii];
-			}
+//		if( -alpha*dlam_ub[ii]>lam_ub[ii] )
+//			{
+//			alpha = - lam_ub[ii] / dlam_ub[ii];
+//			}
 		if( -alpha*dt_lb[ii+0]>t_lb[ii+0] )
 			{
 			alpha = - t_lb[ii+0] / dt_lb[ii+0];
 			}
-		if( -alpha*dt_ub[ii]>t_ub[ii] )
-			{
-			alpha = - t_ub[ii] / dt_ub[ii];
-			}
+//		if( -alpha*dt_ub[ii]>t_ub[ii] )
+//			{
+//			alpha = - t_ub[ii] / dt_ub[ii];
+//			}
 
 		}
 
@@ -194,7 +192,9 @@ void d_update_var_hard_qp(struct d_ipm_hard_core_qp_workspace *rws)
 	double *dpi = rws->dpi;
 	double *dlam = rws->dlam;
 	double *dt = rws->dt;
-	double alpha = 0.995*rws->alpha;
+	double alpha = rws->alpha;
+	if(alpha<1.0)
+		alpha *= 0.995;
 
 	// local variables
 	int nt = nb+ng;
@@ -228,4 +228,96 @@ void d_update_var_hard_qp(struct d_ipm_hard_core_qp_workspace *rws)
 
 	}
 
+
+
+void d_compute_mu_aff_hard_qp(struct d_ipm_hard_core_qp_workspace *rws)
+	{
+
+	int ii;
+
+	// extract workspace members
+	int nb = rws->nb;
+	int ng = rws->ng;
+	int nt = nb+ng;
+
+	double *ptr_lam = rws->lam_lb;
+	double *ptr_t = rws->t_lb;
+	double *ptr_dlam = rws->dlam_lb;
+	double *ptr_dt = rws->dt_lb;
+	double alpha = 0.995*rws->alpha;
+
+	double mu = 0;
+
+	for(ii=0; ii<2*nt; ii++)
+		{
+		mu += (ptr_lam[ii+0] + alpha*ptr_dlam[ii+0]) * (ptr_t[ii+0] + alpha*ptr_dt[ii+0]);
+		}
+	
+	rws->mu_aff = mu*rws->nt_inv;
+
+	return;
+
+	}
+
+
+
+void d_compute_centering_correction_hard_qp(struct d_ipm_hard_core_qp_workspace *rws)
+	{
+
+	int ii;
+
+	// extract workspace members
+	int nb = rws->nb;
+	int ng = rws->ng;
+	int nt = nb+ng;
+
+	double *ptr_dlam = rws->dlam_lb;
+	double *ptr_dt = rws->dt_lb;
+	double *ptr_res_m = rws->res_m_lb;
+
+	double sigma_mu = rws->sigma*rws->mu;
+
+	for(ii=0; ii<2*nt; ii++)
+		{
+		ptr_res_m[ii+0] += ptr_dt[ii+0] * ptr_dlam[ii+0] - sigma_mu;
+		}
+
+	return;
+
+	}
+
+
+
+void d_compute_qx_hard_qp(struct d_ipm_hard_core_qp_workspace *rws)
+	{
+
+	int nb = rws->nb;
+	int ng = rws->ng;
+
+	double *lam_lb = rws->lam_lb;
+	double *lam_ub = rws->lam_ub;
+	double *res_m_lb = rws->res_m_lb;
+	double *res_m_ub = rws->res_m_ub;
+	double *res_d_lb = rws->res_d_lb;
+	double *res_d_ub = rws->res_d_ub;
+	double *t_inv_lb = rws->t_inv_lb;
+	double *t_inv_ub = rws->t_inv_ub;
+	double *qx = rws->qx;
+
+	// local variables
+	int nt = nb+ng;
+	int ii;
+
+	for(ii=0; ii<nt; ii++)
+		{
+
+		// TODO mask out unconstrained components for one-sided
+		qx[ii] = t_inv_lb[ii]*(res_m_lb[ii]-lam_lb[ii]*res_d_lb[ii]) \
+		       - t_inv_ub[ii]*(res_m_ub[ii]+lam_ub[ii]*res_d_ub[ii]);
+
+		}
+
+	return;
+
+	}
 

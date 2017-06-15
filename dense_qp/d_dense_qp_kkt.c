@@ -69,6 +69,7 @@ void d_init_var_hard_dense_qp(struct d_dense_qp *qp, struct d_dense_qp_sol *qp_s
 	double *t_ub = qp_sol->t_ub->pa;
 	double *t_lg = qp_sol->t_lg->pa;
 	double *t_ug = qp_sol->t_ug->pa;
+
 	double mu0 = rws->mu0;
 
 	// local variables
@@ -146,6 +147,8 @@ void d_init_var_hard_dense_qp(struct d_dense_qp *qp, struct d_dense_qp_sol *qp_s
 void d_compute_res_hard_dense_qp(struct d_dense_qp *qp, struct d_dense_qp_sol *qp_sol, struct d_ipm_hard_dense_qp_workspace *ws)
 	{
 
+	struct d_ipm_hard_core_qp_workspace *cws = ws->core_workspace;
+
 	int nv = qp->nv;
 	int ne = qp->ne;
 	int nb = qp->nb;
@@ -199,7 +202,7 @@ void d_compute_res_hard_dense_qp(struct d_dense_qp *qp, struct d_dense_qp_sol *q
 	// res_mu
 	mu = dvecmuldot_libstr(2*nb+2*ng, lam_lb, 0, t_lb, 0, ws->res_m, 0);
 
-	ws->res_mu = mu*ws->nt_inv;
+	ws->res_mu = mu*cws->nt_inv;
 
 
 	return;

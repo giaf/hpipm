@@ -62,7 +62,6 @@ struct d_ipm_hard_dense_qp_workspace
 	struct d_strvec *tmp_ng0; // work space of size nb
 	struct d_strvec *tmp_ng1; // work space of size nb
 	double *stat; // convergence statistics
-	double nt_inv; // 1.0/nt, where nt is the total number of constraints
 	double res_mu; // mu-residual
 	int iter; // iteration number
 	};
@@ -85,3 +84,5 @@ int d_memsize_ipm_hard_dense_qp(struct d_dense_qp *qp, struct d_ipm_hard_dense_q
 void d_create_ipm_hard_dense_qp(struct d_dense_qp *qp, struct d_ipm_hard_dense_qp_arg *arg, struct d_ipm_hard_dense_qp_workspace *ws, void *mem);
 //
 void d_solve_ipm_hard_dense_qp(struct d_dense_qp *qp, struct d_dense_qp_sol *qp_sol, struct d_ipm_hard_dense_qp_workspace *ws);
+//
+void d_solve_ipm2_hard_dense_qp(struct d_dense_qp *qp, struct d_dense_qp_sol *qp_sol, struct d_ipm_hard_dense_qp_workspace *ws);

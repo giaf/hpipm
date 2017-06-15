@@ -45,7 +45,7 @@
 void d_init_var_hard_ocp_qp(struct d_ocp_qp *qp, struct d_ocp_qp_sol *qp_sol, struct d_ipm_hard_ocp_qp_workspace *ws)
 	{
 
-//	struct d_ipm_hard_core_qp_workspace *cws = ws->core_workspace;
+	struct d_ipm_hard_core_qp_workspace *cws = ws->core_workspace;
 	
 	// loop index
 	int ii, jj;
@@ -57,12 +57,13 @@ void d_init_var_hard_ocp_qp(struct d_ocp_qp *qp, struct d_ocp_qp_sol *qp_sol, st
 	int *nb = qp->nb;
 	int *ng = qp->ng;
 
+	double mu0 = cws->mu0;
+
 	//
 	double *ux, *pi, *d_lb, *d_ub, *d_lg, *d_ug, *lam_lb, *lam_ub, *lam_lg, *lam_ug, *t_lb, *t_ub, *t_lg, *t_ug;
 	int *idxb;
 
 	double thr0 = 0.1;
-	double mu0 = ws->mu0;
 
 	// warm start TODO
 
@@ -162,6 +163,8 @@ void d_init_var_hard_ocp_qp(struct d_ocp_qp *qp, struct d_ocp_qp_sol *qp_sol, st
 void d_compute_res_hard_ocp_qp(struct d_ocp_qp *qp, struct d_ocp_qp_sol *qp_sol, struct d_ipm_hard_ocp_qp_workspace *ws)
 	{
 
+	struct d_ipm_hard_core_qp_workspace *cws = ws->core_workspace;
+	
 	// loop index
 	int ii;
 
@@ -274,7 +277,7 @@ void d_compute_res_hard_ocp_qp(struct d_ocp_qp *qp, struct d_ocp_qp_sol *qp_sol,
 
 	mu += dvecmuldot_libstr(2*nbt+2*ngt, lam_lb, 0, t_lb, 0, ws->res_m, 0);
 
-	ws->res_mu = mu*ws->nt_inv;
+	ws->res_mu = mu*cws->nt_inv;
 
 	return;
 

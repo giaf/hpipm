@@ -63,9 +63,7 @@ struct d_ipm_hard_ocp_qp_workspace
 	struct d_strmat *L;
 	struct d_strmat *AL;
 	double *stat; // convergence statistics
-	double nt_inv; // 1.0/nt, where nt is the total number of constraints
 	double res_mu; // mu-residual
-	double mu0;
 	int iter; // iteration number
 	};
 
@@ -87,4 +85,6 @@ int d_memsize_ipm_hard_ocp_qp(struct d_ocp_qp *qp, struct d_ipm_hard_ocp_qp_arg 
 void d_create_ipm_hard_ocp_qp(struct d_ocp_qp *qp, struct d_ipm_hard_ocp_qp_arg *arg, struct d_ipm_hard_ocp_qp_workspace *ws, void *mem);
 //
 void d_solve_ipm_hard_ocp_qp(struct d_ocp_qp *qp, struct d_ocp_qp_sol *qp_sol, struct d_ipm_hard_ocp_qp_workspace *ws);
+//
+void d_solve_ipm2_hard_ocp_qp(struct d_ocp_qp *qp, struct d_ocp_qp_sol *qp_sol, struct d_ipm_hard_ocp_qp_workspace *ws);
 

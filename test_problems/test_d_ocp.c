@@ -566,6 +566,7 @@ int main()
 	for(rep=0; rep<nrep; rep++)
 		{
 		d_solve_ipm_hard_ocp_qp(&qp, &qp_sol, &workspace);
+//		d_solve_ipm2_hard_ocp_qp(&qp, &qp_sol, &workspace);
 		}
 
 	gettimeofday(&tv1, NULL); // stop
@@ -641,7 +642,7 @@ int main()
 #endif
 
 	printf("\nipm iter = %d\n", workspace.iter);
-	printf("\nsigma\t\talpha_aff\tmu_aff\t\talpha\t\tmu\n");
+	printf("\nalpha_aff\tmu_aff\t\tsigma\t\talpha\t\tmu\n");
 	d_print_e_tran_mat(5, workspace.iter, workspace.stat, 5);
 
 	printf("\nocp ipm time = %e [s]\n\n", time_ocp_ipm);

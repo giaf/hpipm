@@ -273,6 +273,7 @@ void d_create_ipm_hard_ocp_qp(struct d_ocp_qp *qp, struct d_ipm_hard_ocp_qp_arg 
 	rwork->alpha_min = arg->alpha_min;
 	rwork->mu_max = arg->mu_max;
 	rwork->mu0 = arg->mu0;
+	rwork->nt_inv = 1.0/(2*nbt+2*ngt);
 
 
 	// alias members of workspace and core_workspace
@@ -390,11 +391,6 @@ void d_create_ipm_hard_ocp_qp(struct d_ocp_qp *qp, struct d_ipm_hard_ocp_qp_arg 
 		}
 	workspace->stat = rwork->stat;
 
-
-
-	workspace->mu0 = arg->mu0;
-	workspace->nt_inv = 1.0/(2*nbt+2*ngt);
-
 	return;
 
 	}
@@ -442,7 +438,7 @@ void d_solve_ipm_hard_ocp_qp(struct d_ocp_qp *qp, struct d_ocp_qp_sol *qp_sol, s
 
 		// alpha
 		d_compute_alpha_hard_qp(cws);
-		cws->stat[5*kk+1] = cws->alpha;
+		cws->stat[5*kk+0] = cws->alpha;
 
 		//
 		d_update_var_hard_qp(cws);
@@ -450,9 +446,88 @@ void d_solve_ipm_hard_ocp_qp(struct d_ocp_qp *qp, struct d_ocp_qp_sol *qp_sol, s
 		// compute residuals
 		d_compute_res_hard_ocp_qp(qp, qp_sol, ws);
 		cws->mu = ws->res_mu;
-		cws->stat[5*kk+2] = ws->res_mu;
+		cws->stat[5*kk+1] = ws->res_mu;
 
-//		break;
+		}
+	
+	ws->iter = kk;
+	
+	return;
+
+	}
+
+
+
+void d_solve_ipm2_hard_ocp_qp(struct d_ocp_qp *qp, struct d_ocp_qp_sol *qp_sol, struct d_ipm_hard_ocp_qp_workspace *ws)
+	{
+
+	struct d_ipm_hard_core_qp_workspace *cws = ws->core_workspace;
+
+	// alias qp vectors into qp
+	cws->d_lb = qp->d_lb->pa;
+	cws->d_ub = qp->d_ub->pa;
+	cws->d_lg = qp->d_lg->pa;
+	cws->d_ug = qp->d_ug->pa;
+
+	// alias qp vectors into qp_sol
+	cws->v = qp_sol->ux->pa;
+	cws->pi = qp_sol->pi->pa;
+	cws->lam = qp_sol->lam_lb->pa;
+	cws->lam_lb = qp_sol->lam_lb->pa;
+	cws->lam_ub = qp_sol->lam_ub->pa;
+	cws->lam_lg = qp_sol->lam_lg->pa;
+	cws->lam_ug = qp_sol->lam_ug->pa;
+	cws->t = qp_sol->t_lb->pa;
+	cws->t_lb = qp_sol->t_lb->pa;
+	cws->t_ub = qp_sol->t_ub->pa;
+	cws->t_lg = qp_sol->t_lg->pa;
+	cws->t_ug = qp_sol->t_ug->pa;
+
+	double tmp;
+
+	// init solver
+	d_init_var_hard_ocp_qp(qp, qp_sol, ws);
+
+	// compute residuals
+	d_compute_res_hard_ocp_qp(qp, qp_sol, ws);
+	cws->mu = ws->res_mu;
+
+	int kk;
+	for(kk=0; kk<cws->iter_max & cws->mu>cws->mu_max; kk++)
+		{
+
+		// fact and solve kkt
+		d_fact_solve_kkt_step_hard_ocp_qp(qp, ws);
+
+		// alpha
+		d_compute_alpha_hard_qp(cws);
+		cws->stat[5*kk+0] = cws->alpha;
+
+		// mu_aff
+		d_compute_mu_aff_hard_qp(cws);
+		cws->stat[5*kk+1] = cws->mu_aff;
+
+		tmp = cws->mu_aff/cws->mu;
+		cws->sigma = tmp*tmp*tmp;
+		cws->stat[5*kk+2] = cws->sigma;
+
+		d_compute_centering_correction_hard_qp(cws);
+
+		// fact and solve kkt TODO implement solve alone !!!!!
+		d_fact_solve_kkt_step_hard_ocp_qp(qp, ws);
+
+		// alpha
+		d_compute_alpha_hard_qp(cws);
+		cws->stat[5*kk+3] = cws->alpha;
+
+		//
+		d_update_var_hard_qp(cws);
+
+		// compute residuals
+		d_compute_res_hard_ocp_qp(qp, qp_sol, ws);
+		cws->mu = ws->res_mu;
+		cws->stat[5*kk+4] = ws->res_mu;
+
 		}
 	
 	ws->iter = kk;

@@ -629,6 +629,7 @@ int main()
 	for(rep=0; rep<nrep; rep++)
 		{
 		d_solve_ipm_hard_dense_qp(&dense_qp, &dense_qp_sol, &dense_workspace);
+//		d_solve_ipm2_hard_dense_qp(&dense_qp, &dense_qp_sol, &dense_workspace);
 		}
 
 	gettimeofday(&tv1, NULL); // stop
@@ -671,7 +672,7 @@ int main()
 	printf("\n%e\n\n", dense_workspace.res_mu);
 
 	printf("\nipm iter = %d\n", dense_workspace.iter);
-	printf("\nsigma\t\talpha_aff\tmu_aff\t\talpha\t\tmu\n");
+	printf("\nalpha_aff\tmu_aff\t\tsigma\t\talpha\t\tmu\n");
 	d_print_e_tran_mat(5, dense_workspace.iter, dense_workspace.stat, 5);
 
 	printf("\ncond time = %e [s], dense ipm time = %e [s]\n\n", time_cond, time_dense_ipm);

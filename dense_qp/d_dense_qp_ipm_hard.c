@@ -196,6 +196,7 @@ void d_create_ipm_hard_dense_qp(struct d_dense_qp *qp, struct d_ipm_hard_dense_q
 	rwork->alpha_min = arg->alpha_min;
 	rwork->mu_max = arg->mu_max;
 	rwork->mu0 = arg->mu0;
+	rwork->nt_inv = 1.0/(2*nb+2*ng);
 
 
 	// alias members of workspace and core_workspace
@@ -218,9 +219,6 @@ void d_create_ipm_hard_dense_qp(struct d_dense_qp *qp, struct d_ipm_hard_dense_q
 	d_create_strvec(nb+ng, workspace->Qx, rwork->Qx);
 	d_create_strvec(nb+ng, workspace->qx, rwork->qx);
 	workspace->stat = rwork->stat;
-
-
-	workspace->nt_inv = 1.0/(2*nb+2*ng);
 
 	return;
 
@@ -257,35 +255,9 @@ void d_solve_ipm_hard_dense_qp(struct d_dense_qp *qp, struct d_dense_qp_sol *qp_
 	// init solver
 	d_init_var_hard_dense_qp(qp, qp_sol, ws);
 
-#if 0
-	// XXX hard-code solution for debug
-	ws->v->pa[0] = 0.25;
-	ws->v->pa[1] = 0.75;
-	ws->pi->pa[0] = 2.75;
-	ws->lam_lb->pa[0] = 0.0;
-	ws->lam_lb->pa[1] = 0.0;
-	ws->lam_ub->pa[0] = 0.0;
-	ws->lam_ub->pa[1] = 0.0;
-	ws->t_lb->pa[0] = 1.25;
-	ws->t_lb->pa[1] = 1.75;
-	ws->t_ub->pa[0] = 1.75;
-	ws->t_ub->pa[1] = 1.25;
-#endif
-
 	// compute residuals
 	d_compute_res_hard_dense_qp(qp, qp_sol, ws);
 	cws->mu = ws->res_mu;
-
-#if 0
-	printf("\nres_g\n");
-	d_print_tran_strvec(nv, ws->res_g, 0);
-	printf("\nres_b\n");
-	d_print_tran_strvec(ne, ws->res_b, 0);
-	printf("\nres_d\n");
-	d_print_tran_strvec(2*nb+2*ng, ws->res_d, 0);
-	printf("\nres_m\n");
-	d_print_tran_strvec(2*nb+2*ng, ws->res_m, 0);
-#endif
 
 	int kk;
 	for(kk=0; kk<cws->iter_max & cws->mu>cws->mu_max; kk++)
@@ -296,37 +268,96 @@ void d_solve_ipm_hard_dense_qp(struct d_dense_qp *qp, struct d_dense_qp_sol *qp_
 
 		// alpha
 		d_compute_alpha_hard_qp(cws);
-		cws->stat[5*kk+1] = cws->alpha;
+		cws->stat[5*kk+0] = cws->alpha;
 
 		//
 		d_update_var_hard_qp(cws);
 
-#if 0
-		printf("\nv\n");
-		d_print_tran_strvec(nv, ws->v, 0);
-		printf("\npi\n");
-		d_print_tran_strvec(ne, ws->pi, 0);
-		printf("\nlam\n");
-		d_print_tran_strvec(2*nb+2*ng, ws->lam, 0);
-		printf("\nt\n");
-		d_print_tran_strvec(2*nb+2*ng, ws->t, 0);
-#endif
+		// compute residuals
+		d_compute_res_hard_dense_qp(qp, qp_sol, ws);
+		cws->mu = ws->res_mu;
+		cws->stat[5*kk+1] = ws->res_mu;
+
+		}
+
+	ws->iter = kk;
+
+	return;
+
+	}
+
+
+
+void d_solve_ipm2_hard_dense_qp(struct d_dense_qp *qp, struct d_dense_qp_sol *qp_sol, struct d_ipm_hard_dense_qp_workspace *ws)
+	{
+
+	struct d_ipm_hard_core_qp_workspace *cws = ws->core_workspace;
+
+	// alias qp vectors into qp
+	cws->d = qp->d->pa; // TODO REMOVE
+	cws->d_lb = qp->d_lb->pa;
+	cws->d_ub = qp->d_ub->pa;
+	cws->d_lg = qp->d_lg->pa;
+	cws->d_ug = qp->d_ug->pa;
+
+	// alias qp vectors into qp_sol
+	cws->v = qp_sol->v->pa;
+	cws->pi = qp_sol->pi->pa;
+	cws->lam = qp_sol->lam_lb->pa;
+	cws->lam_lb = qp_sol->lam_lb->pa;
+	cws->lam_ub = qp_sol->lam_ub->pa;
+	cws->lam_lg = qp_sol->lam_lg->pa;
+	cws->lam_ug = qp_sol->lam_ug->pa;
+	cws->t = qp_sol->t_lb->pa;
+	cws->t_lb = qp_sol->t_lb->pa;
+	cws->t_ub = qp_sol->t_ub->pa;
+	cws->t_lg = qp_sol->t_lg->pa;
+	cws->t_ug = qp_sol->t_ug->pa;
+
+	double tmp;
+
+	// init solver
+	d_init_var_hard_dense_qp(qp, qp_sol, ws);
+
+	// compute residuals
+	d_compute_res_hard_dense_qp(qp, qp_sol, ws);
+	cws->mu = ws->res_mu;
+
+	int kk;
+	for(kk=0; kk<cws->iter_max & cws->mu>cws->mu_max; kk++)
+		{
+
+		// fact and solve kkt
+		d_fact_solve_kkt_step_hard_dense_qp(qp, ws);
+
+		// alpha
+		d_compute_alpha_hard_qp(cws);
+		cws->stat[5*kk+0] = cws->alpha;
+
+		// mu_aff
+		d_compute_mu_aff_hard_qp(cws);
+		cws->stat[5*kk+1] = cws->mu_aff;
+
+		tmp = cws->mu_aff/cws->mu;
+		cws->sigma = tmp*tmp*tmp;
+		cws->stat[5*kk+2] = cws->sigma;
+
+		d_compute_centering_correction_hard_qp(cws);
+
+		// fact and solve kkt TODO implement solve alone !!!!!
+		d_fact_solve_kkt_step_hard_dense_qp(qp, ws);
+
+		// alpha
+		d_compute_alpha_hard_qp(cws);
+		cws->stat[5*kk+3] = cws->alpha;
+
+		//
+		d_update_var_hard_qp(cws);
 
 		// compute residuals
 		d_compute_res_hard_dense_qp(qp, qp_sol, ws);
 		cws->mu = ws->res_mu;
-		cws->stat[5*kk+2] = ws->res_mu;
-#if 0
-
-		printf("\nres_g\n");
-		d_print_e_tran_strvec(nv, ws->res_g, 0);
-		printf("\nres_b\n");
-		d_print_e_tran_strvec(ne, ws->res_b, 0);
-		printf("\nres_d\n");
-		d_print_e_tran_strvec(2*nb+2*ng, ws->res_d, 0);
-		printf("\nres_m\n");
-		d_print_e_tran_strvec(2*nb+2*ng, ws->res_m, 0);
-#endif
+		cws->stat[5*kk+4] = ws->res_mu;
 
 		}
 

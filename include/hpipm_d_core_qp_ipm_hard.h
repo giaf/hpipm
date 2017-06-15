@@ -86,8 +86,10 @@ struct d_ipm_hard_core_qp_workspace
 	double alpha_min; // exit cond on step lenght
 	double sigma; // centering XXX
 	double mu; // duality measuere
+	double mu_aff; // affine duality measuere
 	double mu0; // initial duality measuere
 	double mu_max; // exit cond on mu
+	double nt_inv; // 1.0/nt, where nt is the total number of constraints
 	int nv; // number of primal variables
 	int ne; // number of equality constraints
 	int nb; // number of two-sized bounds
