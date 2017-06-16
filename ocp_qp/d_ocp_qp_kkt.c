@@ -535,7 +535,6 @@ void d_solve_kkt_step_hard_ocp_qp(struct d_ocp_qp *qp, struct d_ipm_hard_ocp_qp_
 		dveccp_libstr(nx[ii+1], dux+ii+1, nu[ii+1], dpi+ii, 0);
 		dvecsc_libstr(nu[ii], -1.0, dux+ii, 0);
 		dtrsv_ltn_mn_libstr(nu[ii]+nx[ii], nu[ii], L+ii, 0, 0, dux+ii, 0, dux+ii, 0);
-//		return;
 		dgemv_t_libstr(nu[ii]+nx[ii], nx[ii+1], 1.0, BAbt+ii, 0, 0, dux+ii, 0, 1.0, res_b+ii, 0, dux+ii+1, nu[ii+1]);
 		dveccp_libstr(nx[ii+1], dux+ii+1, nu[ii+1], tmp_nxM, 0);
 		dtrmv_ltn_libstr(nx[ii+1], nx[ii+1], L+ii+1, nu[ii+1], nu[ii+1], tmp_nxM, 0, tmp_nxM, 0);
