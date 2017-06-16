@@ -1,3 +1,4 @@
+
 /**************************************************************************************************
 *                                                                                                 *
 * This file is part of HPIPM.                                                                     *
@@ -34,7 +35,7 @@
 
 struct s_dense_qp
 	{
-	struct s_strmat *Hg; // hessian and gradient
+	struct s_strmat *Hg; // hessian & gradient
 	struct s_strmat *A; // dynamics matrix
 	struct s_strmat *Ct; // constraints matrix
 	struct s_strvec *g; // gradient
@@ -55,11 +56,20 @@ struct s_dense_qp
 
 
 //
-int s_size_dense_qp(int nv, int ne, int nb, int ng);
+int s_memsize_dense_qp(int nv, int ne, int nb, int ng);
 //
 void s_create_dense_qp(int nv, int ne, int nb, int ng, struct s_dense_qp *qp, void *memory);
 //
 void s_cvt_colmaj_to_dense_qp(float *H, float *g, float *A, float *b, int *idxb, float *d_lb, float *d_ub, float *C, float *d_lg, float *d_ug, struct s_dense_qp *qp);
 //
-void s_cvt_libstr_to_dense_qp(struct s_strmat *H, struct s_strmat *A, struct s_strmat *C, struct s_strvec *g, struct s_strvec *b, struct s_strvec *s_lb, struct s_strvec *d_ub, struct s_strvec *d_lg, struct s_strvec *d_ug, int *idxb, struct s_dense_qp *qp);
+void s_cvt_dense_qp_to_colmaj(struct s_dense_qp *qp, float *H, float *g, float *A, float *b, int *idxb, float *d_lb, float *d_ub, float *C, float *d_lg, float *d_ug);
+//
+void s_cvt_rowmaj_to_dense_qp(float *H, float *g, float *A, float *b, int *idxb, float *d_lb, float *d_ub, float *C, float *d_lg, float *d_ug, struct s_dense_qp *qp);
+//
+void s_cvt_dense_qp_to_rowmaj(struct s_dense_qp *qp, float *H, float *g, float *A, float *b, int *idxb, float *d_lb, float *d_ub, float *C, float *d_lg, float *d_ug);
+//
+void s_cvt_libstr_to_dense_qp(struct s_strmat *H, struct s_strmat *A, struct s_strmat *C, struct s_strvec *g, struct s_strvec *b, struct s_strvec *d_lb, struct s_strvec *d_ub, struct s_strvec *d_lg, struct s_strvec *d_ug, int *idxb, struct s_dense_qp *qp);
+//
+void s_cvt_dense_qp_to_libstr(struct s_dense_qp *qp, struct s_strmat *H, struct s_strmat *A, struct s_strmat *C, struct s_strvec *g, struct s_strvec *b, struct s_strvec *d_lb, struct s_strvec *d_ub, struct s_strvec *d_lg, struct s_strvec *d_ug, int *idxb);
+
 

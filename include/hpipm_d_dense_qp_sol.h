@@ -52,6 +52,9 @@ struct d_dense_qp_sol
 int d_memsize_dense_qp_sol(int nv, int ne, int nb, int ng);
 //
 void d_create_dense_qp_sol(int nv, int ne, int nb, int ng, struct d_dense_qp_sol *qp_sol, void *memory);
-
-
-
+//
+void d_cvt_dense_qp_sol_to_colmaj(struct d_dense_qp *qp, struct d_dense_qp_sol *qp_sol, double *v, double *pi, double *lam_lb, double *lam_ub, double *lam_lg, double *lam_ug);
+//
+void d_cvt_dense_qp_sol_to_rowmaj(struct d_dense_qp *qp, struct d_dense_qp_sol *qp_sol, double *v, double *pi, double *lam_lb, double *lam_ub, double *lam_lg, double *lam_ug);
+//
+void d_cvt_dense_qp_sol_to_libstr(struct d_dense_qp *qp, struct d_dense_qp_sol *qp_sol, struct d_strvec *v, struct d_strvec *pi, struct d_strvec *lam_lb, struct d_strvec *lam_ub, struct d_strvec *lam_lg, struct d_strvec *lam_ug);

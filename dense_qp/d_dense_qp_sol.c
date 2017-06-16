@@ -35,18 +35,25 @@
 #include <blasfeo_common.h>
 #include <blasfeo_d_aux.h>
 
+#include "../include/hpipm_d_dense_qp.h"
 #include "../include/hpipm_d_dense_qp_sol.h"
 
 
 
 #define CREATE_STRVEC d_create_strvec
+#define CVT_STRVEC2VEC d_cvt_strvec2vec
+#define DENSE_QP d_dense_qp
 #define DENSE_QP_SOL d_dense_qp_sol
 #define REAL double
 #define STRVEC d_strvec
 #define SIZE_STRVEC d_size_strvec
+#define VECCP_LIBSTR dveccp_libstr
 
 #define CREATE_DENSE_QP_SOL d_create_dense_qp_sol
 #define MEMSIZE_DENSE_QP_SOL d_memsize_dense_qp_sol
+#define CVT_DENSE_QP_SOL_TO_COLMAJ d_cvt_dense_qp_sol_to_colmaj
+#define CVT_DENSE_QP_SOL_TO_ROWMAJ d_cvt_dense_qp_sol_to_rowmaj
+#define CVT_DENSE_QP_SOL_TO_LIBSTR d_cvt_dense_qp_sol_to_libstr
 
 
 
