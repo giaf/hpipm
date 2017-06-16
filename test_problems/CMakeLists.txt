@@ -25,92 +25,11 @@
 #                                                                                                 #
 ###################################################################################################
 
-# Target architecture
-TARGET = GENERIC
+add_executable(dense_qp test_d_dense.c)
+target_link_libraries(dense_qp hpipm ${BLASFEO_PATH}/lib/libblasfeo.a m)
 
-# BLAS and LAPACK version (for LA=BLAS in BLASFEO)
-REF_BLAS = 0
-#REF_BLAS = OPENBLAS
-#REF_BLAS = NETLIB
-#REF_BLAS = MKL
-#REF_BLAS = BLIS
-#REF_BLAS = ATLAS
+add_executable(ocp_qp test_d_ocp.c tools.c)
+target_link_libraries(ocp_qp hpipm ${BLASFEO_PATH}/lib/libblasfeo.a m)
 
-# operating system
-#UNAME_S := $(shell uname -s)
-#ifeq ($(UNAME_S),Linux)
-#    OS = LINUX
-#endif
-#ifeq ($(UNAME_S),Darwin)
-#    OS = MAC
-#endif
-#OS = LINUX
-#OS = MAC
-#OS = WINDOWS
-
-# C Compiler
-CC = gcc
-#CC = clang
-#CC = x86_64-w64-mingw32-gcc
-
-# Installation directory
-PREFIX = /opt
-
-# BLASFEO installation directory
-BLASFEO_PATH = /opt/blasfeo
-
-# enable runtine checks
-RUNTIME_CHECKS = 0
-#RUNTIME_CHECKS = 1
-
-# compiler flags
-CFLAGS  = 
-
-# optimization flags
-CFLAGS += -O2 -fPIC
-
-# debugging flags
-CFLAGS  += #-g #-Wall -pedantic -Wfloat-equal #-pg
-
-# search directories
-CFLAGS += -I$(BLASFEO_PATH)/include
-
-# definirions
-#ifeq ($(OS), LINUX)
-#CFLAGS  += -DOS_LINUX
-#endif
-#ifeq ($(OS), MAC)
-#CFLAGS  += -DOS_MAC
-#endif
-#ifeq ($(OS), WINDOWS)
-#CFLAGS  += -DOS_WINDOWS
-#endif
-
-ifeq ($(REF_BLAS), 0)
-CFLAGS  += 
-endif
-ifeq ($(REF_BLAS), OPENBLAS)
-CFLAGS  += -DREF_BLAS_OPENBLAS -I/opt/openblas/include
-endif
-ifeq ($(REF_BLAS), BLIS)
-CFLAGS  += -DREF_BLAS_BLIS -std=c99
-endif
-ifeq ($(REF_BLAS), NETLIB)
-CFLAGS  += -DREF_BLAS_NETLIB
-endif
-ifeq ($(REF_BLAS), MKL)
-CFLAGS  += -DREF_BLAS_MKL -m64 -I/opt/intel/mkl/include
-endif
-ifeq ($(REF_BLAS), ATLAS)
-CFLAGS  += -DREF_BLAS_ATLAS
-endif
-
-ifeq ($(RUNTIME_CHECKS), 1)
-CFLAGS += -DRUNTIME_CHECKS
-endif
-
-# architecture-specific flags
-ifeq ($(TARGET), GENERIC)
-CFLAGS  += -DTARGET_GENERIC
-endif
-
+add_executable(cond test_d_cond.c tools.c)
+target_link_libraries(cond hpipm ${BLASFEO_PATH}/lib/libblasfeo.a m)

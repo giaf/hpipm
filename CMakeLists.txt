@@ -25,92 +25,120 @@
 #                                                                                                 #
 ###################################################################################################
 
+cmake_minimum_required(VERSION 2.8.11)
+project(hpipm)
+
 # Target architecture
-TARGET = GENERIC
+set(TARGET GENERIC)
 
 # BLAS and LAPACK version (for LA=BLAS in BLASFEO)
-REF_BLAS = 0
-#REF_BLAS = OPENBLAS
-#REF_BLAS = NETLIB
-#REF_BLAS = MKL
-#REF_BLAS = BLIS
-#REF_BLAS = ATLAS
+set(REF_BLAS 0)
+#set(REF_BLAS OPENBLAS)
+#set(REF_BLAS NETLIB)
+#set(REF_BLAS MKL)
+#set(REF_BLAS BLIS)
+#set(REF_BLAS ATLAS)
 
 # operating system
-#UNAME_S := $(shell uname -s)
-#ifeq ($(UNAME_S),Linux)
-#    OS = LINUX
-#endif
-#ifeq ($(UNAME_S),Darwin)
-#    OS = MAC
-#endif
-#OS = LINUX
-#OS = MAC
-#OS = WINDOWS
+#set(OS LINUX)
+#set(OS MAC)
+#set(OS WINDOWS)
 
 # C Compiler
-CC = gcc
-#CC = clang
-#CC = x86_64-w64-mingw32-gcc
+set(CC_COMPILER gcc)
+#set(CC_COMPILER clang)
+#set(CC_COMPILER x86_64-w64-mingw32-gcc)
 
-# Installation directory
-PREFIX = /opt
+# installation directory
+set(PREFIX /opt)
 
 # BLASFEO installation directory
-BLASFEO_PATH = /opt/blasfeo
+set(BLASFEO_PATH /opt/blasfeo)
 
 # enable runtine checks
-RUNTIME_CHECKS = 0
-#RUNTIME_CHECKS = 1
+set(RUNTIME_CHECKS 0)
+#set(RUNTIME_CHECKS 0)
 
 # compiler flags
-CFLAGS  = 
+set(CMAKE_C_FLAGS "")
 
 # optimization flags
-CFLAGS += -O2 -fPIC
+set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -O2 -fPIC")
 
 # debugging flags
-CFLAGS  += #-g #-Wall -pedantic -Wfloat-equal #-pg
+#set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -g")
 
 # search directories
-CFLAGS += -I$(BLASFEO_PATH)/include
+set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -I${BLASFEO_PATH}/include")
 
-# definirions
-#ifeq ($(OS), LINUX)
-#CFLAGS  += -DOS_LINUX
-#endif
-#ifeq ($(OS), MAC)
-#CFLAGS  += -DOS_MAC
-#endif
-#ifeq ($(OS), WINDOWS)
-#CFLAGS  += -DOS_WINDOWS
-#endif
+#
+if(${REF_BLAS} EQUAL 0)
+	set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ")
+endif(${REF_BLAS} EQUAL 0)
+if(${REF_BLAS} EQUAL OPENBLAS)
+	set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -DREF_BLAS_OPENBLAS -I/opt/openblas/include")
+endif(${REF_BLAS} EQUAL OPENBLAS)
+if(${REF_BLAS} EQUAL BLIS)
+	set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -DREF_BLAS_BLIS -std=c99")
+endif(${REF_BLAS} EQUAL BLIS)
+if(${REF_BLAS} EQUAL NETLIB)
+	set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -DREF_BLAS_NETLIB")
+endif(${REF_BLAS} EQUAL NETLIB)
+if(${REF_BLAS} EQUAL MKL)
+	set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -DREF_BLAS_MKL -m64 -I/opt/intel/mkl/include")
+endif(${REF_BLAS} EQUAL MKL)
+if(${REF_BLAS} EQUAL ATLAS)
+	set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -DREF_BLAS_ATLAS")
+endif(${REF_BLAS} EQUAL ATLAS)
 
-ifeq ($(REF_BLAS), 0)
-CFLAGS  += 
-endif
-ifeq ($(REF_BLAS), OPENBLAS)
-CFLAGS  += -DREF_BLAS_OPENBLAS -I/opt/openblas/include
-endif
-ifeq ($(REF_BLAS), BLIS)
-CFLAGS  += -DREF_BLAS_BLIS -std=c99
-endif
-ifeq ($(REF_BLAS), NETLIB)
-CFLAGS  += -DREF_BLAS_NETLIB
-endif
-ifeq ($(REF_BLAS), MKL)
-CFLAGS  += -DREF_BLAS_MKL -m64 -I/opt/intel/mkl/include
-endif
-ifeq ($(REF_BLAS), ATLAS)
-CFLAGS  += -DREF_BLAS_ATLAS
-endif
-
-ifeq ($(RUNTIME_CHECKS), 1)
-CFLAGS += -DRUNTIME_CHECKS
-endif
+#
+if(${RUNTIME_CHECKS} EQUAL 1)
+	set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -DRUNTIME_CHECKS")
+endif(${RUNTIME_CHECKS} EQUAL 1)
 
 # architecture-specific flags
-ifeq ($(TARGET), GENERIC)
-CFLAGS  += -DTARGET_GENERIC
-endif
+if(${TARGET} EQUAL GENERIC)
+	set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -DTARGET_GENERIC")
+endif(${TARGET} EQUAL GENERIC)
 
+
+
+# source files
+# dense qp
+file(GLOB DENSE_QP_SRC
+	${PROJECT_SOURCE_DIR}/dense_qp/d_dense_qp.c
+	${PROJECT_SOURCE_DIR}/dense_qp/d_dense_qp_sol.c
+	${PROJECT_SOURCE_DIR}/dense_qp/d_dense_qp_kkt.c
+	${PROJECT_SOURCE_DIR}/dense_qp/d_dense_qp_ipm_hard.c
+	${PROJECT_SOURCE_DIR}/dense_qp/s_dense_qp.c
+	${PROJECT_SOURCE_DIR}/dense_qp/s_dense_qp_sol.c
+	)
+# ocp qp
+file(GLOB OCP_QP_SRC
+	${PROJECT_SOURCE_DIR}/ocp_qp/d_ocp_qp.c
+	${PROJECT_SOURCE_DIR}/ocp_qp/d_ocp_qp_sol.c
+	${PROJECT_SOURCE_DIR}/ocp_qp/d_ocp_qp_kkt.c
+	${PROJECT_SOURCE_DIR}/ocp_qp/d_ocp_qp_ipm_hard.c
+	${PROJECT_SOURCE_DIR}/ocp_qp/s_ocp_qp.c
+	${PROJECT_SOURCE_DIR}/ocp_qp/s_ocp_qp_sol.c
+	)
+# core qp
+file(GLOB CORE_QP_SRC
+	${PROJECT_SOURCE_DIR}/core_qp/d_core_qp_ipm_hard.c
+	${PROJECT_SOURCE_DIR}/core_qp/d_core_qp_ipm_hard_aux.c
+	)
+# cond
+file(GLOB COND_SRC
+	${PROJECT_SOURCE_DIR}/cond/d_cond.c
+	${PROJECT_SOURCE_DIR}/cond/d_cond_aux.c
+	)
+
+set(HPIPM_SRC ${DENSE_QP_SRC} ${OCP_QP_SRC} ${CORE_QP_SRC} ${COND_SRC})
+
+# add library
+add_library(hpipm ${HPIPM_SRC})
+#add_library(hpipm SHARED ${HPIPM_SRC})
+#target_link_libraries(hpipm)
+
+# test problems
+add_subdirectory(test_problems)

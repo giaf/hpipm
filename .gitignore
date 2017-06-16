@@ -5,3 +5,5 @@ libhpipm.a
 libhpipm.so
 hpipm_target.h
 *.swp
+*.swo
+build/
