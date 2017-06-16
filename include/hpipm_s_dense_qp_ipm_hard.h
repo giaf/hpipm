@@ -29,46 +29,61 @@
 
 #include <blasfeo_target.h>
 #include <blasfeo_common.h>
-#include <blasfeo_d_aux.h>
-
-#include "../include/hpipm_d_dense_qp.h"
-#include "../include/hpipm_d_dense_qp_sol.h"
-#include "../include/hpipm_d_dense_qp_ipm_hard.h"
-#include "../include/hpipm_d_core_qp_ipm_hard.h"
-#include "../include/hpipm_d_core_qp_ipm_hard_aux.h"
-#include "../include/hpipm_d_dense_qp_kkt.h"
 
 
 
-#define COMPUTE_ALPHA_HARD_QP d_compute_alpha_hard_qp
-#define COMPUTE_CENTERING_CORRECTION_HARD_QP d_compute_centering_correction_hard_qp
-#define COMPUTE_MU_AFF_HARD_QP d_compute_mu_aff_hard_qp
-#define COMPUTE_RES_HARD_DENSE_QP d_compute_res_hard_dense_qp
-#define CREATE_IPM_HARD_CORE_QP d_create_ipm_hard_core_qp
-#define CREATE_STRMAT d_create_strmat
-#define CREATE_STRVEC d_create_strvec
-#define DENSE_QP d_dense_qp
-#define DENSE_QP_SOL d_dense_qp_sol
-#define FACT_SOLVE_KKT_STEP_HARD_DENSE_QP d_fact_solve_kkt_step_hard_dense_qp
-#define INIT_VAR_HARD_DENSE_QP d_init_var_hard_dense_qp
-#define IPM_HARD_CORE_QP_WORKSPACE d_ipm_hard_core_qp_workspace
-#define IPM_HARD_DENSE_QP_ARG d_ipm_hard_dense_qp_arg
-#define IPM_HARD_DENSE_QP_WORKSPACE d_ipm_hard_dense_qp_workspace
-#define MEMSIZE_IPM_HARD_CORE_QP d_memsize_ipm_hard_core_qp
-#define SIZE_STRMAT d_size_strmat
-#define SIZE_STRVEC d_size_strvec
-#define SOLVE_KKT_STEP_HARD_DENSE_QP d_solve_kkt_step_hard_dense_qp
-#define STRMAT d_strmat
-#define STRVEC d_strvec
-#define UPDATE_VAR_HARD_QP d_update_var_hard_qp
+struct s_ipm_hard_dense_qp_workspace
+	{
+	struct s_ipm_hard_core_qp_workspace *core_workspace;
+	struct s_strvec *dv; // step in v
+	struct s_strvec *dpi; // step in pi
+	struct s_strvec *dlam; // step in lam XXX needed ???
+	struct s_strvec *dt; // step in t XXX needed ???
+	struct s_strvec *dt_lb; //
+	struct s_strvec *dt_ub; // XXX needed ???
+	struct s_strvec *dt_lg; //
+	struct s_strvec *dt_ug; // XXX needed ???
+	struct s_strvec *res_g; // q-residuals
+	struct s_strvec *res_b; // b-residuals
+	struct s_strvec *res_d; // d-residuals
+	struct s_strvec *res_d_lb; // d-residuals
+	struct s_strvec *res_d_ub; // d-residuals
+	struct s_strvec *res_d_lg; // d-residuals
+	struct s_strvec *res_d_ug; // d-residuals
+	struct s_strvec *res_m; // m-residuals
+	struct s_strvec *Qx; // hessian update
+	struct s_strvec *qx; // gradient update
+	struct s_strmat *Lv; //
+	struct s_strmat *AL; //
+	struct s_strmat *Le; //
+	struct s_strmat *Ctx; //
+	struct s_strvec *lv; //
+	struct s_strvec *tmp_nb; // work space of size nb
+	struct s_strvec *tmp_ng0; // work space of size nb
+	struct s_strvec *tmp_ng1; // work space of size nb
+	float *stat; // convergence statistics
+	float res_mu; // mu-residual
+	int iter; // iteration number
+	};
 
 
 
-#define MEMSIZE_IPM_HARD_DENSE_QP d_memsize_ipm_hard_dense_qp
-#define CREATE_IPM_HARD_DENSE_QP d_create_ipm_hard_dense_qp
-#define SOLVE_IPM_HARD_DENSE_QP d_solve_ipm_hard_dense_qp
-#define SOLVE_IPM2_HARD_DENSE_QP d_solve_ipm2_hard_dense_qp
+struct s_ipm_hard_dense_qp_arg
+	{
+	float alpha_min; // exit cond on step length
+	float mu_max; // exit cond on duality measure
+	float mu0; // initial value for duality measure
+	int iter_max; // exit cond in iter number
+	};
 
 
 
-#include "x_dense_qp_ipm_hard.c"
+//
+int s_memsize_ipm_hard_dense_qp(struct s_dense_qp *qp, struct s_ipm_hard_dense_qp_arg *arg);
+//
+void s_create_ipm_hard_dense_qp(struct s_dense_qp *qp, struct s_ipm_hard_dense_qp_arg *arg, struct s_ipm_hard_dense_qp_workspace *ws, void *mem);
+//
+void s_solve_ipm_hard_dense_qp(struct s_dense_qp *qp, struct s_dense_qp_sol *qp_sol, struct s_ipm_hard_dense_qp_workspace *ws);
+//
+void s_solve_ipm2_hard_dense_qp(struct s_dense_qp *qp, struct s_dense_qp_sol *qp_sol, struct s_ipm_hard_dense_qp_workspace *ws);
+

@@ -112,6 +112,8 @@ file(GLOB DENSE_QP_SRC
 	${PROJECT_SOURCE_DIR}/dense_qp/d_dense_qp_ipm_hard.c
 	${PROJECT_SOURCE_DIR}/dense_qp/s_dense_qp.c
 	${PROJECT_SOURCE_DIR}/dense_qp/s_dense_qp_sol.c
+	${PROJECT_SOURCE_DIR}/dense_qp/s_dense_qp_kkt.c
+	${PROJECT_SOURCE_DIR}/dense_qp/s_dense_qp_ipm_hard.c
 	)
 # ocp qp
 file(GLOB OCP_QP_SRC
@@ -126,6 +128,8 @@ file(GLOB OCP_QP_SRC
 file(GLOB CORE_QP_SRC
 	${PROJECT_SOURCE_DIR}/core_qp/d_core_qp_ipm_hard.c
 	${PROJECT_SOURCE_DIR}/core_qp/d_core_qp_ipm_hard_aux.c
+	${PROJECT_SOURCE_DIR}/core_qp/s_core_qp_ipm_hard.c
+	${PROJECT_SOURCE_DIR}/core_qp/s_core_qp_ipm_hard_aux.c
 	)
 # cond
 file(GLOB COND_SRC

@@ -27,48 +27,117 @@
 
 
 
-#include <blasfeo_target.h>
-#include <blasfeo_common.h>
-#include <blasfeo_d_aux.h>
+int MEMSIZE_IPM_HARD_CORE_QP(int nv, int ne, int nb, int ng, int iter_max)
+	{
 
-#include "../include/hpipm_d_dense_qp.h"
-#include "../include/hpipm_d_dense_qp_sol.h"
-#include "../include/hpipm_d_dense_qp_ipm_hard.h"
-#include "../include/hpipm_d_core_qp_ipm_hard.h"
-#include "../include/hpipm_d_core_qp_ipm_hard_aux.h"
-#include "../include/hpipm_d_dense_qp_kkt.h"
+	int size;
 
+	int nv0 = nv;
+	int ne0 = ne;
+	int nb0 = nb;
+	int ng0 = ng;
+// if target avx
+// nv0 = ...
 
+	size = 0;
 
-#define COMPUTE_ALPHA_HARD_QP d_compute_alpha_hard_qp
-#define COMPUTE_CENTERING_CORRECTION_HARD_QP d_compute_centering_correction_hard_qp
-#define COMPUTE_MU_AFF_HARD_QP d_compute_mu_aff_hard_qp
-#define COMPUTE_RES_HARD_DENSE_QP d_compute_res_hard_dense_qp
-#define CREATE_IPM_HARD_CORE_QP d_create_ipm_hard_core_qp
-#define CREATE_STRMAT d_create_strmat
-#define CREATE_STRVEC d_create_strvec
-#define DENSE_QP d_dense_qp
-#define DENSE_QP_SOL d_dense_qp_sol
-#define FACT_SOLVE_KKT_STEP_HARD_DENSE_QP d_fact_solve_kkt_step_hard_dense_qp
-#define INIT_VAR_HARD_DENSE_QP d_init_var_hard_dense_qp
-#define IPM_HARD_CORE_QP_WORKSPACE d_ipm_hard_core_qp_workspace
-#define IPM_HARD_DENSE_QP_ARG d_ipm_hard_dense_qp_arg
-#define IPM_HARD_DENSE_QP_WORKSPACE d_ipm_hard_dense_qp_workspace
-#define MEMSIZE_IPM_HARD_CORE_QP d_memsize_ipm_hard_core_qp
-#define SIZE_STRMAT d_size_strmat
-#define SIZE_STRVEC d_size_strvec
-#define SOLVE_KKT_STEP_HARD_DENSE_QP d_solve_kkt_step_hard_dense_qp
-#define STRMAT d_strmat
-#define STRVEC d_strvec
-#define UPDATE_VAR_HARD_QP d_update_var_hard_qp
+	size += 2*nv0*sizeof(REAL); // dv res_g
+	size += 2*ne0*sizeof(REAL); // dpi res_b
+	size += 5*(2*nb0+2*ng0)*sizeof(REAL); // dlam dt res_d res_m t_inv
+	size += 2*(nb0+ng0)*sizeof(REAL); // Qx qx
+	size += 5*iter_max*sizeof(REAL); // stat
+
+	size = (size+63)/64*64; // make multiple of cache line size
+
+	return size;
+
+	}
 
 
 
-#define MEMSIZE_IPM_HARD_DENSE_QP d_memsize_ipm_hard_dense_qp
-#define CREATE_IPM_HARD_DENSE_QP d_create_ipm_hard_dense_qp
-#define SOLVE_IPM_HARD_DENSE_QP d_solve_ipm_hard_dense_qp
-#define SOLVE_IPM2_HARD_DENSE_QP d_solve_ipm2_hard_dense_qp
+void CREATE_IPM_HARD_CORE_QP(struct IPM_HARD_CORE_QP_WORKSPACE *workspace, void *mem)
+	{
+
+	int nv = workspace->nv;
+	int ne = workspace->ne;
+	int nb = workspace->nb;
+	int ng = workspace->ng;
+
+	int nv0 = nv;
+	int ne0 = ne;
+	int nb0 = nb;
+	int ng0 = ng;
+// if target avx NO!!!!
+// nv0 = ...
+
+	workspace->memsize = MEMSIZE_IPM_HARD_CORE_QP(nv, ne, nb, ng, workspace->iter_max);
+
+	REAL *d_ptr = (REAL *) mem;
+
+	workspace->t_inv = d_ptr; // t_inv
+	workspace->t_inv_lb = d_ptr;
+	workspace->t_inv_lg = d_ptr+nb0;
+	workspace->t_inv_ub = d_ptr+nb0+ng0;
+	workspace->t_inv_ug = d_ptr+2*nb0+ng0;
+	d_ptr += 2*nb0+2*ng0;
+
+	workspace->dv = d_ptr; // dv
+	d_ptr += nv0;
+
+	workspace->dpi = d_ptr; // dpi
+	d_ptr += ne0;
+
+	workspace->dlam = d_ptr; // dlam
+	workspace->dlam_lb = d_ptr;
+	workspace->dlam_lg = d_ptr+nb0;
+	workspace->dlam_ub = d_ptr+nb0+ng0;
+	workspace->dlam_ug = d_ptr+2*nb0+ng0;
+	d_ptr += 2*nb0+2*ng0;
+
+	workspace->dt = d_ptr; // dt
+	workspace->dt_lb = d_ptr;
+	workspace->dt_lg = d_ptr+nb0;
+	workspace->dt_ub = d_ptr+nb0+ng0;
+	workspace->dt_ug = d_ptr+2*nb0+ng0;
+	d_ptr += 2*nb0+2*ng0;
+
+	workspace->res_g = d_ptr; // res_g
+	d_ptr += nv0;
+
+	workspace->res_b = d_ptr; // res_b
+	d_ptr += ne0;
+
+	workspace->res_d = d_ptr; // res_d
+	workspace->res_d_lb = d_ptr;
+	workspace->res_d_lg = d_ptr+nb0;
+	workspace->res_d_ub = d_ptr+nb0+ng0;
+	workspace->res_d_ug = d_ptr+2*nb0+ng0;
+	d_ptr += 2*nb0+2*ng0;
+
+	workspace->res_m = d_ptr; // res_m
+	workspace->res_m_lb = d_ptr;
+	workspace->res_m_lg = d_ptr+nb0;
+	workspace->res_m_ub = d_ptr+nb0+ng0;
+	workspace->res_m_ug = d_ptr+2*nb0+ng0;
+	d_ptr += 2*nb0+2*ng0;
+
+	workspace->Qx = d_ptr; // Qx
+	workspace->Qx_lb = d_ptr;
+	workspace->Qx_lg = d_ptr+nb0;
+	d_ptr += nb0+ng0;
+
+	workspace->qx = d_ptr; // qx
+	workspace->qx_lb = d_ptr;
+	workspace->qx_lg = d_ptr+nb0;
+	d_ptr += nb0+ng0;
+
+	workspace->stat = d_ptr; // stat
+	d_ptr += 5*workspace->iter_max;
+
+	int *i_ptr = (int *) d_ptr;
+
+	return;
+
+	}
 
 
-
-#include "x_dense_qp_ipm_hard.c"

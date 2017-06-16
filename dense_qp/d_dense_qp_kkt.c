@@ -42,423 +42,46 @@
 
 
 
-void d_init_var_hard_dense_qp(struct d_dense_qp *qp, struct d_dense_qp_sol *qp_sol, struct d_ipm_hard_dense_qp_workspace *ws)
-	{
-
-	struct d_ipm_hard_core_qp_workspace *rws = ws->core_workspace;
-
-	// extract rws members
-	int nv = qp->nv;
-	int ne = qp->ne;
-	int nb = qp->nb;
-	int ng = qp->ng;
-
-	double *d_lb = qp->d_lb->pa;
-	double *d_ub = qp->d_ub->pa;
-	double *d_lg = qp->d_lg->pa;
-	double *d_ug = qp->d_ug->pa;
-	int *idxb = qp->idxb;
-
-	double *v = qp_sol->v->pa;
-	double *pi = qp_sol->pi->pa;
-	double *lam_lb = qp_sol->lam_lb->pa;
-	double *lam_ub = qp_sol->lam_ub->pa;
-	double *lam_lg = qp_sol->lam_lg->pa;
-	double *lam_ug = qp_sol->lam_ug->pa;
-	double *t_lb = qp_sol->t_lb->pa;
-	double *t_ub = qp_sol->t_ub->pa;
-	double *t_lg = qp_sol->t_lg->pa;
-	double *t_ug = qp_sol->t_ug->pa;
-
-	double mu0 = rws->mu0;
-
-	// local variables
-	int ii;
-	int idxb0;
-	double thr0 = 0.1;
-
-	// warm start TODO
-
-
-	// cold start
-
-	// primal variables
-	for(ii=0; ii<nv; ii++)
-		{
-		v[ii] = 0.0;
-		}
-	
-	// equality constraints
-	for(ii=0; ii<ne; ii++)
-		{
-		pi[ii] = 0.0;
-		}
-	
-	// box constraints
-	for(ii=0; ii<nb; ii++)
-		{
-		idxb0 = idxb[ii];
-		t_lb[ii] = - d_lb[ii] + v[idxb0];
-		t_ub[ii] =   d_ub[ii] - v[idxb0];
-		if(t_lb[ii]<thr0)
-			{
-			if(t_ub[ii]<thr0)
-				{
-				v[idxb0] = 0.5*(d_lb[ii] - d_ub[ii]);
-				t_lb[ii] = thr0;
-				t_ub[ii] = thr0;
-				}
-			else
-				{
-				t_lb[ii] = thr0;
-				v[idxb0] = d_lb[ii] + thr0;
-				}
-			}
-		else if(t_ub[ii]<thr0)
-			{
-			t_ub[ii] = thr0;
-			v[idxb0] = d_ub[ii] - thr0;
-			}
-		lam_lb[ii] = mu0/t_lb[ii];
-		lam_ub[ii] = mu0/t_ub[ii];
-		}
-	
-	// inequality constraints
-	dgemv_t_libstr(nv, ng, 1.0, qp->Ct, 0, 0, qp_sol->v, 0, 0.0, qp_sol->t_lg, 0, qp_sol->t_lg, 0);
-	for(ii=0; ii<ng; ii++)
-		{
-		t_ug[ii] = t_lg[ii];
-		t_lg[ii] -= d_lg[ii];
-		t_ug[ii] += d_ug[ii];
-		t_lg[ii] = fmax( thr0, t_lg[ii] );
-		t_ug[ii] = fmax( thr0, t_ug[ii] );
-//		t_lg[ii] = thr0>t_lg[ii] ? thr0 : t_lg[ii];
-//		t_ug[ii] = thr0>t_ug[ii] ? thr0 : t_ug[ii];
-		lam_lg[ii] = mu0/t_lg[ii];
-		lam_ug[ii] = mu0/t_ug[ii];
-		}
-
-	return;
-
-	}
-
-
-
-void d_compute_res_hard_dense_qp(struct d_dense_qp *qp, struct d_dense_qp_sol *qp_sol, struct d_ipm_hard_dense_qp_workspace *ws)
-	{
-
-	struct d_ipm_hard_core_qp_workspace *cws = ws->core_workspace;
-
-	int nv = qp->nv;
-	int ne = qp->ne;
-	int nb = qp->nb;
-	int ng = qp->ng;
-
-	// TODO extract qp arguments !!!!!
-
-	struct d_strvec *v = qp_sol->v;
-	struct d_strvec *pi = qp_sol->pi;
-	struct d_strvec *lam_lb = qp_sol->lam_lb;
-	struct d_strvec *lam_ub = qp_sol->lam_ub;
-	struct d_strvec *lam_lg = qp_sol->lam_lg;
-	struct d_strvec *lam_ug = qp_sol->lam_ug;
-	struct d_strvec *t_lb = qp_sol->t_lb;
-	struct d_strvec *t_ub = qp_sol->t_ub;
-	struct d_strvec *t_lg = qp_sol->t_lg;
-	struct d_strvec *t_ug = qp_sol->t_ug;
-
-	double mu;
-
-	// res g
-	dsymv_l_libstr(nv, nv, 1.0, qp->Hg, 0, 0, v, 0, 1.0, qp->g, 0, ws->res_g, 0);
-
-	if(nb>0)
-		{
-		// res_g
-		daxpy_libstr(nb, -1.0, lam_lb, 0, lam_ub, 0, ws->tmp_nb, 0);
-		dvecad_sp_libstr(nb, 1.0, ws->tmp_nb, 0, qp->idxb, ws->res_g, 0);
-		// res_d
-		dvecex_sp_libstr(nb, -1.0, qp->idxb, v, 0, ws->res_d_lb, 0);
-		dveccp_libstr(nb, ws->res_d_lb, 0, ws->res_d_ub, 0);
-		daxpy_libstr(nb, 1.0, qp->d_lb, 0, ws->res_d_lb, 0, ws->res_d_lb, 0);
-		daxpy_libstr(nb, 1.0, qp->d_ub, 0, ws->res_d_ub, 0, ws->res_d_ub, 0);
-		daxpy_libstr(nb, 1.0, t_lb, 0, ws->res_d_lb, 0, ws->res_d_lb, 0);
-		daxpy_libstr(nb, -1.0, t_ub, 0, ws->res_d_ub, 0, ws->res_d_ub, 0);
-		}
-
-	if(ng>0)
-		{
-		daxpy_libstr(ng, -1.0, lam_lg, 0, lam_ug, 0, ws->tmp_ng0, 0);
-		daxpy_libstr(ng, 1.0, t_lg, 0, qp->d_lg, 0, ws->res_d_lg, 0);
-		daxpy_libstr(ng, -1.0, t_ug, 0, qp->d_ug, 0, ws->res_d_ug, 0);
-		dgemv_nt_libstr(nv, ng, 1.0, 1.0, qp->Ct, 0, 0, ws->tmp_ng0, 0, v, 0, 1.0, 0.0, ws->res_g, 0, ws->tmp_ng1, 0, ws->res_g, 0, ws->tmp_ng1, 0);
-		daxpy_libstr(ng, -1.0, ws->tmp_ng1, 0, ws->res_d_lg, 0, ws->res_d_lg, 0);
-		daxpy_libstr(ng, -1.0, ws->tmp_ng1, 0, ws->res_d_ug, 0, ws->res_d_ug, 0);
-		}
-	
-	// res b, res g
-	dgemv_nt_libstr(ne, nv, -1.0, -1.0, qp->A, 0, 0, v, 0, pi, 0, 1.0, 1.0, qp->b, 0, ws->res_g, 0, ws->res_b, 0, ws->res_g, 0);
-
-	// res_mu
-	mu = dvecmuldot_libstr(2*nb+2*ng, lam_lb, 0, t_lb, 0, ws->res_m, 0);
-
-	ws->res_mu = mu*cws->nt_inv;
-
-
-	return;
-
-	}
-
-
-// range-space (Schur complement) method
-void d_fact_solve_kkt_step_hard_dense_qp(struct d_dense_qp *qp, struct d_ipm_hard_dense_qp_workspace *ws)
-	{
-
-	int nv = qp->nv;
-	int ne = qp->ne;
-	int nb = qp->nb;
-	int ng = qp->ng;
-	struct d_strmat *Hg = qp->Hg;
-	struct d_strmat *A = qp->A;
-	struct d_strmat *Ct = qp->Ct;
-	int *idxb = qp->idxb;
-
-	struct d_strmat *Lv = ws->Lv;
-	struct d_strmat *Le = ws->Le;
-	struct d_strmat *Ctx = ws->Ctx;
-	struct d_strmat *AL = ws->AL;
-	struct d_strvec *lv = ws->lv;
-	struct d_strvec *dv = ws->dv;
-	struct d_strvec *dpi = ws->dpi;
-	struct d_strvec *dt_lb = ws->dt_lb;
-	struct d_strvec *dt_lg = ws->dt_lg;
-	struct d_strvec *res_g = ws->res_g;
-	struct d_strvec *res_b = ws->res_b;
-	struct d_strvec *Qx = ws->Qx;
-	struct d_strvec *qx = ws->qx;
-
-	struct d_ipm_hard_core_qp_workspace *rws = ws->core_workspace;
-
-	if(nb>0 | ng>0)
-		{
-		d_compute_Qx_qx_hard_qp(rws);
-		}
-
-	if(ne>0)
-		{
-		dtrcp_l_libstr(nv, Hg, 0, 0, Lv, 0, 0);
-
-		dveccp_libstr(nv, res_g, 0, lv, 0);
-
-		if(nb>0)
-			{
-			ddiaad_sp_libstr(nb, 1.0, Qx, 0, idxb, Lv, 0, 0);
-			dvecad_sp_libstr(nb, 1.0, qx, 0, idxb, lv, 0);
-			}
-
-		if(ng>0)
-			{
-			dgemv_n_libstr(nv, ng, 1.0, Ct, 0, 0, qx, nb, 1.0, lv, 0, lv, 0);
-			dgemm_r_diag_libstr(nv, ng, 1.0, Ct, 0, 0, Qx, nb, 0.0, Ctx, 0, 0, Ctx, 0, 0);
-			dsyrk_dpotrf_ln_libstr(nv, nv, ng, Ctx, 0, 0, Ct, 0, 0, Lv, 0, 0, Lv, 0, 0);
-			}
-		else
-			{
-			dpotrf_l_libstr(nv, Lv, 0, 0, Lv, 0, 0);
-			}
-
-		dveccp_libstr(nv, lv, 0, dv, 0);
-
-		dgecp_libstr(ne, nv, A, 0, 0, AL, 0, 0);
-		dtrsm_rltn_libstr(ne, nv, 1.0, Lv, 0, 0, A, 0, 0, AL, 0, 0);
-
-		dgese_libstr(ne, ne, 0.0, Le, 0, 0);
-		dsyrk_dpotrf_ln_libstr(ne, ne, nv, AL, 0, 0, AL, 0, 0, Le, 0, 0, Le, 0, 0);
-
-		dtrsv_lnn_libstr(nv, Lv, 0, 0, lv, 0, lv, 0);
-
-		dgemv_n_libstr(ne, nv, 1.0, AL, 0, 0, lv, 0, 1.0, res_b, 0, dpi, 0);
-
-		dtrsv_lnn_libstr(ne, Le, 0, 0, dpi, 0, dpi, 0);
-		dtrsv_ltn_libstr(ne, Le, 0, 0, dpi, 0, dpi, 0);
-
-		dgemv_t_libstr(ne, nv, 1.0, A, 0, 0, dpi, 0, -1.0, dv, 0, dv, 0);
-
-		dtrsv_lnn_libstr(nv, Lv, 0, 0, dv, 0, dv, 0);
-		dtrsv_ltn_libstr(nv, Lv, 0, 0, dv, 0, dv, 0);
-		}
-	else
-		{
-#if 0
-		dtrcp_l_libstr(nv, Hg, 0, 0, Lv, 0, 0);
-		dveccp_libstr(nv, res_g, 0, lv, 0);
-
-		if(nb>0)
-			{
-			ddiaad_sp_libstr(nb, 1.0, Qx, 0, idxb, Lv, 0, 0);
-			dvecad_sp_libstr(nb, 1.0, qx, 0, idxb, lv, 0);
-			}
-
-		if(ng>0)
-			{
-			dgemm_r_diag_libstr(nv, ng, 1.0, Ct, 0, 0, Qx, nb, 0.0, Ctx, 0, 0, Ctx, 0, 0);
-			dgemv_n_libstr(nv, ng, 1.0, Ct, 0, 0, qx, nb, 1.0, lv, 0, lv, 0);
-			dsyrk_dpotrf_ln_libstr(nv, nv, ng, Ctx, 0, 0, Ct, 0, 0, Lv, 0, 0, Lv, 0, 0); // TODO _mn_ routine in BLASFEO !!!
-			}
-		else
-			{
-			dpotrf_l_libstr(nv, Lv, 0, 0, Lv, 0, 0);
-			}
-
-		dveccp_libstr(nv, lv, 0, dv, 0);
-		dvecsc_libstr(nv, -1.0, dv, 0);
-
-		dtrsv_lnn_libstr(nv, Lv, 0, 0, dv, 0, dv, 0);
-		dtrsv_ltn_libstr(nv, Lv, 0, 0, dv, 0, dv, 0);
-#else
-		dtrcp_l_libstr(nv, Hg, 0, 0, Lv, 0, 0);
-		drowin_libstr(nv, 1.0, res_g, 0, Lv, nv, 0);
-
-		if(nb>0)
-			{
-			ddiaad_sp_libstr(nb, 1.0, Qx, 0, idxb, Lv, 0, 0);
-			drowad_sp_libstr(nb, 1.0, qx, 0, idxb, Lv, nv, 0);
-			}
-
-		if(ng>0)
-			{
-			dgemm_r_diag_libstr(nv, ng, 1.0, Ct, 0, 0, Qx, nb, 0.0, Ctx, 0, 0, Ctx, 0, 0);
-			drowin_libstr(ng, 1.0, qx, nb, Ctx, nv, 0);
-			dsyrk_dpotrf_ln_libstr(nv+1, nv, ng, Ctx, 0, 0, Ct, 0, 0, Lv, 0, 0, Lv, 0, 0); // TODO _mn_ routine in BLASFEO !!!
-			}
-		else
-			{
-			dpotrf_l_mn_libstr(nv+1, nv, Lv, 0, 0, Lv, 0, 0);
-			}
-
-		drowex_libstr(nv, -1.0, Lv, nv, 0, dv, 0);
-		dtrsv_ltn_libstr(nv, Lv, 0, 0, dv, 0, dv, 0);
-#endif
-		}
-
-	if(nb>0)
-		{
-		dvecex_sp_libstr(nb, 1.0, idxb, dv, 0, dt_lb, 0);
-		}
-
-	if(ng>0)
-		{
-		dgemv_t_libstr(nv, ng, 1.0, Ct, 0, 0, dv, 0, 0.0, dt_lg, 0, dt_lg, 0);
-		}
-
-	if(nb>0 | ng>0)
-		{
-		d_compute_lam_t_hard_qp(rws);
-		}
-
-	return;
-
-	}
-
-
-
-// range-space (Schur complement) method
-void d_solve_kkt_step_hard_dense_qp(struct d_dense_qp *qp, struct d_ipm_hard_dense_qp_workspace *ws)
-	{
-
-	int nv = qp->nv;
-	int ne = qp->ne;
-	int nb = qp->nb;
-	int ng = qp->ng;
-	struct d_strmat *A = qp->A;
-	struct d_strmat *Ct = qp->Ct;
-	int *idxb = qp->idxb;
-
-	struct d_strmat *Lv = ws->Lv;
-	struct d_strmat *Le = ws->Le;
-	struct d_strmat *Ctx = ws->Ctx;
-	struct d_strmat *AL = ws->AL;
-	struct d_strvec *lv = ws->lv;
-	struct d_strvec *dv = ws->dv;
-	struct d_strvec *dpi = ws->dpi;
-	struct d_strvec *dt_lb = ws->dt_lb;
-	struct d_strvec *dt_lg = ws->dt_lg;
-	struct d_strvec *res_g = ws->res_g;
-	struct d_strvec *res_b = ws->res_b;
-	struct d_strvec *qx = ws->qx;
-
-	struct d_ipm_hard_core_qp_workspace *rws = ws->core_workspace;
-
-	if(nb>0 | ng>0)
-		{
-		d_compute_qx_hard_qp(rws);
-		}
-
-	if(ne>0)
-		{
-		dveccp_libstr(nv, res_g, 0, lv, 0);
-
-		if(nb>0)
-			{
-			dvecad_sp_libstr(nb, 1.0, qx, 0, idxb, lv, 0);
-			}
-
-		if(ng>0)
-			{
-			dgemv_n_libstr(nv, ng, 1.0, Ct, 0, 0, qx, nb, 1.0, lv, 0, lv, 0);
-			}
-
-		dveccp_libstr(nv, lv, 0, dv, 0);
-
-		dtrsv_lnn_libstr(nv, Lv, 0, 0, lv, 0, lv, 0);
-
-		dgemv_n_libstr(ne, nv, 1.0, AL, 0, 0, lv, 0, 1.0, res_b, 0, dpi, 0);
-
-		dtrsv_lnn_libstr(ne, Le, 0, 0, dpi, 0, dpi, 0);
-		dtrsv_ltn_libstr(ne, Le, 0, 0, dpi, 0, dpi, 0);
-
-		dgemv_t_libstr(ne, nv, 1.0, A, 0, 0, dpi, 0, -1.0, dv, 0, dv, 0);
-
-		dtrsv_lnn_libstr(nv, Lv, 0, 0, dv, 0, dv, 0);
-		dtrsv_ltn_libstr(nv, Lv, 0, 0, dv, 0, dv, 0);
-		}
-	else
-		{
-		dveccp_libstr(nv, res_g, 0, lv, 0);
-
-		if(nb>0)
-			{
-			dvecad_sp_libstr(nb, 1.0, qx, 0, idxb, lv, 0);
-			}
-
-		if(ng>0)
-			{
-			dgemv_n_libstr(nv, ng, 1.0, Ct, 0, 0, qx, nb, 1.0, lv, 0, lv, 0);
-			}
-
-		dveccp_libstr(nv, lv, 0, dv, 0);
-		dvecsc_libstr(nv, -1.0, dv, 0);
-
-		dtrsv_lnn_libstr(nv, Lv, 0, 0, dv, 0, dv, 0);
-		dtrsv_ltn_libstr(nv, Lv, 0, 0, dv, 0, dv, 0);
-		}
-
-	if(nb>0)
-		{
-		dvecex_sp_libstr(nb, 1.0, idxb, dv, 0, dt_lb, 0);
-		}
-
-	if(ng>0)
-		{
-		dgemv_t_libstr(nv, ng, 1.0, Ct, 0, 0, dv, 0, 0.0, dt_lg, 0, dt_lg, 0);
-		}
-
-	if(nb>0 | ng>0)
-		{
-		d_compute_lam_t_hard_qp(rws);
-		}
-
-	return;
-
-	}
-
+#define AXPY_LIBSTR daxpy_libstr
+#define COMPUTE_LAM_T_HARD_QP d_compute_lam_t_hard_qp
+#define COMPUTE_QX_HARD_QP d_compute_qx_hard_qp
+#define COMPUTE_QX_QX_HARD_QP d_compute_Qx_qx_hard_qp
+#define DENSE_QP d_dense_qp
+#define DENSE_QP_SOL d_dense_qp_sol
+#define DIAAD_SP_LIBSTR ddiaad_sp_libstr
+#define GECP_LIBSTR dgecp_libstr
+#define GEMM_R_DIAG_LIBSTR dgemm_r_diag_libstr
+#define GEMV_N_LIBSTR dgemv_n_libstr
+#define GEMV_NT_LIBSTR dgemv_nt_libstr
+#define GEMV_T_LIBSTR dgemv_t_libstr
+#define GESE_LIBSTR dgese_libstr
+#define IPM_HARD_CORE_QP_WORKSPACE d_ipm_hard_core_qp_workspace
+#define IPM_HARD_DENSE_QP_WORKSPACE d_ipm_hard_dense_qp_workspace
+#define POTRF_L_LIBSTR dpotrf_l_libstr
+#define POTRF_L_MN_LIBSTR dpotrf_l_mn_libstr
+#define REAL double
+#define ROWAD_SP_LIBSTR drowad_sp_libstr
+#define ROWEX_LIBSTR drowex_libstr
+#define ROWIN_LIBSTR drowin_libstr
+#define STRMAT d_strmat
+#define STRVEC d_strvec
+#define SYMV_L_LIBSTR dsymv_l_libstr
+#define SYRK_POTRF_LN_LIBSTR dsyrk_dpotrf_ln_libstr
+#define TRCP_L_LIBSTR dtrcp_l_libstr
+#define TRSM_RLTN_LIBSTR dtrsm_rltn_libstr
+#define TRSV_LNN_LIBSTR dtrsv_lnn_libstr
+#define TRSV_LTN_LIBSTR dtrsv_ltn_libstr
+#define VECAD_SP_LIBSTR dvecad_sp_libstr
+#define VECCP_LIBSTR dveccp_libstr
+#define VECEX_SP_LIBSTR dvecex_sp_libstr
+#define VECMULDOT_LIBSTR dvecmuldot_libstr
+#define VECSC_LIBSTR dvecsc_libstr
+
+#define INIT_VAR_HARD_DENSE_QP d_init_var_hard_dense_qp
+#define COMPUTE_RES_HARD_DENSE_QP d_compute_res_hard_dense_qp
+#define FACT_SOLVE_KKT_STEP_HARD_DENSE_QP d_fact_solve_kkt_step_hard_dense_qp
+#define SOLVE_KKT_STEP_HARD_DENSE_QP d_solve_kkt_step_hard_dense_qp
+
+
+
+#include "x_dense_qp_kkt.c"

@@ -25,11 +25,14 @@
 #                                                                                                 #
 ###################################################################################################
 
-add_executable(dense_qp test_d_dense.c)
-target_link_libraries(dense_qp hpipm ${BLASFEO_PATH}/lib/libblasfeo.a m)
+add_executable(d_dense_qp test_d_dense.c)
+target_link_libraries(d_dense_qp hpipm ${BLASFEO_PATH}/lib/libblasfeo.a m)
 
-add_executable(ocp_qp test_d_ocp.c tools.c)
-target_link_libraries(ocp_qp hpipm ${BLASFEO_PATH}/lib/libblasfeo.a m)
+add_executable(s_dense_qp test_s_dense.c)
+target_link_libraries(s_dense_qp hpipm ${BLASFEO_PATH}/lib/libblasfeo.a m)
 
-add_executable(cond test_d_cond.c tools.c)
-target_link_libraries(cond hpipm ${BLASFEO_PATH}/lib/libblasfeo.a m)
+add_executable(d_ocp_qp test_d_ocp.c tools.c)
+target_link_libraries(d_ocp_qp hpipm ${BLASFEO_PATH}/lib/libblasfeo.a m)
+
+add_executable(d_cond test_d_cond.c tools.c)
+target_link_libraries(d_cond hpipm ${BLASFEO_PATH}/lib/libblasfeo.a m)
