@@ -33,16 +33,16 @@
 #include <blasfeo_target.h>
 #include <blasfeo_common.h>
 #include <blasfeo_v_aux_ext_dep.h>
-#include <blasfeo_d_aux_ext_dep.h>
+#include <blasfeo_s_aux_ext_dep.h>
 #include <blasfeo_i_aux_ext_dep.h>
-#include <blasfeo_d_aux.h>
-#include <blasfeo_d_blas.h>
+#include <blasfeo_s_aux.h>
+#include <blasfeo_s_blas.h>
 
-#include "../include/hpipm_d_ocp_qp.h"
-#include "../include/hpipm_d_ocp_qp_sol.h"
-#include "../include/hpipm_d_ocp_qp_ipm_hard.h"
+#include "../include/hpipm_s_ocp_qp.h"
+#include "../include/hpipm_s_ocp_qp_sol.h"
+#include "../include/hpipm_s_ocp_qp_ipm_hard.h"
 
-#include "d_tools.h"
+#include "s_tools.h"
 
 
 
@@ -54,7 +54,7 @@
 /************************************************ 
 Mass-spring system: nx/2 masses connected each other with springs (in a row), and the first and the last one to walls. nu (<=nx) controls act on the first nu masses. The system is sampled with sampling time Ts. 
 ************************************************/
-void mass_spring_system(double Ts, int nx, int nu, int N, double *A, double *B, double *b, double *x0)
+void mass_spring_system(float Ts, int nx, int nu, int N, float *A, float *B, float *b, float *x0)
 	{
 
 	int nx2 = nx*nx;
@@ -67,49 +67,49 @@ void mass_spring_system(double Ts, int nx, int nu, int N, double *A, double *B, 
 * build the continuous time system 
 ************************************************/
 	
-	double *T; d_zeros(&T, pp, pp);
+	float *T; s_zeros(&T, pp, pp);
 	int ii;
 	for(ii=0; ii<pp; ii++) T[ii*(pp+1)] = -2;
 	for(ii=0; ii<pp-1; ii++) T[ii*(pp+1)+1] = 1;
 	for(ii=1; ii<pp; ii++) T[ii*(pp+1)-1] = 1;
 
-	double *Z; d_zeros(&Z, pp, pp);
-	double *I; d_zeros(&I, pp, pp); for(ii=0; ii<pp; ii++) I[ii*(pp+1)]=1.0; // = eye(pp);
-	double *Ac; d_zeros(&Ac, nx, nx);
-	dmcopy(pp, pp, Z, pp, Ac, nx);
-	dmcopy(pp, pp, T, pp, Ac+pp, nx);
-	dmcopy(pp, pp, I, pp, Ac+pp*nx, nx);
-	dmcopy(pp, pp, Z, pp, Ac+pp*(nx+1), nx); 
+	float *Z; s_zeros(&Z, pp, pp);
+	float *I; s_zeros(&I, pp, pp); for(ii=0; ii<pp; ii++) I[ii*(pp+1)]=1.0; // = eye(pp);
+	float *Ac; s_zeros(&Ac, nx, nx);
+	smcopy(pp, pp, Z, pp, Ac, nx);
+	smcopy(pp, pp, T, pp, Ac+pp, nx);
+	smcopy(pp, pp, I, pp, Ac+pp*nx, nx);
+	smcopy(pp, pp, Z, pp, Ac+pp*(nx+1), nx); 
 	free(T);
 	free(Z);
 	free(I);
 	
-	d_zeros(&I, nu, nu); for(ii=0; ii<nu; ii++) I[ii*(nu+1)]=1.0; //I = eye(nu);
-	double *Bc; d_zeros(&Bc, nx, nu);
-	dmcopy(nu, nu, I, nu, Bc+pp, nx);
+	s_zeros(&I, nu, nu); for(ii=0; ii<nu; ii++) I[ii*(nu+1)]=1.0; //I = eye(nu);
+	float *Bc; s_zeros(&Bc, nx, nu);
+	smcopy(nu, nu, I, nu, Bc+pp, nx);
 	free(I);
 	
 /************************************************
 * compute the discrete time system 
 ************************************************/
 
-	double *bb; d_zeros(&bb, nx, 1);
-	dmcopy(nx, 1, bb, nx, b, nx);
+	float *bb; s_zeros(&bb, nx, 1);
+	smcopy(nx, 1, bb, nx, b, nx);
 		
-	dmcopy(nx, nx, Ac, nx, A, nx);
-	dscal_3l(nx2, Ts, A);
+	smcopy(nx, nx, Ac, nx, A, nx);
+	sscal_3l(nx2, Ts, A);
 	expm(nx, A);
 	
-	d_zeros(&T, nx, nx);
-	d_zeros(&I, nx, nx); for(ii=0; ii<nx; ii++) I[ii*(nx+1)]=1.0; //I = eye(nx);
-	dmcopy(nx, nx, A, nx, T, nx);
-	daxpy_3l(nx2, -1.0, I, T);
-	dgemm_nn_3l(nx, nu, nx, T, nx, Bc, nx, B, nx);
+	s_zeros(&T, nx, nx);
+	s_zeros(&I, nx, nx); for(ii=0; ii<nx; ii++) I[ii*(nx+1)]=1.0; //I = eye(nx);
+	smcopy(nx, nx, A, nx, T, nx);
+	saxpy_3l(nx2, -1.0, I, T);
+	sgemm_nn_3l(nx, nu, nx, T, nx, Bc, nx, B, nx);
 	free(T);
 	free(I);
 	
 	int *ipiv = (int *) malloc(nx*sizeof(int));
-	dgesv_3l(nx, nu, Ac, nx, ipiv, B, nx, &info);
+	sgesv_3l(nx, nu, Ac, nx, ipiv, B, nx, &info);
 	free(ipiv);
 
 	free(Ac);
@@ -232,14 +232,14 @@ int main()
 * dynamical system
 ************************************************/	
 
-	double *A; d_zeros(&A, nx_, nx_); // states update matrix
+	float *A; s_zeros(&A, nx_, nx_); // states update matrix
 
-	double *B; d_zeros(&B, nx_, nu_); // inputs matrix
+	float *B; s_zeros(&B, nx_, nu_); // inputs matrix
 
-	double *b; d_zeros(&b, nx_, 1); // states offset
-	double *x0; d_zeros(&x0, nx_, 1); // initial state
+	float *b; s_zeros(&b, nx_, 1); // states offset
+	float *x0; s_zeros(&x0, nx_, 1); // initial state
 
-	double Ts = 0.5; // sampling time
+	float Ts = 0.5; // sampling time
 	mass_spring_system(Ts, nx_, nu_, N, A, B, b, x0);
 	
 	for(jj=0; jj<nx_; jj++)
@@ -250,61 +250,61 @@ int main()
 	x0[0] = 2.5;
 	x0[1] = 2.5;
 
-	double *b0; d_zeros(&b0, nx_, 1);
-	dgemv_n_3l(nx_, nx_, A, nx_, x0, b0);
-	daxpy_3l(nx_, 1.0, b, b0);
+	float *b0; s_zeros(&b0, nx_, 1);
+	sgemv_n_3l(nx_, nx_, A, nx_, x0, b0);
+	saxpy_3l(nx_, 1.0, b, b0);
 
 #if PRINT
-	d_print_mat(nx_, nx_, A, nx_);
-	d_print_mat(nx_, nu_, B, nu_);
-	d_print_mat(1, nx_, b, 1);
-	d_print_mat(1, nx_, x0, 1);
-	d_print_mat(1, nx_, b0, 1);
+	s_print_mat(nx_, nx_, A, nx_);
+	s_print_mat(nx_, nu_, B, nu_);
+	s_print_mat(1, nx_, b, 1);
+	s_print_mat(1, nx_, x0, 1);
+	s_print_mat(1, nx_, b0, 1);
 #endif
 
 /************************************************
 * cost function
 ************************************************/	
 	
-	double *Q; d_zeros(&Q, nx_, nx_);
+	float *Q; s_zeros(&Q, nx_, nx_);
 	for(ii=0; ii<nx_; ii++) Q[ii*(nx_+1)] = 1.0;
 
-	double *R; d_zeros(&R, nu_, nu_);
+	float *R; s_zeros(&R, nu_, nu_);
 	for(ii=0; ii<nu_; ii++) R[ii*(nu_+1)] = 2.0;
 
-	double *S; d_zeros(&S, nu_, nx_);
+	float *S; s_zeros(&S, nu_, nx_);
 
-	double *q; d_zeros(&q, nx_, 1);
+	float *q; s_zeros(&q, nx_, 1);
 	for(ii=0; ii<nx_; ii++) q[ii] = 0.1;
 
-	double *r; d_zeros(&r, nu_, 1);
+	float *r; s_zeros(&r, nu_, 1);
 	for(ii=0; ii<nu_; ii++) r[ii] = 0.2;
 
-	double *r0; d_zeros(&r0, nu_, 1);
-	dgemv_n_3l(nu_, nx_, S, nu_, x0, r0);
-	daxpy_3l(nu_, 1.0, r, r0);
+	float *r0; s_zeros(&r0, nu_, 1);
+	sgemv_n_3l(nu_, nx_, S, nu_, x0, r0);
+	saxpy_3l(nu_, 1.0, r, r0);
 
 #if PRINT
-	d_print_mat(nx_, nx_, Q, nx_);
-	d_print_mat(nu_, nu_, R, nu_);
-	d_print_mat(nu_, nx_, S, nu_);
-	d_print_mat(1, nx_, q, 1);
-	d_print_mat(1, nu_, r, 1);
-	d_print_mat(1, nu_, r0, 1);
+	s_print_mat(nx_, nx_, Q, nx_);
+	s_print_mat(nu_, nu_, R, nu_);
+	s_print_mat(nu_, nx_, S, nu_);
+	s_print_mat(1, nx_, q, 1);
+	s_print_mat(1, nu_, r, 1);
+	s_print_mat(1, nu_, r0, 1);
 #endif
 
 	// maximum element in cost functions
-	double mu0 = 2.0;
+	float mu0 = 2.0;
 
 /************************************************
 * box & general constraints
 ************************************************/	
 
 	int *idxb0; int_zeros(&idxb0, nb[0], 1);
-	double *d_lb0; d_zeros(&d_lb0, nb[0], 1);
-	double *d_ub0; d_zeros(&d_ub0, nb[0], 1);
-	double *d_lg0; d_zeros(&d_lg0, ng[0], 1);
-	double *d_ug0; d_zeros(&d_ug0, ng[0], 1);
+	float *d_lb0; s_zeros(&d_lb0, nb[0], 1);
+	float *d_ub0; s_zeros(&d_ub0, nb[0], 1);
+	float *d_lg0; s_zeros(&d_lg0, ng[0], 1);
+	float *d_ug0; s_zeros(&d_ug0, ng[0], 1);
 	for(ii=0; ii<nb[0]; ii++)
 		{
 		if(ii<nu[0]) // input
@@ -334,10 +334,10 @@ int main()
 		}
 
 	int *idxb1; int_zeros(&idxb1, nb[1], 1);
-	double *d_lb1; d_zeros(&d_lb1, nb[1], 1);
-	double *d_ub1; d_zeros(&d_ub1, nb[1], 1);
-	double *d_lg1; d_zeros(&d_lg1, ng[1], 1);
-	double *d_ug1; d_zeros(&d_ug1, ng[1], 1);
+	float *d_lb1; s_zeros(&d_lb1, nb[1], 1);
+	float *d_ub1; s_zeros(&d_ub1, nb[1], 1);
+	float *d_lg1; s_zeros(&d_lg1, ng[1], 1);
+	float *d_ug1; s_zeros(&d_ug1, ng[1], 1);
 	for(ii=0; ii<nb[1]; ii++)
 		{
 		if(ii<nu[1]) // input
@@ -368,10 +368,10 @@ int main()
 
 
 	int *idxbN; int_zeros(&idxbN, nb[N], 1);
-	double *d_lbN; d_zeros(&d_lbN, nb[N], 1);
-	double *d_ubN; d_zeros(&d_ubN, nb[N], 1);
-	double *d_lgN; d_zeros(&d_lgN, ng[N], 1);
-	double *d_ugN; d_zeros(&d_ugN, ng[N], 1);
+	float *d_lbN; s_zeros(&d_lbN, nb[N], 1);
+	float *d_ubN; s_zeros(&d_ubN, nb[N], 1);
+	float *d_lgN; s_zeros(&d_lgN, ng[N], 1);
+	float *d_ugN; s_zeros(&d_ugN, ng[N], 1);
 	for(ii=0; ii<nb[N]; ii++)
 		{
 		d_lbN[ii] = - 4.0; // xmin
@@ -384,22 +384,22 @@ int main()
 		d_ugN[ii] =   4.0; // dmax
 		}
 
-	double *C0; d_zeros(&C0, ng[0], nx[0]);
-	double *D0; d_zeros(&D0, ng[0], nu[0]);
+	float *C0; s_zeros(&C0, ng[0], nx[0]);
+	float *D0; s_zeros(&D0, ng[0], nu[0]);
 	for(ii=0; ii<nu[0]-nb[0] & ii<ng[0]; ii++)
 		D0[ii+(nb[0]+ii)*ng[0]] = 1.0;
 	for(; ii<ng[0]; ii++)
 		C0[ii+(nb[0]+ii-nu[0])*ng[0]] = 1.0;
 
-	double *C1; d_zeros(&C1, ng[1], nx[1]);
-	double *D1; d_zeros(&D1, ng[1], nu[1]);
+	float *C1; s_zeros(&C1, ng[1], nx[1]);
+	float *D1; s_zeros(&D1, ng[1], nu[1]);
 	for(ii=0; ii<nu[1]-nb[1] & ii<ng[1]; ii++)
 		D1[ii+(nb[1]+ii)*ng[1]] = 1.0;
 	for(; ii<ng[1]; ii++)
 		C1[ii+(nb[1]+ii-nu[1])*ng[1]] = 1.0;
 
-	double *CN; d_zeros(&CN, ng[N], nx[N]);
-	double *DN; d_zeros(&DN, ng[N], nu[N]);
+	float *CN; s_zeros(&CN, ng[N], nx[N]);
+	float *DN; s_zeros(&DN, ng[N], nu[N]);
 	for(ii=0; ii<nu[N]-nb[N] & ii<ng[N]; ii++)
 		DN[ii+(nb[N]+ii)*ng[N]] = 1.0;
 	for(; ii<ng[N]; ii++)
@@ -408,47 +408,47 @@ int main()
 #if PRINT
 	// box constraints
 	int_print_mat(1, nb[0], idxb0, 1);
-	d_print_mat(1, nb[0], d_lb0, 1);
-	d_print_mat(1, nb[0], d_ub0, 1);
+	s_print_mat(1, nb[0], d_lb0, 1);
+	s_print_mat(1, nb[0], d_ub0, 1);
 	int_print_mat(1, nb[1], idxb1, 1);
-	d_print_mat(1, nb[1], d_lb1, 1);
-	d_print_mat(1, nb[1], d_ub1, 1);
+	s_print_mat(1, nb[1], d_lb1, 1);
+	s_print_mat(1, nb[1], d_ub1, 1);
 	int_print_mat(1, nb[N], idxbN, 1);
-	d_print_mat(1, nb[N], d_lbN, 1);
-	d_print_mat(1, nb[N], d_ubN, 1);
+	s_print_mat(1, nb[N], d_lbN, 1);
+	s_print_mat(1, nb[N], d_ubN, 1);
 	// general constraints
-	d_print_mat(1, ng[0], d_lg0, 1);
-	d_print_mat(1, ng[0], d_ug0, 1);
-	d_print_mat(ng[0], nu[0], D0, ng[0]);
-	d_print_mat(ng[0], nx[0], C0, ng[0]);
-	d_print_mat(1, ng[1], d_lg1, 1);
-	d_print_mat(1, ng[1], d_ug1, 1);
-	d_print_mat(ng[1], nu[1], D1, ng[1]);
-	d_print_mat(ng[1], nx[1], C1, ng[1]);
-	d_print_mat(1, ng[N], d_lgN, 1);
-	d_print_mat(1, ng[N], d_ugN, 1);
-	d_print_mat(ng[N], nu[N], DN, ng[N]);
-	d_print_mat(ng[N], nx[N], CN, ng[N]);
+	s_print_mat(1, ng[0], d_lg0, 1);
+	s_print_mat(1, ng[0], d_ug0, 1);
+	s_print_mat(ng[0], nu[0], D0, ng[0]);
+	s_print_mat(ng[0], nx[0], C0, ng[0]);
+	s_print_mat(1, ng[1], d_lg1, 1);
+	s_print_mat(1, ng[1], d_ug1, 1);
+	s_print_mat(ng[1], nu[1], D1, ng[1]);
+	s_print_mat(ng[1], nx[1], C1, ng[1]);
+	s_print_mat(1, ng[N], d_lgN, 1);
+	s_print_mat(1, ng[N], d_ugN, 1);
+	s_print_mat(ng[N], nu[N], DN, ng[N]);
+	s_print_mat(ng[N], nx[N], CN, ng[N]);
 #endif
 
 /************************************************
 * array of matrices
 ************************************************/	
 
-	double *hA[N];
-	double *hB[N];
-	double *hb[N];
-	double *hQ[N+1];
-	double *hS[N+1];
-	double *hR[N+1];
-	double *hq[N+1];
-	double *hr[N+1];
-	double *hd_lb[N+1];
-	double *hd_ub[N+1];
-	double *hd_lg[N+1];
-	double *hd_ug[N+1];
-	double *hC[N+1];
-	double *hD[N+1];
+	float *hA[N];
+	float *hB[N];
+	float *hb[N];
+	float *hQ[N+1];
+	float *hS[N+1];
+	float *hR[N+1];
+	float *hq[N+1];
+	float *hr[N+1];
+	float *hd_lb[N+1];
+	float *hd_ub[N+1];
+	float *hd_lg[N+1];
+	float *hd_ug[N+1];
+	float *hC[N+1];
+	float *hD[N+1];
 	int *hidxb[N+1];
 
 	hA[0] = A;
@@ -501,35 +501,35 @@ int main()
 * ocp qp
 ************************************************/	
 	
-	int qp_size = d_memsize_ocp_qp(N, nx, nu, nb, ng);
+	int qp_size = s_memsize_ocp_qp(N, nx, nu, nb, ng);
 	printf("\nqp size = %d\n", qp_size);
 	void *qp_mem = malloc(qp_size);
 
-	struct d_ocp_qp qp;
-	d_create_ocp_qp(N, nx, nu, nb, ng, &qp, qp_mem);
-	d_cvt_colmaj_to_ocp_qp(hA, hB, hb, hQ, hS, hR, hq, hr, hidxb, hd_lb, hd_ub, hC, hD, hd_lg, hd_ug, &qp);
+	struct s_ocp_qp qp;
+	s_create_ocp_qp(N, nx, nu, nb, ng, &qp, qp_mem);
+	s_cvt_colmaj_to_ocp_qp(hA, hB, hb, hQ, hS, hR, hq, hr, hidxb, hd_lb, hd_ub, hC, hD, hd_lg, hd_ug, &qp);
 #if 0
 	printf("\nN = %d\n", qp.N);
 	for(ii=0; ii<N; ii++)
-		d_print_strmat(qp.nu[ii]+qp.nx[ii]+1, qp.nx[ii+1], qp.BAbt+ii, 0, 0);
+		s_print_strmat(qp.nu[ii]+qp.nx[ii]+1, qp.nx[ii+1], qp.BAbt+ii, 0, 0);
 	for(ii=0; ii<N; ii++)
-		d_print_tran_strvec(qp.nx[ii+1], qp.b+ii, 0);
+		s_print_tran_strvec(qp.nx[ii+1], qp.b+ii, 0);
 	for(ii=0; ii<=N; ii++)
-		d_print_strmat(qp.nu[ii]+qp.nx[ii]+1, qp.nu[ii]+qp.nx[ii], qp.RSQrq+ii, 0, 0);
+		s_print_strmat(qp.nu[ii]+qp.nx[ii]+1, qp.nu[ii]+qp.nx[ii], qp.RSQrq+ii, 0, 0);
 	for(ii=0; ii<=N; ii++)
-		d_print_tran_strvec(qp.nu[ii]+qp.nx[ii], qp.rq+ii, 0);
+		s_print_tran_strvec(qp.nu[ii]+qp.nx[ii], qp.rq+ii, 0);
 	for(ii=0; ii<=N; ii++)
 		int_print_mat(1, nb[ii], qp.idxb[ii], 1);
 	for(ii=0; ii<=N; ii++)
-		d_print_tran_strvec(qp.nb[ii], qp.d_lb+ii, 0);
+		s_print_tran_strvec(qp.nb[ii], qp.d_lb+ii, 0);
 	for(ii=0; ii<=N; ii++)
-		d_print_tran_strvec(qp.nb[ii], qp.d_ub+ii, 0);
+		s_print_tran_strvec(qp.nb[ii], qp.d_ub+ii, 0);
 	for(ii=0; ii<=N; ii++)
-		d_print_strmat(qp.nu[ii]+qp.nx[ii], qp.ng[ii], qp.DCt+ii, 0, 0);
+		s_print_strmat(qp.nu[ii]+qp.nx[ii], qp.ng[ii], qp.DCt+ii, 0, 0);
 	for(ii=0; ii<=N; ii++)
-		d_print_tran_strvec(qp.ng[ii], qp.d_lg+ii, 0);
+		s_print_tran_strvec(qp.ng[ii], qp.d_lg+ii, 0);
 	for(ii=0; ii<=N; ii++)
-		d_print_tran_strvec(qp.ng[ii], qp.d_ug+ii, 0);
+		s_print_tran_strvec(qp.ng[ii], qp.d_ug+ii, 0);
 	return;
 #endif
 
@@ -537,113 +537,113 @@ int main()
 * ocp qp
 ************************************************/	
 	
-	int qp_sol_size = d_memsize_ocp_qp_sol(N, nx, nu, nb, ng);
+	int qp_sol_size = s_memsize_ocp_qp_sol(N, nx, nu, nb, ng);
 	printf("\nqp sol size = %d\n", qp_sol_size);
 	void *qp_sol_mem = malloc(qp_sol_size);
 
-	struct d_ocp_qp_sol qp_sol;
-	d_create_ocp_qp_sol(N, nx, nu, nb, ng, &qp_sol, qp_sol_mem);
+	struct s_ocp_qp_sol qp_sol;
+	s_create_ocp_qp_sol(N, nx, nu, nb, ng, &qp_sol, qp_sol_mem);
 
 /************************************************
 * ipm
 ************************************************/	
 
-	struct d_ipm_hard_ocp_qp_arg arg;
+	struct s_ipm_hard_ocp_qp_arg arg;
 	arg.alpha_min = 1e-8;
 	arg.mu_max = 1e-12;
 	arg.iter_max = 20;
 	arg.mu0 = 2.0;
 
-	int ipm_size = d_memsize_ipm_hard_ocp_qp(&qp, &arg);
+	int ipm_size = s_memsize_ipm_hard_ocp_qp(&qp, &arg);
 	printf("\nipm size = %d\n", ipm_size);
 	void *ipm_mem = malloc(ipm_size);
 
-	struct d_ipm_hard_ocp_qp_workspace workspace;
-	d_create_ipm_hard_ocp_qp(&qp, &arg, &workspace, ipm_mem);
+	struct s_ipm_hard_ocp_qp_workspace workspace;
+	s_create_ipm_hard_ocp_qp(&qp, &arg, &workspace, ipm_mem);
 
 	gettimeofday(&tv0, NULL); // start
 
 	for(rep=0; rep<nrep; rep++)
 		{
-//		d_solve_ipm_hard_ocp_qp(&qp, &qp_sol, &workspace);
-		d_solve_ipm2_hard_ocp_qp(&qp, &qp_sol, &workspace);
+//		s_solve_ipm_hard_ocp_qp(&qp, &qp_sol, &workspace);
+		s_solve_ipm2_hard_ocp_qp(&qp, &qp_sol, &workspace);
 		}
 
 	gettimeofday(&tv1, NULL); // stop
 
-	double time_ocp_ipm = (tv1.tv_sec-tv0.tv_sec)/(nrep+0.0)+(tv1.tv_usec-tv0.tv_usec)/(nrep*1e6);
+	float time_ocp_ipm = (tv1.tv_sec-tv0.tv_sec)/(nrep+0.0)+(tv1.tv_usec-tv0.tv_usec)/(nrep*1e6);
 
 #if 1
 	printf("\nsolution\n\n");
 	printf("\nux\n");
 	for(ii=0; ii<=N; ii++)
-		d_print_tran_strvec(nu[ii]+nx[ii], qp_sol.ux+ii, 0);
+		s_print_tran_strvec(nu[ii]+nx[ii], qp_sol.ux+ii, 0);
 	printf("\npi\n");
 	for(ii=0; ii<N; ii++)
-		d_print_tran_strvec(nx[ii+1], qp_sol.pi+ii, 0);
+		s_print_tran_strvec(nx[ii+1], qp_sol.pi+ii, 0);
 	printf("\nlam_lb\n");
 	for(ii=0; ii<=N; ii++)
-		d_print_tran_strvec(nb[ii], qp_sol.lam_lb+ii, 0);
+		s_print_tran_strvec(nb[ii], qp_sol.lam_lb+ii, 0);
 	printf("\nlam_ub\n");
 	for(ii=0; ii<=N; ii++)
-		d_print_tran_strvec(nb[ii], qp_sol.lam_ub+ii, 0);
+		s_print_tran_strvec(nb[ii], qp_sol.lam_ub+ii, 0);
 	printf("\nlam_lg\n");
 	for(ii=0; ii<=N; ii++)
-		d_print_tran_strvec(ng[ii], qp_sol.lam_lg+ii, 0);
+		s_print_tran_strvec(ng[ii], qp_sol.lam_lg+ii, 0);
 	printf("\nlam_ug\n");
 	for(ii=0; ii<=N; ii++)
-		d_print_tran_strvec(ng[ii], qp_sol.lam_ug+ii, 0);
+		s_print_tran_strvec(ng[ii], qp_sol.lam_ug+ii, 0);
 	printf("\nt_lb\n");
 	for(ii=0; ii<=N; ii++)
-		d_print_tran_strvec(nb[ii], qp_sol.t_lb+ii, 0);
+		s_print_tran_strvec(nb[ii], qp_sol.t_lb+ii, 0);
 	printf("\nt_ub\n");
 	for(ii=0; ii<=N; ii++)
-		d_print_tran_strvec(nb[ii], qp_sol.t_ub+ii, 0);
+		s_print_tran_strvec(nb[ii], qp_sol.t_ub+ii, 0);
 	printf("\nt_lg\n");
 	for(ii=0; ii<=N; ii++)
-		d_print_tran_strvec(ng[ii], qp_sol.t_lg+ii, 0);
+		s_print_tran_strvec(ng[ii], qp_sol.t_lg+ii, 0);
 	printf("\nt_ug\n");
 	for(ii=0; ii<=N; ii++)
-		d_print_tran_strvec(ng[ii], qp_sol.t_ug+ii, 0);
+		s_print_tran_strvec(ng[ii], qp_sol.t_ug+ii, 0);
 
 	printf("\nresiduals\n\n");
 	printf("\nres_g\n");
 	for(ii=0; ii<=N; ii++)
-		d_print_e_tran_strvec(nu[ii]+nx[ii], workspace.res_g+ii, 0);
+		s_print_e_tran_strvec(nu[ii]+nx[ii], workspace.res_g+ii, 0);
 	printf("\nres_b\n");
 	for(ii=0; ii<N; ii++)
-		d_print_e_tran_strvec(nx[ii+1], workspace.res_b+ii, 0);
+		s_print_e_tran_strvec(nx[ii+1], workspace.res_b+ii, 0);
 	printf("\nres_m_lb\n");
 	for(ii=0; ii<=N; ii++)
-		d_print_e_tran_strvec(nb[ii], workspace.res_m_lb+ii, 0);
+		s_print_e_tran_strvec(nb[ii], workspace.res_m_lb+ii, 0);
 	printf("\nres_m_ub\n");
 	for(ii=0; ii<=N; ii++)
-		d_print_e_tran_strvec(nb[ii], workspace.res_m_ub+ii, 0);
+		s_print_e_tran_strvec(nb[ii], workspace.res_m_ub+ii, 0);
 	printf("\nres_m_lg\n");
 	for(ii=0; ii<=N; ii++)
-		d_print_e_tran_strvec(ng[ii], workspace.res_m_lg+ii, 0);
+		s_print_e_tran_strvec(ng[ii], workspace.res_m_lg+ii, 0);
 	printf("\nres_m_ug\n");
 	for(ii=0; ii<=N; ii++)
-		d_print_e_tran_strvec(ng[ii], workspace.res_m_ug+ii, 0);
+		s_print_e_tran_strvec(ng[ii], workspace.res_m_ug+ii, 0);
 	printf("\nres_d_lb\n");
 	for(ii=0; ii<=N; ii++)
-		d_print_e_tran_strvec(nb[ii], workspace.res_d_lb+ii, 0);
+		s_print_e_tran_strvec(nb[ii], workspace.res_d_lb+ii, 0);
 	printf("\nres_d_ub\n");
 	for(ii=0; ii<=N; ii++)
-		d_print_e_tran_strvec(nb[ii], workspace.res_d_ub+ii, 0);
+		s_print_e_tran_strvec(nb[ii], workspace.res_d_ub+ii, 0);
 	printf("\nres_d_lg\n");
 	for(ii=0; ii<=N; ii++)
-		d_print_e_tran_strvec(ng[ii], workspace.res_d_lg+ii, 0);
+		s_print_e_tran_strvec(ng[ii], workspace.res_d_lg+ii, 0);
 	printf("\nres_d_ug\n");
 	for(ii=0; ii<=N; ii++)
-		d_print_e_tran_strvec(ng[ii], workspace.res_d_ug+ii, 0);
+		s_print_e_tran_strvec(ng[ii], workspace.res_d_ug+ii, 0);
 	printf("\nres_mu\n");
 	printf("\n%e\n\n", workspace.res_mu);
 #endif
 
 	printf("\nipm iter = %d\n", workspace.iter);
 	printf("\nalpha_aff\tmu_aff\t\tsigma\t\talpha\t\tmu\n");
-	d_print_e_tran_mat(5, workspace.iter, workspace.stat, 5);
+	s_print_e_tran_mat(5, workspace.iter, workspace.stat, 5);
 
 	printf("\nocp ipm time = %e [s]\n\n", time_ocp_ipm);
 
@@ -651,37 +651,37 @@ int main()
 * free memory
 ************************************************/	
 
-	d_free(A);
-	d_free(B);
-	d_free(b);
-	d_free(x0);
-	d_free(Q);
-	d_free(R);
-	d_free(S);
-	d_free(q);
-	d_free(r);
-	d_free(r0);
+	s_free(A);
+	s_free(B);
+	s_free(b);
+	s_free(x0);
+	s_free(Q);
+	s_free(R);
+	s_free(S);
+	s_free(q);
+	s_free(r);
+	s_free(r0);
 	int_free(idxb0);
-	d_free(d_lb0);
-	d_free(d_ub0);
+	s_free(d_lb0);
+	s_free(d_ub0);
 	int_free(idxb1);
-	d_free(d_lb1);
-	d_free(d_ub1);
+	s_free(d_lb1);
+	s_free(d_ub1);
 	int_free(idxbN);
-	d_free(d_lbN);
-	d_free(d_ubN);
-	d_free(C0);
-	d_free(D0);
-	d_free(d_lg0);
-	d_free(d_ug0);
-	d_free(C1);
-	d_free(D1);
-	d_free(d_lg1);
-	d_free(d_ug1);
-	d_free(CN);
-	d_free(DN);
-	d_free(d_lgN);
-	d_free(d_ugN);
+	s_free(d_lbN);
+	s_free(d_ubN);
+	s_free(C0);
+	s_free(D0);
+	s_free(d_lg0);
+	s_free(d_ug0);
+	s_free(C1);
+	s_free(D1);
+	s_free(d_lg1);
+	s_free(d_ug1);
+	s_free(CN);
+	s_free(DN);
+	s_free(d_lgN);
+	s_free(d_ugN);
 
 	free(qp_mem);
 	free(qp_sol_mem);
