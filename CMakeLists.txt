@@ -123,6 +123,8 @@ file(GLOB OCP_QP_SRC
 	${PROJECT_SOURCE_DIR}/ocp_qp/d_ocp_qp_ipm_hard.c
 	${PROJECT_SOURCE_DIR}/ocp_qp/s_ocp_qp.c
 	${PROJECT_SOURCE_DIR}/ocp_qp/s_ocp_qp_sol.c
+	${PROJECT_SOURCE_DIR}/ocp_qp/s_ocp_qp_kkt.c
+	${PROJECT_SOURCE_DIR}/ocp_qp/s_ocp_qp_ipm_hard.c
 	)
 # core qp
 file(GLOB CORE_QP_SRC
