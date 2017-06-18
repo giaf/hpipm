@@ -52,9 +52,9 @@ endif
 
 # double precision tests
 #OBJS_TEST = d_tools.o test_d_cond.o
-#OBJS_TEST = test_d_dense.o
-OBJS_TEST = d_tools.o test_d_ocp.o
-# double precision tests
+OBJS_TEST = test_d_dense.o
+#OBJS_TEST = d_tools.o test_d_ocp.o
+# single precision tests
 #OBJS_TEST = test_s_dense.o
 #OBJS_TEST = s_tools.o test_s_ocp.o
 
