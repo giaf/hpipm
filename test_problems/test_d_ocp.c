@@ -46,6 +46,108 @@
 
 
 
+#if ! defined(EXT_DEP)
+/* creates a zero matrix */
+void d_zeros(double **pA, int row, int col)
+	{
+	*pA = malloc((row*col)*sizeof(double));
+	double *A = *pA;
+	int i;
+	for(i=0; i<row*col; i++) A[i] = 0.0;
+	}
+/* frees matrix */
+void d_free(double *pA)
+	{
+	free( pA );
+	}
+/* prints a matrix in column-major format */
+void d_print_mat(int m, int n, double *A, int lda)
+	{
+	int i, j;
+	for(i=0; i<m; i++)
+		{
+		for(j=0; j<n; j++)
+			{
+			printf("%9.5f ", A[i+lda*j]);
+			}
+		printf("\n");
+		}
+	printf("\n");
+	}	
+/* prints the transposed of a matrix in column-major format */
+void d_print_tran_mat(int row, int col, double *A, int lda)
+	{
+	int i, j;
+	for(j=0; j<col; j++)
+		{
+		for(i=0; i<row; i++)
+			{
+			printf("%9.5f ", A[i+lda*j]);
+			}
+		printf("\n");
+		}
+	printf("\n");
+	}	
+/* prints a matrix in column-major format (exponential notation) */
+void d_print_e_mat(int m, int n, double *A, int lda)
+	{
+	int i, j;
+	for(i=0; i<m; i++)
+		{
+		for(j=0; j<n; j++)
+			{
+			printf("%e\t", A[i+lda*j]);
+			}
+		printf("\n");
+		}
+	printf("\n");
+	}	
+/* prints the transposed of a matrix in column-major format (exponential notation) */
+void d_print_e_tran_mat(int row, int col, double *A, int lda)
+	{
+	int i, j;
+	for(j=0; j<col; j++)
+		{
+		for(i=0; i<row; i++)
+			{
+			printf("%e\t", A[i+lda*j]);
+			}
+		printf("\n");
+		}
+	printf("\n");
+	}	
+/* creates a zero matrix aligned */
+void int_zeros(int **pA, int row, int col)
+	{
+	void *temp = malloc((row*col)*sizeof(int));
+	*pA = temp;
+	int *A = *pA;
+	int i;
+	for(i=0; i<row*col; i++) A[i] = 0;
+	}
+/* frees matrix */
+void int_free(int *pA)
+	{
+	free( pA );
+	}
+/* prints a matrix in column-major format */
+void int_print_mat(int row, int col, int *A, int lda)
+	{
+	int i, j;
+	for(i=0; i<row; i++)
+		{
+		for(j=0; j<col; j++)
+			{
+			printf("%d ", A[i+lda*j]);
+			}
+		printf("\n");
+		}
+	printf("\n");
+	}	
+#endif
+
+
+
 #define KEEP_X0 0
 
 // printing
@@ -577,66 +679,66 @@ int main()
 	printf("\nsolution\n\n");
 	printf("\nux\n");
 	for(ii=0; ii<=N; ii++)
-		d_print_tran_strvec(nu[ii]+nx[ii], qp_sol.ux+ii, 0);
+		d_print_mat(1, nu[ii]+nx[ii], (qp_sol.ux+ii)->pa, 1);
 	printf("\npi\n");
 	for(ii=0; ii<N; ii++)
-		d_print_tran_strvec(nx[ii+1], qp_sol.pi+ii, 0);
+		d_print_mat(1, nx[ii+1], (qp_sol.pi+ii)->pa, 1);
 	printf("\nlam_lb\n");
 	for(ii=0; ii<=N; ii++)
-		d_print_tran_strvec(nb[ii], qp_sol.lam_lb+ii, 0);
+		d_print_mat(1, nb[ii], (qp_sol.lam_lb+ii)->pa, 1);
 	printf("\nlam_ub\n");
 	for(ii=0; ii<=N; ii++)
-		d_print_tran_strvec(nb[ii], qp_sol.lam_ub+ii, 0);
+		d_print_mat(1, nb[ii], (qp_sol.lam_ub+ii)->pa, 1);
 	printf("\nlam_lg\n");
 	for(ii=0; ii<=N; ii++)
-		d_print_tran_strvec(ng[ii], qp_sol.lam_lg+ii, 0);
+		d_print_mat(1, ng[ii], (qp_sol.lam_lg+ii)->pa, 1);
 	printf("\nlam_ug\n");
 	for(ii=0; ii<=N; ii++)
-		d_print_tran_strvec(ng[ii], qp_sol.lam_ug+ii, 0);
+		d_print_mat(1, ng[ii], (qp_sol.lam_ug+ii)->pa, 1);
 	printf("\nt_lb\n");
 	for(ii=0; ii<=N; ii++)
-		d_print_tran_strvec(nb[ii], qp_sol.t_lb+ii, 0);
+		d_print_mat(1, nb[ii], (qp_sol.t_lb+ii)->pa, 1);
 	printf("\nt_ub\n");
 	for(ii=0; ii<=N; ii++)
-		d_print_tran_strvec(nb[ii], qp_sol.t_ub+ii, 0);
+		d_print_mat(1, nb[ii], (qp_sol.t_ub+ii)->pa, 1);
 	printf("\nt_lg\n");
 	for(ii=0; ii<=N; ii++)
-		d_print_tran_strvec(ng[ii], qp_sol.t_lg+ii, 0);
+		d_print_mat(1, ng[ii], (qp_sol.t_lg+ii)->pa, 1);
 	printf("\nt_ug\n");
 	for(ii=0; ii<=N; ii++)
-		d_print_tran_strvec(ng[ii], qp_sol.t_ug+ii, 0);
+		d_print_mat(1, ng[ii], (qp_sol.t_ug+ii)->pa, 1);
 
 	printf("\nresiduals\n\n");
 	printf("\nres_g\n");
 	for(ii=0; ii<=N; ii++)
-		d_print_e_tran_strvec(nu[ii]+nx[ii], workspace.res_g+ii, 0);
+		d_print_e_mat(1, nu[ii]+nx[ii], (workspace.res_g+ii)->pa, 1);
 	printf("\nres_b\n");
 	for(ii=0; ii<N; ii++)
-		d_print_e_tran_strvec(nx[ii+1], workspace.res_b+ii, 0);
+		d_print_e_mat(1, nx[ii+1], (workspace.res_b+ii)->pa, 1);
 	printf("\nres_m_lb\n");
 	for(ii=0; ii<=N; ii++)
-		d_print_e_tran_strvec(nb[ii], workspace.res_m_lb+ii, 0);
+		d_print_e_mat(1, nb[ii], (workspace.res_m_lb+ii)->pa, 1);
 	printf("\nres_m_ub\n");
 	for(ii=0; ii<=N; ii++)
-		d_print_e_tran_strvec(nb[ii], workspace.res_m_ub+ii, 0);
+		d_print_e_mat(1, nb[ii], (workspace.res_m_ub+ii)->pa, 1);
 	printf("\nres_m_lg\n");
 	for(ii=0; ii<=N; ii++)
-		d_print_e_tran_strvec(ng[ii], workspace.res_m_lg+ii, 0);
+		d_print_e_mat(1, ng[ii], (workspace.res_m_lg+ii)->pa, 1);
 	printf("\nres_m_ug\n");
 	for(ii=0; ii<=N; ii++)
-		d_print_e_tran_strvec(ng[ii], workspace.res_m_ug+ii, 0);
+		d_print_e_mat(1, ng[ii], (workspace.res_m_ug+ii)->pa, 1);
 	printf("\nres_d_lb\n");
 	for(ii=0; ii<=N; ii++)
-		d_print_e_tran_strvec(nb[ii], workspace.res_d_lb+ii, 0);
+		d_print_e_mat(1, nb[ii], (workspace.res_d_lb+ii)->pa, 1);
 	printf("\nres_d_ub\n");
 	for(ii=0; ii<=N; ii++)
-		d_print_e_tran_strvec(nb[ii], workspace.res_d_ub+ii, 0);
+		d_print_e_mat(1, nb[ii], (workspace.res_d_ub+ii)->pa, 1);
 	printf("\nres_d_lg\n");
 	for(ii=0; ii<=N; ii++)
-		d_print_e_tran_strvec(ng[ii], workspace.res_d_lg+ii, 0);
+		d_print_e_mat(1, ng[ii], (workspace.res_d_lg+ii)->pa, 1);
 	printf("\nres_d_ug\n");
 	for(ii=0; ii<=N; ii++)
-		d_print_e_tran_strvec(ng[ii], workspace.res_d_ug+ii, 0);
+		d_print_e_mat(1, ng[ii], (workspace.res_d_ug+ii)->pa, 1);
 	printf("\nres_mu\n");
 	printf("\n%e\n\n", workspace.res_mu);
 #endif

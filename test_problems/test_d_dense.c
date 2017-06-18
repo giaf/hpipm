@@ -48,6 +48,67 @@
 
 
 
+#if ! defined(EXT_DEP)
+/* prints a matrix in column-major format */
+void d_print_mat(int m, int n, double *A, int lda)
+	{
+	int i, j;
+	for(i=0; i<m; i++)
+		{
+		for(j=0; j<n; j++)
+			{
+			printf("%9.5f ", A[i+lda*j]);
+			}
+		printf("\n");
+		}
+	printf("\n");
+	}	
+/* prints the transposed of a matrix in column-major format */
+void d_print_tran_mat(int row, int col, double *A, int lda)
+	{
+	int i, j;
+	for(j=0; j<col; j++)
+		{
+		for(i=0; i<row; i++)
+			{
+			printf("%9.5f ", A[i+lda*j]);
+			}
+		printf("\n");
+		}
+	printf("\n");
+	}	
+/* prints a matrix in column-major format (exponential notation) */
+void d_print_e_mat(int m, int n, double *A, int lda)
+	{
+	int i, j;
+	for(i=0; i<m; i++)
+		{
+		for(j=0; j<n; j++)
+			{
+			printf("%e\t", A[i+lda*j]);
+			}
+		printf("\n");
+		}
+	printf("\n");
+	}	
+/* prints the transposed of a matrix in column-major format (exponential notation) */
+void d_print_e_tran_mat(int row, int col, double *A, int lda)
+	{
+	int i, j;
+	for(j=0; j<col; j++)
+		{
+		for(i=0; i<row; i++)
+			{
+			printf("%e\t", A[i+lda*j]);
+			}
+		printf("\n");
+		}
+	printf("\n");
+	}	
+#endif
+
+
+
 int main()
 	{
 
@@ -87,6 +148,7 @@ int main()
 	d_create_dense_qp(nv, ne, nb, ng, &qp, qp_mem);
 	d_cvt_colmaj_to_dense_qp(H, g, A, b, idxb, d_lb, d_ub, C, d_lg, d_ug, &qp);
 
+#if 0
 	d_print_strmat(nv+1, nv, qp.Hg, 0, 0);
 	d_print_strmat(ne, nv, qp.A, 0, 0);
 	d_print_strmat(nv, ng, qp.Ct, 0, 0);
@@ -97,6 +159,7 @@ int main()
 	d_print_strvec(nb, qp.d_ub, 0);
 	d_print_strvec(ng, qp.d_lg, 0);
 	d_print_strvec(ng, qp.d_ug, 0);
+#endif
 
 /************************************************
 * dense qp sol
@@ -144,35 +207,35 @@ int main()
 
 	printf("\nsolution\n\n");
 	printf("\nv\n");
-	d_print_tran_strvec(nv, qp_sol.v, 0);
+	d_print_mat(1, nv, qp_sol.v->pa, 1);
 	printf("\npi\n");
-	d_print_tran_strvec(ne, qp_sol.pi, 0);
+	d_print_mat(1, ne, qp_sol.pi->pa, 1);
 	printf("\nlam_lb\n");
-	d_print_tran_strvec(nb, qp_sol.lam_lb, 0);
+	d_print_mat(1, nb, qp_sol.lam_lb->pa, 1);
 	printf("\nlam_ub\n");
-	d_print_tran_strvec(nb, qp_sol.lam_ub, 0);
+	d_print_mat(1, nb, qp_sol.lam_ub->pa, 1);
 	printf("\nlam_lg\n");
-	d_print_tran_strvec(ng, qp_sol.lam_lg, 0);
+	d_print_mat(1, ng, qp_sol.lam_lg->pa, 1);
 	printf("\nlam_ug\n");
-	d_print_tran_strvec(ng, qp_sol.lam_ug, 0);
+	d_print_mat(1, ng, qp_sol.lam_ug->pa, 1);
 	printf("\nt_lb\n");
-	d_print_tran_strvec(nb, qp_sol.t_lb, 0);
+	d_print_mat(1, nb, qp_sol.t_lb->pa, 1);
 	printf("\nt_ub\n");
-	d_print_tran_strvec(nb, qp_sol.t_ub, 0);
+	d_print_mat(1, nb, qp_sol.t_ub->pa, 1);
 	printf("\nt_lg\n");
-	d_print_tran_strvec(ng, qp_sol.t_lg, 0);
+	d_print_mat(1, ng, qp_sol.t_lg->pa, 1);
 	printf("\nt_ug\n");
-	d_print_tran_strvec(ng, qp_sol.t_ug, 0);
+	d_print_mat(1, ng, qp_sol.t_ug->pa, 1);
 
 	printf("\nresiduals\n\n");
 	printf("\nres_g\n");
-	d_print_e_tran_strvec(nv, workspace.res_g, 0);
+	d_print_e_mat(1, nv, workspace.res_g->pa, 1);
 	printf("\nres_b\n");
-	d_print_e_tran_strvec(ne, workspace.res_b, 0);
+	d_print_e_mat(1, ne, workspace.res_b->pa, 1);
 	printf("\nres_d\n");
-	d_print_e_tran_strvec(2*nb+2*ng, workspace.res_d, 0);
+	d_print_e_mat(1, 2*nb+2*ng, workspace.res_d->pa, 1);
 	printf("\nres_m\n");
-	d_print_e_tran_strvec(2*nb+2*ng, workspace.res_m, 0);
+	d_print_e_mat(1, 2*nb+2*ng, workspace.res_m->pa, 1);
 	printf("\nres_mu\n");
 	printf("\n%e\n\n", workspace.res_mu);
 
