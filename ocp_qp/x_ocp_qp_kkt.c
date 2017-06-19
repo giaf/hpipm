@@ -371,7 +371,7 @@ void FACT_SOLVE_KKT_STEP_HARD_OCP_QP(struct OCP_QP *qp, struct IPM_HARD_OCP_QP_W
 	// first stage
 	ii = 0;
 	ROWEX_LIBSTR(nu[ii]+nx[ii], -1.0, L+(ii), nu[ii]+nx[ii], 0, dux+ii, 0);
-	TRSV_LTN_MN_LIBSTR(nu[ii]+nx[ii], nu[ii]+nx[ii], L+ii, 0, 0, dux+ii, 0, dux+ii, 0);
+	TRSV_LTN_LIBSTR(nu[ii]+nx[ii], L+ii, 0, 0, dux+ii, 0, dux+ii, 0);
 	GEMV_T_LIBSTR(nu[ii]+nx[ii], nx[ii+1], 1.0, BAbt+ii, 0, 0, dux+ii, 0, 1.0, res_b+ii, 0, dux+(ii+1), nu[ii+1]);
 	ROWEX_LIBSTR(nx[ii+1], 1.0, L+(ii+1), nu[ii+1]+nx[ii+1], nu[ii+1], tmp_nxM, 0);
 	TRMV_LTN_LIBSTR(nx[ii+1], nx[ii+1], L+(ii+1), nu[ii+1], nu[ii+1], dux+(ii+1), nu[ii+1], dpi+ii, 0);
@@ -501,13 +501,13 @@ void SOLVE_KKT_STEP_HARD_OCP_QP(struct OCP_QP *qp, struct IPM_HARD_OCP_QP_WORKSP
 		}
 	AXPY_LIBSTR(nx[N-ii], 1.0, dux+N-ii, nu[N-ii], Pb+N-ii-1, 0, tmp_nxM, 0);
 	GEMV_N_LIBSTR(nu[N-ii-1]+nx[N-ii-1], nx[N-ii], 1.0, BAbt+N-ii-1, 0, 0, tmp_nxM, 0, 1.0, dux+N-ii-1, 0, dux+N-ii-1, 0);
-	TRSV_LNN_MN_LIBSTR(nu[N-ii-1]+nx[N-ii-1], nu[N-ii-1]+nx[N-ii-1], L+N-ii-1, 0, 0, dux+N-ii-1, 0, dux+N-ii-1, 0);
+	TRSV_LNN_LIBSTR(nu[N-ii-1]+nx[N-ii-1], L+N-ii-1, 0, 0, dux+N-ii-1, 0, dux+N-ii-1, 0);
 
 	// first stage
 	ii = 0;
 	VECCP_LIBSTR(nx[ii+1], dux+ii+1, nu[ii+1], dpi+ii, 0);
 	VECSC_LIBSTR(nu[ii]+nx[ii], -1.0, dux+ii, 0);
-	TRSV_LTN_MN_LIBSTR(nu[ii]+nx[ii], nu[ii]+nx[ii], L+ii, 0, 0, dux+ii, 0, dux+ii, 0);
+	TRSV_LTN_LIBSTR(nu[ii]+nx[ii], L+ii, 0, 0, dux+ii, 0, dux+ii, 0);
 	GEMV_T_LIBSTR(nu[ii]+nx[ii], nx[ii+1], 1.0, BAbt+ii, 0, 0, dux+ii, 0, 1.0, res_b+ii, 0, dux+ii+1, nu[ii+1]);
 	VECCP_LIBSTR(nx[ii+1], dux+ii+1, nu[ii+1], tmp_nxM, 0);
 	TRMV_LTN_LIBSTR(nx[ii+1], nx[ii+1], L+ii+1, nu[ii+1], nu[ii+1], tmp_nxM, 0, tmp_nxM, 0);

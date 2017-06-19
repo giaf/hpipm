@@ -70,6 +70,8 @@
 #define TRMM_RLNN_LIBSTR strmm_rlnn_libstr
 #define TRMV_LNN_LIBSTR strmv_lnn_libstr
 #define TRMV_LTN_LIBSTR strmv_ltn_libstr
+#define TRSV_LNN_LIBSTR strsv_lnn_libstr
+#define TRSV_LTN_LIBSTR strsv_ltn_libstr
 #define TRSV_LNN_MN_LIBSTR strsv_lnn_mn_libstr
 #define TRSV_LTN_MN_LIBSTR strsv_ltn_mn_libstr
 #define VECAD_SP_LIBSTR svecad_sp_libstr
