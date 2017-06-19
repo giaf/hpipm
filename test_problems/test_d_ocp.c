@@ -675,26 +675,44 @@ int main()
 
 	double time_ocp_ipm = (tv1.tv_sec-tv0.tv_sec)/(nrep+0.0)+(tv1.tv_usec-tv0.tv_usec)/(nrep*1e6);
 
+/************************************************
+* extract and print solution
+************************************************/	
+
+	double *u[N+1]; for(ii=0; ii<=N; ii++) d_zeros(u+ii, nu[ii], 1);
+	double *x[N+1]; for(ii=0; ii<=N; ii++) d_zeros(x+ii, nx[ii], 1);
+	double *pi[N]; for(ii=0; ii<N; ii++) d_zeros(pi+ii, nx[ii+1], 1);
+	double *lam_lb[N+1]; for(ii=0; ii<=N; ii++) d_zeros(lam_lb+ii, nb[ii], 1);
+	double *lam_ub[N+1]; for(ii=0; ii<=N; ii++) d_zeros(lam_ub+ii, nb[ii], 1);
+	double *lam_lg[N+1]; for(ii=0; ii<=N; ii++) d_zeros(lam_lg+ii, ng[ii], 1);
+	double *lam_ug[N+1]; for(ii=0; ii<=N; ii++) d_zeros(lam_ug+ii, ng[ii], 1);
+
+	d_cvt_ocp_qp_sol_to_colmaj(&qp, &qp_sol, u, x, pi, lam_lb, lam_ub, lam_lg, lam_ug);
+
 #if 1
 	printf("\nsolution\n\n");
-	printf("\nux\n");
+	printf("\nu\n");
 	for(ii=0; ii<=N; ii++)
-		d_print_mat(1, nu[ii]+nx[ii], (qp_sol.ux+ii)->pa, 1);
+		d_print_mat(1, nu[ii], u[ii], 1);
+	printf("\nx\n");
+	for(ii=0; ii<=N; ii++)
+		d_print_mat(1, nx[ii], x[ii], 1);
 	printf("\npi\n");
 	for(ii=0; ii<N; ii++)
-		d_print_mat(1, nx[ii+1], (qp_sol.pi+ii)->pa, 1);
+		d_print_mat(1, nx[ii+1], pi[ii], 1);
 	printf("\nlam_lb\n");
 	for(ii=0; ii<=N; ii++)
-		d_print_mat(1, nb[ii], (qp_sol.lam_lb+ii)->pa, 1);
+		d_print_mat(1, nb[ii], lam_lb[ii], 1);
 	printf("\nlam_ub\n");
 	for(ii=0; ii<=N; ii++)
-		d_print_mat(1, nb[ii], (qp_sol.lam_ub+ii)->pa, 1);
+		d_print_mat(1, nb[ii], lam_ub[ii], 1);
 	printf("\nlam_lg\n");
 	for(ii=0; ii<=N; ii++)
-		d_print_mat(1, ng[ii], (qp_sol.lam_lg+ii)->pa, 1);
+		d_print_mat(1, ng[ii], lam_lg[ii], 1);
 	printf("\nlam_ug\n");
 	for(ii=0; ii<=N; ii++)
-		d_print_mat(1, ng[ii], (qp_sol.lam_ug+ii)->pa, 1);
+		d_print_mat(1, ng[ii], lam_ug[ii], 1);
+
 	printf("\nt_lb\n");
 	for(ii=0; ii<=N; ii++)
 		d_print_mat(1, nb[ii], (qp_sol.t_lb+ii)->pa, 1);
@@ -784,6 +802,23 @@ int main()
 	d_free(DN);
 	d_free(d_lgN);
 	d_free(d_ugN);
+
+	for(ii=0; ii<N; ii++)
+		{
+		d_free(u[ii]);
+		d_free(x[ii]);
+		d_free(pi[ii]);
+		d_free(lam_lb[ii]);
+		d_free(lam_ub[ii]);
+		d_free(lam_lg[ii]);
+		d_free(lam_ug[ii]);
+		}
+	d_free(u[ii]);
+	d_free(x[ii]);
+	d_free(lam_lb[ii]);
+	d_free(lam_ub[ii]);
+	d_free(lam_lg[ii]);
+	d_free(lam_ug[ii]);
 
 	free(qp_mem);
 	free(qp_sol_mem);

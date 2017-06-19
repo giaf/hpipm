@@ -35,18 +35,25 @@
 #include <blasfeo_common.h>
 #include <blasfeo_s_aux.h>
 
+#include "../include/hpipm_s_ocp_qp.h"
 #include "../include/hpipm_s_ocp_qp_sol.h"
 
 
 
 #define CREATE_STRVEC s_create_strvec
+#define CVT_STRVEC2VEC s_cvt_strvec2vec
+#define OCP_QP s_ocp_qp
 #define OCP_QP_SOL s_ocp_qp_sol
 #define REAL float
 #define STRVEC s_strvec
 #define SIZE_STRVEC s_size_strvec
+#define VECCP_LIBSTR sveccp_libstr
 
 #define CREATE_OCP_QP_SOL s_create_ocp_qp_sol
 #define MEMSIZE_OCP_QP_SOL s_memsize_ocp_qp_sol
+#define CVT_OCP_QP_SOL_TO_COLMAJ s_cvt_ocp_qp_sol_to_colmaj
+#define CVT_OCP_QP_SOL_TO_ROWMAJ s_cvt_ocp_qp_sol_to_rowmaj
+#define CVT_OCP_QP_SOL_TO_LIBSTR s_cvt_ocp_qp_sol_to_libstr
 
 
 
