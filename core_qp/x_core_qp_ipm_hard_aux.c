@@ -171,8 +171,12 @@ void UPDATE_VAR_HARD_QP(struct IPM_HARD_CORE_QP_WORKSPACE *rws)
 	REAL *dlam = rws->dlam;
 	REAL *dt = rws->dt;
 	REAL alpha = rws->alpha;
+#if 0
 	if(alpha<1.0)
 		alpha *= 0.995;
+#else
+	alpha = alpha * ((1.0-alpha)*0.99 + alpha*0.9999999);
+#endif
 
 	// local variables
 	int nt = nb+ng;
@@ -223,8 +227,8 @@ void COMPUTE_MU_AFF_HARD_QP(struct IPM_HARD_CORE_QP_WORKSPACE *rws)
 	REAL *ptr_dlam = rws->dlam_lb;
 	REAL *ptr_dt = rws->dt_lb;
 	REAL alpha = rws->alpha;
-//	if(alpha<1.0)
-		alpha *= 0.995;
+	// this affects the minimum value of signa !!!
+//		alpha *= 0.99;
 
 	REAL mu = 0;
 

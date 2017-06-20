@@ -480,7 +480,27 @@ void SOLVE_IPM2_HARD_OCP_QP(struct OCP_QP *qp, struct OCP_QP_SOL *qp_sol, struct
 	COMPUTE_RES_HARD_OCP_QP(qp, qp_sol, ws);
 	cws->mu = ws->res_mu;
 
-	for(kk=0; kk<cws->iter_max & cws->mu>cws->mu_max; kk++)
+#if 0
+	int ii;
+	for(ii=0; ii<1; ii++)
+		{
+		cws->sigma = 1.0;
+		cws->stat[5*kk+2] = cws->sigma;
+		COMPUTE_CENTERING_CORRECTION_HARD_QP(cws);
+		FACT_SOLVE_KKT_STEP_HARD_OCP_QP(qp, ws);
+		COMPUTE_ALPHA_HARD_QP(cws);
+		cws->stat[5*kk+3] = cws->alpha;
+		UPDATE_VAR_HARD_QP(cws);
+		COMPUTE_RES_HARD_OCP_QP(qp, qp_sol, ws);
+		cws->mu = ws->res_mu;
+		cws->stat[5*kk+4] = ws->res_mu;
+		kk++;
+		}
+//	ws->iter = kk;
+//		return;
+#endif
+
+	for(; kk<cws->iter_max & cws->mu>cws->mu_max; kk++)
 		{
 
 		// fact and solve kkt

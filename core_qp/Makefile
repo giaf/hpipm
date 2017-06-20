@@ -44,3 +44,5 @@ clean:
 
 d_core_qp_ipm_hard.o: d_core_qp_ipm_hard.c x_core_qp_ipm_hard.c
 s_core_qp_ipm_hard.o: s_core_qp_ipm_hard.c x_core_qp_ipm_hard.c
+d_core_qp_ipm_hard_aux.o: d_core_qp_ipm_hard_aux.c x_core_qp_ipm_hard_aux.c
+s_core_qp_ipm_hard_aux.o: s_core_qp_ipm_hard_aux.c x_core_qp_ipm_hard_aux.c
