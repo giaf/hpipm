@@ -45,7 +45,7 @@
 #include "../include/hpipm_d_dense_qp_ipm_hard.h"
 #include "../include/hpipm_d_cond.h"
 
-#include "tools.h"
+#include "d_tools.h"
 
 
 

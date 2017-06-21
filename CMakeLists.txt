@@ -61,34 +61,34 @@ set(CMAKE_C_FLAGS "")
 # optimization flags
 set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -O2 -fPIC")
 #
-if(${REF_BLAS} EQUAL 0)
+if(${REF_BLAS} MATCHES 0)
 	set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ")
-endif(${REF_BLAS} EQUAL 0)
-if(${REF_BLAS} EQUAL OPENBLAS)
+endif(${REF_BLAS} MATCHES 0)
+if(${REF_BLAS} MATCHES OPENBLAS)
 	set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -DREF_BLAS_OPENBLAS -I/opt/openblas/include")
-endif(${REF_BLAS} EQUAL OPENBLAS)
-if(${REF_BLAS} EQUAL BLIS)
+endif(${REF_BLAS} MATCHES OPENBLAS)
+if(${REF_BLAS} MATCHES BLIS)
 	set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -DREF_BLAS_BLIS -std=c99")
-endif(${REF_BLAS} EQUAL BLIS)
-if(${REF_BLAS} EQUAL NETLIB)
+endif(${REF_BLAS} MATCHES BLIS)
+if(${REF_BLAS} MATCHES NETLIB)
 	set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -DREF_BLAS_NETLIB")
-endif(${REF_BLAS} EQUAL NETLIB)
-if(${REF_BLAS} EQUAL MKL)
+endif(${REF_BLAS} MATCHES NETLIB)
+if(${REF_BLAS} MATCHES MKL)
 	set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -DREF_BLAS_MKL -m64 -I/opt/intel/mkl/include")
-endif(${REF_BLAS} EQUAL MKL)
-if(${REF_BLAS} EQUAL ATLAS)
+endif(${REF_BLAS} MATCHES MKL)
+if(${REF_BLAS} MATCHES ATLAS)
 	set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -DREF_BLAS_ATLAS")
-endif(${REF_BLAS} EQUAL ATLAS)
+endif(${REF_BLAS} MATCHES ATLAS)
 
 #
-if(${RUNTIME_CHECKS} EQUAL 1)
+if(${RUNTIME_CHECKS} MATCHES 1)
 	set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -DRUNTIME_CHECKS")
-endif(${RUNTIME_CHECKS} EQUAL 1)
+endif(${RUNTIME_CHECKS} MATCHES 1)
 
 # architecture-specific flags
-if(${TARGET} EQUAL GENERIC)
+if(${TARGET} MATCHES GENERIC)
 	set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -DTARGET_GENERIC")
-endif(${TARGET} EQUAL GENERIC)
+endif(${TARGET} MATCHES GENERIC)
 
 # source files
 # dense qp
@@ -99,6 +99,8 @@ file(GLOB DENSE_QP_SRC
 	${PROJECT_SOURCE_DIR}/dense_qp/d_dense_qp_ipm_hard.c
 	${PROJECT_SOURCE_DIR}/dense_qp/s_dense_qp.c
 	${PROJECT_SOURCE_DIR}/dense_qp/s_dense_qp_sol.c
+	${PROJECT_SOURCE_DIR}/dense_qp/s_dense_qp_kkt.c
+	${PROJECT_SOURCE_DIR}/dense_qp/s_dense_qp_ipm_hard.c
 	)
 # ocp qp
 file(GLOB OCP_QP_SRC
@@ -108,11 +110,15 @@ file(GLOB OCP_QP_SRC
 	${PROJECT_SOURCE_DIR}/ocp_qp/d_ocp_qp_ipm_hard.c
 	${PROJECT_SOURCE_DIR}/ocp_qp/s_ocp_qp.c
 	${PROJECT_SOURCE_DIR}/ocp_qp/s_ocp_qp_sol.c
+	${PROJECT_SOURCE_DIR}/ocp_qp/s_ocp_qp_kkt.c
+	${PROJECT_SOURCE_DIR}/ocp_qp/s_ocp_qp_ipm_hard.c
 	)
 # core qp
 file(GLOB CORE_QP_SRC
 	${PROJECT_SOURCE_DIR}/core_qp/d_core_qp_ipm_hard.c
 	${PROJECT_SOURCE_DIR}/core_qp/d_core_qp_ipm_hard_aux.c
+	${PROJECT_SOURCE_DIR}/core_qp/s_core_qp_ipm_hard.c
+	${PROJECT_SOURCE_DIR}/core_qp/s_core_qp_ipm_hard_aux.c
 	)
 # cond
 file(GLOB COND_SRC
@@ -123,8 +129,14 @@ file(GLOB COND_SRC
 set(HPIPM_SRC ${DENSE_QP_SRC} ${OCP_QP_SRC} ${CORE_QP_SRC} ${COND_SRC})
 
 add_library(hpipm ${HPIPM_SRC})
+<<<<<<< HEAD
 target_include_directories(hpipm PUBLIC include ${BLASFEO_INCLUDE_DIR})
 target_link_libraries(hpipm blasfeo)
+=======
+#add_library(hpipm SHARED ${HPIPM_SRC})
+
+#target_link_libraries(hpipm)
+>>>>>>> b5c7a8ed2692edd36d7a2c4d92fe25b78994bb60
 
 # test problems
 add_subdirectory(test_problems)

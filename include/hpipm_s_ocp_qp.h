@@ -61,6 +61,8 @@ void s_create_ocp_qp(int N, int *nx, int *nu, int *nb, int *ng, struct s_ocp_qp 
 //
 void s_cvt_colmaj_to_ocp_qp(float **A, float **B, float **b, float **Q, float **S, float **R, float **q, float **r, int **idxb, float **lb, float **ub, float **C, float **D, float **lg, float **ug, struct s_ocp_qp *qp);
 //
+void s_cvt_rowmaj_to_ocp_qp(float **A, float **B, float **b, float **Q, float **S, float **R, float **q, float **r, int **idxb, float **lb, float **ub, float **C, float **D, float **lg, float **ug, struct s_ocp_qp *qp);
+//
 //void s_cast_ocp_qp(int N, int *nx, int *nu, int *nb, int **idxb, int *ng, struct s_strmat *sBAbt, struct s_strvec *sb, struct s_strmat *sRSQrq, struct s_strvec *srq, struct s_strmat *sDCt, struct s_strvec *slb, struct s_strvec *sub, struct s_strvec *slg, struct s_strvec *sug, struct s_ocp_qp *str_out);
 //
 void s_copy_ocp_qp(struct s_ocp_qp *qp_in, struct s_ocp_qp *qp_out);

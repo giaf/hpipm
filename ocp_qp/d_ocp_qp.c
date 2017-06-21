@@ -57,6 +57,7 @@
 #define COPY_OCP_QP d_copy_ocp_qp
 #define CREATE_OCP_QP d_create_ocp_qp
 #define CVT_COLMAJ_TO_OCP_QP d_cvt_colmaj_to_ocp_qp
+#define CVT_ROWMAJ_TO_OCP_QP d_cvt_rowmaj_to_ocp_qp
 #define MEMSIZE_OCP_QP d_memsize_ocp_qp
 
 

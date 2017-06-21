@@ -27,35 +27,67 @@
 
 
 
-#if defined(RUNTIME_CHECKS)
-#include <stdlib.h>
-#endif
+#include <math.h>
 
 #include <blasfeo_target.h>
 #include <blasfeo_common.h>
 #include <blasfeo_s_aux.h>
+#include <blasfeo_s_blas.h>
 
 #include "../include/hpipm_s_ocp_qp.h"
 #include "../include/hpipm_s_ocp_qp_sol.h"
+#include "../include/hpipm_s_ocp_qp_ipm_hard.h"
+#include "../include/hpipm_s_core_qp_ipm_hard.h"
+#include "../include/hpipm_s_core_qp_ipm_hard_aux.h"
 
 
 
-#define CREATE_STRVEC s_create_strvec
-#define CVT_STRVEC2VEC s_cvt_strvec2vec
+#define AXPY_LIBSTR saxpy_libstr
+#define COMPUTE_LAM_T_HARD_QP s_compute_lam_t_hard_qp
+#define COMPUTE_QX_HARD_QP s_compute_qx_hard_qp
+#define COMPUTE_QX_QX_HARD_QP s_compute_Qx_qx_hard_qp
+#define DIAAD_SP_LIBSTR sdiaad_sp_libstr
+#define GEAD_LIBSTR sgead_libstr
+#define GECP_LIBSTR sgecp_libstr
+#define GEMM_R_DIAG_LIBSTR sgemm_r_diag_libstr
+#define GEMV_N_LIBSTR sgemv_n_libstr
+#define GEMV_NT_LIBSTR sgemv_nt_libstr
+#define GEMV_T_LIBSTR sgemv_t_libstr
+#define IPM_HARD_CORE_QP_WORKSPACE s_ipm_hard_core_qp_workspace
+#define IPM_HARD_OCP_QP_WORKSPACE s_ipm_hard_ocp_qp_workspace
 #define OCP_QP s_ocp_qp
 #define OCP_QP_SOL s_ocp_qp_sol
+#define POTRF_L_MN_LIBSTR spotrf_l_mn_libstr
 #define REAL float
+#define ROWAD_SP_LIBSTR srowad_sp_libstr
+#define ROWEX_LIBSTR srowex_libstr
+#define ROWIN_LIBSTR srowin_libstr
+#define STRMAT s_strmat
 #define STRVEC s_strvec
-#define SIZE_STRVEC s_size_strvec
+#define SYMV_L_LIBSTR ssymv_l_libstr
+#define SYRK_POTRF_LN_LIBSTR ssyrk_spotrf_ln_libstr
+#define TRCP_L_LIBSTR strcp_l_libstr
+#define TRMM_RLNN_LIBSTR strmm_rlnn_libstr
+#define TRMV_LNN_LIBSTR strmv_lnn_libstr
+#define TRMV_LTN_LIBSTR strmv_ltn_libstr
+#define TRSV_LNN_LIBSTR strsv_lnn_libstr
+#define TRSV_LTN_LIBSTR strsv_ltn_libstr
+#define TRSV_LNN_MN_LIBSTR strsv_lnn_mn_libstr
+#define TRSV_LTN_MN_LIBSTR strsv_ltn_mn_libstr
+#define VECAD_SP_LIBSTR svecad_sp_libstr
 #define VECCP_LIBSTR sveccp_libstr
-
-#define CREATE_OCP_QP_SOL s_create_ocp_qp_sol
-#define MEMSIZE_OCP_QP_SOL s_memsize_ocp_qp_sol
-#define CVT_OCP_QP_SOL_TO_COLMAJ s_cvt_ocp_qp_sol_to_colmaj
-#define CVT_OCP_QP_SOL_TO_ROWMAJ s_cvt_ocp_qp_sol_to_rowmaj
-#define CVT_OCP_QP_SOL_TO_LIBSTR s_cvt_ocp_qp_sol_to_libstr
+#define VECEX_SP_LIBSTR svecex_sp_libstr
+#define VECMULDOT_LIBSTR svecmuldot_libstr
+#define VECSC_LIBSTR svecsc_libstr
 
 
 
-#include "x_ocp_qp_sol.c"
+#define INIT_VAR_HARD_OCP_QP s_init_var_hard_ocp_qp
+#define COMPUTE_RES_HARD_OCP_QP s_compute_res_hard_ocp_qp
+#define FACT_SOLVE_KKT_STEP_HARD_OCP_QP s_fact_solve_kkt_step_hard_ocp_qp
+#define SOLVE_KKT_STEP_HARD_OCP_QP s_solve_kkt_step_hard_ocp_qp
+
+
+
+#include "x_ocp_qp_kkt.c"
 

@@ -35,12 +35,13 @@ endif
 
 # dense qp
 OBJS += dense_qp/d_dense_qp.o dense_qp/d_dense_qp_sol.o dense_qp/d_dense_qp_kkt.o dense_qp/d_dense_qp_ipm_hard.o
-OBJS += dense_qp/s_dense_qp.o dense_qp/s_dense_qp_sol.o
+OBJS += dense_qp/s_dense_qp.o dense_qp/s_dense_qp_sol.o dense_qp/s_dense_qp_kkt.o dense_qp/s_dense_qp_ipm_hard.o
 # ocp qp
 OBJS += ocp_qp/d_ocp_qp.o ocp_qp/d_ocp_qp_sol.o ocp_qp/d_ocp_qp_kkt.o ocp_qp/d_ocp_qp_ipm_hard.o
-OBJS += ocp_qp/s_ocp_qp.o ocp_qp/s_ocp_qp_sol.o
+OBJS += ocp_qp/s_ocp_qp.o ocp_qp/s_ocp_qp_sol.o ocp_qp/s_ocp_qp_kkt.o ocp_qp/s_ocp_qp_ipm_hard.o
 # core qp
 OBJS += core_qp/d_core_qp_ipm_hard_aux.o core_qp/d_core_qp_ipm_hard.o
+OBJS += core_qp/s_core_qp_ipm_hard_aux.o core_qp/s_core_qp_ipm_hard.o
 # cond
 OBJS += cond/d_cond_aux.o cond/d_cond.o cond/d_part_cond.o
 
