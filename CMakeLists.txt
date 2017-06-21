@@ -129,14 +129,8 @@ file(GLOB COND_SRC
 set(HPIPM_SRC ${DENSE_QP_SRC} ${OCP_QP_SRC} ${CORE_QP_SRC} ${COND_SRC})
 
 add_library(hpipm ${HPIPM_SRC})
-<<<<<<< HEAD
 target_include_directories(hpipm PUBLIC include ${BLASFEO_INCLUDE_DIR})
 target_link_libraries(hpipm blasfeo)
-=======
-#add_library(hpipm SHARED ${HPIPM_SRC})
-
-#target_link_libraries(hpipm)
->>>>>>> b5c7a8ed2692edd36d7a2c4d92fe25b78994bb60
 
 # test problems
 add_subdirectory(test_problems)
