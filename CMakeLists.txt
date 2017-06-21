@@ -39,21 +39,17 @@ set(REF_BLAS 0)
 #set(REF_BLAS BLIS)
 #set(REF_BLAS ATLAS)
 
-# operating system
-#set(OS LINUX)
-#set(OS MAC)
-#set(OS WINDOWS)
-
-# C Compiler
-set(CC_COMPILER gcc)
-#set(CC_COMPILER clang)
-#set(CC_COMPILER x86_64-w64-mingw32-gcc)
-
-# installation directory
-set(PREFIX /opt)
-
-# BLASFEO installation directory
-set(BLASFEO_PATH /opt/blasfeo)
+# BLASFEO
+if(NOT TARGET blasfeo)
+	# BLASFEO installation directory
+	set(BLASFEO_PATH /opt/blasfeo)
+	add_library(blasfeo STATIC IMPORTED)
+	set_target_properties(blasfeo PROPERTIES IMPORTED_LOCATION ${BLASFEO_PATH}/lib/libblasfeo.a)
+	set(BLASFEO_INCLUDE_DIR ${BLASFEO_PATH}/include)
+else()
+	# TODO: horrible hardcode; needs to go
+	set(BLASFEO_INCLUDE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/../blasfeo/include)
+endif()
 
 # enable runtine checks
 set(RUNTIME_CHECKS 0)
@@ -64,13 +60,6 @@ set(CMAKE_C_FLAGS "")
 
 # optimization flags
 set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -O2 -fPIC")
-
-# debugging flags
-#set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -g")
-
-# search directories
-set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -I${BLASFEO_PATH}/include")
-
 #
 if(${REF_BLAS} EQUAL 0)
 	set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ")
@@ -100,8 +89,6 @@ endif(${RUNTIME_CHECKS} EQUAL 1)
 if(${TARGET} EQUAL GENERIC)
 	set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -DTARGET_GENERIC")
 endif(${TARGET} EQUAL GENERIC)
-
-
 
 # source files
 # dense qp
@@ -135,10 +122,9 @@ file(GLOB COND_SRC
 
 set(HPIPM_SRC ${DENSE_QP_SRC} ${OCP_QP_SRC} ${CORE_QP_SRC} ${COND_SRC})
 
-# add library
 add_library(hpipm ${HPIPM_SRC})
-#add_library(hpipm SHARED ${HPIPM_SRC})
-#target_link_libraries(hpipm)
+target_include_directories(hpipm PUBLIC include ${BLASFEO_INCLUDE_DIR})
+target_link_libraries(hpipm blasfeo)
 
 # test problems
 add_subdirectory(test_problems)
