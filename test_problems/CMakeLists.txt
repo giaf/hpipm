@@ -28,8 +28,8 @@
 add_executable(dense_qp test_d_dense.c)
 target_link_libraries(dense_qp hpipm blasfeo m)
 
-add_executable(ocp_qp test_d_ocp.c tools.c)
+add_executable(ocp_qp test_d_ocp.c d_tools.c)
 target_link_libraries(ocp_qp hpipm blasfeo m)
 
-add_executable(cond test_d_cond.c tools.c)
+add_executable(cond test_d_cond.c d_tools.c)
 target_link_libraries(cond hpipm blasfeo m)
