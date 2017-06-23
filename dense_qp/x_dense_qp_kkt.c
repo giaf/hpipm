@@ -231,7 +231,8 @@ void FACT_SOLVE_KKT_STEP_HARD_DENSE_QP(struct DENSE_QP *qp, struct IPM_HARD_DENS
 
 	if(ne>0)
 		{
-		TRCP_L_LIBSTR(nv, Hg, 0, 0, Lv, 0, 0);
+//		TRCP_L_LIBSTR(nv, Hg, 0, 0, Lv, 0, 0);
+		GECP_LIBSTR(nv, nv, Hg, 0, 0, Lv, 0, 0);
 
 		VECCP_LIBSTR(nv, res_g, 0, lv, 0);
 
@@ -301,7 +302,8 @@ void FACT_SOLVE_KKT_STEP_HARD_DENSE_QP(struct DENSE_QP *qp, struct IPM_HARD_DENS
 		TRSV_LNN_LIBSTR(nv, Lv, 0, 0, dv, 0, dv, 0);
 		TRSV_LTN_LIBSTR(nv, Lv, 0, 0, dv, 0, dv, 0);
 #else
-		TRCP_L_LIBSTR(nv, Hg, 0, 0, Lv, 0, 0);
+//		TRCP_L_LIBSTR(nv, Hg, 0, 0, Lv, 0, 0);
+		GECP_LIBSTR(nv, nv, Hg, 0, 0, Lv, 0, 0);
 		ROWIN_LIBSTR(nv, 1.0, res_g, 0, Lv, nv, 0);
 
 		if(nb>0)
