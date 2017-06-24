@@ -42,6 +42,8 @@
 
 
 
+#define DOUBLE_PRECISION
+
 #define AXPY_LIBSTR daxpy_libstr
 #define COMPUTE_LAM_T_HARD_QP d_compute_lam_t_hard_qp
 #define COMPUTE_QX_HARD_QP d_compute_qx_hard_qp
@@ -58,6 +60,12 @@
 #define OCP_QP d_ocp_qp
 #define OCP_QP_SOL d_ocp_qp_sol
 #define POTRF_L_MN_LIBSTR dpotrf_l_mn_libstr
+#define PRINT_E_MAT d_print_e_mat
+#define PRINT_E_STRVEC d_print_e_strvec
+#define PRINT_E_TRAN_STRVEC d_print_e_tran_strvec
+#define PRINT_STRMAT d_print_strmat
+#define PRINT_STRVEC d_print_strvec
+#define PRINT_TRAN_STRVEC d_print_tran_strvec
 #define REAL double
 #define ROWAD_SP_LIBSTR drowad_sp_libstr
 #define ROWEX_LIBSTR drowex_libstr

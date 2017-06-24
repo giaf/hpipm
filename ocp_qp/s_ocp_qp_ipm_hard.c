@@ -55,6 +55,12 @@
 #define MEMSIZE_IPM_HARD_CORE_QP s_memsize_ipm_hard_core_qp
 #define OCP_QP s_ocp_qp
 #define OCP_QP_SOL s_ocp_qp_sol
+#define PRINT_E_MAT s_print_e_mat
+#define PRINT_E_STRVEC s_print_e_strvec
+#define PRINT_E_TRAN_STRVEC s_print_e_tran_strvec
+#define PRINT_STRMAT s_print_strmat
+#define PRINT_STRVEC s_print_strvec
+#define PRINT_TRAN_STRVEC s_print_tran_strvec
 #define REAL float
 #define SIZE_STRMAT s_size_strmat
 #define SIZE_STRVEC s_size_strvec

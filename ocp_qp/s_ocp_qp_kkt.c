@@ -42,6 +42,8 @@
 
 
 
+#define SINGLE_PRECISION
+
 #define AXPY_LIBSTR saxpy_libstr
 #define COMPUTE_LAM_T_HARD_QP s_compute_lam_t_hard_qp
 #define COMPUTE_QX_HARD_QP s_compute_qx_hard_qp
@@ -58,6 +60,12 @@
 #define OCP_QP s_ocp_qp
 #define OCP_QP_SOL s_ocp_qp_sol
 #define POTRF_L_MN_LIBSTR spotrf_l_mn_libstr
+#define PRINT_E_MAT s_print_e_mat
+#define PRINT_E_STRVEC s_print_e_strvec
+#define PRINT_E_TRAN_STRVEC s_print_e_tran_strvec
+#define PRINT_STRMAT s_print_strmat
+#define PRINT_STRVEC s_print_strvec
+#define PRINT_TRAN_STRVEC s_print_tran_strvec
 #define REAL float
 #define ROWAD_SP_LIBSTR srowad_sp_libstr
 #define ROWEX_LIBSTR srowex_libstr

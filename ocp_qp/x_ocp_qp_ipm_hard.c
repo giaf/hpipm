@@ -481,6 +481,60 @@ void SOLVE_IPM2_HARD_OCP_QP(struct OCP_QP *qp, struct OCP_QP_SOL *qp_sol, struct
 	cws->mu = ws->res_mu;
 
 #if 0
+	printf("\nres_g\n");
+	for(int ii=0; ii<=qp->N; ii++)
+		{
+		PRINT_E_TRAN_STRVEC(qp->nx[ii]+qp->nu[ii], ws->res_g+ii, 0);
+		}
+	printf("\nres_b\n");
+	for(int ii=0; ii<qp->N; ii++)
+		{
+		PRINT_E_TRAN_STRVEC(qp->nx[ii+1], ws->res_b+ii, 0);
+		}
+	printf("\nres_d_lb\n");
+	for(int ii=0; ii<qp->N; ii++)
+		{
+		PRINT_E_TRAN_STRVEC(qp->nb[ii], ws->res_d_lb+ii, 0);
+		}
+	printf("\nres_d_ub\n");
+	for(int ii=0; ii<qp->N; ii++)
+		{
+		PRINT_E_TRAN_STRVEC(qp->nb[ii], ws->res_d_ub+ii, 0);
+		}
+	printf("\nres_d_lg\n");
+	for(int ii=0; ii<qp->N; ii++)
+		{
+		PRINT_E_TRAN_STRVEC(qp->ng[ii], ws->res_d_lg+ii, 0);
+		}
+	printf("\nres_d_ug\n");
+	for(int ii=0; ii<qp->N; ii++)
+		{
+		PRINT_E_TRAN_STRVEC(qp->ng[ii], ws->res_d_ug+ii, 0);
+		}
+	printf("\nres_m_lb\n");
+	for(int ii=0; ii<qp->N; ii++)
+		{
+		PRINT_E_TRAN_STRVEC(qp->nb[ii], ws->res_m_lb+ii, 0);
+		}
+	printf("\nres_m_ub\n");
+	for(int ii=0; ii<qp->N; ii++)
+		{
+		PRINT_E_TRAN_STRVEC(qp->nb[ii], ws->res_m_ub+ii, 0);
+		}
+	printf("\nres_m_lg\n");
+	for(int ii=0; ii<qp->N; ii++)
+		{
+		PRINT_E_TRAN_STRVEC(qp->ng[ii], ws->res_m_lg+ii, 0);
+		}
+	printf("\nres_m_ug\n");
+	for(int ii=0; ii<qp->N; ii++)
+		{
+		PRINT_E_TRAN_STRVEC(qp->ng[ii], ws->res_m_ug+ii, 0);
+		}
+	exit(1);
+#endif
+
+#if 0
 	int ii;
 	for(ii=0; ii<1; ii++)
 		{
@@ -506,6 +560,24 @@ void SOLVE_IPM2_HARD_OCP_QP(struct OCP_QP *qp, struct OCP_QP_SOL *qp_sol, struct
 		// fact and solve kkt
 		FACT_SOLVE_KKT_STEP_HARD_OCP_QP(qp, ws);
 
+#if 0
+	printf("\ndux\n");
+	for(int ii=0; ii<=qp->N; ii++)
+		{
+		PRINT_E_TRAN_STRVEC(qp->nx[ii]+qp->nu[ii], ws->dux+ii, 0);
+		}
+	printf("\ndpi\n");
+	for(int ii=0; ii<qp->N; ii++)
+		{
+		PRINT_E_TRAN_STRVEC(qp->nx[ii+1], ws->dpi+ii, 0);
+		}
+	printf("\ndt\n");
+	for(int ii=0; ii<qp->N; ii++)
+		{
+		PRINT_E_TRAN_STRVEC(2*qp->nb[ii]+2*qp->ng[ii], ws->dt_lb+ii, 0);
+		}
+	exit(1);
+#endif
 		// alpha
 		COMPUTE_ALPHA_HARD_QP(cws);
 		cws->stat[5*kk+0] = cws->alpha;

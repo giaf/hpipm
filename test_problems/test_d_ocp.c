@@ -257,8 +257,8 @@ int main()
 
 	// problem size
 
-	int nx_ = 8; // number of states (it has to be even for the mass-spring system test problem)
-	int nu_ = 3; // number of inputs (controllers) (it has to be at least 1 and at most nx/2 for the mass-spring system test problem)
+	int nx_ = 16; // number of states (it has to be even for the mass-spring system test problem)
+	int nu_ = 7; // number of inputs (controllers) (it has to be at least 1 and at most nx/2 for the mass-spring system test problem)
 	int N  = 5; // horizon lenght
 
 

@@ -313,7 +313,11 @@ void FACT_SOLVE_KKT_STEP_HARD_OCP_QP(struct OCP_QP *qp, struct IPM_HARD_OCP_QP_W
 	// factorization and backward substitution
 
 	// last stage
+#if defined(DOUBLE_PRECISION)
 	TRCP_L_LIBSTR(nu[N]+nx[N], RSQrq+N, 0, 0, L+N, 0, 0); // TODO dtrcp_l_libstr with m and n, for m>=n
+#else
+	GECP_LIBSTR(nu[N]+nx[N], nu[N]+nx[N], RSQrq+N, 0, 0, L+N, 0, 0); // TODO dtrcp_l_libstr with m and n, for m>=n
+#endif
 	ROWIN_LIBSTR(nu[N]+nx[N], 1.0, res_g+N, 0, L+N, nu[N]+nx[N], 0);
 	if(nb[N]>0)
 		{
@@ -341,7 +345,11 @@ void FACT_SOLVE_KKT_STEP_HARD_OCP_QP(struct OCP_QP *qp, struct IPM_HARD_OCP_QP_W
 		TRMV_LNN_LIBSTR(nx[N-ii], nx[N-ii], L+(N-ii), nu[N-ii], nu[N-ii], tmp_nxM, 0, Pb+(N-ii-1), 0);
 		GEAD_LIBSTR(1, nx[N-ii], 1.0, L+(N-ii), nu[N-ii]+nx[N-ii], nu[N-ii], AL, nu[N-ii-1]+nx[N-ii-1], 0);
 
+#if defined(DOUBLE_PRECISION)
 		TRCP_L_LIBSTR(nu[N-ii-1]+nx[N-ii-1], RSQrq+(N-ii-1), 0, 0, L+(N-ii-1), 0, 0);
+#else
+		GECP_LIBSTR(nu[N-ii-1]+nx[N-ii-1], nu[N-ii-1]+nx[N-ii-1], RSQrq+(N-ii-1), 0, 0, L+(N-ii-1), 0, 0);
+#endif
 		ROWIN_LIBSTR(nu[N-ii-1]+nx[N-ii-1], 1.0, res_g+(N-ii-1), 0, L+(N-ii-1), nu[N-ii-1]+nx[N-ii-1], 0);
 
 		if(nb[N-ii-1]>0)
