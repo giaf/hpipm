@@ -35,6 +35,7 @@ endif
 
 OBJS += d_ocp_qp.o d_ocp_qp_sol.o d_ocp_qp_kkt.o d_ocp_qp_ipm_hard.o
 OBJS += s_ocp_qp.o s_ocp_qp_sol.o s_ocp_qp_kkt.o s_ocp_qp_ipm_hard.o
+OBJS += m_ocp_qp.o                m_ocp_qp_kkt.o m_ocp_qp_ipm_hard.o
 
 obj: $(OBJS)
 

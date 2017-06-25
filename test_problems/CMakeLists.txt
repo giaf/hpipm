@@ -37,5 +37,8 @@ target_link_libraries(d_ocp_qp hpipm blasfeo m)
 add_executable(s_ocp_qp test_s_ocp.c s_tools.c)
 target_link_libraries(s_ocp_qp hpipm blasfeo m)
 
+add_executable(m_ocp_qp test_m_ocp.c d_tools.c)
+target_link_libraries(m_ocp_qp hpipm blasfeo m)
+
 add_executable(d_cond test_d_cond.c d_tools.c)
 target_link_libraries(d_cond hpipm blasfeo m)

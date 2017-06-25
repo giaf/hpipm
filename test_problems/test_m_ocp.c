@@ -34,13 +34,17 @@
 #include <blasfeo_common.h>
 #include <blasfeo_v_aux_ext_dep.h>
 #include <blasfeo_d_aux_ext_dep.h>
+#include <blasfeo_s_aux_ext_dep.h>
 #include <blasfeo_i_aux_ext_dep.h>
 #include <blasfeo_d_aux.h>
 #include <blasfeo_d_blas.h>
 
 #include "../include/hpipm_d_ocp_qp.h"
+#include "../include/hpipm_s_ocp_qp.h"
+#include "../include/hpipm_m_ocp_qp.h"
 #include "../include/hpipm_d_ocp_qp_sol.h"
 #include "../include/hpipm_d_ocp_qp_ipm_hard.h"
+#include "../include/hpipm_m_ocp_qp_ipm_hard.h"
 
 #include "d_tools.h"
 
@@ -257,8 +261,8 @@ int main()
 
 	// problem size
 
-	int nx_ = 16; // number of states (it has to be even for the mass-spring system test problem)
-	int nu_ = 7; // number of inputs (controllers) (it has to be at least 1 and at most nx/2 for the mass-spring system test problem)
+	int nx_ = 8; // number of states (it has to be even for the mass-spring system test problem)
+	int nu_ = 3; // number of inputs (controllers) (it has to be at least 1 and at most nx/2 for the mass-spring system test problem)
 	int N  = 5; // horizon lenght
 
 
@@ -600,75 +604,113 @@ int main()
 	hD[N] = DN;
 	
 /************************************************
-* ocp qp
+* d ocp qp
 ************************************************/	
 	
-	int qp_size = d_memsize_ocp_qp(N, nx, nu, nb, ng);
-	printf("\nqp size = %d\n", qp_size);
-	void *qp_mem = malloc(qp_size);
+	int d_qp_size = d_memsize_ocp_qp(N, nx, nu, nb, ng);
+	printf("\nd qp size = %d\n", d_qp_size);
+	void *d_qp_mem = malloc(d_qp_size);
 
-	struct d_ocp_qp qp;
-	d_create_ocp_qp(N, nx, nu, nb, ng, &qp, qp_mem);
-	d_cvt_colmaj_to_ocp_qp(hA, hB, hb, hQ, hS, hR, hq, hr, hidxb, hd_lb, hd_ub, hC, hD, hd_lg, hd_ug, &qp);
+	struct d_ocp_qp d_qp;
+	d_create_ocp_qp(N, nx, nu, nb, ng, &d_qp, d_qp_mem);
+	d_cvt_colmaj_to_ocp_qp(hA, hB, hb, hQ, hS, hR, hq, hr, hidxb, hd_lb, hd_ub, hC, hD, hd_lg, hd_ug, &d_qp);
 #if 0
-	printf("\nN = %d\n", qp.N);
+	printf("\nN = %d\n", d_qp.N);
 	for(ii=0; ii<N; ii++)
-		d_print_strmat(qp.nu[ii]+qp.nx[ii]+1, qp.nx[ii+1], qp.BAbt+ii, 0, 0);
+		d_print_strmat(d_qp.nu[ii]+d_qp.nx[ii]+1, d_qp.nx[ii+1], d_qp.BAbt+ii, 0, 0);
 	for(ii=0; ii<N; ii++)
-		d_print_tran_strvec(qp.nx[ii+1], qp.b+ii, 0);
+		d_print_tran_strvec(d_qp.nx[ii+1], d_qp.b+ii, 0);
 	for(ii=0; ii<=N; ii++)
-		d_print_strmat(qp.nu[ii]+qp.nx[ii]+1, qp.nu[ii]+qp.nx[ii], qp.RSQrq+ii, 0, 0);
+		d_print_strmat(d_qp.nu[ii]+d_qp.nx[ii]+1, d_qp.nu[ii]+d_qp.nx[ii], d_qp.RSQrq+ii, 0, 0);
 	for(ii=0; ii<=N; ii++)
-		d_print_tran_strvec(qp.nu[ii]+qp.nx[ii], qp.rq+ii, 0);
+		d_print_tran_strvec(d_qp.nu[ii]+d_qp.nx[ii], d_qp.rq+ii, 0);
 	for(ii=0; ii<=N; ii++)
-		int_print_mat(1, nb[ii], qp.idxb[ii], 1);
+		int_print_mat(1, nb[ii], d_qp.idxb[ii], 1);
 	for(ii=0; ii<=N; ii++)
-		d_print_tran_strvec(qp.nb[ii], qp.d_lb+ii, 0);
+		d_print_tran_strvec(d_qp.nb[ii], d_qp.d_lb+ii, 0);
 	for(ii=0; ii<=N; ii++)
-		d_print_tran_strvec(qp.nb[ii], qp.d_ub+ii, 0);
+		d_print_tran_strvec(d_qp.nb[ii], d_qp.d_ub+ii, 0);
 	for(ii=0; ii<=N; ii++)
-		d_print_strmat(qp.nu[ii]+qp.nx[ii], qp.ng[ii], qp.DCt+ii, 0, 0);
+		d_print_strmat(d_qp.nu[ii]+d_qp.nx[ii], d_qp.ng[ii], d_qp.DCt+ii, 0, 0);
 	for(ii=0; ii<=N; ii++)
-		d_print_tran_strvec(qp.ng[ii], qp.d_lg+ii, 0);
+		d_print_tran_strvec(d_qp.ng[ii], d_qp.d_lg+ii, 0);
 	for(ii=0; ii<=N; ii++)
-		d_print_tran_strvec(qp.ng[ii], qp.d_ug+ii, 0);
-	return;
+		d_print_tran_strvec(d_qp.ng[ii], d_qp.d_ug+ii, 0);
+//	return;
+#endif
+
+/************************************************
+* s ocp qp
+************************************************/	
+	
+	int s_qp_size = s_memsize_ocp_qp(N, nx, nu, nb, ng);
+	printf("\ns qp size = %d\n", s_qp_size);
+	void *s_qp_mem = malloc(s_qp_size);
+
+	struct s_ocp_qp s_qp;
+	s_create_ocp_qp(N, nx, nu, nb, ng, &s_qp, s_qp_mem);
+//	d_cvt_colmaj_to_ocp_qp(hA, hB, hb, hQ, hS, hR, hq, hr, hidxb, hd_lb, hd_ub, hC, hD, hd_lg, hd_ug, &d_qp);
+	m_cvt_d_ocp_qp_to_s_ocp_qp(&d_qp, &s_qp);
+
+#if 0
+	printf("\nN = %d\n", s_qp.N);
+	for(ii=0; ii<N; ii++)
+		s_print_strmat(s_qp.nu[ii]+s_qp.nx[ii]+1, s_qp.nx[ii+1], s_qp.BAbt+ii, 0, 0);
+	for(ii=0; ii<N; ii++)
+		s_print_tran_strvec(s_qp.nx[ii+1], s_qp.b+ii, 0);
+	for(ii=0; ii<=N; ii++)
+		s_print_strmat(s_qp.nu[ii]+s_qp.nx[ii]+1, s_qp.nu[ii]+s_qp.nx[ii], s_qp.RSQrq+ii, 0, 0);
+	for(ii=0; ii<=N; ii++)
+		s_print_tran_strvec(s_qp.nu[ii]+s_qp.nx[ii], s_qp.rq+ii, 0);
+	for(ii=0; ii<=N; ii++)
+		int_print_mat(1, nb[ii], s_qp.idxb[ii], 1);
+	for(ii=0; ii<=N; ii++)
+		s_print_tran_strvec(s_qp.nb[ii], s_qp.d_lb+ii, 0);
+	for(ii=0; ii<=N; ii++)
+		s_print_tran_strvec(s_qp.nb[ii], s_qp.d_ub+ii, 0);
+	for(ii=0; ii<=N; ii++)
+		s_print_strmat(s_qp.nu[ii]+s_qp.nx[ii], s_qp.ng[ii], s_qp.DCt+ii, 0, 0);
+	for(ii=0; ii<=N; ii++)
+		s_print_tran_strvec(s_qp.ng[ii], s_qp.d_lg+ii, 0);
+	for(ii=0; ii<=N; ii++)
+		s_print_tran_strvec(s_qp.ng[ii], s_qp.d_ug+ii, 0);
+//	return;
 #endif
 
 /************************************************
 * ocp qp sol
 ************************************************/	
 	
-	int qp_sol_size = d_memsize_ocp_qp_sol(N, nx, nu, nb, ng);
-	printf("\nqp sol size = %d\n", qp_sol_size);
-	void *qp_sol_mem = malloc(qp_sol_size);
+	int d_qp_sol_size = d_memsize_ocp_qp_sol(N, nx, nu, nb, ng);
+	printf("\nd qp sol size = %d\n", d_qp_sol_size);
+	void *d_qp_sol_mem = malloc(d_qp_sol_size);
 
-	struct d_ocp_qp_sol qp_sol;
-	d_create_ocp_qp_sol(N, nx, nu, nb, ng, &qp_sol, qp_sol_mem);
+	struct d_ocp_qp_sol d_qp_sol;
+	d_create_ocp_qp_sol(N, nx, nu, nb, ng, &d_qp_sol, d_qp_sol_mem);
 
 /************************************************
 * ipm
 ************************************************/	
 
-	struct d_ipm_hard_ocp_qp_arg arg;
+	struct m_ipm_hard_ocp_qp_arg arg;
 	arg.alpha_min = 1e-8;
 	arg.mu_max = 1e-12;
 	arg.iter_max = 20;
 	arg.mu0 = 2.0;
 
-	int ipm_size = d_memsize_ipm_hard_ocp_qp(&qp, &arg);
+	int ipm_size = m_memsize_ipm_hard_ocp_qp(&d_qp, &s_qp, &arg);
 	printf("\nipm size = %d\n", ipm_size);
-	void *ipm_mem = malloc(ipm_size);
+	void *m_ipm_mem = malloc(ipm_size);
 
-	struct d_ipm_hard_ocp_qp_workspace workspace;
-	d_create_ipm_hard_ocp_qp(&qp, &arg, &workspace, ipm_mem);
+	struct m_ipm_hard_ocp_qp_workspace workspace;
+	m_create_ipm_hard_ocp_qp(&d_qp, &s_qp, &arg, &workspace, m_ipm_mem);
 
 	gettimeofday(&tv0, NULL); // start
 
 	for(rep=0; rep<nrep; rep++)
 		{
-//		d_solve_ipm_hard_ocp_qp(&qp, &qp_sol, &workspace);
-		d_solve_ipm2_hard_ocp_qp(&qp, &qp_sol, &workspace);
+		m_solve_ipm_hard_ocp_qp(&d_qp, &s_qp, &d_qp_sol, &workspace);
+//		m_solve_ipm2_hard_ocp_qp(&d_qp, &s_qp, &d_qp_sol, &workspace);
 		}
 
 	gettimeofday(&tv1, NULL); // stop
@@ -687,7 +729,7 @@ int main()
 	double *lam_lg[N+1]; for(ii=0; ii<=N; ii++) d_zeros(lam_lg+ii, ng[ii], 1);
 	double *lam_ug[N+1]; for(ii=0; ii<=N; ii++) d_zeros(lam_ug+ii, ng[ii], 1);
 
-	d_cvt_ocp_qp_sol_to_colmaj(&qp, &qp_sol, u, x, pi, lam_lb, lam_ub, lam_lg, lam_ug);
+	d_cvt_ocp_qp_sol_to_colmaj(&d_qp, &d_qp_sol, u, x, pi, lam_lb, lam_ub, lam_lg, lam_ug);
 
 #if 1
 	printf("\nsolution\n\n");
@@ -715,16 +757,16 @@ int main()
 
 	printf("\nt_lb\n");
 	for(ii=0; ii<=N; ii++)
-		d_print_mat(1, nb[ii], (qp_sol.t_lb+ii)->pa, 1);
+		d_print_mat(1, nb[ii], (d_qp_sol.t_lb+ii)->pa, 1);
 	printf("\nt_ub\n");
 	for(ii=0; ii<=N; ii++)
-		d_print_mat(1, nb[ii], (qp_sol.t_ub+ii)->pa, 1);
+		d_print_mat(1, nb[ii], (d_qp_sol.t_ub+ii)->pa, 1);
 	printf("\nt_lg\n");
 	for(ii=0; ii<=N; ii++)
-		d_print_mat(1, ng[ii], (qp_sol.t_lg+ii)->pa, 1);
+		d_print_mat(1, ng[ii], (d_qp_sol.t_lg+ii)->pa, 1);
 	printf("\nt_ug\n");
 	for(ii=0; ii<=N; ii++)
-		d_print_mat(1, ng[ii], (qp_sol.t_ug+ii)->pa, 1);
+		d_print_mat(1, ng[ii], (d_qp_sol.t_ug+ii)->pa, 1);
 
 	printf("\nresiduals\n\n");
 	printf("\nres_g\n");
@@ -820,9 +862,10 @@ int main()
 	d_free(lam_lg[ii]);
 	d_free(lam_ug[ii]);
 
-	free(qp_mem);
-	free(qp_sol_mem);
-	free(ipm_mem);
+	free(d_qp_mem);
+	free(s_qp_mem);
+	free(d_qp_sol_mem);
+	free(m_ipm_mem);
 
 /************************************************
 * return
