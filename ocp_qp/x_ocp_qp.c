@@ -180,70 +180,70 @@ void CREATE_OCP_QP(int N, int *nx, int *nu, int *nb, int *ng, struct OCP_QP *qp,
 
 
 	// double stuff
-	void *v_ptr;
-	v_ptr = (void *) l_ptr;
+	char *c_ptr;
+	c_ptr = (char *) l_ptr;
 
 	// BAbt
 	for(ii=0; ii<N; ii++)
 		{
-		CREATE_STRMAT(nu[ii]+nx[ii]+1, nx[ii+1], qp->BAbt+ii, v_ptr);
-		v_ptr += (qp->BAbt+ii)->memory_size;
+		CREATE_STRMAT(nu[ii]+nx[ii]+1, nx[ii+1], qp->BAbt+ii, c_ptr);
+		c_ptr += (qp->BAbt+ii)->memory_size;
 		}
 
 	// RSQrq
 	for(ii=0; ii<=N; ii++)
 		{
-		CREATE_STRMAT(nu[ii]+nx[ii]+1, nu[ii]+nx[ii], qp->RSQrq+ii, v_ptr);
-		v_ptr += (qp->RSQrq+ii)->memory_size;
+		CREATE_STRMAT(nu[ii]+nx[ii]+1, nu[ii]+nx[ii], qp->RSQrq+ii, c_ptr);
+		c_ptr += (qp->RSQrq+ii)->memory_size;
 		}
 
 	// DCt
 	for(ii=0; ii<=N; ii++)
 		{
-		CREATE_STRMAT(nu[ii]+nx[ii], ng[ii], qp->DCt+ii, v_ptr);
-		v_ptr += (qp->DCt+ii)->memory_size;
+		CREATE_STRMAT(nu[ii]+nx[ii], ng[ii], qp->DCt+ii, c_ptr);
+		c_ptr += (qp->DCt+ii)->memory_size;
 		}
 
 	// b
 	for(ii=0; ii<N; ii++)
 		{
-		CREATE_STRVEC(nx[ii+1], qp->b+ii, v_ptr);
-		v_ptr += (qp->b+ii)->memory_size;
+		CREATE_STRVEC(nx[ii+1], qp->b+ii, c_ptr);
+		c_ptr += (qp->b+ii)->memory_size;
 		}
 
 	// rq
 	for(ii=0; ii<=N; ii++)
 		{
-		CREATE_STRVEC(nu[ii]+nx[ii], qp->rq+ii, v_ptr);
-		v_ptr += (qp->rq+ii)->memory_size;
+		CREATE_STRVEC(nu[ii]+nx[ii], qp->rq+ii, c_ptr);
+		c_ptr += (qp->rq+ii)->memory_size;
 		}
 
 	// d_lb
 	for(ii=0; ii<=N; ii++)
 		{
-		CREATE_STRVEC(nb[ii], qp->d_lb+ii, v_ptr);
-		v_ptr += (qp->d_lb+ii)->memory_size;
+		CREATE_STRVEC(nb[ii], qp->d_lb+ii, c_ptr);
+		c_ptr += (qp->d_lb+ii)->memory_size;
 		}
 
 	// d_ub
 	for(ii=0; ii<=N; ii++)
 		{
-		CREATE_STRVEC(nb[ii], qp->d_ub+ii, v_ptr);
-		v_ptr += (qp->d_ub+ii)->memory_size;
+		CREATE_STRVEC(nb[ii], qp->d_ub+ii, c_ptr);
+		c_ptr += (qp->d_ub+ii)->memory_size;
 		}
 
 	// d_lg
 	for(ii=0; ii<=N; ii++)
 		{
-		CREATE_STRVEC(ng[ii], qp->d_lg+ii, v_ptr);
-		v_ptr += (qp->d_lg+ii)->memory_size;
+		CREATE_STRVEC(ng[ii], qp->d_lg+ii, c_ptr);
+		c_ptr += (qp->d_lg+ii)->memory_size;
 		}
 
 	// d_ug
 	for(ii=0; ii<=N; ii++)
 		{
-		CREATE_STRVEC(ng[ii], qp->d_ug+ii, v_ptr);
-		v_ptr += (qp->d_ug+ii)->memory_size;
+		CREATE_STRVEC(ng[ii], qp->d_ug+ii, c_ptr);
+		c_ptr += (qp->d_ug+ii)->memory_size;
 		}
 
 	return;

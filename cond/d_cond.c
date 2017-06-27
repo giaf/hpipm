@@ -224,35 +224,35 @@ void d_create_cond_qp_ocp2dense(struct d_ocp_qp *ocp_qp, struct d_dense_qp *dens
 
 
 	// void stuf
-	void *v_ptr = (void *) s_ptr;
-	void *v_tmp;
+	char *c_ptr = (char *) s_ptr;
+	char *c_tmp;
 
 	int nu_tmp = 0;
 	for(ii=0; ii<N; ii++)
 		{
 		nu_tmp += nu[ii];
-		d_create_strmat(nu_tmp+nx[0]+1, nx[ii+1], cond_ws->Gamma+ii, v_ptr);
-		v_ptr += (cond_ws->Gamma+ii)->memory_size;
+		d_create_strmat(nu_tmp+nx[0]+1, nx[ii+1], cond_ws->Gamma+ii, c_ptr);
+		c_ptr += (cond_ws->Gamma+ii)->memory_size;
 		}
 	for(ii=0; ii<=N; ii++)
 		{
-		d_create_strmat(nu[ii]+nx[ii]+1, nu[ii]+nx[ii], cond_ws->L+ii, v_ptr);
-		v_ptr += (cond_ws->L+ii)->memory_size;
+		d_create_strmat(nu[ii]+nx[ii]+1, nu[ii]+nx[ii], cond_ws->L+ii, c_ptr);
+		c_ptr += (cond_ws->L+ii)->memory_size;
 		}
-	d_create_strmat(nxM+1, nxM, cond_ws->Lx, v_ptr);
-	v_ptr += cond_ws->Lx->memory_size;
-	d_create_strmat(nuM+nxM+1, nxM, cond_ws->AL, v_ptr);
-	v_ptr += cond_ws->AL->memory_size;
+	d_create_strmat(nxM+1, nxM, cond_ws->Lx, c_ptr);
+	c_ptr += cond_ws->Lx->memory_size;
+	d_create_strmat(nuM+nxM+1, nxM, cond_ws->AL, c_ptr);
+	c_ptr += cond_ws->AL->memory_size;
 	for(ii=0; ii<N; ii++)
 		{
-		d_create_strvec(nx[ii+1], cond_ws->Gammab+ii, v_ptr);
-		v_ptr += (cond_ws->Gammab+ii)->memory_size;
+		d_create_strvec(nx[ii+1], cond_ws->Gammab+ii, c_ptr);
+		c_ptr += (cond_ws->Gammab+ii)->memory_size;
 		}
-	d_create_strvec(ngM, cond_ws->tmp_ngM, v_ptr);
-	v_ptr += cond_ws->tmp_ngM->memory_size;
-	v_tmp = v_ptr;
-	d_create_strvec(nuM+nxM, cond_ws->tmp_nuxM, v_ptr);
-	v_ptr += cond_ws->tmp_nuxM->memory_size;
+	d_create_strvec(ngM, cond_ws->tmp_ngM, c_ptr);
+	c_ptr += cond_ws->tmp_ngM->memory_size;
+	c_tmp = c_ptr;
+	d_create_strvec(nuM+nxM, cond_ws->tmp_nuxM, c_ptr);
+	c_ptr += cond_ws->tmp_nuxM->memory_size;
 
 	return;
 
