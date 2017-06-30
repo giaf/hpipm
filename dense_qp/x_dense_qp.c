@@ -56,6 +56,9 @@ int MEMSIZE_DENSE_QP(int nv, int ne, int nb, int ng)
 void CREATE_DENSE_QP(int nv, int ne, int nb, int ng, struct DENSE_QP *qp, void *memory)
 	{
 
+	qp->memsize = MEMSIZE_DENSE_QP(nv, ne, nb, ng);
+
+
 	// problem size
 	qp->nv = nv;
 	qp->ne = ne;
@@ -140,8 +143,6 @@ void CREATE_DENSE_QP(int nv, int ne, int nb, int ng, struct DENSE_QP *qp, void *
 	CREATE_STRVEC(nb, qp->d_ub, c_ptr+(nb+ng)*sizeof(REAL));
 	CREATE_STRVEC(ng, qp->d_ug, c_ptr+(2*nb+ng)*sizeof(REAL));
 	c_ptr += qp->d->memory_size;
-
-	qp->mem_size = MEMSIZE_DENSE_QP(nv, ne, nb, ng);
 
 	return;
 

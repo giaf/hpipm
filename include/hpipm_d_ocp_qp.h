@@ -49,7 +49,7 @@ struct d_ocp_qp
 	int **idxb; // index of box constraints
 	int *ng; // number of general constraints
 	int N; // hotizon lenght
-	int mem_size; // memory size in bytes
+	int memsize; // memory size in bytes
 	};
 
 

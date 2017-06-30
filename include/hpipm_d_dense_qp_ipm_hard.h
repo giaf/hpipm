@@ -64,6 +64,7 @@ struct d_ipm_hard_dense_qp_workspace
 	double *stat; // convergence statistics
 	double res_mu; // mu-residual
 	int iter; // iteration number
+	int memsize; // memory size (in bytes) of workspace
 	};
 
 

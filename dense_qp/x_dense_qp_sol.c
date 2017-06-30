@@ -50,6 +50,9 @@ int MEMSIZE_DENSE_QP_SOL(int nv, int ne, int nb, int ng)
 void CREATE_DENSE_QP_SOL(int nv, int ne, int nb, int ng, struct DENSE_QP_SOL *qp_sol, void *memory)
 	{
 
+	qp_sol->memsize = MEMSIZE_DENSE_QP_SOL(nv, ne, nb, ng);
+
+
 	// vector struct stuff
 	struct STRVEC *sv_ptr = (struct STRVEC *) memory;
 

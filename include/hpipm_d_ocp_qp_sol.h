@@ -44,6 +44,7 @@ struct d_ocp_qp_sol
 	struct d_strvec *t_ub;
 	struct d_strvec *t_lg;
 	struct d_strvec *t_ug;
+	int memsize; // memory size in bytes
 	};
 
 

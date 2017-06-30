@@ -44,6 +44,7 @@ struct s_dense_qp_sol
 	struct s_strvec *t_ub;
 	struct s_strvec *t_lg;
 	struct s_strvec *t_ug;
+	int memsize;
 	};
 
 

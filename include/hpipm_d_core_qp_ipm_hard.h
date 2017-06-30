@@ -94,8 +94,8 @@ struct d_ipm_hard_core_qp_workspace
 	int ne; // number of equality constraints
 	int nb; // number of two-sized bounds
 	int ng; // number of two-sized constraints
-	int memsize; // memory size (in bytes) of workspace
 	int iter_max; // exit cond on iter mumber
+	int memsize; // memory size (in bytes) of workspace
 	};
 
 

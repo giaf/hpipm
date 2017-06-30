@@ -63,6 +63,9 @@ int MEMSIZE_IPM_HARD_DENSE_QP(struct DENSE_QP *qp, struct IPM_HARD_DENSE_QP_ARG 
 void CREATE_IPM_HARD_DENSE_QP(struct DENSE_QP *qp, struct IPM_HARD_DENSE_QP_ARG *arg, struct IPM_HARD_DENSE_QP_WORKSPACE *workspace, void *mem)
 	{
 
+	workspace->memsize = MEMSIZE_IPM_HARD_DENSE_QP(qp, arg);
+
+
 	int nv = qp->nv;
 	int ne = qp->ne;
 	int nb = qp->nb;

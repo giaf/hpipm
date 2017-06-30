@@ -65,6 +65,7 @@ struct d_ipm_hard_ocp_qp_workspace
 	double *stat; // convergence statistics
 	double res_mu; // mu-residual
 	int iter; // iteration number
+	int memsize;
 	};
 
 

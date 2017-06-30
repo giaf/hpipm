@@ -73,6 +73,10 @@ void CREATE_OCP_QP(int N, int *nx, int *nu, int *nb, int *ng, struct OCP_QP *qp,
 	int ii;
 
 
+	// memsize
+	qp->memsize = MEMSIZE_OCP_QP(N, nx, nu, nb, ng);
+
+
 	// horizon length
 	qp->N = N;
 

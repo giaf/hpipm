@@ -50,7 +50,7 @@ struct s_dense_qp
 	int ne; // number of equality constraints
 	int nb; // number of box constraints
 	int ng; // number of general constraints
-	int mem_size; // memory size in bytes
+	int memsize; // memory size in bytes
 	};
 
 

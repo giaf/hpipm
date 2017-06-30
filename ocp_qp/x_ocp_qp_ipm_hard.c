@@ -107,6 +107,10 @@ void CREATE_IPM_HARD_OCP_QP(struct OCP_QP *qp, struct IPM_HARD_OCP_QP_ARG *arg, 
 	int *nb = qp->nb;
 	int *ng = qp->ng;
 
+
+	workspace->memsize = MEMSIZE_IPM_HARD_OCP_QP(qp, arg);
+
+
 	// compute core qp size and max size
 	int nvt = 0;
 	int net = 0;

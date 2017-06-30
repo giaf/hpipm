@@ -69,6 +69,11 @@ void CREATE_OCP_QP_SOL(int N, int *nx, int *nu, int *nb, int *ng, struct OCP_QP_
 
 	int ii;
 
+
+	// memsize
+	qp_sol->memsize = MEMSIZE_OCP_QP_SOL(N, nx, nu, nb, ng);
+
+
 	int nvt = 0;
 	int net = 0;
 	int nbt = 0;
@@ -83,6 +88,7 @@ void CREATE_OCP_QP_SOL(int N, int *nx, int *nu, int *nb, int *ng, struct OCP_QP_
 	nvt += nu[ii]+nx[ii];
 	nbt += nb[ii];
 	ngt += ng[ii];
+
 
 	// vector struct stuff
 	struct STRVEC *sv_ptr = (struct STRVEC *) memory;
