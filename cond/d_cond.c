@@ -254,6 +254,8 @@ void d_create_cond_qp_ocp2dense(struct d_ocp_qp *ocp_qp, struct d_dense_qp *dens
 	d_create_strvec(nuM+nxM, cond_ws->tmp_nuxM, c_ptr);
 	c_ptr += cond_ws->tmp_nuxM->memory_size;
 
+	cond_ws->memsize = d_memsize_cond_qp_ocp2dense(ocp_qp, dense_qp);
+
 	return;
 
 	}
