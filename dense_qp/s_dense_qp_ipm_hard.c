@@ -50,11 +50,13 @@
 #define DENSE_QP s_dense_qp
 #define DENSE_QP_SOL s_dense_qp_sol
 #define FACT_SOLVE_KKT_STEP_HARD_DENSE_QP s_fact_solve_kkt_step_hard_dense_qp
+#define FACT_SOLVE_KKT_UNCONSTR_DENSE_QP s_fact_solve_kkt_unconstr_dense_qp
 #define INIT_VAR_HARD_DENSE_QP s_init_var_hard_dense_qp
 #define IPM_HARD_CORE_QP_WORKSPACE s_ipm_hard_core_qp_workspace
 #define IPM_HARD_DENSE_QP_ARG s_ipm_hard_dense_qp_arg
 #define IPM_HARD_DENSE_QP_WORKSPACE s_ipm_hard_dense_qp_workspace
 #define MEMSIZE_IPM_HARD_CORE_QP s_memsize_ipm_hard_core_qp
+#define REAL float
 #define SIZE_STRMAT s_size_strmat
 #define SIZE_STRVEC s_size_strvec
 #define SOLVE_KKT_STEP_HARD_DENSE_QP s_solve_kkt_step_hard_dense_qp

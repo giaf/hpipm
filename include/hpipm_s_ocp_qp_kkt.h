@@ -33,6 +33,8 @@ void s_init_var_hard_ocp_qp(struct s_ocp_qp *qp, struct s_ocp_qp_sol *qp_sol, st
 //
 void s_compute_res_hard_ocp_qp(struct s_ocp_qp *qp, struct s_ocp_qp_sol *qp_sol, struct s_ipm_hard_ocp_qp_workspace *ws);
 //
+void s_fact_solve_kkt_unconstr_ocp_qp(struct s_ocp_qp *qp, struct s_ocp_qp_sol *qp_sol, struct s_ipm_hard_ocp_qp_workspace *ws);
+//
 void s_fact_solve_kkt_step_hard_ocp_qp(struct s_ocp_qp *qp, struct s_ipm_hard_ocp_qp_workspace *ws);
 //
 void s_solve_kkt_step_hard_ocp_qp(struct s_ocp_qp *qp, struct s_ipm_hard_ocp_qp_workspace *ws);

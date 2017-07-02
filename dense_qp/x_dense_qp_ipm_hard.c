@@ -242,6 +242,15 @@ void SOLVE_IPM_HARD_DENSE_QP(struct DENSE_QP *qp, struct DENSE_QP_SOL *qp_sol, s
 	cws->t_lg = qp_sol->t_lg->pa;
 	cws->t_ug = qp_sol->t_ug->pa;
 
+	if(cws->nb+cws->ng==0)
+		{
+		FACT_SOLVE_KKT_UNCONSTR_DENSE_QP(qp, qp_sol, ws);
+		COMPUTE_RES_HARD_DENSE_QP(qp, qp_sol, ws);
+		cws->mu = ws->res_mu;
+		ws->iter = 0;
+		return;
+		}
+
 	// init solver
 	INIT_VAR_HARD_DENSE_QP(qp, qp_sol, ws);
 
@@ -304,7 +313,16 @@ void SOLVE_IPM2_HARD_DENSE_QP(struct DENSE_QP *qp, struct DENSE_QP_SOL *qp_sol, 
 	cws->t_lg = qp_sol->t_lg->pa;
 	cws->t_ug = qp_sol->t_ug->pa;
 
-	double tmp;
+	REAL tmp;
+
+	if(cws->nb+cws->ng==0)
+		{
+		FACT_SOLVE_KKT_UNCONSTR_DENSE_QP(qp, qp_sol, ws);
+		COMPUTE_RES_HARD_DENSE_QP(qp, qp_sol, ws);
+		cws->mu = ws->res_mu;
+		ws->iter = 0;
+		return;
+		}
 
 	// init solver
 	INIT_VAR_HARD_DENSE_QP(qp, qp_sol, ws);

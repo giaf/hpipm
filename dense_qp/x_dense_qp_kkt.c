@@ -187,12 +187,83 @@ void COMPUTE_RES_HARD_DENSE_QP(struct DENSE_QP *qp, struct DENSE_QP_SOL *qp_sol,
 	// res_mu
 	mu = VECMULDOT_LIBSTR(2*nb+2*ng, lam_lb, 0, t_lb, 0, ws->res_m, 0);
 
-	ws->res_mu = mu*cws->nt_inv;
+	if(cws->nb+cws->ng>0)
+		ws->res_mu = mu*cws->nt_inv;
+	else
+		ws->res_mu = 0.0;
 
 
 	return;
 
 	}
+
+
+// range-space (Schur complement) method
+void FACT_SOLVE_KKT_UNCONSTR_DENSE_QP(struct DENSE_QP *qp, struct DENSE_QP_SOL *qp_sol, struct IPM_HARD_DENSE_QP_WORKSPACE *ws)
+	{
+
+	int nv = qp->nv;
+	int ne = qp->ne;
+	int nb = qp->nb;
+	int ng = qp->ng;
+	struct STRMAT *Hg = qp->Hg;
+	struct STRMAT *A = qp->A;
+	struct STRVEC *g = qp->g;
+	struct STRVEC *b = qp->b;
+
+	struct STRVEC *v = qp_sol->v;
+	struct STRVEC *pi = qp_sol->pi;
+
+	struct STRMAT *Lv = ws->Lv;
+	struct STRMAT *Le = ws->Le;
+	struct STRMAT *Ctx = ws->Ctx;
+	struct STRMAT *AL = ws->AL;
+	struct STRVEC *lv = ws->lv;
+
+	if(ne>0)
+		{
+		POTRF_L_LIBSTR(nv, Hg, 0, 0, Lv, 0, 0);
+
+		GECP_LIBSTR(ne, nv, A, 0, 0, AL, 0, 0);
+		TRSM_RLTN_LIBSTR(ne, nv, 1.0, Lv, 0, 0, A, 0, 0, AL, 0, 0);
+
+		GESE_LIBSTR(ne, ne, 0.0, Le, 0, 0);
+		SYRK_POTRF_LN_LIBSTR(ne, ne, nv, AL, 0, 0, AL, 0, 0, Le, 0, 0, Le, 0, 0);
+
+		TRSV_LNN_LIBSTR(nv, Lv, 0, 0, g, 0, lv, 0);
+
+		GEMV_N_LIBSTR(ne, nv, 1.0, AL, 0, 0, lv, 0, 1.0, b, 0, pi, 0);
+
+		TRSV_LNN_LIBSTR(ne, Le, 0, 0, pi, 0, pi, 0);
+		TRSV_LTN_LIBSTR(ne, Le, 0, 0, pi, 0, pi, 0);
+
+		GEMV_T_LIBSTR(ne, nv, 1.0, A, 0, 0, pi, 0, -1.0, g, 0, v, 0);
+
+		TRSV_LNN_LIBSTR(nv, Lv, 0, 0, v, 0, v, 0);
+		TRSV_LTN_LIBSTR(nv, Lv, 0, 0, v, 0, v, 0);
+		}
+	else
+		{
+#if 0
+		POTRF_L_LIBSTR(nv, Hg, 0, 0, Lv, 0, 0);
+
+		VECCP_LIBSTR(nv, g, 0, v, 0);
+		VECSC_LIBSTR(nv, -1.0, v, 0);
+
+		TRSV_LNN_LIBSTR(nv, Lv, 0, 0, v, 0, v, 0);
+		TRSV_LTN_LIBSTR(nv, Lv, 0, 0, v, 0, v, 0);
+#else
+		POTRF_L_MN_LIBSTR(nv+1, nv, Hg, 0, 0, Lv, 0, 0);
+
+		ROWEX_LIBSTR(nv, -1.0, Lv, nv, 0, v, 0);
+		TRSV_LTN_LIBSTR(nv, Lv, 0, 0, v, 0, v, 0);
+#endif
+		}
+
+	return;
+
+	}
+
 
 
 // range-space (Schur complement) method

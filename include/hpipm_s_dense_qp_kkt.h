@@ -32,6 +32,8 @@ void s_init_var_hard_dense_qp(struct s_dense_qp *qp, struct s_dense_qp_sol *qp_s
 //
 void s_compute_res_hard_dense_qp(struct s_dense_qp *qp, struct s_dense_qp_sol *qp_sol, struct s_ipm_hard_dense_qp_workspace *ws);
 //
+void s_fact_solve_kkt_unconstr_dense_qp(struct s_dense_qp *qp, struct s_dense_qp_sol *qp_sol, struct s_ipm_hard_dense_qp_workspace *ws);
+//
 void s_fact_solve_kkt_step_hard_dense_qp(struct s_dense_qp *qp, struct s_ipm_hard_dense_qp_workspace *ws);
 //
 void s_solve_kkt_step_hard_dense_qp(struct s_dense_qp *qp, struct s_ipm_hard_dense_qp_workspace *ws);

@@ -48,6 +48,7 @@
 #define CREATE_STRMAT d_create_strmat
 #define CREATE_STRVEC d_create_strvec
 #define FACT_SOLVE_KKT_STEP_HARD_OCP_QP d_fact_solve_kkt_step_hard_ocp_qp
+#define FACT_SOLVE_KKT_UNCONSTR_OCP_QP d_fact_solve_kkt_unconstr_ocp_qp
 #define INIT_VAR_HARD_OCP_QP d_init_var_hard_ocp_qp
 #define IPM_HARD_CORE_QP_WORKSPACE d_ipm_hard_core_qp_workspace
 #define IPM_HARD_OCP_QP_WORKSPACE d_ipm_hard_ocp_qp_workspace

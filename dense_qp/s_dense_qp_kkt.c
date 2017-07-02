@@ -79,6 +79,7 @@
 
 #define INIT_VAR_HARD_DENSE_QP s_init_var_hard_dense_qp
 #define COMPUTE_RES_HARD_DENSE_QP s_compute_res_hard_dense_qp
+#define FACT_SOLVE_KKT_UNCONSTR_DENSE_QP s_fact_solve_kkt_unconstr_dense_qp
 #define FACT_SOLVE_KKT_STEP_HARD_DENSE_QP s_fact_solve_kkt_step_hard_dense_qp
 #define SOLVE_KKT_STEP_HARD_DENSE_QP s_solve_kkt_step_hard_dense_qp
 

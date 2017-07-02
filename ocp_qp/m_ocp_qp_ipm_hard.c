@@ -525,6 +525,38 @@ void m_solve_ipm_hard_ocp_qp(struct d_ocp_qp *qp, struct s_ocp_qp *s_qp, struct 
 	cws->t_lg = qp_sol->t_lg->pa;
 	cws->t_ug = qp_sol->t_ug->pa;
 
+	if(cws->nb+cws->ng==0)
+		{
+		//
+		d_init_var_hard_ocp_qp(qp, qp_sol, &dws);
+		//
+		d_compute_res_hard_ocp_qp(qp, qp_sol, &dws);
+		cws->mu = dws.res_mu;
+		ws->res_mu = dws.res_mu;
+		//
+		m_fact_solve_kkt_step_hard_ocp_qp(qp, s_qp, ws);
+		//
+		cws->alpha = 1.0;
+		d_update_var_hard_qp(cws);
+		//
+		d_compute_res_hard_ocp_qp(qp, qp_sol, &dws);
+		cws->mu = dws.res_mu;
+		ws->res_mu = dws.res_mu;
+		//
+		ws->compute_Pb = 1;
+		m_solve_kkt_step_hard_ocp_qp(qp, s_qp, ws);
+		//
+		cws->alpha = 1.0;
+		d_update_var_hard_qp(cws);
+		//
+		d_compute_res_hard_ocp_qp(qp, qp_sol, &dws);
+		cws->mu = dws.res_mu;
+		ws->res_mu = dws.res_mu;
+		//
+		ws->iter = 0;
+		return;
+		}
+
 	// init solver
 	d_init_var_hard_ocp_qp(qp, qp_sol, &dws);
 
@@ -611,7 +643,38 @@ void m_solve_ipm2_hard_ocp_qp(struct d_ocp_qp *qp, struct s_ocp_qp *s_qp, struct
 	cws->t_ug = qp_sol->t_ug->pa;
 
 	double tmp;
-	int kk = 0;
+
+	if(cws->nb+cws->ng==0)
+		{
+		//
+		d_init_var_hard_ocp_qp(qp, qp_sol, &dws);
+		//
+		d_compute_res_hard_ocp_qp(qp, qp_sol, &dws);
+		cws->mu = dws.res_mu;
+		ws->res_mu = dws.res_mu;
+		//
+		m_fact_solve_kkt_step_hard_ocp_qp(qp, s_qp, ws);
+		//
+		cws->alpha = 1.0;
+		d_update_var_hard_qp(cws);
+		//
+		d_compute_res_hard_ocp_qp(qp, qp_sol, &dws);
+		cws->mu = dws.res_mu;
+		ws->res_mu = dws.res_mu;
+		//
+		ws->compute_Pb = 1;
+		m_solve_kkt_step_hard_ocp_qp(qp, s_qp, ws);
+		//
+		cws->alpha = 1.0;
+		d_update_var_hard_qp(cws);
+		//
+		d_compute_res_hard_ocp_qp(qp, qp_sol, &dws);
+		cws->mu = dws.res_mu;
+		ws->res_mu = dws.res_mu;
+		//
+		ws->iter = 0;
+		return;
+		}
 
 	// init solver
 	d_init_var_hard_ocp_qp(qp, qp_sol, &dws);
@@ -695,6 +758,7 @@ void m_solve_ipm2_hard_ocp_qp(struct d_ocp_qp *qp, struct s_ocp_qp *s_qp, struct
 //		return;
 #endif
 
+	int kk = 0;
 	for(; kk<cws->iter_max & cws->mu>cws->mu_max; kk++)
 		{
 
@@ -734,6 +798,7 @@ void m_solve_ipm2_hard_ocp_qp(struct d_ocp_qp *qp, struct s_ocp_qp *s_qp, struct
 		d_compute_centering_correction_hard_qp(cws);
 
 		// fact and solve kkt
+		ws->compute_Pb = 0;
 		m_solve_kkt_step_hard_ocp_qp(qp, s_qp, ws);
 
 #if 0

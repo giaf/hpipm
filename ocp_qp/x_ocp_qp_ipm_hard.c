@@ -264,7 +264,7 @@ void CREATE_IPM_HARD_OCP_QP(struct OCP_QP *qp, struct IPM_HARD_OCP_QP_ARG *arg, 
 	rwork->alpha_min = arg->alpha_min;
 	rwork->mu_max = arg->mu_max;
 	rwork->mu0 = arg->mu0;
-	rwork->nt_inv = 1.0/(2*nbt+2*ngt);
+	rwork->nt_inv = 1.0/(2*nbt+2*ngt); // TODO avoid computation if nt=0
 
 
 	// alias members of workspace and core_workspace
@@ -413,6 +413,15 @@ void SOLVE_IPM_HARD_OCP_QP(struct OCP_QP *qp, struct OCP_QP_SOL *qp_sol, struct 
 	cws->t_lg = qp_sol->t_lg->pa;
 	cws->t_ug = qp_sol->t_ug->pa;
 
+	if(cws->nb+cws->ng==0)
+		{
+		FACT_SOLVE_KKT_UNCONSTR_OCP_QP(qp, qp_sol, ws);
+		COMPUTE_RES_HARD_OCP_QP(qp, qp_sol, ws);
+		cws->mu = ws->res_mu;
+		ws->iter = 0;
+		return;
+		}
+
 	// init solver
 	INIT_VAR_HARD_OCP_QP(qp, qp_sol, ws);
 
@@ -475,7 +484,15 @@ void SOLVE_IPM2_HARD_OCP_QP(struct OCP_QP *qp, struct OCP_QP_SOL *qp_sol, struct
 	cws->t_ug = qp_sol->t_ug->pa;
 
 	REAL tmp;
-	int kk = 0;
+
+	if(cws->nb+cws->ng==0)
+		{
+		FACT_SOLVE_KKT_UNCONSTR_OCP_QP(qp, qp_sol, ws); // TODO tailored routine ???
+		COMPUTE_RES_HARD_OCP_QP(qp, qp_sol, ws);
+		cws->mu = ws->res_mu;
+		ws->iter = 0;
+		return;
+		}
 
 	// init solver
 	INIT_VAR_HARD_OCP_QP(qp, qp_sol, ws);
@@ -558,6 +575,7 @@ void SOLVE_IPM2_HARD_OCP_QP(struct OCP_QP *qp, struct OCP_QP_SOL *qp_sol, struct
 //		return;
 #endif
 
+	int kk = 0;
 	for(; kk<cws->iter_max & cws->mu>cws->mu_max; kk++)
 		{
 

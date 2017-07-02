@@ -262,7 +262,86 @@ void COMPUTE_RES_HARD_OCP_QP(struct OCP_QP *qp, struct OCP_QP_SOL *qp_sol, struc
 
 	mu += VECMULDOT_LIBSTR(2*nbt+2*ngt, lam_lb, 0, t_lb, 0, ws->res_m, 0);
 
-	ws->res_mu = mu*cws->nt_inv;
+	if(cws->nb+cws->ng>0)
+		ws->res_mu = mu*cws->nt_inv;
+	else
+		ws->res_mu = 0.0;
+
+	return;
+
+	}
+
+
+
+// backward Riccati recursion
+void FACT_SOLVE_KKT_UNCONSTR_OCP_QP(struct OCP_QP *qp, struct OCP_QP_SOL *qp_sol, struct IPM_HARD_OCP_QP_WORKSPACE *ws)
+	{
+
+	int N = qp->N;
+	int *nx = qp->nx;
+	int *nu = qp->nu;
+	int *nb = qp->nb;
+	int *ng = qp->ng;
+
+	struct STRMAT *BAbt = qp->BAbt;
+	struct STRMAT *RSQrq = qp->RSQrq;
+	struct STRVEC *b = qp->b;
+
+	struct STRVEC *ux = qp_sol->ux;
+	struct STRVEC *pi = qp_sol->pi;
+
+	struct STRMAT *L = ws->L;
+	struct STRMAT *AL = ws->AL;
+	struct STRVEC *tmp_nxM = ws->tmp_nxM;
+
+	//
+	int ii;
+
+	// factorization and backward substitution
+
+	// last stage
+	POTRF_L_MN_LIBSTR(nu[N]+nx[N]+1, nu[N]+nx[N], RSQrq+N, 0, 0, L+N, 0, 0);
+
+	// middle stages
+	for(ii=0; ii<N; ii++)
+		{
+		GECP_LIBSTR(nu[N-ii-1]+nx[N-ii-1]+1, nx[N-ii], BAbt+(N-ii-1), 0, 0, AL, 0, 0);
+		TRMM_RLNN_LIBSTR(nu[N-ii-1]+nx[N-ii-1]+1, nx[N-ii], 1.0, L+(N-ii), nu[N-ii], nu[N-ii], AL, 0, 0, AL, 0, 0);
+		ROWEX_LIBSTR(nx[N-ii], 1.0, AL, nu[N-ii-1]+nx[N-ii-1], 0, tmp_nxM, 0);
+		GEAD_LIBSTR(1, nx[N-ii], 1.0, L+(N-ii), nu[N-ii]+nx[N-ii], nu[N-ii], AL, nu[N-ii-1]+nx[N-ii-1], 0);
+
+		SYRK_POTRF_LN_LIBSTR(nu[N-ii-1]+nx[N-ii-1]+1, nu[N-ii-1]+nx[N-ii-1], nx[N-ii], AL, 0, 0, AL, 0, 0, RSQrq+(N-ii-1), 0, 0, L+(N-ii-1), 0, 0);
+
+//		d_print_strmat(nu[N-ii-1]+nx[N-ii-1]+1, nu[N-ii-1]+nx[N-ii-1], L+(N-ii-1), 0, 0);
+		}
+
+	// forward substitution
+
+	// first stage
+	ii = 0;
+	ROWEX_LIBSTR(nu[ii]+nx[ii], -1.0, L+(ii), nu[ii]+nx[ii], 0, ux+ii, 0);
+	TRSV_LTN_LIBSTR(nu[ii]+nx[ii], L+ii, 0, 0, ux+ii, 0, ux+ii, 0);
+	GEMV_T_LIBSTR(nu[ii]+nx[ii], nx[ii+1], 1.0, BAbt+ii, 0, 0, ux+ii, 0, 1.0, b+ii, 0, ux+(ii+1), nu[ii+1]);
+	ROWEX_LIBSTR(nx[ii+1], 1.0, L+(ii+1), nu[ii+1]+nx[ii+1], nu[ii+1], tmp_nxM, 0);
+	TRMV_LTN_LIBSTR(nx[ii+1], nx[ii+1], L+(ii+1), nu[ii+1], nu[ii+1], ux+(ii+1), nu[ii+1], pi+ii, 0);
+	AXPY_LIBSTR(nx[ii+1], 1.0, tmp_nxM, 0, pi+ii, 0, pi+ii, 0);
+	TRMV_LNN_LIBSTR(nx[ii+1], nx[ii+1], L+(ii+1), nu[ii+1], nu[ii+1], pi+ii, 0, pi+ii, 0);
+
+//	d_print_tran_strvec(nu[ii]+nx[ii], ux+ii, 0);
+
+	// middle stages
+	for(ii=1; ii<N; ii++)
+		{
+		ROWEX_LIBSTR(nu[ii], -1.0, L+(ii), nu[ii]+nx[ii], 0, ux+ii, 0);
+		TRSV_LTN_MN_LIBSTR(nu[ii]+nx[ii], nu[ii], L+ii, 0, 0, ux+ii, 0, ux+ii, 0);
+		GEMV_T_LIBSTR(nu[ii]+nx[ii], nx[ii+1], 1.0, BAbt+ii, 0, 0, ux+ii, 0, 1.0, b+ii, 0, ux+(ii+1), nu[ii+1]);
+		ROWEX_LIBSTR(nx[ii+1], 1.0, L+(ii+1), nu[ii+1]+nx[ii+1], nu[ii+1], tmp_nxM, 0);
+		TRMV_LTN_LIBSTR(nx[ii+1], nx[ii+1], L+(ii+1), nu[ii+1], nu[ii+1], ux+(ii+1), nu[ii+1], pi+ii, 0);
+		AXPY_LIBSTR(nx[ii+1], 1.0, tmp_nxM, 0, pi+ii, 0, pi+ii, 0);
+		TRMV_LNN_LIBSTR(nx[ii+1], nx[ii+1], L+(ii+1), nu[ii+1], nu[ii+1], pi+ii, 0, pi+ii, 0);
+
+//		d_print_tran_strvec(nu[ii]+nx[ii], ux+ii, 0);
+		}
 
 	return;
 

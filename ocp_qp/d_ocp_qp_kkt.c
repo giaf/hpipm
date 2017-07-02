@@ -92,6 +92,7 @@
 
 #define INIT_VAR_HARD_OCP_QP d_init_var_hard_ocp_qp
 #define COMPUTE_RES_HARD_OCP_QP d_compute_res_hard_ocp_qp
+#define FACT_SOLVE_KKT_UNCONSTR_OCP_QP d_fact_solve_kkt_unconstr_ocp_qp
 #define FACT_SOLVE_KKT_STEP_HARD_OCP_QP d_fact_solve_kkt_step_hard_ocp_qp
 #define SOLVE_KKT_STEP_HARD_OCP_QP d_solve_kkt_step_hard_ocp_qp
 

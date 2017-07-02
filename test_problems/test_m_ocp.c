@@ -709,8 +709,8 @@ int main()
 
 	for(rep=0; rep<nrep; rep++)
 		{
-		m_solve_ipm_hard_ocp_qp(&d_qp, &s_qp, &d_qp_sol, &workspace);
-//		m_solve_ipm2_hard_ocp_qp(&d_qp, &s_qp, &d_qp_sol, &workspace);
+//		m_solve_ipm_hard_ocp_qp(&d_qp, &s_qp, &d_qp_sol, &workspace);
+		m_solve_ipm2_hard_ocp_qp(&d_qp, &s_qp, &d_qp_sol, &workspace);
 		}
 
 	gettimeofday(&tv1, NULL); // stop
