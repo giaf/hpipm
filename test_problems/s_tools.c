@@ -409,10 +409,10 @@ float onenorm(int row, int col, float *ptrA)
 	temp = 0;
 	for(j=0; j<col; j++)
 		{
-		temp = abs(*(ptrA+j*row));
+		temp = fabs(*(ptrA+j*row));
 		for(i=1; i<row; i++)
 			{
-			temp += abs(*(ptrA+j*row+i));
+			temp += fabs(*(ptrA+j*row+i));
 			}
 		if(j==0) max = temp;
 		else if(max>temp) temp = max;
