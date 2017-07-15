@@ -84,20 +84,20 @@ void CREATE_DENSE_QP_SOL(int nv, int ne, int nb, int ng, struct DENSE_QP_SOL *qp
 
 
 	// double stuff
-	void *v_ptr;
-	v_ptr = (void *) l_ptr;
+	char *c_ptr;
+	c_ptr = (char *) l_ptr;
 
-	void *tmp_ptr;
+	char *tmp_ptr;
 
 	// v
-	CREATE_STRVEC(nv, qp_sol->v, v_ptr);
-	v_ptr += qp_sol->v->memory_size;
+	CREATE_STRVEC(nv, qp_sol->v, c_ptr);
+	c_ptr += qp_sol->v->memory_size;
 	// pi
-	CREATE_STRVEC(ne, qp_sol->pi, v_ptr);
-	v_ptr += qp_sol->pi->memory_size;
+	CREATE_STRVEC(ne, qp_sol->pi, c_ptr);
+	c_ptr += qp_sol->pi->memory_size;
 	// lam
-	tmp_ptr = v_ptr;
-	v_ptr += SIZE_STRVEC(2*nb+2*ng);
+	tmp_ptr = c_ptr;
+	c_ptr += SIZE_STRVEC(2*nb+2*ng);
 	// lam_lb
 	CREATE_STRVEC(nb, qp_sol->lam_lb, tmp_ptr);
 	tmp_ptr += (nb)*sizeof(REAL);

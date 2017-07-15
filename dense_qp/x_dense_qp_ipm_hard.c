@@ -149,39 +149,39 @@ void CREATE_IPM_HARD_DENSE_QP(struct DENSE_QP *qp, struct IPM_HARD_DENSE_QP_ARG 
 
 
 	// void stuf
-	void *v_ptr = (void *) s_ptr;
+	char *c_ptr = (char *) s_ptr;
 
-	CREATE_STRMAT(nv+1, nv, workspace->Lv, v_ptr);
-	v_ptr += workspace->Lv->memory_size;
+	CREATE_STRMAT(nv+1, nv, workspace->Lv, c_ptr);
+	c_ptr += workspace->Lv->memory_size;
 
-	CREATE_STRMAT(ne, nv, workspace->AL, v_ptr);
-	v_ptr += workspace->AL->memory_size;
+	CREATE_STRMAT(ne, nv, workspace->AL, c_ptr);
+	c_ptr += workspace->AL->memory_size;
 
-	CREATE_STRMAT(ne, ne, workspace->Le, v_ptr);
-	v_ptr += workspace->Le->memory_size;
+	CREATE_STRMAT(ne, ne, workspace->Le, c_ptr);
+	c_ptr += workspace->Le->memory_size;
 
-	CREATE_STRMAT(nv+1, ng, workspace->Ctx, v_ptr);
-	v_ptr += workspace->Ctx->memory_size;
+	CREATE_STRMAT(nv+1, ng, workspace->Ctx, c_ptr);
+	c_ptr += workspace->Ctx->memory_size;
 
-	CREATE_STRVEC(nv, workspace->lv, v_ptr);
-	v_ptr += workspace->lv->memory_size;
+	CREATE_STRVEC(nv, workspace->lv, c_ptr);
+	c_ptr += workspace->lv->memory_size;
 
-	CREATE_STRVEC(nb, workspace->tmp_nb, v_ptr);
-	v_ptr += workspace->tmp_nb->memory_size;
+	CREATE_STRVEC(nb, workspace->tmp_nb, c_ptr);
+	c_ptr += workspace->tmp_nb->memory_size;
 
-	CREATE_STRVEC(ng, workspace->tmp_ng0, v_ptr);
-	v_ptr += workspace->tmp_ng0->memory_size;
+	CREATE_STRVEC(ng, workspace->tmp_ng0, c_ptr);
+	c_ptr += workspace->tmp_ng0->memory_size;
 
-	CREATE_STRVEC(ng, workspace->tmp_ng1, v_ptr);
-	v_ptr += workspace->tmp_ng1->memory_size;
+	CREATE_STRVEC(ng, workspace->tmp_ng1, c_ptr);
+	c_ptr += workspace->tmp_ng1->memory_size;
 
 	rwork->nv = nv;
 	rwork->ne = ne;
 	rwork->nb = nb;
 	rwork->ng = ng;
 	rwork->iter_max = arg->iter_max;
-	CREATE_IPM_HARD_CORE_QP(rwork, v_ptr);
-	v_ptr += workspace->core_workspace->memsize;
+	CREATE_IPM_HARD_CORE_QP(rwork, c_ptr);
+	c_ptr += workspace->core_workspace->memsize;
 
 	rwork->alpha_min = arg->alpha_min;
 	rwork->mu_max = arg->mu_max;
