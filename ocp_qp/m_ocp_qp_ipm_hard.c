@@ -260,86 +260,86 @@ void m_create_ipm_hard_ocp_qp(struct d_ocp_qp *qp, struct s_ocp_qp *s_qp, struct
 	s_ptr = (s_ptr+63)/64*64;
 
 
-	// void stuf
-	void *v_ptr = (void *) s_ptr;
+	// char stuf
+	char *c_ptr = (char *) s_ptr;
 
 	for(ii=0; ii<=N; ii++)
 		{
-		s_create_strmat(nu[ii]+nx[ii]+1, nu[ii]+nx[ii], workspace->L+ii, v_ptr);
-		v_ptr += (workspace->L+ii)->memory_size;
+		s_create_strmat(nu[ii]+nx[ii]+1, nu[ii]+nx[ii], workspace->L+ii, c_ptr);
+		c_ptr += (workspace->L+ii)->memory_size;
 		}
 
-	s_create_strmat(nuM+nxM+1, nxM+ngM, workspace->AL+0, v_ptr);
-	v_ptr += (workspace->AL+0)->memory_size;
+	s_create_strmat(nuM+nxM+1, nxM+ngM, workspace->AL+0, c_ptr);
+	c_ptr += (workspace->AL+0)->memory_size;
 
-	s_create_strmat(nuM+nxM+1, nxM+ngM, workspace->AL+1, v_ptr);
-	v_ptr += (workspace->AL+1)->memory_size;
+	s_create_strmat(nuM+nxM+1, nxM+ngM, workspace->AL+1, c_ptr);
+	c_ptr += (workspace->AL+1)->memory_size;
 
 	for(ii=0; ii<=N; ii++)
 		{
-		s_create_strvec(nu[ii]+nx[ii], workspace->sdux+ii, v_ptr);
-		v_ptr += (workspace->sdux+ii)->memory_size;
+		s_create_strvec(nu[ii]+nx[ii], workspace->sdux+ii, c_ptr);
+		c_ptr += (workspace->sdux+ii)->memory_size;
 		}
 
 	for(ii=0; ii<N; ii++)
 		{
-		s_create_strvec(nx[ii+1], workspace->sdpi+ii, v_ptr);
-		v_ptr += (workspace->sdpi+ii)->memory_size;
+		s_create_strvec(nx[ii+1], workspace->sdpi+ii, c_ptr);
+		c_ptr += (workspace->sdpi+ii)->memory_size;
 		}
 
 	for(ii=0; ii<=N; ii++)
 		{
-		s_create_strvec(nu[ii]+nx[ii], workspace->sres_g+ii, v_ptr);
-		v_ptr += (workspace->sdux+ii)->memory_size;
+		s_create_strvec(nu[ii]+nx[ii], workspace->sres_g+ii, c_ptr);
+		c_ptr += (workspace->sdux+ii)->memory_size;
 		}
 
 	for(ii=0; ii<N; ii++)
 		{
-		s_create_strvec(nx[ii+1], workspace->sres_b+ii, v_ptr);
-		v_ptr += (workspace->sdpi+ii)->memory_size;
+		s_create_strvec(nx[ii+1], workspace->sres_b+ii, c_ptr);
+		c_ptr += (workspace->sdpi+ii)->memory_size;
 		}
 
 	for(ii=0; ii<N; ii++)
 		{
-		s_create_strvec(nx[ii+1], workspace->Pb+ii, v_ptr);
-		v_ptr += (workspace->Pb+ii)->memory_size;
+		s_create_strvec(nx[ii+1], workspace->Pb+ii, c_ptr);
+		c_ptr += (workspace->Pb+ii)->memory_size;
 		}
 
 	for(ii=0; ii<=N; ii++)
 		{
-		s_create_strvec(nb[ii], workspace->sQx_lb+ii, v_ptr);
-		v_ptr += (workspace->sQx_lb+ii)->memory_size;
+		s_create_strvec(nb[ii], workspace->sQx_lb+ii, c_ptr);
+		c_ptr += (workspace->sQx_lb+ii)->memory_size;
 		}
 
 	for(ii=0; ii<=N; ii++)
 		{
-		s_create_strvec(nb[ii], workspace->sqx_lb+ii, v_ptr);
-		v_ptr += (workspace->sqx_lb+ii)->memory_size;
+		s_create_strvec(nb[ii], workspace->sqx_lb+ii, c_ptr);
+		c_ptr += (workspace->sqx_lb+ii)->memory_size;
 		}
 
 	for(ii=0; ii<=N; ii++)
 		{
-		s_create_strvec(ng[ii], workspace->sQx_lg+ii, v_ptr);
-		v_ptr += (workspace->sQx_lg+ii)->memory_size;
+		s_create_strvec(ng[ii], workspace->sQx_lg+ii, c_ptr);
+		c_ptr += (workspace->sQx_lg+ii)->memory_size;
 		}
 
 	for(ii=0; ii<=N; ii++)
 		{
-		s_create_strvec(ng[ii], workspace->sqx_lg+ii, v_ptr);
-		v_ptr += (workspace->sqx_lg+ii)->memory_size;
+		s_create_strvec(ng[ii], workspace->sqx_lg+ii, c_ptr);
+		c_ptr += (workspace->sqx_lg+ii)->memory_size;
 		}
 
-	d_create_strvec(nbM, workspace->tmp_nbM, v_ptr);
-	v_ptr += workspace->tmp_nbM->memory_size;
+	d_create_strvec(nbM, workspace->tmp_nbM, c_ptr);
+	c_ptr += workspace->tmp_nbM->memory_size;
 
-	s_create_strvec(nxM, workspace->tmp_nxM, v_ptr);
-	v_ptr += workspace->tmp_nxM->memory_size;
+	s_create_strvec(nxM, workspace->tmp_nxM, c_ptr);
+	c_ptr += workspace->tmp_nxM->memory_size;
 
-	d_create_strvec(ngM, workspace->tmp_ngM+0, v_ptr);
-	v_ptr += (workspace->tmp_ngM+0)->memory_size;
+	d_create_strvec(ngM, workspace->tmp_ngM+0, c_ptr);
+	c_ptr += (workspace->tmp_ngM+0)->memory_size;
 
-	d_create_strvec(ngM, workspace->tmp_ngM+1, v_ptr);
-	v_ptr += (workspace->tmp_ngM+1)->memory_size;
+	d_create_strvec(ngM, workspace->tmp_ngM+1, c_ptr);
+	c_ptr += (workspace->tmp_ngM+1)->memory_size;
 
 
 
@@ -348,8 +348,8 @@ void m_create_ipm_hard_ocp_qp(struct d_ocp_qp *qp, struct s_ocp_qp *s_qp, struct
 	rwork->nb = nbt;
 	rwork->ng = ngt;
 	rwork->iter_max = arg->iter_max;
-	d_create_ipm_hard_core_qp(rwork, v_ptr);
-	v_ptr += workspace->core_workspace->memsize;
+	d_create_ipm_hard_core_qp(rwork, c_ptr);
+	c_ptr += workspace->core_workspace->memsize;
 
 	rwork->alpha_min = arg->alpha_min;
 	rwork->mu_max = arg->mu_max;
@@ -358,117 +358,117 @@ void m_create_ipm_hard_ocp_qp(struct d_ocp_qp *qp, struct s_ocp_qp *s_qp, struct
 
 
 	// alias members of workspace and core_workspace
-	v_ptr = rwork->dv;
+	c_ptr = (char *) rwork->dv;
 	for(ii=0; ii<=N; ii++)
 		{
-		d_create_strvec(nu[ii]+nx[ii], workspace->dux+ii, v_ptr);
-		v_ptr += (nu[ii]+nx[ii])*sizeof(double);
+		d_create_strvec(nu[ii]+nx[ii], workspace->dux+ii, c_ptr);
+		c_ptr += (nu[ii]+nx[ii])*sizeof(double);
 		}
-	v_ptr = rwork->dpi;
+	c_ptr = (char *) rwork->dpi;
 	for(ii=0; ii<N; ii++)
 		{
-		d_create_strvec(nx[ii+1], workspace->dpi+ii, v_ptr);
-		v_ptr += (nx[ii+1])*sizeof(double);
+		d_create_strvec(nx[ii+1], workspace->dpi+ii, c_ptr);
+		c_ptr += (nx[ii+1])*sizeof(double);
 		}
-	v_ptr = rwork->dt_lb;
+	c_ptr = (char *) rwork->dt_lb;
 	for(ii=0; ii<=N; ii++)
 		{
-		d_create_strvec(nb[ii], workspace->dt_lb+ii, v_ptr);
-		v_ptr += (nb[ii])*sizeof(double);
+		d_create_strvec(nb[ii], workspace->dt_lb+ii, c_ptr);
+		c_ptr += (nb[ii])*sizeof(double);
 		}
-	v_ptr = rwork->dt_lg;
+	c_ptr = (char *) rwork->dt_lg;
 	for(ii=0; ii<=N; ii++)
 		{
-		d_create_strvec(ng[ii], workspace->dt_lg+ii, v_ptr);
-		v_ptr += (ng[ii])*sizeof(double);
+		d_create_strvec(ng[ii], workspace->dt_lg+ii, c_ptr);
+		c_ptr += (ng[ii])*sizeof(double);
 		}
-	v_ptr = rwork->res_g;
+	c_ptr = (char *) rwork->res_g;
 	for(ii=0; ii<=N; ii++)
 		{
-		d_create_strvec(nu[ii]+nx[ii], workspace->res_g+ii, v_ptr);
-		v_ptr += (nu[ii]+nx[ii])*sizeof(double);
+		d_create_strvec(nu[ii]+nx[ii], workspace->res_g+ii, c_ptr);
+		c_ptr += (nu[ii]+nx[ii])*sizeof(double);
 		}
-	v_ptr = rwork->res_b;
+	c_ptr = (char *) rwork->res_b;
 	for(ii=0; ii<N; ii++)
 		{
-		d_create_strvec(nx[ii+1], workspace->res_b+ii, v_ptr);
-		v_ptr += (nx[ii+1])*sizeof(double);
+		d_create_strvec(nx[ii+1], workspace->res_b+ii, c_ptr);
+		c_ptr += (nx[ii+1])*sizeof(double);
 		}
-	v_ptr = rwork->res_d;
-	d_create_strvec(2*nbt+2*ngt, workspace->res_d, v_ptr);
-	v_ptr = rwork->res_d_lb;
+	c_ptr = (char *) rwork->res_d;
+	d_create_strvec(2*nbt+2*ngt, workspace->res_d, c_ptr);
+	c_ptr = (char *) rwork->res_d_lb;
 	for(ii=0; ii<=N; ii++)
 		{
-		d_create_strvec(nb[ii], workspace->res_d_lb+ii, v_ptr);
-		v_ptr += (nb[ii])*sizeof(double);
+		d_create_strvec(nb[ii], workspace->res_d_lb+ii, c_ptr);
+		c_ptr += (nb[ii])*sizeof(double);
 		}
-	v_ptr = rwork->res_d_ub;
+	c_ptr = (char *) rwork->res_d_ub;
 	for(ii=0; ii<=N; ii++)
 		{
-		d_create_strvec(nb[ii], workspace->res_d_ub+ii, v_ptr);
-		v_ptr += (nb[ii])*sizeof(double);
+		d_create_strvec(nb[ii], workspace->res_d_ub+ii, c_ptr);
+		c_ptr += (nb[ii])*sizeof(double);
 		}
-	v_ptr = rwork->res_d_lg;
+	c_ptr = (char *) rwork->res_d_lg;
 	for(ii=0; ii<=N; ii++)
 		{
-		d_create_strvec(ng[ii], workspace->res_d_lg+ii, v_ptr);
-		v_ptr += (ng[ii])*sizeof(double);
+		d_create_strvec(ng[ii], workspace->res_d_lg+ii, c_ptr);
+		c_ptr += (ng[ii])*sizeof(double);
 		}
-	v_ptr = rwork->res_d_ug;
+	c_ptr = (char *) rwork->res_d_ug;
 	for(ii=0; ii<=N; ii++)
 		{
-		d_create_strvec(ng[ii], workspace->res_d_ug+ii, v_ptr);
-		v_ptr += (ng[ii])*sizeof(double);
+		d_create_strvec(ng[ii], workspace->res_d_ug+ii, c_ptr);
+		c_ptr += (ng[ii])*sizeof(double);
 		}
-	v_ptr = rwork->res_m;
-	d_create_strvec(2*nbt+2*ngt, workspace->res_m, v_ptr);
-	v_ptr = rwork->res_m_lb;
+	c_ptr = (char *) rwork->res_m;
+	d_create_strvec(2*nbt+2*ngt, workspace->res_m, c_ptr);
+	c_ptr = (char *) rwork->res_m_lb;
 	for(ii=0; ii<=N; ii++)
 		{
-		d_create_strvec(nb[ii], workspace->res_m_lb+ii, v_ptr);
-		v_ptr += (nb[ii])*sizeof(double);
+		d_create_strvec(nb[ii], workspace->res_m_lb+ii, c_ptr);
+		c_ptr += (nb[ii])*sizeof(double);
 		}
-	v_ptr = rwork->res_m_ub;
+	c_ptr = (char *) rwork->res_m_ub;
 	for(ii=0; ii<=N; ii++)
 		{
-		d_create_strvec(nb[ii], workspace->res_m_ub+ii, v_ptr);
-		v_ptr += (nb[ii])*sizeof(double);
+		d_create_strvec(nb[ii], workspace->res_m_ub+ii, c_ptr);
+		c_ptr += (nb[ii])*sizeof(double);
 		}
-	v_ptr = rwork->res_m_lg;
+	c_ptr = (char *) rwork->res_m_lg;
 	for(ii=0; ii<=N; ii++)
 		{
-		d_create_strvec(ng[ii], workspace->res_m_lg+ii, v_ptr);
-		v_ptr += (ng[ii])*sizeof(double);
+		d_create_strvec(ng[ii], workspace->res_m_lg+ii, c_ptr);
+		c_ptr += (ng[ii])*sizeof(double);
 		}
-	v_ptr = rwork->res_m_ug;
+	c_ptr = (char *) rwork->res_m_ug;
 	for(ii=0; ii<=N; ii++)
 		{
-		d_create_strvec(ng[ii], workspace->res_m_ug+ii, v_ptr);
-		v_ptr += (ng[ii])*sizeof(double);
+		d_create_strvec(ng[ii], workspace->res_m_ug+ii, c_ptr);
+		c_ptr += (ng[ii])*sizeof(double);
 		}
-	v_ptr = rwork->Qx_lb;
+	c_ptr = (char *) rwork->Qx_lb;
 	for(ii=0; ii<=N; ii++)
 		{
-		d_create_strvec(nb[ii], workspace->Qx_lb+ii, v_ptr);
-		v_ptr += (nb[ii])*sizeof(double);
+		d_create_strvec(nb[ii], workspace->Qx_lb+ii, c_ptr);
+		c_ptr += (nb[ii])*sizeof(double);
 		}
-	v_ptr = rwork->Qx_lg;
+	c_ptr = (char *) rwork->Qx_lg;
 	for(ii=0; ii<=N; ii++)
 		{
-		d_create_strvec(ng[ii], workspace->Qx_lg+ii, v_ptr);
-		v_ptr += (ng[ii])*sizeof(double);
+		d_create_strvec(ng[ii], workspace->Qx_lg+ii, c_ptr);
+		c_ptr += (ng[ii])*sizeof(double);
 		}
-	v_ptr = rwork->qx_lb;
+	c_ptr = (char *) rwork->qx_lb;
 	for(ii=0; ii<=N; ii++)
 		{
-		d_create_strvec(nb[ii], workspace->qx_lb+ii, v_ptr);
-		v_ptr += (nb[ii])*sizeof(double);
+		d_create_strvec(nb[ii], workspace->qx_lb+ii, c_ptr);
+		c_ptr += (nb[ii])*sizeof(double);
 		}
-	v_ptr = rwork->qx_lg;
+	c_ptr = (char *) rwork->qx_lg;
 	for(ii=0; ii<=N; ii++)
 		{
-		d_create_strvec(ng[ii], workspace->qx_lg+ii, v_ptr);
-		v_ptr += (ng[ii])*sizeof(double);
+		d_create_strvec(ng[ii], workspace->qx_lg+ii, c_ptr);
+		c_ptr += (ng[ii])*sizeof(double);
 		}
 	workspace->stat = rwork->stat;
 
