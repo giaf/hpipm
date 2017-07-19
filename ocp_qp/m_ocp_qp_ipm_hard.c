@@ -90,7 +90,7 @@ int m_memsize_ipm_hard_ocp_qp(struct d_ocp_qp *qp, struct s_ocp_qp *s_qp, struct
 	int size = 0;
 
 	size += (4+(N+1)*18)*sizeof(struct d_strvec); // dux dpi dt_lb dt_lg res_g res_b res_d res_d_lb res_d_ub res_d_lg res_d_ug res_m res_m_lb res_m_ub res_m_lg res_m_ug Qx_lb Qx_lg qx_lb qx_lg tmp_nbM tmp_ngM
-	size += (1+(N+1)*9)*sizeof(struct s_strvec); // sdux sdpi sres_g sres_b sQx_lb sQx_lg, sqx_lb, sqx_lg tmp_nxM Pb
+	size += (1+(N+1)*11)*sizeof(struct s_strvec); // sdux sdpi sres_g sres_b sQx_lb sQx_lg, sqx_lb, sqx_lg tmp_nxM Pb sSx sSi
 	size += (1+(N+1)*1)*sizeof(struct s_strmat); // L AL
 
 	size += 1*d_size_strvec(nbM); // tmp_nbM
@@ -100,6 +100,7 @@ int m_memsize_ipm_hard_ocp_qp(struct d_ocp_qp *qp, struct s_ocp_qp *s_qp, struct
 	for(ii=0; ii<N; ii++) size += 3*s_size_strvec(nx[ii+1]); // sdpi sres_b Pb
 	for(ii=0; ii<=N; ii++) size += 2*s_size_strvec(nb[ii]); // sQx_lb sqx_lb
 	for(ii=0; ii<=N; ii++) size += 2*s_size_strvec(ng[ii]); // sQx_lg sqx_lg
+	for(ii=0; ii<=N; ii++) size += 2*s_size_strvec(nu[ii]+nx[ii]); // sSx sSi
 	for(ii=0; ii<=N; ii++) size += 1*s_size_strmat(nu[ii]+nx[ii]+1, nu[ii]+nx[ii]); // L
 	size += 2*s_size_strmat(nuM+nxM+1, nxM+ngM); // AL
 
@@ -200,6 +201,10 @@ void m_create_ipm_hard_ocp_qp(struct d_ocp_qp *qp, struct s_ocp_qp *s_qp, struct
 	ssv_ptr += N+1;
 	workspace->tmp_nxM = ssv_ptr;
 	ssv_ptr += 1;
+	workspace->sSx = ssv_ptr;
+	ssv_ptr += N+1;
+	workspace->sSi = ssv_ptr;
+	ssv_ptr += N+1;
 
 
 	// d vector struct
@@ -341,6 +346,18 @@ void m_create_ipm_hard_ocp_qp(struct d_ocp_qp *qp, struct s_ocp_qp *s_qp, struct
 	d_create_strvec(ngM, workspace->tmp_ngM+1, c_ptr);
 	c_ptr += (workspace->tmp_ngM+1)->memory_size;
 
+	for(ii=0; ii<=N; ii++)
+		{
+		s_create_strvec(nu[ii]+nx[ii], workspace->sSx+ii, c_ptr);
+		c_ptr += (workspace->sSx+ii)->memory_size;
+		}
+
+	for(ii=0; ii<=N; ii++)
+		{
+		s_create_strvec(nu[ii]+nx[ii], workspace->sSi+ii, c_ptr);
+		c_ptr += (workspace->sSi+ii)->memory_size;
+		}
+
 
 
 	rwork->nv = nvt;
@@ -472,6 +489,10 @@ void m_create_ipm_hard_ocp_qp(struct d_ocp_qp *qp, struct s_ocp_qp *s_qp, struct
 		}
 	workspace->stat = rwork->stat;
 
+	// default flag values
+	workspace->compute_Pb = 0;
+	workspace->scale = 0;
+
 	return;
 
 	}
@@ -565,6 +586,8 @@ void m_solve_ipm_hard_ocp_qp(struct d_ocp_qp *qp, struct s_ocp_qp *s_qp, struct 
 	cws->mu = dws.res_mu;
 	ws->res_mu = dws.res_mu;
 
+	ws->scale = 1;
+
 	int kk;
 	for(kk=0; kk<cws->iter_max & cws->mu>cws->mu_max; kk++)
 		{
@@ -578,6 +601,20 @@ void m_solve_ipm_hard_ocp_qp(struct d_ocp_qp *qp, struct s_ocp_qp *s_qp, struct 
 
 		//
 		d_update_var_hard_qp(cws);
+#if 1
+int ii;
+for(ii=0; ii<=qp->N; ii++)
+	d_print_e_tran_strvec(qp->nu[ii]+qp->nx[ii], qp_sol->ux+ii, 0);
+for(ii=0; ii<qp->N; ii++)
+	d_print_e_tran_strvec(qp->nx[ii+1], qp_sol->pi+ii, 0);
+for(ii=0; ii<=qp->N; ii++)
+	d_print_e_tran_strvec(qp->nb[ii], qp_sol->lam_lb+ii, 0);
+for(ii=0; ii<=qp->N; ii++)
+	d_print_e_tran_strvec(qp->nb[ii], qp_sol->lam_ub+ii, 0);
+for(ii=0; ii<=qp->N; ii++)
+	d_print_e_tran_strvec(qp->nb[ii], ws->dt_lb+ii, 0);
+//exit(1);
+#endif
 
 		// compute residuals
 		d_compute_res_hard_ocp_qp(qp, qp_sol, &dws);
@@ -757,6 +794,8 @@ void m_solve_ipm2_hard_ocp_qp(struct d_ocp_qp *qp, struct s_ocp_qp *s_qp, struct
 //	ws->iter = kk;
 //		return;
 #endif
+
+	ws->scale = 0;
 
 	int kk = 0;
 	for(; kk<cws->iter_max & cws->mu>cws->mu_max; kk++)

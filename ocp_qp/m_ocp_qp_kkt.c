@@ -86,10 +86,15 @@ void m_fact_solve_kkt_step_hard_ocp_qp(struct d_ocp_qp *d_qp, struct s_ocp_qp *s
 	struct s_strvec *qx_lb = ws->sqx_lb;
 	struct s_strvec *Pb = ws->Pb;
 	struct s_strvec *tmp_nxM = ws->tmp_nxM;
+	struct s_strvec *Sx = ws->sSx;
+	struct s_strvec *Si = ws->sSi;
 
 	//
-	int ii;
+	int ii, jj;
+	float d_tmp0, d_tmp1;
+	float *d_ptr0, *d_ptr1;
 
+	//
 	struct d_ipm_hard_core_qp_workspace *cws = ws->core_workspace;
 
 //	if(nb>0 | ng>0)
@@ -117,6 +122,14 @@ void m_fact_solve_kkt_step_hard_ocp_qp(struct d_ocp_qp *d_qp, struct s_ocp_qp *s
 	m_cvt_d2s_strvec(ng[ii], d_qx_lg+ii, 0, qx_lg+ii, 0);
 
 
+#if 0
+	for(ii=0; ii<=N; ii++)
+		s_print_e_tran_strvec(nu[ii]+nx[ii], res_g+ii, 0);
+	for(ii=0; ii<N; ii++)
+		s_print_e_tran_strvec(nx[ii+1], res_b+ii, 0);
+//	exit(1);
+#endif
+
 
 	// factorization and backward substitution
 
@@ -127,32 +140,63 @@ void m_fact_solve_kkt_step_hard_ocp_qp(struct d_ocp_qp *d_qp, struct s_ocp_qp *s
 	sgecp_libstr(nu[N]+nx[N], nu[N]+nx[N], RSQrq+N, 0, 0, L+N, 0, 0); // TODO dtrcp_l_libstr with m and n, for m>=n
 #endif
 	srowin_libstr(nu[N]+nx[N], 1.0, res_g+N, 0, L+N, nu[N]+nx[N], 0);
-	if(nb[N]>0)
+	if(ws->scale)
 		{
-		sdiaad_sp_libstr(nb[N], 1.0, Qx_lb+N, 0, idxb[N], L+N, 0, 0);
-		srowad_sp_libstr(nb[N], 1.0, qx_lb+N, 0, idxb[N], L+N, nu[N]+nx[N], 0);
-		}
-	if(ng[N]>0)
-		{
-		sgemm_r_diag_libstr(nu[N]+nx[N], ng[N], 1.0, DCt+N, 0, 0, Qx_lg+N, 0, 0.0, AL+0, 0, 0, AL+0, 0, 0);
-		srowin_libstr(ng[N], 1.0, qx_lg+N, 0, AL+0, nu[N]+nx[N], 0);
-		ssyrk_spotrf_ln_libstr(nu[N]+nx[N]+1, nu[N]+nx[N], ng[N], AL+0, 0, 0, DCt+N, 0, 0, L+N, 0, 0, L+N, 0, 0);
+		if(nb[N]>0)
+			{
+			sdiaad_sp_libstr(nb[N], 1.0, Qx_lb+N, 0, idxb[N], L+N, 0, 0);
+			srowad_sp_libstr(nb[N], 1.0, qx_lb+N, 0, idxb[N], L+N, nu[N]+nx[N], 0);
+			}
+		if(ng[N]>0)
+			{
+			sgemm_r_diag_libstr(nu[N]+nx[N], ng[N], 1.0, DCt+N, 0, 0, Qx_lg+N, 0, 0.0, AL+0, 0, 0, AL+0, 0, 0);
+			srowin_libstr(ng[N], 1.0, qx_lg+N, 0, AL+0, nu[N]+nx[N], 0);
+			ssyrk_ln_mn_libstr(nu[N]+nx[N]+1, nu[N]+nx[N], ng[N], 1.0, AL+0, 0, 0, DCt+N, 0, 0, 1.0, L+N, 0, 0, L+N, 0, 0);
+			}
+		sdiaex_libstr(nu[N]+nx[N], 1.0, L+N, 0, 0, Sx+N, 0);
+		d_ptr0 = (Sx+N)->pa;
+		d_ptr1 = (Si+N)->pa;
+		for(jj=0; jj<nu[N]+nx[N]; jj++)
+			{
+			d_tmp0 = sqrt(d_ptr0[jj]);
+//			d_tmp0 = sqrt(d_tmp0);
+			d_tmp1 = sqrt(d_tmp0);
+			d_tmp0 = sqrt(d_tmp0*d_tmp1);
+			d_tmp0 = 1.0;
+			d_ptr0[jj] = d_tmp0;
+			d_ptr1[jj] = 1.0/d_tmp0;
+			}
+//		s_print_strmat(nu[N]+nx[N]+1, nu[N]+nx[N], L+N, 0, 0);
+		sgemm_r_diag_libstr(nu[N]+nx[N]+1, nu[N]+nx[N], 1.0, L+N, 0, 0, Si+N, 0, 0.0, L+N, 0, 0, L+N, 0, 0);
+//		s_print_strmat(nu[N]+nx[N]+1, nu[N]+nx[N], L+N, 0, 0);
+		sgemm_l_diag_libstr(nu[N]+nx[N], nu[N]+nx[N], 1.0, Si+N, 0, L+N, 0, 0, 0.0, L+N, 0, 0, L+N, 0, 0);
+//		s_print_strmat(nu[N]+nx[N]+1, nu[N]+nx[N], L+N, 0, 0);
+
+		spotrf_l_mn_libstr(nu[N]+nx[N]+1, nu[N]+nx[N], L+N, 0, 0, L+N, 0, 0);
 		}
 	else
 		{
-		spotrf_l_mn_libstr(nu[N]+nx[N]+1, nu[N]+nx[N], L+N, 0, 0, L+N, 0, 0);
+		if(nb[N]>0)
+			{
+			sdiaad_sp_libstr(nb[N], 1.0, Qx_lb+N, 0, idxb[N], L+N, 0, 0);
+			srowad_sp_libstr(nb[N], 1.0, qx_lb+N, 0, idxb[N], L+N, nu[N]+nx[N], 0);
+			}
+		if(ng[N]>0)
+			{
+			sgemm_r_diag_libstr(nu[N]+nx[N], ng[N], 1.0, DCt+N, 0, 0, Qx_lg+N, 0, 0.0, AL+0, 0, 0, AL+0, 0, 0);
+			srowin_libstr(ng[N], 1.0, qx_lg+N, 0, AL+0, nu[N]+nx[N], 0);
+			ssyrk_spotrf_ln_libstr(nu[N]+nx[N]+1, nu[N]+nx[N], ng[N], AL+0, 0, 0, DCt+N, 0, 0, L+N, 0, 0, L+N, 0, 0);
+			}
+		else
+			{
+			spotrf_l_mn_libstr(nu[N]+nx[N]+1, nu[N]+nx[N], L+N, 0, 0, L+N, 0, 0);
+			}
 		}
 
 	// middle stages
 	for(ii=0; ii<N; ii++)
 		{
-		sgecp_libstr(nu[N-ii-1]+nx[N-ii-1], nx[N-ii], BAbt+(N-ii-1), 0, 0, AL, 0, 0);
-		srowin_libstr(nx[N-ii], 1.0, res_b+(N-ii-1), 0, AL, nu[N-ii-1]+nx[N-ii-1], 0);
-		strmm_rlnn_libstr(nu[N-ii-1]+nx[N-ii-1]+1, nx[N-ii], 1.0, L+(N-ii), nu[N-ii], nu[N-ii], AL, 0, 0, AL, 0, 0);
-		srowex_libstr(nx[N-ii], 1.0, AL, nu[N-ii-1]+nx[N-ii-1], 0, tmp_nxM, 0);
-		strmv_lnn_libstr(nx[N-ii], nx[N-ii], L+(N-ii), nu[N-ii], nu[N-ii], tmp_nxM, 0, Pb+(N-ii-1), 0);
-		sgead_libstr(1, nx[N-ii], 1.0, L+(N-ii), nu[N-ii]+nx[N-ii], nu[N-ii], AL, nu[N-ii-1]+nx[N-ii-1], 0);
-
+//		printf("\n%d\n", N-ii-1);
 #if defined(DOUBLE_PRECISION)
 		strcp_l_libstr(nu[N-ii-1]+nx[N-ii-1], RSQrq+(N-ii-1), 0, 0, L+(N-ii-1), 0, 0);
 #else
@@ -160,23 +204,81 @@ void m_fact_solve_kkt_step_hard_ocp_qp(struct d_ocp_qp *d_qp, struct s_ocp_qp *s
 #endif
 		srowin_libstr(nu[N-ii-1]+nx[N-ii-1], 1.0, res_g+(N-ii-1), 0, L+(N-ii-1), nu[N-ii-1]+nx[N-ii-1], 0);
 
-		if(nb[N-ii-1]>0)
+		if(ws->scale)
 			{
-			sdiaad_sp_libstr(nb[N-ii-1], 1.0, Qx_lb+(N-ii-1), 0, idxb[N-ii-1], L+(N-ii-1), 0, 0);
-			srowad_sp_libstr(nb[N-ii-1], 1.0, qx_lb+(N-ii-1), 0, idxb[N-ii-1], L+(N-ii-1), nu[N-ii-1]+nx[N-ii-1], 0);
-			}
+			if(nb[N-ii-1]>0)
+				{
+				sdiaad_sp_libstr(nb[N-ii-1], 1.0, Qx_lb+N-ii-1, 0, idxb[N-ii-1], L+N-ii-1, 0, 0);
+				srowad_sp_libstr(nb[N-ii-1], 1.0, qx_lb+N-ii-1, 0, idxb[N-ii-1], L+N-ii-1, nu[N-ii-1]+nx[N-ii-1], 0);
+				}
+			if(ng[N-ii-1]>0)
+				{
+				sgemm_r_diag_libstr(nu[N-ii-1]+nx[N-ii-1], ng[N-ii-1], 1.0, DCt+N-ii-1, 0, 0, Qx_lg+N-ii-1, 0, 0.0, AL+1, 0, 0, AL+1, 0, 0);
+				srowin_libstr(ng[N-ii-1], 1.0, qx_lg+N-ii-1, 0, AL+1, nu[N-ii-1]+nx[N-ii-1], 0);
+				ssyrk_ln_mn_libstr(nu[N-ii-1]+nx[N-ii-1]+1, nu[N-ii-1]+nx[N-ii-1], ng[N-ii-1], 1.0, AL+1, 0, 0, DCt+N-ii-1, 0, 0, 1.0, L+N-ii-1, 0, 0, L+N-ii-1, 0, 0);
+				}
+			sdiaex_libstr(nu[N-ii-1]+nx[N-ii-1], 1.0, L+N-ii-1, 0, 0, Sx+N-ii-1, 0);
+			d_ptr0 = (Sx+N-ii-1)->pa;
+			d_ptr1 = (Si+N-ii-1)->pa;
+			for(jj=0; jj<nu[N-ii-1]+nx[N-ii-1]; jj++)
+				{
+				d_tmp0 = sqrt(d_ptr0[jj]);
+//				d_tmp0 = sqrt(d_tmp0);
+				d_tmp1 = sqrt(d_tmp0);
+				d_tmp0 = sqrt(d_tmp0*d_tmp1);
+				d_tmp0 = 1.0;
+				d_ptr0[jj] = d_tmp0;
+				d_ptr1[jj] = 1.0/d_tmp0;
+				}
 
-		if(ng[N-ii-1]>0)
-			{
-			sgemm_r_diag_libstr(nu[N-ii-1]+nx[N-ii-1], ng[N-ii-1], 1.0, DCt+N-ii-1, 0, 0, Qx_lg+N-ii-1, 0, 0.0, AL+0, 0, nx[N-ii], AL+0, 0, nx[N-ii]);
-			srowin_libstr(ng[N-ii-1], 1.0, qx_lg+N-ii-1, 0, AL+0, nu[N-ii-1]+nx[N-ii-1], nx[N-ii]);
-			sgecp_libstr(nu[N-ii-1]+nx[N-ii-1], nx[N-ii], AL+0, 0, 0, AL+1, 0, 0);
-			sgecp_libstr(nu[N-ii-1]+nx[N-ii-1], ng[N-ii-1], DCt+N-ii-1, 0, 0, AL+1, 0, nx[N-ii]);
-			ssyrk_spotrf_ln_libstr(nu[N-ii-1]+nx[N-ii-1]+1, nu[N-ii-1]+nx[N-ii-1], nx[N-ii]+ng[N-ii-1], AL+0, 0, 0, AL+1, 0, 0, L+N-ii-1, 0, 0, L+N-ii-1, 0, 0);
+			sgecp_libstr(nu[N-ii-1]+nx[N-ii-1], nx[N-ii], BAbt+(N-ii-1), 0, 0, AL, 0, 0);
+			srowin_libstr(nx[N-ii], 1.0, res_b+(N-ii-1), 0, AL, nu[N-ii-1]+nx[N-ii-1], 0);
+//			s_print_strmat(nu[N-ii-1]+nx[N-ii-1]+1, nx[N-ii], AL, 0, 0);
+			sgemm_r_diag_libstr(nu[N-ii-1]+nx[N-ii-1]+1, nx[N-ii], 1.0, AL, 0, 0, Sx+N-ii, nu[N-ii], 0.0, AL, 0, 0, AL, 0, 0);
+//			s_print_strmat(nu[N-ii-1]+nx[N-ii-1]+1, nx[N-ii], AL, 0, 0);
+			sgemm_l_diag_libstr(nu[N-ii-1]+nx[N-ii-1], nx[N-ii], 1.0, Si+N-ii-1, 0, AL, 0, 0, 0.0, AL, 0, 0, AL, 0, 0);
+//			s_print_strmat(nu[N-ii-1]+nx[N-ii-1]+1, nx[N-ii], AL, 0, 0);
+
+			strmm_rlnn_libstr(nu[N-ii-1]+nx[N-ii-1]+1, nx[N-ii], 1.0, L+(N-ii), nu[N-ii], nu[N-ii], AL, 0, 0, AL, 0, 0);
+			srowex_libstr(nx[N-ii], 1.0, AL, nu[N-ii-1]+nx[N-ii-1], 0, tmp_nxM, 0);
+			strmv_lnn_libstr(nx[N-ii], nx[N-ii], L+(N-ii), nu[N-ii], nu[N-ii], tmp_nxM, 0, Pb+(N-ii-1), 0);
+			sgead_libstr(1, nx[N-ii], 1.0, L+(N-ii), nu[N-ii]+nx[N-ii], nu[N-ii], AL, nu[N-ii-1]+nx[N-ii-1], 0);
+
+			sgemm_r_diag_libstr(nu[N-ii-1]+nx[N-ii-1]+1, nu[N-ii-1]+nx[N-ii-1], 1.0, L+N-ii-1, 0, 0, Si+N-ii-1, 0, 0.0, L+N-ii-1, 0, 0, L+N-ii-1, 0, 0);
+			sgemm_l_diag_libstr(nu[N-ii-1]+nx[N-ii-1], nu[N-ii-1]+nx[N-ii-1], 1.0, Si+N-ii-1, 0, L+N-ii-1, 0, 0, 0.0, L+N-ii-1, 0, 0, L+N-ii-1, 0, 0);
+
+			ssyrk_spotrf_ln_libstr(nu[N-ii-1]+nx[N-ii-1]+1, nu[N-ii-1]+nx[N-ii-1], nx[N-ii], AL, 0, 0, AL, 0, 0, L+(N-ii-1), 0, 0, L+(N-ii-1), 0, 0);
+//			ssyrk_ln_mn_libstr(nu[N-ii-1]+nx[N-ii-1]+1, nu[N-ii-1]+nx[N-ii-1], nx[N-ii], 1.0, AL, 0, 0, AL, 0, 0, 1.0, L+(N-ii-1), 0, 0, L+(N-ii-1), 0, 0);
+//			spotrf_l_mn_libstr(nu[N-ii-1]+nx[N-ii-1]+1, nu[N-ii-1]+nx[N-ii-1], L+(N-ii-1), 0, 0, L+(N-ii-1), 0, 0);
+//			s_print_e_strmat(nu[N-ii-1]+nx[N-ii-1]+1, nu[N-ii-1]+nx[N-ii-1], L+N-ii-1, 0, 0);
 			}
 		else
 			{
-			ssyrk_spotrf_ln_libstr(nu[N-ii-1]+nx[N-ii-1]+1, nu[N-ii-1]+nx[N-ii-1], nx[N-ii], AL, 0, 0, AL, 0, 0, L+(N-ii-1), 0, 0, L+(N-ii-1), 0, 0);
+			sgecp_libstr(nu[N-ii-1]+nx[N-ii-1], nx[N-ii], BAbt+(N-ii-1), 0, 0, AL, 0, 0);
+			srowin_libstr(nx[N-ii], 1.0, res_b+(N-ii-1), 0, AL, nu[N-ii-1]+nx[N-ii-1], 0);
+			strmm_rlnn_libstr(nu[N-ii-1]+nx[N-ii-1]+1, nx[N-ii], 1.0, L+(N-ii), nu[N-ii], nu[N-ii], AL, 0, 0, AL, 0, 0);
+			srowex_libstr(nx[N-ii], 1.0, AL, nu[N-ii-1]+nx[N-ii-1], 0, tmp_nxM, 0);
+			strmv_lnn_libstr(nx[N-ii], nx[N-ii], L+(N-ii), nu[N-ii], nu[N-ii], tmp_nxM, 0, Pb+(N-ii-1), 0);
+			sgead_libstr(1, nx[N-ii], 1.0, L+(N-ii), nu[N-ii]+nx[N-ii], nu[N-ii], AL, nu[N-ii-1]+nx[N-ii-1], 0);
+
+			if(nb[N-ii-1]>0)
+				{
+				sdiaad_sp_libstr(nb[N-ii-1], 1.0, Qx_lb+(N-ii-1), 0, idxb[N-ii-1], L+(N-ii-1), 0, 0);
+				srowad_sp_libstr(nb[N-ii-1], 1.0, qx_lb+(N-ii-1), 0, idxb[N-ii-1], L+(N-ii-1), nu[N-ii-1]+nx[N-ii-1], 0);
+				}
+
+			if(ng[N-ii-1]>0)
+				{
+				sgemm_r_diag_libstr(nu[N-ii-1]+nx[N-ii-1], ng[N-ii-1], 1.0, DCt+N-ii-1, 0, 0, Qx_lg+N-ii-1, 0, 0.0, AL+0, 0, nx[N-ii], AL+0, 0, nx[N-ii]);
+				srowin_libstr(ng[N-ii-1], 1.0, qx_lg+N-ii-1, 0, AL+0, nu[N-ii-1]+nx[N-ii-1], nx[N-ii]);
+				sgecp_libstr(nu[N-ii-1]+nx[N-ii-1], nx[N-ii], AL+0, 0, 0, AL+1, 0, 0);
+				sgecp_libstr(nu[N-ii-1]+nx[N-ii-1], ng[N-ii-1], DCt+N-ii-1, 0, 0, AL+1, 0, nx[N-ii]);
+				ssyrk_spotrf_ln_libstr(nu[N-ii-1]+nx[N-ii-1]+1, nu[N-ii-1]+nx[N-ii-1], nx[N-ii]+ng[N-ii-1], AL+0, 0, 0, AL+1, 0, 0, L+N-ii-1, 0, 0, L+N-ii-1, 0, 0);
+				}
+			else
+				{
+				ssyrk_spotrf_ln_libstr(nu[N-ii-1]+nx[N-ii-1]+1, nu[N-ii-1]+nx[N-ii-1], nx[N-ii], AL, 0, 0, AL, 0, 0, L+(N-ii-1), 0, 0, L+(N-ii-1), 0, 0);
+				}
 			}
 
 //		d_print_strmat(nu[N-ii-1]+nx[N-ii-1]+1, nu[N-ii-1]+nx[N-ii-1], L+(N-ii-1), 0, 0);
@@ -186,30 +288,106 @@ void m_fact_solve_kkt_step_hard_ocp_qp(struct d_ocp_qp *d_qp, struct s_ocp_qp *s
 
 	// first stage
 	ii = 0;
-	srowex_libstr(nu[ii]+nx[ii], -1.0, L+(ii), nu[ii]+nx[ii], 0, dux+ii, 0);
-	strsv_ltn_libstr(nu[ii]+nx[ii], L+ii, 0, 0, dux+ii, 0, dux+ii, 0);
-	sgemv_t_libstr(nu[ii]+nx[ii], nx[ii+1], 1.0, BAbt+ii, 0, 0, dux+ii, 0, 1.0, res_b+ii, 0, dux+(ii+1), nu[ii+1]);
-	srowex_libstr(nx[ii+1], 1.0, L+(ii+1), nu[ii+1]+nx[ii+1], nu[ii+1], tmp_nxM, 0);
-	strmv_ltn_libstr(nx[ii+1], nx[ii+1], L+(ii+1), nu[ii+1], nu[ii+1], dux+(ii+1), nu[ii+1], dpi+ii, 0);
-	saxpy_libstr(nx[ii+1], 1.0, tmp_nxM, 0, dpi+ii, 0, dpi+ii, 0);
-	strmv_lnn_libstr(nx[ii+1], nx[ii+1], L+(ii+1), nu[ii+1], nu[ii+1], dpi+ii, 0, dpi+ii, 0);
+	if(ws->scale)
+		{
+		srowex_libstr(nu[ii]+nx[ii], -1.0, L+(ii), nu[ii]+nx[ii], 0, dux+ii, 0);
+		strsv_ltn_libstr(nu[ii]+nx[ii], L+ii, 0, 0, dux+ii, 0, dux+ii, 0);
+
+		sgecp_libstr(nu[ii]+nx[ii], nx[ii+1], BAbt+(ii), 0, 0, AL, 0, 0);
+		sgemm_r_diag_libstr(nu[ii]+nx[ii], nx[ii+1], 1.0, AL, 0, 0, Sx+ii+1, nu[ii+1], 0.0, AL, 0, 0, AL, 0, 0);
+		sgemm_l_diag_libstr(nu[ii]+nx[ii], nx[ii+1], 1.0, Si+ii, 0, AL, 0, 0, 0.0, AL, 0, 0, AL, 0, 0);
+		sveccp_libstr(nx[ii+1], res_b+ii, 0, dux+(ii+1), nu[ii+1]);
+		d_ptr0 = (dux+ii+1)->pa+nu[ii+1];
+		d_ptr1 = (Sx+ii+1)->pa+nu[ii+1];
+		for(jj=0; jj<nx[ii+1]; jj++)
+			d_ptr0[jj] *= d_ptr1[jj];
+		sgemv_t_libstr(nu[ii]+nx[ii], nx[ii+1], 1.0, AL, 0, 0, dux+ii, 0, 1.0, dux+(ii+1), nu[ii+1], dux+(ii+1), nu[ii+1]);
+
+		srowex_libstr(nx[ii+1], 1.0, L+(ii+1), nu[ii+1]+nx[ii+1], nu[ii+1], tmp_nxM, 0);
+		strmv_ltn_libstr(nx[ii+1], nx[ii+1], L+(ii+1), nu[ii+1], nu[ii+1], dux+(ii+1), nu[ii+1], dpi+ii, 0);
+		saxpy_libstr(nx[ii+1], 1.0, tmp_nxM, 0, dpi+ii, 0, dpi+ii, 0);
+		strmv_lnn_libstr(nx[ii+1], nx[ii+1], L+(ii+1), nu[ii+1], nu[ii+1], dpi+ii, 0, dpi+ii, 0);
+		}
+	else
+		{
+		srowex_libstr(nu[ii]+nx[ii], -1.0, L+(ii), nu[ii]+nx[ii], 0, dux+ii, 0);
+		strsv_ltn_libstr(nu[ii]+nx[ii], L+ii, 0, 0, dux+ii, 0, dux+ii, 0);
+		sgemv_t_libstr(nu[ii]+nx[ii], nx[ii+1], 1.0, BAbt+ii, 0, 0, dux+ii, 0, 1.0, res_b+ii, 0, dux+(ii+1), nu[ii+1]);
+		srowex_libstr(nx[ii+1], 1.0, L+(ii+1), nu[ii+1]+nx[ii+1], nu[ii+1], tmp_nxM, 0);
+		strmv_ltn_libstr(nx[ii+1], nx[ii+1], L+(ii+1), nu[ii+1], nu[ii+1], dux+(ii+1), nu[ii+1], dpi+ii, 0);
+		saxpy_libstr(nx[ii+1], 1.0, tmp_nxM, 0, dpi+ii, 0, dpi+ii, 0);
+		strmv_lnn_libstr(nx[ii+1], nx[ii+1], L+(ii+1), nu[ii+1], nu[ii+1], dpi+ii, 0, dpi+ii, 0);
+		}
 
 //	d_print_tran_strvec(nu[ii]+nx[ii], dux+ii, 0);
 
 	// middle stages
 	for(ii=1; ii<N; ii++)
 		{
-		srowex_libstr(nu[ii], -1.0, L+(ii), nu[ii]+nx[ii], 0, dux+ii, 0);
-		strsv_ltn_mn_libstr(nu[ii]+nx[ii], nu[ii], L+ii, 0, 0, dux+ii, 0, dux+ii, 0);
-		sgemv_t_libstr(nu[ii]+nx[ii], nx[ii+1], 1.0, BAbt+ii, 0, 0, dux+ii, 0, 1.0, res_b+ii, 0, dux+(ii+1), nu[ii+1]);
-		srowex_libstr(nx[ii+1], 1.0, L+(ii+1), nu[ii+1]+nx[ii+1], nu[ii+1], tmp_nxM, 0);
-		strmv_ltn_libstr(nx[ii+1], nx[ii+1], L+(ii+1), nu[ii+1], nu[ii+1], dux+(ii+1), nu[ii+1], dpi+ii, 0);
-		saxpy_libstr(nx[ii+1], 1.0, tmp_nxM, 0, dpi+ii, 0, dpi+ii, 0);
-		strmv_lnn_libstr(nx[ii+1], nx[ii+1], L+(ii+1), nu[ii+1], nu[ii+1], dpi+ii, 0, dpi+ii, 0);
+		if(ws->scale)
+			{
+			srowex_libstr(nu[ii], -1.0, L+(ii), nu[ii]+nx[ii], 0, dux+ii, 0);
+			strsv_ltn_mn_libstr(nu[ii]+nx[ii], nu[ii], L+ii, 0, 0, dux+ii, 0, dux+ii, 0);
+
+			sgecp_libstr(nu[ii]+nx[ii], nx[ii+1], BAbt+(ii), 0, 0, AL, 0, 0);
+			sgemm_r_diag_libstr(nu[ii]+nx[ii], nx[ii+1], 1.0, AL, 0, 0, Sx+ii+1, nu[ii+1], 0.0, AL, 0, 0, AL, 0, 0);
+			sgemm_l_diag_libstr(nu[ii]+nx[ii], nx[ii+1], 1.0, Si+ii, 0, AL, 0, 0, 0.0, AL, 0, 0, AL, 0, 0);
+			sveccp_libstr(nx[ii+1], res_b+ii, 0, dux+(ii+1), nu[ii+1]);
+			d_ptr0 = (dux+ii+1)->pa+nu[ii+1];
+			d_ptr1 = (Sx+ii+1)->pa+nu[ii+1];
+			for(jj=0; jj<nx[ii+1]; jj++)
+				d_ptr0[jj] *= d_ptr1[jj];
+			sgemv_t_libstr(nu[ii]+nx[ii], nx[ii+1], 1.0, AL, 0, 0, dux+ii, 0, 1.0, dux+(ii+1), nu[ii+1], dux+(ii+1), nu[ii+1]);
+
+			srowex_libstr(nx[ii+1], 1.0, L+(ii+1), nu[ii+1]+nx[ii+1], nu[ii+1], tmp_nxM, 0);
+			strmv_ltn_libstr(nx[ii+1], nx[ii+1], L+(ii+1), nu[ii+1], nu[ii+1], dux+(ii+1), nu[ii+1], dpi+ii, 0);
+			saxpy_libstr(nx[ii+1], 1.0, tmp_nxM, 0, dpi+ii, 0, dpi+ii, 0);
+			strmv_lnn_libstr(nx[ii+1], nx[ii+1], L+(ii+1), nu[ii+1], nu[ii+1], dpi+ii, 0, dpi+ii, 0);
+			}
+		else
+			{
+			srowex_libstr(nu[ii], -1.0, L+(ii), nu[ii]+nx[ii], 0, dux+ii, 0);
+			strsv_ltn_mn_libstr(nu[ii]+nx[ii], nu[ii], L+ii, 0, 0, dux+ii, 0, dux+ii, 0);
+			sgemv_t_libstr(nu[ii]+nx[ii], nx[ii+1], 1.0, BAbt+ii, 0, 0, dux+ii, 0, 1.0, res_b+ii, 0, dux+(ii+1), nu[ii+1]);
+			srowex_libstr(nx[ii+1], 1.0, L+(ii+1), nu[ii+1]+nx[ii+1], nu[ii+1], tmp_nxM, 0);
+			strmv_ltn_libstr(nx[ii+1], nx[ii+1], L+(ii+1), nu[ii+1], nu[ii+1], dux+(ii+1), nu[ii+1], dpi+ii, 0);
+			saxpy_libstr(nx[ii+1], 1.0, tmp_nxM, 0, dpi+ii, 0, dpi+ii, 0);
+			strmv_lnn_libstr(nx[ii+1], nx[ii+1], L+(ii+1), nu[ii+1], nu[ii+1], dpi+ii, 0, dpi+ii, 0);
+			}
 
 //		d_print_tran_strvec(nu[ii]+nx[ii], dux+ii, 0);
 		}
+	
+#if 1
+	for(ii=0; ii<=N; ii++)
+		s_print_e_tran_strvec(nu[ii]+nx[ii], dux+ii, 0);
+	for(ii=0; ii<N; ii++)
+		s_print_e_tran_strvec(nx[ii+1], dpi+ii, 0);
+//	exit(1);
+#endif
+#if 0
+	for(ii=0; ii<=N; ii++)
+		s_print_e_strmat(nu[ii]+nx[ii]+1, nu[ii]+nx[ii], L+ii, 0, 0);
+#endif
 
+	// scale solution back
+	if(ws->scale)
+		{
+		for(ii=0; ii<=N; ii++)
+			{
+			d_ptr0 = (dux+ii)->pa;
+			d_ptr1 = (Si+ii)->pa;
+			for(jj=0; jj<nu[ii]+nx[ii]; jj++)
+				d_ptr0[jj] *= d_ptr1[jj];
+			}
+		for(ii=0; ii<N; ii++)
+			{
+			d_ptr0 = (dpi+ii)->pa;
+			d_ptr1 = (Sx+ii+1)->pa+nu[ii+1];
+			for(jj=0; jj<nx[ii+1]; jj++)
+				d_ptr0[jj] *= d_ptr1[jj];
+			}
+		}
 
 
 	// cvt single => double

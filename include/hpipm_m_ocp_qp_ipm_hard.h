@@ -70,10 +70,13 @@ struct m_ipm_hard_ocp_qp_workspace
 	struct s_strvec *Pb; // Pb // XXX
 	struct s_strmat *L; // XXX
 	struct s_strmat *AL; // XXX
+	struct s_strvec *sSx; // scaling
+	struct s_strvec *sSi; // scaling inverted
 	double *stat; // convergence statistics
 	double res_mu; // mu-residual
 	int iter; // iteration number
 	int compute_Pb;
+	int scale;
 	};
 
 
