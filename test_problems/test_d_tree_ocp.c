@@ -30,17 +30,9 @@
 #include <math.h>
 #include <sys/time.h>
 
-#include <blasfeo_target.h>
-#include <blasfeo_common.h>
-#include <blasfeo_v_aux_ext_dep.h>
-#include <blasfeo_d_aux_ext_dep.h>
-#include <blasfeo_i_aux_ext_dep.h>
-#include <blasfeo_d_aux.h>
-#include <blasfeo_d_blas.h>
-
-#include "../include/hpipm_d_ocp_qp.h"
-#include "../include/hpipm_d_ocp_qp_sol.h"
-#include "../include/hpipm_d_ocp_qp_ipm_hard.h"
+#include "../include/hpipm_tree.h"
+#include "../include/hpipm_scenario_tree.h"
+#include "../include/hpipm_d_tree_ocp_qp.h"
 
 #include "d_tools.h"
 
@@ -49,7 +41,7 @@
 #define KEEP_X0 0
 
 // printing
-#define PRINT 1
+#define PRINT 0
 
 
 
@@ -246,91 +238,37 @@ void mass_spring_system(double Ts, int nx, int nu, double *A, double *B, double 
 int main()
 	{
 
-
-	// local variables
-
 	int ii, jj;
-	
-	int rep, nrep=1000;
+	int stage;
 
-	struct timeval tv0, tv1;
+	int nx_ = 8;
+	int nu_ = 3;
 
+	int md = 3;
+	int Nr = 2;
+	int Nh = 3;
 
+	// stage-wise size
+	int nx[Nh+1];
+	int nu[Nh+1];
+	int nb[Nh+1];
+	int ng[Nh+1];
 
-	// problem size
-
-	int nx_ = 8; // number of states (it has to be even for the mass-spring system test problem)
-	int nu_ = 3; // number of inputs (controllers) (it has to be at least 1 and at most nx/2 for the mass-spring system test problem)
-	int N  = 10; // horizon lenght
-
-
-
-	// stage-wise variant size
-
-	int nx[N+1];
-#if KEEP_X0
-	nx[0] = nx_;
-#else
 	nx[0] = 0;
-#endif
-	for(ii=1; ii<=N; ii++)
+	nu[0] = nu_;
+	nb[0] = nu[0]+nx[0];
+	ng[0] = 0;
+	for(ii=1; ii<Nh; ii++)
+		{
 		nx[ii] = nx_;
-//	nx[N] = 0;
-
-	int nu[N+1];
-	for(ii=0; ii<N; ii++)
 		nu[ii] = nu_;
-	nu[N] = 0;
-
-#if 1
-	int nb[N+1];
-#if KEEP_X0
-	nb[0] = nu[0]+nx[0]/2;
-#else
-	nb[0] = nu[0];
-#endif
-	for(ii=1; ii<N; ii++)
-		nb[ii] = nu[1]+nx[1]/2;
-	nb[N] = 0;//nx[N]/2;
-
-	int ng[N+1];
-	ng[0] = 0;
-	for(ii=1; ii<N; ii++)
+		nb[ii] = nu[ii]+nx[ii];
 		ng[ii] = 0;
-	ng[N] = 0;
-#elif 0
-	int nb[N+1];
-	nb[0] = 0;
-	for(ii=1; ii<N; ii++)
-		nb[ii] = 0;
-	nb[N] = 0;
-
-	int ng[N+1];
-#if KEEP_X0
-	ng[0] = nu[0]+nx[0]/2;
-#else
-	ng[0] = nu[0];
-#endif
-	for(ii=1; ii<N; ii++)
-		ng[ii] = nu[1]+nx[1]/2;
-	ng[N] = nx[N]/2;
-#else
-	int nb[N+1];
-	nb[0] = nu[0] + nx[0]/2;
-	for(ii=1; ii<N; ii++)
-		nb[ii] = nu[ii] + nx[ii]/2;
-	nb[N] = nu[N] + nx[N]/2;
-
-	int ng[N+1];
-#if KEEP_X0
-	ng[0] = nx[0]/2;
-#else
-	ng[0] = 0;
-#endif
-	for(ii=1; ii<N; ii++)
-		ng[ii] = nx[1]/2;
-	ng[N] = nx[N]/2;
-#endif
+		}
+	nx[Nh] = nx_;
+	nu[Nh] = 0;
+	nb[Nh] = nu[Nh]+nx[Nh];
+	ng[Nh] = 0;
 
 /************************************************
 * dynamical system
@@ -358,7 +296,7 @@ int main()
 	dgemv_n_3l(nx_, nx_, A, nx_, x0, b0);
 	daxpy_3l(nx_, 1.0, b, b0);
 
-#if PRINT
+#if 0
 	d_print_mat(nx_, nx_, A, nx_);
 	d_print_mat(nx_, nu_, B, nu_);
 	d_print_mat(1, nx_, b, 1);
@@ -388,24 +326,13 @@ int main()
 	dgemv_n_3l(nu_, nx_, S, nu_, x0, r0);
 	daxpy_3l(nu_, 1.0, r, r0);
 
-	double *QN; d_zeros(&QN, nx_, nx_);
-	for(ii=0; ii<2; ii++) QN[ii*(nx_+1)] = 1e15;
-	for(ii=0; ii<nx_; ii++) QN[ii*(nx_+1)] += Q[ii*(nx_+1)];
-	double *qN; d_zeros(&qN, nx_, 1);
-	qN[0] = - 0.1;
-	qN[1] = - 0.1;
-	for(ii=0; ii<2; ii++) qN[ii] *= 1e15;
-	for(ii=0; ii<nx_; ii++) qN[ii] += q[ii];
-
-#if PRINT
+#if 0
 	d_print_mat(nx_, nx_, Q, nx_);
 	d_print_mat(nu_, nu_, R, nu_);
 	d_print_mat(nu_, nx_, S, nu_);
 	d_print_mat(1, nx_, q, 1);
 	d_print_mat(1, nu_, r, 1);
 	d_print_mat(1, nu_, r0, 1);
-	d_print_mat(nx_, nx_, QN, nx_);
-	d_print_mat(1, nx_, qN, 1);
 #endif
 
 	// maximum element in cost functions
@@ -482,18 +409,18 @@ int main()
 		}
 
 
-	int *idxbN; int_zeros(&idxbN, nb[N], 1);
-	double *d_lbN; d_zeros(&d_lbN, nb[N], 1);
-	double *d_ubN; d_zeros(&d_ubN, nb[N], 1);
-	double *d_lgN; d_zeros(&d_lgN, ng[N], 1);
-	double *d_ugN; d_zeros(&d_ugN, ng[N], 1);
-	for(ii=0; ii<nb[N]; ii++)
+	int *idxbN; int_zeros(&idxbN, nb[Nh], 1);
+	double *d_lbN; d_zeros(&d_lbN, nb[Nh], 1);
+	double *d_ubN; d_zeros(&d_ubN, nb[Nh], 1);
+	double *d_lgN; d_zeros(&d_lgN, ng[Nh], 1);
+	double *d_ugN; d_zeros(&d_ugN, ng[Nh], 1);
+	for(ii=0; ii<nb[Nh]; ii++)
 		{
 		d_lbN[ii] = - 4.0; // xmin
 		d_ubN[ii] =   4.0; // xmax
 		idxbN[ii] = ii;
 		}
-	for(ii=0; ii<ng[N]; ii++)
+	for(ii=0; ii<ng[Nh]; ii++)
 		{
 		d_lgN[ii] =   0.1; // dmin
 		d_ugN[ii] =   0.1; // dmax
@@ -513,14 +440,14 @@ int main()
 	for(; ii<ng[1]; ii++)
 		C1[ii+(nb[1]+ii-nu[1])*ng[1]] = 1.0;
 
-	double *CN; d_zeros(&CN, ng[N], nx[N]);
-	double *DN; d_zeros(&DN, ng[N], nu[N]);
-	for(ii=0; ii<nu[N]-nb[N] & ii<ng[N]; ii++)
-		DN[ii+(nb[N]+ii)*ng[N]] = 1.0;
-	for(; ii<ng[N]; ii++)
-		CN[ii+(nb[N]+ii-nu[N])*ng[N]] = 1.0;
+	double *CN; d_zeros(&CN, ng[Nh], nx[Nh]);
+	double *DN; d_zeros(&DN, ng[Nh], nu[Nh]);
+	for(ii=0; ii<nu[Nh]-nb[Nh] & ii<ng[Nh]; ii++)
+		DN[ii+(nb[Nh]+ii)*ng[Nh]] = 1.0;
+	for(; ii<ng[Nh]; ii++)
+		CN[ii+(nb[Nh]+ii-nu[Nh])*ng[Nh]] = 1.0;
 
-#if PRINT
+#if 0
 	// box constraints
 	int_print_mat(1, nb[0], idxb0, 1);
 	d_print_mat(1, nb[0], d_lb0, 1);
@@ -528,9 +455,9 @@ int main()
 	int_print_mat(1, nb[1], idxb1, 1);
 	d_print_mat(1, nb[1], d_lb1, 1);
 	d_print_mat(1, nb[1], d_ub1, 1);
-	int_print_mat(1, nb[N], idxbN, 1);
-	d_print_mat(1, nb[N], d_lbN, 1);
-	d_print_mat(1, nb[N], d_ubN, 1);
+	int_print_mat(1, nb[Nh], idxbN, 1);
+	d_print_mat(1, nb[Nh], d_lbN, 1);
+	d_print_mat(1, nb[Nh], d_ubN, 1);
 	// general constraints
 	d_print_mat(1, ng[0], d_lg0, 1);
 	d_print_mat(1, ng[0], d_ug0, 1);
@@ -540,31 +467,117 @@ int main()
 	d_print_mat(1, ng[1], d_ug1, 1);
 	d_print_mat(ng[1], nu[1], D1, ng[1]);
 	d_print_mat(ng[1], nx[1], C1, ng[1]);
-	d_print_mat(1, ng[N], d_lgN, 1);
-	d_print_mat(1, ng[N], d_ugN, 1);
-	d_print_mat(ng[N], nu[N], DN, ng[N]);
-	d_print_mat(ng[N], nx[N], CN, ng[N]);
+	d_print_mat(1, ng[Nh], d_lgN, 1);
+	d_print_mat(1, ng[Nh], d_ugN, 1);
+	d_print_mat(ng[Nh], nu[Nh], DN, ng[Nh]);
+	d_print_mat(ng[Nh], nx[Nh], CN, ng[Nh]);
 #endif
 
 /************************************************
-* array of matrices
+* create scenario tree
 ************************************************/	
 
-	double *hA[N];
-	double *hB[N];
-	double *hb[N];
-	double *hQ[N+1];
-	double *hS[N+1];
-	double *hR[N+1];
-	double *hq[N+1];
-	double *hr[N+1];
-	double *hd_lb[N+1];
-	double *hd_ub[N+1];
-	double *hd_lg[N+1];
-	double *hd_ug[N+1];
-	double *hC[N+1];
-	double *hD[N+1];
-	int *hidxb[N+1];
+	int tree_memory_size = memsize_sctree(md, Nr, Nh);
+	printf("\ntree memsize = %d\n", tree_memory_size);
+	void *tree_memory = malloc(tree_memory_size);
+
+	struct sctree st;
+	create_sctree(md, Nr, Nh, &st, tree_memory);
+
+	int Nn = st.Nn;
+
+#if 0
+	int Nn = st.Nn;
+	printf("\nscenario tree\n");
+	for(ii=0; ii<Nn; ii++)
+		{
+		printf("\n");
+		printf("idx = %d\n", (st.root+ii)->idx);
+		printf("stage = %d\n", (st.root+ii)->stage);
+		printf("real = %d\n", (st.root+ii)->real);
+		printf("idxkid = %d\n", (st.root+ii)->idxkid);
+		printf("dad = %d\n", (st.root+ii)->dad);
+		printf("nkids = %d\n", (st.root+ii)->nkids);
+		printf("kids =");
+		for(jj=0; jj<(st.root+ii)->nkids; jj++)
+			printf(" %d", (st.root+ii)->kids[jj]);
+		printf("\n\n");
+		}
+#endif
+
+/************************************************
+* cast scenario tree into tree
+************************************************/	
+
+	struct tree tt;
+	cast_sctree2tree(&st, &tt);
+
+#if 0
+	Nn = tt.Nn;
+	printf("\ntree\n");
+	for(ii=0; ii<Nn; ii++)
+		{
+		printf("\n");
+		printf("idx = %d\n", (tt.root+ii)->idx);
+		printf("stage = %d\n", (tt.root+ii)->stage);
+		printf("real = %d\n", (tt.root+ii)->real);
+		printf("idxkid = %d\n", (tt.root+ii)->idxkid);
+		printf("dad = %d\n", (tt.root+ii)->dad);
+		printf("nkids = %d\n", (tt.root+ii)->nkids);
+		printf("kids =");
+		for(jj=0; jj<(tt.root+ii)->nkids; jj++)
+			printf(" %d", (tt.root+ii)->kids[jj]);
+		printf("\n\n");
+		}
+#endif
+
+/************************************************
+* tree ocp problem size
+************************************************/	
+
+	// node-wise size
+	int nxt[Nn];
+	int nut[Nn];
+	int nbt[Nn];
+	int ngt[Nn];
+
+	for(ii=0; ii<Nn; ii++)
+		{
+		stage = (tt.root+ii)->stage;
+		nxt[ii] = nx[stage];
+		nut[ii] = nu[stage];
+		nbt[ii] = nb[stage];
+		ngt[ii] = ng[stage];
+		}
+	
+#if 0
+	for(ii=0; ii<Nn; ii++)
+		{
+		printf("\n%d %d %d %d\n", nxt[ii], nut[ii], nbt[ii], ngt[ii]);
+		}
+#endif
+
+/************************************************
+* tree ocp data
+************************************************/	
+
+	// stage-wise data
+
+	double *hA[Nh];
+	double *hB[Nh];
+	double *hb[Nh];
+	double *hQ[Nh+1];
+	double *hS[Nh+1];
+	double *hR[Nh+1];
+	double *hq[Nh+1];
+	double *hr[Nh+1];
+	double *hd_lb[Nh+1];
+	double *hd_ub[Nh+1];
+	double *hd_lg[Nh+1];
+	double *hd_ug[Nh+1];
+	double *hC[Nh+1];
+	double *hD[Nh+1];
+	int *hidxb[Nh+1];
 
 	hA[0] = A;
 	hB[0] = B;
@@ -581,7 +594,7 @@ int main()
 	hd_ug[0] = d_ug0;
 	hC[0] = C0;
 	hD[0] = D0;
-	for(ii=1; ii<N; ii++)
+	for(ii=1; ii<Nh; ii++)
 		{
 		hA[ii] = A;
 		hB[ii] = B;
@@ -599,203 +612,148 @@ int main()
 		hC[ii] = C1;
 		hD[ii] = D1;
 		}
-	hQ[N] = QN; //Q;
-	hS[N] = S;
-	hR[N] = R;
-	hq[N] = qN; //q;
-	hr[N] = r;
-	hidxb[N] = idxbN;
-	hd_lb[N] = d_lbN;
-	hd_ub[N] = d_ubN;
-	hd_lg[N] = d_lgN;
-	hd_ug[N] = d_ugN;
-	hC[N] = CN;
-	hD[N] = DN;
+	hQ[Nh] = Q;
+	hS[Nh] = S;
+	hR[Nh] = R;
+	hq[Nh] = q;
+	hr[Nh] = r;
+	hidxb[Nh] = idxbN;
+	hd_lb[Nh] = d_lbN;
+	hd_ub[Nh] = d_ubN;
+	hd_lg[Nh] = d_lgN;
+	hd_ug[Nh] = d_ugN;
+	hC[Nh] = CN;
+	hD[Nh] = DN;
 	
-/************************************************
-* ocp qp
-************************************************/	
-	
-	int qp_size = d_memsize_ocp_qp(N, nx, nu, nb, ng);
-	printf("\nqp size = %d\n", qp_size);
-	void *qp_mem = malloc(qp_size);
+	// node-wise data
 
-	struct d_ocp_qp qp;
-	d_create_ocp_qp(N, nx, nu, nb, ng, &qp, qp_mem);
-	d_cvt_colmaj_to_ocp_qp(hA, hB, hb, hQ, hS, hR, hq, hr, hidxb, hd_lb, hd_ub, hC, hD, hd_lg, hd_ug, &qp);
+	double *hAt[Nn-1];
+	double *hBt[Nn-1];
+	double *hbt[Nn-1];
+	double *hQt[Nn];
+	double *hSt[Nn];
+	double *hRt[Nn];
+	double *hqt[Nn];
+	double *hrt[Nn];
+	double *hd_lbt[Nn];
+	double *hd_ubt[Nn];
+	double *hd_lgt[Nn];
+	double *hd_ugt[Nn];
+	double *hCt[Nn];
+	double *hDt[Nn];
+	int *hidxbt[Nn];
+
+	for(ii=0; ii<Nn-1; ii++)
+		{
+		stage = (tt.root+ii+1)->stage-1;
+		hAt[ii] = hA[stage];
+		hBt[ii] = hB[stage];
+		hbt[ii] = hb[stage];
+		}
+
+	for(ii=0; ii<Nn; ii++)
+		{
+		stage = (tt.root+ii)->stage;
+		hQt[ii] = hQ[stage];
+		hRt[ii] = hR[stage];
+		hSt[ii] = hS[stage];
+		hqt[ii] = hq[stage];
+		hrt[ii] = hr[stage];
+		hd_lbt[ii] = hd_lb[stage];
+		hd_ubt[ii] = hd_ub[stage];
+		hd_lgt[ii] = hd_lg[stage];
+		hd_ugt[ii] = hd_ug[stage];
+		hidxbt[ii] = hidxb[stage];
+		}
+
+/************************************************
+* create tree ocp qp
+************************************************/	
+
+	int tree_ocp_qp_memory_size = d_memsize_tree_ocp_qp(&tt, nxt, nut, nbt, ngt);
+	printf("\ntree ocp qp memsize = %d\n", tree_ocp_qp_memory_size);
+	void *tree_ocp_qp_memory = malloc(tree_ocp_qp_memory_size);
+
+	struct d_tree_ocp_qp qp;
+	d_create_tree_ocp_qp(&tt, nxt, nut, nbt, ngt, &qp, tree_ocp_qp_memory);
+	d_cvt_colmaj_to_tree_ocp_qp(hAt, hBt, hbt, hQt, hSt, hRt, hqt, hrt, hidxbt, hd_lbt, hd_ubt, hCt, hDt, hd_lgt, hd_ugt, &qp);
+
 #if 0
-	printf("\nN = %d\n", qp.N);
-	for(ii=0; ii<N; ii++)
-		d_print_strmat(qp.nu[ii]+qp.nx[ii]+1, qp.nx[ii+1], qp.BAbt+ii, 0, 0);
-	for(ii=0; ii<N; ii++)
-		d_print_tran_strvec(qp.nx[ii+1], qp.b+ii, 0);
-	for(ii=0; ii<=N; ii++)
-		d_print_strmat(qp.nu[ii]+qp.nx[ii]+1, qp.nu[ii]+qp.nx[ii], qp.RSQrq+ii, 0, 0);
-	for(ii=0; ii<=N; ii++)
-		d_print_tran_strvec(qp.nu[ii]+qp.nx[ii], qp.rq+ii, 0);
-	for(ii=0; ii<=N; ii++)
-		int_print_mat(1, nb[ii], qp.idxb[ii], 1);
-	for(ii=0; ii<=N; ii++)
-		d_print_tran_strvec(qp.nb[ii], qp.d_lb+ii, 0);
-	for(ii=0; ii<=N; ii++)
-		d_print_tran_strvec(qp.nb[ii], qp.d_ub+ii, 0);
-	for(ii=0; ii<=N; ii++)
-		d_print_strmat(qp.nu[ii]+qp.nx[ii], qp.ng[ii], qp.DCt+ii, 0, 0);
-	for(ii=0; ii<=N; ii++)
-		d_print_tran_strvec(qp.ng[ii], qp.d_lg+ii, 0);
-	for(ii=0; ii<=N; ii++)
-		d_print_tran_strvec(qp.ng[ii], qp.d_ug+ii, 0);
-	return;
+	struct d_strmat *tmat;
+	struct d_strvec *tvec;
+	for(ii=0; ii<Nn-1; ii++)
+		{
+		tmat = qp.BAbt+ii;
+		d_print_strmat(tmat->m, tmat->n, tmat, 0, 0);
+		}
+	for(ii=0; ii<Nn-1; ii++)
+		{
+		tvec = qp.b+ii;
+		d_print_tran_strvec(tvec->m, tvec, 0);
+		}
+	for(ii=0; ii<Nn; ii++)
+		{
+		tmat = qp.RSQrq+ii;
+		d_print_strmat(tmat->m, tmat->n, tmat, 0, 0);
+		}
+	for(ii=0; ii<Nn; ii++)
+		{
+		tvec = qp.rq+ii;
+		d_print_tran_strvec(tvec->m, tvec, 0);
+		}
+	for(ii=0; ii<Nn; ii++)
+		{
+		tvec = qp.d_lb+ii;
+		d_print_tran_strvec(tvec->m, tvec, 0);
+		}
+	for(ii=0; ii<Nn; ii++)
+		{
+		tvec = qp.d_ub+ii;
+		d_print_tran_strvec(tvec->m, tvec, 0);
+		}
+	for(ii=0; ii<Nn; ii++)
+		{
+		tvec = qp.d_lg+ii;
+		d_print_tran_strvec(tvec->m, tvec, 0);
+		}
+	for(ii=0; ii<Nn; ii++)
+		{
+		tvec = qp.d_ug+ii;
+		d_print_tran_strvec(tvec->m, tvec, 0);
+		}
+	for(ii=0; ii<Nn; ii++)
+		{
+		int_print_mat(1, qp.nb[ii], qp.idxb[ii], 1);
+		}
 #endif
 
 /************************************************
 * ocp qp sol
 ************************************************/	
 	
-	int qp_sol_size = d_memsize_ocp_qp_sol(N, nx, nu, nb, ng);
-	printf("\nqp sol size = %d\n", qp_sol_size);
-	void *qp_sol_mem = malloc(qp_sol_size);
-
-	struct d_ocp_qp_sol qp_sol;
-	d_create_ocp_qp_sol(N, nx, nu, nb, ng, &qp_sol, qp_sol_mem);
-
 /************************************************
 * ipm
 ************************************************/	
-
-	struct d_ipm_hard_ocp_qp_arg arg;
-	arg.alpha_min = 1e-8;
-	arg.mu_max = 1e-12;
-	arg.iter_max = 20;
-	arg.mu0 = 2.0;
-
-	int ipm_size = d_memsize_ipm_hard_ocp_qp(&qp, &arg);
-	printf("\nipm size = %d\n", ipm_size);
-	void *ipm_mem = malloc(ipm_size);
-
-	struct d_ipm_hard_ocp_qp_workspace workspace;
-	d_create_ipm_hard_ocp_qp(&qp, &arg, &workspace, ipm_mem);
-
-	gettimeofday(&tv0, NULL); // start
-
-	for(rep=0; rep<nrep; rep++)
-		{
-//		d_solve_ipm_hard_ocp_qp(&qp, &qp_sol, &workspace);
-		d_solve_ipm2_hard_ocp_qp(&qp, &qp_sol, &workspace);
-		}
-
-	gettimeofday(&tv1, NULL); // stop
-
-	double time_ocp_ipm = (tv1.tv_sec-tv0.tv_sec)/(nrep+0.0)+(tv1.tv_usec-tv0.tv_usec)/(nrep*1e6);
 
 /************************************************
 * extract and print solution
 ************************************************/	
 
-	double *u[N+1]; for(ii=0; ii<=N; ii++) d_zeros(u+ii, nu[ii], 1);
-	double *x[N+1]; for(ii=0; ii<=N; ii++) d_zeros(x+ii, nx[ii], 1);
-	double *pi[N]; for(ii=0; ii<N; ii++) d_zeros(pi+ii, nx[ii+1], 1);
-	double *lam_lb[N+1]; for(ii=0; ii<=N; ii++) d_zeros(lam_lb+ii, nb[ii], 1);
-	double *lam_ub[N+1]; for(ii=0; ii<=N; ii++) d_zeros(lam_ub+ii, nb[ii], 1);
-	double *lam_lg[N+1]; for(ii=0; ii<=N; ii++) d_zeros(lam_lg+ii, ng[ii], 1);
-	double *lam_ug[N+1]; for(ii=0; ii<=N; ii++) d_zeros(lam_ug+ii, ng[ii], 1);
-
-	d_cvt_ocp_qp_sol_to_colmaj(&qp, &qp_sol, u, x, pi, lam_lb, lam_ub, lam_lg, lam_ug);
-
-#if 1
-	printf("\nsolution\n\n");
-	printf("\nu\n");
-	for(ii=0; ii<=N; ii++)
-		d_print_mat(1, nu[ii], u[ii], 1);
-	printf("\nx\n");
-	for(ii=0; ii<=N; ii++)
-		d_print_mat(1, nx[ii], x[ii], 1);
-	printf("\npi\n");
-	for(ii=0; ii<N; ii++)
-		d_print_mat(1, nx[ii+1], pi[ii], 1);
-	printf("\nlam_lb\n");
-	for(ii=0; ii<=N; ii++)
-		d_print_mat(1, nb[ii], lam_lb[ii], 1);
-	printf("\nlam_ub\n");
-	for(ii=0; ii<=N; ii++)
-		d_print_mat(1, nb[ii], lam_ub[ii], 1);
-	printf("\nlam_lg\n");
-	for(ii=0; ii<=N; ii++)
-		d_print_mat(1, ng[ii], lam_lg[ii], 1);
-	printf("\nlam_ug\n");
-	for(ii=0; ii<=N; ii++)
-		d_print_mat(1, ng[ii], lam_ug[ii], 1);
-
-	printf("\nt_lb\n");
-	for(ii=0; ii<=N; ii++)
-		d_print_mat(1, nb[ii], (qp_sol.t_lb+ii)->pa, 1);
-	printf("\nt_ub\n");
-	for(ii=0; ii<=N; ii++)
-		d_print_mat(1, nb[ii], (qp_sol.t_ub+ii)->pa, 1);
-	printf("\nt_lg\n");
-	for(ii=0; ii<=N; ii++)
-		d_print_mat(1, ng[ii], (qp_sol.t_lg+ii)->pa, 1);
-	printf("\nt_ug\n");
-	for(ii=0; ii<=N; ii++)
-		d_print_mat(1, ng[ii], (qp_sol.t_ug+ii)->pa, 1);
-
-	printf("\nresiduals\n\n");
-	printf("\nres_g\n");
-	for(ii=0; ii<=N; ii++)
-		d_print_e_mat(1, nu[ii]+nx[ii], (workspace.res_g+ii)->pa, 1);
-	printf("\nres_b\n");
-	for(ii=0; ii<N; ii++)
-		d_print_e_mat(1, nx[ii+1], (workspace.res_b+ii)->pa, 1);
-	printf("\nres_m_lb\n");
-	for(ii=0; ii<=N; ii++)
-		d_print_e_mat(1, nb[ii], (workspace.res_m_lb+ii)->pa, 1);
-	printf("\nres_m_ub\n");
-	for(ii=0; ii<=N; ii++)
-		d_print_e_mat(1, nb[ii], (workspace.res_m_ub+ii)->pa, 1);
-	printf("\nres_m_lg\n");
-	for(ii=0; ii<=N; ii++)
-		d_print_e_mat(1, ng[ii], (workspace.res_m_lg+ii)->pa, 1);
-	printf("\nres_m_ug\n");
-	for(ii=0; ii<=N; ii++)
-		d_print_e_mat(1, ng[ii], (workspace.res_m_ug+ii)->pa, 1);
-	printf("\nres_d_lb\n");
-	for(ii=0; ii<=N; ii++)
-		d_print_e_mat(1, nb[ii], (workspace.res_d_lb+ii)->pa, 1);
-	printf("\nres_d_ub\n");
-	for(ii=0; ii<=N; ii++)
-		d_print_e_mat(1, nb[ii], (workspace.res_d_ub+ii)->pa, 1);
-	printf("\nres_d_lg\n");
-	for(ii=0; ii<=N; ii++)
-		d_print_e_mat(1, ng[ii], (workspace.res_d_lg+ii)->pa, 1);
-	printf("\nres_d_ug\n");
-	for(ii=0; ii<=N; ii++)
-		d_print_e_mat(1, ng[ii], (workspace.res_d_ug+ii)->pa, 1);
-	printf("\nres_mu\n");
-	printf("\n%e\n\n", workspace.res_mu);
-#endif
-
-	printf("\nipm iter = %d\n", workspace.iter);
-	printf("\nalpha_aff\tmu_aff\t\tsigma\t\talpha\t\tmu\n");
-	d_print_e_tran_mat(5, workspace.iter, workspace.stat, 5);
-
-	printf("\nocp ipm time = %e [s]\n\n", time_ocp_ipm);
-
 /************************************************
 * free memory
 ************************************************/	
 
-	d_free(A);
-	d_free(B);
-	d_free(b);
-	d_free(x0);
-	d_free(Q);
-	d_free(QN);
-	d_free(R);
-	d_free(S);
-	d_free(q);
-	d_free(qN);
-	d_free(r);
-	d_free(r0);
+	free(A);
+	free(B);
+	free(b);
+	free(x0);
+	free(b0);
+	free(Q);
+	free(R);
+	free(S);
+	free(q);
+	free(r);
+	free(r0);
 	int_free(idxb0);
 	d_free(d_lb0);
 	d_free(d_ub0);
@@ -818,30 +776,8 @@ int main()
 	d_free(d_lgN);
 	d_free(d_ugN);
 
-	for(ii=0; ii<N; ii++)
-		{
-		d_free(u[ii]);
-		d_free(x[ii]);
-		d_free(pi[ii]);
-		d_free(lam_lb[ii]);
-		d_free(lam_ub[ii]);
-		d_free(lam_lg[ii]);
-		d_free(lam_ug[ii]);
-		}
-	d_free(u[ii]);
-	d_free(x[ii]);
-	d_free(lam_lb[ii]);
-	d_free(lam_ub[ii]);
-	d_free(lam_lg[ii]);
-	d_free(lam_ug[ii]);
-
-	free(qp_mem);
-	free(qp_sol_mem);
-	free(ipm_mem);
-
-/************************************************
-* return
-************************************************/	
+	free(tree_memory);
+	free(tree_ocp_qp_memory);
 
 	return 0;
 

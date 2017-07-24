@@ -27,42 +27,34 @@
 
 
 
-#include <blasfeo_target.h>
-#include <blasfeo_common.h>
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 
 
-struct d_ocp_qp
+struct sctree
 	{
-	struct d_strmat *BAbt;
-	struct d_strvec *b;
-	struct d_strmat *RSQrq;
-	struct d_strvec *rq;
-	struct d_strmat *DCt;
-	struct d_strvec *d_lb;
-	struct d_strvec *d_ub;
-	struct d_strvec *d_lg;
-	struct d_strvec *d_ug;
-	int *nx; // number of states
-	int *nu; // number of inputs
-	int *nb; // number of box constraints
-	int **idxb; // index of box constraints
-	int *ng; // number of general constraints
-	int N; // hotizon lenght
-	int memsize; // memory size in bytes
+	struct node *root; // pointer to root
+	int *kids; // pointer to array of kids
+	int Nn; // numer of nodes
+	int md; // number of realizations
+	int Nr; // robust horizion
+	int Nh; // control horizion
+	int memsize;
 	};
 
 
 
 //
-int d_memsize_ocp_qp(int N, int *nx, int *nu, int *nb, int *ng);
+int memsize_sctree(int md, int Nr, int Nh);
 //
-void d_create_ocp_qp(int N, int *nx, int *nu, int *nb, int *ng, struct d_ocp_qp *qp, void *memory);
+void create_sctree(int md, int Nr, int Nh, struct sctree *st, void *memory);
 //
-void d_cvt_colmaj_to_ocp_qp(double **A, double **B, double **b, double **Q, double **S, double **R, double **q, double **r, int **idxb, double **lb, double **ub, double **C, double **D, double **lg, double **ug, struct d_ocp_qp *qp);
-//
-void d_cvt_rowmaj_to_ocp_qp(double **A, double **B, double **b, double **Q, double **S, double **R, double **q, double **r, int **idxb, double **lb, double **ub, double **C, double **D, double **lg, double **ug, struct d_ocp_qp *qp);
-//
-//void d_cast_ocp_qp(int N, int *nx, int *nu, int *nb, int **idxb, int *ng, struct d_strmat *sBAbt, struct d_strvec *sb, struct d_strmat *sRSQrq, struct d_strvec *srq, struct d_strmat *sDCt, struct d_strvec *slb, struct d_strvec *sub, struct d_strvec *slg, struct d_strvec *sug, struct d_ocp_qp *str_out);
-//
-void d_copy_ocp_qp(struct d_ocp_qp *qp_in, struct d_ocp_qp *qp_out);
+void cast_sctree2tree(struct sctree *st, struct tree *tt);
+
+
+#ifdef __cplusplus
+}
+#endif
+

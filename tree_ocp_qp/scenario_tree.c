@@ -27,42 +27,148 @@
 
 
 
-#include <blasfeo_target.h>
-#include <blasfeo_common.h>
+#include "../include/hpipm_tree.h"
+#include "../include/hpipm_scenario_tree.h"
 
 
 
-struct d_ocp_qp
+static int ipow(int base, int exp)
 	{
-	struct d_strmat *BAbt;
-	struct d_strvec *b;
-	struct d_strmat *RSQrq;
-	struct d_strvec *rq;
-	struct d_strmat *DCt;
-	struct d_strvec *d_lb;
-	struct d_strvec *d_ub;
-	struct d_strvec *d_lg;
-	struct d_strvec *d_ug;
-	int *nx; // number of states
-	int *nu; // number of inputs
-	int *nb; // number of box constraints
-	int **idxb; // index of box constraints
-	int *ng; // number of general constraints
-	int N; // hotizon lenght
-	int memsize; // memory size in bytes
-	};
+	int result = 1;
+	while(exp)
+		{
+		if(exp & 1)
+			result *= base;
+		exp >>= 1;
+		base *= base;
+		}
+	return result;
+	}
 
 
 
-//
-int d_memsize_ocp_qp(int N, int *nx, int *nu, int *nb, int *ng);
-//
-void d_create_ocp_qp(int N, int *nx, int *nu, int *nb, int *ng, struct d_ocp_qp *qp, void *memory);
-//
-void d_cvt_colmaj_to_ocp_qp(double **A, double **B, double **b, double **Q, double **S, double **R, double **q, double **r, int **idxb, double **lb, double **ub, double **C, double **D, double **lg, double **ug, struct d_ocp_qp *qp);
-//
-void d_cvt_rowmaj_to_ocp_qp(double **A, double **B, double **b, double **Q, double **S, double **R, double **q, double **r, int **idxb, double **lb, double **ub, double **C, double **D, double **lg, double **ug, struct d_ocp_qp *qp);
-//
-//void d_cast_ocp_qp(int N, int *nx, int *nu, int *nb, int **idxb, int *ng, struct d_strmat *sBAbt, struct d_strvec *sb, struct d_strmat *sRSQrq, struct d_strvec *srq, struct d_strmat *sDCt, struct d_strvec *slb, struct d_strvec *sub, struct d_strvec *slg, struct d_strvec *sug, struct d_ocp_qp *str_out);
-//
-void d_copy_ocp_qp(struct d_ocp_qp *qp_in, struct d_ocp_qp *qp_out);
+static int sctree_node_number(int md, int Nr, int Nh)
+	{
+	int n_nodes;
+	if(md==1) // i.e. standard block-banded structure
+		n_nodes = Nh+1;
+	else
+		n_nodes = (Nh-Nr)*ipow(md,Nr) + (ipow(md,Nr+1)-1)/(md-1);
+	return n_nodes;
+	}
+
+
+
+int memsize_sctree(int md, int Nr, int Nh)
+	{
+
+	int Nn = sctree_node_number(md, Nr, Nh);
+
+	int size = 0;
+
+	size += Nn*sizeof(struct node); // root
+	size += Nn*sizeof(int); // kids
+
+	return size;
+
+	}
+
+
+
+void create_sctree(int md, int Nr, int Nh, struct sctree *st, void *memory)
+	{
+
+	st->memsize = memsize_sctree(md, Nr, Nh);
+
+	int Nn = sctree_node_number(md, Nr, Nh);
+
+	st->md = md;
+	st->Nr = Nr;
+	st->Nh = Nh;
+	st->Nn = Nn;
+
+	struct node *n_ptr = (struct node *) memory;
+	st->root = n_ptr;
+	n_ptr += Nn; // root
+
+	int *i_ptr = (int *) n_ptr;
+	st->kids = i_ptr;
+	i_ptr += Nn; // kids
+
+	int ii;
+	int idx, dad, stage, real, nkids, idxkid;
+	int tkids;
+	struct node *node0, *node1;
+
+	tkids = 0;
+	idxkid = 0;
+
+	// root
+	node0 = st->root+0;
+	node0->idx = 0;
+	node0->stage = 0;
+	node0->dad = -1;
+	node0->real = -1;
+	node0->idxkid = 0;
+
+	// kids
+	for(idx=0; idx<Nn; idx++)
+		{
+		node0 = st->root+idx;
+		stage = node0->stage;
+		if(stage<Nr)
+			nkids = md;
+		else if(stage<Nh)
+			nkids = 1;
+		else 
+			nkids = 0;
+		node0->nkids = nkids;
+		if(nkids>0)
+			{
+			node0->kids = st->kids+tkids;
+			tkids += nkids;
+			if(nkids>1)
+				{
+				for(ii=0; ii<nkids; ii++)
+					{
+					idxkid++;
+					node0->kids[ii] = idxkid;
+					node1 = st->root+idxkid;
+					node1->idx = idxkid;
+					node1->stage = stage+1;
+					node1->dad = idx;
+					node1->real = ii;
+					node1->idxkid = ii;
+					}
+				}
+			else // nkids==1
+				{
+				idxkid++;
+				node0->kids[0] = idxkid;
+				node1 = st->root+idxkid;
+				node1->idx = idxkid;
+				node1->stage = stage+1;
+				node1->dad = idx;
+				node1->real = node0->real;
+				node1->idxkid = 0;
+				}
+			}
+		}
+
+	return;
+
+	}
+
+
+
+void cast_sctree2tree(struct sctree *st, struct tree *tt)
+	{
+
+	tt->root = st->root;
+	tt->kids = st->kids;
+	tt->Nn = st->Nn;
+	tt->memsize = st->memsize;
+
+	return;
+
+	}

@@ -27,42 +27,36 @@
 
 
 
-#include <blasfeo_target.h>
-#include <blasfeo_common.h>
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 
 
-struct d_ocp_qp
+struct node
 	{
-	struct d_strmat *BAbt;
-	struct d_strvec *b;
-	struct d_strmat *RSQrq;
-	struct d_strvec *rq;
-	struct d_strmat *DCt;
-	struct d_strvec *d_lb;
-	struct d_strvec *d_ub;
-	struct d_strvec *d_lg;
-	struct d_strvec *d_ug;
-	int *nx; // number of states
-	int *nu; // number of inputs
-	int *nb; // number of box constraints
-	int **idxb; // index of box constraints
-	int *ng; // number of general constraints
-	int N; // hotizon lenght
-	int memsize; // memory size in bytes
+	int *kids;  // 64 bits
+	int idx;    // 32 bits
+	int dad;    // 32 bits
+	int nkids;  // 32 bits
+	int stage;  // 32 bits
+	int real;   // 32 bits
+	int idxkid; // 32 bits // XXX needed ???
+	// total     256 bits
 	};
 
 
 
-//
-int d_memsize_ocp_qp(int N, int *nx, int *nu, int *nb, int *ng);
-//
-void d_create_ocp_qp(int N, int *nx, int *nu, int *nb, int *ng, struct d_ocp_qp *qp, void *memory);
-//
-void d_cvt_colmaj_to_ocp_qp(double **A, double **B, double **b, double **Q, double **S, double **R, double **q, double **r, int **idxb, double **lb, double **ub, double **C, double **D, double **lg, double **ug, struct d_ocp_qp *qp);
-//
-void d_cvt_rowmaj_to_ocp_qp(double **A, double **B, double **b, double **Q, double **S, double **R, double **q, double **r, int **idxb, double **lb, double **ub, double **C, double **D, double **lg, double **ug, struct d_ocp_qp *qp);
-//
-//void d_cast_ocp_qp(int N, int *nx, int *nu, int *nb, int **idxb, int *ng, struct d_strmat *sBAbt, struct d_strvec *sb, struct d_strmat *sRSQrq, struct d_strvec *srq, struct d_strmat *sDCt, struct d_strvec *slb, struct d_strvec *sub, struct d_strvec *slg, struct d_strvec *sug, struct d_ocp_qp *str_out);
-//
-void d_copy_ocp_qp(struct d_ocp_qp *qp_in, struct d_ocp_qp *qp_out);
+struct tree
+	{
+	struct node *root; // pointer to root
+	int *kids; // pointer to array of kids
+	int Nn; // numer of nodes
+	int memsize;
+	};
+
+
+
+#ifdef __cplusplus
+}
+#endif
