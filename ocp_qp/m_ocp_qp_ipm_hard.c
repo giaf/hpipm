@@ -601,7 +601,7 @@ void m_solve_ipm_hard_ocp_qp(struct d_ocp_qp *qp, struct s_ocp_qp *s_qp, struct 
 
 		//
 		d_update_var_hard_qp(cws);
-#if 1
+#if 0
 int ii;
 for(ii=0; ii<=qp->N; ii++)
 	d_print_e_tran_strvec(qp->nu[ii]+qp->nx[ii], qp_sol->ux+ii, 0);

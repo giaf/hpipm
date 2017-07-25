@@ -358,7 +358,7 @@ void m_fact_solve_kkt_step_hard_ocp_qp(struct d_ocp_qp *d_qp, struct s_ocp_qp *s
 //		d_print_tran_strvec(nu[ii]+nx[ii], dux+ii, 0);
 		}
 	
-#if 1
+#if 0
 	for(ii=0; ii<=N; ii++)
 		s_print_e_tran_strvec(nu[ii]+nx[ii], dux+ii, 0);
 	for(ii=0; ii<N; ii++)
