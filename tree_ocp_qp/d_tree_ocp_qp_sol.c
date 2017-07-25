@@ -25,32 +25,50 @@
 *                                                                                                 *
 **************************************************************************************************/
 
+#include <blasfeo_target.h>
+#include <blasfeo_common.h>
+#include <blasfeo_d_aux.h>
+
+#include "../include/hpipm_tree.h"
+#include "../include/hpipm_scenario_tree.h"
+#include "../include/hpipm_d_tree_ocp_qp_sol.h"
+
+#define CREATE_STRVEC d_create_strvec
+#define REAL double
+#define SIZE_STRVEC d_size_strvec
+#define STRVEC d_strvec
+#define TREE_OCP_QP_SOL d_tree_ocp_qp_sol
+
+#define MEMSIZE_TREE_OCP_QP_SOL d_memsize_tree_ocp_qp_sol
+#define CREATE_TREE_OCP_QP_SOL d_create_tree_ocp_qp_sol
 
 
-int MEMSIZE_OCP_QP_SOL(int N, int *nx, int *nu, int *nb, int *ng)
+int MEMSIZE_TREE_OCP_QP_SOL(struct tree *ttree, int *nx, int *nu, int *nb, int *ng)
 	{
 
-	int ii;
+	int ii, idx, idxdad;
+
+	int Nn = ttree->Nn;
 
 	int nvt = 0;
 	int net = 0;
 	int nbt = 0;
 	int ngt = 0;
-	for(ii=0; ii<N; ii++)
+	for(ii=0; ii<Nn-1; ii++)
 		{
 		nvt += nu[ii]+nx[ii];
 		net += nx[ii+1];
 		nbt += nb[ii];
 		ngt += ng[ii];
 		}
-	ii = N;
+	ii = Nn-1;
 	nvt += nu[ii]+nx[ii];
 	nbt += nb[ii];
 	ngt += ng[ii];
 
 	int size = 0;
 
-	size += (0+10*(N+1))*sizeof(struct STRVEC); // ux pi lam_lb lam_ub lam_lg lam_ug t_lb t_ub t_lg t_ug
+	size += (0+10*Nn)*sizeof(struct STRVEC); // ux pi lam_lb lam_ub lam_lg lam_ug t_lb t_ub t_lg t_ug
 
 	size += 1*SIZE_STRVEC(nvt); // ux
 	size += 1*SIZE_STRVEC(net); // pi
@@ -65,27 +83,30 @@ int MEMSIZE_OCP_QP_SOL(int N, int *nx, int *nu, int *nb, int *ng)
 
 
 
-void CREATE_OCP_QP_SOL(int N, int *nx, int *nu, int *nb, int *ng, struct OCP_QP_SOL *qp_sol, void *memory)
+void CREATE_TREE_OCP_QP_SOL(struct tree *ttree, int *nx, int *nu, int *nb, int *ng, struct TREE_OCP_QP_SOL *qp_sol, void *memory)
 	{
 
-	int ii;
+	int ii, idx, idxdad;
+
+	int Nn = ttree->Nn;
 
 
 	// memsize
-	qp_sol->memsize = MEMSIZE_OCP_QP_SOL(N, nx, nu, nb, ng);
+	qp_sol->memsize = MEMSIZE_TREE_OCP_QP_SOL(ttree, nx, nu, nb, ng);
 
 
 	int nvt = 0;
 	int net = 0;
 	int nbt = 0;
 	int ngt = 0;
-	for(ii=0; ii<N; ii++)
+	for(ii=0; ii<Nn-1; ii++)
 		{
 		nvt += nu[ii]+nx[ii];
 		net += nx[ii+1];
 		nbt += nb[ii];
 		ngt += ng[ii];
 		}
+	ii = Nn-1;
 	nvt += nu[ii]+nx[ii];
 	nbt += nb[ii];
 	ngt += ng[ii];
@@ -95,25 +116,25 @@ void CREATE_OCP_QP_SOL(int N, int *nx, int *nu, int *nb, int *ng, struct OCP_QP_
 	struct STRVEC *sv_ptr = (struct STRVEC *) memory;
 
 	qp_sol->ux = sv_ptr;
-	sv_ptr += N+1;
+	sv_ptr += Nn;
 	qp_sol->pi = sv_ptr;
-	sv_ptr += N+1;
+	sv_ptr += Nn;
 	qp_sol->lam_lb = sv_ptr;
-	sv_ptr += N+1;
+	sv_ptr += Nn;
 	qp_sol->lam_ub = sv_ptr;
-	sv_ptr += N+1;
+	sv_ptr += Nn;
 	qp_sol->lam_lg = sv_ptr;
-	sv_ptr += N+1;
+	sv_ptr += Nn;
 	qp_sol->lam_ug = sv_ptr;
-	sv_ptr += N+1;
+	sv_ptr += Nn;
 	qp_sol->t_lb = sv_ptr;
-	sv_ptr += N+1;
+	sv_ptr += Nn;
 	qp_sol->t_ub = sv_ptr;
-	sv_ptr += N+1;
+	sv_ptr += Nn;
 	qp_sol->t_lg = sv_ptr;
-	sv_ptr += N+1;
+	sv_ptr += Nn;
 	qp_sol->t_ug = sv_ptr;
-	sv_ptr += N+1;
+	sv_ptr += Nn;
 
 
 	// align to typical cache line size
@@ -130,7 +151,7 @@ void CREATE_OCP_QP_SOL(int N, int *nx, int *nu, int *nb, int *ng, struct OCP_QP_
 	// ux
 	tmp_ptr = c_ptr;
 	c_ptr += SIZE_STRVEC(nvt);
-	for(ii=0; ii<=N; ii++)
+	for(ii=0; ii<Nn; ii++)
 		{
 		CREATE_STRVEC(nu[ii]+nx[ii], qp_sol->ux+ii, tmp_ptr);
 		tmp_ptr += (nu[ii]+nx[ii])*sizeof(REAL);
@@ -138,7 +159,7 @@ void CREATE_OCP_QP_SOL(int N, int *nx, int *nu, int *nb, int *ng, struct OCP_QP_
 	// pi
 	tmp_ptr = c_ptr;
 	c_ptr += SIZE_STRVEC(net);
-	for(ii=0; ii<N; ii++)
+	for(ii=0; ii<Nn-1; ii++)
 		{
 		CREATE_STRVEC(nx[ii+1], qp_sol->pi+ii, tmp_ptr);
 		tmp_ptr += (nx[ii+1])*sizeof(REAL);
@@ -147,25 +168,25 @@ void CREATE_OCP_QP_SOL(int N, int *nx, int *nu, int *nb, int *ng, struct OCP_QP_
 	tmp_ptr = c_ptr;
 	c_ptr += SIZE_STRVEC(2*nbt+2*ngt);
 	// lam_lb
-	for(ii=0; ii<=N; ii++)
+	for(ii=0; ii<Nn; ii++)
 		{
 		CREATE_STRVEC(nb[ii], qp_sol->lam_lb+ii, tmp_ptr);
 		tmp_ptr += (nb[ii])*sizeof(REAL);
 		}
 	// lam_lg
-	for(ii=0; ii<=N; ii++)
+	for(ii=0; ii<Nn; ii++)
 		{
 		CREATE_STRVEC(ng[ii], qp_sol->lam_lg+ii, tmp_ptr);
 		tmp_ptr += (ng[ii])*sizeof(REAL);
 		}
 	// lam_ub
-	for(ii=0; ii<=N; ii++)
+	for(ii=0; ii<Nn; ii++)
 		{
 		CREATE_STRVEC(nb[ii], qp_sol->lam_ub+ii, tmp_ptr);
 		tmp_ptr += (nb[ii])*sizeof(REAL);
 		}
 	// lam_ug
-	for(ii=0; ii<=N; ii++)
+	for(ii=0; ii<Nn; ii++)
 		{
 		CREATE_STRVEC(ng[ii], qp_sol->lam_ug+ii, tmp_ptr);
 		tmp_ptr += (ng[ii])*sizeof(REAL);
@@ -174,25 +195,25 @@ void CREATE_OCP_QP_SOL(int N, int *nx, int *nu, int *nb, int *ng, struct OCP_QP_
 	tmp_ptr = c_ptr;
 	c_ptr += SIZE_STRVEC(2*nbt+2*ngt);
 	// t_lb
-	for(ii=0; ii<=N; ii++)
+	for(ii=0; ii<Nn; ii++)
 		{
 		CREATE_STRVEC(nb[ii], qp_sol->t_lb+ii, tmp_ptr);
 		tmp_ptr += (nb[ii])*sizeof(REAL);
 		}
 	// t_lg
-	for(ii=0; ii<=N; ii++)
+	for(ii=0; ii<Nn; ii++)
 		{
 		CREATE_STRVEC(ng[ii], qp_sol->t_lg+ii, tmp_ptr);
 		tmp_ptr += (ng[ii])*sizeof(REAL);
 		}
 	// t_ub
-	for(ii=0; ii<=N; ii++)
+	for(ii=0; ii<Nn; ii++)
 		{
 		CREATE_STRVEC(nb[ii], qp_sol->t_ub+ii, tmp_ptr);
 		tmp_ptr += (nb[ii])*sizeof(REAL);
 		}
 	// t_ug
-	for(ii=0; ii<=N; ii++)
+	for(ii=0; ii<Nn; ii++)
 		{
 		CREATE_STRVEC(ng[ii], qp_sol->t_ug+ii, tmp_ptr);
 		tmp_ptr += (ng[ii])*sizeof(REAL);
@@ -204,102 +225,4 @@ void CREATE_OCP_QP_SOL(int N, int *nx, int *nu, int *nb, int *ng, struct OCP_QP_
 
 
 
-void CVT_OCP_QP_SOL_TO_COLMAJ(struct OCP_QP *qp, struct OCP_QP_SOL *qp_sol, REAL **u, REAL **x, REAL **pi, REAL **lam_lb, REAL **lam_ub, REAL **lam_lg, REAL **lam_ug)
-	{
 
-	int N = qp->N;
-	int *nx = qp->nx;
-	int *nu = qp->nu;
-	int *nb = qp->nb;
-	int *ng = qp->ng;
-	
-	int ii;
-
-	for(ii=0; ii<N; ii++)
-		{
-		CVT_STRVEC2VEC(nu[ii], qp_sol->ux+ii, 0, u[ii]);
-		CVT_STRVEC2VEC(nx[ii], qp_sol->ux+ii, nu[ii], x[ii]);
-		CVT_STRVEC2VEC(nx[ii+1], qp_sol->pi+ii, 0, pi[ii]);
-		CVT_STRVEC2VEC(nb[ii], qp_sol->lam_lb+ii, 0, lam_lb[ii]);
-		CVT_STRVEC2VEC(nb[ii], qp_sol->lam_ub+ii, 0, lam_ub[ii]);
-		CVT_STRVEC2VEC(ng[ii], qp_sol->lam_lg+ii, 0, lam_lg[ii]);
-		CVT_STRVEC2VEC(ng[ii], qp_sol->lam_ug+ii, 0, lam_ug[ii]);
-		}
-	CVT_STRVEC2VEC(nu[ii], qp_sol->ux+ii, 0, u[ii]);
-	CVT_STRVEC2VEC(nx[ii], qp_sol->ux+ii, nu[ii], x[ii]);
-	CVT_STRVEC2VEC(nb[ii], qp_sol->lam_lb+ii, 0, lam_lb[ii]);
-	CVT_STRVEC2VEC(nb[ii], qp_sol->lam_ub+ii, 0, lam_ub[ii]);
-	CVT_STRVEC2VEC(ng[ii], qp_sol->lam_lg+ii, 0, lam_lg[ii]);
-	CVT_STRVEC2VEC(ng[ii], qp_sol->lam_ug+ii, 0, lam_ug[ii]);
-
-	return;
-
-	}
-
-
-
-void CVT_OCP_QP_SOL_TO_ROWMAJ(struct OCP_QP *qp, struct OCP_QP_SOL *qp_sol, REAL **u, REAL **x, REAL **pi, REAL **lam_lb, REAL **lam_ub, REAL **lam_lg, REAL **lam_ug)
-	{
-
-	int N = qp->N;
-	int *nx = qp->nx;
-	int *nu = qp->nu;
-	int *nb = qp->nb;
-	int *ng = qp->ng;
-	
-	int ii;
-
-	for(ii=0; ii<N; ii++)
-		{
-		CVT_STRVEC2VEC(nu[ii], qp_sol->ux+ii, 0, u[ii]);
-		CVT_STRVEC2VEC(nx[ii], qp_sol->ux+ii, nu[ii], x[ii]);
-		CVT_STRVEC2VEC(nx[ii+1], qp_sol->pi+ii, 0, pi[ii]);
-		CVT_STRVEC2VEC(nb[ii], qp_sol->lam_lb+ii, 0, lam_lb[ii]);
-		CVT_STRVEC2VEC(nb[ii], qp_sol->lam_ub+ii, 0, lam_ub[ii]);
-		CVT_STRVEC2VEC(ng[ii], qp_sol->lam_lg+ii, 0, lam_lg[ii]);
-		CVT_STRVEC2VEC(ng[ii], qp_sol->lam_ug+ii, 0, lam_ug[ii]);
-		}
-	CVT_STRVEC2VEC(nu[ii], qp_sol->ux+ii, 0, u[ii]);
-	CVT_STRVEC2VEC(nx[ii], qp_sol->ux+ii, nu[ii], x[ii]);
-	CVT_STRVEC2VEC(nb[ii], qp_sol->lam_lb+ii, 0, lam_lb[ii]);
-	CVT_STRVEC2VEC(nb[ii], qp_sol->lam_ub+ii, 0, lam_ub[ii]);
-	CVT_STRVEC2VEC(ng[ii], qp_sol->lam_lg+ii, 0, lam_lg[ii]);
-	CVT_STRVEC2VEC(ng[ii], qp_sol->lam_ug+ii, 0, lam_ug[ii]);
-
-	return;
-
-	}
-
-
-
-void CVT_OCP_QP_SOL_TO_LIBSTR(struct OCP_QP *qp, struct OCP_QP_SOL *qp_sol, struct STRVEC *u, struct STRVEC *x, struct STRVEC *pi, struct STRVEC *lam_lb, struct STRVEC *lam_ub, struct STRVEC *lam_lg, struct STRVEC *lam_ug)
-	{
-
-	int N = qp->N;
-	int *nx = qp->nx;
-	int *nu = qp->nu;
-	int *nb = qp->nb;
-	int *ng = qp->ng;
-	
-	int ii;
-
-	for(ii=0; ii<N; ii++)
-		{
-		VECCP_LIBSTR(nu[ii], qp_sol->ux+ii, 0, u+ii, 0);
-		VECCP_LIBSTR(nx[ii], qp_sol->ux+ii, nu[ii], x+ii, 0);
-		VECCP_LIBSTR(nx[ii+1], qp_sol->pi+ii, 0, pi+ii, 0);
-		VECCP_LIBSTR(nb[ii], qp_sol->lam_lb+ii, 0, lam_lb+ii, 0);
-		VECCP_LIBSTR(nb[ii], qp_sol->lam_ub+ii, 0, lam_ub+ii, 0);
-		VECCP_LIBSTR(ng[ii], qp_sol->lam_lg+ii, 0, lam_lg+ii, 0);
-		VECCP_LIBSTR(ng[ii], qp_sol->lam_ug+ii, 0, lam_ug+ii, 0);
-		}
-	VECCP_LIBSTR(nu[ii], qp_sol->ux+ii, 0, u+ii, 0);
-	VECCP_LIBSTR(nx[ii], qp_sol->ux+ii, nu[ii], x+ii, 0);
-	VECCP_LIBSTR(nb[ii], qp_sol->lam_lb+ii, 0, lam_lb+ii, 0);
-	VECCP_LIBSTR(nb[ii], qp_sol->lam_ub+ii, 0, lam_ub+ii, 0);
-	VECCP_LIBSTR(ng[ii], qp_sol->lam_lg+ii, 0, lam_lg+ii, 0);
-	VECCP_LIBSTR(ng[ii], qp_sol->lam_ug+ii, 0, lam_ug+ii, 0);
-
-	return;
-
-	}

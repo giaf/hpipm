@@ -47,7 +47,7 @@ OBJS += core_qp/s_core_qp_ipm_hard_aux.o core_qp/s_core_qp_ipm_hard.o
 OBJS += cond/d_cond_aux.o cond/d_cond.o cond/d_part_cond.o
 # tree ocp qp
 OBJS += tree_ocp_qp/scenario_tree.o
-OBJS += tree_ocp_qp/d_tree_ocp_qp.o
+OBJS += tree_ocp_qp/d_tree_ocp_qp.o tree_ocp_qp/d_tree_ocp_qp_sol.o
 
 all: clean static_library
 

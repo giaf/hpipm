@@ -35,21 +35,23 @@
 #include "../include/hpipm_scenario_tree.h"
 #include "../include/hpipm_d_tree_ocp_qp.h"
 
-#define STRMAT d_strmat
-#define STRVEC d_strvec
 #define CREATE_STRMAT d_create_strmat
 #define CREATE_STRVEC d_create_strvec
-#define REAL double
-#define CVT_TRAN_MAT2STRMAT d_cvt_tran_mat2strmat
 #define CVT_MAT2STRMAT d_cvt_mat2strmat
+#define CVT_TRAN_MAT2STRMAT d_cvt_tran_mat2strmat
 #define CVT_VEC2STRVEC d_cvt_vec2strvec
+#define REAL double
+#define STRMAT d_strmat
+#define STRVEC d_strvec
 #define TREE_OCP_QP d_tree_ocp_qp
 
+#define MEMSIZE_TREE_OCP_QP d_memsize_tree_ocp_qp
+#define CREATE_TREE_OCP_QP d_create_tree_ocp_qp
 #define CVT_COLMAJ_TO_TREE_OCP_QP d_cvt_colmaj_to_tree_ocp_qp
 
 
 
-int d_memsize_tree_ocp_qp(struct tree *ttree, int *nx, int *nu, int *nb, int *ng)
+int MEMSIZE_TREE_OCP_QP(struct tree *ttree, int *nx, int *nu, int *nb, int *ng)
 	{
 
 	int ii, idx, idxdad;
@@ -90,7 +92,7 @@ int d_memsize_tree_ocp_qp(struct tree *ttree, int *nx, int *nu, int *nb, int *ng
 
 
 
-void d_create_tree_ocp_qp(struct tree *ttree, int *nx, int *nu, int *nb, int *ng, struct d_tree_ocp_qp *qp, void *memory)
+void CREATE_TREE_OCP_QP(struct tree *ttree, int *nx, int *nu, int *nb, int *ng, struct d_tree_ocp_qp *qp, void *memory)
 	{
 
 	int ii, idx, idxdad;

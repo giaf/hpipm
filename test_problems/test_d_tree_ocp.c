@@ -33,6 +33,7 @@
 #include "../include/hpipm_tree.h"
 #include "../include/hpipm_scenario_tree.h"
 #include "../include/hpipm_d_tree_ocp_qp.h"
+#include "../include/hpipm_d_tree_ocp_qp_sol.h"
 
 #include "d_tools.h"
 
@@ -509,24 +510,24 @@ int main()
 * cast scenario tree into tree
 ************************************************/	
 
-	struct tree tt;
-	cast_sctree2tree(&st, &tt);
+	struct tree ttree;
+	cast_sctree2tree(&st, &ttree);
 
 #if 0
-	Nn = tt.Nn;
+	Nn = ttree.Nn;
 	printf("\ntree\n");
 	for(ii=0; ii<Nn; ii++)
 		{
 		printf("\n");
-		printf("idx = %d\n", (tt.root+ii)->idx);
-		printf("stage = %d\n", (tt.root+ii)->stage);
-		printf("real = %d\n", (tt.root+ii)->real);
-		printf("idxkid = %d\n", (tt.root+ii)->idxkid);
-		printf("dad = %d\n", (tt.root+ii)->dad);
-		printf("nkids = %d\n", (tt.root+ii)->nkids);
+		printf("idx = %d\n", (ttree.root+ii)->idx);
+		printf("stage = %d\n", (ttree.root+ii)->stage);
+		printf("real = %d\n", (ttree.root+ii)->real);
+		printf("idxkid = %d\n", (ttree.root+ii)->idxkid);
+		printf("dad = %d\n", (ttree.root+ii)->dad);
+		printf("nkids = %d\n", (ttree.root+ii)->nkids);
 		printf("kids =");
-		for(jj=0; jj<(tt.root+ii)->nkids; jj++)
-			printf(" %d", (tt.root+ii)->kids[jj]);
+		for(jj=0; jj<(ttree.root+ii)->nkids; jj++)
+			printf(" %d", (ttree.root+ii)->kids[jj]);
 		printf("\n\n");
 		}
 #endif
@@ -543,7 +544,7 @@ int main()
 
 	for(ii=0; ii<Nn; ii++)
 		{
-		stage = (tt.root+ii)->stage;
+		stage = (ttree.root+ii)->stage;
 		nxt[ii] = nx[stage];
 		nut[ii] = nu[stage];
 		nbt[ii] = nb[stage];
@@ -645,7 +646,7 @@ int main()
 
 	for(ii=0; ii<Nn-1; ii++)
 		{
-		stage = (tt.root+ii+1)->stage-1;
+		stage = (ttree.root+ii+1)->stage-1;
 		hAt[ii] = hA[stage];
 		hBt[ii] = hB[stage];
 		hbt[ii] = hb[stage];
@@ -653,7 +654,7 @@ int main()
 
 	for(ii=0; ii<Nn; ii++)
 		{
-		stage = (tt.root+ii)->stage;
+		stage = (ttree.root+ii)->stage;
 		hQt[ii] = hQ[stage];
 		hRt[ii] = hR[stage];
 		hSt[ii] = hS[stage];
@@ -670,12 +671,12 @@ int main()
 * create tree ocp qp
 ************************************************/	
 
-	int tree_ocp_qp_memory_size = d_memsize_tree_ocp_qp(&tt, nxt, nut, nbt, ngt);
+	int tree_ocp_qp_memory_size = d_memsize_tree_ocp_qp(&ttree, nxt, nut, nbt, ngt);
 	printf("\ntree ocp qp memsize = %d\n", tree_ocp_qp_memory_size);
 	void *tree_ocp_qp_memory = malloc(tree_ocp_qp_memory_size);
 
 	struct d_tree_ocp_qp qp;
-	d_create_tree_ocp_qp(&tt, nxt, nut, nbt, ngt, &qp, tree_ocp_qp_memory);
+	d_create_tree_ocp_qp(&ttree, nxt, nut, nbt, ngt, &qp, tree_ocp_qp_memory);
 	d_cvt_colmaj_to_tree_ocp_qp(hAt, hBt, hbt, hQt, hSt, hRt, hqt, hrt, hidxbt, hd_lbt, hd_ubt, hCt, hDt, hd_lgt, hd_ugt, &qp);
 
 #if 0
@@ -731,6 +732,13 @@ int main()
 * ocp qp sol
 ************************************************/	
 	
+	int tree_ocp_qp_sol_size = d_memsize_tree_ocp_qp_sol(&ttree, nxt, nut, nbt, ngt);
+	printf("\ntree ocp qp sol memsize = %d\n", tree_ocp_qp_sol_size);
+	void *tree_ocp_qp_sol_memory = malloc(tree_ocp_qp_sol_size);
+
+	struct d_tree_ocp_qp_sol qp_sol;
+	d_create_tree_ocp_qp_sol(&ttree, nxt, nut, nbt, ngt, &qp_sol, tree_ocp_qp_sol_memory);
+
 /************************************************
 * ipm
 ************************************************/	
@@ -738,6 +746,20 @@ int main()
 /************************************************
 * extract and print solution
 ************************************************/	
+
+#if 0
+	struct d_strvec *tvec;
+	for(ii=0; ii<Nn; ii++)
+		{
+		tvec = qp_sol.ux+ii;
+		d_print_tran_strvec(tvec->m, tvec, 0);
+		}
+	for(ii=0; ii<Nn-1; ii++)
+		{
+		tvec = qp_sol.pi+ii;
+		d_print_tran_strvec(tvec->m, tvec, 0);
+		}
+#endif
 
 /************************************************
 * free memory
@@ -778,6 +800,7 @@ int main()
 
 	free(tree_memory);
 	free(tree_ocp_qp_memory);
+	free(tree_ocp_qp_sol_memory);
 
 	return 0;
 
