@@ -27,33 +27,15 @@
 
 
 
-#include <blasfeo_target.h>
-#include <blasfeo_common.h>
-
-
-
-struct d_tree_ocp_qp_sol
-	{
-	struct d_strvec *ux;
-	struct d_strvec *pi;
-	struct d_strvec *lam_lb;
-	struct d_strvec *lam_ub;
-	struct d_strvec *lam_lg;
-	struct d_strvec *lam_ug;
-	struct d_strvec *t_lb;
-	struct d_strvec *t_ub;
-	struct d_strvec *t_lg;
-	struct d_strvec *t_ug;
-	int memsize; // memory size in bytes
-	};
-
-
 
 //
-int d_memsize_tree_ocp_qp_sol(struct tree *ttree, int *nx, int *nu, int *nb, int *ng);
+void d_init_var_hard_tree_ocp_qp(struct d_tree_ocp_qp *qp, struct d_tree_ocp_qp_sol *qp_sol, struct d_ipm_hard_tree_ocp_qp_workspace *ws);
 //
-void d_create_tree_ocp_qp_sol(struct tree *ttree, int *nx, int *nu, int *nb, int *ng, struct d_tree_ocp_qp_sol *qp_sol, void *memory);
+void d_compute_res_hard_tree_ocp_qp(struct d_tree_ocp_qp *qp, struct d_tree_ocp_qp_sol *qp_sol, struct d_ipm_hard_tree_ocp_qp_workspace *ws);
 //
-void d_cvt_tree_ocp_qp_sol_to_colmaj(struct d_tree_ocp_qp *qp, struct d_tree_ocp_qp_sol *qp_sol, double **u, double **x, double **pi, double **lam_lb, double **lam_ub, double **lam_lg, double **lam_ug);
+void d_fact_solve_kkt_unconstr_tree_ocp_qp(struct d_tree_ocp_qp *qp, struct d_tree_ocp_qp_sol *qp_sol, struct d_ipm_hard_tree_ocp_qp_workspace *ws);
 //
-void d_cvt_tree_ocp_qp_sol_to_rowmaj(struct d_tree_ocp_qp *qp, struct d_tree_ocp_qp_sol *qp_sol, double **u, double **x, double **pi, double **lam_lb, double **lam_ub, double **lam_lg, double **lam_ug);
+void d_fact_solve_kkt_step_hard_tree_ocp_qp(struct d_tree_ocp_qp *qp, struct d_ipm_hard_tree_ocp_qp_workspace *ws);
+//
+void d_solve_kkt_step_hard_tree_ocp_qp(struct d_tree_ocp_qp *qp, struct d_ipm_hard_tree_ocp_qp_workspace *ws);
+

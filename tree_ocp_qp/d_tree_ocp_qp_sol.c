@@ -31,16 +31,21 @@
 
 #include "../include/hpipm_tree.h"
 #include "../include/hpipm_scenario_tree.h"
+#include "../include/hpipm_d_tree_ocp_qp.h"
 #include "../include/hpipm_d_tree_ocp_qp_sol.h"
 
 #define CREATE_STRVEC d_create_strvec
+#define CVT_STRVEC2VEC d_cvt_strvec2vec
 #define REAL double
 #define SIZE_STRVEC d_size_strvec
 #define STRVEC d_strvec
+#define TREE_OCP_QP d_tree_ocp_qp
 #define TREE_OCP_QP_SOL d_tree_ocp_qp_sol
 
 #define MEMSIZE_TREE_OCP_QP_SOL d_memsize_tree_ocp_qp_sol
 #define CREATE_TREE_OCP_QP_SOL d_create_tree_ocp_qp_sol
+#define CVT_TREE_OCP_QP_SOL_TO_COLMAJ d_cvt_tree_ocp_qp_sol_to_colmaj
+#define CVT_TREE_OCP_QP_SOL_TO_ROWMAJ d_cvt_tree_ocp_qp_sol_to_rowmaj
 
 
 int MEMSIZE_TREE_OCP_QP_SOL(struct tree *ttree, int *nx, int *nu, int *nb, int *ng)
@@ -219,6 +224,76 @@ void CREATE_TREE_OCP_QP_SOL(struct tree *ttree, int *nx, int *nu, int *nb, int *
 		tmp_ptr += (ng[ii])*sizeof(REAL);
 		}
 	
+	return;
+
+	}
+
+
+
+void CVT_TREE_OCP_QP_SOL_TO_COLMAJ(struct TREE_OCP_QP *qp, struct TREE_OCP_QP_SOL *qp_sol, REAL **u, REAL **x, REAL **pi, REAL **lam_lb, REAL **lam_ub, REAL **lam_lg, REAL **lam_ug)
+	{
+
+	int Nn = qp->Nn;
+	int *nx = qp->nx;
+	int *nu = qp->nu;
+	int *nb = qp->nb;
+	int *ng = qp->ng;
+	
+	int ii;
+
+	for(ii=0; ii<Nn-1; ii++)
+		{
+		CVT_STRVEC2VEC(nu[ii], qp_sol->ux+ii, 0, u[ii]);
+		CVT_STRVEC2VEC(nx[ii], qp_sol->ux+ii, nu[ii], x[ii]);
+		CVT_STRVEC2VEC(nx[ii+1], qp_sol->pi+ii, 0, pi[ii]);
+		CVT_STRVEC2VEC(nb[ii], qp_sol->lam_lb+ii, 0, lam_lb[ii]);
+		CVT_STRVEC2VEC(nb[ii], qp_sol->lam_ub+ii, 0, lam_ub[ii]);
+		CVT_STRVEC2VEC(ng[ii], qp_sol->lam_lg+ii, 0, lam_lg[ii]);
+		CVT_STRVEC2VEC(ng[ii], qp_sol->lam_ug+ii, 0, lam_ug[ii]);
+		}
+	ii = Nn-1;
+	CVT_STRVEC2VEC(nu[ii], qp_sol->ux+ii, 0, u[ii]);
+	CVT_STRVEC2VEC(nx[ii], qp_sol->ux+ii, nu[ii], x[ii]);
+	CVT_STRVEC2VEC(nb[ii], qp_sol->lam_lb+ii, 0, lam_lb[ii]);
+	CVT_STRVEC2VEC(nb[ii], qp_sol->lam_ub+ii, 0, lam_ub[ii]);
+	CVT_STRVEC2VEC(ng[ii], qp_sol->lam_lg+ii, 0, lam_lg[ii]);
+	CVT_STRVEC2VEC(ng[ii], qp_sol->lam_ug+ii, 0, lam_ug[ii]);
+
+	return;
+
+	}
+
+
+
+void CVT_TREE_OCP_QP_SOL_TO_ROWMAJ(struct TREE_OCP_QP *qp, struct TREE_OCP_QP_SOL *qp_sol, REAL **u, REAL **x, REAL **pi, REAL **lam_lb, REAL **lam_ub, REAL **lam_lg, REAL **lam_ug)
+	{
+
+	int Nn = qp->Nn;
+	int *nx = qp->nx;
+	int *nu = qp->nu;
+	int *nb = qp->nb;
+	int *ng = qp->ng;
+	
+	int ii;
+
+	for(ii=0; ii<Nn-1; ii++)
+		{
+		CVT_STRVEC2VEC(nu[ii], qp_sol->ux+ii, 0, u[ii]);
+		CVT_STRVEC2VEC(nx[ii], qp_sol->ux+ii, nu[ii], x[ii]);
+		CVT_STRVEC2VEC(nx[ii+1], qp_sol->pi+ii, 0, pi[ii]);
+		CVT_STRVEC2VEC(nb[ii], qp_sol->lam_lb+ii, 0, lam_lb[ii]);
+		CVT_STRVEC2VEC(nb[ii], qp_sol->lam_ub+ii, 0, lam_ub[ii]);
+		CVT_STRVEC2VEC(ng[ii], qp_sol->lam_lg+ii, 0, lam_lg[ii]);
+		CVT_STRVEC2VEC(ng[ii], qp_sol->lam_ug+ii, 0, lam_ug[ii]);
+		}
+	ii = Nn-1;
+	CVT_STRVEC2VEC(nu[ii], qp_sol->ux+ii, 0, u[ii]);
+	CVT_STRVEC2VEC(nx[ii], qp_sol->ux+ii, nu[ii], x[ii]);
+	CVT_STRVEC2VEC(nb[ii], qp_sol->lam_lb+ii, 0, lam_lb[ii]);
+	CVT_STRVEC2VEC(nb[ii], qp_sol->lam_ub+ii, 0, lam_ub[ii]);
+	CVT_STRVEC2VEC(ng[ii], qp_sol->lam_lg+ii, 0, lam_lg[ii]);
+	CVT_STRVEC2VEC(ng[ii], qp_sol->lam_ug+ii, 0, lam_ug[ii]);
+
 	return;
 
 	}

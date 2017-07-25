@@ -30,10 +30,18 @@
 #include <math.h>
 #include <sys/time.h>
 
+#include <blasfeo_target.h>
+#include <blasfeo_common.h>
+#include <blasfeo_v_aux_ext_dep.h>
+#include <blasfeo_d_aux_ext_dep.h>
+#include <blasfeo_i_aux_ext_dep.h>
+#include <blasfeo_d_aux.h>
+
 #include "../include/hpipm_tree.h"
 #include "../include/hpipm_scenario_tree.h"
 #include "../include/hpipm_d_tree_ocp_qp.h"
 #include "../include/hpipm_d_tree_ocp_qp_sol.h"
+#include "../include/hpipm_d_tree_ocp_qp_ipm_hard.h"
 
 #include "d_tools.h"
 
@@ -743,23 +751,126 @@ int main()
 * ipm
 ************************************************/	
 
+	struct d_ipm_hard_tree_ocp_qp_arg arg;
+	arg.alpha_min = 1e-8;
+	arg.mu_max = 1e-12;
+	arg.iter_max = 20;
+	arg.mu0 = 2.0;
+
+	int ipm_size = d_memsize_ipm_hard_tree_ocp_qp(&qp, &arg);
+	printf("\nipm size = %d\n", ipm_size);
+	void *ipm_memory = malloc(ipm_size);
+
+	struct d_ipm_hard_tree_ocp_qp_workspace workspace;
+	d_create_ipm_hard_tree_ocp_qp(&qp, &arg, &workspace, ipm_memory);
+
+	int rep, nrep=100;
+
+	struct timeval tv0, tv1;
+
+	gettimeofday(&tv0, NULL); // start
+
+	for(rep=0; rep<nrep; rep++)
+		{
+//		d_solve_ipm_hard_tree_ocp_qp(&qp, &qp_sol, &workspace);
+		d_solve_ipm2_hard_tree_ocp_qp(&qp, &qp_sol, &workspace);
+		}
+
+	gettimeofday(&tv1, NULL); // stop
+
+	double time_ocp_ipm = (tv1.tv_sec-tv0.tv_sec)/(nrep+0.0)+(tv1.tv_usec-tv0.tv_usec)/(nrep*1e6);
+
 /************************************************
 * extract and print solution
 ************************************************/	
 
-#if 0
-	struct d_strvec *tvec;
+	double *u[Nn]; for(ii=0; ii<Nn; ii++) d_zeros(u+ii, nut[ii], 1);
+	double *x[Nn]; for(ii=0; ii<Nn; ii++) d_zeros(x+ii, nxt[ii], 1);
+	double *pi[Nn-1]; for(ii=0; ii<Nn-1; ii++) d_zeros(pi+ii, nxt[ii+1], 1);
+	double *lam_lb[Nn]; for(ii=0; ii<Nn; ii++) d_zeros(lam_lb+ii, nbt[ii], 1);
+	double *lam_ub[Nn]; for(ii=0; ii<Nn; ii++) d_zeros(lam_ub+ii, nbt[ii], 1);
+	double *lam_lg[Nn]; for(ii=0; ii<Nn; ii++) d_zeros(lam_lg+ii, ngt[ii], 1);
+	double *lam_ug[Nn]; for(ii=0; ii<Nn; ii++) d_zeros(lam_ug+ii, ngt[ii], 1);
+
+	d_cvt_tree_ocp_qp_sol_to_colmaj(&qp, &qp_sol, u, x, pi, lam_lb, lam_ub, lam_lg, lam_ug);
+
+#if 1
+	printf("\nsolution\n\n");
+	printf("\nu\n");
 	for(ii=0; ii<Nn; ii++)
-		{
-		tvec = qp_sol.ux+ii;
-		d_print_tran_strvec(tvec->m, tvec, 0);
-		}
+		d_print_mat(1, nut[ii], u[ii], 1);
+	printf("\nx\n");
+	for(ii=0; ii<Nn; ii++)
+		d_print_mat(1, nxt[ii], x[ii], 1);
+	printf("\npi\n");
 	for(ii=0; ii<Nn-1; ii++)
-		{
-		tvec = qp_sol.pi+ii;
-		d_print_tran_strvec(tvec->m, tvec, 0);
-		}
+		d_print_mat(1, nxt[ii+1], pi[ii], 1);
+	printf("\nlam_lb\n");
+	for(ii=0; ii<Nn; ii++)
+		d_print_mat(1, nbt[ii], lam_lb[ii], 1);
+	printf("\nlam_ub\n");
+	for(ii=0; ii<Nn; ii++)
+		d_print_mat(1, nbt[ii], lam_ub[ii], 1);
+	printf("\nlam_lg\n");
+	for(ii=0; ii<Nn; ii++)
+		d_print_mat(1, ngt[ii], lam_lg[ii], 1);
+	printf("\nlam_ug\n");
+	for(ii=0; ii<Nn; ii++)
+		d_print_mat(1, ngt[ii], lam_ug[ii], 1);
+
+	printf("\nt_lb\n");
+	for(ii=0; ii<Nn; ii++)
+		d_print_mat(1, nbt[ii], (qp_sol.t_lb+ii)->pa, 1);
+	printf("\nt_ub\n");
+	for(ii=0; ii<Nn; ii++)
+		d_print_mat(1, nbt[ii], (qp_sol.t_ub+ii)->pa, 1);
+	printf("\nt_lg\n");
+	for(ii=0; ii<Nn; ii++)
+		d_print_mat(1, ngt[ii], (qp_sol.t_lg+ii)->pa, 1);
+	printf("\nt_ug\n");
+	for(ii=0; ii<Nn; ii++)
+		d_print_mat(1, ngt[ii], (qp_sol.t_ug+ii)->pa, 1);
+
+	printf("\nresiduals\n\n");
+	printf("\nres_g\n");
+	for(ii=0; ii<Nn; ii++)
+		d_print_e_mat(1, nut[ii]+nxt[ii], (workspace.res_g+ii)->pa, 1);
+	printf("\nres_b\n");
+	for(ii=0; ii<Nn-1; ii++)
+		d_print_e_mat(1, nxt[ii+1], (workspace.res_b+ii)->pa, 1);
+	printf("\nres_m_lb\n");
+	for(ii=0; ii<Nn; ii++)
+		d_print_e_mat(1, nbt[ii], (workspace.res_m_lb+ii)->pa, 1);
+	printf("\nres_m_ub\n");
+	for(ii=0; ii<Nn; ii++)
+		d_print_e_mat(1, nbt[ii], (workspace.res_m_ub+ii)->pa, 1);
+	printf("\nres_m_lg\n");
+	for(ii=0; ii<Nn; ii++)
+		d_print_e_mat(1, ngt[ii], (workspace.res_m_lg+ii)->pa, 1);
+	printf("\nres_m_ug\n");
+	for(ii=0; ii<Nn; ii++)
+		d_print_e_mat(1, ngt[ii], (workspace.res_m_ug+ii)->pa, 1);
+	printf("\nres_d_lb\n");
+	for(ii=0; ii<Nn; ii++)
+		d_print_e_mat(1, nbt[ii], (workspace.res_d_lb+ii)->pa, 1);
+	printf("\nres_d_ub\n");
+	for(ii=0; ii<Nn; ii++)
+		d_print_e_mat(1, nbt[ii], (workspace.res_d_ub+ii)->pa, 1);
+	printf("\nres_d_lg\n");
+	for(ii=0; ii<Nn; ii++)
+		d_print_e_mat(1, ngt[ii], (workspace.res_d_lg+ii)->pa, 1);
+	printf("\nres_d_ug\n");
+	for(ii=0; ii<Nn; ii++)
+		d_print_e_mat(1, ngt[ii], (workspace.res_d_ug+ii)->pa, 1);
+	printf("\nres_mu\n");
+	printf("\n%e\n\n", workspace.res_mu);
 #endif
+
+	printf("\nipm iter = %d\n", workspace.iter);
+	printf("\nalpha_aff\tmu_aff\t\tsigma\t\talpha\t\tmu\n");
+	d_print_e_tran_mat(5, workspace.iter, workspace.stat, 5);
+
+	printf("\nocp ipm time = %e [s]\n\n", time_ocp_ipm);
 
 /************************************************
 * free memory
@@ -798,9 +909,27 @@ int main()
 	d_free(d_lgN);
 	d_free(d_ugN);
 
+	for(ii=0; ii<Nn-1; ii++)
+		{
+		d_free(u[ii]);
+		d_free(x[ii]);
+		d_free(pi[ii]);
+		d_free(lam_lb[ii]);
+		d_free(lam_ub[ii]);
+		d_free(lam_lg[ii]);
+		d_free(lam_ug[ii]);
+		}
+	d_free(u[ii]);
+	d_free(x[ii]);
+	d_free(lam_lb[ii]);
+	d_free(lam_ub[ii]);
+	d_free(lam_lg[ii]);
+	d_free(lam_ug[ii]);
+
 	free(tree_memory);
 	free(tree_ocp_qp_memory);
 	free(tree_ocp_qp_sol_memory);
+	free(ipm_memory);
 
 	return 0;
 

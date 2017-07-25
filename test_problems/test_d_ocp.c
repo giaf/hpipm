@@ -36,7 +36,6 @@
 #include <blasfeo_d_aux_ext_dep.h>
 #include <blasfeo_i_aux_ext_dep.h>
 #include <blasfeo_d_aux.h>
-#include <blasfeo_d_blas.h>
 
 #include "../include/hpipm_d_ocp_qp.h"
 #include "../include/hpipm_d_ocp_qp_sol.h"
@@ -261,7 +260,7 @@ int main()
 
 	int nx_ = 8; // number of states (it has to be even for the mass-spring system test problem)
 	int nu_ = 3; // number of inputs (controllers) (it has to be at least 1 and at most nx/2 for the mass-spring system test problem)
-	int N  = 10; // horizon lenght
+	int N  = 3; // horizon lenght
 
 
 
@@ -599,10 +598,10 @@ int main()
 		hC[ii] = C1;
 		hD[ii] = D1;
 		}
-	hQ[N] = QN; //Q;
+	hQ[N] = Q;
 	hS[N] = S;
 	hR[N] = R;
-	hq[N] = qN; //q;
+	hq[N] = q;
 	hr[N] = r;
 	hidxb[N] = idxbN;
 	hd_lb[N] = d_lbN;
