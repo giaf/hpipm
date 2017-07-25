@@ -27,63 +27,45 @@
 
 #include <blasfeo_target.h>
 #include <blasfeo_common.h>
-#include <blasfeo_d_aux.h>
-#include <blasfeo_d_blas.h>
+#include <blasfeo_s_aux.h>
 
-#include "../include/hpipm_tree.h"
-#include "../include/hpipm_d_tree_ocp_qp.h"
-#include "../include/hpipm_d_tree_ocp_qp_sol.h"
-#include "../include/hpipm_d_tree_ocp_qp_ipm_hard.h"
-#include "../include/hpipm_d_core_qp_ipm_hard.h"
-#include "../include/hpipm_d_core_qp_ipm_hard_aux.h"
+#include "../include/hpipm_s_tree_ocp_qp.h"
+#include "../include/hpipm_s_tree_ocp_qp_sol.h"
+#include "../include/hpipm_s_tree_ocp_qp_ipm_hard.h"
+#include "../include/hpipm_s_tree_ocp_qp_kkt.h"
+#include "../include/hpipm_s_core_qp_ipm_hard.h"
+#include "../include/hpipm_s_core_qp_ipm_hard_aux.h"
 
-#define AXPY_LIBSTR daxpy_libstr
-#define COMPUTE_LAM_T_HARD_QP d_compute_lam_t_hard_qp
-#define COMPUTE_QX_HARD_QP d_compute_qx_hard_qp
-#define COMPUTE_QX_QX_HARD_QP d_compute_Qx_qx_hard_qp
-#define DIAAD_SP_LIBSTR ddiaad_sp_libstr
-#define GEAD_LIBSTR dgead_libstr
-#define GECP_LIBSTR dgecp_libstr
-#define GEMM_R_DIAG_LIBSTR dgemm_r_diag_libstr
-#define GEMV_N_LIBSTR dgemv_n_libstr
-#define GEMV_NT_LIBSTR dgemv_nt_libstr
-#define GEMV_T_LIBSTR dgemv_t_libstr
-#define IPM_HARD_CORE_QP_WORKSPACE d_ipm_hard_core_qp_workspace
-#define IPM_HARD_TREE_OCP_QP_WORKSPACE d_ipm_hard_tree_ocp_qp_workspace
-#define POTRF_L_MN_LIBSTR dpotrf_l_mn_libstr
-#define REAL double
-#define ROWAD_SP_LIBSTR drowad_sp_libstr
-#define ROWIN_LIBSTR drowin_libstr
-#define ROWEX_LIBSTR drowex_libstr
-#define STRMAT d_strmat
-#define STRVEC d_strvec
-#define SYMV_L_LIBSTR dsymv_l_libstr
-#define SYRK_LN_MN_LIBSTR dsyrk_ln_mn_libstr
-#define SYRK_POTRF_LN_LIBSTR dsyrk_dpotrf_ln_libstr
-#define TRCP_L_LIBSTR dtrcp_l_libstr
-#define TREE_OCP_QP d_tree_ocp_qp
-#define TREE_OCP_QP_SOL d_tree_ocp_qp_sol
-#define TRMM_RLNN_LIBSTR dtrmm_rlnn_libstr
-#define TRMV_LNN_LIBSTR dtrmv_lnn_libstr
-#define TRMV_LTN_LIBSTR dtrmv_ltn_libstr
-#define TRSV_LNN_LIBSTR dtrsv_lnn_libstr
-#define TRSV_LNN_MN_LIBSTR dtrsv_lnn_mn_libstr
-#define TRSV_LTN_LIBSTR dtrsv_ltn_libstr
-#define TRSV_LTN_MN_LIBSTR dtrsv_ltn_mn_libstr
-#define VECAD_SP_LIBSTR dvecad_sp_libstr
-#define VECCP_LIBSTR dveccp_libstr
-#define VECEX_SP_LIBSTR dvecex_sp_libstr
-#define VECMULDOT_LIBSTR dvecmuldot_libstr
-#define VECSC_LIBSTR dvecsc_libstr
+#define COMPUTE_ALPHA_HARD_QP s_compute_alpha_hard_qp
+#define COMPUTE_CENTERING_CORRECTION_HARD_QP s_compute_centering_correction_hard_qp
+#define COMPUTE_MU_AFF_HARD_QP s_compute_mu_aff_hard_qp
+#define COMPUTE_RES_HARD_TREE_OCP_QP s_compute_res_hard_tree_ocp_qp
+#define CREATE_STRMAT s_create_strmat
+#define CREATE_STRVEC s_create_strvec
+#define CREATE_IPM_HARD_CORE_QP s_create_ipm_hard_core_qp
+#define FACT_SOLVE_KKT_STEP_HARD_TREE_OCP_QP s_fact_solve_kkt_step_hard_tree_ocp_qp
+#define FACT_SOLVE_KKT_UNCONSTR_TREE_OCP_QP s_fact_solve_kkt_unconstr_tree_ocp_qp
+#define INIT_VAR_HARD_TREE_OCP_QP s_init_var_hard_tree_ocp_qp
+#define IPM_HARD_CORE_QP_WORKSPACE s_ipm_hard_core_qp_workspace
+#define IPM_HARD_TREE_OCP_QP_ARG s_ipm_hard_tree_ocp_qp_arg
+#define IPM_HARD_TREE_OCP_QP_WORKSPACE s_ipm_hard_tree_ocp_qp_workspace
+#define MEMSIZE_IPM_HARD_CORE_QP s_memsize_ipm_hard_core_qp
+#define REAL float
+#define SIZE_STRMAT s_size_strmat
+#define SIZE_STRVEC s_size_strvec
+#define SOLVE_KKT_STEP_HARD_TREE_OCP_QP s_solve_kkt_step_hard_tree_ocp_qp
+#define STRMAT s_strmat
+#define STRVEC s_strvec
+#define TREE_OCP_QP s_tree_ocp_qp
+#define TREE_OCP_QP_SOL s_tree_ocp_qp_sol
+#define UPDATE_VAR_HARD_QP s_update_var_hard_qp
 
-#define INIT_VAR_HARD_TREE_OCP_QP d_init_var_hard_tree_ocp_qp
-#define COMPUTE_RES_HARD_TREE_OCP_QP d_compute_res_hard_tree_ocp_qp
-#define FACT_SOLVE_KKT_UNCONSTR_TREE_OCP_QP d_fact_solve_kkt_unconstr_tree_ocp_qp
-#define FACT_SOLVE_KKT_STEP_HARD_TREE_OCP_QP d_fact_solve_kkt_step_hard_tree_ocp_qp
-#define SOLVE_KKT_STEP_HARD_TREE_OCP_QP d_solve_kkt_step_hard_tree_ocp_qp
-
-#define DOUBLE_PRECISION
+#define MEMSIZE_IPM_HARD_TREE_OCP_QP s_memsize_ipm_hard_tree_ocp_qp
+#define CREATE_IPM_HARD_TREE_OCP_QP s_create_ipm_hard_tree_ocp_qp
+#define SOLVE_IPM_HARD_TREE_OCP_QP s_solve_ipm_hard_tree_ocp_qp
+#define SOLVE_IPM2_HARD_TREE_OCP_QP s_solve_ipm2_hard_tree_ocp_qp
 
 
 
-#include "x_tree_ocp_qp_kkt.c"
+#include "x_tree_ocp_qp_ipm_hard.c"
+

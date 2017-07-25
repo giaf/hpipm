@@ -132,8 +132,19 @@ file(GLOB COND_SRC
 	${PROJECT_SOURCE_DIR}/cond/d_cond.c
 	${PROJECT_SOURCE_DIR}/cond/d_cond_aux.c
 	)
+# cond
+file(GLOB TREE_OCP_QP_SRC
+	${PROJECT_SOURCE_DIR}/tree_ocp_qp/d_tree_ocp_qp.c
+	${PROJECT_SOURCE_DIR}/tree_ocp_qp/d_tree_ocp_qp_sol.c
+	${PROJECT_SOURCE_DIR}/tree_ocp_qp/d_tree_ocp_qp_kkt.c
+	${PROJECT_SOURCE_DIR}/tree_ocp_qp/d_tree_ocp_qp_ipm_hard.c
+	${PROJECT_SOURCE_DIR}/tree_ocp_qp/s_tree_ocp_qp.c
+	${PROJECT_SOURCE_DIR}/tree_ocp_qp/s_tree_ocp_qp_sol.c
+	${PROJECT_SOURCE_DIR}/tree_ocp_qp/s_tree_ocp_qp_kkt.c
+	${PROJECT_SOURCE_DIR}/tree_ocp_qp/s_tree_ocp_qp_ipm_hard.c
+	)
 
-set(HPIPM_SRC ${DENSE_QP_SRC} ${OCP_QP_SRC} ${CORE_QP_SRC} ${COND_SRC})
+set(HPIPM_SRC ${DENSE_QP_SRC} ${OCP_QP_SRC} ${CORE_QP_SRC} ${COND_SRC} ${TREE_OCP_QP_SRC})
 
 add_library(hpipm ${HPIPM_SRC})
 target_include_directories(hpipm PUBLIC include ${BLASFEO_INCLUDE_DIR})

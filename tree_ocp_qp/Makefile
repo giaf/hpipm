@@ -35,7 +35,7 @@ endif
 
 OBJS += scenario_tree.o
 OBJS += d_tree_ocp_qp.o d_tree_ocp_qp_sol.o d_tree_ocp_qp_kkt.o d_tree_ocp_qp_ipm_hard.o
-OBJS += 
+OBJS += s_tree_ocp_qp.o s_tree_ocp_qp_sol.o s_tree_ocp_qp_kkt.o s_tree_ocp_qp_ipm_hard.o
 
 obj: $(OBJS)
 

@@ -25,65 +25,67 @@
 *                                                                                                 *
 **************************************************************************************************/
 
+
+
 #include <blasfeo_target.h>
 #include <blasfeo_common.h>
-#include <blasfeo_d_aux.h>
-#include <blasfeo_d_blas.h>
-
-#include "../include/hpipm_tree.h"
-#include "../include/hpipm_d_tree_ocp_qp.h"
-#include "../include/hpipm_d_tree_ocp_qp_sol.h"
-#include "../include/hpipm_d_tree_ocp_qp_ipm_hard.h"
-#include "../include/hpipm_d_core_qp_ipm_hard.h"
-#include "../include/hpipm_d_core_qp_ipm_hard_aux.h"
-
-#define AXPY_LIBSTR daxpy_libstr
-#define COMPUTE_LAM_T_HARD_QP d_compute_lam_t_hard_qp
-#define COMPUTE_QX_HARD_QP d_compute_qx_hard_qp
-#define COMPUTE_QX_QX_HARD_QP d_compute_Qx_qx_hard_qp
-#define DIAAD_SP_LIBSTR ddiaad_sp_libstr
-#define GEAD_LIBSTR dgead_libstr
-#define GECP_LIBSTR dgecp_libstr
-#define GEMM_R_DIAG_LIBSTR dgemm_r_diag_libstr
-#define GEMV_N_LIBSTR dgemv_n_libstr
-#define GEMV_NT_LIBSTR dgemv_nt_libstr
-#define GEMV_T_LIBSTR dgemv_t_libstr
-#define IPM_HARD_CORE_QP_WORKSPACE d_ipm_hard_core_qp_workspace
-#define IPM_HARD_TREE_OCP_QP_WORKSPACE d_ipm_hard_tree_ocp_qp_workspace
-#define POTRF_L_MN_LIBSTR dpotrf_l_mn_libstr
-#define REAL double
-#define ROWAD_SP_LIBSTR drowad_sp_libstr
-#define ROWIN_LIBSTR drowin_libstr
-#define ROWEX_LIBSTR drowex_libstr
-#define STRMAT d_strmat
-#define STRVEC d_strvec
-#define SYMV_L_LIBSTR dsymv_l_libstr
-#define SYRK_LN_MN_LIBSTR dsyrk_ln_mn_libstr
-#define SYRK_POTRF_LN_LIBSTR dsyrk_dpotrf_ln_libstr
-#define TRCP_L_LIBSTR dtrcp_l_libstr
-#define TREE_OCP_QP d_tree_ocp_qp
-#define TREE_OCP_QP_SOL d_tree_ocp_qp_sol
-#define TRMM_RLNN_LIBSTR dtrmm_rlnn_libstr
-#define TRMV_LNN_LIBSTR dtrmv_lnn_libstr
-#define TRMV_LTN_LIBSTR dtrmv_ltn_libstr
-#define TRSV_LNN_LIBSTR dtrsv_lnn_libstr
-#define TRSV_LNN_MN_LIBSTR dtrsv_lnn_mn_libstr
-#define TRSV_LTN_LIBSTR dtrsv_ltn_libstr
-#define TRSV_LTN_MN_LIBSTR dtrsv_ltn_mn_libstr
-#define VECAD_SP_LIBSTR dvecad_sp_libstr
-#define VECCP_LIBSTR dveccp_libstr
-#define VECEX_SP_LIBSTR dvecex_sp_libstr
-#define VECMULDOT_LIBSTR dvecmuldot_libstr
-#define VECSC_LIBSTR dvecsc_libstr
-
-#define INIT_VAR_HARD_TREE_OCP_QP d_init_var_hard_tree_ocp_qp
-#define COMPUTE_RES_HARD_TREE_OCP_QP d_compute_res_hard_tree_ocp_qp
-#define FACT_SOLVE_KKT_UNCONSTR_TREE_OCP_QP d_fact_solve_kkt_unconstr_tree_ocp_qp
-#define FACT_SOLVE_KKT_STEP_HARD_TREE_OCP_QP d_fact_solve_kkt_step_hard_tree_ocp_qp
-#define SOLVE_KKT_STEP_HARD_TREE_OCP_QP d_solve_kkt_step_hard_tree_ocp_qp
-
-#define DOUBLE_PRECISION
 
 
 
-#include "x_tree_ocp_qp_kkt.c"
+
+struct s_ipm_hard_tree_ocp_qp_workspace
+	{
+	struct s_ipm_hard_core_qp_workspace *core_workspace;
+	struct s_strvec *dux;
+	struct s_strvec *dpi;
+	struct s_strvec *dt_lb;
+	struct s_strvec *dt_lg;
+	struct s_strvec *res_g; // q-residuals
+	struct s_strvec *res_b; // b-residuals
+	struct s_strvec *res_d; // d-residuals XXX remove ???
+	struct s_strvec *res_d_lb; // d-residuals
+	struct s_strvec *res_d_ub; // d-residuals
+	struct s_strvec *res_d_lg; // d-residuals
+	struct s_strvec *res_d_ug; // d-residuals
+	struct s_strvec *res_m; // m-residuals
+	struct s_strvec *res_m_lb; // m-residuals
+	struct s_strvec *res_m_ub; // m-residuals
+	struct s_strvec *res_m_lg; // m-residuals
+	struct s_strvec *res_m_ug; // m-residuals
+	struct s_strvec *Qx_lb; // hessian update
+	struct s_strvec *Qx_lg; // hessian update
+	struct s_strvec *qx_lb; // gradient update
+	struct s_strvec *qx_lg; // gradient update
+	struct s_strvec *tmp_nbM; // work space of size nbM
+	struct s_strvec *tmp_nxM; // work space of size nxM
+	struct s_strvec *tmp_ngM; // work space of size ngM
+	struct s_strvec *Pb; // Pb
+	struct s_strmat *L;
+	struct s_strmat *AL;
+	float *stat; // convergence statistics
+	float res_mu; // mu-residual
+	int iter; // iteration number
+	int memsize;
+	};
+
+
+
+struct s_ipm_hard_tree_ocp_qp_arg
+	{
+	float alpha_min; // exit cond on step length
+	float mu_max; // exit cond on duality measure
+	float mu0; // initial value for duality measure
+	int iter_max; // exit cond in iter number
+	};
+
+
+
+//
+int s_memsize_ipm_hard_tree_ocp_qp(struct s_tree_ocp_qp *qp, struct s_ipm_hard_tree_ocp_qp_arg *arg);
+//
+void s_create_ipm_hard_tree_ocp_qp(struct s_tree_ocp_qp *qp, struct s_ipm_hard_tree_ocp_qp_arg *arg, struct s_ipm_hard_tree_ocp_qp_workspace *ws, void *mem);
+//
+void s_solve_ipm_hard_tree_ocp_qp(struct s_tree_ocp_qp *qp, struct s_tree_ocp_qp_sol *qp_sol, struct s_ipm_hard_tree_ocp_qp_workspace *ws);
+//
+void s_solve_ipm2_hard_tree_ocp_qp(struct s_tree_ocp_qp *qp, struct s_tree_ocp_qp_sol *qp_sol, struct s_ipm_hard_tree_ocp_qp_workspace *ws);
+
