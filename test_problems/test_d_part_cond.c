@@ -40,10 +40,8 @@
 
 #include "../include/hpipm_d_ocp_qp.h"
 #include "../include/hpipm_d_ocp_qp_sol.h"
-#include "../include/hpipm_d_dense_qp.h"
-#include "../include/hpipm_d_dense_qp_sol.h"
-#include "../include/hpipm_d_dense_qp_ipm_hard.h"
-#include "../include/hpipm_d_cond.h"
+#include "../include/hpipm_d_ocp_qp_ipm_hard.h"
+#include "../include/hpipm_d_part_cond.h"
 
 #include "d_tools.h"
 
@@ -506,7 +504,7 @@ int main()
 ************************************************/	
 	
 	int ocp_qp_size = d_memsize_ocp_qp(N, nx, nu, nb, ng);
-	printf("\nqp size = %d\n", ocp_qp_size);
+	printf("\nocp qp size = %d\n", ocp_qp_size);
 	void *ocp_qp_mem = malloc(ocp_qp_size);
 
 	struct d_ocp_qp ocp_qp;
@@ -538,36 +536,39 @@ int main()
 #endif
 
 /************************************************
-* dense qp
+* part dense qp
 ************************************************/	
-	
-	int nvc = 0;
-	int nec = 0;
-	int nbc = 0;
-	int ngc = 0;
 
-	d_compute_qp_size_ocp2dense(N, nx, nu, nb, hidxb, ng, &nvc, &nec, &nbc, &ngc);
-	printf("\nnv = %d, ne = %d, nb = %d, ng = %d\n\n", nvc, nec, nbc, ngc);
+	int N2 = 2; // horizon of partially condensed problem
 
-	int dense_qp_size = d_memsize_dense_qp(nvc, nec, nbc, ngc);
-	printf("\nqp size = %d\n", dense_qp_size);
-	void *dense_qp_mem = malloc(dense_qp_size);
+	int nx2[N2+1];
+	int nu2[N2+1];
+	int nb2[N2+1];
+	int ng2[N2+1];
 
-	struct d_dense_qp dense_qp;
-	d_create_dense_qp(nvc, nec, nbc, ngc, &dense_qp, dense_qp_mem);
+	d_compute_qp_size_ocp2ocp(N, nx, nu, nb, hidxb, ng, N2, nx2, nu2, nb2, ng2);
+	for(ii=0; ii<=N2; ii++)
+		printf("\n%d %d %d %d\n", nx2[ii], nu2[ii], nb2[ii], ng2[ii]);
 
-	int cond_size = d_memsize_cond_qp_ocp2dense(&ocp_qp, &dense_qp);
-	printf("\ncond size = %d\n", cond_size);
-	void *cond_mem = malloc(cond_size);
+	int part_dense_qp_size = d_memsize_ocp_qp(N2, nx2, nu2, nb2, ng2);
+	printf("\npart dense qp size = %d\n", part_dense_qp_size);
+	void *part_dense_qp_mem = malloc(part_dense_qp_size);
 
-	struct d_cond_qp_ocp2dense_workspace cond_ws;
-	d_create_cond_qp_ocp2dense(&ocp_qp, &dense_qp, &cond_ws, cond_mem);
+	struct d_ocp_qp part_dense_qp;
+	d_create_ocp_qp(N2, nx2, nu2, nb2, ng2, &part_dense_qp, part_dense_qp_mem);
+
+	int part_cond_size = d_memsize_cond_qp_ocp2ocp(&ocp_qp, &part_dense_qp);
+	printf("\npart cond size = %d\n", part_cond_size);
+	void *part_cond_mem = malloc(part_cond_size);
+
+	struct d_cond_qp_ocp2ocp_workspace part_cond_ws;
+	d_create_cond_qp_ocp2ocp(&ocp_qp, &part_dense_qp, &part_cond_ws, part_cond_mem);
 
 	gettimeofday(&tv0, NULL); // start
 
 	for(rep=0; rep<nrep; rep++)
 		{
-		d_cond_qp_ocp2dense(&ocp_qp, &dense_qp, &cond_ws);
+		d_cond_qp_ocp2ocp(&ocp_qp, &part_dense_qp, &part_cond_ws);
 		}
 
 	gettimeofday(&tv1, NULL); // stop
@@ -575,156 +576,18 @@ int main()
 	double time_cond = (tv1.tv_sec-tv0.tv_sec)/(nrep+0.0)+(tv1.tv_usec-tv0.tv_usec)/(nrep*1e6);
 
 #if 1
-	d_print_strmat(nvc+1, nvc, dense_qp.Hg, 0, 0);
-	d_print_strmat(nec, nvc, dense_qp.A, 0, 0);
-	d_print_strmat(nvc, ngc, dense_qp.Ct, 0, 0);
-	d_print_tran_strvec(nvc, dense_qp.g, 0);
-	d_print_tran_strvec(nec, dense_qp.b, 0);
-	d_print_tran_strvec(2*nbc+2*ngc, dense_qp.d, 0);
-	d_print_tran_strvec(nbc, dense_qp.d_lb, 0);
-	d_print_tran_strvec(nbc, dense_qp.d_ub, 0);
-	d_print_tran_strvec(ngc, dense_qp.d_lg, 0);
-	d_print_tran_strvec(ngc, dense_qp.d_ug, 0);
+	for(ii=0; ii<=N2; ii++)
+		d_print_strmat(nu2[ii]+nx2[ii]+1, nu2[ii]+nx2[ii], part_dense_qp.RSQrq+ii, 0, 0);
 #endif
 
-#if 0
+#if 1
 	int nu_tmp = 0;
 	for(ii=0; ii<N; ii++)
 		{
 		nu_tmp += nu[ii];
-		d_print_strmat(nu_tmp+nx[0]+1, nx[ii+1], cond_ws.Gamma+ii, 0, 0);
+		d_print_strmat(nu_tmp+nx[0]+1, nx[ii+1], part_cond_ws.Gamma+ii, 0, 0);
 		}
 #endif
-
-/************************************************
-* dense qp sol
-************************************************/	
-
-	int dense_qp_sol_size = d_memsize_dense_qp_sol(nvc, nec, nbc, ngc);
-	printf("\ndense qp sol size = %d\n", dense_qp_sol_size);
-	void *dense_qp_sol_mem = malloc(dense_qp_sol_size);
-
-	struct d_dense_qp_sol dense_qp_sol;
-	d_create_dense_qp_sol(nvc, nec, nbc, ngc, &dense_qp_sol, dense_qp_sol_mem);
-
-/************************************************
-* ipm
-************************************************/	
-
-	struct d_ipm_hard_dense_qp_arg dense_arg;
-	dense_arg.alpha_min = 1e-8;
-	dense_arg.mu_max = 1e-12;
-	dense_arg.iter_max = 20;
-	dense_arg.mu0 = 1.0;
-
-	int dense_ipm_size = d_memsize_ipm_hard_dense_qp(&dense_qp, &dense_arg);
-	printf("\ndense ipm size = %d\n", dense_ipm_size);
-	void *dense_ipm_mem = malloc(dense_ipm_size);
-
-	struct d_ipm_hard_dense_qp_workspace dense_workspace;
-	d_create_ipm_hard_dense_qp(&dense_qp, &dense_arg, &dense_workspace, dense_ipm_mem);
-
-	gettimeofday(&tv0, NULL); // start
-
-	for(rep=0; rep<nrep; rep++)
-		{
-//		d_solve_ipm_hard_dense_qp(&dense_qp, &dense_qp_sol, &dense_workspace);
-		d_solve_ipm2_hard_dense_qp(&dense_qp, &dense_qp_sol, &dense_workspace);
-		}
-
-	gettimeofday(&tv1, NULL); // stop
-
-	double time_dense_ipm = (tv1.tv_sec-tv0.tv_sec)/(nrep+0.0)+(tv1.tv_usec-tv0.tv_usec)/(nrep*1e6);
-
-
-	printf("\nsolution\n\n");
-	printf("\nv\n");
-	d_print_tran_strvec(nvc, dense_qp_sol.v, 0);
-	printf("\npi\n");
-	d_print_tran_strvec(nec, dense_qp_sol.pi, 0);
-	printf("\nlam_lb\n");
-	d_print_tran_strvec(nbc, dense_qp_sol.lam_lb, 0);
-	printf("\nlam_ub\n");
-	d_print_tran_strvec(nbc, dense_qp_sol.lam_ub, 0);
-	printf("\nlam_lg\n");
-	d_print_tran_strvec(ngc, dense_qp_sol.lam_lg, 0);
-	printf("\nlam_ug\n");
-	d_print_tran_strvec(ngc, dense_qp_sol.lam_ug, 0);
-	printf("\nt_lb\n");
-	d_print_tran_strvec(nbc, dense_qp_sol.t_lb, 0);
-	printf("\nt_ub\n");
-	d_print_tran_strvec(nbc, dense_qp_sol.t_ub, 0);
-	printf("\nt_lg\n");
-	d_print_tran_strvec(ngc, dense_qp_sol.t_lg, 0);
-	printf("\nt_ug\n");
-	d_print_tran_strvec(ngc, dense_qp_sol.t_ug, 0);
-
-	printf("\nresiduals\n\n");
-	printf("\nres_g\n");
-	d_print_e_tran_strvec(nvc, dense_workspace.res_g, 0);
-	printf("\nres_b\n");
-	d_print_e_tran_strvec(nec, dense_workspace.res_b, 0);
-	printf("\nres_d\n");
-	d_print_e_tran_strvec(2*nbc+2*ngc, dense_workspace.res_d, 0);
-	printf("\nres_m\n");
-	d_print_e_tran_strvec(2*nbc+2*ngc, dense_workspace.res_m, 0);
-	printf("\nres_mu\n");
-	printf("\n%e\n\n", dense_workspace.res_mu);
-
-	printf("\nipm iter = %d\n", dense_workspace.iter);
-	printf("\nalpha_aff\tmu_aff\t\tsigma\t\talpha\t\tmu\n");
-	d_print_e_tran_mat(5, dense_workspace.iter, dense_workspace.stat, 5);
-
-	printf("\ncond time = %e [s], dense ipm time = %e [s]\n\n", time_cond, time_dense_ipm);
-
-/************************************************
-* ocp qp sol
-************************************************/	
-	
-	int ocp_qp_sol_size = d_memsize_ocp_qp_sol(N, nx, nu, nb, ng);
-	printf("\nocp qp sol size = %d\n", ocp_qp_sol_size);
-	void *ocp_qp_sol_mem = malloc(ocp_qp_sol_size);
-
-	struct d_ocp_qp_sol ocp_qp_sol;
-	d_create_ocp_qp_sol(N, nx, nu, nb, ng, &ocp_qp_sol, ocp_qp_sol_mem);
-
-/************************************************
-* expand solution
-************************************************/	
-
-	d_expand_sol_dense2ocp(&ocp_qp, &dense_qp_sol, &ocp_qp_sol, &cond_ws);
-
-	printf("\nfull space solution\n\n");
-	printf("\nux\n");
-	for(ii=0; ii<=N; ii++)
-		d_print_tran_strvec(nu[ii]+nx[ii], ocp_qp_sol.ux+ii, 0);
-	printf("\npi\n");
-	for(ii=0; ii<N; ii++)
-		d_print_tran_strvec(nx[ii+1], ocp_qp_sol.pi+ii, 0);
-	printf("\nlam_lb\n");
-	for(ii=0; ii<=N; ii++)
-		d_print_tran_strvec(nb[ii], ocp_qp_sol.lam_lb+ii, 0);
-	printf("\nlam_ub\n");
-	for(ii=0; ii<=N; ii++)
-		d_print_tran_strvec(nb[ii], ocp_qp_sol.lam_ub+ii, 0);
-	printf("\nlam_lg\n");
-	for(ii=0; ii<=N; ii++)
-		d_print_tran_strvec(ng[ii], ocp_qp_sol.lam_lg+ii, 0);
-	printf("\nlam_ug\n");
-	for(ii=0; ii<=N; ii++)
-		d_print_tran_strvec(ng[ii], ocp_qp_sol.lam_ug+ii, 0);
-	printf("\nt_lb\n");
-	for(ii=0; ii<=N; ii++)
-		d_print_tran_strvec(nb[ii], ocp_qp_sol.t_lb+ii, 0);
-	printf("\nt_ub\n");
-	for(ii=0; ii<=N; ii++)
-		d_print_tran_strvec(nb[ii], ocp_qp_sol.t_ub+ii, 0);
-	printf("\nt_lg\n");
-	for(ii=0; ii<=N; ii++)
-		d_print_tran_strvec(ng[ii], ocp_qp_sol.t_lg+ii, 0);
-	printf("\nt_ug\n");
-	for(ii=0; ii<=N; ii++)
-		d_print_tran_strvec(ng[ii], ocp_qp_sol.t_ug+ii, 0);
 
 /************************************************
 * free memory
@@ -763,11 +626,11 @@ int main()
 	d_free(d_ugN);
 
 	free(ocp_qp_mem);
-	free(ocp_qp_sol_mem);
-	free(dense_qp_mem);
-	free(dense_qp_sol_mem);
-	free(cond_mem);
-	free(dense_ipm_mem);
+//	free(ocp_qp_sol_mem);
+	free(part_dense_qp_mem);
+//	free(dense_qp_sol_mem);
+	free(part_cond_mem);
+//	free(dense_ipm_mem);
 
 /************************************************
 * return
