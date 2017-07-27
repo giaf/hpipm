@@ -260,7 +260,7 @@ int main()
 
 	int nx_ = 8; // number of states (it has to be even for the mass-spring system test problem)
 	int nu_ = 3; // number of inputs (controllers) (it has to be at least 1 and at most nx/2 for the mass-spring system test problem)
-	int N  = 3; // horizon lenght
+	int N  = 5; // horizon lenght
 
 
 
@@ -290,7 +290,7 @@ int main()
 #endif
 	for(ii=1; ii<N; ii++)
 		nb[ii] = nu[1]+nx[1]/2;
-	nb[N] = 0;//nx[N]/2;
+	nb[N] = nx[N]/2;
 
 	int ng[N+1];
 	ng[0] = 0;

@@ -35,13 +35,7 @@
 
 struct d_cond_qp_ocp2ocp_workspace
 	{
-	struct d_strmat *Gamma;
-	struct d_strmat *L;
-	struct d_strmat *Lx;
-	struct d_strmat *AL;
-	struct d_strvec *Gammab;
-	struct d_strvec *tmp_ngM;
-	struct d_strvec *tmp_nuxM;
+	struct d_cond_qp_ocp2dense_workspace *cond_workspace;
 	int memsize;
 	};
 

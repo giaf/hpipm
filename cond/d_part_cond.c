@@ -93,64 +93,41 @@ void d_compute_qp_size_ocp2ocp(int N, int *nx, int *nu, int *nb, int **idxb, int
 int d_memsize_cond_qp_ocp2ocp(struct d_ocp_qp *ocp_qp, struct d_ocp_qp *part_dense_qp)
 	{
 
+	struct d_ocp_qp tmp_ocp_qp;
+	struct d_dense_qp tmp_dense_qp;
+
 	int ii;
 
 	int N = ocp_qp->N;
-	int *nx = ocp_qp->nx;
-	int *nu = ocp_qp->nu;
-	int *nb = ocp_qp->nb;
-	int *ng = ocp_qp->ng;
-
-	// compute core qp size and max size
-	int nvt = 0;
-	int net = 0;
-	int nbt = 0;
-	int ngt = 0;
-	int nxM = 0;
-	int nuM = 0;
-	int nbM = 0;
-	int ngM = 0;
-
-	for(ii=0; ii<N; ii++)
-		{
-		nvt += nx[ii]+nu[ii];
-		net += nx[ii+1];
-		nbt += nb[ii];
-		ngt += ng[ii];
-		nxM = nx[ii]>nxM ? nx[ii] : nxM;
-		nuM = nu[ii]>nuM ? nu[ii] : nuM;
-		nbM = nb[ii]>nbM ? nb[ii] : nbM;
-		ngM = ng[ii]>ngM ? ng[ii] : ngM;
-		}
-	ii = N;
-	nvt += nx[ii]+nu[ii];
-	nbt += nb[ii];
-	ngt += ng[ii];
-	nxM = nx[ii]>nxM ? nx[ii] : nxM;
-	nuM = nu[ii]>nuM ? nu[ii] : nuM;
-	nbM = nb[ii]>nbM ? nb[ii] : nbM;
-	ngM = ng[ii]>ngM ? ng[ii] : ngM;
+	int N2 = part_dense_qp->N;
+	int N1 = N/N2; // (floor) horizon of small blocks
+	int R1 = N - N2*N1; // the first R1 blocks have horizon N1+1
+	int M1 = R1>0 ? N1+1 : N1; // (ceil) horizon of large blocks
+	int T1; // horizon of current block
 
 	int size = 0;
 
-	size += (2+2*(N+1))*sizeof(struct d_strmat); // Gamma L Lx AL
-	size += (2+1*(N+1))*sizeof(struct d_strvec); // Gammab tmp_ngM tmp_nuxM
+	size += N2*sizeof(struct d_cond_qp_ocp2dense_workspace);
 
-	int nu_tmp = 0;
-	for(ii=0; ii<N; ii++)
+	int N_tmp = 0; // temporary sum of horizons
+	for(ii=0; ii<N2; ii++)
 		{
-		nu_tmp += nu[ii];
-		size += d_size_strmat(nu_tmp+nx[0]+1, nx[ii+1]); // Gamma TODO
+
+		T1 = ii<R1 ? M1 : N1;
+
+		// alias ocp_qp
+		tmp_ocp_qp.N = T1;
+		tmp_ocp_qp.nx = ocp_qp->nx+N_tmp;
+		tmp_ocp_qp.nu = ocp_qp->nu+N_tmp;
+		tmp_ocp_qp.nb = ocp_qp->nb+N_tmp;
+		tmp_ocp_qp.ng = ocp_qp->ng+N_tmp;
+		tmp_ocp_qp.idxb = ocp_qp->idxb+N_tmp;
+
+		size += d_memsize_cond_qp_ocp2dense(&tmp_ocp_qp, &tmp_dense_qp); // TODO floag to avoid to condense the last stage !!!!!
+
+		N_tmp += T1;
+
 		}
-	for(ii=0; ii<=N; ii++) 
-		size += d_size_strmat(nu[ii]+nx[ii]+1, nu[ii]+nx[ii]); // L TODO
-	size += d_size_strmat(nxM+1, nxM); // Lx
-	size += d_size_strmat(nuM+nxM+1, nxM); // AL
-	for(ii=0; ii<N; ii++) 
-		size += 1*d_size_strvec(nx[ii+1]); // Gammab TODO
-	size += d_size_strvec(ngM); // tmp_ngM
-	size += 1*d_size_strvec(nuM+nxM); // tmp_nuxM
-	size += 1*d_size_strvec(ngM); // tmp_ngM
 
 	size = (size+63)/64*64; // make multiple of typical cache line size
 	size += 1*64; // align once to typical cache line size
@@ -164,104 +141,49 @@ int d_memsize_cond_qp_ocp2ocp(struct d_ocp_qp *ocp_qp, struct d_ocp_qp *part_den
 void d_create_cond_qp_ocp2ocp(struct d_ocp_qp *ocp_qp, struct d_ocp_qp *part_dense_qp, struct d_cond_qp_ocp2ocp_workspace *cond_ws, void *mem)
 	{
 
+	struct d_ocp_qp tmp_ocp_qp;
+	struct d_dense_qp tmp_dense_qp;
+
 	int ii;
 
 	int N = ocp_qp->N;
-	int *nx = ocp_qp->nx;
-	int *nu = ocp_qp->nu;
-	int *nb = ocp_qp->nb;
-	int *ng = ocp_qp->ng;
+	int N2 = part_dense_qp->N;
+	int N1 = N/N2; // (floor) horizon of small blocks
+	int R1 = N - N2*N1; // the first R1 blocks have horizon N1+1
+	int M1 = R1>0 ? N1+1 : N1; // (ceil) horizon of large blocks
+	int T1; // horizon of current block
 
-	// compute core qp size and max size
-	int nvt = 0;
-	int net = 0;
-	int nbt = 0;
-	int ngt = 0;
-	int nxM = 0;
-	int nuM = 0;
-	int nbM = 0;
-	int ngM = 0;
-
-	for(ii=0; ii<N; ii++)
-		{
-		nvt += nx[ii]+nu[ii];
-		net += nx[ii+1];
-		nbt += nb[ii];
-		ngt += ng[ii];
-		nxM = nx[ii]>nxM ? nx[ii] : nxM;
-		nuM = nu[ii]>nuM ? nu[ii] : nuM;
-		nbM = nb[ii]>nbM ? nb[ii] : nbM;
-		ngM = ng[ii]>ngM ? ng[ii] : ngM;
-		}
-	ii = N;
-	nvt += nx[ii]+nu[ii];
-	nbt += nb[ii];
-	ngt += ng[ii];
-	nxM = nx[ii]>nxM ? nx[ii] : nxM;
-	nuM = nu[ii]>nuM ? nu[ii] : nuM;
-	nbM = nb[ii]>nbM ? nb[ii] : nbM;
-	ngM = ng[ii]>ngM ? ng[ii] : ngM;
-
-
-	// matrix struct
-	struct d_strmat *sm_ptr = (struct d_strmat *) mem;
-
-	cond_ws->Gamma = sm_ptr;
-	sm_ptr += N+1;
-	cond_ws->L = sm_ptr;
-	sm_ptr += N+1;
-	cond_ws->Lx = sm_ptr;
-	sm_ptr += 1;
-	cond_ws->AL = sm_ptr;
-	sm_ptr += 1;
-
-
-	// vector struct
-	struct d_strvec *sv_ptr = (struct d_strvec *) sm_ptr;
-
-	cond_ws->Gammab = sv_ptr;
-	sv_ptr += N+1;
-	cond_ws->tmp_ngM = sv_ptr;
-	sv_ptr += 1;
-	cond_ws->tmp_nuxM = sv_ptr;
-	sv_ptr += 1;
-
+	// cond workspace struct
+	struct d_cond_qp_ocp2dense_workspace *cws_ptr = mem;
+	cond_ws->cond_workspace = cws_ptr;
+	cws_ptr += N2;
 
 	// align to typicl cache line size
-	size_t s_ptr = (size_t) sv_ptr;
+	size_t s_ptr = (size_t) cws_ptr;
 	s_ptr = (s_ptr+63)/64*64;
 
-
-	// void stuf
 	char *c_ptr = (char *) s_ptr;
-	char *c_tmp;
 
-	int nu_tmp = 0;
-	for(ii=0; ii<N; ii++)
+	int N_tmp = 0; // temporary sum of horizons
+	for(ii=0; ii<N2; ii++)
 		{
-		nu_tmp += nu[ii];
-		d_create_strmat(nu_tmp+nx[0]+1, nx[ii+1], cond_ws->Gamma+ii, c_ptr);
-		c_ptr += (cond_ws->Gamma+ii)->memory_size;
+
+		T1 = ii<R1 ? M1 : N1;
+
+		// alias ocp_qp
+		tmp_ocp_qp.N = T1;
+		tmp_ocp_qp.nx = ocp_qp->nx+N_tmp;
+		tmp_ocp_qp.nu = ocp_qp->nu+N_tmp;
+		tmp_ocp_qp.nb = ocp_qp->nb+N_tmp;
+		tmp_ocp_qp.ng = ocp_qp->ng+N_tmp;
+		tmp_ocp_qp.idxb = ocp_qp->idxb+N_tmp;
+
+		d_create_cond_qp_ocp2dense(&tmp_ocp_qp, &tmp_dense_qp, cond_ws->cond_workspace+ii, c_ptr);
+		c_ptr += (cond_ws->cond_workspace+ii)->memsize;
+
+		N_tmp += T1;
+
 		}
-	for(ii=0; ii<=N; ii++)
-		{
-		d_create_strmat(nu[ii]+nx[ii]+1, nu[ii]+nx[ii], cond_ws->L+ii, c_ptr);
-		c_ptr += (cond_ws->L+ii)->memory_size;
-		}
-	d_create_strmat(nxM+1, nxM, cond_ws->Lx, c_ptr);
-	c_ptr += cond_ws->Lx->memory_size;
-	d_create_strmat(nuM+nxM+1, nxM, cond_ws->AL, c_ptr);
-	c_ptr += cond_ws->AL->memory_size;
-	for(ii=0; ii<N; ii++)
-		{
-		d_create_strvec(nx[ii+1], cond_ws->Gammab+ii, c_ptr);
-		c_ptr += (cond_ws->Gammab+ii)->memory_size;
-		}
-	d_create_strvec(ngM, cond_ws->tmp_ngM, c_ptr);
-	c_ptr += cond_ws->tmp_ngM->memory_size;
-	c_tmp = c_ptr;
-	d_create_strvec(nuM+nxM, cond_ws->tmp_nuxM, c_ptr);
-	c_ptr += cond_ws->tmp_nuxM->memory_size;
 
 	cond_ws->memsize = d_memsize_cond_qp_ocp2ocp(ocp_qp, part_dense_qp);
 
@@ -274,7 +196,6 @@ void d_create_cond_qp_ocp2ocp(struct d_ocp_qp *ocp_qp, struct d_ocp_qp *part_den
 void d_cond_qp_ocp2ocp(struct d_ocp_qp *ocp_qp, struct d_ocp_qp *part_dense_qp, struct d_cond_qp_ocp2ocp_workspace *part_cond_ws)
 	{
 
-	struct d_cond_qp_ocp2dense_workspace cond_ws;
 	struct d_ocp_qp tmp_ocp_qp;
 
 	int ii;
@@ -309,24 +230,32 @@ void d_cond_qp_ocp2ocp(struct d_ocp_qp *ocp_qp, struct d_ocp_qp *part_dense_qp, 
 		tmp_ocp_qp.d_lg = ocp_qp->d_lg+N_tmp;
 		tmp_ocp_qp.d_ug = ocp_qp->d_ug+N_tmp;
 
-		// alias part_cond_ws
-		cond_ws.Gamma = part_cond_ws->Gamma+N_tmp;
-		cond_ws.L = part_cond_ws->L+N_tmp;
-		cond_ws.Gammab = part_cond_ws->Gammab+N_tmp;
-		cond_ws.Lx = part_cond_ws->Lx;
-		cond_ws.AL = part_cond_ws->AL;
-		cond_ws.tmp_ngM = part_cond_ws->tmp_ngM;
-		cond_ws.tmp_nuxM = part_cond_ws->tmp_nuxM;
+		tmp_ocp_qp.N = T1;
+		d_cond_BAbt(&tmp_ocp_qp, part_dense_qp->BAbt+ii, part_dense_qp->b+ii, part_cond_ws->cond_workspace+ii);
 
-		d_compute_Gamma(&tmp_ocp_qp, &cond_ws);
+		tmp_ocp_qp.N = T1-1; // TODO add flag to avoid condensing last stage
+		d_cond_RSQrq_N2nx3(&tmp_ocp_qp, part_dense_qp->RSQrq+ii, part_dense_qp->rq+ii, part_cond_ws->cond_workspace+ii);
 
-//		d_cond_RSQrq_N2nx3(&tmp_ocp_qp, part_dense_qp->RSQrq+ii, part_dense_qp->rq+ii, &cond_ws);
-
-//		d_cond_DCtd(&tmp_ocp_qp, part_dense_qp->idxb, dense_qp->d_lb, dense_qp->d_ub, dense_qp->Ct, dense_qp->d_lg, dense_qp->d_ug, cond_ws);
+		tmp_ocp_qp.N = T1-1; // TODO add flag to avoid condensing last stage
+		d_cond_DCtd(&tmp_ocp_qp, part_dense_qp->idxb[ii], part_dense_qp->d_lb+ii, part_dense_qp->d_ub+ii, part_dense_qp->DCt+ii, part_dense_qp->d_lg+ii, part_dense_qp->d_ug+ii, part_cond_ws->cond_workspace+ii);
 
 		N_tmp += T1;
 
 		}
+
+	// copy last stage
+	int *nx = ocp_qp->nx;
+	int *nu = ocp_qp->nu;
+	int *nb = ocp_qp->nb;
+	int *ng = ocp_qp->ng;
+
+	dgecp_libstr(nu[N]+nx[N]+1, nu[N]+nx[N], ocp_qp->RSQrq+N, 0, 0, part_dense_qp->RSQrq+N2, 0, 0);
+	dveccp_libstr(nu[N]+nx[N], ocp_qp->rq+N, 0, part_dense_qp->rq+N2, 0);
+	dveccp_libstr(nb[N], ocp_qp->d_lb+N, 0, part_dense_qp->d_lb+N2, 0);
+	dveccp_libstr(nb[N], ocp_qp->d_ub+N, 0, part_dense_qp->d_ub+N2, 0);
+	dgecp_libstr(nu[N]+nx[N], ng[N], ocp_qp->DCt+N, 0, 0, part_dense_qp->DCt+N2, 0, 0);
+	dveccp_libstr(ng[N], ocp_qp->d_lg+N, 0, part_dense_qp->d_lg+N2, 0);
+	dveccp_libstr(ng[N], ocp_qp->d_ug+N, 0, part_dense_qp->d_ug+N2, 0);
 
 	return;
 

@@ -72,7 +72,6 @@ void d_compute_Gamma(struct d_ocp_qp *ocp_qp, struct d_cond_qp_ocp2dense_workspa
 	// b
 	drowex_libstr(nx[1], 1.0, &Gamma[0], nu[0]+nx[0], 0, &Gammab[0], 0);
 
-
 	nu_tmp += nu[0];
 	ii++;
 
@@ -98,21 +97,23 @@ void d_compute_Gamma(struct d_ocp_qp *ocp_qp, struct d_cond_qp_ocp2dense_workspa
 
 
 
-#if 0
-void d_cond_BAbt(int N, struct d_ocp_qp *ocp_qp, int idx_in, struct d_strmat *BAbt2, struct d_strvec *b2, struct d_cond_qp_ocp2dense_workspace *cond_ws)
+void d_cond_BAbt(struct d_ocp_qp *ocp_qp, struct d_strmat *BAbt2, struct d_strvec *b2, struct d_cond_qp_ocp2dense_workspace *cond_ws)
 	{
+
+	int N = ocp_qp->N;
 
 	// early return
 	if(N<0)
 		return;
 
 	// extract input members
-	int *nx = ocp_qp->nx + idx_in;
-	int *nu = ocp_qp->nu + idx_in;
-	struct d_strmat *BAbt = ocp_qp->BAbt + idx_in;
+	int *nx = ocp_qp->nx;
+	int *nu = ocp_qp->nu;
+	struct d_strmat *BAbt = ocp_qp->BAbt;
 
 	// extract memory members
 	struct d_strmat *Gamma = cond_ws->Gamma;
+	struct d_strvec *Gammab = cond_ws->Gammab;
 
 	int ii, jj;
 
@@ -122,7 +123,9 @@ void d_cond_BAbt(int N, struct d_ocp_qp *ocp_qp, int idx_in, struct d_strmat *BA
 	ii = 0;
 	// B & A & b
 	dgecp_libstr(nu[0]+nx[0]+1, nx[1], &BAbt[0], 0, 0, &Gamma[0], 0, 0);
-	//
+	// b
+	drowex_libstr(nx[1], 1.0, &Gamma[0], nu[0]+nx[0], 0, &Gammab[0], 0);
+
 	nu_tmp += nu[0];
 	ii++;
 
@@ -138,17 +141,18 @@ void d_cond_BAbt(int N, struct d_ocp_qp *ocp_qp, int idx_in, struct d_strmat *BA
 		nu_tmp += nu[ii];
 
 		dgead_libstr(1, nx[ii+1], 1.0, &BAbt[ii], nu[ii]+nx[ii], 0, &Gamma[ii], nu_tmp+nx[0], 0);
+
+		drowex_libstr(nx[ii+1], 1.0, &Gamma[ii], nu_tmp+nx[0], 0, &Gammab[ii], 0);
 		}
 	
 	// B & A & b
 	dgecp_libstr(nu_tmp+nx[0]+1, nx[N], &Gamma[N-1], 0, 0, &BAbt2[0], 0, 0);
 	// b
-	drowex_libstr(nx[N], 1.0, &BAbt2[0], 0, 0, &b2[0], 0);
+	drowex_libstr(nx[N], 1.0, &BAbt2[0], nu_tmp+nx[0], 0, &b2[0], 0);
 
 	return;
 
 	}
-#endif
 
 
 
@@ -182,6 +186,7 @@ void d_cond_RSQrq_N2nx3(struct d_ocp_qp *ocp_qp, struct d_strmat *RSQrq2, struct
 	if(N==0)
 		{
 		dgecp_libstr(nu[0]+nx[0]+1, nu[0]+nx[0], &RSQrq[0], 0, 0, &RSQrq2[0], 0, 0);
+		drowex_libstr(nu[0]+nx[0], 1.0, &RSQrq[0], nu[0]+nx[0], 0, &rq2[0], 0);
 		return;
 		}
 
