@@ -539,7 +539,7 @@ int main()
 * part dense qp
 ************************************************/	
 
-	int N2 = 3; // horizon of partially condensed problem
+	int N2 = 2; // horizon of partially condensed problem
 
 	int nx2[N2+1];
 	int nu2[N2+1];
@@ -566,7 +566,6 @@ int main()
 
 	gettimeofday(&tv0, NULL); // start
 
-	nrep = 1;
 	for(rep=0; rep<nrep; rep++)
 		{
 		d_cond_qp_ocp2ocp(&ocp_qp, &part_dense_qp, &part_cond_ws);
@@ -636,7 +635,6 @@ int main()
 
 	gettimeofday(&tv0, NULL); // start
 
-	nrep = 1;
 	for(rep=0; rep<nrep; rep++)
 		{
 //		d_solve_ipm_hard_ocp_qp(&part_dense_qp, &part_dense_qp_sol, &workspace);
@@ -737,7 +735,8 @@ int main()
 	printf("\nalpha_aff\tmu_aff\t\tsigma\t\talpha\t\tmu\n");
 	d_print_e_tran_mat(5, workspace.iter, workspace.stat, 5);
 
-	printf("\nocp ipm time = %e [s]\n\n", time_ocp_ipm);
+	printf("\npart cond time         = %e [s]\n", time_cond);
+	printf("\npart cond ocp ipm time = %e [s]\n\n", time_ocp_ipm);
 
 /************************************************
 * free memory

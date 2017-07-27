@@ -6,4 +6,6 @@ libhpipm.so
 hpipm_target.h
 *.swp
 *.swo
+*.mex
+*.eps
 build/
