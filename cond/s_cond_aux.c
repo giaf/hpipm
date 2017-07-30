@@ -25,20 +25,52 @@
 *                                                                                                 *
 **************************************************************************************************/
 
-
+#include <math.h>
+#include <stdlib.h>
+#include <stdio.h>
 
 #include <blasfeo_target.h>
 #include <blasfeo_common.h>
+#include <blasfeo_s_blas.h>
+#include <blasfeo_s_aux.h>
+
+#include "../include/hpipm_s_ocp_qp.h"
+#include "../include/hpipm_s_ocp_qp_sol.h"
+#include "../include/hpipm_s_dense_qp.h"
+#include "../include/hpipm_s_dense_qp_sol.h"
+#include "../include/hpipm_s_cond.h"
 
 
 
-//
-void d_compute_Gamma(struct d_ocp_qp *ocp_qp, struct d_cond_qp_ocp2dense_workspace *cond_ws);
-//
-void d_cond_BAbt(struct d_ocp_qp *ocp_qp, struct d_strmat *BAbt2, struct d_strvec *b2, struct d_cond_qp_ocp2dense_workspace *cond_ws);
-//
-void d_cond_RSQrq_N2nx3(struct d_ocp_qp *ocp_qp, struct d_strmat *RSQrq2, struct d_strvec *rq2, struct d_cond_qp_ocp2dense_workspace *cond_ws);
-//
-void d_cond_DCtd(struct d_ocp_qp *ocp_qp, int *idxb2, struct d_strvec *d_lb2, struct d_strvec *d_ub2, struct d_strmat *DCt2, struct d_strvec *d_lg2, struct d_strvec *d_ug2, struct d_cond_qp_ocp2dense_workspace *cond_ws);
-//
-void d_expand_sol(struct d_ocp_qp *ocp_qp, struct d_dense_qp_sol *dense_qp_sol, struct d_strvec *ux, struct d_strvec *pi, struct d_strvec *lam_lb, struct d_strvec *lam_ub, struct d_strvec *lam_lg, struct d_strvec *lam_ug, struct d_strvec *t_lb, struct d_strvec *t_ub, struct d_strvec *t_lg, struct d_strvec *t_ug, struct d_strvec *tmp_nuxM, struct d_strvec *tmp_ngM);
+#define AXPY_LIBSTR saxpy_libstr
+#define COND_QP_OCP2DENSE_WORKSPACE s_cond_qp_ocp2dense_workspace
+#define DENSE_QP_SOL s_dense_qp_sol
+#define GEAD_LIBSTR sgead_libstr
+#define GECP_LIBSTR sgecp_libstr
+#define GEEX1_LIBSTR sgeex1_libstr
+#define GESE_LIBSTR sgese_libstr
+#define GEMM_NN_LIBSTR sgemm_nn_libstr
+#define GEMV_T_LIBSTR sgemv_t_libstr
+#define GEMV_N_LIBSTR sgemv_n_libstr
+#define OCP_QP s_ocp_qp
+#define POTRF_L_MN_LIBSTR spotrf_l_mn_libstr
+#define REAL float
+#define ROWEX_LIBSTR srowex_libstr
+#define STRMAT s_strmat
+#define STRVEC s_strvec
+#define SYMV_L_LIBSTR ssymv_l_libstr
+#define SYRK_LN_MN_LIBSTR ssyrk_ln_mn_libstr
+#define TRCP_L_LIBSTR strcp_l_libstr
+#define TRMM_RLNN_LIBSTR strmm_rlnn_libstr
+#define VECCP_LIBSTR sveccp_libstr
+
+#define COMPUTE_GAMMA s_compute_Gamma
+#define COND_BABT s_cond_BAbt
+#define COND_RSQRQ_N2NX3 s_cond_RSQrq_N2nx3
+#define COND_DCTD s_cond_DCtd
+#define EXPAND_SOL s_expand_sol
+
+
+
+#include "x_cond_aux.c"
+

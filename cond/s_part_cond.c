@@ -25,20 +25,43 @@
 *                                                                                                 *
 **************************************************************************************************/
 
-
+#include <math.h>
+#include <stdlib.h>
+#include <stdio.h>
 
 #include <blasfeo_target.h>
 #include <blasfeo_common.h>
+#include <blasfeo_s_blas.h>
+#include <blasfeo_s_aux.h>
+
+#include "../include/hpipm_s_ocp_qp.h"
+#include "../include/hpipm_s_ocp_qp_sol.h"
+#include "../include/hpipm_s_dense_qp.h"
+#include "../include/hpipm_s_dense_qp_sol.h"
+#include "../include/hpipm_s_cond.h"
+#include "../include/hpipm_s_part_cond.h"
+#include "../include/hpipm_s_cond_aux.h"
 
 
 
-//
-void d_compute_Gamma(struct d_ocp_qp *ocp_qp, struct d_cond_qp_ocp2dense_workspace *cond_ws);
-//
-void d_cond_BAbt(struct d_ocp_qp *ocp_qp, struct d_strmat *BAbt2, struct d_strvec *b2, struct d_cond_qp_ocp2dense_workspace *cond_ws);
-//
-void d_cond_RSQrq_N2nx3(struct d_ocp_qp *ocp_qp, struct d_strmat *RSQrq2, struct d_strvec *rq2, struct d_cond_qp_ocp2dense_workspace *cond_ws);
-//
-void d_cond_DCtd(struct d_ocp_qp *ocp_qp, int *idxb2, struct d_strvec *d_lb2, struct d_strvec *d_ub2, struct d_strmat *DCt2, struct d_strvec *d_lg2, struct d_strvec *d_ug2, struct d_cond_qp_ocp2dense_workspace *cond_ws);
-//
-void d_expand_sol(struct d_ocp_qp *ocp_qp, struct d_dense_qp_sol *dense_qp_sol, struct d_strvec *ux, struct d_strvec *pi, struct d_strvec *lam_lb, struct d_strvec *lam_ub, struct d_strvec *lam_lg, struct d_strvec *lam_ug, struct d_strvec *t_lb, struct d_strvec *t_ub, struct d_strvec *t_lg, struct d_strvec *t_ug, struct d_strvec *tmp_nuxM, struct d_strvec *tmp_ngM);
+#define COND_BABT s_cond_BAbt
+#define COND_DCTD s_cond_DCtd
+#define COND_RSQRQ_N2NX3 s_cond_RSQrq_N2nx3
+#define COND_QP_OCP2DENSE_WORKSPACE s_cond_qp_ocp2dense_workspace
+#define COND_QP_OCP2OCP_WORKSPACE s_cond_qp_ocp2ocp_workspace
+#define CREATE_COND_QP_OCP2DENSE s_create_cond_qp_ocp2dense
+#define DENSE_QP s_dense_qp
+#define GECP_LIBSTR sgecp_libstr
+#define MEMSIZE_COND_QP_OCP2DENSE s_memsize_cond_qp_ocp2dense
+#define OCP_QP s_ocp_qp
+#define VECCP_LIBSTR sveccp_libstr
+
+#define COMPUTE_QP_SIZE_OCP2OCP s_compute_qp_size_ocp2ocp
+#define MEMSIZE_COND_QP_OCP2OCP s_memsize_cond_qp_ocp2ocp
+#define CREATE_COND_QP_OCP2OCP s_create_cond_qp_ocp2ocp
+#define COND_QP_OCP2OCP s_cond_qp_ocp2ocp
+
+
+
+#include "x_part_cond.c"
+

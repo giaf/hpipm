@@ -9,3 +9,4 @@ hpipm_target.h
 *.mex
 *.eps
 build/
+octave-workspace

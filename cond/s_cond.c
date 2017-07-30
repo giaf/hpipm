@@ -25,20 +25,47 @@
 *                                                                                                 *
 **************************************************************************************************/
 
-
+#include <math.h>
+#include <stdlib.h>
+#include <stdio.h>
 
 #include <blasfeo_target.h>
 #include <blasfeo_common.h>
+#include <blasfeo_s_blas.h>
+#include <blasfeo_s_aux.h>
+
+#include "../include/hpipm_s_ocp_qp.h"
+#include "../include/hpipm_s_ocp_qp_sol.h"
+#include "../include/hpipm_s_dense_qp.h"
+#include "../include/hpipm_s_dense_qp_sol.h"
+#include "../include/hpipm_s_cond.h"
+#include "../include/hpipm_s_cond_aux.h"
 
 
 
-//
-void d_compute_Gamma(struct d_ocp_qp *ocp_qp, struct d_cond_qp_ocp2dense_workspace *cond_ws);
-//
-void d_cond_BAbt(struct d_ocp_qp *ocp_qp, struct d_strmat *BAbt2, struct d_strvec *b2, struct d_cond_qp_ocp2dense_workspace *cond_ws);
-//
-void d_cond_RSQrq_N2nx3(struct d_ocp_qp *ocp_qp, struct d_strmat *RSQrq2, struct d_strvec *rq2, struct d_cond_qp_ocp2dense_workspace *cond_ws);
-//
-void d_cond_DCtd(struct d_ocp_qp *ocp_qp, int *idxb2, struct d_strvec *d_lb2, struct d_strvec *d_ub2, struct d_strmat *DCt2, struct d_strvec *d_lg2, struct d_strvec *d_ug2, struct d_cond_qp_ocp2dense_workspace *cond_ws);
-//
-void d_expand_sol(struct d_ocp_qp *ocp_qp, struct d_dense_qp_sol *dense_qp_sol, struct d_strvec *ux, struct d_strvec *pi, struct d_strvec *lam_lb, struct d_strvec *lam_ub, struct d_strvec *lam_lg, struct d_strvec *lam_ug, struct d_strvec *t_lb, struct d_strvec *t_ub, struct d_strvec *t_lg, struct d_strvec *t_ug, struct d_strvec *tmp_nuxM, struct d_strvec *tmp_ngM);
+#define COND_DCTD s_cond_DCtd
+#define COMPUTE_GAMMA s_compute_Gamma
+#define COND_RSQRQ_N2NX3 s_cond_RSQrq_N2nx3
+#define COND_QP_OCP2DENSE_WORKSPACE s_cond_qp_ocp2dense_workspace
+#define CREATE_STRMAT s_create_strmat
+#define CREATE_STRVEC s_create_strvec
+#define DENSE_QP s_dense_qp
+#define DENSE_QP_SOL s_dense_qp_sol
+#define EXPAND_SOL s_expand_sol
+#define OCP_QP s_ocp_qp
+#define OCP_QP_SOL s_ocp_qp_sol
+#define SIZE_STRMAT s_size_strmat
+#define SIZE_STRVEC s_size_strvec
+#define STRMAT s_strmat
+#define STRVEC s_strvec
+
+#define COMPUTE_QP_SIZE_OCP2DENSE s_compute_qp_size_ocp2dense
+#define MEMSIZE_COND_QP_OCP2DENSE s_memsize_cond_qp_ocp2dense
+#define CREATE_COND_QP_OCP2DENSE s_create_cond_qp_ocp2dense
+#define COND_QP_OCP2DENSE s_cond_qp_ocp2dense
+#define EXPAND_SOL_DENSE2OCP s_expand_sol_dense2ocp
+
+
+
+#include "x_cond.c"
+

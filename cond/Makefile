@@ -34,7 +34,7 @@ OBJS +=
 endif
 
 OBJS += d_cond_aux.o d_cond.o d_part_cond.o
-OBJS += 
+OBJS += s_cond_aux.o s_cond.o s_part_cond.o
 
 obj: $(OBJS)
 
