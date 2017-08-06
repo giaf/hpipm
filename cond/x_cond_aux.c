@@ -407,7 +407,7 @@ void COND_DCTD(struct OCP_QP *ocp_qp, int *idxb2, struct STRVEC *d_lb2, struct S
 
 
 
-void EXPAND_SOL(struct OCP_QP *ocp_qp, struct DENSE_QP_SOL *dense_qp_sol, struct STRVEC *ux, struct STRVEC *pi, struct STRVEC *lam_lb, struct STRVEC *lam_ub, struct STRVEC *lam_lg, struct STRVEC *lam_ug, struct STRVEC *t_lb, struct STRVEC *t_ub, struct STRVEC *t_lg, struct STRVEC *t_ug, struct COND_QP_OCP2DENSE_WORKSPACE *cond_ws)
+void EXPAND_SOL(struct OCP_QP *ocp_qp, struct DENSE_QP_SOL *dense_qp_sol, struct OCP_QP_SOL *ocp_qp_sol, struct COND_QP_OCP2DENSE_WORKSPACE *cond_ws)
 	{
 
 	int N = ocp_qp->N;
@@ -438,6 +438,17 @@ void EXPAND_SOL(struct OCP_QP *ocp_qp, struct DENSE_QP_SOL *dense_qp_sol, struct
 	struct STRVEC *t_ubc = dense_qp_sol->t_ub;
 	struct STRVEC *t_lgc = dense_qp_sol->t_lg;
 	struct STRVEC *t_ugc = dense_qp_sol->t_ug;
+
+	struct STRVEC *ux = ocp_qp_sol->ux;
+	struct STRVEC *pi = ocp_qp_sol->pi;
+	struct STRVEC *lam_lb = ocp_qp_sol->lam_lb;
+	struct STRVEC *lam_ub = ocp_qp_sol->lam_ub;
+	struct STRVEC *lam_lg = ocp_qp_sol->lam_lg;
+	struct STRVEC *lam_ug = ocp_qp_sol->lam_ug;
+	struct STRVEC *t_lb = ocp_qp_sol->t_lb;
+	struct STRVEC *t_ub = ocp_qp_sol->t_ub;
+	struct STRVEC *t_lg = ocp_qp_sol->t_lg;
+	struct STRVEC *t_ug = ocp_qp_sol->t_ug;
 
 	struct STRVEC *tmp_nuxM = cond_ws->tmp_nuxM;
 	struct STRVEC *tmp_ngM = cond_ws->tmp_ngM;

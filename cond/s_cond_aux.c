@@ -53,6 +53,7 @@
 #define GEMV_T_LIBSTR sgemv_t_libstr
 #define GEMV_N_LIBSTR sgemv_n_libstr
 #define OCP_QP s_ocp_qp
+#define OCP_QP_SOL s_ocp_qp_sol
 #define POTRF_L_MN_LIBSTR spotrf_l_mn_libstr
 #define REAL float
 #define ROWEX_LIBSTR srowex_libstr

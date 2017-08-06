@@ -53,6 +53,7 @@
 #define GEMV_T_LIBSTR dgemv_t_libstr
 #define GEMV_N_LIBSTR dgemv_n_libstr
 #define OCP_QP d_ocp_qp
+#define OCP_QP_SOL d_ocp_qp_sol
 #define POTRF_L_MN_LIBSTR dpotrf_l_mn_libstr
 #define REAL double
 #define ROWEX_LIBSTR drowex_libstr

@@ -248,6 +248,7 @@ void EXPAND_SOL_OCP2OCP(struct OCP_QP *ocp_qp, struct OCP_QP *part_dense_qp, str
 	{
 
 	struct OCP_QP tmp_ocp_qp;
+	struct OCP_QP_SOL tmp_ocp_qp_sol;
 	struct DENSE_QP_SOL dense_qp_sol;
 
 	int *nx = ocp_qp->nx;
@@ -288,6 +289,18 @@ void EXPAND_SOL_OCP2OCP(struct OCP_QP *ocp_qp, struct OCP_QP *part_dense_qp, str
 		tmp_ocp_qp.d_ug = ocp_qp->d_ug+N_tmp;
 
 		// alias ocp qp sol
+		tmp_ocp_qp_sol.ux = ocp_qp_sol->ux+N_tmp;
+		tmp_ocp_qp_sol.pi = ocp_qp_sol->pi+N_tmp;
+		tmp_ocp_qp_sol.lam_lb = ocp_qp_sol->lam_lb+N_tmp;
+		tmp_ocp_qp_sol.lam_ub = ocp_qp_sol->lam_ub+N_tmp;
+		tmp_ocp_qp_sol.lam_lg = ocp_qp_sol->lam_lg+N_tmp;
+		tmp_ocp_qp_sol.lam_ug = ocp_qp_sol->lam_ug+N_tmp;
+		tmp_ocp_qp_sol.t_lb = ocp_qp_sol->t_lb+N_tmp;
+		tmp_ocp_qp_sol.t_ub = ocp_qp_sol->t_ub+N_tmp;
+		tmp_ocp_qp_sol.t_lg = ocp_qp_sol->t_lg+N_tmp;
+		tmp_ocp_qp_sol.t_ug = ocp_qp_sol->t_ug+N_tmp;
+
+		// alias ocp qp sol
 		dense_qp_sol.v = part_dense_qp_sol->ux+ii;
 		dense_qp_sol.pi = part_dense_qp_sol->pi+ii;
 		dense_qp_sol.lam_lb = part_dense_qp_sol->lam_lb+ii;
@@ -299,9 +312,9 @@ void EXPAND_SOL_OCP2OCP(struct OCP_QP *ocp_qp, struct OCP_QP *part_dense_qp, str
 		dense_qp_sol.t_lg = part_dense_qp_sol->t_lg+ii;
 		dense_qp_sol.t_ug = part_dense_qp_sol->t_ug+ii;
 
-		VECCP_LIBSTR(nx[N_tmp+T1], part_dense_qp_sol->pi+ii, 0, ocp_qp_sol->pi+N_tmp+T1-1, 0);
+		VECCP_LIBSTR(nx[N_tmp+T1], part_dense_qp_sol->pi+ii, 0, tmp_ocp_qp_sol.pi+T1-1, 0);
 
-		EXPAND_SOL(&tmp_ocp_qp, &dense_qp_sol, ocp_qp_sol->ux+N_tmp, ocp_qp_sol->pi+N_tmp, ocp_qp_sol->lam_lb+N_tmp, ocp_qp_sol->lam_ub+N_tmp, ocp_qp_sol->lam_lg+N_tmp, ocp_qp_sol->lam_ug+N_tmp, ocp_qp_sol->t_lb+N_tmp, ocp_qp_sol->t_ub+N_tmp, ocp_qp_sol->t_lg+N_tmp, ocp_qp_sol->t_ug+N_tmp, part_cond_ws->cond_workspace);
+		EXPAND_SOL(&tmp_ocp_qp, &dense_qp_sol, &tmp_ocp_qp_sol, part_cond_ws->cond_workspace);
 
 		N_tmp += T1;
 

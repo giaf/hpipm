@@ -263,7 +263,7 @@ void COND_QP_OCP2DENSE(struct OCP_QP *ocp_qp, struct DENSE_QP *dense_qp, struct 
 void EXPAND_SOL_DENSE2OCP(struct OCP_QP *ocp_qp, struct DENSE_QP_SOL *dense_qp_sol, struct OCP_QP_SOL *ocp_qp_sol, struct COND_QP_OCP2DENSE_WORKSPACE *cond_ws)
 	{
 
-	EXPAND_SOL(ocp_qp, dense_qp_sol, ocp_qp_sol->ux, ocp_qp_sol->pi, ocp_qp_sol->lam_lb, ocp_qp_sol->lam_ub, ocp_qp_sol->lam_lg, ocp_qp_sol->lam_ug, ocp_qp_sol->t_lb, ocp_qp_sol->t_ub, ocp_qp_sol->t_lg, ocp_qp_sol->t_ug, cond_ws);
+	EXPAND_SOL(ocp_qp, dense_qp_sol, ocp_qp_sol, cond_ws);
 
 	return;
 
