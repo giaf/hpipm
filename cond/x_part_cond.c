@@ -162,6 +162,7 @@ void CREATE_COND_QP_OCP2OCP(struct OCP_QP *ocp_qp, struct OCP_QP *part_dense_qp,
 
 		CREATE_COND_QP_OCP2DENSE(&tmp_ocp_qp, &tmp_dense_qp, cond_ws->cond_workspace+ii, c_ptr);
 		c_ptr += (cond_ws->cond_workspace+ii)->memsize;
+		(cond_ws->cond_workspace+ii)->cond_last_stage = 0;
 
 		N_tmp += T1;
 
@@ -212,13 +213,10 @@ void COND_QP_OCP2OCP(struct OCP_QP *ocp_qp, struct OCP_QP *part_dense_qp, struct
 		tmp_ocp_qp.d_lg = ocp_qp->d_lg+N_tmp;
 		tmp_ocp_qp.d_ug = ocp_qp->d_ug+N_tmp;
 
-		tmp_ocp_qp.N = T1;
 		COND_BABT(&tmp_ocp_qp, part_dense_qp->BAbt+ii, part_dense_qp->b+ii, part_cond_ws->cond_workspace+ii);
 
-		tmp_ocp_qp.N = T1-1; // TODO add flag to avoid condensing last stage
 		COND_RSQRQ_N2NX3(&tmp_ocp_qp, part_dense_qp->RSQrq+ii, part_dense_qp->rq+ii, part_cond_ws->cond_workspace+ii);
 
-		tmp_ocp_qp.N = T1-1; // TODO add flag to avoid condensing last stage
 		COND_DCTD(&tmp_ocp_qp, part_dense_qp->idxb[ii], part_dense_qp->d_lb+ii, part_dense_qp->d_ub+ii, part_dense_qp->DCt+ii, part_dense_qp->d_lg+ii, part_dense_qp->d_ug+ii, part_cond_ws->cond_workspace+ii);
 
 		N_tmp += T1;
@@ -273,7 +271,7 @@ void EXPAND_SOL_OCP2OCP(struct OCP_QP *ocp_qp, struct OCP_QP *part_dense_qp, str
 		T1 = ii<R1 ? M1 : N1;
 
 		// alias ocp_qp
-		tmp_ocp_qp.N = T1-1;
+		tmp_ocp_qp.N = T1;
 		tmp_ocp_qp.nx = ocp_qp->nx+N_tmp;
 		tmp_ocp_qp.nu = ocp_qp->nu+N_tmp;
 		tmp_ocp_qp.nb = ocp_qp->nb+N_tmp;
@@ -301,9 +299,9 @@ void EXPAND_SOL_OCP2OCP(struct OCP_QP *ocp_qp, struct OCP_QP *part_dense_qp, str
 		dense_qp_sol.t_lg = part_dense_qp_sol->t_lg+ii;
 		dense_qp_sol.t_ug = part_dense_qp_sol->t_ug+ii;
 
-//		VECCP_LIBSTR(nx[N_tmp+T1], part_dense_qp_sol->pi+ii, 0, ocp_qp_sol->pi+N_tmp+T1-1, 0);
+		VECCP_LIBSTR(nx[N_tmp+T1], part_dense_qp_sol->pi+ii, 0, ocp_qp_sol->pi+N_tmp+T1-1, 0);
 
-		EXPAND_SOL(&tmp_ocp_qp, &dense_qp_sol, ocp_qp_sol->ux+N_tmp, ocp_qp_sol->pi+N_tmp, ocp_qp_sol->lam_lb+N_tmp, ocp_qp_sol->lam_ub+N_tmp, ocp_qp_sol->lam_lg+N_tmp, ocp_qp_sol->lam_ug+N_tmp, ocp_qp_sol->t_lb+N_tmp, ocp_qp_sol->t_ub+N_tmp, ocp_qp_sol->t_lg+N_tmp, ocp_qp_sol->t_ug+N_tmp, part_cond_ws->cond_workspace->tmp_nuxM, part_cond_ws->cond_workspace->tmp_ngM);
+		EXPAND_SOL(&tmp_ocp_qp, &dense_qp_sol, ocp_qp_sol->ux+N_tmp, ocp_qp_sol->pi+N_tmp, ocp_qp_sol->lam_lb+N_tmp, ocp_qp_sol->lam_ub+N_tmp, ocp_qp_sol->lam_lg+N_tmp, ocp_qp_sol->lam_ug+N_tmp, ocp_qp_sol->t_lb+N_tmp, ocp_qp_sol->t_ub+N_tmp, ocp_qp_sol->t_lg+N_tmp, ocp_qp_sol->t_ug+N_tmp, part_cond_ws->cond_workspace);
 
 		N_tmp += T1;
 

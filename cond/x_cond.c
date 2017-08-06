@@ -236,6 +236,7 @@ void CREATE_COND_QP_OCP2DENSE(struct OCP_QP *ocp_qp, struct DENSE_QP *dense_qp, 
 	CREATE_STRVEC(nuM+nxM, cond_ws->tmp_nuxM, c_ptr);
 	c_ptr += cond_ws->tmp_nuxM->memory_size;
 
+	cond_ws->cond_last_stage = 1; // default: cond last stage
 	cond_ws->memsize = MEMSIZE_COND_QP_OCP2DENSE(ocp_qp, dense_qp);
 
 	return;
@@ -247,7 +248,7 @@ void CREATE_COND_QP_OCP2DENSE(struct OCP_QP *ocp_qp, struct DENSE_QP *dense_qp, 
 void COND_QP_OCP2DENSE(struct OCP_QP *ocp_qp, struct DENSE_QP *dense_qp, struct COND_QP_OCP2DENSE_WORKSPACE *cond_ws)
 	{
 
-	COMPUTE_GAMMA(ocp_qp, cond_ws);
+	COND_BABT(ocp_qp, NULL, NULL, cond_ws);
 
 	COND_RSQRQ_N2NX3(ocp_qp, dense_qp->Hg, dense_qp->g, cond_ws);
 
@@ -262,7 +263,7 @@ void COND_QP_OCP2DENSE(struct OCP_QP *ocp_qp, struct DENSE_QP *dense_qp, struct 
 void EXPAND_SOL_DENSE2OCP(struct OCP_QP *ocp_qp, struct DENSE_QP_SOL *dense_qp_sol, struct OCP_QP_SOL *ocp_qp_sol, struct COND_QP_OCP2DENSE_WORKSPACE *cond_ws)
 	{
 
-	EXPAND_SOL(ocp_qp, dense_qp_sol, ocp_qp_sol->ux, ocp_qp_sol->pi, ocp_qp_sol->lam_lb, ocp_qp_sol->lam_ub, ocp_qp_sol->lam_lg, ocp_qp_sol->lam_ug, ocp_qp_sol->t_lb, ocp_qp_sol->t_ub, ocp_qp_sol->t_lg, ocp_qp_sol->t_ug, cond_ws->tmp_nuxM, cond_ws->tmp_ngM);
+	EXPAND_SOL(ocp_qp, dense_qp_sol, ocp_qp_sol->ux, ocp_qp_sol->pi, ocp_qp_sol->lam_lb, ocp_qp_sol->lam_ub, ocp_qp_sol->lam_lg, ocp_qp_sol->lam_ug, ocp_qp_sol->t_lb, ocp_qp_sol->t_ub, ocp_qp_sol->t_lg, ocp_qp_sol->t_ug, cond_ws);
 
 	return;
 

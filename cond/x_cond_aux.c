@@ -25,60 +25,6 @@
 *                                                                                                 *
 **************************************************************************************************/
 
-void COMPUTE_GAMMA(struct OCP_QP *ocp_qp, struct COND_QP_OCP2DENSE_WORKSPACE *cond_ws)
-	{
-
-	int N = ocp_qp->N;
-
-	// early return
-	if(N<0)
-		return;
-
-	// extract input members
-	int *nx = ocp_qp->nx;
-	int *nu = ocp_qp->nu;
-	struct STRMAT *BAbt = ocp_qp->BAbt;
-
-	// extract memory members
-	struct STRMAT *Gamma = cond_ws->Gamma;
-	struct STRVEC *Gammab = cond_ws->Gammab;
-
-	int ii, jj;
-
-	int nu_tmp;
-
-	nu_tmp = 0;
-	ii = 0;
-	// B & A & b
-	GECP_LIBSTR(nu[0]+nx[0]+1, nx[1], &BAbt[0], 0, 0, &Gamma[0], 0, 0);
-	// b
-	ROWEX_LIBSTR(nx[1], 1.0, &Gamma[0], nu[0]+nx[0], 0, &Gammab[0], 0);
-
-	nu_tmp += nu[0];
-	ii++;
-
-	for(ii=1; ii<N; ii++)
-		{
-		// TODO check for equal pointers and avoid copy
-
-		// Gamma * A^T
-		GEMM_NN_LIBSTR(nu_tmp+nx[0]+1, nx[ii+1], nx[ii], 1.0, &Gamma[ii-1], 0, 0, &BAbt[ii], nu[ii], 0, 0.0, &Gamma[ii], nu[ii], 0, &Gamma[ii], nu[ii], 0); // Gamma * A^T
-
-		GECP_LIBSTR(nu[ii], nx[ii+1], &BAbt[ii], 0, 0, &Gamma[ii], 0, 0);
-
-		nu_tmp += nu[ii];
-
-		GEAD_LIBSTR(1, nx[ii+1], 1.0, &BAbt[ii], nu[ii]+nx[ii], 0, &Gamma[ii], nu_tmp+nx[0], 0);
-
-		ROWEX_LIBSTR(nx[ii+1], 1.0, &Gamma[ii], nu_tmp+nx[0], 0, &Gammab[ii], 0);
-		}
-	
-	return;
-
-	}
-
-
-
 void COND_BABT(struct OCP_QP *ocp_qp, struct STRMAT *BAbt2, struct STRVEC *b2, struct COND_QP_OCP2DENSE_WORKSPACE *cond_ws)
 	{
 
@@ -127,10 +73,13 @@ void COND_BABT(struct OCP_QP *ocp_qp, struct STRMAT *BAbt2, struct STRVEC *b2, s
 		ROWEX_LIBSTR(nx[ii+1], 1.0, &Gamma[ii], nu_tmp+nx[0], 0, &Gammab[ii], 0);
 		}
 	
-	// B & A & b
-	GECP_LIBSTR(nu_tmp+nx[0]+1, nx[N], &Gamma[N-1], 0, 0, &BAbt2[0], 0, 0);
-	// b
-	ROWEX_LIBSTR(nx[N], 1.0, &BAbt2[0], nu_tmp+nx[0], 0, &b2[0], 0);
+	if(cond_ws->cond_last_stage==0)
+		{
+		// B & A & b
+		GECP_LIBSTR(nu_tmp+nx[0]+1, nx[N], &Gamma[N-1], 0, 0, &BAbt2[0], 0, 0);
+		// b
+		ROWEX_LIBSTR(nx[N], 1.0, &BAbt2[0], nu_tmp+nx[0], 0, &b2[0], 0);
+		}
 
 	return;
 
@@ -142,6 +91,8 @@ void COND_RSQRQ_N2NX3(struct OCP_QP *ocp_qp, struct STRMAT *RSQrq2, struct STRVE
 	{
 
 	int N = ocp_qp->N;
+	if(cond_ws->cond_last_stage==0)
+		N -= 1;
 
 	// early return
 	if(N<0)
@@ -159,10 +110,6 @@ void COND_RSQRQ_N2NX3(struct OCP_QP *ocp_qp, struct STRMAT *RSQrq2, struct STRVE
 	struct STRMAT *L = cond_ws->L;
 	struct STRMAT *Lx = cond_ws->Lx;
 	struct STRMAT *AL = cond_ws->AL;
-
-	// declare workspace matrices XXX use cast on cond_ws matrices
-//	struct STRMAT *Lx2;
-//	struct STRMAT *AL2;
 
 	// early return
 	if(N==0)
@@ -204,9 +151,6 @@ void COND_RSQRQ_N2NX3(struct OCP_QP *ocp_qp, struct STRMAT *RSQrq2, struct STRVE
 		{	
 		nub -= nu[N-nn-1];
 
-//		d_create_strmat(nx[N-nn]+1, nx[N-nn], Lx, workspace+0);
-//		d_create_strmat(nu[N-nn-1]+nx[N-nn-1]+1, nx[N-nn], AL, workspace+sizes[0]);
-
 #if defined(LA_HIGH_PERFORMANCE)
 		GECP_LIBSTR(nx[N-nn]+1, nx[N-nn], &L[N-nn], nu[N-nn], nu[N-nn], Lx, 0, 0);
 
@@ -237,9 +181,6 @@ void COND_RSQRQ_N2NX3(struct OCP_QP *ocp_qp, struct STRMAT *RSQrq2, struct STRVE
 	// first stage
 	nn = N-1;
 
-//	d_create_strmat(nx[N-nn]+1, nx[N-nn], Lx, workspace+0);
-//	d_create_strmat(nu[N-nn-1]+nx[N-nn-1]+1, nx[N-nn], AL, workspace+sizes[0]);
-	
 #if defined(LA_HIGH_PERFORMANCE)
 	GECP_LIBSTR(nx[N-nn]+1, nx[N-nn], &L[N-nn], nu[N-nn], nu[N-nn], Lx, 0, 0);
 
@@ -268,42 +209,12 @@ void COND_RSQRQ_N2NX3(struct OCP_QP *ocp_qp, struct STRMAT *RSQrq2, struct STRVE
 
 
 
-#if 0
-int d_cond_DCtd_workspace_size(int N, struct OCP_QP *qp_in, int idx_in)
-	{
-
-	// early return
-	if(N<0)
-		return 0;
-
-	// extract input members
-	int *nx = qp_in->nx + idx_in;
-	int *ng = qp_in->ng + idx_in;
-
-	int ii;
-	int tmp;
-
-	int size = 0;
-
-	for(ii=0; ii<=N; ii++)
-		{
-		tmp = d_size_strmat(ng[ii], nx[ii]);
-		tmp += d_size_strvec(nx[ii]);
-		tmp += d_size_strvec(ng[ii]);
-		size = tmp > size ? tmp : size;
-		}
-
-	return size;
-
-	}
-#endif
-
-
-
 void COND_DCTD(struct OCP_QP *ocp_qp, int *idxb2, struct STRVEC *d_lb2, struct STRVEC *d_ub2, struct STRMAT *DCt2, struct STRVEC *d_lg2, struct STRVEC *d_ug2, struct COND_QP_OCP2DENSE_WORKSPACE *cond_ws)
 	{
 
 	int N = ocp_qp->N;
+	if(cond_ws->cond_last_stage==0)
+		N -= 1;
 
 	// early return
 	if(N<0)
@@ -496,10 +407,15 @@ void COND_DCTD(struct OCP_QP *ocp_qp, int *idxb2, struct STRVEC *d_lb2, struct S
 
 
 
-void EXPAND_SOL(struct OCP_QP *ocp_qp, struct DENSE_QP_SOL *dense_qp_sol, struct STRVEC *ux, struct STRVEC *pi, struct STRVEC *lam_lb, struct STRVEC *lam_ub, struct STRVEC *lam_lg, struct STRVEC *lam_ug, struct STRVEC *t_lb, struct STRVEC *t_ub, struct STRVEC *t_lg, struct STRVEC *t_ug, struct STRVEC *tmp_nuxM, struct STRVEC *tmp_ngM)
+void EXPAND_SOL(struct OCP_QP *ocp_qp, struct DENSE_QP_SOL *dense_qp_sol, struct STRVEC *ux, struct STRVEC *pi, struct STRVEC *lam_lb, struct STRVEC *lam_ub, struct STRVEC *lam_lg, struct STRVEC *lam_ug, struct STRVEC *t_lb, struct STRVEC *t_ub, struct STRVEC *t_lg, struct STRVEC *t_ug, struct COND_QP_OCP2DENSE_WORKSPACE *cond_ws)
 	{
 
 	int N = ocp_qp->N;
+	int Np = N;
+	if(cond_ws->cond_last_stage==0)
+		N -= 1;
+
+
 	int *nu = ocp_qp->nu;
 	int *nx = ocp_qp->nx;
 	int *nb = ocp_qp->nb;
@@ -522,6 +438,9 @@ void EXPAND_SOL(struct OCP_QP *ocp_qp, struct DENSE_QP_SOL *dense_qp_sol, struct
 	struct STRVEC *t_ubc = dense_qp_sol->t_ub;
 	struct STRVEC *t_lgc = dense_qp_sol->t_lg;
 	struct STRVEC *t_ugc = dense_qp_sol->t_ug;
+
+	struct STRVEC *tmp_nuxM = cond_ws->tmp_nuxM;
+	struct STRVEC *tmp_ngM = cond_ws->tmp_ngM;
 
 	int ii, jj;
 
@@ -624,24 +543,25 @@ void EXPAND_SOL(struct OCP_QP *ocp_qp, struct DENSE_QP_SOL *dense_qp_sol, struct
 	REAL *ptr_nuxM = tmp_nuxM->pa;
 	REAL *ptr_ngM = tmp_ngM->pa;
 	// last stage
-	SYMV_L_LIBSTR(nx[N], nx[N], 1.0, RSQrq+N, nu[N], nu[N], ux+N, nu[N], 1.0, rq+N, nu[N], pi+(N-1), 0);
+	if(cond_ws->cond_last_stage!=0)
+		SYMV_L_LIBSTR(nx[Np], nx[Np], 1.0, RSQrq+Np, nu[Np], nu[Np], ux+Np, nu[Np], 1.0, rq+Np, nu[Np], pi+(Np-1), 0);
 	// TODO avoid to multiply by R and B (i.e. the u part)
-	for(ii=0; ii<N-1; ii++)
+	for(ii=0; ii<Np-1; ii++)
 		{
-		ptr_lam_lb = (lam_lb+N-1-ii)->pa;
-		ptr_lam_ub = (lam_ub+N-1-ii)->pa;
-		ptr_lam_lg = (lam_lg+N-1-ii)->pa;
-		ptr_lam_ug = (lam_ug+N-1-ii)->pa;
-		VECCP_LIBSTR(nu[N-1-ii]+nx[N-1-ii], rq+(N-1-ii), 0, tmp_nuxM, 0);
-		for(jj=0; jj<nb[N-1-ii]; jj++)
-			ptr_nuxM[idxb[N-1-ii][jj]] += ptr_lam_ub[jj] - ptr_lam_lb[jj];
-		SYMV_L_LIBSTR(nu[N-1-ii]+nx[N-1-ii], nu[N-1-ii]+nx[N-1-ii], 1.0, RSQrq+(N-1-ii), 0, 0, ux+(N-1-ii), 0, 1.0, tmp_nuxM, 0, tmp_nuxM, 0);
-		GEMV_N_LIBSTR(nu[N-1-ii]+nx[N-1-ii], nx[N-ii], 1.0, BAbt+(N-1-ii), 0, 0, pi+(N-1-ii), 0, 1.0, tmp_nuxM, 0, tmp_nuxM, 0);
-		for(jj=0; jj<ng[N-1-ii]; jj++)
+		ptr_lam_lb = (lam_lb+Np-1-ii)->pa;
+		ptr_lam_ub = (lam_ub+Np-1-ii)->pa;
+		ptr_lam_lg = (lam_lg+Np-1-ii)->pa;
+		ptr_lam_ug = (lam_ug+Np-1-ii)->pa;
+		VECCP_LIBSTR(nu[Np-1-ii]+nx[Np-1-ii], rq+(Np-1-ii), 0, tmp_nuxM, 0);
+		for(jj=0; jj<nb[Np-1-ii]; jj++)
+			ptr_nuxM[idxb[Np-1-ii][jj]] += ptr_lam_ub[jj] - ptr_lam_lb[jj];
+		SYMV_L_LIBSTR(nu[Np-1-ii]+nx[Np-1-ii], nu[Np-1-ii]+nx[Np-1-ii], 1.0, RSQrq+(Np-1-ii), 0, 0, ux+(Np-1-ii), 0, 1.0, tmp_nuxM, 0, tmp_nuxM, 0);
+		GEMV_N_LIBSTR(nu[Np-1-ii]+nx[Np-1-ii], nx[Np-ii], 1.0, BAbt+(Np-1-ii), 0, 0, pi+(Np-1-ii), 0, 1.0, tmp_nuxM, 0, tmp_nuxM, 0);
+		for(jj=0; jj<ng[Np-1-ii]; jj++)
 			ptr_ngM[jj] = ptr_lam_ug[jj] - ptr_lam_lg[jj];
-		GEMV_N_LIBSTR(nu[N-1-ii]+nx[N-1-ii], ng[N-1-ii], 1.0, DCt+(N-1-ii), 0, 0, tmp_ngM, 0, 1.0, tmp_nuxM, 0, tmp_nuxM, 0);
+		GEMV_N_LIBSTR(nu[Np-1-ii]+nx[Np-1-ii], ng[Np-1-ii], 1.0, DCt+(Np-1-ii), 0, 0, tmp_ngM, 0, 1.0, tmp_nuxM, 0, tmp_nuxM, 0);
 
-		VECCP_LIBSTR(nx[N-1-ii], tmp_nuxM, nu[N-1-ii], pi+(N-2-ii), 0);
+		VECCP_LIBSTR(nx[Np-1-ii], tmp_nuxM, nu[Np-1-ii], pi+(Np-2-ii), 0);
 		}
 	
 

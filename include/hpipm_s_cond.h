@@ -41,6 +41,7 @@ struct s_cond_qp_ocp2dense_workspace
 	struct s_strvec *Gammab;
 	struct s_strvec *tmp_ngM;
 	struct s_strvec *tmp_nuxM;
+	int cond_last_stage;
 	int memsize;
 	};
 

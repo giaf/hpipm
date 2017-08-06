@@ -44,7 +44,7 @@
 
 
 #define COND_DCTD d_cond_DCtd
-#define COMPUTE_GAMMA d_compute_Gamma
+#define COND_BABT d_cond_BAbt
 #define COND_RSQRQ_N2NX3 d_cond_RSQrq_N2nx3
 #define COND_QP_OCP2DENSE_WORKSPACE d_cond_qp_ocp2dense_workspace
 #define CREATE_STRMAT d_create_strmat
