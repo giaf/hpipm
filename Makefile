@@ -41,8 +41,8 @@ OBJS += ocp_qp/d_ocp_qp.o ocp_qp/d_ocp_qp_sol.o ocp_qp/d_ocp_qp_kkt.o ocp_qp/d_o
 OBJS += ocp_qp/s_ocp_qp.o ocp_qp/s_ocp_qp_sol.o ocp_qp/s_ocp_qp_kkt.o ocp_qp/s_ocp_qp_ipm_hard.o
 OBJS += ocp_qp/m_ocp_qp.o                       ocp_qp/m_ocp_qp_kkt.o ocp_qp/m_ocp_qp_ipm_hard.o
 # core qp
-OBJS += core_qp/d_core_qp_ipm_hard_aux.o core_qp/d_core_qp_ipm_hard.o
-OBJS += core_qp/s_core_qp_ipm_hard_aux.o core_qp/s_core_qp_ipm_hard.o
+OBJS += core_ipm/d_core_qp_ipm_hard_aux.o core_ipm/d_core_qp_ipm_hard.o
+OBJS += core_ipm/s_core_qp_ipm_hard_aux.o core_ipm/s_core_qp_ipm_hard.o
 # cond
 OBJS += cond/d_cond_aux.o cond/d_cond.o cond/d_part_cond.o
 OBJS += cond/s_cond_aux.o cond/s_cond.o cond/s_part_cond.o
@@ -55,7 +55,7 @@ all: clean static_library
 
 static_library: target
 	( cd cond; $(MAKE) obj)
-	( cd core_qp; $(MAKE) obj)
+	( cd core_ipm; $(MAKE) obj)
 	( cd dense_qp; $(MAKE) obj)
 	( cd ocp_qp; $(MAKE) obj)
 	( cd tree_ocp_qp; $(MAKE) obj)
@@ -67,7 +67,7 @@ static_library: target
 
 shared_library: target
 	( cd cond; $(MAKE) obj)
-	( cd core_qp; $(MAKE) obj)
+	( cd core_ipm; $(MAKE) obj)
 	( cd dense_qp; $(MAKE) obj)
 	( cd ocp_qp; $(MAKE) obj)
 	( cd tree_ocp_qp; $(MAKE) obj)
@@ -115,7 +115,7 @@ clean:
 	rm -f ./lib/libhpipm.a
 	rm -f ./lib/libhpipm.so
 	make -C cond clean
-	make -C core_qp clean
+	make -C core_ipm clean
 	make -C dense_qp clean
 	make -C ocp_qp clean
 	make -C tree_ocp_qp clean

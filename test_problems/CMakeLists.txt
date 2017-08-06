@@ -25,6 +25,12 @@
 #                                                                                                 #
 ###################################################################################################
 
+add_executable(d_cond test_d_cond.c d_tools.c)
+target_link_libraries(d_cond hpipm blasfeo m)
+
+add_executable(d_part_cond test_d_part_cond.c d_tools.c)
+target_link_libraries(d_part_cond hpipm blasfeo m)
+
 add_executable(d_dense_qp test_d_dense.c)
 target_link_libraries(d_dense_qp hpipm blasfeo m)
 
@@ -40,5 +46,9 @@ target_link_libraries(s_ocp_qp hpipm blasfeo m)
 add_executable(m_ocp_qp test_m_ocp.c d_tools.c)
 target_link_libraries(m_ocp_qp hpipm blasfeo m)
 
-add_executable(d_cond test_d_cond.c d_tools.c)
-target_link_libraries(d_cond hpipm blasfeo m)
+add_executable(d_tree_ocp_qp test_d_tree_ocp.c d_tools.c)
+target_link_libraries(d_tree_ocp_qp hpipm blasfeo m)
+
+add_executable(s_tree_ocp_qp test_s_tree_ocp.c s_tools.c)
+target_link_libraries(s_tree_ocp_qp hpipm blasfeo m)
+

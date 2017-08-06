@@ -120,20 +120,25 @@ file(GLOB OCP_QP_SRC
 	${PROJECT_SOURCE_DIR}/ocp_qp/m_ocp_qp_kkt.c
 	${PROJECT_SOURCE_DIR}/ocp_qp/m_ocp_qp_ipm_hard.c
 	)
-# core qp
-file(GLOB CORE_QP_SRC
-	${PROJECT_SOURCE_DIR}/core_qp/d_core_qp_ipm_hard.c
-	${PROJECT_SOURCE_DIR}/core_qp/d_core_qp_ipm_hard_aux.c
-	${PROJECT_SOURCE_DIR}/core_qp/s_core_qp_ipm_hard.c
-	${PROJECT_SOURCE_DIR}/core_qp/s_core_qp_ipm_hard_aux.c
+# core ipm
+file(GLOB CORE_IPM_SRC
+	${PROJECT_SOURCE_DIR}/core_ipm/d_core_qp_ipm_hard_aux.c
+	${PROJECT_SOURCE_DIR}/core_ipm/d_core_qp_ipm_hard.c
+	${PROJECT_SOURCE_DIR}/core_ipm/s_core_qp_ipm_hard_aux.c
+	${PROJECT_SOURCE_DIR}/core_ipm/s_core_qp_ipm_hard.c
 	)
 # cond
 file(GLOB COND_SRC
 	${PROJECT_SOURCE_DIR}/cond/d_cond.c
 	${PROJECT_SOURCE_DIR}/cond/d_cond_aux.c
+	${PROJECT_SOURCE_DIR}/cond/d_part_cond.c
+	${PROJECT_SOURCE_DIR}/cond/s_cond.c
+	${PROJECT_SOURCE_DIR}/cond/s_cond_aux.c
+	${PROJECT_SOURCE_DIR}/cond/s_part_cond.c
 	)
-# cond
+# tree qp
 file(GLOB TREE_OCP_QP_SRC
+	${PROJECT_SOURCE_DIR}/tree_ocp_qp/scenario_tree.c
 	${PROJECT_SOURCE_DIR}/tree_ocp_qp/d_tree_ocp_qp.c
 	${PROJECT_SOURCE_DIR}/tree_ocp_qp/d_tree_ocp_qp_sol.c
 	${PROJECT_SOURCE_DIR}/tree_ocp_qp/d_tree_ocp_qp_kkt.c
@@ -144,7 +149,7 @@ file(GLOB TREE_OCP_QP_SRC
 	${PROJECT_SOURCE_DIR}/tree_ocp_qp/s_tree_ocp_qp_ipm_hard.c
 	)
 
-set(HPIPM_SRC ${DENSE_QP_SRC} ${OCP_QP_SRC} ${CORE_QP_SRC} ${COND_SRC} ${TREE_OCP_QP_SRC})
+set(HPIPM_SRC ${DENSE_QP_SRC} ${OCP_QP_SRC} ${CORE_IPM_SRC} ${COND_SRC} ${TREE_OCP_QP_SRC})
 
 add_library(hpipm ${HPIPM_SRC})
 target_include_directories(hpipm PUBLIC include ${BLASFEO_INCLUDE_DIR})
