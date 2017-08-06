@@ -238,6 +238,7 @@ void COND_QP_OCP2OCP(struct OCP_QP *ocp_qp, struct OCP_QP *part_dense_qp, struct
 	GECP_LIBSTR(nu[N]+nx[N], ng[N], ocp_qp->DCt+N, 0, 0, part_dense_qp->DCt+N2, 0, 0);
 	VECCP_LIBSTR(ng[N], ocp_qp->d_lg+N, 0, part_dense_qp->d_lg+N2, 0);
 	VECCP_LIBSTR(ng[N], ocp_qp->d_ug+N, 0, part_dense_qp->d_ug+N2, 0);
+	for(ii=0; ii<nb[N]; ii++) part_dense_qp->idxb[N2][ii] = ocp_qp->idxb[N][ii];
 
 	return;
 

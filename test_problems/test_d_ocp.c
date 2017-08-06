@@ -387,6 +387,7 @@ int main()
 	dgemv_n_3l(nu_, nx_, S, nu_, x0, r0);
 	daxpy_3l(nu_, 1.0, r, r0);
 
+#if 0
 	double *QN; d_zeros(&QN, nx_, nx_);
 	for(ii=0; ii<2; ii++) QN[ii*(nx_+1)] = 1e15;
 	for(ii=0; ii<nx_; ii++) QN[ii*(nx_+1)] += Q[ii*(nx_+1)];
@@ -395,6 +396,7 @@ int main()
 	qN[1] = - 0.1;
 	for(ii=0; ii<2; ii++) qN[ii] *= 1e15;
 	for(ii=0; ii<nx_; ii++) qN[ii] += q[ii];
+#endif
 
 #if PRINT
 	d_print_mat(nx_, nx_, Q, nx_);
@@ -403,8 +405,8 @@ int main()
 	d_print_mat(1, nx_, q, 1);
 	d_print_mat(1, nu_, r, 1);
 	d_print_mat(1, nu_, r0, 1);
-	d_print_mat(nx_, nx_, QN, nx_);
-	d_print_mat(1, nx_, qN, 1);
+//	d_print_mat(nx_, nx_, QN, nx_);
+//	d_print_mat(1, nx_, qN, 1);
 #endif
 
 	// maximum element in cost functions
@@ -788,11 +790,11 @@ int main()
 	d_free(b);
 	d_free(x0);
 	d_free(Q);
-	d_free(QN);
+//	d_free(QN);
 	d_free(R);
 	d_free(S);
 	d_free(q);
-	d_free(qN);
+//	d_free(qN);
 	d_free(r);
 	d_free(r0);
 	int_free(idxb0);
