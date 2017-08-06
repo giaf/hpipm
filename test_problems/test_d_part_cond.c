@@ -683,18 +683,18 @@ int main()
 	for(ii=0; ii<=N2; ii++)
 		d_print_mat(1, ng2[ii], lam_ug2[ii], 1);
 
-//	printf("\nt_lb\n");
-//	for(ii=0; ii<=N; ii++)
-//		d_print_mat(1, nb[ii], (qp_sol.t_lb+ii)->pa, 1);
-//	printf("\nt_ub\n");
-//	for(ii=0; ii<=N; ii++)
-//		d_print_mat(1, nb[ii], (qp_sol.t_ub+ii)->pa, 1);
-//	printf("\nt_lg\n");
-//	for(ii=0; ii<=N; ii++)
-//		d_print_mat(1, ng[ii], (qp_sol.t_lg+ii)->pa, 1);
-//	printf("\nt_ug\n");
-//	for(ii=0; ii<=N; ii++)
-//		d_print_mat(1, ng[ii], (qp_sol.t_ug+ii)->pa, 1);
+	printf("\nt_lb2\n");
+	for(ii=0; ii<=N2; ii++)
+		d_print_mat(1, nb2[ii], (part_dense_qp_sol.t_lb+ii)->pa, 1);
+	printf("\nt_ub2\n");
+	for(ii=0; ii<=N2; ii++)
+		d_print_mat(1, nb2[ii], (part_dense_qp_sol.t_ub+ii)->pa, 1);
+	printf("\nt_lg2\n");
+	for(ii=0; ii<=N2; ii++)
+		d_print_mat(1, ng2[ii], (part_dense_qp_sol.t_lg+ii)->pa, 1);
+	printf("\nt_ug2\n");
+	for(ii=0; ii<=N2; ii++)
+		d_print_mat(1, ng2[ii], (part_dense_qp_sol.t_ug+ii)->pa, 1);
 
 	printf("\nresiduals\n\n");
 	printf("\nres_g2\n");
@@ -739,6 +739,55 @@ int main()
 	printf("\npart cond ocp ipm time = %e [s]\n\n", time_ocp_ipm);
 
 /************************************************
+* full space ocp qp sol
+************************************************/	
+	
+	int ocp_qp_sol_size = d_memsize_ocp_qp_sol(N, nx, nu, nb, ng);
+	printf("\nocp qp sol size = %d\n", ocp_qp_sol_size);
+	void *ocp_qp_sol_mem = malloc(ocp_qp_sol_size);
+
+	struct d_ocp_qp_sol ocp_qp_sol;
+	d_create_ocp_qp_sol(N, nx, nu, nb, ng, &ocp_qp_sol, ocp_qp_sol_mem);
+
+/************************************************
+* expand solution
+************************************************/	
+
+	d_expand_sol_ocp2ocp(&ocp_qp, &part_dense_qp, &part_dense_qp_sol, &ocp_qp_sol, &part_cond_ws);
+
+	printf("\nfull space solution\n\n");
+	printf("\nux\n");
+	for(ii=0; ii<=N; ii++)
+		d_print_tran_strvec(nu[ii]+nx[ii], ocp_qp_sol.ux+ii, 0);
+	printf("\npi\n");
+	for(ii=0; ii<N; ii++)
+		d_print_tran_strvec(nx[ii+1], ocp_qp_sol.pi+ii, 0);
+	printf("\nlam_lb\n");
+	for(ii=0; ii<=N; ii++)
+		d_print_tran_strvec(nb[ii], ocp_qp_sol.lam_lb+ii, 0);
+	printf("\nlam_ub\n");
+	for(ii=0; ii<=N; ii++)
+		d_print_tran_strvec(nb[ii], ocp_qp_sol.lam_ub+ii, 0);
+	printf("\nlam_lg\n");
+	for(ii=0; ii<=N; ii++)
+		d_print_tran_strvec(ng[ii], ocp_qp_sol.lam_lg+ii, 0);
+	printf("\nlam_ug\n");
+	for(ii=0; ii<=N; ii++)
+		d_print_tran_strvec(ng[ii], ocp_qp_sol.lam_ug+ii, 0);
+	printf("\nt_lb\n");
+	for(ii=0; ii<=N; ii++)
+		d_print_tran_strvec(nb[ii], ocp_qp_sol.t_lb+ii, 0);
+	printf("\nt_ub\n");
+	for(ii=0; ii<=N; ii++)
+		d_print_tran_strvec(nb[ii], ocp_qp_sol.t_ub+ii, 0);
+	printf("\nt_lg\n");
+	for(ii=0; ii<=N; ii++)
+		d_print_tran_strvec(ng[ii], ocp_qp_sol.t_lg+ii, 0);
+	printf("\nt_ug\n");
+	for(ii=0; ii<=N; ii++)
+		d_print_tran_strvec(ng[ii], ocp_qp_sol.t_ug+ii, 0);
+
+/************************************************
 * free memory
 ************************************************/	
 
@@ -775,7 +824,7 @@ int main()
 	d_free(d_ugN);
 
 	free(ocp_qp_mem);
-//	free(ocp_qp_sol_mem);
+	free(ocp_qp_sol_mem);
 	free(part_dense_qp_mem);
 	free(part_dense_qp_sol_mem);
 	free(part_cond_mem);

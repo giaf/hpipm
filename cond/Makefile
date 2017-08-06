@@ -42,3 +42,9 @@ clean:
 	rm -f *.o
 	rm -f *.s
 
+d_cond_aux.o: d_cond_aux.c x_cond_aux.c
+s_cond_aux.o: s_cond_aux.c x_cond_aux.c
+d_cond.o: d_cond.c x_cond.c
+s_cond.o: s_cond.c x_cond.c
+d_part_cond.o: d_part_cond.c x_part_cond.c
+s_part_cond.o: s_part_cond.c x_part_cond.c
