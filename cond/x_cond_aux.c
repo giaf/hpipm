@@ -554,8 +554,10 @@ void EXPAND_SOL(struct OCP_QP *ocp_qp, struct DENSE_QP_SOL *dense_qp_sol, struct
 	REAL *ptr_nuxM = tmp_nuxM->pa;
 	REAL *ptr_ngM = tmp_ngM->pa;
 	// last stage
-	if(cond_ws->cond_last_stage!=0)
-		SYMV_L_LIBSTR(nx[Np], nx[Np], 1.0, RSQrq+Np, nu[Np], nu[Np], ux+Np, nu[Np], 1.0, rq+Np, nu[Np], pi+(Np-1), 0);
+	if(cond_ws->cond_last_stage==0)
+		VECCP_LIBSTR(nx[Np], pic, 0, pi+Np-1, 0);
+	else
+		SYMV_L_LIBSTR(nx[Np], nx[Np], 1.0, RSQrq+Np, nu[Np], nu[Np], ux+Np, nu[Np], 1.0, rq+Np, nu[Np], pi+Np-1, 0);
 	// TODO avoid to multiply by R and B (i.e. the u part)
 	for(ii=0; ii<Np-1; ii++)
 		{

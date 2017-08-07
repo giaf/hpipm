@@ -312,8 +312,6 @@ void EXPAND_SOL_OCP2OCP(struct OCP_QP *ocp_qp, struct OCP_QP *part_dense_qp, str
 		dense_qp_sol.t_lg = part_dense_qp_sol->t_lg+ii;
 		dense_qp_sol.t_ug = part_dense_qp_sol->t_ug+ii;
 
-		VECCP_LIBSTR(nx[N_tmp+T1], part_dense_qp_sol->pi+ii, 0, tmp_ocp_qp_sol.pi+T1-1, 0);
-
 		EXPAND_SOL(&tmp_ocp_qp, &dense_qp_sol, &tmp_ocp_qp_sol, part_cond_ws->cond_workspace);
 
 		N_tmp += T1;
