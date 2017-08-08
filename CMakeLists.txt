@@ -122,10 +122,10 @@ file(GLOB OCP_QP_SRC
 	)
 # core ipm
 file(GLOB CORE_IPM_SRC
-	${PROJECT_SOURCE_DIR}/core_ipm/d_core_qp_ipm_hard_aux.c
-	${PROJECT_SOURCE_DIR}/core_ipm/d_core_qp_ipm_hard.c
-	${PROJECT_SOURCE_DIR}/core_ipm/s_core_qp_ipm_hard_aux.c
-	${PROJECT_SOURCE_DIR}/core_ipm/s_core_qp_ipm_hard.c
+	${PROJECT_SOURCE_DIR}/ipm_core/d_core_qp_ipm_hard_aux.c
+	${PROJECT_SOURCE_DIR}/ipm_core/d_core_qp_ipm_hard.c
+	${PROJECT_SOURCE_DIR}/ipm_core/s_core_qp_ipm_hard_aux.c
+	${PROJECT_SOURCE_DIR}/ipm_core/s_core_qp_ipm_hard.c
 	)
 # cond
 file(GLOB COND_SRC

@@ -37,6 +37,8 @@
 #include <blasfeo_i_aux_ext_dep.h>
 #include <blasfeo_d_aux.h>
 
+#include "../include/hpipm_d_erk_int.h"
+
 #include "d_tools.h"
 
 
@@ -276,70 +278,6 @@ void d_linear_vde(int t, double *x, double *u, void *ode_args, double *xdot)
 
 
 
-struct d_erk_data
-	{
-	double *A_rk;
-	double *B_rk;
-	double *C_rk;
-	int ns;
-	};
-
-
-
-void d_erk(struct d_erk_data *erk_data, int steps, double h, int nx, double *x0, double *p, double *xe, void (*ode)(int t, double *x, double *p, void *ode_args, double *xdot), void *ode_args, void *memory)
-	{
-
-	int ns = erk_data->ns;
-	double *A_rk = erk_data->A_rk;
-	double *B_rk = erk_data->B_rk;
-	double *C_rk = erk_data->C_rk;
-
-	int ii, jj, step, ss;
-	double t, a, b;
-
-	char *c_ptr = memory;
-	double *K = (double *) c_ptr;
-	c_ptr += ns*nx*sizeof(double);
-	double *xt = (double *) c_ptr;
-	c_ptr += nx*sizeof(double);
-
-	for(ii=0; ii<nx; ii++)
-		xe[ii] = x0[ii];
-
-	t = 0.0;
-	for(step=0; step<steps; step++)
-		{
-		for(ss=0; ss<ns; ss++)
-			{
-			for(ii=0; ii<nx; ii++)
-				xt[ii] = xe[ii];
-			for(ii=0; ii<ss; ii++)
-				{
-				a = A_rk[ii+ns*ss];
-				if(a!=0)
-					{
-					a *= h;
-					for(jj=0; jj<nx; jj++)
-						xt[jj] += a*K[jj+ii*nx];
-					}
-				}
-			ode(t+h*C_rk[ii], xt, p, ode_args, K+ii*nx);
-			}
-		for(ss=0; ss<ns; ss++)
-			{
-			b = h*B_rk[ss];
-			for(ii=0; ii<nx; ii++)
-				xe[ii] += b*K[ii+ss*nx];
-			}
-		t += h;
-		}
-
-	return;
-
-	}
-
-
-
 int main()
 	{
 
@@ -463,11 +401,14 @@ int main()
 	double C_rk[] = {0.0};
 #endif
 
+	int memsize_erk_data = d_memsize_erk_data(ns);
+	printf("\nmemsize erk data %d\n", memsize_erk_data);
+	void *memory_erk_data = malloc(memsize_erk_data);
+
 	struct d_erk_data erk_data;
-	erk_data.ns = ns;
-	erk_data.A_rk = A_rk;
-	erk_data.B_rk = B_rk;
-	erk_data.C_rk = C_rk;
+	d_create_erk_data(ns, &erk_data, memory_erk_data);
+
+	d_cvt_rowmaj_to_erk_data(A_rk, B_rk, C_rk, &erk_data);
 
 #if 0
 	double *memory_erk = malloc((nx+nx*ns)*sizeof(double));
@@ -475,7 +416,7 @@ int main()
 	double *x_erk; d_zeros(&x_erk, nx, 1);
 	double *ex_erk; d_zeros(&ex_erk, nx, 1);
 
-	d_erk(&erk_data, steps, h, nx, x0, x_erk, &d_linear_ode, &ls, memory_erk);
+	d_erk_int(&erk_data, steps, h, nx, x0, x_erk, &d_linear_ode, &ls, memory_erk);
 
 	for(ii=0; ii<nx; ii++)
 		ex_erk[ii] = x_erk[ii] - xref[ii];
@@ -485,7 +426,12 @@ int main()
 	printf("\nerror erk\n");
 	d_print_e_mat(1, nx, ex_erk, 1);
 #else
-	double *memory_erk = malloc((nx*(1+nx+nu)*(1+ns))*sizeof(double));
+	int memsize_erk_int = d_memsize_erk_int(&erk_data, nx*(1+nx+nu));
+	printf("\nmemsize erk int %d\n", memsize_erk_int);
+	void *memory_erk = malloc(memsize_erk_int);
+
+	struct d_erk_workspace erk_workspace;
+	d_create_erk_int(&erk_data, nx*(1+nx+nu), &erk_workspace, memory_erk);
 	
 	double *x0_erk; d_zeros(&x0_erk, nx*(1+nx+nu), 1);
 	for(ii=0; ii<nx; ii++) x0_erk[ii] = x0[ii];
@@ -497,7 +443,7 @@ int main()
 	double *x_erk; d_zeros(&x_erk, nx*(1+nx+nu), 1);
 	double *ex_erk; d_zeros(&ex_erk, nx*(1+nx+nu), 1);
 
-	d_erk(&erk_data, steps, h, nx*(1+nx+nu), x0_erk, u, x_erk, &d_linear_vde, &ls, memory_erk);
+	d_erk_int(steps, h, x0_erk, u, x_erk, &d_linear_vde, &ls, &erk_workspace);
 
 	for(ii=0; ii<nx; ii++)
 		ex_erk[ii] = x_erk[ii] - xref[ii];
