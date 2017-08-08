@@ -155,8 +155,11 @@ void d_create_erk_int(struct d_erk_data *erk_data, int nx, struct d_erk_workspac
 
 
 
-void d_erk_int(int steps, double h, double *x0, double *p, double *xe, void (*ode)(int t, double *x, double *p, void *ode_args, double *xdot), void *ode_args, struct d_erk_workspace *workspace)
+void d_erk_int(double *x0, double *p, double *xe, void (*ode)(int t, double *x, double *p, void *ode_args, double *xdot), void *ode_args, struct d_erk_args *erk_args, struct d_erk_workspace *workspace)
 	{
+
+	int steps = erk_args->steps;
+	double h = erk_args->h;
 
 	struct d_erk_data *erk_data = workspace->erk_data;
 	int nx = workspace->nx;
@@ -191,7 +194,7 @@ void d_erk_int(int steps, double h, double *x0, double *p, double *xe, void (*od
 						xt[jj] += a*K[jj+ii*nx];
 					}
 				}
-			ode(t+h*C_rk[ii], xt, p, ode_args, K+ii*nx);
+			ode(t+h*C_rk[ss], xt, p, ode_args, K+ss*nx);
 			}
 		for(ss=0; ss<ns; ss++)
 			{

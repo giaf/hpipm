@@ -432,6 +432,10 @@ int main()
 
 	struct d_erk_workspace erk_workspace;
 	d_create_erk_int(&erk_data, nx*(1+nx+nu), &erk_workspace, memory_erk);
+
+	struct d_erk_args erk_args;
+	erk_args.steps = steps;
+	erk_args.h = h;
 	
 	double *x0_erk; d_zeros(&x0_erk, nx*(1+nx+nu), 1);
 	for(ii=0; ii<nx; ii++) x0_erk[ii] = x0[ii];
@@ -443,7 +447,7 @@ int main()
 	double *x_erk; d_zeros(&x_erk, nx*(1+nx+nu), 1);
 	double *ex_erk; d_zeros(&ex_erk, nx*(1+nx+nu), 1);
 
-	d_erk_int(steps, h, x0_erk, u, x_erk, &d_linear_vde, &ls, &erk_workspace);
+	d_erk_int(x0_erk, u, x_erk, &d_linear_vde, &ls, &erk_args, &erk_workspace);
 
 	for(ii=0; ii<nx; ii++)
 		ex_erk[ii] = x_erk[ii] - xref[ii];

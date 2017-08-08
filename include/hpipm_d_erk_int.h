@@ -49,6 +49,14 @@ struct d_erk_workspace
 
 
 
+struct d_erk_args
+	{
+	double h;
+	int steps;
+	};
+
+
+
 //
 int d_memsize_erk_data(int ns);
 //
@@ -62,4 +70,4 @@ int d_memsize_erk_int(struct d_erk_data *erk_data, int nx);
 //
 void d_create_erk_int(struct d_erk_data *erk_data, int nx, struct d_erk_workspace *workspace, void *memory);
 //
-void d_erk_int(int steps, double h, double *x0, double *p, double *xe, void (*ode)(int t, double *x, double *p, void *ode_args, double *xdot), void *ode_args, struct d_erk_workspace *workspace);
+void d_erk_int(double *x0, double *p, double *xe, void (*ode)(int t, double *x, double *p, void *ode_args, double *xdot), void *ode_args, struct d_erk_args *erk_args, struct d_erk_workspace *workspace);
