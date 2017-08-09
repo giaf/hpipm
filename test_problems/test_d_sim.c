@@ -269,7 +269,7 @@ void d_linear_vde(int t, double *x, double *u, void *ode_args, double *xdot)
 	for(jj=0; jj<nu; jj++)
 		for(ii=0; ii<nx; ii++)
 			xdot[ii] += Bc[ii+nx*jj] * u[jj];
-	double *tmp = xdot+nx*(1+nx);
+	double *tmp = xdot+nx;
 	for(jj=0; jj<nu; jj++)
 		for(ii=0; ii<nx; ii++)
 			tmp[ii+nx*jj] += Bc[ii+nx*jj];
@@ -426,44 +426,49 @@ int main()
 	printf("\nerror erk\n");
 	d_print_e_mat(1, nx, ex_erk, 1);
 #else
-	int memsize_erk_int = d_memsize_erk_int(&erk_data, nx*(1+nx+nu));
+
+	int nf = nx+nu;
+	int np = nu;
+
+	int memsize_erk_int = d_memsize_erk_int(&erk_data, nx, nf, np);
 	printf("\nmemsize erk int %d\n", memsize_erk_int);
 	void *memory_erk = malloc(memsize_erk_int);
 
 	struct d_erk_workspace erk_workspace;
-	d_create_erk_int(&erk_data, nx*(1+nx+nu), &erk_workspace, memory_erk);
+	d_create_erk_int(&erk_data, nx, nf, np, &erk_workspace, memory_erk);
 
 	struct d_erk_args erk_args;
 	erk_args.steps = steps;
 	erk_args.h = h;
 	
-	double *x0_erk; d_zeros(&x0_erk, nx*(1+nx+nu), 1);
-	for(ii=0; ii<nx; ii++) x0_erk[ii] = x0[ii];
-	for(ii=0; ii<nx; ii++) x0_erk[nx+ii*(nx+1)] = 1.0;
-//	d_print_mat(1, nx, x0_erk, 1);
-//	d_print_mat(nx, nx, x0_erk+nx, nx);
-//	return 0;
+	double *fs0; d_zeros(&fs0, nx*nf, 1);
+	for(ii=0; ii<nx; ii++) fs0[nu*nx+ii*(nx+1)] = 1.0;
 
-	double *x_erk; d_zeros(&x_erk, nx*(1+nx+nu), 1);
 	double *ex_erk; d_zeros(&ex_erk, nx*(1+nx+nu), 1);
 
-	d_erk_int(x0_erk, u, x_erk, &d_linear_vde, &ls, &erk_args, &erk_workspace);
+	d_init_erk_int(x0, fs0, u, &d_linear_vde, &ls, &erk_workspace);
+
+	d_update_p_erk_int(u, &erk_workspace);
+
+	d_erk_int(&erk_args, &erk_workspace);
+
+	double *x_erk = erk_workspace.x;
 
 	for(ii=0; ii<nx; ii++)
 		ex_erk[ii] = x_erk[ii] - xref[ii];
-	for(ii=0; ii<nx*nx; ii++)
-		ex_erk[nx+ii] = x_erk[nx+ii] - A[ii];
 	for(ii=0; ii<nx*nu; ii++)
-		ex_erk[nx+nx*nx+ii] = x_erk[nx+nx*nx+ii] - B[ii];
+		ex_erk[nx+ii] = x_erk[nx+ii] - B[ii];
+	for(ii=0; ii<nx*nx; ii++)
+		ex_erk[nx+nx*nu+ii] = x_erk[nx+nx*nu+ii] - A[ii];
 
 	printf("\nx erk\n");
 	d_print_mat(1, nx, x_erk, 1);
-	d_print_mat(nx, nx, x_erk+nx, nx);
-	d_print_mat(nx, nu, x_erk+nx*(1+nx), nx);
+	d_print_mat(nx, nx, x_erk+nx+nx*nu, nx);
+	d_print_mat(nx, nu, x_erk+nx, nx);
 	printf("\nerror erk\n");
 	d_print_e_mat(1, nx, ex_erk, 1);
-	d_print_e_mat(nx, nx, ex_erk+nx, nx);
-	d_print_e_mat(nx, nu, ex_erk+nx*(1+nx), nx);
+	d_print_e_mat(nx, nx, ex_erk+nx+nx*nu, nx);
+	d_print_e_mat(nx, nu, ex_erk+nx, nx);
 #endif
 
 /************************************************
@@ -481,9 +486,8 @@ int main()
 	free(T);
 	free(ipiv);
 	free(xref);
-	free(x0_erk);
+	free(fs0);
 	free(memory_erk);
-	free(x_erk);
 	free(ex_erk);
 
 	return 0;

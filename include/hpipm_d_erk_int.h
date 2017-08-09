@@ -29,10 +29,10 @@
 
 struct d_erk_data
 	{
-	double *A_rk;
-	double *B_rk;
-	double *C_rk;
-	int ns;
+	double *A_rk; // A in butcher tableau
+	double *B_rk; // b in butcher tableau
+	double *C_rk; // c in butcher tableau
+	int ns; // number of stages
 	int memsize;
 	};
 
@@ -40,10 +40,16 @@ struct d_erk_data
 
 struct d_erk_workspace
 	{
-	struct d_erk_data *erk_data;
-	double *K;
-	double *xt;
-	int nx;
+	void (*ode)(int t, double *x, double *p, void *ode_args, double *xdot); // function pointer to vde
+	void *ode_args; // pointer to ode args
+	struct d_erk_data *erk_data; // integrator data
+	double *K; // internal variables
+	double *x; // states and forward sensitivities
+	double *p; // parameter
+	double *xt; // temporary states and forward sensitivities
+	int nx; // number of states
+	int nf; // number of forward sensitivities
+	int np; // number of parameters
 	int memsize;
 	};
 
@@ -51,8 +57,8 @@ struct d_erk_workspace
 
 struct d_erk_args
 	{
-	double h;
-	int steps;
+	double h; // step size
+	int steps; // number of steps
 	};
 
 
@@ -65,9 +71,14 @@ void d_create_erk_data(int ns, struct d_erk_data *erk_data, void *memory);
 void d_cvt_colmaj_to_erk_data(double *A_rk, double *B_rk, double *C_rk, struct d_erk_data *erk_data);
 //
 void d_cvt_rowmaj_to_erk_data(double *A_rk, double *B_rk, double *C_rk, struct d_erk_data *erk_data);
+
 //
-int d_memsize_erk_int(struct d_erk_data *erk_data, int nx);
+int d_memsize_erk_int(struct d_erk_data *erk_data, int nx, int nf, int np);
 //
-void d_create_erk_int(struct d_erk_data *erk_data, int nx, struct d_erk_workspace *workspace, void *memory);
+void d_create_erk_int(struct d_erk_data *erk_data, int nx, int nf, int np, struct d_erk_workspace *workspace, void *memory);
 //
-void d_erk_int(double *x0, double *p, double *xe, void (*ode)(int t, double *x, double *p, void *ode_args, double *xdot), void *ode_args, struct d_erk_args *erk_args, struct d_erk_workspace *workspace);
+void d_init_erk_int(double *x0, double *fs0, double *p0, void (*ode)(int t, double *x, double *p, void *ode_args, double *xdot), void *ode_args, struct d_erk_workspace *ws);
+//
+void d_update_p_erk_int(double *p0, struct d_erk_workspace *ws);
+//
+void d_erk_int(struct d_erk_args *erk_args, struct d_erk_workspace *workspace);

@@ -116,15 +116,18 @@ void d_cvt_rowmaj_to_erk_data(double *A, double *B, double *C, struct d_erk_data
 
 
 
-int d_memsize_erk_int(struct d_erk_data *erk_data, int nx)
+int d_memsize_erk_int(struct d_erk_data *erk_data, int nx, int nf, int np)
 	{
 
 	int ns = erk_data->ns;
 
+	int nX = nx*(1+nf);
+
 	int size = 0;
 
-	size += ns*nx*sizeof(double); // K
-	size += nx*sizeof(double); // xt
+	size += 1*ns*nX*sizeof(double); // K
+	size += 2*nX*sizeof(double); // x xt
+	size += 1*np*sizeof(double); // p
 
 	return size;
 
@@ -132,22 +135,32 @@ int d_memsize_erk_int(struct d_erk_data *erk_data, int nx)
 
 
 
-void d_create_erk_int(struct d_erk_data *erk_data, int nx, struct d_erk_workspace *workspace, void *memory)
+void d_create_erk_int(struct d_erk_data *erk_data, int nx, int nf, int np, struct d_erk_workspace *ws, void *memory)
 	{
 
-	workspace->erk_data = erk_data;
-	workspace->nx = nx;
+	ws->erk_data = erk_data;
+	ws->nx = nx;
+	ws->nf = nf;
+	ws->np = np;
 
 	int ns = erk_data->ns;
+
+	int nX = nx*(1+nf);
 
 	double *d_ptr = memory;
 
 	//
-	workspace->K = d_ptr;
-	d_ptr += ns*nx;
+	ws->K = d_ptr;
+	d_ptr += ns*nX;
 	//
-	workspace->xt = d_ptr;
-	d_ptr += nx;
+	ws->x = d_ptr;
+	d_ptr += nX;
+	//
+	ws->xt = d_ptr;
+	d_ptr += nX;
+	//
+	ws->p = d_ptr;
+	d_ptr += np;
 
 	return;
 
@@ -155,16 +168,69 @@ void d_create_erk_int(struct d_erk_data *erk_data, int nx, struct d_erk_workspac
 
 
 
-void d_erk_int(double *x0, double *p, double *xe, void (*ode)(int t, double *x, double *p, void *ode_args, double *xdot), void *ode_args, struct d_erk_args *erk_args, struct d_erk_workspace *workspace)
+void d_init_erk_int(double *x0, double *fs0, double *p0, void (*ode)(int t, double *x, double *p, void *ode_args, double *xdot), void *ode_args, struct d_erk_workspace *ws)
+	{
+
+	int ii;
+
+	int nx = ws->nx;
+	int nf = ws->nf;
+	int np = ws->np;
+
+	int nX = nx*(1+nf);
+
+	double *x = ws->x;
+	double *p = ws->p;
+
+	for(ii=0; ii<nx; ii++)
+		x[ii] = x0[ii];
+
+	for(ii=0; ii<nx*nf; ii++)
+		x[nx+ii] = fs0[ii];
+
+	for(ii=0; ii<np; ii++)
+		p[ii] = p0[ii];
+	
+	ws->ode = ode;
+	ws->ode_args = ode_args;
+
+	return;
+
+	}
+
+
+
+void d_update_p_erk_int(double *p0, struct d_erk_workspace *ws)
+	{
+
+	int ii;
+
+	int np = ws->np;
+
+	double *p = ws->p;
+
+	for(ii=0; ii<np; ii++)
+		p[ii] = p0[ii];
+	
+	return;
+
+	}
+
+
+
+void d_erk_int(struct d_erk_args *erk_args, struct d_erk_workspace *ws)
 	{
 
 	int steps = erk_args->steps;
 	double h = erk_args->h;
 
-	struct d_erk_data *erk_data = workspace->erk_data;
-	int nx = workspace->nx;
-	double *K = workspace->K;
-	double *xt = workspace->xt;
+	struct d_erk_data *erk_data = ws->erk_data;
+	int nx = ws->nx;
+	int nf = ws->nf;
+	double *K = ws->K;
+	double *x = ws->x;
+	double *p = ws->p;
+	double *xt = ws->xt;
 
 	int ns = erk_data->ns;
 	double *A_rk = erk_data->A_rk;
@@ -174,33 +240,32 @@ void d_erk_int(double *x0, double *p, double *xe, void (*ode)(int t, double *x, 
 	int ii, jj, step, ss;
 	double t, a, b;
 
-	for(ii=0; ii<nx; ii++)
-		xe[ii] = x0[ii];
+	int nX = nx*(1+nf);
 
 	t = 0.0;
 	for(step=0; step<steps; step++)
 		{
 		for(ss=0; ss<ns; ss++)
 			{
-			for(ii=0; ii<nx; ii++)
-				xt[ii] = xe[ii];
+			for(ii=0; ii<nX; ii++)
+				xt[ii] = x[ii];
 			for(ii=0; ii<ss; ii++)
 				{
 				a = A_rk[ss+ns*ii];
 				if(a!=0)
 					{
 					a *= h;
-					for(jj=0; jj<nx; jj++)
-						xt[jj] += a*K[jj+ii*nx];
+					for(jj=0; jj<nX; jj++)
+						xt[jj] += a*K[jj+ii*(nX)];
 					}
 				}
-			ode(t+h*C_rk[ss], xt, p, ode_args, K+ss*nx);
+			ws->ode(t+h*C_rk[ss], xt, p, ws->ode_args, K+ss*(nX));
 			}
 		for(ss=0; ss<ns; ss++)
 			{
 			b = h*B_rk[ss];
-			for(ii=0; ii<nx; ii++)
-				xe[ii] += b*K[ii+ss*nx];
+			for(ii=0; ii<nX; ii++)
+				x[ii] += b*K[ii+ss*(nX)];
 			}
 		t += h;
 		}
