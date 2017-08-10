@@ -37,7 +37,9 @@
 #include <blasfeo_i_aux_ext_dep.h>
 #include <blasfeo_d_aux.h>
 
+#include "../include/hpipm_d_rk_int.h"
 #include "../include/hpipm_d_erk_int.h"
+#include "../include/hpipm_d_ocp_qp_sim.h"
 
 #include "d_tools.h"
 
@@ -260,16 +262,18 @@ void d_linear_vde(int t, double *x, double *u, void *ode_args, double *xdot)
 	int nu = ls->nu;
 	double *Ac = ls->Ac;
 	double *Bc = ls->Bc;
+	double *tmp;
 	for(ii=0; ii<nx*(1+nx+nu); ii++)
 		xdot[ii] = 0.0;
 	for(kk=0; kk<1+nx+nu; kk++)
 		for(jj=0; jj<nx; jj++)
 			for(ii=0; ii<nx; ii++)
 				xdot[ii+nx*kk] += Ac[ii+nx*jj] * x[jj+nx*kk];
+	tmp = xdot+nx*(nx+nu);
 	for(jj=0; jj<nu; jj++)
 		for(ii=0; ii<nx; ii++)
-			xdot[ii] += Bc[ii+nx*jj] * u[jj];
-	double *tmp = xdot+nx;
+			tmp[ii] += Bc[ii+nx*jj] * u[jj];
+	tmp = xdot;
 	for(jj=0; jj<nu; jj++)
 		for(ii=0; ii<nx; ii++)
 			tmp[ii+nx*jj] += Bc[ii+nx*jj];
@@ -401,14 +405,14 @@ int main()
 	double C_rk[] = {0.0};
 #endif
 
-	int memsize_erk_data = d_memsize_erk_data(ns);
-	printf("\nmemsize erk data %d\n", memsize_erk_data);
-	void *memory_erk_data = malloc(memsize_erk_data);
+	int memsize_rk_data = d_memsize_rk_data(ns);
+	printf("\nmemsize rk data %d\n", memsize_rk_data);
+	void *memory_rk_data = malloc(memsize_rk_data);
 
-	struct d_erk_data erk_data;
-	d_create_erk_data(ns, &erk_data, memory_erk_data);
+	struct d_rk_data rk_data;
+	d_create_rk_data(ns, &rk_data, memory_rk_data);
 
-	d_cvt_rowmaj_to_erk_data(A_rk, B_rk, C_rk, &erk_data);
+	d_cvt_rowmaj_to_rk_data(A_rk, B_rk, C_rk, &rk_data);
 
 #if 0
 	double *memory_erk = malloc((nx+nx*ns)*sizeof(double));
@@ -416,7 +420,7 @@ int main()
 	double *x_erk; d_zeros(&x_erk, nx, 1);
 	double *ex_erk; d_zeros(&ex_erk, nx, 1);
 
-	d_erk_int(&erk_data, steps, h, nx, x0, x_erk, &d_linear_ode, &ls, memory_erk);
+	d_erk_int(&rk_data, steps, h, nx, x0, x_erk, &d_linear_ode, &ls, memory_erk);
 
 	for(ii=0; ii<nx; ii++)
 		ex_erk[ii] = x_erk[ii] - xref[ii];
@@ -430,12 +434,12 @@ int main()
 	int nf = nx+nu;
 	int np = nu;
 
-	int memsize_erk_int = d_memsize_erk_int(&erk_data, nx, nf, np);
+	int memsize_erk_int = d_memsize_erk_int(&rk_data, nx, nf, np);
 	printf("\nmemsize erk int %d\n", memsize_erk_int);
 	void *memory_erk = malloc(memsize_erk_int);
 
 	struct d_erk_workspace erk_workspace;
-	d_create_erk_int(&erk_data, nx, nf, np, &erk_workspace, memory_erk);
+	d_create_erk_int(&rk_data, nx, nf, np, &erk_workspace, memory_erk);
 
 	struct d_erk_args erk_args;
 	erk_args.steps = steps;
@@ -455,16 +459,24 @@ int main()
 	double *x_erk = erk_workspace.x;
 
 	for(ii=0; ii<nx; ii++)
-		ex_erk[ii] = x_erk[ii] - xref[ii];
+		ex_erk[ii] = x_erk[nx*nf+ii] - xref[ii];
 	for(ii=0; ii<nx*nu; ii++)
-		ex_erk[nx+ii] = x_erk[nx+ii] - B[ii];
+		ex_erk[nx+ii] = x_erk[ii] - B[ii];
 	for(ii=0; ii<nx*nx; ii++)
-		ex_erk[nx+nx*nu+ii] = x_erk[nx+nx*nu+ii] - A[ii];
+		ex_erk[nx+nx*nu+ii] = x_erk[nx*nu+ii] - A[ii];
+
+	struct d_strmat sBAbt;
+	d_allocate_strmat(nx+nu+1, nx, &sBAbt);
+
+	d_print_mat(1, nx, xref, 1);
+	d_cvt_erk_int_to_ocp_qp(nx, nu, &erk_workspace, xref, &sBAbt);
+	d_print_strmat(nx+nu+1, nx, &sBAbt, 0, 0);
 
 	printf("\nx erk\n");
-	d_print_mat(1, nx, x_erk, 1);
-	d_print_mat(nx, nx, x_erk+nx+nx*nu, nx);
-	d_print_mat(nx, nu, x_erk+nx, nx);
+	d_print_mat(nx, nu+nx+1, x_erk, nx); // B A x_next
+	d_print_mat(1, nx, x_erk+nx*nf, 1); // x_next
+	d_print_mat(nx, nx, x_erk+nx*nu, nx); // A
+	d_print_mat(nx, nu, x_erk, nx); // B
 	printf("\nerror erk\n");
 	d_print_e_mat(1, nx, ex_erk, 1);
 	d_print_e_mat(nx, nx, ex_erk+nx+nx*nu, nx);
@@ -486,9 +498,12 @@ int main()
 	free(T);
 	free(ipiv);
 	free(xref);
+	free(memory_rk_data);
 	free(fs0);
 	free(memory_erk);
 	free(ex_erk);
+
+	d_free_strmat(&sBAbt);
 
 	return 0;
 

@@ -27,169 +27,24 @@
 
 
 
-#include "../include/hpipm_d_rk_int.h"
-#include "../include/hpipm_d_erk_int.h"
-
-
-
-int d_memsize_erk_int(struct d_rk_data *rk_data, int nx, int nf, int np)
+struct d_rk_data
 	{
-
-	int ns = rk_data->ns;
-
-	int nX = nx*(1+nf);
-
-	int size = 0;
-
-	size += 1*ns*nX*sizeof(double); // K
-	size += 2*nX*sizeof(double); // x xt
-	size += 1*np*sizeof(double); // p
-
-	return size;
-
-	}
+	double *A_rk; // A in butcher tableau
+	double *B_rk; // b in butcher tableau
+	double *C_rk; // c in butcher tableau
+	int ns; // number of stages
+	int memsize;
+	};
 
 
 
-void d_create_erk_int(struct d_rk_data *rk_data, int nx, int nf, int np, struct d_erk_workspace *ws, void *memory)
-	{
-
-	ws->rk_data = rk_data;
-	ws->nx = nx;
-	ws->nf = nf;
-	ws->np = np;
-
-	int ns = rk_data->ns;
-
-	int nX = nx*(1+nf);
-
-	double *d_ptr = memory;
-
-	//
-	ws->K = d_ptr;
-	d_ptr += ns*nX;
-	//
-	ws->x = d_ptr;
-	d_ptr += nX;
-	//
-	ws->xt = d_ptr;
-	d_ptr += nX;
-	//
-	ws->p = d_ptr;
-	d_ptr += np;
-
-	return;
-
-	}
-
-
-
-void d_init_erk_int(double *x0, double *fs0, double *p0, void (*ode)(int t, double *x, double *p, void *ode_args, double *xdot), void *ode_args, struct d_erk_workspace *ws)
-	{
-
-	int ii;
-
-	int nx = ws->nx;
-	int nf = ws->nf;
-	int np = ws->np;
-
-	int nX = nx*(1+nf);
-
-	double *x = ws->x;
-	double *p = ws->p;
-
-	for(ii=0; ii<nx*nf; ii++)
-		x[ii] = fs0[ii];
-
-	for(ii=0; ii<nx; ii++)
-		x[nx*nf+ii] = x0[ii];
-
-	for(ii=0; ii<np; ii++)
-		p[ii] = p0[ii];
-	
-	ws->ode = ode;
-	ws->ode_args = ode_args;
-
-	return;
-
-	}
-
-
-
-void d_update_p_erk_int(double *p0, struct d_erk_workspace *ws)
-	{
-
-	int ii;
-
-	int np = ws->np;
-
-	double *p = ws->p;
-
-	for(ii=0; ii<np; ii++)
-		p[ii] = p0[ii];
-	
-	return;
-
-	}
-
-
-
-void d_erk_int(struct d_erk_args *erk_args, struct d_erk_workspace *ws)
-	{
-
-	int steps = erk_args->steps;
-	double h = erk_args->h;
-
-	struct d_rk_data *rk_data = ws->rk_data;
-	int nx = ws->nx;
-	int nf = ws->nf;
-	double *K = ws->K;
-	double *x = ws->x;
-	double *p = ws->p;
-	double *xt = ws->xt;
-
-	int ns = rk_data->ns;
-	double *A_rk = rk_data->A_rk;
-	double *B_rk = rk_data->B_rk;
-	double *C_rk = rk_data->C_rk;
-
-	int ii, jj, step, ss;
-	double t, a, b;
-
-	int nX = nx*(1+nf);
-
-	t = 0.0;
-	for(step=0; step<steps; step++)
-		{
-		for(ss=0; ss<ns; ss++)
-			{
-			for(ii=0; ii<nX; ii++)
-				xt[ii] = x[ii];
-			for(ii=0; ii<ss; ii++)
-				{
-				a = A_rk[ss+ns*ii];
-				if(a!=0)
-					{
-					a *= h;
-					for(jj=0; jj<nX; jj++)
-						xt[jj] += a*K[jj+ii*(nX)];
-					}
-				}
-			ws->ode(t+h*C_rk[ss], xt, p, ws->ode_args, K+ss*(nX));
-			}
-		for(ss=0; ss<ns; ss++)
-			{
-			b = h*B_rk[ss];
-			for(ii=0; ii<nX; ii++)
-				x[ii] += b*K[ii+ss*(nX)];
-			}
-		t += h;
-		}
-
-	return;
-
-	}
-
-
+//
+int d_memsize_rk_data(int ns);
+//
+void d_create_rk_data(int ns, struct d_rk_data *rk_data, void *memory);
+//
+void d_cvt_colmaj_to_rk_data(double *A_rk, double *B_rk, double *C_rk, struct d_rk_data *rk_data);
+//
+void d_cvt_rowmaj_to_rk_data(double *A_rk, double *B_rk, double *C_rk, struct d_rk_data *rk_data);
 
 

@@ -37,7 +37,7 @@ endif
 OBJS += dense_qp/d_dense_qp.o dense_qp/d_dense_qp_sol.o dense_qp/d_dense_qp_kkt.o dense_qp/d_dense_qp_ipm_hard.o
 OBJS += dense_qp/s_dense_qp.o dense_qp/s_dense_qp_sol.o dense_qp/s_dense_qp_kkt.o dense_qp/s_dense_qp_ipm_hard.o
 # ocp qp
-OBJS += ocp_qp/d_ocp_qp.o ocp_qp/d_ocp_qp_sol.o ocp_qp/d_ocp_qp_kkt.o ocp_qp/d_ocp_qp_ipm_hard.o
+OBJS += ocp_qp/d_ocp_qp.o ocp_qp/d_ocp_qp_sol.o ocp_qp/d_ocp_qp_kkt.o ocp_qp/d_ocp_qp_ipm_hard.o ocp_qp/d_ocp_qp_sim.o
 OBJS += ocp_qp/s_ocp_qp.o ocp_qp/s_ocp_qp_sol.o ocp_qp/s_ocp_qp_kkt.o ocp_qp/s_ocp_qp_ipm_hard.o
 OBJS += ocp_qp/m_ocp_qp.o                       ocp_qp/m_ocp_qp_kkt.o ocp_qp/m_ocp_qp_ipm_hard.o
 # ipm core
@@ -51,7 +51,7 @@ OBJS += tree_ocp_qp/scenario_tree.o
 OBJS += tree_ocp_qp/d_tree_ocp_qp.o tree_ocp_qp/d_tree_ocp_qp_sol.o tree_ocp_qp/d_tree_ocp_qp_kkt.o tree_ocp_qp/d_tree_ocp_qp_ipm_hard.o
 OBJS += tree_ocp_qp/s_tree_ocp_qp.o tree_ocp_qp/s_tree_ocp_qp_sol.o tree_ocp_qp/s_tree_ocp_qp_kkt.o tree_ocp_qp/s_tree_ocp_qp_ipm_hard.o
 # sim core
-OBJS += sim_core/d_erk_int.o
+OBJS += sim_core/d_rk_int.o sim_core/d_erk_int.o
 OBJS +=
 
 all: clean static_library
