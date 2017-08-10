@@ -385,6 +385,8 @@ void sgetrs_3l(int n, int nrhs, float *A, int lda, int *ipiv, float *B, int ldb,
 
 void sgesv_3l(int n, int nrhs, float *A, int lda, int *ipiv, float *B, int ldb, int *info)
 	{
+
+	*info = 0;
 	
 	// compute the LU factorization of A
 	sgetf2_3l(n, n, A, lda, ipiv, info);

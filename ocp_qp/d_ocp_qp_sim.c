@@ -32,31 +32,34 @@
 #include <blasfeo_d_aux.h>
 
 #include "../include/hpipm_d_erk_int.h"
+#include "../include/hpipm_d_ocp_qp.h"
 
 
 
-void d_cvt_erk_int_to_ocp_qp(int nx, int nu, struct d_erk_workspace *erk_ws, double *xn, struct d_strmat *BAbt)
+void d_cvt_erk_int_to_ocp_qp(int n, struct d_erk_workspace *erk_ws, double *xn, struct d_ocp_qp *qp)
 	{
 
 	int ii;
 
+	int *nx = qp->nx+n;
+	int *nu = qp->nu+n;
+	struct d_strmat *BAbt = qp->BAbt+n;
+	struct d_strvec *b = qp->b+n;
+
 	int nf = erk_ws->nf;
 
 	double *x = erk_ws->x;
-	double *xt = erk_ws->xt;
+	double *xt = b->pa;
 
 	double *tmp;
 
-	d_cvt_tran_mat2strmat(nx, nu+nx, x, nx, BAbt, 0, 0);
+	d_cvt_tran_mat2strmat(nx[1], nu[0]+nx[0], x, nx[1], BAbt, 0, 0);
 
-	tmp = x+nx*nf;
-	for(ii=0; ii<nx; ii++)
+	tmp = x+nx[1]*nf;
+	for(ii=0; ii<nx[1]; ii++)
 		xt[ii] = tmp[ii] - xn[ii];
 	
-	struct d_strvec v;
-	d_create_strvec(nx, &v, xt);
-
-	drowin_libstr(nx, 1.0, &v, 0, BAbt, nx+nu, 0);
+	drowin_libstr(nx[1], 1.0, b, 0, BAbt, nx[0]+nu[0], 0);
 
 	return;
 

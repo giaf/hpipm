@@ -385,6 +385,8 @@ void dgetrs_3l(int n, int nrhs, double *A, int lda, int *ipiv, double *B, int ld
 
 void dgesv_3l(int n, int nrhs, double *A, int lda, int *ipiv, double *B, int ldb, int *info)
 	{
+
+	*info = 0;
 	
 	// compute the LU factorization of A
 	dgetf2_3l(n, n, A, lda, ipiv, info);

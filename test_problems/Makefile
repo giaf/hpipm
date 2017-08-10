@@ -60,6 +60,7 @@ OBJS_TEST = d_tools.o test_d_part_cond.o
 #OBJS_TEST = d_tools.o test_d_tree_ocp.o
 #OBJS_TEST = s_tools.o test_s_tree_ocp.o
 #OBJS_TEST = d_tools.o test_d_sim.o
+#OBJS_TEST = d_tools.o test_d_sqp.o
 
 obj: $(OBJS_TEST)
 	$(CC) -o test.out $(OBJS_TEST) -L. libhpipm.a $(LIBS) #-pg

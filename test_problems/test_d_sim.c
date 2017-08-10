@@ -153,29 +153,29 @@ Mass-spring system: nx/2 masses connected each other with springs (in a row), an
 void mass_spring_system(int nx, int nu, double *Ac, double *Bc)
 	{
 
+	int ii;
+
 	int nx2 = nx*nx;
 
 	int pp = nx/2; // number of masses
 	
-	double *T; d_zeros(&T, pp, pp);
-	int ii;
-	for(ii=0; ii<pp; ii++) T[ii*(pp+1)] = -2;
-	for(ii=0; ii<pp-1; ii++) T[ii*(pp+1)+1] = 1;
-	for(ii=1; ii<pp; ii++) T[ii*(pp+1)-1] = 1;
+	// Ac
+	for(ii=0; ii<nx*nx; ii++)
+		Ac[ii] = 0.0;
+	for(ii=0; ii<pp; ii++)
+		Ac[ii+nx*(pp+ii)] = 1.0;
+	for(ii=0; ii<pp; ii++)
+		Ac[pp+ii+nx*(ii)] = -2.0;
+	for(ii=0; ii<pp-1; ii++)
+		Ac[pp+ii+nx*(1+ii)] = 1.0;
+	for(ii=0; ii<pp; ii++)
+		Ac[1+pp+ii+nx*(ii)] = 1.0;
 
-	double *Z; d_zeros(&Z, pp, pp);
-	double *I; d_zeros(&I, pp, pp); for(ii=0; ii<pp; ii++) I[ii*(pp+1)]=1.0; // = eye(pp);
-	dmcopy(pp, pp, Z, pp, Ac, nx);
-	dmcopy(pp, pp, T, pp, Ac+pp, nx);
-	dmcopy(pp, pp, I, pp, Ac+pp*nx, nx);
-	dmcopy(pp, pp, Z, pp, Ac+pp*(nx+1), nx); 
-	free(T);
-	free(Z);
-	free(I);
-	
-	d_zeros(&I, nu, nu); for(ii=0; ii<nu; ii++) I[ii*(nu+1)]=1.0; //I = eye(nu);
-	dmcopy(nu, nu, I, nu, Bc+pp, nx);
-	free(I);
+	// Bc
+	for(ii=0; ii<nx*nu; ii++)
+		Bc[ii] = 0.0;
+	for(ii=0; ii<nu; ii++)
+		Bc[pp+ii+nx*ii] = 1.0;
 
 	return;
 
@@ -298,13 +298,6 @@ int main()
 * (continuous time) mass sprint system
 ************************************************/	
 	
-	int ls_memsize = d_memsize_linear_system(nx, nu);
-	printf("\nls memsize = %d\n", ls_memsize);
-	void *ls_memory = malloc(ls_memsize);
-
-	struct d_linear_system ls;
-	d_create_linear_system(nx, nu, &ls, ls_memory);
-
 	double *Ac; d_zeros(&Ac, nx, nx);
 	double *Bc; d_zeros(&Bc, nx, nu);
 
@@ -312,6 +305,13 @@ int main()
 
 	d_print_mat(nx, nx, Ac, nx);
 	d_print_mat(nx, nu, Bc, nx);
+
+	int ls_memsize = d_memsize_linear_system(nx, nu);
+	printf("\nls memsize = %d\n", ls_memsize);
+	void *ls_memory = malloc(ls_memsize);
+
+	struct d_linear_system ls;
+	d_create_linear_system(nx, nu, &ls, ls_memory);
 
 	d_cvt_colmaj_to_linear_system(Ac, Bc, &ls);
 
@@ -340,6 +340,7 @@ int main()
 	double *A = malloc(nx*nx*sizeof(double));
 	double *B = malloc(nx*nu*sizeof(double));
 	double *T = malloc(nx*nx*sizeof(double));
+	int *ipiv = malloc(nx*sizeof(int));
 
 	for(ii=0; ii<nx*nx; ii++)
 		A[ii] = Ts*Ac[ii];
@@ -349,8 +350,7 @@ int main()
 	for(ii=0; ii<nx; ii++) T[ii*(nx+1)] -= 1.0;
 	dgemm_nn_3l(nx, nu, nx, T, nx, Bc, nx, B, nx);
 
-	int info;
-	int *ipiv = malloc(nx*sizeof(int));
+	int info = 0;
 	dgesv_3l(nx, nu, Ac, nx, ipiv, B, nx, &info);
 
 	d_print_mat(nx, nx, A, nx);
@@ -378,7 +378,7 @@ int main()
 * explicit rk4 integrator
 ************************************************/	
 	
-	int steps = 10;
+	int steps = 30;
 	double h = Ts/steps;
 	
 #if 1

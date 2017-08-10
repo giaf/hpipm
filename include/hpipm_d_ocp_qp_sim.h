@@ -33,4 +33,4 @@
 
 
 //
-void d_cvt_erk_int_to_ocp_qp(int nx, int nu, struct d_erk_workspace *erk_ws, double *xn, struct d_strmat *BAbt);
+void d_cvt_erk_int_to_ocp_qp(int n, struct d_erk_workspace *erk_ws, double *xn, struct d_ocp_qp *qp);
