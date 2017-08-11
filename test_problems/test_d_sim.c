@@ -39,6 +39,8 @@
 
 #include "../include/hpipm_d_rk_int.h"
 #include "../include/hpipm_d_erk_int.h"
+#include "../include/hpipm_d_irk_int.h"
+#include "../include/hpipm_d_ocp_qp.h"
 #include "../include/hpipm_d_ocp_qp_sim.h"
 
 #include "d_tools.h"
@@ -282,6 +284,20 @@ void d_linear_vde(int t, double *x, double *u, void *ode_args, double *xdot)
 
 
 
+void d_linear_Jode(int t, double *x, double *u, void *ode_args, double *J)
+	{
+	struct d_linear_system *ls = ode_args;
+	int ii, jj;
+	int nx = ls->nx;
+	double *Ac = ls->Ac;
+	for(jj=0; jj<nx; jj++)
+		for(ii=0; ii<nx; ii++)
+			J[ii+nx*jj] = Ac[ii+nx*jj];
+	return;
+	}
+
+
+
 int main()
 	{
 
@@ -291,8 +307,8 @@ int main()
 * problem size
 ************************************************/	
 	
-	int nx = 8;
-	int nu = 3;
+	int nx = 4;
+	int nu = 1;
 
 /************************************************
 * (continuous time) mass sprint system
@@ -323,7 +339,7 @@ int main()
 	x0[1] = 2.5;
 
 	double *u; d_zeros(&u, nu, 1);
-	u[0] = 1.0;
+	u[0] = 0.0;
 
 	double *xdot; d_zeros(&xdot, nx, 1);
 	d_linear_ode(0, x0, u, &ls, xdot);
@@ -431,6 +447,10 @@ int main()
 	d_print_e_mat(1, nx, ex_erk, 1);
 #else
 
+/************************************************
+* explicit integrator
+************************************************/	
+	
 	int nf = nx+nu;
 	int np = nu;
 
@@ -467,9 +487,20 @@ int main()
 
 	struct d_strmat sBAbt;
 	d_allocate_strmat(nx+nu+1, nx, &sBAbt);
+	struct d_strvec sb;
+	d_allocate_strvec(nx, &sb);
+
+	int nxx[2] = {nx, nx};
+	int nuu[1] = {nu};
+
+	struct d_ocp_qp qp;
+	qp.BAbt = &sBAbt;
+	qp.b = &sb;
+	qp.nx = nxx;
+	qp.nu = nuu;
 
 	d_print_mat(1, nx, xref, 1);
-	d_cvt_erk_int_to_ocp_qp(nx, nu, &erk_workspace, xref, &sBAbt);
+	d_cvt_erk_int_to_ocp_qp(0, &erk_workspace, xref, &qp);
 	d_print_strmat(nx+nu+1, nx, &sBAbt, 0, 0);
 
 	printf("\nx erk\n");
@@ -482,6 +513,57 @@ int main()
 	d_print_e_mat(nx, nx, ex_erk+nx+nx*nu, nx);
 	d_print_e_mat(nx, nu, ex_erk+nx, nx);
 #endif
+
+/************************************************
+* implicit integrator
+************************************************/	
+	
+	int memsize_irk_int = d_memsize_irk_int(&rk_data, nx, nf, np);
+	printf("\nmemsize irk int %d\n", memsize_irk_int);
+	void *memory_irk = malloc(memsize_irk_int);
+
+	struct d_irk_workspace irk_workspace;
+	d_create_irk_int(&rk_data, nx, nf, np, &irk_workspace, memory_irk);
+
+	struct d_irk_args irk_args;
+	irk_args.steps = steps;
+	irk_args.h = h;
+
+	d_init_irk_int(x0, fs0, u, &d_linear_vde, &d_linear_Jode, &ls, &irk_workspace);
+
+//	d_update_p_irk_int(u, &irk_workspace);
+
+	d_irk_int(&irk_args, &irk_workspace);
+
+//	d_print_strmat(ns*nx, ns*nx, irk_workspace.JG, 0, 0);
+//	d_print_strmat(ns*nx, nu+nx+1, irk_workspace.rG, 0, 0);
+//	d_print_strmat(ns*nx, nu+nx+1, irk_workspace.K, 0, 0);
+
+	d_print_mat(nx, nf+1, irk_workspace.x, nx);
+
+	double *x_irk = irk_workspace.x;
+	double *ex_irk; d_zeros(&ex_irk, nx*(1+nx+nu), 1);
+
+	for(ii=0; ii<nx; ii++)
+		ex_irk[ii] = x_irk[nx*nf+ii] - xref[ii];
+	for(ii=0; ii<nx*nu; ii++)
+		ex_irk[nx+ii] = x_irk[ii] - B[ii];
+	for(ii=0; ii<nx*nx; ii++)
+		ex_irk[nx+nx*nu+ii] = x_irk[nx*nu+ii] - A[ii];
+
+	printf("\nx irk\n");
+	d_print_mat(nx, nu+nx+1, x_irk, nx); // B A x_next
+	d_print_mat(1, nx, x_irk+nx*nf, 1); // x_next
+	d_print_mat(nx, nx, x_irk+nx*nu, nx); // A
+	d_print_mat(nx, nu, x_irk, nx); // B
+	printf("\nerror irk\n");
+	d_print_e_mat(1, nx, ex_irk, 1);
+	d_print_e_mat(nx, nx, ex_irk+nx+nx*nu, nx);
+	d_print_e_mat(nx, nu, ex_irk+nx, nx);
+
+//	dgese_libstr(nu+nx+1, nx, 0.0, &sBAbt, 0, 0);
+//	d_cvt_irk_int_to_ocp_qp(0, &irk_workspace, xref, &qp);
+//	d_print_strmat(nx+nu+1, nx, &sBAbt, 0, 0);
 
 /************************************************
 * free memory
@@ -502,8 +584,11 @@ int main()
 	free(fs0);
 	free(memory_erk);
 	free(ex_erk);
+	free(memory_irk);
+	free(ex_irk);
 
 	d_free_strmat(&sBAbt);
+	d_free_strvec(&sb);
 
 	return 0;
 

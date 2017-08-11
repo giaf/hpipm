@@ -507,8 +507,6 @@ int main()
 	for(ss=0; ss<sqp_steps; ss++)	
 		{
 
-//		printf("\nSQP iteration %d\n", ss);
-
 		// initial stage
 		// XXX x0 in the QP is zero since x0 in the nlp is initialized to x0 !!!
 		nn = 0;
@@ -531,11 +529,6 @@ int main()
 		d_solve_ipm2_hard_ocp_qp(&qp, &qp_sol, &workspace);
 
 		d_cvt_ocp_qp_sol_to_colmaj(&qp, &qp_sol, du, dx, dpi, dlam_lb, dlam_ub, dlam_lg, dlam_ug);
-
-//		for(nn=0; nn<=N; nn++)
-//			d_print_mat(1, nu[nn], du[nn], 1);
-//		for(nn=0; nn<=N; nn++)
-//			d_print_mat(1, nx[nn], dx[nn], 1);
 
 		for(nn=0; nn<=N; nn++)
 			for(ii=0; ii<nu[nn]; ii++)

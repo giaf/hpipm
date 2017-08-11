@@ -51,7 +51,7 @@ OBJS += tree_ocp_qp/scenario_tree.o
 OBJS += tree_ocp_qp/d_tree_ocp_qp.o tree_ocp_qp/d_tree_ocp_qp_sol.o tree_ocp_qp/d_tree_ocp_qp_kkt.o tree_ocp_qp/d_tree_ocp_qp_ipm_hard.o
 OBJS += tree_ocp_qp/s_tree_ocp_qp.o tree_ocp_qp/s_tree_ocp_qp_sol.o tree_ocp_qp/s_tree_ocp_qp_kkt.o tree_ocp_qp/s_tree_ocp_qp_ipm_hard.o
 # sim core
-OBJS += sim_core/d_rk_int.o sim_core/d_erk_int.o
+OBJS += sim_core/d_rk_int.o sim_core/d_erk_int.o sim_core/d_irk_int.o
 OBJS +=
 
 all: clean static_library
