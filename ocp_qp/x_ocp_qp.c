@@ -32,6 +32,19 @@ int MEMSIZE_OCP_QP(int N, int *nx, int *nu, int *nb, int *ng)
 
 	int ii;
 
+	int nvt = 0;
+	int net = 0;
+	int nct = 0;
+	for(ii=0; ii<N; ii++)
+		{
+		nvt += nu[ii]+nx[ii];
+		net += nx[ii+1];
+		nct += nb[ii]+ng[ii];
+		}
+	ii = N;
+	nvt += nu[ii]+nx[ii];
+	nct += nb[ii]+ng[ii];
+
 	int size = 0;
 
 	size += 4*(N+1)*sizeof(int); // nx nu nb ng
@@ -47,16 +60,14 @@ int MEMSIZE_OCP_QP(int N, int *nx, int *nu, int *nb, int *ng)
 		size += SIZE_STRMAT(nu[ii]+nx[ii]+1, nu[ii]+nx[ii]); // RSQrq
 		size += SIZE_STRVEC(nu[ii]+nx[ii]); // rq
 		size += SIZE_STRMAT(nu[ii]+nx[ii], ng[ii]); // DCt
-		size += 2*SIZE_STRVEC(nb[ii]); // d_lb d_ub
-		size += 2*SIZE_STRVEC(ng[ii]); // d_lg d_ug
 		}
 	ii = N;
 	size += nb[ii]*sizeof(int); // idxb
 	size += SIZE_STRMAT(nu[ii]+nx[ii]+1, nu[ii]+nx[ii]); // RSQrq
 	size += SIZE_STRVEC(nu[ii]+nx[ii]); // rq
 	size += SIZE_STRMAT(nu[ii]+nx[ii], ng[ii]); // DCt
-	size += 2*SIZE_STRVEC(nb[ii]); // d_lb d_ub
-	size += 2*SIZE_STRVEC(ng[ii]); // d_lg d_ug
+
+	size += SIZE_STRVEC(2*nct); // d_lb d_ub
 
 	size = (size+63)/64*64; // make multiple of typical cache line size
 	size += 64; // align to typical cache line size
@@ -71,6 +82,19 @@ void CREATE_OCP_QP(int N, int *nx, int *nu, int *nb, int *ng, struct OCP_QP *qp,
 	{
 
 	int ii;
+
+
+	int nvt = 0;
+	int net = 0;
+	int nct = 0;
+	for(ii=0; ii<N; ii++)
+		{
+		nvt += nu[ii]+nx[ii];
+		net += nx[ii+1];
+		nct += nb[ii]+ng[ii];
+		}
+	nvt += nu[ii]+nx[ii];
+	nct += nb[ii]+ng[ii];
 
 
 	// memsize
@@ -187,6 +211,8 @@ void CREATE_OCP_QP(int N, int *nx, int *nu, int *nb, int *ng, struct OCP_QP *qp,
 	char *c_ptr;
 	c_ptr = (char *) l_ptr;
 
+	char *tmp_ptr;
+
 	// BAbt
 	for(ii=0; ii<N; ii++)
 		{
@@ -222,32 +248,23 @@ void CREATE_OCP_QP(int N, int *nx, int *nu, int *nb, int *ng, struct OCP_QP *qp,
 		c_ptr += (qp->rq+ii)->memory_size;
 		}
 
-	// d_lb
+	// d_lb d_lg
+	tmp_ptr = c_ptr;
+	c_ptr += SIZE_STRVEC(2*nct);
 	for(ii=0; ii<=N; ii++)
 		{
-		CREATE_STRVEC(nb[ii], qp->d_lb+ii, c_ptr);
-		c_ptr += (qp->d_lb+ii)->memory_size;
+		CREATE_STRVEC(nb[ii], qp->d_lb+ii, tmp_ptr);
+		tmp_ptr += (qp->d_lb+ii)->memory_size;
+		CREATE_STRVEC(ng[ii], qp->d_lg+ii, tmp_ptr);
+		tmp_ptr += (qp->d_lg+ii)->memory_size;
 		}
-
-	// d_ub
+	// d_ub d_ug
 	for(ii=0; ii<=N; ii++)
 		{
-		CREATE_STRVEC(nb[ii], qp->d_ub+ii, c_ptr);
-		c_ptr += (qp->d_ub+ii)->memory_size;
-		}
-
-	// d_lg
-	for(ii=0; ii<=N; ii++)
-		{
-		CREATE_STRVEC(ng[ii], qp->d_lg+ii, c_ptr);
-		c_ptr += (qp->d_lg+ii)->memory_size;
-		}
-
-	// d_ug
-	for(ii=0; ii<=N; ii++)
-		{
-		CREATE_STRVEC(ng[ii], qp->d_ug+ii, c_ptr);
-		c_ptr += (qp->d_ug+ii)->memory_size;
+		CREATE_STRVEC(nb[ii], qp->d_ub+ii, tmp_ptr);
+		tmp_ptr += (qp->d_ub+ii)->memory_size;
+		CREATE_STRVEC(ng[ii], qp->d_ug+ii, tmp_ptr);
+		tmp_ptr += (qp->d_ug+ii)->memory_size;
 		}
 
 	return;

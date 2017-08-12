@@ -160,8 +160,7 @@ void COMPUTE_RES_HARD_OCP_QP(struct OCP_QP *qp, struct OCP_QP_SOL *qp_sol, struc
 	int *nb = qp->nb;
 	int *ng = qp->ng;
 
-	int nbt = ws->core_workspace->nb;
-	int ngt = ws->core_workspace->ng;
+	int nct = cws->nc;
 
 	struct STRMAT *BAbt = qp->BAbt;
 	struct STRMAT *RSQrq = qp->RSQrq;
@@ -260,9 +259,9 @@ void COMPUTE_RES_HARD_OCP_QP(struct OCP_QP *qp, struct OCP_QP_SOL *qp_sol, struc
 
 		}
 
-	mu += VECMULDOT_LIBSTR(2*nbt+2*ngt, lam_lb, 0, t_lb, 0, ws->res_m, 0);
+	mu += VECMULDOT_LIBSTR(2*nct, lam_lb, 0, t_lb, 0, ws->res_m, 0);
 
-	if(cws->nb+cws->ng>0)
+	if(nct>0)
 		ws->res_mu = mu*cws->nt_inv;
 	else
 		ws->res_mu = 0.0;

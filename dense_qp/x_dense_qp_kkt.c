@@ -187,7 +187,7 @@ void COMPUTE_RES_HARD_DENSE_QP(struct DENSE_QP *qp, struct DENSE_QP_SOL *qp_sol,
 	// res_mu
 	mu = VECMULDOT_LIBSTR(2*nb+2*ng, lam_lb, 0, t_lb, 0, ws->res_m, 0);
 
-	if(cws->nb+cws->ng>0)
+	if(cws->nc>0)
 		ws->res_mu = mu*cws->nt_inv;
 	else
 		ws->res_mu = 0.0;
