@@ -30,39 +30,23 @@
 struct s_ipm_hard_core_qp_workspace
 	{
 	float *d; // constraints
-	float *d_lc; // lower box constraints
-	float *d_uc; // upper box constraints
 	float *v; // primal variables
 	float *pi; // equality constraints multipliers
 	float *lam; // inequality constraints multipliers
-	float *lam_lc; // lower bounds multipliers
-	float *lam_uc; // upper bounds multipliers
 	float *t; // inequality constraints slacks
-	float *t_lc; // lower box constraints slacks
-	float *t_uc; // upper box constraints slacks
 	float *t_inv; // inverse of t
-	float *t_inv_lc; // inverse of t
-	float *t_inv_uc; // inverse of t
 	float *dv; // step in v
 	float *dpi; // step in pi
 	float *dlam; // step in lam
-	float *dlam_lc; //
-	float *dlam_uc; //
 	float *dt; // step in t
-	float *dt_lc; // step in t_lc
-	float *dt_uc; // step in t_uc
 	float *res_g; // q-residuals
 	float *res_b; // b-residuals
 	float *res_d; // d-residuals
-	float *res_d_lc; // d-residuals
-	float *res_d_uc; // d-residuals
 	float *res_m; // m-residuals
-	float *res_m_lc; // m-residuals
-	float *res_m_uc; // m-residuals
-	float *Qx; // Hessian update
-	float *Qx_lc; // Hessian update
-	float *qx; // gradient update
-	float *qx_lc; // gradient update
+	float *Gamma; // Hessian update
+	float *gamma; // gradient update
+	float *Qx; // Hessian update // TODO remove
+	float *qx; // gradient update // TODO remove
 	float *stat; // convergence statistics
 	float alpha; // step length
 	float alpha_min; // exit cond on step lenght

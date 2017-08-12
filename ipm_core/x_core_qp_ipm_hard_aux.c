@@ -27,6 +27,7 @@
 
 
 
+// TODO rename in compute Gamma_gamma
 void COMPUTE_QX_QX_HARD_QP(struct IPM_HARD_CORE_QP_WORKSPACE *rws)
 	{
 
@@ -37,23 +38,27 @@ void COMPUTE_QX_QX_HARD_QP(struct IPM_HARD_CORE_QP_WORKSPACE *rws)
 	REAL *res_m = rws->res_m;
 	REAL *res_d = rws->res_d;
 	REAL *t_inv = rws->t_inv;
+	REAL *Gamma = rws->Gamma;
+	REAL *gamma = rws->gamma;
 	REAL *Qx = rws->Qx;
 	REAL *qx = rws->qx;
 
 	// local variables
 	int ii;
 
+	for(ii=0; ii<2*nc; ii++)
+		{
+		// TODO mask out unconstrained components for one-sided (multiply by zero/one?)
+		t_inv[ii] = 1.0/t[ii];
+		Gamma[ii] = t_inv[ii]*lam[ii];
+		gamma[ii] = t_inv[ii]*(res_m[ii]-lam[ii]*res_d[ii]);
+		}
+
+	// TODO remove !!!
 	for(ii=0; ii<nc; ii++)
 		{
-
-		t_inv[0 +ii] = 1.0/t[0 +ii];
-		t_inv[nc+ii] = 1.0/t[nc+ii];
-		// TODO mask out unconstrained components for one-sided
-		Qx[ii] = t_inv[0 +ii]*lam[0 +ii] \
-		       + t_inv[nc+ii]*lam[nc+ii];
-		qx[ii] = t_inv[0 +ii]*(res_m[0 +ii]-lam[0 +ii]*res_d[0 +ii]) \
-		       - t_inv[nc+ii]*(res_m[nc+ii]+lam[nc+ii]*res_d[nc+ii]);
-
+		Qx[ii] = Gamma[0+ii] + Gamma[nc+ii];
+		qx[ii] = gamma[0+ii] - gamma[nc+ii];
 		}
 
 	return;
@@ -77,10 +82,14 @@ void COMPUTE_LAM_T_HARD_QP(struct IPM_HARD_CORE_QP_WORKSPACE *rws)
 	// local variables
 	int ii;
 
+	// TODO move outside core !!!
 	for(ii=0; ii<nc; ii++)
 		{
-
 		dt[nc+ii] = - dt[0 +ii];
+		}
+
+	for(ii=0; ii<nc; ii++)
+		{
 
 		dt[0 +ii] -= res_d[0 +ii];
 		dt[nc+ii] += res_d[nc+ii];
@@ -258,18 +267,22 @@ void COMPUTE_QX_HARD_QP(struct IPM_HARD_CORE_QP_WORKSPACE *rws)
 	REAL *res_m = rws->res_m;
 	REAL *res_d = rws->res_d;
 	REAL *t_inv = rws->t_inv;
+	REAL *gamma = rws->gamma;
 	REAL *qx = rws->qx;
 
 	// local variables
 	int ii;
 
+	for(ii=0; ii<2*nc; ii++)
+		{
+		// TODO mask out unconstrained components for one-sided (multiply by zero/one?)
+		gamma[ii] = t_inv[ii]*(res_m[ii]-lam[ii]*res_d[ii]);
+		}
+
+	// TODO remove !!!
 	for(ii=0; ii<nc; ii++)
 		{
-
-		// TODO mask out unconstrained components for one-sided
-		qx[ii] = t_inv[0 +ii]*(res_m[0 +ii]-lam[0 +ii]*res_d[0 +ii]) \
-		       - t_inv[nc+ii]*(res_m[nc+ii]+lam[nc+ii]*res_d[nc+ii]);
-
+		qx[ii] = gamma[0+ii] - gamma[nc+ii];
 		}
 
 	return;

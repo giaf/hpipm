@@ -254,17 +254,17 @@ void CREATE_OCP_QP(int N, int *nx, int *nu, int *nb, int *ng, struct OCP_QP *qp,
 	for(ii=0; ii<=N; ii++)
 		{
 		CREATE_STRVEC(nb[ii], qp->d_lb+ii, tmp_ptr);
-		tmp_ptr += (qp->d_lb+ii)->memory_size;
+		tmp_ptr += nb[ii]*sizeof(REAL);
 		CREATE_STRVEC(ng[ii], qp->d_lg+ii, tmp_ptr);
-		tmp_ptr += (qp->d_lg+ii)->memory_size;
+		tmp_ptr += ng[ii]*sizeof(REAL);
 		}
 	// d_ub d_ug
 	for(ii=0; ii<=N; ii++)
 		{
 		CREATE_STRVEC(nb[ii], qp->d_ub+ii, tmp_ptr);
-		tmp_ptr += (qp->d_ub+ii)->memory_size;
+		tmp_ptr += nb[ii]*sizeof(REAL);
 		CREATE_STRVEC(ng[ii], qp->d_ug+ii, tmp_ptr);
-		tmp_ptr += (qp->d_ug+ii)->memory_size;
+		tmp_ptr += ng[ii]*sizeof(REAL);
 		}
 
 	return;
