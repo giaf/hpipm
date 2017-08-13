@@ -49,7 +49,7 @@ int MEMSIZE_IPM_HARD_DENSE_QP(struct DENSE_QP *qp, struct IPM_HARD_DENSE_QP_ARG 
 	size += 1*SIZE_STRMAT(nv+1, ng); // Ctx
 
 	size += 1*sizeof(struct IPM_HARD_CORE_QP_WORKSPACE);
-	size += 1*MEMSIZE_IPM_HARD_CORE_QP(qp->nv, qp->ne, qp->nb, qp->ng, arg->iter_max);
+	size += 1*MEMSIZE_IPM_HARD_CORE_QP(nv, ne, nb+ng, arg->iter_max); // XXX
 
 	size = (size+63)/64*64; // make multiple of typical cache line size
 	size += 1*64; // align once to typical cache line size
@@ -177,8 +177,7 @@ void CREATE_IPM_HARD_DENSE_QP(struct DENSE_QP *qp, struct IPM_HARD_DENSE_QP_ARG 
 
 	cws->nv = nv;
 	cws->ne = ne;
-	cws->nb = nb;
-	cws->ng = ng;
+	cws->nc = nb+ng; // XXX
 	cws->iter_max = arg->iter_max;
 	CREATE_IPM_HARD_CORE_QP(cws, c_ptr);
 	c_ptr += workspace->core_workspace->memsize;
@@ -227,7 +226,7 @@ void SOLVE_IPM_HARD_DENSE_QP(struct DENSE_QP *qp, struct DENSE_QP_SOL *qp_sol, s
 	cws->lam = qp_sol->lam_lb->pa;
 	cws->t = qp_sol->t_lb->pa;
 
-	if(cws->nb+cws->ng==0)
+	if(cws->nc==0)
 		{
 		FACT_SOLVE_KKT_UNCONSTR_DENSE_QP(qp, qp_sol, ws);
 		COMPUTE_RES_HARD_DENSE_QP(qp, qp_sol, ws);
@@ -285,7 +284,7 @@ void SOLVE_IPM2_HARD_DENSE_QP(struct DENSE_QP *qp, struct DENSE_QP_SOL *qp_sol, 
 
 	REAL tmp;
 
-	if(cws->nb+cws->ng==0)
+	if(cws->nc==0)
 		{
 		FACT_SOLVE_KKT_UNCONSTR_DENSE_QP(qp, qp_sol, ws);
 		COMPUTE_RES_HARD_DENSE_QP(qp, qp_sol, ws);

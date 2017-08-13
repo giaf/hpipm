@@ -55,8 +55,7 @@ struct d_ipm_hard_core_qp_workspace
 	double nt_inv; // 1.0/nt, where nt is the total number of constraints
 	int nv; // number of primal variables
 	int ne; // number of equality constraints
-	int nb; // number of two-sized bounds
-	int ng; // number of two-sized constraints
+	int nc; // number of (two-sided) inequality constraints
 	int iter_max; // exit cond on iter mumber
 	int memsize; // memory size (in bytes) of workspace
 	};
@@ -64,7 +63,7 @@ struct d_ipm_hard_core_qp_workspace
 
 
 //
-int d_memsize_ipm_hard_core_qp(int nv, int ne, int nb, int ng, int iter_max);
+int d_memsize_ipm_hard_core_qp(int nv, int ne, int nc, int iter_max);
 //
 
 void d_create_ipm_hard_core_qp(struct d_ipm_hard_core_qp_workspace *workspace, void *mem);

@@ -7,18 +7,18 @@
 * Developed at IMTEK (University of Freiburg) under the supervision of Moritz Diehl.              *
 * All rights reserved.                                                                            *
 *                                                                                                 *
-* HPMPC is free software; you can redistribute it and/or                                          *
+* HPIPM is free software; you can redistribute it and/or                                          *
 * modify it under the terms of the GNU Lesser General Public                                      *
 * License as published by the Free Software Foundation; either                                    *
 * version 2.1 of the License, or (at your option) any later version.                              *
 *                                                                                                 *
-* HPMPC is distributed in the hope that it will be useful,                                        *
+* HPIPM is distributed in the hope that it will be useful,                                        *
 * but WITHOUT ANY WARRANTY; without even the implied warranty of                                  *
 * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.                                            *
 * See the GNU Lesser General Public License for more details.                                     *
 *                                                                                                 *
 * You should have received a copy of the GNU Lesser General Public                                *
-* License along with HPMPC; if not, write to the Free Software                                    *
+* License along with HPIPM; if not, write to the Free Software                                    *
 * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA                  *
 *                                                                                                 *
 * Author: Gianluca Frison, gianluca.frison (at) imtek.uni-freiburg.de                             *
@@ -187,7 +187,7 @@ void COMPUTE_RES_HARD_DENSE_QP(struct DENSE_QP *qp, struct DENSE_QP_SOL *qp_sol,
 	// res_mu
 	mu = VECMULDOT_LIBSTR(2*nb+2*ng, lam_lb, 0, t_lb, 0, ws->res_m, 0);
 
-	if(cws->nb+cws->ng>0)
+	if(cws->nc>0)
 		ws->res_mu = mu*cws->nt_inv;
 	else
 		ws->res_mu = 0.0;

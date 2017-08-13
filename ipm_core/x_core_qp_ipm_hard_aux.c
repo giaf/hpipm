@@ -30,32 +30,30 @@
 void COMPUTE_QX_QX_HARD_QP(struct IPM_HARD_CORE_QP_WORKSPACE *cws)
 	{
 
-	int nb = cws->nb;
-	int ng = cws->ng;
+	int nc = cws->nc;
 
 	REAL *lam_lb = cws->lam;
-	REAL *lam_ub = cws->lam+nb+ng;
+	REAL *lam_ub = cws->lam+nc;
 	REAL *t_lb = cws->t;
-	REAL *t_ub = cws->t+nb+ng;
+	REAL *t_ub = cws->t+nc;
 	REAL *res_m_lb = cws->res_m;
-	REAL *res_m_ub = cws->res_m+nb+ng;
+	REAL *res_m_ub = cws->res_m+nc;
 	REAL *res_d_lb = cws->res_d;
-	REAL *res_d_ub = cws->res_d+nb+ng;
+	REAL *res_d_ub = cws->res_d+nc;
 	REAL *t_inv_lb = cws->t_inv;
-	REAL *t_inv_ub = cws->t_inv+nb+ng;
+	REAL *t_inv_ub = cws->t_inv+nc;
 	REAL *Qx = cws->Qx;
 	REAL *qx = cws->qx;
 
 	// local variables
-	int nt = nb+ng;
 	int ii;
 
-	for(ii=0; ii<nt; ii++)
+	for(ii=0; ii<nc; ii++)
 		{
 
 		t_inv_lb[ii] = 1.0/t_lb[ii];
 		t_inv_ub[ii] = 1.0/t_ub[ii];
-		// TODO mask out unconstrained components for one-sided
+		// TODO mask out unconstrained components for one-sided (multiply by zero?)
 		Qx[ii] = t_inv_lb[ii]*lam_lb[ii] \
 		       + t_inv_ub[ii]*lam_ub[ii];
 		qx[ii] = t_inv_lb[ii]*(res_m_lb[ii]-lam_lb[ii]*res_d_lb[ii]) \
@@ -72,27 +70,25 @@ void COMPUTE_QX_QX_HARD_QP(struct IPM_HARD_CORE_QP_WORKSPACE *cws)
 void COMPUTE_LAM_T_HARD_QP(struct IPM_HARD_CORE_QP_WORKSPACE *cws)
 	{
 
-	int nb = cws->nb;
-	int ng = cws->ng;
+	int nc = cws->nc;
 
 	REAL *lam_lb = cws->lam;
-	REAL *lam_ub = cws->lam+nb+ng;
+	REAL *lam_ub = cws->lam+nc;
 	REAL *dlam_lb = cws->dlam;
-	REAL *dlam_ub = cws->dlam+nb+ng;
+	REAL *dlam_ub = cws->dlam+nc;
 	REAL *dt_lb = cws->dt;
-	REAL *dt_ub = cws->dt+nb+ng;
+	REAL *dt_ub = cws->dt+nc;
 	REAL *res_d_lb = cws->res_d;
-	REAL *res_d_ub = cws->res_d+nb+ng;
+	REAL *res_d_ub = cws->res_d+nc;
 	REAL *res_m_lb = cws->res_m;
-	REAL *res_m_ub = cws->res_m+nb+ng;
+	REAL *res_m_ub = cws->res_m+nc;
 	REAL *t_inv_lb = cws->t_inv;
-	REAL *t_inv_ub = cws->t_inv+nb+ng;
+	REAL *t_inv_ub = cws->t_inv+nc;
 
 	// local variables
 	int ii;
-	int nt = nb+ng;
 
-	for(ii=0; ii<nt; ii++)
+	for(ii=0; ii<nc; ii++)
 		{
 
 		dt_ub[ii] = - dt_lb[ii];
@@ -116,8 +112,7 @@ void COMPUTE_ALPHA_HARD_QP(struct IPM_HARD_CORE_QP_WORKSPACE *cws)
 	{
 	
 	// extract workspace members
-	int nb = cws->nb;
-	int ng = cws->ng;
+	int nc = cws->nc;
 
 	REAL *lam_lb = cws->lam;
 	REAL *t_lb = cws->t;
@@ -127,10 +122,9 @@ void COMPUTE_ALPHA_HARD_QP(struct IPM_HARD_CORE_QP_WORKSPACE *cws)
 	REAL alpha = - 1.0;
 	
 	// local variables
-	int nt = nb+ng;
 	int ii;
 
-	for(ii=0; ii<2*nt; ii++)
+	for(ii=0; ii<2*nc; ii++)
 		{
 
 		if( alpha*dlam_lb[ii+0]>lam_lb[ii+0] )
@@ -159,8 +153,7 @@ void UPDATE_VAR_HARD_QP(struct IPM_HARD_CORE_QP_WORKSPACE *cws)
 	// extract workspace members
 	int nv = cws->nv;
 	int ne = cws->ne;
-	int nb = cws->nb;
-	int ng = cws->ng;
+	int nc = cws->nc;
 
 	REAL *v = cws->v;
 	REAL *pi = cws->pi;
@@ -179,7 +172,6 @@ void UPDATE_VAR_HARD_QP(struct IPM_HARD_CORE_QP_WORKSPACE *cws)
 #endif
 
 	// local variables
-	int nt = nb+ng;
 	int ii;
 
 	// update v
@@ -195,13 +187,13 @@ void UPDATE_VAR_HARD_QP(struct IPM_HARD_CORE_QP_WORKSPACE *cws)
 		}
 
 	// update lam
-	for(ii=0; ii<2*nt; ii++)
+	for(ii=0; ii<2*nc; ii++)
 		{
 		lam[ii] += alpha * dlam[ii];
 		}
 
 	// update t
-	for(ii=0; ii<2*nt; ii++)
+	for(ii=0; ii<2*nc; ii++)
 		{
 		t[ii] += alpha * dt[ii];
 		}
@@ -218,9 +210,7 @@ void COMPUTE_MU_AFF_HARD_QP(struct IPM_HARD_CORE_QP_WORKSPACE *cws)
 	int ii;
 
 	// extract workspace members
-	int nb = cws->nb;
-	int ng = cws->ng;
-	int nt = nb+ng;
+	int nc = cws->nc;
 
 	REAL *ptr_lam = cws->lam;
 	REAL *ptr_t = cws->t;
@@ -232,7 +222,7 @@ void COMPUTE_MU_AFF_HARD_QP(struct IPM_HARD_CORE_QP_WORKSPACE *cws)
 
 	REAL mu = 0;
 
-	for(ii=0; ii<2*nt; ii++)
+	for(ii=0; ii<2*nc; ii++)
 		{
 		mu += (ptr_lam[ii+0] + alpha*ptr_dlam[ii+0]) * (ptr_t[ii+0] + alpha*ptr_dt[ii+0]);
 		}
@@ -251,9 +241,7 @@ void COMPUTE_CENTERING_CORRECTION_HARD_QP(struct IPM_HARD_CORE_QP_WORKSPACE *cws
 	int ii;
 
 	// extract workspace members
-	int nb = cws->nb;
-	int ng = cws->ng;
-	int nt = nb+ng;
+	int nc = cws->nc;
 
 	REAL *ptr_dlam = cws->dlam;
 	REAL *ptr_dt = cws->dt;
@@ -261,7 +249,7 @@ void COMPUTE_CENTERING_CORRECTION_HARD_QP(struct IPM_HARD_CORE_QP_WORKSPACE *cws
 
 	REAL sigma_mu = cws->sigma*cws->mu;
 
-	for(ii=0; ii<2*nt; ii++)
+	for(ii=0; ii<2*nc; ii++)
 		{
 		ptr_res_m[ii+0] += ptr_dt[ii+0] * ptr_dlam[ii+0] - sigma_mu;
 		}
@@ -275,24 +263,22 @@ void COMPUTE_CENTERING_CORRECTION_HARD_QP(struct IPM_HARD_CORE_QP_WORKSPACE *cws
 void COMPUTE_QX_HARD_QP(struct IPM_HARD_CORE_QP_WORKSPACE *cws)
 	{
 
-	int nb = cws->nb;
-	int ng = cws->ng;
+	int nc = cws->nc;
 
 	REAL *lam_lb = cws->lam;
-	REAL *lam_ub = cws->lam+nb+ng;
+	REAL *lam_ub = cws->lam+nc;
 	REAL *res_m_lb = cws->res_m;
-	REAL *res_m_ub = cws->res_m+nb+ng;
+	REAL *res_m_ub = cws->res_m+nc;
 	REAL *res_d_lb = cws->res_d;
-	REAL *res_d_ub = cws->res_d+nb+ng;
+	REAL *res_d_ub = cws->res_d+nc;
 	REAL *t_inv_lb = cws->t_inv;
-	REAL *t_inv_ub = cws->t_inv+nb+ng;
+	REAL *t_inv_ub = cws->t_inv+nc;
 	REAL *qx = cws->qx;
 
 	// local variables
-	int nt = nb+ng;
 	int ii;
 
-	for(ii=0; ii<nt; ii++)
+	for(ii=0; ii<nc; ii++)
 		{
 
 		// TODO mask out unconstrained components for one-sided

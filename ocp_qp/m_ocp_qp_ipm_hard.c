@@ -60,28 +60,23 @@ int m_memsize_ipm_hard_ocp_qp(struct d_ocp_qp *qp, struct s_ocp_qp *s_qp, struct
 	// compute core qp size and max size
 	int nvt = 0;
 	int net = 0;
-	int nbt = 0;
-	int ngt = 0;
+	int nct = 0;
 	int nxM = 0;
 	int nuM = 0;
 	int nbM = 0;
 	int ngM = 0;
-
 	for(ii=0; ii<N; ii++)
 		{
 		nvt += nx[ii]+nu[ii];
 		net += nx[ii+1];
-		nbt += nb[ii];
-		ngt += ng[ii];
+		nct += nb[ii]+ng[ii];
 		nxM = nx[ii]>nxM ? nx[ii] : nxM;
 		nuM = nu[ii]>nuM ? nu[ii] : nuM;
 		nbM = nb[ii]>nbM ? nb[ii] : nbM;
 		ngM = ng[ii]>ngM ? ng[ii] : ngM;
 		}
-	ii = N;
 	nvt += nx[ii]+nu[ii];
-	nbt += nb[ii];
-	ngt += ng[ii];
+	nct += nb[ii]+ng[ii];
 	nxM = nx[ii]>nxM ? nx[ii] : nxM;
 	nuM = nu[ii]>nuM ? nu[ii] : nuM;
 	nbM = nb[ii]>nbM ? nb[ii] : nbM;
@@ -105,7 +100,7 @@ int m_memsize_ipm_hard_ocp_qp(struct d_ocp_qp *qp, struct s_ocp_qp *s_qp, struct
 	size += 2*s_size_strmat(nuM+nxM+1, nxM+ngM); // AL
 
 	size += 1*sizeof(struct d_ipm_hard_core_qp_workspace);
-	size += 1*d_memsize_ipm_hard_core_qp(nvt, net, nbt, ngt, arg->iter_max);
+	size += 1*d_memsize_ipm_hard_core_qp(nvt, net, nct, arg->iter_max);
 
 	size = (size+63)/64*64; // make multiple of typical cache line size
 	size += 1*64; // align once to typical cache line size
@@ -132,28 +127,24 @@ void m_create_ipm_hard_ocp_qp(struct d_ocp_qp *qp, struct s_ocp_qp *s_qp, struct
 	// compute core qp size and max size
 	int nvt = 0;
 	int net = 0;
-	int nbt = 0;
+	int nct = 0;
 	int ngt = 0;
 	int nxM = 0;
 	int nuM = 0;
 	int nbM = 0;
 	int ngM = 0;
-
 	for(ii=0; ii<N; ii++)
 		{
 		nvt += nx[ii]+nu[ii];
 		net += nx[ii+1];
-		nbt += nb[ii];
-		ngt += ng[ii];
+		nct += nb[ii]+ng[ii];
 		nxM = nx[ii]>nxM ? nx[ii] : nxM;
 		nuM = nu[ii]>nuM ? nu[ii] : nuM;
 		nbM = nb[ii]>nbM ? nb[ii] : nbM;
 		ngM = ng[ii]>ngM ? ng[ii] : ngM;
 		}
-	ii = N;
 	nvt += nx[ii]+nu[ii];
-	nbt += nb[ii];
-	ngt += ng[ii];
+	nct += nb[ii]+ng[ii];
 	nxM = nx[ii]>nxM ? nx[ii] : nxM;
 	nuM = nu[ii]>nuM ? nu[ii] : nuM;
 	nbM = nb[ii]>nbM ? nb[ii] : nbM;
@@ -362,8 +353,7 @@ void m_create_ipm_hard_ocp_qp(struct d_ocp_qp *qp, struct s_ocp_qp *s_qp, struct
 
 	cws->nv = nvt;
 	cws->ne = net;
-	cws->nb = nbt;
-	cws->ng = ngt;
+	cws->nc = nct;
 	cws->iter_max = arg->iter_max;
 	d_create_ipm_hard_core_qp(cws, c_ptr);
 	c_ptr += workspace->core_workspace->memsize;
@@ -371,7 +361,7 @@ void m_create_ipm_hard_ocp_qp(struct d_ocp_qp *qp, struct s_ocp_qp *s_qp, struct
 	cws->alpha_min = arg->alpha_min;
 	cws->mu_max = arg->mu_max;
 	cws->mu0 = arg->mu0;
-	cws->nt_inv = 1.0/(2*nbt+2*ngt);
+	cws->nt_inv = 1.0/(2*nct); // XXX
 
 
 	// alias members of workspace and core_workspace
@@ -417,7 +407,7 @@ void m_create_ipm_hard_ocp_qp(struct d_ocp_qp *qp, struct s_ocp_qp *s_qp, struct
 		}
 	//
 	c_ptr = (char *) cws->res_d;
-	d_create_strvec(2*nbt+2*ngt, workspace->res_d, c_ptr);
+	d_create_strvec(2*nct, workspace->res_d, c_ptr);
 	for(ii=0; ii<=N; ii++)
 		{
 		d_create_strvec(nb[ii], workspace->res_d_lb+ii, c_ptr);
@@ -440,7 +430,7 @@ void m_create_ipm_hard_ocp_qp(struct d_ocp_qp *qp, struct s_ocp_qp *s_qp, struct
 		}
 	//
 	c_ptr = (char *) cws->res_m;
-	d_create_strvec(2*nbt+2*ngt, workspace->res_m, c_ptr);
+	d_create_strvec(2*nct, workspace->res_m, c_ptr);
 	for(ii=0; ii<=N; ii++)
 		{
 		d_create_strvec(nb[ii], workspace->res_m_lb+ii, c_ptr);
@@ -530,7 +520,7 @@ void m_solve_ipm_hard_ocp_qp(struct d_ocp_qp *qp, struct s_ocp_qp *s_qp, struct 
 	cws->lam = qp_sol->lam_lb->pa;
 	cws->t = qp_sol->t_lb->pa;
 
-	if(cws->nb+cws->ng==0)
+	if(cws->nc==0)
 		{
 		//
 		d_init_var_hard_ocp_qp(qp, qp_sol, &dws);
@@ -651,7 +641,7 @@ void m_solve_ipm2_hard_ocp_qp(struct d_ocp_qp *qp, struct s_ocp_qp *s_qp, struct
 
 	double tmp;
 
-	if(cws->nb+cws->ng==0)
+	if(cws->nc==0)
 		{
 		//
 		d_init_var_hard_ocp_qp(qp, qp_sol, &dws);

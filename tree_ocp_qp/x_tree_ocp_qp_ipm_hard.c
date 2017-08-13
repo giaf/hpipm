@@ -41,8 +41,7 @@ int MEMSIZE_IPM_HARD_TREE_OCP_QP(struct TREE_OCP_QP *qp, struct IPM_HARD_TREE_OC
 	// compute core qp size and max size
 	int nvt = 0;
 	int net = 0;
-	int nbt = 0;
-	int ngt = 0;
+	int nct = 0;
 	int nxM = 0;
 	int nuM = 0;
 	int nbM = 0;
@@ -51,17 +50,14 @@ int MEMSIZE_IPM_HARD_TREE_OCP_QP(struct TREE_OCP_QP *qp, struct IPM_HARD_TREE_OC
 		{
 		nvt += nx[ii]+nu[ii];
 		net += nx[ii+1];
-		nbt += nb[ii];
-		ngt += ng[ii];
+		nct += nb[ii]+ng[ii];
 		nxM = nx[ii]>nxM ? nx[ii] : nxM;
 		nuM = nu[ii]>nuM ? nu[ii] : nuM;
 		nbM = nb[ii]>nbM ? nb[ii] : nbM;
 		ngM = ng[ii]>ngM ? ng[ii] : ngM;
 		}
-	ii = Nn-1;
 	nvt += nx[ii]+nu[ii];
-	nbt += nb[ii];
-	ngt += ng[ii];
+	nct += nb[ii]+ng[ii];
 	nxM = nx[ii]>nxM ? nx[ii] : nxM;
 	nuM = nu[ii]>nuM ? nu[ii] : nuM;
 	nbM = nb[ii]>nbM ? nb[ii] : nbM;
@@ -80,7 +76,7 @@ int MEMSIZE_IPM_HARD_TREE_OCP_QP(struct TREE_OCP_QP *qp, struct IPM_HARD_TREE_OC
 	size += 2*SIZE_STRMAT(nuM+nxM+1, nxM+ngM); // AL
 
 	size += 1*sizeof(struct IPM_HARD_CORE_QP_WORKSPACE);
-	size += 1*MEMSIZE_IPM_HARD_CORE_QP(nvt, net, nbt, ngt, arg->iter_max);
+	size += 1*MEMSIZE_IPM_HARD_CORE_QP(nvt, net, nct, arg->iter_max);
 
 	size = (size+63)/64*64; // make multiple of typical cache line size
 	size += 1*64; // align once to typical cache line size
@@ -111,28 +107,23 @@ void CREATE_IPM_HARD_TREE_OCP_QP(struct TREE_OCP_QP *qp, struct IPM_HARD_TREE_OC
 	// compute core qp size and max size
 	int nvt = 0;
 	int net = 0;
-	int nbt = 0;
-	int ngt = 0;
+	int nct = 0;
 	int nxM = 0;
 	int nuM = 0;
 	int nbM = 0;
 	int ngM = 0;
-
 	for(ii=0; ii<Nn-1; ii++)
 		{
 		nvt += nx[ii]+nu[ii];
 		net += nx[ii+1];
-		nbt += nb[ii];
-		ngt += ng[ii];
+		nct += nb[ii]+ng[ii];
 		nxM = nx[ii]>nxM ? nx[ii] : nxM;
 		nuM = nu[ii]>nuM ? nu[ii] : nuM;
 		nbM = nb[ii]>nbM ? nb[ii] : nbM;
 		ngM = ng[ii]>ngM ? ng[ii] : ngM;
 		}
-	ii = Nn-1;
 	nvt += nx[ii]+nu[ii];
-	nbt += nb[ii];
-	ngt += ng[ii];
+	nct += nb[ii]+ng[ii];
 	nxM = nx[ii]>nxM ? nx[ii] : nxM;
 	nuM = nu[ii]>nuM ? nu[ii] : nuM;
 	nbM = nb[ii]>nbM ? nb[ii] : nbM;
@@ -252,8 +243,7 @@ void CREATE_IPM_HARD_TREE_OCP_QP(struct TREE_OCP_QP *qp, struct IPM_HARD_TREE_OC
 
 	rwork->nv = nvt;
 	rwork->ne = net;
-	rwork->nb = nbt;
-	rwork->ng = ngt;
+	rwork->nc = nct;
 	rwork->iter_max = arg->iter_max;
 	CREATE_IPM_HARD_CORE_QP(rwork, c_ptr);
 	c_ptr += workspace->core_workspace->memsize;
@@ -261,7 +251,7 @@ void CREATE_IPM_HARD_TREE_OCP_QP(struct TREE_OCP_QP *qp, struct IPM_HARD_TREE_OC
 	rwork->alpha_min = arg->alpha_min;
 	rwork->mu_max = arg->mu_max;
 	rwork->mu0 = arg->mu0;
-	rwork->nt_inv = 1.0/(2*nbt+2*ngt); // TODO avoid computation if nt=0
+	rwork->nt_inv = 1.0/(2*nct); // TODO avoid computation if nt=0 XXX
 
 
 	// alias members of workspace and core_workspace
@@ -307,7 +297,7 @@ void CREATE_IPM_HARD_TREE_OCP_QP(struct TREE_OCP_QP *qp, struct IPM_HARD_TREE_OC
 		}
 	//
 	c_ptr = (char *) rwork->res_d;
-	CREATE_STRVEC(2*nbt+2*ngt, workspace->res_d, c_ptr);
+	CREATE_STRVEC(2*nct, workspace->res_d, c_ptr);
 	for(ii=0; ii<Nn; ii++)
 		{
 		CREATE_STRVEC(nb[ii], workspace->res_d_lb+ii, c_ptr);
@@ -330,7 +320,7 @@ void CREATE_IPM_HARD_TREE_OCP_QP(struct TREE_OCP_QP *qp, struct IPM_HARD_TREE_OC
 		}
 	//
 	c_ptr = (char *) rwork->res_m;
-	CREATE_STRVEC(2*nbt+2*ngt, workspace->res_m, c_ptr);
+	CREATE_STRVEC(2*nct, workspace->res_m, c_ptr);
 	for(ii=0; ii<Nn; ii++)
 		{
 		CREATE_STRVEC(nb[ii], workspace->res_m_lb+ii, c_ptr);
@@ -395,7 +385,7 @@ void SOLVE_IPM_HARD_TREE_OCP_QP(struct TREE_OCP_QP *qp, struct TREE_OCP_QP_SOL *
 	cws->lam = qp_sol->lam_lb->pa;
 	cws->t = qp_sol->t_lb->pa;
 
-	if(cws->nb+cws->ng==0)
+	if(cws->nc==0)
 		{
 		FACT_SOLVE_KKT_UNCONSTR_TREE_OCP_QP(qp, qp_sol, ws);
 		COMPUTE_RES_HARD_TREE_OCP_QP(qp, qp_sol, ws);
@@ -453,7 +443,7 @@ void SOLVE_IPM2_HARD_TREE_OCP_QP(struct TREE_OCP_QP *qp, struct TREE_OCP_QP_SOL 
 
 	REAL tmp;
 
-	if(cws->nb+cws->ng==0)
+	if(cws->nc==0)
 		{
 		FACT_SOLVE_KKT_UNCONSTR_TREE_OCP_QP(qp, qp_sol, ws);
 		COMPUTE_RES_HARD_TREE_OCP_QP(qp, qp_sol, ws);
