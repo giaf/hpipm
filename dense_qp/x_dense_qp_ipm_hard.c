@@ -7,18 +7,18 @@
 * Developed at IMTEK (University of Freiburg) under the supervision of Moritz Diehl.              *
 * All rights reserved.                                                                            *
 *                                                                                                 *
-* HPMPC is free software; you can redistribute it and/or                                          *
+* HPIPM is free software; you can redistribute it and/or                                          *
 * modify it under the terms of the GNU Lesser General Public                                      *
 * License as published by the Free Software Foundation; either                                    *
 * version 2.1 of the License, or (at your option) any later version.                              *
 *                                                                                                 *
-* HPMPC is distributed in the hope that it will be useful,                                        *
+* HPIPM is distributed in the hope that it will be useful,                                        *
 * but WITHOUT ANY WARRANTY; without even the implied warranty of                                  *
 * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.                                            *
 * See the GNU Lesser General Public License for more details.                                     *
 *                                                                                                 *
 * You should have received a copy of the GNU Lesser General Public                                *
-* License along with HPMPC; if not, write to the Free Software                                    *
+* License along with HPIPM; if not, write to the Free Software                                    *
 * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA                  *
 *                                                                                                 *
 * Author: Gianluca Frison, gianluca.frison (at) imtek.uni-freiburg.de                             *
@@ -78,7 +78,7 @@ void CREATE_IPM_HARD_DENSE_QP(struct DENSE_QP *qp, struct IPM_HARD_DENSE_QP_ARG 
 	// core workspace
 	workspace->core_workspace = sr_ptr;
 	sr_ptr += 1;
-	struct IPM_HARD_CORE_QP_WORKSPACE *rwork = workspace->core_workspace;
+	struct IPM_HARD_CORE_QP_WORKSPACE *cws = workspace->core_workspace;
 
 
 	// matrix struct
@@ -175,40 +175,40 @@ void CREATE_IPM_HARD_DENSE_QP(struct DENSE_QP *qp, struct IPM_HARD_DENSE_QP_ARG 
 	CREATE_STRVEC(ng, workspace->tmp_ng1, c_ptr);
 	c_ptr += workspace->tmp_ng1->memory_size;
 
-	rwork->nv = nv;
-	rwork->ne = ne;
-	rwork->nb = nb;
-	rwork->ng = ng;
-	rwork->iter_max = arg->iter_max;
-	CREATE_IPM_HARD_CORE_QP(rwork, c_ptr);
+	cws->nv = nv;
+	cws->ne = ne;
+	cws->nb = nb;
+	cws->ng = ng;
+	cws->iter_max = arg->iter_max;
+	CREATE_IPM_HARD_CORE_QP(cws, c_ptr);
 	c_ptr += workspace->core_workspace->memsize;
 
-	rwork->alpha_min = arg->alpha_min;
-	rwork->mu_max = arg->mu_max;
-	rwork->mu0 = arg->mu0;
-	rwork->nt_inv = 1.0/(2*nb+2*ng);
+	cws->alpha_min = arg->alpha_min;
+	cws->mu_max = arg->mu_max;
+	cws->mu0 = arg->mu0;
+	cws->nt_inv = 1.0/(2*nb+2*ng);
 
 
 	// alias members of workspace and core_workspace
-	CREATE_STRVEC(nv, workspace->dv, rwork->dv);
-	CREATE_STRVEC(ne, workspace->dpi, rwork->dpi);
-	CREATE_STRVEC(2*nb+2*ng, workspace->dlam, rwork->dlam);
-	CREATE_STRVEC(2*nb+2*ng, workspace->dt, rwork->dt);
-	CREATE_STRVEC(nb, workspace->dt_lb, rwork->dt_lb);
-	CREATE_STRVEC(nb, workspace->dt_ub, rwork->dt_ub);
-	CREATE_STRVEC(ng, workspace->dt_lg, rwork->dt_lg);
-	CREATE_STRVEC(ng, workspace->dt_ug, rwork->dt_ug);
-	CREATE_STRVEC(nv, workspace->res_g, rwork->res_g);
-	CREATE_STRVEC(ne, workspace->res_b, rwork->res_b);
-	CREATE_STRVEC(2*nb+2*ng, workspace->res_d, rwork->res_d);
-	CREATE_STRVEC(nb, workspace->res_d_lb, rwork->res_d_lb);
-	CREATE_STRVEC(nb, workspace->res_d_ub, rwork->res_d_ub);
-	CREATE_STRVEC(ng, workspace->res_d_lg, rwork->res_d_lg);
-	CREATE_STRVEC(ng, workspace->res_d_ug, rwork->res_d_ug);
-	CREATE_STRVEC(2*nb+2*ng, workspace->res_m, rwork->res_m);
-	CREATE_STRVEC(nb+ng, workspace->Qx, rwork->Qx);
-	CREATE_STRVEC(nb+ng, workspace->qx, rwork->qx);
-	workspace->stat = rwork->stat;
+	CREATE_STRVEC(nv, workspace->dv, cws->dv);
+	CREATE_STRVEC(ne, workspace->dpi, cws->dpi);
+	CREATE_STRVEC(2*nb+2*ng, workspace->dlam, cws->dlam);
+	CREATE_STRVEC(2*nb+2*ng, workspace->dt, cws->dt);
+	CREATE_STRVEC(nb, workspace->dt_lb, cws->dt);
+	CREATE_STRVEC(ng, workspace->dt_lg, cws->dt+nb);
+	CREATE_STRVEC(nb, workspace->dt_ub, cws->dt+nb+ng);
+	CREATE_STRVEC(ng, workspace->dt_ug, cws->dt+2*nb+ng);
+	CREATE_STRVEC(nv, workspace->res_g, cws->res_g);
+	CREATE_STRVEC(ne, workspace->res_b, cws->res_b);
+	CREATE_STRVEC(2*nb+2*ng, workspace->res_d, cws->res_d);
+	CREATE_STRVEC(nb, workspace->res_d_lb, cws->res_d);
+	CREATE_STRVEC(ng, workspace->res_d_lg, cws->res_d+nb);
+	CREATE_STRVEC(nb, workspace->res_d_ub, cws->res_d+nb+ng);
+	CREATE_STRVEC(ng, workspace->res_d_ug, cws->res_d+2*nb+ng);
+	CREATE_STRVEC(2*nb+2*ng, workspace->res_m, cws->res_m);
+	CREATE_STRVEC(nb+ng, workspace->Qx, cws->Qx);
+	CREATE_STRVEC(nb+ng, workspace->qx, cws->qx);
+	workspace->stat = cws->stat;
 
 	return;
 
@@ -221,26 +221,11 @@ void SOLVE_IPM_HARD_DENSE_QP(struct DENSE_QP *qp, struct DENSE_QP_SOL *qp_sol, s
 
 	struct IPM_HARD_CORE_QP_WORKSPACE *cws = ws->core_workspace;
 
-	// alias qp vectors into qp
-	cws->d = qp->d->pa; // TODO REMOVE
-	cws->d_lb = qp->d_lb->pa;
-	cws->d_ub = qp->d_ub->pa;
-	cws->d_lg = qp->d_lg->pa;
-	cws->d_ug = qp->d_ug->pa;
-
 	// alias qp vectors into qp_sol
 	cws->v = qp_sol->v->pa;
 	cws->pi = qp_sol->pi->pa;
 	cws->lam = qp_sol->lam_lb->pa;
-	cws->lam_lb = qp_sol->lam_lb->pa;
-	cws->lam_ub = qp_sol->lam_ub->pa;
-	cws->lam_lg = qp_sol->lam_lg->pa;
-	cws->lam_ug = qp_sol->lam_ug->pa;
 	cws->t = qp_sol->t_lb->pa;
-	cws->t_lb = qp_sol->t_lb->pa;
-	cws->t_ub = qp_sol->t_ub->pa;
-	cws->t_lg = qp_sol->t_lg->pa;
-	cws->t_ug = qp_sol->t_ug->pa;
 
 	if(cws->nb+cws->ng==0)
 		{
@@ -292,26 +277,11 @@ void SOLVE_IPM2_HARD_DENSE_QP(struct DENSE_QP *qp, struct DENSE_QP_SOL *qp_sol, 
 
 	struct IPM_HARD_CORE_QP_WORKSPACE *cws = ws->core_workspace;
 
-	// alias qp vectors into qp
-	cws->d = qp->d->pa; // TODO REMOVE
-	cws->d_lb = qp->d_lb->pa;
-	cws->d_ub = qp->d_ub->pa;
-	cws->d_lg = qp->d_lg->pa;
-	cws->d_ug = qp->d_ug->pa;
-
 	// alias qp vectors into qp_sol
 	cws->v = qp_sol->v->pa;
 	cws->pi = qp_sol->pi->pa;
 	cws->lam = qp_sol->lam_lb->pa;
-	cws->lam_lb = qp_sol->lam_lb->pa;
-	cws->lam_ub = qp_sol->lam_ub->pa;
-	cws->lam_lg = qp_sol->lam_lg->pa;
-	cws->lam_ug = qp_sol->lam_ug->pa;
 	cws->t = qp_sol->t_lb->pa;
-	cws->t_lb = qp_sol->t_lb->pa;
-	cws->t_ub = qp_sol->t_ub->pa;
-	cws->t_lg = qp_sol->t_lg->pa;
-	cws->t_ug = qp_sol->t_ug->pa;
 
 	REAL tmp;
 

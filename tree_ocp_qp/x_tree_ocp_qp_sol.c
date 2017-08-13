@@ -54,7 +54,7 @@ int MEMSIZE_TREE_OCP_QP_SOL(struct tree *ttree, int *nx, int *nu, int *nb, int *
 
 	size += 1*SIZE_STRVEC(nvt); // ux
 	size += 1*SIZE_STRVEC(net); // pi
-	size += 8*SIZE_STRVEC(2*nbt+2*ngt); // lam_lb lam_ub lam_lg lam_ug t_lb t_ub t_lg t_ug
+	size += 2*SIZE_STRVEC(2*nbt+2*ngt); // lam t
 
 	size = (size+63)/64*64; // make multiple of typical cache line size
 	size += 64; // align to typical cache line size
@@ -153,25 +153,25 @@ void CREATE_TREE_OCP_QP_SOL(struct tree *ttree, int *nx, int *nu, int *nb, int *
 	for(ii=0; ii<Nn; ii++)
 		{
 		CREATE_STRVEC(nb[ii], qp_sol->lam_lb+ii, tmp_ptr);
-		tmp_ptr += (nb[ii])*sizeof(REAL);
+		tmp_ptr += nb[ii]*sizeof(REAL);
 		}
 	// lam_lg
 	for(ii=0; ii<Nn; ii++)
 		{
 		CREATE_STRVEC(ng[ii], qp_sol->lam_lg+ii, tmp_ptr);
-		tmp_ptr += (ng[ii])*sizeof(REAL);
+		tmp_ptr += ng[ii]*sizeof(REAL);
 		}
 	// lam_ub
 	for(ii=0; ii<Nn; ii++)
 		{
 		CREATE_STRVEC(nb[ii], qp_sol->lam_ub+ii, tmp_ptr);
-		tmp_ptr += (nb[ii])*sizeof(REAL);
+		tmp_ptr += nb[ii]*sizeof(REAL);
 		}
 	// lam_ug
 	for(ii=0; ii<Nn; ii++)
 		{
 		CREATE_STRVEC(ng[ii], qp_sol->lam_ug+ii, tmp_ptr);
-		tmp_ptr += (ng[ii])*sizeof(REAL);
+		tmp_ptr += ng[ii]*sizeof(REAL);
 		}
 	// t
 	tmp_ptr = c_ptr;
@@ -180,25 +180,25 @@ void CREATE_TREE_OCP_QP_SOL(struct tree *ttree, int *nx, int *nu, int *nb, int *
 	for(ii=0; ii<Nn; ii++)
 		{
 		CREATE_STRVEC(nb[ii], qp_sol->t_lb+ii, tmp_ptr);
-		tmp_ptr += (nb[ii])*sizeof(REAL);
+		tmp_ptr += nb[ii]*sizeof(REAL);
 		}
 	// t_lg
 	for(ii=0; ii<Nn; ii++)
 		{
 		CREATE_STRVEC(ng[ii], qp_sol->t_lg+ii, tmp_ptr);
-		tmp_ptr += (ng[ii])*sizeof(REAL);
+		tmp_ptr += ng[ii]*sizeof(REAL);
 		}
 	// t_ub
 	for(ii=0; ii<Nn; ii++)
 		{
 		CREATE_STRVEC(nb[ii], qp_sol->t_ub+ii, tmp_ptr);
-		tmp_ptr += (nb[ii])*sizeof(REAL);
+		tmp_ptr += nb[ii]*sizeof(REAL);
 		}
 	// t_ug
 	for(ii=0; ii<Nn; ii++)
 		{
 		CREATE_STRVEC(ng[ii], qp_sol->t_ug+ii, tmp_ptr);
-		tmp_ptr += (ng[ii])*sizeof(REAL);
+		tmp_ptr += ng[ii]*sizeof(REAL);
 		}
 	
 	return;

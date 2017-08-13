@@ -47,7 +47,6 @@ int MEMSIZE_IPM_HARD_TREE_OCP_QP(struct TREE_OCP_QP *qp, struct IPM_HARD_TREE_OC
 	int nuM = 0;
 	int nbM = 0;
 	int ngM = 0;
-
 	for(ii=0; ii<Nn-1; ii++)
 		{
 		nvt += nx[ii]+nu[ii];
@@ -266,118 +265,117 @@ void CREATE_IPM_HARD_TREE_OCP_QP(struct TREE_OCP_QP *qp, struct IPM_HARD_TREE_OC
 
 
 	// alias members of workspace and core_workspace
+	//
 	c_ptr = (char *) rwork->dv;
 	for(ii=0; ii<Nn; ii++)
 		{
 		CREATE_STRVEC(nu[ii]+nx[ii], workspace->dux+ii, c_ptr);
 		c_ptr += (nu[ii]+nx[ii])*sizeof(REAL);
 		}
+	//
 	c_ptr = (char *) rwork->dpi;
 	for(ii=0; ii<Nn-1; ii++)
 		{
 		CREATE_STRVEC(nx[ii+1], workspace->dpi+ii, c_ptr);
 		c_ptr += (nx[ii+1])*sizeof(REAL);
 		}
-	c_ptr = (char *) rwork->dt_lb;
+	//
+	c_ptr = (char *) rwork->dt;
 	for(ii=0; ii<Nn; ii++)
 		{
 		CREATE_STRVEC(nb[ii], workspace->dt_lb+ii, c_ptr);
 		c_ptr += (nb[ii])*sizeof(REAL);
 		}
-	c_ptr = (char *) rwork->dt_lg;
 	for(ii=0; ii<Nn; ii++)
 		{
 		CREATE_STRVEC(ng[ii], workspace->dt_lg+ii, c_ptr);
 		c_ptr += (ng[ii])*sizeof(REAL);
 		}
+	//
 	c_ptr = (char *) rwork->res_g;
 	for(ii=0; ii<Nn; ii++)
 		{
 		CREATE_STRVEC(nu[ii]+nx[ii], workspace->res_g+ii, c_ptr);
 		c_ptr += (nu[ii]+nx[ii])*sizeof(REAL);
 		}
+	//
 	c_ptr = (char *) rwork->res_b;
 	for(ii=0; ii<Nn-1; ii++)
 		{
 		CREATE_STRVEC(nx[ii+1], workspace->res_b+ii, c_ptr);
 		c_ptr += (nx[ii+1])*sizeof(REAL);
 		}
+	//
 	c_ptr = (char *) rwork->res_d;
 	CREATE_STRVEC(2*nbt+2*ngt, workspace->res_d, c_ptr);
-	c_ptr = (char *) rwork->res_d_lb;
 	for(ii=0; ii<Nn; ii++)
 		{
 		CREATE_STRVEC(nb[ii], workspace->res_d_lb+ii, c_ptr);
-		c_ptr += (nb[ii])*sizeof(REAL);
+		c_ptr += nb[ii]*sizeof(REAL);
 		}
-	c_ptr = (char *) rwork->res_d_ub;
-	for(ii=0; ii<Nn; ii++)
-		{
-		CREATE_STRVEC(nb[ii], workspace->res_d_ub+ii, c_ptr);
-		c_ptr += (nb[ii])*sizeof(REAL);
-		}
-	c_ptr = (char *) rwork->res_d_lg;
 	for(ii=0; ii<Nn; ii++)
 		{
 		CREATE_STRVEC(ng[ii], workspace->res_d_lg+ii, c_ptr);
-		c_ptr += (ng[ii])*sizeof(REAL);
+		c_ptr += ng[ii]*sizeof(REAL);
 		}
-	c_ptr = (char *) rwork->res_d_ug;
+	for(ii=0; ii<Nn; ii++)
+		{
+		CREATE_STRVEC(nb[ii], workspace->res_d_ub+ii, c_ptr);
+		c_ptr += nb[ii]*sizeof(REAL);
+		}
 	for(ii=0; ii<Nn; ii++)
 		{
 		CREATE_STRVEC(ng[ii], workspace->res_d_ug+ii, c_ptr);
-		c_ptr += (ng[ii])*sizeof(REAL);
+		c_ptr += ng[ii]*sizeof(REAL);
 		}
+	//
 	c_ptr = (char *) rwork->res_m;
 	CREATE_STRVEC(2*nbt+2*ngt, workspace->res_m, c_ptr);
-	c_ptr = (char *) rwork->res_m_lb;
 	for(ii=0; ii<Nn; ii++)
 		{
 		CREATE_STRVEC(nb[ii], workspace->res_m_lb+ii, c_ptr);
-		c_ptr += (nb[ii])*sizeof(REAL);
+		c_ptr += nb[ii]*sizeof(REAL);
 		}
-	c_ptr = (char *) rwork->res_m_ub;
-	for(ii=0; ii<Nn; ii++)
-		{
-		CREATE_STRVEC(nb[ii], workspace->res_m_ub+ii, c_ptr);
-		c_ptr += (nb[ii])*sizeof(REAL);
-		}
-	c_ptr = (char *) rwork->res_m_lg;
 	for(ii=0; ii<Nn; ii++)
 		{
 		CREATE_STRVEC(ng[ii], workspace->res_m_lg+ii, c_ptr);
-		c_ptr += (ng[ii])*sizeof(REAL);
+		c_ptr += ng[ii]*sizeof(REAL);
 		}
-	c_ptr = (char *) rwork->res_m_ug;
+	for(ii=0; ii<Nn; ii++)
+		{
+		CREATE_STRVEC(nb[ii], workspace->res_m_ub+ii, c_ptr);
+		c_ptr += nb[ii]*sizeof(REAL);
+		}
 	for(ii=0; ii<Nn; ii++)
 		{
 		CREATE_STRVEC(ng[ii], workspace->res_m_ug+ii, c_ptr);
-		c_ptr += (ng[ii])*sizeof(REAL);
+		c_ptr += ng[ii]*sizeof(REAL);
 		}
-	c_ptr = (char *) rwork->Qx_lb;
+	//
+	c_ptr = (char *) rwork->Qx;
 	for(ii=0; ii<Nn; ii++)
 		{
 		CREATE_STRVEC(nb[ii], workspace->Qx_lb+ii, c_ptr);
 		c_ptr += (nb[ii])*sizeof(REAL);
 		}
-	c_ptr = (char *) rwork->Qx_lg;
 	for(ii=0; ii<Nn; ii++)
 		{
 		CREATE_STRVEC(ng[ii], workspace->Qx_lg+ii, c_ptr);
 		c_ptr += (ng[ii])*sizeof(REAL);
 		}
-	c_ptr = (char *) rwork->qx_lb;
+	//
+	c_ptr = (char *) rwork->qx;
 	for(ii=0; ii<Nn; ii++)
 		{
 		CREATE_STRVEC(nb[ii], workspace->qx_lb+ii, c_ptr);
 		c_ptr += (nb[ii])*sizeof(REAL);
 		}
-	c_ptr = (char *) rwork->qx_lg;
 	for(ii=0; ii<Nn; ii++)
 		{
 		CREATE_STRVEC(ng[ii], workspace->qx_lg+ii, c_ptr);
 		c_ptr += (ng[ii])*sizeof(REAL);
 		}
+
 	workspace->stat = rwork->stat;
 
 	return;
@@ -391,25 +389,11 @@ void SOLVE_IPM_HARD_TREE_OCP_QP(struct TREE_OCP_QP *qp, struct TREE_OCP_QP_SOL *
 
 	struct IPM_HARD_CORE_QP_WORKSPACE *cws = ws->core_workspace;
 
-	// alias qp vectors into qp
-	cws->d_lb = qp->d_lb->pa;
-	cws->d_ub = qp->d_ub->pa;
-	cws->d_lg = qp->d_lg->pa;
-	cws->d_ug = qp->d_ug->pa;
-
 	// alias qp vectors into qp_sol
 	cws->v = qp_sol->ux->pa;
 	cws->pi = qp_sol->pi->pa;
 	cws->lam = qp_sol->lam_lb->pa;
-	cws->lam_lb = qp_sol->lam_lb->pa;
-	cws->lam_ub = qp_sol->lam_ub->pa;
-	cws->lam_lg = qp_sol->lam_lg->pa;
-	cws->lam_ug = qp_sol->lam_ug->pa;
 	cws->t = qp_sol->t_lb->pa;
-	cws->t_lb = qp_sol->t_lb->pa;
-	cws->t_ub = qp_sol->t_ub->pa;
-	cws->t_lg = qp_sol->t_lg->pa;
-	cws->t_ug = qp_sol->t_ug->pa;
 
 	if(cws->nb+cws->ng==0)
 		{
@@ -461,25 +445,11 @@ void SOLVE_IPM2_HARD_TREE_OCP_QP(struct TREE_OCP_QP *qp, struct TREE_OCP_QP_SOL 
 
 	struct IPM_HARD_CORE_QP_WORKSPACE *cws = ws->core_workspace;
 
-	// alias qp vectors into qp
-	cws->d_lb = qp->d_lb->pa;
-	cws->d_ub = qp->d_ub->pa;
-	cws->d_lg = qp->d_lg->pa;
-	cws->d_ug = qp->d_ug->pa;
-
 	// alias qp vectors into qp_sol
 	cws->v = qp_sol->ux->pa;
 	cws->pi = qp_sol->pi->pa;
 	cws->lam = qp_sol->lam_lb->pa;
-	cws->lam_lb = qp_sol->lam_lb->pa;
-	cws->lam_ub = qp_sol->lam_ub->pa;
-	cws->lam_lg = qp_sol->lam_lg->pa;
-	cws->lam_ug = qp_sol->lam_ug->pa;
 	cws->t = qp_sol->t_lb->pa;
-	cws->t_lb = qp_sol->t_lb->pa;
-	cws->t_ub = qp_sol->t_ub->pa;
-	cws->t_lg = qp_sol->t_lg->pa;
-	cws->t_ug = qp_sol->t_ug->pa;
 
 	REAL tmp;
 

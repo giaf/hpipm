@@ -27,24 +27,24 @@
 
 
 
-void COMPUTE_QX_QX_HARD_QP(struct IPM_HARD_CORE_QP_WORKSPACE *rws)
+void COMPUTE_QX_QX_HARD_QP(struct IPM_HARD_CORE_QP_WORKSPACE *cws)
 	{
 
-	int nb = rws->nb;
-	int ng = rws->ng;
+	int nb = cws->nb;
+	int ng = cws->ng;
 
-	REAL *lam_lb = rws->lam_lb;
-	REAL *lam_ub = rws->lam_ub;
-	REAL *t_lb = rws->t_lb;
-	REAL *t_ub = rws->t_ub;
-	REAL *res_m_lb = rws->res_m_lb;
-	REAL *res_m_ub = rws->res_m_ub;
-	REAL *res_d_lb = rws->res_d_lb;
-	REAL *res_d_ub = rws->res_d_ub;
-	REAL *t_inv_lb = rws->t_inv_lb;
-	REAL *t_inv_ub = rws->t_inv_ub;
-	REAL *Qx = rws->Qx;
-	REAL *qx = rws->qx;
+	REAL *lam_lb = cws->lam;
+	REAL *lam_ub = cws->lam+nb+ng;
+	REAL *t_lb = cws->t;
+	REAL *t_ub = cws->t+nb+ng;
+	REAL *res_m_lb = cws->res_m;
+	REAL *res_m_ub = cws->res_m+nb+ng;
+	REAL *res_d_lb = cws->res_d;
+	REAL *res_d_ub = cws->res_d+nb+ng;
+	REAL *t_inv_lb = cws->t_inv;
+	REAL *t_inv_ub = cws->t_inv+nb+ng;
+	REAL *Qx = cws->Qx;
+	REAL *qx = cws->qx;
 
 	// local variables
 	int nt = nb+ng;
@@ -69,24 +69,24 @@ void COMPUTE_QX_QX_HARD_QP(struct IPM_HARD_CORE_QP_WORKSPACE *rws)
 
 
 
-void COMPUTE_LAM_T_HARD_QP(struct IPM_HARD_CORE_QP_WORKSPACE *rws)
+void COMPUTE_LAM_T_HARD_QP(struct IPM_HARD_CORE_QP_WORKSPACE *cws)
 	{
 
-	int nb = rws->nb;
-	int ng = rws->ng;
+	int nb = cws->nb;
+	int ng = cws->ng;
 
-	REAL *lam_lb = rws->lam_lb;
-	REAL *lam_ub = rws->lam_ub;
-	REAL *dlam_lb = rws->dlam_lb;
-	REAL *dlam_ub = rws->dlam_ub;
-	REAL *dt_lb = rws->dt_lb;
-	REAL *dt_ub = rws->dt_ub;
-	REAL *res_d_lb = rws->res_d_lb;
-	REAL *res_d_ub = rws->res_d_ub;
-	REAL *res_m_lb = rws->res_m_lb;
-	REAL *res_m_ub = rws->res_m_ub;
-	REAL *t_inv_lb = rws->t_inv_lb;
-	REAL *t_inv_ub = rws->t_inv_ub;
+	REAL *lam_lb = cws->lam;
+	REAL *lam_ub = cws->lam+nb+ng;
+	REAL *dlam_lb = cws->dlam;
+	REAL *dlam_ub = cws->dlam+nb+ng;
+	REAL *dt_lb = cws->dt;
+	REAL *dt_ub = cws->dt+nb+ng;
+	REAL *res_d_lb = cws->res_d;
+	REAL *res_d_ub = cws->res_d+nb+ng;
+	REAL *res_m_lb = cws->res_m;
+	REAL *res_m_ub = cws->res_m+nb+ng;
+	REAL *t_inv_lb = cws->t_inv;
+	REAL *t_inv_ub = cws->t_inv+nb+ng;
 
 	// local variables
 	int ii;
@@ -112,17 +112,17 @@ void COMPUTE_LAM_T_HARD_QP(struct IPM_HARD_CORE_QP_WORKSPACE *rws)
 
 
 
-void COMPUTE_ALPHA_HARD_QP(struct IPM_HARD_CORE_QP_WORKSPACE *rws)
+void COMPUTE_ALPHA_HARD_QP(struct IPM_HARD_CORE_QP_WORKSPACE *cws)
 	{
 	
 	// extract workspace members
-	int nb = rws->nb;
-	int ng = rws->ng;
+	int nb = cws->nb;
+	int ng = cws->ng;
 
-	REAL *lam_lb = rws->lam_lb;
-	REAL *t_lb = rws->t_lb;
-	REAL *dlam_lb = rws->dlam_lb;
-	REAL *dt_lb = rws->dt_lb;
+	REAL *lam_lb = cws->lam;
+	REAL *t_lb = cws->t;
+	REAL *dlam_lb = cws->dlam;
+	REAL *dt_lb = cws->dt;
 
 	REAL alpha = - 1.0;
 	
@@ -145,7 +145,7 @@ void COMPUTE_ALPHA_HARD_QP(struct IPM_HARD_CORE_QP_WORKSPACE *rws)
 		}
 
 	// store alpha
-	rws->alpha = - alpha;
+	cws->alpha = - alpha;
 
 	return;
 
@@ -153,24 +153,24 @@ void COMPUTE_ALPHA_HARD_QP(struct IPM_HARD_CORE_QP_WORKSPACE *rws)
 	
 
 
-void UPDATE_VAR_HARD_QP(struct IPM_HARD_CORE_QP_WORKSPACE *rws)
+void UPDATE_VAR_HARD_QP(struct IPM_HARD_CORE_QP_WORKSPACE *cws)
 	{
 	
 	// extract workspace members
-	int nv = rws->nv;
-	int ne = rws->ne;
-	int nb = rws->nb;
-	int ng = rws->ng;
+	int nv = cws->nv;
+	int ne = cws->ne;
+	int nb = cws->nb;
+	int ng = cws->ng;
 
-	REAL *v = rws->v;
-	REAL *pi = rws->pi;
-	REAL *lam = rws->lam;
-	REAL *t = rws->t;
-	REAL *dv = rws->dv;
-	REAL *dpi = rws->dpi;
-	REAL *dlam = rws->dlam;
-	REAL *dt = rws->dt;
-	REAL alpha = rws->alpha;
+	REAL *v = cws->v;
+	REAL *pi = cws->pi;
+	REAL *lam = cws->lam;
+	REAL *t = cws->t;
+	REAL *dv = cws->dv;
+	REAL *dpi = cws->dpi;
+	REAL *dlam = cws->dlam;
+	REAL *dt = cws->dt;
+	REAL alpha = cws->alpha;
 #if 0
 	if(alpha<1.0)
 		alpha *= 0.995;
@@ -212,21 +212,21 @@ void UPDATE_VAR_HARD_QP(struct IPM_HARD_CORE_QP_WORKSPACE *rws)
 
 
 
-void COMPUTE_MU_AFF_HARD_QP(struct IPM_HARD_CORE_QP_WORKSPACE *rws)
+void COMPUTE_MU_AFF_HARD_QP(struct IPM_HARD_CORE_QP_WORKSPACE *cws)
 	{
 
 	int ii;
 
 	// extract workspace members
-	int nb = rws->nb;
-	int ng = rws->ng;
+	int nb = cws->nb;
+	int ng = cws->ng;
 	int nt = nb+ng;
 
-	REAL *ptr_lam = rws->lam_lb;
-	REAL *ptr_t = rws->t_lb;
-	REAL *ptr_dlam = rws->dlam_lb;
-	REAL *ptr_dt = rws->dt_lb;
-	REAL alpha = rws->alpha;
+	REAL *ptr_lam = cws->lam;
+	REAL *ptr_t = cws->t;
+	REAL *ptr_dlam = cws->dlam;
+	REAL *ptr_dt = cws->dt;
+	REAL alpha = cws->alpha;
 	// this affects the minimum value of signa !!!
 //		alpha *= 0.99;
 
@@ -237,7 +237,7 @@ void COMPUTE_MU_AFF_HARD_QP(struct IPM_HARD_CORE_QP_WORKSPACE *rws)
 		mu += (ptr_lam[ii+0] + alpha*ptr_dlam[ii+0]) * (ptr_t[ii+0] + alpha*ptr_dt[ii+0]);
 		}
 	
-	rws->mu_aff = mu*rws->nt_inv;
+	cws->mu_aff = mu*cws->nt_inv;
 
 	return;
 
@@ -245,21 +245,21 @@ void COMPUTE_MU_AFF_HARD_QP(struct IPM_HARD_CORE_QP_WORKSPACE *rws)
 
 
 
-void COMPUTE_CENTERING_CORRECTION_HARD_QP(struct IPM_HARD_CORE_QP_WORKSPACE *rws)
+void COMPUTE_CENTERING_CORRECTION_HARD_QP(struct IPM_HARD_CORE_QP_WORKSPACE *cws)
 	{
 
 	int ii;
 
 	// extract workspace members
-	int nb = rws->nb;
-	int ng = rws->ng;
+	int nb = cws->nb;
+	int ng = cws->ng;
 	int nt = nb+ng;
 
-	REAL *ptr_dlam = rws->dlam_lb;
-	REAL *ptr_dt = rws->dt_lb;
-	REAL *ptr_res_m = rws->res_m_lb;
+	REAL *ptr_dlam = cws->dlam;
+	REAL *ptr_dt = cws->dt;
+	REAL *ptr_res_m = cws->res_m;
 
-	REAL sigma_mu = rws->sigma*rws->mu;
+	REAL sigma_mu = cws->sigma*cws->mu;
 
 	for(ii=0; ii<2*nt; ii++)
 		{
@@ -272,21 +272,21 @@ void COMPUTE_CENTERING_CORRECTION_HARD_QP(struct IPM_HARD_CORE_QP_WORKSPACE *rws
 
 
 
-void COMPUTE_QX_HARD_QP(struct IPM_HARD_CORE_QP_WORKSPACE *rws)
+void COMPUTE_QX_HARD_QP(struct IPM_HARD_CORE_QP_WORKSPACE *cws)
 	{
 
-	int nb = rws->nb;
-	int ng = rws->ng;
+	int nb = cws->nb;
+	int ng = cws->ng;
 
-	REAL *lam_lb = rws->lam_lb;
-	REAL *lam_ub = rws->lam_ub;
-	REAL *res_m_lb = rws->res_m_lb;
-	REAL *res_m_ub = rws->res_m_ub;
-	REAL *res_d_lb = rws->res_d_lb;
-	REAL *res_d_ub = rws->res_d_ub;
-	REAL *t_inv_lb = rws->t_inv_lb;
-	REAL *t_inv_ub = rws->t_inv_ub;
-	REAL *qx = rws->qx;
+	REAL *lam_lb = cws->lam;
+	REAL *lam_ub = cws->lam+nb+ng;
+	REAL *res_m_lb = cws->res_m;
+	REAL *res_m_ub = cws->res_m+nb+ng;
+	REAL *res_d_lb = cws->res_d;
+	REAL *res_d_ub = cws->res_d+nb+ng;
+	REAL *t_inv_lb = cws->t_inv;
+	REAL *t_inv_ub = cws->t_inv+nb+ng;
+	REAL *qx = cws->qx;
 
 	// local variables
 	int nt = nb+ng;

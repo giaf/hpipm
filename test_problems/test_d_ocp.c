@@ -346,12 +346,12 @@ int main()
 	mass_spring_system(Ts, nx_, nu_, A, B, b, x0);
 	
 	for(jj=0; jj<nx_; jj++)
-		b[jj] = 0.1;
+		b[jj] = -0.1;
 	
 	for(jj=0; jj<nx_; jj++)
 		x0[jj] = 0;
-	x0[0] = 2.5;
-	x0[1] = 2.5;
+	x0[0] = -2.5;
+	x0[1] = -2.5;
 
 	double *b0; d_zeros(&b0, nx_, 1);
 	dgemv_n_3l(nx_, nx_, A, nx_, x0, b0);
@@ -378,10 +378,10 @@ int main()
 	double *S; d_zeros(&S, nu_, nx_);
 
 	double *q; d_zeros(&q, nx_, 1);
-	for(ii=0; ii<nx_; ii++) q[ii] = 0.1;
+	for(ii=0; ii<nx_; ii++) q[ii] = -0.1;
 
 	double *r; d_zeros(&r, nu_, 1);
-	for(ii=0; ii<nu_; ii++) r[ii] = 0.2;
+	for(ii=0; ii<nu_; ii++) r[ii] = -0.2;
 
 	double *r0; d_zeros(&r0, nu_, 1);
 	dgemv_n_3l(nu_, nx_, S, nu_, x0, r0);
