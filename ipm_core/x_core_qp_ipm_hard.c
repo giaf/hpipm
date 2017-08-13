@@ -42,7 +42,7 @@ int MEMSIZE_IPM_HARD_CORE_QP(int nv, int ne, int nc, int iter_max)
 
 	size += 2*nv0*sizeof(REAL); // dv res_g
 	size += 2*ne0*sizeof(REAL); // dpi res_b
-	size += 7*2*nc0*sizeof(REAL); // dlam dt res_d res_m t_inv Gamma gamma
+	size += 5*2*nc0*sizeof(REAL); // dlam dt res_d res_m t_inv
 	size += 2*nc0*sizeof(REAL); // Qx qx
 	size += 5*iter_max*sizeof(REAL); // stat
 
@@ -96,12 +96,6 @@ void CREATE_IPM_HARD_CORE_QP(struct IPM_HARD_CORE_QP_WORKSPACE *workspace, void 
 	d_ptr += 2*nc0;
 
 	workspace->res_m = d_ptr; // res_m
-	d_ptr += 2*nc0;
-
-	workspace->Gamma = d_ptr; // Gamma
-	d_ptr += 2*nc0;
-
-	workspace->gamma = d_ptr; // gamma
 	d_ptr += 2*nc0;
 
 	workspace->Qx = d_ptr; // Qx

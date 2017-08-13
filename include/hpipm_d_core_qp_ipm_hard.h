@@ -43,10 +43,8 @@ struct d_ipm_hard_core_qp_workspace
 	double *res_b; // b-residuals
 	double *res_d; // d-residuals
 	double *res_m; // m-residuals
-	double *Gamma; // Hessian update
-	double *gamma; // gradient update
-	double *Qx; // Hessian update // TODO remove
-	double *qx; // gradient update // TODO remove
+	double *Qx; // Hessian update
+	double *qx; // gradient update
 	double *stat; // convergence statistics
 	double alpha; // step length
 	double alpha_min; // exit cond on step lenght
