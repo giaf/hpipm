@@ -42,6 +42,8 @@ struct s_ipm_hard_core_qp_workspace
 	float *res_b; // b-residuals
 	float *res_d; // d-residuals
 	float *res_m; // m-residuals
+	float *Gamma; // Hessian update
+	float *gamma; // gradient update
 	float *Qx; // Hessian update
 	float *qx; // gradient update
 	float *stat; // convergence statistics
@@ -65,7 +67,6 @@ struct s_ipm_hard_core_qp_workspace
 //
 int s_memsize_ipm_hard_core_qp(int nv, int ne, int nc, int iter_max);
 //
-
 void s_create_ipm_hard_core_qp(struct s_ipm_hard_core_qp_workspace *workspace, void *mem);
 //
 void s_ipm_hard_core_qp(struct s_ipm_hard_core_qp_workspace *workspace);

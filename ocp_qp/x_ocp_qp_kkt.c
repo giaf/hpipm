@@ -226,6 +226,7 @@ void COMPUTE_RES_HARD_OCP_QP(struct OCP_QP *qp, struct OCP_QP_SOL *qp_sol, struc
 			AXPY_LIBSTR(nb0, 1.0, d_ub+ii, 0, res_d_ub+ii, 0, res_d_ub+ii, 0);
 			AXPY_LIBSTR(nb0, 1.0, t_lb+ii, 0, res_d_lb+ii, 0, res_d_lb+ii, 0);
 			AXPY_LIBSTR(nb0, -1.0, t_ub+ii, 0, res_d_ub+ii, 0, res_d_ub+ii, 0);
+			VECSC_LIBSTR(nb0, -1.0, res_d_ub+ii, 0); // TODO embed with above
 
 			}
 
@@ -241,6 +242,7 @@ void COMPUTE_RES_HARD_OCP_QP(struct OCP_QP *qp, struct OCP_QP_SOL *qp_sol, struc
 
 			AXPY_LIBSTR(ng0, -1.0, tmp_ngM+1, 0, res_d_lg+ii, 0, res_d_lg+ii, 0);
 			AXPY_LIBSTR(ng0, -1.0, tmp_ngM+1, 0, res_d_ug+ii, 0, res_d_ug+ii, 0);
+			VECSC_LIBSTR(ng0, -1.0, res_d_ug+ii, 0); // TODO embed with above
 
 			}
 

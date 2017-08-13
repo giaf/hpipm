@@ -141,6 +141,8 @@ void COMPUTE_RES_HARD_DENSE_QP(struct DENSE_QP *qp, struct DENSE_QP_SOL *qp_sol,
 
 	// TODO extract qp arguments !!!!!
 
+	// TODO extract ws arguments !!!!!
+
 	struct STRVEC *v = qp_sol->v;
 	struct STRVEC *pi = qp_sol->pi;
 	struct STRVEC *lam_lb = qp_sol->lam_lb;
@@ -169,6 +171,7 @@ void COMPUTE_RES_HARD_DENSE_QP(struct DENSE_QP *qp, struct DENSE_QP_SOL *qp_sol,
 		AXPY_LIBSTR(nb, 1.0, qp->d_ub, 0, ws->res_d_ub, 0, ws->res_d_ub, 0);
 		AXPY_LIBSTR(nb, 1.0, t_lb, 0, ws->res_d_lb, 0, ws->res_d_lb, 0);
 		AXPY_LIBSTR(nb, -1.0, t_ub, 0, ws->res_d_ub, 0, ws->res_d_ub, 0);
+		VECSC_LIBSTR(nb, -1.0, ws->res_d_ub, 0); // TODO embed with above
 		}
 
 	if(ng>0)
@@ -179,6 +182,7 @@ void COMPUTE_RES_HARD_DENSE_QP(struct DENSE_QP *qp, struct DENSE_QP_SOL *qp_sol,
 		GEMV_NT_LIBSTR(nv, ng, 1.0, 1.0, qp->Ct, 0, 0, ws->tmp_ng0, 0, v, 0, 1.0, 0.0, ws->res_g, 0, ws->tmp_ng1, 0, ws->res_g, 0, ws->tmp_ng1, 0);
 		AXPY_LIBSTR(ng, -1.0, ws->tmp_ng1, 0, ws->res_d_lg, 0, ws->res_d_lg, 0);
 		AXPY_LIBSTR(ng, -1.0, ws->tmp_ng1, 0, ws->res_d_ug, 0, ws->res_d_ug, 0);
+		VECSC_LIBSTR(ng, -1.0, ws->res_d_ug, 0); // TODO embed with above
 		}
 	
 	// res b, res g

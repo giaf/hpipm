@@ -57,7 +57,7 @@ void COMPUTE_QX_QX_HARD_QP(struct IPM_HARD_CORE_QP_WORKSPACE *cws)
 		Qx[ii] = t_inv_lb[ii]*lam_lb[ii] \
 		       + t_inv_ub[ii]*lam_ub[ii];
 		qx[ii] = t_inv_lb[ii]*(res_m_lb[ii]-lam_lb[ii]*res_d_lb[ii]) \
-		       - t_inv_ub[ii]*(res_m_ub[ii]+lam_ub[ii]*res_d_ub[ii]);
+		       - t_inv_ub[ii]*(res_m_ub[ii]-lam_ub[ii]*res_d_ub[ii]);
 
 		}
 
@@ -94,7 +94,7 @@ void COMPUTE_LAM_T_HARD_QP(struct IPM_HARD_CORE_QP_WORKSPACE *cws)
 		dt_ub[ii] = - dt_lb[ii];
 
 		dt_lb[ii] -= res_d_lb[ii];
-		dt_ub[ii] += res_d_ub[ii];
+		dt_ub[ii] -= res_d_ub[ii];
 
 		// TODO compute lamda alone ???
 		dlam_lb[ii] = - t_inv_lb[ii] * (lam_lb[ii]*dt_lb[ii] + res_m_lb[ii]);
@@ -283,7 +283,7 @@ void COMPUTE_QX_HARD_QP(struct IPM_HARD_CORE_QP_WORKSPACE *cws)
 
 		// TODO mask out unconstrained components for one-sided
 		qx[ii] = t_inv_lb[ii]*(res_m_lb[ii]-lam_lb[ii]*res_d_lb[ii]) \
-		       - t_inv_ub[ii]*(res_m_ub[ii]+lam_ub[ii]*res_d_ub[ii]);
+		       - t_inv_ub[ii]*(res_m_ub[ii]-lam_ub[ii]*res_d_ub[ii]);
 
 		}
 
