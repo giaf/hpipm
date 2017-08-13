@@ -41,6 +41,7 @@ int MEMSIZE_OCP_QP_SOL(int N, int *nx, int *nu, int *nb, int *ng)
 		net += nx[ii+1];
 		nct += nb[ii]+ng[ii];
 		}
+	ii = N;
 	nvt += nu[ii]+nx[ii];
 	nct += nb[ii]+ng[ii];
 
@@ -50,7 +51,7 @@ int MEMSIZE_OCP_QP_SOL(int N, int *nx, int *nu, int *nb, int *ng)
 
 	size += 1*SIZE_STRVEC(nvt); // ux
 	size += 1*SIZE_STRVEC(net); // pi
-	size += 2*SIZE_STRVEC(2*nct); // lam t
+	size += 8*SIZE_STRVEC(2*nct); // lam_lb lam_ub lam_lg lam_ug t_lb t_ub t_lg t_ug
 
 	size = (size+63)/64*64; // make multiple of typical cache line size
 	size += 64; // align to typical cache line size
@@ -143,17 +144,17 @@ void CREATE_OCP_QP_SOL(int N, int *nx, int *nu, int *nb, int *ng, struct OCP_QP_
 	for(ii=0; ii<=N; ii++)
 		{
 		CREATE_STRVEC(nb[ii], qp_sol->lam_lb+ii, tmp_ptr);
-		tmp_ptr += nb[ii]*sizeof(REAL);
+		tmp_ptr += (nb[ii])*sizeof(REAL);
 		CREATE_STRVEC(ng[ii], qp_sol->lam_lg+ii, tmp_ptr);
-		tmp_ptr += ng[ii]*sizeof(REAL);
+		tmp_ptr += (ng[ii])*sizeof(REAL);
 		}
 	// lam_ub lam_ug
 	for(ii=0; ii<=N; ii++)
 		{
 		CREATE_STRVEC(nb[ii], qp_sol->lam_ub+ii, tmp_ptr);
-		tmp_ptr += nb[ii]*sizeof(REAL);
+		tmp_ptr += (nb[ii])*sizeof(REAL);
 		CREATE_STRVEC(ng[ii], qp_sol->lam_ug+ii, tmp_ptr);
-		tmp_ptr += ng[ii]*sizeof(REAL);
+		tmp_ptr += (ng[ii])*sizeof(REAL);
 		}
 	// t
 	tmp_ptr = c_ptr;
@@ -162,17 +163,17 @@ void CREATE_OCP_QP_SOL(int N, int *nx, int *nu, int *nb, int *ng, struct OCP_QP_
 	for(ii=0; ii<=N; ii++)
 		{
 		CREATE_STRVEC(nb[ii], qp_sol->t_lb+ii, tmp_ptr);
-		tmp_ptr += nb[ii]*sizeof(REAL);
+		tmp_ptr += (nb[ii])*sizeof(REAL);
 		CREATE_STRVEC(ng[ii], qp_sol->t_lg+ii, tmp_ptr);
-		tmp_ptr += ng[ii]*sizeof(REAL);
+		tmp_ptr += (ng[ii])*sizeof(REAL);
 		}
 	// t_ub t_ug
 	for(ii=0; ii<=N; ii++)
 		{
 		CREATE_STRVEC(nb[ii], qp_sol->t_ub+ii, tmp_ptr);
-		tmp_ptr += nb[ii]*sizeof(REAL);
+		tmp_ptr += (nb[ii])*sizeof(REAL);
 		CREATE_STRVEC(ng[ii], qp_sol->t_ug+ii, tmp_ptr);
-		tmp_ptr += ng[ii]*sizeof(REAL);
+		tmp_ptr += (ng[ii])*sizeof(REAL);
 		}
 	
 	return;

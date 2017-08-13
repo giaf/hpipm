@@ -41,6 +41,7 @@ int MEMSIZE_OCP_QP(int N, int *nx, int *nu, int *nb, int *ng)
 		net += nx[ii+1];
 		nct += nb[ii]+ng[ii];
 		}
+	ii = N;
 	nvt += nu[ii]+nx[ii];
 	nct += nb[ii]+ng[ii];
 
@@ -66,7 +67,7 @@ int MEMSIZE_OCP_QP(int N, int *nx, int *nu, int *nb, int *ng)
 	size += SIZE_STRVEC(nu[ii]+nx[ii]); // rq
 	size += SIZE_STRMAT(nu[ii]+nx[ii], ng[ii]); // DCt
 
-	size += 1*SIZE_STRVEC(2*nct); // d
+	size += SIZE_STRVEC(2*nct); // d_lb d_ub
 
 	size = (size+63)/64*64; // make multiple of typical cache line size
 	size += 64; // align to typical cache line size
