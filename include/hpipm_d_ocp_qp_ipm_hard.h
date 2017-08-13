@@ -52,10 +52,14 @@ struct d_ipm_hard_ocp_qp_workspace
 	struct d_strvec *res_m_ub; // m-residuals
 	struct d_strvec *res_m_lg; // m-residuals
 	struct d_strvec *res_m_ug; // m-residuals
-	struct d_strvec *Qx_lb; // hessian update
-	struct d_strvec *Qx_lg; // hessian update
-	struct d_strvec *qx_lb; // gradient update
-	struct d_strvec *qx_lg; // gradient update
+	struct d_strvec *Gamma_lb; // hessian update
+	struct d_strvec *Gamma_lg; // hessian update
+	struct d_strvec *Gamma_ub; // hessian update
+	struct d_strvec *Gamma_ug; // hessian update
+	struct d_strvec *gamma_lb; // hessian update
+	struct d_strvec *gamma_lg; // hessian update
+	struct d_strvec *gamma_ub; // hessian update
+	struct d_strvec *gamma_ug; // hessian update
 	struct d_strvec *tmp_nbM; // work space of size nbM
 	struct d_strvec *tmp_nxM; // work space of size nxM
 	struct d_strvec *tmp_ngM; // work space of size ngM

@@ -67,7 +67,7 @@ int MEMSIZE_IPM_HARD_OCP_QP(struct OCP_QP *qp, struct IPM_HARD_OCP_QP_ARG *arg)
 
 	int size = 0;
 
-	size += (5+(N+1)*19)*sizeof(struct STRVEC); // dux dpi dt_lb dt_lg res_g res_b res_d res_d_lb res_d_ub res_d_lg res_d_ug res_m res_m_lb res_m_ub res_m_lg res_m_ug Qx_lb Qx_lg qx_lb qx_lg Pb tmp_nbM tmp_nxM tmp_ngM
+	size += (5+(N+1)*23)*sizeof(struct STRVEC); // dux dpi dt_lb dt_lg res_g res_b res_d res_d_lb res_d_ub res_d_lg res_d_ug res_m res_m_lb res_m_ub res_m_lg res_m_ug Pb tmp_nbM tmp_nxM tmp_ngM Gamma_lb Gamma_lg Gamma_ub Gamma_ug gamma_lb gamma_lg gamma_ub gamma_ug
 	size += (1+(N+1)*1)*sizeof(struct STRMAT); // L AL
 
 	size += 1*SIZE_STRVEC(nbM); // tmp_nbM
@@ -186,13 +186,21 @@ void CREATE_IPM_HARD_OCP_QP(struct OCP_QP *qp, struct IPM_HARD_OCP_QP_ARG *arg, 
 	sv_ptr += N+1;
 	workspace->res_m_ug = sv_ptr;
 	sv_ptr += N+1;
-	workspace->Qx_lb = sv_ptr;
+	workspace->Gamma_lb = sv_ptr;
 	sv_ptr += N+1;
-	workspace->Qx_lg = sv_ptr;
+	workspace->Gamma_ub = sv_ptr;
 	sv_ptr += N+1;
-	workspace->qx_lb = sv_ptr;
+	workspace->Gamma_lg = sv_ptr;
 	sv_ptr += N+1;
-	workspace->qx_lg = sv_ptr;
+	workspace->Gamma_ug = sv_ptr;
+	sv_ptr += N+1;
+	workspace->gamma_lb = sv_ptr;
+	sv_ptr += N+1;
+	workspace->gamma_ub = sv_ptr;
+	sv_ptr += N+1;
+	workspace->gamma_lg = sv_ptr;
+	sv_ptr += N+1;
+	workspace->gamma_ug = sv_ptr;
 	sv_ptr += N+1;
 	workspace->Pb = sv_ptr;
 	sv_ptr += N+1;
@@ -345,29 +353,50 @@ void CREATE_IPM_HARD_OCP_QP(struct OCP_QP *qp, struct IPM_HARD_OCP_QP_ARG *arg, 
 		c_ptr += ng[ii]*sizeof(REAL);
 		}
 	//
-	c_ptr = (char *) cws->Qx;
+	c_ptr = (char *) cws->Gamma;
 	for(ii=0; ii<=N; ii++)
 		{
-		CREATE_STRVEC(nb[ii], workspace->Qx_lb+ii, c_ptr);
-		c_ptr += (nb[ii])*sizeof(REAL);
+		CREATE_STRVEC(nb[ii], workspace->Gamma_lb+ii, c_ptr);
+		c_ptr += nb[ii]*sizeof(REAL);
 		}
 	for(ii=0; ii<=N; ii++)
 		{
-		CREATE_STRVEC(ng[ii], workspace->Qx_lg+ii, c_ptr);
-		c_ptr += (ng[ii])*sizeof(REAL);
+		CREATE_STRVEC(ng[ii], workspace->Gamma_lg+ii, c_ptr);
+		c_ptr += ng[ii]*sizeof(REAL);
+		}
+	for(ii=0; ii<=N; ii++)
+		{
+		CREATE_STRVEC(nb[ii], workspace->Gamma_ub+ii, c_ptr);
+		c_ptr += nb[ii]*sizeof(REAL);
+		}
+	for(ii=0; ii<=N; ii++)
+		{
+		CREATE_STRVEC(ng[ii], workspace->Gamma_ug+ii, c_ptr);
+		c_ptr += ng[ii]*sizeof(REAL);
 		}
 	//
-	c_ptr = (char *) cws->qx;
+	c_ptr = (char *) cws->gamma;
 	for(ii=0; ii<=N; ii++)
 		{
-		CREATE_STRVEC(nb[ii], workspace->qx_lb+ii, c_ptr);
-		c_ptr += (nb[ii])*sizeof(REAL);
+		CREATE_STRVEC(nb[ii], workspace->gamma_lb+ii, c_ptr);
+		c_ptr += nb[ii]*sizeof(REAL);
 		}
 	for(ii=0; ii<=N; ii++)
 		{
-		CREATE_STRVEC(ng[ii], workspace->qx_lg+ii, c_ptr);
-		c_ptr += (ng[ii])*sizeof(REAL);
+		CREATE_STRVEC(ng[ii], workspace->gamma_lg+ii, c_ptr);
+		c_ptr += ng[ii]*sizeof(REAL);
 		}
+	for(ii=0; ii<=N; ii++)
+		{
+		CREATE_STRVEC(nb[ii], workspace->gamma_ub+ii, c_ptr);
+		c_ptr += nb[ii]*sizeof(REAL);
+		}
+	for(ii=0; ii<=N; ii++)
+		{
+		CREATE_STRVEC(ng[ii], workspace->gamma_ug+ii, c_ptr);
+		c_ptr += ng[ii]*sizeof(REAL);
+		}
+	//
 	workspace->stat = cws->stat;
 
 	return;
