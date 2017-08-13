@@ -59,7 +59,6 @@ int MEMSIZE_IPM_HARD_OCP_QP(struct OCP_QP *qp, struct IPM_HARD_OCP_QP_ARG *arg)
 		nbM = nb[ii]>nbM ? nb[ii] : nbM;
 		ngM = ng[ii]>ngM ? ng[ii] : ngM;
 		}
-	ii = N;
 	nvt += nx[ii]+nu[ii];
 	nct += nb[ii]+ng[ii];
 	nxM = nx[ii]>nxM ? nx[ii] : nxM;
@@ -127,7 +126,6 @@ void CREATE_IPM_HARD_OCP_QP(struct OCP_QP *qp, struct IPM_HARD_OCP_QP_ARG *arg, 
 		nbM = nb[ii]>nbM ? nb[ii] : nbM;
 		ngM = ng[ii]>ngM ? ng[ii] : ngM;
 		}
-	ii = N;
 	nvt += nx[ii]+nu[ii];
 	nct += nb[ii]+ng[ii];
 	nxM = nx[ii]>nxM ? nx[ii] : nxM;
@@ -304,16 +302,16 @@ void CREATE_IPM_HARD_OCP_QP(struct OCP_QP *qp, struct IPM_HARD_OCP_QP_ARG *arg, 
 	for(ii=0; ii<=N; ii++)
 		{
 		CREATE_STRVEC(nb[ii], workspace->res_d_lb+ii, c_ptr);
-		c_ptr += (nb[ii])*sizeof(REAL);
+		c_ptr += nb[ii]*sizeof(REAL);
 		CREATE_STRVEC(ng[ii], workspace->res_d_lg+ii, c_ptr);
-		c_ptr += (ng[ii])*sizeof(REAL);
+		c_ptr += ng[ii]*sizeof(REAL);
 		}
 	for(ii=0; ii<=N; ii++)
 		{
 		CREATE_STRVEC(nb[ii], workspace->res_d_ub+ii, c_ptr);
-		c_ptr += (nb[ii])*sizeof(REAL);
+		c_ptr += nb[ii]*sizeof(REAL);
 		CREATE_STRVEC(ng[ii], workspace->res_d_ug+ii, c_ptr);
-		c_ptr += (ng[ii])*sizeof(REAL);
+		c_ptr += ng[ii]*sizeof(REAL);
 		}
 	//
 	c_ptr = (char *) cws->res_m;
@@ -321,34 +319,34 @@ void CREATE_IPM_HARD_OCP_QP(struct OCP_QP *qp, struct IPM_HARD_OCP_QP_ARG *arg, 
 	for(ii=0; ii<=N; ii++)
 		{
 		CREATE_STRVEC(nb[ii], workspace->res_m_lb+ii, c_ptr);
-		c_ptr += (nb[ii])*sizeof(REAL);
+		c_ptr += nb[ii]*sizeof(REAL);
 		CREATE_STRVEC(ng[ii], workspace->res_m_lg+ii, c_ptr);
-		c_ptr += (ng[ii])*sizeof(REAL);
+		c_ptr += ng[ii]*sizeof(REAL);
 		}
 	for(ii=0; ii<=N; ii++)
 		{
 		CREATE_STRVEC(nb[ii], workspace->res_m_ub+ii, c_ptr);
-		c_ptr += (nb[ii])*sizeof(REAL);
+		c_ptr += nb[ii]*sizeof(REAL);
 		CREATE_STRVEC(ng[ii], workspace->res_m_ug+ii, c_ptr);
-		c_ptr += (ng[ii])*sizeof(REAL);
+		c_ptr += ng[ii]*sizeof(REAL);
 		}
 	//
 	c_ptr = (char *) cws->Qx;
 	for(ii=0; ii<=N; ii++)
 		{
 		CREATE_STRVEC(nb[ii], workspace->Qx_lb+ii, c_ptr);
-		c_ptr += (nb[ii])*sizeof(REAL);
+		c_ptr += nb[ii]*sizeof(REAL);
 		CREATE_STRVEC(ng[ii], workspace->Qx_lg+ii, c_ptr);
-		c_ptr += (ng[ii])*sizeof(REAL);
+		c_ptr += ng[ii]*sizeof(REAL);
 		}
 	//
 	c_ptr = (char *) cws->qx;
 	for(ii=0; ii<=N; ii++)
 		{
 		CREATE_STRVEC(nb[ii], workspace->qx_lb+ii, c_ptr);
-		c_ptr += (nb[ii])*sizeof(REAL);
+		c_ptr += nb[ii]*sizeof(REAL);
 		CREATE_STRVEC(ng[ii], workspace->qx_lg+ii, c_ptr);
-		c_ptr += (ng[ii])*sizeof(REAL);
+		c_ptr += ng[ii]*sizeof(REAL);
 		}
 	workspace->stat = cws->stat;
 
@@ -529,6 +527,7 @@ void SOLVE_IPM2_HARD_OCP_QP(struct OCP_QP *qp, struct OCP_QP_SOL *qp_sol, struct
 
 	int kk = 0;
 	for(; kk<cws->iter_max & cws->mu>cws->mu_max; kk++)
+//	for(; kk<3 & cws->mu>cws->mu_max; kk++)
 		{
 
 		// fact and solve kkt
