@@ -44,25 +44,25 @@ OBJS += ocp_qp/s_ocp_qp.o ocp_qp/s_ocp_qp_sol.o ocp_qp/s_ocp_qp_kkt.o ocp_qp/s_o
 OBJS += ipm_core/d_core_qp_ipm_hard_aux.o ipm_core/d_core_qp_ipm_hard.o
 OBJS += ipm_core/s_core_qp_ipm_hard_aux.o ipm_core/s_core_qp_ipm_hard.o
 # cond
-OBJS += cond/d_cond_aux.o cond/d_cond.o cond/d_part_cond.o
-OBJS += cond/s_cond_aux.o cond/s_cond.o cond/s_part_cond.o
+#OBJS += cond/d_cond_aux.o cond/d_cond.o cond/d_part_cond.o
+#OBJS += cond/s_cond_aux.o cond/s_cond.o cond/s_part_cond.o
 # tree ocp qp
 #OBJS += tree_ocp_qp/scenario_tree.o
 #OBJS += tree_ocp_qp/d_tree_ocp_qp.o tree_ocp_qp/d_tree_ocp_qp_sol.o tree_ocp_qp/d_tree_ocp_qp_kkt.o tree_ocp_qp/d_tree_ocp_qp_ipm_hard.o
 #OBJS += tree_ocp_qp/s_tree_ocp_qp.o tree_ocp_qp/s_tree_ocp_qp_sol.o tree_ocp_qp/s_tree_ocp_qp_kkt.o tree_ocp_qp/s_tree_ocp_qp_ipm_hard.o
 # sim core
-OBJS += sim_core/d_rk_int.o sim_core/d_erk_int.o sim_core/d_irk_int.o
-OBJS +=
+#OBJS += sim_core/d_rk_int.o sim_core/d_erk_int.o sim_core/d_irk_int.o
+#OBJS +=
 
 all: clean static_library
 
 static_library: target
-	( cd cond; $(MAKE) obj)
+#	( cd cond; $(MAKE) obj)
 	( cd ipm_core; $(MAKE) obj)
 	( cd dense_qp; $(MAKE) obj)
 	( cd ocp_qp; $(MAKE) obj)
 #	( cd tree_ocp_qp; $(MAKE) obj)
-	( cd sim_core; $(MAKE) obj)
+#	( cd sim_core; $(MAKE) obj)
 	ar rcs libhpipm.a $(OBJS) 
 	cp libhpipm.a ./lib/
 	@echo
@@ -70,12 +70,12 @@ static_library: target
 	@echo
 
 shared_library: target
-	( cd cond; $(MAKE) obj)
+#	( cd cond; $(MAKE) obj)
 	( cd ipm_core; $(MAKE) obj)
 	( cd dense_qp; $(MAKE) obj)
 	( cd ocp_qp; $(MAKE) obj)
 #	( cd tree_ocp_qp; $(MAKE) obj)
-	( cd sim_core; $(MAKE) obj)
+#	( cd sim_core; $(MAKE) obj)
 	gcc -shared -o libhpipm.so $(OBJS)
 	cp libhpipm.so ./lib/
 	@echo
