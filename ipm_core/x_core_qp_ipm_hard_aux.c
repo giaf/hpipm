@@ -82,14 +82,15 @@ void COMPUTE_LAM_T_HARD_QP(struct IPM_HARD_CORE_QP_WORKSPACE *cws)
 	int ii;
 
 	// TODO move outside core
-	for(ii=0; ii<nc; ii++)
-		{
-		dt[nc+ii] = - dt[ii];
-		}
+	// XXX only ocp_qp works now !!!!!!!!!!!!!!!!!!!!
+//	for(ii=0; ii<nc; ii++)
+//		{
+//		dt[nc+ii] = - dt[ii];
+//		}
 	
 	for(ii=0; ii<2*nc; ii++)
 		{
-		dt[ii] -= res_d[ii];
+		dt[ii] -= res_d[ii]; // XXX change sign for upper?
 		// TODO compute lamda alone ???
 		dlam[ii] = - t_inv[ii] * (lam[ii]*dt[ii] + res_m[ii]);
 		}

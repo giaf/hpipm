@@ -508,6 +508,12 @@ void FACT_SOLVE_KKT_STEP_HARD_OCP_QP(struct OCP_QP *qp, struct IPM_HARD_OCP_QP_W
 			GEMV_T_LIBSTR(nu[ii]+nx[ii], ng[ii], 1.0, DCt+ii, 0, 0, dux+ii, 0, 0.0, dt_lg+ii, 0, dt_lg+ii, 0);
 //		}
 
+		for(ii=0; ii<=N; ii++)
+			{
+			VECCP_LIBSTR(nb[ii]+ng[ii], dt_lb+ii, 0, dt_lb+ii, nb[ii]+ng[ii]);
+			VECSC_LIBSTR(nb[ii]+ng[ii], -1.0, dt_lb+ii, nb[ii]+ng[ii]);
+			}
+
 //	if(nb>0 | ng>0)
 //		{
 		COMPUTE_LAM_T_HARD_QP(cws);
@@ -650,6 +656,14 @@ void SOLVE_KKT_STEP_HARD_OCP_QP(struct OCP_QP *qp, struct IPM_HARD_OCP_QP_WORKSP
 		for(ii=0; ii<=N; ii++)
 			GEMV_T_LIBSTR(nu[ii]+nx[ii], ng[ii], 1.0, DCt+ii, 0, 0, dux+ii, 0, 0.0, dt_lg+ii, 0, dt_lg+ii, 0);
 //		}
+
+		for(ii=0; ii<=N; ii++)
+			{
+			VECCP_LIBSTR(nb[ii]+ng[ii], dt_lb+ii, 0, dt_lb+ii, nb[ii]+ng[ii]);
+			VECSC_LIBSTR(nb[ii]+ng[ii], -1.0, dt_lb+ii, nb[ii]+ng[ii]);
+			}
+
+//		exit(2);
 
 //	if(nb>0 | ng>0)
 //		{

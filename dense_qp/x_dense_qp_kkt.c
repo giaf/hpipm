@@ -415,6 +415,8 @@ void FACT_SOLVE_KKT_STEP_HARD_DENSE_QP(struct DENSE_QP *qp, struct IPM_HARD_DENS
 
 	if(nb>0 | ng>0)
 		{
+		VECCP_LIBSTR(nb+ng, dt_lb, 0, dt_lb, nb+ng);
+		VECSC_LIBSTR(nb+ng, -1.0, dt_lb, nb+ng);
 		COMPUTE_LAM_T_HARD_QP(rws);
 		}
 
@@ -517,6 +519,8 @@ void SOLVE_KKT_STEP_HARD_DENSE_QP(struct DENSE_QP *qp, struct IPM_HARD_DENSE_QP_
 
 	if(nb>0 | ng>0)
 		{
+		VECCP_LIBSTR(nb+ng, dt_lb, 0, dt_lb, nb+ng);
+		VECSC_LIBSTR(nb+ng, -1.0, dt_lb, nb+ng);
 		COMPUTE_LAM_T_HARD_QP(rws);
 		}
 

@@ -146,54 +146,28 @@ void CREATE_OCP_QP_SOL(int N, int *nx, int *nu, int *nb, int *ng, struct OCP_QP_
 	// lam
 	tmp_ptr = c_ptr;
 	c_ptr += SIZE_STRVEC(2*nbt+2*ngt);
-	// lam_lb
 	for(ii=0; ii<=N; ii++)
 		{
 		CREATE_STRVEC(nb[ii], qp_sol->lam_lb+ii, tmp_ptr);
 		tmp_ptr += nb[ii]*sizeof(REAL);
-		}
-	// lam_lg
-	for(ii=0; ii<=N; ii++)
-		{
 		CREATE_STRVEC(ng[ii], qp_sol->lam_lg+ii, tmp_ptr);
 		tmp_ptr += ng[ii]*sizeof(REAL);
-		}
-	// lam_ub
-	for(ii=0; ii<=N; ii++)
-		{
 		CREATE_STRVEC(nb[ii], qp_sol->lam_ub+ii, tmp_ptr);
 		tmp_ptr += nb[ii]*sizeof(REAL);
-		}
-	// lam_ug
-	for(ii=0; ii<=N; ii++)
-		{
 		CREATE_STRVEC(ng[ii], qp_sol->lam_ug+ii, tmp_ptr);
 		tmp_ptr += ng[ii]*sizeof(REAL);
 		}
 	// t
 	tmp_ptr = c_ptr;
 	c_ptr += SIZE_STRVEC(2*nbt+2*ngt);
-	// t_lb
 	for(ii=0; ii<=N; ii++)
 		{
 		CREATE_STRVEC(nb[ii], qp_sol->t_lb+ii, tmp_ptr);
 		tmp_ptr += nb[ii]*sizeof(REAL);
-		}
-	// t_lg
-	for(ii=0; ii<=N; ii++)
-		{
 		CREATE_STRVEC(ng[ii], qp_sol->t_lg+ii, tmp_ptr);
 		tmp_ptr += ng[ii]*sizeof(REAL);
-		}
-	// t_ub
-	for(ii=0; ii<=N; ii++)
-		{
 		CREATE_STRVEC(nb[ii], qp_sol->t_ub+ii, tmp_ptr);
 		tmp_ptr += nb[ii]*sizeof(REAL);
-		}
-	// t_ug
-	for(ii=0; ii<=N; ii++)
-		{
 		CREATE_STRVEC(ng[ii], qp_sol->t_ug+ii, tmp_ptr);
 		tmp_ptr += ng[ii]*sizeof(REAL);
 		}

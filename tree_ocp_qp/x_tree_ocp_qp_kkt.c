@@ -551,6 +551,12 @@ void FACT_SOLVE_KKT_STEP_HARD_TREE_OCP_QP(struct TREE_OCP_QP *qp, struct IPM_HAR
 	for(ii=0; ii<Nn; ii++)
 		GEMV_T_LIBSTR(nu[ii]+nx[ii], ng[ii], 1.0, DCt+ii, 0, 0, dux+ii, 0, 0.0, dt_lg+ii, 0, dt_lg+ii, 0);
 
+	for(ii=0; ii<Nn; ii++)
+		{
+//		VECCP_LIBSTR(nb[ii]+ng[ii], dt_lb+ii, 0, dt_lb+ii, nb[ii]+ng[ii]);
+//		VECSC_LIBSTR(nb[ii]+ng[ii], -1.0, dt_lb+ii, nb[ii]+ng[ii]);
+		}
+
 	COMPUTE_LAM_T_HARD_QP(cws);
 
 	return;
@@ -720,6 +726,12 @@ void SOLVE_KKT_STEP_HARD_TREE_OCP_QP(struct TREE_OCP_QP *qp, struct IPM_HARD_TRE
 
 	for(ii=0; ii<Nn; ii++)
 		GEMV_T_LIBSTR(nu[ii]+nx[ii], ng[ii], 1.0, DCt+ii, 0, 0, dux+ii, 0, 0.0, dt_lg+ii, 0, dt_lg+ii, 0);
+
+	for(ii=0; ii<Nn; ii++)
+		{
+//		VECCP_LIBSTR(nb[ii]+ng[ii], dt_lb+ii, 0, dt_lb+ii, nb[ii]+ng[ii]);
+//		VECSC_LIBSTR(nb[ii]+ng[ii], -1.0, dt_lb+ii, nb[ii]+ng[ii]);
+		}
 
 	COMPUTE_LAM_T_HARD_QP(cws);
 
