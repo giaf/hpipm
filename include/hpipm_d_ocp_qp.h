@@ -39,10 +39,7 @@ struct d_ocp_qp
 	struct d_strmat *RSQrq;
 	struct d_strvec *rq;
 	struct d_strmat *DCt;
-	struct d_strvec *d_lb;
-	struct d_strvec *d_ub;
-	struct d_strvec *d_lg;
-	struct d_strvec *d_ug;
+	struct d_strvec *d;
 	int *nx; // number of states
 	int *nu; // number of inputs
 	int *nb; // number of box constraints
@@ -62,7 +59,5 @@ void d_create_ocp_qp(int N, int *nx, int *nu, int *nb, int *ng, struct d_ocp_qp 
 void d_cvt_colmaj_to_ocp_qp(double **A, double **B, double **b, double **Q, double **S, double **R, double **q, double **r, int **idxb, double **lb, double **ub, double **C, double **D, double **lg, double **ug, struct d_ocp_qp *qp);
 //
 void d_cvt_rowmaj_to_ocp_qp(double **A, double **B, double **b, double **Q, double **S, double **R, double **q, double **r, int **idxb, double **lb, double **ub, double **C, double **D, double **lg, double **ug, struct d_ocp_qp *qp);
-//
-//void d_cast_ocp_qp(int N, int *nx, int *nu, int *nb, int **idxb, int *ng, struct d_strmat *sBAbt, struct d_strvec *sb, struct d_strmat *sRSQrq, struct d_strvec *srq, struct d_strmat *sDCt, struct d_strvec *slb, struct d_strvec *sub, struct d_strvec *slg, struct d_strvec *sug, struct d_ocp_qp *str_out);
 //
 void d_copy_ocp_qp(struct d_ocp_qp *qp_in, struct d_ocp_qp *qp_out);

@@ -38,28 +38,13 @@ struct d_ipm_hard_ocp_qp_workspace
 	struct d_ipm_hard_core_qp_workspace *core_workspace;
 	struct d_strvec *dux;
 	struct d_strvec *dpi;
-	struct d_strvec *dt_lb;
-	struct d_strvec *dt_lg;
+	struct d_strvec *dt;
 	struct d_strvec *res_g; // q-residuals
 	struct d_strvec *res_b; // b-residuals
-	struct d_strvec *res_d; // d-residuals XXX remove ???
-	struct d_strvec *res_d_lb; // d-residuals
-	struct d_strvec *res_d_ub; // d-residuals
-	struct d_strvec *res_d_lg; // d-residuals
-	struct d_strvec *res_d_ug; // d-residuals
+	struct d_strvec *res_d; // d-residuals
 	struct d_strvec *res_m; // m-residuals
-	struct d_strvec *res_m_lb; // m-residuals
-	struct d_strvec *res_m_ub; // m-residuals
-	struct d_strvec *res_m_lg; // m-residuals
-	struct d_strvec *res_m_ug; // m-residuals
-	struct d_strvec *Gamma_lb; // hessian update
-	struct d_strvec *Gamma_lg; // hessian update
-	struct d_strvec *Gamma_ub; // hessian update
-	struct d_strvec *Gamma_ug; // hessian update
-	struct d_strvec *gamma_lb; // hessian update
-	struct d_strvec *gamma_lg; // hessian update
-	struct d_strvec *gamma_ub; // hessian update
-	struct d_strvec *gamma_ug; // hessian update
+	struct d_strvec *Gamma; // hessian update
+	struct d_strvec *gamma; // hessian update
 	struct d_strvec *tmp_nbM; // work space of size nbM
 	struct d_strvec *tmp_nxM; // work space of size nxM
 	struct d_strvec *tmp_ngM; // work space of size ngM

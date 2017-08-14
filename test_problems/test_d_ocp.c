@@ -729,16 +729,16 @@ int main()
 
 	printf("\nt_lb\n");
 	for(ii=0; ii<=N; ii++)
-		d_print_mat(1, nb[ii], (qp_sol.t_lb+ii)->pa, 1);
+		d_print_mat(1, nb[ii], (qp_sol.t+ii)->pa, 1);
 	printf("\nt_ub\n");
 	for(ii=0; ii<=N; ii++)
-		d_print_mat(1, nb[ii], (qp_sol.t_ub+ii)->pa, 1);
+		d_print_mat(1, nb[ii], (qp_sol.t+ii)->pa+nb[ii]+ng[ii], 1);
 	printf("\nt_lg\n");
 	for(ii=0; ii<=N; ii++)
-		d_print_mat(1, ng[ii], (qp_sol.t_lg+ii)->pa, 1);
+		d_print_mat(1, ng[ii], (qp_sol.t+ii)->pa+nb[ii], 1);
 	printf("\nt_ug\n");
 	for(ii=0; ii<=N; ii++)
-		d_print_mat(1, ng[ii], (qp_sol.t_ug+ii)->pa, 1);
+		d_print_mat(1, ng[ii], (qp_sol.t+ii)->pa+2*nb[ii]+ng[ii], 1);
 
 	printf("\nresiduals\n\n");
 	printf("\nres_g\n");
@@ -749,28 +749,28 @@ int main()
 		d_print_e_mat(1, nx[ii+1], (workspace.res_b+ii)->pa, 1);
 	printf("\nres_m_lb\n");
 	for(ii=0; ii<=N; ii++)
-		d_print_e_mat(1, nb[ii], (workspace.res_m_lb+ii)->pa, 1);
-	printf("\nres_m_ub\n");
+		d_print_e_mat(1, nb[ii], (workspace.res_m+ii)->pa, 1);
+	printf("\nrem_m_ub\n");
 	for(ii=0; ii<=N; ii++)
-		d_print_e_mat(1, nb[ii], (workspace.res_m_ub+ii)->pa, 1);
-	printf("\nres_m_lg\n");
+		d_print_e_mat(1, nb[ii], (workspace.res_m+ii)->pa+nb[ii]+ng[ii], 1);
+	printf("\nrem_m_lg\n");
 	for(ii=0; ii<=N; ii++)
-		d_print_e_mat(1, ng[ii], (workspace.res_m_lg+ii)->pa, 1);
-	printf("\nres_m_ug\n");
+		d_print_e_mat(1, ng[ii], (workspace.res_m+ii)->pa+nb[ii], 1);
+	printf("\nrem_m_ug\n");
 	for(ii=0; ii<=N; ii++)
-		d_print_e_mat(1, ng[ii], (workspace.res_m_ug+ii)->pa, 1);
+		d_print_e_mat(1, ng[ii], (workspace.res_m+ii)->pa+2*nb[ii]+ng[ii], 1);
 	printf("\nres_d_lb\n");
 	for(ii=0; ii<=N; ii++)
-		d_print_e_mat(1, nb[ii], (workspace.res_d_lb+ii)->pa, 1);
+		d_print_e_mat(1, nb[ii], (workspace.res_d+ii)->pa, 1);
 	printf("\nres_d_ub\n");
 	for(ii=0; ii<=N; ii++)
-		d_print_e_mat(1, nb[ii], (workspace.res_d_ub+ii)->pa, 1);
+		d_print_e_mat(1, nb[ii], (workspace.res_d+ii)->pa+nb[ii]+ng[ii], 1);
 	printf("\nres_d_lg\n");
 	for(ii=0; ii<=N; ii++)
-		d_print_e_mat(1, ng[ii], (workspace.res_d_lg+ii)->pa, 1);
+		d_print_e_mat(1, ng[ii], (workspace.res_d+ii)->pa+nb[ii], 1);
 	printf("\nres_d_ug\n");
 	for(ii=0; ii<=N; ii++)
-		d_print_e_mat(1, ng[ii], (workspace.res_d_ug+ii)->pa, 1);
+		d_print_e_mat(1, ng[ii], (workspace.res_d+ii)->pa+2*nb[ii]+ng[ii], 1);
 	printf("\nres_mu\n");
 	printf("\n%e\n\n", workspace.res_mu);
 #endif

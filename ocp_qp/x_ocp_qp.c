@@ -32,12 +32,30 @@ int MEMSIZE_OCP_QP(int N, int *nx, int *nu, int *nb, int *ng)
 
 	int ii;
 
+	int nvt = 0;
+	int net = 0;
+	int nbt = 0;
+	int ngt = 0;
+	for(ii=0; ii<N; ii++)
+		{
+		nvt += nu[ii]+nx[ii];
+		net += nx[ii+1];
+		nbt += nb[ii];
+		ngt += ng[ii];
+		}
+	ii = N;
+	nvt += nu[ii]+nx[ii];
+	nbt += nb[ii];
+	ngt += ng[ii];
+
 	int size = 0;
 
 	size += 4*(N+1)*sizeof(int); // nx nu nb ng
-	size += (N+1)*sizeof(int *); // idxb
-	size += (1*N+2*(N+1))*sizeof(struct STRMAT); // BAbt ; RSqrq DCt
-	size += (1*N+5*(N+1))*sizeof(struct STRVEC); // b ; rq d_lb d_ub d_lg d_ug
+	size += 1*(N+1)*sizeof(int *); // idxb
+	size += 2*(N+1)*sizeof(struct STRMAT); // RSqrq DCt
+	size += 1*N*sizeof(struct STRMAT); // BAbt
+	size += 2*(N+1)*sizeof(struct STRVEC); // rq d
+	size += 1*N*sizeof(struct STRVEC); // b
 
 	for(ii=0; ii<N; ii++)
 		{
@@ -55,8 +73,8 @@ int MEMSIZE_OCP_QP(int N, int *nx, int *nu, int *nb, int *ng)
 	size += SIZE_STRMAT(nu[ii]+nx[ii]+1, nu[ii]+nx[ii]); // RSQrq
 	size += SIZE_STRVEC(nu[ii]+nx[ii]); // rq
 	size += SIZE_STRMAT(nu[ii]+nx[ii], ng[ii]); // DCt
-	size += 2*SIZE_STRVEC(nb[ii]); // d_lb d_ub
-	size += 2*SIZE_STRVEC(ng[ii]); // d_lg d_ug
+
+	size += 2*SIZE_STRVEC(2*nbt+2*ngt); // lam t
 
 	size = (size+63)/64*64; // make multiple of typical cache line size
 	size += 64; // align to typical cache line size
@@ -75,6 +93,22 @@ void CREATE_OCP_QP(int N, int *nx, int *nu, int *nb, int *ng, struct OCP_QP *qp,
 
 	// memsize
 	qp->memsize = MEMSIZE_OCP_QP(N, nx, nu, nb, ng);
+
+
+	int nvt = 0;
+	int net = 0;
+	int nbt = 0;
+	int ngt = 0;
+	for(ii=0; ii<N; ii++)
+		{
+		nvt += nu[ii]+nx[ii];
+		net += nx[ii+1];
+		nbt += nb[ii];
+		ngt += ng[ii];
+		}
+	nvt += nu[ii]+nx[ii];
+	nbt += nb[ii];
+	ngt += ng[ii];
 
 
 	// horizon length
@@ -117,20 +151,8 @@ void CREATE_OCP_QP(int N, int *nx, int *nu, int *nb, int *ng, struct OCP_QP *qp,
 	qp->rq = sv_ptr;
 	sv_ptr += N+1;
 
-	// d_lb
-	qp->d_lb = sv_ptr;
-	sv_ptr += N+1;
-
-	// d_ub
-	qp->d_ub = sv_ptr;
-	sv_ptr += N+1;
-
-	// d_lg
-	qp->d_lg = sv_ptr;
-	sv_ptr += N+1;
-
-	// d_ug
-	qp->d_ug = sv_ptr;
+	// d
+	qp->d = sv_ptr;
 	sv_ptr += N+1;
 
 
@@ -187,6 +209,8 @@ void CREATE_OCP_QP(int N, int *nx, int *nu, int *nb, int *ng, struct OCP_QP *qp,
 	char *c_ptr;
 	c_ptr = (char *) l_ptr;
 
+	char *tmp_ptr;
+
 	// BAbt
 	for(ii=0; ii<N; ii++)
 		{
@@ -222,58 +246,17 @@ void CREATE_OCP_QP(int N, int *nx, int *nu, int *nb, int *ng, struct OCP_QP *qp,
 		c_ptr += (qp->rq+ii)->memory_size;
 		}
 
-	// d_lb
+	// t
+	tmp_ptr = c_ptr;
+	c_ptr += SIZE_STRVEC(2*nbt+2*ngt);
 	for(ii=0; ii<=N; ii++)
 		{
-		CREATE_STRVEC(nb[ii], qp->d_lb+ii, c_ptr);
-		c_ptr += (qp->d_lb+ii)->memory_size;
+		CREATE_STRVEC(nb[ii], qp->d+ii, tmp_ptr);
+		tmp_ptr += nb[ii]*sizeof(REAL);
+		tmp_ptr += ng[ii]*sizeof(REAL);
+		tmp_ptr += nb[ii]*sizeof(REAL);
+		tmp_ptr += ng[ii]*sizeof(REAL);
 		}
-
-	// d_ub
-	for(ii=0; ii<=N; ii++)
-		{
-		CREATE_STRVEC(nb[ii], qp->d_ub+ii, c_ptr);
-		c_ptr += (qp->d_ub+ii)->memory_size;
-		}
-
-	// d_lg
-	for(ii=0; ii<=N; ii++)
-		{
-		CREATE_STRVEC(ng[ii], qp->d_lg+ii, c_ptr);
-		c_ptr += (qp->d_lg+ii)->memory_size;
-		}
-
-	// d_ug
-	for(ii=0; ii<=N; ii++)
-		{
-		CREATE_STRVEC(ng[ii], qp->d_ug+ii, c_ptr);
-		c_ptr += (qp->d_ug+ii)->memory_size;
-		}
-
-	return;
-
-	}
-
-
-
-void CAST_OCP_QP(int N, int *nx, int *nu, int *nb, int **idxb, int *ng, struct STRMAT *BAbt, struct STRVEC *b, struct STRMAT *RSQrq, struct STRVEC *rq, struct STRMAT *DCt, struct STRVEC *d_lb, struct STRVEC *d_ub, struct STRVEC *d_lg, struct STRVEC *d_ug, struct OCP_QP *qp)
-	{
-
-	qp->N = N;
-	qp->nx = nx;
-	qp->nu = nu;
-	qp->nb = nb;
-	qp->idxb = idxb;
-	qp->ng = ng;
-	qp->BAbt = BAbt;
-	qp->b = b;
-	qp->RSQrq = RSQrq;
-	qp->rq = rq;
-	qp->DCt = DCt;
-	qp->d_lb = d_lb;
-	qp->d_ub = d_ub;
-	qp->d_lg = d_lg;
-	qp->d_ug = d_ug;
 
 	return;
 
@@ -315,16 +298,16 @@ void CVT_COLMAJ_TO_OCP_QP(REAL **A, REAL **B, REAL **b, REAL **Q, REAL **S, REAL
 		{
 		for(jj=0; jj<nb[ii]; jj++)
 			qp->idxb[ii][jj] = idxb[ii][jj];
-		CVT_VEC2STRVEC(nb[ii], d_lb[ii], qp->d_lb+ii, 0);
-		CVT_VEC2STRVEC(nb[ii], d_ub[ii], qp->d_ub+ii, 0);
+		CVT_VEC2STRVEC(nb[ii], d_lb[ii], qp->d+ii, 0);
+		CVT_VEC2STRVEC(nb[ii], d_ub[ii], qp->d+ii, nb[ii]+ng[ii]);
 		}
 	
 	for(ii=0; ii<=N; ii++)
 		{
 		CVT_TRAN_MAT2STRMAT(ng[ii], nu[ii], D[ii], ng[ii], qp->DCt+ii, 0, 0);
 		CVT_TRAN_MAT2STRMAT(ng[ii], nx[ii], C[ii], ng[ii], qp->DCt+ii, nu[ii], 0);
-		CVT_VEC2STRVEC(ng[ii], d_lg[ii], qp->d_lg+ii, 0);
-		CVT_VEC2STRVEC(ng[ii], d_ug[ii], qp->d_ug+ii, 0);
+		CVT_VEC2STRVEC(ng[ii], d_lg[ii], qp->d+ii, nb[ii]);
+		CVT_VEC2STRVEC(ng[ii], d_ug[ii], qp->d+ii, 2*nb[ii]+ng[ii]);
 		}
 
 	return;
@@ -367,16 +350,16 @@ void CVT_ROWMAJ_TO_OCP_QP(REAL **A, REAL **B, REAL **b, REAL **Q, REAL **S, REAL
 		{
 		for(jj=0; jj<nb[ii]; jj++)
 			qp->idxb[ii][jj] = idxb[ii][jj];
-		CVT_VEC2STRVEC(nb[ii], d_lb[ii], qp->d_lb+ii, 0);
-		CVT_VEC2STRVEC(nb[ii], d_ub[ii], qp->d_ub+ii, 0);
+		CVT_VEC2STRVEC(nb[ii], d_lb[ii], qp->d+ii, 0);
+		CVT_VEC2STRVEC(nb[ii], d_ub[ii], qp->d+ii, nb[ii]+ng[ii]);
 		}
 	
 	for(ii=0; ii<=N; ii++)
 		{
 		CVT_MAT2STRMAT(nu[ii], ng[ii], D[ii], nu[ii], qp->DCt+ii, 0, 0);
 		CVT_MAT2STRMAT(nx[ii], ng[ii], C[ii], nx[ii], qp->DCt+ii, nu[ii], 0);
-		CVT_VEC2STRVEC(ng[ii], d_lg[ii], qp->d_lg+ii, 0);
-		CVT_VEC2STRVEC(ng[ii], d_ug[ii], qp->d_ug+ii, 0);
+		CVT_VEC2STRVEC(ng[ii], d_lg[ii], qp->d+ii, nb[ii]);
+		CVT_VEC2STRVEC(ng[ii], d_ug[ii], qp->d+ii, 2*nb[ii]+ng[ii]);
 		}
 
 	return;
@@ -435,10 +418,7 @@ void COPY_OCP_QP(struct OCP_QP *qp_in, struct OCP_QP *qp_out)
 		GECP_LIBSTR(nx[ii]+nu[ii]+1, nu[ii]+nx[ii], qp_in->RSQrq+ii, 0, 0, qp_out->RSQrq+ii, 0, 0);
 		VECCP_LIBSTR(nu[ii]+nx[ii], qp_in->rq+ii, 0, qp_out->rq+ii, 0);
 		GECP_LIBSTR(nx[ii]+nu[ii], ng[ii], qp_in->DCt+ii, 0, 0, qp_out->DCt+ii, 0, 0);
-		VECCP_LIBSTR(nb[ii], qp_in->d_lb+ii, 0, qp_out->d_lb+ii, 0);
-		VECCP_LIBSTR(nb[ii], qp_in->d_ub+ii, 0, qp_out->d_ub+ii, 0);
-		VECCP_LIBSTR(ng[ii], qp_in->d_lg+ii, 0, qp_out->d_lg+ii, 0);
-		VECCP_LIBSTR(ng[ii], qp_in->d_ug+ii, 0, qp_out->d_ug+ii, 0);
+		VECCP_LIBSTR(2*nb[ii]+2*ng[ii], qp_in->d+ii, 0, qp_out->d+ii, 0);
 		}
 
 	return;
