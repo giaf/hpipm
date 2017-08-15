@@ -27,47 +27,96 @@
 
 
 
-struct s_ipm_hard_core_qp_workspace
+int MEMSIZE_IPM_CORE_QP(int nv, int ne, int nc, int iter_max)
 	{
-	float *v; // primal variables
-	float *pi; // equality constraints multipliers
-	float *lam; // inequality constraints multipliers
-	float *t; // inequality constraints slacks
-	float *t_inv; // inverse of t
-	float *dv; // step in v
-	float *dpi; // step in pi
-	float *dlam; // step in lam
-	float *dt; // step in t
-	float *res_g; // q-residuals
-	float *res_b; // b-residuals
-	float *res_d; // d-residuals
-	float *res_m; // m-residuals
-	float *Gamma; // Hessian update
-	float *gamma; // gradient update
-	float *Qx; // Hessian update
-	float *qx; // gradient update
-	float *stat; // convergence statistics
-	float alpha; // step length
-	float alpha_min; // exit cond on step lenght
-	float sigma; // centering XXX
-	float mu; // duality measuere
-	float mu_aff; // affine duality measuere
-	float mu0; // initial duality measuere
-	float mu_max; // exit cond on mu
-	float nt_inv; // 1.0/nt, where nt is the total number of constraints
-	int nv; // number of primal variables
-	int ne; // number of equality constraints
-	int nc; // number of (two-sided) inequality constraints
-	int iter_max; // exit cond on iter mumber
-	int memsize; // memory size (in bytes) of workspace
-	};
+
+	int size;
+
+	int nv0 = nv;
+	int ne0 = ne;
+	int nc0 = nc;
+// if target avx
+// nv0 = ...
+
+	size = 0;
+
+	size += 2*nv0*sizeof(REAL); // dv res_g
+	size += 2*ne0*sizeof(REAL); // dpi res_b
+	size += 7*(2*nc0)*sizeof(REAL); // dlam dt res_d res_m t_inv Gamma gamma
+	size += 2*(nc0)*sizeof(REAL); // Qx qx
+	size += 5*iter_max*sizeof(REAL); // stat
+
+	size = (size+63)/64*64; // make multiple of cache line size
+
+	return size;
+
+	}
 
 
 
-//
-int s_memsize_ipm_hard_core_qp(int nv, int ne, int nc, int iter_max);
-//
-void s_create_ipm_hard_core_qp(struct s_ipm_hard_core_qp_workspace *workspace, void *mem);
-//
-void s_ipm_hard_core_qp(struct s_ipm_hard_core_qp_workspace *workspace);
+void CREATE_IPM_CORE_QP(struct IPM_CORE_QP_WORKSPACE *workspace, void *mem)
+	{
+
+	int nv = workspace->nv;
+	int ne = workspace->ne;
+	int nc = workspace->nc;
+
+	int nv0 = nv;
+	int ne0 = ne;
+	int nc0 = nc;
+// if target avx NO!!!!
+// nv0 = ...
+
+	workspace->memsize = MEMSIZE_IPM_CORE_QP(nv, ne, nc, workspace->iter_max);
+
+	REAL *d_ptr = (REAL *) mem;
+
+	workspace->t_inv = d_ptr; // t_inv
+	d_ptr += 2*nc0;
+
+	workspace->dv = d_ptr; // dv
+	d_ptr += nv0;
+
+	workspace->dpi = d_ptr; // dpi
+	d_ptr += ne0;
+
+	workspace->dlam = d_ptr; // dlam
+	d_ptr += 2*nc0;
+
+	workspace->dt = d_ptr; // dt
+	d_ptr += 2*nc0;
+
+	workspace->res_g = d_ptr; // res_g
+	d_ptr += nv0;
+
+	workspace->res_b = d_ptr; // res_b
+	d_ptr += ne0;
+
+	workspace->res_d = d_ptr; // res_d
+	d_ptr += 2*nc0;
+
+	workspace->res_m = d_ptr; // res_m
+	d_ptr += 2*nc0;
+
+	workspace->Gamma = d_ptr; // Gamma
+	d_ptr += 2*nc0;
+
+	workspace->gamma = d_ptr; // gamma
+	d_ptr += 2*nc0;
+
+	workspace->Qx = d_ptr; // Qx
+	d_ptr += nc0;
+
+	workspace->qx = d_ptr; // qx
+	d_ptr += nc0;
+
+	workspace->stat = d_ptr; // stat
+	d_ptr += 5*workspace->iter_max;
+
+	int *i_ptr = (int *) d_ptr;
+
+	return;
+
+	}
+
 

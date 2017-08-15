@@ -27,34 +27,34 @@
 
 
 
-struct d_ipm_hard_core_qp_workspace
+struct s_ipm_core_qp_workspace
 	{
-	double *v; // primal variables
-	double *pi; // equality constraints multipliers
-	double *lam; // inequality constraints multipliers
-	double *t; // inequality constraints slacks
-	double *t_inv; // inverse of t
-	double *dv; // step in v
-	double *dpi; // step in pi
-	double *dlam; // step in lam
-	double *dt; // step in t
-	double *res_g; // q-residuals
-	double *res_b; // b-residuals
-	double *res_d; // d-residuals
-	double *res_m; // m-residuals
-	double *Gamma; // Hessian update
-	double *gamma; // gradient update
-	double *Qx; // Hessian update
-	double *qx; // gradient update
-	double *stat; // convergence statistics
-	double alpha; // step length
-	double alpha_min; // exit cond on step lenght
-	double sigma; // centering XXX
-	double mu; // duality measuere
-	double mu_aff; // affine duality measuere
-	double mu0; // initial duality measuere
-	double mu_max; // exit cond on mu
-	double nt_inv; // 1.0/nt, where nt is the total number of constraints
+	float *v; // primal variables
+	float *pi; // equality constraints multipliers
+	float *lam; // inequality constraints multipliers
+	float *t; // inequality constraints slacks
+	float *t_inv; // inverse of t
+	float *dv; // step in v
+	float *dpi; // step in pi
+	float *dlam; // step in lam
+	float *dt; // step in t
+	float *res_g; // q-residuals
+	float *res_b; // b-residuals
+	float *res_d; // d-residuals
+	float *res_m; // m-residuals
+	float *Gamma; // Hessian update
+	float *gamma; // gradient update
+	float *Qx; // Hessian update
+	float *qx; // gradient update
+	float *stat; // convergence statistics
+	float alpha; // step length
+	float alpha_min; // exit cond on step lenght
+	float sigma; // centering XXX
+	float mu; // duality measuere
+	float mu_aff; // affine duality measuere
+	float mu0; // initial duality measuere
+	float mu_max; // exit cond on mu
+	float nt_inv; // 1.0/nt, where nt is the total number of constraints
 	int nv; // number of primal variables
 	int ne; // number of equality constraints
 	int nc; // number of (two-sided) inequality constraints
@@ -65,8 +65,9 @@ struct d_ipm_hard_core_qp_workspace
 
 
 //
-int d_memsize_ipm_hard_core_qp(int nv, int ne, int nc, int iter_max);
+int s_memsize_ipm_core_qp(int nv, int ne, int nc, int iter_max);
 //
-void d_create_ipm_hard_core_qp(struct d_ipm_hard_core_qp_workspace *workspace, void *mem);
+void s_create_ipm_core_qp(struct s_ipm_core_qp_workspace *workspace, void *mem);
 //
-void d_ipm_hard_core_qp(struct d_ipm_hard_core_qp_workspace *workspace);
+void s_ipm_core_qp(struct s_ipm_core_qp_workspace *workspace);
+

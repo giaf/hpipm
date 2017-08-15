@@ -34,7 +34,7 @@
 
 struct d_ipm_hard_dense_qp_workspace
 	{
-	struct d_ipm_hard_core_qp_workspace *core_workspace;
+	struct d_ipm_core_qp_workspace *core_workspace;
 	struct d_strvec *dv; // step in v
 	struct d_strvec *dpi; // step in pi
 	struct d_strvec *dlam; // step in lam XXX needed ???

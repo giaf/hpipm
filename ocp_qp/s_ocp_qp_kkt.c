@@ -37,17 +37,17 @@
 #include "../include/hpipm_s_ocp_qp.h"
 #include "../include/hpipm_s_ocp_qp_sol.h"
 #include "../include/hpipm_s_ocp_qp_ipm_hard.h"
-#include "../include/hpipm_s_core_qp_ipm_hard.h"
-#include "../include/hpipm_s_core_qp_ipm_hard_aux.h"
+#include "../include/hpipm_s_core_qp_ipm.h"
+#include "../include/hpipm_s_core_qp_ipm_aux.h"
 
 
 
 #define SINGLE_PRECISION
 
 #define AXPY_LIBSTR saxpy_libstr
-#define COMPUTE_LAM_T_HARD_QP s_compute_lam_t_hard_qp
-#define COMPUTE_QX_HARD_QP s_compute_qx_hard_qp
-#define COMPUTE_QX_QX_HARD_QP s_compute_Qx_qx_hard_qp
+#define COMPUTE_LAM_T_QP s_compute_lam_t_qp
+#define COMPUTE_QX_QP s_compute_qx_qp
+#define COMPUTE_QX_QX_QP s_compute_Qx_qx_qp
 #define DIAAD_SP_LIBSTR sdiaad_sp_libstr
 #define GEAD_LIBSTR sgead_libstr
 #define GECP_LIBSTR sgecp_libstr
@@ -55,7 +55,7 @@
 #define GEMV_N_LIBSTR sgemv_n_libstr
 #define GEMV_NT_LIBSTR sgemv_nt_libstr
 #define GEMV_T_LIBSTR sgemv_t_libstr
-#define IPM_HARD_CORE_QP_WORKSPACE s_ipm_hard_core_qp_workspace
+#define IPM_CORE_QP_WORKSPACE s_ipm_core_qp_workspace
 #define IPM_HARD_OCP_QP_WORKSPACE s_ipm_hard_ocp_qp_workspace
 #define OCP_QP s_ocp_qp
 #define OCP_QP_SOL s_ocp_qp_sol

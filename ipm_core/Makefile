@@ -33,8 +33,8 @@ ifeq ($(TARGET), GENERIC)
 OBJS +=
 endif
 
-OBJS += d_core_qp_ipm_hard_aux.o d_core_qp_ipm_hard.o
-OBJS += s_core_qp_ipm_hard_aux.o s_core_qp_ipm_hard.o
+OBJS += d_core_qp_ipm_aux.o d_core_qp_ipm.o
+OBJS += s_core_qp_ipm_aux.o s_core_qp_ipm.o
 
 obj: $(OBJS)
 
@@ -42,7 +42,7 @@ clean:
 	rm -f *.o
 	rm -f *.s
 
-d_core_qp_ipm_hard.o: d_core_qp_ipm_hard.c x_core_qp_ipm_hard.c
-s_core_qp_ipm_hard.o: s_core_qp_ipm_hard.c x_core_qp_ipm_hard.c
-d_core_qp_ipm_hard_aux.o: d_core_qp_ipm_hard_aux.c x_core_qp_ipm_hard_aux.c
-s_core_qp_ipm_hard_aux.o: s_core_qp_ipm_hard_aux.c x_core_qp_ipm_hard_aux.c
+d_core_qp_ipm.o: d_core_qp_ipm.c x_core_qp_ipm.c
+s_core_qp_ipm.o: s_core_qp_ipm.c x_core_qp_ipm.c
+d_core_qp_ipm_aux.o: d_core_qp_ipm_aux.c x_core_qp_ipm_aux.c
+s_core_qp_ipm_aux.o: s_core_qp_ipm_aux.c x_core_qp_ipm_aux.c

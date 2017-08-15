@@ -34,26 +34,26 @@
 #include "../include/hpipm_s_ocp_qp.h"
 #include "../include/hpipm_s_ocp_qp_sol.h"
 #include "../include/hpipm_s_ocp_qp_ipm_hard.h"
-#include "../include/hpipm_s_core_qp_ipm_hard.h"
-#include "../include/hpipm_s_core_qp_ipm_hard_aux.h"
+#include "../include/hpipm_s_core_qp_ipm.h"
+#include "../include/hpipm_s_core_qp_ipm_aux.h"
 #include "../include/hpipm_s_ocp_qp_kkt.h"
 
 
 
-#define COMPUTE_ALPHA_HARD_QP s_compute_alpha_hard_qp
-#define COMPUTE_CENTERING_CORRECTION_HARD_QP s_compute_centering_correction_hard_qp
-#define COMPUTE_MU_AFF_HARD_QP s_compute_mu_aff_hard_qp
+#define COMPUTE_ALPHA_QP s_compute_alpha_qp
+#define COMPUTE_CENTERING_CORRECTION_QP s_compute_centering_correction_qp
+#define COMPUTE_MU_AFF_QP s_compute_mu_aff_qp
 #define COMPUTE_RES_HARD_OCP_QP s_compute_res_hard_ocp_qp
-#define CREATE_IPM_HARD_CORE_QP s_create_ipm_hard_core_qp
+#define CREATE_IPM_CORE_QP s_create_ipm_core_qp
 #define CREATE_STRMAT s_create_strmat
 #define CREATE_STRVEC s_create_strvec
 #define FACT_SOLVE_KKT_STEP_HARD_OCP_QP s_fact_solve_kkt_step_hard_ocp_qp
 #define FACT_SOLVE_KKT_UNCONSTR_OCP_QP s_fact_solve_kkt_unconstr_ocp_qp
 #define INIT_VAR_HARD_OCP_QP s_init_var_hard_ocp_qp
-#define IPM_HARD_CORE_QP_WORKSPACE s_ipm_hard_core_qp_workspace
+#define IPM_CORE_QP_WORKSPACE s_ipm_core_qp_workspace
 #define IPM_HARD_OCP_QP_WORKSPACE s_ipm_hard_ocp_qp_workspace
 #define IPM_HARD_OCP_QP_ARG s_ipm_hard_ocp_qp_arg
-#define MEMSIZE_IPM_HARD_CORE_QP s_memsize_ipm_hard_core_qp
+#define MEMSIZE_IPM_CORE_QP s_memsize_ipm_core_qp
 #define OCP_QP s_ocp_qp
 #define OCP_QP_SOL s_ocp_qp_sol
 #define PRINT_E_MAT s_print_e_mat
@@ -68,7 +68,7 @@
 #define SOLVE_KKT_STEP_HARD_OCP_QP s_solve_kkt_step_hard_ocp_qp
 #define STRMAT s_strmat
 #define STRVEC s_strvec
-#define UPDATE_VAR_HARD_QP s_update_var_hard_qp
+#define UPDATE_VAR_QP s_update_var_qp
 
 
 

@@ -34,17 +34,17 @@
 #include "../include/hpipm_s_dense_qp.h"
 #include "../include/hpipm_s_dense_qp_sol.h"
 #include "../include/hpipm_s_dense_qp_ipm_hard.h"
-#include "../include/hpipm_s_core_qp_ipm_hard.h"
-#include "../include/hpipm_s_core_qp_ipm_hard_aux.h"
+#include "../include/hpipm_s_core_qp_ipm.h"
+#include "../include/hpipm_s_core_qp_ipm_aux.h"
 #include "../include/hpipm_s_dense_qp_kkt.h"
 
 
 
-#define COMPUTE_ALPHA_HARD_QP s_compute_alpha_hard_qp
-#define COMPUTE_CENTERING_CORRECTION_HARD_QP s_compute_centering_correction_hard_qp
-#define COMPUTE_MU_AFF_HARD_QP s_compute_mu_aff_hard_qp
+#define COMPUTE_ALPHA_QP s_compute_alpha_qp
+#define COMPUTE_CENTERING_CORRECTION_QP s_compute_centering_correction_qp
+#define COMPUTE_MU_AFF_QP s_compute_mu_aff_qp
 #define COMPUTE_RES_HARD_DENSE_QP s_compute_res_hard_dense_qp
-#define CREATE_IPM_HARD_CORE_QP s_create_ipm_hard_core_qp
+#define CREATE_IPM_CORE_QP s_create_ipm_core_qp
 #define CREATE_STRMAT s_create_strmat
 #define CREATE_STRVEC s_create_strvec
 #define DENSE_QP s_dense_qp
@@ -52,17 +52,17 @@
 #define FACT_SOLVE_KKT_STEP_HARD_DENSE_QP s_fact_solve_kkt_step_hard_dense_qp
 #define FACT_SOLVE_KKT_UNCONSTR_DENSE_QP s_fact_solve_kkt_unconstr_dense_qp
 #define INIT_VAR_HARD_DENSE_QP s_init_var_hard_dense_qp
-#define IPM_HARD_CORE_QP_WORKSPACE s_ipm_hard_core_qp_workspace
+#define IPM_CORE_QP_WORKSPACE s_ipm_core_qp_workspace
 #define IPM_HARD_DENSE_QP_ARG s_ipm_hard_dense_qp_arg
 #define IPM_HARD_DENSE_QP_WORKSPACE s_ipm_hard_dense_qp_workspace
-#define MEMSIZE_IPM_HARD_CORE_QP s_memsize_ipm_hard_core_qp
+#define MEMSIZE_IPM_CORE_QP s_memsize_ipm_core_qp
 #define REAL float
 #define SIZE_STRMAT s_size_strmat
 #define SIZE_STRVEC s_size_strvec
 #define SOLVE_KKT_STEP_HARD_DENSE_QP s_solve_kkt_step_hard_dense_qp
 #define STRMAT s_strmat
 #define STRVEC s_strvec
-#define UPDATE_VAR_HARD_QP s_update_var_hard_qp
+#define UPDATE_VAR_QP s_update_var_qp
 
 
 

@@ -30,7 +30,7 @@
 void INIT_VAR_HARD_DENSE_QP(struct DENSE_QP *qp, struct DENSE_QP_SOL *qp_sol, struct IPM_HARD_DENSE_QP_WORKSPACE *ws)
 	{
 
-	struct IPM_HARD_CORE_QP_WORKSPACE *rws = ws->core_workspace;
+	struct IPM_CORE_QP_WORKSPACE *rws = ws->core_workspace;
 
 	// extract rws members
 	int nv = qp->nv;
@@ -132,7 +132,7 @@ void INIT_VAR_HARD_DENSE_QP(struct DENSE_QP *qp, struct DENSE_QP_SOL *qp_sol, st
 void COMPUTE_RES_HARD_DENSE_QP(struct DENSE_QP *qp, struct DENSE_QP_SOL *qp_sol, struct IPM_HARD_DENSE_QP_WORKSPACE *ws)
 	{
 
-	struct IPM_HARD_CORE_QP_WORKSPACE *cws = ws->core_workspace;
+	struct IPM_CORE_QP_WORKSPACE *cws = ws->core_workspace;
 
 	int nv = qp->nv;
 	int ne = qp->ne;
@@ -297,11 +297,11 @@ void FACT_SOLVE_KKT_STEP_HARD_DENSE_QP(struct DENSE_QP *qp, struct IPM_HARD_DENS
 	struct STRVEC *Qx = ws->Qx;
 	struct STRVEC *qx = ws->qx;
 
-	struct IPM_HARD_CORE_QP_WORKSPACE *rws = ws->core_workspace;
+	struct IPM_CORE_QP_WORKSPACE *rws = ws->core_workspace;
 
 	if(nb>0 | ng>0)
 		{
-		COMPUTE_QX_QX_HARD_QP(rws);
+		COMPUTE_QX_QX_QP(rws);
 		}
 
 	if(ne>0)
@@ -417,7 +417,7 @@ void FACT_SOLVE_KKT_STEP_HARD_DENSE_QP(struct DENSE_QP *qp, struct IPM_HARD_DENS
 		{
 		VECCP_LIBSTR(nb+ng, dt_lb, 0, dt_lb, nb+ng);
 		VECSC_LIBSTR(nb+ng, -1.0, dt_lb, nb+ng);
-		COMPUTE_LAM_T_HARD_QP(rws);
+		COMPUTE_LAM_T_QP(rws);
 		}
 
 	return;
@@ -451,11 +451,11 @@ void SOLVE_KKT_STEP_HARD_DENSE_QP(struct DENSE_QP *qp, struct IPM_HARD_DENSE_QP_
 	struct STRVEC *res_b = ws->res_b;
 	struct STRVEC *qx = ws->qx;
 
-	struct IPM_HARD_CORE_QP_WORKSPACE *rws = ws->core_workspace;
+	struct IPM_CORE_QP_WORKSPACE *rws = ws->core_workspace;
 
 	if(nb>0 | ng>0)
 		{
-		COMPUTE_QX_HARD_QP(rws);
+		COMPUTE_QX_QP(rws);
 		}
 
 	if(ne>0)
@@ -521,7 +521,7 @@ void SOLVE_KKT_STEP_HARD_DENSE_QP(struct DENSE_QP *qp, struct IPM_HARD_DENSE_QP_
 		{
 		VECCP_LIBSTR(nb+ng, dt_lb, 0, dt_lb, nb+ng);
 		VECSC_LIBSTR(nb+ng, -1.0, dt_lb, nb+ng);
-		COMPUTE_LAM_T_HARD_QP(rws);
+		COMPUTE_LAM_T_QP(rws);
 		}
 
 	return;

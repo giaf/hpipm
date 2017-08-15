@@ -26,16 +26,16 @@
 **************************************************************************************************/
 
 //
-void d_compute_Qx_qx_hard_qp(struct d_ipm_hard_core_qp_workspace *rws);
+void d_compute_Qx_qx_qp(struct d_ipm_core_qp_workspace *rws);
 //
-void d_compute_lam_t_hard_qp(struct d_ipm_hard_core_qp_workspace *rws);
+void d_compute_lam_t_qp(struct d_ipm_core_qp_workspace *rws);
 //
-void d_compute_alpha_hard_qp(struct d_ipm_hard_core_qp_workspace *rws);
+void d_compute_alpha_qp(struct d_ipm_core_qp_workspace *rws);
 //
-void d_update_var_hard_qp(struct d_ipm_hard_core_qp_workspace *rws);
+void d_update_var_qp(struct d_ipm_core_qp_workspace *rws);
 //
-void d_compute_mu_aff_hard_qp(struct d_ipm_hard_core_qp_workspace *rws);
+void d_compute_mu_aff_qp(struct d_ipm_core_qp_workspace *rws);
 //
-void d_compute_centering_correction_hard_qp(struct d_ipm_hard_core_qp_workspace *rws);
+void d_compute_centering_correction_qp(struct d_ipm_core_qp_workspace *rws);
 //
-void d_compute_qx_hard_qp(struct d_ipm_hard_core_qp_workspace *rws);
+void d_compute_qx_qp(struct d_ipm_core_qp_workspace *rws);

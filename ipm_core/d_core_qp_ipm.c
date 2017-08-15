@@ -27,18 +27,17 @@
 
 
 
-#include "../include/hpipm_s_core_qp_ipm_hard.h"
-#include "../include/hpipm_s_core_qp_ipm_hard_aux.h"
+#include "../include/hpipm_d_core_qp_ipm.h"
+#include "../include/hpipm_d_core_qp_ipm_aux.h"
 
 
 
-#define IPM_HARD_CORE_QP_WORKSPACE s_ipm_hard_core_qp_workspace
-#define REAL float
+#define IPM_CORE_QP_WORKSPACE d_ipm_core_qp_workspace
+#define REAL double
 
-#define MEMSIZE_IPM_HARD_CORE_QP s_memsize_ipm_hard_core_qp
-#define CREATE_IPM_HARD_CORE_QP s_create_ipm_hard_core_qp
+#define MEMSIZE_IPM_CORE_QP d_memsize_ipm_core_qp
+#define CREATE_IPM_CORE_QP d_create_ipm_core_qp
 
 
 
-#include "x_core_qp_ipm_hard.c"
-
+#include "x_core_qp_ipm.c"

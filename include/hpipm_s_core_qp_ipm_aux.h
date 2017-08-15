@@ -25,29 +25,18 @@
 *                                                                                                 *
 **************************************************************************************************/
 
-
-
-#include <blasfeo_target.h>
-#include <blasfeo_common.h>
-#include <blasfeo_s_aux.h>
-#include <blasfeo_s_blas.h>
-
-#include "../include/hpipm_s_core_qp_ipm_hard.h"
-
-
-
-#define IPM_HARD_CORE_QP_WORKSPACE s_ipm_hard_core_qp_workspace
-#define REAL float
-
-#define COMPUTE_QX_QX_HARD_QP s_compute_Qx_qx_hard_qp
-#define COMPUTE_LAM_T_HARD_QP s_compute_lam_t_hard_qp
-#define COMPUTE_ALPHA_HARD_QP s_compute_alpha_hard_qp
-#define UPDATE_VAR_HARD_QP s_update_var_hard_qp
-#define COMPUTE_MU_AFF_HARD_QP s_compute_mu_aff_hard_qp
-#define COMPUTE_CENTERING_CORRECTION_HARD_QP s_compute_centering_correction_hard_qp
-#define COMPUTE_QX_HARD_QP s_compute_qx_hard_qp
-
-
-
-#include "x_core_qp_ipm_hard_aux.c"
+//
+void s_compute_Qx_qx_qp(struct s_ipm_core_qp_workspace *rws);
+//
+void s_compute_lam_t_qp(struct s_ipm_core_qp_workspace *rws);
+//
+void s_compute_alpha_qp(struct s_ipm_core_qp_workspace *rws);
+//
+void s_update_var_qp(struct s_ipm_core_qp_workspace *rws);
+//
+void s_compute_mu_aff_qp(struct s_ipm_core_qp_workspace *rws);
+//
+void s_compute_centering_correction_qp(struct s_ipm_core_qp_workspace *rws);
+//
+void s_compute_qx_qp(struct s_ipm_core_qp_workspace *rws);
 

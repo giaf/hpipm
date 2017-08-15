@@ -41,8 +41,8 @@ OBJS += ocp_qp/d_ocp_qp.o ocp_qp/d_ocp_qp_sol.o ocp_qp/d_ocp_qp_kkt.o ocp_qp/d_o
 OBJS += ocp_qp/s_ocp_qp.o ocp_qp/s_ocp_qp_sol.o ocp_qp/s_ocp_qp_kkt.o ocp_qp/s_ocp_qp_ipm_hard.o
 #OBJS += ocp_qp/m_ocp_qp.o                       ocp_qp/m_ocp_qp_kkt.o ocp_qp/m_ocp_qp_ipm_hard.o
 # ipm core
-OBJS += ipm_core/d_core_qp_ipm_hard_aux.o ipm_core/d_core_qp_ipm_hard.o
-OBJS += ipm_core/s_core_qp_ipm_hard_aux.o ipm_core/s_core_qp_ipm_hard.o
+OBJS += ipm_core/d_core_qp_ipm_aux.o ipm_core/d_core_qp_ipm.o
+OBJS += ipm_core/s_core_qp_ipm_aux.o ipm_core/s_core_qp_ipm.o
 # cond
 #OBJS += cond/d_cond_aux.o cond/d_cond.o cond/d_part_cond.o
 #OBJS += cond/s_cond_aux.o cond/s_cond.o cond/s_part_cond.o

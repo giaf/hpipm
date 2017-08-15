@@ -35,7 +35,7 @@
 
 struct s_ipm_hard_ocp_qp_workspace
 	{
-	struct s_ipm_hard_core_qp_workspace *core_workspace;
+	struct s_ipm_core_qp_workspace *core_workspace;
 	struct s_strvec *dux;
 	struct s_strvec *dpi;
 	struct s_strvec *dt;

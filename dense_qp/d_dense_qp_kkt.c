@@ -37,15 +37,15 @@
 #include "../include/hpipm_d_dense_qp.h"
 #include "../include/hpipm_d_dense_qp_sol.h"
 #include "../include/hpipm_d_dense_qp_ipm_hard.h"
-#include "../include/hpipm_d_core_qp_ipm_hard.h"
-#include "../include/hpipm_d_core_qp_ipm_hard_aux.h"
+#include "../include/hpipm_d_core_qp_ipm.h"
+#include "../include/hpipm_d_core_qp_ipm_aux.h"
 
 
 
 #define AXPY_LIBSTR daxpy_libstr
-#define COMPUTE_LAM_T_HARD_QP d_compute_lam_t_hard_qp
-#define COMPUTE_QX_HARD_QP d_compute_qx_hard_qp
-#define COMPUTE_QX_QX_HARD_QP d_compute_Qx_qx_hard_qp
+#define COMPUTE_LAM_T_QP d_compute_lam_t_qp
+#define COMPUTE_QX_QP d_compute_qx_qp
+#define COMPUTE_QX_QX_QP d_compute_Qx_qx_qp
 #define DENSE_QP d_dense_qp
 #define DENSE_QP_SOL d_dense_qp_sol
 #define DIAAD_SP_LIBSTR ddiaad_sp_libstr
@@ -55,7 +55,7 @@
 #define GEMV_NT_LIBSTR dgemv_nt_libstr
 #define GEMV_T_LIBSTR dgemv_t_libstr
 #define GESE_LIBSTR dgese_libstr
-#define IPM_HARD_CORE_QP_WORKSPACE d_ipm_hard_core_qp_workspace
+#define IPM_CORE_QP_WORKSPACE d_ipm_core_qp_workspace
 #define IPM_HARD_DENSE_QP_WORKSPACE d_ipm_hard_dense_qp_workspace
 #define POTRF_L_LIBSTR dpotrf_l_libstr
 #define POTRF_L_MN_LIBSTR dpotrf_l_mn_libstr

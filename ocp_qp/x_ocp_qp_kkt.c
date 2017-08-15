@@ -30,7 +30,7 @@
 void INIT_VAR_HARD_OCP_QP(struct OCP_QP *qp, struct OCP_QP_SOL *qp_sol, struct IPM_HARD_OCP_QP_WORKSPACE *ws)
 	{
 
-	struct IPM_HARD_CORE_QP_WORKSPACE *cws = ws->core_workspace;
+	struct IPM_CORE_QP_WORKSPACE *cws = ws->core_workspace;
 	
 	// loop index
 	int ii, jj;
@@ -148,7 +148,7 @@ void INIT_VAR_HARD_OCP_QP(struct OCP_QP *qp, struct OCP_QP_SOL *qp_sol, struct I
 void COMPUTE_RES_HARD_OCP_QP(struct OCP_QP *qp, struct OCP_QP_SOL *qp_sol, struct IPM_HARD_OCP_QP_WORKSPACE *ws)
 	{
 
-	struct IPM_HARD_CORE_QP_WORKSPACE *cws = ws->core_workspace;
+	struct IPM_CORE_QP_WORKSPACE *cws = ws->core_workspace;
 	
 	// loop index
 	int ii;
@@ -368,11 +368,11 @@ void FACT_SOLVE_KKT_STEP_HARD_OCP_QP(struct OCP_QP *qp, struct IPM_HARD_OCP_QP_W
 	//
 	int ii;
 
-	struct IPM_HARD_CORE_QP_WORKSPACE *cws = ws->core_workspace;
+	struct IPM_CORE_QP_WORKSPACE *cws = ws->core_workspace;
 
 //	if(nb>0 | ng>0)
 //		{
-		COMPUTE_QX_QX_HARD_QP(cws);
+		COMPUTE_QX_QX_QP(cws);
 //		}
 
 	// factorization and backward substitution
@@ -497,7 +497,7 @@ void FACT_SOLVE_KKT_STEP_HARD_OCP_QP(struct OCP_QP *qp, struct IPM_HARD_OCP_QP_W
 
 //	if(nb>0 | ng>0)
 //		{
-		COMPUTE_LAM_T_HARD_QP(cws);
+		COMPUTE_LAM_T_QP(cws);
 //		}
 
 	return;
@@ -537,11 +537,11 @@ void SOLVE_KKT_STEP_HARD_OCP_QP(struct OCP_QP *qp, struct IPM_HARD_OCP_QP_WORKSP
 	//
 	int ii;
 
-	struct IPM_HARD_CORE_QP_WORKSPACE *cws = ws->core_workspace;
+	struct IPM_CORE_QP_WORKSPACE *cws = ws->core_workspace;
 
 //	if(nb>0 | ng>0)
 //		{
-		COMPUTE_QX_HARD_QP(cws);
+		COMPUTE_QX_QP(cws);
 //		}
 
 	// backward substitution
@@ -644,7 +644,7 @@ void SOLVE_KKT_STEP_HARD_OCP_QP(struct OCP_QP *qp, struct IPM_HARD_OCP_QP_WORKSP
 
 //	if(nb>0 | ng>0)
 //		{
-		COMPUTE_LAM_T_HARD_QP(cws);
+		COMPUTE_LAM_T_QP(cws);
 //		}
 
 	return;

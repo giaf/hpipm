@@ -81,8 +81,8 @@ int MEMSIZE_IPM_HARD_OCP_QP(struct OCP_QP *qp, struct IPM_HARD_OCP_QP_ARG *arg)
 	for(ii=0; ii<=N; ii++) size += 1*SIZE_STRMAT(nu[ii]+nx[ii]+1, nu[ii]+nx[ii]); // L
 	size += 2*SIZE_STRMAT(nuM+nxM+1, nxM+ngM); // AL
 
-	size += 1*sizeof(struct IPM_HARD_CORE_QP_WORKSPACE);
-	size += 1*MEMSIZE_IPM_HARD_CORE_QP(nvt, net, nct, arg->iter_max);
+	size += 1*sizeof(struct IPM_CORE_QP_WORKSPACE);
+	size += 1*MEMSIZE_IPM_CORE_QP(nvt, net, nct, arg->iter_max);
 
 	size = (size+63)/64*64; // make multiple of typical cache line size
 	size += 1*64; // align once to typical cache line size
@@ -138,12 +138,12 @@ void CREATE_IPM_HARD_OCP_QP(struct OCP_QP *qp, struct IPM_HARD_OCP_QP_ARG *arg, 
 
 
 	// core struct
-	struct IPM_HARD_CORE_QP_WORKSPACE *sr_ptr = mem;
+	struct IPM_CORE_QP_WORKSPACE *sr_ptr = mem;
 
 	// core workspace
 	workspace->core_workspace = sr_ptr;
 	sr_ptr += 1;
-	struct IPM_HARD_CORE_QP_WORKSPACE *cws = workspace->core_workspace;
+	struct IPM_CORE_QP_WORKSPACE *cws = workspace->core_workspace;
 
 
 	// matrix struct
@@ -230,7 +230,7 @@ void CREATE_IPM_HARD_OCP_QP(struct OCP_QP *qp, struct IPM_HARD_OCP_QP_ARG *arg, 
 	cws->ne = net;
 	cws->nc = nct;
 	cws->iter_max = arg->iter_max;
-	CREATE_IPM_HARD_CORE_QP(cws, c_ptr);
+	CREATE_IPM_CORE_QP(cws, c_ptr);
 	c_ptr += workspace->core_workspace->memsize;
 
 	cws->alpha_min = arg->alpha_min;
@@ -330,7 +330,7 @@ void CREATE_IPM_HARD_OCP_QP(struct OCP_QP *qp, struct IPM_HARD_OCP_QP_ARG *arg, 
 void SOLVE_IPM_HARD_OCP_QP(struct OCP_QP *qp, struct OCP_QP_SOL *qp_sol, struct IPM_HARD_OCP_QP_WORKSPACE *ws)
 	{
 
-	struct IPM_HARD_CORE_QP_WORKSPACE *cws = ws->core_workspace;
+	struct IPM_CORE_QP_WORKSPACE *cws = ws->core_workspace;
 
 	// alias qp vectors into qp_sol
 	cws->v = qp_sol->ux->pa;
@@ -362,11 +362,11 @@ void SOLVE_IPM_HARD_OCP_QP(struct OCP_QP *qp, struct OCP_QP_SOL *qp_sol, struct 
 		FACT_SOLVE_KKT_STEP_HARD_OCP_QP(qp, ws);
 
 		// alpha
-		COMPUTE_ALPHA_HARD_QP(cws);
+		COMPUTE_ALPHA_QP(cws);
 		cws->stat[5*kk+0] = cws->alpha;
 
 		//
-		UPDATE_VAR_HARD_QP(cws);
+		UPDATE_VAR_QP(cws);
 
 		// compute residuals
 		COMPUTE_RES_HARD_OCP_QP(qp, qp_sol, ws);
@@ -386,7 +386,7 @@ void SOLVE_IPM_HARD_OCP_QP(struct OCP_QP *qp, struct OCP_QP_SOL *qp_sol, struct 
 void SOLVE_IPM2_HARD_OCP_QP(struct OCP_QP *qp, struct OCP_QP_SOL *qp_sol, struct IPM_HARD_OCP_QP_WORKSPACE *ws)
 	{
 
-	struct IPM_HARD_CORE_QP_WORKSPACE *cws = ws->core_workspace;
+	struct IPM_CORE_QP_WORKSPACE *cws = ws->core_workspace;
 
 	// alias qp vectors into qp_sol
 	cws->v = qp_sol->ux->pa;
@@ -472,11 +472,11 @@ void SOLVE_IPM2_HARD_OCP_QP(struct OCP_QP *qp, struct OCP_QP_SOL *qp_sol, struct
 		{
 		cws->sigma = 1.0;
 		cws->stat[5*kk+2] = cws->sigma;
-		COMPUTE_CENTERING_CORRECTION_HARD_QP(cws);
+		COMPUTE_CENTERING_CORRECTION_QP(cws);
 		FACT_SOLVE_KKT_STEP_HARD_OCP_QP(qp, ws);
-		COMPUTE_ALPHA_HARD_QP(cws);
+		COMPUTE_ALPHA_QP(cws);
 		cws->stat[5*kk+3] = cws->alpha;
-		UPDATE_VAR_HARD_QP(cws);
+		UPDATE_VAR_QP(cws);
 		COMPUTE_RES_HARD_OCP_QP(qp, qp_sol, ws);
 		cws->mu = ws->res_mu;
 		cws->stat[5*kk+4] = ws->res_mu;
@@ -512,18 +512,18 @@ void SOLVE_IPM2_HARD_OCP_QP(struct OCP_QP *qp, struct OCP_QP_SOL *qp_sol, struct
 	exit(1);
 #endif
 		// alpha
-		COMPUTE_ALPHA_HARD_QP(cws);
+		COMPUTE_ALPHA_QP(cws);
 		cws->stat[5*kk+0] = cws->alpha;
 
 		// mu_aff
-		COMPUTE_MU_AFF_HARD_QP(cws);
+		COMPUTE_MU_AFF_QP(cws);
 		cws->stat[5*kk+1] = cws->mu_aff;
 
 		tmp = cws->mu_aff/cws->mu;
 		cws->sigma = tmp*tmp*tmp;
 		cws->stat[5*kk+2] = cws->sigma;
 
-		COMPUTE_CENTERING_CORRECTION_HARD_QP(cws);
+		COMPUTE_CENTERING_CORRECTION_QP(cws);
 
 		// fact and solve kkt
 		SOLVE_KKT_STEP_HARD_OCP_QP(qp, ws);
@@ -537,11 +537,11 @@ for(ii=0; ii<qp->N; ii++)
 exit(1);
 #endif
 		// alpha
-		COMPUTE_ALPHA_HARD_QP(cws);
+		COMPUTE_ALPHA_QP(cws);
 		cws->stat[5*kk+3] = cws->alpha;
 
 		//
-		UPDATE_VAR_HARD_QP(cws);
+		UPDATE_VAR_QP(cws);
 
 		// compute residuals
 		COMPUTE_RES_HARD_OCP_QP(qp, qp_sol, ws);
