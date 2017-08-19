@@ -44,9 +44,9 @@ struct d_ocp_qp_sol
 
 
 //
-int d_memsize_ocp_qp_sol(int N, int *nx, int *nu, int *nb, int *ng);
+int d_memsize_ocp_qp_sol(int N, int *nx, int *nu, int *nb, int *ng, int *ns);
 //
-void d_create_ocp_qp_sol(int N, int *nx, int *nu, int *nb, int *ng, struct d_ocp_qp_sol *qp_sol, void *memory);
+void d_create_ocp_qp_sol(int N, int *nx, int *nu, int *nb, int *ng, int *ns, struct d_ocp_qp_sol *qp_sol, void *memory);
 //
 void d_cvt_ocp_qp_sol_to_colmaj(struct d_ocp_qp *qp, struct d_ocp_qp_sol *qp_sol, double **u, double **x, double **pi, double **lam_lb, double **lam_ub, double **lam_lg, double **lam_ug);
 //

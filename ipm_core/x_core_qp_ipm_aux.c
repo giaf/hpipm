@@ -59,7 +59,7 @@ void COMPUTE_QX_QX_QP(struct IPM_CORE_QP_WORKSPACE *cws)
 		Qx[ii] = Gamma[ii] + Gamma[nc+ii];
 		qx[ii] = gamma[ii] - gamma[nc+ii];
 		}
-
+	
 	return;
 
 	}

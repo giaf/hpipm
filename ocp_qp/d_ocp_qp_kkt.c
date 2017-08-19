@@ -52,6 +52,7 @@
 #define GEAD_LIBSTR dgead_libstr
 #define GECP_LIBSTR dgecp_libstr
 #define GEMM_R_DIAG_LIBSTR dgemm_r_diag_libstr
+#define GEMV_DIAG_LIBSTR dgemv_diag_libstr
 #define GEMV_N_LIBSTR dgemv_n_libstr
 #define GEMV_NT_LIBSTR dgemv_nt_libstr
 #define GEMV_T_LIBSTR dgemv_t_libstr

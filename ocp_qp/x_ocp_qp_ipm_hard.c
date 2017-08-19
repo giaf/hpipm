@@ -39,6 +39,7 @@ int MEMSIZE_IPM_HARD_OCP_QP(struct OCP_QP *qp, struct IPM_HARD_OCP_QP_ARG *arg)
 	int *nu = qp->nu;
 	int *nb = qp->nb;
 	int *ng = qp->ng;
+	int *ns = qp->ns;
 
 	// compute core qp size and max size
 	int nvt = 0;
@@ -48,36 +49,41 @@ int MEMSIZE_IPM_HARD_OCP_QP(struct OCP_QP *qp, struct IPM_HARD_OCP_QP_ARG *arg)
 	int nuM = 0;
 	int nbM = 0;
 	int ngM = 0;
+	int nsM = 0;
 	for(ii=0; ii<N; ii++)
 		{
-		nvt += nx[ii]+nu[ii];
+		nvt += nx[ii]+nu[ii]+2*ns[ii];
 		net += nx[ii+1];
-		nct += nb[ii]+ng[ii];
+		nct += nb[ii]+ng[ii]+ns[ii];
 		nxM = nx[ii]>nxM ? nx[ii] : nxM;
 		nuM = nu[ii]>nuM ? nu[ii] : nuM;
 		nbM = nb[ii]>nbM ? nb[ii] : nbM;
 		ngM = ng[ii]>ngM ? ng[ii] : ngM;
+		nsM = ns[ii]>nsM ? ns[ii] : nsM;
 		}
-	nvt += nx[ii]+nu[ii];
-	nct += nb[ii]+ng[ii];
+	nvt += nx[ii]+nu[ii]+2*ns[ii];
+	nct += nb[ii]+ng[ii]+ns[ii];
 	nxM = nx[ii]>nxM ? nx[ii] : nxM;
 	nuM = nu[ii]>nuM ? nu[ii] : nuM;
 	nbM = nb[ii]>nbM ? nb[ii] : nbM;
 	ngM = ng[ii]>ngM ? ng[ii] : ngM;
+	nsM = ns[ii]>nsM ? ns[ii] : nsM;
 
 	int size = 0;
 
-	size += 7*(N+1)*sizeof(struct STRVEC); // dux dt res_g res_d res_m Gamma gamma
+	size += 8*(N+1)*sizeof(struct STRVEC); // dux dt res_g res_d res_m Gamma gamma Zs_inv
 	size += 3*N*sizeof(struct STRVEC); // dpi res_b Pb
-	size += 4*sizeof(struct STRVEC); // tmp_nxM tmp_nbM tmp_ngM
+	size += 8*sizeof(struct STRVEC); // tmp_nxM 4*tmp_nbgM tmp_ngM tmp_nsM
 
 	size += 1*(N+1)*sizeof(struct STRMAT); // L
 	size += 2*sizeof(struct STRMAT); // AL
 
-	size += 1*SIZE_STRVEC(nbM); // tmp_nbM
 	size += 1*SIZE_STRVEC(nxM); // tmp_nxM
-	size += 2*SIZE_STRVEC(nxM); // tmp_ngM
+	size += 4*SIZE_STRVEC(nbM+ngM); // tmp_nbgM
+	size += 1*SIZE_STRVEC(ngM); // tmp_ngM
+	size += 2*SIZE_STRVEC(nsM); // tmp_nsM
 	for(ii=0; ii<N; ii++) size += 1*SIZE_STRVEC(nx[ii+1]); // Pb
+	for(ii=0; ii<=N; ii++) size += 1*SIZE_STRVEC(2*ns[ii]); // Zs_inv
 	for(ii=0; ii<=N; ii++) size += 1*SIZE_STRMAT(nu[ii]+nx[ii]+1, nu[ii]+nx[ii]); // L
 	size += 2*SIZE_STRMAT(nuM+nxM+1, nxM+ngM); // AL
 
@@ -105,6 +111,7 @@ void CREATE_IPM_HARD_OCP_QP(struct OCP_QP *qp, struct IPM_HARD_OCP_QP_ARG *arg, 
 	int *nu = qp->nu;
 	int *nb = qp->nb;
 	int *ng = qp->ng;
+	int *ns = qp->ns;
 
 
 	workspace->memsize = MEMSIZE_IPM_HARD_OCP_QP(qp, arg);
@@ -118,23 +125,26 @@ void CREATE_IPM_HARD_OCP_QP(struct OCP_QP *qp, struct IPM_HARD_OCP_QP_ARG *arg, 
 	int nuM = 0;
 	int nbM = 0;
 	int ngM = 0;
+	int nsM = 0;
 
 	for(ii=0; ii<N; ii++)
 		{
-		nvt += nx[ii]+nu[ii];
+		nvt += nx[ii]+nu[ii]+2*ns[ii];
 		net += nx[ii+1];
-		nct += nb[ii]+ng[ii];
+		nct += nb[ii]+ng[ii]+ns[ii];
 		nxM = nx[ii]>nxM ? nx[ii] : nxM;
 		nuM = nu[ii]>nuM ? nu[ii] : nuM;
 		nbM = nb[ii]>nbM ? nb[ii] : nbM;
 		ngM = ng[ii]>ngM ? ng[ii] : ngM;
+		nsM = ns[ii]>nsM ? ns[ii] : nsM;
 		}
-	nvt += nx[ii]+nu[ii];
-	nct += nb[ii]+ng[ii];
+	nvt += nx[ii]+nu[ii]+2*ns[ii];
+	nct += nb[ii]+ng[ii]+ns[ii];
 	nxM = nx[ii]>nxM ? nx[ii] : nxM;
 	nuM = nu[ii]>nuM ? nu[ii] : nuM;
 	nbM = nb[ii]>nbM ? nb[ii] : nbM;
 	ngM = ng[ii]>ngM ? ng[ii] : ngM;
+	nsM = ns[ii]>nsM ? ns[ii] : nsM;
 
 
 	// core struct
@@ -178,11 +188,15 @@ void CREATE_IPM_HARD_OCP_QP(struct OCP_QP *qp, struct IPM_HARD_OCP_QP_ARG *arg, 
 	sv_ptr += N+1;
 	workspace->Pb = sv_ptr;
 	sv_ptr += N;
-	workspace->tmp_nbM = sv_ptr;
-	sv_ptr += 1;
+	workspace->Zs_inv = sv_ptr;
+	sv_ptr += N+1;
 	workspace->tmp_nxM = sv_ptr;
 	sv_ptr += 1;
+	workspace->tmp_nbgM = sv_ptr;
+	sv_ptr += 4;
 	workspace->tmp_ngM = sv_ptr;
+	sv_ptr += 1;
+	workspace->tmp_nsM = sv_ptr;
 	sv_ptr += 2;
 
 
@@ -212,17 +226,35 @@ void CREATE_IPM_HARD_OCP_QP(struct OCP_QP *qp, struct IPM_HARD_OCP_QP_ARG *arg, 
 		c_ptr += (workspace->Pb+ii)->memory_size;
 		}
 
-	CREATE_STRVEC(nbM, workspace->tmp_nbM, c_ptr);
-	c_ptr += workspace->tmp_nbM->memory_size;
+	for(ii=0; ii<N+1; ii++)
+		{
+		CREATE_STRVEC(2*ns[ii], workspace->Zs_inv+ii, c_ptr);
+		c_ptr += (workspace->Zs_inv+ii)->memory_size;
+		}
 
 	CREATE_STRVEC(nxM, workspace->tmp_nxM, c_ptr);
 	c_ptr += workspace->tmp_nxM->memory_size;
 
-	CREATE_STRVEC(ngM, workspace->tmp_ngM+0, c_ptr);
-	c_ptr += (workspace->tmp_ngM+0)->memory_size;
+	CREATE_STRVEC(nbM+ngM, workspace->tmp_nbgM+0, c_ptr);
+	c_ptr += (workspace->tmp_nbgM+0)->memory_size;
 
-	CREATE_STRVEC(ngM, workspace->tmp_ngM+1, c_ptr);
-	c_ptr += (workspace->tmp_ngM+1)->memory_size;
+	CREATE_STRVEC(nbM+ngM, workspace->tmp_nbgM+1, c_ptr);
+	c_ptr += (workspace->tmp_nbgM+1)->memory_size;
+
+	CREATE_STRVEC(nbM+ngM, workspace->tmp_nbgM+2, c_ptr);
+	c_ptr += (workspace->tmp_nbgM+2)->memory_size;
+
+	CREATE_STRVEC(nbM+ngM, workspace->tmp_nbgM+3, c_ptr);
+	c_ptr += (workspace->tmp_nbgM+3)->memory_size;
+
+	CREATE_STRVEC(ngM, workspace->tmp_ngM, c_ptr);
+	c_ptr += workspace->tmp_ngM->memory_size;
+
+	CREATE_STRVEC(nsM, workspace->tmp_nsM+0, c_ptr);
+	c_ptr += (workspace->tmp_nsM+0)->memory_size;
+
+	CREATE_STRVEC(nsM, workspace->tmp_nsM+1, c_ptr);
+	c_ptr += (workspace->tmp_nsM+1)->memory_size;
 
 
 
@@ -263,6 +295,8 @@ void CREATE_IPM_HARD_OCP_QP(struct OCP_QP *qp, struct IPM_HARD_OCP_QP_ARG *arg, 
 		c_ptr += ng[ii]*sizeof(REAL);
 		c_ptr += nb[ii]*sizeof(REAL);
 		c_ptr += ng[ii]*sizeof(REAL);
+		c_ptr += ns[ii]*sizeof(REAL);
+		c_ptr += ns[ii]*sizeof(REAL);
 		}
 	//
 	c_ptr = (char *) cws->res_g;
@@ -270,6 +304,8 @@ void CREATE_IPM_HARD_OCP_QP(struct OCP_QP *qp, struct IPM_HARD_OCP_QP_ARG *arg, 
 		{
 		CREATE_STRVEC(nu[ii]+nx[ii], workspace->res_g+ii, c_ptr);
 		c_ptr += (nu[ii]+nx[ii])*sizeof(REAL);
+		c_ptr += ns[ii]*sizeof(REAL);
+		c_ptr += ns[ii]*sizeof(REAL);
 		}
 	//
 	c_ptr = (char *) cws->res_b;
@@ -287,6 +323,8 @@ void CREATE_IPM_HARD_OCP_QP(struct OCP_QP *qp, struct IPM_HARD_OCP_QP_ARG *arg, 
 		c_ptr += ng[ii]*sizeof(REAL);
 		c_ptr += nb[ii]*sizeof(REAL);
 		c_ptr += ng[ii]*sizeof(REAL);
+		c_ptr += ns[ii]*sizeof(REAL);
+		c_ptr += ns[ii]*sizeof(REAL);
 		}
 	//
 	c_ptr = (char *) cws->res_m;
@@ -297,6 +335,8 @@ void CREATE_IPM_HARD_OCP_QP(struct OCP_QP *qp, struct IPM_HARD_OCP_QP_ARG *arg, 
 		c_ptr += ng[ii]*sizeof(REAL);
 		c_ptr += nb[ii]*sizeof(REAL);
 		c_ptr += ng[ii]*sizeof(REAL);
+		c_ptr += ns[ii]*sizeof(REAL);
+		c_ptr += ns[ii]*sizeof(REAL);
 		}
 	//
 	c_ptr = (char *) cws->Gamma;
@@ -307,6 +347,8 @@ void CREATE_IPM_HARD_OCP_QP(struct OCP_QP *qp, struct IPM_HARD_OCP_QP_ARG *arg, 
 		c_ptr += ng[ii]*sizeof(REAL);
 		c_ptr += nb[ii]*sizeof(REAL);
 		c_ptr += ng[ii]*sizeof(REAL);
+		c_ptr += ns[ii]*sizeof(REAL);
+		c_ptr += ns[ii]*sizeof(REAL);
 		}
 	//
 	c_ptr = (char *) cws->gamma;
@@ -317,6 +359,8 @@ void CREATE_IPM_HARD_OCP_QP(struct OCP_QP *qp, struct IPM_HARD_OCP_QP_ARG *arg, 
 		c_ptr += ng[ii]*sizeof(REAL);
 		c_ptr += nb[ii]*sizeof(REAL);
 		c_ptr += ng[ii]*sizeof(REAL);
+		c_ptr += ns[ii]*sizeof(REAL);
+		c_ptr += ns[ii]*sizeof(REAL);
 		}
 	//
 	workspace->stat = cws->stat;
@@ -338,6 +382,12 @@ void SOLVE_IPM_HARD_OCP_QP(struct OCP_QP *qp, struct OCP_QP_SOL *qp_sol, struct 
 	cws->lam = qp_sol->lam->pa;
 	cws->t = qp_sol->t->pa;
 
+//	printf("\n%e\n", cws->nt_inv);
+//	exit(1);
+//cws->nt_inv = 1.063830e-2;
+
+	int kk = 0;
+
 	if(cws->nc==0)
 		{
 		FACT_SOLVE_KKT_UNCONSTR_OCP_QP(qp, qp_sol, ws);
@@ -350,29 +400,203 @@ void SOLVE_IPM_HARD_OCP_QP(struct OCP_QP *qp, struct OCP_QP_SOL *qp_sol, struct 
 	// init solver
 	INIT_VAR_HARD_OCP_QP(qp, qp_sol, ws);
 
+#if 0
+int ii;
+double *ptr;
+printf("\nuxs\n");
+ptr = cws->v;
+for(ii=0; ii<=qp->N; ii++)
+	{
+	d_print_e_mat(1, qp->nu[ii]+qp->nx[ii]+2*qp->ns[ii], ptr, 1);
+	ptr += qp->nu[ii]+qp->nx[ii]+2*qp->ns[ii];
+	}
+printf("\npi\n");
+ptr = cws->pi;
+for(ii=0; ii<qp->N; ii++)
+	{
+	d_print_e_mat(1, qp->nx[ii+1], ptr, 1);
+	ptr += qp->nx[ii+1];
+	}
+printf("\nlam\n");
+ptr = cws->lam;
+for(ii=0; ii<=qp->N; ii++)
+	{
+	d_print_e_mat(1, 2*qp->nb[ii]+2*qp->ng[ii]+2*qp->ns[ii], ptr, 1);
+	ptr += 2*qp->nb[ii]+2*qp->ng[ii]+2*qp->ns[ii];
+	}
+printf("\nt\n");
+ptr = cws->t;
+for(ii=0; ii<=qp->N; ii++)
+	{
+	d_print_e_mat(1, 2*qp->nb[ii]+2*qp->ng[ii]+2*qp->ns[ii], ptr, 1);
+	ptr += 2*qp->nb[ii]+2*qp->ng[ii]+2*qp->ns[ii];
+	}
+exit(1);
+#endif
+
 	// compute residuals
 	COMPUTE_RES_HARD_OCP_QP(qp, qp_sol, ws);
 	cws->mu = ws->res_mu;
 
-	int kk;
 	for(kk=0; kk<cws->iter_max & cws->mu>cws->mu_max; kk++)
 		{
 
+#if 0
+int ii;
+double *ptr;
+printf("\nres_g\n");
+ptr = cws->res_g;
+for(ii=0; ii<=qp->N; ii++)
+	{
+	d_print_e_mat(1, qp->nu[ii]+qp->nx[ii]+2*qp->ns[ii], ptr, 1);
+	ptr += qp->nu[ii]+qp->nx[ii]+2*qp->ns[ii];
+	}
+printf("\nres_b\n");
+ptr = cws->res_b;
+for(ii=0; ii<qp->N; ii++)
+	{
+	d_print_e_mat(1, qp->nx[ii+1], ptr, 1);
+	ptr += qp->nx[ii+1];
+	}
+printf("\nres_d\n");
+ptr = cws->res_d;
+for(ii=0; ii<=qp->N; ii++)
+	{
+	d_print_e_mat(1, 2*qp->nb[ii]+2*qp->ng[ii]+2*qp->ns[ii], ptr, 1);
+	ptr += 2*qp->nb[ii]+2*qp->ng[ii]+2*qp->ns[ii];
+	}
+printf("\nres_m\n");
+ptr = cws->res_m;
+for(ii=0; ii<=qp->N; ii++)
+	{
+	d_print_e_mat(1, 2*qp->nb[ii]+2*qp->ng[ii]+2*qp->ns[ii], ptr, 1);
+	ptr += 2*qp->nb[ii]+2*qp->ng[ii]+2*qp->ns[ii];
+	}
+exit(1);
+#endif
+
 		// fact and solve kkt
 		FACT_SOLVE_KKT_STEP_HARD_OCP_QP(qp, ws);
+
+#if 0
+int ii;
+double *ptr;
+printf("\nduxs\n");
+ptr = cws->dv;
+for(ii=0; ii<=qp->N; ii++)
+	{
+	d_print_e_mat(1, qp->nu[ii]+qp->nx[ii]+2*qp->ns[ii], ptr, 1);
+	ptr += qp->nu[ii]+qp->nx[ii]+2*qp->ns[ii];
+	}
+printf("\ndpi\n");
+ptr = cws->dpi;
+for(ii=0; ii<qp->N; ii++)
+	{
+	d_print_e_mat(1, qp->nx[ii+1], ptr, 1);
+	ptr += qp->nx[ii+1];
+	}
+printf("\ndlam\n");
+ptr = cws->dlam;
+for(ii=0; ii<=qp->N; ii++)
+	{
+	d_print_e_mat(1, 2*qp->nb[ii]+2*qp->ng[ii]+2*qp->ns[ii], ptr, 1);
+	ptr += 2*qp->nb[ii]+2*qp->ng[ii]+2*qp->ns[ii];
+	}
+printf("\ndt\n");
+ptr = cws->dt;
+for(ii=0; ii<=qp->N; ii++)
+	{
+	d_print_e_mat(1, 2*qp->nb[ii]+2*qp->ng[ii]+2*qp->ns[ii], ptr, 1);
+	ptr += 2*qp->nb[ii]+2*qp->ng[ii]+2*qp->ns[ii];
+	}
+exit(1);
+#endif
 
 		// alpha
 		COMPUTE_ALPHA_QP(cws);
 		cws->stat[5*kk+0] = cws->alpha;
 
+//printf("\nalpha = %e\n", cws->alpha);
+//exit(1);
+//cws->alpha = 4.768102e-1;
 		//
 		UPDATE_VAR_QP(cws);
+
+#if 0
+int ii;
+double *ptr;
+printf("\nuxs\n");
+ptr = cws->v;
+for(ii=0; ii<=qp->N; ii++)
+	{
+	d_print_e_mat(1, qp->nu[ii]+qp->nx[ii]+2*qp->ns[ii], ptr, 1);
+	ptr += qp->nu[ii]+qp->nx[ii]+2*qp->ns[ii];
+	}
+printf("\npi\n");
+ptr = cws->pi;
+for(ii=0; ii<qp->N; ii++)
+	{
+	d_print_e_mat(1, qp->nx[ii+1], ptr, 1);
+	ptr += qp->nx[ii+1];
+	}
+printf("\nlam\n");
+ptr = cws->lam;
+for(ii=0; ii<=qp->N; ii++)
+	{
+	d_print_e_mat(1, 2*qp->nb[ii]+2*qp->ng[ii]+2*qp->ns[ii], ptr, 1);
+	ptr += 2*qp->nb[ii]+2*qp->ng[ii]+2*qp->ns[ii];
+	}
+printf("\nt\n");
+ptr = cws->t;
+for(ii=0; ii<=qp->N; ii++)
+	{
+	d_print_e_mat(1, 2*qp->nb[ii]+2*qp->ng[ii]+2*qp->ns[ii], ptr, 1);
+	ptr += 2*qp->nb[ii]+2*qp->ng[ii]+2*qp->ns[ii];
+	}
+exit(1);
+#endif
 
 		// compute residuals
 		COMPUTE_RES_HARD_OCP_QP(qp, qp_sol, ws);
 		cws->mu = ws->res_mu;
 		cws->stat[5*kk+1] = ws->res_mu;
 
+#if 0
+int ii;
+double *ptr;
+printf("\nres_g\n");
+ptr = cws->res_g;
+for(ii=0; ii<=qp->N; ii++)
+	{
+	d_print_e_mat(1, qp->nu[ii]+qp->nx[ii]+2*qp->ns[ii], ptr, 1);
+	ptr += qp->nu[ii]+qp->nx[ii]+2*qp->ns[ii];
+	}
+printf("\nres_b\n");
+ptr = cws->res_b;
+for(ii=0; ii<qp->N; ii++)
+	{
+	d_print_e_mat(1, qp->nx[ii+1], ptr, 1);
+	ptr += qp->nx[ii+1];
+	}
+printf("\nres_d\n");
+ptr = cws->res_d;
+for(ii=0; ii<=qp->N; ii++)
+	{
+	d_print_e_mat(1, 2*qp->nb[ii]+2*qp->ng[ii]+2*qp->ns[ii], ptr, 1);
+	ptr += 2*qp->nb[ii]+2*qp->ng[ii]+2*qp->ns[ii];
+	}
+printf("\nres_m\n");
+ptr = cws->res_m;
+for(ii=0; ii<=qp->N; ii++)
+	{
+	d_print_e_mat(1, 2*qp->nb[ii]+2*qp->ng[ii]+2*qp->ns[ii], ptr, 1);
+	ptr += 2*qp->nb[ii]+2*qp->ng[ii]+2*qp->ns[ii];
+	}
+exit(1);
+#endif
+
+//	ws->iter = kk+1;
+//	return;
 		}
 	
 	ws->iter = kk;
@@ -527,6 +751,14 @@ void SOLVE_IPM2_HARD_OCP_QP(struct OCP_QP *qp, struct OCP_QP_SOL *qp_sol, struct
 
 		// fact and solve kkt
 		SOLVE_KKT_STEP_HARD_OCP_QP(qp, ws);
+
+#if 0
+d_print_e_mat(1, cws->nv, cws->dv, 1);
+d_print_e_mat(1, cws->ne, cws->dpi, 1);
+d_print_e_mat(1, 2*cws->nc, cws->dt, 1);
+d_print_e_mat(1, 2*cws->nc, cws->dlam, 1);
+exit(1);
+#endif
 
 #if 0
 int ii;

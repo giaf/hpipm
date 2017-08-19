@@ -40,11 +40,15 @@ struct d_ocp_qp
 	struct d_strvec *rq;
 	struct d_strmat *DCt;
 	struct d_strvec *d;
+	struct d_strvec *Z;
+	struct d_strvec *z;
 	int *nx; // number of states
 	int *nu; // number of inputs
 	int *nb; // number of box constraints
 	int **idxb; // index of box constraints
 	int *ng; // number of general constraints
+	int *ns; // number of soft constraints
+	int **idxs; // index of soft constraints
 	int N; // hotizon lenght
 	int memsize; // memory size in bytes
 	};
@@ -52,12 +56,10 @@ struct d_ocp_qp
 
 
 //
-int d_memsize_ocp_qp(int N, int *nx, int *nu, int *nb, int *ng);
+int d_memsize_ocp_qp(int N, int *nx, int *nu, int *nb, int *ng, int *ns);
 //
-void d_create_ocp_qp(int N, int *nx, int *nu, int *nb, int *ng, struct d_ocp_qp *qp, void *memory);
+void d_create_ocp_qp(int N, int *nx, int *nu, int *nb, int *ng, int *ns, struct d_ocp_qp *qp, void *memory);
 //
-void d_cvt_colmaj_to_ocp_qp(double **A, double **B, double **b, double **Q, double **S, double **R, double **q, double **r, int **idxb, double **lb, double **ub, double **C, double **D, double **lg, double **ug, struct d_ocp_qp *qp);
+void d_cvt_colmaj_to_ocp_qp(double **A, double **B, double **b, double **Q, double **S, double **R, double **q, double **r, int **idxb, double **lb, double **ub, double **C, double **D, double **lg, double **ug, double **Z, double **z, int **idxs, struct d_ocp_qp *qp);
 //
-void d_cvt_rowmaj_to_ocp_qp(double **A, double **B, double **b, double **Q, double **S, double **R, double **q, double **r, int **idxb, double **lb, double **ub, double **C, double **D, double **lg, double **ug, struct d_ocp_qp *qp);
-//
-void d_copy_ocp_qp(struct d_ocp_qp *qp_in, struct d_ocp_qp *qp_out);
+void d_cvt_rowmaj_to_ocp_qp(double **A, double **B, double **b, double **Q, double **S, double **R, double **q, double **r, int **idxb, double **lb, double **ub, double **C, double **D, double **lg, double **ug, double **Z, double **z, int **idxs, struct d_ocp_qp *qp);

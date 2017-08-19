@@ -279,7 +279,8 @@ int main()
 	int nu[N+1];
 	for(ii=0; ii<N; ii++)
 		nu[ii] = nu_;
-	nu[N] = 0;
+//	nu[N] = 0;
+	nu[N] = 2*nx[N]/2; // soft constraints
 
 #if 1
 	int nb[N+1];
@@ -290,19 +291,23 @@ int main()
 #endif
 	for(ii=1; ii<N; ii++)
 		nb[ii] = nu[1]+nx[1]/2;
-	nb[N] = nx[N]/2;
+	nb[N] = nu[N];//+nx[N]/2;
 
 	int ng[N+1];
 	ng[0] = 0;
 	for(ii=1; ii<N; ii++)
 		ng[ii] = 0;
-	ng[N] = 0;
+#if 0
+	ng[N] = nx[N]/2;
+#else
+	ng[N] = 2*nx[N]/2;
+#endif
 
 	int ns[N+1];
 	ns[0] = 0;
 	for(ii=1; ii<N; ii++)
 		ns[ii] = 0;
-	ns[N] = nx[N]/2;
+	ns[N] = 0;//nx[N]/2;
 #elif 0
 	int nb[N+1];
 	nb[0] = 0;
@@ -381,10 +386,18 @@ int main()
 	double *R; d_zeros(&R, nu_, nu_);
 	for(ii=0; ii<nu_; ii++) R[ii*(nu_+1)] = 2.0;
 
+	double *RN; d_zeros(&RN, nu[N], nu[N]);
+	for(ii=0; ii<nu[N]; ii++) RN[ii*(nu[N]+1)] = 1000.0;
+
 	double *S; d_zeros(&S, nu_, nx_);
+
+	double *SN; d_zeros(&SN, nu[N], nx[N]);
 
 	double *q; d_zeros(&q, nx_, 1);
 	for(ii=0; ii<nx_; ii++) q[ii] = 0.0;
+
+	double *rN; d_zeros(&rN, nu[N], 1);
+	for(ii=0; ii<nu[N]; ii++) rN[ii] = 100.0;
 
 	double *r; d_zeros(&r, nu_, 1);
 	for(ii=0; ii<nu_; ii++) r[ii] = 0.0;
@@ -413,6 +426,9 @@ int main()
 	d_print_mat(1, nu_, r0, 1);
 //	d_print_mat(nx_, nx_, QN, nx_);
 //	d_print_mat(1, nx_, qN, 1);
+	d_print_mat(nu[N], nu[N], RN, nu[N]);
+	d_print_mat(nu[N], nx[N], SN, nu[N]);
+	d_print_mat(1, nu[N], rN, 1);
 #endif
 
 	// maximum element in cost functions
@@ -496,15 +512,37 @@ int main()
 	double *d_ugN; d_zeros(&d_ugN, ng[N], 1);
 	for(ii=0; ii<nb[N]; ii++)
 		{
-		d_lbN[ii] = - 0.5; // xmin
-		d_ubN[ii] =   0.5; // xmax
+		if(ii<nu[N]) // input
+			{
+			d_lbN[ii] = 0.0; // umin
+			d_ubN[ii] = 1e12; // umax
+			}
+		else // state
+			{
+			d_lbN[ii] = - 4.0; // xmin
+			d_ubN[ii] =   4.0; // xmax
+			}
 		idxbN[ii] = ii;
 		}
+//	for(ii=0; ii<nb[N]; ii++)
+//		{
+//		d_lbN[ii] = - 4.0; // xmin
+//		d_ubN[ii] =   4.0; // xmax
+//		idxbN[ii] = ii;
+//		}
+#if 0
 	for(ii=0; ii<ng[N]; ii++)
 		{
-		d_lgN[ii] =   0.1; // dmin
-		d_ugN[ii] =   0.1; // dmax
+		d_lgN[ii] = - 1.5; // dmin
+		d_ugN[ii] =   1.5; // dmax
 		}
+#else
+	for(ii=0; ii<ng[N]; ii++)
+		{
+		d_lgN[ii] = - 0.5; // dmin
+		d_ugN[ii] =   1e12; // dmax
+		}
+#endif
 
 	double *C0; d_zeros(&C0, ng[0], nx[0]);
 	double *D0; d_zeros(&D0, ng[0], nu[0]);
@@ -522,10 +560,30 @@ int main()
 
 	double *CN; d_zeros(&CN, ng[N], nx[N]);
 	double *DN; d_zeros(&DN, ng[N], nu[N]);
-	for(ii=0; ii<nu[N]-nb[N] & ii<ng[N]; ii++)
-		DN[ii+(nb[N]+ii)*ng[N]] = 1.0;
-	for(; ii<ng[N]; ii++)
-		CN[ii+(nb[N]+ii-nu[N])*ng[N]] = 1.0;
+//	for(ii=0; ii<nu[N]-nb[N] & ii<ng[N]; ii++)
+//		DN[ii+(nb[N]+ii)*ng[N]] = 1.0;
+//	for(; ii<ng[N]; ii++)
+//		CN[ii+(nb[N]+ii-nu[N])*ng[N]] = 1.0;
+	// position of masses
+#if 0
+	for(ii=0; ii<ng[N]; ii++)
+		{
+		DN[ii+ii*ng[N]] = 1.0;
+		DN[ii+(nu[N]/2+ii)*ng[N]] = -1.0;
+		}
+	for(ii=0; ii<ng[N]; ii++)
+		CN[ii+ii*ng[N]] = 1.0;
+#else
+	for(ii=0; ii<ng[N]; ii++)
+		{
+		DN[ii+ii*ng[N]] = 1.0;
+		}
+	for(ii=0; ii<ng[N]/2; ii++)
+		{
+		CN[ii+ii*ng[N]] = 1.0;
+		CN[ng[N]/2+ii+ii*ng[N]] = -1.0;
+		}
+#endif
 
 #if PRINT
 	// box constraints
@@ -650,10 +708,10 @@ int main()
 		hidxs[ii] = idxs1;
 		}
 	hQ[N] = Q;
-	hS[N] = S;
-	hR[N] = R;
+	hS[N] = SN;
+	hR[N] = RN;
 	hq[N] = q;
-	hr[N] = r;
+	hr[N] = rN;
 	hidxb[N] = idxbN;
 	hd_lb[N] = d_lbN;
 	hd_ub[N] = d_ubN;
@@ -868,10 +926,12 @@ int main()
 	d_free(Q);
 //	d_free(QN);
 	d_free(R);
+	d_free(RN);
 	d_free(S);
 	d_free(q);
 //	d_free(qN);
 	d_free(r);
+	d_free(rN);
 	d_free(r0);
 	int_free(idxb0);
 	d_free(d_lb0);
