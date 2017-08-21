@@ -386,7 +386,7 @@ void FACT_SOLVE_KKT_UNCONSTR_OCP_QP(struct OCP_QP *qp, struct OCP_QP_SOL *qp_sol
 
 
 
-static void COND_SLACKS(int ss, struct OCP_QP *qp, struct IPM_HARD_OCP_QP_WORKSPACE *ws)
+static void COND_SLACKS_FACT_SOLVE(int ss, struct OCP_QP *qp, struct IPM_HARD_OCP_QP_WORKSPACE *ws)
 	{
 
 	int ii, idx;
@@ -408,77 +408,150 @@ static void COND_SLACKS(int ss, struct OCP_QP *qp, struct IPM_HARD_OCP_QP_WORKSP
 	struct STRVEC *tmp_nbgM = ws->tmp_nbgM;
 	struct STRVEC *tmp_nsM = ws->tmp_nsM;
 
-	REAL *ptr0, *ptr1, *ptr2, *ptr3;
+	REAL *ptr_Gamma = Gamma->pa;
+	REAL *ptr_gamma = gamma->pa;
+	REAL *ptr_Z = Z->pa;
+	REAL *ptr_Zs_inv = Zs_inv->pa;
+	REAL *ptr_dux = dux->pa;
+	REAL *ptr_res_g = res_g->pa;
+	REAL *ptr_tmp0 = (tmp_nbgM+0)->pa;
+	REAL *ptr_tmp1 = (tmp_nbgM+1)->pa;
+	REAL *ptr_tmp2 = (tmp_nbgM+2)->pa;
+	REAL *ptr_tmp3 = (tmp_nbgM+3)->pa;
 
-	// Gamma lower
-	VECEX_SP_LIBSTR(ns0, 1.0, idxs0, Gamma, 0, Zs_inv, 0);
-	AXPY_LIBSTR(ns0, 1.0, Z, 0, Zs_inv, 0, Zs_inv, 0);
-	AXPY_LIBSTR(ns0, 1.0, Gamma, 2*nb0+2*ng0, Zs_inv, 0, Zs_inv, 0);
-	ptr0 = (Zs_inv)->pa;
-	for(ii=0; ii<ns0; ii++)
-		ptr0[ii] = 1.0/ptr0[ii];
+	REAL tmp0, tmp1;
+
 	VECCP_LIBSTR(nb0+ng0, Gamma, 0, tmp_nbgM+0, 0);
-	ptr0 = (Zs_inv)->pa;
-	ptr1 = (tmp_nbgM+0)->pa;
-	for(ii=0; ii<ns0; ii++)
-		{
-		idx = idxs0[ii];
-		ptr1[idx] = ptr1[idx] - ptr1[idx]*ptr0[ii]*ptr1[idx];
-		}
-	// Gamma upper
-	VECEX_SP_LIBSTR(ns0, 1.0, idxs0, Gamma, nb0+ng0, Zs_inv, ns0);
-	AXPY_LIBSTR(ns0, 1.0, Z, ns0, Zs_inv, ns0, Zs_inv, ns0);
-	AXPY_LIBSTR(ns0, 1.0, Gamma, 2*nb0+2*ng0+ns0, Zs_inv, ns0, Zs_inv, ns0);
-	ptr0 = (Zs_inv)->pa+ns0;
-	for(ii=0; ii<ns0; ii++)
-		ptr0[ii] = 1.0/ptr0[ii];
-	VECCP_LIBSTR(nb0+ng0, Gamma, nb0+ng0, tmp_nbgM+2, 0);
-	ptr0 = (Zs_inv)->pa+ns0;
-	ptr1 = (tmp_nbgM+2)->pa;
-	for(ii=0; ii<ns0; ii++)
-		{
-		idx = idxs0[ii];
-		ptr1[idx] = ptr1[idx] - ptr1[idx]*ptr0[ii]*ptr1[idx];
-		}
-	// gamma lower
-	VECEX_SP_LIBSTR(ns0, 1.0, idxs0, gamma, 0, dux, nu0+nx0);
-	AXPY_LIBSTR(ns0, 1.0, res_g, nu0+nx0, dux, nu0+nx0, dux, nu0+nx0);
-	AXPY_LIBSTR(ns0, 1.0, gamma, 2*nb0+2*ng0, dux, nu0+nx0, dux, nu0+nx0);
-	ptr0 = (Zs_inv)->pa;
-	ptr1 = (dux)->pa+nu0+nx0;
-	ptr2 = (tmp_nsM)->pa;
-	for(ii=0; ii<ns0; ii++)
-		ptr2[ii] = ptr0[ii]*ptr1[ii];
-	VECCP_LIBSTR(nb0+ng0, gamma, 0, tmp_nbgM+1, 0);
-	ptr0 = (tmp_nsM)->pa;
-	ptr1 = (Gamma)->pa;
-	ptr2 = (tmp_nbgM+1)->pa;
-	for(ii=0; ii<ns0; ii++)
-		{
-		idx = idxs0[ii];
-		ptr2[idx] = ptr2[idx] - ptr1[idx]*ptr0[ii];
-		}
-	// gamma upper
-	VECEX_SP_LIBSTR(ns0, 1.0, idxs0, gamma, nb0+ng0, dux, nu0+nx0+ns0);
-	AXPY_LIBSTR(ns0, 1.0, res_g, nu0+nx0+ns0, dux, nu0+nx0+ns0, dux, nu0+nx0+ns0);
-	AXPY_LIBSTR(ns0, 1.0, gamma, 2*nb0+2*ng0+ns0, dux, nu0+nx0+ns0, dux, nu0+nx0+ns0);
-	ptr0 = (Zs_inv)->pa+ns0;
-	ptr1 = (dux)->pa+nu0+nx0+ns0;
-	ptr2 = (tmp_nsM)->pa;
-	for(ii=0; ii<ns0; ii++)
-		ptr2[ii] = ptr0[ii]*ptr1[ii];
+	VECCP_LIBSTR(nb0+ng0, Gamma, nb0+ng0, tmp_nbgM+1, 0);
+	VECCP_LIBSTR(nb0+ng0, gamma, 0, tmp_nbgM+2, 0);
 	VECCP_LIBSTR(nb0+ng0, gamma, nb0+ng0, tmp_nbgM+3, 0);
-	ptr0 = (tmp_nsM)->pa;
-	ptr1 = (Gamma)->pa+nb0+ng0;
-	ptr2 = (tmp_nbgM+3)->pa;
+
 	for(ii=0; ii<ns0; ii++)
 		{
 		idx = idxs0[ii];
-		ptr2[idx] = ptr2[idx] - ptr1[idx]*ptr0[ii];
+//printf("\n%d %d\n", ii, idx);
+		ptr_Zs_inv[0+ii]   = ptr_Z[0+ii]   + ptr_Gamma[0+idx]       + ptr_Gamma[2*nb0+2*ng0+ii];
+		ptr_Zs_inv[ns0+ii] = ptr_Z[ns0+ii] + ptr_Gamma[nb0+ng0+idx] + ptr_Gamma[2*nb0+2*ng0+ns0+ii];
+		ptr_dux[nu0+nx0+ii]      = ptr_res_g[nu0+nx0+ii]     + ptr_gamma[0+idx]   + ptr_gamma[2*nb0+2*ng0+ii];
+		ptr_dux[nu0+nx0+ns0+ii]  = ptr_res_g[nu0+nx0+ns0+ii] + ptr_gamma[nb0+ng0+idx] + ptr_gamma[2*nb0+2*ng0+ns0+ii];
+		ptr_Zs_inv[0+ii]   = 1.0/ptr_Zs_inv[0+ii];
+		ptr_Zs_inv[ns0+ii] = 1.0/ptr_Zs_inv[ns0+ii];
+		tmp0 = ptr_dux[nu0+nx0+ii]*ptr_Zs_inv[0+ii];
+		tmp1 = ptr_dux[nu0+nx0+ns0+ii]*ptr_Zs_inv[ns0+ii];
+		ptr_tmp0[idx] = ptr_tmp0[idx] - ptr_tmp0[idx]*ptr_Zs_inv[0+ii]*ptr_tmp0[idx];
+		ptr_tmp1[idx] = ptr_tmp1[idx] - ptr_tmp1[idx]*ptr_Zs_inv[ns0+ii]*ptr_tmp1[idx];
+		ptr_tmp2[idx] = ptr_tmp2[idx] - ptr_Gamma[0+idx]*tmp0;
+		ptr_tmp3[idx] = ptr_tmp3[idx] - ptr_Gamma[nb0+ng0+idx]*tmp1;
 		}
-	// Gamma update
-	AXPY_LIBSTR(nb0+ng0,  1.0, tmp_nbgM+2, 0, tmp_nbgM+0, 0, tmp_nbgM+0, 0);
-	AXPY_LIBSTR(nb0+ng0, -1.0, tmp_nbgM+3, 0, tmp_nbgM+1, 0, tmp_nbgM+1, 0);
+//d_print_tran_strvec(2*ns0, Zs_inv, 0);
+//d_print_tran_strvec(nu0+nx0+2*ns0, res_g, 0);
+//d_print_tran_strvec(nu0+nx0+2*ns0, dux, 0);
+
+//d_print_tran_strvec(nb0+ng0, tmp_nbgM+0, 0);
+//d_print_tran_strvec(nb0+ng0, tmp_nbgM+1, 0);
+//d_print_tran_strvec(nb0+ng0, tmp_nbgM+2, 0);
+//d_print_tran_strvec(nb0+ng0, tmp_nbgM+3, 0);
+	
+	AXPY_LIBSTR(nb0+ng0,  1.0, tmp_nbgM+1, 0, tmp_nbgM+0, 0, tmp_nbgM+0, 0);
+	AXPY_LIBSTR(nb0+ng0, -1.0, tmp_nbgM+3, 0, tmp_nbgM+2, 0, tmp_nbgM+1, 0);
+
+	return;
+
+	}
+
+
+
+static void COND_SLACKS_SOLVE(int ss, struct OCP_QP *qp, struct IPM_HARD_OCP_QP_WORKSPACE *ws)
+	{
+
+	int ii, idx;
+
+	int nx0 = qp->nx[ss];
+	int nu0 = qp->nu[ss];
+	int nb0 = qp->nb[ss];
+	int ng0 = qp->ng[ss];
+	int ns0 = qp->ns[ss];
+
+	int *idxs0 = qp->idxs[ss];
+
+	struct STRVEC *dux = ws->dux+ss;
+	struct STRVEC *res_g = ws->res_g+ss;
+	struct STRVEC *Gamma = ws->Gamma+ss;
+	struct STRVEC *gamma = ws->gamma+ss;
+	struct STRVEC *Zs_inv = ws->Zs_inv+ss;
+	struct STRVEC *tmp_nbgM = ws->tmp_nbgM;
+	struct STRVEC *tmp_nsM = ws->tmp_nsM;
+
+	REAL *ptr_Gamma = Gamma->pa;
+	REAL *ptr_gamma = gamma->pa;
+	REAL *ptr_Zs_inv = Zs_inv->pa;
+	REAL *ptr_dux = dux->pa;
+	REAL *ptr_res_g = res_g->pa;
+	REAL *ptr_tmp0 = (tmp_nbgM+0)->pa;
+	REAL *ptr_tmp1 = (tmp_nbgM+1)->pa;
+	REAL *ptr_tmp2 = (tmp_nbgM+2)->pa;
+	REAL *ptr_tmp3 = (tmp_nbgM+3)->pa;
+
+	REAL tmp0, tmp1;
+
+	VECCP_LIBSTR(nb0+ng0, Gamma, 0, tmp_nbgM+0, 0);
+	VECCP_LIBSTR(nb0+ng0, Gamma, nb0+ng0, tmp_nbgM+1, 0);
+	VECCP_LIBSTR(nb0+ng0, gamma, 0, tmp_nbgM+2, 0);
+	VECCP_LIBSTR(nb0+ng0, gamma, nb0+ng0, tmp_nbgM+3, 0);
+
+	for(ii=0; ii<ns0; ii++)
+		{
+		idx = idxs0[ii];
+		ptr_dux[nu0+nx0+ii]      = ptr_res_g[nu0+nx0+ii]     + ptr_gamma[0+idx]       + ptr_gamma[2*nb0+2*ng0+ii];
+		ptr_dux[nu0+nx0+ns0+ii]  = ptr_res_g[nu0+nx0+ns0+ii] + ptr_gamma[nb0+ng0+idx] + ptr_gamma[2*nb0+2*ng0+ns0+ii];
+		tmp0 = ptr_dux[nu0+nx0+ii]*ptr_Zs_inv[0+ii];
+		tmp1 = ptr_dux[nu0+nx0+ns0+ii]*ptr_Zs_inv[ns0+ii];
+		ptr_tmp2[idx] = ptr_tmp2[idx] - ptr_Gamma[0+idx]*tmp0;
+		ptr_tmp3[idx] = ptr_tmp3[idx] - ptr_Gamma[nb0+ng0+idx]*tmp1;
+		}
+	
+	AXPY_LIBSTR(nb0+ng0, -1.0, tmp_nbgM+3, 0, tmp_nbgM+2, 0, tmp_nbgM+1, 0);
+
+	return;
+
+	}
+
+
+
+static void EXPAND_SLACKS(int ss, struct OCP_QP *qp, struct IPM_HARD_OCP_QP_WORKSPACE *ws)
+	{
+
+	int ii, idx;
+
+	int nx0 = qp->nx[ss];
+	int nu0 = qp->nu[ss];
+	int nb0 = qp->nb[ss];
+	int ng0 = qp->ng[ss];
+	int ns0 = qp->ns[ss];
+
+	int *idxs0 = qp->idxs[ss];
+
+	struct STRVEC *dux = ws->dux+ss;
+	struct STRVEC *dt = ws->dt+ss;
+	struct STRVEC *Gamma = ws->Gamma+ss;
+	struct STRVEC *Zs_inv = ws->Zs_inv+ss;
+
+	REAL *ptr_Gamma = Gamma->pa;
+	REAL *ptr_dux = dux->pa;
+	REAL *ptr_dt = dt->pa;
+	REAL *ptr_Zs_inv = Zs_inv->pa;
+
+	for(ii=0; ii<ns0; ii++)
+		{
+		idx = idxs0[ii];
+		ptr_dux[nu0+nx0+ii]     = - ptr_Zs_inv[0+ii]   * (ptr_dux[nu0+nx0+ii]     + ptr_dt[idx]*ptr_Gamma[idx]);
+		ptr_dux[nu0+nx0+ns0+ii] = - ptr_Zs_inv[ns0+ii] * (ptr_dux[nu0+nx0+ns0+ii] + ptr_dt[nb0+ng0+idx]*ptr_Gamma[nb0+ng0+idx]);
+		ptr_dt[2*nb0+2*ng0+ii]     = ptr_dux[nu0+nx0+ii]; // TODO res_d !!!
+		ptr_dt[2*nb0+2*ng0+ns0+ii] = ptr_dux[nu0+nx0+ns0+ii]; // TODO res_d !!!
+		ptr_dt[0+idx]       = ptr_dt[0+idx]   + ptr_dux[nu0+nx0+ii];
+		ptr_dt[nb0+ng0+idx] = ptr_dt[nb0+ng0+idx] + ptr_dux[nu0+nx0+ns0+ii];
+
+		}
 
 	return;
 
@@ -543,119 +616,28 @@ void FACT_SOLVE_KKT_STEP_HARD_OCP_QP(struct OCP_QP *qp, struct IPM_HARD_OCP_QP_W
 
 	if(ns[ss]>0)
 		{
-#if 1
-		COND_SLACKS(ss, qp, ws);
-#else
-		// Gamma lower
-		VECEX_SP_LIBSTR(ns[ss], 1.0, idxs[ss], Gamma+ss, 0, Zs_inv+ss, 0);
-		AXPY_LIBSTR(ns[ss], 1.0, Z+ss, 0, Zs_inv+ss, 0, Zs_inv+ss, 0);
-		AXPY_LIBSTR(ns[ss], 1.0, Gamma+ss, 2*nb[ss]+2*ng[ss], Zs_inv+ss, 0, Zs_inv+ss, 0);
-		ptr0 = (Zs_inv+ss)->pa;
-		for(ii=0; ii<ns[ss]; ii++)
-			ptr0[ii] = 1.0/ptr0[ii];
-		VECCP_LIBSTR(nb[ss]+ng[ss], Gamma+ss, 0, tmp_nbgM+0, 0);
-		ptr0 = (Zs_inv+ss)->pa;
-		ptr1 = (tmp_nbgM+0)->pa;
-		for(ii=0; ii<ns[ss]; ii++)
-			{
-			idx = idxs[ss][ii];
-			ptr1[idx] = ptr1[idx] - ptr1[idx]*ptr0[ii]*ptr1[idx];
-			}
-		// Gamma upper
-		VECEX_SP_LIBSTR(ns[ss], 1.0, idxs[ss], Gamma+ss, nb[ss]+ng[ss], Zs_inv+ss, ns[ss]);
-		AXPY_LIBSTR(ns[ss], 1.0, Z+ss, ns[ss], Zs_inv+ss, ns[ss], Zs_inv+ss, ns[ss]);
-		AXPY_LIBSTR(ns[ss], 1.0, Gamma+ss, 2*nb[ss]+2*ng[ss]+ns[ss], Zs_inv+ss, ns[ss], Zs_inv+ss, ns[ss]);
-		ptr0 = (Zs_inv+ss)->pa+ns[ss];
-		for(ii=0; ii<ns[ss]; ii++)
-			ptr0[ii] = 1.0/ptr0[ii];
-		VECCP_LIBSTR(nb[ss]+ng[ss], Gamma+ss, nb[ss]+ng[ss], tmp_nbgM+2, 0);
-		ptr0 = (Zs_inv+ss)->pa+ns[ss];
-		ptr1 = (tmp_nbgM+2)->pa;
-		for(ii=0; ii<ns[ss]; ii++)
-			{
-			idx = idxs[ss][ii];
-			ptr1[idx] = ptr1[idx] - ptr1[idx]*ptr0[ii]*ptr1[idx];
-			}
-		// gamma lower
-		VECEX_SP_LIBSTR(ns[ss], 1.0, idxs[ss], gamma+ss, 0, dux+ss, nu[ss]+nx[ss]);
-		AXPY_LIBSTR(ns[ss], 1.0, res_g+ss, nu[ss]+nx[ss], dux+ss, nu[ss]+nx[ss], dux+ss, nu[ss]+nx[ss]);
-		AXPY_LIBSTR(ns[ss], 1.0, gamma+ss, 2*nb[ss]+2*ng[ss], dux+ss, nu[ss]+nx[ss], dux+ss, nu[ss]+nx[ss]);
-		ptr0 = (Zs_inv+ss)->pa;
-		ptr1 = (dux+ss)->pa+nu[ss]+nx[ss];
-		ptr2 = (tmp_nsM)->pa;
-		for(ii=0; ii<ns[ss]; ii++)
-			ptr2[ii] = ptr0[ii]*ptr1[ii];
-		VECCP_LIBSTR(nb[ss]+ng[ss], gamma+ss, 0, tmp_nbgM+1, 0);
-		ptr0 = (tmp_nsM)->pa;
-		ptr1 = (Gamma+ss)->pa;
-		ptr2 = (tmp_nbgM+1)->pa;
-		for(ii=0; ii<ns[ss]; ii++)
-			{
-			idx = idxs[ss][ii];
-			ptr2[idx] = ptr2[idx] - ptr1[idx]*ptr0[ii];
-			}
-		// gamma upper
-		VECEX_SP_LIBSTR(ns[ss], 1.0, idxs[ss], gamma+ss, nb[ss]+ng[ss], dux+ss, nu[ss]+nx[ss]+ns[ss]);
-		AXPY_LIBSTR(ns[ss], 1.0, res_g+ss, nu[ss]+nx[ss]+ns[ss], dux+ss, nu[ss]+nx[ss]+ns[ss], dux+ss, nu[ss]+nx[ss]+ns[ss]);
-		AXPY_LIBSTR(ns[ss], 1.0, gamma+ss, 2*nb[ss]+2*ng[ss]+ns[ss], dux+ss, nu[ss]+nx[ss]+ns[ss], dux+ss, nu[ss]+nx[ss]+ns[ss]);
-		ptr0 = (Zs_inv+ss)->pa+ns[ss];
-		ptr1 = (dux+ss)->pa+nu[ss]+nx[ss]+ns[ss];
-		ptr2 = (tmp_nsM)->pa;
-		for(ii=0; ii<ns[ss]; ii++)
-			ptr2[ii] = ptr0[ii]*ptr1[ii];
-		VECCP_LIBSTR(nb[ss]+ng[ss], gamma+ss, nb[ss]+ng[ss], tmp_nbgM+3, 0);
-		ptr0 = (tmp_nsM)->pa;
-		ptr1 = (Gamma+ss)->pa+nb[ss]+ng[ss];
-		ptr2 = (tmp_nbgM+3)->pa;
-		for(ii=0; ii<ns[ss]; ii++)
-			{
-			idx = idxs[ss][ii];
-			ptr2[idx] = ptr2[idx] - ptr1[idx]*ptr0[ii];
-			}
-//		d_print_e_tran_strvec(nb[ss]+ng[ss], tmp_nbgM+0, 0);
-//		d_print_e_tran_strvec(nb[ss]+ng[ss], tmp_nbgM+2, 0);
-//		d_print_e_tran_strvec(nb[ss]+ng[ss], tmp_nbgM+1, 0);
-//		d_print_e_tran_strvec(nb[ss]+ng[ss], tmp_nbgM+3, 0);
-//		d_print_e_tran_strvec(2*ns[ss], Zs_inv+ss, 0);
-//		d_print_e_tran_strvec(2*nb[ss]+2*ng[ss], Gamma+ss, 0);
-//		d_print_e_tran_strvec(2*ns[ss], dux+ss, nu[ss]+nx[ss]);
-//		exit(1);
-		// Gamma update
-		AXPY_LIBSTR(nb[ss]+ng[ss],  1.0, tmp_nbgM+2, 0, tmp_nbgM+0, 0, tmp_nbgM+0, 0);
-		AXPY_LIBSTR(nb[ss]+ng[ss], -1.0, tmp_nbgM+3, 0, tmp_nbgM+1, 0, tmp_nbgM+1, 0);
-#endif
+		COND_SLACKS_FACT_SOLVE(ss, qp, ws);
 		}
-	else if(nb[ss]>0 | ng[ss]>0)
+	else if(nb[ss]+ng[ss]>0)
 		{
-//d_print_e_tran_strvec(2*nb[ss]+2*ng[ss], gamma+ss, 0);
 		AXPY_LIBSTR(nb[ss]+ng[ss],  1.0, Gamma+ss, nb[ss]+ng[ss], Gamma+ss, 0, tmp_nbgM+0, 0);
 		AXPY_LIBSTR(nb[ss]+ng[ss], -1.0, gamma+ss, nb[ss]+ng[ss], gamma+ss, 0, tmp_nbgM+1, 0);
 		}
-//d_print_strmat(nu[N]+nx[N]+1, nu[N]+nx[N], L+N, 0, 0);
 	if(nb[ss]>0)
 		{
-//		AXPY_LIBSTR(nb[ss], 1.0, Gamma+ss, nb[ss]+ng[ss], Gamma+ss, 0, tmp_nbgM+0, 0);
 		DIAAD_SP_LIBSTR(nb[ss], 1.0, tmp_nbgM+0, 0, idxb[ss], L+ss, 0, 0);
-//		AXPY_LIBSTR(nb[ss], -1.0, gamma+ss, nb[ss]+ng[ss], gamma+ss, 0, tmp_nbgM+1, 0);
 		ROWAD_SP_LIBSTR(nb[ss], 1.0, tmp_nbgM+1, 0, idxb[ss], L+ss, nu[ss]+nx[ss], 0);
 		}
 	if(ng[ss]>0)
 		{
-//		AXPY_LIBSTR(ng[ss], 1.0, Gamma+ss, 2*nb[ss]+ng[ss], Gamma+ss, nb[ss], tmp_nbgM+0, nb[ss]);
 		GEMM_R_DIAG_LIBSTR(nu[ss]+nx[ss], ng[ss], 1.0, DCt+ss, 0, 0, tmp_nbgM+0, nb[ss], 0.0, AL+0, 0, 0, AL+0, 0, 0);
-//		AXPY_LIBSTR(ng[ss], -1.0, gamma+ss, 2*nb[ss]+ng[ss], gamma+ss, nb[ss], tmp_nbgM+1, nb[ss]);
 		ROWIN_LIBSTR(ng[ss], 1.0, tmp_nbgM+1, nb[ss], AL+0, nu[ss]+nx[ss], 0);
 		SYRK_POTRF_LN_LIBSTR(nu[ss]+nx[ss]+1, nu[ss]+nx[ss], ng[ss], AL+0, 0, 0, DCt+ss, 0, 0, L+ss, 0, 0, L+ss, 0, 0);
-//		dsyrk_ln_mn_libstr(nu[ss]+nx[ss]+1, nu[ss]+nx[ss], ng[ss], 1.0, AL+0, 0, 0, DCt+ss, 0, 0, 1.0, L+ss, 0, 0, L+ss, 0, 0);
-//d_print_strmat(nu[N]+nx[N]+1, nu[N]+nx[N], L+N, 0, 0);
-//		dpotrf_l_mn_libstr(nu[ss]+nx[ss]+1, nu[ss]+nx[ss], L+ss, 0, 0, L+ss, 0, 0);
 		}
 	else
 		{
 		POTRF_L_MN_LIBSTR(nu[ss]+nx[ss]+1, nu[ss]+nx[ss], L+ss, 0, 0, L+ss, 0, 0);
 		}
-//d_print_strmat(nu[N]+nx[N]+1, nu[N]+nx[N], L+N, 0, 0);
-//exit(1);
 	
 	// middle stages
 	for(nn=0; nn<N; nn++)
@@ -669,30 +651,29 @@ void FACT_SOLVE_KKT_STEP_HARD_OCP_QP(struct OCP_QP *qp, struct IPM_HARD_OCP_QP_W
 		GEAD_LIBSTR(1, nx[ss+1], 1.0, L+ss+1, nu[ss+1]+nx[ss+1], nu[ss+1], AL, nu[ss]+nx[ss], 0);
 
 #if defined(DOUBLE_PRECISION)
-		TRCP_L_LIBSTR(nu[ss]+nx[ss], RSQrq+(ss), 0, 0, L+(ss), 0, 0);
+		TRCP_L_LIBSTR(nu[ss]+nx[ss], RSQrq+ss, 0, 0, L+ss, 0, 0);
 #else
-		GECP_LIBSTR(nu[ss]+nx[ss], nu[ss]+nx[ss], RSQrq+(ss), 0, 0, L+(ss), 0, 0);
+		GECP_LIBSTR(nu[ss]+nx[ss], nu[ss]+nx[ss], RSQrq+ss, 0, 0, L+ss, 0, 0);
 #endif
-		ROWIN_LIBSTR(nu[ss]+nx[ss], 1.0, res_g+(ss), 0, L+(ss), nu[ss]+nx[ss], 0);
+		ROWIN_LIBSTR(nu[ss]+nx[ss], 1.0, res_g+ss, 0, L+ss, nu[ss]+nx[ss], 0);
 
 		if(ns[ss]>0)
 			{
+			COND_SLACKS_FACT_SOLVE(ss, qp, ws);
 			}
-		AXPY_LIBSTR(nb[ss]+ng[ss],  1.0, Gamma+ss, nb[ss]+ng[ss], Gamma+ss, 0, tmp_nbgM+0, 0);
-		AXPY_LIBSTR(nb[ss]+ng[ss], -1.0, gamma+ss, nb[ss]+ng[ss], gamma+ss, 0, tmp_nbgM+1, 0);
+		else if(nb[ss]+ng[ss]>0)
+			{
+			AXPY_LIBSTR(nb[ss]+ng[ss],  1.0, Gamma+ss, nb[ss]+ng[ss], Gamma+ss, 0, tmp_nbgM+0, 0);
+			AXPY_LIBSTR(nb[ss]+ng[ss], -1.0, gamma+ss, nb[ss]+ng[ss], gamma+ss, 0, tmp_nbgM+1, 0);
+			}
 		if(nb[ss]>0)
 			{
-//			AXPY_LIBSTR(nb[ss], 1.0, Gamma+ss, nb[ss]+ng[ss], Gamma+ss, 0, tmp_nbgM+0, 0);
-			DIAAD_SP_LIBSTR(nb[ss], 1.0, tmp_nbgM+0, 0, idxb[ss], L+(ss), 0, 0);
-//			AXPY_LIBSTR(nb[ss], -1.0, gamma+ss, nb[ss]+ng[ss], gamma+ss, 0, tmp_nbgM+1, 0);
-			ROWAD_SP_LIBSTR(nb[ss], 1.0, tmp_nbgM+1, 0, idxb[ss], L+(ss), nu[ss]+nx[ss], 0);
+			DIAAD_SP_LIBSTR(nb[ss], 1.0, tmp_nbgM+0, 0, idxb[ss], L+ss, 0, 0);
+			ROWAD_SP_LIBSTR(nb[ss], 1.0, tmp_nbgM+1, 0, idxb[ss], L+ss, nu[ss]+nx[ss], 0);
 			}
-
 		if(ng[ss]>0)
 			{
-//			AXPY_LIBSTR(ng[ss], 1.0, Gamma+ss, 2*nb[ss]+nb[ss], Gamma+ss, nb[ss], tmp_nbgM+0, nb[ss]);
 			GEMM_R_DIAG_LIBSTR(nu[ss]+nx[ss], ng[ss], 1.0, DCt+ss, 0, 0, tmp_nbgM+0, nb[ss], 0.0, AL+0, 0, nx[ss+1], AL+0, 0, nx[ss+1]);
-//			AXPY_LIBSTR(ng[ss], -1.0, gamma+ss, 2*nb[ss]+ng[ss], gamma+ss, nb[ss], tmp_nbgM+1, nb[ss]);
 			ROWIN_LIBSTR(ng[ss], 1.0, tmp_nbgM+1, nb[ss], AL+0, nu[ss]+nx[ss], nx[ss+1]);
 			GECP_LIBSTR(nu[ss]+nx[ss], nx[ss+1], AL+0, 0, 0, AL+1, 0, 0);
 			GECP_LIBSTR(nu[ss]+nx[ss], ng[ss], DCt+ss, 0, 0, AL+1, 0, nx[ss+1]);
@@ -700,11 +681,14 @@ void FACT_SOLVE_KKT_STEP_HARD_OCP_QP(struct OCP_QP *qp, struct IPM_HARD_OCP_QP_W
 			}
 		else
 			{
-			SYRK_POTRF_LN_LIBSTR(nu[ss]+nx[ss]+1, nu[ss]+nx[ss], nx[ss+1], AL, 0, 0, AL, 0, 0, L+(ss), 0, 0, L+(ss), 0, 0);
+			SYRK_POTRF_LN_LIBSTR(nu[ss]+nx[ss]+1, nu[ss]+nx[ss], nx[ss+1], AL, 0, 0, AL, 0, 0, L+ss, 0, 0, L+ss, 0, 0);
 			}
 
-//		d_print_strmat(nu[ss]+nx[ss]+1, nu[ss]+nx[ss], L+(ss), 0, 0);
+//exit(1);
 		}
+//for(ss=0; ss<=N; ss++)
+//	d_print_strmat(nu[ss]+nx[ss]+1, nu[ss]+nx[ss], L+ss, 0, 0);
+//exit(1);
 
 	// forward substitution
 
@@ -717,8 +701,6 @@ void FACT_SOLVE_KKT_STEP_HARD_OCP_QP(struct OCP_QP *qp, struct IPM_HARD_OCP_QP_W
 	TRMV_LTN_LIBSTR(nx[ss+1], nx[ss+1], L+ss+1, nu[ss+1], nu[ss+1], dux+ss+1, nu[ss+1], dpi+ss, 0);
 	AXPY_LIBSTR(nx[ss+1], 1.0, tmp_nxM, 0, dpi+ss, 0, dpi+ss, 0);
 	TRMV_LNN_LIBSTR(nx[ss+1], nx[ss+1], L+ss+1, nu[ss+1], nu[ss+1], dpi+ss, 0, dpi+ss, 0);
-
-//	d_print_tran_strvec(nu[ss]+nx[ss], dux+ss, 0);
 
 	// middle stages
 	for(ss=1; ss<N; ss++)
@@ -736,12 +718,7 @@ void FACT_SOLVE_KKT_STEP_HARD_OCP_QP(struct OCP_QP *qp, struct IPM_HARD_OCP_QP_W
 
 	ss = N;
 	ROWEX_LIBSTR(nu[ss], -1.0, L+ss, nu[ss]+nx[ss], 0, dux+ss, 0);
-//d_print_tran_strvec(nu[N]+nx[N], dux+N, 0);
 	TRSV_LTN_MN_LIBSTR(nu[ss]+nx[ss], nu[ss], L+ss, 0, 0, dux+ss, 0, dux+ss, 0);
-
-//d_print_strmat(nu[N]+nx[N]+1, nu[N]+nx[N], L+N, 0, 0);
-//d_print_tran_strvec(nu[N]+nx[N], dux+N, 0);
-//exit(1);
 
 
 	for(ss=0; ss<=N; ss++)
@@ -757,41 +734,8 @@ void FACT_SOLVE_KKT_STEP_HARD_OCP_QP(struct OCP_QP *qp, struct IPM_HARD_OCP_QP_W
 
 	for(ss=0; ss<=N; ss++)
 		{
-		VECEX_SP_LIBSTR(ns[ss], 1.0, idxs[ss], dt+ss, 0, tmp_nsM+0, 0); // XXX ???
-		VECEX_SP_LIBSTR(ns[ss], 1.0, idxs[ss], Gamma+ss, 0, tmp_nsM+1, 0);
-		ptr0 = (tmp_nsM+0)->pa;
-		ptr1 = (tmp_nsM+1)->pa;
-		for(ii=0; ii<ns[ss]; ii++)
-			ptr1[ii] = ptr1[ii]*ptr0[ii];
-		AXPY_LIBSTR(ns[ss], 1.0, tmp_nsM+1, 0, dux+ss, nu[ss]+nx[ss], dux+ss, nu[ss]+nx[ss]);
-
-		VECEX_SP_LIBSTR(ns[ss], 1.0, idxs[ss], dt+ss, 0, tmp_nsM+0, 0); // XXX ???
-		VECEX_SP_LIBSTR(ns[ss], 1.0, idxs[ss], Gamma+ss, nb[ss]+ng[ss], tmp_nsM+1, 0);
-		ptr0 = (tmp_nsM+0)->pa;
-		ptr1 = (tmp_nsM+1)->pa;
-		for(ii=0; ii<ns[ss]; ii++)
-			ptr1[ii] = ptr1[ii]*ptr0[ii];
-		AXPY_LIBSTR(ns[ss], -1.0, tmp_nsM+1, 0, dux+ss, nu[ss]+nx[ss]+ns[ss], dux+ss, nu[ss]+nx[ss]+ns[ss]);
-
-		ptr0 = (Zs_inv+ss)->pa;
-		ptr1 = (dux+ss)->pa+nu[ss]+nx[ss];
-		for(ii=0; ii<2*ns[ss]; ii++)
-			ptr1[ii] = - ptr1[ii]*ptr0[ii];
-
-		VECAD_SP_LIBSTR(ns[ss], 1.0, dux+ss, nu[ss]+nx[ss], idxs[ss], dt+ss, 0);
-		VECAD_SP_LIBSTR(ns[ss], 1.0, dux+ss, nu[ss]+nx[ss]+ns[ss], idxs[ss], dt+ss, nb[ss]+ng[ss]);
-		}
-	
-	for(ss=0; ss<=N; ss++)
-		{
-		VECCP_LIBSTR(2*ns[ss], dux+ss, nu[ss]+nx[ss], dt+ss, 2*nb[ss]+2*ng[ss]);
-//		VECEX_SP_LIBSTR(ns[ss], 1.0, idxs[ss], dt+ss, 0, tmp_nsM, 0);
-//		AXPY_LIBSTR(ns[ss],  1.0, tmp_nsM, 0, dt+ss, 2*nb[ss]+2*ng[ss], dt+ss, 2*nb[ss]+2*ng[ss]);
-//		AXPY_LIBSTR(ns[ss], -1.0, tmp_nsM, 0, dt+ss, 2*nb[ss]+2*ng[ss]+ns[ss], dt+ss, 2*nb[ss]+2*ng[ss]+ns[ss]);
-//		ptr0 = (Zs_inv+ss)->pa;
-//		ptr1 = (dt+ss)->pa+2*nb[ss]+2*ng[ss];
-//		for(ii=0; ii<2*ns[ss]; ii++)
-//			ptr1[ii] = - ptr1[ii]*ptr0[ii];
+		if(ns[ss]>0)
+			EXPAND_SLACKS(ss, qp, ws);
 		}
 
 	COMPUTE_LAM_T_QP(cws);
@@ -811,11 +755,13 @@ void SOLVE_KKT_STEP_HARD_OCP_QP(struct OCP_QP *qp, struct IPM_HARD_OCP_QP_WORKSP
 	int *nu = qp->nu;
 	int *nb = qp->nb;
 	int *ng = qp->ng;
+	int *ns = qp->ns;
 
 	struct STRMAT *BAbt = qp->BAbt;
 	struct STRMAT *RSQrq = qp->RSQrq;
 	struct STRMAT *DCt = qp->DCt;
 	int **idxb = qp->idxb;
+	int **idxs = qp->idxs;
 
 	struct STRMAT *L = ws->L;
 	struct STRMAT *AL = ws->AL;
@@ -831,122 +777,135 @@ void SOLVE_KKT_STEP_HARD_OCP_QP(struct OCP_QP *qp, struct IPM_HARD_OCP_QP_WORKSP
 	struct STRVEC *tmp_ngM = ws->tmp_ngM;
 
 	//
-	int ii;
+	int ss, nn, ii;
 
 	struct IPM_CORE_QP_WORKSPACE *cws = ws->core_workspace;
 
-//	if(nb>0 | ng>0)
-//		{
-		COMPUTE_QX_QP(cws);
-//		}
+	COMPUTE_QX_QP(cws);
 
 	// backward substitution
 
 	// last stage
-	VECCP_LIBSTR(nu[N]+nx[N], res_g+N, 0, dux+N, 0);
-	if(nb[N]>0)
+	ss = N;
+	VECCP_LIBSTR(nu[ss]+nx[ss], res_g+ss, 0, dux+ss, 0);
+	if(ns[ss]>0)
 		{
-		AXPY_LIBSTR(nb[N], -1.0, gamma+N, nb[N]+ng[N], gamma+N, 0, tmp_nbgM, 0);
-		VECAD_SP_LIBSTR(nb[N], 1.0, tmp_nbgM, 0, idxb[N], dux+N, 0);
+		COND_SLACKS_SOLVE(ss, qp, ws);
 		}
-	// general constraints
-	if(ng[N]>0)
+	else if(nb[ss]+ng[ss]>0)
 		{
-		AXPY_LIBSTR(ng[N], -1.0, gamma+N, 2*nb[N]+ng[N], gamma+N, nb[N], tmp_nbgM, nb[N]);
-		GEMV_N_LIBSTR(nu[N]+nx[N], ng[N], 1.0, DCt+N, 0, 0, tmp_nbgM, nb[N], 1.0, dux+N, 0, dux+N, 0);
+		AXPY_LIBSTR(nb[ss]+ng[ss], -1.0, gamma+ss, nb[ss]+ng[ss], gamma+ss, 0, tmp_nbgM+1, 0);
 		}
-	TRSV_LNN_MN_LIBSTR(nu[N]+nx[N], nu[N], L+N, 0, 0, dux+N, 0, dux+N, 0);
+	if(nb[ss]>0)
+		{
+		VECAD_SP_LIBSTR(nb[ss], 1.0, tmp_nbgM+1, 0, idxb[ss], dux+ss, 0);
+		}
+	if(ng[ss]>0)
+		{
+		GEMV_N_LIBSTR(nu[ss]+nx[ss], ng[ss], 1.0, DCt+ss, 0, 0, tmp_nbgM+1, nb[ss], 1.0, dux+ss, 0, dux+ss, 0);
+		}
+	TRSV_LNN_MN_LIBSTR(nu[ss]+nx[ss], nu[ss], L+ss, 0, 0, dux+ss, 0, dux+ss, 0);
 
 	// middle stages
-	for(ii=0; ii<N-1; ii++)
+	for(nn=0; nn<N-1; nn++)
 		{
-		VECCP_LIBSTR(nu[N-ii-1]+nx[N-ii-1], res_g+N-ii-1, 0, dux+N-ii-1, 0);
-		if(nb[N-ii-1]>0)
+		ss = N-nn-1;
+		VECCP_LIBSTR(nu[ss]+nx[ss], res_g+ss, 0, dux+ss, 0);
+		if(ns[ss]>0)
 			{
-			AXPY_LIBSTR(nb[N-ii-1], -1.0, gamma+N-ii-1, nb[N-ii-1]+ng[N-ii-1], gamma+N-ii-1, 0, tmp_nbgM, 0);
-			VECAD_SP_LIBSTR(nb[N-ii-1], 1.0, tmp_nbgM, 0, idxb[N-ii-1], dux+N-ii-1, 0);
+			COND_SLACKS_SOLVE(ss, qp, ws);
 			}
-		if(ng[N-ii-1]>0)
+		else if(nb[ss]+ng[ss]>0)
 			{
-			AXPY_LIBSTR(ng[N-ii-1], -1.0, gamma+N-ii-1, 2*nb[N-ii-1]+ng[N-ii-1], gamma+N-ii-1, nb[N-ii-1], tmp_nbgM, nb[N]);
-			GEMV_N_LIBSTR(nu[N-ii-1]+nx[N-ii-1], ng[N-ii-1], 1.0, DCt+N-ii-1, 0, 0, tmp_nbgM, nb[N], 1.0, dux+N-ii-1, 0, dux+N-ii-1, 0);
+			AXPY_LIBSTR(nb[ss]+ng[ss], -1.0, gamma+ss, nb[ss]+ng[ss], gamma+ss, 0, tmp_nbgM+1, 0);
 			}
-		AXPY_LIBSTR(nx[N-ii], 1.0, dux+N-ii, nu[N-ii], Pb+N-ii-1, 0, tmp_nxM, 0);
-		GEMV_N_LIBSTR(nu[N-ii-1]+nx[N-ii-1], nx[N-ii], 1.0, BAbt+N-ii-1, 0, 0, tmp_nxM, 0, 1.0, dux+N-ii-1, 0, dux+N-ii-1, 0);
-		TRSV_LNN_MN_LIBSTR(nu[N-ii-1]+nx[N-ii-1], nu[N-ii-1], L+N-ii-1, 0, 0, dux+N-ii-1, 0, dux+N-ii-1, 0);
+		if(nb[ss]>0)
+			{
+			VECAD_SP_LIBSTR(nb[ss], 1.0, tmp_nbgM+1, 0, idxb[ss], dux+ss, 0);
+			}
+		if(ng[ss]>0)
+			{
+			GEMV_N_LIBSTR(nu[ss]+nx[ss], ng[ss], 1.0, DCt+ss, 0, 0, tmp_nbgM+1, nb[ss], 1.0, dux+ss, 0, dux+ss, 0);
+			}
+		AXPY_LIBSTR(nx[ss+1], 1.0, dux+ss+1, nu[ss+1], Pb+ss, 0, tmp_nxM, 0);
+		GEMV_N_LIBSTR(nu[ss]+nx[ss], nx[ss+1], 1.0, BAbt+ss, 0, 0, tmp_nxM, 0, 1.0, dux+ss, 0, dux+ss, 0);
+		TRSV_LNN_MN_LIBSTR(nu[ss]+nx[ss], nu[ss], L+ss, 0, 0, dux+ss, 0, dux+ss, 0);
 		}
 
 	// first stage
-	ii = N-1;
-	VECCP_LIBSTR(nu[N-ii-1]+nx[N-ii-1], res_g+N-ii-1, 0, dux+N-ii-1, 0);
-	if(nb[N-ii-1]>0)
+	nn = N-1;
+	ss = N-nn-1;
+	VECCP_LIBSTR(nu[ss]+nx[ss], res_g+ss, 0, dux+ss, 0);
+	if(ns[ss]>0)
 		{
-		AXPY_LIBSTR(nb[N-ii-1], -1.0, gamma+N-ii-1, nb[N-ii-1]+ng[N-ii-1], gamma+N-ii-1, 0, tmp_nbgM, 0);
-		VECAD_SP_LIBSTR(nb[N-ii-1], 1.0, tmp_nbgM, 0, idxb[N-ii-1], dux+N-ii-1, 0);
+		COND_SLACKS_SOLVE(ss, qp, ws);
 		}
-	if(ng[N-ii-1]>0)
+	else if(nb[ss]+ng[ss]>0)
 		{
-		AXPY_LIBSTR(ng[N-ii-1], -1.0, gamma+N-ii-1, 2*nb[N-ii-1]+ng[N-ii-1], gamma+N-ii-1, nb[N-ii-1], tmp_nbgM, nb[N-ii-1]);
-		GEMV_N_LIBSTR(nu[N-ii-1]+nx[N-ii-1], ng[N-ii-1], 1.0, DCt+N-ii-1, 0, 0, tmp_nbgM, nb[N-ii-1], 1.0, dux+N-ii-1, 0, dux+N-ii-1, 0);
+		AXPY_LIBSTR(nb[ss]+ng[ss], -1.0, gamma+ss, nb[ss]+ng[ss], gamma+ss, 0, tmp_nbgM+1, 0);
 		}
-	AXPY_LIBSTR(nx[N-ii], 1.0, dux+N-ii, nu[N-ii], Pb+N-ii-1, 0, tmp_nxM, 0);
-	GEMV_N_LIBSTR(nu[N-ii-1]+nx[N-ii-1], nx[N-ii], 1.0, BAbt+N-ii-1, 0, 0, tmp_nxM, 0, 1.0, dux+N-ii-1, 0, dux+N-ii-1, 0);
-	TRSV_LNN_LIBSTR(nu[N-ii-1]+nx[N-ii-1], L+N-ii-1, 0, 0, dux+N-ii-1, 0, dux+N-ii-1, 0);
+	if(nb[ss]>0)
+		{
+		VECAD_SP_LIBSTR(nb[ss], 1.0, tmp_nbgM+1, 0, idxb[ss], dux+ss, 0);
+		}
+	if(ng[ss]>0)
+		{
+		GEMV_N_LIBSTR(nu[ss]+nx[ss], ng[ss], 1.0, DCt+ss, 0, 0, tmp_nbgM+1, nb[ss], 1.0, dux+ss, 0, dux+ss, 0);
+		}
+	AXPY_LIBSTR(nx[ss+1], 1.0, dux+ss+1, nu[ss+1], Pb+ss, 0, tmp_nxM, 0);
+	GEMV_N_LIBSTR(nu[ss]+nx[ss], nx[ss+1], 1.0, BAbt+ss, 0, 0, tmp_nxM, 0, 1.0, dux+ss, 0, dux+ss, 0);
+	TRSV_LNN_LIBSTR(nu[ss]+nx[ss], L+ss, 0, 0, dux+ss, 0, dux+ss, 0);
+
+	// forward substitution
 
 	// first stage
-	ii = 0;
-	VECCP_LIBSTR(nx[ii+1], dux+ii+1, nu[ii+1], dpi+ii, 0);
-	VECSC_LIBSTR(nu[ii]+nx[ii], -1.0, dux+ii, 0);
-	TRSV_LTN_LIBSTR(nu[ii]+nx[ii], L+ii, 0, 0, dux+ii, 0, dux+ii, 0);
-	GEMV_T_LIBSTR(nu[ii]+nx[ii], nx[ii+1], 1.0, BAbt+ii, 0, 0, dux+ii, 0, 1.0, res_b+ii, 0, dux+ii+1, nu[ii+1]);
-	VECCP_LIBSTR(nx[ii+1], dux+ii+1, nu[ii+1], tmp_nxM, 0);
-	TRMV_LTN_LIBSTR(nx[ii+1], nx[ii+1], L+ii+1, nu[ii+1], nu[ii+1], tmp_nxM, 0, tmp_nxM, 0);
-	TRMV_LNN_LIBSTR(nx[ii+1], nx[ii+1], L+ii+1, nu[ii+1], nu[ii+1], tmp_nxM, 0, tmp_nxM, 0);
-	AXPY_LIBSTR(nx[ii+1], 1.0, tmp_nxM, 0, dpi+ii, 0, dpi+ii, 0);
+	ss = 0;
+	VECCP_LIBSTR(nx[ss+1], dux+ss+1, nu[ss+1], dpi+ss, 0);
+	VECSC_LIBSTR(nu[ss]+nx[ss], -1.0, dux+ss, 0);
+	TRSV_LTN_LIBSTR(nu[ss]+nx[ss], L+ss, 0, 0, dux+ss, 0, dux+ss, 0);
+	GEMV_T_LIBSTR(nu[ss]+nx[ss], nx[ss+1], 1.0, BAbt+ss, 0, 0, dux+ss, 0, 1.0, res_b+ss, 0, dux+ss+1, nu[ss+1]);
+	VECCP_LIBSTR(nx[ss+1], dux+ss+1, nu[ss+1], tmp_nxM, 0);
+	TRMV_LTN_LIBSTR(nx[ss+1], nx[ss+1], L+ss+1, nu[ss+1], nu[ss+1], tmp_nxM, 0, tmp_nxM, 0);
+	TRMV_LNN_LIBSTR(nx[ss+1], nx[ss+1], L+ss+1, nu[ss+1], nu[ss+1], tmp_nxM, 0, tmp_nxM, 0);
+	AXPY_LIBSTR(nx[ss+1], 1.0, tmp_nxM, 0, dpi+ss, 0, dpi+ss, 0);
 
 	// middle stages
-	for(ii=1; ii<N; ii++)
+	for(ss=1; ss<N; ss++)
 		{
-		VECCP_LIBSTR(nx[ii+1], dux+ii+1, nu[ii+1], dpi+ii, 0);
-		VECSC_LIBSTR(nu[ii], -1.0, dux+ii, 0);
-		TRSV_LTN_MN_LIBSTR(nu[ii]+nx[ii], nu[ii], L+ii, 0, 0, dux+ii, 0, dux+ii, 0);
-		GEMV_T_LIBSTR(nu[ii]+nx[ii], nx[ii+1], 1.0, BAbt+ii, 0, 0, dux+ii, 0, 1.0, res_b+ii, 0, dux+ii+1, nu[ii+1]);
-		VECCP_LIBSTR(nx[ii+1], dux+ii+1, nu[ii+1], tmp_nxM, 0);
-		TRMV_LTN_LIBSTR(nx[ii+1], nx[ii+1], L+ii+1, nu[ii+1], nu[ii+1], tmp_nxM, 0, tmp_nxM, 0);
-		TRMV_LNN_LIBSTR(nx[ii+1], nx[ii+1], L+ii+1, nu[ii+1], nu[ii+1], tmp_nxM, 0, tmp_nxM, 0);
-		AXPY_LIBSTR(nx[ii+1], 1.0, tmp_nxM, 0, dpi+ii, 0, dpi+ii, 0);
+		VECCP_LIBSTR(nx[ss+1], dux+ss+1, nu[ss+1], dpi+ss, 0);
+		VECSC_LIBSTR(nu[ss], -1.0, dux+ss, 0);
+		TRSV_LTN_MN_LIBSTR(nu[ss]+nx[ss], nu[ss], L+ss, 0, 0, dux+ss, 0, dux+ss, 0);
+		GEMV_T_LIBSTR(nu[ss]+nx[ss], nx[ss+1], 1.0, BAbt+ss, 0, 0, dux+ss, 0, 1.0, res_b+ss, 0, dux+ss+1, nu[ss+1]);
+		VECCP_LIBSTR(nx[ss+1], dux+ss+1, nu[ss+1], tmp_nxM, 0);
+		TRMV_LTN_LIBSTR(nx[ss+1], nx[ss+1], L+ss+1, nu[ss+1], nu[ss+1], tmp_nxM, 0, tmp_nxM, 0);
+		TRMV_LNN_LIBSTR(nx[ss+1], nx[ss+1], L+ss+1, nu[ss+1], nu[ss+1], tmp_nxM, 0, tmp_nxM, 0);
+		AXPY_LIBSTR(nx[ss+1], 1.0, tmp_nxM, 0, dpi+ss, 0, dpi+ss, 0);
 		}
 
-	ii = N;
-	VECSC_LIBSTR(nu[ii], -1.0, dux+ii, 0);
-	TRSV_LTN_MN_LIBSTR(nu[ii]+nx[ii], nu[ii], L+ii, 0, 0, dux+ii, 0, dux+ii, 0);
+	ss = N;
+	VECSC_LIBSTR(nu[ss], -1.0, dux+ss, 0);
+	TRSV_LTN_MN_LIBSTR(nu[ss]+nx[ss], nu[ss], L+ss, 0, 0, dux+ss, 0, dux+ss, 0);
 
 
 
-//	if(nb>0)
-//		{
-		for(ii=0; ii<=N; ii++)
-			VECEX_SP_LIBSTR(nb[ii], 1.0, idxb[ii], dux+ii, 0, dt+ii, 0);
-//		}
+	for(ss=0; ss<=N; ss++)
+		VECEX_SP_LIBSTR(nb[ss], 1.0, idxb[ss], dux+ss, 0, dt+ss, 0);
+	for(ss=0; ss<=N; ss++)
+		GEMV_T_LIBSTR(nu[ss]+nx[ss], ng[ss], 1.0, DCt+ss, 0, 0, dux+ss, 0, 0.0, dt+ss, nb[ss], dt+ss, nb[ss]);
 
-//	if(ng>0)
-//		{
-		for(ii=0; ii<=N; ii++)
-			GEMV_T_LIBSTR(nu[ii]+nx[ii], ng[ii], 1.0, DCt+ii, 0, 0, dux+ii, 0, 0.0, dt+ii, nb[ii], dt+ii, nb[ii]);
-//		}
+	for(ss=0; ss<=N; ss++)
+		{
+		VECCP_LIBSTR(nb[ss]+ng[ss], dt+ss, 0, dt+ss, nb[ss]+ng[ss]);
+		VECSC_LIBSTR(nb[ss]+ng[ss], -1.0, dt+ss, nb[ss]+ng[ss]);
+		}
 
-		for(ii=0; ii<=N; ii++)
-			{
-			VECCP_LIBSTR(nb[ii]+ng[ii], dt+ii, 0, dt+ii, nb[ii]+ng[ii]);
-			VECSC_LIBSTR(nb[ii]+ng[ii], -1.0, dt+ii, nb[ii]+ng[ii]);
-			}
+	for(ss=0; ss<=N; ss++)
+		{
+		if(ns[ss]>0)
+			EXPAND_SLACKS(ss, qp, ws);
+		}
 
-//		exit(2);
-
-//	if(nb>0 | ng>0)
-//		{
-		COMPUTE_LAM_T_QP(cws);
-//		}
+	COMPUTE_LAM_T_QP(cws);
 
 	return;
 

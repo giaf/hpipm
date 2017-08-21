@@ -301,7 +301,7 @@ int main()
 	int ns[N+1];
 	ns[0] = 0;
 	for(ii=1; ii<N; ii++)
-		ns[ii] = 0;
+		ns[ii] = nx[ii]/2;
 	ns[N] = nx[N]/2;
 #elif 0
 	int nb[N+1];
@@ -469,8 +469,8 @@ int main()
 			}
 		else // state
 			{
-			d_lb1[ii] = - 4.0; // xmin
-			d_ub1[ii] =   4.0; // xmax
+			d_lb1[ii] = - 1.0; // xmin
+			d_ub1[ii] =   1.0; // xmax
 			}
 		idxb1[ii] = ii;
 		}
@@ -496,8 +496,8 @@ int main()
 	double *d_ugN; d_zeros(&d_ugN, ng[N], 1);
 	for(ii=0; ii<nb[N]; ii++)
 		{
-		d_lbN[ii] = - 0.5; // xmin
-		d_ubN[ii] =   0.5; // xmax
+		d_lbN[ii] = - 1.0; // xmin
+		d_ubN[ii] =   1.0; // xmax
 		idxbN[ii] = ii;
 		}
 	for(ii=0; ii<ng[N]; ii++)
@@ -586,6 +586,19 @@ int main()
 	int *idxsN; int_zeros(&idxsN, ns[N], 1);
 	for(ii=0; ii<ns[N]; ii++)
 		idxsN[ii] = nu[N]+ii;
+
+#if 1
+	// soft constraints
+	int_print_mat(1, ns[0], idxs0, 1);
+	d_print_mat(1, 2*ns[0], Z0, 1);
+	d_print_mat(1, 2*ns[0], z0, 1);
+	int_print_mat(1, ns[1], idxs1, 1);
+	d_print_mat(1, 2*ns[1], Z1, 1);
+	d_print_mat(1, 2*ns[1], z1, 1);
+	int_print_mat(1, ns[N], idxsN, 1);
+	d_print_mat(1, 2*ns[N], ZN, 1);
+	d_print_mat(1, 2*ns[N], zN, 1);
+#endif
 
 /************************************************
 * array of matrices
@@ -733,8 +746,8 @@ int main()
 
 	for(rep=0; rep<nrep; rep++)
 		{
-		d_solve_ipm_hard_ocp_qp(&qp, &qp_sol, &workspace);
-//		d_solve_ipm2_hard_ocp_qp(&qp, &qp_sol, &workspace);
+//		d_solve_ipm_hard_ocp_qp(&qp, &qp_sol, &workspace);
+		d_solve_ipm2_hard_ocp_qp(&qp, &qp_sol, &workspace);
 		}
 
 	gettimeofday(&tv1, NULL); // stop

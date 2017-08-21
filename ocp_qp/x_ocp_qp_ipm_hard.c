@@ -278,6 +278,8 @@ void CREATE_IPM_HARD_OCP_QP(struct OCP_QP *qp, struct IPM_HARD_OCP_QP_ARG *arg, 
 		{
 		CREATE_STRVEC(nu[ii]+nx[ii], workspace->dux+ii, c_ptr);
 		c_ptr += (nu[ii]+nx[ii])*sizeof(REAL);
+		c_ptr += ns[ii]*sizeof(REAL);
+		c_ptr += ns[ii]*sizeof(REAL);
 		}
 	//
 	c_ptr = (char *) cws->dpi;
@@ -385,6 +387,7 @@ void SOLVE_IPM_HARD_OCP_QP(struct OCP_QP *qp, struct OCP_QP_SOL *qp_sol, struct 
 //	printf("\n%e\n", cws->nt_inv);
 //	exit(1);
 //cws->nt_inv = 1.063830e-2;
+//cws->nt_inv = 5.263158e-3;
 
 	int kk = 0;
 
@@ -753,10 +756,36 @@ void SOLVE_IPM2_HARD_OCP_QP(struct OCP_QP *qp, struct OCP_QP_SOL *qp_sol, struct
 		SOLVE_KKT_STEP_HARD_OCP_QP(qp, ws);
 
 #if 0
-d_print_e_mat(1, cws->nv, cws->dv, 1);
-d_print_e_mat(1, cws->ne, cws->dpi, 1);
-d_print_e_mat(1, 2*cws->nc, cws->dt, 1);
-d_print_e_mat(1, 2*cws->nc, cws->dlam, 1);
+int ii;
+double *ptr;
+printf("\nduxs\n");
+ptr = cws->dv;
+for(ii=0; ii<=qp->N; ii++)
+	{
+	d_print_e_mat(1, qp->nu[ii]+qp->nx[ii]+2*qp->ns[ii], ptr, 1);
+	ptr += qp->nu[ii]+qp->nx[ii]+2*qp->ns[ii];
+	}
+printf("\ndpi\n");
+ptr = cws->dpi;
+for(ii=0; ii<qp->N; ii++)
+	{
+	d_print_e_mat(1, qp->nx[ii+1], ptr, 1);
+	ptr += qp->nx[ii+1];
+	}
+printf("\ndlam\n");
+ptr = cws->dlam;
+for(ii=0; ii<=qp->N; ii++)
+	{
+	d_print_e_mat(1, 2*qp->nb[ii]+2*qp->ng[ii]+2*qp->ns[ii], ptr, 1);
+	ptr += 2*qp->nb[ii]+2*qp->ng[ii]+2*qp->ns[ii];
+	}
+printf("\ndt\n");
+ptr = cws->dt;
+for(ii=0; ii<=qp->N; ii++)
+	{
+	d_print_e_mat(1, 2*qp->nb[ii]+2*qp->ng[ii]+2*qp->ns[ii], ptr, 1);
+	ptr += 2*qp->nb[ii]+2*qp->ng[ii]+2*qp->ns[ii];
+	}
 exit(1);
 #endif
 
