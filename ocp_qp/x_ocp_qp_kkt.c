@@ -46,7 +46,7 @@ void INIT_VAR_HARD_OCP_QP(struct OCP_QP *qp, struct OCP_QP_SOL *qp_sol, struct I
 	REAL mu0 = cws->mu0;
 
 	//
-	REAL *ux, *s_lb, *s_ub, *pi, *d_lb, *d_ub, *d_lg, *d_ug, *lam_lb, *lam_ub, *lam_lg, *lam_ug, *t_lb, *t_ub, *t_lg, *t_ug;
+	REAL *ux, *pi, *d_lb, *d_ub, *d_lg, *d_ug, *lam_lb, *lam_ub, *lam_lg, *lam_ug, *t_lb, *t_ub, *t_lg, *t_ug;
 	int *idxb;
 
 	REAL thr0 = 0.1;
@@ -124,8 +124,7 @@ void INIT_VAR_HARD_OCP_QP(struct OCP_QP *qp, struct OCP_QP_SOL *qp_sol, struct I
 		d_lg = qp->d[ii].pa+nb[ii];
 		d_ug = qp->d[ii].pa+2*nb[ii]+ng[ii];
 		ux = qp_sol->ux[ii].pa;
-//		GEMV_T_LIBSTR(nu[ii]+nx[ii], ng[ii], 1.0, qp->DCt+ii, 0, 0, qp_sol->ux+ii, 0, 0.0, qp_sol->t+ii, nb[ii], qp_sol->t+ii, nb[ii]);
-		GEMV_T_LIBSTR(nu[ii]+nx[ii], ng[ii], 0.0, qp->DCt+ii, 0, 0, qp_sol->ux+ii, 0, 0.0, qp_sol->t+ii, nb[ii], qp_sol->t+ii, nb[ii]);
+		GEMV_T_LIBSTR(nu[ii]+nx[ii], ng[ii], 1.0, qp->DCt+ii, 0, 0, qp_sol->ux+ii, 0, 0.0, qp_sol->t+ii, nb[ii], qp_sol->t+ii, nb[ii]);
 		for(jj=0; jj<ng[ii]; jj++)
 			{
 			t_ug[jj] = - t_lg[jj];
@@ -143,19 +142,14 @@ void INIT_VAR_HARD_OCP_QP(struct OCP_QP *qp, struct OCP_QP_SOL *qp_sol, struct I
 	// soft constraints
 	for(ii=0; ii<=N; ii++)
 		{
-		s_lb = qp_sol->ux[ii].pa+nu[ii]+nx[ii];
-		s_ub = qp_sol->ux[ii].pa+nu[ii]+nx[ii]+ns[ii];
 		lam_lb = qp_sol->lam[ii].pa+2*nb[ii]+2*ng[ii];
 		lam_ub = qp_sol->lam[ii].pa+2*nb[ii]+2*ng[ii]+ns[ii];
 		t_lb = qp_sol->t[ii].pa+2*nb[ii]+2*ng[ii];
 		t_ub = qp_sol->t[ii].pa+2*nb[ii]+2*ng[ii]+ns[ii];
-//		idxs = qp->idxs[ii];
 		for(jj=0; jj<ns[ii]; jj++)
 			{
-			s_lb[jj] = thr0;
-			s_ub[jj] = thr0;
-			t_lb[jj] = thr0;//1.0;
-			t_ub[jj] = thr0;//1.0;
+			t_lb[jj] = 1.0; // thr0;
+			t_ub[jj] = 1.0; // thr0;
 			lam_lb[jj] = mu0/t_lb[jj];
 			lam_ub[jj] = mu0/t_ub[jj];
 			}
@@ -230,38 +224,28 @@ void COMPUTE_RES_HARD_OCP_QP(struct OCP_QP *qp, struct OCP_QP_SOL *qp_sol, struc
 
 		SYMV_L_LIBSTR(nu0+nx0, nu0+nx0, 1.0, RSQrq+ii, 0, 0, ux+ii, 0, 1.0, res_g+ii, 0, res_g+ii, 0);
 
-		if(nb0>0)
+		if(nb0+ng0>0)
 			{
+			AXPY_LIBSTR(nb0+ng0, -1.0, lam+ii, 0, lam+ii, nb[ii]+ng[ii], tmp_nbgM+0, 0);
+			AXPY_LIBSTR(nb0+ng0,  1.0, d+ii, 0, t+ii, 0, res_d+ii, 0);
+			AXPY_LIBSTR(nb0+ng0, -1.0, d+ii, nb0+ng0, t+ii, nb0+ng0, res_d+ii, nb0+ng0);
 
-			AXPY_LIBSTR(nb0, -1.0, lam+ii, 0, lam+ii, nb[ii]+ng[ii], tmp_nbgM, 0);
-			VECAD_SP_LIBSTR(nb0, 1.0, tmp_nbgM, 0, idxb[ii], res_g+ii, 0);
+			// box
+			if(nb0>0)
+				{
+				VECAD_SP_LIBSTR(nb0, 1.0, tmp_nbgM+0, 0, idxb[ii], res_g+ii, 0);
+				VECEX_SP_LIBSTR(nb0, 1.0, idxb[ii], ux+ii, 0, tmp_nbgM+1, 0);
+				}
 
-			VECEX_SP_LIBSTR(nb0, -1.0, idxb[ii], ux+ii, 0, res_d+ii, 0);
-			VECCP_LIBSTR(nb0, res_d+ii, 0, res_d+ii, nb0+ng0);
-			AXPY_LIBSTR(nb0, 1.0, d+ii, 0, res_d+ii, 0, res_d+ii, 0);
-			AXPY_LIBSTR(nb0, 1.0, d+ii, nb[ii]+ng[ii], res_d+ii, nb0+ng0, res_d+ii, nb0+ng0);
-			AXPY_LIBSTR(nb0, 1.0, t+ii, 0, res_d+ii, 0, res_d+ii, 0);
-			AXPY_LIBSTR(nb0, -1.0, t+ii, nb[ii]+ng[ii], res_d+ii, nb0+ng0, res_d+ii, nb0+ng0);
-			VECSC_LIBSTR(nb0, -1.0, res_d+ii, nb0+ng0); // TODO embed with above
+			// general
+			if(ng0>0)
+				{
+				GEMV_NT_LIBSTR(nu0+nx0, ng0, 1.0, 1.0, DCt+ii, 0, 0, tmp_nbgM+0, nb[ii], ux+ii, 0, 1.0, 0.0, res_g+ii, 0, tmp_nbgM+1, nb0, res_g+ii, 0, tmp_nbgM+1, nb0);
+				}
 
+			AXPY_LIBSTR(nb0+ng0, -1.0, tmp_nbgM+1, 0, res_d+ii, 0, res_d+ii, 0);
+			AXPY_LIBSTR(nb0+ng0, 1.0, tmp_nbgM+1, 0, res_d+ii, nb0+ng0, res_d+ii, nb0+ng0);
 			}
-
-		if(ng0>0) // TODO merge with bounds as much as possible
-			{
-
-			AXPY_LIBSTR(ng0, -1.0, lam+ii, nb[ii], lam+ii, 2*nb[ii]+ng[ii], tmp_nbgM, nb[ii]);
-
-			AXPY_LIBSTR(ng0,  1.0, t+ii, nb[ii], d+ii, nb[ii], res_d+ii, nb0);
-			AXPY_LIBSTR(ng0, -1.0, t+ii, 2*nb[ii]+ng[ii], d+ii, 2*nb[ii]+ng[ii], res_d+ii, 2*nb0+ng0);
-
-			GEMV_NT_LIBSTR(nu0+nx0, ng0, 1.0, 1.0, DCt+ii, 0, 0, tmp_nbgM, nb[ii], ux+ii, 0, 1.0, 0.0, res_g+ii, 0, tmp_ngM, 0, res_g+ii, 0, tmp_ngM, 0);
-
-			AXPY_LIBSTR(ng0, -1.0, tmp_ngM, 0, res_d+ii, nb0, res_d+ii, nb0);
-			AXPY_LIBSTR(ng0, -1.0, tmp_ngM, 0, res_d+ii, 2*nb0+ng0, res_d+ii, 2*nb0+ng0);
-			VECSC_LIBSTR(ng0, -1.0, res_d+ii, 2*nb0+ng0); // TODO embed with above
-
-			}
-
 		if(ns0>0)
 			{
 
@@ -344,8 +328,6 @@ void FACT_SOLVE_KKT_UNCONSTR_OCP_QP(struct OCP_QP *qp, struct OCP_QP_SOL *qp_sol
 		GEAD_LIBSTR(1, nx[N-ii], 1.0, L+(N-ii), nu[N-ii]+nx[N-ii], nu[N-ii], AL, nu[N-ii-1]+nx[N-ii-1], 0);
 
 		SYRK_POTRF_LN_LIBSTR(nu[N-ii-1]+nx[N-ii-1]+1, nu[N-ii-1]+nx[N-ii-1], nx[N-ii], AL, 0, 0, AL, 0, 0, RSQrq+(N-ii-1), 0, 0, L+(N-ii-1), 0, 0);
-
-//		d_print_strmat(nu[N-ii-1]+nx[N-ii-1]+1, nu[N-ii-1]+nx[N-ii-1], L+(N-ii-1), 0, 0);
 		}
 
 	// forward substitution
@@ -360,8 +342,6 @@ void FACT_SOLVE_KKT_UNCONSTR_OCP_QP(struct OCP_QP *qp, struct OCP_QP_SOL *qp_sol
 	AXPY_LIBSTR(nx[ii+1], 1.0, tmp_nxM, 0, pi+ii, 0, pi+ii, 0);
 	TRMV_LNN_LIBSTR(nx[ii+1], nx[ii+1], L+(ii+1), nu[ii+1], nu[ii+1], pi+ii, 0, pi+ii, 0);
 
-//	d_print_tran_strvec(nu[ii]+nx[ii], ux+ii, 0);
-
 	// middle stages
 	for(ii=1; ii<N; ii++)
 		{
@@ -372,8 +352,6 @@ void FACT_SOLVE_KKT_UNCONSTR_OCP_QP(struct OCP_QP *qp, struct OCP_QP_SOL *qp_sol
 		TRMV_LTN_LIBSTR(nx[ii+1], nx[ii+1], L+(ii+1), nu[ii+1], nu[ii+1], ux+(ii+1), nu[ii+1], pi+ii, 0);
 		AXPY_LIBSTR(nx[ii+1], 1.0, tmp_nxM, 0, pi+ii, 0, pi+ii, 0);
 		TRMV_LNN_LIBSTR(nx[ii+1], nx[ii+1], L+(ii+1), nu[ii+1], nu[ii+1], pi+ii, 0, pi+ii, 0);
-
-//		d_print_tran_strvec(nu[ii]+nx[ii], ux+ii, 0);
 		}
 	
 	ii = N;
@@ -429,7 +407,6 @@ static void COND_SLACKS_FACT_SOLVE(int ss, struct OCP_QP *qp, struct IPM_HARD_OC
 	for(ii=0; ii<ns0; ii++)
 		{
 		idx = idxs0[ii];
-//printf("\n%d %d\n", ii, idx);
 		ptr_Zs_inv[0+ii]   = ptr_Z[0+ii]   + ptr_Gamma[0+idx]       + ptr_Gamma[2*nb0+2*ng0+ii];
 		ptr_Zs_inv[ns0+ii] = ptr_Z[ns0+ii] + ptr_Gamma[nb0+ng0+idx] + ptr_Gamma[2*nb0+2*ng0+ns0+ii];
 		ptr_dux[nu0+nx0+ii]      = ptr_res_g[nu0+nx0+ii]     + ptr_gamma[0+idx]   + ptr_gamma[2*nb0+2*ng0+ii];
@@ -443,14 +420,6 @@ static void COND_SLACKS_FACT_SOLVE(int ss, struct OCP_QP *qp, struct IPM_HARD_OC
 		ptr_tmp2[idx] = ptr_tmp2[idx] - ptr_Gamma[0+idx]*tmp0;
 		ptr_tmp3[idx] = ptr_tmp3[idx] - ptr_Gamma[nb0+ng0+idx]*tmp1;
 		}
-//d_print_tran_strvec(2*ns0, Zs_inv, 0);
-//d_print_tran_strvec(nu0+nx0+2*ns0, res_g, 0);
-//d_print_tran_strvec(nu0+nx0+2*ns0, dux, 0);
-
-//d_print_tran_strvec(nb0+ng0, tmp_nbgM+0, 0);
-//d_print_tran_strvec(nb0+ng0, tmp_nbgM+1, 0);
-//d_print_tran_strvec(nb0+ng0, tmp_nbgM+2, 0);
-//d_print_tran_strvec(nb0+ng0, tmp_nbgM+3, 0);
 	
 	AXPY_LIBSTR(nb0+ng0,  1.0, tmp_nbgM+1, 0, tmp_nbgM+0, 0, tmp_nbgM+0, 0);
 	AXPY_LIBSTR(nb0+ng0, -1.0, tmp_nbgM+3, 0, tmp_nbgM+2, 0, tmp_nbgM+1, 0);
@@ -546,8 +515,8 @@ static void EXPAND_SLACKS(int ss, struct OCP_QP *qp, struct IPM_HARD_OCP_QP_WORK
 		idx = idxs0[ii];
 		ptr_dux[nu0+nx0+ii]     = - ptr_Zs_inv[0+ii]   * (ptr_dux[nu0+nx0+ii]     + ptr_dt[idx]*ptr_Gamma[idx]);
 		ptr_dux[nu0+nx0+ns0+ii] = - ptr_Zs_inv[ns0+ii] * (ptr_dux[nu0+nx0+ns0+ii] + ptr_dt[nb0+ng0+idx]*ptr_Gamma[nb0+ng0+idx]);
-		ptr_dt[2*nb0+2*ng0+ii]     = ptr_dux[nu0+nx0+ii]; // TODO res_d !!!
-		ptr_dt[2*nb0+2*ng0+ns0+ii] = ptr_dux[nu0+nx0+ns0+ii]; // TODO res_d !!!
+		ptr_dt[2*nb0+2*ng0+ii]     = ptr_dux[nu0+nx0+ii];
+		ptr_dt[2*nb0+2*ng0+ns0+ii] = ptr_dux[nu0+nx0+ns0+ii];
 		ptr_dt[0+idx]       = ptr_dt[0+idx]   + ptr_dux[nu0+nx0+ii];
 		ptr_dt[nb0+ng0+idx] = ptr_dt[nb0+ng0+idx] + ptr_dux[nu0+nx0+ns0+ii];
 
@@ -684,11 +653,7 @@ void FACT_SOLVE_KKT_STEP_HARD_OCP_QP(struct OCP_QP *qp, struct IPM_HARD_OCP_QP_W
 			SYRK_POTRF_LN_LIBSTR(nu[ss]+nx[ss]+1, nu[ss]+nx[ss], nx[ss+1], AL, 0, 0, AL, 0, 0, L+ss, 0, 0, L+ss, 0, 0);
 			}
 
-//exit(1);
 		}
-//for(ss=0; ss<=N; ss++)
-//	d_print_strmat(nu[ss]+nx[ss]+1, nu[ss]+nx[ss], L+ss, 0, 0);
-//exit(1);
 
 	// forward substitution
 
@@ -712,8 +677,6 @@ void FACT_SOLVE_KKT_STEP_HARD_OCP_QP(struct OCP_QP *qp, struct IPM_HARD_OCP_QP_W
 		TRMV_LTN_LIBSTR(nx[ss+1], nx[ss+1], L+ss+1, nu[ss+1], nu[ss+1], dux+ss+1, nu[ss+1], dpi+ss, 0);
 		AXPY_LIBSTR(nx[ss+1], 1.0, tmp_nxM, 0, dpi+ss, 0, dpi+ss, 0);
 		TRMV_LNN_LIBSTR(nx[ss+1], nx[ss+1], L+ss+1, nu[ss+1], nu[ss+1], dpi+ss, 0, dpi+ss, 0);
-
-//		d_print_tran_strvec(nu[ss]+nx[ss], dux+ss, 0);
 		}
 
 	ss = N;
