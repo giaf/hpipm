@@ -199,7 +199,6 @@ void COMPUTE_RES_HARD_OCP_QP(struct OCP_QP *qp, struct OCP_QP_SOL *qp_sol, struc
 	struct STRVEC *res_b = ws->res_b;
 	struct STRVEC *res_d = ws->res_d;
 	struct STRVEC *tmp_nbgM = ws->tmp_nbgM;
-	struct STRVEC *tmp_ngM = ws->tmp_ngM;
 	struct STRVEC *tmp_nsM = ws->tmp_nsM;
 
 	int nx0, nx1, nu0, nu1, nb0, ng0, ns0;
@@ -384,7 +383,6 @@ static void COND_SLACKS_FACT_SOLVE(int ss, struct OCP_QP *qp, struct IPM_HARD_OC
 	struct STRVEC *gamma = ws->gamma+ss;
 	struct STRVEC *Zs_inv = ws->Zs_inv+ss;
 	struct STRVEC *tmp_nbgM = ws->tmp_nbgM;
-	struct STRVEC *tmp_nsM = ws->tmp_nsM;
 
 	REAL *ptr_Gamma = Gamma->pa;
 	REAL *ptr_gamma = gamma->pa;
@@ -449,7 +447,6 @@ static void COND_SLACKS_SOLVE(int ss, struct OCP_QP *qp, struct IPM_HARD_OCP_QP_
 	struct STRVEC *gamma = ws->gamma+ss;
 	struct STRVEC *Zs_inv = ws->Zs_inv+ss;
 	struct STRVEC *tmp_nbgM = ws->tmp_nbgM;
-	struct STRVEC *tmp_nsM = ws->tmp_nsM;
 
 	REAL *ptr_Gamma = Gamma->pa;
 	REAL *ptr_gamma = gamma->pa;
@@ -560,8 +557,6 @@ void FACT_SOLVE_KKT_STEP_HARD_OCP_QP(struct OCP_QP *qp, struct IPM_HARD_OCP_QP_W
 	struct STRVEC *Zs_inv = ws->Zs_inv;
 	struct STRVEC *tmp_nxM = ws->tmp_nxM;
 	struct STRVEC *tmp_nbgM = ws->tmp_nbgM;
-	struct STRVEC *tmp_ngM = ws->tmp_ngM;
-	struct STRVEC *tmp_nsM = ws->tmp_nsM;
 
 	REAL *ptr0, *ptr1, *ptr2, *ptr3;
 
@@ -737,7 +732,6 @@ void SOLVE_KKT_STEP_HARD_OCP_QP(struct OCP_QP *qp, struct IPM_HARD_OCP_QP_WORKSP
 	struct STRVEC *Pb = ws->Pb;
 	struct STRVEC *tmp_nxM = ws->tmp_nxM;
 	struct STRVEC *tmp_nbgM = ws->tmp_nbgM;
-	struct STRVEC *tmp_ngM = ws->tmp_ngM;
 
 	//
 	int ss, nn, ii;
