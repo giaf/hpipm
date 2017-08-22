@@ -307,7 +307,7 @@ void CREATE_OCP_QP(int N, int *nx, int *nu, int *nb, int *ng, int *ns, struct OC
 
 
 
-void CVT_COLMAJ_TO_OCP_QP(REAL **A, REAL **B, REAL **b, REAL **Q, REAL **S, REAL **R, REAL **q, REAL **r, int **idxb, REAL **d_lb, REAL **d_ub, REAL **C, REAL **D, REAL **d_lg, REAL **d_ug, REAL **Z, REAL **z, int **idxs, struct OCP_QP *qp)
+void CVT_COLMAJ_TO_OCP_QP(REAL **A, REAL **B, REAL **b, REAL **Q, REAL **S, REAL **R, REAL **q, REAL **r, int **idxb, REAL **d_lb, REAL **d_ub, REAL **C, REAL **D, REAL **d_lg, REAL **d_ug, REAL **Zl, REAL **Zu, REAL **zl, REAL **zu, int **idxs, struct OCP_QP *qp)
 	{
 
 	int N = qp->N;
@@ -358,8 +358,10 @@ void CVT_COLMAJ_TO_OCP_QP(REAL **A, REAL **B, REAL **b, REAL **Q, REAL **S, REAL
 		{
 		for(jj=0; jj<ns[ii]; jj++)
 			qp->idxs[ii][jj] = idxs[ii][jj];
-		CVT_VEC2STRVEC(2*ns[ii], Z[ii], qp->Z+ii, 0);
-		CVT_VEC2STRVEC(2*ns[ii], z[ii], qp->z+ii, 0);
+		CVT_VEC2STRVEC(ns[ii], Zl[ii], qp->Z+ii, 0);
+		CVT_VEC2STRVEC(ns[ii], Zu[ii], qp->Z+ii, ns[ii]);
+		CVT_VEC2STRVEC(ns[ii], zl[ii], qp->z+ii, 0);
+		CVT_VEC2STRVEC(ns[ii], zu[ii], qp->z+ii, ns[ii]);
 		}
 
 	return;
@@ -368,7 +370,7 @@ void CVT_COLMAJ_TO_OCP_QP(REAL **A, REAL **B, REAL **b, REAL **Q, REAL **S, REAL
 
 
 
-void CVT_ROWMAJ_TO_OCP_QP(REAL **A, REAL **B, REAL **b, REAL **Q, REAL **S, REAL **R, REAL **q, REAL **r, int **idxb, REAL **d_lb, REAL **d_ub, REAL **C, REAL **D, REAL **d_lg, REAL **d_ug, REAL **Z, REAL **z, int **idxs, struct OCP_QP *qp)
+void CVT_ROWMAJ_TO_OCP_QP(REAL **A, REAL **B, REAL **b, REAL **Q, REAL **S, REAL **R, REAL **q, REAL **r, int **idxb, REAL **d_lb, REAL **d_ub, REAL **C, REAL **D, REAL **d_lg, REAL **d_ug, REAL **Zl, REAL **Zu, REAL **zl, REAL **zu, int **idxs, struct OCP_QP *qp)
 	{
 
 	int N = qp->N;
@@ -419,8 +421,10 @@ void CVT_ROWMAJ_TO_OCP_QP(REAL **A, REAL **B, REAL **b, REAL **Q, REAL **S, REAL
 		{
 		for(jj=0; jj<ns[ii]; jj++)
 			qp->idxs[ii][jj] = idxs[ii][jj];
-		CVT_VEC2STRVEC(2*ns[ii], Z[ii], qp->Z+ii, 0);
-		CVT_VEC2STRVEC(2*ns[ii], z[ii], qp->z+ii, 0);
+		CVT_VEC2STRVEC(ns[ii], Zl[ii], qp->Z+ii, 0);
+		CVT_VEC2STRVEC(ns[ii], Zu[ii], qp->Z+ii, ns[ii]);
+		CVT_VEC2STRVEC(ns[ii], zl[ii], qp->z+ii, 0);
+		CVT_VEC2STRVEC(ns[ii], zu[ii], qp->z+ii, ns[ii]);
 		}
 
 	return;
