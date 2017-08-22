@@ -227,11 +227,8 @@ void COND_DCTD(struct OCP_QP *ocp_qp, int *idxb2, struct STRVEC *d_lb2, struct S
 	int *ng = ocp_qp->ng;
 
 	int **idxb = ocp_qp->idxb;
-	struct STRVEC *d_lb = ocp_qp->d_lb;
-	struct STRVEC *d_ub = ocp_qp->d_ub;
+	struct STRVEC *d = ocp_qp->d;
 	struct STRMAT *DCt = ocp_qp->DCt;
-	struct STRVEC *d_lg = ocp_qp->d_lg;
-	struct STRVEC *d_ug = ocp_qp->d_ug;
 
 	// extract memory members
 	struct STRMAT *Gamma = cond_ws->Gamma;
@@ -299,8 +296,8 @@ void COND_DCTD(struct OCP_QP *ocp_qp, int *idxb2, struct STRVEC *d_lb2, struct S
 		nb0 = nb[N-ii];
 		ng0 = ng[N-ii];
 		nu_tmp += nu0;
-		ptr_d_lb = d_lb[N-ii].pa;
-		ptr_d_ub = d_ub[N-ii].pa;
+		ptr_d_lb = d[N-ii].pa+0;
+		ptr_d_ub = d[N-ii].pa+nb0+ng0;
 		for(jj=0; jj<nb0; jj++)
 			{
 			if(idxb[N-ii][jj]<nu0) // input: box constraint
@@ -328,8 +325,8 @@ void COND_DCTD(struct OCP_QP *ocp_qp, int *idxb2, struct STRVEC *d_lb2, struct S
 	nb0 = nb[0];
 	ng0 = ng[0];
 	nu_tmp += nu0;
-	ptr_d_lb = d_lb[0].pa;
-	ptr_d_ub = d_ub[0].pa;
+	ptr_d_lb = d[0].pa+0;
+	ptr_d_ub = d[0].pa+nb0+ng0;
 	for(jj=0; jj<nb0; jj++)
 		{
 		d_lb3[ib] = ptr_d_lb[jj];
@@ -352,6 +349,7 @@ void COND_DCTD(struct OCP_QP *ocp_qp, int *idxb2, struct STRVEC *d_lb2, struct S
 
 		nx0 = nx[N-ii];
 		nu0 = nu[N-ii];
+		nb0 = nb[N-ii];
 		ng0 = ng[N-ii];
 
 		if(ng0>0)
@@ -363,8 +361,8 @@ void COND_DCTD(struct OCP_QP *ocp_qp, int *idxb2, struct STRVEC *d_lb2, struct S
 
 			GEMM_NN_LIBSTR(nu2+nx[0]-nu_tmp, ng0, nx0, 1.0, &Gamma[N-1-ii], 0, 0, &DCt[N-ii], nu0, 0, 0.0, DCt2, nu_tmp, nbg+ng_tmp, DCt2, nu_tmp, nbg+ng_tmp);
 
-			VECCP_LIBSTR(ng0, &d_lg[N-ii], 0, d_lg2, nbg+ng_tmp);
-			VECCP_LIBSTR(ng0, &d_ug[N-ii], 0, d_ug2, nbg+ng_tmp);
+			VECCP_LIBSTR(ng0, &d[N-ii], nb0, d_lg2, nbg+ng_tmp);
+			VECCP_LIBSTR(ng0, &d[N-ii], 2*nb0+ng0, d_ug2, nbg+ng_tmp);
 
 			GEMV_T_LIBSTR(nx0, ng0, 1.0, &DCt[N-ii], nu0, 0, &Gammab[N-ii-1], 0, 0.0, tmp_ngM, 0, tmp_ngM, 0);
 
@@ -387,6 +385,7 @@ void COND_DCTD(struct OCP_QP *ocp_qp, int *idxb2, struct STRVEC *d_lb2, struct S
 
 	nx0 = nx[0];
 	nu0 = nu[0];
+	nb0 = nb[0];
 	ng0 = ng[0];
 
 	if(ng0>0)
@@ -394,8 +393,8 @@ void COND_DCTD(struct OCP_QP *ocp_qp, int *idxb2, struct STRVEC *d_lb2, struct S
 
 		GECP_LIBSTR(nu0+nx0, ng0, &DCt[0], 0, 0, DCt2, nu_tmp, nbg+ng_tmp);
 
-		VECCP_LIBSTR(ng0, &d_lg[0], 0, d_lg2, nbg+ng_tmp);
-		VECCP_LIBSTR(ng0, &d_ug[0], 0, d_ug2, nbg+ng_tmp);
+		VECCP_LIBSTR(ng0, &d[0], nb0, d_lg2, nbg+ng_tmp);
+		VECCP_LIBSTR(ng0, &d[0], 2*nb0+ng0, d_ug2, nbg+ng_tmp);
 
 //		ng_tmp += ng[N-ii];
 
@@ -441,14 +440,8 @@ void EXPAND_SOL(struct OCP_QP *ocp_qp, struct DENSE_QP_SOL *dense_qp_sol, struct
 
 	struct STRVEC *ux = ocp_qp_sol->ux;
 	struct STRVEC *pi = ocp_qp_sol->pi;
-	struct STRVEC *lam_lb = ocp_qp_sol->lam_lb;
-	struct STRVEC *lam_ub = ocp_qp_sol->lam_ub;
-	struct STRVEC *lam_lg = ocp_qp_sol->lam_lg;
-	struct STRVEC *lam_ug = ocp_qp_sol->lam_ug;
-	struct STRVEC *t_lb = ocp_qp_sol->t_lb;
-	struct STRVEC *t_ub = ocp_qp_sol->t_ub;
-	struct STRVEC *t_lg = ocp_qp_sol->t_lg;
-	struct STRVEC *t_ug = ocp_qp_sol->t_ug;
+	struct STRVEC *lam = ocp_qp_sol->lam;
+	struct STRVEC *t = ocp_qp_sol->t;
 
 	struct STRVEC *tmp_nuxM = cond_ws->tmp_nuxM;
 	struct STRVEC *tmp_ngM = cond_ws->tmp_ngM;
@@ -495,10 +488,10 @@ void EXPAND_SOL(struct OCP_QP *ocp_qp, struct DENSE_QP_SOL *dense_qp_sol, struct
 	// final stages
 	for(ii=0; ii<N; ii++)
 		{
-		ptr_lam_lb = (lam_lb+(N-ii))->pa;
-		ptr_lam_ub = (lam_ub+(N-ii))->pa;
-		ptr_t_lb = (t_lb+(N-ii))->pa;
-		ptr_t_ub = (t_ub+(N-ii))->pa;
+		ptr_lam_lb = (lam+N-ii)->pa+0;
+		ptr_lam_ub = (lam+N-ii)->pa+nb[N-ii]+ng[N-ii];
+		ptr_t_lb = (t+N-ii)->pa+0;
+		ptr_t_ub = (t+N-ii)->pa+nb[N-ii]+ng[N-ii];
 		for(jj=0; jj<nb[N-ii]; jj++)
 			{
 			if(idxb[N-ii][jj]<nu[N-ii])
@@ -524,10 +517,10 @@ void EXPAND_SOL(struct OCP_QP *ocp_qp, struct DENSE_QP_SOL *dense_qp_sol, struct
 	// process as vectors ???
 	for(ii=0; ii<N; ii++)
 		{
-		ptr_lam_lg = (lam_lg+(N-ii))->pa;
-		ptr_lam_ug = (lam_ug+(N-ii))->pa;
-		ptr_t_lg = (t_lg+(N-ii))->pa;
-		ptr_t_ug = (t_ug+(N-ii))->pa;
+		ptr_lam_lg = (lam+(N-ii))->pa+nb[N-ii];
+		ptr_lam_ug = (lam+(N-ii))->pa+2*nb[N-ii]+ng[N-ii];
+		ptr_t_lg = (t+(N-ii))->pa+nb[N-ii];
+		ptr_t_ug = (t+(N-ii))->pa+2*nb[N-ii]+ng[N-ii];
 		for(jj=0; jj<ng[N-ii]; jj++)
 			{
 			// gnenral as general
@@ -540,15 +533,15 @@ void EXPAND_SOL(struct OCP_QP *ocp_qp, struct DENSE_QP_SOL *dense_qp_sol, struct
 		}
 	// first stage
 	// all box as box
-	VECCP_LIBSTR(nb[0], lam_lbc, nbb, lam_lb+0, 0);
-	VECCP_LIBSTR(nb[0], lam_ubc, nbb, lam_ub+0, 0);
-	VECCP_LIBSTR(nb[0], t_lbc, nbb, t_lb+0, 0);
-	VECCP_LIBSTR(nb[0], t_ubc, nbb, t_ub+0, 0);
+	VECCP_LIBSTR(nb[0], lam_lbc, nbb, lam+0, 0);
+	VECCP_LIBSTR(nb[0], lam_ubc, nbb, lam+0, nb[0]+ng[0]);
+	VECCP_LIBSTR(nb[0], t_lbc, nbb, t+0, 0);
+	VECCP_LIBSTR(nb[0], t_ubc, nbb, t+0, nb[0]+ng[0]);
 	// all general as general
-	VECCP_LIBSTR(ng[0], lam_lgc, ngg, lam_lg+0, 0);
-	VECCP_LIBSTR(ng[0], lam_ugc, ngg, lam_ug+0, 0);
-	VECCP_LIBSTR(ng[0], t_lgc, ngg, t_lg+0, 0);
-	VECCP_LIBSTR(ng[0], t_ugc, ngg, t_ug+0, 0);
+	VECCP_LIBSTR(ng[0], lam_lgc, ngg, lam+0, nb[0]);
+	VECCP_LIBSTR(ng[0], lam_ugc, ngg, lam+0, 2*nb[0]+ng[0]);
+	VECCP_LIBSTR(ng[0], t_lgc, ngg, t+0, nb[0]);
+	VECCP_LIBSTR(ng[0], t_ugc, ngg, t+0, 2*nb[0]+ng[0]);
 
 	// lagrange multipliers of equality constraints
 	REAL *ptr_nuxM = tmp_nuxM->pa;
@@ -561,10 +554,10 @@ void EXPAND_SOL(struct OCP_QP *ocp_qp, struct DENSE_QP_SOL *dense_qp_sol, struct
 	// TODO avoid to multiply by R and B (i.e. the u part)
 	for(ii=0; ii<Np-1; ii++)
 		{
-		ptr_lam_lb = (lam_lb+Np-1-ii)->pa;
-		ptr_lam_ub = (lam_ub+Np-1-ii)->pa;
-		ptr_lam_lg = (lam_lg+Np-1-ii)->pa;
-		ptr_lam_ug = (lam_ug+Np-1-ii)->pa;
+		ptr_lam_lb = (lam+Np-1-ii)->pa+0;
+		ptr_lam_ub = (lam+Np-1-ii)->pa+nb[Np-1-ii]+ng[Np-1-ii];
+		ptr_lam_lg = (lam+Np-1-ii)->pa+nb[Np-1-ii];
+		ptr_lam_ug = (lam+Np-1-ii)->pa+2*nb[Np-1-ii]+ng[Np-1-ii];
 		VECCP_LIBSTR(nu[Np-1-ii]+nx[Np-1-ii], rq+(Np-1-ii), 0, tmp_nuxM, 0);
 		for(jj=0; jj<nb[Np-1-ii]; jj++)
 			ptr_nuxM[idxb[Np-1-ii][jj]] += ptr_lam_ub[jj] - ptr_lam_lb[jj];

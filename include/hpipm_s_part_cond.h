@@ -42,7 +42,7 @@ struct s_cond_qp_ocp2ocp_workspace
 
 
 //
-void s_compute_qp_size_ocp2ocp(int N, int *nx, int *nu, int *nb, int **idxb, int *ng, int N2, int *nx2, int *nu2, int *nb2, int *ng2);
+void s_compute_qp_size_ocp2ocp(int N, int *nx, int *nu, int *nb, int **idxb, int *ng, int *ns, int N2, int *nx2, int *nu2, int *nb2, int *ng2, int *ns2);
 //
 int s_memsize_cond_qp_ocp2ocp(struct s_ocp_qp *ocp_qp, struct s_ocp_qp *part_dense_qp);
 //

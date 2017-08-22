@@ -721,6 +721,7 @@ int main()
 	struct d_ocp_qp qp;
 	d_create_ocp_qp(N, nx, nu, nb, ng, ns, &qp, qp_mem);
 	d_cvt_colmaj_to_ocp_qp(hA, hB, hb, hQ, hS, hR, hq, hr, hidxb, hd_lb, hd_ub, hC, hD, hd_lg, hd_ug, hZl, hZu, hzl, hzu, hidxs, &qp);
+
 #if 0
 	printf("\nN = %d\n", qp.N);
 	for(ii=0; ii<N; ii++)

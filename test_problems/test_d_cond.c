@@ -198,6 +198,12 @@ int main()
 	for(ii=1; ii<N; ii++)
 		ng[ii] = 0;
 	ng[N] = 0;
+
+	int ns[N+1];
+	ns[0] = 0;
+	for(ii=1; ii<N; ii++)
+		ns[ii] = 0;//nx[ii]/2;
+	ns[N] = 0;//nx[N]/2;
 #elif 0
 	int nb[N+1];
 	nb[0] = 0;
@@ -436,6 +442,77 @@ int main()
 #endif
 
 /************************************************
+* soft constraints
+************************************************/	
+
+	double *Zl0; d_zeros(&Zl0, ns[0], 1);
+	for(ii=0; ii<ns[0]; ii++)
+		Zl0[ii] = 1e3;
+	double *Zu0; d_zeros(&Zu0, ns[0], 1);
+	for(ii=0; ii<ns[0]; ii++)
+		Zu0[ii] = 1e3;
+	double *zl0; d_zeros(&zl0, ns[0], 1);
+	for(ii=0; ii<ns[0]; ii++)
+		zl0[ii] = 1e2;
+	double *zu0; d_zeros(&zu0, ns[0], 1);
+	for(ii=0; ii<ns[0]; ii++)
+		zu0[ii] = 1e2;
+	int *idxs0; int_zeros(&idxs0, ns[0], 1);
+	for(ii=0; ii<ns[0]; ii++)
+		idxs0[ii] = nu[0]+ii;
+
+	double *Zl1; d_zeros(&Zl1, ns[1], 1);
+	for(ii=0; ii<ns[1]; ii++)
+		Zl1[ii] = 1e3;
+	double *Zu1; d_zeros(&Zu1, ns[1], 1);
+	for(ii=0; ii<ns[1]; ii++)
+		Zu1[ii] = 1e3;
+	double *zl1; d_zeros(&zl1, ns[1], 1);
+	for(ii=0; ii<ns[1]; ii++)
+		zl1[ii] = 1e2;
+	double *zu1; d_zeros(&zu1, ns[1], 1);
+	for(ii=0; ii<ns[1]; ii++)
+		zu1[ii] = 1e2;
+	int *idxs1; int_zeros(&idxs1, ns[1], 1);
+	for(ii=0; ii<ns[1]; ii++)
+		idxs1[ii] = nu[1]+ii;
+
+	double *ZlN; d_zeros(&ZlN, ns[N], 1);
+	for(ii=0; ii<ns[N]; ii++)
+		ZlN[ii] = 1e3;
+	double *ZuN; d_zeros(&ZuN, ns[N], 1);
+	for(ii=0; ii<ns[N]; ii++)
+		ZuN[ii] = 1e3;
+	double *zlN; d_zeros(&zlN, ns[N], 1);
+	for(ii=0; ii<ns[N]; ii++)
+		zlN[ii] = 1e2;
+	double *zuN; d_zeros(&zuN, ns[N], 1);
+	for(ii=0; ii<ns[N]; ii++)
+		zuN[ii] = 1e2;
+	int *idxsN; int_zeros(&idxsN, ns[N], 1);
+	for(ii=0; ii<ns[N]; ii++)
+		idxsN[ii] = nu[N]+ii;
+
+#if 1
+	// soft constraints
+	int_print_mat(1, ns[0], idxs0, 1);
+	d_print_mat(1, ns[0], Zl0, 1);
+	d_print_mat(1, ns[0], Zu0, 1);
+	d_print_mat(1, ns[0], zl0, 1);
+	d_print_mat(1, ns[0], zu0, 1);
+	int_print_mat(1, ns[1], idxs1, 1);
+	d_print_mat(1, ns[1], Zl1, 1);
+	d_print_mat(1, ns[1], Zu1, 1);
+	d_print_mat(1, ns[1], zl1, 1);
+	d_print_mat(1, ns[1], zu1, 1);
+	int_print_mat(1, ns[N], idxsN, 1);
+	d_print_mat(1, ns[N], ZlN, 1);
+	d_print_mat(1, ns[N], ZuN, 1);
+	d_print_mat(1, ns[N], zlN, 1);
+	d_print_mat(1, ns[N], zuN, 1);
+#endif
+
+/************************************************
 * array of matrices
 ************************************************/	
 
@@ -454,6 +531,11 @@ int main()
 	double *hC[N+1];
 	double *hD[N+1];
 	int *hidxb[N+1];
+	double *hZl[N+1];
+	double *hZu[N+1];
+	double *hzl[N+1];
+	double *hzu[N+1];
+	int *hidxs[N+1]; // XXX
 
 	hA[0] = A;
 	hB[0] = B;
@@ -470,6 +552,11 @@ int main()
 	hd_ug[0] = d_ug0;
 	hC[0] = C0;
 	hD[0] = D0;
+	hZl[0] = Zl0;
+	hZu[0] = Zu0;
+	hzl[0] = zl0;
+	hzu[0] = zu0;
+	hidxs[0] = idxs0;
 	for(ii=1; ii<N; ii++)
 		{
 		hA[ii] = A;
@@ -487,6 +574,11 @@ int main()
 		hd_ug[ii] = d_ug1;
 		hC[ii] = C1;
 		hD[ii] = D1;
+		hZl[ii] = Zl1;
+		hZu[ii] = Zu1;
+		hzl[ii] = zl1;
+		hzu[ii] = zu1;
+		hidxs[ii] = idxs1;
 		}
 	hQ[N] = Q;
 	hS[N] = S;
@@ -500,20 +592,25 @@ int main()
 	hd_ug[N] = d_ugN;
 	hC[N] = CN;
 	hD[N] = DN;
+	hZl[N] = ZlN;
+	hZu[N] = ZuN;
+	hzl[N] = zlN;
+	hzu[N] = zuN;
+	hidxs[N] = idxsN;
 	
 /************************************************
 * ocp qp
 ************************************************/	
 	
-	int ocp_qp_size = d_memsize_ocp_qp(N, nx, nu, nb, ng);
+	int ocp_qp_size = d_memsize_ocp_qp(N, nx, nu, nb, ng, ns);
 	printf("\nqp size = %d\n", ocp_qp_size);
 	void *ocp_qp_mem = malloc(ocp_qp_size);
 
 	struct d_ocp_qp ocp_qp;
-	d_create_ocp_qp(N, nx, nu, nb, ng, &ocp_qp, ocp_qp_mem);
-	d_cvt_colmaj_to_ocp_qp(hA, hB, hb, hQ, hS, hR, hq, hr, hidxb, hd_lb, hd_ub, hC, hD, hd_lg, hd_ug, &ocp_qp);
+	d_create_ocp_qp(N, nx, nu, nb, ng, ns, &ocp_qp, ocp_qp_mem);
+	d_cvt_colmaj_to_ocp_qp(hA, hB, hb, hQ, hS, hR, hq, hr, hidxb, hd_lb, hd_ub, hC, hD, hd_lg, hd_ug, hZl, hZu, hzl, hzu, hidxs, &ocp_qp);
 
-#if 1
+#if 0
 	printf("\nN = %d\n", ocp_qp.N);
 	for(ii=0; ii<N; ii++)
 		d_print_strmat(ocp_qp.nu[ii]+ocp_qp.nx[ii]+1, ocp_qp.nx[ii+1], ocp_qp.BAbt+ii, 0, 0);
@@ -681,12 +778,12 @@ int main()
 * ocp qp sol
 ************************************************/	
 	
-	int ocp_qp_sol_size = d_memsize_ocp_qp_sol(N, nx, nu, nb, ng);
+	int ocp_qp_sol_size = d_memsize_ocp_qp_sol(N, nx, nu, nb, ng, ns);
 	printf("\nocp qp sol size = %d\n", ocp_qp_sol_size);
 	void *ocp_qp_sol_mem = malloc(ocp_qp_sol_size);
 
 	struct d_ocp_qp_sol ocp_qp_sol;
-	d_create_ocp_qp_sol(N, nx, nu, nb, ng, &ocp_qp_sol, ocp_qp_sol_mem);
+	d_create_ocp_qp_sol(N, nx, nu, nb, ng, ns, &ocp_qp_sol, ocp_qp_sol_mem);
 
 /************************************************
 * expand solution
@@ -694,37 +791,75 @@ int main()
 
 	d_expand_sol_dense2ocp(&ocp_qp, &dense_qp_sol, &ocp_qp_sol, &cond_ws);
 
+	double *u[N+1]; for(ii=0; ii<=N; ii++) d_zeros(u+ii, nu[ii], 1);
+	double *x[N+1]; for(ii=0; ii<=N; ii++) d_zeros(x+ii, nx[ii], 1);
+	double *ls[N+1]; for(ii=0; ii<=N; ii++) d_zeros(ls+ii, ns[ii], 1);
+	double *us[N+1]; for(ii=0; ii<=N; ii++) d_zeros(us+ii, ns[ii], 1);
+	double *pi[N]; for(ii=0; ii<N; ii++) d_zeros(pi+ii, nx[ii+1], 1);
+	double *lam_lb[N+1]; for(ii=0; ii<=N; ii++) d_zeros(lam_lb+ii, nb[ii], 1);
+	double *lam_ub[N+1]; for(ii=0; ii<=N; ii++) d_zeros(lam_ub+ii, nb[ii], 1);
+	double *lam_lg[N+1]; for(ii=0; ii<=N; ii++) d_zeros(lam_lg+ii, ng[ii], 1);
+	double *lam_ug[N+1]; for(ii=0; ii<=N; ii++) d_zeros(lam_ug+ii, ng[ii], 1);
+	double *lam_ls[N+1]; for(ii=0; ii<=N; ii++) d_zeros(lam_ls+ii, ns[ii], 1);
+	double *lam_us[N+1]; for(ii=0; ii<=N; ii++) d_zeros(lam_us+ii, ns[ii], 1);
+
+	d_cvt_ocp_qp_sol_to_colmaj(&ocp_qp, &ocp_qp_sol, u, x, ls, us, pi, lam_lb, lam_ub, lam_lg, lam_ug, lam_ls, lam_us);
+
+#if 1
 	printf("\nfull space solution\n\n");
-	printf("\nux\n");
+	printf("\nu\n");
 	for(ii=0; ii<=N; ii++)
-		d_print_tran_strvec(nu[ii]+nx[ii], ocp_qp_sol.ux+ii, 0);
+		d_print_mat(1, nu[ii], u[ii], 1);
+	printf("\nx\n");
+	for(ii=0; ii<=N; ii++)
+		d_print_mat(1, nx[ii], x[ii], 1);
+	printf("\nls\n");
+	for(ii=0; ii<=N; ii++)
+		d_print_mat(1, ns[ii], ls[ii], 1);
+	printf("\nus\n");
+	for(ii=0; ii<=N; ii++)
+		d_print_mat(1, ns[ii], us[ii], 1);
 	printf("\npi\n");
 	for(ii=0; ii<N; ii++)
-		d_print_tran_strvec(nx[ii+1], ocp_qp_sol.pi+ii, 0);
+		d_print_mat(1, nx[ii+1], pi[ii], 1);
 	printf("\nlam_lb\n");
 	for(ii=0; ii<=N; ii++)
-		d_print_tran_strvec(nb[ii], ocp_qp_sol.lam_lb+ii, 0);
+		d_print_mat(1, nb[ii], lam_lb[ii], 1);
 	printf("\nlam_ub\n");
 	for(ii=0; ii<=N; ii++)
-		d_print_tran_strvec(nb[ii], ocp_qp_sol.lam_ub+ii, 0);
+		d_print_mat(1, nb[ii], lam_ub[ii], 1);
 	printf("\nlam_lg\n");
 	for(ii=0; ii<=N; ii++)
-		d_print_tran_strvec(ng[ii], ocp_qp_sol.lam_lg+ii, 0);
+		d_print_mat(1, ng[ii], lam_lg[ii], 1);
 	printf("\nlam_ug\n");
 	for(ii=0; ii<=N; ii++)
-		d_print_tran_strvec(ng[ii], ocp_qp_sol.lam_ug+ii, 0);
+		d_print_mat(1, ng[ii], lam_ug[ii], 1);
+	printf("\nlam_ls\n");
+	for(ii=0; ii<=N; ii++)
+		d_print_mat(1, ns[ii], lam_ls[ii], 1);
+	printf("\nlam_us\n");
+	for(ii=0; ii<=N; ii++)
+		d_print_mat(1, ns[ii], lam_us[ii], 1);
+
 	printf("\nt_lb\n");
 	for(ii=0; ii<=N; ii++)
-		d_print_tran_strvec(nb[ii], ocp_qp_sol.t_lb+ii, 0);
+		d_print_mat(1, nb[ii], (ocp_qp_sol.t+ii)->pa, 1);
 	printf("\nt_ub\n");
 	for(ii=0; ii<=N; ii++)
-		d_print_tran_strvec(nb[ii], ocp_qp_sol.t_ub+ii, 0);
+		d_print_mat(1, nb[ii], (ocp_qp_sol.t+ii)->pa+nb[ii]+ng[ii], 1);
 	printf("\nt_lg\n");
 	for(ii=0; ii<=N; ii++)
-		d_print_tran_strvec(ng[ii], ocp_qp_sol.t_lg+ii, 0);
+		d_print_mat(1, ng[ii], (ocp_qp_sol.t+ii)->pa+nb[ii], 1);
 	printf("\nt_ug\n");
 	for(ii=0; ii<=N; ii++)
-		d_print_tran_strvec(ng[ii], ocp_qp_sol.t_ug+ii, 0);
+		d_print_mat(1, ng[ii], (ocp_qp_sol.t+ii)->pa+2*nb[ii]+ng[ii], 1);
+	printf("\nt_ls\n");
+	for(ii=0; ii<=N; ii++)
+		d_print_mat(1, ns[ii], (ocp_qp_sol.t+ii)->pa+2*nb[ii]+2*ng[ii], 1);
+	printf("\nt_us\n");
+	for(ii=0; ii<=N; ii++)
+		d_print_mat(1, ns[ii], (ocp_qp_sol.t+ii)->pa+2*nb[ii]+2*ng[ii]+ns[ii], 1);
+#endif
 
 /************************************************
 * free memory
@@ -761,6 +896,21 @@ int main()
 	d_free(DN);
 	d_free(d_lgN);
 	d_free(d_ugN);
+	d_free(Zl0);
+	d_free(Zu0);
+	d_free(zl0);
+	d_free(zu0);
+	int_free(idxs0);
+	d_free(Zl1);
+	d_free(Zu1);
+	d_free(zl1);
+	d_free(zu1);
+	int_free(idxs1);
+	d_free(ZlN);
+	d_free(ZuN);
+	d_free(zlN);
+	d_free(zuN);
+	int_free(idxsN);
 
 	free(ocp_qp_mem);
 	free(ocp_qp_sol_mem);

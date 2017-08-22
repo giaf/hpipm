@@ -44,8 +44,8 @@ OBJS += ocp_qp/s_ocp_qp.o ocp_qp/s_ocp_qp_sol.o ocp_qp/s_ocp_qp_kkt.o ocp_qp/s_o
 OBJS += ipm_core/d_core_qp_ipm_aux.o ipm_core/d_core_qp_ipm.o
 OBJS += ipm_core/s_core_qp_ipm_aux.o ipm_core/s_core_qp_ipm.o
 # cond
-#OBJS += cond/d_cond_aux.o cond/d_cond.o cond/d_part_cond.o
-#OBJS += cond/s_cond_aux.o cond/s_cond.o cond/s_part_cond.o
+OBJS += cond/d_cond_aux.o cond/d_cond.o cond/d_part_cond.o
+OBJS += cond/s_cond_aux.o cond/s_cond.o cond/s_part_cond.o
 # tree ocp qp
 #OBJS += tree_ocp_qp/scenario_tree.o
 #OBJS += tree_ocp_qp/d_tree_ocp_qp.o tree_ocp_qp/d_tree_ocp_qp_sol.o tree_ocp_qp/d_tree_ocp_qp_kkt.o tree_ocp_qp/d_tree_ocp_qp_ipm_hard.o
@@ -57,7 +57,7 @@ OBJS += ipm_core/s_core_qp_ipm_aux.o ipm_core/s_core_qp_ipm.o
 all: clean static_library
 
 static_library: target
-#	( cd cond; $(MAKE) obj)
+	( cd cond; $(MAKE) obj)
 	( cd ipm_core; $(MAKE) obj)
 	( cd dense_qp; $(MAKE) obj)
 	( cd ocp_qp; $(MAKE) obj)
@@ -70,7 +70,7 @@ static_library: target
 	@echo
 
 shared_library: target
-#	( cd cond; $(MAKE) obj)
+	( cd cond; $(MAKE) obj)
 	( cd ipm_core; $(MAKE) obj)
 	( cd dense_qp; $(MAKE) obj)
 	( cd ocp_qp; $(MAKE) obj)
