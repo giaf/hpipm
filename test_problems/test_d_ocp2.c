@@ -790,13 +790,17 @@ int main()
 
 	double *u[N+1]; for(ii=0; ii<=N; ii++) d_zeros(u+ii, nu[ii], 1);
 	double *x[N+1]; for(ii=0; ii<=N; ii++) d_zeros(x+ii, nx[ii], 1);
+	double *ls[N+1]; for(ii=0; ii<=N; ii++) d_zeros(ls+ii, ns[ii], 1);
+	double *us[N+1]; for(ii=0; ii<=N; ii++) d_zeros(us+ii, ns[ii], 1);
 	double *pi[N]; for(ii=0; ii<N; ii++) d_zeros(pi+ii, nx[ii+1], 1);
 	double *lam_lb[N+1]; for(ii=0; ii<=N; ii++) d_zeros(lam_lb+ii, nb[ii], 1);
 	double *lam_ub[N+1]; for(ii=0; ii<=N; ii++) d_zeros(lam_ub+ii, nb[ii], 1);
 	double *lam_lg[N+1]; for(ii=0; ii<=N; ii++) d_zeros(lam_lg+ii, ng[ii], 1);
 	double *lam_ug[N+1]; for(ii=0; ii<=N; ii++) d_zeros(lam_ug+ii, ng[ii], 1);
+	double *lam_ls[N+1]; for(ii=0; ii<=N; ii++) d_zeros(lam_ls+ii, ns[ii], 1);
+	double *lam_us[N+1]; for(ii=0; ii<=N; ii++) d_zeros(lam_us+ii, ns[ii], 1);
 
-	d_cvt_ocp_qp_sol_to_colmaj(&qp, &qp_sol, u, x, pi, lam_lb, lam_ub, lam_lg, lam_ug);
+	d_cvt_ocp_qp_sol_to_colmaj(&qp, &qp_sol, u, x, ls, us, pi, lam_lb, lam_ub, lam_lg, lam_ug, lam_ls, lam_us);
 
 #if 1
 	printf("\nsolution\n\n");
@@ -806,6 +810,12 @@ int main()
 	printf("\nx\n");
 	for(ii=0; ii<=N; ii++)
 		d_print_mat(1, nx[ii], x[ii], 1);
+	printf("\nls\n");
+	for(ii=0; ii<=N; ii++)
+		d_print_mat(1, ns[ii], ls[ii], 1);
+	printf("\nus\n");
+	for(ii=0; ii<=N; ii++)
+		d_print_mat(1, ns[ii], us[ii], 1);
 	printf("\npi\n");
 	for(ii=0; ii<N; ii++)
 		d_print_mat(1, nx[ii+1], pi[ii], 1);
@@ -827,6 +837,12 @@ int main()
 	printf("\nlam_us\n");
 	for(ii=0; ii<=N; ii++)
 		d_print_mat(1, ns[ii], (qp_sol.lam+ii)->pa+2*nb[ii]+2*ng[ii]+ns[ii], 1);
+	printf("\nlam_ls\n");
+	for(ii=0; ii<=N; ii++)
+		d_print_mat(1, ns[ii], lam_ls[ii], 1);
+	printf("\nlam_us\n");
+	for(ii=0; ii<=N; ii++)
+		d_print_mat(1, ns[ii], lam_us[ii], 1);
 
 	printf("\nt_lb\n");
 	for(ii=0; ii<=N; ii++)
@@ -957,18 +973,26 @@ int main()
 		{
 		d_free(u[ii]);
 		d_free(x[ii]);
+		d_free(ls[ii]);
+		d_free(us[ii]);
 		d_free(pi[ii]);
 		d_free(lam_lb[ii]);
 		d_free(lam_ub[ii]);
 		d_free(lam_lg[ii]);
 		d_free(lam_ug[ii]);
+		d_free(lam_ls[ii]);
+		d_free(lam_us[ii]);
 		}
 	d_free(u[ii]);
 	d_free(x[ii]);
+	d_free(ls[ii]);
+	d_free(us[ii]);
 	d_free(lam_lb[ii]);
 	d_free(lam_ub[ii]);
 	d_free(lam_lg[ii]);
 	d_free(lam_ug[ii]);
+	d_free(lam_ls[ii]);
+	d_free(lam_us[ii]);
 
 	free(qp_mem);
 	free(qp_sol_mem);
