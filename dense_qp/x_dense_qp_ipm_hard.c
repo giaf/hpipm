@@ -37,7 +37,7 @@ int MEMSIZE_IPM_HARD_DENSE_QP(struct DENSE_QP *qp, struct IPM_HARD_DENSE_QP_ARG 
 
 	int size = 0;
 
-	size += 22*sizeof(struct STRVEC); // dv dpi dlam dt dt_lb dt_ub dt_lg dt_ug res_g res_b res_d res_d_lb res_d_ub res_d_lg res_d_ug res_m Qx qx lv tmp_nb tmp_ng0 tmp_ng1
+	size += 14*sizeof(struct STRVEC); // dv dpi dlam dt res_g res_b res_d res_m Qx qx lv tmp_nb tmp_ng0 tmp_ng1
 	size += 4*sizeof(struct STRMAT); // Lv AL Le Ctx
 
 	size += 1*SIZE_STRVEC(nb); // tmp_nb
@@ -105,27 +105,11 @@ void CREATE_IPM_HARD_DENSE_QP(struct DENSE_QP *qp, struct IPM_HARD_DENSE_QP_ARG 
 	sv_ptr += 1;
 	workspace->dt = sv_ptr;
 	sv_ptr += 1;
-	workspace->dt_lb = sv_ptr;
-	sv_ptr += 1;
-	workspace->dt_ub = sv_ptr;
-	sv_ptr += 1;
-	workspace->dt_lg = sv_ptr;
-	sv_ptr += 1;
-	workspace->dt_ug = sv_ptr;
-	sv_ptr += 1;
 	workspace->res_g = sv_ptr;
 	sv_ptr += 1;
 	workspace->res_b = sv_ptr;
 	sv_ptr += 1;
 	workspace->res_d = sv_ptr;
-	sv_ptr += 1;
-	workspace->res_d_lb = sv_ptr;
-	sv_ptr += 1;
-	workspace->res_d_ub = sv_ptr;
-	sv_ptr += 1;
-	workspace->res_d_lg = sv_ptr;
-	sv_ptr += 1;
-	workspace->res_d_ug = sv_ptr;
 	sv_ptr += 1;
 	workspace->res_m = sv_ptr;
 	sv_ptr += 1;
@@ -193,17 +177,9 @@ void CREATE_IPM_HARD_DENSE_QP(struct DENSE_QP *qp, struct IPM_HARD_DENSE_QP_ARG 
 	CREATE_STRVEC(ne, workspace->dpi, cws->dpi);
 	CREATE_STRVEC(2*nb+2*ng, workspace->dlam, cws->dlam);
 	CREATE_STRVEC(2*nb+2*ng, workspace->dt, cws->dt);
-	CREATE_STRVEC(nb, workspace->dt_lb, cws->dt);
-	CREATE_STRVEC(ng, workspace->dt_lg, cws->dt+nb);
-	CREATE_STRVEC(nb, workspace->dt_ub, cws->dt+nb+ng);
-	CREATE_STRVEC(ng, workspace->dt_ug, cws->dt+2*nb+ng);
 	CREATE_STRVEC(nv, workspace->res_g, cws->res_g);
 	CREATE_STRVEC(ne, workspace->res_b, cws->res_b);
 	CREATE_STRVEC(2*nb+2*ng, workspace->res_d, cws->res_d);
-	CREATE_STRVEC(nb, workspace->res_d_lb, cws->res_d);
-	CREATE_STRVEC(ng, workspace->res_d_lg, cws->res_d+nb);
-	CREATE_STRVEC(nb, workspace->res_d_ub, cws->res_d+nb+ng);
-	CREATE_STRVEC(ng, workspace->res_d_ug, cws->res_d+2*nb+ng);
 	CREATE_STRVEC(2*nb+2*ng, workspace->res_m, cws->res_m);
 	CREATE_STRVEC(nb+ng, workspace->Qx, cws->Qx);
 	CREATE_STRVEC(nb+ng, workspace->qx, cws->qx);

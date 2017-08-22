@@ -39,17 +39,9 @@ struct d_ipm_hard_dense_qp_workspace
 	struct d_strvec *dpi; // step in pi
 	struct d_strvec *dlam; // step in lam XXX needed ???
 	struct d_strvec *dt; // step in t XXX needed ???
-	struct d_strvec *dt_lb; //
-	struct d_strvec *dt_ub; // XXX needed ???
-	struct d_strvec *dt_lg; //
-	struct d_strvec *dt_ug; // XXX needed ???
 	struct d_strvec *res_g; // q-residuals
 	struct d_strvec *res_b; // b-residuals
 	struct d_strvec *res_d; // d-residuals
-	struct d_strvec *res_d_lb; // d-residuals
-	struct d_strvec *res_d_ub; // d-residuals
-	struct d_strvec *res_d_lg; // d-residuals
-	struct d_strvec *res_d_ug; // d-residuals
 	struct d_strvec *res_m; // m-residuals
 	struct d_strvec *Qx; // hessian update
 	struct d_strvec *qx; // gradient update

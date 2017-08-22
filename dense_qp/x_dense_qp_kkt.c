@@ -150,24 +150,24 @@ void COMPUTE_RES_HARD_DENSE_QP(struct DENSE_QP *qp, struct DENSE_QP_SOL *qp_sol,
 		AXPY_LIBSTR(nb, -1.0, lam, 0, lam, nb+ng, ws->tmp_nb, 0);
 		VECAD_SP_LIBSTR(nb, 1.0, ws->tmp_nb, 0, qp->idxb, ws->res_g, 0);
 		// res_d
-		VECEX_SP_LIBSTR(nb, -1.0, qp->idxb, v, 0, ws->res_d_lb, 0);
-		VECCP_LIBSTR(nb, ws->res_d_lb, 0, ws->res_d_ub, 0);
-		AXPY_LIBSTR(nb, 1.0, qp->d, 0, ws->res_d_lb, 0, ws->res_d_lb, 0);
-		AXPY_LIBSTR(nb, 1.0, qp->d, nb+ng, ws->res_d_ub, 0, ws->res_d_ub, 0);
-		AXPY_LIBSTR(nb, 1.0, t, 0, ws->res_d_lb, 0, ws->res_d_lb, 0);
-		AXPY_LIBSTR(nb, -1.0, t, nb+ng, ws->res_d_ub, 0, ws->res_d_ub, 0);
-		VECSC_LIBSTR(nb, -1.0, ws->res_d_ub, 0); // TODO embed with above
+		VECEX_SP_LIBSTR(nb, -1.0, qp->idxb, v, 0, ws->res_d, 0);
+		VECCP_LIBSTR(nb, ws->res_d, 0, ws->res_d, nb+ng);
+		AXPY_LIBSTR(nb, 1.0, qp->d, 0, ws->res_d, 0, ws->res_d, 0);
+		AXPY_LIBSTR(nb, 1.0, qp->d, nb+ng, ws->res_d, nb+ng, ws->res_d, nb+ng);
+		AXPY_LIBSTR(nb, 1.0, t, 0, ws->res_d, 0, ws->res_d, 0);
+		AXPY_LIBSTR(nb, -1.0, t, nb+ng, ws->res_d, nb+ng, ws->res_d, nb+ng);
+		VECSC_LIBSTR(nb, -1.0, ws->res_d, nb+ng); // TODO embed with above
 		}
 
 	if(ng>0)
 		{
 		AXPY_LIBSTR(ng, -1.0, lam, nb, lam, 2*nb+ng, ws->tmp_ng0, 0);
-		AXPY_LIBSTR(ng, 1.0, t, nb, qp->d, nb, ws->res_d_lg, 0);
-		AXPY_LIBSTR(ng, -1.0, t, 2*nb+ng, qp->d, 2*nb+ng, ws->res_d_ug, 0);
+		AXPY_LIBSTR(ng, 1.0, t, nb, qp->d, nb, ws->res_d, nb);
+		AXPY_LIBSTR(ng, -1.0, t, 2*nb+ng, qp->d, 2*nb+ng, ws->res_d, 2*nb+ng);
 		GEMV_NT_LIBSTR(nv, ng, 1.0, 1.0, qp->Ct, 0, 0, ws->tmp_ng0, 0, v, 0, 1.0, 0.0, ws->res_g, 0, ws->tmp_ng1, 0, ws->res_g, 0, ws->tmp_ng1, 0);
-		AXPY_LIBSTR(ng, -1.0, ws->tmp_ng1, 0, ws->res_d_lg, 0, ws->res_d_lg, 0);
-		AXPY_LIBSTR(ng, -1.0, ws->tmp_ng1, 0, ws->res_d_ug, 0, ws->res_d_ug, 0);
-		VECSC_LIBSTR(ng, -1.0, ws->res_d_ug, 0); // TODO embed with above
+		AXPY_LIBSTR(ng, -1.0, ws->tmp_ng1, 0, ws->res_d, nb, ws->res_d, nb);
+		AXPY_LIBSTR(ng, -1.0, ws->tmp_ng1, 0, ws->res_d, 2*nb+ng, ws->res_d, 2*nb+ng);
+		VECSC_LIBSTR(ng, -1.0, ws->res_d, 2*nb+ng); // TODO embed with above
 		}
 	
 	// res b, res g
@@ -275,8 +275,7 @@ void FACT_SOLVE_KKT_STEP_HARD_DENSE_QP(struct DENSE_QP *qp, struct IPM_HARD_DENS
 	struct STRVEC *lv = ws->lv;
 	struct STRVEC *dv = ws->dv;
 	struct STRVEC *dpi = ws->dpi;
-	struct STRVEC *dt_lb = ws->dt_lb;
-	struct STRVEC *dt_lg = ws->dt_lg;
+	struct STRVEC *dt = ws->dt;
 	struct STRVEC *res_g = ws->res_g;
 	struct STRVEC *res_b = ws->res_b;
 	struct STRVEC *Qx = ws->Qx;
@@ -390,18 +389,18 @@ void FACT_SOLVE_KKT_STEP_HARD_DENSE_QP(struct DENSE_QP *qp, struct IPM_HARD_DENS
 
 	if(nb>0)
 		{
-		VECEX_SP_LIBSTR(nb, 1.0, idxb, dv, 0, dt_lb, 0);
+		VECEX_SP_LIBSTR(nb, 1.0, idxb, dv, 0, dt, 0);
 		}
 
 	if(ng>0)
 		{
-		GEMV_T_LIBSTR(nv, ng, 1.0, Ct, 0, 0, dv, 0, 0.0, dt_lg, 0, dt_lg, 0);
+		GEMV_T_LIBSTR(nv, ng, 1.0, Ct, 0, 0, dv, 0, 0.0, dt, nb, dt, nb);
 		}
 
 	if(nb>0 | ng>0)
 		{
-		VECCP_LIBSTR(nb+ng, dt_lb, 0, dt_lb, nb+ng);
-		VECSC_LIBSTR(nb+ng, -1.0, dt_lb, nb+ng);
+		VECCP_LIBSTR(nb+ng, dt, 0, dt, nb+ng);
+		VECSC_LIBSTR(nb+ng, -1.0, dt, nb+ng);
 		COMPUTE_LAM_T_QP(rws);
 		}
 
@@ -430,8 +429,7 @@ void SOLVE_KKT_STEP_HARD_DENSE_QP(struct DENSE_QP *qp, struct IPM_HARD_DENSE_QP_
 	struct STRVEC *lv = ws->lv;
 	struct STRVEC *dv = ws->dv;
 	struct STRVEC *dpi = ws->dpi;
-	struct STRVEC *dt_lb = ws->dt_lb;
-	struct STRVEC *dt_lg = ws->dt_lg;
+	struct STRVEC *dt = ws->dt;
 	struct STRVEC *res_g = ws->res_g;
 	struct STRVEC *res_b = ws->res_b;
 	struct STRVEC *qx = ws->qx;
@@ -494,18 +492,18 @@ void SOLVE_KKT_STEP_HARD_DENSE_QP(struct DENSE_QP *qp, struct IPM_HARD_DENSE_QP_
 
 	if(nb>0)
 		{
-		VECEX_SP_LIBSTR(nb, 1.0, idxb, dv, 0, dt_lb, 0);
+		VECEX_SP_LIBSTR(nb, 1.0, idxb, dv, 0, dt, 0);
 		}
 
 	if(ng>0)
 		{
-		GEMV_T_LIBSTR(nv, ng, 1.0, Ct, 0, 0, dv, 0, 0.0, dt_lg, 0, dt_lg, 0);
+		GEMV_T_LIBSTR(nv, ng, 1.0, Ct, 0, 0, dv, 0, 0.0, dt, nb, dt, nb);
 		}
 
 	if(nb>0 | ng>0)
 		{
-		VECCP_LIBSTR(nb+ng, dt_lb, 0, dt_lb, nb+ng);
-		VECSC_LIBSTR(nb+ng, -1.0, dt_lb, nb+ng);
+		VECCP_LIBSTR(nb+ng, dt, 0, dt, nb+ng);
+		VECSC_LIBSTR(nb+ng, -1.0, dt, nb+ng);
 		COMPUTE_LAM_T_QP(rws);
 		}
 
