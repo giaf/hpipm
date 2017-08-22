@@ -774,12 +774,14 @@ int main()
 	struct d_ipm_hard_ocp_qp_workspace workspace;
 	d_create_ipm_hard_ocp_qp(&qp, &arg, &workspace, ipm_mem);
 
+	int hpipm_return; // 0 normal; 1 max iter
+
 	gettimeofday(&tv0, NULL); // start
 
 	for(rep=0; rep<nrep; rep++)
 		{
-//		d_solve_ipm_hard_ocp_qp(&qp, &qp_sol, &workspace);
-		d_solve_ipm2_hard_ocp_qp(&qp, &qp_sol, &workspace);
+//		hpipm_return = d_solve_ipm_hard_ocp_qp(&qp, &qp_sol, &workspace);
+		hpipm_return = d_solve_ipm2_hard_ocp_qp(&qp, &qp_sol, &workspace);
 		}
 
 	gettimeofday(&tv1, NULL); // stop

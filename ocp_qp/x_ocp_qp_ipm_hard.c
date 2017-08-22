@@ -364,7 +364,7 @@ void CREATE_IPM_HARD_OCP_QP(struct OCP_QP *qp, struct IPM_HARD_OCP_QP_ARG *arg, 
 
 
 
-void SOLVE_IPM_HARD_OCP_QP(struct OCP_QP *qp, struct OCP_QP_SOL *qp_sol, struct IPM_HARD_OCP_QP_WORKSPACE *ws)
+int SOLVE_IPM_HARD_OCP_QP(struct OCP_QP *qp, struct OCP_QP_SOL *qp_sol, struct IPM_HARD_OCP_QP_WORKSPACE *ws)
 	{
 
 	struct IPM_CORE_QP_WORKSPACE *cws = ws->core_workspace;
@@ -388,7 +388,7 @@ void SOLVE_IPM_HARD_OCP_QP(struct OCP_QP *qp, struct OCP_QP_SOL *qp_sol, struct 
 		COMPUTE_RES_HARD_OCP_QP(qp, qp_sol, ws);
 		cws->mu = ws->res_mu;
 		ws->iter = 0;
-		return;
+		return 0;
 		}
 
 	// init solver
@@ -595,13 +595,18 @@ exit(1);
 	
 	ws->iter = kk;
 	
-	return;
+	// max iteration number reached
+	if(kk==cws->iter_max)
+		return 1;
+
+	// normal return
+	return 0;
 
 	}
 
 
 
-void SOLVE_IPM2_HARD_OCP_QP(struct OCP_QP *qp, struct OCP_QP_SOL *qp_sol, struct IPM_HARD_OCP_QP_WORKSPACE *ws)
+int SOLVE_IPM2_HARD_OCP_QP(struct OCP_QP *qp, struct OCP_QP_SOL *qp_sol, struct IPM_HARD_OCP_QP_WORKSPACE *ws)
 	{
 
 	struct IPM_CORE_QP_WORKSPACE *cws = ws->core_workspace;
@@ -620,7 +625,7 @@ void SOLVE_IPM2_HARD_OCP_QP(struct OCP_QP *qp, struct OCP_QP_SOL *qp_sol, struct
 		COMPUTE_RES_HARD_OCP_QP(qp, qp_sol, ws);
 		cws->mu = ws->res_mu;
 		ws->iter = 0;
-		return;
+		return 0;
 		}
 
 	// init solver
@@ -804,7 +809,12 @@ exit(1);
 	
 	ws->iter = kk;
 	
-	return;
+	// max iteration number reached
+	if(kk==cws->iter_max)
+		return 1;
+
+	// normal return
+	return 0;
 
 	}
 

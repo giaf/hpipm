@@ -76,8 +76,8 @@ int s_memsize_ipm_hard_ocp_qp(struct s_ocp_qp *qp, struct s_ipm_hard_ocp_qp_arg 
 //
 void s_create_ipm_hard_ocp_qp(struct s_ocp_qp *qp, struct s_ipm_hard_ocp_qp_arg *arg, struct s_ipm_hard_ocp_qp_workspace *ws, void *mem);
 //
-void s_solve_ipm_hard_ocp_qp(struct s_ocp_qp *qp, struct s_ocp_qp_sol *qp_sol, struct s_ipm_hard_ocp_qp_workspace *ws);
+int s_solve_ipm_hard_ocp_qp(struct s_ocp_qp *qp, struct s_ocp_qp_sol *qp_sol, struct s_ipm_hard_ocp_qp_workspace *ws);
 //
-void s_solve_ipm2_hard_ocp_qp(struct s_ocp_qp *qp, struct s_ocp_qp_sol *qp_sol, struct s_ipm_hard_ocp_qp_workspace *ws);
+int s_solve_ipm2_hard_ocp_qp(struct s_ocp_qp *qp, struct s_ocp_qp_sol *qp_sol, struct s_ipm_hard_ocp_qp_workspace *ws);
 
 
