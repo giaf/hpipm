@@ -414,6 +414,7 @@ void EXPAND_SOL(struct OCP_QP *ocp_qp, struct DENSE_QP_SOL *dense_qp_sol, struct
 	if(cond_ws->cond_last_stage==0)
 		N -= 1;
 
+	int ii, jj;
 
 	int *nu = ocp_qp->nu;
 	int *nx = ocp_qp->nx;
@@ -429,14 +430,8 @@ void EXPAND_SOL(struct OCP_QP *ocp_qp, struct DENSE_QP_SOL *dense_qp_sol, struct
 
 	struct STRVEC *vc = dense_qp_sol->v;
 	struct STRVEC *pic = dense_qp_sol->pi;
-	struct STRVEC *lam_lbc = dense_qp_sol->lam_lb;
-	struct STRVEC *lam_ubc = dense_qp_sol->lam_ub;
-	struct STRVEC *lam_lgc = dense_qp_sol->lam_lg;
-	struct STRVEC *lam_ugc = dense_qp_sol->lam_ug;
-	struct STRVEC *t_lbc = dense_qp_sol->t_lb;
-	struct STRVEC *t_ubc = dense_qp_sol->t_ub;
-	struct STRVEC *t_lgc = dense_qp_sol->t_lg;
-	struct STRVEC *t_ugc = dense_qp_sol->t_ug;
+	struct STRVEC *lamc = dense_qp_sol->lam;
+	struct STRVEC *tc = dense_qp_sol->t;
 
 	struct STRVEC *ux = ocp_qp_sol->ux;
 	struct STRVEC *pi = ocp_qp_sol->pi;
@@ -446,7 +441,28 @@ void EXPAND_SOL(struct OCP_QP *ocp_qp, struct DENSE_QP_SOL *dense_qp_sol, struct
 	struct STRVEC *tmp_nuxM = cond_ws->tmp_nuxM;
 	struct STRVEC *tmp_ngM = cond_ws->tmp_ngM;
 
-	int ii, jj;
+	// problem size
+
+	int nbb = nb[0]; // box that remain box constraints
+	int nbg = 0; // box that becomes general constraints
+	for(ii=1; ii<=N; ii++)
+		for(jj=0; jj<nb[ii]; jj++)
+			if(idxb[ii][jj]<nu[ii])
+				nbb++;
+			else
+				nbg++;
+	
+	int nx2 = nx[0];
+	int nu2 = nu[0];
+	int ngg = ng[0];
+	for(ii=1; ii<=N; ii++)
+		{
+		nu2 += nu[ii];
+		ngg += ng[ii];
+		}
+	int ng2 = nbg + ngg;
+	int nb2 = nbb;
+	int nt2 = nb2 + ng2;
 
 	// inputs & initial states
 	int nu_tmp = 0;
@@ -466,9 +482,9 @@ void EXPAND_SOL(struct OCP_QP *ocp_qp, struct DENSE_QP_SOL *dense_qp_sol, struct
 		}
 
 	// slack variables and ineq lagrange multipliers
-	int nbb = 0;
-	int nbg = 0;
-	int ngg = 0;
+	nbb = 0;
+	nbg = 0;
+	ngg = 0;
 	REAL *ptr_lam_lb;
 	REAL *ptr_lam_ub;
 	REAL *ptr_lam_lg;
@@ -477,14 +493,14 @@ void EXPAND_SOL(struct OCP_QP *ocp_qp, struct DENSE_QP_SOL *dense_qp_sol, struct
 	REAL *ptr_t_ub;
 	REAL *ptr_t_lg;
 	REAL *ptr_t_ug;
-	REAL *ptr_lam_lbc = lam_lbc->pa;
-	REAL *ptr_lam_ubc = lam_ubc->pa;
-	REAL *ptr_lam_lgc = lam_lgc->pa;
-	REAL *ptr_lam_ugc = lam_ugc->pa;
-	REAL *ptr_t_lbc = t_lbc->pa;
-	REAL *ptr_t_ubc = t_ubc->pa;
-	REAL *ptr_t_lgc = t_lgc->pa;
-	REAL *ptr_t_ugc = t_ugc->pa;
+	REAL *ptr_lam_lbc = lamc->pa+0;
+	REAL *ptr_lam_ubc = lamc->pa+nb2+ng2;
+	REAL *ptr_lam_lgc = lamc->pa+nb2;
+	REAL *ptr_lam_ugc = lamc->pa+2*nb2+ng2;
+	REAL *ptr_t_lbc = tc->pa+0;
+	REAL *ptr_t_ubc = tc->pa+nb2+ng2;
+	REAL *ptr_t_lgc = tc->pa+nb2;
+	REAL *ptr_t_ugc = tc->pa+2*nb2+ng2;
 	// final stages
 	for(ii=0; ii<N; ii++)
 		{
@@ -533,15 +549,15 @@ void EXPAND_SOL(struct OCP_QP *ocp_qp, struct DENSE_QP_SOL *dense_qp_sol, struct
 		}
 	// first stage
 	// all box as box
-	VECCP_LIBSTR(nb[0], lam_lbc, nbb, lam+0, 0);
-	VECCP_LIBSTR(nb[0], lam_ubc, nbb, lam+0, nb[0]+ng[0]);
-	VECCP_LIBSTR(nb[0], t_lbc, nbb, t+0, 0);
-	VECCP_LIBSTR(nb[0], t_ubc, nbb, t+0, nb[0]+ng[0]);
+	VECCP_LIBSTR(nb[0], lamc, 0+nbb, lam+0, 0);
+	VECCP_LIBSTR(nb[0], lamc, nb2+ng2+nbb, lam+0, nb[0]+ng[0]);
+	VECCP_LIBSTR(nb[0], tc, 0+nbb, t+0, 0);
+	VECCP_LIBSTR(nb[0], tc, nb2+ng2+nbb, t+0, nb[0]+ng[0]);
 	// all general as general
-	VECCP_LIBSTR(ng[0], lam_lgc, ngg, lam+0, nb[0]);
-	VECCP_LIBSTR(ng[0], lam_ugc, ngg, lam+0, 2*nb[0]+ng[0]);
-	VECCP_LIBSTR(ng[0], t_lgc, ngg, t+0, nb[0]);
-	VECCP_LIBSTR(ng[0], t_ugc, ngg, t+0, 2*nb[0]+ng[0]);
+	VECCP_LIBSTR(ng[0], lamc, nb2+ngg, lam+0, nb[0]);
+	VECCP_LIBSTR(ng[0], lamc, 2*nb2+ng2+ngg, lam+0, 2*nb[0]+ng[0]);
+	VECCP_LIBSTR(ng[0], tc, nb2+ngg, t+0, nb[0]);
+	VECCP_LIBSTR(ng[0], tc, 2*nb2+ng2+ngg, t+0, 2*nb[0]+ng[0]);
 
 	// lagrange multipliers of equality constraints
 	REAL *ptr_nuxM = tmp_nuxM->pa;

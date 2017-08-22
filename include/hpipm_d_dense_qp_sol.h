@@ -36,14 +36,8 @@ struct d_dense_qp_sol
 	{
 	struct d_strvec *v;
 	struct d_strvec *pi;
-	struct d_strvec *lam_lb;
-	struct d_strvec *lam_ub;
-	struct d_strvec *lam_lg;
-	struct d_strvec *lam_ug;
-	struct d_strvec *t_lb;
-	struct d_strvec *t_ub;
-	struct d_strvec *t_lg;
-	struct d_strvec *t_ug;
+	struct d_strvec *lam;
+	struct d_strvec *t;
 	int memsize;
 	};
 

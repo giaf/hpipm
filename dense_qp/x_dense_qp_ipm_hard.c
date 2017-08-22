@@ -223,8 +223,8 @@ void SOLVE_IPM_HARD_DENSE_QP(struct DENSE_QP *qp, struct DENSE_QP_SOL *qp_sol, s
 	// alias qp vectors into qp_sol
 	cws->v = qp_sol->v->pa;
 	cws->pi = qp_sol->pi->pa;
-	cws->lam = qp_sol->lam_lb->pa;
-	cws->t = qp_sol->t_lb->pa;
+	cws->lam = qp_sol->lam->pa;
+	cws->t = qp_sol->t->pa;
 
 	if(cws->nc==0)
 		{
@@ -279,8 +279,8 @@ void SOLVE_IPM2_HARD_DENSE_QP(struct DENSE_QP *qp, struct DENSE_QP_SOL *qp_sol, 
 	// alias qp vectors into qp_sol
 	cws->v = qp_sol->v->pa;
 	cws->pi = qp_sol->pi->pa;
-	cws->lam = qp_sol->lam_lb->pa;
-	cws->t = qp_sol->t_lb->pa;
+	cws->lam = qp_sol->lam->pa;
+	cws->t = qp_sol->t->pa;
 
 	REAL tmp;
 

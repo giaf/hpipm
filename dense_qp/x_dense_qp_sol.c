@@ -32,11 +32,11 @@ int MEMSIZE_DENSE_QP_SOL(int nv, int ne, int nb, int ng)
 
 	int size = 0;
 
-	size += (10)*sizeof(struct STRVEC); // v pi lam_lb lam_ub lam_lg lam_ug t_lb t_ub t_lg t_ug
+	size += 4*sizeof(struct STRVEC); // v pi lam t
 
 	size += 1*SIZE_STRVEC(nv); // ux
 	size += 1*SIZE_STRVEC(ne); // pi
-	size += 8*SIZE_STRVEC(2*nb+2*ng); // lam_lb lam_ub lam_lg lam_ug t_lb t_ub t_lg t_ug
+	size += 2*SIZE_STRVEC(2*nb+2*ng); // lam t
 
 	size = (size+63)/64*64; // make multiple of typical cache line size
 	size += 64; // align to typical cache line size
@@ -60,21 +60,9 @@ void CREATE_DENSE_QP_SOL(int nv, int ne, int nb, int ng, struct DENSE_QP_SOL *qp
 	sv_ptr += 1;
 	qp_sol->pi = sv_ptr;
 	sv_ptr += 1;
-	qp_sol->lam_lb = sv_ptr;
+	qp_sol->lam = sv_ptr;
 	sv_ptr += 1;
-	qp_sol->lam_ub = sv_ptr;
-	sv_ptr += 1;
-	qp_sol->lam_lg = sv_ptr;
-	sv_ptr += 1;
-	qp_sol->lam_ug = sv_ptr;
-	sv_ptr += 1;
-	qp_sol->t_lb = sv_ptr;
-	sv_ptr += 1;
-	qp_sol->t_ub = sv_ptr;
-	sv_ptr += 1;
-	qp_sol->t_lg = sv_ptr;
-	sv_ptr += 1;
-	qp_sol->t_ug = sv_ptr;
+	qp_sol->t = sv_ptr;
 	sv_ptr += 1;
 
 
@@ -98,30 +86,18 @@ void CREATE_DENSE_QP_SOL(int nv, int ne, int nb, int ng, struct DENSE_QP_SOL *qp
 	// lam
 	tmp_ptr = c_ptr;
 	c_ptr += SIZE_STRVEC(2*nb+2*ng);
-	// lam_lb
-	CREATE_STRVEC(nb, qp_sol->lam_lb, tmp_ptr);
-	tmp_ptr += (nb)*sizeof(REAL);
-	// lam_lg
-	CREATE_STRVEC(ng, qp_sol->lam_lg, tmp_ptr);
-	tmp_ptr += (ng)*sizeof(REAL);
-	// lam_ub
-	CREATE_STRVEC(nb, qp_sol->lam_ub, tmp_ptr);
-	tmp_ptr += (nb)*sizeof(REAL);
-	// lam_ug
-	CREATE_STRVEC(ng, qp_sol->lam_ug, tmp_ptr);
-	tmp_ptr += (ng)*sizeof(REAL);
+	// lam
+	CREATE_STRVEC(2*nb+2*ng, qp_sol->lam, tmp_ptr);
+	tmp_ptr += nb*sizeof(REAL);
+	tmp_ptr += ng*sizeof(REAL);
+	tmp_ptr += nb*sizeof(REAL);
+	tmp_ptr += ng*sizeof(REAL);
 	// t_lb
-	CREATE_STRVEC(nb, qp_sol->t_lb, tmp_ptr);
-	tmp_ptr += (nb)*sizeof(REAL);
-	// t_lg
-	CREATE_STRVEC(ng, qp_sol->t_lg, tmp_ptr);
-	tmp_ptr += (ng)*sizeof(REAL);
-	// t_ub
-	CREATE_STRVEC(nb, qp_sol->t_ub, tmp_ptr);
-	tmp_ptr += (nb)*sizeof(REAL);
-	// t_ug
-	CREATE_STRVEC(ng, qp_sol->t_ug, tmp_ptr);
-	tmp_ptr += (ng)*sizeof(REAL);
+	CREATE_STRVEC(2*nb+2*ng, qp_sol->t, tmp_ptr);
+	tmp_ptr += nb*sizeof(REAL);
+	tmp_ptr += ng*sizeof(REAL);
+	tmp_ptr += nb*sizeof(REAL);
+	tmp_ptr += ng*sizeof(REAL);
 
 	return;
 
@@ -139,10 +115,10 @@ void CVT_DENSE_QP_SOL_TO_COLMAJ(struct DENSE_QP *qp, struct DENSE_QP_SOL *qp_sol
 
 	CVT_STRVEC2VEC(nv, qp_sol->v, 0, v);
 	CVT_STRVEC2VEC(ne, qp_sol->pi, 0, pi);
-	CVT_STRVEC2VEC(nb, qp_sol->lam_lb, 0, lam_lb);
-	CVT_STRVEC2VEC(nb, qp_sol->lam_ub, 0, lam_ub);
-	CVT_STRVEC2VEC(ng, qp_sol->lam_lg, 0, lam_lg);
-	CVT_STRVEC2VEC(ng, qp_sol->lam_ug, 0, lam_ug);
+	CVT_STRVEC2VEC(nb, qp_sol->lam, 0, lam_lb);
+	CVT_STRVEC2VEC(nb, qp_sol->lam, nb+ng, lam_ub);
+	CVT_STRVEC2VEC(ng, qp_sol->lam, nb, lam_lg);
+	CVT_STRVEC2VEC(ng, qp_sol->lam, 2*nb+ng, lam_ug);
 
 	return;
 
@@ -160,10 +136,9 @@ void CVT_DENSE_QP_SOL_TO_ROWMAJ(struct DENSE_QP *qp, struct DENSE_QP_SOL *qp_sol
 
 	CVT_STRVEC2VEC(nv, qp_sol->v, 0, v);
 	CVT_STRVEC2VEC(ne, qp_sol->pi, 0, pi);
-	CVT_STRVEC2VEC(nb, qp_sol->lam_lb, 0, lam_lb);
-	CVT_STRVEC2VEC(nb, qp_sol->lam_ub, 0, lam_ub);
-	CVT_STRVEC2VEC(ng, qp_sol->lam_lg, 0, lam_lg);
-	CVT_STRVEC2VEC(ng, qp_sol->lam_ug, 0, lam_ug);
+	CVT_STRVEC2VEC(nb, qp_sol->lam, nb+ng, lam_ub);
+	CVT_STRVEC2VEC(ng, qp_sol->lam, nb, lam_lg);
+	CVT_STRVEC2VEC(ng, qp_sol->lam, 2*nb+ng, lam_ug);
 
 	return;
 
@@ -181,10 +156,10 @@ void CVT_DENSE_QP_SOL_TO_LIBSTR(struct DENSE_QP *qp, struct DENSE_QP_SOL *qp_sol
 
 	VECCP_LIBSTR(nv, qp_sol->v, 0, v, 0);
 	VECCP_LIBSTR(ne, qp_sol->pi, 0, pi, 0);
-	VECCP_LIBSTR(nb, qp_sol->lam_lb, 0, lam_lb, 0);
-	VECCP_LIBSTR(nb, qp_sol->lam_ub, 0, lam_ub, 0);
-	VECCP_LIBSTR(ng, qp_sol->lam_lg, 0, lam_lg, 0);
-	VECCP_LIBSTR(ng, qp_sol->lam_ug, 0, lam_ug, 0);
+	VECCP_LIBSTR(nb, qp_sol->lam, 0, lam_lb, 0);
+	VECCP_LIBSTR(nb, qp_sol->lam, nb+ng, lam_ub, 0);
+	VECCP_LIBSTR(ng, qp_sol->lam, nb, lam_lg, 0);
+	VECCP_LIBSTR(ng, qp_sol->lam, 2*nb+ng, lam_ug, 0);
 
 	return;
 

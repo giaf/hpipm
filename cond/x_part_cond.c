@@ -255,16 +255,6 @@ void EXPAND_SOL_OCP2OCP(struct OCP_QP *ocp_qp, struct OCP_QP *part_dense_qp, str
 
 	int ii;
 
-	int tmp_nb, tmp_ng;
-	struct STRVEC tmp_lam_lb;
-	struct STRVEC tmp_lam_lg;
-	struct STRVEC tmp_lam_ub;
-	struct STRVEC tmp_lam_ug;
-	struct STRVEC tmp_t_lb;
-	struct STRVEC tmp_t_lg;
-	struct STRVEC tmp_t_ub;
-	struct STRVEC tmp_t_ug;
-
 	int N = ocp_qp->N;
 	int N2 = part_dense_qp->N;
 	int N1 = N/N2; // (floor) horizon of small blocks
@@ -299,27 +289,10 @@ void EXPAND_SOL_OCP2OCP(struct OCP_QP *ocp_qp, struct OCP_QP *part_dense_qp, str
 		tmp_ocp_qp_sol.t = ocp_qp_sol->t+N_tmp;
 
 		// alias ocp qp sol
-		tmp_nb = part_dense_qp->nb[ii];
-		tmp_ng = part_dense_qp->ng[ii];
-		CREATE_STRVEC(tmp_nb, &tmp_lam_lb, (part_dense_qp_sol->lam+ii)->pa+0);
-		CREATE_STRVEC(tmp_ng, &tmp_lam_lg, (part_dense_qp_sol->lam+ii)->pa+tmp_nb);
-		CREATE_STRVEC(tmp_nb, &tmp_lam_ub, (part_dense_qp_sol->lam+ii)->pa+tmp_nb+tmp_ng);
-		CREATE_STRVEC(tmp_ng, &tmp_lam_ug, (part_dense_qp_sol->lam+ii)->pa+2*tmp_nb+tmp_ng);
-		CREATE_STRVEC(tmp_nb, &tmp_t_lb, (part_dense_qp_sol->t+ii)->pa+0);
-		CREATE_STRVEC(tmp_ng, &tmp_t_lg, (part_dense_qp_sol->t+ii)->pa+tmp_nb);
-		CREATE_STRVEC(tmp_nb, &tmp_t_ub, (part_dense_qp_sol->t+ii)->pa+tmp_nb+tmp_ng);
-		CREATE_STRVEC(tmp_ng, &tmp_t_ug, (part_dense_qp_sol->t+ii)->pa+2*tmp_nb+tmp_ng);
-
 		dense_qp_sol.v = part_dense_qp_sol->ux+ii;
 		dense_qp_sol.pi = part_dense_qp_sol->pi+ii;
-		dense_qp_sol.lam_lb = &tmp_lam_lb;
-		dense_qp_sol.lam_ub = &tmp_lam_ub;
-		dense_qp_sol.lam_lg = &tmp_lam_lg;
-		dense_qp_sol.lam_ug = &tmp_lam_ug;
-		dense_qp_sol.t_lb = &tmp_t_lb;
-		dense_qp_sol.t_ub = &tmp_t_ub;
-		dense_qp_sol.t_lg = &tmp_t_lg;
-		dense_qp_sol.t_ug = &tmp_t_ug;
+		dense_qp_sol.lam = part_dense_qp_sol->lam+ii;
+		dense_qp_sol.t = part_dense_qp_sol->t+ii;
 
 		EXPAND_SOL(&tmp_ocp_qp, &dense_qp_sol, &tmp_ocp_qp_sol, part_cond_ws->cond_workspace);
 

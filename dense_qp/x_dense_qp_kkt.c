@@ -43,14 +43,8 @@ void INIT_VAR_HARD_DENSE_QP(struct DENSE_QP *qp, struct DENSE_QP_SOL *qp_sol, st
 
 	REAL *v = qp_sol->v->pa;
 	REAL *pi = qp_sol->pi->pa;
-	REAL *lam_lb = qp_sol->lam_lb->pa;
-	REAL *lam_ub = qp_sol->lam_ub->pa;
-	REAL *lam_lg = qp_sol->lam_lg->pa;
-	REAL *lam_ug = qp_sol->lam_ug->pa;
-	REAL *t_lb = qp_sol->t_lb->pa;
-	REAL *t_ub = qp_sol->t_ub->pa;
-	REAL *t_lg = qp_sol->t_lg->pa;
-	REAL *t_ug = qp_sol->t_ug->pa;
+	REAL *lam = qp_sol->lam->pa;
+	REAL *t = qp_sol->t->pa;
 
 	REAL mu0 = rws->mu0;
 
@@ -80,44 +74,44 @@ void INIT_VAR_HARD_DENSE_QP(struct DENSE_QP *qp, struct DENSE_QP_SOL *qp_sol, st
 	for(ii=0; ii<nb; ii++)
 		{
 		idxb0 = idxb[ii];
-		t_lb[ii] = - d[0+ii] + v[idxb0];
-		t_ub[ii] =   d[nb+ng+ii] - v[idxb0];
-		if(t_lb[ii]<thr0)
+		t[0+ii]     = - d[0+ii]     + v[idxb0];
+		t[nb+ng+ii] =   d[nb+ng+ii] - v[idxb0];
+		if(t[0+ii]<thr0)
 			{
-			if(t_ub[ii]<thr0)
+			if(t[nb+ng+ii]<thr0)
 				{
 				v[idxb0] = 0.5*(d[0+ii] - d[nb+ng+ii]);
-				t_lb[ii] = thr0;
-				t_ub[ii] = thr0;
+				t[0+ii]     = thr0;
+				t[nb+ng+ii] = thr0;
 				}
 			else
 				{
-				t_lb[ii] = thr0;
+				t[0+ii] = thr0;
 				v[idxb0] = d[0+ii] + thr0;
 				}
 			}
-		else if(t_ub[ii]<thr0)
+		else if(t[nb+ng+ii]<thr0)
 			{
-			t_ub[ii] = thr0;
+			t[nb+ng+ii] = thr0;
 			v[idxb0] = d[nb+ng+ii] - thr0;
 			}
-		lam_lb[ii] = mu0/t_lb[ii];
-		lam_ub[ii] = mu0/t_ub[ii];
+		lam[0+ii]     = mu0/t[0+ii];
+		lam[nb+ng+ii] = mu0/t[nb+ng+ii];
 		}
 	
 	// inequality constraints
-	GEMV_T_LIBSTR(nv, ng, 1.0, qp->Ct, 0, 0, qp_sol->v, 0, 0.0, qp_sol->t_lg, 0, qp_sol->t_lg, 0);
+	GEMV_T_LIBSTR(nv, ng, 1.0, qp->Ct, 0, 0, qp_sol->v, 0, 0.0, qp_sol->t, nb, qp_sol->t, nb);
 	for(ii=0; ii<ng; ii++)
 		{
-		t_ug[ii] = t_lg[ii];
-		t_lg[ii] -= d[nb+ii];
-		t_ug[ii] += d[2*nb+ng+ii];
-		t_lg[ii] = fmax( thr0, t_lg[ii] );
-		t_ug[ii] = fmax( thr0, t_ug[ii] );
-//		t_lg[ii] = thr0>t_lg[ii] ? thr0 : t_lg[ii];
-//		t_ug[ii] = thr0>t_ug[ii] ? thr0 : t_ug[ii];
-		lam_lg[ii] = mu0/t_lg[ii];
-		lam_ug[ii] = mu0/t_ug[ii];
+		t[2*nb+ng+ii] = t[nb+ii];
+		t[nb+ii]      -= d[nb+ii];
+		t[2*nb+ng+ii] += d[2*nb+ng+ii];
+//		t[nb+ii]      = fmax( thr0, t[nb+ii] );
+//		t[2*nb+ng+ii] = fmax( thr0, t[2*nb+ng+ii] );
+		t[nb+ii]      = thr0>t[nb+ii]      ? thr0 : t[nb+ii];
+		t[2*nb+ng+ii] = thr0>t[2*nb+ng+ii] ? thr0 : t[2*nb+ng+ii];
+		lam[nb+ii]      = mu0/t[nb+ii];
+		lam[2*nb+ng+ii] = mu0/t[2*nb+ng+ii];
 		}
 
 	return;
@@ -142,14 +136,8 @@ void COMPUTE_RES_HARD_DENSE_QP(struct DENSE_QP *qp, struct DENSE_QP_SOL *qp_sol,
 
 	struct STRVEC *v = qp_sol->v;
 	struct STRVEC *pi = qp_sol->pi;
-	struct STRVEC *lam_lb = qp_sol->lam_lb;
-	struct STRVEC *lam_ub = qp_sol->lam_ub;
-	struct STRVEC *lam_lg = qp_sol->lam_lg;
-	struct STRVEC *lam_ug = qp_sol->lam_ug;
-	struct STRVEC *t_lb = qp_sol->t_lb;
-	struct STRVEC *t_ub = qp_sol->t_ub;
-	struct STRVEC *t_lg = qp_sol->t_lg;
-	struct STRVEC *t_ug = qp_sol->t_ug;
+	struct STRVEC *lam = qp_sol->lam;
+	struct STRVEC *t = qp_sol->t;
 
 	REAL mu;
 
@@ -159,23 +147,23 @@ void COMPUTE_RES_HARD_DENSE_QP(struct DENSE_QP *qp, struct DENSE_QP_SOL *qp_sol,
 	if(nb>0)
 		{
 		// res_g
-		AXPY_LIBSTR(nb, -1.0, lam_lb, 0, lam_ub, 0, ws->tmp_nb, 0);
+		AXPY_LIBSTR(nb, -1.0, lam, 0, lam, nb+ng, ws->tmp_nb, 0);
 		VECAD_SP_LIBSTR(nb, 1.0, ws->tmp_nb, 0, qp->idxb, ws->res_g, 0);
 		// res_d
 		VECEX_SP_LIBSTR(nb, -1.0, qp->idxb, v, 0, ws->res_d_lb, 0);
 		VECCP_LIBSTR(nb, ws->res_d_lb, 0, ws->res_d_ub, 0);
 		AXPY_LIBSTR(nb, 1.0, qp->d, 0, ws->res_d_lb, 0, ws->res_d_lb, 0);
 		AXPY_LIBSTR(nb, 1.0, qp->d, nb+ng, ws->res_d_ub, 0, ws->res_d_ub, 0);
-		AXPY_LIBSTR(nb, 1.0, t_lb, 0, ws->res_d_lb, 0, ws->res_d_lb, 0);
-		AXPY_LIBSTR(nb, -1.0, t_ub, 0, ws->res_d_ub, 0, ws->res_d_ub, 0);
+		AXPY_LIBSTR(nb, 1.0, t, 0, ws->res_d_lb, 0, ws->res_d_lb, 0);
+		AXPY_LIBSTR(nb, -1.0, t, nb+ng, ws->res_d_ub, 0, ws->res_d_ub, 0);
 		VECSC_LIBSTR(nb, -1.0, ws->res_d_ub, 0); // TODO embed with above
 		}
 
 	if(ng>0)
 		{
-		AXPY_LIBSTR(ng, -1.0, lam_lg, 0, lam_ug, 0, ws->tmp_ng0, 0);
-		AXPY_LIBSTR(ng, 1.0, t_lg, 0, qp->d, nb, ws->res_d_lg, 0);
-		AXPY_LIBSTR(ng, -1.0, t_ug, 0, qp->d, 2*nb+ng, ws->res_d_ug, 0);
+		AXPY_LIBSTR(ng, -1.0, lam, nb, lam, 2*nb+ng, ws->tmp_ng0, 0);
+		AXPY_LIBSTR(ng, 1.0, t, nb, qp->d, nb, ws->res_d_lg, 0);
+		AXPY_LIBSTR(ng, -1.0, t, 2*nb+ng, qp->d, 2*nb+ng, ws->res_d_ug, 0);
 		GEMV_NT_LIBSTR(nv, ng, 1.0, 1.0, qp->Ct, 0, 0, ws->tmp_ng0, 0, v, 0, 1.0, 0.0, ws->res_g, 0, ws->tmp_ng1, 0, ws->res_g, 0, ws->tmp_ng1, 0);
 		AXPY_LIBSTR(ng, -1.0, ws->tmp_ng1, 0, ws->res_d_lg, 0, ws->res_d_lg, 0);
 		AXPY_LIBSTR(ng, -1.0, ws->tmp_ng1, 0, ws->res_d_ug, 0, ws->res_d_ug, 0);
@@ -186,7 +174,7 @@ void COMPUTE_RES_HARD_DENSE_QP(struct DENSE_QP *qp, struct DENSE_QP_SOL *qp_sol,
 	GEMV_NT_LIBSTR(ne, nv, -1.0, -1.0, qp->A, 0, 0, v, 0, pi, 0, 1.0, 1.0, qp->b, 0, ws->res_g, 0, ws->res_b, 0, ws->res_g, 0);
 
 	// res_mu
-	mu = VECMULDOT_LIBSTR(2*nb+2*ng, lam_lb, 0, t_lb, 0, ws->res_m, 0);
+	mu = VECMULDOT_LIBSTR(2*nb+2*ng, lam, 0, t, 0, ws->res_m, 0);
 
 	if(cws->nc>0)
 		ws->res_mu = mu*cws->nt_inv;
