@@ -38,10 +38,7 @@ void INIT_VAR_HARD_DENSE_QP(struct DENSE_QP *qp, struct DENSE_QP_SOL *qp_sol, st
 	int nb = qp->nb;
 	int ng = qp->ng;
 
-	REAL *d_lb = qp->d_lb->pa;
-	REAL *d_ub = qp->d_ub->pa;
-	REAL *d_lg = qp->d_lg->pa;
-	REAL *d_ug = qp->d_ug->pa;
+	REAL *d = qp->d->pa;
 	int *idxb = qp->idxb;
 
 	REAL *v = qp_sol->v->pa;
@@ -83,26 +80,26 @@ void INIT_VAR_HARD_DENSE_QP(struct DENSE_QP *qp, struct DENSE_QP_SOL *qp_sol, st
 	for(ii=0; ii<nb; ii++)
 		{
 		idxb0 = idxb[ii];
-		t_lb[ii] = - d_lb[ii] + v[idxb0];
-		t_ub[ii] =   d_ub[ii] - v[idxb0];
+		t_lb[ii] = - d[0+ii] + v[idxb0];
+		t_ub[ii] =   d[nb+ng+ii] - v[idxb0];
 		if(t_lb[ii]<thr0)
 			{
 			if(t_ub[ii]<thr0)
 				{
-				v[idxb0] = 0.5*(d_lb[ii] - d_ub[ii]);
+				v[idxb0] = 0.5*(d[0+ii] - d[nb+ng+ii]);
 				t_lb[ii] = thr0;
 				t_ub[ii] = thr0;
 				}
 			else
 				{
 				t_lb[ii] = thr0;
-				v[idxb0] = d_lb[ii] + thr0;
+				v[idxb0] = d[0+ii] + thr0;
 				}
 			}
 		else if(t_ub[ii]<thr0)
 			{
 			t_ub[ii] = thr0;
-			v[idxb0] = d_ub[ii] - thr0;
+			v[idxb0] = d[nb+ng+ii] - thr0;
 			}
 		lam_lb[ii] = mu0/t_lb[ii];
 		lam_ub[ii] = mu0/t_ub[ii];
@@ -113,8 +110,8 @@ void INIT_VAR_HARD_DENSE_QP(struct DENSE_QP *qp, struct DENSE_QP_SOL *qp_sol, st
 	for(ii=0; ii<ng; ii++)
 		{
 		t_ug[ii] = t_lg[ii];
-		t_lg[ii] -= d_lg[ii];
-		t_ug[ii] += d_ug[ii];
+		t_lg[ii] -= d[nb+ii];
+		t_ug[ii] += d[2*nb+ng+ii];
 		t_lg[ii] = fmax( thr0, t_lg[ii] );
 		t_ug[ii] = fmax( thr0, t_ug[ii] );
 //		t_lg[ii] = thr0>t_lg[ii] ? thr0 : t_lg[ii];
@@ -167,8 +164,8 @@ void COMPUTE_RES_HARD_DENSE_QP(struct DENSE_QP *qp, struct DENSE_QP_SOL *qp_sol,
 		// res_d
 		VECEX_SP_LIBSTR(nb, -1.0, qp->idxb, v, 0, ws->res_d_lb, 0);
 		VECCP_LIBSTR(nb, ws->res_d_lb, 0, ws->res_d_ub, 0);
-		AXPY_LIBSTR(nb, 1.0, qp->d_lb, 0, ws->res_d_lb, 0, ws->res_d_lb, 0);
-		AXPY_LIBSTR(nb, 1.0, qp->d_ub, 0, ws->res_d_ub, 0, ws->res_d_ub, 0);
+		AXPY_LIBSTR(nb, 1.0, qp->d, 0, ws->res_d_lb, 0, ws->res_d_lb, 0);
+		AXPY_LIBSTR(nb, 1.0, qp->d, nb+ng, ws->res_d_ub, 0, ws->res_d_ub, 0);
 		AXPY_LIBSTR(nb, 1.0, t_lb, 0, ws->res_d_lb, 0, ws->res_d_lb, 0);
 		AXPY_LIBSTR(nb, -1.0, t_ub, 0, ws->res_d_ub, 0, ws->res_d_ub, 0);
 		VECSC_LIBSTR(nb, -1.0, ws->res_d_ub, 0); // TODO embed with above
@@ -177,8 +174,8 @@ void COMPUTE_RES_HARD_DENSE_QP(struct DENSE_QP *qp, struct DENSE_QP_SOL *qp_sol,
 	if(ng>0)
 		{
 		AXPY_LIBSTR(ng, -1.0, lam_lg, 0, lam_ug, 0, ws->tmp_ng0, 0);
-		AXPY_LIBSTR(ng, 1.0, t_lg, 0, qp->d_lg, 0, ws->res_d_lg, 0);
-		AXPY_LIBSTR(ng, -1.0, t_ug, 0, qp->d_ug, 0, ws->res_d_ug, 0);
+		AXPY_LIBSTR(ng, 1.0, t_lg, 0, qp->d, nb, ws->res_d_lg, 0);
+		AXPY_LIBSTR(ng, -1.0, t_ug, 0, qp->d, 2*nb+ng, ws->res_d_ug, 0);
 		GEMV_NT_LIBSTR(nv, ng, 1.0, 1.0, qp->Ct, 0, 0, ws->tmp_ng0, 0, v, 0, 1.0, 0.0, ws->res_g, 0, ws->tmp_ng1, 0, ws->res_g, 0, ws->tmp_ng1, 0);
 		AXPY_LIBSTR(ng, -1.0, ws->tmp_ng1, 0, ws->res_d_lg, 0, ws->res_d_lg, 0);
 		AXPY_LIBSTR(ng, -1.0, ws->tmp_ng1, 0, ws->res_d_ug, 0, ws->res_d_ug, 0);

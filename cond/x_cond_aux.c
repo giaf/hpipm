@@ -209,7 +209,7 @@ void COND_RSQRQ_N2NX3(struct OCP_QP *ocp_qp, struct STRMAT *RSQrq2, struct STRVE
 
 
 
-void COND_DCTD(struct OCP_QP *ocp_qp, int *idxb2, struct STRVEC *d_lb2, struct STRVEC *d_ub2, struct STRMAT *DCt2, struct STRVEC *d_lg2, struct STRVEC *d_ug2, struct COND_QP_OCP2DENSE_WORKSPACE *cond_ws)
+void COND_DCTD(struct OCP_QP *ocp_qp, int *idxb2, struct STRMAT *DCt2, struct STRVEC *d2, struct COND_QP_OCP2DENSE_WORKSPACE *cond_ws)
 	{
 
 	int N = ocp_qp->N;
@@ -235,11 +235,6 @@ void COND_DCTD(struct OCP_QP *ocp_qp, int *idxb2, struct STRVEC *d_lb2, struct S
 	struct STRVEC *Gammab = cond_ws->Gammab;
 	struct STRVEC *tmp_ngM = cond_ws->tmp_ngM;
 
-
-	REAL *d_lb3 = d_lb2->pa;
-	REAL *d_ub3 = d_ub2->pa;
-	REAL *d_lg3 = d_lg2->pa;
-	REAL *d_ug3 = d_ug2->pa;
 
 	REAL *ptr_d_lb;
 	REAL *ptr_d_ub;
@@ -272,6 +267,11 @@ void COND_DCTD(struct OCP_QP *ocp_qp, int *idxb2, struct STRVEC *d_lb2, struct S
 	int ng2 = nbg + ngg;
 	int nb2 = nbb;
 	int nt2 = nb2 + ng2;
+
+	REAL *d_lb3 = d2->pa+0;
+	REAL *d_ub3 = d2->pa+nb2+ng2;
+	REAL *d_lg3 = d2->pa+nb2;
+	REAL *d_ug3 = d2->pa+2*nb2+ng2;
 
 	// set constraint matrix to zero (it's 2 lower triangular matrices atm)
 	GESE_LIBSTR(nu2+nx2, ng2, 0.0, &DCt2[0], 0, 0);
@@ -361,13 +361,13 @@ void COND_DCTD(struct OCP_QP *ocp_qp, int *idxb2, struct STRVEC *d_lb2, struct S
 
 			GEMM_NN_LIBSTR(nu2+nx[0]-nu_tmp, ng0, nx0, 1.0, &Gamma[N-1-ii], 0, 0, &DCt[N-ii], nu0, 0, 0.0, DCt2, nu_tmp, nbg+ng_tmp, DCt2, nu_tmp, nbg+ng_tmp);
 
-			VECCP_LIBSTR(ng0, &d[N-ii], nb0, d_lg2, nbg+ng_tmp);
-			VECCP_LIBSTR(ng0, &d[N-ii], 2*nb0+ng0, d_ug2, nbg+ng_tmp);
+			VECCP_LIBSTR(ng0, &d[N-ii], nb0, d2, nb2+nbg+ng_tmp);
+			VECCP_LIBSTR(ng0, &d[N-ii], 2*nb0+ng0, d2, 2*nb2+ng2+nbg+ng_tmp);
 
 			GEMV_T_LIBSTR(nx0, ng0, 1.0, &DCt[N-ii], nu0, 0, &Gammab[N-ii-1], 0, 0.0, tmp_ngM, 0, tmp_ngM, 0);
 
-			AXPY_LIBSTR(ng0, -1.0, tmp_ngM, 0, d_lg2, nbg+ng_tmp, d_lg2, nbg+ng_tmp);
-			AXPY_LIBSTR(ng0, -1.0, tmp_ngM, 0, d_ug2, nbg+ng_tmp, d_ug2, nbg+ng_tmp);
+			AXPY_LIBSTR(ng0, -1.0, tmp_ngM, 0, d2, nb2+nbg+ng_tmp, d2, nb2+nbg+ng_tmp);
+			AXPY_LIBSTR(ng0, -1.0, tmp_ngM, 0, d2, 2*nb2+ng2+nbg+ng_tmp, d2, 2*nb2+ng2+nbg+ng_tmp);
 
 			ng_tmp += ng0;
 			
@@ -393,8 +393,8 @@ void COND_DCTD(struct OCP_QP *ocp_qp, int *idxb2, struct STRVEC *d_lb2, struct S
 
 		GECP_LIBSTR(nu0+nx0, ng0, &DCt[0], 0, 0, DCt2, nu_tmp, nbg+ng_tmp);
 
-		VECCP_LIBSTR(ng0, &d[0], nb0, d_lg2, nbg+ng_tmp);
-		VECCP_LIBSTR(ng0, &d[0], 2*nb0+ng0, d_ug2, nbg+ng_tmp);
+		VECCP_LIBSTR(ng0, &d[0], nb0, d2, nb2+nbg+ng_tmp);
+		VECCP_LIBSTR(ng0, &d[0], 2*nb0+ng0, d2, 2*nb2+ng2+nbg+ng_tmp);
 
 //		ng_tmp += ng[N-ii];
 

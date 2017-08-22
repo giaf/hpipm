@@ -678,10 +678,10 @@ int main()
 	d_print_tran_strvec(nvc, dense_qp.g, 0);
 	d_print_tran_strvec(nec, dense_qp.b, 0);
 	d_print_tran_strvec(2*nbc+2*ngc, dense_qp.d, 0);
-	d_print_tran_strvec(nbc, dense_qp.d_lb, 0);
-	d_print_tran_strvec(nbc, dense_qp.d_ub, 0);
-	d_print_tran_strvec(ngc, dense_qp.d_lg, 0);
-	d_print_tran_strvec(ngc, dense_qp.d_ug, 0);
+	d_print_tran_strvec(nbc, dense_qp.d, 0);
+	d_print_tran_strvec(nbc, dense_qp.d, nbc+ngc);
+	d_print_tran_strvec(ngc, dense_qp.d, nbc);
+	d_print_tran_strvec(ngc, dense_qp.d, 2*nbc+ngc);
 #endif
 
 #if 0
