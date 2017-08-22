@@ -47,6 +47,7 @@
 #define CREATE_IPM_CORE_QP s_create_ipm_core_qp
 #define CREATE_STRMAT s_create_strmat
 #define CREATE_STRVEC s_create_strvec
+#define CVT_STRVEC2VEC s_cvt_strvec2vec
 #define FACT_SOLVE_KKT_STEP_OCP_QP s_fact_solve_kkt_step_ocp_qp
 #define FACT_SOLVE_KKT_UNCONSTR_OCP_QP s_fact_solve_kkt_unconstr_ocp_qp
 #define INIT_VAR_OCP_QP s_init_var_ocp_qp
@@ -76,6 +77,8 @@
 #define CREATE_IPM_OCP_QP s_create_ipm_ocp_qp
 #define SOLVE_IPM_OCP_QP s_solve_ipm_ocp_qp
 #define SOLVE_IPM2_OCP_QP s_solve_ipm2_ocp_qp
+#define CVT_OCP_QP_RES_TO_COLMAJ s_cvt_ocp_qp_res_to_colmaj
+#define CVT_OCP_QP_RES_TO_ROWMAJ s_cvt_ocp_qp_res_to_rowmaj
 
 
 

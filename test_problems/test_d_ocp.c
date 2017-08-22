@@ -860,53 +860,92 @@ int main()
 	printf("\nt_us\n");
 	for(ii=0; ii<=N; ii++)
 		d_print_mat(1, ns[ii], (qp_sol.t+ii)->pa+2*nb[ii]+2*ng[ii]+ns[ii], 1);
+#endif
 
+/************************************************
+* extract and print residuals
+************************************************/	
+
+	double *res_r[N+1]; for(ii=0; ii<=N; ii++) d_zeros(res_r+ii, nu[ii], 1);
+	double *res_q[N+1]; for(ii=0; ii<=N; ii++) d_zeros(res_q+ii, nx[ii], 1);
+	double *res_ls[N+1]; for(ii=0; ii<=N; ii++) d_zeros(res_ls+ii, ns[ii], 1);
+	double *res_us[N+1]; for(ii=0; ii<=N; ii++) d_zeros(res_us+ii, ns[ii], 1);
+	double *res_b[N]; for(ii=0; ii<N; ii++) d_zeros(res_b+ii, nx[ii+1], 1);
+	double *res_d_lb[N+1]; for(ii=0; ii<=N; ii++) d_zeros(res_d_lb+ii, nb[ii], 1);
+	double *res_d_ub[N+1]; for(ii=0; ii<=N; ii++) d_zeros(res_d_ub+ii, nb[ii], 1);
+	double *res_d_lg[N+1]; for(ii=0; ii<=N; ii++) d_zeros(res_d_lg+ii, ng[ii], 1);
+	double *res_d_ug[N+1]; for(ii=0; ii<=N; ii++) d_zeros(res_d_ug+ii, ng[ii], 1);
+	double *res_d_ls[N+1]; for(ii=0; ii<=N; ii++) d_zeros(res_d_ls+ii, ns[ii], 1);
+	double *res_d_us[N+1]; for(ii=0; ii<=N; ii++) d_zeros(res_d_us+ii, ns[ii], 1);
+	double *res_m_lb[N+1]; for(ii=0; ii<=N; ii++) d_zeros(res_m_lb+ii, nb[ii], 1);
+	double *res_m_ub[N+1]; for(ii=0; ii<=N; ii++) d_zeros(res_m_ub+ii, nb[ii], 1);
+	double *res_m_lg[N+1]; for(ii=0; ii<=N; ii++) d_zeros(res_m_lg+ii, ng[ii], 1);
+	double *res_m_ug[N+1]; for(ii=0; ii<=N; ii++) d_zeros(res_m_ug+ii, ng[ii], 1);
+	double *res_m_ls[N+1]; for(ii=0; ii<=N; ii++) d_zeros(res_m_ls+ii, ns[ii], 1);
+	double *res_m_us[N+1]; for(ii=0; ii<=N; ii++) d_zeros(res_m_us+ii, ns[ii], 1);
+
+	d_cvt_ocp_qp_res_to_colmaj(&qp, &workspace, res_r, res_q, res_ls, res_us, res_b, res_d_lb, res_d_ub, res_d_lg, res_d_ug, res_d_ls, res_d_us, res_m_lb, res_m_ub, res_m_lg, res_m_ug, res_m_ls, res_m_us);
+
+#if 1
 	printf("\nresiduals\n\n");
-	printf("\nres_g\n");
+	printf("\nres_r\n");
 	for(ii=0; ii<=N; ii++)
-		d_print_e_mat(1, nu[ii]+nx[ii], (workspace.res_g+ii)->pa, 1);
+		d_print_e_mat(1, nu[ii], res_r[ii], 1);
+	printf("\nres_q\n");
+	for(ii=0; ii<=N; ii++)
+		d_print_e_mat(1, nx[ii], res_q[ii], 1);
+	printf("\nres_ls\n");
+	for(ii=0; ii<=N; ii++)
+		d_print_e_mat(1, ns[ii], res_ls[ii], 1);
+	printf("\nres_us\n");
+	for(ii=0; ii<=N; ii++)
+		d_print_e_mat(1, ns[ii], res_us[ii], 1);
 	printf("\nres_b\n");
 	for(ii=0; ii<N; ii++)
-		d_print_e_mat(1, nx[ii+1], (workspace.res_b+ii)->pa, 1);
-	printf("\nres_m_lb\n");
+		d_print_e_mat(1, nx[ii+1], res_b[ii], 1);
+	printf("\nres_d_lb\n"); 
 	for(ii=0; ii<=N; ii++)
-		d_print_e_mat(1, nb[ii], (workspace.res_m+ii)->pa, 1);
-	printf("\nrem_m_ub\n");
-	for(ii=0; ii<=N; ii++)
-		d_print_e_mat(1, nb[ii], (workspace.res_m+ii)->pa+nb[ii]+ng[ii], 1);
-	printf("\nrem_m_lg\n");
-	for(ii=0; ii<=N; ii++)
-		d_print_e_mat(1, ng[ii], (workspace.res_m+ii)->pa+nb[ii], 1);
-	printf("\nrem_m_ug\n");
-	for(ii=0; ii<=N; ii++)
-		d_print_e_mat(1, ng[ii], (workspace.res_m+ii)->pa+2*nb[ii]+ng[ii], 1);
-	printf("\nres_m_ls\n");
-	for(ii=0; ii<=N; ii++)
-		d_print_e_mat(1, ns[ii], (workspace.res_m+ii)->pa+2*nb[ii]+2*ng[ii], 1);
-	printf("\nres_m_us\n");
-	for(ii=0; ii<=N; ii++)
-		d_print_e_mat(1, ns[ii], (workspace.res_m+ii)->pa+2*nb[ii]+2*ng[ii]+ns[ii], 1);
-	printf("\nres_d_lb\n");
-	for(ii=0; ii<=N; ii++)
-		d_print_e_mat(1, nb[ii], (workspace.res_d+ii)->pa, 1);
+		d_print_e_mat(1, nb[ii], res_d_lb[ii], 1);
 	printf("\nres_d_ub\n");
 	for(ii=0; ii<=N; ii++)
-		d_print_e_mat(1, nb[ii], (workspace.res_d+ii)->pa+nb[ii]+ng[ii], 1);
+		d_print_e_mat(1, nb[ii], res_d_ub[ii], 1);
 	printf("\nres_d_lg\n");
 	for(ii=0; ii<=N; ii++)
-		d_print_e_mat(1, ng[ii], (workspace.res_d+ii)->pa+nb[ii], 1);
+		d_print_e_mat(1, ng[ii], res_d_lg[ii], 1);
 	printf("\nres_d_ug\n");
 	for(ii=0; ii<=N; ii++)
-		d_print_e_mat(1, ng[ii], (workspace.res_d+ii)->pa+2*nb[ii]+ng[ii], 1);
+		d_print_e_mat(1, ng[ii], res_d_ug[ii], 1);
 	printf("\nres_d_ls\n");
 	for(ii=0; ii<=N; ii++)
-		d_print_e_mat(1, ns[ii], (workspace.res_d+ii)->pa+2*nb[ii]+2*ng[ii], 1);
+		d_print_e_mat(1, ns[ii], res_d_ls[ii], 1);
 	printf("\nres_d_us\n");
 	for(ii=0; ii<=N; ii++)
-		d_print_e_mat(1, ns[ii], (workspace.res_d+ii)->pa+2*nb[ii]+2*ng[ii]+ns[ii], 1);
-	printf("\nres_mu\n");
-	printf("\n%e\n\n", workspace.res_mu);
+		d_print_e_mat(1, ns[ii], res_d_us[ii], 1);
+	printf("\nres_m_lb\n");
+	for(ii=0; ii<=N; ii++)
+		d_print_e_mat(1, nb[ii], res_m_lb[ii], 1);
+	printf("\nres_m_ub\n");
+	for(ii=0; ii<=N; ii++)
+		d_print_e_mat(1, nb[ii], res_m_ub[ii], 1);
+	printf("\nres_m_lg\n");
+	for(ii=0; ii<=N; ii++)
+		d_print_e_mat(1, ng[ii], res_m_lg[ii], 1);
+	printf("\nres_m_ug\n");
+	for(ii=0; ii<=N; ii++)
+		d_print_e_mat(1, ng[ii], res_m_ug[ii], 1);
+	printf("\nres_m_ls\n");
+	for(ii=0; ii<=N; ii++)
+		d_print_e_mat(1, ns[ii], res_m_ls[ii], 1);
+	printf("\nres_m_us\n");
+	for(ii=0; ii<=N; ii++)
+		d_print_e_mat(1, ns[ii], res_m_us[ii], 1);
 #endif
+
+/************************************************
+* print ipm statistics
+************************************************/	
+
+	printf("\nipm return = %d\n", hpipm_return);
 
 	printf("\nipm iter = %d\n", workspace.iter);
 	printf("\nalpha_aff\tmu_aff\t\tsigma\t\talpha\t\tmu\n");
@@ -980,6 +1019,23 @@ int main()
 		d_free(lam_ug[ii]);
 		d_free(lam_ls[ii]);
 		d_free(lam_us[ii]);
+		d_free(res_r[ii]);
+		d_free(res_q[ii]);
+		d_free(res_ls[ii]);
+		d_free(res_us[ii]);
+		d_free(res_b[ii]);
+		d_free(res_d_lb[ii]);
+		d_free(res_d_ub[ii]);
+		d_free(res_d_lg[ii]);
+		d_free(res_d_ug[ii]);
+		d_free(res_d_ls[ii]);
+		d_free(res_d_us[ii]);
+		d_free(res_m_lb[ii]);
+		d_free(res_m_ub[ii]);
+		d_free(res_m_lg[ii]);
+		d_free(res_m_ug[ii]);
+		d_free(res_m_ls[ii]);
+		d_free(res_m_us[ii]);
 		}
 	d_free(u[ii]);
 	d_free(x[ii]);
@@ -991,6 +1047,22 @@ int main()
 	d_free(lam_ug[ii]);
 	d_free(lam_ls[ii]);
 	d_free(lam_us[ii]);
+	d_free(res_r[ii]);
+	d_free(res_q[ii]);
+	d_free(res_ls[ii]);
+	d_free(res_us[ii]);
+	d_free(res_d_lb[ii]);
+	d_free(res_d_ub[ii]);
+	d_free(res_d_lg[ii]);
+	d_free(res_d_ug[ii]);
+	d_free(res_d_ls[ii]);
+	d_free(res_d_us[ii]);
+	d_free(res_m_lb[ii]);
+	d_free(res_m_ub[ii]);
+	d_free(res_m_lg[ii]);
+	d_free(res_m_ug[ii]);
+	d_free(res_m_ls[ii]);
+	d_free(res_m_us[ii]);
 
 	free(qp_mem);
 	free(qp_sol_mem);

@@ -79,5 +79,9 @@ void s_create_ipm_ocp_qp(struct s_ocp_qp *qp, struct s_ipm_ocp_qp_arg *arg, stru
 int s_solve_ipm_ocp_qp(struct s_ocp_qp *qp, struct s_ocp_qp_sol *qp_sol, struct s_ipm_ocp_qp_workspace *ws);
 //
 int s_solve_ipm2_ocp_qp(struct s_ocp_qp *qp, struct s_ocp_qp_sol *qp_sol, struct s_ipm_ocp_qp_workspace *ws);
+//
+void s_cvt_ocp_qp_res_to_colmaj(struct s_ocp_qp *qp, struct s_ipm_ocp_qp_workspace *ws, float **res_r, float **res_q, float **res_ls, float **res_us, float **res_b, float **res_d_lb, float **res_d_ub, float **res_d_lg, float **res_d_ug, float **res_d_ls, float **res_d_us, float **res_m_lb, float **res_m_ub, float **res_m_lg, float **res_m_ug, float **res_m_ls, float **res_m_us);
+//
+void s_cvt_ocp_qp_res_to_rowmaj(struct s_ocp_qp *qp, struct s_ipm_ocp_qp_workspace *ws, float **res_r, float **res_q, float **res_ls, float **res_us, float **res_b, float **res_d_lb, float **res_d_ub, float **res_d_lg, float **res_d_ug, float **res_d_ls, float **res_d_us, float **res_m_lb, float **res_m_ub, float **res_m_lg, float **res_m_ug, float **res_m_ls, float **res_m_us);
 
 
