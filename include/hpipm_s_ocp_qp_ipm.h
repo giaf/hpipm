@@ -29,54 +29,55 @@
 
 #include <blasfeo_target.h>
 #include <blasfeo_common.h>
-#include <blasfeo_d_aux.h>
-
-#include "../include/hpipm_d_ocp_qp.h"
-#include "../include/hpipm_d_ocp_qp_sol.h"
-#include "../include/hpipm_d_ocp_qp_ipm_hard.h"
-#include "../include/hpipm_d_core_qp_ipm.h"
-#include "../include/hpipm_d_core_qp_ipm_aux.h"
-#include "../include/hpipm_d_ocp_qp_kkt.h"
 
 
 
-#define COMPUTE_ALPHA_QP d_compute_alpha_qp
-#define COMPUTE_CENTERING_CORRECTION_QP d_compute_centering_correction_qp
-#define COMPUTE_MU_AFF_QP d_compute_mu_aff_qp
-#define COMPUTE_RES_HARD_OCP_QP d_compute_res_hard_ocp_qp
-#define CREATE_IPM_CORE_QP d_create_ipm_core_qp
-#define CREATE_STRMAT d_create_strmat
-#define CREATE_STRVEC d_create_strvec
-#define FACT_SOLVE_KKT_STEP_HARD_OCP_QP d_fact_solve_kkt_step_hard_ocp_qp
-#define FACT_SOLVE_KKT_UNCONSTR_OCP_QP d_fact_solve_kkt_unconstr_ocp_qp
-#define INIT_VAR_HARD_OCP_QP d_init_var_hard_ocp_qp
-#define IPM_CORE_QP_WORKSPACE d_ipm_core_qp_workspace
-#define IPM_HARD_OCP_QP_WORKSPACE d_ipm_hard_ocp_qp_workspace
-#define IPM_HARD_OCP_QP_ARG d_ipm_hard_ocp_qp_arg
-#define MEMSIZE_IPM_CORE_QP d_memsize_ipm_core_qp
-#define OCP_QP d_ocp_qp
-#define OCP_QP_SOL d_ocp_qp_sol
-#define PRINT_E_MAT d_print_e_mat
-#define PRINT_E_STRVEC d_print_e_strvec
-#define PRINT_E_TRAN_STRVEC d_print_e_tran_strvec
-#define PRINT_STRMAT d_print_strmat
-#define PRINT_STRVEC d_print_strvec
-#define PRINT_TRAN_STRVEC d_print_tran_strvec
-#define REAL double
-#define SIZE_STRMAT d_size_strmat
-#define SIZE_STRVEC d_size_strvec
-#define SOLVE_KKT_STEP_HARD_OCP_QP d_solve_kkt_step_hard_ocp_qp
-#define STRMAT d_strmat
-#define STRVEC d_strvec
-#define UPDATE_VAR_QP d_update_var_qp
+
+struct s_ipm_ocp_qp_workspace
+	{
+	struct s_ipm_core_qp_workspace *core_workspace;
+	struct s_strvec *dux;
+	struct s_strvec *dpi;
+	struct s_strvec *dt;
+	struct s_strvec *res_g; // q-residuals
+	struct s_strvec *res_b; // b-residuals
+	struct s_strvec *res_d; // d-residuals
+	struct s_strvec *res_m; // m-residuals
+	struct s_strvec *Gamma; // hessian update
+	struct s_strvec *gamma; // hessian update
+	struct s_strvec *tmp_nxM; // work space of size nxM
+	struct s_strvec *tmp_nbgM; // work space of size nbM+ngM
+	struct s_strvec *tmp_ngM; // work space of size ngM
+	struct s_strvec *tmp_nsM; // work space of size nsM
+	struct s_strvec *Pb; // Pb
+	struct s_strvec *Zs_inv;
+	struct s_strmat *L;
+	struct s_strmat *AL;
+	float *stat; // convergence statistics
+	float res_mu; // mu-residual
+	int iter; // iteration number
+	int memsize;
+	};
 
 
 
-#define MEMSIZE_IPM_HARD_OCP_QP d_memsize_ipm_hard_ocp_qp
-#define CREATE_IPM_HARD_OCP_QP d_create_ipm_hard_ocp_qp
-#define SOLVE_IPM_HARD_OCP_QP d_solve_ipm_hard_ocp_qp
-#define SOLVE_IPM2_HARD_OCP_QP d_solve_ipm2_hard_ocp_qp
+struct s_ipm_ocp_qp_arg
+	{
+	float alpha_min; // exit cond on step length
+	float mu_max; // exit cond on duality measure
+	float mu0; // initial value for duality measure
+	int iter_max; // exit cond in iter number
+	};
 
 
 
-#include "x_ocp_qp_ipm_hard.c"
+//
+int s_memsize_ipm_ocp_qp(struct s_ocp_qp *qp, struct s_ipm_ocp_qp_arg *arg);
+//
+void s_create_ipm_ocp_qp(struct s_ocp_qp *qp, struct s_ipm_ocp_qp_arg *arg, struct s_ipm_ocp_qp_workspace *ws, void *mem);
+//
+int s_solve_ipm_ocp_qp(struct s_ocp_qp *qp, struct s_ocp_qp_sol *qp_sol, struct s_ipm_ocp_qp_workspace *ws);
+//
+int s_solve_ipm2_ocp_qp(struct s_ocp_qp *qp, struct s_ocp_qp_sol *qp_sol, struct s_ipm_ocp_qp_workspace *ws);
+
+

@@ -39,7 +39,7 @@
 
 #include "../include/hpipm_d_ocp_qp.h"
 #include "../include/hpipm_d_ocp_qp_sol.h"
-#include "../include/hpipm_d_ocp_qp_ipm_hard.h"
+#include "../include/hpipm_d_ocp_qp_ipm.h"
 
 #include "d_tools.h"
 
@@ -785,18 +785,18 @@ int main()
 * ipm
 ************************************************/	
 
-	struct d_ipm_hard_ocp_qp_arg arg;
+	struct d_ipm_ocp_qp_arg arg;
 	arg.alpha_min = 1e-8;
 	arg.mu_max = 1e-12;
 	arg.iter_max = 20;
 	arg.mu0 = 100.0;
 
-	int ipm_size = d_memsize_ipm_hard_ocp_qp(&qp, &arg);
+	int ipm_size = d_memsize_ipm_ocp_qp(&qp, &arg);
 	printf("\nipm size = %d\n", ipm_size);
 	void *ipm_mem = malloc(ipm_size);
 
-	struct d_ipm_hard_ocp_qp_workspace workspace;
-	d_create_ipm_hard_ocp_qp(&qp, &arg, &workspace, ipm_mem);
+	struct d_ipm_ocp_qp_workspace workspace;
+	d_create_ipm_ocp_qp(&qp, &arg, &workspace, ipm_mem);
 
 	int hpipm_return; // 0 normal; 1 max iter
 
@@ -804,8 +804,8 @@ int main()
 
 	for(rep=0; rep<nrep; rep++)
 		{
-//		hpipm_return = d_solve_ipm_hard_ocp_qp(&qp, &qp_sol, &workspace);
-		hpipm_return = d_solve_ipm2_hard_ocp_qp(&qp, &qp_sol, &workspace);
+//		hpipm_return = d_solve_ipm_ocp_qp(&qp, &qp_sol, &workspace);
+		hpipm_return = d_solve_ipm2_ocp_qp(&qp, &qp_sol, &workspace);
 		}
 
 	gettimeofday(&tv1, NULL); // stop

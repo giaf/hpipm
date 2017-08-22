@@ -36,7 +36,7 @@
 
 #include "../include/hpipm_s_ocp_qp.h"
 #include "../include/hpipm_s_ocp_qp_sol.h"
-#include "../include/hpipm_s_ocp_qp_ipm_hard.h"
+#include "../include/hpipm_s_ocp_qp_ipm.h"
 #include "../include/hpipm_s_core_qp_ipm.h"
 #include "../include/hpipm_s_core_qp_ipm_aux.h"
 
@@ -57,7 +57,7 @@
 #define GEMV_NT_LIBSTR sgemv_nt_libstr
 #define GEMV_T_LIBSTR sgemv_t_libstr
 #define IPM_CORE_QP_WORKSPACE s_ipm_core_qp_workspace
-#define IPM_HARD_OCP_QP_WORKSPACE s_ipm_hard_ocp_qp_workspace
+#define IPM_OCP_QP_WORKSPACE s_ipm_ocp_qp_workspace
 #define OCP_QP s_ocp_qp
 #define OCP_QP_SOL s_ocp_qp_sol
 #define POTRF_L_MN_LIBSTR spotrf_l_mn_libstr
@@ -91,12 +91,12 @@
 
 
 
-#define INIT_VAR_HARD_OCP_QP s_init_var_hard_ocp_qp
-#define COMPUTE_RES_HARD_OCP_QP s_compute_res_hard_ocp_qp
+#define INIT_VAR_OCP_QP s_init_var_ocp_qp
+#define COMPUTE_RES_OCP_QP s_compute_res_ocp_qp
 #define FACT_SOLVE_KKT_UNCONSTR_OCP_QP s_fact_solve_kkt_unconstr_ocp_qp
 #define COND_SLACKS s_cond_slacks
-#define FACT_SOLVE_KKT_STEP_HARD_OCP_QP s_fact_solve_kkt_step_hard_ocp_qp
-#define SOLVE_KKT_STEP_HARD_OCP_QP s_solve_kkt_step_hard_ocp_qp
+#define FACT_SOLVE_KKT_STEP_OCP_QP s_fact_solve_kkt_step_ocp_qp
+#define SOLVE_KKT_STEP_OCP_QP s_solve_kkt_step_ocp_qp
 
 
 

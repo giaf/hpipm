@@ -27,7 +27,7 @@
 
 
 
-int MEMSIZE_IPM_HARD_OCP_QP(struct OCP_QP *qp, struct IPM_HARD_OCP_QP_ARG *arg)
+int MEMSIZE_IPM_OCP_QP(struct OCP_QP *qp, struct IPM_OCP_QP_ARG *arg)
 	{
 
 	// loop index
@@ -98,7 +98,7 @@ int MEMSIZE_IPM_HARD_OCP_QP(struct OCP_QP *qp, struct IPM_HARD_OCP_QP_ARG *arg)
 
 
 
-void CREATE_IPM_HARD_OCP_QP(struct OCP_QP *qp, struct IPM_HARD_OCP_QP_ARG *arg, struct IPM_HARD_OCP_QP_WORKSPACE *workspace, void *mem)
+void CREATE_IPM_OCP_QP(struct OCP_QP *qp, struct IPM_OCP_QP_ARG *arg, struct IPM_OCP_QP_WORKSPACE *workspace, void *mem)
 	{
 
 	// loop index
@@ -113,7 +113,7 @@ void CREATE_IPM_HARD_OCP_QP(struct OCP_QP *qp, struct IPM_HARD_OCP_QP_ARG *arg, 
 	int *ns = qp->ns;
 
 
-	workspace->memsize = MEMSIZE_IPM_HARD_OCP_QP(qp, arg);
+	workspace->memsize = MEMSIZE_IPM_OCP_QP(qp, arg);
 
 
 	// compute core qp size and max size
@@ -364,7 +364,7 @@ void CREATE_IPM_HARD_OCP_QP(struct OCP_QP *qp, struct IPM_HARD_OCP_QP_ARG *arg, 
 
 
 
-int SOLVE_IPM_HARD_OCP_QP(struct OCP_QP *qp, struct OCP_QP_SOL *qp_sol, struct IPM_HARD_OCP_QP_WORKSPACE *ws)
+int SOLVE_IPM_OCP_QP(struct OCP_QP *qp, struct OCP_QP_SOL *qp_sol, struct IPM_OCP_QP_WORKSPACE *ws)
 	{
 
 	struct IPM_CORE_QP_WORKSPACE *cws = ws->core_workspace;
@@ -385,14 +385,14 @@ int SOLVE_IPM_HARD_OCP_QP(struct OCP_QP *qp, struct OCP_QP_SOL *qp_sol, struct I
 	if(cws->nc==0)
 		{
 		FACT_SOLVE_KKT_UNCONSTR_OCP_QP(qp, qp_sol, ws);
-		COMPUTE_RES_HARD_OCP_QP(qp, qp_sol, ws);
+		COMPUTE_RES_OCP_QP(qp, qp_sol, ws);
 		cws->mu = ws->res_mu;
 		ws->iter = 0;
 		return 0;
 		}
 
 	// init solver
-	INIT_VAR_HARD_OCP_QP(qp, qp_sol, ws);
+	INIT_VAR_OCP_QP(qp, qp_sol, ws);
 
 #if 0
 int ii;
@@ -429,7 +429,7 @@ exit(1);
 #endif
 
 	// compute residuals
-	COMPUTE_RES_HARD_OCP_QP(qp, qp_sol, ws);
+	COMPUTE_RES_OCP_QP(qp, qp_sol, ws);
 	cws->mu = ws->res_mu;
 
 	for(kk=0; kk<cws->iter_max & cws->mu>cws->mu_max; kk++)
@@ -470,7 +470,7 @@ exit(1);
 #endif
 
 		// fact and solve kkt
-		FACT_SOLVE_KKT_STEP_HARD_OCP_QP(qp, ws);
+		FACT_SOLVE_KKT_STEP_OCP_QP(qp, ws);
 
 #if 0
 int ii;
@@ -551,7 +551,7 @@ exit(1);
 #endif
 
 		// compute residuals
-		COMPUTE_RES_HARD_OCP_QP(qp, qp_sol, ws);
+		COMPUTE_RES_OCP_QP(qp, qp_sol, ws);
 		cws->mu = ws->res_mu;
 		cws->stat[5*kk+1] = ws->res_mu;
 
@@ -606,7 +606,7 @@ exit(1);
 
 
 
-int SOLVE_IPM2_HARD_OCP_QP(struct OCP_QP *qp, struct OCP_QP_SOL *qp_sol, struct IPM_HARD_OCP_QP_WORKSPACE *ws)
+int SOLVE_IPM2_OCP_QP(struct OCP_QP *qp, struct OCP_QP_SOL *qp_sol, struct IPM_OCP_QP_WORKSPACE *ws)
 	{
 
 	struct IPM_CORE_QP_WORKSPACE *cws = ws->core_workspace;
@@ -622,17 +622,17 @@ int SOLVE_IPM2_HARD_OCP_QP(struct OCP_QP *qp, struct OCP_QP_SOL *qp_sol, struct 
 	if(cws->nc==0)
 		{
 		FACT_SOLVE_KKT_UNCONSTR_OCP_QP(qp, qp_sol, ws);
-		COMPUTE_RES_HARD_OCP_QP(qp, qp_sol, ws);
+		COMPUTE_RES_OCP_QP(qp, qp_sol, ws);
 		cws->mu = ws->res_mu;
 		ws->iter = 0;
 		return 0;
 		}
 
 	// init solver
-	INIT_VAR_HARD_OCP_QP(qp, qp_sol, ws);
+	INIT_VAR_OCP_QP(qp, qp_sol, ws);
 
 	// compute residuals
-	COMPUTE_RES_HARD_OCP_QP(qp, qp_sol, ws);
+	COMPUTE_RES_OCP_QP(qp, qp_sol, ws);
 	cws->mu = ws->res_mu;
 
 #if 0
@@ -696,11 +696,11 @@ int SOLVE_IPM2_HARD_OCP_QP(struct OCP_QP *qp, struct OCP_QP_SOL *qp_sol, struct 
 		cws->sigma = 1.0;
 		cws->stat[5*kk+2] = cws->sigma;
 		COMPUTE_CENTERING_CORRECTION_QP(cws);
-		FACT_SOLVE_KKT_STEP_HARD_OCP_QP(qp, ws);
+		FACT_SOLVE_KKT_STEP_OCP_QP(qp, ws);
 		COMPUTE_ALPHA_QP(cws);
 		cws->stat[5*kk+3] = cws->alpha;
 		UPDATE_VAR_QP(cws);
-		COMPUTE_RES_HARD_OCP_QP(qp, qp_sol, ws);
+		COMPUTE_RES_OCP_QP(qp, qp_sol, ws);
 		cws->mu = ws->res_mu;
 		cws->stat[5*kk+4] = ws->res_mu;
 		kk++;
@@ -714,7 +714,7 @@ int SOLVE_IPM2_HARD_OCP_QP(struct OCP_QP *qp, struct OCP_QP_SOL *qp_sol, struct 
 		{
 
 		// fact and solve kkt
-		FACT_SOLVE_KKT_STEP_HARD_OCP_QP(qp, ws);
+		FACT_SOLVE_KKT_STEP_OCP_QP(qp, ws);
 
 #if 0
 	printf("\ndux\n");
@@ -749,7 +749,7 @@ int SOLVE_IPM2_HARD_OCP_QP(struct OCP_QP *qp, struct OCP_QP_SOL *qp_sol, struct 
 		COMPUTE_CENTERING_CORRECTION_QP(cws);
 
 		// fact and solve kkt
-		SOLVE_KKT_STEP_HARD_OCP_QP(qp, ws);
+		SOLVE_KKT_STEP_OCP_QP(qp, ws);
 
 #if 0
 int ii;
@@ -801,7 +801,7 @@ exit(1);
 		UPDATE_VAR_QP(cws);
 
 		// compute residuals
-		COMPUTE_RES_HARD_OCP_QP(qp, qp_sol, ws);
+		COMPUTE_RES_OCP_QP(qp, qp_sol, ws);
 		cws->mu = ws->res_mu;
 		cws->stat[5*kk+4] = ws->res_mu;
 

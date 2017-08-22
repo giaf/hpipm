@@ -33,9 +33,9 @@ ifeq ($(TARGET), GENERIC)
 OBJS +=
 endif
 
-OBJS += d_ocp_qp.o d_ocp_qp_sol.o d_ocp_qp_kkt.o d_ocp_qp_ipm_hard.o d_ocp_qp_sim.o
-OBJS += s_ocp_qp.o s_ocp_qp_sol.o s_ocp_qp_kkt.o s_ocp_qp_ipm_hard.o
-#OBJS += m_ocp_qp.o                m_ocp_qp_kkt.o m_ocp_qp_ipm_hard.o
+OBJS += d_ocp_qp.o d_ocp_qp_sol.o d_ocp_qp_kkt.o d_ocp_qp_ipm.o d_ocp_qp_sim.o
+OBJS += s_ocp_qp.o s_ocp_qp_sol.o s_ocp_qp_kkt.o s_ocp_qp_ipm.o
+#OBJS += m_ocp_qp.o                m_ocp_qp_kkt.o m_ocp_qp_ipm.o
 
 obj: $(OBJS)
 
@@ -49,5 +49,5 @@ d_ocp_qp_sol.o: d_ocp_qp_sol.c x_ocp_qp_sol.c
 s_ocp_qp_sol.o: s_ocp_qp_sol.c x_ocp_qp_sol.c
 d_ocp_qp_kkt.o: d_ocp_qp_kkt.c x_ocp_qp_kkt.c
 s_ocp_qp_kkt.o: s_ocp_qp_kkt.c x_ocp_qp_kkt.c
-d_ocp_qp_ipm_hard.o: d_ocp_qp_ipm_hard.c x_ocp_qp_ipm_hard.c
-s_ocp_qp_ipm_hard.o: s_ocp_qp_ipm_hard.c x_ocp_qp_ipm_hard.c
+d_ocp_qp_ipm.o: d_ocp_qp_ipm.c x_ocp_qp_ipm.c
+s_ocp_qp_ipm.o: s_ocp_qp_ipm.c x_ocp_qp_ipm.c
