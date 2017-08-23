@@ -228,14 +228,12 @@ void COMPUTE_RES_OCP_QP(struct OCP_QP *qp, struct OCP_QP_SOL *qp_sol, struct IPM
 			AXPY_LIBSTR(nb0+ng0, -1.0, lam+ii, 0, lam+ii, nb[ii]+ng[ii], tmp_nbgM+0, 0);
 			AXPY_LIBSTR(nb0+ng0,  1.0, d+ii, 0, t+ii, 0, res_d+ii, 0);
 			AXPY_LIBSTR(nb0+ng0, -1.0, d+ii, nb0+ng0, t+ii, nb0+ng0, res_d+ii, nb0+ng0);
-
 			// box
 			if(nb0>0)
 				{
 				VECAD_SP_LIBSTR(nb0, 1.0, tmp_nbgM+0, 0, idxb[ii], res_g+ii, 0);
 				VECEX_SP_LIBSTR(nb0, 1.0, idxb[ii], ux+ii, 0, tmp_nbgM+1, 0);
 				}
-
 			// general
 			if(ng0>0)
 				{
@@ -243,11 +241,10 @@ void COMPUTE_RES_OCP_QP(struct OCP_QP *qp, struct OCP_QP_SOL *qp_sol, struct IPM
 				}
 
 			AXPY_LIBSTR(nb0+ng0, -1.0, tmp_nbgM+1, 0, res_d+ii, 0, res_d+ii, 0);
-			AXPY_LIBSTR(nb0+ng0, 1.0, tmp_nbgM+1, 0, res_d+ii, nb0+ng0, res_d+ii, nb0+ng0);
+			AXPY_LIBSTR(nb0+ng0,  1.0, tmp_nbgM+1, 0, res_d+ii, nb0+ng0, res_d+ii, nb0+ng0);
 			}
 		if(ns0>0)
 			{
-
 			// res_g
 			GEMV_DIAG_LIBSTR(2*ns0, 1.0, Z+ii, 0, ux+ii, nu0+nx0, 1.0, z+ii, 0, res_g+ii, nu0+nx0);
 			AXPY_LIBSTR(2*ns0, -1.0, lam+ii, 2*nb0+2*ng0, res_g+ii, nu0+nx0, res_g+ii, nu0+nx0);
@@ -255,14 +252,11 @@ void COMPUTE_RES_OCP_QP(struct OCP_QP *qp, struct OCP_QP_SOL *qp_sol, struct IPM
 			AXPY_LIBSTR(ns0, -1.0, tmp_nsM, 0, res_g+ii, nu0+nx0, res_g+ii, nu0+nx0);
 			VECEX_SP_LIBSTR(ns0, 1.0, idxs[ii], lam+ii, nb0+ng0, tmp_nsM, 0);
 			AXPY_LIBSTR(ns0, -1.0, tmp_nsM, 0, res_g+ii, nu0+nx0+ns0, res_g+ii, nu0+nx0+ns0);
-
 			// res_d
 			VECAD_SP_LIBSTR(ns0, -1.0, ux+ii, nu0+nx0, idxs[ii], res_d+ii, 0);
 			VECAD_SP_LIBSTR(ns0, -1.0, ux+ii, nu0+nx0+ns0, idxs[ii], res_d+ii, nb0+ng0);
 			AXPY_LIBSTR(2*ns0, -1.0, ux+ii, nu0+nx0, t+ii, 2*nb0+2*ng0, res_d+ii, 2*nb0+2*ng0);
-
 			}
-
 
 		if(ii<N)
 			{
