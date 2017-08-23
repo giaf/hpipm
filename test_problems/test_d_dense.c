@@ -136,11 +136,11 @@ int main()
 	double C[] = {1.0, 0.0, 0.0, 1.0};
 	double d_lg[] = {-1.0, -1.0};
 	double d_ug[] = {1.5, 0.5};
-	double Zl[] = {};
-	double Zu[] = {};
-	double zl[] = {};
-	double zu[] = {};
-	int idxs[] = {};
+	double Zl[] = {1e3, 1e3};
+	double Zu[] = {1e3, 1e3};
+	double zl[] = {1e2, 1e2};
+	double zu[] = {1e2, 1e2};
+	int idxs[] = {0, 1};
 
 /************************************************
 * dense qp
@@ -186,7 +186,7 @@ int main()
 	arg.alpha_min = 1e-8;
 	arg.mu_max = 1e-12;
 	arg.iter_max = 20;
-	arg.mu0 = 1.0;
+	arg.mu0 = 10.0;
 
 	int ipm_size = d_memsize_ipm_hard_dense_qp(&qp, &arg);
 	printf("\nipm size = %d\n", ipm_size);
@@ -214,6 +214,10 @@ int main()
 	printf("\nsolution\n\n");
 	printf("\nv\n");
 	d_print_mat(1, nv, qp_sol.v->pa, 1);
+	printf("\nls\n");
+	d_print_mat(1, ns, qp_sol.v->pa+nv, 1);
+	printf("\nus\n");
+	d_print_mat(1, ns, qp_sol.v->pa+nv+ns, 1);
 	printf("\npi\n");
 	d_print_mat(1, ne, qp_sol.pi->pa, 1);
 	printf("\nlam_lb\n");
@@ -224,6 +228,10 @@ int main()
 	d_print_mat(1, ng, qp_sol.lam->pa+nb, 1);
 	printf("\nlam_ug\n");
 	d_print_mat(1, ng, qp_sol.lam->pa+2*nb+ng, 1);
+	printf("\nlam_ls\n");
+	d_print_mat(1, ns, qp_sol.lam->pa+2*nb+2*ng, 1);
+	printf("\nlam_us\n");
+	d_print_mat(1, ns, qp_sol.lam->pa+2*nb+2*ng+ns, 1);
 	printf("\nt_lb\n");
 	d_print_mat(1, nb, qp_sol.t->pa+0, 1);
 	printf("\nt_ub\n");
@@ -232,16 +240,20 @@ int main()
 	d_print_mat(1, ng, qp_sol.t->pa+nb, 1);
 	printf("\nt_ug\n");
 	d_print_mat(1, ng, qp_sol.t->pa+2*nb+ng, 1);
+	printf("\nt_ls\n");
+	d_print_mat(1, ns, qp_sol.t->pa+2*nb+2*ng, 1);
+	printf("\nt_us\n");
+	d_print_mat(1, ns, qp_sol.t->pa+2*nb+2*ng+ns, 1);
 
 	printf("\nresiduals\n\n");
 	printf("\nres_g\n");
-	d_print_e_mat(1, nv, workspace.res_g->pa, 1);
+	d_print_e_mat(1, nv+2*ns, workspace.res_g->pa, 1);
 	printf("\nres_b\n");
 	d_print_e_mat(1, ne, workspace.res_b->pa, 1);
 	printf("\nres_d\n");
-	d_print_e_mat(1, 2*nb+2*ng, workspace.res_d->pa, 1);
+	d_print_e_mat(1, 2*nb+2*ng+2*ns, workspace.res_d->pa, 1);
 	printf("\nres_m\n");
-	d_print_e_mat(1, 2*nb+2*ng, workspace.res_m->pa, 1);
+	d_print_e_mat(1, 2*nb+2*ng+2*ns, workspace.res_m->pa, 1);
 	printf("\nres_mu\n");
 	printf("\n%e\n\n", workspace.res_mu);
 
