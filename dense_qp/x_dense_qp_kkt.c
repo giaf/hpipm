@@ -278,12 +278,13 @@ void FACT_SOLVE_KKT_STEP_HARD_DENSE_QP(struct DENSE_QP *qp, struct IPM_HARD_DENS
 	struct STRVEC *dt = ws->dt;
 	struct STRVEC *res_g = ws->res_g;
 	struct STRVEC *res_b = ws->res_b;
-	struct STRVEC *Qx = ws->Qx;
-	struct STRVEC *qx = ws->qx;
+	struct STRVEC *Gamma = ws->Gamma;
+	struct STRVEC *gamma = ws->gamma;
+	struct STRVEC *tmp_nbg = ws->tmp_nbg;
 
 	struct IPM_CORE_QP_WORKSPACE *rws = ws->core_workspace;
 
-	if(nb>0 | ng>0)
+	if(nb+ng>0)
 		{
 		COMPUTE_QX_QX_QP(rws);
 		}
@@ -295,16 +296,20 @@ void FACT_SOLVE_KKT_STEP_HARD_DENSE_QP(struct DENSE_QP *qp, struct IPM_HARD_DENS
 
 		VECCP_LIBSTR(nv, res_g, 0, lv, 0);
 
+		if(nb+ng>0)
+			{
+			AXPY_LIBSTR(nb+ng,  1.0, Gamma, nb+ng, Gamma, 0, tmp_nbg+0, 0);
+			AXPY_LIBSTR(nb+ng, -1.0, gamma, nb+ng, gamma, 0, tmp_nbg+1, 0);
+			}
 		if(nb>0)
 			{
-			DIAAD_SP_LIBSTR(nb, 1.0, Qx, 0, idxb, Lv, 0, 0);
-			VECAD_SP_LIBSTR(nb, 1.0, qx, 0, idxb, lv, 0);
+			DIAAD_SP_LIBSTR(nb, 1.0, tmp_nbg+0, 0, idxb, Lv, 0, 0);
+			VECAD_SP_LIBSTR(nb, 1.0, tmp_nbg+1, 0, idxb, lv, 0);
 			}
-
 		if(ng>0)
 			{
-			GEMV_N_LIBSTR(nv, ng, 1.0, Ct, 0, 0, qx, nb, 1.0, lv, 0, lv, 0);
-			GEMM_R_DIAG_LIBSTR(nv, ng, 1.0, Ct, 0, 0, Qx, nb, 0.0, Ctx, 0, 0, Ctx, 0, 0);
+			GEMV_N_LIBSTR(nv, ng, 1.0, Ct, 0, 0, tmp_nbg+1, nb, 1.0, lv, 0, lv, 0);
+			GEMM_R_DIAG_LIBSTR(nv, ng, 1.0, Ct, 0, 0, tmp_nbg+0, nb, 0.0, Ctx, 0, 0, Ctx, 0, 0);
 			SYRK_POTRF_LN_LIBSTR(nv, nv, ng, Ctx, 0, 0, Ct, 0, 0, Lv, 0, 0, Lv, 0, 0);
 			}
 		else
@@ -365,16 +370,20 @@ void FACT_SOLVE_KKT_STEP_HARD_DENSE_QP(struct DENSE_QP *qp, struct IPM_HARD_DENS
 		GECP_LIBSTR(nv, nv, Hg, 0, 0, Lv, 0, 0);
 		ROWIN_LIBSTR(nv, 1.0, res_g, 0, Lv, nv, 0);
 
+		if(nb+ng>0)
+			{
+			AXPY_LIBSTR(nb+ng,  1.0, Gamma, nb+ng, Gamma, 0, tmp_nbg+0, 0);
+			AXPY_LIBSTR(nb+ng, -1.0, gamma, nb+ng, gamma, 0, tmp_nbg+1, 0);
+			}
 		if(nb>0)
 			{
-			DIAAD_SP_LIBSTR(nb, 1.0, Qx, 0, idxb, Lv, 0, 0);
-			ROWAD_SP_LIBSTR(nb, 1.0, qx, 0, idxb, Lv, nv, 0);
+			DIAAD_SP_LIBSTR(nb, 1.0, tmp_nbg+0, 0, idxb, Lv, 0, 0);
+			ROWAD_SP_LIBSTR(nb, 1.0, tmp_nbg+1, 0, idxb, Lv, nv, 0);
 			}
-
 		if(ng>0)
 			{
-			GEMM_R_DIAG_LIBSTR(nv, ng, 1.0, Ct, 0, 0, Qx, nb, 0.0, Ctx, 0, 0, Ctx, 0, 0);
-			ROWIN_LIBSTR(ng, 1.0, qx, nb, Ctx, nv, 0);
+			GEMM_R_DIAG_LIBSTR(nv, ng, 1.0, Ct, 0, 0, tmp_nbg+0, nb, 0.0, Ctx, 0, 0, Ctx, 0, 0);
+			ROWIN_LIBSTR(ng, 1.0, tmp_nbg+1, nb, Ctx, nv, 0);
 			SYRK_POTRF_LN_LIBSTR(nv+1, nv, ng, Ctx, 0, 0, Ct, 0, 0, Lv, 0, 0, Lv, 0, 0); // TODO _mn_ routine in BLASFEO !!!
 			}
 		else
@@ -391,13 +400,12 @@ void FACT_SOLVE_KKT_STEP_HARD_DENSE_QP(struct DENSE_QP *qp, struct IPM_HARD_DENS
 		{
 		VECEX_SP_LIBSTR(nb, 1.0, idxb, dv, 0, dt, 0);
 		}
-
 	if(ng>0)
 		{
 		GEMV_T_LIBSTR(nv, ng, 1.0, Ct, 0, 0, dv, 0, 0.0, dt, nb, dt, nb);
 		}
 
-	if(nb>0 | ng>0)
+	if(nb+ng>0)
 		{
 		VECCP_LIBSTR(nb+ng, dt, 0, dt, nb+ng);
 		VECSC_LIBSTR(nb+ng, -1.0, dt, nb+ng);
@@ -432,7 +440,8 @@ void SOLVE_KKT_STEP_HARD_DENSE_QP(struct DENSE_QP *qp, struct IPM_HARD_DENSE_QP_
 	struct STRVEC *dt = ws->dt;
 	struct STRVEC *res_g = ws->res_g;
 	struct STRVEC *res_b = ws->res_b;
-	struct STRVEC *qx = ws->qx;
+	struct STRVEC *gamma = ws->gamma;
+	struct STRVEC *tmp_nbg = ws->tmp_nbg;
 
 	struct IPM_CORE_QP_WORKSPACE *rws = ws->core_workspace;
 
@@ -445,14 +454,17 @@ void SOLVE_KKT_STEP_HARD_DENSE_QP(struct DENSE_QP *qp, struct IPM_HARD_DENSE_QP_
 		{
 		VECCP_LIBSTR(nv, res_g, 0, lv, 0);
 
+		if(nb+ng>0)
+			{
+			AXPY_LIBSTR(nb+ng, -1.0, gamma, nb+ng, gamma, 0, tmp_nbg+1, 0);
+			}
 		if(nb>0)
 			{
-			VECAD_SP_LIBSTR(nb, 1.0, qx, 0, idxb, lv, 0);
+			VECAD_SP_LIBSTR(nb, 1.0, tmp_nbg+1, 0, idxb, lv, 0);
 			}
-
 		if(ng>0)
 			{
-			GEMV_N_LIBSTR(nv, ng, 1.0, Ct, 0, 0, qx, nb, 1.0, lv, 0, lv, 0);
+			GEMV_N_LIBSTR(nv, ng, 1.0, Ct, 0, 0, tmp_nbg+1, nb, 1.0, lv, 0, lv, 0);
 			}
 
 		VECCP_LIBSTR(nv, lv, 0, dv, 0);
@@ -473,14 +485,17 @@ void SOLVE_KKT_STEP_HARD_DENSE_QP(struct DENSE_QP *qp, struct IPM_HARD_DENSE_QP_
 		{
 		VECCP_LIBSTR(nv, res_g, 0, lv, 0);
 
+		if(nb+ng>0)
+			{
+			AXPY_LIBSTR(nb+ng, -1.0, gamma, nb+ng, gamma, 0, tmp_nbg+1, 0);
+			}
 		if(nb>0)
 			{
-			VECAD_SP_LIBSTR(nb, 1.0, qx, 0, idxb, lv, 0);
+			VECAD_SP_LIBSTR(nb, 1.0, tmp_nbg+1, 0, idxb, lv, 0);
 			}
-
 		if(ng>0)
 			{
-			GEMV_N_LIBSTR(nv, ng, 1.0, Ct, 0, 0, qx, nb, 1.0, lv, 0, lv, 0);
+			GEMV_N_LIBSTR(nv, ng, 1.0, Ct, 0, 0, tmp_nbg+1, nb, 1.0, lv, 0, lv, 0);
 			}
 
 		VECCP_LIBSTR(nv, lv, 0, dv, 0);

@@ -38,11 +38,12 @@ int MEMSIZE_IPM_HARD_DENSE_QP(struct DENSE_QP *qp, struct IPM_HARD_DENSE_QP_ARG 
 
 	int size = 0;
 
-	size += 17*sizeof(struct STRVEC); // dv dpi dlam dt res_g res_b res_d res_m Qx qx lv tmp_nb tmp_ng0 tmp_ng1 Gamma gamma Zs_inv
+	size += 17*sizeof(struct STRVEC); // dv dpi dlam dt res_g res_b res_d res_m lv tmp_nb tmp_ng0 tmp_ng1 2*tmp_nbg Gamma gamma Zs_inv
 	size += 4*sizeof(struct STRMAT); // Lv AL Le Ctx
 
 	size += 1*SIZE_STRVEC(nb); // tmp_nb
 	size += 2*SIZE_STRVEC(ng); // tmp_ng0 tmp_ng1
+	size += 2*SIZE_STRVEC(nb+ng); // 2*tmp_nbg
 	size += 1*SIZE_STRVEC(nv); // lv
 	size += 1*SIZE_STRVEC(2*ns); // Zs_inv
 	size += 1*SIZE_STRMAT(nv+1, nv); // Lv
@@ -116,10 +117,6 @@ void CREATE_IPM_HARD_DENSE_QP(struct DENSE_QP *qp, struct IPM_HARD_DENSE_QP_ARG 
 	sv_ptr += 1;
 	workspace->res_m = sv_ptr;
 	sv_ptr += 1;
-	workspace->Qx = sv_ptr;
-	sv_ptr += 1;
-	workspace->qx = sv_ptr;
-	sv_ptr += 1;
 	workspace->Gamma = sv_ptr;
 	sv_ptr += 1;
 	workspace->gamma = sv_ptr;
@@ -134,6 +131,8 @@ void CREATE_IPM_HARD_DENSE_QP(struct DENSE_QP *qp, struct IPM_HARD_DENSE_QP_ARG 
 	sv_ptr += 1;
 	workspace->tmp_ng1 = sv_ptr;
 	sv_ptr += 1;
+	workspace->tmp_nbg = sv_ptr;
+	sv_ptr += 2;
 
 
 	// align to typicl cache line size
@@ -171,6 +170,12 @@ void CREATE_IPM_HARD_DENSE_QP(struct DENSE_QP *qp, struct IPM_HARD_DENSE_QP_ARG 
 	CREATE_STRVEC(ng, workspace->tmp_ng1, c_ptr);
 	c_ptr += workspace->tmp_ng1->memory_size;
 
+	CREATE_STRVEC(nb+ng, workspace->tmp_nbg+0, c_ptr);
+	c_ptr += (workspace->tmp_nbg+0)->memory_size;
+
+	CREATE_STRVEC(nb+ng, workspace->tmp_nbg+1, c_ptr);
+	c_ptr += (workspace->tmp_nbg+1)->memory_size;
+
 	cws->nv = nv+2*ns;
 	cws->ne = ne;
 	cws->nc = nb+ng+ns; // XXX
@@ -193,8 +198,6 @@ void CREATE_IPM_HARD_DENSE_QP(struct DENSE_QP *qp, struct IPM_HARD_DENSE_QP_ARG 
 	CREATE_STRVEC(ne, workspace->res_b, cws->res_b);
 	CREATE_STRVEC(2*nb+2*ng+2*ns, workspace->res_d, cws->res_d);
 	CREATE_STRVEC(2*nb+2*ng+2*ns, workspace->res_m, cws->res_m);
-	CREATE_STRVEC(nb+ng, workspace->Qx, cws->Qx);
-	CREATE_STRVEC(nb+ng, workspace->qx, cws->qx);
 	CREATE_STRVEC(2*nb+2*ng+2*ns, workspace->Gamma, cws->Gamma);
 	CREATE_STRVEC(2*nb+2*ng+2*ns, workspace->gamma, cws->gamma);
 	workspace->stat = cws->stat;

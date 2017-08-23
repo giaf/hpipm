@@ -7,18 +7,18 @@
 * Developed at IMTEK (University of Freiburg) under the supervision of Moritz Diehl.              *
 * All rights reserved.                                                                            *
 *                                                                                                 *
-* HPMPC is free software; you can redistribute it and/or                                          *
+* HPIPM is free software; you can redistribute it and/or                                          *
 * modify it under the terms of the GNU Lesser General Public                                      *
 * License as published by the Free Software Foundation; either                                    *
 * version 2.1 of the License, or (at your option) any later version.                              *
 *                                                                                                 *
-* HPMPC is distributed in the hope that it will be useful,                                        *
+* HPIPM is distributed in the hope that it will be useful,                                        *
 * but WITHOUT ANY WARRANTY; without even the implied warranty of                                  *
 * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.                                            *
 * See the GNU Lesser General Public License for more details.                                     *
 *                                                                                                 *
 * You should have received a copy of the GNU Lesser General Public                                *
-* License along with HPMPC; if not, write to the Free Software                                    *
+* License along with HPIPM; if not, write to the Free Software                                    *
 * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA                  *
 *                                                                                                 *
 * Author: Gianluca Frison, gianluca.frison (at) imtek.uni-freiburg.de                             *
@@ -43,8 +43,6 @@ struct s_ipm_hard_dense_qp_workspace
 	struct s_strvec *res_b; // b-residuals
 	struct s_strvec *res_d; // d-residuals
 	struct s_strvec *res_m; // m-residuals
-	struct s_strvec *Qx; // hessian update // TODO remove
-	struct s_strvec *qx; // gradient update // TODO remove
 	struct s_strvec *Gamma; //
 	struct s_strvec *gamma; //
 	struct s_strvec *Zs_inv; //
@@ -54,8 +52,9 @@ struct s_ipm_hard_dense_qp_workspace
 	struct s_strmat *Ctx; //
 	struct s_strvec *lv; //
 	struct s_strvec *tmp_nb; // work space of size nb
-	struct s_strvec *tmp_ng0; // work space of size nb
-	struct s_strvec *tmp_ng1; // work space of size nb
+	struct s_strvec *tmp_ng0; // work space of size ng
+	struct s_strvec *tmp_ng1; // work space of size ng
+	struct s_strvec *tmp_nbg; // work space of size nb+ng
 	float *stat; // convergence statistics
 	float res_mu; // mu-residual
 	int iter; // iteration number
