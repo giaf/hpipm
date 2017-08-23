@@ -37,6 +37,7 @@ void INIT_VAR_HARD_DENSE_QP(struct DENSE_QP *qp, struct DENSE_QP_SOL *qp_sol, st
 	int ne = qp->ne;
 	int nb = qp->nb;
 	int ng = qp->ng;
+	int ns = qp->ns;
 
 	REAL *d = qp->d->pa;
 	int *idxb = qp->idxb;
@@ -59,7 +60,7 @@ void INIT_VAR_HARD_DENSE_QP(struct DENSE_QP *qp, struct DENSE_QP_SOL *qp_sol, st
 	// cold start
 
 	// primal variables
-	for(ii=0; ii<nv; ii++)
+	for(ii=0; ii<nv+2*ns; ii++)
 		{
 		v[ii] = 0.0;
 		}
@@ -114,6 +115,15 @@ void INIT_VAR_HARD_DENSE_QP(struct DENSE_QP *qp, struct DENSE_QP_SOL *qp_sol, st
 		lam[2*nb+ng+ii] = mu0/t[2*nb+ng+ii];
 		}
 
+	// soft constraints
+	for(ii=0; ii<ns; ii++)
+		{
+		t[2*nb+2*ng+ii]    = 1.0; // thr0;
+		t[2*nb+2*ng+ns+ii] = 1.0; // thr0;
+		lam[2*nb+2*ng+ii]    = mu0/t[2*nb+2*ng+ii];
+		lam[2*nb+2*ng+ns+ii] = mu0/t[2*nb+2*ng+ns+ii];
+		}
+
 	return;
 
 	}
@@ -129,11 +139,15 @@ void COMPUTE_RES_HARD_DENSE_QP(struct DENSE_QP *qp, struct DENSE_QP_SOL *qp_sol,
 	int ne = qp->ne;
 	int nb = qp->nb;
 	int ng = qp->ng;
+	int ns = qp->ns;
 
 	// TODO extract qp arguments !!!!!
 	struct STRMAT *Ct = qp->Ct;
 	struct STRVEC *d = qp->d;
 	int *idxb = qp->idxb;
+	struct STRVEC *Z = qp->Z;
+	struct STRVEC *z = qp->z;
+	int *idxs = qp->idxs;
 
 	// TODO extract ws arguments !!!!!
 
@@ -145,6 +159,7 @@ void COMPUTE_RES_HARD_DENSE_QP(struct DENSE_QP *qp, struct DENSE_QP_SOL *qp_sol,
 	struct STRVEC *res_g = ws->res_g;
 	struct STRVEC *res_d = ws->res_d;
 	struct STRVEC *tmp_nbg = ws->tmp_nbg;
+	struct STRVEC *tmp_ns = ws->tmp_ns;
 
 	REAL mu;
 
@@ -169,6 +184,20 @@ void COMPUTE_RES_HARD_DENSE_QP(struct DENSE_QP *qp, struct DENSE_QP_SOL *qp_sol,
 			}
 		AXPY_LIBSTR(nb+ng, -1.0, tmp_nbg+1, 0, res_d, 0, res_d, 0);
 		AXPY_LIBSTR(nb+ng,  1.0, tmp_nbg+1, 0, res_d, nb+ng, res_d, nb+ng);
+		}
+	if(ns>0)
+		{
+		// res_g
+		GEMV_DIAG_LIBSTR(2*ns, 1.0, Z, 0, v, nv, 1.0, z, 0, res_g, nv);
+		AXPY_LIBSTR(2*ns, -1.0, lam, 2*nb+2*ng, res_g, nv, res_g, nv);
+		VECEX_SP_LIBSTR(ns, 1.0, idxs, lam, 0, tmp_ns, 0);
+		AXPY_LIBSTR(ns, -1.0, tmp_ns, 0, res_g, nv, res_g, nv);
+		VECEX_SP_LIBSTR(ns, 1.0, idxs, lam, nb+ng, tmp_ns, 0);
+		AXPY_LIBSTR(ns, -1.0, tmp_ns, 0, res_g, nv, res_g, nv+ns);
+		// res_d
+		VECAD_SP_LIBSTR(ns, -1.0, v, nv, idxs, res_d, 0);
+		VECAD_SP_LIBSTR(ns, -1.0, v, nv+ns, idxs, res_d, nb+ng);
+		AXPY_LIBSTR(2*ns, -1.0, v, nv, t, 2*nb+2*ng, res_d, 2*nb+2*ng);
 		}
 	
 	// res b, res g

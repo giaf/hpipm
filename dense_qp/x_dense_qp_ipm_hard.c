@@ -38,12 +38,11 @@ int MEMSIZE_IPM_HARD_DENSE_QP(struct DENSE_QP *qp, struct IPM_HARD_DENSE_QP_ARG 
 
 	int size = 0;
 
-	size += 17*sizeof(struct STRVEC); // dv dpi dlam dt res_g res_b res_d res_m lv tmp_nb tmp_ng0 tmp_ng1 2*tmp_nbg Gamma gamma Zs_inv
+	size += 15*sizeof(struct STRVEC); // dv dpi dlam dt res_g res_b res_d res_m lv 2*tmp_nbg tmp_ns Gamma gamma Zs_inv
 	size += 4*sizeof(struct STRMAT); // Lv AL Le Ctx
 
-	size += 1*SIZE_STRVEC(nb); // tmp_nb
-	size += 2*SIZE_STRVEC(ng); // tmp_ng0 tmp_ng1
 	size += 2*SIZE_STRVEC(nb+ng); // 2*tmp_nbg
+	size += 1*SIZE_STRVEC(ns); // tmp_ns
 	size += 1*SIZE_STRVEC(nv); // lv
 	size += 1*SIZE_STRVEC(2*ns); // Zs_inv
 	size += 1*SIZE_STRMAT(nv+1, nv); // Lv
@@ -125,14 +124,10 @@ void CREATE_IPM_HARD_DENSE_QP(struct DENSE_QP *qp, struct IPM_HARD_DENSE_QP_ARG 
 	sv_ptr += 1;
 	workspace->lv = sv_ptr;
 	sv_ptr += 1;
-	workspace->tmp_nb = sv_ptr;
-	sv_ptr += 1;
-	workspace->tmp_ng0 = sv_ptr;
-	sv_ptr += 1;
-	workspace->tmp_ng1 = sv_ptr;
-	sv_ptr += 1;
 	workspace->tmp_nbg = sv_ptr;
 	sv_ptr += 2;
+	workspace->tmp_ns = sv_ptr;
+	sv_ptr += 1;
 
 
 	// align to typicl cache line size
@@ -161,20 +156,14 @@ void CREATE_IPM_HARD_DENSE_QP(struct DENSE_QP *qp, struct IPM_HARD_DENSE_QP_ARG 
 	CREATE_STRVEC(2*ns, workspace->Zs_inv, c_ptr);
 	c_ptr += workspace->Zs_inv->memory_size;
 
-	CREATE_STRVEC(nb, workspace->tmp_nb, c_ptr);
-	c_ptr += workspace->tmp_nb->memory_size;
-
-	CREATE_STRVEC(ng, workspace->tmp_ng0, c_ptr);
-	c_ptr += workspace->tmp_ng0->memory_size;
-
-	CREATE_STRVEC(ng, workspace->tmp_ng1, c_ptr);
-	c_ptr += workspace->tmp_ng1->memory_size;
-
 	CREATE_STRVEC(nb+ng, workspace->tmp_nbg+0, c_ptr);
 	c_ptr += (workspace->tmp_nbg+0)->memory_size;
 
 	CREATE_STRVEC(nb+ng, workspace->tmp_nbg+1, c_ptr);
 	c_ptr += (workspace->tmp_nbg+1)->memory_size;
+
+	CREATE_STRVEC(nb+ng, workspace->tmp_ns+0, c_ptr);
+	c_ptr += (workspace->tmp_ns+0)->memory_size;
 
 	cws->nv = nv+2*ns;
 	cws->ne = ne;

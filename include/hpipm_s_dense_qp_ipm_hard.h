@@ -51,10 +51,8 @@ struct s_ipm_hard_dense_qp_workspace
 	struct s_strmat *Le; //
 	struct s_strmat *Ctx; //
 	struct s_strvec *lv; //
-	struct s_strvec *tmp_nb; // work space of size nb
-	struct s_strvec *tmp_ng0; // work space of size ng
-	struct s_strvec *tmp_ng1; // work space of size ng
 	struct s_strvec *tmp_nbg; // work space of size nb+ng
+	struct s_strvec *tmp_ns; // work space of size ns
 	float *stat; // convergence statistics
 	float res_mu; // mu-residual
 	int iter; // iteration number
