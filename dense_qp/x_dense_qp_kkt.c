@@ -285,6 +285,161 @@ void FACT_SOLVE_KKT_UNCONSTR_DENSE_QP(struct DENSE_QP *qp, struct DENSE_QP_SOL *
 
 
 
+static void COND_SLACKS_FACT_SOLVE(struct DENSE_QP *qp, struct IPM_HARD_DENSE_QP_WORKSPACE *ws)
+	{
+
+	int ii, idx;
+
+	int nv = qp->nv;
+	int nb = qp->nb;
+	int ng = qp->ng;
+	int ns = qp->ns;
+
+	struct STRVEC *Z = qp->Z;
+	int *idxs = qp->idxs;
+
+	struct STRVEC *dv = ws->dv;
+	struct STRVEC *res_g = ws->res_g;
+	struct STRVEC *Gamma = ws->Gamma;
+	struct STRVEC *gamma = ws->gamma;
+	struct STRVEC *Zs_inv = ws->Zs_inv;
+	struct STRVEC *tmp_nbg = ws->tmp_nbg;
+
+	REAL *ptr_Gamma = Gamma->pa;
+	REAL *ptr_gamma = gamma->pa;
+	REAL *ptr_Z = Z->pa;
+	REAL *ptr_Zs_inv = Zs_inv->pa;
+	REAL *ptr_dv = dv->pa;
+	REAL *ptr_res_g = res_g->pa;
+	REAL *ptr_tmp0 = (tmp_nbg+0)->pa;
+	REAL *ptr_tmp1 = (tmp_nbg+1)->pa;
+	REAL *ptr_tmp2 = (tmp_nbg+2)->pa;
+	REAL *ptr_tmp3 = (tmp_nbg+3)->pa;
+
+	REAL tmp0, tmp1;
+
+	VECCP_LIBSTR(nb+ng, Gamma, 0, tmp_nbg+0, 0);
+	VECCP_LIBSTR(nb+ng, Gamma, nb+ng, tmp_nbg+1, 0);
+	VECCP_LIBSTR(nb+ng, gamma, 0, tmp_nbg+2, 0);
+	VECCP_LIBSTR(nb+ng, gamma, nb+ng, tmp_nbg+3, 0);
+
+	for(ii=0; ii<ns; ii++)
+		{
+		idx = idxs[ii];
+		ptr_Zs_inv[0+ii]  = ptr_Z[0+ii]  + ptr_Gamma[0+idx]     + ptr_Gamma[2*nb+2*ng+ii];
+		ptr_Zs_inv[ns+ii] = ptr_Z[ns+ii] + ptr_Gamma[nb+ng+idx] + ptr_Gamma[2*nb+2*ng+ns+ii];
+		ptr_dv[nv+ii]     = ptr_res_g[nv+ii]    + ptr_gamma[0+idx]     + ptr_gamma[2*nb+2*ng+ii];
+		ptr_dv[nv+ns+ii]  = ptr_res_g[nv+ns+ii] + ptr_gamma[nb+ng+idx] + ptr_gamma[2*nb+2*ng+ns+ii];
+		ptr_Zs_inv[0+ii]  = 1.0/ptr_Zs_inv[0+ii];
+		ptr_Zs_inv[ns+ii] = 1.0/ptr_Zs_inv[ns+ii];
+		tmp0 = ptr_dv[nv+ii]*ptr_Zs_inv[0+ii];
+		tmp1 = ptr_dv[nv+ns+ii]*ptr_Zs_inv[ns+ii];
+		ptr_tmp0[idx] = ptr_tmp0[idx] - ptr_tmp0[idx]*ptr_Zs_inv[0+ii]*ptr_tmp0[idx];
+		ptr_tmp1[idx] = ptr_tmp1[idx] - ptr_tmp1[idx]*ptr_Zs_inv[ns+ii]*ptr_tmp1[idx];
+		ptr_tmp2[idx] = ptr_tmp2[idx] - ptr_Gamma[0+idx]*tmp0;
+		ptr_tmp3[idx] = ptr_tmp3[idx] - ptr_Gamma[nb+ng+idx]*tmp1;
+		}
+	
+	AXPY_LIBSTR(nb+ng,  1.0, tmp_nbg+1, 0, tmp_nbg+0, 0, tmp_nbg+0, 0);
+	AXPY_LIBSTR(nb+ng, -1.0, tmp_nbg+3, 0, tmp_nbg+2, 0, tmp_nbg+1, 0);
+
+	return;
+
+	}
+
+
+
+static void COND_SLACKS_SOLVE(struct DENSE_QP *qp, struct IPM_HARD_DENSE_QP_WORKSPACE *ws)
+	{
+
+	int ii, idx;
+
+	int nv = qp->nv;
+	int nb = qp->nb;
+	int ng = qp->ng;
+	int ns = qp->ns;
+
+	int *idxs = qp->idxs;
+
+	struct STRVEC *dv = ws->dv;
+	struct STRVEC *res_g = ws->res_g;
+	struct STRVEC *Gamma = ws->Gamma;
+	struct STRVEC *gamma = ws->gamma;
+	struct STRVEC *Zs_inv = ws->Zs_inv;
+	struct STRVEC *tmp_nbg = ws->tmp_nbg;
+
+	REAL *ptr_Gamma = Gamma->pa;
+	REAL *ptr_gamma = gamma->pa;
+	REAL *ptr_Zs_inv = Zs_inv->pa;
+	REAL *ptr_dv = dv->pa;
+	REAL *ptr_res_g = res_g->pa;
+	REAL *ptr_tmp2 = (tmp_nbg+2)->pa;
+	REAL *ptr_tmp3 = (tmp_nbg+3)->pa;
+
+	REAL tmp0, tmp1;
+
+	VECCP_LIBSTR(nb+ng, gamma, 0, tmp_nbg+2, 0);
+	VECCP_LIBSTR(nb+ng, gamma, nb+ng, tmp_nbg+3, 0);
+
+	for(ii=0; ii<ns; ii++)
+		{
+		idx = idxs[ii];
+		ptr_dv[nv+ii]     = ptr_res_g[nv+ii]    + ptr_gamma[0+idx]     + ptr_gamma[2*nb+2*ng+ii];
+		ptr_dv[nv+ns+ii]  = ptr_res_g[nv+ns+ii] + ptr_gamma[nb+ng+idx] + ptr_gamma[2*nb+2*ng+ns+ii];
+		tmp0 = ptr_dv[nv+ii]*ptr_Zs_inv[0+ii];
+		tmp1 = ptr_dv[nv+ns+ii]*ptr_Zs_inv[ns+ii];
+		ptr_tmp2[idx] = ptr_tmp2[idx] - ptr_Gamma[0+idx]*tmp0;
+		ptr_tmp3[idx] = ptr_tmp3[idx] - ptr_Gamma[nb+ng+idx]*tmp1;
+		}
+	
+	AXPY_LIBSTR(nb+ng, -1.0, tmp_nbg+3, 0, tmp_nbg+2, 0, tmp_nbg+1, 0);
+
+	return;
+
+	}
+
+
+
+static void EXPAND_SLACKS(struct DENSE_QP *qp, struct IPM_HARD_DENSE_QP_WORKSPACE *ws)
+	{
+
+	int ii, idx;
+
+	int nv = qp->nv;
+	int nb = qp->nb;
+	int ng = qp->ng;
+	int ns = qp->ns;
+
+	int *idxs = qp->idxs;
+
+	struct STRVEC *dv = ws->dv;
+	struct STRVEC *dt = ws->dt;
+	struct STRVEC *Gamma = ws->Gamma;
+	struct STRVEC *Zs_inv = ws->Zs_inv;
+
+	REAL *ptr_Gamma = Gamma->pa;
+	REAL *ptr_dv = dv->pa;
+	REAL *ptr_dt = dt->pa;
+	REAL *ptr_Zs_inv = Zs_inv->pa;
+
+	for(ii=0; ii<ns; ii++)
+		{
+		idx = idxs[ii];
+		ptr_dv[nv+ii]    = - ptr_Zs_inv[0+ii]  * (ptr_dv[nv+ii]    + ptr_dt[idx]*ptr_Gamma[idx]);
+		ptr_dv[nv+ns+ii] = - ptr_Zs_inv[ns+ii] * (ptr_dv[nv+ns+ii] + ptr_dt[nb+ng+idx]*ptr_Gamma[nb+ng+idx]);
+		ptr_dt[2*nb+2*ng+ii]    = ptr_dv[nv+ii];
+		ptr_dt[2*nb+2*ng+ns+ii] = ptr_dv[nv+ns+ii];
+		ptr_dt[0+idx]     = ptr_dt[0+idx]     + ptr_dv[nv+ii];
+		ptr_dt[nb+ng+idx] = ptr_dt[nb+ng+idx] + ptr_dv[nv+ns+ii];
+
+		}
+
+	return;
+
+	}
+
+
+
 // range-space (Schur complement) method
 void FACT_SOLVE_KKT_STEP_HARD_DENSE_QP(struct DENSE_QP *qp, struct IPM_HARD_DENSE_QP_WORKSPACE *ws)
 	{

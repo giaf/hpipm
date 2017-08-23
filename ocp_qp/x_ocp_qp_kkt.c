@@ -447,15 +447,11 @@ static void COND_SLACKS_SOLVE(int ss, struct OCP_QP *qp, struct IPM_OCP_QP_WORKS
 	REAL *ptr_Zs_inv = Zs_inv->pa;
 	REAL *ptr_dux = dux->pa;
 	REAL *ptr_res_g = res_g->pa;
-	REAL *ptr_tmp0 = (tmp_nbgM+0)->pa;
-	REAL *ptr_tmp1 = (tmp_nbgM+1)->pa;
 	REAL *ptr_tmp2 = (tmp_nbgM+2)->pa;
 	REAL *ptr_tmp3 = (tmp_nbgM+3)->pa;
 
 	REAL tmp0, tmp1;
 
-	VECCP_LIBSTR(nb0+ng0, Gamma, 0, tmp_nbgM+0, 0);
-	VECCP_LIBSTR(nb0+ng0, Gamma, nb0+ng0, tmp_nbgM+1, 0);
 	VECCP_LIBSTR(nb0+ng0, gamma, 0, tmp_nbgM+2, 0);
 	VECCP_LIBSTR(nb0+ng0, gamma, nb0+ng0, tmp_nbgM+3, 0);
 

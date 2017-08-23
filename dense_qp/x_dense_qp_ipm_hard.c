@@ -38,10 +38,10 @@ int MEMSIZE_IPM_HARD_DENSE_QP(struct DENSE_QP *qp, struct IPM_HARD_DENSE_QP_ARG 
 
 	int size = 0;
 
-	size += 15*sizeof(struct STRVEC); // dv dpi dlam dt res_g res_b res_d res_m lv 2*tmp_nbg tmp_ns Gamma gamma Zs_inv
+	size += 17*sizeof(struct STRVEC); // dv dpi dlam dt res_g res_b res_d res_m lv 4*tmp_nbg tmp_ns Gamma gamma Zs_inv
 	size += 4*sizeof(struct STRMAT); // Lv AL Le Ctx
 
-	size += 2*SIZE_STRVEC(nb+ng); // 2*tmp_nbg
+	size += 4*SIZE_STRVEC(nb+ng); // 4*tmp_nbg
 	size += 1*SIZE_STRVEC(ns); // tmp_ns
 	size += 1*SIZE_STRVEC(nv); // lv
 	size += 1*SIZE_STRVEC(2*ns); // Zs_inv
@@ -125,7 +125,7 @@ void CREATE_IPM_HARD_DENSE_QP(struct DENSE_QP *qp, struct IPM_HARD_DENSE_QP_ARG 
 	workspace->lv = sv_ptr;
 	sv_ptr += 1;
 	workspace->tmp_nbg = sv_ptr;
-	sv_ptr += 2;
+	sv_ptr += 4;
 	workspace->tmp_ns = sv_ptr;
 	sv_ptr += 1;
 
@@ -161,6 +161,12 @@ void CREATE_IPM_HARD_DENSE_QP(struct DENSE_QP *qp, struct IPM_HARD_DENSE_QP_ARG 
 
 	CREATE_STRVEC(nb+ng, workspace->tmp_nbg+1, c_ptr);
 	c_ptr += (workspace->tmp_nbg+1)->memory_size;
+
+	CREATE_STRVEC(nb+ng, workspace->tmp_nbg+2, c_ptr);
+	c_ptr += (workspace->tmp_nbg+2)->memory_size;
+
+	CREATE_STRVEC(nb+ng, workspace->tmp_nbg+3, c_ptr);
+	c_ptr += (workspace->tmp_nbg+3)->memory_size;
 
 	CREATE_STRVEC(nb+ng, workspace->tmp_ns+0, c_ptr);
 	c_ptr += (workspace->tmp_ns+0)->memory_size;
