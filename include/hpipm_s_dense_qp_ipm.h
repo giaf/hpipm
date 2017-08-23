@@ -32,50 +32,51 @@
 
 
 
-struct d_ipm_hard_dense_qp_workspace
+struct s_ipm_dense_qp_workspace
 	{
-	struct d_ipm_core_qp_workspace *core_workspace;
-	struct d_strvec *dv; // step in v
-	struct d_strvec *dpi; // step in pi
-	struct d_strvec *dlam; // step in lam XXX needed ???
-	struct d_strvec *dt; // step in t
-	struct d_strvec *res_g; // q-residuals
-	struct d_strvec *res_b; // b-residuals
-	struct d_strvec *res_d; // d-residuals
-	struct d_strvec *res_m; // m-residuals
-	struct d_strvec *Gamma; //
-	struct d_strvec *gamma; //
-	struct d_strvec *Zs_inv; //
-	struct d_strmat *Lv; //
-	struct d_strmat *AL; //
-	struct d_strmat *Le; //
-	struct d_strmat *Ctx; //
-	struct d_strvec *lv; //
-	struct d_strvec *tmp_nbg; // work space of size nb+ng
-	struct d_strvec *tmp_ns; // work space of size ns
-	double *stat; // convergence statistics
-	double res_mu; // mu-residual
+	struct s_ipm_core_qp_workspace *core_workspace;
+	struct s_strvec *dv; // step in v
+	struct s_strvec *dpi; // step in pi
+	struct s_strvec *dlam; // step in lam XXX needed ???
+	struct s_strvec *dt; // step in t XXX needed ???
+	struct s_strvec *res_g; // q-residuals
+	struct s_strvec *res_b; // b-residuals
+	struct s_strvec *res_d; // d-residuals
+	struct s_strvec *res_m; // m-residuals
+	struct s_strvec *Gamma; //
+	struct s_strvec *gamma; //
+	struct s_strvec *Zs_inv; //
+	struct s_strmat *Lv; //
+	struct s_strmat *AL; //
+	struct s_strmat *Le; //
+	struct s_strmat *Ctx; //
+	struct s_strvec *lv; //
+	struct s_strvec *tmp_nbg; // work space of size nb+ng
+	struct s_strvec *tmp_ns; // work space of size ns
+	float *stat; // convergence statistics
+	float res_mu; // mu-residual
 	int iter; // iteration number
 	int memsize; // memory size (in bytes) of workspace
 	};
 
 
 
-struct d_ipm_hard_dense_qp_arg
+struct s_ipm_dense_qp_arg
 	{
-	double alpha_min; // exit cond on step length
-	double mu_max; // exit cond on duality measure
-	double mu0; // initial value for duality measure
+	float alpha_min; // exit cond on step length
+	float mu_max; // exit cond on duality measure
+	float mu0; // initial value for duality measure
 	int iter_max; // exit cond in iter number
 	};
 
 
 
 //
-int d_memsize_ipm_hard_dense_qp(struct d_dense_qp *qp, struct d_ipm_hard_dense_qp_arg *arg);
+int s_memsize_ipm_dense_qp(struct s_dense_qp *qp, struct s_ipm_dense_qp_arg *arg);
 //
-void d_create_ipm_hard_dense_qp(struct d_dense_qp *qp, struct d_ipm_hard_dense_qp_arg *arg, struct d_ipm_hard_dense_qp_workspace *ws, void *mem);
+void s_create_ipm_dense_qp(struct s_dense_qp *qp, struct s_ipm_dense_qp_arg *arg, struct s_ipm_dense_qp_workspace *ws, void *mem);
 //
-void d_solve_ipm_hard_dense_qp(struct d_dense_qp *qp, struct d_dense_qp_sol *qp_sol, struct d_ipm_hard_dense_qp_workspace *ws);
+void s_solve_ipm_dense_qp(struct s_dense_qp *qp, struct s_dense_qp_sol *qp_sol, struct s_ipm_dense_qp_workspace *ws);
 //
-void d_solve_ipm2_hard_dense_qp(struct d_dense_qp *qp, struct d_dense_qp_sol *qp_sol, struct d_ipm_hard_dense_qp_workspace *ws);
+void s_solve_ipm2_dense_qp(struct s_dense_qp *qp, struct s_dense_qp_sol *qp_sol, struct s_ipm_dense_qp_workspace *ws);
+

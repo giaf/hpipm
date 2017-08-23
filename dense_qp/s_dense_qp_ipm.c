@@ -29,48 +29,49 @@
 
 #include <blasfeo_target.h>
 #include <blasfeo_common.h>
-#include <blasfeo_d_aux.h>
+#include <blasfeo_s_aux.h>
 
-#include "../include/hpipm_d_dense_qp.h"
-#include "../include/hpipm_d_dense_qp_sol.h"
-#include "../include/hpipm_d_dense_qp_ipm_hard.h"
-#include "../include/hpipm_d_core_qp_ipm.h"
-#include "../include/hpipm_d_core_qp_ipm_aux.h"
-#include "../include/hpipm_d_dense_qp_kkt.h"
-
-
-
-#define COMPUTE_ALPHA_QP d_compute_alpha_qp
-#define COMPUTE_CENTERING_CORRECTION_QP d_compute_centering_correction_qp
-#define COMPUTE_MU_AFF_QP d_compute_mu_aff_qp
-#define COMPUTE_RES_HARD_DENSE_QP d_compute_res_hard_dense_qp
-#define CREATE_IPM_CORE_QP d_create_ipm_core_qp
-#define CREATE_STRMAT d_create_strmat
-#define CREATE_STRVEC d_create_strvec
-#define DENSE_QP d_dense_qp
-#define DENSE_QP_SOL d_dense_qp_sol
-#define FACT_SOLVE_KKT_STEP_HARD_DENSE_QP d_fact_solve_kkt_step_hard_dense_qp
-#define FACT_SOLVE_KKT_UNCONSTR_DENSE_QP d_fact_solve_kkt_unconstr_dense_qp
-#define INIT_VAR_HARD_DENSE_QP d_init_var_hard_dense_qp
-#define IPM_CORE_QP_WORKSPACE d_ipm_core_qp_workspace
-#define IPM_HARD_DENSE_QP_ARG d_ipm_hard_dense_qp_arg
-#define IPM_HARD_DENSE_QP_WORKSPACE d_ipm_hard_dense_qp_workspace
-#define MEMSIZE_IPM_CORE_QP d_memsize_ipm_core_qp
-#define REAL double
-#define SIZE_STRMAT d_size_strmat
-#define SIZE_STRVEC d_size_strvec
-#define SOLVE_KKT_STEP_HARD_DENSE_QP d_solve_kkt_step_hard_dense_qp
-#define STRMAT d_strmat
-#define STRVEC d_strvec
-#define UPDATE_VAR_QP d_update_var_qp
+#include "../include/hpipm_s_dense_qp.h"
+#include "../include/hpipm_s_dense_qp_sol.h"
+#include "../include/hpipm_s_dense_qp_ipm.h"
+#include "../include/hpipm_s_core_qp_ipm.h"
+#include "../include/hpipm_s_core_qp_ipm_aux.h"
+#include "../include/hpipm_s_dense_qp_kkt.h"
 
 
 
-#define MEMSIZE_IPM_HARD_DENSE_QP d_memsize_ipm_hard_dense_qp
-#define CREATE_IPM_HARD_DENSE_QP d_create_ipm_hard_dense_qp
-#define SOLVE_IPM_HARD_DENSE_QP d_solve_ipm_hard_dense_qp
-#define SOLVE_IPM2_HARD_DENSE_QP d_solve_ipm2_hard_dense_qp
+#define COMPUTE_ALPHA_QP s_compute_alpha_qp
+#define COMPUTE_CENTERING_CORRECTION_QP s_compute_centering_correction_qp
+#define COMPUTE_MU_AFF_QP s_compute_mu_aff_qp
+#define COMPUTE_RES_DENSE_QP s_compute_res_dense_qp
+#define CREATE_IPM_CORE_QP s_create_ipm_core_qp
+#define CREATE_STRMAT s_create_strmat
+#define CREATE_STRVEC s_create_strvec
+#define DENSE_QP s_dense_qp
+#define DENSE_QP_SOL s_dense_qp_sol
+#define FACT_SOLVE_KKT_STEP_DENSE_QP s_fact_solve_kkt_step_dense_qp
+#define FACT_SOLVE_KKT_UNCONSTR_DENSE_QP s_fact_solve_kkt_unconstr_dense_qp
+#define INIT_VAR_DENSE_QP s_init_var_dense_qp
+#define IPM_CORE_QP_WORKSPACE s_ipm_core_qp_workspace
+#define IPM_DENSE_QP_ARG s_ipm_dense_qp_arg
+#define IPM_DENSE_QP_WORKSPACE s_ipm_dense_qp_workspace
+#define MEMSIZE_IPM_CORE_QP s_memsize_ipm_core_qp
+#define REAL float
+#define SIZE_STRMAT s_size_strmat
+#define SIZE_STRVEC s_size_strvec
+#define SOLVE_KKT_STEP_DENSE_QP s_solve_kkt_step_dense_qp
+#define STRMAT s_strmat
+#define STRVEC s_strvec
+#define UPDATE_VAR_QP s_update_var_qp
 
 
 
-#include "x_dense_qp_ipm_hard.c"
+#define MEMSIZE_IPM_DENSE_QP s_memsize_ipm_dense_qp
+#define CREATE_IPM_DENSE_QP s_create_ipm_dense_qp
+#define SOLVE_IPM_DENSE_QP s_solve_ipm_dense_qp
+#define SOLVE_IPM2_DENSE_QP s_solve_ipm2_dense_qp
+
+
+
+#include "x_dense_qp_ipm.c"
+

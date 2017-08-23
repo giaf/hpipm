@@ -27,7 +27,7 @@
 
 
 
-int MEMSIZE_IPM_HARD_DENSE_QP(struct DENSE_QP *qp, struct IPM_HARD_DENSE_QP_ARG *arg)
+int MEMSIZE_IPM_DENSE_QP(struct DENSE_QP *qp, struct IPM_DENSE_QP_ARG *arg)
 	{
 
 	int nv = qp->nv;
@@ -62,10 +62,10 @@ int MEMSIZE_IPM_HARD_DENSE_QP(struct DENSE_QP *qp, struct IPM_HARD_DENSE_QP_ARG 
 
 
 
-void CREATE_IPM_HARD_DENSE_QP(struct DENSE_QP *qp, struct IPM_HARD_DENSE_QP_ARG *arg, struct IPM_HARD_DENSE_QP_WORKSPACE *workspace, void *mem)
+void CREATE_IPM_DENSE_QP(struct DENSE_QP *qp, struct IPM_DENSE_QP_ARG *arg, struct IPM_DENSE_QP_WORKSPACE *workspace, void *mem)
 	{
 
-	workspace->memsize = MEMSIZE_IPM_HARD_DENSE_QP(qp, arg);
+	workspace->memsize = MEMSIZE_IPM_DENSE_QP(qp, arg);
 
 
 	int nv = qp->nv;
@@ -203,7 +203,7 @@ void CREATE_IPM_HARD_DENSE_QP(struct DENSE_QP *qp, struct IPM_HARD_DENSE_QP_ARG 
 
 
 
-void SOLVE_IPM_HARD_DENSE_QP(struct DENSE_QP *qp, struct DENSE_QP_SOL *qp_sol, struct IPM_HARD_DENSE_QP_WORKSPACE *ws)
+void SOLVE_IPM_DENSE_QP(struct DENSE_QP *qp, struct DENSE_QP_SOL *qp_sol, struct IPM_DENSE_QP_WORKSPACE *ws)
 	{
 
 	struct IPM_CORE_QP_WORKSPACE *cws = ws->core_workspace;
@@ -217,17 +217,17 @@ void SOLVE_IPM_HARD_DENSE_QP(struct DENSE_QP *qp, struct DENSE_QP_SOL *qp_sol, s
 	if(cws->nc==0)
 		{
 		FACT_SOLVE_KKT_UNCONSTR_DENSE_QP(qp, qp_sol, ws);
-		COMPUTE_RES_HARD_DENSE_QP(qp, qp_sol, ws);
+		COMPUTE_RES_DENSE_QP(qp, qp_sol, ws);
 		cws->mu = ws->res_mu;
 		ws->iter = 0;
 		return;
 		}
 
 	// init solver
-	INIT_VAR_HARD_DENSE_QP(qp, qp_sol, ws);
+	INIT_VAR_DENSE_QP(qp, qp_sol, ws);
 
 	// compute residuals
-	COMPUTE_RES_HARD_DENSE_QP(qp, qp_sol, ws);
+	COMPUTE_RES_DENSE_QP(qp, qp_sol, ws);
 	cws->mu = ws->res_mu;
 
 	int kk;
@@ -235,7 +235,7 @@ void SOLVE_IPM_HARD_DENSE_QP(struct DENSE_QP *qp, struct DENSE_QP_SOL *qp_sol, s
 		{
 
 		// fact and solve kkt
-		FACT_SOLVE_KKT_STEP_HARD_DENSE_QP(qp, ws);
+		FACT_SOLVE_KKT_STEP_DENSE_QP(qp, ws);
 
 		// alpha
 		COMPUTE_ALPHA_QP(cws);
@@ -245,7 +245,7 @@ void SOLVE_IPM_HARD_DENSE_QP(struct DENSE_QP *qp, struct DENSE_QP_SOL *qp_sol, s
 		UPDATE_VAR_QP(cws);
 
 		// compute residuals
-		COMPUTE_RES_HARD_DENSE_QP(qp, qp_sol, ws);
+		COMPUTE_RES_DENSE_QP(qp, qp_sol, ws);
 		cws->mu = ws->res_mu;
 		cws->stat[5*kk+1] = ws->res_mu;
 
@@ -259,7 +259,7 @@ void SOLVE_IPM_HARD_DENSE_QP(struct DENSE_QP *qp, struct DENSE_QP_SOL *qp_sol, s
 
 
 
-void SOLVE_IPM2_HARD_DENSE_QP(struct DENSE_QP *qp, struct DENSE_QP_SOL *qp_sol, struct IPM_HARD_DENSE_QP_WORKSPACE *ws)
+void SOLVE_IPM2_DENSE_QP(struct DENSE_QP *qp, struct DENSE_QP_SOL *qp_sol, struct IPM_DENSE_QP_WORKSPACE *ws)
 	{
 
 	struct IPM_CORE_QP_WORKSPACE *cws = ws->core_workspace;
@@ -275,14 +275,14 @@ void SOLVE_IPM2_HARD_DENSE_QP(struct DENSE_QP *qp, struct DENSE_QP_SOL *qp_sol, 
 	if(cws->nc==0)
 		{
 		FACT_SOLVE_KKT_UNCONSTR_DENSE_QP(qp, qp_sol, ws);
-		COMPUTE_RES_HARD_DENSE_QP(qp, qp_sol, ws);
+		COMPUTE_RES_DENSE_QP(qp, qp_sol, ws);
 		cws->mu = ws->res_mu;
 		ws->iter = 0;
 		return;
 		}
 
 	// init solver
-	INIT_VAR_HARD_DENSE_QP(qp, qp_sol, ws);
+	INIT_VAR_DENSE_QP(qp, qp_sol, ws);
 
 #if 0
 d_print_tran_strvec(qp->nv+2*qp->ns, qp_sol->v, 0);
@@ -293,7 +293,7 @@ exit(1);
 #endif
 
 	// compute residuals
-	COMPUTE_RES_HARD_DENSE_QP(qp, qp_sol, ws);
+	COMPUTE_RES_DENSE_QP(qp, qp_sol, ws);
 	cws->mu = ws->res_mu;
 
 #if 0
@@ -309,7 +309,7 @@ exit(1);
 		{
 
 		// fact and solve kkt
-		FACT_SOLVE_KKT_STEP_HARD_DENSE_QP(qp, ws);
+		FACT_SOLVE_KKT_STEP_DENSE_QP(qp, ws);
 
 		// alpha
 		COMPUTE_ALPHA_QP(cws);
@@ -326,7 +326,7 @@ exit(1);
 		COMPUTE_CENTERING_CORRECTION_QP(cws);
 
 		// fact and solve kkt
-		SOLVE_KKT_STEP_HARD_DENSE_QP(qp, ws);
+		SOLVE_KKT_STEP_DENSE_QP(qp, ws);
 
 		// alpha
 		COMPUTE_ALPHA_QP(cws);
@@ -336,7 +336,7 @@ exit(1);
 		UPDATE_VAR_QP(cws);
 
 		// compute residuals
-		COMPUTE_RES_HARD_DENSE_QP(qp, qp_sol, ws);
+		COMPUTE_RES_DENSE_QP(qp, qp_sol, ws);
 		cws->mu = ws->res_mu;
 		cws->stat[5*kk+4] = ws->res_mu;
 

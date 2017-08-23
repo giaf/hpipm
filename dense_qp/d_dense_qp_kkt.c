@@ -36,7 +36,7 @@
 
 #include "../include/hpipm_d_dense_qp.h"
 #include "../include/hpipm_d_dense_qp_sol.h"
-#include "../include/hpipm_d_dense_qp_ipm_hard.h"
+#include "../include/hpipm_d_dense_qp_ipm.h"
 #include "../include/hpipm_d_core_qp_ipm.h"
 #include "../include/hpipm_d_core_qp_ipm_aux.h"
 
@@ -57,7 +57,7 @@
 #define GEMV_T_LIBSTR dgemv_t_libstr
 #define GESE_LIBSTR dgese_libstr
 #define IPM_CORE_QP_WORKSPACE d_ipm_core_qp_workspace
-#define IPM_HARD_DENSE_QP_WORKSPACE d_ipm_hard_dense_qp_workspace
+#define IPM_DENSE_QP_WORKSPACE d_ipm_dense_qp_workspace
 #define POTRF_L_LIBSTR dpotrf_l_libstr
 #define POTRF_L_MN_LIBSTR dpotrf_l_mn_libstr
 #define REAL double
@@ -78,11 +78,11 @@
 #define VECMULDOT_LIBSTR dvecmuldot_libstr
 #define VECSC_LIBSTR dvecsc_libstr
 
-#define INIT_VAR_HARD_DENSE_QP d_init_var_hard_dense_qp
-#define COMPUTE_RES_HARD_DENSE_QP d_compute_res_hard_dense_qp
+#define INIT_VAR_DENSE_QP d_init_var_dense_qp
+#define COMPUTE_RES_DENSE_QP d_compute_res_dense_qp
 #define FACT_SOLVE_KKT_UNCONSTR_DENSE_QP d_fact_solve_kkt_unconstr_dense_qp
-#define FACT_SOLVE_KKT_STEP_HARD_DENSE_QP d_fact_solve_kkt_step_hard_dense_qp
-#define SOLVE_KKT_STEP_HARD_DENSE_QP d_solve_kkt_step_hard_dense_qp
+#define FACT_SOLVE_KKT_STEP_DENSE_QP d_fact_solve_kkt_step_dense_qp
+#define SOLVE_KKT_STEP_DENSE_QP d_solve_kkt_step_dense_qp
 
 
 

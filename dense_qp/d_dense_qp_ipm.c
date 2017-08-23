@@ -7,18 +7,18 @@
 * Developed at IMTEK (University of Freiburg) under the supervision of Moritz Diehl.              *
 * All rights reserved.                                                                            *
 *                                                                                                 *
-* HPIPM is free software; you can redistribute it and/or                                          *
+* HPMPC is free software; you can redistribute it and/or                                          *
 * modify it under the terms of the GNU Lesser General Public                                      *
 * License as published by the Free Software Foundation; either                                    *
 * version 2.1 of the License, or (at your option) any later version.                              *
 *                                                                                                 *
-* HPIPM is distributed in the hope that it will be useful,                                        *
+* HPMPC is distributed in the hope that it will be useful,                                        *
 * but WITHOUT ANY WARRANTY; without even the implied warranty of                                  *
 * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.                                            *
 * See the GNU Lesser General Public License for more details.                                     *
 *                                                                                                 *
 * You should have received a copy of the GNU Lesser General Public                                *
-* License along with HPIPM; if not, write to the Free Software                                    *
+* License along with HPMPC; if not, write to the Free Software                                    *
 * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA                  *
 *                                                                                                 *
 * Author: Gianluca Frison, gianluca.frison (at) imtek.uni-freiburg.de                             *
@@ -29,54 +29,48 @@
 
 #include <blasfeo_target.h>
 #include <blasfeo_common.h>
+#include <blasfeo_d_aux.h>
+
+#include "../include/hpipm_d_dense_qp.h"
+#include "../include/hpipm_d_dense_qp_sol.h"
+#include "../include/hpipm_d_dense_qp_ipm.h"
+#include "../include/hpipm_d_core_qp_ipm.h"
+#include "../include/hpipm_d_core_qp_ipm_aux.h"
+#include "../include/hpipm_d_dense_qp_kkt.h"
 
 
 
-struct s_ipm_hard_dense_qp_workspace
-	{
-	struct s_ipm_core_qp_workspace *core_workspace;
-	struct s_strvec *dv; // step in v
-	struct s_strvec *dpi; // step in pi
-	struct s_strvec *dlam; // step in lam XXX needed ???
-	struct s_strvec *dt; // step in t XXX needed ???
-	struct s_strvec *res_g; // q-residuals
-	struct s_strvec *res_b; // b-residuals
-	struct s_strvec *res_d; // d-residuals
-	struct s_strvec *res_m; // m-residuals
-	struct s_strvec *Gamma; //
-	struct s_strvec *gamma; //
-	struct s_strvec *Zs_inv; //
-	struct s_strmat *Lv; //
-	struct s_strmat *AL; //
-	struct s_strmat *Le; //
-	struct s_strmat *Ctx; //
-	struct s_strvec *lv; //
-	struct s_strvec *tmp_nbg; // work space of size nb+ng
-	struct s_strvec *tmp_ns; // work space of size ns
-	float *stat; // convergence statistics
-	float res_mu; // mu-residual
-	int iter; // iteration number
-	int memsize; // memory size (in bytes) of workspace
-	};
+#define COMPUTE_ALPHA_QP d_compute_alpha_qp
+#define COMPUTE_CENTERING_CORRECTION_QP d_compute_centering_correction_qp
+#define COMPUTE_MU_AFF_QP d_compute_mu_aff_qp
+#define COMPUTE_RES_DENSE_QP d_compute_res_dense_qp
+#define CREATE_IPM_CORE_QP d_create_ipm_core_qp
+#define CREATE_STRMAT d_create_strmat
+#define CREATE_STRVEC d_create_strvec
+#define DENSE_QP d_dense_qp
+#define DENSE_QP_SOL d_dense_qp_sol
+#define FACT_SOLVE_KKT_STEP_DENSE_QP d_fact_solve_kkt_step_dense_qp
+#define FACT_SOLVE_KKT_UNCONSTR_DENSE_QP d_fact_solve_kkt_unconstr_dense_qp
+#define INIT_VAR_DENSE_QP d_init_var_dense_qp
+#define IPM_CORE_QP_WORKSPACE d_ipm_core_qp_workspace
+#define IPM_DENSE_QP_ARG d_ipm_dense_qp_arg
+#define IPM_DENSE_QP_WORKSPACE d_ipm_dense_qp_workspace
+#define MEMSIZE_IPM_CORE_QP d_memsize_ipm_core_qp
+#define REAL double
+#define SIZE_STRMAT d_size_strmat
+#define SIZE_STRVEC d_size_strvec
+#define SOLVE_KKT_STEP_DENSE_QP d_solve_kkt_step_dense_qp
+#define STRMAT d_strmat
+#define STRVEC d_strvec
+#define UPDATE_VAR_QP d_update_var_qp
 
 
 
-struct s_ipm_hard_dense_qp_arg
-	{
-	float alpha_min; // exit cond on step length
-	float mu_max; // exit cond on duality measure
-	float mu0; // initial value for duality measure
-	int iter_max; // exit cond in iter number
-	};
+#define MEMSIZE_IPM_DENSE_QP d_memsize_ipm_dense_qp
+#define CREATE_IPM_DENSE_QP d_create_ipm_dense_qp
+#define SOLVE_IPM_DENSE_QP d_solve_ipm_dense_qp
+#define SOLVE_IPM2_DENSE_QP d_solve_ipm2_dense_qp
 
 
 
-//
-int s_memsize_ipm_hard_dense_qp(struct s_dense_qp *qp, struct s_ipm_hard_dense_qp_arg *arg);
-//
-void s_create_ipm_hard_dense_qp(struct s_dense_qp *qp, struct s_ipm_hard_dense_qp_arg *arg, struct s_ipm_hard_dense_qp_workspace *ws, void *mem);
-//
-void s_solve_ipm_hard_dense_qp(struct s_dense_qp *qp, struct s_dense_qp_sol *qp_sol, struct s_ipm_hard_dense_qp_workspace *ws);
-//
-void s_solve_ipm2_hard_dense_qp(struct s_dense_qp *qp, struct s_dense_qp_sol *qp_sol, struct s_ipm_hard_dense_qp_workspace *ws);
-
+#include "x_dense_qp_ipm.c"
