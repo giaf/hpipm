@@ -122,6 +122,7 @@ int main()
 	int ne = 1;
 	int nb = 2;
 	int ng = 0;
+	int ns = 0;
 
 	double H[] = {4.0, 1.0, 1.0, 2.0};
 	double g[] = {1.0, 1.0};
@@ -135,18 +136,23 @@ int main()
 	double C[] = {1.0, 0.0, 0.0, 1.0};
 	double d_lg[] = {-1.0, -1.0};
 	double d_ug[] = {1.5, 0.5};
+	double Zl[] = {};
+	double Zu[] = {};
+	double zl[] = {};
+	double zu[] = {};
+	int idxs[] = {};
 
 /************************************************
 * dense qp
 ************************************************/	
 
-	int qp_size = d_memsize_dense_qp(nv, ne, nb, ng);
+	int qp_size = d_memsize_dense_qp(nv, ne, nb, ng, ns);
 	printf("\nqp size = %d\n", qp_size);
 	void *qp_mem = malloc(qp_size);
 
 	struct d_dense_qp qp;
-	d_create_dense_qp(nv, ne, nb, ng, &qp, qp_mem);
-	d_cvt_colmaj_to_dense_qp(H, g, A, b, idxb, d_lb, d_ub, C, d_lg, d_ug, &qp);
+	d_create_dense_qp(nv, ne, nb, ng, ns, &qp, qp_mem);
+	d_cvt_colmaj_to_dense_qp(H, g, A, b, idxb, d_lb, d_ub, C, d_lg, d_ug, Zl, Zu, zl, zu, idxs, &qp);
 
 #if 0
 	d_print_strmat(nv+1, nv, qp.Hg, 0, 0);
@@ -165,12 +171,12 @@ int main()
 * dense qp sol
 ************************************************/	
 
-	int qp_sol_size = d_memsize_dense_qp_sol(nv, ne, nb, ng);
+	int qp_sol_size = d_memsize_dense_qp_sol(nv, ne, nb, ng, ns);
 	printf("\nqp sol size = %d\n", qp_sol_size);
 	void *qp_sol_mem = malloc(qp_sol_size);
 
 	struct d_dense_qp_sol qp_sol;
-	d_create_dense_qp_sol(nv, ne, nb, ng, &qp_sol, qp_sol_mem);
+	d_create_dense_qp_sol(nv, ne, nb, ng, ns, &qp_sol, qp_sol_mem);
 
 /************************************************
 * ipm
@@ -211,21 +217,21 @@ int main()
 	printf("\npi\n");
 	d_print_mat(1, ne, qp_sol.pi->pa, 1);
 	printf("\nlam_lb\n");
-	d_print_mat(1, nb, qp_sol.lam_lb->pa, 1);
+	d_print_mat(1, nb, qp_sol.lam->pa+0, 1);
 	printf("\nlam_ub\n");
-	d_print_mat(1, nb, qp_sol.lam_ub->pa, 1);
+	d_print_mat(1, nb, qp_sol.lam->pa+nb+ng, 1);
 	printf("\nlam_lg\n");
-	d_print_mat(1, ng, qp_sol.lam_lg->pa, 1);
+	d_print_mat(1, ng, qp_sol.lam->pa+nb, 1);
 	printf("\nlam_ug\n");
-	d_print_mat(1, ng, qp_sol.lam_ug->pa, 1);
+	d_print_mat(1, ng, qp_sol.lam->pa+2*nb+ng, 1);
 	printf("\nt_lb\n");
-	d_print_mat(1, nb, qp_sol.t_lb->pa, 1);
+	d_print_mat(1, nb, qp_sol.t->pa+0, 1);
 	printf("\nt_ub\n");
-	d_print_mat(1, nb, qp_sol.t_ub->pa, 1);
+	d_print_mat(1, nb, qp_sol.t->pa+nb+ng, 1);
 	printf("\nt_lg\n");
-	d_print_mat(1, ng, qp_sol.t_lg->pa, 1);
+	d_print_mat(1, ng, qp_sol.t->pa+nb, 1);
 	printf("\nt_ug\n");
-	d_print_mat(1, ng, qp_sol.t_ug->pa, 1);
+	d_print_mat(1, ng, qp_sol.t->pa+2*nb+ng, 1);
 
 	printf("\nresiduals\n\n");
 	printf("\nres_g\n");

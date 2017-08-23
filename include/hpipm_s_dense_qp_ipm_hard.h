@@ -43,8 +43,11 @@ struct s_ipm_hard_dense_qp_workspace
 	struct s_strvec *res_b; // b-residuals
 	struct s_strvec *res_d; // d-residuals
 	struct s_strvec *res_m; // m-residuals
-	struct s_strvec *Qx; // hessian update
-	struct s_strvec *qx; // gradient update
+	struct s_strvec *Qx; // hessian update // TODO remove
+	struct s_strvec *qx; // gradient update // TODO remove
+	struct s_strvec *Gamma; //
+	struct s_strvec *gamma; //
+	struct s_strvec *Zs_inv; //
 	struct s_strmat *Lv; //
 	struct s_strmat *AL; //
 	struct s_strmat *Le; //

@@ -39,31 +39,35 @@ struct d_dense_qp
 	struct d_strmat *Ct; // constraints matrix
 	struct d_strvec *g; // gradient
 	struct d_strvec *b; // dynamics vector
-	struct d_strvec *d; // constraint
+	struct d_strvec *d; // constraints vector
+	struct d_strvec *Z; // (diagonal) hessian of slacks
+	struct d_strvec *z; // gradient of slacks
 	int *idxb; // index of box constraints
+	int *idxs; // index of soft constraints
 	int nv; // number of variables
 	int ne; // number of equality constraints
 	int nb; // number of box constraints
 	int ng; // number of general constraints
+	int ns; // number of softened constraints
 	int memsize; // memory size in bytes
 	};
 
 
 
 //
-int d_memsize_dense_qp(int nv, int ne, int nb, int ng);
+int d_memsize_dense_qp(int nv, int ne, int nb, int ng, int ns);
 //
-void d_create_dense_qp(int nv, int ne, int nb, int ng, struct d_dense_qp *qp, void *memory);
+void d_create_dense_qp(int nv, int ne, int nb, int ng, int ns, struct d_dense_qp *qp, void *memory);
 //
-void d_cvt_colmaj_to_dense_qp(double *H, double *g, double *A, double *b, int *idxb, double *d_lb, double *d_ub, double *C, double *d_lg, double *d_ug, struct d_dense_qp *qp);
+void d_cvt_colmaj_to_dense_qp(double *H, double *g, double *A, double *b, int *idxb, double *d_lb, double *d_ub, double *C, double *d_lg, double *d_ug, double *Zl, double *Zu, double *zl, double *zu, int *idxs, struct d_dense_qp *qp);
 //
-void d_cvt_dense_qp_to_colmaj(struct d_dense_qp *qp, double *H, double *g, double *A, double *b, int *idxb, double *d_lb, double *d_ub, double *C, double *d_lg, double *d_ug);
+void d_cvt_dense_qp_to_colmaj(struct d_dense_qp *qp, double *H, double *g, double *A, double *b, int *idxb, double *d_lb, double *d_ub, double *C, double *d_lg, double *d_ug, double *Zl, double *Zu, double *zl, double *zu, int *idxs);
 //
-void d_cvt_rowmaj_to_dense_qp(double *H, double *g, double *A, double *b, int *idxb, double *d_lb, double *d_ub, double *C, double *d_lg, double *d_ug, struct d_dense_qp *qp);
+void d_cvt_rowmaj_to_dense_qp(double *H, double *g, double *A, double *b, int *idxb, double *d_lb, double *d_ub, double *C, double *d_lg, double *d_ug, double *Zl, double *Zu, double *zl, double *zu, int *idxs, struct d_dense_qp *qp);
 //
-void d_cvt_dense_qp_to_rowmaj(struct d_dense_qp *qp, double *H, double *g, double *A, double *b, int *idxb, double *d_lb, double *d_ub, double *C, double *d_lg, double *d_ug);
+void d_cvt_dense_qp_to_rowmaj(struct d_dense_qp *qp, double *H, double *g, double *A, double *b, int *idxb, double *d_lb, double *d_ub, double *C, double *d_lg, double *d_ug, double *Zl, double *Zu, double *zl, double *zu, int *idxs);
 //
-void d_cvt_libstr_to_dense_qp(struct d_strmat *H, struct d_strmat *A, struct d_strmat *C, struct d_strvec *g, struct d_strvec *b, struct d_strvec *d_lb, struct d_strvec *d_ub, struct d_strvec *d_lg, struct d_strvec *d_ug, int *idxb, struct d_dense_qp *qp);
+void d_cvt_libstr_to_dense_qp(struct d_strmat *H, struct d_strmat *A, struct d_strmat *C, struct d_strvec *g, struct d_strvec *b, struct d_strvec *d_lb, struct d_strvec *d_ub, struct d_strvec *d_lg, struct d_strvec *d_ug, int *idxb, struct d_strvec *Zl, struct d_strvec *Zu, struct d_strvec *zl, struct d_strvec *zu, int *idxs, struct d_dense_qp *qp);
 //
-void d_cvt_dense_qp_to_libstr(struct d_dense_qp *qp, struct d_strmat *H, struct d_strmat *A, struct d_strmat *C, struct d_strvec *g, struct d_strvec *b, struct d_strvec *d_lb, struct d_strvec *d_ub, struct d_strvec *d_lg, struct d_strvec *d_ug, int *idxb);
+void d_cvt_dense_qp_to_libstr(struct d_dense_qp *qp, struct d_strmat *H, struct d_strmat *A, struct d_strmat *C, struct d_strvec *g, struct d_strvec *b, struct d_strvec *d_lb, struct d_strvec *d_ub, struct d_strvec *d_lg, struct d_strvec *d_ug, int *idxb, struct d_strvec *Zl, struct d_strvec *Zu, struct d_strvec *zl, struct d_strvec *zu, int *idxs);
 

@@ -51,7 +51,7 @@ int MEMSIZE_OCP_QP(int N, int *nx, int *nu, int *nb, int *ng, int *ns)
 	int size = 0;
 
 	size += 5*(N+1)*sizeof(int); // nx nu nb ng ns
-	size += 2*(N+1)*sizeof(int *); // idxb idx
+	size += 2*(N+1)*sizeof(int *); // idxb idxs
 	size += 2*(N+1)*sizeof(struct STRMAT); // RSqrq DCt
 	size += 1*N*sizeof(struct STRMAT); // BAbt
 	size += 4*(N+1)*sizeof(struct STRVEC); // rq d Z z
@@ -60,23 +60,23 @@ int MEMSIZE_OCP_QP(int N, int *nx, int *nu, int *nb, int *ng, int *ns)
 	for(ii=0; ii<N; ii++)
 		{
 		size += nb[ii]*sizeof(int); // idxb
+		size += ns[ii]*sizeof(int); // idxs
 		size += SIZE_STRMAT(nu[ii]+nx[ii]+1, nx[ii+1]); // BAbt
 		size += SIZE_STRVEC(nx[ii+1]); // b
 		size += SIZE_STRMAT(nu[ii]+nx[ii]+1, nu[ii]+nx[ii]); // RSQrq
 		size += SIZE_STRVEC(nu[ii]+nx[ii]); // rq
 		size += SIZE_STRMAT(nu[ii]+nx[ii], ng[ii]); // DCt
-		size += 2*SIZE_STRVEC(nb[ii]); // d_lb d_ub
-		size += 2*SIZE_STRVEC(ng[ii]); // d_lg d_ug
 		size += 2*SIZE_STRVEC(2*ns[ii]); // Z z
 		}
 	ii = N;
 	size += nb[ii]*sizeof(int); // idxb
+	size += ns[ii]*sizeof(int); // idxs
 	size += SIZE_STRMAT(nu[ii]+nx[ii]+1, nu[ii]+nx[ii]); // RSQrq
 	size += SIZE_STRVEC(nu[ii]+nx[ii]); // rq
 	size += SIZE_STRMAT(nu[ii]+nx[ii], ng[ii]); // DCt
-	size += 2*SIZE_STRVEC(2*ns[ii]); // Z z XXX 2*ns !!!
+	size += 2*SIZE_STRVEC(2*ns[ii]); // Z z
 
-	size += 2*SIZE_STRVEC(2*nbt+2*ngt); // lam t
+	size += 1*SIZE_STRVEC(2*nbt+2*ngt); // d
 
 	size = (size+63)/64*64; // make multiple of typical cache line size
 	size += 64; // align to typical cache line size
