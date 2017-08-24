@@ -88,6 +88,7 @@ void INIT_VAR_OCP_QP(struct OCP_QP *qp, struct OCP_QP_SOL *qp_sol, struct IPM_OC
 		idxb = qp->idxb[ii];
 		for(jj=0; jj<nb[ii]; jj++)
 			{
+#if 0
 			t_lb[jj] = - d_lb[jj] + ux[idxb[jj]];
 			t_ub[jj] =   d_ub[jj] - ux[idxb[jj]];
 			if(t_lb[jj]<thr0)
@@ -109,6 +110,10 @@ void INIT_VAR_OCP_QP(struct OCP_QP *qp, struct OCP_QP_SOL *qp_sol, struct IPM_OC
 				t_ub[jj] = thr0;
 				ux[idxb[jj]] = d_ub[jj] - thr0;
 				}
+#else
+			t_lb[jj] = 1.0;
+			t_ub[jj] = 1.0;
+#endif
 			lam_lb[jj] = mu0/t_lb[jj];
 			lam_ub[jj] = mu0/t_ub[jj];
 			}
@@ -127,6 +132,7 @@ void INIT_VAR_OCP_QP(struct OCP_QP *qp, struct OCP_QP_SOL *qp_sol, struct IPM_OC
 		GEMV_T_LIBSTR(nu[ii]+nx[ii], ng[ii], 1.0, qp->DCt+ii, 0, 0, qp_sol->ux+ii, 0, 0.0, qp_sol->t+ii, nb[ii], qp_sol->t+ii, nb[ii]);
 		for(jj=0; jj<ng[ii]; jj++)
 			{
+#if 0
 			t_ug[jj] = - t_lg[jj];
 			t_lg[jj] -= d_lg[jj];
 			t_ug[jj] += d_ug[jj];
@@ -134,6 +140,10 @@ void INIT_VAR_OCP_QP(struct OCP_QP *qp, struct OCP_QP_SOL *qp_sol, struct IPM_OC
 //			t_ug[jj] = fmax(thr0, t_ug[jj]);
 			t_lg[jj] = thr0>t_lg[jj] ? thr0 : t_lg[jj];
 			t_ug[jj] = thr0>t_ug[jj] ? thr0 : t_ug[jj];
+#else
+			t_lg[jj] = 1.0;
+			t_ug[jj] = 1.0;
+#endif
 			lam_lg[jj] = mu0/t_lg[jj];
 			lam_ug[jj] = mu0/t_ug[jj];
 			}

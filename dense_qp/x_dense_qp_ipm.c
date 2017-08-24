@@ -226,6 +226,14 @@ void SOLVE_IPM_DENSE_QP(struct DENSE_QP *qp, struct DENSE_QP_SOL *qp_sol, struct
 	// init solver
 	INIT_VAR_DENSE_QP(qp, qp_sol, ws);
 
+#if 0
+d_print_tran_strvec(qp->nv+2*qp->ns, qp_sol->v, 0);
+d_print_tran_strvec(qp->ne, qp_sol->pi, 0);
+d_print_tran_strvec(2*qp->nb+2*qp->ng+2*qp->ns, qp_sol->lam, 0);
+d_print_tran_strvec(2*qp->nb+2*qp->ng+2*qp->ns, qp_sol->t, 0);
+exit(1);
+#endif
+
 	// compute residuals
 	COMPUTE_RES_DENSE_QP(qp, qp_sol, ws);
 	cws->mu = ws->res_mu;
@@ -233,6 +241,14 @@ void SOLVE_IPM_DENSE_QP(struct DENSE_QP *qp, struct DENSE_QP_SOL *qp_sol, struct
 	int kk;
 	for(kk=0; kk<cws->iter_max & cws->mu>cws->mu_max; kk++)
 		{
+
+#if 0
+d_print_e_tran_strvec(qp->nv+2*qp->ns, ws->res_g, 0);
+d_print_e_tran_strvec(qp->ne, ws->res_b, 0);
+d_print_e_tran_strvec(2*qp->nb+2*qp->ng+2*qp->ns, ws->res_d, 0);
+d_print_e_tran_strvec(2*qp->nb+2*qp->ng+2*qp->ns, ws->res_m, 0);
+exit(1);
+#endif
 
 		// fact and solve kkt
 		FACT_SOLVE_KKT_STEP_DENSE_QP(qp, ws);

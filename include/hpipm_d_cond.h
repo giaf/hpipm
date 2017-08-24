@@ -41,6 +41,7 @@ struct d_cond_qp_ocp2dense_workspace
 	struct d_strvec *Gammab;
 	struct d_strvec *tmp_ngM;
 	struct d_strvec *tmp_nuxM;
+	int *idxs_rev;
 	int cond_last_stage;
 	int memsize;
 	};
@@ -48,7 +49,7 @@ struct d_cond_qp_ocp2dense_workspace
 
 
 //
-void d_compute_qp_size_ocp2dense(int N, int *nx, int *nu, int *nb, int **idxb, int *ng, int *nvc, int *nec, int *nbc, int *ngc);
+void d_compute_qp_size_ocp2dense(int N, int *nx, int *nu, int *nb, int **idxb, int *ng, int *ns, int *nvc, int *nec, int *nbc, int *ngc, int *nsc);
 //
 int d_memsize_cond_qp_ocp2dense(struct d_ocp_qp *ocp_qp, struct d_dense_qp *dense_qp); // XXX + args for algorithm type ???
 //

@@ -25,7 +25,7 @@
 *                                                                                                 *
 **************************************************************************************************/
 
-void COMPUTE_QP_SIZE_OCP2DENSE(int N, int *nx, int *nu, int *nb, int **idxb, int *ng, int *nvc, int *nec, int *nbc, int *ngc)
+void COMPUTE_QP_SIZE_OCP2DENSE(int N, int *nx, int *nu, int *nb, int **idxb, int *ng, int *ns, int *nvc, int *nec, int *nbc, int *ngc, int *nsc)
 	{
 
 	int ii, jj;
@@ -34,11 +34,13 @@ void COMPUTE_QP_SIZE_OCP2DENSE(int N, int *nx, int *nu, int *nb, int **idxb, int
 	nec[0] = 0;
 	nbc[0] = 0;
 	ngc[0] = 0;
+	nsc[0] = 0;
 
 	// first stage
 	nvc[0] += nx[0]+nu[0];
 	nbc[0] += nb[0];
 	ngc[0] += ng[0];
+	nsc[0] += ns[0];
 	// remaining stages
 	for(ii=1; ii<=N; ii++)
 		{
@@ -55,6 +57,7 @@ void COMPUTE_QP_SIZE_OCP2DENSE(int N, int *nx, int *nu, int *nb, int **idxb, int
 				}
 			}
 		ngc[0] += ng[ii];
+		nsc[0] += ns[ii];
 		}
 
 	return;
@@ -124,6 +127,8 @@ int MEMSIZE_COND_QP_OCP2DENSE(struct OCP_QP *ocp_qp, struct DENSE_QP *dense_qp) 
 	size += SIZE_STRVEC(ngM); // tmp_ngM
 	size += 1*SIZE_STRVEC(nuM+nxM); // tmp_nuxM
 	size += 1*SIZE_STRVEC(ngM); // tmp_ngM
+
+	size += 1*(nbM+ngM)*sizeof(int); // idxs_rev
 
 	size = (size+63)/64*64; // make multiple of typical cache line size
 	size += 1*64; // align once to typical cache line size
@@ -200,8 +205,17 @@ void CREATE_COND_QP_OCP2DENSE(struct OCP_QP *ocp_qp, struct DENSE_QP *dense_qp, 
 	sv_ptr += 1;
 
 
+	// int stuff
+	int *i_ptr;
+	i_ptr = (int *) sv_ptr;
+
+	// idxs_rev
+	cond_ws->idxs_rev = i_ptr;
+	i_ptr += nbM+ngM;
+
+
 	// align to typicl cache line size
-	size_t s_ptr = (size_t) sv_ptr;
+	size_t s_ptr = (size_t) i_ptr;
 	s_ptr = (s_ptr+63)/64*64;
 
 
@@ -252,7 +266,7 @@ void COND_QP_OCP2DENSE(struct OCP_QP *ocp_qp, struct DENSE_QP *dense_qp, struct 
 
 	COND_RSQRQ_N2NX3(ocp_qp, dense_qp->Hg, dense_qp->g, cond_ws);
 
-	COND_DCTD(ocp_qp, dense_qp->idxb, dense_qp->Ct, dense_qp->d, cond_ws);
+	COND_DCTD(ocp_qp, dense_qp->idxb, dense_qp->Ct, dense_qp->d, dense_qp->idxs, dense_qp->Z, dense_qp->z, cond_ws);
 
 	return;
 

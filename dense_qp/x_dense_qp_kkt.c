@@ -74,6 +74,7 @@ void INIT_VAR_DENSE_QP(struct DENSE_QP *qp, struct DENSE_QP_SOL *qp_sol, struct 
 	// box constraints
 	for(ii=0; ii<nb; ii++)
 		{
+#if 0
 		idxb0 = idxb[ii];
 		t[0+ii]     = - d[0+ii]     + v[idxb0];
 		t[nb+ng+ii] =   d[nb+ng+ii] - v[idxb0];
@@ -96,6 +97,10 @@ void INIT_VAR_DENSE_QP(struct DENSE_QP *qp, struct DENSE_QP_SOL *qp_sol, struct 
 			t[nb+ng+ii] = thr0;
 			v[idxb0] = d[nb+ng+ii] - thr0;
 			}
+#else
+		t[0+ii]     = 1.0;
+		t[nb+ng+ii] = 1.0;
+#endif
 		lam[0+ii]     = mu0/t[0+ii];
 		lam[nb+ng+ii] = mu0/t[nb+ng+ii];
 		}
@@ -104,6 +109,7 @@ void INIT_VAR_DENSE_QP(struct DENSE_QP *qp, struct DENSE_QP_SOL *qp_sol, struct 
 	GEMV_T_LIBSTR(nv, ng, 1.0, qp->Ct, 0, 0, qp_sol->v, 0, 0.0, qp_sol->t, nb, qp_sol->t, nb);
 	for(ii=0; ii<ng; ii++)
 		{
+#if 0
 		t[2*nb+ng+ii] = t[nb+ii];
 		t[nb+ii]      -= d[nb+ii];
 		t[2*nb+ng+ii] += d[2*nb+ng+ii];
@@ -111,6 +117,10 @@ void INIT_VAR_DENSE_QP(struct DENSE_QP *qp, struct DENSE_QP_SOL *qp_sol, struct 
 //		t[2*nb+ng+ii] = fmax( thr0, t[2*nb+ng+ii] );
 		t[nb+ii]      = thr0>t[nb+ii]      ? thr0 : t[nb+ii];
 		t[2*nb+ng+ii] = thr0>t[2*nb+ng+ii] ? thr0 : t[2*nb+ng+ii];
+#else
+		t[nb+ii]      = 1.0;
+		t[2*nb+ng+ii] = 1.0;
+#endif
 		lam[nb+ii]      = mu0/t[nb+ii];
 		lam[2*nb+ng+ii] = mu0/t[2*nb+ng+ii];
 		}
@@ -185,7 +195,7 @@ void COMPUTE_RES_DENSE_QP(struct DENSE_QP *qp, struct DENSE_QP_SOL *qp_sol, stru
 		// general
 		if(ng>0)
 			{
-			GEMV_NT_LIBSTR(nv, ng, 1.0, 1.0, Ct, 0, 0, tmp_nbg+0, 0, v, 0, 1.0, 0.0, res_g, 0, tmp_nbg+1, nb, res_g, 0, tmp_nbg+1, nb);
+			GEMV_NT_LIBSTR(nv, ng, 1.0, 1.0, Ct, 0, 0, tmp_nbg+0, nb, v, 0, 1.0, 0.0, res_g, 0, tmp_nbg+1, nb, res_g, 0, tmp_nbg+1, nb);
 			}
 		AXPY_LIBSTR(nb+ng, -1.0, tmp_nbg+1, 0, res_d, 0, res_d, 0);
 		AXPY_LIBSTR(nb+ng,  1.0, tmp_nbg+1, 0, res_d, nb+ng, res_d, nb+ng);
@@ -198,7 +208,7 @@ void COMPUTE_RES_DENSE_QP(struct DENSE_QP *qp, struct DENSE_QP_SOL *qp_sol, stru
 		VECEX_SP_LIBSTR(ns, 1.0, idxs, lam, 0, tmp_ns, 0);
 		AXPY_LIBSTR(ns, -1.0, tmp_ns, 0, res_g, nv, res_g, nv);
 		VECEX_SP_LIBSTR(ns, 1.0, idxs, lam, nb+ng, tmp_ns, 0);
-		AXPY_LIBSTR(ns, -1.0, tmp_ns, 0, res_g, nv, res_g, nv+ns);
+		AXPY_LIBSTR(ns, -1.0, tmp_ns, 0, res_g, nv+ns, res_g, nv+ns);
 		// res_d
 		VECAD_SP_LIBSTR(ns, -1.0, v, nv, idxs, res_d, 0);
 		VECAD_SP_LIBSTR(ns, -1.0, v, nv+ns, idxs, res_d, nb+ng);
