@@ -205,6 +205,7 @@ void COND_QP_OCP2OCP(struct OCP_QP *ocp_qp, struct OCP_QP *part_dense_qp, struct
 		tmp_ocp_qp.nu = ocp_qp->nu+N_tmp;
 		tmp_ocp_qp.nb = ocp_qp->nb+N_tmp;
 		tmp_ocp_qp.ng = ocp_qp->ng+N_tmp;
+		tmp_ocp_qp.ns = ocp_qp->ns+N_tmp;
 		tmp_ocp_qp.idxb = ocp_qp->idxb+N_tmp;
 		tmp_ocp_qp.BAbt = ocp_qp->BAbt+N_tmp;
 		tmp_ocp_qp.b = ocp_qp->b+N_tmp;
@@ -212,6 +213,9 @@ void COND_QP_OCP2OCP(struct OCP_QP *ocp_qp, struct OCP_QP *part_dense_qp, struct
 		tmp_ocp_qp.rq = ocp_qp->rq+N_tmp;
 		tmp_ocp_qp.DCt = ocp_qp->DCt+N_tmp;
 		tmp_ocp_qp.d = ocp_qp->d+N_tmp;
+		tmp_ocp_qp.Z = ocp_qp->Z+N_tmp;
+		tmp_ocp_qp.z = ocp_qp->z+N_tmp;
+		tmp_ocp_qp.idxs = ocp_qp->idxs+N_tmp;
 
 		COND_BABT(&tmp_ocp_qp, part_dense_qp->BAbt+ii, part_dense_qp->b+ii, part_cond_ws->cond_workspace+ii);
 
@@ -228,12 +232,16 @@ void COND_QP_OCP2OCP(struct OCP_QP *ocp_qp, struct OCP_QP *part_dense_qp, struct
 	int *nu = ocp_qp->nu;
 	int *nb = ocp_qp->nb;
 	int *ng = ocp_qp->ng;
+	int *ns = ocp_qp->ns;
 
 	GECP_LIBSTR(nu[N]+nx[N]+1, nu[N]+nx[N], ocp_qp->RSQrq+N, 0, 0, part_dense_qp->RSQrq+N2, 0, 0);
 	VECCP_LIBSTR(nu[N]+nx[N], ocp_qp->rq+N, 0, part_dense_qp->rq+N2, 0);
 	GECP_LIBSTR(nu[N]+nx[N], ng[N], ocp_qp->DCt+N, 0, 0, part_dense_qp->DCt+N2, 0, 0);
 	VECCP_LIBSTR(2*nb[N]+2*ng[N], ocp_qp->d+N, 0, part_dense_qp->d+N2, 0);
 	for(ii=0; ii<nb[N]; ii++) part_dense_qp->idxb[N2][ii] = ocp_qp->idxb[N][ii];
+	VECCP_LIBSTR(2*ns[N], ocp_qp->Z+N, 0, part_dense_qp->Z+N2, 0);
+	VECCP_LIBSTR(2*ns[N], ocp_qp->z+N, 0, part_dense_qp->z+N2, 0);
+	for(ii=0; ii<ns[N]; ii++) part_dense_qp->idxs[N2][ii] = ocp_qp->idxs[N][ii];
 
 	return;
 
@@ -252,6 +260,7 @@ void EXPAND_SOL_OCP2OCP(struct OCP_QP *ocp_qp, struct OCP_QP *part_dense_qp, str
 	int *nu = ocp_qp->nu;
 	int *nb = ocp_qp->nb;
 	int *ng = ocp_qp->ng;
+	int *ns = ocp_qp->ns;
 
 	int ii;
 
@@ -274,6 +283,7 @@ void EXPAND_SOL_OCP2OCP(struct OCP_QP *ocp_qp, struct OCP_QP *part_dense_qp, str
 		tmp_ocp_qp.nu = ocp_qp->nu+N_tmp;
 		tmp_ocp_qp.nb = ocp_qp->nb+N_tmp;
 		tmp_ocp_qp.ng = ocp_qp->ng+N_tmp;
+		tmp_ocp_qp.ns = ocp_qp->ns+N_tmp;
 		tmp_ocp_qp.idxb = ocp_qp->idxb+N_tmp;
 		tmp_ocp_qp.BAbt = ocp_qp->BAbt+N_tmp;
 		tmp_ocp_qp.b = ocp_qp->b+N_tmp;
@@ -281,6 +291,9 @@ void EXPAND_SOL_OCP2OCP(struct OCP_QP *ocp_qp, struct OCP_QP *part_dense_qp, str
 		tmp_ocp_qp.rq = ocp_qp->rq+N_tmp;
 		tmp_ocp_qp.DCt = ocp_qp->DCt+N_tmp;
 		tmp_ocp_qp.d = ocp_qp->d+N_tmp;
+		tmp_ocp_qp.Z = ocp_qp->Z+N_tmp;
+		tmp_ocp_qp.z = ocp_qp->z+N_tmp;
+		tmp_ocp_qp.idxs = ocp_qp->idxs+N_tmp;
 
 		// alias ocp qp sol
 		tmp_ocp_qp_sol.ux = ocp_qp_sol->ux+N_tmp;
@@ -301,9 +314,9 @@ void EXPAND_SOL_OCP2OCP(struct OCP_QP *ocp_qp, struct OCP_QP *part_dense_qp, str
 		}
 
 	// copy last stage
-	VECCP_LIBSTR(nu[N]+nx[N], part_dense_qp_sol->ux+N2, 0, ocp_qp_sol->ux+N, 0);
-	VECCP_LIBSTR(2*nb[N]+2*ng[N], part_dense_qp_sol->lam+N2, 0, ocp_qp_sol->lam+N, 0);
-	VECCP_LIBSTR(2*nb[N]+2*ng[N], part_dense_qp_sol->t+N2, 0, ocp_qp_sol->t+N, 0);
+	VECCP_LIBSTR(nu[N]+nx[N]+2*ns[N], part_dense_qp_sol->ux+N2, 0, ocp_qp_sol->ux+N, 0);
+	VECCP_LIBSTR(2*nb[N]+2*ng[N]+2*ns[N], part_dense_qp_sol->lam+N2, 0, ocp_qp_sol->lam+N, 0);
+	VECCP_LIBSTR(2*nb[N]+2*ng[N]+2*ns[N], part_dense_qp_sol->t+N2, 0, ocp_qp_sol->t+N, 0);
 
 	return;
 

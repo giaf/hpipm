@@ -200,8 +200,8 @@ int main()
 	int ns[N+1];
 	ns[0] = 0;
 	for(ii=1; ii<N; ii++)
-		ns[ii] = 0;//nx[ii]/2;
-	ns[N] = 0;//nx[N]/2;
+		ns[ii] = nx[ii]/2;
+	ns[N] = nx[N]/2;
 #elif 0
 	int nb[N+1];
 	nb[0] = 0;
@@ -251,7 +251,7 @@ int main()
 	mass_spring_system(Ts, nx_, nu_, N, A, B, b, x0);
 	
 	for(jj=0; jj<nx_; jj++)
-		b[jj] = 0.1;
+		b[jj] = 0.0;
 	
 	for(jj=0; jj<nx_; jj++)
 		x0[jj] = 0;
@@ -275,7 +275,7 @@ int main()
 ************************************************/	
 	
 	double *Q; d_zeros(&Q, nx_, nx_);
-	for(ii=0; ii<nx_; ii++) Q[ii*(nx_+1)] = 1.0;
+	for(ii=0; ii<nx_; ii++) Q[ii*(nx_+1)] = 0.0;
 
 	double *R; d_zeros(&R, nu_, nu_);
 	for(ii=0; ii<nu_; ii++) R[ii*(nu_+1)] = 2.0;
@@ -283,10 +283,10 @@ int main()
 	double *S; d_zeros(&S, nu_, nx_);
 
 	double *q; d_zeros(&q, nx_, 1);
-	for(ii=0; ii<nx_; ii++) q[ii] = 0.1;
+	for(ii=0; ii<nx_; ii++) q[ii] = 0.0;
 
 	double *r; d_zeros(&r, nu_, 1);
-	for(ii=0; ii<nu_; ii++) r[ii] = 0.2;
+	for(ii=0; ii<nu_; ii++) r[ii] = 0.0;
 
 	double *r0; d_zeros(&r0, nu_, 1);
 	dgemv_n_3l(nu_, nx_, S, nu_, x0, r0);
@@ -355,8 +355,8 @@ int main()
 			}
 		else // state
 			{
-			d_lb1[ii] = - 4.0; // xmin
-			d_ub1[ii] =   4.0; // xmax
+			d_lb1[ii] = - 1.0; // xmin
+			d_ub1[ii] =   1.0; // xmax
 			}
 		idxb1[ii] = ii;
 		}
@@ -382,8 +382,8 @@ int main()
 	double *d_ugN; d_zeros(&d_ugN, ng[N], 1);
 	for(ii=0; ii<nb[N]; ii++)
 		{
-		d_lbN[ii] = - 4.0; // xmin
-		d_ubN[ii] =   4.0; // xmax
+		d_lbN[ii] = - 1.0; // xmin
+		d_ubN[ii] =   1.0; // xmax
 		idxbN[ii] = ii;
 		}
 	for(ii=0; ii<ng[N]; ii++)
@@ -692,6 +692,16 @@ int main()
 		d_print_tran_strvec(ng2[ii], part_dense_qp.d+ii, nb2[ii]);
 	for(ii=0; ii<=N2; ii++)
 		d_print_tran_strvec(ng2[ii], part_dense_qp.d+ii, 2*nb2[ii]+ng2[ii]);
+	for(ii=0; ii<=N2; ii++)
+		int_print_mat(1, ns2[ii], part_dense_qp.idxs[ii], 1);
+	for(ii=0; ii<=N2; ii++)
+		d_print_tran_strvec(ns2[ii], part_dense_qp.Z+ii, 0);
+	for(ii=0; ii<=N2; ii++)
+		d_print_tran_strvec(ns2[ii], part_dense_qp.Z+ii, ns2[ii]);
+	for(ii=0; ii<=N2; ii++)
+		d_print_tran_strvec(ns2[ii], part_dense_qp.z+ii, 0);
+	for(ii=0; ii<=N2; ii++)
+		d_print_tran_strvec(ns2[ii], part_dense_qp.z+ii, ns2[ii]);
 #endif
 
 #if 0
@@ -721,8 +731,8 @@ int main()
 	struct d_ipm_ocp_qp_arg arg;
 	arg.alpha_min = 1e-8;
 	arg.mu_max = 1e-12;
-	arg.iter_max = 10;
-	arg.mu0 = 2.0;
+	arg.iter_max = 20;
+	arg.mu0 = 100.0;
 
 	int ipm_size = d_memsize_ipm_ocp_qp(&part_dense_qp, &arg);
 	printf("\nipm size = %d\n", ipm_size);

@@ -352,9 +352,9 @@ void COND_DCTD(struct OCP_QP *ocp_qp, int *idxb2, struct STRMAT *DCt2, struct ST
 					{
 					idxs2[is] = nb2+ig;
 					ptr_Z2[0+is]   = ptr_Z[0+idxs_rev[idxb0]];
-					ptr_Z2[ns2+is] = ptr_Z[ns[N-ii]+idxs_rev[idxb0]];
+					ptr_Z2[ns2+is] = ptr_Z[ns0+idxs_rev[idxb0]];
 					ptr_z2[0+is]   = ptr_z[0+idxs_rev[idxb0]];
-					ptr_z2[ns2+is] = ptr_z[ns[N-ii]+idxs_rev[idxb0]];
+					ptr_z2[ns2+is] = ptr_z[ns0+idxs_rev[idxb0]];
 					is++;
 					}
 				ig++;
@@ -391,7 +391,9 @@ void COND_DCTD(struct OCP_QP *ocp_qp, int *idxb2, struct STRMAT *DCt2, struct ST
 			{
 			idxs2[is] = ib;
 			ptr_Z2[0+is]   = ptr_Z[0+idxs_rev[idxb0]];
-			ptr_Z2[ns2+is] = ptr_Z[ns[N-ii]+idxs_rev[idxb0]];
+			ptr_Z2[ns2+is] = ptr_Z[ns0+idxs_rev[idxb0]];
+			ptr_z2[0+is]   = ptr_z[0+idxs_rev[idxb0]];
+			ptr_z2[ns2+is] = ptr_z[ns0+idxs_rev[idxb0]];
 			is++;
 			}
 		ib++;
@@ -437,7 +439,9 @@ void COND_DCTD(struct OCP_QP *ocp_qp, int *idxb2, struct STRMAT *DCt2, struct ST
 					{
 					idxs2[is] = nb2+nbg+ng_tmp+ig;
 					ptr_Z2[0+is]   = ptr_Z[0+idxs_rev[idxg0]];
-					ptr_Z2[ns2+is] = ptr_Z[ns[N-ii]+idxs_rev[idxg0]];
+					ptr_Z2[ns2+is] = ptr_Z[ns0+idxs_rev[idxg0]];
+					ptr_z2[0+is]   = ptr_z[0+idxs_rev[idxg0]];
+					ptr_z2[ns2+is] = ptr_z[ns0+idxs_rev[idxg0]];
 					is++;
 					}
 
@@ -499,7 +503,9 @@ void COND_DCTD(struct OCP_QP *ocp_qp, int *idxb2, struct STRMAT *DCt2, struct ST
 				{
 				idxs2[is] = nb2+nbg+ng_tmp+ig;
 				ptr_Z2[0+is]   = ptr_Z[0+idxs_rev[idxg0]];
-				ptr_Z2[ns2+is] = ptr_Z[ns[N-ii]+idxs_rev[idxg0]];
+				ptr_Z2[ns2+is] = ptr_Z[ns0+idxs_rev[idxg0]];
+				ptr_z2[0+is]   = ptr_z[0+idxs_rev[idxg0]];
+				ptr_z2[ns2+is] = ptr_z[ns0+idxs_rev[idxg0]];
 				is++;
 				}
 
