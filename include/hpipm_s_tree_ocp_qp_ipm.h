@@ -25,46 +25,57 @@
 *                                                                                                 *
 **************************************************************************************************/
 
+
+
 #include <blasfeo_target.h>
 #include <blasfeo_common.h>
-#include <blasfeo_d_aux.h>
-
-#include "../include/hpipm_d_tree_ocp_qp.h"
-#include "../include/hpipm_d_tree_ocp_qp_sol.h"
-#include "../include/hpipm_d_tree_ocp_qp_ipm_hard.h"
-#include "../include/hpipm_d_tree_ocp_qp_kkt.h"
-#include "../include/hpipm_d_core_qp_ipm_hard.h"
-#include "../include/hpipm_d_core_qp_ipm_hard_aux.h"
-
-#define COMPUTE_ALPHA_HARD_QP d_compute_alpha_hard_qp
-#define COMPUTE_CENTERING_CORRECTION_HARD_QP d_compute_centering_correction_hard_qp
-#define COMPUTE_MU_AFF_HARD_QP d_compute_mu_aff_hard_qp
-#define COMPUTE_RES_HARD_TREE_OCP_QP d_compute_res_hard_tree_ocp_qp
-#define CREATE_STRMAT d_create_strmat
-#define CREATE_STRVEC d_create_strvec
-#define CREATE_IPM_HARD_CORE_QP d_create_ipm_hard_core_qp
-#define FACT_SOLVE_KKT_STEP_HARD_TREE_OCP_QP d_fact_solve_kkt_step_hard_tree_ocp_qp
-#define FACT_SOLVE_KKT_UNCONSTR_TREE_OCP_QP d_fact_solve_kkt_unconstr_tree_ocp_qp
-#define INIT_VAR_HARD_TREE_OCP_QP d_init_var_hard_tree_ocp_qp
-#define IPM_HARD_CORE_QP_WORKSPACE d_ipm_hard_core_qp_workspace
-#define IPM_HARD_TREE_OCP_QP_ARG d_ipm_hard_tree_ocp_qp_arg
-#define IPM_HARD_TREE_OCP_QP_WORKSPACE d_ipm_hard_tree_ocp_qp_workspace
-#define MEMSIZE_IPM_HARD_CORE_QP d_memsize_ipm_hard_core_qp
-#define REAL double
-#define SIZE_STRMAT d_size_strmat
-#define SIZE_STRVEC d_size_strvec
-#define SOLVE_KKT_STEP_HARD_TREE_OCP_QP d_solve_kkt_step_hard_tree_ocp_qp
-#define STRMAT d_strmat
-#define STRVEC d_strvec
-#define TREE_OCP_QP d_tree_ocp_qp
-#define TREE_OCP_QP_SOL d_tree_ocp_qp_sol
-#define UPDATE_VAR_HARD_QP d_update_var_hard_qp
-
-#define MEMSIZE_IPM_HARD_TREE_OCP_QP d_memsize_ipm_hard_tree_ocp_qp
-#define CREATE_IPM_HARD_TREE_OCP_QP d_create_ipm_hard_tree_ocp_qp
-#define SOLVE_IPM_HARD_TREE_OCP_QP d_solve_ipm_hard_tree_ocp_qp
-#define SOLVE_IPM2_HARD_TREE_OCP_QP d_solve_ipm2_hard_tree_ocp_qp
 
 
 
-#include "x_tree_ocp_qp_ipm_hard.c"
+
+struct s_ipm_tree_ocp_qp_workspace
+	{
+	struct s_ipm_core_qp_workspace *core_workspace;
+	struct s_strvec *dux;
+	struct s_strvec *dpi;
+	struct s_strvec *dt;
+	struct s_strvec *res_g; // q-residuals
+	struct s_strvec *res_b; // b-residuals
+	struct s_strvec *res_d; // d-residuals XXX remove ???
+	struct s_strvec *res_m; // m-residuals
+	struct s_strvec *Gamma; // hessian update
+	struct s_strvec *gamma; // hessian update
+	struct s_strvec *tmp_nxM; // work space of size nxM
+	struct s_strvec *tmp_nbgM; // work space of size nbgM
+	struct s_strvec *tmp_nsM; // work space of size nsM
+	struct s_strvec *Pb; // Pb
+	struct s_strvec *Zs_inv;
+	struct s_strmat *L;
+	struct s_strmat *AL;
+	float *stat; // convergence statistics
+	float res_mu; // mu-residual
+	int iter; // iteration number
+	int memsize;
+	};
+
+
+
+struct s_ipm_tree_ocp_qp_arg
+	{
+	float alpha_min; // exit cond on step length
+	float mu_max; // exit cond on duality measure
+	float mu0; // initial value for duality measure
+	int iter_max; // exit cond in iter number
+	};
+
+
+
+//
+int s_memsize_ipm_tree_ocp_qp(struct s_tree_ocp_qp *qp, struct s_ipm_tree_ocp_qp_arg *arg);
+//
+void s_create_ipm_tree_ocp_qp(struct s_tree_ocp_qp *qp, struct s_ipm_tree_ocp_qp_arg *arg, struct s_ipm_tree_ocp_qp_workspace *ws, void *mem);
+//
+void s_solve_ipm_tree_ocp_qp(struct s_tree_ocp_qp *qp, struct s_tree_ocp_qp_sol *qp_sol, struct s_ipm_tree_ocp_qp_workspace *ws);
+//
+void s_solve_ipm2_tree_ocp_qp(struct s_tree_ocp_qp *qp, struct s_tree_ocp_qp_sol *qp_sol, struct s_ipm_tree_ocp_qp_workspace *ws);
+

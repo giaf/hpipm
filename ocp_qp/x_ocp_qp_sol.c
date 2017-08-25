@@ -41,7 +41,6 @@ int MEMSIZE_OCP_QP_SOL(int N, int *nx, int *nu, int *nb, int *ng, int *ns)
 		net += nx[ii+1];
 		nct += nb[ii]+ng[ii]+ns[ii];
 		}
-	ii = N;
 	nvt += nu[ii]+nx[ii]+2*ns[ii];
 	nct += nb[ii]+ng[ii]+ns[ii];
 

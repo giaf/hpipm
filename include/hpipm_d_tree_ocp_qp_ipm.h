@@ -33,59 +33,48 @@
 
 
 
-struct s_ipm_hard_tree_ocp_qp_workspace
+struct d_ipm_tree_ocp_qp_workspace
 	{
-	struct s_ipm_hard_core_qp_workspace *core_workspace;
-	struct s_strvec *dux;
-	struct s_strvec *dpi;
-	struct s_strvec *dt_lb;
-	struct s_strvec *dt_lg;
-	struct s_strvec *res_g; // q-residuals
-	struct s_strvec *res_b; // b-residuals
-	struct s_strvec *res_d; // d-residuals XXX remove ???
-	struct s_strvec *res_d_lb; // d-residuals
-	struct s_strvec *res_d_ub; // d-residuals
-	struct s_strvec *res_d_lg; // d-residuals
-	struct s_strvec *res_d_ug; // d-residuals
-	struct s_strvec *res_m; // m-residuals
-	struct s_strvec *res_m_lb; // m-residuals
-	struct s_strvec *res_m_ub; // m-residuals
-	struct s_strvec *res_m_lg; // m-residuals
-	struct s_strvec *res_m_ug; // m-residuals
-	struct s_strvec *Qx_lb; // hessian update
-	struct s_strvec *Qx_lg; // hessian update
-	struct s_strvec *qx_lb; // gradient update
-	struct s_strvec *qx_lg; // gradient update
-	struct s_strvec *tmp_nbM; // work space of size nbM
-	struct s_strvec *tmp_nxM; // work space of size nxM
-	struct s_strvec *tmp_ngM; // work space of size ngM
-	struct s_strvec *Pb; // Pb
-	struct s_strmat *L;
-	struct s_strmat *AL;
-	float *stat; // convergence statistics
-	float res_mu; // mu-residual
+	struct d_ipm_core_qp_workspace *core_workspace;
+	struct d_strvec *dux;
+	struct d_strvec *dpi;
+	struct d_strvec *dt;
+	struct d_strvec *res_g; // q-residuals
+	struct d_strvec *res_b; // b-residuals
+	struct d_strvec *res_d; // d-residuals
+	struct d_strvec *res_m; // m-residuals
+	struct d_strvec *Gamma; // hessian update
+	struct d_strvec *gamma; // hessian update
+	struct d_strvec *tmp_nxM; // work space of size nxM
+	struct d_strvec *tmp_nbgM; // work space of size nbgM
+	struct d_strvec *tmp_nsM; // work space of size nsM
+	struct d_strvec *Pb; // Pb
+	struct d_strvec *Zs_inv;
+	struct d_strmat *L;
+	struct d_strmat *AL;
+	double *stat; // convergence statistics
+	double res_mu; // mu-residual
 	int iter; // iteration number
 	int memsize;
 	};
 
 
 
-struct s_ipm_hard_tree_ocp_qp_arg
+struct d_ipm_tree_ocp_qp_arg
 	{
-	float alpha_min; // exit cond on step length
-	float mu_max; // exit cond on duality measure
-	float mu0; // initial value for duality measure
+	double alpha_min; // exit cond on step length
+	double mu_max; // exit cond on duality measure
+	double mu0; // initial value for duality measure
 	int iter_max; // exit cond in iter number
 	};
 
 
 
 //
-int s_memsize_ipm_hard_tree_ocp_qp(struct s_tree_ocp_qp *qp, struct s_ipm_hard_tree_ocp_qp_arg *arg);
+int d_memsize_ipm_tree_ocp_qp(struct d_tree_ocp_qp *qp, struct d_ipm_tree_ocp_qp_arg *arg);
 //
-void s_create_ipm_hard_tree_ocp_qp(struct s_tree_ocp_qp *qp, struct s_ipm_hard_tree_ocp_qp_arg *arg, struct s_ipm_hard_tree_ocp_qp_workspace *ws, void *mem);
+void d_create_ipm_tree_ocp_qp(struct d_tree_ocp_qp *qp, struct d_ipm_tree_ocp_qp_arg *arg, struct d_ipm_tree_ocp_qp_workspace *ws, void *mem);
 //
-void s_solve_ipm_hard_tree_ocp_qp(struct s_tree_ocp_qp *qp, struct s_tree_ocp_qp_sol *qp_sol, struct s_ipm_hard_tree_ocp_qp_workspace *ws);
+void d_solve_ipm_tree_ocp_qp(struct d_tree_ocp_qp *qp, struct d_tree_ocp_qp_sol *qp_sol, struct d_ipm_tree_ocp_qp_workspace *ws);
 //
-void s_solve_ipm2_hard_tree_ocp_qp(struct s_tree_ocp_qp *qp, struct s_tree_ocp_qp_sol *qp_sol, struct s_ipm_hard_tree_ocp_qp_workspace *ws);
-
+void d_solve_ipm2_tree_ocp_qp(struct d_tree_ocp_qp *qp, struct d_tree_ocp_qp_sol *qp_sol, struct d_ipm_tree_ocp_qp_workspace *ws);

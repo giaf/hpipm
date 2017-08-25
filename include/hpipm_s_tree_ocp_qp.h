@@ -32,6 +32,7 @@
 
 
 
+
 struct s_tree_ocp_qp
 	{
 	struct s_strmat *BAbt; // Nn-1
@@ -39,16 +40,17 @@ struct s_tree_ocp_qp
 	struct s_strmat *RSQrq; // Nn
 	struct s_strvec *rq; // Nn
 	struct s_strmat *DCt; // Nn
-	struct s_strvec *d_lb; // Nn
-	struct s_strvec *d_ub; // Nn
-	struct s_strvec *d_lg; // Nn
-	struct s_strvec *d_ug; // Nn
+	struct s_strvec *d; // Nn
+	struct s_strvec *Z; // Nn
+	struct s_strvec *z; // Nn
 	struct tree *ttree; // tree describing node conndection
 	int *nx; // number of states // Nn
 	int *nu; // number of inputs // Nn
 	int *nb; // number of box constraints // Nn
 	int **idxb; // index of box constraints // Nn
 	int *ng; // number of general constraints // Nn
+	int *ns; // number of soft constraints
+	int **idxs; // index of soft constraints
 	int Nn; // number of nodes
 	int memsize; // memory size in bytes
 	};
@@ -56,9 +58,9 @@ struct s_tree_ocp_qp
 
 
 //
-int s_memsize_tree_ocp_qp(struct tree *ttree, int *nx, int *nu, int *nb, int *ng);
+int s_memsize_tree_ocp_qp(struct tree *ttree, int *nx, int *nu, int *nb, int *ng, int *ns);
 //
-void s_create_tree_ocp_qp(struct tree *ttree, int *nx, int *nu, int *nb, int *ng, struct s_tree_ocp_qp *qp, void *memory);
+void s_create_tree_ocp_qp(struct tree *ttree, int *nx, int *nu, int *nb, int *ng, int *ns, struct s_tree_ocp_qp *qp, void *memory);
 //
-void s_cvt_colmaj_to_tree_ocp_qp(float **A, float **B, float **b, float **Q, float **S, float **R, float **q, float **r, int **idxb, float **d_lb, float **d_ub, float **C, float **D, float **d_lg, float **d_ug, struct s_tree_ocp_qp *qp);
+void s_cvt_colmaj_to_tree_ocp_qp(float **A, float **B, float **b, float **Q, float **S, float **R, float **q, float **r, int **idxb, float **d_lb, float **d_ub, float **C, float **D, float **d_lg, float **d_ug, float **Zl, float **Zu, float **zl, float **zu, int **idxs, struct s_tree_ocp_qp *qp);
 

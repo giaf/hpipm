@@ -32,21 +32,13 @@ int MEMSIZE_OCP_QP(int N, int *nx, int *nu, int *nb, int *ng, int *ns)
 
 	int ii;
 
-	int nvt = 0;
-	int net = 0;
 	int nbt = 0;
 	int ngt = 0;
-	for(ii=0; ii<N; ii++)
+	for(ii=0; ii<=N; ii++)
 		{
-		nvt += nu[ii]+nx[ii];
-		net += nx[ii+1];
 		nbt += nb[ii];
 		ngt += ng[ii];
 		}
-	ii = N;
-	nvt += nu[ii]+nx[ii];
-	nbt += nb[ii];
-	ngt += ng[ii];
 
 	int size = 0;
 
@@ -97,20 +89,13 @@ void CREATE_OCP_QP(int N, int *nx, int *nu, int *nb, int *ng, int *ns, struct OC
 	qp->memsize = MEMSIZE_OCP_QP(N, nx, nu, nb, ng, ns);
 
 
-	int nvt = 0;
-	int net = 0;
 	int nbt = 0;
 	int ngt = 0;
-	for(ii=0; ii<N; ii++)
+	for(ii=0; ii<=N; ii++)
 		{
-		nvt += nu[ii]+nx[ii];
-		net += nx[ii+1];
 		nbt += nb[ii];
 		ngt += ng[ii];
 		}
-	nvt += nu[ii]+nx[ii];
-	nbt += nb[ii];
-	ngt += ng[ii];
 
 
 	// horizon length
@@ -294,7 +279,7 @@ void CREATE_OCP_QP(int N, int *nx, int *nu, int *nb, int *ng, int *ns, struct OC
 	c_ptr += SIZE_STRVEC(2*nbt+2*ngt);
 	for(ii=0; ii<=N; ii++)
 		{
-		CREATE_STRVEC(nb[ii], qp->d+ii, tmp_ptr);
+		CREATE_STRVEC(2*nb[ii]+2*ng[ii], qp->d+ii, tmp_ptr);
 		tmp_ptr += nb[ii]*sizeof(REAL);
 		tmp_ptr += ng[ii]*sizeof(REAL);
 		tmp_ptr += nb[ii]*sizeof(REAL);

@@ -27,19 +27,29 @@
 
 
 
-int MEMSIZE_TREE_OCP_QP(struct tree *ttree, int *nx, int *nu, int *nb, int *ng)
+int MEMSIZE_TREE_OCP_QP(struct tree *ttree, int *nx, int *nu, int *nb, int *ng, int *ns)
 	{
 
 	int ii, idx, idxdad;
 
 	int Nn = ttree->Nn;
 
+	int nbt = 0;
+	int ngt = 0;
+	for(ii=0; ii<Nn; ii++)
+		{
+		nbt += nb[ii];
+		ngt += ng[ii];
+		}
+
 	int size = 0;
 
-	size += 4*Nn*sizeof(int); // nx nu nb ng
-	size += 1*Nn*sizeof(int *); // idxb
-	size += (1*(Nn-1)+2*Nn)*sizeof(struct STRMAT); // BAbt ; RSQrq DCt
-	size += (1*(Nn-1)+5*Nn)*sizeof(struct STRVEC); // b ; rq d_lb d_ub d_lg d_ug
+	size += 5*Nn*sizeof(int); // nx nu nb ng ns
+	size += 2*Nn*sizeof(int *); // idxb inxbs
+	size += 2*Nn*sizeof(struct STRMAT); // RSQrq DCt
+	size += 1*(Nn-1)*sizeof(struct STRMAT); // BAbt
+	size += 4*Nn*sizeof(struct STRVEC); // rq d Z z
+	size += 1*(Nn-1)*sizeof(struct STRVEC); // b
 
 	for(ii=0; ii<Nn-1; ii++)
 		{
@@ -52,13 +62,15 @@ int MEMSIZE_TREE_OCP_QP(struct tree *ttree, int *nx, int *nu, int *nb, int *ng)
 	for(ii=0; ii<Nn; ii++)
 		{
 		size += nb[ii]*sizeof(int); // idxb
+		size += ns[ii]*sizeof(int); // idxs
 		size += SIZE_STRMAT(nu[ii]+nx[ii]+1, nu[ii]+nx[ii]); // RSQrq
 		size += SIZE_STRVEC(nu[ii]+nx[ii]); // rq
 		size += SIZE_STRMAT(nu[ii]+nx[ii], ng[ii]); // DCt
-		size += 2*SIZE_STRVEC(nb[ii]); // d_lb d_ub
-		size += 2*SIZE_STRVEC(ng[ii]); // d_lg d_ug
+		size += 2*SIZE_STRVEC(2*ns[ii]); // Z z
 		}
 	
+	size += 1*SIZE_STRVEC(2*nbt+2*ngt); // d
+
 	size = (size+63)/64*64; // make multiple of typical cache line size
 	size += 64; // align to typical cache line size
 
@@ -68,14 +80,14 @@ int MEMSIZE_TREE_OCP_QP(struct tree *ttree, int *nx, int *nu, int *nb, int *ng)
 
 
 
-void CREATE_TREE_OCP_QP(struct tree *ttree, int *nx, int *nu, int *nb, int *ng, struct TREE_OCP_QP *qp, void *memory)
+void CREATE_TREE_OCP_QP(struct tree *ttree, int *nx, int *nu, int *nb, int *ng, int *ns, struct TREE_OCP_QP *qp, void *memory)
 	{
 
 	int ii, idx, idxdad;
 
 
 	// memsize
-	qp->memsize = MEMSIZE_TREE_OCP_QP(ttree, nx, nu, nb, ng);
+	qp->memsize = MEMSIZE_TREE_OCP_QP(ttree, nx, nu, nb, ng, ns);
 
 
 	// tree
@@ -86,12 +98,25 @@ void CREATE_TREE_OCP_QP(struct tree *ttree, int *nx, int *nu, int *nb, int *ng, 
 	qp->Nn = Nn;
 
 
+	int nbt = 0;
+	int ngt = 0;
+	for(ii=0; ii<Nn; ii++)
+		{
+		nbt += nb[ii];
+		ngt += ng[ii];
+		}
+
+
 	// int pointer stuff
 	int **ip_ptr;
 	ip_ptr = (int **) memory;
 
 	// idxb
 	qp->idxb = ip_ptr;
+	ip_ptr += Nn;
+
+	// idxs
+	qp->idxs = ip_ptr;
 	ip_ptr += Nn;
 
 
@@ -122,20 +147,16 @@ void CREATE_TREE_OCP_QP(struct tree *ttree, int *nx, int *nu, int *nb, int *ng, 
 	qp->rq = sv_ptr;
 	sv_ptr += Nn;
 
-	// d_lb
-	qp->d_lb = sv_ptr;
+	// d
+	qp->d = sv_ptr;
 	sv_ptr += Nn;
 
-	// d_ub
-	qp->d_ub = sv_ptr;
+	// Z
+	qp->Z = sv_ptr;
 	sv_ptr += Nn;
 
-	// d_lg
-	qp->d_lg = sv_ptr;
-	sv_ptr += Nn;
-
-	// d_ug
-	qp->d_ug = sv_ptr;
+	// z
+	qp->z = sv_ptr;
 	sv_ptr += Nn;
 
 
@@ -175,11 +196,26 @@ void CREATE_TREE_OCP_QP(struct tree *ttree, int *nx, int *nu, int *nb, int *ng, 
 		}
 	i_ptr += Nn;
 	
+	// ns
+	qp->ns = i_ptr;
+	for(ii=0; ii<Nn; ii++)
+		{
+		i_ptr[ii] = ns[ii];
+		}
+	i_ptr += Nn;
+
 	// idxb
 	for(ii=0; ii<Nn; ii++)
 		{
 		(qp->idxb)[ii] = i_ptr;
 		i_ptr += nb[ii];
+		}
+
+	// idxs
+	for(ii=0; ii<Nn; ii++)
+		{
+		(qp->idxs)[ii] = i_ptr;
+		i_ptr += ns[ii];
 		}
 
 
@@ -189,7 +225,7 @@ void CREATE_TREE_OCP_QP(struct tree *ttree, int *nx, int *nu, int *nb, int *ng, 
 
 
 	// double stuff
-	char *c_ptr;
+	char *c_ptr, *tmp_ptr;
 	c_ptr = (char *) l_ptr;
 
 	// BAbt
@@ -230,33 +266,32 @@ void CREATE_TREE_OCP_QP(struct tree *ttree, int *nx, int *nu, int *nb, int *ng, 
 		c_ptr += (qp->rq+ii)->memory_size;
 		}
 
-	// d_lb
+	// Z
 	for(ii=0; ii<Nn; ii++)
 		{
-		CREATE_STRVEC(nb[ii], qp->d_lb+ii, c_ptr);
-		c_ptr += (qp->d_lb+ii)->memory_size;
+		CREATE_STRVEC(2*ns[ii], qp->Z+ii, c_ptr);
+		c_ptr += (qp->Z+ii)->memory_size;
 		}
 
-	// d_ub
+	// z
 	for(ii=0; ii<Nn; ii++)
 		{
-		CREATE_STRVEC(nb[ii], qp->d_ub+ii, c_ptr);
-		c_ptr += (qp->d_ub+ii)->memory_size;
+		CREATE_STRVEC(2*ns[ii], qp->z+ii, c_ptr);
+		c_ptr += (qp->z+ii)->memory_size;
 		}
 
-	// d_lg
+	// d
+	tmp_ptr = c_ptr;
+	c_ptr += SIZE_STRVEC(2*nbt+2*ngt);
 	for(ii=0; ii<Nn; ii++)
 		{
-		CREATE_STRVEC(ng[ii], qp->d_lg+ii, c_ptr);
-		c_ptr += (qp->d_lg+ii)->memory_size;
+		CREATE_STRVEC(2*nb[ii]+2*ng[ii], qp->d+ii, tmp_ptr);
+		tmp_ptr += nb[ii]*sizeof(REAL);
+		tmp_ptr += ng[ii]*sizeof(REAL);
+		tmp_ptr += nb[ii]*sizeof(REAL);
+		tmp_ptr += ng[ii]*sizeof(REAL);
 		}
 
-	// d_ug
-	for(ii=0; ii<Nn; ii++)
-		{
-		CREATE_STRVEC(ng[ii], qp->d_ug+ii, c_ptr);
-		c_ptr += (qp->d_ug+ii)->memory_size;
-		}
 
 	return;
 
@@ -264,7 +299,7 @@ void CREATE_TREE_OCP_QP(struct tree *ttree, int *nx, int *nu, int *nb, int *ng, 
 
 
 
-void CVT_COLMAJ_TO_TREE_OCP_QP(REAL **A, REAL **B, REAL **b, REAL **Q, REAL **S, REAL **R, REAL **q, REAL **r, int **idxb, REAL **d_lb, REAL **d_ub, REAL **C, REAL **D, REAL **d_lg, REAL **d_ug, struct TREE_OCP_QP *qp)
+void CVT_COLMAJ_TO_TREE_OCP_QP(REAL **A, REAL **B, REAL **b, REAL **Q, REAL **S, REAL **R, REAL **q, REAL **r, int **idxb, REAL **d_lb, REAL **d_ub, REAL **C, REAL **D, REAL **d_lg, REAL **d_ug, REAL **Zl, REAL **Zu, REAL **zl, REAL **zu, int **idxs, struct TREE_OCP_QP *qp)
 	{
 
 	int Nn = qp->Nn;
@@ -272,6 +307,8 @@ void CVT_COLMAJ_TO_TREE_OCP_QP(REAL **A, REAL **B, REAL **b, REAL **Q, REAL **S,
 	int *nu = qp->nu;
 	int *nb = qp->nb;
 	int *ng = qp->ng;
+	int *ns = qp->ns;
+
 	struct tree *ttree = qp->ttree;
 
 	int ii, jj, idx, idxdad;
@@ -301,16 +338,26 @@ void CVT_COLMAJ_TO_TREE_OCP_QP(REAL **A, REAL **B, REAL **b, REAL **Q, REAL **S,
 		{
 		for(jj=0; jj<nb[ii]; jj++)
 			qp->idxb[ii][jj] = idxb[ii][jj];
-		CVT_VEC2STRVEC(nb[ii], d_lb[ii], qp->d_lb+ii, 0);
-		CVT_VEC2STRVEC(nb[ii], d_ub[ii], qp->d_ub+ii, 0);
+		CVT_VEC2STRVEC(nb[ii], d_lb[ii], qp->d+ii, 0);
+		CVT_VEC2STRVEC(nb[ii], d_ub[ii], qp->d+ii, nb[ii]+ng[ii]);
 		}
 	
 	for(ii=0; ii<Nn; ii++)
 		{
 		CVT_TRAN_MAT2STRMAT(ng[ii], nu[ii], D[ii], ng[ii], qp->DCt+ii, 0, 0);
 		CVT_TRAN_MAT2STRMAT(ng[ii], nx[ii], C[ii], ng[ii], qp->DCt+ii, nu[ii], 0);
-		CVT_VEC2STRVEC(ng[ii], d_lg[ii], qp->d_lg+ii, 0);
-		CVT_VEC2STRVEC(ng[ii], d_ug[ii], qp->d_ug+ii, 0);
+		CVT_VEC2STRVEC(ng[ii], d_lg[ii], qp->d+ii, nb[ii]);
+		CVT_VEC2STRVEC(ng[ii], d_ug[ii], qp->d+ii, 2*nb[ii]+ng[ii]);
+		}
+
+	for(ii=0; ii<Nn; ii++)
+		{
+		for(jj=0; jj<ns[ii]; jj++)
+			qp->idxs[ii][jj] = idxs[ii][jj];
+		CVT_VEC2STRVEC(ns[ii], Zl[ii], qp->Z+ii, 0);
+		CVT_VEC2STRVEC(ns[ii], Zu[ii], qp->Z+ii, ns[ii]);
+		CVT_VEC2STRVEC(ns[ii], zl[ii], qp->z+ii, 0);
+		CVT_VEC2STRVEC(ns[ii], zu[ii], qp->z+ii, ns[ii]);
 		}
 
 	return;

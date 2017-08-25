@@ -47,7 +47,6 @@ struct s_ipm_ocp_qp_workspace
 	struct s_strvec *gamma; // hessian update
 	struct s_strvec *tmp_nxM; // work space of size nxM
 	struct s_strvec *tmp_nbgM; // work space of size nbM+ngM
-	struct s_strvec *tmp_ngM; // work space of size ngM
 	struct s_strvec *tmp_nsM; // work space of size nsM
 	struct s_strvec *Pb; // Pb
 	struct s_strvec *Zs_inv;

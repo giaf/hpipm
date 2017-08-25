@@ -34,8 +34,8 @@ OBJS +=
 endif
 
 OBJS += scenario_tree.o
-OBJS += d_tree_ocp_qp.o d_tree_ocp_qp_sol.o d_tree_ocp_qp_kkt.o d_tree_ocp_qp_ipm_hard.o
-OBJS += s_tree_ocp_qp.o s_tree_ocp_qp_sol.o s_tree_ocp_qp_kkt.o s_tree_ocp_qp_ipm_hard.o
+OBJS += d_tree_ocp_qp.o d_tree_ocp_qp_sol.o d_tree_ocp_qp_kkt.o d_tree_ocp_qp_ipm.o
+OBJS += s_tree_ocp_qp.o s_tree_ocp_qp_sol.o s_tree_ocp_qp_kkt.o s_tree_ocp_qp_ipm.o
 
 obj: $(OBJS)
 
@@ -49,5 +49,5 @@ d_tree_ocp_qp_sol.o: d_tree_ocp_qp_sol.c x_tree_ocp_qp_sol.c
 s_tree_ocp_qp_sol.o: s_tree_ocp_qp_sol.c x_tree_ocp_qp_sol.c
 d_tree_ocp_qp_kkt.o: d_tree_ocp_qp_kkt.c x_tree_ocp_qp_kkt.c
 s_tree_ocp_qp_kkt.o: s_tree_ocp_qp_kkt.c x_tree_ocp_qp_kkt.c
-d_tree_ocp_qp_ipm_hard.o: d_tree_ocp_qp_ipm_hard.c x_tree_ocp_qp_ipm_hard.c
-s_tree_ocp_qp_ipm_hard.o: s_tree_ocp_qp_ipm_hard.c x_tree_ocp_qp_ipm_hard.c
+d_tree_ocp_qp_ipm.o: d_tree_ocp_qp_ipm.c x_tree_ocp_qp_ipm.c
+s_tree_ocp_qp_ipm.o: s_tree_ocp_qp_ipm.c x_tree_ocp_qp_ipm.c

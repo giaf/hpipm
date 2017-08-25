@@ -36,24 +36,18 @@ struct d_tree_ocp_qp_sol
 	{
 	struct d_strvec *ux;
 	struct d_strvec *pi;
-	struct d_strvec *lam_lb;
-	struct d_strvec *lam_ub;
-	struct d_strvec *lam_lg;
-	struct d_strvec *lam_ug;
-	struct d_strvec *t_lb;
-	struct d_strvec *t_ub;
-	struct d_strvec *t_lg;
-	struct d_strvec *t_ug;
+	struct d_strvec *lam;
+	struct d_strvec *t;
 	int memsize; // memory size in bytes
 	};
 
 
 
 //
-int d_memsize_tree_ocp_qp_sol(struct tree *ttree, int *nx, int *nu, int *nb, int *ng);
+int d_memsize_tree_ocp_qp_sol(struct tree *ttree, int *nx, int *nu, int *nb, int *ng, int *ns);
 //
-void d_create_tree_ocp_qp_sol(struct tree *ttree, int *nx, int *nu, int *nb, int *ng, struct d_tree_ocp_qp_sol *qp_sol, void *memory);
+void d_create_tree_ocp_qp_sol(struct tree *ttree, int *nx, int *nu, int *nb, int *ng, int *ns, struct d_tree_ocp_qp_sol *qp_sol, void *memory);
 //
-void d_cvt_tree_ocp_qp_sol_to_colmaj(struct d_tree_ocp_qp *qp, struct d_tree_ocp_qp_sol *qp_sol, double **u, double **x, double **pi, double **lam_lb, double **lam_ub, double **lam_lg, double **lam_ug);
+void d_cvt_tree_ocp_qp_sol_to_colmaj(struct d_tree_ocp_qp *qp, struct d_tree_ocp_qp_sol *qp_sol, double **u, double **x, double **ls, double **us, double **pi, double **lam_lb, double **lam_ub, double **lam_lg, double **lam_ug, double **lam_ls, double **lam_us);
 //
-void d_cvt_tree_ocp_qp_sol_to_rowmaj(struct d_tree_ocp_qp *qp, struct d_tree_ocp_qp_sol *qp_sol, double **u, double **x, double **pi, double **lam_lb, double **lam_ub, double **lam_lg, double **lam_ug);
+void d_cvt_tree_ocp_qp_sol_to_rowmaj(struct d_tree_ocp_qp *qp, struct d_tree_ocp_qp_sol *qp_sol, double **u, double **x, double **ls, double **us, double **pi, double **lam_lb, double **lam_ub, double **lam_lg, double **lam_ug, double **lam_ls, double **lam_us);

@@ -185,17 +185,30 @@ void CREATE_IPM_DENSE_QP(struct DENSE_QP *qp, struct IPM_DENSE_QP_ARG *arg, stru
 
 
 	// alias members of workspace and core_workspace
+	//
 	CREATE_STRVEC(nv+2*ns, workspace->dv, cws->dv);
+	//
 	CREATE_STRVEC(ne, workspace->dpi, cws->dpi);
+	//
 	CREATE_STRVEC(2*nb+2*ng+2*ns, workspace->dlam, cws->dlam);
+	//
 	CREATE_STRVEC(2*nb+2*ng+2*ns, workspace->dt, cws->dt);
+	//
 	CREATE_STRVEC(nv+2*ns, workspace->res_g, cws->res_g);
+	//
 	CREATE_STRVEC(ne, workspace->res_b, cws->res_b);
+	//
 	CREATE_STRVEC(2*nb+2*ng+2*ns, workspace->res_d, cws->res_d);
+	//
 	CREATE_STRVEC(2*nb+2*ng+2*ns, workspace->res_m, cws->res_m);
+	//
 	CREATE_STRVEC(2*nb+2*ng+2*ns, workspace->Gamma, cws->Gamma);
+	//
 	CREATE_STRVEC(2*nb+2*ng+2*ns, workspace->gamma, cws->gamma);
+	//
 	workspace->stat = cws->stat;
+	//
+	workspace->iter = cws->iter_max;
 
 	return;
 

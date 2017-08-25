@@ -79,11 +79,11 @@ void INIT_VAR_OCP_QP(struct OCP_QP *qp, struct OCP_QP_SOL *qp_sol, struct IPM_OC
 	for(ii=0; ii<=N; ii++)
 		{
 		ux = qp_sol->ux[ii].pa;
-		d_lb = qp->d[ii].pa;
+		d_lb = qp->d[ii].pa+0;
 		d_ub = qp->d[ii].pa+nb[ii]+ng[ii];
-		lam_lb = qp_sol->lam[ii].pa;
+		lam_lb = qp_sol->lam[ii].pa+0;
 		lam_ub = qp_sol->lam[ii].pa+nb[ii]+ng[ii];
-		t_lb = qp_sol->t[ii].pa;
+		t_lb = qp_sol->t[ii].pa+0;
 		t_ub = qp_sol->t[ii].pa+nb[ii]+ng[ii];
 		idxb = qp->idxb[ii];
 		for(jj=0; jj<nb[ii]; jj++)

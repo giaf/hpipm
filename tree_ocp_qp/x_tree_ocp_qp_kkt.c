@@ -25,10 +25,10 @@
 *                                                                                                 *
 **************************************************************************************************/
 
-void INIT_VAR_HARD_TREE_OCP_QP(struct TREE_OCP_QP *qp, struct TREE_OCP_QP_SOL *qp_sol, struct IPM_HARD_TREE_OCP_QP_WORKSPACE *ws)
+void INIT_VAR_TREE_OCP_QP(struct TREE_OCP_QP *qp, struct TREE_OCP_QP_SOL *qp_sol, struct IPM_TREE_OCP_QP_WORKSPACE *ws)
 	{
 
-	struct IPM_HARD_CORE_QP_WORKSPACE *cws = ws->core_workspace;
+	struct IPM_CORE_QP_WORKSPACE *cws = ws->core_workspace;
 	
 	// loop index
 	int ii, jj;
@@ -39,6 +39,7 @@ void INIT_VAR_HARD_TREE_OCP_QP(struct TREE_OCP_QP *qp, struct TREE_OCP_QP_SOL *q
 	int *nu = qp->nu;
 	int *nb = qp->nb;
 	int *ng = qp->ng;
+	int *ns = qp->ns;
 
 	REAL mu0 = cws->mu0;
 
@@ -56,7 +57,7 @@ void INIT_VAR_HARD_TREE_OCP_QP(struct TREE_OCP_QP *qp, struct TREE_OCP_QP_SOL *q
 	for(ii=0; ii<Nn; ii++)
 		{
 		ux = qp_sol->ux[ii].pa;
-		for(jj=0; jj<nu[ii]+nx[ii]; jj++)
+		for(jj=0; jj<nu[ii]+nx[ii]+2*ns[ii]; jj++)
 			{
 			ux[jj] = 0.0;
 			}
@@ -76,15 +77,16 @@ void INIT_VAR_HARD_TREE_OCP_QP(struct TREE_OCP_QP *qp, struct TREE_OCP_QP_SOL *q
 	for(ii=0; ii<Nn; ii++)
 		{
 		ux = qp_sol->ux[ii].pa;
-		d_lb = qp->d_lb[ii].pa;
-		d_ub = qp->d_ub[ii].pa;
-		lam_lb = qp_sol->lam_lb[ii].pa;
-		lam_ub = qp_sol->lam_ub[ii].pa;
-		t_lb = qp_sol->t_lb[ii].pa;
-		t_ub = qp_sol->t_ub[ii].pa;
+		d_lb = qp->d[ii].pa+0;
+		d_ub = qp->d[ii].pa+nb[ii]+ng[ii];
+		lam_lb = qp_sol->lam[ii].pa+0;
+		lam_ub = qp_sol->lam[ii].pa+nb[ii]+ng[ii];
+		t_lb = qp_sol->t[ii].pa+0;
+		t_ub = qp_sol->t[ii].pa+nb[ii]+ng[ii];
 		idxb = qp->idxb[ii];
 		for(jj=0; jj<nb[ii]; jj++)
 			{
+#if 0
 			t_lb[jj] = - d_lb[jj] + ux[idxb[jj]];
 			t_ub[jj] =   d_ub[jj] - ux[idxb[jj]];
 			if(t_lb[jj]<thr0)
@@ -106,6 +108,10 @@ void INIT_VAR_HARD_TREE_OCP_QP(struct TREE_OCP_QP *qp, struct TREE_OCP_QP_SOL *q
 				t_ub[jj] = thr0;
 				ux[idxb[jj]] = d_ub[jj] - thr0;
 				}
+#else
+			t_lb[jj] = 1.0;
+			t_ub[jj] = 1.0;
+#endif
 			lam_lb[jj] = mu0/t_lb[jj];
 			lam_ub[jj] = mu0/t_ub[jj];
 			}
@@ -114,16 +120,17 @@ void INIT_VAR_HARD_TREE_OCP_QP(struct TREE_OCP_QP *qp, struct TREE_OCP_QP_SOL *q
 	// general constraints
 	for(ii=0; ii<Nn; ii++)
 		{
-		t_lg = qp_sol->t_lg[ii].pa;
-		t_ug = qp_sol->t_ug[ii].pa;
-		lam_lg = qp_sol->lam_lg[ii].pa;
-		lam_ug = qp_sol->lam_ug[ii].pa;
-		d_lg = qp->d_lg[ii].pa;
-		d_ug = qp->d_ug[ii].pa;
+		t_lg = qp_sol->t[ii].pa+nb[ii];
+		t_ug = qp_sol->t[ii].pa+2*nb[ii]+ng[ii];
+		lam_lg = qp_sol->lam[ii].pa+nb[ii];
+		lam_ug = qp_sol->lam[ii].pa+2*nb[ii]+ng[ii];
+		d_lg = qp->d[ii].pa+nb[ii];
+		d_ug = qp->d[ii].pa+2*nb[ii]+ng[ii];
 		ux = qp_sol->ux[ii].pa;
-		GEMV_T_LIBSTR(nu[ii]+nx[ii], ng[ii], 1.0, qp->DCt+ii, 0, 0, qp_sol->ux+ii, 0, 0.0, qp_sol->t_lg+ii, 0, qp_sol->t_lg+ii, 0);
+		GEMV_T_LIBSTR(nu[ii]+nx[ii], ng[ii], 1.0, qp->DCt+ii, 0, 0, qp_sol->ux+ii, 0, 0.0, qp_sol->t+ii, nb[ii], qp_sol->t+ii, nb[ii]);
 		for(jj=0; jj<ng[ii]; jj++)
 			{
+#if 0
 			t_ug[jj] = - t_lg[jj];
 			t_lg[jj] -= d_lg[jj];
 			t_ug[jj] += d_ug[jj];
@@ -131,11 +138,30 @@ void INIT_VAR_HARD_TREE_OCP_QP(struct TREE_OCP_QP *qp, struct TREE_OCP_QP_SOL *q
 //			t_ug[jj] = fmax(thr0, t_ug[jj]);
 			t_lg[jj] = thr0>t_lg[jj] ? thr0 : t_lg[jj];
 			t_ug[jj] = thr0>t_ug[jj] ? thr0 : t_ug[jj];
+#else
+			t_lg[jj] = 1.0;
+			t_ug[jj] = 1.0;
+#endif
 			lam_lg[jj] = mu0/t_lg[jj];
 			lam_ug[jj] = mu0/t_ug[jj];
 			}
 		}
 
+	// soft constraints
+	for(ii=0; ii<Nn; ii++)
+		{
+		lam_lb = qp_sol->lam[ii].pa+2*nb[ii]+2*ng[ii];
+		lam_ub = qp_sol->lam[ii].pa+2*nb[ii]+2*ng[ii]+ns[ii];
+		t_lb = qp_sol->t[ii].pa+2*nb[ii]+2*ng[ii];
+		t_ub = qp_sol->t[ii].pa+2*nb[ii]+2*ng[ii]+ns[ii];
+		for(jj=0; jj<ns[ii]; jj++)
+			{
+			t_lb[jj] = 1.0; // thr0;
+			t_ub[jj] = 1.0; // thr0;
+			lam_lb[jj] = mu0/t_lb[jj];
+			lam_ub[jj] = mu0/t_ub[jj];
+			}
+		}
 
 	return;
 
@@ -143,10 +169,10 @@ void INIT_VAR_HARD_TREE_OCP_QP(struct TREE_OCP_QP *qp, struct TREE_OCP_QP_SOL *q
 
 
 
-void COMPUTE_RES_HARD_TREE_OCP_QP(struct TREE_OCP_QP *qp, struct TREE_OCP_QP_SOL *qp_sol, struct IPM_HARD_TREE_OCP_QP_WORKSPACE *ws)
+void COMPUTE_RES_TREE_OCP_QP(struct TREE_OCP_QP *qp, struct TREE_OCP_QP_SOL *qp_sol, struct IPM_TREE_OCP_QP_WORKSPACE *ws)
 	{
 
-	struct IPM_HARD_CORE_QP_WORKSPACE *cws = ws->core_workspace;
+	struct IPM_CORE_QP_WORKSPACE *cws = ws->core_workspace;
 
 	struct tree *ttree = qp->ttree;
 	
@@ -161,6 +187,7 @@ void COMPUTE_RES_HARD_TREE_OCP_QP(struct TREE_OCP_QP *qp, struct TREE_OCP_QP_SOL
 	int *nu = qp->nu;
 	int *nb = qp->nb;
 	int *ng = qp->ng;
+	int *ns = qp->ns;
 
 	int nct = ws->core_workspace->nc;
 
@@ -169,33 +196,24 @@ void COMPUTE_RES_HARD_TREE_OCP_QP(struct TREE_OCP_QP *qp, struct TREE_OCP_QP_SOL
 	struct STRMAT *DCt = qp->DCt;
 	struct STRVEC *b = qp->b;
 	struct STRVEC *rq = qp->rq;
-	struct STRVEC *d_lb = qp->d_lb;
-	struct STRVEC *d_ub = qp->d_ub;
-	struct STRVEC *d_lg = qp->d_lg;
-	struct STRVEC *d_ug = qp->d_ug;
+	struct STRVEC *d = qp->d;
 	int **idxb = qp->idxb;
+	struct STRVEC *Z = qp->Z;
+	struct STRVEC *z = qp->z;
+	int **idxs = qp->idxs;
 
 	struct STRVEC *ux = qp_sol->ux;
 	struct STRVEC *pi = qp_sol->pi;
-	struct STRVEC *lam_lb = qp_sol->lam_lb;
-	struct STRVEC *lam_ub = qp_sol->lam_ub;
-	struct STRVEC *lam_lg = qp_sol->lam_lg;
-	struct STRVEC *lam_ug = qp_sol->lam_ug;
-	struct STRVEC *t_lb = qp_sol->t_lb;
-	struct STRVEC *t_ub = qp_sol->t_ub;
-	struct STRVEC *t_lg = qp_sol->t_lg;
-	struct STRVEC *t_ug = qp_sol->t_ug;
+	struct STRVEC *lam = qp_sol->lam;
+	struct STRVEC *t = qp_sol->t;
 
 	struct STRVEC *res_g = ws->res_g;
 	struct STRVEC *res_b = ws->res_b;
-	struct STRVEC *res_d_lb = ws->res_d_lb;
-	struct STRVEC *res_d_ub = ws->res_d_ub;
-	struct STRVEC *res_d_lg = ws->res_d_lg;
-	struct STRVEC *res_d_ug = ws->res_d_ug;
-	struct STRVEC *tmp_ngM = ws->tmp_ngM;
-	struct STRVEC *tmp_nbM = ws->tmp_nbM;
+	struct STRVEC *res_d = ws->res_d;
+	struct STRVEC *tmp_nbgM = ws->tmp_nbgM;
+	struct STRVEC *tmp_nsM = ws->tmp_nsM;
 
-	int nx0, nx1, nu0, nu1, nb0, ng0;
+	int nx0, nx1, nu0, nu1, nb0, ng0, ns0;
 
 	//
 	REAL mu = 0.0;
@@ -208,6 +226,7 @@ void COMPUTE_RES_HARD_TREE_OCP_QP(struct TREE_OCP_QP *qp, struct TREE_OCP_QP_SOL
 		nu0 = nu[ii];
 		nb0 = nb[ii];
 		ng0 = ng[ii];
+		ns0 = ns[ii];
 
 		VECCP_LIBSTR(nu0+nx0, rq+ii, 0, res_g+ii, 0);
 
@@ -217,36 +236,39 @@ void COMPUTE_RES_HARD_TREE_OCP_QP(struct TREE_OCP_QP *qp, struct TREE_OCP_QP_SOL
 
 		SYMV_L_LIBSTR(nu0+nx0, nu0+nx0, 1.0, RSQrq+ii, 0, 0, ux+ii, 0, 1.0, res_g+ii, 0, res_g+ii, 0);
 
-		if(nb0>0)
+		if(nb0+ng0>0)
 			{
+			AXPY_LIBSTR(nb0+ng0, -1.0, lam+ii, 0, lam+ii, nb[ii]+ng[ii], tmp_nbgM+0, 0);
+			AXPY_LIBSTR(nb0+ng0,  1.0, d+ii, 0, t+ii, 0, res_d+ii, 0);
+			AXPY_LIBSTR(nb0+ng0, -1.0, d+ii, nb0+ng0, t+ii, nb0+ng0, res_d+ii, nb0+ng0);
+			// box
+			if(nb0>0)
+				{
+				VECAD_SP_LIBSTR(nb0, 1.0, tmp_nbgM+0, 0, idxb[ii], res_g+ii, 0);
+				VECEX_SP_LIBSTR(nb0, 1.0, idxb[ii], ux+ii, 0, tmp_nbgM+1, 0);
+				}
+			// general
+			if(ng0>0)
+				{
+				GEMV_NT_LIBSTR(nu0+nx0, ng0, 1.0, 1.0, DCt+ii, 0, 0, tmp_nbgM+0, nb[ii], ux+ii, 0, 1.0, 0.0, res_g+ii, 0, tmp_nbgM+1, nb0, res_g+ii, 0, tmp_nbgM+1, nb0);
+				}
 
-			AXPY_LIBSTR(nb0, -1.0, lam_lb+ii, 0, lam_ub+ii, 0, tmp_nbM, 0);
-			VECAD_SP_LIBSTR(nb0, 1.0, tmp_nbM, 0, idxb[ii], res_g+ii, 0);
-
-			VECEX_SP_LIBSTR(nb0, -1.0, idxb[ii], ux+ii, 0, res_d_lb+ii, 0);
-			VECCP_LIBSTR(nb0, res_d_lb+ii, 0, res_d_ub+ii, 0);
-			AXPY_LIBSTR(nb0, 1.0, d_lb+ii, 0, res_d_lb+ii, 0, res_d_lb+ii, 0);
-			AXPY_LIBSTR(nb0, 1.0, d_ub+ii, 0, res_d_ub+ii, 0, res_d_ub+ii, 0);
-			AXPY_LIBSTR(nb0, 1.0, t_lb+ii, 0, res_d_lb+ii, 0, res_d_lb+ii, 0);
-			AXPY_LIBSTR(nb0, -1.0, t_ub+ii, 0, res_d_ub+ii, 0, res_d_ub+ii, 0);
-			VECSC_LIBSTR(nb0, -1.0, res_d_ub+ii, 0); // TODO embed with above
-
+			AXPY_LIBSTR(nb0+ng0, -1.0, tmp_nbgM+1, 0, res_d+ii, 0, res_d+ii, 0);
+			AXPY_LIBSTR(nb0+ng0,  1.0, tmp_nbgM+1, 0, res_d+ii, nb0+ng0, res_d+ii, nb0+ng0);
 			}
-
-		if(ng0>0) // TODO merge with bounds as much as possible
+		if(ns0>0)
 			{
-
-			AXPY_LIBSTR(ng0, -1.0, lam_lg+ii, 0, lam_ug+ii, 0, tmp_ngM+0, 0);
-
-			AXPY_LIBSTR(ng0,  1.0, t_lg+ii, 0, d_lg+ii, 0, res_d_lg+ii, 0);
-			AXPY_LIBSTR(ng0, -1.0, t_ug+ii, 0, d_ug+ii, 0, res_d_ug+ii, 0);
-
-			GEMV_NT_LIBSTR(nu0+nx0, ng0, 1.0, 1.0, DCt+ii, 0, 0, tmp_ngM+0, 0, ux+ii, 0, 1.0, 0.0, res_g+ii, 0, tmp_ngM+1, 0, res_g+ii, 0, tmp_ngM+1, 0);
-
-			AXPY_LIBSTR(ng0, -1.0, tmp_ngM+1, 0, res_d_lg+ii, 0, res_d_lg+ii, 0);
-			AXPY_LIBSTR(ng0, -1.0, tmp_ngM+1, 0, res_d_ug+ii, 0, res_d_ug+ii, 0);
-			VECSC_LIBSTR(ng0, -1.0, res_d_ug+ii, 0); // TODO embed with above
-
+			// res_g
+			GEMV_DIAG_LIBSTR(2*ns0, 1.0, Z+ii, 0, ux+ii, nu0+nx0, 1.0, z+ii, 0, res_g+ii, nu0+nx0);
+			AXPY_LIBSTR(2*ns0, -1.0, lam+ii, 2*nb0+2*ng0, res_g+ii, nu0+nx0, res_g+ii, nu0+nx0);
+			VECEX_SP_LIBSTR(ns0, 1.0, idxs[ii], lam+ii, 0, tmp_nsM, 0);
+			AXPY_LIBSTR(ns0, -1.0, tmp_nsM, 0, res_g+ii, nu0+nx0, res_g+ii, nu0+nx0);
+			VECEX_SP_LIBSTR(ns0, 1.0, idxs[ii], lam+ii, nb0+ng0, tmp_nsM, 0);
+			AXPY_LIBSTR(ns0, -1.0, tmp_nsM, 0, res_g+ii, nu0+nx0+ns0, res_g+ii, nu0+nx0+ns0);
+			// res_d
+			VECAD_SP_LIBSTR(ns0, -1.0, ux+ii, nu0+nx0, idxs[ii], res_d+ii, 0);
+			VECAD_SP_LIBSTR(ns0, -1.0, ux+ii, nu0+nx0+ns0, idxs[ii], res_d+ii, nb0+ng0);
+			AXPY_LIBSTR(2*ns0, -1.0, ux+ii, nu0+nx0, t+ii, 2*nb0+2*ng0, res_d+ii, 2*nb0+2*ng0);
 			}
 
 		// work on kids
@@ -267,7 +289,7 @@ void COMPUTE_RES_HARD_TREE_OCP_QP(struct TREE_OCP_QP *qp, struct TREE_OCP_QP_SOL
 
 		}
 
-	mu += VECMULDOT_LIBSTR(2*nct, lam_lb, 0, t_lb, 0, ws->res_m, 0); // XXX
+	mu += VECMULDOT_LIBSTR(2*nct, lam, 0, t, 0, ws->res_m, 0); // XXX
 
 	if(nct>0)
 		ws->res_mu = mu*cws->nt_inv;
@@ -281,7 +303,7 @@ void COMPUTE_RES_HARD_TREE_OCP_QP(struct TREE_OCP_QP *qp, struct TREE_OCP_QP_SOL
 
 
 // backward Riccati recursion
-void FACT_SOLVE_KKT_UNCONSTR_TREE_OCP_QP(struct TREE_OCP_QP *qp, struct TREE_OCP_QP_SOL *qp_sol, struct IPM_HARD_TREE_OCP_QP_WORKSPACE *ws)
+void FACT_SOLVE_KKT_UNCONSTR_TREE_OCP_QP(struct TREE_OCP_QP *qp, struct TREE_OCP_QP_SOL *qp_sol, struct IPM_TREE_OCP_QP_WORKSPACE *ws)
 	{
 
 	int Nn = qp->Nn;
@@ -306,7 +328,7 @@ void FACT_SOLVE_KKT_UNCONSTR_TREE_OCP_QP(struct TREE_OCP_QP *qp, struct TREE_OCP
 
 	int idx, nkids, idxkid;
 
-	struct IPM_HARD_CORE_QP_WORKSPACE *cws = ws->core_workspace;
+	struct IPM_CORE_QP_WORKSPACE *cws = ws->core_workspace;
 
 	// backward factorization and substitution
 
@@ -400,8 +422,166 @@ void FACT_SOLVE_KKT_UNCONSTR_TREE_OCP_QP(struct TREE_OCP_QP *qp, struct TREE_OCP
 
 
 
+static void COND_SLACKS_FACT_SOLVE(int ss, struct TREE_OCP_QP *qp, struct IPM_TREE_OCP_QP_WORKSPACE *ws)
+	{
+
+	int ii, idx;
+
+	int nx0 = qp->nx[ss];
+	int nu0 = qp->nu[ss];
+	int nb0 = qp->nb[ss];
+	int ng0 = qp->ng[ss];
+	int ns0 = qp->ns[ss];
+
+	struct STRVEC *Z = qp->Z+ss;
+	int *idxs0 = qp->idxs[ss];
+
+	struct STRVEC *dux = ws->dux+ss;
+	struct STRVEC *res_g = ws->res_g+ss;
+	struct STRVEC *Gamma = ws->Gamma+ss;
+	struct STRVEC *gamma = ws->gamma+ss;
+	struct STRVEC *Zs_inv = ws->Zs_inv+ss;
+	struct STRVEC *tmp_nbgM = ws->tmp_nbgM;
+
+	REAL *ptr_Gamma = Gamma->pa;
+	REAL *ptr_gamma = gamma->pa;
+	REAL *ptr_Z = Z->pa;
+	REAL *ptr_Zs_inv = Zs_inv->pa;
+	REAL *ptr_dux = dux->pa;
+	REAL *ptr_res_g = res_g->pa;
+	REAL *ptr_tmp0 = (tmp_nbgM+0)->pa;
+	REAL *ptr_tmp1 = (tmp_nbgM+1)->pa;
+	REAL *ptr_tmp2 = (tmp_nbgM+2)->pa;
+	REAL *ptr_tmp3 = (tmp_nbgM+3)->pa;
+
+	REAL tmp0, tmp1;
+
+	VECCP_LIBSTR(nb0+ng0, Gamma, 0, tmp_nbgM+0, 0);
+	VECCP_LIBSTR(nb0+ng0, Gamma, nb0+ng0, tmp_nbgM+1, 0);
+	VECCP_LIBSTR(nb0+ng0, gamma, 0, tmp_nbgM+2, 0);
+	VECCP_LIBSTR(nb0+ng0, gamma, nb0+ng0, tmp_nbgM+3, 0);
+
+	for(ii=0; ii<ns0; ii++)
+		{
+		idx = idxs0[ii];
+		ptr_Zs_inv[0+ii]   = ptr_Z[0+ii]   + ptr_Gamma[0+idx]       + ptr_Gamma[2*nb0+2*ng0+ii];
+		ptr_Zs_inv[ns0+ii] = ptr_Z[ns0+ii] + ptr_Gamma[nb0+ng0+idx] + ptr_Gamma[2*nb0+2*ng0+ns0+ii];
+		ptr_dux[nu0+nx0+ii]      = ptr_res_g[nu0+nx0+ii]     + ptr_gamma[0+idx]   + ptr_gamma[2*nb0+2*ng0+ii];
+		ptr_dux[nu0+nx0+ns0+ii]  = ptr_res_g[nu0+nx0+ns0+ii] + ptr_gamma[nb0+ng0+idx] + ptr_gamma[2*nb0+2*ng0+ns0+ii];
+		ptr_Zs_inv[0+ii]   = 1.0/ptr_Zs_inv[0+ii];
+		ptr_Zs_inv[ns0+ii] = 1.0/ptr_Zs_inv[ns0+ii];
+		tmp0 = ptr_dux[nu0+nx0+ii]*ptr_Zs_inv[0+ii];
+		tmp1 = ptr_dux[nu0+nx0+ns0+ii]*ptr_Zs_inv[ns0+ii];
+		ptr_tmp0[idx] = ptr_tmp0[idx] - ptr_tmp0[idx]*ptr_Zs_inv[0+ii]*ptr_tmp0[idx];
+		ptr_tmp1[idx] = ptr_tmp1[idx] - ptr_tmp1[idx]*ptr_Zs_inv[ns0+ii]*ptr_tmp1[idx];
+		ptr_tmp2[idx] = ptr_tmp2[idx] - ptr_Gamma[0+idx]*tmp0;
+		ptr_tmp3[idx] = ptr_tmp3[idx] - ptr_Gamma[nb0+ng0+idx]*tmp1;
+		}
+	
+	AXPY_LIBSTR(nb0+ng0,  1.0, tmp_nbgM+1, 0, tmp_nbgM+0, 0, tmp_nbgM+0, 0);
+	AXPY_LIBSTR(nb0+ng0, -1.0, tmp_nbgM+3, 0, tmp_nbgM+2, 0, tmp_nbgM+1, 0);
+
+	return;
+
+	}
+
+
+
+static void COND_SLACKS_SOLVE(int ss, struct TREE_OCP_QP *qp, struct IPM_TREE_OCP_QP_WORKSPACE *ws)
+	{
+
+	int ii, idx;
+
+	int nx0 = qp->nx[ss];
+	int nu0 = qp->nu[ss];
+	int nb0 = qp->nb[ss];
+	int ng0 = qp->ng[ss];
+	int ns0 = qp->ns[ss];
+
+	int *idxs0 = qp->idxs[ss];
+
+	struct STRVEC *dux = ws->dux+ss;
+	struct STRVEC *res_g = ws->res_g+ss;
+	struct STRVEC *Gamma = ws->Gamma+ss;
+	struct STRVEC *gamma = ws->gamma+ss;
+	struct STRVEC *Zs_inv = ws->Zs_inv+ss;
+	struct STRVEC *tmp_nbgM = ws->tmp_nbgM;
+
+	REAL *ptr_Gamma = Gamma->pa;
+	REAL *ptr_gamma = gamma->pa;
+	REAL *ptr_Zs_inv = Zs_inv->pa;
+	REAL *ptr_dux = dux->pa;
+	REAL *ptr_res_g = res_g->pa;
+	REAL *ptr_tmp2 = (tmp_nbgM+2)->pa;
+	REAL *ptr_tmp3 = (tmp_nbgM+3)->pa;
+
+	REAL tmp0, tmp1;
+
+	VECCP_LIBSTR(nb0+ng0, gamma, 0, tmp_nbgM+2, 0);
+	VECCP_LIBSTR(nb0+ng0, gamma, nb0+ng0, tmp_nbgM+3, 0);
+
+	for(ii=0; ii<ns0; ii++)
+		{
+		idx = idxs0[ii];
+		ptr_dux[nu0+nx0+ii]      = ptr_res_g[nu0+nx0+ii]     + ptr_gamma[0+idx]       + ptr_gamma[2*nb0+2*ng0+ii];
+		ptr_dux[nu0+nx0+ns0+ii]  = ptr_res_g[nu0+nx0+ns0+ii] + ptr_gamma[nb0+ng0+idx] + ptr_gamma[2*nb0+2*ng0+ns0+ii];
+		tmp0 = ptr_dux[nu0+nx0+ii]*ptr_Zs_inv[0+ii];
+		tmp1 = ptr_dux[nu0+nx0+ns0+ii]*ptr_Zs_inv[ns0+ii];
+		ptr_tmp2[idx] = ptr_tmp2[idx] - ptr_Gamma[0+idx]*tmp0;
+		ptr_tmp3[idx] = ptr_tmp3[idx] - ptr_Gamma[nb0+ng0+idx]*tmp1;
+		}
+	
+	AXPY_LIBSTR(nb0+ng0, -1.0, tmp_nbgM+3, 0, tmp_nbgM+2, 0, tmp_nbgM+1, 0);
+
+	return;
+
+	}
+
+
+
+static void EXPAND_SLACKS(int ss, struct TREE_OCP_QP *qp, struct IPM_TREE_OCP_QP_WORKSPACE *ws)
+	{
+
+	int ii, idx;
+
+	int nx0 = qp->nx[ss];
+	int nu0 = qp->nu[ss];
+	int nb0 = qp->nb[ss];
+	int ng0 = qp->ng[ss];
+	int ns0 = qp->ns[ss];
+
+	int *idxs0 = qp->idxs[ss];
+
+	struct STRVEC *dux = ws->dux+ss;
+	struct STRVEC *dt = ws->dt+ss;
+	struct STRVEC *Gamma = ws->Gamma+ss;
+	struct STRVEC *Zs_inv = ws->Zs_inv+ss;
+
+	REAL *ptr_Gamma = Gamma->pa;
+	REAL *ptr_dux = dux->pa;
+	REAL *ptr_dt = dt->pa;
+	REAL *ptr_Zs_inv = Zs_inv->pa;
+
+	for(ii=0; ii<ns0; ii++)
+		{
+		idx = idxs0[ii];
+		ptr_dux[nu0+nx0+ii]     = - ptr_Zs_inv[0+ii]   * (ptr_dux[nu0+nx0+ii]     + ptr_dt[idx]*ptr_Gamma[idx]);
+		ptr_dux[nu0+nx0+ns0+ii] = - ptr_Zs_inv[ns0+ii] * (ptr_dux[nu0+nx0+ns0+ii] + ptr_dt[nb0+ng0+idx]*ptr_Gamma[nb0+ng0+idx]);
+		ptr_dt[2*nb0+2*ng0+ii]     = ptr_dux[nu0+nx0+ii];
+		ptr_dt[2*nb0+2*ng0+ns0+ii] = ptr_dux[nu0+nx0+ns0+ii];
+		ptr_dt[0+idx]       = ptr_dt[0+idx]   + ptr_dux[nu0+nx0+ii];
+		ptr_dt[nb0+ng0+idx] = ptr_dt[nb0+ng0+idx] + ptr_dux[nu0+nx0+ns0+ii];
+
+		}
+
+	return;
+
+	}
+
+
+
 // backward Riccati recursion
-void FACT_SOLVE_KKT_STEP_HARD_TREE_OCP_QP(struct TREE_OCP_QP *qp, struct IPM_HARD_TREE_OCP_QP_WORKSPACE *ws)
+void FACT_SOLVE_KKT_STEP_TREE_OCP_QP(struct TREE_OCP_QP *qp, struct IPM_TREE_OCP_QP_WORKSPACE *ws)
 	{
 
 	int Nn = qp->Nn;
@@ -409,11 +589,15 @@ void FACT_SOLVE_KKT_STEP_HARD_TREE_OCP_QP(struct TREE_OCP_QP *qp, struct IPM_HAR
 	int *nu = qp->nu;
 	int *nb = qp->nb;
 	int *ng = qp->ng;
+	int *ns = qp->ns;
 
 	struct STRMAT *BAbt = qp->BAbt;
 	struct STRMAT *RSQrq = qp->RSQrq;
 	struct STRMAT *DCt = qp->DCt;
+	struct STRVEC *Z = qp->Z;
+	struct STRVEC *z = qp->z;
 	int **idxb = qp->idxb;
+	int **idxs = qp->idxs;
 
 	struct STRMAT *L = ws->L;
 	struct STRMAT *AL = ws->AL;
@@ -421,24 +605,25 @@ void FACT_SOLVE_KKT_STEP_HARD_TREE_OCP_QP(struct TREE_OCP_QP *qp, struct IPM_HAR
 	struct STRVEC *res_g = ws->res_g;
 	struct STRVEC *dux = ws->dux;
 	struct STRVEC *dpi = ws->dpi;
-	struct STRVEC *dt_lb = ws->dt_lb;
-	struct STRVEC *dt_lg = ws->dt_lg;
-	struct STRVEC *Qx_lg = ws->Qx_lg;
-	struct STRVEC *Qx_lb = ws->Qx_lb;
-	struct STRVEC *qx_lg = ws->qx_lg;
-	struct STRVEC *qx_lb = ws->qx_lb;
+	struct STRVEC *dt = ws->dt;
+	struct STRVEC *Gamma = ws->Gamma;
+	struct STRVEC *gamma = ws->gamma;
 	struct STRVEC *Pb = ws->Pb;
+	struct STRVEC *Zs_inv = ws->Zs_inv;
 	struct STRVEC *tmp_nxM = ws->tmp_nxM;
+	struct STRVEC *tmp_nbgM = ws->tmp_nbgM;
+
+	REAL *ptr0, *ptr1, *ptr2, *ptr3;
 
 	//
 	int ii, jj;
 
 	int idx, nkids, idxkid;
 
-	struct IPM_HARD_CORE_QP_WORKSPACE *cws = ws->core_workspace;
+	struct IPM_CORE_QP_WORKSPACE *cws = ws->core_workspace;
 
 
-	COMPUTE_QX_QX_HARD_QP(cws);
+	COMPUTE_QX_QX_QP(cws);
 
 	// backward factorization and substitution
 
@@ -474,15 +659,24 @@ void FACT_SOLVE_KKT_STEP_HARD_TREE_OCP_QP(struct TREE_OCP_QP *qp, struct IPM_HAR
 
 			}
 
+		if(ns[idx]>0)
+			{
+			COND_SLACKS_FACT_SOLVE(idx, qp, ws);
+			}
+		else if(nb[idx]+ng[idx]>0)
+			{
+			AXPY_LIBSTR(nb[idx]+ng[idx],  1.0, Gamma+idx, nb[idx]+ng[idx], Gamma+idx, 0, tmp_nbgM+0, 0);
+			AXPY_LIBSTR(nb[idx]+ng[idx], -1.0, gamma+idx, nb[idx]+ng[idx], gamma+idx, 0, tmp_nbgM+1, 0);
+			}
 		if(nb[idx]>0)
 			{
-			DIAAD_SP_LIBSTR(nb[idx], 1.0, Qx_lb+idx, 0, idxb[idx], L+idx, 0, 0);
-			ROWAD_SP_LIBSTR(nb[idx], 1.0, qx_lb+idx, 0, idxb[idx], L+idx, nu[idx]+nx[idx], 0);
+			DIAAD_SP_LIBSTR(nb[idx], 1.0, tmp_nbgM+0, 0, idxb[idx], L+idx, 0, 0);
+			ROWAD_SP_LIBSTR(nb[idx], 1.0, tmp_nbgM+1, 0, idxb[idx], L+idx, nu[idx]+nx[idx], 0);
 			}
 		if(ng[idx]>0)
 			{
-			GEMM_R_DIAG_LIBSTR(nu[idx]+nx[idx], ng[idx], 1.0, DCt+idx, 0, 0, Qx_lg+idx, 0, 0.0, AL+0, 0, 0, AL+0, 0, 0);
-			ROWIN_LIBSTR(ng[idx], 1.0, qx_lg+idx, 0, AL+0, nu[idx]+nx[idx], 0);
+			GEMM_R_DIAG_LIBSTR(nu[idx]+nx[idx], ng[idx], 1.0, DCt+idx, 0, 0, tmp_nbgM+0, nb[idx], 0.0, AL+0, 0, 0, AL+0, 0, 0);
+			ROWIN_LIBSTR(ng[idx], 1.0, tmp_nbgM+1, nb[idx], AL+0, nu[idx]+nx[idx], 0);
 			SYRK_POTRF_LN_LIBSTR(nu[idx]+nx[idx]+1, nu[idx]+nx[idx], ng[idx], AL+0, 0, 0, DCt+idx, 0, 0, L+idx, 0, 0, L+idx, 0, 0);
 			}
 		else
@@ -546,18 +740,23 @@ void FACT_SOLVE_KKT_STEP_HARD_TREE_OCP_QP(struct TREE_OCP_QP *qp, struct IPM_HAR
 
 
 	for(ii=0; ii<Nn; ii++)
-		VECEX_SP_LIBSTR(nb[ii], 1.0, idxb[ii], dux+ii, 0, dt_lb+ii, 0);
-
+		VECEX_SP_LIBSTR(nb[ii], 1.0, idxb[ii], dux+ii, 0, dt+ii, 0);
 	for(ii=0; ii<Nn; ii++)
-		GEMV_T_LIBSTR(nu[ii]+nx[ii], ng[ii], 1.0, DCt+ii, 0, 0, dux+ii, 0, 0.0, dt_lg+ii, 0, dt_lg+ii, 0);
+		GEMV_T_LIBSTR(nu[ii]+nx[ii], ng[ii], 1.0, DCt+ii, 0, 0, dux+ii, 0, 0.0, dt+ii, nb[ii], dt+ii, nb[ii]);
 
 	for(ii=0; ii<Nn; ii++)
 		{
-//		VECCP_LIBSTR(nb[ii]+ng[ii], dt_lb+ii, 0, dt_lb+ii, nb[ii]+ng[ii]);
-//		VECSC_LIBSTR(nb[ii]+ng[ii], -1.0, dt_lb+ii, nb[ii]+ng[ii]);
+		VECCP_LIBSTR(nb[ii]+ng[ii], dt+ii, 0, dt+ii, nb[ii]+ng[ii]);
+		VECSC_LIBSTR(nb[ii]+ng[ii], -1.0, dt+ii, nb[ii]+ng[ii]);
 		}
 
-	COMPUTE_LAM_T_HARD_QP(cws);
+	for(ii=0; ii<Nn; ii++)
+		{
+		if(ns[ii]>0)
+			EXPAND_SLACKS(ii, qp, ws);
+		}
+
+	COMPUTE_LAM_T_QP(cws);
 
 	return;
 
@@ -566,7 +765,7 @@ void FACT_SOLVE_KKT_STEP_HARD_TREE_OCP_QP(struct TREE_OCP_QP *qp, struct IPM_HAR
 
 
 // backward Riccati recursion
-void SOLVE_KKT_STEP_HARD_TREE_OCP_QP(struct TREE_OCP_QP *qp, struct IPM_HARD_TREE_OCP_QP_WORKSPACE *ws)
+void SOLVE_KKT_STEP_TREE_OCP_QP(struct TREE_OCP_QP *qp, struct IPM_TREE_OCP_QP_WORKSPACE *ws)
 	{
 
 	int Nn = qp->Nn;
@@ -574,11 +773,13 @@ void SOLVE_KKT_STEP_HARD_TREE_OCP_QP(struct TREE_OCP_QP *qp, struct IPM_HARD_TRE
 	int *nu = qp->nu;
 	int *nb = qp->nb;
 	int *ng = qp->ng;
+	int *ns = qp->ns;
 
 	struct STRMAT *BAbt = qp->BAbt;
 	struct STRMAT *RSQrq = qp->RSQrq;
 	struct STRMAT *DCt = qp->DCt;
 	int **idxb = qp->idxb;
+	int **idxs = qp->idxs;
 
 	struct STRMAT *L = ws->L;
 	struct STRMAT *AL = ws->AL;
@@ -586,21 +787,20 @@ void SOLVE_KKT_STEP_HARD_TREE_OCP_QP(struct TREE_OCP_QP *qp, struct IPM_HARD_TRE
 	struct STRVEC *res_g = ws->res_g;
 	struct STRVEC *dux = ws->dux;
 	struct STRVEC *dpi = ws->dpi;
-	struct STRVEC *dt_lb = ws->dt_lb;
-	struct STRVEC *dt_lg = ws->dt_lg;
-	struct STRVEC *qx_lg = ws->qx_lg;
-	struct STRVEC *qx_lb = ws->qx_lb;
+	struct STRVEC *dt = ws->dt;
+	struct STRVEC *gamma = ws->gamma;
 	struct STRVEC *Pb = ws->Pb;
 	struct STRVEC *tmp_nxM = ws->tmp_nxM;
+	struct STRVEC *tmp_nbgM = ws->tmp_nbgM;
 
 	//
 	int ii, jj;
 
 	int idx, nkids, idxkid;
 
-	struct IPM_HARD_CORE_QP_WORKSPACE *cws = ws->core_workspace;
+	struct IPM_CORE_QP_WORKSPACE *cws = ws->core_workspace;
 
-	COMPUTE_QX_HARD_QP(cws);
+	COMPUTE_QX_QP(cws);
 
 
 	// backward substitution
@@ -627,13 +827,21 @@ void SOLVE_KKT_STEP_HARD_TREE_OCP_QP(struct TREE_OCP_QP *qp, struct IPM_HARD_TRE
 
 			}
 
+		if(ns[idx]>0)
+			{
+			COND_SLACKS_SOLVE(idx, qp, ws);
+			}
+		else if(nb[idx]+ng[idx]>0)
+			{
+			AXPY_LIBSTR(nb[idx]+ng[idx], -1.0, gamma+idx, nb[idx]+ng[idx], gamma+idx, 0, tmp_nbgM+1, 0);
+			}
 		if(nb[idx]>0)
 			{
-			VECAD_SP_LIBSTR(nb[idx], 1.0, qx_lb+idx, 0, idxb[idx], dux+idx, 0);
+			VECAD_SP_LIBSTR(nb[idx], 1.0, tmp_nbgM+1, 0, idxb[idx], dux+idx, 0);
 			}
 		if(ng[idx]>0)
 			{
-			GEMV_N_LIBSTR(nu[idx]+nx[idx], ng[idx], 1.0, DCt+idx, 0, 0, qx_lg+idx, 0, 1.0, dux+idx, 0, dux+idx, 0);
+			GEMV_N_LIBSTR(nu[idx]+nx[idx], ng[idx], 1.0, DCt+idx, 0, 0, tmp_nbgM+1, nb[idx], 1.0, dux+idx, 0, dux+idx, 0);
 			}
 		TRSV_LNN_MN_LIBSTR(nu[idx]+nx[idx], nu[idx], L+idx, 0, 0, dux+idx, 0, dux+idx, 0);
 		}
@@ -657,13 +865,21 @@ void SOLVE_KKT_STEP_HARD_TREE_OCP_QP(struct TREE_OCP_QP *qp, struct IPM_HARD_TRE
 
 		}
 
+	if(ns[idx]>0)
+		{
+		COND_SLACKS_SOLVE(idx, qp, ws);
+		}
+	else if(nb[idx]+ng[idx]>0)
+		{
+		AXPY_LIBSTR(nb[idx]+ng[idx], -1.0, gamma+idx, nb[idx]+ng[idx], gamma+idx, 0, tmp_nbgM+1, 0);
+		}
 	if(nb[idx]>0)
 		{
-		VECAD_SP_LIBSTR(nb[idx], 1.0, qx_lb+idx, 0, idxb[idx], dux+idx, 0);
+		VECAD_SP_LIBSTR(nb[idx], 1.0, tmp_nbgM+1, 0, idxb[idx], dux+idx, 0);
 		}
 	if(ng[idx]>0)
 		{
-		GEMV_N_LIBSTR(nu[idx]+nx[idx], ng[idx], 1.0, DCt+idx, 0, 0, qx_lg+idx, 0, 1.0, dux+idx, 0, dux+idx, 0);
+		GEMV_N_LIBSTR(nu[idx]+nx[idx], ng[idx], 1.0, DCt+idx, 0, 0, tmp_nbgM+1, nb[idx], 1.0, dux+idx, 0, dux+idx, 0);
 		}
 	TRSV_LNN_LIBSTR(nu[idx]+nx[idx], L+idx, 0, 0, dux+idx, 0, dux+idx, 0);
 
@@ -722,18 +938,23 @@ void SOLVE_KKT_STEP_HARD_TREE_OCP_QP(struct TREE_OCP_QP *qp, struct IPM_HARD_TRE
 
 
 	for(ii=0; ii<Nn; ii++)
-		VECEX_SP_LIBSTR(nb[ii], 1.0, idxb[ii], dux+ii, 0, dt_lb+ii, 0);
-
+		VECEX_SP_LIBSTR(nb[ii], 1.0, idxb[ii], dux+ii, 0, dt+ii, 0);
 	for(ii=0; ii<Nn; ii++)
-		GEMV_T_LIBSTR(nu[ii]+nx[ii], ng[ii], 1.0, DCt+ii, 0, 0, dux+ii, 0, 0.0, dt_lg+ii, 0, dt_lg+ii, 0);
+		GEMV_T_LIBSTR(nu[ii]+nx[ii], ng[ii], 1.0, DCt+ii, 0, 0, dux+ii, 0, 0.0, dt+ii, nb[ii], dt+ii, nb[ii]);
 
 	for(ii=0; ii<Nn; ii++)
 		{
-//		VECCP_LIBSTR(nb[ii]+ng[ii], dt_lb+ii, 0, dt_lb+ii, nb[ii]+ng[ii]);
-//		VECSC_LIBSTR(nb[ii]+ng[ii], -1.0, dt_lb+ii, nb[ii]+ng[ii]);
+		VECCP_LIBSTR(nb[ii]+ng[ii], dt+ii, 0, dt+ii, nb[ii]+ng[ii]);
+		VECSC_LIBSTR(nb[ii]+ng[ii], -1.0, dt+ii, nb[ii]+ng[ii]);
 		}
 
-	COMPUTE_LAM_T_HARD_QP(cws);
+	for(ii=0; ii<Nn; ii++)
+		{
+		if(ns[ii]>0)
+			EXPAND_SLACKS(ii, qp, ws);
+		}
+
+	COMPUTE_LAM_T_QP(cws);
 
 	return;
 
