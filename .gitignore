@@ -10,3 +10,6 @@ hpipm_target.h
 *.eps
 build/
 octave-workspace
+*.aux
+*.toc
+*.log
