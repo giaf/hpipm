@@ -235,7 +235,7 @@ void d_cvt_colmaj_to_linear_system(double *A,  double *B, struct d_linear_system
 		
 
 
-void d_linear_ode(int t, double *x, double *u, void *ode_args, double *xdot)
+void d_expl_linear_ode(int t, double *x, double *u, void *ode_args, double *xdot)
 	{
 	struct d_linear_system *ls = ode_args;
 	int ii, jj;
@@ -256,7 +256,7 @@ void d_linear_ode(int t, double *x, double *u, void *ode_args, double *xdot)
 
 
 
-void d_linear_vde(int t, double *x, double *u, void *ode_args, double *xdot)
+void d_expl_linear_vde(int t, double *x, double *u, void *ode_args, double *xdot)
 	{
 	struct d_linear_system *ls = ode_args;
 	int ii, jj, kk;
@@ -284,7 +284,56 @@ void d_linear_vde(int t, double *x, double *u, void *ode_args, double *xdot)
 
 
 
-void d_linear_Jode(int t, double *x, double *u, void *ode_args, double *J)
+void d_res_impl_linear_ode(int t, double *xdot, double *x, double *u, void *ode_args, double *res)
+	{
+	struct d_linear_system *ls = ode_args;
+	int ii, jj;
+	int nx = ls->nx;
+	int nu = ls->nu;
+	double *Ac = ls->Ac;
+	double *Bc = ls->Bc;
+	for(ii=0; ii<nx; ii++)
+		res[ii] = - xdot[ii];
+	for(jj=0; jj<nx; jj++)
+		for(ii=0; ii<nx; ii++)
+			res[ii] += Ac[ii+nx*jj] * x[jj];
+	for(jj=0; jj<nu; jj++)
+		for(ii=0; ii<nx; ii++)
+			res[ii] += Bc[ii+nx*jj] * u[jj];
+	return;
+	}
+
+
+
+void d_res_impl_linear_vde(int t, double *xdot, double *x, double *u, void *ode_args, double *res)
+	{
+	struct d_linear_system *ls = ode_args;
+	int ii, jj, kk;
+	int nx = ls->nx;
+	int nu = ls->nu;
+	double *Ac = ls->Ac;
+	double *Bc = ls->Bc;
+	double *tmp;
+	for(ii=0; ii<nx*(1+nx+nu); ii++)
+		res[ii] = - xdot[ii];
+	for(kk=0; kk<1+nx+nu; kk++)
+		for(jj=0; jj<nx; jj++)
+			for(ii=0; ii<nx; ii++)
+				res[ii+nx*kk] += Ac[ii+nx*jj] * x[jj+nx*kk];
+	tmp = res+nx*(nx+nu);
+	for(jj=0; jj<nu; jj++)
+		for(ii=0; ii<nx; ii++)
+			tmp[ii] += Bc[ii+nx*jj] * u[jj];
+	tmp = res;
+	for(jj=0; jj<nu; jj++)
+		for(ii=0; ii<nx; ii++)
+			tmp[ii+nx*jj] += Bc[ii+nx*jj];
+	return;
+	}
+
+
+
+void d_jac_impl_linear_ode(int t, double *xdot, double *x, double *u, void *ode_args, double *jac)
 	{
 	struct d_linear_system *ls = ode_args;
 	int ii, jj;
@@ -292,7 +341,7 @@ void d_linear_Jode(int t, double *x, double *u, void *ode_args, double *J)
 	double *Ac = ls->Ac;
 	for(jj=0; jj<nx; jj++)
 		for(ii=0; ii<nx; ii++)
-			J[ii+nx*jj] = Ac[ii+nx*jj];
+			jac[ii+nx*jj] = Ac[ii+nx*jj];
 	return;
 	}
 
@@ -342,7 +391,7 @@ int main()
 	u[0] = 0.0;
 
 	double *xdot; d_zeros(&xdot, nx, 1);
-	d_linear_ode(0, x0, u, &ls, xdot);
+	d_expl_linear_ode(0, x0, u, &ls, xdot);
 
 	d_print_mat(1, nx, x0, 1);
 	d_print_mat(1, nx, xdot, 1);
@@ -406,7 +455,7 @@ int main()
 	                 0.0, 0.0, 1.0, 0.0};
 	double B_rk[] = {1.0/6.0, 1.0/3.0, 1.0/3.0, 1.0/6.0};
 	double C_rk[] = {0.0, 0.5, 0.5, 0.0};
-#elif 1
+#elif 0
 	// midpoint rule
 	int ns = 2; // number of stages
 	double A_rk[] = {0.0, 0.0,
@@ -436,7 +485,7 @@ int main()
 	double *x_erk; d_zeros(&x_erk, nx, 1);
 	double *ex_erk; d_zeros(&ex_erk, nx, 1);
 
-	d_erk_int(&rk_data, steps, h, nx, x0, x_erk, &d_linear_ode, &ls, memory_erk);
+	d_erk_int(&rk_data, steps, h, nx, x0, x_erk, &d_expl_linear_ode, &ls, memory_erk);
 
 	for(ii=0; ii<nx; ii++)
 		ex_erk[ii] = x_erk[ii] - xref[ii];
@@ -470,7 +519,7 @@ int main()
 
 	double *ex_erk; d_zeros(&ex_erk, nx*(1+nx+nu), 1);
 
-	d_init_erk_int(x0, fs0, u, &d_linear_vde, &ls, &erk_workspace);
+	d_init_erk_int(x0, fs0, u, &d_expl_linear_vde, &ls, &erk_workspace);
 
 	d_update_p_erk_int(u, &erk_workspace);
 
@@ -528,8 +577,9 @@ int main()
 	struct d_irk_args irk_args;
 	irk_args.steps = steps;
 	irk_args.h = h;
+	irk_args.newton_iter = 2;
 
-	d_init_irk_int(x0, fs0, u, &d_linear_vde, &d_linear_Jode, &ls, &irk_workspace);
+	d_init_irk_int(x0, fs0, u, &d_res_impl_linear_vde, &d_jac_impl_linear_ode, &ls, &irk_workspace);
 
 //	d_update_p_irk_int(u, &irk_workspace);
 

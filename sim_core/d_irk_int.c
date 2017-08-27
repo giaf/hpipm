@@ -53,7 +53,7 @@ int d_memsize_irk_int(struct d_rk_data *rk_data, int nx, int nf, int np)
 	size += 2*d_size_strmat(nx*ns, nf+1); // rG K
 
 	size += 1*nx*sizeof(double); // xt1
-	size += 3*nX*sizeof(double); // x xt0 Kt
+	size += 4*nX*sizeof(double); // x xt0 Kt rGt
 	size += 1*np*sizeof(double); // p
 	size += 2*nx*nx*sizeof(double); // Jt0 Jt1
 
@@ -110,6 +110,9 @@ void d_create_irk_int(struct d_rk_data *rk_data, int nx, int nf, int np, struct 
 	// Kt
 	ws->Kt = d_ptr;
 	d_ptr += nX;
+	// Kt
+	ws->rGt = d_ptr;
+	d_ptr += nX;
 	// p
 	ws->p = d_ptr;
 	d_ptr += np;
@@ -154,14 +157,18 @@ void d_create_irk_int(struct d_rk_data *rk_data, int nx, int nf, int np, struct 
 
 
 
-void d_init_irk_int(double *x0, double *fs0, double *p0, void (*vde)(int t, double *x, double *p, void *ode_args, double *xdot), void (*Jode)(int t, double *x, double *p, void *ode_args, double *J), void *ode_args, struct d_irk_workspace *ws)
+void d_init_irk_int(double *x0, double *fs0, double *p0, void (*d_res_impl_vde)(int t, double *xdot, double *x, double *p, void *ode_args, double *res), void (*d_jac_impl_ode)(int t, double *xdot, double *x, double *p, void *ode_args, double *jac), void *ode_args, struct d_irk_workspace *ws)
 	{
 
 	int ii;
 
+	struct d_rk_data *rk_data = ws->rk_data;
+	int ns = rk_data->ns;
+
 	int nx = ws->nx;
 	int nf = ws->nf;
 	int np = ws->np;
+	struct d_strmat *K = ws->K;
 
 	int nX = nx*(1+nf);
 
@@ -176,9 +183,14 @@ void d_init_irk_int(double *x0, double *fs0, double *p0, void (*vde)(int t, doub
 
 	for(ii=0; ii<np; ii++)
 		p[ii] = p0[ii];
+	
+	// TODO initialize K !!!!!
+//	for(ii=0; ii<ns; ii++)
+//		d_cvt_mat2strmat(nx, nf+1, xdot0, nx, K, ii*nx, 0);
+	dgese_libstr(nx*ns, nf+1, 0.0, K, 0, 0);
 
-	ws->vde = vde;
-	ws->Jode = Jode;
+	ws->d_res_impl_vde = d_res_impl_vde;
+	ws->d_jac_impl_ode = d_jac_impl_ode;
 	ws->ode_args = ode_args;
 
 	return;
@@ -191,6 +203,7 @@ void d_irk_int(struct d_irk_args *irk_args, struct d_irk_workspace *ws)
 	{
 
 	int steps = irk_args->steps;
+	int newton_iter = irk_args->newton_iter;
 	double h = irk_args->h;
 
 	struct d_rk_data *rk_data = ws->rk_data;
@@ -201,6 +214,7 @@ void d_irk_int(struct d_irk_args *irk_args, struct d_irk_workspace *ws)
 	double *xt0 = ws->xt0;
 	double *xt1 = ws->xt1;
 	double *Kt = ws->Kt;
+	double *rGt = ws->rGt;
 	double *Jt0 = ws->Jt0;
 	double *Jt1 = ws->Jt1;
 	int *ipiv = ws->ipiv;
@@ -223,16 +237,12 @@ void d_irk_int(struct d_irk_args *irk_args, struct d_irk_workspace *ws)
 	int ii, jj, step, iter, ss;
 	double t, a, b;
 
-	double niter = 2;
-
-//steps = 1;
-
 	t = 0.0;
 	for(step=0; step<steps; step++)
 		{
-		for(iter=0; iter<niter; iter++)
+		for(iter=0; iter<newton_iter; iter++)
 			{
-//			printf("\niter = %d\n", iter);
+//			printf("\newton_iter = %d\n", iter);
 			for(ss=0; ss<ns; ss++)
 				{
 //				printf("\nss = %d\n", ss);
@@ -251,9 +261,10 @@ void d_irk_int(struct d_irk_args *irk_args, struct d_irk_workspace *ws)
 							}
 						}
 					}
-				ws->vde(t+h*C_rk[ss], xt0, p, ws->ode_args, Kt);
-				d_cvt_mat2strmat(nx, nf+1, Kt, nx, rG, ss*nx, 0);
-				ws->Jode(t+h*C_rk[ss], xt0, p, ws->ode_args, Jt0);
+				d_cvt_strmat2mat(nx, nf+1, K, ss*nx, 0, Kt, nx);
+				ws->d_res_impl_vde(t+h*C_rk[ss], Kt, xt0, p, ws->ode_args, rGt);
+				ws->d_jac_impl_ode(t+h*C_rk[ss], Kt, xt0, p, ws->ode_args, Jt0);
+				d_cvt_mat2strmat(nx, nf+1, rGt, nx, rG, ss*nx, 0);
 				for(ii=0; ii<ns; ii++)
 					{
 					a = - h * A_rk[ss+ns*ii];
@@ -264,7 +275,6 @@ void d_irk_int(struct d_irk_args *irk_args, struct d_irk_workspace *ws)
 				}
 			ddiare_libstr(ns*nx, 1.0, JG, 0, 0);
 			dgetrf_libstr(ns*nx, ns*nx, JG, 0, 0, JG, 0, 0, ipiv); // LU factorization with pivoting
-			dgead_libstr(ns*nx, nf+1, -1.0, K, 0, 0, rG, 0, 0);
 			drowpe_libstr(ns*nx, ipiv, rG);  // row permutations
 			dtrsm_llnu_libstr(ns*nx, 1+nf, 1.0, JG, 0, 0, rG, 0, 0, rG, 0, 0);  // L backsolve
 			dtrsm_lunn_libstr(ns*nx, 1+nf, 1.0, JG, 0, 0, rG, 0, 0, rG, 0, 0);  // U backsolve
