@@ -264,7 +264,7 @@ void d_irk_int(struct d_irk_args *irk_args, struct d_irk_workspace *ws)
 				}
 			ddiare_libstr(ns*nx, 1.0, JG, 0, 0);
 			dgetrf_libstr(ns*nx, ns*nx, JG, 0, 0, JG, 0, 0, ipiv); // LU factorization with pivoting
-			dgead_libstr(nx*nx, nf+1, -1.0, K, 0, 0, rG, 0, 0);
+			dgead_libstr(ns*nx, nf+1, -1.0, K, 0, 0, rG, 0, 0);
 			drowpe_libstr(ns*nx, ipiv, rG);  // row permutations
 			dtrsm_llnu_libstr(ns*nx, 1+nf, 1.0, JG, 0, 0, rG, 0, 0, rG, 0, 0);  // L backsolve
 			dtrsm_lunn_libstr(ns*nx, 1+nf, 1.0, JG, 0, 0, rG, 0, 0, rG, 0, 0);  // U backsolve
