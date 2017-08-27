@@ -42,7 +42,7 @@
 #include "../include/hpipm_d_erk_int.h"
 #include "../include/hpipm_d_ocp_qp.h"
 #include "../include/hpipm_d_ocp_qp_sol.h"
-#include "../include/hpipm_d_ocp_qp_ipm_hard.h"
+#include "../include/hpipm_d_ocp_qp_ipm.h"
 #include "../include/hpipm_d_ocp_qp_sim.h"
 
 #include "d_tools.h"
@@ -312,7 +312,7 @@ int main()
 	
 #if 1
 	// rk4
-	int ns = 4; // number of stages
+	int nsta = 4; // number of stages
 	double A_rk[] = {0.0, 0.0, 0.0, 0.0,
 	                 0.5, 0.0, 0.0, 0.0,
 	                 0.0, 0.5, 0.0, 0.0,
@@ -321,26 +321,26 @@ int main()
 	double C_rk[] = {0.0, 0.5, 0.5, 0.0};
 #elif 1
 	// midpoint rule
-	int ns = 2; // number of stages
+	int nsta = 2; // number of stages
 	double A_rk[] = {0.0, 0.0,
 	                 0.5, 0.0};
 	double B_rk[] = {0.0, 1.0};
 	double C_rk[] = {0.0, 0.5};
 #else
 	// explicit euler
-	int ns = 1; // number of stages
+	int nsta = 1; // number of stages
 	double A_rk[] = {0.0};
 	double B_rk[] = {1.0};
 	double C_rk[] = {0.0};
 #endif
 
 	// erk data structure
-	int memsize_rk_data = d_memsize_rk_data(ns);
+	int memsize_rk_data = d_memsize_rk_data(nsta);
 	printf("\nmemsize rk data %d\n", memsize_rk_data);
 	void *memory_rk_data = malloc(memsize_rk_data);
 
 	struct d_rk_data rk_data;
-	d_create_rk_data(ns, &rk_data, memory_rk_data);
+	d_create_rk_data(nsta, &rk_data, memory_rk_data);
 
 	d_cvt_rowmaj_to_rk_data(A_rk, B_rk, C_rk, &rk_data);
 
@@ -396,29 +396,33 @@ int main()
 	int nu[N+1];
 	int nb[N+1];
 	int ng[N+1];
+	int ns[N+1];
 
 	nx[0] = 0;
 	nu[0] = nu_;
-	ng[0] = 0;
 	nb[0] = 0;
+	ng[0] = 0;
+	ns[0] = 0;
 	for(ii=1; ii<N; ii++)
 		{
 		nx[ii] = nx_;
 		nu[ii] = nu_;
-		ng[ii] = 0;
 		nb[ii] = 0;
+		ng[ii] = 0;
+		ns[ii] = 0;
 		}
 	nx[N] = nx_;
 	nu[N] = 0;
-	ng[N] = 0;
 	nb[N] = 0;
+	ng[N] = 0;
+	ns[N] = 0;
 
-	int qp_size = d_memsize_ocp_qp(N, nx, nu, nb, ng);
+	int qp_size = d_memsize_ocp_qp(N, nx, nu, nb, ng, ns);
 	printf("\nqp size = %d\n", qp_size);
 	void *qp_mem = malloc(qp_size);
 
 	struct d_ocp_qp qp;
-	d_create_ocp_qp(N, nx, nu, nb, ng, &qp, qp_mem);
+	d_create_ocp_qp(N, nx, nu, nb, ng, ns, &qp, qp_mem);
 
 	// copy problem size
 	qp.N = N;
@@ -428,6 +432,7 @@ int main()
 		qp.nu[ii] = nu[ii];
 		qp.nb[ii] = nb[ii];
 		qp.ng[ii] = ng[ii];
+		qp.ns[ii] = ns[ii];
 		}
 
 	// copy Hessian and gradient
@@ -449,29 +454,29 @@ int main()
 * ocp qp sol
 ************************************************/	
 	
-	int qp_sol_size = d_memsize_ocp_qp_sol(N, nx, nu, nb, ng);
+	int qp_sol_size = d_memsize_ocp_qp_sol(N, nx, nu, nb, ng, ns);
 	printf("\nqp sol size = %d\n", qp_sol_size);
 	void *qp_sol_mem = malloc(qp_sol_size);
 
 	struct d_ocp_qp_sol qp_sol;
-	d_create_ocp_qp_sol(N, nx, nu, nb, ng, &qp_sol, qp_sol_mem);
+	d_create_ocp_qp_sol(N, nx, nu, nb, ng, ns, &qp_sol, qp_sol_mem);
 
 /************************************************
 * ipm
 ************************************************/	
 
-	struct d_ipm_hard_ocp_qp_arg arg;
+	struct d_ipm_ocp_qp_arg arg;
 	arg.alpha_min = 1e-8;
 	arg.mu_max = 1e-12;
 	arg.iter_max = 20;
 	arg.mu0 = 2.0;
 
-	int ipm_size = d_memsize_ipm_hard_ocp_qp(&qp, &arg);
+	int ipm_size = d_memsize_ipm_ocp_qp(&qp, &arg);
 	printf("\nipm size = %d\n", ipm_size);
 	void *ipm_mem = malloc(ipm_size);
 
-	struct d_ipm_hard_ocp_qp_workspace workspace;
-	d_create_ipm_hard_ocp_qp(&qp, &arg, &workspace, ipm_mem);
+	struct d_ipm_ocp_qp_workspace workspace;
+	d_create_ipm_ocp_qp(&qp, &arg, &workspace, ipm_mem);
 
 /************************************************
 * SQP loop
@@ -489,11 +494,15 @@ int main()
 	// step
 	double *du[N+1]; for(ii=0; ii<=N; ii++) d_zeros(du+ii, nu[ii], 1);
 	double *dx[N+1]; for(ii=0; ii<=N; ii++) d_zeros(dx+ii, nx[ii], 1);
+	double **dls;
+	double **dus;
 	double *dpi[N]; for(ii=0; ii<N; ii++) d_zeros(dpi+ii, nx[ii+1], 1);
 	double *dlam_lb[N+1]; for(ii=0; ii<=N; ii++) d_zeros(dlam_lb+ii, nb[ii], 1);
 	double *dlam_ub[N+1]; for(ii=0; ii<=N; ii++) d_zeros(dlam_ub+ii, nb[ii], 1);
 	double *dlam_lg[N+1]; for(ii=0; ii<=N; ii++) d_zeros(dlam_lg+ii, ng[ii], 1);
 	double *dlam_ug[N+1]; for(ii=0; ii<=N; ii++) d_zeros(dlam_ug+ii, ng[ii], 1);
+	double **dlam_ls;
+	double **dlam_us;
 
 	// initialize solution to zero
 	for(nn=0; nn<=N; nn++)
@@ -526,9 +535,9 @@ int main()
 		for(nn=0; nn<N; nn++)
 			d_print_strmat(nu[nn]+nx[nn]+1, nx[nn+1], qp.BAbt+nn, 0, 0);
 
-		d_solve_ipm2_hard_ocp_qp(&qp, &qp_sol, &workspace);
+		d_solve_ipm2_ocp_qp(&qp, &qp_sol, &workspace);
 
-		d_cvt_ocp_qp_sol_to_colmaj(&qp, &qp_sol, du, dx, dpi, dlam_lb, dlam_ub, dlam_lg, dlam_ug);
+		d_cvt_ocp_qp_sol_to_colmaj(&qp, &qp_sol, du, dx, dls, dus, dpi, dlam_lb, dlam_ub, dlam_lg, dlam_ug, dlam_ls, dlam_us);
 
 		for(nn=0; nn<=N; nn++)
 			for(ii=0; ii<nu[nn]; ii++)
