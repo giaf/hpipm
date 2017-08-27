@@ -336,28 +336,37 @@ void CVT_COLMAJ_TO_TREE_OCP_QP(REAL **A, REAL **B, REAL **b, REAL **Q, REAL **S,
 	
 	for(ii=0; ii<Nn; ii++)
 		{
-		for(jj=0; jj<nb[ii]; jj++)
-			qp->idxb[ii][jj] = idxb[ii][jj];
-		CVT_VEC2STRVEC(nb[ii], d_lb[ii], qp->d+ii, 0);
-		CVT_VEC2STRVEC(nb[ii], d_ub[ii], qp->d+ii, nb[ii]+ng[ii]);
+		if(nb[ii]>0)
+			{
+			for(jj=0; jj<nb[ii]; jj++)
+				qp->idxb[ii][jj] = idxb[ii][jj];
+			CVT_VEC2STRVEC(nb[ii], d_lb[ii], qp->d+ii, 0);
+			CVT_VEC2STRVEC(nb[ii], d_ub[ii], qp->d+ii, nb[ii]+ng[ii]);
+			}
 		}
 	
 	for(ii=0; ii<Nn; ii++)
 		{
-		CVT_TRAN_MAT2STRMAT(ng[ii], nu[ii], D[ii], ng[ii], qp->DCt+ii, 0, 0);
-		CVT_TRAN_MAT2STRMAT(ng[ii], nx[ii], C[ii], ng[ii], qp->DCt+ii, nu[ii], 0);
-		CVT_VEC2STRVEC(ng[ii], d_lg[ii], qp->d+ii, nb[ii]);
-		CVT_VEC2STRVEC(ng[ii], d_ug[ii], qp->d+ii, 2*nb[ii]+ng[ii]);
+		if(ng[ii]>0)
+			{
+			CVT_TRAN_MAT2STRMAT(ng[ii], nu[ii], D[ii], ng[ii], qp->DCt+ii, 0, 0);
+			CVT_TRAN_MAT2STRMAT(ng[ii], nx[ii], C[ii], ng[ii], qp->DCt+ii, nu[ii], 0);
+			CVT_VEC2STRVEC(ng[ii], d_lg[ii], qp->d+ii, nb[ii]);
+			CVT_VEC2STRVEC(ng[ii], d_ug[ii], qp->d+ii, 2*nb[ii]+ng[ii]);
+			}
 		}
 
 	for(ii=0; ii<Nn; ii++)
 		{
-		for(jj=0; jj<ns[ii]; jj++)
-			qp->idxs[ii][jj] = idxs[ii][jj];
-		CVT_VEC2STRVEC(ns[ii], Zl[ii], qp->Z+ii, 0);
-		CVT_VEC2STRVEC(ns[ii], Zu[ii], qp->Z+ii, ns[ii]);
-		CVT_VEC2STRVEC(ns[ii], zl[ii], qp->z+ii, 0);
-		CVT_VEC2STRVEC(ns[ii], zu[ii], qp->z+ii, ns[ii]);
+		if(ns[ii]>0)
+			{
+			for(jj=0; jj<ns[ii]; jj++)
+				qp->idxs[ii][jj] = idxs[ii][jj];
+			CVT_VEC2STRVEC(ns[ii], Zl[ii], qp->Z+ii, 0);
+			CVT_VEC2STRVEC(ns[ii], Zu[ii], qp->Z+ii, ns[ii]);
+			CVT_VEC2STRVEC(ns[ii], zl[ii], qp->z+ii, 0);
+			CVT_VEC2STRVEC(ns[ii], zu[ii], qp->z+ii, ns[ii]);
+			}
 		}
 
 	return;
