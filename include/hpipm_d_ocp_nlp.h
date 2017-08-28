@@ -7,18 +7,18 @@
 * Developed at IMTEK (University of Freiburg) under the supervision of Moritz Diehl.              *
 * All rights reserved.                                                                            *
 *                                                                                                 *
-* HPMPC is free software; you can redistribute it and/or                                          *
+* HPIPM is free software; you can redistribute it and/or                                          *
 * modify it under the terms of the GNU Lesser General Public                                      *
 * License as published by the Free Software Foundation; either                                    *
 * version 2.1 of the License, or (at your option) any later version.                              *
 *                                                                                                 *
-* HPMPC is distributed in the hope that it will be useful,                                        *
+* HPIPM is distributed in the hope that it will be useful,                                        *
 * but WITHOUT ANY WARRANTY; without even the implied warranty of                                  *
 * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.                                            *
 * See the GNU Lesser General Public License for more details.                                     *
 *                                                                                                 *
 * You should have received a copy of the GNU Lesser General Public                                *
-* License along with HPMPC; if not, write to the Free Software                                    *
+* License along with HPIPM; if not, write to the Free Software                                    *
 * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA                  *
 *                                                                                                 *
 * Author: Gianluca Frison, gianluca.frison (at) imtek.uni-freiburg.de                             *
@@ -27,39 +27,33 @@
 
 
 
-#if defined(RUNTIME_CHECKS)
-#include <stdlib.h>
-#endif
-
 #include <blasfeo_target.h>
 #include <blasfeo_common.h>
-#include <blasfeo_s_aux.h>
-
-#include "../include/hpipm_s_ocp_qp.h"
 
 
 
-#define CREATE_STRMAT s_create_strmat
-#define CREATE_STRVEC s_create_strvec
-#define CVT_MAT2STRMAT s_cvt_mat2strmat
-#define CVT_TRAN_MAT2STRMAT s_cvt_tran_mat2strmat
-#define CVT_VEC2STRVEC s_cvt_vec2strvec
-#define OCP_QP s_ocp_qp
-#define REAL float
-#define STRMAT s_strmat
-#define STRVEC s_strvec
-#define SIZE_STRMAT s_size_strmat
-#define SIZE_STRVEC s_size_strvec
-#define VECCP_LIBSTR sveccp_libstr
+struct d_ocp_nlp
+	{
+	void (**expl_vde)(int t, double *x, double *p, void *vde_args, double *xdot); // explicit vde
+	struct d_strmat *RSQ;
+	struct d_strvec *ux_ref;
+	struct d_strmat *DCt;
+	struct d_strvec *d;
+	struct d_strvec *Z;
+	struct d_strvec *z;
+	int *nx; // number of states
+	int *nu; // number of inputs
+	int *nb; // number of box constraints
+	int **idxb; // index of box constraints
+	int *ng; // number of general constraints
+	int *ns; // number of soft constraints
+	int **idxs; // index of soft constraints
+	int N; // hotizon lenght
+	int memsize; // memory size in bytes
+	};
 
-#define CAST_OCP_QP s_cast_ocp_qp
-#define COPY_OCP_QP s_copy_ocp_qp
-#define CREATE_OCP_QP s_create_ocp_qp
-#define CVT_COLMAJ_TO_OCP_QP s_cvt_colmaj_to_ocp_qp
-#define CVT_ROWMAJ_TO_OCP_QP s_cvt_rowmaj_to_ocp_qp
-#define MEMSIZE_OCP_QP s_memsize_ocp_qp
 
 
-
-#include "x_ocp_qp.c"
+//
+int d_memsize_ocp_nlp(int N, int *nx, int *nu, int *nb, int *ng, int *ns);
 

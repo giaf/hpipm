@@ -53,6 +53,9 @@ OBJS += tree_ocp_qp/s_tree_ocp_qp.o tree_ocp_qp/s_tree_ocp_qp_sol.o tree_ocp_qp/
 # sim core
 OBJS += sim_core/d_rk_int.o sim_core/d_erk_int.o sim_core/d_irk_int.o
 OBJS +=
+# ocp nlp
+OBJS += ocp_nlp/d_ocp_nlp.o
+OBJS +=
 
 all: clean static_library
 
@@ -63,6 +66,7 @@ static_library: target
 	( cd ocp_qp; $(MAKE) obj)
 	( cd tree_ocp_qp; $(MAKE) obj)
 	( cd sim_core; $(MAKE) obj)
+	( cd ocp_nlp; $(MAKE) obj)
 	ar rcs libhpipm.a $(OBJS) 
 	cp libhpipm.a ./lib/
 	@echo
@@ -76,6 +80,7 @@ shared_library: target
 	( cd ocp_qp; $(MAKE) obj)
 	( cd tree_ocp_qp; $(MAKE) obj)
 	( cd sim_core; $(MAKE) obj)
+	( cd ocp_nlp; $(MAKE) obj)
 	gcc -shared -o libhpipm.so $(OBJS)
 	cp libhpipm.so ./lib/
 	@echo
@@ -126,4 +131,5 @@ clean:
 	make -C tree_ocp_qp clean
 	make -C sim_core clean
 	make -C test_problems clean
+	make -C ocp_nlp clean
 

@@ -44,7 +44,6 @@
 #define CVT_MAT2STRMAT d_cvt_mat2strmat
 #define CVT_TRAN_MAT2STRMAT d_cvt_tran_mat2strmat
 #define CVT_VEC2STRVEC d_cvt_vec2strvec
-#define GECP_LIBSTR dgecp_libstr
 #define OCP_QP d_ocp_qp
 #define REAL double
 #define STRMAT d_strmat
