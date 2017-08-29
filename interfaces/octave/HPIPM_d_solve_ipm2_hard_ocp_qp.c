@@ -32,7 +32,7 @@
 
 #include "hpipm_d_ocp_qp.h"
 #include "hpipm_d_ocp_qp_sol.h"
-#include "hpipm_d_ocp_qp_ipm_hard.h"
+#include "hpipm_d_ocp_qp_ipm.h"
 
 
 
@@ -146,6 +146,10 @@ void mexFunction( int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
 	for(ii=0; ii<N; ii++)
 		ng_v[ii] = ng;
 	ng_v[N] = ngN;
+
+	int ns_v[N+1];
+	for(ii=0; ii<=N; ii++)
+		ns_v[ii] = 0;
 
 	int *hidxb[N+1];
 	int *ptr_idx = (int *) malloc((N+1)*nb*sizeof(int));
@@ -375,33 +379,33 @@ void mexFunction( int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
 
 
 
-	int qp_size = d_memsize_ocp_qp(N, nx_v, nu_v, nb_v, ng_v);
+	int qp_size = d_memsize_ocp_qp(N, nx_v, nu_v, nb_v, ng_v, ns_v);
 	void *qp_mem = malloc(qp_size);
 	struct d_ocp_qp qp;
-	d_create_ocp_qp(N, nx_v, nu_v, nb_v, ng_v, &qp, qp_mem);
-	d_cvt_colmaj_to_ocp_qp(hA, hB, hb, hQ, hS, hR, hq, hr, hidxb, hlb, hub, hC, hD, hlg, hug, &qp);
+	d_create_ocp_qp(N, nx_v, nu_v, nb_v, ng_v, ns_v, &qp, qp_mem);
+	d_cvt_colmaj_to_ocp_qp(hA, hB, hb, hQ, hS, hR, hq, hr, hidxb, hlb, hub, hC, hD, hlg, hug, NULL, NULL, NULL, NULL, NULL, &qp);
 
-	int qp_sol_size = d_memsize_ocp_qp_sol(N, nx_v, nu_v, nb_v, ng_v);
+	int qp_sol_size = d_memsize_ocp_qp_sol(N, nx_v, nu_v, nb_v, ng_v, ns_v);
 	void *qp_sol_mem = malloc(qp_sol_size);
 	struct d_ocp_qp_sol qp_sol;
-	d_create_ocp_qp_sol(N, nx_v, nu_v, nb_v, ng_v, &qp_sol, qp_sol_mem);
+	d_create_ocp_qp_sol(N, nx_v, nu_v, nb_v, ng_v, ns_v, &qp_sol, qp_sol_mem);
 
-	struct d_ipm_hard_ocp_qp_arg arg;
+	struct d_ipm_ocp_qp_arg arg;
 	arg.alpha_min = 1e-8;
 	arg.mu_max = 1e-12;
 	arg.iter_max = 20;
 	arg.mu0 = 2.0;
 
-	int ipm_size = d_memsize_ipm_hard_ocp_qp(&qp, &arg);
+	int ipm_size = d_memsize_ipm_ocp_qp(&qp, &arg);
 	void *ipm_mem = malloc(ipm_size);
 
-	struct d_ipm_hard_ocp_qp_workspace workspace;
-	d_create_ipm_hard_ocp_qp(&qp, &arg, &workspace, ipm_mem);
+	struct d_ipm_ocp_qp_workspace workspace;
+	d_create_ipm_ocp_qp(&qp, &arg, &workspace, ipm_mem);
 
-//	d_solve_ipm_hard_ocp_qp(&qp, &qp_sol, &workspace);
-	d_solve_ipm2_hard_ocp_qp(&qp, &qp_sol, &workspace);
+//	d_solve_ipm_ocp_qp(&qp, &qp_sol, &workspace);
+	d_solve_ipm2_ocp_qp(&qp, &qp_sol, &workspace);
 
-	d_cvt_ocp_qp_sol_to_colmaj(&qp, &qp_sol, hu, hx, hpi, hlam_lb, hlam_ub, hlam_lg, hlam_ug);
+	d_cvt_ocp_qp_sol_to_colmaj(&qp, &qp_sol, hu, hx, NULL, NULL, hpi, hlam_lb, hlam_ub, hlam_lg, hlam_ug, NULL, NULL);
 
 
 
