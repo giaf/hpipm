@@ -32,9 +32,9 @@
 
 
 
-struct d_ipm_dense_qp_workspace
+struct d_dense_qp_ipm_workspace
 	{
-	struct d_ipm_core_qp_workspace *core_workspace;
+	struct d_core_qp_ipm_workspace *core_workspace;
 	struct d_strvec *dv; // step in v
 	struct d_strvec *dpi; // step in pi
 	struct d_strvec *dlam; // step in lam XXX needed ???
@@ -61,7 +61,7 @@ struct d_ipm_dense_qp_workspace
 
 
 
-struct d_ipm_dense_qp_arg
+struct d_dense_qp_ipm_arg
 	{
 	double alpha_min; // exit cond on step length
 	double mu_max; // exit cond on duality measure
@@ -72,10 +72,10 @@ struct d_ipm_dense_qp_arg
 
 
 //
-int d_memsize_ipm_dense_qp(struct d_dense_qp *qp, struct d_ipm_dense_qp_arg *arg);
+int d_memsize_dense_qp_ipm(struct d_dense_qp *qp, struct d_dense_qp_ipm_arg *arg);
 //
-void d_create_ipm_dense_qp(struct d_dense_qp *qp, struct d_ipm_dense_qp_arg *arg, struct d_ipm_dense_qp_workspace *ws, void *mem);
+void d_create_dense_qp_ipm(struct d_dense_qp *qp, struct d_dense_qp_ipm_arg *arg, struct d_dense_qp_ipm_workspace *ws, void *mem);
 //
-void d_solve_ipm_dense_qp(struct d_dense_qp *qp, struct d_dense_qp_sol *qp_sol, struct d_ipm_dense_qp_workspace *ws);
+void d_solve_dense_qp_ipm(struct d_dense_qp *qp, struct d_dense_qp_sol *qp_sol, struct d_dense_qp_ipm_workspace *ws);
 //
-void d_solve_ipm2_dense_qp(struct d_dense_qp *qp, struct d_dense_qp_sol *qp_sol, struct d_ipm_dense_qp_workspace *ws);
+void d_solve_dense_qp_ipm2(struct d_dense_qp *qp, struct d_dense_qp_sol *qp_sol, struct d_dense_qp_ipm_workspace *ws);

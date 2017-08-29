@@ -27,10 +27,10 @@
 
 
 
-void INIT_VAR_OCP_QP(struct OCP_QP *qp, struct OCP_QP_SOL *qp_sol, struct IPM_OCP_QP_WORKSPACE *ws)
+void INIT_VAR_OCP_QP(struct OCP_QP *qp, struct OCP_QP_SOL *qp_sol, struct OCP_QP_IPM_WORKSPACE *ws)
 	{
 
-	struct IPM_CORE_QP_WORKSPACE *cws = ws->core_workspace;
+	struct CORE_QP_IPM_WORKSPACE *cws = ws->core_workspace;
 	
 	// loop index
 	int ii, jj;
@@ -171,10 +171,10 @@ void INIT_VAR_OCP_QP(struct OCP_QP *qp, struct OCP_QP_SOL *qp_sol, struct IPM_OC
 
 
 
-void COMPUTE_RES_OCP_QP(struct OCP_QP *qp, struct OCP_QP_SOL *qp_sol, struct IPM_OCP_QP_WORKSPACE *ws)
+void COMPUTE_RES_OCP_QP(struct OCP_QP *qp, struct OCP_QP_SOL *qp_sol, struct OCP_QP_IPM_WORKSPACE *ws)
 	{
 
-	struct IPM_CORE_QP_WORKSPACE *cws = ws->core_workspace;
+	struct CORE_QP_IPM_WORKSPACE *cws = ws->core_workspace;
 	
 	// loop index
 	int ii;
@@ -296,7 +296,7 @@ void COMPUTE_RES_OCP_QP(struct OCP_QP *qp, struct OCP_QP_SOL *qp_sol, struct IPM
 
 
 // backward Riccati recursion
-void FACT_SOLVE_KKT_UNCONSTR_OCP_QP(struct OCP_QP *qp, struct OCP_QP_SOL *qp_sol, struct IPM_OCP_QP_WORKSPACE *ws)
+void FACT_SOLVE_KKT_UNCONSTR_OCP_QP(struct OCP_QP *qp, struct OCP_QP_SOL *qp_sol, struct OCP_QP_IPM_WORKSPACE *ws)
 	{
 
 	int N = qp->N;
@@ -367,7 +367,7 @@ void FACT_SOLVE_KKT_UNCONSTR_OCP_QP(struct OCP_QP *qp, struct OCP_QP_SOL *qp_sol
 
 
 
-static void COND_SLACKS_FACT_SOLVE(int ss, struct OCP_QP *qp, struct IPM_OCP_QP_WORKSPACE *ws)
+static void COND_SLACKS_FACT_SOLVE(int ss, struct OCP_QP *qp, struct OCP_QP_IPM_WORKSPACE *ws)
 	{
 
 	int ii, idx;
@@ -432,7 +432,7 @@ static void COND_SLACKS_FACT_SOLVE(int ss, struct OCP_QP *qp, struct IPM_OCP_QP_
 
 
 
-static void COND_SLACKS_SOLVE(int ss, struct OCP_QP *qp, struct IPM_OCP_QP_WORKSPACE *ws)
+static void COND_SLACKS_SOLVE(int ss, struct OCP_QP *qp, struct OCP_QP_IPM_WORKSPACE *ws)
 	{
 
 	int ii, idx;
@@ -484,7 +484,7 @@ static void COND_SLACKS_SOLVE(int ss, struct OCP_QP *qp, struct IPM_OCP_QP_WORKS
 
 
 
-static void EXPAND_SLACKS(int ss, struct OCP_QP *qp, struct IPM_OCP_QP_WORKSPACE *ws)
+static void EXPAND_SLACKS(int ss, struct OCP_QP *qp, struct OCP_QP_IPM_WORKSPACE *ws)
 	{
 
 	int ii, idx;
@@ -526,7 +526,7 @@ static void EXPAND_SLACKS(int ss, struct OCP_QP *qp, struct IPM_OCP_QP_WORKSPACE
 
 
 // backward Riccati recursion
-void FACT_SOLVE_KKT_STEP_OCP_QP(struct OCP_QP *qp, struct IPM_OCP_QP_WORKSPACE *ws)
+void FACT_SOLVE_KKT_STEP_OCP_QP(struct OCP_QP *qp, struct OCP_QP_IPM_WORKSPACE *ws)
 	{
 
 	int N = qp->N;
@@ -563,7 +563,7 @@ void FACT_SOLVE_KKT_STEP_OCP_QP(struct OCP_QP *qp, struct IPM_OCP_QP_WORKSPACE *
 	//
 	int ii, nn, ss, idx;
 
-	struct IPM_CORE_QP_WORKSPACE *cws = ws->core_workspace;
+	struct CORE_QP_IPM_WORKSPACE *cws = ws->core_workspace;
 
 	COMPUTE_QX_QX_QP(cws);
 
@@ -705,7 +705,7 @@ void FACT_SOLVE_KKT_STEP_OCP_QP(struct OCP_QP *qp, struct IPM_OCP_QP_WORKSPACE *
 
 
 // backward Riccati recursion
-void SOLVE_KKT_STEP_OCP_QP(struct OCP_QP *qp, struct IPM_OCP_QP_WORKSPACE *ws)
+void SOLVE_KKT_STEP_OCP_QP(struct OCP_QP *qp, struct OCP_QP_IPM_WORKSPACE *ws)
 	{
 
 	int N = qp->N;
@@ -736,7 +736,7 @@ void SOLVE_KKT_STEP_OCP_QP(struct OCP_QP *qp, struct IPM_OCP_QP_WORKSPACE *ws)
 	//
 	int ss, nn, ii;
 
-	struct IPM_CORE_QP_WORKSPACE *cws = ws->core_workspace;
+	struct CORE_QP_IPM_WORKSPACE *cws = ws->core_workspace;
 
 	COMPUTE_QX_QP(cws);
 

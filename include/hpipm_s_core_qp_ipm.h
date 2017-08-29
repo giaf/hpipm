@@ -27,7 +27,7 @@
 
 
 
-struct s_ipm_core_qp_workspace
+struct s_core_qp_ipm_workspace
 	{
 	float *v; // primal variables
 	float *pi; // equality constraints multipliers
@@ -65,9 +65,9 @@ struct s_ipm_core_qp_workspace
 
 
 //
-int s_memsize_ipm_core_qp(int nv, int ne, int nc, int iter_max);
+int s_memsize_core_qp_ipm(int nv, int ne, int nc, int iter_max);
 //
-void s_create_ipm_core_qp(struct s_ipm_core_qp_workspace *workspace, void *mem);
+void s_create_core_qp_ipm(struct s_core_qp_ipm_workspace *workspace, void *mem);
 //
-void s_ipm_core_qp(struct s_ipm_core_qp_workspace *workspace);
+void s_core_qp_ipm(struct s_core_qp_ipm_workspace *workspace);
 

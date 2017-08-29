@@ -36,7 +36,7 @@
 
 
 
-#define IPM_CORE_QP_WORKSPACE d_ipm_core_qp_workspace
+#define CORE_QP_IPM_WORKSPACE d_core_qp_ipm_workspace
 #define REAL double
 
 #define COMPUTE_QX_QX_QP d_compute_Qx_qx_qp

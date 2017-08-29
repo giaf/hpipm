@@ -25,10 +25,10 @@
 *                                                                                                 *
 **************************************************************************************************/
 
-void INIT_VAR_TREE_OCP_QP(struct TREE_OCP_QP *qp, struct TREE_OCP_QP_SOL *qp_sol, struct IPM_TREE_OCP_QP_WORKSPACE *ws)
+void INIT_VAR_TREE_OCP_QP(struct TREE_OCP_QP *qp, struct TREE_OCP_QP_SOL *qp_sol, struct TREE_OCP_QP_IPM_WORKSPACE *ws)
 	{
 
-	struct IPM_CORE_QP_WORKSPACE *cws = ws->core_workspace;
+	struct CORE_QP_IPM_WORKSPACE *cws = ws->core_workspace;
 	
 	// loop index
 	int ii, jj;
@@ -169,10 +169,10 @@ void INIT_VAR_TREE_OCP_QP(struct TREE_OCP_QP *qp, struct TREE_OCP_QP_SOL *qp_sol
 
 
 
-void COMPUTE_RES_TREE_OCP_QP(struct TREE_OCP_QP *qp, struct TREE_OCP_QP_SOL *qp_sol, struct IPM_TREE_OCP_QP_WORKSPACE *ws)
+void COMPUTE_RES_TREE_OCP_QP(struct TREE_OCP_QP *qp, struct TREE_OCP_QP_SOL *qp_sol, struct TREE_OCP_QP_IPM_WORKSPACE *ws)
 	{
 
-	struct IPM_CORE_QP_WORKSPACE *cws = ws->core_workspace;
+	struct CORE_QP_IPM_WORKSPACE *cws = ws->core_workspace;
 
 	struct tree *ttree = qp->ttree;
 	
@@ -303,7 +303,7 @@ void COMPUTE_RES_TREE_OCP_QP(struct TREE_OCP_QP *qp, struct TREE_OCP_QP_SOL *qp_
 
 
 // backward Riccati recursion
-void FACT_SOLVE_KKT_UNCONSTR_TREE_OCP_QP(struct TREE_OCP_QP *qp, struct TREE_OCP_QP_SOL *qp_sol, struct IPM_TREE_OCP_QP_WORKSPACE *ws)
+void FACT_SOLVE_KKT_UNCONSTR_TREE_OCP_QP(struct TREE_OCP_QP *qp, struct TREE_OCP_QP_SOL *qp_sol, struct TREE_OCP_QP_IPM_WORKSPACE *ws)
 	{
 
 	int Nn = qp->Nn;
@@ -328,7 +328,7 @@ void FACT_SOLVE_KKT_UNCONSTR_TREE_OCP_QP(struct TREE_OCP_QP *qp, struct TREE_OCP
 
 	int idx, nkids, idxkid;
 
-	struct IPM_CORE_QP_WORKSPACE *cws = ws->core_workspace;
+	struct CORE_QP_IPM_WORKSPACE *cws = ws->core_workspace;
 
 	// backward factorization and substitution
 
@@ -422,7 +422,7 @@ void FACT_SOLVE_KKT_UNCONSTR_TREE_OCP_QP(struct TREE_OCP_QP *qp, struct TREE_OCP
 
 
 
-static void COND_SLACKS_FACT_SOLVE(int ss, struct TREE_OCP_QP *qp, struct IPM_TREE_OCP_QP_WORKSPACE *ws)
+static void COND_SLACKS_FACT_SOLVE(int ss, struct TREE_OCP_QP *qp, struct TREE_OCP_QP_IPM_WORKSPACE *ws)
 	{
 
 	int ii, idx;
@@ -487,7 +487,7 @@ static void COND_SLACKS_FACT_SOLVE(int ss, struct TREE_OCP_QP *qp, struct IPM_TR
 
 
 
-static void COND_SLACKS_SOLVE(int ss, struct TREE_OCP_QP *qp, struct IPM_TREE_OCP_QP_WORKSPACE *ws)
+static void COND_SLACKS_SOLVE(int ss, struct TREE_OCP_QP *qp, struct TREE_OCP_QP_IPM_WORKSPACE *ws)
 	{
 
 	int ii, idx;
@@ -539,7 +539,7 @@ static void COND_SLACKS_SOLVE(int ss, struct TREE_OCP_QP *qp, struct IPM_TREE_OC
 
 
 
-static void EXPAND_SLACKS(int ss, struct TREE_OCP_QP *qp, struct IPM_TREE_OCP_QP_WORKSPACE *ws)
+static void EXPAND_SLACKS(int ss, struct TREE_OCP_QP *qp, struct TREE_OCP_QP_IPM_WORKSPACE *ws)
 	{
 
 	int ii, idx;
@@ -581,7 +581,7 @@ static void EXPAND_SLACKS(int ss, struct TREE_OCP_QP *qp, struct IPM_TREE_OCP_QP
 
 
 // backward Riccati recursion
-void FACT_SOLVE_KKT_STEP_TREE_OCP_QP(struct TREE_OCP_QP *qp, struct IPM_TREE_OCP_QP_WORKSPACE *ws)
+void FACT_SOLVE_KKT_STEP_TREE_OCP_QP(struct TREE_OCP_QP *qp, struct TREE_OCP_QP_IPM_WORKSPACE *ws)
 	{
 
 	int Nn = qp->Nn;
@@ -620,7 +620,7 @@ void FACT_SOLVE_KKT_STEP_TREE_OCP_QP(struct TREE_OCP_QP *qp, struct IPM_TREE_OCP
 
 	int idx, nkids, idxkid;
 
-	struct IPM_CORE_QP_WORKSPACE *cws = ws->core_workspace;
+	struct CORE_QP_IPM_WORKSPACE *cws = ws->core_workspace;
 
 
 	COMPUTE_QX_QX_QP(cws);
@@ -765,7 +765,7 @@ void FACT_SOLVE_KKT_STEP_TREE_OCP_QP(struct TREE_OCP_QP *qp, struct IPM_TREE_OCP
 
 
 // backward Riccati recursion
-void SOLVE_KKT_STEP_TREE_OCP_QP(struct TREE_OCP_QP *qp, struct IPM_TREE_OCP_QP_WORKSPACE *ws)
+void SOLVE_KKT_STEP_TREE_OCP_QP(struct TREE_OCP_QP *qp, struct TREE_OCP_QP_IPM_WORKSPACE *ws)
 	{
 
 	int Nn = qp->Nn;
@@ -798,7 +798,7 @@ void SOLVE_KKT_STEP_TREE_OCP_QP(struct TREE_OCP_QP *qp, struct IPM_TREE_OCP_QP_W
 
 	int idx, nkids, idxkid;
 
-	struct IPM_CORE_QP_WORKSPACE *cws = ws->core_workspace;
+	struct CORE_QP_IPM_WORKSPACE *cws = ws->core_workspace;
 
 	COMPUTE_QX_QP(cws);
 

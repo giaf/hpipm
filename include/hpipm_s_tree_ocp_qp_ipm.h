@@ -33,9 +33,9 @@
 
 
 
-struct s_ipm_tree_ocp_qp_workspace
+struct s_tree_ocp_qp_ipm_workspace
 	{
-	struct s_ipm_core_qp_workspace *core_workspace;
+	struct s_core_qp_ipm_workspace *core_workspace;
 	struct s_strvec *dux;
 	struct s_strvec *dpi;
 	struct s_strvec *dt;
@@ -60,7 +60,7 @@ struct s_ipm_tree_ocp_qp_workspace
 
 
 
-struct s_ipm_tree_ocp_qp_arg
+struct s_tree_ocp_qp_ipm_arg
 	{
 	float alpha_min; // exit cond on step length
 	float mu_max; // exit cond on duality measure
@@ -71,11 +71,11 @@ struct s_ipm_tree_ocp_qp_arg
 
 
 //
-int s_memsize_ipm_tree_ocp_qp(struct s_tree_ocp_qp *qp, struct s_ipm_tree_ocp_qp_arg *arg);
+int s_memsize_tree_ocp_qp_ipm(struct s_tree_ocp_qp *qp, struct s_tree_ocp_qp_ipm_arg *arg);
 //
-void s_create_ipm_tree_ocp_qp(struct s_tree_ocp_qp *qp, struct s_ipm_tree_ocp_qp_arg *arg, struct s_ipm_tree_ocp_qp_workspace *ws, void *mem);
+void s_create_tree_ocp_qp_ipm(struct s_tree_ocp_qp *qp, struct s_tree_ocp_qp_ipm_arg *arg, struct s_tree_ocp_qp_ipm_workspace *ws, void *mem);
 //
-void s_solve_ipm_tree_ocp_qp(struct s_tree_ocp_qp *qp, struct s_tree_ocp_qp_sol *qp_sol, struct s_ipm_tree_ocp_qp_workspace *ws);
+void s_solve_tree_ocp_qp_ipm(struct s_tree_ocp_qp *qp, struct s_tree_ocp_qp_sol *qp_sol, struct s_tree_ocp_qp_ipm_workspace *ws);
 //
-void s_solve_ipm2_tree_ocp_qp(struct s_tree_ocp_qp *qp, struct s_tree_ocp_qp_sol *qp_sol, struct s_ipm_tree_ocp_qp_workspace *ws);
+void s_solve_tree_ocp_qp_ipm2(struct s_tree_ocp_qp *qp, struct s_tree_ocp_qp_sol *qp_sol, struct s_tree_ocp_qp_ipm_workspace *ws);
 

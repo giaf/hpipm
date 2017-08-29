@@ -182,18 +182,18 @@ int main()
 * ipm
 ************************************************/	
 
-	struct d_ipm_dense_qp_arg arg;
+	struct d_dense_qp_ipm_arg arg;
 	arg.alpha_min = 1e-8;
 	arg.mu_max = 1e-12;
 	arg.iter_max = 20;
 	arg.mu0 = 10.0;
 
-	int ipm_size = d_memsize_ipm_dense_qp(&qp, &arg);
+	int ipm_size = d_memsize_dense_qp_ipm(&qp, &arg);
 	printf("\nipm size = %d\n", ipm_size);
 	void *ipm_mem = malloc(ipm_size);
 
-	struct d_ipm_dense_qp_workspace workspace;
-	d_create_ipm_dense_qp(&qp, &arg, &workspace, ipm_mem);
+	struct d_dense_qp_ipm_workspace workspace;
+	d_create_dense_qp_ipm(&qp, &arg, &workspace, ipm_mem);
 
 	int rep, nrep=1000;
 
@@ -203,8 +203,8 @@ int main()
 
 	for(rep=0; rep<nrep; rep++)
 		{
-//		d_solve_ipm_dense_qp(&qp, &qp_sol, &workspace);
-		d_solve_ipm2_dense_qp(&qp, &qp_sol, &workspace);
+//		d_solve_dense_qp_ipm(&qp, &qp_sol, &workspace);
+		d_solve_dense_qp_ipm2(&qp, &qp_sol, &workspace);
 		}
 
 	gettimeofday(&tv1, NULL); // stop

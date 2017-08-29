@@ -844,18 +844,18 @@ exit(1);
 * ipm
 ************************************************/	
 
-	struct d_ipm_tree_ocp_qp_arg arg;
+	struct d_tree_ocp_qp_ipm_arg arg;
 	arg.alpha_min = 1e-8;
 	arg.mu_max = 1e-12;
 	arg.iter_max = 20;
 	arg.mu0 = 100.0;
 
-	int ipm_size = d_memsize_ipm_tree_ocp_qp(&qp, &arg);
+	int ipm_size = d_memsize_tree_ocp_qp_ipm(&qp, &arg);
 	printf("\nipm size = %d\n", ipm_size);
 	void *ipm_memory = malloc(ipm_size);
 
-	struct d_ipm_tree_ocp_qp_workspace workspace;
-	d_create_ipm_tree_ocp_qp(&qp, &arg, &workspace, ipm_memory);
+	struct d_tree_ocp_qp_ipm_workspace workspace;
+	d_create_tree_ocp_qp_ipm(&qp, &arg, &workspace, ipm_memory);
 
 	int rep, nrep=100;
 
@@ -865,8 +865,8 @@ exit(1);
 
 	for(rep=0; rep<nrep; rep++)
 		{
-//		d_solve_ipm_tree_ocp_qp(&qp, &qp_sol, &workspace);
-		d_solve_ipm2_tree_ocp_qp(&qp, &qp_sol, &workspace);
+//		d_solve_tree_ocp_qp_ipm(&qp, &qp_sol, &workspace);
+		d_solve_tree_ocp_qp_ipm2(&qp, &qp_sol, &workspace);
 		}
 
 	gettimeofday(&tv1, NULL); // stop

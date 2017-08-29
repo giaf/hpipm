@@ -36,7 +36,7 @@
 
 
 
-#define IPM_CORE_QP_WORKSPACE s_ipm_core_qp_workspace
+#define CORE_QP_IPM_WORKSPACE s_core_qp_ipm_workspace
 #define REAL float
 
 #define COMPUTE_QX_QX_QP s_compute_Qx_qx_qp

@@ -48,6 +48,7 @@
 #define COMPUTE_LAM_T_QP d_compute_lam_t_qp
 #define COMPUTE_QX_QP d_compute_qx_qp
 #define COMPUTE_QX_QX_QP d_compute_Qx_qx_qp
+#define CORE_QP_IPM_WORKSPACE d_core_qp_ipm_workspace
 #define DIAAD_SP_LIBSTR ddiaad_sp_libstr
 #define GEAD_LIBSTR dgead_libstr
 #define GECP_LIBSTR dgecp_libstr
@@ -56,9 +57,8 @@
 #define GEMV_N_LIBSTR dgemv_n_libstr
 #define GEMV_NT_LIBSTR dgemv_nt_libstr
 #define GEMV_T_LIBSTR dgemv_t_libstr
-#define IPM_CORE_QP_WORKSPACE d_ipm_core_qp_workspace
-#define IPM_OCP_QP_WORKSPACE d_ipm_ocp_qp_workspace
 #define OCP_QP d_ocp_qp
+#define OCP_QP_IPM_WORKSPACE d_ocp_qp_ipm_workspace
 #define OCP_QP_SOL d_ocp_qp_sol
 #define POTRF_L_MN_LIBSTR dpotrf_l_mn_libstr
 #define PRINT_E_MAT d_print_e_mat

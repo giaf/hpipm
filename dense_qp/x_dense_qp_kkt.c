@@ -27,10 +27,10 @@
 
 
 
-void INIT_VAR_DENSE_QP(struct DENSE_QP *qp, struct DENSE_QP_SOL *qp_sol, struct IPM_DENSE_QP_WORKSPACE *ws)
+void INIT_VAR_DENSE_QP(struct DENSE_QP *qp, struct DENSE_QP_SOL *qp_sol, struct DENSE_QP_IPM_WORKSPACE *ws)
 	{
 
-	struct IPM_CORE_QP_WORKSPACE *cws = ws->core_workspace;
+	struct CORE_QP_IPM_WORKSPACE *cws = ws->core_workspace;
 
 	// extract cws members
 	int nv = qp->nv;
@@ -140,10 +140,10 @@ void INIT_VAR_DENSE_QP(struct DENSE_QP *qp, struct DENSE_QP_SOL *qp_sol, struct 
 
 
 
-void COMPUTE_RES_DENSE_QP(struct DENSE_QP *qp, struct DENSE_QP_SOL *qp_sol, struct IPM_DENSE_QP_WORKSPACE *ws)
+void COMPUTE_RES_DENSE_QP(struct DENSE_QP *qp, struct DENSE_QP_SOL *qp_sol, struct DENSE_QP_IPM_WORKSPACE *ws)
 	{
 
-	struct IPM_CORE_QP_WORKSPACE *cws = ws->core_workspace;
+	struct CORE_QP_IPM_WORKSPACE *cws = ws->core_workspace;
 
 	int nv = qp->nv;
 	int ne = qp->ne;
@@ -233,7 +233,7 @@ void COMPUTE_RES_DENSE_QP(struct DENSE_QP *qp, struct DENSE_QP_SOL *qp_sol, stru
 
 
 // range-space (Schur complement) method
-void FACT_SOLVE_KKT_UNCONSTR_DENSE_QP(struct DENSE_QP *qp, struct DENSE_QP_SOL *qp_sol, struct IPM_DENSE_QP_WORKSPACE *ws)
+void FACT_SOLVE_KKT_UNCONSTR_DENSE_QP(struct DENSE_QP *qp, struct DENSE_QP_SOL *qp_sol, struct DENSE_QP_IPM_WORKSPACE *ws)
 	{
 
 	int nv = qp->nv;
@@ -300,7 +300,7 @@ void FACT_SOLVE_KKT_UNCONSTR_DENSE_QP(struct DENSE_QP *qp, struct DENSE_QP_SOL *
 
 
 
-static void COND_SLACKS_FACT_SOLVE(struct DENSE_QP *qp, struct IPM_DENSE_QP_WORKSPACE *ws)
+static void COND_SLACKS_FACT_SOLVE(struct DENSE_QP *qp, struct DENSE_QP_IPM_WORKSPACE *ws)
 	{
 
 	int ii, idx;
@@ -364,7 +364,7 @@ static void COND_SLACKS_FACT_SOLVE(struct DENSE_QP *qp, struct IPM_DENSE_QP_WORK
 
 
 
-static void COND_SLACKS_SOLVE(struct DENSE_QP *qp, struct IPM_DENSE_QP_WORKSPACE *ws)
+static void COND_SLACKS_SOLVE(struct DENSE_QP *qp, struct DENSE_QP_IPM_WORKSPACE *ws)
 	{
 
 	int ii, idx;
@@ -415,7 +415,7 @@ static void COND_SLACKS_SOLVE(struct DENSE_QP *qp, struct IPM_DENSE_QP_WORKSPACE
 
 
 
-static void EXPAND_SLACKS(struct DENSE_QP *qp, struct IPM_DENSE_QP_WORKSPACE *ws)
+static void EXPAND_SLACKS(struct DENSE_QP *qp, struct DENSE_QP_IPM_WORKSPACE *ws)
 	{
 
 	int ii, idx;
@@ -456,7 +456,7 @@ static void EXPAND_SLACKS(struct DENSE_QP *qp, struct IPM_DENSE_QP_WORKSPACE *ws
 
 
 // range-space (Schur complement) method
-void FACT_SOLVE_KKT_STEP_DENSE_QP(struct DENSE_QP *qp, struct IPM_DENSE_QP_WORKSPACE *ws)
+void FACT_SOLVE_KKT_STEP_DENSE_QP(struct DENSE_QP *qp, struct DENSE_QP_IPM_WORKSPACE *ws)
 	{
 
 	int nv = qp->nv;
@@ -483,7 +483,7 @@ void FACT_SOLVE_KKT_STEP_DENSE_QP(struct DENSE_QP *qp, struct IPM_DENSE_QP_WORKS
 	struct STRVEC *gamma = ws->gamma;
 	struct STRVEC *tmp_nbg = ws->tmp_nbg;
 
-	struct IPM_CORE_QP_WORKSPACE *cws = ws->core_workspace;
+	struct CORE_QP_IPM_WORKSPACE *cws = ws->core_workspace;
 
 	if(nb+ng>0)
 		{
@@ -629,7 +629,7 @@ void FACT_SOLVE_KKT_STEP_DENSE_QP(struct DENSE_QP *qp, struct IPM_DENSE_QP_WORKS
 
 
 // range-space (Schur complement) method
-void SOLVE_KKT_STEP_DENSE_QP(struct DENSE_QP *qp, struct IPM_DENSE_QP_WORKSPACE *ws)
+void SOLVE_KKT_STEP_DENSE_QP(struct DENSE_QP *qp, struct DENSE_QP_IPM_WORKSPACE *ws)
 	{
 
 	int nv = qp->nv;
@@ -654,7 +654,7 @@ void SOLVE_KKT_STEP_DENSE_QP(struct DENSE_QP *qp, struct IPM_DENSE_QP_WORKSPACE 
 	struct STRVEC *gamma = ws->gamma;
 	struct STRVEC *tmp_nbg = ws->tmp_nbg;
 
-	struct IPM_CORE_QP_WORKSPACE *cws = ws->core_workspace;
+	struct CORE_QP_IPM_WORKSPACE *cws = ws->core_workspace;
 
 	if(nb>0 | ng>0)
 		{

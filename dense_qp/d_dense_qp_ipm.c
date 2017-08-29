@@ -44,18 +44,18 @@
 #define COMPUTE_CENTERING_CORRECTION_QP d_compute_centering_correction_qp
 #define COMPUTE_MU_AFF_QP d_compute_mu_aff_qp
 #define COMPUTE_RES_DENSE_QP d_compute_res_dense_qp
-#define CREATE_IPM_CORE_QP d_create_ipm_core_qp
+#define CORE_QP_IPM_WORKSPACE d_core_qp_ipm_workspace
+#define CREATE_CORE_QP_IPM d_create_core_qp_ipm
 #define CREATE_STRMAT d_create_strmat
 #define CREATE_STRVEC d_create_strvec
 #define DENSE_QP d_dense_qp
+#define DENSE_QP_IPM_ARG d_dense_qp_ipm_arg
+#define DENSE_QP_IPM_WORKSPACE d_dense_qp_ipm_workspace
 #define DENSE_QP_SOL d_dense_qp_sol
 #define FACT_SOLVE_KKT_STEP_DENSE_QP d_fact_solve_kkt_step_dense_qp
 #define FACT_SOLVE_KKT_UNCONSTR_DENSE_QP d_fact_solve_kkt_unconstr_dense_qp
 #define INIT_VAR_DENSE_QP d_init_var_dense_qp
-#define IPM_CORE_QP_WORKSPACE d_ipm_core_qp_workspace
-#define IPM_DENSE_QP_ARG d_ipm_dense_qp_arg
-#define IPM_DENSE_QP_WORKSPACE d_ipm_dense_qp_workspace
-#define MEMSIZE_IPM_CORE_QP d_memsize_ipm_core_qp
+#define MEMSIZE_CORE_QP_IPM d_memsize_core_qp_ipm
 #define REAL double
 #define SIZE_STRMAT d_size_strmat
 #define SIZE_STRVEC d_size_strvec
@@ -66,10 +66,10 @@
 
 
 
-#define MEMSIZE_IPM_DENSE_QP d_memsize_ipm_dense_qp
-#define CREATE_IPM_DENSE_QP d_create_ipm_dense_qp
-#define SOLVE_IPM_DENSE_QP d_solve_ipm_dense_qp
-#define SOLVE_IPM2_DENSE_QP d_solve_ipm2_dense_qp
+#define MEMSIZE_DENSE_QP_IPM d_memsize_dense_qp_ipm
+#define CREATE_DENSE_QP_IPM d_create_dense_qp_ipm
+#define SOLVE_DENSE_QP_IPM d_solve_dense_qp_ipm
+#define SOLVE_DENSE_QP_IPM2 d_solve_dense_qp_ipm2
 
 
 

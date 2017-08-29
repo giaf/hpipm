@@ -26,17 +26,17 @@
 **************************************************************************************************/
 
 //
-void s_compute_Qx_qx_qp(struct s_ipm_core_qp_workspace *rws);
+void s_compute_Qx_qx_qp(struct s_core_qp_ipm_workspace *rws);
 //
-void s_compute_lam_t_qp(struct s_ipm_core_qp_workspace *rws);
+void s_compute_lam_t_qp(struct s_core_qp_ipm_workspace *rws);
 //
-void s_compute_alpha_qp(struct s_ipm_core_qp_workspace *rws);
+void s_compute_alpha_qp(struct s_core_qp_ipm_workspace *rws);
 //
-void s_update_var_qp(struct s_ipm_core_qp_workspace *rws);
+void s_update_var_qp(struct s_core_qp_ipm_workspace *rws);
 //
-void s_compute_mu_aff_qp(struct s_ipm_core_qp_workspace *rws);
+void s_compute_mu_aff_qp(struct s_core_qp_ipm_workspace *rws);
 //
-void s_compute_centering_correction_qp(struct s_ipm_core_qp_workspace *rws);
+void s_compute_centering_correction_qp(struct s_core_qp_ipm_workspace *rws);
 //
-void s_compute_qx_qp(struct s_ipm_core_qp_workspace *rws);
+void s_compute_qx_qp(struct s_core_qp_ipm_workspace *rws);
 

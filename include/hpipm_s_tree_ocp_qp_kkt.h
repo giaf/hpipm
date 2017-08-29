@@ -29,14 +29,14 @@
 
 
 //
-void s_init_var_tree_ocp_qp(struct s_tree_ocp_qp *qp, struct s_tree_ocp_qp_sol *qp_sol, struct s_ipm_tree_ocp_qp_workspace *ws);
+void s_init_var_tree_ocp_qp(struct s_tree_ocp_qp *qp, struct s_tree_ocp_qp_sol *qp_sol, struct s_tree_ocp_qp_ipm_workspace *ws);
 //
-void s_compute_res_tree_ocp_qp(struct s_tree_ocp_qp *qp, struct s_tree_ocp_qp_sol *qp_sol, struct s_ipm_tree_ocp_qp_workspace *ws);
+void s_compute_res_tree_ocp_qp(struct s_tree_ocp_qp *qp, struct s_tree_ocp_qp_sol *qp_sol, struct s_tree_ocp_qp_ipm_workspace *ws);
 //
-void s_fact_solve_kkt_unconstr_tree_ocp_qp(struct s_tree_ocp_qp *qp, struct s_tree_ocp_qp_sol *qp_sol, struct s_ipm_tree_ocp_qp_workspace *ws);
+void s_fact_solve_kkt_unconstr_tree_ocp_qp(struct s_tree_ocp_qp *qp, struct s_tree_ocp_qp_sol *qp_sol, struct s_tree_ocp_qp_ipm_workspace *ws);
 //
-void s_fact_solve_kkt_step_tree_ocp_qp(struct s_tree_ocp_qp *qp, struct s_ipm_tree_ocp_qp_workspace *ws);
+void s_fact_solve_kkt_step_tree_ocp_qp(struct s_tree_ocp_qp *qp, struct s_tree_ocp_qp_ipm_workspace *ws);
 //
-void s_solve_kkt_step_tree_ocp_qp(struct s_tree_ocp_qp *qp, struct s_ipm_tree_ocp_qp_workspace *ws);
+void s_solve_kkt_step_tree_ocp_qp(struct s_tree_ocp_qp *qp, struct s_tree_ocp_qp_ipm_workspace *ws);
 
 

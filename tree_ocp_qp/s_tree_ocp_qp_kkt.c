@@ -41,6 +41,7 @@
 #define COMPUTE_LAM_T_QP s_compute_lam_t_qp
 #define COMPUTE_QX_QP s_compute_qx_qp
 #define COMPUTE_QX_QX_QP s_compute_Qx_qx_qp
+#define CORE_QP_IPM_WORKSPACE s_core_qp_ipm_workspace
 #define DIAAD_SP_LIBSTR sdiaad_sp_libstr
 #define GEAD_LIBSTR sgead_libstr
 #define GECP_LIBSTR sgecp_libstr
@@ -49,8 +50,6 @@
 #define GEMV_N_LIBSTR sgemv_n_libstr
 #define GEMV_NT_LIBSTR sgemv_nt_libstr
 #define GEMV_T_LIBSTR sgemv_t_libstr
-#define IPM_CORE_QP_WORKSPACE s_ipm_core_qp_workspace
-#define IPM_TREE_OCP_QP_WORKSPACE s_ipm_tree_ocp_qp_workspace
 #define POTRF_L_MN_LIBSTR spotrf_l_mn_libstr
 #define REAL float
 #define ROWAD_SP_LIBSTR srowad_sp_libstr
@@ -62,6 +61,7 @@
 #define SYRK_LN_MN_LIBSTR ssyrk_ln_mn_libstr
 #define SYRK_POTRF_LN_LIBSTR ssyrk_spotrf_ln_libstr
 #define TREE_OCP_QP s_tree_ocp_qp
+#define TREE_OCP_QP_IPM_WORKSPACE s_tree_ocp_qp_ipm_workspace
 #define TREE_OCP_QP_SOL s_tree_ocp_qp_sol
 #define TRMM_RLNN_LIBSTR strmm_rlnn_libstr
 #define TRMV_LNN_LIBSTR strmv_lnn_libstr

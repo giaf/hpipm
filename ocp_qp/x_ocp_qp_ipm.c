@@ -27,7 +27,7 @@
 
 
 
-int MEMSIZE_IPM_OCP_QP(struct OCP_QP *qp, struct IPM_OCP_QP_ARG *arg)
+int MEMSIZE_OCP_QP_IPM(struct OCP_QP *qp, struct OCP_QP_IPM_ARG *arg)
 	{
 
 	// loop index
@@ -86,8 +86,8 @@ int MEMSIZE_IPM_OCP_QP(struct OCP_QP *qp, struct IPM_OCP_QP_ARG *arg)
 	for(ii=0; ii<=N; ii++) size += 1*SIZE_STRMAT(nu[ii]+nx[ii]+1, nu[ii]+nx[ii]); // L
 	size += 2*SIZE_STRMAT(nuM+nxM+1, nxM+ngM); // AL
 
-	size += 1*sizeof(struct IPM_CORE_QP_WORKSPACE);
-	size += 1*MEMSIZE_IPM_CORE_QP(nvt, net, nct, arg->iter_max);
+	size += 1*sizeof(struct CORE_QP_IPM_WORKSPACE);
+	size += 1*MEMSIZE_CORE_QP_IPM(nvt, net, nct, arg->iter_max);
 
 	size = (size+63)/64*64; // make multiple of typical cache line size
 	size += 1*64; // align once to typical cache line size
@@ -98,7 +98,7 @@ int MEMSIZE_IPM_OCP_QP(struct OCP_QP *qp, struct IPM_OCP_QP_ARG *arg)
 
 
 
-void CREATE_IPM_OCP_QP(struct OCP_QP *qp, struct IPM_OCP_QP_ARG *arg, struct IPM_OCP_QP_WORKSPACE *workspace, void *mem)
+void CREATE_OCP_QP_IPM(struct OCP_QP *qp, struct OCP_QP_IPM_ARG *arg, struct OCP_QP_IPM_WORKSPACE *workspace, void *mem)
 	{
 
 	// loop index
@@ -113,7 +113,7 @@ void CREATE_IPM_OCP_QP(struct OCP_QP *qp, struct IPM_OCP_QP_ARG *arg, struct IPM
 	int *ns = qp->ns;
 
 
-	workspace->memsize = MEMSIZE_IPM_OCP_QP(qp, arg);
+	workspace->memsize = MEMSIZE_OCP_QP_IPM(qp, arg);
 
 
 	// compute core qp size and max size
@@ -146,12 +146,12 @@ void CREATE_IPM_OCP_QP(struct OCP_QP *qp, struct IPM_OCP_QP_ARG *arg, struct IPM
 
 
 	// core struct
-	struct IPM_CORE_QP_WORKSPACE *sr_ptr = mem;
+	struct CORE_QP_IPM_WORKSPACE *sr_ptr = mem;
 
 	// core workspace
 	workspace->core_workspace = sr_ptr;
 	sr_ptr += 1;
-	struct IPM_CORE_QP_WORKSPACE *cws = workspace->core_workspace;
+	struct CORE_QP_IPM_WORKSPACE *cws = workspace->core_workspace;
 
 
 	// matrix struct
@@ -252,7 +252,7 @@ void CREATE_IPM_OCP_QP(struct OCP_QP *qp, struct IPM_OCP_QP_ARG *arg, struct IPM
 	cws->ne = net;
 	cws->nc = nct;
 	cws->iter_max = arg->iter_max;
-	CREATE_IPM_CORE_QP(cws, c_ptr);
+	CREATE_CORE_QP_IPM(cws, c_ptr);
 	c_ptr += workspace->core_workspace->memsize;
 
 	cws->alpha_min = arg->alpha_min;
@@ -365,10 +365,10 @@ void CREATE_IPM_OCP_QP(struct OCP_QP *qp, struct IPM_OCP_QP_ARG *arg, struct IPM
 
 
 
-int SOLVE_IPM_OCP_QP(struct OCP_QP *qp, struct OCP_QP_SOL *qp_sol, struct IPM_OCP_QP_WORKSPACE *ws)
+int SOLVE_OCP_QP_IPM(struct OCP_QP *qp, struct OCP_QP_SOL *qp_sol, struct OCP_QP_IPM_WORKSPACE *ws)
 	{
 
-	struct IPM_CORE_QP_WORKSPACE *cws = ws->core_workspace;
+	struct CORE_QP_IPM_WORKSPACE *cws = ws->core_workspace;
 
 	// alias qp vectors into qp_sol
 	cws->v = qp_sol->ux->pa;
@@ -607,10 +607,10 @@ exit(1);
 
 
 
-int SOLVE_IPM2_OCP_QP(struct OCP_QP *qp, struct OCP_QP_SOL *qp_sol, struct IPM_OCP_QP_WORKSPACE *ws)
+int SOLVE_OCP_QP_IPM2(struct OCP_QP *qp, struct OCP_QP_SOL *qp_sol, struct OCP_QP_IPM_WORKSPACE *ws)
 	{
 
-	struct IPM_CORE_QP_WORKSPACE *cws = ws->core_workspace;
+	struct CORE_QP_IPM_WORKSPACE *cws = ws->core_workspace;
 
 	// alias qp vectors into qp_sol
 	cws->v = qp_sol->ux->pa;
@@ -851,7 +851,7 @@ exit(1);
 
 
 
-void CVT_OCP_QP_RES_TO_COLMAJ(struct OCP_QP *qp, struct IPM_OCP_QP_WORKSPACE *ws, REAL **res_r, REAL **res_q, REAL **res_ls, REAL **res_us, REAL **res_b, REAL **res_d_lb, REAL **res_d_ub, REAL **res_d_lg, REAL **res_d_ug, REAL **res_d_ls, REAL **res_d_us, REAL **res_m_lb, REAL **res_m_ub, REAL **res_m_lg, REAL **res_m_ug, REAL **res_m_ls, REAL **res_m_us)
+void CVT_OCP_QP_RES_TO_COLMAJ(struct OCP_QP *qp, struct OCP_QP_IPM_WORKSPACE *ws, REAL **res_r, REAL **res_q, REAL **res_ls, REAL **res_us, REAL **res_b, REAL **res_d_lb, REAL **res_d_ub, REAL **res_d_lg, REAL **res_d_ug, REAL **res_d_ls, REAL **res_d_us, REAL **res_m_lb, REAL **res_m_ub, REAL **res_m_lg, REAL **res_m_ug, REAL **res_m_ls, REAL **res_m_us)
 	{
 
 	int N = qp->N;
@@ -908,7 +908,7 @@ void CVT_OCP_QP_RES_TO_COLMAJ(struct OCP_QP *qp, struct IPM_OCP_QP_WORKSPACE *ws
 
 
 
-void CVT_OCP_QP_RES_TO_ROWMAJ(struct OCP_QP *qp, struct IPM_OCP_QP_WORKSPACE *ws, REAL **res_r, REAL **res_q, REAL **res_ls, REAL **res_us, REAL **res_b, REAL **res_d_lb, REAL **res_d_ub, REAL **res_d_lg, REAL **res_d_ug, REAL **res_d_ls, REAL **res_d_us, REAL **res_m_lb, REAL **res_m_ub, REAL **res_m_lg, REAL **res_m_ug, REAL **res_m_ls, REAL **res_m_us)
+void CVT_OCP_QP_RES_TO_ROWMAJ(struct OCP_QP *qp, struct OCP_QP_IPM_WORKSPACE *ws, REAL **res_r, REAL **res_q, REAL **res_ls, REAL **res_us, REAL **res_b, REAL **res_d_lb, REAL **res_d_ub, REAL **res_d_lg, REAL **res_d_ug, REAL **res_d_ls, REAL **res_d_us, REAL **res_m_lb, REAL **res_m_ub, REAL **res_m_lg, REAL **res_m_ug, REAL **res_m_ls, REAL **res_m_us)
 	{
 
 	int N = qp->N;

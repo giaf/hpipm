@@ -46,7 +46,9 @@
 #define COMPUTE_LAM_T_QP d_compute_lam_t_qp
 #define COMPUTE_QX_QP d_compute_qx_qp
 #define COMPUTE_QX_QX_QP d_compute_Qx_qx_qp
+#define CORE_QP_IPM_WORKSPACE d_core_qp_ipm_workspace
 #define DENSE_QP d_dense_qp
+#define DENSE_QP_IPM_WORKSPACE d_dense_qp_ipm_workspace
 #define DENSE_QP_SOL d_dense_qp_sol
 #define DIAAD_SP_LIBSTR ddiaad_sp_libstr
 #define GECP_LIBSTR dgecp_libstr
@@ -56,8 +58,6 @@
 #define GEMV_NT_LIBSTR dgemv_nt_libstr
 #define GEMV_T_LIBSTR dgemv_t_libstr
 #define GESE_LIBSTR dgese_libstr
-#define IPM_CORE_QP_WORKSPACE d_ipm_core_qp_workspace
-#define IPM_DENSE_QP_WORKSPACE d_ipm_dense_qp_workspace
 #define POTRF_L_LIBSTR dpotrf_l_libstr
 #define POTRF_L_MN_LIBSTR dpotrf_l_mn_libstr
 #define REAL double

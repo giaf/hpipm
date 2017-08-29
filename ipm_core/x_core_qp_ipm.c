@@ -27,7 +27,7 @@
 
 
 
-int MEMSIZE_IPM_CORE_QP(int nv, int ne, int nc, int iter_max)
+int MEMSIZE_CORE_QP_IPM(int nv, int ne, int nc, int iter_max)
 	{
 
 	int size;
@@ -54,7 +54,7 @@ int MEMSIZE_IPM_CORE_QP(int nv, int ne, int nc, int iter_max)
 
 
 
-void CREATE_IPM_CORE_QP(struct IPM_CORE_QP_WORKSPACE *workspace, void *mem)
+void CREATE_CORE_QP_IPM(struct CORE_QP_IPM_WORKSPACE *workspace, void *mem)
 	{
 
 	int nv = workspace->nv;
@@ -67,7 +67,7 @@ void CREATE_IPM_CORE_QP(struct IPM_CORE_QP_WORKSPACE *workspace, void *mem)
 // if target avx NO!!!!
 // nv0 = ...
 
-	workspace->memsize = MEMSIZE_IPM_CORE_QP(nv, ne, nc, workspace->iter_max);
+	workspace->memsize = MEMSIZE_CORE_QP_IPM(nv, ne, nc, workspace->iter_max);
 
 	REAL *d_ptr = (REAL *) mem;
 

@@ -40,16 +40,14 @@
 #define COMPUTE_CENTERING_CORRECTION_QP s_compute_centering_correction_qp
 #define COMPUTE_MU_AFF_QP s_compute_mu_aff_qp
 #define COMPUTE_RES_TREE_OCP_QP s_compute_res_tree_ocp_qp
+#define CORE_QP_IPM_WORKSPACE s_core_qp_ipm_workspace
 #define CREATE_STRMAT s_create_strmat
 #define CREATE_STRVEC s_create_strvec
-#define CREATE_IPM_CORE_QP s_create_ipm_core_qp
+#define CREATE_CORE_QP_IPM s_create_core_qp_ipm
 #define FACT_SOLVE_KKT_STEP_TREE_OCP_QP s_fact_solve_kkt_step_tree_ocp_qp
 #define FACT_SOLVE_KKT_UNCONSTR_TREE_OCP_QP s_fact_solve_kkt_unconstr_tree_ocp_qp
 #define INIT_VAR_TREE_OCP_QP s_init_var_tree_ocp_qp
-#define IPM_CORE_QP_WORKSPACE s_ipm_core_qp_workspace
-#define IPM_TREE_OCP_QP_ARG s_ipm_tree_ocp_qp_arg
-#define IPM_TREE_OCP_QP_WORKSPACE s_ipm_tree_ocp_qp_workspace
-#define MEMSIZE_IPM_CORE_QP s_memsize_ipm_core_qp
+#define MEMSIZE_CORE_QP_IPM s_memsize_core_qp_ipm
 #define REAL float
 #define SIZE_STRMAT s_size_strmat
 #define SIZE_STRVEC s_size_strvec
@@ -57,13 +55,15 @@
 #define STRMAT s_strmat
 #define STRVEC s_strvec
 #define TREE_OCP_QP s_tree_ocp_qp
+#define TREE_OCP_QP_IPM_ARG s_tree_ocp_qp_ipm_arg
+#define TREE_OCP_QP_IPM_WORKSPACE s_tree_ocp_qp_ipm_workspace
 #define TREE_OCP_QP_SOL s_tree_ocp_qp_sol
 #define UPDATE_VAR_QP s_update_var_qp
 
-#define MEMSIZE_IPM_TREE_OCP_QP s_memsize_ipm_tree_ocp_qp
-#define CREATE_IPM_TREE_OCP_QP s_create_ipm_tree_ocp_qp
-#define SOLVE_IPM_TREE_OCP_QP s_solve_ipm_tree_ocp_qp
-#define SOLVE_IPM2_TREE_OCP_QP s_solve_ipm2_tree_ocp_qp
+#define MEMSIZE_TREE_OCP_QP_IPM s_memsize_tree_ocp_qp_ipm
+#define CREATE_TREE_OCP_QP_IPM s_create_tree_ocp_qp_ipm
+#define SOLVE_TREE_OCP_QP_IPM s_solve_tree_ocp_qp_ipm
+#define SOLVE_TREE_OCP_QP_IPM2 s_solve_tree_ocp_qp_ipm2
 
 
 

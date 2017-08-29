@@ -27,7 +27,7 @@
 
 
 
-int MEMSIZE_IPM_DENSE_QP(struct DENSE_QP *qp, struct IPM_DENSE_QP_ARG *arg)
+int MEMSIZE_DENSE_QP_IPM(struct DENSE_QP *qp, struct DENSE_QP_IPM_ARG *arg)
 	{
 
 	int nv = qp->nv;
@@ -50,8 +50,8 @@ int MEMSIZE_IPM_DENSE_QP(struct DENSE_QP *qp, struct IPM_DENSE_QP_ARG *arg)
 	size += 1*SIZE_STRMAT(ne, ne); // Le
 	size += 1*SIZE_STRMAT(nv+1, ng); // Ctx
 
-	size += 1*sizeof(struct IPM_CORE_QP_WORKSPACE);
-	size += 1*MEMSIZE_IPM_CORE_QP(nv, ne, nb+ng, arg->iter_max); // XXX
+	size += 1*sizeof(struct CORE_QP_IPM_WORKSPACE);
+	size += 1*MEMSIZE_CORE_QP_IPM(nv, ne, nb+ng, arg->iter_max); // XXX
 
 	size = (size+63)/64*64; // make multiple of typical cache line size
 	size += 1*64; // align once to typical cache line size
@@ -62,10 +62,10 @@ int MEMSIZE_IPM_DENSE_QP(struct DENSE_QP *qp, struct IPM_DENSE_QP_ARG *arg)
 
 
 
-void CREATE_IPM_DENSE_QP(struct DENSE_QP *qp, struct IPM_DENSE_QP_ARG *arg, struct IPM_DENSE_QP_WORKSPACE *workspace, void *mem)
+void CREATE_DENSE_QP_IPM(struct DENSE_QP *qp, struct DENSE_QP_IPM_ARG *arg, struct DENSE_QP_IPM_WORKSPACE *workspace, void *mem)
 	{
 
-	workspace->memsize = MEMSIZE_IPM_DENSE_QP(qp, arg);
+	workspace->memsize = MEMSIZE_DENSE_QP_IPM(qp, arg);
 
 
 	int nv = qp->nv;
@@ -76,12 +76,12 @@ void CREATE_IPM_DENSE_QP(struct DENSE_QP *qp, struct IPM_DENSE_QP_ARG *arg, stru
 
 
 	// core struct
-	struct IPM_CORE_QP_WORKSPACE *sr_ptr = mem;
+	struct CORE_QP_IPM_WORKSPACE *sr_ptr = mem;
 
 	// core workspace
 	workspace->core_workspace = sr_ptr;
 	sr_ptr += 1;
-	struct IPM_CORE_QP_WORKSPACE *cws = workspace->core_workspace;
+	struct CORE_QP_IPM_WORKSPACE *cws = workspace->core_workspace;
 
 
 	// matrix struct
@@ -175,7 +175,7 @@ void CREATE_IPM_DENSE_QP(struct DENSE_QP *qp, struct IPM_DENSE_QP_ARG *arg, stru
 	cws->ne = ne;
 	cws->nc = nb+ng+ns; // XXX
 	cws->iter_max = arg->iter_max;
-	CREATE_IPM_CORE_QP(cws, c_ptr);
+	CREATE_CORE_QP_IPM(cws, c_ptr);
 	c_ptr += workspace->core_workspace->memsize;
 
 	cws->alpha_min = arg->alpha_min;
@@ -216,10 +216,10 @@ void CREATE_IPM_DENSE_QP(struct DENSE_QP *qp, struct IPM_DENSE_QP_ARG *arg, stru
 
 
 
-void SOLVE_IPM_DENSE_QP(struct DENSE_QP *qp, struct DENSE_QP_SOL *qp_sol, struct IPM_DENSE_QP_WORKSPACE *ws)
+void SOLVE_DENSE_QP_IPM(struct DENSE_QP *qp, struct DENSE_QP_SOL *qp_sol, struct DENSE_QP_IPM_WORKSPACE *ws)
 	{
 
-	struct IPM_CORE_QP_WORKSPACE *cws = ws->core_workspace;
+	struct CORE_QP_IPM_WORKSPACE *cws = ws->core_workspace;
 
 	// alias qp vectors into qp_sol
 	cws->v = qp_sol->v->pa;
@@ -288,10 +288,10 @@ exit(1);
 
 
 
-void SOLVE_IPM2_DENSE_QP(struct DENSE_QP *qp, struct DENSE_QP_SOL *qp_sol, struct IPM_DENSE_QP_WORKSPACE *ws)
+void SOLVE_DENSE_QP_IPM2(struct DENSE_QP *qp, struct DENSE_QP_SOL *qp_sol, struct DENSE_QP_IPM_WORKSPACE *ws)
 	{
 
-	struct IPM_CORE_QP_WORKSPACE *cws = ws->core_workspace;
+	struct CORE_QP_IPM_WORKSPACE *cws = ws->core_workspace;
 
 	// alias qp vectors into qp_sol
 	cws->v = qp_sol->v->pa;

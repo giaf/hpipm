@@ -26,7 +26,7 @@
 **************************************************************************************************/
 
 #include "../include/hpipm_tree.h"
-int MEMSIZE_IPM_TREE_OCP_QP(struct TREE_OCP_QP *qp, struct IPM_TREE_OCP_QP_ARG *arg)
+int MEMSIZE_TREE_OCP_QP_IPM(struct TREE_OCP_QP *qp, struct TREE_OCP_QP_IPM_ARG *arg)
 	{
 
 	// loop index
@@ -85,8 +85,8 @@ int MEMSIZE_IPM_TREE_OCP_QP(struct TREE_OCP_QP *qp, struct IPM_TREE_OCP_QP_ARG *
 	for(ii=0; ii<Nn; ii++) size += 1*SIZE_STRMAT(nu[ii]+nx[ii]+1, nu[ii]+nx[ii]); // L
 	size += 2*SIZE_STRMAT(nuM+nxM+1, nxM+ngM); // AL
 
-	size += 1*sizeof(struct IPM_CORE_QP_WORKSPACE);
-	size += 1*MEMSIZE_IPM_CORE_QP(nvt, net, nct, arg->iter_max);
+	size += 1*sizeof(struct CORE_QP_IPM_WORKSPACE);
+	size += 1*MEMSIZE_CORE_QP_IPM(nvt, net, nct, arg->iter_max);
 
 	size = (size+63)/64*64; // make multiple of typical cache line size
 	size += 1*64; // align once to typical cache line size
@@ -97,7 +97,7 @@ int MEMSIZE_IPM_TREE_OCP_QP(struct TREE_OCP_QP *qp, struct IPM_TREE_OCP_QP_ARG *
 
 
 
-void CREATE_IPM_TREE_OCP_QP(struct TREE_OCP_QP *qp, struct IPM_TREE_OCP_QP_ARG *arg, struct IPM_TREE_OCP_QP_WORKSPACE *workspace, void *mem)
+void CREATE_TREE_OCP_QP_IPM(struct TREE_OCP_QP *qp, struct TREE_OCP_QP_IPM_ARG *arg, struct TREE_OCP_QP_IPM_WORKSPACE *workspace, void *mem)
 	{
 
 	// loop index
@@ -112,7 +112,7 @@ void CREATE_IPM_TREE_OCP_QP(struct TREE_OCP_QP *qp, struct IPM_TREE_OCP_QP_ARG *
 	int *ns = qp->ns;
 
 
-	workspace->memsize = MEMSIZE_IPM_TREE_OCP_QP(qp, arg);
+	workspace->memsize = MEMSIZE_TREE_OCP_QP_IPM(qp, arg);
 
 
 	// compute core qp size and max size
@@ -145,12 +145,12 @@ void CREATE_IPM_TREE_OCP_QP(struct TREE_OCP_QP *qp, struct IPM_TREE_OCP_QP_ARG *
 
 
 	// core struct
-	struct IPM_CORE_QP_WORKSPACE *sr_ptr = mem;
+	struct CORE_QP_IPM_WORKSPACE *sr_ptr = mem;
 
 	// core workspace
 	workspace->core_workspace = sr_ptr;
 	sr_ptr += 1;
-	struct IPM_CORE_QP_WORKSPACE *cws = workspace->core_workspace;
+	struct CORE_QP_IPM_WORKSPACE *cws = workspace->core_workspace;
 
 
 	// matrix struct
@@ -251,7 +251,7 @@ void CREATE_IPM_TREE_OCP_QP(struct TREE_OCP_QP *qp, struct IPM_TREE_OCP_QP_ARG *
 	cws->ne = net;
 	cws->nc = nct;
 	cws->iter_max = arg->iter_max;
-	CREATE_IPM_CORE_QP(cws, c_ptr);
+	CREATE_CORE_QP_IPM(cws, c_ptr);
 	c_ptr += workspace->core_workspace->memsize;
 
 	cws->alpha_min = arg->alpha_min;
@@ -364,10 +364,10 @@ void CREATE_IPM_TREE_OCP_QP(struct TREE_OCP_QP *qp, struct IPM_TREE_OCP_QP_ARG *
 
 
 
-void SOLVE_IPM_TREE_OCP_QP(struct TREE_OCP_QP *qp, struct TREE_OCP_QP_SOL *qp_sol, struct IPM_TREE_OCP_QP_WORKSPACE *ws)
+void SOLVE_TREE_OCP_QP_IPM(struct TREE_OCP_QP *qp, struct TREE_OCP_QP_SOL *qp_sol, struct TREE_OCP_QP_IPM_WORKSPACE *ws)
 	{
 
-	struct IPM_CORE_QP_WORKSPACE *cws = ws->core_workspace;
+	struct CORE_QP_IPM_WORKSPACE *cws = ws->core_workspace;
 
 	// alias qp vectors into qp_sol
 	cws->v = qp_sol->ux->pa;
@@ -420,10 +420,10 @@ void SOLVE_IPM_TREE_OCP_QP(struct TREE_OCP_QP *qp, struct TREE_OCP_QP_SOL *qp_so
 
 
 
-void SOLVE_IPM2_TREE_OCP_QP(struct TREE_OCP_QP *qp, struct TREE_OCP_QP_SOL *qp_sol, struct IPM_TREE_OCP_QP_WORKSPACE *ws)
+void SOLVE_TREE_OCP_QP_IPM2(struct TREE_OCP_QP *qp, struct TREE_OCP_QP_SOL *qp_sol, struct TREE_OCP_QP_IPM_WORKSPACE *ws)
 	{
 
-	struct IPM_CORE_QP_WORKSPACE *cws = ws->core_workspace;
+	struct CORE_QP_IPM_WORKSPACE *cws = ws->core_workspace;
 
 	// alias qp vectors into qp_sol
 	cws->v = qp_sol->ux->pa;

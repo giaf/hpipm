@@ -728,18 +728,18 @@ int main()
 * ipm
 ************************************************/	
 
-	struct d_ipm_ocp_qp_arg arg;
+	struct d_ocp_qp_ipm_arg arg;
 	arg.alpha_min = 1e-8;
 	arg.mu_max = 1e-12;
 	arg.iter_max = 20;
 	arg.mu0 = 100.0;
 
-	int ipm_size = d_memsize_ipm_ocp_qp(&part_dense_qp, &arg);
+	int ipm_size = d_memsize_ocp_qp_ipm(&part_dense_qp, &arg);
 	printf("\nipm size = %d\n", ipm_size);
 	void *ipm_mem = malloc(ipm_size);
 
-	struct d_ipm_ocp_qp_workspace workspace;
-	d_create_ipm_ocp_qp(&part_dense_qp, &arg, &workspace, ipm_mem);
+	struct d_ocp_qp_ipm_workspace workspace;
+	d_create_ocp_qp_ipm(&part_dense_qp, &arg, &workspace, ipm_mem);
 
 	int hpipm_return;
 
@@ -747,8 +747,8 @@ int main()
 
 	for(rep=0; rep<nrep; rep++)
 		{
-//		hpipm_return = d_solve_ipm_ocp_qp(&part_dense_qp, &part_dense_qp_sol, &workspace);
-		hpipm_return = d_solve_ipm2_ocp_qp(&part_dense_qp, &part_dense_qp_sol, &workspace);
+//		hpipm_return = d_solve_ocp_qp_ipm(&part_dense_qp, &part_dense_qp_sol, &workspace);
+		hpipm_return = d_solve_ocp_qp_ipm2(&part_dense_qp, &part_dense_qp_sol, &workspace);
 		}
 
 	gettimeofday(&tv1, NULL); // stop

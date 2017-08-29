@@ -27,7 +27,7 @@
 
 
 
-void COMPUTE_QX_QX_QP(struct IPM_CORE_QP_WORKSPACE *cws)
+void COMPUTE_QX_QX_QP(struct CORE_QP_IPM_WORKSPACE *cws)
 	{
 
 	int nc = cws->nc;
@@ -66,7 +66,7 @@ void COMPUTE_QX_QX_QP(struct IPM_CORE_QP_WORKSPACE *cws)
 
 
 
-void COMPUTE_LAM_T_QP(struct IPM_CORE_QP_WORKSPACE *cws)
+void COMPUTE_LAM_T_QP(struct CORE_QP_IPM_WORKSPACE *cws)
 	{
 
 	int nc = cws->nc;
@@ -101,7 +101,7 @@ void COMPUTE_LAM_T_QP(struct IPM_CORE_QP_WORKSPACE *cws)
 
 
 
-void COMPUTE_ALPHA_QP(struct IPM_CORE_QP_WORKSPACE *cws)
+void COMPUTE_ALPHA_QP(struct CORE_QP_IPM_WORKSPACE *cws)
 	{
 	
 	// extract workspace members
@@ -140,7 +140,7 @@ void COMPUTE_ALPHA_QP(struct IPM_CORE_QP_WORKSPACE *cws)
 	
 
 
-void UPDATE_VAR_QP(struct IPM_CORE_QP_WORKSPACE *cws)
+void UPDATE_VAR_QP(struct CORE_QP_IPM_WORKSPACE *cws)
 	{
 	
 	// extract workspace members
@@ -197,7 +197,7 @@ void UPDATE_VAR_QP(struct IPM_CORE_QP_WORKSPACE *cws)
 
 
 
-void COMPUTE_MU_AFF_QP(struct IPM_CORE_QP_WORKSPACE *cws)
+void COMPUTE_MU_AFF_QP(struct CORE_QP_IPM_WORKSPACE *cws)
 	{
 
 	int ii;
@@ -228,7 +228,7 @@ void COMPUTE_MU_AFF_QP(struct IPM_CORE_QP_WORKSPACE *cws)
 
 
 
-void COMPUTE_CENTERING_CORRECTION_QP(struct IPM_CORE_QP_WORKSPACE *cws)
+void COMPUTE_CENTERING_CORRECTION_QP(struct CORE_QP_IPM_WORKSPACE *cws)
 	{
 
 	int ii;
@@ -253,7 +253,7 @@ void COMPUTE_CENTERING_CORRECTION_QP(struct IPM_CORE_QP_WORKSPACE *cws)
 
 
 
-void COMPUTE_QX_QP(struct IPM_CORE_QP_WORKSPACE *cws)
+void COMPUTE_QX_QP(struct CORE_QP_IPM_WORKSPACE *cws)
 	{
 
 	int nc = cws->nc;

@@ -32,11 +32,11 @@
 
 
 
-#define IPM_CORE_QP_WORKSPACE d_ipm_core_qp_workspace
+#define CORE_QP_IPM_WORKSPACE d_core_qp_ipm_workspace
 #define REAL double
 
-#define MEMSIZE_IPM_CORE_QP d_memsize_ipm_core_qp
-#define CREATE_IPM_CORE_QP d_create_ipm_core_qp
+#define MEMSIZE_CORE_QP_IPM d_memsize_core_qp_ipm
+#define CREATE_CORE_QP_IPM d_create_core_qp_ipm
 
 
 
