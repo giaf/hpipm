@@ -46,6 +46,7 @@
 #include "../include/hpipm_d_ocp_qp_sim.h"
 #include "../include/hpipm_d_ocp_nlp.h"
 #include "../include/hpipm_d_ocp_nlp_sol.h"
+#include "../include/hpipm_d_ocp_nlp_sqp.h"
 
 #include "d_tools.h"
 
@@ -347,9 +348,9 @@ int main()
 	d_cvt_rowmaj_to_rk_data(A_rk, B_rk, C_rk, &rk_data);
 
 	// erk args structure
-	struct d_erk_args erk_args;
-	erk_args.steps = 30;
-	erk_args.h = Ts/erk_args.steps;
+	struct d_erk_args erk_arg;
+	erk_arg.steps = 30;
+	erk_arg.h = Ts/erk_arg.steps;
 
 /************************************************
 * integrator workspace
@@ -400,9 +401,9 @@ int main()
 	int ng[N+1];
 	int ns[N+1];
 
-	nx[0] = 0;
+	nx[0] = nx_;//0;
 	nu[0] = nu_;
-	nb[0] = 0;
+	nb[0] = nx_;//0;
 	ng[0] = 0;
 	ns[0] = 0;
 	for(ii=1; ii<N; ii++)
@@ -448,6 +449,12 @@ int main()
 		d_cvt_vec2strvec(nu[ii], r, qp.rq+ii, 0);
 		d_cvt_vec2strvec(nx[ii], q, qp.rq+ii, nu[ii]);
 		}
+	d_cvt_vec2strvec(nb[0], x0, qp.d+0, 0);
+	d_cvt_vec2strvec(nb[0], x0, qp.d+0, nb[0]+ng[0]);
+	int *idxb00 = malloc(nb[0]*sizeof(int));
+	for(ii=0; ii<nb[0]; ii++)
+		idxb00[ii] = nu[0]+ii;
+	qp.idxb[0] = idxb00;
 	
 //	for(ii=0; ii<=N; ii++)
 //		d_print_strmat(nu[ii]+nx[ii]+1, nu[ii]+nx[ii], qp.RSQrq+ii, 0, 0);
@@ -467,18 +474,18 @@ int main()
 * ipm
 ************************************************/	
 
-	struct d_ipm_ocp_qp_arg arg;
+	struct d_ocp_qp_ipm_arg arg;
 	arg.alpha_min = 1e-8;
 	arg.mu_max = 1e-12;
 	arg.iter_max = 20;
 	arg.mu0 = 2.0;
 
-	int ipm_size = d_memsize_ipm_ocp_qp(&qp, &arg);
+	int ipm_size = d_memsize_ocp_qp_ipm(&qp, &arg);
 	printf("\nipm size = %d\n", ipm_size);
 	void *ipm_mem = malloc(ipm_size);
 
-	struct d_ipm_ocp_qp_workspace workspace;
-	d_create_ipm_ocp_qp(&qp, &arg, &workspace, ipm_mem);
+	struct d_ocp_qp_ipm_workspace workspace;
+	d_create_ocp_qp_ipm(&qp, &arg, &workspace, ipm_mem);
 
 /************************************************
 * SQP loop
@@ -520,24 +527,30 @@ int main()
 
 		// initial stage
 		// XXX x0 in the QP is zero since x0 in the nlp is initialized to x0 !!!
-		nn = 0;
+//		nn = 0;
 		// XXX it does not need the sensitivities wrt x here
-		d_init_erk_int(x0, fs0, u[nn], &d_linear_vde0, &ls, &erk_workspace0);
-		d_erk_int(&erk_args, &erk_workspace0);
-		d_cvt_erk_int_to_ocp_qp(nn, &erk_workspace0, x[nn+1], &qp);
+//		d_init_erk_int(x0, fs0, u[nn], &d_linear_vde0, &ls, &erk_workspace0);
+//		d_erk_int(&erk_arg, &erk_workspace0);
+//		d_cvt_erk_int_to_ocp_qp(nn, &erk_workspace0, x[nn+1], &qp);
 
 		// other stages
-		for(nn=1; nn<N; nn++)
+		for(nn=0; nn<N; nn++)
 			{
 			d_init_erk_int(x[nn], fs1, u[nn], &d_linear_vde1, &ls, &erk_workspace1);
-			d_erk_int(&erk_args, &erk_workspace1);
+			d_erk_int(&erk_arg, &erk_workspace1);
 			d_cvt_erk_int_to_ocp_qp(nn, &erk_workspace1, x[nn+1], &qp);
 			}
 
-		for(nn=0; nn<N; nn++)
-			d_print_strmat(nu[nn]+nx[nn]+1, nx[nn+1], qp.BAbt+nn, 0, 0);
+//		for(nn=0; nn<=N; nn++)
+//			d_print_strmat(nu[nn]+nx[nn]+1, nu[nn]+nx[nn], qp.RSQrq+nn, 0, 0);
+//		for(nn=0; nn<N; nn++)
+//			d_print_strmat(nu[nn]+nx[nn]+1, nx[nn+1], qp.BAbt+nn, 0, 0);
+//		for(nn=0; nn<=N; nn++)
+//			d_print_tran_strvec(nb[nn], qp.d+nn, 0);
 
-		d_solve_ipm2_ocp_qp(&qp, &qp_sol, &workspace);
+		d_solve_ocp_qp_ipm2(&qp, &qp_sol, &workspace);
+
+//		d_print_e_tran_mat(5, workspace.iter, workspace.stat, 5);
 
 		d_cvt_ocp_qp_sol_to_colmaj(&qp, &qp_sol, du, dx, dls, dus, dpi, dlam_lb, dlam_ub, dlam_lg, dlam_ug, dlam_ls, dlam_us);
 
@@ -823,7 +836,7 @@ int main()
 	d_cvt_colmaj_to_ocp_nlp(hexpl_vde, hQ, hS, hR, hx_ref, hu_ref, hidxb, hd_lb, hd_ub, hC, hD, hd_lg, hd_ug, hZl, hZu, hzl, hzu, hidxs, &nlp);
 
 /************************************************
-* ocp qp sol
+* ocp nlp sol
 ************************************************/	
 	
 	int nlp_sol_size = d_memsize_ocp_nlp_sol(N, nx, nu, nb, ng, ns);
@@ -834,6 +847,41 @@ int main()
 	d_create_ocp_nlp_sol(N, nx, nu, nb, ng, ns, &nlp_sol, nlp_sol_mem);
 
 /************************************************
+* ocp nlp sqp arg
+************************************************/	
+
+	struct d_erk_args erk_args[N];
+	for(ii=0; ii<N; ii++)
+		erk_args[ii] = erk_arg;
+
+	struct d_ocp_nlp_sqp_arg sqp_arg;
+	sqp_arg.ipm_arg = &arg;
+	sqp_arg.rk_data = &rk_data;
+	sqp_arg.erk_arg = erk_args;
+	sqp_arg.res_max = 1e-8;
+	sqp_arg.iter_max = 5;
+
+/************************************************
+* ocp nlp sqp ws
+************************************************/	
+
+	int nlp_ws_size = d_memsize_ocp_nlp_sqp(&nlp, &sqp_arg);
+	printf("\nnlp ws size = %d\n", nlp_ws_size);
+	void *nlp_ws_mem = malloc(nlp_ws_size);
+	
+	struct d_ocp_nlp_sqp_workspace sqp_ws;
+	d_create_ocp_nlp_sqp(&nlp, &sqp_arg, &sqp_ws, nlp_ws_mem);
+
+/************************************************
+* ocp nlp sqp
+************************************************/	
+
+	int nlp_return = d_solve_ocp_nlp_sqp(&nlp, &nlp_sol, &sqp_ws);
+
+	for(ii=0; ii<=N; ii++)
+		d_print_tran_strvec(nlp.nx[ii]+nlp.nu[ii], nlp_sol.ux+ii, 0);
+
+/************************************************
 * free memory
 ************************************************/	
 	
@@ -841,6 +889,7 @@ int main()
 	free(Ac);
 	free(Bc);
 	free(x0);
+	free(idxb00);
 	free(A);
 	free(B);
 	free(T);
@@ -921,6 +970,7 @@ int main()
 	free(ipm_mem);
 	free(nlp_mem);
 	free(nlp_sol_mem);
+	free(nlp_ws_mem);
 
 	return 0;
 
