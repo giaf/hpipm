@@ -390,20 +390,20 @@ void mexFunction( int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
 	struct d_ocp_qp_sol qp_sol;
 	d_create_ocp_qp_sol(N, nx_v, nu_v, nb_v, ng_v, ns_v, &qp_sol, qp_sol_mem);
 
-	struct d_ipm_ocp_qp_arg arg;
+	struct d_ocp_qp_ipm_arg arg;
 	arg.alpha_min = 1e-8;
 	arg.mu_max = 1e-12;
 	arg.iter_max = 20;
 	arg.mu0 = 2.0;
 
-	int ipm_size = d_memsize_ipm_ocp_qp(&qp, &arg);
+	int ipm_size = d_memsize_ocp_qp_ipm(&qp, &arg);
 	void *ipm_mem = malloc(ipm_size);
 
-	struct d_ipm_ocp_qp_workspace workspace;
-	d_create_ipm_ocp_qp(&qp, &arg, &workspace, ipm_mem);
+	struct d_ocp_qp_ipm_workspace workspace;
+	d_create_ocp_qp_ipm(&qp, &arg, &workspace, ipm_mem);
 
-//	d_solve_ipm_ocp_qp(&qp, &qp_sol, &workspace);
-	d_solve_ipm2_ocp_qp(&qp, &qp_sol, &workspace);
+//	d_solve_ocp_qp_ipm(&qp, &qp_sol, &workspace);
+	d_solve_ocp_qp_ipm2(&qp, &qp_sol, &workspace);
 
 	d_cvt_ocp_qp_sol_to_colmaj(&qp, &qp_sol, hu, hx, NULL, NULL, hpi, hlam_lb, hlam_ub, hlam_lg, hlam_ug, NULL, NULL);
 
