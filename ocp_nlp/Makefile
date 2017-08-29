@@ -33,7 +33,7 @@ ifeq ($(TARGET), GENERIC)
 OBJS +=
 endif
 
-OBJS += d_ocp_nlp.o #d_ocp_qp_sol.o d_ocp_qp_kkt.o d_ocp_qp_ipm.o d_ocp_qp_sim.o
+OBJS += d_ocp_nlp.o d_ocp_nlp_sol.o #d_ocp_qp_kkt.o d_ocp_qp_ipm.o d_ocp_qp_sim.o
 OBJS += #s_ocp_qp.o s_ocp_qp_sol.o s_ocp_qp_kkt.o s_ocp_qp_ipm.o
 #OBJS += m_ocp_qp.o                m_ocp_qp_kkt.o m_ocp_qp_ipm.o
 
@@ -45,7 +45,7 @@ clean:
 
 #d_ocp_qp.o: d_ocp_qp.c x_ocp_qp.c
 #s_ocp_qp.o: s_ocp_qp.c x_ocp_qp.c
-#d_ocp_qp_sol.o: d_ocp_qp_sol.c x_ocp_qp_sol.c
+_ocp_nlp_sol.o: d_ocp_nlp_sol.c x_ocp_nlp_sol.c
 #s_ocp_qp_sol.o: s_ocp_qp_sol.c x_ocp_qp_sol.c
 #d_ocp_qp_kkt.o: d_ocp_qp_kkt.c x_ocp_qp_kkt.c
 #s_ocp_qp_kkt.o: s_ocp_qp_kkt.c x_ocp_qp_kkt.c

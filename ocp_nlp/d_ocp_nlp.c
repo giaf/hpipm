@@ -47,7 +47,7 @@
 
 #define MEMSIZE_OCP_NLP d_memsize_ocp_nlp
 #define CREATE_OCP_NLP d_create_ocp_nlp
-#define CVT_COLMAJ_TO_NLP_QP d_cvt_colmaj_to_nlp_qp
+#define CVT_COLMAJ_TO_OCP_NLP d_cvt_colmaj_to_ocp_nlp
 
 
 
@@ -83,7 +83,7 @@ int MEMSIZE_OCP_NLP(int N, int *nx, int *nu, int *nb, int *ng, int *ns)
 
 
 
-void CREATE_OCP_QP(int N, int *nx, int *nu, int *nb, int *ng, int *ns, struct OCP_NLP *nlp, void *memory)
+void CREATE_OCP_NLP(int N, int *nx, int *nu, int *nb, int *ng, int *ns, struct OCP_NLP *nlp, void *memory)
 	{
 
 	int ii;
@@ -268,7 +268,7 @@ void CREATE_OCP_QP(int N, int *nx, int *nu, int *nb, int *ng, int *ns, struct OC
 
 
 
-void CVT_COLMAJ_TO_NLP_QP(void (**expl_vde)(), REAL **Q, REAL **S, REAL **R, REAL **x_ref, REAL **u_ref, int **idxb, REAL **d_lb, REAL **d_ub, REAL **C, REAL **D, REAL **d_lg, REAL **d_ug, REAL **Zl, REAL **Zu, REAL **zl, REAL **zu, int **idxs, struct OCP_NLP *nlp)
+void CVT_COLMAJ_TO_OCP_NLP(void (**expl_vde)(), REAL **Q, REAL **S, REAL **R, REAL **x_ref, REAL **u_ref, int **idxb, REAL **d_lb, REAL **d_ub, REAL **C, REAL **D, REAL **d_lg, REAL **d_ug, REAL **Zl, REAL **Zu, REAL **zl, REAL **zu, int **idxs, struct OCP_NLP *nlp)
 	{
 
 	int N = nlp->N;

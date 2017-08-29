@@ -7,18 +7,18 @@
 * Developed at IMTEK (University of Freiburg) under the supervision of Moritz Diehl.              *
 * All rights reserved.                                                                            *
 *                                                                                                 *
-* HPIPM is free software; you can redistribute it and/or                                          *
+* HPMPC is free software; you can redistribute it and/or                                          *
 * modify it under the terms of the GNU Lesser General Public                                      *
 * License as published by the Free Software Foundation; either                                    *
 * version 2.1 of the License, or (at your option) any later version.                              *
 *                                                                                                 *
-* HPIPM is distributed in the hope that it will be useful,                                        *
+* HPMPC is distributed in the hope that it will be useful,                                        *
 * but WITHOUT ANY WARRANTY; without even the implied warranty of                                  *
 * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.                                            *
 * See the GNU Lesser General Public License for more details.                                     *
 *                                                                                                 *
 * You should have received a copy of the GNU Lesser General Public                                *
-* License along with HPIPM; if not, write to the Free Software                                    *
+* License along with HPMPC; if not, write to the Free Software                                    *
 * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA                  *
 *                                                                                                 *
 * Author: Gianluca Frison, gianluca.frison (at) imtek.uni-freiburg.de                             *
@@ -27,36 +27,35 @@
 
 
 
+#if defined(RUNTIME_CHECKS)
+#include <stdlib.h>
+#endif
+
 #include <blasfeo_target.h>
 #include <blasfeo_common.h>
+#include <blasfeo_s_aux.h>
+
+#include "../include/hpipm_s_ocp_nlph"
+#include "../include/hpipm_s_ocp_nlpsol.h"
 
 
 
-struct d_ocp_nlp
-	{
-	void (**expl_vde)(int t, double *x, double *p, void *vde_args, double *xdot); // explicit vde
-	struct d_strmat *RSQ;
-	struct d_strvec *ux_ref;
-	struct d_strmat *DCt;
-	struct d_strvec *d;
-	struct d_strvec *Z;
-	struct d_strvec *z;
-	int *nx; // number of states
-	int *nu; // number of inputs
-	int *nb; // number of box constraints
-	int **idxb; // index of box constraints
-	int *ng; // number of general constraints
-	int *ns; // number of soft constraints
-	int **idxs; // index of soft constraints
-	int N; // hotizon lenght
-	int memsize; // memory size in bytes
-	};
+#define CREATE_STRVEC s_create_strvec
+#define CVT_STRVEC2VEC s_cvt_strvec2vec
+#define OCP_NLP s_ocp_nlp
+#define OCP_NLP_SOL s_ocp_nlpsol
+#define REAL float
+#define STRVEC s_strvec
+#define SIZE_STRVEC s_size_strvec
+#define VECCP_LIBSTR sveccp_libstr
+
+#define CREATE_OCP_NLP_SOL s_create_ocp_nlpsol
+#define MEMSIZE_OCP_NLP_SOL s_memsize_ocp_nlpsol
+#define CVT_OCP_NLP_SOL_TO_COLMAJ s_cvt_ocp_nlpsol_to_colmaj
+#define CVT_OCP_NLP_SOL_TO_ROWMAJ s_cvt_ocp_nlpsol_to_rowmaj
+#define CVT_OCP_NLP_SOL_TO_LIBSTR s_cvt_ocp_nlpsol_to_libstr
 
 
 
-//
-int d_memsize_ocp_nlp(int N, int *nx, int *nu, int *nb, int *ng, int *ns);
-//
-void d_create_ocp_nlp(int N, int *nx, int *nu, int *nb, int *ng, int *ns, struct d_ocp_nlp *nlp, void *memory);
-//
-void d_cvt_colmaj_to_ocp_nlp(void (**expl_vde)(), double **Q, double **S, double **R, double **x_ref, double **u_ref, int **idxb, double **d_lb, double **d_ub, double **C, double **D, double **d_lg, double **d_ug, double **Zl, double **Zu, double **zl, double **zu, int **idxs, struct d_ocp_nlp *nlp);
+#include "x_ocp_nlpsol.c"
+

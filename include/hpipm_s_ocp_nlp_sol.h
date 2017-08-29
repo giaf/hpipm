@@ -7,18 +7,18 @@
 * Developed at IMTEK (University of Freiburg) under the supervision of Moritz Diehl.              *
 * All rights reserved.                                                                            *
 *                                                                                                 *
-* HPIPM is free software; you can redistribute it and/or                                          *
+* HPMPC is free software; you can redistribute it and/or                                          *
 * modify it under the terms of the GNU Lesser General Public                                      *
 * License as published by the Free Software Foundation; either                                    *
 * version 2.1 of the License, or (at your option) any later version.                              *
 *                                                                                                 *
-* HPIPM is distributed in the hope that it will be useful,                                        *
+* HPMPC is distributed in the hope that it will be useful,                                        *
 * but WITHOUT ANY WARRANTY; without even the implied warranty of                                  *
 * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.                                            *
 * See the GNU Lesser General Public License for more details.                                     *
 *                                                                                                 *
 * You should have received a copy of the GNU Lesser General Public                                *
-* License along with HPIPM; if not, write to the Free Software                                    *
+* License along with HPMPC; if not, write to the Free Software                                    *
 * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA                  *
 *                                                                                                 *
 * Author: Gianluca Frison, gianluca.frison (at) imtek.uni-freiburg.de                             *
@@ -32,31 +32,24 @@
 
 
 
-struct d_ocp_nlp
+struct s_ocp_nlp_sol
 	{
-	void (**expl_vde)(int t, double *x, double *p, void *vde_args, double *xdot); // explicit vde
-	struct d_strmat *RSQ;
-	struct d_strvec *ux_ref;
-	struct d_strmat *DCt;
-	struct d_strvec *d;
-	struct d_strvec *Z;
-	struct d_strvec *z;
-	int *nx; // number of states
-	int *nu; // number of inputs
-	int *nb; // number of box constraints
-	int **idxb; // index of box constraints
-	int *ng; // number of general constraints
-	int *ns; // number of soft constraints
-	int **idxs; // index of soft constraints
-	int N; // hotizon lenght
+	struct s_strvec *ux;
+	struct s_strvec *pi;
+	struct s_strvec *lam;
+	struct s_strvec *t;
 	int memsize; // memory size in bytes
 	};
 
 
 
 //
-int d_memsize_ocp_nlp(int N, int *nx, int *nu, int *nb, int *ng, int *ns);
+int s_memsize_ocp_nlp_sol(int N, int *nx, int *nu, int *nb, int *ng, int *ns);
 //
-void d_create_ocp_nlp(int N, int *nx, int *nu, int *nb, int *ng, int *ns, struct d_ocp_nlp *nlp, void *memory);
+void s_create_ocp_nlp_sol(int N, int *nx, int *nu, int *nb, int *ng, int *ns, struct s_ocp_nlp_sol *qp_sol, void *memory);
 //
-void d_cvt_colmaj_to_ocp_nlp(void (**expl_vde)(), double **Q, double **S, double **R, double **x_ref, double **u_ref, int **idxb, double **d_lb, double **d_ub, double **C, double **D, double **d_lg, double **d_ug, double **Zl, double **Zu, double **zl, double **zu, int **idxs, struct d_ocp_nlp *nlp);
+void s_cvt_ocp_nlp_sol_to_colmaj(struct s_ocp_nlp *qp, struct s_ocp_nlp_sol *qp_sol, float **u, float **x, float **ls, float **us, float **pi, float **lam_lb, float **lam_ub, float **lam_lg, float **lam_ug, float **lam_ls, float **lam_us);
+//
+void s_cvt_ocp_nlp_sol_to_rowmaj(struct s_ocp_nlp *qp, struct s_ocp_nlp_sol *qp_sol, float **u, float **x, float **ls, float **us, float **pi, float **lam_lb, float **lam_ub, float **lam_lg, float **lam_ug, float **lam_ls, float **lam_us);
+//
+void s_cvt_ocp_nlp_sol_to_libstr(struct s_ocp_nlp *qp, struct s_ocp_nlp_sol *qp_sol, struct s_strvec *u, struct s_strvec *ls, struct s_strvec *us, struct s_strvec *x, struct s_strvec *pi, struct s_strvec *lam_lb, struct s_strvec *lam_ub, struct s_strvec *lam_lg, struct s_strvec *lam_ug, struct s_strvec *lam_ls, struct s_strvec *lam_us);

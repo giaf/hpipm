@@ -32,31 +32,24 @@
 
 
 
-struct d_ocp_nlp
+struct d_ocp_nlp_sol
 	{
-	void (**expl_vde)(int t, double *x, double *p, void *vde_args, double *xdot); // explicit vde
-	struct d_strmat *RSQ;
-	struct d_strvec *ux_ref;
-	struct d_strmat *DCt;
-	struct d_strvec *d;
-	struct d_strvec *Z;
-	struct d_strvec *z;
-	int *nx; // number of states
-	int *nu; // number of inputs
-	int *nb; // number of box constraints
-	int **idxb; // index of box constraints
-	int *ng; // number of general constraints
-	int *ns; // number of soft constraints
-	int **idxs; // index of soft constraints
-	int N; // hotizon lenght
+	struct d_strvec *ux;
+	struct d_strvec *pi;
+	struct d_strvec *lam;
+	struct d_strvec *t;
 	int memsize; // memory size in bytes
 	};
 
 
 
 //
-int d_memsize_ocp_nlp(int N, int *nx, int *nu, int *nb, int *ng, int *ns);
+int d_memsize_ocp_nlp_sol(int N, int *nx, int *nu, int *nb, int *ng, int *ns);
 //
-void d_create_ocp_nlp(int N, int *nx, int *nu, int *nb, int *ng, int *ns, struct d_ocp_nlp *nlp, void *memory);
+void d_create_ocp_nlp_sol(int N, int *nx, int *nu, int *nb, int *ng, int *ns, struct d_ocp_nlp_sol *qp_sol, void *memory);
 //
-void d_cvt_colmaj_to_ocp_nlp(void (**expl_vde)(), double **Q, double **S, double **R, double **x_ref, double **u_ref, int **idxb, double **d_lb, double **d_ub, double **C, double **D, double **d_lg, double **d_ug, double **Zl, double **Zu, double **zl, double **zu, int **idxs, struct d_ocp_nlp *nlp);
+void d_cvt_ocp_nlp_sol_to_colmaj(struct d_ocp_nlp *qp, struct d_ocp_nlp_sol *qp_sol, double **u, double **x, double **ls, double **us, double **pi, double **lam_lb, double **lam_ub, double **lam_lg, double **lam_ug, double **lam_ls, double **lam_us);
+//
+void d_cvt_ocp_nlp_sol_to_rowmaj(struct d_ocp_nlp *qp, struct d_ocp_nlp_sol *qp_sol, double **u, double **x, double **ls, double **us, double **pi, double **lam_lb, double **lam_ub, double **lam_lg, double **lam_ug, double **lam_ls, double **lam_us);
+//
+void d_cvt_ocp_nlp_sol_to_libstr(struct d_ocp_nlp *qp, struct d_ocp_nlp_sol *qp_sol, struct d_strvec *u, struct d_strvec *ls, struct d_strvec *us, struct d_strvec *x, struct d_strvec *pi, struct d_strvec *lam_lb, struct d_strvec *lam_ub, struct d_strvec *lam_lg, struct d_strvec *lam_ug, struct d_strvec *lam_ls, struct d_strvec *lam_us);
