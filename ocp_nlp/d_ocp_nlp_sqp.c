@@ -90,6 +90,7 @@ int MEMSIZE_OCP_NLP_SQP(struct OCP_NLP *nlp, struct OCP_NLP_SQP_ARG *arg)
 	size += 1*sizeof(struct OCP_QP_IPM_WORKSPACE);
 	size += N*sizeof(struct ERK_WORKSPACE);
 	size += N*sizeof(struct ERK_ARG);
+	size += N*sizeof(double *);
 
 	size += MEMSIZE_OCP_QP(N, nx, nu, nb, ng, ns);
 	size += MEMSIZE_OCP_QP_SOL(N, nx, nu, nb, ng, ns);
@@ -107,7 +108,10 @@ int MEMSIZE_OCP_NLP_SQP(struct OCP_NLP *nlp, struct OCP_NLP_SQP_ARG *arg)
 	size += MEMSIZE_OCP_QP_IPM(&qp, arg->ipm_arg);
 
 	for(ii=0; ii<N; ii++)
+		{
 		size += MEMSIZE_ERK_INT(arg->rk_data, nx[ii], nx[ii]+nu[ii], nu[ii]);
+		size += N*nx[ii]*(nu[ii]+nx[ii])*sizeof(double);
+		}
 
 	size = (size+63)/64*64; // make multiple of typical cache line size
 
@@ -123,7 +127,7 @@ void CREATE_OCP_NLP_SQP(struct OCP_NLP *nlp, struct OCP_NLP_SQP_ARG *arg, struct
 
 	ws->memsize = MEMSIZE_OCP_NLP_SQP(nlp, arg);
 
-	int ii;
+	int ii, jj;
 
 	int N = nlp->N;
 	int *nx = nlp->nx;
@@ -157,9 +161,9 @@ void CREATE_OCP_NLP_SQP(struct OCP_NLP *nlp, struct OCP_NLP_SQP_ARG *arg, struct
 	erk_ws_ptr += N;
 
 	// erk ws
-	struct ERK_WORKSPACE *erk_arg_ptr = (struct ERK_WORKSPACE *) erk_ws_ptr;
+	struct ERK_ARG *erk_arg_ptr = (struct ERK_ARG *) erk_ws_ptr;
 	//
-	ws->erk_workspace = erk_arg_ptr;
+	ws->erk_arg = erk_arg_ptr;
 	erk_arg_ptr += N;
 
 	// void stuf
@@ -178,6 +182,25 @@ void CREATE_OCP_NLP_SQP(struct OCP_NLP *nlp, struct OCP_NLP_SQP_ARG *arg, struct
 		{
 		CREATE_ERK_INT(arg->rk_data, nx[ii], nx[ii]+nu[ii], nu[ii], ws->erk_workspace+ii, c_ptr);
 		c_ptr += (ws->erk_workspace+ii)->memsize;
+		}
+	
+	//
+	double **dp_ptr = (double **) c_ptr;
+	//
+	ws->fs = dp_ptr;
+	dp_ptr += N;
+
+	//
+	double *d_ptr = (double *) dp_ptr;
+	//
+	for(ii=0; ii<N; ii++)
+		{
+		ws->fs[ii] = d_ptr;
+		d_ptr += nx[ii]*(nu[ii]+nx[ii]);
+		for(jj=0; jj<nx[ii]*(nu[ii]+nx[ii]); jj++)
+			ws->fs[ii][jj] = 0.0;
+		for(jj=0; jj<nx[ii]; jj++)
+			ws->fs[ii][nu[ii]*nx[ii]+jj*(nx[ii]+1)] = 1.0;
 		}
 	
 	//
@@ -225,15 +248,14 @@ int SOLVE_OCP_NLP_SQP(struct OCP_NLP *nlp, struct OCP_NLP_SOL *nlp_sol, struct O
 //		d_erk_int(&erk_arg, &erk_workspace0);
 //		d_cvt_erk_int_to_ocp_qp(nn, &erk_workspace0, x[nn+1], &qp);
 
-#if 0
 		// other stages
 		for(nn=0; nn<N; nn++)
 			{
-			d_init_erk_int((nlp_sol->ux+nn)->pa[0]+nu[0], fs1, (nlp_sol->ux+nn)->pa[0], &d_linear_vde1, &ls, erk_ws+nn);
-			d_erk_int(&erk_arg, &erk_workspace1);
-			d_cvt_erk_int_to_ocp_qp(nn, &erk_workspace1, x[nn+1], &qp);
+//			d_print_mat(nx[nn], nu[nn]+nx[nn], ws->fs[nn], nx[nn]);
+//			d_init_erk_int((nlp_sol->ux+nn)->pa[0]+nu[0], ws->fs[nn], (nlp_sol->ux+nn)->pa[0], nlp->expl_vde[nn], &ls, erk_ws+nn);
+//			d_erk_int(erk_arg+nn, erk_ws+nn);
+//			d_cvt_erk_int_to_ocp_qp(nn, erk_ws+nn, x[nn+1], qp);
 			}
-#endif
 
 //		for(nn=0; nn<=N; nn++)
 //			d_print_strmat(nu[nn]+nx[nn]+1, nu[nn]+nx[nn], qp.RSQrq+nn, 0, 0);

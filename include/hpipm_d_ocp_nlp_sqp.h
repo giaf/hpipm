@@ -40,6 +40,7 @@ struct d_ocp_nlp_sqp_workspace
 	struct d_ocp_qp_ipm_workspace *ipm_workspace;
 	struct d_erk_workspace *erk_workspace;
 	struct d_erk_args *erk_arg; // TODO fix name in arg !!!
+	double **fs; // initialization of forward sensitivities
 	int iter; // iteration number
 	int memsize;
 	};
