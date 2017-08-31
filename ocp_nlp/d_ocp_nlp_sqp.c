@@ -243,8 +243,6 @@ int SOLVE_OCP_NLP_SQP(struct OCP_NLP *nlp, struct OCP_NLP_SOL *nlp_sol, struct O
 
 	double *x, *xn, *u;
 
-	printf("\nfunction\n");
-
 	// copy nlp into qp
 	for(nn=0; nn<=N; nn++)
 		{

@@ -356,43 +356,6 @@ int main()
 	erk_arg.h = Ts/erk_arg.steps;
 
 /************************************************
-* integrator workspace
-************************************************/	
-	
-	// first stage
-
-	int nf0 = nu_; // number of forward sensitivities
-	int np0 = nu_; // numner of parameters
-
-	// erk workspace structure
-	int memsize_erk_int0 = d_memsize_erk_int(&rk_data, nx_, nf0, np0);
-	printf("\nmemsize erk int0 %d\n", memsize_erk_int0);
-	void *memory_erk0 = malloc(memsize_erk_int0);
-
-	struct d_erk_workspace erk_workspace0;
-	d_create_erk_int(&rk_data, nx_, nf0, np0, &erk_workspace0, memory_erk0);
-
-	// forward sensitivities seeds
-	double *fs0; d_zeros(&fs0, nx_*nf0, 1);
-
-	// first stage
-
-	int nf1 = nx_+nu_; // number of forward sensitivities
-	int np1 = nu_; // numner of parameters
-
-	// erk workspace structure
-	int memsize_erk_int1 = d_memsize_erk_int(&rk_data, nx_, nf1, np1);
-	printf("\nmemsize erk int1 %d\n", memsize_erk_int1);
-	void *memory_erk1 = malloc(memsize_erk_int1);
-
-	struct d_erk_workspace erk_workspace1;
-	d_create_erk_int(&rk_data, nx_, nf1, np1, &erk_workspace1, memory_erk1);
-
-	// forward sensitivities seeds
-	double *fs1; d_zeros(&fs1, nx_*nf1, 1);
-	for(ii=0; ii<nx_; ii++) fs1[nu_*nx_+ii*(nx_+1)] = 1.0;
-
-/************************************************
 * ocp qp
 ************************************************/	
 
@@ -423,56 +386,6 @@ int main()
 	ng[N] = 0;
 	ns[N] = 0;
 
-	int qp_size = d_memsize_ocp_qp(N, nx, nu, nb, ng, ns);
-	printf("\nqp size = %d\n", qp_size);
-	void *qp_mem = malloc(qp_size);
-
-	struct d_ocp_qp qp;
-	d_create_ocp_qp(N, nx, nu, nb, ng, ns, &qp, qp_mem);
-
-	// copy problem size
-	qp.N = N;
-	for(ii=0; ii<=N; ii++)
-		{
-		qp.nx[ii] = nx[ii];
-		qp.nu[ii] = nu[ii];
-		qp.nb[ii] = nb[ii];
-		qp.ng[ii] = ng[ii];
-		qp.ns[ii] = ns[ii];
-		}
-
-	// copy Hessian and gradient
-	for(ii=0; ii<=N; ii++)
-		{
-		d_cvt_mat2strmat(nu[ii], nu[ii], R, nu_, qp.RSQrq+ii, 0, 0);
-		d_cvt_tran_mat2strmat(nu[ii], nx[ii], S, nu_, qp.RSQrq+ii, nu[ii], 0);
-		d_cvt_mat2strmat(nx[ii], nx[ii], Q, nx_, qp.RSQrq+ii, nu[ii], nu[ii]);
-		d_cvt_tran_mat2strmat(nu[ii], 1, r, nu_, qp.RSQrq+ii, nu[ii]+nx[ii], 0);
-		d_cvt_tran_mat2strmat(nx[ii], 1, q, nu_, qp.RSQrq+ii, nu[ii]+nx[ii], nu[ii]);
-		d_cvt_vec2strvec(nu[ii], r, qp.rq+ii, 0);
-		d_cvt_vec2strvec(nx[ii], q, qp.rq+ii, nu[ii]);
-		}
-	d_cvt_vec2strvec(nb[0], x0, qp.d+0, 0);
-	d_cvt_vec2strvec(nb[0], x0, qp.d+0, nb[0]+ng[0]);
-	int *idxb00 = malloc(nb[0]*sizeof(int));
-	for(ii=0; ii<nb[0]; ii++)
-		idxb00[ii] = nu[0]+ii;
-	qp.idxb[0] = idxb00;
-	
-//	for(ii=0; ii<=N; ii++)
-//		d_print_strmat(nu[ii]+nx[ii]+1, nu[ii]+nx[ii], qp.RSQrq+ii, 0, 0);
-
-/************************************************
-* ocp qp sol
-************************************************/	
-	
-	int qp_sol_size = d_memsize_ocp_qp_sol(N, nx, nu, nb, ng, ns);
-	printf("\nqp sol size = %d\n", qp_sol_size);
-	void *qp_sol_mem = malloc(qp_sol_size);
-
-	struct d_ocp_qp_sol qp_sol;
-	d_create_ocp_qp_sol(N, nx, nu, nb, ng, ns, &qp_sol, qp_sol_mem);
-
 /************************************************
 * ipm
 ************************************************/	
@@ -482,98 +395,6 @@ int main()
 	arg.mu_max = 1e-12;
 	arg.iter_max = 20;
 	arg.mu0 = 2.0;
-
-	int ipm_size = d_memsize_ocp_qp_ipm(&qp, &arg);
-	printf("\nipm size = %d\n", ipm_size);
-	void *ipm_mem = malloc(ipm_size);
-
-	struct d_ocp_qp_ipm_workspace workspace;
-	d_create_ocp_qp_ipm(&qp, &arg, &workspace, ipm_mem);
-
-/************************************************
-* SQP loop
-************************************************/	
-	
-	int ss, nn;
-
-	struct d_strmat BAbt0;
-	d_allocate_strmat(nu_+nx_+1, nx_, &BAbt0);
-
-	// solutoni
-	double *u[N+1]; for(ii=0; ii<=N; ii++) d_zeros(u+ii, nu[ii], 1);
-	double *x[N+1]; for(ii=0; ii<=N; ii++) d_zeros(x+ii, nx[ii], 1);
-	
-	// step
-	double *du[N+1]; for(ii=0; ii<=N; ii++) d_zeros(du+ii, nu[ii], 1);
-	double *dx[N+1]; for(ii=0; ii<=N; ii++) d_zeros(dx+ii, nx[ii], 1);
-	double **dls;
-	double **dus;
-	double *dpi[N]; for(ii=0; ii<N; ii++) d_zeros(dpi+ii, nx[ii+1], 1);
-	double *dlam_lb[N+1]; for(ii=0; ii<=N; ii++) d_zeros(dlam_lb+ii, nb[ii], 1);
-	double *dlam_ub[N+1]; for(ii=0; ii<=N; ii++) d_zeros(dlam_ub+ii, nb[ii], 1);
-	double *dlam_lg[N+1]; for(ii=0; ii<=N; ii++) d_zeros(dlam_lg+ii, ng[ii], 1);
-	double *dlam_ug[N+1]; for(ii=0; ii<=N; ii++) d_zeros(dlam_ug+ii, ng[ii], 1);
-	double **dlam_ls;
-	double **dlam_us;
-
-	// initialize solution to zero
-	for(nn=0; nn<=N; nn++)
-		for(ii=0; ii<nu[nn]; ii++)
-			u[nn][ii] = 0.0;
-	for(nn=0; nn<=N; nn++)
-		for(ii=0; ii<nx[nn]; ii++)
-			x[nn][ii] = 0.0;
-
-	printf("\nscipt\n");
-
-	int sqp_steps = 1;
-	for(ss=0; ss<sqp_steps; ss++)	
-		{
-
-		// initial stage
-		// XXX x0 in the QP is zero since x0 in the nlp is initialized to x0 !!!
-//		nn = 0;
-		// XXX it does not need the sensitivities wrt x here
-//		d_init_erk_int(x0, fs0, u[nn], &d_linear_vde0, &ls, &erk_workspace0);
-//		d_erk_int(&erk_arg, &erk_workspace0);
-//		d_cvt_erk_int_to_ocp_qp(nn, &erk_workspace0, x[nn+1], &qp);
-
-		// other stages
-		for(nn=0; nn<N; nn++)
-			{
-			d_init_erk_int(x[nn], fs1, u[nn], &d_linear_vde1, &ls, &erk_workspace1);
-			d_erk_int(&erk_arg, &erk_workspace1);
-			d_cvt_erk_int_to_ocp_qp(nn, &erk_workspace1, x[nn+1], &qp);
-			}
-
-//		for(nn=0; nn<=N; nn++)
-//			d_print_strmat(nu[nn]+nx[nn]+1, nu[nn]+nx[nn], qp.RSQrq+nn, 0, 0);
-//		for(nn=0; nn<N; nn++)
-//			d_print_strmat(nu[nn]+nx[nn]+1, nx[nn+1], qp.BAbt+nn, 0, 0);
-//		for(nn=0; nn<=N; nn++)
-//			d_print_tran_strvec(nb[nn], qp.d+nn, 0);
-
-		d_solve_ocp_qp_ipm2(&qp, &qp_sol, &workspace);
-
-//		d_print_e_tran_mat(5, workspace.iter, workspace.stat, 5);
-
-		d_cvt_ocp_qp_sol_to_colmaj(&qp, &qp_sol, du, dx, dls, dus, dpi, dlam_lb, dlam_ub, dlam_lg, dlam_ug, dlam_ls, dlam_us);
-
-		for(nn=0; nn<=N; nn++)
-			for(ii=0; ii<nu[nn]; ii++)
-				u[nn][ii] += du[nn][ii];
-		for(nn=0; nn<=N; nn++)
-			for(ii=0; ii<nx[nn]; ii++)
-				x[nn][ii] += dx[nn][ii];
-
-		}
-	
-	printf("\nu = \n");
-	for(nn=0; nn<=N; nn++)
-		d_print_mat(1, nu[nn], u[nn], 1);
-	printf("\nx = \n");
-	for(nn=0; nn<=N; nn++)
-		d_print_mat(1, nx[nn], x[nn], 1);
 
 /************************************************
 * box & general constraints
@@ -794,9 +615,9 @@ int main()
 	hR[0] = R;
 	hx_ref[0] = x_ref;
 	hu_ref[0] = u_ref;
-	hidxb[0] = idxb00;//idxb0;
-	hd_lb[0] = x0;//d_lb0;
-	hd_ub[0] = x0;//d_ub0;
+	hidxb[0] = idxb0;
+	hd_lb[0] = d_lb0;
+	hd_ub[0] = d_ub0;
 	hd_lg[0] = d_lg0;
 	hd_ug[0] = d_ug0;
 	hC[0] = C0;
@@ -912,7 +733,6 @@ int main()
 	free(Ac);
 	free(Bc);
 	free(x0);
-	free(idxb00);
 	free(A);
 	free(B);
 	free(T);
@@ -962,35 +782,7 @@ int main()
 	d_free(zuN);
 	int_free(idxsN);
 
-	for(ii=0; ii<N; ii++)
-		{
-		d_free(u[ii]);
-		d_free(x[ii]);
-		d_free(du[ii]);
-		d_free(dx[ii]);
-		d_free(dpi[ii]);
-		d_free(dlam_lb[ii]);
-		d_free(dlam_ub[ii]);
-		d_free(dlam_lg[ii]);
-		d_free(dlam_ug[ii]);
-		}
-	d_free(u[ii]);
-	d_free(x[ii]);
-	d_free(du[ii]);
-	d_free(dx[ii]);
-	d_free(dlam_lb[ii]);
-	d_free(dlam_ub[ii]);
-	d_free(dlam_lg[ii]);
-	d_free(dlam_ug[ii]);
-
-	d_free_strmat(&BAbt0);
-
 	free(memory_rk_data);
-	free(memory_erk0);
-	free(memory_erk1);
-	free(qp_mem);
-	free(qp_sol_mem);
-	free(ipm_mem);
 	free(nlp_mem);
 	free(nlp_sol_mem);
 	free(nlp_ws_mem);
