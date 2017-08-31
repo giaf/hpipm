@@ -108,27 +108,27 @@ int d_memsize_linear_system(int nx, int nu)
 
 
 
-void d_create_linear_system(int nx, int nu, struct d_linear_system *ls, void *memory)
+void d_create_linear_system(int nx, int nu, struct d_linear_system *lin_sys, void *memory)
 	{
-	ls->nx = nx;
-	ls->nu = nu;
+	lin_sys->nx = nx;
+	lin_sys->nu = nu;
 	char * c_ptr = (char *) memory;
-	ls->Ac = (double *) c_ptr;
+	lin_sys->Ac = (double *) c_ptr;
 	c_ptr += nx*nx*sizeof(double);
-	ls->Bc = (double *) c_ptr;
+	lin_sys->Bc = (double *) c_ptr;
 	c_ptr += nx*nu*sizeof(double);
 	return;
 	}
 
 
 
-void d_cvt_colmaj_to_linear_system(double *A,  double *B, struct d_linear_system *ls)
+void d_cvt_colmaj_to_linear_system(double *A,  double *B, struct d_linear_system *lin_sys)
 	{
 	int ii;
-	int nx = ls->nx;
-	int nu = ls->nu;
-	double *Ac = ls->Ac;
-	double *Bc = ls->Bc;
+	int nx = lin_sys->nx;
+	int nu = lin_sys->nu;
+	double *Ac = lin_sys->Ac;
+	double *Bc = lin_sys->Bc;
 	for(ii=0; ii<nx*nx; ii++)
 		Ac[ii] = A[ii];
 	for(ii=0; ii<nx*nu; ii++)
@@ -140,12 +140,12 @@ void d_cvt_colmaj_to_linear_system(double *A,  double *B, struct d_linear_system
 
 void d_linear_ode(int t, double *x, double *u, void *ode_args, double *xdot)
 	{
-	struct d_linear_system *ls = ode_args;
+	struct d_linear_system *lin_sys = ode_args;
 	int ii, jj;
-	int nx = ls->nx;
-	int nu = ls->nu;
-	double *Ac = ls->Ac;
-	double *Bc = ls->Bc;
+	int nx = lin_sys->nx;
+	int nu = lin_sys->nu;
+	double *Ac = lin_sys->Ac;
+	double *Bc = lin_sys->Bc;
 	for(ii=0; ii<nx; ii++)
 		xdot[ii] = 0.0;
 	for(jj=0; jj<nx; jj++)
@@ -161,12 +161,12 @@ void d_linear_ode(int t, double *x, double *u, void *ode_args, double *xdot)
 
 void d_linear_vde0(int t, double *x, double *u, void *ode_args, double *xdot)
 	{
-	struct d_linear_system *ls = ode_args;
+	struct d_linear_system *lin_sys = ode_args;
 	int ii, jj, kk;
-	int nx = ls->nx;
-	int nu = ls->nu;
-	double *Ac = ls->Ac;
-	double *Bc = ls->Bc;
+	int nx = lin_sys->nx;
+	int nu = lin_sys->nu;
+	double *Ac = lin_sys->Ac;
+	double *Bc = lin_sys->Bc;
 	double *tmp;
 	for(ii=0; ii<nx*(nu+1); ii++)
 		xdot[ii] = 0.0;
@@ -189,15 +189,12 @@ void d_linear_vde0(int t, double *x, double *u, void *ode_args, double *xdot)
 
 void d_linear_vde1(int t, double *x, double *u, void *ode_args, double *xdot)
 	{
-	struct d_linear_system *ls = ode_args;
+	struct d_linear_system *lin_sys = ode_args;
 	int ii, jj, kk;
-	int nx = ls->nx;
-	int nu = ls->nu;
-	double *Ac = ls->Ac;
-	double *Bc = ls->Bc;
-//	printf("\n%d %d\n", nx, nu);
-//	d_print_mat(nx, nx, Ac, nx);
-//	d_print_mat(nx, nu, Bc, nx);
+	int nx = lin_sys->nx;
+	int nu = lin_sys->nu;
+	double *Ac = lin_sys->Ac;
+	double *Bc = lin_sys->Bc;
 	double *tmp;
 	for(ii=0; ii<nx*(nu+nx+1); ii++)
 		xdot[ii] = 0.0;
@@ -242,17 +239,17 @@ int main()
 	d_print_mat(nx_, nx_, Ac, nx_);
 	d_print_mat(nx_, nu_, Bc, nx_);
 
-	int ls_memsize = d_memsize_linear_system(nx_, nu_);
-	printf("\nls memsize = %d\n", ls_memsize);
-	void *ls_memory = malloc(ls_memsize);
+	int lin_sys_memsize = d_memsize_linear_system(nx_, nu_);
+	printf("\nlin_sys memsize = %d\n", lin_sys_memsize);
+	void *lin_sys_memory = malloc(lin_sys_memsize);
 
-	struct d_linear_system ls;
-	d_create_linear_system(nx_, nu_, &ls, ls_memory);
+	struct d_linear_system lin_sys;
+	d_create_linear_system(nx_, nu_, &lin_sys, lin_sys_memory);
 
-	d_cvt_colmaj_to_linear_system(Ac, Bc, &ls);
+	d_cvt_colmaj_to_linear_system(Ac, Bc, &lin_sys);
 
-	d_print_mat(nx_, nx_, ls.Ac, nx_);
-	d_print_mat(nx_, nu_, ls.Bc, nx_);
+	d_print_mat(nx_, nx_, lin_sys.Ac, nx_);
+	d_print_mat(nx_, nu_, lin_sys.Bc, nx_);
 
 	double *x0; d_zeros(&x0, nx_, 1);
 	x0[0] = 2.5;
@@ -584,7 +581,7 @@ int main()
 
 	struct d_ocp_nlp_model model1;
 	model1.expl_vde = &d_linear_vde1;
-	model1.arg = &ls;
+	model1.arg = &lin_sys;
 
 /************************************************
 * ocp nlp data
@@ -720,16 +717,107 @@ int main()
 * ocp nlp sqp
 ************************************************/	
 
-	int nlp_return = d_solve_ocp_nlp_sqp(&nlp, &nlp_sol, &sqp_ws);
+	int nlp_return;
 
+	struct timeval tv0, tv1;
+	int rep, nrep = 1;
+
+	gettimeofday(&tv0, NULL); // start
+
+	for(rep=0; rep<nrep; rep++)
+		{
+		nlp_return = d_solve_ocp_nlp_sqp(&nlp, &nlp_sol, &sqp_ws);
+		}
+
+	gettimeofday(&tv1, NULL); // stop
+
+	double time_ocp_sqp = (tv1.tv_sec-tv0.tv_sec)/(nrep+0.0)+(tv1.tv_usec-tv0.tv_usec)/(nrep*1e6);
+
+/************************************************
+* extract and print solution
+************************************************/	
+
+	double *u[N+1]; for(ii=0; ii<=N; ii++) d_zeros(u+ii, nu[ii], 1);
+	double *x[N+1]; for(ii=0; ii<=N; ii++) d_zeros(x+ii, nx[ii], 1);
+	double *ls[N+1]; for(ii=0; ii<=N; ii++) d_zeros(ls+ii, ns[ii], 1);
+	double *us[N+1]; for(ii=0; ii<=N; ii++) d_zeros(us+ii, ns[ii], 1);
+	double *pi[N]; for(ii=0; ii<N; ii++) d_zeros(pi+ii, nx[ii+1], 1);
+	double *lam_lb[N+1]; for(ii=0; ii<=N; ii++) d_zeros(lam_lb+ii, nb[ii], 1);
+	double *lam_ub[N+1]; for(ii=0; ii<=N; ii++) d_zeros(lam_ub+ii, nb[ii], 1);
+	double *lam_lg[N+1]; for(ii=0; ii<=N; ii++) d_zeros(lam_lg+ii, ng[ii], 1);
+	double *lam_ug[N+1]; for(ii=0; ii<=N; ii++) d_zeros(lam_ug+ii, ng[ii], 1);
+	double *lam_ls[N+1]; for(ii=0; ii<=N; ii++) d_zeros(lam_ls+ii, ns[ii], 1);
+	double *lam_us[N+1]; for(ii=0; ii<=N; ii++) d_zeros(lam_us+ii, ns[ii], 1);
+
+	d_cvt_ocp_nlp_sol_to_colmaj(&nlp, &nlp_sol, u, x, ls, us, pi, lam_lb, lam_ub, lam_lg, lam_ug, lam_ls, lam_us);
+
+#if 1
+	printf("\nsolution\n\n");
+	printf("\nu\n");
 	for(ii=0; ii<=N; ii++)
-		d_print_tran_strvec(nlp.nx[ii]+nlp.nu[ii], nlp_sol.ux+ii, 0);
+		d_print_mat(1, nu[ii], u[ii], 1);
+	printf("\nx\n");
+	for(ii=0; ii<=N; ii++)
+		d_print_mat(1, nx[ii], x[ii], 1);
+	printf("\nls\n");
+	for(ii=0; ii<=N; ii++)
+		d_print_mat(1, ns[ii], ls[ii], 1);
+	printf("\nus\n");
+	for(ii=0; ii<=N; ii++)
+		d_print_mat(1, ns[ii], us[ii], 1);
+	printf("\npi\n");
+	for(ii=0; ii<N; ii++)
+		d_print_mat(1, nx[ii+1], pi[ii], 1);
+	printf("\nlam_lb\n");
+	for(ii=0; ii<=N; ii++)
+		d_print_mat(1, nb[ii], lam_lb[ii], 1);
+	printf("\nlam_ub\n");
+	for(ii=0; ii<=N; ii++)
+		d_print_mat(1, nb[ii], lam_ub[ii], 1);
+	printf("\nlam_lg\n");
+	for(ii=0; ii<=N; ii++)
+		d_print_mat(1, ng[ii], lam_lg[ii], 1);
+	printf("\nlam_ug\n");
+	for(ii=0; ii<=N; ii++)
+		d_print_mat(1, ng[ii], lam_ug[ii], 1);
+	printf("\nlam_ls\n");
+	for(ii=0; ii<=N; ii++)
+		d_print_mat(1, ns[ii], lam_ls[ii], 1);
+	printf("\nlam_us\n");
+	for(ii=0; ii<=N; ii++)
+		d_print_mat(1, ns[ii], lam_us[ii], 1);
+
+	printf("\nt_lb\n");
+	for(ii=0; ii<=N; ii++)
+		d_print_mat(1, nb[ii], (nlp_sol.t+ii)->pa, 1);
+	printf("\nt_ub\n");
+	for(ii=0; ii<=N; ii++)
+		d_print_mat(1, nb[ii], (nlp_sol.t+ii)->pa+nb[ii]+ng[ii], 1);
+	printf("\nt_lg\n");
+	for(ii=0; ii<=N; ii++)
+		d_print_mat(1, ng[ii], (nlp_sol.t+ii)->pa+nb[ii], 1);
+	printf("\nt_ug\n");
+	for(ii=0; ii<=N; ii++)
+		d_print_mat(1, ng[ii], (nlp_sol.t+ii)->pa+2*nb[ii]+ng[ii], 1);
+	printf("\nt_ls\n");
+	for(ii=0; ii<=N; ii++)
+		d_print_mat(1, ns[ii], (nlp_sol.t+ii)->pa+2*nb[ii]+2*ng[ii], 1);
+	printf("\nt_us\n");
+	for(ii=0; ii<=N; ii++)
+		d_print_mat(1, ns[ii], (nlp_sol.t+ii)->pa+2*nb[ii]+2*ng[ii]+ns[ii], 1);
+#endif
+
+/************************************************
+* print ipm statistics
+************************************************/	
+
+	printf("\nocp sqp time = %e [s]\n\n", time_ocp_sqp);
 
 /************************************************
 * free memory
 ************************************************/	
 	
-	free(ls_memory);
+	free(lin_sys_memory);
 	free(Ac);
 	free(Bc);
 	free(x0);
@@ -781,6 +869,31 @@ int main()
 	d_free(zlN);
 	d_free(zuN);
 	int_free(idxsN);
+
+	for(ii=0; ii<N; ii++)
+		{
+		d_free(u[ii]);
+		d_free(x[ii]);
+		d_free(ls[ii]);
+		d_free(us[ii]);
+		d_free(pi[ii]);
+		d_free(lam_lb[ii]);
+		d_free(lam_ub[ii]);
+		d_free(lam_lg[ii]);
+		d_free(lam_ug[ii]);
+		d_free(lam_ls[ii]);
+		d_free(lam_us[ii]);
+		}
+	d_free(u[ii]);
+	d_free(x[ii]);
+	d_free(ls[ii]);
+	d_free(us[ii]);
+	d_free(lam_lb[ii]);
+	d_free(lam_ub[ii]);
+	d_free(lam_lg[ii]);
+	d_free(lam_ug[ii]);
+	d_free(lam_ls[ii]);
+	d_free(lam_us[ii]);
 
 	free(memory_rk_data);
 	free(nlp_mem);

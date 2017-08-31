@@ -55,6 +55,7 @@ void d_cvt_erk_int_to_ocp_qp(int n, struct d_erk_workspace *erk_ws, double *xn, 
 
 	d_cvt_tran_mat2strmat(nx[1], nu[0]+nx[0], x, nx[1], BAbt, 0, 0);
 
+	// XXX not compute this again in residuals !!!
 	tmp = x+nx[1]*nf;
 	for(ii=0; ii<nx[1]; ii++)
 		xt[ii] = tmp[ii] - xn[ii];
