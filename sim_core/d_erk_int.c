@@ -54,6 +54,9 @@ int d_memsize_erk_int(struct d_rk_data *rk_data, int nx, int nf, int np)
 void d_create_erk_int(struct d_rk_data *rk_data, int nx, int nf, int np, struct d_erk_workspace *ws, void *memory)
 	{
 
+	//
+	ws->memsize = d_memsize_erk_int(rk_data, nx, nf, np);
+
 	ws->rk_data = rk_data;
 	ws->nx = nx;
 	ws->nf = nf;
@@ -109,6 +112,10 @@ void d_init_erk_int(double *x0, double *fs0, double *p0, void (*ode)(int t, doub
 	
 	ws->ode = ode;
 	ws->ode_args = ode_args;
+
+//	d_print_mat(1, nx*nf, x, 1);
+//	d_print_mat(1, np, p, 1);
+//	printf("\n%p %p\n", ode, ode_args);
 
 	return;
 

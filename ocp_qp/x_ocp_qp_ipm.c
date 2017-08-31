@@ -610,6 +610,29 @@ exit(1);
 int SOLVE_OCP_QP_IPM2(struct OCP_QP *qp, struct OCP_QP_SOL *qp_sol, struct OCP_QP_IPM_WORKSPACE *ws)
 	{
 
+#if 0
+int N = qp->N;
+int *nx = qp->nx;
+int *nu = qp->nu;
+int *nb = qp->nb;
+int *ng = qp->ng;
+int *ns = qp->ns;
+int nn;
+for(nn=0; nn<=N; nn++)
+	d_print_strmat(nu[nn]+nx[nn]+1, nu[nn]+nx[nn], qp->RSQrq+nn, 0, 0);
+for(nn=0; nn<N; nn++)
+	d_print_strmat(nu[nn]+nx[nn]+1, nx[nn+1], qp->BAbt+nn, 0, 0);
+for(nn=0; nn<=N; nn++)
+	if(ng[nn]>0)
+		d_print_strmat(nu[nn]+nx[nn], ng[nn], qp->DCt+nn, 0, 0);
+for(nn=0; nn<=N; nn++)
+	if(nb[nn]+ng[nn]>0)
+		d_print_tran_strvec(2*nb[nn]+2*ng[nn]+2*ns[nn], qp->d+nn, 0);
+for(nn=0; nn<=N; nn++)
+	if(nb[nn]>0)
+		int_print_mat(1, nb[nn], qp->idxb[nn], 1);
+#endif
+
 	struct CORE_QP_IPM_WORKSPACE *cws = ws->core_workspace;
 
 	// alias qp vectors into qp_sol

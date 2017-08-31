@@ -37,6 +37,7 @@
 #include "../include/hpipm_d_ocp_qp.h"
 #include "../include/hpipm_d_ocp_qp_sol.h"
 #include "../include/hpipm_d_ocp_qp_ipm.h"
+#include "../include/hpipm_d_ocp_qp_sim.h"
 #include "../include/hpipm_d_ocp_nlp.h"
 #include "../include/hpipm_d_ocp_nlp_sol.h"
 #include "../include/hpipm_d_ocp_nlp_sqp.h"
@@ -61,6 +62,7 @@
 #define OCP_QP d_ocp_qp
 #define OCP_QP_IPM_WORKSPACE d_ocp_qp_ipm_workspace
 #define OCP_QP_SOL d_ocp_qp_sol
+#define REAL double
 
 #define MEMSIZE_OCP_NLP_SQP d_memsize_ocp_nlp_sqp
 #define CREATE_OCP_NLP_SQP d_create_ocp_nlp_sqp
@@ -90,7 +92,7 @@ int MEMSIZE_OCP_NLP_SQP(struct OCP_NLP *nlp, struct OCP_NLP_SQP_ARG *arg)
 	size += 1*sizeof(struct OCP_QP_IPM_WORKSPACE);
 	size += N*sizeof(struct ERK_WORKSPACE);
 	size += N*sizeof(struct ERK_ARG);
-	size += N*sizeof(double *);
+	size += N*sizeof(REAL *); // fs
 
 	size += MEMSIZE_OCP_QP(N, nx, nu, nb, ng, ns);
 	size += MEMSIZE_OCP_QP_SOL(N, nx, nu, nb, ng, ns);
@@ -110,7 +112,7 @@ int MEMSIZE_OCP_NLP_SQP(struct OCP_NLP *nlp, struct OCP_NLP_SQP_ARG *arg)
 	for(ii=0; ii<N; ii++)
 		{
 		size += MEMSIZE_ERK_INT(arg->rk_data, nx[ii], nx[ii]+nu[ii], nu[ii]);
-		size += N*nx[ii]*(nu[ii]+nx[ii])*sizeof(double);
+		size += N*nx[ii]*(nu[ii]+nx[ii])*sizeof(REAL); // fs
 		}
 
 	size = (size+63)/64*64; // make multiple of typical cache line size
@@ -185,13 +187,13 @@ void CREATE_OCP_NLP_SQP(struct OCP_NLP *nlp, struct OCP_NLP_SQP_ARG *arg, struct
 		}
 	
 	//
-	double **dp_ptr = (double **) c_ptr;
+	REAL **dp_ptr = (REAL **) c_ptr;
 	//
 	ws->fs = dp_ptr;
 	dp_ptr += N;
 
 	//
-	double *d_ptr = (double *) dp_ptr;
+	REAL *d_ptr = (REAL *) dp_ptr;
 	//
 	for(ii=0; ii<N; ii++)
 		{
@@ -227,6 +229,9 @@ int SOLVE_OCP_NLP_SQP(struct OCP_NLP *nlp, struct OCP_NLP_SOL *nlp_sol, struct O
 	int N = nlp->N;
 	int *nx = nlp->nx;
 	int *nu = nlp->nu;
+	int *nb = nlp->nb;
+	int *ng = nlp->ng;
+	int *ns = nlp->ns;
 
 	// initialize solution to zero
 	for(nn=0; nn<=N; nn++)
@@ -235,6 +240,18 @@ int SOLVE_OCP_NLP_SQP(struct OCP_NLP *nlp, struct OCP_NLP_SOL *nlp_sol, struct O
 
 //	double *fs1; d_zeros(&fs1, nx_*nf1, 1); // TODO
 //	for(ii=0; ii<nx_; ii++) fs1[nu_*nx_+ii*(nx_+1)] = 1.0; // TODO
+
+	double *x, *xn, *u;
+
+	printf("\nfunction\n");
+
+	// copy nlp into qp
+	for(nn=0; nn<=N; nn++)
+		{
+		dgecp_libstr(nu[nn]+nx[nn], nu[nn]+nx[nn], nlp->RSQ+nn, 0, 0, qp->RSQrq+nn, 0, 0);
+		dveccp_libstr(2*nb[nn]+2*ng[nn]+2*ns[nn], nlp->d+nn, 0, qp->d+nn, 0);
+		for(ii=0; ii<nb[nn]; ii++) qp->idxb[nn][ii] = nlp->idxb[nn][ii];
+		}
 
 	int sqp_steps = 1;
 	for(ss=0; ss<sqp_steps; ss++)	
@@ -251,22 +268,26 @@ int SOLVE_OCP_NLP_SQP(struct OCP_NLP *nlp, struct OCP_NLP_SOL *nlp_sol, struct O
 		// other stages
 		for(nn=0; nn<N; nn++)
 			{
+			x  = (nlp_sol->ux+nn)->pa+nu[nn];
+			xn = (nlp_sol->ux+nn+1)->pa+nu[nn+1];
+			u  = (nlp_sol->ux+nn)->pa;
+//			printf("\nnn = %d\n", nn);
 //			d_print_mat(nx[nn], nu[nn]+nx[nn], ws->fs[nn], nx[nn]);
-//			d_init_erk_int((nlp_sol->ux+nn)->pa[0]+nu[0], ws->fs[nn], (nlp_sol->ux+nn)->pa[0], nlp->expl_vde[nn], &ls, erk_ws+nn);
-//			d_erk_int(erk_arg+nn, erk_ws+nn);
-//			d_cvt_erk_int_to_ocp_qp(nn, erk_ws+nn, x[nn+1], qp);
+			d_init_erk_int(x, ws->fs[nn], u, (nlp->model+nn)->expl_vde, (nlp->model+nn)->arg, erk_ws+nn);
+			d_erk_int(erk_arg+nn, erk_ws+nn);
+			d_cvt_erk_int_to_ocp_qp(nn, erk_ws+nn, xn, qp);
 			}
 
 //		for(nn=0; nn<=N; nn++)
-//			d_print_strmat(nu[nn]+nx[nn]+1, nu[nn]+nx[nn], qp.RSQrq+nn, 0, 0);
+//			d_print_strmat(nu[nn]+nx[nn]+1, nu[nn]+nx[nn], qp->RSQrq+nn, 0, 0);
 //		for(nn=0; nn<N; nn++)
-//			d_print_strmat(nu[nn]+nx[nn]+1, nx[nn+1], qp.BAbt+nn, 0, 0);
+//			d_print_strmat(nu[nn]+nx[nn]+1, nx[nn+1], qp->BAbt+nn, 0, 0);
 //		for(nn=0; nn<=N; nn++)
-//			d_print_tran_strvec(nb[nn], qp.d+nn, 0);
+//			d_print_tran_strvec(nb[nn], qp->d+nn, 0);
 
 		d_solve_ocp_qp_ipm2(qp, qp_sol, ipm_ws);
 
-//		d_print_e_tran_mat(5, workspace.iter, workspace.stat, 5);
+//		d_print_e_tran_mat(5, ipm_ws->iter, ipm_ws->stat, 5);
 
 //		d_cvt_ocp_qp_sol_to_colmaj(&qp, &qp_sol, du, dx, dls, dus, dpi, dlam_lb, dlam_ub, dlam_lg, dlam_ug, dlam_ls, dlam_us);
 

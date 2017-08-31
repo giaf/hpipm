@@ -39,6 +39,7 @@
 #define CVT_TRAN_MAT2STRMAT d_cvt_tran_mat2strmat
 #define CVT_VEC2STRVEC d_cvt_vec2strvec
 #define OCP_NLP d_ocp_nlp
+#define OCP_NLP_MODEL d_ocp_nlp_model
 #define REAL double
 #define SIZE_STRMAT d_size_strmat
 #define SIZE_STRVEC d_size_strvec
@@ -60,7 +61,7 @@ int MEMSIZE_OCP_NLP(int N, int *nx, int *nu, int *nb, int *ng, int *ns)
 
 	size += 5*(N+1)*sizeof(int); // nx nu nb ng ns
 	size += 2*(N+1)*sizeof(int *); // idxb idxs
-	size += 1*(N+1)*sizeof(void(*)(void)); // expl_vde
+	size += 1*N*sizeof(struct OCP_NLP_MODEL); // model
 	size += 2*(N+1)*sizeof(struct STRMAT); // RSQ DCt
 	size += 4*(N+1)*sizeof(struct STRVEC); // ux_ref d Z z
 
@@ -110,16 +111,15 @@ void CREATE_OCP_NLP(int N, int *nx, int *nu, int *nb, int *ng, int *ns, struct O
 	ip_ptr += N+1;
 
 
-	// function pointer stuff
-	void (**fun_ptr)() = (void (**)()) ip_ptr;
-
-	// expl_vde
-	nlp->expl_vde = fun_ptr;
-	fun_ptr += N+1;
+	// model
+	struct OCP_NLP_MODEL *m_ptr = (struct OCP_NLP_MODEL *) ip_ptr;
+	//
+	nlp->model = m_ptr;
+	m_ptr += N;
 
 
 	// matrix struct stuff
-	struct STRMAT *sm_ptr = (struct STRMAT *) fun_ptr;
+	struct STRMAT *sm_ptr = (struct STRMAT *) m_ptr;
 
 	// RSQ
 	nlp->RSQ = sm_ptr;
@@ -268,7 +268,7 @@ void CREATE_OCP_NLP(int N, int *nx, int *nu, int *nb, int *ng, int *ns, struct O
 
 
 
-void CVT_COLMAJ_TO_OCP_NLP(void (**expl_vde)(), REAL **Q, REAL **S, REAL **R, REAL **x_ref, REAL **u_ref, int **idxb, REAL **d_lb, REAL **d_ub, REAL **C, REAL **D, REAL **d_lg, REAL **d_ug, REAL **Zl, REAL **Zu, REAL **zl, REAL **zu, int **idxs, struct OCP_NLP *nlp)
+void CVT_COLMAJ_TO_OCP_NLP(struct OCP_NLP_MODEL *model, REAL **Q, REAL **S, REAL **R, REAL **x_ref, REAL **u_ref, int **idxb, REAL **d_lb, REAL **d_ub, REAL **C, REAL **D, REAL **d_lg, REAL **d_ug, REAL **Zl, REAL **Zu, REAL **zl, REAL **zu, int **idxs, struct OCP_NLP *nlp)
 	{
 
 	int N = nlp->N;
@@ -282,7 +282,7 @@ void CVT_COLMAJ_TO_OCP_NLP(void (**expl_vde)(), REAL **Q, REAL **S, REAL **R, RE
 
 	for(ii=0; ii<N; ii++)
 		{
-		nlp->expl_vde[ii] = expl_vde[ii];
+		nlp->model[ii] = model[ii];
 		}
 	
 	for(ii=0; ii<=N; ii++)

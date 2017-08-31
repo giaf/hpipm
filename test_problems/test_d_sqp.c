@@ -195,6 +195,9 @@ void d_linear_vde1(int t, double *x, double *u, void *ode_args, double *xdot)
 	int nu = ls->nu;
 	double *Ac = ls->Ac;
 	double *Bc = ls->Bc;
+//	printf("\n%d %d\n", nx, nu);
+//	d_print_mat(nx, nx, Ac, nx);
+//	d_print_mat(nx, nu, Bc, nx);
 	double *tmp;
 	for(ii=0; ii<nx*(nu+nx+1); ii++)
 		xdot[ii] = 0.0;
@@ -521,6 +524,8 @@ int main()
 		for(ii=0; ii<nx[nn]; ii++)
 			x[nn][ii] = 0.0;
 
+	printf("\nscipt\n");
+
 	int sqp_steps = 1;
 	for(ss=0; ss<sqp_steps; ss++)	
 		{
@@ -579,6 +584,7 @@ int main()
 	double *d_ub0; d_zeros(&d_ub0, nb[0], 1);
 	double *d_lg0; d_zeros(&d_lg0, ng[0], 1);
 	double *d_ug0; d_zeros(&d_ug0, ng[0], 1);
+#if 0
 	for(ii=0; ii<nb[0]; ii++)
 		{
 		if(ii<nu[0]) // input
@@ -593,6 +599,14 @@ int main()
 			}
 		idxb0[ii] = ii;
 		}
+#else
+	for(ii=0; ii<nb[0]; ii++)
+		{
+		d_lb0[ii] = x0[ii];
+		d_ub0[ii] = x0[ii];
+		idxb0[ii] = nu[0]+ii;
+		}
+#endif
 
 	int *idxb1; int_zeros(&idxb1, nb[1], 1);
 	double *d_lb1; d_zeros(&d_lb1, nb[1], 1);
@@ -659,6 +673,7 @@ int main()
 	d_print_mat(1, ng[N], d_ugN, 1);
 	d_print_mat(ng[N], nu[N], DN, ng[N]);
 	d_print_mat(ng[N], nx[N], CN, ng[N]);
+	exit(1);
 #endif
 
 /************************************************
@@ -743,10 +758,18 @@ int main()
 	for(ii=0; ii<nu_; ii++) u_ref[ii] = 0.0;
 	
 /************************************************
+* ocp nlp model
+************************************************/	
+
+	struct d_ocp_nlp_model model1;
+	model1.expl_vde = &d_linear_vde1;
+	model1.arg = &ls;
+
+/************************************************
 * ocp nlp data
 ************************************************/	
 
-	void (*hexpl_vde[N])();
+	struct d_ocp_nlp_model models[N];
 	double *hQ[N+1];
 	double *hS[N+1];
 	double *hR[N+1];
@@ -765,15 +788,15 @@ int main()
 	double *hzu[N+1];
 	int *hidxs[N+1]; // XXX
 
-	hexpl_vde[0] = d_linear_vde0;
+	models[0] = model1;
 	hQ[0] = Q;
 	hS[0] = S;
 	hR[0] = R;
 	hx_ref[0] = x_ref;
 	hu_ref[0] = u_ref;
-	hidxb[0] = idxb0;
-	hd_lb[0] = d_lb0;
-	hd_ub[0] = d_ub0;
+	hidxb[0] = idxb00;//idxb0;
+	hd_lb[0] = x0;//d_lb0;
+	hd_ub[0] = x0;//d_ub0;
 	hd_lg[0] = d_lg0;
 	hd_ug[0] = d_ug0;
 	hC[0] = C0;
@@ -785,7 +808,7 @@ int main()
 	hidxs[0] = idxs0;
 	for(ii=1; ii<N; ii++)
 		{
-		hexpl_vde[ii] = d_linear_vde1;
+		models[ii] = model1;
 		hQ[ii] = Q;
 		hS[ii] = S;
 		hR[ii] = R;
@@ -833,7 +856,7 @@ int main()
 	struct d_ocp_nlp nlp;
 	d_create_ocp_nlp(N, nx, nu, nb, ng, ns, &nlp, nlp_mem);
 
-	d_cvt_colmaj_to_ocp_nlp(hexpl_vde, hQ, hS, hR, hx_ref, hu_ref, hidxb, hd_lb, hd_ub, hC, hD, hd_lg, hd_ug, hZl, hZu, hzl, hzu, hidxs, &nlp);
+	d_cvt_colmaj_to_ocp_nlp(models, hQ, hS, hR, hx_ref, hu_ref, hidxb, hd_lb, hd_ub, hC, hD, hd_lg, hd_ug, hZl, hZu, hzl, hzu, hidxs, &nlp);
 
 /************************************************
 * ocp nlp sol
