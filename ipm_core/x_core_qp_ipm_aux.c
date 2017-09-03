@@ -37,8 +37,6 @@ void COMPUTE_QX_QX_QP(struct CORE_QP_IPM_WORKSPACE *cws)
 	REAL *res_m = cws->res_m;
 	REAL *res_d = cws->res_d;
 	REAL *t_inv = cws->t_inv;
-	REAL *Qx = cws->Qx;
-	REAL *qx = cws->qx;
 	REAL *Gamma = cws->Gamma;
 	REAL *gamma = cws->gamma;
 
@@ -52,14 +50,6 @@ void COMPUTE_QX_QX_QP(struct CORE_QP_IPM_WORKSPACE *cws)
 		gamma[ii] = t_inv[ii]*(res_m[ii]-lam[ii]*res_d[ii]);
 		}
 
-	// TODO move outside core
-	for(ii=0; ii<nc; ii++)
-		{
-		// TODO mask out unconstrained components for one-sided (multiply by zero?)
-		Qx[ii] = Gamma[ii] + Gamma[nc+ii];
-		qx[ii] = gamma[ii] - gamma[nc+ii];
-		}
-	
 	return;
 
 	}
@@ -81,13 +71,6 @@ void COMPUTE_LAM_T_QP(struct CORE_QP_IPM_WORKSPACE *cws)
 	// local variables
 	int ii;
 
-	// TODO move outside core
-	// XXX only ocp_qp works now !!!!!!!!!!!!!!!!!!!!
-//	for(ii=0; ii<nc; ii++)
-//		{
-//		dt[nc+ii] = - dt[ii];
-//		}
-	
 	for(ii=0; ii<2*nc; ii++)
 		{
 		dt[ii] -= res_d[ii]; // XXX change sign for upper?
@@ -262,7 +245,6 @@ void COMPUTE_QX_QP(struct CORE_QP_IPM_WORKSPACE *cws)
 	REAL *res_m = cws->res_m;
 	REAL *res_d = cws->res_d;
 	REAL *t_inv = cws->t_inv;
-	REAL *qx = cws->qx;
 	REAL *gamma = cws->gamma;
 
 	// local variables
@@ -271,13 +253,6 @@ void COMPUTE_QX_QP(struct CORE_QP_IPM_WORKSPACE *cws)
 	for(ii=0; ii<2*nc; ii++)
 		{
 		gamma[ii] = t_inv[ii]*(res_m[ii]-lam[ii]*res_d[ii]);
-		}
-
-	// TODO move outside core
-	for(ii=0; ii<nc; ii++)
-		{
-		// TODO mask out unconstrained components for one-sided
-		qx[ii] = gamma[ii] - gamma[nc+ii];
 		}
 
 	return;

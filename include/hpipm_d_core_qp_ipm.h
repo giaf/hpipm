@@ -44,8 +44,6 @@ struct d_core_qp_ipm_workspace
 	double *res_m; // m-residuals
 	double *Gamma; // Hessian update
 	double *gamma; // gradient update
-	double *Qx; // Hessian update
-	double *qx; // gradient update
 	double *stat; // convergence statistics
 	double alpha; // step length
 	double sigma; // centering XXX
