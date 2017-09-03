@@ -254,12 +254,8 @@ void CREATE_OCP_QP_IPM(struct OCP_QP *qp, struct OCP_QP_IPM_ARG *arg, struct OCP
 	CREATE_STRVEC(nsM, workspace->tmp_nsM+0, c_ptr);
 	c_ptr += (workspace->tmp_nsM+0)->memory_size;
 
-
-
 	CREATE_CORE_QP_IPM(nvt, net, nct, cws, c_ptr);
 	c_ptr += workspace->core_workspace->memsize;
-
-	cws->nt_inv = 1.0/nct; // TODO avoid computation if nt=0 XXX
 
 
 	// alias members of workspace and core_workspace

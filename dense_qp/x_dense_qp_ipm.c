@@ -182,8 +182,6 @@ void CREATE_DENSE_QP_IPM(struct DENSE_QP *qp, struct DENSE_QP_IPM_ARG *arg, stru
 	CREATE_CORE_QP_IPM(nv+2*ns, ne, 2*nb+2*ng+2*ns, cws, c_ptr);
 	c_ptr += workspace->core_workspace->memsize;
 
-	cws->nt_inv = 1.0/(2*nb+2*ng+2*ns);
-
 
 	// alias members of workspace and core_workspace
 	//

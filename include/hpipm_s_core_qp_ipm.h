@@ -48,7 +48,7 @@ struct s_core_qp_ipm_workspace
 	float sigma; // centering XXX
 	float mu; // duality measuere
 	float mu_aff; // affine duality measuere
-	float nt_inv; // 1.0/nt, where nt is the total number of constraints
+	float nc_inv; // 1.0/nt, where nt is the total number of constraints
 	int nv; // number of primal variables
 	int ne; // number of equality constraints
 	int nc; // number of (two-sided) inequality constraints
