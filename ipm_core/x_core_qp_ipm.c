@@ -67,8 +67,6 @@ void CREATE_CORE_QP_IPM(struct CORE_QP_IPM_WORKSPACE *workspace, void *mem)
 // if target avx NO!!!!
 // nv0 = ...
 
-	workspace->memsize = MEMSIZE_CORE_QP_IPM(nv, ne, nc, workspace->stat_max);
-
 	REAL *d_ptr = (REAL *) mem;
 
 	workspace->t_inv = d_ptr; // t_inv
@@ -113,9 +111,23 @@ void CREATE_CORE_QP_IPM(struct CORE_QP_IPM_WORKSPACE *workspace, void *mem)
 	workspace->stat = d_ptr; // stat
 	d_ptr += 5*workspace->stat_max;
 
-	int *i_ptr = (int *) d_ptr;
 
-	return;
+	workspace->memsize = MEMSIZE_CORE_QP_IPM(nv, ne, nc, workspace->stat_max);
+
+
+	char * c_ptr = (char *) d_ptr;
+
+
+	#if defined(RUNTIME_CHECKS)
+	if(c_ptr > ((char *) mem) + workspace->memsize)
+		{
+		printf("\nCreate_core_qp_ipm: outsize memory bounds!\n\n");
+		exit(1);
+		}
+#endif
+
+
+return;
 
 	}
 

@@ -27,6 +27,11 @@
 
 
 
+#if defined(RUNTIME_CHECKS)
+#include <stdlib.h>
+#include <stdio.h>
+#endif
+
 #include "../include/hpipm_s_core_qp_ipm.h"
 #include "../include/hpipm_s_core_qp_ipm_aux.h"
 
