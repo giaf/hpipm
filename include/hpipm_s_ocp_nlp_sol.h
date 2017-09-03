@@ -38,18 +38,19 @@ struct s_ocp_nlp_sol
 	struct s_strvec *pi;
 	struct s_strvec *lam;
 	struct s_strvec *t;
+	struct s_strvec *eta0;
 	int memsize; // memory size in bytes
 	};
 
 
 
 //
-int s_memsize_ocp_nlp_sol(int N, int *nx, int *nu, int *nb, int *ng, int *ns);
+int s_memsize_ocp_nlp_sol(int N, int *nx, int *nu, int *nb, int *ng, int *ns, int ne0);
 //
-void s_create_ocp_nlp_sol(int N, int *nx, int *nu, int *nb, int *ng, int *ns, struct s_ocp_nlp_sol *qp_sol, void *memory);
+void s_create_ocp_nlp_sol(int N, int *nx, int *nu, int *nb, int *ng, int *ns, int ne0, struct s_ocp_nlp_sol *qp_sol, void *memory);
 //
-void s_cvt_ocp_nlp_sol_to_colmaj(struct s_ocp_nlp *qp, struct s_ocp_nlp_sol *qp_sol, float **u, float **x, float **ls, float **us, float **pi, float **lam_lb, float **lam_ub, float **lam_lg, float **lam_ug, float **lam_ls, float **lam_us);
+void s_cvt_ocp_nlp_sol_to_colmaj(struct s_ocp_nlp *qp, struct s_ocp_nlp_sol *qp_sol, float **u, float **x, float **ls, float **us, float **pi, float **lam_lb, float **lam_ub, float **lam_lg, float **lam_ug, float **lam_ls, float **lam_us, float *eta0);
 //
-void s_cvt_ocp_nlp_sol_to_rowmaj(struct s_ocp_nlp *qp, struct s_ocp_nlp_sol *qp_sol, float **u, float **x, float **ls, float **us, float **pi, float **lam_lb, float **lam_ub, float **lam_lg, float **lam_ug, float **lam_ls, float **lam_us);
+void s_cvt_ocp_nlp_sol_to_rowmaj(struct s_ocp_nlp *qp, struct s_ocp_nlp_sol *qp_sol, float **u, float **x, float **ls, float **us, float **pi, float **lam_lb, float **lam_ub, float **lam_lg, float **lam_ug, float **lam_ls, float **lam_us, float *eta0);
 //
-void s_cvt_ocp_nlp_sol_to_libstr(struct s_ocp_nlp *qp, struct s_ocp_nlp_sol *qp_sol, struct s_strvec *u, struct s_strvec *ls, struct s_strvec *us, struct s_strvec *x, struct s_strvec *pi, struct s_strvec *lam_lb, struct s_strvec *lam_ub, struct s_strvec *lam_lg, struct s_strvec *lam_ug, struct s_strvec *lam_ls, struct s_strvec *lam_us);
+void s_cvt_ocp_nlp_sol_to_libstr(struct s_ocp_nlp *qp, struct s_ocp_nlp_sol *qp_sol, struct s_strvec *u, struct s_strvec *ls, struct s_strvec *us, struct s_strvec *x, struct s_strvec *pi, struct s_strvec *lam_lb, struct s_strvec *lam_ub, struct s_strvec *lam_lg, struct s_strvec *lam_ug, struct s_strvec *lam_ls, struct s_strvec *lam_us, struct s_stevec *eta0);

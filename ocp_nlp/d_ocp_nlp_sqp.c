@@ -92,6 +92,7 @@ int MEMSIZE_OCP_NLP_SQP(struct OCP_NLP *nlp, struct OCP_NLP_SQP_ARG *arg)
 	int *nb = nlp->nb;
 	int *ng = nlp->ng;
 	int *ns = nlp->ns;
+	int ne0 = nlp->ne0;
 
 	int nuxM = 0;
 	int nbgM = 0;
@@ -162,6 +163,7 @@ void CREATE_OCP_NLP_SQP(struct OCP_NLP *nlp, struct OCP_NLP_SQP_ARG *arg, struct
 	int *nb = nlp->nb;
 	int *ng = nlp->ng;
 	int *ns = nlp->ns;
+	int ne0 = nlp->ne0;
 
 	int nuxM = 0;
 	int nbgM = 0;
@@ -306,6 +308,7 @@ int SOLVE_OCP_NLP_SQP(struct OCP_NLP *nlp, struct OCP_NLP_SOL *nlp_sol, struct O
 	int *nb = nlp->nb;
 	int *ng = nlp->ng;
 	int *ns = nlp->ns;
+	int ne0 = nlp->ne0;
 
 	double *x, *xn, *u;
 
