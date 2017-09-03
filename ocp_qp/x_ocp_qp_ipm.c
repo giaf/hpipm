@@ -87,7 +87,9 @@ int MEMSIZE_OCP_QP_IPM(struct OCP_QP *qp, struct OCP_QP_IPM_ARG *arg)
 	size += 2*SIZE_STRMAT(nuM+nxM+1, nxM+ngM); // AL
 
 	size += 1*sizeof(struct CORE_QP_IPM_WORKSPACE);
-	size += 1*MEMSIZE_CORE_QP_IPM(nvt, net, nct, arg->stat_max);
+	size += 1*MEMSIZE_CORE_QP_IPM(nvt, net, nct);
+
+	size += 5*arg->stat_max*sizeof(REAL);
 
 	size = (size+63)/64*64; // make multiple of typical cache line size
 	size += 1*64; // align once to typical cache line size
@@ -193,8 +195,17 @@ void CREATE_OCP_QP_IPM(struct OCP_QP *qp, struct OCP_QP_IPM_ARG *arg, struct OCP
 	sv_ptr += 1;
 
 
+	// double/float stuff
+	REAL *d_ptr = (REAL *) sv_ptr;
+	
+	workspace->stat = d_ptr;
+	d_ptr += 5*arg->stat_max;
+
+	workspace->stat_max = arg->stat_max;
+
+
 	// align to typicl cache line size
-	size_t s_ptr = (size_t) sv_ptr;
+	size_t s_ptr = (size_t) d_ptr;
 	s_ptr = (s_ptr+63)/64*64;
 
 
@@ -245,7 +256,6 @@ void CREATE_OCP_QP_IPM(struct OCP_QP *qp, struct OCP_QP_IPM_ARG *arg, struct OCP
 
 
 
-	cws->stat_max = arg->stat_max;
 	CREATE_CORE_QP_IPM(nvt, net, nct, cws, c_ptr);
 	c_ptr += workspace->core_workspace->memsize;
 
@@ -345,8 +355,6 @@ void CREATE_OCP_QP_IPM(struct OCP_QP *qp, struct OCP_QP_IPM_ARG *arg, struct OCP
 		c_ptr += ns[ii]*sizeof(REAL);
 		c_ptr += ns[ii]*sizeof(REAL);
 		}
-	//
-	workspace->stat = cws->stat;
 
 
 	//
@@ -408,20 +416,20 @@ int SOLVE_OCP_QP_IPM(struct OCP_QP *qp, struct OCP_QP_SOL *qp_sol, struct OCP_QP
 
 		// alpha
 		COMPUTE_ALPHA_QP(cws);
-		if(kk<cws->stat_max)
-			cws->stat[5*kk+0] = cws->alpha;
+		if(kk<ws->stat_max)
+			ws->stat[5*kk+0] = cws->alpha;
 
 		if(arg->pred_corr==1)
 			{
 			// mu_aff
 			COMPUTE_MU_AFF_QP(cws);
-			if(kk<cws->stat_max)
-				cws->stat[5*kk+1] = cws->mu_aff;
+			if(kk<ws->stat_max)
+				ws->stat[5*kk+1] = cws->mu_aff;
 
 			tmp = cws->mu_aff/cws->mu;
 			cws->sigma = tmp*tmp*tmp;
-			if(kk<cws->stat_max)
-				cws->stat[5*kk+2] = cws->sigma;
+			if(kk<ws->stat_max)
+				ws->stat[5*kk+2] = cws->sigma;
 
 			COMPUTE_CENTERING_CORRECTION_QP(cws);
 
@@ -430,8 +438,8 @@ int SOLVE_OCP_QP_IPM(struct OCP_QP *qp, struct OCP_QP_SOL *qp_sol, struct OCP_QP
 
 			// alpha
 			COMPUTE_ALPHA_QP(cws);
-			if(kk<cws->stat_max)
-				cws->stat[5*kk+3] = cws->alpha;
+			if(kk<ws->stat_max)
+				ws->stat[5*kk+3] = cws->alpha;
 			}
 
 		//
@@ -440,8 +448,8 @@ int SOLVE_OCP_QP_IPM(struct OCP_QP *qp, struct OCP_QP_SOL *qp_sol, struct OCP_QP
 		// compute residuals
 		COMPUTE_RES_OCP_QP(qp, qp_sol, ws);
 		cws->mu = ws->res_mu;
-		if(kk<cws->stat_max)
-			cws->stat[5*kk+4] = ws->res_mu;
+		if(kk<ws->stat_max)
+			ws->stat[5*kk+4] = ws->res_mu;
 
 		}
 	

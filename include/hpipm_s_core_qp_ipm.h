@@ -44,7 +44,6 @@ struct s_core_qp_ipm_workspace
 	float *res_m; // m-residuals
 	float *Gamma; // Hessian update
 	float *gamma; // gradient update
-	float *stat; // convergence statistics
 	float alpha; // step length
 	float sigma; // centering XXX
 	float mu; // duality measuere
@@ -53,14 +52,13 @@ struct s_core_qp_ipm_workspace
 	int nv; // number of primal variables
 	int ne; // number of equality constraints
 	int nc; // number of (two-sided) inequality constraints
-	int stat_max; // iterations saved in stat
 	int memsize; // memory size (in bytes) of workspace
 	};
 
 
 
 //
-int s_memsize_core_qp_ipm(int nv, int ne, int nc, int stat_max);
+int s_memsize_core_qp_ipm(int nv, int ne, int nc);
 //
 void s_create_core_qp_ipm(int nv, int ne, int nc, struct s_core_qp_ipm_workspace *workspace, void *mem);
 //

@@ -56,6 +56,7 @@ struct s_ocp_qp_ipm_workspace
 	float mu0; // mu0
 	float res_mu; // mu-residual
 	int iter; // iteration number
+	int stat_max; // iterations saved in stat
 	int memsize;
 	};
 

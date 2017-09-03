@@ -56,6 +56,7 @@ struct d_tree_ocp_qp_ipm_workspace
 	double mu0; // mu0
 	double res_mu; // mu-residual
 	int iter; // iteration number
+	int stat_max; // iterations saved in stat
 	int memsize;
 	};
 

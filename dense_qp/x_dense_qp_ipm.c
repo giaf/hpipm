@@ -51,7 +51,9 @@ int MEMSIZE_DENSE_QP_IPM(struct DENSE_QP *qp, struct DENSE_QP_IPM_ARG *arg)
 	size += 1*SIZE_STRMAT(nv+1, ng); // Ctx
 
 	size += 1*sizeof(struct CORE_QP_IPM_WORKSPACE);
-	size += 1*MEMSIZE_CORE_QP_IPM(nv+2*ns, ne, 2*nb+2*ng+2*ns, arg->stat_max);
+	size += 1*MEMSIZE_CORE_QP_IPM(nv+2*ns, ne, 2*nb+2*ng+2*ns);
+
+	size += 5*arg->stat_max*sizeof(REAL);
 
 	size = (size+63)/64*64; // make multiple of typical cache line size
 	size += 1*64; // align once to typical cache line size
@@ -127,8 +129,17 @@ void CREATE_DENSE_QP_IPM(struct DENSE_QP *qp, struct DENSE_QP_IPM_ARG *arg, stru
 	sv_ptr += 1;
 
 
+	// double/float stuff
+	REAL *d_ptr = (REAL *) sv_ptr;
+	
+	workspace->stat = d_ptr;
+	d_ptr += 5*arg->stat_max;
+
+	workspace->stat_max = arg->stat_max;
+
+
 	// align to typicl cache line size
-	size_t s_ptr = (size_t) sv_ptr;
+	size_t s_ptr = (size_t) d_ptr;
 	s_ptr = (s_ptr+63)/64*64;
 
 
@@ -168,7 +179,6 @@ void CREATE_DENSE_QP_IPM(struct DENSE_QP *qp, struct DENSE_QP_IPM_ARG *arg, stru
 	CREATE_STRVEC(ns, workspace->tmp_ns+0, c_ptr);
 	c_ptr += (workspace->tmp_ns+0)->memory_size;
 
-	cws->stat_max = arg->stat_max;
 	CREATE_CORE_QP_IPM(nv+2*ns, ne, 2*nb+2*ng+2*ns, cws, c_ptr);
 	c_ptr += workspace->core_workspace->memsize;
 
@@ -196,8 +206,6 @@ void CREATE_DENSE_QP_IPM(struct DENSE_QP *qp, struct DENSE_QP_IPM_ARG *arg, stru
 	CREATE_STRVEC(2*nb+2*ng+2*ns, workspace->Gamma, cws->Gamma);
 	//
 	CREATE_STRVEC(2*nb+2*ng+2*ns, workspace->gamma, cws->gamma);
-	//
-	workspace->stat = cws->stat;
 
 
 	//
@@ -259,20 +267,20 @@ int SOLVE_DENSE_QP_IPM(struct DENSE_QP *qp, struct DENSE_QP_SOL *qp_sol, struct 
 
 		// alpha
 		COMPUTE_ALPHA_QP(cws);
-		if(kk<cws->stat_max)
-			cws->stat[5*kk+0] = cws->alpha;
+		if(kk<ws->stat_max)
+			ws->stat[5*kk+0] = cws->alpha;
 
 		if(arg->pred_corr==1)
 			{
 			// mu_aff
 			COMPUTE_MU_AFF_QP(cws);
-			if(kk<cws->stat_max)
-				cws->stat[5*kk+1] = cws->mu_aff;
+			if(kk<ws->stat_max)
+				ws->stat[5*kk+1] = cws->mu_aff;
 
 			tmp = cws->mu_aff/cws->mu;
 			cws->sigma = tmp*tmp*tmp;
-			if(kk<cws->stat_max)
-				cws->stat[5*kk+2] = cws->sigma;
+			if(kk<ws->stat_max)
+				ws->stat[5*kk+2] = cws->sigma;
 
 			COMPUTE_CENTERING_CORRECTION_QP(cws);
 
@@ -281,8 +289,8 @@ int SOLVE_DENSE_QP_IPM(struct DENSE_QP *qp, struct DENSE_QP_SOL *qp_sol, struct 
 
 			// alpha
 			COMPUTE_ALPHA_QP(cws);
-			if(kk<cws->stat_max)
-				cws->stat[5*kk+3] = cws->alpha;
+			if(kk<ws->stat_max)
+				ws->stat[5*kk+3] = cws->alpha;
 			}
 
 		//
@@ -291,8 +299,8 @@ int SOLVE_DENSE_QP_IPM(struct DENSE_QP *qp, struct DENSE_QP_SOL *qp_sol, struct 
 		// compute residuals
 		COMPUTE_RES_DENSE_QP(qp, qp_sol, ws);
 		cws->mu = ws->res_mu;
-		if(kk<cws->stat_max)
-			cws->stat[5*kk+4] = ws->res_mu;
+		if(kk<ws->stat_max)
+			ws->stat[5*kk+4] = ws->res_mu;
 
 		}
 
