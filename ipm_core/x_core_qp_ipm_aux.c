@@ -43,7 +43,7 @@ void COMPUTE_QX_QX_QP(struct CORE_QP_IPM_WORKSPACE *cws)
 	// local variables
 	int ii;
 
-	for(ii=0; ii<2*nc; ii++)
+	for(ii=0; ii<nc; ii++)
 		{
 		t_inv[ii] = 1.0/t[ii];
 		Gamma[ii] = t_inv[ii]*lam[ii];
@@ -71,7 +71,7 @@ void COMPUTE_LAM_T_QP(struct CORE_QP_IPM_WORKSPACE *cws)
 	// local variables
 	int ii;
 
-	for(ii=0; ii<2*nc; ii++)
+	for(ii=0; ii<nc; ii++)
 		{
 		dt[ii] -= res_d[ii]; // XXX change sign for upper?
 		// TODO compute lamda alone ???
@@ -100,7 +100,7 @@ void COMPUTE_ALPHA_QP(struct CORE_QP_IPM_WORKSPACE *cws)
 	// local variables
 	int ii;
 
-	for(ii=0; ii<2*nc; ii++)
+	for(ii=0; ii<nc; ii++)
 		{
 
 		if( alpha*dlam_lb[ii+0]>lam_lb[ii+0] )
@@ -163,13 +163,13 @@ void UPDATE_VAR_QP(struct CORE_QP_IPM_WORKSPACE *cws)
 		}
 
 	// update lam
-	for(ii=0; ii<2*nc; ii++)
+	for(ii=0; ii<nc; ii++)
 		{
 		lam[ii] += alpha * dlam[ii];
 		}
 
 	// update t
-	for(ii=0; ii<2*nc; ii++)
+	for(ii=0; ii<nc; ii++)
 		{
 		t[ii] += alpha * dt[ii];
 		}
@@ -198,7 +198,7 @@ void COMPUTE_MU_AFF_QP(struct CORE_QP_IPM_WORKSPACE *cws)
 
 	REAL mu = 0;
 
-	for(ii=0; ii<2*nc; ii++)
+	for(ii=0; ii<nc; ii++)
 		{
 		mu += (ptr_lam[ii+0] + alpha*ptr_dlam[ii+0]) * (ptr_t[ii+0] + alpha*ptr_dt[ii+0]);
 		}
@@ -225,7 +225,7 @@ void COMPUTE_CENTERING_CORRECTION_QP(struct CORE_QP_IPM_WORKSPACE *cws)
 
 	REAL sigma_mu = cws->sigma*cws->mu;
 
-	for(ii=0; ii<2*nc; ii++)
+	for(ii=0; ii<nc; ii++)
 		{
 		ptr_res_m[ii+0] += ptr_dt[ii+0] * ptr_dlam[ii+0] - sigma_mu;
 		}
@@ -250,7 +250,7 @@ void COMPUTE_QX_QP(struct CORE_QP_IPM_WORKSPACE *cws)
 	// local variables
 	int ii;
 
-	for(ii=0; ii<2*nc; ii++)
+	for(ii=0; ii<nc; ii++)
 		{
 		gamma[ii] = t_inv[ii]*(res_m[ii]-lam[ii]*res_d[ii]);
 		}

@@ -289,7 +289,7 @@ void COMPUTE_RES_TREE_OCP_QP(struct TREE_OCP_QP *qp, struct TREE_OCP_QP_SOL *qp_
 
 		}
 
-	mu += VECMULDOT_LIBSTR(2*nct, lam, 0, t, 0, ws->res_m, 0); // XXX
+	mu += VECMULDOT_LIBSTR(nct, lam, 0, t, 0, ws->res_m, 0);
 
 	if(nct>0)
 		ws->res_mu = mu*cws->nt_inv;

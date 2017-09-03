@@ -54,7 +54,7 @@ int MEMSIZE_OCP_QP_IPM(struct OCP_QP *qp, struct OCP_QP_IPM_ARG *arg)
 		{
 		nvt += nx[ii]+nu[ii]+2*ns[ii];
 		net += nx[ii+1];
-		nct += nb[ii]+ng[ii]+ns[ii];
+		nct += 2*nb[ii]+2*ng[ii]+2*ns[ii];
 		nxM = nx[ii]>nxM ? nx[ii] : nxM;
 		nuM = nu[ii]>nuM ? nu[ii] : nuM;
 		nbM = nb[ii]>nbM ? nb[ii] : nbM;
@@ -62,7 +62,7 @@ int MEMSIZE_OCP_QP_IPM(struct OCP_QP *qp, struct OCP_QP_IPM_ARG *arg)
 		nsM = ns[ii]>nsM ? ns[ii] : nsM;
 		}
 	nvt += nx[ii]+nu[ii]+2*ns[ii];
-	nct += nb[ii]+ng[ii]+ns[ii];
+	nct += 2*nb[ii]+2*ng[ii]+2*ns[ii];
 	nxM = nx[ii]>nxM ? nx[ii] : nxM;
 	nuM = nu[ii]>nuM ? nu[ii] : nuM;
 	nbM = nb[ii]>nbM ? nb[ii] : nbM;
@@ -126,7 +126,7 @@ void CREATE_OCP_QP_IPM(struct OCP_QP *qp, struct OCP_QP_IPM_ARG *arg, struct OCP
 		{
 		nvt += nx[ii]+nu[ii]+2*ns[ii];
 		net += nx[ii+1];
-		nct += nb[ii]+ng[ii]+ns[ii];
+		nct += 2*nb[ii]+2*ng[ii]+2*ns[ii];
 		nxM = nx[ii]>nxM ? nx[ii] : nxM;
 		nuM = nu[ii]>nuM ? nu[ii] : nuM;
 		nbM = nb[ii]>nbM ? nb[ii] : nbM;
@@ -134,7 +134,7 @@ void CREATE_OCP_QP_IPM(struct OCP_QP *qp, struct OCP_QP_IPM_ARG *arg, struct OCP
 		nsM = ns[ii]>nsM ? ns[ii] : nsM;
 		}
 	nvt += nx[ii]+nu[ii]+2*ns[ii];
-	nct += nb[ii]+ng[ii]+ns[ii];
+	nct += 2*nb[ii]+2*ng[ii]+2*ns[ii];
 	nxM = nx[ii]>nxM ? nx[ii] : nxM;
 	nuM = nu[ii]>nuM ? nu[ii] : nuM;
 	nbM = nb[ii]>nbM ? nb[ii] : nbM;
@@ -245,14 +245,11 @@ void CREATE_OCP_QP_IPM(struct OCP_QP *qp, struct OCP_QP_IPM_ARG *arg, struct OCP
 
 
 
-	cws->nv = nvt;
-	cws->ne = net;
-	cws->nc = nct; // XXX
 	cws->stat_max = arg->stat_max;
-	CREATE_CORE_QP_IPM(cws, c_ptr);
+	CREATE_CORE_QP_IPM(nvt, net, nct, cws, c_ptr);
 	c_ptr += workspace->core_workspace->memsize;
 
-	cws->nt_inv = 1.0/(2*nct); // TODO avoid computation if nt=0 XXX
+	cws->nt_inv = 1.0/nct; // TODO avoid computation if nt=0 XXX
 
 
 	// alias members of workspace and core_workspace

@@ -62,6 +62,6 @@ struct d_core_qp_ipm_workspace
 //
 int d_memsize_core_qp_ipm(int nv, int ne, int nc, int stat_max);
 //
-void d_create_core_qp_ipm(struct d_core_qp_ipm_workspace *workspace, void *mem);
+void d_create_core_qp_ipm(int nv, int ne, int nc, struct d_core_qp_ipm_workspace *workspace, void *mem);
 //
 void d_core_qp_ipm(struct d_core_qp_ipm_workspace *workspace);

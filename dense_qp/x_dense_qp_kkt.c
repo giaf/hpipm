@@ -219,7 +219,7 @@ void COMPUTE_RES_DENSE_QP(struct DENSE_QP *qp, struct DENSE_QP_SOL *qp_sol, stru
 	GEMV_NT_LIBSTR(ne, nv, -1.0, -1.0, A, 0, 0, v, 0, pi, 0, 1.0, 1.0, b, 0, res_g, 0, res_b, 0, res_g, 0);
 
 	// res_mu
-	mu = VECMULDOT_LIBSTR(2*nct, lam, 0, t, 0, res_m, 0); // XXX
+	mu = VECMULDOT_LIBSTR(nct, lam, 0, t, 0, res_m, 0);
 
 	if(nct>0)
 		ws->res_mu = mu*cws->nt_inv;

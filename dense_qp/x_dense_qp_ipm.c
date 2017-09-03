@@ -51,7 +51,7 @@ int MEMSIZE_DENSE_QP_IPM(struct DENSE_QP *qp, struct DENSE_QP_IPM_ARG *arg)
 	size += 1*SIZE_STRMAT(nv+1, ng); // Ctx
 
 	size += 1*sizeof(struct CORE_QP_IPM_WORKSPACE);
-	size += 1*MEMSIZE_CORE_QP_IPM(nv+2*ns, ne, nb+ng+ns, arg->stat_max); // XXX
+	size += 1*MEMSIZE_CORE_QP_IPM(nv+2*ns, ne, 2*nb+2*ng+2*ns, arg->stat_max);
 
 	size = (size+63)/64*64; // make multiple of typical cache line size
 	size += 1*64; // align once to typical cache line size
@@ -168,14 +168,11 @@ void CREATE_DENSE_QP_IPM(struct DENSE_QP *qp, struct DENSE_QP_IPM_ARG *arg, stru
 	CREATE_STRVEC(ns, workspace->tmp_ns+0, c_ptr);
 	c_ptr += (workspace->tmp_ns+0)->memory_size;
 
-	cws->nv = nv+2*ns;
-	cws->ne = ne;
-	cws->nc = nb+ng+ns; // XXX
 	cws->stat_max = arg->stat_max;
-	CREATE_CORE_QP_IPM(cws, c_ptr);
+	CREATE_CORE_QP_IPM(nv+2*ns, ne, 2*nb+2*ng+2*ns, cws, c_ptr);
 	c_ptr += workspace->core_workspace->memsize;
 
-	cws->nt_inv = 1.0/(2*nb+2*ng);
+	cws->nt_inv = 1.0/(2*nb+2*ng+2*ns);
 
 
 	// alias members of workspace and core_workspace
