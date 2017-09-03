@@ -87,7 +87,7 @@ int MEMSIZE_OCP_QP_IPM(struct OCP_QP *qp, struct OCP_QP_IPM_ARG *arg)
 	size += 2*SIZE_STRMAT(nuM+nxM+1, nxM+ngM); // AL
 
 	size += 1*sizeof(struct CORE_QP_IPM_WORKSPACE);
-	size += 1*MEMSIZE_CORE_QP_IPM(nvt, net, nct, arg->iter_max);
+	size += 1*MEMSIZE_CORE_QP_IPM(nvt, net, nct, arg->stat_max);
 
 	size = (size+63)/64*64; // make multiple of typical cache line size
 	size += 1*64; // align once to typical cache line size
@@ -111,9 +111,6 @@ void CREATE_OCP_QP_IPM(struct OCP_QP *qp, struct OCP_QP_IPM_ARG *arg, struct OCP
 	int *nb = qp->nb;
 	int *ng = qp->ng;
 	int *ns = qp->ns;
-
-
-	workspace->memsize = MEMSIZE_OCP_QP_IPM(qp, arg);
 
 
 	// compute core qp size and max size
@@ -250,14 +247,11 @@ void CREATE_OCP_QP_IPM(struct OCP_QP *qp, struct OCP_QP_IPM_ARG *arg, struct OCP
 
 	cws->nv = nvt;
 	cws->ne = net;
-	cws->nc = nct;
-	cws->iter_max = arg->iter_max;
+	cws->nc = nct; // XXX
+	cws->stat_max = arg->stat_max;
 	CREATE_CORE_QP_IPM(cws, c_ptr);
 	c_ptr += workspace->core_workspace->memsize;
 
-	cws->alpha_min = arg->alpha_min;
-	cws->mu_max = arg->mu_max;
-	cws->mu0 = arg->mu0;
 	cws->nt_inv = 1.0/(2*nct); // TODO avoid computation if nt=0 XXX
 
 
@@ -356,8 +350,20 @@ void CREATE_OCP_QP_IPM(struct OCP_QP *qp, struct OCP_QP_IPM_ARG *arg, struct OCP
 		}
 	//
 	workspace->stat = cws->stat;
+
+
 	//
-	workspace->iter = cws->iter_max;
+	workspace->memsize = MEMSIZE_OCP_QP_IPM(qp, arg);
+
+
+#if defined(RUNTIME_CHECKS)
+	if(c_ptr > ((char *) mem) + workspace->memsize)
+		{
+		printf("\nCreate_ocp_qp_ipm: outsize memory bounds!\n\n");
+		exit(1);
+		}
+#endif
+
 
 	return;
 
@@ -365,7 +371,7 @@ void CREATE_OCP_QP_IPM(struct OCP_QP *qp, struct OCP_QP_IPM_ARG *arg, struct OCP
 
 
 
-int SOLVE_OCP_QP_IPM(struct OCP_QP *qp, struct OCP_QP_SOL *qp_sol, struct OCP_QP_IPM_WORKSPACE *ws)
+int SOLVE_OCP_QP_IPM(struct OCP_QP *qp, struct OCP_QP_SOL *qp_sol, struct OCP_QP_IPM_ARG *arg, struct OCP_QP_IPM_WORKSPACE *ws)
 	{
 
 	struct CORE_QP_IPM_WORKSPACE *cws = ws->core_workspace;
@@ -376,271 +382,9 @@ int SOLVE_OCP_QP_IPM(struct OCP_QP *qp, struct OCP_QP_SOL *qp_sol, struct OCP_QP
 	cws->lam = qp_sol->lam->pa;
 	cws->t = qp_sol->t->pa;
 
-//	printf("\n%e\n", cws->nt_inv);
-//	exit(1);
-//cws->nt_inv = 1.063830e-2;
-//cws->nt_inv = 5.263158e-3;
+	ws->mu0 = arg->mu0;
 
 	int kk = 0;
-
-	if(cws->nc==0)
-		{
-		FACT_SOLVE_KKT_UNCONSTR_OCP_QP(qp, qp_sol, ws);
-		COMPUTE_RES_OCP_QP(qp, qp_sol, ws);
-		cws->mu = ws->res_mu;
-		ws->iter = 0;
-		return 0;
-		}
-
-	// init solver
-	INIT_VAR_OCP_QP(qp, qp_sol, ws);
-
-#if 0
-int ii;
-double *ptr;
-printf("\nuxs\n");
-ptr = cws->v;
-for(ii=0; ii<=qp->N; ii++)
-	{
-	d_print_e_mat(1, qp->nu[ii]+qp->nx[ii]+2*qp->ns[ii], ptr, 1);
-	ptr += qp->nu[ii]+qp->nx[ii]+2*qp->ns[ii];
-	}
-printf("\npi\n");
-ptr = cws->pi;
-for(ii=0; ii<qp->N; ii++)
-	{
-	d_print_e_mat(1, qp->nx[ii+1], ptr, 1);
-	ptr += qp->nx[ii+1];
-	}
-printf("\nlam\n");
-ptr = cws->lam;
-for(ii=0; ii<=qp->N; ii++)
-	{
-	d_print_e_mat(1, 2*qp->nb[ii]+2*qp->ng[ii]+2*qp->ns[ii], ptr, 1);
-	ptr += 2*qp->nb[ii]+2*qp->ng[ii]+2*qp->ns[ii];
-	}
-printf("\nt\n");
-ptr = cws->t;
-for(ii=0; ii<=qp->N; ii++)
-	{
-	d_print_e_mat(1, 2*qp->nb[ii]+2*qp->ng[ii]+2*qp->ns[ii], ptr, 1);
-	ptr += 2*qp->nb[ii]+2*qp->ng[ii]+2*qp->ns[ii];
-	}
-exit(1);
-#endif
-
-	// compute residuals
-	COMPUTE_RES_OCP_QP(qp, qp_sol, ws);
-	cws->mu = ws->res_mu;
-
-	for(kk=0; kk<cws->iter_max & cws->mu>cws->mu_max; kk++)
-		{
-
-#if 0
-int ii;
-double *ptr;
-printf("\nres_g\n");
-ptr = cws->res_g;
-for(ii=0; ii<=qp->N; ii++)
-	{
-	d_print_e_mat(1, qp->nu[ii]+qp->nx[ii]+2*qp->ns[ii], ptr, 1);
-	ptr += qp->nu[ii]+qp->nx[ii]+2*qp->ns[ii];
-	}
-printf("\nres_b\n");
-ptr = cws->res_b;
-for(ii=0; ii<qp->N; ii++)
-	{
-	d_print_e_mat(1, qp->nx[ii+1], ptr, 1);
-	ptr += qp->nx[ii+1];
-	}
-printf("\nres_d\n");
-ptr = cws->res_d;
-for(ii=0; ii<=qp->N; ii++)
-	{
-	d_print_e_mat(1, 2*qp->nb[ii]+2*qp->ng[ii]+2*qp->ns[ii], ptr, 1);
-	ptr += 2*qp->nb[ii]+2*qp->ng[ii]+2*qp->ns[ii];
-	}
-printf("\nres_m\n");
-ptr = cws->res_m;
-for(ii=0; ii<=qp->N; ii++)
-	{
-	d_print_e_mat(1, 2*qp->nb[ii]+2*qp->ng[ii]+2*qp->ns[ii], ptr, 1);
-	ptr += 2*qp->nb[ii]+2*qp->ng[ii]+2*qp->ns[ii];
-	}
-exit(1);
-#endif
-
-		// fact and solve kkt
-		FACT_SOLVE_KKT_STEP_OCP_QP(qp, ws);
-
-#if 0
-int ii;
-double *ptr;
-printf("\nduxs\n");
-ptr = cws->dv;
-for(ii=0; ii<=qp->N; ii++)
-	{
-	d_print_e_mat(1, qp->nu[ii]+qp->nx[ii]+2*qp->ns[ii], ptr, 1);
-	ptr += qp->nu[ii]+qp->nx[ii]+2*qp->ns[ii];
-	}
-printf("\ndpi\n");
-ptr = cws->dpi;
-for(ii=0; ii<qp->N; ii++)
-	{
-	d_print_e_mat(1, qp->nx[ii+1], ptr, 1);
-	ptr += qp->nx[ii+1];
-	}
-printf("\ndlam\n");
-ptr = cws->dlam;
-for(ii=0; ii<=qp->N; ii++)
-	{
-	d_print_e_mat(1, 2*qp->nb[ii]+2*qp->ng[ii]+2*qp->ns[ii], ptr, 1);
-	ptr += 2*qp->nb[ii]+2*qp->ng[ii]+2*qp->ns[ii];
-	}
-printf("\ndt\n");
-ptr = cws->dt;
-for(ii=0; ii<=qp->N; ii++)
-	{
-	d_print_e_mat(1, 2*qp->nb[ii]+2*qp->ng[ii]+2*qp->ns[ii], ptr, 1);
-	ptr += 2*qp->nb[ii]+2*qp->ng[ii]+2*qp->ns[ii];
-	}
-exit(1);
-#endif
-
-		// alpha
-		COMPUTE_ALPHA_QP(cws);
-		cws->stat[5*kk+0] = cws->alpha;
-
-//printf("\nalpha = %e\n", cws->alpha);
-//exit(1);
-//cws->alpha = 4.768102e-1;
-		//
-		UPDATE_VAR_QP(cws);
-
-#if 0
-int ii;
-double *ptr;
-printf("\nuxs\n");
-ptr = cws->v;
-for(ii=0; ii<=qp->N; ii++)
-	{
-	d_print_e_mat(1, qp->nu[ii]+qp->nx[ii]+2*qp->ns[ii], ptr, 1);
-	ptr += qp->nu[ii]+qp->nx[ii]+2*qp->ns[ii];
-	}
-printf("\npi\n");
-ptr = cws->pi;
-for(ii=0; ii<qp->N; ii++)
-	{
-	d_print_e_mat(1, qp->nx[ii+1], ptr, 1);
-	ptr += qp->nx[ii+1];
-	}
-printf("\nlam\n");
-ptr = cws->lam;
-for(ii=0; ii<=qp->N; ii++)
-	{
-	d_print_e_mat(1, 2*qp->nb[ii]+2*qp->ng[ii]+2*qp->ns[ii], ptr, 1);
-	ptr += 2*qp->nb[ii]+2*qp->ng[ii]+2*qp->ns[ii];
-	}
-printf("\nt\n");
-ptr = cws->t;
-for(ii=0; ii<=qp->N; ii++)
-	{
-	d_print_e_mat(1, 2*qp->nb[ii]+2*qp->ng[ii]+2*qp->ns[ii], ptr, 1);
-	ptr += 2*qp->nb[ii]+2*qp->ng[ii]+2*qp->ns[ii];
-	}
-exit(1);
-#endif
-
-		// compute residuals
-		COMPUTE_RES_OCP_QP(qp, qp_sol, ws);
-		cws->mu = ws->res_mu;
-		cws->stat[5*kk+1] = ws->res_mu;
-
-#if 0
-int ii;
-double *ptr;
-printf("\nres_g\n");
-ptr = cws->res_g;
-for(ii=0; ii<=qp->N; ii++)
-	{
-	d_print_e_mat(1, qp->nu[ii]+qp->nx[ii]+2*qp->ns[ii], ptr, 1);
-	ptr += qp->nu[ii]+qp->nx[ii]+2*qp->ns[ii];
-	}
-printf("\nres_b\n");
-ptr = cws->res_b;
-for(ii=0; ii<qp->N; ii++)
-	{
-	d_print_e_mat(1, qp->nx[ii+1], ptr, 1);
-	ptr += qp->nx[ii+1];
-	}
-printf("\nres_d\n");
-ptr = cws->res_d;
-for(ii=0; ii<=qp->N; ii++)
-	{
-	d_print_e_mat(1, 2*qp->nb[ii]+2*qp->ng[ii]+2*qp->ns[ii], ptr, 1);
-	ptr += 2*qp->nb[ii]+2*qp->ng[ii]+2*qp->ns[ii];
-	}
-printf("\nres_m\n");
-ptr = cws->res_m;
-for(ii=0; ii<=qp->N; ii++)
-	{
-	d_print_e_mat(1, 2*qp->nb[ii]+2*qp->ng[ii]+2*qp->ns[ii], ptr, 1);
-	ptr += 2*qp->nb[ii]+2*qp->ng[ii]+2*qp->ns[ii];
-	}
-exit(1);
-#endif
-
-//	ws->iter = kk+1;
-//	return;
-		}
-	
-	ws->iter = kk;
-	
-	// max iteration number reached
-	if(kk==cws->iter_max)
-		return 1;
-
-	// normal return
-	return 0;
-
-	}
-
-
-
-int SOLVE_OCP_QP_IPM2(struct OCP_QP *qp, struct OCP_QP_SOL *qp_sol, struct OCP_QP_IPM_WORKSPACE *ws)
-	{
-
-#if 0
-int N = qp->N;
-int *nx = qp->nx;
-int *nu = qp->nu;
-int *nb = qp->nb;
-int *ng = qp->ng;
-int *ns = qp->ns;
-int nn;
-for(nn=0; nn<=N; nn++)
-	d_print_strmat(nu[nn]+nx[nn]+1, nu[nn]+nx[nn], qp->RSQrq+nn, 0, 0);
-for(nn=0; nn<N; nn++)
-	d_print_strmat(nu[nn]+nx[nn]+1, nx[nn+1], qp->BAbt+nn, 0, 0);
-for(nn=0; nn<=N; nn++)
-	if(ng[nn]>0)
-		d_print_strmat(nu[nn]+nx[nn], ng[nn], qp->DCt+nn, 0, 0);
-for(nn=0; nn<=N; nn++)
-	if(nb[nn]+ng[nn]>0)
-		d_print_tran_strvec(2*nb[nn]+2*ng[nn]+2*ns[nn], qp->d+nn, 0);
-for(nn=0; nn<=N; nn++)
-	if(nb[nn]>0)
-		int_print_mat(1, nb[nn], qp->idxb[nn], 1);
-#endif
-
-	struct CORE_QP_IPM_WORKSPACE *cws = ws->core_workspace;
-
-	// alias qp vectors into qp_sol
-	cws->v = qp_sol->ux->pa;
-	cws->pi = qp_sol->pi->pa;
-	cws->lam = qp_sol->lam->pa;
-	cws->t = qp_sol->t->pa;
-
 	REAL tmp;
 
 	if(cws->nc==0)
@@ -655,201 +399,43 @@ for(nn=0; nn<=N; nn++)
 	// init solver
 	INIT_VAR_OCP_QP(qp, qp_sol, ws);
 
-#if 0
-int ii;
-double *ptr;
-printf("\nuxs\n");
-ptr = cws->v;
-for(ii=0; ii<=qp->N; ii++)
-	{
-	d_print_e_mat(1, qp->nu[ii]+qp->nx[ii]+2*qp->ns[ii], ptr, 1);
-	ptr += qp->nu[ii]+qp->nx[ii]+2*qp->ns[ii];
-	}
-printf("\npi\n");
-ptr = cws->pi;
-for(ii=0; ii<qp->N; ii++)
-	{
-	d_print_e_mat(1, qp->nx[ii+1], ptr, 1);
-	ptr += qp->nx[ii+1];
-	}
-printf("\nlam\n");
-ptr = cws->lam;
-for(ii=0; ii<=qp->N; ii++)
-	{
-	d_print_e_mat(1, 2*qp->nb[ii]+2*qp->ng[ii]+2*qp->ns[ii], ptr, 1);
-	ptr += 2*qp->nb[ii]+2*qp->ng[ii]+2*qp->ns[ii];
-	}
-printf("\nt\n");
-ptr = cws->t;
-for(ii=0; ii<=qp->N; ii++)
-	{
-	d_print_e_mat(1, 2*qp->nb[ii]+2*qp->ng[ii]+2*qp->ns[ii], ptr, 1);
-	ptr += 2*qp->nb[ii]+2*qp->ng[ii]+2*qp->ns[ii];
-	}
-exit(1);
-#endif
-
 	// compute residuals
 	COMPUTE_RES_OCP_QP(qp, qp_sol, ws);
 	cws->mu = ws->res_mu;
 
-#if 0
-	int ii;
-	for(ii=0; ii<1; ii++)
+	for(kk=0; kk<arg->iter_max & cws->mu>arg->mu_max; kk++)
 		{
-		cws->sigma = 1.0;
-		cws->stat[5*kk+2] = cws->sigma;
-		COMPUTE_CENTERING_CORRECTION_QP(cws);
-		FACT_SOLVE_KKT_STEP_OCP_QP(qp, ws);
-		COMPUTE_ALPHA_QP(cws);
-		cws->stat[5*kk+3] = cws->alpha;
-		UPDATE_VAR_QP(cws);
-		COMPUTE_RES_OCP_QP(qp, qp_sol, ws);
-		cws->mu = ws->res_mu;
-		cws->stat[5*kk+4] = ws->res_mu;
-		kk++;
-		}
-//	ws->iter = kk;
-//		return;
-#endif
-
-	int kk = 0;
-	for(; kk<cws->iter_max & cws->mu>cws->mu_max; kk++)
-		{
-
-#if 0
-int ii;
-double *ptr;
-printf("\nres_g\n");
-ptr = cws->res_g;
-for(ii=0; ii<=qp->N; ii++)
-	{
-	d_print_e_mat(1, qp->nu[ii]+qp->nx[ii]+2*qp->ns[ii], ptr, 1);
-	ptr += qp->nu[ii]+qp->nx[ii]+2*qp->ns[ii];
-	}
-printf("\nres_b\n");
-ptr = cws->res_b;
-for(ii=0; ii<qp->N; ii++)
-	{
-	d_print_e_mat(1, qp->nx[ii+1], ptr, 1);
-	ptr += qp->nx[ii+1];
-	}
-printf("\nres_d\n");
-ptr = cws->res_d;
-for(ii=0; ii<=qp->N; ii++)
-	{
-	d_print_e_mat(1, 2*qp->nb[ii]+2*qp->ng[ii]+2*qp->ns[ii], ptr, 1);
-	ptr += 2*qp->nb[ii]+2*qp->ng[ii]+2*qp->ns[ii];
-	}
-printf("\nres_m\n");
-ptr = cws->res_m;
-for(ii=0; ii<=qp->N; ii++)
-	{
-	d_print_e_mat(1, 2*qp->nb[ii]+2*qp->ng[ii]+2*qp->ns[ii], ptr, 1);
-	ptr += 2*qp->nb[ii]+2*qp->ng[ii]+2*qp->ns[ii];
-	}
-exit(1);
-#endif
 
 		// fact and solve kkt
 		FACT_SOLVE_KKT_STEP_OCP_QP(qp, ws);
 
-#if 0
-int ii;
-double *ptr;
-printf("\nduxs\n");
-ptr = cws->dv;
-for(ii=0; ii<=qp->N; ii++)
-	{
-	d_print_e_mat(1, qp->nu[ii]+qp->nx[ii]+2*qp->ns[ii], ptr, 1);
-	ptr += qp->nu[ii]+qp->nx[ii]+2*qp->ns[ii];
-	}
-printf("\ndpi\n");
-ptr = cws->dpi;
-for(ii=0; ii<qp->N; ii++)
-	{
-	d_print_e_mat(1, qp->nx[ii+1], ptr, 1);
-	ptr += qp->nx[ii+1];
-	}
-printf("\ndlam\n");
-ptr = cws->dlam;
-for(ii=0; ii<=qp->N; ii++)
-	{
-	d_print_e_mat(1, 2*qp->nb[ii]+2*qp->ng[ii]+2*qp->ns[ii], ptr, 1);
-	ptr += 2*qp->nb[ii]+2*qp->ng[ii]+2*qp->ns[ii];
-	}
-printf("\ndt\n");
-ptr = cws->dt;
-for(ii=0; ii<=qp->N; ii++)
-	{
-	d_print_e_mat(1, 2*qp->nb[ii]+2*qp->ng[ii]+2*qp->ns[ii], ptr, 1);
-	ptr += 2*qp->nb[ii]+2*qp->ng[ii]+2*qp->ns[ii];
-	}
-exit(1);
-#endif
-
 		// alpha
 		COMPUTE_ALPHA_QP(cws);
-		cws->stat[5*kk+0] = cws->alpha;
+		if(kk<cws->stat_max)
+			cws->stat[5*kk+0] = cws->alpha;
 
-		// mu_aff
-		COMPUTE_MU_AFF_QP(cws);
-		cws->stat[5*kk+1] = cws->mu_aff;
+		if(arg->pred_corr==1)
+			{
+			// mu_aff
+			COMPUTE_MU_AFF_QP(cws);
+			if(kk<cws->stat_max)
+				cws->stat[5*kk+1] = cws->mu_aff;
 
-		tmp = cws->mu_aff/cws->mu;
-		cws->sigma = tmp*tmp*tmp;
-		cws->stat[5*kk+2] = cws->sigma;
+			tmp = cws->mu_aff/cws->mu;
+			cws->sigma = tmp*tmp*tmp;
+			if(kk<cws->stat_max)
+				cws->stat[5*kk+2] = cws->sigma;
 
-		COMPUTE_CENTERING_CORRECTION_QP(cws);
+			COMPUTE_CENTERING_CORRECTION_QP(cws);
 
-		// fact and solve kkt
-		SOLVE_KKT_STEP_OCP_QP(qp, ws);
+			// fact and solve kkt
+			SOLVE_KKT_STEP_OCP_QP(qp, ws);
 
-#if 0
-int ii;
-double *ptr;
-printf("\nduxs\n");
-ptr = cws->dv;
-for(ii=0; ii<=qp->N; ii++)
-	{
-	d_print_e_mat(1, qp->nu[ii]+qp->nx[ii]+2*qp->ns[ii], ptr, 1);
-	ptr += qp->nu[ii]+qp->nx[ii]+2*qp->ns[ii];
-	}
-printf("\ndpi\n");
-ptr = cws->dpi;
-for(ii=0; ii<qp->N; ii++)
-	{
-	d_print_e_mat(1, qp->nx[ii+1], ptr, 1);
-	ptr += qp->nx[ii+1];
-	}
-printf("\ndlam\n");
-ptr = cws->dlam;
-for(ii=0; ii<=qp->N; ii++)
-	{
-	d_print_e_mat(1, 2*qp->nb[ii]+2*qp->ng[ii]+2*qp->ns[ii], ptr, 1);
-	ptr += 2*qp->nb[ii]+2*qp->ng[ii]+2*qp->ns[ii];
-	}
-printf("\ndt\n");
-ptr = cws->dt;
-for(ii=0; ii<=qp->N; ii++)
-	{
-	d_print_e_mat(1, 2*qp->nb[ii]+2*qp->ng[ii]+2*qp->ns[ii], ptr, 1);
-	ptr += 2*qp->nb[ii]+2*qp->ng[ii]+2*qp->ns[ii];
-	}
-exit(1);
-#endif
-
-#if 0
-int ii;
-for(ii=0; ii<=qp->N; ii++)
-	d_print_tran_strvec(qp->nu[ii]+qp->nx[ii], ws->dux+ii, 0);
-for(ii=0; ii<qp->N; ii++)
-	d_print_tran_strvec(qp->nx[ii+1], ws->dpi+ii, 0);
-exit(1);
-#endif
-		// alpha
-		COMPUTE_ALPHA_QP(cws);
-		cws->stat[5*kk+3] = cws->alpha;
+			// alpha
+			COMPUTE_ALPHA_QP(cws);
+			if(kk<cws->stat_max)
+				cws->stat[5*kk+3] = cws->alpha;
+			}
 
 		//
 		UPDATE_VAR_QP(cws);
@@ -857,14 +443,15 @@ exit(1);
 		// compute residuals
 		COMPUTE_RES_OCP_QP(qp, qp_sol, ws);
 		cws->mu = ws->res_mu;
-		cws->stat[5*kk+4] = ws->res_mu;
+		if(kk<cws->stat_max)
+			cws->stat[5*kk+4] = ws->res_mu;
 
 		}
 	
 	ws->iter = kk;
 	
 	// max iteration number reached
-	if(kk==cws->iter_max)
+	if(kk==arg->iter_max)
 		return 1;
 
 	// normal return

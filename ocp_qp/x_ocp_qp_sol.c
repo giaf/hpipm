@@ -62,14 +62,10 @@ int MEMSIZE_OCP_QP_SOL(int N, int *nx, int *nu, int *nb, int *ng, int *ns)
 
 
 
-void CREATE_OCP_QP_SOL(int N, int *nx, int *nu, int *nb, int *ng, int *ns, struct OCP_QP_SOL *qp_sol, void *memory)
+void CREATE_OCP_QP_SOL(int N, int *nx, int *nu, int *nb, int *ng, int *ns, struct OCP_QP_SOL *qp_sol, void *mem)
 	{
 
 	int ii;
-
-
-	// memsize
-	qp_sol->memsize = MEMSIZE_OCP_QP_SOL(N, nx, nu, nb, ng, ns);
 
 
 	int nvt = 0;
@@ -86,7 +82,7 @@ void CREATE_OCP_QP_SOL(int N, int *nx, int *nu, int *nb, int *ng, int *ns, struc
 
 
 	// vector struct stuff
-	struct STRVEC *sv_ptr = (struct STRVEC *) memory;
+	struct STRVEC *sv_ptr = (struct STRVEC *) mem;
 
 	qp_sol->ux = sv_ptr;
 	sv_ptr += N+1;
@@ -155,6 +151,19 @@ void CREATE_OCP_QP_SOL(int N, int *nx, int *nu, int *nb, int *ng, int *ns, struc
 		tmp_ptr += ns[ii]*sizeof(REAL); // us
 		}
 	
+
+	qp_sol->memsize = MEMSIZE_OCP_QP_SOL(N, nx, nu, nb, ng, ns);
+
+
+#if defined(RUNTIME_CHECKS)
+	if(c_ptr > ((char *) mem) + qp_sol->memsize)
+		{
+		printf("\nCreate_ocp_qp_sol: outsize memory bounds!\n\n");
+		exit(1);
+		}
+#endif
+
+
 	return;
 
 	}

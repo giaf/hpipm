@@ -79,14 +79,10 @@ int MEMSIZE_OCP_QP(int N, int *nx, int *nu, int *nb, int *ng, int *ns)
 
 
 
-void CREATE_OCP_QP(int N, int *nx, int *nu, int *nb, int *ng, int *ns, struct OCP_QP *qp, void *memory)
+void CREATE_OCP_QP(int N, int *nx, int *nu, int *nb, int *ng, int *ns, struct OCP_QP *qp, void *mem)
 	{
 
 	int ii;
-
-
-	// memsize
-	qp->memsize = MEMSIZE_OCP_QP(N, nx, nu, nb, ng, ns);
 
 
 	int nbt = 0;
@@ -104,7 +100,7 @@ void CREATE_OCP_QP(int N, int *nx, int *nu, int *nb, int *ng, int *ns, struct OC
 
 	// int pointer stuff
 	int **ip_ptr;
-	ip_ptr = (int **) memory;
+	ip_ptr = (int **) mem;
 
 	// idxb
 	qp->idxb = ip_ptr;
@@ -285,6 +281,19 @@ void CREATE_OCP_QP(int N, int *nx, int *nu, int *nb, int *ng, int *ns, struct OC
 		tmp_ptr += nb[ii]*sizeof(REAL);
 		tmp_ptr += ng[ii]*sizeof(REAL);
 		}
+
+
+	qp->memsize = MEMSIZE_OCP_QP(N, nx, nu, nb, ng, ns);
+
+
+#if defined(RUNTIME_CHECKS)
+	if(c_ptr > ((char *) mem) + qp->memsize)
+		{
+		printf("\nCreate_ocp_qp: outsize memory bounds!\n\n");
+		exit(1);
+		}
+#endif
+
 
 	return;
 

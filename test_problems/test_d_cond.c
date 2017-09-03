@@ -714,8 +714,10 @@ int main()
 	struct d_dense_qp_ipm_arg dense_arg;
 	dense_arg.alpha_min = 1e-8;
 	dense_arg.mu_max = 1e-12;
-	dense_arg.iter_max = 20;
 	dense_arg.mu0 = 100.0;
+	dense_arg.iter_max = 20;
+	dense_arg.stat_max = 100;
+	dense_arg.pred_corr = 1;
 
 	int dense_ipm_size = d_memsize_dense_qp_ipm(&dense_qp, &dense_arg);
 	printf("\ndense ipm size = %d\n", dense_ipm_size);
@@ -728,8 +730,7 @@ int main()
 
 	for(rep=0; rep<nrep; rep++)
 		{
-//		d_solve_dense_qp_ipm(&dense_qp, &dense_qp_sol, &dense_workspace);
-		d_solve_dense_qp_ipm2(&dense_qp, &dense_qp_sol, &dense_workspace);
+		d_solve_dense_qp_ipm(&dense_qp, &dense_qp_sol, &dense_arg, &dense_workspace);
 		}
 
 	gettimeofday(&tv1, NULL); // stop

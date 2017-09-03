@@ -251,7 +251,16 @@ void CREATE_COND_QP_OCP2DENSE(struct OCP_QP *ocp_qp, struct DENSE_QP *dense_qp, 
 	c_ptr += cond_ws->tmp_nuxM->memory_size;
 
 	cond_ws->cond_last_stage = 1; // default: cond last stage
+
 	cond_ws->memsize = MEMSIZE_COND_QP_OCP2DENSE(ocp_qp, dense_qp);
+
+#if defined(RUNTIME_CHECKS)
+	if(c_ptr > ((char *) mem) + cond_ws->memsize)
+		{
+		printf("\nCreate_cond_qp_ocp2dense: outsize memory bounds!\n\n");
+		exit(1);
+		}
+#endif
 
 	return;
 

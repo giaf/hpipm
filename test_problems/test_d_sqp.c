@@ -726,7 +726,7 @@ int main()
 
 	for(rep=0; rep<nrep; rep++)
 		{
-		nlp_return = d_solve_ocp_nlp_sqp(&nlp, &nlp_sol, &sqp_ws);
+		nlp_return = d_solve_ocp_nlp_sqp(&nlp, &nlp_sol, &sqp_arg, &sqp_ws);
 		}
 
 	gettimeofday(&tv1, NULL); // stop

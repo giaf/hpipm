@@ -27,6 +27,11 @@
 
 
 
+#if defined(RUNTIME_CHECKS)
+#include <stdlib.h>
+#include <stdio.h>
+#endif
+
 #include <blasfeo_target.h>
 #include <blasfeo_common.h>
 #include <blasfeo_d_aux.h>
@@ -68,7 +73,7 @@ int d_memsize_irk_int(struct d_rk_data *rk_data, int nx, int nf, int np)
 
 
 
-void d_create_irk_int(struct d_rk_data *rk_data, int nx, int nf, int np, struct d_irk_workspace *ws, void *memory)
+void d_create_irk_int(struct d_rk_data *rk_data, int nx, int nf, int np, struct d_irk_workspace *ws, void *mem)
 	{
 
 	ws->rk_data = rk_data;
@@ -82,7 +87,7 @@ void d_create_irk_int(struct d_rk_data *rk_data, int nx, int nf, int np, struct 
 
 
 	// matrix struct stuff
-	struct d_strmat *sm_ptr = (struct d_strmat *) memory;
+	struct d_strmat *sm_ptr = (struct d_strmat *) mem;
 
 	// JG
 	ws->JG = sm_ptr;
@@ -150,6 +155,20 @@ void d_create_irk_int(struct d_rk_data *rk_data, int nx, int nf, int np, struct 
 	// rG
 	d_create_strmat(nx*ns, nf+1, ws->K, c_ptr);
 	c_ptr += ws->K->memory_size;
+
+
+
+	ws->memsize = d_memsize_irk_int(rk_data, nx, nf, np);
+
+
+#if defined(RUNTIME_CHECKS)
+	if(c_ptr > ((char *) mem) + ws->memsize)
+		{
+		printf("\nCreate_irk_int: outsize memory bounds!\n\n");
+		exit(1);
+		}
+#endif
+
 
 	return;
 

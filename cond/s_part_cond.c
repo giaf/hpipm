@@ -25,9 +25,10 @@
 *                                                                                                 *
 **************************************************************************************************/
 
-#include <math.h>
+#if defined(RUNTIME_CHECKS)
 #include <stdlib.h>
 #include <stdio.h>
+#endif
 
 #include <blasfeo_target.h>
 #include <blasfeo_common.h>

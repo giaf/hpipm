@@ -27,6 +27,11 @@
 
 
 
+#if defined(RUNTIME_CHECKS)
+#include <stdlib.h>
+#include <stdio.h>
+#endif
+
 #include "../include/hpipm_d_rk_int.h"
 #include "../include/hpipm_d_erk_int.h"
 
@@ -51,11 +56,8 @@ int d_memsize_erk_int(struct d_rk_data *rk_data, int nx, int nf, int np)
 
 
 
-void d_create_erk_int(struct d_rk_data *rk_data, int nx, int nf, int np, struct d_erk_workspace *ws, void *memory)
+void d_create_erk_int(struct d_rk_data *rk_data, int nx, int nf, int np, struct d_erk_workspace *ws, void *mem)
 	{
-
-	//
-	ws->memsize = d_memsize_erk_int(rk_data, nx, nf, np);
 
 	ws->rk_data = rk_data;
 	ws->nx = nx;
@@ -66,7 +68,7 @@ void d_create_erk_int(struct d_rk_data *rk_data, int nx, int nf, int np, struct 
 
 	int nX = nx*(1+nf);
 
-	double *d_ptr = memory;
+	double *d_ptr = mem;
 
 	//
 	ws->K = d_ptr;
@@ -80,6 +82,22 @@ void d_create_erk_int(struct d_rk_data *rk_data, int nx, int nf, int np, struct 
 	//
 	ws->p = d_ptr;
 	d_ptr += np;
+
+
+	ws->memsize = d_memsize_erk_int(rk_data, nx, nf, np);
+
+
+	char *c_ptr = (char *) d_ptr;
+
+
+#if defined(RUNTIME_CHECKS)
+	if(c_ptr > ((char *) mem) + ws->memsize)
+		{
+		printf("\nCreate_erk_int: outsize memory bounds!\n\n");
+		exit(1);
+		}
+#endif
+
 
 	return;
 

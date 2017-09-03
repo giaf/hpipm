@@ -48,24 +48,21 @@ struct s_core_qp_ipm_workspace
 	float *qx; // gradient update
 	float *stat; // convergence statistics
 	float alpha; // step length
-	float alpha_min; // exit cond on step lenght
 	float sigma; // centering XXX
 	float mu; // duality measuere
 	float mu_aff; // affine duality measuere
-	float mu0; // initial duality measuere
-	float mu_max; // exit cond on mu
 	float nt_inv; // 1.0/nt, where nt is the total number of constraints
 	int nv; // number of primal variables
 	int ne; // number of equality constraints
 	int nc; // number of (two-sided) inequality constraints
-	int iter_max; // exit cond on iter mumber
+	int stat_max; // iterations saved in stat
 	int memsize; // memory size (in bytes) of workspace
 	};
 
 
 
 //
-int s_memsize_core_qp_ipm(int nv, int ne, int nc, int iter_max);
+int s_memsize_core_qp_ipm(int nv, int ne, int nc, int stat_max);
 //
 void s_create_core_qp_ipm(struct s_core_qp_ipm_workspace *workspace, void *mem);
 //

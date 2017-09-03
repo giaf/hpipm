@@ -185,8 +185,10 @@ int main()
 	struct d_dense_qp_ipm_arg arg;
 	arg.alpha_min = 1e-8;
 	arg.mu_max = 1e-12;
-	arg.iter_max = 20;
 	arg.mu0 = 10.0;
+	arg.iter_max = 20;
+	arg.stat_max = 100;
+	arg.pred_corr = 1;
 
 	int ipm_size = d_memsize_dense_qp_ipm(&qp, &arg);
 	printf("\nipm size = %d\n", ipm_size);
@@ -197,14 +199,15 @@ int main()
 
 	int rep, nrep=1000;
 
+	int hpipm_return;
+
 	struct timeval tv0, tv1;
 
 	gettimeofday(&tv0, NULL); // start
 
 	for(rep=0; rep<nrep; rep++)
 		{
-//		d_solve_dense_qp_ipm(&qp, &qp_sol, &workspace);
-		d_solve_dense_qp_ipm2(&qp, &qp_sol, &workspace);
+		hpipm_return = d_solve_dense_qp_ipm(&qp, &qp_sol, &arg, &workspace);
 		}
 
 	gettimeofday(&tv1, NULL); // stop

@@ -80,14 +80,10 @@ int MEMSIZE_TREE_OCP_QP(struct tree *ttree, int *nx, int *nu, int *nb, int *ng, 
 
 
 
-void CREATE_TREE_OCP_QP(struct tree *ttree, int *nx, int *nu, int *nb, int *ng, int *ns, struct TREE_OCP_QP *qp, void *memory)
+void CREATE_TREE_OCP_QP(struct tree *ttree, int *nx, int *nu, int *nb, int *ng, int *ns, struct TREE_OCP_QP *qp, void *mem)
 	{
 
 	int ii, idx, idxdad;
-
-
-	// memsize
-	qp->memsize = MEMSIZE_TREE_OCP_QP(ttree, nx, nu, nb, ng, ns);
 
 
 	// tree
@@ -109,7 +105,7 @@ void CREATE_TREE_OCP_QP(struct tree *ttree, int *nx, int *nu, int *nb, int *ng, 
 
 	// int pointer stuff
 	int **ip_ptr;
-	ip_ptr = (int **) memory;
+	ip_ptr = (int **) mem;
 
 	// idxb
 	qp->idxb = ip_ptr;
@@ -291,6 +287,18 @@ void CREATE_TREE_OCP_QP(struct tree *ttree, int *nx, int *nu, int *nb, int *ng, 
 		tmp_ptr += nb[ii]*sizeof(REAL);
 		tmp_ptr += ng[ii]*sizeof(REAL);
 		}
+
+
+	qp->memsize = MEMSIZE_TREE_OCP_QP(ttree, nx, nu, nb, ng, ns);
+
+
+#if defined(RUNTIME_CHECKS)
+	if(c_ptr > ((char *) mem) + qp->memsize)
+		{
+		printf("\nCreate_tree_ocp_qp: outsize memory bounds!\n\n");
+		exit(1);
+		}
+#endif
 
 
 	return;

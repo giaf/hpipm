@@ -51,7 +51,7 @@ int MEMSIZE_DENSE_QP_IPM(struct DENSE_QP *qp, struct DENSE_QP_IPM_ARG *arg)
 	size += 1*SIZE_STRMAT(nv+1, ng); // Ctx
 
 	size += 1*sizeof(struct CORE_QP_IPM_WORKSPACE);
-	size += 1*MEMSIZE_CORE_QP_IPM(nv, ne, nb+ng, arg->iter_max); // XXX
+	size += 1*MEMSIZE_CORE_QP_IPM(nv+2*ns, ne, nb+ng+ns, arg->stat_max); // XXX
 
 	size = (size+63)/64*64; // make multiple of typical cache line size
 	size += 1*64; // align once to typical cache line size
@@ -64,9 +64,6 @@ int MEMSIZE_DENSE_QP_IPM(struct DENSE_QP *qp, struct DENSE_QP_IPM_ARG *arg)
 
 void CREATE_DENSE_QP_IPM(struct DENSE_QP *qp, struct DENSE_QP_IPM_ARG *arg, struct DENSE_QP_IPM_WORKSPACE *workspace, void *mem)
 	{
-
-	workspace->memsize = MEMSIZE_DENSE_QP_IPM(qp, arg);
-
 
 	int nv = qp->nv;
 	int ne = qp->ne;
@@ -168,19 +165,16 @@ void CREATE_DENSE_QP_IPM(struct DENSE_QP *qp, struct DENSE_QP_IPM_ARG *arg, stru
 	CREATE_STRVEC(nb+ng, workspace->tmp_nbg+3, c_ptr);
 	c_ptr += (workspace->tmp_nbg+3)->memory_size;
 
-	CREATE_STRVEC(nb+ng, workspace->tmp_ns+0, c_ptr);
+	CREATE_STRVEC(ns, workspace->tmp_ns+0, c_ptr);
 	c_ptr += (workspace->tmp_ns+0)->memory_size;
 
 	cws->nv = nv+2*ns;
 	cws->ne = ne;
 	cws->nc = nb+ng+ns; // XXX
-	cws->iter_max = arg->iter_max;
+	cws->stat_max = arg->stat_max;
 	CREATE_CORE_QP_IPM(cws, c_ptr);
 	c_ptr += workspace->core_workspace->memsize;
 
-	cws->alpha_min = arg->alpha_min;
-	cws->mu_max = arg->mu_max;
-	cws->mu0 = arg->mu0;
 	cws->nt_inv = 1.0/(2*nb+2*ng);
 
 
@@ -207,8 +201,20 @@ void CREATE_DENSE_QP_IPM(struct DENSE_QP *qp, struct DENSE_QP_IPM_ARG *arg, stru
 	CREATE_STRVEC(2*nb+2*ng+2*ns, workspace->gamma, cws->gamma);
 	//
 	workspace->stat = cws->stat;
+
+
 	//
-	workspace->iter = cws->iter_max;
+	workspace->memsize = MEMSIZE_DENSE_QP_IPM(qp, arg);
+
+
+#if defined(RUNTIME_CHECKS)
+	if(c_ptr > ((char *) mem) + workspace->memsize)
+		{
+		printf("\nCreate_dense_qp_ipm: outsize memory bounds!\n\n");
+		exit(1);
+		}
+#endif
+
 
 	return;
 
@@ -216,7 +222,7 @@ void CREATE_DENSE_QP_IPM(struct DENSE_QP *qp, struct DENSE_QP_IPM_ARG *arg, stru
 
 
 
-void SOLVE_DENSE_QP_IPM(struct DENSE_QP *qp, struct DENSE_QP_SOL *qp_sol, struct DENSE_QP_IPM_WORKSPACE *ws)
+int SOLVE_DENSE_QP_IPM(struct DENSE_QP *qp, struct DENSE_QP_SOL *qp_sol, struct DENSE_QP_IPM_ARG *arg, struct DENSE_QP_IPM_WORKSPACE *ws)
 	{
 
 	struct CORE_QP_IPM_WORKSPACE *cws = ws->core_workspace;
@@ -227,78 +233,9 @@ void SOLVE_DENSE_QP_IPM(struct DENSE_QP *qp, struct DENSE_QP_SOL *qp_sol, struct
 	cws->lam = qp_sol->lam->pa;
 	cws->t = qp_sol->t->pa;
 
-	if(cws->nc==0)
-		{
-		FACT_SOLVE_KKT_UNCONSTR_DENSE_QP(qp, qp_sol, ws);
-		COMPUTE_RES_DENSE_QP(qp, qp_sol, ws);
-		cws->mu = ws->res_mu;
-		ws->iter = 0;
-		return;
-		}
+	ws->mu0 = arg->mu0;
 
-	// init solver
-	INIT_VAR_DENSE_QP(qp, qp_sol, ws);
-
-#if 0
-d_print_tran_strvec(qp->nv+2*qp->ns, qp_sol->v, 0);
-d_print_tran_strvec(qp->ne, qp_sol->pi, 0);
-d_print_tran_strvec(2*qp->nb+2*qp->ng+2*qp->ns, qp_sol->lam, 0);
-d_print_tran_strvec(2*qp->nb+2*qp->ng+2*qp->ns, qp_sol->t, 0);
-exit(1);
-#endif
-
-	// compute residuals
-	COMPUTE_RES_DENSE_QP(qp, qp_sol, ws);
-	cws->mu = ws->res_mu;
-
-	int kk;
-	for(kk=0; kk<cws->iter_max & cws->mu>cws->mu_max; kk++)
-		{
-
-#if 0
-d_print_e_tran_strvec(qp->nv+2*qp->ns, ws->res_g, 0);
-d_print_e_tran_strvec(qp->ne, ws->res_b, 0);
-d_print_e_tran_strvec(2*qp->nb+2*qp->ng+2*qp->ns, ws->res_d, 0);
-d_print_e_tran_strvec(2*qp->nb+2*qp->ng+2*qp->ns, ws->res_m, 0);
-exit(1);
-#endif
-
-		// fact and solve kkt
-		FACT_SOLVE_KKT_STEP_DENSE_QP(qp, ws);
-
-		// alpha
-		COMPUTE_ALPHA_QP(cws);
-		cws->stat[5*kk+0] = cws->alpha;
-
-		//
-		UPDATE_VAR_QP(cws);
-
-		// compute residuals
-		COMPUTE_RES_DENSE_QP(qp, qp_sol, ws);
-		cws->mu = ws->res_mu;
-		cws->stat[5*kk+1] = ws->res_mu;
-
-		}
-
-	ws->iter = kk;
-
-	return;
-
-	}
-
-
-
-void SOLVE_DENSE_QP_IPM2(struct DENSE_QP *qp, struct DENSE_QP_SOL *qp_sol, struct DENSE_QP_IPM_WORKSPACE *ws)
-	{
-
-	struct CORE_QP_IPM_WORKSPACE *cws = ws->core_workspace;
-
-	// alias qp vectors into qp_sol
-	cws->v = qp_sol->v->pa;
-	cws->pi = qp_sol->pi->pa;
-	cws->lam = qp_sol->lam->pa;
-	cws->t = qp_sol->t->pa;
-
+	int kk = 0;
 	REAL tmp;
 
 	if(cws->nc==0)
@@ -307,34 +244,17 @@ void SOLVE_DENSE_QP_IPM2(struct DENSE_QP *qp, struct DENSE_QP_SOL *qp_sol, struc
 		COMPUTE_RES_DENSE_QP(qp, qp_sol, ws);
 		cws->mu = ws->res_mu;
 		ws->iter = 0;
-		return;
+		return 0;
 		}
 
 	// init solver
 	INIT_VAR_DENSE_QP(qp, qp_sol, ws);
 
-#if 0
-d_print_tran_strvec(qp->nv+2*qp->ns, qp_sol->v, 0);
-d_print_tran_strvec(qp->ne, qp_sol->pi, 0);
-d_print_tran_strvec(2*qp->nb+2*qp->ng+2*qp->ns, qp_sol->lam, 0);
-d_print_tran_strvec(2*qp->nb+2*qp->ng+2*qp->ns, qp_sol->t, 0);
-exit(1);
-#endif
-
 	// compute residuals
 	COMPUTE_RES_DENSE_QP(qp, qp_sol, ws);
 	cws->mu = ws->res_mu;
 
-#if 0
-d_print_e_tran_strvec(qp->nv+2*qp->ns, ws->res_g, 0);
-d_print_e_tran_strvec(qp->ne, ws->res_b, 0);
-d_print_e_tran_strvec(2*qp->nb+2*qp->ng+2*qp->ns, ws->res_d, 0);
-d_print_e_tran_strvec(2*qp->nb+2*qp->ng+2*qp->ns, ws->res_m, 0);
-exit(1);
-#endif
-
-	int kk;
-	for(kk=0; kk<cws->iter_max & cws->mu>cws->mu_max; kk++)
+	for(kk=0; kk<arg->iter_max & cws->mu>arg->mu_max; kk++)
 		{
 
 		// fact and solve kkt
@@ -342,24 +262,31 @@ exit(1);
 
 		// alpha
 		COMPUTE_ALPHA_QP(cws);
-		cws->stat[5*kk+0] = cws->alpha;
+		if(kk<cws->stat_max)
+			cws->stat[5*kk+0] = cws->alpha;
 
-		// mu_aff
-		COMPUTE_MU_AFF_QP(cws);
-		cws->stat[5*kk+1] = cws->mu_aff;
+		if(arg->pred_corr==1)
+			{
+			// mu_aff
+			COMPUTE_MU_AFF_QP(cws);
+			if(kk<cws->stat_max)
+				cws->stat[5*kk+1] = cws->mu_aff;
 
-		tmp = cws->mu_aff/cws->mu;
-		cws->sigma = tmp*tmp*tmp;
-		cws->stat[5*kk+2] = cws->sigma;
+			tmp = cws->mu_aff/cws->mu;
+			cws->sigma = tmp*tmp*tmp;
+			if(kk<cws->stat_max)
+				cws->stat[5*kk+2] = cws->sigma;
 
-		COMPUTE_CENTERING_CORRECTION_QP(cws);
+			COMPUTE_CENTERING_CORRECTION_QP(cws);
 
-		// fact and solve kkt
-		SOLVE_KKT_STEP_DENSE_QP(qp, ws);
+			// fact and solve kkt
+			SOLVE_KKT_STEP_DENSE_QP(qp, ws);
 
-		// alpha
-		COMPUTE_ALPHA_QP(cws);
-		cws->stat[5*kk+3] = cws->alpha;
+			// alpha
+			COMPUTE_ALPHA_QP(cws);
+			if(kk<cws->stat_max)
+				cws->stat[5*kk+3] = cws->alpha;
+			}
 
 		//
 		UPDATE_VAR_QP(cws);
@@ -367,13 +294,19 @@ exit(1);
 		// compute residuals
 		COMPUTE_RES_DENSE_QP(qp, qp_sol, ws);
 		cws->mu = ws->res_mu;
-		cws->stat[5*kk+4] = ws->res_mu;
+		if(kk<cws->stat_max)
+			cws->stat[5*kk+4] = ws->res_mu;
 
 		}
 
 	ws->iter = kk;
 
-	return;
+	// max iteration number reached
+	if(kk==arg->iter_max)
+		return 1;
+
+	return 0;
 
 	}
+
 

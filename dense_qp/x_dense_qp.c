@@ -55,10 +55,8 @@ int MEMSIZE_DENSE_QP(int nv, int ne, int nb, int ng, int ns)
 
 
 
-void CREATE_DENSE_QP(int nv, int ne, int nb, int ng, int ns, struct DENSE_QP *qp, void *memory)
+void CREATE_DENSE_QP(int nv, int ne, int nb, int ng, int ns, struct DENSE_QP *qp, void *mem)
 	{
-
-	qp->memsize = MEMSIZE_DENSE_QP(nv, ne, nb, ng, ns);
 
 
 	// problem size
@@ -70,7 +68,7 @@ void CREATE_DENSE_QP(int nv, int ne, int nb, int ng, int ns, struct DENSE_QP *qp
 
 
 	// matrix struct stuff
-	struct STRMAT *sm_ptr = (struct STRMAT *) memory;
+	struct STRMAT *sm_ptr = (struct STRMAT *) mem;
 
 	qp->Hg = sm_ptr;
 	sm_ptr += 1;
@@ -146,6 +144,19 @@ void CREATE_DENSE_QP(int nv, int ne, int nb, int ng, int ns, struct DENSE_QP *qp
 
 	CREATE_STRVEC(2*ns, qp->z, c_ptr);
 	c_ptr += qp->z->memory_size;
+
+
+	qp->memsize = MEMSIZE_DENSE_QP(nv, ne, nb, ng, ns);
+
+
+#if defined(RUNTIME_CHECKS)
+	if(c_ptr > ((char *) mem) + qp->memsize)
+		{
+		printf("\nCreate_ocp_qp: outsize memory bounds!\n\n");
+		exit(1);
+		}
+#endif
+
 
 	return;
 

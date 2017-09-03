@@ -54,6 +54,7 @@ struct s_dense_qp_ipm_workspace
 	struct s_strvec *tmp_nbg; // work space of size nb+ng
 	struct s_strvec *tmp_ns; // work space of size ns
 	float *stat; // convergence statistics
+	float mu0; // mu0
 	float res_mu; // mu-residual
 	int iter; // iteration number
 	int memsize; // memory size (in bytes) of workspace
@@ -67,6 +68,8 @@ struct s_dense_qp_ipm_arg
 	float mu_max; // exit cond on duality measure
 	float mu0; // initial value for duality measure
 	int iter_max; // exit cond in iter number
+	int stat_max; // iterations saved in stat
+	int pred_corr; // use Mehrotra's predictor-corrector IPM algirthm
 	};
 
 
@@ -76,7 +79,5 @@ int s_memsize_dense_qp_ipm(struct s_dense_qp *qp, struct s_dense_qp_ipm_arg *arg
 //
 void s_create_dense_qp_ipm(struct s_dense_qp *qp, struct s_dense_qp_ipm_arg *arg, struct s_dense_qp_ipm_workspace *ws, void *mem);
 //
-void s_solve_dense_qp_ipm(struct s_dense_qp *qp, struct s_dense_qp_sol *qp_sol, struct s_dense_qp_ipm_workspace *ws);
-//
-void s_solve_dense_qp_ipm2(struct s_dense_qp *qp, struct s_dense_qp_sol *qp_sol, struct s_dense_qp_ipm_workspace *ws);
+int s_solve_dense_qp_ipm(struct s_dense_qp *qp, struct s_dense_qp_sol *qp_sol, struct s_dense_qp_ipm_arg *arg, struct s_dense_qp_ipm_workspace *ws);
 

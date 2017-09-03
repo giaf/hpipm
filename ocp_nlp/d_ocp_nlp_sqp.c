@@ -27,6 +27,11 @@
 
 
 
+#if defined(RUNTIME_CHECKS)
+#include <stdlib.h>
+#include <stdio.h>
+#endif
+
 #include <blasfeo_target.h>
 #include <blasfeo_common.h>
 #include <blasfeo_d_aux.h>
@@ -62,6 +67,7 @@
 #define OCP_NLP_SOL d_ocp_nlp_sol
 #define OCP_NLP_SQP_WORKSPACE d_ocp_nlp_sqp_workspace
 #define OCP_QP d_ocp_qp
+#define OCP_QP_IPM_ARG d_ocp_qp_ipm_arg
 #define OCP_QP_IPM_WORKSPACE d_ocp_qp_ipm_workspace
 #define OCP_QP_SOL d_ocp_qp_sol
 #define REAL double
@@ -103,7 +109,6 @@ int MEMSIZE_OCP_NLP_SQP(struct OCP_NLP *nlp, struct OCP_NLP_SQP_ARG *arg)
 	size += 2*sizeof(struct OCP_QP_SOL);
 	size += 1*sizeof(struct OCP_QP_IPM_WORKSPACE);
 	size += N*sizeof(struct ERK_WORKSPACE);
-	size += N*sizeof(struct ERK_ARG);
 	size += 2*sizeof(struct STRVEC); // tmp_nuxM tmp_nbgM
 	size += 1*(N+1)*sizeof(struct STRVEC); // rq
 	size += N*sizeof(REAL *); // fs
@@ -149,8 +154,6 @@ int MEMSIZE_OCP_NLP_SQP(struct OCP_NLP *nlp, struct OCP_NLP_SQP_ARG *arg)
 void CREATE_OCP_NLP_SQP(struct OCP_NLP *nlp, struct OCP_NLP_SQP_ARG *arg, struct OCP_NLP_SQP_WORKSPACE *ws, void *mem)
 	{
 
-	ws->memsize = MEMSIZE_OCP_NLP_SQP(nlp, arg);
-
 	int ii, jj;
 
 	int N = nlp->N;
@@ -192,14 +195,8 @@ void CREATE_OCP_NLP_SQP(struct OCP_NLP *nlp, struct OCP_NLP_SQP_ARG *arg, struct
 	ws->erk_workspace = erk_ws_ptr;
 	erk_ws_ptr += N;
 
-	// erk ws
-	struct ERK_ARG *erk_arg_ptr = (struct ERK_ARG *) erk_ws_ptr;
-	//
-	ws->erk_arg = erk_arg_ptr;
-	erk_arg_ptr += N;
-
 	// void stuf
-	char *c_ptr = (char *) erk_arg_ptr;
+	char *c_ptr = (char *) erk_ws_ptr;
 	//
 	CREATE_OCP_QP(N, nx, nu, nb, ng, ns, ws->qp, c_ptr);
 	c_ptr += ws->qp->memsize;
@@ -269,9 +266,17 @@ void CREATE_OCP_NLP_SQP(struct OCP_NLP *nlp, struct OCP_NLP_SQP_ARG *arg, struct
 	c_ptr += (ws->tmp_nbgM+0)->memory_size;
 
 
-	//
-	for(ii=0; ii<N; ii++)
-		ws->erk_arg[ii] = arg->erk_arg[ii];
+	ws->memsize = MEMSIZE_OCP_NLP_SQP(nlp, arg);
+
+
+#if defined(RUNTIME_CHECKS)
+	if(c_ptr > ((char *) mem) + ws->memsize)
+		{
+		printf("\nCreate_ocp_nlp_sqp: outsize memory bounds!\n\n");
+		exit(1);
+		}
+#endif
+
 
 	return;
 
@@ -279,7 +284,7 @@ void CREATE_OCP_NLP_SQP(struct OCP_NLP *nlp, struct OCP_NLP_SQP_ARG *arg, struct
 
 
 
-int SOLVE_OCP_NLP_SQP(struct OCP_NLP *nlp, struct OCP_NLP_SOL *nlp_sol, struct OCP_NLP_SQP_WORKSPACE *ws)
+int SOLVE_OCP_NLP_SQP(struct OCP_NLP *nlp, struct OCP_NLP_SOL *nlp_sol, struct OCP_NLP_SQP_ARG *arg, struct OCP_NLP_SQP_WORKSPACE *ws)
 	{
 
 	struct OCP_QP *qp = ws->qp;
@@ -287,10 +292,11 @@ int SOLVE_OCP_NLP_SQP(struct OCP_NLP *nlp, struct OCP_NLP_SOL *nlp_sol, struct O
 	struct OCP_QP_SOL *tmp_qp_sol = ws->qp_sol+1;
 	struct OCP_QP_IPM_WORKSPACE *ipm_ws = ws->ipm_workspace;
 	struct ERK_WORKSPACE *erk_ws = ws->erk_workspace;
-	struct ERK_ARG *erk_arg = ws->erk_arg;
 	struct STRVEC *tmp_nuxM = ws->tmp_nuxM;
 	struct STRVEC *tmp_nbgM = ws->tmp_nbgM;
 
+	struct OCP_QP_IPM_ARG *ipm_arg = arg->ipm_arg;
+	struct ERK_ARG *erk_arg = arg->erk_arg;
 
 	int ss, nn, ii;
 
@@ -340,7 +346,6 @@ int SOLVE_OCP_NLP_SQP(struct OCP_NLP *nlp, struct OCP_NLP_SOL *nlp_sol, struct O
 			d_cvt_erk_int_to_ocp_qp(nn, erk_ws+nn, xn, qp);
 			}
 
-#if 1
 	
 		// setup qp
 		for(nn=0; nn<=N; nn++)
@@ -351,19 +356,15 @@ int SOLVE_OCP_NLP_SQP(struct OCP_NLP *nlp, struct OCP_NLP_SOL *nlp_sol, struct O
 			dveccp_libstr(2*nb[nn]+2*ng[nn]+2*ns[nn], nlp->d+nn, 0, qp->d+nn, 0);
 
 		// copy nlp_sol into qp_sol
-//		for(nn=0; nn<=N; nn++)
-//			tmp_qp_sol->ux[nn] = nlp_sol->ux[nn];
-//		for(nn=0; nn<N; nn++)
-//			tmp_qp_sol->pi[nn] = nlp_sol->pi[nn];
-//		for(nn=0; nn<=N; nn++)
-//			tmp_qp_sol->lam[nn] = nlp_sol->lam[nn];
-//		for(nn=0; nn<=N; nn++)
-//			tmp_qp_sol->t[nn] = nlp_sol->t[nn];
+		tmp_qp_sol->ux = nlp_sol->ux;
+		tmp_qp_sol->pi = nlp_sol->pi;
+		tmp_qp_sol->lam = nlp_sol->lam;
+		tmp_qp_sol->t = nlp_sol->t;
 
 		// compute residuals // XXX use adjoing sensitivities to avoid A'*pi ???
-		d_compute_res_ocp_qp(qp, (struct OCP_QP_SOL*) nlp_sol, ipm_ws);
+		d_compute_res_ocp_qp(qp, tmp_qp_sol, ipm_ws);
 
-		// copy residuals into qp
+		// copy residuals into qp rhs
 		for(nn=0; nn<=N; nn++)
 			{
 			dveccp_libstr(nu[nn]+nx[nn]+2*ns[nn], ipm_ws->res_g+nn, 0, qp->rq+nn, 0);
@@ -381,33 +382,6 @@ int SOLVE_OCP_NLP_SQP(struct OCP_NLP *nlp, struct OCP_NLP_SOL *nlp_sol, struct O
 			}
 
 
-#else
-
-		// update gradient
-		for(nn=0; nn<=N; nn++)
-			{
-			daxpy_libstr(nu[nn]+nx[nn], -1.0, nlp->ux_ref+nn, 0, nlp_sol->ux+nn, 0, tmp_nuxM, 0);
-			dsymv_l_libstr(nu[nn]+nx[nn], nu[nn]+nx[nn], 1.0, nlp->RSQ+nn, 0, 0, tmp_nuxM, 0, 0.0, qp->rq+nn, 0, qp->rq+nn, 0);
-			drowin_libstr(nu[nn]+nx[nn], 1.0, qp->rq+nn, 0, qp->RSQrq+nn, nu[nn]+nx[nn], 0);
-			}
-
-		// update constraints // XXX soft constraints ???
-		for(nn=0; nn<=N; nn++)
-			{
-			if(nb[nn]>0)
-				{
-				dvecex_sp_libstr(nb[nn], 1.0, nlp->idxb[nn], nlp_sol->ux+nn, 0, tmp_nbgM, 0);
-				}
-			if(ng[nn]>0)
-				{
-				dgemv_t_libstr(nu[nn]+nx[nn], ng[nn], 1.0, nlp->DCt+nn, 0, 0, nlp_sol->ux+nn, 0, 0.0, tmp_nbgM, nb[nn], tmp_nbgM, nb[nn]);
-				}
-			daxpy_libstr(nb[nn]+ng[nn], -1.0, tmp_nbgM, 0, nlp->d+nn, 0, qp->d+nn, 0);
-			daxpy_libstr(nb[nn]+ng[nn], -1.0, tmp_nbgM, 0, nlp->d+nn, nb[nn]+ng[nn], qp->d+nn, nb[nn]+ng[nn]);
-			}
-
-#endif
-
 #if 0
 		for(nn=0; nn<=N; nn++)
 			d_print_strmat(nu[nn]+nx[nn]+1, nu[nn]+nx[nn], qp->RSQrq+nn, 0, 0);
@@ -419,7 +393,7 @@ int SOLVE_OCP_NLP_SQP(struct OCP_NLP *nlp, struct OCP_NLP_SOL *nlp_sol, struct O
 #endif
 
 		// solve qp
-		d_solve_ocp_qp_ipm2(qp, qp_sol, ipm_ws);
+		d_solve_ocp_qp_ipm(qp, qp_sol, ipm_arg, ipm_ws);
 
 #if 0
 		for(nn=0; nn<=N; nn++)

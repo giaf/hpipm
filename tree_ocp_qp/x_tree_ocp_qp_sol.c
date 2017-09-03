@@ -62,16 +62,12 @@ int MEMSIZE_TREE_OCP_QP_SOL(struct tree *ttree, int *nx, int *nu, int *nb, int *
 
 
 
-void CREATE_TREE_OCP_QP_SOL(struct tree *ttree, int *nx, int *nu, int *nb, int *ng, int *ns, struct TREE_OCP_QP_SOL *qp_sol, void *memory)
+void CREATE_TREE_OCP_QP_SOL(struct tree *ttree, int *nx, int *nu, int *nb, int *ng, int *ns, struct TREE_OCP_QP_SOL *qp_sol, void *mem)
 	{
 
 	int ii, idx, idxdad;
 
 	int Nn = ttree->Nn;
-
-
-	// memsize
-	qp_sol->memsize = MEMSIZE_TREE_OCP_QP_SOL(ttree, nx, nu, nb, ng, ns);
 
 
 	int nvt = 0;
@@ -88,7 +84,7 @@ void CREATE_TREE_OCP_QP_SOL(struct tree *ttree, int *nx, int *nu, int *nb, int *
 
 
 	// vector struct stuff
-	struct STRVEC *sv_ptr = (struct STRVEC *) memory;
+	struct STRVEC *sv_ptr = (struct STRVEC *) mem;
 
 	qp_sol->ux = sv_ptr;
 	sv_ptr += Nn;
@@ -157,6 +153,18 @@ void CREATE_TREE_OCP_QP_SOL(struct tree *ttree, int *nx, int *nu, int *nb, int *
 		tmp_ptr += ns[ii]*sizeof(REAL); // us
 		}
 	
+	qp_sol->memsize = MEMSIZE_TREE_OCP_QP_SOL(ttree, nx, nu, nb, ng, ns);
+
+
+#if defined(RUNTIME_CHECKS)
+	if(c_ptr > ((char *) mem) + qp_sol->memsize)
+		{
+		printf("\nCreate_tree_ocp_qp_sol: outsize memory bounds!\n\n");
+		exit(1);
+		}
+#endif
+
+
 	return;
 
 	}

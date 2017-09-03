@@ -47,14 +47,12 @@ int MEMSIZE_DENSE_QP_SOL(int nv, int ne, int nb, int ng, int ns)
 
 
 
-void CREATE_DENSE_QP_SOL(int nv, int ne, int nb, int ng, int ns, struct DENSE_QP_SOL *qp_sol, void *memory)
+void CREATE_DENSE_QP_SOL(int nv, int ne, int nb, int ng, int ns, struct DENSE_QP_SOL *qp_sol, void *mem)
 	{
-
-	qp_sol->memsize = MEMSIZE_DENSE_QP_SOL(nv, ne, nb, ng, ns);
 
 
 	// vector struct stuff
-	struct STRVEC *sv_ptr = (struct STRVEC *) memory;
+	struct STRVEC *sv_ptr = (struct STRVEC *) mem;
 
 	qp_sol->v = sv_ptr;
 	sv_ptr += 1;
@@ -89,6 +87,19 @@ void CREATE_DENSE_QP_SOL(int nv, int ne, int nb, int ng, int ns, struct DENSE_QP
 	// t
 	CREATE_STRVEC(2*nb+2*ng+2*ns, qp_sol->t, c_ptr);
 	c_ptr += qp_sol->t->memory_size;
+
+
+	qp_sol->memsize = MEMSIZE_DENSE_QP_SOL(nv, ne, nb, ng, ns);
+
+
+#if defined(RUNTIME_CHECKS)
+	if(c_ptr > ((char *) mem) + qp_sol->memsize)
+		{
+		printf("\nCreate_ocp_qp_sol: outsize memory bounds!\n\n");
+		exit(1);
+		}
+#endif
+
 
 	return;
 

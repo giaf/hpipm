@@ -27,6 +27,11 @@
 
 
 
+#if defined(RUNTIME_CHECKS)
+#include <stdlib.h>
+#include <stdio.h>
+#endif
+
 #include <blasfeo_target.h>
 #include <blasfeo_common.h>
 #include <blasfeo_d_aux.h>
@@ -84,14 +89,10 @@ int MEMSIZE_OCP_NLP(int N, int *nx, int *nu, int *nb, int *ng, int *ns)
 
 
 
-void CREATE_OCP_NLP(int N, int *nx, int *nu, int *nb, int *ng, int *ns, struct OCP_NLP *nlp, void *memory)
+void CREATE_OCP_NLP(int N, int *nx, int *nu, int *nb, int *ng, int *ns, struct OCP_NLP *nlp, void *mem)
 	{
 
 	int ii;
-
-
-	// memsize
-	nlp->memsize = MEMSIZE_OCP_NLP(N, nx, nu, nb, ng, ns);
 
 
 	// horizon length
@@ -100,7 +101,7 @@ void CREATE_OCP_NLP(int N, int *nx, int *nu, int *nb, int *ng, int *ns, struct O
 
 	// int pointer stuff
 	int **ip_ptr;
-	ip_ptr = (int **) memory;
+	ip_ptr = (int **) mem;
 
 	// idxb
 	nlp->idxb = ip_ptr;
@@ -261,6 +262,19 @@ void CREATE_OCP_NLP(int N, int *nx, int *nu, int *nb, int *ng, int *ns, struct O
 		CREATE_STRVEC(2*ns[ii], nlp->z+ii, c_ptr);
 		c_ptr += (nlp->z+ii)->memory_size;
 		}
+
+
+	nlp->memsize = MEMSIZE_OCP_NLP(N, nx, nu, nb, ng, ns);
+
+
+#if defined(RUNTIME_CHECKS)
+	if(c_ptr > ((char *) mem) + nlp->memsize)
+		{
+		printf("\nCreate_ocp_nlp: outsize memory bounds!\n\n");
+		exit(1);
+		}
+#endif
+
 
 	return;
 

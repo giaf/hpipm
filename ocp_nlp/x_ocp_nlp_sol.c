@@ -62,14 +62,10 @@ int MEMSIZE_OCP_NLP_SOL(int N, int *nx, int *nu, int *nb, int *ng, int *ns)
 
 
 
-void CREATE_OCP_NLP_SOL(int N, int *nx, int *nu, int *nb, int *ng, int *ns, struct OCP_NLP_SOL *qp_sol, void *memory)
+void CREATE_OCP_NLP_SOL(int N, int *nx, int *nu, int *nb, int *ng, int *ns, struct OCP_NLP_SOL *nlp_sol, void *mem)
 	{
 
 	int ii;
-
-
-	// memsize
-	qp_sol->memsize = MEMSIZE_OCP_NLP_SOL(N, nx, nu, nb, ng, ns);
 
 
 	int nvt = 0;
@@ -86,15 +82,15 @@ void CREATE_OCP_NLP_SOL(int N, int *nx, int *nu, int *nb, int *ng, int *ns, stru
 
 
 	// vector struct stuff
-	struct STRVEC *sv_ptr = (struct STRVEC *) memory;
+	struct STRVEC *sv_ptr = (struct STRVEC *) mem;
 
-	qp_sol->ux = sv_ptr;
+	nlp_sol->ux = sv_ptr;
 	sv_ptr += N+1;
-	qp_sol->pi = sv_ptr;
+	nlp_sol->pi = sv_ptr;
 	sv_ptr += N;
-	qp_sol->lam = sv_ptr;
+	nlp_sol->lam = sv_ptr;
 	sv_ptr += N+1;
-	qp_sol->t = sv_ptr;
+	nlp_sol->t = sv_ptr;
 	sv_ptr += N+1;
 
 
@@ -114,7 +110,7 @@ void CREATE_OCP_NLP_SOL(int N, int *nx, int *nu, int *nb, int *ng, int *ns, stru
 	c_ptr += SIZE_STRVEC(nvt);
 	for(ii=0; ii<=N; ii++)
 		{
-		CREATE_STRVEC(nu[ii]+nx[ii]+2*ns[ii], qp_sol->ux+ii, tmp_ptr);
+		CREATE_STRVEC(nu[ii]+nx[ii]+2*ns[ii], nlp_sol->ux+ii, tmp_ptr);
 		tmp_ptr += nu[ii]*sizeof(REAL); // u
 		tmp_ptr += nx[ii]*sizeof(REAL); // x
 		tmp_ptr += ns[ii]*sizeof(REAL); // s_ls
@@ -125,7 +121,7 @@ void CREATE_OCP_NLP_SOL(int N, int *nx, int *nu, int *nb, int *ng, int *ns, stru
 	c_ptr += SIZE_STRVEC(net);
 	for(ii=0; ii<N; ii++)
 		{
-		CREATE_STRVEC(nx[ii+1], qp_sol->pi+ii, tmp_ptr);
+		CREATE_STRVEC(nx[ii+1], nlp_sol->pi+ii, tmp_ptr);
 		tmp_ptr += (nx[ii+1])*sizeof(REAL); // pi
 		}
 	// lam
@@ -133,7 +129,7 @@ void CREATE_OCP_NLP_SOL(int N, int *nx, int *nu, int *nb, int *ng, int *ns, stru
 	c_ptr += SIZE_STRVEC(2*nct);
 	for(ii=0; ii<=N; ii++)
 		{
-		CREATE_STRVEC(2*nb[ii]+2*ng[ii]+2*ns[ii], qp_sol->lam+ii, tmp_ptr);
+		CREATE_STRVEC(2*nb[ii]+2*ng[ii]+2*ns[ii], nlp_sol->lam+ii, tmp_ptr);
 		tmp_ptr += nb[ii]*sizeof(REAL); // lb
 		tmp_ptr += ng[ii]*sizeof(REAL); // lg
 		tmp_ptr += nb[ii]*sizeof(REAL); // ub
@@ -146,7 +142,7 @@ void CREATE_OCP_NLP_SOL(int N, int *nx, int *nu, int *nb, int *ng, int *ns, stru
 	c_ptr += SIZE_STRVEC(2*nct);
 	for(ii=0; ii<=N; ii++)
 		{
-		CREATE_STRVEC(2*nb[ii]+2*ng[ii]+2*ns[ii], qp_sol->t+ii, tmp_ptr);
+		CREATE_STRVEC(2*nb[ii]+2*ng[ii]+2*ns[ii], nlp_sol->t+ii, tmp_ptr);
 		tmp_ptr += nb[ii]*sizeof(REAL); // lb
 		tmp_ptr += ng[ii]*sizeof(REAL); // lg
 		tmp_ptr += nb[ii]*sizeof(REAL); // ub
@@ -155,6 +151,19 @@ void CREATE_OCP_NLP_SOL(int N, int *nx, int *nu, int *nb, int *ng, int *ns, stru
 		tmp_ptr += ns[ii]*sizeof(REAL); // us
 		}
 	
+
+	nlp_sol->memsize = MEMSIZE_OCP_NLP_SOL(N, nx, nu, nb, ng, ns);
+
+
+#if defined(RUNTIME_CHECKS)
+	if(c_ptr > ((char *) mem) + nlp_sol->memsize)
+		{
+		printf("\nCreate_ocp_nlp_sol: outsize memory bounds!\n\n");
+		exit(1);
+		}
+#endif
+
+
 	return;
 
 	}

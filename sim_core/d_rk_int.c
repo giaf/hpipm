@@ -27,6 +27,11 @@
 
 
 
+#if defined(RUNTIME_CHECKS)
+#include <stdlib.h>
+#include <stdio.h>
+#endif
+
 #include "../include/hpipm_d_rk_int.h"
 
 
@@ -45,12 +50,12 @@ int d_memsize_rk_data(int ns)
 
 
 
-void d_create_rk_data(int ns, struct d_rk_data *rk_data, void *memory)
+void d_create_rk_data(int ns, struct d_rk_data *rk_data, void *mem)
 	{
 
 	rk_data->ns = ns;
 
-	double *d_ptr = memory;
+	double *d_ptr = mem;
 
 	//
 	rk_data->A_rk = d_ptr;
@@ -61,6 +66,22 @@ void d_create_rk_data(int ns, struct d_rk_data *rk_data, void *memory)
 	//
 	rk_data->C_rk = d_ptr;
 	d_ptr += ns;
+
+
+	rk_data->memsize = d_memsize_rk_data(ns);
+
+
+	char *c_ptr = (char *) d_ptr;
+
+
+#if defined(RUNTIME_CHECKS)
+	if(c_ptr > ((char *) mem) + rk_data->memsize)
+		{
+		printf("\nCreate_irk_int: outsize memory bounds!\n\n");
+		exit(1);
+		}
+#endif
+
 
 	return;
 

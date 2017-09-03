@@ -47,7 +47,7 @@ void INIT_VAR_DENSE_QP(struct DENSE_QP *qp, struct DENSE_QP_SOL *qp_sol, struct 
 	REAL *lam = qp_sol->lam->pa;
 	REAL *t = qp_sol->t->pa;
 
-	REAL mu0 = cws->mu0;
+	REAL mu0 = ws->mu0;
 
 	// local variables
 	int ii;

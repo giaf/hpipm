@@ -27,7 +27,7 @@
 
 
 
-int MEMSIZE_CORE_QP_IPM(int nv, int ne, int nc, int iter_max)
+int MEMSIZE_CORE_QP_IPM(int nv, int ne, int nc, int stat_max)
 	{
 
 	int size;
@@ -44,7 +44,7 @@ int MEMSIZE_CORE_QP_IPM(int nv, int ne, int nc, int iter_max)
 	size += 2*ne0*sizeof(REAL); // dpi res_b
 	size += 7*(2*nc0)*sizeof(REAL); // dlam dt res_d res_m t_inv Gamma gamma
 	size += 2*(nc0)*sizeof(REAL); // Qx qx
-	size += 5*iter_max*sizeof(REAL); // stat
+	size += 5*stat_max*sizeof(REAL); // stat
 
 	size = (size+63)/64*64; // make multiple of cache line size
 
@@ -67,7 +67,7 @@ void CREATE_CORE_QP_IPM(struct CORE_QP_IPM_WORKSPACE *workspace, void *mem)
 // if target avx NO!!!!
 // nv0 = ...
 
-	workspace->memsize = MEMSIZE_CORE_QP_IPM(nv, ne, nc, workspace->iter_max);
+	workspace->memsize = MEMSIZE_CORE_QP_IPM(nv, ne, nc, workspace->stat_max);
 
 	REAL *d_ptr = (REAL *) mem;
 
@@ -111,7 +111,7 @@ void CREATE_CORE_QP_IPM(struct CORE_QP_IPM_WORKSPACE *workspace, void *mem)
 	d_ptr += nc0;
 
 	workspace->stat = d_ptr; // stat
-	d_ptr += 5*workspace->iter_max;
+	d_ptr += 5*workspace->stat_max;
 
 	int *i_ptr = (int *) d_ptr;
 

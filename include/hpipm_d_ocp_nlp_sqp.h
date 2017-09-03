@@ -39,7 +39,6 @@ struct d_ocp_nlp_sqp_workspace
 	struct d_ocp_qp_sol *qp_sol;
 	struct d_ocp_qp_ipm_workspace *ipm_workspace;
 	struct d_erk_workspace *erk_workspace;
-	struct d_erk_args *erk_arg; // TODO fix name in arg !!!
 	struct d_strvec *rq;
 	struct d_strvec *tmp_nuxM;
 	struct d_strvec *tmp_nbgM;
@@ -66,4 +65,4 @@ int d_memsize_ocp_nlp_sqp(struct d_ocp_nlp *nlp, struct d_ocp_nlp_sqp_arg *arg);
 //
 void d_create_ocp_nlp_sqp(struct d_ocp_nlp *nlp, struct d_ocp_nlp_sqp_arg *arg, struct d_ocp_nlp_sqp_workspace *ws, void *mem);
 //
-int d_solve_ocp_nlp_sqp(struct d_ocp_nlp *nlp, struct d_ocp_nlp_sol *nlp_sol, struct d_ocp_nlp_sqp_workspace *ws);
+int d_solve_ocp_nlp_sqp(struct d_ocp_nlp *nlp, struct d_ocp_nlp_sol *nlp_sol, struct d_ocp_nlp_sqp_arg *arg, struct d_ocp_nlp_sqp_workspace *ws);

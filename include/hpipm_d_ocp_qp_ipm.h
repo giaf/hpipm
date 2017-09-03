@@ -53,6 +53,7 @@ struct d_ocp_qp_ipm_workspace
 	struct d_strmat *L;
 	struct d_strmat *AL;
 	double *stat; // convergence statistics
+	double mu0; // mu0
 	double res_mu; // mu-residual
 	int iter; // iteration number
 	int memsize;
@@ -66,6 +67,8 @@ struct d_ocp_qp_ipm_arg
 	double mu_max; // exit cond on duality measure
 	double mu0; // initial value for duality measure
 	int iter_max; // exit cond in iter number
+	int stat_max; // iterations saved in stat
+	int pred_corr; // use Mehrotra's predictor-corrector IPM algirthm
 	};
 
 
@@ -75,9 +78,7 @@ int d_memsize_ocp_qp_ipm(struct d_ocp_qp *qp, struct d_ocp_qp_ipm_arg *arg);
 //
 void d_create_ocp_qp_ipm(struct d_ocp_qp *qp, struct d_ocp_qp_ipm_arg *arg, struct d_ocp_qp_ipm_workspace *ws, void *mem);
 //
-int d_solve_ocp_qp_ipm(struct d_ocp_qp *qp, struct d_ocp_qp_sol *qp_sol, struct d_ocp_qp_ipm_workspace *ws);
-//
-int d_solve_ocp_qp_ipm2(struct d_ocp_qp *qp, struct d_ocp_qp_sol *qp_sol, struct d_ocp_qp_ipm_workspace *ws);
+int d_solve_ocp_qp_ipm(struct d_ocp_qp *qp, struct d_ocp_qp_sol *qp_sol, struct d_ocp_qp_ipm_arg *arg, struct d_ocp_qp_ipm_workspace *ws);
 //
 void d_cvt_ocp_qp_res_to_colmaj(struct d_ocp_qp *qp, struct d_ocp_qp_ipm_workspace *ws, double **res_r, double **res_q, double **res_ls, double **res_us, double **res_b, double **res_d_lb, double **res_d_ub, double **res_d_lg, double **res_d_ug, double **res_d_ls, double **res_d_us, double **res_m_lb, double **res_m_ub, double **res_m_lg, double **res_m_ug, double **res_m_ls, double **res_m_us);
 //
