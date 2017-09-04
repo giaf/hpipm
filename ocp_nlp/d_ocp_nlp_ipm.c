@@ -37,6 +37,8 @@
 #include <blasfeo_d_aux.h>
 #include <blasfeo_d_blas.h>
 
+#include "../include/hpipm_d_core_qp_ipm.h"
+#include "../include/hpipm_d_core_qp_ipm_aux.h"
 #include "../include/hpipm_d_rk_int.h"
 #include "../include/hpipm_d_erk_int.h"
 #include "../include/hpipm_d_ocp_qp.h"
@@ -46,10 +48,15 @@
 #include "../include/hpipm_d_ocp_qp_sim.h"
 #include "../include/hpipm_d_ocp_nlp.h"
 #include "../include/hpipm_d_ocp_nlp_sol.h"
-#include "../include/hpipm_d_ocp_nlp_sqp.h"
+#include "../include/hpipm_d_ocp_nlp_ipm.h"
 
 
 
+#define COMPUTE_ALPHA_QP d_compute_alpha_qp
+#define COMPUTE_CENTERING_CORRECTION_QP d_compute_centering_correction_qp
+#define COMPUTE_MU_AFF_QP d_compute_mu_aff_qp
+#define COMPUTE_RES_OCP_QP d_compute_res_ocp_qp
+#define CORE_QP_IPM_WORKSPACE d_core_qp_ipm_workspace
 #define CREATE_ERK_INT d_create_erk_int
 #define CREATE_OCP_QP d_create_ocp_qp
 #define CREATE_OCP_QP_IPM d_create_ocp_qp_ipm
@@ -57,31 +64,36 @@
 #define CREATE_STRVEC d_create_strvec
 #define ERK_ARG d_erk_args
 #define ERK_WORKSPACE d_erk_workspace
+#define FACT_SOLVE_KKT_STEP_OCP_QP d_fact_solve_kkt_step_ocp_qp
+//#define FACT_SOLVE_KKT_UNCONSTR_OCP_QP d_fact_solve_kkt_unconstr_ocp_qp
+#define INIT_VAR_OCP_QP d_init_var_ocp_qp
 #define MEMSIZE_ERK_INT d_memsize_erk_int
-#define MEMSIZE_OCP_NLP_SQP d_memsize_ocp_nlp_sqp
+#define MEMSIZE_OCP_NLP_IPM d_memsize_ocp_nlp_ipm
 #define MEMSIZE_OCP_QP d_memsize_ocp_qp
 #define MEMSIZE_OCP_QP_IPM d_memsize_ocp_qp_ipm
 #define MEMSIZE_OCP_QP_SOL d_memsize_ocp_qp_sol
 #define OCP_NLP d_ocp_nlp
-#define OCP_NLP_SQP_ARG d_ocp_nlp_sqp_arg
+#define OCP_NLP_IPM_ARG d_ocp_nlp_ipm_arg
 #define OCP_NLP_SOL d_ocp_nlp_sol
-#define OCP_NLP_SQP_WORKSPACE d_ocp_nlp_sqp_workspace
+#define OCP_NLP_IPM_WORKSPACE d_ocp_nlp_ipm_workspace
 #define OCP_QP d_ocp_qp
 #define OCP_QP_IPM_ARG d_ocp_qp_ipm_arg
 #define OCP_QP_IPM_WORKSPACE d_ocp_qp_ipm_workspace
 #define OCP_QP_SOL d_ocp_qp_sol
 #define REAL double
 #define SIZE_STRVEC d_size_strvec
+#define SOLVE_KKT_STEP_OCP_QP d_solve_kkt_step_ocp_qp
 #define STRVEC d_strvec
+#define UPDATE_VAR_QP d_update_var_qp
 
-#define MEMSIZE_OCP_NLP_SQP d_memsize_ocp_nlp_sqp
-#define CREATE_OCP_NLP_SQP d_create_ocp_nlp_sqp
-#define SOLVE_OCP_NLP_SQP d_solve_ocp_nlp_sqp
+#define MEMSIZE_OCP_NLP_IPM d_memsize_ocp_nlp_ipm
+#define CREATE_OCP_NLP_IPM d_create_ocp_nlp_ipm
+#define SOLVE_OCP_NLP_IPM d_solve_ocp_nlp_ipm
 
 
 
 // TODO eliminate x0 in QP !!!
-int MEMSIZE_OCP_NLP_SQP(struct OCP_NLP *nlp, struct OCP_NLP_SQP_ARG *arg)
+int MEMSIZE_OCP_NLP_IPM(struct OCP_NLP *nlp, struct OCP_NLP_IPM_ARG *arg)
 	{
 
 	int ii;
@@ -168,7 +180,7 @@ int MEMSIZE_OCP_NLP_SQP(struct OCP_NLP *nlp, struct OCP_NLP_SQP_ARG *arg)
 
 
 // TODO eliminate x0 in QP !!!
-void CREATE_OCP_NLP_SQP(struct OCP_NLP *nlp, struct OCP_NLP_SQP_ARG *arg, struct OCP_NLP_SQP_WORKSPACE *ws, void *mem)
+void CREATE_OCP_NLP_IPM(struct OCP_NLP *nlp, struct OCP_NLP_IPM_ARG *arg, struct OCP_NLP_IPM_WORKSPACE *ws, void *mem)
 	{
 
 	int ii, jj;
@@ -301,7 +313,7 @@ void CREATE_OCP_NLP_SQP(struct OCP_NLP *nlp, struct OCP_NLP_SQP_ARG *arg, struct
 	c_ptr += (ws->tmp_nbgM+0)->memory_size;
 
 
-	ws->memsize = MEMSIZE_OCP_NLP_SQP(nlp, arg);
+	ws->memsize = MEMSIZE_OCP_NLP_IPM(nlp, arg);
 
 
 #if defined(RUNTIME_CHECKS)
@@ -319,7 +331,7 @@ void CREATE_OCP_NLP_SQP(struct OCP_NLP *nlp, struct OCP_NLP_SQP_ARG *arg, struct
 
 
 
-int SOLVE_OCP_NLP_SQP(struct OCP_NLP *nlp, struct OCP_NLP_SOL *nlp_sol, struct OCP_NLP_SQP_ARG *arg, struct OCP_NLP_SQP_WORKSPACE *ws)
+int SOLVE_OCP_NLP_IPM(struct OCP_NLP *nlp, struct OCP_NLP_SOL *nlp_sol, struct OCP_NLP_IPM_ARG *arg, struct OCP_NLP_IPM_WORKSPACE *ws)
 	{
 
 	struct OCP_QP *qp = ws->qp;
@@ -330,10 +342,22 @@ int SOLVE_OCP_NLP_SQP(struct OCP_NLP *nlp, struct OCP_NLP_SOL *nlp_sol, struct O
 	struct STRVEC *tmp_nuxM = ws->tmp_nuxM;
 	struct STRVEC *tmp_nbgM = ws->tmp_nbgM;
 
+	struct CORE_QP_IPM_WORKSPACE *cws = ipm_ws->core_workspace;
+
 	struct OCP_QP_IPM_ARG *ipm_arg = arg->ipm_arg;
 	struct ERK_ARG *erk_arg = arg->erk_arg;
 
+	// alias qp vectors into qp_sol
+	cws->v = qp_sol->ux->pa;
+	cws->pi = qp_sol->pi->pa;
+	cws->lam = qp_sol->lam->pa;
+	cws->t = qp_sol->t->pa;
+
+	ipm_ws->mu0 = ipm_arg->mu0;
+
 	int ss, nn, ii;
+
+	int kk;
 
 	// qp size
 	int N = qp->N;
@@ -346,6 +370,14 @@ int SOLVE_OCP_NLP_SQP(struct OCP_NLP *nlp, struct OCP_NLP_SOL *nlp_sol, struct O
 	int ne0 = nlp->ne0;
 
 	double *x, *xn, *u;
+
+	double tmp;
+
+	// initialize nlp sol
+	for(nn=0; nn<=N; nn++)
+		dvecse_libstr(nlp->nu[nn]+nlp->nx[nn], 0.0, nlp_sol->ux+nn, 0);
+	// fix initial state to e0
+	dveccp_libstr(ne0, nlp->e0, 0, nlp_sol->ux+0, nlp->nu[0]);
 
 	// compute rq
 	for(nn=0; nn<=N; nn++)
@@ -389,12 +421,13 @@ int SOLVE_OCP_NLP_SQP(struct OCP_NLP *nlp, struct OCP_NLP_SOL *nlp_sol, struct O
 		for(ii=0; ii<ns[nn]; ii++) qp->idxs[nn][ii] = nlp->idxs[nn][ii];
 		}
 
-	// initialize solution (to zero atm)
-	for(nn=0; nn<=N; nn++)
-		dvecse_libstr(nu[nn]+nx[nn], 0.0, nlp_sol->ux+nn, 0);
 
-	int sqp_steps = 2;
-	for(ss=0; ss<sqp_steps; ss++)	
+	// initialize solution
+	INIT_VAR_OCP_QP(qp, qp_sol, ipm_ws);
+
+
+	// nlp loop
+	for(ss=0; ss<arg->nlp_iter_max; ss++)	
 		{
 
 		// simulation & sensitivity propagation
@@ -410,16 +443,16 @@ int SOLVE_OCP_NLP_SQP(struct OCP_NLP *nlp, struct OCP_NLP_SOL *nlp_sol, struct O
 
 	
 		// setup qp
-		for(nn=0; nn<=N; nn++)
-			dveccp_libstr(nu[nn]+nx[nn], ws->rq+nn, 0, qp->rq+nn, 0);
-		for(nn=0; nn<N; nn++)
-			dvecse_libstr(nx[nn+1], 0.0, qp->b+nn, 0);
-		for(nn=0; nn<=N; nn++)
-			dveccp_libstr(2*nb[nn]+2*ng[nn], nlp->d+nn, 0, qp->d+nn, 0);
+//		for(nn=0; nn<=N; nn++)
+//			dveccp_libstr(nu[nn]+nx[nn], ws->rq+nn, 0, qp->rq+nn, 0);
+//		for(nn=0; nn<N; nn++)
+//			dvecse_libstr(nx[nn+1], 0.0, qp->b+nn, 0);
+//		for(nn=0; nn<=N; nn++)
+//			dveccp_libstr(2*nb[nn]+2*ng[nn], nlp->d+nn, 0, qp->d+nn, 0);
 
 
 		// eliminate x0 from optimization variables
-		dgemv_t_libstr(nlp->nx[0], nlp->nx[1], 1.0, qp->BAbt+0, nu[0], 0, nlp->e0, 0, 1.0, qp->b+0, 0, qp->b+0, 0);
+		dgemv_t_libstr(nlp->nx[0], nlp->nx[1], 1.0, qp->BAbt+0, nu[0], 0, nlp->e0, 0, 0.0, qp->b+0, 0, qp->b+0, 0);
 		// TODO r0 d_lg0 d_ug0
 
 #if 0
@@ -429,70 +462,77 @@ d_print_tran_strvec(nx[1], qp->b+0, 0);
 exit(1);
 #endif
 
-		// copy nlp_sol into qp_sol
-		tmp_qp_sol->ux = nlp_sol->ux;
-		tmp_qp_sol->pi = nlp_sol->pi;
-		tmp_qp_sol->lam = nlp_sol->lam;
-		tmp_qp_sol->t = nlp_sol->t;
+		// compute residuals
+		COMPUTE_RES_OCP_QP(qp, qp_sol, ipm_ws);
+		cws->mu = ipm_ws->res_mu;
 
-		// compute residuals // XXX use adjoing sensitivities to avoid A'*pi ???
-		d_compute_res_ocp_qp(qp, tmp_qp_sol, ipm_ws);
 
-		// copy residuals into qp rhs
-		for(nn=0; nn<=N; nn++)
+		// qp loop
+		for(kk=0; kk<ipm_arg->iter_max & cws->mu>ipm_arg->mu_max; kk++)
 			{
-			dveccp_libstr(nu[nn]+nx[nn]+2*ns[nn], ipm_ws->res_g+nn, 0, qp->rq+nn, 0);
-			drowin_libstr(nu[nn]+nx[nn], 1.0, qp->rq+nn, 0, qp->RSQrq+nn, nu[nn]+nx[nn], 0);
-			}
-		for(nn=0; nn<N; nn++)
-			{
-			dveccp_libstr(nx[nn+1], ipm_ws->res_b+nn, 0, qp->b+nn, 0);
-			drowin_libstr(nx[nn+1], 1.0, qp->b+nn, 0, qp->BAbt+nn, nu[nn]+nx[nn], 0);
-			}
-		for(nn=0; nn<=N; nn++)
-			{
-			dveccp_libstr(2*nb[nn]+2*ng[nn], ipm_ws->res_d+nn, 0, qp->d+nn, 0);
-			dvecsc_libstr(nb[nn]+ng[nn], -1.0, qp->d+nn, nb[nn]+ng[nn]);
-			}
 
+			// fact and solve kkt
+			FACT_SOLVE_KKT_STEP_OCP_QP(qp, ipm_ws);
 
-#if 0
-		for(nn=0; nn<=N; nn++)
-			d_print_strmat(nu[nn]+nx[nn]+1, nu[nn]+nx[nn], qp->RSQrq+nn, 0, 0);
-		for(nn=0; nn<N; nn++)
-			d_print_strmat(nu[nn]+nx[nn]+1, nx[nn+1], qp->BAbt+nn, 0, 0);
-		for(nn=0; nn<=N; nn++)
-			d_print_tran_strvec(2*nb[nn]+2*ng[nn]+2*ns[nn], qp->d+nn, 0);
-		exit(1);
+			// alpha
+			COMPUTE_ALPHA_QP(cws);
+			if(kk<ipm_ws->stat_max)
+				ipm_ws->stat[5*kk+0] = cws->alpha;
+
+			// Mehrotra's corrector
+			if(ipm_arg->pred_corr==1)
+				{
+				// mu_aff
+				COMPUTE_MU_AFF_QP(cws);
+				if(kk<ipm_ws->stat_max)
+					ipm_ws->stat[5*kk+1] = cws->mu_aff;
+
+				tmp = cws->mu_aff/cws->mu;
+				cws->sigma = tmp*tmp*tmp;
+				if(kk<ipm_ws->stat_max)
+					ipm_ws->stat[5*kk+2] = cws->sigma;
+
+				COMPUTE_CENTERING_CORRECTION_QP(cws);
+
+				// fact and solve kkt
+				SOLVE_KKT_STEP_OCP_QP(qp, ipm_ws);
+
+				// alpha
+				COMPUTE_ALPHA_QP(cws);
+				if(kk<ipm_ws->stat_max)
+					ipm_ws->stat[5*kk+3] = cws->alpha;
+				}
+
+			//
+			UPDATE_VAR_QP(cws);
+
+			// compute residuals
+			COMPUTE_RES_OCP_QP(qp, qp_sol, ipm_ws);
+			cws->mu = ipm_ws->res_mu;
+			if(kk<ipm_ws->stat_max)
+				ipm_ws->stat[5*kk+4] = ipm_ws->res_mu;
+
+			}
+		
+		ipm_ws->iter = kk;
+
+#if 1
+d_print_e_tran_mat(5, kk, ipm_ws->stat, 5);
 #endif
 
-		// solve qp
-		d_solve_ocp_qp_ipm(qp, qp_sol, ipm_arg, ipm_ws);
-
-#if 0
+		// update NLP variables
 		for(nn=0; nn<=N; nn++)
-			d_print_tran_strvec(nu[nn]+nx[nn]+2*ns[nn], qp_sol->ux+nn, 0);
+			dveccp_libstr(nu[nn]+nx[nn]+2*ns[ii], qp_sol->ux+nn, 0, nlp_sol->ux+nn, 0);
 		for(nn=0; nn<N; nn++)
-			d_print_tran_strvec(nx[nn+1], qp_sol->pi+nn, 0);
+			dveccp_libstr(nx[nn+1], qp_sol->pi+nn, 0, nlp_sol->pi+nn, 0);
 		for(nn=0; nn<=N; nn++)
-			d_print_tran_strvec(2*nb[nn]+2*ng[nn]+2*ns[nn], qp_sol->lam+nn, 0);
+			dveccp_libstr(2*nb[nn]+2*ng[nn]+2*ns[ii], qp_sol->lam+nn, 0, nlp_sol->lam+nn, 0);
 		for(nn=0; nn<=N; nn++)
-			d_print_tran_strvec(2*nb[nn]+2*ng[nn]+2*ns[nn], qp_sol->t+nn, 0);
-		d_print_e_tran_mat(5, ipm_ws->iter, ipm_ws->stat, 5);
-#endif
-
-		// update variables (full step)
-		for(nn=0; nn<=N; nn++)
-			daxpy_libstr(nu[nn]+nx[nn]+2*ns[ii], 1.0, qp_sol->ux+nn, 0, nlp_sol->ux+nn, 0, nlp_sol->ux+nn, 0);
-		for(nn=0; nn<N; nn++)
-			daxpy_libstr(nx[nn+1], 1.0, qp_sol->pi+nn, 0, nlp_sol->pi+nn, 0, nlp_sol->pi+nn, 0);
-		for(nn=0; nn<=N; nn++)
-			daxpy_libstr(2*nb[nn]+2*ng[nn]+2*ns[ii], 1.0, qp_sol->lam+nn, 0, nlp_sol->lam+nn, 0, nlp_sol->lam+nn, 0);
-		for(nn=0; nn<=N; nn++)
-			daxpy_libstr(2*nb[nn]+2*ng[nn]+2*ns[ii], 1.0, qp_sol->t+nn, 0, nlp_sol->t+nn, 0, nlp_sol->t+nn, 0);
+			dveccp_libstr(2*nb[nn]+2*ng[nn]+2*ns[ii], qp_sol->t+nn, 0, nlp_sol->t+nn, 0);
 
 		}
 	
 	return 0;
 
 	}
+

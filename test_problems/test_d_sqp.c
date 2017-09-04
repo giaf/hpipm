@@ -46,7 +46,7 @@
 #include "../include/hpipm_d_ocp_qp_sim.h"
 #include "../include/hpipm_d_ocp_nlp.h"
 #include "../include/hpipm_d_ocp_nlp_sol.h"
-#include "../include/hpipm_d_ocp_nlp_sqp.h"
+#include "../include/hpipm_d_ocp_nlp_ipm.h"
 
 #include "d_tools.h"
 
@@ -367,7 +367,7 @@ int main()
 
 	nx[0] = nx_;//0;
 	nu[0] = nu_;
-	nb[0] = nx_;//0;
+	nb[0] = nu_;
 	ng[0] = 0;
 	ns[0] = 0;
 	ne0 = nx_;
@@ -375,13 +375,13 @@ int main()
 		{
 		nx[ii] = nx_;
 		nu[ii] = nu_;
-		nb[ii] = 0;
+		nb[ii] = nu_+nx_/2;
 		ng[ii] = 0;
 		ns[ii] = 0;
 		}
 	nx[N] = nx_;
 	nu[N] = 0;
-	nb[N] = 0;
+	nb[N] = nx_;
 	ng[N] = 0;
 	ns[N] = 0;
 
@@ -392,8 +392,10 @@ int main()
 	struct d_ocp_qp_ipm_arg arg;
 	arg.alpha_min = 1e-8;
 	arg.mu_max = 1e-12;
-	arg.iter_max = 20;
 	arg.mu0 = 2.0;
+	arg.iter_max = 20;
+	arg.stat_max = 100;
+	arg.pred_corr = 1;
 
 /************************************************
 * box & general constraints
@@ -404,7 +406,6 @@ int main()
 	double *d_ub0; d_zeros(&d_ub0, nb[0], 1);
 	double *d_lg0; d_zeros(&d_lg0, ng[0], 1);
 	double *d_ug0; d_zeros(&d_ug0, ng[0], 1);
-#if 0
 	for(ii=0; ii<nb[0]; ii++)
 		{
 		if(ii<nu[0]) // input
@@ -419,14 +420,6 @@ int main()
 			}
 		idxb0[ii] = ii;
 		}
-#else
-	for(ii=0; ii<nb[0]; ii++)
-		{
-		d_lb0[ii] = x0[ii];
-		d_ub0[ii] = x0[ii];
-		idxb0[ii] = nu[0]+ii;
-		}
-#endif
 
 	int *idxb1; int_zeros(&idxb1, nb[1], 1);
 	double *d_lb1; d_zeros(&d_lb1, nb[1], 1);
@@ -442,8 +435,8 @@ int main()
 			}
 		else // state
 			{
-			d_lb1[ii] = - 1.0; // xmin
-			d_ub1[ii] =   1.0; // xmax
+			d_lb1[ii] = - 4.0; // xmin
+			d_ub1[ii] =   4.0; // xmax
 			}
 		idxb1[ii] = ii;
 		}
@@ -455,8 +448,8 @@ int main()
 	double *d_ugN; d_zeros(&d_ugN, ng[N], 1);
 	for(ii=0; ii<nb[N]; ii++)
 		{
-		d_lbN[ii] = - 1.0; // xmin
-		d_ubN[ii] =   1.0; // xmax
+		d_lbN[ii] = - 4.0; // xmin
+		d_ubN[ii] =   4.0; // xmax
 		idxbN[ii] = ii;
 		}
 
@@ -678,6 +671,9 @@ int main()
 	struct d_ocp_nlp nlp;
 	d_create_ocp_nlp(N, nx, nu, nb, ng, ns, ne0, &nlp, nlp_mem);
 
+	// initial state constraint
+	for(ii=0; ii<nx_; ii++) e0[ii] = x0[ii];
+
 	d_cvt_colmaj_to_ocp_nlp(models, e0, hQ, hS, hR, hx_ref, hu_ref, hidxb, hd_lb, hd_ub, hC, hD, hd_lg, hd_ug, hZl, hZu, hzl, hzu, hidxs, &nlp);
 
 /************************************************
@@ -692,33 +688,33 @@ int main()
 	d_create_ocp_nlp_sol(N, nx, nu, nb, ng, ns, ne0, &nlp_sol, nlp_sol_mem);
 
 /************************************************
-* ocp nlp sqp arg
+* ocp nlp ipm arg
 ************************************************/	
 
 	struct d_erk_args erk_args[N];
 	for(ii=0; ii<N; ii++)
 		erk_args[ii] = erk_arg;
 
-	struct d_ocp_nlp_sqp_arg sqp_arg;
-	sqp_arg.ipm_arg = &arg;
-	sqp_arg.rk_data = &rk_data;
-	sqp_arg.erk_arg = erk_args;
-	sqp_arg.res_max = 1e-8;
-	sqp_arg.iter_max = 5;
+	struct d_ocp_nlp_ipm_arg ipm_arg;
+	ipm_arg.ipm_arg = &arg;
+	ipm_arg.rk_data = &rk_data;
+	ipm_arg.erk_arg = erk_args;
+	ipm_arg.nlp_res_max = 1e-8;
+	ipm_arg.nlp_iter_max = 1;
 
 /************************************************
-* ocp nlp sqp ws
+* ocp nlp ipm ws
 ************************************************/	
 
-	int nlp_ws_size = d_memsize_ocp_nlp_sqp(&nlp, &sqp_arg);
+	int nlp_ws_size = d_memsize_ocp_nlp_ipm(&nlp, &ipm_arg);
 	printf("\nnlp ws size = %d\n", nlp_ws_size);
 	void *nlp_ws_mem = malloc(nlp_ws_size);
 	
-	struct d_ocp_nlp_sqp_workspace sqp_ws;
-	d_create_ocp_nlp_sqp(&nlp, &sqp_arg, &sqp_ws, nlp_ws_mem);
+	struct d_ocp_nlp_ipm_workspace ipm_ws;
+	d_create_ocp_nlp_ipm(&nlp, &ipm_arg, &ipm_ws, nlp_ws_mem);
 
 /************************************************
-* ocp nlp sqp
+* ocp nlp ipm
 ************************************************/	
 
 	int nlp_return;
@@ -730,12 +726,12 @@ int main()
 
 	for(rep=0; rep<nrep; rep++)
 		{
-		nlp_return = d_solve_ocp_nlp_sqp(&nlp, &nlp_sol, &sqp_arg, &sqp_ws);
+		nlp_return = d_solve_ocp_nlp_ipm(&nlp, &nlp_sol, &ipm_arg, &ipm_ws);
 		}
 
 	gettimeofday(&tv1, NULL); // stop
 
-	double time_ocp_sqp = (tv1.tv_sec-tv0.tv_sec)/(nrep+0.0)+(tv1.tv_usec-tv0.tv_usec)/(nrep*1e6);
+	double time_ocp_nlp_ipm = (tv1.tv_sec-tv0.tv_sec)/(nrep+0.0)+(tv1.tv_usec-tv0.tv_usec)/(nrep*1e6);
 
 /************************************************
 * extract and print solution
@@ -818,7 +814,7 @@ int main()
 * print ipm statistics
 ************************************************/	
 
-	printf("\nocp sqp time = %e [s]\n\n", time_ocp_sqp);
+	printf("\nocp nlp ipm time = %e [s]\n\n", time_ocp_nlp_ipm);
 
 /************************************************
 * free memory

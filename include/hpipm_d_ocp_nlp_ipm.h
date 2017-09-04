@@ -21,7 +21,7 @@
 * License along with HPIPM; if not, write to the Free Software                                    *
 * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA                  *
 *                                                                                                 *
-* Author: Gianluca Frison, gianluca.frison (at) imtek.uni-freiburg.de                             *                          
+* Author: Gianluca Frison, gianluca.frison (at) imtek.uni-freiburg.de                             *
 *                                                                                                 *
 **************************************************************************************************/
 
@@ -29,41 +29,41 @@
 
 #include <blasfeo_target.h>
 #include <blasfeo_common.h>
-#include <blasfeo_d_aux.h>
-
-#include "../include/hpipm_d_erk_int.h"
-#include "../include/hpipm_d_ocp_qp.h"
 
 
 
-void d_cvt_erk_int_to_ocp_qp(int n, struct d_erk_workspace *erk_ws, double *xn, struct d_ocp_qp *qp)
+
+struct d_ocp_nlp_ipm_workspace
 	{
+	struct d_ocp_qp *qp;
+	struct d_ocp_qp_sol *qp_sol;
+	struct d_ocp_qp_ipm_workspace *ipm_workspace;
+	struct d_erk_workspace *erk_workspace;
+	struct d_strvec *rq;
+	struct d_strvec *tmp_nuxM;
+	struct d_strvec *tmp_nbgM;
+	double **fs; // initialization of forward sensitivities
+	int iter; // iteration number
+	int memsize;
+	};
 
-	int ii;
 
-//	int *nx = qp->nx+n;
-//	int *nu = qp->nu+n;
-	struct d_strmat *BAbt = qp->BAbt+n;
-	struct d_strvec *b = qp->b+n;
 
-	int nx = erk_ws->nx;
-	int nf = erk_ws->nf;
+struct d_ocp_nlp_ipm_arg
+	{
+	struct d_ocp_qp_ipm_arg *ipm_arg; // ipm arg
+	struct d_rk_data *rk_data; // rk data
+	struct d_erk_args *erk_arg; // TODO fix name in arg !!!
+	double nlp_res_max; // exit cond on duality measure
+	int nlp_iter_max; // exit cond in iter number
+	};
 
-	double *x = erk_ws->x;
-	double *xt = b->pa;
 
-	double *tmp;
 
-//	d_cvt_tran_mat2strmat(nx[1], nu[0]+nx[0], x, nx[1], BAbt, 0, 0);
-	d_cvt_tran_mat2strmat(nx, nf, x, nx, BAbt, 0, 0);
+//
+int d_memsize_ocp_nlp_ipm(struct d_ocp_nlp *nlp, struct d_ocp_nlp_ipm_arg *arg);
+//
+void d_create_ocp_nlp_ipm(struct d_ocp_nlp *nlp, struct d_ocp_nlp_ipm_arg *arg, struct d_ocp_nlp_ipm_workspace *ws, void *mem);
+//
+int d_solve_ocp_nlp_ipm(struct d_ocp_nlp *nlp, struct d_ocp_nlp_sol *nlp_sol, struct d_ocp_nlp_ipm_arg *arg, struct d_ocp_nlp_ipm_workspace *ws);
 
-	// XXX not compute this again in residuals !!!
-//	tmp = x+nx[1]*nf;
-//	for(ii=0; ii<nx[1]; ii++)
-//		xt[ii] = tmp[ii] - xn[ii];
-	
-//	drowin_libstr(nx[1], 1.0, b, 0, BAbt, nx[0]+nu[0], 0);
-
-	return;
-
-	}

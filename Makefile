@@ -54,7 +54,7 @@ OBJS += tree_ocp_qp/s_tree_ocp_qp.o tree_ocp_qp/s_tree_ocp_qp_sol.o tree_ocp_qp/
 OBJS += sim_core/d_rk_int.o sim_core/d_erk_int.o sim_core/d_irk_int.o
 OBJS +=
 # ocp nlp
-OBJS += ocp_nlp/d_ocp_nlp.o ocp_nlp/d_ocp_nlp_sol.o ocp_nlp/d_ocp_nlp_sqp.o
+OBJS += ocp_nlp/d_ocp_nlp.o ocp_nlp/d_ocp_nlp_sol.o ocp_nlp/d_ocp_nlp_sqp.o ocp_nlp/d_ocp_nlp_ipm.o
 OBJS +=
 
 all: clean static_library
