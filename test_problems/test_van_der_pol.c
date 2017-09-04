@@ -25,6 +25,8 @@
 *                                                                                                 *
 **************************************************************************************************/
 
+
+
 #include <stdlib.h>
 #include <stdio.h>
 #include <math.h>
@@ -48,153 +50,32 @@
 #include "../include/hpipm_d_ocp_nlp_sol.h"
 #include "../include/hpipm_d_ocp_nlp_ipm.h"
 
-#include "d_tools.h"
 
 
-
-/************************************************ 
-Mass-spring system: nx/2 masses connected each other with springs (in a row), and the first and the last one to walls. nu (<=nx) controls act on the first nu masses. The system is sampled with sampling time Ts. 
-************************************************/
-void mass_spring_system(int nx, int nu, double *Ac, double *Bc)
+void d_van_der_pol_ode(int t, double *x, double *u, void *ode_args, double *xdot)
 	{
-
-	int ii;
-
-	int nx2 = nx*nx;
-
-	int pp = nx/2; // number of masses
-	
-	// Ac
-	for(ii=0; ii<nx*nx; ii++)
-		Ac[ii] = 0.0;
-	for(ii=0; ii<pp; ii++)
-		Ac[ii+nx*(pp+ii)] = 1.0;
-	for(ii=0; ii<pp; ii++)
-		Ac[pp+ii+nx*(ii)] = -2.0;
-	for(ii=0; ii<pp-1; ii++)
-		Ac[pp+ii+nx*(1+ii)] = 1.0;
-	for(ii=0; ii<pp; ii++)
-		Ac[1+pp+ii+nx*(ii)] = 1.0;
-
-	// Bc
-	for(ii=0; ii<nx*nu; ii++)
-		Bc[ii] = 0.0;
-	for(ii=0; ii<nu; ii++)
-		Bc[pp+ii+nx*ii] = 1.0;
-
-	return;
-
-	}
-
-
-
-struct d_linear_system
-	{
-	double *Ac;
-	double *Bc;
-	int nx;
-	int nu;
-	int memsize;
-	};
-
-
-
-int d_memsize_linear_system(int nx, int nu)
-	{
-	int size = 0;
-	size += (nx*nx+nx*nu)*sizeof(double);
-	return size;
-	}
-
-
-
-void d_create_linear_system(int nx, int nu, struct d_linear_system *lin_sys, void *memory)
-	{
-	lin_sys->nx = nx;
-	lin_sys->nu = nu;
-	char * c_ptr = (char *) memory;
-	lin_sys->Ac = (double *) c_ptr;
-	c_ptr += nx*nx*sizeof(double);
-	lin_sys->Bc = (double *) c_ptr;
-	c_ptr += nx*nu*sizeof(double);
+	double mu = 1.0;
+	xdot[0] = x[1];
+	xdot[1] = u[0] - x[0] + mu*(1.0 - x[0]*x[0])*x[1];
 	return;
 	}
 
 
 
-void d_cvt_colmaj_to_linear_system(double *A,  double *B, struct d_linear_system *lin_sys)
+void d_van_der_pol_vde(int t, double *x, double *u, void *ode_args, double *xdot)
 	{
-	int ii;
-	int nx = lin_sys->nx;
-	int nu = lin_sys->nu;
-	double *Ac = lin_sys->Ac;
-	double *Bc = lin_sys->Bc;
-	for(ii=0; ii<nx*nx; ii++)
-		Ac[ii] = A[ii];
-	for(ii=0; ii<nx*nu; ii++)
-		Bc[ii] = B[ii];
-	return;
-	}
-		
-
-
-void d_linear_ode(int t, double *x, double *u, void *ode_args, double *xdot)
-	{
-	struct d_linear_system *lin_sys = ode_args;
-	int ii, jj;
-	int nx = lin_sys->nx;
-	int nu = lin_sys->nu;
-	double *Ac = lin_sys->Ac;
-	double *Bc = lin_sys->Bc;
-	for(ii=0; ii<nx; ii++)
-		xdot[ii] = 0.0;
-	for(jj=0; jj<nx; jj++)
-		for(ii=0; ii<nx; ii++)
-			xdot[ii] += Ac[ii+nx*jj] * x[jj];
-	for(jj=0; jj<nu; jj++)
-		for(ii=0; ii<nx; ii++)
-			xdot[ii] += Bc[ii+nx*jj] * u[jj];
-	return;
-	}
-
-
-
-void d_linear_vde0(int t, double *x, double *u, void *ode_args, double *xdot)
-	{
-	struct d_linear_system *lin_sys = ode_args;
+	double mu = 1.0;
 	int ii, jj, kk;
-	int nx = lin_sys->nx;
-	int nu = lin_sys->nu;
-	double *Ac = lin_sys->Ac;
-	double *Bc = lin_sys->Bc;
-	double *tmp;
-	for(ii=0; ii<nx*(nu+1); ii++)
-		xdot[ii] = 0.0;
-	for(kk=0; kk<nu+1; kk++)
-		for(jj=0; jj<nx; jj++)
-			for(ii=0; ii<nx; ii++)
-				xdot[ii+nx*kk] += Ac[ii+nx*jj] * x[jj+nx*kk];
-	tmp = xdot+nx*(nu);
-	for(jj=0; jj<nu; jj++)
-		for(ii=0; ii<nx; ii++)
-			tmp[ii] += Bc[ii+nx*jj] * u[jj];
-	tmp = xdot;
-	for(jj=0; jj<nu; jj++)
-		for(ii=0; ii<nx; ii++)
-			tmp[ii+nx*jj] += Bc[ii+nx*jj];
-	return;
-	}
-
-
-
-void d_linear_vde1(int t, double *x, double *u, void *ode_args, double *xdot)
-	{
-	struct d_linear_system *lin_sys = ode_args;
-	int ii, jj, kk;
-	int nx = lin_sys->nx;
-	int nu = lin_sys->nu;
-	double *Ac = lin_sys->Ac;
-	double *Bc = lin_sys->Bc;
+	int nx = 2;
+	int nu = 1;
+	double Ac[4];
+	Ac[0+nx*0] = 0.0;
+	Ac[0+nx*1] = 1.0;
+	Ac[1+nx*0] = - 1.0 - 2.0*mu*x[0]*x[1];
+	Ac[1+nx*1] = mu*(1.0 - x[0]*x[0]);
+	double Bc[2];
+	Bc[0+nx*0] = 0.0;
+	Bc[1+nx*0] = 1.0;
 	double *tmp;
 	for(ii=0; ii<nx*(nu+nx+1); ii++)
 		xdot[ii] = 0.0;
@@ -218,80 +99,67 @@ void d_linear_vde1(int t, double *x, double *u, void *ode_args, double *xdot)
 int main()
 	{
 
-	int ii, jj;
+	int ii;
 
 /************************************************
 * problem size
 ************************************************/	
 	
-	int nx_ = 20;
-	int nu_ = 10;
+	int nx_ = 2;
+	int nu_ = 1;
 	int N   = 10;
 
 /************************************************
-* (continuous time) mass sprint system
+* initial state and control
 ************************************************/	
 	
-	double *Ac; d_zeros(&Ac, nx_, nx_);
-	double *Bc; d_zeros(&Bc, nx_, nu_);
+	double *x0 = malloc(nx_*sizeof(double));
+	x0[0] = 1.0;
+	x0[1] = 0.0;
 
-	mass_spring_system(nx_, nu_, Ac, Bc);
-
-	d_print_mat(nx_, nx_, Ac, nx_);
-	d_print_mat(nx_, nu_, Bc, nx_);
-
-	int lin_sys_memsize = d_memsize_linear_system(nx_, nu_);
-	printf("\nlin_sys memsize = %d\n", lin_sys_memsize);
-	void *lin_sys_memory = malloc(lin_sys_memsize);
-
-	struct d_linear_system lin_sys;
-	d_create_linear_system(nx_, nu_, &lin_sys, lin_sys_memory);
-
-	d_cvt_colmaj_to_linear_system(Ac, Bc, &lin_sys);
-
-	d_print_mat(nx_, nx_, lin_sys.Ac, nx_);
-	d_print_mat(nx_, nu_, lin_sys.Bc, nx_);
-
-	double *x0; d_zeros(&x0, nx_, 1);
-	x0[0] = 2.5;
-	x0[1] = 2.5;
-
-	d_print_mat(1, nx_, x0, 1);
+//	double *u = malloc(nu_*sizeof(double));
+//	u[0] = 0.0;
 
 /************************************************
-* (discrete time) mass sprint system
+* call ode
 ************************************************/	
+	
+#if 0
+	double *xdot = malloc(nx_*sizeof(double));
 
-	double Ts = 0.5;
+	d_van_der_pol_ode(0, x0, u, NULL, xdot);
 
-	double *A = malloc(nx_*nx_*sizeof(double));
-	double *B = malloc(nx_*nu_*sizeof(double));
-	double *T = malloc(nx_*nx_*sizeof(double));
-	int *ipiv = malloc(nx_*sizeof(int));
+	d_print_mat(1, nx_, xdot, 1);
+#endif
 
-	for(ii=0; ii<nx_*nx_; ii++)
-		A[ii] = Ts*Ac[ii];
-	expm(nx_, A);
+/************************************************
+* call vde
+************************************************/	
+	
+#if 0
+	double *fs0 = malloc(nx_*(nu_+nx_+1)*sizeof(double));
+	for(ii=0; ii<nx_*(nu_+nx_+1); ii++)
+		fs0[ii] = 0.0;
+	for(ii=0; ii<nx_; ii++)
+		fs0[nx_*nu_+ii*(nx_+1)] = 1.0;
+	for(ii=0; ii<nx_; ii++)
+		fs0[nx_*(nu_+nx_)+ii] = x0[ii];
+		
+	d_print_mat(nx_, nu_+nx_+1, fs0, nx_);
 
-	for(ii=0; ii<nx_*nx_; ii++) T[ii] = A[ii];
-	for(ii=0; ii<nx_; ii++) T[ii*(nx_+1)] -= 1.0;
-	dgemm_nn_3l(nx_, nu_, nx_, T, nx_, Bc, nx_, B, nx_);
+	double *fsdot = malloc(nx_*(nu_+nx_+1)*sizeof(double));
 
-	int info = 0;
-	dgesv_3l(nx_, nu_, Ac, nx_, ipiv, B, nx_, &info);
+	d_van_der_pol_vde(0, fs0, u, NULL, fsdot);
 
-	double *b; d_zeros(&b, nx_, 1);
-
-	d_print_mat(nx_, nx_, A, nx_);
-	d_print_mat(nx_, nu_, B, nx_);
-	d_print_mat(1, nx_, b, 1);
+	d_print_mat(nx_, nu_+nx_+1, fsdot, nx_);
+#endif
 
 /************************************************
 * quadratic cost function
 ************************************************/	
 	
 	double *Q; d_zeros(&Q, nx_, nx_);
-	for(ii=0; ii<nx_; ii++) Q[ii*(nx_+1)] = 1.0;
+	for(ii=0; ii<nx_; ii++) Q[ii*(nx_+1)] = 0.0;
 
 	double *R; d_zeros(&R, nu_, nu_);
 	for(ii=0; ii<nu_; ii++) R[ii*(nu_+1)] = 2.0;
@@ -348,6 +216,8 @@ int main()
 
 	d_cvt_rowmaj_to_rk_data(A_rk, B_rk, C_rk, &rk_data);
 
+	double Ts = 0.1;
+
 	// erk args structure
 	struct d_erk_args erk_arg;
 	erk_arg.steps = 10;
@@ -374,13 +244,13 @@ int main()
 		{
 		nx[ii] = nx_;
 		nu[ii] = nu_;
-		nb[ii] = nu_+nx_/2;
+		nb[ii] = nu_;
 		ng[ii] = 0;
 		ns[ii] = 0;
 		}
 	nx[N] = nx_;
 	nu[N] = 0;
-	nb[N] = nx_;
+	nb[N] = 0;//nx_;
 	ng[N] = 0;
 	ns[N] = 0;
 
@@ -409,15 +279,10 @@ int main()
 		{
 		if(ii<nu[0]) // input
 			{
-			d_lb0[ii] = - 0.5; // umin
-			d_ub0[ii] =   0.5; // umax
+			d_lb0[ii] = - 10.0; // umin
+			d_ub0[ii] =   10.0; // umax
+			idxb0[ii] = ii;
 			}
-		else // state
-			{
-			d_lb0[ii] = - 4.0; // xmin
-			d_ub0[ii] =   4.0; // xmax
-			}
-		idxb0[ii] = ii;
 		}
 
 	int *idxb1; int_zeros(&idxb1, nb[1], 1);
@@ -429,15 +294,10 @@ int main()
 		{
 		if(ii<nu[1]) // input
 			{
-			d_lb1[ii] = - 0.5; // umin
-			d_ub1[ii] =   0.5; // umax
+			d_lb1[ii] = - 10.0; // umin
+			d_ub1[ii] =   10.0; // umax
+			idxb1[ii] = ii;
 			}
-		else // state
-			{
-			d_lb1[ii] = - 4.0; // xmin
-			d_ub1[ii] =   4.0; // xmax
-			}
-		idxb1[ii] = ii;
 		}
 
 	int *idxbN; int_zeros(&idxbN, nb[N], 1);
@@ -447,9 +307,6 @@ int main()
 	double *d_ugN; d_zeros(&d_ugN, ng[N], 1);
 	for(ii=0; ii<nb[N]; ii++)
 		{
-		d_lbN[ii] = - 4.0; // xmin
-		d_ubN[ii] =   4.0; // xmax
-		idxbN[ii] = ii;
 		}
 
 	double *C0; d_zeros(&C0, ng[0], nx[0]);
@@ -574,8 +431,8 @@ int main()
 ************************************************/	
 
 	struct d_ocp_nlp_model model1;
-	model1.expl_vde = &d_linear_vde1;
-	model1.arg = &lin_sys;
+	model1.expl_vde = &d_van_der_pol_vde;
+	model1.arg = NULL;
 
 /************************************************
 * ocp nlp data
@@ -819,93 +676,14 @@ int main()
 * free memory
 ************************************************/	
 	
-	free(lin_sys_memory);
-	free(Ac);
-	free(Bc);
 	free(x0);
-	free(A);
-	free(B);
-	free(T);
-	free(ipiv);
-	free(b);
-	free(Q);
-	free(S);
-	free(R);
-	free(q);
-	free(r);
-	free(x_ref);
-	free(u_ref);
-	int_free(idxb0);
-	d_free(d_lb0);
-	d_free(d_ub0);
-	int_free(idxb1);
-	d_free(d_lb1);
-	d_free(d_ub1);
-	int_free(idxbN);
-	d_free(d_lbN);
-	d_free(d_ubN);
-	d_free(C0);
-	d_free(D0);
-	d_free(d_lg0);
-	d_free(d_ug0);
-	d_free(C1);
-	d_free(D1);
-	d_free(d_lg1);
-	d_free(d_ug1);
-	d_free(CN);
-	d_free(DN);
-	d_free(d_lgN);
-	d_free(d_ugN);
-	d_free(Zl0);
-	d_free(Zu0);
-	d_free(zl0);
-	d_free(zu0);
-	int_free(idxs0);
-	d_free(Zl1);
-	d_free(Zu1);
-	d_free(zl1);
-	d_free(zu1);
-	int_free(idxs1);
-	d_free(ZlN);
-	d_free(ZuN);
-	d_free(zlN);
-	d_free(zuN);
-	int_free(idxsN);
-	free(e0);
-	free(eta0);
-
-	for(ii=0; ii<N; ii++)
-		{
-		d_free(u[ii]);
-		d_free(x[ii]);
-		d_free(ls[ii]);
-		d_free(us[ii]);
-		d_free(pi[ii]);
-		d_free(lam_lb[ii]);
-		d_free(lam_ub[ii]);
-		d_free(lam_lg[ii]);
-		d_free(lam_ug[ii]);
-		d_free(lam_ls[ii]);
-		d_free(lam_us[ii]);
-		}
-	d_free(u[ii]);
-	d_free(x[ii]);
-	d_free(ls[ii]);
-	d_free(us[ii]);
-	d_free(lam_lb[ii]);
-	d_free(lam_ub[ii]);
-	d_free(lam_lg[ii]);
-	d_free(lam_ug[ii]);
-	d_free(lam_ls[ii]);
-	d_free(lam_us[ii]);
-
-	free(memory_rk_data);
-	free(nlp_mem);
-	free(nlp_sol_mem);
-	free(nlp_ws_mem);
-
+//	free(xdot);
+//	free(u);
+	
+/************************************************
+* return
+************************************************/	
+	
 	return 0;
 
 	}
-
-

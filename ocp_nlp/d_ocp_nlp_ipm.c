@@ -516,7 +516,7 @@ exit(1);
 		
 		ipm_ws->iter = kk;
 
-#if 1
+#if 0
 d_print_e_tran_mat(5, kk, ipm_ws->stat, 5);
 #endif
 

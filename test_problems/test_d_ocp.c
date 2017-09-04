@@ -250,10 +250,6 @@ int main()
 
 	int ii, jj;
 	
-	int rep, nrep=1000;
-
-	struct timeval tv0, tv1;
-
 
 
 	// problem size
@@ -301,8 +297,8 @@ int main()
 	int ns[N+1];
 	ns[0] = 0;
 	for(ii=1; ii<N; ii++)
-		ns[ii] = nx[ii]/2;
-	ns[N] = nx[N]/2;
+		ns[ii] = 0;//nx[ii]/2;
+	ns[N] = 0;//nx[N]/2;
 #elif 0
 	int nb[N+1];
 	nb[0] = 0;
@@ -376,7 +372,7 @@ int main()
 ************************************************/	
 	
 	double *Q; d_zeros(&Q, nx_, nx_);
-	for(ii=0; ii<nx_; ii++) Q[ii*(nx_+1)] = 0.0;
+	for(ii=0; ii<nx_; ii++) Q[ii*(nx_+1)] = 1.0;
 
 	double *R; d_zeros(&R, nu_, nu_);
 	for(ii=0; ii<nu_; ii++) R[ii*(nu_+1)] = 2.0;
@@ -469,8 +465,8 @@ int main()
 			}
 		else // state
 			{
-			d_lb1[ii] = - 1.0; // xmin
-			d_ub1[ii] =   1.0; // xmax
+			d_lb1[ii] = - 4.0; // xmin
+			d_ub1[ii] =   4.0; // xmax
 			}
 		idxb1[ii] = ii;
 		}
@@ -496,8 +492,8 @@ int main()
 	double *d_ugN; d_zeros(&d_ugN, ng[N], 1);
 	for(ii=0; ii<nb[N]; ii++)
 		{
-		d_lbN[ii] = - 1.0; // xmin
-		d_ubN[ii] =   1.0; // xmax
+		d_lbN[ii] = - 4.0; // xmin
+		d_ubN[ii] =   4.0; // xmax
 		idxbN[ii] = ii;
 		}
 	for(ii=0; ii<ng[N]; ii++)
@@ -764,9 +760,9 @@ int main()
 
 	struct d_ocp_qp_ipm_arg arg;
 	arg.alpha_min = 1e-8;
-	arg.mu_max = 1e-12;
+	arg.mu_max = 1e-52;
 	arg.mu0 = 100.0;
-	arg.iter_max = 20;
+	arg.iter_max = 10;
 	arg.stat_max = 100;
 	arg.pred_corr = 1;
 
@@ -778,6 +774,10 @@ int main()
 	d_create_ocp_qp_ipm(&qp, &arg, &workspace, ipm_mem);
 
 	int hpipm_return; // 0 normal; 1 max iter
+
+	int rep, nrep=1000;
+
+	struct timeval tv0, tv1;
 
 	gettimeofday(&tv0, NULL); // start
 
