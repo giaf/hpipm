@@ -39,13 +39,13 @@
 #define CORE_QP_IPM_WORKSPACE s_core_qp_ipm_workspace
 #define REAL float
 
-#define COMPUTE_QX_QX_QP s_compute_Qx_qx_qp
+#define COMPUTE_GAMMA_GAMMA_QP s_compute_Gamma_gamma_qp
 #define COMPUTE_LAM_T_QP s_compute_lam_t_qp
 #define COMPUTE_ALPHA_QP s_compute_alpha_qp
 #define UPDATE_VAR_QP s_update_var_qp
 #define COMPUTE_MU_AFF_QP s_compute_mu_aff_qp
 #define COMPUTE_CENTERING_CORRECTION_QP s_compute_centering_correction_qp
-#define COMPUTE_QX_QP s_compute_qx_qp
+#define COMPUTE_GAMMA_QP s_compute_gamma_qp
 
 
 

@@ -562,7 +562,7 @@ void FACT_SOLVE_KKT_STEP_OCP_QP(struct OCP_QP *qp, struct OCP_QP_IPM_WORKSPACE *
 
 	struct CORE_QP_IPM_WORKSPACE *cws = ws->core_workspace;
 
-	COMPUTE_QX_QX_QP(cws);
+	COMPUTE_GAMMA_GAMMA_QP(cws);
 
 	// factorization and backward substitution
 
@@ -735,7 +735,7 @@ void SOLVE_KKT_STEP_OCP_QP(struct OCP_QP *qp, struct OCP_QP_IPM_WORKSPACE *ws)
 
 	struct CORE_QP_IPM_WORKSPACE *cws = ws->core_workspace;
 
-	COMPUTE_QX_QP(cws);
+	COMPUTE_GAMMA_QP(cws);
 
 	// backward substitution
 

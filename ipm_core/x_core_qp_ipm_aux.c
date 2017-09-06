@@ -27,7 +27,7 @@
 
 
 
-void COMPUTE_QX_QX_QP(struct CORE_QP_IPM_WORKSPACE *cws)
+void COMPUTE_GAMMA_GAMMA_QP(struct CORE_QP_IPM_WORKSPACE *cws)
 	{
 
 	int nc = cws->nc;
@@ -73,7 +73,7 @@ void COMPUTE_LAM_T_QP(struct CORE_QP_IPM_WORKSPACE *cws)
 
 	for(ii=0; ii<nc; ii++)
 		{
-		dt[ii] -= res_d[ii]; // XXX change sign for upper?
+		dt[ii] -= res_d[ii];
 		// TODO compute lamda alone ???
 		dlam[ii] = - t_inv[ii] * (lam[ii]*dt[ii] + res_m[ii]);
 		}
@@ -236,7 +236,7 @@ void COMPUTE_CENTERING_CORRECTION_QP(struct CORE_QP_IPM_WORKSPACE *cws)
 
 
 
-void COMPUTE_QX_QP(struct CORE_QP_IPM_WORKSPACE *cws)
+void COMPUTE_GAMMA_QP(struct CORE_QP_IPM_WORKSPACE *cws)
 	{
 
 	int nc = cws->nc;

@@ -44,8 +44,8 @@
 
 #define AXPY_LIBSTR saxpy_libstr
 #define COMPUTE_LAM_T_QP s_compute_lam_t_qp
-#define COMPUTE_QX_QP s_compute_qx_qp
-#define COMPUTE_QX_QX_QP s_compute_Qx_qx_qp
+#define COMPUTE_GAMMA_GAMMA_QP s_compute_Gamma_gamma_qp
+#define COMPUTE_GAMMA_QP s_compute_gamma_qp
 #define CORE_QP_IPM_WORKSPACE s_core_qp_ipm_workspace
 #define DENSE_QP s_dense_qp
 #define DENSE_QP_IPM_WORKSPACE s_dense_qp_ipm_workspace

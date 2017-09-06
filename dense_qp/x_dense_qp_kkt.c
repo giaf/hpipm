@@ -484,7 +484,7 @@ void FACT_SOLVE_KKT_STEP_DENSE_QP(struct DENSE_QP *qp, struct DENSE_QP_IPM_WORKS
 
 	if(nb+ng>0)
 		{
-		COMPUTE_QX_QX_QP(cws);
+		COMPUTE_GAMMA_GAMMA_QP(cws);
 		}
 
 	if(ne>0)
@@ -655,7 +655,7 @@ void SOLVE_KKT_STEP_DENSE_QP(struct DENSE_QP *qp, struct DENSE_QP_IPM_WORKSPACE 
 
 	if(nb>0 | ng>0)
 		{
-		COMPUTE_QX_QP(cws);
+		COMPUTE_GAMMA_QP(cws);
 		}
 
 	if(ne>0)

@@ -39,8 +39,8 @@
 
 #define AXPY_LIBSTR daxpy_libstr
 #define COMPUTE_LAM_T_QP d_compute_lam_t_qp
-#define COMPUTE_QX_QP d_compute_qx_qp
-#define COMPUTE_QX_QX_QP d_compute_Qx_qx_qp
+#define COMPUTE_GAMMA_GAMMA_QP d_compute_Gamma_gamma_qp
+#define COMPUTE_GAMMA_QP d_compute_gamma_qp
 #define CORE_QP_IPM_WORKSPACE d_core_qp_ipm_workspace
 #define DIAAD_SP_LIBSTR ddiaad_sp_libstr
 #define GEAD_LIBSTR dgead_libstr
