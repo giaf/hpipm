@@ -392,6 +392,12 @@ int SOLVE_OCP_NLP_SQP(struct OCP_NLP *nlp, struct OCP_NLP_SOL *nlp_sol, struct O
 	// initialize solution (to zero atm)
 	for(nn=0; nn<=N; nn++)
 		dvecse_libstr(nu[nn]+nx[nn], 0.0, nlp_sol->ux+nn, 0);
+	for(nn=0; nn<N; nn++)
+		dvecse_libstr(nx[nn+1], 0.0, nlp_sol->pi+nn, 0);
+	for(nn=0; nn<=N; nn++)
+		dvecse_libstr(2*nb[nn]+2*ng[nn], 0.0, nlp_sol->lam+nn, 0);
+	for(nn=0; nn<=N; nn++)
+		dvecse_libstr(2*nb[nn]+2*ng[nn], 0.0, nlp_sol->t+nn, 0);
 
 	int sqp_steps = 2;
 	for(ss=0; ss<sqp_steps; ss++)	
@@ -463,7 +469,7 @@ exit(1);
 			d_print_strmat(nu[nn]+nx[nn]+1, nx[nn+1], qp->BAbt+nn, 0, 0);
 		for(nn=0; nn<=N; nn++)
 			d_print_tran_strvec(2*nb[nn]+2*ng[nn]+2*ns[nn], qp->d+nn, 0);
-		exit(1);
+//		exit(1);
 #endif
 
 		// solve qp
@@ -479,6 +485,7 @@ exit(1);
 		for(nn=0; nn<=N; nn++)
 			d_print_tran_strvec(2*nb[nn]+2*ng[nn]+2*ns[nn], qp_sol->t+nn, 0);
 		d_print_e_tran_mat(5, ipm_ws->iter, ipm_ws->stat, 5);
+//		exit(1);
 #endif
 
 		// update variables (full step)
@@ -493,6 +500,7 @@ exit(1);
 
 		}
 	
+//	exit(1);
 	return 0;
 
 	}

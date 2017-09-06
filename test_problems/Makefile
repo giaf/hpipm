@@ -62,6 +62,7 @@ OBJS_TEST = d_tools.o test_d_ocp.o
 #OBJS_TEST = s_tools.o test_s_tree_ocp.o
 #OBJS_TEST = d_tools.o test_d_sim.o
 #OBJS_TEST = d_tools.o test_d_sqp.o
+#OBJS_TEST = d_tools.o test_d_sqp.o
 #OBJS_TEST = test_van_der_pol.o
 
 obj: $(OBJS_TEST)

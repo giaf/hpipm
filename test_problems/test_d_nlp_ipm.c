@@ -46,7 +46,7 @@
 #include "../include/hpipm_d_ocp_qp_sim.h"
 #include "../include/hpipm_d_ocp_nlp.h"
 #include "../include/hpipm_d_ocp_nlp_sol.h"
-#include "../include/hpipm_d_ocp_nlp_sqp.h"
+#include "../include/hpipm_d_ocp_nlp_ipm.h"
 
 #include "d_tools.h"
 
@@ -699,33 +699,33 @@ int main()
 	d_create_ocp_nlp_sol(N, nx, nu, nb, ng, ns, ne0, &nlp_sol, nlp_sol_mem);
 
 /************************************************
-* ocp nlp sqp arg
+* ocp nlp ipm arg
 ************************************************/	
 
 	struct d_erk_args erk_args[N];
 	for(ii=0; ii<N; ii++)
 		erk_args[ii] = erk_arg;
 
-	struct d_ocp_nlp_sqp_arg sqp_arg;
-	sqp_arg.ipm_arg = &arg;
-	sqp_arg.rk_data = &rk_data;
-	sqp_arg.erk_arg = erk_args;
-	sqp_arg.nlp_res_max = 1e-8;
-	sqp_arg.nlp_iter_max = 1;
+	struct d_ocp_nlp_ipm_arg ipm_arg;
+	ipm_arg.ipm_arg = &arg;
+	ipm_arg.rk_data = &rk_data;
+	ipm_arg.erk_arg = erk_args;
+	ipm_arg.nlp_res_max = 1e-8;
+	ipm_arg.nlp_iter_max = 1;
 
 /************************************************
-* ocp nlp sqp ws
+* ocp nlp ipm ws
 ************************************************/	
 
-	int nlp_ws_size = d_memsize_ocp_nlp_sqp(&nlp, &sqp_arg);
+	int nlp_ws_size = d_memsize_ocp_nlp_ipm(&nlp, &ipm_arg);
 	printf("\nnlp ws size = %d\n", nlp_ws_size);
 	void *nlp_ws_mem = malloc(nlp_ws_size);
 	
-	struct d_ocp_nlp_sqp_workspace sqp_ws;
-	d_create_ocp_nlp_sqp(&nlp, &sqp_arg, &sqp_ws, nlp_ws_mem);
+	struct d_ocp_nlp_ipm_workspace ipm_ws;
+	d_create_ocp_nlp_ipm(&nlp, &ipm_arg, &ipm_ws, nlp_ws_mem);
 
 /************************************************
-* ocp nlp sqp
+* ocp nlp ipm
 ************************************************/	
 
 	int nlp_return;
@@ -737,12 +737,12 @@ int main()
 
 	for(rep=0; rep<nrep; rep++)
 		{
-		nlp_return = d_solve_ocp_nlp_sqp(&nlp, &nlp_sol, &sqp_arg, &sqp_ws);
+		nlp_return = d_solve_ocp_nlp_ipm(&nlp, &nlp_sol, &ipm_arg, &ipm_ws);
 		}
 
 	gettimeofday(&tv1, NULL); // stop
 
-	double time_ocp_nlp_sqp = (tv1.tv_sec-tv0.tv_sec)/(nrep+0.0)+(tv1.tv_usec-tv0.tv_usec)/(nrep*1e6);
+	double time_ocp_nlp_ipm = (tv1.tv_sec-tv0.tv_sec)/(nrep+0.0)+(tv1.tv_usec-tv0.tv_usec)/(nrep*1e6);
 
 /************************************************
 * extract and print solution
@@ -822,10 +822,10 @@ int main()
 #endif
 
 /************************************************
-* print sqp statistics
+* print ipm statistics
 ************************************************/	
 
-	printf("\nocp nlp sqp time = %e [s]\n\n", time_ocp_nlp_sqp);
+	printf("\nocp nlp ipm time = %e [s]\n\n", time_ocp_nlp_ipm);
 
 /************************************************
 * free memory

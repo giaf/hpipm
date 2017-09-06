@@ -54,8 +54,8 @@ struct d_ocp_nlp_sqp_arg
 	struct d_ocp_qp_ipm_arg *ipm_arg; // ipm arg
 	struct d_rk_data *rk_data; // rk data
 	struct d_erk_args *erk_arg; // TODO fix name in arg !!!
-	double res_max; // exit cond on duality measure
-	int iter_max; // exit cond in iter number
+	double nlp_res_max; // exit cond on duality measure
+	int nlp_iter_max; // exit cond in iter number
 	};
 
 
