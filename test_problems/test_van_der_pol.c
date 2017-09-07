@@ -66,17 +66,18 @@ void d_van_der_pol_vde(int t, double *x, double *u, void *ode_args, double *xdot
 	{
 	double mu = 1.0;
 	int ii, jj, kk;
+	double *xdot_tmp, *x_tmp;
 	int nx = 2;
 	int nu = 1;
 	double Ac[4];
+	x_tmp = x+nx*(nu+nx);
 	Ac[0+nx*0] = 0.0;
 	Ac[0+nx*1] = 1.0;
-	Ac[1+nx*0] = - 1.0 - 2.0*mu*x[0]*x[1];
-	Ac[1+nx*1] = mu*(1.0 - x[0]*x[0]);
+	Ac[1+nx*0] = - 1.0 - 2.0*mu*x_tmp[0]*x_tmp[1];
+	Ac[1+nx*1] = mu*(1.0 - x_tmp[0]*x_tmp[0]);
 	double Bc[2];
 	Bc[0+nx*0] = 0.0;
 	Bc[1+nx*0] = 1.0;
-	double *xdot_tmp, *x_tmp;
 	for(ii=0; ii<nx*(nu+nx+1); ii++)
 		xdot[ii] = 0.0;
 #if 0
@@ -253,7 +254,7 @@ int main()
 
 	nx[0] = nx_;//0;
 	nu[0] = nu_;
-	nb[0] = 0;//nu_;
+	nb[0] = nu_;
 	ng[0] = 0;
 	ns[0] = 0;
 	ne0 = nx_;
@@ -261,7 +262,7 @@ int main()
 		{
 		nx[ii] = nx_;
 		nu[ii] = nu_;
-		nb[ii] = 0;//nu_;
+		nb[ii] = nu_;
 		ng[ii] = 0;
 		ns[ii] = 0;
 		}
@@ -277,11 +278,11 @@ int main()
 
 	struct d_ocp_qp_ipm_arg arg;
 	arg.alpha_min = 1e-8;
-	arg.mu_max = 1e-250;
+	arg.mu_max = 1e-8;
 	arg.mu0 = 2.0;
-	arg.iter_max = 1;
-	arg.stat_max = 1;
-	arg.pred_corr = 0;
+	arg.iter_max = 10;
+	arg.stat_max = 10;
+	arg.pred_corr = 1;
 
 /************************************************
 * box & general constraints
@@ -296,8 +297,8 @@ int main()
 		{
 		if(ii<nu[0]) // input
 			{
-			d_lb0[ii] = - 10.0; // umin
-			d_ub0[ii] =   10.0; // umax
+			d_lb0[ii] = - 0.5; // umin
+			d_ub0[ii] =   0.5; // umax
 			idxb0[ii] = ii;
 			}
 		}
@@ -311,8 +312,8 @@ int main()
 		{
 		if(ii<nu[1]) // input
 			{
-			d_lb1[ii] = - 10.0; // umin
-			d_ub1[ii] =   10.0; // umax
+			d_lb1[ii] = - 0.5; // umin
+			d_ub1[ii] =   0.5; // umax
 			idxb1[ii] = ii;
 			}
 		}
@@ -573,7 +574,7 @@ int main()
 	ipm_arg.rk_data = &rk_data;
 	ipm_arg.erk_arg = erk_args;
 	ipm_arg.nlp_res_max = 1e-8;
-	ipm_arg.nlp_iter_max = 10;
+	ipm_arg.nlp_iter_max = 5;
 
 /************************************************
 * ocp nlp ipm ws

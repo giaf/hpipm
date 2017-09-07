@@ -471,7 +471,7 @@ exit(1);
 		// XXX
 		cws->mu = 1.0;
 
-#if 1
+#if 0
 printf("\nresiduals\n");
 d_print_e_mat(1, cws->nv, cws->res_g, 1);
 d_print_e_mat(1, cws->ne, cws->res_b, 1);
@@ -515,7 +515,7 @@ d_print_e_mat(1, cws->nc, cws->res_m, 1);
 					ipm_ws->stat[5*kk+3] = cws->alpha;
 				}
 
-#if 1
+#if 0
 printf("\nstep\n");
 d_print_e_mat(1, cws->nv, cws->dv, 1);
 d_print_e_mat(1, cws->ne, cws->dpi, 1);
