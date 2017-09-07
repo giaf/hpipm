@@ -45,10 +45,10 @@
 #include "../include/hpipm_d_ocp_qp_sol.h"
 #include "../include/hpipm_d_ocp_qp_ipm.h"
 #include "../include/hpipm_d_ocp_qp_kkt.h"
-#include "../include/hpipm_d_ocp_qp_sim.h"
 #include "../include/hpipm_d_ocp_nlp.h"
 #include "../include/hpipm_d_ocp_nlp_sol.h"
 #include "../include/hpipm_d_ocp_nlp_ipm.h"
+#include "../include/hpipm_d_ocp_qp_sim.h"
 
 
 
@@ -438,9 +438,11 @@ int SOLVE_OCP_NLP_IPM(struct OCP_NLP *nlp, struct OCP_NLP_SOL *nlp_sol, struct O
 			u  = (nlp_sol->ux+nn)->pa;
 			d_init_erk_int(x, ws->fs[nn], u, (nlp->model+nn)->expl_vde, (nlp->model+nn)->arg, erk_ws+nn);
 			d_erk_int(erk_arg+nn, erk_ws+nn);
-			d_cvt_erk_int_to_ocp_qp(nn, erk_ws+nn, xn, qp);
+			d_cvt_erk_int_to_ocp_qp(nn, erk_ws+nn, xn, qp, nlp_sol);
 			}
 
+//for(ii=0; ii<N; ii++)
+//	d_print_e_strmat(nlp->nu[ii]+nlp->nx[ii]+1, nlp->nx[ii+1], qp->BAbt+ii, 0, 0);
 	
 		// setup qp
 //		for(nn=0; nn<=N; nn++)
@@ -452,7 +454,7 @@ int SOLVE_OCP_NLP_IPM(struct OCP_NLP *nlp, struct OCP_NLP_SOL *nlp_sol, struct O
 
 
 		// eliminate x0 from optimization variables
-		dgemv_t_libstr(nlp->nx[0], nlp->nx[1], 1.0, qp->BAbt+0, nu[0], 0, nlp->e0, 0, 0.0, qp->b+0, 0, qp->b+0, 0);
+		dgemv_t_libstr(nlp->nx[0], nlp->nx[1], 1.0, qp->BAbt+0, nu[0], 0, nlp->e0, 0, 1.0, qp->b+0, 0, qp->b+0, 0);
 		// TODO r0 d_lg0 d_ug0
 
 #if 0
@@ -466,6 +468,16 @@ exit(1);
 		COMPUTE_RES_OCP_QP(qp, qp_sol, ipm_ws);
 		cws->mu = ipm_ws->res_mu;
 
+		// XXX
+		cws->mu = 1.0;
+
+#if 1
+printf("\nresiduals\n");
+d_print_e_mat(1, cws->nv, cws->res_g, 1);
+d_print_e_mat(1, cws->ne, cws->res_b, 1);
+d_print_e_mat(1, cws->nc, cws->res_d, 1);
+d_print_e_mat(1, cws->nc, cws->res_m, 1);
+#endif
 
 		// qp loop
 		for(kk=0; kk<ipm_arg->iter_max & cws->mu>ipm_arg->mu_max; kk++)
@@ -503,6 +515,13 @@ exit(1);
 					ipm_ws->stat[5*kk+3] = cws->alpha;
 				}
 
+#if 1
+printf("\nstep\n");
+d_print_e_mat(1, cws->nv, cws->dv, 1);
+d_print_e_mat(1, cws->ne, cws->dpi, 1);
+d_print_e_mat(1, cws->nc, cws->dlam, 1);
+d_print_e_mat(1, cws->nc, cws->dt, 1);
+#endif
 			//
 			UPDATE_VAR_QP(cws);
 
@@ -516,7 +535,7 @@ exit(1);
 		
 		ipm_ws->iter = kk;
 
-#if 0
+#if 1
 d_print_e_tran_mat(5, kk, ipm_ws->stat, 5);
 #endif
 

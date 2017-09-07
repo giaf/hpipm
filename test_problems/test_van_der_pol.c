@@ -45,10 +45,10 @@
 #include "../include/hpipm_d_ocp_qp.h"
 #include "../include/hpipm_d_ocp_qp_sol.h"
 #include "../include/hpipm_d_ocp_qp_ipm.h"
-#include "../include/hpipm_d_ocp_qp_sim.h"
 #include "../include/hpipm_d_ocp_nlp.h"
 #include "../include/hpipm_d_ocp_nlp_sol.h"
 #include "../include/hpipm_d_ocp_nlp_ipm.h"
+#include "../include/hpipm_d_ocp_qp_sim.h"
 
 
 
@@ -76,21 +76,36 @@ void d_van_der_pol_vde(int t, double *x, double *u, void *ode_args, double *xdot
 	double Bc[2];
 	Bc[0+nx*0] = 0.0;
 	Bc[1+nx*0] = 1.0;
-	double *tmp;
+	double *xdot_tmp, *x_tmp;
 	for(ii=0; ii<nx*(nu+nx+1); ii++)
 		xdot[ii] = 0.0;
+#if 0
 	for(kk=0; kk<nu+nx+1; kk++)
 		for(jj=0; jj<nx; jj++)
 			for(ii=0; ii<nx; ii++)
 				xdot[ii+nx*kk] += Ac[ii+nx*jj] * x[jj+nx*kk];
-	tmp = xdot+nx*(nu+nx);
+	xdot_tmp = xdot+nx*(nu+nx);
 	for(jj=0; jj<nu; jj++)
 		for(ii=0; ii<nx; ii++)
-			tmp[ii] += Bc[ii+nx*jj] * u[jj];
-	tmp = xdot;
+			xdot_tmp[ii] += Bc[ii+nx*jj] * u[jj];
+	xdot_tmp = xdot;
 	for(jj=0; jj<nu; jj++)
 		for(ii=0; ii<nx; ii++)
-			tmp[ii+nx*jj] += Bc[ii+nx*jj];
+			xdot_tmp[ii+nx*jj] += Bc[ii+nx*jj];
+#else
+	for(kk=0; kk<nu+nx; kk++)
+		for(jj=0; jj<nx; jj++)
+			for(ii=0; ii<nx; ii++)
+				xdot[ii+nx*kk] += Ac[ii+nx*jj] * x[jj+nx*kk];
+	xdot_tmp = xdot;
+	for(jj=0; jj<nu; jj++)
+		for(ii=0; ii<nx; ii++)
+			xdot_tmp[ii+nx*jj] += Bc[ii+nx*jj];
+	xdot_tmp = xdot+nx*(nu+nx);
+	x_tmp = x+nx*(nu+nx);
+	xdot_tmp[0] = x_tmp[1];
+	xdot_tmp[1] = u[0] - x_tmp[0] + mu*(1.0 - x_tmp[0]*x_tmp[0])*x_tmp[1];
+#endif
 	return;
 	}
 
@@ -117,8 +132,8 @@ int main()
 	x0[0] = 1.0;
 	x0[1] = 0.0;
 
-//	double *u = malloc(nu_*sizeof(double));
-//	u[0] = 0.0;
+	double *u0 = malloc(nu_*sizeof(double));
+	u0[0] = 0.0;
 
 /************************************************
 * call ode
@@ -149,9 +164,11 @@ int main()
 
 	double *fsdot = malloc(nx_*(nu_+nx_+1)*sizeof(double));
 
-	d_van_der_pol_vde(0, fs0, u, NULL, fsdot);
+	d_van_der_pol_vde(0, fs0, u0, NULL, fsdot);
 
 	d_print_mat(nx_, nu_+nx_+1, fsdot, nx_);
+
+	exit(1);
 #endif
 
 /************************************************
@@ -159,7 +176,7 @@ int main()
 ************************************************/	
 	
 	double *Q; d_zeros(&Q, nx_, nx_);
-	for(ii=0; ii<nx_; ii++) Q[ii*(nx_+1)] = 0.0;
+	for(ii=0; ii<nx_; ii++) Q[ii*(nx_+1)] = 1.0;
 
 	double *R; d_zeros(&R, nu_, nu_);
 	for(ii=0; ii<nu_; ii++) R[ii*(nu_+1)] = 2.0;
@@ -236,7 +253,7 @@ int main()
 
 	nx[0] = nx_;//0;
 	nu[0] = nu_;
-	nb[0] = nu_;
+	nb[0] = 0;//nu_;
 	ng[0] = 0;
 	ns[0] = 0;
 	ne0 = nx_;
@@ -244,7 +261,7 @@ int main()
 		{
 		nx[ii] = nx_;
 		nu[ii] = nu_;
-		nb[ii] = nu_;
+		nb[ii] = 0;//nu_;
 		ng[ii] = 0;
 		ns[ii] = 0;
 		}
@@ -260,11 +277,11 @@ int main()
 
 	struct d_ocp_qp_ipm_arg arg;
 	arg.alpha_min = 1e-8;
-	arg.mu_max = 1e-52;
+	arg.mu_max = 1e-250;
 	arg.mu0 = 2.0;
-	arg.iter_max = 10;
-	arg.stat_max = 100;
-	arg.pred_corr = 1;
+	arg.iter_max = 1;
+	arg.stat_max = 1;
+	arg.pred_corr = 0;
 
 /************************************************
 * box & general constraints
@@ -556,7 +573,7 @@ int main()
 	ipm_arg.rk_data = &rk_data;
 	ipm_arg.erk_arg = erk_args;
 	ipm_arg.nlp_res_max = 1e-8;
-	ipm_arg.nlp_iter_max = 1;
+	ipm_arg.nlp_iter_max = 10;
 
 /************************************************
 * ocp nlp ipm ws
@@ -576,7 +593,7 @@ int main()
 	int nlp_return;
 
 	struct timeval tv0, tv1;
-	int rep, nrep = 1000;
+	int rep, nrep = 1;
 
 	gettimeofday(&tv0, NULL); // start
 
@@ -677,8 +694,7 @@ int main()
 ************************************************/	
 	
 	free(x0);
-//	free(xdot);
-//	free(u);
+	free(u0);
 	
 /************************************************
 * return

@@ -183,6 +183,8 @@ void d_erk_int(struct d_erk_args *erk_args, struct d_erk_workspace *ws)
 
 	int nX = nx*(1+nf);
 
+//d_print_mat(nx, nf+1, x, nx);
+
 	t = 0.0;
 	for(step=0; step<steps; step++)
 		{
@@ -202,15 +204,18 @@ void d_erk_int(struct d_erk_args *erk_args, struct d_erk_workspace *ws)
 				}
 			ws->ode(t+h*C_rk[ss], xt, p, ws->ode_args, K+ss*(nX));
 			}
+//d_print_mat(nx, ns*(nf+1), K, nx);
 		for(ss=0; ss<ns; ss++)
 			{
 			b = h*B_rk[ss];
 			for(ii=0; ii<nX; ii++)
 				x[ii] += b*K[ii+ss*(nX)];
 			}
+//d_print_mat(nx, nf+1, x, nx);
 		t += h;
 		}
 
+//d_print_mat(nx, nf+1, x, nx);
 	return;
 
 	}
