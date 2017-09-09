@@ -43,6 +43,10 @@ struct d_ocp_nlp_sqp_workspace
 	struct d_strvec *tmp_nuxM;
 	struct d_strvec *tmp_nbgM;
 	double **fs; // initialization of forward sensitivities
+	double nlp_res_g; // exit inf norm of residuals
+	double nlp_res_b; // exit inf norm of residuals
+	double nlp_res_d; // exit inf norm of residuals
+	double nlp_res_m; // exit inf norm of residuals
 	int iter; // iteration number
 	int memsize;
 	};
@@ -54,7 +58,10 @@ struct d_ocp_nlp_sqp_arg
 	struct d_ocp_qp_ipm_arg *ipm_arg; // ipm arg
 	struct d_rk_data *rk_data; // rk data
 	struct d_erk_args *erk_arg; // TODO fix name in arg !!!
-	double nlp_res_max; // exit cond on duality measure
+	double nlp_res_g_max; // exit cond on inf norm of residuals
+	double nlp_res_b_max; // exit cond on inf norm of residuals
+	double nlp_res_d_max; // exit cond on inf norm of residuals
+	double nlp_res_m_max; // exit cond on inf norm of residuals
 	int nlp_iter_max; // exit cond in iter number
 	};
 

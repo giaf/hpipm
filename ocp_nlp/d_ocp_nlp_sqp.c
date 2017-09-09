@@ -37,6 +37,7 @@
 #include <blasfeo_d_aux.h>
 #include <blasfeo_d_blas.h>
 
+#include "../include/hpipm_d_core_qp_ipm.h"
 #include "../include/hpipm_d_rk_int.h"
 #include "../include/hpipm_d_erk_int.h"
 #include "../include/hpipm_d_ocp_qp.h"
@@ -50,6 +51,8 @@
 
 
 
+#define COMPUTE_RES_OCP_QP d_compute_res_ocp_qp
+#define CORE_QP_IPM_WORKSPACE d_core_qp_ipm_workspace
 #define CREATE_ERK_INT d_create_erk_int
 #define CREATE_OCP_QP d_create_ocp_qp
 #define CREATE_OCP_QP_IPM d_create_ocp_qp_ipm
@@ -330,6 +333,8 @@ int SOLVE_OCP_NLP_SQP(struct OCP_NLP *nlp, struct OCP_NLP_SOL *nlp_sol, struct O
 	struct STRVEC *tmp_nuxM = ws->tmp_nuxM;
 	struct STRVEC *tmp_nbgM = ws->tmp_nbgM;
 
+	struct CORE_QP_IPM_WORKSPACE *cws = ipm_ws->core_workspace;
+
 	struct OCP_QP_IPM_ARG *ipm_arg = arg->ipm_arg;
 	struct ERK_ARG *erk_arg = arg->erk_arg;
 
@@ -347,11 +352,41 @@ int SOLVE_OCP_NLP_SQP(struct OCP_NLP *nlp, struct OCP_NLP_SOL *nlp_sol, struct O
 
 	double *x, *xn, *u;
 
-	// compute rq
+	struct STRVEC str_res_g;
+	struct STRVEC str_res_b;
+	struct STRVEC str_res_d;
+	struct STRVEC str_res_m;
+	str_res_g.m = cws->nv;
+	str_res_b.m = cws->ne;
+	str_res_d.m = cws->nc;
+	str_res_m.m = cws->nc;
+	str_res_g.pa = cws->res_g;
+	str_res_b.pa = cws->res_b;
+	str_res_d.pa = cws->res_d;
+	str_res_m.pa = cws->res_m;
+
+	double nlp_res[4];
+
+
+	// initialize solution (to zero atm)
+	for(nn=0; nn<=N; nn++)
+		dvecse_libstr(nu[nn]+nx[nn], 0.0, nlp_sol->ux+nn, 0);
+	for(nn=0; nn<N; nn++)
+		dvecse_libstr(nx[nn+1], 0.0, nlp_sol->pi+nn, 0);
+	for(nn=0; nn<=N; nn++)
+		dvecse_libstr(2*nb[nn]+2*ng[nn], 0.0, nlp_sol->lam+nn, 0);
+	for(nn=0; nn<=N; nn++)
+		dvecse_libstr(2*nb[nn]+2*ng[nn], 0.0, nlp_sol->t+nn, 0);
+	// fix initial state to e0
+	dveccp_libstr(ne0, nlp->e0, 0, nlp_sol->ux+0, nlp->nu[0]);
+
+
+	// compute rq TODO move to cvt !!!
 	for(nn=0; nn<=N; nn++)
 		{
 		dsymv_l_libstr(nu[nn]+nx[nn], nlp->nu[nn]+nlp->nx[nn], 1.0, nlp->RSQ+nn, 0, 0, nlp->ux_ref, 0, 0.0, ws->rq+nn, 0, ws->rq+nn, 0);
 		}
+
 
 	// copy nlp into qp
 	nn = 0;
@@ -389,18 +424,9 @@ int SOLVE_OCP_NLP_SQP(struct OCP_NLP *nlp, struct OCP_NLP_SOL *nlp_sol, struct O
 		for(ii=0; ii<ns[nn]; ii++) qp->idxs[nn][ii] = nlp->idxs[nn][ii];
 		}
 
-	// initialize solution (to zero atm)
-	for(nn=0; nn<=N; nn++)
-		dvecse_libstr(nu[nn]+nx[nn], 0.0, nlp_sol->ux+nn, 0);
-	for(nn=0; nn<N; nn++)
-		dvecse_libstr(nx[nn+1], 0.0, nlp_sol->pi+nn, 0);
-	for(nn=0; nn<=N; nn++)
-		dvecse_libstr(2*nb[nn]+2*ng[nn], 0.0, nlp_sol->lam+nn, 0);
-	for(nn=0; nn<=N; nn++)
-		dvecse_libstr(2*nb[nn]+2*ng[nn], 0.0, nlp_sol->t+nn, 0);
 
-	int sqp_steps = 2;
-	for(ss=0; ss<sqp_steps; ss++)	
+	// nlp loop
+	for(ss=0; ss<arg->nlp_iter_max; ss++)	
 		{
 
 		// simulation & sensitivity propagation
@@ -415,18 +441,29 @@ int SOLVE_OCP_NLP_SQP(struct OCP_NLP *nlp, struct OCP_NLP_SOL *nlp_sol, struct O
 			}
 
 	
-		// setup qp
-		for(nn=0; nn<=N; nn++)
-			dveccp_libstr(nu[nn]+nx[nn], ws->rq+nn, 0, qp->rq+nn, 0);
-		for(nn=0; nn<N; nn++)
-			dvecse_libstr(nx[nn+1], 0.0, qp->b+nn, 0);
-		for(nn=0; nn<=N; nn++)
-			dveccp_libstr(2*nb[nn]+2*ng[nn], nlp->d+nn, 0, qp->d+nn, 0);
-
-
 		// eliminate x0 from optimization variables
 		dgemv_t_libstr(nlp->nx[0], nlp->nx[1], 1.0, qp->BAbt+0, nu[0], 0, nlp->e0, 0, 1.0, qp->b+0, 0, qp->b+0, 0);
 		// TODO r0 d_lg0 d_ug0
+
+
+		// setup qp
+		for(nn=0; nn<=N; nn++)
+			dveccp_libstr(nu[nn]+nx[nn], ws->rq+nn, 0, qp->rq+nn, 0);
+//		for(nn=0; nn<N; nn++)
+//			dvecse_libstr(nx[nn+1], 0.0, qp->b+nn, 0);
+		for(nn=0; nn<=N; nn++)
+			dveccp_libstr(2*nb[nn]+2*ng[nn], nlp->d+nn, 0, qp->d+nn, 0);
+
+#if 0
+for(nn=0; nn<=N; nn++)
+	d_print_strmat(nu[nn]+nx[nn]+1, nu[nn]+nx[nn], qp->RSQrq+nn, 0, 0);
+for(nn=0; nn<N; nn++)
+	d_print_strmat(nu[nn]+nx[nn]+1, nx[nn+1], qp->BAbt+nn, 0, 0);
+for(nn=0; nn<=N; nn++)
+	d_print_tran_strvec(2*nb[nn]+2*ng[nn]+2*ns[nn], qp->d+nn, 0);
+//		exit(1);
+#endif
+
 
 #if 0
 printf("\n%d %d\n", nu[0], nx[0]);
@@ -436,18 +473,73 @@ exit(1);
 #endif
 
 		// copy nlp_sol into qp_sol
-		tmp_qp_sol->ux = nlp_sol->ux;
-		tmp_qp_sol->pi = nlp_sol->pi;
-		tmp_qp_sol->lam = nlp_sol->lam;
-		tmp_qp_sol->t = nlp_sol->t;
+		for(nn=0; nn<=N; nn++)
+			dveccp_libstr(nu[nn]+nx[nn]+2*ns[ii], nlp_sol->ux+nn, 0, qp_sol->ux+nn, 0);
+		// set to zero multipliers
+		for(nn=0; nn<N; nn++)
+//			dveccp_libstr(nx[nn+1], nlp_sol->pi+nn, 0, qp_sol->pi+nn, 0);
+			dvecse_libstr(nx[nn+1], 0.0, qp_sol->pi+nn, 0);
+		for(nn=0; nn<=N; nn++)
+//			dveccp_libstr(2*nb[nn]+2*ng[nn]+2*ns[ii], nlp_sol->lam+nn, 0, qp_sol->lam+nn, 0);
+			dvecse_libstr(2*nb[nn]+2*ng[nn]+2*ns[ii], 0.0, qp_sol->lam+nn, 0);
+		for(nn=0; nn<=N; nn++)
+//			dveccp_libstr(2*nb[nn]+2*ng[nn]+2*ns[ii], nlp_sol->t+nn, 0, qp_sol->t+nn, 0);
+			dvecse_libstr(2*nb[nn]+2*ng[nn]+2*ns[ii], 0.0, qp_sol->t+nn, 0);
 
-		// compute residuals // XXX use adjoing sensitivities to avoid A'*pi ???
-		d_compute_res_ocp_qp(qp, tmp_qp_sol, ipm_ws);
+#if 0
+printf("\nqp data for residuals\n");
+for(nn=0; nn<=N; nn++)
+	d_print_tran_strvec(nu[nn]+nx[nn]+2*ns[nn], qp_sol->ux+nn, 0);
+for(nn=0; nn<N; nn++)
+	d_print_tran_strvec(nx[nn+1], qp_sol->pi+nn, 0);
+for(nn=0; nn<=N; nn++)
+	d_print_tran_strvec(2*nb[nn]+2*ng[nn]+2*ns[nn], qp_sol->lam+nn, 0);
+for(nn=0; nn<=N; nn++)
+	d_print_tran_strvec(2*nb[nn]+2*ng[nn]+2*ns[nn], qp_sol->t+nn, 0);
+d_print_e_tran_mat(5, ipm_ws->iter, ipm_ws->stat, 5);
+//		exit(1);
+#endif
+
+
+		// compute residuals
+		COMPUTE_RES_OCP_QP(qp, qp_sol, ipm_ws);
+		cws->mu = ipm_ws->res_mu;
+
+		// compute infinity norm of residuals
+		dvecnrm_inf_libstr(cws->nv, &str_res_g, 0, &nlp_res[0]);
+		dvecnrm_inf_libstr(cws->ne, &str_res_b, 0, &nlp_res[1]);
+		dvecnrm_inf_libstr(cws->nc, &str_res_d, 0, &nlp_res[2]);
+		dvecnrm_inf_libstr(cws->nc, &str_res_m, 0, &nlp_res[3]);
+
+#if 0
+printf("\nresiduals\n");
+d_print_e_mat(1, cws->nv, cws->res_g, 1);
+d_print_e_mat(1, cws->ne, cws->res_b, 1);
+d_print_e_mat(1, cws->nc, cws->res_d, 1);
+d_print_e_mat(1, cws->nc, cws->res_m, 1);
+#endif
+
+#if 0
+printf("\n\niter %d nlp inf norm res %e %e %e %e\n", ss, nlp_res[0], nlp_res[1], nlp_res[2], nlp_res[3]);
+#endif
+
+		// exit condition on residuals
+		if(!(nlp_res[0]>arg->nlp_res_g_max | nlp_res[1]>arg->nlp_res_b_max | nlp_res[2]>arg->nlp_res_d_max | nlp_res[3]>arg->nlp_res_m_max))
+			{
+			ws->iter = ss;
+			ws->nlp_res_g = nlp_res[0];
+			ws->nlp_res_b = nlp_res[1];
+			ws->nlp_res_d = nlp_res[2];
+			ws->nlp_res_m = nlp_res[3];
+			return 0;
+			}
+
 
 		// copy residuals into qp rhs
 		for(nn=0; nn<=N; nn++)
 			{
 			dveccp_libstr(nu[nn]+nx[nn]+2*ns[nn], ipm_ws->res_g+nn, 0, qp->rq+nn, 0);
+//			dvecsc_libstr(nu[nn]+nx[nn]+2*ns[nn], -1.0, qp->rq+nn, 0);
 			drowin_libstr(nu[nn]+nx[nn], 1.0, qp->rq+nn, 0, qp->RSQrq+nn, nu[nn]+nx[nn], 0);
 			}
 		for(nn=0; nn<N; nn++)
@@ -463,12 +555,13 @@ exit(1);
 
 
 #if 0
-		for(nn=0; nn<=N; nn++)
-			d_print_strmat(nu[nn]+nx[nn]+1, nu[nn]+nx[nn], qp->RSQrq+nn, 0, 0);
-		for(nn=0; nn<N; nn++)
-			d_print_strmat(nu[nn]+nx[nn]+1, nx[nn+1], qp->BAbt+nn, 0, 0);
-		for(nn=0; nn<=N; nn++)
-			d_print_tran_strvec(2*nb[nn]+2*ng[nn]+2*ns[nn], qp->d+nn, 0);
+printf("\nqp data\n");
+for(nn=0; nn<=N; nn++)
+	d_print_strmat(nu[nn]+nx[nn]+1, nu[nn]+nx[nn], qp->RSQrq+nn, 0, 0);
+for(nn=0; nn<N; nn++)
+	d_print_strmat(nu[nn]+nx[nn]+1, nx[nn+1], qp->BAbt+nn, 0, 0);
+for(nn=0; nn<=N; nn++)
+	d_print_tran_strvec(2*nb[nn]+2*ng[nn]+2*ns[nn], qp->d+nn, 0);
 //		exit(1);
 #endif
 
@@ -476,31 +569,63 @@ exit(1);
 		d_solve_ocp_qp_ipm(qp, qp_sol, ipm_arg, ipm_ws);
 
 #if 0
-		for(nn=0; nn<=N; nn++)
-			d_print_tran_strvec(nu[nn]+nx[nn]+2*ns[nn], qp_sol->ux+nn, 0);
-		for(nn=0; nn<N; nn++)
-			d_print_tran_strvec(nx[nn+1], qp_sol->pi+nn, 0);
-		for(nn=0; nn<=N; nn++)
-			d_print_tran_strvec(2*nb[nn]+2*ng[nn]+2*ns[nn], qp_sol->lam+nn, 0);
-		for(nn=0; nn<=N; nn++)
-			d_print_tran_strvec(2*nb[nn]+2*ng[nn]+2*ns[nn], qp_sol->t+nn, 0);
-		d_print_e_tran_mat(5, ipm_ws->iter, ipm_ws->stat, 5);
+printf("\nqp residuals\n");
+d_print_e_mat(1, cws->nv, cws->res_g, 1);
+d_print_e_mat(1, cws->ne, cws->res_b, 1);
+d_print_e_mat(1, cws->nc, cws->res_d, 1);
+d_print_e_mat(1, cws->nc, cws->res_m, 1);
+#endif
+
+#if 0
+printf("\nqp sol\n");
+for(nn=0; nn<=N; nn++)
+	d_print_tran_strvec(nu[nn]+nx[nn]+2*ns[nn], qp_sol->ux+nn, 0);
+for(nn=0; nn<N; nn++)
+	d_print_tran_strvec(nx[nn+1], qp_sol->pi+nn, 0);
+for(nn=0; nn<=N; nn++)
+	d_print_tran_strvec(2*nb[nn]+2*ng[nn]+2*ns[nn], qp_sol->lam+nn, 0);
+for(nn=0; nn<=N; nn++)
+	d_print_tran_strvec(2*nb[nn]+2*ng[nn]+2*ns[nn], qp_sol->t+nn, 0);
+//d_print_e_tran_mat(5, ipm_ws->iter, ipm_ws->stat, 5);
 //		exit(1);
 #endif
 
 		// update variables (full step)
 		for(nn=0; nn<=N; nn++)
-			daxpy_libstr(nu[nn]+nx[nn]+2*ns[ii], 1.0, qp_sol->ux+nn, 0, nlp_sol->ux+nn, 0, nlp_sol->ux+nn, 0);
+			daxpy_libstr(nu[nn]+nx[nn], 1.0, qp_sol->ux+nn, 0, nlp_sol->ux+nn, 0, nlp_sol->ux+nn, 0);
+		// copy multipliers
 		for(nn=0; nn<N; nn++)
-			daxpy_libstr(nx[nn+1], 1.0, qp_sol->pi+nn, 0, nlp_sol->pi+nn, 0, nlp_sol->pi+nn, 0);
+//			daxpy_libstr(nx[nn+1], 1.0, qp_sol->pi+nn, 0, nlp_sol->pi+nn, 0, nlp_sol->pi+nn, 0);
+			dveccp_libstr(nx[nn+1], qp_sol->pi+nn, 0, nlp_sol->pi+nn, 0);
 		for(nn=0; nn<=N; nn++)
-			daxpy_libstr(2*nb[nn]+2*ng[nn]+2*ns[ii], 1.0, qp_sol->lam+nn, 0, nlp_sol->lam+nn, 0, nlp_sol->lam+nn, 0);
-		for(nn=0; nn<=N; nn++)
-			daxpy_libstr(2*nb[nn]+2*ng[nn]+2*ns[ii], 1.0, qp_sol->t+nn, 0, nlp_sol->t+nn, 0, nlp_sol->t+nn, 0);
+//			daxpy_libstr(2*nb[nn]+2*ng[nn], 1.0, qp_sol->lam+nn, 0, nlp_sol->lam+nn, 0, nlp_sol->lam+nn, 0);
+			dveccp_libstr(2*nb[nn]+2*ng[nn], qp_sol->lam+nn, 0, nlp_sol->lam+nn, 0);
+//		for(nn=0; nn<=N; nn++)
+//			daxpy_libstr(2*nb[nn]+2*ng[nn], 1.0, qp_sol->t+nn, 0, nlp_sol->t+nn, 0, nlp_sol->t+nn, 0);
+
+#if 0
+printf("\nnlp sol\n");
+for(nn=0; nn<=N; nn++)
+	d_print_tran_strvec(nlp->nu[nn]+nlp->nx[nn]+2*nlp->ns[nn], nlp_sol->ux+nn, 0);
+for(nn=0; nn<N; nn++)
+	d_print_tran_strvec(nlp->nx[nn+1], nlp_sol->pi+nn, 0);
+for(nn=0; nn<=N; nn++)
+	d_print_tran_strvec(2*nlp->nb[nn]+2*nlp->ng[nn]+2*nlp->ns[nn], nlp_sol->lam+nn, 0);
+for(nn=0; nn<=N; nn++)
+	d_print_tran_strvec(2*nlp->nb[nn]+2*nlp->ng[nn]+2*nlp->ns[nn], nlp_sol->t+nn, 0);
+//d_print_e_tran_mat(5, ipm_ws->iter, ipm_ws->stat, 5);
+//		exit(1);
+#endif
 
 		}
 	
-//	exit(1);
+	// maximum iteration number reached
+	ws->iter = ss;
+	ws->nlp_res_g = nlp_res[0];
+	ws->nlp_res_b = nlp_res[1];
+	ws->nlp_res_d = nlp_res[2];
+	ws->nlp_res_m = nlp_res[3];
+
 	return 0;
 
 	}

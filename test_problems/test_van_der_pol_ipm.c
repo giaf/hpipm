@@ -576,7 +576,10 @@ int main()
 	ipm_arg.ipm_arg = &arg;
 	ipm_arg.rk_data = &rk_data;
 	ipm_arg.erk_arg = erk_args;
-	ipm_arg.nlp_res_max = 1e-8;
+	ipm_arg.nlp_res_g_max = 1e-12;
+	ipm_arg.nlp_res_b_max = 1e-12;
+	ipm_arg.nlp_res_d_max = 1e-12;
+	ipm_arg.nlp_res_m_max = 1e-12;
 	ipm_arg.nlp_iter_max = 20;
 
 /************************************************
@@ -691,7 +694,8 @@ int main()
 * print ipm statistics
 ************************************************/	
 
-	printf("\nocp nlp ipm time = %e [s]\n\n", time_ocp_nlp_ipm);
+	printf("\nnlp_res_g = %e, nlp_res_b = %e, nlp_res_d = %e, nlp_res_m = %e\n", ipm_ws.nlp_res_g, ipm_ws.nlp_res_b, ipm_ws.nlp_res_d, ipm_ws.nlp_res_m);
+	printf("\nocp nlp ipm iter = %d, time = %e [s]\n\n", ipm_ws.iter, time_ocp_nlp_ipm);
 
 /************************************************
 * free memory

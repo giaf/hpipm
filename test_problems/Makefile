@@ -63,7 +63,8 @@ OBJS_TEST = d_tools.o test_d_ocp.o
 #OBJS_TEST = d_tools.o test_d_sim.o
 #OBJS_TEST = d_tools.o test_d_sqp.o
 #OBJS_TEST = d_tools.o test_d_nlp_ipm.o
-#OBJS_TEST = test_van_der_pol.o
+#OBJS_TEST = test_van_der_pol_ipm.o
+#OBJS_TEST = test_van_der_pol_sqp.o
 
 obj: $(OBJS_TEST)
 	$(CC) -o test.out $(OBJS_TEST) -L. libhpipm.a $(LIBS) #-pg

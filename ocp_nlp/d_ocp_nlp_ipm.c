@@ -389,19 +389,26 @@ int SOLVE_OCP_NLP_IPM(struct OCP_NLP *nlp, struct OCP_NLP_SOL *nlp_sol, struct O
 	double nlp_res[4];
 	double qp_res[4];
 
-	double nlp_res_tol[4] = {1e-12, 1e-12, 1e-12, 1e-12};
 
 	// initialize nlp sol
 	for(nn=0; nn<=N; nn++)
 		dvecse_libstr(nlp->nu[nn]+nlp->nx[nn], 0.0, nlp_sol->ux+nn, 0);
+	for(nn=0; nn<N; nn++)
+		dvecse_libstr(nlp->nx[nn+1], 0.0, nlp_sol->pi+nn, 0);
+	for(nn=0; nn<=N; nn++)
+		dvecse_libstr(2*nlp->nb[nn]+2*nlp->ng[nn], 0.0, nlp_sol->lam+nn, 0);
+	for(nn=0; nn<=N; nn++)
+		dvecse_libstr(2*nlp->nb[nn]+2*nlp->ng[nn], 0.0, nlp_sol->t+nn, 0);
 	// fix initial state to e0
 	dveccp_libstr(ne0, nlp->e0, 0, nlp_sol->ux+0, nlp->nu[0]);
 
-	// compute rq
+
+	// compute rq TODO move to cvt !!!
 	for(nn=0; nn<=N; nn++)
 		{
 		dsymv_l_libstr(nu[nn]+nx[nn], nlp->nu[nn]+nlp->nx[nn], 1.0, nlp->RSQ+nn, 0, 0, nlp->ux_ref, 0, 0.0, ws->rq+nn, 0, ws->rq+nn, 0);
 		}
+
 
 	// copy nlp into qp
 	nn = 0;
@@ -492,12 +499,28 @@ exit(1);
 		dvecnrm_inf_libstr(cws->nc, &str_res_d, 0, &nlp_res[2]);
 		dvecnrm_inf_libstr(cws->nc, &str_res_m, 0, &nlp_res[3]);
 
+#if 1
+printf("\nresiduals\n");
+d_print_e_mat(1, cws->nv, cws->res_g, 1);
+d_print_e_mat(1, cws->ne, cws->res_b, 1);
+d_print_e_mat(1, cws->nc, cws->res_d, 1);
+d_print_e_mat(1, cws->nc, cws->res_m, 1);
+#endif
+
 #if 0
 printf("\n\niter %d nlp inf norm res %e %e %e %e\n", ss, nlp_res[0], nlp_res[1], nlp_res[2], nlp_res[3]);
 #endif
 
-		if(!(nlp_res[0]>nlp_res_tol[0] | nlp_res[1]>nlp_res_tol[1] | nlp_res[2]>nlp_res_tol[2] | nlp_res[3]>nlp_res_tol[3]))
+		// exit condition on residuals
+		if(!(nlp_res[0]>arg->nlp_res_g_max | nlp_res[1]>arg->nlp_res_b_max | nlp_res[2]>arg->nlp_res_d_max | nlp_res[3]>arg->nlp_res_m_max))
+			{
+			ws->iter = ss;
+			ws->nlp_res_g = nlp_res[0];
+			ws->nlp_res_b = nlp_res[1];
+			ws->nlp_res_d = nlp_res[2];
+			ws->nlp_res_m = nlp_res[3];
 			return 0;
+			}
 
 		qp_res[0] = 1.0;
 		qp_res[1] = 1.0;
@@ -506,14 +529,6 @@ printf("\n\niter %d nlp inf norm res %e %e %e %e\n", ss, nlp_res[0], nlp_res[1],
 
 		// XXX
 //		cws->mu = 1.0;
-
-#if 0
-printf("\nresiduals\n");
-d_print_e_mat(1, cws->nv, cws->res_g, 1);
-d_print_e_mat(1, cws->ne, cws->res_b, 1);
-d_print_e_mat(1, cws->nc, cws->res_d, 1);
-d_print_e_mat(1, cws->nc, cws->res_m, 1);
-#endif
 
 		// qp loop
 //		for(kk=0; kk<ipm_arg->iter_max & cws->mu>ipm_arg->mu_max; kk++)
@@ -598,6 +613,13 @@ d_print_e_tran_mat(5, kk, ipm_ws->stat, 5);
 
 		}
 	
+	// maximum iteration number reached
+	ws->iter = ss;
+	ws->nlp_res_g = nlp_res[0];
+	ws->nlp_res_b = nlp_res[1];
+	ws->nlp_res_d = nlp_res[2];
+	ws->nlp_res_m = nlp_res[3];
+
 	return 0;
 
 	}
