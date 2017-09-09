@@ -43,10 +43,10 @@
 #include "../include/hpipm_d_ocp_qp.h"
 #include "../include/hpipm_d_ocp_qp_sol.h"
 #include "../include/hpipm_d_ocp_qp_ipm.h"
-#include "../include/hpipm_d_ocp_qp_sim.h"
 #include "../include/hpipm_d_ocp_nlp.h"
 #include "../include/hpipm_d_ocp_nlp_sol.h"
 #include "../include/hpipm_d_ocp_nlp_sqp.h"
+#include "../include/hpipm_d_ocp_qp_sim.h"
 
 #include "d_tools.h"
 
@@ -402,7 +402,10 @@ int main()
 
 	struct d_ocp_qp_ipm_arg arg;
 	arg.alpha_min = 1e-8;
-	arg.mu_max = 1e-12;
+	arg.res_g_max = 1e-8;
+	arg.res_b_max = 1e-8;
+	arg.res_d_max = 1e-12;
+	arg.res_m_max = 1e-12;
 	arg.mu0 = 2.0;
 	arg.iter_max = 10;
 	arg.stat_max = 100;

@@ -383,11 +383,7 @@ int SOLVE_OCP_QP_IPM(struct OCP_QP *qp, struct OCP_QP_SOL *qp_sol, struct OCP_QP
 	cws->lam = qp_sol->lam->pa;
 	cws->t = qp_sol->t->pa;
 
-	ws->mu0 = arg->mu0;
-
-	int kk = 0;
-	REAL tmp;
-
+	// no constraints
 	if(cws->nc==0)
 		{
 		FACT_SOLVE_KKT_UNCONSTR_OCP_QP(qp, qp_sol, ws);
@@ -397,6 +393,27 @@ int SOLVE_OCP_QP_IPM(struct OCP_QP *qp, struct OCP_QP_SOL *qp_sol, struct OCP_QP
 		return 0;
 		}
 
+	// blasfeo alias for residuals
+	struct STRVEC str_res_g;
+	struct STRVEC str_res_b;
+	struct STRVEC str_res_d;
+	struct STRVEC str_res_m;
+	str_res_g.m = cws->nv;
+	str_res_b.m = cws->ne;
+	str_res_d.m = cws->nc;
+	str_res_m.m = cws->nc;
+	str_res_g.pa = cws->res_g;
+	str_res_b.pa = cws->res_b;
+	str_res_d.pa = cws->res_d;
+	str_res_m.pa = cws->res_m;
+
+	REAL qp_res[4];
+
+	ws->mu0 = arg->mu0;
+
+	int kk = 0;
+	REAL tmp;
+
 	// init solver
 	INIT_VAR_OCP_QP(qp, qp_sol, ws);
 
@@ -404,7 +421,13 @@ int SOLVE_OCP_QP_IPM(struct OCP_QP *qp, struct OCP_QP_SOL *qp_sol, struct OCP_QP
 	COMPUTE_RES_OCP_QP(qp, qp_sol, ws);
 	cws->mu = ws->res_mu;
 
-	for(kk=0; kk<arg->iter_max & cws->mu>arg->mu_max; kk++)
+	// compute infinity norm of residuals
+	VECNRM_INF_LIBSTR(cws->nv, &str_res_g, 0, &qp_res[0]);
+	VECNRM_INF_LIBSTR(cws->ne, &str_res_b, 0, &qp_res[1]);
+	VECNRM_INF_LIBSTR(cws->nc, &str_res_d, 0, &qp_res[2]);
+	VECNRM_INF_LIBSTR(cws->nc, &str_res_m, 0, &qp_res[3]);
+
+	for(kk=0; kk<arg->iter_max & (qp_res[0]>arg->res_g_max | qp_res[1]>arg->res_b_max | qp_res[2]>arg->res_d_max | qp_res[3]>arg->res_m_max); kk++)
 		{
 
 		// fact and solve kkt
@@ -446,6 +469,12 @@ int SOLVE_OCP_QP_IPM(struct OCP_QP *qp, struct OCP_QP_SOL *qp_sol, struct OCP_QP
 		cws->mu = ws->res_mu;
 		if(kk<ws->stat_max)
 			ws->stat[5*kk+4] = ws->res_mu;
+
+		// compute infinity norm of residuals
+		VECNRM_INF_LIBSTR(cws->nv, &str_res_g, 0, &qp_res[0]);
+		VECNRM_INF_LIBSTR(cws->ne, &str_res_b, 0, &qp_res[1]);
+		VECNRM_INF_LIBSTR(cws->nc, &str_res_d, 0, &qp_res[2]);
+		VECNRM_INF_LIBSTR(cws->nc, &str_res_m, 0, &qp_res[3]);
 
 		}
 	

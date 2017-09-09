@@ -373,6 +373,24 @@ int SOLVE_OCP_NLP_IPM(struct OCP_NLP *nlp, struct OCP_NLP_SOL *nlp_sol, struct O
 
 	double tmp;
 
+	struct STRVEC str_res_g;
+	struct STRVEC str_res_b;
+	struct STRVEC str_res_d;
+	struct STRVEC str_res_m;
+	str_res_g.m = cws->nv;
+	str_res_b.m = cws->ne;
+	str_res_d.m = cws->nc;
+	str_res_m.m = cws->nc;
+	str_res_g.pa = cws->res_g;
+	str_res_b.pa = cws->res_b;
+	str_res_d.pa = cws->res_d;
+	str_res_m.pa = cws->res_m;
+
+	double nlp_res[4];
+	double qp_res[4];
+
+	double nlp_res_tol[4] = {1e-12, 1e-12, 1e-12, 1e-12};
+
 	// initialize nlp sol
 	for(nn=0; nn<=N; nn++)
 		dvecse_libstr(nlp->nu[nn]+nlp->nx[nn], 0.0, nlp_sol->ux+nn, 0);
@@ -468,8 +486,26 @@ exit(1);
 		COMPUTE_RES_OCP_QP(qp, qp_sol, ipm_ws);
 		cws->mu = ipm_ws->res_mu;
 
+		// compute infinity norm of residuals
+		dvecnrm_inf_libstr(cws->nv, &str_res_g, 0, &nlp_res[0]);
+		dvecnrm_inf_libstr(cws->ne, &str_res_b, 0, &nlp_res[1]);
+		dvecnrm_inf_libstr(cws->nc, &str_res_d, 0, &nlp_res[2]);
+		dvecnrm_inf_libstr(cws->nc, &str_res_m, 0, &nlp_res[3]);
+
+#if 0
+printf("\n\niter %d nlp inf norm res %e %e %e %e\n", ss, nlp_res[0], nlp_res[1], nlp_res[2], nlp_res[3]);
+#endif
+
+		if(!(nlp_res[0]>nlp_res_tol[0] | nlp_res[1]>nlp_res_tol[1] | nlp_res[2]>nlp_res_tol[2] | nlp_res[3]>nlp_res_tol[3]))
+			return 0;
+
+		qp_res[0] = 1.0;
+		qp_res[1] = 1.0;
+		qp_res[2] = 1.0;
+		qp_res[3] = 1.0;
+
 		// XXX
-		cws->mu = 1.0;
+//		cws->mu = 1.0;
 
 #if 0
 printf("\nresiduals\n");
@@ -480,7 +516,8 @@ d_print_e_mat(1, cws->nc, cws->res_m, 1);
 #endif
 
 		// qp loop
-		for(kk=0; kk<ipm_arg->iter_max & cws->mu>ipm_arg->mu_max; kk++)
+//		for(kk=0; kk<ipm_arg->iter_max & cws->mu>ipm_arg->mu_max; kk++)
+		for(kk=0; kk<ipm_arg->iter_max & (qp_res[0]>ipm_arg->res_g_max | qp_res[1]>ipm_arg->res_b_max | qp_res[2]>ipm_arg->res_d_max | qp_res[3]>ipm_arg->res_m_max); kk++)
 			{
 
 			// fact and solve kkt
@@ -531,11 +568,21 @@ d_print_e_mat(1, cws->nc, cws->dt, 1);
 			if(kk<ipm_ws->stat_max)
 				ipm_ws->stat[5*kk+4] = ipm_ws->res_mu;
 
+			// compute infinity norm of residuals
+			dvecnrm_inf_libstr(cws->nv, &str_res_g, 0, &qp_res[0]);
+			dvecnrm_inf_libstr(cws->ne, &str_res_b, 0, &qp_res[1]);
+			dvecnrm_inf_libstr(cws->nc, &str_res_d, 0, &qp_res[2]);
+			dvecnrm_inf_libstr(cws->nc, &str_res_m, 0, &qp_res[3]);
+
+#if 0
+printf("\nqp inf norm res %e %e %e %e\n", qp_res[0], qp_res[1], qp_res[2], qp_res[3]);
+#endif
+
 			}
 		
 		ipm_ws->iter = kk;
 
-#if 1
+#if 0
 d_print_e_tran_mat(5, kk, ipm_ws->stat, 5);
 #endif
 

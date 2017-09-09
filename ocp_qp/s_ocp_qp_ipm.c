@@ -75,6 +75,7 @@
 #define STRMAT s_strmat
 #define STRVEC s_strvec
 #define UPDATE_VAR_QP s_update_var_qp
+#define VECNRM_INF_LIBSTR svecnrm_inf_libstr
 
 
 

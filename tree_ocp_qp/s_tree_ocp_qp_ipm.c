@@ -64,6 +64,7 @@
 #define TREE_OCP_QP_IPM_WORKSPACE s_tree_ocp_qp_ipm_workspace
 #define TREE_OCP_QP_SOL s_tree_ocp_qp_sol
 #define UPDATE_VAR_QP s_update_var_qp
+#define VECNRM_INF_LIBSTR svecnrm_inf_libstr
 
 #define MEMSIZE_TREE_OCP_QP_IPM s_memsize_tree_ocp_qp_ipm
 #define CREATE_TREE_OCP_QP_IPM s_create_tree_ocp_qp_ipm

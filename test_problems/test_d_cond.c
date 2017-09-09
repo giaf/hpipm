@@ -713,7 +713,10 @@ int main()
 
 	struct d_dense_qp_ipm_arg dense_arg;
 	dense_arg.alpha_min = 1e-8;
-	dense_arg.mu_max = 1e-12;
+	dense_arg.res_g_max = 1e-8;
+	dense_arg.res_b_max = 1e-8;
+	dense_arg.res_d_max = 1e-12;
+	dense_arg.res_m_max = 1e-12;
 	dense_arg.mu0 = 100.0;
 	dense_arg.iter_max = 20;
 	dense_arg.stat_max = 100;

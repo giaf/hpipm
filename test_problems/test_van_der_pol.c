@@ -177,10 +177,10 @@ int main()
 ************************************************/	
 	
 	double *Q; d_zeros(&Q, nx_, nx_);
-	for(ii=0; ii<nx_; ii++) Q[ii*(nx_+1)] = 1.0;
+	for(ii=0; ii<nx_; ii++) Q[ii*(nx_+1)] = 10.0;
 
 	double *R; d_zeros(&R, nu_, nu_);
-	for(ii=0; ii<nu_; ii++) R[ii*(nu_+1)] = 2.0;
+	for(ii=0; ii<nu_; ii++) R[ii*(nu_+1)] = 1.0;
 
 	double *S; d_zeros(&S, nu_, nx_);
 
@@ -278,10 +278,13 @@ int main()
 
 	struct d_ocp_qp_ipm_arg arg;
 	arg.alpha_min = 1e-8;
-	arg.mu_max = 1e-8;
+	arg.res_g_max = 1e-8;
+	arg.res_b_max = 1e-8;
+	arg.res_d_max = 1e-12;
+	arg.res_m_max = 1e-12;
 	arg.mu0 = 2.0;
-	arg.iter_max = 10;
-	arg.stat_max = 10;
+	arg.iter_max = 1;
+	arg.stat_max = 20;
 	arg.pred_corr = 1;
 
 /************************************************
@@ -574,7 +577,7 @@ int main()
 	ipm_arg.rk_data = &rk_data;
 	ipm_arg.erk_arg = erk_args;
 	ipm_arg.nlp_res_max = 1e-8;
-	ipm_arg.nlp_iter_max = 5;
+	ipm_arg.nlp_iter_max = 20;
 
 /************************************************
 * ocp nlp ipm ws
