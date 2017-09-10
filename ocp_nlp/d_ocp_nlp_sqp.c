@@ -477,28 +477,11 @@ exit(1);
 			dveccp_libstr(nu[nn]+nx[nn]+2*ns[ii], nlp_sol->ux+nn, 0, qp_sol->ux+nn, 0);
 		// set to zero multipliers
 		for(nn=0; nn<N; nn++)
-//			dveccp_libstr(nx[nn+1], nlp_sol->pi+nn, 0, qp_sol->pi+nn, 0);
-			dvecse_libstr(nx[nn+1], 0.0, qp_sol->pi+nn, 0);
+			dveccp_libstr(nx[nn+1], nlp_sol->pi+nn, 0, qp_sol->pi+nn, 0);
 		for(nn=0; nn<=N; nn++)
-//			dveccp_libstr(2*nb[nn]+2*ng[nn]+2*ns[ii], nlp_sol->lam+nn, 0, qp_sol->lam+nn, 0);
-			dvecse_libstr(2*nb[nn]+2*ng[nn]+2*ns[ii], 0.0, qp_sol->lam+nn, 0);
+			dveccp_libstr(2*nb[nn]+2*ng[nn]+2*ns[ii], nlp_sol->lam+nn, 0, qp_sol->lam+nn, 0);
 		for(nn=0; nn<=N; nn++)
-//			dveccp_libstr(2*nb[nn]+2*ng[nn]+2*ns[ii], nlp_sol->t+nn, 0, qp_sol->t+nn, 0);
-			dvecse_libstr(2*nb[nn]+2*ng[nn]+2*ns[ii], 0.0, qp_sol->t+nn, 0);
-
-#if 0
-printf("\nqp data for residuals\n");
-for(nn=0; nn<=N; nn++)
-	d_print_tran_strvec(nu[nn]+nx[nn]+2*ns[nn], qp_sol->ux+nn, 0);
-for(nn=0; nn<N; nn++)
-	d_print_tran_strvec(nx[nn+1], qp_sol->pi+nn, 0);
-for(nn=0; nn<=N; nn++)
-	d_print_tran_strvec(2*nb[nn]+2*ng[nn]+2*ns[nn], qp_sol->lam+nn, 0);
-for(nn=0; nn<=N; nn++)
-	d_print_tran_strvec(2*nb[nn]+2*ng[nn]+2*ns[nn], qp_sol->t+nn, 0);
-d_print_e_tran_mat(5, ipm_ws->iter, ipm_ws->stat, 5);
-//		exit(1);
-#endif
+			dveccp_libstr(2*nb[nn]+2*ng[nn]+2*ns[ii], nlp_sol->t+nn, 0, qp_sol->t+nn, 0);
 
 
 		// compute residuals
@@ -535,11 +518,21 @@ printf("\n\niter %d nlp inf norm res %e %e %e %e\n", ss, nlp_res[0], nlp_res[1],
 			}
 
 
+		// set to zero multipliers
+		for(nn=0; nn<N; nn++)
+			dvecse_libstr(nx[nn+1], 0.0, qp_sol->pi+nn, 0);
+		for(nn=0; nn<=N; nn++)
+			dvecse_libstr(2*nb[nn]+2*ng[nn]+2*ns[ii], 0.0, qp_sol->lam+nn, 0);
+		for(nn=0; nn<=N; nn++)
+			dvecse_libstr(2*nb[nn]+2*ng[nn]+2*ns[ii], 0.0, qp_sol->t+nn, 0);
+
+		// compute residuals
+		COMPUTE_RES_OCP_QP(qp, qp_sol, ipm_ws);
+
 		// copy residuals into qp rhs
 		for(nn=0; nn<=N; nn++)
 			{
 			dveccp_libstr(nu[nn]+nx[nn]+2*ns[nn], ipm_ws->res_g+nn, 0, qp->rq+nn, 0);
-//			dvecsc_libstr(nu[nn]+nx[nn]+2*ns[nn], -1.0, qp->rq+nn, 0);
 			drowin_libstr(nu[nn]+nx[nn], 1.0, qp->rq+nn, 0, qp->RSQrq+nn, nu[nn]+nx[nn], 0);
 			}
 		for(nn=0; nn<N; nn++)
@@ -569,14 +562,6 @@ for(nn=0; nn<=N; nn++)
 		d_solve_ocp_qp_ipm(qp, qp_sol, ipm_arg, ipm_ws);
 
 #if 0
-printf("\nqp residuals\n");
-d_print_e_mat(1, cws->nv, cws->res_g, 1);
-d_print_e_mat(1, cws->ne, cws->res_b, 1);
-d_print_e_mat(1, cws->nc, cws->res_d, 1);
-d_print_e_mat(1, cws->nc, cws->res_m, 1);
-#endif
-
-#if 0
 printf("\nqp sol\n");
 for(nn=0; nn<=N; nn++)
 	d_print_tran_strvec(nu[nn]+nx[nn]+2*ns[nn], qp_sol->ux+nn, 0);
@@ -590,18 +575,16 @@ for(nn=0; nn<=N; nn++)
 //		exit(1);
 #endif
 
-		// update variables (full step)
+		// update primal variables (full step)
 		for(nn=0; nn<=N; nn++)
 			daxpy_libstr(nu[nn]+nx[nn], 1.0, qp_sol->ux+nn, 0, nlp_sol->ux+nn, 0, nlp_sol->ux+nn, 0);
-		// copy multipliers
+		// copy dual multipliers
 		for(nn=0; nn<N; nn++)
-//			daxpy_libstr(nx[nn+1], 1.0, qp_sol->pi+nn, 0, nlp_sol->pi+nn, 0, nlp_sol->pi+nn, 0);
 			dveccp_libstr(nx[nn+1], qp_sol->pi+nn, 0, nlp_sol->pi+nn, 0);
 		for(nn=0; nn<=N; nn++)
-//			daxpy_libstr(2*nb[nn]+2*ng[nn], 1.0, qp_sol->lam+nn, 0, nlp_sol->lam+nn, 0, nlp_sol->lam+nn, 0);
 			dveccp_libstr(2*nb[nn]+2*ng[nn], qp_sol->lam+nn, 0, nlp_sol->lam+nn, 0);
-//		for(nn=0; nn<=N; nn++)
-//			daxpy_libstr(2*nb[nn]+2*ng[nn], 1.0, qp_sol->t+nn, 0, nlp_sol->t+nn, 0, nlp_sol->t+nn, 0);
+		for(nn=0; nn<=N; nn++)
+			dveccp_libstr(2*nb[nn]+2*ng[nn], qp_sol->t+nn, 0, nlp_sol->t+nn, 0);
 
 #if 0
 printf("\nnlp sol\n");

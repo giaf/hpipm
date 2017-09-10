@@ -499,7 +499,7 @@ exit(1);
 		dvecnrm_inf_libstr(cws->nc, &str_res_d, 0, &nlp_res[2]);
 		dvecnrm_inf_libstr(cws->nc, &str_res_m, 0, &nlp_res[3]);
 
-#if 1
+#if 0
 printf("\nresiduals\n");
 d_print_e_mat(1, cws->nv, cws->res_g, 1);
 d_print_e_mat(1, cws->ne, cws->res_b, 1);

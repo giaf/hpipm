@@ -600,7 +600,7 @@ int main()
 	int nlp_return;
 
 	struct timeval tv0, tv1;
-	int rep, nrep = 1;
+	int rep, nrep = 1000;
 
 	gettimeofday(&tv0, NULL); // start
 
