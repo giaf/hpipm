@@ -44,12 +44,13 @@ struct d_ocp_nlp
 	{
 	struct d_ocp_nlp_model *model;
 	struct d_strvec *e0; // constraint on state at stage 0
-	struct d_strmat *RSQ;
-	struct d_strvec *ux_ref;
-	struct d_strmat *DCt;
-	struct d_strvec *d;
-	struct d_strvec *Z;
-	struct d_strvec *z;
+	struct d_strmat *RSQ; // hessian
+	struct d_strvec *rq; // gradient
+	struct d_strmat *DCt; // constraints matrix
+	struct d_strvec *d; // constraints rhs
+	struct d_strvec *Z; // soft constr slack diag hessian
+	struct d_strvec *z; // soft constr slack grad
+	struct d_strvec *tmp_nuxM; // work space of size max(nu+nx)
 	int *nx; // number of states
 	int *nu; // number of inputs
 	int *nb; // number of box constraints

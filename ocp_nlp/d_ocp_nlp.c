@@ -35,6 +35,7 @@
 #include <blasfeo_target.h>
 #include <blasfeo_common.h>
 #include <blasfeo_d_aux.h>
+#include <blasfeo_d_blas.h>
 
 #include "../include/hpipm_d_ocp_nlp.h"
 
@@ -50,6 +51,7 @@
 #define SIZE_STRVEC d_size_strvec
 #define STRMAT d_strmat
 #define STRVEC d_strvec
+#define SYMV_L_LIBSTR dsymv_l_libstr
 
 #define MEMSIZE_OCP_NLP d_memsize_ocp_nlp
 #define CREATE_OCP_NLP d_create_ocp_nlp
@@ -62,27 +64,34 @@ int MEMSIZE_OCP_NLP(int N, int *nx, int *nu, int *nb, int *ng, int *ns, int ne0)
 
 	int ii;
 
+	int nuxM = 0;
+	for(ii=0; ii<=N; ii++)
+		{
+		nuxM = nu[ii]+nx[ii]>nuxM ? nu[ii]+nx[ii] : nuxM;
+		}
+
 	int size = 0;
 
 	size += 5*(N+1)*sizeof(int); // nx nu nb ng ns
 	size += 2*(N+1)*sizeof(int *); // idxb idxs
 	size += 1*N*sizeof(struct OCP_NLP_MODEL); // model
 	size += 2*(N+1)*sizeof(struct STRMAT); // RSQ DCt
-	size += 4*(N+1)*sizeof(struct STRVEC); // ux_ref d Z z
-	size += 1*sizeof(struct STRVEC); // e0
+	size += 4*(N+1)*sizeof(struct STRVEC); // rq d Z z
+	size += 2*sizeof(struct STRVEC); // e0 tmp_nuxM
 
 	for(ii=0; ii<=N; ii++)
 		{
 		size += nb[ii]*sizeof(int); // idxb
 		size += ns[ii]*sizeof(int); // idxs
 		size += SIZE_STRMAT(nu[ii]+nx[ii], nu[ii]+nx[ii]); // RSQ
-		size += SIZE_STRVEC(nu[ii]+nx[ii]); // ux_ref
+		size += SIZE_STRVEC(nu[ii]+nx[ii]); // rq
 		size += SIZE_STRMAT(nu[ii]+nx[ii], ng[ii]); // DCt
 		size += 1*SIZE_STRVEC(2*nb[ii]+2*ng[ii]); // Z z
 		size += 2*SIZE_STRVEC(2*ns[ii]); // Z z
 		}
 	
 	size += 1*SIZE_STRVEC(ne0); // e0
+	size += 1*SIZE_STRVEC(nuxM); // tmp_nuxM
 
 	size = (size+63)/64*64; // make multiple of typical cache line size
 	size += 64; // align to typical cache line size
@@ -100,6 +109,13 @@ void CREATE_OCP_NLP(int N, int *nx, int *nu, int *nb, int *ng, int *ns, int ne0,
 
 	// horizon length
 	nlp->N = N;
+
+
+	int nuxM = 0;
+	for(ii=0; ii<=N; ii++)
+		{
+		nuxM = nu[ii]+nx[ii]>nuxM ? nu[ii]+nx[ii] : nuxM;
+		}
 
 
 	// int pointer stuff
@@ -135,8 +151,8 @@ void CREATE_OCP_NLP(int N, int *nx, int *nu, int *nb, int *ng, int *ns, int ne0,
 	// vector struct stuff
 	struct STRVEC *sv_ptr = (struct STRVEC *) sm_ptr;
 
-	// ux_ref
-	nlp->ux_ref = sv_ptr;
+	// rq
+	nlp->rq = sv_ptr;
 	sv_ptr += N+1;
 	// d
 	nlp->d = sv_ptr;
@@ -149,6 +165,9 @@ void CREATE_OCP_NLP(int N, int *nx, int *nu, int *nb, int *ng, int *ns, int ne0,
 	sv_ptr += N+1;
 	// e0
 	nlp->e0 = sv_ptr;
+	sv_ptr += 1;
+	// tmp_nuxM
+	nlp->tmp_nuxM = sv_ptr;
 	sv_ptr += 1;
 
 
@@ -230,11 +249,11 @@ void CREATE_OCP_NLP(int N, int *nx, int *nu, int *nb, int *ng, int *ns, int ne0,
 		CREATE_STRMAT(nu[ii]+nx[ii], ng[ii], nlp->DCt+ii, c_ptr);
 		c_ptr += (nlp->DCt+ii)->memory_size;
 		}
-	// ux_ref
+	// rq
 	for(ii=0; ii<=N; ii++)
 		{
-		CREATE_STRVEC(nu[ii]+nx[ii], nlp->ux_ref+ii, c_ptr);
-		c_ptr += (nlp->ux_ref+ii)->memory_size;
+		CREATE_STRVEC(nu[ii]+nx[ii], nlp->rq+ii, c_ptr);
+		c_ptr += (nlp->rq+ii)->memory_size;
 		}
 	// d
 	for(ii=0; ii<=N; ii++)
@@ -257,6 +276,9 @@ void CREATE_OCP_NLP(int N, int *nx, int *nu, int *nb, int *ng, int *ns, int ne0,
 	// e0
 	CREATE_STRVEC(ne0, nlp->e0, c_ptr);
 	c_ptr += nlp->e0->memory_size;
+	// tmp_nuxM
+	CREATE_STRVEC(nuxM, nlp->tmp_nuxM, c_ptr);
+	c_ptr += nlp->tmp_nuxM->memory_size;
 
 
 	nlp->memsize = MEMSIZE_OCP_NLP(N, nx, nu, nb, ng, ns, ne0);
@@ -305,8 +327,9 @@ void CVT_COLMAJ_TO_OCP_NLP(struct OCP_NLP_MODEL *model, REAL *e0, REAL **Q, REAL
 		CVT_MAT2STRMAT(nu[ii], nu[ii], R[ii], nu[ii], nlp->RSQ+ii, 0, 0);
 		CVT_TRAN_MAT2STRMAT(nu[ii], nx[ii], S[ii], nu[ii], nlp->RSQ+ii, nu[ii], 0);
 		CVT_MAT2STRMAT(nx[ii], nx[ii], Q[ii], nx[ii], nlp->RSQ+ii, nu[ii], nu[ii]);
-		CVT_VEC2STRVEC(nu[ii], u_ref[ii], nlp->ux_ref+ii, 0);
-		CVT_VEC2STRVEC(nx[ii], x_ref[ii], nlp->ux_ref+ii, nu[ii]);
+		CVT_VEC2STRVEC(nu[ii], u_ref[ii], nlp->tmp_nuxM, 0);
+		CVT_VEC2STRVEC(nx[ii], x_ref[ii], nlp->tmp_nuxM, nu[ii]);
+		SYMV_L_LIBSTR(nu[ii]+nx[ii], nu[ii]+nx[ii], 1.0, nlp->RSQ+ii, 0, 0, nlp->tmp_nuxM, 0, 0.0, nlp->rq+ii, 0, nlp->rq+ii, 0);
 		}
 	
 	for(ii=0; ii<=N; ii++)

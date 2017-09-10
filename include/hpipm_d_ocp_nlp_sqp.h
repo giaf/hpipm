@@ -39,7 +39,6 @@ struct d_ocp_nlp_sqp_workspace
 	struct d_ocp_qp_sol *qp_sol;
 	struct d_ocp_qp_ipm_workspace *ipm_workspace;
 	struct d_erk_workspace *erk_workspace;
-	struct d_strvec *rq;
 	struct d_strvec *tmp_nuxM;
 	struct d_strvec *tmp_nbgM;
 	double **fs; // initialization of forward sensitivities

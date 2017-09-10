@@ -116,16 +116,10 @@ int MEMSIZE_OCP_NLP_SQP(struct OCP_NLP *nlp, struct OCP_NLP_SQP_ARG *arg)
 	size += 1*sizeof(struct OCP_QP_IPM_WORKSPACE);
 	size += N*sizeof(struct ERK_WORKSPACE);
 	size += 2*sizeof(struct STRVEC); // tmp_nuxM tmp_nbgM
-	size += 1*(N+1)*sizeof(struct STRVEC); // rq
 	size += N*sizeof(REAL *); // fs
 
 	size += SIZE_STRVEC(nuxM); // tmp_nuxM
 	size += SIZE_STRVEC(nbgM); // tmp_nbgM
-
-	for(ii=0; ii<=N; ii++)
-		{
-		size += SIZE_STRVEC(nu[ii]+nx[ii]); // rq
-		}
 
 	// remove initial state form optimization variables
 //	if(ne0>0) // TODO what if 0 < ne0 < nx[0] ???
@@ -273,9 +267,6 @@ void CREATE_OCP_NLP_SQP(struct OCP_NLP *nlp, struct OCP_NLP_SQP_ARG *arg, struct
 	//
 	struct STRVEC *sv_ptr = (struct STRVEC *) d_ptr;
 	//
-	ws->rq = sv_ptr;
-	sv_ptr += N+1;
-	//
 	ws->tmp_nuxM = sv_ptr;
 	sv_ptr += 1;
 	//
@@ -290,12 +281,6 @@ void CREATE_OCP_NLP_SQP(struct OCP_NLP *nlp, struct OCP_NLP_SQP_ARG *arg, struct
 
 	// void stuf
 	c_ptr = (char *) s_ptr;
-	//
-	for(ii=0; ii<=N; ii++)
-		{
-		CREATE_STRVEC(nu[ii]+nx[ii], ws->rq+ii, c_ptr);
-		c_ptr += (ws->rq+ii)->memory_size;
-		}
 	//
 	CREATE_STRVEC(nuxM, ws->tmp_nuxM+0, c_ptr);
 	c_ptr += (ws->tmp_nuxM+0)->memory_size;
@@ -381,13 +366,6 @@ int SOLVE_OCP_NLP_SQP(struct OCP_NLP *nlp, struct OCP_NLP_SOL *nlp_sol, struct O
 	dveccp_libstr(ne0, nlp->e0, 0, nlp_sol->ux+0, nlp->nu[0]);
 
 
-	// compute rq TODO move to cvt !!!
-	for(nn=0; nn<=N; nn++)
-		{
-		dsymv_l_libstr(nu[nn]+nx[nn], nlp->nu[nn]+nlp->nx[nn], 1.0, nlp->RSQ+nn, 0, 0, nlp->ux_ref, 0, 0.0, ws->rq+nn, 0, ws->rq+nn, 0);
-		}
-
-
 	// copy nlp into qp
 	nn = 0;
 	if(ne0>0)
@@ -397,7 +375,7 @@ int SOLVE_OCP_NLP_SQP(struct OCP_NLP *nlp, struct OCP_NLP_SOL *nlp_sol, struct O
 		nx[0] = 0;
 		// cost function
 		dgecp_libstr(nu[0], nu[0], nlp->RSQ+0, 0, 0, qp->RSQrq+0, 0, 0);
-		dgemv_t_libstr(nlp->nx[0], nlp->nu[0], 1.0, nlp->RSQ+0, nlp->nu[0], 0, nlp->e0, 0, 1.0, ws->rq+0, 0, qp->rq+0, 0);
+		dgemv_t_libstr(nlp->nx[0], nlp->nu[0], 1.0, nlp->RSQ+0, nlp->nu[0], 0, nlp->e0, 0, 1.0, nlp->rq+0, 0, qp->rq+0, 0);
 		// box constraints
 		// XXX assume that there are not box constraints on x0 !!!!!
 		dveccp_libstr(nb[0], nlp->d+0, 0, qp->d+0, 0);
@@ -417,7 +395,7 @@ int SOLVE_OCP_NLP_SQP(struct OCP_NLP *nlp, struct OCP_NLP_SOL *nlp_sol, struct O
 		{
 		dgecp_libstr(nu[nn]+nx[nn], nu[nn]+nx[nn], nlp->RSQ+nn, 0, 0, qp->RSQrq+nn, 0, 0);
 		dgecp_libstr(nu[nn]+nx[nn], ng[nn], nlp->DCt+nn, 0, 0, qp->DCt+nn, 0, 0);
-		dveccp_libstr(nu[nn]+nx[nn], ws->rq+nn, 0, qp->rq+nn, 0); // XXX
+		dveccp_libstr(nu[nn]+nx[nn], nlp->rq+nn, 0, qp->rq+nn, 0); // XXX
 		drowin_libstr(nu[nn]+nx[nn], 1.0, qp->rq+nn, 0, qp->RSQrq+nn, nu[nn]+nx[nn], 0); // XXX
 		dveccp_libstr(2*nb[nn]+2*ng[nn]+2*ns[nn], nlp->d+nn, 0, qp->d+nn, 0); // XXX
 		for(ii=0; ii<nb[nn]; ii++) qp->idxb[nn][ii] = nlp->idxb[nn][ii];
@@ -448,7 +426,7 @@ int SOLVE_OCP_NLP_SQP(struct OCP_NLP *nlp, struct OCP_NLP_SOL *nlp_sol, struct O
 
 		// setup qp
 		for(nn=0; nn<=N; nn++)
-			dveccp_libstr(nu[nn]+nx[nn], ws->rq+nn, 0, qp->rq+nn, 0);
+			dveccp_libstr(nu[nn]+nx[nn], nlp->rq+nn, 0, qp->rq+nn, 0);
 //		for(nn=0; nn<N; nn++)
 //			dvecse_libstr(nx[nn+1], 0.0, qp->b+nn, 0);
 		for(nn=0; nn<=N; nn++)
