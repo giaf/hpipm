@@ -114,10 +114,9 @@ int MEMSIZE_OCP_NLP_SQP(struct OCP_NLP *nlp, struct OCP_NLP_SQP_ARG *arg)
 	size += 2*sizeof(struct OCP_QP_SOL);
 	size += 1*sizeof(struct OCP_QP_IPM_WORKSPACE);
 	size += N*sizeof(struct ERK_WORKSPACE);
-	size += 3*sizeof(struct STRVEC); // qp_e0 tmp_nuxM tmp_nbgM
+	size += 2*sizeof(struct STRVEC); // tmp_nuxM tmp_nbgM
 	size += N*sizeof(REAL *); // fs
 
-	size += SIZE_STRVEC(nu[0]+nx[0]); // qp_e0
 	size += SIZE_STRVEC(nuxM); // tmp_nuxM
 	size += SIZE_STRVEC(nbgM); // tmp_nbgM
 
@@ -240,9 +239,6 @@ void CREATE_OCP_NLP_SQP(struct OCP_NLP *nlp, struct OCP_NLP_SQP_ARG *arg, struct
 	//
 	struct STRVEC *sv_ptr = (struct STRVEC *) d_ptr;
 	//
-	ws->qp_e0 = sv_ptr;
-	sv_ptr += 1;
-	//
 	ws->tmp_nuxM = sv_ptr;
 	sv_ptr += 1;
 	//
@@ -257,9 +253,6 @@ void CREATE_OCP_NLP_SQP(struct OCP_NLP *nlp, struct OCP_NLP_SQP_ARG *arg, struct
 
 	// void stuf
 	c_ptr = (char *) s_ptr;
-	//
-	CREATE_STRVEC(nu[0]+nx[0], ws->qp_e0+0, c_ptr);
-	c_ptr += (ws->qp_e0+0)->memory_size;
 	//
 	CREATE_STRVEC(nuxM, ws->tmp_nuxM+0, c_ptr);
 	c_ptr += (ws->tmp_nuxM+0)->memory_size;
