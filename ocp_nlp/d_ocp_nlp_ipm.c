@@ -439,21 +439,21 @@ printf("\n\niter %d nlp inf norm res %e %e %e %e\n", ss, nlp_res[0], nlp_res[1],
 
 		// alpha
 		COMPUTE_ALPHA_QP(cws);
-//		if(kk<ipm_ws->stat_max)
-//			ipm_ws->stat[5*kk+0] = cws->alpha;
+		if(ss<ipm_ws->stat_max)
+			ipm_ws->stat[5*ss+0] = cws->alpha;
 
 		// Mehrotra's corrector
 		if(arg->pred_corr==1)
 			{
 			// mu_aff
 			COMPUTE_MU_AFF_QP(cws);
-//			if(kk<ipm_ws->stat_max)
-//				ipm_ws->stat[5*kk+1] = cws->mu_aff;
+			if(ss<ipm_ws->stat_max)
+				ipm_ws->stat[5*ss+1] = cws->mu_aff;
 
 			tmp = cws->mu_aff/cws->mu;
 			cws->sigma = tmp*tmp*tmp;
-//			if(kk<ipm_ws->stat_max)
-//				ipm_ws->stat[5*kk+2] = cws->sigma;
+			if(ss<ipm_ws->stat_max)
+				ipm_ws->stat[5*ss+2] = cws->sigma;
 
 			COMPUTE_CENTERING_CORRECTION_QP(cws);
 
@@ -462,8 +462,8 @@ printf("\n\niter %d nlp inf norm res %e %e %e %e\n", ss, nlp_res[0], nlp_res[1],
 
 			// alpha
 			COMPUTE_ALPHA_QP(cws);
-//			if(kk<ipm_ws->stat_max)
-//				ipm_ws->stat[5*kk+3] = cws->alpha;
+			if(ss<ipm_ws->stat_max)
+				ipm_ws->stat[5*ss+3] = cws->alpha;
 			}
 
 #if 0
@@ -479,8 +479,8 @@ d_print_e_mat(1, cws->nc, cws->dt, 1);
 		// compute residuals
 		COMPUTE_RES_OCP_QP(qp, qp_sol, ipm_ws);
 		cws->mu = ipm_ws->res_mu;
-//		if(kk<ipm_ws->stat_max)
-//			ipm_ws->stat[5*kk+4] = ipm_ws->res_mu;
+		if(ss<ipm_ws->stat_max)
+			ipm_ws->stat[5*ss+4] = ipm_ws->res_mu;
 
 		// compute infinity norm of residuals
 		dvecnrm_inf_libstr(cws->nv, &str_res_g, 0, &qp_res[0]);

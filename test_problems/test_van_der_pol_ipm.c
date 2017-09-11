@@ -619,6 +619,9 @@ int main()
 	d_cvt_ocp_nlp_sol_to_colmaj(&nlp, &nlp_sol, u, x, ls, us, pi, lam_lb, lam_ub, lam_lg, lam_ug, lam_ls, lam_us);
 
 #if 1
+	printf("\nalpha_aff\tmu_aff\t\tsigma\t\talpha\t\tmu\n");
+	d_print_e_tran_mat(5, ipm_ws.iter, ipm_ws.ipm_workspace->stat, 5);
+
 	printf("\nsolution\n\n");
 	printf("\nu\n");
 	for(ii=0; ii<=N; ii++)
