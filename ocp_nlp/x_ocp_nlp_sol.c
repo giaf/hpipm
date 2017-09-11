@@ -27,7 +27,7 @@
 
 
 
-int MEMSIZE_OCP_NLP_SOL(int N, int *nx, int *nu, int *nb, int *ng, int *ns, int ne0)
+int MEMSIZE_OCP_NLP_SOL(int N, int *nx, int *nu, int *nb, int *ng, int *ns)
 	{
 
 	int ii;
@@ -48,12 +48,10 @@ int MEMSIZE_OCP_NLP_SOL(int N, int *nx, int *nu, int *nb, int *ng, int *ns, int 
 
 	size += 3*(N+1)*sizeof(struct STRVEC); // ux lam t
 	size += 1*N*sizeof(struct STRVEC); // pi
-	size += 1*sizeof(struct STRVEC); // eta0
 
 	size += 1*SIZE_STRVEC(nvt); // ux
 	size += 1*SIZE_STRVEC(net); // pi
 	size += 2*SIZE_STRVEC(2*nct); // lam t
-	size += 1*SIZE_STRVEC(ne0); // eta0
 
 	size = (size+63)/64*64; // make multiple of typical cache line size
 	size += 64; // align to typical cache line size
@@ -64,7 +62,7 @@ int MEMSIZE_OCP_NLP_SOL(int N, int *nx, int *nu, int *nb, int *ng, int *ns, int 
 
 
 
-void CREATE_OCP_NLP_SOL(int N, int *nx, int *nu, int *nb, int *ng, int *ns, int ne0, struct OCP_NLP_SOL *nlp_sol, void *mem)
+void CREATE_OCP_NLP_SOL(int N, int *nx, int *nu, int *nb, int *ng, int *ns, struct OCP_NLP_SOL *nlp_sol, void *mem)
 	{
 
 	int ii;
@@ -98,9 +96,6 @@ void CREATE_OCP_NLP_SOL(int N, int *nx, int *nu, int *nb, int *ng, int *ns, int 
 	//
 	nlp_sol->t = sv_ptr;
 	sv_ptr += N+1;
-	//
-	nlp_sol->eta0 = sv_ptr;
-	sv_ptr += 1;
 
 
 	// align to typical cache line size
@@ -159,12 +154,9 @@ void CREATE_OCP_NLP_SOL(int N, int *nx, int *nu, int *nb, int *ng, int *ns, int 
 		tmp_ptr += ns[ii]*sizeof(REAL); // ls
 		tmp_ptr += ns[ii]*sizeof(REAL); // us
 		}
-	// eta0
-	CREATE_STRVEC(ne0, nlp_sol->eta0, c_ptr);
-	c_ptr += nlp_sol->eta0->memory_size;
 	
 
-	nlp_sol->memsize = MEMSIZE_OCP_NLP_SOL(N, nx, nu, nb, ng, ns, ne0);
+	nlp_sol->memsize = MEMSIZE_OCP_NLP_SOL(N, nx, nu, nb, ng, ns);
 
 
 #if defined(RUNTIME_CHECKS)
@@ -182,7 +174,7 @@ void CREATE_OCP_NLP_SOL(int N, int *nx, int *nu, int *nb, int *ng, int *ns, int 
 
 
 
-void CVT_OCP_NLP_SOL_TO_COLMAJ(struct OCP_NLP *qp, struct OCP_NLP_SOL *qp_sol, REAL **u, REAL **x, REAL **ls, REAL **us, REAL **pi, REAL **lam_lb, REAL **lam_ub, REAL **lam_lg, REAL **lam_ug, REAL **lam_ls, REAL **lam_us, REAL *eta0)
+void CVT_OCP_NLP_SOL_TO_COLMAJ(struct OCP_NLP *qp, struct OCP_NLP_SOL *qp_sol, REAL **u, REAL **x, REAL **ls, REAL **us, REAL **pi, REAL **lam_lb, REAL **lam_ub, REAL **lam_lg, REAL **lam_ug, REAL **lam_ls, REAL **lam_us)
 	{
 
 	int N = qp->N;
@@ -191,7 +183,6 @@ void CVT_OCP_NLP_SOL_TO_COLMAJ(struct OCP_NLP *qp, struct OCP_NLP_SOL *qp_sol, R
 	int *nb = qp->nb;
 	int *ng = qp->ng;
 	int *ns = qp->ns;
-	int ne0 = qp->ne0;
 	
 	int ii;
 
@@ -200,9 +191,50 @@ void CVT_OCP_NLP_SOL_TO_COLMAJ(struct OCP_NLP *qp, struct OCP_NLP_SOL *qp_sol, R
 		CVT_STRVEC2VEC(nx[ii+1], qp_sol->pi+ii, 0, pi[ii]);
 		}
 	
-	if(ne0>0)
+	for(ii=0; ii<=N; ii++)
 		{
-		CVT_STRVEC2VEC(ne0, qp_sol->eta0, 0, eta0);
+		CVT_STRVEC2VEC(nu[ii], qp_sol->ux+ii, 0, u[ii]);
+		CVT_STRVEC2VEC(nx[ii], qp_sol->ux+ii, nu[ii], x[ii]);
+		if(nb[ii]>0)
+			{
+			CVT_STRVEC2VEC(nb[ii], qp_sol->lam+ii, 0, lam_lb[ii]);
+			CVT_STRVEC2VEC(nb[ii], qp_sol->lam+ii, nb[ii]+ng[ii], lam_ub[ii]);
+			}
+		if(ng[ii]>0)
+			{
+			CVT_STRVEC2VEC(ng[ii], qp_sol->lam+ii, nb[ii], lam_lg[ii]);
+			CVT_STRVEC2VEC(ng[ii], qp_sol->lam+ii, 2*nb[ii]+ng[ii], lam_ug[ii]);
+			}
+		if(ns[ii]>0)
+			{
+			CVT_STRVEC2VEC(ns[ii], qp_sol->ux+ii, nu[ii]+nx[ii], ls[ii]);
+			CVT_STRVEC2VEC(ns[ii], qp_sol->ux+ii, nu[ii]+nx[ii]+ns[ii], us[ii]);
+			CVT_STRVEC2VEC(ns[ii], qp_sol->lam+ii, 2*nb[ii]+2*ng[ii], lam_ls[ii]);
+			CVT_STRVEC2VEC(ns[ii], qp_sol->lam+ii, 2*nb[ii]+2*ng[ii]+ns[ii], lam_us[ii]);
+			}
+		}
+
+	return;
+
+	}
+
+
+
+void CVT_OCP_NLP_SOL_TO_ROWMAJ(struct OCP_NLP *qp, struct OCP_NLP_SOL *qp_sol, REAL **u, REAL **x, REAL **ls, REAL **us, REAL **pi, REAL **lam_lb, REAL **lam_ub, REAL **lam_lg, REAL **lam_ug, REAL **lam_ls, REAL **lam_us)
+	{
+
+	int N = qp->N;
+	int *nx = qp->nx;
+	int *nu = qp->nu;
+	int *nb = qp->nb;
+	int *ng = qp->ng;
+	int *ns = qp->ns;
+	
+	int ii;
+
+	for(ii=0; ii<N; ii++)
+		{
+		CVT_STRVEC2VEC(nx[ii+1], qp_sol->pi+ii, 0, pi[ii]);
 		}
 
 	for(ii=0; ii<=N; ii++)
@@ -234,7 +266,7 @@ void CVT_OCP_NLP_SOL_TO_COLMAJ(struct OCP_NLP *qp, struct OCP_NLP_SOL *qp_sol, R
 
 
 
-void CVT_OCP_NLP_SOL_TO_ROWMAJ(struct OCP_NLP *qp, struct OCP_NLP_SOL *qp_sol, REAL **u, REAL **x, REAL **ls, REAL **us, REAL **pi, REAL **lam_lb, REAL **lam_ub, REAL **lam_lg, REAL **lam_ug, REAL **lam_ls, REAL **lam_us, REAL *eta0)
+void CVT_OCP_NLP_SOL_TO_LIBSTR(struct OCP_NLP *qp, struct OCP_NLP_SOL *qp_sol, struct STRVEC *u, struct STRVEC *ls, struct STRVEC *us, struct STRVEC *x, struct STRVEC *pi, struct STRVEC *lam_lb, struct STRVEC *lam_ub, struct STRVEC *lam_lg, struct STRVEC *lam_ug, struct STRVEC *lam_ls, struct STRVEC *lam_us)
 	{
 
 	int N = qp->N;
@@ -243,70 +275,12 @@ void CVT_OCP_NLP_SOL_TO_ROWMAJ(struct OCP_NLP *qp, struct OCP_NLP_SOL *qp_sol, R
 	int *nb = qp->nb;
 	int *ng = qp->ng;
 	int *ns = qp->ns;
-	int ne0 = qp->ne0;
-	
-	int ii;
-
-	for(ii=0; ii<N; ii++)
-		{
-		CVT_STRVEC2VEC(nx[ii+1], qp_sol->pi+ii, 0, pi[ii]);
-		}
-
-	if(ne0>0)
-		{
-		CVT_STRVEC2VEC(ne0, qp_sol->eta0, 0, eta0);
-		}
-
-	for(ii=0; ii<=N; ii++)
-		{
-		CVT_STRVEC2VEC(nu[ii], qp_sol->ux+ii, 0, u[ii]);
-		CVT_STRVEC2VEC(nx[ii], qp_sol->ux+ii, nu[ii], x[ii]);
-		if(nb[ii]>0)
-			{
-			CVT_STRVEC2VEC(nb[ii], qp_sol->lam+ii, 0, lam_lb[ii]);
-			CVT_STRVEC2VEC(nb[ii], qp_sol->lam+ii, nb[ii]+ng[ii], lam_ub[ii]);
-			}
-		if(ng[ii]>0)
-			{
-			CVT_STRVEC2VEC(ng[ii], qp_sol->lam+ii, nb[ii], lam_lg[ii]);
-			CVT_STRVEC2VEC(ng[ii], qp_sol->lam+ii, 2*nb[ii]+ng[ii], lam_ug[ii]);
-			}
-		if(ns[ii]>0)
-			{
-			CVT_STRVEC2VEC(ns[ii], qp_sol->ux+ii, nu[ii]+nx[ii], ls[ii]);
-			CVT_STRVEC2VEC(ns[ii], qp_sol->ux+ii, nu[ii]+nx[ii]+ns[ii], us[ii]);
-			CVT_STRVEC2VEC(ns[ii], qp_sol->lam+ii, 2*nb[ii]+2*ng[ii], lam_ls[ii]);
-			CVT_STRVEC2VEC(ns[ii], qp_sol->lam+ii, 2*nb[ii]+2*ng[ii]+ns[ii], lam_us[ii]);
-			}
-		}
-
-	return;
-
-	}
-
-
-
-void CVT_OCP_NLP_SOL_TO_LIBSTR(struct OCP_NLP *qp, struct OCP_NLP_SOL *qp_sol, struct STRVEC *u, struct STRVEC *ls, struct STRVEC *us, struct STRVEC *x, struct STRVEC *pi, struct STRVEC *lam_lb, struct STRVEC *lam_ub, struct STRVEC *lam_lg, struct STRVEC *lam_ug, struct STRVEC *lam_ls, struct STRVEC *lam_us, struct STRVEC *eta0)
-	{
-
-	int N = qp->N;
-	int *nx = qp->nx;
-	int *nu = qp->nu;
-	int *nb = qp->nb;
-	int *ng = qp->ng;
-	int *ns = qp->ns;
-	int ne0 = qp->ne0;
 	
 	int ii;
 
 	for(ii=0; ii<N; ii++)
 		{
 		VECCP_LIBSTR(nx[ii+1], qp_sol->pi+ii, 0, pi+ii, 0);
-		}
-
-	if(ne0>0)
-		{
-		VECCP_LIBSTR(ne0, qp_sol->eta0, 0, eta0, 0);
 		}
 
 	for(ii=0; ii<=N; ii++)

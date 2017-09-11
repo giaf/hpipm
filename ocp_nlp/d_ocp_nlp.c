@@ -59,7 +59,7 @@
 
 
 
-int MEMSIZE_OCP_NLP(int N, int *nx, int *nu, int *nb, int *ng, int *ns, int ne0)
+int MEMSIZE_OCP_NLP(int N, int *nx, int *nu, int *nb, int *ng, int *ns)
 	{
 
 	int ii;
@@ -90,7 +90,6 @@ int MEMSIZE_OCP_NLP(int N, int *nx, int *nu, int *nb, int *ng, int *ns, int ne0)
 		size += 2*SIZE_STRVEC(2*ns[ii]); // Z z
 		}
 	
-	size += 1*SIZE_STRVEC(ne0); // e0
 	size += 1*SIZE_STRVEC(nuxM); // tmp_nuxM
 
 	size = (size+63)/64*64; // make multiple of typical cache line size
@@ -101,7 +100,7 @@ int MEMSIZE_OCP_NLP(int N, int *nx, int *nu, int *nb, int *ng, int *ns, int ne0)
 
 
 
-void CREATE_OCP_NLP(int N, int *nx, int *nu, int *nb, int *ng, int *ns, int ne0, struct OCP_NLP *nlp, void *mem)
+void CREATE_OCP_NLP(int N, int *nx, int *nu, int *nb, int *ng, int *ns, struct OCP_NLP *nlp, void *mem)
 	{
 
 	int ii;
@@ -163,9 +162,6 @@ void CREATE_OCP_NLP(int N, int *nx, int *nu, int *nb, int *ng, int *ns, int ne0,
 	// z
 	nlp->z = sv_ptr;
 	sv_ptr += N+1;
-	// e0
-	nlp->e0 = sv_ptr;
-	sv_ptr += 1;
 	// tmp_nuxM
 	nlp->tmp_nuxM = sv_ptr;
 	sv_ptr += 1;
@@ -222,8 +218,6 @@ void CREATE_OCP_NLP(int N, int *nx, int *nu, int *nb, int *ng, int *ns, int ne0,
 		(nlp->idxs)[ii] = i_ptr;
 		i_ptr += ns[ii];
 		}
-	// ne0
-	nlp->ne0 = ne0;
 
 
 	// align to typical cache line size
@@ -273,15 +267,12 @@ void CREATE_OCP_NLP(int N, int *nx, int *nu, int *nb, int *ng, int *ns, int ne0,
 		CREATE_STRVEC(2*ns[ii], nlp->z+ii, c_ptr);
 		c_ptr += (nlp->z+ii)->memory_size;
 		}
-	// e0
-	CREATE_STRVEC(ne0, nlp->e0, c_ptr);
-	c_ptr += nlp->e0->memory_size;
 	// tmp_nuxM
 	CREATE_STRVEC(nuxM, nlp->tmp_nuxM, c_ptr);
 	c_ptr += nlp->tmp_nuxM->memory_size;
 
 
-	nlp->memsize = MEMSIZE_OCP_NLP(N, nx, nu, nb, ng, ns, ne0);
+	nlp->memsize = MEMSIZE_OCP_NLP(N, nx, nu, nb, ng, ns);
 
 
 #if defined(RUNTIME_CHECKS)
@@ -299,7 +290,7 @@ void CREATE_OCP_NLP(int N, int *nx, int *nu, int *nb, int *ng, int *ns, int ne0,
 
 
 
-void CVT_COLMAJ_TO_OCP_NLP(struct OCP_NLP_MODEL *model, REAL *e0, REAL **Q, REAL **S, REAL **R, REAL **x_ref, REAL **u_ref, int **idxb, REAL **d_lb, REAL **d_ub, REAL **C, REAL **D, REAL **d_lg, REAL **d_ug, REAL **Zl, REAL **Zu, REAL **zl, REAL **zu, int **idxs, struct OCP_NLP *nlp)
+void CVT_COLMAJ_TO_OCP_NLP(struct OCP_NLP_MODEL *model, REAL **Q, REAL **S, REAL **R, REAL **x_ref, REAL **u_ref, int **idxb, REAL **d_lb, REAL **d_ub, REAL **C, REAL **D, REAL **d_lg, REAL **d_ug, REAL **Zl, REAL **Zu, REAL **zl, REAL **zu, int **idxs, struct OCP_NLP *nlp)
 	{
 
 	int N = nlp->N;
@@ -308,18 +299,12 @@ void CVT_COLMAJ_TO_OCP_NLP(struct OCP_NLP_MODEL *model, REAL *e0, REAL **Q, REAL
 	int *nb = nlp->nb;
 	int *ng = nlp->ng;
 	int *ns = nlp->ns;
-	int ne0 = nlp->ne0;
 
 	int ii, jj;
 
 	for(ii=0; ii<N; ii++)
 		{
 		nlp->model[ii] = model[ii];
-		}
-	
-	if(ne0>0)
-		{
-		CVT_VEC2STRVEC(ne0, e0, nlp->e0, 0);
 		}
 	
 	for(ii=0; ii<=N; ii++)

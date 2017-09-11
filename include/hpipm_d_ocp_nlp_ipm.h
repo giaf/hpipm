@@ -38,6 +38,7 @@ struct d_ocp_nlp_ipm_workspace
 	struct d_ocp_qp *qp;
 	struct d_ocp_qp_sol *qp_sol;
 	struct d_ocp_qp_ipm_workspace *ipm_workspace;
+	struct d_elim_init_stage_workspace *elim_workspace;
 	struct d_erk_workspace *erk_workspace;
 	struct d_strvec *tmp_nuxM;
 	struct d_strvec *tmp_nbgM;

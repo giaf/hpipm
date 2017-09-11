@@ -43,7 +43,6 @@ struct d_ocp_nlp_model
 struct d_ocp_nlp
 	{
 	struct d_ocp_nlp_model *model;
-	struct d_strvec *e0; // constraint on state at stage 0
 	struct d_strmat *RSQ; // hessian
 	struct d_strvec *rq; // gradient
 	struct d_strmat *DCt; // constraints matrix
@@ -58,7 +57,6 @@ struct d_ocp_nlp
 	int *ng; // number of general constraints
 	int *ns; // number of soft constraints
 	int **idxs; // index of soft constraints
-	int ne0; // number of constrained states at stage 0
 	int N; // hotizon lenght
 	int memsize; // memory size in bytes
 	};
@@ -66,8 +64,8 @@ struct d_ocp_nlp
 
 
 //
-int d_memsize_ocp_nlp(int N, int *nx, int *nu, int *nb, int *ng, int *ns, int ne0);
+int d_memsize_ocp_nlp(int N, int *nx, int *nu, int *nb, int *ng, int *ns);
 //
-void d_create_ocp_nlp(int N, int *nx, int *nu, int *nb, int *ng, int *ns, int ne0, struct d_ocp_nlp *nlp, void *memory);
+void d_create_ocp_nlp(int N, int *nx, int *nu, int *nb, int *ng, int *ns, struct d_ocp_nlp *nlp, void *memory);
 //
-void d_cvt_colmaj_to_ocp_nlp(struct d_ocp_nlp_model *model, double *e0, double **Q, double **S, double **R, double **x_ref, double **u_ref, int **idxb, double **d_lb, double **d_ub, double **C, double **D, double **d_lg, double **d_ug, double **Zl, double **Zu, double **zl, double **zu, int **idxs, struct d_ocp_nlp *nlp);
+void d_cvt_colmaj_to_ocp_nlp(struct d_ocp_nlp_model *model, double **Q, double **S, double **R, double **x_ref, double **u_ref, int **idxb, double **d_lb, double **d_ub, double **C, double **D, double **d_lg, double **d_ug, double **Zl, double **Zu, double **zl, double **zu, int **idxs, struct d_ocp_nlp *nlp);

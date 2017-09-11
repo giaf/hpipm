@@ -250,14 +250,12 @@ int main()
 	int nb[N+1];
 	int ng[N+1];
 	int ns[N+1];
-	int ne0;
 
 	nx[0] = nx_;//0;
 	nu[0] = nu_;
-	nb[0] = nu_;
+	nb[0] = nu_+nx_;
 	ng[0] = 0;
 	ns[0] = 0;
-	ne0 = nx_;
 	for(ii=1; ii<N; ii++)
 		{
 		nx[ii] = nx_;
@@ -302,6 +300,12 @@ int main()
 			{
 			d_lb0[ii] = - 0.5; // umin
 			d_ub0[ii] =   0.5; // umax
+			idxb0[ii] = ii;
+			}
+		else // (initial) state
+			{
+			d_lb0[ii] = x0[ii-nu[0]]; // xmin
+			d_ub0[ii] = x0[ii-nu[0]]; // xmax
 			idxb0[ii] = ii;
 			}
 		}
@@ -460,7 +464,6 @@ int main()
 ************************************************/	
 
 	struct d_ocp_nlp_model models[N];
-	double *e0;
 	double *hQ[N+1];
 	double *hS[N+1];
 	double *hR[N+1];
@@ -480,7 +483,6 @@ int main()
 	int *hidxs[N+1]; // XXX
 
 	models[0] = model1;
-	e0 = malloc(nx_*sizeof(double));
 	hQ[0] = Q;
 	hS[0] = S;
 	hR[0] = R;
@@ -541,28 +543,25 @@ int main()
 * ocp nlp
 ************************************************/	
 	
-	int nlp_size = d_memsize_ocp_nlp(N, nx, nu, nb, ng, ns, ne0);
+	int nlp_size = d_memsize_ocp_nlp(N, nx, nu, nb, ng, ns);
 	printf("\nnlpsize = %d\n", nlp_size);
 	void *nlp_mem = malloc(nlp_size);
 
 	struct d_ocp_nlp nlp;
-	d_create_ocp_nlp(N, nx, nu, nb, ng, ns, ne0, &nlp, nlp_mem);
+	d_create_ocp_nlp(N, nx, nu, nb, ng, ns, &nlp, nlp_mem);
 
-	// initial state constraint
-	for(ii=0; ii<nx_; ii++) e0[ii] = x0[ii];
-
-	d_cvt_colmaj_to_ocp_nlp(models, e0, hQ, hS, hR, hx_ref, hu_ref, hidxb, hd_lb, hd_ub, hC, hD, hd_lg, hd_ug, hZl, hZu, hzl, hzu, hidxs, &nlp);
+	d_cvt_colmaj_to_ocp_nlp(models, hQ, hS, hR, hx_ref, hu_ref, hidxb, hd_lb, hd_ub, hC, hD, hd_lg, hd_ug, hZl, hZu, hzl, hzu, hidxs, &nlp);
 
 /************************************************
 * ocp nlp sol
 ************************************************/	
 	
-	int nlp_sol_size = d_memsize_ocp_nlp_sol(N, nx, nu, nb, ng, ns, ne0);
+	int nlp_sol_size = d_memsize_ocp_nlp_sol(N, nx, nu, nb, ng, ns);
 	printf("\nnlp sol size = %d\n", nlp_sol_size);
 	void *nlp_sol_mem = malloc(nlp_sol_size);
 
 	struct d_ocp_nlp_sol nlp_sol;
-	d_create_ocp_nlp_sol(N, nx, nu, nb, ng, ns, ne0, &nlp_sol, nlp_sol_mem);
+	d_create_ocp_nlp_sol(N, nx, nu, nb, ng, ns, &nlp_sol, nlp_sol_mem);
 
 /************************************************
 * ocp nlp sqp arg
@@ -576,7 +575,7 @@ int main()
 	sqp_arg.ipm_arg = &arg;
 	sqp_arg.rk_data = &rk_data;
 	sqp_arg.erk_arg = erk_args;
-	sqp_arg.nlp_res_g_max = 1e-12;
+	sqp_arg.nlp_res_g_max = 1e-8;
 	sqp_arg.nlp_res_b_max = 1e-12;
 	sqp_arg.nlp_res_d_max = 1e-12;
 	sqp_arg.nlp_res_m_max = 1e-12;
@@ -628,9 +627,8 @@ int main()
 	double *lam_ug[N+1]; for(ii=0; ii<=N; ii++) d_zeros(lam_ug+ii, ng[ii], 1);
 	double *lam_ls[N+1]; for(ii=0; ii<=N; ii++) d_zeros(lam_ls+ii, ns[ii], 1);
 	double *lam_us[N+1]; for(ii=0; ii<=N; ii++) d_zeros(lam_us+ii, ns[ii], 1);
-	double *eta0 = malloc(ne0*sizeof(double));
 
-	d_cvt_ocp_nlp_sol_to_colmaj(&nlp, &nlp_sol, u, x, ls, us, pi, lam_lb, lam_ub, lam_lg, lam_ug, lam_ls, lam_us, eta0);
+	d_cvt_ocp_nlp_sol_to_colmaj(&nlp, &nlp_sol, u, x, ls, us, pi, lam_lb, lam_ub, lam_lg, lam_ug, lam_ls, lam_us);
 
 #if 1
 	printf("\nsolution\n\n");
@@ -667,8 +665,6 @@ int main()
 	printf("\nlam_us\n");
 	for(ii=0; ii<=N; ii++)
 		d_print_mat(1, ns[ii], lam_us[ii], 1);
-	printf("\neta0\n");
-	d_print_mat(1, ne0, eta0, 1);
 
 	printf("\nt_lb\n");
 	for(ii=0; ii<=N; ii++)

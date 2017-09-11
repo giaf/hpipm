@@ -104,7 +104,6 @@ int MEMSIZE_OCP_NLP_IPM(struct OCP_NLP *nlp, struct OCP_NLP_IPM_ARG *arg)
 	int *nb = nlp->nb;
 	int *ng = nlp->ng;
 	int *ns = nlp->ns;
-	int ne0 = nlp->ne0;
 
 	int nuxM = 0;
 	int nbgM = 0;
@@ -130,13 +129,6 @@ int MEMSIZE_OCP_NLP_IPM(struct OCP_NLP *nlp, struct OCP_NLP_IPM_ARG *arg)
 	size += SIZE_STRVEC(nuxM); // tmp_nuxM
 	size += SIZE_STRVEC(nbgM); // tmp_nbgM
 
-	// remove initial state form optimization variables
-//	if(ne0>0) // TODO what if 0 < ne0 < nx[0] ???
-//		{
-//		nx0_tmp = nx[0];
-//		nx[0] = 0;
-//		}
-
 	size += MEMSIZE_OCP_QP(N, nx, nu, nb, ng, ns);
 	size += MEMSIZE_OCP_QP_SOL(N, nx, nu, nb, ng, ns);
 
@@ -151,12 +143,6 @@ int MEMSIZE_OCP_NLP_IPM(struct OCP_NLP *nlp, struct OCP_NLP_IPM_ARG *arg)
 	qp.idxs = nlp->idxs;
 
 	size += MEMSIZE_OCP_QP_IPM(&qp, arg->ipm_arg);
-
-	// restore initial state into optimization variables
-//	if(ne0>0) // TODO what if 0 < ne0 < nx[0] ???
-//		{
-//		nx[0] = nx0_tmp;
-//		}
 
 	for(ii=0; ii<N; ii++)
 		{
@@ -185,7 +171,6 @@ void CREATE_OCP_NLP_IPM(struct OCP_NLP *nlp, struct OCP_NLP_IPM_ARG *arg, struct
 	int *nb = nlp->nb;
 	int *ng = nlp->ng;
 	int *ns = nlp->ns;
-	int ne0 = nlp->ne0;
 
 	int nuxM = 0;
 	int nbgM = 0;
@@ -224,13 +209,6 @@ void CREATE_OCP_NLP_IPM(struct OCP_NLP *nlp, struct OCP_NLP_IPM_ARG *arg, struct
 	// void stuf
 	char *c_ptr = (char *) erk_ws_ptr;
 
-	// remove initial state form optimization variables
-//	if(ne0>0) // TODO what if 0 < ne0 < nx[0] ???
-//		{
-//		nx0_tmp = nx[0];
-//		nx[0] = 0;
-//		}
-
 	//
 	CREATE_OCP_QP(N, nx, nu, nb, ng, ns, ws->qp, c_ptr);
 	c_ptr += ws->qp->memsize;
@@ -240,12 +218,6 @@ void CREATE_OCP_NLP_IPM(struct OCP_NLP *nlp, struct OCP_NLP_IPM_ARG *arg, struct
 	//
 	CREATE_OCP_QP_IPM(ws->qp, arg->ipm_arg, ws->ipm_workspace, c_ptr);
 	c_ptr += ws->ipm_workspace->memsize;
-
-	// restore initial state into optimization variables
-//	if(ne0>0) // TODO what if 0 < ne0 < nx[0] ???
-//		{
-//		nx[0] = nx0_tmp;
-//		}
 
 	//
 	for(ii=0; ii<N; ii++)
@@ -352,8 +324,6 @@ int SOLVE_OCP_NLP_IPM(struct OCP_NLP *nlp, struct OCP_NLP_SOL *nlp_sol, struct O
 	int *ng = qp->ng;
 	int *ns = qp->ns;
 
-	int ne0 = nlp->ne0;
-
 	double *x, *xn, *u;
 
 	double tmp;
@@ -384,35 +354,10 @@ int SOLVE_OCP_NLP_IPM(struct OCP_NLP *nlp, struct OCP_NLP_SOL *nlp_sol, struct O
 		dvecse_libstr(2*nlp->nb[nn]+2*nlp->ng[nn], 0.0, nlp_sol->lam+nn, 0);
 	for(nn=0; nn<=N; nn++)
 		dvecse_libstr(2*nlp->nb[nn]+2*nlp->ng[nn], 0.0, nlp_sol->t+nn, 0);
-	// fix initial state to e0
-	dveccp_libstr(ne0, nlp->e0, 0, nlp_sol->ux+0, nlp->nu[0]);
 
 
 	// copy nlp into qp
 	nn = 0;
-	if(ne0>0)
-		{
-		// TODO what if 0 < ne0 < nx[0] ???
-		// remove initial state form QP variables
-		nx[0] = 0;
-		// cost function
-		dgecp_libstr(nu[0], nu[0], nlp->RSQ+0, 0, 0, qp->RSQrq+0, 0, 0);
-		dgemv_t_libstr(nlp->nx[0], nlp->nu[0], 1.0, nlp->RSQ+0, nlp->nu[0], 0, nlp->e0, 0, 1.0, nlp->rq+0, 0, qp->rq+0, 0);
-		// box constraints
-		// XXX assume that there are not box constraints on x0 !!!!!
-		dveccp_libstr(nb[0], nlp->d+0, 0, qp->d+0, 0);
-		dveccp_libstr(nb[0], nlp->d+0, nlp->nb[0]+nlp->ng[0], qp->d+0, nb[0]+ng[0]);
-		for(ii=0; ii<nb[0]; ii++) qp->idxb[0][ii] = nlp->idxb[0][ii];
-		// general constraints
-		dgecp_libstr(nu[0], ng[0], nlp->DCt+0, 0, 0, qp->DCt+0, 0, 0);
-		dgemv_t_libstr(nlp->nx[0], nlp->ng[0], 1.0, nlp->DCt+0, nlp->nu[0], 0, nlp->e0, 0, 0.0, tmp_nbgM, 0, tmp_nbgM, 0);
-		daxpy_libstr(ng[0], -1.0, tmp_nbgM, 0, nlp->d+0, nlp->nb[0], qp->d+0, nb[0]);
-		daxpy_libstr(ng[0], -1.0, tmp_nbgM, 0, nlp->d+0, 2*(nlp->nb[0])+nlp->ng[0], qp->d+0, 2*nb[0]+ng[0]);
-		// softed constraints
-		dveccp_libstr(2*ns[0], nlp->d+0, 2*(nlp->nb[0]+nlp->ng[0]), qp->d+0, 2*nb[0]+2*ng[0]);
-		for(ii=0; ii<ns[0]; ii++) qp->idxs[0][ii] = nlp->idxs[0][ii];
-		nn++;
-		}
 	for(; nn<=N; nn++)
 		{
 		dgecp_libstr(nu[nn]+nx[nn], nu[nn]+nx[nn], nlp->RSQ+nn, 0, 0, qp->RSQrq+nn, 0, 0);
@@ -447,10 +392,6 @@ int SOLVE_OCP_NLP_IPM(struct OCP_NLP *nlp, struct OCP_NLP_SOL *nlp_sol, struct O
 //for(ii=0; ii<N; ii++)
 //	d_print_e_strmat(nlp->nu[ii]+nlp->nx[ii]+1, nlp->nx[ii+1], qp->BAbt+ii, 0, 0);
 	
-
-		// eliminate x0 from optimization variables
-		dgemv_t_libstr(nlp->nx[0], nlp->nx[1], 1.0, qp->BAbt+0, nu[0], 0, nlp->e0, 0, 1.0, qp->b+0, 0, qp->b+0, 0);
-		// TODO r0 d_lg0 d_ug0
 
 #if 0
 printf("\n%d %d\n", nu[0], nx[0]);
