@@ -51,6 +51,12 @@
 
 
 
+#define AXPY_LIBSTR daxpy_libstr
+#define GEMV_T_LIBSTR dgemv_t_libstr
+#define ROWIN_LIBSTR drowin_libstr
+#define SYMV_L_LIBSTR dsymv_l_libstr
+#define VECEX_SP_LIBSTR dvecex_sp_libstr
+
 #define COMPUTE_RES_OCP_QP d_compute_res_ocp_qp
 #define CORE_QP_IPM_WORKSPACE d_core_qp_ipm_workspace
 #define CREATE_ERK_INT d_create_erk_int
@@ -342,11 +348,10 @@ int SOLVE_OCP_NLP_SQP(struct OCP_NLP *nlp, struct OCP_NLP_SOL *nlp_sol, struct O
 			}
 
 	
-		// setup qp
+		// setup gradient
 		for(nn=0; nn<=N; nn++)
 			dveccp_libstr(nu[nn]+nx[nn], nlp->rq+nn, 0, qp->rq+nn, 0);
-//		for(nn=0; nn<N; nn++)
-//			dvecse_libstr(nx[nn+1], 0.0, qp->b+nn, 0);
+		// setup constraints
 		for(nn=0; nn<=N; nn++)
 			dveccp_libstr(2*nb[nn]+2*ng[nn], nlp->d+nn, 0, qp->d+nn, 0);
 
@@ -416,32 +421,47 @@ printf("\n\niter %d nlp inf norm res %e %e %e %e\n", ss, nlp_res[0], nlp_res[1],
 			}
 
 
-		// set to zero multipliers and slacks
-		for(nn=0; nn<N; nn++)
-			dvecse_libstr(nx[nn+1], 0.0, qp_sol->pi+nn, 0);
+		// update RHS
 		for(nn=0; nn<=N; nn++)
-			dvecse_libstr(2*nb[nn]+2*ng[nn]+2*ns[ii], 0.0, qp_sol->lam+nn, 0);
-		for(nn=0; nn<=N; nn++)
-			dvecse_libstr(2*nb[nn]+2*ng[nn]+2*ns[ii], 0.0, qp_sol->t+nn, 0);
+			{
 
-		// compute residuals
-		COMPUTE_RES_OCP_QP(qp, qp_sol, ipm_ws);
+			// gradient
+			SYMV_L_LIBSTR(nu[nn]+nx[nn], nu[nn]+nx[nn], 1.0, qp->RSQrq+nn, 0, 0, qp_sol->ux+nn, 0, 1.0, qp->rq+nn, 0, qp->rq+nn, 0);
+			ROWIN_LIBSTR(nu[nn]+nx[nn], 1.0, qp->rq+nn, 0, qp->RSQrq+nn, nu[nn]+nx[nn], 0);
 
-		// copy residuals into qp rhs
-		for(nn=0; nn<=N; nn++)
-			{
-			dveccp_libstr(nu[nn]+nx[nn], ipm_ws->res_g+nn, 0, qp->rq+nn, 0);
-			drowin_libstr(nu[nn]+nx[nn], 1.0, qp->rq+nn, 0, qp->RSQrq+nn, nu[nn]+nx[nn], 0);
-			}
-		for(nn=0; nn<N; nn++)
-			{
-			dveccp_libstr(nx[nn+1], ipm_ws->res_b+nn, 0, qp->b+nn, 0);
-			drowin_libstr(nx[nn+1], 1.0, qp->b+nn, 0, qp->BAbt+nn, nu[nn]+nx[nn], 0);
-			}
-		for(nn=0; nn<=N; nn++)
-			{
-			dveccp_libstr(2*nb[nn]+2*ng[nn], ipm_ws->res_d+nn, 0, qp->d+nn, 0);
-			dvecsc_libstr(nb[nn]+ng[nn], -1.0, qp->d+nn, nb[nn]+ng[nn]);
+			// constraints
+			if(nb[nn]+ng[nn]>0)
+				{
+				// box
+				if(nb[nn]>0)
+					{
+					VECEX_SP_LIBSTR(nb[nn], 1.0, qp->idxb[nn], qp_sol->ux+nn, 0, ipm_ws->tmp_nbgM, 0);
+					}
+				// general
+				if(ng[nn]>0)
+					{
+					GEMV_T_LIBSTR(nu[nn]+nx[nn], ng[nn], 1.0, qp->DCt+nn, 0, 0, qp_sol->ux+nn, 0, 0.0, ipm_ws->tmp_nbgM, nb[nn], ipm_ws->tmp_nbgM, nb[nn]);
+					}
+
+				AXPY_LIBSTR(nb[nn]+ng[nn], -1.0, ipm_ws->tmp_nbgM, 0, qp->d+nn, 0, qp->d+nn, 0);
+				AXPY_LIBSTR(nb[nn]+ng[nn], -1.0, ipm_ws->tmp_nbgM, 0, qp->d+nn, nb[nn]+ng[nn], qp->d+nn, nb[nn]+ng[nn]);
+				}
+			if(ns[nn]>0)
+				{
+				// TODO soft constraints
+				}
+
+			// dynamics
+			if(nn<N)
+				{
+
+				AXPY_LIBSTR(nx[nn+1], -1.0, qp_sol->ux+(nn+1), nu[nn+1], qp->b+nn, 0, qp->b+nn, 0);
+
+				GEMV_T_LIBSTR(nu[nn]+nx[nn], nx[nn+1], 1.0, qp->BAbt+nn, 0, 0, qp_sol->ux+nn, 0, 1.0, qp->b+nn, 0, qp->b+nn, 0);
+				ROWIN_LIBSTR(nx[nn+1], 1.0, qp->b+nn, 0, qp->BAbt+nn, nu[nn]+nx[nn], 0);
+
+				}
+
 			}
 
 
@@ -453,11 +473,8 @@ for(nn=0; nn<N; nn++)
 	d_print_strmat(nu[nn]+nx[nn]+1, nx[nn+1], qp->BAbt+nn, 0, 0);
 for(nn=0; nn<=N; nn++)
 	d_print_tran_strvec(2*nb[nn]+2*ng[nn]+2*ns[nn], qp->d+nn, 0);
-//exit(1);
+exit(1);
 #endif
-
-		// set x0 to 0 in qp
-		dvecse_libstr(nx[0], 0.0, qp_sol->ux+0, nu[0]);
 
 
 #if 0

@@ -226,12 +226,10 @@ void COMPUTE_RES_OCP_QP(struct OCP_QP *qp, struct OCP_QP_SOL *qp_sol, struct OCP
 		ng0 = ng[ii];
 		ns0 = ns[ii];
 
-		VECCP_LIBSTR(nu0+nx0, rq+ii, 0, res_g+ii, 0);
+		SYMV_L_LIBSTR(nu0+nx0, nu0+nx0, 1.0, RSQrq+ii, 0, 0, ux+ii, 0, 1.0, rq+ii, 0, res_g+ii, 0);
 
 		if(ii>0)
 			AXPY_LIBSTR(nx0, -1.0, pi+(ii-1), 0, res_g+ii, nu0, res_g+ii, nu0);
-
-		SYMV_L_LIBSTR(nu0+nx0, nu0+nx0, 1.0, RSQrq+ii, 0, 0, ux+ii, 0, 1.0, res_g+ii, 0, res_g+ii, 0);
 
 		if(nb0+ng0>0)
 			{
