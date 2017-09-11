@@ -32,6 +32,11 @@
 #include <stdio.h>
 #endif
 
+#include <blasfeo_target.h>
+#include <blasfeo_common.h>
+#include <blasfeo_d_aux.h>
+#include <blasfeo_d_blas.h>
+
 #include "../include/hpipm_d_rk_int.h"
 #include "../include/hpipm_d_erk_int.h"
 
@@ -179,6 +184,10 @@ void d_erk_int(struct d_erk_args *erk_args, struct d_erk_workspace *ws)
 	double *B_rk = rk_data->B_rk;
 	double *C_rk = rk_data->C_rk;
 
+	struct d_strvec sxt; // XXX
+	struct d_strvec sK; // XXX
+	sxt.pa = xt; // XXX
+
 	int ii, jj, step, ss;
 	double t, a, b;
 
@@ -199,9 +208,14 @@ void d_erk_int(struct d_erk_args *erk_args, struct d_erk_workspace *ws)
 				a = A_rk[ss+ns*ii];
 				if(a!=0)
 					{
+					sK.pa = K+ii*nX; // XXX
 					a *= h;
+#if 0
+					daxpy_libstr(nX, a, &sK, 0, &sxt, 0, &sxt, 0); // XXX
+#else
 					for(jj=0; jj<nX; jj++)
 						xt[jj] += a*K[jj+ii*(nX)];
+#endif
 					}
 				}
 			ws->ode(t+h*C_rk[ss], xt, p, ws->ode_args, K+ss*(nX));
