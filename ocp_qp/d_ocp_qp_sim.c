@@ -39,7 +39,7 @@
 
 
 
-void d_cvt_erk_int_to_ocp_qp(int n, struct d_erk_workspace *erk_ws, double *xn, struct d_ocp_qp *qp, struct d_ocp_nlp_sol *nlp_sol)
+void d_cvt_erk_int_to_ocp_qp(int n, struct d_erk_workspace *erk_ws, struct d_ocp_qp *qp, struct d_ocp_nlp_sol *nlp_sol)
 	{
 
 	int ii;
@@ -60,14 +60,14 @@ void d_cvt_erk_int_to_ocp_qp(int n, struct d_erk_workspace *erk_ws, double *xn, 
 	double *tmp;
 
 //	d_cvt_tran_mat2strmat(nx[1], nu[0]+nx[0], x, nx[1], BAbt, 0, 0);
-	d_cvt_tran_mat2strmat(nx, nf, x, nx, BAbt, 0, 0);
+	d_cvt_tran_mat2strmat(nx, nf, x+nx, nx, BAbt, 0, 0);
 
 	// XXX not compute this again in residuals !!!
 //	tmp = x+nx*nf;
 //	for(ii=0; ii<nx; ii++)
 //		xt[ii] = tmp[ii] - xn[ii];
 //printf("\n%d\n", nf);
-	d_cvt_vec2strvec(nx, x+nf*nx, b, 0);
+	d_cvt_vec2strvec(nx, x, b, 0);
 	dgemv_t_libstr(nf, nx, -1.0, BAbt, 0, 0, ux, 0, 1.0, b, 0, b, 0);
 //d_print_strvec(nx, b, 0);
 	

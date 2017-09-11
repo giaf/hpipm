@@ -122,7 +122,6 @@ int MEMSIZE_OCP_NLP_IPM(struct OCP_NLP *nlp, struct OCP_NLP_IPM_ARG *arg)
 	size += 1*sizeof(struct OCP_QP_IPM_WORKSPACE);
 	size += N*sizeof(struct ERK_WORKSPACE);
 	size += 2*sizeof(struct STRVEC); // tmp_nuxM tmp_nbgM
-	size += N*sizeof(REAL *); // fs
 
 	size += SIZE_STRVEC(nuxM); // tmp_nuxM
 	size += SIZE_STRVEC(nbgM); // tmp_nbgM
@@ -148,7 +147,6 @@ int MEMSIZE_OCP_NLP_IPM(struct OCP_NLP *nlp, struct OCP_NLP_IPM_ARG *arg)
 	for(ii=0; ii<N; ii++)
 		{
 		size += MEMSIZE_ERK_INT(arg->rk_data, nx[ii], nx[ii]+nu[ii], nu[ii]);
-		size += N*nx[ii]*(nu[ii]+nx[ii])*sizeof(REAL); // fs
 		}
 
 	size = (size+63)/64*64; // make multiple of typical cache line size
@@ -231,25 +229,9 @@ void CREATE_OCP_NLP_IPM(struct OCP_NLP *nlp, struct OCP_NLP_IPM_ARG *arg, struct
 	
 	//
 	REAL **dp_ptr = (REAL **) c_ptr;
-	//
-	ws->fs = dp_ptr;
-	dp_ptr += N;
 
 	//
-	REAL *d_ptr = (REAL *) dp_ptr;
-	//
-	for(ii=0; ii<N; ii++)
-		{
-		ws->fs[ii] = d_ptr;
-		d_ptr += nx[ii]*(nu[ii]+nx[ii]);
-		for(jj=0; jj<nx[ii]*(nu[ii]+nx[ii]); jj++)
-			ws->fs[ii][jj] = 0.0;
-		for(jj=0; jj<nx[ii]; jj++)
-			ws->fs[ii][nu[ii]*nx[ii]+jj*(nx[ii]+1)] = 1.0;
-		}
-	
-	//
-	struct STRVEC *sv_ptr = (struct STRVEC *) d_ptr;
+	struct STRVEC *sv_ptr = (struct STRVEC *) dp_ptr;
 	//
 	ws->tmp_nuxM = sv_ptr;
 	sv_ptr += 1;
@@ -324,7 +306,7 @@ int SOLVE_OCP_NLP_IPM(struct OCP_NLP *nlp, struct OCP_NLP_SOL *nlp_sol, struct O
 	int *ng = qp->ng;
 	int *ns = qp->ns;
 
-	double *x, *xn, *u;
+	double *x, *u;
 
 	double tmp;
 
@@ -342,7 +324,6 @@ int SOLVE_OCP_NLP_IPM(struct OCP_NLP *nlp, struct OCP_NLP_SOL *nlp_sol, struct O
 	str_res_m.pa = cws->res_m;
 
 	double nlp_res[4];
-	double qp_res[4];
 
 
 	// initialize nlp sol
@@ -382,11 +363,10 @@ int SOLVE_OCP_NLP_IPM(struct OCP_NLP *nlp, struct OCP_NLP_SOL *nlp_sol, struct O
 		for(nn=0; nn<N; nn++)
 			{
 			x  = (nlp_sol->ux+nn)->pa+nu[nn];
-			xn = (nlp_sol->ux+nn+1)->pa+nu[nn+1];
 			u  = (nlp_sol->ux+nn)->pa;
-			d_init_erk_int(x, ws->fs[nn], u, (nlp->model+nn)->expl_vde, (nlp->model+nn)->arg, erk_ws+nn);
+			d_init_erk_int(x, (nlp->model+nn)->forward_seed, u, (nlp->model+nn)->expl_vde, (nlp->model+nn)->arg, erk_ws+nn);
 			d_erk_int(erk_arg+nn, erk_ws+nn);
-			d_cvt_erk_int_to_ocp_qp(nn, erk_ws+nn, xn, qp, nlp_sol);
+			d_cvt_erk_int_to_ocp_qp(nn, erk_ws+nn, qp, nlp_sol);
 			}
 
 //for(ii=0; ii<N; ii++)
@@ -473,25 +453,8 @@ d_print_e_mat(1, cws->ne, cws->dpi, 1);
 d_print_e_mat(1, cws->nc, cws->dlam, 1);
 d_print_e_mat(1, cws->nc, cws->dt, 1);
 #endif
-		//
+		// update QP variables
 		UPDATE_VAR_QP(cws);
-
-		// compute residuals
-		COMPUTE_RES_OCP_QP(qp, qp_sol, ipm_ws);
-		cws->mu = ipm_ws->res_mu;
-		if(ss<ipm_ws->stat_max)
-			ipm_ws->stat[5*ss+4] = ipm_ws->res_mu;
-
-		// compute infinity norm of residuals
-		dvecnrm_inf_libstr(cws->nv, &str_res_g, 0, &qp_res[0]);
-		dvecnrm_inf_libstr(cws->ne, &str_res_b, 0, &qp_res[1]);
-		dvecnrm_inf_libstr(cws->nc, &str_res_d, 0, &qp_res[2]);
-		dvecnrm_inf_libstr(cws->nc, &str_res_m, 0, &qp_res[3]);
-
-#if 0
-printf("\nqp inf norm res %e %e %e %e\n", qp_res[0], qp_res[1], qp_res[2], qp_res[3]);
-#endif
-
 
 #if 0
 d_print_e_tran_mat(5, kk, ipm_ws->stat, 5);
@@ -516,7 +479,7 @@ d_print_e_tran_mat(5, kk, ipm_ws->stat, 5);
 	ws->nlp_res_d = nlp_res[2];
 	ws->nlp_res_m = nlp_res[3];
 
-	return 0;
+	return 1;
 
 	}
 

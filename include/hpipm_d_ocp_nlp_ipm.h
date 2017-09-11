@@ -42,7 +42,6 @@ struct d_ocp_nlp_ipm_workspace
 	struct d_erk_workspace *erk_workspace;
 	struct d_strvec *tmp_nuxM;
 	struct d_strvec *tmp_nbgM;
-	double **fs; // initialization of forward sensitivities
 	double nlp_res_g; // exit inf norm of residuals
 	double nlp_res_b; // exit inf norm of residuals
 	double nlp_res_d; // exit inf norm of residuals

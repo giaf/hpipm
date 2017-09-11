@@ -62,15 +62,16 @@ void d_van_der_pol_ode(int t, double *x, double *u, void *ode_args, double *xdot
 
 
 
-void d_van_der_pol_vde(int t, double *x, double *u, void *ode_args, double *xdot)
+void d_van_der_pol_vde0(int t, double *x, double *u, void *ode_args, double *xdot)
 	{
 	double mu = 1.0;
 	int ii, jj, kk;
 	double *xdot_tmp, *x_tmp;
 	int nx = 2;
 	int nu = 1;
+	// jacobian of ode
 	double Ac[4];
-	x_tmp = x+nx*(nu+nx);
+	x_tmp = x;
 	Ac[0+nx*0] = 0.0;
 	Ac[0+nx*1] = 1.0;
 	Ac[1+nx*0] = - 1.0 - 2.0*mu*x_tmp[0]*x_tmp[1];
@@ -78,35 +79,68 @@ void d_van_der_pol_vde(int t, double *x, double *u, void *ode_args, double *xdot
 	double Bc[2];
 	Bc[0+nx*0] = 0.0;
 	Bc[1+nx*0] = 1.0;
-	for(ii=0; ii<nx*(nu+nx+1); ii++)
+	// init to zero
+	for(ii=0; ii<nx*(nu+1); ii++)
 		xdot[ii] = 0.0;
-#if 0
-	for(kk=0; kk<nu+nx+1; kk++)
+	// x
+	xdot_tmp = xdot;
+	x_tmp = x;
+	xdot_tmp[0] = x_tmp[1];
+	xdot_tmp[1] = u[0] - x_tmp[0] + mu*(1.0 - x_tmp[0]*x_tmp[0])*x_tmp[1];
+	// Sx + Su
+	xdot_tmp = xdot + nx;
+	x_tmp = x + nx;
+	for(kk=0; kk<nu; kk++)
 		for(jj=0; jj<nx; jj++)
 			for(ii=0; ii<nx; ii++)
-				xdot[ii+nx*kk] += Ac[ii+nx*jj] * x[jj+nx*kk];
-	xdot_tmp = xdot+nx*(nu+nx);
-	for(jj=0; jj<nu; jj++)
-		for(ii=0; ii<nx; ii++)
-			xdot_tmp[ii] += Bc[ii+nx*jj] * u[jj];
-	xdot_tmp = xdot;
+				xdot_tmp[ii+nx*kk] += Ac[ii+nx*jj] * x_tmp[jj+nx*kk];
+	// Su
+	xdot_tmp = xdot + nx;
 	for(jj=0; jj<nu; jj++)
 		for(ii=0; ii<nx; ii++)
 			xdot_tmp[ii+nx*jj] += Bc[ii+nx*jj];
-#else
+	return;
+	}
+
+
+
+void d_van_der_pol_vde1(int t, double *x, double *u, void *ode_args, double *xdot)
+	{
+	double mu = 1.0;
+	int ii, jj, kk;
+	double *xdot_tmp, *x_tmp;
+	int nx = 2;
+	int nu = 1;
+	// jacobian of ode
+	double Ac[4];
+	x_tmp = x;
+	Ac[0+nx*0] = 0.0;
+	Ac[0+nx*1] = 1.0;
+	Ac[1+nx*0] = - 1.0 - 2.0*mu*x_tmp[0]*x_tmp[1];
+	Ac[1+nx*1] = mu*(1.0 - x_tmp[0]*x_tmp[0]);
+	double Bc[2];
+	Bc[0+nx*0] = 0.0;
+	Bc[1+nx*0] = 1.0;
+	// init to zero
+	for(ii=0; ii<nx*(nu+nx+1); ii++)
+		xdot[ii] = 0.0;
+	// x
+	xdot_tmp = xdot;
+	x_tmp = x;
+	xdot_tmp[0] = x_tmp[1];
+	xdot_tmp[1] = u[0] - x_tmp[0] + mu*(1.0 - x_tmp[0]*x_tmp[0])*x_tmp[1];
+	// Sx + Su
+	xdot_tmp = xdot + nx;
+	x_tmp = x + nx;
 	for(kk=0; kk<nu+nx; kk++)
 		for(jj=0; jj<nx; jj++)
 			for(ii=0; ii<nx; ii++)
-				xdot[ii+nx*kk] += Ac[ii+nx*jj] * x[jj+nx*kk];
-	xdot_tmp = xdot;
+				xdot_tmp[ii+nx*kk] += Ac[ii+nx*jj] * x_tmp[jj+nx*kk];
+	// Su
+	xdot_tmp = xdot + nx;
 	for(jj=0; jj<nu; jj++)
 		for(ii=0; ii<nx; ii++)
 			xdot_tmp[ii+nx*jj] += Bc[ii+nx*jj];
-	xdot_tmp = xdot+nx*(nu+nx);
-	x_tmp = x+nx*(nu+nx);
-	xdot_tmp[0] = x_tmp[1];
-	xdot_tmp[1] = u[0] - x_tmp[0] + mu*(1.0 - x_tmp[0]*x_tmp[0])*x_tmp[1];
-#endif
 	return;
 	}
 
@@ -165,7 +199,7 @@ int main()
 
 	double *fsdot = malloc(nx_*(nu_+nx_+1)*sizeof(double));
 
-	d_van_der_pol_vde(0, fs0, u0, NULL, fsdot);
+	d_van_der_pol_vde1(0, fs0, u0, NULL, fsdot);
 
 	d_print_mat(nx_, nu_+nx_+1, fsdot, nx_);
 
@@ -440,8 +474,26 @@ int main()
 * ocp nlp model
 ************************************************/	
 
+	// stage 0
+	double *fs0 = malloc(nx_*nu_*sizeof(double));
+	for(ii=0; ii<nx_*nu_; ii++)
+		fs0[ii] = 0.0;
+
+	struct d_ocp_nlp_model model0;
+	model0.expl_vde = &d_van_der_pol_vde0;
+	model0.forward_seed = fs0;
+	model0.arg = NULL;
+
+	// stage 1
+	double *fs1 = malloc(nx_*(nu_+nx_)*sizeof(double));
+	for(ii=0; ii<nx_*(nu_+nx_); ii++)
+		fs1[ii] = 0.0;
+	for(ii=0; ii<nx_; ii++)
+		fs1[nu_*nx_+ii*(nx_+1)] = 1.0;
+
 	struct d_ocp_nlp_model model1;
-	model1.expl_vde = &d_van_der_pol_vde;
+	model1.expl_vde = &d_van_der_pol_vde1;
+	model1.forward_seed = fs1;
 	model1.arg = NULL;
 
 /************************************************

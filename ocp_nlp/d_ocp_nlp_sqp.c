@@ -115,7 +115,6 @@ int MEMSIZE_OCP_NLP_SQP(struct OCP_NLP *nlp, struct OCP_NLP_SQP_ARG *arg)
 	size += 1*sizeof(struct OCP_QP_IPM_WORKSPACE);
 	size += N*sizeof(struct ERK_WORKSPACE);
 	size += 2*sizeof(struct STRVEC); // tmp_nuxM tmp_nbgM
-	size += N*sizeof(REAL *); // fs
 
 	size += SIZE_STRVEC(nuxM); // tmp_nuxM
 	size += SIZE_STRVEC(nbgM); // tmp_nbgM
@@ -138,7 +137,6 @@ int MEMSIZE_OCP_NLP_SQP(struct OCP_NLP *nlp, struct OCP_NLP_SQP_ARG *arg)
 	for(ii=0; ii<N; ii++)
 		{
 		size += MEMSIZE_ERK_INT(arg->rk_data, nx[ii], nx[ii]+nu[ii], nu[ii]);
-		size += N*nx[ii]*(nu[ii]+nx[ii])*sizeof(REAL); // fs
 		}
 
 	size = (size+63)/64*64; // make multiple of typical cache line size
@@ -219,25 +217,9 @@ void CREATE_OCP_NLP_SQP(struct OCP_NLP *nlp, struct OCP_NLP_SQP_ARG *arg, struct
 	
 	//
 	REAL **dp_ptr = (REAL **) c_ptr;
-	//
-	ws->fs = dp_ptr;
-	dp_ptr += N;
 
 	//
-	REAL *d_ptr = (REAL *) dp_ptr;
-	//
-	for(ii=0; ii<N; ii++)
-		{
-		ws->fs[ii] = d_ptr;
-		d_ptr += nx[ii]*(nu[ii]+nx[ii]);
-		for(jj=0; jj<nx[ii]*(nu[ii]+nx[ii]); jj++)
-			ws->fs[ii][jj] = 0.0;
-		for(jj=0; jj<nx[ii]; jj++)
-			ws->fs[ii][nu[ii]*nx[ii]+jj*(nx[ii]+1)] = 1.0;
-		}
-	
-	//
-	struct STRVEC *sv_ptr = (struct STRVEC *) d_ptr;
+	struct STRVEC *sv_ptr = (struct STRVEC *) dp_ptr;
 	//
 	ws->tmp_nuxM = sv_ptr;
 	sv_ptr += 1;
@@ -305,7 +287,7 @@ int SOLVE_OCP_NLP_SQP(struct OCP_NLP *nlp, struct OCP_NLP_SOL *nlp_sol, struct O
 	int *ng = qp->ng;
 	int *ns = qp->ns;
 
-	double *x, *xn, *u;
+	double *x, *u;
 
 	struct STRVEC str_res_g;
 	struct STRVEC str_res_b;
@@ -353,11 +335,10 @@ int SOLVE_OCP_NLP_SQP(struct OCP_NLP *nlp, struct OCP_NLP_SOL *nlp_sol, struct O
 		for(nn=0; nn<N; nn++)
 			{
 			x  = (nlp_sol->ux+nn)->pa+nu[nn];
-			xn = (nlp_sol->ux+nn+1)->pa+nu[nn+1];
 			u  = (nlp_sol->ux+nn)->pa;
-			d_init_erk_int(x, ws->fs[nn], u, (nlp->model+nn)->expl_vde, (nlp->model+nn)->arg, erk_ws+nn);
+			d_init_erk_int(x, (nlp->model+nn)->forward_seed, u, (nlp->model+nn)->expl_vde, (nlp->model+nn)->arg, erk_ws+nn);
 			d_erk_int(erk_arg+nn, erk_ws+nn);
-			d_cvt_erk_int_to_ocp_qp(nn, erk_ws+nn, xn, qp, nlp_sol);
+			d_cvt_erk_int_to_ocp_qp(nn, erk_ws+nn, qp, nlp_sol);
 			}
 
 	
@@ -543,6 +524,6 @@ for(nn=0; nn<=N; nn++)
 	ws->nlp_res_d = nlp_res[2];
 	ws->nlp_res_m = nlp_res[3];
 
-	return 0;
+	return 1;
 
 	}

@@ -119,11 +119,11 @@ void d_init_erk_int(double *x0, double *fs0, double *p0, void (*ode)(int t, doub
 	double *x = ws->x;
 	double *p = ws->p;
 
-	for(ii=0; ii<nx*nf; ii++)
-		x[ii] = fs0[ii];
-
 	for(ii=0; ii<nx; ii++)
-		x[nx*nf+ii] = x0[ii];
+		x[ii] = x0[ii];
+
+	for(ii=0; ii<nx*nf; ii++)
+		x[nx+ii] = fs0[ii];
 
 	for(ii=0; ii<np; ii++)
 		p[ii] = p0[ii];

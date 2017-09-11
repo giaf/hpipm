@@ -35,6 +35,7 @@
 struct d_ocp_nlp_model
 	{
 	void (*expl_vde)(int t, double *x, double *p, void *vde_arg, double *xdot); // explicit vde
+	double *forward_seed; // seeds to initialize forward sensitivities
 	void *arg; // arguments to vde
 	};
 
