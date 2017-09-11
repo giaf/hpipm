@@ -613,9 +613,9 @@ int main()
 	ipm_arg.erk_arg = erk_args;
 	ipm_arg.alpha_min = 1e-8;
 	ipm_arg.nlp_res_g_max = 1e-8;
-	ipm_arg.nlp_res_b_max = 1e-12;
-	ipm_arg.nlp_res_d_max = 1e-12;
-	ipm_arg.nlp_res_m_max = 1e-12;
+	ipm_arg.nlp_res_b_max = 1e-8;
+	ipm_arg.nlp_res_d_max = 1e-8;
+	ipm_arg.nlp_res_m_max = 1e-8;
 	ipm_arg.nlp_iter_max = 20;
 	ipm_arg.stat_max = 20;
 	ipm_arg.mu0 = 2.0;

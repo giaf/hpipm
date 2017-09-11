@@ -575,10 +575,11 @@ int main()
 	sqp_arg.rk_data = &rk_data;
 	sqp_arg.erk_arg = erk_args;
 	sqp_arg.nlp_res_g_max = 1e-8;
-	sqp_arg.nlp_res_b_max = 1e-12;
-	sqp_arg.nlp_res_d_max = 1e-12;
-	sqp_arg.nlp_res_m_max = 1e-12;
+	sqp_arg.nlp_res_b_max = 1e-8;
+	sqp_arg.nlp_res_d_max = 1e-8;
+	sqp_arg.nlp_res_m_max = 1e-8;
 	sqp_arg.nlp_iter_max = 20;
+	sqp_arg.N2 = 1;
 
 /************************************************
 * ocp nlp sqp ws

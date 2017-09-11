@@ -118,13 +118,9 @@ int MEMSIZE_OCP_NLP_IPM(struct OCP_NLP *nlp, struct OCP_NLP_IPM_ARG *arg)
 	int size = 0;
 
 	size += 1*sizeof(struct OCP_QP);
-	size += 2*sizeof(struct OCP_QP_SOL);
+	size += 1*sizeof(struct OCP_QP_SOL);
 	size += 1*sizeof(struct OCP_QP_IPM_WORKSPACE);
 	size += N*sizeof(struct ERK_WORKSPACE);
-	size += 2*sizeof(struct STRVEC); // tmp_nuxM tmp_nbgM
-
-	size += SIZE_STRVEC(nuxM); // tmp_nuxM
-	size += SIZE_STRVEC(nbgM); // tmp_nbgM
 
 	size += MEMSIZE_OCP_QP(N, nx, nu, nb, ng, ns);
 	size += MEMSIZE_OCP_QP_SOL(N, nx, nu, nb, ng, ns);
@@ -136,8 +132,8 @@ int MEMSIZE_OCP_NLP_IPM(struct OCP_NLP *nlp, struct OCP_NLP_IPM_ARG *arg)
 	qp.nb = nlp->nb;
 	qp.ng = nlp->ng;
 	qp.ns = nlp->ns;
-	qp.idxb = nlp->idxb;
-	qp.idxs = nlp->idxs;
+//	qp.idxb = nlp->idxb;
+//	qp.idxs = nlp->idxs;
 
 	struct OCP_QP_IPM_ARG ipm_arg;
 	ipm_arg.stat_max = arg->stat_max;
@@ -193,7 +189,7 @@ void CREATE_OCP_NLP_IPM(struct OCP_NLP *nlp, struct OCP_NLP_IPM_ARG *arg, struct
 	struct OCP_QP_SOL *qp_sol_ptr = (struct OCP_QP_SOL *) qp_ptr;
 	//
 	ws->qp_sol = qp_sol_ptr;
-	qp_sol_ptr += 2;
+	qp_sol_ptr += 1;
 
 	// ocp qp ipm ws
 	struct OCP_QP_IPM_WORKSPACE *ipm_ws_ptr = (struct OCP_QP_IPM_WORKSPACE *) qp_sol_ptr;
@@ -230,30 +226,6 @@ void CREATE_OCP_NLP_IPM(struct OCP_NLP *nlp, struct OCP_NLP_IPM_ARG *arg, struct
 	//
 	REAL **dp_ptr = (REAL **) c_ptr;
 
-	//
-	struct STRVEC *sv_ptr = (struct STRVEC *) dp_ptr;
-	//
-	ws->tmp_nuxM = sv_ptr;
-	sv_ptr += 1;
-	//
-	ws->tmp_nbgM = sv_ptr;
-	sv_ptr += 1;
-
-
-	// align to typicl cache line size
-	size_t s_ptr = (size_t) sv_ptr;
-	s_ptr = (s_ptr+63)/64*64;
-
-
-	// void stuf
-	c_ptr = (char *) s_ptr;
-	//
-	CREATE_STRVEC(nuxM, ws->tmp_nuxM+0, c_ptr);
-	c_ptr += (ws->tmp_nuxM+0)->memory_size;
-	//
-	CREATE_STRVEC(nbgM, ws->tmp_nbgM+0, c_ptr);
-	c_ptr += (ws->tmp_nbgM+0)->memory_size;
-
 
 	ws->memsize = MEMSIZE_OCP_NLP_IPM(nlp, arg);
 
@@ -278,11 +250,8 @@ int SOLVE_OCP_NLP_IPM(struct OCP_NLP *nlp, struct OCP_NLP_SOL *nlp_sol, struct O
 
 	struct OCP_QP *qp = ws->qp;
 	struct OCP_QP_SOL *qp_sol = ws->qp_sol;
-	struct OCP_QP_SOL *tmp_qp_sol = ws->qp_sol+1;
 	struct OCP_QP_IPM_WORKSPACE *ipm_ws = ws->ipm_workspace;
 	struct ERK_WORKSPACE *erk_ws = ws->erk_workspace;
-	struct STRVEC *tmp_nuxM = ws->tmp_nuxM;
-	struct STRVEC *tmp_nbgM = ws->tmp_nbgM;
 
 	struct CORE_QP_IPM_WORKSPACE *cws = ipm_ws->core_workspace;
 

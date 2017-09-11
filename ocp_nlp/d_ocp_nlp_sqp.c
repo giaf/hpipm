@@ -48,6 +48,7 @@
 #include "../include/hpipm_d_ocp_nlp_sol.h"
 #include "../include/hpipm_d_ocp_nlp_sqp.h"
 #include "../include/hpipm_d_ocp_qp_sim.h"
+#include "../include/hpipm_d_part_cond.h"
 
 
 
@@ -101,6 +102,17 @@ int MEMSIZE_OCP_NLP_SQP(struct OCP_NLP *nlp, struct OCP_NLP_SQP_ARG *arg)
 	int *nb = nlp->nb;
 	int *ng = nlp->ng;
 	int *ns = nlp->ns;
+	int **idxb = nlp->idxb;
+
+	int N2 = arg->N2;
+	// XXX temporarily variable size array !!! TODO remove !!!
+	int nx2[N2+1]; // XXX
+	int nu2[N2+1]; // XXX
+	int nb2[N2+1]; // XXX
+	int ng2[N2+1]; // XXX
+	int ns2[N2+1]; // XXX
+	if(N2<N)
+		d_compute_qp_size_ocp2ocp(N, nx, nu, nb, idxb, ng, ns, N2, nx2, nu2, nb2, ng2, ns2);
 
 	int nuxM = 0;
 	int nbgM = 0;
@@ -117,28 +129,56 @@ int MEMSIZE_OCP_NLP_SQP(struct OCP_NLP *nlp, struct OCP_NLP_SQP_ARG *arg)
 	int size = 0;
 
 	size += 1*sizeof(struct OCP_QP);
-	size += 2*sizeof(struct OCP_QP_SOL);
+	size += 1*sizeof(struct OCP_QP_SOL);
 	size += 1*sizeof(struct OCP_QP_IPM_WORKSPACE);
 	size += N*sizeof(struct ERK_WORKSPACE);
-	size += 2*sizeof(struct STRVEC); // tmp_nuxM tmp_nbgM
-
-	size += SIZE_STRVEC(nuxM); // tmp_nuxM
-	size += SIZE_STRVEC(nbgM); // tmp_nbgM
 
 	size += MEMSIZE_OCP_QP(N, nx, nu, nb, ng, ns);
 	size += MEMSIZE_OCP_QP_SOL(N, nx, nu, nb, ng, ns);
 
-	struct OCP_QP qp;
-	qp.N = nlp->N;
-	qp.nx = nlp->nx;
-	qp.nu = nlp->nu;
-	qp.nb = nlp->nb;
-	qp.ng = nlp->ng;
-	qp.ns = nlp->ns;
-	qp.idxb = nlp->idxb;
-	qp.idxs = nlp->idxs;
+	if(N2<N)
+		{
 
-	size += MEMSIZE_OCP_QP_IPM(&qp, arg->ipm_arg);
+		size += 1*sizeof(struct OCP_QP);
+		size += 1*sizeof(struct OCP_QP_SOL);
+		size += 1*sizeof(struct d_cond_qp_ocp2ocp_workspace);
+
+		size += MEMSIZE_OCP_QP(N2, nx2, nu2, nb2, ng2, ns2);
+		size += MEMSIZE_OCP_QP_SOL(N2, nx2, nu2, nb2, ng2, ns2);
+
+		struct OCP_QP qp;
+		qp.N = nlp->N;
+		qp.nx = nlp->nx;
+		qp.nu = nlp->nu;
+		qp.nb = nlp->nb;
+		qp.ng = nlp->ng;
+		qp.ns = nlp->ns;
+
+		struct OCP_QP qp2;
+		qp2.N = N2;
+		qp2.nx = nx2;
+		qp2.nu = nu2;
+		qp2.nb = nb2;
+		qp2.ng = ng2;
+		qp2.ns = ns2;
+
+		size += MEMSIZE_OCP_QP_IPM(&qp2, arg->ipm_arg);
+		size += d_memsize_cond_qp_ocp2ocp(&qp, &qp2);
+		}
+	else
+		{
+		struct OCP_QP qp;
+		qp.N = nlp->N;
+		qp.nx = nlp->nx;
+		qp.nu = nlp->nu;
+		qp.nb = nlp->nb;
+		qp.ng = nlp->ng;
+		qp.ns = nlp->ns;
+//		qp.idxb = nlp->idxb;
+//		qp.idxs = nlp->idxs;
+
+		size += MEMSIZE_OCP_QP_IPM(&qp, arg->ipm_arg);
+		}
 
 	for(ii=0; ii<N; ii++)
 		{
@@ -166,6 +206,17 @@ void CREATE_OCP_NLP_SQP(struct OCP_NLP *nlp, struct OCP_NLP_SQP_ARG *arg, struct
 	int *nb = nlp->nb;
 	int *ng = nlp->ng;
 	int *ns = nlp->ns;
+	int **idxb = nlp->idxb;
+
+	int N2 = arg->N2;
+	// XXX temporarily variable size array !!! TODO remove !!!
+	int nx2[N2+1]; // XXX
+	int nu2[N2+1]; // XXX
+	int nb2[N2+1]; // XXX
+	int ng2[N2+1]; // XXX
+	int ns2[N2+1]; // XXX
+	if(N2<N)
+		d_compute_qp_size_ocp2ocp(N, nx, nu, nb, idxb, ng, ns, N2, nx2, nu2, nb2, ng2, ns2);
 
 	int nuxM = 0;
 	int nbgM = 0;
@@ -175,22 +226,41 @@ void CREATE_OCP_NLP_SQP(struct OCP_NLP *nlp, struct OCP_NLP_SQP_ARG *arg, struct
 		nbgM = nb[ii]+ng[ii]>nuxM ? nb[ii]+ng[ii] : nbgM;
 		}
 
-	int tmp_nx0 = 0;
-
 	// ocp qp
 	struct OCP_QP *qp_ptr = mem;
 	//
 	ws->qp = qp_ptr;
 	qp_ptr += 1;
+	if(N2<N)
+		{
+		//
+		ws->qp2 = qp_ptr;
+		qp_ptr += 1;
+		}
 
 	// ocp qp sol
 	struct OCP_QP_SOL *qp_sol_ptr = (struct OCP_QP_SOL *) qp_ptr;
 	//
 	ws->qp_sol = qp_sol_ptr;
-	qp_sol_ptr += 2;
+	qp_sol_ptr += 1;
+	if(N2<N)
+		{
+		//
+		ws->qp_sol2 = qp_sol_ptr;
+		qp_sol_ptr += 1;
+		}
+	
+	// cond qp ocp2ocp ws
+	struct d_cond_qp_ocp2ocp_workspace *cond_ptr = (struct d_cond_qp_ocp2ocp_workspace *) qp_sol_ptr;
+	if(N2<N)
+		{
+		//
+		ws->part_cond_workspace = cond_ptr;
+		cond_ptr += 1;
+		}
 
 	// ocp qp ipm ws
-	struct OCP_QP_IPM_WORKSPACE *ipm_ws_ptr = (struct OCP_QP_IPM_WORKSPACE *) qp_sol_ptr;
+	struct OCP_QP_IPM_WORKSPACE *ipm_ws_ptr = (struct OCP_QP_IPM_WORKSPACE *) cond_ptr;
 	//
 	ws->ipm_workspace = ipm_ws_ptr;
 	ipm_ws_ptr += 1;
@@ -210,9 +280,27 @@ void CREATE_OCP_NLP_SQP(struct OCP_NLP *nlp, struct OCP_NLP_SQP_ARG *arg, struct
 	//
 	CREATE_OCP_QP_SOL(N, nx, nu, nb, ng, ns, ws->qp_sol, c_ptr);
 	c_ptr += ws->qp_sol->memsize;
-	//
-	CREATE_OCP_QP_IPM(ws->qp, arg->ipm_arg, ws->ipm_workspace, c_ptr);
-	c_ptr += ws->ipm_workspace->memsize;
+	if(N2<N)
+		{
+		//
+		CREATE_OCP_QP(N2, nx2, nu2, nb2, ng2, ns2, ws->qp2, c_ptr);
+		c_ptr += ws->qp2->memsize;
+		//
+		CREATE_OCP_QP_SOL(N2, nx2, nu2, nb2, ng2, ns2, ws->qp_sol2, c_ptr);
+		c_ptr += ws->qp_sol2->memsize;
+		//
+		d_create_cond_qp_ocp2ocp(ws->qp, ws->qp2, ws->part_cond_workspace, c_ptr);
+		c_ptr += ws->part_cond_workspace->memsize;
+		//
+		CREATE_OCP_QP_IPM(ws->qp2, arg->ipm_arg, ws->ipm_workspace, c_ptr);
+		c_ptr += ws->ipm_workspace->memsize;
+		}
+	else
+		{
+		//
+		CREATE_OCP_QP_IPM(ws->qp, arg->ipm_arg, ws->ipm_workspace, c_ptr);
+		c_ptr += ws->ipm_workspace->memsize;
+		}
 
 	//
 	for(ii=0; ii<N; ii++)
@@ -223,30 +311,6 @@ void CREATE_OCP_NLP_SQP(struct OCP_NLP *nlp, struct OCP_NLP_SQP_ARG *arg, struct
 	
 	//
 	REAL **dp_ptr = (REAL **) c_ptr;
-
-	//
-	struct STRVEC *sv_ptr = (struct STRVEC *) dp_ptr;
-	//
-	ws->tmp_nuxM = sv_ptr;
-	sv_ptr += 1;
-	//
-	ws->tmp_nbgM = sv_ptr;
-	sv_ptr += 1;
-
-
-	// align to typicl cache line size
-	size_t s_ptr = (size_t) sv_ptr;
-	s_ptr = (s_ptr+63)/64*64;
-
-
-	// void stuf
-	c_ptr = (char *) s_ptr;
-	//
-	CREATE_STRVEC(nuxM, ws->tmp_nuxM+0, c_ptr);
-	c_ptr += (ws->tmp_nuxM+0)->memory_size;
-	//
-	CREATE_STRVEC(nbgM, ws->tmp_nbgM+0, c_ptr);
-	c_ptr += (ws->tmp_nbgM+0)->memory_size;
 
 
 	ws->memsize = MEMSIZE_OCP_NLP_SQP(nlp, arg);
@@ -271,12 +335,12 @@ int SOLVE_OCP_NLP_SQP(struct OCP_NLP *nlp, struct OCP_NLP_SOL *nlp_sol, struct O
 	{
 
 	struct OCP_QP *qp = ws->qp;
+	struct OCP_QP *qp2 = ws->qp2;
 	struct OCP_QP_SOL *qp_sol = ws->qp_sol;
-	struct OCP_QP_SOL *tmp_qp_sol = ws->qp_sol+1;
+	struct OCP_QP_SOL *qp_sol2 = ws->qp_sol2;
+	struct d_cond_qp_ocp2ocp_workspace *part_cond_ws = ws->part_cond_workspace;
 	struct OCP_QP_IPM_WORKSPACE *ipm_ws = ws->ipm_workspace;
 	struct ERK_WORKSPACE *erk_ws = ws->erk_workspace;
-	struct STRVEC *tmp_nuxM = ws->tmp_nuxM;
-	struct STRVEC *tmp_nbgM = ws->tmp_nbgM;
 
 	struct CORE_QP_IPM_WORKSPACE *cws = ipm_ws->core_workspace;
 
@@ -292,6 +356,21 @@ int SOLVE_OCP_NLP_SQP(struct OCP_NLP *nlp, struct OCP_NLP_SOL *nlp_sol, struct O
 	int *nb = qp->nb;
 	int *ng = qp->ng;
 	int *ns = qp->ns;
+
+	int N2 = arg->N2;
+#if 0
+	int *nx2 = qp2->nx;
+	int *nu2 = qp2->nu;
+	int *nb2 = qp2->nb;
+	int *ng2 = qp2->ng;
+	int *ns2 = qp2->ns;
+#endif
+
+#if 0
+for(ii=0; ii<=N2; ii++)
+	printf("\n%d %d %d %d %d\n", nx2[ii], nu2[ii], nb2[ii], ng2[ii], ns2[ii]);
+exit(1);
+#endif
 
 	double *x, *u;
 
@@ -477,20 +556,52 @@ exit(1);
 #endif
 
 
+
+		if(N2<N)
+			{
+
+			// part cond
+			d_cond_qp_ocp2ocp(qp, qp2, part_cond_ws);
+
 #if 0
 printf("\nqp data\n");
-for(nn=0; nn<=N; nn++)
-	d_print_strmat(nu[nn]+nx[nn]+1, nu[nn]+nx[nn], qp->RSQrq+nn, 0, 0);
-for(nn=0; nn<N; nn++)
-	d_print_strmat(nu[nn]+nx[nn]+1, nx[nn+1], qp->BAbt+nn, 0, 0);
-for(nn=0; nn<=N; nn++)
-	d_print_tran_strvec(2*nb[nn]+2*ng[nn]+2*ns[nn], qp->d+nn, 0);
+for(nn=0; nn<=N2; nn++)
+	d_print_strmat(nu2[nn]+nx2[nn]+1, nu2[nn]+nx2[nn], qp2->RSQrq+nn, 0, 0);
+for(nn=0; nn<N2; nn++)
+	d_print_strmat(nu2[nn]+nx2[nn]+1, nx2[nn+1], qp2->BAbt+nn, 0, 0);
+for(nn=0; nn<=N2; nn++)
+	d_print_tran_strvec(2*nb2[nn]+2*ng2[nn]+2*ns2[nn], qp2->d+nn, 0);
 exit(1);
 #endif
 
+			// solve qp
+			d_solve_ocp_qp_ipm(qp2, qp_sol2, ipm_arg, ipm_ws);
 
-		// solve qp
-		d_solve_ocp_qp_ipm(qp, qp_sol, ipm_arg, ipm_ws);
+#if 0
+printf("\nqp sol\n");
+for(nn=0; nn<=N2; nn++)
+	d_print_tran_strvec(nu2[nn]+nx2[nn]+2*ns2[nn], qp_sol2->ux+nn, 0);
+for(nn=0; nn<N2; nn++)
+	d_print_tran_strvec(nx2[nn+1], qp_sol2->pi+nn, 0);
+for(nn=0; nn<=N2; nn++)
+	d_print_tran_strvec(2*nb2[nn]+2*ng2[nn]+2*ns2[nn], qp_sol2->lam+nn, 0);
+for(nn=0; nn<=N2; nn++)
+	d_print_tran_strvec(2*nb2[nn]+2*ng2[nn]+2*ns2[nn], qp_sol2->t+nn, 0);
+d_print_e_tran_mat(5, ipm_ws->iter, ipm_ws->stat, 5);
+exit(1);
+#endif
+
+			// part expand
+			d_expand_sol_ocp2ocp(qp, qp2, qp_sol2, qp_sol, part_cond_ws);
+
+			}
+		else
+			{
+
+			// solve qp
+			d_solve_ocp_qp_ipm(qp, qp_sol, ipm_arg, ipm_ws);
+
+			}
 
 
 #if 0
@@ -504,7 +615,7 @@ for(nn=0; nn<=N; nn++)
 for(nn=0; nn<=N; nn++)
 	d_print_tran_strvec(2*nb[nn]+2*ng[nn]+2*ns[nn], qp_sol->t+nn, 0);
 d_print_e_tran_mat(5, ipm_ws->iter, ipm_ws->stat, 5);
-//exit(1);
+exit(1);
 #endif
 
 		// update primal variables (full step)

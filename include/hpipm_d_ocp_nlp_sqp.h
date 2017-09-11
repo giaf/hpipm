@@ -36,12 +36,12 @@
 struct d_ocp_nlp_sqp_workspace
 	{
 	struct d_ocp_qp *qp;
+	struct d_ocp_qp *qp2;
 	struct d_ocp_qp_sol *qp_sol;
+	struct d_ocp_qp_sol *qp_sol2;
+	struct d_cond_qp_ocp2ocp_workspace *part_cond_workspace;
 	struct d_ocp_qp_ipm_workspace *ipm_workspace;
-	struct d_elim_init_stage_workspace *elim_workspace;
 	struct d_erk_workspace *erk_workspace;
-	struct d_strvec *tmp_nuxM;
-	struct d_strvec *tmp_nbgM;
 	double nlp_res_g; // exit inf norm of residuals
 	double nlp_res_b; // exit inf norm of residuals
 	double nlp_res_d; // exit inf norm of residuals
@@ -62,6 +62,7 @@ struct d_ocp_nlp_sqp_arg
 	double nlp_res_d_max; // exit cond on inf norm of residuals
 	double nlp_res_m_max; // exit cond on inf norm of residuals
 	int nlp_iter_max; // exit cond in iter number
+	int N2; // horizon of partially condensed QP
 	};
 
 
