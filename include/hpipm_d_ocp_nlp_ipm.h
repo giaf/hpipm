@@ -55,14 +55,17 @@ struct d_ocp_nlp_ipm_workspace
 
 struct d_ocp_nlp_ipm_arg
 	{
-	struct d_ocp_qp_ipm_arg *ipm_arg; // ipm arg
 	struct d_rk_data *rk_data; // rk data
 	struct d_erk_args *erk_arg; // TODO fix name in arg !!!
+	double mu0; // initial value for duality measure
+	double alpha_min; // exit cond on step length
 	double nlp_res_g_max; // exit cond on inf norm of residuals
 	double nlp_res_b_max; // exit cond on inf norm of residuals
 	double nlp_res_d_max; // exit cond on inf norm of residuals
 	double nlp_res_m_max; // exit cond on inf norm of residuals
 	int nlp_iter_max; // exit cond in iter number
+	int stat_max; // iterations saved in stat
+	int pred_corr; // use Mehrotra's predictor-corrector IPM algirthm
 	};
 
 

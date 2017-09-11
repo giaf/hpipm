@@ -45,7 +45,6 @@
 #include "../include/hpipm_d_ocp_qp.h"
 #include "../include/hpipm_d_ocp_qp_sol.h"
 #include "../include/hpipm_d_ocp_qp_ipm.h"
-#include "../include/hpipm_d_elim.h"
 #include "../include/hpipm_d_ocp_nlp.h"
 #include "../include/hpipm_d_ocp_nlp_sol.h"
 #include "../include/hpipm_d_ocp_nlp_ipm.h"
@@ -270,21 +269,6 @@ int main()
 	nb[N] = 0;//nx_;
 	ng[N] = 0;
 	ns[N] = 0;
-
-/************************************************
-* ipm
-************************************************/	
-
-	struct d_ocp_qp_ipm_arg arg;
-	arg.alpha_min = 1e-8;
-	arg.res_g_max = 1e-8;
-	arg.res_b_max = 1e-8;
-	arg.res_d_max = 1e-12;
-	arg.res_m_max = 1e-12;
-	arg.mu0 = 2.0;
-	arg.iter_max = 1;
-	arg.stat_max = 20;
-	arg.pred_corr = 1;
 
 /************************************************
 * box & general constraints
@@ -573,14 +557,17 @@ int main()
 		erk_args[ii] = erk_arg;
 
 	struct d_ocp_nlp_ipm_arg ipm_arg;
-	ipm_arg.ipm_arg = &arg;
 	ipm_arg.rk_data = &rk_data;
 	ipm_arg.erk_arg = erk_args;
+	ipm_arg.alpha_min = 1e-8;
 	ipm_arg.nlp_res_g_max = 1e-8;
 	ipm_arg.nlp_res_b_max = 1e-12;
 	ipm_arg.nlp_res_d_max = 1e-12;
 	ipm_arg.nlp_res_m_max = 1e-12;
 	ipm_arg.nlp_iter_max = 20;
+	ipm_arg.stat_max = 20;
+	ipm_arg.mu0 = 2.0;
+	ipm_arg.pred_corr = 1;
 
 /************************************************
 * ocp nlp ipm ws
