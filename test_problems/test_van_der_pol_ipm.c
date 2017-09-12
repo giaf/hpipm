@@ -319,14 +319,13 @@ int main()
 			{
 			d_lb0[ii] = - 0.5; // umin
 			d_ub0[ii] =   0.5; // umax
-			idxb0[ii] = ii;
 			}
 		else // (initial) state
 			{
 			d_lb0[ii] = x0[ii-nu[0]]; // xmin
 			d_ub0[ii] = x0[ii-nu[0]]; // xmax
-			idxb0[ii] = ii;
 			}
+		idxb0[ii] = ii;
 		}
 
 	int *idxb1; int_zeros(&idxb1, nb[1], 1);
