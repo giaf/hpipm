@@ -136,23 +136,26 @@ int MEMSIZE_OCP_NLP_SQP(struct OCP_NLP *nlp, struct OCP_NLP_SQP_ARG *arg)
 	size += MEMSIZE_OCP_QP(N, nx, nu, nb, ng, ns);
 	size += MEMSIZE_OCP_QP_SOL(N, nx, nu, nb, ng, ns);
 
+	struct OCP_QP qp;
+	qp.N = nlp->N;
+	qp.nx = nlp->nx;
+	qp.nu = nlp->nu;
+	qp.nb = nlp->nb;
+	qp.ng = nlp->ng;
+	qp.ns = nlp->ns;
+
+	size += MEMSIZE_OCP_QP_IPM(&qp, arg->ipm_arg);
+
 	if(N2<N)
 		{
 
 		size += 1*sizeof(struct OCP_QP);
 		size += 1*sizeof(struct OCP_QP_SOL);
+		size += 1*sizeof(struct OCP_QP_IPM_WORKSPACE);
 		size += 1*sizeof(struct d_cond_qp_ocp2ocp_workspace);
 
 		size += MEMSIZE_OCP_QP(N2, nx2, nu2, nb2, ng2, ns2);
 		size += MEMSIZE_OCP_QP_SOL(N2, nx2, nu2, nb2, ng2, ns2);
-
-		struct OCP_QP qp;
-		qp.N = nlp->N;
-		qp.nx = nlp->nx;
-		qp.nu = nlp->nu;
-		qp.nb = nlp->nb;
-		qp.ng = nlp->ng;
-		qp.ns = nlp->ns;
 
 		struct OCP_QP qp2;
 		qp2.N = N2;
@@ -164,20 +167,6 @@ int MEMSIZE_OCP_NLP_SQP(struct OCP_NLP *nlp, struct OCP_NLP_SQP_ARG *arg)
 
 		size += MEMSIZE_OCP_QP_IPM(&qp2, arg->ipm_arg);
 		size += d_memsize_cond_qp_ocp2ocp(&qp, &qp2);
-		}
-	else
-		{
-		struct OCP_QP qp;
-		qp.N = nlp->N;
-		qp.nx = nlp->nx;
-		qp.nu = nlp->nu;
-		qp.nb = nlp->nb;
-		qp.ng = nlp->ng;
-		qp.ns = nlp->ns;
-//		qp.idxb = nlp->idxb;
-//		qp.idxs = nlp->idxs;
-
-		size += MEMSIZE_OCP_QP_IPM(&qp, arg->ipm_arg);
 		}
 
 	for(ii=0; ii<N; ii++)
@@ -264,6 +253,12 @@ void CREATE_OCP_NLP_SQP(struct OCP_NLP *nlp, struct OCP_NLP_SQP_ARG *arg, struct
 	//
 	ws->ipm_workspace = ipm_ws_ptr;
 	ipm_ws_ptr += 1;
+	if(N2<N)
+		{
+		//
+		ws->ipm_workspace2 = ipm_ws_ptr;
+		ipm_ws_ptr += 1;
+		}
 
 	// erk ws
 	struct ERK_WORKSPACE *erk_ws_ptr = (struct ERK_WORKSPACE *) ipm_ws_ptr;
@@ -280,6 +275,9 @@ void CREATE_OCP_NLP_SQP(struct OCP_NLP *nlp, struct OCP_NLP_SQP_ARG *arg, struct
 	//
 	CREATE_OCP_QP_SOL(N, nx, nu, nb, ng, ns, ws->qp_sol, c_ptr);
 	c_ptr += ws->qp_sol->memsize;
+	//
+	CREATE_OCP_QP_IPM(ws->qp, arg->ipm_arg, ws->ipm_workspace, c_ptr);
+	c_ptr += ws->ipm_workspace->memsize;
 	if(N2<N)
 		{
 		//
@@ -292,19 +290,12 @@ void CREATE_OCP_NLP_SQP(struct OCP_NLP *nlp, struct OCP_NLP_SQP_ARG *arg, struct
 		d_create_cond_qp_ocp2ocp(ws->qp, ws->qp2, ws->part_cond_workspace, c_ptr);
 		c_ptr += ws->part_cond_workspace->memsize;
 		//
-		CREATE_OCP_QP_IPM(ws->qp2, arg->ipm_arg, ws->ipm_workspace, c_ptr);
-		c_ptr += ws->ipm_workspace->memsize;
+		CREATE_OCP_QP_IPM(ws->qp2, arg->ipm_arg, ws->ipm_workspace2, c_ptr);
+		c_ptr += ws->ipm_workspace2->memsize;
 		}
-	else
-		{
-		//
-		CREATE_OCP_QP_IPM(ws->qp, arg->ipm_arg, ws->ipm_workspace, c_ptr);
-		c_ptr += ws->ipm_workspace->memsize;
-		}
-
-	//
 	for(ii=0; ii<N; ii++)
 		{
+		//
 		CREATE_ERK_INT(arg->rk_data, nx[ii], nx[ii]+nu[ii], nu[ii], ws->erk_workspace+ii, c_ptr);
 		c_ptr += (ws->erk_workspace+ii)->memsize;
 		}
@@ -340,6 +331,7 @@ int SOLVE_OCP_NLP_SQP(struct OCP_NLP *nlp, struct OCP_NLP_SOL *nlp_sol, struct O
 	struct OCP_QP_SOL *qp_sol2 = ws->qp_sol2;
 	struct d_cond_qp_ocp2ocp_workspace *part_cond_ws = ws->part_cond_workspace;
 	struct OCP_QP_IPM_WORKSPACE *ipm_ws = ws->ipm_workspace;
+	struct OCP_QP_IPM_WORKSPACE *ipm_ws2 = ws->ipm_workspace2;
 	struct ERK_WORKSPACE *erk_ws = ws->erk_workspace;
 
 	struct CORE_QP_IPM_WORKSPACE *cws = ipm_ws->core_workspace;
@@ -467,7 +459,7 @@ exit(1);
 
 
 		// compute residuals
-		COMPUTE_RES_OCP_QP(qp, qp_sol, ipm_ws);
+		COMPUTE_RES_OCP_QP(qp, qp_sol, ipm_ws); // gests own workspace ???
 		cws->mu = ipm_ws->res_mu;
 
 		// compute infinity norm of residuals
@@ -575,7 +567,7 @@ exit(1);
 #endif
 
 			// solve qp
-			d_solve_ocp_qp_ipm(qp2, qp_sol2, ipm_arg, ipm_ws);
+			d_solve_ocp_qp_ipm(qp2, qp_sol2, ipm_arg, ipm_ws2);
 
 #if 0
 printf("\nqp sol\n");

@@ -41,6 +41,7 @@ struct d_ocp_nlp_sqp_workspace
 	struct d_ocp_qp_sol *qp_sol2;
 	struct d_cond_qp_ocp2ocp_workspace *part_cond_workspace;
 	struct d_ocp_qp_ipm_workspace *ipm_workspace;
+	struct d_ocp_qp_ipm_workspace *ipm_workspace2;
 	struct d_erk_workspace *erk_workspace;
 	double nlp_res_g; // exit inf norm of residuals
 	double nlp_res_b; // exit inf norm of residuals
