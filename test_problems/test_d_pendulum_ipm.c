@@ -69,8 +69,8 @@ void vde_fun_model(int t, double *x, double *u, void *ode_arg, double *out)
 
 	struct vde_fun_arg *arg = ode_arg;
 
-	int nx = 4;//arg->nx;
-	int nu = 1;//arg->nu;
+	int nx = arg->nx;
+	int nu = arg->nu;
 
 	double *Su = x + nx;
 	double *Sx = x + nx + nu * nx;
@@ -103,36 +103,6 @@ void vde_fun_model(int t, double *x, double *u, void *ode_arg, double *out)
 
 int main()
 	{
-
-#if 0
-	int nx_ = 4;
-	int nu_ = 1;
-
-	double *in = malloc((nx_+nu_*nx_+nx_*nx_+nu_)*sizeof(double));
-	double *out = malloc((nx_+nu_*nx_+nx_*nx_)*sizeof(double));
-
-	for(ii=0; ii<nx_+nu_*nx_+nx_*nx_+nu_; ii++)
-		in[ii] = 1+ii;
-
-	double *x = in+0;
-	double *u = in+nx_+nu_*nx_+nx_*nx_;
-
-	struct vde_fun_arg vde_arg;
-	vde_arg.nx = nx_;
-	vde_arg.nu = nu_;
-
-//	vde_fun_model(in, out, &vdeFun);
-	vde_fun_model(0, x, u, &vde_arg, out);
-
-	d_print_mat(nx_, 1+nu_+nx_, out, nx_);
-
-	free(in);
-	free(out);
-
-	return 0;
-
-#else
-
 
 	int ii;
 
@@ -303,8 +273,20 @@ int main()
 	double *d_ubN; d_zeros(&d_ubN, nb[N], 1);
 	double *d_lgN; d_zeros(&d_lgN, ng[N], 1);
 	double *d_ugN; d_zeros(&d_ugN, ng[N], 1);
-	for(ii=0; ii<nb[N]; ii++)
+	if(nb[N]==nx[N])
 		{
+		d_lbN[0] = - 1000.0; //
+		d_ubN[0] =   1000.0; //
+		idxbN[0] = 0;
+		d_lbN[1] = - 0.0; //
+		d_ubN[1] =   0.0; //
+		idxbN[1] = 1;
+		d_lbN[2] = - 10.0; //
+		d_ubN[2] =   10.0; //
+		idxbN[2] = 2;
+		d_lbN[3] = - 10.0; //
+		d_ubN[3] =   10.0; //
+		idxbN[3] = 3;
 		}
 
 	double *C0; d_zeros(&C0, ng[0], nx[0]);
@@ -445,10 +427,14 @@ int main()
 	for(ii=0; ii<nx_; ii++)
 		fs1[nu_*nx_+ii*(nx_+1)] = 1.0;
 
+	struct vde_fun_arg vde_arg;
+	vde_arg.nx = nx_;
+	vde_arg.nu = nu_;
+
 	struct d_ocp_nlp_model model1;
 	model1.expl_vde = &vde_fun_model;
 	model1.forward_seed = fs1;
-	model1.arg = NULL;
+	model1.arg = &vde_arg;
 
 /************************************************
 * ocp nlp data
@@ -697,7 +683,6 @@ int main()
 	free(x0);
 	free(u0);
 	
-#endif
 /************************************************
 * return
 ************************************************/	
