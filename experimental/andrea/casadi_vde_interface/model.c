@@ -1,6 +1,6 @@
-#include "pendulum_model.h"
+#include "model.h"
 
-void VDE_fun_pendulum(const double* in, double* out,
+void VDE_fun_model(const double* in, double* out,
                       int (*vde)(const double**, double**, int*, double*,
                                  int)) {
 
