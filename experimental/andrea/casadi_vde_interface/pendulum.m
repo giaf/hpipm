@@ -67,3 +67,16 @@ vdeFun.generate(['vde_forw_pendulum'], opts);
 jacFun.generate(['jac_pendulum'], opts);
 adjFun.generate(['vde_adj_pendulum'], opts);
 hessFun.generate(['vde_hess_pendulum'], opts);
+
+% test input
+x = [1:nx];
+Su = nx+[1:nx*nu];
+Su = reshape(Su,nx,nu);
+Sx = nx+nx*nu+[1:nx*nx];
+Sx = reshape(Sx,nx,nx);
+u = nx+nx*nu+nx*nx+[1:nu];
+
+[tx, tSu, tSx] = vdeFun(x,Sx,Su,u);
+full(tx)
+full(tSu)
+full(tSx)

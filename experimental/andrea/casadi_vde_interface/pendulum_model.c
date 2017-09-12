@@ -7,13 +7,13 @@ void VDE_fun_pendulum(const double* in, double* out,
     const int NX = 4;
     const int NU = 1;
     const double* x = in;
-    const double* Sx = in + NX;
-    const double* Su = in + NX + NX * NX;
+    const double* Su = in + NX;
+    const double* Sx = in + NX + NU * NX;
     const double* u = in + NX + NX * (NX + NU);
 
     double* x_out = out;
-    double* Sx_out = out + NX;
-    double* Su_out = out + NX + NX * NX;
+    double* Su_out = out + NX;
+    double* Sx_out = out + NX + NU * NX;
 
     const double* casadi_arg[4];
     double* casadi_res[3];
