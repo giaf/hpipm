@@ -46,8 +46,8 @@
 #include "../include/hpipm_d_ocp_qp_kkt.h"
 #include "../include/hpipm_d_ocp_nlp.h"
 #include "../include/hpipm_d_ocp_nlp_sol.h"
+#include "../include/hpipm_d_ocp_nlp_aux.h"
 #include "../include/hpipm_d_ocp_nlp_sqp.h"
-#include "../include/hpipm_d_ocp_qp_sim.h"
 #include "../include/hpipm_d_part_cond.h"
 
 
