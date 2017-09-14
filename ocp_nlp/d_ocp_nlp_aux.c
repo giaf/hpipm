@@ -76,3 +76,35 @@ void d_cvt_erk_int_to_ocp_qp(int n, struct d_erk_workspace *erk_ws, struct d_ocp
 	return;
 
 	}
+
+
+
+void d_cvt_erk_int_to_ocp_qp_rhs(int n, struct d_erk_workspace *erk_ws, struct d_ocp_qp *qp, struct d_ocp_nlp_sol *nlp_sol)
+	{
+
+	int ii;
+
+//	int *nx = qp->nx+n;
+//	int *nu = qp->nu+n;
+	struct d_strmat *BAbt = qp->BAbt+n;
+	struct d_strvec *b = qp->b+n;
+
+	struct d_strvec *ux = nlp_sol->ux+n;
+
+	int nx = erk_ws->nx;
+	int nf = erk_ws->nf;
+
+	double *x = erk_ws->x;
+	double *xt = b->pa;
+
+	double *tmp;
+
+//	d_cvt_tran_mat2strmat(nx, nf, x+nx, nx, BAbt, 0, 0);
+
+	d_cvt_vec2strvec(nx, x, b, 0);
+	dgemv_t_libstr(nf, nx, -1.0, BAbt, 0, 0, ux, 0, 1.0, b, 0, b, 0);
+	drowin_libstr(nx, 1.0, b, 0, BAbt, nf, 0);
+
+	return;
+
+	}

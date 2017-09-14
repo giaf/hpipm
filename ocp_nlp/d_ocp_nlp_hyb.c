@@ -681,7 +681,12 @@ for(nn=0; nn<=N; nn++)
 			u  = (nlp_sol->ux+nn)->pa;
 			d_init_erk_int(x, (nlp->model+nn)->forward_seed, u, (nlp->model+nn)->expl_vde, (nlp->model+nn)->arg, erk_ws+nn);
 			d_erk_int(erk_arg+nn, erk_ws+nn);
-			d_cvt_erk_int_to_ocp_qp(nn, erk_ws+nn, qp, nlp_sol);
+//			if(ss<=0)
+				d_cvt_erk_int_to_ocp_qp(nn, erk_ws+nn, qp, nlp_sol);
+//			else
+//				{
+//				d_cvt_erk_int_to_ocp_qp_rhs(nn, erk_ws+nn, qp, nlp_sol);
+//				}
 			}
 
 //for(ii=0; ii<N; ii++)
