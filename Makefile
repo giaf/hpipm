@@ -43,10 +43,10 @@ OBJS += dense_qp/s_dense_qp.o dense_qp/s_dense_qp_sol.o dense_qp/s_dense_qp_kkt.
 OBJS += ipm_core/d_core_qp_ipm_aux.o ipm_core/d_core_qp_ipm.o
 OBJS += ipm_core/s_core_qp_ipm_aux.o ipm_core/s_core_qp_ipm.o
 # ocp nlp
-OBJS += ocp_nlp/d_ocp_nlp.o ocp_nlp/d_ocp_nlp_sol.o ocp_nlp/d_ocp_nlp_sqp.o ocp_nlp/d_ocp_nlp_ipm.o
+OBJS += ocp_nlp/d_ocp_nlp.o ocp_nlp/d_ocp_nlp_sol.o ocp_nlp/d_ocp_nlp_aux.o ocp_nlp/d_ocp_nlp_sqp.o ocp_nlp/d_ocp_nlp_ipm.o ocp_nlp/d_ocp_nlp_hyb.o
 OBJS +=
 # ocp qp
-OBJS += ocp_qp/d_ocp_qp.o ocp_qp/d_ocp_qp_sol.o ocp_qp/d_ocp_qp_kkt.o ocp_qp/d_ocp_qp_ipm.o ocp_qp/d_ocp_qp_sim.o
+OBJS += ocp_qp/d_ocp_qp.o ocp_qp/d_ocp_qp_sol.o ocp_qp/d_ocp_qp_kkt.o ocp_qp/d_ocp_qp_ipm.o
 OBJS += ocp_qp/s_ocp_qp.o ocp_qp/s_ocp_qp_sol.o ocp_qp/s_ocp_qp_kkt.o ocp_qp/s_ocp_qp_ipm.o
 #OBJS += ocp_qp/m_ocp_qp.o                       ocp_qp/m_ocp_qp_kkt.o ocp_qp/m_ocp_qp_ipm.o
 # sim core

@@ -48,7 +48,6 @@
 #include "../include/hpipm_d_ocp_nlp.h"
 #include "../include/hpipm_d_ocp_nlp_sol.h"
 #include "../include/hpipm_d_ocp_nlp_ipm.h"
-#include "../include/hpipm_d_ocp_qp_sim.h"
 
 
 

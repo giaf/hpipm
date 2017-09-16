@@ -21,7 +21,7 @@
 * License along with HPIPM; if not, write to the Free Software                                    *
 * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA                  *
 *                                                                                                 *
-* Author: Gianluca Frison, gianluca.frison (at) imtek.uni-freiburg.de                             *                          
+* Author: Gianluca Frison, gianluca.frison (at) imtek.uni-freiburg.de                             *
 *                                                                                                 *
 **************************************************************************************************/
 
@@ -29,50 +29,52 @@
 
 #include <blasfeo_target.h>
 #include <blasfeo_common.h>
-#include <blasfeo_d_aux.h>
-#include <blasfeo_d_blas.h>
-
-#include "../include/hpipm_d_erk_int.h"
-#include "../include/hpipm_d_ocp_qp.h"
-#include "../include/hpipm_d_ocp_nlp.h"
-#include "../include/hpipm_d_ocp_nlp_sol.h"
 
 
 
-void d_cvt_erk_int_to_ocp_qp(int n, struct d_erk_workspace *erk_ws, struct d_ocp_qp *qp, struct d_ocp_nlp_sol *nlp_sol)
+
+struct d_ocp_nlp_hyb_workspace
 	{
+	struct d_ocp_qp *qp;
+	struct d_ocp_qp *qp2;
+	struct d_ocp_qp_sol *qp_sol;
+	struct d_ocp_qp_sol *qp_sol2;
+	struct d_cond_qp_ocp2ocp_workspace *part_cond_workspace;
+	struct d_ocp_qp_ipm_workspace *ipm_workspace;
+	struct d_ocp_qp_ipm_workspace *ipm_workspace2;
+	struct d_erk_workspace *erk_workspace;
+	double nlp_res_g; // exit inf norm of residuals
+	double nlp_res_b; // exit inf norm of residuals
+	double nlp_res_d; // exit inf norm of residuals
+	double nlp_res_m; // exit inf norm of residuals
+	int iter; // iteration number
+	int memsize;
+	};
 
-	int ii;
 
-//	int *nx = qp->nx+n;
-//	int *nu = qp->nu+n;
-	struct d_strmat *BAbt = qp->BAbt+n;
-	struct d_strvec *b = qp->b+n;
 
-	struct d_strvec *ux = nlp_sol->ux+n;
+struct d_ocp_nlp_hyb_arg
+	{
+	struct d_ocp_qp_ipm_arg *ipm_arg; // ipm arg
+	struct d_rk_data *rk_data; // rk data
+	struct d_erk_args *erk_arg; // TODO fix name in arg !!!
+//	double mu0; // initial value for duality measure
+	double alpha_min; // exit cond on step length
+	double nlp_res_g_max; // exit cond on inf norm of residuals
+	double nlp_res_b_max; // exit cond on inf norm of residuals
+	double nlp_res_d_max; // exit cond on inf norm of residuals
+	double nlp_res_m_max; // exit cond on inf norm of residuals
+	int nlp_iter_max; // exit cond in iter number
+	int stat_max; // iterations saved in stat
+	int N2; // horizon of partially condensed QP
+	int pred_corr; // use Mehrotra's predictor-corrector IPM algirthm
+	};
 
-	int nx = erk_ws->nx;
-	int nf = erk_ws->nf;
 
-	double *x = erk_ws->x;
-	double *xt = b->pa;
 
-	double *tmp;
-
-//	d_cvt_tran_mat2strmat(nx[1], nu[0]+nx[0], x, nx[1], BAbt, 0, 0);
-	d_cvt_tran_mat2strmat(nx, nf, x+nx, nx, BAbt, 0, 0);
-
-	// XXX not compute this again in residuals !!!
-//	tmp = x+nx*nf;
-//	for(ii=0; ii<nx; ii++)
-//		xt[ii] = tmp[ii] - xn[ii];
-//printf("\n%d\n", nf);
-	d_cvt_vec2strvec(nx, x, b, 0);
-	dgemv_t_libstr(nf, nx, -1.0, BAbt, 0, 0, ux, 0, 1.0, b, 0, b, 0);
-//d_print_strvec(nx, b, 0);
-	
-	drowin_libstr(nx, 1.0, b, 0, BAbt, nf, 0);
-
-	return;
-
-	}
+//
+int d_memsize_ocp_nlp_hyb(struct d_ocp_nlp *nlp, struct d_ocp_nlp_hyb_arg *arg);
+//
+void d_create_ocp_nlp_hyb(struct d_ocp_nlp *nlp, struct d_ocp_nlp_hyb_arg *arg, struct d_ocp_nlp_hyb_workspace *ws, void *mem);
+//
+int d_solve_ocp_nlp_hyb(struct d_ocp_nlp *nlp, struct d_ocp_nlp_sol *nlp_sol, struct d_ocp_nlp_hyb_arg *arg, struct d_ocp_nlp_hyb_workspace *ws);

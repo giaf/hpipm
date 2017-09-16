@@ -47,8 +47,8 @@
 #include "../include/hpipm_d_ocp_qp_kkt.h"
 #include "../include/hpipm_d_ocp_nlp.h"
 #include "../include/hpipm_d_ocp_nlp_sol.h"
+#include "../include/hpipm_d_ocp_nlp_aux.h"
 #include "../include/hpipm_d_ocp_nlp_ipm.h"
-#include "../include/hpipm_d_ocp_qp_sim.h"
 
 
 
@@ -295,7 +295,7 @@ int SOLVE_OCP_NLP_IPM(struct OCP_NLP *nlp, struct OCP_NLP_SOL *nlp_sol, struct O
 	double nlp_res[4];
 
 
-	// initialize nlp sol
+	// initialize nlp sol (to zero atm)
 	for(nn=0; nn<=N; nn++)
 		dvecse_libstr(nlp->nu[nn]+nlp->nx[nn], 0.0, nlp_sol->ux+nn, 0);
 	for(nn=0; nn<N; nn++)
