@@ -13,3 +13,5 @@ octave-workspace
 *.aux
 *.toc
 *.log
+*.synctex.gz
+.vscode
