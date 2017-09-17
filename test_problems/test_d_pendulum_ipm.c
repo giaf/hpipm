@@ -198,6 +198,7 @@ int main()
 	struct d_erk_arg erk_arg;
 	erk_arg.steps = 10;
 	erk_arg.h = Ts/erk_arg.steps;
+	erk_arg.adj_sens = 0;
 
 /************************************************
 * ocp qp

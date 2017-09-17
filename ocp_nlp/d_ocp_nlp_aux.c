@@ -54,8 +54,13 @@ void d_cvt_erk_int_to_ocp_qp(int n, struct d_erk_workspace *erk_ws, struct d_ocp
 	int nx = erk_ws->nx;
 	int nf = erk_ws->nf;
 
+	int nX = nx*(1+nf);
+
 	double *x = erk_ws->x;
-	double *xt = b->pa;
+	if(erk_ws->erk_arg->adj_sens!=0)
+		x = erk_ws->x + nX*erk_ws->erk_arg->steps;
+
+//	double *xt = b->pa;
 
 	double *tmp;
 
@@ -94,8 +99,13 @@ void d_cvt_erk_int_to_ocp_qp_rhs(int n, struct d_erk_workspace *erk_ws, struct d
 	int nx = erk_ws->nx;
 	int nf = erk_ws->nf;
 
+	int nX = nx*(1+nf);
+
 	double *x = erk_ws->x;
-	double *xt = b->pa;
+	if(erk_ws->erk_arg->adj_sens!=0)
+		x = erk_ws->x + nX*erk_ws->erk_arg->steps;
+
+//	double *xt = b->pa;
 
 	double *tmp;
 

@@ -42,18 +42,28 @@
 
 
 
-int d_memsize_erk_int(struct d_rk_data *rk_data, int nx, int nf, int np)
+int d_memsize_erk_int(struct d_rk_data *rk_data, struct d_erk_arg *erk_arg, int nx, int nf, int np)
 	{
 
 	int ns = rk_data->ns;
 
 	int nX = nx*(1+nf);
 
+	int steps = erk_arg->steps;
+
 	int size = 0;
 
 	size += 1*ns*nX*sizeof(double); // K
-	size += 2*nX*sizeof(double); // x xt
+	size += 1*nX*sizeof(double); // xt
 	size += 1*np*sizeof(double); // p
+	if(erk_arg->adj_sens==0)
+		{
+		size += 1*nX*sizeof(double); // x
+		}
+	else
+		{
+		size += 1*nX*(steps+1)*sizeof(double); // x (checkpoint)
+		}
 
 	return size;
 
@@ -61,10 +71,11 @@ int d_memsize_erk_int(struct d_rk_data *rk_data, int nx, int nf, int np)
 
 
 
-void d_create_erk_int(struct d_rk_data *rk_data, int nx, int nf, int np, struct d_erk_workspace *ws, void *mem)
+void d_create_erk_int(struct d_rk_data *rk_data, struct d_erk_arg *erk_arg, int nx, int nf, int np, struct d_erk_workspace *ws, void *mem)
 	{
 
 	ws->rk_data = rk_data;
+	ws->erk_arg = erk_arg;
 	ws->nx = nx;
 	ws->nf = nf;
 	ws->np = np;
@@ -73,14 +84,24 @@ void d_create_erk_int(struct d_rk_data *rk_data, int nx, int nf, int np, struct 
 
 	int nX = nx*(1+nf);
 
+	int steps = erk_arg->steps;
+
 	double *d_ptr = mem;
 
 	//
 	ws->K = d_ptr;
 	d_ptr += ns*nX;
 	//
-	ws->x = d_ptr;
-	d_ptr += nX;
+	if(erk_arg->adj_sens==0)
+		{
+		ws->x = d_ptr;
+		d_ptr += nX;
+		}
+	else
+		{
+		ws->x = d_ptr;
+		d_ptr += nX*(steps+1);
+		}
 	//
 	ws->xt = d_ptr;
 	d_ptr += nX;
@@ -89,7 +110,7 @@ void d_create_erk_int(struct d_rk_data *rk_data, int nx, int nf, int np, struct 
 	d_ptr += np;
 
 
-	ws->memsize = d_memsize_erk_int(rk_data, nx, nf, np);
+	ws->memsize = d_memsize_erk_int(rk_data, erk_arg, nx, nf, np);
 
 
 	char *c_ptr = (char *) d_ptr;
@@ -164,18 +185,19 @@ void d_update_p_erk_int(double *p0, struct d_erk_workspace *ws)
 
 
 
-void d_erk_int(struct d_erk_arg *erk_arg, struct d_erk_workspace *ws)
+void d_erk_int(struct d_erk_workspace *ws)
 	{
 //printf("\nenter erk\n");
 
-	int steps = erk_arg->steps;
-	double h = erk_arg->h;
+	int steps = ws->erk_arg->steps;
+	double h = ws->erk_arg->h;
 
 	struct d_rk_data *rk_data = ws->rk_data;
 	int nx = ws->nx;
 	int nf = ws->nf;
 	double *K = ws->K;
-	double *x = ws->x;
+	double *x0 = ws->x;
+	double *x1 = ws->x;
 	double *p = ws->p;
 	double *xt = ws->xt;
 
@@ -199,10 +221,17 @@ void d_erk_int(struct d_erk_arg *erk_arg, struct d_erk_workspace *ws)
 	for(step=0; step<steps; step++)
 		{
 //printf("\nstep %d\n", step);
+		if(ws->erk_arg->adj_sens!=0)
+			{
+			x0 = ws->x + step*nX;
+			x1 = ws->x + (step+1)*nX;
+			for(ii=0; ii<nX; ii++)
+				x1[ii] = x0[ii];
+			}
 		for(ss=0; ss<ns; ss++)
 			{
 			for(ii=0; ii<nX; ii++)
-				xt[ii] = x[ii];
+				xt[ii] = x0[ii];
 			for(ii=0; ii<ss; ii++)
 				{
 				a = A_rk[ss+ns*ii];
@@ -225,7 +254,7 @@ void d_erk_int(struct d_erk_arg *erk_arg, struct d_erk_workspace *ws)
 			{
 			b = h*B_rk[ss];
 			for(ii=0; ii<nX; ii++)
-				x[ii] += b*K[ii+ss*(nX)];
+				x1[ii] += b*K[ii+ss*(nX)];
 			}
 //d_print_e_mat(nx, nf+1, x, nx);
 		t += h;

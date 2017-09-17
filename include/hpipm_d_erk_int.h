@@ -27,11 +27,21 @@
 
 
 
+struct d_erk_arg
+	{
+	double h; // step size
+	int steps; // number of steps
+	int adj_sens; // compute adjoint sensitivities
+	};
+
+
+
 struct d_erk_workspace
 	{
 	void (*ode)(int t, double *x, double *p, void *ode_args, double *xdot); // function pointer to vde
 	void *ode_args; // pointer to ode args
 	struct d_rk_data *rk_data; // integrator data
+	struct d_erk_arg *erk_arg; // erk arg
 	double *K; // internal variables
 	double *x; // states and forward sensitivities
 	double *p; // parameter
@@ -40,26 +50,17 @@ struct d_erk_workspace
 	int nf; // number of forward sensitivities
 	int np; // number of parameters
 	int memsize; // TODO
-//	bool sens_adj; // compute adjoint sensitivities
-	};
-
-
-
-struct d_erk_arg
-	{
-	double h; // step size
-	int steps; // number of steps
 	};
 
 
 
 //
-int d_memsize_erk_int(struct d_rk_data *rk_data, int nx, int nf, int np);
+int d_memsize_erk_int(struct d_rk_data *rk_data, struct d_erk_arg *erk_arg, int nx, int nf, int np);
 //
-void d_create_erk_int(struct d_rk_data *rk_data, int nx, int nf, int np, struct d_erk_workspace *workspace, void *memory);
+void d_create_erk_int(struct d_rk_data *rk_data, struct d_erk_arg *erk_arg, int nx, int nf, int np, struct d_erk_workspace *workspace, void *memory);
 //
 void d_init_erk_int(double *x0, double *fs0, double *p0, void (*ode)(int t, double *x, double *p, void *ode_args, double *xdot), void *ode_args, struct d_erk_workspace *ws);
 //
 void d_update_p_erk_int(double *p0, struct d_erk_workspace *ws);
 //
-void d_erk_int(struct d_erk_arg *erk_arg, struct d_erk_workspace *workspace);
+void d_erk_int(struct d_erk_workspace *workspace);
