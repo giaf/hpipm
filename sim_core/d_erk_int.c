@@ -53,16 +53,17 @@ int d_memsize_erk_int(struct d_rk_data *rk_data, struct d_erk_arg *erk_arg, int 
 
 	int size = 0;
 
-	size += 1*ns*nX*sizeof(double); // K
 	size += 1*nX*sizeof(double); // xt
 	size += 1*np*sizeof(double); // p
 	if(erk_arg->adj_sens==0)
 		{
 		size += 1*nX*sizeof(double); // x
+		size += 1*ns*nX*sizeof(double); // K
 		}
-	else
+	else // (checkpoint)
 		{
-		size += 1*nX*(steps+1)*sizeof(double); // x (checkpoint)
+		size += 1*nX*(steps+1)*sizeof(double); // x
+		size += 1*ns*nX*steps*sizeof(double); // K
 		}
 
 	return size;
@@ -88,17 +89,21 @@ void d_create_erk_int(struct d_rk_data *rk_data, struct d_erk_arg *erk_arg, int 
 
 	double *d_ptr = mem;
 
-	//
-	ws->K = d_ptr;
-	d_ptr += ns*nX;
-	//
 	if(erk_arg->adj_sens==0)
 		{
+		//
+		ws->K = d_ptr;
+		d_ptr += ns*nX;
+		//
 		ws->x = d_ptr;
 		d_ptr += nX;
 		}
 	else
 		{
+		//
+		ws->K = d_ptr;
+		d_ptr += ns*nX*steps;
+		//
 		ws->x = d_ptr;
 		d_ptr += nX*(steps+1);
 		}
@@ -187,15 +192,15 @@ void d_update_p_erk_int(double *p0, struct d_erk_workspace *ws)
 
 void d_erk_int(struct d_erk_workspace *ws)
 	{
-//printf("\nenter erk\n");
 
 	int steps = ws->erk_arg->steps;
 	double h = ws->erk_arg->h;
+	int adj_sens = ws->erk_arg->adj_sens;
 
 	struct d_rk_data *rk_data = ws->rk_data;
 	int nx = ws->nx;
 	int nf = ws->nf;
-	double *K = ws->K;
+	double *K0 = ws->K;
 	double *x0 = ws->x;
 	double *x1 = ws->x;
 	double *p = ws->p;
@@ -215,18 +220,18 @@ void d_erk_int(struct d_erk_workspace *ws)
 
 	int nX = nx*(1+nf);
 
-//d_print_mat(nx, nf+1, x, nx);
+	// forward sweep
 
 	t = 0.0;
 	for(step=0; step<steps; step++)
 		{
-//printf("\nstep %d\n", step);
-		if(ws->erk_arg->adj_sens!=0)
+		if(adj_sens!=0)
 			{
 			x0 = ws->x + step*nX;
 			x1 = ws->x + (step+1)*nX;
 			for(ii=0; ii<nX; ii++)
 				x1[ii] = x0[ii];
+			K0 = ws->K + ns*step*nX;
 			}
 		for(ss=0; ss<ns; ss++)
 			{
@@ -237,31 +242,38 @@ void d_erk_int(struct d_erk_workspace *ws)
 				a = A_rk[ss+ns*ii];
 				if(a!=0)
 					{
-					sK.pa = K+ii*nX; // XXX
+					sK.pa = K0+ii*nX; // XXX
 					a *= h;
 #if 0
 					daxpy_libstr(nX, a, &sK, 0, &sxt, 0, &sxt, 0); // XXX
 #else
 					for(jj=0; jj<nX; jj++)
-						xt[jj] += a*K[jj+ii*(nX)];
+						xt[jj] += a*K0[jj+ii*(nX)];
 #endif
 					}
 				}
-			ws->ode(t+h*C_rk[ss], xt, p, ws->ode_args, K+ss*(nX));
+			ws->ode(t+h*C_rk[ss], xt, p, ws->ode_args, K0+ss*(nX));
 			}
-//d_print_e_mat(nx, ns*(nf+1), K, nx);
 		for(ss=0; ss<ns; ss++)
 			{
 			b = h*B_rk[ss];
 			for(ii=0; ii<nX; ii++)
-				x1[ii] += b*K[ii+ss*(nX)];
+				x1[ii] += b*K0[ii+ss*(nX)];
 			}
-//d_print_e_mat(nx, nf+1, x, nx);
 		t += h;
 		}
+	
+	// adjoint sweep
+	if(adj_sens!=0)
+		{
+		for(step=steps-1; step>=0; step--)
+			{
+//			for(ss=ns-1; ss>=0; ss--)
+//				{
+//				}
+			}
+		}
 
-//d_print_e_mat(nx, nf+1, x, nx);
-//printf("\nexit erk\n");
 	return;
 
 	}
