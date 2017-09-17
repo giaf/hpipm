@@ -65,7 +65,7 @@
 #define CREATE_OCP_QP_IPM d_create_ocp_qp_ipm
 #define CREATE_OCP_QP_SOL d_create_ocp_qp_sol
 #define CREATE_STRVEC d_create_strvec
-#define ERK_ARG d_erk_args
+#define ERK_ARG d_erk_arg
 #define ERK_WORKSPACE d_erk_workspace
 #define MEMSIZE_ERK_INT d_memsize_erk_int
 #define MEMSIZE_OCP_NLP_SQP d_memsize_ocp_nlp_sqp

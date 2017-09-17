@@ -62,7 +62,7 @@
 #define CREATE_OCP_QP_IPM d_create_ocp_qp_ipm
 #define CREATE_OCP_QP_SOL d_create_ocp_qp_sol
 #define CREATE_STRVEC d_create_strvec
-#define ERK_ARG d_erk_args
+#define ERK_ARG d_erk_arg
 #define ERK_WORKSPACE d_erk_workspace
 #define FACT_SOLVE_KKT_STEP_OCP_QP d_fact_solve_kkt_step_ocp_qp
 //#define FACT_SOLVE_KKT_UNCONSTR_OCP_QP d_fact_solve_kkt_unconstr_ocp_qp

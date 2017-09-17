@@ -57,7 +57,7 @@ struct d_ocp_nlp_hyb_arg
 	{
 	struct d_ocp_qp_ipm_arg *ipm_arg; // ipm arg
 	struct d_rk_data *rk_data; // rk data
-	struct d_erk_args *erk_arg; // TODO fix name in arg !!!
+	struct d_erk_arg *erk_arg; // TODO fix name in arg !!!
 //	double mu0; // initial value for duality measure
 	double alpha_min; // exit cond on step length
 	double nlp_res_g_max; // exit cond on inf norm of residuals

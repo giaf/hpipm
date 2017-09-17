@@ -51,7 +51,7 @@
 
 
 
-void d_van_der_pol_ode(int t, double *x, double *u, void *ode_args, double *xdot)
+void d_van_der_pol_ode(int t, double *x, double *u, void *ode_arg, double *xdot)
 	{
 	double mu = 1.0;
 	xdot[0] = x[1];
@@ -61,7 +61,7 @@ void d_van_der_pol_ode(int t, double *x, double *u, void *ode_args, double *xdot
 
 
 
-void d_van_der_pol_vde1(int t, double *x, double *u, void *ode_args, double *xdot)
+void d_van_der_pol_vde1(int t, double *x, double *u, void *ode_arg, double *xdot)
 	{
 	double mu = 1.0;
 	int ii, jj, kk;
@@ -188,7 +188,7 @@ int main()
 	d_print_mat(1, nu_, r, 1);
 
 /************************************************
-* integrator type and args
+* integrator type and arg
 ************************************************/	
 	
 #if 1
@@ -227,8 +227,8 @@ int main()
 
 	double Ts = 0.1;
 
-	// erk args structure
-	struct d_erk_args erk_arg;
+	// erk arg structure
+	struct d_erk_arg erk_arg;
 	erk_arg.steps = 10;
 	erk_arg.h = Ts/erk_arg.steps;
 
@@ -564,7 +564,7 @@ int main()
 * ocp nlp sqp arg
 ************************************************/	
 
-	struct d_erk_args erk_args[N];
+	struct d_erk_arg erk_args[N];
 	for(ii=0; ii<N; ii++)
 		erk_args[ii] = erk_arg;
 

@@ -155,7 +155,7 @@ int main()
 	d_print_mat(1, nu_, r, 1);
 
 /************************************************
-* integrator type and args
+* integrator type and arg
 ************************************************/	
 	
 #if 1
@@ -194,8 +194,8 @@ int main()
 
 	double Ts = 0.1;
 
-	// erk args structure
-	struct d_erk_args erk_arg;
+	// erk arg structure
+	struct d_erk_arg erk_arg;
 	erk_arg.steps = 10;
 	erk_arg.h = Ts/erk_arg.steps;
 
@@ -558,7 +558,7 @@ int main()
 * ocp nlp hyb arg
 ************************************************/	
 
-	struct d_erk_args erk_args[N];
+	struct d_erk_arg erk_args[N];
 	for(ii=0; ii<N; ii++)
 		erk_args[ii] = erk_arg;
 

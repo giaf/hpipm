@@ -99,7 +99,13 @@ void d_cvt_erk_int_to_ocp_qp_rhs(int n, struct d_erk_workspace *erk_ws, struct d
 
 	double *tmp;
 
-//	d_cvt_tran_mat2strmat(nx, nf, x+nx, nx, BAbt, 0, 0);
+	struct d_strmat tmp_BAbt;
+	d_allocate_strmat(nx, nf, &tmp_BAbt);
+	d_cvt_tran_mat2strmat(nx, nf, x+nx, nx, &tmp_BAbt, 0, 0);
+	dgemv_n_libstr(nf, nx, 1.0, &tmp_BAbt, 0, 0, nlp_sol->pi+n, 0, 1.0, qp->rq+n, 0, qp->rq+n, 0);
+	dgemv_n_libstr(nf, nx, -1.0, BAbt, 0, 0, nlp_sol->pi+n, 0, 1.0, qp->rq+n, 0, qp->rq+n, 0);
+	drowin_libstr(nf, 1.0, qp->rq+n, 0, qp->RSQrq+n, nf, 0);
+	d_free_strmat(&tmp_BAbt);
 
 	d_cvt_vec2strvec(nx, x, b, 0);
 	dgemv_t_libstr(nf, nx, -1.0, BAbt, 0, 0, ux, 0, 1.0, b, 0, b, 0);

@@ -40,11 +40,12 @@ struct d_erk_workspace
 	int nf; // number of forward sensitivities
 	int np; // number of parameters
 	int memsize; // TODO
+//	bool sens_adj; // compute adjoint sensitivities
 	};
 
 
 
-struct d_erk_args
+struct d_erk_arg
 	{
 	double h; // step size
 	int steps; // number of steps
@@ -61,4 +62,4 @@ void d_init_erk_int(double *x0, double *fs0, double *p0, void (*ode)(int t, doub
 //
 void d_update_p_erk_int(double *p0, struct d_erk_workspace *ws);
 //
-void d_erk_int(struct d_erk_args *erk_args, struct d_erk_workspace *workspace);
+void d_erk_int(struct d_erk_arg *erk_arg, struct d_erk_workspace *workspace);

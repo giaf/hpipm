@@ -57,7 +57,7 @@ struct d_ocp_nlp_sqp_arg
 	{
 	struct d_ocp_qp_ipm_arg *ipm_arg; // ipm arg
 	struct d_rk_data *rk_data; // rk data
-	struct d_erk_args *erk_arg; // TODO fix name in arg !!!
+	struct d_erk_arg *erk_arg; // TODO fix name in arg !!!
 	double nlp_res_g_max; // exit cond on inf norm of residuals
 	double nlp_res_b_max; // exit cond on inf norm of residuals
 	double nlp_res_d_max; // exit cond on inf norm of residuals

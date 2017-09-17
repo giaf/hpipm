@@ -69,7 +69,7 @@
 #define CREATE_OCP_QP_IPM d_create_ocp_qp_ipm
 #define CREATE_OCP_QP_SOL d_create_ocp_qp_sol
 #define CREATE_STRVEC d_create_strvec
-#define ERK_ARG d_erk_args
+#define ERK_ARG d_erk_arg
 #define ERK_WORKSPACE d_erk_workspace
 #define FACT_SOLVE_KKT_STEP_OCP_QP d_fact_solve_kkt_step_ocp_qp
 #define INIT_VAR_OCP_QP d_init_var_ocp_qp
@@ -674,6 +674,12 @@ for(nn=0; nn<=N; nn++)
 	for(ss=0; ss<arg->nlp_iter_max; ss++)	
 		{
 
+	for(nn=0; nn<=N; nn++)
+		{
+		dveccp_libstr(nu[nn]+nx[nn], nlp->rq+nn, 0, qp->rq+nn, 0);
+//		drowin_libstr(nu[nn]+nx[nn], 1.0, qp->rq+nn, 0, qp->RSQrq+nn, nu[nn]+nx[nn], 0);
+		}
+
 		// simulation & sensitivity propagation
 		for(nn=0; nn<N; nn++)
 			{
@@ -681,12 +687,12 @@ for(nn=0; nn<=N; nn++)
 			u  = (nlp_sol->ux+nn)->pa;
 			d_init_erk_int(x, (nlp->model+nn)->forward_seed, u, (nlp->model+nn)->expl_vde, (nlp->model+nn)->arg, erk_ws+nn);
 			d_erk_int(erk_arg+nn, erk_ws+nn);
-//			if(ss<=0)
+			if(ss<=0)
 				d_cvt_erk_int_to_ocp_qp(nn, erk_ws+nn, qp, nlp_sol);
-//			else
-//				{
-//				d_cvt_erk_int_to_ocp_qp_rhs(nn, erk_ws+nn, qp, nlp_sol);
-//				}
+			else
+				{
+				d_cvt_erk_int_to_ocp_qp_rhs(nn, erk_ws+nn, qp, nlp_sol);
+				}
 			}
 
 //for(ii=0; ii<N; ii++)

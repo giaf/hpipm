@@ -164,12 +164,12 @@ void d_update_p_erk_int(double *p0, struct d_erk_workspace *ws)
 
 
 
-void d_erk_int(struct d_erk_args *erk_args, struct d_erk_workspace *ws)
+void d_erk_int(struct d_erk_arg *erk_arg, struct d_erk_workspace *ws)
 	{
 //printf("\nenter erk\n");
 
-	int steps = erk_args->steps;
-	double h = erk_args->h;
+	int steps = erk_arg->steps;
+	double h = erk_arg->h;
 
 	struct d_rk_data *rk_data = ws->rk_data;
 	int nx = ws->nx;
