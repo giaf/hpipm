@@ -51,7 +51,8 @@
 
 
 
-int vdeFun(double** arg, double** res, int* iw, double* w, int mem);
+int vdeFun(double **arg, double **res, int *iw, double *w, int mem);
+int adjFun(double **arg, double **res, int *iw, double *w, int mem);
 
 
 
@@ -97,6 +98,9 @@ void vde_fun_model(int t, double *x, double *u, void *ode_arg, double *out)
 	vdeFun(casadi_arg, casadi_res, iw, w, mem);
 
 	}
+
+
+// TODO vde_adj_model()
 
 
 
@@ -432,7 +436,8 @@ int main()
 	vde_arg.nu = nu_;
 
 	struct d_ocp_nlp_model model1;
-	model1.expl_vde = &vde_fun_model;
+	model1.expl_vde_for = &vde_fun_model;
+	model1.expl_vde_adj = NULL;
 	model1.forward_seed = fs1;
 	model1.arg = &vde_arg;
 

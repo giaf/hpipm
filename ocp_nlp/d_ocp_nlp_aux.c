@@ -44,39 +44,28 @@ void d_cvt_erk_int_to_ocp_qp(int n, struct d_erk_workspace *erk_ws, struct d_ocp
 
 	int ii;
 
-//	int *nx = qp->nx+n;
-//	int *nu = qp->nu+n;
+	int nx = qp->nx[n];
+	int nu = qp->nu[n];
 	struct d_strmat *BAbt = qp->BAbt+n;
 	struct d_strvec *b = qp->b+n;
 
 	struct d_strvec *ux = nlp_sol->ux+n;
 
-	int nx = erk_ws->nx;
+//	int nx = erk_ws->nx;
 	int nf = erk_ws->nf;
-
 	int nX = nx*(1+nf);
 
 	double *x = erk_ws->x;
-	if(erk_ws->erk_arg->adj_sens!=0)
-		x = erk_ws->x + nX*erk_ws->erk_arg->steps;
-
-//	double *xt = b->pa;
-
-	double *tmp;
+//	if(adj_sens!=0 & erk_ws->erk_arg->adj_sens!=0)
+//		x = erk_ws->x + nX*erk_ws->erk_arg->steps;
 
 //	d_cvt_tran_mat2strmat(nx[1], nu[0]+nx[0], x, nx[1], BAbt, 0, 0);
-	d_cvt_tran_mat2strmat(nx, nf, x+nx, nx, BAbt, 0, 0);
+	d_cvt_tran_mat2strmat(nx, nu+nx, x+nx, nx, BAbt, 0, 0);
 
-	// XXX not compute this again in residuals !!!
-//	tmp = x+nx*nf;
-//	for(ii=0; ii<nx; ii++)
-//		xt[ii] = tmp[ii] - xn[ii];
-//printf("\n%d\n", nf);
 	d_cvt_vec2strvec(nx, x, b, 0);
-	dgemv_t_libstr(nf, nx, -1.0, BAbt, 0, 0, ux, 0, 1.0, b, 0, b, 0);
-//d_print_strvec(nx, b, 0);
-	
-	drowin_libstr(nx, 1.0, b, 0, BAbt, nf, 0);
+	// XXX not compute this again in residuals !!!
+	dgemv_t_libstr(nu+nx, nx, -1.0, BAbt, 0, 0, ux, 0, 1.0, b, 0, b, 0);
+	drowin_libstr(nx, 1.0, b, 0, BAbt, nu+nx, 0);
 
 	return;
 
@@ -89,37 +78,32 @@ void d_cvt_erk_int_to_ocp_qp_rhs(int n, struct d_erk_workspace *erk_ws, struct d
 
 	int ii;
 
-//	int *nx = qp->nx+n;
-//	int *nu = qp->nu+n;
+	int nx = qp->nx[n];
+	int nu = qp->nu[n];
 	struct d_strmat *BAbt = qp->BAbt+n;
 	struct d_strvec *b = qp->b+n;
 
 	struct d_strvec *ux = nlp_sol->ux+n;
 
-	int nx = erk_ws->nx;
+//	int nx = erk_ws->nx;
+//	int np = erk_ws->np;
 	int nf = erk_ws->nf;
 
 	int nX = nx*(1+nf);
 
-	double *x = erk_ws->x;
-	if(erk_ws->erk_arg->adj_sens!=0)
-		x = erk_ws->x + nX*erk_ws->erk_arg->steps;
+//	double *x = erk_ws->x;
+//	if(erk_ws->erk_arg->adj_sens!=0)
+	double *x = erk_ws->x + nX*erk_ws->erk_arg->steps;
 
-//	double *xt = b->pa;
+	struct d_strvec sl;
+	d_create_strvec(nu+nx, &sl, erk_ws->l);
 
-	double *tmp;
-
-	struct d_strmat tmp_BAbt;
-	d_allocate_strmat(nx, nf, &tmp_BAbt);
-	d_cvt_tran_mat2strmat(nx, nf, x+nx, nx, &tmp_BAbt, 0, 0);
-	dgemv_n_libstr(nf, nx, 1.0, &tmp_BAbt, 0, 0, nlp_sol->pi+n, 0, 1.0, qp->rq+n, 0, qp->rq+n, 0);
-	dgemv_n_libstr(nf, nx, -1.0, BAbt, 0, 0, nlp_sol->pi+n, 0, 1.0, qp->rq+n, 0, qp->rq+n, 0);
-	drowin_libstr(nf, 1.0, qp->rq+n, 0, qp->RSQrq+n, nf, 0);
-	d_free_strmat(&tmp_BAbt);
-
+	daxpy_libstr(nu+nx, 1.0, &sl, 0, qp->rq+n, 0, qp->rq+n, 0);
 	d_cvt_vec2strvec(nx, x, b, 0);
-	dgemv_t_libstr(nf, nx, -1.0, BAbt, 0, 0, ux, 0, 1.0, b, 0, b, 0);
-	drowin_libstr(nx, 1.0, b, 0, BAbt, nf, 0);
+	// XXX not compute this again in residuals !!!
+	dgemv_nt_libstr(nu+nx, nx, -1.0, -1.0, BAbt, 0, 0, nlp_sol->pi+n, 0, ux, 0, 1.0, 1.0, qp->rq+n, 0, b, 0, qp->rq+n, 0, b, 0);
+	drowin_libstr(nu+nx, 1.0, qp->rq+n, 0, qp->RSQrq+n, nu+nx, 0);
+	drowin_libstr(nx, 1.0, b, 0, BAbt, nu+nx, 0);
 
 	return;
 

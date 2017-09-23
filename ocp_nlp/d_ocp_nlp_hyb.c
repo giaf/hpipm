@@ -178,7 +178,7 @@ int MEMSIZE_OCP_NLP_HYB(struct OCP_NLP *nlp, struct OCP_NLP_HYB_ARG *arg)
 
 	for(ii=0; ii<N; ii++)
 		{
-		size += MEMSIZE_ERK_INT(arg->rk_data, arg->erk_arg+ii, nx[ii], nx[ii]+nu[ii], nu[ii]);
+		size += MEMSIZE_ERK_INT(arg->rk_data, arg->erk_arg+ii, nx[ii], nu[ii], nx[ii]+nu[ii], 1);
 		}
 
 	size = (size+63)/64*64; // make multiple of typical cache line size
@@ -303,7 +303,7 @@ void CREATE_OCP_NLP_HYB(struct OCP_NLP *nlp, struct OCP_NLP_HYB_ARG *arg, struct
 	for(ii=0; ii<N; ii++)
 		{
 		//
-		CREATE_ERK_INT(arg->rk_data, arg->erk_arg+ii, nx[ii], nx[ii]+nu[ii], nu[ii], ws->erk_workspace+ii, c_ptr);
+		CREATE_ERK_INT(arg->rk_data, arg->erk_arg+ii, nx[ii], nu[ii], nx[ii]+nu[ii], 1, ws->erk_workspace+ii, c_ptr);
 		c_ptr += (ws->erk_workspace+ii)->memsize;
 		}
 	
@@ -379,7 +379,7 @@ for(ii=0; ii<=N2; ii++)
 exit(1);
 #endif
 
-	double *x, *u;
+	double *x, *u, *pi;
 
 	struct STRVEC str_res_g;
 	struct STRVEC str_res_b;
@@ -427,7 +427,8 @@ exit(1);
 		{
 		x  = (nlp_sol->ux+nn)->pa+nu[nn];
 		u  = (nlp_sol->ux+nn)->pa;
-		d_init_erk_int(x, (nlp->model+nn)->forward_seed, u, (nlp->model+nn)->expl_vde, (nlp->model+nn)->arg, erk_ws+nn);
+		pi = (nlp_sol->pi+nn)->pa;
+		d_init_erk_int(nx[nn]+nu[nn], 0, x, u, (nlp->model+nn)->forward_seed, NULL, (nlp->model+nn)->expl_vde_for, NULL, (nlp->model+nn)->arg, erk_ws+nn);
 		d_erk_int(erk_ws+nn);
 		// setup BAbt & b
 		d_cvt_erk_int_to_ocp_qp(nn, erk_ws+nn, qp, nlp_sol);
@@ -685,12 +686,18 @@ for(nn=0; nn<=N; nn++)
 			{
 			x  = (nlp_sol->ux+nn)->pa+nu[nn];
 			u  = (nlp_sol->ux+nn)->pa;
-			d_init_erk_int(x, (nlp->model+nn)->forward_seed, u, (nlp->model+nn)->expl_vde, (nlp->model+nn)->arg, erk_ws+nn);
-			d_erk_int(erk_ws+nn);
+			pi = (nlp_sol->pi+nn)->pa;
 			if(ss<=0)
+//			if(1)
+				{
+				d_init_erk_int(nx[nn]+nu[nn], 0, x, u, (nlp->model+nn)->forward_seed, NULL, (nlp->model+nn)->expl_vde_for, NULL, (nlp->model+nn)->arg, erk_ws+nn);
+				d_erk_int(erk_ws+nn);
 				d_cvt_erk_int_to_ocp_qp(nn, erk_ws+nn, qp, nlp_sol);
+				}
 			else
 				{
+				d_init_erk_int(0, 1, x, u, NULL, pi, (nlp->model+nn)->expl_vde_for, (nlp->model+nn)->expl_vde_adj, (nlp->model+nn)->arg, erk_ws+nn);
+				d_erk_int(erk_ws+nn);
 				d_cvt_erk_int_to_ocp_qp_rhs(nn, erk_ws+nn, qp, nlp_sol);
 				}
 			}

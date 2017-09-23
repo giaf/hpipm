@@ -61,7 +61,7 @@ void d_van_der_pol_ode(int t, double *x, double *u, void *ode_arg, double *xdot)
 
 
 
-void d_van_der_pol_vde1(int t, double *x, double *u, void *ode_arg, double *xdot)
+void d_van_der_pol_vde_for(int t, double *x, double *u, void *ode_arg, double *xdot)
 	{
 	double mu = 1.0;
 	int ii, jj, kk;
@@ -98,6 +98,46 @@ void d_van_der_pol_vde1(int t, double *x, double *u, void *ode_arg, double *xdot
 	for(jj=0; jj<nu; jj++)
 		for(ii=0; ii<nx; ii++)
 			xdot_tmp[ii+nx*jj] += Bc[ii+nx*jj];
+	return;
+	}
+
+
+
+void d_van_der_pol_vde_adj(int i, double *adj_in, void *ode_arg, double *adj_out)
+	{
+	double mu = 1.0;
+	int ii, jj, kk;
+	int nx = 2;
+	int nu = 1;
+	// extract inputs
+	double *x = adj_in + 0;
+	double *l = adj_in + nx;
+	double *u = adj_in + nx + nx;
+	// extract output
+	double *l_u_out = adj_out + 0;
+	double *l_x_out = adj_out + nu;
+	// jacobian of ode
+	double Ac[4];
+	Ac[0+nx*0] = 0.0;
+	Ac[0+nx*1] = 1.0;
+	Ac[1+nx*0] = - 1.0 - 2.0*mu*x[0]*x[1];
+	Ac[1+nx*1] = mu*(1.0 - x[0]*x[0]);
+	double Bc[2];
+	Bc[0+nx*0] = 0.0;
+	Bc[1+nx*0] = 1.0;
+	// l_out
+	for(jj=0; jj<nx; jj++)
+		{
+		l_x_out[jj] = 0.0;
+		for(ii=0; ii<nx; ii++)
+			l_x_out[jj] += Ac[ii+nx*jj] * l[ii];
+		}
+	for(jj=0; jj<nu; jj++)
+		{
+		l_u_out[jj] = 0.0;
+		for(ii=0; ii<nx; ii++)
+			l_u_out[jj] += Bc[ii+nx*jj] * l[ii];
+		}
 	return;
 	}
 
@@ -156,7 +196,7 @@ int main()
 
 	double *fsdot = malloc(nx_*(nu_+nx_+1)*sizeof(double));
 
-	d_van_der_pol_vde1(0, fs0, u0, NULL, fsdot);
+	d_van_der_pol_vde_for(0, fs0, u0, NULL, fsdot);
 
 	d_print_mat(nx_, nu_+nx_+1, fsdot, nx_);
 
@@ -231,6 +271,7 @@ int main()
 	struct d_erk_arg erk_arg;
 	erk_arg.steps = 10;
 	erk_arg.h = Ts/erk_arg.steps;
+	erk_arg.for_sens = 1;
 	erk_arg.adj_sens = 1;
 
 /************************************************
@@ -438,7 +479,8 @@ int main()
 		fs1[nu_*nx_+ii*(nx_+1)] = 1.0;
 
 	struct d_ocp_nlp_model model1;
-	model1.expl_vde = &d_van_der_pol_vde1;
+	model1.expl_vde_for = &d_van_der_pol_vde_for;
+	model1.expl_vde_adj = &d_van_der_pol_vde_adj;
 	model1.forward_seed = fs1;
 	model1.arg = NULL;
 
@@ -602,7 +644,7 @@ int main()
 	int nlp_return;
 
 	struct timeval tv0, tv1;
-	int rep, nrep = 1;
+	int rep, nrep = 1000;
 
 	gettimeofday(&tv0, NULL); // start
 
