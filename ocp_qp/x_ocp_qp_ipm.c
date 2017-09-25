@@ -27,6 +27,45 @@
 
 
 
+int MEMSIZE_OCP_QP_IPM_ARG(struct OCP_QP *qp)
+	{
+
+	return 0;
+
+	}
+
+
+
+void CREATE_OCP_QP_IPM_ARG(struct OCP_QP *qp, struct OCP_QP_IPM_ARG *arg, void *mem)
+	{
+
+	arg->memsize = 0;
+
+	return;
+
+	}
+
+
+
+void SET_DEFAULT_OCP_QP_IPM_ARG(struct OCP_QP_IPM_ARG *arg)
+	{
+
+	arg->mu0 = 100;
+	arg->alpha_min = 1e-8;
+	arg->res_g_max = 1e-8;
+	arg->res_b_max = 1e-8;
+	arg->res_d_max = 1e-12;
+	arg->res_m_max = 1e-12;
+	arg->iter_max = 20;
+	arg->stat_max = 20;
+	arg->pred_corr = 1;
+
+	return;
+
+	}
+
+
+
 int MEMSIZE_OCP_QP_IPM(struct OCP_QP *qp, struct OCP_QP_IPM_ARG *arg)
 	{
 

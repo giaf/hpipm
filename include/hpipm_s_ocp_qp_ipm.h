@@ -33,6 +33,22 @@
 
 
 
+struct s_ocp_qp_ipm_arg
+	{
+	float mu0; // initial value for duality measure
+	float alpha_min; // exit cond on step length
+	float res_g_max; // exit cond on inf norm of residuals
+	float res_b_max; // exit cond on inf norm of residuals
+	float res_d_max; // exit cond on inf norm of residuals
+	float res_m_max; // exit cond on inf norm of residuals
+	int iter_max; // exit cond in iter number
+	int stat_max; // iterations saved in stat
+	int pred_corr; // use Mehrotra's predictor-corrector IPM algirthm
+	int memsize;
+	};
+
+
+
 struct s_ocp_qp_ipm_workspace
 	{
 	struct s_core_qp_ipm_workspace *core_workspace;
@@ -62,20 +78,12 @@ struct s_ocp_qp_ipm_workspace
 
 
 
-struct s_ocp_qp_ipm_arg
-	{
-	float mu0; // initial value for duality measure
-	float alpha_min; // exit cond on step length
-	float res_g_max; // exit cond on inf norm of residuals
-	float res_b_max; // exit cond on inf norm of residuals
-	float res_d_max; // exit cond on inf norm of residuals
-	float res_m_max; // exit cond on inf norm of residuals
-	int iter_max; // exit cond in iter number
-	int stat_max; // iterations saved in stat
-	int pred_corr; // use Mehrotra's predictor-corrector IPM algirthm
-	};
-
-
+//
+int s_memsize_ocp_qp_ipm_arg(struct s_ocp_qp *qp);
+//
+void s_create_ocp_qp_ipm_arg(struct s_ocp_qp *qp, struct s_ocp_qp_ipm_arg *arg, void *mem);
+//
+void s_set_default_ocp_qp_ipm_arg(struct s_ocp_qp_ipm_arg *arg);
 
 //
 int s_memsize_ocp_qp_ipm(struct s_ocp_qp *qp, struct s_ocp_qp_ipm_arg *arg);

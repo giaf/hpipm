@@ -72,6 +72,9 @@
 
 
 
+#define MEMSIZE_DENSE_QP_IPM_ARG d_memsize_dense_qp_ipm_arg
+#define CREATE_DENSE_QP_IPM_ARG d_create_dense_qp_ipm_arg
+#define SET_DEFAULT_DENSE_QP_IPM_ARG d_set_default_dense_qp_ipm_arg
 #define MEMSIZE_DENSE_QP_IPM d_memsize_dense_qp_ipm
 #define CREATE_DENSE_QP_IPM d_create_dense_qp_ipm
 #define SOLVE_DENSE_QP_IPM d_solve_dense_qp_ipm

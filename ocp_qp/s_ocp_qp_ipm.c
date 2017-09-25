@@ -79,6 +79,9 @@
 
 
 
+#define MEMSIZE_OCP_QP_IPM_ARG s_memsize_ocp_qp_ipm_arg
+#define CREATE_OCP_QP_IPM_ARG s_create_ocp_qp_ipm_arg
+#define SET_DEFAULT_OCP_QP_IPM_ARG s_set_default_ocp_qp_ipm_arg
 #define MEMSIZE_OCP_QP_IPM s_memsize_ocp_qp_ipm
 #define CREATE_OCP_QP_IPM s_create_ocp_qp_ipm
 #define SOLVE_OCP_QP_IPM s_solve_ocp_qp_ipm

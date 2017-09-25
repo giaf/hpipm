@@ -755,19 +755,30 @@ int main()
 	d_create_ocp_qp_sol(N, nx, nu, nb, ng, ns, &qp_sol, qp_sol_mem);
 
 /************************************************
-* ipm
+* ipm arg
 ************************************************/	
 
+	int ipm_arg_size = d_memsize_ocp_qp_ipm_arg(&qp);
+	printf("\nipm arg size = %d\n", ipm_arg_size);
+	void *ipm_arg_mem = malloc(ipm_arg_size);
+
 	struct d_ocp_qp_ipm_arg arg;
-	arg.alpha_min = 1e-8;
-	arg.res_g_max = 1e-8;
-	arg.res_b_max = 1e-8;
-	arg.res_d_max = 1e-12;
-	arg.res_m_max = 1e-12;
-	arg.mu0 = 100.0;
-	arg.iter_max = 10;
-	arg.stat_max = 100;
-	arg.pred_corr = 1;
+	d_create_ocp_qp_ipm_arg(&qp, &arg, ipm_arg_mem);
+	d_set_default_ocp_qp_ipm_arg(&arg);
+
+//	arg.alpha_min = 1e-8;
+//	arg.res_g_max = 1e-8;
+//	arg.res_b_max = 1e-8;
+//	arg.res_d_max = 1e-12;
+//	arg.res_m_max = 1e-12;
+//	arg.mu0 = 100.0;
+//	arg.iter_max = 10;
+//	arg.stat_max = 100;
+//	arg.pred_corr = 1;
+
+/************************************************
+* ipm
+************************************************/	
 
 	int ipm_size = d_memsize_ocp_qp_ipm(&qp, &arg);
 	printf("\nipm size = %d\n", ipm_size);
@@ -1071,6 +1082,7 @@ int main()
 
 	free(qp_mem);
 	free(qp_sol_mem);
+	free(ipm_arg_mem);
 	free(ipm_mem);
 
 /************************************************

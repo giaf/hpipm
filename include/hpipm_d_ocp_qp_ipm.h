@@ -35,6 +35,22 @@ extern "C" {
 #endif
 
 
+struct d_ocp_qp_ipm_arg
+	{
+	double mu0; // initial value for duality measure
+	double alpha_min; // exit cond on step length
+	double res_g_max; // exit cond on inf norm of residuals
+	double res_b_max; // exit cond on inf norm of residuals
+	double res_d_max; // exit cond on inf norm of residuals
+	double res_m_max; // exit cond on inf norm of residuals
+	int iter_max; // exit cond in iter number
+	int stat_max; // iterations saved in stat
+	int pred_corr; // use Mehrotra's predictor-corrector IPM algirthm
+	int memsize;
+	};
+
+
+
 struct d_ocp_qp_ipm_workspace
 	{
 	struct d_core_qp_ipm_workspace *core_workspace;
@@ -64,20 +80,12 @@ struct d_ocp_qp_ipm_workspace
 
 
 
-struct d_ocp_qp_ipm_arg
-	{
-	double mu0; // initial value for duality measure
-	double alpha_min; // exit cond on step length
-	double res_g_max; // exit cond on inf norm of residuals
-	double res_b_max; // exit cond on inf norm of residuals
-	double res_d_max; // exit cond on inf norm of residuals
-	double res_m_max; // exit cond on inf norm of residuals
-	int iter_max; // exit cond in iter number
-	int stat_max; // iterations saved in stat
-	int pred_corr; // use Mehrotra's predictor-corrector IPM algirthm
-	};
-
-
+//
+int d_memsize_ocp_qp_ipm_arg(struct d_ocp_qp *qp);
+//
+void d_create_ocp_qp_ipm_arg(struct d_ocp_qp *qp, struct d_ocp_qp_ipm_arg *arg, void *mem);
+//
+void d_set_default_ocp_qp_ipm_arg(struct d_ocp_qp_ipm_arg *arg);
 
 //
 int d_memsize_ocp_qp_ipm(struct d_ocp_qp *qp, struct d_ocp_qp_ipm_arg *arg);
@@ -89,6 +97,8 @@ int d_solve_ocp_qp_ipm(struct d_ocp_qp *qp, struct d_ocp_qp_sol *qp_sol, struct 
 void d_cvt_ocp_qp_res_to_colmaj(struct d_ocp_qp *qp, struct d_ocp_qp_ipm_workspace *ws, double **res_r, double **res_q, double **res_ls, double **res_us, double **res_b, double **res_d_lb, double **res_d_ub, double **res_d_lg, double **res_d_ug, double **res_d_ls, double **res_d_us, double **res_m_lb, double **res_m_ub, double **res_m_lg, double **res_m_ug, double **res_m_ls, double **res_m_us);
 //
 void d_cvt_ocp_qp_res_to_rowmaj(struct d_ocp_qp *qp, struct d_ocp_qp_ipm_workspace *ws, double **res_r, double **res_q, double **res_ls, double **res_us, double **res_b, double **res_d_lb, double **res_d_ub, double **res_d_lg, double **res_d_ug, double **res_d_ls, double **res_d_us, double **res_m_lb, double **res_m_ub, double **res_m_lg, double **res_m_ug, double **res_m_ls, double **res_m_us);
+
+
 
 #ifdef __cplusplus
 }	// #extern "C"

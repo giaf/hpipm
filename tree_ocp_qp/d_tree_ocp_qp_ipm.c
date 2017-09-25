@@ -66,6 +66,9 @@
 #define UPDATE_VAR_QP d_update_var_qp
 #define VECNRM_INF_LIBSTR dvecnrm_inf_libstr
 
+#define MEMSIZE_TREE_OCP_QP_IPM_ARG d_memsize_tree_ocp_qp_ipm_arg
+#define CREATE_TREE_OCP_QP_IPM_ARG d_create_tree_ocp_qp_ipm_arg
+#define SET_DEFAULT_TREE_OCP_QP_IPM_ARG d_set_default_tree_ocp_qp_ipm_arg
 #define MEMSIZE_TREE_OCP_QP_IPM d_memsize_tree_ocp_qp_ipm
 #define CREATE_TREE_OCP_QP_IPM d_create_tree_ocp_qp_ipm
 #define SOLVE_TREE_OCP_QP_IPM d_solve_tree_ocp_qp_ipm

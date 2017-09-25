@@ -708,19 +708,30 @@ int main()
 	d_create_dense_qp_sol(nvc, nec, nbc, ngc, nsc, &dense_qp_sol, dense_qp_sol_mem);
 
 /************************************************
-* ipm
+* ipm arg
 ************************************************/	
 
+	int ipm_arg_size = d_memsize_dense_qp_ipm_arg(&dense_qp);
+	printf("\nipm arg size = %d\n", ipm_arg_size);
+	void *ipm_arg_mem = malloc(ipm_arg_size);
+
 	struct d_dense_qp_ipm_arg dense_arg;
-	dense_arg.alpha_min = 1e-8;
-	dense_arg.res_g_max = 1e-8;
-	dense_arg.res_b_max = 1e-8;
-	dense_arg.res_d_max = 1e-12;
-	dense_arg.res_m_max = 1e-12;
-	dense_arg.mu0 = 100.0;
-	dense_arg.iter_max = 20;
-	dense_arg.stat_max = 100;
-	dense_arg.pred_corr = 1;
+	d_create_dense_qp_ipm_arg(&dense_qp, &dense_arg, ipm_arg_mem);
+	d_set_default_dense_qp_ipm_arg(&dense_arg);
+
+//	arg.alpha_min = 1e-8;
+//	arg.res_g_max = 1e-8;
+//	arg.res_b_max = 1e-8;
+//	arg.res_d_max = 1e-12;
+//	arg.res_m_max = 1e-12;
+//	arg.mu0 = 10.0;
+//	arg.iter_max = 20;
+//	arg.stat_max = 100;
+//	arg.pred_corr = 1;
+
+/************************************************
+* ipm
+************************************************/	
 
 	int dense_ipm_size = d_memsize_dense_qp_ipm(&dense_qp, &dense_arg);
 	printf("\ndense ipm size = %d\n", dense_ipm_size);
