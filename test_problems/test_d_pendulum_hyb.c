@@ -51,6 +51,7 @@
 
 
 
+int odeFun(double **arg, double **res, int *iw, double *w, int mem);
 int vdeFun(double **arg, double **res, int *iw, double *w, int mem);
 int adjFun(double **arg, double **res, int *iw, double *w, int mem);
 
@@ -62,6 +63,35 @@ struct vde_fun_arg
 	int nu;
 	};
 
+
+
+void ode_fun_model(int t, double *x, double *u, void *ode_arg, double *out)
+	{
+
+	struct vde_fun_arg *arg = ode_arg;
+
+	int nx = arg->nx;
+	int nu = arg->nu;
+
+	double *x_out = out;
+
+	double *casadi_arg[2];
+	double *casadi_res[1];
+
+	casadi_arg[0] = x;
+	casadi_arg[1] = u;
+
+	casadi_res[0] = x_out;
+
+	int* iw = 0;
+	double* w = 0;
+	int mem = 0;
+
+	odeFun(casadi_arg, casadi_res, iw, w, mem);
+
+	return;
+
+	}
 
 
 void vde_fun_model(int t, double *x, double *u, void *ode_arg, double *out)
@@ -97,10 +127,46 @@ void vde_fun_model(int t, double *x, double *u, void *ode_arg, double *out)
 
 	vdeFun(casadi_arg, casadi_res, iw, w, mem);
 
+	return;
+
 	}
 
 
-// TODO vde_adj_model()
+void vde_adj_model(int t, double *adj_in, void *ode_arg, double *adj_out)
+	{
+
+	struct vde_fun_arg *arg = ode_arg;
+
+	int nx = arg->nx;
+	int nu = arg->nu;
+
+	// extract inputs
+	double *x = adj_in + 0;
+	double *l = adj_in + nx;
+	double *u = adj_in + nx + nx;
+
+	// extract output
+	double *l_u_out = adj_out + 0;
+	double *l_x_out = adj_out + nu;
+
+	double *casadi_arg[3];
+	double *casadi_res[1];
+
+	casadi_arg[0] = x;
+	casadi_arg[1] = l;
+	casadi_arg[2] = u;
+
+	casadi_res[0] = l_u_out;
+
+	int* iw = 0;
+	double* w = 0;
+	int mem = 0;
+
+	adjFun(casadi_arg, casadi_res, iw, w, mem);
+
+	return;
+
+	}
 
 
 
@@ -436,8 +502,9 @@ int main()
 	vde_arg.nu = nu_;
 
 	struct d_ocp_nlp_model model1;
+	model1.expl_ode = &ode_fun_model;
 	model1.expl_vde_for = &vde_fun_model;
-	model1.expl_vde_adj = NULL;
+	model1.expl_vde_adj = &vde_adj_model;
 	model1.forward_seed = fs1;
 	model1.arg = &vde_arg;
 
@@ -546,41 +613,49 @@ int main()
 	d_create_ocp_nlp_sol(N, nx, nu, nb, ng, ns, &nlp_sol, nlp_sol_mem);
 
 /************************************************
-* ipm arg
-************************************************/	
-
-	struct d_ocp_qp_ipm_arg arg;
-	arg.alpha_min = 1e-8;
-	arg.res_g_max = 1e-1;
-	arg.res_b_max = 1e-1;
-	arg.res_d_max = 1e-1;
-	arg.res_m_max = 1e-0;
-	arg.mu0 = 1000.0;
-	arg.iter_max = 20;
-	arg.stat_max = 20;
-	arg.pred_corr = 1;
-
-/************************************************
 * ocp nlp hyb arg
 ************************************************/	
+
+	int hyb_arg_size = d_memsize_ocp_nlp_hyb_arg(&nlp);
+	printf("\nipm arg size = %d\n", hyb_arg_size);
+	void *hyb_arg_mem = malloc(hyb_arg_size);
+
+	struct d_ocp_nlp_hyb_arg hyb_arg;
+	d_create_ocp_nlp_hyb_arg(&nlp, &hyb_arg, hyb_arg_mem);
+	d_set_default_ocp_nlp_hyb_arg(&hyb_arg);
 
 	struct d_erk_arg erk_args[N];
 	for(ii=0; ii<N; ii++)
 		erk_args[ii] = erk_arg;
 
-	struct d_ocp_nlp_hyb_arg hyb_arg;
-	hyb_arg.ipm_arg = &arg;
+//	struct d_ocp_nlp_hyb_arg hyb_arg;
+//	hyb_arg.ipm_arg = &arg;
 	hyb_arg.rk_data = &rk_data;
 	hyb_arg.erk_arg = erk_args;
-	hyb_arg.alpha_min = 1e-8;
-	hyb_arg.nlp_res_g_max = 1e-8;
-	hyb_arg.nlp_res_b_max = 1e-8;
-	hyb_arg.nlp_res_d_max = 1e-8;
-	hyb_arg.nlp_res_m_max = 1e-8;
-	hyb_arg.nlp_iter_max = 20;
-	hyb_arg.stat_max = 20;
+//	hyb_arg.alpha_min = 1e-8;
+//	hyb_arg.nlp_res_g_max = 1e-8;
+//	hyb_arg.nlp_res_b_max = 1e-8;
+//	hyb_arg.nlp_res_d_max = 1e-8;
+//	hyb_arg.nlp_res_m_max = 1e-8;
+//	hyb_arg.nlp_iter_max = 20;
+//	hyb_arg.stat_max = 20;
 	hyb_arg.N2 = 2;
-	hyb_arg.pred_corr = 1;
+//	hyb_arg.pred_corr = 1;
+
+/************************************************
+* ipm arg
+************************************************/	
+
+//	struct d_ocp_qp_ipm_arg arg;
+//	arg.alpha_min = 1e-8;
+//	arg.res_g_max = 1e-1;
+//	arg.res_b_max = 1e-1;
+//	arg.res_d_max = 1e-1;
+//	arg.res_m_max = 1e-0;
+//	arg.mu0 = 1000.0;
+//	arg.iter_max = 20;
+//	arg.stat_max = 20;
+//	arg.pred_corr = 1;
 
 /************************************************
 * ocp nlp hyb ws
@@ -600,7 +675,7 @@ int main()
 	int nlp_return;
 
 	struct timeval tv0, tv1;
-	int rep, nrep = 10;
+	int rep, nrep = 100;
 
 	gettimeofday(&tv0, NULL); // start
 

@@ -97,6 +97,113 @@
 
 
 
+int d_memsize_ocp_nlp_hyb_arg(struct OCP_NLP *nlp)
+	{
+
+	int N = nlp->N;
+
+	int size;
+
+	size = 0;
+
+	size += 5*(N+1)*sizeof(int);
+
+	size += 1*sizeof(struct d_ocp_qp_ipm_arg);
+
+	struct d_ocp_qp qp;
+	qp.N  = nlp->N;
+	qp.nx = nlp->nx;
+	qp.nu = nlp->nu;
+	qp.nb = nlp->nb;
+	qp.ng = nlp->ng;
+	qp.ns = nlp->ns;
+
+	size += d_memsize_ocp_qp_ipm_arg(&qp);
+
+	return size;
+
+	}
+
+
+
+void d_create_ocp_nlp_hyb_arg(struct OCP_NLP *nlp, struct OCP_NLP_HYB_ARG *arg, void *mem)
+	{
+
+	int N = nlp->N;
+
+	struct d_ocp_qp_ipm_arg *ipm_ptr = (struct d_ocp_qp_ipm_arg *) mem;
+
+	//
+	arg->ipm_arg = ipm_ptr;
+	ipm_ptr += 1;
+
+	int *i_ptr = (int *) ipm_ptr;
+
+	//
+	arg->nx2 = i_ptr;
+	i_ptr += N+1;
+	//
+	arg->nu2 = i_ptr;
+	i_ptr += N+1;
+	//
+	arg->nb2 = i_ptr;
+	i_ptr += N+1;
+	//
+	arg->ng2 = i_ptr;
+	i_ptr += N+1;
+	//
+	arg->ns2 = i_ptr;
+	i_ptr += N+1;
+
+	char *c_ptr = (char *) i_ptr;
+
+	struct d_ocp_qp qp;
+	qp.N  = nlp->N;
+	qp.nx = nlp->nx;
+	qp.nu = nlp->nu;
+	qp.nb = nlp->nb;
+	qp.ng = nlp->ng;
+	qp.ns = nlp->ns;
+
+	//
+	d_create_ocp_qp_ipm_arg(&qp, arg->ipm_arg, c_ptr);
+	c_ptr += arg->ipm_arg->memsize;
+
+	// XXX default value for N2 !!!
+	arg->N2 = N; 
+
+	return;
+
+	}
+
+
+
+void d_set_default_ocp_nlp_hyb_arg(struct OCP_NLP_HYB_ARG *arg)
+	{
+
+	arg->alpha_min = 1e-8;
+	arg->nlp_res_g_max = 1e-8;
+	arg->nlp_res_b_max = 1e-8;
+	arg->nlp_res_d_max = 1e-8;
+	arg->nlp_res_m_max = 1e-8;
+	arg->nlp_iter_max = 20;
+	arg->stat_max = 20;
+//	arg->N2 = 1;
+	arg->pred_corr = 1;
+
+	d_set_default_ocp_qp_ipm_arg(arg->ipm_arg);
+	arg->ipm_arg->res_g_max = 1e-1;
+	arg->ipm_arg->res_b_max = 1e-1;
+	arg->ipm_arg->res_d_max = 1e-1;
+	arg->ipm_arg->res_m_max = 1e-0;
+	arg->ipm_arg->mu0 = 1000.0;
+
+	return;
+
+	}
+
+
+
 // TODO eliminate x0 in QP !!!
 int MEMSIZE_OCP_NLP_HYB(struct OCP_NLP *nlp, struct OCP_NLP_HYB_ARG *arg)
 	{
@@ -112,12 +219,11 @@ int MEMSIZE_OCP_NLP_HYB(struct OCP_NLP *nlp, struct OCP_NLP_HYB_ARG *arg)
 	int **idxb = nlp->idxb;
 
 	int N2 = arg->N2;
-	// XXX temporarily variable size array !!! TODO remove !!!
-	int nx2[N2+1]; // XXX
-	int nu2[N2+1]; // XXX
-	int nb2[N2+1]; // XXX
-	int ng2[N2+1]; // XXX
-	int ns2[N2+1]; // XXX
+	int *nx2 = arg->nx2;
+	int *nu2 = arg->nu2;
+	int *nb2 = arg->nb2;
+	int *ng2 = arg->ng2;
+	int *ns2 = arg->ns2;
 	if(N2<N)
 		d_compute_qp_size_ocp2ocp(N, nx, nu, nb, idxb, ng, ns, N2, nx2, nu2, nb2, ng2, ns2);
 
@@ -205,12 +311,11 @@ void CREATE_OCP_NLP_HYB(struct OCP_NLP *nlp, struct OCP_NLP_HYB_ARG *arg, struct
 	int **idxb = nlp->idxb;
 
 	int N2 = arg->N2;
-	// XXX temporarily variable size array !!! TODO remove !!!
-	int nx2[N2+1]; // XXX
-	int nu2[N2+1]; // XXX
-	int nb2[N2+1]; // XXX
-	int ng2[N2+1]; // XXX
-	int ns2[N2+1]; // XXX
+	int *nx2 = arg->nx2;
+	int *nu2 = arg->nu2;
+	int *nb2 = arg->nb2;
+	int *ng2 = arg->ng2;
+	int *ns2 = arg->ns2;
 	if(N2<N)
 		d_compute_qp_size_ocp2ocp(N, nx, nu, nb, idxb, ng, ns, N2, nx2, nu2, nb2, ng2, ns2);
 
@@ -696,7 +801,8 @@ for(nn=0; nn<=N; nn++)
 				}
 			else
 				{
-				d_init_erk_int(0, 1, x, u, NULL, pi, (nlp->model+nn)->expl_vde_for, (nlp->model+nn)->expl_vde_adj, (nlp->model+nn)->arg, erk_ws+nn);
+//				d_init_erk_int(0, 1, x, u, NULL, pi, (nlp->model+nn)->expl_vde_for, (nlp->model+nn)->expl_vde_adj, (nlp->model+nn)->arg, erk_ws+nn);
+				d_init_erk_int(0, 1, x, u, NULL, pi, (nlp->model+nn)->expl_ode, (nlp->model+nn)->expl_vde_adj, (nlp->model+nn)->arg, erk_ws+nn);
 				d_erk_int(erk_ws+nn);
 				d_cvt_erk_int_to_ocp_qp_rhs(nn, erk_ws+nn, qp, nlp_sol);
 				}

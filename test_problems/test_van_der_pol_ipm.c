@@ -605,22 +605,30 @@ int main()
 * ocp nlp ipm arg
 ************************************************/	
 
+	int ipm_arg_size = d_memsize_ocp_nlp_ipm_arg(&nlp);
+	printf("\nipm arg size = %d\n", ipm_arg_size);
+	void *ipm_arg_mem = malloc(ipm_arg_size);
+
+	struct d_ocp_nlp_ipm_arg ipm_arg;
+	d_create_ocp_nlp_ipm_arg(&nlp, &ipm_arg, ipm_arg_mem);
+	d_set_default_ocp_nlp_ipm_arg(&ipm_arg);
+
 	struct d_erk_arg erk_args[N];
 	for(ii=0; ii<N; ii++)
 		erk_args[ii] = erk_arg;
 
-	struct d_ocp_nlp_ipm_arg ipm_arg;
+//	struct d_ocp_nlp_ipm_arg ipm_arg;
 	ipm_arg.rk_data = &rk_data;
 	ipm_arg.erk_arg = erk_args;
-	ipm_arg.alpha_min = 1e-8;
-	ipm_arg.nlp_res_g_max = 1e-8;
-	ipm_arg.nlp_res_b_max = 1e-8;
-	ipm_arg.nlp_res_d_max = 1e-8;
-	ipm_arg.nlp_res_m_max = 1e-8;
-	ipm_arg.nlp_iter_max = 20;
-	ipm_arg.stat_max = 20;
-	ipm_arg.mu0 = 2.0;
-	ipm_arg.pred_corr = 1;
+//	ipm_arg.alpha_min = 1e-8;
+//	ipm_arg.nlp_res_g_max = 1e-8;
+//	ipm_arg.nlp_res_b_max = 1e-8;
+//	ipm_arg.nlp_res_d_max = 1e-8;
+//	ipm_arg.nlp_res_m_max = 1e-8;
+//	ipm_arg.nlp_iter_max = 20;
+//	ipm_arg.stat_max = 20;
+//	ipm_arg.mu0 = 2.0;
+//	ipm_arg.pred_corr = 1;
 
 /************************************************
 * ocp nlp ipm ws

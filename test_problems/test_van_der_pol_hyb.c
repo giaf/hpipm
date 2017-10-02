@@ -103,7 +103,7 @@ void d_van_der_pol_vde_for(int t, double *x, double *u, void *ode_arg, double *x
 
 
 
-void d_van_der_pol_vde_adj(int i, double *adj_in, void *ode_arg, double *adj_out)
+void d_van_der_pol_vde_adj(int t, double *adj_in, void *ode_arg, double *adj_out)
 	{
 	double mu = 1.0;
 	int ii, jj, kk;
@@ -479,6 +479,7 @@ int main()
 		fs1[nu_*nx_+ii*(nx_+1)] = 1.0;
 
 	struct d_ocp_nlp_model model1;
+	model1.expl_ode = &d_van_der_pol_ode;
 	model1.expl_vde_for = &d_van_der_pol_vde_for;
 	model1.expl_vde_adj = &d_van_der_pol_vde_adj;
 	model1.forward_seed = fs1;
@@ -589,42 +590,49 @@ int main()
 	d_create_ocp_nlp_sol(N, nx, nu, nb, ng, ns, &nlp_sol, nlp_sol_mem);
 
 /************************************************
-* ipm arg
-************************************************/	
-
-	struct d_ocp_qp_ipm_arg arg;
-	arg.alpha_min = 1e-8;
-	arg.res_g_max = 1e-1;
-	arg.res_b_max = 1e-1;
-	arg.res_d_max = 1e-1;
-	arg.res_m_max = 1e-0;
-	arg.mu0 = 1000.0;
-	arg.iter_max = 20;
-	arg.stat_max = 20;
-	arg.pred_corr = 1;
-
-/************************************************
 * ocp nlp hyb arg
 ************************************************/	
+
+	int hyb_arg_size = d_memsize_ocp_nlp_hyb_arg(&nlp);
+	printf("\nipm arg size = %d\n", hyb_arg_size);
+	void *hyb_arg_mem = malloc(hyb_arg_size);
+
+	struct d_ocp_nlp_hyb_arg hyb_arg;
+	d_create_ocp_nlp_hyb_arg(&nlp, &hyb_arg, hyb_arg_mem);
+	d_set_default_ocp_nlp_hyb_arg(&hyb_arg);
 
 	struct d_erk_arg erk_args[N];
 	for(ii=0; ii<N; ii++)
 		erk_args[ii] = erk_arg;
 
-	struct d_ocp_nlp_hyb_arg hyb_arg;
-	hyb_arg.ipm_arg = &arg;
+//	struct d_ocp_nlp_hyb_arg hyb_arg;
+//	hyb_arg.ipm_arg = &arg;
 	hyb_arg.rk_data = &rk_data;
 	hyb_arg.erk_arg = erk_args;
-	hyb_arg.alpha_min = 1e-8;
-	hyb_arg.nlp_res_g_max = 1e-8;
-	hyb_arg.nlp_res_b_max = 1e-8;
-	hyb_arg.nlp_res_d_max = 1e-8;
-	hyb_arg.nlp_res_m_max = 1e-8;
-	hyb_arg.nlp_iter_max = 20;
-	hyb_arg.stat_max = 100;
+//	hyb_arg.alpha_min = 1e-8;
+//	hyb_arg.nlp_res_g_max = 1e-8;
+//	hyb_arg.nlp_res_b_max = 1e-8;
+//	hyb_arg.nlp_res_d_max = 1e-8;
+//	hyb_arg.nlp_res_m_max = 1e-8;
+//	hyb_arg.nlp_iter_max = 20;
+//	hyb_arg.stat_max = 100;
 	hyb_arg.N2 = 1;
-	hyb_arg.pred_corr = 1;
-//	hyb_arg.mu0 = 2.0;
+//	hyb_arg.pred_corr = 1;
+
+/************************************************
+* ipm arg
+************************************************/	
+
+//	struct d_ocp_qp_ipm_arg arg;
+//	arg.alpha_min = 1e-8;
+//	arg.res_g_max = 1e-1;
+//	arg.res_b_max = 1e-1;
+//	arg.res_d_max = 1e-1;
+//	arg.res_m_max = 1e-0;
+//	arg.mu0 = 1000.0;
+//	arg.iter_max = 20;
+//	arg.stat_max = 20;
+//	arg.pred_corr = 1;
 
 /************************************************
 * ocp nlp hyb ws

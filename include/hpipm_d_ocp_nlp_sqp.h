@@ -33,6 +33,26 @@
 
 
 
+struct d_ocp_nlp_sqp_arg
+	{
+	struct d_ocp_qp_ipm_arg *ipm_arg; // ipm arg
+	struct d_rk_data *rk_data; // rk data
+	struct d_erk_arg *erk_arg; // TODO fix name in arg !!!
+	int *nx2; // work space !!!
+	int *nu2; // work space !!!
+	int *nb2; // work space !!!
+	int *ng2; // work space !!!
+	int *ns2; // work space !!!
+	double nlp_res_g_max; // exit cond on inf norm of residuals
+	double nlp_res_b_max; // exit cond on inf norm of residuals
+	double nlp_res_d_max; // exit cond on inf norm of residuals
+	double nlp_res_m_max; // exit cond on inf norm of residuals
+	int nlp_iter_max; // exit cond in iter number
+	int N2; // horizon of partially condensed QP
+	};
+
+
+
 struct d_ocp_nlp_sqp_workspace
 	{
 	struct d_ocp_qp *qp;
@@ -53,20 +73,12 @@ struct d_ocp_nlp_sqp_workspace
 
 
 
-struct d_ocp_nlp_sqp_arg
-	{
-	struct d_ocp_qp_ipm_arg *ipm_arg; // ipm arg
-	struct d_rk_data *rk_data; // rk data
-	struct d_erk_arg *erk_arg; // TODO fix name in arg !!!
-	double nlp_res_g_max; // exit cond on inf norm of residuals
-	double nlp_res_b_max; // exit cond on inf norm of residuals
-	double nlp_res_d_max; // exit cond on inf norm of residuals
-	double nlp_res_m_max; // exit cond on inf norm of residuals
-	int nlp_iter_max; // exit cond in iter number
-	int N2; // horizon of partially condensed QP
-	};
-
-
+//
+int d_memsize_ocp_nlp_sqp_arg(struct d_ocp_nlp *nlp);
+//
+void d_create_ocp_nlp_sqp_arg(struct d_ocp_nlp *nlp, struct d_ocp_nlp_sqp_arg *arg, void *mem);
+//
+void d_set_default_ocp_nlp_sqp_arg(struct d_ocp_nlp_sqp_arg *arg);
 
 //
 int d_memsize_ocp_nlp_sqp(struct d_ocp_nlp *nlp, struct d_ocp_nlp_sqp_arg *arg);

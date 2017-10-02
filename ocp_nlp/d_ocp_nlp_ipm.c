@@ -92,6 +92,51 @@
 
 
 
+int d_memsize_ocp_nlp_ipm_arg(struct OCP_NLP *nlp)
+	{
+
+	int N = nlp->N;
+
+	int size;
+
+	size = 0;
+
+	return size;
+
+	}
+
+
+
+void d_create_ocp_nlp_ipm_arg(struct OCP_NLP *nlp, struct OCP_NLP_IPM_ARG *arg, void *mem)
+	{
+
+	arg->memsize = 0;
+
+	return;
+
+	}
+
+
+
+void d_set_default_ocp_nlp_ipm_arg(struct OCP_NLP_IPM_ARG *arg)
+	{
+
+	arg->alpha_min = 1e-8;
+	arg->nlp_res_g_max = 1e-8;
+	arg->nlp_res_b_max = 1e-8;
+	arg->nlp_res_d_max = 1e-8;
+	arg->nlp_res_m_max = 1e-8;
+	arg->nlp_iter_max = 20;
+	arg->stat_max = 20;
+	arg->mu0 = 100.0;
+	arg->pred_corr = 1;
+
+	return;
+
+	}
+
+
+
 // TODO eliminate x0 in QP !!!
 int MEMSIZE_OCP_NLP_IPM(struct OCP_NLP *nlp, struct OCP_NLP_IPM_ARG *arg)
 	{

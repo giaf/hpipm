@@ -548,38 +548,46 @@ int main()
 	d_create_ocp_nlp_sol(N, nx, nu, nb, ng, ns, &nlp_sol, nlp_sol_mem);
 
 /************************************************
-* ipm arg
-************************************************/	
-
-	struct d_ocp_qp_ipm_arg arg;
-	arg.alpha_min = 1e-8;
-	arg.res_g_max = 1e-12;
-	arg.res_b_max = 1e-12;
-	arg.res_d_max = 1e-12;
-	arg.res_m_max = 1e-12;
-	arg.mu0 = 2.0;
-	arg.iter_max = 20;
-	arg.stat_max = 20;
-	arg.pred_corr = 1;
-
-/************************************************
 * ocp nlp sqp arg
 ************************************************/	
+
+	int sqp_arg_size = d_memsize_ocp_nlp_sqp_arg(&nlp);
+	printf("\nipm arg size = %d\n", sqp_arg_size);
+	void *sqp_arg_mem = malloc(sqp_arg_size);
+
+	struct d_ocp_nlp_sqp_arg sqp_arg;
+	d_create_ocp_nlp_sqp_arg(&nlp, &sqp_arg, sqp_arg_mem);
+	d_set_default_ocp_nlp_sqp_arg(&sqp_arg);
 
 	struct d_erk_arg erk_args[N];
 	for(ii=0; ii<N; ii++)
 		erk_args[ii] = erk_arg;
 
-	struct d_ocp_nlp_sqp_arg sqp_arg;
-	sqp_arg.ipm_arg = &arg;
+//	struct d_ocp_nlp_sqp_arg sqp_arg;
+//	sqp_arg.ipm_arg = &arg;
 	sqp_arg.rk_data = &rk_data;
 	sqp_arg.erk_arg = erk_args;
-	sqp_arg.nlp_res_g_max = 1e-8;
-	sqp_arg.nlp_res_b_max = 1e-8;
-	sqp_arg.nlp_res_d_max = 1e-8;
-	sqp_arg.nlp_res_m_max = 1e-8;
-	sqp_arg.nlp_iter_max = 20;
+//	sqp_arg.nlp_res_g_max = 1e-8;
+//	sqp_arg.nlp_res_b_max = 1e-8;
+//	sqp_arg.nlp_res_d_max = 1e-8;
+//	sqp_arg.nlp_res_m_max = 1e-8;
+//	sqp_arg.nlp_iter_max = 20;
 	sqp_arg.N2 = 1;
+
+/************************************************
+* ipm arg
+************************************************/	
+
+//	struct d_ocp_qp_ipm_arg arg;
+//	arg.alpha_min = 1e-8;
+//	arg.res_g_max = 1e-12;
+//	arg.res_b_max = 1e-12;
+//	arg.res_d_max = 1e-12;
+//	arg.res_m_max = 1e-12;
+//	arg.mu0 = 2.0;
+//	arg.iter_max = 20;
+//	arg.stat_max = 20;
+//	arg.pred_corr = 1;
 
 /************************************************
 * ocp nlp sqp ws

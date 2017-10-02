@@ -32,6 +32,8 @@ f_expl = [   v1; ...
              (- l*m*cos(theta)*sin(theta)*dtheta^2 + F*cos(theta) + g*m*sin(theta) + M*g*sin(theta))/(l*(M + m - m*cos(theta)^2)) ];
 
 
+odeFun = Function('odeFun',{x,u},{f_expl});
+
 Sx = SX.sym('Sx',nx,nx);
 Sp = SX.sym('Sp',nx,nu);
 lambdaX = SX.sym('lambdaX',nx,1);
@@ -47,7 +49,8 @@ vdeFun = Function('vdeFun',{x,Sx,Sp,u},{f_expl,vdeX,vdeP});
 jacX = SX.zeros(nx,nx) + jacobian(f_expl,x);
 jacFun = Function('jacFun',{x,u},{f_expl,jacX});
 
-adj = jtimes(f_expl,[x;u],lambdaX,true);
+%adj = jtimes(f_expl,[x;u],lambdaX,true);
+adj = jtimes(f_expl,[u;x],lambdaX,true);
 
 adjFun = Function('adjFun',{x,lambdaX,u},{adj});
 
@@ -60,9 +63,10 @@ for j = 1:nx+nu
     end
 end
 
-hessFun = Function('adjFun',{x,Sx,Sp,lambdaX,u},{adj,hess2});
+hessFun = Function('hessFun',{x,Sx,Sp,lambdaX,u},{adj,hess2});
 
 opts = struct('mex', false);
+odeFun.generate(['ode_model'], opts);
 vdeFun.generate(['vde_forw_model'], opts);
 jacFun.generate(['jac_model'], opts);
 adjFun.generate(['vde_adj_model'], opts);
