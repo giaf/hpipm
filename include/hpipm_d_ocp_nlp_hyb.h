@@ -71,7 +71,8 @@ struct d_ocp_nlp_hyb_workspace
 	double nlp_res_b; // exit inf norm of residuals
 	double nlp_res_d; // exit inf norm of residuals
 	double nlp_res_m; // exit inf norm of residuals
-	int iter; // iteration number
+	int iter_qp; // qp ipm iteration number
+	int iter_nlp; // nlp ipm iteration number
 	int memsize;
 	};
 

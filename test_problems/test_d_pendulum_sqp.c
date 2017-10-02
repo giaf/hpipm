@@ -432,6 +432,7 @@ int main()
 	vde_arg.nu = nu_;
 
 	struct d_ocp_nlp_model model1;
+	model1.expl_ode = NULL;
 	model1.expl_vde_for = &vde_fun_model;
 	model1.expl_vde_adj = NULL;
 	model1.forward_seed = fs1;

@@ -438,6 +438,7 @@ int main()
 		fs1[nu_*nx_+ii*(nx_+1)] = 1.0;
 
 	struct d_ocp_nlp_model model1;
+	model1.expl_ode = NULL;
 	model1.expl_vde_for = &d_van_der_pol_vde1;
 	model1.expl_vde_adj = NULL;
 	model1.forward_seed = fs1;

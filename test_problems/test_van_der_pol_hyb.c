@@ -685,7 +685,7 @@ int main()
 
 #if 1
 	printf("\nalpha_aff\tmu_aff\t\tsigma\t\talpha\t\tmu\n");
-	d_print_e_tran_mat(5, hyb_ws.iter, hyb_ws.ipm_workspace->stat, 5);
+	d_print_e_tran_mat(5, hyb_ws.iter_nlp, hyb_ws.ipm_workspace->stat, 5);
 
 	printf("\nsolution\n\n");
 	printf("\nu\n");
@@ -747,7 +747,7 @@ int main()
 ************************************************/	
 
 	printf("\nnlp_res_g = %e, nlp_res_b = %e, nlp_res_d = %e, nlp_res_m = %e\n", hyb_ws.nlp_res_g, hyb_ws.nlp_res_b, hyb_ws.nlp_res_d, hyb_ws.nlp_res_m);
-	printf("\nocp nlp hyb iter = %d, time = %e [s]\n\n", hyb_ws.iter, time_ocp_nlp_hyb);
+	printf("\nocp nlp hyb: iter_qp = %d, iter_nlp = %d, time = %e [s]\n\n", hyb_ws.iter_qp, hyb_ws.iter_nlp, time_ocp_nlp_hyb);
 
 /************************************************
 * free memory

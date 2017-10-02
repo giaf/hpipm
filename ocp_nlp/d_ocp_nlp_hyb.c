@@ -689,6 +689,7 @@ exit(1);
 
 		// solve qp
 		d_solve_ocp_qp_ipm(qp2, qp_sol2, ipm_arg, ipm_ws2);
+		ws->iter_qp = ipm_ws2->iter;
 
 #if 0
 printf("\nqp sol\n");
@@ -713,6 +714,7 @@ exit(1);
 
 		// solve qp
 		d_solve_ocp_qp_ipm(qp, qp_sol, ipm_arg, ipm_ws);
+		ws->iter_qp = ipm_ws->iter;
 
 		}
 
@@ -799,14 +801,17 @@ for(nn=0; nn<=N; nn++)
 				d_erk_int(erk_ws+nn);
 				d_cvt_erk_int_to_ocp_qp(nn, erk_ws+nn, qp, nlp_sol);
 				}
+				// TODO partial condensing
 			else
 				{
 //				d_init_erk_int(0, 1, x, u, NULL, pi, (nlp->model+nn)->expl_vde_for, (nlp->model+nn)->expl_vde_adj, (nlp->model+nn)->arg, erk_ws+nn);
 				d_init_erk_int(0, 1, x, u, NULL, pi, (nlp->model+nn)->expl_ode, (nlp->model+nn)->expl_vde_adj, (nlp->model+nn)->arg, erk_ws+nn);
 				d_erk_int(erk_ws+nn);
 				d_cvt_erk_int_to_ocp_qp_rhs(nn, erk_ws+nn, qp, nlp_sol);
+				// TODO partial condensing rhs
 				}
 			}
+
 
 //for(ii=0; ii<N; ii++)
 //	d_print_e_strmat(nlp->nu[ii]+nlp->nx[ii]+1, nlp->nx[ii+1], qp->BAbt+ii, 0, 0);
@@ -846,7 +851,7 @@ printf("\n\niter %d nlp inf norm res %e %e %e %e\n", ss, nlp_res[0], nlp_res[1],
 		// exit condition on residuals
 		if(!(nlp_res[0]>arg->nlp_res_g_max | nlp_res[1]>arg->nlp_res_b_max | nlp_res[2]>arg->nlp_res_d_max | nlp_res[3]>arg->nlp_res_m_max))
 			{
-			ws->iter = ss;
+			ws->iter_nlp = ss;
 			ws->nlp_res_g = nlp_res[0];
 			ws->nlp_res_b = nlp_res[1];
 			ws->nlp_res_d = nlp_res[2];
@@ -914,7 +919,7 @@ d_print_e_tran_mat(5, kk, ipm_ws->stat, 5);
 		}
 	
 	// maximum iteration number reached
-	ws->iter = ss;
+	ws->iter_nlp = ss;
 	ws->nlp_res_g = nlp_res[0];
 	ws->nlp_res_b = nlp_res[1];
 	ws->nlp_res_d = nlp_res[2];
