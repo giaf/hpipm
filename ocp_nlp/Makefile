@@ -33,8 +33,8 @@ ifeq ($(TARGET), GENERIC)
 OBJS +=
 endif
 
-OBJS += d_ocp_nlp.o d_ocp_nlp_sol.o d_ocp_nlp_aux.o d_ocp_nlp_hyb.o d_ocp_nlp_ipm.o d_ocp_nlp_sqp.o
-OBJS +=
+#OBJS += d_ocp_nlp.o d_ocp_nlp_sol.o d_ocp_nlp_aux.o d_ocp_nlp_hyb.o d_ocp_nlp_ipm.o d_ocp_nlp_sqp.o
+#OBJS +=
 
 obj: $(OBJS)
 
@@ -42,4 +42,4 @@ clean:
 	rm -f *.o
 	rm -f *.s
 
-_ocp_nlp_sol.o: d_ocp_nlp_sol.c x_ocp_nlp_sol.c
+d_ocp_nlp_sol.o: d_ocp_nlp_sol.c x_ocp_nlp_sol.c
