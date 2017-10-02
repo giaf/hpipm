@@ -234,6 +234,7 @@ int main()
 #if 1
 	// rk4
 	int nsta = 4; // number of stages
+	int expl = 1;
 	double A_rk[] = {0.0, 0.0, 0.0, 0.0,
 	                 0.5, 0.0, 0.0, 0.0,
 	                 0.0, 0.5, 0.0, 0.0,
@@ -243,6 +244,7 @@ int main()
 #elif 1
 	// midpoint rule
 	int nsta = 2; // number of stages
+	int expl = 1;
 	double A_rk[] = {0.0, 0.0,
 	                 0.5, 0.0};
 	double B_rk[] = {0.0, 1.0};
@@ -250,6 +252,7 @@ int main()
 #else
 	// explicit euler
 	int nsta = 1; // number of stages
+	int expl = 1;
 	double A_rk[] = {0.0};
 	double B_rk[] = {1.0};
 	double C_rk[] = {0.0};
@@ -263,15 +266,16 @@ int main()
 	struct d_rk_data rk_data;
 	d_create_rk_data(nsta, &rk_data, memory_rk_data);
 
-	d_cvt_rowmaj_to_rk_data(A_rk, B_rk, C_rk, &rk_data);
+	d_cvt_rowmaj_to_rk_data(expl, A_rk, B_rk, C_rk, &rk_data);
 
 	double Ts = 0.1;
 
 	// erk arg structure
 	struct d_erk_arg erk_arg;
+	erk_arg.rk_data = &rk_data;
 	erk_arg.steps = 10;
 	erk_arg.h = Ts/erk_arg.steps;
-	erk_arg.for_sens = 1;
+	erk_arg.for_sens = 1; // XXX needed ???
 	erk_arg.adj_sens = 1;
 
 /************************************************
@@ -607,7 +611,6 @@ int main()
 
 //	struct d_ocp_nlp_hyb_arg hyb_arg;
 //	hyb_arg.ipm_arg = &arg;
-	hyb_arg.rk_data = &rk_data;
 	hyb_arg.erk_arg = erk_args;
 //	hyb_arg.alpha_min = 1e-8;
 //	hyb_arg.nlp_res_g_max = 1e-8;

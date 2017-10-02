@@ -42,10 +42,10 @@
 
 
 
-int d_memsize_erk_int(struct d_rk_data *rk_data, struct d_erk_arg *erk_arg, int nx, int np, int nf_max, int na_max)
+int d_memsize_erk_int(struct d_erk_arg *erk_arg, int nx, int np, int nf_max, int na_max)
 	{
 
-	int ns = rk_data->ns;
+	int ns = erk_arg->rk_data->ns;
 
 	int nX = nx*(1+nf_max);
 
@@ -76,17 +76,16 @@ int d_memsize_erk_int(struct d_rk_data *rk_data, struct d_erk_arg *erk_arg, int 
 
 
 
-void d_create_erk_int(struct d_rk_data *rk_data, struct d_erk_arg *erk_arg, int nx, int np, int nf_max, int na_max, struct d_erk_workspace *ws, void *mem)
+void d_create_erk_int(struct d_erk_arg *erk_arg, int nx, int np, int nf_max, int na_max, struct d_erk_workspace *ws, void *mem)
 	{
 
-	ws->rk_data = rk_data;
 	ws->erk_arg = erk_arg;
 	ws->nx = nx;
 	ws->np = np;
 	ws->nf_max = nf_max;
 	ws->na_max = na_max;
 
-	int ns = rk_data->ns;
+	int ns = erk_arg->rk_data->ns;
 
 	int nX = nx*(1+nf_max);
 
@@ -133,7 +132,7 @@ void d_create_erk_int(struct d_rk_data *rk_data, struct d_erk_arg *erk_arg, int 
 		}
 
 
-	ws->memsize = d_memsize_erk_int(rk_data, erk_arg, nx, np, nf_max, na_max);
+	ws->memsize = d_memsize_erk_int(erk_arg, nx, np, nf_max, na_max);
 
 
 	char *c_ptr = (char *) d_ptr;
@@ -232,7 +231,7 @@ void d_erk_int(struct d_erk_workspace *ws)
 	int steps = ws->erk_arg->steps;
 	double h = ws->erk_arg->h;
 
-	struct d_rk_data *rk_data = ws->rk_data;
+	struct d_rk_data *rk_data = ws->erk_arg->rk_data;
 	int nx = ws->nx;
 	int np = ws->np;
 	int nf = ws->nf;

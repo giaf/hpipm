@@ -29,10 +29,12 @@
 
 struct d_erk_arg
 	{
+	struct d_rk_data *rk_data; // integrator data
 	double h; // step size
 	int steps; // number of steps
 	int for_sens; // compute adjoint sensitivities
 	int adj_sens; // compute adjoint sensitivities
+	int memsize;
 	};
 
 
@@ -43,7 +45,6 @@ struct d_erk_workspace
 	void (*vde_for)(int t, double *x, double *p, void *ode_args, double *xdot); // function pointer to forward vde
 	void (*vde_adj)(int t, double *adj_in, void *ode_args, double *adj_out); // function pointer to adjoint vde
 	void *ode_args; // pointer to ode args
-	struct d_rk_data *rk_data; // integrator data
 	struct d_erk_arg *erk_arg; // erk arg
 	double *K; // internal variables
 	double *x; // states and forward sensitivities
@@ -64,9 +65,9 @@ struct d_erk_workspace
 
 
 //
-int d_memsize_erk_int(struct d_rk_data *rk_data, struct d_erk_arg *erk_arg, int nx, int np, int nf_max, int na_max);
+int d_memsize_erk_int(struct d_erk_arg *erk_arg, int nx, int np, int nf_max, int na_max);
 //
-void d_create_erk_int(struct d_rk_data *rk_data, struct d_erk_arg *erk_arg, int nx, int np, int nf_max, int na_max, struct d_erk_workspace *workspace, void *memory);
+void d_create_erk_int(struct d_erk_arg *erk_arg, int nx, int np, int nf_max, int na_max, struct d_erk_workspace *workspace, void *memory);
 //
 void d_init_erk_int(int nf, int na, double *x0, double *p0, double *fs0, double *bs0, void (*vde_for)(int t, double *x, double *p, void *ode_args, double *xdot), void (*vde_adj)(int t, double *adj_in, void *ode_args, double *adj_out), void *ode_args, struct d_erk_workspace *ws);
 //

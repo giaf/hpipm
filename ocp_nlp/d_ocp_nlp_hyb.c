@@ -284,7 +284,7 @@ int MEMSIZE_OCP_NLP_HYB(struct OCP_NLP *nlp, struct OCP_NLP_HYB_ARG *arg)
 
 	for(ii=0; ii<N; ii++)
 		{
-		size += MEMSIZE_ERK_INT(arg->rk_data, arg->erk_arg+ii, nx[ii], nu[ii], nx[ii]+nu[ii], 1);
+		size += MEMSIZE_ERK_INT(arg->erk_arg+ii, nx[ii], nu[ii], nx[ii]+nu[ii], 1);
 		}
 
 	size = (size+63)/64*64; // make multiple of typical cache line size
@@ -408,7 +408,7 @@ void CREATE_OCP_NLP_HYB(struct OCP_NLP *nlp, struct OCP_NLP_HYB_ARG *arg, struct
 	for(ii=0; ii<N; ii++)
 		{
 		//
-		CREATE_ERK_INT(arg->rk_data, arg->erk_arg+ii, nx[ii], nu[ii], nx[ii]+nu[ii], 1, ws->erk_workspace+ii, c_ptr);
+		CREATE_ERK_INT(arg->erk_arg+ii, nx[ii], nu[ii], nx[ii]+nu[ii], 1, ws->erk_workspace+ii, c_ptr);
 		c_ptr += (ws->erk_workspace+ii)->memsize;
 		}
 	
