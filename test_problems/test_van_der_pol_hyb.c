@@ -63,6 +63,54 @@ void d_van_der_pol_ode(int t, double *x, double *u, void *ode_arg, double *xdot)
 
 void d_van_der_pol_vde_for(int t, double *x, double *u, void *ode_arg, double *xdot)
 	{
+#if 1
+	double z0, z1, z2, z3, z4, z5, z6, z7;
+	double J0, J1, J2, J3, J4, J5, J6, J7;
+
+	z0 = u[0];
+	z1 = x[0];
+	z2 = x[1];
+	z3 = z1*z1;
+	z4 = 1.0-z3;
+	z5 = z4*z2;
+	z6 = z0-z1;
+	z7 = z6+z5;
+	xdot[0] = z2;
+	xdot[1] = z7;
+
+	J0 = 1.0;//x[2];
+	J1 = x[2];
+	J2 = x[3];
+	J3 = 2.0*z1*J1;
+	J4 = -J3;
+	J5 = z2*J4+z4*J2;
+	J6 = J0-J1;
+	J7 = J6+J5;
+	xdot[2] = J2;
+	xdot[3] = J7;
+
+	J0 = 0.0;//x[3];
+	J1 = x[4];
+	J2 = x[5];
+	J3 = 2.0*z1*J1;
+	J4 = -J3;
+	J5 = z2*J4+z4*J2;
+	J6 = J0-J1;
+	J7 = J6+J5;
+	xdot[4] = J2;
+	xdot[5] = J7;
+
+	J0 = 0.0;//x[8];
+	J1 = x[6];
+	J2 = x[7];
+	J3 = 2.0*z1*J1;
+	J4 = -J3;
+	J5 = z2*J4+z4*J2;
+	J6 = J0-J1;
+	J7 = J6+J5;
+	xdot[6] = J2;
+	xdot[7] = J7;
+#else
 	double mu = 1.0;
 	int ii, jj, kk;
 	double *xdot_tmp, *x_tmp;
@@ -98,6 +146,7 @@ void d_van_der_pol_vde_for(int t, double *x, double *u, void *ode_arg, double *x
 	for(jj=0; jj<nu; jj++)
 		for(ii=0; ii<nx; ii++)
 			xdot_tmp[ii+nx*jj] += Bc[ii+nx*jj];
+#endif
 	return;
 	}
 
@@ -188,9 +237,9 @@ int main()
 	for(ii=0; ii<nx_*(nu_+nx_+1); ii++)
 		fs0[ii] = 0.0;
 	for(ii=0; ii<nx_; ii++)
-		fs0[nx_*nu_+ii*(nx_+1)] = 1.0;
+		fs0[ii] = x0[ii];
 	for(ii=0; ii<nx_; ii++)
-		fs0[nx_*(nu_+nx_)+ii] = x0[ii];
+		fs0[nx_+nx_*nu_+ii*(nx_+1)] = 1.0;
 		
 	d_print_mat(nx_, nu_+nx_+1, fs0, nx_);
 

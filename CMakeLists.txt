@@ -111,29 +111,29 @@ file(GLOB DENSE_QP_SRC
 	${PROJECT_SOURCE_DIR}/dense_qp/d_dense_qp.c
 	${PROJECT_SOURCE_DIR}/dense_qp/d_dense_qp_sol.c
 	${PROJECT_SOURCE_DIR}/dense_qp/d_dense_qp_kkt.c
-	${PROJECT_SOURCE_DIR}/dense_qp/d_dense_qp_ipm_hard.c
+	${PROJECT_SOURCE_DIR}/dense_qp/d_dense_qp_ipm.c
 	${PROJECT_SOURCE_DIR}/dense_qp/s_dense_qp.c
 	${PROJECT_SOURCE_DIR}/dense_qp/s_dense_qp_sol.c
 	${PROJECT_SOURCE_DIR}/dense_qp/s_dense_qp_kkt.c
-	${PROJECT_SOURCE_DIR}/dense_qp/s_dense_qp_ipm_hard.c
+	${PROJECT_SOURCE_DIR}/dense_qp/s_dense_qp_ipm.c
 	)
 # core ipm
 file(GLOB IPM_CORE_SRC
-	${PROJECT_SOURCE_DIR}/ipm_core/d_core_qp_ipm_hard_aux.c
-	${PROJECT_SOURCE_DIR}/ipm_core/d_core_qp_ipm_hard.c
-	${PROJECT_SOURCE_DIR}/ipm_core/s_core_qp_ipm_hard_aux.c
-	${PROJECT_SOURCE_DIR}/ipm_core/s_core_qp_ipm_hard.c
+	${PROJECT_SOURCE_DIR}/ipm_core/d_core_qp_ipm_aux.c
+	${PROJECT_SOURCE_DIR}/ipm_core/d_core_qp_ipm.c
+	${PROJECT_SOURCE_DIR}/ipm_core/s_core_qp_ipm_aux.c
+	${PROJECT_SOURCE_DIR}/ipm_core/s_core_qp_ipm.c
 	)
 # ocp qp
 file(GLOB OCP_QP_SRC
 	${PROJECT_SOURCE_DIR}/ocp_qp/d_ocp_qp.c
 	${PROJECT_SOURCE_DIR}/ocp_qp/d_ocp_qp_sol.c
 	${PROJECT_SOURCE_DIR}/ocp_qp/d_ocp_qp_kkt.c
-	${PROJECT_SOURCE_DIR}/ocp_qp/d_ocp_qp_ipm_hard.c
+	${PROJECT_SOURCE_DIR}/ocp_qp/d_ocp_qp_ipm.c
 	${PROJECT_SOURCE_DIR}/ocp_qp/s_ocp_qp.c
 	${PROJECT_SOURCE_DIR}/ocp_qp/s_ocp_qp_sol.c
 	${PROJECT_SOURCE_DIR}/ocp_qp/s_ocp_qp_kkt.c
-	${PROJECT_SOURCE_DIR}/ocp_qp/s_ocp_qp_ipm_hard.c
+	${PROJECT_SOURCE_DIR}/ocp_qp/s_ocp_qp_ipm.c
 #	${PROJECT_SOURCE_DIR}/ocp_qp/m_ocp_qp.c
 #	${PROJECT_SOURCE_DIR}/ocp_qp/m_ocp_qp_kkt.c
 #	${PROJECT_SOURCE_DIR}/ocp_qp/m_ocp_qp_ipm_hard.c
@@ -144,11 +144,11 @@ file(GLOB TREE_OCP_QP_SRC
 	${PROJECT_SOURCE_DIR}/tree_ocp_qp/d_tree_ocp_qp.c
 	${PROJECT_SOURCE_DIR}/tree_ocp_qp/d_tree_ocp_qp_sol.c
 	${PROJECT_SOURCE_DIR}/tree_ocp_qp/d_tree_ocp_qp_kkt.c
-	${PROJECT_SOURCE_DIR}/tree_ocp_qp/d_tree_ocp_qp_ipm_hard.c
+	${PROJECT_SOURCE_DIR}/tree_ocp_qp/d_tree_ocp_qp_ipm.c
 	${PROJECT_SOURCE_DIR}/tree_ocp_qp/s_tree_ocp_qp.c
 	${PROJECT_SOURCE_DIR}/tree_ocp_qp/s_tree_ocp_qp_sol.c
 	${PROJECT_SOURCE_DIR}/tree_ocp_qp/s_tree_ocp_qp_kkt.c
-	${PROJECT_SOURCE_DIR}/tree_ocp_qp/s_tree_ocp_qp_ipm_hard.c
+	${PROJECT_SOURCE_DIR}/tree_ocp_qp/s_tree_ocp_qp_ipm.c
 	)
 
 set(HPIPM_SRC ${COND_SRC} ${DENSE_QP_SRC} ${IPM_CORE_SRC} ${OCP_QP_SRC} ${TREE_OCP_QP_SRC})
