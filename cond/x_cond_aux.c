@@ -772,14 +772,14 @@ void EXPAND_SOL(struct OCP_QP *ocp_qp, struct DENSE_QP_SOL *dense_qp_sol, struct
 				ptr_t_ub[jj] = ptr_t_ugc[nbg];
 				nbg++;
 				}
-			if(idxs_rev[idxb0]>=0)
+			if(idxs_rev[jj]>=0)
 				{
-				ptr_lam[2*nb0+2*ng0+idxs_rev[idxb0]]     = ptr_lamc[2*nb2+2*ng2+is];
-				ptr_lam[2*nb0+2*ng0+ns0+idxs_rev[idxb0]] = ptr_lamc[2*nb2+2*ng2+ns2+is];
-				ptr_t[2*nb0+2*ng0+idxs_rev[idxb0]]     = ptr_tc[2*nb2+2*ng2+is];
-				ptr_t[2*nb0+2*ng0+ns0+idxs_rev[idxb0]] = ptr_tc[2*nb2+2*ng2+ns2+is];
-				ptr_ux[nu0+nx0+idxs_rev[idxb0]] = ptr_vc[nu2+nx2+is];
-				ptr_ux[nu0+nx0+ns0+idxs_rev[idxb0]] = ptr_vc[nu2+nx2+ns2+is];
+				ptr_lam[2*nb0+2*ng0+idxs_rev[jj]]     = ptr_lamc[2*nb2+2*ng2+is];
+				ptr_lam[2*nb0+2*ng0+ns0+idxs_rev[jj]] = ptr_lamc[2*nb2+2*ng2+ns2+is];
+				ptr_t[2*nb0+2*ng0+idxs_rev[jj]]     = ptr_tc[2*nb2+2*ng2+is];
+				ptr_t[2*nb0+2*ng0+ns0+idxs_rev[jj]] = ptr_tc[2*nb2+2*ng2+ns2+is];
+				ptr_ux[nu0+nx0+idxs_rev[jj]] = ptr_vc[nu2+nx2+is];
+				ptr_ux[nu0+nx0+ns0+idxs_rev[jj]] = ptr_vc[nu2+nx2+ns2+is];
 				is++;
 				}
 			}
@@ -808,15 +808,15 @@ void EXPAND_SOL(struct OCP_QP *ocp_qp, struct DENSE_QP_SOL *dense_qp_sol, struct
 	ptr_t = (t+0)->pa;
 	for(jj=0; jj<nb0; jj++)
 		{
-		idxb0 = idxb[0][jj];
-		if(idxs_rev[idxb0]>=0)
+//		idxb0 = idxb[0][jj];
+		if(idxs_rev[jj]>=0)
 			{
-			ptr_lam[2*nb0+2*ng0+idxs_rev[idxb0]]     = ptr_lamc[2*nb2+2*ng2+is];
-			ptr_lam[2*nb0+2*ng0+ns0+idxs_rev[idxb0]] = ptr_lamc[2*nb2+2*ng2+ns2+is];
-			ptr_t[2*nb0+2*ng0+idxs_rev[idxb0]]     = ptr_tc[2*nb2+2*ng2+is];
-			ptr_t[2*nb0+2*ng0+ns0+idxs_rev[idxb0]] = ptr_tc[2*nb2+2*ng2+ns2+is];
-			ptr_ux[nu0+nx0+idxs_rev[idxb0]] = ptr_vc[nu2+nx2+is];
-			ptr_ux[nu0+nx0+ns0+idxs_rev[idxb0]] = ptr_vc[nu2+nx2+ns2+is];
+			ptr_lam[2*nb0+2*ng0+idxs_rev[jj]]     = ptr_lamc[2*nb2+2*ng2+is];
+			ptr_lam[2*nb0+2*ng0+ns0+idxs_rev[jj]] = ptr_lamc[2*nb2+2*ng2+ns2+is];
+			ptr_t[2*nb0+2*ng0+idxs_rev[jj]]     = ptr_tc[2*nb2+2*ng2+is];
+			ptr_t[2*nb0+2*ng0+ns0+idxs_rev[jj]] = ptr_tc[2*nb2+2*ng2+ns2+is];
+			ptr_ux[nu0+nx0+idxs_rev[jj]] = ptr_vc[nu2+nx2+is];
+			ptr_ux[nu0+nx0+ns0+idxs_rev[jj]] = ptr_vc[nu2+nx2+ns2+is];
 			is++;
 			}
 		}
