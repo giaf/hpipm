@@ -47,10 +47,11 @@ struct d_erk_workspace
 	void *ode_args; // pointer to ode args
 	struct d_erk_arg *erk_arg; // erk arg
 	double *K; // internal variables
-	double *x; // states and forward sensitivities
+	double *x_for; // states and forward sensitivities
+	double *x_traj; // states at all steps
 	double *l; // adjoint sensitivities
 	double *p; // parameter
-	double *xt; // temporary states and forward sensitivities
+	double *x_tmp; // temporary states and forward sensitivities
 	double *adj_in;
 	double *adj_tmp;
 	int nx; // number of states
