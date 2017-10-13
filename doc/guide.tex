@@ -48,7 +48,7 @@ The dense QP is a QP in the form
 \min_{v,s} & \quad \frac 1 2 \begin{bmatrix} v \\ 1 \end{bmatrix}^T \begin{bmatrix} H & g \\ g^T & 0 \end{bmatrix} \begin{bmatrix} v \\ 1 \end{bmatrix} + \frac 1 2 \begin{bmatrix} s^l \\ s^u \\ 1 \end{bmatrix}^T \begin{bmatrix} Z^l & 0 & z^l \\ 0 & Z^u & z^u \\ (z^l)^T & (z^u)^T & 0 \end{bmatrix} \begin{bmatrix} s^l \\ s^u \\ 1 \end{bmatrix} \\
 s.t. & \quad A v = b \\
 & \quad \begin{bmatrix} \underline v \\ \underline d \end{bmatrix} \leq \begin{bmatrix} J_{b,v} \\ C \end{bmatrix} v + \begin{bmatrix} J_{s,v} \\ J_{s,g} \end{bmatrix} s^l \\
-& \quad \begin{bmatrix} J_{b,v} \\ C_n \end{bmatrix} v - \begin{bmatrix} J_{s,v} \\ J_{s,g} \end{bmatrix} s^u \leq \begin{bmatrix} \overline v \\ \overline d \end{bmatrix}
+& \quad \begin{bmatrix} J_{b,v} \\ C \end{bmatrix} v - \begin{bmatrix} J_{s,v} \\ J_{s,g} \end{bmatrix} s^u \leq \begin{bmatrix} \overline v \\ \overline d \end{bmatrix}
 \end{align*}
 where $v$ are the primal variables, $s^l$ ($s^u$) are the slack variables of the soft lower (upper) constraints.
 The matrices $J_{\dots}$ are made of rows from identity matrices.
