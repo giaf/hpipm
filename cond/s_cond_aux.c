@@ -65,8 +65,8 @@
 #define TRMM_RLNN_LIBSTR strmm_rlnn_libstr
 #define VECCP_LIBSTR sveccp_libstr
 
-#define COMPUTE_GAMMA s_compute_Gamma
 #define COND_BABT s_cond_BAbt
+#define COND_B s_cond_b
 #define COND_RSQRQ_N2NX3 s_cond_RSQrq_N2nx3
 #define COND_DCTD s_cond_DCtd
 #define EXPAND_SOL s_expand_sol

@@ -87,6 +87,54 @@ void COND_BABT(struct OCP_QP *ocp_qp, struct STRMAT *BAbt2, struct STRVEC *b2, s
 
 
 
+void COND_B(struct OCP_QP *ocp_qp, struct STRVEC *b2, struct COND_QP_OCP2DENSE_WORKSPACE *cond_ws)
+	{
+
+	int N = ocp_qp->N;
+
+	// early return
+	if(N<0)
+		return;
+
+	// extract input members
+	int *nx = ocp_qp->nx;
+	int *nu = ocp_qp->nu;
+	struct STRMAT *BAbt = ocp_qp->BAbt;
+	struct STRVEC *b = ocp_qp->b;
+
+	// extract memory members
+	struct STRVEC *Gammab = cond_ws->Gammab;
+
+	int ii, jj;
+
+	int nu_tmp;
+
+	ii = 0;
+	// b
+	VECCP_LIBSTR(nx[1], b+0, 0, Gammab+0, 0);
+
+	ii++;
+
+	for(ii=1; ii<N; ii++)
+		{
+		// TODO check for equal pointers and avoid copy
+
+		// A * Gammab
+		GEMV_T_LIBSTR(nx[ii], nx[ii+1], 1.0, BAbt+ii, nu[ii], 0, Gammab+(ii-1), 0, 1.0, b+ii, 0, Gammab+ii, 0);
+		}
+	
+	if(cond_ws->cond_last_stage==0)
+		{
+		// b
+		VECCP_LIBSTR(nx[N], Gammab+(N-1), 0, b2+0, 0);
+		}
+
+	return;
+
+	}
+
+
+
 void COND_RSQRQ_N2NX3(struct OCP_QP *ocp_qp, struct STRMAT *RSQrq2, struct STRVEC *rq2, struct COND_QP_OCP2DENSE_WORKSPACE *cond_ws)
 	{
 
