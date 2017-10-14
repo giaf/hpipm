@@ -446,7 +446,11 @@ int SOLVE_OCP_QP_IPM(struct OCP_QP *qp, struct OCP_QP_SOL *qp_sol, struct OCP_QP
 	str_res_d.pa = cws->res_d;
 	str_res_m.pa = cws->res_m;
 
-	REAL qp_res[4];
+	REAL *qp_res = ws->qp_res;
+	qp_res[0] = 0;
+	qp_res[1] = 0;
+	qp_res[2] = 0;
+	qp_res[3] = 0;
 
 	ws->mu0 = arg->mu0;
 

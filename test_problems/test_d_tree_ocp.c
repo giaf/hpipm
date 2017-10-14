@@ -873,6 +873,8 @@ exit(1);
 	struct d_tree_ocp_qp_ipm_workspace workspace;
 	d_create_tree_ocp_qp_ipm(&qp, &arg, &workspace, ipm_memory);
 
+	int hpipm_return; // 0 normal; 1 max iter
+
 	int rep, nrep=100;
 
 	struct timeval tv0, tv1;
@@ -881,7 +883,7 @@ exit(1);
 
 	for(rep=0; rep<nrep; rep++)
 		{
-		d_solve_tree_ocp_qp_ipm(&qp, &qp_sol, &arg, &workspace);
+		hpipm_return = d_solve_tree_ocp_qp_ipm(&qp, &qp_sol, &arg, &workspace);
 		}
 
 	gettimeofday(&tv1, NULL); // stop
@@ -977,6 +979,13 @@ exit(1);
 	printf("\nres_mu\n");
 	printf("\n%e\n\n", workspace.res_mu);
 #endif
+
+/************************************************
+* print ipm statistics
+************************************************/	
+
+	printf("\nipm return = %d\n", hpipm_return);
+	printf("\nipm residuals max: res_g = %e, res_b = %e, res_d = %e, res_m = %e\n", workspace.qp_res[0], workspace.qp_res[1], workspace.qp_res[2], workspace.qp_res[3]);
 
 	printf("\nipm iter = %d\n", workspace.iter);
 	printf("\nalpha_aff\tmu_aff\t\tsigma\t\talpha\t\tmu\n");

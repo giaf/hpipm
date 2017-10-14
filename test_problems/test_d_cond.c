@@ -740,11 +740,13 @@ int main()
 	struct d_dense_qp_ipm_workspace dense_workspace;
 	d_create_dense_qp_ipm(&dense_qp, &dense_arg, &dense_workspace, dense_ipm_mem);
 
+	int hpipm_return; // 0 normal; 1 max iter
+
 	gettimeofday(&tv0, NULL); // start
 
 	for(rep=0; rep<nrep; rep++)
 		{
-		d_solve_dense_qp_ipm(&dense_qp, &dense_qp_sol, &dense_arg, &dense_workspace);
+		hpipm_return = d_solve_dense_qp_ipm(&dense_qp, &dense_qp_sol, &dense_arg, &dense_workspace);
 		}
 
 	gettimeofday(&tv1, NULL); // stop
@@ -797,6 +799,13 @@ int main()
 	d_print_e_tran_strvec(2*nbc+2*ngc+2*nsc, dense_workspace.res_m, 0);
 	printf("\nres_mu\n");
 	printf("\n%e\n\n", dense_workspace.res_mu);
+
+/************************************************
+* print ipm statistics
+************************************************/	
+
+	printf("\nipm return = %d\n", hpipm_return);
+	printf("\nipm residuals max: res_g = %e, res_b = %e, res_d = %e, res_m = %e\n", dense_workspace.qp_res[0], dense_workspace.qp_res[1], dense_workspace.qp_res[2], dense_workspace.qp_res[3]);
 
 	printf("\nipm iter = %d\n", dense_workspace.iter);
 	printf("\nalpha_aff\tmu_aff\t\tsigma\t\talpha\t\tmu\n");
