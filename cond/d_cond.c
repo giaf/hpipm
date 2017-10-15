@@ -45,6 +45,7 @@
 
 
 #define COND_DCTD d_cond_DCtd
+#define COND_D d_cond_d
 #define COND_B d_cond_b
 #define COND_BABT d_cond_BAbt
 #define COND_RQ_N2NX3 d_cond_rq_N2nx3
