@@ -257,6 +257,71 @@ void COND_QP_OCP2OCP(struct OCP_QP *ocp_qp, struct OCP_QP *part_dense_qp, struct
 
 
 
+void COND_RHS_QP_OCP2OCP(struct OCP_QP *ocp_qp, struct OCP_QP *part_dense_qp, struct COND_QP_OCP2OCP_WORKSPACE *part_cond_ws)
+	{
+
+	struct OCP_QP tmp_ocp_qp;
+
+	int ii;
+
+	int N = ocp_qp->N;
+	int N2 = part_dense_qp->N;
+	int N1 = N/N2; // (floor) horizon of small blocks
+	int R1 = N - N2*N1; // the first R1 blocks have horizon N1+1
+	int M1 = R1>0 ? N1+1 : N1; // (ceil) horizon of large blocks
+	int T1; // horizon of current block
+
+	int N_tmp = 0; // temporary sum of horizons
+	for(ii=0; ii<N2; ii++)
+		{
+
+		T1 = ii<R1 ? M1 : N1;
+
+		// alias ocp_qp
+		tmp_ocp_qp.N = T1;
+		tmp_ocp_qp.nx = ocp_qp->nx+N_tmp;
+		tmp_ocp_qp.nu = ocp_qp->nu+N_tmp;
+		tmp_ocp_qp.nb = ocp_qp->nb+N_tmp;
+		tmp_ocp_qp.ng = ocp_qp->ng+N_tmp;
+		tmp_ocp_qp.ns = ocp_qp->ns+N_tmp;
+		tmp_ocp_qp.idxb = ocp_qp->idxb+N_tmp;
+		tmp_ocp_qp.BAbt = ocp_qp->BAbt+N_tmp;
+		tmp_ocp_qp.b = ocp_qp->b+N_tmp;
+		tmp_ocp_qp.RSQrq = ocp_qp->RSQrq+N_tmp;
+		tmp_ocp_qp.rq = ocp_qp->rq+N_tmp;
+		tmp_ocp_qp.DCt = ocp_qp->DCt+N_tmp;
+		tmp_ocp_qp.d = ocp_qp->d+N_tmp;
+		tmp_ocp_qp.Z = ocp_qp->Z+N_tmp;
+		tmp_ocp_qp.z = ocp_qp->z+N_tmp;
+		tmp_ocp_qp.idxs = ocp_qp->idxs+N_tmp;
+
+		COND_B(&tmp_ocp_qp, part_dense_qp->b+ii, part_cond_ws->cond_workspace+ii);
+
+		COND_RQ_N2NX3(&tmp_ocp_qp, part_dense_qp->rq+ii, part_cond_ws->cond_workspace+ii);
+
+		COND_D(&tmp_ocp_qp, part_dense_qp->d+ii, part_dense_qp->z+ii, part_cond_ws->cond_workspace+ii);
+
+		N_tmp += T1;
+
+		}
+
+	// copy last stage
+	int *nx = ocp_qp->nx;
+	int *nu = ocp_qp->nu;
+	int *nb = ocp_qp->nb;
+	int *ng = ocp_qp->ng;
+	int *ns = ocp_qp->ns;
+
+	VECCP_LIBSTR(nu[N]+nx[N], ocp_qp->rq+N, 0, part_dense_qp->rq+N2, 0);
+	VECCP_LIBSTR(2*nb[N]+2*ng[N], ocp_qp->d+N, 0, part_dense_qp->d+N2, 0);
+	VECCP_LIBSTR(2*ns[N], ocp_qp->z+N, 0, part_dense_qp->z+N2, 0);
+
+	return;
+
+	}
+
+
+
 void EXPAND_SOL_OCP2OCP(struct OCP_QP *ocp_qp, struct OCP_QP *part_dense_qp, struct OCP_QP_SOL *part_dense_qp_sol, struct OCP_QP_SOL *ocp_qp_sol, struct COND_QP_OCP2OCP_WORKSPACE *part_cond_ws)
 	{
 

@@ -200,8 +200,8 @@ int main()
 	int ns[N+1];
 	ns[0] = 0;
 	for(ii=1; ii<N; ii++)
-		ns[ii] = nx[ii]/2;
-	ns[N] = nx[N]/2;
+		ns[ii] = 0;//nx[ii]/2;
+	ns[N] = 0;//nx[N]/2;
 #elif 0
 	int nb[N+1];
 	nb[0] = 0;
@@ -275,7 +275,7 @@ int main()
 ************************************************/	
 	
 	double *Q; d_zeros(&Q, nx_, nx_);
-	for(ii=0; ii<nx_; ii++) Q[ii*(nx_+1)] = 0.0;
+	for(ii=0; ii<nx_; ii++) Q[ii*(nx_+1)] = 1.0;
 
 	double *R; d_zeros(&R, nu_, nu_);
 	for(ii=0; ii<nu_; ii++) R[ii*(nu_+1)] = 2.0;
@@ -283,10 +283,10 @@ int main()
 	double *S; d_zeros(&S, nu_, nx_);
 
 	double *q; d_zeros(&q, nx_, 1);
-	for(ii=0; ii<nx_; ii++) q[ii] = 0.0;
+	for(ii=0; ii<nx_; ii++) q[ii] = 0.1;
 
 	double *r; d_zeros(&r, nu_, 1);
-	for(ii=0; ii<nu_; ii++) r[ii] = 0.0;
+	for(ii=0; ii<nu_; ii++) r[ii] = 0.2;
 
 	double *r0; d_zeros(&r0, nu_, 1);
 	dgemv_n_3l(nu_, nx_, S, nu_, x0, r0);
@@ -355,8 +355,8 @@ int main()
 			}
 		else // state
 			{
-			d_lb1[ii] = - 1.0; // xmin
-			d_ub1[ii] =   1.0; // xmax
+			d_lb1[ii] = - 4.0; // xmin
+			d_ub1[ii] =   4.0; // xmax
 			}
 		idxb1[ii] = ii;
 		}
@@ -382,8 +382,8 @@ int main()
 	double *d_ugN; d_zeros(&d_ugN, ng[N], 1);
 	for(ii=0; ii<nb[N]; ii++)
 		{
-		d_lbN[ii] = - 1.0; // xmin
-		d_ubN[ii] =   1.0; // xmax
+		d_lbN[ii] = - 4.0; // xmin
+		d_ubN[ii] =   4.0; // xmax
 		idxbN[ii] = ii;
 		}
 	for(ii=0; ii<ng[N]; ii++)
@@ -674,6 +674,7 @@ int main()
 	double time_cond = (tv1.tv_sec-tv0.tv_sec)/(nrep+0.0)+(tv1.tv_usec-tv0.tv_usec)/(nrep*1e6);
 
 #if 1
+	printf("\npart cond data\n\n");
 	for(ii=0; ii<N2; ii++)
 		d_print_strmat(nu2[ii]+nx2[ii]+1, nx2[ii+1], part_dense_qp.BAbt+ii, 0, 0);
 	for(ii=0; ii<N2; ii++)
@@ -698,6 +699,37 @@ int main()
 		d_print_tran_strvec(ns2[ii], part_dense_qp.Z+ii, 0);
 	for(ii=0; ii<=N2; ii++)
 		d_print_tran_strvec(ns2[ii], part_dense_qp.Z+ii, ns2[ii]);
+	for(ii=0; ii<=N2; ii++)
+		d_print_tran_strvec(ns2[ii], part_dense_qp.z+ii, 0);
+	for(ii=0; ii<=N2; ii++)
+		d_print_tran_strvec(ns2[ii], part_dense_qp.z+ii, ns2[ii]);
+#endif
+
+	gettimeofday(&tv0, NULL); // start
+
+	for(rep=0; rep<nrep; rep++)
+		{
+		d_cond_rhs_qp_ocp2ocp(&ocp_qp, &part_dense_qp, &part_cond_ws);
+		}
+
+	gettimeofday(&tv1, NULL); // stop
+
+	double time_cond_rhs = (tv1.tv_sec-tv0.tv_sec)/(nrep+0.0)+(tv1.tv_usec-tv0.tv_usec)/(nrep*1e6);
+
+#if 1
+	printf("\npart cond rhs data\n\n");
+	for(ii=0; ii<N2; ii++)
+		d_print_tran_strvec(nx2[ii+1], part_dense_qp.b+ii, 0);
+	for(ii=0; ii<=N2; ii++)
+		d_print_tran_strvec(nu2[ii]+nx2[ii], part_dense_qp.rq+ii, 0);
+	for(ii=0; ii<=N2; ii++)
+		d_print_tran_strvec(nb2[ii], part_dense_qp.d+ii, 0);
+	for(ii=0; ii<=N2; ii++)
+		d_print_tran_strvec(nb2[ii], part_dense_qp.d+ii, nb2[ii]+ng2[ii]);
+	for(ii=0; ii<=N2; ii++)
+		d_print_tran_strvec(ng2[ii], part_dense_qp.d+ii, nb2[ii]);
+	for(ii=0; ii<=N2; ii++)
+		d_print_tran_strvec(ng2[ii], part_dense_qp.d+ii, 2*nb2[ii]+ng2[ii]);
 	for(ii=0; ii<=N2; ii++)
 		d_print_tran_strvec(ns2[ii], part_dense_qp.z+ii, 0);
 	for(ii=0; ii<=N2; ii++)
@@ -741,7 +773,7 @@ int main()
 //	arg.res_b_max = 1e-8;
 //	arg.res_d_max = 1e-12;
 //	arg.res_m_max = 1e-12;
-//	arg.mu0 = 10.0;
+	arg.mu0 = mu0;
 //	arg.iter_max = 20;
 //	arg.stat_max = 100;
 //	arg.pred_corr = 1;
@@ -935,6 +967,7 @@ int main()
 	d_print_e_tran_mat(5, workspace.iter, workspace.stat, 5);
 
 	printf("\npart cond time         = %e [s]\n", time_cond);
+	printf("\npart cond rhs time     = %e [s]\n", time_cond_rhs);
 	printf("\npart cond ocp ipm time = %e [s]\n\n", time_ocp_ipm);
 
 /************************************************

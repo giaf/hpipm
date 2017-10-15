@@ -724,9 +724,6 @@ void COND_D(struct OCP_QP *ocp_qp, struct STRVEC *d2, struct STRVEC *z2, struct 
 	REAL *d_lg3 = d2->pa+nb2;
 	REAL *d_ug3 = d2->pa+2*nb2+ng2;
 
-	// set constraint matrix to zero (it's 2 lower triangular matrices atm)
-//	GESE_LIBSTR(nu2+nx2, ng2, 0.0, &DCt2[0], 0, 0);
-
 	// box constraints
 
 	int idx_gammab = nx[0];
@@ -739,9 +736,7 @@ void COND_D(struct OCP_QP *ocp_qp, struct STRVEC *d2, struct STRVEC *z2, struct 
 
 	int idxb0, idxg0;
 
-//	REAL *ptr_Z;
 	REAL *ptr_z;
-//	REAL *ptr_Z2 = Z2->pa;
 	REAL *ptr_z2 = z2->pa;
 
 	REAL tmp;
@@ -761,10 +756,8 @@ void COND_D(struct OCP_QP *ocp_qp, struct STRVEC *d2, struct STRVEC *z2, struct 
 			{
 			for(jj=0; jj<ns0; jj++)
 				idxs_rev[idxs[N-ii][jj]] = jj;
-//			ptr_Z = Z[N-ii].pa;
 			ptr_z = z[N-ii].pa;
 			}
-//		int_print_mat(1, nb0+ng0, idxs_rev, 1);
 		nu_tmp += nu0;
 		ptr_d_lb = d[N-ii].pa+0;
 		ptr_d_ub = d[N-ii].pa+nb0+ng0;
@@ -775,12 +768,8 @@ void COND_D(struct OCP_QP *ocp_qp, struct STRVEC *d2, struct STRVEC *z2, struct 
 				{
 				d_lb3[ib] = ptr_d_lb[jj];
 				d_ub3[ib] = ptr_d_ub[jj];
-//				idxb2[ib] = nu_tmp - nu0 + idxb[N-ii][jj];
 				if(idxs_rev[jj]>=0)
 					{
-//					idxs2[is] = ib;
-//					ptr_Z2[0+is]   = ptr_Z[0+idxs_rev[jj]];
-//					ptr_Z2[ns2+is] = ptr_Z[ns[N-ii]+idxs_rev[jj]];
 					ptr_z2[0+is]   = ptr_z[0+idxs_rev[jj]];
 					ptr_z2[ns2+is] = ptr_z[ns[N-ii]+idxs_rev[jj]];
 					is++;
@@ -793,12 +782,8 @@ void COND_D(struct OCP_QP *ocp_qp, struct STRVEC *d2, struct STRVEC *z2, struct 
 				tmp = GEEX1_LIBSTR(&Gamma[N-1-ii], idx_gammab, idx_g);
 				d_lg3[ig] = ptr_d_lb[jj] - tmp;
 				d_ug3[ig] = ptr_d_ub[jj] - tmp;
-//				GECP_LIBSTR(idx_gammab, 1, &Gamma[N-ii-1], 0, idx_g, &DCt2[0], nu_tmp, ig);
 				if(idxs_rev[jj]>=0)
 					{
-//					idxs2[is] = nb2+ig;
-//					ptr_Z2[0+is]   = ptr_Z[0+idxs_rev[jj]];
-//					ptr_Z2[ns2+is] = ptr_Z[ns0+idxs_rev[jj]];
 					ptr_z2[0+is]   = ptr_z[0+idxs_rev[jj]];
 					ptr_z2[ns2+is] = ptr_z[ns0+idxs_rev[jj]];
 					is++;
@@ -820,10 +805,8 @@ void COND_D(struct OCP_QP *ocp_qp, struct STRVEC *d2, struct STRVEC *z2, struct 
 		{
 		for(jj=0; jj<ns0; jj++)
 			idxs_rev[idxs[0][jj]] = jj;
-//		ptr_Z = Z[0].pa;
 		ptr_z = z[0].pa;
 		}
-//	int_print_mat(1, nb0+ng0, idxs_rev, 1);
 	nu_tmp += nu0;
 	ptr_d_lb = d[0].pa+0;
 	ptr_d_ub = d[0].pa+nb0+ng0;
@@ -832,12 +815,8 @@ void COND_D(struct OCP_QP *ocp_qp, struct STRVEC *d2, struct STRVEC *z2, struct 
 		idxb0 = idxb[0][jj];
 		d_lb3[ib] = ptr_d_lb[jj];
 		d_ub3[ib] = ptr_d_ub[jj];
-//		idxb2[ib] = nu_tmp - nu0 + idxb0;
 		if(idxs_rev[jj]>=0) // XXX
 			{
-//			idxs2[is] = ib;
-//			ptr_Z2[0+is]   = ptr_Z[0+idxs_rev[jj]];
-//			ptr_Z2[ns2+is] = ptr_Z[ns0+idxs_rev[jj]];
 			ptr_z2[0+is]   = ptr_z[0+idxs_rev[jj]];
 			ptr_z2[ns2+is] = ptr_z[ns0+idxs_rev[jj]];
 			is++;
@@ -868,10 +847,8 @@ void COND_D(struct OCP_QP *ocp_qp, struct STRVEC *d2, struct STRVEC *z2, struct 
 			{
 			for(jj=0; jj<ns0; jj++)
 				idxs_rev[idxs[N-ii][jj]] = jj;
-//			ptr_Z = Z[N-ii].pa;
 			ptr_z = z[N-ii].pa;
 			}
-//		int_print_mat(1, nb0+ng0, idxs_rev, 1);
 
 		if(ng0>0)
 			{
@@ -883,9 +860,6 @@ void COND_D(struct OCP_QP *ocp_qp, struct STRVEC *d2, struct STRVEC *z2, struct 
 
 				if(idxs_rev[idxg0]>=0)
 					{
-//					idxs2[is] = nb2+nbg+ng_tmp+ig;
-//					ptr_Z2[0+is]   = ptr_Z[0+idxs_rev[idxg0]];
-//					ptr_Z2[ns2+is] = ptr_Z[ns0+idxs_rev[idxg0]];
 					ptr_z2[0+is]   = ptr_z[0+idxs_rev[idxg0]];
 					ptr_z2[ns2+is] = ptr_z[ns0+idxs_rev[idxg0]];
 					is++;
@@ -893,11 +867,7 @@ void COND_D(struct OCP_QP *ocp_qp, struct STRVEC *d2, struct STRVEC *z2, struct 
 
 				}
 
-//			GECP_LIBSTR(nu0, ng0, &DCt[N-ii], 0, 0, DCt2, nu_tmp, nbg+ng_tmp);
-
 			nu_tmp += nu0;
-
-//			GEMM_NN_LIBSTR(nu2+nx[0]-nu_tmp, ng0, nx0, 1.0, &Gamma[N-1-ii], 0, 0, &DCt[N-ii], nu0, 0, 0.0, DCt2, nu_tmp, nbg+ng_tmp, DCt2, nu_tmp, nbg+ng_tmp);
 
 			VECCP_LIBSTR(ng0, &d[N-ii], nb0, d2, nb2+nbg+ng_tmp);
 			VECCP_LIBSTR(ng0, &d[N-ii], 2*nb0+ng0, d2, 2*nb2+ng2+nbg+ng_tmp);
@@ -932,10 +902,8 @@ void COND_D(struct OCP_QP *ocp_qp, struct STRVEC *d2, struct STRVEC *z2, struct 
 		{
 		for(jj=0; jj<ns0; jj++)
 			idxs_rev[idxs[N-ii][jj]] = jj;
-//		ptr_Z = Z[N-ii].pa;
 		ptr_z = z[N-ii].pa;
 		}
-//	int_print_mat(1, nb0+ng0, idxs_rev, 1);
 
 	if(ng0>0)
 		{
@@ -947,17 +915,12 @@ void COND_D(struct OCP_QP *ocp_qp, struct STRVEC *d2, struct STRVEC *z2, struct 
 
 			if(idxs_rev[idxg0]>=0)
 				{
-//				idxs2[is] = nb2+nbg+ng_tmp+ig;
-//				ptr_Z2[0+is]   = ptr_Z[0+idxs_rev[idxg0]];
-//				ptr_Z2[ns2+is] = ptr_Z[ns0+idxs_rev[idxg0]];
 				ptr_z2[0+is]   = ptr_z[0+idxs_rev[idxg0]];
 				ptr_z2[ns2+is] = ptr_z[ns0+idxs_rev[idxg0]];
 				is++;
 				}
 
 			}
-
-//		GECP_LIBSTR(nu0+nx0, ng0, &DCt[0], 0, 0, DCt2, nu_tmp, nbg+ng_tmp);
 
 		VECCP_LIBSTR(ng0, &d[0], nb0, d2, nb2+nbg+ng_tmp);
 		VECCP_LIBSTR(ng0, &d[0], 2*nb0+ng0, d2, 2*nb2+ng2+nbg+ng_tmp);

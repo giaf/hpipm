@@ -746,7 +746,7 @@ int main()
 //	arg.res_b_max = 1e-8;
 //	arg.res_d_max = 1e-12;
 //	arg.res_m_max = 1e-12;
-//	arg.mu0 = 10.0;
+	dense_arg.mu0 = mu0;
 //	arg.iter_max = 20;
 //	arg.stat_max = 100;
 //	arg.pred_corr = 1;
@@ -833,9 +833,9 @@ int main()
 	printf("\nalpha_aff\tmu_aff\t\tsigma\t\talpha\t\tmu\n");
 	d_print_e_tran_mat(5, dense_workspace.iter, dense_workspace.stat, 5);
 
-	printf("\ncond time = %e [s]\n", time_cond);
-	printf("\ncond rhs time = %e [s]\n", time_cond_rhs);
-	printf("\ndense ipm time = %e [s]\n", time_dense_ipm);
+	printf("\npart cond time           = %e [s]\n", time_cond);
+	printf("\npart cond rhs time       = %e [s]\n", time_cond_rhs);
+	printf("\npart cond dense ipm time = %e [s]\n\n", time_dense_ipm);
 
 /************************************************
 * ocp qp sol

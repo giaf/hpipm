@@ -45,8 +45,11 @@
 
 
 
+#define COND_B d_cond_b
 #define COND_BABT d_cond_BAbt
+#define COND_D d_cond_d
 #define COND_DCTD d_cond_DCtd
+#define COND_RQ_N2NX3 d_cond_rq_N2nx3
 #define COND_RSQRQ_N2NX3 d_cond_RSQrq_N2nx3
 #define COND_QP_OCP2DENSE_WORKSPACE d_cond_qp_ocp2dense_workspace
 #define COND_QP_OCP2OCP_WORKSPACE d_cond_qp_ocp2ocp_workspace
@@ -66,6 +69,7 @@
 #define MEMSIZE_COND_QP_OCP2OCP d_memsize_cond_qp_ocp2ocp
 #define CREATE_COND_QP_OCP2OCP d_create_cond_qp_ocp2ocp
 #define COND_QP_OCP2OCP d_cond_qp_ocp2ocp
+#define COND_RHS_QP_OCP2OCP d_cond_rhs_qp_ocp2ocp
 #define EXPAND_SOL_OCP2OCP d_expand_sol_ocp2ocp
 
 
