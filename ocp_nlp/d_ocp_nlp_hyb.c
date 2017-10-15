@@ -478,6 +478,7 @@ int SOLVE_OCP_NLP_HYB(struct OCP_NLP *nlp, struct OCP_NLP_SOL *nlp_sol, struct O
 	int *ns2 = qp2->ns;
 #endif
 
+
 #if 0
 for(ii=0; ii<=N2; ii++)
 	printf("\n%d %d %d %d %d\n", nx2[ii], nu2[ii], nb2[ii], ng2[ii], ns2[ii]);
@@ -498,6 +499,24 @@ exit(1);
 	str_res_b.pa = cws->res_b;
 	str_res_d.pa = cws->res_d;
 	str_res_m.pa = cws->res_m;
+
+	struct CORE_QP_IPM_WORKSPACE *cws2;
+	struct STRVEC str_res_g2;
+	struct STRVEC str_res_b2;
+	struct STRVEC str_res_d2;
+	struct STRVEC str_res_m2;
+	if(N2<N)
+		{
+		cws2 = ipm_ws2->core_workspace;
+		str_res_g2.m = cws2->nv;
+		str_res_b2.m = cws2->ne;
+		str_res_d2.m = cws2->nc;
+		str_res_m2.m = cws2->nc;
+		str_res_g2.pa = cws2->res_g;
+		str_res_b2.pa = cws2->res_b;
+		str_res_d2.pa = cws2->res_d;
+		str_res_m2.pa = cws2->res_m;
+		}
 
 	double nlp_res[4];
 
@@ -690,6 +709,8 @@ exit(1);
 		// solve qp
 		d_solve_ocp_qp_ipm(qp2, qp_sol2, ipm_arg, ipm_ws2);
 		ws->iter_qp = ipm_ws2->iter;
+		for(ii=0; ii<5*ws->iter_qp; ii++)
+			ipm_ws->stat[ii] = ipm_ws2->stat[ii];
 
 #if 0
 printf("\nqp sol\n");
@@ -782,40 +803,178 @@ for(nn=0; nn<=N; nn++)
 	for(ss=0; ss<arg->nlp_iter_max; ss++)	
 		{
 
-	for(nn=0; nn<=N; nn++)
-		{
-		dveccp_libstr(nu[nn]+nx[nn], nlp->rq+nn, 0, qp->rq+nn, 0);
-//		drowin_libstr(nu[nn]+nx[nn], 1.0, qp->rq+nn, 0, qp->RSQrq+nn, nu[nn]+nx[nn], 0);
-		}
+		for(nn=0; nn<=N; nn++)
+			{
+			dveccp_libstr(nu[nn]+nx[nn], nlp->rq+nn, 0, qp->rq+nn, 0);
+//			drowin_libstr(nu[nn]+nx[nn], 1.0, qp->rq+nn, 0, qp->RSQrq+nn, nu[nn]+nx[nn], 0);
+			}
 
 		// simulation & sensitivity propagation
-		for(nn=0; nn<N; nn++)
+		if(ss<=0)
+//		if(1)
 			{
-			x  = (nlp_sol->ux+nn)->pa+nu[nn];
-			u  = (nlp_sol->ux+nn)->pa;
-			pi = (nlp_sol->pi+nn)->pa;
-			if(ss<=0)
-//			if(1)
+			for(nn=0; nn<N; nn++)
 				{
+				x  = (nlp_sol->ux+nn)->pa+nu[nn];
+				u  = (nlp_sol->ux+nn)->pa;
+				pi = (nlp_sol->pi+nn)->pa;
 				d_init_erk_int(nx[nn]+nu[nn], 0, x, u, (nlp->model+nn)->forward_seed, NULL, (nlp->model+nn)->expl_vde_for, NULL, (nlp->model+nn)->arg, erk_ws+nn);
 				d_erk_int(erk_ws+nn);
 				d_cvt_erk_int_to_ocp_qp(nn, erk_ws+nn, qp, nlp_sol);
 				}
-				// TODO partial condensing
-			else
+			// TODO partial condensing
+			if(N2<N)
 				{
+				d_cond_qp_ocp2ocp(qp, qp2, part_cond_ws);
+				}
+			}
+		else
+			{
+			for(nn=0; nn<N; nn++)
+				{
+				x  = (nlp_sol->ux+nn)->pa+nu[nn];
+				u  = (nlp_sol->ux+nn)->pa;
+				pi = (nlp_sol->pi+nn)->pa;
 //				d_init_erk_int(0, 1, x, u, NULL, pi, (nlp->model+nn)->expl_vde_for, (nlp->model+nn)->expl_vde_adj, (nlp->model+nn)->arg, erk_ws+nn);
 				d_init_erk_int(0, 1, x, u, NULL, pi, (nlp->model+nn)->expl_ode, (nlp->model+nn)->expl_vde_adj, (nlp->model+nn)->arg, erk_ws+nn);
 				d_erk_int(erk_ws+nn);
 				d_cvt_erk_int_to_ocp_qp_rhs(nn, erk_ws+nn, qp, nlp_sol);
-				// TODO partial condensing rhs
+				}
+			// TODO partial condensing rhs
+			if(N2<N)
+				{
+				d_cond_qp_ocp2ocp(qp, qp2, part_cond_ws);
+//				d_cond_rhs_qp_ocp2ocp(qp, qp2, part_cond_ws);
 				}
 			}
 
+// TODO compare qp_sol with qp_sol2 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
 //for(ii=0; ii<N; ii++)
 //	d_print_e_strmat(nlp->nu[ii]+nlp->nx[ii]+1, nlp->nx[ii+1], qp->BAbt+ii, 0, 0);
 	
+		if(N2<N) // partially condensed space solution
+//		if(0) // partially condensed space solution
+			{
+
+#if 0
+printf("\nsol\n");
+d_print_e_mat(1, cws2->nv, cws2->v, 1);
+d_print_e_mat(1, cws2->ne, cws2->pi, 1);
+d_print_e_mat(1, cws2->nc, cws2->lam, 1);
+d_print_e_mat(1, cws2->nc, cws2->t, 1);
+exit(1);
+#endif
+
+			// compute residuals
+			COMPUTE_RES_OCP_QP(qp2, qp_sol2, ipm_ws2);
+			cws2->mu = ipm_ws2->res_mu;
+			if(ss>0 & ws->iter_qp+ss<ipm_ws->stat_max)
+				ipm_ws->stat[5*(ws->iter_qp+ss-1)+4] = ipm_ws2->res_mu;
+
+			// compute infinity norm of residuals
+			dvecnrm_inf_libstr(cws2->nv, &str_res_g2, 0, &nlp_res[0]); // XXX
+			dvecnrm_inf_libstr(cws2->ne, &str_res_b2, 0, &nlp_res[1]); // XXX
+			dvecnrm_inf_libstr(cws2->nc, &str_res_d2, 0, &nlp_res[2]); // XXX
+			dvecnrm_inf_libstr(cws2->nc, &str_res_m2, 0, &nlp_res[3]); // XXX
+
+//printf("\n%e %e %e %e\n", nlp_res[0], nlp_res[1], nlp_res[2], nlp_res[3]);
+
+#if 0
+printf("\nresiduals\n");
+d_print_e_mat(1, cws2->nv, cws2->res_g, 1);
+d_print_e_mat(1, cws2->ne, cws2->res_b, 1);
+d_print_e_mat(1, cws2->nc, cws2->res_d, 1);
+d_print_e_mat(1, cws2->nc, cws2->res_m, 1);
+exit(1);
+#endif
+
+			// exit condition on residuals
+			if(!(nlp_res[0]>arg->nlp_res_g_max | nlp_res[1]>arg->nlp_res_b_max | nlp_res[2]>arg->nlp_res_d_max | nlp_res[3]>arg->nlp_res_m_max))
+				{
+
+				// part expand
+				d_expand_sol_ocp2ocp(qp, qp2, qp_sol2, qp_sol, part_cond_ws);
+
+				// compute residuals (full space)
+				COMPUTE_RES_OCP_QP(qp, qp_sol, ipm_ws);
+
+				// compute infinity norm of residuals
+				dvecnrm_inf_libstr(cws->nv, &str_res_g, 0, &nlp_res[0]);
+				dvecnrm_inf_libstr(cws->ne, &str_res_b, 0, &nlp_res[1]);
+				dvecnrm_inf_libstr(cws->nc, &str_res_d, 0, &nlp_res[2]);
+				dvecnrm_inf_libstr(cws->nc, &str_res_m, 0, &nlp_res[3]);
+
+				ws->iter_nlp = ss;
+				ws->nlp_res_g = nlp_res[0];
+				ws->nlp_res_b = nlp_res[1];
+				ws->nlp_res_d = nlp_res[2];
+				ws->nlp_res_m = nlp_res[3];
+
+				return 0;
+				}
+
+
+			// fact and solve kkt
+			FACT_SOLVE_KKT_STEP_OCP_QP(qp2, ipm_ws2);
+
+			// alpha
+			COMPUTE_ALPHA_QP(cws2);
+			if(ws->iter_qp+ss<ipm_ws->stat_max)
+				ipm_ws->stat[5*(ws->iter_qp+ss)+0] = cws2->alpha;
+
+			// Mehrotra's corrector
+			if(arg->pred_corr==1)
+				{
+				// mu_aff
+				COMPUTE_MU_AFF_QP(cws2);
+				if(ws->iter_qp+ss<ipm_ws->stat_max)
+					ipm_ws->stat[5*(ws->iter_qp+ss)+1] = cws2->mu_aff;
+
+				tmp = cws2->mu_aff/cws2->mu;
+				cws2->sigma = tmp*tmp*tmp;
+				if(ws->iter_qp+ss<ipm_ws->stat_max)
+					ipm_ws->stat[5*(ws->iter_qp+ss)+2] = cws2->sigma;
+
+				COMPUTE_CENTERING_CORRECTION_QP(cws2);
+
+				// fact and solve kkt
+				SOLVE_KKT_STEP_OCP_QP(qp2, ipm_ws2);
+
+				// alpha
+				COMPUTE_ALPHA_QP(cws2);
+				if(ws->iter_qp+ss<ipm_ws->stat_max)
+					ipm_ws->stat[5*(ws->iter_qp+ss)+3] = cws2->alpha;
+				}
+
+			// update QP variables
+			UPDATE_VAR_QP(cws2);
+
+			// part expand
+			d_expand_sol_ocp2ocp(qp, qp2, qp_sol2, qp_sol, part_cond_ws);
+
+#if 0
+printf("\nqp sol\n");
+d_print_e_mat(1, cws->nv, cws->v, 1);
+d_print_e_mat(1, cws->ne, cws->pi, 1);
+d_print_e_mat(1, cws->nc, cws->lam, 1);
+d_print_e_mat(1, cws->nc, cws->t, 1);
+#endif
+
+			// update NLP variables
+			for(nn=0; nn<=N; nn++)
+				dveccp_libstr(nu[nn]+nx[nn]+2*ns[ii], qp_sol->ux+nn, 0, nlp_sol->ux+nn, 0);
+			for(nn=0; nn<N; nn++)
+				dveccp_libstr(nx[nn+1], qp_sol->pi+nn, 0, nlp_sol->pi+nn, 0);
+			for(nn=0; nn<=N; nn++)
+				dveccp_libstr(2*nb[nn]+2*ng[nn]+2*ns[ii], qp_sol->lam+nn, 0, nlp_sol->lam+nn, 0);
+			for(nn=0; nn<=N; nn++)
+				dveccp_libstr(2*nb[nn]+2*ng[nn]+2*ns[ii], qp_sol->t+nn, 0, nlp_sol->t+nn, 0);
+
+			}
+		else // full space solution
+			{
+
 
 #if 0
 printf("\n%d %d\n", nu[0], nx[0]);
@@ -824,17 +983,28 @@ d_print_tran_strvec(nx[1], qp->b+0, 0);
 exit(1);
 #endif
 
-		// compute residuals
-		COMPUTE_RES_OCP_QP(qp, qp_sol, ipm_ws);
-		cws->mu = ipm_ws->res_mu;
-		if(ss>0 & ss<ipm_ws->stat_max)
-			ipm_ws->stat[5*(ss-1)+4] = ipm_ws->res_mu;
+#if 0
+printf("\nsol\n");
+d_print_e_mat(1, cws->nv, cws->v, 1);
+d_print_e_mat(1, cws->ne, cws->pi, 1);
+d_print_e_mat(1, cws->nc, cws->lam, 1);
+d_print_e_mat(1, cws->nc, cws->t, 1);
+exit(1);
+#endif
 
-		// compute infinity norm of residuals
-		dvecnrm_inf_libstr(cws->nv, &str_res_g, 0, &nlp_res[0]);
-		dvecnrm_inf_libstr(cws->ne, &str_res_b, 0, &nlp_res[1]);
-		dvecnrm_inf_libstr(cws->nc, &str_res_d, 0, &nlp_res[2]);
-		dvecnrm_inf_libstr(cws->nc, &str_res_m, 0, &nlp_res[3]);
+			// compute residuals
+			COMPUTE_RES_OCP_QP(qp, qp_sol, ipm_ws);
+			cws->mu = ipm_ws->res_mu;
+			if(ss>0 & ws->iter_qp+ss<ipm_ws->stat_max)
+				ipm_ws->stat[5*(ws->iter_qp+ss-1)+4] = ipm_ws->res_mu;
+
+			// compute infinity norm of residuals
+			dvecnrm_inf_libstr(cws->nv, &str_res_g, 0, &nlp_res[0]);
+			dvecnrm_inf_libstr(cws->ne, &str_res_b, 0, &nlp_res[1]);
+			dvecnrm_inf_libstr(cws->nc, &str_res_d, 0, &nlp_res[2]);
+			dvecnrm_inf_libstr(cws->nc, &str_res_m, 0, &nlp_res[3]);
+
+//printf("\n%e %e %e %e\n", nlp_res[0], nlp_res[1], nlp_res[2], nlp_res[3]);
 
 #if 0
 printf("\nresiduals\n");
@@ -842,55 +1012,56 @@ d_print_e_mat(1, cws->nv, cws->res_g, 1);
 d_print_e_mat(1, cws->ne, cws->res_b, 1);
 d_print_e_mat(1, cws->nc, cws->res_d, 1);
 d_print_e_mat(1, cws->nc, cws->res_m, 1);
+exit(1);
 #endif
 
 #if 0
 printf("\n\niter %d nlp inf norm res %e %e %e %e\n", ss, nlp_res[0], nlp_res[1], nlp_res[2], nlp_res[3]);
 #endif
 
-		// exit condition on residuals
-		if(!(nlp_res[0]>arg->nlp_res_g_max | nlp_res[1]>arg->nlp_res_b_max | nlp_res[2]>arg->nlp_res_d_max | nlp_res[3]>arg->nlp_res_m_max))
-			{
-			ws->iter_nlp = ss;
-			ws->nlp_res_g = nlp_res[0];
-			ws->nlp_res_b = nlp_res[1];
-			ws->nlp_res_d = nlp_res[2];
-			ws->nlp_res_m = nlp_res[3];
-			return 0;
-			}
+			// exit condition on residuals
+			if(!(nlp_res[0]>arg->nlp_res_g_max | nlp_res[1]>arg->nlp_res_b_max | nlp_res[2]>arg->nlp_res_d_max | nlp_res[3]>arg->nlp_res_m_max))
+				{
+				ws->iter_nlp = ss;
+				ws->nlp_res_g = nlp_res[0];
+				ws->nlp_res_b = nlp_res[1];
+				ws->nlp_res_d = nlp_res[2];
+				ws->nlp_res_m = nlp_res[3];
+				return 0;
+				}
 
-
-		// fact and solve kkt
-		FACT_SOLVE_KKT_STEP_OCP_QP(qp, ipm_ws);
-
-		// alpha
-		COMPUTE_ALPHA_QP(cws);
-		if(ss<ipm_ws->stat_max)
-			ipm_ws->stat[5*ss+0] = cws->alpha;
-
-		// Mehrotra's corrector
-		if(arg->pred_corr==1)
-			{
-			// mu_aff
-			COMPUTE_MU_AFF_QP(cws);
-			if(ss<ipm_ws->stat_max)
-				ipm_ws->stat[5*ss+1] = cws->mu_aff;
-
-			tmp = cws->mu_aff/cws->mu;
-			cws->sigma = tmp*tmp*tmp;
-			if(ss<ipm_ws->stat_max)
-				ipm_ws->stat[5*ss+2] = cws->sigma;
-
-			COMPUTE_CENTERING_CORRECTION_QP(cws);
 
 			// fact and solve kkt
-			SOLVE_KKT_STEP_OCP_QP(qp, ipm_ws);
+			FACT_SOLVE_KKT_STEP_OCP_QP(qp, ipm_ws);
 
 			// alpha
 			COMPUTE_ALPHA_QP(cws);
-			if(ss<ipm_ws->stat_max)
-				ipm_ws->stat[5*ss+3] = cws->alpha;
-			}
+			if(ws->iter_qp+ss<ipm_ws->stat_max)
+				ipm_ws->stat[5*(ws->iter_qp+ss)+0] = cws->alpha;
+
+			// Mehrotra's corrector
+			if(arg->pred_corr==1)
+				{
+				// mu_aff
+				COMPUTE_MU_AFF_QP(cws);
+				if(ws->iter_qp+ss<ipm_ws->stat_max)
+					ipm_ws->stat[5*(ws->iter_qp+ss)+1] = cws->mu_aff;
+
+				tmp = cws->mu_aff/cws->mu;
+				cws->sigma = tmp*tmp*tmp;
+				if(ws->iter_qp+ss<ipm_ws->stat_max)
+					ipm_ws->stat[5*(ws->iter_qp+ss)+2] = cws->sigma;
+
+				COMPUTE_CENTERING_CORRECTION_QP(cws);
+
+				// fact and solve kkt
+				SOLVE_KKT_STEP_OCP_QP(qp, ipm_ws);
+
+				// alpha
+				COMPUTE_ALPHA_QP(cws);
+				if(ws->iter_qp+ss<ipm_ws->stat_max)
+					ipm_ws->stat[5*(ws->iter_qp+ss)+3] = cws->alpha;
+				}
 
 #if 0
 printf("\nstep\n");
@@ -899,22 +1070,32 @@ d_print_e_mat(1, cws->ne, cws->dpi, 1);
 d_print_e_mat(1, cws->nc, cws->dlam, 1);
 d_print_e_mat(1, cws->nc, cws->dt, 1);
 #endif
-		// update QP variables
-		UPDATE_VAR_QP(cws);
+			// update QP variables
+			UPDATE_VAR_QP(cws);
+
+#if 0
+printf("\nqp sol\n");
+d_print_e_mat(1, cws->nv, cws->v, 1);
+d_print_e_mat(1, cws->ne, cws->pi, 1);
+d_print_e_mat(1, cws->nc, cws->lam, 1);
+d_print_e_mat(1, cws->nc, cws->t, 1);
+#endif
 
 #if 0
 d_print_e_tran_mat(5, kk, ipm_ws->stat, 5);
 #endif
 
-		// update NLP variables
-		for(nn=0; nn<=N; nn++)
-			dveccp_libstr(nu[nn]+nx[nn]+2*ns[ii], qp_sol->ux+nn, 0, nlp_sol->ux+nn, 0);
-		for(nn=0; nn<N; nn++)
-			dveccp_libstr(nx[nn+1], qp_sol->pi+nn, 0, nlp_sol->pi+nn, 0);
-		for(nn=0; nn<=N; nn++)
-			dveccp_libstr(2*nb[nn]+2*ng[nn]+2*ns[ii], qp_sol->lam+nn, 0, nlp_sol->lam+nn, 0);
-		for(nn=0; nn<=N; nn++)
-			dveccp_libstr(2*nb[nn]+2*ng[nn]+2*ns[ii], qp_sol->t+nn, 0, nlp_sol->t+nn, 0);
+			// update NLP variables
+			for(nn=0; nn<=N; nn++)
+				dveccp_libstr(nu[nn]+nx[nn]+2*ns[ii], qp_sol->ux+nn, 0, nlp_sol->ux+nn, 0);
+			for(nn=0; nn<N; nn++)
+				dveccp_libstr(nx[nn+1], qp_sol->pi+nn, 0, nlp_sol->pi+nn, 0);
+			for(nn=0; nn<=N; nn++)
+				dveccp_libstr(2*nb[nn]+2*ng[nn]+2*ns[ii], qp_sol->lam+nn, 0, nlp_sol->lam+nn, 0);
+			for(nn=0; nn<=N; nn++)
+				dveccp_libstr(2*nb[nn]+2*ng[nn]+2*ns[ii], qp_sol->t+nn, 0, nlp_sol->t+nn, 0);
+
+			}
 
 		}
 	
