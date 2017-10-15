@@ -202,9 +202,8 @@ int main()
 	int ns[N+1];
 	ns[0] = 0;
 	for(ii=1; ii<N; ii++)
-		ns[ii] = nx[ii]/2;
-//		ns[ii] = 0;
-	ns[N] = nx[N]/2;
+		ns[ii] = 0;//nx[ii]/2;
+	ns[N] = 0;//nx[N]/2;
 //	ns[N] = 0;
 #elif 0
 	int nb[N+1];
@@ -279,7 +278,7 @@ int main()
 ************************************************/	
 	
 	double *Q; d_zeros(&Q, nx_, nx_);
-	for(ii=0; ii<nx_; ii++) Q[ii*(nx_+1)] = 0.0;
+	for(ii=0; ii<nx_; ii++) Q[ii*(nx_+1)] = 1.0;
 
 	double *R; d_zeros(&R, nu_, nu_);
 	for(ii=0; ii<nu_; ii++) R[ii*(nu_+1)] = 2.0;
@@ -287,10 +286,10 @@ int main()
 	double *S; d_zeros(&S, nu_, nx_);
 
 	double *q; d_zeros(&q, nx_, 1);
-	for(ii=0; ii<nx_; ii++) q[ii] = 0.0;
+	for(ii=0; ii<nx_; ii++) q[ii] = 0.1;
 
 	double *r; d_zeros(&r, nu_, 1);
-	for(ii=0; ii<nu_; ii++) r[ii] = 0.0;
+	for(ii=0; ii<nu_; ii++) r[ii] = 0.2;
 
 	double *r0; d_zeros(&r0, nu_, 1);
 	dgemv_n_3l(nu_, nx_, S, nu_, x0, r0);
@@ -359,8 +358,8 @@ int main()
 			}
 		else // state
 			{
-			d_lb1[ii] = - 1.0; // xmin
-			d_ub1[ii] =   1.0; // xmax
+			d_lb1[ii] = - 4.0; // xmin
+			d_ub1[ii] =   4.0; // xmax
 			}
 		idxb1[ii] = ii;
 		}
@@ -386,8 +385,8 @@ int main()
 	double *d_ugN; d_zeros(&d_ugN, ng[N], 1);
 	for(ii=0; ii<nb[N]; ii++)
 		{
-		d_lbN[ii] = - 1.0; // xmin
-		d_ubN[ii] =   1.0; // xmax
+		d_lbN[ii] = - 4.0; // xmin
+		d_ubN[ii] =   4.0; // xmax
 		idxbN[ii] = ii;
 		}
 	for(ii=0; ii<ng[N]; ii++)
@@ -675,6 +674,7 @@ int main()
 	double time_cond = (tv1.tv_sec-tv0.tv_sec)/(nrep+0.0)+(tv1.tv_usec-tv0.tv_usec)/(nrep*1e6);
 
 #if 1
+	printf("\ncond data\n\n");
 	d_print_strmat(nvc+1, nvc, dense_qp.Hg, 0, 0);
 	d_print_strmat(nec, nvc, dense_qp.A, 0, 0);
 	d_print_strmat(nvc, ngc, dense_qp.Ct, 0, 0);
@@ -685,6 +685,28 @@ int main()
 	d_print_tran_strvec(nbc, dense_qp.d, nbc+ngc);
 	d_print_tran_strvec(ngc, dense_qp.d, nbc);
 	d_print_tran_strvec(ngc, dense_qp.d, 2*nbc+ngc);
+#endif
+
+	gettimeofday(&tv0, NULL); // start
+
+	for(rep=0; rep<nrep; rep++)
+		{
+		d_cond_rhs_qp_ocp2dense(&ocp_qp, &dense_qp, &cond_ws);
+		}
+
+	gettimeofday(&tv1, NULL); // stop
+
+	double time_cond_rhs = (tv1.tv_sec-tv0.tv_sec)/(nrep+0.0)+(tv1.tv_usec-tv0.tv_usec)/(nrep*1e6);
+
+#if 1
+	printf("\ncond rhs data\n\n");
+	d_print_tran_strvec(nvc, dense_qp.g, 0);
+	d_print_tran_strvec(nec, dense_qp.b, 0);
+//	d_print_tran_strvec(2*nbc+2*ngc, dense_qp.d, 0);
+//	d_print_tran_strvec(nbc, dense_qp.d, 0);
+//	d_print_tran_strvec(nbc, dense_qp.d, nbc+ngc);
+//	d_print_tran_strvec(ngc, dense_qp.d, nbc);
+//	d_print_tran_strvec(ngc, dense_qp.d, 2*nbc+ngc);
 #endif
 
 #if 0
@@ -811,7 +833,9 @@ int main()
 	printf("\nalpha_aff\tmu_aff\t\tsigma\t\talpha\t\tmu\n");
 	d_print_e_tran_mat(5, dense_workspace.iter, dense_workspace.stat, 5);
 
-	printf("\ncond time = %e [s], dense ipm time = %e [s]\n\n", time_cond, time_dense_ipm);
+	printf("\ncond time = %e [s]\n", time_cond);
+	printf("\ncond rhs time = %e [s]\n", time_cond_rhs);
+	printf("\ndense ipm time = %e [s]\n", time_dense_ipm);
 
 /************************************************
 * ocp qp sol

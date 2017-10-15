@@ -203,13 +203,10 @@ void COND_RSQRQ_N2NX3(struct OCP_QP *ocp_qp, struct STRMAT *RSQrq2, struct STRVE
 		GECP_LIBSTR(nx[N-nn]+1, nx[N-nn], &L[N-nn], nu[N-nn], nu[N-nn], Lx, 0, 0);
 
 		POTRF_L_MN_LIBSTR(nx[N-nn]+1, nx[N-nn], Lx, 0, 0, Lx, 0, 0);
-
-		TRMM_RLNN_LIBSTR(nu[N-nn-1]+nx[N-nn-1]+1, nx[N-nn], 1.0, Lx, 0, 0, &BAbt[N-nn-1], 0, 0, AL, 0, 0);
 #else
 		POTRF_L_MN_LIBSTR(nx[N-nn]+1, nx[N-nn], &L[N-nn], nu[N-nn], nu[N-nn], Lx, 0, 0);
-
-		TRMM_RLNN_LIBSTR(nu[N-nn-1]+nx[N-nn-1]+1, nx[N-nn], 1.0, Lx, 0, 0, &BAbt[N-nn-1], 0, 0, AL, 0, 0);
 #endif
+		TRMM_RLNN_LIBSTR(nu[N-nn-1]+nx[N-nn-1]+1, nx[N-nn], 1.0, Lx, 0, 0, &BAbt[N-nn-1], 0, 0, AL, 0, 0);
 		GEAD_LIBSTR(1, nx[N-nn], 1.0, Lx, nx[N-nn], 0, AL, nu[N-nn-1]+nx[N-nn-1], 0);
 
 		SYRK_LN_MN_LIBSTR(nu[N-nn-1]+nx[N-nn-1]+1, nu[N-nn-1]+nx[N-nn-1], nx[N-nn], 1.0, AL, 0, 0, AL, 0, 0, 1.0, &RSQrq[N-nn-1], 0, 0, &L[N-nn-1], 0, 0);
@@ -233,13 +230,10 @@ void COND_RSQRQ_N2NX3(struct OCP_QP *ocp_qp, struct STRMAT *RSQrq2, struct STRVE
 	GECP_LIBSTR(nx[N-nn]+1, nx[N-nn], &L[N-nn], nu[N-nn], nu[N-nn], Lx, 0, 0);
 
 	POTRF_L_MN_LIBSTR(nx[N-nn]+1, nx[N-nn], Lx, 0, 0, Lx, 0, 0);
-
-	TRMM_RLNN_LIBSTR(nu[N-nn-1]+nx[N-nn-1]+1, nx[N-nn], 1.0, Lx, 0, 0, &BAbt[N-nn-1], 0, 0, AL, 0, 0);
 #else
 	POTRF_L_MN_LIBSTR(nx[N-nn]+1, nx[N-nn], &L[N-nn], nu[N-nn], nu[N-nn], Lx, 0, 0);
-
-	TRMM_RLNN_LIBSTR(nu[N-nn-1]+nx[N-nn-1]+1, nx[N-nn], 1.0, Lx, 0, 0, &BAbt[N-nn-1], 0, 0, AL, 0, 0);
 #endif
+	TRMM_RLNN_LIBSTR(nu[N-nn-1]+nx[N-nn-1]+1, nx[N-nn], 1.0, Lx, 0, 0, &BAbt[N-nn-1], 0, 0, AL, 0, 0);
 	GEAD_LIBSTR(1, nx[N-nn], 1.0, Lx, nx[N-nn], 0, AL, nu[N-nn-1]+nx[N-nn-1], 0);
 
 	SYRK_LN_MN_LIBSTR(nu[N-nn-1]+nx[N-nn-1]+1, nu[N-nn-1]+nx[N-nn-1], nx[N-nn], 1.0, AL, 0, 0, AL, 0, 0, 1.0, &RSQrq[N-nn-1], 0, 0, &L[N-nn-1], 0, 0);
@@ -250,6 +244,89 @@ void COND_RSQRQ_N2NX3(struct OCP_QP *ocp_qp, struct STRMAT *RSQrq2, struct STRVE
 	GECP_LIBSTR(1, nu[0]+nx[0], &L[N-nn-1], nu[0]+nx[0], 0, &RSQrq2[0], nuf+nu[0]+nx[0], nuf); // TODO dtrcp for 'rectangular' matrices
 	// m p
 	ROWEX_LIBSTR(nu2+nx[0], 1.0, &RSQrq2[0], nu2+nx[0], 0, &rq2[0], 0);
+
+	return;
+
+	}
+
+
+
+void COND_RQ_N2NX3(struct OCP_QP *ocp_qp, struct STRVEC *rq2, struct COND_QP_OCP2DENSE_WORKSPACE *cond_ws)
+	{
+
+	int N = ocp_qp->N;
+	if(cond_ws->cond_last_stage==0)
+		N -= 1;
+
+	// early return
+	if(N<0)
+		return;
+
+	// extract input members
+	int *nx = ocp_qp->nx;
+	int *nu = ocp_qp->nu;
+
+	struct STRMAT *BAbt = ocp_qp->BAbt;
+	struct STRVEC *b = ocp_qp->b;
+	struct STRVEC *rq = ocp_qp->rq;
+
+	// extract memory members
+	struct STRMAT *L = cond_ws->L;
+	struct STRVEC *Gammab = cond_ws->Gammab;
+	struct STRVEC *l = cond_ws->l;
+	struct STRVEC *tmp_nuxM = cond_ws->tmp_nuxM;
+
+	// early return
+	if(N==0)
+		{
+		VECCP_LIBSTR(nu[0]+nx[0], rq+0, 0, rq2+0, 0);
+		return;
+		}
+
+	int nn;
+
+	int nu2 = 0; // sum of all nu
+	for(nn=0; nn<=N; nn++)
+		nu2 += nu[nn];
+	
+	int nub = nu2; // backward partial sum
+	int nuf = 0; // forward partial sum
+
+	// final stage 
+	nub -= nu[N];
+
+	VECCP_LIBSTR(nu[N]+nx[N], rq+N, 0, l+N, 0);
+
+	GEMV_T_LIBSTR(nx[N], nu[N], 1.0, L+N, nu[N], 0, Gammab+(N-1), 0, 1.0, l+N, 0, rq2+0, nuf);
+
+	nuf += nu[N];
+
+
+
+	// middle stages 
+	for(nn=0; nn<N-1; nn++)
+		{	
+		nub -= nu[N-nn-1];
+
+		SYMV_L_LIBSTR(nx[N-nn], nx[N-nn], 1.0, L+(N-nn), nu[N-nn], nu[N-nn], b+(N-nn-1), 0, 1.0, l+(N-nn), nu[N-nn], tmp_nuxM, 0);
+
+		GEMV_N_LIBSTR(nu[N-nn-1]+nx[N-nn-1], nx[N-nn], 1.0, BAbt+(N-nn-1), 0, 0, tmp_nuxM, 0, 1.0, rq+(N-nn-1), 0, l+(N-nn-1), 0);
+
+		GEMV_T_LIBSTR(nx[N-nn-1], nu[N-nn-1], 1.0, L+(N-nn-1), nu[N-nn-1], 0, Gammab+(N-nn-2), 0, 1.0, l+(N-nn-1), 0, rq2+0, nuf);
+
+		nuf += nu[N-nn-1];
+
+		}
+
+	// first stage
+	nn = N-1;
+
+	SYMV_L_LIBSTR(nx[N-nn], nx[N-nn], 1.0, L+(N-nn), nu[N-nn], nu[N-nn], b+(N-nn-1), 0, 1.0, l+(N-nn), nu[N-nn], tmp_nuxM, 0);
+
+	GEMV_N_LIBSTR(nu[N-nn-1]+nx[N-nn-1], nx[N-nn], 1.0, BAbt+(N-nn-1), 0, 0, tmp_nuxM, 0, 1.0, rq+(N-nn-1), 0, l+(N-nn-1), 0);
+
+	// m p
+	VECCP_LIBSTR(nu[0]+nx[0], l+(N-nn-1), 0, rq2+0, nuf);
 
 	return;
 
