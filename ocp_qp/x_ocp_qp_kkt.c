@@ -51,19 +51,33 @@ void INIT_VAR_OCP_QP(struct OCP_QP *qp, struct OCP_QP_SOL *qp_sol, struct OCP_QP
 
 	REAL thr0 = 0.1;
 
-	// warm start TODO
-
-	// cold start
 
 	// ux
-	for(ii=0; ii<=N; ii++)
+	if(ws->warm_start==0)
 		{
-		ux = qp_sol->ux[ii].pa;
-		for(jj=0; jj<nu[ii]+nx[ii]+2*ns[ii]; jj++)
+		// cold start
+		for(ii=0; ii<=N; ii++)
 			{
-			ux[jj] = 0.0;
+			ux = qp_sol->ux[ii].pa;
+			for(jj=0; jj<nu[ii]+nx[ii]+2*ns[ii]; jj++)
+				{
+				ux[jj] = 0.0;
+				}
 			}
 		}
+	else
+		{
+		// warm start (keep u and x in solution)
+		for(ii=0; ii<=N; ii++)
+			{
+			ux = qp_sol->ux[ii].pa;
+			for(jj=nu[ii]+nx[ii]; jj<nu[ii]+nx[ii]+2*ns[ii]; jj++)
+				{
+				ux[jj] = 0.0;
+				}
+			}
+		}
+
 	
 	// pi
 	for(ii=0; ii<N; ii++)

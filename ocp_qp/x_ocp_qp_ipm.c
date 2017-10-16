@@ -59,6 +59,7 @@ void SET_DEFAULT_OCP_QP_IPM_ARG(struct OCP_QP_IPM_ARG *arg)
 	arg->iter_max = 20;
 	arg->stat_max = 20;
 	arg->pred_corr = 1;
+	arg->warm_start = 0;
 
 	return;
 
@@ -241,6 +242,7 @@ void CREATE_OCP_QP_IPM(struct OCP_QP *qp, struct OCP_QP_IPM_ARG *arg, struct OCP
 	d_ptr += 5*arg->stat_max;
 
 	workspace->stat_max = arg->stat_max;
+	workspace->warm_start = arg->warm_start;
 
 
 	// align to typicl cache line size
