@@ -21,7 +21,7 @@
 * License along with HPIPM; if not, write to the Free Software                                    *
 * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA                  *
 *                                                                                                 *
-* Author: Gianluca Frison, gianluca.frison (at) imtek.uni-freiburg.de                             *                          
+* Author: Gianluca Frison, gianluca.frison (at) imtek.uni-freiburg.de                             *
 *                                                                                                 *
 **************************************************************************************************/
 
@@ -79,7 +79,7 @@ void d_print_mat(int m, int n, double *A, int lda)
 		printf("\n");
 		}
 	printf("\n");
-	}	
+	}
 /* prints the transposed of a matrix in column-major format */
 void d_print_tran_mat(int row, int col, double *A, int lda)
 	{
@@ -93,7 +93,7 @@ void d_print_tran_mat(int row, int col, double *A, int lda)
 		printf("\n");
 		}
 	printf("\n");
-	}	
+	}
 /* prints a matrix in column-major format (exponential notation) */
 void d_print_e_mat(int m, int n, double *A, int lda)
 	{
@@ -107,7 +107,7 @@ void d_print_e_mat(int m, int n, double *A, int lda)
 		printf("\n");
 		}
 	printf("\n");
-	}	
+	}
 /* prints the transposed of a matrix in column-major format (exponential notation) */
 void d_print_e_tran_mat(int row, int col, double *A, int lda)
 	{
@@ -121,7 +121,7 @@ void d_print_e_tran_mat(int row, int col, double *A, int lda)
 		printf("\n");
 		}
 	printf("\n");
-	}	
+	}
 /* creates a zero matrix aligned */
 void int_zeros(int **pA, int row, int col)
 	{
@@ -149,13 +149,13 @@ void int_print_mat(int row, int col, int *A, int lda)
 		printf("\n");
 		}
 	printf("\n");
-	}	
+	}
 #endif
 
 
 
-/************************************************ 
-Mass-spring system: nx/2 masses connected each other with springs (in a row), and the first and the last one to walls. nu (<=nx) controls act on the first nu masses. The system is sampled with sampling time Ts. 
+/************************************************
+Mass-spring system: nx/2 masses connected each other with springs (in a row), and the first and the last one to walls. nu (<=nx) controls act on the first nu masses. The system is sampled with sampling time Ts.
 ************************************************/
 void mass_spring_system(double Ts, int nx, int nu, double *A, double *B, double *b, double *x0)
 	{
@@ -165,11 +165,11 @@ void mass_spring_system(double Ts, int nx, int nu, double *A, double *B, double 
 	int info = 0;
 
 	int pp = nx/2; // number of masses
-	
+
 /************************************************
-* build the continuous time system 
+* build the continuous time system
 ************************************************/
-	
+
 	double *T; d_zeros(&T, pp, pp);
 	int ii;
 	for(ii=0; ii<pp; ii++) T[ii*(pp+1)] = -2;
@@ -182,27 +182,27 @@ void mass_spring_system(double Ts, int nx, int nu, double *A, double *B, double 
 	dmcopy(pp, pp, Z, pp, Ac, nx);
 	dmcopy(pp, pp, T, pp, Ac+pp, nx);
 	dmcopy(pp, pp, I, pp, Ac+pp*nx, nx);
-	dmcopy(pp, pp, Z, pp, Ac+pp*(nx+1), nx); 
+	dmcopy(pp, pp, Z, pp, Ac+pp*(nx+1), nx);
 	free(T);
 	free(Z);
 	free(I);
-	
+
 	d_zeros(&I, nu, nu); for(ii=0; ii<nu; ii++) I[ii*(nu+1)]=1.0; //I = eye(nu);
 	double *Bc; d_zeros(&Bc, nx, nu);
 	dmcopy(nu, nu, I, nu, Bc+pp, nx);
 	free(I);
-	
+
 /************************************************
-* compute the discrete time system 
+* compute the discrete time system
 ************************************************/
 
 	double *bb; d_zeros(&bb, nx, 1);
 	dmcopy(nx, 1, bb, nx, b, nx);
-		
+
 	dmcopy(nx, nx, Ac, nx, A, nx);
 	dscal_3l(nx2, Ts, A);
 	expm(nx, A);
-	
+
 	d_zeros(&T, nx, nx);
 	d_zeros(&I, nx, nx); for(ii=0; ii<nx; ii++) I[ii*(nx+1)]=1.0; //I = eye(nx);
 	dmcopy(nx, nx, A, nx, T, nx);
@@ -210,7 +210,7 @@ void mass_spring_system(double Ts, int nx, int nu, double *A, double *B, double 
 	dgemm_nn_3l(nx, nu, nx, T, nx, Bc, nx, B, nx);
 	free(T);
 	free(I);
-	
+
 	int *ipiv = (int *) malloc(nx*sizeof(int));
 	dgesv_3l(nx, nu, Ac, nx, ipiv, B, nx, &info);
 	free(ipiv);
@@ -218,12 +218,12 @@ void mass_spring_system(double Ts, int nx, int nu, double *A, double *B, double 
 	free(Ac);
 	free(Bc);
 	free(bb);
-	
-			
+
+
 /************************************************
-* initial state 
+* initial state
 ************************************************/
-	
+
 	if(nx==4)
 		{
 		x0[0] = 5;
@@ -249,7 +249,7 @@ int main()
 	// local variables
 
 	int ii, jj;
-	
+
 
 
 	// problem size
@@ -335,7 +335,7 @@ int main()
 
 /************************************************
 * dynamical system
-************************************************/	
+************************************************/
 
 	double *A; d_zeros(&A, nx_, nx_); // states update matrix
 
@@ -346,10 +346,10 @@ int main()
 
 	double Ts = 0.5; // sampling time
 	mass_spring_system(Ts, nx_, nu_, A, B, b, x0);
-	
+
 	for(jj=0; jj<nx_; jj++)
 		b[jj] = 0.0;
-	
+
 	for(jj=0; jj<nx_; jj++)
 		x0[jj] = 0;
 	x0[0] = 2.5;
@@ -369,8 +369,8 @@ int main()
 
 /************************************************
 * cost function
-************************************************/	
-	
+************************************************/
+
 	double *Q; d_zeros(&Q, nx_, nx_);
 	for(ii=0; ii<nx_; ii++) Q[ii*(nx_+1)] = 1.0;
 
@@ -416,7 +416,7 @@ int main()
 
 /************************************************
 * box & general constraints
-************************************************/	
+************************************************/
 
 	int *idxb0; int_zeros(&idxb0, nb[0], 1);
 	double *d_lb0; d_zeros(&d_lb0, nb[0], 1);
@@ -551,7 +551,7 @@ int main()
 
 /************************************************
 * soft constraints
-************************************************/	
+************************************************/
 
 	double *Zl0; d_zeros(&Zl0, ns[0], 1);
 	for(ii=0; ii<ns[0]; ii++)
@@ -622,7 +622,7 @@ int main()
 
 /************************************************
 * array of matrices
-************************************************/	
+************************************************/
 
 	double *hA[N];
 	double *hB[N];
@@ -705,11 +705,11 @@ int main()
 	hzl[N] = zlN;
 	hzu[N] = zuN;
 	hidxs[N] = idxsN;
-	
+
 /************************************************
 * ocp qp
-************************************************/	
-	
+************************************************/
+
 	int qp_size = d_memsize_ocp_qp(N, nx, nu, nb, ng, ns);
 	printf("\nqp size = %d\n", qp_size);
 	void *qp_mem = malloc(qp_size);
@@ -745,8 +745,8 @@ int main()
 
 /************************************************
 * ocp qp sol
-************************************************/	
-	
+************************************************/
+
 	int qp_sol_size = d_memsize_ocp_qp_sol(N, nx, nu, nb, ng, ns);
 	printf("\nqp sol size = %d\n", qp_sol_size);
 	void *qp_sol_mem = malloc(qp_sol_size);
@@ -756,7 +756,7 @@ int main()
 
 /************************************************
 * ipm arg
-************************************************/	
+************************************************/
 
 	int ipm_arg_size = d_memsize_ocp_qp_ipm_arg(&qp);
 	printf("\nipm arg size = %d\n", ipm_arg_size);
@@ -778,7 +778,7 @@ int main()
 
 /************************************************
 * ipm
-************************************************/	
+************************************************/
 
 	int ipm_size = d_memsize_ocp_qp_ipm(&qp, &arg);
 	printf("\nipm size = %d\n", ipm_size);
@@ -806,7 +806,7 @@ int main()
 
 /************************************************
 * extract and print solution
-************************************************/	
+************************************************/
 
 	double *u[N+1]; for(ii=0; ii<=N; ii++) d_zeros(u+ii, nu[ii], 1);
 	double *x[N+1]; for(ii=0; ii<=N; ii++) d_zeros(x+ii, nx[ii], 1);
@@ -880,7 +880,7 @@ int main()
 
 /************************************************
 * extract and print residuals
-************************************************/	
+************************************************/
 
 	double *res_r[N+1]; for(ii=0; ii<=N; ii++) d_zeros(res_r+ii, nu[ii], 1);
 	double *res_q[N+1]; for(ii=0; ii<=N; ii++) d_zeros(res_q+ii, nx[ii], 1);
@@ -919,7 +919,7 @@ int main()
 	printf("\nres_b\n");
 	for(ii=0; ii<N; ii++)
 		d_print_e_mat(1, nx[ii+1], res_b[ii], 1);
-	printf("\nres_d_lb\n"); 
+	printf("\nres_d_lb\n");
 	for(ii=0; ii<=N; ii++)
 		d_print_e_mat(1, nb[ii], res_d_lb[ii], 1);
 	printf("\nres_d_ub\n");
@@ -959,7 +959,7 @@ int main()
 
 /************************************************
 * print ipm statistics
-************************************************/	
+************************************************/
 
 	printf("\nipm return = %d\n", hpipm_return);
 	printf("\nipm residuals max: res_g = %e, res_b = %e, res_d = %e, res_m = %e\n", workspace.qp_res[0], workspace.qp_res[1], workspace.qp_res[2], workspace.qp_res[3]);
@@ -972,7 +972,7 @@ int main()
 
 /************************************************
 * free memory
-************************************************/	
+************************************************/
 
 	d_free(A);
 	d_free(B);
@@ -1088,7 +1088,7 @@ int main()
 
 /************************************************
 * return
-************************************************/	
+************************************************/
 
 	return 0;
 

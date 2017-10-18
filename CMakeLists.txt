@@ -44,7 +44,7 @@ set(REF_BLAS 0)
 # BLASFEO
 if(NOT TARGET blasfeo)
 	# BLASFEO installation directory
-	set(BLASFEO_PATH /opt/blasfeo)
+	set(BLASFEO_PATH /home/bnovoselnik/local/)
 	add_library(blasfeo STATIC IMPORTED)
 	set_target_properties(blasfeo PROPERTIES IMPORTED_LOCATION ${BLASFEO_PATH}/lib/libblasfeo.a)
 	set(BLASFEO_INCLUDE_DIR ${BLASFEO_PATH}/include)
@@ -158,4 +158,4 @@ target_include_directories(hpipm PUBLIC include ${BLASFEO_INCLUDE_DIR})
 target_link_libraries(hpipm blasfeo)
 
 # test problems
-#add_subdirectory(test_problems)
+add_subdirectory(test_problems)
