@@ -470,7 +470,7 @@ int SOLVE_OCP_NLP_HYB(struct OCP_NLP *nlp, struct OCP_NLP_SOL *nlp_sol, struct O
 	int *ns = qp->ns;
 
 	int N2 = arg->N2;
-#if 0
+#if 1
 	int *nx2 = qp2->nx;
 	int *nu2 = qp2->nu;
 	int *nb2 = qp2->nb;
@@ -867,10 +867,10 @@ exit(1);
 #endif
 
 			// compute residuals
-			COMPUTE_RES_OCP_QP(qp2, qp_sol2, ipm_ws2);
-			cws2->mu = ipm_ws2->res_mu;
+			COMPUTE_RES_OCP_QP(qp2, qp_sol2, ipm_ws2->res_workspace);
+			cws2->mu = ipm_ws2->res_workspace->res_mu;
 			if(ss>0 & ws->iter_qp+ss<ipm_ws->stat_max)
-				ipm_ws->stat[5*(ws->iter_qp+ss-1)+4] = ipm_ws2->res_mu;
+				ipm_ws->stat[5*(ws->iter_qp+ss-1)+4] = ipm_ws2->res_workspace->res_mu;
 
 			// compute infinity norm of residuals
 			dvecnrm_inf_libstr(cws2->nv, &str_res_g2, 0, &nlp_res[0]); // XXX
@@ -897,7 +897,7 @@ exit(1);
 				d_expand_sol_ocp2ocp(qp, qp2, qp_sol2, qp_sol, part_cond_ws);
 
 				// compute residuals (full space)
-				COMPUTE_RES_OCP_QP(qp, qp_sol, ipm_ws);
+				COMPUTE_RES_OCP_QP(qp, qp_sol, ipm_ws->res_workspace);
 
 				// compute infinity norm of residuals
 				dvecnrm_inf_libstr(cws->nv, &str_res_g, 0, &nlp_res[0]);
@@ -993,10 +993,10 @@ exit(1);
 #endif
 
 			// compute residuals
-			COMPUTE_RES_OCP_QP(qp, qp_sol, ipm_ws);
-			cws->mu = ipm_ws->res_mu;
+			COMPUTE_RES_OCP_QP(qp, qp_sol, ipm_ws->res_workspace);
+			cws->mu = ipm_ws->res_workspace->res_mu;
 			if(ss>0 & ws->iter_qp+ss<ipm_ws->stat_max)
-				ipm_ws->stat[5*(ws->iter_qp+ss-1)+4] = ipm_ws->res_mu;
+				ipm_ws->stat[5*(ws->iter_qp+ss-1)+4] = ipm_ws->res_workspace->res_mu;
 
 			// compute infinity norm of residuals
 			dvecnrm_inf_libstr(cws->nv, &str_res_g, 0, &nlp_res[0]);

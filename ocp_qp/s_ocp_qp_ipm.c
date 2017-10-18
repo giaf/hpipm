@@ -61,6 +61,7 @@
 #define OCP_QP s_ocp_qp
 #define OCP_QP_IPM_WORKSPACE s_ocp_qp_ipm_workspace
 #define OCP_QP_IPM_ARG s_ocp_qp_ipm_arg
+#define OCP_QP_RES s_ocp_qp_res
 #define OCP_QP_SOL s_ocp_qp_sol
 #define PRINT_E_MAT s_print_e_mat
 #define PRINT_E_STRVEC s_print_e_strvec
@@ -82,6 +83,8 @@
 #define MEMSIZE_OCP_QP_IPM_ARG s_memsize_ocp_qp_ipm_arg
 #define CREATE_OCP_QP_IPM_ARG s_create_ocp_qp_ipm_arg
 #define SET_DEFAULT_OCP_QP_IPM_ARG s_set_default_ocp_qp_ipm_arg
+#define MEMSIZE_OCP_QP_RES s_memsize_ocp_qp_res
+#define CREATE_OCP_QP_RES s_create_ocp_qp_res
 #define MEMSIZE_OCP_QP_IPM s_memsize_ocp_qp_ipm
 #define CREATE_OCP_QP_IPM s_create_ocp_qp_ipm
 #define SOLVE_OCP_QP_IPM s_solve_ocp_qp_ipm

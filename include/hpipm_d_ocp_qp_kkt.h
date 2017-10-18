@@ -31,7 +31,7 @@
 //
 void d_init_var_ocp_qp(struct d_ocp_qp *qp, struct d_ocp_qp_sol *qp_sol, struct d_ocp_qp_ipm_workspace *ws);
 //
-void d_compute_res_ocp_qp(struct d_ocp_qp *qp, struct d_ocp_qp_sol *qp_sol, struct d_ocp_qp_ipm_workspace *ws);
+void d_compute_res_ocp_qp(struct d_ocp_qp *qp, struct d_ocp_qp_sol *qp_sol, struct d_ocp_qp_res *ws);
 //
 void d_fact_solve_kkt_unconstr_ocp_qp(struct d_ocp_qp *qp, struct d_ocp_qp_sol *qp_sol, struct d_ocp_qp_ipm_workspace *ws);
 //
