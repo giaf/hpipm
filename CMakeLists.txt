@@ -158,4 +158,4 @@ target_include_directories(hpipm PUBLIC include ${BLASFEO_INCLUDE_DIR})
 target_link_libraries(hpipm blasfeo)
 
 # test problems
-#add_subdirectory(test_problems)
+add_subdirectory(test_problems)

@@ -406,7 +406,7 @@ void CREATE_OCP_QP_IPM(struct OCP_QP *qp, struct OCP_QP_IPM_ARG *arg, struct OCP
 
 	// double/float stuff
 	REAL *d_ptr = (REAL *) sv_ptr;
-	
+
 	workspace->stat = d_ptr;
 	d_ptr += 5*arg->stat_max;
 
@@ -694,9 +694,9 @@ int SOLVE_OCP_QP_IPM(struct OCP_QP *qp, struct OCP_QP_SOL *qp_sol, struct OCP_QP
 		VECNRM_INF_LIBSTR(cws->nc, &str_res_m, 0, &qp_res[3]);
 
 		}
-	
+
 	ws->iter = kk;
-	
+
 	// max iteration number reached
 	if(kk==arg->iter_max)
 		return 1;
@@ -708,7 +708,7 @@ int SOLVE_OCP_QP_IPM(struct OCP_QP *qp, struct OCP_QP_SOL *qp_sol, struct OCP_QP
 
 
 
-void CVT_OCP_QP_RES_TO_COLMAJ(struct OCP_QP *qp, struct OCP_QP_IPM_WORKSPACE *ws, REAL **res_r, REAL **res_q, REAL **res_ls, REAL **res_us, REAL **res_b, REAL **res_d_lb, REAL **res_d_ub, REAL **res_d_lg, REAL **res_d_ug, REAL **res_d_ls, REAL **res_d_us, REAL **res_m_lb, REAL **res_m_ub, REAL **res_m_lg, REAL **res_m_ug, REAL **res_m_ls, REAL **res_m_us)
+void CVT_OCP_QP_RES_TO_COLMAJ(struct OCP_QP *qp, struct OCP_QP_RES *ws, REAL **res_r, REAL **res_q, REAL **res_ls, REAL **res_us, REAL **res_b, REAL **res_d_lb, REAL **res_d_ub, REAL **res_d_lg, REAL **res_d_ug, REAL **res_d_ls, REAL **res_d_us, REAL **res_m_lb, REAL **res_m_ub, REAL **res_m_lg, REAL **res_m_ug, REAL **res_m_ls, REAL **res_m_us)
 	{
 
 	int N = qp->N;
@@ -717,47 +717,47 @@ void CVT_OCP_QP_RES_TO_COLMAJ(struct OCP_QP *qp, struct OCP_QP_IPM_WORKSPACE *ws
 	int *nb = qp->nb;
 	int *ng = qp->ng;
 	int *ns = qp->ns;
-	
+
 	int ii;
 
 	for(ii=0; ii<N; ii++)
 		{
-		CVT_STRVEC2VEC(nu[ii], ws->res_workspace->res_g+ii, 0, res_r[ii]);
-		CVT_STRVEC2VEC(nx[ii], ws->res_workspace->res_g+ii, nu[ii], res_q[ii]);
-		CVT_STRVEC2VEC(ns[ii], ws->res_workspace->res_g+ii, nu[ii]+nx[ii], res_ls[ii]);
-		CVT_STRVEC2VEC(ns[ii], ws->res_workspace->res_g+ii, nu[ii]+nx[ii]+ns[ii], res_us[ii]);
+		CVT_STRVEC2VEC(nu[ii], ws->res_g+ii, 0, res_r[ii]);
+		CVT_STRVEC2VEC(nx[ii], ws->res_g+ii, nu[ii], res_q[ii]);
+		CVT_STRVEC2VEC(ns[ii], ws->res_g+ii, nu[ii]+nx[ii], res_ls[ii]);
+		CVT_STRVEC2VEC(ns[ii], ws->res_g+ii, nu[ii]+nx[ii]+ns[ii], res_us[ii]);
 
-		CVT_STRVEC2VEC(nx[ii+1], ws->res_workspace->res_b+ii, 0, res_b[ii]);
-		CVT_STRVEC2VEC(nb[ii], ws->res_workspace->res_d+ii, 0, res_d_lb[ii]);
-		CVT_STRVEC2VEC(ng[ii], ws->res_workspace->res_d+ii, nb[ii], res_d_lg[ii]);
-		CVT_STRVEC2VEC(nb[ii], ws->res_workspace->res_d+ii, nb[ii]+ng[ii], res_d_ub[ii]);
-		CVT_STRVEC2VEC(ng[ii], ws->res_workspace->res_d+ii, 2*nb[ii]+ng[ii], res_d_ug[ii]);
-		CVT_STRVEC2VEC(ns[ii], ws->res_workspace->res_d+ii, 2*nb[ii]+2*ng[ii], res_d_ls[ii]);
-		CVT_STRVEC2VEC(ns[ii], ws->res_workspace->res_d+ii, 2*nb[ii]+2*ng[ii]+ns[ii], res_d_us[ii]);
-		CVT_STRVEC2VEC(nb[ii], ws->res_workspace->res_m+ii, 0, res_m_lb[ii]);
-		CVT_STRVEC2VEC(ng[ii], ws->res_workspace->res_m+ii, nb[ii], res_m_lg[ii]);
-		CVT_STRVEC2VEC(nb[ii], ws->res_workspace->res_m+ii, nb[ii]+ng[ii], res_m_ub[ii]);
-		CVT_STRVEC2VEC(ng[ii], ws->res_workspace->res_m+ii, 2*nb[ii]+ng[ii], res_m_ug[ii]);
-		CVT_STRVEC2VEC(ns[ii], ws->res_workspace->res_m+ii, 2*nb[ii]+2*ng[ii], res_m_ls[ii]);
-		CVT_STRVEC2VEC(ns[ii], ws->res_workspace->res_m+ii, 2*nb[ii]+2*ng[ii]+ns[ii], res_m_us[ii]);
+		CVT_STRVEC2VEC(nx[ii+1], ws->res_b+ii, 0, res_b[ii]);
+		CVT_STRVEC2VEC(nb[ii], ws->res_d+ii, 0, res_d_lb[ii]);
+		CVT_STRVEC2VEC(ng[ii], ws->res_d+ii, nb[ii], res_d_lg[ii]);
+		CVT_STRVEC2VEC(nb[ii], ws->res_d+ii, nb[ii]+ng[ii], res_d_ub[ii]);
+		CVT_STRVEC2VEC(ng[ii], ws->res_d+ii, 2*nb[ii]+ng[ii], res_d_ug[ii]);
+		CVT_STRVEC2VEC(ns[ii], ws->res_d+ii, 2*nb[ii]+2*ng[ii], res_d_ls[ii]);
+		CVT_STRVEC2VEC(ns[ii], ws->res_d+ii, 2*nb[ii]+2*ng[ii]+ns[ii], res_d_us[ii]);
+		CVT_STRVEC2VEC(nb[ii], ws->res_m+ii, 0, res_m_lb[ii]);
+		CVT_STRVEC2VEC(ng[ii], ws->res_m+ii, nb[ii], res_m_lg[ii]);
+		CVT_STRVEC2VEC(nb[ii], ws->res_m+ii, nb[ii]+ng[ii], res_m_ub[ii]);
+		CVT_STRVEC2VEC(ng[ii], ws->res_m+ii, 2*nb[ii]+ng[ii], res_m_ug[ii]);
+		CVT_STRVEC2VEC(ns[ii], ws->res_m+ii, 2*nb[ii]+2*ng[ii], res_m_ls[ii]);
+		CVT_STRVEC2VEC(ns[ii], ws->res_m+ii, 2*nb[ii]+2*ng[ii]+ns[ii], res_m_us[ii]);
 		}
-	CVT_STRVEC2VEC(nu[ii], ws->res_workspace->res_g+ii, 0, res_r[ii]);
-	CVT_STRVEC2VEC(nx[ii], ws->res_workspace->res_g+ii, nu[ii], res_q[ii]);
-	CVT_STRVEC2VEC(ns[ii], ws->res_workspace->res_g+ii, nu[ii]+nx[ii], res_ls[ii]);
-	CVT_STRVEC2VEC(ns[ii], ws->res_workspace->res_g+ii, nu[ii]+nx[ii]+ns[ii], res_us[ii]);
+	CVT_STRVEC2VEC(nu[ii], ws->res_g+ii, 0, res_r[ii]);
+	CVT_STRVEC2VEC(nx[ii], ws->res_g+ii, nu[ii], res_q[ii]);
+	CVT_STRVEC2VEC(ns[ii], ws->res_g+ii, nu[ii]+nx[ii], res_ls[ii]);
+	CVT_STRVEC2VEC(ns[ii], ws->res_g+ii, nu[ii]+nx[ii]+ns[ii], res_us[ii]);
 
-	CVT_STRVEC2VEC(nb[ii], ws->res_workspace->res_d+ii, 0, res_d_lb[ii]);
-	CVT_STRVEC2VEC(ng[ii], ws->res_workspace->res_d+ii, nb[ii], res_d_lg[ii]);
-	CVT_STRVEC2VEC(nb[ii], ws->res_workspace->res_d+ii, nb[ii]+ng[ii], res_d_ub[ii]);
-	CVT_STRVEC2VEC(ng[ii], ws->res_workspace->res_d+ii, 2*nb[ii]+ng[ii], res_d_ug[ii]);
-	CVT_STRVEC2VEC(ns[ii], ws->res_workspace->res_d+ii, 2*nb[ii]+2*ng[ii], res_d_ls[ii]);
-	CVT_STRVEC2VEC(ns[ii], ws->res_workspace->res_d+ii, 2*nb[ii]+2*ng[ii]+ns[ii], res_d_us[ii]);
-	CVT_STRVEC2VEC(nb[ii], ws->res_workspace->res_m+ii, 0, res_m_lb[ii]);
-	CVT_STRVEC2VEC(ng[ii], ws->res_workspace->res_m+ii, nb[ii], res_m_lg[ii]);
-	CVT_STRVEC2VEC(nb[ii], ws->res_workspace->res_m+ii, nb[ii]+ng[ii], res_m_ub[ii]);
-	CVT_STRVEC2VEC(ng[ii], ws->res_workspace->res_m+ii, 2*nb[ii]+ng[ii], res_m_ug[ii]);
-	CVT_STRVEC2VEC(ns[ii], ws->res_workspace->res_m+ii, 2*nb[ii]+2*ng[ii], res_m_ls[ii]);
-	CVT_STRVEC2VEC(ns[ii], ws->res_workspace->res_m+ii, 2*nb[ii]+2*ng[ii]+ns[ii], res_m_us[ii]);
+	CVT_STRVEC2VEC(nb[ii], ws->res_d+ii, 0, res_d_lb[ii]);
+	CVT_STRVEC2VEC(ng[ii], ws->res_d+ii, nb[ii], res_d_lg[ii]);
+	CVT_STRVEC2VEC(nb[ii], ws->res_d+ii, nb[ii]+ng[ii], res_d_ub[ii]);
+	CVT_STRVEC2VEC(ng[ii], ws->res_d+ii, 2*nb[ii]+ng[ii], res_d_ug[ii]);
+	CVT_STRVEC2VEC(ns[ii], ws->res_d+ii, 2*nb[ii]+2*ng[ii], res_d_ls[ii]);
+	CVT_STRVEC2VEC(ns[ii], ws->res_d+ii, 2*nb[ii]+2*ng[ii]+ns[ii], res_d_us[ii]);
+	CVT_STRVEC2VEC(nb[ii], ws->res_m+ii, 0, res_m_lb[ii]);
+	CVT_STRVEC2VEC(ng[ii], ws->res_m+ii, nb[ii], res_m_lg[ii]);
+	CVT_STRVEC2VEC(nb[ii], ws->res_m+ii, nb[ii]+ng[ii], res_m_ub[ii]);
+	CVT_STRVEC2VEC(ng[ii], ws->res_m+ii, 2*nb[ii]+ng[ii], res_m_ug[ii]);
+	CVT_STRVEC2VEC(ns[ii], ws->res_m+ii, 2*nb[ii]+2*ng[ii], res_m_ls[ii]);
+	CVT_STRVEC2VEC(ns[ii], ws->res_m+ii, 2*nb[ii]+2*ng[ii]+ns[ii], res_m_us[ii]);
 
 	return;
 
@@ -765,7 +765,7 @@ void CVT_OCP_QP_RES_TO_COLMAJ(struct OCP_QP *qp, struct OCP_QP_IPM_WORKSPACE *ws
 
 
 
-void CVT_OCP_QP_RES_TO_ROWMAJ(struct OCP_QP *qp, struct OCP_QP_IPM_WORKSPACE *ws, REAL **res_r, REAL **res_q, REAL **res_ls, REAL **res_us, REAL **res_b, REAL **res_d_lb, REAL **res_d_ub, REAL **res_d_lg, REAL **res_d_ug, REAL **res_d_ls, REAL **res_d_us, REAL **res_m_lb, REAL **res_m_ub, REAL **res_m_lg, REAL **res_m_ug, REAL **res_m_ls, REAL **res_m_us)
+void CVT_OCP_QP_RES_TO_ROWMAJ(struct OCP_QP *qp, struct OCP_QP_RES *ws, REAL **res_r, REAL **res_q, REAL **res_ls, REAL **res_us, REAL **res_b, REAL **res_d_lb, REAL **res_d_ub, REAL **res_d_lg, REAL **res_d_ug, REAL **res_d_ls, REAL **res_d_us, REAL **res_m_lb, REAL **res_m_ub, REAL **res_m_lg, REAL **res_m_ug, REAL **res_m_ls, REAL **res_m_us)
 	{
 
 	int N = qp->N;
@@ -774,47 +774,47 @@ void CVT_OCP_QP_RES_TO_ROWMAJ(struct OCP_QP *qp, struct OCP_QP_IPM_WORKSPACE *ws
 	int *nb = qp->nb;
 	int *ng = qp->ng;
 	int *ns = qp->ns;
-	
+
 	int ii;
 
 	for(ii=0; ii<N; ii++)
 		{
-		CVT_STRVEC2VEC(nu[ii], ws->res_workspace->res_g+ii, 0, res_r[ii]);
-		CVT_STRVEC2VEC(nx[ii], ws->res_workspace->res_g+ii, nu[ii], res_q[ii]);
-		CVT_STRVEC2VEC(ns[ii], ws->res_workspace->res_g+ii, nu[ii]+nx[ii], res_ls[ii]);
-		CVT_STRVEC2VEC(ns[ii], ws->res_workspace->res_g+ii, nu[ii]+nx[ii]+ns[ii], res_us[ii]);
+		CVT_STRVEC2VEC(nu[ii], ws->res_g+ii, 0, res_r[ii]);
+		CVT_STRVEC2VEC(nx[ii], ws->res_g+ii, nu[ii], res_q[ii]);
+		CVT_STRVEC2VEC(ns[ii], ws->res_g+ii, nu[ii]+nx[ii], res_ls[ii]);
+		CVT_STRVEC2VEC(ns[ii], ws->res_g+ii, nu[ii]+nx[ii]+ns[ii], res_us[ii]);
 
-		CVT_STRVEC2VEC(nx[ii+1], ws->res_workspace->res_b+ii, 0, res_b[ii]);
-		CVT_STRVEC2VEC(nb[ii], ws->res_workspace->res_d+ii, 0, res_d_lb[ii]);
-		CVT_STRVEC2VEC(ng[ii], ws->res_workspace->res_d+ii, nb[ii], res_d_lg[ii]);
-		CVT_STRVEC2VEC(nb[ii], ws->res_workspace->res_d+ii, nb[ii]+ng[ii], res_d_ub[ii]);
-		CVT_STRVEC2VEC(ng[ii], ws->res_workspace->res_d+ii, 2*nb[ii]+ng[ii], res_d_ug[ii]);
-		CVT_STRVEC2VEC(ns[ii], ws->res_workspace->res_d+ii, 2*nb[ii]+2*ng[ii], res_d_ls[ii]);
-		CVT_STRVEC2VEC(ns[ii], ws->res_workspace->res_d+ii, 2*nb[ii]+2*ng[ii]+ns[ii], res_d_us[ii]);
-		CVT_STRVEC2VEC(nb[ii], ws->res_workspace->res_m+ii, 0, res_m_lb[ii]);
-		CVT_STRVEC2VEC(ng[ii], ws->res_workspace->res_m+ii, nb[ii], res_m_lg[ii]);
-		CVT_STRVEC2VEC(nb[ii], ws->res_workspace->res_m+ii, nb[ii]+ng[ii], res_m_ub[ii]);
-		CVT_STRVEC2VEC(ng[ii], ws->res_workspace->res_m+ii, 2*nb[ii]+ng[ii], res_m_ug[ii]);
-		CVT_STRVEC2VEC(ns[ii], ws->res_workspace->res_m+ii, 2*nb[ii]+2*ng[ii], res_m_ls[ii]);
-		CVT_STRVEC2VEC(ns[ii], ws->res_workspace->res_m+ii, 2*nb[ii]+2*ng[ii]+ns[ii], res_m_us[ii]);
+		CVT_STRVEC2VEC(nx[ii+1], ws->res_b+ii, 0, res_b[ii]);
+		CVT_STRVEC2VEC(nb[ii], ws->res_d+ii, 0, res_d_lb[ii]);
+		CVT_STRVEC2VEC(ng[ii], ws->res_d+ii, nb[ii], res_d_lg[ii]);
+		CVT_STRVEC2VEC(nb[ii], ws->res_d+ii, nb[ii]+ng[ii], res_d_ub[ii]);
+		CVT_STRVEC2VEC(ng[ii], ws->res_d+ii, 2*nb[ii]+ng[ii], res_d_ug[ii]);
+		CVT_STRVEC2VEC(ns[ii], ws->res_d+ii, 2*nb[ii]+2*ng[ii], res_d_ls[ii]);
+		CVT_STRVEC2VEC(ns[ii], ws->res_d+ii, 2*nb[ii]+2*ng[ii]+ns[ii], res_d_us[ii]);
+		CVT_STRVEC2VEC(nb[ii], ws->res_m+ii, 0, res_m_lb[ii]);
+		CVT_STRVEC2VEC(ng[ii], ws->res_m+ii, nb[ii], res_m_lg[ii]);
+		CVT_STRVEC2VEC(nb[ii], ws->res_m+ii, nb[ii]+ng[ii], res_m_ub[ii]);
+		CVT_STRVEC2VEC(ng[ii], ws->res_m+ii, 2*nb[ii]+ng[ii], res_m_ug[ii]);
+		CVT_STRVEC2VEC(ns[ii], ws->res_m+ii, 2*nb[ii]+2*ng[ii], res_m_ls[ii]);
+		CVT_STRVEC2VEC(ns[ii], ws->res_m+ii, 2*nb[ii]+2*ng[ii]+ns[ii], res_m_us[ii]);
 		}
-	CVT_STRVEC2VEC(nu[ii], ws->res_workspace->res_g+ii, 0, res_r[ii]);
-	CVT_STRVEC2VEC(nx[ii], ws->res_workspace->res_g+ii, nu[ii], res_q[ii]);
-	CVT_STRVEC2VEC(ns[ii], ws->res_workspace->res_g+ii, nu[ii]+nx[ii], res_ls[ii]);
-	CVT_STRVEC2VEC(ns[ii], ws->res_workspace->res_g+ii, nu[ii]+nx[ii]+ns[ii], res_us[ii]);
+	CVT_STRVEC2VEC(nu[ii], ws->res_g+ii, 0, res_r[ii]);
+	CVT_STRVEC2VEC(nx[ii], ws->res_g+ii, nu[ii], res_q[ii]);
+	CVT_STRVEC2VEC(ns[ii], ws->res_g+ii, nu[ii]+nx[ii], res_ls[ii]);
+	CVT_STRVEC2VEC(ns[ii], ws->res_g+ii, nu[ii]+nx[ii]+ns[ii], res_us[ii]);
 
-	CVT_STRVEC2VEC(nb[ii], ws->res_workspace->res_d+ii, 0, res_d_lb[ii]);
-	CVT_STRVEC2VEC(ng[ii], ws->res_workspace->res_d+ii, nb[ii], res_d_lg[ii]);
-	CVT_STRVEC2VEC(nb[ii], ws->res_workspace->res_d+ii, nb[ii]+ng[ii], res_d_ub[ii]);
-	CVT_STRVEC2VEC(ng[ii], ws->res_workspace->res_d+ii, 2*nb[ii]+ng[ii], res_d_ug[ii]);
-	CVT_STRVEC2VEC(ns[ii], ws->res_workspace->res_d+ii, 2*nb[ii]+2*ng[ii], res_d_ls[ii]);
-	CVT_STRVEC2VEC(ns[ii], ws->res_workspace->res_d+ii, 2*nb[ii]+2*ng[ii]+ns[ii], res_d_us[ii]);
-	CVT_STRVEC2VEC(nb[ii], ws->res_workspace->res_m+ii, 0, res_m_lb[ii]);
-	CVT_STRVEC2VEC(ng[ii], ws->res_workspace->res_m+ii, nb[ii], res_m_lg[ii]);
-	CVT_STRVEC2VEC(nb[ii], ws->res_workspace->res_m+ii, nb[ii]+ng[ii], res_m_ub[ii]);
-	CVT_STRVEC2VEC(ng[ii], ws->res_workspace->res_m+ii, 2*nb[ii]+ng[ii], res_m_ug[ii]);
-	CVT_STRVEC2VEC(ns[ii], ws->res_workspace->res_m+ii, 2*nb[ii]+2*ng[ii], res_m_ls[ii]);
-	CVT_STRVEC2VEC(ns[ii], ws->res_workspace->res_m+ii, 2*nb[ii]+2*ng[ii]+ns[ii], res_m_us[ii]);
+	CVT_STRVEC2VEC(nb[ii], ws->res_d+ii, 0, res_d_lb[ii]);
+	CVT_STRVEC2VEC(ng[ii], ws->res_d+ii, nb[ii], res_d_lg[ii]);
+	CVT_STRVEC2VEC(nb[ii], ws->res_d+ii, nb[ii]+ng[ii], res_d_ub[ii]);
+	CVT_STRVEC2VEC(ng[ii], ws->res_d+ii, 2*nb[ii]+ng[ii], res_d_ug[ii]);
+	CVT_STRVEC2VEC(ns[ii], ws->res_d+ii, 2*nb[ii]+2*ng[ii], res_d_ls[ii]);
+	CVT_STRVEC2VEC(ns[ii], ws->res_d+ii, 2*nb[ii]+2*ng[ii]+ns[ii], res_d_us[ii]);
+	CVT_STRVEC2VEC(nb[ii], ws->res_m+ii, 0, res_m_lb[ii]);
+	CVT_STRVEC2VEC(ng[ii], ws->res_m+ii, nb[ii], res_m_lg[ii]);
+	CVT_STRVEC2VEC(nb[ii], ws->res_m+ii, nb[ii]+ng[ii], res_m_ub[ii]);
+	CVT_STRVEC2VEC(ng[ii], ws->res_m+ii, 2*nb[ii]+ng[ii], res_m_ug[ii]);
+	CVT_STRVEC2VEC(ns[ii], ws->res_m+ii, 2*nb[ii]+2*ng[ii], res_m_ls[ii]);
+	CVT_STRVEC2VEC(ns[ii], ws->res_m+ii, 2*nb[ii]+2*ng[ii]+ns[ii], res_m_us[ii]);
 
 	return;
 
