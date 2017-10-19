@@ -53,6 +53,9 @@ else()
 	set(BLASFEO_INCLUDE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/../blasfeo/include)
 endif()
 
+# headers installation directory
+set(HPIPM_HEADERS_INSTALLATION_DIRECTORY "include" CACHE STRING "Headers local installation directory")
+
 # enable runtine checks
 set(RUNTIME_CHECKS 0)
 #set(RUNTIME_CHECKS 0)
@@ -154,8 +157,18 @@ file(GLOB TREE_OCP_QP_SRC
 set(HPIPM_SRC ${COND_SRC} ${DENSE_QP_SRC} ${IPM_CORE_SRC} ${OCP_QP_SRC} ${TREE_OCP_QP_SRC})
 
 add_library(hpipm ${HPIPM_SRC})
-target_include_directories(hpipm PUBLIC include ${BLASFEO_INCLUDE_DIR})
+target_include_directories(hpipm PRIVATE "include" "${BLASFEO_INCLUDE_DIR}")
 target_link_libraries(hpipm blasfeo)
+
+install(TARGETS hpipm EXPORT hpipmConfig
+	LIBRARY DESTINATION lib
+	ARCHIVE DESTINATION lib
+	RUNTIME DESTINATION bin)
+
+install(EXPORT hpipmConfig DESTINATION cmake)
+
+file(GLOB_RECURSE HPIPM_HEADERS "include/*.h")
+install(FILES ${HPIPM_HEADERS} DESTINATION ${HPIPM_HEADERS_INSTALLATION_DIRECTORY})
 
 # test problems
 #add_subdirectory(test_problems)
