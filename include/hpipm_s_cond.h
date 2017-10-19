@@ -41,6 +41,7 @@ struct s_cond_qp_ocp2dense_workspace
 	struct s_strmat *Lx;
 	struct s_strmat *AL;
 	struct s_strvec *Gammab;
+	struct s_strvec *l;
 	struct s_strvec *tmp_ngM;
 	struct s_strvec *tmp_nuxM;
 	int *idxs_rev;
@@ -58,6 +59,8 @@ int s_memsize_cond_qp_ocp2dense(struct s_ocp_qp *ocp_qp, struct s_dense_qp *dens
 void s_create_cond_qp_ocp2dense(struct s_ocp_qp *ocp_qp, struct s_dense_qp *dense_qp, struct s_cond_qp_ocp2dense_workspace *cond_ws, void *mem);
 //
 void s_cond_qp_ocp2dense(struct s_ocp_qp *ocp_qp, struct s_dense_qp *dense_qp, struct s_cond_qp_ocp2dense_workspace *cond_ws);
+//
+void s_cond_rhs_qp_ocp2dense(struct s_ocp_qp *ocp_qp, struct s_dense_qp *dense_qp, struct s_cond_qp_ocp2dense_workspace *cond_ws);
 //
 void s_expand_sol_dense2ocp(struct s_ocp_qp *ocp_qp, struct s_dense_qp_sol *dense_qp_sol, struct s_ocp_qp_sol *ocp_qp_sol, struct s_cond_qp_ocp2dense_workspace *cond_ws);
 

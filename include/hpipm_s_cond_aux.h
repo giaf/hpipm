@@ -37,9 +37,15 @@ extern "C" {
 //
 void s_cond_BAbt(struct s_ocp_qp *ocp_qp, struct s_strmat *BAbt2, struct s_strvec *b2, struct s_cond_qp_ocp2dense_workspace *cond_ws);
 //
+void s_cond_b(struct s_ocp_qp *ocp_qp, struct s_strvec *b2, struct s_cond_qp_ocp2dense_workspace *cond_ws);
+//
 void s_cond_RSQrq_N2nx3(struct s_ocp_qp *ocp_qp, struct s_strmat *RSQrq2, struct s_strvec *rq2, struct s_cond_qp_ocp2dense_workspace *cond_ws);
 //
+void s_cond_rq_N2nx3(struct s_ocp_qp *ocp_qp, struct s_strvec *rq2, struct s_cond_qp_ocp2dense_workspace *cond_ws);
+//
 void s_cond_DCtd(struct s_ocp_qp *ocp_qp, int *idxb2, struct s_strmat *DCt2, struct s_strvec *d2, int *idxs2, struct s_strvec *Z2, struct s_strvec *z2, struct s_cond_qp_ocp2dense_workspace *cond_ws);
+//
+void s_cond_d(struct s_ocp_qp *ocp_qp, struct s_strvec *d2, struct s_strvec *z2, struct s_cond_qp_ocp2dense_workspace *cond_ws);
 //
 void s_expand_sol(struct s_ocp_qp *ocp_qp, struct s_dense_qp_sol *dense_qp_sol, struct s_ocp_qp_sol *ocp_qp_sol, struct s_cond_qp_ocp2dense_workspace *cond_ws);
 

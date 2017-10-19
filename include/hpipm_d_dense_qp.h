@@ -37,11 +37,11 @@ extern "C" {
 struct d_dense_qp
 	{
 	struct d_strmat *Hg; // hessian & gradient
-	struct d_strmat *A; // dynamics matrix
-	struct d_strmat *Ct; // constraints matrix
+	struct d_strmat *A; // equality constraint matrix
+	struct d_strmat *Ct; // inequality constraints matrix
 	struct d_strvec *g; // gradient
-	struct d_strvec *b; // dynamics vector
-	struct d_strvec *d; // constraints vector
+	struct d_strvec *b; // equality constraint vector
+	struct d_strvec *d; // inequality constraints vector
 	struct d_strvec *Z; // (diagonal) hessian of slacks
 	struct d_strvec *z; // gradient of slacks
 	int *idxb; // index of box constraints

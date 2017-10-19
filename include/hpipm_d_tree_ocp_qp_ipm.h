@@ -71,6 +71,7 @@ struct d_tree_ocp_qp_ipm_workspace
 	struct d_strmat *L;
 	struct d_strmat *AL;
 	double *stat; // convergence statistics
+	double qp_res[4]; // infinity norm of residuals
 	double mu0; // mu0
 	double res_mu; // mu-residual
 	int iter; // iteration number
