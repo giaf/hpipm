@@ -30,7 +30,9 @@
 #include <blasfeo_target.h>
 #include <blasfeo_common.h>
 
-
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 struct d_ocp_nlp_sol
 	{
@@ -53,3 +55,7 @@ void d_cvt_ocp_nlp_sol_to_colmaj(struct d_ocp_nlp *qp, struct d_ocp_nlp_sol *qp_
 void d_cvt_ocp_nlp_sol_to_rowmaj(struct d_ocp_nlp *qp, struct d_ocp_nlp_sol *qp_sol, double **u, double **x, double **ls, double **us, double **pi, double **lam_lb, double **lam_ub, double **lam_lg, double **lam_ug, double **lam_ls, double **lam_us);
 //
 void d_cvt_ocp_nlp_sol_to_libstr(struct d_ocp_nlp *qp, struct d_ocp_nlp_sol *qp_sol, struct d_strvec *u, struct d_strvec *ls, struct d_strvec *us, struct d_strvec *x, struct d_strvec *pi, struct d_strvec *lam_lb, struct d_strvec *lam_ub, struct d_strvec *lam_lg, struct d_strvec *lam_ug, struct d_strvec *lam_ls, struct d_strvec *lam_us);
+
+#ifdef __cplusplus
+} /* extern "C" */
+#endif

@@ -30,7 +30,9 @@
 #include <blasfeo_target.h>
 #include <blasfeo_common.h>
 
-
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 struct d_dense_qp_ipm_arg
 	{
@@ -93,3 +95,7 @@ int d_memsize_dense_qp_ipm(struct d_dense_qp *qp, struct d_dense_qp_ipm_arg *arg
 void d_create_dense_qp_ipm(struct d_dense_qp *qp, struct d_dense_qp_ipm_arg *arg, struct d_dense_qp_ipm_workspace *ws, void *mem);
 //
 int d_solve_dense_qp_ipm(struct d_dense_qp *qp, struct d_dense_qp_sol *qp_sol, struct d_dense_qp_ipm_arg *arg, struct d_dense_qp_ipm_workspace *ws);
+
+#ifdef __cplusplus
+} /* extern "C" */
+#endif

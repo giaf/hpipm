@@ -30,7 +30,9 @@
 #include <blasfeo_target.h>
 #include <blasfeo_common.h>
 
-
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 
 struct d_tree_ocp_qp_ipm_arg
@@ -92,3 +94,7 @@ int d_memsize_tree_ocp_qp_ipm(struct d_tree_ocp_qp *qp, struct d_tree_ocp_qp_ipm
 void d_create_tree_ocp_qp_ipm(struct d_tree_ocp_qp *qp, struct d_tree_ocp_qp_ipm_arg *arg, struct d_tree_ocp_qp_ipm_workspace *ws, void *mem);
 //
 int d_solve_tree_ocp_qp_ipm(struct d_tree_ocp_qp *qp, struct d_tree_ocp_qp_sol *qp_sol, struct d_tree_ocp_qp_ipm_arg *arg, struct d_tree_ocp_qp_ipm_workspace *ws);
+
+#ifdef __cplusplus
+} /* extern "C" */
+#endif

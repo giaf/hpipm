@@ -30,7 +30,9 @@
 #include <blasfeo_target.h>
 #include <blasfeo_common.h>
 
-
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 
 struct s_ocp_qp_ipm_arg
@@ -115,4 +117,7 @@ void s_cvt_ocp_qp_res_to_colmaj(struct s_ocp_qp *qp, struct s_ocp_qp_res *ws, fl
 //
 void s_cvt_ocp_qp_res_to_rowmaj(struct s_ocp_qp *qp, struct s_ocp_qp_res *ws, float **res_r, float **res_q, float **res_ls, float **res_us, float **res_b, float **res_d_lb, float **res_d_ub, float **res_d_lg, float **res_d_ug, float **res_d_ls, float **res_d_us, float **res_m_lb, float **res_m_ub, float **res_m_lg, float **res_m_ug, float **res_m_ls, float **res_m_us);
 
+#ifdef __cplusplus
+} /* extern "C" */
+#endif
 

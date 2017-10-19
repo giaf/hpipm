@@ -25,7 +25,9 @@
 *                                                                                                 *
 **************************************************************************************************/
 
-
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 struct d_rk_data
 	{
@@ -48,4 +50,6 @@ void d_cvt_colmaj_to_rk_data(int expl, double *A_rk, double *B_rk, double *C_rk,
 //
 void d_cvt_rowmaj_to_rk_data(int expl, double *A_rk, double *B_rk, double *C_rk, struct d_rk_data *rk_data);
 
-
+#ifdef __cplusplus
+} /* extern "C" */
+#endif

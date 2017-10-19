@@ -31,7 +31,9 @@
 #include <blasfeo_target.h>
 #include <blasfeo_common.h>
 
-
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 struct s_dense_qp
 	{
@@ -72,3 +74,6 @@ void s_cvt_libstr_to_dense_qp(struct s_strmat *H, struct s_strmat *A, struct s_s
 //
 void s_cvt_dense_qp_to_libstr(struct s_dense_qp *qp, struct s_strmat *H, struct s_strmat *A, struct s_strmat *C, struct s_strvec *g, struct s_strvec *b, struct s_strvec *d_lb, struct s_strvec *d_ub, struct s_strvec *d_lg, struct s_strvec *d_ug, int *idxb, struct s_strvec *Zl, struct s_strvec *Zu, struct s_strvec *zl, struct s_strvec *zu, int *idxs);
 
+#ifdef __cplusplus
+} /* extern "C" */
+#endif

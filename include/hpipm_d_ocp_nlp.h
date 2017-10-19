@@ -30,7 +30,9 @@
 #include <blasfeo_target.h>
 #include <blasfeo_common.h>
 
-
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 struct d_ocp_nlp_model
 	{
@@ -72,3 +74,7 @@ int d_memsize_ocp_nlp(int N, int *nx, int *nu, int *nb, int *ng, int *ns);
 void d_create_ocp_nlp(int N, int *nx, int *nu, int *nb, int *ng, int *ns, struct d_ocp_nlp *nlp, void *memory);
 //
 void d_cvt_colmaj_to_ocp_nlp(struct d_ocp_nlp_model *model, double **Q, double **S, double **R, double **x_ref, double **u_ref, int **idxb, double **d_lb, double **d_ub, double **C, double **D, double **d_lg, double **d_ug, double **Zl, double **Zu, double **zl, double **zu, int **idxs, struct d_ocp_nlp *nlp);
+
+#ifdef __cplusplus
+} /* extern "C" */
+#endif

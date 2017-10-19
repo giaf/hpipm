@@ -25,7 +25,9 @@
 *                                                                                                 *
 **************************************************************************************************/
 
-
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 struct d_erk_arg
 	{
@@ -75,3 +77,7 @@ void d_init_erk_int(int nf, int na, double *x0, double *p0, double *fs0, double 
 //void d_update_p_erk_int(double *p0, struct d_erk_workspace *ws);
 //
 void d_erk_int(struct d_erk_workspace *workspace);
+
+#ifdef __cplusplus
+} /* extern "C" */
+#endif
