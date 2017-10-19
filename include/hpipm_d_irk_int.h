@@ -25,7 +25,9 @@
 *                                                                                                 *
 **************************************************************************************************/
 
-
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 struct d_irk_workspace
 	{
@@ -73,3 +75,6 @@ void d_update_p_irk_int(double *p0, struct d_irk_workspace *ws);
 //
 void d_irk_int(struct d_irk_args *irk_args, struct d_irk_workspace *workspace);
 
+#ifdef __cplusplus
+} /* extern "C" */
+#endif

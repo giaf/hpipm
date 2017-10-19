@@ -31,6 +31,12 @@
 #include <blasfeo_target.h>
 #include <blasfeo_common.h>
 
-
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 void m_cvt_d_ocp_qp_to_s_ocp_qp(struct d_ocp_qp *d_qp, struct s_ocp_qp *s_qp);
+
+#ifdef __cplusplus
+} /* extern "C" */
+#endif

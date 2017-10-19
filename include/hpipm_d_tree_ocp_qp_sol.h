@@ -30,7 +30,9 @@
 #include <blasfeo_target.h>
 #include <blasfeo_common.h>
 
-
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 struct d_tree_ocp_qp_sol
 	{
@@ -51,3 +53,7 @@ void d_create_tree_ocp_qp_sol(struct tree *ttree, int *nx, int *nu, int *nb, int
 void d_cvt_tree_ocp_qp_sol_to_colmaj(struct d_tree_ocp_qp *qp, struct d_tree_ocp_qp_sol *qp_sol, double **u, double **x, double **ls, double **us, double **pi, double **lam_lb, double **lam_ub, double **lam_lg, double **lam_ug, double **lam_ls, double **lam_us);
 //
 void d_cvt_tree_ocp_qp_sol_to_rowmaj(struct d_tree_ocp_qp *qp, struct d_tree_ocp_qp_sol *qp_sol, double **u, double **x, double **ls, double **us, double **pi, double **lam_lb, double **lam_ub, double **lam_lg, double **lam_ug, double **lam_ls, double **lam_us);
+
+#ifdef __cplusplus
+} /* extern "C" */
+#endif

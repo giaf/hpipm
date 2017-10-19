@@ -26,7 +26,9 @@
 **************************************************************************************************/
 
 
-
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 //
 void s_init_var_ocp_qp(struct s_ocp_qp *qp, struct s_ocp_qp_sol *qp_sol, struct s_ocp_qp_ipm_workspace *ws);
@@ -39,3 +41,6 @@ void s_fact_solve_kkt_step_ocp_qp(struct s_ocp_qp *qp, struct s_ocp_qp_ipm_works
 //
 void s_solve_kkt_step_ocp_qp(struct s_ocp_qp *qp, struct s_ocp_qp_ipm_workspace *ws);
 
+#ifdef __cplusplus
+} /* extern "C" */
+#endif

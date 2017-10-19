@@ -30,7 +30,9 @@
 #include <blasfeo_target.h>
 #include <blasfeo_common.h>
 
-
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 struct s_dense_qp_ipm_arg
 	{
@@ -93,3 +95,6 @@ void s_create_dense_qp_ipm(struct s_dense_qp *qp, struct s_dense_qp_ipm_arg *arg
 //
 int s_solve_dense_qp_ipm(struct s_dense_qp *qp, struct s_dense_qp_sol *qp_sol, struct s_dense_qp_ipm_arg *arg, struct s_dense_qp_ipm_workspace *ws);
 
+#ifdef __cplusplus
+} /* extern "C" */
+#endif

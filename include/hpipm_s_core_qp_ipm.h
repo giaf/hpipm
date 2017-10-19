@@ -25,7 +25,9 @@
 *                                                                                                 *
 **************************************************************************************************/
 
-
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 struct s_core_qp_ipm_workspace
 	{
@@ -64,3 +66,6 @@ void s_create_core_qp_ipm(int nv, int ne, int nc, struct s_core_qp_ipm_workspace
 //
 void s_core_qp_ipm(struct s_core_qp_ipm_workspace *workspace);
 
+#ifdef __cplusplus
+} /* extern "C" */
+#endif

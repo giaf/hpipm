@@ -55,6 +55,6 @@ void cast_sctree2tree(struct sctree *st, struct tree *tt);
 
 
 #ifdef __cplusplus
-}
+} /* extern "C" */
 #endif
 

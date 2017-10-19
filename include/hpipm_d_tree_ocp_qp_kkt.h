@@ -25,7 +25,9 @@
 *                                                                                                 *
 **************************************************************************************************/
 
-
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 
 //
@@ -39,3 +41,6 @@ void d_fact_solve_kkt_step_tree_ocp_qp(struct d_tree_ocp_qp *qp, struct d_tree_o
 //
 void d_solve_kkt_step_tree_ocp_qp(struct d_tree_ocp_qp *qp, struct d_tree_ocp_qp_ipm_workspace *ws);
 
+#ifdef __cplusplus
+} /* extern "C" */
+#endif
