@@ -55,7 +55,7 @@ void d_cvt_erk_int_to_ocp_qp(int n, struct d_erk_workspace *erk_ws, struct d_ocp
 	int nf = erk_ws->nf;
 	int nX = nx*(1+nf);
 
-	double *x = erk_ws->x;
+	double *x = erk_ws->x_for;
 //	if(adj_sens!=0 & erk_ws->erk_arg->adj_sens!=0)
 //		x = erk_ws->x + nX*erk_ws->erk_arg->steps;
 
@@ -91,9 +91,10 @@ void d_cvt_erk_int_to_ocp_qp_rhs(int n, struct d_erk_workspace *erk_ws, struct d
 
 	int nX = nx*(1+nf);
 
-//	double *x = erk_ws->x;
+//	double *x = erk_ws->x_for;
 //	if(erk_ws->erk_arg->adj_sens!=0)
-	double *x = erk_ws->x + nX*erk_ws->erk_arg->steps;
+//	double *x = erk_ws->x_for + nX*erk_ws->erk_arg->steps;
+	double *x = erk_ws->x_for;
 
 	struct d_strvec sl;
 	d_create_strvec(nu+nx, &sl, erk_ws->l);

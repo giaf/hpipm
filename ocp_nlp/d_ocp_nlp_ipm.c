@@ -395,10 +395,10 @@ exit(1);
 #endif
 
 		// compute residuals
-		COMPUTE_RES_OCP_QP(qp, qp_sol, ipm_ws);
-		cws->mu = ipm_ws->res_mu;
+		COMPUTE_RES_OCP_QP(qp, qp_sol, ipm_ws->res_workspace);
+		cws->mu = ipm_ws->res_workspace->res_mu;
 		if(ss>0 & ss<ipm_ws->stat_max)
-			ipm_ws->stat[5*(ss-1)+4] = ipm_ws->res_mu;
+			ipm_ws->stat[5*(ss-1)+4] = ipm_ws->res_workspace->res_mu;
 
 		// compute infinity norm of residuals
 		dvecnrm_inf_libstr(cws->nv, &str_res_g, 0, &nlp_res[0]);

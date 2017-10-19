@@ -556,8 +556,8 @@ exit(1);
 
 
 		// compute residuals
-		COMPUTE_RES_OCP_QP(qp, qp_sol, ipm_ws); // gests own workspace ???
-		cws->mu = ipm_ws->res_mu;
+		COMPUTE_RES_OCP_QP(qp, qp_sol, ipm_ws->res_workspace); // gests own workspace ???
+		cws->mu = ipm_ws->res_workspace->res_mu;
 
 		// compute infinity norm of residuals
 		dvecnrm_inf_libstr(cws->nv, &str_res_g, 0, &nlp_res[0]);

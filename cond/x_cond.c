@@ -21,7 +21,7 @@
 * License along with HPIPM; if not, write to the Free Software                                    *
 * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA                  *
 *                                                                                                 *
-* Author: Gianluca Frison, gianluca.frison (at) imtek.uni-freiburg.de                             *                          
+* Author: Gianluca Frison, gianluca.frison (at) imtek.uni-freiburg.de                             *
 *                                                                                                 *
 **************************************************************************************************/
 
@@ -109,8 +109,10 @@ int MEMSIZE_COND_QP_OCP2DENSE(struct OCP_QP *ocp_qp, struct DENSE_QP *dense_qp) 
 
 	int size = 0;
 
-	size += (2+2*(N+1))*sizeof(struct STRMAT); // Gamma L Lx AL
-	size += (2+1*(N+1))*sizeof(struct STRVEC); // Gammab tmp_ngM tmp_nuxM
+	size += 2*(N+1)*sizeof(struct STRMAT); // Gamma L
+	size += 2*sizeof(struct STRMAT); // Lx AL
+	size += 2*(N+1)*sizeof(struct STRVEC); // Gammab l
+	size += 2*sizeof(struct STRVEC); // tmp_ngM tmp_nuxM
 
 	int nu_tmp = 0;
 	for(ii=0; ii<N; ii++)
@@ -124,6 +126,8 @@ int MEMSIZE_COND_QP_OCP2DENSE(struct OCP_QP *ocp_qp, struct DENSE_QP *dense_qp) 
 	size += SIZE_STRMAT(nuM+nxM+1, nxM); // AL
 	for(ii=0; ii<N; ii++) 
 		size += 1*SIZE_STRVEC(nx[ii+1]); // Gammab
+	for(ii=0; ii<=N; ii++) 
+		size += SIZE_STRVEC(nu[ii]+nx[ii]); // l
 	size += SIZE_STRVEC(ngM); // tmp_ngM
 	size += 1*SIZE_STRVEC(nuM+nxM); // tmp_nuxM
 	size += 1*SIZE_STRVEC(ngM); // tmp_ngM
@@ -199,6 +203,8 @@ void CREATE_COND_QP_OCP2DENSE(struct OCP_QP *ocp_qp, struct DENSE_QP *dense_qp, 
 
 	cond_ws->Gammab = sv_ptr;
 	sv_ptr += N+1;
+	cond_ws->l = sv_ptr;
+	sv_ptr += N+1;
 	cond_ws->tmp_ngM = sv_ptr;
 	sv_ptr += 1;
 	cond_ws->tmp_nuxM = sv_ptr;
@@ -244,6 +250,11 @@ void CREATE_COND_QP_OCP2DENSE(struct OCP_QP *ocp_qp, struct DENSE_QP *dense_qp, 
 		CREATE_STRVEC(nx[ii+1], cond_ws->Gammab+ii, c_ptr);
 		c_ptr += (cond_ws->Gammab+ii)->memory_size;
 		}
+	for(ii=0; ii<=N; ii++)
+		{
+		CREATE_STRVEC(nu[ii]+nx[ii], cond_ws->l+ii, c_ptr);
+		c_ptr += (cond_ws->l+ii)->memory_size;
+		}
 	CREATE_STRVEC(ngM, cond_ws->tmp_ngM, c_ptr);
 	c_ptr += cond_ws->tmp_ngM->memory_size;
 	c_tmp = c_ptr;
@@ -276,6 +287,21 @@ void COND_QP_OCP2DENSE(struct OCP_QP *ocp_qp, struct DENSE_QP *dense_qp, struct 
 	COND_RSQRQ_N2NX3(ocp_qp, dense_qp->Hg, dense_qp->g, cond_ws);
 
 	COND_DCTD(ocp_qp, dense_qp->idxb, dense_qp->Ct, dense_qp->d, dense_qp->idxs, dense_qp->Z, dense_qp->z, cond_ws);
+
+	return;
+
+	}
+
+
+
+void COND_RHS_QP_OCP2DENSE(struct OCP_QP *ocp_qp, struct DENSE_QP *dense_qp, struct COND_QP_OCP2DENSE_WORKSPACE *cond_ws)
+	{
+
+	COND_B(ocp_qp, NULL, cond_ws);
+
+	COND_RQ_N2NX3(ocp_qp, dense_qp->g, cond_ws);
+
+	COND_D(ocp_qp, dense_qp->d, dense_qp->z, cond_ws);
 
 	return;
 

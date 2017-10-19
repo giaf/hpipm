@@ -71,6 +71,7 @@ struct s_tree_ocp_qp_ipm_workspace
 	struct s_strmat *L;
 	struct s_strmat *AL;
 	float *stat; // convergence statistics
+	float qp_res[4]; // infinity norm of residuals
 	float mu0; // mu0
 	float res_mu; // mu-residual
 	int iter; // iteration number

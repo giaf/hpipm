@@ -46,6 +46,21 @@ struct s_ocp_qp_ipm_arg
 	int iter_max; // exit cond in iter number
 	int stat_max; // iterations saved in stat
 	int pred_corr; // use Mehrotra's predictor-corrector IPM algirthm
+	int warm_start; // 0 no warm start, 1 warm start primal sol
+	int memsize;
+	};
+
+
+
+struct s_ocp_qp_res
+	{
+	struct s_strvec *res_g; // q-residuals
+	struct s_strvec *res_b; // b-residuals
+	struct s_strvec *res_d; // d-residuals
+	struct s_strvec *res_m; // m-residuals
+	struct s_strvec *tmp_nbgM; // work space of size nbM+ngM
+	struct s_strvec *tmp_nsM; // work space of size nsM
+	float res_mu; // mu-residual
 	int memsize;
 	};
 
@@ -54,13 +69,10 @@ struct s_ocp_qp_ipm_arg
 struct s_ocp_qp_ipm_workspace
 	{
 	struct s_core_qp_ipm_workspace *core_workspace;
+	struct s_ocp_qp_res *res_workspace;
 	struct s_strvec *dux;
 	struct s_strvec *dpi;
 	struct s_strvec *dt;
-	struct s_strvec *res_g; // q-residuals
-	struct s_strvec *res_b; // b-residuals
-	struct s_strvec *res_d; // d-residuals
-	struct s_strvec *res_m; // m-residuals
 	struct s_strvec *Gamma; // hessian update
 	struct s_strvec *gamma; // hessian update
 	struct s_strvec *tmp_nxM; // work space of size nxM
@@ -71,10 +83,11 @@ struct s_ocp_qp_ipm_workspace
 	struct s_strmat *L;
 	struct s_strmat *AL;
 	float *stat; // convergence statistics
+	float qp_res[4]; // infinity norm of residuals
 	float mu0; // mu0
-	float res_mu; // mu-residual
 	int iter; // iteration number
 	int stat_max; // iterations saved in stat
+	int warm_start; // 0 no warm start, 1 warm start primal sol
 	int memsize;
 	};
 
@@ -86,6 +99,11 @@ int s_memsize_ocp_qp_ipm_arg(struct s_ocp_qp *qp);
 void s_create_ocp_qp_ipm_arg(struct s_ocp_qp *qp, struct s_ocp_qp_ipm_arg *arg, void *mem);
 //
 void s_set_default_ocp_qp_ipm_arg(struct s_ocp_qp_ipm_arg *arg);
+
+//
+int s_memsize_ocp_qp_res(struct s_ocp_qp *qp);
+//
+void s_create_ocp_qp_res(struct s_ocp_qp *qp, struct s_ocp_qp_res *workspace, void *mem);
 
 //
 int s_memsize_ocp_qp_ipm(struct s_ocp_qp *qp, struct s_ocp_qp_ipm_arg *arg);
