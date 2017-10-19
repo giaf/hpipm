@@ -222,11 +222,11 @@ void CVT_DENSE_QP_TO_COLMAJ(struct DENSE_QP *qp, REAL *H, REAL *g, REAL *A, REAL
 	int ns = qp->ns;
 
 	CVT_STRMAT2MAT(nv, nv, qp->Hg, 0, 0, H, nv);
+	CVT_STRVEC2VEC(nv, qp->g, 0, g);
 	if(ne>0)
 		{
 		CVT_STRMAT2MAT(ne, nv, qp->A, 0, 0, A, ne);
 		CVT_STRVEC2VEC(ne, qp->b, 0, b);
-		CVT_STRVEC2VEC(nv, qp->g, 0, g);
 		}
 	if(nb>0)
 		{
