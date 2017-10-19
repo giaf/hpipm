@@ -171,4 +171,4 @@ file(GLOB_RECURSE HPIPM_HEADERS "include/*.h")
 install(FILES ${HPIPM_HEADERS} DESTINATION ${HPIPM_HEADERS_INSTALLATION_DIRECTORY})
 
 # test problems
-add_subdirectory(test_problems)
+#add_subdirectory(test_problems)
