@@ -33,8 +33,8 @@ ifeq ($(TARGET), GENERIC)
 OBJS +=
 endif
 
-#OBJS += d_rk_int.o d_erk_int.o d_irk_int.o
-#OBJS += 
+OBJS += d_rk_int.o d_erk_int.o d_irk_int.o
+OBJS += 
 
 obj: $(OBJS)
 
