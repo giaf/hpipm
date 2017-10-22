@@ -27,12 +27,21 @@
 
 
 
+#ifndef HPIPM_D_DENSE_QP_IPM_H_
+#define HPIPM_D_DENSE_QP_IPM_H_
+
+
+
 #include <blasfeo_target.h>
 #include <blasfeo_common.h>
+
+
 
 #ifdef __cplusplus
 extern "C" {
 #endif
+
+
 
 struct d_dense_qp_ipm_arg
 	{
@@ -96,6 +105,12 @@ void d_create_dense_qp_ipm(struct d_dense_qp *qp, struct d_dense_qp_ipm_arg *arg
 //
 int d_solve_dense_qp_ipm(struct d_dense_qp *qp, struct d_dense_qp_sol *qp_sol, struct d_dense_qp_ipm_arg *arg, struct d_dense_qp_ipm_workspace *ws);
 
+
+
 #ifdef __cplusplus
 } /* extern "C" */
 #endif
+
+
+
+#endif // HPIPM_D_DENSE_QP_IPM_H_
