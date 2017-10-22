@@ -27,6 +27,11 @@
 
 
 
+#ifndef HPIPM_S_DENSE_QP_SOL_H_
+#define HPIPM_S_DENSE_QP_SOL_H_
+
+
+
 #include <blasfeo_target.h>
 #include <blasfeo_common.h>
 
@@ -59,3 +64,7 @@ void s_cvt_dense_qp_sol_to_libstr(struct s_dense_qp *qp, struct s_dense_qp_sol *
 #ifdef __cplusplus
 } /* extern "C" */
 #endif
+
+
+
+#endif // HPIPM_S_DENSE_QP_SOL_H_
