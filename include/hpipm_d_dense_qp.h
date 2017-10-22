@@ -27,12 +27,21 @@
 
 
 
+#ifndef HPIPM_D_DENSE_QP_H_
+#define HPIPM_D_DENSE_QP_H_
+
+
+
 #include <blasfeo_target.h>
 #include <blasfeo_common.h>
+
+
 
 #ifdef __cplusplus
 extern "C" {
 #endif
+
+
 
 struct d_dense_qp
 	{
@@ -73,6 +82,12 @@ void d_cvt_libstr_to_dense_qp(struct d_strmat *H, struct d_strmat *A, struct d_s
 //
 void d_cvt_dense_qp_to_libstr(struct d_dense_qp *qp, struct d_strmat *H, struct d_strmat *A, struct d_strmat *C, struct d_strvec *g, struct d_strvec *b, struct d_strvec *d_lb, struct d_strvec *d_ub, struct d_strvec *d_lg, struct d_strvec *d_ug, int *idxb, struct d_strvec *Zl, struct d_strvec *Zu, struct d_strvec *zl, struct d_strvec *zu, int *idxs);
 
+
+
 #ifdef __cplusplus
 } /* extern "C" */
 #endif
+
+
+
+#endif // HPIPM_D_DENSE_QP_H_
