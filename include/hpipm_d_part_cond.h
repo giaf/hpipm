@@ -27,12 +27,20 @@
 
 
 
+#ifndef HPIPM_D_PART_COND_H_
+#define HPIPM_D_PART_COND_H_
+
+
+
 #include <blasfeo_target.h>
 #include <blasfeo_common.h>
+
+
 
 #ifdef __cplusplus
 extern "C" {
 #endif
+
 
 
 struct d_cond_qp_ocp2ocp_workspace
@@ -56,6 +64,12 @@ void d_cond_rhs_qp_ocp2ocp(struct d_ocp_qp *ocp_qp, struct d_ocp_qp *part_dense_
 //
 void d_expand_sol_ocp2ocp(struct d_ocp_qp *ocp_qp, struct d_ocp_qp *part_dense_qp, struct d_ocp_qp_sol *part_dense_qp_sol, struct d_ocp_qp_sol *ocp_qp_sol, struct d_cond_qp_ocp2ocp_workspace *cond_ws);
 
+
+
 #ifdef __cplusplus
 } /* extern "C" */
 #endif
+
+
+
+#endif // HPIPM_D_PART_COND_H_
