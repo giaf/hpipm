@@ -35,9 +35,13 @@
 #include <blasfeo_target.h>
 #include <blasfeo_common.h>
 
+
+
 #ifdef __cplusplus
 extern "C" {
 #endif
+
+
 
 struct s_dense_qp_sol
 	{
@@ -60,6 +64,8 @@ void s_cvt_dense_qp_sol_to_colmaj(struct s_dense_qp *qp, struct s_dense_qp_sol *
 void s_cvt_dense_qp_sol_to_rowmaj(struct s_dense_qp *qp, struct s_dense_qp_sol *qp_sol, float *v, float *ls, float *us, float *pi, float *lam_lb, float *lam_ub, float *lam_lg, float *lam_ug, float *lam_ls, float *lam_us);
 //
 void s_cvt_dense_qp_sol_to_libstr(struct s_dense_qp *qp, struct s_dense_qp_sol *qp_sol, struct s_strvec *v, struct s_strvec *ls, struct s_strvec *us, struct s_strvec *pi, struct s_strvec *lam_lb, struct s_strvec *lam_ub, struct s_strvec *lam_lg, struct s_strvec *lam_ug, struct s_strvec *lam_ls, struct s_strvec *lam_us);
+
+
 
 #ifdef __cplusplus
 } /* extern "C" */
