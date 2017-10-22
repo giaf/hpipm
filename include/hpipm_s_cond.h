@@ -27,12 +27,21 @@
 
 
 
+#ifndef HPIPM_S_COND_H_
+#define HPIPM_S_COND_H_
+
+
+
 #include <blasfeo_target.h>
 #include <blasfeo_common.h>
+
+
 
 #ifdef __cplusplus
 extern "C" {
 #endif
+
+
 
 struct s_cond_qp_ocp2dense_workspace
 	{
@@ -64,6 +73,12 @@ void s_cond_rhs_qp_ocp2dense(struct s_ocp_qp *ocp_qp, struct s_dense_qp *dense_q
 //
 void s_expand_sol_dense2ocp(struct s_ocp_qp *ocp_qp, struct s_dense_qp_sol *dense_qp_sol, struct s_ocp_qp_sol *ocp_qp_sol, struct s_cond_qp_ocp2dense_workspace *cond_ws);
 
+
+
 #ifdef __cplusplus
 } /* extern "C" */
 #endif
+
+
+
+#endif // HPIPM_S_COND_H_

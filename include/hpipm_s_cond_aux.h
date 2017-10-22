@@ -27,12 +27,21 @@
 
 
 
+#ifndef HPIPM_S_COND_AUX_H_
+#define HPIPM_S_COND_AUX_H_
+
+
+
 #include <blasfeo_target.h>
 #include <blasfeo_common.h>
+
+
 
 #ifdef __cplusplus
 extern "C" {
 #endif
+
+
 
 //
 void s_cond_BAbt(struct s_ocp_qp *ocp_qp, struct s_strmat *BAbt2, struct s_strvec *b2, struct s_cond_qp_ocp2dense_workspace *cond_ws);
@@ -49,6 +58,12 @@ void s_cond_d(struct s_ocp_qp *ocp_qp, struct s_strvec *d2, struct s_strvec *z2,
 //
 void s_expand_sol(struct s_ocp_qp *ocp_qp, struct s_dense_qp_sol *dense_qp_sol, struct s_ocp_qp_sol *ocp_qp_sol, struct s_cond_qp_ocp2dense_workspace *cond_ws);
 
+
+
 #ifdef __cplusplus
 } /* extern "C" */
 #endif
+
+
+
+#endif // HPIPM_S_COND_AUX_H_
