@@ -25,6 +25,9 @@
 *                                                                                                 *
 **************************************************************************************************/
 
+#ifndef HPIPM_D_OCP_QP_H_
+#define HPIPM_D_OCP_QP_H_
+
 
 
 #include <blasfeo_target.h>
@@ -69,3 +72,7 @@ void d_cvt_rowmaj_to_ocp_qp(double **A, double **B, double **b, double **Q, doub
 #ifdef __cplusplus
 }	// #extern "C"
 #endif
+
+
+
+#endif // HPIPM_D_OCP_QP_H_

@@ -25,6 +25,9 @@
 *                                                                                                 *
 **************************************************************************************************/
 
+#ifndef HPIPM_D_OCP_QP_SOL_H_
+#define HPIPM_D_OCP_QP_SOL_H_
+
 
 
 #include <blasfeo_target.h>
@@ -61,3 +64,7 @@ void d_cvt_ocp_qp_sol_to_libstr(struct d_ocp_qp *qp, struct d_ocp_qp_sol *qp_sol
 #ifdef __cplusplus
 }	// #extern "C"
 #endif
+
+
+
+#endif // HPIPM_D_OCP_QP_SOL_H_
