@@ -25,7 +25,8 @@
 *                                                                                                 *
 **************************************************************************************************/
 
-
+#ifndef HPIPM_D_OCP_QP_IPM_H_
+#define HPIPM_D_OCP_QP_IPM_H_
 
 #include <blasfeo_target.h>
 #include <blasfeo_common.h>
@@ -121,3 +122,6 @@ void d_cvt_ocp_qp_res_to_rowmaj(struct d_ocp_qp *qp, struct d_ocp_qp_res *ws, do
 #ifdef __cplusplus
 }	// #extern "C"
 #endif
+
+
+#endif // HPIPM_D_OCP_QP_IPM_H_
