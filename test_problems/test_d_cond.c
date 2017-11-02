@@ -616,7 +616,8 @@ int main()
 	void *size_mem = malloc(size_size);
 
 	struct d_ocp_qp_size size;
-	d_create_ocp_qp_size(N, nx, nu, nbx, nbu, ng, ns, &size, size_mem);
+	d_create_ocp_qp_size(N, &size, size_mem);
+	d_cvt_int_to_ocp_qp_size(N, nx, nu, nbx, nbu, ng, ns, &size);
 
 /************************************************
 * ocp qp

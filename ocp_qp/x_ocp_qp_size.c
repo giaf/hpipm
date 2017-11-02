@@ -42,16 +42,13 @@ int MEMSIZE_OCP_QP_SIZE(int N)
 
 
 
-void CREATE_OCP_QP_SIZE(int N, int *nx, int *nu, int *nbx, int *nbu, int *ng, int *ns, struct OCP_QP_SIZE *size, void *memory)
+void CREATE_OCP_QP_SIZE(int N, struct OCP_QP_SIZE *size, void *memory)
 	{
 
 	// loop index
 	int ii;
 
 	char *c_ptr = memory;
-
-	// N
-	size->N = N;
 
 	// nx
 	size->nx = (int *) c_ptr;
@@ -75,6 +72,22 @@ void CREATE_OCP_QP_SIZE(int N, int *nx, int *nu, int *nbx, int *nbu, int *ng, in
 	size->ns = (int *) c_ptr;
 	c_ptr += (N+1)*sizeof(int);
 
+	size->memsize = MEMSIZE_OCP_QP_SIZE(N);
+
+	return;
+
+	}
+
+
+void CVT_INT_TO_OCP_QP_SIZE(int N, int *nx, int *nu, int *nbx, int *nbu, int *ng, int *ns, struct OCP_QP_SIZE *size)
+	{
+
+	// loop index
+	int ii;
+
+	// N
+	size->N = N;
+
 	// copy qp size
 	for(ii=0; ii<=N; ii++)
 		size->nx[ii] = nx[ii];
@@ -91,9 +104,6 @@ void CREATE_OCP_QP_SIZE(int N, int *nx, int *nu, int *nbx, int *nbu, int *ng, in
 	for(ii=0; ii<=N; ii++)
 		size->ns[ii] = ns[ii];
 
-	size->memsize = MEMSIZE_OCP_QP_SIZE(N);
-
 	return;
 
 	}
-

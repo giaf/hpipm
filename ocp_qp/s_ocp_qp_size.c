@@ -35,6 +35,7 @@
 
 #define MEMSIZE_OCP_QP_SIZE s_memsize_ocp_qp_size
 #define CREATE_OCP_QP_SIZE s_create_ocp_qp_size
+#define CVT_INT_TO_OCP_QP_SIZE s_cvt_int_to_ocp_qp_size
 
 
 

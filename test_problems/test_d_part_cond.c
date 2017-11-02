@@ -613,7 +613,8 @@ int main()
 	void *size_mem = malloc(size_size);
 
 	struct d_ocp_qp_size size;
-	d_create_ocp_qp_size(N, nx, nu, nbx, nbu, ng, ns, &size, size_mem);
+	d_create_ocp_qp_size(N, &size, size_mem);
+	d_cvt_int_to_ocp_qp_size(N, nx, nu, nbx, nbu, ng, ns, &size);
 
 /************************************************
 * ocp qp
@@ -670,7 +671,8 @@ int main()
 	void *size_mem2 = malloc(size_size2);
 
 	struct d_ocp_qp_size size2;
-	d_create_ocp_qp_size(N2, nx2, nu2, nbx2, nbu2, ng2, ns2, &size2, size_mem2);
+	d_create_ocp_qp_size(N2, &size2, size_mem2);
+	d_cvt_int_to_ocp_qp_size(N2, nx2, nu2, nbx2, nbu2, ng2, ns2, &size2);
 
 /************************************************
 * part dense qp

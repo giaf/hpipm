@@ -54,7 +54,9 @@ struct s_ocp_qp_size
 //
 int s_memsize_ocp_qp_size(int N);
 //
-void s_create_ocp_qp_size(int N, int *nx, int *nu, int *nbx, int *nbu, int *ng, int *ns, struct s_ocp_qp_size *qp_size, void *memory);
+void s_create_ocp_qp_size(int N, struct s_ocp_qp_size *qp_size, void *memory);
+//
+void s_cvt_int_to_ocp_qp_size(int N, int *nx, int *nu, int *nbx, int *nbu, int *ng, int *ns, struct s_ocp_qp_size *size);
 
 
 

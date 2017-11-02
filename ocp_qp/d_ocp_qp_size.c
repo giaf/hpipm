@@ -35,7 +35,7 @@
 
 #define MEMSIZE_OCP_QP_SIZE d_memsize_ocp_qp_size
 #define CREATE_OCP_QP_SIZE d_create_ocp_qp_size
-
+#define CVT_INT_TO_OCP_QP_SIZE d_cvt_int_to_ocp_qp_size
 
 
 #include "x_ocp_qp_size.c"
