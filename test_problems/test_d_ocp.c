@@ -37,6 +37,7 @@
 #include <blasfeo_i_aux_ext_dep.h>
 #include <blasfeo_d_aux.h>
 
+#include "../include/hpipm_d_ocp_qp_size.h"
 #include "../include/hpipm_d_ocp_qp.h"
 #include "../include/hpipm_d_ocp_qp_sol.h"
 #include "../include/hpipm_d_ocp_qp_ipm.h"
@@ -277,16 +278,23 @@ int main()
 		nu[ii] = nu_;
 	nu[N] = 0;
 
+	int nbu[N+1];
+	for (ii=0; ii<N; ii++)
+		nbu[ii] = nu[ii];
+
 #if 1
-	int nb[N+1];
+	int nbx[N+1];
 #if KEEP_X0
-	nb[0] = nu[0]+nx[0]/2;
+	nbx[0] = nx[0]/2;
 #else
-	nb[0] = nu[0];
+	nbx[0] = 0;
 #endif
-	for(ii=1; ii<N; ii++)
-		nb[ii] = nu[1]+nx[1]/2;
-	nb[N] = nx[N]/2;
+	for(ii=1; ii<=N; ii++)
+		nbx[ii] = nx[ii]/2;
+
+	int nb[N+1];
+	for (ii=0; ii<=N; ii++)
+		nb[ii] = nbu[ii]+nbx[ii];
 
 	int ng[N+1];
 	ng[0] = 0;
@@ -707,15 +715,26 @@ int main()
 	hidxs[N] = idxsN;
 
 /************************************************
+* ocp qp size
+************************************************/
+
+	int size_size = d_memsize_ocp_qp_size(N);
+	printf("\nsize size = %d\n", size_size);
+	void *size_mem = malloc(size_size);
+
+	struct d_ocp_qp_size size;
+	d_create_ocp_qp_size(N, nx, nu, nbx, nbu, ng, ns, &size, size_mem);
+
+/************************************************
 * ocp qp
 ************************************************/
 
-	int qp_size = d_memsize_ocp_qp(N, nx, nu, nb, ng, ns);
+	int qp_size = d_memsize_ocp_qp(&size);
 	printf("\nqp size = %d\n", qp_size);
 	void *qp_mem = malloc(qp_size);
 
 	struct d_ocp_qp qp;
-	d_create_ocp_qp(N, nx, nu, nb, ng, ns, &qp, qp_mem);
+	d_create_ocp_qp(&size, &qp, qp_mem);
 	d_cvt_colmaj_to_ocp_qp(hA, hB, hb, hQ, hS, hR, hq, hr, hidxb, hd_lb, hd_ub, hC, hD, hd_lg, hd_ug, hZl, hZu, hzl, hzu, hidxs, &qp);
 
 #if 0
@@ -747,23 +766,23 @@ int main()
 * ocp qp sol
 ************************************************/
 
-	int qp_sol_size = d_memsize_ocp_qp_sol(N, nx, nu, nb, ng, ns);
+	int qp_sol_size = d_memsize_ocp_qp_sol(&size);
 	printf("\nqp sol size = %d\n", qp_sol_size);
 	void *qp_sol_mem = malloc(qp_sol_size);
 
 	struct d_ocp_qp_sol qp_sol;
-	d_create_ocp_qp_sol(N, nx, nu, nb, ng, ns, &qp_sol, qp_sol_mem);
+	d_create_ocp_qp_sol(&size, &qp_sol, qp_sol_mem);
 
 /************************************************
 * ipm arg
 ************************************************/
 
-	int ipm_arg_size = d_memsize_ocp_qp_ipm_arg(&qp);
+	int ipm_arg_size = d_memsize_ocp_qp_ipm_arg(&size);
 	printf("\nipm arg size = %d\n", ipm_arg_size);
 	void *ipm_arg_mem = malloc(ipm_arg_size);
 
 	struct d_ocp_qp_ipm_arg arg;
-	d_create_ocp_qp_ipm_arg(&qp, &arg, ipm_arg_mem);
+	d_create_ocp_qp_ipm_arg(&size, &arg, ipm_arg_mem);
 	d_set_default_ocp_qp_ipm_arg(&arg);
 
 //	arg.alpha_min = 1e-8;
@@ -780,12 +799,12 @@ int main()
 * ipm
 ************************************************/
 
-	int ipm_size = d_memsize_ocp_qp_ipm(&qp, &arg);
+	int ipm_size = d_memsize_ocp_qp_ipm(&size, &arg);
 	printf("\nipm size = %d\n", ipm_size);
 	void *ipm_mem = malloc(ipm_size);
 
 	struct d_ocp_qp_ipm_workspace workspace;
-	d_create_ocp_qp_ipm(&qp, &arg, &workspace, ipm_mem);
+	d_create_ocp_qp_ipm(&size, &arg, &workspace, ipm_mem);
 
 	int hpipm_return; // 0 normal; 1 max iter
 
@@ -820,7 +839,7 @@ int main()
 	double *lam_ls[N+1]; for(ii=0; ii<=N; ii++) d_zeros(lam_ls+ii, ns[ii], 1);
 	double *lam_us[N+1]; for(ii=0; ii<=N; ii++) d_zeros(lam_us+ii, ns[ii], 1);
 
-	d_cvt_ocp_qp_sol_to_colmaj(&qp, &qp_sol, u, x, ls, us, pi, lam_lb, lam_ub, lam_lg, lam_ug, lam_ls, lam_us);
+	d_cvt_ocp_qp_sol_to_colmaj(&qp_sol, u, x, ls, us, pi, lam_lb, lam_ub, lam_lg, lam_ug, lam_ls, lam_us);
 
 #if 1
 	printf("\nsolution\n\n");
@@ -900,7 +919,7 @@ int main()
 	double *res_m_ls[N+1]; for(ii=0; ii<=N; ii++) d_zeros(res_m_ls+ii, ns[ii], 1);
 	double *res_m_us[N+1]; for(ii=0; ii<=N; ii++) d_zeros(res_m_us+ii, ns[ii], 1);
 
-	d_cvt_ocp_qp_res_to_colmaj(&qp, workspace.res_workspace, res_r, res_q, res_ls, res_us, res_b, res_d_lb, res_d_ub, res_d_lg, res_d_ug, res_d_ls, res_d_us, res_m_lb, res_m_ub, res_m_lg, res_m_ug, res_m_ls, res_m_us);
+	d_cvt_ocp_qp_res_to_colmaj(workspace.res_workspace, res_r, res_q, res_ls, res_us, res_b, res_d_lb, res_d_ub, res_d_lg, res_d_ug, res_d_ls, res_d_us, res_m_lb, res_m_ub, res_m_lg, res_m_ug, res_m_ls, res_m_us);
 
 #if 1
 	printf("\nresiduals\n\n");

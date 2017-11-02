@@ -28,15 +28,15 @@
 void COND_BABT(struct OCP_QP *ocp_qp, struct STRMAT *BAbt2, struct STRVEC *b2, struct COND_QP_OCP2DENSE_WORKSPACE *cond_ws)
 	{
 
-	int N = ocp_qp->N;
+	int N = ocp_qp->size->N;
 
 	// early return
 	if(N<0)
 		return;
 
 	// extract input members
-	int *nx = ocp_qp->nx;
-	int *nu = ocp_qp->nu;
+	int *nx = ocp_qp->size->nx;
+	int *nu = ocp_qp->size->nu;
 	struct STRMAT *BAbt = ocp_qp->BAbt;
 
 	// extract memory members
@@ -90,15 +90,15 @@ void COND_BABT(struct OCP_QP *ocp_qp, struct STRMAT *BAbt2, struct STRVEC *b2, s
 void COND_B(struct OCP_QP *ocp_qp, struct STRVEC *b2, struct COND_QP_OCP2DENSE_WORKSPACE *cond_ws)
 	{
 
-	int N = ocp_qp->N;
+	int N = ocp_qp->size->N;
 
 	// early return
 	if(N<0)
 		return;
 
 	// extract input members
-	int *nx = ocp_qp->nx;
-	int *nu = ocp_qp->nu;
+	int *nx = ocp_qp->size->nx;
+	int *nu = ocp_qp->size->nu;
 	struct STRMAT *BAbt = ocp_qp->BAbt;
 	struct STRVEC *b = ocp_qp->b;
 
@@ -138,7 +138,7 @@ void COND_B(struct OCP_QP *ocp_qp, struct STRVEC *b2, struct COND_QP_OCP2DENSE_W
 void COND_RSQRQ_N2NX3(struct OCP_QP *ocp_qp, struct STRMAT *RSQrq2, struct STRVEC *rq2, struct COND_QP_OCP2DENSE_WORKSPACE *cond_ws)
 	{
 
-	int N = ocp_qp->N;
+	int N = ocp_qp->size->N;
 	if(cond_ws->cond_last_stage==0)
 		N -= 1;
 
@@ -147,8 +147,8 @@ void COND_RSQRQ_N2NX3(struct OCP_QP *ocp_qp, struct STRMAT *RSQrq2, struct STRVE
 		return;
 
 	// extract input members
-	int *nx = ocp_qp->nx;
-	int *nu = ocp_qp->nu;
+	int *nx = ocp_qp->size->nx;
+	int *nu = ocp_qp->size->nu;
 
 	struct STRMAT *BAbt = ocp_qp->BAbt;
 	struct STRMAT *RSQrq = ocp_qp->RSQrq;
@@ -254,7 +254,7 @@ void COND_RSQRQ_N2NX3(struct OCP_QP *ocp_qp, struct STRMAT *RSQrq2, struct STRVE
 void COND_RQ_N2NX3(struct OCP_QP *ocp_qp, struct STRVEC *rq2, struct COND_QP_OCP2DENSE_WORKSPACE *cond_ws)
 	{
 
-	int N = ocp_qp->N;
+	int N = ocp_qp->size->N;
 	if(cond_ws->cond_last_stage==0)
 		N -= 1;
 
@@ -263,8 +263,8 @@ void COND_RQ_N2NX3(struct OCP_QP *ocp_qp, struct STRVEC *rq2, struct COND_QP_OCP
 		return;
 
 	// extract input members
-	int *nx = ocp_qp->nx;
-	int *nu = ocp_qp->nu;
+	int *nx = ocp_qp->size->nx;
+	int *nu = ocp_qp->size->nu;
 
 	struct STRMAT *BAbt = ocp_qp->BAbt;
 	struct STRVEC *b = ocp_qp->b;
@@ -337,7 +337,7 @@ void COND_RQ_N2NX3(struct OCP_QP *ocp_qp, struct STRVEC *rq2, struct COND_QP_OCP
 void COND_DCTD(struct OCP_QP *ocp_qp, int *idxb2, struct STRMAT *DCt2, struct STRVEC *d2, int *idxs2, struct STRVEC *Z2, struct STRVEC *z2, struct COND_QP_OCP2DENSE_WORKSPACE *cond_ws)
 	{
 
-	int N = ocp_qp->N;
+	int N = ocp_qp->size->N;
 	if(cond_ws->cond_last_stage==0)
 		N -= 1;
 
@@ -346,11 +346,11 @@ void COND_DCTD(struct OCP_QP *ocp_qp, int *idxb2, struct STRMAT *DCt2, struct ST
 		return;
 
 	// extract input members
-	int *nx = ocp_qp->nx;
-	int *nu = ocp_qp->nu;
-	int *nb = ocp_qp->nb;
-	int *ng = ocp_qp->ng;
-	int *ns = ocp_qp->ns;
+	int *nx = ocp_qp->size->nx;
+	int *nu = ocp_qp->size->nu;
+	int *nb = ocp_qp->size->nb;
+	int *ng = ocp_qp->size->ng;
+	int *ns = ocp_qp->size->ns;
 
 	int **idxb = ocp_qp->idxb;
 	struct STRVEC *d = ocp_qp->d;
@@ -656,7 +656,7 @@ void COND_DCTD(struct OCP_QP *ocp_qp, int *idxb2, struct STRMAT *DCt2, struct ST
 void COND_D(struct OCP_QP *ocp_qp, struct STRVEC *d2, struct STRVEC *z2, struct COND_QP_OCP2DENSE_WORKSPACE *cond_ws)
 	{
 
-	int N = ocp_qp->N;
+	int N = ocp_qp->size->N;
 	if(cond_ws->cond_last_stage==0)
 		N -= 1;
 
@@ -665,11 +665,11 @@ void COND_D(struct OCP_QP *ocp_qp, struct STRVEC *d2, struct STRVEC *z2, struct 
 		return;
 
 	// extract input members
-	int *nx = ocp_qp->nx;
-	int *nu = ocp_qp->nu;
-	int *nb = ocp_qp->nb;
-	int *ng = ocp_qp->ng;
-	int *ns = ocp_qp->ns;
+	int *nx = ocp_qp->size->nx;
+	int *nu = ocp_qp->size->nu;
+	int *nb = ocp_qp->size->nb;
+	int *ng = ocp_qp->size->ng;
+	int *ns = ocp_qp->size->ns;
 
 	int **idxb = ocp_qp->idxb;
 	struct STRVEC *d = ocp_qp->d;
@@ -938,18 +938,18 @@ void COND_D(struct OCP_QP *ocp_qp, struct STRVEC *d2, struct STRVEC *z2, struct 
 void EXPAND_SOL(struct OCP_QP *ocp_qp, struct DENSE_QP_SOL *dense_qp_sol, struct OCP_QP_SOL *ocp_qp_sol, struct COND_QP_OCP2DENSE_WORKSPACE *cond_ws)
 	{
 
-	int N = ocp_qp->N;
+	int N = ocp_qp->size->N;
 	int Np = N;
 	if(cond_ws->cond_last_stage==0)
 		N -= 1;
 
 	int ii, jj;
 
-	int *nu = ocp_qp->nu;
-	int *nx = ocp_qp->nx;
-	int *nb = ocp_qp->nb;
-	int *ng = ocp_qp->ng;
-	int *ns = ocp_qp->ns;
+	int *nu = ocp_qp->size->nu;
+	int *nx = ocp_qp->size->nx;
+	int *nb = ocp_qp->size->nb;
+	int *ng = ocp_qp->size->ng;
+	int *ns = ocp_qp->size->ns;
 
 	struct STRMAT *BAbt = ocp_qp->BAbt;
 	struct STRVEC *b = ocp_qp->b;

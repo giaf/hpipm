@@ -35,6 +35,7 @@
 #include <blasfeo_d_blas.h>
 #include <blasfeo_d_aux.h>
 
+#include "../include/hpipm_d_ocp_qp_size.h"
 #include "../include/hpipm_d_ocp_qp.h"
 #include "../include/hpipm_d_ocp_qp_sol.h"
 #include "../include/hpipm_d_dense_qp.h"
@@ -61,6 +62,7 @@
 #define GECP_LIBSTR dgecp_libstr
 #define MEMSIZE_COND_QP_OCP2DENSE d_memsize_cond_qp_ocp2dense
 #define OCP_QP d_ocp_qp
+#define OCP_QP_SIZE d_ocp_qp_size
 #define OCP_QP_SOL d_ocp_qp_sol
 #define STRVEC d_strvec
 #define VECCP_LIBSTR dveccp_libstr

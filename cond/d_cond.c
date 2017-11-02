@@ -35,6 +35,7 @@
 #include <blasfeo_d_blas.h>
 #include <blasfeo_d_aux.h>
 
+#include "../include/hpipm_d_ocp_qp_size.h"
 #include "../include/hpipm_d_ocp_qp.h"
 #include "../include/hpipm_d_ocp_qp_sol.h"
 #include "../include/hpipm_d_dense_qp.h"
@@ -57,6 +58,7 @@
 #define DENSE_QP_SOL d_dense_qp_sol
 #define EXPAND_SOL d_expand_sol
 #define OCP_QP d_ocp_qp
+#define OCP_QP_SIZE d_ocp_qp_size
 #define OCP_QP_SOL d_ocp_qp_sol
 #define SIZE_STRMAT d_size_strmat
 #define SIZE_STRVEC d_size_strvec

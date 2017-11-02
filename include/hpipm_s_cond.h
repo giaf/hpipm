@@ -61,11 +61,11 @@ struct s_cond_qp_ocp2dense_workspace
 
 
 //
-void s_compute_qp_size_ocp2dense(int N, int *nx, int *nu, int *nb, int **idxb, int *ng, int *ns, int *nvc, int *nec, int *nbc, int *ngc, int *nsc);
+void s_compute_qp_size_ocp2dense(struct s_ocp_qp_size *ocp_size, int *nvc, int *nec, int *nbc, int *ngc, int *nsc);
 //
-int s_memsize_cond_qp_ocp2dense(struct s_ocp_qp *ocp_qp, struct s_dense_qp *dense_qp); // XXX + args for algorithm type ???
+int s_memsize_cond_qp_ocp2dense(struct s_ocp_qp_size *ocp_size); // XXX + args for algorithm type ???
 //
-void s_create_cond_qp_ocp2dense(struct s_ocp_qp *ocp_qp, struct s_dense_qp *dense_qp, struct s_cond_qp_ocp2dense_workspace *cond_ws, void *mem);
+void s_create_cond_qp_ocp2dense(struct s_ocp_qp_size *ocp_size, struct s_cond_qp_ocp2dense_workspace *cond_ws, void *mem);
 //
 void s_cond_qp_ocp2dense(struct s_ocp_qp *ocp_qp, struct s_dense_qp *dense_qp, struct s_cond_qp_ocp2dense_workspace *cond_ws);
 //

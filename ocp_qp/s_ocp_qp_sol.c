@@ -36,6 +36,7 @@
 #include <blasfeo_common.h>
 #include <blasfeo_s_aux.h>
 
+#include "../include/hpipm_s_ocp_qp_size.h"
 #include "../include/hpipm_s_ocp_qp.h"
 #include "../include/hpipm_s_ocp_qp_sol.h"
 
@@ -45,6 +46,7 @@
 #define CVT_STRVEC2VEC s_cvt_strvec2vec
 #define CVT_VEC2STRVEC s_cvt_vec2strvec
 #define OCP_QP s_ocp_qp
+#define OCP_QP_SIZE s_ocp_qp_size
 #define OCP_QP_SOL s_ocp_qp_sol
 #define REAL float
 #define STRVEC s_strvec

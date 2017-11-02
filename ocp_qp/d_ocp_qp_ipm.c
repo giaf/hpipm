@@ -36,6 +36,7 @@
 #include <blasfeo_common.h>
 #include <blasfeo_d_aux.h>
 
+#include "../include/hpipm_d_ocp_qp_size.h"
 #include "../include/hpipm_d_ocp_qp.h"
 #include "../include/hpipm_d_ocp_qp_sol.h"
 #include "../include/hpipm_d_ocp_qp_ipm.h"
@@ -62,6 +63,7 @@
 #define OCP_QP_IPM_WORKSPACE d_ocp_qp_ipm_workspace
 #define OCP_QP_IPM_ARG d_ocp_qp_ipm_arg
 #define OCP_QP_RES d_ocp_qp_res
+#define OCP_QP_SIZE d_ocp_qp_size
 #define OCP_QP_SOL d_ocp_qp_sol
 #define PRINT_E_MAT d_print_e_mat
 #define PRINT_E_STRVEC d_print_e_strvec

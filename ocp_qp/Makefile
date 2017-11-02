@@ -33,8 +33,19 @@ ifeq ($(TARGET), GENERIC)
 OBJS +=
 endif
 
-OBJS += d_ocp_qp.o d_ocp_qp_sol.o d_ocp_qp_kkt.o d_ocp_qp_ipm.o
-OBJS += s_ocp_qp.o s_ocp_qp_sol.o s_ocp_qp_kkt.o s_ocp_qp_ipm.o
+# double
+OBJS += d_ocp_qp_size.o
+OBJS += d_ocp_qp.o
+OBJS += d_ocp_qp_sol.o
+OBJS += d_ocp_qp_kkt.o
+OBJS += d_ocp_qp_ipm.o
+# single
+OBJS += s_ocp_qp_size.o
+OBJS += s_ocp_qp.o
+OBJS += s_ocp_qp_sol.o
+OBJS += s_ocp_qp_kkt.o
+OBJS += s_ocp_qp_ipm.o
+# mixed
 #OBJS += m_ocp_qp.o                m_ocp_qp_kkt.o m_ocp_qp_ipm.o
 
 obj: $(OBJS)
@@ -43,6 +54,8 @@ clean:
 	rm -f *.o
 	rm -f *.s
 
+d_ocp_qp_size.o: d_ocp_qp_size.c x_ocp_qp_size.c
+s_ocp_qp_size.o: s_ocp_qp_size.c x_ocp_qp_size.c
 d_ocp_qp.o: d_ocp_qp.c x_ocp_qp.c
 s_ocp_qp.o: s_ocp_qp.c x_ocp_qp.c
 d_ocp_qp_sol.o: d_ocp_qp_sol.c x_ocp_qp_sol.c

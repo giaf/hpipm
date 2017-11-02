@@ -27,9 +27,18 @@
 
 
 
-int MEMSIZE_OCP_QP_SOL(int N, int *nx, int *nu, int *nb, int *ng, int *ns)
+int MEMSIZE_OCP_QP_SOL(struct OCP_QP_SIZE *ocp_size)
 	{
 
+	// extract size
+	int N = ocp_size->N;
+	int *nx = ocp_size->nx;
+	int *nu = ocp_size->nu;
+	int *nb = ocp_size->nb;
+	int *ng = ocp_size->ng;
+	int *ns = ocp_size->ns;
+
+	// loop index
 	int ii;
 
 	int nvt = 0;
@@ -62,11 +71,19 @@ int MEMSIZE_OCP_QP_SOL(int N, int *nx, int *nu, int *nb, int *ng, int *ns)
 
 
 
-void CREATE_OCP_QP_SOL(int N, int *nx, int *nu, int *nb, int *ng, int *ns, struct OCP_QP_SOL *qp_sol, void *mem)
+void CREATE_OCP_QP_SOL(struct OCP_QP_SIZE *size, struct OCP_QP_SOL *qp_sol, void *mem)
 	{
 
-	int ii;
+	// extract size
+	int N = size->N;
+	int *nx = size->nx;
+	int *nu = size->nu;
+	int *nb = size->nb;
+	int *ng = size->ng;
+	int *ns = size->ns;
 
+	// loop index
+	int ii;
 
 	int nvt = 0;
 	int net = 0;
@@ -151,8 +168,9 @@ void CREATE_OCP_QP_SOL(int N, int *nx, int *nu, int *nb, int *ng, int *ns, struc
 		tmp_ptr += ns[ii]*sizeof(REAL); // us
 		}
 
+	qp_sol->size = size;
 
-	qp_sol->memsize = MEMSIZE_OCP_QP_SOL(N, nx, nu, nb, ng, ns);
+	qp_sol->memsize = MEMSIZE_OCP_QP_SOL(size);
 
 
 #if defined(RUNTIME_CHECKS)
@@ -170,15 +188,15 @@ void CREATE_OCP_QP_SOL(int N, int *nx, int *nu, int *nb, int *ng, int *ns, struc
 
 
 
-void CVT_OCP_QP_SOL_TO_COLMAJ(struct OCP_QP *qp, struct OCP_QP_SOL *qp_sol, REAL **u, REAL **x, REAL **ls, REAL **us, REAL **pi, REAL **lam_lb, REAL **lam_ub, REAL **lam_lg, REAL **lam_ug, REAL **lam_ls, REAL **lam_us)
+void CVT_OCP_QP_SOL_TO_COLMAJ(struct OCP_QP_SOL *qp_sol, REAL **u, REAL **x, REAL **ls, REAL **us, REAL **pi, REAL **lam_lb, REAL **lam_ub, REAL **lam_lg, REAL **lam_ug, REAL **lam_ls, REAL **lam_us)
 	{
 
-	int N = qp->N;
-	int *nx = qp->nx;
-	int *nu = qp->nu;
-	int *nb = qp->nb;
-	int *ng = qp->ng;
-	int *ns = qp->ns;
+	int N = qp_sol->size->N;
+	int *nx = qp_sol->size->nx;
+	int *nu = qp_sol->size->nu;
+	int *nb = qp_sol->size->nb;
+	int *ng = qp_sol->size->ng;
+	int *ns = qp_sol->size->ns;
 
 	int ii;
 
@@ -216,15 +234,15 @@ void CVT_OCP_QP_SOL_TO_COLMAJ(struct OCP_QP *qp, struct OCP_QP_SOL *qp_sol, REAL
 
 
 
-void CVT_COLMAJ_TO_OCP_QP_SOL(struct OCP_QP *qp, REAL **u, REAL **x, REAL **ls, REAL **us, REAL **pi, REAL **lam_lb, REAL **lam_ub, REAL **lam_lg, REAL **lam_ug, REAL **lam_ls, REAL **lam_us, struct OCP_QP_SOL *qp_sol)
+void CVT_COLMAJ_TO_OCP_QP_SOL(REAL **u, REAL **x, REAL **ls, REAL **us, REAL **pi, REAL **lam_lb, REAL **lam_ub, REAL **lam_lg, REAL **lam_ug, REAL **lam_ls, REAL **lam_us, struct OCP_QP_SOL *qp_sol)
 	{
 
-	int N = qp->N;
-	int *nx = qp->nx;
-	int *nu = qp->nu;
-	int *nb = qp->nb;
-	int *ng = qp->ng;
-	int *ns = qp->ns;
+	int N = qp_sol->size->N;
+	int *nx = qp_sol->size->nx;
+	int *nu = qp_sol->size->nu;
+	int *nb = qp_sol->size->nb;
+	int *ng = qp_sol->size->ng;
+	int *ns = qp_sol->size->ns;
 
 	int ii;
 
@@ -262,15 +280,15 @@ void CVT_COLMAJ_TO_OCP_QP_SOL(struct OCP_QP *qp, REAL **u, REAL **x, REAL **ls, 
 
 
 
-void CVT_OCP_QP_SOL_TO_ROWMAJ(struct OCP_QP *qp, struct OCP_QP_SOL *qp_sol, REAL **u, REAL **x, REAL **ls, REAL **us, REAL **pi, REAL **lam_lb, REAL **lam_ub, REAL **lam_lg, REAL **lam_ug, REAL **lam_ls, REAL **lam_us)
+void CVT_OCP_QP_SOL_TO_ROWMAJ(struct OCP_QP_SOL *qp_sol, REAL **u, REAL **x, REAL **ls, REAL **us, REAL **pi, REAL **lam_lb, REAL **lam_ub, REAL **lam_lg, REAL **lam_ug, REAL **lam_ls, REAL **lam_us)
 	{
 
-	int N = qp->N;
-	int *nx = qp->nx;
-	int *nu = qp->nu;
-	int *nb = qp->nb;
-	int *ng = qp->ng;
-	int *ns = qp->ns;
+	int N = qp_sol->size->N;
+	int *nx = qp_sol->size->nx;
+	int *nu = qp_sol->size->nu;
+	int *nb = qp_sol->size->nb;
+	int *ng = qp_sol->size->ng;
+	int *ns = qp_sol->size->ns;
 
 	int ii;
 
@@ -308,15 +326,15 @@ void CVT_OCP_QP_SOL_TO_ROWMAJ(struct OCP_QP *qp, struct OCP_QP_SOL *qp_sol, REAL
 
 
 
-void CVT_OCP_QP_SOL_TO_LIBSTR(struct OCP_QP *qp, struct OCP_QP_SOL *qp_sol, struct STRVEC *u, struct STRVEC *ls, struct STRVEC *us, struct STRVEC *x, struct STRVEC *pi, struct STRVEC *lam_lb, struct STRVEC *lam_ub, struct STRVEC *lam_lg, struct STRVEC *lam_ug, struct STRVEC *lam_ls, struct STRVEC *lam_us)
+void CVT_OCP_QP_SOL_TO_LIBSTR(struct OCP_QP_SOL *qp_sol, struct STRVEC *u, struct STRVEC *ls, struct STRVEC *us, struct STRVEC *x, struct STRVEC *pi, struct STRVEC *lam_lb, struct STRVEC *lam_ub, struct STRVEC *lam_lg, struct STRVEC *lam_ug, struct STRVEC *lam_ls, struct STRVEC *lam_us)
 	{
 
-	int N = qp->N;
-	int *nx = qp->nx;
-	int *nu = qp->nu;
-	int *nb = qp->nb;
-	int *ng = qp->ng;
-	int *ns = qp->ns;
+	int N = qp_sol->size->N;
+	int *nx = qp_sol->size->nx;
+	int *nu = qp_sol->size->nu;
+	int *nb = qp_sol->size->nb;
+	int *ng = qp_sol->size->ng;
+	int *ns = qp_sol->size->ns;
 
 	int ii;
 

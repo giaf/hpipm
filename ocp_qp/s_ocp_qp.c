@@ -36,6 +36,7 @@
 #include <blasfeo_common.h>
 #include <blasfeo_s_aux.h>
 
+#include "../include/hpipm_s_ocp_qp_size.h"
 #include "../include/hpipm_s_ocp_qp.h"
 
 
@@ -46,6 +47,7 @@
 #define CVT_TRAN_MAT2STRMAT s_cvt_tran_mat2strmat
 #define CVT_VEC2STRVEC s_cvt_vec2strvec
 #define OCP_QP s_ocp_qp
+#define OCP_QP_SIZE s_ocp_qp_size
 #define REAL float
 #define STRMAT s_strmat
 #define STRVEC s_strvec

@@ -27,7 +27,7 @@
 
 
 
-int MEMSIZE_OCP_QP_IPM_ARG(struct OCP_QP *qp)
+int MEMSIZE_OCP_QP_IPM_ARG(struct OCP_QP_SIZE *ocp_size)
 	{
 
 	return 0;
@@ -36,7 +36,7 @@ int MEMSIZE_OCP_QP_IPM_ARG(struct OCP_QP *qp)
 
 
 
-void CREATE_OCP_QP_IPM_ARG(struct OCP_QP *qp, struct OCP_QP_IPM_ARG *arg, void *mem)
+void CREATE_OCP_QP_IPM_ARG(struct OCP_QP_SIZE *ocp_size, struct OCP_QP_IPM_ARG *arg, void *mem)
 	{
 
 	arg->memsize = 0;
@@ -67,19 +67,19 @@ void SET_DEFAULT_OCP_QP_IPM_ARG(struct OCP_QP_IPM_ARG *arg)
 
 
 
-int MEMSIZE_OCP_QP_RES(struct OCP_QP *qp)
+int MEMSIZE_OCP_QP_RES(struct OCP_QP_SIZE *ocp_size)
 	{
 
 	// loop index
 	int ii;
 
 	// extract ocp qp size
-	int N = qp->N;
-	int *nx = qp->nx;
-	int *nu = qp->nu;
-	int *nb = qp->nb;
-	int *ng = qp->ng;
-	int *ns = qp->ns;
+	int N = ocp_size->N;
+	int *nx = ocp_size->nx;
+	int *nu = ocp_size->nu;
+	int *nb = ocp_size->nb;
+	int *ng = ocp_size->ng;
+	int *ns = ocp_size->ns;
 
 	// compute core qp size and max size
 	int nbM = 0;
@@ -116,19 +116,19 @@ int MEMSIZE_OCP_QP_RES(struct OCP_QP *qp)
 
 
 
-void CREATE_OCP_QP_RES(struct OCP_QP *qp, struct OCP_QP_RES *workspace, void *mem)
+void CREATE_OCP_QP_RES(struct OCP_QP_SIZE *ocp_size, struct OCP_QP_RES *res, void *mem)
 	{
 
 	// loop index
 	int ii;
 
 	// extract ocp qp size
-	int N = qp->N;
-	int *nx = qp->nx;
-	int *nu = qp->nu;
-	int *nb = qp->nb;
-	int *ng = qp->ng;
-	int *ns = qp->ns;
+	int N = ocp_size->N;
+	int *nx = ocp_size->nx;
+	int *nu = ocp_size->nu;
+	int *nb = ocp_size->nb;
+	int *ng = ocp_size->ng;
+	int *ns = ocp_size->ns;
 
 
 	// compute core qp size and max size
@@ -149,17 +149,17 @@ void CREATE_OCP_QP_RES(struct OCP_QP *qp, struct OCP_QP_RES *workspace, void *me
 	// vector struct
 	struct STRVEC *sv_ptr = (struct STRVEC *) mem;
 
-	workspace->res_g = sv_ptr;
+	res->res_g = sv_ptr;
 	sv_ptr += N+1;
-	workspace->res_b = sv_ptr;
+	res->res_b = sv_ptr;
 	sv_ptr += N;
-	workspace->res_d = sv_ptr;
+	res->res_d = sv_ptr;
 	sv_ptr += N+1;
-	workspace->res_m = sv_ptr;
+	res->res_m = sv_ptr;
 	sv_ptr += N+1;
-	workspace->tmp_nbgM = sv_ptr;
+	res->tmp_nbgM = sv_ptr;
 	sv_ptr += 2;
-	workspace->tmp_nsM = sv_ptr;
+	res->tmp_nsM = sv_ptr;
 	sv_ptr += 1;
 
 
@@ -173,44 +173,44 @@ void CREATE_OCP_QP_RES(struct OCP_QP *qp, struct OCP_QP_RES *workspace, void *me
 
 	for(ii=0; ii<=N; ii++)
 		{
-		CREATE_STRVEC(nu[ii]+nx[ii]+2*ns[ii], workspace->res_g+ii, c_ptr);
-		c_ptr += (workspace->res_g+ii)->memory_size;
+		CREATE_STRVEC(nu[ii]+nx[ii]+2*ns[ii], res->res_g+ii, c_ptr);
+		c_ptr += (res->res_g+ii)->memory_size;
 		}
 
 	for(ii=0; ii<N; ii++)
 		{
-		CREATE_STRVEC(nx[ii+1], workspace->res_b+ii, c_ptr);
-		c_ptr += (workspace->res_b+ii)->memory_size;
+		CREATE_STRVEC(nx[ii+1], res->res_b+ii, c_ptr);
+		c_ptr += (res->res_b+ii)->memory_size;
 		}
 
 	for(ii=0; ii<=N; ii++)
 		{
-		CREATE_STRVEC(2*nb[ii]+2*ng[ii]+2*ns[ii], workspace->res_d+ii, c_ptr);
-		c_ptr += (workspace->res_d+ii)->memory_size;
+		CREATE_STRVEC(2*nb[ii]+2*ng[ii]+2*ns[ii], res->res_d+ii, c_ptr);
+		c_ptr += (res->res_d+ii)->memory_size;
 		}
 
 	for(ii=0; ii<=N; ii++)
 		{
-		CREATE_STRVEC(2*nb[ii]+2*ng[ii]+2*ns[ii], workspace->res_m+ii, c_ptr);
-		c_ptr += (workspace->res_m+ii)->memory_size;
+		CREATE_STRVEC(2*nb[ii]+2*ng[ii]+2*ns[ii], res->res_m+ii, c_ptr);
+		c_ptr += (res->res_m+ii)->memory_size;
 		}
 
-	CREATE_STRVEC(nbM+ngM, workspace->tmp_nbgM+0, c_ptr);
-	c_ptr += (workspace->tmp_nbgM+0)->memory_size;
+	CREATE_STRVEC(nbM+ngM, res->tmp_nbgM+0, c_ptr);
+	c_ptr += (res->tmp_nbgM+0)->memory_size;
 
-	CREATE_STRVEC(nbM+ngM, workspace->tmp_nbgM+1, c_ptr);
-	c_ptr += (workspace->tmp_nbgM+1)->memory_size;
+	CREATE_STRVEC(nbM+ngM, res->tmp_nbgM+1, c_ptr);
+	c_ptr += (res->tmp_nbgM+1)->memory_size;
 
-	CREATE_STRVEC(nsM, workspace->tmp_nsM+0, c_ptr);
-	c_ptr += (workspace->tmp_nsM+0)->memory_size;
+	CREATE_STRVEC(nsM, res->tmp_nsM+0, c_ptr);
+	c_ptr += (res->tmp_nsM+0)->memory_size;
 
+	res->size = ocp_size;
 
-	//
-	workspace->memsize = MEMSIZE_OCP_QP_RES(qp);
+	res->memsize = MEMSIZE_OCP_QP_RES(ocp_size);
 
 
 #if defined(RUNTIME_CHECKS)
-	if(c_ptr > ((char *) mem) + workspace->memsize)
+	if(c_ptr > ((char *) mem) + res->memsize)
 		{
 		printf("\nCreate_ocp_qp_res: outsize memory bounds!\n\n");
 		exit(1);
@@ -224,19 +224,19 @@ void CREATE_OCP_QP_RES(struct OCP_QP *qp, struct OCP_QP_RES *workspace, void *me
 
 
 
-int MEMSIZE_OCP_QP_IPM(struct OCP_QP *qp, struct OCP_QP_IPM_ARG *arg)
+int MEMSIZE_OCP_QP_IPM(struct OCP_QP_SIZE *ocp_size, struct OCP_QP_IPM_ARG *arg)
 	{
 
 	// loop index
 	int ii;
 
 	// extract ocp qp size
-	int N = qp->N;
-	int *nx = qp->nx;
-	int *nu = qp->nu;
-	int *nb = qp->nb;
-	int *ng = qp->ng;
-	int *ns = qp->ns;
+	int N = ocp_size->N;
+	int *nx = ocp_size->nx;
+	int *nu = ocp_size->nu;
+	int *nb = ocp_size->nb;
+	int *ng = ocp_size->ng;
+	int *ns = ocp_size->ns;
 
 	// compute core qp size and max size
 	int nvt = 0;
@@ -299,19 +299,19 @@ int MEMSIZE_OCP_QP_IPM(struct OCP_QP *qp, struct OCP_QP_IPM_ARG *arg)
 
 
 
-void CREATE_OCP_QP_IPM(struct OCP_QP *qp, struct OCP_QP_IPM_ARG *arg, struct OCP_QP_IPM_WORKSPACE *workspace, void *mem)
+void CREATE_OCP_QP_IPM(struct OCP_QP_SIZE *ocp_size, struct OCP_QP_IPM_ARG *arg, struct OCP_QP_IPM_WORKSPACE *workspace, void *mem)
 	{
 
 	// loop index
 	int ii;
 
 	// extract ocp qp size
-	int N = qp->N;
-	int *nx = qp->nx;
-	int *nu = qp->nu;
-	int *nb = qp->nb;
-	int *ng = qp->ng;
-	int *ns = qp->ns;
+	int N = ocp_size->N;
+	int *nx = ocp_size->nx;
+	int *nu = ocp_size->nu;
+	int *nb = ocp_size->nb;
+	int *ng = ocp_size->ng;
+	int *ns = ocp_size->ns;
 
 
 	// compute core qp size and max size
@@ -566,8 +566,9 @@ void CREATE_OCP_QP_IPM(struct OCP_QP *qp, struct OCP_QP_IPM_ARG *arg, struct OCP
 		}
 
 
-	//
-	workspace->memsize = MEMSIZE_OCP_QP_IPM(qp, arg);
+	workspace->res_workspace->size = ocp_size;
+
+	workspace->memsize = MEMSIZE_OCP_QP_IPM(ocp_size, arg);
 
 
 #if defined(RUNTIME_CHECKS)
@@ -708,56 +709,56 @@ int SOLVE_OCP_QP_IPM(struct OCP_QP *qp, struct OCP_QP_SOL *qp_sol, struct OCP_QP
 
 
 
-void CVT_OCP_QP_RES_TO_COLMAJ(struct OCP_QP *qp, struct OCP_QP_RES *ws, REAL **res_r, REAL **res_q, REAL **res_ls, REAL **res_us, REAL **res_b, REAL **res_d_lb, REAL **res_d_ub, REAL **res_d_lg, REAL **res_d_ug, REAL **res_d_ls, REAL **res_d_us, REAL **res_m_lb, REAL **res_m_ub, REAL **res_m_lg, REAL **res_m_ug, REAL **res_m_ls, REAL **res_m_us)
+void CVT_OCP_QP_RES_TO_COLMAJ(struct OCP_QP_RES *res, REAL **res_r, REAL **res_q, REAL **res_ls, REAL **res_us, REAL **res_b, REAL **res_d_lb, REAL **res_d_ub, REAL **res_d_lg, REAL **res_d_ug, REAL **res_d_ls, REAL **res_d_us, REAL **res_m_lb, REAL **res_m_ub, REAL **res_m_lg, REAL **res_m_ug, REAL **res_m_ls, REAL **res_m_us)
 	{
 
-	int N = qp->N;
-	int *nx = qp->nx;
-	int *nu = qp->nu;
-	int *nb = qp->nb;
-	int *ng = qp->ng;
-	int *ns = qp->ns;
+	int N = res->size->N;
+	int *nx = res->size->nx;
+	int *nu = res->size->nu;
+	int *nb = res->size->nb;
+	int *ng = res->size->ng;
+	int *ns = res->size->ns;
 
 	int ii;
 
 	for(ii=0; ii<N; ii++)
 		{
-		CVT_STRVEC2VEC(nu[ii], ws->res_g+ii, 0, res_r[ii]);
-		CVT_STRVEC2VEC(nx[ii], ws->res_g+ii, nu[ii], res_q[ii]);
-		CVT_STRVEC2VEC(ns[ii], ws->res_g+ii, nu[ii]+nx[ii], res_ls[ii]);
-		CVT_STRVEC2VEC(ns[ii], ws->res_g+ii, nu[ii]+nx[ii]+ns[ii], res_us[ii]);
+		CVT_STRVEC2VEC(nu[ii], res->res_g+ii, 0, res_r[ii]);
+		CVT_STRVEC2VEC(nx[ii], res->res_g+ii, nu[ii], res_q[ii]);
+		CVT_STRVEC2VEC(ns[ii], res->res_g+ii, nu[ii]+nx[ii], res_ls[ii]);
+		CVT_STRVEC2VEC(ns[ii], res->res_g+ii, nu[ii]+nx[ii]+ns[ii], res_us[ii]);
 
-		CVT_STRVEC2VEC(nx[ii+1], ws->res_b+ii, 0, res_b[ii]);
-		CVT_STRVEC2VEC(nb[ii], ws->res_d+ii, 0, res_d_lb[ii]);
-		CVT_STRVEC2VEC(ng[ii], ws->res_d+ii, nb[ii], res_d_lg[ii]);
-		CVT_STRVEC2VEC(nb[ii], ws->res_d+ii, nb[ii]+ng[ii], res_d_ub[ii]);
-		CVT_STRVEC2VEC(ng[ii], ws->res_d+ii, 2*nb[ii]+ng[ii], res_d_ug[ii]);
-		CVT_STRVEC2VEC(ns[ii], ws->res_d+ii, 2*nb[ii]+2*ng[ii], res_d_ls[ii]);
-		CVT_STRVEC2VEC(ns[ii], ws->res_d+ii, 2*nb[ii]+2*ng[ii]+ns[ii], res_d_us[ii]);
-		CVT_STRVEC2VEC(nb[ii], ws->res_m+ii, 0, res_m_lb[ii]);
-		CVT_STRVEC2VEC(ng[ii], ws->res_m+ii, nb[ii], res_m_lg[ii]);
-		CVT_STRVEC2VEC(nb[ii], ws->res_m+ii, nb[ii]+ng[ii], res_m_ub[ii]);
-		CVT_STRVEC2VEC(ng[ii], ws->res_m+ii, 2*nb[ii]+ng[ii], res_m_ug[ii]);
-		CVT_STRVEC2VEC(ns[ii], ws->res_m+ii, 2*nb[ii]+2*ng[ii], res_m_ls[ii]);
-		CVT_STRVEC2VEC(ns[ii], ws->res_m+ii, 2*nb[ii]+2*ng[ii]+ns[ii], res_m_us[ii]);
+		CVT_STRVEC2VEC(nx[ii+1], res->res_b+ii, 0, res_b[ii]);
+		CVT_STRVEC2VEC(nb[ii], res->res_d+ii, 0, res_d_lb[ii]);
+		CVT_STRVEC2VEC(ng[ii], res->res_d+ii, nb[ii], res_d_lg[ii]);
+		CVT_STRVEC2VEC(nb[ii], res->res_d+ii, nb[ii]+ng[ii], res_d_ub[ii]);
+		CVT_STRVEC2VEC(ng[ii], res->res_d+ii, 2*nb[ii]+ng[ii], res_d_ug[ii]);
+		CVT_STRVEC2VEC(ns[ii], res->res_d+ii, 2*nb[ii]+2*ng[ii], res_d_ls[ii]);
+		CVT_STRVEC2VEC(ns[ii], res->res_d+ii, 2*nb[ii]+2*ng[ii]+ns[ii], res_d_us[ii]);
+		CVT_STRVEC2VEC(nb[ii], res->res_m+ii, 0, res_m_lb[ii]);
+		CVT_STRVEC2VEC(ng[ii], res->res_m+ii, nb[ii], res_m_lg[ii]);
+		CVT_STRVEC2VEC(nb[ii], res->res_m+ii, nb[ii]+ng[ii], res_m_ub[ii]);
+		CVT_STRVEC2VEC(ng[ii], res->res_m+ii, 2*nb[ii]+ng[ii], res_m_ug[ii]);
+		CVT_STRVEC2VEC(ns[ii], res->res_m+ii, 2*nb[ii]+2*ng[ii], res_m_ls[ii]);
+		CVT_STRVEC2VEC(ns[ii], res->res_m+ii, 2*nb[ii]+2*ng[ii]+ns[ii], res_m_us[ii]);
 		}
-	CVT_STRVEC2VEC(nu[ii], ws->res_g+ii, 0, res_r[ii]);
-	CVT_STRVEC2VEC(nx[ii], ws->res_g+ii, nu[ii], res_q[ii]);
-	CVT_STRVEC2VEC(ns[ii], ws->res_g+ii, nu[ii]+nx[ii], res_ls[ii]);
-	CVT_STRVEC2VEC(ns[ii], ws->res_g+ii, nu[ii]+nx[ii]+ns[ii], res_us[ii]);
+	CVT_STRVEC2VEC(nu[ii], res->res_g+ii, 0, res_r[ii]);
+	CVT_STRVEC2VEC(nx[ii], res->res_g+ii, nu[ii], res_q[ii]);
+	CVT_STRVEC2VEC(ns[ii], res->res_g+ii, nu[ii]+nx[ii], res_ls[ii]);
+	CVT_STRVEC2VEC(ns[ii], res->res_g+ii, nu[ii]+nx[ii]+ns[ii], res_us[ii]);
 
-	CVT_STRVEC2VEC(nb[ii], ws->res_d+ii, 0, res_d_lb[ii]);
-	CVT_STRVEC2VEC(ng[ii], ws->res_d+ii, nb[ii], res_d_lg[ii]);
-	CVT_STRVEC2VEC(nb[ii], ws->res_d+ii, nb[ii]+ng[ii], res_d_ub[ii]);
-	CVT_STRVEC2VEC(ng[ii], ws->res_d+ii, 2*nb[ii]+ng[ii], res_d_ug[ii]);
-	CVT_STRVEC2VEC(ns[ii], ws->res_d+ii, 2*nb[ii]+2*ng[ii], res_d_ls[ii]);
-	CVT_STRVEC2VEC(ns[ii], ws->res_d+ii, 2*nb[ii]+2*ng[ii]+ns[ii], res_d_us[ii]);
-	CVT_STRVEC2VEC(nb[ii], ws->res_m+ii, 0, res_m_lb[ii]);
-	CVT_STRVEC2VEC(ng[ii], ws->res_m+ii, nb[ii], res_m_lg[ii]);
-	CVT_STRVEC2VEC(nb[ii], ws->res_m+ii, nb[ii]+ng[ii], res_m_ub[ii]);
-	CVT_STRVEC2VEC(ng[ii], ws->res_m+ii, 2*nb[ii]+ng[ii], res_m_ug[ii]);
-	CVT_STRVEC2VEC(ns[ii], ws->res_m+ii, 2*nb[ii]+2*ng[ii], res_m_ls[ii]);
-	CVT_STRVEC2VEC(ns[ii], ws->res_m+ii, 2*nb[ii]+2*ng[ii]+ns[ii], res_m_us[ii]);
+	CVT_STRVEC2VEC(nb[ii], res->res_d+ii, 0, res_d_lb[ii]);
+	CVT_STRVEC2VEC(ng[ii], res->res_d+ii, nb[ii], res_d_lg[ii]);
+	CVT_STRVEC2VEC(nb[ii], res->res_d+ii, nb[ii]+ng[ii], res_d_ub[ii]);
+	CVT_STRVEC2VEC(ng[ii], res->res_d+ii, 2*nb[ii]+ng[ii], res_d_ug[ii]);
+	CVT_STRVEC2VEC(ns[ii], res->res_d+ii, 2*nb[ii]+2*ng[ii], res_d_ls[ii]);
+	CVT_STRVEC2VEC(ns[ii], res->res_d+ii, 2*nb[ii]+2*ng[ii]+ns[ii], res_d_us[ii]);
+	CVT_STRVEC2VEC(nb[ii], res->res_m+ii, 0, res_m_lb[ii]);
+	CVT_STRVEC2VEC(ng[ii], res->res_m+ii, nb[ii], res_m_lg[ii]);
+	CVT_STRVEC2VEC(nb[ii], res->res_m+ii, nb[ii]+ng[ii], res_m_ub[ii]);
+	CVT_STRVEC2VEC(ng[ii], res->res_m+ii, 2*nb[ii]+ng[ii], res_m_ug[ii]);
+	CVT_STRVEC2VEC(ns[ii], res->res_m+ii, 2*nb[ii]+2*ng[ii], res_m_ls[ii]);
+	CVT_STRVEC2VEC(ns[ii], res->res_m+ii, 2*nb[ii]+2*ng[ii]+ns[ii], res_m_us[ii]);
 
 	return;
 
@@ -765,56 +766,56 @@ void CVT_OCP_QP_RES_TO_COLMAJ(struct OCP_QP *qp, struct OCP_QP_RES *ws, REAL **r
 
 
 
-void CVT_OCP_QP_RES_TO_ROWMAJ(struct OCP_QP *qp, struct OCP_QP_RES *ws, REAL **res_r, REAL **res_q, REAL **res_ls, REAL **res_us, REAL **res_b, REAL **res_d_lb, REAL **res_d_ub, REAL **res_d_lg, REAL **res_d_ug, REAL **res_d_ls, REAL **res_d_us, REAL **res_m_lb, REAL **res_m_ub, REAL **res_m_lg, REAL **res_m_ug, REAL **res_m_ls, REAL **res_m_us)
+void CVT_OCP_QP_RES_TO_ROWMAJ(struct OCP_QP_RES *res, REAL **res_r, REAL **res_q, REAL **res_ls, REAL **res_us, REAL **res_b, REAL **res_d_lb, REAL **res_d_ub, REAL **res_d_lg, REAL **res_d_ug, REAL **res_d_ls, REAL **res_d_us, REAL **res_m_lb, REAL **res_m_ub, REAL **res_m_lg, REAL **res_m_ug, REAL **res_m_ls, REAL **res_m_us)
 	{
 
-	int N = qp->N;
-	int *nx = qp->nx;
-	int *nu = qp->nu;
-	int *nb = qp->nb;
-	int *ng = qp->ng;
-	int *ns = qp->ns;
+	int N = res->size->N;
+	int *nx = res->size->nx;
+	int *nu = res->size->nu;
+	int *nb = res->size->nb;
+	int *ng = res->size->ng;
+	int *ns = res->size->ns;
 
 	int ii;
 
 	for(ii=0; ii<N; ii++)
 		{
-		CVT_STRVEC2VEC(nu[ii], ws->res_g+ii, 0, res_r[ii]);
-		CVT_STRVEC2VEC(nx[ii], ws->res_g+ii, nu[ii], res_q[ii]);
-		CVT_STRVEC2VEC(ns[ii], ws->res_g+ii, nu[ii]+nx[ii], res_ls[ii]);
-		CVT_STRVEC2VEC(ns[ii], ws->res_g+ii, nu[ii]+nx[ii]+ns[ii], res_us[ii]);
+		CVT_STRVEC2VEC(nu[ii], res->res_g+ii, 0, res_r[ii]);
+		CVT_STRVEC2VEC(nx[ii], res->res_g+ii, nu[ii], res_q[ii]);
+		CVT_STRVEC2VEC(ns[ii], res->res_g+ii, nu[ii]+nx[ii], res_ls[ii]);
+		CVT_STRVEC2VEC(ns[ii], res->res_g+ii, nu[ii]+nx[ii]+ns[ii], res_us[ii]);
 
-		CVT_STRVEC2VEC(nx[ii+1], ws->res_b+ii, 0, res_b[ii]);
-		CVT_STRVEC2VEC(nb[ii], ws->res_d+ii, 0, res_d_lb[ii]);
-		CVT_STRVEC2VEC(ng[ii], ws->res_d+ii, nb[ii], res_d_lg[ii]);
-		CVT_STRVEC2VEC(nb[ii], ws->res_d+ii, nb[ii]+ng[ii], res_d_ub[ii]);
-		CVT_STRVEC2VEC(ng[ii], ws->res_d+ii, 2*nb[ii]+ng[ii], res_d_ug[ii]);
-		CVT_STRVEC2VEC(ns[ii], ws->res_d+ii, 2*nb[ii]+2*ng[ii], res_d_ls[ii]);
-		CVT_STRVEC2VEC(ns[ii], ws->res_d+ii, 2*nb[ii]+2*ng[ii]+ns[ii], res_d_us[ii]);
-		CVT_STRVEC2VEC(nb[ii], ws->res_m+ii, 0, res_m_lb[ii]);
-		CVT_STRVEC2VEC(ng[ii], ws->res_m+ii, nb[ii], res_m_lg[ii]);
-		CVT_STRVEC2VEC(nb[ii], ws->res_m+ii, nb[ii]+ng[ii], res_m_ub[ii]);
-		CVT_STRVEC2VEC(ng[ii], ws->res_m+ii, 2*nb[ii]+ng[ii], res_m_ug[ii]);
-		CVT_STRVEC2VEC(ns[ii], ws->res_m+ii, 2*nb[ii]+2*ng[ii], res_m_ls[ii]);
-		CVT_STRVEC2VEC(ns[ii], ws->res_m+ii, 2*nb[ii]+2*ng[ii]+ns[ii], res_m_us[ii]);
+		CVT_STRVEC2VEC(nx[ii+1], res->res_b+ii, 0, res_b[ii]);
+		CVT_STRVEC2VEC(nb[ii], res->res_d+ii, 0, res_d_lb[ii]);
+		CVT_STRVEC2VEC(ng[ii], res->res_d+ii, nb[ii], res_d_lg[ii]);
+		CVT_STRVEC2VEC(nb[ii], res->res_d+ii, nb[ii]+ng[ii], res_d_ub[ii]);
+		CVT_STRVEC2VEC(ng[ii], res->res_d+ii, 2*nb[ii]+ng[ii], res_d_ug[ii]);
+		CVT_STRVEC2VEC(ns[ii], res->res_d+ii, 2*nb[ii]+2*ng[ii], res_d_ls[ii]);
+		CVT_STRVEC2VEC(ns[ii], res->res_d+ii, 2*nb[ii]+2*ng[ii]+ns[ii], res_d_us[ii]);
+		CVT_STRVEC2VEC(nb[ii], res->res_m+ii, 0, res_m_lb[ii]);
+		CVT_STRVEC2VEC(ng[ii], res->res_m+ii, nb[ii], res_m_lg[ii]);
+		CVT_STRVEC2VEC(nb[ii], res->res_m+ii, nb[ii]+ng[ii], res_m_ub[ii]);
+		CVT_STRVEC2VEC(ng[ii], res->res_m+ii, 2*nb[ii]+ng[ii], res_m_ug[ii]);
+		CVT_STRVEC2VEC(ns[ii], res->res_m+ii, 2*nb[ii]+2*ng[ii], res_m_ls[ii]);
+		CVT_STRVEC2VEC(ns[ii], res->res_m+ii, 2*nb[ii]+2*ng[ii]+ns[ii], res_m_us[ii]);
 		}
-	CVT_STRVEC2VEC(nu[ii], ws->res_g+ii, 0, res_r[ii]);
-	CVT_STRVEC2VEC(nx[ii], ws->res_g+ii, nu[ii], res_q[ii]);
-	CVT_STRVEC2VEC(ns[ii], ws->res_g+ii, nu[ii]+nx[ii], res_ls[ii]);
-	CVT_STRVEC2VEC(ns[ii], ws->res_g+ii, nu[ii]+nx[ii]+ns[ii], res_us[ii]);
+	CVT_STRVEC2VEC(nu[ii], res->res_g+ii, 0, res_r[ii]);
+	CVT_STRVEC2VEC(nx[ii], res->res_g+ii, nu[ii], res_q[ii]);
+	CVT_STRVEC2VEC(ns[ii], res->res_g+ii, nu[ii]+nx[ii], res_ls[ii]);
+	CVT_STRVEC2VEC(ns[ii], res->res_g+ii, nu[ii]+nx[ii]+ns[ii], res_us[ii]);
 
-	CVT_STRVEC2VEC(nb[ii], ws->res_d+ii, 0, res_d_lb[ii]);
-	CVT_STRVEC2VEC(ng[ii], ws->res_d+ii, nb[ii], res_d_lg[ii]);
-	CVT_STRVEC2VEC(nb[ii], ws->res_d+ii, nb[ii]+ng[ii], res_d_ub[ii]);
-	CVT_STRVEC2VEC(ng[ii], ws->res_d+ii, 2*nb[ii]+ng[ii], res_d_ug[ii]);
-	CVT_STRVEC2VEC(ns[ii], ws->res_d+ii, 2*nb[ii]+2*ng[ii], res_d_ls[ii]);
-	CVT_STRVEC2VEC(ns[ii], ws->res_d+ii, 2*nb[ii]+2*ng[ii]+ns[ii], res_d_us[ii]);
-	CVT_STRVEC2VEC(nb[ii], ws->res_m+ii, 0, res_m_lb[ii]);
-	CVT_STRVEC2VEC(ng[ii], ws->res_m+ii, nb[ii], res_m_lg[ii]);
-	CVT_STRVEC2VEC(nb[ii], ws->res_m+ii, nb[ii]+ng[ii], res_m_ub[ii]);
-	CVT_STRVEC2VEC(ng[ii], ws->res_m+ii, 2*nb[ii]+ng[ii], res_m_ug[ii]);
-	CVT_STRVEC2VEC(ns[ii], ws->res_m+ii, 2*nb[ii]+2*ng[ii], res_m_ls[ii]);
-	CVT_STRVEC2VEC(ns[ii], ws->res_m+ii, 2*nb[ii]+2*ng[ii]+ns[ii], res_m_us[ii]);
+	CVT_STRVEC2VEC(nb[ii], res->res_d+ii, 0, res_d_lb[ii]);
+	CVT_STRVEC2VEC(ng[ii], res->res_d+ii, nb[ii], res_d_lg[ii]);
+	CVT_STRVEC2VEC(nb[ii], res->res_d+ii, nb[ii]+ng[ii], res_d_ub[ii]);
+	CVT_STRVEC2VEC(ng[ii], res->res_d+ii, 2*nb[ii]+ng[ii], res_d_ug[ii]);
+	CVT_STRVEC2VEC(ns[ii], res->res_d+ii, 2*nb[ii]+2*ng[ii], res_d_ls[ii]);
+	CVT_STRVEC2VEC(ns[ii], res->res_d+ii, 2*nb[ii]+2*ng[ii]+ns[ii], res_d_us[ii]);
+	CVT_STRVEC2VEC(nb[ii], res->res_m+ii, 0, res_m_lb[ii]);
+	CVT_STRVEC2VEC(ng[ii], res->res_m+ii, nb[ii], res_m_lg[ii]);
+	CVT_STRVEC2VEC(nb[ii], res->res_m+ii, nb[ii]+ng[ii], res_m_ub[ii]);
+	CVT_STRVEC2VEC(ng[ii], res->res_m+ii, 2*nb[ii]+ng[ii], res_m_ug[ii]);
+	CVT_STRVEC2VEC(ns[ii], res->res_m+ii, 2*nb[ii]+2*ng[ii], res_m_ls[ii]);
+	CVT_STRVEC2VEC(ns[ii], res->res_m+ii, 2*nb[ii]+2*ng[ii]+ns[ii], res_m_us[ii]);
 
 	return;
 

@@ -38,6 +38,7 @@
 #include <blasfeo_d_aux.h>
 #include <blasfeo_d_blas.h>
 
+#include "../include/hpipm_d_ocp_qp_size.h"
 #include "../include/hpipm_d_ocp_qp.h"
 #include "../include/hpipm_d_ocp_qp_sol.h"
 #include "../include/hpipm_d_dense_qp.h"
@@ -182,16 +183,23 @@ int main()
 		nu[ii] = nu_;
 	nu[N] = 0;
 
+	int nbu[N+1];
+	for (ii=0; ii<N; ii++)
+		nbu[ii] = nu[ii];
+
 #if 1
-	int nb[N+1];
+	int nbx[N+1];
 #if KEEP_X0
-	nb[0] = nu[0]+nx[0]/2;
+	nbx[0] = nx[0]/2;
 #else
-	nb[0] = nu[0];
+	nbx[0] = 0;
 #endif
-	for(ii=1; ii<N; ii++)
-		nb[ii] = nu[1]+nx[1]/2;
-	nb[N] = nx[N]/2;
+	for(ii=1; ii<=N; ii++)
+		nbx[ii] = nx[ii]/2;
+
+	int nb[N+1];
+	for (ii=0; ii<=N; ii++)
+		nb[ii] = nbu[ii]+nbx[ii];
 
 	int ng[N+1];
 	ng[0] = 0;
@@ -600,15 +608,26 @@ int main()
 	hidxs[N] = idxsN;
 	
 /************************************************
+* ocp qp size
+************************************************/
+
+	int size_size = d_memsize_ocp_qp_size(N);
+	printf("\nsize size = %d\n", size_size);
+	void *size_mem = malloc(size_size);
+
+	struct d_ocp_qp_size size;
+	d_create_ocp_qp_size(N, nx, nu, nbx, nbu, ng, ns, &size, size_mem);
+
+/************************************************
 * ocp qp
 ************************************************/	
 	
-	int ocp_qp_size = d_memsize_ocp_qp(N, nx, nu, nb, ng, ns);
+	int ocp_qp_size = d_memsize_ocp_qp(&size);
 	printf("\nqp size = %d\n", ocp_qp_size);
 	void *ocp_qp_mem = malloc(ocp_qp_size);
 
 	struct d_ocp_qp ocp_qp;
-	d_create_ocp_qp(N, nx, nu, nb, ng, ns, &ocp_qp, ocp_qp_mem);
+	d_create_ocp_qp(&size, &ocp_qp, ocp_qp_mem);
 	d_cvt_colmaj_to_ocp_qp(hA, hB, hb, hQ, hS, hR, hq, hr, hidxb, hd_lb, hd_ub, hC, hD, hd_lg, hd_ug, hZl, hZu, hzl, hzu, hidxs, &ocp_qp);
 
 #if 0
@@ -645,7 +664,7 @@ int main()
 	int ngc = 0;
 	int nsc = 0;
 
-	d_compute_qp_size_ocp2dense(N, nx, nu, nb, hidxb, ng, ns, &nvc, &nec, &nbc, &ngc, &nsc);
+	d_compute_qp_size_ocp2dense(&size, &nvc, &nec, &nbc, &ngc, &nsc);
 	printf("\nnv = %d, ne = %d, nb = %d, ng = %d, ns = %d\n\n", nvc, nec, nbc, ngc, nsc);
 
 	int dense_qp_size = d_memsize_dense_qp(nvc, nec, nbc, ngc, nsc);
@@ -655,12 +674,12 @@ int main()
 	struct d_dense_qp dense_qp;
 	d_create_dense_qp(nvc, nec, nbc, ngc, nsc, &dense_qp, dense_qp_mem);
 
-	int cond_size = d_memsize_cond_qp_ocp2dense(&ocp_qp, &dense_qp);
+	int cond_size = d_memsize_cond_qp_ocp2dense(&size);
 	printf("\ncond size = %d\n", cond_size);
 	void *cond_mem = malloc(cond_size);
 
 	struct d_cond_qp_ocp2dense_workspace cond_ws;
-	d_create_cond_qp_ocp2dense(&ocp_qp, &dense_qp, &cond_ws, cond_mem);
+	d_create_cond_qp_ocp2dense(&size, &cond_ws, cond_mem);
 
 	gettimeofday(&tv0, NULL); // start
 
@@ -841,12 +860,12 @@ int main()
 * ocp qp sol
 ************************************************/	
 	
-	int ocp_qp_sol_size = d_memsize_ocp_qp_sol(N, nx, nu, nb, ng, ns);
+	int ocp_qp_sol_size = d_memsize_ocp_qp_sol(&size);
 	printf("\nocp qp sol size = %d\n", ocp_qp_sol_size);
 	void *ocp_qp_sol_mem = malloc(ocp_qp_sol_size);
 
 	struct d_ocp_qp_sol ocp_qp_sol;
-	d_create_ocp_qp_sol(N, nx, nu, nb, ng, ns, &ocp_qp_sol, ocp_qp_sol_mem);
+	d_create_ocp_qp_sol(&size, &ocp_qp_sol, ocp_qp_sol_mem);
 
 /************************************************
 * expand solution
@@ -866,7 +885,7 @@ int main()
 	double *lam_ls[N+1]; for(ii=0; ii<=N; ii++) d_zeros(lam_ls+ii, ns[ii], 1);
 	double *lam_us[N+1]; for(ii=0; ii<=N; ii++) d_zeros(lam_us+ii, ns[ii], 1);
 
-	d_cvt_ocp_qp_sol_to_colmaj(&ocp_qp, &ocp_qp_sol, u, x, ls, us, pi, lam_lb, lam_ub, lam_lg, lam_ug, lam_ls, lam_us);
+	d_cvt_ocp_qp_sol_to_colmaj(&ocp_qp_sol, u, x, ls, us, pi, lam_lb, lam_ub, lam_lg, lam_ug, lam_ls, lam_us);
 
 #if 1
 	printf("\nfull space solution\n\n");

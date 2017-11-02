@@ -36,6 +36,7 @@ extern "C" {
 
 struct s_ocp_qp
 	{
+	struct s_ocp_qp_size *size;
 	struct s_strmat *BAbt;
 	struct s_strvec *b;
 	struct s_strmat *RSQrq;
@@ -44,23 +45,17 @@ struct s_ocp_qp
 	struct s_strvec *d;
 	struct s_strvec *Z;
 	struct s_strvec *z;
-	int *nx; // number of states
-	int *nu; // number of inputs
-	int *nb; // number of box constraints
 	int **idxb; // index of box constraints
-	int *ng; // number of general constraints
-	int *ns; // number of soft constraints
 	int **idxs; // index of soft constraints
-	int N; // hotizon lenght
 	int memsize; // memory size in bytes
 	};
 
 
 
 //
-int s_memsize_ocp_qp(int N, int *nx, int *nu, int *nb, int *ng, int *ns);
+int s_memsize_ocp_qp(struct s_ocp_qp_size *size);
 //
-void s_create_ocp_qp(int N, int *nx, int *nu, int *nb, int *ng, int *ns, struct s_ocp_qp *qp, void *memory);
+void s_create_ocp_qp(struct s_ocp_qp_size *size, struct s_ocp_qp *qp, void *memory);
 //
 void s_cvt_colmaj_to_ocp_qp(float **A, float **B, float **b, float **Q, float **S, float **R, float **q, float **r, int **idxb, float **lb, float **ub, float **C, float **D, float **lg, float **ug, float **Zl, float **Zu, float **zl, float **zu, int **idxs, struct s_ocp_qp *qp);
 //

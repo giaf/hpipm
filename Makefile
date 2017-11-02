@@ -46,8 +46,19 @@ OBJS += ipm_core/s_core_qp_ipm_aux.o ipm_core/s_core_qp_ipm.o
 #OBJS += ocp_nlp/d_ocp_nlp.o ocp_nlp/d_ocp_nlp_sol.o ocp_nlp/d_ocp_nlp_aux.o ocp_nlp/d_ocp_nlp_hyb.o ocp_nlp/d_ocp_nlp_ipm.o ocp_nlp/d_ocp_nlp_sqp.o
 #OBJS +=
 # ocp qp
-OBJS += ocp_qp/d_ocp_qp.o ocp_qp/d_ocp_qp_sol.o ocp_qp/d_ocp_qp_kkt.o ocp_qp/d_ocp_qp_ipm.o
-OBJS += ocp_qp/s_ocp_qp.o ocp_qp/s_ocp_qp_sol.o ocp_qp/s_ocp_qp_kkt.o ocp_qp/s_ocp_qp_ipm.o
+# double
+OBJS += ocp_qp/d_ocp_qp_size.o
+OBJS += ocp_qp/d_ocp_qp.o
+OBJS += ocp_qp/d_ocp_qp_sol.o
+OBJS += ocp_qp/d_ocp_qp_kkt.o
+OBJS += ocp_qp/d_ocp_qp_ipm.o
+# single
+OBJS += ocp_qp/s_ocp_qp_size.o
+OBJS += ocp_qp/s_ocp_qp.o
+OBJS += ocp_qp/s_ocp_qp_sol.o
+OBJS += ocp_qp/s_ocp_qp_kkt.o
+OBJS += ocp_qp/s_ocp_qp_ipm.o
+# mixed
 #OBJS += ocp_qp/m_ocp_qp.o                       ocp_qp/m_ocp_qp_kkt.o ocp_qp/m_ocp_qp_ipm.o
 # sim core
 #OBJS += sim_core/d_rk_int.o sim_core/d_erk_int.o sim_core/d_irk_int.o

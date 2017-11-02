@@ -27,9 +27,18 @@
 
 
 
-int MEMSIZE_OCP_QP(int N, int *nx, int *nu, int *nb, int *ng, int *ns)
+int MEMSIZE_OCP_QP(struct OCP_QP_SIZE *ocp_size)
 	{
 
+	// extract size
+	int N = ocp_size->N;
+	int *nx = ocp_size->nx;
+	int *nu = ocp_size->nu;
+	int *nb = ocp_size->nb;
+	int *ng = ocp_size->ng;
+	int *ns = ocp_size->ns;
+
+	// loop index
 	int ii;
 
 	int nbt = 0;
@@ -79,11 +88,19 @@ int MEMSIZE_OCP_QP(int N, int *nx, int *nu, int *nb, int *ng, int *ns)
 
 
 
-void CREATE_OCP_QP(int N, int *nx, int *nu, int *nb, int *ng, int *ns, struct OCP_QP *qp, void *mem)
+void CREATE_OCP_QP(struct OCP_QP_SIZE *size, struct OCP_QP *qp, void *mem)
 	{
 
-	int ii;
+	// extract size
+	int N = size->N;
+	int *nx = size->nx;
+	int *nu = size->nu;
+	int *nb = size->nb;
+	int *ng = size->ng;
+	int *ns = size->ns;
 
+	// loop index
+	int ii;
 
 	int nbt = 0;
 	int ngt = 0;
@@ -92,10 +109,6 @@ void CREATE_OCP_QP(int N, int *nx, int *nu, int *nb, int *ng, int *ns, struct OC
 		nbt += nb[ii];
 		ngt += ng[ii];
 		}
-
-
-	// horizon length
-	qp->N = N;
 
 
 	// int pointer stuff
@@ -155,46 +168,6 @@ void CREATE_OCP_QP(int N, int *nx, int *nu, int *nb, int *ng, int *ns, struct OC
 	int *i_ptr;
 	i_ptr = (int *) sv_ptr;
 
-	// nx
-	qp->nx = i_ptr;
-	for(ii=0; ii<=N; ii++)
-		{
-		i_ptr[ii] = nx[ii];
-		}
-	i_ptr += N+1;
-	
-	// nu
-	qp->nu = i_ptr;
-	for(ii=0; ii<=N; ii++)
-		{
-		i_ptr[ii] = nu[ii];
-		}
-	i_ptr += N+1;
-	
-	// nb
-	qp->nb = i_ptr;
-	for(ii=0; ii<=N; ii++)
-		{
-		i_ptr[ii] = nb[ii];
-		}
-	i_ptr += N+1;
-
-	// ng
-	qp->ng = i_ptr;
-	for(ii=0; ii<=N; ii++)
-		{
-		i_ptr[ii] = ng[ii];
-		}
-	i_ptr += N+1;
-	
-	// ns
-	qp->ns = i_ptr;
-	for(ii=0; ii<=N; ii++)
-		{
-		i_ptr[ii] = ns[ii];
-		}
-	i_ptr += N+1;
-	
 	// idxb
 	for(ii=0; ii<=N; ii++)
 		{
@@ -282,8 +255,9 @@ void CREATE_OCP_QP(int N, int *nx, int *nu, int *nb, int *ng, int *ns, struct OC
 		tmp_ptr += ng[ii]*sizeof(REAL);
 		}
 
+	qp->size = size;
 
-	qp->memsize = MEMSIZE_OCP_QP(N, nx, nu, nb, ng, ns);
+	qp->memsize = MEMSIZE_OCP_QP(size);
 
 
 #if defined(RUNTIME_CHECKS)
@@ -304,12 +278,13 @@ void CREATE_OCP_QP(int N, int *nx, int *nu, int *nb, int *ng, int *ns, struct OC
 void CVT_COLMAJ_TO_OCP_QP(REAL **A, REAL **B, REAL **b, REAL **Q, REAL **S, REAL **R, REAL **q, REAL **r, int **idxb, REAL **d_lb, REAL **d_ub, REAL **C, REAL **D, REAL **d_lg, REAL **d_ug, REAL **Zl, REAL **Zu, REAL **zl, REAL **zu, int **idxs, struct OCP_QP *qp)
 	{
 
-	int N = qp->N;
-	int *nx = qp->nx;
-	int *nu = qp->nu;
-	int *nb = qp->nb;
-	int *ng = qp->ng;
-	int *ns = qp->ns;
+	// extract size
+	int N = qp->size->N;
+	int *nx = qp->size->nx;
+	int *nu = qp->size->nu;
+	int *nb = qp->size->nb;
+	int *ng = qp->size->ng;
+	int *ns = qp->size->ns;
 
 	int ii, jj;
 
@@ -376,12 +351,13 @@ void CVT_COLMAJ_TO_OCP_QP(REAL **A, REAL **B, REAL **b, REAL **Q, REAL **S, REAL
 void CVT_ROWMAJ_TO_OCP_QP(REAL **A, REAL **B, REAL **b, REAL **Q, REAL **S, REAL **R, REAL **q, REAL **r, int **idxb, REAL **d_lb, REAL **d_ub, REAL **C, REAL **D, REAL **d_lg, REAL **d_ug, REAL **Zl, REAL **Zu, REAL **zl, REAL **zu, int **idxs, struct OCP_QP *qp)
 	{
 
-	int N = qp->N;
-	int *nx = qp->nx;
-	int *nu = qp->nu;
-	int *nb = qp->nb;
-	int *ng = qp->ng;
-	int *ns = qp->ns;
+	// extract size
+	int N = qp->size->N;
+	int *nx = qp->size->nx;
+	int *nu = qp->size->nu;
+	int *nb = qp->size->nb;
+	int *ng = qp->size->ng;
+	int *ns = qp->size->ns;
 
 	int ii, jj;
 

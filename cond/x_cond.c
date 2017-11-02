@@ -25,10 +25,18 @@
 *                                                                                                 *
 **************************************************************************************************/
 
-void COMPUTE_QP_SIZE_OCP2DENSE(int N, int *nx, int *nu, int *nb, int **idxb, int *ng, int *ns, int *nvc, int *nec, int *nbc, int *ngc, int *nsc)
+void COMPUTE_QP_SIZE_OCP2DENSE(struct OCP_QP_SIZE *ocp_size, int *nvc, int *nec, int *nbc, int *ngc, int *nsc)
 	{
 
-	int ii, jj;
+	int N = ocp_size->N;
+	int *nx = ocp_size->nx;
+	int *nu = ocp_size->nu;
+	int *nbx = ocp_size->nbx;
+	int *nbu = ocp_size->nbu;
+	int *ng = ocp_size->ng;
+	int *ns = ocp_size->ns;
+
+	int ii;
 
 	nvc[0] = 0;
 	nec[0] = 0;
@@ -38,25 +46,15 @@ void COMPUTE_QP_SIZE_OCP2DENSE(int N, int *nx, int *nu, int *nb, int **idxb, int
 
 	// first stage
 	nvc[0] += nx[0]+nu[0];
-	nbc[0] += nb[0];
+	nbc[0] += nbx[0]+nbu[0];
 	ngc[0] += ng[0];
 	nsc[0] += ns[0];
 	// remaining stages
 	for(ii=1; ii<=N; ii++)
 		{
 		nvc[0] += nu[ii];
-		for(jj=0; jj<nb[ii]; jj++)
-			{
-			if(idxb[ii][jj]<nu[ii]) // input constraint
-				{
-				nbc[0]++;
-				}
-			else // state constraint
-				{
-				ngc[0]++;
-				}
-			}
-		ngc[0] += ng[ii];
+		nbc[0] += nbu[ii];
+		ngc[0] += nbx[ii]+ng[ii];
 		nsc[0] += ns[ii];
 		}
 
@@ -66,16 +64,16 @@ void COMPUTE_QP_SIZE_OCP2DENSE(int N, int *nx, int *nu, int *nb, int **idxb, int
 
 
 
-int MEMSIZE_COND_QP_OCP2DENSE(struct OCP_QP *ocp_qp, struct DENSE_QP *dense_qp) // XXX + args for algorithm type ???
+int MEMSIZE_COND_QP_OCP2DENSE(struct OCP_QP_SIZE *ocp_size) // XXX + args for algorithm type ???
 	{
 
 	int ii;
 
-	int N = ocp_qp->N;
-	int *nx = ocp_qp->nx;
-	int *nu = ocp_qp->nu;
-	int *nb = ocp_qp->nb;
-	int *ng = ocp_qp->ng;
+	int N = ocp_size->N;
+	int *nx = ocp_size->nx;
+	int *nu = ocp_size->nu;
+	int *nb = ocp_size->nb;
+	int *ng = ocp_size->ng;
 
 	// compute core qp size and max size
 	int nvt = 0;
@@ -143,16 +141,16 @@ int MEMSIZE_COND_QP_OCP2DENSE(struct OCP_QP *ocp_qp, struct DENSE_QP *dense_qp) 
 
 
 
-void CREATE_COND_QP_OCP2DENSE(struct OCP_QP *ocp_qp, struct DENSE_QP *dense_qp, struct COND_QP_OCP2DENSE_WORKSPACE *cond_ws, void *mem)
+void CREATE_COND_QP_OCP2DENSE(struct OCP_QP_SIZE *ocp_size, struct COND_QP_OCP2DENSE_WORKSPACE *cond_ws, void *mem)
 	{
 
 	int ii;
 
-	int N = ocp_qp->N;
-	int *nx = ocp_qp->nx;
-	int *nu = ocp_qp->nu;
-	int *nb = ocp_qp->nb;
-	int *ng = ocp_qp->ng;
+	int N = ocp_size->N;
+	int *nx = ocp_size->nx;
+	int *nu = ocp_size->nu;
+	int *nb = ocp_size->nb;
+	int *ng = ocp_size->ng;
 
 	// compute core qp size and max size
 	int nvt = 0;
@@ -263,7 +261,7 @@ void CREATE_COND_QP_OCP2DENSE(struct OCP_QP *ocp_qp, struct DENSE_QP *dense_qp, 
 
 	cond_ws->cond_last_stage = 1; // default: cond last stage
 
-	cond_ws->memsize = MEMSIZE_COND_QP_OCP2DENSE(ocp_qp, dense_qp);
+	cond_ws->memsize = MEMSIZE_COND_QP_OCP2DENSE(ocp_size);
 
 #if defined(RUNTIME_CHECKS)
 	if(c_ptr > ((char *) mem) + cond_ws->memsize)
