@@ -44,7 +44,7 @@ struct d_ocp_qp_size
 	int *nbx; // number of state box constraints
 	int *nbu; // number of input box constraints
 	int *ng; // number of general constraints
-	int *ns; // horizon length
+	int *ns; // number of soft constraints
 	int N; // horizon length
 	int memsize;
 	};
