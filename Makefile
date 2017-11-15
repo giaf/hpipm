@@ -37,11 +37,25 @@ endif
 OBJS += cond/d_cond_aux.o cond/d_cond.o cond/d_part_cond.o
 OBJS += cond/s_cond_aux.o cond/s_cond.o cond/s_part_cond.o
 # dense qp
-OBJS += dense_qp/d_dense_qp.o dense_qp/d_dense_qp_sol.o dense_qp/d_dense_qp_kkt.o dense_qp/d_dense_qp_ipm.o
-OBJS += dense_qp/s_dense_qp.o dense_qp/s_dense_qp_sol.o dense_qp/s_dense_qp_kkt.o dense_qp/s_dense_qp_ipm.o
+# double
+OBJS += dense_qp/d_dense_qp_dim.o 
+OBJS += dense_qp/d_dense_qp.o 
+OBJS += dense_qp/d_dense_qp_sol.o 
+OBJS += dense_qp/d_dense_qp_kkt.o 
+OBJS += dense_qp/d_dense_qp_ipm.o
+# single
+OBJS += dense_qp/s_dense_qp_dim.o 
+OBJS += dense_qp/s_dense_qp.o 
+OBJS += dense_qp/s_dense_qp_sol.o 
+OBJS += dense_qp/s_dense_qp_kkt.o 
+OBJS += dense_qp/s_dense_qp_ipm.o
 # ipm core
-OBJS += ipm_core/d_core_qp_ipm_aux.o ipm_core/d_core_qp_ipm.o
-OBJS += ipm_core/s_core_qp_ipm_aux.o ipm_core/s_core_qp_ipm.o
+# double
+OBJS += ipm_core/d_core_qp_ipm_aux.o 
+OBJS += ipm_core/d_core_qp_ipm.o
+# single
+OBJS += ipm_core/s_core_qp_ipm_aux.o 
+OBJS += ipm_core/s_core_qp_ipm.o
 # ocp nlp
 #OBJS += ocp_nlp/d_ocp_nlp.o ocp_nlp/d_ocp_nlp_sol.o ocp_nlp/d_ocp_nlp_aux.o ocp_nlp/d_ocp_nlp_hyb.o ocp_nlp/d_ocp_nlp_ipm.o ocp_nlp/d_ocp_nlp_sqp.o
 #OBJS +=

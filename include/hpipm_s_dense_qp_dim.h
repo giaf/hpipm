@@ -21,19 +21,12 @@
 * License along with HPIPM; if not, write to the Free Software                                    *
 * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA                  *
 *                                                                                                 *
-* Author: Gianluca Frison, gianluca.frison (at) imtek.uni-freiburg.de                             *                          
+* Author: Gianluca Frison, gianluca.frison (at) imtek.uni-freiburg.de                             *
 *                                                                                                 *
 **************************************************************************************************/
 
-
-
-#ifndef HPIPM_S_COND_H_
-#define HPIPM_S_COND_H_
-
-
-
-#include <blasfeo_target.h>
-#include <blasfeo_common.h>
+#ifndef HPIPM_S_DENSE_QP_DIM_H_
+#define HPIPM_S_DENSE_QP_DIM_H_
 
 
 
@@ -43,42 +36,33 @@ extern "C" {
 
 
 
-struct s_cond_qp_ocp2dense_workspace
+struct s_dense_qp_dim
 	{
-	struct s_strmat *Gamma;
-	struct s_strmat *L;
-	struct s_strmat *Lx;
-	struct s_strmat *AL;
-	struct s_strvec *Gammab;
-	struct s_strvec *l;
-	struct s_strvec *tmp_ngM;
-	struct s_strvec *tmp_nuxM;
-	int *idxs_rev;
-	int cond_last_stage;
+	int nv; // number of variables
+	int ne; // number of equality constraints
+	int nb; // number of box constraints
+	int ng; // number of general constraints
+	int ns; // number of softened constraints
 	int memsize;
 	};
 
 
 
 //
-void s_compute_qp_dim_ocp2dense(struct s_ocp_qp_size *ocp_size, struct s_dense_qp_dim *dense_dim);
+int s_memsize_dense_qp_dim();
 //
-int s_memsize_cond_qp_ocp2dense(struct s_ocp_qp_size *ocp_size); // XXX + args for algorithm type ???
+void s_create_dense_qp_dim(struct s_dense_qp_dim *qp_dim, void *memory);
 //
-void s_create_cond_qp_ocp2dense(struct s_ocp_qp_size *ocp_size, struct s_cond_qp_ocp2dense_workspace *cond_ws, void *mem);
-//
-void s_cond_qp_ocp2dense(struct s_ocp_qp *ocp_qp, struct s_dense_qp *dense_qp, struct s_cond_qp_ocp2dense_workspace *cond_ws);
-//
-void s_cond_rhs_qp_ocp2dense(struct s_ocp_qp *ocp_qp, struct s_dense_qp *dense_qp, struct s_cond_qp_ocp2dense_workspace *cond_ws);
-//
-void s_expand_sol_dense2ocp(struct s_ocp_qp *ocp_qp, struct s_dense_qp_sol *dense_qp_sol, struct s_ocp_qp_sol *ocp_qp_sol, struct s_cond_qp_ocp2dense_workspace *cond_ws);
+void s_cvt_int_to_dense_qp_dim(int nv, int ne, int nb, int ng, int ns, struct s_dense_qp_dim *dim);
 
 
 
 #ifdef __cplusplus
-} /* extern "C" */
+}	// #extern "C"
 #endif
 
 
 
-#endif // HPIPM_S_COND_H_
+#endif // HPIPM_S_DENSE_QP_DIM_H_
+
+

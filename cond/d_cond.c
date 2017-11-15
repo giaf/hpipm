@@ -55,6 +55,7 @@
 #define CREATE_STRMAT d_create_strmat
 #define CREATE_STRVEC d_create_strvec
 #define DENSE_QP d_dense_qp
+#define DENSE_QP_DIM d_dense_qp_dim
 #define DENSE_QP_SOL d_dense_qp_sol
 #define EXPAND_SOL d_expand_sol
 #define OCP_QP d_ocp_qp
@@ -65,7 +66,7 @@
 #define STRMAT d_strmat
 #define STRVEC d_strvec
 
-#define COMPUTE_QP_SIZE_OCP2DENSE d_compute_qp_size_ocp2dense
+#define COMPUTE_QP_DIM_OCP2DENSE d_compute_qp_dim_ocp2dense
 #define MEMSIZE_COND_QP_OCP2DENSE d_memsize_cond_qp_ocp2dense
 #define CREATE_COND_QP_OCP2DENSE d_create_cond_qp_ocp2dense
 #define COND_QP_OCP2DENSE d_cond_qp_ocp2dense

@@ -25,10 +25,17 @@
 *                                                                                                 *
 **************************************************************************************************/
 
+#ifndef HPIPM_D_OCP_QP_H_
+#define HPIPM_D_OCP_QP_H_
+
 
 
 #include <blasfeo_target.h>
 #include <blasfeo_common.h>
+
+#include "hpipm_s_ocp_qp_size.h"
+
+
 
 #ifdef __cplusplus
 extern "C" {
@@ -64,3 +71,7 @@ void s_cvt_rowmaj_to_ocp_qp(float **A, float **B, float **b, float **Q, float **
 #ifdef __cplusplus
 } /* extern "C" */
 #endif
+
+
+
+#endif // HPIPM_S_OCP_QP_H_

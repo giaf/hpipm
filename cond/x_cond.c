@@ -25,7 +25,7 @@
 *                                                                                                 *
 **************************************************************************************************/
 
-void COMPUTE_QP_SIZE_OCP2DENSE(struct OCP_QP_SIZE *ocp_size, int *nvc, int *nec, int *nbc, int *ngc, int *nsc)
+void COMPUTE_QP_DIM_OCP2DENSE(struct OCP_QP_SIZE *ocp_size, struct DENSE_QP_DIM *dense_dim)
 	{
 
 	int N = ocp_size->N;
@@ -38,25 +38,31 @@ void COMPUTE_QP_SIZE_OCP2DENSE(struct OCP_QP_SIZE *ocp_size, int *nvc, int *nec,
 
 	int ii;
 
-	nvc[0] = 0;
-	nec[0] = 0;
-	nbc[0] = 0;
-	ngc[0] = 0;
-	nsc[0] = 0;
+	int nvc = 0;
+	int nec = 0;
+	int nbc = 0;
+	int ngc = 0;
+	int nsc = 0;
 
 	// first stage
-	nvc[0] += nx[0]+nu[0];
-	nbc[0] += nbx[0]+nbu[0];
-	ngc[0] += ng[0];
-	nsc[0] += ns[0];
+	nvc += nx[0]+nu[0];
+	nbc += nbx[0]+nbu[0];
+	ngc += ng[0];
+	nsc += ns[0];
 	// remaining stages
 	for(ii=1; ii<=N; ii++)
 		{
-		nvc[0] += nu[ii];
-		nbc[0] += nbu[ii];
-		ngc[0] += nbx[ii]+ng[ii];
-		nsc[0] += ns[ii];
+		nvc += nu[ii];
+		nbc += nbu[ii];
+		ngc += nbx[ii]+ng[ii];
+		nsc += ns[ii];
 		}
+	
+	dense_dim->nv = nvc;
+	dense_dim->ne = nec;
+	dense_dim->nb = nbc;
+	dense_dim->ng = ngc;
+	dense_dim->ns = nsc;
 
 	return;
 

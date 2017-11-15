@@ -92,16 +92,16 @@ struct d_dense_qp_ipm_workspace
 
 
 //
-int d_memsize_dense_qp_ipm_arg(struct d_dense_qp *qp);
+int d_memsize_dense_qp_ipm_arg(struct d_dense_qp_dim *qp_dim);
 //
-void d_create_dense_qp_ipm_arg(struct d_dense_qp *qp, struct d_dense_qp_ipm_arg *arg, void *mem);
+void d_create_dense_qp_ipm_arg(struct d_dense_qp_dim *qp_dim, struct d_dense_qp_ipm_arg *arg, void *mem);
 //
 void d_set_default_dense_qp_ipm_arg(struct d_dense_qp_ipm_arg *arg);
 
 //
-int d_memsize_dense_qp_ipm(struct d_dense_qp *qp, struct d_dense_qp_ipm_arg *arg);
+int d_memsize_dense_qp_ipm(struct d_dense_qp_dim *qp_dim, struct d_dense_qp_ipm_arg *arg);
 //
-void d_create_dense_qp_ipm(struct d_dense_qp *qp, struct d_dense_qp_ipm_arg *arg, struct d_dense_qp_ipm_workspace *ws, void *mem);
+void d_create_dense_qp_ipm(struct d_dense_qp_dim *qp_dim, struct d_dense_qp_ipm_arg *arg, struct d_dense_qp_ipm_workspace *ws, void *mem);
 //
 int d_solve_dense_qp_ipm(struct d_dense_qp *qp, struct d_dense_qp_sol *qp_sol, struct d_dense_qp_ipm_arg *arg, struct d_dense_qp_ipm_workspace *ws);
 

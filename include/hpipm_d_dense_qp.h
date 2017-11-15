@@ -35,6 +35,8 @@
 #include <blasfeo_target.h>
 #include <blasfeo_common.h>
 
+#include "hpipm_d_dense_qp_dim.h"
+
 
 
 #ifdef __cplusplus
@@ -45,6 +47,7 @@ extern "C" {
 
 struct d_dense_qp
 	{
+	struct d_dense_qp_dim *dim;
 	struct d_strmat *Hg; // hessian & gradient
 	struct d_strmat *A; // equality constraint matrix
 	struct d_strmat *Ct; // inequality constraints matrix
@@ -55,20 +58,15 @@ struct d_dense_qp
 	struct d_strvec *z; // gradient of slacks
 	int *idxb; // index of box constraints
 	int *idxs; // index of soft constraints
-	int nv; // number of variables
-	int ne; // number of equality constraints
-	int nb; // number of box constraints
-	int ng; // number of general constraints
-	int ns; // number of softened constraints
 	int memsize; // memory size in bytes
 	};
 
 
 
 //
-int d_memsize_dense_qp(int nv, int ne, int nb, int ng, int ns);
+int d_memsize_dense_qp(struct d_dense_qp_dim *dim);
 //
-void d_create_dense_qp(int nv, int ne, int nb, int ng, int ns, struct d_dense_qp *qp, void *memory);
+void d_create_dense_qp(struct d_dense_qp_dim *dim, struct d_dense_qp *qp, void *memory);
 //
 void d_cvt_colmaj_to_dense_qp(double *H, double *g, double *A, double *b, int *idxb, double *d_lb, double *d_ub, double *C, double *d_lg, double *d_ug, double *Zl, double *Zu, double *zl, double *zu, int *idxs, struct d_dense_qp *qp);
 //

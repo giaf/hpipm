@@ -33,6 +33,10 @@
 #include <blasfeo_target.h>
 #include <blasfeo_common.h>
 
+#include "hpipm_d_ocp_qp_size.h"
+
+
+
 #ifdef __cplusplus
 extern "C" {
 #endif

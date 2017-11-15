@@ -25,14 +25,23 @@
 *                                                                                                 *
 **************************************************************************************************/
 
+#ifndef HPIPM_S_OCP_QP_SOL_H_
+#define HPIPM_S_OCP_QP_SOL_H_
+
 
 
 #include <blasfeo_target.h>
 #include <blasfeo_common.h>
 
+#include "hpipm_s_ocp_qp_size.h"
+
+
+
 #ifdef __cplusplus
 extern "C" {
 #endif
+
+
 
 struct s_ocp_qp_sol
 	{
@@ -62,3 +71,7 @@ void s_cvt_ocp_qp_sol_to_libstr(struct s_ocp_qp_sol *qp_sol, struct s_strvec *u,
 #ifdef __cplusplus
 } /* extern "C" */
 #endif
+
+
+
+#endif // HPIPM_S_OCP_QP_SOL_H_
