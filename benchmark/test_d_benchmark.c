@@ -393,6 +393,10 @@ int main()
     char filename[1024];
     FILE * pFile;
     */
+
+	int npass = 0;
+	int nfail = 0;
+
     /************** benchmark loop *********************/
     for (i = 0; i < nproblems; i++) {
 
@@ -544,6 +548,12 @@ int main()
         //            d_print_strvec(nvc, qpd_sol.v, 0);
          }
 
+		// number of passed and failed problems
+		if(hpipm_return==0)
+			npass++;
+		else
+			nfail++;
+
         printf("\nipm iter = %d\n", workspace.iter);
         printf(" inf norm res: %e, %e, %e, %e, %e\n", workspace.qp_res[0],
                                  workspace.qp_res[1], workspace.qp_res[2],
@@ -562,6 +572,16 @@ int main()
         free(ipm_arg_mem);
 
     }
+
+    /************************************************
+    * overall statistics
+    ************************************************/
+
+	printf("\nOverall statistics\n");
+	printf("\nTotal number of problems:  %d\n", nproblems);
+	printf("\nNumber of solved problems: %d\n", npass);
+	printf("\nNumber of failed problems: %d\n", nfail);
+	printf("\n\n");
 
     /************************************************
     * return
