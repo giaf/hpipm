@@ -37,7 +37,7 @@
 #include <blasfeo_i_aux_ext_dep.h>
 #include <blasfeo_d_aux.h>
 
-#include "../include/hpipm_d_ocp_qp_size.h"
+#include "../include/hpipm_d_ocp_qp_dim.h"
 #include "../include/hpipm_d_ocp_qp.h"
 #include "../include/hpipm_d_ocp_qp_sol.h"
 #include "../include/hpipm_d_ocp_qp_ipm.h"
@@ -715,27 +715,27 @@ int main()
 	hidxs[N] = idxsN;
 
 /************************************************
-* ocp qp size
+* ocp qp dim
 ************************************************/
 
-	int size_size = d_memsize_ocp_qp_size(N);
-	printf("\nsize size = %d\n", size_size);
-	void *size_mem = malloc(size_size);
+	int dim_size = d_memsize_ocp_qp_dim(N);
+	printf("\ndim size = %d\n", dim_size);
+	void *dim_mem = malloc(dim_size);
 
-	struct d_ocp_qp_size size;
-	d_create_ocp_qp_size(N, &size, size_mem);
-	d_cvt_int_to_ocp_qp_size(N, nx, nu, nbx, nbu, ng, ns, &size);
+	struct d_ocp_qp_dim dim;
+	d_create_ocp_qp_dim(N, &dim, dim_mem);
+	d_cvt_int_to_ocp_qp_dim(N, nx, nu, nbx, nbu, ng, ns, &dim);
 
 /************************************************
 * ocp qp
 ************************************************/
 
-	int qp_size = d_memsize_ocp_qp(&size);
+	int qp_size = d_memsize_ocp_qp(&dim);
 	printf("\nqp size = %d\n", qp_size);
 	void *qp_mem = malloc(qp_size);
 
 	struct d_ocp_qp qp;
-	d_create_ocp_qp(&size, &qp, qp_mem);
+	d_create_ocp_qp(&dim, &qp, qp_mem);
 	d_cvt_colmaj_to_ocp_qp(hA, hB, hb, hQ, hS, hR, hq, hr, hidxb, hd_lb, hd_ub, hC, hD, hd_lg, hd_ug, hZl, hZu, hzl, hzu, hidxs, &qp);
 
 #if 0
@@ -767,23 +767,23 @@ int main()
 * ocp qp sol
 ************************************************/
 
-	int qp_sol_size = d_memsize_ocp_qp_sol(&size);
+	int qp_sol_size = d_memsize_ocp_qp_sol(&dim);
 	printf("\nqp sol size = %d\n", qp_sol_size);
 	void *qp_sol_mem = malloc(qp_sol_size);
 
 	struct d_ocp_qp_sol qp_sol;
-	d_create_ocp_qp_sol(&size, &qp_sol, qp_sol_mem);
+	d_create_ocp_qp_sol(&dim, &qp_sol, qp_sol_mem);
 
 /************************************************
 * ipm arg
 ************************************************/
 
-	int ipm_arg_size = d_memsize_ocp_qp_ipm_arg(&size);
+	int ipm_arg_size = d_memsize_ocp_qp_ipm_arg(&dim);
 	printf("\nipm arg size = %d\n", ipm_arg_size);
 	void *ipm_arg_mem = malloc(ipm_arg_size);
 
 	struct d_ocp_qp_ipm_arg arg;
-	d_create_ocp_qp_ipm_arg(&size, &arg, ipm_arg_mem);
+	d_create_ocp_qp_ipm_arg(&dim, &arg, ipm_arg_mem);
 	d_set_default_ocp_qp_ipm_arg(&arg);
 
 //	arg.alpha_min = 1e-8;
@@ -800,12 +800,12 @@ int main()
 * ipm
 ************************************************/
 
-	int ipm_size = d_memsize_ocp_qp_ipm(&size, &arg);
+	int ipm_size = d_memsize_ocp_qp_ipm(&dim, &arg);
 	printf("\nipm size = %d\n", ipm_size);
 	void *ipm_mem = malloc(ipm_size);
 
 	struct d_ocp_qp_ipm_workspace workspace;
-	d_create_ocp_qp_ipm(&size, &arg, &workspace, ipm_mem);
+	d_create_ocp_qp_ipm(&dim, &arg, &workspace, ipm_mem);
 
 	int hpipm_return; // 0 normal; 1 max iter
 

@@ -34,13 +34,13 @@ OBJS +=
 endif
 
 # double
-OBJS += d_ocp_qp_size.o
+OBJS += d_ocp_qp_dim.o
 OBJS += d_ocp_qp.o
 OBJS += d_ocp_qp_sol.o
 OBJS += d_ocp_qp_kkt.o
 OBJS += d_ocp_qp_ipm.o
 # single
-OBJS += s_ocp_qp_size.o
+OBJS += s_ocp_qp_dim.o
 OBJS += s_ocp_qp.o
 OBJS += s_ocp_qp_sol.o
 OBJS += s_ocp_qp_kkt.o
@@ -54,8 +54,8 @@ clean:
 	rm -f *.o
 	rm -f *.s
 
-d_ocp_qp_size.o: d_ocp_qp_size.c x_ocp_qp_size.c
-s_ocp_qp_size.o: s_ocp_qp_size.c x_ocp_qp_size.c
+d_ocp_qp_dim.o: d_ocp_qp_dim.c x_ocp_qp_dim.c
+s_ocp_qp_dim.o: s_ocp_qp_dim.c x_ocp_qp_dim.c
 d_ocp_qp.o: d_ocp_qp.c x_ocp_qp.c
 s_ocp_qp.o: s_ocp_qp.c x_ocp_qp.c
 d_ocp_qp_sol.o: d_ocp_qp_sol.c x_ocp_qp_sol.c

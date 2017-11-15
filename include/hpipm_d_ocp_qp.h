@@ -33,7 +33,7 @@
 #include <blasfeo_target.h>
 #include <blasfeo_common.h>
 
-#include "hpipm_d_ocp_qp_size.h"
+#include "hpipm_d_ocp_qp_dim.h"
 
 
 
@@ -45,7 +45,7 @@ extern "C" {
 
 struct d_ocp_qp
 	{
-	struct d_ocp_qp_size *size;
+	struct d_ocp_qp_dim *dim;
 	struct d_strmat *BAbt;
 	struct d_strvec *b;
 	struct d_strmat *RSQrq;
@@ -62,9 +62,9 @@ struct d_ocp_qp
 
 
 //
-int d_memsize_ocp_qp(struct d_ocp_qp_size *size);
+int d_memsize_ocp_qp(struct d_ocp_qp_dim *dim);
 //
-void d_create_ocp_qp(struct d_ocp_qp_size *size, struct d_ocp_qp *qp, void *memory);
+void d_create_ocp_qp(struct d_ocp_qp_dim *dim, struct d_ocp_qp *qp, void *memory);
 //
 void d_cvt_colmaj_to_ocp_qp(double **A, double **B, double **b, double **Q, double **S, double **R, double **q, double **r, int **idxb, double **lb, double **ub, double **C, double **D, double **lg, double **ug, double **Zl, double **Zu, double **zl, double **zu, int **idxs, struct d_ocp_qp *qp);
 //

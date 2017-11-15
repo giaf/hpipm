@@ -36,12 +36,12 @@ void INIT_VAR_OCP_QP(struct OCP_QP *qp, struct OCP_QP_SOL *qp_sol, struct OCP_QP
 	int ii, jj;
 
 	//
-	int N = qp->size->N;
-	int *nx = qp->size->nx;
-	int *nu = qp->size->nu;
-	int *nb = qp->size->nb;
-	int *ng = qp->size->ng;
-	int *ns = qp->size->ns;
+	int N = qp->dim->N;
+	int *nx = qp->dim->nx;
+	int *nu = qp->dim->nu;
+	int *nb = qp->dim->nb;
+	int *ng = qp->dim->ng;
+	int *ns = qp->dim->ns;
 
 	REAL mu0 = ws->mu0;
 
@@ -192,12 +192,12 @@ void COMPUTE_RES_OCP_QP(struct OCP_QP *qp, struct OCP_QP_SOL *qp_sol, struct OCP
 	int ii;
 
 	//
-	int N = qp->size->N;
-	int *nx = qp->size->nx;
-	int *nu = qp->size->nu;
-	int *nb = qp->size->nb;
-	int *ng = qp->size->ng;
-	int *ns = qp->size->ns;
+	int N = qp->dim->N;
+	int *nx = qp->dim->nx;
+	int *nu = qp->dim->nu;
+	int *nb = qp->dim->nb;
+	int *ng = qp->dim->ng;
+	int *ns = qp->dim->ns;
 
 	int nct = 0;
 	for(ii=0; ii<=N; ii++)
@@ -311,11 +311,11 @@ void COMPUTE_RES_OCP_QP(struct OCP_QP *qp, struct OCP_QP_SOL *qp_sol, struct OCP
 void FACT_SOLVE_KKT_UNCONSTR_OCP_QP(struct OCP_QP *qp, struct OCP_QP_SOL *qp_sol, struct OCP_QP_IPM_WORKSPACE *ws)
 	{
 
-	int N = qp->size->N;
-	int *nx = qp->size->nx;
-	int *nu = qp->size->nu;
-	int *nb = qp->size->nb;
-	int *ng = qp->size->ng;
+	int N = qp->dim->N;
+	int *nx = qp->dim->nx;
+	int *nu = qp->dim->nu;
+	int *nb = qp->dim->nb;
+	int *ng = qp->dim->ng;
 
 	struct STRMAT *BAbt = qp->BAbt;
 	struct STRMAT *RSQrq = qp->RSQrq;
@@ -384,11 +384,11 @@ static void COND_SLACKS_FACT_SOLVE(int ss, struct OCP_QP *qp, struct OCP_QP_IPM_
 
 	int ii, idx;
 
-	int nx0 = qp->size->nx[ss];
-	int nu0 = qp->size->nu[ss];
-	int nb0 = qp->size->nb[ss];
-	int ng0 = qp->size->ng[ss];
-	int ns0 = qp->size->ns[ss];
+	int nx0 = qp->dim->nx[ss];
+	int nu0 = qp->dim->nu[ss];
+	int nb0 = qp->dim->nb[ss];
+	int ng0 = qp->dim->ng[ss];
+	int ns0 = qp->dim->ns[ss];
 
 	struct STRVEC *Z = qp->Z+ss;
 	int *idxs0 = qp->idxs[ss];
@@ -449,11 +449,11 @@ static void COND_SLACKS_SOLVE(int ss, struct OCP_QP *qp, struct OCP_QP_IPM_WORKS
 
 	int ii, idx;
 
-	int nx0 = qp->size->nx[ss];
-	int nu0 = qp->size->nu[ss];
-	int nb0 = qp->size->nb[ss];
-	int ng0 = qp->size->ng[ss];
-	int ns0 = qp->size->ns[ss];
+	int nx0 = qp->dim->nx[ss];
+	int nu0 = qp->dim->nu[ss];
+	int nb0 = qp->dim->nb[ss];
+	int ng0 = qp->dim->ng[ss];
+	int ns0 = qp->dim->ns[ss];
 
 	int *idxs0 = qp->idxs[ss];
 
@@ -501,11 +501,11 @@ static void EXPAND_SLACKS(int ss, struct OCP_QP *qp, struct OCP_QP_IPM_WORKSPACE
 
 	int ii, idx;
 
-	int nx0 = qp->size->nx[ss];
-	int nu0 = qp->size->nu[ss];
-	int nb0 = qp->size->nb[ss];
-	int ng0 = qp->size->ng[ss];
-	int ns0 = qp->size->ns[ss];
+	int nx0 = qp->dim->nx[ss];
+	int nu0 = qp->dim->nu[ss];
+	int nb0 = qp->dim->nb[ss];
+	int ng0 = qp->dim->ng[ss];
+	int ns0 = qp->dim->ns[ss];
 
 	int *idxs0 = qp->idxs[ss];
 
@@ -541,12 +541,12 @@ static void EXPAND_SLACKS(int ss, struct OCP_QP *qp, struct OCP_QP_IPM_WORKSPACE
 void FACT_SOLVE_KKT_STEP_OCP_QP(struct OCP_QP *qp, struct OCP_QP_IPM_WORKSPACE *ws)
 	{
 
-	int N = qp->size->N;
-	int *nx = qp->size->nx;
-	int *nu = qp->size->nu;
-	int *nb = qp->size->nb;
-	int *ng = qp->size->ng;
-	int *ns = qp->size->ns;
+	int N = qp->dim->N;
+	int *nx = qp->dim->nx;
+	int *nu = qp->dim->nu;
+	int *nb = qp->dim->nb;
+	int *ng = qp->dim->ng;
+	int *ns = qp->dim->ns;
 
 	struct STRMAT *BAbt = qp->BAbt;
 	struct STRMAT *RSQrq = qp->RSQrq;
@@ -720,12 +720,12 @@ void FACT_SOLVE_KKT_STEP_OCP_QP(struct OCP_QP *qp, struct OCP_QP_IPM_WORKSPACE *
 void SOLVE_KKT_STEP_OCP_QP(struct OCP_QP *qp, struct OCP_QP_IPM_WORKSPACE *ws)
 	{
 
-	int N = qp->size->N;
-	int *nx = qp->size->nx;
-	int *nu = qp->size->nu;
-	int *nb = qp->size->nb;
-	int *ng = qp->size->ng;
-	int *ns = qp->size->ns;
+	int N = qp->dim->N;
+	int *nx = qp->dim->nx;
+	int *nu = qp->dim->nu;
+	int *nb = qp->dim->nb;
+	int *ng = qp->dim->ng;
+	int *ns = qp->dim->ns;
 
 	struct STRMAT *BAbt = qp->BAbt;
 	struct STRMAT *RSQrq = qp->RSQrq;

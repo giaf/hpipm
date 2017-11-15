@@ -61,13 +61,13 @@ OBJS += ipm_core/s_core_qp_ipm.o
 #OBJS +=
 # ocp qp
 # double
-OBJS += ocp_qp/d_ocp_qp_size.o
+OBJS += ocp_qp/d_ocp_qp_dim.o
 OBJS += ocp_qp/d_ocp_qp.o
 OBJS += ocp_qp/d_ocp_qp_sol.o
 OBJS += ocp_qp/d_ocp_qp_kkt.o
 OBJS += ocp_qp/d_ocp_qp_ipm.o
 # single
-OBJS += ocp_qp/s_ocp_qp_size.o
+OBJS += ocp_qp/s_ocp_qp_dim.o
 OBJS += ocp_qp/s_ocp_qp.o
 OBJS += ocp_qp/s_ocp_qp_sol.o
 OBJS += ocp_qp/s_ocp_qp_kkt.o

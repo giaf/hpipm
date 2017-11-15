@@ -27,17 +27,17 @@
 
 
 
-#include "../include/hpipm_s_ocp_qp_size.h"
+#include "../include/hpipm_s_ocp_qp_dim.h"
 
 
 
-#define OCP_QP_SIZE s_ocp_qp_size
+#define OCP_QP_DIM s_ocp_qp_dim
 
-#define MEMSIZE_OCP_QP_SIZE s_memsize_ocp_qp_size
-#define CREATE_OCP_QP_SIZE s_create_ocp_qp_size
-#define CVT_INT_TO_OCP_QP_SIZE s_cvt_int_to_ocp_qp_size
+#define MEMSIZE_OCP_QP_DIM s_memsize_ocp_qp_dim
+#define CREATE_OCP_QP_DIM s_create_ocp_qp_dim
+#define CVT_INT_TO_OCP_QP_DIM s_cvt_int_to_ocp_qp_dim
 
 
 
-#include "x_ocp_qp_size.c"
+#include "x_ocp_qp_dim.c"
 

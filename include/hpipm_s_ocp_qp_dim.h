@@ -25,8 +25,8 @@
 *                                                                                                 *
 **************************************************************************************************/
 
-#ifndef HPIPM_D_OCP_QP_SIZE_H_
-#define HPIPM_D_OCP_QP_SIZE_H_
+#ifndef HPIPM_S_OCP_QP_DIM_H_
+#define HPIPM_S_OCP_QP_DIM_H_
 
 
 
@@ -36,7 +36,7 @@ extern "C" {
 
 
 
-struct d_ocp_qp_size
+struct s_ocp_qp_dim
 	{
 	int *nx; // number of states
 	int *nu; // number of inputs
@@ -52,11 +52,11 @@ struct d_ocp_qp_size
 
 
 //
-int d_memsize_ocp_qp_size(int N);
+int s_memsize_ocp_qp_dim(int N);
 //
-void d_create_ocp_qp_size(int N, struct d_ocp_qp_size *qp_size, void *memory);
+void s_create_ocp_qp_dim(int N, struct s_ocp_qp_dim *qp_dim, void *memory);
 //
-void d_cvt_int_to_ocp_qp_size(int N, int *nx, int *nu, int *nbx, int *nbu, int *ng, int *ns, struct d_ocp_qp_size *size);
+void s_cvt_int_to_ocp_qp_dim(int N, int *nx, int *nu, int *nbx, int *nbu, int *ng, int *ns, struct s_ocp_qp_dim *dim);
 
 
 
@@ -66,4 +66,4 @@ void d_cvt_int_to_ocp_qp_size(int N, int *nx, int *nu, int *nbx, int *nbu, int *
 
 
 
-#endif // HPIPM_D_OCP_QP_SIZE_H_
+#endif // HPIPM_S_OCP_QP_DIM_H_
