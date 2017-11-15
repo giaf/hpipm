@@ -109,7 +109,7 @@ void INIT_VAR_DENSE_QP(struct DENSE_QP *qp, struct DENSE_QP_SOL *qp_sol, struct 
 	GEMV_T_LIBSTR(nv, ng, 1.0, qp->Ct, 0, 0, qp_sol->v, 0, 0.0, qp_sol->t, nb, qp_sol->t, nb);
 	for(ii=0; ii<ng; ii++)
 		{
-#if 0
+#if 1
 		t[2*nb+ng+ii] = t[nb+ii];
 		t[nb+ii]      -= d[nb+ii];
 		t[2*nb+ng+ii] += d[2*nb+ng+ii];
