@@ -52,11 +52,11 @@ struct d_cond_qp_ocp2ocp_workspace
 
 
 //
-void d_compute_qp_size_ocp2ocp(struct d_ocp_qp_size *ocp_size, struct d_ocp_qp_size *part_dense_size);
+void d_compute_qp_dim_ocp2ocp(struct d_ocp_qp_dim *ocp_dim, struct d_ocp_qp_dim *part_dense_dim);
 //
-int d_memsize_cond_qp_ocp2ocp(struct d_ocp_qp_size *ocp_size, struct d_ocp_qp_size *part_dense_size);
+int d_memsize_cond_qp_ocp2ocp(struct d_ocp_qp_dim *ocp_dim, struct d_ocp_qp_dim *part_dense_dim);
 //
-void d_create_cond_qp_ocp2ocp(struct d_ocp_qp_size *ocp_size, struct d_ocp_qp_size *part_dense_size, struct d_cond_qp_ocp2ocp_workspace *cond_ws, void *mem);
+void d_create_cond_qp_ocp2ocp(struct d_ocp_qp_dim *ocp_dim, struct d_ocp_qp_dim *part_dense_dim, struct d_cond_qp_ocp2ocp_workspace *cond_ws, void *mem);
 //
 void d_cond_qp_ocp2ocp(struct d_ocp_qp *ocp_qp, struct d_ocp_qp *part_dense_qp, struct d_cond_qp_ocp2ocp_workspace *cond_ws);
 //

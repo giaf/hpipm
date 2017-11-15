@@ -25,18 +25,27 @@
 *                                                                                                 *
 **************************************************************************************************/
 
+#ifndef HPIPM_S_OCP_QP_SOL_H_
+#define HPIPM_S_OCP_QP_SOL_H_
+
 
 
 #include <blasfeo_target.h>
 #include <blasfeo_common.h>
 
+#include "hpipm_s_ocp_qp_dim.h"
+
+
+
 #ifdef __cplusplus
 extern "C" {
 #endif
 
+
+
 struct s_ocp_qp_sol
 	{
-	struct s_ocp_qp_size *size;
+	struct s_ocp_qp_dim *dim;
 	struct s_strvec *ux;
 	struct s_strvec *pi;
 	struct s_strvec *lam;
@@ -47,9 +56,9 @@ struct s_ocp_qp_sol
 
 
 //
-int s_memsize_ocp_qp_sol(struct s_ocp_qp_size *size);
+int s_memsize_ocp_qp_sol(struct s_ocp_qp_dim *dim);
 //
-void s_create_ocp_qp_sol(struct s_ocp_qp_size *size, struct s_ocp_qp_sol *qp_sol, void *memory);
+void s_create_ocp_qp_sol(struct s_ocp_qp_dim *dim, struct s_ocp_qp_sol *qp_sol, void *memory);
 //
 void s_cvt_ocp_qp_sol_to_colmaj(struct s_ocp_qp_sol *qp_sol, float **u, float **x, float **ls, float **us, float **pi, float **lam_lb, float **lam_ub, float **lam_lg, float **lam_ug, float **lam_ls, float **lam_us);
 //
@@ -62,3 +71,7 @@ void s_cvt_ocp_qp_sol_to_libstr(struct s_ocp_qp_sol *qp_sol, struct s_strvec *u,
 #ifdef __cplusplus
 } /* extern "C" */
 #endif
+
+
+
+#endif // HPIPM_S_OCP_QP_SOL_H_

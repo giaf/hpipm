@@ -36,6 +36,7 @@
 #include <blasfeo_common.h>
 #include <blasfeo_d_aux.h>
 
+#include "../include/hpipm_d_dense_qp_dim.h"
 #include "../include/hpipm_d_dense_qp.h"
 #include "../include/hpipm_d_dense_qp_sol.h"
 
@@ -44,6 +45,7 @@
 #define CREATE_STRVEC d_create_strvec
 #define CVT_STRVEC2VEC d_cvt_strvec2vec
 #define DENSE_QP d_dense_qp
+#define DENSE_QP_DIM d_dense_qp_dim
 #define DENSE_QP_SOL d_dense_qp_sol
 #define REAL double
 #define STRVEC d_strvec

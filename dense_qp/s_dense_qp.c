@@ -37,6 +37,7 @@
 #include <blasfeo_common.h>
 #include <blasfeo_s_aux.h>
 
+#include "../include/hpipm_s_dense_qp_dim.h"
 #include "../include/hpipm_s_dense_qp.h"
 
 
@@ -48,10 +49,8 @@
 #define CVT_VEC2STRVEC s_cvt_vec2strvec
 #define CVT_STRMAT2MAT s_cvt_strmat2mat
 #define CVT_STRVEC2VEC s_cvt_strvec2vec
-#define DENSE_QP_DIM s_dense_qp_dim
-#define DENSE_QP_VEC s_dense_qp_vec
-#define DENSE_QP_MAT s_dense_qp_mat
 #define DENSE_QP s_dense_qp
+#define DENSE_QP_DIM s_dense_qp_dim
 #define GECP_LIBSTR sgecp_libstr
 #define GETR_LIBSTR sgetr_libstr
 #define REAL float
@@ -71,8 +70,6 @@
 #define CVT_LIBSTR_TO_DENSE_QP s_cvt_libstr_to_dense_qp
 #define CVT_DENSE_QP_TO_LIBSTR s_cvt_dense_qp_to_libstr
 #define CAST_DENSE_QP_DIM s_cast_dense_qp_dim
-//#define CREATE_DENSE_QP s_create_dense_qp
-//#define COPY_DENSE_QP s_copy_dense_qp
 
 
 

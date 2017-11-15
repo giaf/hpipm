@@ -27,16 +27,16 @@
 
 
 
-int MEMSIZE_OCP_QP(struct OCP_QP_SIZE *ocp_size)
+int MEMSIZE_OCP_QP(struct OCP_QP_DIM *dim)
 	{
 
-	// extract size
-	int N = ocp_size->N;
-	int *nx = ocp_size->nx;
-	int *nu = ocp_size->nu;
-	int *nb = ocp_size->nb;
-	int *ng = ocp_size->ng;
-	int *ns = ocp_size->ns;
+	// extract dim
+	int N = dim->N;
+	int *nx = dim->nx;
+	int *nu = dim->nu;
+	int *nb = dim->nb;
+	int *ng = dim->ng;
+	int *ns = dim->ns;
 
 	// loop index
 	int ii;
@@ -88,16 +88,16 @@ int MEMSIZE_OCP_QP(struct OCP_QP_SIZE *ocp_size)
 
 
 
-void CREATE_OCP_QP(struct OCP_QP_SIZE *size, struct OCP_QP *qp, void *mem)
+void CREATE_OCP_QP(struct OCP_QP_DIM *dim, struct OCP_QP *qp, void *mem)
 	{
 
-	// extract size
-	int N = size->N;
-	int *nx = size->nx;
-	int *nu = size->nu;
-	int *nb = size->nb;
-	int *ng = size->ng;
-	int *ns = size->ns;
+	// extract dim
+	int N = dim->N;
+	int *nx = dim->nx;
+	int *nu = dim->nu;
+	int *nb = dim->nb;
+	int *ng = dim->ng;
+	int *ns = dim->ns;
 
 	// loop index
 	int ii;
@@ -255,9 +255,9 @@ void CREATE_OCP_QP(struct OCP_QP_SIZE *size, struct OCP_QP *qp, void *mem)
 		tmp_ptr += ng[ii]*sizeof(REAL);
 		}
 
-	qp->size = size;
+	qp->dim = dim;
 
-	qp->memsize = MEMSIZE_OCP_QP(size);
+	qp->memsize = MEMSIZE_OCP_QP(dim);
 
 
 #if defined(RUNTIME_CHECKS)
@@ -278,13 +278,13 @@ void CREATE_OCP_QP(struct OCP_QP_SIZE *size, struct OCP_QP *qp, void *mem)
 void CVT_COLMAJ_TO_OCP_QP(REAL **A, REAL **B, REAL **b, REAL **Q, REAL **S, REAL **R, REAL **q, REAL **r, int **idxb, REAL **d_lb, REAL **d_ub, REAL **C, REAL **D, REAL **d_lg, REAL **d_ug, REAL **Zl, REAL **Zu, REAL **zl, REAL **zu, int **idxs, struct OCP_QP *qp)
 	{
 
-	// extract size
-	int N = qp->size->N;
-	int *nx = qp->size->nx;
-	int *nu = qp->size->nu;
-	int *nb = qp->size->nb;
-	int *ng = qp->size->ng;
-	int *ns = qp->size->ns;
+	// extract dim
+	int N = qp->dim->N;
+	int *nx = qp->dim->nx;
+	int *nu = qp->dim->nu;
+	int *nb = qp->dim->nb;
+	int *ng = qp->dim->ng;
+	int *ns = qp->dim->ns;
 
 	int ii, jj;
 
@@ -351,13 +351,13 @@ void CVT_COLMAJ_TO_OCP_QP(REAL **A, REAL **B, REAL **b, REAL **Q, REAL **S, REAL
 void CVT_ROWMAJ_TO_OCP_QP(REAL **A, REAL **B, REAL **b, REAL **Q, REAL **S, REAL **R, REAL **q, REAL **r, int **idxb, REAL **d_lb, REAL **d_ub, REAL **C, REAL **D, REAL **d_lg, REAL **d_ug, REAL **Zl, REAL **Zu, REAL **zl, REAL **zu, int **idxs, struct OCP_QP *qp)
 	{
 
-	// extract size
-	int N = qp->size->N;
-	int *nx = qp->size->nx;
-	int *nu = qp->size->nu;
-	int *nb = qp->size->nb;
-	int *ng = qp->size->ng;
-	int *ns = qp->size->ns;
+	// extract dim
+	int N = qp->dim->N;
+	int *nx = qp->dim->nx;
+	int *nu = qp->dim->nu;
+	int *nb = qp->dim->nb;
+	int *ng = qp->dim->ng;
+	int *ns = qp->dim->ns;
 
 	int ii, jj;
 

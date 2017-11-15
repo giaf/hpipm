@@ -27,8 +27,14 @@
 
 
 
-int MEMSIZE_DENSE_QP_SOL(int nv, int ne, int nb, int ng, int ns)
+int MEMSIZE_DENSE_QP_SOL(struct DENSE_QP_DIM *dim)
 	{
+
+	int nv = dim->nv;
+	int ne = dim->ne;
+	int nb = dim->nb;
+	int ng = dim->ng;
+	int ns = dim->ns;
 
 	int size = 0;
 
@@ -47,8 +53,14 @@ int MEMSIZE_DENSE_QP_SOL(int nv, int ne, int nb, int ng, int ns)
 
 
 
-void CREATE_DENSE_QP_SOL(int nv, int ne, int nb, int ng, int ns, struct DENSE_QP_SOL *qp_sol, void *mem)
+void CREATE_DENSE_QP_SOL(struct DENSE_QP_DIM *dim, struct DENSE_QP_SOL *qp_sol, void *mem)
 	{
+
+	int nv = dim->nv;
+	int ne = dim->ne;
+	int nb = dim->nb;
+	int ng = dim->ng;
+	int ns = dim->ns;
 
 
 	// vector struct stuff
@@ -89,7 +101,9 @@ void CREATE_DENSE_QP_SOL(int nv, int ne, int nb, int ng, int ns, struct DENSE_QP
 	c_ptr += qp_sol->t->memory_size;
 
 
-	qp_sol->memsize = MEMSIZE_DENSE_QP_SOL(nv, ne, nb, ng, ns);
+	qp_sol->dim = dim;
+
+	qp_sol->memsize = MEMSIZE_DENSE_QP_SOL(dim);
 
 
 #if defined(RUNTIME_CHECKS)
@@ -107,14 +121,14 @@ void CREATE_DENSE_QP_SOL(int nv, int ne, int nb, int ng, int ns, struct DENSE_QP
 
 
 
-void CVT_DENSE_QP_SOL_TO_COLMAJ(struct DENSE_QP *qp, struct DENSE_QP_SOL *qp_sol, REAL *v, REAL *ls, REAL *us, REAL *pi, REAL *lam_lb, REAL *lam_ub, REAL *lam_lg, REAL *lam_ug, REAL *lam_ls, REAL *lam_us)
+void CVT_DENSE_QP_SOL_TO_COLMAJ(struct DENSE_QP_SOL *qp_sol, REAL *v, REAL *ls, REAL *us, REAL *pi, REAL *lam_lb, REAL *lam_ub, REAL *lam_lg, REAL *lam_ug, REAL *lam_ls, REAL *lam_us)
 	{
 
-	int nv = qp->nv;
-	int ne = qp->ne;
-	int nb = qp->nb;
-	int ng = qp->ng;
-	int ns = qp->ns;
+	int nv = qp_sol->dim->nv;
+	int ne = qp_sol->dim->ne;
+	int nb = qp_sol->dim->nb;
+	int ng = qp_sol->dim->ng;
+	int ns = qp_sol->dim->ns;
 
 	CVT_STRVEC2VEC(nv, qp_sol->v, 0, v);
 	if(ne>0)
@@ -145,14 +159,14 @@ void CVT_DENSE_QP_SOL_TO_COLMAJ(struct DENSE_QP *qp, struct DENSE_QP_SOL *qp_sol
 
 
 
-void CVT_DENSE_QP_SOL_TO_ROWMAJ(struct DENSE_QP *qp, struct DENSE_QP_SOL *qp_sol, REAL *v, REAL *ls, REAL *us, REAL *pi, REAL *lam_lb, REAL *lam_ub, REAL *lam_lg, REAL *lam_ug, REAL *lam_ls, REAL *lam_us)
+void CVT_DENSE_QP_SOL_TO_ROWMAJ(struct DENSE_QP_SOL *qp_sol, REAL *v, REAL *ls, REAL *us, REAL *pi, REAL *lam_lb, REAL *lam_ub, REAL *lam_lg, REAL *lam_ug, REAL *lam_ls, REAL *lam_us)
 	{
 
-	int nv = qp->nv;
-	int ne = qp->ne;
-	int nb = qp->nb;
-	int ng = qp->ng;
-	int ns = qp->ns;
+	int nv = qp_sol->dim->nv;
+	int ne = qp_sol->dim->ne;
+	int nb = qp_sol->dim->nb;
+	int ng = qp_sol->dim->ng;
+	int ns = qp_sol->dim->ns;
 
 	CVT_STRVEC2VEC(nv, qp_sol->v, 0, v);
 	if(ne>0)
@@ -183,14 +197,14 @@ void CVT_DENSE_QP_SOL_TO_ROWMAJ(struct DENSE_QP *qp, struct DENSE_QP_SOL *qp_sol
 
 
 
-void CVT_DENSE_QP_SOL_TO_LIBSTR(struct DENSE_QP *qp, struct DENSE_QP_SOL *qp_sol, struct STRVEC *v, struct STRVEC *ls, struct STRVEC *us, struct STRVEC *pi, struct STRVEC *lam_lb, struct STRVEC *lam_ub, struct STRVEC *lam_lg, struct STRVEC *lam_ug, struct STRVEC *lam_ls, struct STRVEC *lam_us)
+void CVT_DENSE_QP_SOL_TO_LIBSTR(struct DENSE_QP_SOL *qp_sol, struct STRVEC *v, struct STRVEC *ls, struct STRVEC *us, struct STRVEC *pi, struct STRVEC *lam_lb, struct STRVEC *lam_ub, struct STRVEC *lam_lg, struct STRVEC *lam_ug, struct STRVEC *lam_ls, struct STRVEC *lam_us)
 	{
 
-	int nv = qp->nv;
-	int ne = qp->ne;
-	int nb = qp->nb;
-	int ng = qp->ng;
-	int ns = qp->ns;
+	int nv = qp_sol->dim->nv;
+	int ne = qp_sol->dim->ne;
+	int nb = qp_sol->dim->nb;
+	int ng = qp_sol->dim->ng;
+	int ns = qp_sol->dim->ns;
 
 	VECCP_LIBSTR(nv, qp_sol->v, 0, v, 0);
 	if(ne>0)

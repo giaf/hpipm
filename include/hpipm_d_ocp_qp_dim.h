@@ -25,17 +25,8 @@
 *                                                                                                 *
 **************************************************************************************************/
 
-
-
-#ifndef HPIPM_D_DENSE_QP_H_
-#define HPIPM_D_DENSE_QP_H_
-
-
-
-#include <blasfeo_target.h>
-#include <blasfeo_common.h>
-
-#include "hpipm_d_dense_qp_dim.h"
+#ifndef HPIPM_D_OCP_QP_DIM_H_
+#define HPIPM_D_OCP_QP_DIM_H_
 
 
 
@@ -45,47 +36,34 @@ extern "C" {
 
 
 
-struct d_dense_qp
+struct d_ocp_qp_dim
 	{
-	struct d_dense_qp_dim *dim;
-	struct d_strmat *Hg; // hessian & gradient
-	struct d_strmat *A; // equality constraint matrix
-	struct d_strmat *Ct; // inequality constraints matrix
-	struct d_strvec *g; // gradient
-	struct d_strvec *b; // equality constraint vector
-	struct d_strvec *d; // inequality constraints vector
-	struct d_strvec *Z; // (diagonal) hessian of slacks
-	struct d_strvec *z; // gradient of slacks
-	int *idxb; // index of box constraints
-	int *idxs; // index of soft constraints
-	int memsize; // memory size in bytes
+	int *nx; // number of states
+	int *nu; // number of inputs
+	int *nb; // number of box constraints
+	int *nbx; // number of state box constraints
+	int *nbu; // number of input box constraints
+	int *ng; // number of general constraints
+	int *ns; // number of soft constraints
+	int N; // horizon length
+	int memsize;
 	};
 
 
 
 //
-int d_memsize_dense_qp(struct d_dense_qp_dim *dim);
+int d_memsize_ocp_qp_dim(int N);
 //
-void d_create_dense_qp(struct d_dense_qp_dim *dim, struct d_dense_qp *qp, void *memory);
+void d_create_ocp_qp_dim(int N, struct d_ocp_qp_dim *qp_dim, void *memory);
 //
-void d_cvt_colmaj_to_dense_qp(double *H, double *g, double *A, double *b, int *idxb, double *d_lb, double *d_ub, double *C, double *d_lg, double *d_ug, double *Zl, double *Zu, double *zl, double *zu, int *idxs, struct d_dense_qp *qp);
-//
-void d_cvt_dense_qp_to_colmaj(struct d_dense_qp *qp, double *H, double *g, double *A, double *b, int *idxb, double *d_lb, double *d_ub, double *C, double *d_lg, double *d_ug, double *Zl, double *Zu, double *zl, double *zu, int *idxs);
-//
-void d_cvt_rowmaj_to_dense_qp(double *H, double *g, double *A, double *b, int *idxb, double *d_lb, double *d_ub, double *C, double *d_lg, double *d_ug, double *Zl, double *Zu, double *zl, double *zu, int *idxs, struct d_dense_qp *qp);
-//
-void d_cvt_dense_qp_to_rowmaj(struct d_dense_qp *qp, double *H, double *g, double *A, double *b, int *idxb, double *d_lb, double *d_ub, double *C, double *d_lg, double *d_ug, double *Zl, double *Zu, double *zl, double *zu, int *idxs);
-//
-void d_cvt_libstr_to_dense_qp(struct d_strmat *H, struct d_strmat *A, struct d_strmat *C, struct d_strvec *g, struct d_strvec *b, struct d_strvec *d_lb, struct d_strvec *d_ub, struct d_strvec *d_lg, struct d_strvec *d_ug, int *idxb, struct d_strvec *Zl, struct d_strvec *Zu, struct d_strvec *zl, struct d_strvec *zu, int *idxs, struct d_dense_qp *qp);
-//
-void d_cvt_dense_qp_to_libstr(struct d_dense_qp *qp, struct d_strmat *H, struct d_strmat *A, struct d_strmat *C, struct d_strvec *g, struct d_strvec *b, struct d_strvec *d_lb, struct d_strvec *d_ub, struct d_strvec *d_lg, struct d_strvec *d_ug, int *idxb, struct d_strvec *Zl, struct d_strvec *Zu, struct d_strvec *zl, struct d_strvec *zu, int *idxs);
+void d_cvt_int_to_ocp_qp_dim(int N, int *nx, int *nu, int *nbx, int *nbu, int *ng, int *ns, struct d_ocp_qp_dim *dim);
 
 
 
 #ifdef __cplusplus
-} /* extern "C" */
+}	// #extern "C"
 #endif
 
 
 
-#endif // HPIPM_D_DENSE_QP_H_
+#endif // HPIPM_D_OCP_QP_DIM_H_

@@ -38,7 +38,7 @@
 #include <blasfeo_d_aux.h>
 #include <blasfeo_d_blas.h>
 
-#include "../include/hpipm_d_ocp_qp_size.h"
+#include "../include/hpipm_d_ocp_qp_dim.h"
 #include "../include/hpipm_d_ocp_qp.h"
 #include "../include/hpipm_d_ocp_qp_sol.h"
 #include "../include/hpipm_d_dense_qp.h"
@@ -608,27 +608,27 @@ int main()
 	hidxs[N] = idxsN;
 	
 /************************************************
-* ocp qp size
+* ocp qp dim
 ************************************************/
 
-	int size_size = d_memsize_ocp_qp_size(N);
-	printf("\nsize size = %d\n", size_size);
-	void *size_mem = malloc(size_size);
+	int dim_size = d_memsize_ocp_qp_dim(N);
+	printf("\ndim size = %d\n", dim_size);
+	void *dim_mem = malloc(dim_size);
 
-	struct d_ocp_qp_size size;
-	d_create_ocp_qp_size(N, &size, size_mem);
-	d_cvt_int_to_ocp_qp_size(N, nx, nu, nbx, nbu, ng, ns, &size);
+	struct d_ocp_qp_dim dim;
+	d_create_ocp_qp_dim(N, &dim, dim_mem);
+	d_cvt_int_to_ocp_qp_dim(N, nx, nu, nbx, nbu, ng, ns, &dim);
 
 /************************************************
 * ocp qp
 ************************************************/	
 	
-	int ocp_qp_size = d_memsize_ocp_qp(&size);
+	int ocp_qp_size = d_memsize_ocp_qp(&dim);
 	printf("\nqp size = %d\n", ocp_qp_size);
 	void *ocp_qp_mem = malloc(ocp_qp_size);
 
 	struct d_ocp_qp ocp_qp;
-	d_create_ocp_qp(&size, &ocp_qp, ocp_qp_mem);
+	d_create_ocp_qp(&dim, &ocp_qp, ocp_qp_mem);
 	d_cvt_colmaj_to_ocp_qp(hA, hB, hb, hQ, hS, hR, hq, hr, hidxb, hd_lb, hd_ub, hC, hD, hd_lg, hd_ug, hZl, hZu, hzl, hzu, hidxs, &ocp_qp);
 
 #if 0
@@ -656,31 +656,43 @@ int main()
 #endif
 
 /************************************************
+* dense qp dim
+************************************************/	
+	
+	int dense_qp_dim_size = d_memsize_dense_qp_dim();
+	printf("\nqp dim size = %d\n", dense_qp_dim_size);
+	void *dense_qp_dim_mem = malloc(dense_qp_dim_size);
+
+	struct d_dense_qp_dim qp_dim;
+	d_create_dense_qp_dim(&qp_dim, dense_qp_dim_mem);
+
+	d_compute_qp_dim_ocp2dense(&dim, &qp_dim);
+
+	int nvc = qp_dim.nv;
+	int nec = qp_dim.ne;
+	int nbc = qp_dim.nb;
+	int ngc = qp_dim.ng;
+	int nsc = qp_dim.ns;
+
+	printf("\nnv = %d, ne = %d, nb = %d, ng = %d, ns = %d\n\n", nvc, nec, nbc, ngc, nsc);
+
+/************************************************
 * dense qp
 ************************************************/	
 	
-	int nvc = 0;
-	int nec = 0;
-	int nbc = 0;
-	int ngc = 0;
-	int nsc = 0;
-
-	d_compute_qp_size_ocp2dense(&size, &nvc, &nec, &nbc, &ngc, &nsc);
-	printf("\nnv = %d, ne = %d, nb = %d, ng = %d, ns = %d\n\n", nvc, nec, nbc, ngc, nsc);
-
-	int dense_qp_size = d_memsize_dense_qp(nvc, nec, nbc, ngc, nsc);
+	int dense_qp_size = d_memsize_dense_qp(&qp_dim);
 	printf("\nqp size = %d\n", dense_qp_size);
 	void *dense_qp_mem = malloc(dense_qp_size);
 
 	struct d_dense_qp dense_qp;
-	d_create_dense_qp(nvc, nec, nbc, ngc, nsc, &dense_qp, dense_qp_mem);
+	d_create_dense_qp(&qp_dim, &dense_qp, dense_qp_mem);
 
-	int cond_size = d_memsize_cond_qp_ocp2dense(&size);
+	int cond_size = d_memsize_cond_qp_ocp2dense(&dim);
 	printf("\ncond size = %d\n", cond_size);
 	void *cond_mem = malloc(cond_size);
 
 	struct d_cond_qp_ocp2dense_workspace cond_ws;
-	d_create_cond_qp_ocp2dense(&size, &cond_ws, cond_mem);
+	d_create_cond_qp_ocp2dense(&dim, &cond_ws, cond_mem);
 
 	gettimeofday(&tv0, NULL); // start
 
@@ -742,23 +754,23 @@ int main()
 * dense qp sol
 ************************************************/	
 
-	int dense_qp_sol_size = d_memsize_dense_qp_sol(nvc, nec, nbc, ngc, nsc);
+	int dense_qp_sol_size = d_memsize_dense_qp_sol(&qp_dim);
 	printf("\ndense qp sol size = %d\n", dense_qp_sol_size);
 	void *dense_qp_sol_mem = malloc(dense_qp_sol_size);
 
 	struct d_dense_qp_sol dense_qp_sol;
-	d_create_dense_qp_sol(nvc, nec, nbc, ngc, nsc, &dense_qp_sol, dense_qp_sol_mem);
+	d_create_dense_qp_sol(&qp_dim, &dense_qp_sol, dense_qp_sol_mem);
 
 /************************************************
 * ipm arg
 ************************************************/	
 
-	int ipm_arg_size = d_memsize_dense_qp_ipm_arg(&dense_qp);
+	int ipm_arg_size = d_memsize_dense_qp_ipm_arg(&qp_dim);
 	printf("\nipm arg size = %d\n", ipm_arg_size);
 	void *ipm_arg_mem = malloc(ipm_arg_size);
 
 	struct d_dense_qp_ipm_arg dense_arg;
-	d_create_dense_qp_ipm_arg(&dense_qp, &dense_arg, ipm_arg_mem);
+	d_create_dense_qp_ipm_arg(&qp_dim, &dense_arg, ipm_arg_mem);
 	d_set_default_dense_qp_ipm_arg(&dense_arg);
 
 //	arg.alpha_min = 1e-8;
@@ -775,12 +787,12 @@ int main()
 * ipm
 ************************************************/	
 
-	int dense_ipm_size = d_memsize_dense_qp_ipm(&dense_qp, &dense_arg);
+	int dense_ipm_size = d_memsize_dense_qp_ipm(&qp_dim, &dense_arg);
 	printf("\ndense ipm size = %d\n", dense_ipm_size);
 	void *dense_ipm_mem = malloc(dense_ipm_size);
 
 	struct d_dense_qp_ipm_workspace dense_workspace;
-	d_create_dense_qp_ipm(&dense_qp, &dense_arg, &dense_workspace, dense_ipm_mem);
+	d_create_dense_qp_ipm(&qp_dim, &dense_arg, &dense_workspace, dense_ipm_mem);
 
 	int hpipm_return; // 0 normal; 1 max iter
 
@@ -861,12 +873,12 @@ int main()
 * ocp qp sol
 ************************************************/	
 	
-	int ocp_qp_sol_size = d_memsize_ocp_qp_sol(&size);
+	int ocp_qp_sol_size = d_memsize_ocp_qp_sol(&dim);
 	printf("\nocp qp sol size = %d\n", ocp_qp_sol_size);
 	void *ocp_qp_sol_mem = malloc(ocp_qp_sol_size);
 
 	struct d_ocp_qp_sol ocp_qp_sol;
-	d_create_ocp_qp_sol(&size, &ocp_qp_sol, ocp_qp_sol_mem);
+	d_create_ocp_qp_sol(&dim, &ocp_qp_sol, ocp_qp_sol_mem);
 
 /************************************************
 * expand solution

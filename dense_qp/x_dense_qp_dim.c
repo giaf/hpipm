@@ -25,45 +25,41 @@
 *                                                                                                 *
 **************************************************************************************************/
 
-#ifndef HPIPM_D_OCP_QP_SIZE_H_
-#define HPIPM_D_OCP_QP_SIZE_H_
 
 
-
-#ifdef __cplusplus
-extern "C" {
-#endif
-
-
-
-struct d_ocp_qp_size
+int MEMSIZE_DENSE_QP_DIM()
 	{
-	int *nx; // number of states
-	int *nu; // number of inputs
-	int *nb; // number of box constraints
-	int *nbx; // number of state box constraints
-	int *nbu; // number of input box constraints
-	int *ng; // number of general constraints
-	int *ns; // number of soft constraints
-	int N; // horizon length
-	int memsize;
-	};
+
+	int size = 0;
+
+	size = (size+8-1)/8*8;
+
+	return size;
+
+	}
 
 
 
-//
-int d_memsize_ocp_qp_size(int N);
-//
-void d_create_ocp_qp_size(int N, struct d_ocp_qp_size *qp_size, void *memory);
-//
-void d_cvt_int_to_ocp_qp_size(int N, int *nx, int *nu, int *nbx, int *nbu, int *ng, int *ns, struct d_ocp_qp_size *size);
+void CREATE_DENSE_QP_DIM(struct DENSE_QP_DIM *size, void *memory)
+	{
+
+	size->memsize = MEMSIZE_DENSE_QP_DIM();
+
+	return;
+
+	}
 
 
+void CVT_INT_TO_DENSE_QP_DIM(int nv, int ne, int nb, int ng, int ns, struct DENSE_QP_DIM *size)
+	{
 
-#ifdef __cplusplus
-}	// #extern "C"
-#endif
+	size->nv = nv;
+	size->ne = ne;
+	size->nb = nb;
+	size->ng = ng;
+	size->ns = ns;
 
+	return;
 
+	}
 
-#endif // HPIPM_D_OCP_QP_SIZE_H_

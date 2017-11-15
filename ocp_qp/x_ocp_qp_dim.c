@@ -27,15 +27,83 @@
 
 
 
-#include "../include/hpipm_d_ocp_qp_size.h"
+int MEMSIZE_OCP_QP_DIM(int N)
+	{
+
+	int size = 0;
+
+	size += 7*(N+1)*sizeof(int);
+
+	size = (size+8-1)/8*8;
+
+	return size;
+
+	}
 
 
 
-#define OCP_QP_SIZE d_ocp_qp_size
+void CREATE_OCP_QP_DIM(int N, struct OCP_QP_DIM *dim, void *memory)
+	{
 
-#define MEMSIZE_OCP_QP_SIZE d_memsize_ocp_qp_size
-#define CREATE_OCP_QP_SIZE d_create_ocp_qp_size
-#define CVT_INT_TO_OCP_QP_SIZE d_cvt_int_to_ocp_qp_size
+	// loop index
+	int ii;
+
+	char *c_ptr = memory;
+
+	// nx
+	dim->nx = (int *) c_ptr;
+	c_ptr += (N+1)*sizeof(int);
+	// nu
+	dim->nu = (int *) c_ptr;
+	c_ptr += (N+1)*sizeof(int);
+	// nb
+	dim->nb = (int *) c_ptr;
+	c_ptr += (N+1)*sizeof(int);
+	// nbx
+	dim->nbx = (int *) c_ptr;
+	c_ptr += (N+1)*sizeof(int);
+	// nbu
+	dim->nbu = (int *) c_ptr;
+	c_ptr += (N+1)*sizeof(int);
+	// ng
+	dim->ng = (int *) c_ptr;
+	c_ptr += (N+1)*sizeof(int);
+	// ns
+	dim->ns = (int *) c_ptr;
+	c_ptr += (N+1)*sizeof(int);
+
+	dim->memsize = MEMSIZE_OCP_QP_DIM(N);
+
+	return;
+
+	}
 
 
-#include "x_ocp_qp_size.c"
+void CVT_INT_TO_OCP_QP_DIM(int N, int *nx, int *nu, int *nbx, int *nbu, int *ng, int *ns, struct OCP_QP_DIM *dim)
+	{
+
+	// loop index
+	int ii;
+
+	// N
+	dim->N = N;
+
+	// copy qp dim
+	for(ii=0; ii<=N; ii++)
+		dim->nx[ii] = nx[ii];
+	for(ii=0; ii<=N; ii++)
+		dim->nu[ii] = nu[ii];
+	for(ii=0; ii<=N; ii++)
+		dim->nb[ii] = nbx[ii]+nbu[ii];
+	for(ii=0; ii<=N; ii++)
+		dim->nbx[ii] = nbx[ii];
+	for(ii=0; ii<=N; ii++)
+		dim->nbu[ii] = nbu[ii];
+	for(ii=0; ii<=N; ii++)
+		dim->ng[ii] = ng[ii];
+	for(ii=0; ii<=N; ii++)
+		dim->ns[ii] = ns[ii];
+
+	return;
+
+	}

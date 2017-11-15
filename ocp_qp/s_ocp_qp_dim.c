@@ -25,45 +25,19 @@
 *                                                                                                 *
 **************************************************************************************************/
 
-#ifndef HPIPM_S_OCP_QP_SIZE_H_
-#define HPIPM_S_OCP_QP_SIZE_H_
+
+
+#include "../include/hpipm_s_ocp_qp_dim.h"
 
 
 
-#ifdef __cplusplus
-extern "C" {
-#endif
+#define OCP_QP_DIM s_ocp_qp_dim
+
+#define MEMSIZE_OCP_QP_DIM s_memsize_ocp_qp_dim
+#define CREATE_OCP_QP_DIM s_create_ocp_qp_dim
+#define CVT_INT_TO_OCP_QP_DIM s_cvt_int_to_ocp_qp_dim
 
 
 
-struct s_ocp_qp_size
-	{
-	int *nx; // number of states
-	int *nu; // number of inputs
-	int *nb; // number of box constraints
-	int *nbx; // number of state box constraints
-	int *nbu; // number of input box constraints
-	int *ng; // number of general constraints
-	int *ns; // number of soft constraints
-	int N; // horizon length
-	int memsize;
-	};
+#include "x_ocp_qp_dim.c"
 
-
-
-//
-int s_memsize_ocp_qp_size(int N);
-//
-void s_create_ocp_qp_size(int N, struct s_ocp_qp_size *qp_size, void *memory);
-//
-void s_cvt_int_to_ocp_qp_size(int N, int *nx, int *nu, int *nbx, int *nbu, int *ng, int *ns, struct s_ocp_qp_size *size);
-
-
-
-#ifdef __cplusplus
-}	// #extern "C"
-#endif
-
-
-
-#endif // HPIPM_S_OCP_QP_SIZE_H_

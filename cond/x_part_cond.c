@@ -25,26 +25,26 @@
 *                                                                                                 *
 **************************************************************************************************/
 
-void COMPUTE_QP_SIZE_OCP2OCP(struct OCP_QP_SIZE *ocp_size, struct OCP_QP_SIZE *part_dense_size)
+void COMPUTE_QP_DIM_OCP2OCP(struct OCP_QP_DIM *ocp_dim, struct OCP_QP_DIM *part_dense_dim)
 	{
 
-	int N = ocp_size->N;
-	int *nx = ocp_size->nx;
-	int *nu = ocp_size->nu;
-	int *nb = ocp_size->nb;
-	int *nbx = ocp_size->nbx;
-	int *nbu = ocp_size->nbu;
-	int *ng = ocp_size->ng;
-	int *ns = ocp_size->ns;
+	int N = ocp_dim->N;
+	int *nx = ocp_dim->nx;
+	int *nu = ocp_dim->nu;
+	int *nb = ocp_dim->nb;
+	int *nbx = ocp_dim->nbx;
+	int *nbu = ocp_dim->nbu;
+	int *ng = ocp_dim->ng;
+	int *ns = ocp_dim->ns;
 
-	int N2 = part_dense_size->N;
-	int *nx2 = part_dense_size->nx;
-	int *nu2 = part_dense_size->nu;
-	int *nb2 = part_dense_size->nb;
-	int *nbx2 = part_dense_size->nbx;
-	int *nbu2 = part_dense_size->nbu;
-	int *ng2 = part_dense_size->ng;
-	int *ns2 = part_dense_size->ns;
+	int N2 = part_dense_dim->N;
+	int *nx2 = part_dense_dim->nx;
+	int *nu2 = part_dense_dim->nu;
+	int *nb2 = part_dense_dim->nb;
+	int *nbx2 = part_dense_dim->nbx;
+	int *nbu2 = part_dense_dim->nbu;
+	int *ng2 = part_dense_dim->ng;
+	int *ns2 = part_dense_dim->ns;
 
 	int ii, jj;
 
@@ -92,15 +92,15 @@ void COMPUTE_QP_SIZE_OCP2OCP(struct OCP_QP_SIZE *ocp_size, struct OCP_QP_SIZE *p
 
 
 
-int MEMSIZE_COND_QP_OCP2OCP(struct OCP_QP_SIZE *ocp_size, struct OCP_QP_SIZE *part_dense_size)
+int MEMSIZE_COND_QP_OCP2OCP(struct OCP_QP_DIM *ocp_dim, struct OCP_QP_DIM *part_dense_dim)
 	{
 
-	struct OCP_QP_SIZE tmp_ocp_size;
+	struct OCP_QP_DIM tmp_ocp_dim;
 
 	int ii;
 
-	int N = ocp_size->N;
-	int N2 = part_dense_size->N;
+	int N = ocp_dim->N;
+	int N2 = part_dense_dim->N;
 	int N1 = N/N2; // (floor) horizon of small blocks
 	int R1 = N - N2*N1; // the first R1 blocks have horizon N1+1
 	int M1 = R1>0 ? N1+1 : N1; // (ceil) horizon of large blocks
@@ -116,16 +116,16 @@ int MEMSIZE_COND_QP_OCP2OCP(struct OCP_QP_SIZE *ocp_size, struct OCP_QP_SIZE *pa
 
 		T1 = ii<R1 ? M1 : N1;
 
-		// alias ocp_size
-		tmp_ocp_size.N = T1;
-		tmp_ocp_size.nx = ocp_size->nx+N_tmp;
-		tmp_ocp_size.nu = ocp_size->nu+N_tmp;
-		tmp_ocp_size.nbx = ocp_size->nbx+N_tmp;
-		tmp_ocp_size.nbu = ocp_size->nbu+N_tmp;
-		tmp_ocp_size.nb = ocp_size->nb+N_tmp;
-		tmp_ocp_size.ng = ocp_size->ng+N_tmp;
+		// alias ocp_dim
+		tmp_ocp_dim.N = T1;
+		tmp_ocp_dim.nx = ocp_dim->nx+N_tmp;
+		tmp_ocp_dim.nu = ocp_dim->nu+N_tmp;
+		tmp_ocp_dim.nbx = ocp_dim->nbx+N_tmp;
+		tmp_ocp_dim.nbu = ocp_dim->nbu+N_tmp;
+		tmp_ocp_dim.nb = ocp_dim->nb+N_tmp;
+		tmp_ocp_dim.ng = ocp_dim->ng+N_tmp;
 
-		size += MEMSIZE_COND_QP_OCP2DENSE(&tmp_ocp_size);
+		size += MEMSIZE_COND_QP_OCP2DENSE(&tmp_ocp_dim);
 
 		N_tmp += T1;
 
@@ -140,15 +140,15 @@ int MEMSIZE_COND_QP_OCP2OCP(struct OCP_QP_SIZE *ocp_size, struct OCP_QP_SIZE *pa
 
 
 
-void CREATE_COND_QP_OCP2OCP(struct OCP_QP_SIZE *ocp_size, struct OCP_QP_SIZE *part_dense_size, struct COND_QP_OCP2OCP_WORKSPACE *cond_ws, void *mem)
+void CREATE_COND_QP_OCP2OCP(struct OCP_QP_DIM *ocp_dim, struct OCP_QP_DIM *part_dense_dim, struct COND_QP_OCP2OCP_WORKSPACE *cond_ws, void *mem)
 	{
 
-	struct OCP_QP_SIZE tmp_ocp_size;
+	struct OCP_QP_DIM tmp_ocp_dim;
 
 	int ii;
 
-	int N = ocp_size->N;
-	int N2 = part_dense_size->N;
+	int N = ocp_dim->N;
+	int N2 = part_dense_dim->N;
 	int N1 = N/N2; // (floor) horizon of small blocks
 	int R1 = N - N2*N1; // the first R1 blocks have horizon N1+1
 	int M1 = R1>0 ? N1+1 : N1; // (ceil) horizon of large blocks
@@ -171,16 +171,16 @@ void CREATE_COND_QP_OCP2OCP(struct OCP_QP_SIZE *ocp_size, struct OCP_QP_SIZE *pa
 
 		T1 = ii<R1 ? M1 : N1;
 
-		// alias ocp_size
-		tmp_ocp_size.N = T1;
-		tmp_ocp_size.nx = ocp_size->nx+N_tmp;
-		tmp_ocp_size.nu = ocp_size->nu+N_tmp;
-		tmp_ocp_size.nbx = ocp_size->nbx+N_tmp;
-		tmp_ocp_size.nbu = ocp_size->nbu+N_tmp;
-		tmp_ocp_size.nb = ocp_size->nb+N_tmp;
-		tmp_ocp_size.ng = ocp_size->ng+N_tmp;
+		// alias ocp_dim
+		tmp_ocp_dim.N = T1;
+		tmp_ocp_dim.nx = ocp_dim->nx+N_tmp;
+		tmp_ocp_dim.nu = ocp_dim->nu+N_tmp;
+		tmp_ocp_dim.nbx = ocp_dim->nbx+N_tmp;
+		tmp_ocp_dim.nbu = ocp_dim->nbu+N_tmp;
+		tmp_ocp_dim.nb = ocp_dim->nb+N_tmp;
+		tmp_ocp_dim.ng = ocp_dim->ng+N_tmp;
 
-		CREATE_COND_QP_OCP2DENSE(&tmp_ocp_size, cond_ws->cond_workspace+ii, c_ptr);
+		CREATE_COND_QP_OCP2DENSE(&tmp_ocp_dim, cond_ws->cond_workspace+ii, c_ptr);
 		c_ptr += (cond_ws->cond_workspace+ii)->memsize;
 		(cond_ws->cond_workspace+ii)->cond_last_stage = 0;
 
@@ -188,12 +188,12 @@ void CREATE_COND_QP_OCP2OCP(struct OCP_QP_SIZE *ocp_size, struct OCP_QP_SIZE *pa
 
 		}
 
-	cond_ws->memsize = MEMSIZE_COND_QP_OCP2OCP(ocp_size, part_dense_size);
+	cond_ws->memsize = MEMSIZE_COND_QP_OCP2OCP(ocp_dim, part_dense_dim);
 
 	#if defined(RUNTIME_CHECKS)
 	if(c_ptr > ((char *) mem) + cond_ws->memsize)
 		{
-		printf("\nCreate_cond_qp_ocp2ocp: outsize memory bounds!\n\n");
+		printf("\nCreate_cond_qp_ocp2ocp: outside memory bounds!\n\n");
 		exit(1);
 		}
 #endif
@@ -207,13 +207,13 @@ return;
 void COND_QP_OCP2OCP(struct OCP_QP *ocp_qp, struct OCP_QP *part_dense_qp, struct COND_QP_OCP2OCP_WORKSPACE *part_cond_ws)
 	{
 
-	struct OCP_QP_SIZE tmp_ocp_size;
+	struct OCP_QP_DIM tmp_ocp_dim;
 	struct OCP_QP tmp_ocp_qp;
 
 	int ii;
 
-	int N = ocp_qp->size->N;
-	int N2 = part_dense_qp->size->N;
+	int N = ocp_qp->dim->N;
+	int N2 = part_dense_qp->dim->N;
 	int N1 = N/N2; // (floor) horizon of small blocks
 	int R1 = N - N2*N1; // the first R1 blocks have horizon N1+1
 	int M1 = R1>0 ? N1+1 : N1; // (ceil) horizon of large blocks
@@ -225,18 +225,18 @@ void COND_QP_OCP2OCP(struct OCP_QP *ocp_qp, struct OCP_QP *part_dense_qp, struct
 
 		T1 = ii<R1 ? M1 : N1;
 
-		// alias ocp_size
-		tmp_ocp_size.N = T1;
-		tmp_ocp_size.nx = ocp_qp->size->nx+N_tmp;
-		tmp_ocp_size.nu = ocp_qp->size->nu+N_tmp;
-		tmp_ocp_size.nbx = ocp_qp->size->nbx+N_tmp;
-		tmp_ocp_size.nbu = ocp_qp->size->nbu+N_tmp;
-		tmp_ocp_size.nb = ocp_qp->size->nb+N_tmp;
-		tmp_ocp_size.ng = ocp_qp->size->ng+N_tmp;
-		tmp_ocp_size.ns = ocp_qp->size->ns+N_tmp;
+		// alias ocp_dim
+		tmp_ocp_dim.N = T1;
+		tmp_ocp_dim.nx = ocp_qp->dim->nx+N_tmp;
+		tmp_ocp_dim.nu = ocp_qp->dim->nu+N_tmp;
+		tmp_ocp_dim.nbx = ocp_qp->dim->nbx+N_tmp;
+		tmp_ocp_dim.nbu = ocp_qp->dim->nbu+N_tmp;
+		tmp_ocp_dim.nb = ocp_qp->dim->nb+N_tmp;
+		tmp_ocp_dim.ng = ocp_qp->dim->ng+N_tmp;
+		tmp_ocp_dim.ns = ocp_qp->dim->ns+N_tmp;
 
 		// alias ocp_qp
-		tmp_ocp_qp.size = &tmp_ocp_size;
+		tmp_ocp_qp.dim = &tmp_ocp_dim;
 		tmp_ocp_qp.idxb = ocp_qp->idxb+N_tmp;
 		tmp_ocp_qp.BAbt = ocp_qp->BAbt+N_tmp;
 		tmp_ocp_qp.b = ocp_qp->b+N_tmp;
@@ -259,11 +259,11 @@ void COND_QP_OCP2OCP(struct OCP_QP *ocp_qp, struct OCP_QP *part_dense_qp, struct
 		}
 
 	// copy last stage
-	int *nx = ocp_qp->size->nx;
-	int *nu = ocp_qp->size->nu;
-	int *nb = ocp_qp->size->nb;
-	int *ng = ocp_qp->size->ng;
-	int *ns = ocp_qp->size->ns;
+	int *nx = ocp_qp->dim->nx;
+	int *nu = ocp_qp->dim->nu;
+	int *nb = ocp_qp->dim->nb;
+	int *ng = ocp_qp->dim->ng;
+	int *ns = ocp_qp->dim->ns;
 
 	GECP_LIBSTR(nu[N]+nx[N]+1, nu[N]+nx[N], ocp_qp->RSQrq+N, 0, 0, part_dense_qp->RSQrq+N2, 0, 0);
 	VECCP_LIBSTR(nu[N]+nx[N], ocp_qp->rq+N, 0, part_dense_qp->rq+N2, 0);
@@ -283,13 +283,13 @@ void COND_QP_OCP2OCP(struct OCP_QP *ocp_qp, struct OCP_QP *part_dense_qp, struct
 void COND_RHS_QP_OCP2OCP(struct OCP_QP *ocp_qp, struct OCP_QP *part_dense_qp, struct COND_QP_OCP2OCP_WORKSPACE *part_cond_ws)
 	{
 
-	struct OCP_QP_SIZE tmp_ocp_size;
+	struct OCP_QP_DIM tmp_ocp_dim;
 	struct OCP_QP tmp_ocp_qp;
 
 	int ii;
 
-	int N = ocp_qp->size->N;
-	int N2 = part_dense_qp->size->N;
+	int N = ocp_qp->dim->N;
+	int N2 = part_dense_qp->dim->N;
 	int N1 = N/N2; // (floor) horizon of small blocks
 	int R1 = N - N2*N1; // the first R1 blocks have horizon N1+1
 	int M1 = R1>0 ? N1+1 : N1; // (ceil) horizon of large blocks
@@ -301,18 +301,18 @@ void COND_RHS_QP_OCP2OCP(struct OCP_QP *ocp_qp, struct OCP_QP *part_dense_qp, st
 
 		T1 = ii<R1 ? M1 : N1;
 
-		// alias ocp_size
-		tmp_ocp_size.N = T1;
-		tmp_ocp_size.nx = ocp_qp->size->nx+N_tmp;
-		tmp_ocp_size.nu = ocp_qp->size->nu+N_tmp;
-		tmp_ocp_size.nbx = ocp_qp->size->nbx+N_tmp;
-		tmp_ocp_size.nbu = ocp_qp->size->nbu+N_tmp;
-		tmp_ocp_size.nb = ocp_qp->size->nb+N_tmp;
-		tmp_ocp_size.ng = ocp_qp->size->ng+N_tmp;
-		tmp_ocp_size.ns = ocp_qp->size->ns+N_tmp;
+		// alias ocp_dim
+		tmp_ocp_dim.N = T1;
+		tmp_ocp_dim.nx = ocp_qp->dim->nx+N_tmp;
+		tmp_ocp_dim.nu = ocp_qp->dim->nu+N_tmp;
+		tmp_ocp_dim.nbx = ocp_qp->dim->nbx+N_tmp;
+		tmp_ocp_dim.nbu = ocp_qp->dim->nbu+N_tmp;
+		tmp_ocp_dim.nb = ocp_qp->dim->nb+N_tmp;
+		tmp_ocp_dim.ng = ocp_qp->dim->ng+N_tmp;
+		tmp_ocp_dim.ns = ocp_qp->dim->ns+N_tmp;
 
 		// alias ocp_qp
-		tmp_ocp_qp.size = &tmp_ocp_size;
+		tmp_ocp_qp.dim = &tmp_ocp_dim;
 		tmp_ocp_qp.idxb = ocp_qp->idxb+N_tmp;
 		tmp_ocp_qp.BAbt = ocp_qp->BAbt+N_tmp;
 		tmp_ocp_qp.b = ocp_qp->b+N_tmp;
@@ -335,11 +335,11 @@ void COND_RHS_QP_OCP2OCP(struct OCP_QP *ocp_qp, struct OCP_QP *part_dense_qp, st
 		}
 
 	// copy last stage
-	int *nx = ocp_qp->size->nx;
-	int *nu = ocp_qp->size->nu;
-	int *nb = ocp_qp->size->nb;
-	int *ng = ocp_qp->size->ng;
-	int *ns = ocp_qp->size->ns;
+	int *nx = ocp_qp->dim->nx;
+	int *nu = ocp_qp->dim->nu;
+	int *nb = ocp_qp->dim->nb;
+	int *ng = ocp_qp->dim->ng;
+	int *ns = ocp_qp->dim->ns;
 
 	VECCP_LIBSTR(nu[N]+nx[N], ocp_qp->rq+N, 0, part_dense_qp->rq+N2, 0);
 	VECCP_LIBSTR(2*nb[N]+2*ng[N], ocp_qp->d+N, 0, part_dense_qp->d+N2, 0);
@@ -354,21 +354,21 @@ void COND_RHS_QP_OCP2OCP(struct OCP_QP *ocp_qp, struct OCP_QP *part_dense_qp, st
 void EXPAND_SOL_OCP2OCP(struct OCP_QP *ocp_qp, struct OCP_QP *part_dense_qp, struct OCP_QP_SOL *part_dense_qp_sol, struct OCP_QP_SOL *ocp_qp_sol, struct COND_QP_OCP2OCP_WORKSPACE *part_cond_ws)
 	{
 
-	struct OCP_QP_SIZE tmp_ocp_size;
+	struct OCP_QP_DIM tmp_ocp_dim;
 	struct OCP_QP tmp_ocp_qp;
 	struct OCP_QP_SOL tmp_ocp_qp_sol;
 	struct DENSE_QP_SOL dense_qp_sol;
 
-	int *nx = ocp_qp->size->nx;
-	int *nu = ocp_qp->size->nu;
-	int *nb = ocp_qp->size->nb;
-	int *ng = ocp_qp->size->ng;
-	int *ns = ocp_qp->size->ns;
+	int *nx = ocp_qp->dim->nx;
+	int *nu = ocp_qp->dim->nu;
+	int *nb = ocp_qp->dim->nb;
+	int *ng = ocp_qp->dim->ng;
+	int *ns = ocp_qp->dim->ns;
 
 	int ii;
 
-	int N = ocp_qp->size->N;
-	int N2 = part_dense_qp->size->N;
+	int N = ocp_qp->dim->N;
+	int N2 = part_dense_qp->dim->N;
 	int N1 = N/N2; // (floor) horizon of small blocks
 	int R1 = N - N2*N1; // the first R1 blocks have horizon N1+1
 	int M1 = R1>0 ? N1+1 : N1; // (ceil) horizon of large blocks
@@ -380,18 +380,18 @@ void EXPAND_SOL_OCP2OCP(struct OCP_QP *ocp_qp, struct OCP_QP *part_dense_qp, str
 
 		T1 = ii<R1 ? M1 : N1;
 
-		// alias ocp_size
-		tmp_ocp_size.N = T1;
-		tmp_ocp_size.nx = ocp_qp->size->nx+N_tmp;
-		tmp_ocp_size.nu = ocp_qp->size->nu+N_tmp;
-		tmp_ocp_size.nbx = ocp_qp->size->nbx+N_tmp;
-		tmp_ocp_size.nbu = ocp_qp->size->nbu+N_tmp;
-		tmp_ocp_size.nb = ocp_qp->size->nb+N_tmp;
-		tmp_ocp_size.ng = ocp_qp->size->ng+N_tmp;
-		tmp_ocp_size.ns = ocp_qp->size->ns+N_tmp;
+		// alias ocp_dim
+		tmp_ocp_dim.N = T1;
+		tmp_ocp_dim.nx = ocp_qp->dim->nx+N_tmp;
+		tmp_ocp_dim.nu = ocp_qp->dim->nu+N_tmp;
+		tmp_ocp_dim.nbx = ocp_qp->dim->nbx+N_tmp;
+		tmp_ocp_dim.nbu = ocp_qp->dim->nbu+N_tmp;
+		tmp_ocp_dim.nb = ocp_qp->dim->nb+N_tmp;
+		tmp_ocp_dim.ng = ocp_qp->dim->ng+N_tmp;
+		tmp_ocp_dim.ns = ocp_qp->dim->ns+N_tmp;
 
 		// alias ocp_qp
-		tmp_ocp_qp.size = &tmp_ocp_size;
+		tmp_ocp_qp.dim = &tmp_ocp_dim;
 		tmp_ocp_qp.idxb = ocp_qp->idxb+N_tmp;
 		tmp_ocp_qp.BAbt = ocp_qp->BAbt+N_tmp;
 		tmp_ocp_qp.b = ocp_qp->b+N_tmp;

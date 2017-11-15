@@ -54,7 +54,7 @@ struct s_ocp_qp_ipm_arg
 
 struct s_ocp_qp_res
 	{
-	struct s_ocp_qp_size *size;
+	struct s_ocp_qp_dim *dim;
 	struct s_strvec *res_g; // q-residuals
 	struct s_strvec *res_b; // b-residuals
 	struct s_strvec *res_d; // d-residuals
@@ -95,21 +95,21 @@ struct s_ocp_qp_ipm_workspace
 
 
 //
-int s_memsize_ocp_qp_ipm_arg(struct s_ocp_qp_size *ocp_size);
+int s_memsize_ocp_qp_ipm_arg(struct s_ocp_qp_dim *ocp_dim);
 //
-void s_create_ocp_qp_ipm_arg(struct s_ocp_qp_size *ocp_size, struct s_ocp_qp_ipm_arg *arg, void *mem);
+void s_create_ocp_qp_ipm_arg(struct s_ocp_qp_dim *ocp_dim, struct s_ocp_qp_ipm_arg *arg, void *mem);
 //
 void s_set_default_ocp_qp_ipm_arg(struct s_ocp_qp_ipm_arg *arg);
 
 //
-int s_memsize_ocp_qp_res(struct s_ocp_qp_size *ocp_size);
+int s_memsize_ocp_qp_res(struct s_ocp_qp_dim *ocp_dim);
 //
-void s_create_ocp_qp_res(struct s_ocp_qp_size *ocp_size, struct s_ocp_qp_res *workspace, void *mem);
+void s_create_ocp_qp_res(struct s_ocp_qp_dim *ocp_dim, struct s_ocp_qp_res *workspace, void *mem);
 
 //
-int s_memsize_ocp_qp_ipm(struct s_ocp_qp_size *ocp_size, struct s_ocp_qp_ipm_arg *arg);
+int s_memsize_ocp_qp_ipm(struct s_ocp_qp_dim *ocp_dim, struct s_ocp_qp_ipm_arg *arg);
 //
-void s_create_ocp_qp_ipm(struct s_ocp_qp_size *ocp_size, struct s_ocp_qp_ipm_arg *arg, struct s_ocp_qp_ipm_workspace *ws, void *mem);
+void s_create_ocp_qp_ipm(struct s_ocp_qp_dim *ocp_dim, struct s_ocp_qp_ipm_arg *arg, struct s_ocp_qp_ipm_workspace *ws, void *mem);
 //
 int s_solve_ocp_qp_ipm(struct s_ocp_qp *qp, struct s_ocp_qp_sol *qp_sol, struct s_ocp_qp_ipm_arg *arg, struct s_ocp_qp_ipm_workspace *ws);
 //

@@ -33,13 +33,19 @@
 #include <blasfeo_target.h>
 #include <blasfeo_common.h>
 
+#include "hpipm_d_ocp_qp_dim.h"
+
+
+
 #ifdef __cplusplus
 extern "C" {
 #endif
 
+
+
 struct d_ocp_qp_sol
 	{
-	struct d_ocp_qp_size *size;
+	struct d_ocp_qp_dim *dim;
 	struct d_strvec *ux;
 	struct d_strvec *pi;
 	struct d_strvec *lam;
@@ -50,9 +56,9 @@ struct d_ocp_qp_sol
 
 
 //
-int d_memsize_ocp_qp_sol(struct d_ocp_qp_size *size);
+int d_memsize_ocp_qp_sol(struct d_ocp_qp_dim *dim);
 //
-void d_create_ocp_qp_sol(struct d_ocp_qp_size *size, struct d_ocp_qp_sol *qp_sol, void *memory);
+void d_create_ocp_qp_sol(struct d_ocp_qp_dim *dim, struct d_ocp_qp_sol *qp_sol, void *memory);
 //
 void d_cvt_ocp_qp_sol_to_colmaj(struct d_ocp_qp_sol *qp_sol, double **u, double **x, double **ls, double **us, double **pi, double **lam_lb, double **lam_ub, double **lam_lg, double **lam_ug, double **lam_ls, double **lam_us);
 //

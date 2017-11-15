@@ -27,7 +27,7 @@
 
 
 
-int MEMSIZE_OCP_QP_IPM_ARG(struct OCP_QP_SIZE *ocp_size)
+int MEMSIZE_OCP_QP_IPM_ARG(struct OCP_QP_DIM *dim)
 	{
 
 	return 0;
@@ -36,7 +36,7 @@ int MEMSIZE_OCP_QP_IPM_ARG(struct OCP_QP_SIZE *ocp_size)
 
 
 
-void CREATE_OCP_QP_IPM_ARG(struct OCP_QP_SIZE *ocp_size, struct OCP_QP_IPM_ARG *arg, void *mem)
+void CREATE_OCP_QP_IPM_ARG(struct OCP_QP_DIM *dim, struct OCP_QP_IPM_ARG *arg, void *mem)
 	{
 
 	arg->memsize = 0;
@@ -67,19 +67,19 @@ void SET_DEFAULT_OCP_QP_IPM_ARG(struct OCP_QP_IPM_ARG *arg)
 
 
 
-int MEMSIZE_OCP_QP_RES(struct OCP_QP_SIZE *ocp_size)
+int MEMSIZE_OCP_QP_RES(struct OCP_QP_DIM *dim)
 	{
 
 	// loop index
 	int ii;
 
 	// extract ocp qp size
-	int N = ocp_size->N;
-	int *nx = ocp_size->nx;
-	int *nu = ocp_size->nu;
-	int *nb = ocp_size->nb;
-	int *ng = ocp_size->ng;
-	int *ns = ocp_size->ns;
+	int N = dim->N;
+	int *nx = dim->nx;
+	int *nu = dim->nu;
+	int *nb = dim->nb;
+	int *ng = dim->ng;
+	int *ns = dim->ns;
 
 	// compute core qp size and max size
 	int nbM = 0;
@@ -116,19 +116,19 @@ int MEMSIZE_OCP_QP_RES(struct OCP_QP_SIZE *ocp_size)
 
 
 
-void CREATE_OCP_QP_RES(struct OCP_QP_SIZE *ocp_size, struct OCP_QP_RES *res, void *mem)
+void CREATE_OCP_QP_RES(struct OCP_QP_DIM *dim, struct OCP_QP_RES *res, void *mem)
 	{
 
 	// loop index
 	int ii;
 
 	// extract ocp qp size
-	int N = ocp_size->N;
-	int *nx = ocp_size->nx;
-	int *nu = ocp_size->nu;
-	int *nb = ocp_size->nb;
-	int *ng = ocp_size->ng;
-	int *ns = ocp_size->ns;
+	int N = dim->N;
+	int *nx = dim->nx;
+	int *nu = dim->nu;
+	int *nb = dim->nb;
+	int *ng = dim->ng;
+	int *ns = dim->ns;
 
 
 	// compute core qp size and max size
@@ -204,9 +204,9 @@ void CREATE_OCP_QP_RES(struct OCP_QP_SIZE *ocp_size, struct OCP_QP_RES *res, voi
 	CREATE_STRVEC(nsM, res->tmp_nsM+0, c_ptr);
 	c_ptr += (res->tmp_nsM+0)->memory_size;
 
-	res->size = ocp_size;
+	res->dim = dim;
 
-	res->memsize = MEMSIZE_OCP_QP_RES(ocp_size);
+	res->memsize = MEMSIZE_OCP_QP_RES(dim);
 
 
 #if defined(RUNTIME_CHECKS)
@@ -224,19 +224,19 @@ void CREATE_OCP_QP_RES(struct OCP_QP_SIZE *ocp_size, struct OCP_QP_RES *res, voi
 
 
 
-int MEMSIZE_OCP_QP_IPM(struct OCP_QP_SIZE *ocp_size, struct OCP_QP_IPM_ARG *arg)
+int MEMSIZE_OCP_QP_IPM(struct OCP_QP_DIM *dim, struct OCP_QP_IPM_ARG *arg)
 	{
 
 	// loop index
 	int ii;
 
 	// extract ocp qp size
-	int N = ocp_size->N;
-	int *nx = ocp_size->nx;
-	int *nu = ocp_size->nu;
-	int *nb = ocp_size->nb;
-	int *ng = ocp_size->ng;
-	int *ns = ocp_size->ns;
+	int N = dim->N;
+	int *nx = dim->nx;
+	int *nu = dim->nu;
+	int *nb = dim->nb;
+	int *ng = dim->ng;
+	int *ns = dim->ns;
 
 	// compute core qp size and max size
 	int nvt = 0;
@@ -299,19 +299,19 @@ int MEMSIZE_OCP_QP_IPM(struct OCP_QP_SIZE *ocp_size, struct OCP_QP_IPM_ARG *arg)
 
 
 
-void CREATE_OCP_QP_IPM(struct OCP_QP_SIZE *ocp_size, struct OCP_QP_IPM_ARG *arg, struct OCP_QP_IPM_WORKSPACE *workspace, void *mem)
+void CREATE_OCP_QP_IPM(struct OCP_QP_DIM *dim, struct OCP_QP_IPM_ARG *arg, struct OCP_QP_IPM_WORKSPACE *workspace, void *mem)
 	{
 
 	// loop index
 	int ii;
 
 	// extract ocp qp size
-	int N = ocp_size->N;
-	int *nx = ocp_size->nx;
-	int *nu = ocp_size->nu;
-	int *nb = ocp_size->nb;
-	int *ng = ocp_size->ng;
-	int *ns = ocp_size->ns;
+	int N = dim->N;
+	int *nx = dim->nx;
+	int *nu = dim->nu;
+	int *nb = dim->nb;
+	int *ng = dim->ng;
+	int *ns = dim->ns;
 
 
 	// compute core qp size and max size
@@ -566,9 +566,9 @@ void CREATE_OCP_QP_IPM(struct OCP_QP_SIZE *ocp_size, struct OCP_QP_IPM_ARG *arg,
 		}
 
 
-	workspace->res_workspace->size = ocp_size;
+	workspace->res_workspace->dim = dim;
 
-	workspace->memsize = MEMSIZE_OCP_QP_IPM(ocp_size, arg);
+	workspace->memsize = MEMSIZE_OCP_QP_IPM(dim, arg);
 
 
 #if defined(RUNTIME_CHECKS)
@@ -712,12 +712,12 @@ int SOLVE_OCP_QP_IPM(struct OCP_QP *qp, struct OCP_QP_SOL *qp_sol, struct OCP_QP
 void CVT_OCP_QP_RES_TO_COLMAJ(struct OCP_QP_RES *res, REAL **res_r, REAL **res_q, REAL **res_ls, REAL **res_us, REAL **res_b, REAL **res_d_lb, REAL **res_d_ub, REAL **res_d_lg, REAL **res_d_ug, REAL **res_d_ls, REAL **res_d_us, REAL **res_m_lb, REAL **res_m_ub, REAL **res_m_lg, REAL **res_m_ug, REAL **res_m_ls, REAL **res_m_us)
 	{
 
-	int N = res->size->N;
-	int *nx = res->size->nx;
-	int *nu = res->size->nu;
-	int *nb = res->size->nb;
-	int *ng = res->size->ng;
-	int *ns = res->size->ns;
+	int N = res->dim->N;
+	int *nx = res->dim->nx;
+	int *nu = res->dim->nu;
+	int *nb = res->dim->nb;
+	int *ng = res->dim->ng;
+	int *ns = res->dim->ns;
 
 	int ii;
 
@@ -769,12 +769,12 @@ void CVT_OCP_QP_RES_TO_COLMAJ(struct OCP_QP_RES *res, REAL **res_r, REAL **res_q
 void CVT_OCP_QP_RES_TO_ROWMAJ(struct OCP_QP_RES *res, REAL **res_r, REAL **res_q, REAL **res_ls, REAL **res_us, REAL **res_b, REAL **res_d_lb, REAL **res_d_ub, REAL **res_d_lg, REAL **res_d_ug, REAL **res_d_ls, REAL **res_d_us, REAL **res_m_lb, REAL **res_m_ub, REAL **res_m_lg, REAL **res_m_ug, REAL **res_m_ls, REAL **res_m_us)
 	{
 
-	int N = res->size->N;
-	int *nx = res->size->nx;
-	int *nu = res->size->nu;
-	int *nb = res->size->nb;
-	int *ng = res->size->ng;
-	int *ns = res->size->ns;
+	int N = res->dim->N;
+	int *nx = res->dim->nx;
+	int *nu = res->dim->nu;
+	int *nb = res->dim->nb;
+	int *ng = res->dim->ng;
+	int *ns = res->dim->ns;
 
 	int ii;
 
