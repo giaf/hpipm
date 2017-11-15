@@ -450,15 +450,28 @@ int main()
         d_create_benchmark_to_hpipm(nvc, nec, nc, &tran_space, tran_mem);
 
         /************************************************
-        * dense qp
+        * dense qp dim
         ************************************************/
 
         int nsc = 0;
-        int qp_size = d_memsize_dense_qp(nvc, nec, nvc, nc, nsc);
+
+		int qp_dim_size = d_memsize_dense_qp_dim();
+		void *qp_dim_mem = calloc(qp_dim_size, 1);
+
+		struct d_dense_qp_dim dim;
+		d_create_dense_qp_dim(&dim, qp_dim_mem);
+
+		d_cvt_int_to_dense_qp_dim(nvc, nec, nvc, nc, nsc, &dim);
+
+        /************************************************
+        * dense qp
+        ************************************************/
+
+        int qp_size = d_memsize_dense_qp(&dim);
         void *qp_mem = calloc(qp_size,1);
 
         struct d_dense_qp qpd_hpipm;
-        d_create_dense_qp(nvc, nec, nvc, nc, nsc, &qpd_hpipm, qp_mem);
+        d_create_dense_qp(&dim, &qpd_hpipm, qp_mem);
 
         /* qp_benchmark -> qpd_hpipm */
         d_benchmark_to_hpipm(&qp_bench, &qpd_hpipm, &tran_space);
@@ -467,21 +480,21 @@ int main()
         * dense sol
         ************************************************/
 
-        int qp_sol_size = d_memsize_dense_qp_sol(nvc, nec, nvc, nc, nsc);
+        int qp_sol_size = d_memsize_dense_qp_sol(&dim);
         void *qp_sol_mem = calloc(qp_sol_size,1);
 
         struct d_dense_qp_sol qpd_sol;
-        d_create_dense_qp_sol(nvc, nec, nvc, nc, nsc, &qpd_sol, qp_sol_mem);
+        d_create_dense_qp_sol(&dim, &qpd_sol, qp_sol_mem);
 
         /************************************************
         * ipm arg
         ************************************************/
 
-        int ipm_arg_size = d_memsize_dense_qp_ipm_arg(&qpd_hpipm);
+        int ipm_arg_size = d_memsize_dense_qp_ipm_arg(&dim);
         void *ipm_arg_mem = calloc(ipm_arg_size,1);
 
         struct d_dense_qp_ipm_arg argd;
-        d_create_dense_qp_ipm_arg(&qpd_hpipm, &argd, ipm_arg_mem);
+        d_create_dense_qp_ipm_arg(&dim, &argd, ipm_arg_mem);
         d_set_default_dense_qp_ipm_arg(&argd);
         /* consistent with setting in acore */
         argd.res_g_max = 1e-6;
@@ -496,11 +509,11 @@ int main()
         /************************************************
         * dense ipm
         ************************************************/
-        int ipm_size = d_memsize_dense_qp_ipm(&qpd_hpipm, &argd);
+        int ipm_size = d_memsize_dense_qp_ipm(&dim, &argd);
         void *ipm_mem = calloc(ipm_size,1);
 
         struct d_dense_qp_ipm_workspace workspace;
-        d_create_dense_qp_ipm(&qpd_hpipm, &argd, &workspace, ipm_mem);
+        d_create_dense_qp_ipm(&dim, &argd, &workspace, ipm_mem);
 
         int hpipm_return; // 0 normal; 1 max iter
 
