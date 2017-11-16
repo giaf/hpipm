@@ -54,7 +54,7 @@ extern "C" {
 #include "../include/hpipm_d_dense_qp_ipm.h"
 
 #define MAX_STRING_LENGTH 160
-#define EPSILON 1e-5 // regularization parameter
+//#define EPSILON 1e-5 // regularization parameter
 
 /* define global */
 #ifdef __NO_SNPRINTF__
