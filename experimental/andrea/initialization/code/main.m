@@ -10,24 +10,28 @@ MAX_ITER = 100;
 TAU0 = 1e-1;
 MAX_LS_IT = 100;
 TH = 1e-16;
+X0 = [1; 1];
 
 tol = 1e-1;
 term_tol = 1e-6;
 kappa = 0.3;
 
-A = [-0.5, 1];
-b = -0.1;
+% A = [-0.1, 1];
+% b = -0.35;
+
+A = [];
+b = [];
 
 nc = 4;
 nx = 2;
-ne = 1;
+ne = 0;
 
 C = [ 1 -1; ...
       1  1; ...
      -1  1; ...
      -1 -1];
  
-shift = 1;
+shift = 1000;
 
 d = [1 0.5 1 0.5].';
 
@@ -41,10 +45,22 @@ s   = MX.sym('s', nc, 1);
 tau = MX.sym('tau', 1, 1);
 
 f = 1/2*[x - shift].'*Q*[x - shift] + q.'*[x - shift];
-g = A*x - b;
+if ne > 0
+    g = A*x - b;
+else
+    g = [];
+end
+
 h = C*x - d;
 
-rf_exp = [  jacobian([f + l.'*g + mu.'*h],[x]).'; ...
+% define Lagrangian
+if ne > 0
+    Lag = f + l.'*g + mu.'*h;
+else
+    Lag = f + mu.'*h;
+end
+
+rf_exp = [  jacobian(Lag,x).'; ...
             g; ...
             h + s; ...
             diag(s)*mu-ones(nc,1)*tau];
@@ -66,7 +82,7 @@ iter.mu = zeros(nc,MAX_ITER);
 iter.s = zeros(nc,MAX_ITER);
 
 iter.l(:,1) = 0;
-iter.x(:,1) = [0; 0];
+iter.x(:,1) = X0;
 
 if sum(-C*iter.x(:,1) + d > 0) == nc
     iter.s(:,1) = -C*iter.x(:,1) + d;
@@ -111,6 +127,44 @@ for i = 1:MAX_ITER
     end
     
     J = full(j_rf(x, l, mu, s));
+    
+    if strcmp(B_STRATEGY, 'MEHROTRA')
+        % compute duality measure
+        dm = s.'*mu/nc;
+        % solve affine system
+        aff_rhs = full(rf(x, l, mu, s, 0));
+        aff_step = -J\aff_rhs;
+        % extract mu and s step
+        aff_mu_step = aff_step(nx+ne+1:nx+ne+nc);
+        aff_s_step  = aff_step(nx+ne+nc+1:end);
+        % do line-search for aff
+        aff_alpha = 1;
+        for ls_iter = 1:MAX_LS_IT
+            t_s  = s  + aff_alpha*aff_s_step;
+            t_mu = mu + aff_alpha*aff_mu_step;
+            if isempty(t_s(t_s < TH)) && isempty(t_mu(t_mu < TH))
+                break
+            end
+            if ls_iter == MAX_LS_IT
+                display('-> line-search failed! Exiting.')
+                break;
+                i = MAX_ITER;
+            end
+            aff_alpha = 0.5*aff_alpha;
+        end
+        % compute affine duality measure
+        aff_dm = t_s.'*t_mu/nc;
+        
+        % compute centering parameter
+        sigma = (aff_dm/dm)^3;
+        
+        % update tau
+        tau = sigma*dm;
+        % update complementarity residuals (build aggregated rhs)
+        rhs = full(rf(x, l, mu, s, tau));
+        rhs((nx+ne+nc+1:end)) = rhs(nx+ne+nc+1:end) + diag(aff_s_step)*aff_mu_step;
+    end
+    
     step = -J\rhs;
     
     % extract search direction componenents
@@ -129,6 +183,7 @@ for i = 1:MAX_ITER
         end
         if ls_iter == MAX_LS_IT
             display('-> line-search failed! Exiting.')
+            break;
             i = MAX_ITER;
         end
         alpha = 0.5*alpha;
@@ -141,6 +196,7 @@ for i = 1:MAX_ITER
     
     if i == MAX_ITER
         display('-> maximum number of iterations reached! Exiting.')
+        break;
         i = MAX_ITER;
     end
 end
@@ -148,11 +204,14 @@ end
 iter.x = iter.x(:,1:i);
 
 figure() 
+subplot(121)
 hold all
 plotregion(-C, -d, [], [], 'b')
-x1 = linspace(-10,10, 100);
-x2 = 1/A(2)*(b - A(1)*x1);
-plot(x1, x2, 'r')
+if ne > 0
+    x1 = linspace(-10,10, 100);
+    x2 = 1/A(2)*(b - A(1)*x1);
+    plot(x1, x2, 'r')
+end
 syms x1 x2
 f = 1/2*[ [x1; x2] - shift ].'*Q*[ [x1; x2] - shift ] + q.'*[ [x1; x2] - shift ];
 ezcontour(f, [-1, 1], [-1, 1])
@@ -161,3 +220,14 @@ grid on
 
 plot(iter.x(1,:), iter.x(2,:), '-')
 plot(iter.x(1,end), iter.x(2,end), 'red*')
+
+
+subplot(122)
+plot(iter.x(1,:), '-')
+hold all
+plot(iter.x(2,:), '-')
+grid on
+legend('x_1', 'x_2')
+xlabel('iter [-]')
+ylabel('primal sol')
+
