@@ -14,6 +14,10 @@ TH = 1e-16;
 X0 = [1; 1];
 PRINT_LEVEL = 1; % barrier strategy, possible values: {1, 2}
 DTB = 0.1; % distance to boundaries
+GAMMA = 0.95;
+REG = 1e-8;
+
+benchmark = [ 24, 25, 30, 31, 32, 34, 39 ];
 
 tol = 1e-1;
 term_tol = 1e-6;
@@ -28,8 +32,10 @@ n_eq = ne;
 num_pass = 0;
 grad = g;
 clear g A nc ne
-for num_prob = 1: nQP
 
+for kk = 1: length(benchmark)
+
+    num_prob = benchmark(kk);
     nc = 2*(n_ieq{num_prob,1}+nv{num_prob,1});
     nx = nv{num_prob,1};
     ne = n_eq{num_prob,1};
@@ -64,7 +70,7 @@ for num_prob = 1: nQP
 
     d = [ubC;-lbC;ubx{num_prob,1};-lbx{num_prob,1}] + [ shift*ones(n_ieq{num_prob,1},1); -shift*ones(n_ieq{num_prob,1},1);shift*ones(nx,1); -shift*ones(nx,1) ];
 
-    Q = H{num_prob,1};
+    Q = H{num_prob,1} + REG*eye(nx);
     q = grad{num_prob,1};
 
     x   = MX.sym('x', nx, 1);
@@ -217,10 +223,10 @@ for num_prob = 1: nQP
             alpha = 0.5*alpha;
         end
         
-        iter.x(:,i+1)  = x  + alpha*dx;
-        iter.l(:,i+1)  = l  + alpha*dl;
-        iter.mu(:,i+1) = mu + alpha*dmu;
-        iter.s(:,i+1)  = s  + alpha*ds;
+        iter.x(:,i+1)  = x  + GAMMA*alpha*dx;
+        iter.l(:,i+1)  = l  + GAMMA*alpha*dl;
+        iter.mu(:,i+1) = mu + GAMMA*alpha*dmu;
+        iter.s(:,i+1)  = s  + GAMMA*alpha*ds;
         
         if i == MAX_ITER
             format shortE
@@ -231,7 +237,7 @@ for num_prob = 1: nQP
         
 end
 
-fprintf('Number of QP = %d,  Number of solved QP  = %d, ratio = %5.e', num_prob, num_pass, num_pass/num_prob);
+fprintf('\n -> Number of QP = %d,  Number of solved QP  = %d, ratio = %5.e\n', length(benchmark), num_pass, num_pass/num_prob);
 
 % iter.x = iter.x(:,1:i);
 % 

@@ -398,7 +398,7 @@ int main()
     struct dirent **namelist;
     char resstr[200], OQPproblem[200];
     char *problem;
-    nproblems = scandir("./problems", &namelist, NULL, alphasort);
+    nproblems = scandir("./projects.coin-or.org/svn/qpOASES/misc/testingdata/cpp/problems", &namelist, NULL, alphasort);
     /*
     int ii,jj;
     char filename[1024];
@@ -428,7 +428,7 @@ int main()
             continue;
 			}
         problem = namelist[i]->d_name;
-        snprintf(OQPproblem, 199, "./problems/%s/", problem);
+        snprintf(OQPproblem, 199, "./projects.coin-or.org/svn/qpOASES/misc/testingdata/cpp/problems/%s/", problem);
 
         /* read dimensions */
         readOQPdimensions( OQPproblem, &nQP, &nv, &ng, &ne );

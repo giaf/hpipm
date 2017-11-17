@@ -31,4 +31,5 @@
 ##	Date:      2014-2015
 
 
-svn export https://projects.coin-or.org/svn/qpOASES/misc/testingdata/cpp . --force
+#svn export https://projects.coin-or.org/svn/qpOASES/misc/testingdata/cpp . --force
+wget -r --no-parent https://projects.coin-or.org/svn/qpOASES/misc/testingdata/cpp/problems/

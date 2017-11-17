@@ -38,17 +38,17 @@ OBJS_TEST = test_d_benchmark.o
 
 
 obj: $(OBJS_TEST)
-	$(CC) -o test.out $(OBJS_TEST) -L. ../libhpipm.a $(LIBS) #-pg
+	$(CC) -o test $(OBJS_TEST) -L. ../libhpipm.a $(LIBS) #-pg
 
 download_problem_data:
 	./fetch_cpp_data
 
 run:
-	./test.out
+	./test
 
 clean:
 	rm -f *.o
-	rm -f test.out
+	rm -f test
 
 deep_clean: clean
 	rm -rf oqp/
