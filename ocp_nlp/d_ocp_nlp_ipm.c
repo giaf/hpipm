@@ -47,8 +47,8 @@
 #include "../include/hpipm_d_ocp_qp_kkt.h"
 #include "../include/hpipm_d_ocp_nlp.h"
 #include "../include/hpipm_d_ocp_nlp_sol.h"
+#include "../include/hpipm_d_ocp_nlp_aux.h"
 #include "../include/hpipm_d_ocp_nlp_ipm.h"
-#include "../include/hpipm_d_ocp_qp_sim.h"
 
 
 
@@ -62,7 +62,7 @@
 #define CREATE_OCP_QP_IPM d_create_ocp_qp_ipm
 #define CREATE_OCP_QP_SOL d_create_ocp_qp_sol
 #define CREATE_STRVEC d_create_strvec
-#define ERK_ARG d_erk_args
+#define ERK_ARG d_erk_arg
 #define ERK_WORKSPACE d_erk_workspace
 #define FACT_SOLVE_KKT_STEP_OCP_QP d_fact_solve_kkt_step_ocp_qp
 //#define FACT_SOLVE_KKT_UNCONSTR_OCP_QP d_fact_solve_kkt_unconstr_ocp_qp
@@ -89,6 +89,51 @@
 #define MEMSIZE_OCP_NLP_IPM d_memsize_ocp_nlp_ipm
 #define CREATE_OCP_NLP_IPM d_create_ocp_nlp_ipm
 #define SOLVE_OCP_NLP_IPM d_solve_ocp_nlp_ipm
+
+
+
+int d_memsize_ocp_nlp_ipm_arg(struct OCP_NLP *nlp)
+	{
+
+	int N = nlp->N;
+
+	int size;
+
+	size = 0;
+
+	return size;
+
+	}
+
+
+
+void d_create_ocp_nlp_ipm_arg(struct OCP_NLP *nlp, struct OCP_NLP_IPM_ARG *arg, void *mem)
+	{
+
+	arg->memsize = 0;
+
+	return;
+
+	}
+
+
+
+void d_set_default_ocp_nlp_ipm_arg(struct OCP_NLP_IPM_ARG *arg)
+	{
+
+	arg->alpha_min = 1e-8;
+	arg->nlp_res_g_max = 1e-8;
+	arg->nlp_res_b_max = 1e-8;
+	arg->nlp_res_d_max = 1e-8;
+	arg->nlp_res_m_max = 1e-8;
+	arg->nlp_iter_max = 20;
+	arg->stat_max = 20;
+	arg->mu0 = 100.0;
+	arg->pred_corr = 1;
+
+	return;
+
+	}
 
 
 
@@ -142,7 +187,7 @@ int MEMSIZE_OCP_NLP_IPM(struct OCP_NLP *nlp, struct OCP_NLP_IPM_ARG *arg)
 
 	for(ii=0; ii<N; ii++)
 		{
-		size += MEMSIZE_ERK_INT(arg->rk_data, nx[ii], nx[ii]+nu[ii], nu[ii]);
+		size += MEMSIZE_ERK_INT(arg->erk_arg+ii, nx[ii], nu[ii], nx[ii]+nu[ii], 0);
 		}
 
 	size = (size+63)/64*64; // make multiple of typical cache line size
@@ -219,7 +264,7 @@ void CREATE_OCP_NLP_IPM(struct OCP_NLP *nlp, struct OCP_NLP_IPM_ARG *arg, struct
 	//
 	for(ii=0; ii<N; ii++)
 		{
-		CREATE_ERK_INT(arg->rk_data, nx[ii], nx[ii]+nu[ii], nu[ii], ws->erk_workspace+ii, c_ptr);
+		CREATE_ERK_INT(arg->erk_arg+ii, nx[ii], nu[ii], nx[ii]+nu[ii], 0,  ws->erk_workspace+ii, c_ptr);
 		c_ptr += (ws->erk_workspace+ii)->memsize;
 		}
 	
@@ -275,7 +320,7 @@ int SOLVE_OCP_NLP_IPM(struct OCP_NLP *nlp, struct OCP_NLP_SOL *nlp_sol, struct O
 	int *ng = qp->ng;
 	int *ns = qp->ns;
 
-	double *x, *u;
+	double *x, *u, *pi;
 
 	double tmp;
 
@@ -295,7 +340,7 @@ int SOLVE_OCP_NLP_IPM(struct OCP_NLP *nlp, struct OCP_NLP_SOL *nlp_sol, struct O
 	double nlp_res[4];
 
 
-	// initialize nlp sol
+	// initialize nlp sol (to zero atm)
 	for(nn=0; nn<=N; nn++)
 		dvecse_libstr(nlp->nu[nn]+nlp->nx[nn], 0.0, nlp_sol->ux+nn, 0);
 	for(nn=0; nn<N; nn++)
@@ -333,8 +378,8 @@ int SOLVE_OCP_NLP_IPM(struct OCP_NLP *nlp, struct OCP_NLP_SOL *nlp_sol, struct O
 			{
 			x  = (nlp_sol->ux+nn)->pa+nu[nn];
 			u  = (nlp_sol->ux+nn)->pa;
-			d_init_erk_int(x, (nlp->model+nn)->forward_seed, u, (nlp->model+nn)->expl_vde, (nlp->model+nn)->arg, erk_ws+nn);
-			d_erk_int(erk_arg+nn, erk_ws+nn);
+			d_init_erk_int(nx[nn]+nu[nn], 0, x, u, (nlp->model+nn)->forward_seed, NULL, (nlp->model+nn)->expl_vde_for, NULL, (nlp->model+nn)->arg, erk_ws+nn);
+			d_erk_int(erk_ws+nn);
 			d_cvt_erk_int_to_ocp_qp(nn, erk_ws+nn, qp, nlp_sol);
 			}
 
@@ -350,10 +395,10 @@ exit(1);
 #endif
 
 		// compute residuals
-		COMPUTE_RES_OCP_QP(qp, qp_sol, ipm_ws);
-		cws->mu = ipm_ws->res_mu;
+		COMPUTE_RES_OCP_QP(qp, qp_sol, ipm_ws->res_workspace);
+		cws->mu = ipm_ws->res_workspace->res_mu;
 		if(ss>0 & ss<ipm_ws->stat_max)
-			ipm_ws->stat[5*(ss-1)+4] = ipm_ws->res_mu;
+			ipm_ws->stat[5*(ss-1)+4] = ipm_ws->res_workspace->res_mu;
 
 		// compute infinity norm of residuals
 		dvecnrm_inf_libstr(cws->nv, &str_res_g, 0, &nlp_res[0]);

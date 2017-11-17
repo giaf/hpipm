@@ -48,11 +48,10 @@
 #include "../include/hpipm_d_ocp_nlp.h"
 #include "../include/hpipm_d_ocp_nlp_sol.h"
 #include "../include/hpipm_d_ocp_nlp_ipm.h"
-#include "../include/hpipm_d_ocp_qp_sim.h"
 
 
 
-void d_van_der_pol_ode(int t, double *x, double *u, void *ode_args, double *xdot)
+void d_van_der_pol_ode(int t, double *x, double *u, void *ode_arg, double *xdot)
 	{
 	double mu = 1.0;
 	xdot[0] = x[1];
@@ -62,7 +61,7 @@ void d_van_der_pol_ode(int t, double *x, double *u, void *ode_args, double *xdot
 
 
 
-void d_van_der_pol_vde0(int t, double *x, double *u, void *ode_args, double *xdot)
+void d_van_der_pol_vde0(int t, double *x, double *u, void *ode_arg, double *xdot)
 	{
 	double mu = 1.0;
 	int ii, jj, kk;
@@ -104,7 +103,7 @@ void d_van_der_pol_vde0(int t, double *x, double *u, void *ode_args, double *xdo
 
 
 
-void d_van_der_pol_vde1(int t, double *x, double *u, void *ode_args, double *xdot)
+void d_van_der_pol_vde1(int t, double *x, double *u, void *ode_arg, double *xdot)
 	{
 	double mu = 1.0;
 	int ii, jj, kk;
@@ -231,12 +230,13 @@ int main()
 	d_print_mat(1, nu_, r, 1);
 
 /************************************************
-* integrator type and args
+* integrator type and arg
 ************************************************/	
 	
 #if 1
 	// rk4
 	int nsta = 4; // number of stages
+	int expl = 1;
 	double A_rk[] = {0.0, 0.0, 0.0, 0.0,
 	                 0.5, 0.0, 0.0, 0.0,
 	                 0.0, 0.5, 0.0, 0.0,
@@ -246,6 +246,7 @@ int main()
 #elif 1
 	// midpoint rule
 	int nsta = 2; // number of stages
+	int expl = 1;
 	double A_rk[] = {0.0, 0.0,
 	                 0.5, 0.0};
 	double B_rk[] = {0.0, 1.0};
@@ -253,6 +254,7 @@ int main()
 #else
 	// explicit euler
 	int nsta = 1; // number of stages
+	int expl = 1;
 	double A_rk[] = {0.0};
 	double B_rk[] = {1.0};
 	double C_rk[] = {0.0};
@@ -266,14 +268,17 @@ int main()
 	struct d_rk_data rk_data;
 	d_create_rk_data(nsta, &rk_data, memory_rk_data);
 
-	d_cvt_rowmaj_to_rk_data(A_rk, B_rk, C_rk, &rk_data);
+	d_cvt_rowmaj_to_rk_data(expl, A_rk, B_rk, C_rk, &rk_data);
 
 	double Ts = 0.1;
 
-	// erk args structure
-	struct d_erk_args erk_arg;
+	// erk arg structure
+	struct d_erk_arg erk_arg;
+	erk_arg.rk_data = &rk_data;
 	erk_arg.steps = 10;
 	erk_arg.h = Ts/erk_arg.steps;
+	erk_arg.for_sens = 1; // XXX needed ???
+	erk_arg.adj_sens = 0;
 
 /************************************************
 * ocp qp
@@ -479,7 +484,9 @@ int main()
 		fs0[ii] = 0.0;
 
 	struct d_ocp_nlp_model model0;
-	model0.expl_vde = &d_van_der_pol_vde0;
+	model0.expl_ode = NULL;
+	model0.expl_vde_for = &d_van_der_pol_vde0;
+	model0.expl_vde_adj = NULL;
 	model0.forward_seed = fs0;
 	model0.arg = NULL;
 
@@ -491,7 +498,9 @@ int main()
 		fs1[nu_*nx_+ii*(nx_+1)] = 1.0;
 
 	struct d_ocp_nlp_model model1;
-	model1.expl_vde = &d_van_der_pol_vde1;
+	model1.expl_ode = NULL;
+	model1.expl_vde_for = &d_van_der_pol_vde1;
+	model1.expl_vde_adj = NULL;
 	model1.forward_seed = fs1;
 	model1.arg = NULL;
 
@@ -603,22 +612,29 @@ int main()
 * ocp nlp ipm arg
 ************************************************/	
 
-	struct d_erk_args erk_args[N];
+	int ipm_arg_size = d_memsize_ocp_nlp_ipm_arg(&nlp);
+	printf("\nipm arg size = %d\n", ipm_arg_size);
+	void *ipm_arg_mem = malloc(ipm_arg_size);
+
+	struct d_ocp_nlp_ipm_arg ipm_arg;
+	d_create_ocp_nlp_ipm_arg(&nlp, &ipm_arg, ipm_arg_mem);
+	d_set_default_ocp_nlp_ipm_arg(&ipm_arg);
+
+	struct d_erk_arg erk_args[N];
 	for(ii=0; ii<N; ii++)
 		erk_args[ii] = erk_arg;
 
-	struct d_ocp_nlp_ipm_arg ipm_arg;
-	ipm_arg.rk_data = &rk_data;
+//	struct d_ocp_nlp_ipm_arg ipm_arg;
 	ipm_arg.erk_arg = erk_args;
-	ipm_arg.alpha_min = 1e-8;
-	ipm_arg.nlp_res_g_max = 1e-8;
+//	ipm_arg.alpha_min = 1e-8;
+	ipm_arg.nlp_res_g_max = 1e-6;
 	ipm_arg.nlp_res_b_max = 1e-8;
 	ipm_arg.nlp_res_d_max = 1e-8;
 	ipm_arg.nlp_res_m_max = 1e-8;
-	ipm_arg.nlp_iter_max = 20;
-	ipm_arg.stat_max = 20;
-	ipm_arg.mu0 = 2.0;
-	ipm_arg.pred_corr = 1;
+//	ipm_arg.nlp_iter_max = 20;
+//	ipm_arg.stat_max = 20;
+//	ipm_arg.mu0 = 2.0;
+//	ipm_arg.pred_corr = 1;
 
 /************************************************
 * ocp nlp ipm ws
@@ -733,7 +749,7 @@ int main()
 ************************************************/	
 
 	printf("\nnlp_res_g = %e, nlp_res_b = %e, nlp_res_d = %e, nlp_res_m = %e\n", ipm_ws.nlp_res_g, ipm_ws.nlp_res_b, ipm_ws.nlp_res_d, ipm_ws.nlp_res_m);
-	printf("\nocp nlp ipm iter = %d, time = %e [s]\n\n", ipm_ws.iter, time_ocp_nlp_ipm);
+	printf("\nocp nlp ipm: iter = %d, time = %e [s]\n\n", ipm_ws.iter, time_ocp_nlp_ipm);
 
 /************************************************
 * free memory

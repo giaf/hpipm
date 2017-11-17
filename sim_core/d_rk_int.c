@@ -77,7 +77,7 @@ void d_create_rk_data(int ns, struct d_rk_data *rk_data, void *mem)
 #if defined(RUNTIME_CHECKS)
 	if(c_ptr > ((char *) mem) + rk_data->memsize)
 		{
-		printf("\nCreate_irk_int: outsize memory bounds!\n\n");
+		printf("\nCreate_rk_int: outsize memory bounds!\n\n");
 		exit(1);
 		}
 #endif
@@ -89,10 +89,12 @@ void d_create_rk_data(int ns, struct d_rk_data *rk_data, void *mem)
 
 
 
-void d_cvt_colmaj_to_rk_data(double *A, double *B, double *C, struct d_rk_data *rk_data)
+void d_cvt_colmaj_to_rk_data(int expl, double *A, double *B, double *C, struct d_rk_data *rk_data)
 	{
 
 	int ii, jj;
+
+	rk_data->expl = expl;
 
 	int ns = rk_data->ns;
 	double *A_rk = rk_data->A_rk;
@@ -113,10 +115,12 @@ void d_cvt_colmaj_to_rk_data(double *A, double *B, double *C, struct d_rk_data *
 
 
 
-void d_cvt_rowmaj_to_rk_data(double *A, double *B, double *C, struct d_rk_data *rk_data)
+void d_cvt_rowmaj_to_rk_data(int expl, double *A, double *B, double *C, struct d_rk_data *rk_data)
 	{
 
 	int ii, jj;
+
+	rk_data->expl = expl;
 
 	int ns = rk_data->ns;
 	double *A_rk = rk_data->A_rk;

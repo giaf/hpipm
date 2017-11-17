@@ -30,6 +30,24 @@
 #include <blasfeo_target.h>
 #include <blasfeo_common.h>
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+
+struct d_tree_ocp_qp_ipm_arg
+	{
+	double mu0; // initial value for duality measure
+	double alpha_min; // exit cond on step length
+	double res_g_max; // exit cond on inf norm of residuals
+	double res_b_max; // exit cond on inf norm of residuals
+	double res_d_max; // exit cond on inf norm of residuals
+	double res_m_max; // exit cond on inf norm of residuals
+	int iter_max; // exit cond in iter number
+	int stat_max; // iterations saved in stat
+	int pred_corr; // use Mehrotra's predictor-corrector IPM algirthm
+	int memsize;
+	};
 
 
 
@@ -53,6 +71,7 @@ struct d_tree_ocp_qp_ipm_workspace
 	struct d_strmat *L;
 	struct d_strmat *AL;
 	double *stat; // convergence statistics
+	double qp_res[4]; // infinity norm of residuals
 	double mu0; // mu0
 	double res_mu; // mu-residual
 	int iter; // iteration number
@@ -62,20 +81,12 @@ struct d_tree_ocp_qp_ipm_workspace
 
 
 
-struct d_tree_ocp_qp_ipm_arg
-	{
-	double mu0; // initial value for duality measure
-	double alpha_min; // exit cond on step length
-	double res_g_max; // exit cond on inf norm of residuals
-	double res_b_max; // exit cond on inf norm of residuals
-	double res_d_max; // exit cond on inf norm of residuals
-	double res_m_max; // exit cond on inf norm of residuals
-	int iter_max; // exit cond in iter number
-	int stat_max; // iterations saved in stat
-	int pred_corr; // use Mehrotra's predictor-corrector IPM algirthm
-	};
-
-
+//
+int d_memsize_tree_ocp_qp_ipm_arg(struct d_tree_ocp_qp *qp);
+//
+void d_create_tree_ocp_qp_ipm_arg(struct d_tree_ocp_qp *qp, struct d_tree_ocp_qp_ipm_arg *arg, void *mem);
+//
+void d_set_default_tree_ocp_qp_ipm_arg(struct d_tree_ocp_qp_ipm_arg *arg);
 
 //
 int d_memsize_tree_ocp_qp_ipm(struct d_tree_ocp_qp *qp, struct d_tree_ocp_qp_ipm_arg *arg);
@@ -83,3 +94,7 @@ int d_memsize_tree_ocp_qp_ipm(struct d_tree_ocp_qp *qp, struct d_tree_ocp_qp_ipm
 void d_create_tree_ocp_qp_ipm(struct d_tree_ocp_qp *qp, struct d_tree_ocp_qp_ipm_arg *arg, struct d_tree_ocp_qp_ipm_workspace *ws, void *mem);
 //
 int d_solve_tree_ocp_qp_ipm(struct d_tree_ocp_qp *qp, struct d_tree_ocp_qp_sol *qp_sol, struct d_tree_ocp_qp_ipm_arg *arg, struct d_tree_ocp_qp_ipm_workspace *ws);
+
+#ifdef __cplusplus
+} /* extern "C" */
+#endif

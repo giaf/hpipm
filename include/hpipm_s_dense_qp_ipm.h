@@ -32,6 +32,33 @@
 
 
 
+#ifndef HPIPM_S_DENSE_QP_IPM_H_
+#define HPIPM_S_DENSE_QP_IPM_H_
+
+
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+
+
+struct s_dense_qp_ipm_arg
+	{
+	float mu0; // initial value for duality measure
+	float alpha_min; // exit cond on step length
+	float res_g_max; // exit cond on inf norm of residuals
+	float res_b_max; // exit cond on inf norm of residuals
+	float res_d_max; // exit cond on inf norm of residuals
+	float res_m_max; // exit cond on inf norm of residuals
+	int iter_max; // exit cond in iter number
+	int stat_max; // iterations saved in stat
+	int pred_corr; // use Mehrotra's predictor-corrector IPM algirthm
+	int memsize;
+	};
+
+
+
 struct s_dense_qp_ipm_workspace
 	{
 	struct s_core_qp_ipm_workspace *core_workspace;
@@ -54,6 +81,7 @@ struct s_dense_qp_ipm_workspace
 	struct s_strvec *tmp_nbg; // work space of size nb+ng
 	struct s_strvec *tmp_ns; // work space of size ns
 	float *stat; // convergence statistics
+	float qp_res[4]; // infinity norm of residuals
 	float mu0; // mu0
 	float res_mu; // mu-residual
 	int iter; // iteration number
@@ -63,25 +91,26 @@ struct s_dense_qp_ipm_workspace
 
 
 
-struct s_dense_qp_ipm_arg
-	{
-	float mu0; // initial value for duality measure
-	float alpha_min; // exit cond on step length
-	float res_g_max; // exit cond on inf norm of residuals
-	float res_b_max; // exit cond on inf norm of residuals
-	float res_d_max; // exit cond on inf norm of residuals
-	float res_m_max; // exit cond on inf norm of residuals
-	int iter_max; // exit cond in iter number
-	int stat_max; // iterations saved in stat
-	int pred_corr; // use Mehrotra's predictor-corrector IPM algirthm
-	};
-
-
+//
+int s_memsize_dense_qp_ipm_arg(struct s_dense_qp_dim *qp_dim);
+//
+void s_create_dense_qp_ipm_arg(struct s_dense_qp_dim *qp_dim, struct s_dense_qp_ipm_arg *arg, void *mem);
+//
+void s_set_default_dense_qp_ipm_arg(struct s_dense_qp_ipm_arg *arg);
 
 //
-int s_memsize_dense_qp_ipm(struct s_dense_qp *qp, struct s_dense_qp_ipm_arg *arg);
+int s_memsize_dense_qp_ipm(struct s_dense_qp_dim *qp_dim, struct s_dense_qp_ipm_arg *arg);
 //
-void s_create_dense_qp_ipm(struct s_dense_qp *qp, struct s_dense_qp_ipm_arg *arg, struct s_dense_qp_ipm_workspace *ws, void *mem);
+void s_create_dense_qp_ipm(struct s_dense_qp_dim *qp_dim, struct s_dense_qp_ipm_arg *arg, struct s_dense_qp_ipm_workspace *ws, void *mem);
 //
 int s_solve_dense_qp_ipm(struct s_dense_qp *qp, struct s_dense_qp_sol *qp_sol, struct s_dense_qp_ipm_arg *arg, struct s_dense_qp_ipm_workspace *ws);
 
+
+
+#ifdef __cplusplus
+} /* extern "C" */
+#endif
+
+
+
+#endif // HPIPM_S_DENSE_QP_IPM_H_

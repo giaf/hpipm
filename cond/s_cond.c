@@ -35,6 +35,7 @@
 #include <blasfeo_s_blas.h>
 #include <blasfeo_s_aux.h>
 
+#include "../include/hpipm_s_ocp_qp_dim.h"
 #include "../include/hpipm_s_ocp_qp.h"
 #include "../include/hpipm_s_ocp_qp_sol.h"
 #include "../include/hpipm_s_dense_qp.h"
@@ -45,25 +46,31 @@
 
 
 #define COND_DCTD s_cond_DCtd
+#define COND_D s_cond_d
+#define COND_B s_cond_b
 #define COND_BABT s_cond_BAbt
+#define COND_RQ_N2NX3 s_cond_rq_N2nx3
 #define COND_RSQRQ_N2NX3 s_cond_RSQrq_N2nx3
 #define COND_QP_OCP2DENSE_WORKSPACE s_cond_qp_ocp2dense_workspace
 #define CREATE_STRMAT s_create_strmat
 #define CREATE_STRVEC s_create_strvec
 #define DENSE_QP s_dense_qp
+#define DENSE_QP_DIM s_dense_qp_dim
 #define DENSE_QP_SOL s_dense_qp_sol
 #define EXPAND_SOL s_expand_sol
 #define OCP_QP s_ocp_qp
+#define OCP_QP_DIM s_ocp_qp_dim
 #define OCP_QP_SOL s_ocp_qp_sol
 #define SIZE_STRMAT s_size_strmat
 #define SIZE_STRVEC s_size_strvec
 #define STRMAT s_strmat
 #define STRVEC s_strvec
 
-#define COMPUTE_QP_SIZE_OCP2DENSE s_compute_qp_size_ocp2dense
+#define COMPUTE_QP_DIM_OCP2DENSE s_compute_qp_dim_ocp2dense
 #define MEMSIZE_COND_QP_OCP2DENSE s_memsize_cond_qp_ocp2dense
 #define CREATE_COND_QP_OCP2DENSE s_create_cond_qp_ocp2dense
 #define COND_QP_OCP2DENSE s_cond_qp_ocp2dense
+#define COND_RHS_QP_OCP2DENSE s_cond_rhs_qp_ocp2dense
 #define EXPAND_SOL_DENSE2OCP s_expand_sol_dense2ocp
 
 

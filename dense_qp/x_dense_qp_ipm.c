@@ -27,14 +27,53 @@
 
 
 
-int MEMSIZE_DENSE_QP_IPM(struct DENSE_QP *qp, struct DENSE_QP_IPM_ARG *arg)
+int MEMSIZE_DENSE_QP_IPM_ARG(struct DENSE_QP_DIM *dim)
 	{
 
-	int nv = qp->nv;
-	int ne = qp->ne;
-	int nb = qp->nb;
-	int ng = qp->ng;
-	int ns = qp->ns;
+	return 0;
+
+	}
+
+
+
+void CREATE_DENSE_QP_IPM_ARG(struct DENSE_QP_DIM *dim, struct DENSE_QP_IPM_ARG *arg, void *mem)
+	{
+
+	arg->memsize = 0;
+
+	return;
+
+	}
+
+
+
+void SET_DEFAULT_DENSE_QP_IPM_ARG(struct DENSE_QP_IPM_ARG *arg)
+	{
+
+	arg->mu0 = 100;
+	arg->alpha_min = 1e-8;
+	arg->res_g_max = 1e-8;
+	arg->res_b_max = 1e-8;
+	arg->res_d_max = 1e-12;
+	arg->res_m_max = 1e-12;
+	arg->iter_max = 20;
+	arg->stat_max = 20;
+	arg->pred_corr = 1;
+
+	return;
+
+	}
+
+
+
+int MEMSIZE_DENSE_QP_IPM(struct DENSE_QP_DIM *dim, struct DENSE_QP_IPM_ARG *arg)
+	{
+
+	int nv = dim->nv;
+	int ne = dim->ne;
+	int nb = dim->nb;
+	int ng = dim->ng;
+	int ns = dim->ns;
 
 	int size = 0;
 
@@ -64,14 +103,14 @@ int MEMSIZE_DENSE_QP_IPM(struct DENSE_QP *qp, struct DENSE_QP_IPM_ARG *arg)
 
 
 
-void CREATE_DENSE_QP_IPM(struct DENSE_QP *qp, struct DENSE_QP_IPM_ARG *arg, struct DENSE_QP_IPM_WORKSPACE *workspace, void *mem)
+void CREATE_DENSE_QP_IPM(struct DENSE_QP_DIM *dim, struct DENSE_QP_IPM_ARG *arg, struct DENSE_QP_IPM_WORKSPACE *workspace, void *mem)
 	{
 
-	int nv = qp->nv;
-	int ne = qp->ne;
-	int nb = qp->nb;
-	int ng = qp->ng;
-	int ns = qp->ns;
+	int nv = dim->nv;
+	int ne = dim->ne;
+	int nb = dim->nb;
+	int ng = dim->ng;
+	int ns = dim->ns;
 
 
 	// core struct
@@ -207,7 +246,7 @@ void CREATE_DENSE_QP_IPM(struct DENSE_QP *qp, struct DENSE_QP_IPM_ARG *arg, stru
 
 
 	//
-	workspace->memsize = MEMSIZE_DENSE_QP_IPM(qp, arg);
+	workspace->memsize = MEMSIZE_DENSE_QP_IPM(dim, arg);
 
 
 #if defined(RUNTIME_CHECKS)
@@ -260,7 +299,11 @@ int SOLVE_DENSE_QP_IPM(struct DENSE_QP *qp, struct DENSE_QP_SOL *qp_sol, struct 
 	str_res_d.pa = cws->res_d;
 	str_res_m.pa = cws->res_m;
 
-	REAL qp_res[4];
+	REAL *qp_res = ws->qp_res;
+	qp_res[0] = 0;
+	qp_res[1] = 0;
+	qp_res[2] = 0;
+	qp_res[3] = 0;
 
 	ws->mu0 = arg->mu0;
 
@@ -314,7 +357,7 @@ int SOLVE_DENSE_QP_IPM(struct DENSE_QP *qp, struct DENSE_QP_SOL *qp_sol, struct 
 
 			COMPUTE_CENTERING_CORRECTION_QP(cws);
 
-			// fact and solve kkt
+			// solve kkt
 			SOLVE_KKT_STEP_DENSE_QP(qp, ws);
 
 			// alpha

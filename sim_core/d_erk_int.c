@@ -42,18 +42,31 @@
 
 
 
-int d_memsize_erk_int(struct d_rk_data *rk_data, int nx, int nf, int np)
+int d_memsize_erk_int(struct d_erk_arg *erk_arg, int nx, int np, int nf_max, int na_max)
 	{
 
-	int ns = rk_data->ns;
+	int ns = erk_arg->rk_data->ns;
 
-	int nX = nx*(1+nf);
+	int nX = nx*(1+nf_max);
+
+	int steps = erk_arg->steps;
 
 	int size = 0;
 
-	size += 1*ns*nX*sizeof(double); // K
-	size += 2*nX*sizeof(double); // x xt
 	size += 1*np*sizeof(double); // p
+	size += 1*nX*sizeof(double); // x_for
+	size += 1*ns*nX*sizeof(double); // K
+	size += 1*nX*sizeof(double); // x_tmp
+	if(na_max>0)
+		{
+//		size += 1*nX*(steps+1)*sizeof(double); // x_traj XXX
+		size += 1*nx*(ns*steps+1)*sizeof(double); // x_traj
+//		size += 1*ns*nX*steps*sizeof(double); // K
+//		size += 1*nX*ns*sizeof(double); // x_tmp
+		size += 1*nf_max*(steps+1)*sizeof(double); // l // XXX *na_max ???
+		size += 1*(nx+nf_max)*sizeof(double); // adj_in // XXX *na_max ???
+		size += 1*nf_max*ns*sizeof(double); // adj_tmp // XXX *na_max ???
+		}
 
 	return size;
 
@@ -61,35 +74,63 @@ int d_memsize_erk_int(struct d_rk_data *rk_data, int nx, int nf, int np)
 
 
 
-void d_create_erk_int(struct d_rk_data *rk_data, int nx, int nf, int np, struct d_erk_workspace *ws, void *mem)
+void d_create_erk_int(struct d_erk_arg *erk_arg, int nx, int np, int nf_max, int na_max, struct d_erk_workspace *ws, void *mem)
 	{
 
-	ws->rk_data = rk_data;
+	ws->erk_arg = erk_arg;
 	ws->nx = nx;
-	ws->nf = nf;
 	ws->np = np;
+	ws->nf_max = nf_max;
+	ws->na_max = na_max;
 
-	int ns = rk_data->ns;
+	int ns = erk_arg->rk_data->ns;
 
-	int nX = nx*(1+nf);
+	int nX = nx*(1+nf_max);
+
+	int steps = erk_arg->steps;
 
 	double *d_ptr = mem;
 
 	//
+	ws->p = d_ptr;
+	d_ptr += np;
+	//
+	ws->x_for = d_ptr;
+	d_ptr += nX;
+	//
 	ws->K = d_ptr;
 	d_ptr += ns*nX;
 	//
-	ws->x = d_ptr;
+	ws->x_tmp = d_ptr;
 	d_ptr += nX;
 	//
-	ws->xt = d_ptr;
-	d_ptr += nX;
-	//
-	ws->p = d_ptr;
-	d_ptr += np;
+	if(na_max>0)
+		{
+		//
+//		ws->x_for = d_ptr;
+//		d_ptr += nX*(steps+1);
+		//
+		ws->x_traj = d_ptr;
+		d_ptr += nx*(ns*steps+1);
+		//
+//		ws->K = d_ptr;
+//		d_ptr += ns*nX*steps;
+		//
+//		ws->x_tmp = d_ptr;
+//		d_ptr += nX*ns;
+		//
+		ws->l = d_ptr;
+		d_ptr += nf_max*(steps+1);
+		//
+		ws->adj_in = d_ptr;
+		d_ptr += nx+nf_max;
+		//
+		ws->adj_tmp = d_ptr;
+		d_ptr += nf_max*ns;
+		}
 
 
-	ws->memsize = d_memsize_erk_int(rk_data, nx, nf, np);
+	ws->memsize = d_memsize_erk_int(erk_arg, nx, np, nf_max, na_max);
 
 
 	char *c_ptr = (char *) d_ptr;
@@ -98,7 +139,7 @@ void d_create_erk_int(struct d_rk_data *rk_data, int nx, int nf, int np, struct 
 #if defined(RUNTIME_CHECKS)
 	if(c_ptr > ((char *) mem) + ws->memsize)
 		{
-		printf("\nCreate_erk_int: outsize memory bounds!\n\n");
+		printf("\nCreate_erk_int: outsize memory bounds! %p %p\n\n", c_ptr, ((char *) mem) + ws->memsize);
 		exit(1);
 		}
 #endif
@@ -110,30 +151,46 @@ void d_create_erk_int(struct d_rk_data *rk_data, int nx, int nf, int np, struct 
 
 
 
-void d_init_erk_int(double *x0, double *fs0, double *p0, void (*ode)(int t, double *x, double *p, void *ode_args, double *xdot), void *ode_args, struct d_erk_workspace *ws)
+void d_init_erk_int(int nf, int na, double *x0, double *p0, double *fs0, double *bs0, void (*vde_for)(int t, double *x, double *p, void *ode_args, double *xdot), void (*vde_adj)(int t, double *adj_in, void *ode_args, double *adj_out), void *ode_args, struct d_erk_workspace *ws)
 	{
 
 	int ii;
 
+	ws->nf = nf;
+	ws->na = na;
+
 	int nx = ws->nx;
-	int nf = ws->nf;
 	int np = ws->np;
 
 	int nX = nx*(1+nf);
+	int nA = np+nx; // XXX
 
-	double *x = ws->x;
+	int steps = ws->erk_arg->steps;
+
+	double *x_for = ws->x_for;
 	double *p = ws->p;
+	double *l = ws->l;
 
 	for(ii=0; ii<nx; ii++)
-		x[ii] = x0[ii];
+		x_for[ii] = x0[ii];
 
 	for(ii=0; ii<nx*nf; ii++)
-		x[nx+ii] = fs0[ii];
+		x_for[nx+ii] = fs0[ii];
 
 	for(ii=0; ii<np; ii++)
 		p[ii] = p0[ii];
 	
-	ws->ode = ode;
+	if(na>0) // TODO what if na>1 !!!
+		{
+		for(ii=0; ii<np; ii++)
+			l[nA*steps+ii] = 0.0;
+		for(ii=0; ii<nx; ii++)
+			l[nA*steps+np+ii] = bs0[ii];
+		}
+	
+//	ws->ode = ode;
+	ws->vde_for = vde_for;
+	ws->vde_adj = vde_adj;
 	ws->ode_args = ode_args;
 
 //	d_print_mat(1, nx*nf, x, 1);
@@ -146,6 +203,7 @@ void d_init_erk_int(double *x0, double *fs0, double *p0, void (*ode)(int t, doub
 
 
 
+#if 0
 void d_update_p_erk_int(double *p0, struct d_erk_workspace *ws)
 	{
 
@@ -161,23 +219,31 @@ void d_update_p_erk_int(double *p0, struct d_erk_workspace *ws)
 	return;
 
 	}
+#endif
 
 
 
-void d_erk_int(struct d_erk_args *erk_args, struct d_erk_workspace *ws)
+void d_erk_int(struct d_erk_workspace *ws)
 	{
-//printf("\nenter erk\n");
 
-	int steps = erk_args->steps;
-	double h = erk_args->h;
+	int steps = ws->erk_arg->steps;
+	double h = ws->erk_arg->h;
 
-	struct d_rk_data *rk_data = ws->rk_data;
+	struct d_rk_data *rk_data = ws->erk_arg->rk_data;
 	int nx = ws->nx;
+	int np = ws->np;
 	int nf = ws->nf;
-	double *K = ws->K;
-	double *x = ws->x;
+	int na = ws->na;
+	double *K0 = ws->K;
+	double *x0 = ws->x_for;
+	double *x1 = ws->x_for;
+	double *x_traj = ws->x_traj;
 	double *p = ws->p;
-	double *xt = ws->xt;
+	double *x_tmp = ws->x_tmp;
+	double *adj_in = ws->adj_in;
+	double *adj_tmp = ws->adj_tmp;
+
+	double *l0, *l1;
 
 	int ns = rk_data->ns;
 	double *A_rk = rk_data->A_rk;
@@ -186,53 +252,134 @@ void d_erk_int(struct d_erk_args *erk_args, struct d_erk_workspace *ws)
 
 	struct d_strvec sxt; // XXX
 	struct d_strvec sK; // XXX
-	sxt.pa = xt; // XXX
+	sxt.pa = x_tmp; // XXX
 
 	int ii, jj, step, ss;
 	double t, a, b;
 
 	int nX = nx*(1+nf);
+	int nA = nx+np; // XXX
 
-//d_print_mat(nx, nf+1, x, nx);
+//printf("\nnf %d na %d nX %d nA %d\n", nf, na, nX, nA);
+	// forward sweep
 
-	t = 0.0;
+	// TODO no need to save the entire [x Su Sx] & sens, but only [x] & sens !!!
+
+	t = 0.0; // TODO plus time of multiple-shooting stage !!!
+	if(na>0)
+		{
+		x_traj = ws->x_traj;
+		for(ii=0; ii<nx; ii++)
+			x_traj[ii] = x0[ii];
+		x_traj += nx;
+		}
 	for(step=0; step<steps; step++)
 		{
-//printf("\nstep %d\n", step);
+//		if(na>0)
+//			{
+//			x0 = ws->x_for + step*nX;
+//			x1 = ws->x_for + (step+1)*nX;
+//			for(ii=0; ii<nX; ii++)
+//				x1[ii] = x0[ii];
+//			K0 = ws->K + ns*step*nX;
+//			}
 		for(ss=0; ss<ns; ss++)
 			{
 			for(ii=0; ii<nX; ii++)
-				xt[ii] = x[ii];
+				x_tmp[ii] = x0[ii];
 			for(ii=0; ii<ss; ii++)
 				{
 				a = A_rk[ss+ns*ii];
 				if(a!=0)
 					{
-					sK.pa = K+ii*nX; // XXX
 					a *= h;
 #if 0
+					sK.pa = K0+ii*nX; // XXX
 					daxpy_libstr(nX, a, &sK, 0, &sxt, 0, &sxt, 0); // XXX
 #else
 					for(jj=0; jj<nX; jj++)
-						xt[jj] += a*K[jj+ii*(nX)];
+						x_tmp[jj] += a*K0[jj+ii*(nX)];
 #endif
 					}
 				}
-			ws->ode(t+h*C_rk[ss], xt, p, ws->ode_args, K+ss*(nX));
+			if(na>0)
+				{
+				for(ii=0; ii<nx; ii++)
+					x_traj[ii] = x_tmp[ii];
+				x_traj += nx;
+				}
+			ws->vde_for(t+h*C_rk[ss], x_tmp, p, ws->ode_args, K0+ss*(nX));
 			}
-//d_print_e_mat(nx, ns*(nf+1), K, nx);
 		for(ss=0; ss<ns; ss++)
 			{
 			b = h*B_rk[ss];
 			for(ii=0; ii<nX; ii++)
-				x[ii] += b*K[ii+ss*(nX)];
+				x1[ii] += b*K0[ii+ss*(nX)];
 			}
-//d_print_e_mat(nx, nf+1, x, nx);
 		t += h;
 		}
+	
+	// adjoint sweep
 
-//d_print_e_mat(nx, nf+1, x, nx);
-//printf("\nexit erk\n");
+	if(na>0)
+		{
+		x_traj = ws->x_traj + nx*ns*steps;
+		t = steps*h; // TODO plus time of multiple-shooting stage !!!
+		for(step=steps-1; step>=0; step--)
+			{
+			l0 = ws->l + step*nA;
+			l1 = ws->l + (step+1)*nA;
+			x0 = ws->x_for + step*nX;
+			K0 = ws->K + ns*step*nX; // XXX save all x insead !!!
+			// TODO save all x instead of K !!!
+			for(ss=ns-1; ss>=0; ss--)
+				{
+				// x
+				for(ii=0; ii<nx; ii++)
+					adj_in[0+ii] = x_traj[ii];
+				x_traj -= nx;
+//				for(ii=0; ii<nx; ii++)
+//					adj_in[0+ii] = x0[ii];
+//				for(ii=0; ii<ss; ii++)
+//					{
+//					a = A_rk[ss+ns*ii];
+//					if(a!=0)
+//						{
+//						a *= h;
+//						for(jj=0; jj<nx; jj++)
+//							adj_in[0+jj] += a*K0[jj+ii*(nX)];
+//						}
+//					}
+				// l
+				b = h*B_rk[ss];
+				for(ii=0; ii<nx; ii++)
+					adj_in[nx+ii] = b*l1[np+ii];
+				for(ii=ss+1; ii<ns; ii++)
+					{
+					a = A_rk[ii+ns*ss];
+					if(a!=0)
+						{
+						a *= h;
+						for(jj=0; jj<nx; jj++)
+							adj_in[nx+jj] += a*adj_tmp[np+jj+ii*nA];
+						}
+					}
+				// p
+				for(ii=0; ii<np; ii++)
+					adj_in[nx+nx+ii] = p[ii];
+				// adj_vde
+				ws->vde_adj(t+h*C_rk[ss], adj_in, ws->ode_args, adj_tmp+ss*nA);
+				}
+			// erk step
+			for(ii=0; ii<nA; ii++) // TODO move in the erk step !!!
+				l0[ii] = l1[ii];
+			for(ss=0; ss<ns; ss++)
+				for(ii=0; ii<nA; ii++)
+					l0[ii] += adj_tmp[ii+ss*nA];
+			t -= h;
+			}
+		}
+
 	return;
 
 	}

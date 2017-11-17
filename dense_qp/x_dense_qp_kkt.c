@@ -33,11 +33,11 @@ void INIT_VAR_DENSE_QP(struct DENSE_QP *qp, struct DENSE_QP_SOL *qp_sol, struct 
 	struct CORE_QP_IPM_WORKSPACE *cws = ws->core_workspace;
 
 	// extract cws members
-	int nv = qp->nv;
-	int ne = qp->ne;
-	int nb = qp->nb;
-	int ng = qp->ng;
-	int ns = qp->ns;
+	int nv = qp->dim->nv;
+	int ne = qp->dim->ne;
+	int nb = qp->dim->nb;
+	int ng = qp->dim->ng;
+	int ns = qp->dim->ns;
 
 	REAL *d = qp->d->pa;
 	int *idxb = qp->idxb;
@@ -74,7 +74,7 @@ void INIT_VAR_DENSE_QP(struct DENSE_QP *qp, struct DENSE_QP_SOL *qp_sol, struct 
 	// box constraints
 	for(ii=0; ii<nb; ii++)
 		{
-#if 0
+#if 1
 		idxb0 = idxb[ii];
 		t[0+ii]     = - d[0+ii]     + v[idxb0];
 		t[nb+ng+ii] =   d[nb+ng+ii] - v[idxb0];
@@ -109,7 +109,7 @@ void INIT_VAR_DENSE_QP(struct DENSE_QP *qp, struct DENSE_QP_SOL *qp_sol, struct 
 	GEMV_T_LIBSTR(nv, ng, 1.0, qp->Ct, 0, 0, qp_sol->v, 0, 0.0, qp_sol->t, nb, qp_sol->t, nb);
 	for(ii=0; ii<ng; ii++)
 		{
-#if 0
+#if 1
 		t[2*nb+ng+ii] = t[nb+ii];
 		t[nb+ii]      -= d[nb+ii];
 		t[2*nb+ng+ii] += d[2*nb+ng+ii];
@@ -145,11 +145,11 @@ void COMPUTE_RES_DENSE_QP(struct DENSE_QP *qp, struct DENSE_QP_SOL *qp_sol, stru
 
 	struct CORE_QP_IPM_WORKSPACE *cws = ws->core_workspace;
 
-	int nv = qp->nv;
-	int ne = qp->ne;
-	int nb = qp->nb;
-	int ng = qp->ng;
-	int ns = qp->ns;
+	int nv = qp->dim->nv;
+	int ne = qp->dim->ne;
+	int nb = qp->dim->nb;
+	int ng = qp->dim->ng;
+	int ns = qp->dim->ns;
 
 	int nct = ws->core_workspace->nc;
 
@@ -233,10 +233,11 @@ void COMPUTE_RES_DENSE_QP(struct DENSE_QP *qp, struct DENSE_QP_SOL *qp_sol, stru
 void FACT_SOLVE_KKT_UNCONSTR_DENSE_QP(struct DENSE_QP *qp, struct DENSE_QP_SOL *qp_sol, struct DENSE_QP_IPM_WORKSPACE *ws)
 	{
 
-	int nv = qp->nv;
-	int ne = qp->ne;
-	int nb = qp->nb;
-	int ng = qp->ng;
+	int nv = qp->dim->nv;
+	int ne = qp->dim->ne;
+	int nb = qp->dim->nb;
+	int ng = qp->dim->ng;
+
 	struct STRMAT *Hg = qp->Hg;
 	struct STRMAT *A = qp->A;
 	struct STRVEC *g = qp->g;
@@ -302,10 +303,10 @@ static void COND_SLACKS_FACT_SOLVE(struct DENSE_QP *qp, struct DENSE_QP_IPM_WORK
 
 	int ii, idx;
 
-	int nv = qp->nv;
-	int nb = qp->nb;
-	int ng = qp->ng;
-	int ns = qp->ns;
+	int nv = qp->dim->nv;
+	int nb = qp->dim->nb;
+	int ng = qp->dim->ng;
+	int ns = qp->dim->ns;
 
 	struct STRVEC *Z = qp->Z;
 	int *idxs = qp->idxs;
@@ -366,10 +367,10 @@ static void COND_SLACKS_SOLVE(struct DENSE_QP *qp, struct DENSE_QP_IPM_WORKSPACE
 
 	int ii, idx;
 
-	int nv = qp->nv;
-	int nb = qp->nb;
-	int ng = qp->ng;
-	int ns = qp->ns;
+	int nv = qp->dim->nv;
+	int nb = qp->dim->nb;
+	int ng = qp->dim->ng;
+	int ns = qp->dim->ns;
 
 	int *idxs = qp->idxs;
 
@@ -417,10 +418,10 @@ static void EXPAND_SLACKS(struct DENSE_QP *qp, struct DENSE_QP_IPM_WORKSPACE *ws
 
 	int ii, idx;
 
-	int nv = qp->nv;
-	int nb = qp->nb;
-	int ng = qp->ng;
-	int ns = qp->ns;
+	int nv = qp->dim->nv;
+	int nb = qp->dim->nb;
+	int ng = qp->dim->ng;
+	int ns = qp->dim->ns;
 
 	int *idxs = qp->idxs;
 
@@ -456,11 +457,12 @@ static void EXPAND_SLACKS(struct DENSE_QP *qp, struct DENSE_QP_IPM_WORKSPACE *ws
 void FACT_SOLVE_KKT_STEP_DENSE_QP(struct DENSE_QP *qp, struct DENSE_QP_IPM_WORKSPACE *ws)
 	{
 
-	int nv = qp->nv;
-	int ne = qp->ne;
-	int nb = qp->nb;
-	int ng = qp->ng;
-	int ns = qp->ns;
+	int nv = qp->dim->nv;
+	int ne = qp->dim->ne;
+	int nb = qp->dim->nb;
+	int ng = qp->dim->ng;
+	int ns = qp->dim->ns;
+
 	struct STRMAT *Hg = qp->Hg;
 	struct STRMAT *A = qp->A;
 	struct STRMAT *Ct = qp->Ct;
@@ -629,11 +631,12 @@ void FACT_SOLVE_KKT_STEP_DENSE_QP(struct DENSE_QP *qp, struct DENSE_QP_IPM_WORKS
 void SOLVE_KKT_STEP_DENSE_QP(struct DENSE_QP *qp, struct DENSE_QP_IPM_WORKSPACE *ws)
 	{
 
-	int nv = qp->nv;
-	int ne = qp->ne;
-	int nb = qp->nb;
-	int ng = qp->ng;
-	int ns = qp->ns;
+	int nv = qp->dim->nv;
+	int ne = qp->dim->ne;
+	int nb = qp->dim->nb;
+	int ng = qp->dim->ng;
+	int ns = qp->dim->ns;
+
 	struct STRMAT *A = qp->A;
 	struct STRMAT *Ct = qp->Ct;
 	int *idxb = qp->idxb;

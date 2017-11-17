@@ -21,44 +21,48 @@
 * License along with HPIPM; if not, write to the Free Software                                    *
 * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA                  *
 *                                                                                                 *
-* Author: Gianluca Frison, gianluca.frison (at) imtek.uni-freiburg.de                             *                          
+* Author: Gianluca Frison, gianluca.frison (at) imtek.uni-freiburg.de                             *
 *                                                                                                 *
 **************************************************************************************************/
 
-void COMPUTE_QP_SIZE_OCP2DENSE(int N, int *nx, int *nu, int *nb, int **idxb, int *ng, int *ns, int *nvc, int *nec, int *nbc, int *ngc, int *nsc)
+void COMPUTE_QP_DIM_OCP2DENSE(struct OCP_QP_DIM *ocp_dim, struct DENSE_QP_DIM *dense_dim)
 	{
 
-	int ii, jj;
+	int N = ocp_dim->N;
+	int *nx = ocp_dim->nx;
+	int *nu = ocp_dim->nu;
+	int *nbx = ocp_dim->nbx;
+	int *nbu = ocp_dim->nbu;
+	int *ng = ocp_dim->ng;
+	int *ns = ocp_dim->ns;
 
-	nvc[0] = 0;
-	nec[0] = 0;
-	nbc[0] = 0;
-	ngc[0] = 0;
-	nsc[0] = 0;
+	int ii;
+
+	int nvc = 0;
+	int nec = 0;
+	int nbc = 0;
+	int ngc = 0;
+	int nsc = 0;
 
 	// first stage
-	nvc[0] += nx[0]+nu[0];
-	nbc[0] += nb[0];
-	ngc[0] += ng[0];
-	nsc[0] += ns[0];
+	nvc += nx[0]+nu[0];
+	nbc += nbx[0]+nbu[0];
+	ngc += ng[0];
+	nsc += ns[0];
 	// remaining stages
 	for(ii=1; ii<=N; ii++)
 		{
-		nvc[0] += nu[ii];
-		for(jj=0; jj<nb[ii]; jj++)
-			{
-			if(idxb[ii][jj]<nu[ii]) // input constraint
-				{
-				nbc[0]++;
-				}
-			else // state constraint
-				{
-				ngc[0]++;
-				}
-			}
-		ngc[0] += ng[ii];
-		nsc[0] += ns[ii];
+		nvc += nu[ii];
+		nbc += nbu[ii];
+		ngc += nbx[ii]+ng[ii];
+		nsc += ns[ii];
 		}
+	
+	dense_dim->nv = nvc;
+	dense_dim->ne = nec;
+	dense_dim->nb = nbc;
+	dense_dim->ng = ngc;
+	dense_dim->ns = nsc;
 
 	return;
 
@@ -66,16 +70,16 @@ void COMPUTE_QP_SIZE_OCP2DENSE(int N, int *nx, int *nu, int *nb, int **idxb, int
 
 
 
-int MEMSIZE_COND_QP_OCP2DENSE(struct OCP_QP *ocp_qp, struct DENSE_QP *dense_qp) // XXX + args for algorithm type ???
+int MEMSIZE_COND_QP_OCP2DENSE(struct OCP_QP_DIM *ocp_dim) // XXX + args for algorithm type ???
 	{
 
 	int ii;
 
-	int N = ocp_qp->N;
-	int *nx = ocp_qp->nx;
-	int *nu = ocp_qp->nu;
-	int *nb = ocp_qp->nb;
-	int *ng = ocp_qp->ng;
+	int N = ocp_dim->N;
+	int *nx = ocp_dim->nx;
+	int *nu = ocp_dim->nu;
+	int *nb = ocp_dim->nb;
+	int *ng = ocp_dim->ng;
 
 	// compute core qp size and max size
 	int nvt = 0;
@@ -109,8 +113,10 @@ int MEMSIZE_COND_QP_OCP2DENSE(struct OCP_QP *ocp_qp, struct DENSE_QP *dense_qp) 
 
 	int size = 0;
 
-	size += (2+2*(N+1))*sizeof(struct STRMAT); // Gamma L Lx AL
-	size += (2+1*(N+1))*sizeof(struct STRVEC); // Gammab tmp_ngM tmp_nuxM
+	size += 2*(N+1)*sizeof(struct STRMAT); // Gamma L
+	size += 2*sizeof(struct STRMAT); // Lx AL
+	size += 2*(N+1)*sizeof(struct STRVEC); // Gammab l
+	size += 2*sizeof(struct STRVEC); // tmp_ngM tmp_nuxM
 
 	int nu_tmp = 0;
 	for(ii=0; ii<N; ii++)
@@ -124,6 +130,8 @@ int MEMSIZE_COND_QP_OCP2DENSE(struct OCP_QP *ocp_qp, struct DENSE_QP *dense_qp) 
 	size += SIZE_STRMAT(nuM+nxM+1, nxM); // AL
 	for(ii=0; ii<N; ii++) 
 		size += 1*SIZE_STRVEC(nx[ii+1]); // Gammab
+	for(ii=0; ii<=N; ii++) 
+		size += SIZE_STRVEC(nu[ii]+nx[ii]); // l
 	size += SIZE_STRVEC(ngM); // tmp_ngM
 	size += 1*SIZE_STRVEC(nuM+nxM); // tmp_nuxM
 	size += 1*SIZE_STRVEC(ngM); // tmp_ngM
@@ -139,18 +147,18 @@ int MEMSIZE_COND_QP_OCP2DENSE(struct OCP_QP *ocp_qp, struct DENSE_QP *dense_qp) 
 
 
 
-void CREATE_COND_QP_OCP2DENSE(struct OCP_QP *ocp_qp, struct DENSE_QP *dense_qp, struct COND_QP_OCP2DENSE_WORKSPACE *cond_ws, void *mem)
+void CREATE_COND_QP_OCP2DENSE(struct OCP_QP_DIM *ocp_dim, struct COND_QP_OCP2DENSE_WORKSPACE *cond_ws, void *mem)
 	{
 
 	int ii;
 
-	int N = ocp_qp->N;
-	int *nx = ocp_qp->nx;
-	int *nu = ocp_qp->nu;
-	int *nb = ocp_qp->nb;
-	int *ng = ocp_qp->ng;
+	int N = ocp_dim->N;
+	int *nx = ocp_dim->nx;
+	int *nu = ocp_dim->nu;
+	int *nb = ocp_dim->nb;
+	int *ng = ocp_dim->ng;
 
-	// compute core qp size and max size
+	// compute core qp dim and max dim
 	int nvt = 0;
 	int net = 0;
 	int nbt = 0;
@@ -199,6 +207,8 @@ void CREATE_COND_QP_OCP2DENSE(struct OCP_QP *ocp_qp, struct DENSE_QP *dense_qp, 
 
 	cond_ws->Gammab = sv_ptr;
 	sv_ptr += N+1;
+	cond_ws->l = sv_ptr;
+	sv_ptr += N+1;
 	cond_ws->tmp_ngM = sv_ptr;
 	sv_ptr += 1;
 	cond_ws->tmp_nuxM = sv_ptr;
@@ -244,6 +254,11 @@ void CREATE_COND_QP_OCP2DENSE(struct OCP_QP *ocp_qp, struct DENSE_QP *dense_qp, 
 		CREATE_STRVEC(nx[ii+1], cond_ws->Gammab+ii, c_ptr);
 		c_ptr += (cond_ws->Gammab+ii)->memory_size;
 		}
+	for(ii=0; ii<=N; ii++)
+		{
+		CREATE_STRVEC(nu[ii]+nx[ii], cond_ws->l+ii, c_ptr);
+		c_ptr += (cond_ws->l+ii)->memory_size;
+		}
 	CREATE_STRVEC(ngM, cond_ws->tmp_ngM, c_ptr);
 	c_ptr += cond_ws->tmp_ngM->memory_size;
 	c_tmp = c_ptr;
@@ -252,7 +267,7 @@ void CREATE_COND_QP_OCP2DENSE(struct OCP_QP *ocp_qp, struct DENSE_QP *dense_qp, 
 
 	cond_ws->cond_last_stage = 1; // default: cond last stage
 
-	cond_ws->memsize = MEMSIZE_COND_QP_OCP2DENSE(ocp_qp, dense_qp);
+	cond_ws->memsize = MEMSIZE_COND_QP_OCP2DENSE(ocp_dim);
 
 #if defined(RUNTIME_CHECKS)
 	if(c_ptr > ((char *) mem) + cond_ws->memsize)
@@ -276,6 +291,21 @@ void COND_QP_OCP2DENSE(struct OCP_QP *ocp_qp, struct DENSE_QP *dense_qp, struct 
 	COND_RSQRQ_N2NX3(ocp_qp, dense_qp->Hg, dense_qp->g, cond_ws);
 
 	COND_DCTD(ocp_qp, dense_qp->idxb, dense_qp->Ct, dense_qp->d, dense_qp->idxs, dense_qp->Z, dense_qp->z, cond_ws);
+
+	return;
+
+	}
+
+
+
+void COND_RHS_QP_OCP2DENSE(struct OCP_QP *ocp_qp, struct DENSE_QP *dense_qp, struct COND_QP_OCP2DENSE_WORKSPACE *cond_ws)
+	{
+
+	COND_B(ocp_qp, NULL, cond_ws);
+
+	COND_RQ_N2NX3(ocp_qp, dense_qp->g, cond_ws);
+
+	COND_D(ocp_qp, dense_qp->d, dense_qp->z, cond_ws);
 
 	return;
 

@@ -25,15 +25,27 @@
 *                                                                                                 *
 **************************************************************************************************/
 
+#ifndef HPIPM_D_OCP_QP_H_
+#define HPIPM_D_OCP_QP_H_
+
 
 
 #include <blasfeo_target.h>
 #include <blasfeo_common.h>
 
+#include "hpipm_d_ocp_qp_dim.h"
+
+
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 
 
 struct d_ocp_qp
 	{
+	struct d_ocp_qp_dim *dim;
 	struct d_strmat *BAbt;
 	struct d_strvec *b;
 	struct d_strmat *RSQrq;
@@ -42,24 +54,26 @@ struct d_ocp_qp
 	struct d_strvec *d;
 	struct d_strvec *Z;
 	struct d_strvec *z;
-	int *nx; // number of states
-	int *nu; // number of inputs
-	int *nb; // number of box constraints
 	int **idxb; // index of box constraints
-	int *ng; // number of general constraints
-	int *ns; // number of soft constraints
 	int **idxs; // index of soft constraints
-	int N; // hotizon lenght
 	int memsize; // memory size in bytes
 	};
 
 
 
 //
-int d_memsize_ocp_qp(int N, int *nx, int *nu, int *nb, int *ng, int *ns);
+int d_memsize_ocp_qp(struct d_ocp_qp_dim *dim);
 //
-void d_create_ocp_qp(int N, int *nx, int *nu, int *nb, int *ng, int *ns, struct d_ocp_qp *qp, void *memory);
+void d_create_ocp_qp(struct d_ocp_qp_dim *dim, struct d_ocp_qp *qp, void *memory);
 //
 void d_cvt_colmaj_to_ocp_qp(double **A, double **B, double **b, double **Q, double **S, double **R, double **q, double **r, int **idxb, double **lb, double **ub, double **C, double **D, double **lg, double **ug, double **Zl, double **Zu, double **zl, double **zu, int **idxs, struct d_ocp_qp *qp);
 //
 void d_cvt_rowmaj_to_ocp_qp(double **A, double **B, double **b, double **Q, double **S, double **R, double **q, double **r, int **idxb, double **lb, double **ub, double **C, double **D, double **lg, double **ug, double **Zl, double **Zu, double **zl, double **zu, int **idxs, struct d_ocp_qp *qp);
+
+#ifdef __cplusplus
+}	// #extern "C"
+#endif
+
+
+
+#endif // HPIPM_D_OCP_QP_H_

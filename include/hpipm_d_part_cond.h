@@ -27,9 +27,19 @@
 
 
 
+#ifndef HPIPM_D_PART_COND_H_
+#define HPIPM_D_PART_COND_H_
+
+
+
 #include <blasfeo_target.h>
 #include <blasfeo_common.h>
 
+
+
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 
 
@@ -42,12 +52,24 @@ struct d_cond_qp_ocp2ocp_workspace
 
 
 //
-void d_compute_qp_size_ocp2ocp(int N, int *nx, int *nu, int *nb, int **idxb, int *ng, int *ns, int N2, int *nx2, int *nu2, int *nb2, int *ng2, int *ns2);
+void d_compute_qp_dim_ocp2ocp(struct d_ocp_qp_dim *ocp_dim, struct d_ocp_qp_dim *part_dense_dim);
 //
-int d_memsize_cond_qp_ocp2ocp(struct d_ocp_qp *ocp_qp, struct d_ocp_qp *part_dense_qp);
+int d_memsize_cond_qp_ocp2ocp(struct d_ocp_qp_dim *ocp_dim, struct d_ocp_qp_dim *part_dense_dim);
 //
-void d_create_cond_qp_ocp2ocp(struct d_ocp_qp *ocp_qp, struct d_ocp_qp *part_dense_qp, struct d_cond_qp_ocp2ocp_workspace *cond_ws, void *mem);
+void d_create_cond_qp_ocp2ocp(struct d_ocp_qp_dim *ocp_dim, struct d_ocp_qp_dim *part_dense_dim, struct d_cond_qp_ocp2ocp_workspace *cond_ws, void *mem);
 //
 void d_cond_qp_ocp2ocp(struct d_ocp_qp *ocp_qp, struct d_ocp_qp *part_dense_qp, struct d_cond_qp_ocp2ocp_workspace *cond_ws);
 //
+void d_cond_rhs_qp_ocp2ocp(struct d_ocp_qp *ocp_qp, struct d_ocp_qp *part_dense_qp, struct d_cond_qp_ocp2ocp_workspace *cond_ws);
+//
 void d_expand_sol_ocp2ocp(struct d_ocp_qp *ocp_qp, struct d_ocp_qp *part_dense_qp, struct d_ocp_qp_sol *part_dense_qp_sol, struct d_ocp_qp_sol *ocp_qp_sol, struct d_cond_qp_ocp2ocp_workspace *cond_ws);
+
+
+
+#ifdef __cplusplus
+} /* extern "C" */
+#endif
+
+
+
+#endif // HPIPM_D_PART_COND_H_

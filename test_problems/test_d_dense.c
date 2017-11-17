@@ -118,6 +118,7 @@ int main()
 * qp dimension and data
 ************************************************/	
 
+#if 1
 	int nv = 2;
 	int ne = 1;
 	int nb = 2;
@@ -141,68 +142,111 @@ int main()
 	double zl[] = {1e2, 1e2};
 	double zu[] = {1e2, 1e2};
 	int idxs[] = {0, 1};
+#else
+	int nv = 10;
+	int ne = 0;
+	int nb = nv;
+	int ng = 0;
+	int ns = 0;
+
+	double H[nv*nv]; for(ii=0; ii<nv*nv; ii++) H[ii] = 0.0; for(ii=0; ii<nv; ii++) H[ii*(nv+1)] = 1.0;
+	double g[nv]; for(ii=0; ii<nv; ii++) g[ii] = 10.0;
+	double A[ne*nv]; for(ii=0; ii<ne*nv; ii++) A[ii] = 0.0;
+	double b[ne]; for(ii=0; ii<ne; ii++) b[ii] = 0.0;
+	double d_lb[nb]; for(ii=0; ii<nb; ii++) d_lb[ii] = -1.0;
+	double d_ub[nb]; for(ii=0; ii<nb; ii++) d_ub[ii] =  1.0;
+	int idxb[nb]; for(ii=0; ii<nb; ii++) idxb[ii] = ii;
+	double C[0];
+	double d_lg[0];
+	double d_ug[0];
+	double Zl[0];
+	double Zu[0];
+	double zl[0];
+	double zu[0];
+	int idxs[0];
+#endif
+
+/************************************************
+* dense qp dim
+************************************************/	
+	
+	int dense_qp_dim_size = d_memsize_dense_qp_dim();
+	printf("\nqp dim size = %d\n", dense_qp_dim_size);
+	void *dense_qp_dim_mem = malloc(dense_qp_dim_size);
+
+	struct d_dense_qp_dim qp_dim;
+	d_create_dense_qp_dim(&qp_dim, dense_qp_dim_mem);
+
+	d_cvt_int_to_dense_qp_dim(nv, ne, ng, ng, ns, &qp_dim);
 
 /************************************************
 * dense qp
 ************************************************/	
 
-	int qp_size = d_memsize_dense_qp(nv, ne, nb, ng, ns);
+	int qp_size = d_memsize_dense_qp(&qp_dim);
 	printf("\nqp size = %d\n", qp_size);
 	void *qp_mem = malloc(qp_size);
 
 	struct d_dense_qp qp;
-	d_create_dense_qp(nv, ne, nb, ng, ns, &qp, qp_mem);
+	d_create_dense_qp(&qp_dim, &qp, qp_mem);
 	d_cvt_colmaj_to_dense_qp(H, g, A, b, idxb, d_lb, d_ub, C, d_lg, d_ug, Zl, Zu, zl, zu, idxs, &qp);
 
-#if 0
+#if 1
 	d_print_strmat(nv+1, nv, qp.Hg, 0, 0);
 	d_print_strmat(ne, nv, qp.A, 0, 0);
 	d_print_strmat(nv, ng, qp.Ct, 0, 0);
 	d_print_strvec(nv, qp.g, 0);
 	d_print_strvec(ne, qp.b, 0);
 	d_print_strvec(2*nb+2*ng, qp.d, 0);
-	d_print_strvec(nb, qp.d_lb, 0);
-	d_print_strvec(nb, qp.d_ub, 0);
-	d_print_strvec(ng, qp.d_lg, 0);
-	d_print_strvec(ng, qp.d_ug, 0);
 #endif
 
 /************************************************
 * dense qp sol
 ************************************************/	
 
-	int qp_sol_size = d_memsize_dense_qp_sol(nv, ne, nb, ng, ns);
+	int qp_sol_size = d_memsize_dense_qp_sol(&qp_dim);
 	printf("\nqp sol size = %d\n", qp_sol_size);
 	void *qp_sol_mem = malloc(qp_sol_size);
 
 	struct d_dense_qp_sol qp_sol;
-	d_create_dense_qp_sol(nv, ne, nb, ng, ns, &qp_sol, qp_sol_mem);
+	d_create_dense_qp_sol(&qp_dim, &qp_sol, qp_sol_mem);
+
+/************************************************
+* ipm arg
+************************************************/	
+
+	int ipm_arg_size = d_memsize_dense_qp_ipm_arg(&qp_dim);
+	printf("\nipm arg size = %d\n", ipm_arg_size);
+	void *ipm_arg_mem = malloc(ipm_arg_size);
+
+	struct d_dense_qp_ipm_arg arg;
+	d_create_dense_qp_ipm_arg(&qp_dim, &arg, ipm_arg_mem);
+	d_set_default_dense_qp_ipm_arg(&arg);
+
+//	arg.alpha_min = 1e-8;
+//	arg.res_g_max = 1e-8;
+//	arg.res_b_max = 1e-8;
+//	arg.res_d_max = 1e-12;
+//	arg.res_m_max = 1e-12;
+//	arg.mu0 = 10.0;
+	arg.iter_max = 10;
+	arg.stat_max = 10;
+//	arg.pred_corr = 1;
 
 /************************************************
 * ipm
 ************************************************/	
 
-	struct d_dense_qp_ipm_arg arg;
-	arg.alpha_min = 1e-8;
-	arg.res_g_max = 1e-8;
-	arg.res_b_max = 1e-8;
-	arg.res_d_max = 1e-12;
-	arg.res_m_max = 1e-12;
-	arg.mu0 = 10.0;
-	arg.iter_max = 20;
-	arg.stat_max = 100;
-	arg.pred_corr = 1;
-
-	int ipm_size = d_memsize_dense_qp_ipm(&qp, &arg);
+	int ipm_size = d_memsize_dense_qp_ipm(&qp_dim, &arg);
 	printf("\nipm size = %d\n", ipm_size);
 	void *ipm_mem = malloc(ipm_size);
 
 	struct d_dense_qp_ipm_workspace workspace;
-	d_create_dense_qp_ipm(&qp, &arg, &workspace, ipm_mem);
+	d_create_dense_qp_ipm(&qp_dim, &arg, &workspace, ipm_mem);
 
 	int rep, nrep=1000;
 
-	int hpipm_return;
+	int hpipm_return; // 0 normal; 1 max iter
 
 	struct timeval tv0, tv1;
 
@@ -262,6 +306,13 @@ int main()
 	d_print_e_mat(1, 2*nb+2*ng+2*ns, workspace.res_m->pa, 1);
 	printf("\nres_mu\n");
 	printf("\n%e\n\n", workspace.res_mu);
+
+/************************************************
+* print ipm statistics
+************************************************/	
+
+	printf("\nipm return = %d\n", hpipm_return);
+	printf("\nipm residuals max: res_g = %e, res_b = %e, res_d = %e, res_m = %e\n", workspace.qp_res[0], workspace.qp_res[1], workspace.qp_res[2], workspace.qp_res[3]);
 
 	printf("\nipm iter = %d\n", workspace.iter);
 	printf("\nalpha_aff\tmu_aff\t\tsigma\t\talpha\t\tmu\n");

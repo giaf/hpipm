@@ -26,6 +26,48 @@
 **************************************************************************************************/
 
 #include "../include/hpipm_tree.h"
+
+
+
+int MEMSIZE_TREE_OCP_QP_IPM_ARG(struct TREE_OCP_QP *qp)
+	{
+
+	return 0;
+
+	}
+
+
+
+void CREATE_TREE_OCP_QP_IPM_ARG(struct TREE_OCP_QP *qp, struct TREE_OCP_QP_IPM_ARG *arg, void *mem)
+	{
+
+	arg->memsize = 0;
+
+	return;
+
+	}
+
+
+
+void SET_DEFAULT_TREE_OCP_QP_IPM_ARG(struct TREE_OCP_QP_IPM_ARG *arg)
+	{
+
+	arg->mu0 = 100;
+	arg->alpha_min = 1e-8;
+	arg->res_g_max = 1e-8;
+	arg->res_b_max = 1e-8;
+	arg->res_d_max = 1e-12;
+	arg->res_m_max = 1e-12;
+	arg->iter_max = 20;
+	arg->stat_max = 20;
+	arg->pred_corr = 1;
+
+	return;
+
+	}
+
+
+
 int MEMSIZE_TREE_OCP_QP_IPM(struct TREE_OCP_QP *qp, struct TREE_OCP_QP_IPM_ARG *arg)
 	{
 
@@ -405,7 +447,11 @@ int SOLVE_TREE_OCP_QP_IPM(struct TREE_OCP_QP *qp, struct TREE_OCP_QP_SOL *qp_sol
 	str_res_d.pa = cws->res_d;
 	str_res_m.pa = cws->res_m;
 
-	REAL qp_res[4];
+	REAL *qp_res = ws->qp_res;
+	qp_res[0] = 0;
+	qp_res[1] = 0;
+	qp_res[2] = 0;
+	qp_res[3] = 0;
 
 	ws->mu0 = arg->mu0;
 

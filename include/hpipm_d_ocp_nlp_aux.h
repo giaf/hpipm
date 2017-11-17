@@ -30,7 +30,15 @@
 #include <blasfeo_target.h>
 #include <blasfeo_common.h>
 
-
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 //
 void d_cvt_erk_int_to_ocp_qp(int n, struct d_erk_workspace *erk_ws, struct d_ocp_qp *qp, struct d_ocp_nlp_sol *nlp_sol);
+//
+void d_cvt_erk_int_to_ocp_qp_rhs(int n, struct d_erk_workspace *erk_ws, struct d_ocp_qp *qp, struct d_ocp_nlp_sol *nlp_sol);
+
+#ifdef __cplusplus
+} /* extern "C" */
+#endif

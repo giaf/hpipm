@@ -21,57 +21,88 @@
 * License along with HPIPM; if not, write to the Free Software                                    *
 * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA                  *
 *                                                                                                 *
-* Author: Gianluca Frison, gianluca.frison (at) imtek.uni-freiburg.de                             *                          
+* Author: Gianluca Frison, gianluca.frison (at) imtek.uni-freiburg.de                             *
 *                                                                                                 *
 **************************************************************************************************/
 
 
 
-#include <blasfeo_target.h>
-#include <blasfeo_common.h>
-#include <blasfeo_d_aux.h>
-#include <blasfeo_d_blas.h>
-
-#include "../include/hpipm_d_erk_int.h"
-#include "../include/hpipm_d_ocp_qp.h"
-#include "../include/hpipm_d_ocp_nlp.h"
-#include "../include/hpipm_d_ocp_nlp_sol.h"
-
-
-
-void d_cvt_erk_int_to_ocp_qp(int n, struct d_erk_workspace *erk_ws, struct d_ocp_qp *qp, struct d_ocp_nlp_sol *nlp_sol)
+int MEMSIZE_OCP_QP_DIM(int N)
 	{
 
+	int size = 0;
+
+	size += 7*(N+1)*sizeof(int);
+
+	size = (size+8-1)/8*8;
+
+	return size;
+
+	}
+
+
+
+void CREATE_OCP_QP_DIM(int N, struct OCP_QP_DIM *dim, void *memory)
+	{
+
+	// loop index
 	int ii;
 
-//	int *nx = qp->nx+n;
-//	int *nu = qp->nu+n;
-	struct d_strmat *BAbt = qp->BAbt+n;
-	struct d_strvec *b = qp->b+n;
+	char *c_ptr = memory;
 
-	struct d_strvec *ux = nlp_sol->ux+n;
+	// nx
+	dim->nx = (int *) c_ptr;
+	c_ptr += (N+1)*sizeof(int);
+	// nu
+	dim->nu = (int *) c_ptr;
+	c_ptr += (N+1)*sizeof(int);
+	// nb
+	dim->nb = (int *) c_ptr;
+	c_ptr += (N+1)*sizeof(int);
+	// nbx
+	dim->nbx = (int *) c_ptr;
+	c_ptr += (N+1)*sizeof(int);
+	// nbu
+	dim->nbu = (int *) c_ptr;
+	c_ptr += (N+1)*sizeof(int);
+	// ng
+	dim->ng = (int *) c_ptr;
+	c_ptr += (N+1)*sizeof(int);
+	// ns
+	dim->ns = (int *) c_ptr;
+	c_ptr += (N+1)*sizeof(int);
 
-	int nx = erk_ws->nx;
-	int nf = erk_ws->nf;
+	dim->memsize = MEMSIZE_OCP_QP_DIM(N);
 
-	double *x = erk_ws->x;
-	double *xt = b->pa;
+	return;
 
-	double *tmp;
+	}
 
-//	d_cvt_tran_mat2strmat(nx[1], nu[0]+nx[0], x, nx[1], BAbt, 0, 0);
-	d_cvt_tran_mat2strmat(nx, nf, x+nx, nx, BAbt, 0, 0);
 
-	// XXX not compute this again in residuals !!!
-//	tmp = x+nx*nf;
-//	for(ii=0; ii<nx; ii++)
-//		xt[ii] = tmp[ii] - xn[ii];
-//printf("\n%d\n", nf);
-	d_cvt_vec2strvec(nx, x, b, 0);
-	dgemv_t_libstr(nf, nx, -1.0, BAbt, 0, 0, ux, 0, 1.0, b, 0, b, 0);
-//d_print_strvec(nx, b, 0);
-	
-	drowin_libstr(nx, 1.0, b, 0, BAbt, nf, 0);
+void CVT_INT_TO_OCP_QP_DIM(int N, int *nx, int *nu, int *nbx, int *nbu, int *ng, int *ns, struct OCP_QP_DIM *dim)
+	{
+
+	// loop index
+	int ii;
+
+	// N
+	dim->N = N;
+
+	// copy qp dim
+	for(ii=0; ii<=N; ii++)
+		dim->nx[ii] = nx[ii];
+	for(ii=0; ii<=N; ii++)
+		dim->nu[ii] = nu[ii];
+	for(ii=0; ii<=N; ii++)
+		dim->nb[ii] = nbx[ii]+nbu[ii];
+	for(ii=0; ii<=N; ii++)
+		dim->nbx[ii] = nbx[ii];
+	for(ii=0; ii<=N; ii++)
+		dim->nbu[ii] = nbu[ii];
+	for(ii=0; ii<=N; ii++)
+		dim->ng[ii] = ng[ii];
+	for(ii=0; ii<=N; ii++)
+		dim->ns[ii] = ns[ii];
 
 	return;
 

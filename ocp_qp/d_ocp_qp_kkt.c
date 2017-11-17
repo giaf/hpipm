@@ -34,6 +34,7 @@
 #include <blasfeo_d_aux.h>
 #include <blasfeo_d_blas.h>
 
+#include "../include/hpipm_d_ocp_qp_dim.h"
 #include "../include/hpipm_d_ocp_qp.h"
 #include "../include/hpipm_d_ocp_qp_sol.h"
 #include "../include/hpipm_d_ocp_qp_ipm.h"
@@ -59,6 +60,8 @@
 #define GEMV_T_LIBSTR dgemv_t_libstr
 #define OCP_QP d_ocp_qp
 #define OCP_QP_IPM_WORKSPACE d_ocp_qp_ipm_workspace
+#define OCP_QP_RES d_ocp_qp_res
+#define OCP_QP_DIM d_ocp_qp_dim
 #define OCP_QP_SOL d_ocp_qp_sol
 #define POTRF_L_MN_LIBSTR dpotrf_l_mn_libstr
 #define PRINT_E_MAT d_print_e_mat

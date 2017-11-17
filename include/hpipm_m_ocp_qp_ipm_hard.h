@@ -30,7 +30,9 @@
 #include <blasfeo_target.h>
 #include <blasfeo_common.h>
 
-
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 
 struct m_ipm_hard_ocp_qp_workspace
@@ -100,3 +102,6 @@ void m_solve_ipm_hard_ocp_qp(struct d_ocp_qp *d_qp, struct s_ocp_qp *s_qp, struc
 //
 void m_solve_ipm2_hard_ocp_qp(struct d_ocp_qp *d_qp, struct s_ocp_qp *s_qp, struct d_ocp_qp_sol *qp_sol, struct m_ipm_hard_ocp_qp_workspace *ws);
 
+#ifdef __cplusplus
+} /* extern "C" */
+#endif

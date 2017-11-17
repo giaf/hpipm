@@ -28,6 +28,8 @@
 cmake_minimum_required(VERSION 2.8.11)
 project(hpipm)
 
+set(CMAKE_VERBOSE_MAKEFILE ON)
+
 # Target architecture
 set(TARGET GENERIC)
 
@@ -50,6 +52,9 @@ else()
 	# TODO: horrible hardcode; needs to go
 	set(BLASFEO_INCLUDE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/../blasfeo/include)
 endif()
+
+# headers installation directory
+set(HPIPM_HEADERS_INSTALLATION_DIRECTORY "include" CACHE STRING "Headers local installation directory")
 
 # enable runtine checks
 set(RUNTIME_CHECKS 0)
@@ -95,38 +100,6 @@ if(${TARGET} MATCHES GENERIC)
 endif(${TARGET} MATCHES GENERIC)
 
 # source files
-# dense qp
-file(GLOB DENSE_QP_SRC
-	${PROJECT_SOURCE_DIR}/dense_qp/d_dense_qp.c
-	${PROJECT_SOURCE_DIR}/dense_qp/d_dense_qp_sol.c
-	${PROJECT_SOURCE_DIR}/dense_qp/d_dense_qp_kkt.c
-	${PROJECT_SOURCE_DIR}/dense_qp/d_dense_qp_ipm_hard.c
-	${PROJECT_SOURCE_DIR}/dense_qp/s_dense_qp.c
-	${PROJECT_SOURCE_DIR}/dense_qp/s_dense_qp_sol.c
-	${PROJECT_SOURCE_DIR}/dense_qp/s_dense_qp_kkt.c
-	${PROJECT_SOURCE_DIR}/dense_qp/s_dense_qp_ipm_hard.c
-	)
-# ocp qp
-file(GLOB OCP_QP_SRC
-	${PROJECT_SOURCE_DIR}/ocp_qp/d_ocp_qp.c
-	${PROJECT_SOURCE_DIR}/ocp_qp/d_ocp_qp_sol.c
-	${PROJECT_SOURCE_DIR}/ocp_qp/d_ocp_qp_kkt.c
-	${PROJECT_SOURCE_DIR}/ocp_qp/d_ocp_qp_ipm_hard.c
-	${PROJECT_SOURCE_DIR}/ocp_qp/s_ocp_qp.c
-	${PROJECT_SOURCE_DIR}/ocp_qp/s_ocp_qp_sol.c
-	${PROJECT_SOURCE_DIR}/ocp_qp/s_ocp_qp_kkt.c
-	${PROJECT_SOURCE_DIR}/ocp_qp/s_ocp_qp_ipm_hard.c
-	${PROJECT_SOURCE_DIR}/ocp_qp/m_ocp_qp.c
-	${PROJECT_SOURCE_DIR}/ocp_qp/m_ocp_qp_kkt.c
-	${PROJECT_SOURCE_DIR}/ocp_qp/m_ocp_qp_ipm_hard.c
-	)
-# core ipm
-file(GLOB CORE_IPM_SRC
-	${PROJECT_SOURCE_DIR}/ipm_core/d_core_qp_ipm_hard_aux.c
-	${PROJECT_SOURCE_DIR}/ipm_core/d_core_qp_ipm_hard.c
-	${PROJECT_SOURCE_DIR}/ipm_core/s_core_qp_ipm_hard_aux.c
-	${PROJECT_SOURCE_DIR}/ipm_core/s_core_qp_ipm_hard.c
-	)
 # cond
 file(GLOB COND_SRC
 	${PROJECT_SOURCE_DIR}/cond/d_cond.c
@@ -136,24 +109,66 @@ file(GLOB COND_SRC
 	${PROJECT_SOURCE_DIR}/cond/s_cond_aux.c
 	${PROJECT_SOURCE_DIR}/cond/s_part_cond.c
 	)
+# dense qp
+file(GLOB DENSE_QP_SRC
+	${PROJECT_SOURCE_DIR}/dense_qp/d_dense_qp.c
+	${PROJECT_SOURCE_DIR}/dense_qp/d_dense_qp_sol.c
+	${PROJECT_SOURCE_DIR}/dense_qp/d_dense_qp_kkt.c
+	${PROJECT_SOURCE_DIR}/dense_qp/d_dense_qp_ipm.c
+	${PROJECT_SOURCE_DIR}/dense_qp/s_dense_qp.c
+	${PROJECT_SOURCE_DIR}/dense_qp/s_dense_qp_sol.c
+	${PROJECT_SOURCE_DIR}/dense_qp/s_dense_qp_kkt.c
+	${PROJECT_SOURCE_DIR}/dense_qp/s_dense_qp_ipm.c
+	)
+# core ipm
+file(GLOB IPM_CORE_SRC
+	${PROJECT_SOURCE_DIR}/ipm_core/d_core_qp_ipm_aux.c
+	${PROJECT_SOURCE_DIR}/ipm_core/d_core_qp_ipm.c
+	${PROJECT_SOURCE_DIR}/ipm_core/s_core_qp_ipm_aux.c
+	${PROJECT_SOURCE_DIR}/ipm_core/s_core_qp_ipm.c
+	)
+# ocp qp
+file(GLOB OCP_QP_SRC
+	${PROJECT_SOURCE_DIR}/ocp_qp/d_ocp_qp.c
+	${PROJECT_SOURCE_DIR}/ocp_qp/d_ocp_qp_sol.c
+	${PROJECT_SOURCE_DIR}/ocp_qp/d_ocp_qp_kkt.c
+	${PROJECT_SOURCE_DIR}/ocp_qp/d_ocp_qp_ipm.c
+	${PROJECT_SOURCE_DIR}/ocp_qp/s_ocp_qp.c
+	${PROJECT_SOURCE_DIR}/ocp_qp/s_ocp_qp_sol.c
+	${PROJECT_SOURCE_DIR}/ocp_qp/s_ocp_qp_kkt.c
+	${PROJECT_SOURCE_DIR}/ocp_qp/s_ocp_qp_ipm.c
+#	${PROJECT_SOURCE_DIR}/ocp_qp/m_ocp_qp.c
+#	${PROJECT_SOURCE_DIR}/ocp_qp/m_ocp_qp_kkt.c
+#	${PROJECT_SOURCE_DIR}/ocp_qp/m_ocp_qp_ipm_hard.c
+	)
 # tree qp
 file(GLOB TREE_OCP_QP_SRC
 	${PROJECT_SOURCE_DIR}/tree_ocp_qp/scenario_tree.c
 	${PROJECT_SOURCE_DIR}/tree_ocp_qp/d_tree_ocp_qp.c
 	${PROJECT_SOURCE_DIR}/tree_ocp_qp/d_tree_ocp_qp_sol.c
 	${PROJECT_SOURCE_DIR}/tree_ocp_qp/d_tree_ocp_qp_kkt.c
-	${PROJECT_SOURCE_DIR}/tree_ocp_qp/d_tree_ocp_qp_ipm_hard.c
+	${PROJECT_SOURCE_DIR}/tree_ocp_qp/d_tree_ocp_qp_ipm.c
 	${PROJECT_SOURCE_DIR}/tree_ocp_qp/s_tree_ocp_qp.c
 	${PROJECT_SOURCE_DIR}/tree_ocp_qp/s_tree_ocp_qp_sol.c
 	${PROJECT_SOURCE_DIR}/tree_ocp_qp/s_tree_ocp_qp_kkt.c
-	${PROJECT_SOURCE_DIR}/tree_ocp_qp/s_tree_ocp_qp_ipm_hard.c
+	${PROJECT_SOURCE_DIR}/tree_ocp_qp/s_tree_ocp_qp_ipm.c
 	)
 
-set(HPIPM_SRC ${DENSE_QP_SRC} ${OCP_QP_SRC} ${CORE_IPM_SRC} ${COND_SRC} ${TREE_OCP_QP_SRC})
+set(HPIPM_SRC ${COND_SRC} ${DENSE_QP_SRC} ${IPM_CORE_SRC} ${OCP_QP_SRC} ${TREE_OCP_QP_SRC})
 
 add_library(hpipm ${HPIPM_SRC})
-target_include_directories(hpipm PUBLIC include ${BLASFEO_INCLUDE_DIR})
+target_include_directories(hpipm PRIVATE "include" "${BLASFEO_INCLUDE_DIR}")
 target_link_libraries(hpipm blasfeo)
 
+install(TARGETS hpipm EXPORT hpipmConfig
+	LIBRARY DESTINATION lib
+	ARCHIVE DESTINATION lib
+	RUNTIME DESTINATION bin)
+
+install(EXPORT hpipmConfig DESTINATION cmake)
+
+file(GLOB_RECURSE HPIPM_HEADERS "include/*.h")
+install(FILES ${HPIPM_HEADERS} DESTINATION ${HPIPM_HEADERS_INSTALLATION_DIRECTORY})
+
 # test problems
-add_subdirectory(test_problems)
+#add_subdirectory(test_problems)

@@ -65,6 +65,10 @@ OBJS_TEST = d_tools.o test_d_ocp.o
 #OBJS_TEST = d_tools.o test_d_nlp_ipm.o
 #OBJS_TEST = test_van_der_pol_sqp.o
 #OBJS_TEST = test_van_der_pol_ipm.o
+#OBJS_TEST = test_van_der_pol_hyb.o
+#OBJS_TEST = pendulum/vde_forw_model.o test_d_pendulum_sqp.o
+#OBJS_TEST = pendulum/vde_forw_model.o test_d_pendulum_ipm.o
+#OBJS_TEST = pendulum/ode_model.o pendulum/vde_forw_model.o pendulum/vde_adj_model.o test_d_pendulum_hyb.o
 
 obj: $(OBJS_TEST)
 	$(CC) -o test.out $(OBJS_TEST) -L. libhpipm.a $(LIBS) #-pg

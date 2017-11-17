@@ -841,19 +841,30 @@ exit(1);
 	d_create_tree_ocp_qp_sol(&ttree, nxt, nut, nbt, ngt, nst, &qp_sol, tree_ocp_qp_sol_memory);
 
 /************************************************
-* ipm
+* ipm arg
 ************************************************/	
 
+	int ipm_arg_size = d_memsize_tree_ocp_qp_ipm_arg(&qp);
+	printf("\nipm arg size = %d\n", ipm_arg_size);
+	void *ipm_arg_mem = malloc(ipm_arg_size);
+
 	struct d_tree_ocp_qp_ipm_arg arg;
-	arg.alpha_min = 1e-8;
-	arg.res_g_max = 1e-8;
-	arg.res_b_max = 1e-8;
-	arg.res_d_max = 1e-12;
-	arg.res_m_max = 1e-12;
-	arg.mu0 = 100.0;
-	arg.iter_max = 20;
-	arg.stat_max = 100;
-	arg.pred_corr = 1;
+	d_create_tree_ocp_qp_ipm_arg(&qp, &arg, ipm_arg_mem);
+	d_set_default_tree_ocp_qp_ipm_arg(&arg);
+
+//	arg.alpha_min = 1e-8;
+//	arg.res_g_max = 1e-8;
+//	arg.res_b_max = 1e-8;
+//	arg.res_d_max = 1e-12;
+//	arg.res_m_max = 1e-12;
+//	arg.mu0 = 10.0;
+//	arg.iter_max = 20;
+//	arg.stat_max = 100;
+//	arg.pred_corr = 1;
+
+/************************************************
+* ipm
+************************************************/	
 
 	int ipm_size = d_memsize_tree_ocp_qp_ipm(&qp, &arg);
 	printf("\nipm size = %d\n", ipm_size);
@@ -861,6 +872,8 @@ exit(1);
 
 	struct d_tree_ocp_qp_ipm_workspace workspace;
 	d_create_tree_ocp_qp_ipm(&qp, &arg, &workspace, ipm_memory);
+
+	int hpipm_return; // 0 normal; 1 max iter
 
 	int rep, nrep=100;
 
@@ -870,7 +883,7 @@ exit(1);
 
 	for(rep=0; rep<nrep; rep++)
 		{
-		d_solve_tree_ocp_qp_ipm(&qp, &qp_sol, &arg, &workspace);
+		hpipm_return = d_solve_tree_ocp_qp_ipm(&qp, &qp_sol, &arg, &workspace);
 		}
 
 	gettimeofday(&tv1, NULL); // stop
@@ -966,6 +979,13 @@ exit(1);
 	printf("\nres_mu\n");
 	printf("\n%e\n\n", workspace.res_mu);
 #endif
+
+/************************************************
+* print ipm statistics
+************************************************/	
+
+	printf("\nipm return = %d\n", hpipm_return);
+	printf("\nipm residuals max: res_g = %e, res_b = %e, res_d = %e, res_m = %e\n", workspace.qp_res[0], workspace.qp_res[1], workspace.qp_res[2], workspace.qp_res[3]);
 
 	printf("\nipm iter = %d\n", workspace.iter);
 	printf("\nalpha_aff\tmu_aff\t\tsigma\t\talpha\t\tmu\n");

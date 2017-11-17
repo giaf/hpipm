@@ -48,11 +48,10 @@
 #include "../include/hpipm_d_ocp_nlp.h"
 #include "../include/hpipm_d_ocp_nlp_sol.h"
 #include "../include/hpipm_d_ocp_nlp_sqp.h"
-#include "../include/hpipm_d_ocp_qp_sim.h"
 
 
 
-void d_van_der_pol_ode(int t, double *x, double *u, void *ode_args, double *xdot)
+void d_van_der_pol_ode(int t, double *x, double *u, void *ode_arg, double *xdot)
 	{
 	double mu = 1.0;
 	xdot[0] = x[1];
@@ -62,7 +61,7 @@ void d_van_der_pol_ode(int t, double *x, double *u, void *ode_args, double *xdot
 
 
 
-void d_van_der_pol_vde1(int t, double *x, double *u, void *ode_args, double *xdot)
+void d_van_der_pol_vde1(int t, double *x, double *u, void *ode_arg, double *xdot)
 	{
 	double mu = 1.0;
 	int ii, jj, kk;
@@ -189,12 +188,13 @@ int main()
 	d_print_mat(1, nu_, r, 1);
 
 /************************************************
-* integrator type and args
+* integrator type and arg
 ************************************************/	
 	
 #if 1
 	// rk4
 	int nsta = 4; // number of stages
+	int expl = 1;
 	double A_rk[] = {0.0, 0.0, 0.0, 0.0,
 	                 0.5, 0.0, 0.0, 0.0,
 	                 0.0, 0.5, 0.0, 0.0,
@@ -204,6 +204,7 @@ int main()
 #elif 1
 	// midpoint rule
 	int nsta = 2; // number of stages
+	int expl = 1;
 	double A_rk[] = {0.0, 0.0,
 	                 0.5, 0.0};
 	double B_rk[] = {0.0, 1.0};
@@ -211,6 +212,7 @@ int main()
 #else
 	// explicit euler
 	int nsta = 1; // number of stages
+	int expl = 1;
 	double A_rk[] = {0.0};
 	double B_rk[] = {1.0};
 	double C_rk[] = {0.0};
@@ -224,14 +226,17 @@ int main()
 	struct d_rk_data rk_data;
 	d_create_rk_data(nsta, &rk_data, memory_rk_data);
 
-	d_cvt_rowmaj_to_rk_data(A_rk, B_rk, C_rk, &rk_data);
+	d_cvt_rowmaj_to_rk_data(expl, A_rk, B_rk, C_rk, &rk_data);
 
 	double Ts = 0.1;
 
-	// erk args structure
-	struct d_erk_args erk_arg;
+	// erk arg structure
+	struct d_erk_arg erk_arg;
+	erk_arg.rk_data = &rk_data;
 	erk_arg.steps = 10;
 	erk_arg.h = Ts/erk_arg.steps;
+	erk_arg.for_sens = 1; // XXX needed ???
+	erk_arg.adj_sens = 0;
 
 /************************************************
 * ocp qp
@@ -261,21 +266,6 @@ int main()
 	nb[N] = 0;//nx_;
 	ng[N] = 0;
 	ns[N] = 0;
-
-/************************************************
-* ipm
-************************************************/	
-
-	struct d_ocp_qp_ipm_arg arg;
-	arg.alpha_min = 1e-8;
-	arg.res_g_max = 1e-12;
-	arg.res_b_max = 1e-12;
-	arg.res_d_max = 1e-12;
-	arg.res_m_max = 1e-12;
-	arg.mu0 = 2.0;
-	arg.iter_max = 20;
-	arg.stat_max = 20;
-	arg.pred_corr = 1;
 
 /************************************************
 * box & general constraints
@@ -453,7 +443,9 @@ int main()
 		fs1[nu_*nx_+ii*(nx_+1)] = 1.0;
 
 	struct d_ocp_nlp_model model1;
-	model1.expl_vde = &d_van_der_pol_vde1;
+	model1.expl_ode = NULL;
+	model1.expl_vde_for = &d_van_der_pol_vde1;
+	model1.expl_vde_adj = NULL;
 	model1.forward_seed = fs1;
 	model1.arg = NULL;
 
@@ -565,20 +557,42 @@ int main()
 * ocp nlp sqp arg
 ************************************************/	
 
-	struct d_erk_args erk_args[N];
+	int sqp_arg_size = d_memsize_ocp_nlp_sqp_arg(&nlp);
+	printf("\nipm arg size = %d\n", sqp_arg_size);
+	void *sqp_arg_mem = malloc(sqp_arg_size);
+
+	struct d_ocp_nlp_sqp_arg sqp_arg;
+	d_create_ocp_nlp_sqp_arg(&nlp, &sqp_arg, sqp_arg_mem);
+	d_set_default_ocp_nlp_sqp_arg(&sqp_arg);
+
+	struct d_erk_arg erk_args[N];
 	for(ii=0; ii<N; ii++)
 		erk_args[ii] = erk_arg;
 
-	struct d_ocp_nlp_sqp_arg sqp_arg;
-	sqp_arg.ipm_arg = &arg;
-	sqp_arg.rk_data = &rk_data;
+//	struct d_ocp_nlp_sqp_arg sqp_arg;
+//	sqp_arg.ipm_arg = &arg;
 	sqp_arg.erk_arg = erk_args;
-	sqp_arg.nlp_res_g_max = 1e-8;
+	sqp_arg.nlp_res_g_max = 1e-6;
 	sqp_arg.nlp_res_b_max = 1e-8;
 	sqp_arg.nlp_res_d_max = 1e-8;
 	sqp_arg.nlp_res_m_max = 1e-8;
-	sqp_arg.nlp_iter_max = 20;
+//	sqp_arg.nlp_iter_max = 20;
 	sqp_arg.N2 = 1;
+
+/************************************************
+* ipm arg
+************************************************/	
+
+//	struct d_ocp_qp_ipm_arg arg;
+//	arg.alpha_min = 1e-8;
+//	arg.res_g_max = 1e-12;
+//	arg.res_b_max = 1e-12;
+//	arg.res_d_max = 1e-12;
+//	arg.res_m_max = 1e-12;
+//	arg.mu0 = 2.0;
+//	arg.iter_max = 20;
+//	arg.stat_max = 20;
+//	arg.pred_corr = 1;
 
 /************************************************
 * ocp nlp sqp ws
@@ -690,7 +704,7 @@ int main()
 ************************************************/	
 
 	printf("\nnlp_res_g = %e, nlp_res_b = %e, nlp_res_d = %e, nlp_res_m = %e\n", sqp_ws.nlp_res_g, sqp_ws.nlp_res_b, sqp_ws.nlp_res_d, sqp_ws.nlp_res_m);
-	printf("\nocp nlp sqp iter = %d, time = %e [s]\n\n", sqp_ws.iter, time_ocp_nlp_sqp);
+	printf("\nocp nlp sqp: iter = %d, time = %e [s]\n\n", sqp_ws.iter, time_ocp_nlp_sqp);
 
 /************************************************
 * free memory

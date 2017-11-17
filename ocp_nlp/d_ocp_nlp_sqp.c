@@ -46,8 +46,8 @@
 #include "../include/hpipm_d_ocp_qp_kkt.h"
 #include "../include/hpipm_d_ocp_nlp.h"
 #include "../include/hpipm_d_ocp_nlp_sol.h"
+#include "../include/hpipm_d_ocp_nlp_aux.h"
 #include "../include/hpipm_d_ocp_nlp_sqp.h"
-#include "../include/hpipm_d_ocp_qp_sim.h"
 #include "../include/hpipm_d_part_cond.h"
 
 
@@ -65,7 +65,7 @@
 #define CREATE_OCP_QP_IPM d_create_ocp_qp_ipm
 #define CREATE_OCP_QP_SOL d_create_ocp_qp_sol
 #define CREATE_STRVEC d_create_strvec
-#define ERK_ARG d_erk_args
+#define ERK_ARG d_erk_arg
 #define ERK_WORKSPACE d_erk_workspace
 #define MEMSIZE_ERK_INT d_memsize_erk_int
 #define MEMSIZE_OCP_NLP_SQP d_memsize_ocp_nlp_sqp
@@ -90,6 +90,105 @@
 
 
 
+int d_memsize_ocp_nlp_sqp_arg(struct OCP_NLP *nlp)
+	{
+
+	int N = nlp->N;
+
+	int size;
+
+	size = 0;
+
+	size += 5*(N+1)*sizeof(int);
+
+	size += 1*sizeof(struct d_ocp_qp_ipm_arg);
+
+	struct d_ocp_qp qp;
+	qp.N  = nlp->N;
+	qp.nx = nlp->nx;
+	qp.nu = nlp->nu;
+	qp.nb = nlp->nb;
+	qp.ng = nlp->ng;
+	qp.ns = nlp->ns;
+
+	size += d_memsize_ocp_qp_ipm_arg(&qp);
+
+	return size;
+
+	}
+
+
+
+void d_create_ocp_nlp_sqp_arg(struct OCP_NLP *nlp, struct OCP_NLP_SQP_ARG *arg, void *mem)
+	{
+
+	int N = nlp->N;
+
+	struct d_ocp_qp_ipm_arg *ipm_ptr = (struct d_ocp_qp_ipm_arg *) mem;
+
+	//
+	arg->ipm_arg = ipm_ptr;
+	ipm_ptr += 1;
+
+	int *i_ptr = (int *) ipm_ptr;
+
+	//
+	arg->nx2 = i_ptr;
+	i_ptr += N+1;
+	//
+	arg->nu2 = i_ptr;
+	i_ptr += N+1;
+	//
+	arg->nb2 = i_ptr;
+	i_ptr += N+1;
+	//
+	arg->ng2 = i_ptr;
+	i_ptr += N+1;
+	//
+	arg->ns2 = i_ptr;
+	i_ptr += N+1;
+
+	char *c_ptr = (char *) i_ptr;
+
+	struct d_ocp_qp qp;
+	qp.N  = nlp->N;
+	qp.nx = nlp->nx;
+	qp.nu = nlp->nu;
+	qp.nb = nlp->nb;
+	qp.ng = nlp->ng;
+	qp.ns = nlp->ns;
+
+	//
+	d_create_ocp_qp_ipm_arg(&qp, arg->ipm_arg, c_ptr);
+	c_ptr += arg->ipm_arg->memsize;
+
+	// XXX default value for N2 !!!
+	arg->N2 = N; 
+
+	return;
+
+	}
+
+
+
+void d_set_default_ocp_nlp_sqp_arg(struct OCP_NLP_SQP_ARG *arg)
+	{
+
+	arg->nlp_res_g_max = 1e-8;
+	arg->nlp_res_b_max = 1e-8;
+	arg->nlp_res_d_max = 1e-8;
+	arg->nlp_res_m_max = 1e-8;
+	arg->nlp_iter_max = 20;
+//	arg->N2 = 1;
+
+	d_set_default_ocp_qp_ipm_arg(arg->ipm_arg);
+
+	return;
+
+	}
+
+
+
 // TODO eliminate x0 in QP !!!
 int MEMSIZE_OCP_NLP_SQP(struct OCP_NLP *nlp, struct OCP_NLP_SQP_ARG *arg)
 	{
@@ -105,12 +204,11 @@ int MEMSIZE_OCP_NLP_SQP(struct OCP_NLP *nlp, struct OCP_NLP_SQP_ARG *arg)
 	int **idxb = nlp->idxb;
 
 	int N2 = arg->N2;
-	// XXX temporarily variable size array !!! TODO remove !!!
-	int nx2[N2+1]; // XXX
-	int nu2[N2+1]; // XXX
-	int nb2[N2+1]; // XXX
-	int ng2[N2+1]; // XXX
-	int ns2[N2+1]; // XXX
+	int *nx2 = arg->nx2;
+	int *nu2 = arg->nu2;
+	int *nb2 = arg->nb2;
+	int *ng2 = arg->ng2;
+	int *ns2 = arg->ns2;
 	if(N2<N)
 		d_compute_qp_size_ocp2ocp(N, nx, nu, nb, idxb, ng, ns, N2, nx2, nu2, nb2, ng2, ns2);
 
@@ -136,23 +234,26 @@ int MEMSIZE_OCP_NLP_SQP(struct OCP_NLP *nlp, struct OCP_NLP_SQP_ARG *arg)
 	size += MEMSIZE_OCP_QP(N, nx, nu, nb, ng, ns);
 	size += MEMSIZE_OCP_QP_SOL(N, nx, nu, nb, ng, ns);
 
+	struct OCP_QP qp;
+	qp.N = nlp->N;
+	qp.nx = nlp->nx;
+	qp.nu = nlp->nu;
+	qp.nb = nlp->nb;
+	qp.ng = nlp->ng;
+	qp.ns = nlp->ns;
+
+	size += MEMSIZE_OCP_QP_IPM(&qp, arg->ipm_arg);
+
 	if(N2<N)
 		{
 
 		size += 1*sizeof(struct OCP_QP);
 		size += 1*sizeof(struct OCP_QP_SOL);
+		size += 1*sizeof(struct OCP_QP_IPM_WORKSPACE);
 		size += 1*sizeof(struct d_cond_qp_ocp2ocp_workspace);
 
 		size += MEMSIZE_OCP_QP(N2, nx2, nu2, nb2, ng2, ns2);
 		size += MEMSIZE_OCP_QP_SOL(N2, nx2, nu2, nb2, ng2, ns2);
-
-		struct OCP_QP qp;
-		qp.N = nlp->N;
-		qp.nx = nlp->nx;
-		qp.nu = nlp->nu;
-		qp.nb = nlp->nb;
-		qp.ng = nlp->ng;
-		qp.ns = nlp->ns;
 
 		struct OCP_QP qp2;
 		qp2.N = N2;
@@ -165,24 +266,10 @@ int MEMSIZE_OCP_NLP_SQP(struct OCP_NLP *nlp, struct OCP_NLP_SQP_ARG *arg)
 		size += MEMSIZE_OCP_QP_IPM(&qp2, arg->ipm_arg);
 		size += d_memsize_cond_qp_ocp2ocp(&qp, &qp2);
 		}
-	else
-		{
-		struct OCP_QP qp;
-		qp.N = nlp->N;
-		qp.nx = nlp->nx;
-		qp.nu = nlp->nu;
-		qp.nb = nlp->nb;
-		qp.ng = nlp->ng;
-		qp.ns = nlp->ns;
-//		qp.idxb = nlp->idxb;
-//		qp.idxs = nlp->idxs;
-
-		size += MEMSIZE_OCP_QP_IPM(&qp, arg->ipm_arg);
-		}
 
 	for(ii=0; ii<N; ii++)
 		{
-		size += MEMSIZE_ERK_INT(arg->rk_data, nx[ii], nx[ii]+nu[ii], nu[ii]);
+		size += MEMSIZE_ERK_INT(arg->erk_arg+ii, nx[ii], nu[ii], nx[ii]+nu[ii], 0);
 		}
 
 	size = (size+63)/64*64; // make multiple of typical cache line size
@@ -209,12 +296,11 @@ void CREATE_OCP_NLP_SQP(struct OCP_NLP *nlp, struct OCP_NLP_SQP_ARG *arg, struct
 	int **idxb = nlp->idxb;
 
 	int N2 = arg->N2;
-	// XXX temporarily variable size array !!! TODO remove !!!
-	int nx2[N2+1]; // XXX
-	int nu2[N2+1]; // XXX
-	int nb2[N2+1]; // XXX
-	int ng2[N2+1]; // XXX
-	int ns2[N2+1]; // XXX
+	int *nx2 = arg->nx2;
+	int *nu2 = arg->nu2;
+	int *nb2 = arg->nb2;
+	int *ng2 = arg->ng2;
+	int *ns2 = arg->ns2;
 	if(N2<N)
 		d_compute_qp_size_ocp2ocp(N, nx, nu, nb, idxb, ng, ns, N2, nx2, nu2, nb2, ng2, ns2);
 
@@ -264,6 +350,12 @@ void CREATE_OCP_NLP_SQP(struct OCP_NLP *nlp, struct OCP_NLP_SQP_ARG *arg, struct
 	//
 	ws->ipm_workspace = ipm_ws_ptr;
 	ipm_ws_ptr += 1;
+	if(N2<N)
+		{
+		//
+		ws->ipm_workspace2 = ipm_ws_ptr;
+		ipm_ws_ptr += 1;
+		}
 
 	// erk ws
 	struct ERK_WORKSPACE *erk_ws_ptr = (struct ERK_WORKSPACE *) ipm_ws_ptr;
@@ -280,6 +372,9 @@ void CREATE_OCP_NLP_SQP(struct OCP_NLP *nlp, struct OCP_NLP_SQP_ARG *arg, struct
 	//
 	CREATE_OCP_QP_SOL(N, nx, nu, nb, ng, ns, ws->qp_sol, c_ptr);
 	c_ptr += ws->qp_sol->memsize;
+	//
+	CREATE_OCP_QP_IPM(ws->qp, arg->ipm_arg, ws->ipm_workspace, c_ptr);
+	c_ptr += ws->ipm_workspace->memsize;
 	if(N2<N)
 		{
 		//
@@ -292,20 +387,13 @@ void CREATE_OCP_NLP_SQP(struct OCP_NLP *nlp, struct OCP_NLP_SQP_ARG *arg, struct
 		d_create_cond_qp_ocp2ocp(ws->qp, ws->qp2, ws->part_cond_workspace, c_ptr);
 		c_ptr += ws->part_cond_workspace->memsize;
 		//
-		CREATE_OCP_QP_IPM(ws->qp2, arg->ipm_arg, ws->ipm_workspace, c_ptr);
-		c_ptr += ws->ipm_workspace->memsize;
+		CREATE_OCP_QP_IPM(ws->qp2, arg->ipm_arg, ws->ipm_workspace2, c_ptr);
+		c_ptr += ws->ipm_workspace2->memsize;
 		}
-	else
-		{
-		//
-		CREATE_OCP_QP_IPM(ws->qp, arg->ipm_arg, ws->ipm_workspace, c_ptr);
-		c_ptr += ws->ipm_workspace->memsize;
-		}
-
-	//
 	for(ii=0; ii<N; ii++)
 		{
-		CREATE_ERK_INT(arg->rk_data, nx[ii], nx[ii]+nu[ii], nu[ii], ws->erk_workspace+ii, c_ptr);
+		//
+		CREATE_ERK_INT(arg->erk_arg+ii, nx[ii], nu[ii], nx[ii]+nu[ii], 0, ws->erk_workspace+ii, c_ptr);
 		c_ptr += (ws->erk_workspace+ii)->memsize;
 		}
 	
@@ -340,6 +428,7 @@ int SOLVE_OCP_NLP_SQP(struct OCP_NLP *nlp, struct OCP_NLP_SOL *nlp_sol, struct O
 	struct OCP_QP_SOL *qp_sol2 = ws->qp_sol2;
 	struct d_cond_qp_ocp2ocp_workspace *part_cond_ws = ws->part_cond_workspace;
 	struct OCP_QP_IPM_WORKSPACE *ipm_ws = ws->ipm_workspace;
+	struct OCP_QP_IPM_WORKSPACE *ipm_ws2 = ws->ipm_workspace2;
 	struct ERK_WORKSPACE *erk_ws = ws->erk_workspace;
 
 	struct CORE_QP_IPM_WORKSPACE *cws = ipm_ws->core_workspace;
@@ -372,7 +461,7 @@ for(ii=0; ii<=N2; ii++)
 exit(1);
 #endif
 
-	double *x, *u;
+	double *x, *u, *pi;
 
 	struct STRVEC str_res_g;
 	struct STRVEC str_res_b;
@@ -421,8 +510,8 @@ exit(1);
 			{
 			x  = (nlp_sol->ux+nn)->pa+nu[nn];
 			u  = (nlp_sol->ux+nn)->pa;
-			d_init_erk_int(x, (nlp->model+nn)->forward_seed, u, (nlp->model+nn)->expl_vde, (nlp->model+nn)->arg, erk_ws+nn);
-			d_erk_int(erk_arg+nn, erk_ws+nn);
+			d_init_erk_int(nx[nn]+nu[nn], 0, x, u, (nlp->model+nn)->forward_seed, NULL, (nlp->model+nn)->expl_vde_for, NULL, (nlp->model+nn)->arg, erk_ws+nn);
+			d_erk_int(erk_ws+nn);
 			d_cvt_erk_int_to_ocp_qp(nn, erk_ws+nn, qp, nlp_sol);
 			}
 
@@ -467,8 +556,8 @@ exit(1);
 
 
 		// compute residuals
-		COMPUTE_RES_OCP_QP(qp, qp_sol, ipm_ws);
-		cws->mu = ipm_ws->res_mu;
+		COMPUTE_RES_OCP_QP(qp, qp_sol, ipm_ws->res_workspace); // gests own workspace ???
+		cws->mu = ipm_ws->res_workspace->res_mu;
 
 		// compute infinity norm of residuals
 		dvecnrm_inf_libstr(cws->nv, &str_res_g, 0, &nlp_res[0]);
@@ -575,7 +664,7 @@ exit(1);
 #endif
 
 			// solve qp
-			d_solve_ocp_qp_ipm(qp2, qp_sol2, ipm_arg, ipm_ws);
+			d_solve_ocp_qp_ipm(qp2, qp_sol2, ipm_arg, ipm_ws2);
 
 #if 0
 printf("\nqp sol\n");

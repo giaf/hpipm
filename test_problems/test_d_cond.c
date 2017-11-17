@@ -38,6 +38,7 @@
 #include <blasfeo_d_aux.h>
 #include <blasfeo_d_blas.h>
 
+#include "../include/hpipm_d_ocp_qp_dim.h"
 #include "../include/hpipm_d_ocp_qp.h"
 #include "../include/hpipm_d_ocp_qp_sol.h"
 #include "../include/hpipm_d_dense_qp.h"
@@ -182,16 +183,23 @@ int main()
 		nu[ii] = nu_;
 	nu[N] = 0;
 
+	int nbu[N+1];
+	for (ii=0; ii<N; ii++)
+		nbu[ii] = nu[ii];
+
 #if 1
-	int nb[N+1];
+	int nbx[N+1];
 #if KEEP_X0
-	nb[0] = nu[0]+nx[0]/2;
+	nbx[0] = nx[0]/2;
 #else
-	nb[0] = nu[0];
+	nbx[0] = 0;
 #endif
-	for(ii=1; ii<N; ii++)
-		nb[ii] = nu[1]+nx[1]/2;
-	nb[N] = nx[N]/2;
+	for(ii=1; ii<=N; ii++)
+		nbx[ii] = nx[ii]/2;
+
+	int nb[N+1];
+	for (ii=0; ii<=N; ii++)
+		nb[ii] = nbu[ii]+nbx[ii];
 
 	int ng[N+1];
 	ng[0] = 0;
@@ -202,9 +210,8 @@ int main()
 	int ns[N+1];
 	ns[0] = 0;
 	for(ii=1; ii<N; ii++)
-		ns[ii] = nx[ii]/2;
-//		ns[ii] = 0;
-	ns[N] = nx[N]/2;
+		ns[ii] = 0;//nx[ii]/2;
+	ns[N] = 0;//nx[N]/2;
 //	ns[N] = 0;
 #elif 0
 	int nb[N+1];
@@ -279,7 +286,7 @@ int main()
 ************************************************/	
 	
 	double *Q; d_zeros(&Q, nx_, nx_);
-	for(ii=0; ii<nx_; ii++) Q[ii*(nx_+1)] = 0.0;
+	for(ii=0; ii<nx_; ii++) Q[ii*(nx_+1)] = 1.0;
 
 	double *R; d_zeros(&R, nu_, nu_);
 	for(ii=0; ii<nu_; ii++) R[ii*(nu_+1)] = 2.0;
@@ -287,10 +294,10 @@ int main()
 	double *S; d_zeros(&S, nu_, nx_);
 
 	double *q; d_zeros(&q, nx_, 1);
-	for(ii=0; ii<nx_; ii++) q[ii] = 0.0;
+	for(ii=0; ii<nx_; ii++) q[ii] = 0.1;
 
 	double *r; d_zeros(&r, nu_, 1);
-	for(ii=0; ii<nu_; ii++) r[ii] = 0.0;
+	for(ii=0; ii<nu_; ii++) r[ii] = 0.2;
 
 	double *r0; d_zeros(&r0, nu_, 1);
 	dgemv_n_3l(nu_, nx_, S, nu_, x0, r0);
@@ -359,8 +366,8 @@ int main()
 			}
 		else // state
 			{
-			d_lb1[ii] = - 1.0; // xmin
-			d_ub1[ii] =   1.0; // xmax
+			d_lb1[ii] = - 4.0; // xmin
+			d_ub1[ii] =   4.0; // xmax
 			}
 		idxb1[ii] = ii;
 		}
@@ -386,8 +393,8 @@ int main()
 	double *d_ugN; d_zeros(&d_ugN, ng[N], 1);
 	for(ii=0; ii<nb[N]; ii++)
 		{
-		d_lbN[ii] = - 1.0; // xmin
-		d_ubN[ii] =   1.0; // xmax
+		d_lbN[ii] = - 4.0; // xmin
+		d_ubN[ii] =   4.0; // xmax
 		idxbN[ii] = ii;
 		}
 	for(ii=0; ii<ng[N]; ii++)
@@ -601,15 +608,27 @@ int main()
 	hidxs[N] = idxsN;
 	
 /************************************************
+* ocp qp dim
+************************************************/
+
+	int dim_size = d_memsize_ocp_qp_dim(N);
+	printf("\ndim size = %d\n", dim_size);
+	void *dim_mem = malloc(dim_size);
+
+	struct d_ocp_qp_dim dim;
+	d_create_ocp_qp_dim(N, &dim, dim_mem);
+	d_cvt_int_to_ocp_qp_dim(N, nx, nu, nbx, nbu, ng, ns, &dim);
+
+/************************************************
 * ocp qp
 ************************************************/	
 	
-	int ocp_qp_size = d_memsize_ocp_qp(N, nx, nu, nb, ng, ns);
+	int ocp_qp_size = d_memsize_ocp_qp(&dim);
 	printf("\nqp size = %d\n", ocp_qp_size);
 	void *ocp_qp_mem = malloc(ocp_qp_size);
 
 	struct d_ocp_qp ocp_qp;
-	d_create_ocp_qp(N, nx, nu, nb, ng, ns, &ocp_qp, ocp_qp_mem);
+	d_create_ocp_qp(&dim, &ocp_qp, ocp_qp_mem);
 	d_cvt_colmaj_to_ocp_qp(hA, hB, hb, hQ, hS, hR, hq, hr, hidxb, hd_lb, hd_ub, hC, hD, hd_lg, hd_ug, hZl, hZu, hzl, hzu, hidxs, &ocp_qp);
 
 #if 0
@@ -637,31 +656,43 @@ int main()
 #endif
 
 /************************************************
+* dense qp dim
+************************************************/	
+	
+	int dense_qp_dim_size = d_memsize_dense_qp_dim();
+	printf("\nqp dim size = %d\n", dense_qp_dim_size);
+	void *dense_qp_dim_mem = malloc(dense_qp_dim_size);
+
+	struct d_dense_qp_dim qp_dim;
+	d_create_dense_qp_dim(&qp_dim, dense_qp_dim_mem);
+
+	d_compute_qp_dim_ocp2dense(&dim, &qp_dim);
+
+	int nvc = qp_dim.nv;
+	int nec = qp_dim.ne;
+	int nbc = qp_dim.nb;
+	int ngc = qp_dim.ng;
+	int nsc = qp_dim.ns;
+
+	printf("\nnv = %d, ne = %d, nb = %d, ng = %d, ns = %d\n\n", nvc, nec, nbc, ngc, nsc);
+
+/************************************************
 * dense qp
 ************************************************/	
 	
-	int nvc = 0;
-	int nec = 0;
-	int nbc = 0;
-	int ngc = 0;
-	int nsc = 0;
-
-	d_compute_qp_size_ocp2dense(N, nx, nu, nb, hidxb, ng, ns, &nvc, &nec, &nbc, &ngc, &nsc);
-	printf("\nnv = %d, ne = %d, nb = %d, ng = %d, ns = %d\n\n", nvc, nec, nbc, ngc, nsc);
-
-	int dense_qp_size = d_memsize_dense_qp(nvc, nec, nbc, ngc, nsc);
+	int dense_qp_size = d_memsize_dense_qp(&qp_dim);
 	printf("\nqp size = %d\n", dense_qp_size);
 	void *dense_qp_mem = malloc(dense_qp_size);
 
 	struct d_dense_qp dense_qp;
-	d_create_dense_qp(nvc, nec, nbc, ngc, nsc, &dense_qp, dense_qp_mem);
+	d_create_dense_qp(&qp_dim, &dense_qp, dense_qp_mem);
 
-	int cond_size = d_memsize_cond_qp_ocp2dense(&ocp_qp, &dense_qp);
+	int cond_size = d_memsize_cond_qp_ocp2dense(&dim);
 	printf("\ncond size = %d\n", cond_size);
 	void *cond_mem = malloc(cond_size);
 
 	struct d_cond_qp_ocp2dense_workspace cond_ws;
-	d_create_cond_qp_ocp2dense(&ocp_qp, &dense_qp, &cond_ws, cond_mem);
+	d_create_cond_qp_ocp2dense(&dim, &cond_ws, cond_mem);
 
 	gettimeofday(&tv0, NULL); // start
 
@@ -675,9 +706,32 @@ int main()
 	double time_cond = (tv1.tv_sec-tv0.tv_sec)/(nrep+0.0)+(tv1.tv_usec-tv0.tv_usec)/(nrep*1e6);
 
 #if 1
+	printf("\ncond data\n\n");
 	d_print_strmat(nvc+1, nvc, dense_qp.Hg, 0, 0);
 	d_print_strmat(nec, nvc, dense_qp.A, 0, 0);
 	d_print_strmat(nvc, ngc, dense_qp.Ct, 0, 0);
+	d_print_tran_strvec(nvc, dense_qp.g, 0);
+	d_print_tran_strvec(nec, dense_qp.b, 0);
+	d_print_tran_strvec(2*nbc+2*ngc, dense_qp.d, 0);
+	d_print_tran_strvec(nbc, dense_qp.d, 0);
+	d_print_tran_strvec(nbc, dense_qp.d, nbc+ngc);
+	d_print_tran_strvec(ngc, dense_qp.d, nbc);
+	d_print_tran_strvec(ngc, dense_qp.d, 2*nbc+ngc);
+#endif
+
+	gettimeofday(&tv0, NULL); // start
+
+	for(rep=0; rep<nrep; rep++)
+		{
+		d_cond_rhs_qp_ocp2dense(&ocp_qp, &dense_qp, &cond_ws);
+		}
+
+	gettimeofday(&tv1, NULL); // stop
+
+	double time_cond_rhs = (tv1.tv_sec-tv0.tv_sec)/(nrep+0.0)+(tv1.tv_usec-tv0.tv_usec)/(nrep*1e6);
+
+#if 1
+	printf("\ncond rhs data\n\n");
 	d_print_tran_strvec(nvc, dense_qp.g, 0);
 	d_print_tran_strvec(nec, dense_qp.b, 0);
 	d_print_tran_strvec(2*nbc+2*ngc, dense_qp.d, 0);
@@ -700,40 +754,53 @@ int main()
 * dense qp sol
 ************************************************/	
 
-	int dense_qp_sol_size = d_memsize_dense_qp_sol(nvc, nec, nbc, ngc, nsc);
+	int dense_qp_sol_size = d_memsize_dense_qp_sol(&qp_dim);
 	printf("\ndense qp sol size = %d\n", dense_qp_sol_size);
 	void *dense_qp_sol_mem = malloc(dense_qp_sol_size);
 
 	struct d_dense_qp_sol dense_qp_sol;
-	d_create_dense_qp_sol(nvc, nec, nbc, ngc, nsc, &dense_qp_sol, dense_qp_sol_mem);
+	d_create_dense_qp_sol(&qp_dim, &dense_qp_sol, dense_qp_sol_mem);
+
+/************************************************
+* ipm arg
+************************************************/	
+
+	int ipm_arg_size = d_memsize_dense_qp_ipm_arg(&qp_dim);
+	printf("\nipm arg size = %d\n", ipm_arg_size);
+	void *ipm_arg_mem = malloc(ipm_arg_size);
+
+	struct d_dense_qp_ipm_arg dense_arg;
+	d_create_dense_qp_ipm_arg(&qp_dim, &dense_arg, ipm_arg_mem);
+	d_set_default_dense_qp_ipm_arg(&dense_arg);
+
+//	arg.alpha_min = 1e-8;
+//	arg.res_g_max = 1e-8;
+//	arg.res_b_max = 1e-8;
+//	arg.res_d_max = 1e-12;
+//	arg.res_m_max = 1e-12;
+	dense_arg.mu0 = mu0;
+//	arg.iter_max = 20;
+//	arg.stat_max = 100;
+//	arg.pred_corr = 1;
 
 /************************************************
 * ipm
 ************************************************/	
 
-	struct d_dense_qp_ipm_arg dense_arg;
-	dense_arg.alpha_min = 1e-8;
-	dense_arg.res_g_max = 1e-8;
-	dense_arg.res_b_max = 1e-8;
-	dense_arg.res_d_max = 1e-12;
-	dense_arg.res_m_max = 1e-12;
-	dense_arg.mu0 = 100.0;
-	dense_arg.iter_max = 20;
-	dense_arg.stat_max = 100;
-	dense_arg.pred_corr = 1;
-
-	int dense_ipm_size = d_memsize_dense_qp_ipm(&dense_qp, &dense_arg);
+	int dense_ipm_size = d_memsize_dense_qp_ipm(&qp_dim, &dense_arg);
 	printf("\ndense ipm size = %d\n", dense_ipm_size);
 	void *dense_ipm_mem = malloc(dense_ipm_size);
 
 	struct d_dense_qp_ipm_workspace dense_workspace;
-	d_create_dense_qp_ipm(&dense_qp, &dense_arg, &dense_workspace, dense_ipm_mem);
+	d_create_dense_qp_ipm(&qp_dim, &dense_arg, &dense_workspace, dense_ipm_mem);
+
+	int hpipm_return; // 0 normal; 1 max iter
 
 	gettimeofday(&tv0, NULL); // start
 
 	for(rep=0; rep<nrep; rep++)
 		{
-		d_solve_dense_qp_ipm(&dense_qp, &dense_qp_sol, &dense_arg, &dense_workspace);
+		hpipm_return = d_solve_dense_qp_ipm(&dense_qp, &dense_qp_sol, &dense_arg, &dense_workspace);
 		}
 
 	gettimeofday(&tv1, NULL); // stop
@@ -787,22 +854,31 @@ int main()
 	printf("\nres_mu\n");
 	printf("\n%e\n\n", dense_workspace.res_mu);
 
+/************************************************
+* print ipm statistics
+************************************************/	
+
+	printf("\nipm return = %d\n", hpipm_return);
+	printf("\nipm residuals max: res_g = %e, res_b = %e, res_d = %e, res_m = %e\n", dense_workspace.qp_res[0], dense_workspace.qp_res[1], dense_workspace.qp_res[2], dense_workspace.qp_res[3]);
+
 	printf("\nipm iter = %d\n", dense_workspace.iter);
 	printf("\nalpha_aff\tmu_aff\t\tsigma\t\talpha\t\tmu\n");
 	d_print_e_tran_mat(5, dense_workspace.iter, dense_workspace.stat, 5);
 
-	printf("\ncond time = %e [s], dense ipm time = %e [s]\n\n", time_cond, time_dense_ipm);
+	printf("\npart cond time           = %e [s]\n", time_cond);
+	printf("\npart cond rhs time       = %e [s]\n", time_cond_rhs);
+	printf("\npart cond dense ipm time = %e [s]\n\n", time_dense_ipm);
 
 /************************************************
 * ocp qp sol
 ************************************************/	
 	
-	int ocp_qp_sol_size = d_memsize_ocp_qp_sol(N, nx, nu, nb, ng, ns);
+	int ocp_qp_sol_size = d_memsize_ocp_qp_sol(&dim);
 	printf("\nocp qp sol size = %d\n", ocp_qp_sol_size);
 	void *ocp_qp_sol_mem = malloc(ocp_qp_sol_size);
 
 	struct d_ocp_qp_sol ocp_qp_sol;
-	d_create_ocp_qp_sol(N, nx, nu, nb, ng, ns, &ocp_qp_sol, ocp_qp_sol_mem);
+	d_create_ocp_qp_sol(&dim, &ocp_qp_sol, ocp_qp_sol_mem);
 
 /************************************************
 * expand solution
@@ -822,7 +898,7 @@ int main()
 	double *lam_ls[N+1]; for(ii=0; ii<=N; ii++) d_zeros(lam_ls+ii, ns[ii], 1);
 	double *lam_us[N+1]; for(ii=0; ii<=N; ii++) d_zeros(lam_us+ii, ns[ii], 1);
 
-	d_cvt_ocp_qp_sol_to_colmaj(&ocp_qp, &ocp_qp_sol, u, x, ls, us, pi, lam_lb, lam_ub, lam_lg, lam_ug, lam_ls, lam_us);
+	d_cvt_ocp_qp_sol_to_colmaj(&ocp_qp_sol, u, x, ls, us, pi, lam_lb, lam_ub, lam_lg, lam_ug, lam_ls, lam_us);
 
 #if 1
 	printf("\nfull space solution\n\n");

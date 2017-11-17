@@ -27,6 +27,17 @@
 
 
 
+#ifndef HPIPM_S_DENSE_QP_KKT_H_
+#define HPIPM_S_DENSE_QP_KKT_H_
+
+
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+
+
 //
 void s_init_var_dense_qp(struct s_dense_qp *qp, struct s_dense_qp_sol *qp_sol, struct s_dense_qp_ipm_workspace *ws);
 //
@@ -38,3 +49,12 @@ void s_fact_solve_kkt_step_dense_qp(struct s_dense_qp *qp, struct s_dense_qp_ipm
 //
 void s_solve_kkt_step_dense_qp(struct s_dense_qp *qp, struct s_dense_qp_ipm_workspace *ws);
 
+
+
+#ifdef __cplusplus
+} /* extern "C" */
+#endif
+
+
+
+#endif // HPIPM_S_DENSE_QP_KKT_H_

@@ -27,16 +27,43 @@
 
 
 
+#ifndef HPIPM_D_COND_AUX_H_
+#define HPIPM_D_COND_AUX_H_
+
+
+
 #include <blasfeo_target.h>
 #include <blasfeo_common.h>
+
+
+
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 
 
 //
 void d_cond_BAbt(struct d_ocp_qp *ocp_qp, struct d_strmat *BAbt2, struct d_strvec *b2, struct d_cond_qp_ocp2dense_workspace *cond_ws);
 //
+void d_cond_b(struct d_ocp_qp *ocp_qp, struct d_strvec *b2, struct d_cond_qp_ocp2dense_workspace *cond_ws);
+//
 void d_cond_RSQrq_N2nx3(struct d_ocp_qp *ocp_qp, struct d_strmat *RSQrq2, struct d_strvec *rq2, struct d_cond_qp_ocp2dense_workspace *cond_ws);
+//
+void d_cond_rq_N2nx3(struct d_ocp_qp *ocp_qp, struct d_strvec *rq2, struct d_cond_qp_ocp2dense_workspace *cond_ws);
 //
 void d_cond_DCtd(struct d_ocp_qp *ocp_qp, int *idxb2, struct d_strmat *DCt2, struct d_strvec *d2, int *idxs2, struct d_strvec *Z2, struct d_strvec *z2, struct d_cond_qp_ocp2dense_workspace *cond_ws);
 //
+void d_cond_d(struct d_ocp_qp *ocp_qp, struct d_strvec *d2, struct d_strvec *z2, struct d_cond_qp_ocp2dense_workspace *cond_ws);
+//
 void d_expand_sol(struct d_ocp_qp *ocp_qp, struct d_dense_qp_sol *dense_qp_sol, struct d_ocp_qp_sol *ocp_qp_sol, struct d_cond_qp_ocp2dense_workspace *cond_ws);
+
+
+
+#ifdef __cplusplus
+} /* extern "C" */
+#endif
+
+
+
+#endif // HPIPM_D_COND_AUX_H_

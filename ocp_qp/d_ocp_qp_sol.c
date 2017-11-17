@@ -36,6 +36,7 @@
 #include <blasfeo_common.h>
 #include <blasfeo_d_aux.h>
 
+#include "../include/hpipm_d_ocp_qp_dim.h"
 #include "../include/hpipm_d_ocp_qp.h"
 #include "../include/hpipm_d_ocp_qp_sol.h"
 
@@ -43,7 +44,9 @@
 
 #define CREATE_STRVEC d_create_strvec
 #define CVT_STRVEC2VEC d_cvt_strvec2vec
+#define CVT_VEC2STRVEC d_cvt_vec2strvec
 #define OCP_QP d_ocp_qp
+#define OCP_QP_DIM d_ocp_qp_dim
 #define OCP_QP_SOL d_ocp_qp_sol
 #define REAL double
 #define STRVEC d_strvec
@@ -53,6 +56,7 @@
 #define CREATE_OCP_QP_SOL d_create_ocp_qp_sol
 #define MEMSIZE_OCP_QP_SOL d_memsize_ocp_qp_sol
 #define CVT_OCP_QP_SOL_TO_COLMAJ d_cvt_ocp_qp_sol_to_colmaj
+#define CVT_COLMAJ_TO_OCP_QP_SOL d_cvt_colmaj_to_ocp_qp_sol
 #define CVT_OCP_QP_SOL_TO_ROWMAJ d_cvt_ocp_qp_sol_to_rowmaj
 #define CVT_OCP_QP_SOL_TO_LIBSTR d_cvt_ocp_qp_sol_to_libstr
 

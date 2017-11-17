@@ -25,15 +25,27 @@
 *                                                                                                 *
 **************************************************************************************************/
 
+#ifndef HPIPM_D_OCP_QP_SOL_H_
+#define HPIPM_D_OCP_QP_SOL_H_
+
 
 
 #include <blasfeo_target.h>
 #include <blasfeo_common.h>
 
+#include "hpipm_d_ocp_qp_dim.h"
+
+
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 
 
 struct d_ocp_qp_sol
 	{
+	struct d_ocp_qp_dim *dim;
 	struct d_strvec *ux;
 	struct d_strvec *pi;
 	struct d_strvec *lam;
@@ -44,12 +56,22 @@ struct d_ocp_qp_sol
 
 
 //
-int d_memsize_ocp_qp_sol(int N, int *nx, int *nu, int *nb, int *ng, int *ns);
+int d_memsize_ocp_qp_sol(struct d_ocp_qp_dim *dim);
 //
-void d_create_ocp_qp_sol(int N, int *nx, int *nu, int *nb, int *ng, int *ns, struct d_ocp_qp_sol *qp_sol, void *memory);
+void d_create_ocp_qp_sol(struct d_ocp_qp_dim *dim, struct d_ocp_qp_sol *qp_sol, void *memory);
 //
-void d_cvt_ocp_qp_sol_to_colmaj(struct d_ocp_qp *qp, struct d_ocp_qp_sol *qp_sol, double **u, double **x, double **ls, double **us, double **pi, double **lam_lb, double **lam_ub, double **lam_lg, double **lam_ug, double **lam_ls, double **lam_us);
+void d_cvt_ocp_qp_sol_to_colmaj(struct d_ocp_qp_sol *qp_sol, double **u, double **x, double **ls, double **us, double **pi, double **lam_lb, double **lam_ub, double **lam_lg, double **lam_ug, double **lam_ls, double **lam_us);
 //
-void d_cvt_ocp_qp_sol_to_rowmaj(struct d_ocp_qp *qp, struct d_ocp_qp_sol *qp_sol, double **u, double **x, double **ls, double **us, double **pi, double **lam_lb, double **lam_ub, double **lam_lg, double **lam_ug, double **lam_ls, double **lam_us);
+void d_cvt_colmaj_to_ocp_qp_sol(double **u, double **x, double **ls, double **us, double **pi, double **lam_lb, double **lam_ub, double **lam_lg, double **lam_ug, double **lam_ls, double **lam_us, struct d_ocp_qp_sol *qp_sol);
 //
-void d_cvt_ocp_qp_sol_to_libstr(struct d_ocp_qp *qp, struct d_ocp_qp_sol *qp_sol, struct d_strvec *u, struct d_strvec *ls, struct d_strvec *us, struct d_strvec *x, struct d_strvec *pi, struct d_strvec *lam_lb, struct d_strvec *lam_ub, struct d_strvec *lam_lg, struct d_strvec *lam_ug, struct d_strvec *lam_ls, struct d_strvec *lam_us);
+void d_cvt_ocp_qp_sol_to_rowmaj(struct d_ocp_qp_sol *qp_sol, double **u, double **x, double **ls, double **us, double **pi, double **lam_lb, double **lam_ub, double **lam_lg, double **lam_ug, double **lam_ls, double **lam_us);
+//
+void d_cvt_ocp_qp_sol_to_libstr(struct d_ocp_qp_sol *qp_sol, struct d_strvec *u, struct d_strvec *ls, struct d_strvec *us, struct d_strvec *x, struct d_strvec *pi, struct d_strvec *lam_lb, struct d_strvec *lam_ub, struct d_strvec *lam_lg, struct d_strvec *lam_ug, struct d_strvec *lam_ls, struct d_strvec *lam_us);
+
+#ifdef __cplusplus
+}	// #extern "C"
+#endif
+
+
+
+#endif // HPIPM_D_OCP_QP_SOL_H_

@@ -25,13 +25,16 @@
 *                                                                                                 *
 **************************************************************************************************/
 
-
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 struct d_rk_data
 	{
 	double *A_rk; // A in butcher tableau
 	double *B_rk; // b in butcher tableau
 	double *C_rk; // c in butcher tableau
+	int expl; // erk vs irk
 	int ns; // number of stages
 	int memsize;
 	};
@@ -43,8 +46,10 @@ int d_memsize_rk_data(int ns);
 //
 void d_create_rk_data(int ns, struct d_rk_data *rk_data, void *memory);
 //
-void d_cvt_colmaj_to_rk_data(double *A_rk, double *B_rk, double *C_rk, struct d_rk_data *rk_data);
+void d_cvt_colmaj_to_rk_data(int expl, double *A_rk, double *B_rk, double *C_rk, struct d_rk_data *rk_data);
 //
-void d_cvt_rowmaj_to_rk_data(double *A_rk, double *B_rk, double *C_rk, struct d_rk_data *rk_data);
+void d_cvt_rowmaj_to_rk_data(int expl, double *A_rk, double *B_rk, double *C_rk, struct d_rk_data *rk_data);
 
-
+#ifdef __cplusplus
+} /* extern "C" */
+#endif

@@ -36,6 +36,7 @@
 #include <blasfeo_common.h>
 #include <blasfeo_d_aux.h>
 
+#include "../include/hpipm_d_dense_qp_dim.h"
 #include "../include/hpipm_d_dense_qp.h"
 #include "../include/hpipm_d_dense_qp_sol.h"
 #include "../include/hpipm_d_dense_qp_ipm.h"
@@ -56,6 +57,7 @@
 #define DENSE_QP d_dense_qp
 #define DENSE_QP_IPM_ARG d_dense_qp_ipm_arg
 #define DENSE_QP_IPM_WORKSPACE d_dense_qp_ipm_workspace
+#define DENSE_QP_DIM d_dense_qp_dim
 #define DENSE_QP_SOL d_dense_qp_sol
 #define FACT_SOLVE_KKT_STEP_DENSE_QP d_fact_solve_kkt_step_dense_qp
 #define FACT_SOLVE_KKT_UNCONSTR_DENSE_QP d_fact_solve_kkt_unconstr_dense_qp
@@ -72,6 +74,9 @@
 
 
 
+#define MEMSIZE_DENSE_QP_IPM_ARG d_memsize_dense_qp_ipm_arg
+#define CREATE_DENSE_QP_IPM_ARG d_create_dense_qp_ipm_arg
+#define SET_DEFAULT_DENSE_QP_IPM_ARG d_set_default_dense_qp_ipm_arg
 #define MEMSIZE_DENSE_QP_IPM d_memsize_dense_qp_ipm
 #define CREATE_DENSE_QP_IPM d_create_dense_qp_ipm
 #define SOLVE_DENSE_QP_IPM d_solve_dense_qp_ipm
