@@ -4,7 +4,18 @@ clc
 
 import casadi.*
 
-A = [-0.1, 1];
+B_STRATEGY = 'MONOTONE'; % barrier strategy, possible values: {'MONOTONE', 'MEHROTRA'}
+% B_STRATEGY = 'MEHROTRA';
+MAX_ITER = 100;
+TAU0 = 1e-1;
+MAX_LS_IT = 100;
+TH = 1e-16;
+
+tol = 1e-1;
+term_tol = 1e-6;
+kappa = 0.3;
+
+A = [-0.5, 1];
 b = -0.1;
 
 nc = 4;
@@ -16,12 +27,12 @@ C = [ 1 -1; ...
      -1  1; ...
      -1 -1];
  
-shift = 0;
+shift = 1;
 
-d = [1 0.05 1 0.05].' + [ shift; shift; -shift; -shift ];
+d = [1 0.5 1 0.5].';
 
-Q = diag([0.001, 100]);
-q = [0.5; -0.2];
+Q = [10 0; 0 1];
+q = [0.0; -0.];
 
 x   = MX.sym('x', nx, 1);
 l   = MX.sym('l', ne, 1);
@@ -29,7 +40,7 @@ mu  = MX.sym('mu', nc, 1);
 s   = MX.sym('s', nc, 1);
 tau = MX.sym('tau', 1, 1);
 
-f = 1/2*x.'*Q*x + q.'*x;
+f = 1/2*[x - shift].'*Q*[x - shift] + q.'*[x - shift];
 g = A*x - b;
 h = C*x - d;
 
@@ -46,25 +57,26 @@ j_rf = Function('j_rf', {x, l, mu, s}, {jacobian(rf_exp, [x; l; mu; s])});
 clear x l mu s tau
 max_iter = 100;
 
-tau = 1e1;
-max_ls_it = 100;
-th = 1e-8;
-
-tol = 1e0;
-term_tol = 1e-6;
-kappa = 0.3;
 alpha = [];
+tau = TAU0;
 
-iter.x = zeros(nx,max_iter);
-iter.l = zeros(ne,max_iter);
-iter.mu = sqrt(tau)*ones(nc,max_iter);
-iter.s = sqrt(tau)*ones(nc,max_iter);
+iter.x = zeros(nx,MAX_ITER);
+iter.l = zeros(ne,MAX_ITER);
+iter.mu = zeros(nc,MAX_ITER);
+iter.s = zeros(nc,MAX_ITER);
 
-iter.l(:,1) = 10;
-iter.x(:,1) = [1;-100];
-iter.mu = 0.1*ones(nc,max_iter);
+iter.l(:,1) = 0;
+iter.x(:,1) = [0; 0];
 
-for i = 1:max_iter
+if sum(-C*iter.x(:,1) + d > 0) == nc
+    iter.s(:,1) = -C*iter.x(:,1) + d;
+    iter.mu(:,1) = tau./iter.s(:,1);
+else
+    iter.s(:,1) = sqrt(tau)*ones(nc,1);
+    iter.mu(:,1) = sqrt(tau)*ones(nc,1);
+end
+
+for i = 1:MAX_ITER
     
     % compute step-szie
     x = iter.x(:,i);
@@ -84,11 +96,14 @@ for i = 1:max_iter
     fprintf("it = %5.e   err_s = %5.e    err_e = %5.e    err_i = %5.e    err_c =    %5.e    tau = %5.e    alpha = %5.e\n", i, err_s,  err_e,  err_i,  err_c, tau, alpha);
     
     err = norm(rhs);
-    if err < tol
-        tau = kappa*tau;
+    
+    if strcmp(B_STRATEGY, 'MONOTONE')
+        if err_s < tol && err_e < tol && err_i < tol && err_c < tol
+            tau = kappa*tau;
+        end
     end
     
-    if err < term_tol && tau < term_tol
+    if err_s < term_tol && err_e < term_tol && err_i < term_tol && err_c < term_tol && tau < term_tol
         fprintf('\n')
         display(['-> solution found in ', num2str(i), ' iterations.']);
         fprintf('\n')
@@ -106,14 +121,15 @@ for i = 1:max_iter
     
     % do line-search
     alpha = 1;
-    for ls_iter = 1:max_ls_it
+    for ls_iter = 1:MAX_LS_IT
         t_s  = s  + alpha*ds;
         t_mu = mu + alpha*dmu;
-        if isempty(t_s(t_s < th)) && isempty(t_mu(t_mu < th))
+        if isempty(t_s(t_s < TH)) && isempty(t_mu(t_mu < TH))
             break
         end
-        if ls_iter == max_ls_it
-            error('-> line-search failed!')
+        if ls_iter == MAX_LS_IT
+            display('-> line-search failed! Exiting.')
+            i = MAX_ITER;
         end
         alpha = 0.5*alpha;
     end
@@ -123,23 +139,25 @@ for i = 1:max_iter
     iter.mu(:,i+1) = mu + alpha*dmu;
     iter.s(:,i+1)  = s  + alpha*ds;
     
-    if i == max_iter
-        error('-> maximum number of iterations reached!')
+    if i == MAX_ITER
+        display('-> maximum number of iterations reached! Exiting.')
+        i = MAX_ITER;
     end
 end
 
 iter.x = iter.x(:,1:i);
 
 figure() 
-plot(iter.x(1,:), iter.x(2,:), '-')
 hold all
-plot(iter.x(1,end), iter.x(2,end), 'red*')
 plotregion(-C, -d, [], [], 'b')
 x1 = linspace(-10,10, 100);
 x2 = 1/A(2)*(b - A(1)*x1);
 plot(x1, x2, 'r')
 syms x1 x2
-f = 1/2*[x1; x2].'*Q*[x1; x2] + q.'*[x1; x2];
-ezcontour(f, [-1 1], [-1 1])
+f = 1/2*[ [x1; x2] - shift ].'*Q*[ [x1; x2] - shift ] + q.'*[ [x1; x2] - shift ];
+ezcontour(f, [-1, 1], [-1, 1])
 title('')
 grid on
+
+plot(iter.x(1,:), iter.x(2,:), '-')
+plot(iter.x(1,end), iter.x(2,end), 'red*')
