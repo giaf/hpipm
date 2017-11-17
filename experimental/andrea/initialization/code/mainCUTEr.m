@@ -10,18 +10,20 @@ B_STRATEGY = 'MEHROTRA';
 MAX_ITER = 100;
 TAU0 = 1e6;
 MAX_LS_IT = 100;
-TH = 1e-16;
-X0 = [1; 1];
-PRINT_LEVEL = 1; % barrier strategy, possible values: {1, 2}
-DTB = 0.1; % distance to boundaries
+TH = 1e-10;
+PRINT_LEVEL = 2;            % barrier strategy, possible values: {1, 2}
+DTB = 0.1;                  % distance to boundaries
 GAMMA = 0.95;
-REG = 1e-8;
+REG = 0;
+TOL = 1e-3;
+TERM_TOL = 1e-4;
+KAPPA = 0.3;
+REMOVE_AFF_C = 1;
+INIT_STRATEGY = 1;
+MAX_TAU = 1e10;
+RES_NORM = Inf;
 
-benchmark = [ 24, 25, 30, 31, 32, 34, 39 ];
-
-tol = 1e-1;
-term_tol = 1e-6;
-kappa = 0.3;
+benchmark = [ 24 ];
 
 load benchmark
 
@@ -36,7 +38,11 @@ clear g A nc ne
 for kk = 1: length(benchmark)
 
     num_prob = benchmark(kk);
-    nc = 2*(n_ieq{num_prob,1}+nv{num_prob,1});
+    if REMOVE_AFF_C == 1
+        nc = 2*nv{num_prob,1};
+    else
+        nc = 2*(n_ieq{num_prob,1}+nv{num_prob,1});
+    end
     nx = nv{num_prob,1};
     ne = n_eq{num_prob,1};
 
@@ -56,8 +62,11 @@ for kk = 1: length(benchmark)
         end
     end
     
-    C  = [C_ieq;-C_ieq;eye(nx);-eye(nx)];
-        
+    if REMOVE_AFF_C == 1
+        C  = [eye(nx);-eye(nx)];
+    else
+        C  = [C_ieq;-C_ieq;eye(nx);-eye(nx)];
+    end
     if size(A) ~= [ne,nx]
         display('Dimension of Ax are wrong');
     end
@@ -68,8 +77,11 @@ for kk = 1: length(benchmark)
 
     shift = 0;
 
-    d = [ubC;-lbC;ubx{num_prob,1};-lbx{num_prob,1}] + [ shift*ones(n_ieq{num_prob,1},1); -shift*ones(n_ieq{num_prob,1},1);shift*ones(nx,1); -shift*ones(nx,1) ];
-
+    if REMOVE_AFF_C == 1
+        d = [ ubx{num_prob,1};-lbx{num_prob,1} ] + [ shift*ones(nx,1); -shift*ones(nx,1) ];
+    else
+        d = [ ubC;-lbC;ubx{num_prob,1};-lbx{num_prob,1} ] + [ shift*ones(n_ieq{num_prob,1},1); -shift*ones(n_ieq{num_prob,1},1);shift*ones(nx,1); -shift*ones(nx,1) ];
+    end
     Q = H{num_prob,1} + REG*eye(nx);
     q = grad{num_prob,1};
 
@@ -118,9 +130,14 @@ for kk = 1: length(benchmark)
     
     iter.l(:,1) = 0;
     
-    if sum(-C*iter.x(:,1) + d > DTB) == nc
-        iter.s(:,1) = -C*iter.x(:,1) + d;
-        iter.mu(:,1) = tau./iter.s(:,1);
+    if INIT_STRATEGY == 1
+        if sum(-C*iter.x(:,1) + d > DTB) == nc
+            iter.s(:,1) = -C*iter.x(:,1) + d;
+            iter.mu(:,1) = tau./iter.s(:,1);
+        else
+            iter.s(:,1) = sqrt(tau)*ones(nc,1);
+            iter.mu(:,1) = sqrt(tau)*ones(nc,1);
+        end
     else
         iter.s(:,1) = sqrt(tau)*ones(nc,1);
         iter.mu(:,1) = sqrt(tau)*ones(nc,1);
@@ -137,24 +154,25 @@ for kk = 1: length(benchmark)
         % compute search direction
         rhs = full(rf(x, l, mu, s, tau));
         
-        err_s = norm(rhs(1:nx));
-        err_e = norm(rhs(nx+1:nx+ne));
-        err_i = norm(rhs(nx+ne+1:nx+ne+nc));
-        err_c = norm(rhs(nx+ne+nc+1:nx+ne+nc+nc));
+        s_c = max(s);
+        err_s = norm(rhs(1:nx), RES_NORM);
+        err_e = norm(rhs(nx+1:nx+ne), RES_NORM);
+        err_i = norm(rhs(nx+ne+1:nx+ne+nc), RES_NORM);
+        err_c = norm(rhs(nx+ne+nc+1:nx+ne+nc+nc), RES_NORM)/s_c;
         
         if PRINT_LEVEL == 2
             fprintf('it = %3.f   err_s = %5.e    err_e = %5.e    err_i = %5.e    err_c =    %5.e    tau = %5.e    alpha = %5.e\n', i, err_s,  err_e,  err_i,  err_c, tau, alpha);
         end
         
-        err = norm(rhs);
+        err = norm(rhs, RES_NORM);
         
         if strcmp(B_STRATEGY, 'MONOTONE')
-            if err_s < tol && err_e < tol && err_i < tol && err_c < tol
-                tau = kappa*tau;
+            if err_s < TOL && err_e < TOL && err_i < TOL && err_c < TOL
+                tau = KAPPA*tau;
             end
         end
         
-        if err_s < term_tol && err_e < term_tol && err_i < term_tol && err_c < term_tol && tau < term_tol
+        if err_s < TERM_TOL && err_e < TERM_TOL && err_i < TERM_TOL && err_c < TERM_TOL && tau < TERM_TOL
             fprintf(' num_QP = %3.f   it = %3.f   solved = 1   err_s = %5.e    err_e = %5.e    err_i = %5.e    err_c =    %5.e    tau = %5.e    alpha = %5.e\n', num_prob, i, err_s,  err_e,  err_i,  err_c, tau, alpha);
             num_pass = num_pass + 1;
             break
@@ -194,6 +212,10 @@ for kk = 1: length(benchmark)
             
             % update tau
             tau = sigma*dm;
+            if tau > MAX_TAU
+                tau = MAX_TAU;
+            end
+            
             % update complementarity residuals (build aggregated rhs)
             rhs = full(rf(x, l, mu, s, tau));
             rhs((nx+ne+nc+1:end)) = rhs(nx+ne+nc+1:end) + diag(aff_s_step)*aff_mu_step;
