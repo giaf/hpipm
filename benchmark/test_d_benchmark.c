@@ -540,6 +540,7 @@ int main()
         argd.stat_max = 50;
         argd.alpha_min = 1e-8;
         argd.mu0 = 10;
+		argd.pred_corr = 1;
 
         /************************************************
         * dense ipm
@@ -608,9 +609,15 @@ int main()
 	//            printf("\nnew_primal_sol = \n");
 	//            d_print_strvec(nv, qpd_sol.v, 0);
 
-//        printf("\nipm iter = %d\n", workspace.iter);
-//        printf(" inf norm res: %e, %e, %e, %e, %e\n",
-//        printf("\n\n\n\n");
+#if 0
+		if(i==17)
+			{
+			printf("\nipm iter = %d\n", workspace.iter);
+			printf("\nalpha_aff\tmu_aff\t\tsigma\t\talpha\t\tmu\n");
+			d_print_e_tran_mat(5, workspace.iter, workspace.stat, 5);
+			printf("\n\n\n\n");
+			}
+#endif
 
 		// number of passed and failed problems
 		if(hpipm_return==0)
