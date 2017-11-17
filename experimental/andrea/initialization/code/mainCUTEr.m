@@ -5,14 +5,15 @@ addpath('C:\Users\skc\Documents\MATLAB\casadi-matlabR2014b-v3.0.0')
 addpath('C:\Users\skc\Desktop\hpipm\hpipm\experimental\andrea\initialization\code\plotregion')
 import casadi.*
 
-B_STRATEGY = 'MONOTONE'; % barrier strategy, possible values: {'MONOTONE', 'MEHROTRA'}
-% B_STRATEGY = 'MEHROTRA';
+% B_STRATEGY = 'MONOTONE'; % barrier strategy, possible values: {'MONOTONE', 'MEHROTRA'}
+B_STRATEGY = 'MEHROTRA';
 MAX_ITER = 100;
 TAU0 = 1e-1;
 MAX_LS_IT = 100;
 TH = 1e-16;
 X0 = [1; 1];
 PRINT_LEVEL = 1; % barrier strategy, possible values: {1, 2}
+DTB = 0.1; % distance to boundaries
 
 tol = 1e-1;
 term_tol = 1e-6;
@@ -105,9 +106,13 @@ for num_prob = 1: nQP
     iter.mu = zeros(nc,MAX_ITER);
     iter.s  = zeros(nc,MAX_ITER);
     
+    iter.l(:,1) = 10;
+    iter.x(:,1) = 0.5 * (lbx{num_prob,1} + ubx{num_prob,1});
+    iter.mu = 0.1*ones(nc,MAX_ITER);
+    
     iter.l(:,1) = 0;
     
-    if sum(-C*iter.x(:,1) + d > 0) == nc
+    if sum(-C*iter.x(:,1) + d > DTB) == nc
         iter.s(:,1) = -C*iter.x(:,1) + d;
         iter.mu(:,1) = tau./iter.s(:,1);
     else
@@ -132,8 +137,7 @@ for num_prob = 1: nQP
         err_c = norm(rhs(nx+ne+nc+1:nx+ne+nc+nc));
         
         if PRINT_LEVEL == 2
-            format shortE
-            fprintf('it = %5.e   err_s = %5.e    err_e = %5.e    err_i = %5.e    err_c =    %5.e    tau = %5.e    alpha = %5.e\n', i, err_s,  err_e,  err_i,  err_c, tau, alpha);
+            fprintf('it = %3.f   err_s = %5.e    err_e = %5.e    err_i = %5.e    err_c =    %5.e    tau = %5.e    alpha = %5.e\n', i, err_s,  err_e,  err_i,  err_c, tau, alpha);
         end
         
         err = norm(rhs);
@@ -145,7 +149,8 @@ for num_prob = 1: nQP
         end
         
         if err_s < term_tol && err_e < term_tol && err_i < term_tol && err_c < term_tol && tau < term_tol
-            fprintf(' num_QP = %5.e   it = %5.e   solved = 1   err_s = %5.e    err_e = %5.e    err_i = %5.e    err_c =    %5.e    tau = %5.e    alpha = %5.e\n', num_prob, i, err_s,  err_e,  err_i,  err_c, tau, alpha);
+            fprintf(' num_QP = %3.f   it = %3.f   solved = 1   err_s = %5.e    err_e = %5.e    err_i = %5.e    err_c =    %5.e    tau = %5.e    alpha = %5.e\n', num_prob, i, err_s,  err_e,  err_i,  err_c, tau, alpha);
+            num_pass = num_pass + 1;
             break
         end
         
@@ -169,7 +174,7 @@ for num_prob = 1: nQP
                     break
                 end
                 if ls_iter == MAX_LS_IT
-                    fprintf(' num_QP = %5.e   it = %5.e   solved = 0   err_s = %5.e    err_e = %5.e    err_i = %5.e    err_c =    %5.e    tau = %5.e    alpha = %5.e\n', num_prob, i, err_s,  err_e,  err_i,  err_c, tau, alpha);
+                    fprintf(' num_QP = %3.f   it = %3.f   solved = 0   err_s = %5.e    err_e = %5.e    err_i = %5.e    err_c =    %5.e    tau = %5.e    alpha = %5.e\n', num_prob, i, err_s,  err_e,  err_i,  err_c, tau, alpha);
                     break;
                     i = MAX_ITER;
                 end
@@ -219,7 +224,7 @@ for num_prob = 1: nQP
         
         if i == MAX_ITER
             format shortE
-            fprintf(' num_QP = %5.e   it = %5.e   solved = 0    err_s = %5.e    err_e = %5.e    err_i = %5.e    err_c =    %5.e    tau = %5.e    alpha = %5.e\n', num_prob, i, err_s,  err_e,  err_i,  err_c, tau, alpha);
+            fprintf(' num_QP = %5.e   it = %5.e   solved = 0   err_s = %5.e    err_e = %5.e    err_i = %5.e    err_c =    %5.e    tau = %5.e    alpha = %5.e\n', num_prob, i, err_s,  err_e,  err_i,  err_c, tau, alpha);
             %  error('-> maximum number of iterations reached!')
         end
     end

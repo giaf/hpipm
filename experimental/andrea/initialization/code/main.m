@@ -109,7 +109,7 @@ for i = 1:MAX_ITER
     err_c = norm(rhs(nx+ne+nc+1:nx+ne+nc+nc));
     
     format shortE
-    fprintf('it = %5.e   err_s = %5.e    err_e = %5.e    err_i = %5.e    err_c =    %5.e    tau = %5.e    alpha = %5.e\n', i, err_s,  err_e,  err_i,  err_c, tau, alpha);
+    fprintf('it = %3.f   err_s = %5.e    err_e = %5.e    err_i = %5.e    err_c =    %5.e    tau = %5.e    alpha = %5.e\n', i, err_s,  err_e,  err_i,  err_c, tau, alpha);
     
     err = norm(rhs);
     
