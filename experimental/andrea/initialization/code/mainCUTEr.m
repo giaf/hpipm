@@ -4,6 +4,20 @@ clc
 addpath('C:\Users\skc\Documents\MATLAB\casadi-matlabR2014b-v3.0.0')
 addpath('C:\Users\skc\Desktop\hpipm\hpipm\experimental\andrea\initialization\code\plotregion')
 import casadi.*
+
+B_STRATEGY = 'MONOTONE'; % barrier strategy, possible values: {'MONOTONE', 'MEHROTRA'}
+% B_STRATEGY = 'MEHROTRA';
+MAX_ITER = 100;
+TAU0 = 1e-1;
+MAX_LS_IT = 100;
+TH = 1e-16;
+X0 = [1; 1];
+PRINT_LEVEL = 1; % barrier strategy, possible values: {1, 2}
+
+tol = 1e-1;
+term_tol = 1e-6;
+kappa = 0.3;
+
 load benchmark
 
 nQP = size(H,1);
@@ -79,99 +93,139 @@ for num_prob = 1: nQP
     j_rf = Function('j_rf', {x, l, mu, s}, {jacobian(rf_exp, [x; l; mu; s])});  
 
     % Newton method
-
+    
     clear x l mu s tau
     max_iter = 100;
-
-    tau = 1e1;
-    max_ls_it = 100;
-    th = 1e-8;
-
-    tol = 1e0;
-    term_tol = 1e-6;
-    kappa = 0.3;
+    
     alpha = [];
+    tau = TAU0;
+    
+    iter.x  = zeros(nx,MAX_ITER);
+    iter.l  = zeros(ne,MAX_ITER);
+    iter.mu = zeros(nc,MAX_ITER);
+    iter.s  = zeros(nc,MAX_ITER);
+    
+    iter.l(:,1) = 0;
+    
+    if sum(-C*iter.x(:,1) + d > 0) == nc
+        iter.s(:,1) = -C*iter.x(:,1) + d;
+        iter.mu(:,1) = tau./iter.s(:,1);
+    else
+        iter.s(:,1) = sqrt(tau)*ones(nc,1);
+        iter.mu(:,1) = sqrt(tau)*ones(nc,1);
+    end
 
-    iter.x = zeros(nx,max_iter);
-    iter.l = zeros(ne,max_iter);
-    iter.mu = sqrt(tau)*ones(nc,max_iter);
-    iter.s = sqrt(tau)*ones(nc,max_iter);
-
-    iter.l(:,1) = 10;
-    iter.x(:,1) = 0.5 * (lbx{num_prob,1} + ubx{num_prob,1});
-    iter.mu = 0.1*ones(nc,max_iter);
-
-    for i = 1:max_iter
-
+    for i = 1:MAX_ITER
+        
         % compute step-szie
         x = iter.x(:,i);
         l = iter.l(:,i);
         mu = iter.mu(:,i);
         s = iter.s(:,i);
-
+        
         % compute search direction
         rhs = full(rf(x, l, mu, s, tau));
-
+        
         err_s = norm(rhs(1:nx));
         err_e = norm(rhs(nx+1:nx+ne));
         err_i = norm(rhs(nx+ne+1:nx+ne+nc));
         err_c = norm(rhs(nx+ne+nc+1:nx+ne+nc+nc));
-
-%        format shortE
-%        fprintf('it = %5.e   err_s = %5.e    err_e = %5.e    err_i = %5.e    err_c =    %5.e    tau = %5.e    alpha = %5.e\n', i, err_s,  err_e,  err_i,  err_c, tau, alpha);
-
-        err = norm(rhs);
-        if err < tol
-            tau = kappa*tau;
+        
+        if PRINT_LEVEL == 2
+            format shortE
+            fprintf('it = %5.e   err_s = %5.e    err_e = %5.e    err_i = %5.e    err_c =    %5.e    tau = %5.e    alpha = %5.e\n', i, err_s,  err_e,  err_i,  err_c, tau, alpha);
         end
-
-        if err < term_tol && tau < term_tol
-        format shortE
-        fprintf(' num_QP = %5.e   it = %5.e   err_s = %5.e    err_e = %5.e    err_i = %5.e    err_c =    %5.e    tau = %5.e    alpha = %5.e\n', num_prob, i, err_s,  err_e,  err_i,  err_c, tau, alpha);
-        num_pass = num_pass + 1;
-%             fprintf('\n')
-%             display(['-> solution found in ', num2str(i), ' iterations.']);
-%             fprintf('\n')
+        
+        err = norm(rhs);
+        
+        if strcmp(B_STRATEGY, 'MONOTONE')
+            if err_s < tol && err_e < tol && err_i < tol && err_c < tol
+                tau = kappa*tau;
+            end
+        end
+        
+        if err_s < term_tol && err_e < term_tol && err_i < term_tol && err_c < term_tol && tau < term_tol
+            fprintf(' num_QP = %5.e   it = %5.e   solved = 1   err_s = %5.e    err_e = %5.e    err_i = %5.e    err_c =    %5.e    tau = %5.e    alpha = %5.e\n', num_prob, i, err_s,  err_e,  err_i,  err_c, tau, alpha);
             break
         end
-
+        
         J = full(j_rf(x, l, mu, s));
+        
+        if strcmp(B_STRATEGY, 'MEHROTRA')
+            % compute duality measure
+            dm = s.'*mu/nc;
+            % solve affine system
+            aff_rhs = full(rf(x, l, mu, s, 0));
+            aff_step = -J\aff_rhs;
+            % extract mu and s step
+            aff_mu_step = aff_step(nx+ne+1:nx+ne+nc);
+            aff_s_step  = aff_step(nx+ne+nc+1:end);
+            % do line-search for aff
+            aff_alpha = 1;
+            for ls_iter = 1:MAX_LS_IT
+                t_s  = s  + aff_alpha*aff_s_step;
+                t_mu = mu + aff_alpha*aff_mu_step;
+                if isempty(t_s(t_s < TH)) && isempty(t_mu(t_mu < TH))
+                    break
+                end
+                if ls_iter == MAX_LS_IT
+                    fprintf(' num_QP = %5.e   it = %5.e   solved = 0   err_s = %5.e    err_e = %5.e    err_i = %5.e    err_c =    %5.e    tau = %5.e    alpha = %5.e\n', num_prob, i, err_s,  err_e,  err_i,  err_c, tau, alpha);
+                    break;
+                    i = MAX_ITER;
+                end
+                aff_alpha = 0.5*aff_alpha;
+            end
+            % compute affine duality measure
+            aff_dm = t_s.'*t_mu/nc;
+            
+            % compute centering parameter
+            sigma = (aff_dm/dm)^3;
+            
+            % update tau
+            tau = sigma*dm;
+            % update complementarity residuals (build aggregated rhs)
+            rhs = full(rf(x, l, mu, s, tau));
+            rhs((nx+ne+nc+1:end)) = rhs(nx+ne+nc+1:end) + diag(aff_s_step)*aff_mu_step;
+        end
+        
         step = -J\rhs;
-
+        
         % extract search direction componenents
         dx = step(1:nx);
         dl = step(nx+1:nx+ne);
         dmu = step(nx+ne+1:nx+ne+nc);
         ds = step(nx+ne+nc+1:end);
-
+        
         % do line-search
         alpha = 1;
-        for ls_iter = 1:max_ls_it
+        for ls_iter = 1:MAX_LS_IT
             t_s  = s  + alpha*ds;
             t_mu = mu + alpha*dmu;
-            if isempty(t_s(t_s < th)) && isempty(t_mu(t_mu < th))
+            if isempty(t_s(t_s < TH)) && isempty(t_mu(t_mu < TH))
                 break
             end
-            if ls_iter == max_ls_it
-                error('-> line-search failed!')
+            if ls_iter == MAX_LS_IT
+                fprintf(' num_QP = %5.e   it = %5.e   solved = 0   err_s = %5.e    err_e = %5.e    err_i = %5.e    err_c =    %5.e    tau = %5.e    alpha = %5.e\n', num_prob, i, err_s,  err_e,  err_i,  err_c, tau, alpha);
+                break;
+                i = MAX_ITER;
             end
             alpha = 0.5*alpha;
         end
-
+        
         iter.x(:,i+1)  = x  + alpha*dx;
         iter.l(:,i+1)  = l  + alpha*dl;
         iter.mu(:,i+1) = mu + alpha*dmu;
         iter.s(:,i+1)  = s  + alpha*ds;
-
-        if i == max_iter
+        
+        if i == MAX_ITER
             format shortE
             fprintf(' num_QP = %5.e   it = %5.e   err_s = %5.e    err_e = %5.e    err_i = %5.e    err_c =    %5.e    tau = %5.e    alpha = %5.e\n', num_prob, i, err_s,  err_e,  err_i,  err_c, tau, alpha);
-          %  error('-> maximum number of iterations reached!')
+            %  error('-> maximum number of iterations reached!')
         end
+    end
+        
 end
 
-
-end
 fprintf('Number of QP = %d,  Number of solved QP  = %d, ratio = %5.e', num_prob, num_pass, num_pass/num_prob);
 
 % iter.x = iter.x(:,1:i);
