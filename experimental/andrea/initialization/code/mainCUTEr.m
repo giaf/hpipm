@@ -219,7 +219,7 @@ for num_prob = 1: nQP
         
         if i == MAX_ITER
             format shortE
-            fprintf(' num_QP = %5.e   it = %5.e   err_s = %5.e    err_e = %5.e    err_i = %5.e    err_c =    %5.e    tau = %5.e    alpha = %5.e\n', num_prob, i, err_s,  err_e,  err_i,  err_c, tau, alpha);
+            fprintf(' num_QP = %5.e   it = %5.e   solved = 0    err_s = %5.e    err_e = %5.e    err_i = %5.e    err_c =    %5.e    tau = %5.e    alpha = %5.e\n', num_prob, i, err_s,  err_e,  err_i,  err_c, tau, alpha);
             %  error('-> maximum number of iterations reached!')
         end
     end
