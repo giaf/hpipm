@@ -4,8 +4,8 @@ clc
 
 import casadi.*
 
-B_STRATEGY = 'MONOTONE'; % barrier strategy, possible values: {'MONOTONE', 'MEHROTRA'}
-% B_STRATEGY = 'MEHROTRA';
+% B_STRATEGY = 'MONOTONE'; % barrier strategy, possible values: {'MONOTONE', 'MEHROTRA'}
+B_STRATEGY = 'MEHROTRA';
 MAX_ITER = 100;
 TAU0 = 1e-1;
 MAX_LS_IT = 100;
@@ -31,7 +31,7 @@ C = [ 1 -1; ...
      -1  1; ...
      -1 -1];
  
-shift = 1000;
+shift = 0;
 
 d = [1 0.5 1 0.5].';
 

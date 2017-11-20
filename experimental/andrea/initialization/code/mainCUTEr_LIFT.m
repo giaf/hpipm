@@ -14,11 +14,10 @@ TH = 1e-10;
 PRINT_LEVEL = 2;            % barrier strategy, possible values: {1, 2}
 DTB = 0.1;                  % distance to boundaries
 GAMMA = 0.95;
-REG = 0;
-TOL = 1e-2;
+REG = 1;
+TOL = 1e-3;
 TERM_TOL = 1e-5;
-KAPPA = 0.3;
-REMOVE_AFF_C = 0;
+KAPPA = 0.9;
 INIT_STRATEGY = 1;
 MAX_TAU = 1e10;
 RES_NORM = Inf;
@@ -39,13 +38,11 @@ clear g A nc ne
 for kk = 1: length(benchmark)
 
     num_prob = benchmark(kk);
-    if REMOVE_AFF_C == 1
-        nc = 2*nv{num_prob,1};
-    else
-        nc = 2*(n_ieq{num_prob,1}+nv{num_prob,1});
-    end
-    nx = nv{num_prob,1};
-    ne = n_eq{num_prob,1};
+
+    nb = 2*nv{num_prob, 1};
+    nc = 2*n_ieq{num_prob, 1};
+    nx = nv{num_prob, 1};
+    ne = n_eq{num_prob, 1};
 
     A = [];
     b = [];
@@ -54,20 +51,17 @@ for kk = 1: length(benchmark)
     C_ieq = [];
     for i = 1: size(C_full{num_prob},1)
         if lbA{num_prob}(i) == ubA{num_prob}(i)
-           A = [A;C_full{num_prob}(i,:)];
-           b = [b;lbA{num_prob}(i)];
+           A = [A; C_full{num_prob}(i,:)];
+           b = [b; lbA{num_prob}(i)];
         else
-           C_ieq = [C_ieq;C_full{num_prob}(i,:)];
-           lbC = [lbC;lbA{num_prob}(i)];
-           ubC = [ubC;ubA{num_prob}(i)];
+           C_ieq = [C_ieq; C_full{num_prob}(i,:)];
+           lbC = [lbC; lbA{num_prob}(i)];
+           ubC = [ubC; ubA{num_prob}(i)];
         end
     end
     
-    if REMOVE_AFF_C == 1
-        C  = [eye(nx);-eye(nx)];
-    else
-        C  = [C_ieq;-C_ieq;eye(nx);-eye(nx)];
-    end
+    C  = [C_ieq; -C_ieq];
+    
     if size(A) ~= [ne,nx]
         display('Dimension of Ax are wrong');
     end
@@ -76,29 +70,37 @@ for kk = 1: length(benchmark)
         display('Dimension of Cx are wrong');
     end
 
-    shift = 1;
+    e =   [ ubx{num_prob, 1}; -lbx{num_prob, 1} ];
+    d =     [ ubC; -lbC ];
 
-    if REMOVE_AFF_C == 1
-        d = [ ubx{num_prob,1};-lbx{num_prob,1} ] + [ shift*ones(nx,1); -shift*ones(nx,1) ];
-    else
-        d = [ ubC;-lbC;ubx{num_prob,1};-lbx{num_prob,1} ] + [ shift*ones(n_ieq{num_prob,1},1); -shift*ones(n_ieq{num_prob,1},1);shift*ones(nx,1); -shift*ones(nx,1) ];
-    end
-    Q = H{num_prob,1} + REG*eye(nx);
-    q = grad{num_prob,1};
+    nx_ = nx;
+    nx = nx + nc;
+    
+    Q = blkdiag(H{num_prob, 1}, zeros(nc)) + REG*eye(nx);
+    q = [grad{num_prob,1}; zeros(nc, 1)];
+    
+    nc_ = nc;
+    nc  = nc + 2*nx_;
 
-    x   = MX.sym('x', nx, 1);
-    l   = MX.sym('l', ne, 1);
-    mu  = MX.sym('mu', nc, 1);
-    s   = MX.sym('s', nc, 1);
-    tau = MX.sym('tau', 1, 1);
+    ne = ne + nc_;
+    
+    x   = MX.sym('x',   nx, 1);
+    l   = MX.sym('l',   ne, 1);
+    mu  = MX.sym('mu',  nc, 1);
+    s   = MX.sym('s',   nc, 1);
+    tau = MX.sym('tau', 1,  1);
 
     f = 1/2*x.'*Q*x + q.'*x;
+    
     if isempty(A)
-        g = [];
+        g = C*x(1:nx_) - x(nx_ + 1:end);
     else
-        g = A*x - b;
+        g = [   A*x - b; ...
+                C*x(1:nx_) - x(nx_ + 1:end)];
     end
-    h = (C*x - d);
+            
+    h = [[ eye(nx_); -eye(nx_)]*x(1:nx_); [eye(nc_)]*x(nx_+1:end)]  - [e; d];
+    
     if ne > 0
         Lag = f + l.'*g + mu.'*h;
     else
@@ -122,35 +124,20 @@ for kk = 1: length(benchmark)
     
     iter.x  = zeros(nx,MAX_ITER);
     iter.l  = zeros(ne,MAX_ITER);
-    iter.mu = zeros(nc,MAX_ITER);
-    iter.s  = zeros(nc,MAX_ITER);
+    iter.mu = sqrt(TAU0)*ones(nc,MAX_ITER);
+    iter.s  = sqrt(TAU0)*ones(nc,MAX_ITER);
     
-    iter.l(:,1) = 10;
-    iter.x(:,1) = 0.5 * (lbx{num_prob,1} + ubx{num_prob,1});
+    iter.l(:,1) = 1;
+    iter.x(1:nx_,1) = 0.5 * (lbx{num_prob,1} + ubx{num_prob,1});
+    iter.x(nx_ + 1:end,1) = d - 100*ones(length(d),1);
     iter.mu = 0.1*ones(nc,MAX_ITER);
     
-    iter.l(:,1) = 0;
-        
-    if INIT_STRATEGY == 1
-        if sum(-C*iter.x(:,1) + d > DTB) == nc
-            iter.s(:,1) = -C*iter.x(:,1) + d;
-            iter.mu(:,1) = tau./iter.s(:,1);
-        else
-            iter.s(:,1) = sqrt(tau)*ones(nc,1);
-            iter.mu(:,1) = sqrt(tau)*ones(nc,1);
-        end
-    else
-        iter.s(:,1) = sqrt(tau)*ones(nc,1);
-        iter.mu(:,1) = sqrt(tau)*ones(nc,1);
-    end
+    iter.l(:,1) = 0;    
 
     % compute scaling
     J = full(j_rf(iter.x(:,1), iter.l(:,1), iter.mu(:,1), iter.s(:,1)));
     [ L, D ] = ldl(J);
-
-    % compute conditioning number of equality constrained problem
-    
-
+  
     for i = 1:MAX_ITER
         
         % compute step-szie
