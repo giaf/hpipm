@@ -7,16 +7,16 @@ import casadi.*
 
 B_STRATEGY = 'MONOTONE'; % barrier strategy, possible values: {'MONOTONE', 'MEHROTRA'}
 % B_STRATEGY = 'MEHROTRA';
-MAX_ITER = 200;
+MAX_ITER = 100;
 TAU0 = 1e0;
 MAX_LS_IT = 100;
-TH = 0;
+TH = 1e-12;
 PRINT_LEVEL = 1;            
 DTB = 0.1;                  
 GAMMA = 0.95;
-REG = 1e-8;
+REG = 1e-2;
 TOL = 1e-1;
-TERM_TOL = 1e-6;
+TERM_TOL = 1e-4;
 KAPPA = 0.3;
 REMOVE_AFF_C = 0;
 INIT_STRATEGY = 1;
@@ -25,9 +25,10 @@ RES_NORM = Inf;
 MIN_TAU = 0.1*TERM_TOL;
 ITER_REF = 1;
 REG_HESS_UPDATE = 0*1e-1;
+MIN_FTB = 0.95;
 
 load benchmark
-% benchmark = [ 9 ];
+% benchmark = [ 30 ];
 benchmark = [ 1:length(H) ];
 
 nQP = size(H,1);
@@ -154,6 +155,11 @@ for kk = 1: length(benchmark)
 
     for i = 1:MAX_ITER
         
+        if rank(A) < size(A,1)
+            fprintf('A is not full row rank for problem %i: skipping this problem.\n', benchmark(kk));
+            break;
+        end
+        
         % compute step-szie
         x = iter.x(:,i);
         l = iter.l(:,i);
@@ -264,17 +270,17 @@ for kk = 1: length(benchmark)
         ls_acc = norm(J*step + rhs, Inf);
         
         % extract search direction componenents
-        dx = step(1:nx);
-        dl = step(nx+1:nx+ne);
+        dx  = step(1:nx);
+        dl  = step(nx+1:nx+ne);
         dmu = step(nx+ne+1:nx+ne+nc);
-        ds = step(nx+ne+nc+1:end);
+        ds  = step(nx+ne+nc+1:end);
         
         % do line-search
         p_alpha = 1;
         for ls_iter = 1:MAX_LS_IT
             t_s  = s  + p_alpha*ds;
-            t_mu = mu + d_alpha*dmu;
-            if isempty(t_s(t_s < TH)) 
+            ftb = max(MIN_FTB, 1 - tau);
+            if isempty(t_s(t_s < (1 - ftb)*s)) 
                 break
             end
             if ls_iter == MAX_LS_IT
@@ -288,7 +294,8 @@ for kk = 1: length(benchmark)
         d_alpha = 1;
         for ls_iter = 1:MAX_LS_IT
             t_mu = mu + d_alpha*dmu;
-            if isempty(t_mu(t_mu < TH))
+            ftb = max(MIN_FTB, 1 - tau);
+            if isempty(t_mu(t_mu < (1 - ftb)*mu))
                 break
             end
             if ls_iter == MAX_LS_IT
@@ -300,7 +307,7 @@ for kk = 1: length(benchmark)
         end
         
         iter.x(:,i+1)  = x  + GAMMA*p_alpha*dx;
-        iter.l(:,i+1)  = l  + GAMMA*d_alpha*dl;
+        iter.l(:,i+1)  = l  + GAMMA*p_alpha*dl;
         iter.mu(:,i+1) = mu + GAMMA*d_alpha*dmu;
         iter.s(:,i+1)  = s  + GAMMA*p_alpha*ds;
         
