@@ -7,26 +7,28 @@ import casadi.*
 
 B_STRATEGY = 'MONOTONE'; % barrier strategy, possible values: {'MONOTONE', 'MEHROTRA'}
 % B_STRATEGY = 'MEHROTRA';
-MAX_ITER = 1000;
-TAU0 = 1e-1;
+MAX_ITER = 200;
+TAU0 = 1e0;
 MAX_LS_IT = 100;
-TH = 1e-10;
-PRINT_LEVEL = 2;            % barrier strategy, possible values: {1, 2}
-DTB = 0.1;                  % distance to boundaries
+TH = 0;
+PRINT_LEVEL = 1;            
+DTB = 0.1;                  
 GAMMA = 0.95;
-REG = 0;
-TOL = 1e-2;
-TERM_TOL = 1e-5;
+REG = 1e-8;
+TOL = 1e-1;
+TERM_TOL = 1e-6;
 KAPPA = 0.3;
 REMOVE_AFF_C = 0;
 INIT_STRATEGY = 1;
 MAX_TAU = 1e10;
 RES_NORM = Inf;
 MIN_TAU = 0.1*TERM_TOL;
-
-benchmark = [ 24 ];
+ITER_REF = 1;
+REG_HESS_UPDATE = 0*1e-1;
 
 load benchmark
+% benchmark = [ 9 ];
+benchmark = [ 1:length(H) ];
 
 nQP = size(H,1);
 C_full = A;
@@ -76,7 +78,7 @@ for kk = 1: length(benchmark)
         display('Dimension of Cx are wrong');
     end
 
-    shift = 1;
+    shift = 0;
 
     if REMOVE_AFF_C == 1
         d = [ ubx{num_prob,1};-lbx{num_prob,1} ] + [ shift*ones(nx,1); -shift*ones(nx,1) ];
@@ -117,7 +119,9 @@ for kk = 1: length(benchmark)
     clear x l mu s tau
     max_iter = 100;
     
-    alpha = [];
+    d_alpha = 0.0;
+    p_alpha = 0.0;
+    ls_acc = 0.0;
     tau = TAU0;
     
     iter.x  = zeros(nx,MAX_ITER);
@@ -144,12 +148,9 @@ for kk = 1: length(benchmark)
         iter.mu(:,1) = sqrt(tau)*ones(nc,1);
     end
 
-    % compute scaling
-    J = full(j_rf(iter.x(:,1), iter.l(:,1), iter.mu(:,1), iter.s(:,1)));
-    [ L, D ] = ldl(J);
-
-    % compute conditioning number of equality constrained problem
-    
+%     % compute scaling
+%     J = full(j_rf(iter.x(:,1), iter.l(:,1), iter.mu(:,1), iter.s(:,1)));
+%     [ L, D ] = ldl(J);    
 
     for i = 1:MAX_ITER
         
@@ -170,7 +171,7 @@ for kk = 1: length(benchmark)
         err_c = norm(rhs(nx+ne+nc+1:nx+ne+nc+nc), RES_NORM)/s_c;
         
         if PRINT_LEVEL == 2
-            fprintf('it = %3.f   err_s = %5.e    err_e = %5.e    err_i = %5.e    err_c =    %5.e    tau = %5.e    alpha = %5.e\n', i, err_s,  err_e,  err_i,  err_c, tau, alpha);
+            fprintf('it = %3.f   err_s = %5.e    err_e = %5.e    err_i = %5.e    err_c =    %5.e    tau = %5.e    p_alpha = %5.e d_alpha = %5.e     ls_acc = %5.e\n', i, err_s,  err_e,  err_i,  err_c, tau, p_alpha, d_alpha, ls_acc);
         end
         
         err = norm(rhs, RES_NORM);
@@ -182,32 +183,50 @@ for kk = 1: length(benchmark)
         end
         
         if err_s < TERM_TOL && err_e < TERM_TOL && err_i < TERM_TOL && err_c < TERM_TOL && tau < TERM_TOL
-            fprintf('\nsummary: num_QP = %3.f   it = %3.f   solved = 1   err_s = %5.e    err_e = %5.e    err_i = %5.e    err_c =    %5.e    tau = %5.e    alpha = %5.e\n', num_prob, i, err_s,  err_e,  err_i,  err_c, tau, alpha);
+            fprintf('\nsummary: num_QP = %3.f   it = %3.f   solved = 1   err_s = %5.e    err_e = %5.e    err_i = %5.e    err_c =    %5.e    tau = %5.e    p_alpha = %5.e    d_alpha = %5.e\n', num_prob, i, err_s,  err_e,  err_i,  err_c, tau, p_alpha, d_alpha);
             num_pass = num_pass + 1;
             break
         end
         
-        J = full(j_rf(x, l, mu, s));
+        mu_reg = mu + REG_HESS_UPDATE*ones(length(mu), 1);
+        J = full(j_rf(x, l, mu_reg, s));
+%       cond(J)
         
         if strcmp(B_STRATEGY, 'MEHROTRA')
             % compute duality measure
             dm = s.'*mu/nc;
+            
             % solve affine system
             aff_rhs = full(rf(x, l, mu, s, 0));
-            aff_step = -(D*J)\(D*aff_rhs);
+            aff_step = -J\aff_rhs;
+            
             % extract mu and s step
             aff_mu_step = aff_step(nx+ne+1:nx+ne+nc);
             aff_s_step  = aff_step(nx+ne+nc+1:end);
+            
             % do line-search for aff
             aff_alpha = 1;
             for ls_iter = 1:MAX_LS_IT
-                t_s  = s  + aff_alpha*aff_s_step;
                 t_mu = mu + aff_alpha*aff_mu_step;
-                if isempty(t_s(t_s < TH)) && isempty(t_mu(t_mu < TH))
+                if isempty(t_mu(t_mu < TH))
                     break
                 end
                 if ls_iter == MAX_LS_IT
-                    fprintf(' num_QP = %3.f   it = %3.f   solved = 0   err_s = %5.e    err_e = %5.e    err_i = %5.e    err_c =    %5.e    tau = %5.e    alpha = %5.e\n', num_prob, i, err_s,  err_e,  err_i,  err_c, tau, alpha);
+                    fprintf(' num_QP = %3.f   it = %3.f   solved = 0   err_s = %5.e    err_e = %5.e    err_i = %5.e    err_c =    %5.e    tau = %5.e    p_alpha = %5.e    d_alpha = %5.e\n', num_prob, i, err_s,  err_e,  err_i,  err_c, tau, p_alpha, d_alpha);
+                    break;
+                    i = MAX_ITER;
+                end
+                aff_alpha = 0.5*aff_alpha;
+            end
+            
+            aff_alpha = 1;
+            for ls_iter = 1:MAX_LS_IT
+                t_s  = s  + aff_alpha*aff_s_step;
+                if isempty(t_s(t_s < TH)) 
+                    break
+                end
+                if ls_iter == MAX_LS_IT
+                    fprintf(' num_QP = %3.f   it = %3.f   solved = 0   err_s = %5.e    err_e = %5.e    err_i = %5.e    err_c =    %5.e    tau = %5.e    p_alpha = %5.e    d_alpha = %5.e\n', num_prob, i, err_s,  err_e,  err_i,  err_c, tau, p_alpha, d_alpha);
                     break;
                     i = MAX_ITER;
                 end
@@ -229,8 +248,20 @@ for kk = 1: length(benchmark)
             rhs = full(rf(x, l, mu, s, tau));
             rhs((nx+ne+nc+1:end)) = rhs(nx+ne+nc+1:end) + diag(aff_s_step)*aff_mu_step;
         end
+
+        step = linsolve(J, -rhs);
         
-        step = -J\rhs;
+        for iter_ref = 1:ITER_REF
+            % compute residuals
+            lin_res = +rhs + J*step;
+            
+            % compute correction
+            corr = linsolve(J, -lin_res);
+            step = step + 1*corr;
+            norm(J*step + rhs, Inf);
+        end
+        
+        ls_acc = norm(J*step + rhs, Inf);
         
         % extract search direction componenents
         dx = step(1:nx);
@@ -239,29 +270,43 @@ for kk = 1: length(benchmark)
         ds = step(nx+ne+nc+1:end);
         
         % do line-search
-        alpha = 1;
+        p_alpha = 1;
         for ls_iter = 1:MAX_LS_IT
-            t_s  = s  + alpha*ds;
-            t_mu = mu + alpha*dmu;
-            if isempty(t_s(t_s < TH)) && isempty(t_mu(t_mu < TH))
+            t_s  = s  + p_alpha*ds;
+            t_mu = mu + d_alpha*dmu;
+            if isempty(t_s(t_s < TH)) 
                 break
             end
             if ls_iter == MAX_LS_IT
-                fprintf(' num_QP = %5.f   it = %5.f   solved = 0   err_s = %5.e    err_e = %5.e    err_i = %5.e    err_c =    %5.e    tau = %5.e    alpha = %5.e\n', num_prob, i, err_s,  err_e,  err_i,  err_c, tau, alpha);
+                fprintf(' num_QP = %5.f   it = %5.f   solved = 0   err_s = %5.e    err_e = %5.e    err_i = %5.e    err_c =    %5.e    tau = %5.e    alpha = %5.e\n', num_prob, i, err_s,  err_e,  err_i,  err_c, tau, p_alpha, d_alpha);
                 break;
                 i = MAX_ITER;
             end
-            alpha = 0.5*alpha;
+            p_alpha = 0.5*p_alpha;
         end
         
-        iter.x(:,i+1)  = x  + GAMMA*alpha*dx;
-        iter.l(:,i+1)  = l  + GAMMA*alpha*dl;
-        iter.mu(:,i+1) = mu + GAMMA*alpha*dmu;
-        iter.s(:,i+1)  = s  + GAMMA*alpha*ds;
+        d_alpha = 1;
+        for ls_iter = 1:MAX_LS_IT
+            t_mu = mu + d_alpha*dmu;
+            if isempty(t_mu(t_mu < TH))
+                break
+            end
+            if ls_iter == MAX_LS_IT
+                fprintf(' num_QP = %5.f   it = %5.f   solved = 0   err_s = %5.e    err_e = %5.e    err_i = %5.e    err_c =    %5.e    tau = %5.e    alpha = %5.e\n', num_prob, i, err_s,  err_e,  err_i,  err_c, tau, p_alpha, d_alpha);
+                break;
+                i = MAX_ITER;
+            end
+            d_alpha = 0.5*d_alpha;
+        end
+        
+        iter.x(:,i+1)  = x  + GAMMA*p_alpha*dx;
+        iter.l(:,i+1)  = l  + GAMMA*d_alpha*dl;
+        iter.mu(:,i+1) = mu + GAMMA*d_alpha*dmu;
+        iter.s(:,i+1)  = s  + GAMMA*p_alpha*ds;
         
         if i == MAX_ITER
             format shortE
-            fprintf(' num_QP = %5.f   it = %5.f   solved = 0   err_s = %5.e    err_e = %5.e    err_i = %5.e    err_c =    %5.e    tau = %5.e    alpha = %5.e\n', num_prob, i, err_s,  err_e,  err_i,  err_c, tau, alpha);
+            fprintf(' num_QP = %5.f   it = %5.f   solved = 0   err_s = %5.e    err_e = %5.e    err_i = %5.e    err_c =    %5.e    tau = %5.e    p_alpha = %5.e    d_alpha = %5.e\n', num_prob, i, err_s,  err_e,  err_i,  err_c, tau, p_alpha, d_alpha);
             %  error('-> maximum number of iterations reached!')
         end
     end
@@ -269,19 +314,3 @@ for kk = 1: length(benchmark)
 end
 
 fprintf('\n -> Number of QP = %d,  Number of solved QP  = %d, ratio = %5.e\n', length(benchmark), num_pass, num_pass/num_prob);
-
-% iter.x = iter.x(:,1:i);
-% 
-% figure()
-% plot(iter.x(1,:), iter.x(2,:), '-')
-% hold all
-% plot(iter.x(1,end), iter.x(2,end), 'red*')
-% plotregion(-C, -d, [], [], 'b')
-% x1 = linspace(-10,10, 100);
-% x2 = 1/A(2)*(b - A(1)*x1);
-% plot(x1, x2, 'r')
-% syms x1 x2
-% f = 1/2*[x1; x2].'*Q*[x1; x2] + q.'*[x1; x2];
-% ezcontour(f, [-1 1], [-1 1])
-% title('')
-% grid on
