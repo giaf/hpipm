@@ -5,33 +5,32 @@ clc
 addpath('./plotregion')
 import casadi.*
 
-% B_STRATEGY = 'MONOTONE'; % barrier strategy, possible values: {'MONOTONE', 'MEHROTRA'}
-B_STRATEGY = 'MEHROTRA';
-MAX_ITER = 100;
-TAU0 = 1e1;
-MAX_LS_IT = 100;
-TH = 1e-12;
-PRINT_LEVEL = 2;            
-DTB = 0.1;                  
-GAMMA = 0.95;
-REG = 1e-2;
-TOL = 1e-1;
-TERM_TOL = 1e-8;
-KAPPA = 0.3;
-REMOVE_AFF_C = 0;
-INIT_STRATEGY = 1;
-MAX_TAU = 1e10;
-MIN_TAU = 0.1*TERM_TOL;
+% B_STRATEGY = 'MONOTONE';  % barrier strategy, possible values: {'MONOTONE', 'MEHROTRA'}
+B_STRATEGY = 'MEHROTRA';    % barrier strategy, possible values: {'MONOTONE', 'MEHROTRA'}
+MAX_ITER = 1000;            % maximum solver iterations    
+TAU0 = 1e6;                 % initial barrier parameter value
+MAX_LS_IT = 100;            % maximum number of (positivity) line-search steps
+PRINT_LEVEL = 1;            % print level possible values {1, 2}
+DTB = 0.1;                  % minimum distance to boundaries (used for initialization)
+GAMMA = 0.95;               % safeguard factor for solution update 
+REG = 1e-2;                 % regularization of primal Hessian
+TOL = 1e-1;                 % tolerance for monotone strategy
+TERM_TOL = 1e-8;            % termination tolerance
+KAPPA = 0.3;                % barrier parameter decrease factor 
+REMOVE_AFF_C = 0;           % remove affine constraints from problem
+INIT_STRATEGY = 1;          % initialization strategy (TODO(Andrea): fix)
+MAX_TAU = 1e10;             % maximum barrier parameter value
+MIN_TAU = 0.1*TERM_TOL;     % maximum barrier parameter value
 RES_NORM = Inf;
-MIN_TAU = 0.1*TERM_TOL;
 ITER_REF = 1;
 REG_HESS_UPDATE = 0*1e-1;
 MIN_FTB = 0.95;
 COND_MPC = 1;
+LIFT_AFF = 0; % buggy
 
 load benchmark
-% benchmark = [ 24 ];
-benchmark = [ 1:length(H) ];
+% benchmark = [ 9 ];
+benchmark = [ 10:length(H) ];
 
 nQP = size(H,1);
 C_full = A;
@@ -43,118 +42,221 @@ clear g A nc ne
 
 for kk = 1: length(benchmark)
 
-    num_prob = benchmark(kk);
-    if REMOVE_AFF_C == 1
-        nc = 2*nv{num_prob,1};
-    else
-        nc = 2*(n_ieq{num_prob,1}+nv{num_prob,1});
-    end
-    nx = nv{num_prob,1};
-    ne = n_eq{num_prob,1};
-
-    A = [];
-    b = [];
-    lbC = [];
-    ubC = [];
-    C_ieq = [];
-    for i = 1: size(C_full{num_prob},1)
-        if lbA{num_prob}(i) == ubA{num_prob}(i)
-           A = [A;C_full{num_prob}(i,:)];
-           b = [b;lbA{num_prob}(i)];
-        else
-           C_ieq = [C_ieq;C_full{num_prob}(i,:)];
-           lbC = [lbC;lbA{num_prob}(i)];
-           ubC = [ubC;ubA{num_prob}(i)];
-        end
-    end
-    
-    if REMOVE_AFF_C == 1
-        C  = [eye(nx);-eye(nx)];
-    else
-        C  = [C_ieq;-C_ieq;eye(nx);-eye(nx)];
-    end
-    if size(A) ~= [ne,nx]
-        display('Dimension of Ax are wrong');
-    end
-    
-    if size(C,1) ~= [nc,nx]
-        display('Dimension of Cx are wrong');
-    end
-
-    shift = 0;
-
-    if REMOVE_AFF_C == 1
-        d = [ ubx{num_prob,1};-lbx{num_prob,1} ] + [ shift*ones(nx,1); -shift*ones(nx,1) ];
-    else
-        d = [ ubC;-lbC;ubx{num_prob,1};-lbx{num_prob,1} ] + [ shift*ones(n_ieq{num_prob,1},1); -shift*ones(n_ieq{num_prob,1},1);shift*ones(nx,1); -shift*ones(nx,1) ];
-    end
-    Q = H{num_prob,1} + REG*eye(nx);
-    q = grad{num_prob,1};
-
-    x   = MX.sym('x', nx, 1);
-    l   = MX.sym('l', ne, 1);
-    mu  = MX.sym('mu', nc, 1);
-    s   = MX.sym('s', nc, 1);
-    tau = MX.sym('tau', 1, 1);
-
-    f = 1/2*x.'*Q*x + q.'*x;
-    if isempty(A)
-        g = [];
-    else
-        g = A*x - b;
-    end
-    h = (C*x - d);
-    if ne > 0
-        Lag = f + l.'*g + mu.'*h;
-    else
-        Lag = f + mu.'*h;
-    end
-    rf_exp = [  jacobian(Lag,x).'; ...
-                g; ...
-                h + s; ...
-                diag(s)*mu-ones(nc,1)*tau];
-            
-    rf = Function('rf', {x, l, mu, s, tau}, {rf_exp});        
-    j_rf = Function('j_rf', {x, l, mu, s}, {jacobian(rf_exp, [x; l; mu; s])});
-
-    % Newton's method
-    
-    clear x l mu s tau
-    max_iter = 100;
-    
-    d_alpha = 0.0;
-    p_alpha = 0.0;
-    ls_acc = 0.0;
-    tau = TAU0;
-    
-    iter.x  = zeros(nx,MAX_ITER);
-    iter.l  = zeros(ne,MAX_ITER);
-    iter.mu = zeros(nc,MAX_ITER);
-    iter.s  = zeros(nc,MAX_ITER);
-    
-    iter.l(:,1) = 10;
-%     iter.x(:,1) = 0.1*ones(length(iter.x(:,1)));
-    iter.x(:,1) = 0.5 * (lbx{num_prob,1} + ubx{num_prob,1});
-    iter.mu = 0.1*ones(nc,MAX_ITER);
-    
-    iter.l(:,1) = 0;
+    if LIFT_AFF
+        num_prob = benchmark(kk);
         
-    if INIT_STRATEGY == 1
-        if sum(-C*iter.x(:,1) + d > DTB) == nc
-            iter.s(:,1) = -C*iter.x(:,1) + d;
-            iter.mu(:,1) = tau./iter.s(:,1);
+        nb = 2*nv{num_prob, 1};
+        nc = 2*n_ieq{num_prob, 1};
+        nx = nv{num_prob, 1};
+        ne = n_eq{num_prob, 1};
+        
+        A = [];
+        b = [];
+        lbC = [];
+        ubC = [];
+        C_ieq = [];
+        for i = 1: size(C_full{num_prob},1)
+            if lbA{num_prob}(i) == ubA{num_prob}(i)
+                A = [A; C_full{num_prob}(i,:)];
+                b = [b; lbA{num_prob}(i)];
+            else
+                C_ieq = [C_ieq; C_full{num_prob}(i,:)];
+                lbC = [lbC; lbA{num_prob}(i)];
+                ubC = [ubC; ubA{num_prob}(i)];
+            end
+        end
+        
+        C  = [C_ieq; -C_ieq];
+        
+        if size(A) ~= [ne,nx]
+            display('Dimension of Ax are wrong');
+        end
+        
+        if size(C,1) ~= [nc,nx]
+            display('Dimension of Cx are wrong');
+        end
+        
+        e =   [ ubx{num_prob, 1}; -lbx{num_prob, 1} ];
+        d =   [ ubC; -lbC ];
+        
+        nx_ = nx;
+        nx = nx + nc;
+        
+        Q = blkdiag(H{num_prob, 1}, zeros(nc)) + REG*eye(nx);
+        q = [grad{num_prob,1}; zeros(nc, 1)];
+        
+        nc_ = nc;
+        nc  = nc + 2*nx_;
+        
+        ne = ne + nc_;
+        
+        x   = MX.sym('x',   nx, 1);
+        l   = MX.sym('l',   ne, 1);
+        mu  = MX.sym('mu',  nc, 1);
+        s   = MX.sym('s',   nc, 1);
+        tau = MX.sym('tau', 1,  1);
+        
+        f = 1/2*x.'*Q*x + q.'*x;
+        
+        if isempty(A)
+            g = C*x(1:nx_) - x(nx_ + 1:end);
+        else
+            g = [   A*x - b; ...
+                C*x(1:nx_) - x(nx_ + 1:end)];
+        end
+        
+        h = [[ eye(nx_); -eye(nx_)]*x(1:nx_); [eye(nc_)]*x(nx_+1:end)]  - [e; d];
+        
+        if ne > 0
+            Lag = f + l.'*g + mu.'*h;
+        else
+            Lag = f + mu.'*h;
+        end
+        rf_exp = [  jacobian(Lag,x).'; ...
+            g; ...
+            h + s; ...
+            diag(s)*mu-ones(nc,1)*tau];
+        
+        rf = Function('rf', {x, l, mu, s, tau}, {rf_exp});
+        j_rf = Function('j_rf', {x, l, mu, s}, {jacobian(rf_exp, [x; l; mu; s])});
+        
+        % Newton's method
+        
+        clear x l mu s tau
+        max_iter = 100;
+        
+        p_alpha = 0;
+        d_alpha = 0;
+        step = 0;
+        tau = TAU0;
+        ls_acc = 0.0;
+        
+        iter.x  = zeros(nx,MAX_ITER);
+        iter.l  = zeros(ne,MAX_ITER);
+        iter.mu = sqrt(TAU0)*ones(nc,MAX_ITER);
+        iter.s  = sqrt(TAU0)*ones(nc,MAX_ITER);
+        
+        iter.l(:,1) = 1;
+        iter.x(1:nx_,1) = 0.5 * (lbx{num_prob,1} + ubx{num_prob,1});
+        iter.x(nx_ + 1:end,1) = min(d - 1*ones(length(d),1), zeros(length(d),1));
+        %     iter.mu = 0.1*ones(nc,MAX_ITER);
+        
+        iter.l(:,1) = 0;
+    else
+        num_prob = benchmark(kk);
+        if REMOVE_AFF_C == 1
+            nc = 2*nv{num_prob,1};
+        else
+            nc = 2*(n_ieq{num_prob,1}+nv{num_prob,1});
+        end
+        nx = nv{num_prob,1};
+        ne = n_eq{num_prob,1};
+        
+        A = [];
+        b = [];
+        lbC = [];
+        ubC = [];
+        C_ieq = [];
+        for i = 1: size(C_full{num_prob},1)
+            if lbA{num_prob}(i) == ubA{num_prob}(i)
+                A = [A;C_full{num_prob}(i,:)];
+                b = [b;lbA{num_prob}(i)];
+            else
+                C_ieq = [C_ieq;C_full{num_prob}(i,:)];
+                lbC = [lbC;lbA{num_prob}(i)];
+                ubC = [ubC;ubA{num_prob}(i)];
+            end
+        end
+        
+        if REMOVE_AFF_C == 1
+            C  = [eye(nx);-eye(nx)];
+        else
+            C  = [C_ieq;-C_ieq;eye(nx);-eye(nx)];
+        end
+        if size(A) ~= [ne,nx]
+            display('Dimension of Ax are wrong');
+        end
+        
+        if size(C,1) ~= [nc,nx]
+            display('Dimension of Cx are wrong');
+        end
+        
+        shift = 0;
+        
+        if REMOVE_AFF_C == 1
+            d = [ ubx{num_prob,1};-lbx{num_prob,1} ] + [ shift*ones(nx,1); -shift*ones(nx,1) ];
+        else
+            d = [ ubC;-lbC;ubx{num_prob,1};-lbx{num_prob,1} ] + [ shift*ones(n_ieq{num_prob,1},1); -shift*ones(n_ieq{num_prob,1},1);shift*ones(nx,1); -shift*ones(nx,1) ];
+        end
+        Q = H{num_prob,1} + REG*eye(nx);
+        q = grad{num_prob,1};
+        
+        x   = MX.sym('x', nx, 1);
+        l   = MX.sym('l', ne, 1);
+        mu  = MX.sym('mu', nc, 1);
+        s   = MX.sym('s', nc, 1);
+        tau = MX.sym('tau', 1, 1);
+        
+        f = 1/2*x.'*Q*x + q.'*x;
+        if isempty(A)
+            g = [];
+        else
+            g = A*x - b;
+        end
+        h = (C*x - d);
+        if ne > 0
+            Lag = f + l.'*g + mu.'*h;
+        else
+            Lag = f + mu.'*h;
+        end
+        rf_exp = [  jacobian(Lag,x).'; ...
+            g; ...
+            h + s; ...
+            diag(s)*mu-ones(nc,1)*tau];
+        
+        rf = Function('rf', {x, l, mu, s, tau}, {rf_exp});
+        j_rf = Function('j_rf', {x, l, mu, s}, {jacobian(rf_exp, [x; l; mu; s])});
+        
+        % Newton's method
+        
+        clear x l mu s tau
+        max_iter = 100;
+        
+        p_alpha = 0;
+        d_alpha = 0;
+        step = 0;
+        tau = TAU0;
+        ls_acc = 0.0;
+        
+        iter.x  = zeros(nx,MAX_ITER);
+        iter.l  = zeros(ne,MAX_ITER);
+        iter.mu = zeros(nc,MAX_ITER);
+        iter.s  = zeros(nc,MAX_ITER);
+        
+        iter.l(:,1) = 10;
+        %     iter.x(:,1) = 0.1*ones(length(iter.x(:,1)));
+        iter.x(:,1) = 0.5 * (lbx{num_prob,1} + ubx{num_prob,1});
+        iter.mu = 0.1*ones(nc,MAX_ITER);
+        
+        iter.l(:,1) = 0;
+        
+        if INIT_STRATEGY == 1
+            if sum(-C*iter.x(:,1) + d > DTB) == nc
+                iter.s(:,1) = -C*iter.x(:,1) + d;
+                iter.mu(:,1) = tau./iter.s(:,1);
+            else
+                iter.s(:,1) = sqrt(tau)*ones(nc,1);
+                iter.mu(:,1) = sqrt(tau)*ones(nc,1);
+            end
         else
             iter.s(:,1) = sqrt(tau)*ones(nc,1);
             iter.mu(:,1) = sqrt(tau)*ones(nc,1);
         end
-    else
-        iter.s(:,1) = sqrt(tau)*ones(nc,1);
-        iter.mu(:,1) = sqrt(tau)*ones(nc,1);
+        
+        %     % compute scaling
+        %     J = full(j_rf(iter.x(:,1), iter.l(:,1), iter.mu(:,1), iter.s(:,1)));
+        %     [ L, D ] = ldl(J);
     end
-
-%     % compute scaling
-%     J = full(j_rf(iter.x(:,1), iter.l(:,1), iter.mu(:,1), iter.s(:,1)));
-%     [ L, D ] = ldl(J);    
 
     for i = 1:MAX_ITER
         
@@ -180,7 +282,7 @@ for kk = 1: length(benchmark)
         err_c = norm(rhs(nx+ne+nc+1:nx+ne+nc+nc), RES_NORM)/s_c;
         
         if PRINT_LEVEL == 2
-            fprintf('it = %3.f   err_s = %5.e    err_e = %5.e    err_i = %5.e    err_c =    %5.e    tau = %5.e    p_alpha = %5.e d_alpha = %5.e     ls_acc = %5.e\n', i, err_s,  err_e,  err_i,  err_c, tau, p_alpha, d_alpha, ls_acc);
+            fprintf('it = %3.f   err_s = %5.e    err_e = %5.e    err_i = %5.e    err_c =    %5.e    tau = %5.e    p_alpha = %5.e    d_alpha = %5.e     ls_acc = %5.e\n', i, err_s,  err_e,  err_i,  err_c, tau, p_alpha, d_alpha, ls_acc);
         end
         
         err = norm(rhs, RES_NORM);
@@ -358,7 +460,7 @@ for kk = 1: length(benchmark)
                     break
                 end
                 if ls_iter == MAX_LS_IT
-                    fprintf(' num_QP = %5.f   it = %5.f   solved = 0   err_s = %5.e    err_e = %5.e    err_i = %5.e    err_c =    %5.e    tau = %5.e    alpha = %5.e\n', num_prob, i, err_s,  err_e,  err_i,  err_c, tau, p_alpha, d_alpha);
+                    fprintf(' num_QP = %5.f   it = %5.f   solved = 0   err_s = %5.e    err_e = %5.e    err_i = %5.e    err_c =    %5.e    tau = %5.e    p_alpha = %5.e    d_alpha = %5.e\n', num_prob, i, err_s,  err_e,  err_i,  err_c, tau, p_alpha, d_alpha);
                     break;
                     i = MAX_ITER;
                 end
@@ -375,7 +477,6 @@ for kk = 1: length(benchmark)
         if i == MAX_ITER
             format shortE
             fprintf(' num_QP = %5.f   it = %5.f   solved = 0   err_s = %5.e    err_e = %5.e    err_i = %5.e    err_c =    %5.e    tau = %5.e    p_alpha = %5.e    d_alpha = %5.e\n', num_prob, i, err_s,  err_e,  err_i,  err_c, tau, p_alpha, d_alpha);
-            %  error('-> maximum number of iterations reached!')
         end
     end
         

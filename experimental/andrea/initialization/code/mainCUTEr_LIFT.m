@@ -134,10 +134,6 @@ for kk = 1: length(benchmark)
 %     iter.mu = 0.1*ones(nc,MAX_ITER);
     
     iter.l(:,1) = 0;    
-
-    % compute scaling
-    J = full(j_rf(iter.x(:,1), iter.l(:,1), iter.mu(:,1), iter.s(:,1)));
-    [ L, D ] = ldl(J);
   
     for i = 1:MAX_ITER
         
