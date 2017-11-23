@@ -5,33 +5,35 @@ clc
 addpath('./plotregion')
 import casadi.*
 
-warning('off','all')
+% warning('off','all')
 
-% B_STRATEGY = 'MONOTONE';  % barrier strategy, possible values: {'MONOTONE', 'MEHROTRA'}
-B_STRATEGY = 'MEHROTRA';    % barrier strategy, possible values: {'MONOTONE', 'MEHROTRA'}
-MAX_ITER = 100;             % maximum solver iterations    
-TAU0 = 1e6;                 % initial barrier parameter value
-MAX_LS_IT = 100;            % maximum number of (positivity) line-search steps
-PRINT_LEVEL = 1;            % print level possible values {1, 2}
-DTB = 0.1;                  % minimum distance to boundaries (used for initialization)
-GAMMA = 0.95;               % safeguard factor for solution update 
-REG = 1e-2;                 % regularization of primal Hessian
-TOL = 1e-1;                 % tolerance for monotone strategy
-TERM_TOL = 1e-8;            % termination tolerance
-KAPPA = 0.3;                % barrier parameter decrease factor 
-REMOVE_AFF_C = 0;           % remove affine constraints from problem
-INIT_STRATEGY = 1;          % initialization strategy (TODO(Andrea): fix)
-MAX_TAU = 1e10;             % maximum barrier parameter value
-MIN_TAU = 0.1*TERM_TOL;     % maximum barrier parameter value
-RES_NORM = Inf;             % norm type used to compute residuals
-ITER_REF = 1;               % number of iterative refinement iterations
-MIN_FTB = 0.95;             % minimum fraction-to-the-boundaries
-COND_MPC = 1;               % conditional Mehrotra predictor-corrector
-LIFT_AFF = 0; % buggy       % lifted formulation for polytopic constraints
+% B_STRATEGY      = 'MONOTONE';   % barrier strategy, possible values: {'MONOTONE', 'MEHROTRA'}
+B_STRATEGY      = 'MEHROTRA';   % barrier strategy, possible values: {'MONOTONE', 'MEHROTRA'}
+MAX_ITER        = 1000;         % maximum solver iterations    
+TAU0            = 1e6;          % initial barrier parameter value
+MAX_LS_IT       = 100;          % maximum number of (positivity) line-search steps
+PRINT_LEVEL     = 2;            % print level possible values {1, 2}
+DTB             = 0.1;          % minimum distance to boundaries (used for initialization)
+GAMMA           = 0.95;         % safeguard factor for solution update 
+REG             = 1e-8;         % regularization of primal Hessian
+TOL             = 1e-1;         % tolerance for monotone strategy
+TERM_TOL        = 1e-8;         % termination tolerance
+KAPPA           = 0.3;          % barrier parameter decrease factor 
+REMOVE_AFF_C    = 0;            % remove affine constraints from problem
+INIT_STRATEGY   = 1;            % initialization strategy (TODO(Andrea): fix)
+MAX_TAU         = 1e10;         % maximum barrier parameter value
+MIN_TAU         = 0.1*TERM_TOL; % maximum barrier parameter value
+RES_NORM        = Inf;          % norm type used to compute residuals
+ITER_REF        = 0;            % number of iterative refinement iterations
+MIN_FTB         = 0.95;         % minimum fraction-to-the-boundaries
+COND_MPC        = 1;            % conditional Mehrotra predictor-corrector
+LIFT_AFF        = 0;            % lifted formulation for polytopic constraints (TODO(Andrea): buggy)
+S_MAX           = 100;
+REG_J           = 1e-8;
 
 load benchmark
-benchmark = [ 29 ];
-% benchmark = [ 10:length(H) ];
+% benchmark = [ 36 ];
+benchmark = [ 1:length(H) ];
 
 nQP = size(H,1);
 C_full = A;
@@ -140,7 +142,7 @@ for kk = 1: length(benchmark)
         iter.l(:,1) = 1;
         iter.x(1:nx_,1) = 0.5 * (lbx{num_prob,1} + ubx{num_prob,1});
         iter.x(nx_ + 1:end,1) = min(d - 1*ones(length(d),1), zeros(length(d),1));
-        %     iter.mu = 0.1*ones(nc,MAX_ITER);
+        % iter.mu = 0.1*ones(nc,MAX_ITER);
         
         iter.l(:,1) = 0;
     else
@@ -243,20 +245,16 @@ for kk = 1: length(benchmark)
         
         if INIT_STRATEGY == 1
             if sum(-C*iter.x(:,1) + d > DTB) == nc
-                iter.s(:,1) = -C*iter.x(:,1) + d;
+                iter.s(:,1)  = -C*iter.x(:,1) + d;
                 iter.mu(:,1) = tau./iter.s(:,1);
             else
-                iter.s(:,1) = sqrt(tau)*ones(nc,1);
+                iter.s(:,1)  = sqrt(tau)*ones(nc,1);
                 iter.mu(:,1) = sqrt(tau)*ones(nc,1);
             end
         else
-            iter.s(:,1) = sqrt(tau)*ones(nc,1);
+            iter.s(:,1)  = sqrt(tau)*ones(nc,1);
             iter.mu(:,1) = sqrt(tau)*ones(nc,1);
         end
-        
-        %     % compute scaling
-        %     J = full(j_rf(iter.x(:,1), iter.l(:,1), iter.mu(:,1), iter.s(:,1)));
-        %     [ L, D ] = ldl(J);
     end
 
     for i = 1:MAX_ITER
@@ -271,13 +269,13 @@ for kk = 1: length(benchmark)
         l = iter.l(:,i);
         mu = iter.mu(:,i);
         s = iter.s(:,i);
-        
+                       
         % compute search direction
         rhs = full(rf(x, l, mu, s, tau));
         
-%       s_c = max(s);
-        s_c = 1;
-        err_s = norm(rhs(1:nx), RES_NORM);
+        s_c = max(S_MAX, norm(l, 1) + norm(mu, 1)/(nc + nx));
+        s_d = max(S_MAX, norm(mu, 1)/nc);
+        err_s = norm(rhs(1:nx), RES_NORM)/s_d;
         err_e = norm(rhs(nx+1:nx+ne), RES_NORM);
         err_i = norm(rhs(nx+ne+1:nx+ne+nc), RES_NORM);
         err_c = norm(rhs(nx+ne+nc+1:nx+ne+nc+nc), RES_NORM)/s_c;
@@ -300,7 +298,12 @@ for kk = 1: length(benchmark)
             break
         end
         
+%         s(s < MIN_S) = MIN_S;
+%         mu(mu < MIN_MU) = MIN_MU;
+        
         J = full(j_rf(x, l, mu, s));
+        J = J + REG_J*eye(size(J, 1));
+%         cond(J)
         
         if strcmp(B_STRATEGY, 'MEHROTRA')
             % compute duality measure
