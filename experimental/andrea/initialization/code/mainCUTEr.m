@@ -5,30 +5,32 @@ clc
 addpath('./plotregion')
 import casadi.*
 
-B_STRATEGY = 'MONOTONE'; % barrier strategy, possible values: {'MONOTONE', 'MEHROTRA'}
-% B_STRATEGY = 'MEHROTRA';
+% B_STRATEGY = 'MONOTONE'; % barrier strategy, possible values: {'MONOTONE', 'MEHROTRA'}
+B_STRATEGY = 'MEHROTRA';
 MAX_ITER = 100;
-TAU0 = 1e0;
+TAU0 = 1e1;
 MAX_LS_IT = 100;
 TH = 1e-12;
-PRINT_LEVEL = 1;            
+PRINT_LEVEL = 2;            
 DTB = 0.1;                  
 GAMMA = 0.95;
 REG = 1e-2;
 TOL = 1e-1;
-TERM_TOL = 1e-4;
+TERM_TOL = 1e-8;
 KAPPA = 0.3;
 REMOVE_AFF_C = 0;
 INIT_STRATEGY = 1;
 MAX_TAU = 1e10;
+MIN_TAU = 0.1*TERM_TOL;
 RES_NORM = Inf;
 MIN_TAU = 0.1*TERM_TOL;
 ITER_REF = 1;
 REG_HESS_UPDATE = 0*1e-1;
 MIN_FTB = 0.95;
+COND_MPC = 1;
 
 load benchmark
-% benchmark = [ 30 ];
+% benchmark = [ 24 ];
 benchmark = [ 1:length(H) ];
 
 nQP = size(H,1);
@@ -131,6 +133,7 @@ for kk = 1: length(benchmark)
     iter.s  = zeros(nc,MAX_ITER);
     
     iter.l(:,1) = 10;
+%     iter.x(:,1) = 0.1*ones(length(iter.x(:,1)));
     iter.x(:,1) = 0.5 * (lbx{num_prob,1} + ubx{num_prob,1});
     iter.mu = 0.1*ones(nc,MAX_ITER);
     
@@ -194,9 +197,7 @@ for kk = 1: length(benchmark)
             break
         end
         
-        mu_reg = mu + REG_HESS_UPDATE*ones(length(mu), 1);
-        J = full(j_rf(x, l, mu_reg, s));
-%       cond(J)
+        J = full(j_rf(x, l, mu, s));
         
         if strcmp(B_STRATEGY, 'MEHROTRA')
             % compute duality measure
@@ -213,14 +214,13 @@ for kk = 1: length(benchmark)
             % do line-search for aff
             aff_alpha = 1;
             for ls_iter = 1:MAX_LS_IT
-                t_mu = mu + aff_alpha*aff_mu_step;
-                if isempty(t_mu(t_mu < TH))
+                t_mu  = mu  + aff_alpha*aff_mu_step;
+                ftb = max(MIN_FTB, 1 - tau);
+                if isempty(t_mu(t_mu < (1 - ftb)*mu)) 
                     break
                 end
                 if ls_iter == MAX_LS_IT
-                    fprintf(' num_QP = %3.f   it = %3.f   solved = 0   err_s = %5.e    err_e = %5.e    err_i = %5.e    err_c =    %5.e    tau = %5.e    p_alpha = %5.e    d_alpha = %5.e\n', num_prob, i, err_s,  err_e,  err_i,  err_c, tau, p_alpha, d_alpha);
                     break;
-                    i = MAX_ITER;
                 end
                 aff_alpha = 0.5*aff_alpha;
             end
@@ -228,13 +228,12 @@ for kk = 1: length(benchmark)
             aff_alpha = 1;
             for ls_iter = 1:MAX_LS_IT
                 t_s  = s  + aff_alpha*aff_s_step;
-                if isempty(t_s(t_s < TH)) 
+                ftb = max(MIN_FTB, 1 - tau);
+                if isempty(t_s(t_s < (1 - ftb)*s)) 
                     break
                 end
                 if ls_iter == MAX_LS_IT
-                    fprintf(' num_QP = %3.f   it = %3.f   solved = 0   err_s = %5.e    err_e = %5.e    err_i = %5.e    err_c =    %5.e    tau = %5.e    p_alpha = %5.e    d_alpha = %5.e\n', num_prob, i, err_s,  err_e,  err_i,  err_c, tau, p_alpha, d_alpha);
                     break;
-                    i = MAX_ITER;
                 end
                 aff_alpha = 0.5*aff_alpha;
             end
@@ -248,6 +247,10 @@ for kk = 1: length(benchmark)
             tau = sigma*dm;
             if tau > MAX_TAU
                 tau = MAX_TAU;
+            end
+            
+            if tau < MIN_TAU
+                tau = MIN_TAU;
             end
             
             % update complementarity residuals (build aggregated rhs)
@@ -304,6 +307,64 @@ for kk = 1: length(benchmark)
                 i = MAX_ITER;
             end
             d_alpha = 0.5*d_alpha;
+        end
+        
+        if strcmp(B_STRATEGY, 'MEHROTRA') && COND_MPC
+            if (mu + GAMMA*d_alpha*dmu).'*(s  + GAMMA*p_alpha*ds) > 2*dm
+                rhs((nx+ne+nc+1:end)) = rhs(nx+ne+nc+1:end) - diag(aff_s_step)*aff_mu_step;
+            end
+            
+            step = linsolve(J, -rhs);
+            
+            for iter_ref = 1:ITER_REF
+                % compute residuals
+                lin_res = +rhs + J*step;
+                
+                % compute correction
+                corr = linsolve(J, -lin_res);
+                step = step + 1*corr;
+                norm(J*step + rhs, Inf);
+            end
+            
+            ls_acc = norm(J*step + rhs, Inf);
+            
+            % extract search direction componenents
+            dx  = step(1:nx);
+            dl  = step(nx+1:nx+ne);
+            dmu = step(nx+ne+1:nx+ne+nc);
+            ds  = step(nx+ne+nc+1:end);
+            
+            % do line-search
+            p_alpha = 1;
+            for ls_iter = 1:MAX_LS_IT
+                t_s  = s  + p_alpha*ds;
+                ftb = max(MIN_FTB, 1 - tau);
+                if isempty(t_s(t_s < (1 - ftb)*s))
+                    break
+                end
+                if ls_iter == MAX_LS_IT
+                    fprintf(' num_QP = %5.f   it = %5.f   solved = 0   err_s = %5.e    err_e = %5.e    err_i = %5.e    err_c =    %5.e    tau = %5.e    alpha = %5.e\n', num_prob, i, err_s,  err_e,  err_i,  err_c, tau, p_alpha, d_alpha);
+                    break;
+                    i = MAX_ITER;
+                end
+                p_alpha = 0.5*p_alpha;
+            end
+            
+            d_alpha = 1;
+            for ls_iter = 1:MAX_LS_IT
+                t_mu = mu + d_alpha*dmu;
+                ftb = max(MIN_FTB, 1 - tau);
+                if isempty(t_mu(t_mu < (1 - ftb)*mu))
+                    break
+                end
+                if ls_iter == MAX_LS_IT
+                    fprintf(' num_QP = %5.f   it = %5.f   solved = 0   err_s = %5.e    err_e = %5.e    err_i = %5.e    err_c =    %5.e    tau = %5.e    alpha = %5.e\n', num_prob, i, err_s,  err_e,  err_i,  err_c, tau, p_alpha, d_alpha);
+                    break;
+                    i = MAX_ITER;
+                end
+                d_alpha = 0.5*d_alpha;
+            end
+            
         end
         
         iter.x(:,i+1)  = x  + GAMMA*p_alpha*dx;
