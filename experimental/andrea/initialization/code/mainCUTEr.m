@@ -5,9 +5,11 @@ clc
 addpath('./plotregion')
 import casadi.*
 
+warning('off','all')
+
 % B_STRATEGY = 'MONOTONE';  % barrier strategy, possible values: {'MONOTONE', 'MEHROTRA'}
 B_STRATEGY = 'MEHROTRA';    % barrier strategy, possible values: {'MONOTONE', 'MEHROTRA'}
-MAX_ITER = 1000;            % maximum solver iterations    
+MAX_ITER = 100;             % maximum solver iterations    
 TAU0 = 1e6;                 % initial barrier parameter value
 MAX_LS_IT = 100;            % maximum number of (positivity) line-search steps
 PRINT_LEVEL = 1;            % print level possible values {1, 2}
@@ -21,16 +23,15 @@ REMOVE_AFF_C = 0;           % remove affine constraints from problem
 INIT_STRATEGY = 1;          % initialization strategy (TODO(Andrea): fix)
 MAX_TAU = 1e10;             % maximum barrier parameter value
 MIN_TAU = 0.1*TERM_TOL;     % maximum barrier parameter value
-RES_NORM = Inf;
-ITER_REF = 1;
-REG_HESS_UPDATE = 0*1e-1;
-MIN_FTB = 0.95;
-COND_MPC = 1;
-LIFT_AFF = 0; % buggy
+RES_NORM = Inf;             % norm type used to compute residuals
+ITER_REF = 1;               % number of iterative refinement iterations
+MIN_FTB = 0.95;             % minimum fraction-to-the-boundaries
+COND_MPC = 1;               % conditional Mehrotra predictor-corrector
+LIFT_AFF = 0; % buggy       % lifted formulation for polytopic constraints
 
 load benchmark
-% benchmark = [ 9 ];
-benchmark = [ 10:length(H) ];
+benchmark = [ 29 ];
+% benchmark = [ 10:length(H) ];
 
 nQP = size(H,1);
 C_full = A;
@@ -69,11 +70,11 @@ for kk = 1: length(benchmark)
         C  = [C_ieq; -C_ieq];
         
         if size(A) ~= [ne,nx]
-            display('Dimension of Ax are wrong');
+            disp('Dimension of Ax are wrong');
         end
         
         if size(C,1) ~= [nc,nx]
-            display('Dimension of Cx are wrong');
+            disp('Dimension of Cx are wrong');
         end
         
         e =   [ ubx{num_prob, 1}; -lbx{num_prob, 1} ];
@@ -174,11 +175,11 @@ for kk = 1: length(benchmark)
             C  = [C_ieq;-C_ieq;eye(nx);-eye(nx)];
         end
         if size(A) ~= [ne,nx]
-            display('Dimension of Ax are wrong');
+            disp('Dimension of Ax are wrong');
         end
         
         if size(C,1) ~= [nc,nx]
-            display('Dimension of Cx are wrong');
+            disp('Dimension of Cx are wrong');
         end
         
         shift = 0;
