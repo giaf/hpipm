@@ -63,7 +63,8 @@ struct d_ocp_qp_ipm_arg
 struct d_ocp_qp_ipm_workspace
 	{
 	struct d_core_qp_ipm_workspace *core_workspace;
-	struct d_ocp_qp_res *res_workspace; // TODO remane into res
+	struct d_ocp_qp_res *res;
+	struct d_ocp_qp_res_workspace *res_workspace;
 	struct d_strvec *dux;
 	struct d_strvec *dpi;
 	struct d_strvec *dt;

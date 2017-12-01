@@ -43,6 +43,7 @@
 #define CVT_STRVEC2VEC s_cvt_strvec2vec
 #define OCP_QP_DIM s_ocp_qp_dim
 #define OCP_QP_RES s_ocp_qp_res
+#define OCP_QP_RES_WORKSPACE s_ocp_qp_res_workspace
 #define REAL float
 #define SIZE_STRVEC s_size_strvec
 #define STRVEC s_strvec
@@ -51,6 +52,8 @@
 
 #define MEMSIZE_OCP_QP_RES s_memsize_ocp_qp_res
 #define CREATE_OCP_QP_RES s_create_ocp_qp_res
+#define MEMSIZE_OCP_QP_RES_WORKSPACE s_memsize_ocp_qp_res_workspace
+#define CREATE_OCP_QP_RES_WORKSPACE s_create_ocp_qp_res_workspace
 #define CVT_OCP_QP_RES_TO_COLMAJ s_cvt_ocp_qp_res_to_colmaj
 #define CVT_OCP_QP_RES_TO_ROWMAJ s_cvt_ocp_qp_res_to_rowmaj
 

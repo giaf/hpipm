@@ -41,28 +41,11 @@ int MEMSIZE_OCP_QP_RES(struct OCP_QP_DIM *dim)
 	int *ng = dim->ng;
 	int *ns = dim->ns;
 
-	// compute core qp size and max size
-	int nbM = 0;
-	int ngM = 0;
-	int nsM = 0;
-	for(ii=0; ii<N; ii++)
-		{
-		nbM = nb[ii]>nbM ? nb[ii] : nbM;
-		ngM = ng[ii]>ngM ? ng[ii] : ngM;
-		nsM = ns[ii]>nsM ? ns[ii] : nsM;
-		}
-	nbM = nb[ii]>nbM ? nb[ii] : nbM;
-	ngM = ng[ii]>ngM ? ng[ii] : ngM;
-	nsM = ns[ii]>nsM ? ns[ii] : nsM;
-
 	int size = 0;
 
 	size += 3*(N+1)*sizeof(struct STRVEC); // res_g res_d res_m
 	size += 3*N*sizeof(struct STRVEC); // res_b
-	size += 3*sizeof(struct STRVEC); // 2*tmp_nbgM tmp_nsM
 
-	size += 2*SIZE_STRVEC(nbM+ngM); // tmp_nbgM
-	size += 1*SIZE_STRVEC(nsM); // tmp_nsM
 	for(ii=0; ii<=N; ii++) size += 1*SIZE_STRVEC(nu[ii]+nx[ii]+2*ns[ii]); // res_g
 	for(ii=0; ii<N; ii++) size += 1*SIZE_STRVEC(nx[ii+1]); // res_b
 	for(ii=0; ii<=N; ii++) size += 2*SIZE_STRVEC(2*nb[ii]+2*ng[ii]+2*ns[ii]); // res_d res_m
@@ -91,21 +74,6 @@ void CREATE_OCP_QP_RES(struct OCP_QP_DIM *dim, struct OCP_QP_RES *res, void *mem
 	int *ns = dim->ns;
 
 
-	// compute core qp size and max size
-	int nbM = 0;
-	int ngM = 0;
-	int nsM = 0;
-	for(ii=0; ii<N; ii++)
-		{
-		nbM = nb[ii]>nbM ? nb[ii] : nbM;
-		ngM = ng[ii]>ngM ? ng[ii] : ngM;
-		nsM = ns[ii]>nsM ? ns[ii] : nsM;
-		}
-	nbM = nb[ii]>nbM ? nb[ii] : nbM;
-	ngM = ng[ii]>ngM ? ng[ii] : ngM;
-	nsM = ns[ii]>nsM ? ns[ii] : nsM;
-
-
 	// vector struct
 	struct STRVEC *sv_ptr = (struct STRVEC *) mem;
 
@@ -117,10 +85,6 @@ void CREATE_OCP_QP_RES(struct OCP_QP_DIM *dim, struct OCP_QP_RES *res, void *mem
 	sv_ptr += N+1;
 	res->res_m = sv_ptr;
 	sv_ptr += N+1;
-	res->tmp_nbgM = sv_ptr;
-	sv_ptr += 2;
-	res->tmp_nsM = sv_ptr;
-	sv_ptr += 1;
 
 
 	// align to typicl cache line size
@@ -155,15 +119,6 @@ void CREATE_OCP_QP_RES(struct OCP_QP_DIM *dim, struct OCP_QP_RES *res, void *mem
 		c_ptr += (res->res_m+ii)->memory_size;
 		}
 
-	CREATE_STRVEC(nbM+ngM, res->tmp_nbgM+0, c_ptr);
-	c_ptr += (res->tmp_nbgM+0)->memory_size;
-
-	CREATE_STRVEC(nbM+ngM, res->tmp_nbgM+1, c_ptr);
-	c_ptr += (res->tmp_nbgM+1)->memory_size;
-
-	CREATE_STRVEC(nsM, res->tmp_nsM+0, c_ptr);
-	c_ptr += (res->tmp_nsM+0)->memory_size;
-
 	res->dim = dim;
 
 	res->memsize = MEMSIZE_OCP_QP_RES(dim);
@@ -172,7 +127,126 @@ void CREATE_OCP_QP_RES(struct OCP_QP_DIM *dim, struct OCP_QP_RES *res, void *mem
 #if defined(RUNTIME_CHECKS)
 	if(c_ptr > ((char *) mem) + res->memsize)
 		{
-		printf("\nCreate_ocp_qp_res: outsize memory bounds!\n\n");
+		printf("\ncreate_ocp_qp_res: outsize memory bounds!\n\n");
+		exit(1);
+		}
+#endif
+
+
+	return;
+
+	}
+
+
+
+int MEMSIZE_OCP_QP_RES_WORKSPACE(struct OCP_QP_DIM *dim)
+	{
+
+	// loop index
+	int ii;
+
+	// extract ocp qp size
+	int N = dim->N;
+	int *nx = dim->nx;
+	int *nu = dim->nu;
+	int *nb = dim->nb;
+	int *ng = dim->ng;
+	int *ns = dim->ns;
+
+	// compute core qp size and max size
+	int nbM = 0;
+	int ngM = 0;
+	int nsM = 0;
+	for(ii=0; ii<N; ii++)
+		{
+		nbM = nb[ii]>nbM ? nb[ii] : nbM;
+		ngM = ng[ii]>ngM ? ng[ii] : ngM;
+		nsM = ns[ii]>nsM ? ns[ii] : nsM;
+		}
+	nbM = nb[ii]>nbM ? nb[ii] : nbM;
+	ngM = ng[ii]>ngM ? ng[ii] : ngM;
+	nsM = ns[ii]>nsM ? ns[ii] : nsM;
+
+	int size = 0;
+
+	size += 3*sizeof(struct STRVEC); // 2*tmp_nbgM tmp_nsM
+
+	size += 2*SIZE_STRVEC(nbM+ngM); // tmp_nbgM
+	size += 1*SIZE_STRVEC(nsM); // tmp_nsM
+
+	size = (size+63)/64*64; // make multiple of typical cache line size
+	size += 1*64; // align once to typical cache line size
+
+	return size;
+
+	}
+
+
+
+void CREATE_OCP_QP_RES_WORKSPACE(struct OCP_QP_DIM *dim, struct OCP_QP_RES_WORKSPACE *ws, void *mem)
+	{
+
+	// loop index
+	int ii;
+
+	// extract ocp qp size
+	int N = dim->N;
+	int *nx = dim->nx;
+	int *nu = dim->nu;
+	int *nb = dim->nb;
+	int *ng = dim->ng;
+	int *ns = dim->ns;
+
+
+	// compute core qp size and max size
+	int nbM = 0;
+	int ngM = 0;
+	int nsM = 0;
+	for(ii=0; ii<N; ii++)
+		{
+		nbM = nb[ii]>nbM ? nb[ii] : nbM;
+		ngM = ng[ii]>ngM ? ng[ii] : ngM;
+		nsM = ns[ii]>nsM ? ns[ii] : nsM;
+		}
+	nbM = nb[ii]>nbM ? nb[ii] : nbM;
+	ngM = ng[ii]>ngM ? ng[ii] : ngM;
+	nsM = ns[ii]>nsM ? ns[ii] : nsM;
+
+
+	// vector struct
+	struct STRVEC *sv_ptr = (struct STRVEC *) mem;
+
+	ws->tmp_nbgM = sv_ptr;
+	sv_ptr += 2;
+	ws->tmp_nsM = sv_ptr;
+	sv_ptr += 1;
+
+
+	// align to typicl cache line size
+	size_t s_ptr = (size_t) sv_ptr;
+	s_ptr = (s_ptr+63)/64*64;
+
+
+	// void stuf
+	char *c_ptr = (char *) s_ptr;
+
+
+	CREATE_STRVEC(nbM+ngM, ws->tmp_nbgM+0, c_ptr);
+	c_ptr += (ws->tmp_nbgM+0)->memory_size;
+
+	CREATE_STRVEC(nbM+ngM, ws->tmp_nbgM+1, c_ptr);
+	c_ptr += (ws->tmp_nbgM+1)->memory_size;
+
+	CREATE_STRVEC(nsM, ws->tmp_nsM+0, c_ptr);
+	c_ptr += (ws->tmp_nsM+0)->memory_size;
+
+	ws->memsize = MEMSIZE_OCP_QP_RES(dim);
+
+
+#if defined(RUNTIME_CHECKS)
+	if(c_ptr > ((char *) mem) + ws->memsize)
+		{
+		printf("\ncreate_ocp_qp_res_workspace: outsize memory bounds!\n\n");
 		exit(1);
 		}
 #endif

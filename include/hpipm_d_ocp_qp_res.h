@@ -48,9 +48,16 @@ struct d_ocp_qp_res
 	struct d_strvec *res_b; // b-residuals
 	struct d_strvec *res_d; // d-residuals
 	struct d_strvec *res_m; // m-residuals
+	double res_mu; // mu-residual
+	int memsize;
+	};
+
+
+
+struct d_ocp_qp_res_workspace
+	{
 	struct d_strvec *tmp_nbgM; // work space of size nbM+ngM
 	struct d_strvec *tmp_nsM; // work space of size nsM
-	double res_mu; // mu-residual
 	int memsize;
 	};
 
@@ -59,7 +66,11 @@ struct d_ocp_qp_res
 //
 int d_memsize_ocp_qp_res(struct d_ocp_qp_dim *ocp_dim);
 //
-void d_create_ocp_qp_res(struct d_ocp_qp_dim *ocp_dim, struct d_ocp_qp_res *workspace, void *mem);
+void d_create_ocp_qp_res(struct d_ocp_qp_dim *ocp_dim, struct d_ocp_qp_res *res, void *mem);
+//
+int d_memsize_ocp_qp_res_workspace(struct d_ocp_qp_dim *ocp_dim);
+//
+void d_create_ocp_qp_res_workspace(struct d_ocp_qp_dim *ocp_dim, struct d_ocp_qp_res_workspace *workspace, void *mem);
 //
 void d_cvt_ocp_qp_res_to_colmaj(struct d_ocp_qp_res *res, double **res_r, double **res_q, double **res_ls, double **res_us, double **res_b, double **res_d_lb, double **res_d_ub, double **res_d_lg, double **res_d_ug, double **res_d_ls, double **res_d_us, double **res_m_lb, double **res_m_ub, double **res_m_lg, double **res_m_ug, double **res_m_ls, double **res_m_us);
 //

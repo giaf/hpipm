@@ -111,7 +111,8 @@ int MEMSIZE_OCP_QP_IPM(struct OCP_QP_DIM *dim, struct OCP_QP_IPM_ARG *arg)
 
 	int size = 0;
 
-	size += 1*sizeof(struct OCP_QP_RES); // res_workspace
+	size += 1*sizeof(struct OCP_QP_RES); // res
+	size += 1*sizeof(struct OCP_QP_RES_WORKSPACE); // res_workspace
 
 	size += 8*(N+1)*sizeof(struct STRVEC); // dux dt res_g res_d res_m Gamma gamma Zs_inv
 	size += 3*N*sizeof(struct STRVEC); // dpi res_b Pb
@@ -197,12 +198,18 @@ void CREATE_OCP_QP_IPM(struct OCP_QP_DIM *dim, struct OCP_QP_IPM_ARG *arg, struc
 
 	// res struct
 	struct OCP_QP_RES *res_ptr = (struct OCP_QP_RES *) sr_ptr;
-	workspace->res_workspace = res_ptr;
+	workspace->res = res_ptr;
 	res_ptr += 1;
 
 
+	// res workspace struct
+	struct OCP_QP_RES_WORKSPACE *res_ws_ptr = (struct OCP_QP_RES_WORKSPACE *) res_ptr;
+	workspace->res_workspace = res_ws_ptr;
+	res_ws_ptr += 1;
+
+
 	// matrix struct
-	struct STRMAT *sm_ptr = (struct STRMAT *) res_ptr;
+	struct STRMAT *sm_ptr = (struct STRMAT *) res_ws_ptr;
 
 	workspace->L = sm_ptr;
 	sm_ptr += N+1;
@@ -219,13 +226,13 @@ void CREATE_OCP_QP_IPM(struct OCP_QP_DIM *dim, struct OCP_QP_IPM_ARG *arg, struc
 	sv_ptr += N;
 	workspace->dt = sv_ptr;
 	sv_ptr += N+1;
-	workspace->res_workspace->res_g = sv_ptr;
+	workspace->res->res_g = sv_ptr;
 	sv_ptr += N+1;
-	workspace->res_workspace->res_b = sv_ptr;
+	workspace->res->res_b = sv_ptr;
 	sv_ptr += N;
-	workspace->res_workspace->res_d = sv_ptr;
+	workspace->res->res_d = sv_ptr;
 	sv_ptr += N+1;
-	workspace->res_workspace->res_m = sv_ptr;
+	workspace->res->res_m = sv_ptr;
 	sv_ptr += N+1;
 	workspace->Gamma = sv_ptr;
 	sv_ptr += N+1;
@@ -347,7 +354,7 @@ void CREATE_OCP_QP_IPM(struct OCP_QP_DIM *dim, struct OCP_QP_IPM_ARG *arg, struc
 	c_ptr = (char *) cws->res_g;
 	for(ii=0; ii<=N; ii++)
 		{
-		CREATE_STRVEC(nu[ii]+nx[ii], workspace->res_workspace->res_g+ii, c_ptr);
+		CREATE_STRVEC(nu[ii]+nx[ii], workspace->res->res_g+ii, c_ptr);
 		c_ptr += (nu[ii]+nx[ii])*sizeof(REAL);
 		c_ptr += ns[ii]*sizeof(REAL);
 		c_ptr += ns[ii]*sizeof(REAL);
@@ -356,14 +363,14 @@ void CREATE_OCP_QP_IPM(struct OCP_QP_DIM *dim, struct OCP_QP_IPM_ARG *arg, struc
 	c_ptr = (char *) cws->res_b;
 	for(ii=0; ii<N; ii++)
 		{
-		CREATE_STRVEC(nx[ii+1], workspace->res_workspace->res_b+ii, c_ptr);
+		CREATE_STRVEC(nx[ii+1], workspace->res->res_b+ii, c_ptr);
 		c_ptr += (nx[ii+1])*sizeof(REAL);
 		}
 	//
 	c_ptr = (char *) cws->res_d;
 	for(ii=0; ii<=N; ii++)
 		{
-		CREATE_STRVEC(nb[ii], workspace->res_workspace->res_d+ii, c_ptr);
+		CREATE_STRVEC(nb[ii], workspace->res->res_d+ii, c_ptr);
 		c_ptr += nb[ii]*sizeof(REAL);
 		c_ptr += ng[ii]*sizeof(REAL);
 		c_ptr += nb[ii]*sizeof(REAL);
@@ -375,7 +382,7 @@ void CREATE_OCP_QP_IPM(struct OCP_QP_DIM *dim, struct OCP_QP_IPM_ARG *arg, struc
 	c_ptr = (char *) cws->res_m;
 	for(ii=0; ii<=N; ii++)
 		{
-		CREATE_STRVEC(nb[ii], workspace->res_workspace->res_m+ii, c_ptr);
+		CREATE_STRVEC(nb[ii], workspace->res->res_m+ii, c_ptr);
 		c_ptr += nb[ii]*sizeof(REAL);
 		c_ptr += ng[ii]*sizeof(REAL);
 		c_ptr += nb[ii]*sizeof(REAL);
@@ -409,7 +416,7 @@ void CREATE_OCP_QP_IPM(struct OCP_QP_DIM *dim, struct OCP_QP_IPM_ARG *arg, struc
 		}
 
 
-	workspace->res_workspace->dim = dim;
+	workspace->res->dim = dim;
 
 	workspace->memsize = MEMSIZE_OCP_QP_IPM(dim, arg);
 
@@ -444,8 +451,8 @@ int SOLVE_OCP_QP_IPM(struct OCP_QP *qp, struct OCP_QP_SOL *qp_sol, struct OCP_QP
 	if(cws->nc==0)
 		{
 		FACT_SOLVE_KKT_UNCONSTR_OCP_QP(qp, qp_sol, ws);
-		COMPUTE_RES_OCP_QP(qp, qp_sol, ws->res_workspace);
-		cws->mu = ws->res_workspace->res_mu;
+		COMPUTE_RES_OCP_QP(qp, qp_sol, ws->res, ws->res_workspace);
+		cws->mu = ws->res->res_mu;
 		ws->iter = 0;
 		return 0;
 		}
@@ -479,8 +486,8 @@ int SOLVE_OCP_QP_IPM(struct OCP_QP *qp, struct OCP_QP_SOL *qp_sol, struct OCP_QP
 	INIT_VAR_OCP_QP(qp, qp_sol, ws);
 
 	// compute residuals
-	COMPUTE_RES_OCP_QP(qp, qp_sol, ws->res_workspace);
-	cws->mu = ws->res_workspace->res_mu;
+	COMPUTE_RES_OCP_QP(qp, qp_sol, ws->res, ws->res_workspace);
+	cws->mu = ws->res->res_mu;
 
 	// compute infinity norm of residuals
 	VECNRM_INF_LIBSTR(cws->nv, &str_res_g, 0, &qp_res[0]);
@@ -526,10 +533,10 @@ int SOLVE_OCP_QP_IPM(struct OCP_QP *qp, struct OCP_QP_SOL *qp_sol, struct OCP_QP
 		UPDATE_VAR_QP(cws);
 
 		// compute residuals
-		COMPUTE_RES_OCP_QP(qp, qp_sol, ws->res_workspace);
-		cws->mu = ws->res_workspace->res_mu;
+		COMPUTE_RES_OCP_QP(qp, qp_sol, ws->res, ws->res_workspace);
+		cws->mu = ws->res->res_mu;
 		if(kk<ws->stat_max)
-			ws->stat[5*kk+4] = ws->res_workspace->res_mu;
+			ws->stat[5*kk+4] = ws->res->res_mu;
 
 		// compute infinity norm of residuals
 		VECNRM_INF_LIBSTR(cws->nv, &str_res_g, 0, &qp_res[0]);

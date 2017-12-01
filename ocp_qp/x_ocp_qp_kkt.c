@@ -183,7 +183,7 @@ void INIT_VAR_OCP_QP(struct OCP_QP *qp, struct OCP_QP_SOL *qp_sol, struct OCP_QP
 
 
 
-void COMPUTE_RES_OCP_QP(struct OCP_QP *qp, struct OCP_QP_SOL *qp_sol, struct OCP_QP_RES *ws)
+void COMPUTE_RES_OCP_QP(struct OCP_QP *qp, struct OCP_QP_SOL *qp_sol, struct OCP_QP_RES *res, struct OCP_QP_RES_WORKSPACE *ws)
 	{
 
 	// loop index
@@ -219,10 +219,11 @@ void COMPUTE_RES_OCP_QP(struct OCP_QP *qp, struct OCP_QP_SOL *qp_sol, struct OCP
 	struct STRVEC *lam = qp_sol->lam;
 	struct STRVEC *t = qp_sol->t;
 
-	struct STRVEC *res_g = ws->res_g;
-	struct STRVEC *res_b = ws->res_b;
-	struct STRVEC *res_d = ws->res_d;
-	struct STRVEC *res_m = ws->res_m;
+	struct STRVEC *res_g = res->res_g;
+	struct STRVEC *res_b = res->res_b;
+	struct STRVEC *res_d = res->res_d;
+	struct STRVEC *res_m = res->res_m;
+
 	struct STRVEC *tmp_nbgM = ws->tmp_nbgM;
 	struct STRVEC *tmp_nsM = ws->tmp_nsM;
 
@@ -297,7 +298,7 @@ void COMPUTE_RES_OCP_QP(struct OCP_QP *qp, struct OCP_QP_SOL *qp_sol, struct OCP
 
 	mu += VECMULDOT_LIBSTR(nct, lam, 0, t, 0, res_m, 0);
 
-	ws->res_mu = mu*nct_inv;
+	res->res_mu = mu*nct_inv;
 
 	return;
 
@@ -392,7 +393,7 @@ static void COND_SLACKS_FACT_SOLVE(int ss, struct OCP_QP *qp, struct OCP_QP_IPM_
 	int *idxs0 = qp->idxs[ss];
 
 	struct STRVEC *dux = ws->dux+ss;
-	struct STRVEC *res_g = ws->res_workspace->res_g+ss;
+	struct STRVEC *res_g = ws->res->res_g+ss;
 	struct STRVEC *Gamma = ws->Gamma+ss;
 	struct STRVEC *gamma = ws->gamma+ss;
 	struct STRVEC *Zs_inv = ws->Zs_inv+ss;
@@ -456,7 +457,7 @@ static void COND_SLACKS_SOLVE(int ss, struct OCP_QP *qp, struct OCP_QP_IPM_WORKS
 	int *idxs0 = qp->idxs[ss];
 
 	struct STRVEC *dux = ws->dux+ss;
-	struct STRVEC *res_g = ws->res_workspace->res_g+ss;
+	struct STRVEC *res_g = ws->res->res_g+ss;
 	struct STRVEC *Gamma = ws->Gamma+ss;
 	struct STRVEC *gamma = ws->gamma+ss;
 	struct STRVEC *Zs_inv = ws->Zs_inv+ss;
@@ -556,8 +557,8 @@ void FACT_SOLVE_KKT_STEP_OCP_QP(struct OCP_QP *qp, struct OCP_QP_IPM_WORKSPACE *
 
 	struct STRMAT *L = ws->L;
 	struct STRMAT *AL = ws->AL;
-	struct STRVEC *res_b = ws->res_workspace->res_b;
-	struct STRVEC *res_g = ws->res_workspace->res_g;
+	struct STRVEC *res_b = ws->res->res_b;
+	struct STRVEC *res_g = ws->res->res_g;
 	struct STRVEC *dux = ws->dux;
 	struct STRVEC *dpi = ws->dpi;
 	struct STRVEC *dt = ws->dt;
@@ -733,8 +734,8 @@ void SOLVE_KKT_STEP_OCP_QP(struct OCP_QP *qp, struct OCP_QP_IPM_WORKSPACE *ws)
 
 	struct STRMAT *L = ws->L;
 	struct STRMAT *AL = ws->AL;
-	struct STRVEC *res_b = ws->res_workspace->res_b;
-	struct STRVEC *res_g = ws->res_workspace->res_g;
+	struct STRVEC *res_b = ws->res->res_b;
+	struct STRVEC *res_g = ws->res->res_g;
 	struct STRVEC *dux = ws->dux;
 	struct STRVEC *dpi = ws->dpi;
 	struct STRVEC *dt = ws->dt;

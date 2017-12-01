@@ -40,6 +40,7 @@
 #include "../include/hpipm_s_ocp_qp_ipm.h"
 #include "../include/hpipm_s_core_qp_ipm.h"
 #include "../include/hpipm_s_core_qp_ipm_aux.h"
+#include "../include/hpipm_s_ocp_qp_res.h"
 #include "../include/hpipm_s_ocp_qp_kkt.h"
 
 
@@ -61,6 +62,7 @@
 #define OCP_QP_IPM_WORKSPACE s_ocp_qp_ipm_workspace
 #define OCP_QP_IPM_ARG s_ocp_qp_ipm_arg
 #define OCP_QP_RES s_ocp_qp_res
+#define OCP_QP_RES_WORKSPACE s_ocp_qp_res_workspace
 #define OCP_QP_DIM s_ocp_qp_dim
 #define OCP_QP_SOL s_ocp_qp_sol
 #define PRINT_E_MAT s_print_e_mat
@@ -83,14 +85,10 @@
 #define MEMSIZE_OCP_QP_IPM_ARG s_memsize_ocp_qp_ipm_arg
 #define CREATE_OCP_QP_IPM_ARG s_create_ocp_qp_ipm_arg
 #define SET_DEFAULT_OCP_QP_IPM_ARG s_set_default_ocp_qp_ipm_arg
-#define MEMSIZE_OCP_QP_RES s_memsize_ocp_qp_res
-#define CREATE_OCP_QP_RES s_create_ocp_qp_res
 #define MEMSIZE_OCP_QP_IPM s_memsize_ocp_qp_ipm
 #define CREATE_OCP_QP_IPM s_create_ocp_qp_ipm
 #define SOLVE_OCP_QP_IPM s_solve_ocp_qp_ipm
 #define SOLVE_OCP_QP_IPM2 s_solve_ocp_qp_ipm2
-#define CVT_OCP_QP_RES_TO_COLMAJ s_cvt_ocp_qp_res_to_colmaj
-#define CVT_OCP_QP_RES_TO_ROWMAJ s_cvt_ocp_qp_res_to_rowmaj
 
 
 
