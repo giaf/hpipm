@@ -54,17 +54,16 @@ void INIT_VAR_DENSE_QP(struct DENSE_QP *qp, struct DENSE_QP_SOL *qp_sol, struct 
 	int idxb0;
 	REAL thr0 = 0.1;
 
-	// warm start TODO
-
-
-	// cold start
-
 	// primal variables
-	for(ii=0; ii<nv+2*ns; ii++)
+	if(ws->warm_start==0)
 		{
-		v[ii] = 0.0;
+		// cold start
+		for(ii=0; ii<nv+2*ns; ii++)
+			{
+			v[ii] = 0.0;
+			}
 		}
-	
+		
 	// equality constraints
 	for(ii=0; ii<ne; ii++)
 		{
@@ -105,7 +104,7 @@ void INIT_VAR_DENSE_QP(struct DENSE_QP *qp, struct DENSE_QP_SOL *qp_sol, struct 
 		lam[nb+ng+ii] = mu0/t[nb+ng+ii];
 		}
 	
-	// inequality constraints
+	// general constraints
 	GEMV_T_LIBSTR(nv, ng, 1.0, qp->Ct, 0, 0, qp_sol->v, 0, 0.0, qp_sol->t, nb, qp_sol->t, nb);
 	for(ii=0; ii<ng; ii++)
 		{

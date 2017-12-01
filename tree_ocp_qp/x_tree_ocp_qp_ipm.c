@@ -61,6 +61,7 @@ void SET_DEFAULT_TREE_OCP_QP_IPM_ARG(struct TREE_OCP_QP_IPM_ARG *arg)
 	arg->iter_max = 20;
 	arg->stat_max = 20;
 	arg->pred_corr = 1;
+	arg->warm_start = 0;
 
 	return;
 
@@ -243,6 +244,7 @@ void CREATE_TREE_OCP_QP_IPM(struct TREE_OCP_QP *qp, struct TREE_OCP_QP_IPM_ARG *
 	d_ptr += 5*arg->stat_max;
 
 	workspace->stat_max = arg->stat_max;
+	workspace->warm_start = arg->warm_start;
 
 
 	// align to typicl cache line size

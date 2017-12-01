@@ -49,17 +49,29 @@ void INIT_VAR_TREE_OCP_QP(struct TREE_OCP_QP *qp, struct TREE_OCP_QP_SOL *qp_sol
 
 	REAL thr0 = 0.1;
 
-	// warm start TODO
-
-	// cold start
-
 	// ux
-	for(ii=0; ii<Nn; ii++)
+	if(ws->warm_start==0)
 		{
-		ux = qp_sol->ux[ii].pa;
-		for(jj=0; jj<nu[ii]+nx[ii]+2*ns[ii]; jj++)
+		// cold start
+		for(ii=0; ii<Nn; ii++)
 			{
-			ux[jj] = 0.0;
+			ux = qp_sol->ux[ii].pa;
+			for(jj=0; jj<nu[ii]+nx[ii]+2*ns[ii]; jj++)
+				{
+				ux[jj] = 0.0;
+				}
+			}
+		}
+	else
+		{
+		// warm start (keep u and x in solution)
+		for(ii=0; ii<Nn; ii++)
+			{
+			ux = qp_sol->ux[ii].pa;
+			for(jj=nu[ii]+nx[ii]; jj<nu[ii]+nx[ii]+2*ns[ii]; jj++)
+				{
+				ux[jj] = 0.0;
+				}
 			}
 		}
 	
@@ -86,7 +98,7 @@ void INIT_VAR_TREE_OCP_QP(struct TREE_OCP_QP *qp, struct TREE_OCP_QP_SOL *qp_sol
 		idxb = qp->idxb[ii];
 		for(jj=0; jj<nb[ii]; jj++)
 			{
-#if 0
+#if 1
 			t_lb[jj] = - d_lb[jj] + ux[idxb[jj]];
 			t_ub[jj] =   d_ub[jj] - ux[idxb[jj]];
 			if(t_lb[jj]<thr0)
@@ -130,7 +142,7 @@ void INIT_VAR_TREE_OCP_QP(struct TREE_OCP_QP *qp, struct TREE_OCP_QP_SOL *qp_sol
 		GEMV_T_LIBSTR(nu[ii]+nx[ii], ng[ii], 1.0, qp->DCt+ii, 0, 0, qp_sol->ux+ii, 0, 0.0, qp_sol->t+ii, nb[ii], qp_sol->t+ii, nb[ii]);
 		for(jj=0; jj<ng[ii]; jj++)
 			{
-#if 0
+#if 1
 			t_ug[jj] = - t_lg[jj];
 			t_lg[jj] -= d_lg[jj];
 			t_ug[jj] += d_ug[jj];

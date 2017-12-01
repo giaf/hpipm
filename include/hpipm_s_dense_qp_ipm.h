@@ -54,6 +54,7 @@ struct s_dense_qp_ipm_arg
 	int iter_max; // exit cond in iter number
 	int stat_max; // iterations saved in stat
 	int pred_corr; // use Mehrotra's predictor-corrector IPM algirthm
+	int warm_start; // 0 no warm start, 1 warm start primal sol
 	int memsize;
 	};
 
@@ -86,6 +87,7 @@ struct s_dense_qp_ipm_workspace
 	float res_mu; // mu-residual
 	int iter; // iteration number
 	int stat_max; // iterations saved in stat
+	int warm_start; // 0 no warm start, 1 warm start primal sol
 	int memsize; // memory size (in bytes) of workspace
 	};
 

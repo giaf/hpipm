@@ -59,6 +59,7 @@ void SET_DEFAULT_DENSE_QP_IPM_ARG(struct DENSE_QP_IPM_ARG *arg)
 	arg->iter_max = 20;
 	arg->stat_max = 20;
 	arg->pred_corr = 1;
+	arg->warm_start = 0;
 
 	return;
 
@@ -175,6 +176,7 @@ void CREATE_DENSE_QP_IPM(struct DENSE_QP_DIM *dim, struct DENSE_QP_IPM_ARG *arg,
 	d_ptr += 5*arg->stat_max;
 
 	workspace->stat_max = arg->stat_max;
+	workspace->warm_start = arg->warm_start;
 
 
 	// align to typicl cache line size

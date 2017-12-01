@@ -51,7 +51,6 @@ void INIT_VAR_OCP_QP(struct OCP_QP *qp, struct OCP_QP_SOL *qp_sol, struct OCP_QP
 
 	REAL thr0 = 0.1;
 
-
 	// ux
 	if(ws->warm_start==0)
 		{
@@ -77,7 +76,6 @@ void INIT_VAR_OCP_QP(struct OCP_QP *qp, struct OCP_QP_SOL *qp_sol, struct OCP_QP
 				}
 			}
 		}
-
 	
 	// pi
 	for(ii=0; ii<N; ii++)
@@ -88,7 +86,7 @@ void INIT_VAR_OCP_QP(struct OCP_QP *qp, struct OCP_QP_SOL *qp_sol, struct OCP_QP
 			pi[jj] = 0.0;
 			}
 		}
-	
+
 	// box constraints
 	for(ii=0; ii<=N; ii++)
 		{
