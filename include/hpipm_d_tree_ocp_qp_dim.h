@@ -25,15 +25,8 @@
 *                                                                                                 *
 **************************************************************************************************/
 
-#ifndef HPIPM_D_TREE_OCP_QP_H_
-#define HPIPM_D_TREE_OCP_QP_H_
-
-
-
-#include <blasfeo_target.h>
-#include <blasfeo_common.h>
-
-#include "hpipm_d_tree_ocp_qp_dim.h"
+#ifndef HPIPM_D_TREE_OCP_QP_DIM_H_
+#define HPIPM_D_TREE_OCP_QP_DIM_H_
 
 
 
@@ -43,37 +36,35 @@ extern "C" {
 
 
 
-struct d_tree_ocp_qp
+struct d_tree_ocp_qp_dim
 	{
-	struct d_tree_ocp_qp_dim *dim;
-	struct d_strmat *BAbt; // Nn-1
-	struct d_strvec *b; // Nn-1
-	struct d_strmat *RSQrq; // Nn
-	struct d_strvec *rq; // Nn
-	struct d_strmat *DCt; // Nn
-	struct d_strvec *d; // Nn
-	struct d_strvec *Z; // Nn
-	struct d_strvec *z; // Nn
-	int **idxb; // index of box constraints // Nn
-	int **idxs; // index of soft constraints
-	int memsize; // memory size in bytes
+	struct tree *ttree; // tree describing node conndection
+	int *nx; // number of states // Nn
+	int *nu; // number of inputs // Nn
+	int *nb; // number of box constraints // Nn
+	int *nbx; // number of state box constraints // Nn
+	int *nbu; // number of input box constraints // Nn
+	int *ng; // number of general constraints // Nn
+	int *ns; // number of soft constraints // Nn
+	int Nn; // number of nodes
+	int memsize;
 	};
 
 
 
 //
-int d_memsize_tree_ocp_qp(struct d_tree_ocp_qp_dim *dim);
+int d_memsize_tree_ocp_qp_dim(int Nn);
 //
-void d_create_tree_ocp_qp(struct d_tree_ocp_qp_dim *dim, struct d_tree_ocp_qp *qp, void *memory);
+void d_create_tree_ocp_qp_dim(int Nn, struct d_tree_ocp_qp_dim *qp_dim, void *memory);
 //
-void d_cvt_colmaj_to_tree_ocp_qp(double **A, double **B, double **b, double **Q, double **S, double **R, double **q, double **r, int **idxb, double **d_lb, double **d_ub, double **C, double **D, double **d_lg, double **d_ug, double **Zl, double **Zu, double **zl, double **zu, int **idxs, struct d_tree_ocp_qp *qp);
+void d_cvt_int_to_tree_ocp_qp_dim(struct tree *ttree, int *nx, int *nu, int *nbx, int *nbu, int *ng, int *ns, struct d_tree_ocp_qp_dim *dim);
 
 
 
 #ifdef __cplusplus
-} /* extern "C" */
+}	// #extern "C"
 #endif
 
 
 
-#endif // HPIPM_D_TREE_OCP_QP_H_
+#endif // HPIPM_D_TREE_OCP_QP_DIM_H_

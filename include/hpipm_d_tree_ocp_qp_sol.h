@@ -25,10 +25,17 @@
 *                                                                                                 *
 **************************************************************************************************/
 
+#ifndef HPIPM_D_TREE_OCP_QP_SOL_H_
+#define HPIPM_D_TREE_OCP_QP_SOL_H_
+
 
 
 #include <blasfeo_target.h>
 #include <blasfeo_common.h>
+
+#include "hpipm_d_tree_ocp_qp_dim.h"
+
+
 
 #ifdef __cplusplus
 extern "C" {
@@ -36,6 +43,7 @@ extern "C" {
 
 struct d_tree_ocp_qp_sol
 	{
+	struct d_tree_ocp_qp_dim *dim;
 	struct d_strvec *ux;
 	struct d_strvec *pi;
 	struct d_strvec *lam;
@@ -46,9 +54,9 @@ struct d_tree_ocp_qp_sol
 
 
 //
-int d_memsize_tree_ocp_qp_sol(struct tree *ttree, int *nx, int *nu, int *nb, int *ng, int *ns);
+int d_memsize_tree_ocp_qp_sol(struct d_tree_ocp_qp_dim *dim);
 //
-void d_create_tree_ocp_qp_sol(struct tree *ttree, int *nx, int *nu, int *nb, int *ng, int *ns, struct d_tree_ocp_qp_sol *qp_sol, void *memory);
+void d_create_tree_ocp_qp_sol(struct d_tree_ocp_qp_dim *dim, struct d_tree_ocp_qp_sol *qp_sol, void *memory);
 //
 void d_cvt_tree_ocp_qp_sol_to_colmaj(struct d_tree_ocp_qp *qp, struct d_tree_ocp_qp_sol *qp_sol, double **u, double **x, double **ls, double **us, double **pi, double **lam_lb, double **lam_ub, double **lam_lg, double **lam_ug, double **lam_ls, double **lam_us);
 //
@@ -57,3 +65,7 @@ void d_cvt_tree_ocp_qp_sol_to_rowmaj(struct d_tree_ocp_qp *qp, struct d_tree_ocp
 #ifdef __cplusplus
 } /* extern "C" */
 #endif
+
+
+
+#endif // HPIPM_D_TREE_OCP_QP_SOL_H_

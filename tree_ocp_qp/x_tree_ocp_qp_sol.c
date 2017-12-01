@@ -25,12 +25,19 @@
 *                                                                                                 *
 **************************************************************************************************/
 
-int MEMSIZE_TREE_OCP_QP_SOL(struct tree *ttree, int *nx, int *nu, int *nb, int *ng, int *ns)
+int MEMSIZE_TREE_OCP_QP_SOL(struct TREE_OCP_QP_DIM *dim)
 	{
 
-	int ii, idx, idxdad;
+	// extract dim
+	struct tree *ttree = dim->ttree;
+	int Nn = dim->Nn;
+	int *nx = dim->nx;
+	int *nu = dim->nu;
+	int *nb = dim->nb;
+	int *ng = dim->ng;
+	int *ns = dim->ns;
 
-	int Nn = ttree->Nn;
+	int ii, idx, idxdad;
 
 	int nvt = 0;
 	int net = 0;
@@ -62,12 +69,19 @@ int MEMSIZE_TREE_OCP_QP_SOL(struct tree *ttree, int *nx, int *nu, int *nb, int *
 
 
 
-void CREATE_TREE_OCP_QP_SOL(struct tree *ttree, int *nx, int *nu, int *nb, int *ng, int *ns, struct TREE_OCP_QP_SOL *qp_sol, void *mem)
+void CREATE_TREE_OCP_QP_SOL(struct TREE_OCP_QP_DIM *dim, struct TREE_OCP_QP_SOL *qp_sol, void *mem)
 	{
 
-	int ii, idx, idxdad;
+	// extract dim
+	struct tree *ttree = dim->ttree;
+	int Nn = dim->Nn;
+	int *nx = dim->nx;
+	int *nu = dim->nu;
+	int *nb = dim->nb;
+	int *ng = dim->ng;
+	int *ns = dim->ns;
 
-	int Nn = ttree->Nn;
+	int ii, idx, idxdad;
 
 
 	int nvt = 0;
@@ -153,7 +167,9 @@ void CREATE_TREE_OCP_QP_SOL(struct tree *ttree, int *nx, int *nu, int *nb, int *
 		tmp_ptr += ns[ii]*sizeof(REAL); // us
 		}
 	
-	qp_sol->memsize = MEMSIZE_TREE_OCP_QP_SOL(ttree, nx, nu, nb, ng, ns);
+	qp_sol->dim = dim;
+
+	qp_sol->memsize = MEMSIZE_TREE_OCP_QP_SOL(dim);
 
 
 #if defined(RUNTIME_CHECKS)
@@ -174,13 +190,13 @@ void CREATE_TREE_OCP_QP_SOL(struct tree *ttree, int *nx, int *nu, int *nb, int *
 void CVT_TREE_OCP_QP_SOL_TO_COLMAJ(struct TREE_OCP_QP *qp, struct TREE_OCP_QP_SOL *qp_sol, REAL **u, REAL **x, REAL **ls, REAL **us, REAL **pi, REAL **lam_lb, REAL **lam_ub, REAL **lam_lg, REAL **lam_ug, REAL **lam_ls, REAL **lam_us)
 	{
 
-	int Nn = qp->Nn;
-	int *nx = qp->nx;
-	int *nu = qp->nu;
-	int *nb = qp->nb;
-	int *ng = qp->ng;
-	int *ns = qp->ns;
-	
+	int Nn = qp->dim->Nn;
+	int *nx = qp->dim->nx;
+	int *nu = qp->dim->nu;
+	int *nb = qp->dim->nb;
+	int *ng = qp->dim->ng;
+	int *ns = qp->dim->ns;
+
 	int ii;
 
 	for(ii=0; ii<Nn-1; ii++)
@@ -220,13 +236,13 @@ void CVT_TREE_OCP_QP_SOL_TO_COLMAJ(struct TREE_OCP_QP *qp, struct TREE_OCP_QP_SO
 void CVT_TREE_OCP_QP_SOL_TO_ROWMAJ(struct TREE_OCP_QP *qp, struct TREE_OCP_QP_SOL *qp_sol, REAL **u, REAL **x, REAL **ls, REAL **us, REAL **pi, REAL **lam_lb, REAL **lam_ub, REAL **lam_lg, REAL **lam_ug, REAL **lam_ls, REAL **lam_us)
 	{
 
-	int Nn = qp->Nn;
-	int *nx = qp->nx;
-	int *nu = qp->nu;
-	int *nb = qp->nb;
-	int *ng = qp->ng;
-	int *ns = qp->ns;
-	
+	int Nn = qp->dim->Nn;
+	int *nx = qp->dim->nx;
+	int *nu = qp->dim->nu;
+	int *nb = qp->dim->nb;
+	int *ng = qp->dim->ng;
+	int *ns = qp->dim->ns;
+
 	int ii;
 
 	for(ii=0; ii<Nn-1; ii++)

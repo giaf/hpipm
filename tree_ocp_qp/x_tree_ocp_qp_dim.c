@@ -25,55 +25,90 @@
 *                                                                                                 *
 **************************************************************************************************/
 
-#ifndef HPIPM_D_TREE_OCP_QP_H_
-#define HPIPM_D_TREE_OCP_QP_H_
 
 
-
-#include <blasfeo_target.h>
-#include <blasfeo_common.h>
-
-#include "hpipm_d_tree_ocp_qp_dim.h"
-
-
-
-#ifdef __cplusplus
-extern "C" {
-#endif
-
-
-
-struct d_tree_ocp_qp
+int MEMSIZE_TREE_OCP_QP_DIM(int Nn)
 	{
-	struct d_tree_ocp_qp_dim *dim;
-	struct d_strmat *BAbt; // Nn-1
-	struct d_strvec *b; // Nn-1
-	struct d_strmat *RSQrq; // Nn
-	struct d_strvec *rq; // Nn
-	struct d_strmat *DCt; // Nn
-	struct d_strvec *d; // Nn
-	struct d_strvec *Z; // Nn
-	struct d_strvec *z; // Nn
-	int **idxb; // index of box constraints // Nn
-	int **idxs; // index of soft constraints
-	int memsize; // memory size in bytes
-	};
+
+	int size = 0;
+
+	size += 7*Nn*sizeof(int);
+
+	size = (size+8-1)/8*8;
+
+	return size;
+
+	}
 
 
 
-//
-int d_memsize_tree_ocp_qp(struct d_tree_ocp_qp_dim *dim);
-//
-void d_create_tree_ocp_qp(struct d_tree_ocp_qp_dim *dim, struct d_tree_ocp_qp *qp, void *memory);
-//
-void d_cvt_colmaj_to_tree_ocp_qp(double **A, double **B, double **b, double **Q, double **S, double **R, double **q, double **r, int **idxb, double **d_lb, double **d_ub, double **C, double **D, double **d_lg, double **d_ug, double **Zl, double **Zu, double **zl, double **zu, int **idxs, struct d_tree_ocp_qp *qp);
+void CREATE_TREE_OCP_QP_DIM(int Nn, struct TREE_OCP_QP_DIM *dim, void *memory)
+	{
+
+	// loop index
+	int ii;
+
+	char *c_ptr = memory;
+
+	// nx
+	dim->nx = (int *) c_ptr;
+	c_ptr += Nn*sizeof(int);
+	// nu
+	dim->nu = (int *) c_ptr;
+	c_ptr += Nn*sizeof(int);
+	// nb
+	dim->nb = (int *) c_ptr;
+	c_ptr += Nn*sizeof(int);
+	// nbx
+	dim->nbx = (int *) c_ptr;
+	c_ptr += Nn*sizeof(int);
+	// nbu
+	dim->nbu = (int *) c_ptr;
+	c_ptr += Nn*sizeof(int);
+	// ng
+	dim->ng = (int *) c_ptr;
+	c_ptr += Nn*sizeof(int);
+	// ns
+	dim->ns = (int *) c_ptr;
+	c_ptr += Nn*sizeof(int);
+
+	dim->memsize = MEMSIZE_TREE_OCP_QP_DIM(Nn);
+
+	return;
+
+	}
 
 
+void CVT_INT_TO_TREE_OCP_QP_DIM(struct tree *ttree, int *nx, int *nu, int *nbx, int *nbu, int *ng, int *ns, struct TREE_OCP_QP_DIM *dim)
+	{
 
-#ifdef __cplusplus
-} /* extern "C" */
-#endif
+	// loop index
+	int ii;
 
+	// tree
+	dim->ttree = ttree;
 
+	// Nn
+	int Nn = ttree->Nn;
+	dim->Nn = ttree->Nn;
 
-#endif // HPIPM_D_TREE_OCP_QP_H_
+	// copy qp dim
+	for(ii=0; ii<Nn; ii++)
+		dim->nx[ii] = nx[ii];
+	for(ii=0; ii<Nn; ii++)
+		dim->nu[ii] = nu[ii];
+	for(ii=0; ii<Nn; ii++)
+		dim->nb[ii] = nbx[ii]+nbu[ii];
+	for(ii=0; ii<Nn; ii++)
+		dim->nbx[ii] = nbx[ii];
+	for(ii=0; ii<Nn; ii++)
+		dim->nbu[ii] = nbu[ii];
+	for(ii=0; ii<Nn; ii++)
+		dim->ng[ii] = ng[ii];
+	for(ii=0; ii<Nn; ii++)
+		dim->ns[ii] = ns[ii];
+
+	return;
+
+	}
+

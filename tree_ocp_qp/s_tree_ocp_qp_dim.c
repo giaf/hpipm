@@ -25,55 +25,19 @@
 *                                                                                                 *
 **************************************************************************************************/
 
-#ifndef HPIPM_D_TREE_OCP_QP_H_
-#define HPIPM_D_TREE_OCP_QP_H_
+
+
+#include "../include/hpipm_tree.h"
+#include "../include/hpipm_scenario_tree.h"
+#include "../include/hpipm_s_tree_ocp_qp_dim.h"
 
 
 
-#include <blasfeo_target.h>
-#include <blasfeo_common.h>
+#define TREE_OCP_QP_DIM s_tree_ocp_qp_dim
 
-#include "hpipm_d_tree_ocp_qp_dim.h"
-
-
-
-#ifdef __cplusplus
-extern "C" {
-#endif
+#define MEMSIZE_TREE_OCP_QP_DIM s_memsize_tree_ocp_qp_dim
+#define CREATE_TREE_OCP_QP_DIM s_create_tree_ocp_qp_dim
+#define CVT_INT_TO_TREE_OCP_QP_DIM s_cvt_int_to_tree_ocp_qp_dim
 
 
-
-struct d_tree_ocp_qp
-	{
-	struct d_tree_ocp_qp_dim *dim;
-	struct d_strmat *BAbt; // Nn-1
-	struct d_strvec *b; // Nn-1
-	struct d_strmat *RSQrq; // Nn
-	struct d_strvec *rq; // Nn
-	struct d_strmat *DCt; // Nn
-	struct d_strvec *d; // Nn
-	struct d_strvec *Z; // Nn
-	struct d_strvec *z; // Nn
-	int **idxb; // index of box constraints // Nn
-	int **idxs; // index of soft constraints
-	int memsize; // memory size in bytes
-	};
-
-
-
-//
-int d_memsize_tree_ocp_qp(struct d_tree_ocp_qp_dim *dim);
-//
-void d_create_tree_ocp_qp(struct d_tree_ocp_qp_dim *dim, struct d_tree_ocp_qp *qp, void *memory);
-//
-void d_cvt_colmaj_to_tree_ocp_qp(double **A, double **B, double **b, double **Q, double **S, double **R, double **q, double **r, int **idxb, double **d_lb, double **d_ub, double **C, double **D, double **d_lg, double **d_ug, double **Zl, double **Zu, double **zl, double **zu, int **idxs, struct d_tree_ocp_qp *qp);
-
-
-
-#ifdef __cplusplus
-} /* extern "C" */
-#endif
-
-
-
-#endif // HPIPM_D_TREE_OCP_QP_H_
+#include "x_tree_ocp_qp_dim.c"

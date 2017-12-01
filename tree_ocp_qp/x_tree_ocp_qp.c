@@ -27,12 +27,19 @@
 
 
 
-int MEMSIZE_TREE_OCP_QP(struct tree *ttree, int *nx, int *nu, int *nb, int *ng, int *ns)
+int MEMSIZE_TREE_OCP_QP(struct TREE_OCP_QP_DIM *dim)
 	{
 
-	int ii, idx, idxdad;
+	// extract dim
+	struct tree *ttree = dim->ttree;
+	int Nn = dim->Nn;
+	int *nx = dim->nx;
+	int *nu = dim->nu;
+	int *nb = dim->nb;
+	int *ng = dim->ng;
+	int *ns = dim->ns;
 
-	int Nn = ttree->Nn;
+	int ii, idx, idxdad;
 
 	int nbt = 0;
 	int ngt = 0;
@@ -44,7 +51,6 @@ int MEMSIZE_TREE_OCP_QP(struct tree *ttree, int *nx, int *nu, int *nb, int *ng, 
 
 	int size = 0;
 
-	size += 5*Nn*sizeof(int); // nx nu nb ng ns
 	size += 2*Nn*sizeof(int *); // idxb inxbs
 	size += 2*Nn*sizeof(struct STRMAT); // RSQrq DCt
 	size += 1*(Nn-1)*sizeof(struct STRMAT); // BAbt
@@ -80,18 +86,20 @@ int MEMSIZE_TREE_OCP_QP(struct tree *ttree, int *nx, int *nu, int *nb, int *ng, 
 
 
 
-void CREATE_TREE_OCP_QP(struct tree *ttree, int *nx, int *nu, int *nb, int *ng, int *ns, struct TREE_OCP_QP *qp, void *mem)
+void CREATE_TREE_OCP_QP(struct TREE_OCP_QP_DIM *dim, struct TREE_OCP_QP *qp, void *mem)
 	{
+
+	// extract dim
+	struct tree *ttree = dim->ttree;
+	int Nn = dim->Nn;
+	int *nx = dim->nx;
+	int *nu = dim->nu;
+	int *nb = dim->nb;
+	int *ng = dim->ng;
+	int *ns = dim->ns;
 
 	int ii, idx, idxdad;
 
-
-	// tree
-	qp->ttree = ttree;
-
-	// number of nodes
-	int Nn = ttree->Nn;
-	qp->Nn = Nn;
 
 
 	int nbt = 0;
@@ -159,46 +167,6 @@ void CREATE_TREE_OCP_QP(struct tree *ttree, int *nx, int *nu, int *nb, int *ng, 
 	// integer stuff
 	int *i_ptr;
 	i_ptr = (int *) sv_ptr;
-
-	// nx
-	qp->nx = i_ptr;
-	for(ii=0; ii<Nn; ii++)
-		{
-		i_ptr[ii] = nx[ii];
-		}
-	i_ptr += Nn;
-	
-	// nu
-	qp->nu = i_ptr;
-	for(ii=0; ii<Nn; ii++)
-		{
-		i_ptr[ii] = nu[ii];
-		}
-	i_ptr += Nn;
-	
-	// nb
-	qp->nb = i_ptr;
-	for(ii=0; ii<Nn; ii++)
-		{
-		i_ptr[ii] = nb[ii];
-		}
-	i_ptr += Nn;
-
-	// ng
-	qp->ng = i_ptr;
-	for(ii=0; ii<Nn; ii++)
-		{
-		i_ptr[ii] = ng[ii];
-		}
-	i_ptr += Nn;
-	
-	// ns
-	qp->ns = i_ptr;
-	for(ii=0; ii<Nn; ii++)
-		{
-		i_ptr[ii] = ns[ii];
-		}
-	i_ptr += Nn;
 
 	// idxb
 	for(ii=0; ii<Nn; ii++)
@@ -288,8 +256,9 @@ void CREATE_TREE_OCP_QP(struct tree *ttree, int *nx, int *nu, int *nb, int *ng, 
 		tmp_ptr += ng[ii]*sizeof(REAL);
 		}
 
+	qp->dim = dim;
 
-	qp->memsize = MEMSIZE_TREE_OCP_QP(ttree, nx, nu, nb, ng, ns);
+	qp->memsize = MEMSIZE_TREE_OCP_QP(dim);
 
 
 #if defined(RUNTIME_CHECKS)
@@ -310,14 +279,14 @@ void CREATE_TREE_OCP_QP(struct tree *ttree, int *nx, int *nu, int *nb, int *ng, 
 void CVT_COLMAJ_TO_TREE_OCP_QP(REAL **A, REAL **B, REAL **b, REAL **Q, REAL **S, REAL **R, REAL **q, REAL **r, int **idxb, REAL **d_lb, REAL **d_ub, REAL **C, REAL **D, REAL **d_lg, REAL **d_ug, REAL **Zl, REAL **Zu, REAL **zl, REAL **zu, int **idxs, struct TREE_OCP_QP *qp)
 	{
 
-	int Nn = qp->Nn;
-	int *nx = qp->nx;
-	int *nu = qp->nu;
-	int *nb = qp->nb;
-	int *ng = qp->ng;
-	int *ns = qp->ns;
+	int Nn = qp->dim->Nn;
+	int *nx = qp->dim->nx;
+	int *nu = qp->dim->nu;
+	int *nb = qp->dim->nb;
+	int *ng = qp->dim->ng;
+	int *ns = qp->dim->ns;
 
-	struct tree *ttree = qp->ttree;
+	struct tree *ttree = qp->dim->ttree;
 
 	int ii, jj, idx, idxdad;
 
