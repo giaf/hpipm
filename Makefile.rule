@@ -29,8 +29,8 @@
 TARGET = GENERIC
 
 # BLAS and LAPACK version (for LA=BLAS in BLASFEO)
-REF_BLAS = 0
-#REF_BLAS = OPENBLAS
+#REF_BLAS = 0
+REF_BLAS = OPENBLAS
 #REF_BLAS = NETLIB
 #REF_BLAS = MKL
 #REF_BLAS = BLIS
@@ -60,8 +60,8 @@ PREFIX = /opt
 BLASFEO_PATH = /opt/blasfeo
 
 # enable runtine checks
-#RUNTIME_CHECKS = 0
-RUNTIME_CHECKS = 1
+RUNTIME_CHECKS = 0
+#RUNTIME_CHECKS = 1
 
 # compiler flags
 CFLAGS  = 
