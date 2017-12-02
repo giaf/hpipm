@@ -37,12 +37,14 @@ endif
 OBJS += d_dense_qp_dim.o 
 OBJS += d_dense_qp.o 
 OBJS += d_dense_qp_sol.o 
+OBJS += d_dense_qp_res.o 
 OBJS += d_dense_qp_kkt.o 
 OBJS += d_dense_qp_ipm.o
 # single
 OBJS += s_dense_qp_dim.o 
 OBJS += s_dense_qp.o 
 OBJS += s_dense_qp_sol.o 
+OBJS += s_dense_qp_res.o 
 OBJS += s_dense_qp_kkt.o 
 OBJS += s_dense_qp_ipm.o
 
@@ -58,6 +60,8 @@ d_dense_qp.o: d_dense_qp.c x_dense_qp.c
 s_dense_qp.o: s_dense_qp.c x_dense_qp.c
 d_dense_qp_sol.o: d_dense_qp_sol.c x_dense_qp_sol.c
 s_dense_qp_sol.o: s_dense_qp_sol.c x_dense_qp_sol.c
+d_dense_qp_res.o: d_dense_qp_res.c x_dense_qp_res.c
+s_dense_qp_res.o: s_dense_qp_res.c x_dense_qp_res.c
 d_dense_qp_kkt.o: d_dense_qp_kkt.c x_dense_qp_kkt.c
 s_dense_qp_kkt.o: s_dense_qp_kkt.c x_dense_qp_kkt.c
 d_dense_qp_ipm.o: d_dense_qp_ipm.c x_dense_qp_ipm.c

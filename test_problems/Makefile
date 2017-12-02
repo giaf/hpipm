@@ -52,9 +52,9 @@ endif
 
 #OBJS_TEST = d_tools.o test_d_cond.o
 #OBJS_TEST = d_tools.o test_d_part_cond.o
-#OBJS_TEST = test_d_dense.o
+OBJS_TEST = test_d_dense.o
 #OBJS_TEST = test_s_dense.o
-OBJS_TEST = d_tools.o test_d_ocp.o
+#OBJS_TEST = d_tools.o test_d_ocp.o
 #OBJS_TEST = d_tools.o test_d_ocp2.o
 #OBJS_TEST = s_tools.o test_s_ocp.o
 #OBJS_TEST = d_tools.o test_m_ocp.o

@@ -37,6 +37,7 @@
 #include "../include/hpipm_d_dense_qp_dim.h"
 #include "../include/hpipm_d_dense_qp.h"
 #include "../include/hpipm_d_dense_qp_sol.h"
+#include "../include/hpipm_d_dense_qp_res.h"
 #include "../include/hpipm_d_dense_qp_ipm.h"
 #include "../include/hpipm_d_core_qp_ipm.h"
 #include "../include/hpipm_d_core_qp_ipm_aux.h"

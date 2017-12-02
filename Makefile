@@ -42,12 +42,14 @@ OBJS += cond/s_cond_aux.o cond/s_cond.o cond/s_part_cond.o
 OBJS += dense_qp/d_dense_qp_dim.o 
 OBJS += dense_qp/d_dense_qp.o 
 OBJS += dense_qp/d_dense_qp_sol.o 
+OBJS += dense_qp/d_dense_qp_res.o 
 OBJS += dense_qp/d_dense_qp_kkt.o 
 OBJS += dense_qp/d_dense_qp_ipm.o
 # single
 OBJS += dense_qp/s_dense_qp_dim.o 
 OBJS += dense_qp/s_dense_qp.o 
 OBJS += dense_qp/s_dense_qp_sol.o 
+OBJS += dense_qp/s_dense_qp_res.o 
 OBJS += dense_qp/s_dense_qp_kkt.o 
 OBJS += dense_qp/s_dense_qp_ipm.o
 

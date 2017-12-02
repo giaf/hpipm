@@ -52,10 +52,10 @@ void SET_DEFAULT_DENSE_QP_IPM_ARG(struct DENSE_QP_IPM_ARG *arg)
 
 	arg->mu0 = 100;
 	arg->alpha_min = 1e-8;
-	arg->res_g_max = 1e-8;
+	arg->res_g_max = 1e-6;
 	arg->res_b_max = 1e-8;
-	arg->res_d_max = 1e-12;
-	arg->res_m_max = 1e-12;
+	arg->res_d_max = 1e-8;
+	arg->res_m_max = 1e-8;
 	arg->iter_max = 20;
 	arg->stat_max = 20;
 	arg->pred_corr = 1;
@@ -78,7 +78,10 @@ int MEMSIZE_DENSE_QP_IPM(struct DENSE_QP_DIM *dim, struct DENSE_QP_IPM_ARG *arg)
 
 	int size = 0;
 
-	size += 17*sizeof(struct STRVEC); // dv dpi dlam dt res_g res_b res_d res_m lv 4*tmp_nbg tmp_ns Gamma gamma Zs_inv
+	size += 1*sizeof(struct DENSE_QP_RES); // res
+	size += 1*sizeof(struct DENSE_QP_RES_WORKSPACE); // res_workspace
+
+	size += 20*sizeof(struct STRVEC); // dv dpi dlam dt res_g res_b res_d res_m lv (4+2)*tmp_nbg (1+1)*tmp_ns Gamma gamma Zs_inv
 	size += 4*sizeof(struct STRMAT); // Lv AL Le Ctx
 
 	size += 4*SIZE_STRVEC(nb+ng); // 4*tmp_nbg
@@ -123,8 +126,20 @@ void CREATE_DENSE_QP_IPM(struct DENSE_QP_DIM *dim, struct DENSE_QP_IPM_ARG *arg,
 	struct CORE_QP_IPM_WORKSPACE *cws = workspace->core_workspace;
 
 
+	// res struct
+	struct DENSE_QP_RES *res_ptr = (struct DENSE_QP_RES *) sr_ptr;
+	workspace->res = res_ptr;
+	res_ptr += 1;
+
+
+	// res workspace struct
+	struct DENSE_QP_RES_WORKSPACE *res_ws_ptr = (struct DENSE_QP_RES_WORKSPACE *) res_ptr;
+	workspace->res_workspace = res_ws_ptr;
+	res_ws_ptr += 1;
+
+
 	// matrix struct
-	struct STRMAT *sm_ptr = (struct STRMAT *) sr_ptr;
+	struct STRMAT *sm_ptr = (struct STRMAT *) res_ws_ptr;
 
 	workspace->Lv = sm_ptr;
 	sm_ptr += 1;
@@ -147,13 +162,13 @@ void CREATE_DENSE_QP_IPM(struct DENSE_QP_DIM *dim, struct DENSE_QP_IPM_ARG *arg,
 	sv_ptr += 1;
 	workspace->dt = sv_ptr;
 	sv_ptr += 1;
-	workspace->res_g = sv_ptr;
+	workspace->res->res_g = sv_ptr;
 	sv_ptr += 1;
-	workspace->res_b = sv_ptr;
+	workspace->res->res_b = sv_ptr;
 	sv_ptr += 1;
-	workspace->res_d = sv_ptr;
+	workspace->res->res_d = sv_ptr;
 	sv_ptr += 1;
-	workspace->res_m = sv_ptr;
+	workspace->res->res_m = sv_ptr;
 	sv_ptr += 1;
 	workspace->Gamma = sv_ptr;
 	sv_ptr += 1;
@@ -165,7 +180,11 @@ void CREATE_DENSE_QP_IPM(struct DENSE_QP_DIM *dim, struct DENSE_QP_IPM_ARG *arg,
 	sv_ptr += 1;
 	workspace->tmp_nbg = sv_ptr;
 	sv_ptr += 4;
+	workspace->res_workspace->tmp_nbg = sv_ptr;
+	sv_ptr += 2;
 	workspace->tmp_ns = sv_ptr;
+	sv_ptr += 1;
+	workspace->res_workspace->tmp_ns = sv_ptr;
 	sv_ptr += 1;
 
 
@@ -206,9 +225,11 @@ void CREATE_DENSE_QP_IPM(struct DENSE_QP_DIM *dim, struct DENSE_QP_IPM_ARG *arg,
 	c_ptr += workspace->Zs_inv->memory_size;
 
 	CREATE_STRVEC(nb+ng, workspace->tmp_nbg+0, c_ptr);
+	CREATE_STRVEC(nb+ng, workspace->res_workspace->tmp_nbg+0, c_ptr);
 	c_ptr += (workspace->tmp_nbg+0)->memory_size;
 
 	CREATE_STRVEC(nb+ng, workspace->tmp_nbg+1, c_ptr);
+	CREATE_STRVEC(nb+ng, workspace->res_workspace->tmp_nbg+1, c_ptr);
 	c_ptr += (workspace->tmp_nbg+1)->memory_size;
 
 	CREATE_STRVEC(nb+ng, workspace->tmp_nbg+2, c_ptr);
@@ -218,6 +239,7 @@ void CREATE_DENSE_QP_IPM(struct DENSE_QP_DIM *dim, struct DENSE_QP_IPM_ARG *arg,
 	c_ptr += (workspace->tmp_nbg+3)->memory_size;
 
 	CREATE_STRVEC(ns, workspace->tmp_ns+0, c_ptr);
+	CREATE_STRVEC(ns, workspace->res_workspace->tmp_ns+0, c_ptr);
 	c_ptr += (workspace->tmp_ns+0)->memory_size;
 
 	CREATE_CORE_QP_IPM(nv+2*ns, ne, 2*nb+2*ng+2*ns, cws, c_ptr);
@@ -234,13 +256,13 @@ void CREATE_DENSE_QP_IPM(struct DENSE_QP_DIM *dim, struct DENSE_QP_IPM_ARG *arg,
 	//
 	CREATE_STRVEC(2*nb+2*ng+2*ns, workspace->dt, cws->dt);
 	//
-	CREATE_STRVEC(nv+2*ns, workspace->res_g, cws->res_g);
+	CREATE_STRVEC(nv+2*ns, workspace->res->res_g, cws->res_g);
 	//
-	CREATE_STRVEC(ne, workspace->res_b, cws->res_b);
+	CREATE_STRVEC(ne, workspace->res->res_b, cws->res_b);
 	//
-	CREATE_STRVEC(2*nb+2*ng+2*ns, workspace->res_d, cws->res_d);
+	CREATE_STRVEC(2*nb+2*ng+2*ns, workspace->res->res_d, cws->res_d);
 	//
-	CREATE_STRVEC(2*nb+2*ng+2*ns, workspace->res_m, cws->res_m);
+	CREATE_STRVEC(2*nb+2*ng+2*ns, workspace->res->res_m, cws->res_m);
 	//
 	CREATE_STRVEC(2*nb+2*ng+2*ns, workspace->Gamma, cws->Gamma);
 	//
@@ -282,7 +304,7 @@ int SOLVE_DENSE_QP_IPM(struct DENSE_QP *qp, struct DENSE_QP_SOL *qp_sol, struct 
 		{
 		FACT_SOLVE_KKT_UNCONSTR_DENSE_QP(qp, qp_sol, ws);
 		COMPUTE_RES_DENSE_QP(qp, qp_sol, ws);
-		cws->mu = ws->res_mu;
+		cws->mu = ws->res->res_mu;
 		ws->iter = 0;
 		return 0;
 		}
@@ -316,7 +338,7 @@ int SOLVE_DENSE_QP_IPM(struct DENSE_QP *qp, struct DENSE_QP_SOL *qp_sol, struct 
 		{
 		FACT_SOLVE_KKT_UNCONSTR_DENSE_QP(qp, qp_sol, ws);
 		COMPUTE_RES_DENSE_QP(qp, qp_sol, ws);
-		cws->mu = ws->res_mu;
+		cws->mu = ws->res->res_mu;
 		ws->iter = 0;
 		return 0;
 		}
@@ -326,7 +348,7 @@ int SOLVE_DENSE_QP_IPM(struct DENSE_QP *qp, struct DENSE_QP_SOL *qp_sol, struct 
 
 	// compute residuals
 	COMPUTE_RES_DENSE_QP(qp, qp_sol, ws);
-	cws->mu = ws->res_mu;
+	cws->mu = ws->res->res_mu;
 
 	// compute infinity norm of residuals
 	VECNRM_INF_LIBSTR(cws->nv, &str_res_g, 0, &qp_res[0]);
@@ -374,9 +396,9 @@ int SOLVE_DENSE_QP_IPM(struct DENSE_QP *qp, struct DENSE_QP_SOL *qp_sol, struct 
 
 		// compute residuals
 		COMPUTE_RES_DENSE_QP(qp, qp_sol, ws);
-		cws->mu = ws->res_mu;
+		cws->mu = ws->res->res_mu;
 		if(kk<ws->stat_max)
-			ws->stat[5*kk+4] = ws->res_mu;
+			ws->stat[5*kk+4] = ws->res->res_mu;
 
 		// compute infinity norm of residuals
 		VECNRM_INF_LIBSTR(cws->nv, &str_res_g, 0, &qp_res[0]);

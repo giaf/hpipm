@@ -43,6 +43,7 @@
 #include "../include/hpipm_d_ocp_qp_sol.h"
 #include "../include/hpipm_d_dense_qp.h"
 #include "../include/hpipm_d_dense_qp_sol.h"
+#include "../include/hpipm_d_dense_qp_res.h"
 #include "../include/hpipm_d_dense_qp_ipm.h"
 #include "../include/hpipm_d_cond.h"
 
@@ -844,15 +845,15 @@ int main()
 
 	printf("\nresiduals\n\n");
 	printf("\nres_g\n");
-	d_print_e_tran_strvec(nvc+2*nsc, dense_workspace.res_g, 0);
+	d_print_e_tran_strvec(nvc+2*nsc, dense_workspace.res->res_g, 0);
 	printf("\nres_b\n");
-	d_print_e_tran_strvec(nec, dense_workspace.res_b, 0);
+	d_print_e_tran_strvec(nec, dense_workspace.res->res_b, 0);
 	printf("\nres_d\n");
-	d_print_e_tran_strvec(2*nbc+2*ngc+2*nsc, dense_workspace.res_d, 0);
+	d_print_e_tran_strvec(2*nbc+2*ngc+2*nsc, dense_workspace.res->res_d, 0);
 	printf("\nres_m\n");
-	d_print_e_tran_strvec(2*nbc+2*ngc+2*nsc, dense_workspace.res_m, 0);
+	d_print_e_tran_strvec(2*nbc+2*ngc+2*nsc, dense_workspace.res->res_m, 0);
 	printf("\nres_mu\n");
-	printf("\n%e\n\n", dense_workspace.res_mu);
+	printf("\n%e\n\n", dense_workspace.res->res_mu);
 
 /************************************************
 * print ipm statistics

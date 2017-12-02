@@ -37,6 +37,7 @@
 #include "../include/hpipm_s_dense_qp_dim.h"
 #include "../include/hpipm_s_dense_qp.h"
 #include "../include/hpipm_s_dense_qp_sol.h"
+#include "../include/hpipm_s_dense_qp_res.h"
 #include "../include/hpipm_s_dense_qp_ipm.h"
 #include "../include/hpipm_s_core_qp_ipm.h"
 #include "../include/hpipm_s_core_qp_ipm_aux.h"
@@ -57,6 +58,8 @@
 #define DENSE_QP_IPM_ARG s_dense_qp_ipm_arg
 #define DENSE_QP_IPM_WORKSPACE s_dense_qp_ipm_workspace
 #define DENSE_QP_DIM s_dense_qp_dim
+#define DENSE_QP_RES s_dense_qp_res
+#define DENSE_QP_RES_WORKSPACE s_dense_qp_res_workspace
 #define DENSE_QP_SOL s_dense_qp_sol
 #define FACT_SOLVE_KKT_STEP_DENSE_QP s_fact_solve_kkt_step_dense_qp
 #define FACT_SOLVE_KKT_UNCONSTR_DENSE_QP s_fact_solve_kkt_unconstr_dense_qp

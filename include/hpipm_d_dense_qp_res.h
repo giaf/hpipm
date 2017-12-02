@@ -25,15 +25,13 @@
 *                                                                                                 *
 **************************************************************************************************/
 
+#ifndef HPIPM_D_DENSE_QP_RES_H_
+#define HPIPM_D_DENSE_QP_RES_H_
+
 
 
 #include <blasfeo_target.h>
 #include <blasfeo_common.h>
-
-
-
-#ifndef HPIPM_S_DENSE_QP_IPM_H_
-#define HPIPM_S_DENSE_QP_IPM_H_
 
 
 
@@ -43,73 +41,48 @@ extern "C" {
 
 
 
-struct s_dense_qp_ipm_arg
+struct d_dense_qp_res
 	{
-	float mu0; // initial value for duality measure
-	float alpha_min; // exit cond on step length
-	float res_g_max; // exit cond on inf norm of residuals
-	float res_b_max; // exit cond on inf norm of residuals
-	float res_d_max; // exit cond on inf norm of residuals
-	float res_m_max; // exit cond on inf norm of residuals
-	int iter_max; // exit cond in iter number
-	int stat_max; // iterations saved in stat
-	int pred_corr; // use Mehrotra's predictor-corrector IPM algirthm
-	int warm_start; // 0 no warm start, 1 warm start primal sol
+	struct d_dense_qp_dim *dim;
+	struct d_strvec *res_g; // q-residuals
+	struct d_strvec *res_b; // b-residuals
+	struct d_strvec *res_d; // d-residuals
+	struct d_strvec *res_m; // m-residuals
+	double res_mu; // mu-residual
 	int memsize;
 	};
 
 
 
-struct s_dense_qp_ipm_workspace
+struct d_dense_qp_res_workspace
 	{
-	struct s_core_qp_ipm_workspace *core_workspace;
-	struct s_dense_qp_res *res;
-	struct s_dense_qp_res_workspace *res_workspace;
-	struct s_strvec *dv; // step in v
-	struct s_strvec *dpi; // step in pi
-	struct s_strvec *dlam; // step in lam XXX needed ???
-	struct s_strvec *dt; // step in t XXX needed ???
-	struct s_strvec *Gamma; //
-	struct s_strvec *gamma; //
-	struct s_strvec *Zs_inv; //
-	struct s_strmat *Lv; //
-	struct s_strmat *AL; //
-	struct s_strmat *Le; //
-	struct s_strmat *Ctx; //
-	struct s_strvec *lv; //
-	struct s_strvec *tmp_nbg; // work space of size nb+ng
-	struct s_strvec *tmp_ns; // work space of size ns
-	float *stat; // convergence statistics
-	float qp_res[4]; // infinity norm of residuals
-	float mu0; // mu0
-	int iter; // iteration number
-	int stat_max; // iterations saved in stat
-	int warm_start; // 0 no warm start, 1 warm start primal sol
-	int memsize; // memory size (in bytes) of workspace
+	struct d_strvec *tmp_nbg; // work space of size nbM+ngM
+	struct d_strvec *tmp_ns; // work space of size nsM
+	int memsize;
 	};
 
 
 
 //
-int s_memsize_dense_qp_ipm_arg(struct s_dense_qp_dim *qp_dim);
+int d_memsize_dense_qp_res(struct d_dense_qp_dim *dim);
 //
-void s_create_dense_qp_ipm_arg(struct s_dense_qp_dim *qp_dim, struct s_dense_qp_ipm_arg *arg, void *mem);
+void d_create_dense_qp_res(struct d_dense_qp_dim *dim, struct d_dense_qp_res *res, void *mem);
 //
-void s_set_default_dense_qp_ipm_arg(struct s_dense_qp_ipm_arg *arg);
-
+int d_memsize_dense_qp_res_workspace(struct d_dense_qp_dim *dim);
 //
-int s_memsize_dense_qp_ipm(struct s_dense_qp_dim *qp_dim, struct s_dense_qp_ipm_arg *arg);
+void d_create_dense_qp_res_workspace(struct d_dense_qp_dim *dim, struct d_dense_qp_res_workspace *workspace, void *mem);
 //
-void s_create_dense_qp_ipm(struct s_dense_qp_dim *qp_dim, struct s_dense_qp_ipm_arg *arg, struct s_dense_qp_ipm_workspace *ws, void *mem);
+void d_cvt_dense_qp_res_to_colmaj(struct d_dense_qp_res *res, double *res_g, double *res_ls, double *res_us, double *res_b, double *res_d_lb, double *res_d_ub, double *res_d_lg, double *res_d_ug, double *res_d_ls, double *res_d_us, double *res_m_lb, double *res_m_ub, double *res_m_lg, double *res_m_ug, double *res_m_ls, double *res_m_us);
 //
-int s_solve_dense_qp_ipm(struct s_dense_qp *qp, struct s_dense_qp_sol *qp_sol, struct s_dense_qp_ipm_arg *arg, struct s_dense_qp_ipm_workspace *ws);
+void d_cvt_dense_qp_res_to_rowmaj(struct d_dense_qp_res *res, double *res_g, double *res_ls, double *res_us, double *res_b, double *res_d_lb, double *res_d_ub, double *res_d_lg, double *res_d_ug, double *res_d_ls, double *res_d_us, double *res_m_lb, double *res_m_ub, double *res_m_lg, double *res_m_ug, double *res_m_ls, double *res_m_us);
 
 
 
 #ifdef __cplusplus
-} /* extern "C" */
+}	// #extern "C"
 #endif
 
 
+#endif // HPIPM_D_DENSE_QP_RES_H_
 
-#endif // HPIPM_S_DENSE_QP_IPM_H_
+

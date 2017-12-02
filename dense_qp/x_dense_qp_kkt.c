@@ -168,12 +168,12 @@ void COMPUTE_RES_DENSE_QP(struct DENSE_QP *qp, struct DENSE_QP_SOL *qp_sol, stru
 	struct STRVEC *lam = qp_sol->lam;
 	struct STRVEC *t = qp_sol->t;
 
-	struct STRVEC *res_g = ws->res_g;
-	struct STRVEC *res_b = ws->res_b;
-	struct STRVEC *res_d = ws->res_d;
-	struct STRVEC *res_m = ws->res_m;
-	struct STRVEC *tmp_nbg = ws->tmp_nbg;
-	struct STRVEC *tmp_ns = ws->tmp_ns;
+	struct STRVEC *res_g = ws->res->res_g;
+	struct STRVEC *res_b = ws->res->res_b;
+	struct STRVEC *res_d = ws->res->res_d;
+	struct STRVEC *res_m = ws->res->res_m;
+	struct STRVEC *tmp_nbg = ws->res_workspace->tmp_nbg;
+	struct STRVEC *tmp_ns = ws->res_workspace->tmp_ns;
 
 	REAL mu;
 
@@ -220,7 +220,7 @@ void COMPUTE_RES_DENSE_QP(struct DENSE_QP *qp, struct DENSE_QP_SOL *qp_sol, stru
 	// res_mu
 	mu = VECMULDOT_LIBSTR(nct, lam, 0, t, 0, res_m, 0);
 
-	ws->res_mu = mu*cws->nc_inv;
+	ws->res->res_mu = mu*cws->nc_inv;
 
 
 	return;
@@ -311,7 +311,7 @@ static void COND_SLACKS_FACT_SOLVE(struct DENSE_QP *qp, struct DENSE_QP_IPM_WORK
 	int *idxs = qp->idxs;
 
 	struct STRVEC *dv = ws->dv;
-	struct STRVEC *res_g = ws->res_g;
+	struct STRVEC *res_g = ws->res->res_g;
 	struct STRVEC *Gamma = ws->Gamma;
 	struct STRVEC *gamma = ws->gamma;
 	struct STRVEC *Zs_inv = ws->Zs_inv;
@@ -374,7 +374,7 @@ static void COND_SLACKS_SOLVE(struct DENSE_QP *qp, struct DENSE_QP_IPM_WORKSPACE
 	int *idxs = qp->idxs;
 
 	struct STRVEC *dv = ws->dv;
-	struct STRVEC *res_g = ws->res_g;
+	struct STRVEC *res_g = ws->res->res_g;
 	struct STRVEC *Gamma = ws->Gamma;
 	struct STRVEC *gamma = ws->gamma;
 	struct STRVEC *Zs_inv = ws->Zs_inv;
@@ -475,8 +475,8 @@ void FACT_SOLVE_KKT_STEP_DENSE_QP(struct DENSE_QP *qp, struct DENSE_QP_IPM_WORKS
 	struct STRVEC *dv = ws->dv;
 	struct STRVEC *dpi = ws->dpi;
 	struct STRVEC *dt = ws->dt;
-	struct STRVEC *res_g = ws->res_g;
-	struct STRVEC *res_b = ws->res_b;
+	struct STRVEC *res_g = ws->res->res_g;
+	struct STRVEC *res_b = ws->res->res_b;
 	struct STRVEC *Gamma = ws->Gamma;
 	struct STRVEC *gamma = ws->gamma;
 	struct STRVEC *tmp_nbg = ws->tmp_nbg;
@@ -648,8 +648,8 @@ void SOLVE_KKT_STEP_DENSE_QP(struct DENSE_QP *qp, struct DENSE_QP_IPM_WORKSPACE 
 	struct STRVEC *dv = ws->dv;
 	struct STRVEC *dpi = ws->dpi;
 	struct STRVEC *dt = ws->dt;
-	struct STRVEC *res_g = ws->res_g;
-	struct STRVEC *res_b = ws->res_b;
+	struct STRVEC *res_g = ws->res->res_g;
+	struct STRVEC *res_b = ws->res->res_b;
 	struct STRVEC *gamma = ws->gamma;
 	struct STRVEC *tmp_nbg = ws->tmp_nbg;
 

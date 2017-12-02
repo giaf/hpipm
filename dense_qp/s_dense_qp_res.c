@@ -27,66 +27,38 @@
 
 
 
-#include <math.h>
+#include <stdlib.h>
+#include <stdio.h>
 
 #include <blasfeo_target.h>
 #include <blasfeo_common.h>
 #include <blasfeo_s_aux.h>
-#include <blasfeo_s_blas.h>
 
 #include "../include/hpipm_s_dense_qp_dim.h"
-#include "../include/hpipm_s_dense_qp.h"
-#include "../include/hpipm_s_dense_qp_sol.h"
 #include "../include/hpipm_s_dense_qp_res.h"
-#include "../include/hpipm_s_dense_qp_ipm.h"
-#include "../include/hpipm_s_core_qp_ipm.h"
-#include "../include/hpipm_s_core_qp_ipm_aux.h"
 
 
 
-#define AXPY_LIBSTR saxpy_libstr
-#define COMPUTE_LAM_T_QP s_compute_lam_t_qp
-#define COMPUTE_GAMMA_GAMMA_QP s_compute_Gamma_gamma_qp
-#define COMPUTE_GAMMA_QP s_compute_gamma_qp
-#define CORE_QP_IPM_WORKSPACE s_core_qp_ipm_workspace
-#define DENSE_QP s_dense_qp
-#define DENSE_QP_IPM_WORKSPACE s_dense_qp_ipm_workspace
-#define DENSE_QP_SOL s_dense_qp_sol
-#define DIAAD_SP_LIBSTR sdiaad_sp_libstr
-#define GECP_LIBSTR sgecp_libstr
-#define GEMM_R_DIAG_LIBSTR sgemm_r_diag_libstr
-#define GEMV_DIAG_LIBSTR sgemv_diag_libstr
-#define GEMV_N_LIBSTR sgemv_n_libstr
-#define GEMV_NT_LIBSTR sgemv_nt_libstr
-#define GEMV_T_LIBSTR sgemv_t_libstr
-#define GESE_LIBSTR sgese_libstr
-#define POTRF_L_LIBSTR spotrf_l_libstr
-#define POTRF_L_MN_LIBSTR spotrf_l_mn_libstr
+#define CREATE_STRVEC s_create_strvec
+#define CVT_STRVEC2VEC s_cvt_strvec2vec
+#define DENSE_QP_DIM s_dense_qp_dim
+#define DENSE_QP_RES s_dense_qp_res
+#define DENSE_QP_RES_WORKSPACE s_dense_qp_res_workspace
 #define REAL float
-#define ROWAD_SP_LIBSTR srowad_sp_libstr
-#define ROWEX_LIBSTR srowex_libstr
-#define ROWIN_LIBSTR srowin_libstr
-#define STRMAT s_strmat
+#define SIZE_STRVEC s_size_strvec
 #define STRVEC s_strvec
-#define SYMV_L_LIBSTR ssymv_l_libstr
-#define SYRK_POTRF_LN_LIBSTR ssyrk_spotrf_ln_libstr
-#define TRCP_L_LIBSTR strcp_l_libstr
-#define TRSM_RLTN_LIBSTR strsm_rltn_libstr
-#define TRSV_LNN_LIBSTR strsv_lnn_libstr
-#define TRSV_LTN_LIBSTR strsv_ltn_libstr
-#define VECAD_SP_LIBSTR svecad_sp_libstr
-#define VECCP_LIBSTR sveccp_libstr
-#define VECEX_SP_LIBSTR svecex_sp_libstr
-#define VECMULDOT_LIBSTR svecmuldot_libstr
-#define VECSC_LIBSTR svecsc_libstr
-
-#define INIT_VAR_DENSE_QP s_init_var_dense_qp
-#define COMPUTE_RES_DENSE_QP s_compute_res_dense_qp
-#define FACT_SOLVE_KKT_UNCONSTR_DENSE_QP s_fact_solve_kkt_unconstr_dense_qp
-#define FACT_SOLVE_KKT_STEP_DENSE_QP s_fact_solve_kkt_step_dense_qp
-#define SOLVE_KKT_STEP_DENSE_QP s_solve_kkt_step_dense_qp
 
 
 
-#include "x_dense_qp_kkt.c"
+#define MEMSIZE_DENSE_QP_RES s_memsize_dense_qp_res
+#define CREATE_DENSE_QP_RES s_create_dense_qp_res
+#define MEMSIZE_DENSE_QP_RES_WORKSPACE s_memsize_dense_qp_res_workspace
+#define CREATE_DENSE_QP_RES_WORKSPACE s_create_dense_qp_res_workspace
+#define CVT_DENSE_QP_RES_TO_COLMAJ s_cvt_dense_qp_res_to_colmaj
+#define CVT_DENSE_QP_RES_TO_ROWMAJ s_cvt_dense_qp_res_to_rowmaj
+
+
+
+#include "x_dense_qp_res.c"
+
 
