@@ -48,6 +48,7 @@ struct s_tree_ocp_qp_sol
 	struct s_strvec *pi;
 	struct s_strvec *lam;
 	struct s_strvec *t;
+	void *misc;
 	int memsize; // memory size in bytes
 	};
 

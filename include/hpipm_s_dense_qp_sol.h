@@ -52,6 +52,7 @@ struct s_dense_qp_sol
 	struct s_strvec *pi;
 	struct s_strvec *lam;
 	struct s_strvec *t;
+	void *misc;
 	int memsize;
 	};
 
