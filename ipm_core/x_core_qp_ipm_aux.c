@@ -236,6 +236,31 @@ void COMPUTE_CENTERING_CORRECTION_QP(struct CORE_QP_IPM_WORKSPACE *cws)
 
 
 
+void COMPUTE_CENTERING_QP(struct CORE_QP_IPM_WORKSPACE *cws)
+	{
+
+	int ii;
+
+	// extract workspace members
+	int nc = cws->nc;
+
+	REAL *ptr_dlam = cws->dlam;
+	REAL *ptr_dt = cws->dt;
+	REAL *ptr_res_m = cws->res_m;
+
+	REAL sigma_mu = cws->sigma*cws->mu;
+
+	for(ii=0; ii<nc; ii++)
+		{
+		ptr_res_m[ii+0] += - sigma_mu;
+		}
+
+	return;
+
+	}
+
+
+
 void COMPUTE_GAMMA_QP(struct CORE_QP_IPM_WORKSPACE *cws)
 	{
 

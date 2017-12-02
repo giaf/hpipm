@@ -414,7 +414,9 @@ int main()
 	int ii;
 
     /************** benchmark loop *********************/
-    for (i = 0; i < nproblems; i++)
+
+//    for (i = 0; i < nproblems; i++)
+    for (i = 0; i < nproblems-1; i++)
 		{
 
         /************************************************
@@ -539,7 +541,7 @@ int main()
         argd.iter_max = 100;
         argd.stat_max = 100;
         argd.alpha_min = 1e-8;
-        argd.mu0 = 10;
+        argd.mu0 = 1e1;
 		argd.pred_corr = 1;
 
         /************************************************
@@ -613,7 +615,7 @@ int main()
 //	printf("\nTotal:  %d\n", nproblems-2);
 	printf("Pass:\t%3d\n", npass);
 	printf("Fail:\t%3d\n", nfail);
-	printf("Ratio:\t%5.1f\n", 100.0 * (double)npass / (double) (nproblems-2));
+	printf("Ratio:\t%5.1f\n", 100.0 * (double)npass / (double) (npass+nfail));
 	printf("\n\n");
 
     /************************************************

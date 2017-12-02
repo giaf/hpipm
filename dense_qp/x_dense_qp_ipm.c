@@ -358,6 +358,7 @@ int SOLVE_DENSE_QP_IPM(struct DENSE_QP *qp, struct DENSE_QP_SOL *qp_sol, struct 
 				ws->stat[5*kk+2] = cws->sigma;
 
 			COMPUTE_CENTERING_CORRECTION_QP(cws);
+//			COMPUTE_CENTERING_QP(cws);
 
 			// solve kkt
 			SOLVE_KKT_STEP_DENSE_QP(qp, ws);

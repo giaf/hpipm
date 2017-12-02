@@ -42,6 +42,8 @@ void s_compute_mu_aff_qp(struct s_core_qp_ipm_workspace *rws);
 //
 void s_compute_centering_correction_qp(struct s_core_qp_ipm_workspace *rws);
 //
+void s_compute_centering_qp(struct s_core_qp_ipm_workspace *rws);
+//
 void s_compute_gamma_qp(struct s_core_qp_ipm_workspace *rws);
 
 #ifdef __cplusplus
