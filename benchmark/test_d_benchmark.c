@@ -405,11 +405,11 @@ int main()
     FILE * pFile;
     */
 
-	printf("probl\tnv\tne\tnc\tdp\tdp2\treturn\treturn2\titer\titer2\tres_g\t\tres_b\t\tres_d\t\tres_m\t\tmu\t\tmu2\t\ttime\n");
+	printf("probl\tnv\tne\tnc\treturn\titer\tres_g\t\tres_b\t\tres_d\t\tres_m\t\tmu\t\ttime\t\ttime[ms]\n");
 
-	int npass = 0, npass2 = 0;
-	int nfail = 0, nfail2 = 0;
-	int dp, dp2;
+	int npass = 0;
+	int nfail = 0;
+	int dp;
 
 	int ii;
 
@@ -536,8 +536,8 @@ int main()
         argd.res_b_max = 1e-8;
         argd.res_d_max = 1e-8;
         argd.res_m_max = 1e-8;
-        argd.iter_max = 50;
-        argd.stat_max = 50;
+        argd.iter_max = 100;
+        argd.stat_max = 100;
         argd.alpha_min = 1e-8;
         argd.mu0 = 10;
 		argd.pred_corr = 1;
@@ -552,11 +552,7 @@ int main()
         struct d_dense_qp_ipm_workspace workspace;
         d_create_dense_qp_ipm(&dim, &argd, &workspace, ipm_mem);
 
-        void *ipm_mem_reg = calloc(ipm_size,1);
-        struct d_dense_qp_ipm_workspace workspace_reg;
-        d_create_dense_qp_ipm(&dim, &argd, &workspace_reg, ipm_mem_reg);
-
-        int hpipm_return, hpipm_return_reg; // 0 normal; 1 max iter
+        int hpipm_return; // 0 normal; 1 max iter
 
 		int rep, nrep=1;
 
@@ -574,41 +570,8 @@ int main()
 		double sol_time = (tv1.tv_sec-tv0.tv_sec)/(nrep+0.0)+(tv1.tv_usec-tv0.tv_usec)/(nrep*1e6);
 
         /************************************************
-        * dense ipm with regularization
-        ************************************************/
-
-        /************************************************
         * print ipm statistics
         ************************************************/
-//        printf("Problem %d\n", i-1);
-
-	   /* print original H*/
-	//            printf("\nH_org =\n");
-	//            d_print_strmat(nv, nv, qpd_hpipm.Hg, 0, 0);
-		for (j = 0; j < nv; j++)
-			{
-			qp_bench.H[j*nv+j] = qp_bench.H[j*nv+j] + REG;
-			}
-		/* print modefied H*/
-	//            printf("\nH_reg =\n");
-	//            d_print_strmat(nv, nv, qpd_hpipm.Hg, 0, 0);
-
-		cvt_benchmark_to_hpipm(&qp_bench, &qpd_hpipm, &tran_space);
-
-		dpotrf_l_libstr(nv, qpd_hpipm.Hg, 0, 0, &H_fact, 0, 0);
-
-		dp2 = 1;
-		for(ii=0; ii<nv; ii++)
-			if(H_fact.dA[ii]<=0.0)
-				dp2 = 0;
-
-		hpipm_return_reg = d_solve_dense_qp_ipm(&qpd_hpipm, &qpd_sol, &argd, &workspace_reg);
-
-		/* print primal solution */
-//            printf("\n\nipm return = %d\n", hpipm_return);
-	//            printf("\nnew_primal_sol = \n");
-	//            d_print_strvec(nv, qpd_sol.v, 0);
-
 #if 0
 		if(i==17)
 			{
@@ -625,12 +588,7 @@ int main()
 		else
 			nfail++;
 
-		if(hpipm_return_reg==0)
-			npass2++;
-		else
-			nfail2++;
-
-		printf("%d\t%d\t%d\t%d\t%d\t%d\t%d\t%d\t%d\t%d\t%e\t%e\t%e\t%e\t%e\t%e\t%e\n", i-1, nv, ne, nc, dp, dp2, hpipm_return, hpipm_return_reg, workspace.iter, workspace_reg.iter, workspace.qp_res[0], workspace.qp_res[1], workspace.qp_res[2], workspace.qp_res[3], workspace.res_mu, workspace_reg.res_mu, sol_time);
+		printf("%d\t%d\t%d\t%d\t%d\t%d\t%e\t%e\t%e\t%e\t%e\t%e%12.4f\n", i-1, nv, ne, nc, hpipm_return, workspace.iter, workspace.qp_res[0], workspace.qp_res[1], workspace.qp_res[2], workspace.qp_res[3], workspace.res_mu, sol_time, sol_time*1000);
 
         /************************************************
         * free memory
@@ -642,7 +600,6 @@ int main()
 		free(H_fact_mem);
       	free(qp_sol_mem);
       	free(ipm_mem);
-      	free(ipm_mem_reg);
         free(ipm_arg_mem);
 
 		}
@@ -651,10 +608,12 @@ int main()
     * overall statistics
     ************************************************/
 
-	printf("\nOverall statistics:        prob\treg_prob\n");
-	printf("\nTotal number of problems:  %d\n", nproblems-2); // XXX ???
-	printf("\nNumber of solved problems: %d\t%d\n", npass, npass2);
-	printf("\nNumber of failed problems: %d\t%d\n", nfail, nfail2);
+	printf("\n\nTestbench results:\n");
+	printf("=====================\n");
+//	printf("\nTotal:  %d\n", nproblems-2);
+	printf("Pass:\t%3d\n", npass);
+	printf("Fail:\t%3d\n", nfail);
+	printf("Ratio:\t%5.1f\n", 100.0 * (double)npass / (double) (nproblems-2));
 	printf("\n\n");
 
     /************************************************
