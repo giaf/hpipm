@@ -311,7 +311,7 @@ static void COND_SLACKS_FACT_SOLVE(struct DENSE_QP *qp, struct DENSE_QP_IPM_WORK
 	struct STRVEC *Z = qp->Z;
 	int *idxs = qp->idxs;
 
-	struct STRVEC *dv = ws->dv;
+	struct STRVEC *dv = ws->step->v;
 	struct STRVEC *res_g = ws->res->res_g;
 	struct STRVEC *Gamma = ws->Gamma;
 	struct STRVEC *gamma = ws->gamma;
@@ -374,7 +374,7 @@ static void COND_SLACKS_SOLVE(struct DENSE_QP *qp, struct DENSE_QP_IPM_WORKSPACE
 
 	int *idxs = qp->idxs;
 
-	struct STRVEC *dv = ws->dv;
+	struct STRVEC *dv = ws->step->v;
 	struct STRVEC *res_g = ws->res->res_g;
 	struct STRVEC *Gamma = ws->Gamma;
 	struct STRVEC *gamma = ws->gamma;
@@ -425,8 +425,8 @@ static void EXPAND_SLACKS(struct DENSE_QP *qp, struct DENSE_QP_IPM_WORKSPACE *ws
 
 	int *idxs = qp->idxs;
 
-	struct STRVEC *dv = ws->dv;
-	struct STRVEC *dt = ws->dt;
+	struct STRVEC *dv = ws->step->v;
+	struct STRVEC *dt = ws->step->t;
 	struct STRVEC *Gamma = ws->Gamma;
 	struct STRVEC *Zs_inv = ws->Zs_inv;
 
@@ -473,9 +473,9 @@ void FACT_SOLVE_KKT_STEP_DENSE_QP(struct DENSE_QP *qp, struct DENSE_QP_IPM_WORKS
 	struct STRMAT *Ctx = ws->Ctx;
 	struct STRMAT *AL = ws->AL;
 	struct STRVEC *lv = ws->lv;
-	struct STRVEC *dv = ws->dv;
-	struct STRVEC *dpi = ws->dpi;
-	struct STRVEC *dt = ws->dt;
+	struct STRVEC *dv = ws->step->v;
+	struct STRVEC *dpi = ws->step->pi;
+	struct STRVEC *dt = ws->step->t;
 	struct STRVEC *res_g = ws->res->res_g;
 	struct STRVEC *res_b = ws->res->res_b;
 	struct STRVEC *Gamma = ws->Gamma;
@@ -646,9 +646,9 @@ void SOLVE_KKT_STEP_DENSE_QP(struct DENSE_QP *qp, struct DENSE_QP_IPM_WORKSPACE 
 	struct STRMAT *Ctx = ws->Ctx;
 	struct STRMAT *AL = ws->AL;
 	struct STRVEC *lv = ws->lv;
-	struct STRVEC *dv = ws->dv;
-	struct STRVEC *dpi = ws->dpi;
-	struct STRVEC *dt = ws->dt;
+	struct STRVEC *dv = ws->step->v;
+	struct STRVEC *dpi = ws->step->pi;
+	struct STRVEC *dt = ws->step->t;
 	struct STRVEC *res_g = ws->res->res_g;
 	struct STRVEC *res_b = ws->res->res_b;
 	struct STRVEC *gamma = ws->gamma;
