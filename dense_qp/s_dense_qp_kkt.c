@@ -49,6 +49,8 @@
 #define COMPUTE_GAMMA_GAMMA_QP s_compute_Gamma_gamma_qp
 #define COMPUTE_GAMMA_QP s_compute_gamma_qp
 #define CORE_QP_IPM_WORKSPACE s_core_qp_ipm_workspace
+#define DENSE_QP_RES s_dense_qp_res
+#define DENSE_QP_RES_WORKSPACE s_dense_qp_res_workspace
 #define DENSE_QP s_dense_qp
 #define DENSE_QP_IPM_WORKSPACE s_dense_qp_ipm_workspace
 #define DENSE_QP_SOL s_dense_qp_sol

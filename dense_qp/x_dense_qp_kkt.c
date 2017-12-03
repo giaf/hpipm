@@ -139,10 +139,8 @@ void INIT_VAR_DENSE_QP(struct DENSE_QP *qp, struct DENSE_QP_SOL *qp_sol, struct 
 
 
 
-void COMPUTE_RES_DENSE_QP(struct DENSE_QP *qp, struct DENSE_QP_SOL *qp_sol, struct DENSE_QP_IPM_WORKSPACE *ws)
+void COMPUTE_RES_DENSE_QP(struct DENSE_QP *qp, struct DENSE_QP_SOL *qp_sol, struct DENSE_QP_RES *res, struct DENSE_QP_RES_WORKSPACE *ws)
 	{
-
-	struct CORE_QP_IPM_WORKSPACE *cws = ws->core_workspace;
 
 	int nv = qp->dim->nv;
 	int ne = qp->dim->ne;
@@ -150,7 +148,9 @@ void COMPUTE_RES_DENSE_QP(struct DENSE_QP *qp, struct DENSE_QP_SOL *qp_sol, stru
 	int ng = qp->dim->ng;
 	int ns = qp->dim->ns;
 
-	int nct = ws->core_workspace->nc;
+	int nct = 2*nb+2*ng+2*ns;
+
+	REAL nct_inv = 1.0/nct;
 
 	struct STRMAT *Hg = qp->Hg;
 	struct STRVEC *g = qp->g;
@@ -168,12 +168,13 @@ void COMPUTE_RES_DENSE_QP(struct DENSE_QP *qp, struct DENSE_QP_SOL *qp_sol, stru
 	struct STRVEC *lam = qp_sol->lam;
 	struct STRVEC *t = qp_sol->t;
 
-	struct STRVEC *res_g = ws->res->res_g;
-	struct STRVEC *res_b = ws->res->res_b;
-	struct STRVEC *res_d = ws->res->res_d;
-	struct STRVEC *res_m = ws->res->res_m;
-	struct STRVEC *tmp_nbg = ws->res_workspace->tmp_nbg;
-	struct STRVEC *tmp_ns = ws->res_workspace->tmp_ns;
+	struct STRVEC *res_g = res->res_g;
+	struct STRVEC *res_b = res->res_b;
+	struct STRVEC *res_d = res->res_d;
+	struct STRVEC *res_m = res->res_m;
+
+	struct STRVEC *tmp_nbg = ws->tmp_nbg;
+	struct STRVEC *tmp_ns = ws->tmp_ns;
 
 	REAL mu;
 
@@ -220,7 +221,7 @@ void COMPUTE_RES_DENSE_QP(struct DENSE_QP *qp, struct DENSE_QP_SOL *qp_sol, stru
 	// res_mu
 	mu = VECMULDOT_LIBSTR(nct, lam, 0, t, 0, res_m, 0);
 
-	ws->res->res_mu = mu*cws->nc_inv;
+	res->res_mu = mu*nct_inv;
 
 
 	return;

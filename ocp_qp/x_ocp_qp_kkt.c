@@ -201,7 +201,7 @@ void COMPUTE_RES_OCP_QP(struct OCP_QP *qp, struct OCP_QP_SOL *qp_sol, struct OCP
 	for(ii=0; ii<=N; ii++)
 		nct += 2*nb[ii]+2*ng[ii]+2*ns[ii];
 	
-	double nct_inv = 1.0/nct;
+	REAL nct_inv = 1.0/nct;
 
 	struct STRMAT *BAbt = qp->BAbt;
 	struct STRMAT *RSQrq = qp->RSQrq;

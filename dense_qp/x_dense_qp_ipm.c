@@ -303,7 +303,7 @@ int SOLVE_DENSE_QP_IPM(struct DENSE_QP *qp, struct DENSE_QP_SOL *qp_sol, struct 
 	if(cws->nc==0)
 		{
 		FACT_SOLVE_KKT_UNCONSTR_DENSE_QP(qp, qp_sol, ws);
-		COMPUTE_RES_DENSE_QP(qp, qp_sol, ws);
+		COMPUTE_RES_DENSE_QP(qp, qp_sol, ws->res, ws->res_workspace);
 		cws->mu = ws->res->res_mu;
 		ws->iter = 0;
 		return 0;
@@ -334,20 +334,11 @@ int SOLVE_DENSE_QP_IPM(struct DENSE_QP *qp, struct DENSE_QP_SOL *qp_sol, struct 
 	int kk = 0;
 	REAL tmp;
 
-	if(cws->nc==0)
-		{
-		FACT_SOLVE_KKT_UNCONSTR_DENSE_QP(qp, qp_sol, ws);
-		COMPUTE_RES_DENSE_QP(qp, qp_sol, ws);
-		cws->mu = ws->res->res_mu;
-		ws->iter = 0;
-		return 0;
-		}
-
 	// init solver
 	INIT_VAR_DENSE_QP(qp, qp_sol, ws);
 
 	// compute residuals
-	COMPUTE_RES_DENSE_QP(qp, qp_sol, ws);
+	COMPUTE_RES_DENSE_QP(qp, qp_sol, ws->res, ws->res_workspace);
 	cws->mu = ws->res->res_mu;
 
 	// compute infinity norm of residuals
@@ -395,7 +386,7 @@ int SOLVE_DENSE_QP_IPM(struct DENSE_QP *qp, struct DENSE_QP_SOL *qp_sol, struct 
 		UPDATE_VAR_QP(cws);
 
 		// compute residuals
-		COMPUTE_RES_DENSE_QP(qp, qp_sol, ws);
+		COMPUTE_RES_DENSE_QP(qp, qp_sol, ws->res, ws->res_workspace);
 		cws->mu = ws->res->res_mu;
 		if(kk<ws->stat_max)
 			ws->stat[5*kk+4] = ws->res->res_mu;
