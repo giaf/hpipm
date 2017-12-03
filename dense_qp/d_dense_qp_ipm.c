@@ -52,6 +52,7 @@
 #define COMPUTE_RES_DENSE_QP d_compute_res_dense_qp
 #define CORE_QP_IPM_WORKSPACE d_core_qp_ipm_workspace
 #define CREATE_CORE_QP_IPM d_create_core_qp_ipm
+#define CREATE_DENSE_QP_RES d_create_dense_qp_res
 #define CREATE_STRMAT d_create_strmat
 #define CREATE_STRVEC d_create_strvec
 #define DENSE_QP d_dense_qp
@@ -65,6 +66,7 @@
 #define FACT_SOLVE_KKT_UNCONSTR_DENSE_QP d_fact_solve_kkt_unconstr_dense_qp
 #define INIT_VAR_DENSE_QP d_init_var_dense_qp
 #define MEMSIZE_CORE_QP_IPM d_memsize_core_qp_ipm
+#define MEMSIZE_DENSE_QP_RES d_memsize_dense_qp_res
 #define REAL double
 #define SIZE_STRMAT d_size_strmat
 #define SIZE_STRVEC d_size_strvec
