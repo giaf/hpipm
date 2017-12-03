@@ -739,9 +739,9 @@ int main()
 	d_cvt_colmaj_to_ocp_qp(hA, hB, hb, hQ, hS, hR, hq, hr, hidxb, hd_lb, hd_ub, hC, hD, hd_lg, hd_ug, hZl, hZu, hzl, hzu, hidxs, &qp);
 
 #if 0
-	printf("\nN = %d\n", qp.N);
+	printf("\nN = %d\n", qp.dim->N);
 	for(ii=0; ii<N; ii++)
-		d_print_strmat(qp.nu[ii]+qp.nx[ii]+1, qp.nx[ii+1], qp.BAbt+ii, 0, 0);
+		d_print_strmat(qp.dim->nu[ii]+qp.dim->nx[ii]+1, qp.dim->nx[ii+1], qp.BAbt+ii, 0, 0);
 	for(ii=0; ii<N; ii++)
 		d_print_tran_strvec(qp.nx[ii+1], qp.b+ii, 0);
 	for(ii=0; ii<=N; ii++)
