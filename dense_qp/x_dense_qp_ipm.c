@@ -276,6 +276,8 @@ void CREATE_DENSE_QP_IPM(struct DENSE_QP_DIM *dim, struct DENSE_QP_IPM_ARG *arg,
 	//
 	CREATE_STRVEC(2*nb+2*ng+2*ns, workspace->gamma, cws->gamma);
 
+	//
+	workspace->step->dim = dim;
 
 	//
 	workspace->memsize = MEMSIZE_DENSE_QP_IPM(dim, arg);

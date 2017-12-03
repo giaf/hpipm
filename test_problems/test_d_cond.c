@@ -708,7 +708,7 @@ int main()
 
 #if 1
 	printf("\ncond data\n\n");
-	d_print_strmat(nvc+1, nvc, dense_qp.Hg, 0, 0);
+	d_print_strmat(nvc+1, nvc, dense_qp.Hv, 0, 0); // TODO remove +1
 	d_print_strmat(nec, nvc, dense_qp.A, 0, 0);
 	d_print_strmat(nvc, ngc, dense_qp.Ct, 0, 0);
 	d_print_tran_strvec(nvc, dense_qp.g, 0);

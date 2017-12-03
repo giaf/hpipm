@@ -152,7 +152,7 @@ void COMPUTE_RES_DENSE_QP(struct DENSE_QP *qp, struct DENSE_QP_SOL *qp_sol, stru
 
 	REAL nct_inv = 1.0/nct;
 
-	struct STRMAT *Hg = qp->Hg;
+	struct STRMAT *Hg = qp->Hv;
 	struct STRVEC *g = qp->g;
 	struct STRMAT *A = qp->A;
 	struct STRVEC *b = qp->b;
@@ -238,7 +238,7 @@ void FACT_SOLVE_KKT_UNCONSTR_DENSE_QP(struct DENSE_QP *qp, struct DENSE_QP_SOL *
 	int nb = qp->dim->nb;
 	int ng = qp->dim->ng;
 
-	struct STRMAT *Hg = qp->Hg;
+	struct STRMAT *Hg = qp->Hv;
 	struct STRMAT *A = qp->A;
 	struct STRVEC *g = qp->g;
 	struct STRVEC *b = qp->b;
@@ -285,6 +285,7 @@ void FACT_SOLVE_KKT_UNCONSTR_DENSE_QP(struct DENSE_QP *qp, struct DENSE_QP_SOL *
 		TRSV_LNN_LIBSTR(nv, Lv, 0, 0, v, 0, v, 0);
 		TRSV_LTN_LIBSTR(nv, Lv, 0, 0, v, 0, v, 0);
 #else
+		ROWIN_LIBSTR(nv, 1.0, g, 0, Hg, nv, 0);
 		POTRF_L_MN_LIBSTR(nv+1, nv, Hg, 0, 0, Lv, 0, 0);
 
 		ROWEX_LIBSTR(nv, -1.0, Lv, nv, 0, v, 0);
@@ -463,7 +464,7 @@ void FACT_SOLVE_KKT_STEP_DENSE_QP(struct DENSE_QP *qp, struct DENSE_QP_IPM_WORKS
 	int ng = qp->dim->ng;
 	int ns = qp->dim->ns;
 
-	struct STRMAT *Hg = qp->Hg;
+	struct STRMAT *Hg = qp->Hv;
 	struct STRMAT *A = qp->A;
 	struct STRMAT *Ct = qp->Ct;
 	int *idxb = qp->idxb;

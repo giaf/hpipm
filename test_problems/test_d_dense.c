@@ -192,9 +192,9 @@ int main()
 	d_create_dense_qp(&qp_dim, &qp, qp_mem);
 	d_cvt_colmaj_to_dense_qp(H, g, A, b, idxb, d_lb, d_ub, C, d_lg, d_ug, Zl, Zu, zl, zu, idxs, &qp);
 
-#if 0
-	printf("\nHg = \n");
-	d_print_strmat(nv+1, nv, qp.Hg, 0, 0);
+#if 1
+	printf("\nH = \n");
+	d_print_strmat(nv, nv, qp.Hv, 0, 0);
 	printf("\nA = \n");
 	d_print_strmat(ne, nv, qp.A, 0, 0);
 	printf("\nCt = \n");

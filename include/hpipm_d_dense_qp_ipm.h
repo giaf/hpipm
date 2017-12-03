@@ -66,6 +66,7 @@ struct d_dense_qp_ipm_workspace
 	struct d_dense_qp_res *res;
 	struct d_dense_qp_res_workspace *res_workspace;
 	struct d_dense_qp_sol *step;
+//	struct d_dense_qp *qp_itref;
 	struct d_strvec *Gamma; //
 	struct d_strvec *gamma; //
 	struct d_strvec *Zs_inv; //
