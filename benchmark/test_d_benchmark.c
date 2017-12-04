@@ -538,8 +538,8 @@ int main()
         argd.res_b_max = 1e-8;
         argd.res_d_max = 1e-8;
         argd.res_m_max = 1e-8;
-        argd.iter_max = 100;
-        argd.stat_max = 100;
+        argd.iter_max = 200;
+        argd.stat_max = 200;
         argd.alpha_min = 1e-12;
         argd.mu0 = 1e1;
 		argd.pred_corr = 1;

@@ -389,6 +389,14 @@ int SOLVE_DENSE_QP_IPM(struct DENSE_QP *qp, struct DENSE_QP_SOL *qp_sol, struct 
 	VECNRM_INF_LIBSTR(cws->nc, &str_res_d, 0, &qp_res[2]);
 	VECNRM_INF_LIBSTR(cws->nc, &str_res_m, 0, &qp_res[3]);
 
+	REAL sigma_min = 1e9;
+	sigma_min = arg->res_g_max<sigma_min ? arg->res_g_max : sigma_min;
+	sigma_min = arg->res_b_max<sigma_min ? arg->res_b_max : sigma_min;
+	sigma_min = arg->res_d_max<sigma_min ? arg->res_d_max : sigma_min;
+	sigma_min = arg->res_m_max<sigma_min ? arg->res_m_max : sigma_min;
+	sigma_min *= 0.1;
+
+
 	for(kk=0; kk<arg->iter_max & cws->alpha>arg->alpha_min & (qp_res[0]>arg->res_g_max | qp_res[1]>arg->res_b_max | qp_res[2]>arg->res_d_max | qp_res[3]>arg->res_m_max); kk++)
 		{
 
@@ -415,8 +423,10 @@ int SOLVE_DENSE_QP_IPM(struct DENSE_QP *qp, struct DENSE_QP_SOL *qp_sol, struct 
 			if(kk<ws->stat_max)
 				ws->stat[5*kk+1] = cws->mu_aff;
 
+			// compute centering parameter
 			tmp = cws->mu_aff/cws->mu;
 			cws->sigma = tmp*tmp*tmp;
+			cws->sigma = sigma_min>cws->sigma ? sigma_min : cws->sigma;
 			if(kk<ws->stat_max)
 				ws->stat[5*kk+2] = cws->sigma;
 
@@ -488,6 +498,10 @@ int SOLVE_DENSE_QP_IPM(struct DENSE_QP *qp, struct DENSE_QP_SOL *qp_sol, struct 
 		VECNRM_INF_LIBSTR(cws->ne, &str_res_b, 0, &qp_res[1]);
 		VECNRM_INF_LIBSTR(cws->nc, &str_res_d, 0, &qp_res[2]);
 		VECNRM_INF_LIBSTR(cws->nc, &str_res_m, 0, &qp_res[3]);
+
+#if 0
+printf("%e %e %e\n", cws->alpha, cws->alpha_prim, cws->alpha_dual);
+#endif
 
 #if 0
 printf("%e %e %e %e %e\n", ws->stat[5*kk+0], ws->stat[5*kk+1], ws->stat[5*kk+2], ws->stat[5*kk+3], ws->stat[5*kk+4]);

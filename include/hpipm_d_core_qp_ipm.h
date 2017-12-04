@@ -48,6 +48,8 @@ struct d_core_qp_ipm_workspace
 	double *Gamma; // Hessian update
 	double *gamma; // gradient update
 	double alpha; // step length
+	double alpha_prim; // step length
+	double alpha_dual; // step length
 	double sigma; // centering XXX
 	double mu; // duality measuere
 	double mu_aff; // affine duality measuere

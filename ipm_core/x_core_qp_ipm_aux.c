@@ -95,7 +95,15 @@ void COMPUTE_ALPHA_QP(struct CORE_QP_IPM_WORKSPACE *cws)
 	REAL *dlam_lb = cws->dlam;
 	REAL *dt_lb = cws->dt;
 
+	REAL alpha_prim = - 1.0;
+	REAL alpha_dual = - 1.0;
 	REAL alpha = - 1.0;
+
+	REAL mu = cws->mu;
+	REAL tau = 1.0;
+//	REAL tau = 0.995;
+
+	tau = tau>(1-mu) ? tau : 1-mu;
 	
 	// local variables
 	int ii;
@@ -103,18 +111,22 @@ void COMPUTE_ALPHA_QP(struct CORE_QP_IPM_WORKSPACE *cws)
 	for(ii=0; ii<nc; ii++)
 		{
 
-		if( alpha*dlam_lb[ii+0]>lam_lb[ii+0] )
+		if( alpha_dual*dlam_lb[ii+0]>tau*lam_lb[ii+0] )
 			{
-			alpha = lam_lb[ii+0] / dlam_lb[ii+0];
+			alpha_dual = tau*lam_lb[ii+0] / dlam_lb[ii+0];
 			}
-		if( alpha*dt_lb[ii+0]>t_lb[ii+0] )
+		if( alpha_prim*dt_lb[ii+0]>tau*t_lb[ii+0] )
 			{
-			alpha = t_lb[ii+0] / dt_lb[ii+0];
+			alpha_prim = tau*t_lb[ii+0] / dt_lb[ii+0];
 			}
 
 		}
 
+	alpha = alpha_prim>alpha_dual ? alpha_prim : alpha_dual;
+
 	// store alpha
+	cws->alpha_prim = - alpha_prim;
+	cws->alpha_dual = - alpha_dual;
 	cws->alpha = - alpha;
 
 	return;
@@ -140,11 +152,15 @@ void UPDATE_VAR_QP(struct CORE_QP_IPM_WORKSPACE *cws)
 	REAL *dlam = cws->dlam;
 	REAL *dt = cws->dt;
 	REAL alpha = cws->alpha;
+	REAL alpha_prim = cws->alpha_prim;
+	REAL alpha_dual = cws->alpha_dual;
 #if 0
 	if(alpha<1.0)
 		alpha *= 0.995;
 #else
 	alpha = alpha * ((1.0-alpha)*0.99 + alpha*0.9999999);
+	alpha_prim = alpha_prim * ((1.0-alpha_prim)*0.99 + alpha_prim*0.9999999);
+	alpha_dual = alpha_dual * ((1.0-alpha_dual)*0.99 + alpha_dual*0.9999999);
 #endif
 
 	// local variables
@@ -154,24 +170,28 @@ void UPDATE_VAR_QP(struct CORE_QP_IPM_WORKSPACE *cws)
 	for(ii=0; ii<nv; ii++)
 		{
 		v[ii] += alpha * dv[ii];
+//		v[ii] += alpha_prim * dv[ii];
 		}
 
 	// update pi
 	for(ii=0; ii<ne; ii++)
 		{
 		pi[ii] += alpha * dpi[ii];
+//		pi[ii] += alpha_prim * dpi[ii];
 		}
 
 	// update lam
 	for(ii=0; ii<nc; ii++)
 		{
 		lam[ii] += alpha * dlam[ii];
+//		lam[ii] += alpha_dual * dlam[ii];
 		}
 
 	// update t
 	for(ii=0; ii<nc; ii++)
 		{
 		t[ii] += alpha * dt[ii];
+//		t[ii] += alpha_prim * dt[ii];
 		}
 	
 	return;

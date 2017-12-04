@@ -47,6 +47,8 @@ struct s_core_qp_ipm_workspace
 	float *res_m_bkp; // m-residuals
 	float *Gamma; // Hessian update
 	float *gamma; // gradient update
+	float alpha_prim; // step length
+	float alpha_dual; // step length
 	float alpha; // step length
 	float sigma; // centering XXX
 	float mu; // duality measuere
