@@ -222,11 +222,13 @@ void COMPUTE_CENTERING_CORRECTION_QP(struct CORE_QP_IPM_WORKSPACE *cws)
 	REAL *ptr_dlam = cws->dlam;
 	REAL *ptr_dt = cws->dt;
 	REAL *ptr_res_m = cws->res_m;
+	REAL *ptr_res_m_bkp = cws->res_m_bkp;
 
 	REAL sigma_mu = cws->sigma*cws->mu;
 
 	for(ii=0; ii<nc; ii++)
 		{
+		ptr_res_m_bkp[ii+0] = ptr_res_m[ii+0];
 		ptr_res_m[ii+0] += ptr_dt[ii+0] * ptr_dlam[ii+0] - sigma_mu;
 		}
 
@@ -247,12 +249,13 @@ void COMPUTE_CENTERING_QP(struct CORE_QP_IPM_WORKSPACE *cws)
 	REAL *ptr_dlam = cws->dlam;
 	REAL *ptr_dt = cws->dt;
 	REAL *ptr_res_m = cws->res_m;
+	REAL *ptr_res_m_bkp = cws->res_m_bkp;
 
 	REAL sigma_mu = cws->sigma*cws->mu;
 
 	for(ii=0; ii<nc; ii++)
 		{
-		ptr_res_m[ii+0] += - sigma_mu;
+		ptr_res_m[ii+0] = ptr_res_m_bkp[ii+0] - sigma_mu;
 		}
 
 	return;

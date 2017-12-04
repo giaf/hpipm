@@ -44,6 +44,7 @@ struct d_core_qp_ipm_workspace
 	double *res_b; // b-residuals
 	double *res_d; // d-residuals
 	double *res_m; // m-residuals
+	double *res_m_bkp; // m-residuals
 	double *Gamma; // Hessian update
 	double *gamma; // gradient update
 	double alpha; // step length

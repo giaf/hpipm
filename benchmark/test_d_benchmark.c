@@ -506,7 +506,7 @@ int main()
 		struct d_strmat H_fact;
 		d_create_strmat(nv, nv, &H_fact, H_fact_mem);
 
-		dpotrf_l_libstr(nv, qpd_hpipm.Hg, 0, 0, &H_fact, 0, 0);
+		dpotrf_l_libstr(nv, qpd_hpipm.Hv, 0, 0, &H_fact, 0, 0);
 
 		dp = 1;
 		for(ii=0; ii<nv; ii++)
@@ -540,7 +540,7 @@ int main()
         argd.res_m_max = 1e-8;
         argd.iter_max = 100;
         argd.stat_max = 100;
-        argd.alpha_min = 1e-8;
+        argd.alpha_min = 1e-12;
         argd.mu0 = 1e1;
 		argd.pred_corr = 1;
 
@@ -590,7 +590,7 @@ int main()
 		else
 			nfail++;
 
-		printf("%d\t%d\t%d\t%d\t%d\t%d\t%e\t%e\t%e\t%e\t%e\t%e%12.4f\n", i-1, nv, ne, nc, hpipm_return, workspace.iter, workspace.qp_res[0], workspace.qp_res[1], workspace.qp_res[2], workspace.qp_res[3], workspace.res_mu, sol_time, sol_time*1000);
+		printf("%d\t%d\t%d\t%d\t%d\t%d\t%e\t%e\t%e\t%e\t%e\t%e%12.4f\n", i-1, nv, ne, nc, hpipm_return, workspace.iter, workspace.qp_res[0], workspace.qp_res[1], workspace.qp_res[2], workspace.qp_res[3], workspace.res->res_mu, sol_time, sol_time*1000);
 
         /************************************************
         * free memory

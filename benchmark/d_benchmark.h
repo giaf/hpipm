@@ -51,6 +51,7 @@ extern "C" {
 // hpipm
 #include "../include/hpipm_d_dense_qp.h"
 #include "../include/hpipm_d_dense_qp_sol.h"
+#include "../include/hpipm_d_dense_qp_res.h"
 #include "../include/hpipm_d_dense_qp_ipm.h"
 
 #define MAX_STRING_LENGTH 160
