@@ -34,12 +34,12 @@ void INIT_VAR_TREE_OCP_QP(struct TREE_OCP_QP *qp, struct TREE_OCP_QP_SOL *qp_sol
 	int ii, jj;
 
 	//
-	int Nn = qp->Nn;
-	int *nx = qp->nx;
-	int *nu = qp->nu;
-	int *nb = qp->nb;
-	int *ng = qp->ng;
-	int *ns = qp->ns;
+	int Nn = qp->dim->Nn;
+	int *nx = qp->dim->nx;
+	int *nu = qp->dim->nu;
+	int *nb = qp->dim->nb;
+	int *ng = qp->dim->ng;
+	int *ns = qp->dim->ns;
 
 	REAL mu0 = ws->mu0;
 
@@ -49,17 +49,29 @@ void INIT_VAR_TREE_OCP_QP(struct TREE_OCP_QP *qp, struct TREE_OCP_QP_SOL *qp_sol
 
 	REAL thr0 = 0.1;
 
-	// warm start TODO
-
-	// cold start
-
 	// ux
-	for(ii=0; ii<Nn; ii++)
+	if(ws->warm_start==0)
 		{
-		ux = qp_sol->ux[ii].pa;
-		for(jj=0; jj<nu[ii]+nx[ii]+2*ns[ii]; jj++)
+		// cold start
+		for(ii=0; ii<Nn; ii++)
 			{
-			ux[jj] = 0.0;
+			ux = qp_sol->ux[ii].pa;
+			for(jj=0; jj<nu[ii]+nx[ii]+2*ns[ii]; jj++)
+				{
+				ux[jj] = 0.0;
+				}
+			}
+		}
+	else
+		{
+		// warm start (keep u and x in solution)
+		for(ii=0; ii<Nn; ii++)
+			{
+			ux = qp_sol->ux[ii].pa;
+			for(jj=nu[ii]+nx[ii]; jj<nu[ii]+nx[ii]+2*ns[ii]; jj++)
+				{
+				ux[jj] = 0.0;
+				}
 			}
 		}
 	
@@ -86,7 +98,7 @@ void INIT_VAR_TREE_OCP_QP(struct TREE_OCP_QP *qp, struct TREE_OCP_QP_SOL *qp_sol
 		idxb = qp->idxb[ii];
 		for(jj=0; jj<nb[ii]; jj++)
 			{
-#if 0
+#if 1
 			t_lb[jj] = - d_lb[jj] + ux[idxb[jj]];
 			t_ub[jj] =   d_ub[jj] - ux[idxb[jj]];
 			if(t_lb[jj]<thr0)
@@ -130,7 +142,7 @@ void INIT_VAR_TREE_OCP_QP(struct TREE_OCP_QP *qp, struct TREE_OCP_QP_SOL *qp_sol
 		GEMV_T_LIBSTR(nu[ii]+nx[ii], ng[ii], 1.0, qp->DCt+ii, 0, 0, qp_sol->ux+ii, 0, 0.0, qp_sol->t+ii, nb[ii], qp_sol->t+ii, nb[ii]);
 		for(jj=0; jj<ng[ii]; jj++)
 			{
-#if 0
+#if 1
 			t_ug[jj] = - t_lg[jj];
 			t_lg[jj] -= d_lg[jj];
 			t_ug[jj] += d_ug[jj];
@@ -174,7 +186,7 @@ void COMPUTE_RES_TREE_OCP_QP(struct TREE_OCP_QP *qp, struct TREE_OCP_QP_SOL *qp_
 
 	struct CORE_QP_IPM_WORKSPACE *cws = ws->core_workspace;
 
-	struct tree *ttree = qp->ttree;
+	struct tree *ttree = qp->dim->ttree;
 	
 	// loop index
 	int ii, jj;
@@ -182,12 +194,12 @@ void COMPUTE_RES_TREE_OCP_QP(struct TREE_OCP_QP *qp, struct TREE_OCP_QP_SOL *qp_
 	int nkids, idxkid;
 
 	//
-	int Nn = qp->Nn;
-	int *nx = qp->nx;
-	int *nu = qp->nu;
-	int *nb = qp->nb;
-	int *ng = qp->ng;
-	int *ns = qp->ns;
+	int Nn = qp->dim->Nn;
+	int *nx = qp->dim->nx;
+	int *nu = qp->dim->nu;
+	int *nb = qp->dim->nb;
+	int *ng = qp->dim->ng;
+	int *ns = qp->dim->ns;
 
 	int nct = ws->core_workspace->nc;
 
@@ -303,12 +315,14 @@ void COMPUTE_RES_TREE_OCP_QP(struct TREE_OCP_QP *qp, struct TREE_OCP_QP_SOL *qp_
 void FACT_SOLVE_KKT_UNCONSTR_TREE_OCP_QP(struct TREE_OCP_QP *qp, struct TREE_OCP_QP_SOL *qp_sol, struct TREE_OCP_QP_IPM_WORKSPACE *ws)
 	{
 
-	int Nn = qp->Nn;
-	int *nx = qp->nx;
-	int *nu = qp->nu;
-	int *nb = qp->nb;
-	int *ng = qp->ng;
+	int Nn = qp->dim->Nn;
+	int *nx = qp->dim->nx;
+	int *nu = qp->dim->nu;
+	int *nb = qp->dim->nb;
+	int *ng = qp->dim->ng;
 
+	struct tree *ttree = qp->dim->ttree;
+	
 	struct STRMAT *BAbt = qp->BAbt;
 	struct STRMAT *RSQrq = qp->RSQrq;
 	struct STRVEC *b = qp->b;
@@ -336,7 +350,7 @@ void FACT_SOLVE_KKT_UNCONSTR_TREE_OCP_QP(struct TREE_OCP_QP *qp, struct TREE_OCP
 
 		idx = Nn-ii-1;
 
-		nkids = (qp->ttree->root+idx)->nkids;
+		nkids = (ttree->root+idx)->nkids;
 
 #if defined(DOUBLE_PRECISION)
 		TRCP_L_LIBSTR(nu[idx]+nx[idx], RSQrq+idx, 0, 0, L+idx, 0, 0); // TODO dtrcp_l_libstr with m and n, for m>=n
@@ -348,7 +362,7 @@ void FACT_SOLVE_KKT_UNCONSTR_TREE_OCP_QP(struct TREE_OCP_QP *qp, struct TREE_OCP
 		for(jj=0; jj<nkids; jj++)
 			{
 
-			idxkid = (qp->ttree->root+idx)->kids[jj];
+			idxkid = (ttree->root+idx)->kids[jj];
 
 			TRMM_RLNN_LIBSTR(nu[idx]+nx[idx]+1, nx[idxkid], 1.0, L+idxkid, nu[idxkid], nu[idxkid], BAbt+idxkid-1, 0, 0, AL, 0, 0);
 			GEAD_LIBSTR(1, nx[idxkid], 1.0, L+idxkid, nu[idxkid]+nx[idxkid], nu[idxkid], AL, nu[idx]+nx[idx], 0);
@@ -370,7 +384,7 @@ void FACT_SOLVE_KKT_UNCONSTR_TREE_OCP_QP(struct TREE_OCP_QP *qp, struct TREE_OCP
 	ii = 0;
 
 	idx = ii;
-	nkids = (qp->ttree->root+idx)->nkids;
+	nkids = (ttree->root+idx)->nkids;
 
 	ROWEX_LIBSTR(nu[idx]+nx[idx], -1.0, L+idx, nu[idx]+nx[idx], 0, ux+idx, 0);
 	TRSV_LTN_LIBSTR(nu[idx]+nx[idx], L+idx, 0, 0, ux+idx, 0, ux+idx, 0);
@@ -378,7 +392,7 @@ void FACT_SOLVE_KKT_UNCONSTR_TREE_OCP_QP(struct TREE_OCP_QP *qp, struct TREE_OCP
 	for(jj=0; jj<nkids; jj++)
 		{
 
-		idxkid = (qp->ttree->root+idx)->kids[jj];
+		idxkid = (ttree->root+idx)->kids[jj];
 
 		GEMV_T_LIBSTR(nu[idx]+nx[idx], nx[idxkid], 1.0, BAbt+idxkid-1, 0, 0, ux+idx, 0, 1.0, b+idxkid-1, 0, ux+idxkid, nu[idxkid]);
 		ROWEX_LIBSTR(nx[idxkid], 1.0, L+idxkid, nu[idxkid]+nx[idxkid], nu[idxkid], tmp_nxM, 0);
@@ -393,7 +407,7 @@ void FACT_SOLVE_KKT_UNCONSTR_TREE_OCP_QP(struct TREE_OCP_QP *qp, struct TREE_OCP
 		{
 
 		idx = ii;
-		nkids = (qp->ttree->root+idx)->nkids;
+		nkids = (ttree->root+idx)->nkids;
 
 		ROWEX_LIBSTR(nu[idx], -1.0, L+idx, nu[idx]+nx[idx], 0, ux+idx, 0);
 		TRSV_LTN_MN_LIBSTR(nu[idx]+nx[idx], nu[idx], L+idx, 0, 0, ux+idx, 0, ux+idx, 0);
@@ -401,7 +415,7 @@ void FACT_SOLVE_KKT_UNCONSTR_TREE_OCP_QP(struct TREE_OCP_QP *qp, struct TREE_OCP
 		for(jj=0; jj<nkids; jj++)
 			{
 
-			idxkid = (qp->ttree->root+idx)->kids[jj];
+			idxkid = (ttree->root+idx)->kids[jj];
 
 			GEMV_T_LIBSTR(nu[idx]+nx[idx], nx[idxkid], 1.0, BAbt+idxkid-1, 0, 0, ux+idx, 0, 1.0, b+idxkid-1, 0, ux+idxkid, nu[idxkid]);
 			ROWEX_LIBSTR(nx[idxkid], 1.0, L+idxkid, nu[idxkid]+nx[idxkid], nu[idxkid], tmp_nxM, 0);
@@ -424,11 +438,11 @@ static void COND_SLACKS_FACT_SOLVE(int ss, struct TREE_OCP_QP *qp, struct TREE_O
 
 	int ii, idx;
 
-	int nx0 = qp->nx[ss];
-	int nu0 = qp->nu[ss];
-	int nb0 = qp->nb[ss];
-	int ng0 = qp->ng[ss];
-	int ns0 = qp->ns[ss];
+	int nx0 = qp->dim->nx[ss];
+	int nu0 = qp->dim->nu[ss];
+	int nb0 = qp->dim->nb[ss];
+	int ng0 = qp->dim->ng[ss];
+	int ns0 = qp->dim->ns[ss];
 
 	struct STRVEC *Z = qp->Z+ss;
 	int *idxs0 = qp->idxs[ss];
@@ -489,11 +503,11 @@ static void COND_SLACKS_SOLVE(int ss, struct TREE_OCP_QP *qp, struct TREE_OCP_QP
 
 	int ii, idx;
 
-	int nx0 = qp->nx[ss];
-	int nu0 = qp->nu[ss];
-	int nb0 = qp->nb[ss];
-	int ng0 = qp->ng[ss];
-	int ns0 = qp->ns[ss];
+	int nx0 = qp->dim->nx[ss];
+	int nu0 = qp->dim->nu[ss];
+	int nb0 = qp->dim->nb[ss];
+	int ng0 = qp->dim->ng[ss];
+	int ns0 = qp->dim->ns[ss];
 
 	int *idxs0 = qp->idxs[ss];
 
@@ -541,11 +555,11 @@ static void EXPAND_SLACKS(int ss, struct TREE_OCP_QP *qp, struct TREE_OCP_QP_IPM
 
 	int ii, idx;
 
-	int nx0 = qp->nx[ss];
-	int nu0 = qp->nu[ss];
-	int nb0 = qp->nb[ss];
-	int ng0 = qp->ng[ss];
-	int ns0 = qp->ns[ss];
+	int nx0 = qp->dim->nx[ss];
+	int nu0 = qp->dim->nu[ss];
+	int nb0 = qp->dim->nb[ss];
+	int ng0 = qp->dim->ng[ss];
+	int ns0 = qp->dim->ns[ss];
 
 	int *idxs0 = qp->idxs[ss];
 
@@ -581,13 +595,15 @@ static void EXPAND_SLACKS(int ss, struct TREE_OCP_QP *qp, struct TREE_OCP_QP_IPM
 void FACT_SOLVE_KKT_STEP_TREE_OCP_QP(struct TREE_OCP_QP *qp, struct TREE_OCP_QP_IPM_WORKSPACE *ws)
 	{
 
-	int Nn = qp->Nn;
-	int *nx = qp->nx;
-	int *nu = qp->nu;
-	int *nb = qp->nb;
-	int *ng = qp->ng;
-	int *ns = qp->ns;
+	int Nn = qp->dim->Nn;
+	int *nx = qp->dim->nx;
+	int *nu = qp->dim->nu;
+	int *nb = qp->dim->nb;
+	int *ng = qp->dim->ng;
+	int *ns = qp->dim->ns;
 
+	struct tree *ttree = qp->dim->ttree;
+	
 	struct STRMAT *BAbt = qp->BAbt;
 	struct STRMAT *RSQrq = qp->RSQrq;
 	struct STRMAT *DCt = qp->DCt;
@@ -631,7 +647,7 @@ void FACT_SOLVE_KKT_STEP_TREE_OCP_QP(struct TREE_OCP_QP *qp, struct TREE_OCP_QP_
 
 		idx = Nn-ii-1;
 
-		nkids = (qp->ttree->root+idx)->nkids;
+		nkids = (ttree->root+idx)->nkids;
 
 #if defined(DOUBLE_PRECISION)
 		TRCP_L_LIBSTR(nu[idx]+nx[idx], RSQrq+idx, 0, 0, L+idx, 0, 0); // TODO dtrcp_l_libstr with m and n, for m>=n
@@ -643,7 +659,7 @@ void FACT_SOLVE_KKT_STEP_TREE_OCP_QP(struct TREE_OCP_QP *qp, struct TREE_OCP_QP_
 		for(jj=0; jj<nkids; jj++)
 			{
 
-			idxkid = (qp->ttree->root+idx)->kids[jj];
+			idxkid = (ttree->root+idx)->kids[jj];
 
 			GECP_LIBSTR(nu[idx]+nx[idx], nx[idxkid], BAbt+idxkid-1, 0, 0, AL, 0, 0);
 			ROWIN_LIBSTR(nx[idxkid], 1.0, res_b+idxkid-1, 0, AL, nu[idx]+nx[idx], 0);
@@ -691,7 +707,7 @@ void FACT_SOLVE_KKT_STEP_TREE_OCP_QP(struct TREE_OCP_QP *qp, struct TREE_OCP_QP_
 	ii = 0;
 
 	idx = ii;
-	nkids = (qp->ttree->root+idx)->nkids;
+	nkids = (ttree->root+idx)->nkids;
 
 	ROWEX_LIBSTR(nu[idx]+nx[idx], -1.0, L+idx, nu[idx]+nx[idx], 0, dux+idx, 0);
 	TRSV_LTN_LIBSTR(nu[idx]+nx[idx], L+idx, 0, 0, dux+idx, 0, dux+idx, 0);
@@ -699,7 +715,7 @@ void FACT_SOLVE_KKT_STEP_TREE_OCP_QP(struct TREE_OCP_QP *qp, struct TREE_OCP_QP_
 	for(jj=0; jj<nkids; jj++)
 		{
 
-		idxkid = (qp->ttree->root+idx)->kids[jj];
+		idxkid = (ttree->root+idx)->kids[jj];
 
 		GEMV_T_LIBSTR(nu[idx]+nx[idx], nx[idxkid], 1.0, BAbt+idxkid-1, 0, 0, dux+idx, 0, 1.0, res_b+idxkid-1, 0, dux+idxkid, nu[idxkid]);
 		ROWEX_LIBSTR(nx[idxkid], 1.0, L+idxkid, nu[idxkid]+nx[idxkid], nu[idxkid], tmp_nxM, 0);
@@ -714,7 +730,7 @@ void FACT_SOLVE_KKT_STEP_TREE_OCP_QP(struct TREE_OCP_QP *qp, struct TREE_OCP_QP_
 		{
 
 		idx = ii;
-		nkids = (qp->ttree->root+idx)->nkids;
+		nkids = (ttree->root+idx)->nkids;
 
 		ROWEX_LIBSTR(nu[idx], -1.0, L+idx, nu[idx]+nx[idx], 0, dux+idx, 0);
 		TRSV_LTN_MN_LIBSTR(nu[idx]+nx[idx], nu[idx], L+idx, 0, 0, dux+idx, 0, dux+idx, 0);
@@ -722,7 +738,7 @@ void FACT_SOLVE_KKT_STEP_TREE_OCP_QP(struct TREE_OCP_QP *qp, struct TREE_OCP_QP_
 		for(jj=0; jj<nkids; jj++)
 			{
 
-			idxkid = (qp->ttree->root+idx)->kids[jj];
+			idxkid = (ttree->root+idx)->kids[jj];
 
 			GEMV_T_LIBSTR(nu[idx]+nx[idx], nx[idxkid], 1.0, BAbt+idxkid-1, 0, 0, dux+idx, 0, 1.0, res_b+idxkid-1, 0, dux+idxkid, nu[idxkid]);
 			ROWEX_LIBSTR(nx[idxkid], 1.0, L+idxkid, nu[idxkid]+nx[idxkid], nu[idxkid], tmp_nxM, 0);
@@ -765,13 +781,15 @@ void FACT_SOLVE_KKT_STEP_TREE_OCP_QP(struct TREE_OCP_QP *qp, struct TREE_OCP_QP_
 void SOLVE_KKT_STEP_TREE_OCP_QP(struct TREE_OCP_QP *qp, struct TREE_OCP_QP_IPM_WORKSPACE *ws)
 	{
 
-	int Nn = qp->Nn;
-	int *nx = qp->nx;
-	int *nu = qp->nu;
-	int *nb = qp->nb;
-	int *ng = qp->ng;
-	int *ns = qp->ns;
+	int Nn = qp->dim->Nn;
+	int *nx = qp->dim->nx;
+	int *nu = qp->dim->nu;
+	int *nb = qp->dim->nb;
+	int *ng = qp->dim->ng;
+	int *ns = qp->dim->ns;
 
+	struct tree *ttree = qp->dim->ttree;
+	
 	struct STRMAT *BAbt = qp->BAbt;
 	struct STRMAT *RSQrq = qp->RSQrq;
 	struct STRMAT *DCt = qp->DCt;
@@ -810,14 +828,14 @@ void SOLVE_KKT_STEP_TREE_OCP_QP(struct TREE_OCP_QP *qp, struct TREE_OCP_QP_IPM_W
 
 		idx = Nn-ii-1;
 
-		nkids = (qp->ttree->root+idx)->nkids;
+		nkids = (ttree->root+idx)->nkids;
 
 		VECCP_LIBSTR(nu[idx]+nx[idx], res_g+idx, 0, dux+idx, 0);
 
 		for(jj=0; jj<nkids; jj++)
 			{
 
-			idxkid = (qp->ttree->root+idx)->kids[jj];
+			idxkid = (ttree->root+idx)->kids[jj];
 
 			AXPY_LIBSTR(nx[idxkid], 1.0, dux+idxkid, nu[idxkid], Pb+idxkid-1, 0, tmp_nxM, 0);
 			GEMV_N_LIBSTR(nu[idx]+nx[idx], nx[idxkid], 1.0, BAbt+idxkid-1, 0, 0, tmp_nxM, 0, 1.0, dux+idx, 0, dux+idx, 0);
@@ -848,14 +866,14 @@ void SOLVE_KKT_STEP_TREE_OCP_QP(struct TREE_OCP_QP *qp, struct TREE_OCP_QP_IPM_W
 
 	idx = Nn-ii-1;
 
-	nkids = (qp->ttree->root+idx)->nkids;
+	nkids = (ttree->root+idx)->nkids;
 
 	VECCP_LIBSTR(nu[idx]+nx[idx], res_g+idx, 0, dux+idx, 0);
 
 	for(jj=0; jj<nkids; jj++)
 		{
 
-		idxkid = (qp->ttree->root+idx)->kids[jj];
+		idxkid = (ttree->root+idx)->kids[jj];
 
 		AXPY_LIBSTR(nx[idxkid], 1.0, dux+idxkid, nu[idxkid], Pb+idxkid-1, 0, tmp_nxM, 0);
 		GEMV_N_LIBSTR(nu[idx]+nx[idx], nx[idxkid], 1.0, BAbt+idxkid-1, 0, 0, tmp_nxM, 0, 1.0, dux+idx, 0, dux+idx, 0);
@@ -887,7 +905,7 @@ void SOLVE_KKT_STEP_TREE_OCP_QP(struct TREE_OCP_QP *qp, struct TREE_OCP_QP_IPM_W
 	ii = 0;
 
 	idx = ii;
-	nkids = (qp->ttree->root+idx)->nkids;
+	nkids = (ttree->root+idx)->nkids;
 
 	VECSC_LIBSTR(nu[idx]+nx[idx], -1.0, dux+idx, 0);
 	TRSV_LTN_LIBSTR(nu[idx]+nx[idx], L+idx, 0, 0, dux+idx, 0, dux+idx, 0);
@@ -895,7 +913,7 @@ void SOLVE_KKT_STEP_TREE_OCP_QP(struct TREE_OCP_QP *qp, struct TREE_OCP_QP_IPM_W
 	for(jj=0; jj<nkids; jj++)
 		{
 
-		idxkid = (qp->ttree->root+idx)->kids[jj];
+		idxkid = (ttree->root+idx)->kids[jj];
 
 		VECCP_LIBSTR(nx[idxkid], dux+idxkid, nu[idxkid], dpi+idxkid-1, 0);
 		GEMV_T_LIBSTR(nu[idx]+nx[idx], nx[idxkid], 1.0, BAbt+idxkid-1, 0, 0, dux+idx, 0, 1.0, res_b+idxkid-1, 0, dux+idxkid, nu[idxkid]);
@@ -911,7 +929,7 @@ void SOLVE_KKT_STEP_TREE_OCP_QP(struct TREE_OCP_QP *qp, struct TREE_OCP_QP_IPM_W
 		{
 
 		idx = ii;
-		nkids = (qp->ttree->root+idx)->nkids;
+		nkids = (ttree->root+idx)->nkids;
 
 		VECSC_LIBSTR(nu[idx], -1.0, dux+idx, 0);
 		TRSV_LTN_MN_LIBSTR(nu[idx]+nx[idx], nu[idx], L+idx, 0, 0, dux+idx, 0, dux+idx, 0);
@@ -919,7 +937,7 @@ void SOLVE_KKT_STEP_TREE_OCP_QP(struct TREE_OCP_QP *qp, struct TREE_OCP_QP_IPM_W
 		for(jj=0; jj<nkids; jj++)
 			{
 
-			idxkid = (qp->ttree->root+idx)->kids[jj];
+			idxkid = (ttree->root+idx)->kids[jj];
 
 			VECCP_LIBSTR(nx[idxkid], dux+idxkid, nu[idxkid], dpi+idxkid-1, 0);
 			GEMV_T_LIBSTR(nu[idx]+nx[idx], nx[idxkid], 1.0, BAbt+idxkid-1, 0, 0, dux+idx, 0, 1.0, res_b+idxkid-1, 0, dux+idxkid, nu[idxkid]);

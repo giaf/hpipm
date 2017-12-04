@@ -61,6 +61,7 @@ void SET_DEFAULT_TREE_OCP_QP_IPM_ARG(struct TREE_OCP_QP_IPM_ARG *arg)
 	arg->iter_max = 20;
 	arg->stat_max = 20;
 	arg->pred_corr = 1;
+	arg->warm_start = 0;
 
 	return;
 
@@ -75,12 +76,12 @@ int MEMSIZE_TREE_OCP_QP_IPM(struct TREE_OCP_QP *qp, struct TREE_OCP_QP_IPM_ARG *
 	int ii;
 
 	// extract ocp qp size
-	int Nn = qp->Nn;
-	int *nx = qp->nx;
-	int *nu = qp->nu;
-	int *nb = qp->nb;
-	int *ng = qp->ng;
-	int *ns = qp->ns;
+	int Nn = qp->dim->Nn;
+	int *nx = qp->dim->nx;
+	int *nu = qp->dim->nu;
+	int *nb = qp->dim->nb;
+	int *ng = qp->dim->ng;
+	int *ns = qp->dim->ns;
 
 	// compute core qp size and max size
 	int nvt = 0;
@@ -148,12 +149,12 @@ void CREATE_TREE_OCP_QP_IPM(struct TREE_OCP_QP *qp, struct TREE_OCP_QP_IPM_ARG *
 	int ii;
 
 	// extract ocp qp size
-	int Nn = qp->Nn;
-	int *nx = qp->nx;
-	int *nu = qp->nu;
-	int *nb = qp->nb;
-	int *ng = qp->ng;
-	int *ns = qp->ns;
+	int Nn = qp->dim->Nn;
+	int *nx = qp->dim->nx;
+	int *nu = qp->dim->nu;
+	int *nb = qp->dim->nb;
+	int *ng = qp->dim->ng;
+	int *ns = qp->dim->ns;
 
 
 	// compute core qp size and max size
@@ -243,6 +244,7 @@ void CREATE_TREE_OCP_QP_IPM(struct TREE_OCP_QP *qp, struct TREE_OCP_QP_IPM_ARG *
 	d_ptr += 5*arg->stat_max;
 
 	workspace->stat_max = arg->stat_max;
+	workspace->warm_start = arg->warm_start;
 
 
 	// align to typicl cache line size

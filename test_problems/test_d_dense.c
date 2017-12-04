@@ -40,6 +40,7 @@
 
 #include "../include/hpipm_d_dense_qp.h"
 #include "../include/hpipm_d_dense_qp_sol.h"
+#include "../include/hpipm_d_dense_qp_res.h"
 #include "../include/hpipm_d_dense_qp_ipm.h"
 
 
@@ -177,7 +178,7 @@ int main()
 	struct d_dense_qp_dim qp_dim;
 	d_create_dense_qp_dim(&qp_dim, dense_qp_dim_mem);
 
-	d_cvt_int_to_dense_qp_dim(nv, ne, ng, ng, ns, &qp_dim);
+	d_cvt_int_to_dense_qp_dim(nv, ne, nb, ng, ns, &qp_dim);
 
 /************************************************
 * dense qp
@@ -192,11 +193,17 @@ int main()
 	d_cvt_colmaj_to_dense_qp(H, g, A, b, idxb, d_lb, d_ub, C, d_lg, d_ug, Zl, Zu, zl, zu, idxs, &qp);
 
 #if 1
-	d_print_strmat(nv+1, nv, qp.Hg, 0, 0);
+	printf("\nH = \n");
+	d_print_strmat(nv, nv, qp.Hv, 0, 0);
+	printf("\nA = \n");
 	d_print_strmat(ne, nv, qp.A, 0, 0);
+	printf("\nCt = \n");
 	d_print_strmat(nv, ng, qp.Ct, 0, 0);
+	printf("\ng = \n");
 	d_print_strvec(nv, qp.g, 0);
+	printf("\nb = \n");
 	d_print_strvec(ne, qp.b, 0);
+	printf("\nd = \n");
 	d_print_strvec(2*nb+2*ng, qp.d, 0);
 #endif
 
@@ -244,7 +251,7 @@ int main()
 	struct d_dense_qp_ipm_workspace workspace;
 	d_create_dense_qp_ipm(&qp_dim, &arg, &workspace, ipm_mem);
 
-	int rep, nrep=1000;
+	int rep, nrep=1;
 
 	int hpipm_return; // 0 normal; 1 max iter
 
@@ -297,15 +304,15 @@ int main()
 
 	printf("\nresiduals\n\n");
 	printf("\nres_g\n");
-	d_print_e_mat(1, nv+2*ns, workspace.res_g->pa, 1);
+	d_print_e_mat(1, nv+2*ns, workspace.res->res_g->pa, 1);
 	printf("\nres_b\n");
-	d_print_e_mat(1, ne, workspace.res_b->pa, 1);
+	d_print_e_mat(1, ne, workspace.res->res_b->pa, 1);
 	printf("\nres_d\n");
-	d_print_e_mat(1, 2*nb+2*ng+2*ns, workspace.res_d->pa, 1);
+	d_print_e_mat(1, 2*nb+2*ng+2*ns, workspace.res->res_d->pa, 1);
 	printf("\nres_m\n");
-	d_print_e_mat(1, 2*nb+2*ng+2*ns, workspace.res_m->pa, 1);
+	d_print_e_mat(1, 2*nb+2*ng+2*ns, workspace.res->res_m->pa, 1);
 	printf("\nres_mu\n");
-	printf("\n%e\n\n", workspace.res_mu);
+	printf("\n%e\n\n", workspace.res->res_mu);
 
 /************************************************
 * print ipm statistics

@@ -30,9 +30,14 @@
 #include <blasfeo_target.h>
 #include <blasfeo_common.h>
 
+#include "hpipm_s_ocp_qp_res.h"
+
+
+
 #ifdef __cplusplus
 extern "C" {
 #endif
+
 
 
 struct s_ocp_qp_ipm_arg
@@ -52,25 +57,11 @@ struct s_ocp_qp_ipm_arg
 
 
 
-struct s_ocp_qp_res
-	{
-	struct s_ocp_qp_dim *dim;
-	struct s_strvec *res_g; // q-residuals
-	struct s_strvec *res_b; // b-residuals
-	struct s_strvec *res_d; // d-residuals
-	struct s_strvec *res_m; // m-residuals
-	struct s_strvec *tmp_nbgM; // work space of size nbM+ngM
-	struct s_strvec *tmp_nsM; // work space of size nsM
-	float res_mu; // mu-residual
-	int memsize;
-	};
-
-
-
 struct s_ocp_qp_ipm_workspace
 	{
 	struct s_core_qp_ipm_workspace *core_workspace;
-	struct s_ocp_qp_res *res_workspace;
+	struct s_ocp_qp_res *res;
+	struct s_ocp_qp_res_workspace *res_workspace;
 	struct s_strvec *dux;
 	struct s_strvec *dpi;
 	struct s_strvec *dt;
@@ -102,20 +93,11 @@ void s_create_ocp_qp_ipm_arg(struct s_ocp_qp_dim *ocp_dim, struct s_ocp_qp_ipm_a
 void s_set_default_ocp_qp_ipm_arg(struct s_ocp_qp_ipm_arg *arg);
 
 //
-int s_memsize_ocp_qp_res(struct s_ocp_qp_dim *ocp_dim);
-//
-void s_create_ocp_qp_res(struct s_ocp_qp_dim *ocp_dim, struct s_ocp_qp_res *workspace, void *mem);
-
-//
 int s_memsize_ocp_qp_ipm(struct s_ocp_qp_dim *ocp_dim, struct s_ocp_qp_ipm_arg *arg);
 //
 void s_create_ocp_qp_ipm(struct s_ocp_qp_dim *ocp_dim, struct s_ocp_qp_ipm_arg *arg, struct s_ocp_qp_ipm_workspace *ws, void *mem);
 //
 int s_solve_ocp_qp_ipm(struct s_ocp_qp *qp, struct s_ocp_qp_sol *qp_sol, struct s_ocp_qp_ipm_arg *arg, struct s_ocp_qp_ipm_workspace *ws);
-//
-void s_cvt_ocp_qp_res_to_colmaj(struct s_ocp_qp_res *ws, float **res_r, float **res_q, float **res_ls, float **res_us, float **res_b, float **res_d_lb, float **res_d_ub, float **res_d_lg, float **res_d_ug, float **res_d_ls, float **res_d_us, float **res_m_lb, float **res_m_ub, float **res_m_lg, float **res_m_ug, float **res_m_ls, float **res_m_us);
-//
-void s_cvt_ocp_qp_res_to_rowmaj(struct s_ocp_qp_res *ws, float **res_r, float **res_q, float **res_ls, float **res_us, float **res_b, float **res_d_lb, float **res_d_ub, float **res_d_lg, float **res_d_ug, float **res_d_ls, float **res_d_us, float **res_m_lb, float **res_m_ub, float **res_m_lg, float **res_m_ug, float **res_m_ls, float **res_m_us);
 
 #ifdef __cplusplus
 } /* extern "C" */

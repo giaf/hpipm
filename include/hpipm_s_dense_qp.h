@@ -49,7 +49,7 @@ extern "C" {
 struct s_dense_qp
 	{
 	struct s_dense_qp_dim *dim;
-	struct s_strmat *Hg; // hessian & gradient
+	struct s_strmat *Hv; // hessian & gradient
 	struct s_strmat *A; // dynamics matrix
 	struct s_strmat *Ct; // constraints matrix
 	struct s_strvec *g; // gradient

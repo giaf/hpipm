@@ -739,9 +739,9 @@ int main()
 	d_cvt_colmaj_to_ocp_qp(hA, hB, hb, hQ, hS, hR, hq, hr, hidxb, hd_lb, hd_ub, hC, hD, hd_lg, hd_ug, hZl, hZu, hzl, hzu, hidxs, &qp);
 
 #if 0
-	printf("\nN = %d\n", qp.N);
+	printf("\nN = %d\n", qp.dim->N);
 	for(ii=0; ii<N; ii++)
-		d_print_strmat(qp.nu[ii]+qp.nx[ii]+1, qp.nx[ii+1], qp.BAbt+ii, 0, 0);
+		d_print_strmat(qp.dim->nu[ii]+qp.dim->nx[ii]+1, qp.dim->nx[ii+1], qp.BAbt+ii, 0, 0);
 	for(ii=0; ii<N; ii++)
 		d_print_tran_strvec(qp.nx[ii+1], qp.b+ii, 0);
 	for(ii=0; ii<=N; ii++)
@@ -920,7 +920,7 @@ int main()
 	double *res_m_ls[N+1]; for(ii=0; ii<=N; ii++) d_zeros(res_m_ls+ii, ns[ii], 1);
 	double *res_m_us[N+1]; for(ii=0; ii<=N; ii++) d_zeros(res_m_us+ii, ns[ii], 1);
 
-	d_cvt_ocp_qp_res_to_colmaj(workspace.res_workspace, res_r, res_q, res_ls, res_us, res_b, res_d_lb, res_d_ub, res_d_lg, res_d_ug, res_d_ls, res_d_us, res_m_lb, res_m_ub, res_m_lg, res_m_ug, res_m_ls, res_m_us);
+	d_cvt_ocp_qp_res_to_colmaj(workspace.res, res_r, res_q, res_ls, res_us, res_b, res_d_lb, res_d_ub, res_d_lg, res_d_ug, res_d_ls, res_d_us, res_m_lb, res_m_ub, res_m_lg, res_m_ug, res_m_ls, res_m_us);
 
 #if 1
 	printf("\nresiduals\n\n");

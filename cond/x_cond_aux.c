@@ -162,8 +162,8 @@ void COND_RSQRQ_N2NX3(struct OCP_QP *ocp_qp, struct STRMAT *RSQrq2, struct STRVE
 	// early return
 	if(N==0)
 		{
-		GECP_LIBSTR(nu[0]+nx[0]+1, nu[0]+nx[0], &RSQrq[0], 0, 0, &RSQrq2[0], 0, 0);
-		ROWEX_LIBSTR(nu[0]+nx[0], 1.0, &RSQrq[0], nu[0]+nx[0], 0, &rq2[0], 0);
+		GECP_LIBSTR(nu[0]+nx[0]+1, nu[0]+nx[0], &RSQrq[0], 0, 0, &RSQrq2[0], 0, 0); // XXX when removing rq from RSQ !!!
+		ROWEX_LIBSTR(nu[0]+nx[0], 1.0, &RSQrq[0], nu[0]+nx[0], 0, &rq2[0], 0); // XXX when removing rq from RSQ !!!
 		return;
 		}
 

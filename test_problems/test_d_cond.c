@@ -43,6 +43,7 @@
 #include "../include/hpipm_d_ocp_qp_sol.h"
 #include "../include/hpipm_d_dense_qp.h"
 #include "../include/hpipm_d_dense_qp_sol.h"
+#include "../include/hpipm_d_dense_qp_res.h"
 #include "../include/hpipm_d_dense_qp_ipm.h"
 #include "../include/hpipm_d_cond.h"
 
@@ -707,7 +708,7 @@ int main()
 
 #if 1
 	printf("\ncond data\n\n");
-	d_print_strmat(nvc+1, nvc, dense_qp.Hg, 0, 0);
+	d_print_strmat(nvc+1, nvc, dense_qp.Hv, 0, 0); // TODO remove +1
 	d_print_strmat(nec, nvc, dense_qp.A, 0, 0);
 	d_print_strmat(nvc, ngc, dense_qp.Ct, 0, 0);
 	d_print_tran_strvec(nvc, dense_qp.g, 0);
@@ -844,15 +845,15 @@ int main()
 
 	printf("\nresiduals\n\n");
 	printf("\nres_g\n");
-	d_print_e_tran_strvec(nvc+2*nsc, dense_workspace.res_g, 0);
+	d_print_e_tran_strvec(nvc+2*nsc, dense_workspace.res->res_g, 0);
 	printf("\nres_b\n");
-	d_print_e_tran_strvec(nec, dense_workspace.res_b, 0);
+	d_print_e_tran_strvec(nec, dense_workspace.res->res_b, 0);
 	printf("\nres_d\n");
-	d_print_e_tran_strvec(2*nbc+2*ngc+2*nsc, dense_workspace.res_d, 0);
+	d_print_e_tran_strvec(2*nbc+2*ngc+2*nsc, dense_workspace.res->res_d, 0);
 	printf("\nres_m\n");
-	d_print_e_tran_strvec(2*nbc+2*ngc+2*nsc, dense_workspace.res_m, 0);
+	d_print_e_tran_strvec(2*nbc+2*ngc+2*nsc, dense_workspace.res->res_m, 0);
 	printf("\nres_mu\n");
-	printf("\n%e\n\n", dense_workspace.res_mu);
+	printf("\n%e\n\n", dense_workspace.res->res_mu);
 
 /************************************************
 * print ipm statistics

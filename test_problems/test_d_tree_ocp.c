@@ -39,6 +39,7 @@
 
 #include "../include/hpipm_tree.h"
 #include "../include/hpipm_scenario_tree.h"
+#include "../include/hpipm_d_tree_ocp_qp_dim.h"
 #include "../include/hpipm_d_tree_ocp_qp.h"
 #include "../include/hpipm_d_tree_ocp_qp_sol.h"
 #include "../include/hpipm_d_tree_ocp_qp_ipm.h"
@@ -260,26 +261,34 @@ int main()
 	// stage-wise size
 	int nx[Nh+1];
 	int nu[Nh+1];
+	int nbx[Nh+1];
+	int nbu[Nh+1];
 	int nb[Nh+1];
 	int ng[Nh+1];
 	int ns[Nh+1];
 
 	nx[0] = 0;
 	nu[0] = nu_;
-	nb[0] = nu[0]+nx[0]/2;
+	nbx[0] = nx[0]/2;
+	nbu[0] = nu[0];
+	nb[0] = nbx[0] + nbu[0];
 	ng[0] = 0;
 	ns[0] = 0;
 	for(ii=1; ii<Nh; ii++)
 		{
 		nx[ii] = nx_;
 		nu[ii] = nu_;
-		nb[ii] = nu[ii]+nx[ii]/2;
+		nbx[ii] = nx[ii]/2;
+		nbu[ii] = nu[ii];
+		nb[ii] = nbx[ii] + nbu[ii];
 		ng[ii] = 0;
 		ns[ii] = nx[ii]/2;
 		}
 	nx[Nh] = nx_;
 	nu[Nh] = 0;
-	nb[Nh] = nu[Nh]+nx[Nh]/2;
+	nbx[Nh] = nx[Nh]/2;
+	nbu[Nh] = nu[Nh];
+	nb[Nh] = nbx[Nh] + nbu[Nh];
 	ng[Nh] = 0;
 	ns[Nh] = nx[Nh]/2;
 
@@ -622,6 +631,8 @@ int main()
 	// node-wise size
 	int nxt[Nn];
 	int nut[Nn];
+	int nbxt[Nn];
+	int nbut[Nn];
 	int nbt[Nn];
 	int ngt[Nn];
 	int nst[Nn];
@@ -631,6 +642,8 @@ int main()
 		stage = (ttree.root+ii)->stage;
 		nxt[ii] = nx[stage];
 		nut[ii] = nu[stage];
+		nbxt[ii] = nbx[stage];
+		nbut[ii] = nbu[stage];
 		nbt[ii] = nb[stage];
 		ngt[ii] = ng[stage];
 		nst[ii] = ns[stage];
@@ -783,15 +796,27 @@ int main()
 		}
 
 /************************************************
+* create tree ocp qp dim
+************************************************/
+
+	int dim_size = d_memsize_tree_ocp_qp_dim(Nn);
+	printf("\ndim size = %d\n", dim_size);
+	void *dim_mem = malloc(dim_size);
+
+	struct d_tree_ocp_qp_dim dim;
+	d_create_tree_ocp_qp_dim(Nn, &dim, dim_mem);
+	d_cvt_int_to_tree_ocp_qp_dim(&ttree, nxt, nut, nbxt, nbut, ngt, nst, &dim);
+
+/************************************************
 * create tree ocp qp
 ************************************************/	
 
-	int tree_ocp_qp_memory_size = d_memsize_tree_ocp_qp(&ttree, nxt, nut, nbt, ngt, nst);
+	int tree_ocp_qp_memory_size = d_memsize_tree_ocp_qp(&dim);
 	printf("\ntree ocp qp memsize = %d\n", tree_ocp_qp_memory_size);
 	void *tree_ocp_qp_memory = malloc(tree_ocp_qp_memory_size);
 
 	struct d_tree_ocp_qp qp;
-	d_create_tree_ocp_qp(&ttree, nxt, nut, nbt, ngt, nst, &qp, tree_ocp_qp_memory);
+	d_create_tree_ocp_qp(&dim, &qp, tree_ocp_qp_memory);
 	d_cvt_colmaj_to_tree_ocp_qp(hAt, hBt, hbt, hQt, hSt, hRt, hqt, hrt, hidxbt, hd_lbt, hd_ubt, hCt, hDt, hd_lgt, hd_ugt, hZlt, hZut, hzlt, hzut, hidxst, &qp);
 
 #if 0
@@ -833,12 +858,12 @@ exit(1);
 * ocp qp sol
 ************************************************/	
 	
-	int tree_ocp_qp_sol_size = d_memsize_tree_ocp_qp_sol(&ttree, nxt, nut, nbt, ngt, nst);
+	int tree_ocp_qp_sol_size = d_memsize_tree_ocp_qp_sol(&dim);
 	printf("\ntree ocp qp sol memsize = %d\n", tree_ocp_qp_sol_size);
 	void *tree_ocp_qp_sol_memory = malloc(tree_ocp_qp_sol_size);
 
 	struct d_tree_ocp_qp_sol qp_sol;
-	d_create_tree_ocp_qp_sol(&ttree, nxt, nut, nbt, ngt, nst, &qp_sol, tree_ocp_qp_sol_memory);
+	d_create_tree_ocp_qp_sol(&dim, &qp_sol, tree_ocp_qp_sol_memory);
 
 /************************************************
 * ipm arg

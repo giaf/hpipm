@@ -44,6 +44,7 @@ struct s_core_qp_ipm_workspace
 	float *res_b; // b-residuals
 	float *res_d; // d-residuals
 	float *res_m; // m-residuals
+	float *res_m_bkp; // m-residuals
 	float *Gamma; // Hessian update
 	float *gamma; // gradient update
 	float alpha; // step length

@@ -288,7 +288,7 @@ void COND_QP_OCP2DENSE(struct OCP_QP *ocp_qp, struct DENSE_QP *dense_qp, struct 
 
 	COND_BABT(ocp_qp, NULL, NULL, cond_ws);
 
-	COND_RSQRQ_N2NX3(ocp_qp, dense_qp->Hg, dense_qp->g, cond_ws);
+	COND_RSQRQ_N2NX3(ocp_qp, dense_qp->Hv, dense_qp->g, cond_ws);
 
 	COND_DCTD(ocp_qp, dense_qp->idxb, dense_qp->Ct, dense_qp->d, dense_qp->idxs, dense_qp->Z, dense_qp->z, cond_ws);
 

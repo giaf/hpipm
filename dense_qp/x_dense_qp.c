@@ -39,7 +39,7 @@ int MEMSIZE_DENSE_QP(struct DENSE_QP_DIM *dim)
 	int size = 0;
 
 	size += 5*sizeof(struct STRVEC); // g b d Z z
-	size += 3*sizeof(struct STRMAT); // Hg A Ct
+	size += 3*sizeof(struct STRMAT); // Hv A Ct
 
 	size += 1*SIZE_STRVEC(nv); // g
 	size += 1*SIZE_STRVEC(ne); // b
@@ -48,7 +48,7 @@ int MEMSIZE_DENSE_QP(struct DENSE_QP_DIM *dim)
 	size += 1*nb*sizeof(int); // idxb
 	size += 1*ns*sizeof(int); // idxb
 
-	size += 1*SIZE_STRMAT(nv+1, nv); // Hg
+	size += 1*SIZE_STRMAT(nv+1, nv); // Hv
 	size += 1*SIZE_STRMAT(ne, nv); // A
 	size += 1*SIZE_STRMAT(nv, ng); // Ct
 
@@ -74,7 +74,7 @@ void CREATE_DENSE_QP(struct DENSE_QP_DIM *dim, struct DENSE_QP *qp, void *mem)
 	// matrix struct stuff
 	struct STRMAT *sm_ptr = (struct STRMAT *) mem;
 
-	qp->Hg = sm_ptr;
+	qp->Hv = sm_ptr;
 	sm_ptr += 1;
 
 	qp->A = sm_ptr;
@@ -125,8 +125,8 @@ void CREATE_DENSE_QP(struct DENSE_QP_DIM *dim, struct DENSE_QP *qp, void *mem)
 	char *c_ptr;
 	c_ptr = (char *) s_ptr;
 
-	CREATE_STRMAT(nv+1, nv, qp->Hg, c_ptr);
-	c_ptr += qp->Hg->memory_size;
+	CREATE_STRMAT(nv+1, nv, qp->Hv, c_ptr);
+	c_ptr += qp->Hv->memory_size;
 
 	CREATE_STRMAT(ne, nv, qp->A, c_ptr);
 	c_ptr += qp->A->memory_size;
@@ -181,8 +181,7 @@ void CVT_COLMAJ_TO_DENSE_QP(REAL *H, REAL *g, REAL *A, REAL *b, int *idxb, REAL 
 	int ng = qp->dim->ng;
 	int ns = qp->dim->ns;
 
-	CVT_MAT2STRMAT(nv, nv, H, nv, qp->Hg, 0, 0);
-	CVT_TRAN_MAT2STRMAT(nv, 1, g, nv, qp->Hg, nv, 0);
+	CVT_MAT2STRMAT(nv, nv, H, nv, qp->Hv, 0, 0);
 	CVT_VEC2STRVEC(nv, g, qp->g, 0);
 	if(ne>0)
 		{
@@ -227,7 +226,7 @@ void CVT_DENSE_QP_TO_COLMAJ(struct DENSE_QP *qp, REAL *H, REAL *g, REAL *A, REAL
 	int ng = qp->dim->ng;
 	int ns = qp->dim->ns;
 
-	CVT_STRMAT2MAT(nv, nv, qp->Hg, 0, 0, H, nv);
+	CVT_STRMAT2MAT(nv, nv, qp->Hv, 0, 0, H, nv);
 	CVT_STRVEC2VEC(nv, qp->g, 0, g);
 	if(ne>0)
 		{
@@ -272,8 +271,7 @@ void CVT_ROWMAJ_TO_DENSE_QP(REAL *H, REAL *g, REAL *A, REAL *b, int *idxb, REAL 
 	int ng = qp->dim->ng;
 	int ns = qp->dim->ns;
 
-	CVT_TRAN_MAT2STRMAT(nv, nv, H, nv, qp->Hg, 0, 0);
-	CVT_TRAN_MAT2STRMAT(nv, 1, g, nv, qp->Hg, nv, 0);
+	CVT_TRAN_MAT2STRMAT(nv, nv, H, nv, qp->Hv, 0, 0);
 	CVT_VEC2STRVEC(nv, g, qp->g, 0);
 	if(ne>0)
 		{
@@ -318,7 +316,7 @@ void CVT_DENSE_QP_TO_ROWMAJ(struct DENSE_QP *qp, REAL *H, REAL *g, REAL *A, REAL
 	int ng = qp->dim->ng;
 	int ns = qp->dim->ns;
 
-	CVT_TRAN_STRMAT2MAT(nv, nv, qp->Hg, 0, 0, H, nv);
+	CVT_TRAN_STRMAT2MAT(nv, nv, qp->Hv, 0, 0, H, nv);
 	CVT_STRVEC2VEC(nv, qp->g, 0, g);
 	if(ne>0)
 		{
@@ -363,8 +361,7 @@ void CVT_LIBSTR_TO_DENSE_QP(struct STRMAT *H, struct STRMAT *A, struct STRMAT *C
 	int ng = qp->dim->ng;
 	int ns = qp->dim->ns;
 
-	GECP_LIBSTR(nv, nv, H, 0, 0, qp->Hg, 0, 0);
-	ROWIN_LIBSTR(nv, 1.0, g, 0, qp->Hg, nv, 0);
+	GECP_LIBSTR(nv, nv, H, 0, 0, qp->Hv, 0, 0);
 	VECCP_LIBSTR(nv, g, 0, qp->g, 0);
 	if(ne>0)
 		{
@@ -409,7 +406,7 @@ void CVT_DENSE_QP_TO_LIBSTR(struct DENSE_QP *qp, struct STRMAT *H, struct STRMAT
 	int ng = qp->dim->ng;
 	int ns = qp->dim->ns;
 
-	GECP_LIBSTR(nv, nv, qp->Hg, 0, 0, H, 0, 0);
+	GECP_LIBSTR(nv, nv, qp->Hv, 0, 0, H, 0, 0);
 	VECCP_LIBSTR(nv, qp->g, 0, g, 0);
 	if(ne>0)
 		{

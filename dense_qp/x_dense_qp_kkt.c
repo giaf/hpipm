@@ -54,17 +54,16 @@ void INIT_VAR_DENSE_QP(struct DENSE_QP *qp, struct DENSE_QP_SOL *qp_sol, struct 
 	int idxb0;
 	REAL thr0 = 0.1;
 
-	// warm start TODO
-
-
-	// cold start
-
 	// primal variables
-	for(ii=0; ii<nv+2*ns; ii++)
+	if(ws->warm_start==0)
 		{
-		v[ii] = 0.0;
+		// cold start
+		for(ii=0; ii<nv+2*ns; ii++)
+			{
+			v[ii] = 0.0;
+			}
 		}
-	
+		
 	// equality constraints
 	for(ii=0; ii<ne; ii++)
 		{
@@ -105,7 +104,7 @@ void INIT_VAR_DENSE_QP(struct DENSE_QP *qp, struct DENSE_QP_SOL *qp_sol, struct 
 		lam[nb+ng+ii] = mu0/t[nb+ng+ii];
 		}
 	
-	// inequality constraints
+	// general constraints
 	GEMV_T_LIBSTR(nv, ng, 1.0, qp->Ct, 0, 0, qp_sol->v, 0, 0.0, qp_sol->t, nb, qp_sol->t, nb);
 	for(ii=0; ii<ng; ii++)
 		{
@@ -140,10 +139,8 @@ void INIT_VAR_DENSE_QP(struct DENSE_QP *qp, struct DENSE_QP_SOL *qp_sol, struct 
 
 
 
-void COMPUTE_RES_DENSE_QP(struct DENSE_QP *qp, struct DENSE_QP_SOL *qp_sol, struct DENSE_QP_IPM_WORKSPACE *ws)
+void COMPUTE_RES_DENSE_QP(struct DENSE_QP *qp, struct DENSE_QP_SOL *qp_sol, struct DENSE_QP_RES *res, struct DENSE_QP_RES_WORKSPACE *ws)
 	{
-
-	struct CORE_QP_IPM_WORKSPACE *cws = ws->core_workspace;
 
 	int nv = qp->dim->nv;
 	int ne = qp->dim->ne;
@@ -151,9 +148,11 @@ void COMPUTE_RES_DENSE_QP(struct DENSE_QP *qp, struct DENSE_QP_SOL *qp_sol, stru
 	int ng = qp->dim->ng;
 	int ns = qp->dim->ns;
 
-	int nct = ws->core_workspace->nc;
+	int nct = 2*nb+2*ng+2*ns;
 
-	struct STRMAT *Hg = qp->Hg;
+	REAL nct_inv = 1.0/nct;
+
+	struct STRMAT *Hg = qp->Hv;
 	struct STRVEC *g = qp->g;
 	struct STRMAT *A = qp->A;
 	struct STRVEC *b = qp->b;
@@ -169,10 +168,11 @@ void COMPUTE_RES_DENSE_QP(struct DENSE_QP *qp, struct DENSE_QP_SOL *qp_sol, stru
 	struct STRVEC *lam = qp_sol->lam;
 	struct STRVEC *t = qp_sol->t;
 
-	struct STRVEC *res_g = ws->res_g;
-	struct STRVEC *res_b = ws->res_b;
-	struct STRVEC *res_d = ws->res_d;
-	struct STRVEC *res_m = ws->res_m;
+	struct STRVEC *res_g = res->res_g;
+	struct STRVEC *res_b = res->res_b;
+	struct STRVEC *res_d = res->res_d;
+	struct STRVEC *res_m = res->res_m;
+
 	struct STRVEC *tmp_nbg = ws->tmp_nbg;
 	struct STRVEC *tmp_ns = ws->tmp_ns;
 
@@ -221,7 +221,7 @@ void COMPUTE_RES_DENSE_QP(struct DENSE_QP *qp, struct DENSE_QP_SOL *qp_sol, stru
 	// res_mu
 	mu = VECMULDOT_LIBSTR(nct, lam, 0, t, 0, res_m, 0);
 
-	ws->res_mu = mu*cws->nc_inv;
+	res->res_mu = mu*nct_inv;
 
 
 	return;
@@ -238,7 +238,7 @@ void FACT_SOLVE_KKT_UNCONSTR_DENSE_QP(struct DENSE_QP *qp, struct DENSE_QP_SOL *
 	int nb = qp->dim->nb;
 	int ng = qp->dim->ng;
 
-	struct STRMAT *Hg = qp->Hg;
+	struct STRMAT *Hg = qp->Hv;
 	struct STRMAT *A = qp->A;
 	struct STRVEC *g = qp->g;
 	struct STRVEC *b = qp->b;
@@ -285,6 +285,7 @@ void FACT_SOLVE_KKT_UNCONSTR_DENSE_QP(struct DENSE_QP *qp, struct DENSE_QP_SOL *
 		TRSV_LNN_LIBSTR(nv, Lv, 0, 0, v, 0, v, 0);
 		TRSV_LTN_LIBSTR(nv, Lv, 0, 0, v, 0, v, 0);
 #else
+		ROWIN_LIBSTR(nv, 1.0, g, 0, Hg, nv, 0);
 		POTRF_L_MN_LIBSTR(nv+1, nv, Hg, 0, 0, Lv, 0, 0);
 
 		ROWEX_LIBSTR(nv, -1.0, Lv, nv, 0, v, 0);
@@ -311,8 +312,8 @@ static void COND_SLACKS_FACT_SOLVE(struct DENSE_QP *qp, struct DENSE_QP_IPM_WORK
 	struct STRVEC *Z = qp->Z;
 	int *idxs = qp->idxs;
 
-	struct STRVEC *dv = ws->dv;
-	struct STRVEC *res_g = ws->res_g;
+	struct STRVEC *dv = ws->step->v;
+	struct STRVEC *res_g = ws->res->res_g;
 	struct STRVEC *Gamma = ws->Gamma;
 	struct STRVEC *gamma = ws->gamma;
 	struct STRVEC *Zs_inv = ws->Zs_inv;
@@ -374,8 +375,8 @@ static void COND_SLACKS_SOLVE(struct DENSE_QP *qp, struct DENSE_QP_IPM_WORKSPACE
 
 	int *idxs = qp->idxs;
 
-	struct STRVEC *dv = ws->dv;
-	struct STRVEC *res_g = ws->res_g;
+	struct STRVEC *dv = ws->step->v;
+	struct STRVEC *res_g = ws->res->res_g;
 	struct STRVEC *Gamma = ws->Gamma;
 	struct STRVEC *gamma = ws->gamma;
 	struct STRVEC *Zs_inv = ws->Zs_inv;
@@ -425,8 +426,8 @@ static void EXPAND_SLACKS(struct DENSE_QP *qp, struct DENSE_QP_IPM_WORKSPACE *ws
 
 	int *idxs = qp->idxs;
 
-	struct STRVEC *dv = ws->dv;
-	struct STRVEC *dt = ws->dt;
+	struct STRVEC *dv = ws->step->v;
+	struct STRVEC *dt = ws->step->t;
 	struct STRVEC *Gamma = ws->Gamma;
 	struct STRVEC *Zs_inv = ws->Zs_inv;
 
@@ -463,7 +464,7 @@ void FACT_SOLVE_KKT_STEP_DENSE_QP(struct DENSE_QP *qp, struct DENSE_QP_IPM_WORKS
 	int ng = qp->dim->ng;
 	int ns = qp->dim->ns;
 
-	struct STRMAT *Hg = qp->Hg;
+	struct STRMAT *Hg = qp->Hv;
 	struct STRMAT *A = qp->A;
 	struct STRMAT *Ct = qp->Ct;
 	int *idxb = qp->idxb;
@@ -473,11 +474,11 @@ void FACT_SOLVE_KKT_STEP_DENSE_QP(struct DENSE_QP *qp, struct DENSE_QP_IPM_WORKS
 	struct STRMAT *Ctx = ws->Ctx;
 	struct STRMAT *AL = ws->AL;
 	struct STRVEC *lv = ws->lv;
-	struct STRVEC *dv = ws->dv;
-	struct STRVEC *dpi = ws->dpi;
-	struct STRVEC *dt = ws->dt;
-	struct STRVEC *res_g = ws->res_g;
-	struct STRVEC *res_b = ws->res_b;
+	struct STRVEC *dv = ws->step->v;
+	struct STRVEC *dpi = ws->step->pi;
+	struct STRVEC *dt = ws->step->t;
+	struct STRVEC *res_g = ws->res->res_g;
+	struct STRVEC *res_b = ws->res->res_b;
 	struct STRVEC *Gamma = ws->Gamma;
 	struct STRVEC *gamma = ws->gamma;
 	struct STRVEC *tmp_nbg = ws->tmp_nbg;
@@ -646,11 +647,11 @@ void SOLVE_KKT_STEP_DENSE_QP(struct DENSE_QP *qp, struct DENSE_QP_IPM_WORKSPACE 
 	struct STRMAT *Ctx = ws->Ctx;
 	struct STRMAT *AL = ws->AL;
 	struct STRVEC *lv = ws->lv;
-	struct STRVEC *dv = ws->dv;
-	struct STRVEC *dpi = ws->dpi;
-	struct STRVEC *dt = ws->dt;
-	struct STRVEC *res_g = ws->res_g;
-	struct STRVEC *res_b = ws->res_b;
+	struct STRVEC *dv = ws->step->v;
+	struct STRVEC *dpi = ws->step->pi;
+	struct STRVEC *dt = ws->step->t;
+	struct STRVEC *res_g = ws->res->res_g;
+	struct STRVEC *res_b = ws->res->res_b;
 	struct STRVEC *gamma = ws->gamma;
 	struct STRVEC *tmp_nbg = ws->tmp_nbg;
 

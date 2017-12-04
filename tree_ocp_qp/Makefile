@@ -33,9 +33,20 @@ ifeq ($(TARGET), GENERIC)
 OBJS +=
 endif
 
+# common
 OBJS += scenario_tree.o
-OBJS += d_tree_ocp_qp.o d_tree_ocp_qp_sol.o d_tree_ocp_qp_kkt.o d_tree_ocp_qp_ipm.o
-OBJS += s_tree_ocp_qp.o s_tree_ocp_qp_sol.o s_tree_ocp_qp_kkt.o s_tree_ocp_qp_ipm.o
+# double
+OBJS += d_tree_ocp_qp_dim.o
+OBJS += d_tree_ocp_qp.o
+OBJS += d_tree_ocp_qp_sol.o
+OBJS += d_tree_ocp_qp_kkt.o
+OBJS += d_tree_ocp_qp_ipm.o
+# single
+OBJS += s_tree_ocp_qp_dim.o
+OBJS += s_tree_ocp_qp.o
+OBJS += s_tree_ocp_qp_sol.o
+OBJS += s_tree_ocp_qp_kkt.o
+OBJS += s_tree_ocp_qp_ipm.o
 
 obj: $(OBJS)
 
@@ -43,6 +54,8 @@ clean:
 	rm -f *.o
 	rm -f *.s
 
+d_tree_ocp_qp_dim.o: d_tree_ocp_qp_dim.c x_tree_ocp_qp_dim.c
+s_tree_ocp_qp_dim.o: s_tree_ocp_qp_dim.c x_tree_ocp_qp_dim.c
 d_tree_ocp_qp.o: d_tree_ocp_qp.c x_tree_ocp_qp.c
 s_tree_ocp_qp.o: s_tree_ocp_qp.c x_tree_ocp_qp.c
 d_tree_ocp_qp_sol.o: d_tree_ocp_qp_sol.c x_tree_ocp_qp_sol.c

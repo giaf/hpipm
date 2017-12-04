@@ -28,12 +28,19 @@
 #ifndef HPIPM_D_OCP_QP_IPM_H_
 #define HPIPM_D_OCP_QP_IPM_H_
 
+
+
 #include <blasfeo_target.h>
 #include <blasfeo_common.h>
+
+#include "hpipm_d_ocp_qp_res.h"
+
+
 
 #ifdef __cplusplus
 extern "C" {
 #endif
+
 
 
 struct d_ocp_qp_ipm_arg
@@ -53,25 +60,11 @@ struct d_ocp_qp_ipm_arg
 
 
 
-struct d_ocp_qp_res
-	{
-	struct d_ocp_qp_dim *dim;
-	struct d_strvec *res_g; // q-residuals
-	struct d_strvec *res_b; // b-residuals
-	struct d_strvec *res_d; // d-residuals
-	struct d_strvec *res_m; // m-residuals
-	struct d_strvec *tmp_nbgM; // work space of size nbM+ngM
-	struct d_strvec *tmp_nsM; // work space of size nsM
-	double res_mu; // mu-residual
-	int memsize;
-	};
-
-
-
 struct d_ocp_qp_ipm_workspace
 	{
 	struct d_core_qp_ipm_workspace *core_workspace;
-	struct d_ocp_qp_res *res_workspace;
+	struct d_ocp_qp_res *res;
+	struct d_ocp_qp_res_workspace *res_workspace;
 	struct d_strvec *dux;
 	struct d_strvec *dpi;
 	struct d_strvec *dt;
@@ -103,20 +96,11 @@ void d_create_ocp_qp_ipm_arg(struct d_ocp_qp_dim *ocp_dim, struct d_ocp_qp_ipm_a
 void d_set_default_ocp_qp_ipm_arg(struct d_ocp_qp_ipm_arg *arg);
 
 //
-int d_memsize_ocp_qp_res(struct d_ocp_qp_dim *ocp_dim);
-//
-void d_create_ocp_qp_res(struct d_ocp_qp_dim *ocp_dim, struct d_ocp_qp_res *workspace, void *mem);
-
-//
 int d_memsize_ocp_qp_ipm(struct d_ocp_qp_dim *ocp_dim, struct d_ocp_qp_ipm_arg *arg);
 //
 void d_create_ocp_qp_ipm(struct d_ocp_qp_dim *ocp_dim, struct d_ocp_qp_ipm_arg *arg, struct d_ocp_qp_ipm_workspace *ws, void *mem);
 //
 int d_solve_ocp_qp_ipm(struct d_ocp_qp *qp, struct d_ocp_qp_sol *qp_sol, struct d_ocp_qp_ipm_arg *arg, struct d_ocp_qp_ipm_workspace *ws);
-//
-void d_cvt_ocp_qp_res_to_colmaj(struct d_ocp_qp_res *ws, double **res_r, double **res_q, double **res_ls, double **res_us, double **res_b, double **res_d_lb, double **res_d_ub, double **res_d_lg, double **res_d_ug, double **res_d_ls, double **res_d_us, double **res_m_lb, double **res_m_ub, double **res_m_lg, double **res_m_ug, double **res_m_ls, double **res_m_us);
-//
-void d_cvt_ocp_qp_res_to_rowmaj(struct d_ocp_qp_res *ws, double **res_r, double **res_q, double **res_ls, double **res_us, double **res_b, double **res_d_lb, double **res_d_ub, double **res_d_lg, double **res_d_ug, double **res_d_ls, double **res_d_us, double **res_m_lb, double **res_m_ub, double **res_m_lg, double **res_m_ug, double **res_m_ls, double **res_m_us);
 
 
 

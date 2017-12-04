@@ -54,6 +54,7 @@ struct s_dense_qp_ipm_arg
 	int iter_max; // exit cond in iter number
 	int stat_max; // iterations saved in stat
 	int pred_corr; // use Mehrotra's predictor-corrector IPM algirthm
+	int warm_start; // 0 no warm start, 1 warm start primal sol
 	int memsize;
 	};
 
@@ -62,14 +63,11 @@ struct s_dense_qp_ipm_arg
 struct s_dense_qp_ipm_workspace
 	{
 	struct s_core_qp_ipm_workspace *core_workspace;
-	struct s_strvec *dv; // step in v
-	struct s_strvec *dpi; // step in pi
-	struct s_strvec *dlam; // step in lam XXX needed ???
-	struct s_strvec *dt; // step in t XXX needed ???
-	struct s_strvec *res_g; // q-residuals
-	struct s_strvec *res_b; // b-residuals
-	struct s_strvec *res_d; // d-residuals
-	struct s_strvec *res_m; // m-residuals
+	struct s_dense_qp_res *res;
+	struct s_dense_qp_res_workspace *res_workspace;
+	struct s_dense_qp_sol *step;
+	struct s_dense_qp *itref_qp;
+	struct s_dense_qp_res *itref_res;
 	struct s_strvec *Gamma; //
 	struct s_strvec *gamma; //
 	struct s_strvec *Zs_inv; //
@@ -83,9 +81,9 @@ struct s_dense_qp_ipm_workspace
 	float *stat; // convergence statistics
 	float qp_res[4]; // infinity norm of residuals
 	float mu0; // mu0
-	float res_mu; // mu-residual
 	int iter; // iteration number
 	int stat_max; // iterations saved in stat
+	int warm_start; // 0 no warm start, 1 warm start primal sol
 	int memsize; // memory size (in bytes) of workspace
 	};
 

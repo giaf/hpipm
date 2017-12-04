@@ -36,19 +36,23 @@ endif
 # cond
 OBJS += cond/d_cond_aux.o cond/d_cond.o cond/d_part_cond.o
 OBJS += cond/s_cond_aux.o cond/s_cond.o cond/s_part_cond.o
+
 # dense qp
 # double
 OBJS += dense_qp/d_dense_qp_dim.o 
 OBJS += dense_qp/d_dense_qp.o 
 OBJS += dense_qp/d_dense_qp_sol.o 
+OBJS += dense_qp/d_dense_qp_res.o 
 OBJS += dense_qp/d_dense_qp_kkt.o 
 OBJS += dense_qp/d_dense_qp_ipm.o
 # single
 OBJS += dense_qp/s_dense_qp_dim.o 
 OBJS += dense_qp/s_dense_qp.o 
 OBJS += dense_qp/s_dense_qp_sol.o 
+OBJS += dense_qp/s_dense_qp_res.o 
 OBJS += dense_qp/s_dense_qp_kkt.o 
 OBJS += dense_qp/s_dense_qp_ipm.o
+
 # ipm core
 # double
 OBJS += ipm_core/d_core_qp_ipm_aux.o 
@@ -56,31 +60,48 @@ OBJS += ipm_core/d_core_qp_ipm.o
 # single
 OBJS += ipm_core/s_core_qp_ipm_aux.o 
 OBJS += ipm_core/s_core_qp_ipm.o
+
 # ocp nlp
 #OBJS += ocp_nlp/d_ocp_nlp.o ocp_nlp/d_ocp_nlp_sol.o ocp_nlp/d_ocp_nlp_aux.o ocp_nlp/d_ocp_nlp_hyb.o ocp_nlp/d_ocp_nlp_ipm.o ocp_nlp/d_ocp_nlp_sqp.o
 #OBJS +=
+
 # ocp qp
 # double
 OBJS += ocp_qp/d_ocp_qp_dim.o
 OBJS += ocp_qp/d_ocp_qp.o
 OBJS += ocp_qp/d_ocp_qp_sol.o
+OBJS += ocp_qp/d_ocp_qp_res.o
 OBJS += ocp_qp/d_ocp_qp_kkt.o
 OBJS += ocp_qp/d_ocp_qp_ipm.o
 # single
 OBJS += ocp_qp/s_ocp_qp_dim.o
 OBJS += ocp_qp/s_ocp_qp.o
 OBJS += ocp_qp/s_ocp_qp_sol.o
+OBJS += ocp_qp/s_ocp_qp_res.o
 OBJS += ocp_qp/s_ocp_qp_kkt.o
 OBJS += ocp_qp/s_ocp_qp_ipm.o
 # mixed
 #OBJS += ocp_qp/m_ocp_qp.o                       ocp_qp/m_ocp_qp_kkt.o ocp_qp/m_ocp_qp_ipm.o
+
 # sim core
 #OBJS += sim_core/d_rk_int.o sim_core/d_erk_int.o sim_core/d_irk_int.o
 #OBJS +=
+
 # tree ocp qp
+# common
 OBJS += tree_ocp_qp/scenario_tree.o
-OBJS += tree_ocp_qp/d_tree_ocp_qp.o tree_ocp_qp/d_tree_ocp_qp_sol.o tree_ocp_qp/d_tree_ocp_qp_kkt.o tree_ocp_qp/d_tree_ocp_qp_ipm.o
-OBJS += tree_ocp_qp/s_tree_ocp_qp.o tree_ocp_qp/s_tree_ocp_qp_sol.o tree_ocp_qp/s_tree_ocp_qp_kkt.o tree_ocp_qp/s_tree_ocp_qp_ipm.o
+# double
+OBJS += tree_ocp_qp/d_tree_ocp_qp_dim.o
+OBJS += tree_ocp_qp/d_tree_ocp_qp.o
+OBJS += tree_ocp_qp/d_tree_ocp_qp_sol.o
+OBJS += tree_ocp_qp/d_tree_ocp_qp_kkt.o
+OBJS += tree_ocp_qp/d_tree_ocp_qp_ipm.o
+# single
+OBJS += tree_ocp_qp/s_tree_ocp_qp_dim.o
+OBJS += tree_ocp_qp/s_tree_ocp_qp.o
+OBJS += tree_ocp_qp/s_tree_ocp_qp_sol.o
+OBJS += tree_ocp_qp/s_tree_ocp_qp_kkt.o
+OBJS += tree_ocp_qp/s_tree_ocp_qp_ipm.o
 
 all: clean static_library
 

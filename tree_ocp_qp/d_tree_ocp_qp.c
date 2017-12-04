@@ -38,6 +38,7 @@
 
 #include "../include/hpipm_tree.h"
 #include "../include/hpipm_scenario_tree.h"
+#include "../include/hpipm_d_tree_ocp_qp_dim.h"
 #include "../include/hpipm_d_tree_ocp_qp.h"
 
 #define CREATE_STRMAT d_create_strmat
@@ -51,6 +52,7 @@
 #define STRMAT d_strmat
 #define STRVEC d_strvec
 #define TREE_OCP_QP d_tree_ocp_qp
+#define TREE_OCP_QP_DIM d_tree_ocp_qp_dim
 
 #define MEMSIZE_TREE_OCP_QP d_memsize_tree_ocp_qp
 #define CREATE_TREE_OCP_QP d_create_tree_ocp_qp
