@@ -99,6 +99,27 @@ void COMPUTE_ALPHA_QP(struct CORE_QP_IPM_WORKSPACE *cws)
 	REAL alpha_dual = - 1.0;
 	REAL alpha = - 1.0;
 
+#if 1
+
+	// local variables
+	int ii;
+
+	for(ii=0; ii<nc; ii++)
+		{
+
+		if( alpha_dual*dlam_lb[ii+0]>lam_lb[ii+0] )
+			{
+			alpha_dual = lam_lb[ii+0] / dlam_lb[ii+0];
+			}
+		if( alpha_prim*dt_lb[ii+0]>t_lb[ii+0] )
+			{
+			alpha_prim = t_lb[ii+0] / dt_lb[ii+0];
+			}
+
+		}
+
+#else // fraction to the boundary
+
 	REAL mu = cws->mu;
 	REAL tau = 1.0;
 //	REAL tau = 0.995;
@@ -122,6 +143,7 @@ void COMPUTE_ALPHA_QP(struct CORE_QP_IPM_WORKSPACE *cws)
 
 		}
 
+#endif
 	alpha = alpha_prim>alpha_dual ? alpha_prim : alpha_dual;
 
 	// store alpha
@@ -166,34 +188,60 @@ void UPDATE_VAR_QP(struct CORE_QP_IPM_WORKSPACE *cws)
 	// local variables
 	int ii;
 
+#if 1
+
 	// update v
 	for(ii=0; ii<nv; ii++)
 		{
 		v[ii] += alpha * dv[ii];
-//		v[ii] += alpha_prim * dv[ii];
 		}
 
 	// update pi
 	for(ii=0; ii<ne; ii++)
 		{
 		pi[ii] += alpha * dpi[ii];
-//		pi[ii] += alpha_prim * dpi[ii];
 		}
 
 	// update lam
 	for(ii=0; ii<nc; ii++)
 		{
 		lam[ii] += alpha * dlam[ii];
-//		lam[ii] += alpha_dual * dlam[ii];
 		}
 
 	// update t
 	for(ii=0; ii<nc; ii++)
 		{
 		t[ii] += alpha * dt[ii];
-//		t[ii] += alpha_prim * dt[ii];
 		}
-	
+
+#else // split step
+
+	// update v
+	for(ii=0; ii<nv; ii++)
+		{
+		v[ii] += alpha_prim * dv[ii];
+		}
+
+	// update pi
+	for(ii=0; ii<ne; ii++)
+		{
+		pi[ii] += alpha_prim * dpi[ii];
+		}
+
+	// update lam
+	for(ii=0; ii<nc; ii++)
+		{
+		lam[ii] += alpha_dual * dlam[ii];
+		}
+
+	// update t
+	for(ii=0; ii<nc; ii++)
+		{
+		t[ii] += alpha_prim * dt[ii];
+		}
+
+#endif
+
 	return;
 
 	}
@@ -231,6 +279,28 @@ void COMPUTE_MU_AFF_QP(struct CORE_QP_IPM_WORKSPACE *cws)
 
 
 
+void BACKUP_RES_M(struct CORE_QP_IPM_WORKSPACE *cws)
+	{
+
+	int ii;
+
+	// extract workspace members
+	int nc = cws->nc;
+
+	REAL *ptr_res_m = cws->res_m;
+	REAL *ptr_res_m_bkp = cws->res_m_bkp;
+
+	for(ii=0; ii<nc; ii++)
+		{
+		ptr_res_m_bkp[ii+0] = ptr_res_m[ii+0];
+		}
+
+	return;
+
+	}
+
+
+
 void COMPUTE_CENTERING_CORRECTION_QP(struct CORE_QP_IPM_WORKSPACE *cws)
 	{
 
@@ -248,8 +318,7 @@ void COMPUTE_CENTERING_CORRECTION_QP(struct CORE_QP_IPM_WORKSPACE *cws)
 
 	for(ii=0; ii<nc; ii++)
 		{
-		ptr_res_m_bkp[ii+0] = ptr_res_m[ii+0];
-		ptr_res_m[ii+0] += ptr_dt[ii+0] * ptr_dlam[ii+0] - sigma_mu;
+		ptr_res_m[ii+0] = ptr_res_m_bkp[ii+0] + ptr_dt[ii+0] * ptr_dlam[ii+0] - sigma_mu;
 		}
 
 	return;

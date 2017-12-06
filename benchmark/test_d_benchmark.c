@@ -500,6 +500,9 @@ int main()
         /* qp_benchmark -> qpd_hpipm */
         cvt_benchmark_to_hpipm(&qp_bench, &qpd_hpipm, &tran_space);
 
+		double reg = 0e-8;
+		ddiare_libstr(nv, reg, qpd_hpipm.Hv, 0, 0);
+
 		int H_fact_size = d_size_strmat(nv, nv);
 		void *H_fact_mem; v_zeros_align(&H_fact_mem, H_fact_size);
 
@@ -534,15 +537,16 @@ int main()
         d_create_dense_qp_ipm_arg(&dim, &argd, ipm_arg_mem);
         d_set_default_dense_qp_ipm_arg(&argd);
         /* consistent with setting in acore */
-        argd.res_g_max = 1e-6;
-        argd.res_b_max = 1e-8;
-        argd.res_d_max = 1e-8;
-        argd.res_m_max = 1e-8;
-        argd.iter_max = 200;
-        argd.stat_max = 200;
+        argd.res_g_max = 1e-4;
+        argd.res_b_max = 1e-4;
+        argd.res_d_max = 1e-4;
+        argd.res_m_max = 1e-4;
+        argd.iter_max = 500;
+        argd.stat_max = 500;
         argd.alpha_min = 1e-12;
         argd.mu0 = 1e1;
 		argd.pred_corr = 1;
+		argd.cond_pred_corr = 1;
 
         /************************************************
         * dense ipm

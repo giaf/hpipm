@@ -45,6 +45,7 @@
 
 
 
+#define BACKUP_RES_M d_backup_res_m
 #define COMPUTE_ALPHA_QP d_compute_alpha_qp
 #define COMPUTE_CENTERING_CORRECTION_QP d_compute_centering_correction_qp
 #define COMPUTE_CENTERING_QP d_compute_centering_qp

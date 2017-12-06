@@ -50,15 +50,16 @@ void CREATE_OCP_QP_IPM_ARG(struct OCP_QP_DIM *dim, struct OCP_QP_IPM_ARG *arg, v
 void SET_DEFAULT_OCP_QP_IPM_ARG(struct OCP_QP_IPM_ARG *arg)
 	{
 
-	arg->mu0 = 100;
-	arg->alpha_min = 1e-8;
-	arg->res_g_max = 1e-8;
+	arg->mu0 = 10;
+	arg->alpha_min = 1e-12;
+	arg->res_g_max = 1e-6;
 	arg->res_b_max = 1e-8;
-	arg->res_d_max = 1e-12;
-	arg->res_m_max = 1e-12;
+	arg->res_d_max = 1e-8;
+	arg->res_m_max = 1e-8;
 	arg->iter_max = 20;
 	arg->stat_max = 20;
 	arg->pred_corr = 1;
+	arg->cond_pred_corr = 1;
 	arg->warm_start = 0;
 
 	return;
@@ -479,15 +480,19 @@ int SOLVE_OCP_QP_IPM(struct OCP_QP *qp, struct OCP_QP_SOL *qp_sol, struct OCP_QP
 
 	ws->mu0 = arg->mu0;
 
-	int kk = 0;
+	int kk;
 	REAL tmp;
+	REAL mu_aff0;
 
 	// init solver
 	INIT_VAR_OCP_QP(qp, qp_sol, ws);
 
 	// compute residuals
 	COMPUTE_RES_OCP_QP(qp, qp_sol, ws->res, ws->res_workspace);
+	BACKUP_RES_M(cws);
 	cws->mu = ws->res->res_mu;
+
+	cws->alpha = 1.0;
 
 	// compute infinity norm of residuals
 	VECNRM_INF_LIBSTR(cws->nv, &str_res_g, 0, &qp_res[0]);
@@ -495,7 +500,12 @@ int SOLVE_OCP_QP_IPM(struct OCP_QP *qp, struct OCP_QP_SOL *qp_sol, struct OCP_QP
 	VECNRM_INF_LIBSTR(cws->nc, &str_res_d, 0, &qp_res[2]);
 	VECNRM_INF_LIBSTR(cws->nc, &str_res_m, 0, &qp_res[3]);
 
-	for(kk=0; kk<arg->iter_max & (qp_res[0]>arg->res_g_max | qp_res[1]>arg->res_b_max | qp_res[2]>arg->res_d_max | qp_res[3]>arg->res_m_max); kk++)
+	for(kk=0; kk<arg->iter_max & \
+			cws->alpha>arg->alpha_min & \
+			(qp_res[0]>arg->res_g_max | \
+			qp_res[1]>arg->res_b_max | \
+			qp_res[2]>arg->res_d_max | \
+			qp_res[3]>arg->res_m_max); kk++)
 		{
 
 		// fact and solve kkt
@@ -506,6 +516,7 @@ int SOLVE_OCP_QP_IPM(struct OCP_QP *qp, struct OCP_QP_SOL *qp_sol, struct OCP_QP
 		if(kk<ws->stat_max)
 			ws->stat[5*kk+0] = cws->alpha;
 
+		// Mehrotra's predictor-corrector
 		if(arg->pred_corr==1)
 			{
 			// mu_aff
@@ -527,6 +538,36 @@ int SOLVE_OCP_QP_IPM(struct OCP_QP *qp, struct OCP_QP_SOL *qp_sol, struct OCP_QP
 			COMPUTE_ALPHA_QP(cws);
 			if(kk<ws->stat_max)
 				ws->stat[5*kk+3] = cws->alpha;
+
+			// conditional Mehrotra's predictor-corrector
+			if(arg->cond_pred_corr==1)
+				{
+
+				// save mu_aff (from prediction step)
+				mu_aff0 = cws->mu_aff;
+
+				// compute mu for predictor-corrector-centering
+				COMPUTE_MU_AFF_QP(cws);
+
+//				if(cws->mu_aff > 2.0*cws->mu)
+				if(cws->mu_aff > 2.0*mu_aff0)
+					{
+
+					// centering direction
+					COMPUTE_CENTERING_QP(cws);
+
+					// solve kkt
+					SOLVE_KKT_STEP_OCP_QP(qp, ws);
+
+					// alpha
+					COMPUTE_ALPHA_QP(cws);
+					if(kk<ws->stat_max)
+						ws->stat[5*kk+3] = cws->alpha;
+
+					}
+
+				}
+
 			}
 
 		//
@@ -534,6 +575,7 @@ int SOLVE_OCP_QP_IPM(struct OCP_QP *qp, struct OCP_QP_SOL *qp_sol, struct OCP_QP
 
 		// compute residuals
 		COMPUTE_RES_OCP_QP(qp, qp_sol, ws->res, ws->res_workspace);
+		BACKUP_RES_M(cws);
 		cws->mu = ws->res->res_mu;
 		if(kk<ws->stat_max)
 			ws->stat[5*kk+4] = ws->res->res_mu;
@@ -551,6 +593,10 @@ int SOLVE_OCP_QP_IPM(struct OCP_QP *qp, struct OCP_QP_SOL *qp_sol, struct OCP_QP
 	// max iteration number reached
 	if(kk==arg->iter_max)
 		return 1;
+
+	// min step lenght
+	if(cws->alpha <= arg->alpha_min)
+		return 2;
 
 	// normal return
 	return 0;

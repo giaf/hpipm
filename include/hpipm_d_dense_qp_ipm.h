@@ -53,7 +53,8 @@ struct d_dense_qp_ipm_arg
 	double res_m_max; // exit cond on inf norm of residuals
 	int iter_max; // exit cond in iter number
 	int stat_max; // iterations saved in stat
-	int pred_corr; // use Mehrotra's predictor-corrector IPM algirthm
+	int pred_corr; // Mehrotra's predictor-corrector IPM algirthm
+	int cond_pred_corr; // conditional Mehrotra's predictor-corrector
 	int warm_start; // 0 no warm start, 1 warm start primal sol
 	int memsize;
 	};
