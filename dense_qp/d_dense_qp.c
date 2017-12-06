@@ -57,6 +57,7 @@
 #define STRMAT d_strmat
 #define STRVEC d_strvec
 #define VECCP_LIBSTR dveccp_libstr
+#define VECSE_LIBSTR dvecse_libstr
 
 #define MEMSIZE_DENSE_QP d_memsize_dense_qp
 #define CREATE_DENSE_QP d_create_dense_qp

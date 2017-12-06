@@ -153,11 +153,12 @@ void COMPUTE_RES_DENSE_QP(struct DENSE_QP *qp, struct DENSE_QP_SOL *qp_sol, stru
 	REAL nct_inv = 1.0/nct;
 
 	struct STRMAT *Hg = qp->Hv;
-	struct STRVEC *g = qp->g;
 	struct STRMAT *A = qp->A;
-	struct STRVEC *b = qp->b;
 	struct STRMAT *Ct = qp->Ct;
+	struct STRVEC *g = qp->g;
+	struct STRVEC *b = qp->b;
 	struct STRVEC *d = qp->d;
+	struct STRVEC *m = qp->m;
 	int *idxb = qp->idxb;
 	struct STRVEC *Z = qp->Z;
 	struct STRVEC *z = qp->z;
@@ -218,10 +219,107 @@ void COMPUTE_RES_DENSE_QP(struct DENSE_QP *qp, struct DENSE_QP_SOL *qp_sol, stru
 	// res b, res g
 	GEMV_NT_LIBSTR(ne, nv, -1.0, -1.0, A, 0, 0, v, 0, pi, 0, 1.0, 1.0, b, 0, res_g, 0, res_b, 0, res_g, 0);
 
-	// res_mu
+	// res_m res_mu
 	mu = VECMULDOT_LIBSTR(nct, lam, 0, t, 0, res_m, 0);
-
+	AXPY_LIBSTR(nct, -1.0, m, 0, res_m, 0, res_m, 0);
 	res->res_mu = mu*nct_inv;
+
+
+	return;
+
+	}
+
+
+void COMPUTE_LIN_RES_DENSE_QP(struct DENSE_QP *qp, struct DENSE_QP_SOL *qp_sol, struct DENSE_QP_SOL *qp_step, struct DENSE_QP_RES *res, struct DENSE_QP_RES_WORKSPACE *ws)
+	{
+
+	int nv = qp->dim->nv;
+	int ne = qp->dim->ne;
+	int nb = qp->dim->nb;
+	int ng = qp->dim->ng;
+	int ns = qp->dim->ns;
+
+	int nct = 2*nb+2*ng+2*ns;
+
+	REAL nct_inv = 1.0/nct;
+
+	struct STRMAT *Hg = qp->Hv;
+	struct STRMAT *A = qp->A;
+	struct STRMAT *Ct = qp->Ct;
+	struct STRVEC *g = qp->g;
+	struct STRVEC *b = qp->b;
+	struct STRVEC *d = qp->d;
+	struct STRVEC *m = qp->m;
+	int *idxb = qp->idxb;
+	struct STRVEC *Z = qp->Z;
+	struct STRVEC *z = qp->z;
+	int *idxs = qp->idxs;
+
+	struct STRVEC *v = qp_step->v;
+	struct STRVEC *pi = qp_step->pi;
+	struct STRVEC *lam = qp_step->lam;
+	struct STRVEC *t = qp_step->t;
+
+	struct STRVEC *Lam = qp_sol->lam;
+	struct STRVEC *T = qp_sol->t;
+
+	struct STRVEC *res_g = res->res_g;
+	struct STRVEC *res_b = res->res_b;
+	struct STRVEC *res_d = res->res_d;
+	struct STRVEC *res_m = res->res_m;
+
+	struct STRVEC *tmp_nbg = ws->tmp_nbg;
+	struct STRVEC *tmp_ns = ws->tmp_ns;
+
+	REAL mu;
+
+	// res g
+	SYMV_L_LIBSTR(nv, nv, 1.0, Hg, 0, 0, v, 0, 1.0, g, 0, res_g, 0);
+
+	if(nb+ng>0)
+		{
+		AXPY_LIBSTR(nb+ng, -1.0, lam, 0, lam, nb+ng, tmp_nbg+0, 0);
+		AXPY_LIBSTR(nb+ng,  1.0, d, 0, t, 0, res_d, 0);
+		AXPY_LIBSTR(nb+ng, -1.0, d, nb+ng, t, nb+ng, res_d, nb+ng);
+		// box
+		if(nb>0)
+			{
+			VECAD_SP_LIBSTR(nb, 1.0, tmp_nbg+0, 0, idxb, res_g, 0);
+			VECEX_SP_LIBSTR(nb, 1.0, idxb, v, 0, tmp_nbg+1, 0);
+			}
+		// general
+		if(ng>0)
+			{
+			GEMV_NT_LIBSTR(nv, ng, 1.0, 1.0, Ct, 0, 0, tmp_nbg+0, nb, v, 0, 1.0, 0.0, res_g, 0, tmp_nbg+1, nb, res_g, 0, tmp_nbg+1, nb);
+			}
+		AXPY_LIBSTR(nb+ng, -1.0, tmp_nbg+1, 0, res_d, 0, res_d, 0);
+		AXPY_LIBSTR(nb+ng,  1.0, tmp_nbg+1, 0, res_d, nb+ng, res_d, nb+ng);
+		}
+	if(ns>0)
+		{
+		// res_g
+		GEMV_DIAG_LIBSTR(2*ns, 1.0, Z, 0, v, nv, 1.0, z, 0, res_g, nv);
+		AXPY_LIBSTR(2*ns, -1.0, lam, 2*nb+2*ng, res_g, nv, res_g, nv);
+		VECEX_SP_LIBSTR(ns, 1.0, idxs, lam, 0, tmp_ns, 0);
+		AXPY_LIBSTR(ns, -1.0, tmp_ns, 0, res_g, nv, res_g, nv);
+		VECEX_SP_LIBSTR(ns, 1.0, idxs, lam, nb+ng, tmp_ns, 0);
+		AXPY_LIBSTR(ns, -1.0, tmp_ns, 0, res_g, nv+ns, res_g, nv+ns);
+		// res_d
+		VECAD_SP_LIBSTR(ns, -1.0, v, nv, idxs, res_d, 0);
+		VECAD_SP_LIBSTR(ns, -1.0, v, nv+ns, idxs, res_d, nb+ng);
+		AXPY_LIBSTR(2*ns, -1.0, v, nv, t, 2*nb+2*ng, res_d, 2*nb+2*ng);
+		}
+	
+	// res b, res g
+	GEMV_NT_LIBSTR(ne, nv, -1.0, -1.0, A, 0, 0, v, 0, pi, 0, 1.0, 1.0, b, 0, res_g, 0, res_b, 0, res_g, 0);
+
+	// res_m res_mu
+	VECCPSC_LIBSTR(nct, 1.0, m, 0, res_m, 0);
+	VECMULACC_LIBSTR(nct, Lam, 0, t, 0, res_m, 0);
+	VECMULACC_LIBSTR(nct, lam, 0, T, 0, res_m, 0);
+//	mu = VECMULDOT_LIBSTR(nct, lam, 0, t, 0, res_m, 0);
+//	AXPY_LIBSTR(nct, -1.0, m, 0, res_m, 0, res_m, 0);
+//	res->res_mu = mu*nct_inv;
 
 
 	return;

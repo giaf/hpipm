@@ -49,6 +49,7 @@
 #define COMPUTE_ALPHA_QP d_compute_alpha_qp
 #define COMPUTE_CENTERING_CORRECTION_QP d_compute_centering_correction_qp
 #define COMPUTE_CENTERING_QP d_compute_centering_qp
+#define COMPUTE_LIN_RES_DENSE_QP d_compute_lin_res_dense_qp
 #define COMPUTE_MU_AFF_QP d_compute_mu_aff_qp
 #define COMPUTE_RES_DENSE_QP d_compute_res_dense_qp
 #define CORE_QP_IPM_WORKSPACE d_core_qp_ipm_workspace

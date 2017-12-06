@@ -38,12 +38,12 @@ int MEMSIZE_DENSE_QP(struct DENSE_QP_DIM *dim)
 
 	int size = 0;
 
-	size += 5*sizeof(struct STRVEC); // g b d Z z
+	size += 6*sizeof(struct STRVEC); // g b d m Z z
 	size += 3*sizeof(struct STRMAT); // Hv A Ct
 
 	size += 1*SIZE_STRVEC(nv); // g
 	size += 1*SIZE_STRVEC(ne); // b
-	size += 1*SIZE_STRVEC(2*nb+2*ng); // d
+	size += 2*SIZE_STRVEC(2*nb+2*ng); // d m
 	size += 2*SIZE_STRVEC(2*ns); // Z z
 	size += 1*nb*sizeof(int); // idxb
 	size += 1*ns*sizeof(int); // idxb
@@ -96,6 +96,9 @@ void CREATE_DENSE_QP(struct DENSE_QP_DIM *dim, struct DENSE_QP *qp, void *mem)
 	qp->d = sv_ptr;
 	sv_ptr += 1;
 
+	qp->m = sv_ptr;
+	sv_ptr += 1;
+
 	qp->Z = sv_ptr;
 	sv_ptr += 1;
 
@@ -142,6 +145,9 @@ void CREATE_DENSE_QP(struct DENSE_QP_DIM *dim, struct DENSE_QP *qp, void *mem)
 
 	CREATE_STRVEC(2*nb+2*ng, qp->d, c_ptr);
 	c_ptr += qp->d->memory_size;
+
+	CREATE_STRVEC(2*nb+2*ng, qp->m, c_ptr);
+	c_ptr += qp->m->memory_size;
 
 	CREATE_STRVEC(2*ns, qp->Z, c_ptr);
 	c_ptr += qp->Z->memory_size;
@@ -193,12 +199,16 @@ void CVT_COLMAJ_TO_DENSE_QP(REAL *H, REAL *g, REAL *A, REAL *b, int *idxb, REAL 
 		for(ii=0; ii<nb; ii++) qp->idxb[ii] = idxb[ii];
 		CVT_VEC2STRVEC(nb, d_lb, qp->d, 0);
 		CVT_VEC2STRVEC(nb, d_ub, qp->d, nb+ng);
+		VECSE_LIBSTR(nb, 0.0, qp->m, 0);
+		VECSE_LIBSTR(nb, 0.0, qp->m, nb+ng);
 		}
 	if(ng>0)
 		{
 		CVT_TRAN_MAT2STRMAT(ng, nv, C, ng, qp->Ct, 0, 0);
 		CVT_VEC2STRVEC(ng, d_lg, qp->d, nb);
 		CVT_VEC2STRVEC(ng, d_ug, qp->d, 2*nb+ng);
+		VECSE_LIBSTR(ng, 0.0, qp->m, nb);
+		VECSE_LIBSTR(ng, 0.0, qp->m, 2*nb+ng);
 		}
 	if(ns>0)
 		{

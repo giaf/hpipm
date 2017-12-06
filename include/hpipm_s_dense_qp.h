@@ -55,6 +55,7 @@ struct s_dense_qp
 	struct s_strvec *g; // gradient
 	struct s_strvec *b; // dynamics vector
 	struct s_strvec *d; // constraints vector
+	struct s_strvec *m; // rhs of complementarity condition
 	struct s_strvec *Z; // (diagonal) hessian of slacks
 	struct s_strvec *z; // gradient of slacks
 	int *idxb; // index of box constraints

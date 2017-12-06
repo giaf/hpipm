@@ -79,11 +79,14 @@
 #define VECAD_SP_LIBSTR svecad_sp_libstr
 #define VECCP_LIBSTR sveccp_libstr
 #define VECEX_SP_LIBSTR svecex_sp_libstr
+#define VECMULACC_LIBSTR svecmulacc_libstr
 #define VECMULDOT_LIBSTR svecmuldot_libstr
 #define VECSC_LIBSTR svecsc_libstr
+#define VECCPSC_LIBSTR sveccpsc_libstr
 
 #define INIT_VAR_DENSE_QP s_init_var_dense_qp
 #define COMPUTE_RES_DENSE_QP s_compute_res_dense_qp
+#define COMPUTE_LIN_RES_DENSE_QP s_compute_lin_res_dense_qp
 #define FACT_SOLVE_KKT_UNCONSTR_DENSE_QP s_fact_solve_kkt_unconstr_dense_qp
 #define FACT_SOLVE_KKT_STEP_DENSE_QP s_fact_solve_kkt_step_dense_qp
 #define SOLVE_KKT_STEP_DENSE_QP s_solve_kkt_step_dense_qp
