@@ -30,6 +30,7 @@
 #include <stdlib.h>
 /*#include <math.h>*/
 
+#include "hpipm_d_ocp_qp_dim.h"
 #include "hpipm_d_ocp_qp.h"
 #include "hpipm_d_ocp_qp_sol.h"
 #include "hpipm_d_ocp_qp_ipm.h"
@@ -118,6 +119,7 @@ void mexFunction( int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
 
 	// 
 	int ii, jj;
+	int i_tmp;
 
 
 
@@ -137,10 +139,23 @@ void mexFunction( int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
 	nu_v[N] = 0;
 
 	int nb_v[N+1];
-	nb_v[0] = nb0;
+	nb_v[0] = nb<nu ? nb : nu;
 	for(ii=1; ii<N; ii++)
 		nb_v[ii] = nb;
-	nb_v[N] = nbN;
+	i_tmp = nb-nu;
+	nb_v[N] = i_tmp<0 ? 0 : i_tmp;
+
+	int nbu_v[N+1];
+	for(ii=0; ii<N; ii++)
+		nbu_v[ii] = nb<nu ? nb : nu;
+	nbu_v[N] = 0;
+
+	int nbx_v[N+1];
+	for(ii=0; ii<=N; ii++)
+		{
+		i_tmp = nb_v[ii]-nbu_v[ii];
+		nbx_v[ii] = i_tmp>=0 ? i_tmp : 0;
+		}
 
 	int ng_v[N+1];
 	for(ii=0; ii<N; ii++)
@@ -159,7 +174,6 @@ void mexFunction( int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
 		for(jj=0; jj<nb_v[ii]; jj++)
 			hidxb[ii][jj] = jj;
 		}
-
 
 
 	double b0[nx];
@@ -379,42 +393,87 @@ void mexFunction( int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
 
 
 
-	int qp_size = d_memsize_ocp_qp(N, nx_v, nu_v, nb_v, ng_v, ns_v);
+	// qp dim
+	int dim_size = d_memsize_ocp_qp_dim(N);
+	void *dim_mem = malloc(dim_size);
+
+	struct d_ocp_qp_dim dim;
+	d_create_ocp_qp_dim(N, &dim, dim_mem);
+	d_cvt_int_to_ocp_qp_dim(N, nx_v, nu_v, nbx_v, nbu_v, ng_v, ns_v, &dim);
+
+//	for(ii=0; ii<=N; ii++)
+//		printf("\n%d %d %d %d %d %d %d\n", nx_v[ii], nu_v[ii], nb_v[ii], nbu_v[ii], nbx_v[ii], ng_v[ii], ns_v[ii]);
+
+
+	// qp
+	int qp_size = d_memsize_ocp_qp(&dim);
 	void *qp_mem = malloc(qp_size);
 	struct d_ocp_qp qp;
-	d_create_ocp_qp(N, nx_v, nu_v, nb_v, ng_v, ns_v, &qp, qp_mem);
+	d_create_ocp_qp(&dim, &qp, qp_mem);
 	d_cvt_colmaj_to_ocp_qp(hA, hB, hb, hQ, hS, hR, hq, hr, hidxb, hlb, hub, hC, hD, hlg, hug, NULL, NULL, NULL, NULL, NULL, &qp);
 
-	int qp_sol_size = d_memsize_ocp_qp_sol(N, nx_v, nu_v, nb_v, ng_v, ns_v);
+
+	// qp sol
+	int qp_sol_size = d_memsize_ocp_qp_sol(&dim);
 	void *qp_sol_mem = malloc(qp_sol_size);
 	struct d_ocp_qp_sol qp_sol;
-	d_create_ocp_qp_sol(N, nx_v, nu_v, nb_v, ng_v, ns_v, &qp_sol, qp_sol_mem);
+	d_create_ocp_qp_sol(&dim, &qp_sol, qp_sol_mem);
+
+
+	// ipm arg
+	int ipm_arg_size = d_memsize_ocp_qp_ipm_arg(&dim);
+	void *ipm_arg_mem = malloc(ipm_arg_size);
 
 	struct d_ocp_qp_ipm_arg arg;
-	arg.alpha_min = 1e-8;
-	arg.mu_max = 1e-12;
-	arg.iter_max = 20;
-	arg.mu0 = 2.0;
+	d_create_ocp_qp_ipm_arg(&dim, &arg, ipm_arg_mem);
+	d_set_default_ocp_qp_ipm_arg(&arg);
 
-	int ipm_size = d_memsize_ocp_qp_ipm(&qp, &arg);
+//	arg.alpha_min = 1e-12;
+//	arg.res_g_max = 1e-4;
+//	arg.res_b_max = 1e-4;
+//	arg.res_d_max = 1e-4;
+//	arg.res_m_max = 1e-4;
+//	arg.mu0 = 2.0;
+//	arg.iter_max = 10;
+//	arg.stat_max = 100;
+//	arg.pred_corr = 1;
+//	arg.cond_pred_corr = 1;
+
+
+	// ipm
+	int ipm_size = d_memsize_ocp_qp_ipm(&dim, &arg);
 	void *ipm_mem = malloc(ipm_size);
 
 	struct d_ocp_qp_ipm_workspace workspace;
-	d_create_ocp_qp_ipm(&qp, &arg, &workspace, ipm_mem);
+	d_create_ocp_qp_ipm(&dim, &arg, &workspace, ipm_mem);
 
-//	d_solve_ocp_qp_ipm(&qp, &qp_sol, &workspace);
-	d_solve_ocp_qp_ipm2(&qp, &qp_sol, &workspace);
+	// call solver
+	int hpipm_return = d_solve_ocp_qp_ipm(&qp, &qp_sol, &arg, &workspace);
 
-	d_cvt_ocp_qp_sol_to_colmaj(&qp, &qp_sol, hu, hx, NULL, NULL, hpi, hlam_lb, hlam_ub, hlam_lg, hlam_ug, NULL, NULL);
+	// convert back solution
+	d_cvt_ocp_qp_sol_to_colmaj(&qp_sol, hu, hx, NULL, NULL, hpi, hlam_lb, hlam_ub, hlam_lg, hlam_ug, NULL, NULL);
+
+	// inf norm residual
+	inf_norm_res[0] = workspace.qp_res[0];
+	inf_norm_res[1] = workspace.qp_res[1];
+	inf_norm_res[2] = workspace.qp_res[2];
+	inf_norm_res[3] = workspace.qp_res[3];
+
+	// stat
+	for(jj=0; jj<workspace.iter; jj++)
+		for(ii=0; ii<5; ii++)
+			stat[ii+5*jj] = workspace.stat[ii+5*jj];
 
 
 
-	*kkk = (double) kk;
+	*kkk = (double) workspace.iter;
 
 
 	free(ptr_idx);
+	free(dim_mem);
 	free(qp_mem);
 	free(qp_sol_mem);
+	free(ipm_arg_mem);
 	free(ipm_mem);
 
 

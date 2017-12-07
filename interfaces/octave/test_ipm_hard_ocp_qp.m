@@ -18,7 +18,7 @@ nb  = nu+nx/2;		% number of two-sided box constraints
 ng  = 0;            % number of two-sided general constraints
 ngN = nx;           % number of two-sided general constraints on last stage
 
-time_invariant = 1; % time_invariant (0) vs time_variant (1) problems
+time_invariant = 0; % time_invariant (0) vs time_variant (1) problems
 
 nbu = min(nb, nu);
 
@@ -169,14 +169,12 @@ tic
 if time_invariant==0 % time-variant interface
 
 	for ii=1:nrep
-%		HPMPC_ip_mpc_hard(kk, k_max, mu0, tol, N, nx, nu, nb, ng, ngN, time_invariant, free_x0, warm_start, AA, BB, bb, QQ, Qf, RR, SS, qq, qf, rr, llb, uub, CC, DD, llg, uug, CN, lgN, ugN, x, u, mult_pi, mult_lam, mult_t, inf_norm_res, infos);
 		HPIPM_d_solve_ipm2_hard_ocp_qp(kk, k_max, mu0, tol, N, nx, nu, nb, ng, ngN, time_invariant, free_x0, warm_start, AA, BB, bb, QQ, Qf, RR, SS, qq, qf, rr, llb, uub, CC, DD, llg, uug, CN, lgN, ugN, x, u, mult_pi, mult_lam, inf_norm_res, infos);
 	end
 
 else % time-invariant interface
 
 	for ii=1:nrep
-%		HPMPC_ip_mpc_hard(kk, k_max, mu0, tol, N, nx, nu, nb, ng, ngN, time_invariant, free_x0, warm_start, A, B, b, Q, Qf, R, S, q, qf, r, lb, ub, C, D, lg, ug, CN, lgN, ugN, x, u, mult_pi, mult_lam, mult_t, inf_norm_res, infos);
 		HPIPM_d_solve_ipm2_hard_ocp_qp(kk, k_max, mu0, tol, N, nx, nu, nb, ng, ngN, time_invariant, free_x0, warm_start, A, B, b, Q, Qf, R, S, q, qf, r, lb, ub, C, D, lg, ug, CN, lgN, ugN, x, u, mult_pi, mult_lam, inf_norm_res, infos);
 	end
 
@@ -185,6 +183,7 @@ end
 solution_time = toc/nrep
 
 kk
+fprintf('\n  alpha_aff     mu_aff       sigma        alpha        mu\n');
 infos(:,1:kk)'
 inf_norm_res
 
