@@ -105,6 +105,8 @@ int MEMSIZE_DENSE_QP_IPM(struct DENSE_QP_DIM *dim, struct DENSE_QP_IPM_ARG *arg)
 	size += 1*SIZE_STRMAT(ne, ne); // Le
 	size += 1*SIZE_STRMAT(nv+1, ng); // Ctx
 
+	size += nv*sizeof(int); // ipiv
+
 	size += 5*arg->stat_max*sizeof(REAL);
 
 	size = (size+63)/64*64; // make multiple of typical cache line size
@@ -221,8 +223,15 @@ void CREATE_DENSE_QP_IPM(struct DENSE_QP_DIM *dim, struct DENSE_QP_IPM_ARG *arg,
 	workspace->warm_start = arg->warm_start;
 
 
+	// int suff
+	int *i_ptr = (int *) d_ptr;
+
+	workspace->ipiv = i_ptr;
+	i_ptr += nv;
+
+
 	// align to typicl cache line size
-	size_t s_ptr = (size_t) d_ptr;
+	size_t s_ptr = (size_t) i_ptr;
 	s_ptr = (s_ptr+63)/64*64;
 
 

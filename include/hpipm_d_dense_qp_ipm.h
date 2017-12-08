@@ -80,6 +80,7 @@ struct d_dense_qp_ipm_workspace
 	struct d_strvec *tmp_nbg; // work space of size nb+ng
 	struct d_strvec *tmp_ns; // work space of size ns
 	double *stat; // convergence statistics
+	int *ipiv;
 	double qp_res[4]; // infinity norm of residuals
 	double mu0; // mu0
 	int iter; // iteration number

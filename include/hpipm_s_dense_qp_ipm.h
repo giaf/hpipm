@@ -80,6 +80,7 @@ struct s_dense_qp_ipm_workspace
 	struct s_strvec *tmp_nbg; // work space of size nb+ng
 	struct s_strvec *tmp_ns; // work space of size ns
 	float *stat; // convergence statistics
+	int *ipiv;
 	float qp_res[4]; // infinity norm of residuals
 	float mu0; // mu0
 	int iter; // iteration number

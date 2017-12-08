@@ -354,7 +354,7 @@ void FACT_SOLVE_KKT_UNCONSTR_DENSE_QP(struct DENSE_QP *qp, struct DENSE_QP_SOL *
 		{
 		POTRF_L_LIBSTR(nv, Hg, 0, 0, Lv, 0, 0);
 
-		GECP_LIBSTR(ne, nv, A, 0, 0, AL, 0, 0);
+//		GECP_LIBSTR(ne, nv, A, 0, 0, AL, 0, 0);
 		TRSM_RLTN_LIBSTR(ne, nv, 1.0, Lv, 0, 0, A, 0, 0, AL, 0, 0);
 
 		GESE_LIBSTR(ne, ne, 0.0, Le, 0, 0);
@@ -552,6 +552,8 @@ static void EXPAND_SLACKS(struct DENSE_QP *qp, struct DENSE_QP_IPM_WORKSPACE *ws
 
 
 
+//#define PIVOT
+
 // range-space (Schur complement) method
 void FACT_SOLVE_KKT_STEP_DENSE_QP(struct DENSE_QP *qp, struct DENSE_QP_IPM_WORKSPACE *ws)
 	{
@@ -580,6 +582,7 @@ void FACT_SOLVE_KKT_STEP_DENSE_QP(struct DENSE_QP *qp, struct DENSE_QP_IPM_WORKS
 	struct STRVEC *Gamma = ws->Gamma;
 	struct STRVEC *gamma = ws->gamma;
 	struct STRVEC *tmp_nbg = ws->tmp_nbg;
+	int *ipiv = ws->ipiv;
 
 	struct CORE_QP_IPM_WORKSPACE *cws = ws->core_workspace;
 
@@ -613,22 +616,41 @@ void FACT_SOLVE_KKT_STEP_DENSE_QP(struct DENSE_QP *qp, struct DENSE_QP_IPM_WORKS
 			{
 			GEMV_N_LIBSTR(nv, ng, 1.0, Ct, 0, 0, tmp_nbg+1, nb, 1.0, lv, 0, lv, 0);
 			GEMM_R_DIAG_LIBSTR(nv, ng, 1.0, Ct, 0, 0, tmp_nbg+0, nb, 0.0, Ctx, 0, 0, Ctx, 0, 0);
+#ifdef PIVOT
+			SYRK_LN_LIBSTR(nv, ng, 1.0, Ctx, 0, 0, Ct, 0, 0, 1.0, Lv, 0, 0, Lv, 0, 0);
+			PSTRF_L_LIBSTR(nv, Lv, 0, 0, Lv, 0, 0, ipiv);
+#else
 			SYRK_POTRF_LN_LIBSTR(nv, nv, ng, Ctx, 0, 0, Ct, 0, 0, Lv, 0, 0, Lv, 0, 0);
+#endif
 			}
 		else
 			{
+#ifdef PIVOT
+			PSTRF_L_LIBSTR(nv, Lv, 0, 0, Lv, 0, 0, ipiv);
+#else
 			POTRF_L_LIBSTR(nv, Lv, 0, 0, Lv, 0, 0);
+#endif
 			}
 
 		VECCP_LIBSTR(nv, lv, 0, dv, 0);
 
+#ifdef PIVOT
 		GECP_LIBSTR(ne, nv, A, 0, 0, AL, 0, 0);
+		COLPE_LIBSTR(nv, ipiv, AL);
+		TRSM_RLTN_LIBSTR(ne, nv, 1.0, Lv, 0, 0, AL, 0, 0, AL, 0, 0);
+#else
 		TRSM_RLTN_LIBSTR(ne, nv, 1.0, Lv, 0, 0, A, 0, 0, AL, 0, 0);
+#endif
 
 		GESE_LIBSTR(ne, ne, 0.0, Le, 0, 0);
 		SYRK_POTRF_LN_LIBSTR(ne, ne, nv, AL, 0, 0, AL, 0, 0, Le, 0, 0, Le, 0, 0);
 
+#ifdef PIVOT
+		VECPE_LIBSTR(nv, ipiv, lv, 0);
 		TRSV_LNN_LIBSTR(nv, Lv, 0, 0, lv, 0, lv, 0);
+#else
+		TRSV_LNN_LIBSTR(nv, Lv, 0, 0, lv, 0, lv, 0);
+#endif
 
 		GEMV_N_LIBSTR(ne, nv, 1.0, AL, 0, 0, lv, 0, 1.0, res_b, 0, dpi, 0);
 
@@ -637,8 +659,15 @@ void FACT_SOLVE_KKT_STEP_DENSE_QP(struct DENSE_QP *qp, struct DENSE_QP_IPM_WORKS
 
 		GEMV_T_LIBSTR(ne, nv, 1.0, A, 0, 0, dpi, 0, -1.0, dv, 0, dv, 0);
 
+#ifdef PIVOT
+		VECPE_LIBSTR(nv, ipiv, dv, 0);
 		TRSV_LNN_LIBSTR(nv, Lv, 0, 0, dv, 0, dv, 0);
 		TRSV_LTN_LIBSTR(nv, Lv, 0, 0, dv, 0, dv, 0);
+		VECPEI_LIBSTR(nv, ipiv, dv, 0);
+#else
+		TRSV_LNN_LIBSTR(nv, Lv, 0, 0, dv, 0, dv, 0);
+		TRSV_LTN_LIBSTR(nv, Lv, 0, 0, dv, 0, dv, 0);
+#endif
 		}
 	else
 		{
@@ -752,6 +781,7 @@ void SOLVE_KKT_STEP_DENSE_QP(struct DENSE_QP *qp, struct DENSE_QP_IPM_WORKSPACE 
 	struct STRVEC *res_b = ws->res->res_b;
 	struct STRVEC *gamma = ws->gamma;
 	struct STRVEC *tmp_nbg = ws->tmp_nbg;
+	int *ipiv = ws->ipiv;
 
 	struct CORE_QP_IPM_WORKSPACE *cws = ws->core_workspace;
 
@@ -783,7 +813,12 @@ void SOLVE_KKT_STEP_DENSE_QP(struct DENSE_QP *qp, struct DENSE_QP_IPM_WORKSPACE 
 
 		VECCP_LIBSTR(nv, lv, 0, dv, 0);
 
+#ifdef PIVOT
+		VECPE_LIBSTR(nv, ipiv, lv, 0);
 		TRSV_LNN_LIBSTR(nv, Lv, 0, 0, lv, 0, lv, 0);
+#else
+		TRSV_LNN_LIBSTR(nv, Lv, 0, 0, lv, 0, lv, 0);
+#endif
 
 		GEMV_N_LIBSTR(ne, nv, 1.0, AL, 0, 0, lv, 0, 1.0, res_b, 0, dpi, 0);
 
@@ -792,8 +827,15 @@ void SOLVE_KKT_STEP_DENSE_QP(struct DENSE_QP *qp, struct DENSE_QP_IPM_WORKSPACE 
 
 		GEMV_T_LIBSTR(ne, nv, 1.0, A, 0, 0, dpi, 0, -1.0, dv, 0, dv, 0);
 
+#ifdef PIVOT
+		VECPE_LIBSTR(nv, ipiv, dv, 0);
 		TRSV_LNN_LIBSTR(nv, Lv, 0, 0, dv, 0, dv, 0);
 		TRSV_LTN_LIBSTR(nv, Lv, 0, 0, dv, 0, dv, 0);
+		VECPEI_LIBSTR(nv, ipiv, dv, 0);
+#else
+		TRSV_LNN_LIBSTR(nv, Lv, 0, 0, dv, 0, dv, 0);
+		TRSV_LTN_LIBSTR(nv, Lv, 0, 0, dv, 0, dv, 0);
+#endif
 		}
 	else
 		{

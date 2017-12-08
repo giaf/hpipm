@@ -45,6 +45,8 @@
 
 
 #define AXPY_LIBSTR daxpy_libstr
+#define COLPE_LIBSTR dcolpe_libstr
+#define COLPEI_LIBSTR dcolpei_libstr
 #define COMPUTE_LAM_T_QP d_compute_lam_t_qp
 #define COMPUTE_GAMMA_GAMMA_QP d_compute_Gamma_gamma_qp
 #define COMPUTE_GAMMA_QP d_compute_gamma_qp
@@ -64,13 +66,17 @@
 #define GESE_LIBSTR dgese_libstr
 #define POTRF_L_LIBSTR dpotrf_l_libstr
 #define POTRF_L_MN_LIBSTR dpotrf_l_mn_libstr
+#define PSTRF_L_LIBSTR dpstrf_l_libstr
 #define REAL double
 #define ROWAD_SP_LIBSTR drowad_sp_libstr
 #define ROWEX_LIBSTR drowex_libstr
 #define ROWIN_LIBSTR drowin_libstr
+#define ROWPE_LIBSTR drowpe_libstr
+#define ROWPEI_LIBSTR drowpei_libstr
 #define STRMAT d_strmat
 #define STRVEC d_strvec
 #define SYMV_L_LIBSTR dsymv_l_libstr
+#define SYRK_LN_LIBSTR dsyrk_ln_libstr
 #define SYRK_POTRF_LN_LIBSTR dsyrk_dpotrf_ln_libstr
 #define TRCP_L_LIBSTR dtrcp_l_libstr
 #define TRSM_RLTN_LIBSTR dtrsm_rltn_libstr
@@ -83,6 +89,8 @@
 #define VECMULDOT_LIBSTR dvecmuldot_libstr
 #define VECSC_LIBSTR dvecsc_libstr
 #define VECCPSC_LIBSTR dveccpsc_libstr
+#define VECPE_LIBSTR dvecpe_libstr
+#define VECPEI_LIBSTR dvecpei_libstr
 
 #define INIT_VAR_DENSE_QP d_init_var_dense_qp
 #define COMPUTE_RES_DENSE_QP d_compute_res_dense_qp
