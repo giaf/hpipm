@@ -553,10 +553,13 @@ static void EXPAND_SLACKS(struct DENSE_QP *qp, struct DENSE_QP_IPM_WORKSPACE *ws
 
 
 //#define PIVOT
+#define SCALE
 
 // range-space (Schur complement) method
-void FACT_SOLVE_KKT_STEP_DENSE_QP(struct DENSE_QP *qp, struct DENSE_QP_IPM_WORKSPACE *ws)
+void FACT_SOLVE_KKT_STEP_DENSE_QP(struct DENSE_QP *qp, struct DENSE_QP_IPM_ARG *arg, struct DENSE_QP_IPM_WORKSPACE *ws)
 	{
+
+	int ii;
 
 	int nv = qp->dim->nv;
 	int ne = qp->dim->ne;
@@ -574,6 +577,8 @@ void FACT_SOLVE_KKT_STEP_DENSE_QP(struct DENSE_QP *qp, struct DENSE_QP_IPM_WORKS
 	struct STRMAT *Ctx = ws->Ctx;
 	struct STRMAT *AL = ws->AL;
 	struct STRVEC *lv = ws->lv;
+	struct STRVEC *sv = ws->sv;
+	struct STRVEC *se = ws->se;
 	struct STRVEC *dv = ws->step->v;
 	struct STRVEC *dpi = ws->step->pi;
 	struct STRVEC *dt = ws->step->t;
@@ -584,6 +589,8 @@ void FACT_SOLVE_KKT_STEP_DENSE_QP(struct DENSE_QP *qp, struct DENSE_QP_IPM_WORKS
 	struct STRVEC *tmp_nbg = ws->tmp_nbg;
 	int *ipiv = ws->ipiv;
 
+	REAL tmp;
+
 	struct CORE_QP_IPM_WORKSPACE *cws = ws->core_workspace;
 
 	if(nb+ng>0)
@@ -593,6 +600,9 @@ void FACT_SOLVE_KKT_STEP_DENSE_QP(struct DENSE_QP *qp, struct DENSE_QP_IPM_WORKS
 
 	if(ne>0)
 		{
+
+#ifdef PIVOT // pivot cholesky
+
 //		TRCP_L_LIBSTR(nv, Hg, 0, 0, Lv, 0, 0);
 		GECP_LIBSTR(nv, nv, Hg, 0, 0, Lv, 0, 0);
 
@@ -616,41 +626,25 @@ void FACT_SOLVE_KKT_STEP_DENSE_QP(struct DENSE_QP *qp, struct DENSE_QP_IPM_WORKS
 			{
 			GEMV_N_LIBSTR(nv, ng, 1.0, Ct, 0, 0, tmp_nbg+1, nb, 1.0, lv, 0, lv, 0);
 			GEMM_R_DIAG_LIBSTR(nv, ng, 1.0, Ct, 0, 0, tmp_nbg+0, nb, 0.0, Ctx, 0, 0, Ctx, 0, 0);
-#ifdef PIVOT
 			SYRK_LN_LIBSTR(nv, ng, 1.0, Ctx, 0, 0, Ct, 0, 0, 1.0, Lv, 0, 0, Lv, 0, 0);
 			PSTRF_L_LIBSTR(nv, Lv, 0, 0, Lv, 0, 0, ipiv);
-#else
-			SYRK_POTRF_LN_LIBSTR(nv, nv, ng, Ctx, 0, 0, Ct, 0, 0, Lv, 0, 0, Lv, 0, 0);
-#endif
 			}
 		else
 			{
-#ifdef PIVOT
 			PSTRF_L_LIBSTR(nv, Lv, 0, 0, Lv, 0, 0, ipiv);
-#else
-			POTRF_L_LIBSTR(nv, Lv, 0, 0, Lv, 0, 0);
-#endif
 			}
 
 		VECCP_LIBSTR(nv, lv, 0, dv, 0);
 
-#ifdef PIVOT
 		GECP_LIBSTR(ne, nv, A, 0, 0, AL, 0, 0);
 		COLPE_LIBSTR(nv, ipiv, AL);
 		TRSM_RLTN_LIBSTR(ne, nv, 1.0, Lv, 0, 0, AL, 0, 0, AL, 0, 0);
-#else
-		TRSM_RLTN_LIBSTR(ne, nv, 1.0, Lv, 0, 0, A, 0, 0, AL, 0, 0);
-#endif
 
 		GESE_LIBSTR(ne, ne, 0.0, Le, 0, 0);
 		SYRK_POTRF_LN_LIBSTR(ne, ne, nv, AL, 0, 0, AL, 0, 0, Le, 0, 0, Le, 0, 0);
 
-#ifdef PIVOT
 		VECPE_LIBSTR(nv, ipiv, lv, 0);
 		TRSV_LNN_LIBSTR(nv, Lv, 0, 0, lv, 0, lv, 0);
-#else
-		TRSV_LNN_LIBSTR(nv, Lv, 0, 0, lv, 0, lv, 0);
-#endif
 
 		GEMV_N_LIBSTR(ne, nv, 1.0, AL, 0, 0, lv, 0, 1.0, res_b, 0, dpi, 0);
 
@@ -659,78 +653,246 @@ void FACT_SOLVE_KKT_STEP_DENSE_QP(struct DENSE_QP *qp, struct DENSE_QP_IPM_WORKS
 
 		GEMV_T_LIBSTR(ne, nv, 1.0, A, 0, 0, dpi, 0, -1.0, dv, 0, dv, 0);
 
-#ifdef PIVOT
 		VECPE_LIBSTR(nv, ipiv, dv, 0);
 		TRSV_LNN_LIBSTR(nv, Lv, 0, 0, dv, 0, dv, 0);
 		TRSV_LTN_LIBSTR(nv, Lv, 0, 0, dv, 0, dv, 0);
 		VECPEI_LIBSTR(nv, ipiv, dv, 0);
-#else
-		TRSV_LNN_LIBSTR(nv, Lv, 0, 0, dv, 0, dv, 0);
-		TRSV_LTN_LIBSTR(nv, Lv, 0, 0, dv, 0, dv, 0);
-#endif
-		}
-	else
-		{
-#if 0
-		TRCP_L_LIBSTR(nv, Hg, 0, 0, Lv, 0, 0);
-		VECCP_LIBSTR(nv, res_g, 0, lv, 0);
 
-		if(nb>0)
-			{
-			DIAAD_SP_LIBSTR(nb, 1.0, Qx, 0, idxb, Lv, 0, 0);
-			VECAD_SP_LIBSTR(nb, 1.0, qx, 0, idxb, lv, 0);
-			}
+#else // no pivot cholesky
 
-		if(ng>0)
+		if(arg->scale)
 			{
-			GEMM_R_DIAG_LIBSTR(nv, ng, 1.0, Ct, 0, 0, Qx, nb, 0.0, Ctx, 0, 0, Ctx, 0, 0);
-			GEMV_N_LIBSTR(nv, ng, 1.0, Ct, 0, 0, qx, nb, 1.0, lv, 0, lv, 0);
-			SYRK_POTRF_LN_LIBSTR(nv, nv, ng, Ctx, 0, 0, Ct, 0, 0, Lv, 0, 0, Lv, 0, 0); // TODO _mn_ routine in BLASFEO !!!
-			}
-		else
-			{
+
+//			TRCP_L_LIBSTR(nv, Hg, 0, 0, Lv, 0, 0);
+			GECP_LIBSTR(nv, nv, Hg, 0, 0, Lv, 0, 0);
+
+			VECCP_LIBSTR(nv, res_g, 0, lv, 0);
+
+			if(ns>0)
+				{
+				COND_SLACKS_FACT_SOLVE(qp, ws);
+				}
+			else if(nb+ng>0)
+				{
+				AXPY_LIBSTR(nb+ng,  1.0, Gamma, nb+ng, Gamma, 0, tmp_nbg+0, 0);
+				AXPY_LIBSTR(nb+ng, -1.0, gamma, nb+ng, gamma, 0, tmp_nbg+1, 0);
+				}
+			if(nb>0)
+				{
+				DIAAD_SP_LIBSTR(nb, 1.0, tmp_nbg+0, 0, idxb, Lv, 0, 0);
+				VECAD_SP_LIBSTR(nb, 1.0, tmp_nbg+1, 0, idxb, lv, 0);
+				}
+			if(ng>0)
+				{
+				GEMV_N_LIBSTR(nv, ng, 1.0, Ct, 0, 0, tmp_nbg+1, nb, 1.0, lv, 0, lv, 0);
+				GEMM_R_DIAG_LIBSTR(nv, ng, 1.0, Ct, 0, 0, tmp_nbg+0, nb, 0.0, Ctx, 0, 0, Ctx, 0, 0);
+				SYRK_LN_LIBSTR(nv, ng, 1.0, Ctx, 0, 0, Ct, 0, 0, 1.0, Lv, 0, 0, Lv, 0, 0);
+				}
+
+			DIAEX_LIBSTR(nv, 1.0, Lv, 0, 0, sv, 0);
+			for(ii=0; ii<nv; ii++)
+				{
+				tmp = sqrt(sv->pa[ii]);
+//				tmp = sqrt(tmp);
+//				tmp = sqrt(sv->pa[ii]+tmp);
+//				tmp = 1.0;
+				sv->pa[ii] = tmp==0 ? 1.0 : 1.0/tmp;
+				}
+
+			GEMM_L_DIAG_LIBSTR(nv, nv, 1.0, sv, 0, Lv, 0, 0, 0.0, Lv, 0, 0, Lv, 0, 0);
+			GEMM_R_DIAG_LIBSTR(nv, nv, 1.0, Lv, 0, 0, sv, 0, 0.0, Lv, 0, 0, Lv, 0, 0);
+			DIARE_LIBSTR(nv, arg->reg_prim, Lv, 0, 0);
 			POTRF_L_LIBSTR(nv, Lv, 0, 0, Lv, 0, 0);
-			}
 
-		VECCP_LIBSTR(nv, lv, 0, dv, 0);
-		VECSC_LIBSTR(nv, -1.0, dv, 0);
+			GEMV_DIAG_LIBSTR(nv, 1.0, sv, 0, lv, 0, 0.0, lv, 0, lv, 0);
+			VECCP_LIBSTR(nv, lv, 0, dv, 0);
 
-		TRSV_LNN_LIBSTR(nv, Lv, 0, 0, dv, 0, dv, 0);
-		TRSV_LTN_LIBSTR(nv, Lv, 0, 0, dv, 0, dv, 0);
-#else
-//		TRCP_L_LIBSTR(nv, Hg, 0, 0, Lv, 0, 0);
-		GECP_LIBSTR(nv, nv, Hg, 0, 0, Lv, 0, 0);
-		ROWIN_LIBSTR(nv, 1.0, res_g, 0, Lv, nv, 0);
+			GECP_LIBSTR(ne, nv, A, 0, 0, AL, 0, 0);
+			GEMM_R_DIAG_LIBSTR(ne, nv, 1.0, AL, 0, 0, sv, 0, 0.0, AL, 0, 0, AL, 0, 0);
+			TRSM_RLTN_LIBSTR(ne, nv, 1.0, Lv, 0, 0, AL, 0, 0, AL, 0, 0);
 
-		if(ns>0)
-			{
-			COND_SLACKS_FACT_SOLVE(qp, ws);
-			}
-		else if(nb+ng>0)
-			{
-			AXPY_LIBSTR(nb+ng,  1.0, Gamma, nb+ng, Gamma, 0, tmp_nbg+0, 0);
-			AXPY_LIBSTR(nb+ng, -1.0, gamma, nb+ng, gamma, 0, tmp_nbg+1, 0);
-			}
-		if(nb>0)
-			{
-			DIAAD_SP_LIBSTR(nb, 1.0, tmp_nbg+0, 0, idxb, Lv, 0, 0);
-			ROWAD_SP_LIBSTR(nb, 1.0, tmp_nbg+1, 0, idxb, Lv, nv, 0);
-			}
-		if(ng>0)
-			{
-			GEMM_R_DIAG_LIBSTR(nv, ng, 1.0, Ct, 0, 0, tmp_nbg+0, nb, 0.0, Ctx, 0, 0, Ctx, 0, 0);
-			ROWIN_LIBSTR(ng, 1.0, tmp_nbg+1, nb, Ctx, nv, 0);
-			SYRK_POTRF_LN_LIBSTR(nv+1, nv, ng, Ctx, 0, 0, Ct, 0, 0, Lv, 0, 0, Lv, 0, 0); // TODO _mn_ routine in BLASFEO !!!
-			}
-		else
-			{
-			POTRF_L_MN_LIBSTR(nv+1, nv, Lv, 0, 0, Lv, 0, 0);
-			}
+			TRSV_LNN_LIBSTR(nv, Lv, 0, 0, lv, 0, lv, 0);
 
-		ROWEX_LIBSTR(nv, -1.0, Lv, nv, 0, dv, 0);
-		TRSV_LTN_LIBSTR(nv, Lv, 0, 0, dv, 0, dv, 0);
-#endif
+			GESE_LIBSTR(ne, ne, 0.0, Le, 0, 0);
+			SYRK_LN_LIBSTR(ne, nv, 1.0, AL, 0, 0, AL, 0, 0, 1.0, Le, 0, 0, Le, 0, 0);
+
+			DIAEX_LIBSTR(ne, 1.0, Le, 0, 0, se, 0);
+			for(ii=0; ii<ne; ii++)
+				{
+				tmp = sqrt(se->pa[ii]);
+//				tmp = sqrt(tmp);
+//				tmp = sqrt(se->pa[ii]+tmp);
+//				tmp = 1.0;
+				se->pa[ii] = tmp==0 ? 1.0 : 1.0/tmp;
+				}
+
+			GEMM_L_DIAG_LIBSTR(ne, ne, 1.0, se, 0, Le, 0, 0, 0.0, Le, 0, 0, Le, 0, 0);
+			GEMM_R_DIAG_LIBSTR(ne, ne, 1.0, Le, 0, 0, se, 0, 0.0, Le, 0, 0, Le, 0, 0);
+			DIARE_LIBSTR(ne, arg->reg_prim, Le, 0, 0);
+			POTRF_L_LIBSTR(ne, Le, 0, 0, Le, 0, 0);
+
+			GEMV_N_LIBSTR(ne, nv, 1.0, AL, 0, 0, lv, 0, 1.0, res_b, 0, dpi, 0);
+
+			GEMV_DIAG_LIBSTR(ne, 1.0, se, 0, dpi, 0, 0.0, dpi, 0, dpi, 0);
+			TRSV_LNN_LIBSTR(ne, Le, 0, 0, dpi, 0, dpi, 0);
+			TRSV_LTN_LIBSTR(ne, Le, 0, 0, dpi, 0, dpi, 0);
+			GEMV_DIAG_LIBSTR(ne, 1.0, se, 0, dpi, 0, 0.0, dpi, 0, dpi, 0);
+
+			GEMV_T_LIBSTR(ne, nv, 1.0, A, 0, 0, dpi, 0, 0.0, lv, 0, lv, 0);
+			GEMV_DIAG_LIBSTR(nv, 1.0, sv, 0, lv, 0, -1.0, dv, 0, dv, 0);
+
+			TRSV_LNN_LIBSTR(nv, Lv, 0, 0, dv, 0, dv, 0);
+			TRSV_LTN_LIBSTR(nv, Lv, 0, 0, dv, 0, dv, 0);
+			GEMV_DIAG_LIBSTR(nv, 1.0, sv, 0, dv, 0, 0.0, dv, 0, dv, 0);
+
+			}
+		else // no scale
+			{
+
+//			TRCP_L_LIBSTR(nv, Hg, 0, 0, Lv, 0, 0);
+			GECP_LIBSTR(nv, nv, Hg, 0, 0, Lv, 0, 0);
+
+			VECCP_LIBSTR(nv, res_g, 0, lv, 0);
+
+			if(ns>0)
+				{
+				COND_SLACKS_FACT_SOLVE(qp, ws);
+				}
+			else if(nb+ng>0)
+				{
+				AXPY_LIBSTR(nb+ng,  1.0, Gamma, nb+ng, Gamma, 0, tmp_nbg+0, 0);
+				AXPY_LIBSTR(nb+ng, -1.0, gamma, nb+ng, gamma, 0, tmp_nbg+1, 0);
+				}
+			if(nb>0)
+				{
+				DIAAD_SP_LIBSTR(nb, 1.0, tmp_nbg+0, 0, idxb, Lv, 0, 0);
+				VECAD_SP_LIBSTR(nb, 1.0, tmp_nbg+1, 0, idxb, lv, 0);
+				}
+			if(ng>0)
+				{
+				GEMV_N_LIBSTR(nv, ng, 1.0, Ct, 0, 0, tmp_nbg+1, nb, 1.0, lv, 0, lv, 0);
+				GEMM_R_DIAG_LIBSTR(nv, ng, 1.0, Ct, 0, 0, tmp_nbg+0, nb, 0.0, Ctx, 0, 0, Ctx, 0, 0);
+				SYRK_POTRF_LN_LIBSTR(nv, nv, ng, Ctx, 0, 0, Ct, 0, 0, Lv, 0, 0, Lv, 0, 0);
+				}
+			else
+				{
+				POTRF_L_LIBSTR(nv, Lv, 0, 0, Lv, 0, 0);
+				}
+
+			VECCP_LIBSTR(nv, lv, 0, dv, 0);
+
+			TRSM_RLTN_LIBSTR(ne, nv, 1.0, Lv, 0, 0, A, 0, 0, AL, 0, 0);
+
+			GESE_LIBSTR(ne, ne, 0.0, Le, 0, 0);
+			SYRK_POTRF_LN_LIBSTR(ne, ne, nv, AL, 0, 0, AL, 0, 0, Le, 0, 0, Le, 0, 0);
+
+			TRSV_LNN_LIBSTR(nv, Lv, 0, 0, lv, 0, lv, 0);
+
+			GEMV_N_LIBSTR(ne, nv, 1.0, AL, 0, 0, lv, 0, 1.0, res_b, 0, dpi, 0);
+
+			TRSV_LNN_LIBSTR(ne, Le, 0, 0, dpi, 0, dpi, 0);
+			TRSV_LTN_LIBSTR(ne, Le, 0, 0, dpi, 0, dpi, 0);
+
+			GEMV_T_LIBSTR(ne, nv, 1.0, A, 0, 0, dpi, 0, -1.0, dv, 0, dv, 0);
+
+			TRSV_LNN_LIBSTR(nv, Lv, 0, 0, dv, 0, dv, 0);
+			TRSV_LTN_LIBSTR(nv, Lv, 0, 0, dv, 0, dv, 0);
+
+			} // scale
+
+#endif // pivot cholesky
+
 		}
+	else // ne==0
+		{
+
+		if(arg->scale)
+			{
+
+			TRCP_L_LIBSTR(nv, Hg, 0, 0, Lv, 0, 0);
+			VECCP_LIBSTR(nv, res_g, 0, lv, 0);
+
+			if(ns>0)
+				{
+				COND_SLACKS_FACT_SOLVE(qp, ws);
+				}
+			else if(nb+ng>0)
+				{
+				AXPY_LIBSTR(nb+ng,  1.0, Gamma, nb+ng, Gamma, 0, tmp_nbg+0, 0);
+				AXPY_LIBSTR(nb+ng, -1.0, gamma, nb+ng, gamma, 0, tmp_nbg+1, 0);
+				}
+			if(nb>0)
+				{
+				DIAAD_SP_LIBSTR(nb, 1.0, tmp_nbg+0, 0, idxb, Lv, 0, 0);
+				VECAD_SP_LIBSTR(nb, 1.0, tmp_nbg+1, 0, idxb, lv, 0);
+				}
+			if(ng>0)
+				{
+				GEMM_R_DIAG_LIBSTR(nv, ng, 1.0, Ct, 0, 0, tmp_nbg+0, nb, 0.0, Ctx, 0, 0, Ctx, 0, 0);
+				GEMV_N_LIBSTR(nv, ng, 1.0, Ct, 0, 0, tmp_nbg+1, nb, 1.0, lv, 0, lv, 0);
+				SYRK_LN_LIBSTR(nv, ng, 1.0, Ctx, 0, 0, Ct, 0, 0, 1.0, Lv, 0, 0, Lv, 0, 0);
+				}
+
+			DIAEX_LIBSTR(nv, 1.0, Lv, 0, 0, sv, 0);
+			for(ii=0; ii<nv; ii++)
+				{
+				tmp = sqrt(sv->pa[ii]);
+//				tmp = sqrt(tmp);
+//				tmp = sqrt(sv->pa[ii]+tmp);
+//				tmp = 1.0;
+				sv->pa[ii] = tmp==0 ? 1.0 : 1.0/tmp;
+				}
+
+			GEMM_L_DIAG_LIBSTR(nv, nv, 1.0, sv, 0, Lv, 0, 0, 0.0, Lv, 0, 0, Lv, 0, 0);
+			GEMM_R_DIAG_LIBSTR(nv, nv, 1.0, Lv, 0, 0, sv, 0, 0.0, Lv, 0, 0, Lv, 0, 0);
+			DIARE_LIBSTR(nv, arg->reg_prim, Lv, 0, 0);
+			POTRF_L_MN_LIBSTR(nv, nv, Lv, 0, 0, Lv, 0, 0);
+
+			VECCP_LIBSTR(nv, lv, 0, dv, 0);
+			VECSC_LIBSTR(nv, -1.0, dv, 0);
+
+			GEMV_DIAG_LIBSTR(nv, 1.0, sv, 0, dv, 0, 0.0, dv, 0, dv, 0);
+			TRSV_LNN_LIBSTR(nv, Lv, 0, 0, dv, 0, dv, 0);
+			TRSV_LTN_LIBSTR(nv, Lv, 0, 0, dv, 0, dv, 0);
+			GEMV_DIAG_LIBSTR(nv, 1.0, sv, 0, dv, 0, 0.0, dv, 0, dv, 0);
+			}
+		else // no scale
+			{
+	//		TRCP_L_LIBSTR(nv, Hg, 0, 0, Lv, 0, 0);
+			GECP_LIBSTR(nv, nv, Hg, 0, 0, Lv, 0, 0);
+			ROWIN_LIBSTR(nv, 1.0, res_g, 0, Lv, nv, 0);
+
+			if(ns>0)
+				{
+				COND_SLACKS_FACT_SOLVE(qp, ws);
+				}
+			else if(nb+ng>0)
+				{
+				AXPY_LIBSTR(nb+ng,  1.0, Gamma, nb+ng, Gamma, 0, tmp_nbg+0, 0);
+				AXPY_LIBSTR(nb+ng, -1.0, gamma, nb+ng, gamma, 0, tmp_nbg+1, 0);
+				}
+			if(nb>0)
+				{
+				DIAAD_SP_LIBSTR(nb, 1.0, tmp_nbg+0, 0, idxb, Lv, 0, 0);
+				ROWAD_SP_LIBSTR(nb, 1.0, tmp_nbg+1, 0, idxb, Lv, nv, 0);
+				}
+			if(ng>0)
+				{
+				GEMM_R_DIAG_LIBSTR(nv, ng, 1.0, Ct, 0, 0, tmp_nbg+0, nb, 0.0, Ctx, 0, 0, Ctx, 0, 0);
+				ROWIN_LIBSTR(ng, 1.0, tmp_nbg+1, nb, Ctx, nv, 0);
+				SYRK_POTRF_LN_LIBSTR(nv+1, nv, ng, Ctx, 0, 0, Ct, 0, 0, Lv, 0, 0, Lv, 0, 0); // TODO _mn_ routine in BLASFEO !!!
+				}
+			else
+				{
+				POTRF_L_MN_LIBSTR(nv+1, nv, Lv, 0, 0, Lv, 0, 0);
+				}
+
+			ROWEX_LIBSTR(nv, -1.0, Lv, nv, 0, dv, 0);
+			TRSV_LTN_LIBSTR(nv, Lv, 0, 0, dv, 0, dv, 0);
+
+			} // scale
+
+		} // ne>0
 
 	if(nb+ng>0)
 		{
@@ -756,7 +918,7 @@ void FACT_SOLVE_KKT_STEP_DENSE_QP(struct DENSE_QP *qp, struct DENSE_QP_IPM_WORKS
 
 
 // range-space (Schur complement) method
-void SOLVE_KKT_STEP_DENSE_QP(struct DENSE_QP *qp, struct DENSE_QP_IPM_WORKSPACE *ws)
+void SOLVE_KKT_STEP_DENSE_QP(struct DENSE_QP *qp, struct DENSE_QP_IPM_ARG *arg, struct DENSE_QP_IPM_WORKSPACE *ws)
 	{
 
 	int nv = qp->dim->nv;
@@ -774,6 +936,8 @@ void SOLVE_KKT_STEP_DENSE_QP(struct DENSE_QP *qp, struct DENSE_QP_IPM_WORKSPACE 
 	struct STRMAT *Ctx = ws->Ctx;
 	struct STRMAT *AL = ws->AL;
 	struct STRVEC *lv = ws->lv;
+	struct STRVEC *sv = ws->sv;
+	struct STRVEC *se = ws->se;
 	struct STRVEC *dv = ws->step->v;
 	struct STRVEC *dpi = ws->step->pi;
 	struct STRVEC *dt = ws->step->t;
@@ -792,6 +956,9 @@ void SOLVE_KKT_STEP_DENSE_QP(struct DENSE_QP *qp, struct DENSE_QP_IPM_WORKSPACE 
 
 	if(ne>0)
 		{
+
+#ifdef PIVOT // pivot cholesky
+
 		VECCP_LIBSTR(nv, res_g, 0, lv, 0);
 
 		if(ns>0)
@@ -813,12 +980,8 @@ void SOLVE_KKT_STEP_DENSE_QP(struct DENSE_QP *qp, struct DENSE_QP_IPM_WORKSPACE 
 
 		VECCP_LIBSTR(nv, lv, 0, dv, 0);
 
-#ifdef PIVOT
 		VECPE_LIBSTR(nv, ipiv, lv, 0);
 		TRSV_LNN_LIBSTR(nv, Lv, 0, 0, lv, 0, lv, 0);
-#else
-		TRSV_LNN_LIBSTR(nv, Lv, 0, 0, lv, 0, lv, 0);
-#endif
 
 		GEMV_N_LIBSTR(ne, nv, 1.0, AL, 0, 0, lv, 0, 1.0, res_b, 0, dpi, 0);
 
@@ -827,43 +990,161 @@ void SOLVE_KKT_STEP_DENSE_QP(struct DENSE_QP *qp, struct DENSE_QP_IPM_WORKSPACE 
 
 		GEMV_T_LIBSTR(ne, nv, 1.0, A, 0, 0, dpi, 0, -1.0, dv, 0, dv, 0);
 
-#ifdef PIVOT
 		VECPE_LIBSTR(nv, ipiv, dv, 0);
 		TRSV_LNN_LIBSTR(nv, Lv, 0, 0, dv, 0, dv, 0);
 		TRSV_LTN_LIBSTR(nv, Lv, 0, 0, dv, 0, dv, 0);
 		VECPEI_LIBSTR(nv, ipiv, dv, 0);
-#else
-		TRSV_LNN_LIBSTR(nv, Lv, 0, 0, dv, 0, dv, 0);
-		TRSV_LTN_LIBSTR(nv, Lv, 0, 0, dv, 0, dv, 0);
-#endif
+
+#else // no pivot cholesky
+
+		if(arg->scale)
+			{
+
+			VECCP_LIBSTR(nv, res_g, 0, lv, 0);
+
+			if(ns>0)
+				{
+				COND_SLACKS_SOLVE(qp, ws);
+				}
+			else if(nb+ng>0)
+				{
+				AXPY_LIBSTR(nb+ng, -1.0, gamma, nb+ng, gamma, 0, tmp_nbg+1, 0);
+				}
+			if(nb>0)
+				{
+				VECAD_SP_LIBSTR(nb, 1.0, tmp_nbg+1, 0, idxb, lv, 0);
+				}
+			if(ng>0)
+				{
+				GEMV_N_LIBSTR(nv, ng, 1.0, Ct, 0, 0, tmp_nbg+1, nb, 1.0, lv, 0, lv, 0);
+				}
+
+			GEMV_DIAG_LIBSTR(nv, 1.0, sv, 0, lv, 0, 0.0, lv, 0, lv, 0);
+			VECCP_LIBSTR(nv, lv, 0, dv, 0);
+
+			TRSV_LNN_LIBSTR(nv, Lv, 0, 0, lv, 0, lv, 0);
+
+			GEMV_N_LIBSTR(ne, nv, 1.0, AL, 0, 0, lv, 0, 1.0, res_b, 0, dpi, 0);
+
+			GEMV_DIAG_LIBSTR(ne, 1.0, se, 0, dpi, 0, 0.0, dpi, 0, dpi, 0);
+			TRSV_LNN_LIBSTR(ne, Le, 0, 0, dpi, 0, dpi, 0);
+			TRSV_LTN_LIBSTR(ne, Le, 0, 0, dpi, 0, dpi, 0);
+			GEMV_DIAG_LIBSTR(ne, 1.0, se, 0, dpi, 0, 0.0, dpi, 0, dpi, 0);
+
+			GEMV_T_LIBSTR(ne, nv, 1.0, A, 0, 0, dpi, 0, 0.0, lv, 0, lv, 0);
+			GEMV_DIAG_LIBSTR(nv, 1.0, sv, 0, lv, 0, -1.0, dv, 0, dv, 0);
+
+			TRSV_LNN_LIBSTR(nv, Lv, 0, 0, dv, 0, dv, 0);
+			TRSV_LTN_LIBSTR(nv, Lv, 0, 0, dv, 0, dv, 0);
+			GEMV_DIAG_LIBSTR(nv, 1.0, sv, 0, dv, 0, 0.0, dv, 0, dv, 0);
+
+			}
+		else // no scale
+			{
+
+			VECCP_LIBSTR(nv, res_g, 0, lv, 0);
+
+			if(ns>0)
+				{
+				COND_SLACKS_SOLVE(qp, ws);
+				}
+			else if(nb+ng>0)
+				{
+				AXPY_LIBSTR(nb+ng, -1.0, gamma, nb+ng, gamma, 0, tmp_nbg+1, 0);
+				}
+			if(nb>0)
+				{
+				VECAD_SP_LIBSTR(nb, 1.0, tmp_nbg+1, 0, idxb, lv, 0);
+				}
+			if(ng>0)
+				{
+				GEMV_N_LIBSTR(nv, ng, 1.0, Ct, 0, 0, tmp_nbg+1, nb, 1.0, lv, 0, lv, 0);
+				}
+
+			VECCP_LIBSTR(nv, lv, 0, dv, 0);
+
+			TRSV_LNN_LIBSTR(nv, Lv, 0, 0, lv, 0, lv, 0);
+
+			GEMV_N_LIBSTR(ne, nv, 1.0, AL, 0, 0, lv, 0, 1.0, res_b, 0, dpi, 0);
+
+			TRSV_LNN_LIBSTR(ne, Le, 0, 0, dpi, 0, dpi, 0);
+			TRSV_LTN_LIBSTR(ne, Le, 0, 0, dpi, 0, dpi, 0);
+
+			GEMV_T_LIBSTR(ne, nv, 1.0, A, 0, 0, dpi, 0, -1.0, dv, 0, dv, 0);
+
+			TRSV_LNN_LIBSTR(nv, Lv, 0, 0, dv, 0, dv, 0);
+			TRSV_LTN_LIBSTR(nv, Lv, 0, 0, dv, 0, dv, 0);
+
+			} // scale
+
+#endif // pivot cholesky
+
 		}
-	else
+	else // ne==0
 		{
-		VECCP_LIBSTR(nv, res_g, 0, lv, 0);
 
-		if(ns>0)
+		if(arg->scale)
 			{
-			COND_SLACKS_SOLVE(qp, ws);
-			}
-		else if(nb+ng>0)
-			{
-			AXPY_LIBSTR(nb+ng, -1.0, gamma, nb+ng, gamma, 0, tmp_nbg+1, 0);
-			}
-		if(nb>0)
-			{
-			VECAD_SP_LIBSTR(nb, 1.0, tmp_nbg+1, 0, idxb, lv, 0);
-			}
-		if(ng>0)
-			{
-			GEMV_N_LIBSTR(nv, ng, 1.0, Ct, 0, 0, tmp_nbg+1, nb, 1.0, lv, 0, lv, 0);
-			}
 
-		VECCP_LIBSTR(nv, lv, 0, dv, 0);
-		VECSC_LIBSTR(nv, -1.0, dv, 0);
+			VECCP_LIBSTR(nv, res_g, 0, lv, 0);
 
-		TRSV_LNN_LIBSTR(nv, Lv, 0, 0, dv, 0, dv, 0);
-		TRSV_LTN_LIBSTR(nv, Lv, 0, 0, dv, 0, dv, 0);
-		}
+			if(ns>0)
+				{
+				COND_SLACKS_SOLVE(qp, ws);
+				}
+			else if(nb+ng>0)
+				{
+				AXPY_LIBSTR(nb+ng, -1.0, gamma, nb+ng, gamma, 0, tmp_nbg+1, 0);
+				}
+			if(nb>0)
+				{
+				VECAD_SP_LIBSTR(nb, 1.0, tmp_nbg+1, 0, idxb, lv, 0);
+				}
+			if(ng>0)
+				{
+				GEMV_N_LIBSTR(nv, ng, 1.0, Ct, 0, 0, tmp_nbg+1, nb, 1.0, lv, 0, lv, 0);
+				}
+
+			VECCP_LIBSTR(nv, lv, 0, dv, 0);
+			VECSC_LIBSTR(nv, -1.0, dv, 0);
+
+			GEMV_DIAG_LIBSTR(nv, 1.0, sv, 0, dv, 0, 0.0, dv, 0, dv, 0);
+			TRSV_LNN_LIBSTR(nv, Lv, 0, 0, dv, 0, dv, 0);
+			TRSV_LTN_LIBSTR(nv, Lv, 0, 0, dv, 0, dv, 0);
+			GEMV_DIAG_LIBSTR(nv, 1.0, sv, 0, dv, 0, 0.0, dv, 0, dv, 0);
+
+			}
+		else // no scale
+			{
+
+			VECCP_LIBSTR(nv, res_g, 0, lv, 0);
+
+			if(ns>0)
+				{
+				COND_SLACKS_SOLVE(qp, ws);
+				}
+			else if(nb+ng>0)
+				{
+				AXPY_LIBSTR(nb+ng, -1.0, gamma, nb+ng, gamma, 0, tmp_nbg+1, 0);
+				}
+			if(nb>0)
+				{
+				VECAD_SP_LIBSTR(nb, 1.0, tmp_nbg+1, 0, idxb, lv, 0);
+				}
+			if(ng>0)
+				{
+				GEMV_N_LIBSTR(nv, ng, 1.0, Ct, 0, 0, tmp_nbg+1, nb, 1.0, lv, 0, lv, 0);
+				}
+
+			VECCP_LIBSTR(nv, lv, 0, dv, 0);
+			VECSC_LIBSTR(nv, -1.0, dv, 0);
+
+			TRSV_LNN_LIBSTR(nv, Lv, 0, 0, dv, 0, dv, 0);
+			TRSV_LTN_LIBSTR(nv, Lv, 0, 0, dv, 0, dv, 0);
+
+			} // scale
+
+		} // ne>0
 
 	if(nb+ng>0)
 		{

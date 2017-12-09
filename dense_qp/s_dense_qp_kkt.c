@@ -54,10 +54,14 @@
 #define DENSE_QP_RES s_dense_qp_res
 #define DENSE_QP_RES_WORKSPACE s_dense_qp_res_workspace
 #define DENSE_QP s_dense_qp
+#define DENSE_QP_IPM_ARG s_dense_qp_ipm_arg
 #define DENSE_QP_IPM_WORKSPACE s_dense_qp_ipm_workspace
 #define DENSE_QP_SOL s_dense_qp_sol
 #define DIAAD_SP_LIBSTR sdiaad_sp_libstr
+#define DIAEX_LIBSTR sdiaex_libstr
+#define DIARE_LIBSTR sdiare_libstr
 #define GECP_LIBSTR sgecp_libstr
+#define GEMM_L_DIAG_LIBSTR sgemm_l_diag_libstr
 #define GEMM_R_DIAG_LIBSTR sgemm_r_diag_libstr
 #define GEMV_DIAG_LIBSTR sgemv_diag_libstr
 #define GEMV_N_LIBSTR sgemv_n_libstr

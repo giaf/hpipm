@@ -51,10 +51,13 @@ struct s_dense_qp_ipm_arg
 	float res_b_max; // exit cond on inf norm of residuals
 	float res_d_max; // exit cond on inf norm of residuals
 	float res_m_max; // exit cond on inf norm of residuals
+	float reg_prim; // reg of primal hessian
+	float reg_dual; // reg of dual hessian
 	int iter_max; // exit cond in iter number
 	int stat_max; // iterations saved in stat
 	int pred_corr; // Mehrotra's predictor-corrector IPM algirthm
 	int cond_pred_corr; // conditional Mehrotra's predictor-corrector
+	int scale; // scale hessian
 	int warm_start; // 0 no warm start, 1 warm start primal sol
 	int memsize;
 	};
@@ -77,6 +80,8 @@ struct s_dense_qp_ipm_workspace
 	struct s_strmat *Le; //
 	struct s_strmat *Ctx; //
 	struct s_strvec *lv; //
+	struct s_strvec *sv; // scale for Lv
+	struct s_strvec *se; // scale for Le
 	struct s_strvec *tmp_nbg; // work space of size nb+ng
 	struct s_strvec *tmp_ns; // work space of size ns
 	float *stat; // convergence statistics

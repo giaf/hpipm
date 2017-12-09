@@ -52,12 +52,16 @@
 #define COMPUTE_GAMMA_QP d_compute_gamma_qp
 #define CORE_QP_IPM_WORKSPACE d_core_qp_ipm_workspace
 #define DENSE_QP d_dense_qp
+#define DENSE_QP_IPM_ARG d_dense_qp_ipm_arg
 #define DENSE_QP_IPM_WORKSPACE d_dense_qp_ipm_workspace
 #define DENSE_QP_RES d_dense_qp_res
 #define DENSE_QP_RES_WORKSPACE d_dense_qp_res_workspace
 #define DENSE_QP_SOL d_dense_qp_sol
 #define DIAAD_SP_LIBSTR ddiaad_sp_libstr
+#define DIAEX_LIBSTR ddiaex_libstr
+#define DIARE_LIBSTR ddiare_libstr
 #define GECP_LIBSTR dgecp_libstr
+#define GEMM_L_DIAG_LIBSTR dgemm_l_diag_libstr
 #define GEMM_R_DIAG_LIBSTR dgemm_r_diag_libstr
 #define GEMV_DIAG_LIBSTR dgemv_diag_libstr
 #define GEMV_N_LIBSTR dgemv_n_libstr

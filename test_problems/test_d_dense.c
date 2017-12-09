@@ -238,7 +238,7 @@ int main()
 //	arg.mu0 = 10.0;
 	arg.iter_max = 10;
 	arg.stat_max = 10;
-//	arg.pred_corr = 1;
+	arg.pred_corr = 1;
 
 /************************************************
 * ipm

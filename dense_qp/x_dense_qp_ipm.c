@@ -60,6 +60,9 @@ void SET_DEFAULT_DENSE_QP_IPM_ARG(struct DENSE_QP_IPM_ARG *arg)
 	arg->stat_max = 20;
 	arg->pred_corr = 1;
 	arg->cond_pred_corr = 1;
+	arg->scale = 1;
+	arg->reg_prim = 1e-15;
+	arg->reg_dual = 1e-15;
 	arg->warm_start = 0;
 
 	// TODO if(performance_mode) {} else /* reliability_mode */ {}
@@ -93,12 +96,13 @@ int MEMSIZE_DENSE_QP_IPM(struct DENSE_QP_DIM *dim, struct DENSE_QP_IPM_ARG *arg)
 	size += 1*sizeof(struct DENSE_QP_RES); // itref_res
 	size += 1*MEMSIZE_DENSE_QP_RES(dim); // itref_res
 
-	size += 20*sizeof(struct STRVEC); // step(v,pi,lam,t) res_g res_b res_d res_m lv (4+2)*tmp_nbg (1+1)*tmp_ns Gamma gamma Zs_inv
+	size += 22*sizeof(struct STRVEC); // step(v,pi,lam,t) res_g res_b res_d res_m lv (4+2)*tmp_nbg (1+1)*tmp_ns Gamma gamma Zs_inv sv se
 	size += 4*sizeof(struct STRMAT); // Lv AL Le Ctx
 
 	size += 4*SIZE_STRVEC(nb+ng); // 4*tmp_nbg
 	size += 1*SIZE_STRVEC(ns); // tmp_ns
-	size += 1*SIZE_STRVEC(nv); // lv
+	size += 2*SIZE_STRVEC(nv); // lv sv
+	size += 1*SIZE_STRVEC(ne); // se
 	size += 1*SIZE_STRVEC(2*ns); // Zs_inv
 	size += 1*SIZE_STRMAT(nv+1, nv); // Lv
 	size += 1*SIZE_STRMAT(ne, nv); // AL
@@ -203,6 +207,10 @@ void CREATE_DENSE_QP_IPM(struct DENSE_QP_DIM *dim, struct DENSE_QP_IPM_ARG *arg,
 	sv_ptr += 1;
 	workspace->lv = sv_ptr;
 	sv_ptr += 1;
+	workspace->sv = sv_ptr;
+	sv_ptr += 1;
+	workspace->se = sv_ptr;
+	sv_ptr += 1;
 	workspace->tmp_nbg = sv_ptr;
 	sv_ptr += 4;
 	workspace->res_workspace->tmp_nbg = sv_ptr;
@@ -255,6 +263,12 @@ void CREATE_DENSE_QP_IPM(struct DENSE_QP_DIM *dim, struct DENSE_QP_IPM_ARG *arg,
 
 	CREATE_STRVEC(nv, workspace->lv, c_ptr);
 	c_ptr += workspace->lv->memory_size;
+
+	CREATE_STRVEC(nv, workspace->sv, c_ptr);
+	c_ptr += workspace->sv->memory_size;
+
+	CREATE_STRVEC(ne, workspace->se, c_ptr);
+	c_ptr += workspace->se->memory_size;
 
 	CREATE_STRVEC(2*ns, workspace->Zs_inv, c_ptr);
 	c_ptr += workspace->Zs_inv->memory_size;
@@ -423,9 +437,9 @@ int SOLVE_DENSE_QP_IPM(struct DENSE_QP *qp, struct DENSE_QP_SOL *qp_sol, struct 
 		{
 
 		// fact and solve kkt
-		FACT_SOLVE_KKT_STEP_DENSE_QP(qp, ws);
+		FACT_SOLVE_KKT_STEP_DENSE_QP(qp, arg, ws);
 
-#if 0
+#if 1
 		COMPUTE_LIN_RES_DENSE_QP(ws->itref_qp, qp_sol, ws->step, ws->itref_res, ws->res_workspace);
 		VECNRM_INF_LIBSTR(cws->nv, ws->itref_res->res_g, 0, &itref_qp_norm0[0]);
 		VECNRM_INF_LIBSTR(cws->ne, ws->itref_res->res_b, 0, &itref_qp_norm0[1]);
@@ -449,7 +463,7 @@ int SOLVE_DENSE_QP_IPM(struct DENSE_QP *qp, struct DENSE_QP_SOL *qp_sol, struct 
 //		d_print_e_tran_strvec(2*qp->dim->nb+2*qp->dim->ng, ws->itref_res->res_d, 0);
 #endif
 
-#if 0
+#if 1
 		ndp0 = 0;
 		for(ii=0; ii<qp->dim->nv; ii++)
 			{
@@ -493,9 +507,9 @@ int SOLVE_DENSE_QP_IPM(struct DENSE_QP *qp, struct DENSE_QP_SOL *qp_sol, struct 
 			COMPUTE_CENTERING_CORRECTION_QP(cws);
 
 			// solve kkt
-			SOLVE_KKT_STEP_DENSE_QP(qp, ws);
+			SOLVE_KKT_STEP_DENSE_QP(qp, arg, ws);
 
-#if 0
+#if 1
 			COMPUTE_LIN_RES_DENSE_QP(ws->itref_qp, qp_sol, ws->step, ws->itref_res, ws->res_workspace);
 			VECNRM_INF_LIBSTR(cws->nv, ws->itref_res->res_g, 0, &itref_qp_norm1[0]);
 			VECNRM_INF_LIBSTR(cws->ne, ws->itref_res->res_b, 0, &itref_qp_norm1[1]);
@@ -542,7 +556,7 @@ int SOLVE_DENSE_QP_IPM(struct DENSE_QP *qp, struct DENSE_QP_SOL *qp_sol, struct 
 					COMPUTE_CENTERING_QP(cws);
 
 					// solve kkt
-					SOLVE_KKT_STEP_DENSE_QP(qp, ws);
+					SOLVE_KKT_STEP_DENSE_QP(qp, arg, ws);
 
 					// alpha
 					COMPUTE_ALPHA_QP(cws);
@@ -584,7 +598,7 @@ printf("%e %e %e %e\n", qp_res[0], qp_res[1], qp_res[2], qp_res[3]);
 #endif
 
 #if 0
-printf("alpha %1.3e %1.3e   sigma %1.3e   ndp %3d %3d   res_kkt %1.3e %1.3e %1.3e %1.3e   res_kkt %1.3e %1.3e %1.3e %1.3e   res_qp %1.3e %1.3e %1.3e %1.3e\n", cws->alpha_prim, cws->alpha_dual, cws->sigma, ndp0, ndp1, itref_qp_norm0[0], itref_qp_norm0[1], itref_qp_norm0[2], itref_qp_norm0[3], itref_qp_norm1[0], itref_qp_norm1[1], itref_qp_norm1[2], itref_qp_norm1[3], qp_res[0], qp_res[1], qp_res[2], qp_res[3]);
+printf("iter %3d   alpha %1.3e %1.3e   sigma %1.3e   ndp %3d %3d   res_kkt %1.3e %1.3e %1.3e %1.3e   res_kkt %1.3e %1.3e %1.3e %1.3e   res_qp %1.3e %1.3e %1.3e %1.3e\n", kk, cws->alpha_prim, cws->alpha_dual, cws->sigma, ndp0, ndp1, itref_qp_norm0[0], itref_qp_norm0[1], itref_qp_norm0[2], itref_qp_norm0[3], itref_qp_norm1[0], itref_qp_norm1[1], itref_qp_norm1[2], itref_qp_norm1[3], qp_res[0], qp_res[1], qp_res[2], qp_res[3]);
 #endif
 
 		}
