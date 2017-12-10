@@ -76,12 +76,12 @@ void INIT_VAR_DENSE_QP(struct DENSE_QP *qp, struct DENSE_QP_SOL *qp_sol, struct 
 #if 1
 		idxb0 = idxb[ii];
 		t[0+ii]     = - d[0+ii]     + v[idxb0];
-		t[nb+ng+ii] =   d[nb+ng+ii] - v[idxb0];
+		t[nb+ng+ii] = - d[nb+ng+ii] - v[idxb0];
 		if(t[0+ii]<thr0)
 			{
 			if(t[nb+ng+ii]<thr0)
 				{
-				v[idxb0] = 0.5*(d[0+ii] - d[nb+ng+ii]);
+				v[idxb0] = 0.5*(d[0+ii] + d[nb+ng+ii]);
 				t[0+ii]     = thr0;
 				t[nb+ng+ii] = thr0;
 				}
@@ -94,7 +94,7 @@ void INIT_VAR_DENSE_QP(struct DENSE_QP *qp, struct DENSE_QP_SOL *qp_sol, struct 
 		else if(t[nb+ng+ii]<thr0)
 			{
 			t[nb+ng+ii] = thr0;
-			v[idxb0] = d[nb+ng+ii] - thr0;
+			v[idxb0] = - d[nb+ng+ii] - thr0;
 			}
 #else
 		t[0+ii]     = 1.0;
@@ -111,7 +111,7 @@ void INIT_VAR_DENSE_QP(struct DENSE_QP *qp, struct DENSE_QP_SOL *qp_sol, struct 
 #if 1
 		t[2*nb+ng+ii] = t[nb+ii];
 		t[nb+ii]      -= d[nb+ii];
-		t[2*nb+ng+ii] += d[2*nb+ng+ii];
+		t[2*nb+ng+ii] -= d[2*nb+ng+ii];
 //		t[nb+ii]      = fmax( thr0, t[nb+ii] );
 //		t[2*nb+ng+ii] = fmax( thr0, t[2*nb+ng+ii] );
 		t[nb+ii]      = thr0>t[nb+ii]      ? thr0 : t[nb+ii];
@@ -185,8 +185,9 @@ void COMPUTE_RES_DENSE_QP(struct DENSE_QP *qp, struct DENSE_QP_SOL *qp_sol, stru
 	if(nb+ng>0)
 		{
 		AXPY_LIBSTR(nb+ng, -1.0, lam, 0, lam, nb+ng, tmp_nbg+0, 0);
-		AXPY_LIBSTR(nb+ng,  1.0, d, 0, t, 0, res_d, 0);
-		AXPY_LIBSTR(nb+ng, -1.0, d, nb+ng, t, nb+ng, res_d, nb+ng);
+//		AXPY_LIBSTR(nb+ng,  1.0, d, 0, t, 0, res_d, 0);
+//		AXPY_LIBSTR(nb+ng,  1.0, d, nb+ng, t, nb+ng, res_d, nb+ng);
+		AXPY_LIBSTR(2*nb+2*ng,  1.0, d, 0, t, 0, res_d, 0);
 		// box
 		if(nb>0)
 			{
@@ -280,7 +281,7 @@ void COMPUTE_LIN_RES_DENSE_QP(struct DENSE_QP *qp, struct DENSE_QP_SOL *qp_sol, 
 		{
 		AXPY_LIBSTR(nb+ng, -1.0, lam, 0, lam, nb+ng, tmp_nbg+0, 0);
 		AXPY_LIBSTR(nb+ng,  1.0, d, 0, t, 0, res_d, 0);
-		AXPY_LIBSTR(nb+ng, -1.0, d, nb+ng, t, nb+ng, res_d, nb+ng);
+		AXPY_LIBSTR(nb+ng,  1.0, d, nb+ng, t, nb+ng, res_d, nb+ng);
 		// box
 		if(nb>0)
 			{

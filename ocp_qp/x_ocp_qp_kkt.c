@@ -102,12 +102,12 @@ void INIT_VAR_OCP_QP(struct OCP_QP *qp, struct OCP_QP_SOL *qp_sol, struct OCP_QP
 			{
 #if 1
 			t_lb[jj] = - d_lb[jj] + ux[idxb[jj]];
-			t_ub[jj] =   d_ub[jj] - ux[idxb[jj]];
+			t_ub[jj] = - d_ub[jj] - ux[idxb[jj]];
 			if(t_lb[jj]<thr0)
 				{
 				if(t_ub[jj]<thr0)
 					{
-					ux[idxb[jj]] = 0.5*(d_lb[jj]-d_ub[jj]);
+					ux[idxb[jj]] = 0.5*(d_lb[jj] + d_ub[jj]);
 					t_lb[jj] = thr0;
 					t_ub[jj] = thr0;
 					}
@@ -120,7 +120,7 @@ void INIT_VAR_OCP_QP(struct OCP_QP *qp, struct OCP_QP_SOL *qp_sol, struct OCP_QP
 			else if(t_ub[jj]<thr0)
 				{
 				t_ub[jj] = thr0;
-				ux[idxb[jj]] = d_ub[jj] - thr0;
+				ux[idxb[jj]] = - d_ub[jj] - thr0;
 				}
 #else
 			t_lb[jj] = 1.0;
@@ -147,7 +147,7 @@ void INIT_VAR_OCP_QP(struct OCP_QP *qp, struct OCP_QP_SOL *qp_sol, struct OCP_QP
 #if 1
 			t_ug[jj] = - t_lg[jj];
 			t_lg[jj] -= d_lg[jj];
-			t_ug[jj] += d_ug[jj];
+			t_ug[jj] -= d_ug[jj];
 //			t_lg[jj] = fmax(thr0, t_lg[jj]);
 //			t_ug[jj] = fmax(thr0, t_ug[jj]);
 			t_lg[jj] = thr0>t_lg[jj] ? thr0 : t_lg[jj];
@@ -250,8 +250,9 @@ void COMPUTE_RES_OCP_QP(struct OCP_QP *qp, struct OCP_QP_SOL *qp_sol, struct OCP
 		if(nb0+ng0>0)
 			{
 			AXPY_LIBSTR(nb0+ng0, -1.0, lam+ii, 0, lam+ii, nb[ii]+ng[ii], tmp_nbgM+0, 0);
-			AXPY_LIBSTR(nb0+ng0,  1.0, d+ii, 0, t+ii, 0, res_d+ii, 0);
-			AXPY_LIBSTR(nb0+ng0, -1.0, d+ii, nb0+ng0, t+ii, nb0+ng0, res_d+ii, nb0+ng0);
+//			AXPY_LIBSTR(nb0+ng0,  1.0, d+ii, 0, t+ii, 0, res_d+ii, 0);
+//			AXPY_LIBSTR(nb0+ng0,  1.0, d+ii, nb0+ng0, t+ii, nb0+ng0, res_d+ii, nb0+ng0);
+			AXPY_LIBSTR(2*nb0+2*ng0,  1.0, d+ii, 0, t+ii, 0, res_d+ii, 0);
 			// box
 			if(nb0>0)
 				{

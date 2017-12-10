@@ -54,6 +54,7 @@
 #define SIZE_STRMAT d_size_strmat
 #define SIZE_STRVEC d_size_strvec
 #define VECCP_LIBSTR dveccp_libstr
+#define VECSC_LIBSTR dvecsc_libstr
 
 #define CAST_OCP_QP d_cast_ocp_qp
 #define COPY_OCP_QP d_copy_ocp_qp

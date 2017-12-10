@@ -239,6 +239,7 @@ int main()
 	arg.iter_max = 10;
 	arg.stat_max = 10;
 	arg.pred_corr = 1;
+	arg.scale = 1;
 
 /************************************************
 * ipm
