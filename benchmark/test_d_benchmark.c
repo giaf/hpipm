@@ -538,10 +538,10 @@ int main()
         d_create_dense_qp_ipm_arg(&dim, &argd, ipm_arg_mem);
         d_set_default_dense_qp_ipm_arg(&argd);
         /* consistent with setting in acore */
-        argd.res_g_max = 1e-5;
-        argd.res_b_max = 1e-5;
-        argd.res_d_max = 1e-5;
-        argd.res_m_max = 1e-5;
+        argd.res_g_max = 2e-5;
+        argd.res_b_max = 2e-5;
+        argd.res_d_max = 2e-5;
+        argd.res_m_max = 2e-5;
         argd.iter_max = 200;
         argd.stat_max = 200;
         argd.alpha_min = 1e-12;
