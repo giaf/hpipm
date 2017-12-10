@@ -52,7 +52,7 @@ void INIT_VAR_DENSE_QP(struct DENSE_QP *qp, struct DENSE_QP_SOL *qp_sol, struct 
 	// local variables
 	int ii;
 	int idxb0;
-	REAL thr0 = 0.1;
+	REAL thr0 = 0.5;
 
 	// primal variables
 	if(ws->warm_start==0)
