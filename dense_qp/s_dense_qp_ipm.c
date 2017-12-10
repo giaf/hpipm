@@ -33,6 +33,7 @@
 #include <blasfeo_target.h>
 #include <blasfeo_common.h>
 #include <blasfeo_s_aux.h>
+#include <blasfeo_s_blas.h>
 
 #include "../include/hpipm_s_dense_qp_dim.h"
 #include "../include/hpipm_s_dense_qp.h"
@@ -45,6 +46,7 @@
 
 
 
+#define AXPY_LIBSTR saxpy_libstr
 #define BACKUP_RES_M s_backup_res_m
 #define COMPUTE_ALPHA_QP s_compute_alpha_qp
 #define COMPUTE_CENTERING_CORRECTION_QP s_compute_centering_correction_qp
@@ -55,6 +57,7 @@
 #define CORE_QP_IPM_WORKSPACE s_core_qp_ipm_workspace
 #define CREATE_CORE_QP_IPM s_create_core_qp_ipm
 #define CREATE_DENSE_QP_RES s_create_dense_qp_res
+#define CREATE_DENSE_QP_SOL s_create_dense_qp_sol
 #define CREATE_STRMAT s_create_strmat
 #define CREATE_STRVEC s_create_strvec
 #define DENSE_QP s_dense_qp
@@ -69,6 +72,7 @@
 #define INIT_VAR_DENSE_QP s_init_var_dense_qp
 #define MEMSIZE_CORE_QP_IPM s_memsize_core_qp_ipm
 #define MEMSIZE_DENSE_QP_RES s_memsize_dense_qp_res
+#define MEMSIZE_DENSE_QP_SOL s_memsize_dense_qp_sol
 #define REAL float
 #define SIZE_STRMAT s_size_strmat
 #define SIZE_STRVEC s_size_strvec

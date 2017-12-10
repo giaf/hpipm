@@ -58,6 +58,8 @@ struct s_dense_qp_ipm_arg
 	int pred_corr; // Mehrotra's predictor-corrector IPM algirthm
 	int cond_pred_corr; // conditional Mehrotra's predictor-corrector
 	int scale; // scale hessian
+	int itref_pred_max; // max number of iterative refinement steps for predictor step
+	int itref_corr_max; // max number of iterative refinement steps for corrector step
 	int warm_start; // 0 no warm start, 1 warm start primal sol
 	int memsize;
 	};
@@ -69,9 +71,11 @@ struct s_dense_qp_ipm_workspace
 	struct s_core_qp_ipm_workspace *core_workspace;
 	struct s_dense_qp_res *res;
 	struct s_dense_qp_res_workspace *res_workspace;
-	struct s_dense_qp_sol *step;
-	struct s_dense_qp *itref_qp;
-	struct s_dense_qp_res *itref_res;
+	struct s_dense_qp_sol *sol_step;
+	struct s_dense_qp_sol *sol_itref;
+	struct s_dense_qp *qp_step;
+	struct s_dense_qp *qp_itref;
+	struct s_dense_qp_res *res_itref;
 	struct s_strvec *Gamma; //
 	struct s_strvec *gamma; //
 	struct s_strvec *Zs_inv; //

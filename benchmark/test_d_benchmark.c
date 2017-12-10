@@ -549,6 +549,8 @@ int main()
 		argd.pred_corr = 1;
 		argd.cond_pred_corr = 1;
 		argd.scale = 1;
+		argd.itref_pred_max = 0;
+		argd.itref_corr_max = 4;
 		argd.reg_prim = 1e-15;
 		argd.reg_dual = 1e-15;
 

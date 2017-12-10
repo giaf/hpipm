@@ -577,7 +577,7 @@ void FACT_SOLVE_KKT_STEP_OCP_QP(struct OCP_QP *qp, struct OCP_QP_IPM_WORKSPACE *
 
 	struct CORE_QP_IPM_WORKSPACE *cws = ws->core_workspace;
 
-	COMPUTE_GAMMA_GAMMA_QP(cws);
+	COMPUTE_GAMMA_GAMMA_QP(ws->res->res_d[0].pa, ws->res->res_m[0].pa, cws);
 
 	// factorization and backward substitution
 
@@ -708,7 +708,7 @@ void FACT_SOLVE_KKT_STEP_OCP_QP(struct OCP_QP *qp, struct OCP_QP_IPM_WORKSPACE *
 			EXPAND_SLACKS(ss, qp, ws);
 		}
 
-	COMPUTE_LAM_T_QP(cws);
+	COMPUTE_LAM_T_QP(ws->res->res_d[0].pa, ws->res->res_m[0].pa, cws->dlam, cws->dt, cws);
 
 	return;
 
@@ -750,7 +750,7 @@ void SOLVE_KKT_STEP_OCP_QP(struct OCP_QP *qp, struct OCP_QP_IPM_WORKSPACE *ws)
 
 	struct CORE_QP_IPM_WORKSPACE *cws = ws->core_workspace;
 
-	COMPUTE_GAMMA_QP(cws);
+	COMPUTE_GAMMA_QP(ws->res->res_d[0].pa, ws->res->res_m[0].pa, cws);
 
 	// backward substitution
 
@@ -874,7 +874,7 @@ void SOLVE_KKT_STEP_OCP_QP(struct OCP_QP *qp, struct OCP_QP_IPM_WORKSPACE *ws)
 			EXPAND_SLACKS(ss, qp, ws);
 		}
 
-	COMPUTE_LAM_T_QP(cws);
+	COMPUTE_LAM_T_QP(ws->res->res_d[0].pa, ws->res->res_m[0].pa, cws->dlam, cws->dt, cws);
 
 	return;
 

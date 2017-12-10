@@ -27,15 +27,15 @@
 
 
 
-void COMPUTE_GAMMA_GAMMA_QP(struct CORE_QP_IPM_WORKSPACE *cws)
+void COMPUTE_GAMMA_GAMMA_QP(REAL *res_d, REAL *res_m, struct CORE_QP_IPM_WORKSPACE *cws)
 	{
 
 	int nc = cws->nc;
 
 	REAL *lam = cws->lam;
 	REAL *t = cws->t;
-	REAL *res_m = cws->res_m;
-	REAL *res_d = cws->res_d;
+//	REAL *res_d = cws->res_d; // TODO rename d ???
+//	REAL *res_m = cws->res_m; // TODO rename m ???
 	REAL *t_inv = cws->t_inv;
 	REAL *Gamma = cws->Gamma;
 	REAL *gamma = cws->gamma;
@@ -56,16 +56,39 @@ void COMPUTE_GAMMA_GAMMA_QP(struct CORE_QP_IPM_WORKSPACE *cws)
 
 
 
-void COMPUTE_LAM_T_QP(struct CORE_QP_IPM_WORKSPACE *cws)
+void COMPUTE_GAMMA_QP(REAL *res_d, REAL *res_m, struct CORE_QP_IPM_WORKSPACE *cws)
 	{
 
 	int nc = cws->nc;
 
 	REAL *lam = cws->lam;
-	REAL *dlam = cws->dlam;
-	REAL *dt = cws->dt;
-	REAL *res_d = cws->res_d;
-	REAL *res_m = cws->res_m;
+//	REAL *res_m = cws->res_m;
+//	REAL *res_d = cws->res_d;
+	REAL *t_inv = cws->t_inv;
+	REAL *gamma = cws->gamma;
+
+	// local variables
+	int ii;
+
+	for(ii=0; ii<nc; ii++)
+		{
+		gamma[ii] = t_inv[ii]*(res_m[ii]-lam[ii]*res_d[ii]);
+		}
+
+	return;
+
+	}
+
+void COMPUTE_LAM_T_QP(REAL *res_d, REAL *res_m, REAL *dlam, REAL *dt, struct CORE_QP_IPM_WORKSPACE *cws)
+	{
+
+	int nc = cws->nc;
+
+	REAL *lam = cws->lam;
+//	REAL *dlam = cws->dlam;
+//	REAL *dt = cws->dt;
+//	REAL *res_d = cws->res_d; // TODO rename d ???
+//	REAL *res_m = cws->res_m; // TODO rename m ???
 	REAL *t_inv = cws->t_inv;
 
 	// local variables
@@ -180,11 +203,11 @@ void UPDATE_VAR_QP(struct CORE_QP_IPM_WORKSPACE *cws)
 	if(alpha<1.0)
 		alpha *= 0.995;
 #else
-	alpha = alpha * ((1.0-alpha)*0.99 + alpha*0.9999999);
-	alpha_prim = alpha_prim * ((1.0-alpha_prim)*0.99 + alpha_prim*0.9999999);
-	alpha_dual = alpha_dual * ((1.0-alpha_dual)*0.99 + alpha_dual*0.9999999);
 //	alpha_prim = alpha_prim * ((1.0-alpha)*0.99 + alpha*0.9999999);
 //	alpha_dual = alpha_dual * ((1.0-alpha)*0.99 + alpha*0.9999999);
+	alpha_prim = alpha_prim * ((1.0-alpha_prim)*0.99 + alpha_prim*0.9999999);
+	alpha_dual = alpha_dual * ((1.0-alpha_dual)*0.99 + alpha_dual*0.9999999);
+	alpha = alpha * ((1.0-alpha)*0.99 + alpha*0.9999999);
 #endif
 
 	// local variables
@@ -227,7 +250,7 @@ void UPDATE_VAR_QP(struct CORE_QP_IPM_WORKSPACE *cws)
 	// update pi
 	for(ii=0; ii<ne; ii++)
 		{
-		pi[ii] += alpha_prim * dpi[ii];
+		pi[ii] += alpha_dual * dpi[ii];
 		}
 
 	// update lam
@@ -354,28 +377,5 @@ void COMPUTE_CENTERING_QP(struct CORE_QP_IPM_WORKSPACE *cws)
 	}
 
 
-
-void COMPUTE_GAMMA_QP(struct CORE_QP_IPM_WORKSPACE *cws)
-	{
-
-	int nc = cws->nc;
-
-	REAL *lam = cws->lam;
-	REAL *res_m = cws->res_m;
-	REAL *res_d = cws->res_d;
-	REAL *t_inv = cws->t_inv;
-	REAL *gamma = cws->gamma;
-
-	// local variables
-	int ii;
-
-	for(ii=0; ii<nc; ii++)
-		{
-		gamma[ii] = t_inv[ii]*(res_m[ii]-lam[ii]*res_d[ii]);
-		}
-
-	return;
-
-	}
 
 
