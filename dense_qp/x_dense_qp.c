@@ -54,7 +54,7 @@ int MEMSIZE_DENSE_QP(struct DENSE_QP_DIM *dim)
 
 	size = (size+63)/64*64; // make multiple of typical cache line size
 	size += 1*64; // align once to typical cache line size
-	
+
 	return size;
 
 	}
@@ -257,7 +257,7 @@ void CVT_DENSE_QP_TO_COLMAJ(struct DENSE_QP *qp, REAL *H, REAL *g, REAL *A, REAL
 		CVT_TRAN_STRMAT2MAT(nv, ng, qp->Ct, 0, 0, C, ng);
 		CVT_STRVEC2VEC(ng, qp->d, nb, d_lg);
 		CVT_STRVEC2VEC(ng, qp->d, 2*nb+ng, d_ug);
-		for(ii=0; ii<ng; ii++) d_ub[ii] = - d_ug[ii];
+		for(ii=0; ii<ng; ii++) d_ug[ii] = - d_ug[ii];
 		}
 	if(ns>0)
 		{
@@ -355,7 +355,7 @@ void CVT_DENSE_QP_TO_ROWMAJ(struct DENSE_QP *qp, REAL *H, REAL *g, REAL *A, REAL
 		CVT_STRMAT2MAT(nv, ng, qp->Ct, 0, 0, C, nv);
 		CVT_STRVEC2VEC(ng, qp->d, nb, d_lg);
 		CVT_STRVEC2VEC(ng, qp->d, 2*nb+ng, d_ug);
-		for(ii=0; ii<ng; ii++) d_ub[ii] = - d_ug[ii];
+		for(ii=0; ii<ng; ii++) d_ug[ii] = - d_ug[ii];
 		}
 	if(ns>0)
 		{
@@ -467,5 +467,6 @@ void CVT_DENSE_QP_TO_LIBSTR(struct DENSE_QP *qp, struct STRMAT *H, struct STRMAT
 	return;
 
 	}
+
 
 
