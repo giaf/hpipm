@@ -39,13 +39,13 @@
 
 
 
-#define CREATE_STRVEC s_create_strvec
-#define CVT_STRVEC2VEC s_cvt_strvec2vec
+#define CREATE_STRVEC blasfeo_create_svec
+#define CVT_STRVEC2VEC blasfeo_unpack_svec
 #define OCP_QP_DIM s_ocp_qp_dim
 #define OCP_QP_RES s_ocp_qp_res
 #define OCP_QP_RES_WORKSPACE s_ocp_qp_res_workspace
 #define REAL float
-#define SIZE_STRVEC s_size_strvec
+#define SIZE_STRVEC blasfeo_memsize_svec
 #define STRVEC blasfeo_svec
 
 

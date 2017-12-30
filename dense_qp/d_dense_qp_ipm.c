@@ -58,8 +58,8 @@
 #define CREATE_CORE_QP_IPM d_create_core_qp_ipm
 #define CREATE_DENSE_QP_RES d_create_dense_qp_res
 #define CREATE_DENSE_QP_SOL d_create_dense_qp_sol
-#define CREATE_STRMAT d_create_strmat
-#define CREATE_STRVEC d_create_strvec
+#define CREATE_STRMAT blasfeo_create_dmat
+#define CREATE_STRVEC blasfeo_create_dvec
 #define DENSE_QP d_dense_qp
 #define DENSE_QP_IPM_ARG d_dense_qp_ipm_arg
 #define DENSE_QP_IPM_WORKSPACE d_dense_qp_ipm_workspace
@@ -74,8 +74,8 @@
 #define MEMSIZE_DENSE_QP_RES d_memsize_dense_qp_res
 #define MEMSIZE_DENSE_QP_SOL d_memsize_dense_qp_sol
 #define REAL double
-#define SIZE_STRMAT d_size_strmat
-#define SIZE_STRVEC d_size_strvec
+#define SIZE_STRMAT blasfeo_memsize_dmat
+#define SIZE_STRVEC blasfeo_memsize_dvec
 #define SOLVE_KKT_STEP_DENSE_QP d_solve_kkt_step_dense_qp
 #define STRMAT blasfeo_dmat
 #define STRVEC blasfeo_dvec

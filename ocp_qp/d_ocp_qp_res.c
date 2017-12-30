@@ -39,13 +39,13 @@
 
 
 
-#define CREATE_STRVEC d_create_strvec
-#define CVT_STRVEC2VEC d_cvt_strvec2vec
+#define CREATE_STRVEC blasfeo_create_dvec
+#define CVT_STRVEC2VEC blasfeo_unpack_dvec
 #define OCP_QP_DIM d_ocp_qp_dim
 #define OCP_QP_RES d_ocp_qp_res
 #define OCP_QP_RES_WORKSPACE d_ocp_qp_res_workspace
 #define REAL double
-#define SIZE_STRVEC d_size_strvec
+#define SIZE_STRVEC blasfeo_memsize_dvec
 #define STRVEC blasfeo_dvec
 
 

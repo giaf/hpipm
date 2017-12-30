@@ -50,8 +50,8 @@
 #define COND_RQ_N2NX3 d_cond_rq_N2nx3
 #define COND_RSQRQ_N2NX3 d_cond_RSQrq_N2nx3
 #define COND_QP_OCP2DENSE_WORKSPACE d_cond_qp_ocp2dense_workspace
-#define CREATE_STRMAT d_create_strmat
-#define CREATE_STRVEC d_create_strvec
+#define CREATE_STRMAT blasfeo_create_dmat
+#define CREATE_STRVEC blasfeo_create_dvec
 #define DENSE_QP d_dense_qp
 #define DENSE_QP_DIM d_dense_qp_dim
 #define DENSE_QP_SOL d_dense_qp_sol
@@ -59,8 +59,8 @@
 #define OCP_QP d_ocp_qp
 #define OCP_QP_DIM d_ocp_qp_dim
 #define OCP_QP_SOL d_ocp_qp_sol
-#define SIZE_STRMAT d_size_strmat
-#define SIZE_STRVEC d_size_strvec
+#define SIZE_STRMAT blasfeo_memsize_dmat
+#define SIZE_STRVEC blasfeo_memsize_dvec
 #define STRMAT blasfeo_dmat
 #define STRVEC blasfeo_dvec
 

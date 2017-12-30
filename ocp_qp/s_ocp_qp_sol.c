@@ -42,15 +42,15 @@
 
 
 
-#define CREATE_STRVEC s_create_strvec
-#define CVT_STRVEC2VEC s_cvt_strvec2vec
-#define CVT_VEC2STRVEC s_cvt_vec2strvec
+#define CREATE_STRVEC blasfeo_create_svec
+#define CVT_STRVEC2VEC blasfeo_unpack_svec
+#define CVT_VEC2STRVEC blasfeo_pack_svec
 #define OCP_QP s_ocp_qp
 #define OCP_QP_DIM s_ocp_qp_dim
 #define OCP_QP_SOL s_ocp_qp_sol
 #define REAL float
 #define STRVEC blasfeo_svec
-#define SIZE_STRVEC s_size_strvec
+#define SIZE_STRVEC blasfeo_memsize_svec
 #define VECCP_LIBSTR sveccp_libstr
 
 #define CREATE_OCP_QP_SOL s_create_ocp_qp_sol

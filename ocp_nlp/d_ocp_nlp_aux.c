@@ -59,10 +59,10 @@ void d_cvt_erk_int_to_ocp_qp(int n, struct d_erk_workspace *erk_ws, struct d_ocp
 //	if(adj_sens!=0 & erk_ws->erk_arg->adj_sens!=0)
 //		x = erk_ws->x + nX*erk_ws->erk_arg->steps;
 
-//	d_cvt_tran_mat2strmat(nx[1], nu[0]+nx[0], x, nx[1], BAbt, 0, 0);
-	d_cvt_tran_mat2strmat(nx, nu+nx, x+nx, nx, BAbt, 0, 0);
+//	blasfeo_pack_tran_dmat(nx[1], nu[0]+nx[0], x, nx[1], BAbt, 0, 0);
+	blasfeo_pack_tran_dmat(nx, nu+nx, x+nx, nx, BAbt, 0, 0);
 
-	d_cvt_vec2strvec(nx, x, b, 0);
+	blasfeo_pack_dvec(nx, x, b, 0);
 	// XXX not compute this again in residuals !!!
 	dgemv_t_libstr(nu+nx, nx, -1.0, BAbt, 0, 0, ux, 0, 1.0, b, 0, b, 0);
 	drowin_libstr(nx, 1.0, b, 0, BAbt, nu+nx, 0);
@@ -97,10 +97,10 @@ void d_cvt_erk_int_to_ocp_qp_rhs(int n, struct d_erk_workspace *erk_ws, struct d
 	double *x = erk_ws->x_for;
 
 	struct blasfeo_dvec sl;
-	d_create_strvec(nu+nx, &sl, erk_ws->l);
+	blasfeo_create_dvec(nu+nx, &sl, erk_ws->l);
 
 	daxpy_libstr(nu+nx, 1.0, &sl, 0, qp->rq+n, 0, qp->rq+n, 0);
-	d_cvt_vec2strvec(nx, x, b, 0);
+	blasfeo_pack_dvec(nx, x, b, 0);
 	// XXX not compute this again in residuals !!!
 	dgemv_nt_libstr(nu+nx, nx, -1.0, -1.0, BAbt, 0, 0, nlp_sol->pi+n, 0, ux, 0, 1.0, 1.0, qp->rq+n, 0, b, 0, qp->rq+n, 0, b, 0);
 	drowin_libstr(nu+nx, 1.0, qp->rq+n, 0, qp->RSQrq+n, nu+nx, 0);

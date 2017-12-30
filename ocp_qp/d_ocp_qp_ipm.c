@@ -53,9 +53,9 @@
 #define COMPUTE_RES_OCP_QP d_compute_res_ocp_qp
 #define CORE_QP_IPM_WORKSPACE d_core_qp_ipm_workspace
 #define CREATE_CORE_QP_IPM d_create_core_qp_ipm
-#define CREATE_STRMAT d_create_strmat
-#define CREATE_STRVEC d_create_strvec
-#define CVT_STRVEC2VEC d_cvt_strvec2vec
+#define CREATE_STRMAT blasfeo_create_dmat
+#define CREATE_STRVEC blasfeo_create_dvec
+#define CVT_STRVEC2VEC blasfeo_unpack_dvec
 #define FACT_SOLVE_KKT_STEP_OCP_QP d_fact_solve_kkt_step_ocp_qp
 #define FACT_SOLVE_KKT_UNCONSTR_OCP_QP d_fact_solve_kkt_unconstr_ocp_qp
 #define INIT_VAR_OCP_QP d_init_var_ocp_qp
@@ -74,8 +74,8 @@
 #define PRINT_STRVEC d_print_strvec
 #define PRINT_TRAN_STRVEC d_print_tran_strvec
 #define REAL double
-#define SIZE_STRMAT d_size_strmat
-#define SIZE_STRVEC d_size_strvec
+#define SIZE_STRMAT blasfeo_memsize_dmat
+#define SIZE_STRVEC blasfeo_memsize_dvec
 #define SOLVE_KKT_STEP_OCP_QP d_solve_kkt_step_ocp_qp
 #define STRMAT blasfeo_dmat
 #define STRVEC blasfeo_dvec

@@ -53,7 +53,7 @@
 #define COND_QP_OCP2DENSE_WORKSPACE d_cond_qp_ocp2dense_workspace
 #define COND_QP_OCP2OCP_WORKSPACE d_cond_qp_ocp2ocp_workspace
 #define CREATE_COND_QP_OCP2DENSE d_create_cond_qp_ocp2dense
-#define CREATE_STRVEC d_create_strvec
+#define CREATE_STRVEC blasfeo_create_dvec
 #define DENSE_QP d_dense_qp
 #define DENSE_QP_SOL d_dense_qp_sol
 #define EXPAND_SOL d_expand_sol

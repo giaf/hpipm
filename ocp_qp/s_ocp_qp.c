@@ -41,18 +41,18 @@
 
 
 
-#define CREATE_STRMAT s_create_strmat
-#define CREATE_STRVEC s_create_strvec
-#define CVT_MAT2STRMAT s_cvt_mat2strmat
-#define CVT_TRAN_MAT2STRMAT s_cvt_tran_mat2strmat
-#define CVT_VEC2STRVEC s_cvt_vec2strvec
+#define CREATE_STRMAT blasfeo_create_smat
+#define CREATE_STRVEC blasfeo_create_svec
+#define CVT_MAT2STRMAT blasfeo_pack_smat
+#define CVT_TRAN_MAT2STRMAT blasfeo_pack_tran_smat
+#define CVT_VEC2STRVEC blasfeo_pack_svec
 #define OCP_QP s_ocp_qp
 #define OCP_QP_DIM s_ocp_qp_dim
 #define REAL float
 #define STRMAT blasfeo_smat
 #define STRVEC blasfeo_svec
-#define SIZE_STRMAT s_size_strmat
-#define SIZE_STRVEC s_size_strvec
+#define SIZE_STRMAT blasfeo_memsize_smat
+#define SIZE_STRVEC blasfeo_memsize_svec
 #define VECCP_LIBSTR sveccp_libstr
 #define VECSC_LIBSTR svecsc_libstr
 

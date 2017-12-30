@@ -29,8 +29,8 @@
 #define ELIM_X0_WORKSPACE d_elim_x0_workspace
 #define OCP_QP d_ocp_qp
 #define ROWIN_LIBSTR drowin_libstr
-#define SIZE_STRMAT d_size_strmat
-#define SIZE_STRVEC d_size_strvec
+#define SIZE_STRMAT blasfeo_memsize_dmat
+#define SIZE_STRVEC blasfeo_memsize_dvec
 #define STRMAT blasfeo_dmat
 #define STRVEC blasfeo_dvec
 

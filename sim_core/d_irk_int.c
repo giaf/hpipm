@@ -54,8 +54,8 @@ int d_memsize_irk_int(struct d_rk_data *rk_data, int nx, int nf, int np)
 
 	size += 3*sizeof(struct blasfeo_dmat); // JG rG K
 
-	size += 1*d_size_strmat(nx*ns, nx*ns); // JG
-	size += 2*d_size_strmat(nx*ns, nf+1); // rG K
+	size += 1*blasfeo_memsize_dmat(nx*ns, nx*ns); // JG
+	size += 2*blasfeo_memsize_dmat(nx*ns, nf+1); // rG K
 
 	size += 1*nx*sizeof(double); // xt1
 	size += 4*nX*sizeof(double); // x xt0 Kt rGt
@@ -147,13 +147,13 @@ void d_create_irk_int(struct d_rk_data *rk_data, int nx, int nf, int np, struct 
 	c_ptr = (char *) l_ptr;
 
 	// JG
-	d_create_strmat(nx*ns, nx*ns, ws->JG, c_ptr);
+	blasfeo_create_dmat(nx*ns, nx*ns, ws->JG, c_ptr);
 	c_ptr += ws->JG->memsize;
 	// rG
-	d_create_strmat(nx*ns, nf+1, ws->rG, c_ptr);
+	blasfeo_create_dmat(nx*ns, nf+1, ws->rG, c_ptr);
 	c_ptr += ws->rG->memsize;
 	// rG
-	d_create_strmat(nx*ns, nf+1, ws->K, c_ptr);
+	blasfeo_create_dmat(nx*ns, nf+1, ws->K, c_ptr);
 	c_ptr += ws->K->memsize;
 
 
@@ -205,7 +205,7 @@ void d_init_irk_int(double *x0, double *fs0, double *p0, void (*d_res_impl_vde)(
 	
 	// TODO initialize K !!!!!
 //	for(ii=0; ii<ns; ii++)
-//		d_cvt_mat2strmat(nx, nf+1, xdot0, nx, K, ii*nx, 0);
+//		blasfeo_pack_dmat(nx, nf+1, xdot0, nx, K, ii*nx, 0);
 	dgese_libstr(nx*ns, nf+1, 0.0, K, 0, 0);
 
 	ws->d_res_impl_vde = d_res_impl_vde;
@@ -249,9 +249,9 @@ void d_irk_int(struct d_irk_args *irk_args, struct d_irk_workspace *ws)
 	int nX = nx*(1+nf);
 
 	struct blasfeo_dvec sxt0;
-	d_create_strvec(nX, &sxt0, xt0);
+	blasfeo_create_dvec(nX, &sxt0, xt0);
 	struct blasfeo_dvec sxt1;
-	d_create_strvec(nx, &sxt1, xt1);
+	blasfeo_create_dvec(nx, &sxt1, xt1);
 
 	int ii, jj, step, iter, ss;
 	double t, a, b;
@@ -280,16 +280,16 @@ void d_irk_int(struct d_irk_args *irk_args, struct d_irk_workspace *ws)
 							}
 						}
 					}
-				d_cvt_strmat2mat(nx, nf+1, K, ss*nx, 0, Kt, nx);
+				blasfeo_unpack_dmat(nx, nf+1, K, ss*nx, 0, Kt, nx);
 				ws->d_res_impl_vde(t+h*C_rk[ss], Kt, xt0, p, ws->ode_args, rGt);
 				ws->d_jac_impl_ode(t+h*C_rk[ss], Kt, xt0, p, ws->ode_args, Jt0);
-				d_cvt_mat2strmat(nx, nf+1, rGt, nx, rG, ss*nx, 0);
+				blasfeo_pack_dmat(nx, nf+1, rGt, nx, rG, ss*nx, 0);
 				for(ii=0; ii<ns; ii++)
 					{
 					a = - h * A_rk[ss+ns*ii];
 					for(jj=0; jj<nx*nx; jj++)
 						Jt1[jj] = a * Jt0[jj];
-					d_cvt_mat2strmat(nx, nx, Jt1, nx, JG, ss*nx, ii*nx);
+					blasfeo_pack_dmat(nx, nx, Jt1, nx, JG, ss*nx, ii*nx);
 					}
 				}
 			ddiare_libstr(ns*nx, 1.0, JG, 0, 0);

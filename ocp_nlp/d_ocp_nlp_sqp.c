@@ -64,7 +64,7 @@
 #define CREATE_OCP_QP d_create_ocp_qp
 #define CREATE_OCP_QP_IPM d_create_ocp_qp_ipm
 #define CREATE_OCP_QP_SOL d_create_ocp_qp_sol
-#define CREATE_STRVEC d_create_strvec
+#define CREATE_STRVEC blasfeo_create_dvec
 #define ERK_ARG d_erk_arg
 #define ERK_WORKSPACE d_erk_workspace
 #define MEMSIZE_ERK_INT d_memsize_erk_int
@@ -81,7 +81,7 @@
 #define OCP_QP_IPM_WORKSPACE d_ocp_qp_ipm_workspace
 #define OCP_QP_SOL d_ocp_qp_sol
 #define REAL double
-#define SIZE_STRVEC d_size_strvec
+#define SIZE_STRVEC blasfeo_memsize_dvec
 #define STRVEC blasfeo_dvec
 
 #define MEMSIZE_OCP_NLP_SQP d_memsize_ocp_nlp_sqp

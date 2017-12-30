@@ -42,14 +42,14 @@
 
 
 
-#define CREATE_STRVEC d_create_strvec
-#define CVT_STRVEC2VEC d_cvt_strvec2vec
+#define CREATE_STRVEC blasfeo_create_dvec
+#define CVT_STRVEC2VEC blasfeo_unpack_dvec
 #define DENSE_QP d_dense_qp
 #define DENSE_QP_DIM d_dense_qp_dim
 #define DENSE_QP_SOL d_dense_qp_sol
 #define REAL double
 #define STRVEC blasfeo_dvec
-#define SIZE_STRVEC d_size_strvec
+#define SIZE_STRVEC blasfeo_memsize_dvec
 #define VECCP_LIBSTR dveccp_libstr
 
 #define CREATE_DENSE_QP_SOL d_create_dense_qp_sol

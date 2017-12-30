@@ -504,11 +504,11 @@ int main()
 		double reg = 0e-8;
 		ddiare_libstr(nv, reg, qpd_hpipm.Hv, 0, 0);
 
-		int H_fact_size = d_size_strmat(nv, nv);
+		int H_fact_size = blasfeo_memsize_dmat(nv, nv);
 		void *H_fact_mem; v_zeros_align(&H_fact_mem, H_fact_size);
 
 		struct blasfeo_dmat H_fact;
-		d_create_strmat(nv, nv, &H_fact, H_fact_mem);
+		blasfeo_create_dmat(nv, nv, &H_fact, H_fact_mem);
 
 		dpotrf_l_libstr(nv, qpd_hpipm.Hv, 0, 0, &H_fact, 0, 0);
 

@@ -535,9 +535,9 @@ int main()
 		ex_erk[nx+nx*nu+ii] = x_erk[nx*nu+ii] - A[ii];
 
 	struct blasfeo_dmat sBAbt;
-	d_allocate_strmat(nx+nu+1, nx, &sBAbt);
+	blasfeo_allocate_dmat(nx+nu+1, nx, &sBAbt);
 	struct blasfeo_dvec sb;
-	d_allocate_strvec(nx, &sb);
+	blasfeo_allocate_dvec(nx, &sb);
 
 	int nxx[2] = {nx, nx};
 	int nuu[1] = {nu};
@@ -637,8 +637,8 @@ int main()
 	free(memory_irk);
 	free(ex_irk);
 
-	d_free_strmat(&sBAbt);
-	d_free_strvec(&sb);
+	blasfeo_free_dmat(&sBAbt);
+	blasfeo_free_dvec(&sb);
 
 	return 0;
 
