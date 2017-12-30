@@ -57,8 +57,8 @@
 #define SIZE_STRMAT d_size_strmat
 #define SIZE_STRVEC d_size_strvec
 #define SOLVE_KKT_STEP_TREE_OCP_QP d_solve_kkt_step_tree_ocp_qp
-#define STRMAT d_strmat
-#define STRVEC d_strvec
+#define STRMAT blasfeo_dmat
+#define STRVEC blasfeo_dvec
 #define TREE_OCP_QP d_tree_ocp_qp
 #define TREE_OCP_QP_IPM_ARG d_tree_ocp_qp_ipm_arg
 #define TREE_OCP_QP_IPM_WORKSPACE d_tree_ocp_qp_ipm_workspace

@@ -76,18 +76,18 @@ struct d_dense_qp_ipm_workspace
 	struct d_dense_qp *qp_step;
 	struct d_dense_qp *qp_itref;
 	struct d_dense_qp_res *res_itref;
-	struct d_strvec *Gamma; //
-	struct d_strvec *gamma; //
-	struct d_strvec *Zs_inv; //
-	struct d_strmat *Lv; //
-	struct d_strmat *AL; //
-	struct d_strmat *Le; //
-	struct d_strmat *Ctx; //
-	struct d_strvec *lv; //
-	struct d_strvec *sv; // scale for Lv
-	struct d_strvec *se; // scale for Le
-	struct d_strvec *tmp_nbg; // work space of size nb+ng
-	struct d_strvec *tmp_ns; // work space of size ns
+	struct blasfeo_dvec *Gamma; //
+	struct blasfeo_dvec *gamma; //
+	struct blasfeo_dvec *Zs_inv; //
+	struct blasfeo_dmat *Lv; //
+	struct blasfeo_dmat *AL; //
+	struct blasfeo_dmat *Le; //
+	struct blasfeo_dmat *Ctx; //
+	struct blasfeo_dvec *lv; //
+	struct blasfeo_dvec *sv; // scale for Lv
+	struct blasfeo_dvec *se; // scale for Le
+	struct blasfeo_dvec *tmp_nbg; // work space of size nb+ng
+	struct blasfeo_dvec *tmp_ns; // work space of size ns
 	double *stat; // convergence statistics
 	int *ipiv;
 	double qp_res[4]; // infinity norm of residuals

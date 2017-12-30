@@ -57,37 +57,37 @@ void m_fact_solve_kkt_step_hard_ocp_qp(struct d_ocp_qp *d_qp, struct s_ocp_qp *s
 	int *nb = s_qp->nb;
 	int *ng = s_qp->ng;
 
-	struct s_strmat *BAbt = s_qp->BAbt;
-	struct s_strmat *RSQrq = s_qp->RSQrq;
-	struct s_strmat *DCt = s_qp->DCt;
-	struct d_strmat *d_DCt = d_qp->DCt;
+	struct blasfeo_smat *BAbt = s_qp->BAbt;
+	struct blasfeo_smat *RSQrq = s_qp->RSQrq;
+	struct blasfeo_smat *DCt = s_qp->DCt;
+	struct blasfeo_dmat *d_DCt = d_qp->DCt;
 	int **idxb = s_qp->idxb;
 	int **d_idxb = d_qp->idxb;
 
-	struct s_strmat *L = ws->L;
-	struct s_strmat *AL = ws->AL;
-	struct d_strvec *d_res_b = ws->res_b;
-	struct d_strvec *d_res_g = ws->res_g;
-	struct s_strvec *res_b = ws->sres_b;
-	struct s_strvec *res_g = ws->sres_g;
-	struct d_strvec *d_dux = ws->dux;
-	struct d_strvec *d_dpi = ws->dpi;
-	struct s_strvec *dux = ws->sdux;
-	struct s_strvec *dpi = ws->sdpi;
-	struct d_strvec *d_dt_lb = ws->dt_lb;
-	struct d_strvec *d_dt_lg = ws->dt_lg;
-	struct d_strvec *d_Qx_lg = ws->Qx_lg;
-	struct d_strvec *d_Qx_lb = ws->Qx_lb;
-	struct d_strvec *d_qx_lg = ws->qx_lg;
-	struct d_strvec *d_qx_lb = ws->qx_lb;
-	struct s_strvec *Qx_lg = ws->sQx_lg;
-	struct s_strvec *Qx_lb = ws->sQx_lb;
-	struct s_strvec *qx_lg = ws->sqx_lg;
-	struct s_strvec *qx_lb = ws->sqx_lb;
-	struct s_strvec *Pb = ws->Pb;
-	struct s_strvec *tmp_nxM = ws->tmp_nxM;
-	struct s_strvec *Sx = ws->sSx;
-	struct s_strvec *Si = ws->sSi;
+	struct blasfeo_smat *L = ws->L;
+	struct blasfeo_smat *AL = ws->AL;
+	struct blasfeo_dvec *d_res_b = ws->res_b;
+	struct blasfeo_dvec *d_res_g = ws->res_g;
+	struct blasfeo_svec *res_b = ws->sres_b;
+	struct blasfeo_svec *res_g = ws->sres_g;
+	struct blasfeo_dvec *d_dux = ws->dux;
+	struct blasfeo_dvec *d_dpi = ws->dpi;
+	struct blasfeo_svec *dux = ws->sdux;
+	struct blasfeo_svec *dpi = ws->sdpi;
+	struct blasfeo_dvec *d_dt_lb = ws->dt_lb;
+	struct blasfeo_dvec *d_dt_lg = ws->dt_lg;
+	struct blasfeo_dvec *d_Qx_lg = ws->Qx_lg;
+	struct blasfeo_dvec *d_Qx_lb = ws->Qx_lb;
+	struct blasfeo_dvec *d_qx_lg = ws->qx_lg;
+	struct blasfeo_dvec *d_qx_lb = ws->qx_lb;
+	struct blasfeo_svec *Qx_lg = ws->sQx_lg;
+	struct blasfeo_svec *Qx_lb = ws->sQx_lb;
+	struct blasfeo_svec *qx_lg = ws->sqx_lg;
+	struct blasfeo_svec *qx_lb = ws->sqx_lb;
+	struct blasfeo_svec *Pb = ws->Pb;
+	struct blasfeo_svec *tmp_nxM = ws->tmp_nxM;
+	struct blasfeo_svec *Sx = ws->sSx;
+	struct blasfeo_svec *Si = ws->sSi;
 
 	//
 	int ii, jj;
@@ -107,19 +107,19 @@ void m_fact_solve_kkt_step_hard_ocp_qp(struct d_ocp_qp *d_qp, struct s_ocp_qp *s
 	// cvt double => single
 	for(ii=0; ii<N; ii++)
 		{
-		m_cvt_d2s_strvec(nu[ii]+nx[ii], d_res_g+ii, 0, res_g+ii, 0);
-		m_cvt_d2s_strvec(nx[ii+1], d_res_b+ii, 0, res_b+ii, 0);
-		m_cvt_d2s_strvec(nb[ii], d_Qx_lb+ii, 0, Qx_lb+ii, 0);
-		m_cvt_d2s_strvec(nb[ii], d_qx_lb+ii, 0, qx_lb+ii, 0);
-		m_cvt_d2s_strvec(ng[ii], d_Qx_lg+ii, 0, Qx_lg+ii, 0);
-		m_cvt_d2s_strvec(ng[ii], d_qx_lg+ii, 0, qx_lg+ii, 0);
+		m_cvt_d2blasfeo_svec(nu[ii]+nx[ii], d_res_g+ii, 0, res_g+ii, 0);
+		m_cvt_d2blasfeo_svec(nx[ii+1], d_res_b+ii, 0, res_b+ii, 0);
+		m_cvt_d2blasfeo_svec(nb[ii], d_Qx_lb+ii, 0, Qx_lb+ii, 0);
+		m_cvt_d2blasfeo_svec(nb[ii], d_qx_lb+ii, 0, qx_lb+ii, 0);
+		m_cvt_d2blasfeo_svec(ng[ii], d_Qx_lg+ii, 0, Qx_lg+ii, 0);
+		m_cvt_d2blasfeo_svec(ng[ii], d_qx_lg+ii, 0, qx_lg+ii, 0);
 		}
 	ii = N;
-	m_cvt_d2s_strvec(nu[ii]+nx[ii], d_res_g+ii, 0, res_g+ii, 0);
-	m_cvt_d2s_strvec(nb[ii], d_Qx_lb+ii, 0, Qx_lb+ii, 0);
-	m_cvt_d2s_strvec(nb[ii], d_qx_lb+ii, 0, qx_lb+ii, 0);
-	m_cvt_d2s_strvec(ng[ii], d_Qx_lg+ii, 0, Qx_lg+ii, 0);
-	m_cvt_d2s_strvec(ng[ii], d_qx_lg+ii, 0, qx_lg+ii, 0);
+	m_cvt_d2blasfeo_svec(nu[ii]+nx[ii], d_res_g+ii, 0, res_g+ii, 0);
+	m_cvt_d2blasfeo_svec(nb[ii], d_Qx_lb+ii, 0, Qx_lb+ii, 0);
+	m_cvt_d2blasfeo_svec(nb[ii], d_qx_lb+ii, 0, qx_lb+ii, 0);
+	m_cvt_d2blasfeo_svec(ng[ii], d_Qx_lg+ii, 0, Qx_lg+ii, 0);
+	m_cvt_d2blasfeo_svec(ng[ii], d_qx_lg+ii, 0, qx_lg+ii, 0);
 
 
 #if 0
@@ -393,11 +393,11 @@ void m_fact_solve_kkt_step_hard_ocp_qp(struct d_ocp_qp *d_qp, struct s_ocp_qp *s
 	// cvt single => double
 	for(ii=0; ii<N; ii++)
 		{
-		m_cvt_s2d_strvec(nu[ii]+nx[ii], dux+ii, 0, d_dux+ii, 0);
-		m_cvt_s2d_strvec(nx[ii+1], dpi+ii, 0, d_dpi+ii, 0);
+		m_cvt_s2blasfeo_dvec(nu[ii]+nx[ii], dux+ii, 0, d_dux+ii, 0);
+		m_cvt_s2blasfeo_dvec(nx[ii+1], dpi+ii, 0, d_dpi+ii, 0);
 		}
 	ii = N;
-	m_cvt_s2d_strvec(nu[ii]+nx[ii], dux+ii, 0, d_dux+ii, 0);
+	m_cvt_s2blasfeo_dvec(nu[ii]+nx[ii], dux+ii, 0, d_dux+ii, 0);
 
 
 
@@ -434,31 +434,31 @@ void m_solve_kkt_step_hard_ocp_qp(struct d_ocp_qp *d_qp, struct s_ocp_qp *s_qp, 
 	int *nb = s_qp->nb;
 	int *ng = s_qp->ng;
 
-	struct s_strmat *BAbt = s_qp->BAbt;
-	struct s_strmat *RSQrq = s_qp->RSQrq;
-	struct s_strmat *DCt = s_qp->DCt;
-	struct d_strmat *d_DCt = d_qp->DCt;
+	struct blasfeo_smat *BAbt = s_qp->BAbt;
+	struct blasfeo_smat *RSQrq = s_qp->RSQrq;
+	struct blasfeo_smat *DCt = s_qp->DCt;
+	struct blasfeo_dmat *d_DCt = d_qp->DCt;
 	int **idxb = s_qp->idxb;
 	int **d_idxb = d_qp->idxb;
 
-	struct s_strmat *L = ws->L;
-	struct s_strmat *AL = ws->AL;
-	struct d_strvec *d_res_b = ws->res_b;
-	struct d_strvec *d_res_g = ws->res_g;
-	struct s_strvec *res_b = ws->sres_b;
-	struct s_strvec *res_g = ws->sres_g;
-	struct d_strvec *d_dux = ws->dux;
-	struct d_strvec *d_dpi = ws->dpi;
-	struct s_strvec *dux = ws->sdux;
-	struct s_strvec *dpi = ws->sdpi;
-	struct d_strvec *d_dt_lb = ws->dt_lb;
-	struct d_strvec *d_dt_lg = ws->dt_lg;
-	struct d_strvec *d_qx_lg = ws->qx_lg;
-	struct d_strvec *d_qx_lb = ws->qx_lb;
-	struct s_strvec *qx_lg = ws->sqx_lg;
-	struct s_strvec *qx_lb = ws->sqx_lb;
-	struct s_strvec *Pb = ws->Pb;
-	struct s_strvec *tmp_nxM = ws->tmp_nxM;
+	struct blasfeo_smat *L = ws->L;
+	struct blasfeo_smat *AL = ws->AL;
+	struct blasfeo_dvec *d_res_b = ws->res_b;
+	struct blasfeo_dvec *d_res_g = ws->res_g;
+	struct blasfeo_svec *res_b = ws->sres_b;
+	struct blasfeo_svec *res_g = ws->sres_g;
+	struct blasfeo_dvec *d_dux = ws->dux;
+	struct blasfeo_dvec *d_dpi = ws->dpi;
+	struct blasfeo_svec *dux = ws->sdux;
+	struct blasfeo_svec *dpi = ws->sdpi;
+	struct blasfeo_dvec *d_dt_lb = ws->dt_lb;
+	struct blasfeo_dvec *d_dt_lg = ws->dt_lg;
+	struct blasfeo_dvec *d_qx_lg = ws->qx_lg;
+	struct blasfeo_dvec *d_qx_lb = ws->qx_lb;
+	struct blasfeo_svec *qx_lg = ws->sqx_lg;
+	struct blasfeo_svec *qx_lb = ws->sqx_lb;
+	struct blasfeo_svec *Pb = ws->Pb;
+	struct blasfeo_svec *tmp_nxM = ws->tmp_nxM;
 
 	//
 	int ii;
@@ -475,15 +475,15 @@ void m_solve_kkt_step_hard_ocp_qp(struct d_ocp_qp *d_qp, struct s_ocp_qp *s_qp, 
 	// cvt double => single
 	for(ii=0; ii<N; ii++)
 		{
-		m_cvt_d2s_strvec(nu[ii]+nx[ii], d_res_g+ii, 0, res_g+ii, 0);
-		m_cvt_d2s_strvec(nx[ii+1], d_res_b+ii, 0, res_b+ii, 0);
-		m_cvt_d2s_strvec(nb[ii], d_qx_lb+ii, 0, qx_lb+ii, 0);
-		m_cvt_d2s_strvec(ng[ii], d_qx_lg+ii, 0, qx_lg+ii, 0);
+		m_cvt_d2blasfeo_svec(nu[ii]+nx[ii], d_res_g+ii, 0, res_g+ii, 0);
+		m_cvt_d2blasfeo_svec(nx[ii+1], d_res_b+ii, 0, res_b+ii, 0);
+		m_cvt_d2blasfeo_svec(nb[ii], d_qx_lb+ii, 0, qx_lb+ii, 0);
+		m_cvt_d2blasfeo_svec(ng[ii], d_qx_lg+ii, 0, qx_lg+ii, 0);
 		}
 	ii = N;
-	m_cvt_d2s_strvec(nu[ii]+nx[ii], d_res_g+ii, 0, res_g+ii, 0);
-	m_cvt_d2s_strvec(nb[ii], d_qx_lb+ii, 0, qx_lb+ii, 0);
-	m_cvt_d2s_strvec(ng[ii], d_qx_lg+ii, 0, qx_lg+ii, 0);
+	m_cvt_d2blasfeo_svec(nu[ii]+nx[ii], d_res_g+ii, 0, res_g+ii, 0);
+	m_cvt_d2blasfeo_svec(nb[ii], d_qx_lb+ii, 0, qx_lb+ii, 0);
+	m_cvt_d2blasfeo_svec(ng[ii], d_qx_lg+ii, 0, qx_lg+ii, 0);
 
 
 
@@ -572,11 +572,11 @@ void m_solve_kkt_step_hard_ocp_qp(struct d_ocp_qp *d_qp, struct s_ocp_qp *s_qp, 
 	// cvt single => double
 	for(ii=0; ii<N; ii++)
 		{
-		m_cvt_s2d_strvec(nu[ii]+nx[ii], dux+ii, 0, d_dux+ii, 0);
-		m_cvt_s2d_strvec(nx[ii+1], dpi+ii, 0, d_dpi+ii, 0);
+		m_cvt_s2blasfeo_dvec(nu[ii]+nx[ii], dux+ii, 0, d_dux+ii, 0);
+		m_cvt_s2blasfeo_dvec(nx[ii+1], dpi+ii, 0, d_dpi+ii, 0);
 		}
 	ii = N;
-	m_cvt_s2d_strvec(nu[ii]+nx[ii], dux+ii, 0, d_dux+ii, 0);
+	m_cvt_s2blasfeo_dvec(nu[ii]+nx[ii], dux+ii, 0, d_dux+ii, 0);
 
 
 

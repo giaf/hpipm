@@ -46,10 +46,10 @@ void d_cvt_erk_int_to_ocp_qp(int n, struct d_erk_workspace *erk_ws, struct d_ocp
 
 	int nx = qp->nx[n];
 	int nu = qp->nu[n];
-	struct d_strmat *BAbt = qp->BAbt+n;
-	struct d_strvec *b = qp->b+n;
+	struct blasfeo_dmat *BAbt = qp->BAbt+n;
+	struct blasfeo_dvec *b = qp->b+n;
 
-	struct d_strvec *ux = nlp_sol->ux+n;
+	struct blasfeo_dvec *ux = nlp_sol->ux+n;
 
 //	int nx = erk_ws->nx;
 	int nf = erk_ws->nf;
@@ -80,10 +80,10 @@ void d_cvt_erk_int_to_ocp_qp_rhs(int n, struct d_erk_workspace *erk_ws, struct d
 
 	int nx = qp->nx[n];
 	int nu = qp->nu[n];
-	struct d_strmat *BAbt = qp->BAbt+n;
-	struct d_strvec *b = qp->b+n;
+	struct blasfeo_dmat *BAbt = qp->BAbt+n;
+	struct blasfeo_dvec *b = qp->b+n;
 
-	struct d_strvec *ux = nlp_sol->ux+n;
+	struct blasfeo_dvec *ux = nlp_sol->ux+n;
 
 //	int nx = erk_ws->nx;
 //	int np = erk_ws->np;
@@ -96,7 +96,7 @@ void d_cvt_erk_int_to_ocp_qp_rhs(int n, struct d_erk_workspace *erk_ws, struct d
 //	double *x = erk_ws->x_for + nX*erk_ws->erk_arg->steps;
 	double *x = erk_ws->x_for;
 
-	struct d_strvec sl;
+	struct blasfeo_dvec sl;
 	d_create_strvec(nu+nx, &sl, erk_ws->l);
 
 	daxpy_libstr(nu+nx, 1.0, &sl, 0, qp->rq+n, 0, qp->rq+n, 0);

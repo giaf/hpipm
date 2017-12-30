@@ -62,7 +62,7 @@
 #define OCP_QP d_ocp_qp
 #define OCP_QP_DIM d_ocp_qp_dim
 #define OCP_QP_SOL d_ocp_qp_sol
-#define STRVEC d_strvec
+#define STRVEC blasfeo_dvec
 #define VECCP_LIBSTR dveccp_libstr
 
 #define COMPUTE_QP_DIM_OCP2OCP d_compute_qp_dim_ocp2ocp

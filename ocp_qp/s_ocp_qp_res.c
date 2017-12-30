@@ -46,7 +46,7 @@
 #define OCP_QP_RES_WORKSPACE s_ocp_qp_res_workspace
 #define REAL float
 #define SIZE_STRVEC s_size_strvec
-#define STRVEC s_strvec
+#define STRVEC blasfeo_svec
 
 
 

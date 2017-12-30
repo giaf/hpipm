@@ -84,9 +84,9 @@ int m_memsize_ipm_hard_ocp_qp(struct d_ocp_qp *qp, struct s_ocp_qp *s_qp, struct
 
 	int size = 0;
 
-	size += (4+(N+1)*18)*sizeof(struct d_strvec); // dux dpi dt_lb dt_lg res_g res_b res_d res_d_lb res_d_ub res_d_lg res_d_ug res_m res_m_lb res_m_ub res_m_lg res_m_ug Qx_lb Qx_lg qx_lb qx_lg tmp_nbM tmp_ngM
-	size += (1+(N+1)*11)*sizeof(struct s_strvec); // sdux sdpi sres_g sres_b sQx_lb sQx_lg, sqx_lb, sqx_lg tmp_nxM Pb sSx sSi
-	size += (1+(N+1)*1)*sizeof(struct s_strmat); // L AL
+	size += (4+(N+1)*18)*sizeof(struct blasfeo_dvec); // dux dpi dt_lb dt_lg res_g res_b res_d res_d_lb res_d_ub res_d_lg res_d_ug res_m res_m_lb res_m_ub res_m_lg res_m_ug Qx_lb Qx_lg qx_lb qx_lg tmp_nbM tmp_ngM
+	size += (1+(N+1)*11)*sizeof(struct blasfeo_svec); // sdux sdpi sres_g sres_b sQx_lb sQx_lg, sqx_lb, sqx_lg tmp_nxM Pb sSx sSi
+	size += (1+(N+1)*1)*sizeof(struct blasfeo_smat); // L AL
 
 	size += 1*d_size_strvec(nbM); // tmp_nbM
 	size += 1*s_size_strvec(nxM); // tmp_nxM
@@ -161,7 +161,7 @@ void m_create_ipm_hard_ocp_qp(struct d_ocp_qp *qp, struct s_ocp_qp *s_qp, struct
 
 
 	// s matrix struct
-	struct s_strmat *sm_ptr = (struct s_strmat *) sr_ptr;
+	struct blasfeo_smat *sm_ptr = (struct blasfeo_smat *) sr_ptr;
 
 	workspace->L = sm_ptr;
 	sm_ptr += N+1;
@@ -170,7 +170,7 @@ void m_create_ipm_hard_ocp_qp(struct d_ocp_qp *qp, struct s_ocp_qp *s_qp, struct
 
 
 	// s vector struct
-	struct s_strvec *ssv_ptr = (struct s_strvec *) sm_ptr;
+	struct blasfeo_svec *ssv_ptr = (struct blasfeo_svec *) sm_ptr;
 
 	workspace->sdux = ssv_ptr;
 	ssv_ptr += N+1;
@@ -199,7 +199,7 @@ void m_create_ipm_hard_ocp_qp(struct d_ocp_qp *qp, struct s_ocp_qp *s_qp, struct
 
 
 	// d vector struct
-	struct d_strvec *sv_ptr = (struct d_strvec *) ssv_ptr;
+	struct blasfeo_dvec *sv_ptr = (struct blasfeo_dvec *) ssv_ptr;
 
 	workspace->dux = sv_ptr;
 	sv_ptr += N+1;
@@ -262,91 +262,91 @@ void m_create_ipm_hard_ocp_qp(struct d_ocp_qp *qp, struct s_ocp_qp *s_qp, struct
 	for(ii=0; ii<=N; ii++)
 		{
 		s_create_strmat(nu[ii]+nx[ii]+1, nu[ii]+nx[ii], workspace->L+ii, c_ptr);
-		c_ptr += (workspace->L+ii)->memory_size;
+		c_ptr += (workspace->L+ii)->memsize;
 		}
 
 	s_create_strmat(nuM+nxM+1, nxM+ngM, workspace->AL+0, c_ptr);
-	c_ptr += (workspace->AL+0)->memory_size;
+	c_ptr += (workspace->AL+0)->memsize;
 
 	s_create_strmat(nuM+nxM+1, nxM+ngM, workspace->AL+1, c_ptr);
-	c_ptr += (workspace->AL+1)->memory_size;
+	c_ptr += (workspace->AL+1)->memsize;
 
 	for(ii=0; ii<=N; ii++)
 		{
 		s_create_strvec(nu[ii]+nx[ii], workspace->sdux+ii, c_ptr);
-		c_ptr += (workspace->sdux+ii)->memory_size;
+		c_ptr += (workspace->sdux+ii)->memsize;
 		}
 
 	for(ii=0; ii<N; ii++)
 		{
 		s_create_strvec(nx[ii+1], workspace->sdpi+ii, c_ptr);
-		c_ptr += (workspace->sdpi+ii)->memory_size;
+		c_ptr += (workspace->sdpi+ii)->memsize;
 		}
 
 	for(ii=0; ii<=N; ii++)
 		{
 		s_create_strvec(nu[ii]+nx[ii], workspace->sres_g+ii, c_ptr);
-		c_ptr += (workspace->sdux+ii)->memory_size;
+		c_ptr += (workspace->sdux+ii)->memsize;
 		}
 
 	for(ii=0; ii<N; ii++)
 		{
 		s_create_strvec(nx[ii+1], workspace->sres_b+ii, c_ptr);
-		c_ptr += (workspace->sdpi+ii)->memory_size;
+		c_ptr += (workspace->sdpi+ii)->memsize;
 		}
 
 	for(ii=0; ii<N; ii++)
 		{
 		s_create_strvec(nx[ii+1], workspace->Pb+ii, c_ptr);
-		c_ptr += (workspace->Pb+ii)->memory_size;
+		c_ptr += (workspace->Pb+ii)->memsize;
 		}
 
 	for(ii=0; ii<=N; ii++)
 		{
 		s_create_strvec(nb[ii], workspace->sQx_lb+ii, c_ptr);
-		c_ptr += (workspace->sQx_lb+ii)->memory_size;
+		c_ptr += (workspace->sQx_lb+ii)->memsize;
 		}
 
 	for(ii=0; ii<=N; ii++)
 		{
 		s_create_strvec(nb[ii], workspace->sqx_lb+ii, c_ptr);
-		c_ptr += (workspace->sqx_lb+ii)->memory_size;
+		c_ptr += (workspace->sqx_lb+ii)->memsize;
 		}
 
 	for(ii=0; ii<=N; ii++)
 		{
 		s_create_strvec(ng[ii], workspace->sQx_lg+ii, c_ptr);
-		c_ptr += (workspace->sQx_lg+ii)->memory_size;
+		c_ptr += (workspace->sQx_lg+ii)->memsize;
 		}
 
 	for(ii=0; ii<=N; ii++)
 		{
 		s_create_strvec(ng[ii], workspace->sqx_lg+ii, c_ptr);
-		c_ptr += (workspace->sqx_lg+ii)->memory_size;
+		c_ptr += (workspace->sqx_lg+ii)->memsize;
 		}
 
 	d_create_strvec(nbM, workspace->tmp_nbM, c_ptr);
-	c_ptr += workspace->tmp_nbM->memory_size;
+	c_ptr += workspace->tmp_nbM->memsize;
 
 	s_create_strvec(nxM, workspace->tmp_nxM, c_ptr);
-	c_ptr += workspace->tmp_nxM->memory_size;
+	c_ptr += workspace->tmp_nxM->memsize;
 
 	d_create_strvec(ngM, workspace->tmp_ngM+0, c_ptr);
-	c_ptr += (workspace->tmp_ngM+0)->memory_size;
+	c_ptr += (workspace->tmp_ngM+0)->memsize;
 
 	d_create_strvec(ngM, workspace->tmp_ngM+1, c_ptr);
-	c_ptr += (workspace->tmp_ngM+1)->memory_size;
+	c_ptr += (workspace->tmp_ngM+1)->memsize;
 
 	for(ii=0; ii<=N; ii++)
 		{
 		s_create_strvec(nu[ii]+nx[ii], workspace->sSx+ii, c_ptr);
-		c_ptr += (workspace->sSx+ii)->memory_size;
+		c_ptr += (workspace->sSx+ii)->memsize;
 		}
 
 	for(ii=0; ii<=N; ii++)
 		{
 		s_create_strvec(nu[ii]+nx[ii], workspace->sSi+ii, c_ptr);
-		c_ptr += (workspace->sSi+ii)->memory_size;
+		c_ptr += (workspace->sSi+ii)->memsize;
 		}
 
 

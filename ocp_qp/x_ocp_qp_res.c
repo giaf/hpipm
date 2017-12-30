@@ -98,25 +98,25 @@ void CREATE_OCP_QP_RES(struct OCP_QP_DIM *dim, struct OCP_QP_RES *res, void *mem
 	for(ii=0; ii<=N; ii++)
 		{
 		CREATE_STRVEC(nu[ii]+nx[ii]+2*ns[ii], res->res_g+ii, c_ptr);
-		c_ptr += (res->res_g+ii)->memory_size;
+		c_ptr += (res->res_g+ii)->memsize;
 		}
 
 	for(ii=0; ii<N; ii++)
 		{
 		CREATE_STRVEC(nx[ii+1], res->res_b+ii, c_ptr);
-		c_ptr += (res->res_b+ii)->memory_size;
+		c_ptr += (res->res_b+ii)->memsize;
 		}
 
 	for(ii=0; ii<=N; ii++)
 		{
 		CREATE_STRVEC(2*nb[ii]+2*ng[ii]+2*ns[ii], res->res_d+ii, c_ptr);
-		c_ptr += (res->res_d+ii)->memory_size;
+		c_ptr += (res->res_d+ii)->memsize;
 		}
 
 	for(ii=0; ii<=N; ii++)
 		{
 		CREATE_STRVEC(2*nb[ii]+2*ng[ii]+2*ns[ii], res->res_m+ii, c_ptr);
-		c_ptr += (res->res_m+ii)->memory_size;
+		c_ptr += (res->res_m+ii)->memsize;
 		}
 
 	res->dim = dim;
@@ -232,13 +232,13 @@ void CREATE_OCP_QP_RES_WORKSPACE(struct OCP_QP_DIM *dim, struct OCP_QP_RES_WORKS
 
 
 	CREATE_STRVEC(nbM+ngM, ws->tmp_nbgM+0, c_ptr);
-	c_ptr += (ws->tmp_nbgM+0)->memory_size;
+	c_ptr += (ws->tmp_nbgM+0)->memsize;
 
 	CREATE_STRVEC(nbM+ngM, ws->tmp_nbgM+1, c_ptr);
-	c_ptr += (ws->tmp_nbgM+1)->memory_size;
+	c_ptr += (ws->tmp_nbgM+1)->memsize;
 
 	CREATE_STRVEC(nsM, ws->tmp_nsM+0, c_ptr);
-	c_ptr += (ws->tmp_nsM+0)->memory_size;
+	c_ptr += (ws->tmp_nsM+0)->memsize;
 
 	ws->memsize = MEMSIZE_OCP_QP_RES(dim);
 

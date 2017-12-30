@@ -77,8 +77,8 @@
 #define SIZE_STRMAT s_size_strmat
 #define SIZE_STRVEC s_size_strvec
 #define SOLVE_KKT_STEP_OCP_QP s_solve_kkt_step_ocp_qp
-#define STRMAT s_strmat
-#define STRVEC s_strvec
+#define STRMAT blasfeo_smat
+#define STRVEC blasfeo_svec
 #define UPDATE_VAR_QP s_update_var_qp
 #define VECNRM_INF_LIBSTR svecnrm_inf_libstr
 

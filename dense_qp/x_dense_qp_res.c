@@ -93,16 +93,16 @@ void CREATE_DENSE_QP_RES(struct DENSE_QP_DIM *dim, struct DENSE_QP_RES *res, voi
 	char *c_ptr = (char *) s_ptr;
 
 	CREATE_STRVEC(nv+2*ns, res->res_g, c_ptr);
-	c_ptr += (res->res_g)->memory_size;
+	c_ptr += (res->res_g)->memsize;
 
 	CREATE_STRVEC(ne, res->res_b, c_ptr);
-	c_ptr += (res->res_b)->memory_size;
+	c_ptr += (res->res_b)->memsize;
 
 	CREATE_STRVEC(2*nb+2*ng+2*ns, res->res_d, c_ptr);
-	c_ptr += (res->res_d)->memory_size;
+	c_ptr += (res->res_d)->memsize;
 
 	CREATE_STRVEC(2*nb+2*ng+2*ns, res->res_m, c_ptr);
-	c_ptr += (res->res_m)->memory_size;
+	c_ptr += (res->res_m)->memsize;
 
 	res->dim = dim;
 
@@ -186,13 +186,13 @@ void CREATE_DENSE_QP_RES_WORKSPACE(struct DENSE_QP_DIM *dim, struct DENSE_QP_RES
 
 
 	CREATE_STRVEC(nb+ng, ws->tmp_nbg+0, c_ptr);
-	c_ptr += (ws->tmp_nbg+0)->memory_size;
+	c_ptr += (ws->tmp_nbg+0)->memsize;
 
 	CREATE_STRVEC(nb+ng, ws->tmp_nbg+1, c_ptr);
-	c_ptr += (ws->tmp_nbg+1)->memory_size;
+	c_ptr += (ws->tmp_nbg+1)->memsize;
 
 	CREATE_STRVEC(ns, ws->tmp_ns+0, c_ptr);
-	c_ptr += (ws->tmp_ns+0)->memory_size;
+	c_ptr += (ws->tmp_ns+0)->memsize;
 
 	ws->memsize = MEMSIZE_DENSE_QP_RES(dim);
 

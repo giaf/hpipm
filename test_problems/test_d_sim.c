@@ -534,9 +534,9 @@ int main()
 	for(ii=0; ii<nx*nx; ii++)
 		ex_erk[nx+nx*nu+ii] = x_erk[nx*nu+ii] - A[ii];
 
-	struct d_strmat sBAbt;
+	struct blasfeo_dmat sBAbt;
 	d_allocate_strmat(nx+nu+1, nx, &sBAbt);
-	struct d_strvec sb;
+	struct blasfeo_dvec sb;
 	d_allocate_strvec(nx, &sb);
 
 	int nxx[2] = {nx, nx};

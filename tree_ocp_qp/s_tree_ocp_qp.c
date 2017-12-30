@@ -49,8 +49,8 @@
 #define REAL float
 #define SIZE_STRMAT s_size_strmat
 #define SIZE_STRVEC s_size_strvec
-#define STRMAT s_strmat
-#define STRVEC s_strvec
+#define STRMAT blasfeo_smat
+#define STRVEC blasfeo_svec
 #define TREE_OCP_QP s_tree_ocp_qp
 #define TREE_OCP_QP_DIM s_tree_ocp_qp_dim
 #define VECSC_LIBSTR svecsc_libstr

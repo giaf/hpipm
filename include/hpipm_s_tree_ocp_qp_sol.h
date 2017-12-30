@@ -44,10 +44,10 @@ extern "C" {
 struct s_tree_ocp_qp_sol
 	{
 	struct s_tree_ocp_qp_dim *dim;
-	struct s_strvec *ux;
-	struct s_strvec *pi;
-	struct s_strvec *lam;
-	struct s_strvec *t;
+	struct blasfeo_svec *ux;
+	struct blasfeo_svec *pi;
+	struct blasfeo_svec *lam;
+	struct blasfeo_svec *t;
 	void *misc;
 	int memsize; // memory size in bytes
 	};

@@ -46,14 +46,14 @@ extern "C" {
 struct d_ocp_qp
 	{
 	struct d_ocp_qp_dim *dim;
-	struct d_strmat *BAbt;
-	struct d_strvec *b;
-	struct d_strmat *RSQrq;
-	struct d_strvec *rq;
-	struct d_strmat *DCt;
-	struct d_strvec *d;
-	struct d_strvec *Z;
-	struct d_strvec *z;
+	struct blasfeo_dmat *BAbt;
+	struct blasfeo_dvec *b;
+	struct blasfeo_dmat *RSQrq;
+	struct blasfeo_dvec *rq;
+	struct blasfeo_dmat *DCt;
+	struct blasfeo_dvec *d;
+	struct blasfeo_dvec *Z;
+	struct blasfeo_dvec *z;
 	int **idxb; // index of box constraints
 	int **idxs; // index of soft constraints
 	int memsize; // memory size in bytes

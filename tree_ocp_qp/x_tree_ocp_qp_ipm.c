@@ -259,44 +259,44 @@ void CREATE_TREE_OCP_QP_IPM(struct TREE_OCP_QP *qp, struct TREE_OCP_QP_IPM_ARG *
 	for(ii=0; ii<Nn; ii++)
 		{
 		CREATE_STRMAT(nu[ii]+nx[ii]+1, nu[ii]+nx[ii], workspace->L+ii, c_ptr);
-		c_ptr += (workspace->L+ii)->memory_size;
+		c_ptr += (workspace->L+ii)->memsize;
 		}
 
 	CREATE_STRMAT(nuM+nxM+1, nxM+ngM, workspace->AL+0, c_ptr);
-	c_ptr += (workspace->AL+0)->memory_size;
+	c_ptr += (workspace->AL+0)->memsize;
 
 	CREATE_STRMAT(nuM+nxM+1, nxM+ngM, workspace->AL+1, c_ptr);
-	c_ptr += (workspace->AL+1)->memory_size;
+	c_ptr += (workspace->AL+1)->memsize;
 
 	for(ii=0; ii<Nn-1; ii++)
 		{
 		CREATE_STRVEC(nx[ii+1], workspace->Pb+ii, c_ptr);
-		c_ptr += (workspace->Pb+ii)->memory_size;
+		c_ptr += (workspace->Pb+ii)->memsize;
 		}
 
 		for(ii=0; ii<Nn; ii++)
 		{
 		CREATE_STRVEC(2*ns[ii], workspace->Zs_inv+ii, c_ptr);
-		c_ptr += (workspace->Zs_inv+ii)->memory_size;
+		c_ptr += (workspace->Zs_inv+ii)->memsize;
 		}
 
 	CREATE_STRVEC(nxM, workspace->tmp_nxM, c_ptr);
-	c_ptr += workspace->tmp_nxM->memory_size;
+	c_ptr += workspace->tmp_nxM->memsize;
 
 	CREATE_STRVEC(nbM+ngM, workspace->tmp_nbgM+0, c_ptr);
-	c_ptr += (workspace->tmp_nbgM+0)->memory_size;
+	c_ptr += (workspace->tmp_nbgM+0)->memsize;
 
 	CREATE_STRVEC(nbM+ngM, workspace->tmp_nbgM+1, c_ptr);
-	c_ptr += (workspace->tmp_nbgM+1)->memory_size;
+	c_ptr += (workspace->tmp_nbgM+1)->memsize;
 
 	CREATE_STRVEC(nbM+ngM, workspace->tmp_nbgM+2, c_ptr);
-	c_ptr += (workspace->tmp_nbgM+2)->memory_size;
+	c_ptr += (workspace->tmp_nbgM+2)->memsize;
 
 	CREATE_STRVEC(nbM+ngM, workspace->tmp_nbgM+3, c_ptr);
-	c_ptr += (workspace->tmp_nbgM+3)->memory_size;
+	c_ptr += (workspace->tmp_nbgM+3)->memsize;
 
 	CREATE_STRVEC(nsM, workspace->tmp_nsM+0, c_ptr);
-	c_ptr += (workspace->tmp_nsM+0)->memory_size;
+	c_ptr += (workspace->tmp_nsM+0)->memsize;
 
 	CREATE_CORE_QP_IPM(nvt, net, nct, cws, c_ptr);
 	c_ptr += workspace->core_workspace->memsize;

@@ -88,7 +88,7 @@
 #define REAL double
 #define SIZE_STRVEC d_size_strvec
 #define SOLVE_KKT_STEP_OCP_QP d_solve_kkt_step_ocp_qp
-#define STRVEC d_strvec
+#define STRVEC blasfeo_dvec
 #define UPDATE_VAR_QP d_update_var_qp
 
 #define MEMSIZE_OCP_NLP_HYB d_memsize_ocp_nlp_hyb

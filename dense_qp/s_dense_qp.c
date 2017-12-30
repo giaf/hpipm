@@ -55,8 +55,8 @@
 #define ROWIN_LIBSTR srowin_libstr
 #define SIZE_STRMAT s_size_strmat
 #define SIZE_STRVEC s_size_strvec
-#define STRMAT s_strmat
-#define STRVEC s_strvec
+#define STRMAT blasfeo_smat
+#define STRVEC blasfeo_svec
 #define VECCP_LIBSTR sveccp_libstr
 #define VECSC_LIBSTR svecsc_libstr
 #define VECSE_LIBSTR svecse_libstr

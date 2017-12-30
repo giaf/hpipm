@@ -35,9 +35,9 @@ struct d_irk_workspace
 	void (*d_jac_impl_ode)(int t, double *xdot, double *x, double *p, void *ode_args, double *jac); // function pointer to jacobian of implicit ode
 	void *ode_args; // pointer to ode args
 	struct d_rk_data *rk_data; // integrator data
-	struct d_strmat *JG; // jacobian of G
-	struct d_strmat *rG; // residuals of G
-	struct d_strmat *K; // internal variables
+	struct blasfeo_dmat *JG; // jacobian of G
+	struct blasfeo_dmat *rG; // residuals of G
+	struct blasfeo_dmat *K; // internal variables
 	double *x; // states and forward sensitivities
 	double *p; // parameter
 	double *xt0; // temporary states and forward sensitivities

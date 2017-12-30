@@ -788,7 +788,7 @@ int main()
 	for(ii=0; ii<N; ii++)
 		{
 		for(jj=0; jj<
-		struct d_strmat *tmp_mat += (part_cond_ws.cond_workspace+ii)->Gamma;
+		struct blasfeo_dmat *tmp_mat += (part_cond_ws.cond_workspace+ii)->Gamma;
 		d_print_strmat(tmp_mat->m, tmp_mat->n, tmp_mat, 0, 0);
 		}
 #endif

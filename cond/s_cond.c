@@ -61,8 +61,8 @@
 #define OCP_QP_SOL s_ocp_qp_sol
 #define SIZE_STRMAT s_size_strmat
 #define SIZE_STRVEC s_size_strvec
-#define STRMAT s_strmat
-#define STRVEC s_strvec
+#define STRMAT blasfeo_smat
+#define STRVEC blasfeo_svec
 
 #define COMPUTE_QP_DIM_OCP2DENSE s_compute_qp_dim_ocp2dense
 #define MEMSIZE_COND_QP_OCP2DENSE s_memsize_cond_qp_ocp2dense

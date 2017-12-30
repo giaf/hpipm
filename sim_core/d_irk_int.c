@@ -52,7 +52,7 @@ int d_memsize_irk_int(struct d_rk_data *rk_data, int nx, int nf, int np)
 
 	int size = 0;
 
-	size += 3*sizeof(struct d_strmat); // JG rG K
+	size += 3*sizeof(struct blasfeo_dmat); // JG rG K
 
 	size += 1*d_size_strmat(nx*ns, nx*ns); // JG
 	size += 2*d_size_strmat(nx*ns, nf+1); // rG K
@@ -87,7 +87,7 @@ void d_create_irk_int(struct d_rk_data *rk_data, int nx, int nf, int np, struct 
 
 
 	// matrix struct stuff
-	struct d_strmat *sm_ptr = (struct d_strmat *) mem;
+	struct blasfeo_dmat *sm_ptr = (struct blasfeo_dmat *) mem;
 
 	// JG
 	ws->JG = sm_ptr;
@@ -148,13 +148,13 @@ void d_create_irk_int(struct d_rk_data *rk_data, int nx, int nf, int np, struct 
 
 	// JG
 	d_create_strmat(nx*ns, nx*ns, ws->JG, c_ptr);
-	c_ptr += ws->JG->memory_size;
+	c_ptr += ws->JG->memsize;
 	// rG
 	d_create_strmat(nx*ns, nf+1, ws->rG, c_ptr);
-	c_ptr += ws->rG->memory_size;
+	c_ptr += ws->rG->memsize;
 	// rG
 	d_create_strmat(nx*ns, nf+1, ws->K, c_ptr);
-	c_ptr += ws->K->memory_size;
+	c_ptr += ws->K->memsize;
 
 
 
@@ -187,7 +187,7 @@ void d_init_irk_int(double *x0, double *fs0, double *p0, void (*d_res_impl_vde)(
 	int nx = ws->nx;
 	int nf = ws->nf;
 	int np = ws->np;
-	struct d_strmat *K = ws->K;
+	struct blasfeo_dmat *K = ws->K;
 
 	int nX = nx*(1+nf);
 
@@ -237,9 +237,9 @@ void d_irk_int(struct d_irk_args *irk_args, struct d_irk_workspace *ws)
 	double *Jt0 = ws->Jt0;
 	double *Jt1 = ws->Jt1;
 	int *ipiv = ws->ipiv;
-	struct d_strmat *JG = ws->JG;
-	struct d_strmat *rG = ws->rG;
-	struct d_strmat *K = ws->K;
+	struct blasfeo_dmat *JG = ws->JG;
+	struct blasfeo_dmat *rG = ws->rG;
+	struct blasfeo_dmat *K = ws->K;
 
 	int ns = rk_data->ns;
 	double *A_rk = rk_data->A_rk;
@@ -248,9 +248,9 @@ void d_irk_int(struct d_irk_args *irk_args, struct d_irk_workspace *ws)
 
 	int nX = nx*(1+nf);
 
-	struct d_strvec sxt0;
+	struct blasfeo_dvec sxt0;
 	d_create_strvec(nX, &sxt0, xt0);
-	struct d_strvec sxt1;
+	struct blasfeo_dvec sxt1;
 	d_create_strvec(nx, &sxt1, xt1);
 
 	int ii, jj, step, iter, ss;

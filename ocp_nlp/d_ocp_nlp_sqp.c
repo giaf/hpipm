@@ -82,7 +82,7 @@
 #define OCP_QP_SOL d_ocp_qp_sol
 #define REAL double
 #define SIZE_STRVEC d_size_strvec
-#define STRVEC d_strvec
+#define STRVEC blasfeo_dvec
 
 #define MEMSIZE_OCP_NLP_SQP d_memsize_ocp_nlp_sqp
 #define CREATE_OCP_NLP_SQP d_create_ocp_nlp_sqp

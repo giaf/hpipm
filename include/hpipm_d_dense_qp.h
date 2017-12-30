@@ -48,15 +48,15 @@ extern "C" {
 struct d_dense_qp
 	{
 	struct d_dense_qp_dim *dim;
-	struct d_strmat *Hv; // hessian & gradient
-	struct d_strmat *A; // equality constraint matrix
-	struct d_strmat *Ct; // inequality constraints matrix
-	struct d_strvec *g; // gradient
-	struct d_strvec *b; // equality constraint vector
-	struct d_strvec *d; // inequality constraints vector
-	struct d_strvec *m; // rhs of complementarity condition
-	struct d_strvec *Z; // (diagonal) hessian of slacks
-	struct d_strvec *z; // gradient of slacks
+	struct blasfeo_dmat *Hv; // hessian & gradient
+	struct blasfeo_dmat *A; // equality constraint matrix
+	struct blasfeo_dmat *Ct; // inequality constraints matrix
+	struct blasfeo_dvec *g; // gradient
+	struct blasfeo_dvec *b; // equality constraint vector
+	struct blasfeo_dvec *d; // inequality constraints vector
+	struct blasfeo_dvec *m; // rhs of complementarity condition
+	struct blasfeo_dvec *Z; // (diagonal) hessian of slacks
+	struct blasfeo_dvec *z; // gradient of slacks
 	int *idxb; // index of box constraints
 	int *idxs; // index of soft constraints
 	int memsize; // memory size in bytes
@@ -77,9 +77,9 @@ void d_cvt_rowmaj_to_dense_qp(double *H, double *g, double *A, double *b, int *i
 //
 void d_cvt_dense_qp_to_rowmaj(struct d_dense_qp *qp, double *H, double *g, double *A, double *b, int *idxb, double *d_lb, double *d_ub, double *C, double *d_lg, double *d_ug, double *Zl, double *Zu, double *zl, double *zu, int *idxs);
 //
-void d_cvt_libstr_to_dense_qp(struct d_strmat *H, struct d_strmat *A, struct d_strmat *C, struct d_strvec *g, struct d_strvec *b, struct d_strvec *d_lb, struct d_strvec *d_ub, struct d_strvec *d_lg, struct d_strvec *d_ug, int *idxb, struct d_strvec *Zl, struct d_strvec *Zu, struct d_strvec *zl, struct d_strvec *zu, int *idxs, struct d_dense_qp *qp);
+void d_cvt_libstr_to_dense_qp(struct blasfeo_dmat *H, struct blasfeo_dmat *A, struct blasfeo_dmat *C, struct blasfeo_dvec *g, struct blasfeo_dvec *b, struct blasfeo_dvec *d_lb, struct blasfeo_dvec *d_ub, struct blasfeo_dvec *d_lg, struct blasfeo_dvec *d_ug, int *idxb, struct blasfeo_dvec *Zl, struct blasfeo_dvec *Zu, struct blasfeo_dvec *zl, struct blasfeo_dvec *zu, int *idxs, struct d_dense_qp *qp);
 //
-void d_cvt_dense_qp_to_libstr(struct d_dense_qp *qp, struct d_strmat *H, struct d_strmat *A, struct d_strmat *C, struct d_strvec *g, struct d_strvec *b, struct d_strvec *d_lb, struct d_strvec *d_ub, struct d_strvec *d_lg, struct d_strvec *d_ug, int *idxb, struct d_strvec *Zl, struct d_strvec *Zu, struct d_strvec *zl, struct d_strvec *zu, int *idxs);
+void d_cvt_dense_qp_to_libstr(struct d_dense_qp *qp, struct blasfeo_dmat *H, struct blasfeo_dmat *A, struct blasfeo_dmat *C, struct blasfeo_dvec *g, struct blasfeo_dvec *b, struct blasfeo_dvec *d_lb, struct blasfeo_dvec *d_ub, struct blasfeo_dvec *d_lg, struct blasfeo_dvec *d_ug, int *idxb, struct blasfeo_dvec *Zl, struct blasfeo_dvec *Zu, struct blasfeo_dvec *zl, struct blasfeo_dvec *zu, int *idxs);
 
 
 

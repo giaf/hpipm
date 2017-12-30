@@ -75,8 +75,8 @@
 #define ROWAD_SP_LIBSTR srowad_sp_libstr
 #define ROWEX_LIBSTR srowex_libstr
 #define ROWIN_LIBSTR srowin_libstr
-#define STRMAT s_strmat
-#define STRVEC s_strvec
+#define STRMAT blasfeo_smat
+#define STRVEC blasfeo_svec
 #define SYMV_L_LIBSTR ssymv_l_libstr
 #define SYRK_POTRF_LN_LIBSTR ssyrk_spotrf_ln_libstr
 #define TRCP_L_LIBSTR strcp_l_libstr

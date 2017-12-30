@@ -46,7 +46,7 @@
 #define OCP_QP_RES_WORKSPACE d_ocp_qp_res_workspace
 #define REAL double
 #define SIZE_STRVEC d_size_strvec
-#define STRVEC d_strvec
+#define STRVEC blasfeo_dvec
 
 
 

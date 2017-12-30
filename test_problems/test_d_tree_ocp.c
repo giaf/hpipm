@@ -570,9 +570,9 @@ int main()
 * create scenario tree
 ************************************************/	
 
-	int tree_memory_size = memsize_sctree(md, Nr, Nh);
-	printf("\ntree memsize = %d\n", tree_memory_size);
-	void *tree_memory = malloc(tree_memory_size);
+	int tree_memsize = memsize_sctree(md, Nr, Nh);
+	printf("\ntree memsize = %d\n", tree_memsize);
+	void *tree_memory = malloc(tree_memsize);
 
 	struct sctree st;
 	create_sctree(md, Nr, Nh, &st, tree_memory);
@@ -811,17 +811,17 @@ int main()
 * create tree ocp qp
 ************************************************/	
 
-	int tree_ocp_qp_memory_size = d_memsize_tree_ocp_qp(&dim);
-	printf("\ntree ocp qp memsize = %d\n", tree_ocp_qp_memory_size);
-	void *tree_ocp_qp_memory = malloc(tree_ocp_qp_memory_size);
+	int tree_ocp_qp_memsize = d_memsize_tree_ocp_qp(&dim);
+	printf("\ntree ocp qp memsize = %d\n", tree_ocp_qp_memsize);
+	void *tree_ocp_qp_memory = malloc(tree_ocp_qp_memsize);
 
 	struct d_tree_ocp_qp qp;
 	d_create_tree_ocp_qp(&dim, &qp, tree_ocp_qp_memory);
 	d_cvt_colmaj_to_tree_ocp_qp(hAt, hBt, hbt, hQt, hSt, hRt, hqt, hrt, hidxbt, hd_lbt, hd_ubt, hCt, hDt, hd_lgt, hd_ugt, hZlt, hZut, hzlt, hzut, hidxst, &qp);
 
 #if 0
-	struct d_strmat *tmat;
-	struct d_strvec *tvec;
+	struct blasfeo_dmat *tmat;
+	struct blasfeo_dvec *tvec;
 	for(ii=0; ii<Nn-1; ii++)
 		{
 		tmat = qp.BAbt+ii;

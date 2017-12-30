@@ -49,7 +49,7 @@
 #define OCP_QP_DIM s_ocp_qp_dim
 #define OCP_QP_SOL s_ocp_qp_sol
 #define REAL float
-#define STRVEC s_strvec
+#define STRVEC blasfeo_svec
 #define SIZE_STRVEC s_size_strvec
 #define VECCP_LIBSTR sveccp_libstr
 

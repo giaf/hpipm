@@ -507,7 +507,7 @@ int main()
 		int H_fact_size = d_size_strmat(nv, nv);
 		void *H_fact_mem; v_zeros_align(&H_fact_mem, H_fact_size);
 
-		struct d_strmat H_fact;
+		struct blasfeo_dmat H_fact;
 		d_create_strmat(nv, nv, &H_fact, H_fact_mem);
 
 		dpotrf_l_libstr(nv, qpd_hpipm.Hv, 0, 0, &H_fact, 0, 0);

@@ -36,11 +36,11 @@ extern "C" {
 
 struct s_ocp_nlp_sol
 	{
-	struct s_strvec *ux;
-	struct s_strvec *pi;
-	struct s_strvec *lam;
-	struct s_strvec *t;
-	struct s_strvec *eta0;
+	struct blasfeo_svec *ux;
+	struct blasfeo_svec *pi;
+	struct blasfeo_svec *lam;
+	struct blasfeo_svec *t;
+	struct blasfeo_svec *eta0;
 	int memsize; // memory size in bytes
 	};
 
@@ -55,7 +55,7 @@ void s_cvt_ocp_nlp_sol_to_colmaj(struct s_ocp_nlp *qp, struct s_ocp_nlp_sol *qp_
 //
 void s_cvt_ocp_nlp_sol_to_rowmaj(struct s_ocp_nlp *qp, struct s_ocp_nlp_sol *qp_sol, float **u, float **x, float **ls, float **us, float **pi, float **lam_lb, float **lam_ub, float **lam_lg, float **lam_ug, float **lam_ls, float **lam_us, float *eta0);
 //
-void s_cvt_ocp_nlp_sol_to_libstr(struct s_ocp_nlp *qp, struct s_ocp_nlp_sol *qp_sol, struct s_strvec *u, struct s_strvec *ls, struct s_strvec *us, struct s_strvec *x, struct s_strvec *pi, struct s_strvec *lam_lb, struct s_strvec *lam_ub, struct s_strvec *lam_lg, struct s_strvec *lam_ug, struct s_strvec *lam_ls, struct s_strvec *lam_us, struct s_stevec *eta0);
+void s_cvt_ocp_nlp_sol_to_libstr(struct s_ocp_nlp *qp, struct s_ocp_nlp_sol *qp_sol, struct blasfeo_svec *u, struct blasfeo_svec *ls, struct blasfeo_svec *us, struct blasfeo_svec *x, struct blasfeo_svec *pi, struct blasfeo_svec *lam_lb, struct blasfeo_svec *lam_ub, struct blasfeo_svec *lam_lg, struct blasfeo_svec *lam_ug, struct blasfeo_svec *lam_ls, struct blasfeo_svec *lam_us, struct s_stevec *eta0);
 
 #ifdef __cplusplus
 } /* extern "C" */

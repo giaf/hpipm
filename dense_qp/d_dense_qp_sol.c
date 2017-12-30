@@ -48,7 +48,7 @@
 #define DENSE_QP_DIM d_dense_qp_dim
 #define DENSE_QP_SOL d_dense_qp_sol
 #define REAL double
-#define STRVEC d_strvec
+#define STRVEC blasfeo_dvec
 #define SIZE_STRVEC d_size_strvec
 #define VECCP_LIBSTR dveccp_libstr
 

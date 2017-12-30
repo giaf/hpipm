@@ -49,8 +49,8 @@
 #define OCP_QP s_ocp_qp
 #define OCP_QP_DIM s_ocp_qp_dim
 #define REAL float
-#define STRMAT s_strmat
-#define STRVEC s_strvec
+#define STRMAT blasfeo_smat
+#define STRVEC blasfeo_svec
 #define SIZE_STRMAT s_size_strmat
 #define SIZE_STRVEC s_size_strvec
 #define VECCP_LIBSTR sveccp_libstr

@@ -31,8 +31,8 @@
 #define ROWIN_LIBSTR drowin_libstr
 #define SIZE_STRMAT d_size_strmat
 #define SIZE_STRVEC d_size_strvec
-#define STRMAT d_strmat
-#define STRVEC d_strvec
+#define STRMAT blasfeo_dmat
+#define STRVEC blasfeo_dvec
 
 #define MEMSIZE_ELIM_X0 d_memsize_elim_x0
 #define CREATE_ELIM_X0 d_create_elim_x0
@@ -40,11 +40,11 @@
 
 
 struct d_elim_x0_workspace{
-	struct d_strmat *BAbt0_i;
-	struct d_strvec *b0;
-	struct d_strvec *ux0;
+	struct blasfeo_dmat *BAbt0_i;
+	struct blasfeo_dvec *b0;
+	struct blasfeo_dvec *ux0;
 	int nx0;
-	int memory_size;
+	int memsize;
 	};
 
 
@@ -107,16 +107,16 @@ void CREATE_ELIM_X0(struct OCP_QP *qp, struct ELIM_X0_WORKSPACE *ws, void *mem)
 
 	//
 	CREATE_STRMAT(nu[0]+nx[0]+1, nx[1], ws->BAbt0_i, c_ptr);
-	c_ptr += ws->BAbt0_i->memory_size;
+	c_ptr += ws->BAbt0_i->memsize;
 	//
 	CREATE_STRVEC(nx[1], ws->b0, c_ptr);
-	c_ptr += ws->b0->memory_size;
+	c_ptr += ws->b0->memsize;
 	//
 	CREATE_STRVEC(nx[0], ws->x0, c_ptr);
-	c_ptr += ws->x0->memory_size;
+	c_ptr += ws->x0->memsize;
 
 	//
-	ws->memory_size = MEMSIZE_ELIM_X0(qp);
+	ws->memsize = MEMSIZE_ELIM_X0(qp);
 
 	return;
 

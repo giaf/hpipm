@@ -48,10 +48,10 @@ extern "C" {
 struct s_dense_qp_sol
 	{
 	struct s_dense_qp_dim *dim;
-	struct s_strvec *v;
-	struct s_strvec *pi;
-	struct s_strvec *lam;
-	struct s_strvec *t;
+	struct blasfeo_svec *v;
+	struct blasfeo_svec *pi;
+	struct blasfeo_svec *lam;
+	struct blasfeo_svec *t;
 	void *misc;
 	int memsize;
 	};
@@ -67,7 +67,7 @@ void s_cvt_dense_qp_sol_to_colmaj(struct s_dense_qp_sol *qp_sol, float *v, float
 //
 void s_cvt_dense_qp_sol_to_rowmaj(struct s_dense_qp_sol *qp_sol, float *v, float *ls, float *us, float *pi, float *lam_lb, float *lam_ub, float *lam_lg, float *lam_ug, float *lam_ls, float *lam_us);
 //
-void s_cvt_dense_qp_sol_to_libstr(struct s_dense_qp_sol *qp_sol, struct s_strvec *v, struct s_strvec *ls, struct s_strvec *us, struct s_strvec *pi, struct s_strvec *lam_lb, struct s_strvec *lam_ub, struct s_strvec *lam_lg, struct s_strvec *lam_ug, struct s_strvec *lam_ls, struct s_strvec *lam_us);
+void s_cvt_dense_qp_sol_to_libstr(struct s_dense_qp_sol *qp_sol, struct blasfeo_svec *v, struct blasfeo_svec *ls, struct blasfeo_svec *us, struct blasfeo_svec *pi, struct blasfeo_svec *lam_lb, struct blasfeo_svec *lam_ub, struct blasfeo_svec *lam_lg, struct blasfeo_svec *lam_ug, struct blasfeo_svec *lam_ls, struct blasfeo_svec *lam_us);
 
 
 

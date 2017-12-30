@@ -46,7 +46,7 @@
 #define OCP_NLP s_ocp_nlp
 #define OCP_NLP_SOL s_ocp_nlpsol
 #define REAL float
-#define STRVEC s_strvec
+#define STRVEC blasfeo_svec
 #define SIZE_STRVEC s_size_strvec
 #define VECCP_LIBSTR sveccp_libstr
 

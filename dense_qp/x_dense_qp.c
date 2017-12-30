@@ -129,31 +129,31 @@ void CREATE_DENSE_QP(struct DENSE_QP_DIM *dim, struct DENSE_QP *qp, void *mem)
 	c_ptr = (char *) s_ptr;
 
 	CREATE_STRMAT(nv+1, nv, qp->Hv, c_ptr);
-	c_ptr += qp->Hv->memory_size;
+	c_ptr += qp->Hv->memsize;
 
 	CREATE_STRMAT(ne, nv, qp->A, c_ptr);
-	c_ptr += qp->A->memory_size;
+	c_ptr += qp->A->memsize;
 
 	CREATE_STRMAT(nv, ng, qp->Ct, c_ptr);
-	c_ptr += qp->Ct->memory_size;
+	c_ptr += qp->Ct->memsize;
 
 	CREATE_STRVEC(nv, qp->g, c_ptr);
-	c_ptr += qp->g->memory_size;
+	c_ptr += qp->g->memsize;
 
 	CREATE_STRVEC(ne, qp->b, c_ptr);
-	c_ptr += qp->b->memory_size;
+	c_ptr += qp->b->memsize;
 
 	CREATE_STRVEC(2*nb+2*ng, qp->d, c_ptr);
-	c_ptr += qp->d->memory_size;
+	c_ptr += qp->d->memsize;
 
 	CREATE_STRVEC(2*nb+2*ng, qp->m, c_ptr);
-	c_ptr += qp->m->memory_size;
+	c_ptr += qp->m->memsize;
 
 	CREATE_STRVEC(2*ns, qp->Z, c_ptr);
-	c_ptr += qp->Z->memory_size;
+	c_ptr += qp->Z->memsize;
 
 	CREATE_STRVEC(2*ns, qp->z, c_ptr);
-	c_ptr += qp->z->memory_size;
+	c_ptr += qp->z->memsize;
 
 
 	qp->dim = dim;

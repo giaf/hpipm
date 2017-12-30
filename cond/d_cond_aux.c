@@ -57,8 +57,8 @@
 #define POTRF_L_MN_LIBSTR dpotrf_l_mn_libstr
 #define REAL double
 #define ROWEX_LIBSTR drowex_libstr
-#define STRMAT d_strmat
-#define STRVEC d_strvec
+#define STRMAT blasfeo_dmat
+#define STRVEC blasfeo_dvec
 #define SYMV_L_LIBSTR dsymv_l_libstr
 #define SYRK_LN_MN_LIBSTR dsyrk_ln_mn_libstr
 #define TRCP_L_LIBSTR dtrcp_l_libstr

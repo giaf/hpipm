@@ -198,49 +198,49 @@ void CREATE_OCP_QP(struct OCP_QP_DIM *dim, struct OCP_QP *qp, void *mem)
 	for(ii=0; ii<N; ii++)
 		{
 		CREATE_STRMAT(nu[ii]+nx[ii]+1, nx[ii+1], qp->BAbt+ii, c_ptr);
-		c_ptr += (qp->BAbt+ii)->memory_size;
+		c_ptr += (qp->BAbt+ii)->memsize;
 		}
 
 	// RSQrq
 	for(ii=0; ii<=N; ii++)
 		{
 		CREATE_STRMAT(nu[ii]+nx[ii]+1, nu[ii]+nx[ii], qp->RSQrq+ii, c_ptr);
-		c_ptr += (qp->RSQrq+ii)->memory_size;
+		c_ptr += (qp->RSQrq+ii)->memsize;
 		}
 
 	// DCt
 	for(ii=0; ii<=N; ii++)
 		{
 		CREATE_STRMAT(nu[ii]+nx[ii], ng[ii], qp->DCt+ii, c_ptr);
-		c_ptr += (qp->DCt+ii)->memory_size;
+		c_ptr += (qp->DCt+ii)->memsize;
 		}
 
 	// b
 	for(ii=0; ii<N; ii++)
 		{
 		CREATE_STRVEC(nx[ii+1], qp->b+ii, c_ptr);
-		c_ptr += (qp->b+ii)->memory_size;
+		c_ptr += (qp->b+ii)->memsize;
 		}
 
 	// rq
 	for(ii=0; ii<=N; ii++)
 		{
 		CREATE_STRVEC(nu[ii]+nx[ii], qp->rq+ii, c_ptr);
-		c_ptr += (qp->rq+ii)->memory_size;
+		c_ptr += (qp->rq+ii)->memsize;
 		}
 
 	// Z
 	for(ii=0; ii<=N; ii++)
 		{
 		CREATE_STRVEC(2*ns[ii], qp->Z+ii, c_ptr);
-		c_ptr += (qp->Z+ii)->memory_size;
+		c_ptr += (qp->Z+ii)->memsize;
 		}
 
 	// z
 	for(ii=0; ii<=N; ii++)
 		{
 		CREATE_STRVEC(2*ns[ii], qp->z+ii, c_ptr);
-		c_ptr += (qp->z+ii)->memory_size;
+		c_ptr += (qp->z+ii)->memsize;
 		}
 
 	// d

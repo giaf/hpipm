@@ -55,8 +55,8 @@
 #define ROWAD_SP_LIBSTR drowad_sp_libstr
 #define ROWIN_LIBSTR drowin_libstr
 #define ROWEX_LIBSTR drowex_libstr
-#define STRMAT d_strmat
-#define STRVEC d_strvec
+#define STRMAT blasfeo_dmat
+#define STRVEC blasfeo_dvec
 #define SYMV_L_LIBSTR dsymv_l_libstr
 #define SYRK_LN_MN_LIBSTR dsyrk_ln_mn_libstr
 #define SYRK_POTRF_LN_LIBSTR dsyrk_dpotrf_ln_libstr

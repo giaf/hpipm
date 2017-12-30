@@ -46,14 +46,14 @@ extern "C" {
 struct d_tree_ocp_qp
 	{
 	struct d_tree_ocp_qp_dim *dim;
-	struct d_strmat *BAbt; // Nn-1
-	struct d_strvec *b; // Nn-1
-	struct d_strmat *RSQrq; // Nn
-	struct d_strvec *rq; // Nn
-	struct d_strmat *DCt; // Nn
-	struct d_strvec *d; // Nn
-	struct d_strvec *Z; // Nn
-	struct d_strvec *z; // Nn
+	struct blasfeo_dmat *BAbt; // Nn-1
+	struct blasfeo_dvec *b; // Nn-1
+	struct blasfeo_dmat *RSQrq; // Nn
+	struct blasfeo_dvec *rq; // Nn
+	struct blasfeo_dmat *DCt; // Nn
+	struct blasfeo_dvec *d; // Nn
+	struct blasfeo_dvec *Z; // Nn
+	struct blasfeo_dvec *z; // Nn
 	int **idxb; // index of box constraints // Nn
 	int **idxs; // index of soft constraints
 	int memsize; // memory size in bytes

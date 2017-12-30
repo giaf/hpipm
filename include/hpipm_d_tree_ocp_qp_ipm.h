@@ -56,22 +56,22 @@ struct d_tree_ocp_qp_ipm_arg
 struct d_tree_ocp_qp_ipm_workspace
 	{
 	struct d_core_qp_ipm_workspace *core_workspace;
-	struct d_strvec *dux;
-	struct d_strvec *dpi;
-	struct d_strvec *dt;
-	struct d_strvec *res_g; // q-residuals
-	struct d_strvec *res_b; // b-residuals
-	struct d_strvec *res_d; // d-residuals
-	struct d_strvec *res_m; // m-residuals
-	struct d_strvec *Gamma; // hessian update
-	struct d_strvec *gamma; // hessian update
-	struct d_strvec *tmp_nxM; // work space of size nxM
-	struct d_strvec *tmp_nbgM; // work space of size nbgM
-	struct d_strvec *tmp_nsM; // work space of size nsM
-	struct d_strvec *Pb; // Pb
-	struct d_strvec *Zs_inv;
-	struct d_strmat *L;
-	struct d_strmat *AL;
+	struct blasfeo_dvec *dux;
+	struct blasfeo_dvec *dpi;
+	struct blasfeo_dvec *dt;
+	struct blasfeo_dvec *res_g; // q-residuals
+	struct blasfeo_dvec *res_b; // b-residuals
+	struct blasfeo_dvec *res_d; // d-residuals
+	struct blasfeo_dvec *res_m; // m-residuals
+	struct blasfeo_dvec *Gamma; // hessian update
+	struct blasfeo_dvec *gamma; // hessian update
+	struct blasfeo_dvec *tmp_nxM; // work space of size nxM
+	struct blasfeo_dvec *tmp_nbgM; // work space of size nbgM
+	struct blasfeo_dvec *tmp_nsM; // work space of size nsM
+	struct blasfeo_dvec *Pb; // Pb
+	struct blasfeo_dvec *Zs_inv;
+	struct blasfeo_dmat *L;
+	struct blasfeo_dmat *AL;
 	double *stat; // convergence statistics
 	double qp_res[4]; // infinity norm of residuals
 	double mu0; // mu0

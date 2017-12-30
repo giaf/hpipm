@@ -264,46 +264,46 @@ void CREATE_DENSE_QP_IPM(struct DENSE_QP_DIM *dim, struct DENSE_QP_IPM_ARG *arg,
 	c_ptr += workspace->res_itref->memsize;
 
 	CREATE_STRMAT(nv+1, nv, workspace->Lv, c_ptr);
-	c_ptr += workspace->Lv->memory_size;
+	c_ptr += workspace->Lv->memsize;
 
 	CREATE_STRMAT(ne, nv, workspace->AL, c_ptr);
-	c_ptr += workspace->AL->memory_size;
+	c_ptr += workspace->AL->memsize;
 
 	CREATE_STRMAT(ne, ne, workspace->Le, c_ptr);
-	c_ptr += workspace->Le->memory_size;
+	c_ptr += workspace->Le->memsize;
 
 	CREATE_STRMAT(nv+1, ng, workspace->Ctx, c_ptr);
-	c_ptr += workspace->Ctx->memory_size;
+	c_ptr += workspace->Ctx->memsize;
 
 	CREATE_STRVEC(nv, workspace->lv, c_ptr);
-	c_ptr += workspace->lv->memory_size;
+	c_ptr += workspace->lv->memsize;
 
 	CREATE_STRVEC(nv, workspace->sv, c_ptr);
-	c_ptr += workspace->sv->memory_size;
+	c_ptr += workspace->sv->memsize;
 
 	CREATE_STRVEC(ne, workspace->se, c_ptr);
-	c_ptr += workspace->se->memory_size;
+	c_ptr += workspace->se->memsize;
 
 	CREATE_STRVEC(2*ns, workspace->Zs_inv, c_ptr);
-	c_ptr += workspace->Zs_inv->memory_size;
+	c_ptr += workspace->Zs_inv->memsize;
 
 	CREATE_STRVEC(nb+ng, workspace->tmp_nbg+0, c_ptr);
 	CREATE_STRVEC(nb+ng, workspace->res_workspace->tmp_nbg+0, c_ptr);
-	c_ptr += (workspace->tmp_nbg+0)->memory_size;
+	c_ptr += (workspace->tmp_nbg+0)->memsize;
 
 	CREATE_STRVEC(nb+ng, workspace->tmp_nbg+1, c_ptr);
 	CREATE_STRVEC(nb+ng, workspace->res_workspace->tmp_nbg+1, c_ptr);
-	c_ptr += (workspace->tmp_nbg+1)->memory_size;
+	c_ptr += (workspace->tmp_nbg+1)->memsize;
 
 	CREATE_STRVEC(nb+ng, workspace->tmp_nbg+2, c_ptr);
-	c_ptr += (workspace->tmp_nbg+2)->memory_size;
+	c_ptr += (workspace->tmp_nbg+2)->memsize;
 
 	CREATE_STRVEC(nb+ng, workspace->tmp_nbg+3, c_ptr);
-	c_ptr += (workspace->tmp_nbg+3)->memory_size;
+	c_ptr += (workspace->tmp_nbg+3)->memsize;
 
 	CREATE_STRVEC(ns, workspace->tmp_ns+0, c_ptr);
 	CREATE_STRVEC(ns, workspace->res_workspace->tmp_ns+0, c_ptr);
-	c_ptr += (workspace->tmp_ns+0)->memory_size;
+	c_ptr += (workspace->tmp_ns+0)->memsize;
 
 	CREATE_CORE_QP_IPM(nv+2*ns, ne, 2*nb+2*ng+2*ns, cws, c_ptr);
 	c_ptr += workspace->core_workspace->memsize;
