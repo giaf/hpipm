@@ -53,7 +53,7 @@
 #define DIAAD_SP_LIBSTR sdiaad_sp_libstr
 #define GEAD_LIBSTR blasfeo_sgead
 #define GECP_LIBSTR blasfeo_sgecp
-#define GEMM_R_DIAG_LIBSTR sgemm_r_diag_libstr
+#define GEMM_R_DIAG_LIBSTR blasfeo_sgemm_nd
 #define GEMV_DIAG_LIBSTR sgemv_diag_libstr
 #define GEMV_N_LIBSTR sgemv_n_libstr
 #define GEMV_NT_LIBSTR sgemv_nt_libstr
@@ -80,7 +80,7 @@
 #define SYMV_L_LIBSTR ssymv_l_libstr
 #define SYRK_POTRF_LN_LIBSTR ssyrk_spotrf_ln_libstr
 #define TRCP_L_LIBSTR blasfeo_strcp_l
-#define TRMM_RLNN_LIBSTR strmm_rlnn_libstr
+#define TRMM_RLNN_LIBSTR blasfeo_strmm_rlnn
 #define TRMV_LNN_LIBSTR strmv_lnn_libstr
 #define TRMV_LTN_LIBSTR strmv_ltn_libstr
 #define TRSV_LNN_LIBSTR strsv_lnn_libstr

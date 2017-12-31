@@ -45,7 +45,7 @@
 #define DIAAD_SP_LIBSTR ddiaad_sp_libstr
 #define GEAD_LIBSTR blasfeo_dgead
 #define GECP_LIBSTR blasfeo_dgecp
-#define GEMM_R_DIAG_LIBSTR dgemm_r_diag_libstr
+#define GEMM_R_DIAG_LIBSTR blasfeo_dgemm_nd
 #define GEMV_DIAG_LIBSTR dgemv_diag_libstr
 #define GEMV_N_LIBSTR dgemv_n_libstr
 #define GEMV_NT_LIBSTR dgemv_nt_libstr
@@ -58,13 +58,13 @@
 #define STRMAT blasfeo_dmat
 #define STRVEC blasfeo_dvec
 #define SYMV_L_LIBSTR dsymv_l_libstr
-#define SYRK_LN_MN_LIBSTR dsyrk_ln_mn_libstr
+#define SYRK_LN_MN_LIBSTR blasfeo_dsyrk_ln_mn
 #define SYRK_POTRF_LN_LIBSTR dsyrk_dpotrf_ln_libstr
 #define TRCP_L_LIBSTR blasfeo_dtrcp_l
 #define TREE_OCP_QP d_tree_ocp_qp
 #define TREE_OCP_QP_IPM_WORKSPACE d_tree_ocp_qp_ipm_workspace
 #define TREE_OCP_QP_SOL d_tree_ocp_qp_sol
-#define TRMM_RLNN_LIBSTR dtrmm_rlnn_libstr
+#define TRMM_RLNN_LIBSTR blasfeo_dtrmm_rlnn
 #define TRMV_LNN_LIBSTR dtrmv_lnn_libstr
 #define TRMV_LTN_LIBSTR dtrmv_ltn_libstr
 #define TRSV_LNN_LIBSTR dtrsv_lnn_libstr

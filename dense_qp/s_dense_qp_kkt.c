@@ -61,8 +61,8 @@
 #define DIAEX_LIBSTR sdiaex_libstr
 #define DIARE_LIBSTR sdiare_libstr
 #define GECP_LIBSTR blasfeo_sgecp
-#define GEMM_L_DIAG_LIBSTR sgemm_l_diag_libstr
-#define GEMM_R_DIAG_LIBSTR sgemm_r_diag_libstr
+#define GEMM_L_DIAG_LIBSTR blasfeo_sgemm_dn
+#define GEMM_R_DIAG_LIBSTR blasfeo_sgemm_nd
 #define GEMV_DIAG_LIBSTR sgemv_diag_libstr
 #define GEMV_N_LIBSTR sgemv_n_libstr
 #define GEMV_NT_LIBSTR sgemv_nt_libstr
@@ -80,10 +80,10 @@
 #define STRMAT blasfeo_smat
 #define STRVEC blasfeo_svec
 #define SYMV_L_LIBSTR ssymv_l_libstr
-#define SYRK_LN_LIBSTR ssyrk_ln_libstr
+#define SYRK_LN_LIBSTR blasfeo_ssyrk_ln
 #define SYRK_POTRF_LN_LIBSTR ssyrk_spotrf_ln_libstr
 #define TRCP_L_LIBSTR blasfeo_strcp_l
-#define TRSM_RLTN_LIBSTR strsm_rltn_libstr
+#define TRSM_RLTN_LIBSTR blasfeo_strsm_rltn
 #define TRSV_LNN_LIBSTR strsv_lnn_libstr
 #define TRSV_LTN_LIBSTR strsv_ltn_libstr
 #define VECAD_SP_LIBSTR svecad_sp_libstr

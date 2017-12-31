@@ -49,7 +49,7 @@
 #define GECP_LIBSTR blasfeo_dgecp
 #define GEEX1_LIBSTR blasfeo_dgeex1
 #define GESE_LIBSTR blasfeo_dgese
-#define GEMM_NN_LIBSTR dgemm_nn_libstr
+#define GEMM_NN_LIBSTR blasfeo_dgemm_nn
 #define GEMV_T_LIBSTR dgemv_t_libstr
 #define GEMV_N_LIBSTR dgemv_n_libstr
 #define OCP_QP d_ocp_qp
@@ -60,9 +60,9 @@
 #define STRMAT blasfeo_dmat
 #define STRVEC blasfeo_dvec
 #define SYMV_L_LIBSTR dsymv_l_libstr
-#define SYRK_LN_MN_LIBSTR dsyrk_ln_mn_libstr
+#define SYRK_LN_MN_LIBSTR blasfeo_dsyrk_ln_mn
 #define TRCP_L_LIBSTR blasfeo_dtrcp_l
-#define TRMM_RLNN_LIBSTR dtrmm_rlnn_libstr
+#define TRMM_RLNN_LIBSTR blasfeo_dtrmm_rlnn
 #define VECCP_LIBSTR blasfeo_dveccp
 
 #define COND_BABT d_cond_BAbt
