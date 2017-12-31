@@ -15,3 +15,5 @@ octave-workspace
 *.log
 *.synctex.gz
 .vscode
+
+change_name.sh

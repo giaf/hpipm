@@ -51,7 +51,7 @@
 #define REAL double
 #define STRVEC blasfeo_dvec
 #define SIZE_STRVEC blasfeo_memsize_dvec
-#define VECCP_LIBSTR dveccp_libstr
+#define VECCP_LIBSTR blasfeo_dveccp
 
 #define CREATE_OCP_QP_SOL d_create_ocp_qp_sol
 #define MEMSIZE_OCP_QP_SOL d_memsize_ocp_qp_sol

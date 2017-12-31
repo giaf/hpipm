@@ -611,7 +611,7 @@ int main()
 	d_print_e_mat(nx, nx, ex_irk+nx+nx*nu, nx);
 	d_print_e_mat(nx, nu, ex_irk+nx, nx);
 
-//	dgese_libstr(nu+nx+1, nx, 0.0, &sBAbt, 0, 0);
+//	blasfeo_dgese(nu+nx+1, nx, 0.0, &sBAbt, 0, 0);
 //	d_cvt_irk_int_to_ocp_qp(0, &irk_workspace, xref, &qp);
 //	d_print_strmat(nx+nu+1, nx, &sBAbt, 0, 0);
 

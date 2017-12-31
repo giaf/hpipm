@@ -584,9 +584,9 @@ void FACT_SOLVE_KKT_STEP_OCP_QP(struct OCP_QP *qp, struct OCP_QP_IPM_WORKSPACE *
 	// last stage
 	ss = N;
 #if defined(DOUBLE_PRECISION)
-	TRCP_L_LIBSTR(nu[ss]+nx[ss], RSQrq+ss, 0, 0, L+ss, 0, 0); // TODO dtrcp_l_libstr with m and n, for m>=n
+	TRCP_L_LIBSTR(nu[ss]+nx[ss], RSQrq+ss, 0, 0, L+ss, 0, 0); // TODO blasfeo_dtrcp_l with m and n, for m>=n
 #else
-	GECP_LIBSTR(nu[ss]+nx[ss], nu[ss]+nx[ss], RSQrq+ss, 0, 0, L+ss, 0, 0); // TODO dtrcp_l_libstr with m and n, for m>=n
+	GECP_LIBSTR(nu[ss]+nx[ss], nu[ss]+nx[ss], RSQrq+ss, 0, 0, L+ss, 0, 0); // TODO blasfeo_dtrcp_l with m and n, for m>=n
 #endif
 	ROWIN_LIBSTR(nu[ss]+nx[ss], 1.0, res_g+ss, 0, L+ss, nu[ss]+nx[ss], 0);
 

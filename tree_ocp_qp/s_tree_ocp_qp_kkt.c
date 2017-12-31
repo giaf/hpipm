@@ -43,8 +43,8 @@
 #define COMPUTE_GAMMA_QP s_compute_gamma_qp
 #define CORE_QP_IPM_WORKSPACE s_core_qp_ipm_workspace
 #define DIAAD_SP_LIBSTR sdiaad_sp_libstr
-#define GEAD_LIBSTR sgead_libstr
-#define GECP_LIBSTR sgecp_libstr
+#define GEAD_LIBSTR blasfeo_sgead
+#define GECP_LIBSTR blasfeo_sgecp
 #define GEMM_R_DIAG_LIBSTR sgemm_r_diag_libstr
 #define GEMV_DIAG_LIBSTR sgemv_diag_libstr
 #define GEMV_N_LIBSTR sgemv_n_libstr
@@ -71,10 +71,10 @@
 #define TRSV_LTN_LIBSTR strsv_ltn_libstr
 #define TRSV_LTN_MN_LIBSTR strsv_ltn_mn_libstr
 #define VECAD_SP_LIBSTR svecad_sp_libstr
-#define VECCP_LIBSTR sveccp_libstr
+#define VECCP_LIBSTR blasfeo_sveccp
 #define VECEX_SP_LIBSTR svecex_sp_libstr
 #define VECMULDOT_LIBSTR svecmuldot_libstr
-#define VECSC_LIBSTR svecsc_libstr
+#define VECSC_LIBSTR blasfeo_svecsc
 
 #define INIT_VAR_TREE_OCP_QP s_init_var_tree_ocp_qp
 #define COMPUTE_RES_TREE_OCP_QP s_compute_res_tree_ocp_qp

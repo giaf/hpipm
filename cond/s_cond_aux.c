@@ -45,10 +45,10 @@
 #define AXPY_LIBSTR saxpy_libstr
 #define COND_QP_OCP2DENSE_WORKSPACE s_cond_qp_ocp2dense_workspace
 #define DENSE_QP_SOL s_dense_qp_sol
-#define GEAD_LIBSTR sgead_libstr
-#define GECP_LIBSTR sgecp_libstr
-#define GEEX1_LIBSTR sgeex1_libstr
-#define GESE_LIBSTR sgese_libstr
+#define GEAD_LIBSTR blasfeo_sgead
+#define GECP_LIBSTR blasfeo_sgecp
+#define GEEX1_LIBSTR blasfeo_sgeex1
+#define GESE_LIBSTR blasfeo_sgese
 #define GEMM_NN_LIBSTR sgemm_nn_libstr
 #define GEMV_T_LIBSTR sgemv_t_libstr
 #define GEMV_N_LIBSTR sgemv_n_libstr
@@ -61,9 +61,9 @@
 #define STRVEC blasfeo_svec
 #define SYMV_L_LIBSTR ssymv_l_libstr
 #define SYRK_LN_MN_LIBSTR ssyrk_ln_mn_libstr
-#define TRCP_L_LIBSTR strcp_l_libstr
+#define TRCP_L_LIBSTR blasfeo_strcp_l
 #define TRMM_RLNN_LIBSTR strmm_rlnn_libstr
-#define VECCP_LIBSTR sveccp_libstr
+#define VECCP_LIBSTR blasfeo_sveccp
 
 #define COND_BABT s_cond_BAbt
 #define COND_B s_cond_b

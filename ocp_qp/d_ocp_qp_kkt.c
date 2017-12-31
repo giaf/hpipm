@@ -51,8 +51,8 @@
 #define COMPUTE_GAMMA_QP d_compute_gamma_qp
 #define CORE_QP_IPM_WORKSPACE d_core_qp_ipm_workspace
 #define DIAAD_SP_LIBSTR ddiaad_sp_libstr
-#define GEAD_LIBSTR dgead_libstr
-#define GECP_LIBSTR dgecp_libstr
+#define GEAD_LIBSTR blasfeo_dgead
+#define GECP_LIBSTR blasfeo_dgecp
 #define GEMM_R_DIAG_LIBSTR dgemm_r_diag_libstr
 #define GEMV_DIAG_LIBSTR dgemv_diag_libstr
 #define GEMV_N_LIBSTR dgemv_n_libstr
@@ -79,7 +79,7 @@
 #define STRVEC blasfeo_dvec
 #define SYMV_L_LIBSTR dsymv_l_libstr
 #define SYRK_POTRF_LN_LIBSTR dsyrk_dpotrf_ln_libstr
-#define TRCP_L_LIBSTR dtrcp_l_libstr
+#define TRCP_L_LIBSTR blasfeo_dtrcp_l
 #define TRMM_RLNN_LIBSTR dtrmm_rlnn_libstr
 #define TRMV_LNN_LIBSTR dtrmv_lnn_libstr
 #define TRMV_LTN_LIBSTR dtrmv_ltn_libstr
@@ -88,10 +88,10 @@
 #define TRSV_LTN_LIBSTR dtrsv_ltn_libstr
 #define TRSV_LTN_MN_LIBSTR dtrsv_ltn_mn_libstr
 #define VECAD_SP_LIBSTR dvecad_sp_libstr
-#define VECCP_LIBSTR dveccp_libstr
+#define VECCP_LIBSTR blasfeo_dveccp
 #define VECEX_SP_LIBSTR dvecex_sp_libstr
 #define VECMULDOT_LIBSTR dvecmuldot_libstr
-#define VECSC_LIBSTR dvecsc_libstr
+#define VECSC_LIBSTR blasfeo_dvecsc
 
 
 

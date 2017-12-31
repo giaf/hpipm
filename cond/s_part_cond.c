@@ -57,13 +57,13 @@
 #define DENSE_QP s_dense_qp
 #define DENSE_QP_SOL s_dense_qp_sol
 #define EXPAND_SOL s_expand_sol
-#define GECP_LIBSTR sgecp_libstr
+#define GECP_LIBSTR blasfeo_sgecp
 #define MEMSIZE_COND_QP_OCP2DENSE s_memsize_cond_qp_ocp2dense
 #define OCP_QP s_ocp_qp
 #define OCP_QP_DIM s_ocp_qp_dim
 #define OCP_QP_SOL s_ocp_qp_sol
 #define STRVEC blasfeo_svec
-#define VECCP_LIBSTR sveccp_libstr
+#define VECCP_LIBSTR blasfeo_sveccp
 
 #define COMPUTE_QP_DIM_OCP2OCP s_compute_qp_dim_ocp2ocp
 #define MEMSIZE_COND_QP_OCP2OCP s_memsize_cond_qp_ocp2ocp

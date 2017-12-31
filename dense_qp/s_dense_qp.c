@@ -49,7 +49,7 @@
 #define CVT_STRVEC2VEC blasfeo_unpack_svec
 #define DENSE_QP s_dense_qp
 #define DENSE_QP_DIM s_dense_qp_dim
-#define GECP_LIBSTR sgecp_libstr
+#define GECP_LIBSTR blasfeo_sgecp
 #define GETR_LIBSTR sgetr_libstr
 #define REAL float
 #define ROWIN_LIBSTR srowin_libstr
@@ -57,9 +57,9 @@
 #define SIZE_STRVEC blasfeo_memsize_svec
 #define STRMAT blasfeo_smat
 #define STRVEC blasfeo_svec
-#define VECCP_LIBSTR sveccp_libstr
-#define VECSC_LIBSTR svecsc_libstr
-#define VECSE_LIBSTR svecse_libstr
+#define VECCP_LIBSTR blasfeo_sveccp
+#define VECSC_LIBSTR blasfeo_svecsc
+#define VECSE_LIBSTR blasfeo_svecse
 
 #define MEMSIZE_DENSE_QP s_memsize_dense_qp
 #define CREATE_DENSE_QP s_create_dense_qp

@@ -51,7 +51,7 @@
 #define REAL float
 #define STRVEC blasfeo_svec
 #define SIZE_STRVEC blasfeo_memsize_svec
-#define VECCP_LIBSTR sveccp_libstr
+#define VECCP_LIBSTR blasfeo_sveccp
 
 #define CREATE_OCP_QP_SOL s_create_ocp_qp_sol
 #define MEMSIZE_OCP_QP_SOL s_memsize_ocp_qp_sol

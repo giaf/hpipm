@@ -481,21 +481,21 @@ exit(1);
 
 	// initialize solution (to zero atm)
 	for(nn=0; nn<=N; nn++)
-		dvecse_libstr(nu[nn]+nx[nn], 0.0, nlp_sol->ux+nn, 0);
+		blasfeo_dvecse(nu[nn]+nx[nn], 0.0, nlp_sol->ux+nn, 0);
 	for(nn=0; nn<N; nn++)
-		dvecse_libstr(nx[nn+1], 0.0, nlp_sol->pi+nn, 0);
+		blasfeo_dvecse(nx[nn+1], 0.0, nlp_sol->pi+nn, 0);
 	for(nn=0; nn<=N; nn++)
-		dvecse_libstr(2*nb[nn]+2*ng[nn], 0.0, nlp_sol->lam+nn, 0);
+		blasfeo_dvecse(2*nb[nn]+2*ng[nn], 0.0, nlp_sol->lam+nn, 0);
 	for(nn=0; nn<=N; nn++)
-		dvecse_libstr(2*nb[nn]+2*ng[nn], 0.0, nlp_sol->t+nn, 0);
+		blasfeo_dvecse(2*nb[nn]+2*ng[nn], 0.0, nlp_sol->t+nn, 0);
 
 
 	// copy nlp into qp
 	nn = 0;
 	for(; nn<=N; nn++)
 		{
-		dgecp_libstr(nu[nn]+nx[nn], nu[nn]+nx[nn], nlp->RSQ+nn, 0, 0, qp->RSQrq+nn, 0, 0);
-		dgecp_libstr(nu[nn]+nx[nn], ng[nn], nlp->DCt+nn, 0, 0, qp->DCt+nn, 0, 0);
+		blasfeo_dgecp(nu[nn]+nx[nn], nu[nn]+nx[nn], nlp->RSQ+nn, 0, 0, qp->RSQrq+nn, 0, 0);
+		blasfeo_dgecp(nu[nn]+nx[nn], ng[nn], nlp->DCt+nn, 0, 0, qp->DCt+nn, 0, 0);
 		for(ii=0; ii<nb[nn]; ii++) qp->idxb[nn][ii] = nlp->idxb[nn][ii];
 		for(ii=0; ii<ns[nn]; ii++) qp->idxs[nn][ii] = nlp->idxs[nn][ii];
 		}
@@ -518,10 +518,10 @@ exit(1);
 	
 		// setup gradient
 		for(nn=0; nn<=N; nn++)
-			dveccp_libstr(nu[nn]+nx[nn], nlp->rq+nn, 0, qp->rq+nn, 0);
+			blasfeo_dveccp(nu[nn]+nx[nn], nlp->rq+nn, 0, qp->rq+nn, 0);
 		// setup constraints
 		for(nn=0; nn<=N; nn++)
-			dveccp_libstr(2*nb[nn]+2*ng[nn], nlp->d+nn, 0, qp->d+nn, 0);
+			blasfeo_dveccp(2*nb[nn]+2*ng[nn], nlp->d+nn, 0, qp->d+nn, 0);
 
 
 #if 0
@@ -546,13 +546,13 @@ exit(1);
 
 		// copy nlp_sol into qp_sol
 		for(nn=0; nn<=N; nn++)
-			dveccp_libstr(nu[nn]+nx[nn]+2*ns[ii], nlp_sol->ux+nn, 0, qp_sol->ux+nn, 0);
+			blasfeo_dveccp(nu[nn]+nx[nn]+2*ns[ii], nlp_sol->ux+nn, 0, qp_sol->ux+nn, 0);
 		for(nn=0; nn<N; nn++)
-			dveccp_libstr(nx[nn+1], nlp_sol->pi+nn, 0, qp_sol->pi+nn, 0);
+			blasfeo_dveccp(nx[nn+1], nlp_sol->pi+nn, 0, qp_sol->pi+nn, 0);
 		for(nn=0; nn<=N; nn++)
-			dveccp_libstr(2*nb[nn]+2*ng[nn]+2*ns[ii], nlp_sol->lam+nn, 0, qp_sol->lam+nn, 0);
+			blasfeo_dveccp(2*nb[nn]+2*ng[nn]+2*ns[ii], nlp_sol->lam+nn, 0, qp_sol->lam+nn, 0);
 		for(nn=0; nn<=N; nn++)
-			dveccp_libstr(2*nb[nn]+2*ng[nn]+2*ns[ii], nlp_sol->t+nn, 0, qp_sol->t+nn, 0);
+			blasfeo_dveccp(2*nb[nn]+2*ng[nn]+2*ns[ii], nlp_sol->t+nn, 0, qp_sol->t+nn, 0);
 
 
 		// compute residuals
@@ -712,11 +712,11 @@ exit(1);
 			daxpy_libstr(nu[nn]+nx[nn], 1.0, qp_sol->ux+nn, 0, nlp_sol->ux+nn, 0, nlp_sol->ux+nn, 0);
 		// copy dual multipliers
 		for(nn=0; nn<N; nn++)
-			dveccp_libstr(nx[nn+1], qp_sol->pi+nn, 0, nlp_sol->pi+nn, 0);
+			blasfeo_dveccp(nx[nn+1], qp_sol->pi+nn, 0, nlp_sol->pi+nn, 0);
 		for(nn=0; nn<=N; nn++)
-			dveccp_libstr(2*nb[nn]+2*ng[nn], qp_sol->lam+nn, 0, nlp_sol->lam+nn, 0);
+			blasfeo_dveccp(2*nb[nn]+2*ng[nn], qp_sol->lam+nn, 0, nlp_sol->lam+nn, 0);
 		for(nn=0; nn<=N; nn++)
-			dveccp_libstr(2*nb[nn]+2*ng[nn], qp_sol->t+nn, 0, nlp_sol->t+nn, 0);
+			blasfeo_dveccp(2*nb[nn]+2*ng[nn], qp_sol->t+nn, 0, nlp_sol->t+nn, 0);
 
 #if 0
 printf("\nnlp sol\n");

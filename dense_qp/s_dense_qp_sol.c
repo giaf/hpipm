@@ -50,7 +50,7 @@
 #define REAL float
 #define STRVEC blasfeo_svec
 #define SIZE_STRVEC blasfeo_memsize_svec
-#define VECCP_LIBSTR sveccp_libstr
+#define VECCP_LIBSTR blasfeo_sveccp
 
 #define CREATE_DENSE_QP_SOL s_create_dense_qp_sol
 #define MEMSIZE_DENSE_QP_SOL s_memsize_dense_qp_sol

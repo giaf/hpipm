@@ -206,7 +206,7 @@ void d_init_irk_int(double *x0, double *fs0, double *p0, void (*d_res_impl_vde)(
 	// TODO initialize K !!!!!
 //	for(ii=0; ii<ns; ii++)
 //		blasfeo_pack_dmat(nx, nf+1, xdot0, nx, K, ii*nx, 0);
-	dgese_libstr(nx*ns, nf+1, 0.0, K, 0, 0);
+	blasfeo_dgese(nx*ns, nf+1, 0.0, K, 0, 0);
 
 	ws->d_res_impl_vde = d_res_impl_vde;
 	ws->d_jac_impl_ode = d_jac_impl_ode;
@@ -297,7 +297,7 @@ void d_irk_int(struct d_irk_args *irk_args, struct d_irk_workspace *ws)
 			drowpe_libstr(ns*nx, ipiv, rG);  // row permutations
 			dtrsm_llnu_libstr(ns*nx, 1+nf, 1.0, JG, 0, 0, rG, 0, 0, rG, 0, 0);  // L backsolve
 			dtrsm_lunn_libstr(ns*nx, 1+nf, 1.0, JG, 0, 0, rG, 0, 0, rG, 0, 0);  // U backsolve
-			dgead_libstr(ns*nx, nf+1, 1.0, rG, 0, 0, K, 0, 0);
+			blasfeo_dgead(ns*nx, nf+1, 1.0, rG, 0, 0, K, 0, 0);
 			}
 		for(ss=0; ss<ns; ss++)
 			{

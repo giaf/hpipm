@@ -353,10 +353,10 @@ void FACT_SOLVE_KKT_UNCONSTR_TREE_OCP_QP(struct TREE_OCP_QP *qp, struct TREE_OCP
 		nkids = (ttree->root+idx)->nkids;
 
 #if defined(DOUBLE_PRECISION)
-		TRCP_L_LIBSTR(nu[idx]+nx[idx], RSQrq+idx, 0, 0, L+idx, 0, 0); // TODO dtrcp_l_libstr with m and n, for m>=n
+		TRCP_L_LIBSTR(nu[idx]+nx[idx], RSQrq+idx, 0, 0, L+idx, 0, 0); // TODO blasfeo_dtrcp_l with m and n, for m>=n
 		GECP_LIBSTR(1, nu[idx]+nx[idx], RSQrq+idx, nu[idx]+nx[idx], 0, L+idx, nu[idx]+nx[idx], 0);
 #else
-		GECP_LIBSTR(nu[idx]+nx[idx]+1, nu[idx]+nx[idx], RSQrq+idx, 0, 0, L+idx, 0, 0); // TODO dtrcp_l_libstr with m and n, for m>=n
+		GECP_LIBSTR(nu[idx]+nx[idx]+1, nu[idx]+nx[idx], RSQrq+idx, 0, 0, L+idx, 0, 0); // TODO blasfeo_dtrcp_l with m and n, for m>=n
 #endif
 
 		for(jj=0; jj<nkids; jj++)
@@ -650,9 +650,9 @@ void FACT_SOLVE_KKT_STEP_TREE_OCP_QP(struct TREE_OCP_QP *qp, struct TREE_OCP_QP_
 		nkids = (ttree->root+idx)->nkids;
 
 #if defined(DOUBLE_PRECISION)
-		TRCP_L_LIBSTR(nu[idx]+nx[idx], RSQrq+idx, 0, 0, L+idx, 0, 0); // TODO dtrcp_l_libstr with m and n, for m>=n
+		TRCP_L_LIBSTR(nu[idx]+nx[idx], RSQrq+idx, 0, 0, L+idx, 0, 0); // TODO blasfeo_dtrcp_l with m and n, for m>=n
 #else
-		GECP_LIBSTR(nu[idx]+nx[idx], nu[idx]+nx[idx], RSQrq+idx, 0, 0, L+idx, 0, 0); // TODO dtrcp_l_libstr with m and n, for m>=n
+		GECP_LIBSTR(nu[idx]+nx[idx], nu[idx]+nx[idx], RSQrq+idx, 0, 0, L+idx, 0, 0); // TODO blasfeo_dtrcp_l with m and n, for m>=n
 #endif
 		ROWIN_LIBSTR(nu[idx]+nx[idx], 1.0, res_g+idx, 0, L+idx, nu[idx]+nx[idx], 0);
 
