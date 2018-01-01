@@ -45,12 +45,12 @@
 
 #define SINGLE_PRECISION
 
-#define AXPY_LIBSTR saxpy_libstr
+#define AXPY_LIBSTR blasfeo_saxpy
 #define COMPUTE_LAM_T_QP s_compute_lam_t_qp
 #define COMPUTE_GAMMA_GAMMA_QP s_compute_Gamma_gamma_qp
 #define COMPUTE_GAMMA_QP s_compute_gamma_qp
 #define CORE_QP_IPM_WORKSPACE s_core_qp_ipm_workspace
-#define DIAAD_SP_LIBSTR sdiaad_sp_libstr
+#define DIAAD_SP_LIBSTR blasfeo_sdiaad_sp
 #define GEAD_LIBSTR blasfeo_sgead
 #define GECP_LIBSTR blasfeo_sgecp
 #define GEMM_R_DIAG_LIBSTR blasfeo_sgemm_nd
@@ -72,9 +72,9 @@
 #define PRINT_STRVEC s_print_strvec
 #define PRINT_TRAN_STRVEC s_print_tran_strvec
 #define REAL float
-#define ROWAD_SP_LIBSTR srowad_sp_libstr
-#define ROWEX_LIBSTR srowex_libstr
-#define ROWIN_LIBSTR srowin_libstr
+#define ROWAD_SP_LIBSTR blasfeo_srowad_sp
+#define ROWEX_LIBSTR blasfeo_srowex
+#define ROWIN_LIBSTR blasfeo_srowin
 #define STRMAT blasfeo_smat
 #define STRVEC blasfeo_svec
 #define SYMV_L_LIBSTR blasfeo_ssymv_l
@@ -87,10 +87,10 @@
 #define TRSV_LTN_LIBSTR blasfeo_strsv_ltn
 #define TRSV_LNN_MN_LIBSTR blasfeo_strsv_lnn_mn
 #define TRSV_LTN_MN_LIBSTR blasfeo_strsv_ltn_mn
-#define VECAD_SP_LIBSTR svecad_sp_libstr
+#define VECAD_SP_LIBSTR blasfeo_svecad_sp
 #define VECCP_LIBSTR blasfeo_sveccp
-#define VECEX_SP_LIBSTR svecex_sp_libstr
-#define VECMULDOT_LIBSTR svecmuldot_libstr
+#define VECEX_SP_LIBSTR blasfeo_svecex_sp
+#define VECMULDOT_LIBSTR blasfeo_svecmuldot
 #define VECSC_LIBSTR blasfeo_svecsc
 
 

@@ -53,11 +53,11 @@
 
 
 
-#define AXPY_LIBSTR daxpy_libstr
+#define AXPY_LIBSTR blasfeo_daxpy
 #define GEMV_T_LIBSTR blasfeo_dgemv_t
-#define ROWIN_LIBSTR drowin_libstr
+#define ROWIN_LIBSTR blasfeo_drowin
 #define SYMV_L_LIBSTR blasfeo_dsymv_l
-#define VECEX_SP_LIBSTR dvecex_sp_libstr
+#define VECEX_SP_LIBSTR blasfeo_dvecex_sp
 
 #define COMPUTE_ALPHA_QP d_compute_alpha_qp
 #define COMPUTE_CENTERING_CORRECTION_QP d_compute_centering_correction_qp
@@ -603,10 +603,10 @@ exit(1);
 //	cws->mu = ipm_ws->res_mu;
 
 	// compute infinity norm of residuals
-//	dvecnrm_inf_libstr(cws->nv, &str_res_g, 0, &nlp_res[0]);
-//	dvecnrm_inf_libstr(cws->ne, &str_res_b, 0, &nlp_res[1]);
-//	dvecnrm_inf_libstr(cws->nc, &str_res_d, 0, &nlp_res[2]);
-//	dvecnrm_inf_libstr(cws->nc, &str_res_m, 0, &nlp_res[3]);
+//	blasfeo_dvecnrm_inf(cws->nv, &str_res_g, 0, &nlp_res[0]);
+//	blasfeo_dvecnrm_inf(cws->ne, &str_res_b, 0, &nlp_res[1]);
+//	blasfeo_dvecnrm_inf(cws->nc, &str_res_d, 0, &nlp_res[2]);
+//	blasfeo_dvecnrm_inf(cws->nc, &str_res_m, 0, &nlp_res[3]);
 
 #if 0
 printf("\nresiduals\n");
@@ -756,7 +756,7 @@ exit(1);
 
 	// update primal variables (full step)
 	for(nn=0; nn<=N; nn++)
-		daxpy_libstr(nu[nn]+nx[nn], 1.0, qp_sol->ux+nn, 0, nlp_sol->ux+nn, 0, nlp_sol->ux+nn, 0);
+		blasfeo_daxpy(nu[nn]+nx[nn], 1.0, qp_sol->ux+nn, 0, nlp_sol->ux+nn, 0, nlp_sol->ux+nn, 0);
 	// copy dual multipliers
 	for(nn=0; nn<N; nn++)
 		blasfeo_dveccp(nx[nn+1], qp_sol->pi+nn, 0, nlp_sol->pi+nn, 0);
@@ -788,7 +788,7 @@ for(nn=0; nn<=N; nn++)
 //		blasfeo_dgecp(nu[nn]+nx[nn], nu[nn]+nx[nn], nlp->RSQ+nn, 0, 0, qp->RSQrq+nn, 0, 0);
 //		blasfeo_dgecp(nu[nn]+nx[nn], ng[nn], nlp->DCt+nn, 0, 0, qp->DCt+nn, 0, 0);
 		blasfeo_dveccp(nu[nn]+nx[nn], nlp->rq+nn, 0, qp->rq+nn, 0);
-		drowin_libstr(nu[nn]+nx[nn], 1.0, qp->rq+nn, 0, qp->RSQrq+nn, nu[nn]+nx[nn], 0);
+		blasfeo_drowin(nu[nn]+nx[nn], 1.0, qp->rq+nn, 0, qp->RSQrq+nn, nu[nn]+nx[nn], 0);
 		blasfeo_dveccp(2*nb[nn]+2*ng[nn]+2*ns[nn], nlp->d+nn, 0, qp->d+nn, 0);
 //		for(ii=0; ii<nb[nn]; ii++) qp->idxb[nn][ii] = nlp->idxb[nn][ii];
 //		for(ii=0; ii<ns[nn]; ii++) qp->idxs[nn][ii] = nlp->idxs[nn][ii];
@@ -806,7 +806,7 @@ for(nn=0; nn<=N; nn++)
 		for(nn=0; nn<=N; nn++)
 			{
 			blasfeo_dveccp(nu[nn]+nx[nn], nlp->rq+nn, 0, qp->rq+nn, 0);
-//			drowin_libstr(nu[nn]+nx[nn], 1.0, qp->rq+nn, 0, qp->RSQrq+nn, nu[nn]+nx[nn], 0);
+//			blasfeo_drowin(nu[nn]+nx[nn], 1.0, qp->rq+nn, 0, qp->RSQrq+nn, nu[nn]+nx[nn], 0);
 			}
 
 		// simulation & sensitivity propagation
@@ -873,10 +873,10 @@ exit(1);
 				ipm_ws->stat[5*(ws->iter_qp+ss-1)+4] = ipm_ws2->res_workspace->res_mu;
 
 			// compute infinity norm of residuals
-			dvecnrm_inf_libstr(cws2->nv, &str_res_g2, 0, &nlp_res[0]); // XXX
-			dvecnrm_inf_libstr(cws2->ne, &str_res_b2, 0, &nlp_res[1]); // XXX
-			dvecnrm_inf_libstr(cws2->nc, &str_res_d2, 0, &nlp_res[2]); // XXX
-			dvecnrm_inf_libstr(cws2->nc, &str_res_m2, 0, &nlp_res[3]); // XXX
+			blasfeo_dvecnrm_inf(cws2->nv, &str_res_g2, 0, &nlp_res[0]); // XXX
+			blasfeo_dvecnrm_inf(cws2->ne, &str_res_b2, 0, &nlp_res[1]); // XXX
+			blasfeo_dvecnrm_inf(cws2->nc, &str_res_d2, 0, &nlp_res[2]); // XXX
+			blasfeo_dvecnrm_inf(cws2->nc, &str_res_m2, 0, &nlp_res[3]); // XXX
 
 //printf("\n%e %e %e %e\n", nlp_res[0], nlp_res[1], nlp_res[2], nlp_res[3]);
 
@@ -900,10 +900,10 @@ exit(1);
 				COMPUTE_RES_OCP_QP(qp, qp_sol, ipm_ws->res_workspace);
 
 				// compute infinity norm of residuals
-				dvecnrm_inf_libstr(cws->nv, &str_res_g, 0, &nlp_res[0]);
-				dvecnrm_inf_libstr(cws->ne, &str_res_b, 0, &nlp_res[1]);
-				dvecnrm_inf_libstr(cws->nc, &str_res_d, 0, &nlp_res[2]);
-				dvecnrm_inf_libstr(cws->nc, &str_res_m, 0, &nlp_res[3]);
+				blasfeo_dvecnrm_inf(cws->nv, &str_res_g, 0, &nlp_res[0]);
+				blasfeo_dvecnrm_inf(cws->ne, &str_res_b, 0, &nlp_res[1]);
+				blasfeo_dvecnrm_inf(cws->nc, &str_res_d, 0, &nlp_res[2]);
+				blasfeo_dvecnrm_inf(cws->nc, &str_res_m, 0, &nlp_res[3]);
 
 				ws->iter_nlp = ss;
 				ws->nlp_res_g = nlp_res[0];
@@ -999,10 +999,10 @@ exit(1);
 				ipm_ws->stat[5*(ws->iter_qp+ss-1)+4] = ipm_ws->res_workspace->res_mu;
 
 			// compute infinity norm of residuals
-			dvecnrm_inf_libstr(cws->nv, &str_res_g, 0, &nlp_res[0]);
-			dvecnrm_inf_libstr(cws->ne, &str_res_b, 0, &nlp_res[1]);
-			dvecnrm_inf_libstr(cws->nc, &str_res_d, 0, &nlp_res[2]);
-			dvecnrm_inf_libstr(cws->nc, &str_res_m, 0, &nlp_res[3]);
+			blasfeo_dvecnrm_inf(cws->nv, &str_res_g, 0, &nlp_res[0]);
+			blasfeo_dvecnrm_inf(cws->ne, &str_res_b, 0, &nlp_res[1]);
+			blasfeo_dvecnrm_inf(cws->nc, &str_res_d, 0, &nlp_res[2]);
+			blasfeo_dvecnrm_inf(cws->nc, &str_res_m, 0, &nlp_res[3]);
 
 //printf("\n%e %e %e %e\n", nlp_res[0], nlp_res[1], nlp_res[2], nlp_res[3]);
 

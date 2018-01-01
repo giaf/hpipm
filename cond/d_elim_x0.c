@@ -28,7 +28,7 @@
 #define GEMV_T_LIBSTR blasfeo_dgemv_t
 #define ELIM_X0_WORKSPACE d_elim_x0_workspace
 #define OCP_QP d_ocp_qp
-#define ROWIN_LIBSTR drowin_libstr
+#define ROWIN_LIBSTR blasfeo_drowin
 #define SIZE_STRMAT blasfeo_memsize_dmat
 #define SIZE_STRVEC blasfeo_memsize_dvec
 #define STRMAT blasfeo_dmat

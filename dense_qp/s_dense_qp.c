@@ -50,9 +50,9 @@
 #define DENSE_QP s_dense_qp
 #define DENSE_QP_DIM s_dense_qp_dim
 #define GECP_LIBSTR blasfeo_sgecp
-#define GETR_LIBSTR sgetr_libstr
+#define GETR_LIBSTR blasfeo_sgetr
 #define REAL float
-#define ROWIN_LIBSTR srowin_libstr
+#define ROWIN_LIBSTR blasfeo_srowin
 #define SIZE_STRMAT blasfeo_memsize_smat
 #define SIZE_STRVEC blasfeo_memsize_svec
 #define STRMAT blasfeo_smat

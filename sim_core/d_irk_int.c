@@ -275,8 +275,8 @@ void d_irk_int(struct d_irk_args *irk_args, struct d_irk_workspace *ws)
 						a = a * h;
 						for(jj=0; jj<1+nf; jj++)
 							{
-							dcolex_libstr(nx, K, ii*nx, jj, &sxt1, 0);
-							daxpy_libstr(nx, a, &sxt1, 0, &sxt0, jj*nx, &sxt0, jj*nx);
+							blasfeo_dcolex(nx, K, ii*nx, jj, &sxt1, 0);
+							blasfeo_daxpy(nx, a, &sxt1, 0, &sxt0, jj*nx, &sxt0, jj*nx);
 							}
 						}
 					}
@@ -292,9 +292,9 @@ void d_irk_int(struct d_irk_args *irk_args, struct d_irk_workspace *ws)
 					blasfeo_pack_dmat(nx, nx, Jt1, nx, JG, ss*nx, ii*nx);
 					}
 				}
-			ddiare_libstr(ns*nx, 1.0, JG, 0, 0);
+			blasfeo_ddiare(ns*nx, 1.0, JG, 0, 0);
 			blasfeo_dgetrf_rowpivot(ns*nx, ns*nx, JG, 0, 0, JG, 0, 0, ipiv); // LU factorization with pivoting
-			drowpe_libstr(ns*nx, ipiv, rG);  // row permutations
+			blasfeo_drowpe(ns*nx, ipiv, rG);  // row permutations
 			blasfeo_dtrsm_llnu(ns*nx, 1+nf, 1.0, JG, 0, 0, rG, 0, 0, rG, 0, 0);  // L backsolve
 			blasfeo_dtrsm_lunn(ns*nx, 1+nf, 1.0, JG, 0, 0, rG, 0, 0, rG, 0, 0);  // U backsolve
 			blasfeo_dgead(ns*nx, nf+1, 1.0, rG, 0, 0, K, 0, 0);
@@ -304,7 +304,7 @@ void d_irk_int(struct d_irk_args *irk_args, struct d_irk_workspace *ws)
 			b = h*B_rk[ss];
 			for(ii=0; ii<1+nf; ii++)
 				{
-				dcolex_libstr(nx, K, ss*nx, ii, &sxt1, 0);
+				blasfeo_dcolex(nx, K, ss*nx, ii, &sxt1, 0);
 				for(jj=0; jj<nx; jj++)
 					x[jj+ii*nx] += b*xt1[jj];
 				}

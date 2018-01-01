@@ -37,12 +37,12 @@
 #include "../include/hpipm_d_core_qp_ipm.h"
 #include "../include/hpipm_d_core_qp_ipm_aux.h"
 
-#define AXPY_LIBSTR daxpy_libstr
+#define AXPY_LIBSTR blasfeo_daxpy
 #define COMPUTE_LAM_T_QP d_compute_lam_t_qp
 #define COMPUTE_GAMMA_GAMMA_QP d_compute_Gamma_gamma_qp
 #define COMPUTE_GAMMA_QP d_compute_gamma_qp
 #define CORE_QP_IPM_WORKSPACE d_core_qp_ipm_workspace
-#define DIAAD_SP_LIBSTR ddiaad_sp_libstr
+#define DIAAD_SP_LIBSTR blasfeo_ddiaad_sp
 #define GEAD_LIBSTR blasfeo_dgead
 #define GECP_LIBSTR blasfeo_dgecp
 #define GEMM_R_DIAG_LIBSTR blasfeo_dgemm_nd
@@ -52,9 +52,9 @@
 #define GEMV_T_LIBSTR blasfeo_dgemv_t
 #define POTRF_L_MN_LIBSTR blasfeo_dpotrf_l_mn
 #define REAL double
-#define ROWAD_SP_LIBSTR drowad_sp_libstr
-#define ROWIN_LIBSTR drowin_libstr
-#define ROWEX_LIBSTR drowex_libstr
+#define ROWAD_SP_LIBSTR blasfeo_drowad_sp
+#define ROWIN_LIBSTR blasfeo_drowin
+#define ROWEX_LIBSTR blasfeo_drowex
 #define STRMAT blasfeo_dmat
 #define STRVEC blasfeo_dvec
 #define SYMV_L_LIBSTR blasfeo_dsymv_l
@@ -71,10 +71,10 @@
 #define TRSV_LNN_MN_LIBSTR blasfeo_dtrsv_lnn_mn
 #define TRSV_LTN_LIBSTR blasfeo_dtrsv_ltn
 #define TRSV_LTN_MN_LIBSTR blasfeo_dtrsv_ltn_mn
-#define VECAD_SP_LIBSTR dvecad_sp_libstr
+#define VECAD_SP_LIBSTR blasfeo_dvecad_sp
 #define VECCP_LIBSTR blasfeo_dveccp
-#define VECEX_SP_LIBSTR dvecex_sp_libstr
-#define VECMULDOT_LIBSTR dvecmuldot_libstr
+#define VECEX_SP_LIBSTR blasfeo_dvecex_sp
+#define VECMULDOT_LIBSTR blasfeo_dvecmuldot
 #define VECSC_LIBSTR blasfeo_dvecsc
 
 #define INIT_VAR_TREE_OCP_QP d_init_var_tree_ocp_qp

@@ -502,7 +502,7 @@ int main()
         cvt_benchmark_to_hpipm(&qp_bench, &qpd_hpipm, &tran_space);
 
 		double reg = 0e-8;
-		ddiare_libstr(nv, reg, qpd_hpipm.Hv, 0, 0);
+		blasfeo_ddiare(nv, reg, qpd_hpipm.Hv, 0, 0);
 
 		int H_fact_size = blasfeo_memsize_dmat(nv, nv);
 		void *H_fact_mem; v_zeros_align(&H_fact_mem, H_fact_size);

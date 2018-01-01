@@ -295,7 +295,7 @@ void d_erk_int(struct d_erk_workspace *ws)
 					a *= h;
 #if 0
 					sK.pa = K0+ii*nX; // XXX
-					daxpy_libstr(nX, a, &sK, 0, &sxt, 0, &sxt, 0); // XXX
+					blasfeo_daxpy(nX, a, &sK, 0, &sxt, 0, &sxt, 0); // XXX
 #else
 					for(jj=0; jj<nX; jj++)
 						x_tmp[jj] += a*K0[jj+ii*(nX)];

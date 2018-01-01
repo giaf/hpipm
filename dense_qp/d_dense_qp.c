@@ -49,9 +49,9 @@
 #define DENSE_QP d_dense_qp
 #define DENSE_QP_DIM d_dense_qp_dim
 #define GECP_LIBSTR blasfeo_dgecp
-#define GETR_LIBSTR dgetr_libstr
+#define GETR_LIBSTR blasfeo_dgetr
 #define REAL double
-#define ROWIN_LIBSTR drowin_libstr
+#define ROWIN_LIBSTR blasfeo_drowin
 #define SIZE_STRMAT blasfeo_memsize_dmat
 #define SIZE_STRVEC blasfeo_memsize_dvec
 #define STRMAT blasfeo_dmat

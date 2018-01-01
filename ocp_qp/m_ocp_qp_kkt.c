@@ -139,21 +139,21 @@ void m_fact_solve_kkt_step_hard_ocp_qp(struct d_ocp_qp *d_qp, struct s_ocp_qp *s
 #else
 	blasfeo_sgecp(nu[N]+nx[N], nu[N]+nx[N], RSQrq+N, 0, 0, L+N, 0, 0); // TODO blasfeo_dtrcp_l with m and n, for m>=n
 #endif
-	srowin_libstr(nu[N]+nx[N], 1.0, res_g+N, 0, L+N, nu[N]+nx[N], 0);
+	blasfeo_srowin(nu[N]+nx[N], 1.0, res_g+N, 0, L+N, nu[N]+nx[N], 0);
 	if(ws->scale)
 		{
 		if(nb[N]>0)
 			{
-			sdiaad_sp_libstr(nb[N], 1.0, Qx_lb+N, 0, idxb[N], L+N, 0, 0);
-			srowad_sp_libstr(nb[N], 1.0, qx_lb+N, 0, idxb[N], L+N, nu[N]+nx[N], 0);
+			blasfeo_sdiaad_sp(nb[N], 1.0, Qx_lb+N, 0, idxb[N], L+N, 0, 0);
+			blasfeo_srowad_sp(nb[N], 1.0, qx_lb+N, 0, idxb[N], L+N, nu[N]+nx[N], 0);
 			}
 		if(ng[N]>0)
 			{
 			blasfeo_sgemm_nd(nu[N]+nx[N], ng[N], 1.0, DCt+N, 0, 0, Qx_lg+N, 0, 0.0, AL+0, 0, 0, AL+0, 0, 0);
-			srowin_libstr(ng[N], 1.0, qx_lg+N, 0, AL+0, nu[N]+nx[N], 0);
+			blasfeo_srowin(ng[N], 1.0, qx_lg+N, 0, AL+0, nu[N]+nx[N], 0);
 			blasfeo_ssyrk_ln_mn(nu[N]+nx[N]+1, nu[N]+nx[N], ng[N], 1.0, AL+0, 0, 0, DCt+N, 0, 0, 1.0, L+N, 0, 0, L+N, 0, 0);
 			}
-		sdiaex_libstr(nu[N]+nx[N], 1.0, L+N, 0, 0, Sx+N, 0);
+		blasfeo_sdiaex(nu[N]+nx[N], 1.0, L+N, 0, 0, Sx+N, 0);
 		d_ptr0 = (Sx+N)->pa;
 		d_ptr1 = (Si+N)->pa;
 		for(jj=0; jj<nu[N]+nx[N]; jj++)
@@ -178,13 +178,13 @@ void m_fact_solve_kkt_step_hard_ocp_qp(struct d_ocp_qp *d_qp, struct s_ocp_qp *s
 		{
 		if(nb[N]>0)
 			{
-			sdiaad_sp_libstr(nb[N], 1.0, Qx_lb+N, 0, idxb[N], L+N, 0, 0);
-			srowad_sp_libstr(nb[N], 1.0, qx_lb+N, 0, idxb[N], L+N, nu[N]+nx[N], 0);
+			blasfeo_sdiaad_sp(nb[N], 1.0, Qx_lb+N, 0, idxb[N], L+N, 0, 0);
+			blasfeo_srowad_sp(nb[N], 1.0, qx_lb+N, 0, idxb[N], L+N, nu[N]+nx[N], 0);
 			}
 		if(ng[N]>0)
 			{
 			blasfeo_sgemm_nd(nu[N]+nx[N], ng[N], 1.0, DCt+N, 0, 0, Qx_lg+N, 0, 0.0, AL+0, 0, 0, AL+0, 0, 0);
-			srowin_libstr(ng[N], 1.0, qx_lg+N, 0, AL+0, nu[N]+nx[N], 0);
+			blasfeo_srowin(ng[N], 1.0, qx_lg+N, 0, AL+0, nu[N]+nx[N], 0);
 			ssyrk_spotrf_ln_libstr(nu[N]+nx[N]+1, nu[N]+nx[N], ng[N], AL+0, 0, 0, DCt+N, 0, 0, L+N, 0, 0, L+N, 0, 0);
 			}
 		else
@@ -202,22 +202,22 @@ void m_fact_solve_kkt_step_hard_ocp_qp(struct d_ocp_qp *d_qp, struct s_ocp_qp *s
 #else
 		blasfeo_sgecp(nu[N-ii-1]+nx[N-ii-1], nu[N-ii-1]+nx[N-ii-1], RSQrq+(N-ii-1), 0, 0, L+(N-ii-1), 0, 0);
 #endif
-		srowin_libstr(nu[N-ii-1]+nx[N-ii-1], 1.0, res_g+(N-ii-1), 0, L+(N-ii-1), nu[N-ii-1]+nx[N-ii-1], 0);
+		blasfeo_srowin(nu[N-ii-1]+nx[N-ii-1], 1.0, res_g+(N-ii-1), 0, L+(N-ii-1), nu[N-ii-1]+nx[N-ii-1], 0);
 
 		if(ws->scale)
 			{
 			if(nb[N-ii-1]>0)
 				{
-				sdiaad_sp_libstr(nb[N-ii-1], 1.0, Qx_lb+N-ii-1, 0, idxb[N-ii-1], L+N-ii-1, 0, 0);
-				srowad_sp_libstr(nb[N-ii-1], 1.0, qx_lb+N-ii-1, 0, idxb[N-ii-1], L+N-ii-1, nu[N-ii-1]+nx[N-ii-1], 0);
+				blasfeo_sdiaad_sp(nb[N-ii-1], 1.0, Qx_lb+N-ii-1, 0, idxb[N-ii-1], L+N-ii-1, 0, 0);
+				blasfeo_srowad_sp(nb[N-ii-1], 1.0, qx_lb+N-ii-1, 0, idxb[N-ii-1], L+N-ii-1, nu[N-ii-1]+nx[N-ii-1], 0);
 				}
 			if(ng[N-ii-1]>0)
 				{
 				blasfeo_sgemm_nd(nu[N-ii-1]+nx[N-ii-1], ng[N-ii-1], 1.0, DCt+N-ii-1, 0, 0, Qx_lg+N-ii-1, 0, 0.0, AL+1, 0, 0, AL+1, 0, 0);
-				srowin_libstr(ng[N-ii-1], 1.0, qx_lg+N-ii-1, 0, AL+1, nu[N-ii-1]+nx[N-ii-1], 0);
+				blasfeo_srowin(ng[N-ii-1], 1.0, qx_lg+N-ii-1, 0, AL+1, nu[N-ii-1]+nx[N-ii-1], 0);
 				blasfeo_ssyrk_ln_mn(nu[N-ii-1]+nx[N-ii-1]+1, nu[N-ii-1]+nx[N-ii-1], ng[N-ii-1], 1.0, AL+1, 0, 0, DCt+N-ii-1, 0, 0, 1.0, L+N-ii-1, 0, 0, L+N-ii-1, 0, 0);
 				}
-			sdiaex_libstr(nu[N-ii-1]+nx[N-ii-1], 1.0, L+N-ii-1, 0, 0, Sx+N-ii-1, 0);
+			blasfeo_sdiaex(nu[N-ii-1]+nx[N-ii-1], 1.0, L+N-ii-1, 0, 0, Sx+N-ii-1, 0);
 			d_ptr0 = (Sx+N-ii-1)->pa;
 			d_ptr1 = (Si+N-ii-1)->pa;
 			for(jj=0; jj<nu[N-ii-1]+nx[N-ii-1]; jj++)
@@ -232,7 +232,7 @@ void m_fact_solve_kkt_step_hard_ocp_qp(struct d_ocp_qp *d_qp, struct s_ocp_qp *s
 				}
 
 			blasfeo_sgecp(nu[N-ii-1]+nx[N-ii-1], nx[N-ii], BAbt+(N-ii-1), 0, 0, AL, 0, 0);
-			srowin_libstr(nx[N-ii], 1.0, res_b+(N-ii-1), 0, AL, nu[N-ii-1]+nx[N-ii-1], 0);
+			blasfeo_srowin(nx[N-ii], 1.0, res_b+(N-ii-1), 0, AL, nu[N-ii-1]+nx[N-ii-1], 0);
 //			s_print_strmat(nu[N-ii-1]+nx[N-ii-1]+1, nx[N-ii], AL, 0, 0);
 			blasfeo_sgemm_nd(nu[N-ii-1]+nx[N-ii-1]+1, nx[N-ii], 1.0, AL, 0, 0, Sx+N-ii, nu[N-ii], 0.0, AL, 0, 0, AL, 0, 0);
 //			s_print_strmat(nu[N-ii-1]+nx[N-ii-1]+1, nx[N-ii], AL, 0, 0);
@@ -240,7 +240,7 @@ void m_fact_solve_kkt_step_hard_ocp_qp(struct d_ocp_qp *d_qp, struct s_ocp_qp *s
 //			s_print_strmat(nu[N-ii-1]+nx[N-ii-1]+1, nx[N-ii], AL, 0, 0);
 
 			blasfeo_strmm_rlnn(nu[N-ii-1]+nx[N-ii-1]+1, nx[N-ii], 1.0, L+(N-ii), nu[N-ii], nu[N-ii], AL, 0, 0, AL, 0, 0);
-			srowex_libstr(nx[N-ii], 1.0, AL, nu[N-ii-1]+nx[N-ii-1], 0, tmp_nxM, 0);
+			blasfeo_srowex(nx[N-ii], 1.0, AL, nu[N-ii-1]+nx[N-ii-1], 0, tmp_nxM, 0);
 			blasfeo_strmv_lnn(nx[N-ii], nx[N-ii], L+(N-ii), nu[N-ii], nu[N-ii], tmp_nxM, 0, Pb+(N-ii-1), 0);
 			blasfeo_sgead(1, nx[N-ii], 1.0, L+(N-ii), nu[N-ii]+nx[N-ii], nu[N-ii], AL, nu[N-ii-1]+nx[N-ii-1], 0);
 
@@ -255,22 +255,22 @@ void m_fact_solve_kkt_step_hard_ocp_qp(struct d_ocp_qp *d_qp, struct s_ocp_qp *s
 		else
 			{
 			blasfeo_sgecp(nu[N-ii-1]+nx[N-ii-1], nx[N-ii], BAbt+(N-ii-1), 0, 0, AL, 0, 0);
-			srowin_libstr(nx[N-ii], 1.0, res_b+(N-ii-1), 0, AL, nu[N-ii-1]+nx[N-ii-1], 0);
+			blasfeo_srowin(nx[N-ii], 1.0, res_b+(N-ii-1), 0, AL, nu[N-ii-1]+nx[N-ii-1], 0);
 			blasfeo_strmm_rlnn(nu[N-ii-1]+nx[N-ii-1]+1, nx[N-ii], 1.0, L+(N-ii), nu[N-ii], nu[N-ii], AL, 0, 0, AL, 0, 0);
-			srowex_libstr(nx[N-ii], 1.0, AL, nu[N-ii-1]+nx[N-ii-1], 0, tmp_nxM, 0);
+			blasfeo_srowex(nx[N-ii], 1.0, AL, nu[N-ii-1]+nx[N-ii-1], 0, tmp_nxM, 0);
 			blasfeo_strmv_lnn(nx[N-ii], nx[N-ii], L+(N-ii), nu[N-ii], nu[N-ii], tmp_nxM, 0, Pb+(N-ii-1), 0);
 			blasfeo_sgead(1, nx[N-ii], 1.0, L+(N-ii), nu[N-ii]+nx[N-ii], nu[N-ii], AL, nu[N-ii-1]+nx[N-ii-1], 0);
 
 			if(nb[N-ii-1]>0)
 				{
-				sdiaad_sp_libstr(nb[N-ii-1], 1.0, Qx_lb+(N-ii-1), 0, idxb[N-ii-1], L+(N-ii-1), 0, 0);
-				srowad_sp_libstr(nb[N-ii-1], 1.0, qx_lb+(N-ii-1), 0, idxb[N-ii-1], L+(N-ii-1), nu[N-ii-1]+nx[N-ii-1], 0);
+				blasfeo_sdiaad_sp(nb[N-ii-1], 1.0, Qx_lb+(N-ii-1), 0, idxb[N-ii-1], L+(N-ii-1), 0, 0);
+				blasfeo_srowad_sp(nb[N-ii-1], 1.0, qx_lb+(N-ii-1), 0, idxb[N-ii-1], L+(N-ii-1), nu[N-ii-1]+nx[N-ii-1], 0);
 				}
 
 			if(ng[N-ii-1]>0)
 				{
 				blasfeo_sgemm_nd(nu[N-ii-1]+nx[N-ii-1], ng[N-ii-1], 1.0, DCt+N-ii-1, 0, 0, Qx_lg+N-ii-1, 0, 0.0, AL+0, 0, nx[N-ii], AL+0, 0, nx[N-ii]);
-				srowin_libstr(ng[N-ii-1], 1.0, qx_lg+N-ii-1, 0, AL+0, nu[N-ii-1]+nx[N-ii-1], nx[N-ii]);
+				blasfeo_srowin(ng[N-ii-1], 1.0, qx_lg+N-ii-1, 0, AL+0, nu[N-ii-1]+nx[N-ii-1], nx[N-ii]);
 				blasfeo_sgecp(nu[N-ii-1]+nx[N-ii-1], nx[N-ii], AL+0, 0, 0, AL+1, 0, 0);
 				blasfeo_sgecp(nu[N-ii-1]+nx[N-ii-1], ng[N-ii-1], DCt+N-ii-1, 0, 0, AL+1, 0, nx[N-ii]);
 				ssyrk_spotrf_ln_libstr(nu[N-ii-1]+nx[N-ii-1]+1, nu[N-ii-1]+nx[N-ii-1], nx[N-ii]+ng[N-ii-1], AL+0, 0, 0, AL+1, 0, 0, L+N-ii-1, 0, 0, L+N-ii-1, 0, 0);
@@ -290,7 +290,7 @@ void m_fact_solve_kkt_step_hard_ocp_qp(struct d_ocp_qp *d_qp, struct s_ocp_qp *s
 	ii = 0;
 	if(ws->scale)
 		{
-		srowex_libstr(nu[ii]+nx[ii], -1.0, L+(ii), nu[ii]+nx[ii], 0, dux+ii, 0);
+		blasfeo_srowex(nu[ii]+nx[ii], -1.0, L+(ii), nu[ii]+nx[ii], 0, dux+ii, 0);
 		blasfeo_strsv_ltn(nu[ii]+nx[ii], L+ii, 0, 0, dux+ii, 0, dux+ii, 0);
 
 		blasfeo_sgecp(nu[ii]+nx[ii], nx[ii+1], BAbt+(ii), 0, 0, AL, 0, 0);
@@ -303,19 +303,19 @@ void m_fact_solve_kkt_step_hard_ocp_qp(struct d_ocp_qp *d_qp, struct s_ocp_qp *s
 			d_ptr0[jj] *= d_ptr1[jj];
 		blasfeo_sgemv_t(nu[ii]+nx[ii], nx[ii+1], 1.0, AL, 0, 0, dux+ii, 0, 1.0, dux+(ii+1), nu[ii+1], dux+(ii+1), nu[ii+1]);
 
-		srowex_libstr(nx[ii+1], 1.0, L+(ii+1), nu[ii+1]+nx[ii+1], nu[ii+1], tmp_nxM, 0);
+		blasfeo_srowex(nx[ii+1], 1.0, L+(ii+1), nu[ii+1]+nx[ii+1], nu[ii+1], tmp_nxM, 0);
 		blasfeo_strmv_ltn(nx[ii+1], nx[ii+1], L+(ii+1), nu[ii+1], nu[ii+1], dux+(ii+1), nu[ii+1], dpi+ii, 0);
-		saxpy_libstr(nx[ii+1], 1.0, tmp_nxM, 0, dpi+ii, 0, dpi+ii, 0);
+		blasfeo_saxpy(nx[ii+1], 1.0, tmp_nxM, 0, dpi+ii, 0, dpi+ii, 0);
 		blasfeo_strmv_lnn(nx[ii+1], nx[ii+1], L+(ii+1), nu[ii+1], nu[ii+1], dpi+ii, 0, dpi+ii, 0);
 		}
 	else
 		{
-		srowex_libstr(nu[ii]+nx[ii], -1.0, L+(ii), nu[ii]+nx[ii], 0, dux+ii, 0);
+		blasfeo_srowex(nu[ii]+nx[ii], -1.0, L+(ii), nu[ii]+nx[ii], 0, dux+ii, 0);
 		blasfeo_strsv_ltn(nu[ii]+nx[ii], L+ii, 0, 0, dux+ii, 0, dux+ii, 0);
 		blasfeo_sgemv_t(nu[ii]+nx[ii], nx[ii+1], 1.0, BAbt+ii, 0, 0, dux+ii, 0, 1.0, res_b+ii, 0, dux+(ii+1), nu[ii+1]);
-		srowex_libstr(nx[ii+1], 1.0, L+(ii+1), nu[ii+1]+nx[ii+1], nu[ii+1], tmp_nxM, 0);
+		blasfeo_srowex(nx[ii+1], 1.0, L+(ii+1), nu[ii+1]+nx[ii+1], nu[ii+1], tmp_nxM, 0);
 		blasfeo_strmv_ltn(nx[ii+1], nx[ii+1], L+(ii+1), nu[ii+1], nu[ii+1], dux+(ii+1), nu[ii+1], dpi+ii, 0);
-		saxpy_libstr(nx[ii+1], 1.0, tmp_nxM, 0, dpi+ii, 0, dpi+ii, 0);
+		blasfeo_saxpy(nx[ii+1], 1.0, tmp_nxM, 0, dpi+ii, 0, dpi+ii, 0);
 		blasfeo_strmv_lnn(nx[ii+1], nx[ii+1], L+(ii+1), nu[ii+1], nu[ii+1], dpi+ii, 0, dpi+ii, 0);
 		}
 
@@ -326,7 +326,7 @@ void m_fact_solve_kkt_step_hard_ocp_qp(struct d_ocp_qp *d_qp, struct s_ocp_qp *s
 		{
 		if(ws->scale)
 			{
-			srowex_libstr(nu[ii], -1.0, L+(ii), nu[ii]+nx[ii], 0, dux+ii, 0);
+			blasfeo_srowex(nu[ii], -1.0, L+(ii), nu[ii]+nx[ii], 0, dux+ii, 0);
 			blasfeo_strsv_ltn_mn(nu[ii]+nx[ii], nu[ii], L+ii, 0, 0, dux+ii, 0, dux+ii, 0);
 
 			blasfeo_sgecp(nu[ii]+nx[ii], nx[ii+1], BAbt+(ii), 0, 0, AL, 0, 0);
@@ -339,19 +339,19 @@ void m_fact_solve_kkt_step_hard_ocp_qp(struct d_ocp_qp *d_qp, struct s_ocp_qp *s
 				d_ptr0[jj] *= d_ptr1[jj];
 			blasfeo_sgemv_t(nu[ii]+nx[ii], nx[ii+1], 1.0, AL, 0, 0, dux+ii, 0, 1.0, dux+(ii+1), nu[ii+1], dux+(ii+1), nu[ii+1]);
 
-			srowex_libstr(nx[ii+1], 1.0, L+(ii+1), nu[ii+1]+nx[ii+1], nu[ii+1], tmp_nxM, 0);
+			blasfeo_srowex(nx[ii+1], 1.0, L+(ii+1), nu[ii+1]+nx[ii+1], nu[ii+1], tmp_nxM, 0);
 			blasfeo_strmv_ltn(nx[ii+1], nx[ii+1], L+(ii+1), nu[ii+1], nu[ii+1], dux+(ii+1), nu[ii+1], dpi+ii, 0);
-			saxpy_libstr(nx[ii+1], 1.0, tmp_nxM, 0, dpi+ii, 0, dpi+ii, 0);
+			blasfeo_saxpy(nx[ii+1], 1.0, tmp_nxM, 0, dpi+ii, 0, dpi+ii, 0);
 			blasfeo_strmv_lnn(nx[ii+1], nx[ii+1], L+(ii+1), nu[ii+1], nu[ii+1], dpi+ii, 0, dpi+ii, 0);
 			}
 		else
 			{
-			srowex_libstr(nu[ii], -1.0, L+(ii), nu[ii]+nx[ii], 0, dux+ii, 0);
+			blasfeo_srowex(nu[ii], -1.0, L+(ii), nu[ii]+nx[ii], 0, dux+ii, 0);
 			blasfeo_strsv_ltn_mn(nu[ii]+nx[ii], nu[ii], L+ii, 0, 0, dux+ii, 0, dux+ii, 0);
 			blasfeo_sgemv_t(nu[ii]+nx[ii], nx[ii+1], 1.0, BAbt+ii, 0, 0, dux+ii, 0, 1.0, res_b+ii, 0, dux+(ii+1), nu[ii+1]);
-			srowex_libstr(nx[ii+1], 1.0, L+(ii+1), nu[ii+1]+nx[ii+1], nu[ii+1], tmp_nxM, 0);
+			blasfeo_srowex(nx[ii+1], 1.0, L+(ii+1), nu[ii+1]+nx[ii+1], nu[ii+1], tmp_nxM, 0);
 			blasfeo_strmv_ltn(nx[ii+1], nx[ii+1], L+(ii+1), nu[ii+1], nu[ii+1], dux+(ii+1), nu[ii+1], dpi+ii, 0);
-			saxpy_libstr(nx[ii+1], 1.0, tmp_nxM, 0, dpi+ii, 0, dpi+ii, 0);
+			blasfeo_saxpy(nx[ii+1], 1.0, tmp_nxM, 0, dpi+ii, 0, dpi+ii, 0);
 			blasfeo_strmv_lnn(nx[ii+1], nx[ii+1], L+(ii+1), nu[ii+1], nu[ii+1], dpi+ii, 0, dpi+ii, 0);
 			}
 
@@ -404,7 +404,7 @@ void m_fact_solve_kkt_step_hard_ocp_qp(struct d_ocp_qp *d_qp, struct s_ocp_qp *s
 //	if(nb>0)
 //		{
 		for(ii=0; ii<=N; ii++)
-			dvecex_sp_libstr(nb[ii], 1.0, d_idxb[ii], d_dux+ii, 0, d_dt_lb+ii, 0);
+			blasfeo_dvecex_sp(nb[ii], 1.0, d_idxb[ii], d_dux+ii, 0, d_dt_lb+ii, 0);
 //		}
 
 //	if(ng>0)
@@ -493,7 +493,7 @@ void m_solve_kkt_step_hard_ocp_qp(struct d_ocp_qp *d_qp, struct s_ocp_qp *s_qp, 
 	blasfeo_sveccp(nu[N]+nx[N], res_g+N, 0, dux+N, 0);
 	if(nb[N]>0)
 		{
-		svecad_sp_libstr(nb[N], 1.0, qx_lb+N, 0, idxb[N], dux+N, 0);
+		blasfeo_svecad_sp(nb[N], 1.0, qx_lb+N, 0, idxb[N], dux+N, 0);
 		}
 	// general constraints
 	if(ng[N]>0)
@@ -507,7 +507,7 @@ void m_solve_kkt_step_hard_ocp_qp(struct d_ocp_qp *d_qp, struct s_ocp_qp *s_qp, 
 		blasfeo_sveccp(nu[N-ii-1]+nx[N-ii-1], res_g+N-ii-1, 0, dux+N-ii-1, 0);
 		if(nb[N-ii-1]>0)
 			{
-			svecad_sp_libstr(nb[N-ii-1], 1.0, qx_lb+N-ii-1, 0, idxb[N-ii-1], dux+N-ii-1, 0);
+			blasfeo_svecad_sp(nb[N-ii-1], 1.0, qx_lb+N-ii-1, 0, idxb[N-ii-1], dux+N-ii-1, 0);
 			}
 		if(ng[N-ii-1]>0)
 			{
@@ -518,7 +518,7 @@ void m_solve_kkt_step_hard_ocp_qp(struct d_ocp_qp *d_qp, struct s_ocp_qp *s_qp, 
 			blasfeo_strmv_ltn(nx[N-ii], nx[N-ii], L+(N-ii), nu[N-ii], nu[N-ii], res_b+N-ii-1, 0, Pb+(N-ii-1), 0);
 			blasfeo_strmv_lnn(nx[N-ii], nx[N-ii], L+(N-ii), nu[N-ii], nu[N-ii], Pb+(N-ii-1), 0, Pb+(N-ii-1), 0);
 			}
-		saxpy_libstr(nx[N-ii], 1.0, dux+N-ii, nu[N-ii], Pb+N-ii-1, 0, tmp_nxM, 0);
+		blasfeo_saxpy(nx[N-ii], 1.0, dux+N-ii, nu[N-ii], Pb+N-ii-1, 0, tmp_nxM, 0);
 		blasfeo_sgemv_n(nu[N-ii-1]+nx[N-ii-1], nx[N-ii], 1.0, BAbt+N-ii-1, 0, 0, tmp_nxM, 0, 1.0, dux+N-ii-1, 0, dux+N-ii-1, 0);
 		blasfeo_strsv_lnn_mn(nu[N-ii-1]+nx[N-ii-1], nu[N-ii-1], L+N-ii-1, 0, 0, dux+N-ii-1, 0, dux+N-ii-1, 0);
 		}
@@ -528,7 +528,7 @@ void m_solve_kkt_step_hard_ocp_qp(struct d_ocp_qp *d_qp, struct s_ocp_qp *s_qp, 
 	blasfeo_sveccp(nu[N-ii-1]+nx[N-ii-1], res_g+N-ii-1, 0, dux+N-ii-1, 0);
 	if(nb[N-ii-1]>0)
 		{
-		svecad_sp_libstr(nb[N-ii-1], 1.0, qx_lb+N-ii-1, 0, idxb[N-ii-1], dux+N-ii-1, 0);
+		blasfeo_svecad_sp(nb[N-ii-1], 1.0, qx_lb+N-ii-1, 0, idxb[N-ii-1], dux+N-ii-1, 0);
 		}
 	if(ng[N-ii-1]>0)
 		{
@@ -539,7 +539,7 @@ void m_solve_kkt_step_hard_ocp_qp(struct d_ocp_qp *d_qp, struct s_ocp_qp *s_qp, 
 		blasfeo_strmv_ltn(nx[N-ii], nx[N-ii], L+(N-ii), nu[N-ii], nu[N-ii], res_b+N-ii-1, 0, Pb+(N-ii-1), 0);
 		blasfeo_strmv_lnn(nx[N-ii], nx[N-ii], L+(N-ii), nu[N-ii], nu[N-ii], Pb+(N-ii-1), 0, Pb+(N-ii-1), 0);
 		}
-	saxpy_libstr(nx[N-ii], 1.0, dux+N-ii, nu[N-ii], Pb+N-ii-1, 0, tmp_nxM, 0);
+	blasfeo_saxpy(nx[N-ii], 1.0, dux+N-ii, nu[N-ii], Pb+N-ii-1, 0, tmp_nxM, 0);
 	blasfeo_sgemv_n(nu[N-ii-1]+nx[N-ii-1], nx[N-ii], 1.0, BAbt+N-ii-1, 0, 0, tmp_nxM, 0, 1.0, dux+N-ii-1, 0, dux+N-ii-1, 0);
 	blasfeo_strsv_lnn(nu[N-ii-1]+nx[N-ii-1], L+N-ii-1, 0, 0, dux+N-ii-1, 0, dux+N-ii-1, 0);
 
@@ -552,7 +552,7 @@ void m_solve_kkt_step_hard_ocp_qp(struct d_ocp_qp *d_qp, struct s_ocp_qp *s_qp, 
 	blasfeo_sveccp(nx[ii+1], dux+ii+1, nu[ii+1], tmp_nxM, 0);
 	blasfeo_strmv_ltn(nx[ii+1], nx[ii+1], L+ii+1, nu[ii+1], nu[ii+1], tmp_nxM, 0, tmp_nxM, 0);
 	blasfeo_strmv_lnn(nx[ii+1], nx[ii+1], L+ii+1, nu[ii+1], nu[ii+1], tmp_nxM, 0, tmp_nxM, 0);
-	saxpy_libstr(nx[ii+1], 1.0, tmp_nxM, 0, dpi+ii, 0, dpi+ii, 0);
+	blasfeo_saxpy(nx[ii+1], 1.0, tmp_nxM, 0, dpi+ii, 0, dpi+ii, 0);
 
 	// middle stages
 	for(ii=1; ii<N; ii++)
@@ -564,7 +564,7 @@ void m_solve_kkt_step_hard_ocp_qp(struct d_ocp_qp *d_qp, struct s_ocp_qp *s_qp, 
 		blasfeo_sveccp(nx[ii+1], dux+ii+1, nu[ii+1], tmp_nxM, 0);
 		blasfeo_strmv_ltn(nx[ii+1], nx[ii+1], L+ii+1, nu[ii+1], nu[ii+1], tmp_nxM, 0, tmp_nxM, 0);
 		blasfeo_strmv_lnn(nx[ii+1], nx[ii+1], L+ii+1, nu[ii+1], nu[ii+1], tmp_nxM, 0, tmp_nxM, 0);
-		saxpy_libstr(nx[ii+1], 1.0, tmp_nxM, 0, dpi+ii, 0, dpi+ii, 0);
+		blasfeo_saxpy(nx[ii+1], 1.0, tmp_nxM, 0, dpi+ii, 0, dpi+ii, 0);
 		}
 
 
@@ -583,7 +583,7 @@ void m_solve_kkt_step_hard_ocp_qp(struct d_ocp_qp *d_qp, struct s_ocp_qp *s_qp, 
 //	if(nb>0)
 //		{
 		for(ii=0; ii<=N; ii++)
-			dvecex_sp_libstr(nb[ii], 1.0, d_idxb[ii], d_dux+ii, 0, d_dt_lb+ii, 0);
+			blasfeo_dvecex_sp(nb[ii], 1.0, d_idxb[ii], d_dux+ii, 0, d_dt_lb+ii, 0);
 //		}
 
 //	if(ng>0)

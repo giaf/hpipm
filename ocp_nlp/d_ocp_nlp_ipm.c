@@ -358,7 +358,7 @@ int SOLVE_OCP_NLP_IPM(struct OCP_NLP *nlp, struct OCP_NLP_SOL *nlp_sol, struct O
 		blasfeo_dgecp(nu[nn]+nx[nn], nu[nn]+nx[nn], nlp->RSQ+nn, 0, 0, qp->RSQrq+nn, 0, 0);
 		blasfeo_dgecp(nu[nn]+nx[nn], ng[nn], nlp->DCt+nn, 0, 0, qp->DCt+nn, 0, 0);
 		blasfeo_dveccp(nu[nn]+nx[nn], nlp->rq+nn, 0, qp->rq+nn, 0);
-		drowin_libstr(nu[nn]+nx[nn], 1.0, qp->rq+nn, 0, qp->RSQrq+nn, nu[nn]+nx[nn], 0);
+		blasfeo_drowin(nu[nn]+nx[nn], 1.0, qp->rq+nn, 0, qp->RSQrq+nn, nu[nn]+nx[nn], 0);
 		blasfeo_dveccp(2*nb[nn]+2*ng[nn]+2*ns[nn], nlp->d+nn, 0, qp->d+nn, 0);
 		for(ii=0; ii<nb[nn]; ii++) qp->idxb[nn][ii] = nlp->idxb[nn][ii];
 		for(ii=0; ii<ns[nn]; ii++) qp->idxs[nn][ii] = nlp->idxs[nn][ii];
@@ -401,10 +401,10 @@ exit(1);
 			ipm_ws->stat[5*(ss-1)+4] = ipm_ws->res_workspace->res_mu;
 
 		// compute infinity norm of residuals
-		dvecnrm_inf_libstr(cws->nv, &str_res_g, 0, &nlp_res[0]);
-		dvecnrm_inf_libstr(cws->ne, &str_res_b, 0, &nlp_res[1]);
-		dvecnrm_inf_libstr(cws->nc, &str_res_d, 0, &nlp_res[2]);
-		dvecnrm_inf_libstr(cws->nc, &str_res_m, 0, &nlp_res[3]);
+		blasfeo_dvecnrm_inf(cws->nv, &str_res_g, 0, &nlp_res[0]);
+		blasfeo_dvecnrm_inf(cws->ne, &str_res_b, 0, &nlp_res[1]);
+		blasfeo_dvecnrm_inf(cws->nc, &str_res_d, 0, &nlp_res[2]);
+		blasfeo_dvecnrm_inf(cws->nc, &str_res_m, 0, &nlp_res[3]);
 
 #if 0
 printf("\nresiduals\n");

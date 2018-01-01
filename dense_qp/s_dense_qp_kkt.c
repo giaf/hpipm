@@ -44,9 +44,9 @@
 
 
 
-#define AXPY_LIBSTR saxpy_libstr
-#define COLPE_LIBSTR scolpe_libstr
-#define COLPEI_LIBSTR scolpei_libstr
+#define AXPY_LIBSTR blasfeo_saxpy
+#define COLPE_LIBSTR blasfeo_scolpe
+#define COLPEI_LIBSTR blasfeo_scolpei
 #define COMPUTE_LAM_T_QP s_compute_lam_t_qp
 #define COMPUTE_GAMMA_GAMMA_QP s_compute_Gamma_gamma_qp
 #define COMPUTE_GAMMA_QP s_compute_gamma_qp
@@ -57,9 +57,9 @@
 #define DENSE_QP_IPM_ARG s_dense_qp_ipm_arg
 #define DENSE_QP_IPM_WORKSPACE s_dense_qp_ipm_workspace
 #define DENSE_QP_SOL s_dense_qp_sol
-#define DIAAD_SP_LIBSTR sdiaad_sp_libstr
-#define DIAEX_LIBSTR sdiaex_libstr
-#define DIARE_LIBSTR sdiare_libstr
+#define DIAAD_SP_LIBSTR blasfeo_sdiaad_sp
+#define DIAEX_LIBSTR blasfeo_sdiaex
+#define DIARE_LIBSTR blasfeo_sdiare
 #define GECP_LIBSTR blasfeo_sgecp
 #define GEMM_L_DIAG_LIBSTR blasfeo_sgemm_dn
 #define GEMM_R_DIAG_LIBSTR blasfeo_sgemm_nd
@@ -72,11 +72,11 @@
 #define POTRF_L_MN_LIBSTR blasfeo_spotrf_l_mn
 #define PSTRF_L_LIBSTR spstrf_l_libstr
 #define REAL float
-#define ROWAD_SP_LIBSTR srowad_sp_libstr
-#define ROWEX_LIBSTR srowex_libstr
-#define ROWIN_LIBSTR srowin_libstr
-#define ROWPE_LIBSTR srowpe_libstr
-#define ROWPEI_LIBSTR srowpei_libstr
+#define ROWAD_SP_LIBSTR blasfeo_srowad_sp
+#define ROWEX_LIBSTR blasfeo_srowex
+#define ROWIN_LIBSTR blasfeo_srowin
+#define ROWPE_LIBSTR blasfeo_srowpe
+#define ROWPEI_LIBSTR blasfeo_srowpei
 #define STRMAT blasfeo_smat
 #define STRVEC blasfeo_svec
 #define SYMV_L_LIBSTR blasfeo_ssymv_l
@@ -86,15 +86,15 @@
 #define TRSM_RLTN_LIBSTR blasfeo_strsm_rltn
 #define TRSV_LNN_LIBSTR blasfeo_strsv_lnn
 #define TRSV_LTN_LIBSTR blasfeo_strsv_ltn
-#define VECAD_SP_LIBSTR svecad_sp_libstr
+#define VECAD_SP_LIBSTR blasfeo_svecad_sp
 #define VECCP_LIBSTR blasfeo_sveccp
-#define VECEX_SP_LIBSTR svecex_sp_libstr
-#define VECMULACC_LIBSTR svecmulacc_libstr
-#define VECMULDOT_LIBSTR svecmuldot_libstr
+#define VECEX_SP_LIBSTR blasfeo_svecex_sp
+#define VECMULACC_LIBSTR blasfeo_svecmulacc
+#define VECMULDOT_LIBSTR blasfeo_svecmuldot
 #define VECSC_LIBSTR blasfeo_svecsc
 #define VECCPSC_LIBSTR blasfeo_sveccpsc
-#define VECPE_LIBSTR svecpe_libstr
-#define VECPEI_LIBSTR svecpei_libstr
+#define VECPE_LIBSTR blasfeo_svecpe
+#define VECPEI_LIBSTR blasfeo_svecpei
 
 #define INIT_VAR_DENSE_QP s_init_var_dense_qp
 #define COMPUTE_RES_DENSE_QP s_compute_res_dense_qp

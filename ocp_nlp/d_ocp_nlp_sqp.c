@@ -52,11 +52,11 @@
 
 
 
-#define AXPY_LIBSTR daxpy_libstr
+#define AXPY_LIBSTR blasfeo_daxpy
 #define GEMV_T_LIBSTR blasfeo_dgemv_t
-#define ROWIN_LIBSTR drowin_libstr
+#define ROWIN_LIBSTR blasfeo_drowin
 #define SYMV_L_LIBSTR blasfeo_dsymv_l
-#define VECEX_SP_LIBSTR dvecex_sp_libstr
+#define VECEX_SP_LIBSTR blasfeo_dvecex_sp
 
 #define COMPUTE_RES_OCP_QP d_compute_res_ocp_qp
 #define CORE_QP_IPM_WORKSPACE d_core_qp_ipm_workspace
@@ -560,10 +560,10 @@ exit(1);
 		cws->mu = ipm_ws->res_workspace->res_mu;
 
 		// compute infinity norm of residuals
-		dvecnrm_inf_libstr(cws->nv, &str_res_g, 0, &nlp_res[0]);
-		dvecnrm_inf_libstr(cws->ne, &str_res_b, 0, &nlp_res[1]);
-		dvecnrm_inf_libstr(cws->nc, &str_res_d, 0, &nlp_res[2]);
-		dvecnrm_inf_libstr(cws->nc, &str_res_m, 0, &nlp_res[3]);
+		blasfeo_dvecnrm_inf(cws->nv, &str_res_g, 0, &nlp_res[0]);
+		blasfeo_dvecnrm_inf(cws->ne, &str_res_b, 0, &nlp_res[1]);
+		blasfeo_dvecnrm_inf(cws->nc, &str_res_d, 0, &nlp_res[2]);
+		blasfeo_dvecnrm_inf(cws->nc, &str_res_m, 0, &nlp_res[3]);
 
 #if 0
 printf("\nresiduals\n");
@@ -709,7 +709,7 @@ exit(1);
 
 		// update primal variables (full step)
 		for(nn=0; nn<=N; nn++)
-			daxpy_libstr(nu[nn]+nx[nn], 1.0, qp_sol->ux+nn, 0, nlp_sol->ux+nn, 0, nlp_sol->ux+nn, 0);
+			blasfeo_daxpy(nu[nn]+nx[nn], 1.0, qp_sol->ux+nn, 0, nlp_sol->ux+nn, 0, nlp_sol->ux+nn, 0);
 		// copy dual multipliers
 		for(nn=0; nn<N; nn++)
 			blasfeo_dveccp(nx[nn+1], qp_sol->pi+nn, 0, nlp_sol->pi+nn, 0);
