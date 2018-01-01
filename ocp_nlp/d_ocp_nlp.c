@@ -51,7 +51,7 @@
 #define SIZE_STRVEC blasfeo_memsize_dvec
 #define STRMAT blasfeo_dmat
 #define STRVEC blasfeo_dvec
-#define SYMV_L_LIBSTR dsymv_l_libstr
+#define SYMV_L_LIBSTR blasfeo_dsymv_l
 
 #define MEMSIZE_OCP_NLP d_memsize_ocp_nlp
 #define CREATE_OCP_NLP d_create_ocp_nlp

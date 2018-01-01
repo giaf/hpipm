@@ -293,7 +293,7 @@ void d_irk_int(struct d_irk_args *irk_args, struct d_irk_workspace *ws)
 					}
 				}
 			ddiare_libstr(ns*nx, 1.0, JG, 0, 0);
-			dgetrf_libstr(ns*nx, ns*nx, JG, 0, 0, JG, 0, 0, ipiv); // LU factorization with pivoting
+			blasfeo_dgetrf_rowpivot(ns*nx, ns*nx, JG, 0, 0, JG, 0, 0, ipiv); // LU factorization with pivoting
 			drowpe_libstr(ns*nx, ipiv, rG);  // row permutations
 			blasfeo_dtrsm_llnu(ns*nx, 1+nf, 1.0, JG, 0, 0, rG, 0, 0, rG, 0, 0);  // L backsolve
 			blasfeo_dtrsm_lunn(ns*nx, 1+nf, 1.0, JG, 0, 0, rG, 0, 0, rG, 0, 0);  // U backsolve

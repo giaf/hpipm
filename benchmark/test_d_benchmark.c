@@ -510,7 +510,7 @@ int main()
 		struct blasfeo_dmat H_fact;
 		blasfeo_create_dmat(nv, nv, &H_fact, H_fact_mem);
 
-		dpotrf_l_libstr(nv, qpd_hpipm.Hv, 0, 0, &H_fact, 0, 0);
+		blasfeo_dpotrf_l(nv, qpd_hpipm.Hv, 0, 0, &H_fact, 0, 0);
 
 		dp = 1;
 		for(ii=0; ii<nv; ii++)

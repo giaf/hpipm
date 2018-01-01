@@ -25,7 +25,7 @@
 *                                                                                                 *
 **************************************************************************************************/
 
-#define GEMV_T_LIBSTR dgemv_t_libstr
+#define GEMV_T_LIBSTR blasfeo_dgemv_t
 #define ELIM_X0_WORKSPACE d_elim_x0_workspace
 #define OCP_QP d_ocp_qp
 #define ROWIN_LIBSTR drowin_libstr

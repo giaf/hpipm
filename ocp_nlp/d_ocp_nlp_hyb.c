@@ -54,9 +54,9 @@
 
 
 #define AXPY_LIBSTR daxpy_libstr
-#define GEMV_T_LIBSTR dgemv_t_libstr
+#define GEMV_T_LIBSTR blasfeo_dgemv_t
 #define ROWIN_LIBSTR drowin_libstr
-#define SYMV_L_LIBSTR dsymv_l_libstr
+#define SYMV_L_LIBSTR blasfeo_dsymv_l
 #define VECEX_SP_LIBSTR dvecex_sp_libstr
 
 #define COMPUTE_ALPHA_QP d_compute_alpha_qp
