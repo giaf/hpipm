@@ -78,7 +78,7 @@
 #define STRMAT blasfeo_smat
 #define STRVEC blasfeo_svec
 #define SYMV_L_LIBSTR blasfeo_ssymv_l
-#define SYRK_POTRF_LN_LIBSTR ssyrk_spotrf_ln_libstr
+#define SYRK_POTRF_LN_LIBSTR blasfeo_ssyrk_spotrf_ln
 #define TRCP_L_LIBSTR blasfeo_strcp_l
 #define TRMM_RLNN_LIBSTR blasfeo_strmm_rlnn
 #define TRMV_LNN_LIBSTR blasfeo_strmv_lnn

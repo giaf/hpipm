@@ -59,7 +59,7 @@
 #define STRVEC blasfeo_svec
 #define SYMV_L_LIBSTR blasfeo_ssymv_l
 #define SYRK_LN_MN_LIBSTR blasfeo_ssyrk_ln_mn
-#define SYRK_POTRF_LN_LIBSTR ssyrk_spotrf_ln_libstr
+#define SYRK_POTRF_LN_LIBSTR blasfeo_ssyrk_spotrf_ln
 #define TREE_OCP_QP s_tree_ocp_qp
 #define TREE_OCP_QP_IPM_WORKSPACE s_tree_ocp_qp_ipm_workspace
 #define TREE_OCP_QP_SOL s_tree_ocp_qp_sol
