@@ -571,13 +571,13 @@ exit(1);
 for(nn=0; nn<=N; nn++)
 	d_print_strmat(nu[nn]+nx[nn]+1, nu[nn]+nx[nn], qp->RSQrq+nn, 0, 0);
 for(nn=0; nn<=N; nn++)
-	d_print_tran_strvec(nu[nn]+nx[nn], qp->rq+nn, 0);
+	blasfeo_print_tran_dvec(nu[nn]+nx[nn], qp->rq+nn, 0);
 for(nn=0; nn<N; nn++)
 	d_print_strmat(nu[nn]+nx[nn]+1, nx[nn+1], qp->BAbt+nn, 0, 0);
 for(nn=0; nn<N; nn++)
-	d_print_tran_strvec(nx[nn+1], qp->b+nn, 0);
+	blasfeo_print_tran_dvec(nx[nn+1], qp->b+nn, 0);
 for(nn=0; nn<=N; nn++)
-	d_print_tran_strvec(2*nb[nn]+2*ng[nn]+2*ns[nn], qp->d+nn, 0);
+	blasfeo_print_tran_dvec(2*nb[nn]+2*ng[nn]+2*ns[nn], qp->d+nn, 0);
 //exit(1);
 #endif
 
@@ -683,7 +683,7 @@ for(nn=0; nn<=N; nn++)
 for(nn=0; nn<N; nn++)
 	d_print_strmat(nu[nn]+nx[nn]+1, nx[nn+1], qp->BAbt+nn, 0, 0);
 for(nn=0; nn<=N; nn++)
-	d_print_tran_strvec(2*nb[nn]+2*ng[nn]+2*ns[nn], qp->d+nn, 0);
+	blasfeo_print_tran_dvec(2*nb[nn]+2*ng[nn]+2*ns[nn], qp->d+nn, 0);
 exit(1);
 #endif
 
@@ -702,7 +702,7 @@ for(nn=0; nn<=N2; nn++)
 for(nn=0; nn<N2; nn++)
 	d_print_strmat(nu2[nn]+nx2[nn]+1, nx2[nn+1], qp2->BAbt+nn, 0, 0);
 for(nn=0; nn<=N2; nn++)
-	d_print_tran_strvec(2*nb2[nn]+2*ng2[nn]+2*ns2[nn], qp2->d+nn, 0);
+	blasfeo_print_tran_dvec(2*nb2[nn]+2*ng2[nn]+2*ns2[nn], qp2->d+nn, 0);
 exit(1);
 #endif
 
@@ -715,13 +715,13 @@ exit(1);
 #if 0
 printf("\nqp sol\n");
 for(nn=0; nn<=N2; nn++)
-	d_print_tran_strvec(nu2[nn]+nx2[nn]+2*ns2[nn], qp_sol2->ux+nn, 0);
+	blasfeo_print_tran_dvec(nu2[nn]+nx2[nn]+2*ns2[nn], qp_sol2->ux+nn, 0);
 for(nn=0; nn<N2; nn++)
-	d_print_tran_strvec(nx2[nn+1], qp_sol2->pi+nn, 0);
+	blasfeo_print_tran_dvec(nx2[nn+1], qp_sol2->pi+nn, 0);
 for(nn=0; nn<=N2; nn++)
-	d_print_tran_strvec(2*nb2[nn]+2*ng2[nn]+2*ns2[nn], qp_sol2->lam+nn, 0);
+	blasfeo_print_tran_dvec(2*nb2[nn]+2*ng2[nn]+2*ns2[nn], qp_sol2->lam+nn, 0);
 for(nn=0; nn<=N2; nn++)
-	d_print_tran_strvec(2*nb2[nn]+2*ng2[nn]+2*ns2[nn], qp_sol2->t+nn, 0);
+	blasfeo_print_tran_dvec(2*nb2[nn]+2*ng2[nn]+2*ns2[nn], qp_sol2->t+nn, 0);
 d_print_e_tran_mat(5, ipm_ws->iter, ipm_ws->stat, 5);
 exit(1);
 #endif
@@ -743,13 +743,13 @@ exit(1);
 #if 0
 printf("\nqp sol\n");
 for(nn=0; nn<=N; nn++)
-	d_print_tran_strvec(nu[nn]+nx[nn]+2*ns[nn], qp_sol->ux+nn, 0);
+	blasfeo_print_tran_dvec(nu[nn]+nx[nn]+2*ns[nn], qp_sol->ux+nn, 0);
 for(nn=0; nn<N; nn++)
-	d_print_tran_strvec(nx[nn+1], qp_sol->pi+nn, 0);
+	blasfeo_print_tran_dvec(nx[nn+1], qp_sol->pi+nn, 0);
 for(nn=0; nn<=N; nn++)
-	d_print_tran_strvec(2*nb[nn]+2*ng[nn]+2*ns[nn], qp_sol->lam+nn, 0);
+	blasfeo_print_tran_dvec(2*nb[nn]+2*ng[nn]+2*ns[nn], qp_sol->lam+nn, 0);
 for(nn=0; nn<=N; nn++)
-	d_print_tran_strvec(2*nb[nn]+2*ng[nn]+2*ns[nn], qp_sol->t+nn, 0);
+	blasfeo_print_tran_dvec(2*nb[nn]+2*ng[nn]+2*ns[nn], qp_sol->t+nn, 0);
 d_print_e_tran_mat(5, ipm_ws->iter, ipm_ws->stat, 5);
 exit(1);
 #endif
@@ -768,13 +768,13 @@ exit(1);
 #if 0
 printf("\nnlp sol\n");
 for(nn=0; nn<=N; nn++)
-	d_print_tran_strvec(nlp->nu[nn]+nlp->nx[nn]+2*nlp->ns[nn], nlp_sol->ux+nn, 0);
+	blasfeo_print_tran_dvec(nlp->nu[nn]+nlp->nx[nn]+2*nlp->ns[nn], nlp_sol->ux+nn, 0);
 for(nn=0; nn<N; nn++)
-	d_print_tran_strvec(nlp->nx[nn+1], nlp_sol->pi+nn, 0);
+	blasfeo_print_tran_dvec(nlp->nx[nn+1], nlp_sol->pi+nn, 0);
 for(nn=0; nn<=N; nn++)
-	d_print_tran_strvec(2*nlp->nb[nn]+2*nlp->ng[nn]+2*nlp->ns[nn], nlp_sol->lam+nn, 0);
+	blasfeo_print_tran_dvec(2*nlp->nb[nn]+2*nlp->ng[nn]+2*nlp->ns[nn], nlp_sol->lam+nn, 0);
 for(nn=0; nn<=N; nn++)
-	d_print_tran_strvec(2*nlp->nb[nn]+2*nlp->ng[nn]+2*nlp->ns[nn], nlp_sol->t+nn, 0);
+	blasfeo_print_tran_dvec(2*nlp->nb[nn]+2*nlp->ng[nn]+2*nlp->ns[nn], nlp_sol->t+nn, 0);
 //d_print_e_tran_mat(5, ipm_ws->iter, ipm_ws->stat, 5);
 //		exit(1);
 #endif
@@ -851,7 +851,7 @@ for(nn=0; nn<=N; nn++)
 // TODO compare qp_sol with qp_sol2 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
 //for(ii=0; ii<N; ii++)
-//	d_print_e_strmat(nlp->nu[ii]+nlp->nx[ii]+1, nlp->nx[ii+1], qp->BAbt+ii, 0, 0);
+//	blasfeo_print_exp_dmat(nlp->nu[ii]+nlp->nx[ii]+1, nlp->nx[ii+1], qp->BAbt+ii, 0, 0);
 	
 		if(N2<N) // partially condensed space solution
 //		if(0) // partially condensed space solution
@@ -978,8 +978,8 @@ d_print_e_mat(1, cws->nc, cws->t, 1);
 
 #if 0
 printf("\n%d %d\n", nu[0], nx[0]);
-d_print_tran_strvec(nu[0]+nx[0], qp->rq+0, 0);
-d_print_tran_strvec(nx[1], qp->b+0, 0);
+blasfeo_print_tran_dvec(nu[0]+nx[0], qp->rq+0, 0);
+blasfeo_print_tran_dvec(nx[1], qp->b+0, 0);
 exit(1);
 #endif
 

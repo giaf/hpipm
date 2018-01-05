@@ -200,11 +200,11 @@ int main()
 	printf("\nCt = \n");
 	d_print_strmat(nv, ng, qp.Ct, 0, 0);
 	printf("\ng = \n");
-	d_print_strvec(nv, qp.g, 0);
+	blasfeo_print_dvec(nv, qp.g, 0);
 	printf("\nb = \n");
-	d_print_strvec(ne, qp.b, 0);
+	blasfeo_print_dvec(ne, qp.b, 0);
 	printf("\nd = \n");
-	d_print_strvec(2*nb+2*ng, qp.d, 0);
+	blasfeo_print_dvec(2*nb+2*ng, qp.d, 0);
 #endif
 
 /************************************************

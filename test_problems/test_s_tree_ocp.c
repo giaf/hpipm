@@ -693,42 +693,42 @@ int main()
 	for(ii=0; ii<Nn-1; ii++)
 		{
 		tmat = qp.BAbt+ii;
-		s_print_strmat(tmat->m, tmat->n, tmat, 0, 0);
+		blasfeo_print_smat(tmat->m, tmat->n, tmat, 0, 0);
 		}
 	for(ii=0; ii<Nn-1; ii++)
 		{
 		tvec = qp.b+ii;
-		s_print_tran_strvec(tvec->m, tvec, 0);
+		blasfeo_print_tran_svec(tvec->m, tvec, 0);
 		}
 	for(ii=0; ii<Nn; ii++)
 		{
 		tmat = qp.RSQrq+ii;
-		s_print_strmat(tmat->m, tmat->n, tmat, 0, 0);
+		blasfeo_print_smat(tmat->m, tmat->n, tmat, 0, 0);
 		}
 	for(ii=0; ii<Nn; ii++)
 		{
 		tvec = qp.rq+ii;
-		s_print_tran_strvec(tvec->m, tvec, 0);
+		blasfeo_print_tran_svec(tvec->m, tvec, 0);
 		}
 	for(ii=0; ii<Nn; ii++)
 		{
 		tvec = qp.d_lb+ii;
-		s_print_tran_strvec(tvec->m, tvec, 0);
+		blasfeo_print_tran_svec(tvec->m, tvec, 0);
 		}
 	for(ii=0; ii<Nn; ii++)
 		{
 		tvec = qp.d_ub+ii;
-		s_print_tran_strvec(tvec->m, tvec, 0);
+		blasfeo_print_tran_svec(tvec->m, tvec, 0);
 		}
 	for(ii=0; ii<Nn; ii++)
 		{
 		tvec = qp.d_lg+ii;
-		s_print_tran_strvec(tvec->m, tvec, 0);
+		blasfeo_print_tran_svec(tvec->m, tvec, 0);
 		}
 	for(ii=0; ii<Nn; ii++)
 		{
 		tvec = qp.d_ug+ii;
-		s_print_tran_strvec(tvec->m, tvec, 0);
+		blasfeo_print_tran_svec(tvec->m, tvec, 0);
 		}
 	for(ii=0; ii<Nn; ii++)
 		{

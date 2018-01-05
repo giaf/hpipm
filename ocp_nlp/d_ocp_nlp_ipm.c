@@ -384,13 +384,13 @@ int SOLVE_OCP_NLP_IPM(struct OCP_NLP *nlp, struct OCP_NLP_SOL *nlp_sol, struct O
 			}
 
 //for(ii=0; ii<N; ii++)
-//	d_print_e_strmat(nlp->nu[ii]+nlp->nx[ii]+1, nlp->nx[ii+1], qp->BAbt+ii, 0, 0);
+//	blasfeo_print_exp_dmat(nlp->nu[ii]+nlp->nx[ii]+1, nlp->nx[ii+1], qp->BAbt+ii, 0, 0);
 	
 
 #if 0
 printf("\n%d %d\n", nu[0], nx[0]);
-d_print_tran_strvec(nu[0]+nx[0], qp->rq+0, 0);
-d_print_tran_strvec(nx[1], qp->b+0, 0);
+blasfeo_print_tran_dvec(nu[0]+nx[0], qp->rq+0, 0);
+blasfeo_print_tran_dvec(nx[1], qp->b+0, 0);
 exit(1);
 #endif
 

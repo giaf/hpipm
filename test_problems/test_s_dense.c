@@ -87,16 +87,16 @@ int main()
 	s_create_dense_qp(nv, ne, nb, ng, &qp, qp_mem);
 	s_cvt_colmaj_to_dense_qp(H, g, A, b, idxb, d_lb, d_ub, C, d_lg, d_ug, &qp);
 
-	s_print_strmat(nv+1, nv, qp.Hg, 0, 0);
-	s_print_strmat(ne, nv, qp.A, 0, 0);
-	s_print_strmat(nv, ng, qp.Ct, 0, 0);
-	s_print_strvec(nv, qp.g, 0);
-	s_print_strvec(ne, qp.b, 0);
-	s_print_strvec(2*nb+2*ng, qp.d, 0);
-	s_print_strvec(nb, qp.d_lb, 0);
-	s_print_strvec(nb, qp.d_ub, 0);
-	s_print_strvec(ng, qp.d_lg, 0);
-	s_print_strvec(ng, qp.d_ug, 0);
+	blasfeo_print_smat(nv+1, nv, qp.Hg, 0, 0);
+	blasfeo_print_smat(ne, nv, qp.A, 0, 0);
+	blasfeo_print_smat(nv, ng, qp.Ct, 0, 0);
+	blasfeo_print_svec(nv, qp.g, 0);
+	blasfeo_print_svec(ne, qp.b, 0);
+	blasfeo_print_svec(2*nb+2*ng, qp.d, 0);
+	blasfeo_print_svec(nb, qp.d_lb, 0);
+	blasfeo_print_svec(nb, qp.d_ub, 0);
+	blasfeo_print_svec(ng, qp.d_lg, 0);
+	blasfeo_print_svec(ng, qp.d_ug, 0);
 
 /************************************************
 * dense qp sol
@@ -144,35 +144,35 @@ int main()
 
 	printf("\nsolution\n\n");
 	printf("\nv\n");
-	s_print_tran_strvec(nv, qp_sol.v, 0);
+	blasfeo_print_tran_svec(nv, qp_sol.v, 0);
 	printf("\npi\n");
-	s_print_tran_strvec(ne, qp_sol.pi, 0);
+	blasfeo_print_tran_svec(ne, qp_sol.pi, 0);
 	printf("\nlam_lb\n");
-	s_print_tran_strvec(nb, qp_sol.lam_lb, 0);
+	blasfeo_print_tran_svec(nb, qp_sol.lam_lb, 0);
 	printf("\nlam_ub\n");
-	s_print_tran_strvec(nb, qp_sol.lam_ub, 0);
+	blasfeo_print_tran_svec(nb, qp_sol.lam_ub, 0);
 	printf("\nlam_lg\n");
-	s_print_tran_strvec(ng, qp_sol.lam_lg, 0);
+	blasfeo_print_tran_svec(ng, qp_sol.lam_lg, 0);
 	printf("\nlam_ug\n");
-	s_print_tran_strvec(ng, qp_sol.lam_ug, 0);
+	blasfeo_print_tran_svec(ng, qp_sol.lam_ug, 0);
 	printf("\nt_lb\n");
-	s_print_tran_strvec(nb, qp_sol.t_lb, 0);
+	blasfeo_print_tran_svec(nb, qp_sol.t_lb, 0);
 	printf("\nt_ub\n");
-	s_print_tran_strvec(nb, qp_sol.t_ub, 0);
+	blasfeo_print_tran_svec(nb, qp_sol.t_ub, 0);
 	printf("\nt_lg\n");
-	s_print_tran_strvec(ng, qp_sol.t_lg, 0);
+	blasfeo_print_tran_svec(ng, qp_sol.t_lg, 0);
 	printf("\nt_ug\n");
-	s_print_tran_strvec(ng, qp_sol.t_ug, 0);
+	blasfeo_print_tran_svec(ng, qp_sol.t_ug, 0);
 
 	printf("\nresiduals\n\n");
 	printf("\nres_g\n");
-	s_print_e_tran_strvec(nv, workspace.res_g, 0);
+	blasfeo_print_exp_tran_svec(nv, workspace.res_g, 0);
 	printf("\nres_b\n");
-	s_print_e_tran_strvec(ne, workspace.res_b, 0);
+	blasfeo_print_exp_tran_svec(ne, workspace.res_b, 0);
 	printf("\nres_d\n");
-	s_print_e_tran_strvec(2*nb+2*ng, workspace.res_d, 0);
+	blasfeo_print_exp_tran_svec(2*nb+2*ng, workspace.res_d, 0);
 	printf("\nres_m\n");
-	s_print_e_tran_strvec(2*nb+2*ng, workspace.res_m, 0);
+	blasfeo_print_exp_tran_svec(2*nb+2*ng, workspace.res_m, 0);
 	printf("\nres_mu\n");
 	printf("\n%e\n\n", workspace.res_mu);
 

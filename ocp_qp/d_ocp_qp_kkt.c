@@ -66,11 +66,11 @@
 #define OCP_QP_SOL d_ocp_qp_sol
 #define POTRF_L_MN_LIBSTR blasfeo_dpotrf_l_mn
 #define PRINT_E_MAT d_print_e_mat
-#define PRINT_E_STRVEC d_print_e_strvec
-#define PRINT_E_TRAN_STRVEC d_print_e_tran_strvec
+#define PRINT_E_STRVEC blasfeo_print_exp_dvec
+#define PRINT_E_TRAN_STRVEC blasfeo_print_exp_tran_dvec
 #define PRINT_STRMAT d_print_strmat
-#define PRINT_STRVEC d_print_strvec
-#define PRINT_TRAN_STRVEC d_print_tran_strvec
+#define PRINT_STRVEC blasfeo_print_dvec
+#define PRINT_TRAN_STRVEC blasfeo_print_tran_dvec
 #define REAL double
 #define ROWAD_SP_LIBSTR blasfeo_drowad_sp
 #define ROWEX_LIBSTR blasfeo_drowex

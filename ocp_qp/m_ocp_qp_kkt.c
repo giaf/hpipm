@@ -124,9 +124,9 @@ void m_fact_solve_kkt_step_hard_ocp_qp(struct d_ocp_qp *d_qp, struct s_ocp_qp *s
 
 #if 0
 	for(ii=0; ii<=N; ii++)
-		s_print_e_tran_strvec(nu[ii]+nx[ii], res_g+ii, 0);
+		blasfeo_print_exp_tran_svec(nu[ii]+nx[ii], res_g+ii, 0);
 	for(ii=0; ii<N; ii++)
-		s_print_e_tran_strvec(nx[ii+1], res_b+ii, 0);
+		blasfeo_print_exp_tran_svec(nx[ii+1], res_b+ii, 0);
 //	exit(1);
 #endif
 
@@ -166,11 +166,11 @@ void m_fact_solve_kkt_step_hard_ocp_qp(struct d_ocp_qp *d_qp, struct s_ocp_qp *s
 			d_ptr0[jj] = d_tmp0;
 			d_ptr1[jj] = 1.0/d_tmp0;
 			}
-//		s_print_strmat(nu[N]+nx[N]+1, nu[N]+nx[N], L+N, 0, 0);
+//		blasfeo_print_smat(nu[N]+nx[N]+1, nu[N]+nx[N], L+N, 0, 0);
 		blasfeo_sgemm_nd(nu[N]+nx[N]+1, nu[N]+nx[N], 1.0, L+N, 0, 0, Si+N, 0, 0.0, L+N, 0, 0, L+N, 0, 0);
-//		s_print_strmat(nu[N]+nx[N]+1, nu[N]+nx[N], L+N, 0, 0);
+//		blasfeo_print_smat(nu[N]+nx[N]+1, nu[N]+nx[N], L+N, 0, 0);
 		blasfeo_sgemm_dn(nu[N]+nx[N], nu[N]+nx[N], 1.0, Si+N, 0, L+N, 0, 0, 0.0, L+N, 0, 0, L+N, 0, 0);
-//		s_print_strmat(nu[N]+nx[N]+1, nu[N]+nx[N], L+N, 0, 0);
+//		blasfeo_print_smat(nu[N]+nx[N]+1, nu[N]+nx[N], L+N, 0, 0);
 
 		blasfeo_spotrf_l_mn(nu[N]+nx[N]+1, nu[N]+nx[N], L+N, 0, 0, L+N, 0, 0);
 		}
@@ -233,11 +233,11 @@ void m_fact_solve_kkt_step_hard_ocp_qp(struct d_ocp_qp *d_qp, struct s_ocp_qp *s
 
 			blasfeo_sgecp(nu[N-ii-1]+nx[N-ii-1], nx[N-ii], BAbt+(N-ii-1), 0, 0, AL, 0, 0);
 			blasfeo_srowin(nx[N-ii], 1.0, res_b+(N-ii-1), 0, AL, nu[N-ii-1]+nx[N-ii-1], 0);
-//			s_print_strmat(nu[N-ii-1]+nx[N-ii-1]+1, nx[N-ii], AL, 0, 0);
+//			blasfeo_print_smat(nu[N-ii-1]+nx[N-ii-1]+1, nx[N-ii], AL, 0, 0);
 			blasfeo_sgemm_nd(nu[N-ii-1]+nx[N-ii-1]+1, nx[N-ii], 1.0, AL, 0, 0, Sx+N-ii, nu[N-ii], 0.0, AL, 0, 0, AL, 0, 0);
-//			s_print_strmat(nu[N-ii-1]+nx[N-ii-1]+1, nx[N-ii], AL, 0, 0);
+//			blasfeo_print_smat(nu[N-ii-1]+nx[N-ii-1]+1, nx[N-ii], AL, 0, 0);
 			blasfeo_sgemm_dn(nu[N-ii-1]+nx[N-ii-1], nx[N-ii], 1.0, Si+N-ii-1, 0, AL, 0, 0, 0.0, AL, 0, 0, AL, 0, 0);
-//			s_print_strmat(nu[N-ii-1]+nx[N-ii-1]+1, nx[N-ii], AL, 0, 0);
+//			blasfeo_print_smat(nu[N-ii-1]+nx[N-ii-1]+1, nx[N-ii], AL, 0, 0);
 
 			blasfeo_strmm_rlnn(nu[N-ii-1]+nx[N-ii-1]+1, nx[N-ii], 1.0, L+(N-ii), nu[N-ii], nu[N-ii], AL, 0, 0, AL, 0, 0);
 			blasfeo_srowex(nx[N-ii], 1.0, AL, nu[N-ii-1]+nx[N-ii-1], 0, tmp_nxM, 0);
@@ -250,7 +250,7 @@ void m_fact_solve_kkt_step_hard_ocp_qp(struct d_ocp_qp *d_qp, struct s_ocp_qp *s
 			blasfeo_ssyrk_spotrf_ln(nu[N-ii-1]+nx[N-ii-1]+1, nu[N-ii-1]+nx[N-ii-1], nx[N-ii], AL, 0, 0, AL, 0, 0, L+(N-ii-1), 0, 0, L+(N-ii-1), 0, 0);
 //			blasfeo_ssyrk_ln_mn(nu[N-ii-1]+nx[N-ii-1]+1, nu[N-ii-1]+nx[N-ii-1], nx[N-ii], 1.0, AL, 0, 0, AL, 0, 0, 1.0, L+(N-ii-1), 0, 0, L+(N-ii-1), 0, 0);
 //			blasfeo_spotrf_l_mn(nu[N-ii-1]+nx[N-ii-1]+1, nu[N-ii-1]+nx[N-ii-1], L+(N-ii-1), 0, 0, L+(N-ii-1), 0, 0);
-//			s_print_e_strmat(nu[N-ii-1]+nx[N-ii-1]+1, nu[N-ii-1]+nx[N-ii-1], L+N-ii-1, 0, 0);
+//			blasfeo_print_exp_smat(nu[N-ii-1]+nx[N-ii-1]+1, nu[N-ii-1]+nx[N-ii-1], L+N-ii-1, 0, 0);
 			}
 		else
 			{
@@ -319,7 +319,7 @@ void m_fact_solve_kkt_step_hard_ocp_qp(struct d_ocp_qp *d_qp, struct s_ocp_qp *s
 		blasfeo_strmv_lnn(nx[ii+1], nx[ii+1], L+(ii+1), nu[ii+1], nu[ii+1], dpi+ii, 0, dpi+ii, 0);
 		}
 
-//	d_print_tran_strvec(nu[ii]+nx[ii], dux+ii, 0);
+//	blasfeo_print_tran_dvec(nu[ii]+nx[ii], dux+ii, 0);
 
 	// middle stages
 	for(ii=1; ii<N; ii++)
@@ -355,19 +355,19 @@ void m_fact_solve_kkt_step_hard_ocp_qp(struct d_ocp_qp *d_qp, struct s_ocp_qp *s
 			blasfeo_strmv_lnn(nx[ii+1], nx[ii+1], L+(ii+1), nu[ii+1], nu[ii+1], dpi+ii, 0, dpi+ii, 0);
 			}
 
-//		d_print_tran_strvec(nu[ii]+nx[ii], dux+ii, 0);
+//		blasfeo_print_tran_dvec(nu[ii]+nx[ii], dux+ii, 0);
 		}
 	
 #if 0
 	for(ii=0; ii<=N; ii++)
-		s_print_e_tran_strvec(nu[ii]+nx[ii], dux+ii, 0);
+		blasfeo_print_exp_tran_svec(nu[ii]+nx[ii], dux+ii, 0);
 	for(ii=0; ii<N; ii++)
-		s_print_e_tran_strvec(nx[ii+1], dpi+ii, 0);
+		blasfeo_print_exp_tran_svec(nx[ii+1], dpi+ii, 0);
 //	exit(1);
 #endif
 #if 0
 	for(ii=0; ii<=N; ii++)
-		s_print_e_strmat(nu[ii]+nx[ii]+1, nu[ii]+nx[ii], L+ii, 0, 0);
+		blasfeo_print_exp_smat(nu[ii]+nx[ii]+1, nu[ii]+nx[ii], L+ii, 0, 0);
 #endif
 
 	// scale solution back

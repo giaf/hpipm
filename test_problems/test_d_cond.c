@@ -637,23 +637,23 @@ int main()
 	for(ii=0; ii<N; ii++)
 		d_print_strmat(ocp_qp.nu[ii]+ocp_qp.nx[ii]+1, ocp_qp.nx[ii+1], ocp_qp.BAbt+ii, 0, 0);
 	for(ii=0; ii<N; ii++)
-		d_print_tran_strvec(ocp_qp.nx[ii+1], ocp_qp.b+ii, 0);
+		blasfeo_print_tran_dvec(ocp_qp.nx[ii+1], ocp_qp.b+ii, 0);
 	for(ii=0; ii<=N; ii++)
 		d_print_strmat(ocp_qp.nu[ii]+ocp_qp.nx[ii]+1, ocp_qp.nu[ii]+ocp_qp.nx[ii], ocp_qp.RSQrq+ii, 0, 0);
 	for(ii=0; ii<=N; ii++)
-		d_print_tran_strvec(ocp_qp.nu[ii]+ocp_qp.nx[ii], ocp_qp.rq+ii, 0);
+		blasfeo_print_tran_dvec(ocp_qp.nu[ii]+ocp_qp.nx[ii], ocp_qp.rq+ii, 0);
 	for(ii=0; ii<=N; ii++)
 		int_print_mat(1, nb[ii], ocp_qp.idxb[ii], 1);
 	for(ii=0; ii<=N; ii++)
-		d_print_tran_strvec(ocp_qp.nb[ii], ocp_qp.d_lb+ii, 0);
+		blasfeo_print_tran_dvec(ocp_qp.nb[ii], ocp_qp.d_lb+ii, 0);
 	for(ii=0; ii<=N; ii++)
-		d_print_tran_strvec(ocp_qp.nb[ii], ocp_qp.d_ub+ii, 0);
+		blasfeo_print_tran_dvec(ocp_qp.nb[ii], ocp_qp.d_ub+ii, 0);
 	for(ii=0; ii<=N; ii++)
 		d_print_strmat(ocp_qp.nu[ii]+ocp_qp.nx[ii], ocp_qp.ng[ii], ocp_qp.DCt+ii, 0, 0);
 	for(ii=0; ii<=N; ii++)
-		d_print_tran_strvec(ocp_qp.ng[ii], ocp_qp.d_lg+ii, 0);
+		blasfeo_print_tran_dvec(ocp_qp.ng[ii], ocp_qp.d_lg+ii, 0);
 	for(ii=0; ii<=N; ii++)
-		d_print_tran_strvec(ocp_qp.ng[ii], ocp_qp.d_ug+ii, 0);
+		blasfeo_print_tran_dvec(ocp_qp.ng[ii], ocp_qp.d_ug+ii, 0);
 #endif
 
 /************************************************
@@ -711,13 +711,13 @@ int main()
 	d_print_strmat(nvc+1, nvc, dense_qp.Hv, 0, 0); // TODO remove +1
 	d_print_strmat(nec, nvc, dense_qp.A, 0, 0);
 	d_print_strmat(nvc, ngc, dense_qp.Ct, 0, 0);
-	d_print_tran_strvec(nvc, dense_qp.g, 0);
-	d_print_tran_strvec(nec, dense_qp.b, 0);
-	d_print_tran_strvec(2*nbc+2*ngc, dense_qp.d, 0);
-	d_print_tran_strvec(nbc, dense_qp.d, 0);
-	d_print_tran_strvec(nbc, dense_qp.d, nbc+ngc);
-	d_print_tran_strvec(ngc, dense_qp.d, nbc);
-	d_print_tran_strvec(ngc, dense_qp.d, 2*nbc+ngc);
+	blasfeo_print_tran_dvec(nvc, dense_qp.g, 0);
+	blasfeo_print_tran_dvec(nec, dense_qp.b, 0);
+	blasfeo_print_tran_dvec(2*nbc+2*ngc, dense_qp.d, 0);
+	blasfeo_print_tran_dvec(nbc, dense_qp.d, 0);
+	blasfeo_print_tran_dvec(nbc, dense_qp.d, nbc+ngc);
+	blasfeo_print_tran_dvec(ngc, dense_qp.d, nbc);
+	blasfeo_print_tran_dvec(ngc, dense_qp.d, 2*nbc+ngc);
 #endif
 
 	gettimeofday(&tv0, NULL); // start
@@ -733,13 +733,13 @@ int main()
 
 #if 1
 	printf("\ncond rhs data\n\n");
-	d_print_tran_strvec(nvc, dense_qp.g, 0);
-	d_print_tran_strvec(nec, dense_qp.b, 0);
-	d_print_tran_strvec(2*nbc+2*ngc, dense_qp.d, 0);
-	d_print_tran_strvec(nbc, dense_qp.d, 0);
-	d_print_tran_strvec(nbc, dense_qp.d, nbc+ngc);
-	d_print_tran_strvec(ngc, dense_qp.d, nbc);
-	d_print_tran_strvec(ngc, dense_qp.d, 2*nbc+ngc);
+	blasfeo_print_tran_dvec(nvc, dense_qp.g, 0);
+	blasfeo_print_tran_dvec(nec, dense_qp.b, 0);
+	blasfeo_print_tran_dvec(2*nbc+2*ngc, dense_qp.d, 0);
+	blasfeo_print_tran_dvec(nbc, dense_qp.d, 0);
+	blasfeo_print_tran_dvec(nbc, dense_qp.d, nbc+ngc);
+	blasfeo_print_tran_dvec(ngc, dense_qp.d, nbc);
+	blasfeo_print_tran_dvec(ngc, dense_qp.d, 2*nbc+ngc);
 #endif
 
 #if 0
@@ -811,47 +811,47 @@ int main()
 
 	printf("\nsolution\n\n");
 	printf("\nv\n");
-	d_print_tran_strvec(nvc, dense_qp_sol.v, 0);
+	blasfeo_print_tran_dvec(nvc, dense_qp_sol.v, 0);
 	printf("\nls\n");
-	d_print_tran_strvec(nsc, dense_qp_sol.v, nvc);
+	blasfeo_print_tran_dvec(nsc, dense_qp_sol.v, nvc);
 	printf("\nus\n");
-	d_print_tran_strvec(nsc, dense_qp_sol.v, nvc+nsc);
+	blasfeo_print_tran_dvec(nsc, dense_qp_sol.v, nvc+nsc);
 	printf("\npi\n");
-	d_print_tran_strvec(nec, dense_qp_sol.pi, 0);
+	blasfeo_print_tran_dvec(nec, dense_qp_sol.pi, 0);
 	printf("\nlam_lb\n");
-	d_print_tran_strvec(nbc, dense_qp_sol.lam, 0);
+	blasfeo_print_tran_dvec(nbc, dense_qp_sol.lam, 0);
 	printf("\nlam_ub\n");
-	d_print_tran_strvec(nbc, dense_qp_sol.lam, nbc+ngc);
+	blasfeo_print_tran_dvec(nbc, dense_qp_sol.lam, nbc+ngc);
 	printf("\nlam_lg\n");
-	d_print_tran_strvec(ngc, dense_qp_sol.lam, nbc);
+	blasfeo_print_tran_dvec(ngc, dense_qp_sol.lam, nbc);
 	printf("\nlam_ug\n");
-	d_print_tran_strvec(ngc, dense_qp_sol.lam, 2*nbc+ngc);
+	blasfeo_print_tran_dvec(ngc, dense_qp_sol.lam, 2*nbc+ngc);
 	printf("\nlam_ls\n");
-	d_print_tran_strvec(nsc, dense_qp_sol.lam, 2*nbc+2*ngc);
+	blasfeo_print_tran_dvec(nsc, dense_qp_sol.lam, 2*nbc+2*ngc);
 	printf("\nlam_us\n");
-	d_print_tran_strvec(nsc, dense_qp_sol.lam, 2*nbc+2*ngc+nsc);
+	blasfeo_print_tran_dvec(nsc, dense_qp_sol.lam, 2*nbc+2*ngc+nsc);
 	printf("\nt_lb\n");
-	d_print_tran_strvec(nbc, dense_qp_sol.t, 0);
+	blasfeo_print_tran_dvec(nbc, dense_qp_sol.t, 0);
 	printf("\nt_ub\n");
-	d_print_tran_strvec(nbc, dense_qp_sol.t, nbc+ngc);
+	blasfeo_print_tran_dvec(nbc, dense_qp_sol.t, nbc+ngc);
 	printf("\nt_lg\n");
-	d_print_tran_strvec(ngc, dense_qp_sol.t, nbc);
+	blasfeo_print_tran_dvec(ngc, dense_qp_sol.t, nbc);
 	printf("\nt_ug\n");
-	d_print_tran_strvec(ngc, dense_qp_sol.t, 2*nbc+ngc);
+	blasfeo_print_tran_dvec(ngc, dense_qp_sol.t, 2*nbc+ngc);
 	printf("\nt_ls\n");
-	d_print_tran_strvec(nsc, dense_qp_sol.t, 2*nbc+2*ngc);
+	blasfeo_print_tran_dvec(nsc, dense_qp_sol.t, 2*nbc+2*ngc);
 	printf("\nt_us\n");
-	d_print_tran_strvec(nsc, dense_qp_sol.t, 2*nbc+2*ngc+nsc);
+	blasfeo_print_tran_dvec(nsc, dense_qp_sol.t, 2*nbc+2*ngc+nsc);
 
 	printf("\nresiduals\n\n");
 	printf("\nres_g\n");
-	d_print_e_tran_strvec(nvc+2*nsc, dense_workspace.res->res_g, 0);
+	blasfeo_print_exp_tran_dvec(nvc+2*nsc, dense_workspace.res->res_g, 0);
 	printf("\nres_b\n");
-	d_print_e_tran_strvec(nec, dense_workspace.res->res_b, 0);
+	blasfeo_print_exp_tran_dvec(nec, dense_workspace.res->res_b, 0);
 	printf("\nres_d\n");
-	d_print_e_tran_strvec(2*nbc+2*ngc+2*nsc, dense_workspace.res->res_d, 0);
+	blasfeo_print_exp_tran_dvec(2*nbc+2*ngc+2*nsc, dense_workspace.res->res_d, 0);
 	printf("\nres_m\n");
-	d_print_e_tran_strvec(2*nbc+2*ngc+2*nsc, dense_workspace.res->res_m, 0);
+	blasfeo_print_exp_tran_dvec(2*nbc+2*ngc+2*nsc, dense_workspace.res->res_m, 0);
 	printf("\nres_mu\n");
 	printf("\n%e\n\n", dense_workspace.res->res_mu);
 

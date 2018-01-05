@@ -830,7 +830,7 @@ int main()
 	for(ii=0; ii<Nn-1; ii++)
 		{
 		tvec = qp.b+ii;
-		d_print_tran_strvec(tvec->m, tvec, 0);
+		blasfeo_print_tran_dvec(tvec->m, tvec, 0);
 		}
 	for(ii=0; ii<Nn; ii++)
 		{
@@ -840,12 +840,12 @@ int main()
 	for(ii=0; ii<Nn; ii++)
 		{
 		tvec = qp.rq+ii;
-		d_print_tran_strvec(tvec->m, tvec, 0);
+		blasfeo_print_tran_dvec(tvec->m, tvec, 0);
 		}
 	for(ii=0; ii<Nn; ii++)
 		{
 		tvec = qp.d+ii;
-		d_print_tran_strvec(tvec->m, tvec, 0);
+		blasfeo_print_tran_dvec(tvec->m, tvec, 0);
 		}
 	for(ii=0; ii<Nn; ii++)
 		{

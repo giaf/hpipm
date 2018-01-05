@@ -514,9 +514,9 @@ int SOLVE_DENSE_QP_IPM(struct DENSE_QP *qp, struct DENSE_QP_SOL *qp_sol, struct 
 		VECNRM_INF_LIBSTR(cws->nc, ws->res_itref->res_d, 0, &itref_qp_norm0[2]);
 		VECNRM_INF_LIBSTR(cws->nc, ws->res_itref->res_m, 0, &itref_qp_norm0[3]);
 //		printf("\nkk = %d\n", kk);
-//		d_print_e_tran_strvec(qp->dim->nv, ws->res_itref->res_g, 0);
-//		d_print_e_tran_strvec(qp->dim->ne, ws->res_itref->res_b, 0);
-//		d_print_e_tran_strvec(2*qp->dim->nb+2*qp->dim->ng, ws->res_itref->res_d, 0);
+//		blasfeo_print_exp_tran_dvec(qp->dim->nv, ws->res_itref->res_g, 0);
+//		blasfeo_print_exp_tran_dvec(qp->dim->ne, ws->res_itref->res_b, 0);
+//		blasfeo_print_exp_tran_dvec(2*qp->dim->nb+2*qp->dim->ng, ws->res_itref->res_d, 0);
 #endif
 
 #if 0
@@ -526,9 +526,9 @@ int SOLVE_DENSE_QP_IPM(struct DENSE_QP *qp, struct DENSE_QP_SOL *qp_sol, struct 
 		VECNRM_INF_LIBSTR(cws->nc, ws->res_itref->res_d, 0, &itref_qp_norm0[2]);
 		VECNRM_INF_LIBSTR(cws->nc, ws->res_itref->res_m, 0, &itref_qp_norm0[3]);
 //		printf("\nkk = %d\n", kk);
-//		d_print_e_tran_strvec(qp->dim->nv, ws->res_itref->res_g, 0);
-//		d_print_e_tran_strvec(qp->dim->ne, ws->res_itref->res_b, 0);
-//		d_print_e_tran_strvec(2*qp->dim->nb+2*qp->dim->ng, ws->res_itref->res_d, 0);
+//		blasfeo_print_exp_tran_dvec(qp->dim->nv, ws->res_itref->res_g, 0);
+//		blasfeo_print_exp_tran_dvec(qp->dim->ne, ws->res_itref->res_b, 0);
+//		blasfeo_print_exp_tran_dvec(2*qp->dim->nb+2*qp->dim->ng, ws->res_itref->res_d, 0);
 #endif
 
 #if 1

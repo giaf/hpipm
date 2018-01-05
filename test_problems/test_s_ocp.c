@@ -511,25 +511,25 @@ int main()
 #if 0
 	printf("\nN = %d\n", qp.N);
 	for(ii=0; ii<N; ii++)
-		s_print_strmat(qp.nu[ii]+qp.nx[ii]+1, qp.nx[ii+1], qp.BAbt+ii, 0, 0);
+		blasfeo_print_smat(qp.nu[ii]+qp.nx[ii]+1, qp.nx[ii+1], qp.BAbt+ii, 0, 0);
 	for(ii=0; ii<N; ii++)
-		s_print_tran_strvec(qp.nx[ii+1], qp.b+ii, 0);
+		blasfeo_print_tran_svec(qp.nx[ii+1], qp.b+ii, 0);
 	for(ii=0; ii<=N; ii++)
-		s_print_strmat(qp.nu[ii]+qp.nx[ii]+1, qp.nu[ii]+qp.nx[ii], qp.RSQrq+ii, 0, 0);
+		blasfeo_print_smat(qp.nu[ii]+qp.nx[ii]+1, qp.nu[ii]+qp.nx[ii], qp.RSQrq+ii, 0, 0);
 	for(ii=0; ii<=N; ii++)
-		s_print_tran_strvec(qp.nu[ii]+qp.nx[ii], qp.rq+ii, 0);
+		blasfeo_print_tran_svec(qp.nu[ii]+qp.nx[ii], qp.rq+ii, 0);
 	for(ii=0; ii<=N; ii++)
 		int_print_mat(1, nb[ii], qp.idxb[ii], 1);
 	for(ii=0; ii<=N; ii++)
-		s_print_tran_strvec(qp.nb[ii], qp.d_lb+ii, 0);
+		blasfeo_print_tran_svec(qp.nb[ii], qp.d_lb+ii, 0);
 	for(ii=0; ii<=N; ii++)
-		s_print_tran_strvec(qp.nb[ii], qp.d_ub+ii, 0);
+		blasfeo_print_tran_svec(qp.nb[ii], qp.d_ub+ii, 0);
 	for(ii=0; ii<=N; ii++)
-		s_print_strmat(qp.nu[ii]+qp.nx[ii], qp.ng[ii], qp.DCt+ii, 0, 0);
+		blasfeo_print_smat(qp.nu[ii]+qp.nx[ii], qp.ng[ii], qp.DCt+ii, 0, 0);
 	for(ii=0; ii<=N; ii++)
-		s_print_tran_strvec(qp.ng[ii], qp.d_lg+ii, 0);
+		blasfeo_print_tran_svec(qp.ng[ii], qp.d_lg+ii, 0);
 	for(ii=0; ii<=N; ii++)
-		s_print_tran_strvec(qp.ng[ii], qp.d_ug+ii, 0);
+		blasfeo_print_tran_svec(qp.ng[ii], qp.d_ug+ii, 0);
 	return;
 #endif
 
@@ -577,66 +577,66 @@ int main()
 	printf("\nsolution\n\n");
 	printf("\nux\n");
 	for(ii=0; ii<=N; ii++)
-		s_print_tran_strvec(nu[ii]+nx[ii], qp_sol.ux+ii, 0);
+		blasfeo_print_tran_svec(nu[ii]+nx[ii], qp_sol.ux+ii, 0);
 	printf("\npi\n");
 	for(ii=0; ii<N; ii++)
-		s_print_tran_strvec(nx[ii+1], qp_sol.pi+ii, 0);
+		blasfeo_print_tran_svec(nx[ii+1], qp_sol.pi+ii, 0);
 	printf("\nlam_lb\n");
 	for(ii=0; ii<=N; ii++)
-		s_print_tran_strvec(nb[ii], qp_sol.lam_lb+ii, 0);
+		blasfeo_print_tran_svec(nb[ii], qp_sol.lam_lb+ii, 0);
 	printf("\nlam_ub\n");
 	for(ii=0; ii<=N; ii++)
-		s_print_tran_strvec(nb[ii], qp_sol.lam_ub+ii, 0);
+		blasfeo_print_tran_svec(nb[ii], qp_sol.lam_ub+ii, 0);
 	printf("\nlam_lg\n");
 	for(ii=0; ii<=N; ii++)
-		s_print_tran_strvec(ng[ii], qp_sol.lam_lg+ii, 0);
+		blasfeo_print_tran_svec(ng[ii], qp_sol.lam_lg+ii, 0);
 	printf("\nlam_ug\n");
 	for(ii=0; ii<=N; ii++)
-		s_print_tran_strvec(ng[ii], qp_sol.lam_ug+ii, 0);
+		blasfeo_print_tran_svec(ng[ii], qp_sol.lam_ug+ii, 0);
 	printf("\nt_lb\n");
 	for(ii=0; ii<=N; ii++)
-		s_print_tran_strvec(nb[ii], qp_sol.t_lb+ii, 0);
+		blasfeo_print_tran_svec(nb[ii], qp_sol.t_lb+ii, 0);
 	printf("\nt_ub\n");
 	for(ii=0; ii<=N; ii++)
-		s_print_tran_strvec(nb[ii], qp_sol.t_ub+ii, 0);
+		blasfeo_print_tran_svec(nb[ii], qp_sol.t_ub+ii, 0);
 	printf("\nt_lg\n");
 	for(ii=0; ii<=N; ii++)
-		s_print_tran_strvec(ng[ii], qp_sol.t_lg+ii, 0);
+		blasfeo_print_tran_svec(ng[ii], qp_sol.t_lg+ii, 0);
 	printf("\nt_ug\n");
 	for(ii=0; ii<=N; ii++)
-		s_print_tran_strvec(ng[ii], qp_sol.t_ug+ii, 0);
+		blasfeo_print_tran_svec(ng[ii], qp_sol.t_ug+ii, 0);
 
 	printf("\nresiduals\n\n");
 	printf("\nres_g\n");
 	for(ii=0; ii<=N; ii++)
-		s_print_e_tran_strvec(nu[ii]+nx[ii], workspace.res_g+ii, 0);
+		blasfeo_print_exp_tran_svec(nu[ii]+nx[ii], workspace.res_g+ii, 0);
 	printf("\nres_b\n");
 	for(ii=0; ii<N; ii++)
-		s_print_e_tran_strvec(nx[ii+1], workspace.res_b+ii, 0);
+		blasfeo_print_exp_tran_svec(nx[ii+1], workspace.res_b+ii, 0);
 	printf("\nres_m_lb\n");
 	for(ii=0; ii<=N; ii++)
-		s_print_e_tran_strvec(nb[ii], workspace.res_m_lb+ii, 0);
+		blasfeo_print_exp_tran_svec(nb[ii], workspace.res_m_lb+ii, 0);
 	printf("\nres_m_ub\n");
 	for(ii=0; ii<=N; ii++)
-		s_print_e_tran_strvec(nb[ii], workspace.res_m_ub+ii, 0);
+		blasfeo_print_exp_tran_svec(nb[ii], workspace.res_m_ub+ii, 0);
 	printf("\nres_m_lg\n");
 	for(ii=0; ii<=N; ii++)
-		s_print_e_tran_strvec(ng[ii], workspace.res_m_lg+ii, 0);
+		blasfeo_print_exp_tran_svec(ng[ii], workspace.res_m_lg+ii, 0);
 	printf("\nres_m_ug\n");
 	for(ii=0; ii<=N; ii++)
-		s_print_e_tran_strvec(ng[ii], workspace.res_m_ug+ii, 0);
+		blasfeo_print_exp_tran_svec(ng[ii], workspace.res_m_ug+ii, 0);
 	printf("\nres_d_lb\n");
 	for(ii=0; ii<=N; ii++)
-		s_print_e_tran_strvec(nb[ii], workspace.res_d_lb+ii, 0);
+		blasfeo_print_exp_tran_svec(nb[ii], workspace.res_d_lb+ii, 0);
 	printf("\nres_d_ub\n");
 	for(ii=0; ii<=N; ii++)
-		s_print_e_tran_strvec(nb[ii], workspace.res_d_ub+ii, 0);
+		blasfeo_print_exp_tran_svec(nb[ii], workspace.res_d_ub+ii, 0);
 	printf("\nres_d_lg\n");
 	for(ii=0; ii<=N; ii++)
-		s_print_e_tran_strvec(ng[ii], workspace.res_d_lg+ii, 0);
+		blasfeo_print_exp_tran_svec(ng[ii], workspace.res_d_lg+ii, 0);
 	printf("\nres_d_ug\n");
 	for(ii=0; ii<=N; ii++)
-		s_print_e_tran_strvec(ng[ii], workspace.res_d_ug+ii, 0);
+		blasfeo_print_exp_tran_svec(ng[ii], workspace.res_d_ug+ii, 0);
 	printf("\nres_mu\n");
 	printf("\n%e\n\n", workspace.res_mu);
 #endif

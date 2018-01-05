@@ -578,15 +578,15 @@ void m_solve_ipm_hard_ocp_qp(struct d_ocp_qp *qp, struct s_ocp_qp *s_qp, struct 
 #if 0
 int ii;
 for(ii=0; ii<=qp->N; ii++)
-	d_print_e_tran_strvec(qp->nu[ii]+qp->nx[ii], qp_sol->ux+ii, 0);
+	blasfeo_print_exp_tran_dvec(qp->nu[ii]+qp->nx[ii], qp_sol->ux+ii, 0);
 for(ii=0; ii<qp->N; ii++)
-	d_print_e_tran_strvec(qp->nx[ii+1], qp_sol->pi+ii, 0);
+	blasfeo_print_exp_tran_dvec(qp->nx[ii+1], qp_sol->pi+ii, 0);
 for(ii=0; ii<=qp->N; ii++)
-	d_print_e_tran_strvec(qp->nb[ii], qp_sol->lam_lb+ii, 0);
+	blasfeo_print_exp_tran_dvec(qp->nb[ii], qp_sol->lam_lb+ii, 0);
 for(ii=0; ii<=qp->N; ii++)
-	d_print_e_tran_strvec(qp->nb[ii], qp_sol->lam_ub+ii, 0);
+	blasfeo_print_exp_tran_dvec(qp->nb[ii], qp_sol->lam_ub+ii, 0);
 for(ii=0; ii<=qp->N; ii++)
-	d_print_e_tran_strvec(qp->nb[ii], ws->dt_lb+ii, 0);
+	blasfeo_print_exp_tran_dvec(qp->nb[ii], ws->dt_lb+ii, 0);
 //exit(1);
 #endif
 
@@ -803,9 +803,9 @@ void m_solve_ipm2_hard_ocp_qp(struct d_ocp_qp *qp, struct s_ocp_qp *s_qp, struct
 #if 0
 int ii;
 for(ii=0; ii<=qp->N; ii++)
-	d_print_tran_strvec(qp->nu[ii]+qp->nx[ii], ws->dux+ii, 0);
+	blasfeo_print_tran_dvec(qp->nu[ii]+qp->nx[ii], ws->dux+ii, 0);
 for(ii=0; ii<qp->N; ii++)
-	d_print_tran_strvec(qp->nx[ii+1], ws->dpi+ii, 0);
+	blasfeo_print_tran_dvec(qp->nx[ii+1], ws->dpi+ii, 0);
 exit(1);
 #endif
 		// alpha
