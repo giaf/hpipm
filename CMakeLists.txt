@@ -112,11 +112,13 @@ file(GLOB COND_SRC
 # dense qp
 file(GLOB DENSE_QP_SRC
 	${PROJECT_SOURCE_DIR}/dense_qp/d_dense_qp.c
+	${PROJECT_SOURCE_DIR}/dense_qp/d_dense_qp_dim.c
 	${PROJECT_SOURCE_DIR}/dense_qp/d_dense_qp_sol.c
 	${PROJECT_SOURCE_DIR}/dense_qp/d_dense_qp_kkt.c
 	${PROJECT_SOURCE_DIR}/dense_qp/d_dense_qp_ipm.c
 	${PROJECT_SOURCE_DIR}/dense_qp/d_dense_qp_res.c
 	${PROJECT_SOURCE_DIR}/dense_qp/s_dense_qp.c
+	${PROJECT_SOURCE_DIR}/dense_qp/s_dense_qp_dim.c
 	${PROJECT_SOURCE_DIR}/dense_qp/s_dense_qp_sol.c
 	${PROJECT_SOURCE_DIR}/dense_qp/s_dense_qp_kkt.c
 	${PROJECT_SOURCE_DIR}/dense_qp/s_dense_qp_ipm.c
