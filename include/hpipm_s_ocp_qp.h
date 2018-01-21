@@ -102,7 +102,6 @@ void s_update_lg(int stage, float *vec, struct s_ocp_qp *qp);
 //
 void s_update_ug(int stage, float *vec, struct s_ocp_qp *qp);
 
-
 #ifdef __cplusplus
 } /* extern "C" */
 #endif
