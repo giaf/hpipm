@@ -69,6 +69,40 @@ void d_create_ocp_qp(struct d_ocp_qp_dim *dim, struct d_ocp_qp *qp, void *memory
 void d_cvt_colmaj_to_ocp_qp(double **A, double **B, double **b, double **Q, double **S, double **R, double **q, double **r, int **idxb, double **lb, double **ub, double **C, double **D, double **lg, double **ug, double **Zl, double **Zu, double **zl, double **zu, int **idxs, struct d_ocp_qp *qp);
 //
 void d_cvt_rowmaj_to_ocp_qp(double **A, double **B, double **b, double **Q, double **S, double **R, double **q, double **r, int **idxb, double **lb, double **ub, double **C, double **D, double **lg, double **ug, double **Zl, double **Zu, double **zl, double **zu, int **idxs, struct d_ocp_qp *qp);
+//
+void d_update_Q(int stage, double *mat, struct d_ocp_qp *qp);
+//
+void d_update_S(int stage, double *mat, struct d_ocp_qp *qp);
+//
+void d_update_R(int stage, double *mat, struct d_ocp_qp *qp);
+//
+void d_update_q(int stage, double *vec, struct d_ocp_qp *qp);
+//
+void d_update_r(int stage, double *vec, struct d_ocp_qp *qp);
+//
+void d_update_A(int stage, double *mat, struct d_ocp_qp *qp);
+//
+void d_update_B(int stage, double *mat, struct d_ocp_qp *qp);
+//
+void d_update_b(int stage, double *vec, struct d_ocp_qp *qp);
+//
+void d_update_lbx(int stage, double *vec, struct d_ocp_qp *qp);
+//
+void d_update_ubx(int stage, double *vec, struct d_ocp_qp *qp);
+//
+void d_update_lbu(int stage, double *vec, struct d_ocp_qp *qp);
+//
+void d_update_ubu(int stage, double *vec, struct d_ocp_qp *qp);
+//
+void d_update_C(int stage, double *mat, struct d_ocp_qp *qp);
+//
+void d_update_D(int stage, double *mat, struct d_ocp_qp *qp);
+//
+void d_update_lg(int stage, double *vec, struct d_ocp_qp *qp);
+//
+void d_update_ug(int stage, double *vec, struct d_ocp_qp *qp);
+
+
 
 #ifdef __cplusplus
 }	// #extern "C"

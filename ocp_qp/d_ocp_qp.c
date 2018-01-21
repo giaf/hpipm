@@ -63,6 +63,21 @@
 #define CVT_ROWMAJ_TO_OCP_QP d_cvt_rowmaj_to_ocp_qp
 #define MEMSIZE_OCP_QP d_memsize_ocp_qp
 
-
+#define UPDATE_Q d_update_Q
+#define UPDATE_S d_update_S
+#define UPDATE_R d_update_R
+#define UPDATE_QVEC d_update_q
+#define UPDATE_RVEC d_update_r
+#define UPDATE_A d_update_A
+#define UPDATE_B d_update_B
+#define UPDATE_BVEC d_update_b
+#define UPDATE_LBX d_update_lbx
+#define UPDATE_UBX d_update_ubx
+#define UPDATE_LBU d_update_lbu
+#define UPDATE_UBU d_update_ubu
+#define UPDATE_C d_update_C
+#define UPDATE_D d_update_D
+#define UPDATE_LG d_update_lg
+#define UPDATE_UG d_update_ug
 
 #include "x_ocp_qp.c"
