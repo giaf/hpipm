@@ -222,6 +222,7 @@ void COMPUTE_RES_TREE_OCP_QP(struct TREE_OCP_QP *qp, struct TREE_OCP_QP_SOL *qp_
 	struct STRVEC *res_g = ws->res_g;
 	struct STRVEC *res_b = ws->res_b;
 	struct STRVEC *res_d = ws->res_d;
+	struct STRVEC *res_m = ws->res_m;
 	struct STRVEC *tmp_nbgM = ws->tmp_nbgM;
 	struct STRVEC *tmp_nsM = ws->tmp_nsM;
 
@@ -299,9 +300,9 @@ void COMPUTE_RES_TREE_OCP_QP(struct TREE_OCP_QP *qp, struct TREE_OCP_QP_SOL *qp_
 
 			}
 
-		}
+		mu += VECMULDOT_LIBSTR(2*nb0+2*ng0+2*ns0, lam+ii, 0, t+ii, 0, res_m+ii, 0);
 
-	mu += VECMULDOT_LIBSTR(nct, lam, 0, t, 0, ws->res_m, 0);
+		}
 
 	ws->res_mu = mu*cws->nc_inv;
 
