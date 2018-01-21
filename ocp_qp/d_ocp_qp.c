@@ -44,8 +44,11 @@
 #define CREATE_STRMAT blasfeo_create_dmat
 #define CREATE_STRVEC blasfeo_create_dvec
 #define CVT_MAT2STRMAT blasfeo_pack_dmat
+#define CVT_STRMAT2MAT blasfeo_unpack_dmat
 #define CVT_TRAN_MAT2STRMAT blasfeo_pack_tran_dmat
+#define CVT_TRAN_STRMAT2MAT blasfeo_unpack_tran_dmat
 #define CVT_VEC2STRVEC blasfeo_pack_dvec
+#define CVT_STRVEC2VEC blasfeo_unpack_dvec
 #define OCP_QP d_ocp_qp
 #define OCP_QP_DIM d_ocp_qp_dim
 #define REAL double
@@ -79,5 +82,22 @@
 #define UPDATE_D d_update_D
 #define UPDATE_LG d_update_lg
 #define UPDATE_UG d_update_ug
+
+#define COPY_Q d_copy_Q
+#define COPY_S d_copy_S
+#define COPY_R d_copy_R
+#define COPY_QVEC d_copy_q
+#define COPY_RVEC d_copy_r
+#define COPY_A d_copy_A
+#define COPY_B d_copy_B
+#define COPY_BVEC d_copy_b
+#define COPY_LBX d_copy_lbx
+#define COPY_UBX d_copy_ubx
+#define COPY_LBU d_copy_lbu
+#define COPY_UBU d_copy_ubu
+#define COPY_C d_copy_C
+#define COPY_D d_copy_D
+#define COPY_LG d_copy_lg
+#define COPY_UG d_copy_ug
 
 #include "x_ocp_qp.c"

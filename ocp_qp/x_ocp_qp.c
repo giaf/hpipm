@@ -428,101 +428,197 @@ void CVT_ROWMAJ_TO_OCP_QP(REAL **A, REAL **B, REAL **b, REAL **Q, REAL **S, REAL
 void UPDATE_Q(int stage, REAL *mat, struct OCP_QP *qp) {
 	int num_rows = num_rows_Q(stage, qp->dim), num_cols = num_cols_Q(stage, qp->dim);
     int row_offset = qp->dim->nu[stage], col_offset = qp->dim->nu[stage];
-    blasfeo_pack_dmat(num_rows, num_cols, mat, num_rows, &(qp->RSQrq[stage]), row_offset, col_offset);
+    CVT_MAT2STRMAT(num_rows, num_cols, mat, num_rows, &(qp->RSQrq[stage]), row_offset, col_offset);
+}
+
+void COPY_Q(int stage, REAL *mat, struct OCP_QP *qp) {
+	int num_rows = num_rows_Q(stage, qp->dim), num_cols = num_cols_Q(stage, qp->dim);
+    int row_offset = qp->dim->nu[stage], col_offset = qp->dim->nu[stage];
+	CVT_STRMAT2MAT(num_rows, num_cols, &(qp->RSQrq[stage]), row_offset, col_offset, mat, num_rows);
 }
 
 void UPDATE_S(int stage, REAL *mat, struct OCP_QP *qp) {
     int num_rows = num_rows_S(stage, qp->dim), num_cols = num_cols_S(stage, qp->dim);
     int row_offset = qp->dim->nu[stage], col_offset = 0;
-    blasfeo_pack_tran_dmat(num_rows, num_cols, mat, num_rows, &(qp->RSQrq[stage]), row_offset, col_offset);
+    CVT_TRAN_MAT2STRMAT(num_rows, num_cols, mat, num_rows, &(qp->RSQrq[stage]), row_offset, col_offset);
+}
+
+void COPY_S(int stage, REAL *mat, struct OCP_QP *qp) {
+	int num_rows = num_rows_S(stage, qp->dim), num_cols = num_cols_S(stage, qp->dim);
+    int row_offset = qp->dim->nu[stage], col_offset = 0;
+	CVT_TRAN_STRMAT2MAT(num_rows, num_cols, &(qp->RSQrq[stage]), row_offset, col_offset, mat, num_rows);
 }
 
 void UPDATE_R(int stage, REAL *mat, struct OCP_QP *qp) {
     int num_rows = num_rows_R(stage, qp->dim), num_cols = num_cols_R(stage, qp->dim);
     int row_offset = 0, col_offset = 0;
-    blasfeo_pack_dmat(num_rows, num_cols, mat, num_rows, &(qp->RSQrq[stage]), row_offset, col_offset);
+    CVT_MAT2STRMAT(num_rows, num_cols, mat, num_rows, &(qp->RSQrq[stage]), row_offset, col_offset);
+}
+
+void COPY_R(int stage, REAL *mat, struct OCP_QP *qp) {
+	int num_rows = num_rows_R(stage, qp->dim), num_cols = num_cols_R(stage, qp->dim);
+    int row_offset = 0, col_offset = 0;
+	CVT_STRMAT2MAT(num_rows, num_cols, &(qp->RSQrq[stage]), row_offset, col_offset, mat, num_rows);
 }
 
 void UPDATE_QVEC(int stage, REAL *vec, struct OCP_QP *qp) {
     int num_rows = num_elems_q(stage, qp->dim), num_cols = 1;
     int row_offset = qp->dim->nu[stage] + qp->dim->nx[stage], col_offset = qp->dim->nu[stage];
-    blasfeo_pack_tran_dmat(num_rows, num_cols, vec, num_rows, &(qp->RSQrq[stage]), row_offset, col_offset);
-    blasfeo_pack_dvec(num_rows, vec, &(qp->rq[stage]), col_offset);
+    CVT_TRAN_MAT2STRMAT(num_rows, num_cols, vec, num_rows, &(qp->RSQrq[stage]), row_offset, col_offset);
+    CVT_VEC2STRVEC(num_rows, vec, &(qp->rq[stage]), col_offset);
+}
+
+void COPY_QVEC(int stage, REAL *vec, struct OCP_QP *qp) {
+	int num_elems = num_elems_q(stage, qp->dim);
+    int offset = qp->dim->nu[stage];
+    CVT_STRVEC2VEC(num_elems, &(qp->rq[stage]), offset, vec);
 }
 
 void UPDATE_RVEC(int stage, REAL *vec, struct OCP_QP *qp) {
     int num_rows = num_elems_r(stage, qp->dim), num_cols = 1;
     int row_offset = qp->dim->nu[stage] + qp->dim->nx[stage], col_offset = 0;
-    blasfeo_pack_tran_dmat(num_rows, num_cols, vec, num_rows, &(qp->RSQrq[stage]), row_offset, col_offset);
-    blasfeo_pack_dvec(num_rows, vec, &(qp->rq[stage]), 0);
+    CVT_TRAN_MAT2STRMAT(num_rows, num_cols, vec, num_rows, &(qp->RSQrq[stage]), row_offset, col_offset);
+    CVT_VEC2STRVEC(num_rows, vec, &(qp->rq[stage]), col_offset);
+}
+
+void COPY_RVEC(int stage, REAL *vec, struct OCP_QP *qp) {
+	int num_elems = num_elems_r(stage, qp->dim);
+    int offset = 0;
+    CVT_STRVEC2VEC(num_elems, &(qp->rq[stage]), offset, vec);
 }
 
 void UPDATE_A(int stage, REAL *mat, struct OCP_QP *qp) {
     int num_rows = num_rows_A(stage, qp->dim), num_cols = num_cols_A(stage, qp->dim);
     int row_offset = qp->dim->nu[stage], col_offset = 0;
-    blasfeo_pack_tran_dmat(num_rows, num_cols, mat, num_rows, &(qp->BAbt[stage]), row_offset, col_offset);
+    CVT_TRAN_MAT2STRMAT(num_rows, num_cols, mat, num_rows, &(qp->BAbt[stage]), row_offset, col_offset);
+}
+
+void COPY_A(int stage, REAL *mat, struct OCP_QP *qp) {
+	int num_rows = num_rows_A(stage, qp->dim), num_cols = num_cols_A(stage, qp->dim);
+    int row_offset = qp->dim->nu[stage], col_offset = 0;
+	CVT_TRAN_STRMAT2MAT(num_rows, num_cols, &(qp->BAbt[stage]), row_offset, col_offset, mat, num_rows);
 }
 
 void UPDATE_B(int stage, REAL *mat, struct OCP_QP *qp) {
 	int num_rows = num_rows_B(stage, qp->dim), num_cols = num_cols_B(stage, qp->dim);
     int row_offset = 0, col_offset = 0;
-    blasfeo_pack_tran_dmat(num_rows, num_cols, mat, num_rows, &(qp->BAbt[stage]), row_offset, col_offset);
+    CVT_TRAN_MAT2STRMAT(num_rows, num_cols, mat, num_rows, &(qp->BAbt[stage]), row_offset, col_offset);
+}
+
+void COPY_B(int stage, REAL *mat, struct OCP_QP *qp) {
+	int num_rows = num_rows_B(stage, qp->dim), num_cols = num_cols_B(stage, qp->dim);
+    int row_offset = 0, col_offset = 0;
+	CVT_TRAN_STRMAT2MAT(num_rows, num_cols, &(qp->BAbt[stage]), row_offset, col_offset, mat, num_rows);
 }
 
 void UPDATE_BVEC(int stage, REAL *vec, struct OCP_QP *qp) {
     int num_rows = num_elems_b(stage, qp->dim), num_cols = 1;
     int row_offset = qp->dim->nx[stage] + qp->dim->nu[stage], col_offset = 0;
-    blasfeo_pack_tran_dmat(num_rows, num_cols, vec, num_rows, &(qp->BAbt[stage]), row_offset, col_offset);
-    blasfeo_pack_dvec(num_rows, vec, &(qp->b[stage]), 0);
+    CVT_TRAN_MAT2STRMAT(num_rows, num_cols, vec, num_rows, &(qp->BAbt[stage]), row_offset, col_offset);
+    CVT_VEC2STRVEC(num_rows, vec, &(qp->b[stage]), col_offset);
+}
+
+void COPY_BVEC(int stage, REAL *vec, struct OCP_QP *qp) {
+	int num_elems = num_elems_b(stage, qp->dim);
+    int offset = 0;
+    CVT_STRVEC2VEC(num_elems, &(qp->b[stage]), offset, vec);
 }
 
 void UPDATE_LBX(int stage, REAL *vec, struct OCP_QP *qp) {
     int num_elems = num_elems_lbx(stage, qp->dim);
     int offset = qp->dim->nbu[stage];
-    blasfeo_pack_dvec(num_elems, vec, &(qp->d[stage]), offset);
+    CVT_VEC2STRVEC(num_elems, vec, &(qp->d[stage]), offset);
+}
+
+void COPY_LBX(int stage, REAL *vec, struct OCP_QP *qp) {
+	int num_elems = num_elems_lbx(stage, qp->dim);
+    int offset = qp->dim->nbu[stage];
+    CVT_STRVEC2VEC(num_elems, &(qp->d[stage]), offset, vec);
 }
 
 void UPDATE_LBU(int stage, REAL *vec, struct OCP_QP *qp) {
     int num_elems = num_elems_lbu(stage, qp->dim);
     int offset = 0;
-    blasfeo_pack_dvec(num_elems, vec, &(qp->d[stage]), offset);
+    CVT_VEC2STRVEC(num_elems, vec, &(qp->d[stage]), offset);
+}
+
+void COPY_LBU(int stage, REAL *vec, struct OCP_QP *qp) {
+	int num_elems = num_elems_lbu(stage, qp->dim);
+    int offset = 0;
+    CVT_STRVEC2VEC(num_elems, &(qp->d[stage]), offset, vec);
 }
 
 void UPDATE_UBX(int stage, REAL *vec, struct OCP_QP *qp) {
     int num_elems = num_elems_ubx(stage, qp->dim);
     int offset = qp->dim->nb[stage] + qp->dim->ng[stage] + qp->dim->nbu[stage];
-    blasfeo_pack_dvec(num_elems, vec, &(qp->d[stage]), offset);
-    blasfeo_dvecsc(num_elems, -1.0, &(qp->d[stage]), offset);
+    CVT_VEC2STRVEC(num_elems, vec, &(qp->d[stage]), offset);
+    VECSC_LIBSTR(num_elems, -1.0, &(qp->d[stage]), offset);
+}
+
+void COPY_UBX(int stage, REAL *vec, struct OCP_QP *qp) {
+	int num_elems = num_elems_ubx(stage, qp->dim);
+    int offset = qp->dim->nb[stage] + qp->dim->ng[stage] + qp->dim->nbu[stage];
+    CVT_STRVEC2VEC(num_elems, &(qp->d[stage]), offset, vec);
 }
 
 void UPDATE_UBU(int stage, REAL *vec, struct OCP_QP *qp) {
     int num_elems = num_elems_ubu(stage, qp->dim);
     int offset = qp->dim->nb[stage] + qp->dim->ng[stage];
-    blasfeo_pack_dvec(num_elems, vec, &(qp->d[stage]), offset);
-    blasfeo_dvecsc(num_elems, -1.0, &(qp->d[stage]), offset);
+    CVT_VEC2STRVEC(num_elems, vec, &(qp->d[stage]), offset);
+    VECSC_LIBSTR(num_elems, -1.0, &(qp->d[stage]), offset);
+}
+
+void COPY_UBU(int stage, REAL *vec, struct OCP_QP *qp) {
+	int num_elems = num_elems_ubu(stage, qp->dim);
+    int offset = qp->dim->nb[stage] + qp->dim->ng[stage];
+    CVT_STRVEC2VEC(num_elems, &(qp->d[stage]), offset, vec);
 }
 
 void UPDATE_C(int stage, REAL *mat, struct OCP_QP *qp) {
     int num_rows = num_rows_C(stage, qp->dim), num_cols = num_cols_C(stage, qp->dim);
     int row_offset = qp->dim->nu[stage], col_offset = 0;
-    blasfeo_pack_tran_dmat(num_rows, num_cols, mat, num_rows, &(qp->DCt[stage]), row_offset, col_offset);
+    CVT_TRAN_MAT2STRMAT(num_rows, num_cols, mat, num_rows, &(qp->DCt[stage]), row_offset, col_offset);
+}
+
+void COPY_C(int stage, REAL *mat, struct OCP_QP *qp) {
+	int num_rows = num_rows_C(stage, qp->dim), num_cols = num_cols_C(stage, qp->dim);
+    int row_offset = qp->dim->nu[stage], col_offset = 0;
+	CVT_TRAN_STRMAT2MAT(num_rows, num_cols, &(qp->DCt[stage]), row_offset, col_offset, mat, num_rows);
 }
 
 void UPDATE_D(int stage, REAL *mat, struct OCP_QP *qp) {
     int num_rows = num_rows_D(stage, qp->dim), num_cols = num_cols_D(stage, qp->dim);
     int row_offset = 0, col_offset = 0;
-    blasfeo_pack_tran_dmat(num_rows, num_cols, mat, num_rows, &(qp->DCt[stage]), row_offset, col_offset);
+    CVT_TRAN_MAT2STRMAT(num_rows, num_cols, mat, num_rows, &(qp->DCt[stage]), row_offset, col_offset);
+}
+
+void COPY_D(int stage, REAL *mat, struct OCP_QP *qp) {
+	int num_rows = num_rows_D(stage, qp->dim), num_cols = num_cols_D(stage, qp->dim);
+    int row_offset = 0, col_offset = 0;
+	CVT_TRAN_STRMAT2MAT(num_rows, num_cols, &(qp->DCt[stage]), row_offset, col_offset, mat, num_rows);
 }
 
 void UPDATE_LG(int stage, REAL *vec, struct OCP_QP *qp) {
     int num_elems = num_elems_lg(stage, qp->dim);
     int offset = qp->dim->nb[stage];
-    blasfeo_pack_dvec(num_elems, vec, &(qp->d[stage]), offset);
+    CVT_VEC2STRVEC(num_elems, vec, &(qp->d[stage]), offset);
+}
+
+void COPY_LG(int stage, REAL *vec, struct OCP_QP *qp) {
+	int num_elems = num_elems_lg(stage, qp->dim);
+    int offset = qp->dim->nb[stage];
+    CVT_STRVEC2VEC(num_elems, &(qp->d[stage]), offset, vec);
 }
 
 void UPDATE_UG(int stage, REAL *vec, struct OCP_QP *qp) {
     int num_elems = num_elems_ug(stage, qp->dim);
     int offset = 2*qp->dim->nb[stage] + qp->dim->ng[stage];
-    blasfeo_pack_dvec(num_elems, vec, &(qp->d[stage]), offset);
-    blasfeo_dvecsc(num_elems, -1.0, &(qp->d[stage]), offset);
+    CVT_VEC2STRVEC(num_elems, vec, &(qp->d[stage]), offset);
+    VECSC_LIBSTR(num_elems, -1.0, &(qp->d[stage]), offset);
+}
+
+void COPY_UG(int stage, REAL *vec, struct OCP_QP *qp) {
+	int num_elems = num_elems_ug(stage, qp->dim);
+    int offset = 2*qp->dim->nb[stage] + qp->dim->ng[stage];
+    CVT_STRVEC2VEC(num_elems, &(qp->d[stage]), offset, vec);
 }
