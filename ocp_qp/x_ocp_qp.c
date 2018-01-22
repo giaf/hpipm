@@ -292,7 +292,7 @@ void CVT_COLMAJ_TO_OCP_QP(REAL **A, REAL **B, REAL **b, REAL **Q, REAL **S, REAL
 		{
 		CVT_TRAN_MAT2STRMAT(nx[ii+1], nu[ii], B[ii], nx[ii+1], qp->BAbt+ii, 0, 0);
 		CVT_TRAN_MAT2STRMAT(nx[ii+1], nx[ii], A[ii], nx[ii+1], qp->BAbt+ii, nu[ii], 0);
-		CVT_TRAN_MAT2STRMAT(nx[ii+1], 1, b[ii], nx[ii+1], qp->BAbt+ii, nu[ii]+nx[ii], 0);
+		CVT_TRAN_MAT2STRMAT(nx[ii+1], 1, b[ii], nx[ii+1], qp->BAbt+ii, nu[ii]+nx[ii], 0); // XXX remove ???
 		CVT_VEC2STRVEC(nx[ii+1], b[ii], qp->b+ii, 0);
 		}
 	
@@ -301,8 +301,8 @@ void CVT_COLMAJ_TO_OCP_QP(REAL **A, REAL **B, REAL **b, REAL **Q, REAL **S, REAL
 		CVT_MAT2STRMAT(nu[ii], nu[ii], R[ii], nu[ii], qp->RSQrq+ii, 0, 0);
 		CVT_TRAN_MAT2STRMAT(nu[ii], nx[ii], S[ii], nu[ii], qp->RSQrq+ii, nu[ii], 0);
 		CVT_MAT2STRMAT(nx[ii], nx[ii], Q[ii], nx[ii], qp->RSQrq+ii, nu[ii], nu[ii]);
-		CVT_TRAN_MAT2STRMAT(nu[ii], 1, r[ii], nu[ii], qp->RSQrq+ii, nu[ii]+nx[ii], 0);
-		CVT_TRAN_MAT2STRMAT(nx[ii], 1, q[ii], nx[ii], qp->RSQrq+ii, nu[ii]+nx[ii], nu[ii]);
+		CVT_TRAN_MAT2STRMAT(nu[ii], 1, r[ii], nu[ii], qp->RSQrq+ii, nu[ii]+nx[ii], 0); // XXX remove ???
+		CVT_TRAN_MAT2STRMAT(nx[ii], 1, q[ii], nx[ii], qp->RSQrq+ii, nu[ii]+nx[ii], nu[ii]); // XXX remove ???
 		CVT_VEC2STRVEC(nu[ii], r[ii], qp->rq+ii, 0);
 		CVT_VEC2STRVEC(nx[ii], q[ii], qp->rq+ii, nu[ii]);
 		}
@@ -341,6 +341,7 @@ void CVT_COLMAJ_TO_OCP_QP(REAL **A, REAL **B, REAL **b, REAL **Q, REAL **S, REAL
 			CVT_VEC2STRVEC(ns[ii], Zu[ii], qp->Z+ii, ns[ii]);
 			CVT_VEC2STRVEC(ns[ii], zl[ii], qp->z+ii, 0);
 			CVT_VEC2STRVEC(ns[ii], zu[ii], qp->z+ii, ns[ii]);
+			// TODO add d for slacks !!! (not necessarily equal to zero)
 			}
 		}
 
@@ -425,200 +426,424 @@ void CVT_ROWMAJ_TO_OCP_QP(REAL **A, REAL **B, REAL **b, REAL **Q, REAL **S, REAL
 
 
 
-void UPDATE_Q(int stage, REAL *mat, struct OCP_QP *qp) {
-	int num_rows = num_rows_Q(stage, qp->dim), num_cols = num_cols_Q(stage, qp->dim);
-    int row_offset = qp->dim->nu[stage], col_offset = qp->dim->nu[stage];
-    CVT_MAT2STRMAT(num_rows, num_cols, mat, num_rows, &(qp->RSQrq[stage]), row_offset, col_offset);
-}
+void CVT_COLMAJ_TO_OCP_QP_Q(int stage, REAL *Q, struct OCP_QP *qp)
+	{
+	// extract dim
+	int *nx = qp->dim->nx;
+	int *nu = qp->dim->nu;
 
-void COPY_Q(int stage, REAL *mat, struct OCP_QP *qp) {
-	int num_rows = num_rows_Q(stage, qp->dim), num_cols = num_cols_Q(stage, qp->dim);
-    int row_offset = qp->dim->nu[stage], col_offset = qp->dim->nu[stage];
-	CVT_STRMAT2MAT(num_rows, num_cols, &(qp->RSQrq[stage]), row_offset, col_offset, mat, num_rows);
-}
+	CVT_MAT2STRMAT(nx[stage], nx[stage], Q, nx[stage], qp->RSQrq+stage, nu[stage], nu[stage]);
 
-void UPDATE_S(int stage, REAL *mat, struct OCP_QP *qp) {
-    int num_rows = num_rows_S(stage, qp->dim), num_cols = num_cols_S(stage, qp->dim);
-    int row_offset = qp->dim->nu[stage], col_offset = 0;
-    CVT_TRAN_MAT2STRMAT(num_rows, num_cols, mat, num_rows, &(qp->RSQrq[stage]), row_offset, col_offset);
-}
+	return;
+	}
 
-void COPY_S(int stage, REAL *mat, struct OCP_QP *qp) {
-	int num_rows = num_rows_S(stage, qp->dim), num_cols = num_cols_S(stage, qp->dim);
-    int row_offset = qp->dim->nu[stage], col_offset = 0;
-	CVT_TRAN_STRMAT2MAT(num_rows, num_cols, &(qp->RSQrq[stage]), row_offset, col_offset, mat, num_rows);
-}
 
-void UPDATE_R(int stage, REAL *mat, struct OCP_QP *qp) {
-    int num_rows = num_rows_R(stage, qp->dim), num_cols = num_cols_R(stage, qp->dim);
-    int row_offset = 0, col_offset = 0;
-    CVT_MAT2STRMAT(num_rows, num_cols, mat, num_rows, &(qp->RSQrq[stage]), row_offset, col_offset);
-}
 
-void COPY_R(int stage, REAL *mat, struct OCP_QP *qp) {
-	int num_rows = num_rows_R(stage, qp->dim), num_cols = num_cols_R(stage, qp->dim);
-    int row_offset = 0, col_offset = 0;
-	CVT_STRMAT2MAT(num_rows, num_cols, &(qp->RSQrq[stage]), row_offset, col_offset, mat, num_rows);
-}
+void CVT_OCP_QP_TO_COLMAJ_Q(int stage, struct OCP_QP *qp, REAL *Q)
+	{
+	// extract dim
+	int *nx = qp->dim->nx;
+	int *nu = qp->dim->nu;
 
-void UPDATE_QVEC(int stage, REAL *vec, struct OCP_QP *qp) {
-    int num_rows = num_elems_q(stage, qp->dim), num_cols = 1;
-    int row_offset = qp->dim->nu[stage] + qp->dim->nx[stage], col_offset = qp->dim->nu[stage];
-    CVT_TRAN_MAT2STRMAT(num_rows, num_cols, vec, num_rows, &(qp->RSQrq[stage]), row_offset, col_offset);
-    CVT_VEC2STRVEC(num_rows, vec, &(qp->rq[stage]), col_offset);
-}
+	CVT_STRMAT2MAT(nx[stage], nx[stage], qp->RSQrq+stage, nu[stage], nu[stage], Q, nx[stage]);
 
-void COPY_QVEC(int stage, REAL *vec, struct OCP_QP *qp) {
-	int num_elems = num_elems_q(stage, qp->dim);
-    int offset = qp->dim->nu[stage];
-    CVT_STRVEC2VEC(num_elems, &(qp->rq[stage]), offset, vec);
-}
+	return;
+	}
 
-void UPDATE_RVEC(int stage, REAL *vec, struct OCP_QP *qp) {
-    int num_rows = num_elems_r(stage, qp->dim), num_cols = 1;
-    int row_offset = qp->dim->nu[stage] + qp->dim->nx[stage], col_offset = 0;
-    CVT_TRAN_MAT2STRMAT(num_rows, num_cols, vec, num_rows, &(qp->RSQrq[stage]), row_offset, col_offset);
-    CVT_VEC2STRVEC(num_rows, vec, &(qp->rq[stage]), col_offset);
-}
 
-void COPY_RVEC(int stage, REAL *vec, struct OCP_QP *qp) {
-	int num_elems = num_elems_r(stage, qp->dim);
-    int offset = 0;
-    CVT_STRVEC2VEC(num_elems, &(qp->rq[stage]), offset, vec);
-}
 
-void UPDATE_A(int stage, REAL *mat, struct OCP_QP *qp) {
-    int num_rows = num_rows_A(stage, qp->dim), num_cols = num_cols_A(stage, qp->dim);
-    int row_offset = qp->dim->nu[stage], col_offset = 0;
-    CVT_TRAN_MAT2STRMAT(num_rows, num_cols, mat, num_rows, &(qp->BAbt[stage]), row_offset, col_offset);
-}
+void CVT_COLMAJ_TO_OCP_QP_S(int stage, REAL *S, struct OCP_QP *qp)
+	{
+	// extract dim
+	int *nx = qp->dim->nx;
+	int *nu = qp->dim->nu;
 
-void COPY_A(int stage, REAL *mat, struct OCP_QP *qp) {
-	int num_rows = num_rows_A(stage, qp->dim), num_cols = num_cols_A(stage, qp->dim);
-    int row_offset = qp->dim->nu[stage], col_offset = 0;
-	CVT_TRAN_STRMAT2MAT(num_rows, num_cols, &(qp->BAbt[stage]), row_offset, col_offset, mat, num_rows);
-}
+	CVT_TRAN_MAT2STRMAT(nu[stage], nx[stage], S, nu[stage], qp->RSQrq+stage, nu[stage], 0);
 
-void UPDATE_B(int stage, REAL *mat, struct OCP_QP *qp) {
-	int num_rows = num_rows_B(stage, qp->dim), num_cols = num_cols_B(stage, qp->dim);
-    int row_offset = 0, col_offset = 0;
-    CVT_TRAN_MAT2STRMAT(num_rows, num_cols, mat, num_rows, &(qp->BAbt[stage]), row_offset, col_offset);
-}
+	return;
+	}
 
-void COPY_B(int stage, REAL *mat, struct OCP_QP *qp) {
-	int num_rows = num_rows_B(stage, qp->dim), num_cols = num_cols_B(stage, qp->dim);
-    int row_offset = 0, col_offset = 0;
-	CVT_TRAN_STRMAT2MAT(num_rows, num_cols, &(qp->BAbt[stage]), row_offset, col_offset, mat, num_rows);
-}
 
-void UPDATE_BVEC(int stage, REAL *vec, struct OCP_QP *qp) {
-    int num_rows = num_elems_b(stage, qp->dim), num_cols = 1;
-    int row_offset = qp->dim->nx[stage] + qp->dim->nu[stage], col_offset = 0;
-    CVT_TRAN_MAT2STRMAT(num_rows, num_cols, vec, num_rows, &(qp->BAbt[stage]), row_offset, col_offset);
-    CVT_VEC2STRVEC(num_rows, vec, &(qp->b[stage]), col_offset);
-}
 
-void COPY_BVEC(int stage, REAL *vec, struct OCP_QP *qp) {
-	int num_elems = num_elems_b(stage, qp->dim);
-    int offset = 0;
-    CVT_STRVEC2VEC(num_elems, &(qp->b[stage]), offset, vec);
-}
+void CVT_OCP_QP_TO_COLMAJ_S(int stage, struct OCP_QP *qp, REAL *S)
+	{
+	// extract dim
+	int *nx = qp->dim->nx;
+	int *nu = qp->dim->nu;
 
-void UPDATE_LBX(int stage, REAL *vec, struct OCP_QP *qp) {
-    int num_elems = num_elems_lbx(stage, qp->dim);
-    int offset = qp->dim->nbu[stage];
-    CVT_VEC2STRVEC(num_elems, vec, &(qp->d[stage]), offset);
-}
+	CVT_TRAN_STRMAT2MAT(nx[stage], nu[stage], qp->RSQrq+stage, nu[stage], 0, S, nu[stage]);
 
-void COPY_LBX(int stage, REAL *vec, struct OCP_QP *qp) {
-	int num_elems = num_elems_lbx(stage, qp->dim);
-    int offset = qp->dim->nbu[stage];
-    CVT_STRVEC2VEC(num_elems, &(qp->d[stage]), offset, vec);
-}
+	return;
+	}
 
-void UPDATE_LBU(int stage, REAL *vec, struct OCP_QP *qp) {
-    int num_elems = num_elems_lbu(stage, qp->dim);
-    int offset = 0;
-    CVT_VEC2STRVEC(num_elems, vec, &(qp->d[stage]), offset);
-}
 
-void COPY_LBU(int stage, REAL *vec, struct OCP_QP *qp) {
-	int num_elems = num_elems_lbu(stage, qp->dim);
-    int offset = 0;
-    CVT_STRVEC2VEC(num_elems, &(qp->d[stage]), offset, vec);
-}
 
-void UPDATE_UBX(int stage, REAL *vec, struct OCP_QP *qp) {
-    int num_elems = num_elems_ubx(stage, qp->dim);
-    int offset = qp->dim->nb[stage] + qp->dim->ng[stage] + qp->dim->nbu[stage];
-    CVT_VEC2STRVEC(num_elems, vec, &(qp->d[stage]), offset);
-    VECSC_LIBSTR(num_elems, -1.0, &(qp->d[stage]), offset);
-}
+void CVT_COLMAJ_TO_OCP_QP_R(int stage, REAL *R, struct OCP_QP *qp)
+	{
+	// extract dim
+	int *nx = qp->dim->nx;
+	int *nu = qp->dim->nu;
 
-void COPY_UBX(int stage, REAL *vec, struct OCP_QP *qp) {
-	int num_elems = num_elems_ubx(stage, qp->dim);
-    int offset = qp->dim->nb[stage] + qp->dim->ng[stage] + qp->dim->nbu[stage];
-    CVT_STRVEC2VEC(num_elems, &(qp->d[stage]), offset, vec);
-}
+	CVT_MAT2STRMAT(nu[stage], nu[stage], R, nu[stage], qp->RSQrq+stage, 0, 0);
 
-void UPDATE_UBU(int stage, REAL *vec, struct OCP_QP *qp) {
-    int num_elems = num_elems_ubu(stage, qp->dim);
-    int offset = qp->dim->nb[stage] + qp->dim->ng[stage];
-    CVT_VEC2STRVEC(num_elems, vec, &(qp->d[stage]), offset);
-    VECSC_LIBSTR(num_elems, -1.0, &(qp->d[stage]), offset);
-}
+	return;
+	}
 
-void COPY_UBU(int stage, REAL *vec, struct OCP_QP *qp) {
-	int num_elems = num_elems_ubu(stage, qp->dim);
-    int offset = qp->dim->nb[stage] + qp->dim->ng[stage];
-    CVT_STRVEC2VEC(num_elems, &(qp->d[stage]), offset, vec);
-}
 
-void UPDATE_C(int stage, REAL *mat, struct OCP_QP *qp) {
-    int num_rows = num_rows_C(stage, qp->dim), num_cols = num_cols_C(stage, qp->dim);
-    int row_offset = qp->dim->nu[stage], col_offset = 0;
-    CVT_TRAN_MAT2STRMAT(num_rows, num_cols, mat, num_rows, &(qp->DCt[stage]), row_offset, col_offset);
-}
 
-void COPY_C(int stage, REAL *mat, struct OCP_QP *qp) {
-	int num_rows = num_rows_C(stage, qp->dim), num_cols = num_cols_C(stage, qp->dim);
-    int row_offset = qp->dim->nu[stage], col_offset = 0;
-	CVT_TRAN_STRMAT2MAT(num_rows, num_cols, &(qp->DCt[stage]), row_offset, col_offset, mat, num_rows);
-}
+void CVT_OCP_QP_TO_COLMAJ_R(int stage, struct OCP_QP *qp, REAL *R)
+	{
+	// extract dim
+	int *nu = qp->dim->nu;
 
-void UPDATE_D(int stage, REAL *mat, struct OCP_QP *qp) {
-    int num_rows = num_rows_D(stage, qp->dim), num_cols = num_cols_D(stage, qp->dim);
-    int row_offset = 0, col_offset = 0;
-    CVT_TRAN_MAT2STRMAT(num_rows, num_cols, mat, num_rows, &(qp->DCt[stage]), row_offset, col_offset);
-}
+	CVT_STRMAT2MAT(nu[stage], nu[stage], qp->RSQrq+stage, 0, 0, R, nu[stage]);
 
-void COPY_D(int stage, REAL *mat, struct OCP_QP *qp) {
-	int num_rows = num_rows_D(stage, qp->dim), num_cols = num_cols_D(stage, qp->dim);
-    int row_offset = 0, col_offset = 0;
-	CVT_TRAN_STRMAT2MAT(num_rows, num_cols, &(qp->DCt[stage]), row_offset, col_offset, mat, num_rows);
-}
+	return;
+	}
 
-void UPDATE_LG(int stage, REAL *vec, struct OCP_QP *qp) {
-    int num_elems = num_elems_lg(stage, qp->dim);
-    int offset = qp->dim->nb[stage];
-    CVT_VEC2STRVEC(num_elems, vec, &(qp->d[stage]), offset);
-}
 
-void COPY_LG(int stage, REAL *vec, struct OCP_QP *qp) {
-	int num_elems = num_elems_lg(stage, qp->dim);
-    int offset = qp->dim->nb[stage];
-    CVT_STRVEC2VEC(num_elems, &(qp->d[stage]), offset, vec);
-}
 
-void UPDATE_UG(int stage, REAL *vec, struct OCP_QP *qp) {
-    int num_elems = num_elems_ug(stage, qp->dim);
-    int offset = 2*qp->dim->nb[stage] + qp->dim->ng[stage];
-    CVT_VEC2STRVEC(num_elems, vec, &(qp->d[stage]), offset);
-    VECSC_LIBSTR(num_elems, -1.0, &(qp->d[stage]), offset);
-}
+void CVT_COLMAJ_TO_OCP_QP_QVEC(int stage, REAL *q, struct OCP_QP *qp)
+	{
+	// extract dim
+	int *nx = qp->dim->nx;
+	int *nu = qp->dim->nu;
 
-void COPY_UG(int stage, REAL *vec, struct OCP_QP *qp) {
-	int num_elems = num_elems_ug(stage, qp->dim);
-    int offset = 2*qp->dim->nb[stage] + qp->dim->ng[stage];
-    CVT_STRVEC2VEC(num_elems, &(qp->d[stage]), offset, vec);
-}
+    CVT_VEC2STRVEC(nx[stage], q, qp->rq+stage, nu[stage]);
+
+	return;
+	}
+
+
+
+void CVT_OCP_QP_TO_COLMAJ_QVEC(int stage, struct OCP_QP *qp, REAL *q)
+	{
+	// extract dim
+	int *nx = qp->dim->nx;
+	int *nu = qp->dim->nu;
+
+	CVT_STRVEC2VEC(nx[stage], qp->rq+stage, nu[stage], q);
+
+	return;
+	}
+
+
+
+void CVT_COLMAJ_TO_OCP_QP_RVEC(int stage, REAL *r, struct OCP_QP *qp)
+	{
+	// extract dim
+	int *nu = qp->dim->nu;
+
+	CVT_VEC2STRVEC(nu[stage], r, qp->rq+stage, 0);
+
+	return;
+	}
+
+
+
+void CVT_OCP_QP_TO_COLMAJ_RVEC(int stage, struct OCP_QP *qp, REAL *r)
+	{
+	// extract dim
+	int *nu = qp->dim->nu;
+
+	CVT_STRVEC2VEC(nu[stage], qp->rq+stage, 0, r);
+
+	return;
+	}
+
+
+
+void CVT_COLMAJ_TO_OCP_QP_A(int stage, REAL *A, struct OCP_QP *qp)
+	{
+	// extract dim
+	int *nx = qp->dim->nx;
+	int *nu = qp->dim->nu;
+
+	CVT_TRAN_MAT2STRMAT(nx[stage+1], nx[stage], A, nx[stage+1], qp->BAbt+stage, nu[stage], 0);
+
+	return;
+	}
+
+
+
+void CVT_OCP_QP_TO_COLMAJ_A(int stage, struct OCP_QP *qp, REAL *A)
+	{
+	// extract dim
+	int *nx = qp->dim->nx;
+	int *nu = qp->dim->nu;
+
+	CVT_TRAN_STRMAT2MAT(nx[stage], nx[stage+1], qp->BAbt+stage, nu[stage], 0, A, nx[stage+1]);
+
+	return;
+	}
+
+
+
+void CVT_COLMAJ_TO_OCP_QP_B(int stage, REAL *B, struct OCP_QP *qp)
+	{
+	// extract dim
+	int *nx = qp->dim->nx;
+	int *nu = qp->dim->nu;
+
+	CVT_TRAN_MAT2STRMAT(nx[stage+1], nu[stage], B, nx[stage+1], qp->BAbt+stage, 0, 0);
+
+	return;
+	}
+
+
+
+void CVT_OCP_QP_TO_COLMAJ_B(int stage, struct OCP_QP *qp, REAL *B)
+	{
+	// extract dim
+	int *nx = qp->dim->nx;
+	int *nu = qp->dim->nu;
+
+	CVT_TRAN_STRMAT2MAT(nu[stage], nx[stage+1], qp->BAbt+stage, 0, 0, B, nx[stage+1]);
+
+	return;
+	}
+
+
+
+void CVT_COLMAJ_TO_OCP_QP_BVEC(int stage, REAL *b, struct OCP_QP *qp)
+	{
+	// extract dim
+	int *nx = qp->dim->nx;
+	int *nu = qp->dim->nu;
+
+	CVT_VEC2STRVEC(nx[stage+1], b, qp->b+stage, 0);
+
+	return;
+	}
+
+
+
+void CVT_OCP_QP_TO_COLMAJ_BVEC(int stage, struct OCP_QP *qp, REAL *b)
+	{
+	// extract dim
+	int *nx = qp->dim->nx;
+	int *nu = qp->dim->nu;
+
+	CVT_STRVEC2VEC(nx[stage+1], qp->b+stage, 0, b);
+
+	return;
+	}
+
+
+
+void CVT_COLMAJ_TO_OCP_QP_LBX(int stage, REAL *lbx, struct OCP_QP *qp)
+	{
+	// extract dim
+	int *nbu = qp->dim->nbu;
+	int *nbx = qp->dim->nbx;
+
+	CVT_VEC2STRVEC(nbx[stage], lbx, qp->d+stage, nbu[stage]);
+
+	return;
+	}
+
+
+
+void CVT_OCP_QP_TO_COLMAJ_LBX(int stage, struct OCP_QP *qp, REAL *lbx)
+	{
+	// extract dim
+	int *nbu = qp->dim->nbu;
+	int *nbx = qp->dim->nbx;
+
+	CVT_STRVEC2VEC(nbx[stage], qp->d+stage, nbu[stage], lbx);
+
+	return;
+	}
+
+
+
+void CVT_COLMAJ_TO_OCP_QP_LBU(int stage, REAL *lbu, struct OCP_QP *qp)
+	{
+	// extract dim
+	int *nbu = qp->dim->nbu;
+
+	CVT_VEC2STRVEC(nbu[stage], lbu, qp->d+stage, 0);
+
+	return;
+	}
+
+
+
+void CVT_OCP_QP_TO_COLMAJ_LBU(int stage, struct OCP_QP *qp, REAL *lbu)
+	{
+	// extract dim
+	int *nbu = qp->dim->nbu;
+
+	CVT_STRVEC2VEC(nbu[stage], qp->d+stage, 0, lbu);
+
+	return;
+	}
+
+
+
+void CVT_COLMAJ_TO_OCP_QP_UBX(int stage, REAL *lbx, struct OCP_QP *qp)
+	{
+	// extract dim
+	int *nb = qp->dim->nb;
+	int *nbx = qp->dim->nbx;
+	int *nbu = qp->dim->nbu;
+	int *ng = qp->dim->ng;
+
+	CVT_VEC2STRVEC(nbx[stage], lbx, qp->d+stage, nb[stage]+ng[stage]+nbu[stage]);
+    VECSC_LIBSTR(nbx[stage], -1.0, qp->d+stage, nb[stage]+ng[stage]+nbu[stage]);
+
+	return;
+	}
+
+
+
+void CVT_OCP_QP_TO_COLMAJ_UBX(int stage, struct OCP_QP *qp, REAL *ubx)
+	{
+	// extract dim
+	int *nb = qp->dim->nb;
+	int *nbx = qp->dim->nbx;
+	int *nbu = qp->dim->nbu;
+	int *ng = qp->dim->ng;
+
+	CVT_STRVEC2VEC(nbx[stage], qp->d+stage, nb[stage]+ng[stage]+nbu[stage], ubx);
+
+	return;
+	}
+
+
+
+void CVT_COLMAJ_TO_OCP_QP_UBU(int stage, REAL *ubu, struct OCP_QP *qp)
+	{
+	// extract dim
+	int *nb = qp->dim->nb;
+	int *nbu = qp->dim->nbu;
+	int *ng = qp->dim->ng;
+
+	CVT_VEC2STRVEC(nbu[stage], ubu, qp->d+stage, nb[stage]+ng[stage]);
+    VECSC_LIBSTR(nbu[stage], -1.0, qp->d+stage, nb[stage]+ng[stage]);
+
+	return;
+	}
+
+
+
+void CVT_OCP_QP_TO_COLMAJ_UBU(int stage, struct OCP_QP *qp, REAL *ubu)
+	{
+	// extract dim
+	int *nb = qp->dim->nb;
+	int *nbu = qp->dim->nbu;
+	int *ng = qp->dim->ng;
+
+	CVT_STRVEC2VEC(nbu[stage], qp->d+stage, nb[stage]+ng[stage], ubu);
+
+	return;
+	}
+
+
+
+void CVT_COLMAJ_TO_OCP_QP_C(int stage, REAL *C, struct OCP_QP *qp)
+	{
+	// extract dim
+	int *nx = qp->dim->nx;
+	int *nu = qp->dim->nu;
+	int *ng = qp->dim->ng;
+
+	CVT_TRAN_MAT2STRMAT(ng[stage], nx[stage], C, ng[stage], qp->DCt+stage, nu[stage], 0);
+
+	return;
+	}
+
+
+
+void CVT_OCP_QP_TO_COLMAJ_C(int stage, struct OCP_QP *qp, REAL *C)
+	{
+	// extract dim
+	int *nx = qp->dim->nx;
+	int *nu = qp->dim->nu;
+	int *ng = qp->dim->ng;
+
+	CVT_TRAN_STRMAT2MAT(nx[stage], ng[stage], qp->DCt+stage, nu[stage], 0, C, ng[stage]);
+
+	return;
+	}
+
+
+
+void CVT_COLMAJ_TO_OCP_QP_D(int stage, REAL *D, struct OCP_QP *qp)
+	{
+	// extract dim
+	int *nu = qp->dim->nu;
+	int *ng = qp->dim->ng;
+
+	CVT_TRAN_MAT2STRMAT(ng[stage], nu[stage], D, ng[stage], qp->DCt+stage, 0, 0);
+
+	return;
+	}
+
+
+
+void CVT_OCP_QP_TO_COLMAJ_D(int stage, struct OCP_QP *qp, REAL *D)
+	{
+	// extract dim
+	int *nu = qp->dim->nu;
+	int *ng = qp->dim->ng;
+
+	CVT_TRAN_STRMAT2MAT(nu[stage], ng[stage], qp->DCt+stage, 0, 0, D, ng[stage]);
+
+	return;
+	}
+
+
+
+void CVT_COLMAJ_TO_OCP_QP_LG(int stage, REAL *lg, struct OCP_QP *qp)
+	{
+	// extract dim
+	int *nb = qp->dim->nb;
+	int *ng = qp->dim->ng;
+
+	CVT_VEC2STRVEC(ng[stage], lg, qp->d+stage, nb[stage]);
+
+	return;
+	}
+
+
+
+void CVT_OCP_QP_TO_COLMAJ_LG(int stage, struct OCP_QP *qp, REAL *lg)
+	{
+	// extract dim
+	int *nb = qp->dim->nb;
+	int *ng = qp->dim->ng;
+
+	CVT_STRVEC2VEC(ng[stage], qp->d+stage, nb[stage], lg);
+
+	return;
+	}
+
+
+
+void CVT_COLMAJ_TO_OCP_QP_UG(int stage, REAL *ug, struct OCP_QP *qp)
+	{
+	// extract dim
+	int *nb = qp->dim->nb;
+	int *ng = qp->dim->ng;
+
+	CVT_VEC2STRVEC(ng[stage], ug, qp->d+stage, 2*nb[stage]+ng[stage]);
+    VECSC_LIBSTR(ng[stage], -1.0, qp->d+stage, 2*nb[stage]+ng[stage]);
+
+	return;
+	}
+
+
+
+void CVT_OCP_QP_TO_COLMAJ_UG(int stage, struct OCP_QP *qp, REAL *ug)
+	{
+	// extract dim
+	int *nb = qp->dim->nb;
+	int *ng = qp->dim->ng;
+
+	CVT_STRVEC2VEC(ng[stage], qp->d+stage, 2*nb[stage]+ng[stage], ug);
+
+	return;
+	}
+
+

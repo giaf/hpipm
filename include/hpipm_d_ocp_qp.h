@@ -70,69 +70,69 @@ void d_cvt_colmaj_to_ocp_qp(double **A, double **B, double **b, double **Q, doub
 //
 void d_cvt_rowmaj_to_ocp_qp(double **A, double **B, double **b, double **Q, double **S, double **R, double **q, double **r, int **idxb, double **lb, double **ub, double **C, double **D, double **lg, double **ug, double **Zl, double **Zu, double **zl, double **zu, int **idxs, struct d_ocp_qp *qp);
 //
-void d_update_Q(int stage, double *mat, struct d_ocp_qp *qp);
+void d_cvt_colmaj_to_ocp_qp_Q(int stage, double *mat, struct d_ocp_qp *qp);
 //
-void d_copy_Q(int stage, double *mat, struct d_ocp_qp *qp);
+void d_cvt_ocp_qp_to_colmaj_Q(int stage, struct d_ocp_qp *qp, double *mat);
 //
-void d_update_S(int stage, double *mat, struct d_ocp_qp *qp);
+void d_cvt_colmaj_to_ocp_qp_S(int stage, double *mat, struct d_ocp_qp *qp);
 //
-void d_copy_S(int stage, double *mat, struct d_ocp_qp *qp);
+void d_cvt_ocp_qp_to_colmaj_S(int stage, struct d_ocp_qp *qp, double *mat);
 //
-void d_update_R(int stage, double *mat, struct d_ocp_qp *qp);
+void d_cvt_colmaj_to_ocp_qp_R(int stage, double *mat, struct d_ocp_qp *qp);
 //
-void d_copy_R(int stage, double *mat, struct d_ocp_qp *qp);
+void d_cvt_ocp_qp_to_colmaj_R(int stage, struct d_ocp_qp *qp, double *mat);
 //
-void d_update_q(int stage, double *vec, struct d_ocp_qp *qp);
+void d_cvt_colmaj_to_ocp_qp_q(int stage, double *vec, struct d_ocp_qp *qp);
 //
-void d_copy_q(int stage, double *vec, struct d_ocp_qp *qp);
+void d_cvt_ocp_qp_to_colmaj_q(int stage, struct d_ocp_qp *qp, double *vec);
 //
-void d_update_r(int stage, double *vec, struct d_ocp_qp *qp);
+void d_cvt_colmaj_to_ocp_qp_r(int stage, double *vec, struct d_ocp_qp *qp);
 //
-void d_copy_r(int stage, double *vec, struct d_ocp_qp *qp);
+void d_cvt_ocp_qp_to_colmaj_r(int stage, struct d_ocp_qp *qp, double *vec);
 //
-void d_update_A(int stage, double *mat, struct d_ocp_qp *qp);
+void d_cvt_colmaj_to_ocp_qp_A(int stage, double *mat, struct d_ocp_qp *qp);
 //
-void d_copy_A(int stage, double *mat, struct d_ocp_qp *qp);
+void d_cvt_ocp_qp_to_colmaj_A(int stage, struct d_ocp_qp *qp, double *mat);
 //
-void d_update_B(int stage, double *mat, struct d_ocp_qp *qp);
+void d_cvt_colmaj_to_ocp_qp_B(int stage, double *mat, struct d_ocp_qp *qp);
 //
-void d_copy_B(int stage, double *mat, struct d_ocp_qp *qp);
+void d_cvt_ocp_qp_to_colmaj_B(int stage, struct d_ocp_qp *qp, double *mat);
 //
-void d_update_b(int stage, double *vec, struct d_ocp_qp *qp);
+void d_cvt_colmaj_to_ocp_qp_b(int stage, double *vec, struct d_ocp_qp *qp);
 //
-void d_copy_b(int stage, double *vec, struct d_ocp_qp *qp);
+void d_cvt_ocp_qp_to_colmaj_b(int stage, struct d_ocp_qp *qp, double *vec);
 //
-void d_update_lbx(int stage, double *vec, struct d_ocp_qp *qp);
+void d_cvt_colmaj_to_ocp_qp_lbx(int stage, double *vec, struct d_ocp_qp *qp);
 //
-void d_copy_lbx(int stage, double *vec, struct d_ocp_qp *qp);
+void d_cvt_ocp_qp_to_colmaj_lbx(int stage, struct d_ocp_qp *qp, double *vec);
 //
-void d_update_ubx(int stage, double *vec, struct d_ocp_qp *qp);
+void d_cvt_colmaj_to_ocp_qp_ubx(int stage, double *vec, struct d_ocp_qp *qp);
 //
-void d_copy_ubx(int stage, double *vec, struct d_ocp_qp *qp);
+void d_cvt_ocp_qp_to_colmaj_ubx(int stage, struct d_ocp_qp *qp, double *vec);
 //
-void d_update_lbu(int stage, double *vec, struct d_ocp_qp *qp);
+void d_cvt_colmaj_to_ocp_qp_lbu(int stage, double *vec, struct d_ocp_qp *qp);
 //
-void d_copy_lbu(int stage, double *vec, struct d_ocp_qp *qp);
+void d_cvt_ocp_qp_to_colmaj_lbu(int stage, struct d_ocp_qp *qp, double *vec);
 //
-void d_update_ubu(int stage, double *vec, struct d_ocp_qp *qp);
+void d_cvt_colmaj_to_ocp_qp_ubu(int stage, double *vec, struct d_ocp_qp *qp);
 //
-void d_copy_ubu(int stage, double *vec, struct d_ocp_qp *qp);
+void d_cvt_ocp_qp_to_colmaj_ubu(int stage, struct d_ocp_qp *qp, double *vec);
 //
-void d_update_C(int stage, double *mat, struct d_ocp_qp *qp);
+void d_cvt_colmaj_to_ocp_qp_C(int stage, double *mat, struct d_ocp_qp *qp);
 //
-void d_copy_C(int stage, double *mat, struct d_ocp_qp *qp);
+void d_cvt_ocp_qp_to_colmaj_C(int stage, struct d_ocp_qp *qp, double *mat);
 //
-void d_update_D(int stage, double *mat, struct d_ocp_qp *qp);
+void d_cvt_colmaj_to_ocp_qp_D(int stage, double *mat, struct d_ocp_qp *qp);
 //
-void d_copy_D(int stage, double *mat, struct d_ocp_qp *qp);
+void d_cvt_ocp_qp_to_colmaj_D(int stage, struct d_ocp_qp *qp, double *mat);
 //
-void d_update_lg(int stage, double *vec, struct d_ocp_qp *qp);
+void d_cvt_colmaj_to_ocp_qp_lg(int stage, double *vec, struct d_ocp_qp *qp);
 //
-void d_copy_lg(int stage, double *vec, struct d_ocp_qp *qp);
+void d_cvt_ocp_qp_to_colmaj_lg(int stage, struct d_ocp_qp *qp, double *vec);
 //
-void d_update_ug(int stage, double *vec, struct d_ocp_qp *qp);
+void d_cvt_colmaj_to_ocp_qp_ug(int stage, double *vec, struct d_ocp_qp *qp);
 //
-void d_copy_ug(int stage, double *vec, struct d_ocp_qp *qp);
+void d_cvt_ocp_qp_to_colmaj_ug(int stage, struct d_ocp_qp *qp, double *vec);
 
 
 #ifdef __cplusplus
