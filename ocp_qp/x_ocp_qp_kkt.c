@@ -295,9 +295,9 @@ void COMPUTE_RES_OCP_QP(struct OCP_QP *qp, struct OCP_QP_SOL *qp_sol, struct OCP
 
 			}
 
-		}
+		mu += VECMULDOT_LIBSTR(2*nb0+2*ng0+2*ns0, lam+ii, 0, t+ii, 0, res_m+ii, 0);
 
-	mu += VECMULDOT_LIBSTR(nct, lam, 0, t, 0, res_m, 0);
+		}
 
 	res->res_mu = mu*nct_inv;
 

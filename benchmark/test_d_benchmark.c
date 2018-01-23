@@ -38,175 +38,191 @@
 
 
 int d_memsize_benchmark_qp(int nv, int ne, int nc)
-{
-    int size = 0;
+	{
 
-    // size of double, int
-    size += nv * nv * sizeof(double);         // H
-    size += (nv + 2 * nv) * sizeof(double);  // g, lbx, ubx
-    size += (ne + nc) * nv * sizeof(double); // C
-    size += 2 * (ne + nc) * sizeof(double);  // lbC, ubC
+	int size = 0;
 
-    size += 8;
+	// size of double, int
+	size += nv * nv * sizeof(double);         // H
+	size += (nv + 2 * nv) * sizeof(double);  // g, lbx, ubx
+	size += (ne + nc) * nv * sizeof(double); // C
+	size += 2 * (ne + nc) * sizeof(double);  // lbC, ubC
 
-    return size;
-}
+	size += 8;
+
+	return size;
+
+	}
+
 
 
 void d_create_benchmark_qp(int nv, int ne, int nc, struct benchmark_qp *qp, void *mem)
-{
+	{
 
-    // problem size
-    qp->nv = nv;
-    qp->ne = ne;
-    qp->nc = nc;
+	// problem size
+	qp->nv = nv;
+	qp->ne = ne;
+	qp->nc = nc;
 
-    // char pointer
-    double *c_ptr = (double *) mem;
+	// char pointer
+	double *c_ptr = (double *) mem;
 
-    qp->H = c_ptr;
-    c_ptr += nv * nv;
+	qp->H = c_ptr;
+	c_ptr += nv * nv;
 
-    qp->g = c_ptr;
-    c_ptr += nv;
+	qp->g = c_ptr;
+	c_ptr += nv;
 
-    qp->lbx = c_ptr;
-    c_ptr += nv;
+	qp->lbx = c_ptr;
+	c_ptr += nv;
 
-    qp->ubx = c_ptr;
-    c_ptr += nv;
+	qp->ubx = c_ptr;
+	c_ptr += nv;
 
-    qp->C = c_ptr;
-    c_ptr += (ne+nc)*nv;
+	qp->C = c_ptr;
+	c_ptr += (ne+nc)*nv;
 
-    qp->lbC = c_ptr;
-    c_ptr += ne + nc;
+	qp->lbC = c_ptr;
+	c_ptr += ne + nc;
 
-    qp->ubC = c_ptr;
-    c_ptr += ne + nc;
+	qp->ubC = c_ptr;
+	c_ptr += ne + nc;
 
-}
+	}
+
+
 
 int d_memsize_benchmark_to_hpipm(int nv, int ne, int nc)
-{
+	{
 
-    int size = 0;
+	int size = 0;
 
-    // size of double, int
-    size += nv * sizeof(int); // idxb
-    size += ne * nv * sizeof(double);  // C_eq
-    size += ne * sizeof(double); // b
-    size += nc * nv * sizeof(double); // C_ieq
-    size += 2 * nc * sizeof(double); // d_lg0, d_ug0
+	// size of double, int
+	size += nv * sizeof(int); // idxb
+	size += ne * nv * sizeof(double);  // C_eq
+	size += ne * sizeof(double); // b
+	size += nc * nv * sizeof(double); // C_ieq
+	size += 2 * nc * sizeof(double); // d_lg0, d_ug0
 
-    size = (size+8-1)/8*8;
-    size += 8;
+	size = (size+8-1)/8*8;
+	size += 8;
 
-    return size;
-}
+	return size;
+
+	}
+
 
 
 void d_create_benchmark_to_hpipm(int nv, int ne, int nc, struct benchmark_to_hpipm *tran_space, void *mem)
-{
+	{
 
-    // int pointer
-    int *i_ptr = (int *) mem;
+	// int pointer
+	int *i_ptr = (int *) mem;
 
-    // assign pointers to ints
-    tran_space->idxb = i_ptr;
-    i_ptr += nv;
+	// assign pointers to ints
+	tran_space->idxb = i_ptr;
+	i_ptr += nv;
 
-    // align data
-    size_t s_ptr = (size_t) i_ptr;
-  	s_ptr = (s_ptr+7)/8*8;
+	// align data
+	size_t s_ptr = (size_t) i_ptr;
+	s_ptr = (s_ptr+7)/8*8;
 
-    // char pointer
-  	double *c_ptr = (double *) s_ptr;
+	// char pointer
+	double *c_ptr = (double *) s_ptr;
 
-    tran_space->C_eq = c_ptr;
-    c_ptr += ne * nv;
+	tran_space->C_eq = c_ptr;
+	c_ptr += ne * nv;
 
-    tran_space->b = c_ptr;
-    c_ptr += ne;
+	tran_space->b = c_ptr;
+	c_ptr += ne;
 
-    tran_space->C_ieq = c_ptr;
-    c_ptr += nc * nv;
+	tran_space->C_ieq = c_ptr;
+	c_ptr += nc * nv;
 
-    tran_space->d_lg0 = c_ptr;
-    c_ptr += nc;
+	tran_space->d_lg0 = c_ptr;
+	c_ptr += nc;
 
-    tran_space->d_ug0 = c_ptr;
-    c_ptr += nc;
+	tran_space->d_ug0 = c_ptr;
+	c_ptr += nc;
 
-}
+	}
 
-int cvt_benchmark_to_hpipm(struct benchmark_qp *qp_bench,
-                           struct d_dense_qp *qpd,
-                           struct benchmark_to_hpipm *tran_space)
-{
 
-     /* extract benchmark qp */
-     int nvd = qp_bench->nv;
-     int ned = qp_bench->ne;
-     int ncd = qp_bench->nc;
-     double *H = qp_bench->H;
-     double *g = qp_bench->g;
-     double *C = qp_bench->C;
-     double *d_lb = qp_bench->lbx;
-     double *d_ub = qp_bench->ubx;
-     double *d_lg = qp_bench->lbC;
-     double *d_ug = qp_bench->ubC;
 
-     /* construct transfer workspace */
-     int *idxb = tran_space->idxb;
-     double *C_eq = tran_space->C_eq;
-     double *b = tran_space->b;
-     double *C_ieq = tran_space->C_ieq;
-     double *d_lg0 = tran_space->d_lg0;
-     double *d_ug0 = tran_space->d_ug0;
+int cvt_benchmark_to_hpipm(struct benchmark_qp *qp_bench, struct d_dense_qp *qpd, struct benchmark_to_hpipm *tran_space)
+	{
 
-     int ii,jje,kk,jji;
-     jje = 0;
-     jji = 0;
-     for (ii = 0; ii < nvd; ii++) {
-       /* full box constraint */
-       idxb[ii] = ii;
-     }
+	/* extract benchmark qp */
+	int nvd = qp_bench->nv;
+	int ned = qp_bench->ne;
+	int ncd = qp_bench->nc;
 
-     for (ii = 0; ii < ned+ncd; ii++) {
-       /* split C into C_ieq and C_eq */
-       if ( d_lg[ii] == d_ug[ii]) {
-            for (kk = 0; kk < nvd; kk++) {
-              C_eq[jje*nvd + kk] = C[ii*nvd + kk];
-            }
-            b[jje] = d_lg[ii];
-            jje += 1;
-        }
-       else {
-            for (kk = 0; kk < nvd; kk++) {
-              C_ieq[jji*nvd + kk] = C[ii*nvd + kk];
-            }
-            d_lg0[jji] = d_lg[ii];
-            d_ug0[jji] = d_ug[ii];
-            jji += 1;
-       }
-     }
-/*
-     printf("A(%d,%d) = \n",jje,nvd);
-     int k,j;
-     for (j = 0; j < ned; j++) {
-       for (k = 0; k < nvd; k++) {
-       printf("%f ", C_eq[j*nvd + k]);
-       }
-       printf("\n");
-     }
-*/
+	double *H = qp_bench->H;
+	double *g = qp_bench->g;
+	double *C = qp_bench->C;
+	double *d_lb = qp_bench->lbx;
+	double *d_ub = qp_bench->ubx;
+	double *d_lg = qp_bench->lbC;
+	double *d_ug = qp_bench->ubC;
 
-     d_cvt_rowmaj_to_dense_qp(H, g, C_eq, b, idxb, d_lb, d_ub, C_ieq, d_lg0, d_ug0,
-                              NULL, NULL, NULL, NULL, NULL, qpd);
+	/* construct transfer workspace */
+	int *idxb = tran_space->idxb;
+	double *C_eq = tran_space->C_eq;
+	double *b = tran_space->b;
+	double *C_ieq = tran_space->C_ieq;
+	double *d_lg0 = tran_space->d_lg0;
+	double *d_ug0 = tran_space->d_ug0;
 
-     return 0;
-}
+	int ii, jje, kk, jji;
+
+	// box constraint on all variables
+	for (ii = 0; ii < nvd; ii++)
+		{
+		idxb[ii] = ii;
+		}
+
+	// split C into C_ieq and C_eq
+	jje = 0;
+	jji = 0;
+	for (ii = 0; ii < ned+ncd; ii++) {
+	if ( d_lg[ii] == d_ug[ii])
+		{
+		for (kk = 0; kk < nvd; kk++)
+			{
+			C_eq[jje*nvd + kk] = C[ii*nvd + kk];
+			}
+		b[jje] = d_lg[ii];
+		jje += 1;
+		}
+	else
+		{
+		for (kk = 0; kk < nvd; kk++)
+			{
+			C_ieq[jji*nvd + kk] = C[ii*nvd + kk];
+			}
+		d_lg0[jji] = d_lg[ii];
+		d_ug0[jji] = d_ug[ii];
+		jji += 1;
+		}
+	}
+	/*
+	printf("A(%d,%d) = \n",jje,nvd);
+	int k,j;
+	for (j = 0; j < ned; j++) {
+	for (k = 0; k < nvd; k++) {
+	printf("%f ", C_eq[j*nvd + k]);
+	}
+	printf("\n");
+	}
+	*/
+
+	d_cvt_rowmaj_to_dense_qp(H, g, C_eq, b, idxb, d_lb, d_ub, C_ieq, d_lg0, d_ug0,
+						  NULL, NULL, NULL, NULL, NULL, qpd);
+
+	return 0;
+
+	}
+
 
 
 /*================================================================*/
