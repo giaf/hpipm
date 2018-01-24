@@ -116,7 +116,7 @@ void CREATE_OCP_QP_SOL(struct OCP_QP_DIM *dim, struct OCP_QP_SOL *qp_sol, void *
 	l_ptr = (l_ptr+63)/64*64;
 
 
-	// double stuff
+	// REAL stuff
 	char *c_ptr;
 	c_ptr = (char *) l_ptr;
 
@@ -369,3 +369,28 @@ void CVT_OCP_QP_SOL_TO_LIBSTR(struct OCP_QP_SOL *qp_sol, struct STRVEC *u, struc
 	return;
 
 	}
+
+
+void CVT_OCP_QP_SOL_TO_COLMAJ_X(struct OCP_QP_SOL *qp_sol, REAL *vec, int stage)
+	{
+		int *nx = qp_sol->dim->nx;
+		int *nu = qp_sol->dim->nu;
+		CVT_STRVEC2VEC(nx[stage], qp_sol->ux+stage, nu[stage], vec);
+	}
+
+void CVT_OCP_QP_SOL_TO_COLMAJ_U(struct OCP_QP_SOL *qp_sol, REAL *vec, int stage)
+	{
+		int *nx = qp_sol->dim->nx;
+		int *nu = qp_sol->dim->nu;
+		CVT_STRVEC2VEC(nu[stage], qp_sol->ux+stage, 0, vec);
+	}
+
+void CVT_OCP_QP_SOL_TO_COLMAJ_PI(struct OCP_QP_SOL *qp_sol, REAL *vec, int stage){}
+//
+void CVT_OCP_QP_SOL_TO_COLMAJ_LAM_LB(struct OCP_QP_SOL *qp_sol, REAL *vec, int stage){}
+//
+void CVT_OCP_QP_SOL_TO_COLMAJ_LAM_UB(struct OCP_QP_SOL *qp_sol, REAL *vec, int stage){}
+//
+void CVT_OCP_QP_SOL_TO_COLMAJ_LAM_LG(struct OCP_QP_SOL *qp_sol, REAL *vec, int stage){}
+//
+void CVT_OCP_QP_SOL_TO_COLMAJ_LAM_UG(struct OCP_QP_SOL *qp_sol, REAL *vec, int stage);
