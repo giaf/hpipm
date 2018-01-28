@@ -1192,10 +1192,10 @@ void EXPAND_SOL(struct OCP_QP *ocp_qp, struct DENSE_QP_SOL *dense_qp_sol, struct
 	nb0 = nb[0];
 	ng0 = ng[0];
 	ns0 = ns[0];
-	VECCP_LIBSTR(ng[0], lamc, nb2+ngg, lam+0, nb[0]);
-	VECCP_LIBSTR(ng[0], lamc, 2*nb2+ng2+ngg, lam+0, 2*nb[0]+ng[0]);
-	VECCP_LIBSTR(ng[0], tc, nb2+ngg, t+0, nb[0]);
-	VECCP_LIBSTR(ng[0], tc, 2*nb2+ng2+ngg, t+0, 2*nb[0]+ng[0]);
+	VECCP_LIBSTR(ng[0], lamc, nb2+nbg+ngg, lam+0, nb0);
+	VECCP_LIBSTR(ng[0], lamc, 2*nb2+ng2+nbg+ngg, lam+0, 2*nb0+ng0);
+	VECCP_LIBSTR(ng[0], tc, nb2+nbg+ngg, t+0, nb0);
+	VECCP_LIBSTR(ng[0], tc, 2*nb2+ng2+nbg+ngg, t+0, 2*nb0+ng0);
 	ngg += ng0;
 	for(jj=0; jj<nb0+ng0; jj++)
 		idxs_rev[jj] = -1;
