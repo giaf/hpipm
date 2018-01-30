@@ -57,52 +57,8 @@ int s_memsize_ocp_qp_dim(int N);
 void s_create_ocp_qp_dim(int N, struct s_ocp_qp_dim *qp_dim, void *memory);
 //
 void s_cvt_int_to_ocp_qp_dim(int N, int *nx, int *nu, int *nbx, int *nbu, int *ng, int *ns, struct s_ocp_qp_dim *dim);
-//
-#define num_rows_Q(stage, dim) (dim->nx[stage])
-//
-#define num_cols_Q(stage, dim) (dim->nx[stage])
-//
-#define num_rows_S(stage, dim) (dim->nu[stage])
-//
-#define num_cols_S(stage, dim) (dim->nx[stage])
-//
-#define num_rows_R(stage, dim) (dim->nu[stage])
-//
-#define num_cols_R(stage, dim) (dim->nu[stage])
-//
-#define num_elems_q(stage, dim) (dim->nx[stage])
-//
-#define num_elems_r(stage, dim) (dim->nu[stage])
-//
-#define num_rows_A(stage, dim) (dim->nx[stage+1])
-//
-#define num_cols_A(stage, dim) (dim->nx[stage])
-//
-#define num_rows_B(stage, dim) (dim->nx[stage+1])
-//
-#define num_cols_B(stage, dim) (dim->nu[stage])
-//
-#define num_elems_b(stage, dim) (dim->nx[stage+1])
-//
-#define num_elems_lbx(stage, dim) (dim->nbx[stage])
-//
-#define num_elems_lbu(stage, dim) (dim->nbu[stage])
-//
-#define num_elems_ubx(stage, dim) (dim->nbx[stage])
-//
-#define num_elems_ubu(stage, dim) (dim->nbu[stage])
-//
-#define num_rows_C(stage, dim) (dim->ng[stage])
-//
-#define num_cols_C(stage, dim) (dim->nx[stage])
-//
-#define num_rows_D(stage, dim) (dim->ng[stage])
-//
-#define num_cols_D(stage, dim) (dim->nu[stage])
-//
-#define num_elems_lg(stage, dim) (dim->ng[stage])
-//
-#define num_elems_ug(stage, dim) (dim->ng[stage])
+
+
 
 #ifdef __cplusplus
 }	// #extern "C"

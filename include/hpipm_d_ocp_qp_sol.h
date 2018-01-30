@@ -68,6 +68,20 @@ void d_cvt_colmaj_to_ocp_qp_sol(double **u, double **x, double **ls, double **us
 void d_cvt_ocp_qp_sol_to_rowmaj(struct d_ocp_qp_sol *qp_sol, double **u, double **x, double **ls, double **us, double **pi, double **lam_lb, double **lam_ub, double **lam_lg, double **lam_ug, double **lam_ls, double **lam_us);
 //
 void d_cvt_ocp_qp_sol_to_libstr(struct d_ocp_qp_sol *qp_sol, struct blasfeo_dvec *u, struct blasfeo_dvec *ls, struct blasfeo_dvec *us, struct blasfeo_dvec *x, struct blasfeo_dvec *pi, struct blasfeo_dvec *lam_lb, struct blasfeo_dvec *lam_ub, struct blasfeo_dvec *lam_lg, struct blasfeo_dvec *lam_ug, struct blasfeo_dvec *lam_ls, struct blasfeo_dvec *lam_us);
+//
+void d_cvt_ocp_qp_sol_to_colmaj_x(struct d_ocp_qp_sol *qp_sol, double *vec, int stage);
+//
+void d_cvt_ocp_qp_sol_to_colmaj_u(struct d_ocp_qp_sol *qp_sol, double *vec, int stage);
+//
+void d_cvt_ocp_qp_sol_to_colmaj_pi(struct d_ocp_qp_sol *qp_sol, double *vec, int stage);
+//
+void d_cvt_ocp_qp_sol_to_colmaj_lam_lb(struct d_ocp_qp_sol *qp_sol, double *vec, int stage);
+//
+void d_cvt_ocp_qp_sol_to_colmaj_lam_ub(struct d_ocp_qp_sol *qp_sol, double *vec, int stage);
+//
+void d_cvt_ocp_qp_sol_to_colmaj_lam_lg(struct d_ocp_qp_sol *qp_sol, double *vec, int stage);
+//
+void d_cvt_ocp_qp_sol_to_colmaj_lam_ug(struct d_ocp_qp_sol *qp_sol, double *vec, int stage);
 
 #ifdef __cplusplus
 }	// #extern "C"

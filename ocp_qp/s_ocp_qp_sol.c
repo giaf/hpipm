@@ -59,7 +59,13 @@
 #define CVT_COLMAJ_TO_OCP_QP_SOL s_cvt_colmaj_to_ocp_qp_sol
 #define CVT_OCP_QP_SOL_TO_ROWMAJ s_cvt_ocp_qp_sol_to_rowmaj
 #define CVT_OCP_QP_SOL_TO_LIBSTR s_cvt_ocp_qp_sol_to_libstr
-
+#define CVT_OCP_QP_SOL_TO_COLMAJ_X s_cvt_ocp_qp_sol_to_colmaj_x
+#define CVT_OCP_QP_SOL_TO_COLMAJ_U s_cvt_ocp_qp_sol_to_colmaj_u
+#define CVT_OCP_QP_SOL_TO_COLMAJ_PI s_cvt_ocp_qp_sol_to_colmaj_pi
+#define CVT_OCP_QP_SOL_TO_COLMAJ_LAM_LB s_cvt_ocp_qp_sol_to_colmaj_lam_lb
+#define CVT_OCP_QP_SOL_TO_COLMAJ_LAM_UB s_cvt_ocp_qp_sol_to_colmaj_lam_ub
+#define CVT_OCP_QP_SOL_TO_COLMAJ_LAM_LG s_cvt_ocp_qp_sol_to_colmaj_lam_lg
+#define CVT_OCP_QP_SOL_TO_COLMAJ_LAM_UG s_cvt_ocp_qp_sol_to_colmaj_lam_ug
 
 
 #include "x_ocp_qp_sol.c"
