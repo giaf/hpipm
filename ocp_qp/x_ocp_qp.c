@@ -81,7 +81,7 @@ int MEMSIZE_OCP_QP(struct OCP_QP_DIM *dim)
 
 	size = (size+63)/64*64; // make multiple of typical cache line size
 	size += 64; // align to typical cache line size
-	
+
 	return size;
 
 	}
@@ -275,6 +275,39 @@ void CREATE_OCP_QP(struct OCP_QP_DIM *dim, struct OCP_QP *qp, void *mem)
 
 
 
+void CHANGE_BOUNDS_OCP_QP(int *nb, int **idxb, struct OCP_QP *qp)
+	{
+		// TODO runtime check that new memsize is smaller or equal than old
+		int N = qp->dim->N;
+		int *ng = qp->dim->ng;
+
+		int ii, jj;
+
+		char *c_ptr;
+		c_ptr = (char *) qp->d;
+
+	for(ii=0; ii<=N; ii++)
+		{
+		qp->dim->nb[ii] = nb[ii];
+
+		for(jj=0; jj<nb[ii]; jj++)
+			{
+			qp->idxb[ii][jj] = idxb[ii][jj];
+			}
+		}
+
+	for(ii=0; ii<=N; ii++)
+		{
+		CREATE_STRVEC(2*nb[ii]+2*ng[ii], qp->d+ii, c_ptr);
+		c_ptr += nb[ii]*sizeof(REAL);
+		c_ptr += ng[ii]*sizeof(REAL);
+		c_ptr += nb[ii]*sizeof(REAL);
+		c_ptr += ng[ii]*sizeof(REAL);
+		}
+	}
+
+
+
 void CVT_COLMAJ_TO_OCP_QP(REAL **A, REAL **B, REAL **b, REAL **Q, REAL **S, REAL **R, REAL **q, REAL **r, int **idxb, REAL **d_lb, REAL **d_ub, REAL **C, REAL **D, REAL **d_lg, REAL **d_ug, REAL **Zl, REAL **Zu, REAL **zl, REAL **zu, int **idxs, struct OCP_QP *qp)
 	{
 
@@ -295,7 +328,7 @@ void CVT_COLMAJ_TO_OCP_QP(REAL **A, REAL **B, REAL **b, REAL **Q, REAL **S, REAL
 		CVT_TRAN_MAT2STRMAT(nx[ii+1], 1, b[ii], nx[ii+1], qp->BAbt+ii, nu[ii]+nx[ii], 0); // XXX remove ???
 		CVT_VEC2STRVEC(nx[ii+1], b[ii], qp->b+ii, 0);
 		}
-	
+
 	for(ii=0; ii<=N; ii++)
 		{
 		CVT_MAT2STRMAT(nu[ii], nu[ii], R[ii], nu[ii], qp->RSQrq+ii, 0, 0);
@@ -306,7 +339,7 @@ void CVT_COLMAJ_TO_OCP_QP(REAL **A, REAL **B, REAL **b, REAL **Q, REAL **S, REAL
 		CVT_VEC2STRVEC(nu[ii], r[ii], qp->rq+ii, 0);
 		CVT_VEC2STRVEC(nx[ii], q[ii], qp->rq+ii, nu[ii]);
 		}
-	
+
 	for(ii=0; ii<=N; ii++)
 		{
 		if(nb[ii]>0)
@@ -318,7 +351,7 @@ void CVT_COLMAJ_TO_OCP_QP(REAL **A, REAL **B, REAL **b, REAL **Q, REAL **S, REAL
 			VECSC_LIBSTR(nb[ii], -1.0, qp->d+ii, nb[ii]+ng[ii]);
 			}
 		}
-	
+
 	for(ii=0; ii<=N; ii++)
 		{
 		if(ng[ii]>0)
@@ -371,7 +404,7 @@ void CVT_ROWMAJ_TO_OCP_QP(REAL **A, REAL **B, REAL **b, REAL **Q, REAL **S, REAL
 		CVT_TRAN_MAT2STRMAT(nx[ii+1], 1, b[ii], nx[ii+1], qp->BAbt+ii, nu[ii]+nx[ii], 0);
 		CVT_VEC2STRVEC(nx[ii+1], b[ii], qp->b+ii, 0);
 		}
-	
+
 	for(ii=0; ii<=N; ii++)
 		{
 		CVT_TRAN_MAT2STRMAT(nu[ii], nu[ii], R[ii], nu[ii], qp->RSQrq+ii, 0, 0);
@@ -382,7 +415,7 @@ void CVT_ROWMAJ_TO_OCP_QP(REAL **A, REAL **B, REAL **b, REAL **Q, REAL **S, REAL
 		CVT_VEC2STRVEC(nu[ii], r[ii], qp->rq+ii, 0);
 		CVT_VEC2STRVEC(nx[ii], q[ii], qp->rq+ii, nu[ii]);
 		}
-	
+
 	for(ii=0; ii<=N; ii++)
 		{
 		if(nb[ii]>0)
@@ -394,7 +427,7 @@ void CVT_ROWMAJ_TO_OCP_QP(REAL **A, REAL **B, REAL **b, REAL **Q, REAL **S, REAL
 			VECSC_LIBSTR(nb[ii], -1.0, qp->d+ii, nb[ii]+ng[ii]);
 			}
 		}
-	
+
 	for(ii=0; ii<=N; ii++)
 		{
 		if(ng[ii]>0)
