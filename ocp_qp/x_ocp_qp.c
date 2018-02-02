@@ -275,10 +275,11 @@ void CREATE_OCP_QP(struct OCP_QP_DIM *dim, struct OCP_QP *qp, void *mem)
 
 
 
-void CHANGE_BOUNDS_OCP_QP(int *nb, int **idxb, struct OCP_QP *qp)
+void CHANGE_BOUNDS_OCP_QP(int *nbu, int *nbx, int **idxb, struct OCP_QP *qp)
 	{
 		// TODO runtime check that new memsize is smaller or equal than old
 		int N = qp->dim->N;
+		int *nb = qp->dim->nb;
 		int *ng = qp->dim->ng;
 
 		int ii, jj;
@@ -288,7 +289,9 @@ void CHANGE_BOUNDS_OCP_QP(int *nb, int **idxb, struct OCP_QP *qp)
 
 	for(ii=0; ii<=N; ii++)
 		{
-		qp->dim->nb[ii] = nb[ii];
+		qp->dim->nbu[ii] = nbu[ii];
+		qp->dim->nbx[ii] = nbx[ii];
+		nb[ii] = nbu[ii] + nbx[ii];
 
 		for(jj=0; jj<nb[ii]; jj++)
 			{
