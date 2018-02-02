@@ -1269,3 +1269,89 @@ void EXPAND_SOL(struct OCP_QP *ocp_qp, struct DENSE_QP_SOL *dense_qp_sol, struct
 	return;
 
 	}
+
+
+
+void EXPAND_PRIMAL_SOL(struct OCP_QP *ocp_qp, struct DENSE_QP_SOL *dense_qp_sol, struct OCP_QP_SOL *ocp_qp_sol, struct COND_QP_OCP2DENSE_WORKSPACE *cond_ws)
+	{
+
+	int N = ocp_qp->dim->N;
+	int Np = N;
+	if(cond_ws->cond_last_stage==0)
+		N -= 1;
+
+	int ii, jj;
+
+	int *nu = ocp_qp->dim->nu;
+	int *nx = ocp_qp->dim->nx;
+	int *nb = ocp_qp->dim->nb;
+	int *ng = ocp_qp->dim->ng;
+	int *ns = ocp_qp->dim->ns;
+
+	struct STRMAT *BAbt = ocp_qp->BAbt;
+	struct STRVEC *b = ocp_qp->b;
+	int **idxb = ocp_qp->idxb;
+	struct STRMAT *RSQrq = ocp_qp->RSQrq;
+	struct STRVEC *rq = ocp_qp->rq;
+	struct STRMAT *DCt = ocp_qp->DCt;
+	int **idxs = ocp_qp->idxs;
+
+	struct STRVEC *vc = dense_qp_sol->v;
+	struct STRVEC *pic = dense_qp_sol->pi;
+	struct STRVEC *lamc = dense_qp_sol->lam;
+	struct STRVEC *tc = dense_qp_sol->t;
+
+	struct STRVEC *ux = ocp_qp_sol->ux;
+	struct STRVEC *pi = ocp_qp_sol->pi;
+	struct STRVEC *lam = ocp_qp_sol->lam;
+	struct STRVEC *t = ocp_qp_sol->t;
+
+	struct STRVEC *tmp_nuxM = cond_ws->tmp_nuxM;
+	struct STRVEC *tmp_ngM = cond_ws->tmp_ngM;
+	int *idxs_rev = cond_ws->idxs_rev;
+
+	// problem size
+
+	int nbb = nb[0]; // box that remain box constraints
+	int nbg = 0; // box that becomes general constraints
+	for(ii=1; ii<=N; ii++)
+		for(jj=0; jj<nb[ii]; jj++)
+			if(idxb[ii][jj]<nu[ii])
+				nbb++;
+			else
+				nbg++;
+	
+	int nx2 = nx[0];
+	int nu2 = nu[0];
+	int ngg = ng[0];
+	int ns2 = ns[0];
+	for(ii=1; ii<=N; ii++)
+		{
+		nu2 += nu[ii];
+		ngg += ng[ii];
+		ns2 += ns[ii];
+		}
+	int ng2 = nbg + ngg;
+	int nb2 = nbb;
+	int nt2 = nb2 + ng2;
+
+	// inputs & initial states
+	int nu_tmp = 0;
+	// final stages: copy only input
+	for(ii=0; ii<N; ii++)
+		{
+		VECCP_LIBSTR(nu[N-ii], vc, nu_tmp, ux+(N-ii), 0);
+		nu_tmp += nu[N-ii];
+		}
+	// first stage: copy input and state
+	VECCP_LIBSTR(nu[0]+nx[0], vc, nu_tmp, ux+0, 0);
+
+	// compute missing states by simulation within each block
+	for(ii=0; ii<N; ii++)
+		{
+		GEMV_T_LIBSTR(nu[ii]+nx[ii], nx[ii+1], 1.0, BAbt+ii, 0, 0, ux+ii, 0, 1.0, b+ii, 0, ux+(ii+1), nu[ii+1]);
+		}
+
+	return;
+
+	}
