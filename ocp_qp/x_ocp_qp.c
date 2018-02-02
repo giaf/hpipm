@@ -285,7 +285,7 @@ void CHANGE_BOUNDS_OCP_QP(int *nbu, int *nbx, int **idxb, struct OCP_QP *qp)
 		int ii, jj;
 
 		char *c_ptr;
-		c_ptr = (char *) qp->d;
+		c_ptr = (char *) qp->d->pa;
 
 	for(ii=0; ii<=N; ii++)
 		{
