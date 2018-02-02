@@ -45,15 +45,17 @@
 
 
 
+#define BACKUP_RES_M s_backup_res_m
 #define COMPUTE_ALPHA_QP s_compute_alpha_qp
 #define COMPUTE_CENTERING_CORRECTION_QP s_compute_centering_correction_qp
+#define COMPUTE_CENTERING_QP s_compute_centering_qp
 #define COMPUTE_MU_AFF_QP s_compute_mu_aff_qp
 #define COMPUTE_RES_OCP_QP s_compute_res_ocp_qp
 #define CORE_QP_IPM_WORKSPACE s_core_qp_ipm_workspace
 #define CREATE_CORE_QP_IPM s_create_core_qp_ipm
-#define CREATE_STRMAT s_create_strmat
-#define CREATE_STRVEC s_create_strvec
-#define CVT_STRVEC2VEC s_cvt_strvec2vec
+#define CREATE_STRMAT blasfeo_create_smat
+#define CREATE_STRVEC blasfeo_create_svec
+#define CVT_STRVEC2VEC blasfeo_unpack_svec
 #define FACT_SOLVE_KKT_STEP_OCP_QP s_fact_solve_kkt_step_ocp_qp
 #define FACT_SOLVE_KKT_UNCONSTR_OCP_QP s_fact_solve_kkt_unconstr_ocp_qp
 #define INIT_VAR_OCP_QP s_init_var_ocp_qp
@@ -66,19 +68,19 @@
 #define OCP_QP_DIM s_ocp_qp_dim
 #define OCP_QP_SOL s_ocp_qp_sol
 #define PRINT_E_MAT s_print_e_mat
-#define PRINT_E_STRVEC s_print_e_strvec
-#define PRINT_E_TRAN_STRVEC s_print_e_tran_strvec
-#define PRINT_STRMAT s_print_strmat
-#define PRINT_STRVEC s_print_strvec
-#define PRINT_TRAN_STRVEC s_print_tran_strvec
+#define PRINT_E_STRVEC blasfeo_print_exp_svec
+#define PRINT_E_TRAN_STRVEC blasfeo_print_exp_tran_svec
+#define PRINT_STRMAT blasfeo_print_smat
+#define PRINT_STRVEC blasfeo_print_svec
+#define PRINT_TRAN_STRVEC blasfeo_print_tran_svec
 #define REAL float
-#define SIZE_STRMAT s_size_strmat
-#define SIZE_STRVEC s_size_strvec
+#define SIZE_STRMAT blasfeo_memsize_smat
+#define SIZE_STRVEC blasfeo_memsize_svec
 #define SOLVE_KKT_STEP_OCP_QP s_solve_kkt_step_ocp_qp
-#define STRMAT s_strmat
-#define STRVEC s_strvec
+#define STRMAT blasfeo_smat
+#define STRVEC blasfeo_svec
 #define UPDATE_VAR_QP s_update_var_qp
-#define VECNRM_INF_LIBSTR svecnrm_inf_libstr
+#define VECNRM_INF_LIBSTR blasfeo_svecnrm_inf
 
 
 

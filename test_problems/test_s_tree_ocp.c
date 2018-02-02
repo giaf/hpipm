@@ -486,9 +486,9 @@ int main()
 * create scenario tree
 ************************************************/	
 
-	int tree_memory_size = memsize_sctree(md, Nr, Nh);
-	printf("\ntree memsize = %d\n", tree_memory_size);
-	void *tree_memory = malloc(tree_memory_size);
+	int tree_memsize = memsize_sctree(md, Nr, Nh);
+	printf("\ntree memsize = %d\n", tree_memsize);
+	void *tree_memory = malloc(tree_memsize);
 
 	struct sctree st;
 	create_sctree(md, Nr, Nh, &st, tree_memory);
@@ -679,56 +679,56 @@ int main()
 * create tree ocp qp
 ************************************************/	
 
-	int tree_ocp_qp_memory_size = s_memsize_tree_ocp_qp(&ttree, nxt, nut, nbt, ngt);
-	printf("\ntree ocp qp memsize = %d\n", tree_ocp_qp_memory_size);
-	void *tree_ocp_qp_memory = malloc(tree_ocp_qp_memory_size);
+	int tree_ocp_qp_memsize = s_memsize_tree_ocp_qp(&ttree, nxt, nut, nbt, ngt);
+	printf("\ntree ocp qp memsize = %d\n", tree_ocp_qp_memsize);
+	void *tree_ocp_qp_memory = malloc(tree_ocp_qp_memsize);
 
 	struct s_tree_ocp_qp qp;
 	s_create_tree_ocp_qp(&ttree, nxt, nut, nbt, ngt, &qp, tree_ocp_qp_memory);
 	s_cvt_colmaj_to_tree_ocp_qp(hAt, hBt, hbt, hQt, hSt, hRt, hqt, hrt, hidxbt, hd_lbt, hd_ubt, hCt, hDt, hd_lgt, hd_ugt, &qp);
 
 #if 0
-	struct s_strmat *tmat;
-	struct s_strvec *tvec;
+	struct blasfeo_smat *tmat;
+	struct blasfeo_svec *tvec;
 	for(ii=0; ii<Nn-1; ii++)
 		{
 		tmat = qp.BAbt+ii;
-		s_print_strmat(tmat->m, tmat->n, tmat, 0, 0);
+		blasfeo_print_smat(tmat->m, tmat->n, tmat, 0, 0);
 		}
 	for(ii=0; ii<Nn-1; ii++)
 		{
 		tvec = qp.b+ii;
-		s_print_tran_strvec(tvec->m, tvec, 0);
+		blasfeo_print_tran_svec(tvec->m, tvec, 0);
 		}
 	for(ii=0; ii<Nn; ii++)
 		{
 		tmat = qp.RSQrq+ii;
-		s_print_strmat(tmat->m, tmat->n, tmat, 0, 0);
+		blasfeo_print_smat(tmat->m, tmat->n, tmat, 0, 0);
 		}
 	for(ii=0; ii<Nn; ii++)
 		{
 		tvec = qp.rq+ii;
-		s_print_tran_strvec(tvec->m, tvec, 0);
+		blasfeo_print_tran_svec(tvec->m, tvec, 0);
 		}
 	for(ii=0; ii<Nn; ii++)
 		{
 		tvec = qp.d_lb+ii;
-		s_print_tran_strvec(tvec->m, tvec, 0);
+		blasfeo_print_tran_svec(tvec->m, tvec, 0);
 		}
 	for(ii=0; ii<Nn; ii++)
 		{
 		tvec = qp.d_ub+ii;
-		s_print_tran_strvec(tvec->m, tvec, 0);
+		blasfeo_print_tran_svec(tvec->m, tvec, 0);
 		}
 	for(ii=0; ii<Nn; ii++)
 		{
 		tvec = qp.d_lg+ii;
-		s_print_tran_strvec(tvec->m, tvec, 0);
+		blasfeo_print_tran_svec(tvec->m, tvec, 0);
 		}
 	for(ii=0; ii<Nn; ii++)
 		{
 		tvec = qp.d_ug+ii;
-		s_print_tran_strvec(tvec->m, tvec, 0);
+		blasfeo_print_tran_svec(tvec->m, tvec, 0);
 		}
 	for(ii=0; ii<Nn; ii++)
 		{

@@ -44,10 +44,10 @@ extern "C" {
 struct s_ocp_qp_res
 	{
 	struct s_ocp_qp_dim *dim;
-	struct s_strvec *res_g; // q-residuals
-	struct s_strvec *res_b; // b-residuals
-	struct s_strvec *res_d; // d-residuals
-	struct s_strvec *res_m; // m-residuals
+	struct blasfeo_svec *res_g; // q-residuals
+	struct blasfeo_svec *res_b; // b-residuals
+	struct blasfeo_svec *res_d; // d-residuals
+	struct blasfeo_svec *res_m; // m-residuals
 	double res_mu; // mu-residual
 	int memsize;
 	};
@@ -56,8 +56,8 @@ struct s_ocp_qp_res
 
 struct s_ocp_qp_res_workspace
 	{
-	struct s_strvec *tmp_nbgM; // work space of size nbM+ngM
-	struct s_strvec *tmp_nsM; // work space of size nsM
+	struct blasfeo_svec *tmp_nbgM; // work space of size nbM+ngM
+	struct blasfeo_svec *tmp_nsM; // work space of size nsM
 	int memsize;
 	};
 

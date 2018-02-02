@@ -33,6 +33,7 @@
 #include <blasfeo_target.h>
 #include <blasfeo_common.h>
 #include <blasfeo_d_aux.h>
+#include <blasfeo_d_blas.h>
 
 #include "../include/hpipm_d_dense_qp_dim.h"
 #include "../include/hpipm_d_dense_qp.h"
@@ -45,16 +46,20 @@
 
 
 
+#define AXPY_LIBSTR blasfeo_daxpy
+#define BACKUP_RES_M d_backup_res_m
 #define COMPUTE_ALPHA_QP d_compute_alpha_qp
 #define COMPUTE_CENTERING_CORRECTION_QP d_compute_centering_correction_qp
 #define COMPUTE_CENTERING_QP d_compute_centering_qp
+#define COMPUTE_LIN_RES_DENSE_QP d_compute_lin_res_dense_qp
 #define COMPUTE_MU_AFF_QP d_compute_mu_aff_qp
 #define COMPUTE_RES_DENSE_QP d_compute_res_dense_qp
 #define CORE_QP_IPM_WORKSPACE d_core_qp_ipm_workspace
 #define CREATE_CORE_QP_IPM d_create_core_qp_ipm
 #define CREATE_DENSE_QP_RES d_create_dense_qp_res
-#define CREATE_STRMAT d_create_strmat
-#define CREATE_STRVEC d_create_strvec
+#define CREATE_DENSE_QP_SOL d_create_dense_qp_sol
+#define CREATE_STRMAT blasfeo_create_dmat
+#define CREATE_STRVEC blasfeo_create_dvec
 #define DENSE_QP d_dense_qp
 #define DENSE_QP_IPM_ARG d_dense_qp_ipm_arg
 #define DENSE_QP_IPM_WORKSPACE d_dense_qp_ipm_workspace
@@ -67,14 +72,15 @@
 #define INIT_VAR_DENSE_QP d_init_var_dense_qp
 #define MEMSIZE_CORE_QP_IPM d_memsize_core_qp_ipm
 #define MEMSIZE_DENSE_QP_RES d_memsize_dense_qp_res
+#define MEMSIZE_DENSE_QP_SOL d_memsize_dense_qp_sol
 #define REAL double
-#define SIZE_STRMAT d_size_strmat
-#define SIZE_STRVEC d_size_strvec
+#define SIZE_STRMAT blasfeo_memsize_dmat
+#define SIZE_STRVEC blasfeo_memsize_dvec
 #define SOLVE_KKT_STEP_DENSE_QP d_solve_kkt_step_dense_qp
-#define STRMAT d_strmat
-#define STRVEC d_strvec
+#define STRMAT blasfeo_dmat
+#define STRVEC blasfeo_dvec
 #define UPDATE_VAR_QP d_update_var_qp
-#define VECNRM_INF_LIBSTR dvecnrm_inf_libstr
+#define VECNRM_INF_LIBSTR blasfeo_dvecnrm_inf
 
 
 

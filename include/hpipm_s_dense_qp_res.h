@@ -44,10 +44,10 @@ extern "C" {
 struct s_dense_qp_res
 	{
 	struct s_dense_qp_dim *dim;
-	struct s_strvec *res_g; // q-residuals
-	struct s_strvec *res_b; // b-residuals
-	struct s_strvec *res_d; // d-residuals
-	struct s_strvec *res_m; // m-residuals
+	struct blasfeo_svec *res_g; // q-residuals
+	struct blasfeo_svec *res_b; // b-residuals
+	struct blasfeo_svec *res_d; // d-residuals
+	struct blasfeo_svec *res_m; // m-residuals
 	float res_mu; // mu-residual
 	int memsize;
 	};
@@ -56,8 +56,8 @@ struct s_dense_qp_res
 
 struct s_dense_qp_res_workspace
 	{
-	struct s_strvec *tmp_nbg; // work space of size nbM+ngM
-	struct s_strvec *tmp_ns; // work space of size nsM
+	struct blasfeo_svec *tmp_nbg; // work space of size nbM+ngM
+	struct blasfeo_svec *tmp_ns; // work space of size nsM
 	int memsize;
 	};
 

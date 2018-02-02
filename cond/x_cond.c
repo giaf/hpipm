@@ -238,32 +238,32 @@ void CREATE_COND_QP_OCP2DENSE(struct OCP_QP_DIM *ocp_dim, struct COND_QP_OCP2DEN
 		{
 		nu_tmp += nu[ii];
 		CREATE_STRMAT(nu_tmp+nx[0]+1, nx[ii+1], cond_ws->Gamma+ii, c_ptr);
-		c_ptr += (cond_ws->Gamma+ii)->memory_size;
+		c_ptr += (cond_ws->Gamma+ii)->memsize;
 		}
 	for(ii=0; ii<=N; ii++)
 		{
 		CREATE_STRMAT(nu[ii]+nx[ii]+1, nu[ii]+nx[ii], cond_ws->L+ii, c_ptr);
-		c_ptr += (cond_ws->L+ii)->memory_size;
+		c_ptr += (cond_ws->L+ii)->memsize;
 		}
 	CREATE_STRMAT(nxM+1, nxM, cond_ws->Lx, c_ptr);
-	c_ptr += cond_ws->Lx->memory_size;
+	c_ptr += cond_ws->Lx->memsize;
 	CREATE_STRMAT(nuM+nxM+1, nxM, cond_ws->AL, c_ptr);
-	c_ptr += cond_ws->AL->memory_size;
+	c_ptr += cond_ws->AL->memsize;
 	for(ii=0; ii<N; ii++)
 		{
 		CREATE_STRVEC(nx[ii+1], cond_ws->Gammab+ii, c_ptr);
-		c_ptr += (cond_ws->Gammab+ii)->memory_size;
+		c_ptr += (cond_ws->Gammab+ii)->memsize;
 		}
 	for(ii=0; ii<=N; ii++)
 		{
 		CREATE_STRVEC(nu[ii]+nx[ii], cond_ws->l+ii, c_ptr);
-		c_ptr += (cond_ws->l+ii)->memory_size;
+		c_ptr += (cond_ws->l+ii)->memsize;
 		}
 	CREATE_STRVEC(ngM, cond_ws->tmp_ngM, c_ptr);
-	c_ptr += cond_ws->tmp_ngM->memory_size;
+	c_ptr += cond_ws->tmp_ngM->memsize;
 	c_tmp = c_ptr;
 	CREATE_STRVEC(nuM+nxM, cond_ws->tmp_nuxM, c_ptr);
-	c_ptr += cond_ws->tmp_nuxM->memory_size;
+	c_ptr += cond_ws->tmp_nuxM->memsize;
 
 	cond_ws->cond_last_stage = 1; // default: cond last stage
 

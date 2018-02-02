@@ -39,11 +39,11 @@
 #include "../include/hpipm_d_tree_ocp_qp.h"
 #include "../include/hpipm_d_tree_ocp_qp_sol.h"
 
-#define CREATE_STRVEC d_create_strvec
-#define CVT_STRVEC2VEC d_cvt_strvec2vec
+#define CREATE_STRVEC blasfeo_create_dvec
+#define CVT_STRVEC2VEC blasfeo_unpack_dvec
 #define REAL double
-#define SIZE_STRVEC d_size_strvec
-#define STRVEC d_strvec
+#define SIZE_STRVEC blasfeo_memsize_dvec
+#define STRVEC blasfeo_dvec
 #define TREE_OCP_QP d_tree_ocp_qp
 #define TREE_OCP_QP_DIM d_tree_ocp_qp_dim
 #define TREE_OCP_QP_SOL d_tree_ocp_qp_sol

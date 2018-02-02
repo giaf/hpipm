@@ -55,25 +55,25 @@ void m_cvt_d_ocp_qp_to_s_ocp_qp(struct d_ocp_qp *d_qp, struct s_ocp_qp *s_qp)
 
 	for(ii=0; ii<N; ii++)
 		{
-		m_cvt_d2s_strmat(nu[ii]+nx[ii]+1, nx[ii+1], d_qp->BAbt+ii, 0, 0, s_qp->BAbt+ii, 0, 0);
-		m_cvt_d2s_strmat(nu[ii]+nx[ii]+1, nu[ii]+nx[ii], d_qp->RSQrq+ii, 0, 0, s_qp->RSQrq+ii, 0, 0);
-		m_cvt_d2s_strmat(nu[ii]+nx[ii], ng[ii], d_qp->DCt+ii, 0, 0, s_qp->DCt+ii, 0, 0);
-		m_cvt_d2s_strvec(nx[ii+1], d_qp->b+ii, 0, s_qp->b+ii, 0);
-		m_cvt_d2s_strvec(nu[ii]+nx[ii], d_qp->rq+ii, 0, s_qp->rq+ii, 0);
-		m_cvt_d2s_strvec(nb[ii], d_qp->d_lb+ii, 0, s_qp->d_lb+ii, 0);
-		m_cvt_d2s_strvec(nb[ii], d_qp->d_ub+ii, 0, s_qp->d_ub+ii, 0);
-		m_cvt_d2s_strvec(ng[ii], d_qp->d_lg+ii, 0, s_qp->d_lg+ii, 0);
-		m_cvt_d2s_strvec(ng[ii], d_qp->d_ug+ii, 0, s_qp->d_ug+ii, 0);
+		m_cvt_d2blasfeo_smat(nu[ii]+nx[ii]+1, nx[ii+1], d_qp->BAbt+ii, 0, 0, s_qp->BAbt+ii, 0, 0);
+		m_cvt_d2blasfeo_smat(nu[ii]+nx[ii]+1, nu[ii]+nx[ii], d_qp->RSQrq+ii, 0, 0, s_qp->RSQrq+ii, 0, 0);
+		m_cvt_d2blasfeo_smat(nu[ii]+nx[ii], ng[ii], d_qp->DCt+ii, 0, 0, s_qp->DCt+ii, 0, 0);
+		m_cvt_d2blasfeo_svec(nx[ii+1], d_qp->b+ii, 0, s_qp->b+ii, 0);
+		m_cvt_d2blasfeo_svec(nu[ii]+nx[ii], d_qp->rq+ii, 0, s_qp->rq+ii, 0);
+		m_cvt_d2blasfeo_svec(nb[ii], d_qp->d_lb+ii, 0, s_qp->d_lb+ii, 0);
+		m_cvt_d2blasfeo_svec(nb[ii], d_qp->d_ub+ii, 0, s_qp->d_ub+ii, 0);
+		m_cvt_d2blasfeo_svec(ng[ii], d_qp->d_lg+ii, 0, s_qp->d_lg+ii, 0);
+		m_cvt_d2blasfeo_svec(ng[ii], d_qp->d_ug+ii, 0, s_qp->d_ug+ii, 0);
 		for(jj=0; jj<nb[ii]; jj++) s_qp->idxb[ii][jj] = d_qp->idxb[ii][jj];
 		}
 	ii = N;
-	m_cvt_d2s_strmat(nu[ii]+nx[ii]+1, nu[ii]+nx[ii], d_qp->RSQrq+ii, 0, 0, s_qp->RSQrq+ii, 0, 0);
-	m_cvt_d2s_strmat(nu[ii]+nx[ii], ng[ii], d_qp->DCt+ii, 0, 0, s_qp->DCt+ii, 0, 0);
-	m_cvt_d2s_strvec(nu[ii]+nx[ii], d_qp->rq+ii, 0, s_qp->rq+ii, 0);
-	m_cvt_d2s_strvec(nb[ii], d_qp->d_lb+ii, 0, s_qp->d_lb+ii, 0);
-	m_cvt_d2s_strvec(nb[ii], d_qp->d_ub+ii, 0, s_qp->d_ub+ii, 0);
-	m_cvt_d2s_strvec(ng[ii], d_qp->d_lg+ii, 0, s_qp->d_lg+ii, 0);
-	m_cvt_d2s_strvec(ng[ii], d_qp->d_ug+ii, 0, s_qp->d_ug+ii, 0);
+	m_cvt_d2blasfeo_smat(nu[ii]+nx[ii]+1, nu[ii]+nx[ii], d_qp->RSQrq+ii, 0, 0, s_qp->RSQrq+ii, 0, 0);
+	m_cvt_d2blasfeo_smat(nu[ii]+nx[ii], ng[ii], d_qp->DCt+ii, 0, 0, s_qp->DCt+ii, 0, 0);
+	m_cvt_d2blasfeo_svec(nu[ii]+nx[ii], d_qp->rq+ii, 0, s_qp->rq+ii, 0);
+	m_cvt_d2blasfeo_svec(nb[ii], d_qp->d_lb+ii, 0, s_qp->d_lb+ii, 0);
+	m_cvt_d2blasfeo_svec(nb[ii], d_qp->d_ub+ii, 0, s_qp->d_ub+ii, 0);
+	m_cvt_d2blasfeo_svec(ng[ii], d_qp->d_lg+ii, 0, s_qp->d_lg+ii, 0);
+	m_cvt_d2blasfeo_svec(ng[ii], d_qp->d_ug+ii, 0, s_qp->d_ug+ii, 0);
 	for(jj=0; jj<nb[ii]; jj++) s_qp->idxb[ii][jj] = d_qp->idxb[ii][jj];
 
 	return;

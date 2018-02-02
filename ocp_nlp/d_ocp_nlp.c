@@ -39,19 +39,19 @@
 
 #include "../include/hpipm_d_ocp_nlp.h"
 
-#define CREATE_STRMAT d_create_strmat
-#define CREATE_STRVEC d_create_strvec
-#define CVT_MAT2STRMAT d_cvt_mat2strmat
-#define CVT_TRAN_MAT2STRMAT d_cvt_tran_mat2strmat
-#define CVT_VEC2STRVEC d_cvt_vec2strvec
+#define CREATE_STRMAT blasfeo_create_dmat
+#define CREATE_STRVEC blasfeo_create_dvec
+#define CVT_MAT2STRMAT blasfeo_pack_dmat
+#define CVT_TRAN_MAT2STRMAT blasfeo_pack_tran_dmat
+#define CVT_VEC2STRVEC blasfeo_pack_dvec
 #define OCP_NLP d_ocp_nlp
 #define OCP_NLP_MODEL d_ocp_nlp_model
 #define REAL double
-#define SIZE_STRMAT d_size_strmat
-#define SIZE_STRVEC d_size_strvec
-#define STRMAT d_strmat
-#define STRVEC d_strvec
-#define SYMV_L_LIBSTR dsymv_l_libstr
+#define SIZE_STRMAT blasfeo_memsize_dmat
+#define SIZE_STRVEC blasfeo_memsize_dvec
+#define STRMAT blasfeo_dmat
+#define STRVEC blasfeo_dvec
+#define SYMV_L_LIBSTR blasfeo_dsymv_l
 
 #define MEMSIZE_OCP_NLP d_memsize_ocp_nlp
 #define CREATE_OCP_NLP d_create_ocp_nlp
@@ -235,41 +235,41 @@ void CREATE_OCP_NLP(int N, int *nx, int *nu, int *nb, int *ng, int *ns, struct O
 	for(ii=0; ii<=N; ii++)
 		{
 		CREATE_STRMAT(nu[ii]+nx[ii], nu[ii]+nx[ii], nlp->RSQ+ii, c_ptr);
-		c_ptr += (nlp->RSQ+ii)->memory_size;
+		c_ptr += (nlp->RSQ+ii)->memsize;
 		}
 	// DCt
 	for(ii=0; ii<=N; ii++)
 		{
 		CREATE_STRMAT(nu[ii]+nx[ii], ng[ii], nlp->DCt+ii, c_ptr);
-		c_ptr += (nlp->DCt+ii)->memory_size;
+		c_ptr += (nlp->DCt+ii)->memsize;
 		}
 	// rq
 	for(ii=0; ii<=N; ii++)
 		{
 		CREATE_STRVEC(nu[ii]+nx[ii], nlp->rq+ii, c_ptr);
-		c_ptr += (nlp->rq+ii)->memory_size;
+		c_ptr += (nlp->rq+ii)->memsize;
 		}
 	// d
 	for(ii=0; ii<=N; ii++)
 		{
 		CREATE_STRVEC(2*nb[ii]+2*ng[ii], nlp->d+ii, c_ptr);
-		c_ptr += (nlp->d+ii)->memory_size;
+		c_ptr += (nlp->d+ii)->memsize;
 		}
 	// Z
 	for(ii=0; ii<=N; ii++)
 		{
 		CREATE_STRVEC(2*ns[ii], nlp->Z+ii, c_ptr);
-		c_ptr += (nlp->Z+ii)->memory_size;
+		c_ptr += (nlp->Z+ii)->memsize;
 		}
 	// z
 	for(ii=0; ii<=N; ii++)
 		{
 		CREATE_STRVEC(2*ns[ii], nlp->z+ii, c_ptr);
-		c_ptr += (nlp->z+ii)->memory_size;
+		c_ptr += (nlp->z+ii)->memsize;
 		}
 	// tmp_nuxM
 	CREATE_STRVEC(nuxM, nlp->tmp_nuxM, c_ptr);
-	c_ptr += nlp->tmp_nuxM->memory_size;
+	c_ptr += nlp->tmp_nuxM->memsize;
 
 
 	nlp->memsize = MEMSIZE_OCP_NLP(N, nx, nu, nb, ng, ns);

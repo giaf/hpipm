@@ -41,18 +41,19 @@
 #include "../include/hpipm_d_tree_ocp_qp_dim.h"
 #include "../include/hpipm_d_tree_ocp_qp.h"
 
-#define CREATE_STRMAT d_create_strmat
-#define CREATE_STRVEC d_create_strvec
-#define CVT_MAT2STRMAT d_cvt_mat2strmat
-#define CVT_TRAN_MAT2STRMAT d_cvt_tran_mat2strmat
-#define CVT_VEC2STRVEC d_cvt_vec2strvec
+#define CREATE_STRMAT blasfeo_create_dmat
+#define CREATE_STRVEC blasfeo_create_dvec
+#define CVT_MAT2STRMAT blasfeo_pack_dmat
+#define CVT_TRAN_MAT2STRMAT blasfeo_pack_tran_dmat
+#define CVT_VEC2STRVEC blasfeo_pack_dvec
 #define REAL double
-#define SIZE_STRMAT d_size_strmat
-#define SIZE_STRVEC d_size_strvec
-#define STRMAT d_strmat
-#define STRVEC d_strvec
+#define SIZE_STRMAT blasfeo_memsize_dmat
+#define SIZE_STRVEC blasfeo_memsize_dvec
+#define STRMAT blasfeo_dmat
+#define STRVEC blasfeo_dvec
 #define TREE_OCP_QP d_tree_ocp_qp
 #define TREE_OCP_QP_DIM d_tree_ocp_qp_dim
+#define VECSC_LIBSTR blasfeo_dvecsc
 
 #define MEMSIZE_TREE_OCP_QP d_memsize_tree_ocp_qp
 #define CREATE_TREE_OCP_QP d_create_tree_ocp_qp

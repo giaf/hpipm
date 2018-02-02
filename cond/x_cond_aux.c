@@ -473,7 +473,8 @@ void COND_DCTD(struct OCP_QP *ocp_qp, int *idxb2, struct STRMAT *DCt2, struct ST
 				idx_g = idxb0-nu0;
 				tmp = GEEX1_LIBSTR(&Gamma[N-1-ii], idx_gammab, idx_g);
 				d_lg3[ig] = ptr_d_lb[jj] - tmp;
-				d_ug3[ig] = ptr_d_ub[jj] - tmp;
+//				d_ug3[ig] = ptr_d_ub[jj] - tmp;
+				d_ug3[ig] = ptr_d_ub[jj] + tmp; // XXX
 				GECP_LIBSTR(idx_gammab, 1, &Gamma[N-ii-1], 0, idx_g, &DCt2[0], nu_tmp, ig);
 				if(idxs_rev[jj]>=0)
 					{
@@ -586,7 +587,8 @@ void COND_DCTD(struct OCP_QP *ocp_qp, int *idxb2, struct STRMAT *DCt2, struct ST
 			GEMV_T_LIBSTR(nx0, ng0, 1.0, &DCt[N-ii], nu0, 0, &Gammab[N-ii-1], 0, 0.0, tmp_ngM, 0, tmp_ngM, 0);
 
 			AXPY_LIBSTR(ng0, -1.0, tmp_ngM, 0, d2, nb2+nbg+ng_tmp, d2, nb2+nbg+ng_tmp);
-			AXPY_LIBSTR(ng0, -1.0, tmp_ngM, 0, d2, 2*nb2+ng2+nbg+ng_tmp, d2, 2*nb2+ng2+nbg+ng_tmp);
+//			AXPY_LIBSTR(ng0, -1.0, tmp_ngM, 0, d2, 2*nb2+ng2+nbg+ng_tmp, d2, 2*nb2+ng2+nbg+ng_tmp);
+			AXPY_LIBSTR(ng0,  1.0, tmp_ngM, 0, d2, 2*nb2+ng2+nbg+ng_tmp, d2, 2*nb2+ng2+nbg+ng_tmp); // XXX
 
 			ng_tmp += ng0;
 			
@@ -1190,10 +1192,10 @@ void EXPAND_SOL(struct OCP_QP *ocp_qp, struct DENSE_QP_SOL *dense_qp_sol, struct
 	nb0 = nb[0];
 	ng0 = ng[0];
 	ns0 = ns[0];
-	VECCP_LIBSTR(ng[0], lamc, nb2+ngg, lam+0, nb[0]);
-	VECCP_LIBSTR(ng[0], lamc, 2*nb2+ng2+ngg, lam+0, 2*nb[0]+ng[0]);
-	VECCP_LIBSTR(ng[0], tc, nb2+ngg, t+0, nb[0]);
-	VECCP_LIBSTR(ng[0], tc, 2*nb2+ng2+ngg, t+0, 2*nb[0]+ng[0]);
+	VECCP_LIBSTR(ng[0], lamc, nb2+nbg+ngg, lam+0, nb0);
+	VECCP_LIBSTR(ng[0], lamc, 2*nb2+ng2+nbg+ngg, lam+0, 2*nb0+ng0);
+	VECCP_LIBSTR(ng[0], tc, nb2+nbg+ngg, t+0, nb0);
+	VECCP_LIBSTR(ng[0], tc, 2*nb2+ng2+nbg+ngg, t+0, 2*nb0+ng0);
 	ngg += ng0;
 	for(jj=0; jj<nb0+ng0; jj++)
 		idxs_rev[jj] = -1;

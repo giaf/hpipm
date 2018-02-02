@@ -750,23 +750,23 @@ int main()
 	for(ii=0; ii<N; ii++)
 		d_print_strmat(qp.nu[ii]+qp.nx[ii]+1, qp.nx[ii+1], qp.BAbt+ii, 0, 0);
 	for(ii=0; ii<N; ii++)
-		d_print_tran_strvec(qp.nx[ii+1], qp.b+ii, 0);
+		blasfeo_print_tran_dvec(qp.nx[ii+1], qp.b+ii, 0);
 	for(ii=0; ii<=N; ii++)
 		d_print_strmat(qp.nu[ii]+qp.nx[ii]+1, qp.nu[ii]+qp.nx[ii], qp.RSQrq+ii, 0, 0);
 	for(ii=0; ii<=N; ii++)
-		d_print_tran_strvec(qp.nu[ii]+qp.nx[ii], qp.rq+ii, 0);
+		blasfeo_print_tran_dvec(qp.nu[ii]+qp.nx[ii], qp.rq+ii, 0);
 	for(ii=0; ii<=N; ii++)
 		int_print_mat(1, nb[ii], qp.idxb[ii], 1);
 	for(ii=0; ii<=N; ii++)
-		d_print_tran_strvec(qp.nb[ii], qp.d_lb+ii, 0);
+		blasfeo_print_tran_dvec(qp.nb[ii], qp.d_lb+ii, 0);
 	for(ii=0; ii<=N; ii++)
-		d_print_tran_strvec(qp.nb[ii], qp.d_ub+ii, 0);
+		blasfeo_print_tran_dvec(qp.nb[ii], qp.d_ub+ii, 0);
 	for(ii=0; ii<=N; ii++)
 		d_print_strmat(qp.nu[ii]+qp.nx[ii], qp.ng[ii], qp.DCt+ii, 0, 0);
 	for(ii=0; ii<=N; ii++)
-		d_print_tran_strvec(qp.ng[ii], qp.d_lg+ii, 0);
+		blasfeo_print_tran_dvec(qp.ng[ii], qp.d_lg+ii, 0);
 	for(ii=0; ii<=N; ii++)
-		d_print_tran_strvec(qp.ng[ii], qp.d_ug+ii, 0);
+		blasfeo_print_tran_dvec(qp.ng[ii], qp.d_ug+ii, 0);
 	return;
 #endif
 

@@ -89,16 +89,16 @@ void CREATE_DENSE_QP_SOL(struct DENSE_QP_DIM *dim, struct DENSE_QP_SOL *qp_sol, 
 
 	// v
 	CREATE_STRVEC(nv+2*ns, qp_sol->v, c_ptr);
-	c_ptr += qp_sol->v->memory_size;
+	c_ptr += qp_sol->v->memsize;
 	// pi
 	CREATE_STRVEC(ne, qp_sol->pi, c_ptr);
-	c_ptr += qp_sol->pi->memory_size;
+	c_ptr += qp_sol->pi->memsize;
 	// lam
 	CREATE_STRVEC(2*nb+2*ng+2*ns, qp_sol->lam, c_ptr);
-	c_ptr += qp_sol->lam->memory_size;
+	c_ptr += qp_sol->lam->memsize;
 	// t
 	CREATE_STRVEC(2*nb+2*ng+2*ns, qp_sol->t, c_ptr);
-	c_ptr += qp_sol->t->memory_size;
+	c_ptr += qp_sol->t->memsize;
 
 
 	qp_sol->dim = dim;

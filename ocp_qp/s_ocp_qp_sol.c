@@ -42,16 +42,16 @@
 
 
 
-#define CREATE_STRVEC s_create_strvec
-#define CVT_STRVEC2VEC s_cvt_strvec2vec
-#define CVT_VEC2STRVEC s_cvt_vec2strvec
+#define CREATE_STRVEC blasfeo_create_svec
+#define CVT_STRVEC2VEC blasfeo_unpack_svec
+#define CVT_VEC2STRVEC blasfeo_pack_svec
 #define OCP_QP s_ocp_qp
 #define OCP_QP_DIM s_ocp_qp_dim
 #define OCP_QP_SOL s_ocp_qp_sol
 #define REAL float
-#define STRVEC s_strvec
-#define SIZE_STRVEC s_size_strvec
-#define VECCP_LIBSTR sveccp_libstr
+#define STRVEC blasfeo_svec
+#define SIZE_STRVEC blasfeo_memsize_svec
+#define VECCP_LIBSTR blasfeo_sveccp
 
 #define CREATE_OCP_QP_SOL s_create_ocp_qp_sol
 #define MEMSIZE_OCP_QP_SOL s_memsize_ocp_qp_sol
@@ -59,7 +59,13 @@
 #define CVT_COLMAJ_TO_OCP_QP_SOL s_cvt_colmaj_to_ocp_qp_sol
 #define CVT_OCP_QP_SOL_TO_ROWMAJ s_cvt_ocp_qp_sol_to_rowmaj
 #define CVT_OCP_QP_SOL_TO_LIBSTR s_cvt_ocp_qp_sol_to_libstr
-
+#define CVT_OCP_QP_SOL_TO_COLMAJ_X s_cvt_ocp_qp_sol_to_colmaj_x
+#define CVT_OCP_QP_SOL_TO_COLMAJ_U s_cvt_ocp_qp_sol_to_colmaj_u
+#define CVT_OCP_QP_SOL_TO_COLMAJ_PI s_cvt_ocp_qp_sol_to_colmaj_pi
+#define CVT_OCP_QP_SOL_TO_COLMAJ_LAM_LB s_cvt_ocp_qp_sol_to_colmaj_lam_lb
+#define CVT_OCP_QP_SOL_TO_COLMAJ_LAM_UB s_cvt_ocp_qp_sol_to_colmaj_lam_ub
+#define CVT_OCP_QP_SOL_TO_COLMAJ_LAM_LG s_cvt_ocp_qp_sol_to_colmaj_lam_lg
+#define CVT_OCP_QP_SOL_TO_COLMAJ_LAM_UG s_cvt_ocp_qp_sol_to_colmaj_lam_ug
 
 
 #include "x_ocp_qp_sol.c"

@@ -100,12 +100,12 @@ void INIT_VAR_TREE_OCP_QP(struct TREE_OCP_QP *qp, struct TREE_OCP_QP_SOL *qp_sol
 			{
 #if 1
 			t_lb[jj] = - d_lb[jj] + ux[idxb[jj]];
-			t_ub[jj] =   d_ub[jj] - ux[idxb[jj]];
+			t_ub[jj] = - d_ub[jj] - ux[idxb[jj]];
 			if(t_lb[jj]<thr0)
 				{
 				if(t_ub[jj]<thr0)
 					{
-					ux[idxb[jj]] = 0.5*(d_lb[jj]-d_ub[jj]);
+					ux[idxb[jj]] = 0.5*(d_lb[jj] + d_ub[jj]);
 					t_lb[jj] = thr0;
 					t_ub[jj] = thr0;
 					}
@@ -118,7 +118,7 @@ void INIT_VAR_TREE_OCP_QP(struct TREE_OCP_QP *qp, struct TREE_OCP_QP_SOL *qp_sol
 			else if(t_ub[jj]<thr0)
 				{
 				t_ub[jj] = thr0;
-				ux[idxb[jj]] = d_ub[jj] - thr0;
+				ux[idxb[jj]] = - d_ub[jj] - thr0;
 				}
 #else
 			t_lb[jj] = 1.0;
@@ -145,7 +145,7 @@ void INIT_VAR_TREE_OCP_QP(struct TREE_OCP_QP *qp, struct TREE_OCP_QP_SOL *qp_sol
 #if 1
 			t_ug[jj] = - t_lg[jj];
 			t_lg[jj] -= d_lg[jj];
-			t_ug[jj] += d_ug[jj];
+			t_ug[jj] -= d_ug[jj];
 //			t_lg[jj] = fmax(thr0, t_lg[jj]);
 //			t_ug[jj] = fmax(thr0, t_ug[jj]);
 			t_lg[jj] = thr0>t_lg[jj] ? thr0 : t_lg[jj];
@@ -222,6 +222,7 @@ void COMPUTE_RES_TREE_OCP_QP(struct TREE_OCP_QP *qp, struct TREE_OCP_QP_SOL *qp_
 	struct STRVEC *res_g = ws->res_g;
 	struct STRVEC *res_b = ws->res_b;
 	struct STRVEC *res_d = ws->res_d;
+	struct STRVEC *res_m = ws->res_m;
 	struct STRVEC *tmp_nbgM = ws->tmp_nbgM;
 	struct STRVEC *tmp_nsM = ws->tmp_nsM;
 
@@ -252,7 +253,7 @@ void COMPUTE_RES_TREE_OCP_QP(struct TREE_OCP_QP *qp, struct TREE_OCP_QP_SOL *qp_
 			{
 			AXPY_LIBSTR(nb0+ng0, -1.0, lam+ii, 0, lam+ii, nb[ii]+ng[ii], tmp_nbgM+0, 0);
 			AXPY_LIBSTR(nb0+ng0,  1.0, d+ii, 0, t+ii, 0, res_d+ii, 0);
-			AXPY_LIBSTR(nb0+ng0, -1.0, d+ii, nb0+ng0, t+ii, nb0+ng0, res_d+ii, nb0+ng0);
+			AXPY_LIBSTR(nb0+ng0,  1.0, d+ii, nb0+ng0, t+ii, nb0+ng0, res_d+ii, nb0+ng0);
 			// box
 			if(nb0>0)
 				{
@@ -299,9 +300,9 @@ void COMPUTE_RES_TREE_OCP_QP(struct TREE_OCP_QP *qp, struct TREE_OCP_QP_SOL *qp_
 
 			}
 
-		}
+		mu += VECMULDOT_LIBSTR(2*nb0+2*ng0+2*ns0, lam+ii, 0, t+ii, 0, res_m+ii, 0);
 
-	mu += VECMULDOT_LIBSTR(nct, lam, 0, t, 0, ws->res_m, 0);
+		}
 
 	ws->res_mu = mu*cws->nc_inv;
 
@@ -353,10 +354,10 @@ void FACT_SOLVE_KKT_UNCONSTR_TREE_OCP_QP(struct TREE_OCP_QP *qp, struct TREE_OCP
 		nkids = (ttree->root+idx)->nkids;
 
 #if defined(DOUBLE_PRECISION)
-		TRCP_L_LIBSTR(nu[idx]+nx[idx], RSQrq+idx, 0, 0, L+idx, 0, 0); // TODO dtrcp_l_libstr with m and n, for m>=n
+		TRCP_L_LIBSTR(nu[idx]+nx[idx], RSQrq+idx, 0, 0, L+idx, 0, 0); // TODO blasfeo_dtrcp_l with m and n, for m>=n
 		GECP_LIBSTR(1, nu[idx]+nx[idx], RSQrq+idx, nu[idx]+nx[idx], 0, L+idx, nu[idx]+nx[idx], 0);
 #else
-		GECP_LIBSTR(nu[idx]+nx[idx]+1, nu[idx]+nx[idx], RSQrq+idx, 0, 0, L+idx, 0, 0); // TODO dtrcp_l_libstr with m and n, for m>=n
+		GECP_LIBSTR(nu[idx]+nx[idx]+1, nu[idx]+nx[idx], RSQrq+idx, 0, 0, L+idx, 0, 0); // TODO blasfeo_dtrcp_l with m and n, for m>=n
 #endif
 
 		for(jj=0; jj<nkids; jj++)
@@ -636,7 +637,7 @@ void FACT_SOLVE_KKT_STEP_TREE_OCP_QP(struct TREE_OCP_QP *qp, struct TREE_OCP_QP_
 	struct CORE_QP_IPM_WORKSPACE *cws = ws->core_workspace;
 
 
-	COMPUTE_GAMMA_GAMMA_QP(cws);
+	COMPUTE_GAMMA_GAMMA_QP(ws->res_d[0].pa, ws->res_m[0].pa, cws);
 
 	// backward factorization and substitution
 
@@ -650,9 +651,9 @@ void FACT_SOLVE_KKT_STEP_TREE_OCP_QP(struct TREE_OCP_QP *qp, struct TREE_OCP_QP_
 		nkids = (ttree->root+idx)->nkids;
 
 #if defined(DOUBLE_PRECISION)
-		TRCP_L_LIBSTR(nu[idx]+nx[idx], RSQrq+idx, 0, 0, L+idx, 0, 0); // TODO dtrcp_l_libstr with m and n, for m>=n
+		TRCP_L_LIBSTR(nu[idx]+nx[idx], RSQrq+idx, 0, 0, L+idx, 0, 0); // TODO blasfeo_dtrcp_l with m and n, for m>=n
 #else
-		GECP_LIBSTR(nu[idx]+nx[idx], nu[idx]+nx[idx], RSQrq+idx, 0, 0, L+idx, 0, 0); // TODO dtrcp_l_libstr with m and n, for m>=n
+		GECP_LIBSTR(nu[idx]+nx[idx], nu[idx]+nx[idx], RSQrq+idx, 0, 0, L+idx, 0, 0); // TODO blasfeo_dtrcp_l with m and n, for m>=n
 #endif
 		ROWIN_LIBSTR(nu[idx]+nx[idx], 1.0, res_g+idx, 0, L+idx, nu[idx]+nx[idx], 0);
 
@@ -769,7 +770,7 @@ void FACT_SOLVE_KKT_STEP_TREE_OCP_QP(struct TREE_OCP_QP *qp, struct TREE_OCP_QP_
 			EXPAND_SLACKS(ii, qp, ws);
 		}
 
-	COMPUTE_LAM_T_QP(cws);
+	COMPUTE_LAM_T_QP(ws->res_d[0].pa, ws->res_m[0].pa, cws->dlam, cws->dt, cws);
 
 	return;
 
@@ -815,7 +816,7 @@ void SOLVE_KKT_STEP_TREE_OCP_QP(struct TREE_OCP_QP *qp, struct TREE_OCP_QP_IPM_W
 
 	struct CORE_QP_IPM_WORKSPACE *cws = ws->core_workspace;
 
-	COMPUTE_GAMMA_QP(cws);
+	COMPUTE_GAMMA_QP(ws->res_d[0].pa, ws->res_m[0].pa, cws);
 
 
 	// backward substitution
@@ -969,7 +970,7 @@ void SOLVE_KKT_STEP_TREE_OCP_QP(struct TREE_OCP_QP *qp, struct TREE_OCP_QP_IPM_W
 			EXPAND_SLACKS(ii, qp, ws);
 		}
 
-	COMPUTE_LAM_T_QP(cws);
+	COMPUTE_LAM_T_QP(ws->res_d[0].pa, ws->res_m[0].pa, cws->dlam, cws->dt, cws);
 
 	return;
 

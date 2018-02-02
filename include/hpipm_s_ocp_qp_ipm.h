@@ -51,6 +51,7 @@ struct s_ocp_qp_ipm_arg
 	int iter_max; // exit cond in iter number
 	int stat_max; // iterations saved in stat
 	int pred_corr; // use Mehrotra's predictor-corrector IPM algirthm
+	int cond_pred_corr; // conditional Mehrotra's predictor-corrector
 	int warm_start; // 0 no warm start, 1 warm start primal sol
 	int memsize;
 	};
@@ -62,18 +63,18 @@ struct s_ocp_qp_ipm_workspace
 	struct s_core_qp_ipm_workspace *core_workspace;
 	struct s_ocp_qp_res *res;
 	struct s_ocp_qp_res_workspace *res_workspace;
-	struct s_strvec *dux;
-	struct s_strvec *dpi;
-	struct s_strvec *dt;
-	struct s_strvec *Gamma; // hessian update
-	struct s_strvec *gamma; // hessian update
-	struct s_strvec *tmp_nxM; // work space of size nxM
-	struct s_strvec *tmp_nbgM; // work space of size nbM+ngM
-	struct s_strvec *tmp_nsM; // work space of size nsM
-	struct s_strvec *Pb; // Pb
-	struct s_strvec *Zs_inv;
-	struct s_strmat *L;
-	struct s_strmat *AL;
+	struct blasfeo_svec *dux;
+	struct blasfeo_svec *dpi;
+	struct blasfeo_svec *dt;
+	struct blasfeo_svec *Gamma; // hessian update
+	struct blasfeo_svec *gamma; // hessian update
+	struct blasfeo_svec *tmp_nxM; // work space of size nxM
+	struct blasfeo_svec *tmp_nbgM; // work space of size nbM+ngM
+	struct blasfeo_svec *tmp_nsM; // work space of size nsM
+	struct blasfeo_svec *Pb; // Pb
+	struct blasfeo_svec *Zs_inv;
+	struct blasfeo_smat *L;
+	struct blasfeo_smat *AL;
 	float *stat; // convergence statistics
 	float qp_res[4]; // infinity norm of residuals
 	float mu0; // mu0

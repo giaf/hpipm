@@ -198,21 +198,21 @@ void CREATE_TREE_OCP_QP(struct TREE_OCP_QP_DIM *dim, struct TREE_OCP_QP *qp, voi
 		idx = ii+1;
 		idxdad = (ttree->root+idx)->dad;
 		CREATE_STRMAT(nu[idxdad]+nx[idxdad]+1, nx[idx], qp->BAbt+ii, c_ptr);
-		c_ptr += (qp->BAbt+ii)->memory_size;
+		c_ptr += (qp->BAbt+ii)->memsize;
 		}
 
 	// RSQrq
 	for(ii=0; ii<Nn; ii++)
 		{
 		CREATE_STRMAT(nu[ii]+nx[ii]+1, nu[ii]+nx[ii], qp->RSQrq+ii, c_ptr);
-		c_ptr += (qp->RSQrq+ii)->memory_size;
+		c_ptr += (qp->RSQrq+ii)->memsize;
 		}
 
 	// DCt
 	for(ii=0; ii<Nn; ii++)
 		{
 		CREATE_STRMAT(nu[ii]+nx[ii], ng[ii], qp->DCt+ii, c_ptr);
-		c_ptr += (qp->DCt+ii)->memory_size;
+		c_ptr += (qp->DCt+ii)->memsize;
 		}
 
 	// b
@@ -220,28 +220,28 @@ void CREATE_TREE_OCP_QP(struct TREE_OCP_QP_DIM *dim, struct TREE_OCP_QP *qp, voi
 		{
 		idx = ii+1;
 		CREATE_STRVEC(nx[idx], qp->b+ii, c_ptr);
-		c_ptr += (qp->b+ii)->memory_size;
+		c_ptr += (qp->b+ii)->memsize;
 		}
 
 	// rq
 	for(ii=0; ii<Nn; ii++)
 		{
 		CREATE_STRVEC(nu[ii]+nx[ii], qp->rq+ii, c_ptr);
-		c_ptr += (qp->rq+ii)->memory_size;
+		c_ptr += (qp->rq+ii)->memsize;
 		}
 
 	// Z
 	for(ii=0; ii<Nn; ii++)
 		{
 		CREATE_STRVEC(2*ns[ii], qp->Z+ii, c_ptr);
-		c_ptr += (qp->Z+ii)->memory_size;
+		c_ptr += (qp->Z+ii)->memsize;
 		}
 
 	// z
 	for(ii=0; ii<Nn; ii++)
 		{
 		CREATE_STRVEC(2*ns[ii], qp->z+ii, c_ptr);
-		c_ptr += (qp->z+ii)->memory_size;
+		c_ptr += (qp->z+ii)->memsize;
 		}
 
 	// d
@@ -319,6 +319,7 @@ void CVT_COLMAJ_TO_TREE_OCP_QP(REAL **A, REAL **B, REAL **b, REAL **Q, REAL **S,
 				qp->idxb[ii][jj] = idxb[ii][jj];
 			CVT_VEC2STRVEC(nb[ii], d_lb[ii], qp->d+ii, 0);
 			CVT_VEC2STRVEC(nb[ii], d_ub[ii], qp->d+ii, nb[ii]+ng[ii]);
+			VECSC_LIBSTR(nb[ii], -1.0, qp->d+ii, nb[ii]+ng[ii]);
 			}
 		}
 	
@@ -330,6 +331,7 @@ void CVT_COLMAJ_TO_TREE_OCP_QP(REAL **A, REAL **B, REAL **b, REAL **Q, REAL **S,
 			CVT_TRAN_MAT2STRMAT(ng[ii], nx[ii], C[ii], ng[ii], qp->DCt+ii, nu[ii], 0);
 			CVT_VEC2STRVEC(ng[ii], d_lg[ii], qp->d+ii, nb[ii]);
 			CVT_VEC2STRVEC(ng[ii], d_ug[ii], qp->d+ii, 2*nb[ii]+ng[ii]);
+			VECSC_LIBSTR(ng[ii], -1.0, qp->d+ii, 2*nb[ii]+ng[ii]);
 			}
 		}
 

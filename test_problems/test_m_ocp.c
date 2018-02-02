@@ -619,23 +619,23 @@ int main()
 	for(ii=0; ii<N; ii++)
 		d_print_strmat(d_qp.nu[ii]+d_qp.nx[ii]+1, d_qp.nx[ii+1], d_qp.BAbt+ii, 0, 0);
 	for(ii=0; ii<N; ii++)
-		d_print_tran_strvec(d_qp.nx[ii+1], d_qp.b+ii, 0);
+		blasfeo_print_tran_dvec(d_qp.nx[ii+1], d_qp.b+ii, 0);
 	for(ii=0; ii<=N; ii++)
 		d_print_strmat(d_qp.nu[ii]+d_qp.nx[ii]+1, d_qp.nu[ii]+d_qp.nx[ii], d_qp.RSQrq+ii, 0, 0);
 	for(ii=0; ii<=N; ii++)
-		d_print_tran_strvec(d_qp.nu[ii]+d_qp.nx[ii], d_qp.rq+ii, 0);
+		blasfeo_print_tran_dvec(d_qp.nu[ii]+d_qp.nx[ii], d_qp.rq+ii, 0);
 	for(ii=0; ii<=N; ii++)
 		int_print_mat(1, nb[ii], d_qp.idxb[ii], 1);
 	for(ii=0; ii<=N; ii++)
-		d_print_tran_strvec(d_qp.nb[ii], d_qp.d_lb+ii, 0);
+		blasfeo_print_tran_dvec(d_qp.nb[ii], d_qp.d_lb+ii, 0);
 	for(ii=0; ii<=N; ii++)
-		d_print_tran_strvec(d_qp.nb[ii], d_qp.d_ub+ii, 0);
+		blasfeo_print_tran_dvec(d_qp.nb[ii], d_qp.d_ub+ii, 0);
 	for(ii=0; ii<=N; ii++)
 		d_print_strmat(d_qp.nu[ii]+d_qp.nx[ii], d_qp.ng[ii], d_qp.DCt+ii, 0, 0);
 	for(ii=0; ii<=N; ii++)
-		d_print_tran_strvec(d_qp.ng[ii], d_qp.d_lg+ii, 0);
+		blasfeo_print_tran_dvec(d_qp.ng[ii], d_qp.d_lg+ii, 0);
 	for(ii=0; ii<=N; ii++)
-		d_print_tran_strvec(d_qp.ng[ii], d_qp.d_ug+ii, 0);
+		blasfeo_print_tran_dvec(d_qp.ng[ii], d_qp.d_ug+ii, 0);
 //	return;
 #endif
 
@@ -655,25 +655,25 @@ int main()
 #if 0
 	printf("\nN = %d\n", s_qp.N);
 	for(ii=0; ii<N; ii++)
-		s_print_strmat(s_qp.nu[ii]+s_qp.nx[ii]+1, s_qp.nx[ii+1], s_qp.BAbt+ii, 0, 0);
+		blasfeo_print_smat(s_qp.nu[ii]+s_qp.nx[ii]+1, s_qp.nx[ii+1], s_qp.BAbt+ii, 0, 0);
 	for(ii=0; ii<N; ii++)
-		s_print_tran_strvec(s_qp.nx[ii+1], s_qp.b+ii, 0);
+		blasfeo_print_tran_svec(s_qp.nx[ii+1], s_qp.b+ii, 0);
 	for(ii=0; ii<=N; ii++)
-		s_print_strmat(s_qp.nu[ii]+s_qp.nx[ii]+1, s_qp.nu[ii]+s_qp.nx[ii], s_qp.RSQrq+ii, 0, 0);
+		blasfeo_print_smat(s_qp.nu[ii]+s_qp.nx[ii]+1, s_qp.nu[ii]+s_qp.nx[ii], s_qp.RSQrq+ii, 0, 0);
 	for(ii=0; ii<=N; ii++)
-		s_print_tran_strvec(s_qp.nu[ii]+s_qp.nx[ii], s_qp.rq+ii, 0);
+		blasfeo_print_tran_svec(s_qp.nu[ii]+s_qp.nx[ii], s_qp.rq+ii, 0);
 	for(ii=0; ii<=N; ii++)
 		int_print_mat(1, nb[ii], s_qp.idxb[ii], 1);
 	for(ii=0; ii<=N; ii++)
-		s_print_tran_strvec(s_qp.nb[ii], s_qp.d_lb+ii, 0);
+		blasfeo_print_tran_svec(s_qp.nb[ii], s_qp.d_lb+ii, 0);
 	for(ii=0; ii<=N; ii++)
-		s_print_tran_strvec(s_qp.nb[ii], s_qp.d_ub+ii, 0);
+		blasfeo_print_tran_svec(s_qp.nb[ii], s_qp.d_ub+ii, 0);
 	for(ii=0; ii<=N; ii++)
-		s_print_strmat(s_qp.nu[ii]+s_qp.nx[ii], s_qp.ng[ii], s_qp.DCt+ii, 0, 0);
+		blasfeo_print_smat(s_qp.nu[ii]+s_qp.nx[ii], s_qp.ng[ii], s_qp.DCt+ii, 0, 0);
 	for(ii=0; ii<=N; ii++)
-		s_print_tran_strvec(s_qp.ng[ii], s_qp.d_lg+ii, 0);
+		blasfeo_print_tran_svec(s_qp.ng[ii], s_qp.d_lg+ii, 0);
 	for(ii=0; ii<=N; ii++)
-		s_print_tran_strvec(s_qp.ng[ii], s_qp.d_ug+ii, 0);
+		blasfeo_print_tran_svec(s_qp.ng[ii], s_qp.d_ug+ii, 0);
 //	return;
 #endif
 

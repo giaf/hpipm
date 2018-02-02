@@ -53,17 +53,17 @@
 #define COND_QP_OCP2DENSE_WORKSPACE d_cond_qp_ocp2dense_workspace
 #define COND_QP_OCP2OCP_WORKSPACE d_cond_qp_ocp2ocp_workspace
 #define CREATE_COND_QP_OCP2DENSE d_create_cond_qp_ocp2dense
-#define CREATE_STRVEC d_create_strvec
+#define CREATE_STRVEC blasfeo_create_dvec
 #define DENSE_QP d_dense_qp
 #define DENSE_QP_SOL d_dense_qp_sol
 #define EXPAND_SOL d_expand_sol
-#define GECP_LIBSTR dgecp_libstr
+#define GECP_LIBSTR blasfeo_dgecp
 #define MEMSIZE_COND_QP_OCP2DENSE d_memsize_cond_qp_ocp2dense
 #define OCP_QP d_ocp_qp
 #define OCP_QP_DIM d_ocp_qp_dim
 #define OCP_QP_SOL d_ocp_qp_sol
-#define STRVEC d_strvec
-#define VECCP_LIBSTR dveccp_libstr
+#define STRVEC blasfeo_dvec
+#define VECCP_LIBSTR blasfeo_dveccp
 
 #define COMPUTE_QP_DIM_OCP2OCP d_compute_qp_dim_ocp2ocp
 #define MEMSIZE_COND_QP_OCP2OCP d_memsize_cond_qp_ocp2ocp

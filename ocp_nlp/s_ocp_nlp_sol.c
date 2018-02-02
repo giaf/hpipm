@@ -41,14 +41,14 @@
 
 
 
-#define CREATE_STRVEC s_create_strvec
-#define CVT_STRVEC2VEC s_cvt_strvec2vec
+#define CREATE_STRVEC blasfeo_create_svec
+#define CVT_STRVEC2VEC blasfeo_unpack_svec
 #define OCP_NLP s_ocp_nlp
 #define OCP_NLP_SOL s_ocp_nlpsol
 #define REAL float
-#define STRVEC s_strvec
-#define SIZE_STRVEC s_size_strvec
-#define VECCP_LIBSTR sveccp_libstr
+#define STRVEC blasfeo_svec
+#define SIZE_STRVEC blasfeo_memsize_svec
+#define VECCP_LIBSTR blasfeo_sveccp
 
 #define CREATE_OCP_NLP_SOL s_create_ocp_nlpsol
 #define MEMSIZE_OCP_NLP_SOL s_memsize_ocp_nlpsol

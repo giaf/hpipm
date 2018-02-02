@@ -39,30 +39,32 @@
 #include "../include/hpipm_s_core_qp_ipm.h"
 #include "../include/hpipm_s_core_qp_ipm_aux.h"
 
+#define BACKUP_RES_M s_backup_res_m
 #define COMPUTE_ALPHA_QP s_compute_alpha_qp
 #define COMPUTE_CENTERING_CORRECTION_QP s_compute_centering_correction_qp
+#define COMPUTE_CENTERING_QP s_compute_centering_qp
 #define COMPUTE_MU_AFF_QP s_compute_mu_aff_qp
 #define COMPUTE_RES_TREE_OCP_QP s_compute_res_tree_ocp_qp
 #define CORE_QP_IPM_WORKSPACE s_core_qp_ipm_workspace
-#define CREATE_STRMAT s_create_strmat
-#define CREATE_STRVEC s_create_strvec
+#define CREATE_STRMAT blasfeo_create_smat
+#define CREATE_STRVEC blasfeo_create_svec
 #define CREATE_CORE_QP_IPM s_create_core_qp_ipm
 #define FACT_SOLVE_KKT_STEP_TREE_OCP_QP s_fact_solve_kkt_step_tree_ocp_qp
 #define FACT_SOLVE_KKT_UNCONSTR_TREE_OCP_QP s_fact_solve_kkt_unconstr_tree_ocp_qp
 #define INIT_VAR_TREE_OCP_QP s_init_var_tree_ocp_qp
 #define MEMSIZE_CORE_QP_IPM s_memsize_core_qp_ipm
 #define REAL float
-#define SIZE_STRMAT s_size_strmat
-#define SIZE_STRVEC s_size_strvec
+#define SIZE_STRMAT blasfeo_memsize_smat
+#define SIZE_STRVEC blasfeo_memsize_svec
 #define SOLVE_KKT_STEP_TREE_OCP_QP s_solve_kkt_step_tree_ocp_qp
-#define STRMAT s_strmat
-#define STRVEC s_strvec
+#define STRMAT blasfeo_smat
+#define STRVEC blasfeo_svec
 #define TREE_OCP_QP s_tree_ocp_qp
 #define TREE_OCP_QP_IPM_ARG s_tree_ocp_qp_ipm_arg
 #define TREE_OCP_QP_IPM_WORKSPACE s_tree_ocp_qp_ipm_workspace
 #define TREE_OCP_QP_SOL s_tree_ocp_qp_sol
 #define UPDATE_VAR_QP s_update_var_qp
-#define VECNRM_INF_LIBSTR svecnrm_inf_libstr
+#define VECNRM_INF_LIBSTR blasfeo_svecnrm_inf
 
 #define MEMSIZE_TREE_OCP_QP_IPM_ARG s_memsize_tree_ocp_qp_ipm_arg
 #define CREATE_TREE_OCP_QP_IPM_ARG s_create_tree_ocp_qp_ipm_arg

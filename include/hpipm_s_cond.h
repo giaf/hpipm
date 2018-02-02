@@ -45,14 +45,14 @@ extern "C" {
 
 struct s_cond_qp_ocp2dense_workspace
 	{
-	struct s_strmat *Gamma;
-	struct s_strmat *L;
-	struct s_strmat *Lx;
-	struct s_strmat *AL;
-	struct s_strvec *Gammab;
-	struct s_strvec *l;
-	struct s_strvec *tmp_ngM;
-	struct s_strvec *tmp_nuxM;
+	struct blasfeo_smat *Gamma;
+	struct blasfeo_smat *L;
+	struct blasfeo_smat *Lx;
+	struct blasfeo_smat *AL;
+	struct blasfeo_svec *Gammab;
+	struct blasfeo_svec *l;
+	struct blasfeo_svec *tmp_ngM;
+	struct blasfeo_svec *tmp_nuxM;
 	int *idxs_rev;
 	int cond_last_stage;
 	int memsize;

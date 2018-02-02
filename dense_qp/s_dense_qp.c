@@ -39,25 +39,27 @@
 #include "../include/hpipm_s_dense_qp.h"
 
 
-#define CREATE_STRMAT s_create_strmat
-#define CREATE_STRVEC s_create_strvec
-#define CVT_MAT2STRMAT s_cvt_mat2strmat
-#define CVT_TRAN_MAT2STRMAT s_cvt_tran_mat2strmat
-#define CVT_TRAN_STRMAT2MAT s_cvt_tran_strmat2mat
-#define CVT_VEC2STRVEC s_cvt_vec2strvec
-#define CVT_STRMAT2MAT s_cvt_strmat2mat
-#define CVT_STRVEC2VEC s_cvt_strvec2vec
+#define CREATE_STRMAT blasfeo_create_smat
+#define CREATE_STRVEC blasfeo_create_svec
+#define CVT_MAT2STRMAT blasfeo_pack_smat
+#define CVT_TRAN_MAT2STRMAT blasfeo_pack_tran_smat
+#define CVT_TRAN_STRMAT2MAT blasfeo_unpack_tran_smat
+#define CVT_VEC2STRVEC blasfeo_pack_svec
+#define CVT_STRMAT2MAT blasfeo_unpack_smat
+#define CVT_STRVEC2VEC blasfeo_unpack_svec
 #define DENSE_QP s_dense_qp
 #define DENSE_QP_DIM s_dense_qp_dim
-#define GECP_LIBSTR sgecp_libstr
-#define GETR_LIBSTR sgetr_libstr
+#define GECP_LIBSTR blasfeo_sgecp
+#define GETR_LIBSTR blasfeo_sgetr
 #define REAL float
-#define ROWIN_LIBSTR srowin_libstr
-#define SIZE_STRMAT s_size_strmat
-#define SIZE_STRVEC s_size_strvec
-#define STRMAT s_strmat
-#define STRVEC s_strvec
-#define VECCP_LIBSTR sveccp_libstr
+#define ROWIN_LIBSTR blasfeo_srowin
+#define SIZE_STRMAT blasfeo_memsize_smat
+#define SIZE_STRVEC blasfeo_memsize_svec
+#define STRMAT blasfeo_smat
+#define STRVEC blasfeo_svec
+#define VECCP_LIBSTR blasfeo_sveccp
+#define VECSC_LIBSTR blasfeo_svecsc
+#define VECSE_LIBSTR blasfeo_svecse
 
 #define MEMSIZE_DENSE_QP s_memsize_dense_qp
 #define CREATE_DENSE_QP s_create_dense_qp
