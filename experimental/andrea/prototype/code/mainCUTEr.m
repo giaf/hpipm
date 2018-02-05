@@ -9,8 +9,8 @@ import casadi.*
 
 % B_STRATEGY      = 'MONOTONE';   % barrier strategy, possible values: {'MONOTONE', 'MEHROTRA'}
 B_STRATEGY      = 'MEHROTRA';   % barrier strategy, possible values: {'MONOTONE', 'MEHROTRA'}
-MAX_ITER        = 1000;         % maximum solver iterations    
-TAU0            = 1e6;          % initial barrier parameter value
+MAX_ITER        = 200;         % maximum solver iterations    
+TAU0            = 1e1;          % initial barrier parameter value
 MAX_LS_IT       = 100;          % maximum number of (positivity) line-search steps
 PRINT_LEVEL     = 2;            % print level possible values {1, 2}
 DTB             = 0.1;          % minimum distance to boundaries (used for initialization)
@@ -26,14 +26,15 @@ MIN_TAU         = 0.1*TERM_TOL; % maximum barrier parameter value
 RES_NORM        = Inf;          % norm type used to compute residuals
 ITER_REF        = 0;            % number of iterative refinement iterations
 MIN_FTB         = 0.95;         % minimum fraction-to-the-boundaries
-COND_MPC        = 1;            % conditional Mehrotra predictor-corrector
+COND_MPC        = 0;            % conditional Mehrotra predictor-corrector
 LIFT_AFF        = 0;            % lifted formulation for polytopic constraints (TODO(Andrea): buggy)
 S_MAX           = 100;
 REG_J           = 1e-8;
 
 load benchmark
-% benchmark = [ 36 ];
-benchmark = [ 1:length(H) ];
+benchmark = [ 24 ];
+% benchmark = [ 1:length(H) ];
+solved = zeros(length(H), 1);
 
 nQP = size(H,1);
 C_full = A;
@@ -295,6 +296,7 @@ for kk = 1: length(benchmark)
         if err_s < TERM_TOL && err_e < TERM_TOL && err_i < TERM_TOL && err_c < TERM_TOL && tau < TERM_TOL
             fprintf('\nsummary: num_QP = %3.f   it = %3.f   solved = 1   err_s = %5.e    err_e = %5.e    err_i = %5.e    err_c =    %5.e    tau = %5.e    p_alpha = %5.e    d_alpha = %5.e\n', num_prob, i, err_s,  err_e,  err_i,  err_c, tau, p_alpha, d_alpha);
             num_pass = num_pass + 1;
+            solved(kk) = 1;
             break
         end
         
@@ -487,3 +489,5 @@ for kk = 1: length(benchmark)
 end
 
 fprintf('\n -> Number of QP = %d,  Number of solved QP  = %d, ratio = %5.e\n', length(benchmark), num_pass, num_pass/num_prob);
+
+save('')
