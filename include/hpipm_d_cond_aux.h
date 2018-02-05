@@ -57,6 +57,8 @@ void d_cond_DCtd(struct d_ocp_qp *ocp_qp, int *idxb2, struct blasfeo_dmat *DCt2,
 void d_cond_d(struct d_ocp_qp *ocp_qp, struct blasfeo_dvec *d2, struct blasfeo_dvec *z2, struct d_cond_qp_ocp2dense_workspace *cond_ws);
 //
 void d_expand_sol(struct d_ocp_qp *ocp_qp, struct d_dense_qp_sol *dense_qp_sol, struct d_ocp_qp_sol *ocp_qp_sol, struct d_cond_qp_ocp2dense_workspace *cond_ws);
+//
+void d_expand_primal_sol(struct d_ocp_qp *ocp_qp, struct d_dense_qp_sol *dense_qp_sol, struct d_ocp_qp_sol *ocp_qp_sol, struct d_cond_qp_ocp2dense_workspace *cond_ws);
 
 
 

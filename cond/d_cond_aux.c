@@ -72,6 +72,7 @@
 #define COND_DCTD d_cond_DCtd
 #define COND_D d_cond_d
 #define EXPAND_SOL d_expand_sol
+#define EXPAND_PRIMAL_SOL d_expand_primal_sol
 
 
 
