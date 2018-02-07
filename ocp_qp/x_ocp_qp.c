@@ -275,7 +275,7 @@ void CREATE_OCP_QP(struct OCP_QP_DIM *dim, struct OCP_QP *qp, void *mem)
 
 
 
-void CHANGE_BOUNDS_OCP_QP(int *nbu, int *nbx, int **idxb, struct OCP_QP *qp)
+void CHANGE_BOUNDS_DIMENSIONS_OCP_QP(int *nbu, int *nbx, struct OCP_QP *qp)
 	{
 		// TODO runtime check that new memsize is smaller or equal than old
 		int N = qp->dim->N;
@@ -292,11 +292,6 @@ void CHANGE_BOUNDS_OCP_QP(int *nbu, int *nbx, int **idxb, struct OCP_QP *qp)
 		qp->dim->nbu[ii] = nbu[ii];
 		qp->dim->nbx[ii] = nbx[ii];
 		nb[ii] = nbu[ii] + nbx[ii];
-
-		for(jj=0; jj<nb[ii]; jj++)
-			{
-			qp->idxb[ii][jj] = idxb[ii][jj];
-			}
 		}
 
 	for(ii=0; ii<=N; ii++)
@@ -742,6 +737,10 @@ void CVT_OCP_QP_TO_COLMAJ_UBX(int stage, struct OCP_QP *qp, REAL *ubx)
 	int *ng = qp->dim->ng;
 
 	CVT_STRVEC2VEC(nbx[stage], qp->d+stage, nb[stage]+ng[stage]+nbu[stage], ubx);
+	for (int i = 0; i < nbx[stage]; ++i)
+		{
+		ubx[i] = -ubx[i];
+		}
 
 	return;
 	}
@@ -771,6 +770,10 @@ void CVT_OCP_QP_TO_COLMAJ_UBU(int stage, struct OCP_QP *qp, REAL *ubu)
 	int *ng = qp->dim->ng;
 
 	CVT_STRVEC2VEC(nbu[stage], qp->d+stage, nb[stage]+ng[stage], ubu);
+	for (int i = 0; i < nbu[stage]; ++i)
+		{
+		ubu[i] = -ubu[i];
+		}
 
 	return;
 	}
@@ -878,6 +881,10 @@ void CVT_OCP_QP_TO_COLMAJ_UG(int stage, struct OCP_QP *qp, REAL *ug)
 	int *ng = qp->dim->ng;
 
 	CVT_STRVEC2VEC(ng[stage], qp->d+stage, 2*nb[stage]+ng[stage], ug);
+	for (int i = 0; i < ng[stage]; ++i)
+		{
+		ug[i] = -ug[i];
+		}
 
 	return;
 	}

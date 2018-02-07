@@ -65,7 +65,7 @@
 #define CVT_COLMAJ_TO_OCP_QP d_cvt_colmaj_to_ocp_qp
 #define CVT_ROWMAJ_TO_OCP_QP d_cvt_rowmaj_to_ocp_qp
 #define MEMSIZE_OCP_QP d_memsize_ocp_qp
-#define CHANGE_BOUNDS_OCP_QP d_change_bounds_ocp_qp
+#define CHANGE_BOUNDS_DIMENSIONS_OCP_QP d_change_bounds_dimensions_ocp_qp
 #define CVT_COLMAJ_TO_OCP_QP_Q d_cvt_colmaj_to_ocp_qp_Q
 #define CVT_OCP_QP_TO_COLMAJ_Q d_cvt_ocp_qp_to_colmaj_Q
 #define CVT_COLMAJ_TO_OCP_QP_S d_cvt_colmaj_to_ocp_qp_S

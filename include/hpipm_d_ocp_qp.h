@@ -66,7 +66,7 @@ int d_memsize_ocp_qp(struct d_ocp_qp_dim *dim);
 //
 void d_create_ocp_qp(struct d_ocp_qp_dim *dim, struct d_ocp_qp *qp, void *memory);
 //
-void d_change_bounds_ocp_qp(int *nbu, int *nbx, int **idxb, struct d_ocp_qp *qp);
+void d_change_bounds_dimensions_ocp_qp(int *nbu, int *nbx, struct d_ocp_qp *qp);
 //
 void d_cvt_colmaj_to_ocp_qp(double **A, double **B, double **b, double **Q, double **S, double **R, double **q, double **r, int **idxb, double **lb, double **ub, double **C, double **D, double **lg, double **ug, double **Zl, double **Zu, double **zl, double **zu, int **idxs, struct d_ocp_qp *qp);
 //
