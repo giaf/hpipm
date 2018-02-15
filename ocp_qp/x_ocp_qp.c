@@ -540,6 +540,8 @@ void CVT_COLMAJ_TO_OCP_QP_QVEC(int stage, REAL *q, struct OCP_QP *qp)
 	int *nx = qp->dim->nx;
 	int *nu = qp->dim->nu;
 
+	int row_offset = qp->dim->nu[stage] + qp->dim->nx[stage], col_offset = qp->dim->nu[stage];
+ 	CVT_TRAN_MAT2STRMAT(nx[stage], 1, q, nx[stage], &(qp->RSQrq[stage]), row_offset, col_offset);
     CVT_VEC2STRVEC(nx[stage], q, qp->rq+stage, nu[stage]);
 
 	return;
@@ -564,7 +566,8 @@ void CVT_COLMAJ_TO_OCP_QP_RVEC(int stage, REAL *r, struct OCP_QP *qp)
 	{
 	// extract dim
 	int *nu = qp->dim->nu;
-
+	int row_offset = qp->dim->nu[stage] + qp->dim->nx[stage], col_offset = 0;
+	CVT_TRAN_MAT2STRMAT(nu[stage], 1, r, nu[stage], &(qp->RSQrq[stage]), row_offset, col_offset);
 	CVT_VEC2STRVEC(nu[stage], r, qp->rq+stage, 0);
 
 	return;
@@ -642,6 +645,8 @@ void CVT_COLMAJ_TO_OCP_QP_BVEC(int stage, REAL *b, struct OCP_QP *qp)
 	int *nx = qp->dim->nx;
 	int *nu = qp->dim->nu;
 
+	int row_offset = qp->dim->nx[stage] + qp->dim->nu[stage], col_offset = 0;
+	CVT_TRAN_MAT2STRMAT(nx[stage+1], 1, b, nx[stage+1], &(qp->BAbt[stage]), row_offset, col_offset);
 	CVT_VEC2STRVEC(nx[stage+1], b, qp->b+stage, 0);
 
 	return;
