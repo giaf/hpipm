@@ -43,8 +43,6 @@ extern "C" {
 
 
 
-/* cond */
-
 //
 void s_cond_BAbt(struct s_ocp_qp *ocp_qp, struct blasfeo_smat *BAbt2, struct blasfeo_svec *b2, struct s_cond_qp_ocp2dense_workspace *cond_ws);
 //
@@ -62,12 +60,6 @@ void s_expand_sol(struct s_ocp_qp *ocp_qp, struct s_dense_qp_sol *dense_qp_sol, 
 //
 void s_expand_primal_sol(struct s_ocp_qp *ocp_qp, struct s_dense_qp_sol *dense_qp_sol, struct s_ocp_qp_sol *ocp_qp_sol, struct s_cond_qp_ocp2dense_workspace *cond_ws);
 
-/* update cond */
-
-//
-void s_update_cond_BAbt(int idx, struct OCP_QP *ocp_qp, struct STRMAT *BAbt2, struct STRVEC *b2, struct COND_QP_OCP2DENSE_WORKSPACE *cond_ws);
-//
-void s_update_cond_b(int idx, struct OCP_QP *ocp_qp, struct STRVEC *b2, struct COND_QP_OCP2DENSE_WORKSPACE *cond_ws);
 
 
 #ifdef __cplusplus

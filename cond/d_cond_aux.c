@@ -73,8 +73,6 @@
 #define COND_D d_cond_d
 #define EXPAND_SOL d_expand_sol
 #define EXPAND_PRIMAL_SOL d_expand_primal_sol
-#define UPDATE_COND_BABT d_update_cond_BAbt
-#define UPDATE_COND_B d_update_cond_b
 
 
 
