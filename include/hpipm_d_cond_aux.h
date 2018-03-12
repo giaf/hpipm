@@ -60,6 +60,12 @@ void d_expand_sol(struct d_ocp_qp *ocp_qp, struct d_dense_qp_sol *dense_qp_sol, 
 //
 void d_expand_primal_sol(struct d_ocp_qp *ocp_qp, struct d_dense_qp_sol *dense_qp_sol, struct d_ocp_qp_sol *ocp_qp_sol, struct d_cond_qp_ocp2dense_workspace *cond_ws);
 
+//
+void d_update_cond_BAbt(int idx, struct d_ocp_qp *ocp_qp, struct blasfeo_dmat *BAbt2, struct blasfeo_dvec *b2, struct d_cond_qp_ocp2dense_workspace *cond_ws);
+//
+void d_update_cond_RSQrq_N2nx3(int idx, struct d_ocp_qp *ocp_qp, struct blasfeo_dmat *RSQrq2, struct blasfeo_dvec *rq2, struct d_cond_qp_ocp2dense_workspace *cond_ws);
+//
+void d_update_cond_DCtd(int idx, struct d_ocp_qp *ocp_qp, int *idxb2, struct blasfeo_dmat *DCt2, struct blasfeo_dvec *d2, int *idxs2, struct blasfeo_dvec *Z2, struct blasfeo_dvec *z2, struct d_cond_qp_ocp2dense_workspace *cond_ws);
 
 
 #ifdef __cplusplus

@@ -322,6 +322,8 @@ void EXPAND_SOL_DENSE2OCP(struct OCP_QP *ocp_qp, struct DENSE_QP_SOL *dense_qp_s
 
 	}
 
+
+
 void EXPAND_PRIMAL_SOL_DENSE2OCP(struct OCP_QP *ocp_qp, struct DENSE_QP_SOL *dense_qp_sol, struct OCP_QP_SOL *ocp_qp_sol, struct COND_QP_OCP2DENSE_WORKSPACE *cond_ws)
 	{
 
@@ -330,3 +332,26 @@ void EXPAND_PRIMAL_SOL_DENSE2OCP(struct OCP_QP *ocp_qp, struct DENSE_QP_SOL *den
 	return;
 
 	}
+
+
+
+/************************************************
+* update cond
+************************************************/
+
+void UPDATE_COND_QP_OCP2DENSE(int idx, struct OCP_QP *ocp_qp, struct DENSE_QP *dense_qp, struct COND_QP_OCP2DENSE_WORKSPACE *cond_ws)
+	{
+
+	UPDATE_COND_BABT(idx, ocp_qp, NULL, NULL, cond_ws);
+
+	UPDATE_COND_RSQRQ_N2NX3(idx, ocp_qp, dense_qp->Hv, dense_qp->g, cond_ws);
+
+	UPDATE_COND_DCTD(idx, ocp_qp, dense_qp->idxb, dense_qp->Ct, dense_qp->d, dense_qp->idxs, dense_qp->Z, dense_qp->z, cond_ws);
+
+	return;
+
+	}
+
+
+
+

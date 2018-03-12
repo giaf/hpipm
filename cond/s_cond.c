@@ -64,6 +64,9 @@
 #define SIZE_STRVEC blasfeo_memsize_svec
 #define STRMAT blasfeo_smat
 #define STRVEC blasfeo_svec
+#define UPDATE_COND_DCTD s_update_cond_DCtd
+#define UPDATE_COND_BABT s_update_cond_BAbt
+#define UPDATE_COND_RSQRQ_N2NX3 s_update_cond_RSQrq_N2nx3
 
 #define COMPUTE_QP_DIM_OCP2DENSE s_compute_qp_dim_ocp2dense
 #define MEMSIZE_COND_QP_OCP2DENSE s_memsize_cond_qp_ocp2dense
@@ -72,6 +75,7 @@
 #define COND_RHS_QP_OCP2DENSE s_cond_rhs_qp_ocp2dense
 #define EXPAND_SOL_DENSE2OCP s_expand_sol_dense2ocp
 #define EXPAND_SOL_PRIMAL_DENSE2OCP s_expand_primal_sol_dense2ocp
+#define UPDATE_COND_QP_OCP2DENSE s_update_cond_qp_ocp2dense
 
 
 

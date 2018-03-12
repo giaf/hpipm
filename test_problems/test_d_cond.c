@@ -695,6 +695,8 @@ int main()
 	struct d_cond_qp_ocp2dense_workspace cond_ws;
 	d_create_cond_qp_ocp2dense(&dim, &cond_ws, cond_mem);
 
+	/* cond */
+
 	gettimeofday(&tv0, NULL); // start
 
 	for(rep=0; rep<nrep; rep++)
@@ -719,6 +721,35 @@ int main()
 	blasfeo_print_tran_dvec(ngc, dense_qp.d, nbc);
 	blasfeo_print_tran_dvec(ngc, dense_qp.d, 2*nbc+ngc);
 #endif
+
+	/* cond */
+
+	gettimeofday(&tv0, NULL); // start
+
+	for(rep=0; rep<nrep; rep++)
+		{
+		d_update_cond_qp_ocp2dense(0, &ocp_qp, &dense_qp, &cond_ws);
+		}
+
+	gettimeofday(&tv1, NULL); // stop
+
+	double time_update_cond = (tv1.tv_sec-tv0.tv_sec)/(nrep+0.0)+(tv1.tv_usec-tv0.tv_usec)/(nrep*1e6);
+
+#if 1
+	printf("\nupdate cond data\n\n");
+	blasfeo_print_dmat(nvc+1, nvc, dense_qp.Hv, 0, 0); // TODO remove +1
+	blasfeo_print_dmat(nec, nvc, dense_qp.A, 0, 0);
+	blasfeo_print_dmat(nvc, ngc, dense_qp.Ct, 0, 0);
+	blasfeo_print_tran_dvec(nvc, dense_qp.g, 0);
+	blasfeo_print_tran_dvec(nec, dense_qp.b, 0);
+	blasfeo_print_tran_dvec(2*nbc+2*ngc, dense_qp.d, 0);
+	blasfeo_print_tran_dvec(nbc, dense_qp.d, 0);
+	blasfeo_print_tran_dvec(nbc, dense_qp.d, nbc+ngc);
+	blasfeo_print_tran_dvec(ngc, dense_qp.d, nbc);
+	blasfeo_print_tran_dvec(ngc, dense_qp.d, 2*nbc+ngc);
+#endif
+
+	/* cond rhs */
 
 	gettimeofday(&tv0, NULL); // start
 
@@ -866,9 +897,10 @@ int main()
 	printf("\nalpha_aff\tmu_aff\t\tsigma\t\talpha\t\tmu\n");
 	d_print_e_tran_mat(5, dense_workspace.iter, dense_workspace.stat, 5);
 
-	printf("\npart cond time           = %e [s]\n", time_cond);
-	printf("\npart cond rhs time       = %e [s]\n", time_cond_rhs);
-	printf("\npart cond dense ipm time = %e [s]\n\n", time_dense_ipm);
+	printf("\ncond time           = %e [s]\n", time_cond);
+	printf("\nupdate cond time    = %e [s]\n", time_update_cond);
+	printf("\ncond rhs time       = %e [s]\n", time_cond_rhs);
+	printf("\ncond dense ipm time = %e [s]\n\n", time_dense_ipm);
 
 /************************************************
 * ocp qp sol

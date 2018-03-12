@@ -73,6 +73,9 @@
 #define COND_D d_cond_d
 #define EXPAND_SOL d_expand_sol
 #define EXPAND_PRIMAL_SOL d_expand_primal_sol
+#define UPDATE_COND_BABT d_update_cond_BAbt
+#define UPDATE_COND_RSQRQ_N2NX3 d_update_cond_RSQrq_N2nx3
+#define UPDATE_COND_DCTD d_update_cond_DCtd
 
 
 
