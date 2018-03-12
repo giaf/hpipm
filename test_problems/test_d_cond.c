@@ -635,11 +635,11 @@ int main()
 #if 0
 	printf("\nN = %d\n", ocp_qp.N);
 	for(ii=0; ii<N; ii++)
-		d_print_strmat(ocp_qp.nu[ii]+ocp_qp.nx[ii]+1, ocp_qp.nx[ii+1], ocp_qp.BAbt+ii, 0, 0);
+		blasfeo_print_dmat(ocp_qp.nu[ii]+ocp_qp.nx[ii]+1, ocp_qp.nx[ii+1], ocp_qp.BAbt+ii, 0, 0);
 	for(ii=0; ii<N; ii++)
 		blasfeo_print_tran_dvec(ocp_qp.nx[ii+1], ocp_qp.b+ii, 0);
 	for(ii=0; ii<=N; ii++)
-		d_print_strmat(ocp_qp.nu[ii]+ocp_qp.nx[ii]+1, ocp_qp.nu[ii]+ocp_qp.nx[ii], ocp_qp.RSQrq+ii, 0, 0);
+		blasfeo_print_dmat(ocp_qp.nu[ii]+ocp_qp.nx[ii]+1, ocp_qp.nu[ii]+ocp_qp.nx[ii], ocp_qp.RSQrq+ii, 0, 0);
 	for(ii=0; ii<=N; ii++)
 		blasfeo_print_tran_dvec(ocp_qp.nu[ii]+ocp_qp.nx[ii], ocp_qp.rq+ii, 0);
 	for(ii=0; ii<=N; ii++)
@@ -649,7 +649,7 @@ int main()
 	for(ii=0; ii<=N; ii++)
 		blasfeo_print_tran_dvec(ocp_qp.nb[ii], ocp_qp.d_ub+ii, 0);
 	for(ii=0; ii<=N; ii++)
-		d_print_strmat(ocp_qp.nu[ii]+ocp_qp.nx[ii], ocp_qp.ng[ii], ocp_qp.DCt+ii, 0, 0);
+		blasfeo_print_dmat(ocp_qp.nu[ii]+ocp_qp.nx[ii], ocp_qp.ng[ii], ocp_qp.DCt+ii, 0, 0);
 	for(ii=0; ii<=N; ii++)
 		blasfeo_print_tran_dvec(ocp_qp.ng[ii], ocp_qp.d_lg+ii, 0);
 	for(ii=0; ii<=N; ii++)
@@ -708,9 +708,9 @@ int main()
 
 #if 1
 	printf("\ncond data\n\n");
-	d_print_strmat(nvc+1, nvc, dense_qp.Hv, 0, 0); // TODO remove +1
-	d_print_strmat(nec, nvc, dense_qp.A, 0, 0);
-	d_print_strmat(nvc, ngc, dense_qp.Ct, 0, 0);
+	blasfeo_print_dmat(nvc+1, nvc, dense_qp.Hv, 0, 0); // TODO remove +1
+	blasfeo_print_dmat(nec, nvc, dense_qp.A, 0, 0);
+	blasfeo_print_dmat(nvc, ngc, dense_qp.Ct, 0, 0);
 	blasfeo_print_tran_dvec(nvc, dense_qp.g, 0);
 	blasfeo_print_tran_dvec(nec, dense_qp.b, 0);
 	blasfeo_print_tran_dvec(2*nbc+2*ngc, dense_qp.d, 0);
@@ -747,7 +747,7 @@ int main()
 	for(ii=0; ii<N; ii++)
 		{
 		nu_tmp += nu[ii];
-		d_print_strmat(nu_tmp+nx[0]+1, nx[ii+1], cond_ws.Gamma+ii, 0, 0);
+		blasfeo_print_dmat(nu_tmp+nx[0]+1, nx[ii+1], cond_ws.Gamma+ii, 0, 0);
 		}
 #endif
 
