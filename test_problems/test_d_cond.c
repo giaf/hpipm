@@ -185,7 +185,7 @@ int main()
 	nu[N] = 0;
 
 	int nbu[N+1];
-	for (ii=0; ii<N; ii++)
+	for (ii=0; ii<=N; ii++)
 		nbu[ii] = nu[ii];
 
 #if 1
@@ -708,6 +708,7 @@ int main()
 
 	double time_cond = (tv1.tv_sec-tv0.tv_sec)/(nrep+0.0)+(tv1.tv_usec-tv0.tv_usec)/(nrep*1e6);
 
+	blasfeo_print_dmat(nvc+1, nvc, dense_qp.Hv, 0, 0); // TODO remove +1
 #if 1
 	printf("\ncond data\n\n");
 	blasfeo_print_dmat(nvc+1, nvc, dense_qp.Hv, 0, 0); // TODO remove +1
@@ -722,19 +723,28 @@ int main()
 	blasfeo_print_tran_dvec(ngc, dense_qp.d, 2*nbc+ngc);
 #endif
 
-	/* cond */
+	/* update cond */
+
+	// index of updated dynamics
+	int idxc[N];
+	for(ii=0; ii<N; ii++)
+		idxc[ii] = 0;
+	idxc[0] = 1;
+
+//	blasfeo_dgese(nvc+1, nvc, 0.0, dense_qp.Hv, 0, 0);
 
 	gettimeofday(&tv0, NULL); // start
 
 	for(rep=0; rep<nrep; rep++)
 		{
-		d_update_cond_qp_ocp2dense(0, &ocp_qp, &dense_qp, &cond_ws);
+		d_update_cond_qp_ocp2dense(idxc, &ocp_qp, &dense_qp, &cond_ws);
 		}
 
 	gettimeofday(&tv1, NULL); // stop
 
 	double time_update_cond = (tv1.tv_sec-tv0.tv_sec)/(nrep+0.0)+(tv1.tv_usec-tv0.tv_usec)/(nrep*1e6);
 
+	blasfeo_print_dmat(nvc+1, nvc, dense_qp.Hv, 0, 0); // TODO remove +1
 #if 1
 	printf("\nupdate cond data\n\n");
 	blasfeo_print_dmat(nvc+1, nvc, dense_qp.Hv, 0, 0); // TODO remove +1
@@ -748,6 +758,7 @@ int main()
 	blasfeo_print_tran_dvec(ngc, dense_qp.d, nbc);
 	blasfeo_print_tran_dvec(ngc, dense_qp.d, 2*nbc+ngc);
 #endif
+//return 0;
 
 	/* cond rhs */
 
@@ -933,7 +944,7 @@ int main()
 
 	d_cvt_ocp_qp_sol_to_colmaj(&ocp_qp_sol, u, x, ls, us, pi, lam_lb, lam_ub, lam_lg, lam_ug, lam_ls, lam_us);
 
-#if 1
+#if 0
 	printf("\nfull space solution\n\n");
 	printf("\nu\n");
 	for(ii=0; ii<=N; ii++)

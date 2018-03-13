@@ -1361,7 +1361,7 @@ void EXPAND_PRIMAL_SOL(struct OCP_QP *ocp_qp, struct DENSE_QP_SOL *dense_qp_sol,
 ************************************************/
 
 // update cond assuming that dynamics change in [0,idx-1], and to remain the same in [idx,N-1]
-void UPDATE_COND_BABT(int idx, struct OCP_QP *ocp_qp, struct STRMAT *BAbt2, struct STRVEC *b2, struct COND_QP_OCP2DENSE_WORKSPACE *cond_ws)
+void UPDATE_COND_BABT(int *idxc, struct OCP_QP *ocp_qp, struct STRMAT *BAbt2, struct STRVEC *b2, struct COND_QP_OCP2DENSE_WORKSPACE *cond_ws)
 	{
 
 	int N = ocp_qp->dim->N;
@@ -1370,9 +1370,6 @@ void UPDATE_COND_BABT(int idx, struct OCP_QP *ocp_qp, struct STRMAT *BAbt2, stru
 	if(N<0)
 		return;
 	
-	if(idx>N)
-		idx = N;
-
 	// extract input members
 	int *nx = ocp_qp->dim->nx;
 	int *nu = ocp_qp->dim->nu;
@@ -1383,6 +1380,17 @@ void UPDATE_COND_BABT(int idx, struct OCP_QP *ocp_qp, struct STRMAT *BAbt2, stru
 	struct STRVEC *Gammab = cond_ws->Gammab;
 
 	int ii, jj;
+
+	// index after first changed dynamic
+	int idx = 0;
+	for(ii=N-1; ii>=0; ii--)
+		{
+		if(idxc[ii]!=0)
+			{
+			idx = ii+1;
+			break;
+			}
+		}
 
 	int nu_tmp, nu_tmp0, nu_tmp1;
 
@@ -1445,7 +1453,7 @@ void UPDATE_COND_BABT(int idx, struct OCP_QP *ocp_qp, struct STRMAT *BAbt2, stru
 
 
 // update cond assuming that dynamics change in [0,idx-1], and to remain the same in [idx,N-1]
-void UPDATE_COND_RSQRQ_N2NX3(int idx, struct OCP_QP *ocp_qp, struct STRMAT *RSQrq2, struct STRVEC *rq2, struct COND_QP_OCP2DENSE_WORKSPACE *cond_ws)
+void UPDATE_COND_RSQRQ_N2NX3(int *idxc, struct OCP_QP *ocp_qp, struct STRMAT *RSQrq2, struct STRVEC *rq2, struct COND_QP_OCP2DENSE_WORKSPACE *cond_ws)
 	{
 
 	int N = ocp_qp->dim->N;
@@ -1455,7 +1463,7 @@ void UPDATE_COND_RSQRQ_N2NX3(int idx, struct OCP_QP *ocp_qp, struct STRMAT *RSQr
 	// early return
 	if(N<0)
 		return;
-
+	
 	// extract input members
 	int *nx = ocp_qp->dim->nx;
 	int *nu = ocp_qp->dim->nu;
@@ -1478,6 +1486,17 @@ void UPDATE_COND_RSQRQ_N2NX3(int idx, struct OCP_QP *ocp_qp, struct STRMAT *RSQr
 		}
 	
 	int nn;
+
+	// index after first changed dynamic
+	int idx = 0;
+	for(nn=N-1; nn>=0; nn--)
+		{
+		if(idxc[nn]!=0)
+			{
+			idx = nn+1;
+			break;
+			}
+		}
 
 	int nu2 = 0; // sum of all nu
 	for(nn=0; nn<=N; nn++)
@@ -1584,7 +1603,8 @@ void UPDATE_COND_RSQRQ_N2NX3(int idx, struct OCP_QP *ocp_qp, struct STRMAT *RSQr
 
 
 
-void UPDATE_COND_DCTD(int idx, struct OCP_QP *ocp_qp, int *idxb2, struct STRMAT *DCt2, struct STRVEC *d2, int *idxs2, struct STRVEC *Z2, struct STRVEC *z2, struct COND_QP_OCP2DENSE_WORKSPACE *cond_ws)
+// TODO
+void UPDATE_COND_DCTD(int *idxc, struct OCP_QP *ocp_qp, int *idxb2, struct STRMAT *DCt2, struct STRVEC *d2, int *idxs2, struct STRVEC *Z2, struct STRVEC *z2, struct COND_QP_OCP2DENSE_WORKSPACE *cond_ws)
 	{
 
 	int N = ocp_qp->dim->N;
