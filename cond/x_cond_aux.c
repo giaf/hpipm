@@ -1369,6 +1369,9 @@ void UPDATE_COND_BABT(int idx, struct OCP_QP *ocp_qp, struct STRMAT *BAbt2, stru
 	// early return
 	if(N<0)
 		return;
+	
+	if(idx>N)
+		idx = N;
 
 	// extract input members
 	int *nx = ocp_qp->dim->nx;
@@ -1381,7 +1384,7 @@ void UPDATE_COND_BABT(int idx, struct OCP_QP *ocp_qp, struct STRMAT *BAbt2, stru
 
 	int ii, jj;
 
-	int nu_tmp;
+	int nu_tmp, nu_tmp0, nu_tmp1;
 
 	nu_tmp = 0;
 	ii = 0;
@@ -1393,7 +1396,7 @@ void UPDATE_COND_BABT(int idx, struct OCP_QP *ocp_qp, struct STRMAT *BAbt2, stru
 	nu_tmp += nu[0];
 	ii++;
 
-	for(ii=1; ii<N; ii++)
+	for(ii=1; ii<idx; ii++)
 		{
 		// TODO check for equal pointers and avoid copy
 
@@ -1409,6 +1412,24 @@ void UPDATE_COND_BABT(int idx, struct OCP_QP *ocp_qp, struct STRMAT *BAbt2, stru
 		ROWEX_LIBSTR(nx[ii+1], 1.0, &Gamma[ii], nu_tmp+nx[0], 0, &Gammab[ii], 0);
 		}
 	
+	nu_tmp0 = nu_tmp;
+	nu_tmp1 = 0;
+
+	for(; ii<N; ii++)
+		{
+		// TODO check for equal pointers and avoid copy
+
+		// Gamma * A^T
+		GEMM_NN_LIBSTR(nu_tmp0+nx[0]+1, nx[ii+1], nx[ii], 1.0, &Gamma[ii-1], nu_tmp1, 0, &BAbt[ii], nu[ii], 0, 0.0, &Gamma[ii], nu_tmp1+nu[ii], 0, &Gamma[ii], nu_tmp1+nu[ii], 0); // Gamma * A^T
+
+		nu_tmp1 += nu[ii];
+		nu_tmp += nu[ii];
+
+		GEAD_LIBSTR(1, nx[ii+1], 1.0, &BAbt[ii], nu[ii]+nx[ii], 0, &Gamma[ii], nu_tmp+nx[0], 0);
+
+		ROWEX_LIBSTR(nx[ii+1], 1.0, &Gamma[ii], nu_tmp+nx[0], 0, &Gammab[ii], 0);
+		}
+
 	if(cond_ws->cond_last_stage==0)
 		{
 		// B & A & b
