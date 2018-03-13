@@ -631,11 +631,11 @@ int main()
 #if 0
 	printf("\nN = %d\n", ocp_qp.N);
 	for(ii=0; ii<N; ii++)
-		d_print_strmat(ocp_qp.nu[ii]+ocp_qp.nx[ii]+1, ocp_qp.nx[ii+1], ocp_qp.BAbt+ii, 0, 0);
+		blasfeo_print_dmat(ocp_qp.nu[ii]+ocp_qp.nx[ii]+1, ocp_qp.nx[ii+1], ocp_qp.BAbt+ii, 0, 0);
 	for(ii=0; ii<N; ii++)
 		blasfeo_print_tran_dvec(ocp_qp.nx[ii+1], ocp_qp.b+ii, 0);
 	for(ii=0; ii<=N; ii++)
-		d_print_strmat(ocp_qp.nu[ii]+ocp_qp.nx[ii]+1, ocp_qp.nu[ii]+ocp_qp.nx[ii], ocp_qp.RSQrq+ii, 0, 0);
+		blasfeo_print_dmat(ocp_qp.nu[ii]+ocp_qp.nx[ii]+1, ocp_qp.nu[ii]+ocp_qp.nx[ii], ocp_qp.RSQrq+ii, 0, 0);
 	for(ii=0; ii<=N; ii++)
 		blasfeo_print_tran_dvec(ocp_qp.nu[ii]+ocp_qp.nx[ii], ocp_qp.rq+ii, 0);
 	for(ii=0; ii<=N; ii++)
@@ -645,7 +645,7 @@ int main()
 	for(ii=0; ii<=N; ii++)
 		blasfeo_print_tran_dvec(ocp_qp.nb[ii], ocp_qp.d_ub+ii, 0);
 	for(ii=0; ii<=N; ii++)
-		d_print_strmat(ocp_qp.nu[ii]+ocp_qp.nx[ii], ocp_qp.ng[ii], ocp_qp.DCt+ii, 0, 0);
+		blasfeo_print_dmat(ocp_qp.nu[ii]+ocp_qp.nx[ii], ocp_qp.ng[ii], ocp_qp.DCt+ii, 0, 0);
 	for(ii=0; ii<=N; ii++)
 		blasfeo_print_tran_dvec(ocp_qp.ng[ii], ocp_qp.d_lg+ii, 0);
 	for(ii=0; ii<=N; ii++)
@@ -710,6 +710,8 @@ int main()
 	struct d_cond_qp_ocp2ocp_workspace part_cond_ws;
 	d_create_cond_qp_ocp2ocp(&dim, &dim2, &part_cond_ws, part_cond_mem);
 
+	/* part cond */
+
 	gettimeofday(&tv0, NULL); // start
 
 	for(rep=0; rep<nrep; rep++)
@@ -724,11 +726,11 @@ int main()
 #if 1
 	printf("\npart cond data\n\n");
 	for(ii=0; ii<N2; ii++)
-		d_print_strmat(nu2[ii]+nx2[ii]+1, nx2[ii+1], part_dense_qp.BAbt+ii, 0, 0);
+		blasfeo_print_dmat(nu2[ii]+nx2[ii]+1, nx2[ii+1], part_dense_qp.BAbt+ii, 0, 0);
 	for(ii=0; ii<N2; ii++)
 		blasfeo_print_tran_dvec(nx2[ii+1], part_dense_qp.b+ii, 0);
 	for(ii=0; ii<=N2; ii++)
-		d_print_strmat(nu2[ii]+nx2[ii]+1, nu2[ii]+nx2[ii], part_dense_qp.RSQrq+ii, 0, 0);
+		blasfeo_print_dmat(nu2[ii]+nx2[ii]+1, nu2[ii]+nx2[ii], part_dense_qp.RSQrq+ii, 0, 0);
 	for(ii=0; ii<=N2; ii++)
 		blasfeo_print_tran_dvec(nu2[ii]+nx2[ii], part_dense_qp.rq+ii, 0);
 	for(ii=0; ii<=N2; ii++)
@@ -736,7 +738,7 @@ int main()
 	for(ii=0; ii<=N2; ii++)
 		blasfeo_print_tran_dvec(nb2[ii], part_dense_qp.d+ii, nb2[ii]+ng2[ii]);
 	for(ii=0; ii<=N2; ii++)
-		d_print_strmat(nu2[ii]+nx2[ii], ng2[ii], part_dense_qp.DCt+ii, 0, 0);
+		blasfeo_print_dmat(nu2[ii]+nx2[ii], ng2[ii], part_dense_qp.DCt+ii, 0, 0);
 	for(ii=0; ii<=N2; ii++)
 		blasfeo_print_tran_dvec(ng2[ii], part_dense_qp.d+ii, nb2[ii]);
 	for(ii=0; ii<=N2; ii++)
@@ -752,6 +754,59 @@ int main()
 	for(ii=0; ii<=N2; ii++)
 		blasfeo_print_tran_dvec(ns2[ii], part_dense_qp.z+ii, ns2[ii]);
 #endif
+
+	/* update part cond */
+
+	// index of updated dynamics
+	int idxc[N];
+	for(ii=0; ii<N; ii++)
+		idxc[ii] = 0;
+	idxc[0] = 1;
+
+	gettimeofday(&tv0, NULL); // start
+
+	for(rep=0; rep<nrep; rep++)
+		{
+		d_update_cond_qp_ocp2ocp(idxc, &ocp_qp, &part_dense_qp, &part_cond_ws);
+		}
+
+	gettimeofday(&tv1, NULL); // stop
+
+	double time_update_cond = (tv1.tv_sec-tv0.tv_sec)/(nrep+0.0)+(tv1.tv_usec-tv0.tv_usec)/(nrep*1e6);
+
+#if 1
+	printf("\nupdate part cond data\n\n");
+	for(ii=0; ii<N2; ii++)
+		blasfeo_print_dmat(nu2[ii]+nx2[ii]+1, nx2[ii+1], part_dense_qp.BAbt+ii, 0, 0);
+	for(ii=0; ii<N2; ii++)
+		blasfeo_print_tran_dvec(nx2[ii+1], part_dense_qp.b+ii, 0);
+	for(ii=0; ii<=N2; ii++)
+		blasfeo_print_dmat(nu2[ii]+nx2[ii]+1, nu2[ii]+nx2[ii], part_dense_qp.RSQrq+ii, 0, 0);
+	for(ii=0; ii<=N2; ii++)
+		blasfeo_print_tran_dvec(nu2[ii]+nx2[ii], part_dense_qp.rq+ii, 0);
+	for(ii=0; ii<=N2; ii++)
+		blasfeo_print_tran_dvec(nb2[ii], part_dense_qp.d+ii, 0);
+	for(ii=0; ii<=N2; ii++)
+		blasfeo_print_tran_dvec(nb2[ii], part_dense_qp.d+ii, nb2[ii]+ng2[ii]);
+	for(ii=0; ii<=N2; ii++)
+		blasfeo_print_dmat(nu2[ii]+nx2[ii], ng2[ii], part_dense_qp.DCt+ii, 0, 0);
+	for(ii=0; ii<=N2; ii++)
+		blasfeo_print_tran_dvec(ng2[ii], part_dense_qp.d+ii, nb2[ii]);
+	for(ii=0; ii<=N2; ii++)
+		blasfeo_print_tran_dvec(ng2[ii], part_dense_qp.d+ii, 2*nb2[ii]+ng2[ii]);
+	for(ii=0; ii<=N2; ii++)
+		int_print_mat(1, ns2[ii], part_dense_qp.idxs[ii], 1);
+	for(ii=0; ii<=N2; ii++)
+		blasfeo_print_tran_dvec(ns2[ii], part_dense_qp.Z+ii, 0);
+	for(ii=0; ii<=N2; ii++)
+		blasfeo_print_tran_dvec(ns2[ii], part_dense_qp.Z+ii, ns2[ii]);
+	for(ii=0; ii<=N2; ii++)
+		blasfeo_print_tran_dvec(ns2[ii], part_dense_qp.z+ii, 0);
+	for(ii=0; ii<=N2; ii++)
+		blasfeo_print_tran_dvec(ns2[ii], part_dense_qp.z+ii, ns2[ii]);
+#endif
+
+	/* cond rhs */
 
 	gettimeofday(&tv0, NULL); // start
 
@@ -789,7 +844,7 @@ int main()
 		{
 		for(jj=0; jj<
 		struct blasfeo_dmat *tmp_mat += (part_cond_ws.cond_workspace+ii)->Gamma;
-		d_print_strmat(tmp_mat->m, tmp_mat->n, tmp_mat, 0, 0);
+		blasfeo_print_dmat(tmp_mat->m, tmp_mat->n, tmp_mat, 0, 0);
 		}
 #endif
 
@@ -1015,6 +1070,7 @@ int main()
 	d_print_e_tran_mat(5, workspace.iter, workspace.stat, 5);
 
 	printf("\npart cond time         = %e [s]\n", time_cond);
+	printf("\nupdate part cond time  = %e [s]\n", time_update_cond);
 	printf("\npart cond rhs time     = %e [s]\n", time_cond_rhs);
 	printf("\npart cond ocp ipm time = %e [s]\n\n", time_ocp_ipm);
 

@@ -63,6 +63,9 @@
 #define OCP_QP_DIM s_ocp_qp_dim
 #define OCP_QP_SOL s_ocp_qp_sol
 #define STRVEC blasfeo_svec
+#define UPDATE_COND_BABT s_update_cond_BAbt
+#define UPDATE_COND_DCTD s_update_cond_DCtd
+#define UPDATE_COND_RSQRQ_N2NX3 s_update_cond_RSQrq_N2nx3
 #define VECCP_LIBSTR blasfeo_sveccp
 
 #define COMPUTE_QP_DIM_OCP2OCP s_compute_qp_dim_ocp2ocp
@@ -71,6 +74,7 @@
 #define COND_QP_OCP2OCP s_cond_qp_ocp2ocp
 #define COND_RHS_QP_OCP2OCP s_cond_rhs_qp_ocp2ocp
 #define EXPAND_SOL_OCP2OCP s_expand_sol_ocp2ocp
+#define UPDATE_COND_QP_OCP2OCP s_update_cond_qp_ocp2ocp
 
 
 

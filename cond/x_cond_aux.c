@@ -1370,15 +1370,6 @@ void UPDATE_COND_BABT(int *idxc, struct OCP_QP *ocp_qp, struct STRMAT *BAbt2, st
 	if(N<0)
 		return;
 	
-	// extract input members
-	int *nx = ocp_qp->dim->nx;
-	int *nu = ocp_qp->dim->nu;
-	struct STRMAT *BAbt = ocp_qp->BAbt;
-
-	// extract memory members
-	struct STRMAT *Gamma = cond_ws->Gamma;
-	struct STRVEC *Gammab = cond_ws->Gammab;
-
 	int ii, jj;
 
 	// index after first changed dynamic
@@ -1391,6 +1382,19 @@ void UPDATE_COND_BABT(int *idxc, struct OCP_QP *ocp_qp, struct STRMAT *BAbt2, st
 			break;
 			}
 		}
+	
+	// no changes
+	if(idx==0)
+		return;
+
+	// extract input members
+	int *nx = ocp_qp->dim->nx;
+	int *nu = ocp_qp->dim->nu;
+	struct STRMAT *BAbt = ocp_qp->BAbt;
+
+	// extract memory members
+	struct STRMAT *Gamma = cond_ws->Gamma;
+	struct STRVEC *Gammab = cond_ws->Gammab;
 
 	int nu_tmp, nu_tmp0, nu_tmp1;
 
@@ -1464,6 +1468,23 @@ void UPDATE_COND_RSQRQ_N2NX3(int *idxc, struct OCP_QP *ocp_qp, struct STRMAT *RS
 	if(N<0)
 		return;
 	
+	int nn;
+
+	// index after first changed dynamic
+	int idx = 0;
+	for(nn=N-1; nn>=0; nn--)
+		{
+		if(idxc[nn]!=0)
+			{
+			idx = nn+1;
+			break;
+			}
+		}
+
+	// no changes
+	if(idx==0)
+		return;
+
 	// extract input members
 	int *nx = ocp_qp->dim->nx;
 	int *nu = ocp_qp->dim->nu;
@@ -1485,19 +1506,6 @@ void UPDATE_COND_RSQRQ_N2NX3(int *idxc, struct OCP_QP *ocp_qp, struct STRMAT *RS
 		return;
 		}
 	
-	int nn;
-
-	// index after first changed dynamic
-	int idx = 0;
-	for(nn=N-1; nn>=0; nn--)
-		{
-		if(idxc[nn]!=0)
-			{
-			idx = nn+1;
-			break;
-			}
-		}
-
 	int nu2 = 0; // sum of all nu
 	for(nn=0; nn<=N; nn++)
 		nu2 += nu[nn];
@@ -1615,6 +1623,23 @@ void UPDATE_COND_DCTD(int *idxc, struct OCP_QP *ocp_qp, int *idxb2, struct STRMA
 	if(N<0)
 		return;
 
+	int ii, jj;
+
+	// index after first changed dynamic
+	int idx = 0;
+	for(ii=N-1; ii>=0; ii--)
+		{
+		if(idxc[ii]!=0)
+			{
+			idx = ii+1;
+			break;
+			}
+		}
+	
+	// no changes
+	if(idx==0)
+		return;
+
 	// extract input members
 	int *nx = ocp_qp->dim->nx;
 	int *nu = ocp_qp->dim->nu;
@@ -1640,8 +1665,6 @@ void UPDATE_COND_DCTD(int *idxc, struct OCP_QP *ocp_qp, int *idxb2, struct STRMA
 	REAL *ptr_d_ub;
 	
 	int nu_tmp, ng_tmp;
-
-	int ii, jj;
 
 	int nu0, nx0, nb0, ng0, ns0;
 
