@@ -1360,7 +1360,7 @@ void EXPAND_PRIMAL_SOL(struct OCP_QP *ocp_qp, struct DENSE_QP_SOL *dense_qp_sol,
 * update cond
 ************************************************/
 
-/* update cond assuming that dynamics change in [0,idx] */
+// update cond assuming that dynamics change in [0,idx-1], and to remain the same in [idx,N-1]
 void UPDATE_COND_BABT(int idx, struct OCP_QP *ocp_qp, struct STRMAT *BAbt2, struct STRVEC *b2, struct COND_QP_OCP2DENSE_WORKSPACE *cond_ws)
 	{
 
@@ -1444,6 +1444,7 @@ void UPDATE_COND_BABT(int idx, struct OCP_QP *ocp_qp, struct STRMAT *BAbt2, stru
 
 
 
+// update cond assuming that dynamics change in [0,idx-1], and to remain the same in [idx,N-1]
 void UPDATE_COND_RSQRQ_N2NX3(int idx, struct OCP_QP *ocp_qp, struct STRMAT *RSQrq2, struct STRVEC *rq2, struct COND_QP_OCP2DENSE_WORKSPACE *cond_ws)
 	{
 
@@ -1475,7 +1476,7 @@ void UPDATE_COND_RSQRQ_N2NX3(int idx, struct OCP_QP *ocp_qp, struct STRMAT *RSQr
 		ROWEX_LIBSTR(nu[0]+nx[0], 1.0, &RSQrq[0], nu[0]+nx[0], 0, &rq2[0], 0); // XXX when removing rq from RSQ !!!
 		return;
 		}
-
+	
 	int nn;
 
 	int nu2 = 0; // sum of all nu
@@ -1484,6 +1485,12 @@ void UPDATE_COND_RSQRQ_N2NX3(int idx, struct OCP_QP *ocp_qp, struct STRMAT *RSQr
 	
 	int nub = nu2; // backward partial sum
 	int nuf = 0; // forward partial sum
+
+	// sum of nu of changed dynamics
+	int nuc = 0;
+	for(nn=0; nn<idx; nn++)
+		nuc += nu[nn];
+//	printf("\nnuc %d\n", nuc);
 
 	// final stage 
 	nub -= nu[N];
@@ -1504,7 +1511,24 @@ void UPDATE_COND_RSQRQ_N2NX3(int idx, struct OCP_QP *ocp_qp, struct STRMAT *RSQr
 
 
 	// middle stages 
-	for(nn=0; nn<N-1; nn++)
+	nn = 0;
+
+	// unchanged dynamics
+	for(; N-nn-1>=idx & nn<N-1; nn++)
+		{	
+		nub -= nu[N-nn-1];
+
+		GEMM_NN_LIBSTR(nuc+nx[0]+1, nu[N-nn-1], nx[N-nn-1], 1.0, &Gamma[N-nn-2], nub-nuc, 0, &L[N-nn-1], nu[N-nn-1], 0, 0.0, &RSQrq2[0], nuf+nu[N-nn-1]+nub-nuc, nuf, &RSQrq2[0], nuf+nu[N-nn-1]+nub-nuc, nuf);
+
+		// m
+		GEAD_LIBSTR(1, nu[N-nn-1], 1.0, &L[N-nn-1], nu[N-nn-1]+nx[N-nn-1], 0, &RSQrq2[0], nu2+nx[0], nuf);
+
+		nuf += nu[N-nn-1];
+
+		}
+
+	// changed dynamics
+	for(; nn<N-1; nn++)
 		{	
 		nub -= nu[N-nn-1];
 
