@@ -190,7 +190,7 @@ void CREATE_COND_QP_OCP2OCP(struct OCP_QP_DIM *ocp_dim, struct OCP_QP_DIM *part_
 
 	cond_ws->memsize = MEMSIZE_COND_QP_OCP2OCP(ocp_dim, part_dense_dim);
 
-	#if defined(RUNTIME_CHECKS)
+#if defined(RUNTIME_CHECKS)
 	if(c_ptr > ((char *) mem) + cond_ws->memsize)
 		{
 		printf("\nCreate_cond_qp_ocp2ocp: outside memory bounds!\n\n");
