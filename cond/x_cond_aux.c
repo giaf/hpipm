@@ -33,6 +33,9 @@ void COND_BABT(struct OCP_QP *ocp_qp, struct STRMAT *BAbt2, struct STRVEC *b2, s
 	// early return
 	if(N<0)
 		return;
+	
+	if(N==0 & cond_ws->cond_last_stage==1)
+		return;
 
 	// extract input members
 	int *nx = ocp_qp->dim->nx;
@@ -96,6 +99,9 @@ void COND_B(struct OCP_QP *ocp_qp, struct STRVEC *b2, struct COND_QP_OCP2DENSE_W
 	if(N<0)
 		return;
 
+	if(N==0 & cond_ws->cond_last_stage==1)
+		return;
+
 	// extract input members
 	int *nx = ocp_qp->dim->nx;
 	int *nu = ocp_qp->dim->nu;
@@ -151,12 +157,6 @@ void COND_RSQRQ_N2NX3(struct OCP_QP *ocp_qp, struct STRMAT *RSQrq2, struct STRVE
 	struct STRMAT *BAbt = ocp_qp->BAbt;
 	struct STRMAT *RSQrq = ocp_qp->RSQrq;
 
-	// extract memory members
-	struct STRMAT *Gamma = cond_ws->Gamma;
-	struct STRMAT *L = cond_ws->L;
-	struct STRMAT *Lx = cond_ws->Lx;
-	struct STRMAT *AL = cond_ws->AL;
-
 	// early return
 	if(N==0)
 		{
@@ -164,6 +164,12 @@ void COND_RSQRQ_N2NX3(struct OCP_QP *ocp_qp, struct STRMAT *RSQrq2, struct STRVE
 		ROWEX_LIBSTR(nu[0]+nx[0], 1.0, &RSQrq[0], nu[0]+nx[0], 0, &rq2[0], 0); // XXX when removing rq from RSQ !!!
 		return;
 		}
+
+	// extract memory members
+	struct STRMAT *Gamma = cond_ws->Gamma;
+	struct STRMAT *L = cond_ws->L;
+	struct STRMAT *Lx = cond_ws->Lx;
+	struct STRMAT *AL = cond_ws->AL;
 
 	int nn;
 
@@ -268,18 +274,18 @@ void COND_RQ_N2NX3(struct OCP_QP *ocp_qp, struct STRVEC *rq2, struct COND_QP_OCP
 	struct STRVEC *b = ocp_qp->b;
 	struct STRVEC *rq = ocp_qp->rq;
 
-	// extract memory members
-	struct STRMAT *L = cond_ws->L;
-	struct STRVEC *Gammab = cond_ws->Gammab;
-	struct STRVEC *l = cond_ws->l;
-	struct STRVEC *tmp_nuxM = cond_ws->tmp_nuxM;
-
 	// early return
 	if(N==0)
 		{
 		VECCP_LIBSTR(nu[0]+nx[0], rq+0, 0, rq2+0, 0);
 		return;
 		}
+
+	// extract memory members
+	struct STRMAT *L = cond_ws->L;
+	struct STRVEC *Gammab = cond_ws->Gammab;
+	struct STRVEC *l = cond_ws->l;
+	struct STRVEC *tmp_nuxM = cond_ws->tmp_nuxM;
 
 	int nn;
 
@@ -342,6 +348,8 @@ void COND_DCTD(struct OCP_QP *ocp_qp, int *idxb2, struct STRMAT *DCt2, struct ST
 	// early return
 	if(N<0)
 		return;
+	
+	// TODO early return for N==0 ???
 
 	// extract input members
 	int *nx = ocp_qp->dim->nx;
@@ -663,6 +671,8 @@ void COND_D(struct OCP_QP *ocp_qp, struct STRVEC *d2, struct STRVEC *z2, struct 
 	// early return
 	if(N<0)
 		return;
+
+	// TODO early return for N==0 ???
 
 	// extract input members
 	int *nx = ocp_qp->dim->nx;

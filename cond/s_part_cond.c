@@ -68,6 +68,7 @@
 #define UPDATE_COND_RSQRQ_N2NX3 s_update_cond_RSQrq_N2nx3
 #define VECCP_LIBSTR blasfeo_sveccp
 
+#define COMPUTE_BLOCK_SIZE_COND_QP_OCP2OCP s_compute_block_size_cond_qp_ocp2ocp
 #define COMPUTE_QP_DIM_OCP2OCP s_compute_qp_dim_ocp2ocp
 #define MEMSIZE_COND_QP_OCP2OCP s_memsize_cond_qp_ocp2ocp
 #define CREATE_COND_QP_OCP2OCP s_create_cond_qp_ocp2ocp

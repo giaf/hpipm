@@ -182,7 +182,7 @@ int main()
 	nu[N] = 0;
 
 	int nbu[N+1];
-	for (ii=0; ii<N; ii++)
+	for (ii=0; ii<=N; ii++)
 		nbu[ii] = nu[ii];
 
 #if 1
@@ -259,7 +259,7 @@ int main()
 	mass_spring_system(Ts, nx_, nu_, N, A, B, b, x0);
 
 	for(jj=0; jj<nx_; jj++)
-		b[jj] = 0.0;
+		b[jj] = 0.1;
 
 	for(jj=0; jj<nx_; jj++)
 		x0[jj] = 0;
@@ -678,20 +678,31 @@ int main()
 * part dense qp
 ************************************************/
 
-	d_compute_qp_dim_ocp2ocp(&dim, &dim2);
-	for (ii=0; ii<=N2; ii++)
+	int block_size[N2+1];
+#if 1
+	d_compute_block_size_cond_qp_ocp2ocp(N, N2, block_size);
+#else
+	block_size[0] = 1;
+	block_size[1] = 1;
+	block_size[2] = 3;
+#endif
+	printf("\nblock_size\n");
+	int_print_mat(1, N2+1, block_size, 1);
+
+	d_compute_qp_dim_ocp2ocp(&dim, block_size, &dim2);
+	for(ii=0; ii<=N2; ii++)
 		nx2[ii] = dim2.nx[ii];
-	for (ii=0; ii<=N2; ii++)
+	for(ii=0; ii<=N2; ii++)
 		nu2[ii] = dim2.nu[ii];
-	for (ii=0; ii<=N2; ii++)
+	for(ii=0; ii<=N2; ii++)
 		nb2[ii] = dim2.nb[ii];
-	for (ii=0; ii<=N2; ii++)
+	for(ii=0; ii<=N2; ii++)
 		nbx2[ii] = dim2.nbx[ii];
-	for (ii=0; ii<=N2; ii++)
+	for(ii=0; ii<=N2; ii++)
 		nbu2[ii] = dim2.nbu[ii];
-	for (ii=0; ii<=N2; ii++)
+	for(ii=0; ii<=N2; ii++)
 		ng2[ii] = dim2.ng[ii];
-	for (ii=0; ii<=N2; ii++)
+	for(ii=0; ii<=N2; ii++)
 		ns2[ii] = dim2.ns[ii];
 	for(ii=0; ii<=N2; ii++)
 		printf("\n%d %d %d %d\n", nx2[ii], nu2[ii], nb2[ii], ng2[ii]);
@@ -703,12 +714,12 @@ int main()
 	struct d_ocp_qp part_dense_qp;
 	d_create_ocp_qp(&dim2, &part_dense_qp, part_dense_qp_mem);
 
-	int part_cond_size = d_memsize_cond_qp_ocp2ocp(&dim, &dim2);
+	int part_cond_size = d_memsize_cond_qp_ocp2ocp(&dim, block_size, &dim2);
 	printf("\npart cond size = %d\n", part_cond_size);
 	void *part_cond_mem = malloc(part_cond_size);
 
 	struct d_cond_qp_ocp2ocp_workspace part_cond_ws;
-	d_create_cond_qp_ocp2ocp(&dim, &dim2, &part_cond_ws, part_cond_mem);
+	d_create_cond_qp_ocp2ocp(&dim, block_size, &dim2, &part_cond_ws, part_cond_mem);
 
 	/* part cond */
 

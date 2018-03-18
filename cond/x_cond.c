@@ -267,6 +267,8 @@ void CREATE_COND_QP_OCP2DENSE(struct OCP_QP_DIM *ocp_dim, struct COND_QP_OCP2DEN
 
 	cond_ws->cond_last_stage = 1; // default: cond last stage
 
+	cond_ws->bs = N;
+
 	cond_ws->memsize = MEMSIZE_COND_QP_OCP2DENSE(ocp_dim);
 
 #if defined(RUNTIME_CHECKS)

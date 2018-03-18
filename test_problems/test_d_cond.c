@@ -263,7 +263,7 @@ int main()
 	mass_spring_system(Ts, nx_, nu_, N, A, B, b, x0);
 	
 	for(jj=0; jj<nx_; jj++)
-		b[jj] = 0.0;
+		b[jj] = 0.1;
 	
 	for(jj=0; jj<nx_; jj++)
 		x0[jj] = 0;
