@@ -349,7 +349,7 @@ void COND_DCTD(struct OCP_QP *ocp_qp, int *idxb2, struct STRMAT *DCt2, struct ST
 	if(N<0)
 		return;
 	
-	// TODO early return for N==0 ???
+	int ii, jj;
 
 	// extract input members
 	int *nx = ocp_qp->dim->nx;
@@ -365,6 +365,18 @@ void COND_DCTD(struct OCP_QP *ocp_qp, int *idxb2, struct STRMAT *DCt2, struct ST
 	struct STRVEC *Z = ocp_qp->Z;
 	struct STRVEC *z = ocp_qp->z;
 
+	// early return
+	if(N==0 & cond_ws->cond_last_stage==1)
+		{
+		GECP_LIBSTR(nu[0]+nx[0], ng[0], ocp_qp->DCt, 0, 0, DCt2, 0, 0);
+		VECCP_LIBSTR(2*nb[0]+2*ng[0], ocp_qp->d, 0, d2, 0);
+		for(ii=0; ii<nb[0]; ii++) idxb2[ii] = ocp_qp->idxb[0][ii];
+		VECCP_LIBSTR(2*ns[0], ocp_qp->Z, 0, Z2, 0);
+		VECCP_LIBSTR(2*ns[0], ocp_qp->z, 0, z2, 0);
+		for(ii=0; ii<ns[0]; ii++) idxs2[ii] = ocp_qp->idxs[0][ii];
+		return;
+		}
+
 	// extract memory members
 	struct STRMAT *Gamma = cond_ws->Gamma;
 	struct STRVEC *Gammab = cond_ws->Gammab;
@@ -376,8 +388,6 @@ void COND_DCTD(struct OCP_QP *ocp_qp, int *idxb2, struct STRMAT *DCt2, struct ST
 	REAL *ptr_d_ub;
 	
 	int nu_tmp, ng_tmp;
-
-	int ii, jj;
 
 	int nu0, nx0, nb0, ng0, ns0;
 
@@ -672,7 +682,7 @@ void COND_D(struct OCP_QP *ocp_qp, struct STRVEC *d2, struct STRVEC *z2, struct 
 	if(N<0)
 		return;
 
-	// TODO early return for N==0 ???
+	int ii, jj;
 
 	// extract input members
 	int *nx = ocp_qp->dim->nx;
@@ -688,6 +698,14 @@ void COND_D(struct OCP_QP *ocp_qp, struct STRVEC *d2, struct STRVEC *z2, struct 
 	struct STRVEC *Z = ocp_qp->Z;
 	struct STRVEC *z = ocp_qp->z;
 
+	// early return
+	if(N==0 & cond_ws->cond_last_stage==1)
+		{
+		VECCP_LIBSTR(2*nb[0]+2*ng[0], ocp_qp->d, 0, d2, 0);
+		VECCP_LIBSTR(2*ns[0], ocp_qp->z, 0, z2, 0);
+		return;
+		}
+
 	// extract memory members
 	struct STRMAT *Gamma = cond_ws->Gamma;
 	struct STRVEC *Gammab = cond_ws->Gammab;
@@ -699,8 +717,6 @@ void COND_D(struct OCP_QP *ocp_qp, struct STRVEC *d2, struct STRVEC *z2, struct 
 	REAL *ptr_d_ub;
 	
 	int nu_tmp, ng_tmp;
-
-	int ii, jj;
 
 	int nu0, nx0, nb0, ng0, ns0;
 
@@ -982,6 +998,15 @@ void EXPAND_SOL(struct OCP_QP *ocp_qp, struct DENSE_QP_SOL *dense_qp_sol, struct
 	struct STRVEC *tmp_nuxM = cond_ws->tmp_nuxM;
 	struct STRVEC *tmp_ngM = cond_ws->tmp_ngM;
 	int *idxs_rev = cond_ws->idxs_rev;
+
+	// early return
+	if(N==0 & cond_ws->cond_last_stage==1)
+		{
+		VECCP_LIBSTR(nu[0]+nx[0]+2*ns[0], dense_qp_sol->v, 0, ocp_qp_sol->ux, 0);
+		VECCP_LIBSTR(2*nb[N]+2*ng[N]+2*ns[N], dense_qp_sol->lam, 0, ocp_qp_sol->lam, 0);
+		VECCP_LIBSTR(2*nb[N]+2*ng[N]+2*ns[N], dense_qp_sol->t, 0, ocp_qp_sol->t, 0);
+		return;
+		}
 
 	// problem size
 
@@ -1317,6 +1342,13 @@ void EXPAND_PRIMAL_SOL(struct OCP_QP *ocp_qp, struct DENSE_QP_SOL *dense_qp_sol,
 	struct STRVEC *tmp_nuxM = cond_ws->tmp_nuxM;
 	struct STRVEC *tmp_ngM = cond_ws->tmp_ngM;
 	int *idxs_rev = cond_ws->idxs_rev;
+
+	// early return
+	if(N==0 & cond_ws->cond_last_stage==1)
+		{
+		VECCP_LIBSTR(nu[0]+nx[0]+2*ns[0], dense_qp_sol->v, 0, ocp_qp_sol->ux, 0);
+		return;
+		}
 
 	// problem size
 

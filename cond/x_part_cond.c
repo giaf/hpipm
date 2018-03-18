@@ -431,7 +431,7 @@ void EXPAND_SOL_OCP2OCP(struct OCP_QP *ocp_qp, struct OCP_QP *part_dense_qp, str
 		dense_qp_sol.lam = part_dense_qp_sol->lam+ii;
 		dense_qp_sol.t = part_dense_qp_sol->t+ii;
 
-		EXPAND_SOL(&tmp_ocp_qp, &dense_qp_sol, &tmp_ocp_qp_sol, part_cond_ws->cond_workspace);
+		EXPAND_SOL(&tmp_ocp_qp, &dense_qp_sol, &tmp_ocp_qp_sol, part_cond_ws->cond_workspace+ii);
 
 		N_tmp += bs;
 
