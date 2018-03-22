@@ -123,36 +123,19 @@ void COMPUTE_QP_DIM_OCP2OCP(struct OCP_QP_DIM *ocp_dim, int *block_size, struct 
 
 
 
-int MEMSIZE_COND_QP_OCP2OCP_ARG(struct OCP_QP_DIM *ocp_dim, int *block_size, struct OCP_QP_DIM *part_dense_dim)
+int MEMSIZE_COND_QP_OCP2OCP_ARG(int N2)
 	{
 
-	struct OCP_QP_DIM tmp_ocp_dim;
-
 	int ii;
-
-	int N = ocp_dim->N;
-	int N2 = part_dense_dim->N;
 
 	int size = 0;
 
 	size += (N2+1)*sizeof(struct COND_QP_OCP2DENSE_ARG);
 
-	int N_tmp = 0; // temporary sum of horizons
 	for(ii=0; ii<=N2; ii++)
 		{
 
-		// alias ocp_dim
-		tmp_ocp_dim.N = block_size[ii];
-		tmp_ocp_dim.nx = ocp_dim->nx+N_tmp;
-		tmp_ocp_dim.nu = ocp_dim->nu+N_tmp;
-		tmp_ocp_dim.nbx = ocp_dim->nbx+N_tmp;
-		tmp_ocp_dim.nbu = ocp_dim->nbu+N_tmp;
-		tmp_ocp_dim.nb = ocp_dim->nb+N_tmp;
-		tmp_ocp_dim.ng = ocp_dim->ng+N_tmp;
-
-		size += MEMSIZE_COND_QP_OCP2DENSE_ARG(&tmp_ocp_dim);
-
-		N_tmp += block_size[ii];
+		size += MEMSIZE_COND_QP_OCP2DENSE_ARG();
 
 		}
 
@@ -165,15 +148,10 @@ int MEMSIZE_COND_QP_OCP2OCP_ARG(struct OCP_QP_DIM *ocp_dim, int *block_size, str
 
 
 
-void CREATE_COND_QP_OCP2OCP_ARG(struct OCP_QP_DIM *ocp_dim, int *block_size, struct OCP_QP_DIM *part_dense_dim, struct COND_QP_OCP2OCP_ARG *part_cond_arg, void *mem)
+void CREATE_COND_QP_OCP2OCP_ARG(int N2, struct COND_QP_OCP2OCP_ARG *part_cond_arg, void *mem)
 	{
 
-	struct OCP_QP_DIM tmp_ocp_dim;
-
 	int ii;
-
-	int N = ocp_dim->N;
-	int N2 = part_dense_dim->N;
 
 	// cond workspace struct
 	struct COND_QP_OCP2DENSE_ARG *cws_ptr = mem;
@@ -186,27 +164,15 @@ void CREATE_COND_QP_OCP2OCP_ARG(struct OCP_QP_DIM *ocp_dim, int *block_size, str
 
 	char *c_ptr = (char *) s_ptr;
 
-	int N_tmp = 0; // temporary sum of horizons
 	for(ii=0; ii<=N2; ii++)
 		{
 
-		// alias ocp_dim
-		tmp_ocp_dim.N = block_size[ii];
-		tmp_ocp_dim.nx = ocp_dim->nx+N_tmp;
-		tmp_ocp_dim.nu = ocp_dim->nu+N_tmp;
-		tmp_ocp_dim.nbx = ocp_dim->nbx+N_tmp;
-		tmp_ocp_dim.nbu = ocp_dim->nbu+N_tmp;
-		tmp_ocp_dim.nb = ocp_dim->nb+N_tmp;
-		tmp_ocp_dim.ng = ocp_dim->ng+N_tmp;
-
-		CREATE_COND_QP_OCP2DENSE_ARG(&tmp_ocp_dim, part_cond_arg->cond_arg+ii, c_ptr);
+		CREATE_COND_QP_OCP2DENSE_ARG(part_cond_arg->cond_arg+ii, c_ptr);
 		c_ptr += (part_cond_arg->cond_arg+ii)->memsize;
-
-		N_tmp += block_size[ii];
 
 		}
 
-	part_cond_arg->memsize = MEMSIZE_COND_QP_OCP2OCP_ARG(ocp_dim, block_size, part_dense_dim);
+	part_cond_arg->memsize = MEMSIZE_COND_QP_OCP2OCP_ARG(N2);
 
 #if defined(RUNTIME_CHECKS)
 	if(c_ptr > ((char *) mem) + part_cond_arg->memsize)
@@ -222,33 +188,16 @@ return;
 
 
 
-void SET_DEFAULT_COND_QP_OCP2OCP_ARG(struct OCP_QP_DIM *ocp_dim, int *block_size, struct OCP_QP_DIM *part_dense_dim, struct COND_QP_OCP2OCP_ARG *part_cond_arg)
+void SET_DEFAULT_COND_QP_OCP2OCP_ARG(int N2, struct COND_QP_OCP2OCP_ARG *part_cond_arg)
 	{
-
-	struct OCP_QP_DIM tmp_ocp_dim;
 
 	int ii;
 
-	int N = ocp_dim->N;
-	int N2 = part_dense_dim->N;
-
-	int N_tmp = 0; // temporary sum of horizons
 	for(ii=0; ii<=N2; ii++)
 		{
 
-		// alias ocp_dim
-		tmp_ocp_dim.N = block_size[ii];
-		tmp_ocp_dim.nx = ocp_dim->nx+N_tmp;
-		tmp_ocp_dim.nu = ocp_dim->nu+N_tmp;
-		tmp_ocp_dim.nbx = ocp_dim->nbx+N_tmp;
-		tmp_ocp_dim.nbu = ocp_dim->nbu+N_tmp;
-		tmp_ocp_dim.nb = ocp_dim->nb+N_tmp;
-		tmp_ocp_dim.ng = ocp_dim->ng+N_tmp;
-
-		SET_DEFAULT_COND_QP_OCP2DENSE_ARG(&tmp_ocp_dim, part_cond_arg->cond_arg+ii);
+		SET_DEFAULT_COND_QP_OCP2DENSE_ARG(part_cond_arg->cond_arg+ii);
 		(part_cond_arg->cond_arg+ii)->cond_last_stage = 0;
-
-		N_tmp += block_size[ii];
 
 		}
 	// cond_last_stage at last stage

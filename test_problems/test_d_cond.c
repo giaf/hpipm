@@ -690,13 +690,13 @@ int main()
 	d_create_dense_qp(&qp_dim, &dense_qp, dense_qp_mem);
 
 	// arg
-	int cond_arg_size = d_memsize_cond_qp_ocp2dense_arg(&dim);
+	int cond_arg_size = d_memsize_cond_qp_ocp2dense_arg();
 	printf("\ncond_arg size = %d\n", cond_arg_size);
 	void *cond_arg_mem = malloc(cond_arg_size);
 
 	struct d_cond_qp_ocp2dense_arg cond_arg;
-	d_create_cond_qp_ocp2dense_arg(&dim, &cond_arg, cond_arg_mem);
-	d_set_default_cond_qp_ocp2dense_arg(&dim, &cond_arg);
+	d_create_cond_qp_ocp2dense_arg(&cond_arg, cond_arg_mem);
+	d_set_default_cond_qp_ocp2dense_arg(&cond_arg);
 
 	// ws
 	int cond_size = d_memsize_cond_qp_ocp2dense(&dim, &cond_arg);

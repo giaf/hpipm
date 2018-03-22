@@ -716,13 +716,13 @@ int main()
 	d_create_ocp_qp(&dim2, &part_dense_qp, part_dense_qp_mem);
 
 	// arg
-	int part_cond_arg_size = d_memsize_cond_qp_ocp2ocp_arg(&dim, block_size, &dim2);
+	int part_cond_arg_size = d_memsize_cond_qp_ocp2ocp_arg(dim2.N);
 	printf("\npart cond_arg size = %d\n", part_cond_arg_size);
 	void *part_cond_arg_mem = malloc(part_cond_arg_size);
 
 	struct d_cond_qp_ocp2ocp_arg part_cond_arg;
-	d_create_cond_qp_ocp2ocp_arg(&dim, block_size, &dim2, &part_cond_arg, part_cond_arg_mem);
-	d_set_default_cond_qp_ocp2ocp_arg(&dim, block_size, &dim2, &part_cond_arg);
+	d_create_cond_qp_ocp2ocp_arg(dim2.N, &part_cond_arg, part_cond_arg_mem);
+	d_set_default_cond_qp_ocp2ocp_arg(dim2.N, &part_cond_arg);
 
 	// ws
 	int part_cond_size = d_memsize_cond_qp_ocp2ocp(&dim, block_size, &dim2, &part_cond_arg);

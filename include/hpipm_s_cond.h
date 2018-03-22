@@ -71,11 +71,11 @@ struct s_cond_qp_ocp2dense_workspace
 
 
 //
-int s_memsize_cond_qp_ocp2dense_arg(struct s_ocp_qp_dim *ocp_dim);
+int s_memsize_cond_qp_ocp2dense_arg();
 //
-void s_create_cond_qp_ocp2dense_arg(struct s_ocp_qp_dim *ocp_dim, struct s_cond_qp_ocp2dense_arg *cond_arg, void *mem);
+void s_create_cond_qp_ocp2dense_arg(struct s_cond_qp_ocp2dense_arg *cond_arg, void *mem);
 //
-void s_set_default_cond_qp_ocp2dense_arg(struct s_ocp_qp_dim *ocp_dim, struct s_cond_qp_ocp2dense_arg *cond_arg);
+void s_set_default_cond_qp_ocp2dense_arg(struct s_cond_qp_ocp2dense_arg *cond_arg);
 
 //
 void s_compute_qp_dim_ocp2dense(struct s_ocp_qp_dim *ocp_dim, struct s_dense_qp_dim *dense_dim);

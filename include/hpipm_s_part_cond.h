@@ -60,11 +60,11 @@ struct s_cond_qp_ocp2ocp_workspace
 
 
 //
-int s_memsize_cond_qp_ocp2ocp_arg(struct s_ocp_qp_dim *ocp_dim, int *block_size, struct s_ocp_qp_dim *part_dense_dim);
+int s_memsize_cond_qp_ocp2ocp_arg(int N2);
 //
-void s_create_cond_qp_ocp2ocp_arg(struct s_ocp_qp_dim *ocp_dim, int *block_size, struct s_ocp_qp_dim *part_dense_dim, struct s_cond_qp_ocp2ocp_arg *cond_arg, void *mem);
+void s_create_cond_qp_ocp2ocp_arg(int N2, struct s_cond_qp_ocp2ocp_arg *cond_arg, void *mem);
 //
-void s_set_default_cond_qp_ocp2ocp_arg(struct s_ocp_qp_dim *ocp_dim, int *block_size, struct s_ocp_qp_dim *part_dense_dim, struct s_cond_qp_ocp2ocp_arg *cond_arg);
+void s_set_default_cond_qp_ocp2ocp_arg(int N2, struct s_cond_qp_ocp2ocp_arg *cond_arg);
 
 //
 void s_compute_block_size_cond_qp_ocp2ocp(int N, int N2, int *block_size);

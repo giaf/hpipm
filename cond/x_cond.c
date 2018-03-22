@@ -70,7 +70,7 @@ void COMPUTE_QP_DIM_OCP2DENSE(struct OCP_QP_DIM *ocp_dim, struct DENSE_QP_DIM *d
 
 
 
-int MEMSIZE_COND_QP_OCP2DENSE_ARG(struct OCP_QP_DIM	*ocp_dim)
+int MEMSIZE_COND_QP_OCP2DENSE_ARG()
 	{
 
 	int size = 0;
@@ -81,10 +81,10 @@ int MEMSIZE_COND_QP_OCP2DENSE_ARG(struct OCP_QP_DIM	*ocp_dim)
 
 
 
-void CREATE_COND_QP_OCP2DENSE_ARG(struct OCP_QP_DIM *ocp_dim, struct COND_QP_OCP2DENSE_ARG *cond_arg, void *mem)
+void CREATE_COND_QP_OCP2DENSE_ARG(struct COND_QP_OCP2DENSE_ARG *cond_arg, void *mem)
 	{
 
-	cond_arg->memsize = MEMSIZE_COND_QP_OCP2DENSE_ARG(ocp_dim);
+	cond_arg->memsize = MEMSIZE_COND_QP_OCP2DENSE_ARG();
 
 	return;
 
@@ -92,7 +92,7 @@ void CREATE_COND_QP_OCP2DENSE_ARG(struct OCP_QP_DIM *ocp_dim, struct COND_QP_OCP
 
 
 
-void SET_DEFAULT_COND_QP_OCP2DENSE_ARG(struct OCP_QP_DIM *ocp_dim, struct COND_QP_OCP2DENSE_ARG *cond_arg)
+void SET_DEFAULT_COND_QP_OCP2DENSE_ARG(struct COND_QP_OCP2DENSE_ARG *cond_arg)
 	{
 
 	cond_arg->cond_last_stage = 1; // condense last stage
