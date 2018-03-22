@@ -43,6 +43,15 @@ extern "C" {
 
 
 
+struct s_cond_qp_ocp2dense_arg
+	{
+	int cond_last_stage; // condense last stage
+//	int cond_variant; // TODO
+	int memsize;
+	};
+
+
+
 struct s_cond_qp_ocp2dense_workspace
 	{
 	struct blasfeo_smat *Gamma;
@@ -62,22 +71,29 @@ struct s_cond_qp_ocp2dense_workspace
 
 
 //
-void s_compute_qp_dim_ocp2dense(struct s_ocp_qp_dim *ocp_dim, struct s_dense_qp_dim *dense_dim);
+int s_memsize_cond_qp_ocp2dense_arg(struct s_ocp_qp_dim *ocp_dim);
 //
-int s_memsize_cond_qp_ocp2dense(struct s_ocp_qp_dim *ocp_dim); // XXX + args for algorithm type ???
+void s_create_cond_qp_ocp2dense_arg(struct s_ocp_qp_dim *ocp_dim, struct s_cond_qp_ocp2dense_arg *cond_arg, void *mem);
 //
-void s_create_cond_qp_ocp2dense(struct s_ocp_qp_dim *ocp_dim, struct s_cond_qp_ocp2dense_workspace *cond_ws, void *mem);
-//
-void s_cond_qp_ocp2dense(struct s_ocp_qp *ocp_qp, struct s_dense_qp *dense_qp, struct s_cond_qp_ocp2dense_workspace *cond_ws);
-//
-void s_cond_rhs_qp_ocp2dense(struct s_ocp_qp *ocp_qp, struct s_dense_qp *dense_qp, struct s_cond_qp_ocp2dense_workspace *cond_ws);
-//
-void s_expand_sol_dense2ocp(struct s_ocp_qp *ocp_qp, struct s_dense_qp_sol *dense_qp_sol, struct s_ocp_qp_sol *ocp_qp_sol, struct s_cond_qp_ocp2dense_workspace *cond_ws);
-//
-void s_expand_primal_sol_dense2ocp(struct s_ocp_qp *ocp_qp, struct s_dense_qp_sol *dense_qp_sol, struct s_ocp_qp_sol *ocp_qp_sol, struct s_cond_qp_ocp2dense_workspace *cond_ws);
+void s_set_default_cond_qp_ocp2dense_arg(struct s_ocp_qp_dim *ocp_dim, struct s_cond_qp_ocp2dense_arg *cond_arg);
 
 //
-void s_update_cond_qp_ocp2dense(int *idxc, struct s_ocp_qp *ocp_qp, struct s_dense_qp *dense_qp, struct s_cond_qp_ocp2dense_workspace *cond_ws);
+void s_compute_qp_dim_ocp2dense(struct s_ocp_qp_dim *ocp_dim, struct s_dense_qp_dim *dense_dim);
+//
+int s_memsize_cond_qp_ocp2dense(struct s_ocp_qp_dim *ocp_dim, struct s_cond_qp_ocp2dense_arg *cond_arg);
+//
+void s_create_cond_qp_ocp2dense(struct s_ocp_qp_dim *ocp_dim, struct s_cond_qp_ocp2dense_arg *cond_arg, struct s_cond_qp_ocp2dense_workspace *cond_ws, void *mem);
+//
+void s_cond_qp_ocp2dense(struct s_ocp_qp *ocp_qp, struct s_dense_qp *dense_qp, struct s_cond_qp_ocp2dense_arg *cond_arg, struct s_cond_qp_ocp2dense_workspace *cond_ws);
+//
+void s_cond_rhs_qp_ocp2dense(struct s_ocp_qp *ocp_qp, struct s_dense_qp *dense_qp, struct s_cond_qp_ocp2dense_arg *cond_arg, struct s_cond_qp_ocp2dense_workspace *cond_ws);
+//
+void s_expand_sol_dense2ocp(struct s_ocp_qp *ocp_qp, struct s_dense_qp_sol *dense_qp_sol, struct s_ocp_qp_sol *ocp_qp_sol, struct s_cond_qp_ocp2dense_arg *cond_arg, struct s_cond_qp_ocp2dense_workspace *cond_ws);
+//
+void s_expand_primal_sol_dense2ocp(struct s_ocp_qp *ocp_qp, struct s_dense_qp_sol *dense_qp_sol, struct s_ocp_qp_sol *ocp_qp_sol, struct s_cond_qp_ocp2dense_arg *cond_arg, struct s_cond_qp_ocp2dense_workspace *cond_ws);
+
+//
+void s_update_cond_qp_ocp2dense(int *idxc, struct s_ocp_qp *ocp_qp, struct s_dense_qp *dense_qp, struct s_cond_qp_ocp2dense_arg *cond_arg, struct s_cond_qp_ocp2dense_workspace *cond_ws);
 
 
 #ifdef __cplusplus

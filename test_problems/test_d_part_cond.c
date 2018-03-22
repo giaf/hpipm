@@ -707,6 +707,7 @@ int main()
 	for(ii=0; ii<=N2; ii++)
 		printf("\n%d %d %d %d\n", nx2[ii], nu2[ii], nb2[ii], ng2[ii]);
 
+	// qp
 	int part_dense_qp_size = d_memsize_ocp_qp(&dim2);
 	printf("\npart dense qp size = %d\n", part_dense_qp_size);
 	void *part_dense_qp_mem = malloc(part_dense_qp_size);
@@ -714,12 +715,22 @@ int main()
 	struct d_ocp_qp part_dense_qp;
 	d_create_ocp_qp(&dim2, &part_dense_qp, part_dense_qp_mem);
 
-	int part_cond_size = d_memsize_cond_qp_ocp2ocp(&dim, block_size, &dim2);
+	// arg
+	int part_cond_arg_size = d_memsize_cond_qp_ocp2ocp_arg(&dim, block_size, &dim2);
+	printf("\npart cond_arg size = %d\n", part_cond_arg_size);
+	void *part_cond_arg_mem = malloc(part_cond_arg_size);
+
+	struct d_cond_qp_ocp2ocp_arg part_cond_arg;
+	d_create_cond_qp_ocp2ocp_arg(&dim, block_size, &dim2, &part_cond_arg, part_cond_arg_mem);
+	d_set_default_cond_qp_ocp2ocp_arg(&dim, block_size, &dim2, &part_cond_arg);
+
+	// ws
+	int part_cond_size = d_memsize_cond_qp_ocp2ocp(&dim, block_size, &dim2, &part_cond_arg);
 	printf("\npart cond size = %d\n", part_cond_size);
 	void *part_cond_mem = malloc(part_cond_size);
 
 	struct d_cond_qp_ocp2ocp_workspace part_cond_ws;
-	d_create_cond_qp_ocp2ocp(&dim, block_size, &dim2, &part_cond_ws, part_cond_mem);
+	d_create_cond_qp_ocp2ocp(&dim, block_size, &dim2, &part_cond_arg, &part_cond_ws, part_cond_mem);
 
 	/* part cond */
 
@@ -727,7 +738,7 @@ int main()
 
 	for(rep=0; rep<nrep; rep++)
 		{
-		d_cond_qp_ocp2ocp(&ocp_qp, &part_dense_qp, &part_cond_ws);
+		d_cond_qp_ocp2ocp(&ocp_qp, &part_dense_qp, &part_cond_arg, &part_cond_ws);
 		}
 
 	gettimeofday(&tv1, NULL); // stop
@@ -778,7 +789,7 @@ int main()
 
 	for(rep=0; rep<nrep; rep++)
 		{
-		d_update_cond_qp_ocp2ocp(idxc, &ocp_qp, &part_dense_qp, &part_cond_ws);
+		d_update_cond_qp_ocp2ocp(idxc, &ocp_qp, &part_dense_qp, &part_cond_arg, &part_cond_ws);
 		}
 
 	gettimeofday(&tv1, NULL); // stop
@@ -823,7 +834,7 @@ int main()
 
 	for(rep=0; rep<nrep; rep++)
 		{
-		d_cond_rhs_qp_ocp2ocp(&ocp_qp, &part_dense_qp, &part_cond_ws);
+		d_cond_rhs_qp_ocp2ocp(&ocp_qp, &part_dense_qp, &part_cond_arg, &part_cond_ws);
 		}
 
 	gettimeofday(&tv1, NULL); // stop
@@ -1100,7 +1111,7 @@ int main()
 * expand solution
 ************************************************/
 
-	d_expand_sol_ocp2ocp(&ocp_qp, &part_dense_qp, &part_dense_qp_sol, &ocp_qp_sol, &part_cond_ws);
+	d_expand_sol_ocp2ocp(&ocp_qp, &part_dense_qp, &part_dense_qp_sol, &ocp_qp_sol, &part_cond_arg, &part_cond_ws);
 
 	double *u[N+1]; for(ii=0; ii<=N; ii++) d_zeros(u+ii, nu[ii], 1);
 	double *x[N+1]; for(ii=0; ii<=N; ii++) d_zeros(x+ii, nx[ii], 1);
@@ -1315,6 +1326,7 @@ int main()
 	free(part_dense_qp_mem);
 	free(part_dense_qp_sol_mem);
 	free(part_cond_mem);
+	free(part_cond_arg_mem);
 	free(ipm_mem);
 
 /************************************************

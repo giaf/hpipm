@@ -43,6 +43,7 @@
 
 
 #define AXPY_LIBSTR blasfeo_saxpy
+#define COND_QP_OCP2DENSE_ARG s_cond_qp_ocp2dense_arg
 #define COND_QP_OCP2DENSE_WORKSPACE s_cond_qp_ocp2dense_workspace
 #define DENSE_QP_SOL s_dense_qp_sol
 #define GEAD_LIBSTR blasfeo_sgead

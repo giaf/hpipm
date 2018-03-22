@@ -681,6 +681,7 @@ int main()
 * dense qp
 ************************************************/	
 	
+	// qp
 	int dense_qp_size = d_memsize_dense_qp(&qp_dim);
 	printf("\nqp size = %d\n", dense_qp_size);
 	void *dense_qp_mem = malloc(dense_qp_size);
@@ -688,12 +689,22 @@ int main()
 	struct d_dense_qp dense_qp;
 	d_create_dense_qp(&qp_dim, &dense_qp, dense_qp_mem);
 
-	int cond_size = d_memsize_cond_qp_ocp2dense(&dim);
+	// arg
+	int cond_arg_size = d_memsize_cond_qp_ocp2dense_arg(&dim);
+	printf("\ncond_arg size = %d\n", cond_arg_size);
+	void *cond_arg_mem = malloc(cond_arg_size);
+
+	struct d_cond_qp_ocp2dense_arg cond_arg;
+	d_create_cond_qp_ocp2dense_arg(&dim, &cond_arg, cond_arg_mem);
+	d_set_default_cond_qp_ocp2dense_arg(&dim, &cond_arg);
+
+	// ws
+	int cond_size = d_memsize_cond_qp_ocp2dense(&dim, &cond_arg);
 	printf("\ncond size = %d\n", cond_size);
 	void *cond_mem = malloc(cond_size);
 
 	struct d_cond_qp_ocp2dense_workspace cond_ws;
-	d_create_cond_qp_ocp2dense(&dim, &cond_ws, cond_mem);
+	d_create_cond_qp_ocp2dense(&dim, &cond_arg, &cond_ws, cond_mem);
 
 	/* cond */
 
@@ -701,7 +712,7 @@ int main()
 
 	for(rep=0; rep<nrep; rep++)
 		{
-		d_cond_qp_ocp2dense(&ocp_qp, &dense_qp, &cond_ws);
+		d_cond_qp_ocp2dense(&ocp_qp, &dense_qp, &cond_arg, &cond_ws);
 		}
 
 	gettimeofday(&tv1, NULL); // stop
@@ -737,7 +748,7 @@ int main()
 
 	for(rep=0; rep<nrep; rep++)
 		{
-		d_update_cond_qp_ocp2dense(idxc, &ocp_qp, &dense_qp, &cond_ws);
+		d_update_cond_qp_ocp2dense(idxc, &ocp_qp, &dense_qp, &cond_arg, &cond_ws);
 		}
 
 	gettimeofday(&tv1, NULL); // stop
@@ -766,7 +777,7 @@ int main()
 
 	for(rep=0; rep<nrep; rep++)
 		{
-		d_cond_rhs_qp_ocp2dense(&ocp_qp, &dense_qp, &cond_ws);
+		d_cond_rhs_qp_ocp2dense(&ocp_qp, &dense_qp, &cond_arg, &cond_ws);
 		}
 
 	gettimeofday(&tv1, NULL); // stop
@@ -928,7 +939,7 @@ int main()
 * expand solution
 ************************************************/	
 
-	d_expand_sol_dense2ocp(&ocp_qp, &dense_qp_sol, &ocp_qp_sol, &cond_ws);
+	d_expand_sol_dense2ocp(&ocp_qp, &dense_qp_sol, &ocp_qp_sol, &cond_arg, &cond_ws);
 
 	double *u[N+1]; for(ii=0; ii<=N; ii++) d_zeros(u+ii, nu[ii], 1);
 	double *x[N+1]; for(ii=0; ii<=N; ii++) d_zeros(x+ii, nx[ii], 1);
@@ -944,7 +955,7 @@ int main()
 
 	d_cvt_ocp_qp_sol_to_colmaj(&ocp_qp_sol, u, x, ls, us, pi, lam_lb, lam_ub, lam_lg, lam_ug, lam_ls, lam_us);
 
-#if 0
+#if 1
 	printf("\nfull space solution\n\n");
 	printf("\nu\n");
 	for(ii=0; ii<=N; ii++)
@@ -1056,6 +1067,7 @@ int main()
 	free(dense_qp_mem);
 	free(dense_qp_sol_mem);
 	free(cond_mem);
+	free(cond_arg_mem);
 	free(dense_ipm_mem);
 
 /************************************************

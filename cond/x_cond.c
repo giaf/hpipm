@@ -70,7 +70,40 @@ void COMPUTE_QP_DIM_OCP2DENSE(struct OCP_QP_DIM *ocp_dim, struct DENSE_QP_DIM *d
 
 
 
-int MEMSIZE_COND_QP_OCP2DENSE(struct OCP_QP_DIM *ocp_dim) // XXX + args for algorithm type ???
+int MEMSIZE_COND_QP_OCP2DENSE_ARG(struct OCP_QP_DIM	*ocp_dim)
+	{
+
+	int size = 0;
+
+	return size;
+
+	}
+
+
+
+void CREATE_COND_QP_OCP2DENSE_ARG(struct OCP_QP_DIM *ocp_dim, struct COND_QP_OCP2DENSE_ARG *cond_arg, void *mem)
+	{
+
+	cond_arg->memsize = MEMSIZE_COND_QP_OCP2DENSE_ARG(ocp_dim);
+
+	return;
+
+	}
+
+
+
+void SET_DEFAULT_COND_QP_OCP2DENSE_ARG(struct OCP_QP_DIM *ocp_dim, struct COND_QP_OCP2DENSE_ARG *cond_arg)
+	{
+
+	cond_arg->cond_last_stage = 1; // condense last stage
+
+	return;
+
+	}
+
+
+
+int MEMSIZE_COND_QP_OCP2DENSE(struct OCP_QP_DIM *ocp_dim, struct COND_QP_OCP2DENSE_ARG *cond_arg)
 	{
 
 	int ii;
@@ -147,7 +180,7 @@ int MEMSIZE_COND_QP_OCP2DENSE(struct OCP_QP_DIM *ocp_dim) // XXX + args for algo
 
 
 
-void CREATE_COND_QP_OCP2DENSE(struct OCP_QP_DIM *ocp_dim, struct COND_QP_OCP2DENSE_WORKSPACE *cond_ws, void *mem)
+void CREATE_COND_QP_OCP2DENSE(struct OCP_QP_DIM *ocp_dim, struct COND_QP_OCP2DENSE_ARG *cond_arg, struct COND_QP_OCP2DENSE_WORKSPACE *cond_ws, void *mem)
 	{
 
 	int ii;
@@ -265,11 +298,9 @@ void CREATE_COND_QP_OCP2DENSE(struct OCP_QP_DIM *ocp_dim, struct COND_QP_OCP2DEN
 	CREATE_STRVEC(nuM+nxM, cond_ws->tmp_nuxM, c_ptr);
 	c_ptr += cond_ws->tmp_nuxM->memsize;
 
-	cond_ws->cond_last_stage = 1; // default: cond last stage
-
 	cond_ws->bs = N;
 
-	cond_ws->memsize = MEMSIZE_COND_QP_OCP2DENSE(ocp_dim);
+	cond_ws->memsize = MEMSIZE_COND_QP_OCP2DENSE(ocp_dim, cond_arg);
 
 #if defined(RUNTIME_CHECKS)
 	if(c_ptr > ((char *) mem) + cond_ws->memsize)
@@ -285,14 +316,14 @@ void CREATE_COND_QP_OCP2DENSE(struct OCP_QP_DIM *ocp_dim, struct COND_QP_OCP2DEN
 
 	
 
-void COND_QP_OCP2DENSE(struct OCP_QP *ocp_qp, struct DENSE_QP *dense_qp, struct COND_QP_OCP2DENSE_WORKSPACE *cond_ws)
+void COND_QP_OCP2DENSE(struct OCP_QP *ocp_qp, struct DENSE_QP *dense_qp, struct COND_QP_OCP2DENSE_ARG *cond_arg, struct COND_QP_OCP2DENSE_WORKSPACE *cond_ws)
 	{
 
-	COND_BABT(ocp_qp, NULL, NULL, cond_ws);
+	COND_BABT(ocp_qp, NULL, NULL, cond_arg, cond_ws);
 
-	COND_RSQRQ_N2NX3(ocp_qp, dense_qp->Hv, dense_qp->g, cond_ws);
+	COND_RSQRQ_N2NX3(ocp_qp, dense_qp->Hv, dense_qp->g, cond_arg, cond_ws);
 
-	COND_DCTD(ocp_qp, dense_qp->idxb, dense_qp->Ct, dense_qp->d, dense_qp->idxs, dense_qp->Z, dense_qp->z, cond_ws);
+	COND_DCTD(ocp_qp, dense_qp->idxb, dense_qp->Ct, dense_qp->d, dense_qp->idxs, dense_qp->Z, dense_qp->z, cond_arg, cond_ws);
 
 	return;
 
@@ -300,14 +331,14 @@ void COND_QP_OCP2DENSE(struct OCP_QP *ocp_qp, struct DENSE_QP *dense_qp, struct 
 
 
 
-void COND_RHS_QP_OCP2DENSE(struct OCP_QP *ocp_qp, struct DENSE_QP *dense_qp, struct COND_QP_OCP2DENSE_WORKSPACE *cond_ws)
+void COND_RHS_QP_OCP2DENSE(struct OCP_QP *ocp_qp, struct DENSE_QP *dense_qp, struct COND_QP_OCP2DENSE_ARG *cond_arg, struct COND_QP_OCP2DENSE_WORKSPACE *cond_ws)
 	{
 
-	COND_B(ocp_qp, NULL, cond_ws);
+	COND_B(ocp_qp, NULL, cond_arg, cond_ws);
 
-	COND_RQ_N2NX3(ocp_qp, dense_qp->g, cond_ws);
+	COND_RQ_N2NX3(ocp_qp, dense_qp->g, cond_arg, cond_ws);
 
-	COND_D(ocp_qp, dense_qp->d, dense_qp->z, cond_ws);
+	COND_D(ocp_qp, dense_qp->d, dense_qp->z, cond_arg, cond_ws);
 
 	return;
 
@@ -315,10 +346,10 @@ void COND_RHS_QP_OCP2DENSE(struct OCP_QP *ocp_qp, struct DENSE_QP *dense_qp, str
 
 
 
-void EXPAND_SOL_DENSE2OCP(struct OCP_QP *ocp_qp, struct DENSE_QP_SOL *dense_qp_sol, struct OCP_QP_SOL *ocp_qp_sol, struct COND_QP_OCP2DENSE_WORKSPACE *cond_ws)
+void EXPAND_SOL_DENSE2OCP(struct OCP_QP *ocp_qp, struct DENSE_QP_SOL *dense_qp_sol, struct OCP_QP_SOL *ocp_qp_sol, struct COND_QP_OCP2DENSE_ARG *cond_arg, struct COND_QP_OCP2DENSE_WORKSPACE *cond_ws)
 	{
 
-	EXPAND_SOL(ocp_qp, dense_qp_sol, ocp_qp_sol, cond_ws);
+	EXPAND_SOL(ocp_qp, dense_qp_sol, ocp_qp_sol, cond_arg, cond_ws);
 
 	return;
 
@@ -326,10 +357,10 @@ void EXPAND_SOL_DENSE2OCP(struct OCP_QP *ocp_qp, struct DENSE_QP_SOL *dense_qp_s
 
 
 
-void EXPAND_PRIMAL_SOL_DENSE2OCP(struct OCP_QP *ocp_qp, struct DENSE_QP_SOL *dense_qp_sol, struct OCP_QP_SOL *ocp_qp_sol, struct COND_QP_OCP2DENSE_WORKSPACE *cond_ws)
+void EXPAND_PRIMAL_SOL_DENSE2OCP(struct OCP_QP *ocp_qp, struct DENSE_QP_SOL *dense_qp_sol, struct OCP_QP_SOL *ocp_qp_sol, struct COND_QP_OCP2DENSE_ARG *cond_arg, struct COND_QP_OCP2DENSE_WORKSPACE *cond_ws)
 	{
 
-	EXPAND_PRIMAL_SOL(ocp_qp, dense_qp_sol, ocp_qp_sol, cond_ws);
+	EXPAND_PRIMAL_SOL(ocp_qp, dense_qp_sol, ocp_qp_sol, cond_arg, cond_ws);
 
 	return;
 
@@ -341,14 +372,14 @@ void EXPAND_PRIMAL_SOL_DENSE2OCP(struct OCP_QP *ocp_qp, struct DENSE_QP_SOL *den
 * update cond
 ************************************************/
 
-void UPDATE_COND_QP_OCP2DENSE(int *idxc, struct OCP_QP *ocp_qp, struct DENSE_QP *dense_qp, struct COND_QP_OCP2DENSE_WORKSPACE *cond_ws)
+void UPDATE_COND_QP_OCP2DENSE(int *idxc, struct OCP_QP *ocp_qp, struct DENSE_QP *dense_qp, struct COND_QP_OCP2DENSE_ARG *cond_arg, struct COND_QP_OCP2DENSE_WORKSPACE *cond_ws)
 	{
 
-	UPDATE_COND_BABT(idxc, ocp_qp, NULL, NULL, cond_ws);
+	UPDATE_COND_BABT(idxc, ocp_qp, NULL, NULL, cond_arg, cond_ws);
 
-	UPDATE_COND_RSQRQ_N2NX3(idxc, ocp_qp, dense_qp->Hv, dense_qp->g, cond_ws);
+	UPDATE_COND_RSQRQ_N2NX3(idxc, ocp_qp, dense_qp->Hv, dense_qp->g, cond_arg, cond_ws);
 
-	UPDATE_COND_DCTD(idxc, ocp_qp, dense_qp->idxb, dense_qp->Ct, dense_qp->d, dense_qp->idxs, dense_qp->Z, dense_qp->z, cond_ws);
+	UPDATE_COND_DCTD(idxc, ocp_qp, dense_qp->idxb, dense_qp->Ct, dense_qp->d, dense_qp->idxs, dense_qp->Z, dense_qp->z, cond_arg, cond_ws);
 
 	return;
 

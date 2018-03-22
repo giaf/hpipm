@@ -25,7 +25,7 @@
 *                                                                                                 *
 **************************************************************************************************/
 
-void COND_BABT(struct OCP_QP *ocp_qp, struct STRMAT *BAbt2, struct STRVEC *b2, struct COND_QP_OCP2DENSE_WORKSPACE *cond_ws)
+void COND_BABT(struct OCP_QP *ocp_qp, struct STRMAT *BAbt2, struct STRVEC *b2, struct COND_QP_OCP2DENSE_ARG *cond_arg, struct COND_QP_OCP2DENSE_WORKSPACE *cond_ws)
 	{
 
 	int N = ocp_qp->dim->N;
@@ -34,7 +34,7 @@ void COND_BABT(struct OCP_QP *ocp_qp, struct STRMAT *BAbt2, struct STRVEC *b2, s
 	if(N<0)
 		return;
 	
-	if(N==0 & cond_ws->cond_last_stage==1)
+	if(N==0 & cond_arg->cond_last_stage==1)
 		return;
 
 	// extract input members
@@ -76,7 +76,7 @@ void COND_BABT(struct OCP_QP *ocp_qp, struct STRMAT *BAbt2, struct STRVEC *b2, s
 		ROWEX_LIBSTR(nx[ii+1], 1.0, &Gamma[ii], nu_tmp+nx[0], 0, &Gammab[ii], 0);
 		}
 	
-	if(cond_ws->cond_last_stage==0)
+	if(cond_arg->cond_last_stage==0)
 		{
 		// B & A & b
 		GECP_LIBSTR(nu_tmp+nx[0]+1, nx[N], &Gamma[N-1], 0, 0, &BAbt2[0], 0, 0);
@@ -90,7 +90,7 @@ void COND_BABT(struct OCP_QP *ocp_qp, struct STRMAT *BAbt2, struct STRVEC *b2, s
 
 
 
-void COND_B(struct OCP_QP *ocp_qp, struct STRVEC *b2, struct COND_QP_OCP2DENSE_WORKSPACE *cond_ws)
+void COND_B(struct OCP_QP *ocp_qp, struct STRVEC *b2, struct COND_QP_OCP2DENSE_ARG *cond_arg, struct COND_QP_OCP2DENSE_WORKSPACE *cond_ws)
 	{
 
 	int N = ocp_qp->dim->N;
@@ -99,7 +99,7 @@ void COND_B(struct OCP_QP *ocp_qp, struct STRVEC *b2, struct COND_QP_OCP2DENSE_W
 	if(N<0)
 		return;
 
-	if(N==0 & cond_ws->cond_last_stage==1)
+	if(N==0 & cond_arg->cond_last_stage==1)
 		return;
 
 	// extract input members
@@ -127,7 +127,7 @@ void COND_B(struct OCP_QP *ocp_qp, struct STRVEC *b2, struct COND_QP_OCP2DENSE_W
 		GEMV_T_LIBSTR(nx[ii], nx[ii+1], 1.0, BAbt+ii, nu[ii], 0, Gammab+(ii-1), 0, 1.0, b+ii, 0, Gammab+ii, 0);
 		}
 	
-	if(cond_ws->cond_last_stage==0)
+	if(cond_arg->cond_last_stage==0)
 		{
 		// b
 		VECCP_LIBSTR(nx[N], Gammab+(N-1), 0, b2+0, 0);
@@ -139,11 +139,11 @@ void COND_B(struct OCP_QP *ocp_qp, struct STRVEC *b2, struct COND_QP_OCP2DENSE_W
 
 
 
-void COND_RSQRQ_N2NX3(struct OCP_QP *ocp_qp, struct STRMAT *RSQrq2, struct STRVEC *rq2, struct COND_QP_OCP2DENSE_WORKSPACE *cond_ws)
+void COND_RSQRQ_N2NX3(struct OCP_QP *ocp_qp, struct STRMAT *RSQrq2, struct STRVEC *rq2, struct COND_QP_OCP2DENSE_ARG *cond_arg, struct COND_QP_OCP2DENSE_WORKSPACE *cond_ws)
 	{
 
 	int N = ocp_qp->dim->N;
-	if(cond_ws->cond_last_stage==0)
+	if(cond_arg->cond_last_stage==0)
 		N -= 1;
 
 	// early return
@@ -255,11 +255,11 @@ void COND_RSQRQ_N2NX3(struct OCP_QP *ocp_qp, struct STRMAT *RSQrq2, struct STRVE
 
 
 
-void COND_RQ_N2NX3(struct OCP_QP *ocp_qp, struct STRVEC *rq2, struct COND_QP_OCP2DENSE_WORKSPACE *cond_ws)
+void COND_RQ_N2NX3(struct OCP_QP *ocp_qp, struct STRVEC *rq2, struct COND_QP_OCP2DENSE_ARG *cond_arg, struct COND_QP_OCP2DENSE_WORKSPACE *cond_ws)
 	{
 
 	int N = ocp_qp->dim->N;
-	if(cond_ws->cond_last_stage==0)
+	if(cond_arg->cond_last_stage==0)
 		N -= 1;
 
 	// early return
@@ -338,11 +338,11 @@ void COND_RQ_N2NX3(struct OCP_QP *ocp_qp, struct STRVEC *rq2, struct COND_QP_OCP
 
 
 
-void COND_DCTD(struct OCP_QP *ocp_qp, int *idxb2, struct STRMAT *DCt2, struct STRVEC *d2, int *idxs2, struct STRVEC *Z2, struct STRVEC *z2, struct COND_QP_OCP2DENSE_WORKSPACE *cond_ws)
+void COND_DCTD(struct OCP_QP *ocp_qp, int *idxb2, struct STRMAT *DCt2, struct STRVEC *d2, int *idxs2, struct STRVEC *Z2, struct STRVEC *z2, struct COND_QP_OCP2DENSE_ARG *cond_arg, struct COND_QP_OCP2DENSE_WORKSPACE *cond_ws)
 	{
 
 	int N = ocp_qp->dim->N;
-	if(cond_ws->cond_last_stage==0)
+	if(cond_arg->cond_last_stage==0)
 		N -= 1;
 
 	// early return
@@ -366,7 +366,7 @@ void COND_DCTD(struct OCP_QP *ocp_qp, int *idxb2, struct STRMAT *DCt2, struct ST
 	struct STRVEC *z = ocp_qp->z;
 
 	// early return
-	if(N==0 & cond_ws->cond_last_stage==1)
+	if(N==0 & cond_arg->cond_last_stage==1)
 		{
 		GECP_LIBSTR(nu[0]+nx[0], ng[0], ocp_qp->DCt, 0, 0, DCt2, 0, 0);
 		VECCP_LIBSTR(2*nb[0]+2*ng[0], ocp_qp->d, 0, d2, 0);
@@ -671,11 +671,11 @@ void COND_DCTD(struct OCP_QP *ocp_qp, int *idxb2, struct STRMAT *DCt2, struct ST
 
 
 
-void COND_D(struct OCP_QP *ocp_qp, struct STRVEC *d2, struct STRVEC *z2, struct COND_QP_OCP2DENSE_WORKSPACE *cond_ws)
+void COND_D(struct OCP_QP *ocp_qp, struct STRVEC *d2, struct STRVEC *z2, struct COND_QP_OCP2DENSE_ARG *cond_arg, struct COND_QP_OCP2DENSE_WORKSPACE *cond_ws)
 	{
 
 	int N = ocp_qp->dim->N;
-	if(cond_ws->cond_last_stage==0)
+	if(cond_arg->cond_last_stage==0)
 		N -= 1;
 
 	// early return
@@ -699,7 +699,7 @@ void COND_D(struct OCP_QP *ocp_qp, struct STRVEC *d2, struct STRVEC *z2, struct 
 	struct STRVEC *z = ocp_qp->z;
 
 	// early return
-	if(N==0 & cond_ws->cond_last_stage==1)
+	if(N==0 & cond_arg->cond_last_stage==1)
 		{
 		VECCP_LIBSTR(2*nb[0]+2*ng[0], ocp_qp->d, 0, d2, 0);
 		VECCP_LIBSTR(2*ns[0], ocp_qp->z, 0, z2, 0);
@@ -961,12 +961,12 @@ void COND_D(struct OCP_QP *ocp_qp, struct STRVEC *d2, struct STRVEC *z2, struct 
 
 
 
-void EXPAND_SOL(struct OCP_QP *ocp_qp, struct DENSE_QP_SOL *dense_qp_sol, struct OCP_QP_SOL *ocp_qp_sol, struct COND_QP_OCP2DENSE_WORKSPACE *cond_ws)
+void EXPAND_SOL(struct OCP_QP *ocp_qp, struct DENSE_QP_SOL *dense_qp_sol, struct OCP_QP_SOL *ocp_qp_sol, struct COND_QP_OCP2DENSE_ARG *cond_arg, struct COND_QP_OCP2DENSE_WORKSPACE *cond_ws)
 	{
 
 	int N = ocp_qp->dim->N;
 	int Np = N;
-	if(cond_ws->cond_last_stage==0)
+	if(cond_arg->cond_last_stage==0)
 		N -= 1;
 
 	int ii, jj;
@@ -1000,7 +1000,7 @@ void EXPAND_SOL(struct OCP_QP *ocp_qp, struct DENSE_QP_SOL *dense_qp_sol, struct
 	int *idxs_rev = cond_ws->idxs_rev;
 
 	// early return
-	if(N==0 & cond_ws->cond_last_stage==1)
+	if(N==0 & cond_arg->cond_last_stage==1)
 		{
 		VECCP_LIBSTR(nu[0]+nx[0]+2*ns[0], dense_qp_sol->v, 0, ocp_qp_sol->ux, 0);
 		VECCP_LIBSTR(2*nb[N]+2*ng[N]+2*ns[N], dense_qp_sol->lam, 0, ocp_qp_sol->lam, 0);
@@ -1260,7 +1260,7 @@ void EXPAND_SOL(struct OCP_QP *ocp_qp, struct DENSE_QP_SOL *dense_qp_sol, struct
 	REAL *ptr_nuxM = tmp_nuxM->pa;
 	REAL *ptr_ngM = tmp_ngM->pa;
 	// last stage
-	if(cond_ws->cond_last_stage==0)
+	if(cond_arg->cond_last_stage==0)
 		VECCP_LIBSTR(nx[Np], pic, 0, pi+Np-1, 0);
 	else
 		{
@@ -1305,12 +1305,12 @@ void EXPAND_SOL(struct OCP_QP *ocp_qp, struct DENSE_QP_SOL *dense_qp_sol, struct
 
 
 
-void EXPAND_PRIMAL_SOL(struct OCP_QP *ocp_qp, struct DENSE_QP_SOL *dense_qp_sol, struct OCP_QP_SOL *ocp_qp_sol, struct COND_QP_OCP2DENSE_WORKSPACE *cond_ws)
+void EXPAND_PRIMAL_SOL(struct OCP_QP *ocp_qp, struct DENSE_QP_SOL *dense_qp_sol, struct OCP_QP_SOL *ocp_qp_sol, struct COND_QP_OCP2DENSE_ARG *cond_arg, struct COND_QP_OCP2DENSE_WORKSPACE *cond_ws)
 	{
 
 	int N = ocp_qp->dim->N;
 	int Np = N;
-	if(cond_ws->cond_last_stage==0)
+	if(cond_arg->cond_last_stage==0)
 		N -= 1;
 
 	int ii, jj;
@@ -1344,7 +1344,7 @@ void EXPAND_PRIMAL_SOL(struct OCP_QP *ocp_qp, struct DENSE_QP_SOL *dense_qp_sol,
 	int *idxs_rev = cond_ws->idxs_rev;
 
 	// early return
-	if(N==0 & cond_ws->cond_last_stage==1)
+	if(N==0 & cond_arg->cond_last_stage==1)
 		{
 		VECCP_LIBSTR(nu[0]+nx[0]+2*ns[0], dense_qp_sol->v, 0, ocp_qp_sol->ux, 0);
 		return;
@@ -1403,7 +1403,7 @@ void EXPAND_PRIMAL_SOL(struct OCP_QP *ocp_qp, struct DENSE_QP_SOL *dense_qp_sol,
 ************************************************/
 
 // update cond assuming that dynamics change in [0,idx-1], and to remain the same in [idx,N-1]
-void UPDATE_COND_BABT(int *idxc, struct OCP_QP *ocp_qp, struct STRMAT *BAbt2, struct STRVEC *b2, struct COND_QP_OCP2DENSE_WORKSPACE *cond_ws)
+void UPDATE_COND_BABT(int *idxc, struct OCP_QP *ocp_qp, struct STRMAT *BAbt2, struct STRVEC *b2, struct COND_QP_OCP2DENSE_ARG *cond_arg, struct COND_QP_OCP2DENSE_WORKSPACE *cond_ws)
 	{
 
 	int N = ocp_qp->dim->N;
@@ -1484,7 +1484,7 @@ void UPDATE_COND_BABT(int *idxc, struct OCP_QP *ocp_qp, struct STRMAT *BAbt2, st
 		ROWEX_LIBSTR(nx[ii+1], 1.0, &Gamma[ii], nu_tmp+nx[0], 0, &Gammab[ii], 0);
 		}
 
-	if(cond_ws->cond_last_stage==0)
+	if(cond_arg->cond_last_stage==0)
 		{
 		// B & A & b
 		GECP_LIBSTR(nu_tmp+nx[0]+1, nx[N], &Gamma[N-1], 0, 0, &BAbt2[0], 0, 0);
@@ -1499,11 +1499,11 @@ void UPDATE_COND_BABT(int *idxc, struct OCP_QP *ocp_qp, struct STRMAT *BAbt2, st
 
 
 // update cond assuming that dynamics change in [0,idx-1], and to remain the same in [idx,N-1]
-void UPDATE_COND_RSQRQ_N2NX3(int *idxc, struct OCP_QP *ocp_qp, struct STRMAT *RSQrq2, struct STRVEC *rq2, struct COND_QP_OCP2DENSE_WORKSPACE *cond_ws)
+void UPDATE_COND_RSQRQ_N2NX3(int *idxc, struct OCP_QP *ocp_qp, struct STRMAT *RSQrq2, struct STRVEC *rq2, struct COND_QP_OCP2DENSE_ARG *cond_arg, struct COND_QP_OCP2DENSE_WORKSPACE *cond_ws)
 	{
 
 	int N = ocp_qp->dim->N;
-	if(cond_ws->cond_last_stage==0)
+	if(cond_arg->cond_last_stage==0)
 		N -= 1;
 
 	// early return
@@ -1654,11 +1654,11 @@ void UPDATE_COND_RSQRQ_N2NX3(int *idxc, struct OCP_QP *ocp_qp, struct STRMAT *RS
 
 
 // TODO
-void UPDATE_COND_DCTD(int *idxc, struct OCP_QP *ocp_qp, int *idxb2, struct STRMAT *DCt2, struct STRVEC *d2, int *idxs2, struct STRVEC *Z2, struct STRVEC *z2, struct COND_QP_OCP2DENSE_WORKSPACE *cond_ws)
+void UPDATE_COND_DCTD(int *idxc, struct OCP_QP *ocp_qp, int *idxb2, struct STRMAT *DCt2, struct STRVEC *d2, int *idxs2, struct STRVEC *Z2, struct STRVEC *z2, struct COND_QP_OCP2DENSE_ARG *cond_arg, struct COND_QP_OCP2DENSE_WORKSPACE *cond_ws)
 	{
 
 	int N = ocp_qp->dim->N;
-	if(cond_ws->cond_last_stage==0)
+	if(cond_arg->cond_last_stage==0)
 		N -= 1;
 
 	// early return
