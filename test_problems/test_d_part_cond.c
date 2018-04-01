@@ -976,10 +976,10 @@ int main()
 		d_print_mat(1, ng2[ii], lam_ug2[ii], 1);
 	printf("\nlam_ls2\n");
 	for(ii=0; ii<=N2; ii++)
-		d_print_mat(1, ng2[ii], lam_ls2[ii], 1);
+		d_print_mat(1, ns2[ii], lam_ls2[ii], 1);
 	printf("\nlam_us2\n");
 	for(ii=0; ii<=N2; ii++)
-		d_print_mat(1, ng2[ii], lam_us2[ii], 1);
+		d_print_mat(1, ns2[ii], lam_us2[ii], 1);
 
 	printf("\nt_lb2\n");
 	for(ii=0; ii<=N2; ii++)

@@ -194,11 +194,11 @@ int main()
 
 #if 1
 	printf("\nH = \n");
-	d_print_strmat(nv, nv, qp.Hv, 0, 0);
+	blasfeo_print_dmat(nv, nv, qp.Hv, 0, 0);
 	printf("\nA = \n");
-	d_print_strmat(ne, nv, qp.A, 0, 0);
+	blasfeo_print_dmat(ne, nv, qp.A, 0, 0);
 	printf("\nCt = \n");
-	d_print_strmat(nv, ng, qp.Ct, 0, 0);
+	blasfeo_print_dmat(nv, ng, qp.Ct, 0, 0);
 	printf("\ng = \n");
 	blasfeo_print_dvec(nv, qp.g, 0);
 	printf("\nb = \n");

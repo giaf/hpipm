@@ -63,7 +63,6 @@ struct d_cond_qp_ocp2dense_workspace
 	struct blasfeo_dvec *tmp_ngM;
 	struct blasfeo_dvec *tmp_nuxM;
 	int *idxs_rev;
-	int cond_last_stage;
 	int bs; // block size
 	int memsize;
 	};
