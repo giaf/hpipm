@@ -1524,7 +1524,7 @@ void UPDATE_COND_RSQRQ_N2NX3(int *idxc, struct OCP_QP *ocp_qp, struct STRMAT *RS
 		}
 
 	// no changes
-	if(idx==0)
+	if(idx==0 & idxc[N]==0)
 		return;
 
 	// extract input members
@@ -1679,7 +1679,7 @@ void UPDATE_COND_DCTD(int *idxc, struct OCP_QP *ocp_qp, int *idxb2, struct STRMA
 		}
 	
 	// no changes
-	if(idx==0)
+	if(idx==0 & idxc[N]==0)
 		return;
 
 	// extract input members
