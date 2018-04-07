@@ -57,7 +57,9 @@
 #define OCP_QP_SOL d_ocp_qp_sol
 #define POTRF_L_MN_LIBSTR blasfeo_dpotrf_l_mn
 #define REAL double
+#define ROWAD_LIBSTR blasfeo_drowad
 #define ROWEX_LIBSTR blasfeo_drowex
+#define ROWIN_LIBSTR blasfeo_drowin
 #define STRMAT blasfeo_dmat
 #define STRVEC blasfeo_dvec
 #define SYMV_L_LIBSTR blasfeo_dsymv_l

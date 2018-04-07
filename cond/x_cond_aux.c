@@ -41,6 +41,7 @@ void COND_BABT(struct OCP_QP *ocp_qp, struct STRMAT *BAbt2, struct STRVEC *b2, s
 	int *nx = ocp_qp->dim->nx;
 	int *nu = ocp_qp->dim->nu;
 	struct STRMAT *BAbt = ocp_qp->BAbt;
+	struct STRVEC *b = ocp_qp->b;
 
 	// extract memory members
 	struct STRMAT *Gamma = cond_ws->Gamma;
@@ -53,9 +54,10 @@ void COND_BABT(struct OCP_QP *ocp_qp, struct STRMAT *BAbt2, struct STRVEC *b2, s
 	nu_tmp = 0;
 	ii = 0;
 	// B & A & b
-	GECP_LIBSTR(nu[0]+nx[0]+1, nx[1], &BAbt[0], 0, 0, &Gamma[0], 0, 0);
+	GECP_LIBSTR(nu[0]+nx[0], nx[1], &BAbt[0], 0, 0, &Gamma[0], 0, 0);
+	ROWIN_LIBSTR(nx[1], 1.0, &b[0], 0, &Gamma[0], nu[0]+nx[0], 0);
 	// b
-	ROWEX_LIBSTR(nx[1], 1.0, &Gamma[0], nu[0]+nx[0], 0, &Gammab[0], 0);
+	VECCP_LIBSTR(nx[1], &b[0], 0, &Gammab[0], 0);
 
 	nu_tmp += nu[0];
 	ii++;
@@ -71,17 +73,17 @@ void COND_BABT(struct OCP_QP *ocp_qp, struct STRMAT *BAbt2, struct STRVEC *b2, s
 
 		nu_tmp += nu[ii];
 
-		GEAD_LIBSTR(1, nx[ii+1], 1.0, &BAbt[ii], nu[ii]+nx[ii], 0, &Gamma[ii], nu_tmp+nx[0], 0);
+		ROWAD_LIBSTR(nx[ii+1], 1.0, &b[ii], 0, &Gamma[ii], nu_tmp+nx[0], 0);
 
 		ROWEX_LIBSTR(nx[ii+1], 1.0, &Gamma[ii], nu_tmp+nx[0], 0, &Gammab[ii], 0);
 		}
 	
 	if(cond_arg->cond_last_stage==0)
 		{
-		// B & A & b
-		GECP_LIBSTR(nu_tmp+nx[0]+1, nx[N], &Gamma[N-1], 0, 0, &BAbt2[0], 0, 0);
+		// B & A
+		GECP_LIBSTR(nu_tmp+nx[0], nx[N], &Gamma[N-1], 0, 0, &BAbt2[0], 0, 0);
 		// b
-		ROWEX_LIBSTR(nx[N], 1.0, &BAbt2[0], nu_tmp+nx[0], 0, &b2[0], 0);
+		ROWEX_LIBSTR(nx[N], 1.0, &Gamma[N-1], nu_tmp+nx[0], 0, &b2[0], 0);
 		}
 
 	return;
@@ -155,13 +157,15 @@ void COND_RSQRQ_N2NX3(struct OCP_QP *ocp_qp, struct STRMAT *RSQrq2, struct STRVE
 	int *nu = ocp_qp->dim->nu;
 
 	struct STRMAT *BAbt = ocp_qp->BAbt;
+	struct STRVEC *b = ocp_qp->b;
 	struct STRMAT *RSQrq = ocp_qp->RSQrq;
+	struct STRVEC *rq = ocp_qp->rq;
 
 	// early return
 	if(N==0)
 		{
-		GECP_LIBSTR(nu[0]+nx[0]+1, nu[0]+nx[0], &RSQrq[0], 0, 0, &RSQrq2[0], 0, 0); // XXX when removing rq from RSQ !!!
-		ROWEX_LIBSTR(nu[0]+nx[0], 1.0, &RSQrq[0], nu[0]+nx[0], 0, &rq2[0], 0); // XXX when removing rq from RSQ !!!
+		GECP_LIBSTR(nu[0]+nx[0], nu[0]+nx[0], &RSQrq[0], 0, 0, &RSQrq2[0], 0, 0);
+		VECCP_LIBSTR(nu[0]+nx[0], &rq[0], 0, &rq2[0], 0);
 		return;
 		}
 
@@ -183,8 +187,8 @@ void COND_RSQRQ_N2NX3(struct OCP_QP *ocp_qp, struct STRMAT *RSQrq2, struct STRVE
 	// final stage 
 	nub -= nu[N];
 
-	// TODO g is not part of H !!!!!
-	GECP_LIBSTR(nu[N]+nx[N]+1, nu[N]+nx[N], &RSQrq[N], 0, 0, &L[N], 0, 0);
+	GECP_LIBSTR(nu[N]+nx[N], nu[N]+nx[N], &RSQrq[N], 0, 0, &L[N], 0, 0);
+	ROWIN_LIBSTR(nu[N]+nx[N], 1.0, &rq[N], 0, &L[N], nu[N]+nx[N], 0);
 
 	// D
 	TRCP_L_LIBSTR(nu[N], &L[N], 0, 0, &RSQrq2[0], nuf, nuf);
@@ -210,9 +214,11 @@ void COND_RSQRQ_N2NX3(struct OCP_QP *ocp_qp, struct STRMAT *RSQrq2, struct STRVE
 #else
 		POTRF_L_MN_LIBSTR(nx[N-nn]+1, nx[N-nn], &L[N-nn], nu[N-nn], nu[N-nn], Lx, 0, 0);
 #endif
+		ROWIN_LIBSTR(nx[N-nn], 1.0, &b[N-nn-1], 0, &BAbt[N-nn-1], nu[N-nn-1]+nx[N-nn-1], 0);
 		TRMM_RLNN_LIBSTR(nu[N-nn-1]+nx[N-nn-1]+1, nx[N-nn], 1.0, Lx, 0, 0, &BAbt[N-nn-1], 0, 0, AL, 0, 0);
 		GEAD_LIBSTR(1, nx[N-nn], 1.0, Lx, nx[N-nn], 0, AL, nu[N-nn-1]+nx[N-nn-1], 0);
 
+		ROWIN_LIBSTR(nu[N-nn-1]+nx[N-nn-1], 1.0, &rq[N-nn-1], 0, &RSQrq[N-nn-1], nu[N-nn-1]+nx[N-nn-1], 0);
 		SYRK_LN_MN_LIBSTR(nu[N-nn-1]+nx[N-nn-1]+1, nu[N-nn-1]+nx[N-nn-1], nx[N-nn], 1.0, AL, 0, 0, AL, 0, 0, 1.0, &RSQrq[N-nn-1], 0, 0, &L[N-nn-1], 0, 0);
 
 		// D
@@ -237,9 +243,11 @@ void COND_RSQRQ_N2NX3(struct OCP_QP *ocp_qp, struct STRMAT *RSQrq2, struct STRVE
 #else
 	POTRF_L_MN_LIBSTR(nx[N-nn]+1, nx[N-nn], &L[N-nn], nu[N-nn], nu[N-nn], Lx, 0, 0);
 #endif
+	ROWIN_LIBSTR(nx[N-nn], 1.0, &b[N-nn-1], 0, &BAbt[N-nn-1], nu[N-nn-1]+nx[N-nn-1], 0);
 	TRMM_RLNN_LIBSTR(nu[N-nn-1]+nx[N-nn-1]+1, nx[N-nn], 1.0, Lx, 0, 0, &BAbt[N-nn-1], 0, 0, AL, 0, 0);
 	GEAD_LIBSTR(1, nx[N-nn], 1.0, Lx, nx[N-nn], 0, AL, nu[N-nn-1]+nx[N-nn-1], 0);
 
+	ROWIN_LIBSTR(nu[N-nn-1]+nx[N-nn-1], 1.0, &rq[N-nn-1], 0, &RSQrq[N-nn-1], nu[N-nn-1]+nx[N-nn-1], 0);
 	SYRK_LN_MN_LIBSTR(nu[N-nn-1]+nx[N-nn-1]+1, nu[N-nn-1]+nx[N-nn-1], nx[N-nn], 1.0, AL, 0, 0, AL, 0, 0, 1.0, &RSQrq[N-nn-1], 0, 0, &L[N-nn-1], 0, 0);
 
 	// D, M, m, P, p
@@ -1433,6 +1441,7 @@ void UPDATE_COND_BABT(int *idxc, struct OCP_QP *ocp_qp, struct STRMAT *BAbt2, st
 	int *nx = ocp_qp->dim->nx;
 	int *nu = ocp_qp->dim->nu;
 	struct STRMAT *BAbt = ocp_qp->BAbt;
+	struct STRVEC *b = ocp_qp->b;
 
 	// extract memory members
 	struct STRMAT *Gamma = cond_ws->Gamma;
@@ -1443,9 +1452,10 @@ void UPDATE_COND_BABT(int *idxc, struct OCP_QP *ocp_qp, struct STRMAT *BAbt2, st
 	nu_tmp = 0;
 	ii = 0;
 	// B & A & b
-	GECP_LIBSTR(nu[0]+nx[0]+1, nx[1], &BAbt[0], 0, 0, &Gamma[0], 0, 0);
+	GECP_LIBSTR(nu[0]+nx[0], nx[1], &BAbt[0], 0, 0, &Gamma[0], 0, 0);
+	ROWIN_LIBSTR(nx[1], 1.0, &b[0], 0, &Gamma[0], nu[0]+nx[0], 0);
 	// b
-	ROWEX_LIBSTR(nx[1], 1.0, &Gamma[0], nu[0]+nx[0], 0, &Gammab[0], 0);
+	VECCP_LIBSTR(nx[1], &b[0], 0, &Gammab[0], 0);
 
 	nu_tmp += nu[0];
 	ii++;
@@ -1461,7 +1471,7 @@ void UPDATE_COND_BABT(int *idxc, struct OCP_QP *ocp_qp, struct STRMAT *BAbt2, st
 
 		nu_tmp += nu[ii];
 
-		GEAD_LIBSTR(1, nx[ii+1], 1.0, &BAbt[ii], nu[ii]+nx[ii], 0, &Gamma[ii], nu_tmp+nx[0], 0);
+		ROWAD_LIBSTR(nx[ii+1], 1.0, &b[ii], 0, &Gamma[ii], nu_tmp+nx[0], 0);
 
 		ROWEX_LIBSTR(nx[ii+1], 1.0, &Gamma[ii], nu_tmp+nx[0], 0, &Gammab[ii], 0);
 		}
@@ -1479,17 +1489,17 @@ void UPDATE_COND_BABT(int *idxc, struct OCP_QP *ocp_qp, struct STRMAT *BAbt2, st
 		nu_tmp1 += nu[ii];
 		nu_tmp += nu[ii];
 
-		GEAD_LIBSTR(1, nx[ii+1], 1.0, &BAbt[ii], nu[ii]+nx[ii], 0, &Gamma[ii], nu_tmp+nx[0], 0);
+		ROWAD_LIBSTR(nx[ii+1], 1.0, &b[ii], 0, &Gamma[ii], nu_tmp+nx[0], 0);
 
 		ROWEX_LIBSTR(nx[ii+1], 1.0, &Gamma[ii], nu_tmp+nx[0], 0, &Gammab[ii], 0);
 		}
 
 	if(cond_arg->cond_last_stage==0)
 		{
-		// B & A & b
-		GECP_LIBSTR(nu_tmp+nx[0]+1, nx[N], &Gamma[N-1], 0, 0, &BAbt2[0], 0, 0);
+		// B & A
+		GECP_LIBSTR(nu_tmp+nx[0], nx[N], &Gamma[N-1], 0, 0, &BAbt2[0], 0, 0);
 		// b
-		ROWEX_LIBSTR(nx[N], 1.0, &BAbt2[0], nu_tmp+nx[0], 0, &b2[0], 0);
+		ROWEX_LIBSTR(nx[N], 1.0, &Gamma[N-1], nu_tmp+nx[0], 0, &b2[0], 0);
 		}
 
 	return;
@@ -1532,7 +1542,9 @@ void UPDATE_COND_RSQRQ_N2NX3(int *idxc, struct OCP_QP *ocp_qp, struct STRMAT *RS
 	int *nu = ocp_qp->dim->nu;
 
 	struct STRMAT *BAbt = ocp_qp->BAbt;
+	struct STRVEC *b = ocp_qp->b;
 	struct STRMAT *RSQrq = ocp_qp->RSQrq;
+	struct STRVEC *rq = ocp_qp->rq;
 
 	// extract memory members
 	struct STRMAT *Gamma = cond_ws->Gamma;
@@ -1543,8 +1555,8 @@ void UPDATE_COND_RSQRQ_N2NX3(int *idxc, struct OCP_QP *ocp_qp, struct STRMAT *RS
 	// early return
 	if(N==0)
 		{
-		GECP_LIBSTR(nu[0]+nx[0]+1, nu[0]+nx[0], &RSQrq[0], 0, 0, &RSQrq2[0], 0, 0); // XXX when removing rq from RSQ !!!
-		ROWEX_LIBSTR(nu[0]+nx[0], 1.0, &RSQrq[0], nu[0]+nx[0], 0, &rq2[0], 0); // XXX when removing rq from RSQ !!!
+		GECP_LIBSTR(nu[0]+nx[0], nu[0]+nx[0], &RSQrq[0], 0, 0, &RSQrq2[0], 0, 0);
+		VECCP_LIBSTR(nu[0]+nx[0], &rq[0], 0, &rq2[0], 0);
 		return;
 		}
 	
@@ -1564,8 +1576,8 @@ void UPDATE_COND_RSQRQ_N2NX3(int *idxc, struct OCP_QP *ocp_qp, struct STRMAT *RS
 	// final stage 
 	nub -= nu[N];
 
-	// TODO g is not part of H !!!!!
-	GECP_LIBSTR(nu[N]+nx[N]+1, nu[N]+nx[N], &RSQrq[N], 0, 0, &L[N], 0, 0);
+	GECP_LIBSTR(nu[N]+nx[N], nu[N]+nx[N], &RSQrq[N], 0, 0, &L[N], 0, 0);
+	ROWIN_LIBSTR(nu[N]+nx[N], 1.0, &rq[N], 0, &L[N], nu[N]+nx[N], 0);
 
 	// D
 	TRCP_L_LIBSTR(nu[N], &L[N], 0, 0, &RSQrq2[0], nuf, nuf);
@@ -1608,9 +1620,11 @@ void UPDATE_COND_RSQRQ_N2NX3(int *idxc, struct OCP_QP *ocp_qp, struct STRMAT *RS
 #else
 		POTRF_L_MN_LIBSTR(nx[N-nn]+1, nx[N-nn], &L[N-nn], nu[N-nn], nu[N-nn], Lx, 0, 0);
 #endif
+		ROWIN_LIBSTR(nx[N-nn], 1.0, &b[N-nn-1], 0, &BAbt[N-nn-1], nu[N-nn-1]+nx[N-nn-1], 0);
 		TRMM_RLNN_LIBSTR(nu[N-nn-1]+nx[N-nn-1]+1, nx[N-nn], 1.0, Lx, 0, 0, &BAbt[N-nn-1], 0, 0, AL, 0, 0);
 		GEAD_LIBSTR(1, nx[N-nn], 1.0, Lx, nx[N-nn], 0, AL, nu[N-nn-1]+nx[N-nn-1], 0);
 
+		ROWIN_LIBSTR(nu[N-nn-1]+nx[N-nn-1], 1.0, &rq[N-nn-1], 0, &RSQrq[N-nn-1], nu[N-nn-1]+nx[N-nn-1], 0);
 		SYRK_LN_MN_LIBSTR(nu[N-nn-1]+nx[N-nn-1]+1, nu[N-nn-1]+nx[N-nn-1], nx[N-nn], 1.0, AL, 0, 0, AL, 0, 0, 1.0, &RSQrq[N-nn-1], 0, 0, &L[N-nn-1], 0, 0);
 
 		// D
