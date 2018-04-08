@@ -160,7 +160,7 @@ int main()
 
 	int nx_ = 8; // number of states (it has to be even for the mass-spring system test problem)
 	int nu_ = 3; // number of inputs (controllers) (it has to be at least 1 and at most nx/2 for the mass-spring system test problem)
-	int N  = 5; // horizon lenght
+	int N  = 8; // horizon lenght
 
 
 
@@ -208,8 +208,8 @@ int main()
 	int ns[N+1];
 	ns[0] = 0;
 	for(ii=1; ii<N; ii++)
-		ns[ii] = 0;//nx[ii]/2;
-	ns[N] = 0;//nx[N]/2;
+		ns[ii] = nx[ii]/2;
+	ns[N] = nx[N]/2;
 #elif 0
 	int nb[N+1];
 	nb[0] = 0;
@@ -259,7 +259,7 @@ int main()
 	mass_spring_system(Ts, nx_, nu_, N, A, B, b, x0);
 
 	for(jj=0; jj<nx_; jj++)
-		b[jj] = 0.1;
+		b[jj] = 0.0;
 
 	for(jj=0; jj<nx_; jj++)
 		x0[jj] = 0;
@@ -283,7 +283,7 @@ int main()
 ************************************************/
 
 	double *Q; d_zeros(&Q, nx_, nx_);
-	for(ii=0; ii<nx_; ii++) Q[ii*(nx_+1)] = 1.0;
+	for(ii=0; ii<nx_; ii++) Q[ii*(nx_+1)] = 0.0;
 
 	double *R; d_zeros(&R, nu_, nu_);
 	for(ii=0; ii<nu_; ii++) R[ii*(nu_+1)] = 2.0;
@@ -291,10 +291,10 @@ int main()
 	double *S; d_zeros(&S, nu_, nx_);
 
 	double *q; d_zeros(&q, nx_, 1);
-	for(ii=0; ii<nx_; ii++) q[ii] = 0.1;
+	for(ii=0; ii<nx_; ii++) q[ii] = 0.0;
 
 	double *r; d_zeros(&r, nu_, 1);
-	for(ii=0; ii<nu_; ii++) r[ii] = 0.2;
+	for(ii=0; ii<nu_; ii++) r[ii] = 0.0;
 
 	double *r0; d_zeros(&r0, nu_, 1);
 	dgemv_n_3l(nu_, nx_, S, nu_, x0, r0);
@@ -363,8 +363,8 @@ int main()
 			}
 		else // state
 			{
-			d_lb1[ii] = - 4.0; // xmin
-			d_ub1[ii] =   4.0; // xmax
+			d_lb1[ii] = - 1.0; // xmin
+			d_ub1[ii] =   1.0; // xmax
 			}
 		idxb1[ii] = ii;
 		}
@@ -390,8 +390,8 @@ int main()
 	double *d_ugN; d_zeros(&d_ugN, ng[N], 1);
 	for(ii=0; ii<nb[N]; ii++)
 		{
-		d_lbN[ii] = - 4.0; // xmin
-		d_ubN[ii] =   4.0; // xmax
+		d_lbN[ii] = - 1.0; // xmin
+		d_ubN[ii] =   1.0; // xmax
 		idxbN[ii] = ii;
 		}
 	for(ii=0; ii<ng[N]; ii++)
@@ -459,7 +459,7 @@ int main()
 		Zu0[ii] = 1e3;
 	double *zl0; d_zeros(&zl0, ns[0], 1);
 	for(ii=0; ii<ns[0]; ii++)
-		zl0[ii] = 1e2;
+		zl0[ii] = 0e2;
 	double *zu0; d_zeros(&zu0, ns[0], 1);
 	for(ii=0; ii<ns[0]; ii++)
 		zu0[ii] = 1e2;
@@ -481,7 +481,7 @@ int main()
 		Zu1[ii] = 1e3;
 	double *zl1; d_zeros(&zl1, ns[1], 1);
 	for(ii=0; ii<ns[1]; ii++)
-		zl1[ii] = 1e2;
+		zl1[ii] = 0e2;
 	double *zu1; d_zeros(&zu1, ns[1], 1);
 	for(ii=0; ii<ns[1]; ii++)
 		zu1[ii] = 1e2;
@@ -503,7 +503,7 @@ int main()
 		ZuN[ii] = 1e3;
 	double *zlN; d_zeros(&zlN, ns[N], 1);
 	for(ii=0; ii<ns[N]; ii++)
-		zlN[ii] = 1e2;
+		zlN[ii] = 0e2;
 	double *zuN; d_zeros(&zuN, ns[N], 1);
 	for(ii=0; ii<ns[N]; ii++)
 		zuN[ii] = 1e2;
@@ -821,14 +821,14 @@ int main()
 
 	for(rep=0; rep<nrep; rep++)
 		{
-		d_update_cond_qp_ocp2ocp(idxc, &ocp_qp, &part_dense_qp, &part_cond_arg, &part_cond_ws);
+//		d_update_cond_qp_ocp2ocp(idxc, &ocp_qp, &part_dense_qp, &part_cond_arg, &part_cond_ws);
 		}
 
 	gettimeofday(&tv1, NULL); // stop
 
 	double time_update_cond = (tv1.tv_sec-tv0.tv_sec)/(nrep+0.0)+(tv1.tv_usec-tv0.tv_usec)/(nrep*1e6);
 
-#if 1
+#if 0
 	printf("\nupdate part cond data\n\n");
 	for(ii=0; ii<N2; ii++)
 		blasfeo_print_dmat(nu2[ii]+nx2[ii]+1, nx2[ii+1], part_dense_qp.BAbt+ii, 0, 0);
@@ -866,14 +866,14 @@ int main()
 
 	for(rep=0; rep<nrep; rep++)
 		{
-		d_cond_rhs_qp_ocp2ocp(&ocp_qp, &part_dense_qp, &part_cond_arg, &part_cond_ws);
+//		d_cond_rhs_qp_ocp2ocp(&ocp_qp, &part_dense_qp, &part_cond_arg, &part_cond_ws);
 		}
 
 	gettimeofday(&tv1, NULL); // stop
 
 	double time_cond_rhs = (tv1.tv_sec-tv0.tv_sec)/(nrep+0.0)+(tv1.tv_usec-tv0.tv_usec)/(nrep*1e6);
 
-#if 1
+#if 0
 	printf("\npart cond rhs data\n\n");
 	for(ii=0; ii<N2; ii++)
 		blasfeo_print_tran_dvec(nx2[ii+1], part_dense_qp.b+ii, 0);

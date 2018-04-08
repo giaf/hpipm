@@ -50,8 +50,8 @@ ifeq ($(REF_BLAS), ATLAS)
 LIBS += /opt/atlas/lib/liblapack.a /opt/atlas/lib/libcblas.a /opt/atlas/lib/libf77blas.a /opt/atlas/lib/libatlas.a -lgfortran -lm
 endif
 
-OBJS_TEST = d_tools.o test_d_cond.o
-#OBJS_TEST = d_tools.o test_d_part_cond.o
+#OBJS_TEST = d_tools.o test_d_cond.o
+OBJS_TEST = d_tools.o test_d_part_cond.o
 #OBJS_TEST = test_d_dense.o
 #OBJS_TEST = d_tools.o test_d_ocp.o
 #OBJS_TEST = d_tools.o test_d_tree_ocp.o

@@ -281,8 +281,9 @@ void COMPUTE_LIN_RES_DENSE_QP(struct DENSE_QP *qp, struct DENSE_QP_SOL *qp_sol, 
 	if(nb+ng>0)
 		{
 		AXPY_LIBSTR(nb+ng, -1.0, lam, 0, lam, nb+ng, tmp_nbg+0, 0);
-		AXPY_LIBSTR(nb+ng,  1.0, d, 0, t, 0, res_d, 0);
-		AXPY_LIBSTR(nb+ng,  1.0, d, nb+ng, t, nb+ng, res_d, nb+ng);
+//		AXPY_LIBSTR(nb+ng,  1.0, d, 0, t, 0, res_d, 0);
+//		AXPY_LIBSTR(nb+ng,  1.0, d, nb+ng, t, nb+ng, res_d, nb+ng);
+		AXPY_LIBSTR(2*nb+2*ng,  1.0, d, 0, t, 0, res_d, 0);
 		// box
 		if(nb>0)
 			{

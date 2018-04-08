@@ -401,6 +401,13 @@ int SOLVE_DENSE_QP_IPM(struct DENSE_QP *qp, struct DENSE_QP_SOL *qp_sol, struct 
 		ws->iter = 0;
 		return 0;
 		}
+	
+	// dims
+	int nv = qp->dim->nv;
+	int ne = qp->dim->ne;
+	int nb = qp->dim->nb;
+	int ng = qp->dim->ng;
+	int ns = qp->dim->ns;
 
 	// blasfeo alias for residuals
 	struct STRVEC str_res_g;
@@ -467,7 +474,8 @@ int SOLVE_DENSE_QP_IPM(struct DENSE_QP *qp, struct DENSE_QP_SOL *qp_sol, struct 
 		// fact and solve kkt
 		FACT_SOLVE_KKT_STEP_DENSE_QP(ws->qp_step, ws->sol_step, arg, ws);
 
-		for(itref0=0; itref0<arg->itref_pred_max; itref0++)
+		// TODO fix for ns>0 !!!
+		for(itref0=0; itref0<arg->itref_pred_max & ns==0; itref0++)
 			{
 
 			COMPUTE_LIN_RES_DENSE_QP(ws->qp_step, qp_sol, ws->sol_step, ws->res_itref, ws->res_workspace);
@@ -500,10 +508,10 @@ int SOLVE_DENSE_QP_IPM(struct DENSE_QP *qp, struct DENSE_QP_SOL *qp_sol, struct 
 
 			SOLVE_KKT_STEP_DENSE_QP(ws->qp_itref, ws->sol_itref, arg, ws);
 
-			AXPY_LIBSTR(qp->dim->nv, 1.0, ws->sol_itref->v, 0, ws->sol_step->v, 0, ws->sol_step->v, 0);
-			AXPY_LIBSTR(qp->dim->ne, 1.0, ws->sol_itref->pi, 0, ws->sol_step->pi, 0, ws->sol_step->pi, 0);
-			AXPY_LIBSTR(2*qp->dim->nb+2*qp->dim->ng, 1.0, ws->sol_itref->lam, 0, ws->sol_step->lam, 0, ws->sol_step->lam, 0);
-			AXPY_LIBSTR(2*qp->dim->nb+2*qp->dim->ng, 1.0, ws->sol_itref->t, 0, ws->sol_step->t, 0, ws->sol_step->t, 0);
+			AXPY_LIBSTR(nv+2*ns, 1.0, ws->sol_itref->v, 0, ws->sol_step->v, 0, ws->sol_step->v, 0);
+			AXPY_LIBSTR(ne, 1.0, ws->sol_itref->pi, 0, ws->sol_step->pi, 0, ws->sol_step->pi, 0);
+			AXPY_LIBSTR(2*nb+2*ng+2*ns, 1.0, ws->sol_itref->lam, 0, ws->sol_step->lam, 0, ws->sol_step->lam, 0);
+			AXPY_LIBSTR(2*nb+2*ng+2*ns, 1.0, ws->sol_itref->t, 0, ws->sol_step->t, 0, ws->sol_step->t, 0);
 
 			}
 
@@ -611,7 +619,8 @@ int SOLVE_DENSE_QP_IPM(struct DENSE_QP *qp, struct DENSE_QP_SOL *qp_sol, struct 
 
 				}
 
-			for(itref1=0; itref1<arg->itref_corr_max; itref1++)
+			// TODO fix for ns>0 !!!
+			for(itref1=0; itref1<arg->itref_corr_max & ns==0; itref1++)
 				{
 
 				COMPUTE_LIN_RES_DENSE_QP(ws->qp_step, qp_sol, ws->sol_step, ws->res_itref, ws->res_workspace);
@@ -644,10 +653,10 @@ int SOLVE_DENSE_QP_IPM(struct DENSE_QP *qp, struct DENSE_QP_SOL *qp_sol, struct 
 
 				SOLVE_KKT_STEP_DENSE_QP(ws->qp_itref, ws->sol_itref, arg, ws);
 
-				AXPY_LIBSTR(qp->dim->nv, 1.0, ws->sol_itref->v, 0, ws->sol_step->v, 0, ws->sol_step->v, 0);
-				AXPY_LIBSTR(qp->dim->ne, 1.0, ws->sol_itref->pi, 0, ws->sol_step->pi, 0, ws->sol_step->pi, 0);
-				AXPY_LIBSTR(2*qp->dim->nb+2*qp->dim->ng, 1.0, ws->sol_itref->lam, 0, ws->sol_step->lam, 0, ws->sol_step->lam, 0);
-				AXPY_LIBSTR(2*qp->dim->nb+2*qp->dim->ng, 1.0, ws->sol_itref->t, 0, ws->sol_step->t, 0, ws->sol_step->t, 0);
+				AXPY_LIBSTR(nv+2*ns, 1.0, ws->sol_itref->v, 0, ws->sol_step->v, 0, ws->sol_step->v, 0);
+				AXPY_LIBSTR(ne, 1.0, ws->sol_itref->pi, 0, ws->sol_step->pi, 0, ws->sol_step->pi, 0);
+				AXPY_LIBSTR(2*nb+2*ng+2*ns, 1.0, ws->sol_itref->lam, 0, ws->sol_step->lam, 0, ws->sol_step->lam, 0);
+				AXPY_LIBSTR(2*nb+2*ng+2*ns, 1.0, ws->sol_itref->t, 0, ws->sol_step->t, 0, ws->sol_step->t, 0);
 
 				}
 

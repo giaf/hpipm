@@ -221,6 +221,8 @@ void CVT_COLMAJ_TO_DENSE_QP(REAL *H, REAL *g, REAL *A, REAL *b, int *idxb, REAL 
 		CVT_VEC2STRVEC(ns, zu, qp->z, ns);
 		CVT_VEC2STRVEC(ns, d_ls, qp->d, 2*nb+2*ng);
 		CVT_VEC2STRVEC(ns, d_us, qp->d, 2*nb+2*ng+ns);
+		VECSE_LIBSTR(ns, 0.0, qp->m, 2*nb+2*ng);
+		VECSE_LIBSTR(ns, 0.0, qp->m, 2*nb+2*ng+ns);
 		}
 
 	return;
@@ -323,6 +325,8 @@ void CVT_ROWMAJ_TO_DENSE_QP(REAL *H, REAL *g, REAL *A, REAL *b, int *idxb, REAL 
 		CVT_VEC2STRVEC(ns, zu, qp->z, ns);
 		CVT_VEC2STRVEC(ns, d_ls, qp->d, 2*nb+2*ng);
 		CVT_VEC2STRVEC(ns, d_us, qp->d, 2*nb+2*ng+ns);
+		VECSE_LIBSTR(ns, 0.0, qp->m, 2*nb+2*ng);
+		VECSE_LIBSTR(ns, 0.0, qp->m, 2*nb+2*ng+ns);
 		}
 
 	return;
