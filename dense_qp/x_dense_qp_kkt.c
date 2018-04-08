@@ -215,6 +215,7 @@ void COMPUTE_RES_DENSE_QP(struct DENSE_QP *qp, struct DENSE_QP_SOL *qp_sol, stru
 		VECAD_SP_LIBSTR(ns, -1.0, v, nv, idxs, res_d, 0);
 		VECAD_SP_LIBSTR(ns, -1.0, v, nv+ns, idxs, res_d, nb+ng);
 		AXPY_LIBSTR(2*ns, -1.0, v, nv, t, 2*nb+2*ng, res_d, 2*nb+2*ng);
+		AXPY_LIBSTR(2*ns, 1.0, d, 2*nb+2*ng, res_d, 2*nb+2*ng, res_d, 2*nb+2*ng);
 		}
 	
 	// res b, res g
@@ -309,6 +310,7 @@ void COMPUTE_LIN_RES_DENSE_QP(struct DENSE_QP *qp, struct DENSE_QP_SOL *qp_sol, 
 		VECAD_SP_LIBSTR(ns, -1.0, v, nv, idxs, res_d, 0);
 		VECAD_SP_LIBSTR(ns, -1.0, v, nv+ns, idxs, res_d, nb+ng);
 		AXPY_LIBSTR(2*ns, -1.0, v, nv, t, 2*nb+2*ng, res_d, 2*nb+2*ng);
+		AXPY_LIBSTR(2*ns, 1.0, d, 2*nb+2*ng, res_d, 2*nb+2*ng, res_d, 2*nb+2*ng);
 		}
 	
 	// res b, res g

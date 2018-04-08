@@ -70,17 +70,13 @@ int s_memsize_dense_qp(struct s_dense_qp_dim *dim);
 //
 void s_create_dense_qp(struct s_dense_qp_dim *dim, struct s_dense_qp *qp, void *memory);
 //
-void s_cvt_colmaj_to_dense_qp(float *H, float *g, float *A, float *b, int *idxb, float *d_lb, float *d_ub, float *C, float *d_lg, float *d_ug, float *Zl, float *Zu, float *zl, float *zu, int *idxs, struct s_dense_qp *qp);
+void s_cvt_colmaj_to_dense_qp(float *H, float *g, float *A, float *b, int *idxb, float *d_lb, float *d_ub, float *C, float *d_lg, float *d_ug, float *Zl, float *Zu, float *zl, float *zu, int *idxs, float *d_ls, float *d_us, struct s_dense_qp *qp);
 //
-void s_cvt_dense_qp_to_colmaj(struct s_dense_qp *qp, float *H, float *g, float *A, float *b, int *idxb, float *d_lb, float *d_ub, float *C, float *d_lg, float *d_ug, float *Zl, float *Zu, float *zl, float *zu, int *idxs);
+void s_cvt_dense_qp_to_colmaj(struct s_dense_qp *qp, float *H, float *g, float *A, float *b, int *idxb, float *d_lb, float *d_ub, float *C, float *d_lg, float *d_ug, float *Zl, float *Zu, float *zl, float *zu, int *idxs, float *d_ls, float *d_us);
 //
-void s_cvt_rowmaj_to_dense_qp(float *H, float *g, float *A, float *b, int *idxb, float *d_lb, float *d_ub, float *C, float *d_lg, float *d_ug, float *Zl, float *Zu, float *zl, float *zu, int *idxs, struct s_dense_qp *qp);
+void s_cvt_rowmaj_to_dense_qp(float *H, float *g, float *A, float *b, int *idxb, float *d_lb, float *d_ub, float *C, float *d_lg, float *d_ug, float *Zl, float *Zu, float *zl, float *zu, int *idxs, float *d_ls, float *d_us, struct s_dense_qp *qp);
 //
-void s_cvt_dense_qp_to_rowmaj(struct s_dense_qp *qp, float *H, float *g, float *A, float *b, int *idxb, float *d_lb, float *d_ub, float *C, float *d_lg, float *d_ug, float *Zl, float *Zu, float *zl, float *zu, int *idxs);
-//
-void s_cvt_libstr_to_dense_qp(struct blasfeo_smat *H, struct blasfeo_smat *A, struct blasfeo_smat *C, struct blasfeo_svec *g, struct blasfeo_svec *b, struct blasfeo_svec *d_lb, struct blasfeo_svec *d_ub, struct blasfeo_svec *d_lg, struct blasfeo_svec *d_ug, int *idxb, struct blasfeo_svec *Zl, struct blasfeo_svec *Zu, struct blasfeo_svec *zl, struct blasfeo_svec *zu, int *idxs, struct s_dense_qp *qp);
-//
-void s_cvt_dense_qp_to_libstr(struct s_dense_qp *qp, struct blasfeo_smat *H, struct blasfeo_smat *A, struct blasfeo_smat *C, struct blasfeo_svec *g, struct blasfeo_svec *b, struct blasfeo_svec *d_lb, struct blasfeo_svec *d_ub, struct blasfeo_svec *d_lg, struct blasfeo_svec *d_ug, int *idxb, struct blasfeo_svec *Zl, struct blasfeo_svec *Zu, struct blasfeo_svec *zl, struct blasfeo_svec *zu, int *idxs);
+void s_cvt_dense_qp_to_rowmaj(struct s_dense_qp *qp, float *H, float *g, float *A, float *b, int *idxb, float *d_lb, float *d_ub, float *C, float *d_lg, float *d_ug, float *Zl, float *Zu, float *zl, float *zu, int *idxs, float *d_ls, float *d_us);
 
 
 
