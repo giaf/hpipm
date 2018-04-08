@@ -656,9 +656,9 @@ void COND_DCTD(struct OCP_QP *ocp_qp, int *idxb2, struct STRMAT *DCt2, struct ST
 	if(ns0>0)
 		{
 		for(jj=0; jj<ns0; jj++)
-			idxs_rev[idxs[N-ii][jj]] = jj;
-		ptr_Z = Z[N-ii].pa;
-		ptr_z = z[N-ii].pa;
+			idxs_rev[idxs[0][jj]] = jj;
+		ptr_Z = Z[0].pa;
+		ptr_z = z[0].pa;
 		}
 //	int_print_mat(1, nb0+ng0, idxs_rev, 1);
 	ptr_d_ls = d[0].pa+2*nb0+2*ng0;
@@ -845,7 +845,8 @@ void COND_D(struct OCP_QP *ocp_qp, struct STRVEC *d2, struct STRVEC *z2, struct 
 				idx_g = idxb0-nu0;
 				tmp = GEEX1_LIBSTR(&Gamma[N-1-ii], idx_gammab, idx_g);
 				d_lg3[ig] = ptr_d_lb[jj] - tmp;
-				d_ug3[ig] = ptr_d_ub[jj] - tmp;
+//				d_ug3[ig] = ptr_d_ub[jj] - tmp;
+				d_ug3[ig] = ptr_d_ub[jj] + tmp; // XXX
 				if(idxs_rev[jj]>=0)
 					{
 					ptr_z2[0+is]   = ptr_z[0+idxs_rev[jj]];
@@ -975,8 +976,8 @@ void COND_D(struct OCP_QP *ocp_qp, struct STRVEC *d2, struct STRVEC *z2, struct 
 	if(ns0>0)
 		{
 		for(jj=0; jj<ns0; jj++)
-			idxs_rev[idxs[N-ii][jj]] = jj;
-		ptr_z = z[N-ii].pa;
+			idxs_rev[idxs[0][jj]] = jj;
+		ptr_z = z[0].pa;
 		}
 	ptr_d_ls = d[0].pa+2*nb0+2*ng0;
 	ptr_d_us = d[0].pa+2*nb0+2*ng0+ns0;

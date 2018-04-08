@@ -813,22 +813,28 @@ int main()
 
 	for(rep=0; rep<nrep; rep++)
 		{
-//		d_cond_rhs_qp_ocp2dense(&ocp_qp, &dense_qp, &cond_arg, &cond_ws);
+		d_cond_rhs_qp_ocp2dense(&ocp_qp, &dense_qp, &cond_arg, &cond_ws);
 		}
 
 	gettimeofday(&tv1, NULL); // stop
 
 	double time_cond_rhs = (tv1.tv_sec-tv0.tv_sec)/(nrep+0.0)+(tv1.tv_usec-tv0.tv_usec)/(nrep*1e6);
 
-#if 0
+#if 1
 	printf("\ncond rhs data\n\n");
 	blasfeo_print_tran_dvec(nvc, dense_qp.g, 0);
 	blasfeo_print_tran_dvec(nec, dense_qp.b, 0);
-	blasfeo_print_tran_dvec(2*nbc+2*ngc, dense_qp.d, 0);
+	blasfeo_print_tran_dvec(2*nbc+2*ngc+2*nsc, dense_qp.d, 0);
 	blasfeo_print_tran_dvec(nbc, dense_qp.d, 0);
 	blasfeo_print_tran_dvec(nbc, dense_qp.d, nbc+ngc);
 	blasfeo_print_tran_dvec(ngc, dense_qp.d, nbc);
 	blasfeo_print_tran_dvec(ngc, dense_qp.d, 2*nbc+ngc);
+	blasfeo_print_tran_dvec(nsc, dense_qp.d, 2*nbc+2*ngc);
+	blasfeo_print_tran_dvec(nsc, dense_qp.d, 2*nbc+2*ngc+nsc);
+	blasfeo_print_tran_dvec(nsc, dense_qp.Z, 0);
+	blasfeo_print_tran_dvec(nsc, dense_qp.Z, nsc);
+	blasfeo_print_tran_dvec(nsc, dense_qp.z, 0);
+	blasfeo_print_tran_dvec(nsc, dense_qp.z, nsc);
 #endif
 
 #if 0

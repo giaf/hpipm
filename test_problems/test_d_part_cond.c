@@ -866,14 +866,14 @@ int main()
 
 	for(rep=0; rep<nrep; rep++)
 		{
-//		d_cond_rhs_qp_ocp2ocp(&ocp_qp, &part_dense_qp, &part_cond_arg, &part_cond_ws);
+		d_cond_rhs_qp_ocp2ocp(&ocp_qp, &part_dense_qp, &part_cond_arg, &part_cond_ws);
 		}
 
 	gettimeofday(&tv1, NULL); // stop
 
 	double time_cond_rhs = (tv1.tv_sec-tv0.tv_sec)/(nrep+0.0)+(tv1.tv_usec-tv0.tv_usec)/(nrep*1e6);
 
-#if 0
+#if 1
 	printf("\npart cond rhs data\n\n");
 	for(ii=0; ii<N2; ii++)
 		blasfeo_print_tran_dvec(nx2[ii+1], part_dense_qp.b+ii, 0);
