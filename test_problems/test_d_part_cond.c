@@ -466,6 +466,12 @@ int main()
 	int *idxs0; int_zeros(&idxs0, ns[0], 1);
 	for(ii=0; ii<ns[0]; ii++)
 		idxs0[ii] = nu[0]+ii;
+	double *d_ls0; d_zeros(&d_ls0, ns[0], 1);
+	for(ii=0; ii<ns[0]; ii++)
+		d_ls0[ii] = -1.0;
+	double *d_us0; d_zeros(&d_us0, ns[0], 1);
+	for(ii=0; ii<ns[0]; ii++)
+		d_us0[ii] = 0.0;
 
 	double *Zl1; d_zeros(&Zl1, ns[1], 1);
 	for(ii=0; ii<ns[1]; ii++)
@@ -482,6 +488,12 @@ int main()
 	int *idxs1; int_zeros(&idxs1, ns[1], 1);
 	for(ii=0; ii<ns[1]; ii++)
 		idxs1[ii] = nu[1]+ii;
+	double *d_ls1; d_zeros(&d_ls1, ns[1], 1);
+	for(ii=0; ii<ns[1]; ii++)
+		d_ls1[ii] = -1.0;
+	double *d_us1; d_zeros(&d_us1, ns[1], 1);
+	for(ii=0; ii<ns[1]; ii++)
+		d_us1[ii] = 0.0;
 
 	double *ZlN; d_zeros(&ZlN, ns[N], 1);
 	for(ii=0; ii<ns[N]; ii++)
@@ -498,6 +510,12 @@ int main()
 	int *idxsN; int_zeros(&idxsN, ns[N], 1);
 	for(ii=0; ii<ns[N]; ii++)
 		idxsN[ii] = nu[N]+ii;
+	double *d_lsN; d_zeros(&d_lsN, ns[N], 1);
+	for(ii=0; ii<ns[N]; ii++)
+		d_lsN[ii] = -1.0;
+	double *d_usN; d_zeros(&d_usN, ns[N], 1);
+	for(ii=0; ii<ns[N]; ii++)
+		d_usN[ii] = 0.0;
 
 #if 1
 	// soft constraints
@@ -506,16 +524,22 @@ int main()
 	d_print_mat(1, ns[0], Zu0, 1);
 	d_print_mat(1, ns[0], zl0, 1);
 	d_print_mat(1, ns[0], zu0, 1);
+	d_print_mat(1, ns[0], d_ls0, 1);
+	d_print_mat(1, ns[0], d_us0, 1);
 	int_print_mat(1, ns[1], idxs1, 1);
 	d_print_mat(1, ns[1], Zl1, 1);
 	d_print_mat(1, ns[1], Zu1, 1);
 	d_print_mat(1, ns[1], zl1, 1);
 	d_print_mat(1, ns[1], zu1, 1);
+	d_print_mat(1, ns[1], d_ls1, 1);
+	d_print_mat(1, ns[1], d_us1, 1);
 	int_print_mat(1, ns[N], idxsN, 1);
 	d_print_mat(1, ns[N], ZlN, 1);
 	d_print_mat(1, ns[N], ZuN, 1);
 	d_print_mat(1, ns[N], zlN, 1);
 	d_print_mat(1, ns[N], zuN, 1);
+	d_print_mat(1, ns[N], d_lsN, 1);
+	d_print_mat(1, ns[N], d_usN, 1);
 #endif
 
 /************************************************
@@ -530,18 +554,20 @@ int main()
 	double *hR[N+1];
 	double *hq[N+1];
 	double *hr[N+1];
+	int *hidxb[N+1];
 	double *hd_lb[N+1];
 	double *hd_ub[N+1];
-	double *hd_lg[N+1];
-	double *hd_ug[N+1];
 	double *hC[N+1];
 	double *hD[N+1];
-	int *hidxb[N+1];
+	double *hd_lg[N+1];
+	double *hd_ug[N+1];
 	double *hZl[N+1];
 	double *hZu[N+1];
 	double *hzl[N+1];
 	double *hzu[N+1];
 	int *hidxs[N+1]; // XXX
+	double *hd_ls[N+1];
+	double *hd_us[N+1];
 
 	hA[0] = A;
 	hB[0] = B;
@@ -554,15 +580,17 @@ int main()
 	hidxb[0] = idxb0;
 	hd_lb[0] = d_lb0;
 	hd_ub[0] = d_ub0;
-	hd_lg[0] = d_lg0;
-	hd_ug[0] = d_ug0;
 	hC[0] = C0;
 	hD[0] = D0;
+	hd_lg[0] = d_lg0;
+	hd_ug[0] = d_ug0;
 	hZl[0] = Zl0;
 	hZu[0] = Zu0;
 	hzl[0] = zl0;
 	hzu[0] = zu0;
 	hidxs[0] = idxs0;
+	hd_ls[0] = d_ls0;
+	hd_us[0] = d_us0;
 	for(ii=1; ii<N; ii++)
 		{
 		hA[ii] = A;
@@ -585,6 +613,8 @@ int main()
 		hzl[ii] = zl1;
 		hzu[ii] = zu1;
 		hidxs[ii] = idxs1;
+		hd_ls[ii] = d_ls1;
+		hd_us[ii] = d_us1;
 		}
 	hQ[N] = Q;
 	hS[N] = S;
@@ -603,6 +633,8 @@ int main()
 	hzl[N] = zlN;
 	hzu[N] = zuN;
 	hidxs[N] = idxsN;
+	hd_ls[N] = d_lsN;
+	hd_us[N] = d_usN;
 
 /************************************************
 * ocp qp dim
@@ -626,7 +658,7 @@ int main()
 
 	struct d_ocp_qp ocp_qp;
 	d_create_ocp_qp(&dim, &ocp_qp, ocp_qp_mem);
-	d_cvt_colmaj_to_ocp_qp(hA, hB, hb, hQ, hS, hR, hq, hr, hidxb, hd_lb, hd_ub, hC, hD, hd_lg, hd_ug, hZl, hZu, hzl, hzu, hidxs, &ocp_qp);
+	d_cvt_colmaj_to_ocp_qp(hA, hB, hb, hQ, hS, hR, hq, hr, hidxb, hd_lb, hd_ub, hC, hD, hd_lg, hd_ug, hZl, hZu, hzl, hzu, hidxs, hd_ls, hd_us, &ocp_qp);
 
 #if 0
 	printf("\nN = %d\n", ocp_qp.N);
@@ -1225,16 +1257,22 @@ int main()
 	d_free(zl0);
 	d_free(zu0);
 	int_free(idxs0);
+	d_free(d_ls0);
+	d_free(d_us0);
 	d_free(Zl1);
 	d_free(Zu1);
 	d_free(zl1);
 	d_free(zu1);
 	int_free(idxs1);
+	d_free(d_ls1);
+	d_free(d_us1);
 	d_free(ZlN);
 	d_free(ZuN);
 	d_free(zlN);
 	d_free(zuN);
 	int_free(idxsN);
+	d_free(d_lsN);
+	d_free(d_usN);
 
 	for(ii=0; ii<N; ii++)
 		{

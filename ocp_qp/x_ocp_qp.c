@@ -43,10 +43,12 @@ int MEMSIZE_OCP_QP(struct OCP_QP_DIM *dim)
 
 	int nbt = 0;
 	int ngt = 0;
+	int nst = 0;
 	for(ii=0; ii<=N; ii++)
 		{
 		nbt += nb[ii];
 		ngt += ng[ii];
+		nst += ns[ii];
 		}
 
 	int size = 0;
@@ -77,7 +79,7 @@ int MEMSIZE_OCP_QP(struct OCP_QP_DIM *dim)
 	size += SIZE_STRMAT(nu[ii]+nx[ii], ng[ii]); // DCt
 	size += 2*SIZE_STRVEC(2*ns[ii]); // Z z
 
-	size += 1*SIZE_STRVEC(2*nbt+2*ngt); // d
+	size += 1*SIZE_STRVEC(2*nbt+2*ngt+2*nst); // d
 
 	size = (size+63)/64*64; // make multiple of typical cache line size
 	size += 64; // align to typical cache line size
@@ -104,10 +106,12 @@ void CREATE_OCP_QP(struct OCP_QP_DIM *dim, struct OCP_QP *qp, void *mem)
 
 	int nbt = 0;
 	int ngt = 0;
+	int nst = 0;
 	for(ii=0; ii<=N; ii++)
 		{
 		nbt += nb[ii];
 		ngt += ng[ii];
+		nst += ns[ii];
 		}
 
 
@@ -245,14 +249,16 @@ void CREATE_OCP_QP(struct OCP_QP_DIM *dim, struct OCP_QP *qp, void *mem)
 
 	// d
 	tmp_ptr = c_ptr;
-	c_ptr += SIZE_STRVEC(2*nbt+2*ngt);
+	c_ptr += SIZE_STRVEC(2*nbt+2*ngt+2*nst);
 	for(ii=0; ii<=N; ii++)
 		{
-		CREATE_STRVEC(2*nb[ii]+2*ng[ii], qp->d+ii, tmp_ptr);
-		tmp_ptr += nb[ii]*sizeof(REAL);
-		tmp_ptr += ng[ii]*sizeof(REAL);
-		tmp_ptr += nb[ii]*sizeof(REAL);
-		tmp_ptr += ng[ii]*sizeof(REAL);
+		CREATE_STRVEC(2*nb[ii]+2*ng[ii]+2*ns[ii], qp->d+ii, tmp_ptr);
+		tmp_ptr += nb[ii]*sizeof(REAL); // lb
+		tmp_ptr += ng[ii]*sizeof(REAL); // lg
+		tmp_ptr += nb[ii]*sizeof(REAL); // ub
+		tmp_ptr += ng[ii]*sizeof(REAL); // ug
+		tmp_ptr += ns[ii]*sizeof(REAL); // ls
+		tmp_ptr += ns[ii]*sizeof(REAL); // us
 		}
 
 	qp->dim = dim;
@@ -281,6 +287,7 @@ void CHANGE_BOUNDS_DIMENSIONS_OCP_QP(int *nbu, int *nbx, struct OCP_QP *qp)
 		int N = qp->dim->N;
 		int *nb = qp->dim->nb;
 		int *ng = qp->dim->ng;
+		int *ns = qp->dim->ns;
 
 		int ii, jj;
 
@@ -296,17 +303,19 @@ void CHANGE_BOUNDS_DIMENSIONS_OCP_QP(int *nbu, int *nbx, struct OCP_QP *qp)
 
 	for(ii=0; ii<=N; ii++)
 		{
-		CREATE_STRVEC(2*nb[ii]+2*ng[ii], qp->d+ii, c_ptr);
-		c_ptr += nb[ii]*sizeof(REAL);
-		c_ptr += ng[ii]*sizeof(REAL);
-		c_ptr += nb[ii]*sizeof(REAL);
-		c_ptr += ng[ii]*sizeof(REAL);
+		CREATE_STRVEC(2*nb[ii]+2*ng[ii]+2*ns[ii], qp->d+ii, c_ptr);
+		c_ptr += nb[ii]*sizeof(REAL); // lb
+		c_ptr += ng[ii]*sizeof(REAL); // lg
+		c_ptr += nb[ii]*sizeof(REAL); // ub
+		c_ptr += ng[ii]*sizeof(REAL); // ug
+		c_ptr += ns[ii]*sizeof(REAL); // ls
+		c_ptr += ns[ii]*sizeof(REAL); // us
 		}
 	}
 
 
 
-void CVT_COLMAJ_TO_OCP_QP(REAL **A, REAL **B, REAL **b, REAL **Q, REAL **S, REAL **R, REAL **q, REAL **r, int **idxb, REAL **d_lb, REAL **d_ub, REAL **C, REAL **D, REAL **d_lg, REAL **d_ug, REAL **Zl, REAL **Zu, REAL **zl, REAL **zu, int **idxs, struct OCP_QP *qp)
+void CVT_COLMAJ_TO_OCP_QP(REAL **A, REAL **B, REAL **b, REAL **Q, REAL **S, REAL **R, REAL **q, REAL **r, int **idxb, REAL **d_lb, REAL **d_ub, REAL **C, REAL **D, REAL **d_lg, REAL **d_ug, REAL **Zl, REAL **Zu, REAL **zl, REAL **zu, int **idxs, REAL **d_ls, REAL **d_us, struct OCP_QP *qp)
 	{
 
 	// extract dim
@@ -372,7 +381,8 @@ void CVT_COLMAJ_TO_OCP_QP(REAL **A, REAL **B, REAL **b, REAL **Q, REAL **S, REAL
 			CVT_VEC2STRVEC(ns[ii], Zu[ii], qp->Z+ii, ns[ii]);
 			CVT_VEC2STRVEC(ns[ii], zl[ii], qp->z+ii, 0);
 			CVT_VEC2STRVEC(ns[ii], zu[ii], qp->z+ii, ns[ii]);
-			// TODO add d for slacks !!! (not necessarily equal to zero)
+			CVT_VEC2STRVEC(ns[ii], d_ls[ii], qp->d+ii, 2*nb[ii]+2*ng[ii]);
+			CVT_VEC2STRVEC(ns[ii], d_us[ii], qp->d+ii, 2*nb[ii]+2*ng[ii]+ns[ii]);
 			}
 		}
 
@@ -382,7 +392,7 @@ void CVT_COLMAJ_TO_OCP_QP(REAL **A, REAL **B, REAL **b, REAL **Q, REAL **S, REAL
 
 
 
-void CVT_ROWMAJ_TO_OCP_QP(REAL **A, REAL **B, REAL **b, REAL **Q, REAL **S, REAL **R, REAL **q, REAL **r, int **idxb, REAL **d_lb, REAL **d_ub, REAL **C, REAL **D, REAL **d_lg, REAL **d_ug, REAL **Zl, REAL **Zu, REAL **zl, REAL **zu, int **idxs, struct OCP_QP *qp)
+void CVT_ROWMAJ_TO_OCP_QP(REAL **A, REAL **B, REAL **b, REAL **Q, REAL **S, REAL **R, REAL **q, REAL **r, int **idxb, REAL **d_lb, REAL **d_ub, REAL **C, REAL **D, REAL **d_lg, REAL **d_ug, REAL **Zl, REAL **Zu, REAL **zl, REAL **zu, int **idxs, REAL **d_ls, REAL **d_us, struct OCP_QP *qp)
 	{
 
 	// extract dim
@@ -448,6 +458,8 @@ void CVT_ROWMAJ_TO_OCP_QP(REAL **A, REAL **B, REAL **b, REAL **Q, REAL **S, REAL
 			CVT_VEC2STRVEC(ns[ii], Zu[ii], qp->Z+ii, ns[ii]);
 			CVT_VEC2STRVEC(ns[ii], zl[ii], qp->z+ii, 0);
 			CVT_VEC2STRVEC(ns[ii], zu[ii], qp->z+ii, ns[ii]);
+			CVT_VEC2STRVEC(ns[ii], d_ls[ii], qp->d+ii, 2*nb[ii]+2*ng[ii]);
+			CVT_VEC2STRVEC(ns[ii], d_us[ii], qp->d+ii, 2*nb[ii]+2*ng[ii]+ns[ii]);
 			}
 		}
 

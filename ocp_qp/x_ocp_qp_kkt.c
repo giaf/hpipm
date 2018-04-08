@@ -281,6 +281,7 @@ void COMPUTE_RES_OCP_QP(struct OCP_QP *qp, struct OCP_QP_SOL *qp_sol, struct OCP
 			VECAD_SP_LIBSTR(ns0, -1.0, ux+ii, nu0+nx0, idxs[ii], res_d+ii, 0);
 			VECAD_SP_LIBSTR(ns0, -1.0, ux+ii, nu0+nx0+ns0, idxs[ii], res_d+ii, nb0+ng0);
 			AXPY_LIBSTR(2*ns0, -1.0, ux+ii, nu0+nx0, t+ii, 2*nb0+2*ng0, res_d+ii, 2*nb0+2*ng0);
+			AXPY_LIBSTR(2*ns0, 1.0, d+ii, 2*nb0+2*ng0, res_d+ii, 2*nb0+2*ng0, res_d+ii, 2*nb0+2*ng0);
 			}
 
 		if(ii<N)
