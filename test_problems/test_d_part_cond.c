@@ -310,7 +310,12 @@ int main()
 #endif
 
 	// maximum element in cost functions
-	double mu0 = 2.0;
+	double mu0;
+	if(ns[1]>0 | ns[N]>0)
+		mu0 = 1000.0;
+	else
+		mu0 = 2.0;
+
 
 /************************************************
 * box & general constraints

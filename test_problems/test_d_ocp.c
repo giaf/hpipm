@@ -420,7 +420,11 @@ int main()
 #endif
 
 	// maximum element in cost functions
-	double mu0 = 2.0;
+	double mu0;
+	if(ns[1]>0 | ns[N]>0)
+		mu0 = 1000.0;
+	else
+		mu0 = 2.0;
 
 /************************************************
 * box & general constraints
@@ -823,7 +827,7 @@ int main()
 //	arg.res_b_max = 1e-8;
 //	arg.res_d_max = 1e-12;
 //	arg.res_m_max = 1e-12;
-//	arg.mu0 = 100.0;
+	arg.mu0 = mu0;
 //	arg.iter_max = 10;
 //	arg.stat_max = 100;
 //	arg.pred_corr = 1;
