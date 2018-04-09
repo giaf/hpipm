@@ -785,14 +785,14 @@ int main()
 
 	for(rep=0; rep<nrep; rep++)
 		{
-//		d_update_cond_qp_ocp2dense(idxc, &ocp_qp, &dense_qp, &cond_arg, &cond_ws);
+		d_update_cond_qp_ocp2dense(idxc, &ocp_qp, &dense_qp, &cond_arg, &cond_ws);
 		}
 
 	gettimeofday(&tv1, NULL); // stop
 
 	double time_update_cond = (tv1.tv_sec-tv0.tv_sec)/(nrep+0.0)+(tv1.tv_usec-tv0.tv_usec)/(nrep*1e6);
 
-#if 0
+#if 1
 	printf("\nupdate cond data\n\n");
 	blasfeo_print_dmat(nvc+1, nvc, dense_qp.Hv, 0, 0); // TODO remove +1
 	blasfeo_print_dmat(nec, nvc, dense_qp.A, 0, 0);

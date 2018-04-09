@@ -800,6 +800,10 @@ int main()
 	for(ii=0; ii<=N2; ii++)
 		int_print_mat(1, ns2[ii], part_dense_qp.idxs[ii], 1);
 	for(ii=0; ii<=N2; ii++)
+		blasfeo_print_tran_dvec(ns2[ii], part_dense_qp.d+ii, 2*nb2[ii]+2*ng2[ii]);
+	for(ii=0; ii<=N2; ii++)
+		blasfeo_print_tran_dvec(ns2[ii], part_dense_qp.d+ii, 2*nb2[ii]+2*ng2[ii]+ns2[ii]);
+	for(ii=0; ii<=N2; ii++)
 		blasfeo_print_tran_dvec(ns2[ii], part_dense_qp.Z+ii, 0);
 	for(ii=0; ii<=N2; ii++)
 		blasfeo_print_tran_dvec(ns2[ii], part_dense_qp.Z+ii, ns2[ii]);
@@ -821,14 +825,14 @@ int main()
 
 	for(rep=0; rep<nrep; rep++)
 		{
-//		d_update_cond_qp_ocp2ocp(idxc, &ocp_qp, &part_dense_qp, &part_cond_arg, &part_cond_ws);
+		d_update_cond_qp_ocp2ocp(idxc, &ocp_qp, &part_dense_qp, &part_cond_arg, &part_cond_ws);
 		}
 
 	gettimeofday(&tv1, NULL); // stop
 
 	double time_update_cond = (tv1.tv_sec-tv0.tv_sec)/(nrep+0.0)+(tv1.tv_usec-tv0.tv_usec)/(nrep*1e6);
 
-#if 0
+#if 1
 	printf("\nupdate part cond data\n\n");
 	for(ii=0; ii<N2; ii++)
 		blasfeo_print_dmat(nu2[ii]+nx2[ii]+1, nx2[ii+1], part_dense_qp.BAbt+ii, 0, 0);
@@ -887,6 +891,10 @@ int main()
 		blasfeo_print_tran_dvec(ng2[ii], part_dense_qp.d+ii, nb2[ii]);
 	for(ii=0; ii<=N2; ii++)
 		blasfeo_print_tran_dvec(ng2[ii], part_dense_qp.d+ii, 2*nb2[ii]+ng2[ii]);
+	for(ii=0; ii<=N2; ii++)
+		blasfeo_print_tran_dvec(ns2[ii], part_dense_qp.d+ii, 2*nb2[ii]+2*ng2[ii]);
+	for(ii=0; ii<=N2; ii++)
+		blasfeo_print_tran_dvec(ns2[ii], part_dense_qp.d+ii, 2*nb2[ii]+2*ng2[ii]+ns2[ii]);
 	for(ii=0; ii<=N2; ii++)
 		blasfeo_print_tran_dvec(ns2[ii], part_dense_qp.z+ii, 0);
 	for(ii=0; ii<=N2; ii++)
@@ -1027,10 +1035,10 @@ int main()
 		d_print_mat(1, ng2[ii], (part_dense_qp_sol.t+ii)->pa+2*nb2[ii]+ng2[ii], 1);
 	printf("\nt_ls2\n");
 	for(ii=0; ii<=N2; ii++)
-		d_print_mat(1, ng2[ii], (part_dense_qp_sol.t+ii)->pa+2*nb2[ii]+2*ng2[ii], 1);
+		d_print_mat(1, ns2[ii], (part_dense_qp_sol.t+ii)->pa+2*nb2[ii]+2*ng2[ii], 1);
 	printf("\nt_us2\n");
 	for(ii=0; ii<=N2; ii++)
-		d_print_mat(1, ng2[ii], (part_dense_qp_sol.t+ii)->pa+2*nb2[ii]+2*ng2[ii]+ns2[ii], 1);
+		d_print_mat(1, ns2[ii], (part_dense_qp_sol.t+ii)->pa+2*nb2[ii]+2*ng2[ii]+ns2[ii], 1);
 #endif
 
 /************************************************

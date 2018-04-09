@@ -1755,6 +1755,18 @@ void UPDATE_COND_DCTD(int *idxc, struct OCP_QP *ocp_qp, int *idxb2, struct STRMA
 	struct STRVEC *Z = ocp_qp->Z;
 	struct STRVEC *z = ocp_qp->z;
 
+	// early return
+	if(N==0 & cond_arg->cond_last_stage==1)
+		{
+		VECCP_LIBSTR(2*nb[0]+2*ng[0]+2*ns[0], ocp_qp->d, 0, d2, 0);
+		GECP_LIBSTR(nu[0]+nx[0], ng[0], ocp_qp->DCt, 0, 0, DCt2, 0, 0);
+		for(ii=0; ii<nb[0]; ii++) idxb2[ii] = ocp_qp->idxb[0][ii];
+		VECCP_LIBSTR(2*ns[0], ocp_qp->Z, 0, Z2, 0);
+		VECCP_LIBSTR(2*ns[0], ocp_qp->z, 0, z2, 0);
+		for(ii=0; ii<ns[0]; ii++) idxs2[ii] = ocp_qp->idxs[0][ii];
+		return;
+		}
+
 	// extract memory members
 	struct STRMAT *Gamma = cond_ws->Gamma;
 	struct STRVEC *Gammab = cond_ws->Gammab;
@@ -1764,6 +1776,8 @@ void UPDATE_COND_DCTD(int *idxc, struct OCP_QP *ocp_qp, int *idxb2, struct STRMA
 
 	REAL *ptr_d_lb;
 	REAL *ptr_d_ub;
+	REAL *ptr_d_ls;
+	REAL *ptr_d_us;
 	
 	int nu_tmp, ng_tmp;
 
@@ -1798,6 +1812,8 @@ void UPDATE_COND_DCTD(int *idxc, struct OCP_QP *ocp_qp, int *idxb2, struct STRMA
 	REAL *d_ub3 = d2->pa+nb2+ng2;
 	REAL *d_lg3 = d2->pa+nb2;
 	REAL *d_ug3 = d2->pa+2*nb2+ng2;
+	REAL *d_ls3 = d2->pa+2*nb2+2*ng2;
+	REAL *d_us3 = d2->pa+2*nb2+2*ng2+ns2;
 
 	// set constraint matrix to zero (it's 2 lower triangular matrices atm)
 	GESE_LIBSTR(nu2+nx2, ng2, 0.0, &DCt2[0], 0, 0);
@@ -1843,6 +1859,8 @@ void UPDATE_COND_DCTD(int *idxc, struct OCP_QP *ocp_qp, int *idxb2, struct STRMA
 		nu_tmp += nu0;
 		ptr_d_lb = d[N-ii].pa+0;
 		ptr_d_ub = d[N-ii].pa+nb0+ng0;
+		ptr_d_ls = d[N-ii].pa+2*nb0+2*ng0;
+		ptr_d_us = d[N-ii].pa+2*nb0+2*ng0+ns0;
 		for(jj=0; jj<nb0; jj++)
 			{
 			idxb0 = idxb[N-ii][jj];
@@ -1855,9 +1873,11 @@ void UPDATE_COND_DCTD(int *idxc, struct OCP_QP *ocp_qp, int *idxb2, struct STRMA
 					{
 					idxs2[is] = ib;
 					ptr_Z2[0+is]   = ptr_Z[0+idxs_rev[jj]];
-					ptr_Z2[ns2+is] = ptr_Z[ns[N-ii]+idxs_rev[jj]];
+					ptr_Z2[ns2+is] = ptr_Z[ns0+idxs_rev[jj]];
 					ptr_z2[0+is]   = ptr_z[0+idxs_rev[jj]];
-					ptr_z2[ns2+is] = ptr_z[ns[N-ii]+idxs_rev[jj]];
+					ptr_z2[ns2+is] = ptr_z[ns0+idxs_rev[jj]];
+					d_ls3[0+is]    = ptr_d_ls[0+idxs_rev[jj]];
+					d_us3[ns2+is]  = ptr_d_ls[ns0+idxs_rev[jj]];
 					is++;
 					}
 				ib++;
@@ -1877,6 +1897,8 @@ void UPDATE_COND_DCTD(int *idxc, struct OCP_QP *ocp_qp, int *idxb2, struct STRMA
 					ptr_Z2[ns2+is] = ptr_Z[ns0+idxs_rev[jj]];
 					ptr_z2[0+is]   = ptr_z[0+idxs_rev[jj]];
 					ptr_z2[ns2+is] = ptr_z[ns0+idxs_rev[jj]];
+					d_ls3[0+is]    = ptr_d_ls[0+idxs_rev[jj]];
+					d_us3[ns2+is]  = ptr_d_ls[ns0+idxs_rev[jj]];
 					is++;
 					}
 				ig++;
@@ -1903,6 +1925,8 @@ void UPDATE_COND_DCTD(int *idxc, struct OCP_QP *ocp_qp, int *idxb2, struct STRMA
 	nu_tmp += nu0;
 	ptr_d_lb = d[0].pa+0;
 	ptr_d_ub = d[0].pa+nb0+ng0;
+	ptr_d_ls = d[0].pa+2*nb0+2*ng0;
+	ptr_d_us = d[0].pa+2*nb0+2*ng0+ns0;
 	for(jj=0; jj<nb0; jj++)
 		{
 		idxb0 = idxb[0][jj];
@@ -1916,6 +1940,8 @@ void UPDATE_COND_DCTD(int *idxc, struct OCP_QP *ocp_qp, int *idxb2, struct STRMA
 			ptr_Z2[ns2+is] = ptr_Z[ns0+idxs_rev[jj]];
 			ptr_z2[0+is]   = ptr_z[0+idxs_rev[jj]];
 			ptr_z2[ns2+is] = ptr_z[ns0+idxs_rev[jj]];
+			d_ls3[0+is]    = ptr_d_ls[0+idxs_rev[jj]];
+			d_us3[ns2+is]  = ptr_d_ls[ns0+idxs_rev[jj]];
 			is++;
 			}
 		ib++;
@@ -1948,6 +1974,8 @@ void UPDATE_COND_DCTD(int *idxc, struct OCP_QP *ocp_qp, int *idxb2, struct STRMA
 			ptr_z = z[N-ii].pa;
 			}
 //		int_print_mat(1, nb0+ng0, idxs_rev, 1);
+		ptr_d_ls = d[N-ii].pa+2*nb0+2*ng0;
+		ptr_d_us = d[N-ii].pa+2*nb0+2*ng0+ns0;
 
 		if(ng0>0)
 			{
@@ -1964,6 +1992,8 @@ void UPDATE_COND_DCTD(int *idxc, struct OCP_QP *ocp_qp, int *idxb2, struct STRMA
 					ptr_Z2[ns2+is] = ptr_Z[ns0+idxs_rev[idxg0]];
 					ptr_z2[0+is]   = ptr_z[0+idxs_rev[idxg0]];
 					ptr_z2[ns2+is] = ptr_z[ns0+idxs_rev[idxg0]];
+					d_ls3[0+is]    = ptr_d_ls[0+idxs_rev[idxg0]];
+					d_us3[ns2+is]  = ptr_d_ls[ns0+idxs_rev[idxg0]];
 					is++;
 					}
 
@@ -2008,11 +2038,13 @@ void UPDATE_COND_DCTD(int *idxc, struct OCP_QP *ocp_qp, int *idxb2, struct STRMA
 	if(ns0>0)
 		{
 		for(jj=0; jj<ns0; jj++)
-			idxs_rev[idxs[N-ii][jj]] = jj;
-		ptr_Z = Z[N-ii].pa;
-		ptr_z = z[N-ii].pa;
+			idxs_rev[idxs[0][jj]] = jj;
+		ptr_Z = Z[0].pa;
+		ptr_z = z[0].pa;
 		}
 //	int_print_mat(1, nb0+ng0, idxs_rev, 1);
+	ptr_d_ls = d[0].pa+2*nb0+2*ng0;
+	ptr_d_us = d[0].pa+2*nb0+2*ng0+ns0;
 
 	if(ng0>0)
 		{
@@ -2029,6 +2061,8 @@ void UPDATE_COND_DCTD(int *idxc, struct OCP_QP *ocp_qp, int *idxb2, struct STRMA
 				ptr_Z2[ns2+is] = ptr_Z[ns0+idxs_rev[idxg0]];
 				ptr_z2[0+is]   = ptr_z[0+idxs_rev[idxg0]];
 				ptr_z2[ns2+is] = ptr_z[ns0+idxs_rev[idxg0]];
+				d_ls3[0+is]    = ptr_d_ls[0+idxs_rev[idxg0]];
+				d_us3[ns2+is]  = ptr_d_ls[ns0+idxs_rev[idxg0]];
 				is++;
 				}
 
