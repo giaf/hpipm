@@ -49,11 +49,10 @@ struct s_ocp_qp
 	struct blasfeo_smat *BAbt;
 	struct blasfeo_svec *b;
 	struct blasfeo_smat *RSQrq;
-	struct blasfeo_svec *rq;
+	struct blasfeo_svec *rqz;
 	struct blasfeo_smat *DCt;
 	struct blasfeo_svec *d;
 	struct blasfeo_svec *Z;
-	struct blasfeo_svec *z;
 	int **idxb; // index of box constraints
 	int **idxs; // index of soft constraints
 	int memsize; // memory size in bytes

@@ -204,7 +204,7 @@ int main()
 	printf("\nCt = \n");
 	blasfeo_print_dmat(nv, ng, qp.Ct, 0, 0);
 	printf("\ng = \n");
-	blasfeo_print_dvec(nv, qp.g, 0);
+	blasfeo_print_dvec(nv, qp.gz, 0);
 	printf("\nb = \n");
 	blasfeo_print_dvec(ne, qp.b, 0);
 	printf("\nd = \n");

@@ -155,13 +155,12 @@ void COMPUTE_RES_DENSE_QP(struct DENSE_QP *qp, struct DENSE_QP_SOL *qp_sol, stru
 	struct STRMAT *Hg = qp->Hv;
 	struct STRMAT *A = qp->A;
 	struct STRMAT *Ct = qp->Ct;
-	struct STRVEC *g = qp->g;
+	struct STRVEC *gz = qp->gz;
 	struct STRVEC *b = qp->b;
 	struct STRVEC *d = qp->d;
 	struct STRVEC *m = qp->m;
 	int *idxb = qp->idxb;
 	struct STRVEC *Z = qp->Z;
-	struct STRVEC *z = qp->z;
 	int *idxs = qp->idxs;
 
 	struct STRVEC *v = qp_sol->v;
@@ -180,7 +179,7 @@ void COMPUTE_RES_DENSE_QP(struct DENSE_QP *qp, struct DENSE_QP_SOL *qp_sol, stru
 	REAL mu;
 
 	// res g
-	SYMV_L_LIBSTR(nv, nv, 1.0, Hg, 0, 0, v, 0, 1.0, g, 0, res_g, 0);
+	SYMV_L_LIBSTR(nv, nv, 1.0, Hg, 0, 0, v, 0, 1.0, gz, 0, res_g, 0);
 
 	if(nb+ng>0)
 		{
@@ -205,7 +204,7 @@ void COMPUTE_RES_DENSE_QP(struct DENSE_QP *qp, struct DENSE_QP_SOL *qp_sol, stru
 	if(ns>0)
 		{
 		// res_g
-		GEMV_DIAG_LIBSTR(2*ns, 1.0, Z, 0, v, nv, 1.0, z, 0, res_g, nv);
+		GEMV_DIAG_LIBSTR(2*ns, 1.0, Z, 0, v, nv, 1.0, gz, nv, res_g, nv);
 		AXPY_LIBSTR(2*ns, -1.0, lam, 2*nb+2*ng, res_g, nv, res_g, nv);
 		VECEX_SP_LIBSTR(ns, 1.0, idxs, lam, 0, tmp_ns, 0);
 		AXPY_LIBSTR(ns, -1.0, tmp_ns, 0, res_g, nv, res_g, nv);
@@ -248,13 +247,12 @@ void COMPUTE_LIN_RES_DENSE_QP(struct DENSE_QP *qp, struct DENSE_QP_SOL *qp_sol, 
 	struct STRMAT *Hg = qp->Hv;
 	struct STRMAT *A = qp->A;
 	struct STRMAT *Ct = qp->Ct;
-	struct STRVEC *g = qp->g;
+	struct STRVEC *gz = qp->gz;
 	struct STRVEC *b = qp->b;
 	struct STRVEC *d = qp->d;
 	struct STRVEC *m = qp->m;
 	int *idxb = qp->idxb;
 	struct STRVEC *Z = qp->Z;
-	struct STRVEC *z = qp->z;
 	int *idxs = qp->idxs;
 
 	struct STRVEC *v = qp_step->v;
@@ -276,7 +274,7 @@ void COMPUTE_LIN_RES_DENSE_QP(struct DENSE_QP *qp, struct DENSE_QP_SOL *qp_sol, 
 	REAL mu;
 
 	// res g
-	SYMV_L_LIBSTR(nv, nv, 1.0, Hg, 0, 0, v, 0, 1.0, g, 0, res_g, 0);
+	SYMV_L_LIBSTR(nv, nv, 1.0, Hg, 0, 0, v, 0, 1.0, gz, 0, res_g, 0);
 
 	if(nb+ng>0)
 		{
@@ -301,7 +299,7 @@ void COMPUTE_LIN_RES_DENSE_QP(struct DENSE_QP *qp, struct DENSE_QP_SOL *qp_sol, 
 	if(ns>0)
 		{
 		// res_g
-		GEMV_DIAG_LIBSTR(2*ns, 1.0, Z, 0, v, nv, 1.0, z, 0, res_g, nv);
+		GEMV_DIAG_LIBSTR(2*ns, 1.0, Z, 0, v, nv, 1.0, gz, nv, res_g, nv);
 		AXPY_LIBSTR(2*ns, -1.0, lam, 2*nb+2*ng, res_g, nv, res_g, nv);
 		VECEX_SP_LIBSTR(ns, 1.0, idxs, lam, 0, tmp_ns, 0);
 		AXPY_LIBSTR(ns, -1.0, tmp_ns, 0, res_g, nv, res_g, nv);
@@ -342,7 +340,7 @@ void FACT_SOLVE_KKT_UNCONSTR_DENSE_QP(struct DENSE_QP *qp, struct DENSE_QP_SOL *
 
 	struct STRMAT *Hg = qp->Hv;
 	struct STRMAT *A = qp->A;
-	struct STRVEC *g = qp->g;
+	struct STRVEC *gz = qp->gz;
 	struct STRVEC *b = qp->b;
 
 	struct STRVEC *v = qp_sol->v;
@@ -364,14 +362,14 @@ void FACT_SOLVE_KKT_UNCONSTR_DENSE_QP(struct DENSE_QP *qp, struct DENSE_QP_SOL *
 		GESE_LIBSTR(ne, ne, 0.0, Le, 0, 0);
 		SYRK_POTRF_LN_LIBSTR(ne, ne, nv, AL, 0, 0, AL, 0, 0, Le, 0, 0, Le, 0, 0);
 
-		TRSV_LNN_LIBSTR(nv, Lv, 0, 0, g, 0, lv, 0);
+		TRSV_LNN_LIBSTR(nv, Lv, 0, 0, gz, 0, lv, 0);
 
 		GEMV_N_LIBSTR(ne, nv, 1.0, AL, 0, 0, lv, 0, 1.0, b, 0, pi, 0);
 
 		TRSV_LNN_LIBSTR(ne, Le, 0, 0, pi, 0, pi, 0);
 		TRSV_LTN_LIBSTR(ne, Le, 0, 0, pi, 0, pi, 0);
 
-		GEMV_T_LIBSTR(ne, nv, 1.0, A, 0, 0, pi, 0, -1.0, g, 0, v, 0);
+		GEMV_T_LIBSTR(ne, nv, 1.0, A, 0, 0, pi, 0, -1.0, gz, 0, v, 0);
 
 		TRSV_LNN_LIBSTR(nv, Lv, 0, 0, v, 0, v, 0);
 		TRSV_LTN_LIBSTR(nv, Lv, 0, 0, v, 0, v, 0);
@@ -381,13 +379,13 @@ void FACT_SOLVE_KKT_UNCONSTR_DENSE_QP(struct DENSE_QP *qp, struct DENSE_QP_SOL *
 #if 0
 		POTRF_L_LIBSTR(nv, Hg, 0, 0, Lv, 0, 0);
 
-		VECCP_LIBSTR(nv, g, 0, v, 0);
+		VECCP_LIBSTR(nv, gz, 0, v, 0);
 		VECSC_LIBSTR(nv, -1.0, v, 0);
 
 		TRSV_LNN_LIBSTR(nv, Lv, 0, 0, v, 0, v, 0);
 		TRSV_LTN_LIBSTR(nv, Lv, 0, 0, v, 0, v, 0);
 #else
-		ROWIN_LIBSTR(nv, 1.0, g, 0, Hg, nv, 0);
+		ROWIN_LIBSTR(nv, 1.0, gz, 0, Hg, nv, 0);
 		POTRF_L_MN_LIBSTR(nv+1, nv, Hg, 0, 0, Lv, 0, 0);
 
 		ROWEX_LIBSTR(nv, -1.0, Lv, nv, 0, v, 0);
@@ -578,7 +576,7 @@ void FACT_SOLVE_KKT_STEP_DENSE_QP(struct DENSE_QP *qp, struct DENSE_QP_SOL *qp_s
 
 //	struct STRVEC *res_g = ws->res->res_g;
 //	struct STRVEC *res_b = ws->res->res_b;
-	struct STRVEC *res_g = qp->g;
+	struct STRVEC *res_g = qp->gz;
 	struct STRVEC *res_b = qp->b;
 
 	struct STRVEC *dv = qp_sol->v;
@@ -941,7 +939,7 @@ void SOLVE_KKT_STEP_DENSE_QP(struct DENSE_QP *qp, struct DENSE_QP_SOL *qp_sol, s
 
 //	struct STRVEC *res_g = ws->res->res_g;
 //	struct STRVEC *res_b = ws->res->res_b;
-	struct STRVEC *res_g = qp->g;
+	struct STRVEC *res_g = qp->gz;
 	struct STRVEC *res_b = qp->b;
 
 	struct STRVEC *dv = qp_sol->v;

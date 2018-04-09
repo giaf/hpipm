@@ -791,7 +791,7 @@ int main()
 	for(ii=0; ii<=N2; ii++)
 		blasfeo_print_dmat(nu2[ii]+nx2[ii]+1, nu2[ii]+nx2[ii], part_dense_qp.RSQrq+ii, 0, 0);
 	for(ii=0; ii<=N2; ii++)
-		blasfeo_print_tran_dvec(nu2[ii]+nx2[ii], part_dense_qp.rq+ii, 0);
+		blasfeo_print_tran_dvec(nu2[ii]+nx2[ii], part_dense_qp.rqz+ii, 0);
 	for(ii=0; ii<=N2; ii++)
 		blasfeo_print_tran_dvec(nb2[ii], part_dense_qp.d+ii, 0);
 	for(ii=0; ii<=N2; ii++)
@@ -813,9 +813,9 @@ int main()
 	for(ii=0; ii<=N2; ii++)
 		blasfeo_print_tran_dvec(ns2[ii], part_dense_qp.Z+ii, ns2[ii]);
 	for(ii=0; ii<=N2; ii++)
-		blasfeo_print_tran_dvec(ns2[ii], part_dense_qp.z+ii, 0);
+		blasfeo_print_tran_dvec(ns2[ii], part_dense_qp.rqz+ii, nu2[ii]+nx2[ii]);
 	for(ii=0; ii<=N2; ii++)
-		blasfeo_print_tran_dvec(ns2[ii], part_dense_qp.z+ii, ns2[ii]);
+		blasfeo_print_tran_dvec(ns2[ii], part_dense_qp.rqz+ii, nu2[ii]+nx2[ii]+ns2[ii]);
 #endif
 
 	/* update part cond */
@@ -846,7 +846,7 @@ int main()
 	for(ii=0; ii<=N2; ii++)
 		blasfeo_print_dmat(nu2[ii]+nx2[ii]+1, nu2[ii]+nx2[ii], part_dense_qp.RSQrq+ii, 0, 0);
 	for(ii=0; ii<=N2; ii++)
-		blasfeo_print_tran_dvec(nu2[ii]+nx2[ii], part_dense_qp.rq+ii, 0);
+		blasfeo_print_tran_dvec(nu2[ii]+nx2[ii], part_dense_qp.rqz+ii, 0);
 	for(ii=0; ii<=N2; ii++)
 		blasfeo_print_tran_dvec(nb2[ii], part_dense_qp.d+ii, 0);
 	for(ii=0; ii<=N2; ii++)
@@ -864,9 +864,9 @@ int main()
 	for(ii=0; ii<=N2; ii++)
 		blasfeo_print_tran_dvec(ns2[ii], part_dense_qp.Z+ii, ns2[ii]);
 	for(ii=0; ii<=N2; ii++)
-		blasfeo_print_tran_dvec(ns2[ii], part_dense_qp.z+ii, 0);
+		blasfeo_print_tran_dvec(ns2[ii], part_dense_qp.rqz+ii, nu2[ii]+nx2[ii]);
 	for(ii=0; ii<=N2; ii++)
-		blasfeo_print_tran_dvec(ns2[ii], part_dense_qp.z+ii, ns2[ii]);
+		blasfeo_print_tran_dvec(ns2[ii], part_dense_qp.rqz+ii, nu2[ii]+nx2[ii]+ns2[ii]);
 #endif
 
 	/* cond rhs */
@@ -887,7 +887,7 @@ int main()
 	for(ii=0; ii<N2; ii++)
 		blasfeo_print_tran_dvec(nx2[ii+1], part_dense_qp.b+ii, 0);
 	for(ii=0; ii<=N2; ii++)
-		blasfeo_print_tran_dvec(nu2[ii]+nx2[ii], part_dense_qp.rq+ii, 0);
+		blasfeo_print_tran_dvec(nu2[ii]+nx2[ii], part_dense_qp.rqz+ii, 0);
 	for(ii=0; ii<=N2; ii++)
 		blasfeo_print_tran_dvec(nb2[ii], part_dense_qp.d+ii, 0);
 	for(ii=0; ii<=N2; ii++)
@@ -901,9 +901,9 @@ int main()
 	for(ii=0; ii<=N2; ii++)
 		blasfeo_print_tran_dvec(ns2[ii], part_dense_qp.d+ii, 2*nb2[ii]+2*ng2[ii]+ns2[ii]);
 	for(ii=0; ii<=N2; ii++)
-		blasfeo_print_tran_dvec(ns2[ii], part_dense_qp.z+ii, 0);
+		blasfeo_print_tran_dvec(ns2[ii], part_dense_qp.rqz+ii, nu2[ii]+nx2[ii]);
 	for(ii=0; ii<=N2; ii++)
-		blasfeo_print_tran_dvec(ns2[ii], part_dense_qp.z+ii, ns2[ii]);
+		blasfeo_print_tran_dvec(ns2[ii], part_dense_qp.rqz+ii, nu2[ii]+nx2[ii]+ns2[ii]);
 #endif
 
 #if 0

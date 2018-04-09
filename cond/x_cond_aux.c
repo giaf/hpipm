@@ -141,7 +141,7 @@ void COND_B(struct OCP_QP *ocp_qp, struct STRVEC *b2, struct COND_QP_OCP2DENSE_A
 
 
 
-void COND_RSQRQ_N2NX3(struct OCP_QP *ocp_qp, struct STRMAT *RSQrq2, struct STRVEC *rq2, struct COND_QP_OCP2DENSE_ARG *cond_arg, struct COND_QP_OCP2DENSE_WORKSPACE *cond_ws)
+void COND_RSQRQ_N2NX3(struct OCP_QP *ocp_qp, struct STRMAT *RSQrq2, struct STRVEC *rqz2, struct COND_QP_OCP2DENSE_ARG *cond_arg, struct COND_QP_OCP2DENSE_WORKSPACE *cond_ws)
 	{
 
 	int N = ocp_qp->dim->N;
@@ -159,13 +159,13 @@ void COND_RSQRQ_N2NX3(struct OCP_QP *ocp_qp, struct STRMAT *RSQrq2, struct STRVE
 	struct STRMAT *BAbt = ocp_qp->BAbt;
 	struct STRVEC *b = ocp_qp->b;
 	struct STRMAT *RSQrq = ocp_qp->RSQrq;
-	struct STRVEC *rq = ocp_qp->rq;
+	struct STRVEC *rqz = ocp_qp->rqz;
 
 	// early return
 	if(N==0)
 		{
 		GECP_LIBSTR(nu[0]+nx[0], nu[0]+nx[0], &RSQrq[0], 0, 0, &RSQrq2[0], 0, 0);
-		VECCP_LIBSTR(nu[0]+nx[0], &rq[0], 0, &rq2[0], 0);
+		VECCP_LIBSTR(nu[0]+nx[0], &rqz[0], 0, &rqz2[0], 0);
 		return;
 		}
 
@@ -188,7 +188,7 @@ void COND_RSQRQ_N2NX3(struct OCP_QP *ocp_qp, struct STRMAT *RSQrq2, struct STRVE
 	nub -= nu[N];
 
 	GECP_LIBSTR(nu[N]+nx[N], nu[N]+nx[N], &RSQrq[N], 0, 0, &L[N], 0, 0);
-	ROWIN_LIBSTR(nu[N]+nx[N], 1.0, &rq[N], 0, &L[N], nu[N]+nx[N], 0);
+	ROWIN_LIBSTR(nu[N]+nx[N], 1.0, &rqz[N], 0, &L[N], nu[N]+nx[N], 0);
 
 	// D
 	TRCP_L_LIBSTR(nu[N], &L[N], 0, 0, &RSQrq2[0], nuf, nuf);
@@ -218,7 +218,7 @@ void COND_RSQRQ_N2NX3(struct OCP_QP *ocp_qp, struct STRMAT *RSQrq2, struct STRVE
 		TRMM_RLNN_LIBSTR(nu[N-nn-1]+nx[N-nn-1]+1, nx[N-nn], 1.0, Lx, 0, 0, &BAbt[N-nn-1], 0, 0, AL, 0, 0);
 		GEAD_LIBSTR(1, nx[N-nn], 1.0, Lx, nx[N-nn], 0, AL, nu[N-nn-1]+nx[N-nn-1], 0);
 
-		ROWIN_LIBSTR(nu[N-nn-1]+nx[N-nn-1], 1.0, &rq[N-nn-1], 0, &RSQrq[N-nn-1], nu[N-nn-1]+nx[N-nn-1], 0);
+		ROWIN_LIBSTR(nu[N-nn-1]+nx[N-nn-1], 1.0, &rqz[N-nn-1], 0, &RSQrq[N-nn-1], nu[N-nn-1]+nx[N-nn-1], 0);
 		SYRK_LN_MN_LIBSTR(nu[N-nn-1]+nx[N-nn-1]+1, nu[N-nn-1]+nx[N-nn-1], nx[N-nn], 1.0, AL, 0, 0, AL, 0, 0, 1.0, &RSQrq[N-nn-1], 0, 0, &L[N-nn-1], 0, 0);
 
 		// D
@@ -247,7 +247,7 @@ void COND_RSQRQ_N2NX3(struct OCP_QP *ocp_qp, struct STRMAT *RSQrq2, struct STRVE
 	TRMM_RLNN_LIBSTR(nu[N-nn-1]+nx[N-nn-1]+1, nx[N-nn], 1.0, Lx, 0, 0, &BAbt[N-nn-1], 0, 0, AL, 0, 0);
 	GEAD_LIBSTR(1, nx[N-nn], 1.0, Lx, nx[N-nn], 0, AL, nu[N-nn-1]+nx[N-nn-1], 0);
 
-	ROWIN_LIBSTR(nu[N-nn-1]+nx[N-nn-1], 1.0, &rq[N-nn-1], 0, &RSQrq[N-nn-1], nu[N-nn-1]+nx[N-nn-1], 0);
+	ROWIN_LIBSTR(nu[N-nn-1]+nx[N-nn-1], 1.0, &rqz[N-nn-1], 0, &RSQrq[N-nn-1], nu[N-nn-1]+nx[N-nn-1], 0);
 	SYRK_LN_MN_LIBSTR(nu[N-nn-1]+nx[N-nn-1]+1, nu[N-nn-1]+nx[N-nn-1], nx[N-nn], 1.0, AL, 0, 0, AL, 0, 0, 1.0, &RSQrq[N-nn-1], 0, 0, &L[N-nn-1], 0, 0);
 
 	// D, M, m, P, p
@@ -255,7 +255,7 @@ void COND_RSQRQ_N2NX3(struct OCP_QP *ocp_qp, struct STRMAT *RSQrq2, struct STRVE
 	TRCP_L_LIBSTR(nu[0]+nx[0], &L[N-nn-1], 0, 0, &RSQrq2[0], nuf, nuf); // TODO dtrcp for 'rectangular' matrices
 	GECP_LIBSTR(1, nu[0]+nx[0], &L[N-nn-1], nu[0]+nx[0], 0, &RSQrq2[0], nuf+nu[0]+nx[0], nuf); // TODO dtrcp for 'rectangular' matrices
 	// m p
-	ROWEX_LIBSTR(nu2+nx[0], 1.0, &RSQrq2[0], nu2+nx[0], 0, &rq2[0], 0);
+	ROWEX_LIBSTR(nu2+nx[0], 1.0, &RSQrq2[0], nu2+nx[0], 0, &rqz2[0], 0);
 
 	return;
 
@@ -263,7 +263,7 @@ void COND_RSQRQ_N2NX3(struct OCP_QP *ocp_qp, struct STRMAT *RSQrq2, struct STRVE
 
 
 
-void COND_RQ_N2NX3(struct OCP_QP *ocp_qp, struct STRVEC *rq2, struct COND_QP_OCP2DENSE_ARG *cond_arg, struct COND_QP_OCP2DENSE_WORKSPACE *cond_ws)
+void COND_RQ_N2NX3(struct OCP_QP *ocp_qp, struct STRVEC *rqz2, struct COND_QP_OCP2DENSE_ARG *cond_arg, struct COND_QP_OCP2DENSE_WORKSPACE *cond_ws)
 	{
 
 	int N = ocp_qp->dim->N;
@@ -280,12 +280,12 @@ void COND_RQ_N2NX3(struct OCP_QP *ocp_qp, struct STRVEC *rq2, struct COND_QP_OCP
 
 	struct STRMAT *BAbt = ocp_qp->BAbt;
 	struct STRVEC *b = ocp_qp->b;
-	struct STRVEC *rq = ocp_qp->rq;
+	struct STRVEC *rqz = ocp_qp->rqz;
 
 	// early return
 	if(N==0)
 		{
-		VECCP_LIBSTR(nu[0]+nx[0], rq+0, 0, rq2+0, 0);
+		VECCP_LIBSTR(nu[0]+nx[0], rqz+0, 0, rqz2+0, 0);
 		return;
 		}
 
@@ -307,9 +307,9 @@ void COND_RQ_N2NX3(struct OCP_QP *ocp_qp, struct STRVEC *rq2, struct COND_QP_OCP
 	// final stage 
 	nub -= nu[N];
 
-	VECCP_LIBSTR(nu[N]+nx[N], rq+N, 0, l+N, 0);
+	VECCP_LIBSTR(nu[N]+nx[N], rqz+N, 0, l+N, 0);
 
-	GEMV_T_LIBSTR(nx[N], nu[N], 1.0, L+N, nu[N], 0, Gammab+(N-1), 0, 1.0, l+N, 0, rq2+0, nuf);
+	GEMV_T_LIBSTR(nx[N], nu[N], 1.0, L+N, nu[N], 0, Gammab+(N-1), 0, 1.0, l+N, 0, rqz2+0, nuf);
 
 	nuf += nu[N];
 
@@ -322,9 +322,9 @@ void COND_RQ_N2NX3(struct OCP_QP *ocp_qp, struct STRVEC *rq2, struct COND_QP_OCP
 
 		SYMV_L_LIBSTR(nx[N-nn], nx[N-nn], 1.0, L+(N-nn), nu[N-nn], nu[N-nn], b+(N-nn-1), 0, 1.0, l+(N-nn), nu[N-nn], tmp_nuxM, 0);
 
-		GEMV_N_LIBSTR(nu[N-nn-1]+nx[N-nn-1], nx[N-nn], 1.0, BAbt+(N-nn-1), 0, 0, tmp_nuxM, 0, 1.0, rq+(N-nn-1), 0, l+(N-nn-1), 0);
+		GEMV_N_LIBSTR(nu[N-nn-1]+nx[N-nn-1], nx[N-nn], 1.0, BAbt+(N-nn-1), 0, 0, tmp_nuxM, 0, 1.0, rqz+(N-nn-1), 0, l+(N-nn-1), 0);
 
-		GEMV_T_LIBSTR(nx[N-nn-1], nu[N-nn-1], 1.0, L+(N-nn-1), nu[N-nn-1], 0, Gammab+(N-nn-2), 0, 1.0, l+(N-nn-1), 0, rq2+0, nuf);
+		GEMV_T_LIBSTR(nx[N-nn-1], nu[N-nn-1], 1.0, L+(N-nn-1), nu[N-nn-1], 0, Gammab+(N-nn-2), 0, 1.0, l+(N-nn-1), 0, rqz2+0, nuf);
 
 		nuf += nu[N-nn-1];
 
@@ -335,10 +335,10 @@ void COND_RQ_N2NX3(struct OCP_QP *ocp_qp, struct STRVEC *rq2, struct COND_QP_OCP
 
 	SYMV_L_LIBSTR(nx[N-nn], nx[N-nn], 1.0, L+(N-nn), nu[N-nn], nu[N-nn], b+(N-nn-1), 0, 1.0, l+(N-nn), nu[N-nn], tmp_nuxM, 0);
 
-	GEMV_N_LIBSTR(nu[N-nn-1]+nx[N-nn-1], nx[N-nn], 1.0, BAbt+(N-nn-1), 0, 0, tmp_nuxM, 0, 1.0, rq+(N-nn-1), 0, l+(N-nn-1), 0);
+	GEMV_N_LIBSTR(nu[N-nn-1]+nx[N-nn-1], nx[N-nn], 1.0, BAbt+(N-nn-1), 0, 0, tmp_nuxM, 0, 1.0, rqz+(N-nn-1), 0, l+(N-nn-1), 0);
 
 	// m p
-	VECCP_LIBSTR(nu[0]+nx[0], l+(N-nn-1), 0, rq2+0, nuf);
+	VECCP_LIBSTR(nu[0]+nx[0], l+(N-nn-1), 0, rqz2+0, nuf);
 
 	return;
 
@@ -346,7 +346,7 @@ void COND_RQ_N2NX3(struct OCP_QP *ocp_qp, struct STRVEC *rq2, struct COND_QP_OCP
 
 
 
-void COND_DCTD(struct OCP_QP *ocp_qp, int *idxb2, struct STRMAT *DCt2, struct STRVEC *d2, int *idxs2, struct STRVEC *Z2, struct STRVEC *z2, struct COND_QP_OCP2DENSE_ARG *cond_arg, struct COND_QP_OCP2DENSE_WORKSPACE *cond_ws)
+void COND_DCTD(struct OCP_QP *ocp_qp, int *idxb2, struct STRMAT *DCt2, struct STRVEC *d2, int *idxs2, struct STRVEC *Z2, struct STRVEC *rqz2, struct COND_QP_OCP2DENSE_ARG *cond_arg, struct COND_QP_OCP2DENSE_WORKSPACE *cond_ws)
 	{
 
 	int N = ocp_qp->dim->N;
@@ -371,7 +371,7 @@ void COND_DCTD(struct OCP_QP *ocp_qp, int *idxb2, struct STRMAT *DCt2, struct ST
 	struct STRMAT *DCt = ocp_qp->DCt;
 	int **idxs = ocp_qp->idxs;
 	struct STRVEC *Z = ocp_qp->Z;
-	struct STRVEC *z = ocp_qp->z;
+	struct STRVEC *rqz = ocp_qp->rqz;
 
 	// early return
 	if(N==0 & cond_arg->cond_last_stage==1)
@@ -380,7 +380,7 @@ void COND_DCTD(struct OCP_QP *ocp_qp, int *idxb2, struct STRMAT *DCt2, struct ST
 		GECP_LIBSTR(nu[0]+nx[0], ng[0], ocp_qp->DCt, 0, 0, DCt2, 0, 0);
 		for(ii=0; ii<nb[0]; ii++) idxb2[ii] = ocp_qp->idxb[0][ii];
 		VECCP_LIBSTR(2*ns[0], ocp_qp->Z, 0, Z2, 0);
-		VECCP_LIBSTR(2*ns[0], ocp_qp->z, 0, z2, 0);
+		VECCP_LIBSTR(2*ns[0], ocp_qp->rqz, nu[0]+nx[0], rqz2, nu[0]+nx[0]); // XXX rqz2 offset
 		for(ii=0; ii<ns[0]; ii++) idxs2[ii] = ocp_qp->idxs[0][ii];
 		return;
 		}
@@ -451,7 +451,7 @@ void COND_DCTD(struct OCP_QP *ocp_qp, int *idxb2, struct STRMAT *DCt2, struct ST
 	REAL *ptr_Z;
 	REAL *ptr_z;
 	REAL *ptr_Z2 = Z2->pa;
-	REAL *ptr_z2 = z2->pa;
+	REAL *ptr_z2 = rqz2->pa+nu2+nx2;
 
 	REAL tmp;
 	int idx_g;
@@ -460,6 +460,7 @@ void COND_DCTD(struct OCP_QP *ocp_qp, int *idxb2, struct STRMAT *DCt2, struct ST
 	nu_tmp = 0;
 	for(ii=0; ii<N; ii++)
 		{
+		nx0 = nx[N-ii];
 		nu0 = nu[N-ii];
 		nb0 = nb[N-ii];
 		ng0 = ng[N-ii];
@@ -471,7 +472,7 @@ void COND_DCTD(struct OCP_QP *ocp_qp, int *idxb2, struct STRMAT *DCt2, struct ST
 			for(jj=0; jj<ns0; jj++)
 				idxs_rev[idxs[N-ii][jj]] = jj;
 			ptr_Z = Z[N-ii].pa;
-			ptr_z = z[N-ii].pa;
+			ptr_z = rqz[N-ii].pa+nu0+nx0;
 			}
 //		int_print_mat(1, nb0+ng0, idxs_rev, 1);
 		nu_tmp += nu0;
@@ -526,6 +527,7 @@ void COND_DCTD(struct OCP_QP *ocp_qp, int *idxb2, struct STRMAT *DCt2, struct ST
 		}
 
 	// initial stage: both inputs and states as box constraints
+	nx0 = nx[0];
 	nu0 = nu[0];
 	nb0 = nb[0];
 	ng0 = ng[0];
@@ -537,7 +539,7 @@ void COND_DCTD(struct OCP_QP *ocp_qp, int *idxb2, struct STRMAT *DCt2, struct ST
 		for(jj=0; jj<ns0; jj++)
 			idxs_rev[idxs[0][jj]] = jj;
 		ptr_Z = Z[0].pa;
-		ptr_z = z[0].pa;
+		ptr_z = rqz[0].pa+nu0+nx0;
 		}
 //	int_print_mat(1, nb0+ng0, idxs_rev, 1);
 	nu_tmp += nu0;
@@ -589,7 +591,7 @@ void COND_DCTD(struct OCP_QP *ocp_qp, int *idxb2, struct STRMAT *DCt2, struct ST
 			for(jj=0; jj<ns0; jj++)
 				idxs_rev[idxs[N-ii][jj]] = jj;
 			ptr_Z = Z[N-ii].pa;
-			ptr_z = z[N-ii].pa;
+			ptr_z = rqz[N-ii].pa+nu0+nx0;
 			}
 //		int_print_mat(1, nb0+ng0, idxs_rev, 1);
 		ptr_d_ls = d[N-ii].pa+2*nb0+2*ng0;
@@ -658,7 +660,7 @@ void COND_DCTD(struct OCP_QP *ocp_qp, int *idxb2, struct STRMAT *DCt2, struct ST
 		for(jj=0; jj<ns0; jj++)
 			idxs_rev[idxs[0][jj]] = jj;
 		ptr_Z = Z[0].pa;
-		ptr_z = z[0].pa;
+		ptr_z = rqz[0].pa+nu0+nx0;
 		}
 //	int_print_mat(1, nb0+ng0, idxs_rev, 1);
 	ptr_d_ls = d[0].pa+2*nb0+2*ng0;
@@ -701,7 +703,7 @@ void COND_DCTD(struct OCP_QP *ocp_qp, int *idxb2, struct STRMAT *DCt2, struct ST
 
 
 
-void COND_D(struct OCP_QP *ocp_qp, struct STRVEC *d2, struct STRVEC *z2, struct COND_QP_OCP2DENSE_ARG *cond_arg, struct COND_QP_OCP2DENSE_WORKSPACE *cond_ws)
+void COND_D(struct OCP_QP *ocp_qp, struct STRVEC *d2, struct STRVEC *rqz2, struct COND_QP_OCP2DENSE_ARG *cond_arg, struct COND_QP_OCP2DENSE_WORKSPACE *cond_ws)
 	{
 
 	int N = ocp_qp->dim->N;
@@ -726,13 +728,13 @@ void COND_D(struct OCP_QP *ocp_qp, struct STRVEC *d2, struct STRVEC *z2, struct 
 	struct STRMAT *DCt = ocp_qp->DCt;
 	int **idxs = ocp_qp->idxs;
 	struct STRVEC *Z = ocp_qp->Z;
-	struct STRVEC *z = ocp_qp->z;
+	struct STRVEC *rqz = ocp_qp->rqz;
 
 	// early return
 	if(N==0 & cond_arg->cond_last_stage==1)
 		{
 		VECCP_LIBSTR(2*nb[0]+2*ng[0]+2*ns[0], ocp_qp->d, 0, d2, 0);
-		VECCP_LIBSTR(2*ns[0], ocp_qp->z, 0, z2, 0);
+		VECCP_LIBSTR(2*ns[0], ocp_qp->rqz, nu[0]+nx[0], rqz2, nu[0]+nx[0]); // XXX rqz2 offset
 		return;
 		}
 
@@ -797,7 +799,7 @@ void COND_D(struct OCP_QP *ocp_qp, struct STRVEC *d2, struct STRVEC *z2, struct 
 	int idxb0, idxg0;
 
 	REAL *ptr_z;
-	REAL *ptr_z2 = z2->pa;
+	REAL *ptr_z2 = rqz2->pa+nu2+nx2;
 
 	REAL tmp;
 	int idx_g;
@@ -806,6 +808,7 @@ void COND_D(struct OCP_QP *ocp_qp, struct STRVEC *d2, struct STRVEC *z2, struct 
 	nu_tmp = 0;
 	for(ii=0; ii<N; ii++)
 		{
+		nx0 = nx[N-ii];
 		nu0 = nu[N-ii];
 		nb0 = nb[N-ii];
 		ng0 = ng[N-ii];
@@ -816,7 +819,7 @@ void COND_D(struct OCP_QP *ocp_qp, struct STRVEC *d2, struct STRVEC *z2, struct 
 			{
 			for(jj=0; jj<ns0; jj++)
 				idxs_rev[idxs[N-ii][jj]] = jj;
-			ptr_z = z[N-ii].pa;
+			ptr_z = rqz[N-ii].pa+nu0+nx0;
 			}
 		nu_tmp += nu0;
 		ptr_d_lb = d[N-ii].pa+0;
@@ -862,6 +865,7 @@ void COND_D(struct OCP_QP *ocp_qp, struct STRVEC *d2, struct STRVEC *z2, struct 
 		}
 
 	// initial stage: both inputs and states as box constraints
+	nx0 = nx[0];
 	nu0 = nu[0];
 	nb0 = nb[0];
 	ng0 = ng[0];
@@ -872,7 +876,7 @@ void COND_D(struct OCP_QP *ocp_qp, struct STRVEC *d2, struct STRVEC *z2, struct 
 		{
 		for(jj=0; jj<ns0; jj++)
 			idxs_rev[idxs[0][jj]] = jj;
-		ptr_z = z[0].pa;
+		ptr_z = rqz[0].pa+nu0+nx0;
 		}
 	nu_tmp += nu0;
 	ptr_d_lb = d[0].pa+0;
@@ -918,7 +922,7 @@ void COND_D(struct OCP_QP *ocp_qp, struct STRVEC *d2, struct STRVEC *z2, struct 
 			{
 			for(jj=0; jj<ns0; jj++)
 				idxs_rev[idxs[N-ii][jj]] = jj;
-			ptr_z = z[N-ii].pa;
+			ptr_z = rqz[N-ii].pa+nu0+nx0;
 			}
 		ptr_d_ls = d[N-ii].pa+2*nb0+2*ng0;
 		ptr_d_us = d[N-ii].pa+2*nb0+2*ng0+ns0;
@@ -977,7 +981,7 @@ void COND_D(struct OCP_QP *ocp_qp, struct STRVEC *d2, struct STRVEC *z2, struct 
 		{
 		for(jj=0; jj<ns0; jj++)
 			idxs_rev[idxs[0][jj]] = jj;
-		ptr_z = z[0].pa;
+		ptr_z = rqz[0].pa+nu0+nx0;
 		}
 	ptr_d_ls = d[0].pa+2*nb0+2*ng0;
 	ptr_d_us = d[0].pa+2*nb0+2*ng0+ns0;
@@ -1034,7 +1038,7 @@ void EXPAND_SOL(struct OCP_QP *ocp_qp, struct DENSE_QP_SOL *dense_qp_sol, struct
 	struct STRVEC *b = ocp_qp->b;
 	int **idxb = ocp_qp->idxb;
 	struct STRMAT *RSQrq = ocp_qp->RSQrq;
-	struct STRVEC *rq = ocp_qp->rq;
+	struct STRVEC *rqz = ocp_qp->rqz;
 	struct STRMAT *DCt = ocp_qp->DCt;
 	int **idxs = ocp_qp->idxs;
 
@@ -1317,12 +1321,12 @@ void EXPAND_SOL(struct OCP_QP *ocp_qp, struct DENSE_QP_SOL *dense_qp_sol, struct
 		VECCP_LIBSTR(nx[Np], pic, 0, pi+Np-1, 0);
 	else
 		{
-//		SYMV_L_LIBSTR(nx[Np], nx[Np], 1.0, RSQrq+Np, nu[Np], nu[Np], ux+Np, nu[Np], 1.0, rq+Np, nu[Np], pi+Np-1, 0);
+//		SYMV_L_LIBSTR(nx[Np], nx[Np], 1.0, RSQrq+Np, nu[Np], nu[Np], ux+Np, nu[Np], 1.0, rqz+Np, nu[Np], pi+Np-1, 0);
 		ptr_lam_lb = (lam+Np)->pa+0;
 		ptr_lam_ub = (lam+Np)->pa+nb[Np]+ng[Np];
 		ptr_lam_lg = (lam+Np)->pa+nb[Np];
 		ptr_lam_ug = (lam+Np)->pa+2*nb[Np]+ng[Np];
-		VECCP_LIBSTR(nu[Np]+nx[Np], rq+(Np), 0, tmp_nuxM, 0);
+		VECCP_LIBSTR(nu[Np]+nx[Np], rqz+(Np), 0, tmp_nuxM, 0);
 		for(jj=0; jj<nb[Np]; jj++)
 			ptr_nuxM[idxb[Np][jj]] += ptr_lam_ub[jj] - ptr_lam_lb[jj];
 		SYMV_L_LIBSTR(nu[Np]+nx[Np], nu[Np]+nx[Np], 1.0, RSQrq+(Np), 0, 0, ux+(Np), 0, 1.0, tmp_nuxM, 0, tmp_nuxM, 0);
@@ -1339,7 +1343,7 @@ void EXPAND_SOL(struct OCP_QP *ocp_qp, struct DENSE_QP_SOL *dense_qp_sol, struct
 		ptr_lam_ub = (lam+Np-1-ii)->pa+nb[Np-1-ii]+ng[Np-1-ii];
 		ptr_lam_lg = (lam+Np-1-ii)->pa+nb[Np-1-ii];
 		ptr_lam_ug = (lam+Np-1-ii)->pa+2*nb[Np-1-ii]+ng[Np-1-ii];
-		VECCP_LIBSTR(nu[Np-1-ii]+nx[Np-1-ii], rq+(Np-1-ii), 0, tmp_nuxM, 0);
+		VECCP_LIBSTR(nu[Np-1-ii]+nx[Np-1-ii], rqz+(Np-1-ii), 0, tmp_nuxM, 0);
 		for(jj=0; jj<nb[Np-1-ii]; jj++)
 			ptr_nuxM[idxb[Np-1-ii][jj]] += ptr_lam_ub[jj] - ptr_lam_lb[jj];
 		SYMV_L_LIBSTR(nu[Np-1-ii]+nx[Np-1-ii], nu[Np-1-ii]+nx[Np-1-ii], 1.0, RSQrq+(Np-1-ii), 0, 0, ux+(Np-1-ii), 0, 1.0, tmp_nuxM, 0, tmp_nuxM, 0);
@@ -1378,7 +1382,7 @@ void EXPAND_PRIMAL_SOL(struct OCP_QP *ocp_qp, struct DENSE_QP_SOL *dense_qp_sol,
 	struct STRVEC *b = ocp_qp->b;
 	int **idxb = ocp_qp->idxb;
 	struct STRMAT *RSQrq = ocp_qp->RSQrq;
-	struct STRVEC *rq = ocp_qp->rq;
+	struct STRVEC *rqz = ocp_qp->rqz;
 	struct STRMAT *DCt = ocp_qp->DCt;
 	int **idxs = ocp_qp->idxs;
 
@@ -1554,7 +1558,7 @@ void UPDATE_COND_BABT(int *idxc, struct OCP_QP *ocp_qp, struct STRMAT *BAbt2, st
 
 
 // update cond assuming that dynamics change in [0,idx-1], and to remain the same in [idx,N-1]
-void UPDATE_COND_RSQRQ_N2NX3(int *idxc, struct OCP_QP *ocp_qp, struct STRMAT *RSQrq2, struct STRVEC *rq2, struct COND_QP_OCP2DENSE_ARG *cond_arg, struct COND_QP_OCP2DENSE_WORKSPACE *cond_ws)
+void UPDATE_COND_RSQRQ_N2NX3(int *idxc, struct OCP_QP *ocp_qp, struct STRMAT *RSQrq2, struct STRVEC *rqz2, struct COND_QP_OCP2DENSE_ARG *cond_arg, struct COND_QP_OCP2DENSE_WORKSPACE *cond_ws)
 	{
 
 	int N = ocp_qp->dim->N;
@@ -1589,7 +1593,7 @@ void UPDATE_COND_RSQRQ_N2NX3(int *idxc, struct OCP_QP *ocp_qp, struct STRMAT *RS
 	struct STRMAT *BAbt = ocp_qp->BAbt;
 	struct STRVEC *b = ocp_qp->b;
 	struct STRMAT *RSQrq = ocp_qp->RSQrq;
-	struct STRVEC *rq = ocp_qp->rq;
+	struct STRVEC *rqz = ocp_qp->rqz;
 
 	// extract memory members
 	struct STRMAT *Gamma = cond_ws->Gamma;
@@ -1601,7 +1605,7 @@ void UPDATE_COND_RSQRQ_N2NX3(int *idxc, struct OCP_QP *ocp_qp, struct STRMAT *RS
 	if(N==0)
 		{
 		GECP_LIBSTR(nu[0]+nx[0], nu[0]+nx[0], &RSQrq[0], 0, 0, &RSQrq2[0], 0, 0);
-		VECCP_LIBSTR(nu[0]+nx[0], &rq[0], 0, &rq2[0], 0);
+		VECCP_LIBSTR(nu[0]+nx[0], &rqz[0], 0, &rqz2[0], 0);
 		return;
 		}
 	
@@ -1622,7 +1626,7 @@ void UPDATE_COND_RSQRQ_N2NX3(int *idxc, struct OCP_QP *ocp_qp, struct STRMAT *RS
 	nub -= nu[N];
 
 	GECP_LIBSTR(nu[N]+nx[N], nu[N]+nx[N], &RSQrq[N], 0, 0, &L[N], 0, 0);
-	ROWIN_LIBSTR(nu[N]+nx[N], 1.0, &rq[N], 0, &L[N], nu[N]+nx[N], 0);
+	ROWIN_LIBSTR(nu[N]+nx[N], 1.0, &rqz[N], 0, &L[N], nu[N]+nx[N], 0);
 
 	// D
 	TRCP_L_LIBSTR(nu[N], &L[N], 0, 0, &RSQrq2[0], nuf, nuf);
@@ -1669,7 +1673,7 @@ void UPDATE_COND_RSQRQ_N2NX3(int *idxc, struct OCP_QP *ocp_qp, struct STRMAT *RS
 		TRMM_RLNN_LIBSTR(nu[N-nn-1]+nx[N-nn-1]+1, nx[N-nn], 1.0, Lx, 0, 0, &BAbt[N-nn-1], 0, 0, AL, 0, 0);
 		GEAD_LIBSTR(1, nx[N-nn], 1.0, Lx, nx[N-nn], 0, AL, nu[N-nn-1]+nx[N-nn-1], 0);
 
-		ROWIN_LIBSTR(nu[N-nn-1]+nx[N-nn-1], 1.0, &rq[N-nn-1], 0, &RSQrq[N-nn-1], nu[N-nn-1]+nx[N-nn-1], 0);
+		ROWIN_LIBSTR(nu[N-nn-1]+nx[N-nn-1], 1.0, &rqz[N-nn-1], 0, &RSQrq[N-nn-1], nu[N-nn-1]+nx[N-nn-1], 0);
 		SYRK_LN_MN_LIBSTR(nu[N-nn-1]+nx[N-nn-1]+1, nu[N-nn-1]+nx[N-nn-1], nx[N-nn], 1.0, AL, 0, 0, AL, 0, 0, 1.0, &RSQrq[N-nn-1], 0, 0, &L[N-nn-1], 0, 0);
 
 		// D
@@ -1694,9 +1698,11 @@ void UPDATE_COND_RSQRQ_N2NX3(int *idxc, struct OCP_QP *ocp_qp, struct STRMAT *RS
 #else
 	POTRF_L_MN_LIBSTR(nx[N-nn]+1, nx[N-nn], &L[N-nn], nu[N-nn], nu[N-nn], Lx, 0, 0);
 #endif
+	ROWIN_LIBSTR(nx[N-nn], 1.0, &b[N-nn-1], 0, &BAbt[N-nn-1], nu[N-nn-1]+nx[N-nn-1], 0);
 	TRMM_RLNN_LIBSTR(nu[N-nn-1]+nx[N-nn-1]+1, nx[N-nn], 1.0, Lx, 0, 0, &BAbt[N-nn-1], 0, 0, AL, 0, 0);
 	GEAD_LIBSTR(1, nx[N-nn], 1.0, Lx, nx[N-nn], 0, AL, nu[N-nn-1]+nx[N-nn-1], 0);
 
+	ROWIN_LIBSTR(nu[N-nn-1]+nx[N-nn-1], 1.0, &rqz[N-nn-1], 0, &RSQrq[N-nn-1], nu[N-nn-1]+nx[N-nn-1], 0);
 	SYRK_LN_MN_LIBSTR(nu[N-nn-1]+nx[N-nn-1]+1, nu[N-nn-1]+nx[N-nn-1], nx[N-nn], 1.0, AL, 0, 0, AL, 0, 0, 1.0, &RSQrq[N-nn-1], 0, 0, &L[N-nn-1], 0, 0);
 
 	// D, M, m, P, p
@@ -1704,7 +1710,7 @@ void UPDATE_COND_RSQRQ_N2NX3(int *idxc, struct OCP_QP *ocp_qp, struct STRMAT *RS
 	TRCP_L_LIBSTR(nu[0]+nx[0], &L[N-nn-1], 0, 0, &RSQrq2[0], nuf, nuf); // TODO dtrcp for 'rectangular' matrices
 	GECP_LIBSTR(1, nu[0]+nx[0], &L[N-nn-1], nu[0]+nx[0], 0, &RSQrq2[0], nuf+nu[0]+nx[0], nuf); // TODO dtrcp for 'rectangular' matrices
 	// m p
-	ROWEX_LIBSTR(nu2+nx[0], 1.0, &RSQrq2[0], nu2+nx[0], 0, &rq2[0], 0);
+	ROWEX_LIBSTR(nu2+nx[0], 1.0, &RSQrq2[0], nu2+nx[0], 0, &rqz2[0], 0);
 
 	return;
 
@@ -1713,7 +1719,7 @@ void UPDATE_COND_RSQRQ_N2NX3(int *idxc, struct OCP_QP *ocp_qp, struct STRMAT *RS
 
 
 // TODO
-void UPDATE_COND_DCTD(int *idxc, struct OCP_QP *ocp_qp, int *idxb2, struct STRMAT *DCt2, struct STRVEC *d2, int *idxs2, struct STRVEC *Z2, struct STRVEC *z2, struct COND_QP_OCP2DENSE_ARG *cond_arg, struct COND_QP_OCP2DENSE_WORKSPACE *cond_ws)
+void UPDATE_COND_DCTD(int *idxc, struct OCP_QP *ocp_qp, int *idxb2, struct STRMAT *DCt2, struct STRVEC *d2, int *idxs2, struct STRVEC *Z2, struct STRVEC *rqz2, struct COND_QP_OCP2DENSE_ARG *cond_arg, struct COND_QP_OCP2DENSE_WORKSPACE *cond_ws)
 	{
 
 	int N = ocp_qp->dim->N;
@@ -1753,7 +1759,7 @@ void UPDATE_COND_DCTD(int *idxc, struct OCP_QP *ocp_qp, int *idxb2, struct STRMA
 	struct STRMAT *DCt = ocp_qp->DCt;
 	int **idxs = ocp_qp->idxs;
 	struct STRVEC *Z = ocp_qp->Z;
-	struct STRVEC *z = ocp_qp->z;
+	struct STRVEC *rqz = ocp_qp->rqz;
 
 	// early return
 	if(N==0 & cond_arg->cond_last_stage==1)
@@ -1762,7 +1768,7 @@ void UPDATE_COND_DCTD(int *idxc, struct OCP_QP *ocp_qp, int *idxb2, struct STRMA
 		GECP_LIBSTR(nu[0]+nx[0], ng[0], ocp_qp->DCt, 0, 0, DCt2, 0, 0);
 		for(ii=0; ii<nb[0]; ii++) idxb2[ii] = ocp_qp->idxb[0][ii];
 		VECCP_LIBSTR(2*ns[0], ocp_qp->Z, 0, Z2, 0);
-		VECCP_LIBSTR(2*ns[0], ocp_qp->z, 0, z2, 0);
+		VECCP_LIBSTR(2*ns[0], ocp_qp->rqz, nu[0]+nx[0], rqz2, nu[0]+nx[0]); // XXX rqz2 offset
 		for(ii=0; ii<ns[0]; ii++) idxs2[ii] = ocp_qp->idxs[0][ii];
 		return;
 		}
@@ -1833,7 +1839,7 @@ void UPDATE_COND_DCTD(int *idxc, struct OCP_QP *ocp_qp, int *idxb2, struct STRMA
 	REAL *ptr_Z;
 	REAL *ptr_z;
 	REAL *ptr_Z2 = Z2->pa;
-	REAL *ptr_z2 = z2->pa;
+	REAL *ptr_z2 = rqz2->pa+nu2+nx2;
 
 	REAL tmp;
 	int idx_g;
@@ -1842,6 +1848,7 @@ void UPDATE_COND_DCTD(int *idxc, struct OCP_QP *ocp_qp, int *idxb2, struct STRMA
 	nu_tmp = 0;
 	for(ii=0; ii<N; ii++)
 		{
+		nx0 = nx[N-ii];
 		nu0 = nu[N-ii];
 		nb0 = nb[N-ii];
 		ng0 = ng[N-ii];
@@ -1853,7 +1860,7 @@ void UPDATE_COND_DCTD(int *idxc, struct OCP_QP *ocp_qp, int *idxb2, struct STRMA
 			for(jj=0; jj<ns0; jj++)
 				idxs_rev[idxs[N-ii][jj]] = jj;
 			ptr_Z = Z[N-ii].pa;
-			ptr_z = z[N-ii].pa;
+			ptr_z = rqz[N-ii].pa+nu0+nx0;
 			}
 //		int_print_mat(1, nb0+ng0, idxs_rev, 1);
 		nu_tmp += nu0;
@@ -1908,6 +1915,7 @@ void UPDATE_COND_DCTD(int *idxc, struct OCP_QP *ocp_qp, int *idxb2, struct STRMA
 		}
 
 	// initial stage: both inputs and states as box constraints
+	nx0 = nx[0];
 	nu0 = nu[0];
 	nb0 = nb[0];
 	ng0 = ng[0];
@@ -1919,7 +1927,7 @@ void UPDATE_COND_DCTD(int *idxc, struct OCP_QP *ocp_qp, int *idxb2, struct STRMA
 		for(jj=0; jj<ns0; jj++)
 			idxs_rev[idxs[0][jj]] = jj;
 		ptr_Z = Z[0].pa;
-		ptr_z = z[0].pa;
+		ptr_z = rqz[0].pa+nu0+nx0;
 		}
 //	int_print_mat(1, nb0+ng0, idxs_rev, 1);
 	nu_tmp += nu0;
@@ -1971,7 +1979,7 @@ void UPDATE_COND_DCTD(int *idxc, struct OCP_QP *ocp_qp, int *idxb2, struct STRMA
 			for(jj=0; jj<ns0; jj++)
 				idxs_rev[idxs[N-ii][jj]] = jj;
 			ptr_Z = Z[N-ii].pa;
-			ptr_z = z[N-ii].pa;
+			ptr_z = rqz[N-ii].pa+nu0+nx0;
 			}
 //		int_print_mat(1, nb0+ng0, idxs_rev, 1);
 		ptr_d_ls = d[N-ii].pa+2*nb0+2*ng0;
@@ -2040,7 +2048,7 @@ void UPDATE_COND_DCTD(int *idxc, struct OCP_QP *ocp_qp, int *idxb2, struct STRMA
 		for(jj=0; jj<ns0; jj++)
 			idxs_rev[idxs[0][jj]] = jj;
 		ptr_Z = Z[0].pa;
-		ptr_z = z[0].pa;
+		ptr_z = rqz[0].pa+nu0+nx0;
 		}
 //	int_print_mat(1, nb0+ng0, idxs_rev, 1);
 	ptr_d_ls = d[0].pa+2*nb0+2*ng0;

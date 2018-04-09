@@ -52,12 +52,11 @@ struct s_dense_qp
 	struct blasfeo_smat *Hv; // hessian & gradient
 	struct blasfeo_smat *A; // dynamics matrix
 	struct blasfeo_smat *Ct; // constraints matrix
-	struct blasfeo_svec *g; // gradient
+	struct blasfeo_svec *gz; // gradient & gradient of slacks
 	struct blasfeo_svec *b; // dynamics vector
 	struct blasfeo_svec *d; // constraints vector
 	struct blasfeo_svec *m; // rhs of complementarity condition
 	struct blasfeo_svec *Z; // (diagonal) hessian of slacks
-	struct blasfeo_svec *z; // gradient of slacks
 	int *idxb; // index of box constraints
 	int *idxs; // index of soft constraints
 	int memsize; // memory size in bytes

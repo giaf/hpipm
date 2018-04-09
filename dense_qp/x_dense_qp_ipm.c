@@ -365,10 +365,6 @@ int SOLVE_DENSE_QP_IPM(struct DENSE_QP *qp, struct DENSE_QP_SOL *qp_sol, struct 
 	int ng = qp->dim->ng;
 	int ns = qp->dim->ns;
 
-	// XXX temporary fix for iterative refinement
-	struct STRVEC z_tmp0 = qp->z[0];
-	struct STRVEC z_tmp1 = qp->z[0];
-
 	// alias qp vectors into qp_sol
 	cws->v = qp_sol->v->pa;
 	cws->pi = qp_sol->pi->pa;
@@ -383,12 +379,10 @@ int SOLVE_DENSE_QP_IPM(struct DENSE_QP *qp, struct DENSE_QP_SOL *qp_sol, struct 
 	ws->qp_step->Z = qp->Z;
 	ws->qp_step->idxb = qp->idxb;
 	ws->qp_step->idxs = qp->idxs;
-	ws->qp_step->g = ws->res->res_g;
+	ws->qp_step->gz = ws->res->res_g;
 	ws->qp_step->b = ws->res->res_b;
 	ws->qp_step->d = ws->res->res_d;
 	ws->qp_step->m = ws->res->res_m;
-	z_tmp0.pa = ws->res->res_g->pa+nv; // XXX tmp fix
-	ws->qp_step->z = &z_tmp0; // XXX tmp fix
 
 	// alias members of qp_itref
 	ws->qp_itref->dim = qp->dim;
@@ -398,12 +392,10 @@ int SOLVE_DENSE_QP_IPM(struct DENSE_QP *qp, struct DENSE_QP_SOL *qp_sol, struct 
 	ws->qp_itref->Z = qp->Z;
 	ws->qp_itref->idxb = qp->idxb;
 	ws->qp_itref->idxs = qp->idxs;
-	ws->qp_itref->g = ws->res_itref->res_g;
+	ws->qp_itref->gz = ws->res_itref->res_g;
 	ws->qp_itref->b = ws->res_itref->res_b;
 	ws->qp_itref->d = ws->res_itref->res_d;
 	ws->qp_itref->m = ws->res_itref->res_m;
-	z_tmp1.pa = ws->res_itref->res_g->pa+nv; // XXX tmp fix
-	ws->qp_itref->z = &z_tmp1; // XXX tmp fix
 
 	// no constraints
 	if(cws->nc==0)

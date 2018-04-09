@@ -761,7 +761,7 @@ int main()
 	blasfeo_print_dmat(nvc, nvc, dense_qp.Hv, 0, 0);
 	blasfeo_print_dmat(nec, nvc, dense_qp.A, 0, 0);
 	blasfeo_print_dmat(nvc, ngc, dense_qp.Ct, 0, 0);
-	blasfeo_print_tran_dvec(nvc, dense_qp.g, 0);
+	blasfeo_print_tran_dvec(nvc, dense_qp.gz, 0);
 	blasfeo_print_tran_dvec(nec, dense_qp.b, 0);
 	blasfeo_print_tran_dvec(2*nbc+2*ngc+2*nsc, dense_qp.d, 0);
 	blasfeo_print_tran_dvec(nbc, dense_qp.d, 0);
@@ -772,8 +772,8 @@ int main()
 	blasfeo_print_tran_dvec(nsc, dense_qp.d, 2*nbc+2*ngc+nsc);
 	blasfeo_print_tran_dvec(nsc, dense_qp.Z, 0);
 	blasfeo_print_tran_dvec(nsc, dense_qp.Z, nsc);
-	blasfeo_print_tran_dvec(nsc, dense_qp.z, 0);
-	blasfeo_print_tran_dvec(nsc, dense_qp.z, nsc);
+	blasfeo_print_tran_dvec(nsc, dense_qp.gz, nvc);
+	blasfeo_print_tran_dvec(nsc, dense_qp.gz, nvc+nsc);
 #endif
 
 	/* update cond */
@@ -799,16 +799,22 @@ int main()
 
 #if 1
 	printf("\nupdate cond data\n\n");
-	blasfeo_print_dmat(nvc+1, nvc, dense_qp.Hv, 0, 0); // TODO remove +1
+	blasfeo_print_dmat(nvc, nvc, dense_qp.Hv, 0, 0);
 	blasfeo_print_dmat(nec, nvc, dense_qp.A, 0, 0);
 	blasfeo_print_dmat(nvc, ngc, dense_qp.Ct, 0, 0);
-	blasfeo_print_tran_dvec(nvc, dense_qp.g, 0);
+	blasfeo_print_tran_dvec(nvc, dense_qp.gz, 0);
 	blasfeo_print_tran_dvec(nec, dense_qp.b, 0);
-	blasfeo_print_tran_dvec(2*nbc+2*ngc, dense_qp.d, 0);
+	blasfeo_print_tran_dvec(2*nbc+2*ngc+2*nsc, dense_qp.d, 0);
 	blasfeo_print_tran_dvec(nbc, dense_qp.d, 0);
 	blasfeo_print_tran_dvec(nbc, dense_qp.d, nbc+ngc);
 	blasfeo_print_tran_dvec(ngc, dense_qp.d, nbc);
 	blasfeo_print_tran_dvec(ngc, dense_qp.d, 2*nbc+ngc);
+	blasfeo_print_tran_dvec(nsc, dense_qp.d, 2*nbc+2*ngc);
+	blasfeo_print_tran_dvec(nsc, dense_qp.d, 2*nbc+2*ngc+nsc);
+	blasfeo_print_tran_dvec(nsc, dense_qp.Z, 0);
+	blasfeo_print_tran_dvec(nsc, dense_qp.Z, nsc);
+	blasfeo_print_tran_dvec(nsc, dense_qp.gz, nvc);
+	blasfeo_print_tran_dvec(nsc, dense_qp.gz, nvc+nsc);
 #endif
 //return 0;
 
@@ -827,7 +833,7 @@ int main()
 
 #if 1
 	printf("\ncond rhs data\n\n");
-	blasfeo_print_tran_dvec(nvc, dense_qp.g, 0);
+	blasfeo_print_tran_dvec(nvc, dense_qp.gz, 0);
 	blasfeo_print_tran_dvec(nec, dense_qp.b, 0);
 	blasfeo_print_tran_dvec(2*nbc+2*ngc+2*nsc, dense_qp.d, 0);
 	blasfeo_print_tran_dvec(nbc, dense_qp.d, 0);
@@ -838,8 +844,8 @@ int main()
 	blasfeo_print_tran_dvec(nsc, dense_qp.d, 2*nbc+2*ngc+nsc);
 	blasfeo_print_tran_dvec(nsc, dense_qp.Z, 0);
 	blasfeo_print_tran_dvec(nsc, dense_qp.Z, nsc);
-	blasfeo_print_tran_dvec(nsc, dense_qp.z, 0);
-	blasfeo_print_tran_dvec(nsc, dense_qp.z, nsc);
+	blasfeo_print_tran_dvec(nsc, dense_qp.gz, nvc);
+	blasfeo_print_tran_dvec(nsc, dense_qp.gz, nvc+nsc);
 #endif
 
 #if 0

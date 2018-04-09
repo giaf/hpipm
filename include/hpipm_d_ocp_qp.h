@@ -49,11 +49,10 @@ struct d_ocp_qp
 	struct blasfeo_dmat *BAbt;
 	struct blasfeo_dvec *b;
 	struct blasfeo_dmat *RSQrq;
-	struct blasfeo_dvec *rq;
+	struct blasfeo_dvec *rqz;
 	struct blasfeo_dmat *DCt;
 	struct blasfeo_dvec *d;
 	struct blasfeo_dvec *Z;
-	struct blasfeo_dvec *z;
 	int **idxb; // index of box constraints
 	int **idxs; // index of soft constraints
 	int memsize; // memory size in bytes

@@ -48,15 +48,14 @@ extern "C" {
 struct d_dense_qp
 	{
 	struct d_dense_qp_dim *dim;
-	struct blasfeo_dmat *Hv; // hessian & gradient
+	struct blasfeo_dmat *Hv; // hessian & vector work space
 	struct blasfeo_dmat *A; // equality constraint matrix
 	struct blasfeo_dmat *Ct; // inequality constraints matrix
-	struct blasfeo_dvec *g; // gradient
+	struct blasfeo_dvec *gz; // gradient & gradient of slacks
 	struct blasfeo_dvec *b; // equality constraint vector
 	struct blasfeo_dvec *d; // inequality constraints vector
 	struct blasfeo_dvec *m; // rhs of complementarity condition
 	struct blasfeo_dvec *Z; // (diagonal) hessian of slacks
-	struct blasfeo_dvec *z; // gradient of slacks
 	int *idxb; // index of box constraints
 	int *idxs; // index of soft constraints
 	int memsize; // memory size in bytes
