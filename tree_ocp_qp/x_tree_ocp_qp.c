@@ -43,10 +43,12 @@ int MEMSIZE_TREE_OCP_QP(struct TREE_OCP_QP_DIM *dim)
 
 	int nbt = 0;
 	int ngt = 0;
+	int nst = 0;
 	for(ii=0; ii<Nn; ii++)
 		{
 		nbt += nb[ii];
 		ngt += ng[ii];
+		nst += ns[ii];
 		}
 
 	int size = 0;
@@ -54,7 +56,7 @@ int MEMSIZE_TREE_OCP_QP(struct TREE_OCP_QP_DIM *dim)
 	size += 2*Nn*sizeof(int *); // idxb inxbs
 	size += 2*Nn*sizeof(struct STRMAT); // RSQrq DCt
 	size += 1*(Nn-1)*sizeof(struct STRMAT); // BAbt
-	size += 4*Nn*sizeof(struct STRVEC); // rq d Z z
+	size += 3*Nn*sizeof(struct STRVEC); // rqz d Z
 	size += 1*(Nn-1)*sizeof(struct STRVEC); // b
 
 	for(ii=0; ii<Nn-1; ii++)
@@ -70,12 +72,12 @@ int MEMSIZE_TREE_OCP_QP(struct TREE_OCP_QP_DIM *dim)
 		size += nb[ii]*sizeof(int); // idxb
 		size += ns[ii]*sizeof(int); // idxs
 		size += SIZE_STRMAT(nu[ii]+nx[ii]+1, nu[ii]+nx[ii]); // RSQrq
-		size += SIZE_STRVEC(nu[ii]+nx[ii]); // rq
+		size += SIZE_STRVEC(nu[ii]+nx[ii]+2*ns[ii]); // rqz
 		size += SIZE_STRMAT(nu[ii]+nx[ii], ng[ii]); // DCt
-		size += 2*SIZE_STRVEC(2*ns[ii]); // Z z
+		size += SIZE_STRVEC(2*ns[ii]); // Z
 		}
 	
-	size += 1*SIZE_STRVEC(2*nbt+2*ngt); // d
+	size += 1*SIZE_STRVEC(2*nbt+2*ngt+2*nst); // d
 
 	size = (size+63)/64*64; // make multiple of typical cache line size
 	size += 64; // align to typical cache line size
@@ -104,10 +106,12 @@ void CREATE_TREE_OCP_QP(struct TREE_OCP_QP_DIM *dim, struct TREE_OCP_QP *qp, voi
 
 	int nbt = 0;
 	int ngt = 0;
+	int nst = 0;
 	for(ii=0; ii<Nn; ii++)
 		{
 		nbt += nb[ii];
 		ngt += ng[ii];
+		nst += ns[ii];
 		}
 
 
@@ -147,8 +151,8 @@ void CREATE_TREE_OCP_QP(struct TREE_OCP_QP_DIM *dim, struct TREE_OCP_QP *qp, voi
 	qp->b = sv_ptr;
 	sv_ptr += Nn-1;
 
-	// rq
-	qp->rq = sv_ptr;
+	// rqz
+	qp->rqz = sv_ptr;
 	sv_ptr += Nn;
 
 	// d
@@ -157,10 +161,6 @@ void CREATE_TREE_OCP_QP(struct TREE_OCP_QP_DIM *dim, struct TREE_OCP_QP *qp, voi
 
 	// Z
 	qp->Z = sv_ptr;
-	sv_ptr += Nn;
-
-	// z
-	qp->z = sv_ptr;
 	sv_ptr += Nn;
 
 
@@ -223,11 +223,11 @@ void CREATE_TREE_OCP_QP(struct TREE_OCP_QP_DIM *dim, struct TREE_OCP_QP *qp, voi
 		c_ptr += (qp->b+ii)->memsize;
 		}
 
-	// rq
+	// rqz
 	for(ii=0; ii<Nn; ii++)
 		{
-		CREATE_STRVEC(nu[ii]+nx[ii], qp->rq+ii, c_ptr);
-		c_ptr += (qp->rq+ii)->memsize;
+		CREATE_STRVEC(nu[ii]+nx[ii]+2*ns[ii], qp->rqz+ii, c_ptr);
+		c_ptr += (qp->rqz+ii)->memsize;
 		}
 
 	// Z
@@ -237,23 +237,18 @@ void CREATE_TREE_OCP_QP(struct TREE_OCP_QP_DIM *dim, struct TREE_OCP_QP *qp, voi
 		c_ptr += (qp->Z+ii)->memsize;
 		}
 
-	// z
-	for(ii=0; ii<Nn; ii++)
-		{
-		CREATE_STRVEC(2*ns[ii], qp->z+ii, c_ptr);
-		c_ptr += (qp->z+ii)->memsize;
-		}
-
 	// d
 	tmp_ptr = c_ptr;
-	c_ptr += SIZE_STRVEC(2*nbt+2*ngt);
+	c_ptr += SIZE_STRVEC(2*nbt+2*ngt+2*nst);
 	for(ii=0; ii<Nn; ii++)
 		{
-		CREATE_STRVEC(2*nb[ii]+2*ng[ii], qp->d+ii, tmp_ptr);
+		CREATE_STRVEC(2*nb[ii]+2*ng[ii]+2*ns[ii], qp->d+ii, tmp_ptr);
 		tmp_ptr += nb[ii]*sizeof(REAL);
 		tmp_ptr += ng[ii]*sizeof(REAL);
 		tmp_ptr += nb[ii]*sizeof(REAL);
 		tmp_ptr += ng[ii]*sizeof(REAL);
+		tmp_ptr += ns[ii]*sizeof(REAL);
+		tmp_ptr += ns[ii]*sizeof(REAL);
 		}
 
 	qp->dim = dim;
@@ -276,7 +271,7 @@ void CREATE_TREE_OCP_QP(struct TREE_OCP_QP_DIM *dim, struct TREE_OCP_QP *qp, voi
 
 
 
-void CVT_COLMAJ_TO_TREE_OCP_QP(REAL **A, REAL **B, REAL **b, REAL **Q, REAL **S, REAL **R, REAL **q, REAL **r, int **idxb, REAL **d_lb, REAL **d_ub, REAL **C, REAL **D, REAL **d_lg, REAL **d_ug, REAL **Zl, REAL **Zu, REAL **zl, REAL **zu, int **idxs, struct TREE_OCP_QP *qp)
+void CVT_COLMAJ_TO_TREE_OCP_QP(REAL **A, REAL **B, REAL **b, REAL **Q, REAL **S, REAL **R, REAL **q, REAL **r, int **idxb, REAL **d_lb, REAL **d_ub, REAL **C, REAL **D, REAL **d_lg, REAL **d_ug, REAL **Zl, REAL **Zu, REAL **zl, REAL **zu, int **idxs, REAL **d_ls, REAL **d_us, struct TREE_OCP_QP *qp)
 	{
 
 	int Nn = qp->dim->Nn;
@@ -307,8 +302,8 @@ void CVT_COLMAJ_TO_TREE_OCP_QP(REAL **A, REAL **B, REAL **b, REAL **Q, REAL **S,
 		CVT_MAT2STRMAT(nx[ii], nx[ii], Q[ii], nx[ii], qp->RSQrq+ii, nu[ii], nu[ii]);
 		CVT_TRAN_MAT2STRMAT(nu[ii], 1, r[ii], nu[ii], qp->RSQrq+ii, nu[ii]+nx[ii], 0);
 		CVT_TRAN_MAT2STRMAT(nx[ii], 1, q[ii], nx[ii], qp->RSQrq+ii, nu[ii]+nx[ii], nu[ii]);
-		CVT_VEC2STRVEC(nu[ii], r[ii], qp->rq+ii, 0);
-		CVT_VEC2STRVEC(nx[ii], q[ii], qp->rq+ii, nu[ii]);
+		CVT_VEC2STRVEC(nu[ii], r[ii], qp->rqz+ii, 0);
+		CVT_VEC2STRVEC(nx[ii], q[ii], qp->rqz+ii, nu[ii]);
 		}
 	
 	for(ii=0; ii<Nn; ii++)
@@ -343,8 +338,10 @@ void CVT_COLMAJ_TO_TREE_OCP_QP(REAL **A, REAL **B, REAL **b, REAL **Q, REAL **S,
 				qp->idxs[ii][jj] = idxs[ii][jj];
 			CVT_VEC2STRVEC(ns[ii], Zl[ii], qp->Z+ii, 0);
 			CVT_VEC2STRVEC(ns[ii], Zu[ii], qp->Z+ii, ns[ii]);
-			CVT_VEC2STRVEC(ns[ii], zl[ii], qp->z+ii, 0);
-			CVT_VEC2STRVEC(ns[ii], zu[ii], qp->z+ii, ns[ii]);
+			CVT_VEC2STRVEC(ns[ii], zl[ii], qp->rqz+ii, nu[ii]+nx[ii]);
+			CVT_VEC2STRVEC(ns[ii], zu[ii], qp->rqz+ii, nu[ii]+nx[ii]+ns[ii]);
+			CVT_VEC2STRVEC(ns[ii], d_ls[ii], qp->d+ii, 2*nb[ii]+2*ng[ii]);
+			CVT_VEC2STRVEC(ns[ii], d_us[ii], qp->d+ii, 2*nb[ii]+2*ng[ii]+ns[ii]);
 			}
 		}
 

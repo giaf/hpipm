@@ -49,11 +49,10 @@ struct s_tree_ocp_qp
 	struct blasfeo_smat *BAbt; // Nn-1
 	struct blasfeo_svec *b; // Nn-1
 	struct blasfeo_smat *RSQrq; // Nn
-	struct blasfeo_svec *rq; // Nn
+	struct blasfeo_svec *rqz; // Nn
 	struct blasfeo_smat *DCt; // Nn
 	struct blasfeo_svec *d; // Nn
 	struct blasfeo_svec *Z; // Nn
-	struct blasfeo_svec *z; // Nn
 	int **idxb; // index of box constraints // Nn
 	int **idxs; // index of soft constraints
 	int memsize; // memory size in bytes
@@ -66,7 +65,7 @@ int s_memsize_tree_ocp_qp(struct s_tree_ocp_qp_dim *dim);
 //
 void s_create_tree_ocp_qp(struct s_tree_ocp_qp_dim *dim, struct s_tree_ocp_qp *qp, void *memory);
 //
-void s_cvt_colmaj_to_tree_ocp_qp(float **A, float **B, float **b, float **Q, float **S, float **R, float **q, float **r, int **idxb, float **d_lb, float **d_ub, float **C, float **D, float **d_lg, float **d_ug, float **Zl, float **Zu, float **zl, float **zu, int **idxs, struct s_tree_ocp_qp *qp);
+void s_cvt_colmaj_to_tree_ocp_qp(float **A, float **B, float **b, float **Q, float **S, float **R, float **q, float **r, int **idxb, float **d_lb, float **d_ub, float **C, float **D, float **d_lg, float **d_ug, float **Zl, float **Zu, float **zl, float **zu, int **idxs, float **d_ls, float **d_us, struct s_tree_ocp_qp *qp);
 
 
 
