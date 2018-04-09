@@ -731,7 +731,7 @@ void COND_D(struct OCP_QP *ocp_qp, struct STRVEC *d2, struct STRVEC *z2, struct 
 	// early return
 	if(N==0 & cond_arg->cond_last_stage==1)
 		{
-		VECCP_LIBSTR(2*nb[0]+2*ng[0], ocp_qp->d, 0, d2, 0);
+		VECCP_LIBSTR(2*nb[0]+2*ng[0]+2*ns[0], ocp_qp->d, 0, d2, 0);
 		VECCP_LIBSTR(2*ns[0], ocp_qp->z, 0, z2, 0);
 		return;
 		}
