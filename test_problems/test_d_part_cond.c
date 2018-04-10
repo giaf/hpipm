@@ -160,7 +160,7 @@ int main()
 
 	int nx_ = 8; // number of states (it has to be even for the mass-spring system test problem)
 	int nu_ = 3; // number of inputs (controllers) (it has to be at least 1 and at most nx/2 for the mass-spring system test problem)
-	int N  = 5; // horizon lenght
+	int N  = 8; // horizon lenght
 
 
 
@@ -208,8 +208,8 @@ int main()
 	int ns[N+1];
 	ns[0] = 0;
 	for(ii=1; ii<N; ii++)
-		ns[ii] = 0;//nx[ii]/2;
-	ns[N] = 0;//nx[N]/2;
+		ns[ii] = nx[ii]/2;
+	ns[N] = nx[N]/2;
 #elif 0
 	int nb[N+1];
 	nb[0] = 0;
@@ -259,7 +259,7 @@ int main()
 	mass_spring_system(Ts, nx_, nu_, N, A, B, b, x0);
 
 	for(jj=0; jj<nx_; jj++)
-		b[jj] = 0.1;
+		b[jj] = 0.0;
 
 	for(jj=0; jj<nx_; jj++)
 		x0[jj] = 0;
@@ -283,7 +283,7 @@ int main()
 ************************************************/
 
 	double *Q; d_zeros(&Q, nx_, nx_);
-	for(ii=0; ii<nx_; ii++) Q[ii*(nx_+1)] = 1.0;
+	for(ii=0; ii<nx_; ii++) Q[ii*(nx_+1)] = 0.0;
 
 	double *R; d_zeros(&R, nu_, nu_);
 	for(ii=0; ii<nu_; ii++) R[ii*(nu_+1)] = 2.0;
@@ -291,10 +291,10 @@ int main()
 	double *S; d_zeros(&S, nu_, nx_);
 
 	double *q; d_zeros(&q, nx_, 1);
-	for(ii=0; ii<nx_; ii++) q[ii] = 0.1;
+	for(ii=0; ii<nx_; ii++) q[ii] = 0.0;
 
 	double *r; d_zeros(&r, nu_, 1);
-	for(ii=0; ii<nu_; ii++) r[ii] = 0.2;
+	for(ii=0; ii<nu_; ii++) r[ii] = 0.0;
 
 	double *r0; d_zeros(&r0, nu_, 1);
 	dgemv_n_3l(nu_, nx_, S, nu_, x0, r0);
@@ -310,7 +310,12 @@ int main()
 #endif
 
 	// maximum element in cost functions
-	double mu0 = 2.0;
+	double mu0;
+	if(ns[1]>0 | ns[N]>0)
+		mu0 = 1000.0;
+	else
+		mu0 = 2.0;
+
 
 /************************************************
 * box & general constraints
@@ -363,8 +368,8 @@ int main()
 			}
 		else // state
 			{
-			d_lb1[ii] = - 4.0; // xmin
-			d_ub1[ii] =   4.0; // xmax
+			d_lb1[ii] = - 1.0; // xmin
+			d_ub1[ii] =   1.0; // xmax
 			}
 		idxb1[ii] = ii;
 		}
@@ -390,8 +395,8 @@ int main()
 	double *d_ugN; d_zeros(&d_ugN, ng[N], 1);
 	for(ii=0; ii<nb[N]; ii++)
 		{
-		d_lbN[ii] = - 4.0; // xmin
-		d_ubN[ii] =   4.0; // xmax
+		d_lbN[ii] = - 1.0; // xmin
+		d_ubN[ii] =   1.0; // xmax
 		idxbN[ii] = ii;
 		}
 	for(ii=0; ii<ng[N]; ii++)
@@ -459,13 +464,19 @@ int main()
 		Zu0[ii] = 1e3;
 	double *zl0; d_zeros(&zl0, ns[0], 1);
 	for(ii=0; ii<ns[0]; ii++)
-		zl0[ii] = 1e2;
+		zl0[ii] = 0e2;
 	double *zu0; d_zeros(&zu0, ns[0], 1);
 	for(ii=0; ii<ns[0]; ii++)
 		zu0[ii] = 1e2;
 	int *idxs0; int_zeros(&idxs0, ns[0], 1);
 	for(ii=0; ii<ns[0]; ii++)
 		idxs0[ii] = nu[0]+ii;
+	double *d_ls0; d_zeros(&d_ls0, ns[0], 1);
+	for(ii=0; ii<ns[0]; ii++)
+		d_ls0[ii] = -1.0;
+	double *d_us0; d_zeros(&d_us0, ns[0], 1);
+	for(ii=0; ii<ns[0]; ii++)
+		d_us0[ii] = 0.0;
 
 	double *Zl1; d_zeros(&Zl1, ns[1], 1);
 	for(ii=0; ii<ns[1]; ii++)
@@ -475,13 +486,19 @@ int main()
 		Zu1[ii] = 1e3;
 	double *zl1; d_zeros(&zl1, ns[1], 1);
 	for(ii=0; ii<ns[1]; ii++)
-		zl1[ii] = 1e2;
+		zl1[ii] = 0e2;
 	double *zu1; d_zeros(&zu1, ns[1], 1);
 	for(ii=0; ii<ns[1]; ii++)
 		zu1[ii] = 1e2;
 	int *idxs1; int_zeros(&idxs1, ns[1], 1);
 	for(ii=0; ii<ns[1]; ii++)
 		idxs1[ii] = nu[1]+ii;
+	double *d_ls1; d_zeros(&d_ls1, ns[1], 1);
+	for(ii=0; ii<ns[1]; ii++)
+		d_ls1[ii] = -1.0;
+	double *d_us1; d_zeros(&d_us1, ns[1], 1);
+	for(ii=0; ii<ns[1]; ii++)
+		d_us1[ii] = 0.0;
 
 	double *ZlN; d_zeros(&ZlN, ns[N], 1);
 	for(ii=0; ii<ns[N]; ii++)
@@ -491,13 +508,19 @@ int main()
 		ZuN[ii] = 1e3;
 	double *zlN; d_zeros(&zlN, ns[N], 1);
 	for(ii=0; ii<ns[N]; ii++)
-		zlN[ii] = 1e2;
+		zlN[ii] = 0e2;
 	double *zuN; d_zeros(&zuN, ns[N], 1);
 	for(ii=0; ii<ns[N]; ii++)
 		zuN[ii] = 1e2;
 	int *idxsN; int_zeros(&idxsN, ns[N], 1);
 	for(ii=0; ii<ns[N]; ii++)
 		idxsN[ii] = nu[N]+ii;
+	double *d_lsN; d_zeros(&d_lsN, ns[N], 1);
+	for(ii=0; ii<ns[N]; ii++)
+		d_lsN[ii] = -1.0;
+	double *d_usN; d_zeros(&d_usN, ns[N], 1);
+	for(ii=0; ii<ns[N]; ii++)
+		d_usN[ii] = 0.0;
 
 #if 1
 	// soft constraints
@@ -506,16 +529,22 @@ int main()
 	d_print_mat(1, ns[0], Zu0, 1);
 	d_print_mat(1, ns[0], zl0, 1);
 	d_print_mat(1, ns[0], zu0, 1);
+	d_print_mat(1, ns[0], d_ls0, 1);
+	d_print_mat(1, ns[0], d_us0, 1);
 	int_print_mat(1, ns[1], idxs1, 1);
 	d_print_mat(1, ns[1], Zl1, 1);
 	d_print_mat(1, ns[1], Zu1, 1);
 	d_print_mat(1, ns[1], zl1, 1);
 	d_print_mat(1, ns[1], zu1, 1);
+	d_print_mat(1, ns[1], d_ls1, 1);
+	d_print_mat(1, ns[1], d_us1, 1);
 	int_print_mat(1, ns[N], idxsN, 1);
 	d_print_mat(1, ns[N], ZlN, 1);
 	d_print_mat(1, ns[N], ZuN, 1);
 	d_print_mat(1, ns[N], zlN, 1);
 	d_print_mat(1, ns[N], zuN, 1);
+	d_print_mat(1, ns[N], d_lsN, 1);
+	d_print_mat(1, ns[N], d_usN, 1);
 #endif
 
 /************************************************
@@ -530,18 +559,20 @@ int main()
 	double *hR[N+1];
 	double *hq[N+1];
 	double *hr[N+1];
+	int *hidxb[N+1];
 	double *hd_lb[N+1];
 	double *hd_ub[N+1];
-	double *hd_lg[N+1];
-	double *hd_ug[N+1];
 	double *hC[N+1];
 	double *hD[N+1];
-	int *hidxb[N+1];
+	double *hd_lg[N+1];
+	double *hd_ug[N+1];
 	double *hZl[N+1];
 	double *hZu[N+1];
 	double *hzl[N+1];
 	double *hzu[N+1];
 	int *hidxs[N+1]; // XXX
+	double *hd_ls[N+1];
+	double *hd_us[N+1];
 
 	hA[0] = A;
 	hB[0] = B;
@@ -554,15 +585,17 @@ int main()
 	hidxb[0] = idxb0;
 	hd_lb[0] = d_lb0;
 	hd_ub[0] = d_ub0;
-	hd_lg[0] = d_lg0;
-	hd_ug[0] = d_ug0;
 	hC[0] = C0;
 	hD[0] = D0;
+	hd_lg[0] = d_lg0;
+	hd_ug[0] = d_ug0;
 	hZl[0] = Zl0;
 	hZu[0] = Zu0;
 	hzl[0] = zl0;
 	hzu[0] = zu0;
 	hidxs[0] = idxs0;
+	hd_ls[0] = d_ls0;
+	hd_us[0] = d_us0;
 	for(ii=1; ii<N; ii++)
 		{
 		hA[ii] = A;
@@ -585,6 +618,8 @@ int main()
 		hzl[ii] = zl1;
 		hzu[ii] = zu1;
 		hidxs[ii] = idxs1;
+		hd_ls[ii] = d_ls1;
+		hd_us[ii] = d_us1;
 		}
 	hQ[N] = Q;
 	hS[N] = S;
@@ -603,6 +638,8 @@ int main()
 	hzl[N] = zlN;
 	hzu[N] = zuN;
 	hidxs[N] = idxsN;
+	hd_ls[N] = d_lsN;
+	hd_us[N] = d_usN;
 
 /************************************************
 * ocp qp dim
@@ -626,7 +663,7 @@ int main()
 
 	struct d_ocp_qp ocp_qp;
 	d_create_ocp_qp(&dim, &ocp_qp, ocp_qp_mem);
-	d_cvt_colmaj_to_ocp_qp(hA, hB, hb, hQ, hS, hR, hq, hr, hidxb, hd_lb, hd_ub, hC, hD, hd_lg, hd_ug, hZl, hZu, hzl, hzu, hidxs, &ocp_qp);
+	d_cvt_colmaj_to_ocp_qp(hA, hB, hb, hQ, hS, hR, hq, hr, hidxb, hd_lb, hd_ub, hC, hD, hd_lg, hd_ug, hZl, hZu, hzl, hzu, hidxs, hd_ls, hd_us, &ocp_qp);
 
 #if 0
 	printf("\nN = %d\n", ocp_qp.N);
@@ -754,7 +791,7 @@ int main()
 	for(ii=0; ii<=N2; ii++)
 		blasfeo_print_dmat(nu2[ii]+nx2[ii]+1, nu2[ii]+nx2[ii], part_dense_qp.RSQrq+ii, 0, 0);
 	for(ii=0; ii<=N2; ii++)
-		blasfeo_print_tran_dvec(nu2[ii]+nx2[ii], part_dense_qp.rq+ii, 0);
+		blasfeo_print_tran_dvec(nu2[ii]+nx2[ii], part_dense_qp.rqz+ii, 0);
 	for(ii=0; ii<=N2; ii++)
 		blasfeo_print_tran_dvec(nb2[ii], part_dense_qp.d+ii, 0);
 	for(ii=0; ii<=N2; ii++)
@@ -768,13 +805,17 @@ int main()
 	for(ii=0; ii<=N2; ii++)
 		int_print_mat(1, ns2[ii], part_dense_qp.idxs[ii], 1);
 	for(ii=0; ii<=N2; ii++)
+		blasfeo_print_tran_dvec(ns2[ii], part_dense_qp.d+ii, 2*nb2[ii]+2*ng2[ii]);
+	for(ii=0; ii<=N2; ii++)
+		blasfeo_print_tran_dvec(ns2[ii], part_dense_qp.d+ii, 2*nb2[ii]+2*ng2[ii]+ns2[ii]);
+	for(ii=0; ii<=N2; ii++)
 		blasfeo_print_tran_dvec(ns2[ii], part_dense_qp.Z+ii, 0);
 	for(ii=0; ii<=N2; ii++)
 		blasfeo_print_tran_dvec(ns2[ii], part_dense_qp.Z+ii, ns2[ii]);
 	for(ii=0; ii<=N2; ii++)
-		blasfeo_print_tran_dvec(ns2[ii], part_dense_qp.z+ii, 0);
+		blasfeo_print_tran_dvec(ns2[ii], part_dense_qp.rqz+ii, nu2[ii]+nx2[ii]);
 	for(ii=0; ii<=N2; ii++)
-		blasfeo_print_tran_dvec(ns2[ii], part_dense_qp.z+ii, ns2[ii]);
+		blasfeo_print_tran_dvec(ns2[ii], part_dense_qp.rqz+ii, nu2[ii]+nx2[ii]+ns2[ii]);
 #endif
 
 	/* update part cond */
@@ -805,7 +846,7 @@ int main()
 	for(ii=0; ii<=N2; ii++)
 		blasfeo_print_dmat(nu2[ii]+nx2[ii]+1, nu2[ii]+nx2[ii], part_dense_qp.RSQrq+ii, 0, 0);
 	for(ii=0; ii<=N2; ii++)
-		blasfeo_print_tran_dvec(nu2[ii]+nx2[ii], part_dense_qp.rq+ii, 0);
+		blasfeo_print_tran_dvec(nu2[ii]+nx2[ii], part_dense_qp.rqz+ii, 0);
 	for(ii=0; ii<=N2; ii++)
 		blasfeo_print_tran_dvec(nb2[ii], part_dense_qp.d+ii, 0);
 	for(ii=0; ii<=N2; ii++)
@@ -823,9 +864,9 @@ int main()
 	for(ii=0; ii<=N2; ii++)
 		blasfeo_print_tran_dvec(ns2[ii], part_dense_qp.Z+ii, ns2[ii]);
 	for(ii=0; ii<=N2; ii++)
-		blasfeo_print_tran_dvec(ns2[ii], part_dense_qp.z+ii, 0);
+		blasfeo_print_tran_dvec(ns2[ii], part_dense_qp.rqz+ii, nu2[ii]+nx2[ii]);
 	for(ii=0; ii<=N2; ii++)
-		blasfeo_print_tran_dvec(ns2[ii], part_dense_qp.z+ii, ns2[ii]);
+		blasfeo_print_tran_dvec(ns2[ii], part_dense_qp.rqz+ii, nu2[ii]+nx2[ii]+ns2[ii]);
 #endif
 
 	/* cond rhs */
@@ -846,7 +887,7 @@ int main()
 	for(ii=0; ii<N2; ii++)
 		blasfeo_print_tran_dvec(nx2[ii+1], part_dense_qp.b+ii, 0);
 	for(ii=0; ii<=N2; ii++)
-		blasfeo_print_tran_dvec(nu2[ii]+nx2[ii], part_dense_qp.rq+ii, 0);
+		blasfeo_print_tran_dvec(nu2[ii]+nx2[ii], part_dense_qp.rqz+ii, 0);
 	for(ii=0; ii<=N2; ii++)
 		blasfeo_print_tran_dvec(nb2[ii], part_dense_qp.d+ii, 0);
 	for(ii=0; ii<=N2; ii++)
@@ -856,9 +897,13 @@ int main()
 	for(ii=0; ii<=N2; ii++)
 		blasfeo_print_tran_dvec(ng2[ii], part_dense_qp.d+ii, 2*nb2[ii]+ng2[ii]);
 	for(ii=0; ii<=N2; ii++)
-		blasfeo_print_tran_dvec(ns2[ii], part_dense_qp.z+ii, 0);
+		blasfeo_print_tran_dvec(ns2[ii], part_dense_qp.d+ii, 2*nb2[ii]+2*ng2[ii]);
 	for(ii=0; ii<=N2; ii++)
-		blasfeo_print_tran_dvec(ns2[ii], part_dense_qp.z+ii, ns2[ii]);
+		blasfeo_print_tran_dvec(ns2[ii], part_dense_qp.d+ii, 2*nb2[ii]+2*ng2[ii]+ns2[ii]);
+	for(ii=0; ii<=N2; ii++)
+		blasfeo_print_tran_dvec(ns2[ii], part_dense_qp.rqz+ii, nu2[ii]+nx2[ii]);
+	for(ii=0; ii<=N2; ii++)
+		blasfeo_print_tran_dvec(ns2[ii], part_dense_qp.rqz+ii, nu2[ii]+nx2[ii]+ns2[ii]);
 #endif
 
 #if 0
@@ -995,10 +1040,10 @@ int main()
 		d_print_mat(1, ng2[ii], (part_dense_qp_sol.t+ii)->pa+2*nb2[ii]+ng2[ii], 1);
 	printf("\nt_ls2\n");
 	for(ii=0; ii<=N2; ii++)
-		d_print_mat(1, ng2[ii], (part_dense_qp_sol.t+ii)->pa+2*nb2[ii]+2*ng2[ii], 1);
+		d_print_mat(1, ns2[ii], (part_dense_qp_sol.t+ii)->pa+2*nb2[ii]+2*ng2[ii], 1);
 	printf("\nt_us2\n");
 	for(ii=0; ii<=N2; ii++)
-		d_print_mat(1, ng2[ii], (part_dense_qp_sol.t+ii)->pa+2*nb2[ii]+2*ng2[ii]+ns2[ii], 1);
+		d_print_mat(1, ns2[ii], (part_dense_qp_sol.t+ii)->pa+2*nb2[ii]+2*ng2[ii]+ns2[ii], 1);
 #endif
 
 /************************************************
@@ -1225,16 +1270,22 @@ int main()
 	d_free(zl0);
 	d_free(zu0);
 	int_free(idxs0);
+	d_free(d_ls0);
+	d_free(d_us0);
 	d_free(Zl1);
 	d_free(Zu1);
 	d_free(zl1);
 	d_free(zu1);
 	int_free(idxs1);
+	d_free(d_ls1);
+	d_free(d_us1);
 	d_free(ZlN);
 	d_free(ZuN);
 	d_free(zlN);
 	d_free(zuN);
 	int_free(idxsN);
+	d_free(d_lsN);
+	d_free(d_usN);
 
 	for(ii=0; ii<N; ii++)
 		{

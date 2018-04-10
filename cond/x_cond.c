@@ -321,9 +321,9 @@ void COND_QP_OCP2DENSE(struct OCP_QP *ocp_qp, struct DENSE_QP *dense_qp, struct 
 
 	COND_BABT(ocp_qp, NULL, NULL, cond_arg, cond_ws);
 
-	COND_RSQRQ_N2NX3(ocp_qp, dense_qp->Hv, dense_qp->g, cond_arg, cond_ws);
+	COND_RSQRQ_N2NX3(ocp_qp, dense_qp->Hv, dense_qp->gz, cond_arg, cond_ws);
 
-	COND_DCTD(ocp_qp, dense_qp->idxb, dense_qp->Ct, dense_qp->d, dense_qp->idxs, dense_qp->Z, dense_qp->z, cond_arg, cond_ws);
+	COND_DCTD(ocp_qp, dense_qp->idxb, dense_qp->Ct, dense_qp->d, dense_qp->idxs, dense_qp->Z, dense_qp->gz, cond_arg, cond_ws);
 
 	return;
 
@@ -336,9 +336,9 @@ void COND_RHS_QP_OCP2DENSE(struct OCP_QP *ocp_qp, struct DENSE_QP *dense_qp, str
 
 	COND_B(ocp_qp, NULL, cond_arg, cond_ws);
 
-	COND_RQ_N2NX3(ocp_qp, dense_qp->g, cond_arg, cond_ws);
+	COND_RQ_N2NX3(ocp_qp, dense_qp->gz, cond_arg, cond_ws);
 
-	COND_D(ocp_qp, dense_qp->d, dense_qp->z, cond_arg, cond_ws);
+	COND_D(ocp_qp, dense_qp->d, dense_qp->gz, cond_arg, cond_ws);
 
 	return;
 
@@ -377,9 +377,9 @@ void UPDATE_COND_QP_OCP2DENSE(int *idxc, struct OCP_QP *ocp_qp, struct DENSE_QP 
 
 	UPDATE_COND_BABT(idxc, ocp_qp, NULL, NULL, cond_arg, cond_ws);
 
-	UPDATE_COND_RSQRQ_N2NX3(idxc, ocp_qp, dense_qp->Hv, dense_qp->g, cond_arg, cond_ws);
+	UPDATE_COND_RSQRQ_N2NX3(idxc, ocp_qp, dense_qp->Hv, dense_qp->gz, cond_arg, cond_ws);
 
-	UPDATE_COND_DCTD(idxc, ocp_qp, dense_qp->idxb, dense_qp->Ct, dense_qp->d, dense_qp->idxs, dense_qp->Z, dense_qp->z, cond_arg, cond_ws);
+	UPDATE_COND_DCTD(idxc, ocp_qp, dense_qp->idxb, dense_qp->Ct, dense_qp->d, dense_qp->idxs, dense_qp->Z, dense_qp->gz, cond_arg, cond_ws);
 
 	return;
 

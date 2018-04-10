@@ -342,18 +342,17 @@ void COND_QP_OCP2OCP(struct OCP_QP *ocp_qp, struct OCP_QP *part_dense_qp, struct
 		tmp_ocp_qp.BAbt = ocp_qp->BAbt+N_tmp;
 		tmp_ocp_qp.b = ocp_qp->b+N_tmp;
 		tmp_ocp_qp.RSQrq = ocp_qp->RSQrq+N_tmp;
-		tmp_ocp_qp.rq = ocp_qp->rq+N_tmp;
+		tmp_ocp_qp.rqz = ocp_qp->rqz+N_tmp;
 		tmp_ocp_qp.DCt = ocp_qp->DCt+N_tmp;
 		tmp_ocp_qp.d = ocp_qp->d+N_tmp;
 		tmp_ocp_qp.Z = ocp_qp->Z+N_tmp;
-		tmp_ocp_qp.z = ocp_qp->z+N_tmp;
 		tmp_ocp_qp.idxs = ocp_qp->idxs+N_tmp;
 
 		COND_BABT(&tmp_ocp_qp, part_dense_qp->BAbt+ii, part_dense_qp->b+ii, part_cond_arg->cond_arg+ii, part_cond_ws->cond_workspace+ii);
 
-		COND_RSQRQ_N2NX3(&tmp_ocp_qp, part_dense_qp->RSQrq+ii, part_dense_qp->rq+ii, part_cond_arg->cond_arg+ii, part_cond_ws->cond_workspace+ii);
+		COND_RSQRQ_N2NX3(&tmp_ocp_qp, part_dense_qp->RSQrq+ii, part_dense_qp->rqz+ii, part_cond_arg->cond_arg+ii, part_cond_ws->cond_workspace+ii);
 
-		COND_DCTD(&tmp_ocp_qp, part_dense_qp->idxb[ii], part_dense_qp->DCt+ii, part_dense_qp->d+ii, part_dense_qp->idxs[ii], part_dense_qp->Z+ii, part_dense_qp->z+ii, part_cond_arg->cond_arg+ii, part_cond_ws->cond_workspace+ii);
+		COND_DCTD(&tmp_ocp_qp, part_dense_qp->idxb[ii], part_dense_qp->DCt+ii, part_dense_qp->d+ii, part_dense_qp->idxs[ii], part_dense_qp->Z+ii, part_dense_qp->rqz+ii, part_cond_arg->cond_arg+ii, part_cond_ws->cond_workspace+ii);
 
 		N_tmp += bs;
 
@@ -417,18 +416,17 @@ void COND_RHS_QP_OCP2OCP(struct OCP_QP *ocp_qp, struct OCP_QP *part_dense_qp, st
 		tmp_ocp_qp.BAbt = ocp_qp->BAbt+N_tmp;
 		tmp_ocp_qp.b = ocp_qp->b+N_tmp;
 		tmp_ocp_qp.RSQrq = ocp_qp->RSQrq+N_tmp;
-		tmp_ocp_qp.rq = ocp_qp->rq+N_tmp;
+		tmp_ocp_qp.rqz = ocp_qp->rqz+N_tmp;
 		tmp_ocp_qp.DCt = ocp_qp->DCt+N_tmp;
 		tmp_ocp_qp.d = ocp_qp->d+N_tmp;
 		tmp_ocp_qp.Z = ocp_qp->Z+N_tmp;
-		tmp_ocp_qp.z = ocp_qp->z+N_tmp;
 		tmp_ocp_qp.idxs = ocp_qp->idxs+N_tmp;
 
 		COND_B(&tmp_ocp_qp, part_dense_qp->b+ii, part_cond_arg->cond_arg+ii, part_cond_ws->cond_workspace+ii);
 
-		COND_RQ_N2NX3(&tmp_ocp_qp, part_dense_qp->rq+ii, part_cond_arg->cond_arg+ii, part_cond_ws->cond_workspace+ii);
+		COND_RQ_N2NX3(&tmp_ocp_qp, part_dense_qp->rqz+ii, part_cond_arg->cond_arg+ii, part_cond_ws->cond_workspace+ii);
 
-		COND_D(&tmp_ocp_qp, part_dense_qp->d+ii, part_dense_qp->z+ii, part_cond_arg->cond_arg+ii, part_cond_ws->cond_workspace+ii);
+		COND_D(&tmp_ocp_qp, part_dense_qp->d+ii, part_dense_qp->rqz+ii, part_cond_arg->cond_arg+ii, part_cond_ws->cond_workspace+ii);
 
 		N_tmp += bs;
 
@@ -495,11 +493,10 @@ void EXPAND_SOL_OCP2OCP(struct OCP_QP *ocp_qp, struct OCP_QP *part_dense_qp, str
 		tmp_ocp_qp.BAbt = ocp_qp->BAbt+N_tmp;
 		tmp_ocp_qp.b = ocp_qp->b+N_tmp;
 		tmp_ocp_qp.RSQrq = ocp_qp->RSQrq+N_tmp;
-		tmp_ocp_qp.rq = ocp_qp->rq+N_tmp;
+		tmp_ocp_qp.rqz = ocp_qp->rqz+N_tmp;
 		tmp_ocp_qp.DCt = ocp_qp->DCt+N_tmp;
 		tmp_ocp_qp.d = ocp_qp->d+N_tmp;
 		tmp_ocp_qp.Z = ocp_qp->Z+N_tmp;
-		tmp_ocp_qp.z = ocp_qp->z+N_tmp;
 		tmp_ocp_qp.idxs = ocp_qp->idxs+N_tmp;
 
 		// alias ocp qp sol
@@ -569,18 +566,17 @@ void UPDATE_COND_QP_OCP2OCP(int *idxc, struct OCP_QP *ocp_qp, struct OCP_QP *par
 		tmp_ocp_qp.BAbt = ocp_qp->BAbt+N_tmp;
 		tmp_ocp_qp.b = ocp_qp->b+N_tmp;
 		tmp_ocp_qp.RSQrq = ocp_qp->RSQrq+N_tmp;
-		tmp_ocp_qp.rq = ocp_qp->rq+N_tmp;
+		tmp_ocp_qp.rqz = ocp_qp->rqz+N_tmp;
 		tmp_ocp_qp.DCt = ocp_qp->DCt+N_tmp;
 		tmp_ocp_qp.d = ocp_qp->d+N_tmp;
 		tmp_ocp_qp.Z = ocp_qp->Z+N_tmp;
-		tmp_ocp_qp.z = ocp_qp->z+N_tmp;
 		tmp_ocp_qp.idxs = ocp_qp->idxs+N_tmp;
 
 		UPDATE_COND_BABT(idxc+N_tmp, &tmp_ocp_qp, part_dense_qp->BAbt+ii, part_dense_qp->b+ii, part_cond_arg->cond_arg+ii, part_cond_ws->cond_workspace+ii);
 
-		UPDATE_COND_RSQRQ_N2NX3(idxc+N_tmp, &tmp_ocp_qp, part_dense_qp->RSQrq+ii, part_dense_qp->rq+ii, part_cond_arg->cond_arg+ii, part_cond_ws->cond_workspace+ii);
+		UPDATE_COND_RSQRQ_N2NX3(idxc+N_tmp, &tmp_ocp_qp, part_dense_qp->RSQrq+ii, part_dense_qp->rqz+ii, part_cond_arg->cond_arg+ii, part_cond_ws->cond_workspace+ii);
 
-		UPDATE_COND_DCTD(idxc+N_tmp, &tmp_ocp_qp, part_dense_qp->idxb[ii], part_dense_qp->DCt+ii, part_dense_qp->d+ii, part_dense_qp->idxs[ii], part_dense_qp->Z+ii, part_dense_qp->z+ii, part_cond_arg->cond_arg+ii, part_cond_ws->cond_workspace+ii);
+		UPDATE_COND_DCTD(idxc+N_tmp, &tmp_ocp_qp, part_dense_qp->idxb[ii], part_dense_qp->DCt+ii, part_dense_qp->d+ii, part_dense_qp->idxs[ii], part_dense_qp->Z+ii, part_dense_qp->rqz+ii, part_cond_arg->cond_arg+ii, part_cond_ws->cond_workspace+ii);
 
 		N_tmp += bs;
 
