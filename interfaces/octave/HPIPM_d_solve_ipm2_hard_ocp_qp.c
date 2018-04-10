@@ -376,7 +376,8 @@ void mexFunction( int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
 		hlam_lb[ii] = lam+ii*nb;
 		hlam_ub[ii] = lam+(N+1)*nb+ii*nb;
 		hlam_lg[ii] = lam+2*(N+1)*nb+ii*ng;
-		hlam_ug[ii] = lam+2*(N+1)*nb+(N+1)*ng+ii*ng;
+//		hlam_ug[ii] = lam+2*(N+1)*nb+(N+1)*ng+ii*ng;
+		hlam_ug[ii] = lam+2*(N+1)*nb+N*ng+ngN+ii*ng;
 		}
 
 	// Partial condensing horizon
