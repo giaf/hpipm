@@ -504,7 +504,7 @@ void COND_DCTD(struct OCP_QP *ocp_qp, int *idxb2, struct STRMAT *DCt2, struct ST
 			else // state: general constraint
 				{
 				idx_g = idxb0-nu0;
-				tmp = GEEX1_LIBSTR(&Gamma[N-1-ii], idx_gammab, idx_g);
+				tmp = BLASFEO_DVECEL(&Gammab[N-1-ii], idx_g);
 				d_lg3[ig] = ptr_d_lb[jj] - tmp;
 //				d_ug3[ig] = ptr_d_ub[jj] - tmp;
 				d_ug3[ig] = ptr_d_ub[jj] + tmp; // XXX
@@ -846,7 +846,7 @@ void COND_D(struct OCP_QP *ocp_qp, struct STRVEC *d2, struct STRVEC *rqz2, struc
 			else // state: general constraint
 				{
 				idx_g = idxb0-nu0;
-				tmp = GEEX1_LIBSTR(&Gamma[N-1-ii], idx_gammab, idx_g);
+				tmp = BLASFEO_DVECEL(&Gammab[N-1-ii], idx_g);
 				d_lg3[ig] = ptr_d_lb[jj] - tmp;
 //				d_ug3[ig] = ptr_d_ub[jj] - tmp;
 				d_ug3[ig] = ptr_d_ub[jj] + tmp; // XXX
@@ -1892,7 +1892,7 @@ void UPDATE_COND_DCTD(int *idxc, struct OCP_QP *ocp_qp, int *idxb2, struct STRMA
 			else // state: general constraint
 				{
 				idx_g = idxb0-nu0;
-				tmp = GEEX1_LIBSTR(&Gamma[N-1-ii], idx_gammab, idx_g);
+				tmp = BLASFEO_DVECEL(&Gammab[N-1-ii], idx_g);
 				d_lg3[ig] = ptr_d_lb[jj] - tmp;
 //				d_ug3[ig] = ptr_d_ub[jj] - tmp;
 				d_ug3[ig] = ptr_d_ub[jj] + tmp; // XXX
