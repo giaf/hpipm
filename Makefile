@@ -30,7 +30,19 @@ include ./Makefile.rule
 OBJS = 
 
 ifeq ($(TARGET), GENERIC)
-OBJS +=
+# ipm core
+# double
+OBJS += ipm_core/d_core_qp_ipm_aux.o 
+# single
+OBJS += ipm_core/s_core_qp_ipm_aux.o 
+endif
+
+ifeq ($(TARGET), AVX)
+# ipm core
+# double
+OBJS += ipm_core/d_core_qp_ipm_aux_avx.o 
+# single
+OBJS += ipm_core/s_core_qp_ipm_aux_avx.o 
 endif
 
 # cond
@@ -55,10 +67,10 @@ OBJS += dense_qp/s_dense_qp_ipm.o
 
 # ipm core
 # double
-OBJS += ipm_core/d_core_qp_ipm_aux.o 
+#OBJS += ipm_core/d_core_qp_ipm_aux.o 
 OBJS += ipm_core/d_core_qp_ipm.o
 # single
-OBJS += ipm_core/s_core_qp_ipm_aux.o 
+#OBJS += ipm_core/s_core_qp_ipm_aux.o 
 OBJS += ipm_core/s_core_qp_ipm.o
 
 # ocp nlp

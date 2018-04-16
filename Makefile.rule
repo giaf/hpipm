@@ -26,7 +26,8 @@
 ###################################################################################################
 
 # Target architecture
-TARGET = GENERIC
+TARGET = AVX
+#TARGET = GENERIC
 
 # BLAS and LAPACK version (for LA=BLAS in BLASFEO)
 REF_BLAS = 0
@@ -110,6 +111,9 @@ CFLAGS += -DRUNTIME_CHECKS
 endif
 
 # architecture-specific flags
+ifeq ($(TARGET), AVX)
+CFLAGS  += -mavx -DTARGET_AVX
+endif
 ifeq ($(TARGET), GENERIC)
 CFLAGS  += -DTARGET_GENERIC
 endif

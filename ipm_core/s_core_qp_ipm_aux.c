@@ -25,13 +25,6 @@
 *                                                                                                 *
 **************************************************************************************************/
 
-
-
-#include <blasfeo_target.h>
-#include <blasfeo_common.h>
-#include <blasfeo_s_aux.h>
-#include <blasfeo_s_blas.h>
-
 #include "../include/hpipm_s_core_qp_ipm.h"
 
 
