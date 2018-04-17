@@ -450,15 +450,40 @@ int SOLVE_OCP_QP_IPM(struct OCP_QP *qp, struct OCP_QP_SOL *qp_sol, struct OCP_QP
 
 	int ii;
 
+#if 1
+	printf("\nnx\n");
+	int_print_mat(1, N+1, nx, 1);
+	printf("\nnu\n");
+	int_print_mat(1, N+1, nu, 1);
 	printf("\nnb\n");
 	int_print_mat(1, N+1, nb, 1);
 	printf("\nng\n");
 	int_print_mat(1, N+1, ng, 1);
 	printf("\nns\n");
 	int_print_mat(1, N+1, ns, 1);
+#endif
+	printf("\nBAt\n");
+	for(ii=0; ii<N; ii++)
+		blasfeo_print_dmat(nu[ii]+nx[ii], nx[ii+1], qp->BAbt+ii, 0, 0);
+	printf("\nb\n");
+	for(ii=0; ii<N; ii++)
+		blasfeo_print_tran_dvec(nx[ii+1], qp->b+ii, 0);
+	printf("\nRSQ\n");
+	for(ii=0; ii<=N; ii++)
+		blasfeo_print_dmat(nu[ii]+nx[ii], nu[ii]+nx[ii], qp->RSQrq+ii, 0, 0);
+	printf("\nrq\n");
+	for(ii=0; ii<=N; ii++)
+		blasfeo_print_tran_dvec(nu[ii]+nx[ii], qp->rqz+ii, 0);
+	printf("\nidxb\n");
+	for(ii=0; ii<=N; ii++)
+		int_print_mat(1, nb[ii], qp->idxb[ii], 1);
+	printf("\nDCt\n");
+	for(ii=0; ii<=N; ii++)
+		blasfeo_print_dmat(nu[ii]+nx[ii], ng[ii], qp->DCt+ii, 0, 0);
 	printf("\nd\n");
 	for(ii=0; ii<=N; ii++)
 		blasfeo_print_tran_dvec(2*nb[ii]+2*ng[ii]+2*ns[ii], qp->d+ii, 0);
+#if 0
 	printf("\nlb\n");
 	for(ii=0; ii<=N; ii++)
 		blasfeo_print_tran_dvec(nb[ii], qp->d+ii, 0);
@@ -489,6 +514,7 @@ int SOLVE_OCP_QP_IPM(struct OCP_QP *qp, struct OCP_QP_SOL *qp_sol, struct OCP_QP
 	printf("\nrqz\n");
 	for(ii=0; ii<=N; ii++)
 		blasfeo_print_tran_dvec(nu[ii]+nx[ii]+2*ns[ii], qp->rqz+ii, 0);
+#endif
 #endif
 
 	struct CORE_QP_IPM_WORKSPACE *cws = ws->core_workspace;
@@ -640,6 +666,12 @@ int SOLVE_OCP_QP_IPM(struct OCP_QP *qp, struct OCP_QP_SOL *qp_sol, struct OCP_QP
 		}
 
 	ws->iter = kk;
+
+#if 0
+	printf("\nux\n");
+	for(ii=0; ii<=N; ii++)
+		blasfeo_print_tran_dvec(nu[ii]+nx[ii], qp_sol->ux+ii, 0);
+#endif
 
 	// max iteration number reached
 	if(kk==arg->iter_max)
