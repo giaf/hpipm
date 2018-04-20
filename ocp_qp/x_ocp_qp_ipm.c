@@ -549,7 +549,12 @@ int SOLVE_OCP_QP_IPM(struct OCP_QP *qp, struct OCP_QP_SOL *qp_sol, struct OCP_QP
 	str_res_d.pa = cws->res_d;
 	str_res_m.pa = cws->res_m;
 
-	REAL *qp_res = ws->qp_res;
+    VECSE(cws->nv, 0.0, &str_res_g, 0);
+    VECSE(cws->ne, 0.0, &str_res_g, 0);
+    VECSE(cws->nc, 0.0, &str_res_g, 0);
+    VECSE(cws->nc, 0.0, &str_res_g, 0);
+	
+    REAL *qp_res = ws->qp_res;
 	qp_res[0] = 0;
 	qp_res[1] = 0;
 	qp_res[2] = 0;

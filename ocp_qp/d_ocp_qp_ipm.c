@@ -81,6 +81,7 @@
 #define STRVEC blasfeo_dvec
 #define UPDATE_VAR_QP d_update_var_qp
 #define VECNRM_INF_LIBSTR blasfeo_dvecnrm_inf
+#define VECSE blasfeo_dvecsevecnrm_inf
 
 
 
