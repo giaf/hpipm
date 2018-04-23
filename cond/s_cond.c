@@ -49,6 +49,7 @@
 #define COND_BABT s_cond_BAbt
 #define COND_RQ_N2NX3 s_cond_rq_N2nx3
 #define COND_RSQRQ_N2NX3 s_cond_RSQrq_N2nx3
+#define COND_QP_OCP2DENSE_ARG s_cond_qp_ocp2dense_arg
 #define COND_QP_OCP2DENSE_WORKSPACE s_cond_qp_ocp2dense_workspace
 #define CREATE_STRMAT blasfeo_create_smat
 #define CREATE_STRVEC blasfeo_create_svec
@@ -64,14 +65,21 @@
 #define SIZE_STRVEC blasfeo_memsize_svec
 #define STRMAT blasfeo_smat
 #define STRVEC blasfeo_svec
+#define UPDATE_COND_DCTD s_update_cond_DCtd
+#define UPDATE_COND_BABT s_update_cond_BAbt
+#define UPDATE_COND_RSQRQ_N2NX3 s_update_cond_RSQrq_N2nx3
 
 #define COMPUTE_QP_DIM_OCP2DENSE s_compute_qp_dim_ocp2dense
+#define MEMSIZE_COND_QP_OCP2DENSE_ARG s_memsize_cond_qp_ocp2dense_arg
+#define CREATE_COND_QP_OCP2DENSE_ARG s_create_cond_qp_ocp2dense_arg
+#define SET_DEFAULT_COND_QP_OCP2DENSE_ARG s_set_default_cond_qp_ocp2dense_arg
 #define MEMSIZE_COND_QP_OCP2DENSE s_memsize_cond_qp_ocp2dense
 #define CREATE_COND_QP_OCP2DENSE s_create_cond_qp_ocp2dense
 #define COND_QP_OCP2DENSE s_cond_qp_ocp2dense
 #define COND_RHS_QP_OCP2DENSE s_cond_rhs_qp_ocp2dense
 #define EXPAND_SOL_DENSE2OCP s_expand_sol_dense2ocp
 #define EXPAND_SOL_PRIMAL_DENSE2OCP s_expand_primal_sol_dense2ocp
+#define UPDATE_COND_QP_OCP2DENSE s_update_cond_qp_ocp2dense
 
 
 

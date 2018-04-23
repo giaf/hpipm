@@ -143,6 +143,8 @@ int main()
 	double zl[] = {1e2, 1e2};
 	double zu[] = {1e2, 1e2};
 	int idxs[] = {0, 1};
+	double d_ls[] = {0, 0};
+	double d_us[] = {0, 0};
 #else
 	int nv = 10;
 	int ne = 0;
@@ -165,6 +167,8 @@ int main()
 	double zl[0];
 	double zu[0];
 	int idxs[0];
+	double d_ls[] = {0, 0};
+	double d_us[] = {0, 0};
 #endif
 
 /************************************************
@@ -190,17 +194,17 @@ int main()
 
 	struct d_dense_qp qp;
 	d_create_dense_qp(&qp_dim, &qp, qp_mem);
-	d_cvt_colmaj_to_dense_qp(H, g, A, b, idxb, d_lb, d_ub, C, d_lg, d_ug, Zl, Zu, zl, zu, idxs, &qp);
+	d_cvt_colmaj_to_dense_qp(H, g, A, b, idxb, d_lb, d_ub, C, d_lg, d_ug, Zl, Zu, zl, zu, idxs, d_ls, d_us, &qp);
 
 #if 1
 	printf("\nH = \n");
-	d_print_strmat(nv, nv, qp.Hv, 0, 0);
+	blasfeo_print_dmat(nv, nv, qp.Hv, 0, 0);
 	printf("\nA = \n");
-	d_print_strmat(ne, nv, qp.A, 0, 0);
+	blasfeo_print_dmat(ne, nv, qp.A, 0, 0);
 	printf("\nCt = \n");
-	d_print_strmat(nv, ng, qp.Ct, 0, 0);
+	blasfeo_print_dmat(nv, ng, qp.Ct, 0, 0);
 	printf("\ng = \n");
-	blasfeo_print_dvec(nv, qp.g, 0);
+	blasfeo_print_dvec(nv, qp.gz, 0);
 	printf("\nb = \n");
 	blasfeo_print_dvec(ne, qp.b, 0);
 	printf("\nd = \n");

@@ -207,11 +207,10 @@ void COMPUTE_RES_OCP_QP(struct OCP_QP *qp, struct OCP_QP_SOL *qp_sol, struct OCP
 	struct STRMAT *RSQrq = qp->RSQrq;
 	struct STRMAT *DCt = qp->DCt;
 	struct STRVEC *b = qp->b;
-	struct STRVEC *rq = qp->rq;
+	struct STRVEC *rqz = qp->rqz;
 	struct STRVEC *d = qp->d;
 	int **idxb = qp->idxb;
 	struct STRVEC *Z = qp->Z;
-	struct STRVEC *z = qp->z;
 	int **idxs = qp->idxs;
 
 	struct STRVEC *ux = qp_sol->ux;
@@ -242,7 +241,7 @@ void COMPUTE_RES_OCP_QP(struct OCP_QP *qp, struct OCP_QP_SOL *qp_sol, struct OCP
 		ng0 = ng[ii];
 		ns0 = ns[ii];
 
-		SYMV_L_LIBSTR(nu0+nx0, nu0+nx0, 1.0, RSQrq+ii, 0, 0, ux+ii, 0, 1.0, rq+ii, 0, res_g+ii, 0);
+		SYMV_L_LIBSTR(nu0+nx0, nu0+nx0, 1.0, RSQrq+ii, 0, 0, ux+ii, 0, 1.0, rqz+ii, 0, res_g+ii, 0);
 
 		if(ii>0)
 			AXPY_LIBSTR(nx0, -1.0, pi+(ii-1), 0, res_g+ii, nu0, res_g+ii, nu0);
@@ -271,7 +270,7 @@ void COMPUTE_RES_OCP_QP(struct OCP_QP *qp, struct OCP_QP_SOL *qp_sol, struct OCP
 		if(ns0>0)
 			{
 			// res_g
-			GEMV_DIAG_LIBSTR(2*ns0, 1.0, Z+ii, 0, ux+ii, nu0+nx0, 1.0, z+ii, 0, res_g+ii, nu0+nx0);
+			GEMV_DIAG_LIBSTR(2*ns0, 1.0, Z+ii, 0, ux+ii, nu0+nx0, 1.0, rqz+ii, nu0+nx0, res_g+ii, nu0+nx0);
 			AXPY_LIBSTR(2*ns0, -1.0, lam+ii, 2*nb0+2*ng0, res_g+ii, nu0+nx0, res_g+ii, nu0+nx0);
 			VECEX_SP_LIBSTR(ns0, 1.0, idxs[ii], lam+ii, 0, tmp_nsM, 0);
 			AXPY_LIBSTR(ns0, -1.0, tmp_nsM, 0, res_g+ii, nu0+nx0, res_g+ii, nu0+nx0);
@@ -281,6 +280,7 @@ void COMPUTE_RES_OCP_QP(struct OCP_QP *qp, struct OCP_QP_SOL *qp_sol, struct OCP
 			VECAD_SP_LIBSTR(ns0, -1.0, ux+ii, nu0+nx0, idxs[ii], res_d+ii, 0);
 			VECAD_SP_LIBSTR(ns0, -1.0, ux+ii, nu0+nx0+ns0, idxs[ii], res_d+ii, nb0+ng0);
 			AXPY_LIBSTR(2*ns0, -1.0, ux+ii, nu0+nx0, t+ii, 2*nb0+2*ng0, res_d+ii, 2*nb0+2*ng0);
+			AXPY_LIBSTR(2*ns0, 1.0, d+ii, 2*nb0+2*ng0, res_d+ii, 2*nb0+2*ng0, res_d+ii, 2*nb0+2*ng0);
 			}
 
 		if(ii<N)
@@ -320,6 +320,7 @@ void FACT_SOLVE_KKT_UNCONSTR_OCP_QP(struct OCP_QP *qp, struct OCP_QP_SOL *qp_sol
 	struct STRMAT *BAbt = qp->BAbt;
 	struct STRMAT *RSQrq = qp->RSQrq;
 	struct STRVEC *b = qp->b;
+	struct STRVEC *rqz = qp->rqz;
 
 	struct STRVEC *ux = qp_sol->ux;
 	struct STRVEC *pi = qp_sol->pi;
@@ -339,9 +340,11 @@ void FACT_SOLVE_KKT_UNCONSTR_OCP_QP(struct OCP_QP *qp, struct OCP_QP_SOL *qp_sol
 	// middle stages
 	for(ii=0; ii<N; ii++)
 		{
+		ROWIN_LIBSTR(nx[N-ii], 1.0, b+N-ii-1, 0, BAbt+N-ii-1, nu[N-ii-1]+nx[N-ii-1], 0);
 		TRMM_RLNN_LIBSTR(nu[N-ii-1]+nx[N-ii-1]+1, nx[N-ii], 1.0, L+(N-ii), nu[N-ii], nu[N-ii], BAbt+(N-ii-1), 0, 0, AL, 0, 0);
 		GEAD_LIBSTR(1, nx[N-ii], 1.0, L+(N-ii), nu[N-ii]+nx[N-ii], nu[N-ii], AL, nu[N-ii-1]+nx[N-ii-1], 0);
 
+		ROWIN_LIBSTR(nu[N-ii-1]+nx[N-ii-1], 1.0, rqz+N-ii-1, 0, RSQrq+N-ii-1, nu[N-ii-1]+nx[N-ii-1], 0);
 		SYRK_POTRF_LN_LIBSTR(nu[N-ii-1]+nx[N-ii-1]+1, nu[N-ii-1]+nx[N-ii-1], nx[N-ii], AL, 0, 0, AL, 0, 0, RSQrq+(N-ii-1), 0, 0, L+(N-ii-1), 0, 0);
 		}
 
@@ -552,7 +555,6 @@ void FACT_SOLVE_KKT_STEP_OCP_QP(struct OCP_QP *qp, struct OCP_QP_IPM_WORKSPACE *
 	struct STRMAT *RSQrq = qp->RSQrq;
 	struct STRMAT *DCt = qp->DCt;
 	struct STRVEC *Z = qp->Z;
-	struct STRVEC *z = qp->z;
 	int **idxb = qp->idxb;
 	int **idxs = qp->idxs;
 
@@ -619,9 +621,8 @@ void FACT_SOLVE_KKT_STEP_OCP_QP(struct OCP_QP *qp, struct OCP_QP_IPM_WORKSPACE *
 	for(nn=0; nn<N; nn++)
 		{
 		ss = N-nn-1;
-		GECP_LIBSTR(nu[ss]+nx[ss], nx[ss+1], BAbt+ss, 0, 0, AL, 0, 0);
-		ROWIN_LIBSTR(nx[ss+1], 1.0, res_b+ss, 0, AL, nu[ss]+nx[ss], 0);
-		TRMM_RLNN_LIBSTR(nu[ss]+nx[ss]+1, nx[ss+1], 1.0, L+ss+1, nu[ss+1], nu[ss+1], AL, 0, 0, AL, 0, 0);
+		ROWIN_LIBSTR(nx[ss+1], 1.0, res_b+ss, 0, BAbt+ss, nu[ss]+nx[ss], 0);
+		TRMM_RLNN_LIBSTR(nu[ss]+nx[ss]+1, nx[ss+1], 1.0, L+ss+1, nu[ss+1], nu[ss+1], BAbt+ss, 0, 0, AL, 0, 0);
 		ROWEX_LIBSTR(nx[ss+1], 1.0, AL, nu[ss]+nx[ss], 0, tmp_nxM, 0);
 		TRMV_LNN_LIBSTR(nx[ss+1], nx[ss+1], L+ss+1, nu[ss+1], nu[ss+1], tmp_nxM, 0, Pb+ss, 0);
 		GEAD_LIBSTR(1, nx[ss+1], 1.0, L+ss+1, nu[ss+1]+nx[ss+1], nu[ss+1], AL, nu[ss]+nx[ss], 0);

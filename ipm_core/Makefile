@@ -30,11 +30,16 @@ include ../Makefile.rule
 OBJS =
 
 ifeq ($(TARGET), GENERIC)
-OBJS +=
+OBJS += d_core_qp_ipm_aux.o
+OBJS += s_core_qp_ipm_aux.o
+endif
+ifeq ($(TARGET), AVX)
+OBJS += d_core_qp_ipm_aux_avx.o
+OBJS += s_core_qp_ipm_aux_avx.o
 endif
 
-OBJS += d_core_qp_ipm_aux.o d_core_qp_ipm.o
-OBJS += s_core_qp_ipm_aux.o s_core_qp_ipm.o
+OBJS += d_core_qp_ipm.o
+OBJS += s_core_qp_ipm.o
 
 obj: $(OBJS)
 

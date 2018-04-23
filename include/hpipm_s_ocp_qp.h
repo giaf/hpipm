@@ -49,11 +49,10 @@ struct s_ocp_qp
 	struct blasfeo_smat *BAbt;
 	struct blasfeo_svec *b;
 	struct blasfeo_smat *RSQrq;
-	struct blasfeo_svec *rq;
+	struct blasfeo_svec *rqz;
 	struct blasfeo_smat *DCt;
 	struct blasfeo_svec *d;
 	struct blasfeo_svec *Z;
-	struct blasfeo_svec *z;
 	int **idxb; // index of box constraints
 	int **idxs; // index of soft constraints
 	int memsize; // memory size in bytes
@@ -68,9 +67,9 @@ void s_create_ocp_qp(struct s_ocp_qp_dim *dim, struct s_ocp_qp *qp, void *memory
 //
 void s_change_bounds_dimensions_ocp_qp(int *nbu, int *nbx, struct s_ocp_qp *qp);
 //
-void s_cvt_colmaj_to_ocp_qp(float **A, float **B, float **b, float **Q, float **S, float **R, float **q, float **r, int **idxb, float **lb, float **ub, float **C, float **D, float **lg, float **ug, float **Zl, float **Zu, float **zl, float **zu, int **idxs, struct s_ocp_qp *qp);
+void s_cvt_colmaj_to_ocp_qp(float **A, float **B, float **b, float **Q, float **S, float **R, float **q, float **r, int **idxb, float **lb, float **ub, float **C, float **D, float **lg, float **ug, float **Zl, float **Zu, float **zl, float **zu, int **idxs, float **ls, float **us, struct s_ocp_qp *qp);
 //
-void s_cvt_rowmaj_to_ocp_qp(float **A, float **B, float **b, float **Q, float **S, float **R, float **q, float **r, int **idxb, float **lb, float **ub, float **C, float **D, float **lg, float **ug, float **Zl, float **Zu, float **zl, float **zu, int **idxs, struct s_ocp_qp *qp);
+void s_cvt_rowmaj_to_ocp_qp(float **A, float **B, float **b, float **Q, float **S, float **R, float **q, float **r, int **idxb, float **lb, float **ub, float **C, float **D, float **lg, float **ug, float **Zl, float **Zu, float **zl, float **zu, int **idxs, float **ls, float **us, struct s_ocp_qp *qp);
 //
 void s_cvt_colmaj_to_ocp_qp_Q(int stage, float *mat, struct s_ocp_qp *qp);
 //

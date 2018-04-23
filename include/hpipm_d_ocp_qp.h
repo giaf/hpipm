@@ -49,11 +49,10 @@ struct d_ocp_qp
 	struct blasfeo_dmat *BAbt;
 	struct blasfeo_dvec *b;
 	struct blasfeo_dmat *RSQrq;
-	struct blasfeo_dvec *rq;
+	struct blasfeo_dvec *rqz;
 	struct blasfeo_dmat *DCt;
 	struct blasfeo_dvec *d;
 	struct blasfeo_dvec *Z;
-	struct blasfeo_dvec *z;
 	int **idxb; // index of box constraints
 	int **idxs; // index of soft constraints
 	int memsize; // memory size in bytes
@@ -68,9 +67,9 @@ void d_create_ocp_qp(struct d_ocp_qp_dim *dim, struct d_ocp_qp *qp, void *memory
 //
 void d_change_bounds_dimensions_ocp_qp(int *nbu, int *nbx, struct d_ocp_qp *qp);
 //
-void d_cvt_colmaj_to_ocp_qp(double **A, double **B, double **b, double **Q, double **S, double **R, double **q, double **r, int **idxb, double **lb, double **ub, double **C, double **D, double **lg, double **ug, double **Zl, double **Zu, double **zl, double **zu, int **idxs, struct d_ocp_qp *qp);
+void d_cvt_colmaj_to_ocp_qp(double **A, double **B, double **b, double **Q, double **S, double **R, double **q, double **r, int **idxb, double **lb, double **ub, double **C, double **D, double **lg, double **ug, double **Zl, double **Zu, double **zl, double **zu, int **idxs, double **ls, double **us, struct d_ocp_qp *qp);
 //
-void d_cvt_rowmaj_to_ocp_qp(double **A, double **B, double **b, double **Q, double **S, double **R, double **q, double **r, int **idxb, double **lb, double **ub, double **C, double **D, double **lg, double **ug, double **Zl, double **Zu, double **zl, double **zu, int **idxs, struct d_ocp_qp *qp);
+void d_cvt_rowmaj_to_ocp_qp(double **A, double **B, double **b, double **Q, double **S, double **R, double **q, double **r, int **idxb, double **lb, double **ub, double **C, double **D, double **lg, double **ug, double **Zl, double **Zu, double **zl, double **zu, int **idxs, double **ls, double **us, struct d_ocp_qp *qp);
 //
 void d_cvt_colmaj_to_ocp_qp_Q(int stage, double *mat, struct d_ocp_qp *qp);
 //

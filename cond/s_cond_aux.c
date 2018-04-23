@@ -43,6 +43,7 @@
 
 
 #define AXPY_LIBSTR blasfeo_saxpy
+#define COND_QP_OCP2DENSE_ARG s_cond_qp_ocp2dense_arg
 #define COND_QP_OCP2DENSE_WORKSPACE s_cond_qp_ocp2dense_workspace
 #define DENSE_QP_SOL s_dense_qp_sol
 #define GEAD_LIBSTR blasfeo_sgead
@@ -56,7 +57,9 @@
 #define OCP_QP_SOL s_ocp_qp_sol
 #define POTRF_L_MN_LIBSTR blasfeo_spotrf_l_mn
 #define REAL float
+#define ROWAD_LIBSTR blasfeo_srowad
 #define ROWEX_LIBSTR blasfeo_srowex
+#define ROWIN_LIBSTR blasfeo_srowin
 #define STRMAT blasfeo_smat
 #define STRVEC blasfeo_svec
 #define SYMV_L_LIBSTR blasfeo_ssymv_l
@@ -73,6 +76,9 @@
 #define COND_D s_cond_d
 #define EXPAND_SOL s_expand_sol
 #define EXPAND_PRIMAL_SOL s_expand_primal_sol
+#define UPDATE_COND_BABT s_update_cond_BAbt
+#define UPDATE_COND_RSQRQ_N2NX3 s_update_cond_RSQrq_N2nx3
+#define UPDATE_COND_DCTD s_update_cond_DCtd
 
 
 

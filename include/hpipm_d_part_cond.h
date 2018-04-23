@@ -43,6 +43,14 @@ extern "C" {
 
 
 
+struct d_cond_qp_ocp2ocp_arg
+	{
+	struct d_cond_qp_ocp2dense_arg *cond_arg;
+	int memsize;
+	};
+
+
+
 struct d_cond_qp_ocp2ocp_workspace
 	{
 	struct d_cond_qp_ocp2dense_workspace *cond_workspace;
@@ -52,18 +60,29 @@ struct d_cond_qp_ocp2ocp_workspace
 
 
 //
-void d_compute_qp_dim_ocp2ocp(struct d_ocp_qp_dim *ocp_dim, struct d_ocp_qp_dim *part_dense_dim);
+int d_memsize_cond_qp_ocp2ocp_arg(int N2);
 //
-int d_memsize_cond_qp_ocp2ocp(struct d_ocp_qp_dim *ocp_dim, struct d_ocp_qp_dim *part_dense_dim);
+void d_create_cond_qp_ocp2ocp_arg(int N2, struct d_cond_qp_ocp2ocp_arg *cond_arg, void *mem);
 //
-void d_create_cond_qp_ocp2ocp(struct d_ocp_qp_dim *ocp_dim, struct d_ocp_qp_dim *part_dense_dim, struct d_cond_qp_ocp2ocp_workspace *cond_ws, void *mem);
-//
-void d_cond_qp_ocp2ocp(struct d_ocp_qp *ocp_qp, struct d_ocp_qp *part_dense_qp, struct d_cond_qp_ocp2ocp_workspace *cond_ws);
-//
-void d_cond_rhs_qp_ocp2ocp(struct d_ocp_qp *ocp_qp, struct d_ocp_qp *part_dense_qp, struct d_cond_qp_ocp2ocp_workspace *cond_ws);
-//
-void d_expand_sol_ocp2ocp(struct d_ocp_qp *ocp_qp, struct d_ocp_qp *part_dense_qp, struct d_ocp_qp_sol *part_dense_qp_sol, struct d_ocp_qp_sol *ocp_qp_sol, struct d_cond_qp_ocp2ocp_workspace *cond_ws);
+void d_set_default_cond_qp_ocp2ocp_arg(int N2, struct d_cond_qp_ocp2ocp_arg *cond_arg);
 
+//
+void d_compute_block_size_cond_qp_ocp2ocp(int N, int N2, int *block_size);
+//
+void d_compute_qp_dim_ocp2ocp(struct d_ocp_qp_dim *ocp_dim, int *block_size, struct d_ocp_qp_dim *part_dense_dim);
+//
+int d_memsize_cond_qp_ocp2ocp(struct d_ocp_qp_dim *ocp_dim, int *block_size, struct d_ocp_qp_dim *part_dense_dim, struct d_cond_qp_ocp2ocp_arg *cond_arg);
+//
+void d_create_cond_qp_ocp2ocp(struct d_ocp_qp_dim *ocp_dim, int *block_size, struct d_ocp_qp_dim *part_dense_dim, struct d_cond_qp_ocp2ocp_arg *cond_arg, struct d_cond_qp_ocp2ocp_workspace *cond_ws, void *mem);
+//
+void d_cond_qp_ocp2ocp(struct d_ocp_qp *ocp_qp, struct d_ocp_qp *part_dense_qp, struct d_cond_qp_ocp2ocp_arg *cond_arg, struct d_cond_qp_ocp2ocp_workspace *cond_ws);
+//
+void d_cond_rhs_qp_ocp2ocp(struct d_ocp_qp *ocp_qp, struct d_ocp_qp *part_dense_qp, struct d_cond_qp_ocp2ocp_arg *cond_arg, struct d_cond_qp_ocp2ocp_workspace *cond_ws);
+//
+void d_expand_sol_ocp2ocp(struct d_ocp_qp *ocp_qp, struct d_ocp_qp *part_dense_qp, struct d_ocp_qp_sol *part_dense_qp_sol, struct d_ocp_qp_sol *ocp_qp_sol, struct d_cond_qp_ocp2ocp_arg *cond_arg, struct d_cond_qp_ocp2ocp_workspace *cond_ws);
+
+//
+void d_update_cond_qp_ocp2ocp(int *idxc, struct d_ocp_qp *ocp_qp, struct d_ocp_qp *part_dense_qp, struct d_cond_qp_ocp2ocp_arg *cond_arg, struct d_cond_qp_ocp2ocp_workspace *cond_ws);
 
 
 #ifdef __cplusplus

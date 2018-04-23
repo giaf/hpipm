@@ -153,7 +153,7 @@ int main()
 
 	int ii, jj;
 	
-	int rep, nrep=1000;
+	int rep, nrep=1;
 
 	struct timeval tv0, tv1;
 
@@ -163,7 +163,7 @@ int main()
 
 	int nx_ = 8; // number of states (it has to be even for the mass-spring system test problem)
 	int nu_ = 3; // number of inputs (controllers) (it has to be at least 1 and at most nx/2 for the mass-spring system test problem)
-	int N  = 5; // horizon lenght
+	int N  = 8; // horizon lenght
 
 
 
@@ -185,7 +185,7 @@ int main()
 	nu[N] = 0;
 
 	int nbu[N+1];
-	for (ii=0; ii<N; ii++)
+	for (ii=0; ii<=N; ii++)
 		nbu[ii] = nu[ii];
 
 #if 1
@@ -211,8 +211,8 @@ int main()
 	int ns[N+1];
 	ns[0] = 0;
 	for(ii=1; ii<N; ii++)
-		ns[ii] = 0;//nx[ii]/2;
-	ns[N] = 0;//nx[N]/2;
+		ns[ii] = nx[ii]/2;
+	ns[N] = nx[N]/2;
 //	ns[N] = 0;
 #elif 0
 	int nb[N+1];
@@ -287,7 +287,7 @@ int main()
 ************************************************/	
 	
 	double *Q; d_zeros(&Q, nx_, nx_);
-	for(ii=0; ii<nx_; ii++) Q[ii*(nx_+1)] = 1.0;
+	for(ii=0; ii<nx_; ii++) Q[ii*(nx_+1)] = 0.0;
 
 	double *R; d_zeros(&R, nu_, nu_);
 	for(ii=0; ii<nu_; ii++) R[ii*(nu_+1)] = 2.0;
@@ -295,10 +295,10 @@ int main()
 	double *S; d_zeros(&S, nu_, nx_);
 
 	double *q; d_zeros(&q, nx_, 1);
-	for(ii=0; ii<nx_; ii++) q[ii] = 0.1;
+	for(ii=0; ii<nx_; ii++) q[ii] = 0.0;
 
 	double *r; d_zeros(&r, nu_, 1);
-	for(ii=0; ii<nu_; ii++) r[ii] = 0.2;
+	for(ii=0; ii<nu_; ii++) r[ii] = 0.0;
 
 	double *r0; d_zeros(&r0, nu_, 1);
 	dgemv_n_3l(nu_, nx_, S, nu_, x0, r0);
@@ -314,7 +314,12 @@ int main()
 #endif
 
 	// maximum element in cost functions
-	double mu0 = 2.0;
+	double mu0;
+	if(ns[1]>0 | ns[N]>0)
+		mu0 = 1000.0;
+	else
+		mu0 = 2.0;
+
 
 /************************************************
 * box & general constraints
@@ -367,8 +372,8 @@ int main()
 			}
 		else // state
 			{
-			d_lb1[ii] = - 4.0; // xmin
-			d_ub1[ii] =   4.0; // xmax
+			d_lb1[ii] = - 1.0; // xmin
+			d_ub1[ii] =   1.0; // xmax
 			}
 		idxb1[ii] = ii;
 		}
@@ -394,8 +399,8 @@ int main()
 	double *d_ugN; d_zeros(&d_ugN, ng[N], 1);
 	for(ii=0; ii<nb[N]; ii++)
 		{
-		d_lbN[ii] = - 4.0; // xmin
-		d_ubN[ii] =   4.0; // xmax
+		d_lbN[ii] = - 1.0; // xmin
+		d_ubN[ii] =   1.0; // xmax
 		idxbN[ii] = ii;
 		}
 	for(ii=0; ii<ng[N]; ii++)
@@ -463,13 +468,19 @@ int main()
 		Zu0[ii] = 1e3;
 	double *zl0; d_zeros(&zl0, ns[0], 1);
 	for(ii=0; ii<ns[0]; ii++)
-		zl0[ii] = 1e2;
+		zl0[ii] = 0e2;
 	double *zu0; d_zeros(&zu0, ns[0], 1);
 	for(ii=0; ii<ns[0]; ii++)
 		zu0[ii] = 1e2;
 	int *idxs0; int_zeros(&idxs0, ns[0], 1);
 	for(ii=0; ii<ns[0]; ii++)
 		idxs0[ii] = nu[0]+ii;
+	double *d_ls0; d_zeros(&d_ls0, ns[0], 1);
+	for(ii=0; ii<ns[0]; ii++)
+		d_ls0[ii] = -1.0;
+	double *d_us0; d_zeros(&d_us0, ns[0], 1);
+	for(ii=0; ii<ns[0]; ii++)
+		d_us0[ii] = 0.0;
 
 	double *Zl1; d_zeros(&Zl1, ns[1], 1);
 	for(ii=0; ii<ns[1]; ii++)
@@ -479,13 +490,19 @@ int main()
 		Zu1[ii] = 1e3;
 	double *zl1; d_zeros(&zl1, ns[1], 1);
 	for(ii=0; ii<ns[1]; ii++)
-		zl1[ii] = 1e2;
+		zl1[ii] = 0e2;
 	double *zu1; d_zeros(&zu1, ns[1], 1);
 	for(ii=0; ii<ns[1]; ii++)
 		zu1[ii] = 1e2;
 	int *idxs1; int_zeros(&idxs1, ns[1], 1);
 	for(ii=0; ii<ns[1]; ii++)
 		idxs1[ii] = nu[1]+ii;
+	double *d_ls1; d_zeros(&d_ls1, ns[1], 1);
+	for(ii=0; ii<ns[1]; ii++)
+		d_ls1[ii] = -1.0;
+	double *d_us1; d_zeros(&d_us1, ns[1], 1);
+	for(ii=0; ii<ns[1]; ii++)
+		d_us1[ii] = 0.0;
 
 	double *ZlN; d_zeros(&ZlN, ns[N], 1);
 	for(ii=0; ii<ns[N]; ii++)
@@ -495,13 +512,19 @@ int main()
 		ZuN[ii] = 1e3;
 	double *zlN; d_zeros(&zlN, ns[N], 1);
 	for(ii=0; ii<ns[N]; ii++)
-		zlN[ii] = 1e2;
+		zlN[ii] = 0e2;
 	double *zuN; d_zeros(&zuN, ns[N], 1);
 	for(ii=0; ii<ns[N]; ii++)
 		zuN[ii] = 1e2;
 	int *idxsN; int_zeros(&idxsN, ns[N], 1);
 	for(ii=0; ii<ns[N]; ii++)
 		idxsN[ii] = nu[N]+ii;
+	double *d_lsN; d_zeros(&d_lsN, ns[N], 1);
+	for(ii=0; ii<ns[N]; ii++)
+		d_lsN[ii] = -1.0;
+	double *d_usN; d_zeros(&d_usN, ns[N], 1);
+	for(ii=0; ii<ns[N]; ii++)
+		d_usN[ii] = 0.0;
 
 #if 1
 	// soft constraints
@@ -510,16 +533,22 @@ int main()
 	d_print_mat(1, ns[0], Zu0, 1);
 	d_print_mat(1, ns[0], zl0, 1);
 	d_print_mat(1, ns[0], zu0, 1);
+	d_print_mat(1, ns[0], d_ls0, 1);
+	d_print_mat(1, ns[0], d_us0, 1);
 	int_print_mat(1, ns[1], idxs1, 1);
 	d_print_mat(1, ns[1], Zl1, 1);
 	d_print_mat(1, ns[1], Zu1, 1);
 	d_print_mat(1, ns[1], zl1, 1);
 	d_print_mat(1, ns[1], zu1, 1);
+	d_print_mat(1, ns[1], d_ls1, 1);
+	d_print_mat(1, ns[1], d_us1, 1);
 	int_print_mat(1, ns[N], idxsN, 1);
 	d_print_mat(1, ns[N], ZlN, 1);
 	d_print_mat(1, ns[N], ZuN, 1);
 	d_print_mat(1, ns[N], zlN, 1);
 	d_print_mat(1, ns[N], zuN, 1);
+	d_print_mat(1, ns[N], d_lsN, 1);
+	d_print_mat(1, ns[N], d_usN, 1);
 #endif
 
 /************************************************
@@ -534,18 +563,20 @@ int main()
 	double *hR[N+1];
 	double *hq[N+1];
 	double *hr[N+1];
+	int *hidxb[N+1];
 	double *hd_lb[N+1];
 	double *hd_ub[N+1];
-	double *hd_lg[N+1];
-	double *hd_ug[N+1];
 	double *hC[N+1];
 	double *hD[N+1];
-	int *hidxb[N+1];
+	double *hd_lg[N+1];
+	double *hd_ug[N+1];
 	double *hZl[N+1];
 	double *hZu[N+1];
 	double *hzl[N+1];
 	double *hzu[N+1];
 	int *hidxs[N+1]; // XXX
+	double *hd_ls[N+1];
+	double *hd_us[N+1];
 
 	hA[0] = A;
 	hB[0] = B;
@@ -558,15 +589,17 @@ int main()
 	hidxb[0] = idxb0;
 	hd_lb[0] = d_lb0;
 	hd_ub[0] = d_ub0;
-	hd_lg[0] = d_lg0;
-	hd_ug[0] = d_ug0;
 	hC[0] = C0;
 	hD[0] = D0;
+	hd_lg[0] = d_lg0;
+	hd_ug[0] = d_ug0;
 	hZl[0] = Zl0;
 	hZu[0] = Zu0;
 	hzl[0] = zl0;
 	hzu[0] = zu0;
 	hidxs[0] = idxs0;
+	hd_ls[0] = d_ls0;
+	hd_us[0] = d_us0;
 	for(ii=1; ii<N; ii++)
 		{
 		hA[ii] = A;
@@ -589,6 +622,8 @@ int main()
 		hzl[ii] = zl1;
 		hzu[ii] = zu1;
 		hidxs[ii] = idxs1;
+		hd_ls[ii] = d_ls1;
+		hd_us[ii] = d_us1;
 		}
 	hQ[N] = Q;
 	hS[N] = S;
@@ -607,6 +642,8 @@ int main()
 	hzl[N] = zlN;
 	hzu[N] = zuN;
 	hidxs[N] = idxsN;
+	hd_ls[N] = d_lsN;
+	hd_us[N] = d_usN;
 	
 /************************************************
 * ocp qp dim
@@ -630,16 +667,16 @@ int main()
 
 	struct d_ocp_qp ocp_qp;
 	d_create_ocp_qp(&dim, &ocp_qp, ocp_qp_mem);
-	d_cvt_colmaj_to_ocp_qp(hA, hB, hb, hQ, hS, hR, hq, hr, hidxb, hd_lb, hd_ub, hC, hD, hd_lg, hd_ug, hZl, hZu, hzl, hzu, hidxs, &ocp_qp);
+	d_cvt_colmaj_to_ocp_qp(hA, hB, hb, hQ, hS, hR, hq, hr, hidxb, hd_lb, hd_ub, hC, hD, hd_lg, hd_ug, hZl, hZu, hzl, hzu, hidxs, hd_ls, hd_us, &ocp_qp);
 
 #if 0
 	printf("\nN = %d\n", ocp_qp.N);
 	for(ii=0; ii<N; ii++)
-		d_print_strmat(ocp_qp.nu[ii]+ocp_qp.nx[ii]+1, ocp_qp.nx[ii+1], ocp_qp.BAbt+ii, 0, 0);
+		blasfeo_print_dmat(ocp_qp.nu[ii]+ocp_qp.nx[ii]+1, ocp_qp.nx[ii+1], ocp_qp.BAbt+ii, 0, 0);
 	for(ii=0; ii<N; ii++)
 		blasfeo_print_tran_dvec(ocp_qp.nx[ii+1], ocp_qp.b+ii, 0);
 	for(ii=0; ii<=N; ii++)
-		d_print_strmat(ocp_qp.nu[ii]+ocp_qp.nx[ii]+1, ocp_qp.nu[ii]+ocp_qp.nx[ii], ocp_qp.RSQrq+ii, 0, 0);
+		blasfeo_print_dmat(ocp_qp.nu[ii]+ocp_qp.nx[ii]+1, ocp_qp.nu[ii]+ocp_qp.nx[ii], ocp_qp.RSQrq+ii, 0, 0);
 	for(ii=0; ii<=N; ii++)
 		blasfeo_print_tran_dvec(ocp_qp.nu[ii]+ocp_qp.nx[ii], ocp_qp.rq+ii, 0);
 	for(ii=0; ii<=N; ii++)
@@ -649,7 +686,7 @@ int main()
 	for(ii=0; ii<=N; ii++)
 		blasfeo_print_tran_dvec(ocp_qp.nb[ii], ocp_qp.d_ub+ii, 0);
 	for(ii=0; ii<=N; ii++)
-		d_print_strmat(ocp_qp.nu[ii]+ocp_qp.nx[ii], ocp_qp.ng[ii], ocp_qp.DCt+ii, 0, 0);
+		blasfeo_print_dmat(ocp_qp.nu[ii]+ocp_qp.nx[ii], ocp_qp.ng[ii], ocp_qp.DCt+ii, 0, 0);
 	for(ii=0; ii<=N; ii++)
 		blasfeo_print_tran_dvec(ocp_qp.ng[ii], ocp_qp.d_lg+ii, 0);
 	for(ii=0; ii<=N; ii++)
@@ -681,6 +718,7 @@ int main()
 * dense qp
 ************************************************/	
 	
+	// qp
 	int dense_qp_size = d_memsize_dense_qp(&qp_dim);
 	printf("\nqp size = %d\n", dense_qp_size);
 	void *dense_qp_mem = malloc(dense_qp_size);
@@ -688,18 +726,30 @@ int main()
 	struct d_dense_qp dense_qp;
 	d_create_dense_qp(&qp_dim, &dense_qp, dense_qp_mem);
 
-	int cond_size = d_memsize_cond_qp_ocp2dense(&dim);
+	// arg
+	int cond_arg_size = d_memsize_cond_qp_ocp2dense_arg();
+	printf("\ncond_arg size = %d\n", cond_arg_size);
+	void *cond_arg_mem = malloc(cond_arg_size);
+
+	struct d_cond_qp_ocp2dense_arg cond_arg;
+	d_create_cond_qp_ocp2dense_arg(&cond_arg, cond_arg_mem);
+	d_set_default_cond_qp_ocp2dense_arg(&cond_arg);
+
+	// ws
+	int cond_size = d_memsize_cond_qp_ocp2dense(&dim, &cond_arg);
 	printf("\ncond size = %d\n", cond_size);
 	void *cond_mem = malloc(cond_size);
 
 	struct d_cond_qp_ocp2dense_workspace cond_ws;
-	d_create_cond_qp_ocp2dense(&dim, &cond_ws, cond_mem);
+	d_create_cond_qp_ocp2dense(&dim, &cond_arg, &cond_ws, cond_mem);
+
+	/* cond */
 
 	gettimeofday(&tv0, NULL); // start
 
 	for(rep=0; rep<nrep; rep++)
 		{
-		d_cond_qp_ocp2dense(&ocp_qp, &dense_qp, &cond_ws);
+		d_cond_qp_ocp2dense(&ocp_qp, &dense_qp, &cond_arg, &cond_ws);
 		}
 
 	gettimeofday(&tv1, NULL); // stop
@@ -708,23 +758,73 @@ int main()
 
 #if 1
 	printf("\ncond data\n\n");
-	d_print_strmat(nvc+1, nvc, dense_qp.Hv, 0, 0); // TODO remove +1
-	d_print_strmat(nec, nvc, dense_qp.A, 0, 0);
-	d_print_strmat(nvc, ngc, dense_qp.Ct, 0, 0);
-	blasfeo_print_tran_dvec(nvc, dense_qp.g, 0);
+	blasfeo_print_dmat(nvc, nvc, dense_qp.Hv, 0, 0);
+	blasfeo_print_dmat(nec, nvc, dense_qp.A, 0, 0);
+	blasfeo_print_dmat(nvc, ngc, dense_qp.Ct, 0, 0);
+	blasfeo_print_tran_dvec(nvc, dense_qp.gz, 0);
 	blasfeo_print_tran_dvec(nec, dense_qp.b, 0);
-	blasfeo_print_tran_dvec(2*nbc+2*ngc, dense_qp.d, 0);
+	blasfeo_print_tran_dvec(2*nbc+2*ngc+2*nsc, dense_qp.d, 0);
 	blasfeo_print_tran_dvec(nbc, dense_qp.d, 0);
 	blasfeo_print_tran_dvec(nbc, dense_qp.d, nbc+ngc);
 	blasfeo_print_tran_dvec(ngc, dense_qp.d, nbc);
 	blasfeo_print_tran_dvec(ngc, dense_qp.d, 2*nbc+ngc);
+	blasfeo_print_tran_dvec(nsc, dense_qp.d, 2*nbc+2*ngc);
+	blasfeo_print_tran_dvec(nsc, dense_qp.d, 2*nbc+2*ngc+nsc);
+	blasfeo_print_tran_dvec(nsc, dense_qp.Z, 0);
+	blasfeo_print_tran_dvec(nsc, dense_qp.Z, nsc);
+	blasfeo_print_tran_dvec(nsc, dense_qp.gz, nvc);
+	blasfeo_print_tran_dvec(nsc, dense_qp.gz, nvc+nsc);
 #endif
+
+	/* update cond */
+
+	// index of updated dynamics
+	int idxc[N];
+	for(ii=0; ii<N; ii++)
+		idxc[ii] = 0;
+	idxc[0] = 1;
+
+//	blasfeo_dgese(nvc+1, nvc, 0.0, dense_qp.Hv, 0, 0);
 
 	gettimeofday(&tv0, NULL); // start
 
 	for(rep=0; rep<nrep; rep++)
 		{
-		d_cond_rhs_qp_ocp2dense(&ocp_qp, &dense_qp, &cond_ws);
+		d_update_cond_qp_ocp2dense(idxc, &ocp_qp, &dense_qp, &cond_arg, &cond_ws);
+		}
+
+	gettimeofday(&tv1, NULL); // stop
+
+	double time_update_cond = (tv1.tv_sec-tv0.tv_sec)/(nrep+0.0)+(tv1.tv_usec-tv0.tv_usec)/(nrep*1e6);
+
+#if 1
+	printf("\nupdate cond data\n\n");
+	blasfeo_print_dmat(nvc, nvc, dense_qp.Hv, 0, 0);
+	blasfeo_print_dmat(nec, nvc, dense_qp.A, 0, 0);
+	blasfeo_print_dmat(nvc, ngc, dense_qp.Ct, 0, 0);
+	blasfeo_print_tran_dvec(nvc, dense_qp.gz, 0);
+	blasfeo_print_tran_dvec(nec, dense_qp.b, 0);
+	blasfeo_print_tran_dvec(2*nbc+2*ngc+2*nsc, dense_qp.d, 0);
+	blasfeo_print_tran_dvec(nbc, dense_qp.d, 0);
+	blasfeo_print_tran_dvec(nbc, dense_qp.d, nbc+ngc);
+	blasfeo_print_tran_dvec(ngc, dense_qp.d, nbc);
+	blasfeo_print_tran_dvec(ngc, dense_qp.d, 2*nbc+ngc);
+	blasfeo_print_tran_dvec(nsc, dense_qp.d, 2*nbc+2*ngc);
+	blasfeo_print_tran_dvec(nsc, dense_qp.d, 2*nbc+2*ngc+nsc);
+	blasfeo_print_tran_dvec(nsc, dense_qp.Z, 0);
+	blasfeo_print_tran_dvec(nsc, dense_qp.Z, nsc);
+	blasfeo_print_tran_dvec(nsc, dense_qp.gz, nvc);
+	blasfeo_print_tran_dvec(nsc, dense_qp.gz, nvc+nsc);
+#endif
+//return 0;
+
+	/* cond rhs */
+
+	gettimeofday(&tv0, NULL); // start
+
+	for(rep=0; rep<nrep; rep++)
+		{
+		d_cond_rhs_qp_ocp2dense(&ocp_qp, &dense_qp, &cond_arg, &cond_ws);
 		}
 
 	gettimeofday(&tv1, NULL); // stop
@@ -733,13 +833,19 @@ int main()
 
 #if 1
 	printf("\ncond rhs data\n\n");
-	blasfeo_print_tran_dvec(nvc, dense_qp.g, 0);
+	blasfeo_print_tran_dvec(nvc, dense_qp.gz, 0);
 	blasfeo_print_tran_dvec(nec, dense_qp.b, 0);
-	blasfeo_print_tran_dvec(2*nbc+2*ngc, dense_qp.d, 0);
+	blasfeo_print_tran_dvec(2*nbc+2*ngc+2*nsc, dense_qp.d, 0);
 	blasfeo_print_tran_dvec(nbc, dense_qp.d, 0);
 	blasfeo_print_tran_dvec(nbc, dense_qp.d, nbc+ngc);
 	blasfeo_print_tran_dvec(ngc, dense_qp.d, nbc);
 	blasfeo_print_tran_dvec(ngc, dense_qp.d, 2*nbc+ngc);
+	blasfeo_print_tran_dvec(nsc, dense_qp.d, 2*nbc+2*ngc);
+	blasfeo_print_tran_dvec(nsc, dense_qp.d, 2*nbc+2*ngc+nsc);
+	blasfeo_print_tran_dvec(nsc, dense_qp.Z, 0);
+	blasfeo_print_tran_dvec(nsc, dense_qp.Z, nsc);
+	blasfeo_print_tran_dvec(nsc, dense_qp.gz, nvc);
+	blasfeo_print_tran_dvec(nsc, dense_qp.gz, nvc+nsc);
 #endif
 
 #if 0
@@ -747,7 +853,7 @@ int main()
 	for(ii=0; ii<N; ii++)
 		{
 		nu_tmp += nu[ii];
-		d_print_strmat(nu_tmp+nx[0]+1, nx[ii+1], cond_ws.Gamma+ii, 0, 0);
+		blasfeo_print_dmat(nu_tmp+nx[0]+1, nx[ii+1], cond_ws.Gamma+ii, 0, 0);
 		}
 #endif
 
@@ -866,9 +972,10 @@ int main()
 	printf("\nalpha_aff\tmu_aff\t\tsigma\t\talpha\t\tmu\n");
 	d_print_e_tran_mat(5, dense_workspace.iter, dense_workspace.stat, 5);
 
-	printf("\npart cond time           = %e [s]\n", time_cond);
-	printf("\npart cond rhs time       = %e [s]\n", time_cond_rhs);
-	printf("\npart cond dense ipm time = %e [s]\n\n", time_dense_ipm);
+	printf("\ncond time           = %e [s]\n", time_cond);
+	printf("\nupdate cond time    = %e [s]\n", time_update_cond);
+	printf("\ncond rhs time       = %e [s]\n", time_cond_rhs);
+	printf("\ncond dense ipm time = %e [s]\n\n", time_dense_ipm);
 
 /************************************************
 * ocp qp sol
@@ -885,7 +992,7 @@ int main()
 * expand solution
 ************************************************/	
 
-	d_expand_sol_dense2ocp(&ocp_qp, &dense_qp_sol, &ocp_qp_sol, &cond_ws);
+	d_expand_sol_dense2ocp(&ocp_qp, &dense_qp_sol, &ocp_qp_sol, &cond_arg, &cond_ws);
 
 	double *u[N+1]; for(ii=0; ii<=N; ii++) d_zeros(u+ii, nu[ii], 1);
 	double *x[N+1]; for(ii=0; ii<=N; ii++) d_zeros(x+ii, nx[ii], 1);
@@ -992,27 +1099,35 @@ int main()
 	d_free(DN);
 	d_free(d_lgN);
 	d_free(d_ugN);
+
 	d_free(Zl0);
 	d_free(Zu0);
 	d_free(zl0);
 	d_free(zu0);
 	int_free(idxs0);
+	d_free(d_ls0);
+	d_free(d_us0);
 	d_free(Zl1);
 	d_free(Zu1);
 	d_free(zl1);
 	d_free(zu1);
 	int_free(idxs1);
+	d_free(d_ls1);
+	d_free(d_us1);
 	d_free(ZlN);
 	d_free(ZuN);
 	d_free(zlN);
 	d_free(zuN);
 	int_free(idxsN);
+	d_free(d_lsN);
+	d_free(d_usN);
 
 	free(ocp_qp_mem);
 	free(ocp_qp_sol_mem);
 	free(dense_qp_mem);
 	free(dense_qp_sol_mem);
 	free(cond_mem);
+	free(cond_arg_mem);
 	free(dense_ipm_mem);
 
 /************************************************

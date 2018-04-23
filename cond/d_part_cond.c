@@ -50,27 +50,40 @@
 #define COND_DCTD d_cond_DCtd
 #define COND_RQ_N2NX3 d_cond_rq_N2nx3
 #define COND_RSQRQ_N2NX3 d_cond_RSQrq_N2nx3
+#define COND_QP_OCP2DENSE_ARG d_cond_qp_ocp2dense_arg
 #define COND_QP_OCP2DENSE_WORKSPACE d_cond_qp_ocp2dense_workspace
+#define COND_QP_OCP2OCP_ARG d_cond_qp_ocp2ocp_arg
 #define COND_QP_OCP2OCP_WORKSPACE d_cond_qp_ocp2ocp_workspace
+#define CREATE_COND_QP_OCP2DENSE_ARG d_create_cond_qp_ocp2dense_arg
 #define CREATE_COND_QP_OCP2DENSE d_create_cond_qp_ocp2dense
 #define CREATE_STRVEC blasfeo_create_dvec
 #define DENSE_QP d_dense_qp
 #define DENSE_QP_SOL d_dense_qp_sol
 #define EXPAND_SOL d_expand_sol
 #define GECP_LIBSTR blasfeo_dgecp
+#define MEMSIZE_COND_QP_OCP2DENSE_ARG d_memsize_cond_qp_ocp2dense_arg
 #define MEMSIZE_COND_QP_OCP2DENSE d_memsize_cond_qp_ocp2dense
 #define OCP_QP d_ocp_qp
 #define OCP_QP_DIM d_ocp_qp_dim
 #define OCP_QP_SOL d_ocp_qp_sol
+#define SET_DEFAULT_COND_QP_OCP2DENSE_ARG d_set_default_cond_qp_ocp2dense_arg
 #define STRVEC blasfeo_dvec
+#define UPDATE_COND_BABT d_update_cond_BAbt
+#define UPDATE_COND_DCTD d_update_cond_DCtd
+#define UPDATE_COND_RSQRQ_N2NX3 d_update_cond_RSQrq_N2nx3
 #define VECCP_LIBSTR blasfeo_dveccp
 
+#define COMPUTE_BLOCK_SIZE_COND_QP_OCP2OCP d_compute_block_size_cond_qp_ocp2ocp
 #define COMPUTE_QP_DIM_OCP2OCP d_compute_qp_dim_ocp2ocp
+#define MEMSIZE_COND_QP_OCP2OCP_ARG d_memsize_cond_qp_ocp2ocp_arg
+#define CREATE_COND_QP_OCP2OCP_ARG d_create_cond_qp_ocp2ocp_arg
+#define SET_DEFAULT_COND_QP_OCP2OCP_ARG d_set_default_cond_qp_ocp2ocp_arg
 #define MEMSIZE_COND_QP_OCP2OCP d_memsize_cond_qp_ocp2ocp
 #define CREATE_COND_QP_OCP2OCP d_create_cond_qp_ocp2ocp
 #define COND_QP_OCP2OCP d_cond_qp_ocp2ocp
 #define COND_RHS_QP_OCP2OCP d_cond_rhs_qp_ocp2ocp
 #define EXPAND_SOL_OCP2OCP d_expand_sol_ocp2ocp
+#define UPDATE_COND_QP_OCP2OCP d_update_cond_qp_ocp2ocp
 
 
 

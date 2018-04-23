@@ -207,11 +207,10 @@ void COMPUTE_RES_TREE_OCP_QP(struct TREE_OCP_QP *qp, struct TREE_OCP_QP_SOL *qp_
 	struct STRMAT *RSQrq = qp->RSQrq;
 	struct STRMAT *DCt = qp->DCt;
 	struct STRVEC *b = qp->b;
-	struct STRVEC *rq = qp->rq;
+	struct STRVEC *rqz = qp->rqz;
 	struct STRVEC *d = qp->d;
 	int **idxb = qp->idxb;
 	struct STRVEC *Z = qp->Z;
-	struct STRVEC *z = qp->z;
 	int **idxs = qp->idxs;
 
 	struct STRVEC *ux = qp_sol->ux;
@@ -241,7 +240,7 @@ void COMPUTE_RES_TREE_OCP_QP(struct TREE_OCP_QP *qp, struct TREE_OCP_QP_SOL *qp_
 		ng0 = ng[ii];
 		ns0 = ns[ii];
 
-		VECCP_LIBSTR(nu0+nx0, rq+ii, 0, res_g+ii, 0);
+		VECCP_LIBSTR(nu0+nx0, rqz+ii, 0, res_g+ii, 0);
 
 		// if not root
 		if(ii>0)
@@ -272,7 +271,7 @@ void COMPUTE_RES_TREE_OCP_QP(struct TREE_OCP_QP *qp, struct TREE_OCP_QP_SOL *qp_
 		if(ns0>0)
 			{
 			// res_g
-			GEMV_DIAG_LIBSTR(2*ns0, 1.0, Z+ii, 0, ux+ii, nu0+nx0, 1.0, z+ii, 0, res_g+ii, nu0+nx0);
+			GEMV_DIAG_LIBSTR(2*ns0, 1.0, Z+ii, 0, ux+ii, nu0+nx0, 1.0, rqz+ii, nu0+nx0, res_g+ii, nu0+nx0);
 			AXPY_LIBSTR(2*ns0, -1.0, lam+ii, 2*nb0+2*ng0, res_g+ii, nu0+nx0, res_g+ii, nu0+nx0);
 			VECEX_SP_LIBSTR(ns0, 1.0, idxs[ii], lam+ii, 0, tmp_nsM, 0);
 			AXPY_LIBSTR(ns0, -1.0, tmp_nsM, 0, res_g+ii, nu0+nx0, res_g+ii, nu0+nx0);
@@ -282,6 +281,7 @@ void COMPUTE_RES_TREE_OCP_QP(struct TREE_OCP_QP *qp, struct TREE_OCP_QP_SOL *qp_
 			VECAD_SP_LIBSTR(ns0, -1.0, ux+ii, nu0+nx0, idxs[ii], res_d+ii, 0);
 			VECAD_SP_LIBSTR(ns0, -1.0, ux+ii, nu0+nx0+ns0, idxs[ii], res_d+ii, nb0+ng0);
 			AXPY_LIBSTR(2*ns0, -1.0, ux+ii, nu0+nx0, t+ii, 2*nb0+2*ng0, res_d+ii, 2*nb0+2*ng0);
+			AXPY_LIBSTR(2*ns0, 1.0, d+ii, 2*nb0+2*ng0, res_d+ii, 2*nb0+2*ng0, res_d+ii, 2*nb0+2*ng0);
 			}
 
 		// work on kids
@@ -609,7 +609,6 @@ void FACT_SOLVE_KKT_STEP_TREE_OCP_QP(struct TREE_OCP_QP *qp, struct TREE_OCP_QP_
 	struct STRMAT *RSQrq = qp->RSQrq;
 	struct STRMAT *DCt = qp->DCt;
 	struct STRVEC *Z = qp->Z;
-	struct STRVEC *z = qp->z;
 	int **idxb = qp->idxb;
 	int **idxs = qp->idxs;
 

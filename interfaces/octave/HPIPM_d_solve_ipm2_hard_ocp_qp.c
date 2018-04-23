@@ -376,7 +376,8 @@ void mexFunction( int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
 		hlam_lb[ii] = lam+ii*nb;
 		hlam_ub[ii] = lam+(N+1)*nb+ii*nb;
 		hlam_lg[ii] = lam+2*(N+1)*nb+ii*ng;
-		hlam_ug[ii] = lam+2*(N+1)*nb+(N+1)*ng+ii*ng;
+//		hlam_ug[ii] = lam+2*(N+1)*nb+(N+1)*ng+ii*ng;
+		hlam_ug[ii] = lam+2*(N+1)*nb+N*ng+ngN+ii*ng;
 		}
 
 	// Partial condensing horizon
@@ -410,7 +411,7 @@ void mexFunction( int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
 	void *qp_mem = malloc(qp_size);
 	struct d_ocp_qp qp;
 	d_create_ocp_qp(&dim, &qp, qp_mem);
-	d_cvt_colmaj_to_ocp_qp(hA, hB, hb, hQ, hS, hR, hq, hr, hidxb, hlb, hub, hC, hD, hlg, hug, NULL, NULL, NULL, NULL, NULL, &qp);
+	d_cvt_colmaj_to_ocp_qp(hA, hB, hb, hQ, hS, hR, hq, hr, hidxb, hlb, hub, hC, hD, hlg, hug, NULL, NULL, NULL, NULL, NULL, NULL, NULL, &qp);
 
 
 	// qp sol

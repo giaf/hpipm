@@ -514,6 +514,12 @@ int main()
 	int *idxs0; int_zeros(&idxs0, ns[0], 1);
 	for(ii=0; ii<ns[0]; ii++)
 		idxs0[ii] = nu[0]+ii;
+	double *d_ls0; d_zeros(&d_ls0, ns[0], 1);
+	for(ii=0; ii<ns[0]; ii++)
+		d_ls0[ii] = 0.0;
+	double *d_us0; d_zeros(&d_us0, ns[0], 1);
+	for(ii=0; ii<ns[0]; ii++)
+		d_us0[ii] = 0.0;
 
 	double *Zl1; d_zeros(&Zl1, ns[1], 1);
 	for(ii=0; ii<ns[1]; ii++)
@@ -530,6 +536,12 @@ int main()
 	int *idxs1; int_zeros(&idxs1, ns[1], 1);
 	for(ii=0; ii<ns[1]; ii++)
 		idxs1[ii] = nu[1]+ii;
+	double *d_ls1; d_zeros(&d_ls1, ns[1], 1);
+	for(ii=0; ii<ns[1]; ii++)
+		d_ls1[ii] = 0.0;
+	double *d_us1; d_zeros(&d_us1, ns[1], 1);
+	for(ii=0; ii<ns[1]; ii++)
+		d_us1[ii] = 0.0;
 
 	double *ZlN; d_zeros(&ZlN, ns[Nh], 1);
 	for(ii=0; ii<ns[Nh]; ii++)
@@ -546,6 +558,12 @@ int main()
 	int *idxsN; int_zeros(&idxsN, ns[Nh], 1);
 	for(ii=0; ii<ns[Nh]; ii++)
 		idxsN[ii] = nu[Nh]+ii;
+	double *d_lsN; d_zeros(&d_lsN, ns[Nh], 1);
+	for(ii=0; ii<ns[Nh]; ii++)
+		d_lsN[ii] = 0.0;
+	double *d_usN; d_zeros(&d_usN, ns[Nh], 1);
+	for(ii=0; ii<ns[Nh]; ii++)
+		d_usN[ii] = 0.0;
 
 #if 1
 	// soft constraints
@@ -554,16 +572,22 @@ int main()
 	d_print_mat(1, ns[0], Zu0, 1);
 	d_print_mat(1, ns[0], zl0, 1);
 	d_print_mat(1, ns[0], zu0, 1);
+	d_print_mat(1, ns[0], d_ls0, 1);
+	d_print_mat(1, ns[0], d_us0, 1);
 	int_print_mat(1, ns[1], idxs1, 1);
 	d_print_mat(1, ns[1], Zl1, 1);
 	d_print_mat(1, ns[1], Zu1, 1);
 	d_print_mat(1, ns[1], zl1, 1);
 	d_print_mat(1, ns[1], zu1, 1);
+	d_print_mat(1, ns[1], d_ls1, 1);
+	d_print_mat(1, ns[1], d_us1, 1);
 	int_print_mat(1, ns[Nh], idxsN, 1);
 	d_print_mat(1, ns[Nh], ZlN, 1);
 	d_print_mat(1, ns[Nh], ZuN, 1);
 	d_print_mat(1, ns[Nh], zlN, 1);
 	d_print_mat(1, ns[Nh], zuN, 1);
+	d_print_mat(1, ns[Nh], d_lsN, 1);
+	d_print_mat(1, ns[Nh], d_usN, 1);
 #endif
 
 /************************************************
@@ -670,18 +694,20 @@ int main()
 	double *hR[Nh+1];
 	double *hq[Nh+1];
 	double *hr[Nh+1];
+	int *hidxb[Nh+1];
 	double *hd_lb[Nh+1];
 	double *hd_ub[Nh+1];
-	double *hd_lg[Nh+1];
-	double *hd_ug[Nh+1];
 	double *hC[Nh+1];
 	double *hD[Nh+1];
-	int *hidxb[Nh+1];
+	double *hd_lg[Nh+1];
+	double *hd_ug[Nh+1];
 	double *hZl[Nh+1];
 	double *hZu[Nh+1];
 	double *hzl[Nh+1];
 	double *hzu[Nh+1];
 	int *hidxs[Nh+1];
+	double *hd_ls[Nh+1];
+	double *hd_us[Nh+1];
 
 	hA[0] = A;
 	hB[0] = B;
@@ -694,15 +720,17 @@ int main()
 	hidxb[0] = idxb0;
 	hd_lb[0] = d_lb0;
 	hd_ub[0] = d_ub0;
-	hd_lg[0] = d_lg0;
-	hd_ug[0] = d_ug0;
 	hC[0] = C0;
 	hD[0] = D0;
+	hd_lg[0] = d_lg0;
+	hd_ug[0] = d_ug0;
 	hZl[0] = Zl0;
 	hZu[0] = Zu0;
 	hzl[0] = zl0;
 	hzu[0] = zu0;
 	hidxs[0] = idxs0;
+	hd_ls[0] = d_ls0;
+	hd_us[0] = d_us0;
 	for(ii=1; ii<Nh; ii++)
 		{
 		hA[ii] = A;
@@ -716,15 +744,17 @@ int main()
 		hidxb[ii] = idxb1;
 		hd_lb[ii] = d_lb1;
 		hd_ub[ii] = d_ub1;
-		hd_lg[ii] = d_lg1;
-		hd_ug[ii] = d_ug1;
 		hC[ii] = C1;
 		hD[ii] = D1;
+		hd_lg[ii] = d_lg1;
+		hd_ug[ii] = d_ug1;
 		hZl[ii] = Zl1;
 		hZu[ii] = Zu1;
 		hzl[ii] = zl1;
 		hzu[ii] = zu1;
 		hidxs[ii] = idxs1;
+		hd_ls[ii] = d_ls1;
+		hd_us[ii] = d_us1;
 		}
 	hQ[Nh] = Q;
 	hS[Nh] = S;
@@ -734,15 +764,17 @@ int main()
 	hidxb[Nh] = idxbN;
 	hd_lb[Nh] = d_lbN;
 	hd_ub[Nh] = d_ubN;
-	hd_lg[Nh] = d_lgN;
-	hd_ug[Nh] = d_ugN;
 	hC[Nh] = CN;
 	hD[Nh] = DN;
+	hd_lg[Nh] = d_lgN;
+	hd_ug[Nh] = d_ugN;
 	hZl[Nh] = ZlN;
 	hZu[Nh] = ZuN;
 	hzl[Nh] = zlN;
 	hzu[Nh] = zuN;
 	hidxs[Nh] = idxsN;
+	hd_ls[Nh] = d_lsN;
+	hd_us[Nh] = d_usN;
 	
 	// node-wise data
 
@@ -754,18 +786,20 @@ int main()
 	double *hRt[Nn];
 	double *hqt[Nn];
 	double *hrt[Nn];
+	int *hidxbt[Nn];
 	double *hd_lbt[Nn];
 	double *hd_ubt[Nn];
-	double *hd_lgt[Nn];
-	double *hd_ugt[Nn];
 	double *hCt[Nn];
 	double *hDt[Nn];
-	int *hidxbt[Nn];
+	double *hd_lgt[Nn];
+	double *hd_ugt[Nn];
 	double *hZlt[Nn];
 	double *hZut[Nn];
 	double *hzlt[Nn];
 	double *hzut[Nn];
 	int *hidxst[Nn];
+	double *hd_lst[Nn];
+	double *hd_ust[Nn];
 
 	for(ii=0; ii<Nn-1; ii++)
 		{
@@ -783,16 +817,20 @@ int main()
 		hSt[ii] = hS[stage];
 		hqt[ii] = hq[stage];
 		hrt[ii] = hr[stage];
+		hidxbt[ii] = hidxb[stage];
 		hd_lbt[ii] = hd_lb[stage];
 		hd_ubt[ii] = hd_ub[stage];
+		hCt[ii] = hC[stage];
+		hDt[ii] = hD[stage];
 		hd_lgt[ii] = hd_lg[stage];
 		hd_ugt[ii] = hd_ug[stage];
-		hidxbt[ii] = hidxb[stage];
 		hZlt[ii] = hZl[stage];
 		hZut[ii] = hZu[stage];
 		hzlt[ii] = hzl[stage];
 		hzut[ii] = hzu[stage];
 		hidxst[ii] = hidxs[stage];
+		hd_lst[ii] = hd_ls[stage];
+		hd_ust[ii] = hd_us[stage];
 		}
 
 /************************************************
@@ -817,7 +855,7 @@ int main()
 
 	struct d_tree_ocp_qp qp;
 	d_create_tree_ocp_qp(&dim, &qp, tree_ocp_qp_memory);
-	d_cvt_colmaj_to_tree_ocp_qp(hAt, hBt, hbt, hQt, hSt, hRt, hqt, hrt, hidxbt, hd_lbt, hd_ubt, hCt, hDt, hd_lgt, hd_ugt, hZlt, hZut, hzlt, hzut, hidxst, &qp);
+	d_cvt_colmaj_to_tree_ocp_qp(hAt, hBt, hbt, hQt, hSt, hRt, hqt, hrt, hidxbt, hd_lbt, hd_ubt, hCt, hDt, hd_lgt, hd_ugt, hZlt, hZut, hzlt, hzut, hidxst, hd_lst, hd_ust, &qp);
 
 #if 0
 	struct blasfeo_dmat *tmat;
