@@ -281,7 +281,7 @@ int main()
 	int nbu[N+1];
 	for (ii=0; ii<N; ii++)
 		nbu[ii] = nu[ii];
-    nbu[N] = 0;
+	nbu[N] = 0;
 #if 1
 	int nbx[N+1];
 #if KEEP_X0
