@@ -61,7 +61,7 @@ set(RUNTIME_CHECKS 0)
 #set(RUNTIME_CHECKS 0)
 
 # compiler flags
-set(CMAKE_C_FLAGS "")
+# set(CMAKE_C_FLAGS "")
 
 # optimization flags
 set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -O2")
