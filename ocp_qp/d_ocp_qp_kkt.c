@@ -25,14 +25,13 @@
 *                                                                                                 *
 **************************************************************************************************/
 
-
-
 #include <math.h>
 
 #include <blasfeo_target.h>
 #include <blasfeo_common.h>
 #include <blasfeo_d_aux.h>
 #include <blasfeo_d_blas.h>
+
 
 #include "../include/hpipm_d_ocp_qp_dim.h"
 #include "../include/hpipm_d_ocp_qp.h"
