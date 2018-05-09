@@ -32,8 +32,9 @@
 
 
 
-#include <blasfeo_target.h>
-#include <blasfeo_common.h>
+#include "blasfeo_common.h"
+
+#include "hpipm_s_cond.h"
 
 
 
