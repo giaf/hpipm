@@ -112,7 +112,8 @@ int MEMSIZE_DENSE_QP_IPM(struct DENSE_QP_DIM *dim, struct DENSE_QP_IPM_ARG *arg)
 	size += 1*SIZE_STRMAT(ne, ne); // Le
 	size += 1*SIZE_STRMAT(nv+1, ng); // Ctx
 
-	size += nv*sizeof(int); // ipiv
+	size += nv*sizeof(int); // ipiv_v
+	size += ne*sizeof(int); // ipiv_e
 
 	size += 5*arg->stat_max*sizeof(REAL);
 
@@ -245,8 +246,11 @@ void CREATE_DENSE_QP_IPM(struct DENSE_QP_DIM *dim, struct DENSE_QP_IPM_ARG *arg,
 	// int suff
 	int *i_ptr = (int *) d_ptr;
 
-	workspace->ipiv = i_ptr;
+	workspace->ipiv_v = i_ptr;
 	i_ptr += nv;
+
+	workspace->ipiv_e = i_ptr;
+	i_ptr += ne;
 
 
 	// align to typicl cache line size
@@ -471,7 +475,8 @@ int SOLVE_DENSE_QP_IPM(struct DENSE_QP *qp, struct DENSE_QP_SOL *qp_sol, struct 
 		{
 
 		// fact and solve kkt
-		FACT_SOLVE_KKT_STEP_DENSE_QP(ws->qp_step, ws->sol_step, arg, ws);
+//		FACT_SOLVE_KKT_STEP_DENSE_QP(ws->qp_step, ws->sol_step, arg, ws);
+		FACT_SOLVE_HA_KKT_STEP_DENSE_QP(ws->qp_step, ws->sol_step, arg, ws);
 
 		for(itref0=0; itref0<arg->itref_pred_max; itref0++)
 			{

@@ -70,6 +70,7 @@
 #define DENSE_QP_RES d_dense_qp_res
 #define DENSE_QP_RES_WORKSPACE d_dense_qp_res_workspace
 #define DENSE_QP_SOL d_dense_qp_sol
+#define FACT_SOLVE_HA_KKT_STEP_DENSE_QP d_fact_solve_ha_kkt_step_dense_qp
 #define FACT_SOLVE_KKT_STEP_DENSE_QP d_fact_solve_kkt_step_dense_qp
 #define FACT_SOLVE_KKT_UNCONSTR_DENSE_QP d_fact_solve_kkt_unconstr_dense_qp
 #define INIT_VAR_DENSE_QP d_init_var_dense_qp

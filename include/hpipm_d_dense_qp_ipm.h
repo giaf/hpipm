@@ -89,7 +89,8 @@ struct d_dense_qp_ipm_workspace
 	struct blasfeo_dvec *tmp_nbg; // work space of size nb+ng
 	struct blasfeo_dvec *tmp_ns; // work space of size ns
 	double *stat; // convergence statistics
-	int *ipiv;
+	int *ipiv_v;
+	int *ipiv_e;
 	double qp_res[4]; // infinity norm of residuals
 	double mu0; // mu0
 	int iter; // iteration number
