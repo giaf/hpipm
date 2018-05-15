@@ -217,7 +217,7 @@ int cvt_benchmark_to_hpipm(struct benchmark_qp *qp_bench, struct d_dense_qp *qpd
 	*/
 
 	d_cvt_rowmaj_to_dense_qp(H, g, C_eq, b, idxb, d_lb, d_ub, C_ieq, d_lg0, d_ug0,
-						  NULL, NULL, NULL, NULL, NULL, qpd);
+						  NULL, NULL, NULL, NULL, NULL, NULL, NULL, qpd);
 
 	return 0;
 

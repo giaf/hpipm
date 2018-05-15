@@ -706,13 +706,23 @@ printf("iter %3d   alpha %1.3e %1.3e   sigma %1.3e   ndp %3d %3d   itref %d %d  
 	ws->iter = kk;
 
 	// max iteration number reached
-	if(kk==arg->iter_max)
+	if(kk == arg->iter_max)
 		return 1;
 
 	// min step lenght
 	if(cws->alpha <= arg->alpha_min)
 		return 2;
+	
+	// NaN in the solution
+#ifdef USE_C99_MATH
+	if(isnan(cws->mu))
+		return 3;
+#else
+	if(cws->mu != cws->mu)
+		return 3;
+#endif
 
+	// normal return
 	return 0;
 
 	}
