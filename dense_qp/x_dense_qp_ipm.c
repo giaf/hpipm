@@ -100,20 +100,22 @@ int MEMSIZE_DENSE_QP_IPM(struct DENSE_QP_DIM *dim, struct DENSE_QP_IPM_ARG *arg)
 	size += 1*MEMSIZE_DENSE_QP_RES(dim); // res_itref
 
 	size += 22*sizeof(struct STRVEC); // sol_step(v,pi,lam,t) res_g res_b res_d res_m lv (4+2)*tmp_nbg (1+1)*tmp_ns Gamma gamma Zs_inv sv se
-	size += 4*sizeof(struct STRMAT); // Lv AL Le Ctx
+	size += 6*sizeof(struct STRMAT); // Lv AL Le Ctx
 
 	size += 4*SIZE_STRVEC(nb+ng); // 4*tmp_nbg
 	size += 1*SIZE_STRVEC(ns); // tmp_ns
 	size += 2*SIZE_STRVEC(nv); // lv sv
 	size += 1*SIZE_STRVEC(ne); // se
 	size += 1*SIZE_STRVEC(2*ns); // Zs_inv
-	size += 1*SIZE_STRMAT(nv+1, nv); // Lv
-	size += 1*SIZE_STRMAT(ne, nv); // AL
+	size += 2*SIZE_STRMAT(nv+1, nv); // Lv
+	size += 2*SIZE_STRMAT(ne, nv); // AL
 	size += 1*SIZE_STRMAT(ne, ne); // Le
 	size += 1*SIZE_STRMAT(nv+1, ng); // Ctx
 
 	size += nv*sizeof(int); // ipiv_v
 	size += ne*sizeof(int); // ipiv_e
+
+	size += 1*GELQF_WORKSIZE(ne, nv); // lq_work0
 
 	size += 5*arg->stat_max*sizeof(REAL);
 
@@ -183,9 +185,9 @@ void CREATE_DENSE_QP_IPM(struct DENSE_QP_DIM *dim, struct DENSE_QP_IPM_ARG *arg,
 	struct STRMAT *sm_ptr = (struct STRMAT *) qp_ptr;
 
 	workspace->Lv = sm_ptr;
-	sm_ptr += 1;
+	sm_ptr += 2;
 	workspace->AL = sm_ptr;
-	sm_ptr += 1;
+	sm_ptr += 2;
 	workspace->Le = sm_ptr;
 	sm_ptr += 1;
 	workspace->Ctx = sm_ptr;
@@ -253,8 +255,15 @@ void CREATE_DENSE_QP_IPM(struct DENSE_QP_DIM *dim, struct DENSE_QP_IPM_ARG *arg,
 	i_ptr += ne;
 
 
+	// void stuff
+	int *v_ptr = (void *) i_ptr;
+
+	workspace->lq_work0 = v_ptr;
+	v_ptr += GELQF_WORKSIZE(ne, nv);
+
+
 	// align to typicl cache line size
-	size_t s_ptr = (size_t) i_ptr;
+	size_t s_ptr = (size_t) v_ptr;
 	s_ptr = (s_ptr+63)/64*64;
 
 
@@ -270,8 +279,14 @@ void CREATE_DENSE_QP_IPM(struct DENSE_QP_DIM *dim, struct DENSE_QP_IPM_ARG *arg,
 	CREATE_STRMAT(nv+1, nv, workspace->Lv, c_ptr);
 	c_ptr += workspace->Lv->memsize;
 
+	CREATE_STRMAT(nv+1, nv, workspace->Lv+1, c_ptr);
+	c_ptr += workspace->Lv[1].memsize;
+
 	CREATE_STRMAT(ne, nv, workspace->AL, c_ptr);
 	c_ptr += workspace->AL->memsize;
+
+	CREATE_STRMAT(ne, nv, workspace->AL+1, c_ptr);
+	c_ptr += workspace->AL[1].memsize;
 
 	CREATE_STRMAT(ne, ne, workspace->Le, c_ptr);
 	c_ptr += workspace->Le->memsize;
@@ -476,7 +491,8 @@ int SOLVE_DENSE_QP_IPM(struct DENSE_QP *qp, struct DENSE_QP_SOL *qp_sol, struct 
 
 		// fact and solve kkt
 //		FACT_SOLVE_KKT_STEP_DENSE_QP(ws->qp_step, ws->sol_step, arg, ws);
-		FACT_SOLVE_HA_KKT_STEP_DENSE_QP(ws->qp_step, ws->sol_step, arg, ws);
+		FACT_SOLVE_LQ_KKT_STEP_DENSE_QP(ws->qp_step, ws->sol_step, arg, ws);
+//		FACT_SOLVE_LU_KKT_STEP_DENSE_QP(ws->qp_step, ws->sol_step, arg, ws);
 
 		for(itref0=0; itref0<arg->itref_pred_max; itref0++)
 			{

@@ -47,6 +47,7 @@
 #define AXPY blasfeo_daxpy
 #define COLPE blasfeo_dcolpe
 #define COLPEI blasfeo_dcolpei
+#define COLSC blasfeo_dcolsc
 #define COMPUTE_LAM_T_QP d_compute_lam_t_qp
 #define COMPUTE_GAMMA_GAMMA_QP d_compute_Gamma_gamma_qp
 #define COMPUTE_GAMMA_QP d_compute_gamma_qp
@@ -61,6 +62,8 @@
 #define DIAEX blasfeo_ddiaex
 #define DIARE blasfeo_ddiare
 #define GECP blasfeo_dgecp
+#define GELQF blasfeo_dgelqf
+#define GELQF_WORKSIZE blasfeo_dgelqf_worksize
 #define GEMM_L_DIAG blasfeo_dgemm_dn
 #define GEMM_R_DIAG blasfeo_dgemm_nd
 #define GEMV_DIAG blasfeo_dgemv_d
@@ -86,11 +89,14 @@
 #define SYRK_POTRF_LN blasfeo_dsyrk_dpotrf_ln
 #define TRCP_L blasfeo_dtrcp_l
 #define TRSM_RLTN blasfeo_dtrsm_rltn
+#define TRSM_RLTU blasfeo_dtrsm_rltu
+#define TRSM_RUNN blasfeo_dtrsm_runn
 #define TRSV_LNN blasfeo_dtrsv_lnn
 #define TRSV_LNU blasfeo_dtrsv_lnu
 #define TRSV_LTN blasfeo_dtrsv_ltn
 #define TRSV_UNN blasfeo_dtrsv_unn
 #define TRTR_L blasfeo_dtrtr_l
+#define TRTR_U blasfeo_dtrtr_u
 #define VECAD_SP blasfeo_dvecad_sp
 #define VECCP blasfeo_dveccp
 #define VECEX_SP blasfeo_dvecex_sp
@@ -105,8 +111,9 @@
 #define COMPUTE_RES_DENSE_QP d_compute_res_dense_qp
 #define COMPUTE_LIN_RES_DENSE_QP d_compute_lin_res_dense_qp
 #define FACT_SOLVE_KKT_UNCONSTR_DENSE_QP d_fact_solve_kkt_unconstr_dense_qp
+#define FACT_SOLVE_LQ_KKT_STEP_DENSE_QP d_fact_solve_lq_kkt_step_dense_qp
+#define FACT_SOLVE_LU_KKT_STEP_DENSE_QP d_fact_solve_lu_kkt_step_dense_qp
 #define FACT_SOLVE_KKT_STEP_DENSE_QP d_fact_solve_kkt_step_dense_qp
-#define FACT_SOLVE_HA_KKT_STEP_DENSE_QP d_fact_solve_ha_kkt_step_dense_qp
 #define SOLVE_KKT_STEP_DENSE_QP d_solve_kkt_step_dense_qp
 
 

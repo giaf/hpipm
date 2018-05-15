@@ -91,6 +91,8 @@ struct s_dense_qp_ipm_workspace
 	float *stat; // convergence statistics
 	int *ipiv_v;
 	int *ipiv_e;
+	void *lq_work0;
+	void *lq_work1;
 	float qp_res[4]; // infinity norm of residuals
 	float mu0; // mu0
 	int iter; // iteration number
