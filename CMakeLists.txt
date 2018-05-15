@@ -58,7 +58,16 @@ set(HPIPM_HEADERS_INSTALLATION_DIRECTORY "include" CACHE STRING "Headers local i
 
 # enable runtine checks
 set(RUNTIME_CHECKS 0)
-#set(RUNTIME_CHECKS 0)
+#set(RUNTIME_CHECKS 1)
+
+## compiler flags
+#set(CMAKE_C_FLAGS "")
+#
+## optimization flags
+#set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -O2")
+#if(CMAKE_COMPILER_ID MATCHES "GNU" OR CMAKE_COMPILER_ID MATCHES "Clang")
+#	set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -fPIC")
+#endif()
 
 #
 if(${REF_BLAS} MATCHES 0)
