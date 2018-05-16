@@ -674,12 +674,21 @@ int SOLVE_OCP_QP_IPM(struct OCP_QP *qp, struct OCP_QP_SOL *qp_sol, struct OCP_QP
 #endif
 
 	// max iteration number reached
-	if(kk==arg->iter_max)
+	if(kk == arg->iter_max)
 		return 1;
 
 	// min step lenght
 	if(cws->alpha <= arg->alpha_min)
 		return 2;
+
+	// NaN in the solution
+#ifdef USE_C99_MATH
+	if(isnan(cws->mu))
+		return 3;
+#else
+	if(cws->mu != cws->mu)
+		return 3;
+#endif
 
 	// normal return
 	return 0;

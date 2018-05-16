@@ -27,6 +27,9 @@
 
 #include <stdlib.h>
 #include <stdio.h>
+#ifdef USE_C99_MATH
+#include <math.h>
+#endif
 
 #include <blasfeo_target.h>
 #include <blasfeo_common.h>
