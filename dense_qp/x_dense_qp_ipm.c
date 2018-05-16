@@ -118,7 +118,7 @@ int MEMSIZE_DENSE_QP_IPM(struct DENSE_QP_DIM *dim, struct DENSE_QP_IPM_ARG *arg)
 	size += ne*sizeof(int); // ipiv_e
 
 	size += 1*GELQF_WORKSIZE(ne, nv); // lq_work0
-	size += 1*GELQF_WORKSIZE(nv, nv+nb+ng); // lq_work1
+	size += 1*GELQF_WORKSIZE(nv, nv+nv+ng); // lq_work1
 
 	size += 5*arg->stat_max*sizeof(REAL);
 
@@ -334,7 +334,7 @@ void CREATE_DENSE_QP_IPM(struct DENSE_QP_DIM *dim, struct DENSE_QP_IPM_ARG *arg,
 	c_ptr += GELQF_WORKSIZE(ne, nv);
 
 	workspace->lq_work1 = c_ptr;
-	c_ptr += GELQF_WORKSIZE(nv, nv+nb+ng);
+	c_ptr += GELQF_WORKSIZE(nv, nv+nv+ng);
 
 
 	// alias members of workspace and core_workspace
@@ -497,6 +497,8 @@ int SOLVE_DENSE_QP_IPM(struct DENSE_QP *qp, struct DENSE_QP_SOL *qp_sol, struct 
 			qp_res[2]>arg->res_d_max | \
 			qp_res[3]>arg->res_m_max); kk++)
 		{
+
+		ws->scale = arg->scale;
 
 		// fact and solve kkt
 //		FACT_SOLVE_KKT_STEP_DENSE_QP(ws->qp_step, ws->sol_step, arg, ws);

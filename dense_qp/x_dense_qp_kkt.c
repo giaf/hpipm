@@ -802,6 +802,7 @@ void FACT_SOLVE_KKT_STEP_DENSE_QP(struct DENSE_QP *qp, struct DENSE_QP_SOL *qp_s
 			TRSV_LNN(nv, Lv, 0, 0, dv, 0, dv, 0);
 			TRSV_LTN(nv, Lv, 0, 0, dv, 0, dv, 0);
 
+
 			} // scale
 
 #endif // pivot cholesky
@@ -964,6 +965,8 @@ void FACT_SOLVE_LQ_KKT_STEP_DENSE_QP(struct DENSE_QP *qp, struct DENSE_QP_SOL *q
 
 	struct CORE_QP_IPM_WORKSPACE *cws = ws->core_workspace;
 
+	ws->scale = 0;
+
 	if(nb+ng>0)
 		{
 		COMPUTE_GAMMA_GAMMA_QP(qp->d->pa, qp->m->pa, cws);
@@ -972,284 +975,139 @@ void FACT_SOLVE_LQ_KKT_STEP_DENSE_QP(struct DENSE_QP *qp, struct DENSE_QP_SOL *q
 	if(ne>0)
 		{
 
-		if(arg->scale)
+		GESE(nv, nv+nv+ng, 0.0, lq1, 0, 0);
+		TRCP_L(nv, Hg, 0, 0, lq1, 0, 0);
+		POTRF_L(nv, lq1, 0, 0, lq1, 0, 0); // TODO do it offline !!!
+
+		VECCP(nv, res_g, 0, lv, 0);
+
+		if(ns>0)
 			{
-
-//			TRCP_L(nv, Hg, 0, 0, Lv, 0, 0);
-			GECP(nv, nv, Hg, 0, 0, Lv, 0, 0);
-
-			VECCP(nv, res_g, 0, lv, 0);
-
-			if(ns>0)
-				{
-				COND_SLACKS_FACT_SOLVE(qp, ws);
-				}
-			else if(nb+ng>0)
-				{
-				AXPY(nb+ng,  1.0, Gamma, nb+ng, Gamma, 0, tmp_nbg+0, 0);
-				AXPY(nb+ng, -1.0, gamma, nb+ng, gamma, 0, tmp_nbg+1, 0);
-				}
-			if(nb>0)
-				{
-				DIAAD_SP(nb, 1.0, tmp_nbg+0, 0, idxb, Lv, 0, 0);
-				VECAD_SP(nb, 1.0, tmp_nbg+1, 0, idxb, lv, 0);
-				}
-			if(ng>0)
-				{
-				GEMV_N(nv, ng, 1.0, Ct, 0, 0, tmp_nbg+1, nb, 1.0, lv, 0, lv, 0);
-				GEMM_R_DIAG(nv, ng, 1.0, Ct, 0, 0, tmp_nbg+0, nb, 0.0, Ctx, 0, 0, Ctx, 0, 0);
-				SYRK_LN(nv, ng, 1.0, Ctx, 0, 0, Ct, 0, 0, 1.0, Lv, 0, 0, Lv, 0, 0);
-				}
-
-			DIAEX(nv, 1.0, Lv, 0, 0, sv, 0);
-			for(ii=0; ii<nv; ii++)
-				{
-				tmp = sqrt(sv->pa[ii]);
-//				tmp = sqrt(tmp);
-//				tmp = sqrt(sv->pa[ii]+tmp);
-//				tmp = 1.0;
-				sv->pa[ii] = tmp==0 ? 1.0 : 1.0/tmp;
-				}
-
-			GEMM_L_DIAG(nv, nv, 1.0, sv, 0, Lv, 0, 0, 0.0, Lv, 0, 0, Lv, 0, 0);
-			GEMM_R_DIAG(nv, nv, 1.0, Lv, 0, 0, sv, 0, 0.0, Lv, 0, 0, Lv, 0, 0);
-			DIARE(nv, arg->reg_prim, Lv, 0, 0);
-			POTRF_L(nv, Lv, 0, 0, Lv, 0, 0);
-
-			GEMV_DIAG(nv, 1.0, sv, 0, lv, 0, 0.0, lv, 0, lv, 0);
-			VECCP(nv, lv, 0, dv, 0);
-
-			GECP(ne, nv, A, 0, 0, AL, 0, 0);
-			GEMM_R_DIAG(ne, nv, 1.0, AL, 0, 0, sv, 0, 0.0, AL, 0, 0, AL, 0, 0);
-			TRSM_RLTN(ne, nv, 1.0, Lv, 0, 0, AL, 0, 0, AL, 0, 0);
-
-			TRSV_LNN(nv, Lv, 0, 0, lv, 0, lv, 0);
-
-			GESE(ne, ne, 0.0, Le, 0, 0);
-			SYRK_LN(ne, nv, 1.0, AL, 0, 0, AL, 0, 0, 1.0, Le, 0, 0, Le, 0, 0);
-
-			DIAEX(ne, 1.0, Le, 0, 0, se, 0);
-			for(ii=0; ii<ne; ii++)
-				{
-				tmp = sqrt(se->pa[ii]);
-//				tmp = sqrt(tmp);
-//				tmp = sqrt(se->pa[ii]+tmp);
-//				tmp = 1.0;
-				se->pa[ii] = tmp==0 ? 1.0 : 1.0/tmp;
-				}
-
-			GEMM_L_DIAG(ne, ne, 1.0, se, 0, Le, 0, 0, 0.0, Le, 0, 0, Le, 0, 0);
-			GEMM_R_DIAG(ne, ne, 1.0, Le, 0, 0, se, 0, 0.0, Le, 0, 0, Le, 0, 0);
-			DIARE(ne, arg->reg_prim, Le, 0, 0);
-			POTRF_L(ne, Le, 0, 0, Le, 0, 0);
-
-			GEMV_N(ne, nv, 1.0, AL, 0, 0, lv, 0, 1.0, res_b, 0, dpi, 0);
-
-			GEMV_DIAG(ne, 1.0, se, 0, dpi, 0, 0.0, dpi, 0, dpi, 0);
-			TRSV_LNN(ne, Le, 0, 0, dpi, 0, dpi, 0);
-			TRSV_LTN(ne, Le, 0, 0, dpi, 0, dpi, 0);
-			GEMV_DIAG(ne, 1.0, se, 0, dpi, 0, 0.0, dpi, 0, dpi, 0);
-
-			GEMV_T(ne, nv, 1.0, A, 0, 0, dpi, 0, 0.0, lv, 0, lv, 0);
-			GEMV_DIAG(nv, 1.0, sv, 0, lv, 0, -1.0, dv, 0, dv, 0);
-
-			TRSV_LNN(nv, Lv, 0, 0, dv, 0, dv, 0);
-			TRSV_LTN(nv, Lv, 0, 0, dv, 0, dv, 0);
-			GEMV_DIAG(nv, 1.0, sv, 0, dv, 0, 0.0, dv, 0, dv, 0);
-
+			COND_SLACKS_FACT_SOLVE(qp, ws);
 			}
-		else // no scale
+		else if(nb+ng>0)
 			{
-
-			GESE(nv, nv+nv+ng, 0.0, lq1, 0, 0);
-			TRCP_L(nv, Hg, 0, 0, lq1, 0, 0);
-			POTRF_L(nv, lq1, 0, 0, lq1, 0, 0); // TODO do it offline !!!
-
-			VECCP(nv, res_g, 0, lv, 0);
-
-			if(ns>0)
+			AXPY(nb+ng,  1.0, Gamma, nb+ng, Gamma, 0, tmp_nbg+0, 0);
+			AXPY(nb+ng, -1.0, gamma, nb+ng, gamma, 0, tmp_nbg+1, 0);
+			}
+		if(nb>0)
+			{
+			for(ii=0; ii<nb; ii++)
 				{
-				COND_SLACKS_FACT_SOLVE(qp, ws);
+				tmp = sqrt( BLASFEO_DVECEL(tmp_nbg+0, ii) );
+				BLASFEO_DMATEL(lq1, idxb[ii], nv+idxb[ii]) = tmp>0.0 ? tmp : 0.0;
 				}
-			else if(nb+ng>0)
+			VECAD_SP(nb, 1.0, tmp_nbg+1, 0, idxb, lv, 0);
+			}
+		if(ng>0)
+			{
+			for(ii=0; ii<ng; ii++)
 				{
-				AXPY(nb+ng,  1.0, Gamma, nb+ng, Gamma, 0, tmp_nbg+0, 0);
-				AXPY(nb+ng, -1.0, gamma, nb+ng, gamma, 0, tmp_nbg+1, 0);
+				tmp = sqrt( BLASFEO_DVECEL(tmp_nbg+0, nb+ii) );
+				BLASFEO_DVECEL(tmp_nbg+0, nb+ii) = tmp>0.0 ? tmp : 0.0;
 				}
-			if(nb>0)
-				{
-				for(ii=0; ii<nb; ii++)
-					{
-					tmp = sqrt( BLASFEO_DVECEL(tmp_nbg+0, ii) );
-					BLASFEO_DMATEL(lq1, idxb[ii], nv+idxb[ii]) = tmp>0.0 ? tmp : 0.0;
-					}
-				VECAD_SP(nb, 1.0, tmp_nbg+1, 0, idxb, lv, 0);
-				}
-			if(ng>0)
-				{
-				for(ii=0; ii<ng; ii++)
-					{
-					tmp = sqrt( BLASFEO_DVECEL(tmp_nbg+0, nb+ii) );
-					BLASFEO_DVECEL(tmp_nbg+0, nb+ii) = tmp>0.0 ? tmp : 0.0;
-					}
-				GEMM_R_DIAG(nv, ng, 1.0, Ct, 0, 0, tmp_nbg+0, nb, 0.0, lq1, 0, nv+nv, lq1, 0, nv+nv);
-				GEMV_N(nv, ng, 1.0, Ct, 0, 0, tmp_nbg+1, nb, 1.0, lv, 0, lv, 0);
-				}
+			GEMM_R_DIAG(nv, ng, 1.0, Ct, 0, 0, tmp_nbg+0, nb, 0.0, lq1, 0, nv+nv, lq1, 0, nv+nv);
+			GEMV_N(nv, ng, 1.0, Ct, 0, 0, tmp_nbg+1, nb, 1.0, lv, 0, lv, 0);
+			}
 
-			DIARE(nv, arg->reg_prim, lq1, 0, nv);
+		DIARE(nv, arg->reg_prim, lq1, 0, nv);
 
-			GELQF(nv, nv+nv+ng, lq1, 0, 0, lq1, 0, 0, lq_work1);
-			TRCP_L(nv, lq1, 0, 0, Lv, 0, 0);
-			for(ii=0; ii<nv; ii++)
-				if(BLASFEO_DMATEL(Lv, ii, ii) < 0)
-					COLSC(nv-ii, -1.0, Lv, ii, ii);
+		GELQF(nv, nv+nv+ng, lq1, 0, 0, lq1, 0, 0, lq_work1);
+		TRCP_L(nv, lq1, 0, 0, Lv, 0, 0);
+		for(ii=0; ii<nv; ii++)
+			if(BLASFEO_DMATEL(Lv, ii, ii) < 0)
+				COLSC(nv-ii, -1.0, Lv, ii, ii);
 
-			VECCP(nv, lv, 0, dv, 0);
+		VECCP(nv, lv, 0, dv, 0);
 
-			TRSM_RLTN(ne, nv, 1.0, Lv, 0, 0, A, 0, 0, AL, 0, 0);
+		TRSM_RLTN(ne, nv, 1.0, Lv, 0, 0, A, 0, 0, AL, 0, 0);
 
-			TRSV_LNN(nv, Lv, 0, 0, lv, 0, lv, 0);
+		TRSV_LNN(nv, Lv, 0, 0, lv, 0, lv, 0);
 
-			GEMV_N(ne, nv, 1.0, AL, 0, 0, lv, 0, 1.0, res_b, 0, dpi, 0);
+		GEMV_N(ne, nv, 1.0, AL, 0, 0, lv, 0, 1.0, res_b, 0, dpi, 0);
 
-			GECP(ne, nv, AL, 0, 0, lq0, 0, 0);
-			GESE(ne, ne, 0.0, lq0, 0, nv);
-			DIARE(ne, arg->reg_dual, lq0, 0, nv);
-			GELQF(ne, ne+nv, lq0, 0, 0, lq0, 0, 0, lq_work0);
-			TRCP_L(ne, lq0, 0, 0, Le, 0, 0);
-			for(ii=0; ii<ne; ii++)
-				if(BLASFEO_DMATEL(Le, ii, ii) < 0)
-					COLSC(ne-ii, -1.0, Le, ii, ii);
+		GECP(ne, nv, AL, 0, 0, lq0, 0, 0);
+		GESE(ne, ne, 0.0, lq0, 0, nv);
+		DIARE(ne, arg->reg_dual, lq0, 0, nv);
+		GELQF(ne, ne+nv, lq0, 0, 0, lq0, 0, 0, lq_work0);
+		TRCP_L(ne, lq0, 0, 0, Le, 0, 0);
+		for(ii=0; ii<ne; ii++)
+			if(BLASFEO_DMATEL(Le, ii, ii) < 0)
+				COLSC(ne-ii, -1.0, Le, ii, ii);
 
-//			blasfeo_print_dmat(ne, ne, Le, 0, 0);
+//		blasfeo_print_dmat(ne, ne, Le, 0, 0);
 
-			TRSV_LNN(ne, Le, 0, 0, dpi, 0, dpi, 0);
-			TRSV_LTN(ne, Le, 0, 0, dpi, 0, dpi, 0);
+		TRSV_LNN(ne, Le, 0, 0, dpi, 0, dpi, 0);
+		TRSV_LTN(ne, Le, 0, 0, dpi, 0, dpi, 0);
 
-			GEMV_T(ne, nv, 1.0, A, 0, 0, dpi, 0, -1.0, dv, 0, dv, 0);
+		GEMV_T(ne, nv, 1.0, A, 0, 0, dpi, 0, -1.0, dv, 0, dv, 0);
 
-			TRSV_LNN(nv, Lv, 0, 0, dv, 0, dv, 0);
-			TRSV_LTN(nv, Lv, 0, 0, dv, 0, dv, 0);
-
-			} // scale
+		TRSV_LNN(nv, Lv, 0, 0, dv, 0, dv, 0);
+		TRSV_LTN(nv, Lv, 0, 0, dv, 0, dv, 0);
 
 		}
 	else // ne==0
 		{
 
-		if(arg->scale)
+		GESE(nv, nv+nv+ng, 0.0, lq1, 0, 0);
+		TRCP_L(nv, Hg, 0, 0, lq1, 0, 0);
+		POTRF_L(nv, lq1, 0, 0, lq1, 0, 0); // TODO do it offline !!!
+		VECCP(nv, res_g, 0, lv, 0);
+
+		if(ns>0)
 			{
-
-			TRCP_L(nv, Hg, 0, 0, Lv, 0, 0);
-			VECCP(nv, res_g, 0, lv, 0);
-
-			if(ns>0)
-				{
-				COND_SLACKS_FACT_SOLVE(qp, ws);
-				}
-			else if(nb+ng>0)
-				{
-				AXPY(nb+ng,  1.0, Gamma, nb+ng, Gamma, 0, tmp_nbg+0, 0);
-				AXPY(nb+ng, -1.0, gamma, nb+ng, gamma, 0, tmp_nbg+1, 0);
-				}
-			if(nb>0)
-				{
-				DIAAD_SP(nb, 1.0, tmp_nbg+0, 0, idxb, Lv, 0, 0);
-				VECAD_SP(nb, 1.0, tmp_nbg+1, 0, idxb, lv, 0);
-				}
-			if(ng>0)
-				{
-				GEMM_R_DIAG(nv, ng, 1.0, Ct, 0, 0, tmp_nbg+0, nb, 0.0, Ctx, 0, 0, Ctx, 0, 0);
-				GEMV_N(nv, ng, 1.0, Ct, 0, 0, tmp_nbg+1, nb, 1.0, lv, 0, lv, 0);
-				SYRK_LN(nv, ng, 1.0, Ctx, 0, 0, Ct, 0, 0, 1.0, Lv, 0, 0, Lv, 0, 0);
-				}
-
-			DIAEX(nv, 1.0, Lv, 0, 0, sv, 0);
-			for(ii=0; ii<nv; ii++)
-				{
-				tmp = sqrt(sv->pa[ii]);
-//				tmp = sqrt(tmp);
-//				tmp = sqrt(sv->pa[ii]+tmp);
-//				tmp = 1.0;
-				sv->pa[ii] = tmp==0 ? 1.0 : 1.0/tmp;
-				}
-
-			GEMM_L_DIAG(nv, nv, 1.0, sv, 0, Lv, 0, 0, 0.0, Lv, 0, 0, Lv, 0, 0);
-			GEMM_R_DIAG(nv, nv, 1.0, Lv, 0, 0, sv, 0, 0.0, Lv, 0, 0, Lv, 0, 0);
-			DIARE(nv, arg->reg_prim, Lv, 0, 0);
-			POTRF_L_MN(nv, nv, Lv, 0, 0, Lv, 0, 0);
-
-			VECCP(nv, lv, 0, dv, 0);
-			VECSC(nv, -1.0, dv, 0);
-
-			GEMV_DIAG(nv, 1.0, sv, 0, dv, 0, 0.0, dv, 0, dv, 0);
-			TRSV_LNN(nv, Lv, 0, 0, dv, 0, dv, 0);
-			TRSV_LTN(nv, Lv, 0, 0, dv, 0, dv, 0);
-			GEMV_DIAG(nv, 1.0, sv, 0, dv, 0, 0.0, dv, 0, dv, 0);
+			COND_SLACKS_FACT_SOLVE(qp, ws);
 			}
-		else // no scale
+		else if(nb+ng>0)
 			{
-			GESE(nv, nv+nv+ng, 0.0, lq1, 0, 0);
-			TRCP_L(nv, Hg, 0, 0, lq1, 0, 0);
-			POTRF_L(nv, lq1, 0, 0, lq1, 0, 0); // TODO do it offline !!!
-			VECCP(nv, res_g, 0, lv, 0);
+			AXPY(nb+ng,  1.0, Gamma, nb+ng, Gamma, 0, tmp_nbg+0, 0);
+			AXPY(nb+ng, -1.0, gamma, nb+ng, gamma, 0, tmp_nbg+1, 0);
+			}
+		if(nb>0)
+			{
+			for(ii=0; ii<nb; ii++)
+				{
+				tmp = sqrt( BLASFEO_DVECEL(tmp_nbg+0, ii) );
+				BLASFEO_DMATEL(lq1, idxb[ii], nv+idxb[ii]) = tmp>0.0 ? tmp : 0.0;
+				}
+			VECAD_SP(nb, 1.0, tmp_nbg+1, 0, idxb, lv, 0);
+			}
+		if(ng>0)
+			{
+			for(ii=0; ii<ng; ii++)
+				{
+				tmp = sqrt( BLASFEO_DVECEL(tmp_nbg+0, nb+ii) );
+				BLASFEO_DVECEL(tmp_nbg+0, nb+ii) = tmp>0.0 ? tmp : 0.0;
+				}
+			GEMM_R_DIAG(nv, ng, 1.0, Ct, 0, 0, tmp_nbg+0, nb, 0.0, lq1, 0, nv+nv, lq1, 0, nv+nv);
+			GEMV_N(nv, ng, 1.0, Ct, 0, 0, tmp_nbg+1, nb, 1.0, lv, 0, lv, 0);
+			}
 
-			if(ns>0)
-				{
-				COND_SLACKS_FACT_SOLVE(qp, ws);
-				}
-			else if(nb+ng>0)
-				{
-				AXPY(nb+ng,  1.0, Gamma, nb+ng, Gamma, 0, tmp_nbg+0, 0);
-				AXPY(nb+ng, -1.0, gamma, nb+ng, gamma, 0, tmp_nbg+1, 0);
-				}
-			if(nb>0)
-				{
-				for(ii=0; ii<nb; ii++)
-					{
-					tmp = sqrt( BLASFEO_DVECEL(tmp_nbg+0, ii) );
-					BLASFEO_DMATEL(lq1, idxb[ii], nv+idxb[ii]) = tmp>0.0 ? tmp : 0.0;
-					}
-				VECAD_SP(nb, 1.0, tmp_nbg+1, 0, idxb, lv, 0);
-				}
-			if(ng>0)
-				{
-				for(ii=0; ii<ng; ii++)
-					{
-					tmp = sqrt( BLASFEO_DVECEL(tmp_nbg+0, nb+ii) );
-					BLASFEO_DVECEL(tmp_nbg+0, nb+ii) = tmp>0.0 ? tmp : 0.0;
-					}
-				GEMM_R_DIAG(nv, ng, 1.0, Ct, 0, 0, tmp_nbg+0, nb, 0.0, lq1, 0, nv+nv, lq1, 0, nv+nv);
-				GEMV_N(nv, ng, 1.0, Ct, 0, 0, tmp_nbg+1, nb, 1.0, lv, 0, lv, 0);
-				}
+		DIARE(nv, arg->reg_prim, lq1, 0, nv);
 
-			DIARE(nv, arg->reg_prim, lq1, 0, nv);
-
-			GELQF(nv, nv+nv+ng, lq1, 0, 0, lq1, 0, 0, lq_work1);
-			TRCP_L(nv, lq1, 0, 0, Lv, 0, 0);
-			for(ii=0; ii<nv; ii++)
-				if(BLASFEO_DMATEL(Lv, ii, ii) < 0)
-					COLSC(nv-ii, -1.0, Lv, ii, ii);
+		GELQF(nv, nv+nv+ng, lq1, 0, 0, lq1, 0, 0, lq_work1);
+		TRCP_L(nv, lq1, 0, 0, Lv, 0, 0);
+		for(ii=0; ii<nv; ii++)
+			if(BLASFEO_DMATEL(Lv, ii, ii) < 0)
+				COLSC(nv-ii, -1.0, Lv, ii, ii);
 
 #if 0
 if(nv+nb+ng<20)
-	{
+{
 //	blasfeo_print_dmat(nv, nv+nb+ng, lq1, 0, 0);
-	blasfeo_print_dmat(nv, nv, Lv, 0, 0);
+blasfeo_print_dmat(nv, nv, Lv, 0, 0);
 //	exit(1);
-	}
+}
 #endif
 
-			VECCP(nv, lv, 0, dv, 0);
-			VECSC(nv, -1.0, dv, 0);
+		VECCP(nv, lv, 0, dv, 0);
+		VECSC(nv, -1.0, dv, 0);
 
-			TRSV_LNN(nv, Lv, 0, 0, dv, 0, dv, 0);
-			TRSV_LTN(nv, Lv, 0, 0, dv, 0, dv, 0);
-
-			} // scale
+		TRSV_LNN(nv, Lv, 0, 0, dv, 0, dv, 0);
+		TRSV_LTN(nv, Lv, 0, 0, dv, 0, dv, 0);
 
 		} // ne>0
-
+	
 	if(nb+ng>0)
 		{
 		if(nb>0)
@@ -1677,7 +1535,7 @@ void SOLVE_KKT_STEP_DENSE_QP(struct DENSE_QP *qp, struct DENSE_QP_SOL *qp_sol, s
 
 #else // no pivot cholesky
 
-		if(arg->scale)
+		if(ws->scale)
 			{
 
 			VECCP(nv, res_g, 0, lv, 0);
@@ -1763,7 +1621,7 @@ void SOLVE_KKT_STEP_DENSE_QP(struct DENSE_QP *qp, struct DENSE_QP_SOL *qp_sol, s
 	else // ne==0
 		{
 
-		if(arg->scale)
+		if(ws->scale)
 			{
 
 			VECCP(nv, res_g, 0, lv, 0);

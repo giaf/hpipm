@@ -421,7 +421,7 @@ int main()
     FILE * pFile;
     */
 
-	printf("probl\tnv\tne\tnc\treturn\titer\tres_g\t\tres_b\t\tres_d\t\tres_m\t\tmu\t\ttime\t\ttime[ms]\n");
+	printf("probl\tnv\tne\tnc\tdp\treturn\titer\tres_g\t\tres_b\t\tres_d\t\tres_m\t\tmu\t\ttime\t\ttime[ms]\n");
 
 	int npass = 0;
 	int nfail = 0;
@@ -433,7 +433,7 @@ int main()
 
 //    for (i = 0; i < nproblems; i++)
     for (i = 0; i < nproblems-1; i++)
-//    for (i = 29; i < 30; i++)
+//    for (i = 44; i < 45; i++)
 		{
 
         /************************************************
@@ -479,6 +479,11 @@ int main()
         }
         fclose(pFile);
         */
+
+		// regularization
+		for(ii=0; ii<nv; ii++)
+			qp_bench.H[ii*(nv+1)] += 1e-4;
+			
 
         /************************************************
         * benchmark to hpipm workspace
@@ -554,17 +559,17 @@ int main()
         d_create_dense_qp_ipm_arg(&dim, &argd, ipm_arg_mem);
         d_set_default_dense_qp_ipm_arg(&argd);
         /* consistent with setting in acore */
-        argd.res_g_max = 1e-9;
-        argd.res_b_max = 1e-9;
-        argd.res_d_max = 1e-9;
-        argd.res_m_max = 1e-9;
+        argd.res_g_max = 1e-6;
+        argd.res_b_max = 1e-6;
+        argd.res_d_max = 1e-6;
+        argd.res_m_max = 1e-6;
         argd.iter_max = 200;
         argd.stat_max = 200;
         argd.alpha_min = 1e-12;
         argd.mu0 = 1e1;
 		argd.pred_corr = 1;
 		argd.cond_pred_corr = 1;
-		argd.scale = 0;
+		argd.scale = 1;
 		argd.itref_pred_max = 0;
 		argd.itref_corr_max = 4;
 		argd.reg_prim = 1e-15;
@@ -601,7 +606,8 @@ int main()
         * print ipm statistics
         ************************************************/
 #if 0
-		if(i==17)
+//		if(i==17)
+		if(1)
 			{
 			printf("\nipm iter = %d\n", workspace.iter);
 			printf("\nalpha_aff\tmu_aff\t\tsigma\t\talpha\t\tmu\n");
@@ -616,7 +622,7 @@ int main()
 		else
 			nfail++;
 
-		printf("%d\t%d\t%d\t%d\t%d\t%d\t%e\t%e\t%e\t%e\t%e\t%e%12.4f\n", i-1, nv, ne, nc, hpipm_return, workspace.iter, workspace.qp_res[0], workspace.qp_res[1], workspace.qp_res[2], workspace.qp_res[3], workspace.res->res_mu, sol_time, sol_time*1000);
+		printf("%d\t%d\t%d\t%d\t%d\t%d\t%d\t%e\t%e\t%e\t%e\t%e\t%e%12.4f\n", i-1, nv, ne, nc, dp, hpipm_return, workspace.iter, workspace.qp_res[0], workspace.qp_res[1], workspace.qp_res[2], workspace.qp_res[3], workspace.res->res_mu, sol_time, sol_time*1000);
 
         /************************************************
         * free memory
