@@ -100,7 +100,7 @@ int MEMSIZE_DENSE_QP_IPM(struct DENSE_QP_DIM *dim, struct DENSE_QP_IPM_ARG *arg)
 	size += 1*MEMSIZE_DENSE_QP_RES(dim); // res_itref
 
 	size += 22*sizeof(struct STRVEC); // sol_step(v,pi,lam,t) res_g res_b res_d res_m lv (4+2)*tmp_nbg (1+1)*tmp_ns Gamma gamma Zs_inv sv se
-	size += 7*sizeof(struct STRMAT); // 2*Lv 2*AL Le Ctx lq1
+	size += 7*sizeof(struct STRMAT); // 2*Lv AL Le Ctx lq0 lq1
 
 	size += 4*SIZE_STRVEC(nb+ng); // 4*tmp_nbg
 	size += 1*SIZE_STRVEC(ns); // tmp_ns
@@ -108,10 +108,11 @@ int MEMSIZE_DENSE_QP_IPM(struct DENSE_QP_DIM *dim, struct DENSE_QP_IPM_ARG *arg)
 	size += 1*SIZE_STRVEC(ne); // se
 	size += 1*SIZE_STRVEC(2*ns); // Zs_inv
 	size += 2*SIZE_STRMAT(nv+1, nv); // Lv
-	size += 2*SIZE_STRMAT(ne, nv); // AL
+	size += 1*SIZE_STRMAT(ne, nv); // AL
 	size += 1*SIZE_STRMAT(ne, ne); // Le
 	size += 1*SIZE_STRMAT(nv+1, ng); // Ctx
-	size += 1*SIZE_STRMAT(nv, nv+nb+ng); // lq1
+	size += 1*SIZE_STRMAT(ne, ne+nv); // lq0
+	size += 1*SIZE_STRMAT(nv, nv+nv+ng); // lq1
 
 	size += nv*sizeof(int); // ipiv_v
 	size += ne*sizeof(int); // ipiv_e
@@ -189,10 +190,12 @@ void CREATE_DENSE_QP_IPM(struct DENSE_QP_DIM *dim, struct DENSE_QP_IPM_ARG *arg,
 	workspace->Lv = sm_ptr;
 	sm_ptr += 2;
 	workspace->AL = sm_ptr;
-	sm_ptr += 2;
+	sm_ptr += 1;
 	workspace->Le = sm_ptr;
 	sm_ptr += 1;
 	workspace->Ctx = sm_ptr;
+	sm_ptr += 1;
+	workspace->lq0 = sm_ptr;
 	sm_ptr += 1;
 	workspace->lq1 = sm_ptr;
 	sm_ptr += 1;
@@ -282,16 +285,16 @@ void CREATE_DENSE_QP_IPM(struct DENSE_QP_DIM *dim, struct DENSE_QP_IPM_ARG *arg,
 	CREATE_STRMAT(ne, nv, workspace->AL, c_ptr);
 	c_ptr += workspace->AL->memsize;
 
-	CREATE_STRMAT(ne, nv, workspace->AL+1, c_ptr);
-	c_ptr += workspace->AL[1].memsize;
-
 	CREATE_STRMAT(ne, ne, workspace->Le, c_ptr);
 	c_ptr += workspace->Le->memsize;
 
 	CREATE_STRMAT(nv+1, ng, workspace->Ctx, c_ptr);
 	c_ptr += workspace->Ctx->memsize;
 
-	CREATE_STRMAT(nv, nv+nb+ng, workspace->lq1, c_ptr);
+	CREATE_STRMAT(ne, ne+nv, workspace->lq0, c_ptr);
+	c_ptr += workspace->lq0->memsize;
+
+	CREATE_STRMAT(nv, nv+nv+ng, workspace->lq1, c_ptr);
 	c_ptr += workspace->lq1->memsize;
 
 	CREATE_STRVEC(nv, workspace->lv, c_ptr);

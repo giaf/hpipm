@@ -957,6 +957,7 @@ void FACT_SOLVE_LQ_KKT_STEP_DENSE_QP(struct DENSE_QP *qp, struct DENSE_QP_SOL *q
 	int *ipiv_v = ws->ipiv_v;
 	void *lq_work0 = ws->lq_work0;
 	void *lq_work1 = ws->lq_work1;
+	struct STRMAT *lq0 = ws->lq0;
 	struct STRMAT *lq1 = ws->lq1;
 
 	REAL tmp;
@@ -1060,7 +1061,7 @@ void FACT_SOLVE_LQ_KKT_STEP_DENSE_QP(struct DENSE_QP *qp, struct DENSE_QP_SOL *q
 		else // no scale
 			{
 
-			GESE(nv, nv+nb+ng, 0.0, lq1, 0, 0);
+			GESE(nv, nv+nv+ng, 0.0, lq1, 0, 0);
 			TRCP_L(nv, Hg, 0, 0, lq1, 0, 0);
 			POTRF_L(nv, lq1, 0, 0, lq1, 0, 0); // TODO do it offline !!!
 
@@ -1080,7 +1081,7 @@ void FACT_SOLVE_LQ_KKT_STEP_DENSE_QP(struct DENSE_QP *qp, struct DENSE_QP_SOL *q
 				for(ii=0; ii<nb; ii++)
 					{
 					tmp = sqrt( BLASFEO_DVECEL(tmp_nbg+0, ii) );
-					BLASFEO_DMATEL(lq1, idxb[ii], nv+ii) = tmp>0.0 ? tmp : 0.0;
+					BLASFEO_DMATEL(lq1, idxb[ii], nv+idxb[ii]) = tmp>0.0 ? tmp : 0.0;
 					}
 				VECAD_SP(nb, 1.0, tmp_nbg+1, 0, idxb, lv, 0);
 				}
@@ -1091,11 +1092,13 @@ void FACT_SOLVE_LQ_KKT_STEP_DENSE_QP(struct DENSE_QP *qp, struct DENSE_QP_SOL *q
 					tmp = sqrt( BLASFEO_DVECEL(tmp_nbg+0, nb+ii) );
 					BLASFEO_DVECEL(tmp_nbg+0, nb+ii) = tmp>0.0 ? tmp : 0.0;
 					}
-				GEMM_R_DIAG(nv, ng, 1.0, Ct, 0, 0, tmp_nbg+0, nb, 0.0, lq1, 0, nv+nb, lq1, 0, nv+nb);
+				GEMM_R_DIAG(nv, ng, 1.0, Ct, 0, 0, tmp_nbg+0, nb, 0.0, lq1, 0, nv+nv, lq1, 0, nv+nv);
 				GEMV_N(nv, ng, 1.0, Ct, 0, 0, tmp_nbg+1, nb, 1.0, lv, 0, lv, 0);
 				}
 
-			GELQF(nv, nv+nb+ng, lq1, 0, 0, lq1, 0, 0, lq_work1);
+			DIARE(nv, arg->reg_prim, lq1, 0, nv);
+
+			GELQF(nv, nv+nv+ng, lq1, 0, 0, lq1, 0, 0, lq_work1);
 			TRCP_L(nv, lq1, 0, 0, Lv, 0, 0);
 			for(ii=0; ii<nv; ii++)
 				if(BLASFEO_DMATEL(Lv, ii, ii) < 0)
@@ -1109,8 +1112,11 @@ void FACT_SOLVE_LQ_KKT_STEP_DENSE_QP(struct DENSE_QP *qp, struct DENSE_QP_SOL *q
 
 			GEMV_N(ne, nv, 1.0, AL, 0, 0, lv, 0, 1.0, res_b, 0, dpi, 0);
 
-			GELQF(ne, nv, AL, 0, 0, AL+1, 0, 0, lq_work0);
-			TRCP_L(ne, AL+1, 0, 0, Le, 0, 0);
+			GECP(ne, nv, AL, 0, 0, lq0, 0, 0);
+			GESE(ne, ne, 0.0, lq0, 0, nv);
+			DIARE(ne, arg->reg_dual, lq0, 0, nv);
+			GELQF(ne, ne+nv, lq0, 0, 0, lq0, 0, 0, lq_work0);
+			TRCP_L(ne, lq0, 0, 0, Le, 0, 0);
 			for(ii=0; ii<ne; ii++)
 				if(BLASFEO_DMATEL(Le, ii, ii) < 0)
 					COLSC(ne-ii, -1.0, Le, ii, ii);
@@ -1183,7 +1189,7 @@ void FACT_SOLVE_LQ_KKT_STEP_DENSE_QP(struct DENSE_QP *qp, struct DENSE_QP_SOL *q
 			}
 		else // no scale
 			{
-			GESE(nv, nv+nb+ng, 0.0, lq1, 0, 0);
+			GESE(nv, nv+nv+ng, 0.0, lq1, 0, 0);
 			TRCP_L(nv, Hg, 0, 0, lq1, 0, 0);
 			POTRF_L(nv, lq1, 0, 0, lq1, 0, 0); // TODO do it offline !!!
 			VECCP(nv, res_g, 0, lv, 0);
@@ -1202,7 +1208,7 @@ void FACT_SOLVE_LQ_KKT_STEP_DENSE_QP(struct DENSE_QP *qp, struct DENSE_QP_SOL *q
 				for(ii=0; ii<nb; ii++)
 					{
 					tmp = sqrt( BLASFEO_DVECEL(tmp_nbg+0, ii) );
-					BLASFEO_DMATEL(lq1, idxb[ii], nv+ii) = tmp>0.0 ? tmp : 0.0;
+					BLASFEO_DMATEL(lq1, idxb[ii], nv+idxb[ii]) = tmp>0.0 ? tmp : 0.0;
 					}
 				VECAD_SP(nb, 1.0, tmp_nbg+1, 0, idxb, lv, 0);
 				}
@@ -1213,11 +1219,13 @@ void FACT_SOLVE_LQ_KKT_STEP_DENSE_QP(struct DENSE_QP *qp, struct DENSE_QP_SOL *q
 					tmp = sqrt( BLASFEO_DVECEL(tmp_nbg+0, nb+ii) );
 					BLASFEO_DVECEL(tmp_nbg+0, nb+ii) = tmp>0.0 ? tmp : 0.0;
 					}
-				GEMM_R_DIAG(nv, ng, 1.0, Ct, 0, 0, tmp_nbg+0, nb, 0.0, lq1, 0, nv+nb, lq1, 0, nv+nb);
+				GEMM_R_DIAG(nv, ng, 1.0, Ct, 0, 0, tmp_nbg+0, nb, 0.0, lq1, 0, nv+nv, lq1, 0, nv+nv);
 				GEMV_N(nv, ng, 1.0, Ct, 0, 0, tmp_nbg+1, nb, 1.0, lv, 0, lv, 0);
 				}
 
-			GELQF(nv, nv+nb+ng, lq1, 0, 0, lq1, 0, 0, lq_work1);
+			DIARE(nv, arg->reg_prim, lq1, 0, nv);
+
+			GELQF(nv, nv+nv+ng, lq1, 0, 0, lq1, 0, 0, lq_work1);
 			TRCP_L(nv, lq1, 0, 0, Lv, 0, 0);
 			for(ii=0; ii<nv; ii++)
 				if(BLASFEO_DMATEL(Lv, ii, ii) < 0)

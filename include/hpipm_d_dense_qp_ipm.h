@@ -88,6 +88,7 @@ struct d_dense_qp_ipm_workspace
 	struct blasfeo_dvec *se; // scale for Le
 	struct blasfeo_dvec *tmp_nbg; // work space of size nb+ng
 	struct blasfeo_dvec *tmp_ns; // work space of size ns
+	struct blasfeo_dmat *lq0;
 	struct blasfeo_dmat *lq1;
 	double *stat; // convergence statistics
 	int *ipiv_v;
