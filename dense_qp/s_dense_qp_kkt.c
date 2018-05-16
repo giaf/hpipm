@@ -103,6 +103,7 @@
 #define VECMULACC blasfeo_svecmulacc
 #define VECMULDOT blasfeo_svecmuldot
 #define VECSC blasfeo_svecsc
+#define VECSE blasfeo_svecse
 #define VECCPSC blasfeo_sveccpsc
 #define VECPE blasfeo_svecpe
 #define VECPEI blasfeo_svecpei

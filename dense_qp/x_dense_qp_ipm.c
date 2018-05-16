@@ -100,7 +100,7 @@ int MEMSIZE_DENSE_QP_IPM(struct DENSE_QP_DIM *dim, struct DENSE_QP_IPM_ARG *arg)
 	size += 1*MEMSIZE_DENSE_QP_RES(dim); // res_itref
 
 	size += 22*sizeof(struct STRVEC); // sol_step(v,pi,lam,t) res_g res_b res_d res_m lv (4+2)*tmp_nbg (1+1)*tmp_ns Gamma gamma Zs_inv sv se
-	size += 6*sizeof(struct STRMAT); // Lv AL Le Ctx
+	size += 7*sizeof(struct STRMAT); // 2*Lv 2*AL Le Ctx lq1
 
 	size += 4*SIZE_STRVEC(nb+ng); // 4*tmp_nbg
 	size += 1*SIZE_STRVEC(ns); // tmp_ns
@@ -111,11 +111,13 @@ int MEMSIZE_DENSE_QP_IPM(struct DENSE_QP_DIM *dim, struct DENSE_QP_IPM_ARG *arg)
 	size += 2*SIZE_STRMAT(ne, nv); // AL
 	size += 1*SIZE_STRMAT(ne, ne); // Le
 	size += 1*SIZE_STRMAT(nv+1, ng); // Ctx
+	size += 1*SIZE_STRMAT(nv, nv+nb+ng); // lq1
 
 	size += nv*sizeof(int); // ipiv_v
 	size += ne*sizeof(int); // ipiv_e
 
 	size += 1*GELQF_WORKSIZE(ne, nv); // lq_work0
+	size += 1*GELQF_WORKSIZE(nv, nv+nb+ng); // lq_work1
 
 	size += 5*arg->stat_max*sizeof(REAL);
 
@@ -192,6 +194,8 @@ void CREATE_DENSE_QP_IPM(struct DENSE_QP_DIM *dim, struct DENSE_QP_IPM_ARG *arg,
 	sm_ptr += 1;
 	workspace->Ctx = sm_ptr;
 	sm_ptr += 1;
+	workspace->lq1 = sm_ptr;
+	sm_ptr += 1;
 
 
 	// vector struct
@@ -255,15 +259,8 @@ void CREATE_DENSE_QP_IPM(struct DENSE_QP_DIM *dim, struct DENSE_QP_IPM_ARG *arg,
 	i_ptr += ne;
 
 
-	// void stuff
-	int *v_ptr = (void *) i_ptr;
-
-	workspace->lq_work0 = v_ptr;
-	v_ptr += GELQF_WORKSIZE(ne, nv);
-
-
 	// align to typicl cache line size
-	size_t s_ptr = (size_t) v_ptr;
+	size_t s_ptr = (size_t) i_ptr;
 	s_ptr = (s_ptr+63)/64*64;
 
 
@@ -293,6 +290,9 @@ void CREATE_DENSE_QP_IPM(struct DENSE_QP_DIM *dim, struct DENSE_QP_IPM_ARG *arg,
 
 	CREATE_STRMAT(nv+1, ng, workspace->Ctx, c_ptr);
 	c_ptr += workspace->Ctx->memsize;
+
+	CREATE_STRMAT(nv, nv+nb+ng, workspace->lq1, c_ptr);
+	c_ptr += workspace->lq1->memsize;
 
 	CREATE_STRVEC(nv, workspace->lv, c_ptr);
 	c_ptr += workspace->lv->memsize;
@@ -326,6 +326,12 @@ void CREATE_DENSE_QP_IPM(struct DENSE_QP_DIM *dim, struct DENSE_QP_IPM_ARG *arg,
 
 	CREATE_CORE_QP_IPM(nv+2*ns, ne, 2*nb+2*ng+2*ns, cws, c_ptr);
 	c_ptr += workspace->core_workspace->memsize;
+
+	workspace->lq_work0 = c_ptr;
+	c_ptr += GELQF_WORKSIZE(ne, nv);
+
+	workspace->lq_work1 = c_ptr;
+	c_ptr += GELQF_WORKSIZE(nv, nv+nb+ng);
 
 
 	// alias members of workspace and core_workspace
