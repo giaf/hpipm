@@ -63,6 +63,7 @@
 #define DIARE blasfeo_sdiare
 #define GECP blasfeo_sgecp
 #define GELQF blasfeo_sgelqf
+#define GELQF_PD blasfeo_sgelqf_pd
 #define GELQF_WORKSIZE blasfeo_sgelqf_worksize
 #define GEMM_L_DIAG blasfeo_sgemm_dn
 #define GEMM_R_DIAG blasfeo_sgemm_nd

@@ -1012,11 +1012,16 @@ void FACT_SOLVE_LQ_KKT_STEP_DENSE_QP(struct DENSE_QP *qp, struct DENSE_QP_SOL *q
 
 		DIARE(nv, arg->reg_prim, lq1, 0, nv);
 
+#if 0
 		GELQF(nv, nv+nv+ng, lq1, 0, 0, lq1, 0, 0, lq_work1);
 		TRCP_L(nv, lq1, 0, 0, Lv, 0, 0);
 		for(ii=0; ii<nv; ii++)
 			if(BLASFEO_DMATEL(Lv, ii, ii) < 0)
 				COLSC(nv-ii, -1.0, Lv, ii, ii);
+#else
+		GELQF_PD(nv, nv+nv+ng, lq1, 0, 0, lq1, 0, 0, lq_work1);
+		TRCP_L(nv, lq1, 0, 0, Lv, 0, 0);
+#endif
 
 		VECCP(nv, lv, 0, dv, 0);
 
@@ -1029,11 +1034,16 @@ void FACT_SOLVE_LQ_KKT_STEP_DENSE_QP(struct DENSE_QP *qp, struct DENSE_QP_SOL *q
 		GECP(ne, nv, AL, 0, 0, lq0, 0, 0);
 		GESE(ne, ne, 0.0, lq0, 0, nv);
 		DIARE(ne, arg->reg_dual, lq0, 0, nv);
+#if 0
 		GELQF(ne, ne+nv, lq0, 0, 0, lq0, 0, 0, lq_work0);
 		TRCP_L(ne, lq0, 0, 0, Le, 0, 0);
 		for(ii=0; ii<ne; ii++)
 			if(BLASFEO_DMATEL(Le, ii, ii) < 0)
 				COLSC(ne-ii, -1.0, Le, ii, ii);
+#else
+		GELQF_PD(ne, ne+nv, lq0, 0, 0, lq0, 0, 0, lq_work0);
+		TRCP_L(ne, lq0, 0, 0, Le, 0, 0);
+#endif
 
 //		blasfeo_print_dmat(ne, ne, Le, 0, 0);
 
@@ -1085,18 +1095,23 @@ void FACT_SOLVE_LQ_KKT_STEP_DENSE_QP(struct DENSE_QP *qp, struct DENSE_QP_SOL *q
 
 		DIARE(nv, arg->reg_prim, lq1, 0, nv);
 
+#if 0
 		GELQF(nv, nv+nv+ng, lq1, 0, 0, lq1, 0, 0, lq_work1);
 		TRCP_L(nv, lq1, 0, 0, Lv, 0, 0);
 		for(ii=0; ii<nv; ii++)
 			if(BLASFEO_DMATEL(Lv, ii, ii) < 0)
 				COLSC(nv-ii, -1.0, Lv, ii, ii);
+#else
+		GELQF_PD(nv, nv+nv+ng, lq1, 0, 0, lq1, 0, 0, lq_work1);
+		TRCP_L(nv, lq1, 0, 0, Lv, 0, 0);
+#endif
 
 #if 0
-if(nv+nb+ng<20)
+if(nv<30)
 {
 //	blasfeo_print_dmat(nv, nv+nb+ng, lq1, 0, 0);
 blasfeo_print_dmat(nv, nv, Lv, 0, 0);
-//	exit(1);
+exit(1);
 }
 #endif
 
