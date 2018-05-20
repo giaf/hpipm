@@ -66,6 +66,7 @@ void SET_DEFAULT_DENSE_QP_IPM_ARG(struct DENSE_QP_IPM_ARG *arg)
 	arg->reg_prim = 1e-15;
 	arg->reg_dual = 1e-15;
 	arg->warm_start = 0;
+	arg->lq_fact = 0;
 
 	// TODO if(performance_mode) {} else /* reliability_mode */ {}
 	return;
@@ -501,9 +502,10 @@ int SOLVE_DENSE_QP_IPM(struct DENSE_QP *qp, struct DENSE_QP_SOL *qp_sol, struct 
 		ws->scale = arg->scale;
 
 		// fact and solve kkt
-//		FACT_SOLVE_KKT_STEP_DENSE_QP(ws->qp_step, ws->sol_step, arg, ws);
-		FACT_SOLVE_LQ_KKT_STEP_DENSE_QP(ws->qp_step, ws->sol_step, arg, ws);
-//		FACT_SOLVE_LU_KKT_STEP_DENSE_QP(ws->qp_step, ws->sol_step, arg, ws);
+		if(arg->lq_fact>0)
+			FACT_SOLVE_LQ_KKT_STEP_DENSE_QP(ws->qp_step, ws->sol_step, arg, ws);
+		else
+			FACT_SOLVE_KKT_STEP_DENSE_QP(ws->qp_step, ws->sol_step, arg, ws);
 
 		for(itref0=0; itref0<arg->itref_pred_max; itref0++)
 			{

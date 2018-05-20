@@ -574,6 +574,7 @@ int main()
 		argd.itref_corr_max = 4;
 		argd.reg_prim = 1e-15;
 		argd.reg_dual = 1e-15;
+		argd.lq_fact = 1;
 
         /************************************************
         * dense ipm
