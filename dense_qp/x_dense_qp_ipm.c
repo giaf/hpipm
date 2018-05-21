@@ -490,6 +490,8 @@ int SOLVE_DENSE_QP_IPM(struct DENSE_QP *qp, struct DENSE_QP_SOL *qp_sol, struct 
 	REAL itref_qp_norm0[4] = {0,0,0,0};
 	int ndp0, ndp1;
 
+	int force_lq = 0;
+
 	for(kk=0; \
 			kk<arg->iter_max & \
 			cws->alpha>arg->alpha_min & \
@@ -502,11 +504,86 @@ int SOLVE_DENSE_QP_IPM(struct DENSE_QP *qp, struct DENSE_QP_SOL *qp_sol, struct 
 		ws->scale = arg->scale;
 
 		// fact and solve kkt
-		if(arg->lq_fact>0)
-			FACT_SOLVE_LQ_KKT_STEP_DENSE_QP(ws->qp_step, ws->sol_step, arg, ws);
-		else
+		if(arg->lq_fact==0)
+			{
+
+			// syrk+cholesky
 			FACT_SOLVE_KKT_STEP_DENSE_QP(ws->qp_step, ws->sol_step, arg, ws);
 
+			}
+		else if(arg->lq_fact==1 & force_lq==0)
+			{
+
+			// syrk+chol, switch to lq when needed
+			FACT_SOLVE_KKT_STEP_DENSE_QP(ws->qp_step, ws->sol_step, arg, ws);
+
+			// compute res of linear system
+			COMPUTE_LIN_RES_DENSE_QP(ws->qp_step, qp_sol, ws->sol_step, ws->res_itref, ws->res_workspace);
+			VECNRM_INF_LIBSTR(cws->nv, ws->res_itref->res_g, 0, &itref_qp_norm[0]);
+			VECNRM_INF_LIBSTR(cws->ne, ws->res_itref->res_b, 0, &itref_qp_norm[1]);
+			VECNRM_INF_LIBSTR(cws->nc, ws->res_itref->res_d, 0, &itref_qp_norm[2]);
+			VECNRM_INF_LIBSTR(cws->nc, ws->res_itref->res_m, 0, &itref_qp_norm[3]);
+
+			// inaccurate factorization: switch to lq
+			if(
+#ifdef USE_C99_MATH
+				( itref_qp_norm[0]==0.0 & isnan(BLASFEO_DVECEL(ws->res_itref->res_g, 0)) ) |
+#else
+				( itref_qp_norm[0]==0.0 & BLASFEO_DVECEL(ws->res_itref->res_g, 0)!=BLASFEO_DVECEL(ws->res_itref->res_g, 0) ) |
+#endif
+				itref_qp_norm[0]>1e-5 |
+				itref_qp_norm[1]>1e-5 |
+				itref_qp_norm[2]>1e-5 |
+				itref_qp_norm[3]>1e-5 )
+				{
+
+#if 0
+blasfeo_print_tran_dvec(cws->nv, ws->sol_step->v, 0);
+blasfeo_print_tran_dvec(cws->ne, ws->sol_step->pi, 0);
+blasfeo_print_tran_dvec(cws->nc, ws->sol_step->lam, 0);
+blasfeo_print_tran_dvec(cws->nc, ws->sol_step->t, 0);
+#endif
+
+				// refactorize using lq
+				FACT_SOLVE_LQ_KKT_STEP_DENSE_QP(ws->qp_step, ws->sol_step, arg, ws);
+
+				// switch to lq
+				force_lq = 1;
+
+#if 0
+blasfeo_print_tran_dvec(cws->nv, ws->sol_step->v, 0);
+blasfeo_print_tran_dvec(cws->ne, ws->sol_step->pi, 0);
+blasfeo_print_tran_dvec(cws->nc, ws->sol_step->lam, 0);
+blasfeo_print_tran_dvec(cws->nc, ws->sol_step->t, 0);
+#endif
+
+				}
+
+			}
+		else // arg->lq_fact==2
+			{
+
+			// lq
+			FACT_SOLVE_LQ_KKT_STEP_DENSE_QP(ws->qp_step, ws->sol_step, arg, ws);
+
+			}
+
+
+
+#if 0
+		COMPUTE_LIN_RES_DENSE_QP(ws->qp_step, qp_sol, ws->sol_step, ws->res_itref, ws->res_workspace);
+		VECNRM_INF_LIBSTR(cws->nv, ws->res_itref->res_g, 0, &itref_qp_norm[0]);
+		VECNRM_INF_LIBSTR(cws->ne, ws->res_itref->res_b, 0, &itref_qp_norm[1]);
+		VECNRM_INF_LIBSTR(cws->nc, ws->res_itref->res_d, 0, &itref_qp_norm[2]);
+		VECNRM_INF_LIBSTR(cws->nc, ws->res_itref->res_m, 0, &itref_qp_norm[3]);
+//		printf("%e\t%e\t%e\t%e\t%e\t%e\t%e\t%e\t\n", qp_res[0], qp_res[1], qp_res[2], qp_res[3], itref_qp_norm[0], itref_qp_norm[1], itref_qp_norm[2], itref_qp_norm[3]);
+		if(itref_qp_norm[0]==0.0 & BLASFEO_DVECEL(ws->res_itref->res_g, 0)!=BLASFEO_DVECEL(ws->res_itref->res_g, 0))
+			printf("NaN!!!\n");
+#endif
+
+
+
+		// iterative refinement on prediction step
 		for(itref0=0; itref0<arg->itref_pred_max; itref0++)
 			{
 

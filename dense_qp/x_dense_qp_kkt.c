@@ -994,7 +994,9 @@ void FACT_SOLVE_LQ_KKT_STEP_DENSE_QP(struct DENSE_QP *qp, struct DENSE_QP_SOL *q
 			{
 			for(ii=0; ii<nb; ii++)
 				{
-				tmp = sqrt( BLASFEO_DVECEL(tmp_nbg+0, ii) );
+				tmp = BLASFEO_DVECEL(tmp_nbg+0, ii);
+				tmp = tmp>=0.0 ? tmp : 0.0;
+				tmp = sqrt( tmp );
 				BLASFEO_DMATEL(lq1, idxb[ii], idxb[ii]) = tmp>0.0 ? tmp : 0.0;
 				}
 			VECAD_SP(nb, 1.0, tmp_nbg+1, 0, idxb, lv, 0);
@@ -1003,8 +1005,10 @@ void FACT_SOLVE_LQ_KKT_STEP_DENSE_QP(struct DENSE_QP *qp, struct DENSE_QP_SOL *q
 			{
 			for(ii=0; ii<ng; ii++)
 				{
-				tmp = sqrt( BLASFEO_DVECEL(tmp_nbg+0, nb+ii) );
-				BLASFEO_DVECEL(tmp_nbg+0, nb+ii) = tmp>0.0 ? tmp : 0.0;
+				tmp = BLASFEO_DVECEL(tmp_nbg+0, nb+ii);
+				tmp = tmp>=0.0 ? tmp : 0.0;
+				tmp = sqrt( tmp );
+				BLASFEO_DVECEL(tmp_nbg+0, nb+ii) = tmp;
 				}
 			GEMM_R_DIAG(nv, ng, 1.0, Ct, 0, 0, tmp_nbg+0, nb, 0.0, lq1, 0, nv+nv, lq1, 0, nv+nv);
 			GEMV_N(nv, ng, 1.0, Ct, 0, 0, tmp_nbg+1, nb, 1.0, lv, 0, lv, 0);
@@ -1012,6 +1016,9 @@ void FACT_SOLVE_LQ_KKT_STEP_DENSE_QP(struct DENSE_QP *qp, struct DENSE_QP_SOL *q
 
 		DIARE(nv, arg->reg_prim, lq1, 0, 0);
 
+//blasfeo_print_dmat(nv, nv, lq1, 0, 0);
+//blasfeo_print_dmat(nv, nv, lq1, 0, nv);
+//blasfeo_print_dmat(nv, ng, lq1, 0, nv+ng);
 #if 0
 		GELQF(nv, nv+nv+ng, lq1, 0, 0, lq1, 0, 0, lq_work1);
 		TRCP_L(nv, lq1, 0, 0, Lv, 0, 0);
@@ -1024,6 +1031,7 @@ void FACT_SOLVE_LQ_KKT_STEP_DENSE_QP(struct DENSE_QP *qp, struct DENSE_QP_SOL *q
 		GELQF_PD_LLA(nv, ng, lq1, 0, 0, lq1, 0, nv, lq1, 0, 2*nv, lq_work1);
 		TRCP_L(nv, lq1, 0, 0, Lv, 0, 0);
 #endif
+//blasfeo_print_dmat(nv, nv, Lv, 0, 0);
 
 		VECCP(nv, lv, 0, dv, 0);
 
@@ -1080,7 +1088,9 @@ void FACT_SOLVE_LQ_KKT_STEP_DENSE_QP(struct DENSE_QP *qp, struct DENSE_QP_SOL *q
 			{
 			for(ii=0; ii<nb; ii++)
 				{
-				tmp = sqrt( BLASFEO_DVECEL(tmp_nbg+0, ii) );
+				tmp = BLASFEO_DVECEL(tmp_nbg+0, ii);
+				tmp = tmp>=0.0 ? tmp : 0.0;
+				tmp = sqrt( tmp );
 				BLASFEO_DMATEL(lq1, idxb[ii], idxb[ii]) = tmp>0.0 ? tmp : 0.0;
 				}
 			VECAD_SP(nb, 1.0, tmp_nbg+1, 0, idxb, lv, 0);
@@ -1089,8 +1099,10 @@ void FACT_SOLVE_LQ_KKT_STEP_DENSE_QP(struct DENSE_QP *qp, struct DENSE_QP_SOL *q
 			{
 			for(ii=0; ii<ng; ii++)
 				{
-				tmp = sqrt( BLASFEO_DVECEL(tmp_nbg+0, nb+ii) );
-				BLASFEO_DVECEL(tmp_nbg+0, nb+ii) = tmp>0.0 ? tmp : 0.0;
+				tmp = BLASFEO_DVECEL(tmp_nbg+0, nb+ii);
+				tmp = tmp>=0.0 ? tmp : 0.0;
+				tmp = sqrt( tmp );
+				BLASFEO_DVECEL(tmp_nbg+0, nb+ii) = tmp;
 				}
 			GEMM_R_DIAG(nv, ng, 1.0, Ct, 0, 0, tmp_nbg+0, nb, 0.0, lq1, 0, nv+nv, lq1, 0, nv+nv);
 			GEMV_N(nv, ng, 1.0, Ct, 0, 0, tmp_nbg+1, nb, 1.0, lv, 0, lv, 0);
@@ -1133,6 +1145,7 @@ exit(1);
 		if(nb>0)
 			VECEX_SP(nb, 1.0, idxb, dv, 0, dt, 0);
 
+		VECSE(ng, 0.0, dt, nb);
 		if(ng>0)
 			GEMV_T(nv, ng, 1.0, Ct, 0, 0, dv, 0, 0.0, dt, nb, dt, nb);
 
