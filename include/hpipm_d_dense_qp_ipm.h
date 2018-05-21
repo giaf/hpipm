@@ -53,6 +53,8 @@ struct d_dense_qp_ipm_arg
 	double res_m_max; // exit cond on inf norm of residuals
 	double reg_prim; // reg of primal hessian
 	double reg_dual; // reg of dual hessian
+	double lam_min; // min value in lam vector
+	double t_min; // min value in t vector
 	int iter_max; // exit cond in iter number
 	int stat_max; // iterations saved in stat
 	int pred_corr; // Mehrotra's predictor-corrector IPM algirthm

@@ -54,6 +54,8 @@ struct d_core_qp_ipm_workspace
 	double mu; // duality measuere
 	double mu_aff; // affine duality measuere
 	double nc_inv; // 1.0/nt, where nt is the total number of constraints
+	double lam_min; // min value in lam vector
+	double t_min; // min value in t vector
 	int nv; // number of primal variables
 	int ne; // number of equality constraints
 	int nc; // number of (two-sided) inequality constraints

@@ -63,6 +63,8 @@ void SET_DEFAULT_TREE_OCP_QP_IPM_ARG(struct TREE_OCP_QP_IPM_ARG *arg)
 	arg->pred_corr = 1;
 	arg->cond_pred_corr = 1;
 	arg->warm_start = 0;
+	arg->lam_min = 1e-30;
+	arg->t_min = 1e-30;
 
 	return;
 
@@ -419,6 +421,10 @@ int SOLVE_TREE_OCP_QP_IPM(struct TREE_OCP_QP *qp, struct TREE_OCP_QP_SOL *qp_sol
 	{
 
 	struct CORE_QP_IPM_WORKSPACE *cws = ws->core_workspace;
+
+	// arg to core workspace
+	cws->lam_min = arg->lam_min;
+	cws->t_min = arg->t_min;
 
 	// alias qp vectors into qp_sol
 	cws->v = qp_sol->ux->pa;
