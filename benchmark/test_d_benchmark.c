@@ -502,7 +502,7 @@ int main()
 		struct d_dense_qp_dim dim;
 		d_create_dense_qp_dim(&dim, qp_dim_mem);
 
-		d_cvt_int_to_dense_qp_dim(nv, ne, nv, nc, nsc, &dim);
+		d_cvt_int_to_dense_qp_dim(nv, ne, nv, nc, 0, 0, &dim);
 
         /************************************************
         * dense qp
