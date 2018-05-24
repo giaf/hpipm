@@ -32,7 +32,7 @@ int MEMSIZE_OCP_QP_DIM(int N)
 
 	int size = 0;
 
-	size += 7*(N+1)*sizeof(int);
+	size += 9*(N+1)*sizeof(int);
 
 	size = (size+8-1)/8*8;
 
@@ -71,6 +71,12 @@ void CREATE_OCP_QP_DIM(int N, struct OCP_QP_DIM *dim, void *memory)
 	// ns
 	dim->ns = (int *) c_ptr;
 	c_ptr += (N+1)*sizeof(int);
+	// nsb
+	dim->nsb = (int *) c_ptr;
+	c_ptr += (N+1)*sizeof(int);
+	// nsg
+	dim->nsg = (int *) c_ptr;
+	c_ptr += (N+1)*sizeof(int);
 
 	dim->memsize = MEMSIZE_OCP_QP_DIM(N);
 
@@ -79,7 +85,7 @@ void CREATE_OCP_QP_DIM(int N, struct OCP_QP_DIM *dim, void *memory)
 	}
 
 
-void CVT_INT_TO_OCP_QP_DIM(int N, int *nx, int *nu, int *nbx, int *nbu, int *ng, int *ns, struct OCP_QP_DIM *dim)
+void CVT_INT_TO_OCP_QP_DIM(int N, int *nx, int *nu, int *nbx, int *nbu, int *ng, int *nsb, int *nsg, struct OCP_QP_DIM *dim)
 	{
 
 	// loop index
@@ -102,7 +108,11 @@ void CVT_INT_TO_OCP_QP_DIM(int N, int *nx, int *nu, int *nbx, int *nbu, int *ng,
 	for(ii=0; ii<=N; ii++)
 		dim->ng[ii] = ng[ii];
 	for(ii=0; ii<=N; ii++)
-		dim->ns[ii] = ns[ii];
+		dim->ns[ii] = nsb[ii]+nsg[ii];
+	for(ii=0; ii<=N; ii++)
+		dim->nsb[ii] = nsb[ii];
+	for(ii=0; ii<=N; ii++)
+		dim->nsg[ii] = nsg[ii];
 
 	return;
 
