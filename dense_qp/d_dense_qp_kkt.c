@@ -74,7 +74,7 @@
 #define GEMV_NT blasfeo_dgemv_nt
 #define GEMV_T blasfeo_dgemv_t
 #define GESE blasfeo_dgese
-#define GETRF blasfeo_dgetrf_rowpivot
+//#define GETRF blasfeo_dgetrf_rowpivot
 #define POTRF_L blasfeo_dpotrf_l
 #define POTRF_L_MN blasfeo_dpotrf_l_mn
 #define PSTRF_L dpstrf_l_libstr
@@ -116,7 +116,7 @@
 #define COMPUTE_LIN_RES_DENSE_QP d_compute_lin_res_dense_qp
 #define FACT_SOLVE_KKT_UNCONSTR_DENSE_QP d_fact_solve_kkt_unconstr_dense_qp
 #define FACT_SOLVE_LQ_KKT_STEP_DENSE_QP d_fact_solve_lq_kkt_step_dense_qp
-#define FACT_SOLVE_LU_KKT_STEP_DENSE_QP d_fact_solve_lu_kkt_step_dense_qp
+//#define FACT_SOLVE_LU_KKT_STEP_DENSE_QP d_fact_solve_lu_kkt_step_dense_qp
 #define FACT_SOLVE_KKT_STEP_DENSE_QP d_fact_solve_kkt_step_dense_qp
 #define SOLVE_KKT_STEP_DENSE_QP d_solve_kkt_step_dense_qp
 

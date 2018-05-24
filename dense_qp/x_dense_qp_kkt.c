@@ -975,9 +975,15 @@ void FACT_SOLVE_LQ_KKT_STEP_DENSE_QP(struct DENSE_QP *qp, struct DENSE_QP_SOL *q
 	if(ne>0)
 		{
 
+		// XXX needed ???
 		GESE(nv, nv+nv+ng, 0.0, lq1, 0, 0);
-		TRCP_L(nv, Hg, 0, 0, lq1, 0, nv);
-		POTRF_L(nv, lq1, 0, nv, lq1, 0, nv); // TODO do it offline !!!
+
+		if(ws->use_hess_fact==0)
+			{
+			POTRF_L(nv, Hg, 0, 0, Lv+1, 0, 0);
+			ws->use_hess_fact=1;
+			}
+		TRCP_L(nv, Lv+1, 0, 0, lq1, 0, nv);
 
 		VECCP(nv, res_g, 0, lv, 0);
 
@@ -1082,9 +1088,16 @@ void FACT_SOLVE_LQ_KKT_STEP_DENSE_QP(struct DENSE_QP *qp, struct DENSE_QP_SOL *q
 	else // ne==0
 		{
 
+		// XXX needed ???
 		GESE(nv, nv+nv+ng, 0.0, lq1, 0, 0);
-		TRCP_L(nv, Hg, 0, 0, lq1, 0, nv);
-		POTRF_L(nv, lq1, 0, nv, lq1, 0, nv); // TODO do it offline !!!
+
+		if(ws->use_hess_fact==0)
+			{
+			POTRF_L(nv, Hg, 0, 0, Lv+1, 0, 0);
+			ws->use_hess_fact=1;
+			}
+		TRCP_L(nv, Lv+1, 0, 0, lq1, 0, nv);
+
 		VECCP(nv, res_g, 0, lv, 0);
 
 		if(ns>0)
@@ -1181,6 +1194,7 @@ exit(1);
 
 
 
+#if 0
 void FACT_SOLVE_LU_KKT_STEP_DENSE_QP(struct DENSE_QP *qp, struct DENSE_QP_SOL *qp_sol, struct DENSE_QP_IPM_ARG *arg, struct DENSE_QP_IPM_WORKSPACE *ws)
 	{
 
@@ -1498,6 +1512,7 @@ void FACT_SOLVE_LU_KKT_STEP_DENSE_QP(struct DENSE_QP *qp, struct DENSE_QP_SOL *q
 	return;
 
 	}
+#endif
 
 
 

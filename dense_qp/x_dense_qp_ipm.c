@@ -366,6 +366,9 @@ void CREATE_DENSE_QP_IPM(struct DENSE_QP_DIM *dim, struct DENSE_QP_IPM_ARG *arg,
 	workspace->sol_step->dim = dim;
 
 	//
+	workspace->use_hess_fact = 0;
+
+	//
 	workspace->memsize = MEMSIZE_DENSE_QP_IPM(dim, arg);
 
 

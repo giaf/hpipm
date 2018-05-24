@@ -103,8 +103,9 @@ struct s_dense_qp_ipm_workspace
 	int iter; // iteration number
 	int stat_max; // iterations saved in stat
 	int warm_start; // 0 no warm start, 1 warm start primal sol
-	int memsize; // memory size (in bytes) of workspace
 	int scale;
+	int use_hess_fact;
+	int memsize; // memory size (in bytes) of workspace
 	};
 
 
