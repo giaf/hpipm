@@ -66,7 +66,7 @@ void SET_DEFAULT_DENSE_QP_IPM_ARG(struct DENSE_QP_IPM_ARG *arg)
 	arg->reg_prim = 1e-15;
 	arg->reg_dual = 1e-15;
 	arg->warm_start = 0;
-	arg->lq_fact = 0;
+	arg->lq_fact = 1;
 	arg->lam_min = 1e-30;
 	arg->t_min = 1e-30;
 

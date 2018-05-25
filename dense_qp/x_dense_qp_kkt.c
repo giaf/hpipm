@@ -976,14 +976,13 @@ void FACT_SOLVE_LQ_KKT_STEP_DENSE_QP(struct DENSE_QP *qp, struct DENSE_QP_SOL *q
 		{
 
 		// XXX needed ???
-		GESE(nv, nv+nv+ng, 0.0, lq1, 0, 0);
+		GESE(nv, nv+nv+ng, 0.0, lq1, 0, 0); // TODO not the first part for HP and RF
 
 		if(ws->use_hess_fact==0)
 			{
 			POTRF_L(nv, Hg, 0, 0, Lv+1, 0, 0);
 			ws->use_hess_fact=1;
 			}
-		TRCP_L(nv, Lv+1, 0, 0, lq1, 0, nv);
 
 		VECCP(nv, res_g, 0, lv, 0);
 
@@ -1003,7 +1002,7 @@ void FACT_SOLVE_LQ_KKT_STEP_DENSE_QP(struct DENSE_QP *qp, struct DENSE_QP_SOL *q
 				tmp = BLASFEO_DVECEL(tmp_nbg+0, ii);
 				tmp = tmp>=0.0 ? tmp : 0.0;
 				tmp = sqrt( tmp );
-				BLASFEO_DMATEL(lq1, idxb[ii], idxb[ii]) = tmp>0.0 ? tmp : 0.0;
+				BLASFEO_DMATEL(lq1, idxb[ii], nv+idxb[ii]) = tmp>0.0 ? tmp : 0.0;
 				}
 			VECAD_SP(nb, 1.0, tmp_nbg+1, 0, idxb, lv, 0);
 			}
@@ -1020,23 +1019,30 @@ void FACT_SOLVE_LQ_KKT_STEP_DENSE_QP(struct DENSE_QP *qp, struct DENSE_QP_SOL *q
 			GEMV_N(nv, ng, 1.0, Ct, 0, 0, tmp_nbg+1, nb, 1.0, lv, 0, lv, 0);
 			}
 
-		DIARE(nv, arg->reg_prim, lq1, 0, 0);
+		DIARE(nv, arg->reg_prim, lq1, 0, nv);
 
 //blasfeo_print_dmat(nv, nv, lq1, 0, 0);
 //blasfeo_print_dmat(nv, nv, lq1, 0, nv);
 //blasfeo_print_dmat(nv, ng, lq1, 0, nv+ng);
 
 #if defined(LA_HIGH_PERFORMANCE)
+//		TRCP_L(nv, Lv+1, 0, 0, lq1, 0, 0);
 //		GELQF_PD(nv, nv+nv+ng, lq1, 0, 0, lq1, 0, 0, lq_work1);
 //		GELQF_PD_LA(nv, nv+ng, lq1, 0, 0, lq1, 0, nv, lq_work1);
-		GELQF_PD_LLA(nv, ng, lq1, 0, 0, lq1, 0, nv, lq1, 0, 2*nv, lq_work1);
-		TRCP_L(nv, lq1, 0, 0, Lv, 0, 0);
+//		GELQF_PD_LLA(nv, ng, lq1, 0, 0, lq1, 0, nv, lq1, 0, 2*nv, lq_work1);
+//		TRCP_L(nv, lq1, 0, 0, Lv, 0, 0);
+		TRCP_L(nv, Lv+1, 0, 0, Lv, 0, 0);
+		GELQF_PD_LLA(nv, ng, Lv, 0, 0, lq1, 0, nv, lq1, 0, 2*nv, lq_work1); // TODO reduce lq1 size !!!
 #elif defined(LA_REFERENCE)
+//		TRCP_L(nv, Lv+1, 0, 0, lq1, 0, 0);
 //		GELQF_PD(nv, nv+nv+ng, lq1, 0, 0, lq1, 0, 0, lq_work1);
 //		GELQF_PD_LA(nv, nv+ng, lq1, 0, 0, lq1, 0, nv, lq_work1);
-		GELQF_PD_LLA(nv, ng, lq1, 0, 0, lq1, 0, nv, lq1, 0, 2*nv, lq_work1);
-		TRCP_L(nv, lq1, 0, 0, Lv, 0, 0);
+//		GELQF_PD_LLA(nv, ng, lq1, 0, 0, lq1, 0, nv, lq1, 0, 2*nv, lq_work1);
+//		TRCP_L(nv, lq1, 0, 0, Lv, 0, 0);
+		TRCP_L(nv, Lv+1, 0, 0, Lv, 0, 0);
+		GELQF_PD_LLA(nv, ng, Lv, 0, 0, lq1, 0, nv, lq1, 0, 2*nv, lq_work1); // TODO reduce lq1 size !!!
 #else // LA_BLAS_WRAPPER
+		TRCP_L(nv, Lv+1, 0, 0, lq1, 0, 0);
 		GELQF(nv, nv+nv+ng, lq1, 0, 0, lq1, 0, 0, lq_work1);
 		TRCP_L(nv, lq1, 0, 0, Lv, 0, 0);
 		for(ii=0; ii<nv; ii++)
@@ -1055,18 +1061,28 @@ void FACT_SOLVE_LQ_KKT_STEP_DENSE_QP(struct DENSE_QP *qp, struct DENSE_QP_SOL *q
 		GEMV_N(ne, nv, 1.0, AL, 0, 0, lv, 0, 1.0, res_b, 0, dpi, 0);
 
 		GECP(ne, nv, AL, 0, 0, lq0, 0, ne);
-		GESE(ne, ne, 0.0, lq0, 0, 0);
-		DIARE(ne, arg->reg_dual, lq0, 0, 0);
 
 #if defined(LA_HIGH_PERFORMANCE)
+//		GESE(ne, ne, 0.0, lq0, 0, 0);
+//		DIARE(ne, arg->reg_dual, lq0, 0, 0);
 //		GELQF_PD(ne, ne+nv, lq0, 0, 0, lq0, 0, 0, lq_work0);
-		GELQF_PD_LA(ne, nv, lq0, 0, 0, lq0, 0, ne, lq_work0);
-		TRCP_L(ne, lq0, 0, 0, Le, 0, 0);
+//		GELQF_PD_LA(ne, nv, lq0, 0, 0, lq0, 0, ne, lq_work0);
+//		TRCP_L(ne, lq0, 0, 0, Le, 0, 0);
+		GESE(ne, ne, 0.0, Le, 0, 0);
+		DIARE(ne, arg->reg_dual, Le, 0, 0);
+		GELQF_PD_LA(ne, nv, Le, 0, 0, lq0, 0, ne, lq_work0); // TODO reduce lq0 size !!!
 #elif defined(LA_REFERENCE)
+//		GESE(ne, ne, 0.0, lq0, 0, 0);
+//		DIARE(ne, arg->reg_dual, lq0, 0, 0);
 //		GELQF_PD(ne, ne+nv, lq0, 0, 0, lq0, 0, 0, lq_work0);
-		GELQF_PD_LA(ne, nv, lq0, 0, 0, lq0, 0, ne, lq_work0);
-		TRCP_L(ne, lq0, 0, 0, Le, 0, 0);
+//		GELQF_PD_LA(ne, nv, lq0, 0, 0, lq0, 0, ne, lq_work0);
+//		TRCP_L(ne, lq0, 0, 0, Le, 0, 0);
+		GESE(ne, ne, 0.0, Le, 0, 0);
+		DIARE(ne, arg->reg_dual, Le, 0, 0);
+		GELQF_PD_LA(ne, nv, Le, 0, 0, lq0, 0, ne, lq_work0); // TODO reduce lq0 size !!!
 #else // LA_BLAS_WRAPPER
+		GESE(ne, ne, 0.0, lq0, 0, 0);
+		DIARE(ne, arg->reg_dual, lq0, 0, 0);
 		GELQF(ne, ne+nv, lq0, 0, 0, lq0, 0, 0, lq_work0);
 		TRCP_L(ne, lq0, 0, 0, Le, 0, 0);
 		for(ii=0; ii<ne; ii++)
@@ -1089,14 +1105,13 @@ void FACT_SOLVE_LQ_KKT_STEP_DENSE_QP(struct DENSE_QP *qp, struct DENSE_QP_SOL *q
 		{
 
 		// XXX needed ???
-		GESE(nv, nv+nv+ng, 0.0, lq1, 0, 0);
+		GESE(nv, nv+nv+ng, 0.0, lq1, 0, 0); // TODO not the first part for HP and RF
 
 		if(ws->use_hess_fact==0)
 			{
 			POTRF_L(nv, Hg, 0, 0, Lv+1, 0, 0);
 			ws->use_hess_fact=1;
 			}
-		TRCP_L(nv, Lv+1, 0, 0, lq1, 0, nv);
 
 		VECCP(nv, res_g, 0, lv, 0);
 
@@ -1116,7 +1131,7 @@ void FACT_SOLVE_LQ_KKT_STEP_DENSE_QP(struct DENSE_QP *qp, struct DENSE_QP_SOL *q
 				tmp = BLASFEO_DVECEL(tmp_nbg+0, ii);
 				tmp = tmp>=0.0 ? tmp : 0.0;
 				tmp = sqrt( tmp );
-				BLASFEO_DMATEL(lq1, idxb[ii], idxb[ii]) = tmp>0.0 ? tmp : 0.0;
+				BLASFEO_DMATEL(lq1, idxb[ii], nv+idxb[ii]) = tmp>0.0 ? tmp : 0.0;
 				}
 			VECAD_SP(nb, 1.0, tmp_nbg+1, 0, idxb, lv, 0);
 			}
@@ -1133,19 +1148,26 @@ void FACT_SOLVE_LQ_KKT_STEP_DENSE_QP(struct DENSE_QP *qp, struct DENSE_QP_SOL *q
 			GEMV_N(nv, ng, 1.0, Ct, 0, 0, tmp_nbg+1, nb, 1.0, lv, 0, lv, 0);
 			}
 
-		DIARE(nv, arg->reg_prim, lq1, 0, 0);
+		DIARE(nv, arg->reg_prim, lq1, 0, nv);
 
 #if defined(LA_HIGH_PERFORMANCE)
+//		TRCP_L(nv, Lv+1, 0, 0, lq1, 0, 0);
 //		GELQF_PD(nv, nv+nv+ng, lq1, 0, 0, lq1, 0, 0, lq_work1);
 //		GELQF_PD_LA(nv, nv+ng, lq1, 0, 0, lq1, 0, nv, lq_work1);
-		GELQF_PD_LLA(nv, ng, lq1, 0, 0, lq1, 0, nv, lq1, 0, 2*nv, lq_work1);
-		TRCP_L(nv, lq1, 0, 0, Lv, 0, 0);
+//		GELQF_PD_LLA(nv, ng, lq1, 0, 0, lq1, 0, nv, lq1, 0, 2*nv, lq_work1);
+//		TRCP_L(nv, lq1, 0, 0, Lv, 0, 0);
+		TRCP_L(nv, Lv+1, 0, 0, Lv, 0, 0);
+		GELQF_PD_LLA(nv, ng, Lv, 0, 0, lq1, 0, nv, lq1, 0, 2*nv, lq_work1); // TODO reduce lq1 size !!!
 #elif defined(LA_REFERENCE)
+//		TRCP_L(nv, Lv+1, 0, 0, lq1, 0, 0);
 //		GELQF_PD(nv, nv+nv+ng, lq1, 0, 0, lq1, 0, 0, lq_work1);
 //		GELQF_PD_LA(nv, nv+ng, lq1, 0, 0, lq1, 0, nv, lq_work1);
-		GELQF_PD_LLA(nv, ng, lq1, 0, 0, lq1, 0, nv, lq1, 0, 2*nv, lq_work1);
-		TRCP_L(nv, lq1, 0, 0, Lv, 0, 0);
+//		GELQF_PD_LLA(nv, ng, lq1, 0, 0, lq1, 0, nv, lq1, 0, 2*nv, lq_work1);
+//		TRCP_L(nv, lq1, 0, 0, Lv, 0, 0);
+		TRCP_L(nv, Lv+1, 0, 0, Lv, 0, 0);
+		GELQF_PD_LLA(nv, ng, Lv, 0, 0, lq1, 0, nv, lq1, 0, 2*nv, lq_work1); // TODO reduce lq1 size !!!
 #else // LA_BLAS_WRAPPER
+		TRCP_L(nv, Lv+1, 0, 0, lq1, 0, 0);
 		GELQF(nv, nv+nv+ng, lq1, 0, 0, lq1, 0, 0, lq_work1);
 		TRCP_L(nv, lq1, 0, 0, Lv, 0, 0);
 		for(ii=0; ii<nv; ii++)
