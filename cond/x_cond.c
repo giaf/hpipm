@@ -55,6 +55,7 @@ void COMPUTE_QP_DIM_OCP2DENSE(struct OCP_QP_DIM *ocp_dim, struct DENSE_QP_DIM *d
 	ngc += ng[0];
 	nsc += ns[0];
 	nsbc += nsbx[0]+nsbu[0];
+	nsgc += nsg[0];
 	// remaining stages
 	for(ii=1; ii<=N; ii++)
 		{
