@@ -117,8 +117,8 @@ int MEMSIZE_DENSE_QP_IPM(struct DENSE_QP_DIM *dim, struct DENSE_QP_IPM_ARG *arg)
 	size += 1*SIZE_STRMAT(ne, ne+nv); // lq0
 	size += 1*SIZE_STRMAT(nv, nv+nv+ng); // lq1
 
-	size += nv*sizeof(int); // ipiv_v
-	size += ne*sizeof(int); // ipiv_e
+	size += nv*sizeof(int); // ipiv_v // TODO remove !!!!!
+	size += ne*sizeof(int); // ipiv_e // TODO remove !!!!!
 
 	size += 1*GELQF_WORKSIZE(ne, nv); // lq_work0
 	size += 1*GELQF_WORKSIZE(nv, nv+nv+ng); // lq_work1

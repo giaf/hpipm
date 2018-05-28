@@ -36,6 +36,7 @@
 #include <blasfeo_target.h>
 #include <blasfeo_common.h>
 #include <blasfeo_s_aux.h>
+#include <blasfeo_s_blas.h>
 
 #include "../include/hpipm_s_ocp_qp_dim.h"
 #include "../include/hpipm_s_ocp_qp.h"
@@ -62,6 +63,7 @@
 #define FACT_SOLVE_KKT_STEP_OCP_QP s_fact_solve_kkt_step_ocp_qp
 #define FACT_SOLVE_LQ_KKT_STEP_OCP_QP s_fact_solve_lq_kkt_step_ocp_qp
 #define FACT_SOLVE_KKT_UNCONSTR_OCP_QP s_fact_solve_kkt_unconstr_ocp_qp
+#define GELQF_WORKSIZE blasfeo_sgelqf_worksize
 #define INIT_VAR_OCP_QP s_init_var_ocp_qp
 #define MEMSIZE_CORE_QP_IPM s_memsize_core_qp_ipm
 #define OCP_QP s_ocp_qp

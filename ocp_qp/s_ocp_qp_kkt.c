@@ -53,11 +53,13 @@
 #define DIAAD_SP_LIBSTR blasfeo_sdiaad_sp
 #define GEAD_LIBSTR blasfeo_sgead
 #define GECP_LIBSTR blasfeo_sgecp
+#define GELQF_PD_LLA blasfeo_sgelqf_pd_lla
 #define GEMM_R_DIAG_LIBSTR blasfeo_sgemm_nd
 #define GEMV_DIAG_LIBSTR blasfeo_sgemv_d
 #define GEMV_N_LIBSTR blasfeo_sgemv_n
 #define GEMV_NT_LIBSTR blasfeo_sgemv_nt
 #define GEMV_T_LIBSTR blasfeo_sgemv_t
+#define GESE blasfeo_sgese
 #define OCP_QP s_ocp_qp
 #define OCP_QP_IPM_WORKSPACE s_ocp_qp_ipm_workspace
 #define OCP_QP_RES s_ocp_qp_res
@@ -78,6 +80,7 @@
 #define STRMAT blasfeo_smat
 #define STRVEC blasfeo_svec
 #define SYMV_L_LIBSTR blasfeo_ssymv_l
+#define SYRK_LN_LIBSTR blasfeo_ssyrk_ln
 #define SYRK_POTRF_LN_LIBSTR blasfeo_ssyrk_spotrf_ln
 #define TRCP_L_LIBSTR blasfeo_strcp_l
 #define TRMM_RLNN_LIBSTR blasfeo_strmm_rlnn

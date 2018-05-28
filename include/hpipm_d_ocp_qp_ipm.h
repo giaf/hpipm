@@ -82,7 +82,9 @@ struct d_ocp_qp_ipm_workspace
 	struct blasfeo_dvec *Zs_inv;
 	struct blasfeo_dmat *L;
 	struct blasfeo_dmat *AL;
+	struct blasfeo_dmat *lq0;
 	double *stat; // convergence statistics
+	void *lq_work0;
 	double qp_res[4]; // infinity norm of residuals
 	double mu0; // mu0
 	int iter; // iteration number

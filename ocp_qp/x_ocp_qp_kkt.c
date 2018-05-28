@@ -747,8 +747,12 @@ void FACT_SOLVE_LQ_KKT_STEP_OCP_QP(struct OCP_QP *qp, struct OCP_QP_IPM_WORKSPAC
 	struct STRVEC *Zs_inv = ws->Zs_inv;
 	struct STRVEC *tmp_nxM = ws->tmp_nxM;
 	struct STRVEC *tmp_nbgM = ws->tmp_nbgM;
+	struct STRMAT *lq0 = ws->lq0;
+	void *lq_work0 = ws->lq_work0;
 
 	REAL *ptr0, *ptr1, *ptr2, *ptr3;
+
+	REAL tmp;
 
 	//
 	int ii, nn, ss, idx;
@@ -766,8 +770,9 @@ void FACT_SOLVE_LQ_KKT_STEP_OCP_QP(struct OCP_QP *qp, struct OCP_QP_IPM_WORKSPAC
 #else
 	GECP_LIBSTR(nu[ss]+nx[ss], nu[ss]+nx[ss], RSQrq+ss, 0, 0, L+ss, 0, 0); // TODO blasfeo_dtrcp_l with m and n, for m>=n
 #endif
-//	ROWIN_LIBSTR(nu[ss]+nx[ss], 1.0, res_g+ss, 0, L+ss, nu[ss]+nx[ss], 0);
 	VECCP_LIBSTR(nu[ss]+nx[ss], res_g+ss, 0, dux+ss, 0);
+
+	GESE(nu[ss]+nx[ss], nu[ss]+nx[ss]+ng[ss], 0.0, lq0, 0, 0);
 
 	if(ns[ss]>0)
 		{
@@ -780,23 +785,42 @@ void FACT_SOLVE_LQ_KKT_STEP_OCP_QP(struct OCP_QP *qp, struct OCP_QP_IPM_WORKSPAC
 		}
 	if(nb[ss]>0)
 		{
-		DIAAD_SP_LIBSTR(nb[ss], 1.0, tmp_nbgM+0, 0, idxb[ss], L+ss, 0, 0);
-//		ROWAD_SP_LIBSTR(nb[ss], 1.0, tmp_nbgM+1, 0, idxb[ss], L+ss, nu[ss]+nx[ss], 0);
+//		DIAAD_SP_LIBSTR(nb[ss], 1.0, tmp_nbgM+0, 0, idxb[ss], L+ss, 0, 0);
+		for(ii=0; ii<nb[ss]; ii++)
+			{
+			tmp = BLASFEO_DVECEL(tmp_nbgM+0, ii);
+			tmp = tmp>=0.0 ? tmp : 0.0;
+			tmp = sqrt( tmp );
+			BLASFEO_DMATEL(lq0, idxb[ss][ii], idxb[ss][ii]) = tmp>0.0 ? tmp : 0.0;
+			}
 		VECAD_SP_LIBSTR(nb[ss], 1.0, tmp_nbgM+1, 0, idxb[ss], dux+ss, 0);
 		}
 	if(ng[ss]>0)
 		{
-		GEMM_R_DIAG_LIBSTR(nu[ss]+nx[ss], ng[ss], 1.0, DCt+ss, 0, 0, tmp_nbgM+0, nb[ss], 0.0, AL+0, 0, 0, AL+0, 0, 0);
-//		ROWIN_LIBSTR(ng[ss], 1.0, tmp_nbgM+1, nb[ss], AL+0, nu[ss]+nx[ss], 0);
-//		SYRK_POTRF_LN_LIBSTR(nu[ss]+nx[ss]+1, nu[ss]+nx[ss], ng[ss], AL+0, 0, 0, DCt+ss, 0, 0, L+ss, 0, 0, L+ss, 0, 0);
-		SYRK_POTRF_LN_LIBSTR(nu[ss]+nx[ss], nu[ss]+nx[ss], ng[ss], AL+0, 0, 0, DCt+ss, 0, 0, L+ss, 0, 0, L+ss, 0, 0);
+		for(ii=0; ii<ng[ss]; ii++)
+			{
+			tmp = BLASFEO_DVECEL(tmp_nbgM+0, nb[ss]+ii);
+			tmp = tmp>=0.0 ? tmp : 0.0;
+			tmp = sqrt( tmp );
+			BLASFEO_DVECEL(tmp_nbgM+0, nb[ss]+ii) = tmp;
+			}
+		GEMM_R_DIAG_LIBSTR(nu[ss]+nx[ss], ng[ss], 1.0, DCt+ss, 0, 0, tmp_nbgM+0, nb[ss], 0.0, lq0, 0, nu[ss]+nx[ss], lq0, 0, nu[ss]+nx[ss]);
+//		GEMM_R_DIAG_LIBSTR(nu[ss]+nx[ss], ng[ss], 1.0, DCt+ss, 0, 0, tmp_nbgM+0, nb[ss], 0.0, AL+0, 0, 0, AL+0, 0, 0);
+//		SYRK_LN_LIBSTR(nu[ss]+nx[ss], ng[ss], 1.0, AL+0, 0, 0, DCt+ss, 0, 0, 1.0, L+ss, 0, 0, L+ss, 0, 0);
 		GEMV_N_LIBSTR(nu[ss]+nx[ss], ng[ss], 1.0, DCt+ss, 0, 0, tmp_nbgM+1, nb[ss], 1.0, dux+ss, 0, dux+ss, 0);
 		}
-	else
-		{
-//		POTRF_L_MN_LIBSTR(nu[ss]+nx[ss]+1, nu[ss]+nx[ss], L+ss, 0, 0, L+ss, 0, 0);
-		POTRF_L_MN_LIBSTR(nu[ss]+nx[ss], nu[ss]+nx[ss], L+ss, 0, 0, L+ss, 0, 0);
-		}
+
+#if 0
+	POTRF_L_MN_LIBSTR(nu[ss]+nx[ss], nu[ss]+nx[ss], L+ss, 0, 0, L+ss, 0, 0);
+#else
+//	DIARE(nv, arg->reg_prim, lq1, 0, nv);
+	POTRF_L_MN_LIBSTR(nu[ss]+nx[ss], nu[ss]+nx[ss], RSQrq+ss, 0, 0, L+ss, 0, 0);
+//	TRCP_L(nv, Lv+1, 0, 0, Lv, 0, 0);
+	GELQF_PD_LLA(nu[ss]+nx[ss], ng[ss], L+ss, 0, 0, lq0, 0, 0, lq0, 0, nu[ss]+nx[ss], lq_work0); // TODO reduce lq1 size !!!
+#endif
+
+
+
 	TRSV_LNN_MN_LIBSTR(nu[ss]+nx[ss], nu[ss], L+ss, 0, 0, dux+ss, 0, dux+ss, 0);
 
 

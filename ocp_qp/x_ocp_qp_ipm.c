@@ -122,7 +122,7 @@ int MEMSIZE_OCP_QP_IPM(struct OCP_QP_DIM *dim, struct OCP_QP_IPM_ARG *arg)
 	size += 9*sizeof(struct STRVEC); // tmp_nxM (4+2)*tmp_nbgM (1+1)*tmp_nsM
 
 	size += 1*(N+1)*sizeof(struct STRMAT); // L
-	size += 2*sizeof(struct STRMAT); // AL
+	size += 3*sizeof(struct STRMAT); // AL lq0
 
 	size += 1*SIZE_STRVEC(nxM); // tmp_nxM
 	size += 4*SIZE_STRVEC(nbM+ngM); // tmp_nbgM
@@ -131,6 +131,9 @@ int MEMSIZE_OCP_QP_IPM(struct OCP_QP_DIM *dim, struct OCP_QP_IPM_ARG *arg)
 	for(ii=0; ii<=N; ii++) size += 1*SIZE_STRVEC(2*ns[ii]); // Zs_inv
 	for(ii=0; ii<=N; ii++) size += 1*SIZE_STRMAT(nu[ii]+nx[ii]+1, nu[ii]+nx[ii]); // L
 	size += 2*SIZE_STRMAT(nuM+nxM+1, nxM+ngM); // AL
+	size += 1*SIZE_STRMAT(nuM+nxM, nuM+nxM+ngM); // lq0
+
+	size += 1*GELQF_WORKSIZE(nuM+nxM, 2*nuM+2*nxM+ngM); // lq_work0
 
 	size += 1*sizeof(struct CORE_QP_IPM_WORKSPACE);
 	size += 1*MEMSIZE_CORE_QP_IPM(nvt, net, nct);
@@ -218,6 +221,8 @@ void CREATE_OCP_QP_IPM(struct OCP_QP_DIM *dim, struct OCP_QP_IPM_ARG *arg, struc
 	sm_ptr += N+1;
 	workspace->AL = sm_ptr;
 	sm_ptr += 2;
+	workspace->lq0 = sm_ptr;
+	sm_ptr += 1;
 
 
 	// vector struct
@@ -287,6 +292,9 @@ void CREATE_OCP_QP_IPM(struct OCP_QP_DIM *dim, struct OCP_QP_IPM_ARG *arg, struc
 	CREATE_STRMAT(nuM+nxM+1, nxM+ngM, workspace->AL+1, c_ptr);
 	c_ptr += (workspace->AL+1)->memsize;
 
+	CREATE_STRMAT(nuM+nxM, nuM+nxM+ngM, workspace->lq0, c_ptr);
+	c_ptr += (workspace->lq0)->memsize;
+
 	for(ii=0; ii<N; ii++)
 		{
 		CREATE_STRVEC(nx[ii+1], workspace->Pb+ii, c_ptr);
@@ -322,6 +330,9 @@ void CREATE_OCP_QP_IPM(struct OCP_QP_DIM *dim, struct OCP_QP_IPM_ARG *arg, struc
 
 	CREATE_CORE_QP_IPM(nvt, net, nct, cws, c_ptr);
 	c_ptr += workspace->core_workspace->memsize;
+
+	workspace->lq_work0 = c_ptr;
+	c_ptr += GELQF_WORKSIZE(nuM+nxM, 2*nuM+2*nxM+ngM);
 
 
 	// alias members of workspace and core_workspace

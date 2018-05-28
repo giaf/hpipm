@@ -77,7 +77,9 @@ struct s_ocp_qp_ipm_workspace
 	struct blasfeo_svec *Zs_inv;
 	struct blasfeo_smat *L;
 	struct blasfeo_smat *AL;
+	struct blasfeo_smat *lq0;
 	float *stat; // convergence statistics
+	void *lq_work0;
 	float qp_res[4]; // infinity norm of residuals
 	float mu0; // mu0
 	int iter; // iteration number
