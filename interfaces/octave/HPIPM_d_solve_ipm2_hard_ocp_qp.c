@@ -166,13 +166,17 @@ void mexFunction( int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
 	for(ii=0; ii<=N; ii++)
 		ns_v[ii] = 0;
 
-	int nsb[N+1];
+	int nsbx_v[N+1];
 	for(ii=0; ii<=N; ii++)
-		nsb[ii] = 0;
+		nsbx_v[ii] = 0;
 
-	int nsg[N+1];
+	int nsbu_v[N+1];
 	for(ii=0; ii<=N; ii++)
-		nsg[ii] = 0;
+		nsbu_v[ii] = 0;
+
+	int nsg_v[N+1];
+	for(ii=0; ii<=N; ii++)
+		nsg_v[ii] = 0;
 
 	int *hidxb[N+1];
 	int *ptr_idx = (int *) malloc((N+1)*nb*sizeof(int));
@@ -408,7 +412,7 @@ void mexFunction( int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
 
 	struct d_ocp_qp_dim dim;
 	d_create_ocp_qp_dim(N, &dim, dim_mem);
-	d_cvt_int_to_ocp_qp_dim(N, nx_v, nu_v, nbx_v, nbu_v, ng_v, nsb, nsg, &dim);
+	d_cvt_int_to_ocp_qp_dim(N, nx_v, nu_v, nbx_v, nbu_v, ng_v, nsbx_v, nsbu_v, nsg_v, &dim);
 
 //	for(ii=0; ii<=N; ii++)
 //		printf("\n%d %d %d %d %d %d %d\n", nx_v[ii], nu_v[ii], nb_v[ii], nbu_v[ii], nbx_v[ii], ng_v[ii], ns_v[ii]);
