@@ -592,7 +592,8 @@ int SOLVE_OCP_QP_IPM(struct OCP_QP *qp, struct OCP_QP_SOL *qp_sol, struct OCP_QP
 		{
 
 		// fact and solve kkt
-		FACT_SOLVE_KKT_STEP_OCP_QP(qp, ws);
+//		FACT_SOLVE_KKT_STEP_OCP_QP(qp, ws);
+		FACT_SOLVE_LQ_KKT_STEP_OCP_QP(qp, ws);
 
 		// alpha
 		COMPUTE_ALPHA_QP(cws);

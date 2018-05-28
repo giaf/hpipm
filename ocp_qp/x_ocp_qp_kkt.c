@@ -717,6 +717,258 @@ void FACT_SOLVE_KKT_STEP_OCP_QP(struct OCP_QP *qp, struct OCP_QP_IPM_WORKSPACE *
 
 
 
+void FACT_SOLVE_LQ_KKT_STEP_OCP_QP(struct OCP_QP *qp, struct OCP_QP_IPM_WORKSPACE *ws)
+	{
+
+	int N = qp->dim->N;
+	int *nx = qp->dim->nx;
+	int *nu = qp->dim->nu;
+	int *nb = qp->dim->nb;
+	int *ng = qp->dim->ng;
+	int *ns = qp->dim->ns;
+
+	struct STRMAT *BAbt = qp->BAbt;
+	struct STRMAT *RSQrq = qp->RSQrq;
+	struct STRMAT *DCt = qp->DCt;
+	struct STRVEC *Z = qp->Z;
+	int **idxb = qp->idxb;
+	int **idxs = qp->idxs;
+
+	struct STRMAT *L = ws->L;
+	struct STRMAT *AL = ws->AL;
+	struct STRVEC *res_b = ws->res->res_b;
+	struct STRVEC *res_g = ws->res->res_g;
+	struct STRVEC *dux = ws->dux;
+	struct STRVEC *dpi = ws->dpi;
+	struct STRVEC *dt = ws->dt;
+	struct STRVEC *Gamma = ws->Gamma;
+	struct STRVEC *gamma = ws->gamma;
+	struct STRVEC *Pb = ws->Pb;
+	struct STRVEC *Zs_inv = ws->Zs_inv;
+	struct STRVEC *tmp_nxM = ws->tmp_nxM;
+	struct STRVEC *tmp_nbgM = ws->tmp_nbgM;
+
+	REAL *ptr0, *ptr1, *ptr2, *ptr3;
+
+	//
+	int ii, nn, ss, idx;
+
+	struct CORE_QP_IPM_WORKSPACE *cws = ws->core_workspace;
+
+	COMPUTE_GAMMA_GAMMA_QP(ws->res->res_d[0].pa, ws->res->res_m[0].pa, cws);
+
+	// factorization and backward substitution
+
+	// last stage
+	ss = N;
+#if defined(DOUBLE_PRECISION)
+	TRCP_L_LIBSTR(nu[ss]+nx[ss], RSQrq+ss, 0, 0, L+ss, 0, 0); // TODO blasfeo_dtrcp_l with m and n, for m>=n
+#else
+	GECP_LIBSTR(nu[ss]+nx[ss], nu[ss]+nx[ss], RSQrq+ss, 0, 0, L+ss, 0, 0); // TODO blasfeo_dtrcp_l with m and n, for m>=n
+#endif
+//	ROWIN_LIBSTR(nu[ss]+nx[ss], 1.0, res_g+ss, 0, L+ss, nu[ss]+nx[ss], 0);
+	VECCP_LIBSTR(nu[ss]+nx[ss], res_g+ss, 0, dux+ss, 0);
+
+	if(ns[ss]>0)
+		{
+		COND_SLACKS_FACT_SOLVE(ss, qp, ws);
+		}
+	else if(nb[ss]+ng[ss]>0)
+		{
+		AXPY_LIBSTR(nb[ss]+ng[ss],  1.0, Gamma+ss, nb[ss]+ng[ss], Gamma+ss, 0, tmp_nbgM+0, 0);
+		AXPY_LIBSTR(nb[ss]+ng[ss], -1.0, gamma+ss, nb[ss]+ng[ss], gamma+ss, 0, tmp_nbgM+1, 0);
+		}
+	if(nb[ss]>0)
+		{
+		DIAAD_SP_LIBSTR(nb[ss], 1.0, tmp_nbgM+0, 0, idxb[ss], L+ss, 0, 0);
+//		ROWAD_SP_LIBSTR(nb[ss], 1.0, tmp_nbgM+1, 0, idxb[ss], L+ss, nu[ss]+nx[ss], 0);
+		VECAD_SP_LIBSTR(nb[ss], 1.0, tmp_nbgM+1, 0, idxb[ss], dux+ss, 0);
+		}
+	if(ng[ss]>0)
+		{
+		GEMM_R_DIAG_LIBSTR(nu[ss]+nx[ss], ng[ss], 1.0, DCt+ss, 0, 0, tmp_nbgM+0, nb[ss], 0.0, AL+0, 0, 0, AL+0, 0, 0);
+//		ROWIN_LIBSTR(ng[ss], 1.0, tmp_nbgM+1, nb[ss], AL+0, nu[ss]+nx[ss], 0);
+//		SYRK_POTRF_LN_LIBSTR(nu[ss]+nx[ss]+1, nu[ss]+nx[ss], ng[ss], AL+0, 0, 0, DCt+ss, 0, 0, L+ss, 0, 0, L+ss, 0, 0);
+		SYRK_POTRF_LN_LIBSTR(nu[ss]+nx[ss], nu[ss]+nx[ss], ng[ss], AL+0, 0, 0, DCt+ss, 0, 0, L+ss, 0, 0, L+ss, 0, 0);
+		GEMV_N_LIBSTR(nu[ss]+nx[ss], ng[ss], 1.0, DCt+ss, 0, 0, tmp_nbgM+1, nb[ss], 1.0, dux+ss, 0, dux+ss, 0);
+		}
+	else
+		{
+//		POTRF_L_MN_LIBSTR(nu[ss]+nx[ss]+1, nu[ss]+nx[ss], L+ss, 0, 0, L+ss, 0, 0);
+		POTRF_L_MN_LIBSTR(nu[ss]+nx[ss], nu[ss]+nx[ss], L+ss, 0, 0, L+ss, 0, 0);
+		}
+	TRSV_LNN_MN_LIBSTR(nu[ss]+nx[ss], nu[ss], L+ss, 0, 0, dux+ss, 0, dux+ss, 0);
+
+
+	// middle stages
+//	for(nn=0; nn<N; nn++)
+	for(nn=0; nn<N-1; nn++)
+		{
+		ss = N-nn-1;
+//		ROWIN_LIBSTR(nx[ss+1], 1.0, res_b+ss, 0, BAbt+ss, nu[ss]+nx[ss], 0);
+//		TRMM_RLNN_LIBSTR(nu[ss]+nx[ss]+1, nx[ss+1], 1.0, L+ss+1, nu[ss+1], nu[ss+1], BAbt+ss, 0, 0, AL, 0, 0);
+//		ROWEX_LIBSTR(nx[ss+1], 1.0, AL, nu[ss]+nx[ss], 0, tmp_nxM, 0);
+//		TRMV_LNN_LIBSTR(nx[ss+1], nx[ss+1], L+ss+1, nu[ss+1], nu[ss+1], tmp_nxM, 0, Pb+ss, 0);
+//		GEAD_LIBSTR(1, nx[ss+1], 1.0, L+ss+1, nu[ss+1]+nx[ss+1], nu[ss+1], AL, nu[ss]+nx[ss], 0);
+		TRMM_RLNN_LIBSTR(nu[ss]+nx[ss], nx[ss+1], 1.0, L+ss+1, nu[ss+1], nu[ss+1], BAbt+ss, 0, 0, AL, 0, 0);
+
+#if defined(DOUBLE_PRECISION)
+		TRCP_L_LIBSTR(nu[ss]+nx[ss], RSQrq+ss, 0, 0, L+ss, 0, 0);
+#else
+		GECP_LIBSTR(nu[ss]+nx[ss], nu[ss]+nx[ss], RSQrq+ss, 0, 0, L+ss, 0, 0);
+#endif
+//		ROWIN_LIBSTR(nu[ss]+nx[ss], 1.0, res_g+ss, 0, L+ss, nu[ss]+nx[ss], 0);
+		VECCP_LIBSTR(nu[ss]+nx[ss], res_g+ss, 0, dux+ss, 0);
+
+		if(ns[ss]>0)
+			{
+			COND_SLACKS_FACT_SOLVE(ss, qp, ws);
+			}
+		else if(nb[ss]+ng[ss]>0)
+			{
+			AXPY_LIBSTR(nb[ss]+ng[ss],  1.0, Gamma+ss, nb[ss]+ng[ss], Gamma+ss, 0, tmp_nbgM+0, 0);
+			AXPY_LIBSTR(nb[ss]+ng[ss], -1.0, gamma+ss, nb[ss]+ng[ss], gamma+ss, 0, tmp_nbgM+1, 0);
+			}
+		if(nb[ss]>0)
+			{
+			DIAAD_SP_LIBSTR(nb[ss], 1.0, tmp_nbgM+0, 0, idxb[ss], L+ss, 0, 0);
+//			ROWAD_SP_LIBSTR(nb[ss], 1.0, tmp_nbgM+1, 0, idxb[ss], L+ss, nu[ss]+nx[ss], 0);
+			VECAD_SP_LIBSTR(nb[ss], 1.0, tmp_nbgM+1, 0, idxb[ss], dux+ss, 0);
+			}
+		if(ng[ss]>0)
+			{
+			GEMM_R_DIAG_LIBSTR(nu[ss]+nx[ss], ng[ss], 1.0, DCt+ss, 0, 0, tmp_nbgM+0, nb[ss], 0.0, AL+0, 0, nx[ss+1], AL+0, 0, nx[ss+1]);
+//			ROWIN_LIBSTR(ng[ss], 1.0, tmp_nbgM+1, nb[ss], AL+0, nu[ss]+nx[ss], nx[ss+1]);
+			GECP_LIBSTR(nu[ss]+nx[ss], nx[ss+1], AL+0, 0, 0, AL+1, 0, 0);
+			GECP_LIBSTR(nu[ss]+nx[ss], ng[ss], DCt+ss, 0, 0, AL+1, 0, nx[ss+1]);
+//			SYRK_POTRF_LN_LIBSTR(nu[ss]+nx[ss]+1, nu[ss]+nx[ss], nx[ss+1]+ng[ss], AL+0, 0, 0, AL+1, 0, 0, L+ss, 0, 0, L+ss, 0, 0);
+			SYRK_POTRF_LN_LIBSTR(nu[ss]+nx[ss], nu[ss]+nx[ss], nx[ss+1]+ng[ss], AL+0, 0, 0, AL+1, 0, 0, L+ss, 0, 0, L+ss, 0, 0);
+			GEMV_N_LIBSTR(nu[ss]+nx[ss], ng[ss], 1.0, DCt+ss, 0, 0, tmp_nbgM+1, nb[ss], 1.0, dux+ss, 0, dux+ss, 0);
+			}
+		else
+			{
+//			SYRK_POTRF_LN_LIBSTR(nu[ss]+nx[ss]+1, nu[ss]+nx[ss], nx[ss+1], AL, 0, 0, AL, 0, 0, L+ss, 0, 0, L+ss, 0, 0);
+			SYRK_POTRF_LN_LIBSTR(nu[ss]+nx[ss], nu[ss]+nx[ss], nx[ss+1], AL, 0, 0, AL, 0, 0, L+ss, 0, 0, L+ss, 0, 0);
+			}
+		AXPY_LIBSTR(nx[ss+1], 1.0, dux+ss+1, nu[ss+1], Pb+ss, 0, tmp_nxM, 0);
+		GEMV_N_LIBSTR(nu[ss]+nx[ss], nx[ss+1], 1.0, BAbt+ss, 0, 0, tmp_nxM, 0, 1.0, dux+ss, 0, dux+ss, 0);
+		TRSV_LNN_MN_LIBSTR(nu[ss]+nx[ss], nu[ss], L+ss, 0, 0, dux+ss, 0, dux+ss, 0);
+
+		}
+
+	// first stage
+	nn = N-1;
+	ss = N-nn-1;
+
+//		ROWIN_LIBSTR(nx[ss+1], 1.0, res_b+ss, 0, BAbt+ss, nu[ss]+nx[ss], 0);
+//		TRMM_RLNN_LIBSTR(nu[ss]+nx[ss]+1, nx[ss+1], 1.0, L+ss+1, nu[ss+1], nu[ss+1], BAbt+ss, 0, 0, AL, 0, 0);
+//		ROWEX_LIBSTR(nx[ss+1], 1.0, AL, nu[ss]+nx[ss], 0, tmp_nxM, 0);
+//		TRMV_LNN_LIBSTR(nx[ss+1], nx[ss+1], L+ss+1, nu[ss+1], nu[ss+1], tmp_nxM, 0, Pb+ss, 0);
+//		GEAD_LIBSTR(1, nx[ss+1], 1.0, L+ss+1, nu[ss+1]+nx[ss+1], nu[ss+1], AL, nu[ss]+nx[ss], 0);
+	TRMM_RLNN_LIBSTR(nu[ss]+nx[ss], nx[ss+1], 1.0, L+ss+1, nu[ss+1], nu[ss+1], BAbt+ss, 0, 0, AL, 0, 0);
+
+#if defined(DOUBLE_PRECISION)
+	TRCP_L_LIBSTR(nu[ss]+nx[ss], RSQrq+ss, 0, 0, L+ss, 0, 0);
+#else
+	GECP_LIBSTR(nu[ss]+nx[ss], nu[ss]+nx[ss], RSQrq+ss, 0, 0, L+ss, 0, 0);
+#endif
+//		ROWIN_LIBSTR(nu[ss]+nx[ss], 1.0, res_g+ss, 0, L+ss, nu[ss]+nx[ss], 0);
+	VECCP_LIBSTR(nu[ss]+nx[ss], res_g+ss, 0, dux+ss, 0);
+
+	if(ns[ss]>0)
+		{
+		COND_SLACKS_FACT_SOLVE(ss, qp, ws);
+		}
+	else if(nb[ss]+ng[ss]>0)
+		{
+		AXPY_LIBSTR(nb[ss]+ng[ss],  1.0, Gamma+ss, nb[ss]+ng[ss], Gamma+ss, 0, tmp_nbgM+0, 0);
+		AXPY_LIBSTR(nb[ss]+ng[ss], -1.0, gamma+ss, nb[ss]+ng[ss], gamma+ss, 0, tmp_nbgM+1, 0);
+		}
+	if(nb[ss]>0)
+		{
+		DIAAD_SP_LIBSTR(nb[ss], 1.0, tmp_nbgM+0, 0, idxb[ss], L+ss, 0, 0);
+//			ROWAD_SP_LIBSTR(nb[ss], 1.0, tmp_nbgM+1, 0, idxb[ss], L+ss, nu[ss]+nx[ss], 0);
+		VECAD_SP_LIBSTR(nb[ss], 1.0, tmp_nbgM+1, 0, idxb[ss], dux+ss, 0);
+		}
+	if(ng[ss]>0)
+		{
+		GEMM_R_DIAG_LIBSTR(nu[ss]+nx[ss], ng[ss], 1.0, DCt+ss, 0, 0, tmp_nbgM+0, nb[ss], 0.0, AL+0, 0, nx[ss+1], AL+0, 0, nx[ss+1]);
+//			ROWIN_LIBSTR(ng[ss], 1.0, tmp_nbgM+1, nb[ss], AL+0, nu[ss]+nx[ss], nx[ss+1]);
+		GECP_LIBSTR(nu[ss]+nx[ss], nx[ss+1], AL+0, 0, 0, AL+1, 0, 0);
+		GECP_LIBSTR(nu[ss]+nx[ss], ng[ss], DCt+ss, 0, 0, AL+1, 0, nx[ss+1]);
+//			SYRK_POTRF_LN_LIBSTR(nu[ss]+nx[ss]+1, nu[ss]+nx[ss], nx[ss+1]+ng[ss], AL+0, 0, 0, AL+1, 0, 0, L+ss, 0, 0, L+ss, 0, 0);
+		SYRK_POTRF_LN_LIBSTR(nu[ss]+nx[ss], nu[ss]+nx[ss], nx[ss+1]+ng[ss], AL+0, 0, 0, AL+1, 0, 0, L+ss, 0, 0, L+ss, 0, 0);
+		GEMV_N_LIBSTR(nu[ss]+nx[ss], ng[ss], 1.0, DCt+ss, 0, 0, tmp_nbgM+1, nb[ss], 1.0, dux+ss, 0, dux+ss, 0);
+		}
+	else
+		{
+//			SYRK_POTRF_LN_LIBSTR(nu[ss]+nx[ss]+1, nu[ss]+nx[ss], nx[ss+1], AL, 0, 0, AL, 0, 0, L+ss, 0, 0, L+ss, 0, 0);
+		SYRK_POTRF_LN_LIBSTR(nu[ss]+nx[ss], nu[ss]+nx[ss], nx[ss+1], AL, 0, 0, AL, 0, 0, L+ss, 0, 0, L+ss, 0, 0);
+		}
+	AXPY_LIBSTR(nx[ss+1], 1.0, dux+ss+1, nu[ss+1], Pb+ss, 0, tmp_nxM, 0);
+	GEMV_N_LIBSTR(nu[ss]+nx[ss], nx[ss+1], 1.0, BAbt+ss, 0, 0, tmp_nxM, 0, 1.0, dux+ss, 0, dux+ss, 0);
+	TRSV_LNN_LIBSTR(nu[ss]+nx[ss], L+ss, 0, 0, dux+ss, 0, dux+ss, 0);
+
+
+	// TODO
+	
+
+	// forward substitution
+
+	// first stage
+	ss = 0;
+	VECCP_LIBSTR(nx[ss+1], dux+ss+1, nu[ss+1], dpi+ss, 0);
+	VECSC_LIBSTR(nu[ss]+nx[ss], -1.0, dux+ss, 0);
+	TRSV_LTN_LIBSTR(nu[ss]+nx[ss], L+ss, 0, 0, dux+ss, 0, dux+ss, 0);
+	GEMV_T_LIBSTR(nu[ss]+nx[ss], nx[ss+1], 1.0, BAbt+ss, 0, 0, dux+ss, 0, 1.0, res_b+ss, 0, dux+ss+1, nu[ss+1]);
+	VECCP_LIBSTR(nx[ss+1], dux+ss+1, nu[ss+1], tmp_nxM, 0);
+	TRMV_LTN_LIBSTR(nx[ss+1], nx[ss+1], L+ss+1, nu[ss+1], nu[ss+1], tmp_nxM, 0, tmp_nxM, 0);
+	TRMV_LNN_LIBSTR(nx[ss+1], nx[ss+1], L+ss+1, nu[ss+1], nu[ss+1], tmp_nxM, 0, tmp_nxM, 0);
+	AXPY_LIBSTR(nx[ss+1], 1.0, tmp_nxM, 0, dpi+ss, 0, dpi+ss, 0);
+
+	// middle stages
+	for(ss=1; ss<N; ss++)
+		{
+		VECCP_LIBSTR(nx[ss+1], dux+ss+1, nu[ss+1], dpi+ss, 0);
+		VECSC_LIBSTR(nu[ss], -1.0, dux+ss, 0);
+		TRSV_LTN_MN_LIBSTR(nu[ss]+nx[ss], nu[ss], L+ss, 0, 0, dux+ss, 0, dux+ss, 0);
+		GEMV_T_LIBSTR(nu[ss]+nx[ss], nx[ss+1], 1.0, BAbt+ss, 0, 0, dux+ss, 0, 1.0, res_b+ss, 0, dux+ss+1, nu[ss+1]);
+		VECCP_LIBSTR(nx[ss+1], dux+ss+1, nu[ss+1], tmp_nxM, 0);
+		TRMV_LTN_LIBSTR(nx[ss+1], nx[ss+1], L+ss+1, nu[ss+1], nu[ss+1], tmp_nxM, 0, tmp_nxM, 0);
+		TRMV_LNN_LIBSTR(nx[ss+1], nx[ss+1], L+ss+1, nu[ss+1], nu[ss+1], tmp_nxM, 0, tmp_nxM, 0);
+		AXPY_LIBSTR(nx[ss+1], 1.0, tmp_nxM, 0, dpi+ss, 0, dpi+ss, 0);
+		}
+
+	ss = N;
+	VECSC_LIBSTR(nu[ss], -1.0, dux+ss, 0);
+	TRSV_LTN_MN_LIBSTR(nu[ss]+nx[ss], nu[ss], L+ss, 0, 0, dux+ss, 0, dux+ss, 0);
+
+
+	for(ss=0; ss<=N; ss++)
+		VECEX_SP_LIBSTR(nb[ss], 1.0, idxb[ss], dux+ss, 0, dt+ss, 0);
+	for(ss=0; ss<=N; ss++)
+		GEMV_T_LIBSTR(nu[ss]+nx[ss], ng[ss], 1.0, DCt+ss, 0, 0, dux+ss, 0, 0.0, dt+ss, nb[ss], dt+ss, nb[ss]);
+	
+	for(ss=0; ss<=N; ss++)
+		{
+		VECCP_LIBSTR(nb[ss]+ng[ss], dt+ss, 0, dt+ss, nb[ss]+ng[ss]);
+		VECSC_LIBSTR(nb[ss]+ng[ss], -1.0, dt+ss, nb[ss]+ng[ss]);
+		}
+
+	for(ss=0; ss<=N; ss++)
+		{
+		if(ns[ss]>0)
+			EXPAND_SLACKS(ss, qp, ws);
+		}
+
+	COMPUTE_LAM_T_QP(ws->res->res_d[0].pa, ws->res->res_m[0].pa, cws->dlam, cws->dt, cws);
+
+	return;
+
+	}
+
+
+
 // backward Riccati recursion
 void SOLVE_KKT_STEP_OCP_QP(struct OCP_QP *qp, struct OCP_QP_IPM_WORKSPACE *ws)
 	{

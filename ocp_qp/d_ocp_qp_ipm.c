@@ -60,6 +60,7 @@
 #define CREATE_STRVEC blasfeo_create_dvec
 #define CVT_STRVEC2VEC blasfeo_unpack_dvec
 #define FACT_SOLVE_KKT_STEP_OCP_QP d_fact_solve_kkt_step_ocp_qp
+#define FACT_SOLVE_LQ_KKT_STEP_OCP_QP d_fact_solve_lq_kkt_step_ocp_qp
 #define FACT_SOLVE_KKT_UNCONSTR_OCP_QP d_fact_solve_kkt_unconstr_ocp_qp
 #define INIT_VAR_OCP_QP d_init_var_ocp_qp
 #define MEMSIZE_CORE_QP_IPM d_memsize_core_qp_ipm
