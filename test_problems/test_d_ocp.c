@@ -307,6 +307,18 @@ int main()
 	for(ii=1; ii<N; ii++)
 		ns[ii] = nx[ii]/2;
 	ns[N] = nx[N]/2;
+
+	int nsbx[N+1];
+	for(ii=0; ii<=N; ii++)
+		nsbx[ii] = ns[ii];
+
+	int nsg[N+1];
+	int nsbu[N+1];
+	for(ii=0; ii<=N; ii++)
+	{
+		nsg[ii] = 0;
+		nsbu[ii] = 0;
+	}
 #elif 0
 	int nb[N+1];
 	nb[0] = 0;
@@ -760,7 +772,7 @@ int main()
 
 	struct d_ocp_qp_dim dim;
 	d_create_ocp_qp_dim(N, &dim, dim_mem);
-	d_cvt_int_to_ocp_qp_dim(N, nx, nu, nbx, nbu, ng, ns, &dim);
+	d_cvt_int_to_ocp_qp_dim(N, nx, nu, nbx, nbu, ng, nsbx, nsbu, nsg, &dim);
 
 /************************************************
 * ocp qp

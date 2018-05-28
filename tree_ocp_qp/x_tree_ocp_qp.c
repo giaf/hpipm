@@ -66,7 +66,7 @@ int MEMSIZE_TREE_OCP_QP(struct TREE_OCP_QP_DIM *dim)
 		size += SIZE_STRMAT(nu[idxdad]+nx[idxdad]+1, nx[idx]); // BAbt
 		size += SIZE_STRVEC(nx[idx]); // b
 		}
-	
+
 	for(ii=0; ii<Nn; ii++)
 		{
 		size += nb[ii]*sizeof(int); // idxb
@@ -76,7 +76,7 @@ int MEMSIZE_TREE_OCP_QP(struct TREE_OCP_QP_DIM *dim)
 		size += SIZE_STRMAT(nu[ii]+nx[ii], ng[ii]); // DCt
 		size += SIZE_STRVEC(2*ns[ii]); // Z
 		}
-	
+
 	size += 1*SIZE_STRVEC(2*nbt+2*ngt+2*nst); // d
 
 	size = (size+63)/64*64; // make multiple of typical cache line size
@@ -294,7 +294,7 @@ void CVT_COLMAJ_TO_TREE_OCP_QP(REAL **A, REAL **B, REAL **b, REAL **Q, REAL **S,
 		CVT_TRAN_MAT2STRMAT(nx[idx], 1, b[ii], nx[idx], qp->BAbt+ii, nu[idxdad]+nx[idxdad], 0);
 		CVT_VEC2STRVEC(nx[idx], b[ii], qp->b+ii, 0);
 		}
-	
+
 	for(ii=0; ii<Nn; ii++)
 		{
 		CVT_MAT2STRMAT(nu[ii], nu[ii], R[ii], nu[ii], qp->RSQrq+ii, 0, 0);
@@ -305,7 +305,7 @@ void CVT_COLMAJ_TO_TREE_OCP_QP(REAL **A, REAL **B, REAL **b, REAL **Q, REAL **S,
 		CVT_VEC2STRVEC(nu[ii], r[ii], qp->rqz+ii, 0);
 		CVT_VEC2STRVEC(nx[ii], q[ii], qp->rqz+ii, nu[ii]);
 		}
-	
+
 	for(ii=0; ii<Nn; ii++)
 		{
 		if(nb[ii]>0)
@@ -317,7 +317,7 @@ void CVT_COLMAJ_TO_TREE_OCP_QP(REAL **A, REAL **B, REAL **b, REAL **Q, REAL **S,
 			VECSC_LIBSTR(nb[ii], -1.0, qp->d+ii, nb[ii]+ng[ii]);
 			}
 		}
-	
+
 	for(ii=0; ii<Nn; ii++)
 		{
 		if(ng[ii]>0)

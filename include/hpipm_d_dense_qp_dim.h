@@ -38,11 +38,13 @@ extern "C" {
 
 struct d_dense_qp_dim
 	{
-	int nv; // number of variables
-	int ne; // number of equality constraints
-	int nb; // number of box constraints
-	int ng; // number of general constraints
-	int ns; // number of softened constraints
+	int nv;  // number of variables
+	int ne;  // number of equality constraints
+	int nb;  // number of box constraints
+	int ng;  // number of general constraints
+	int nsb; // number of softened box constraints
+	int nsg; // number of softened general constraints
+	int ns;  // number of softened constraints (nsb+nsg)
 	int memsize;
 	};
 
@@ -53,7 +55,7 @@ int d_memsize_dense_qp_dim();
 //
 void d_create_dense_qp_dim(struct d_dense_qp_dim *qp_dim, void *memory);
 //
-void d_cvt_int_to_dense_qp_dim(int nv, int ne, int nb, int ng, int ns, struct d_dense_qp_dim *dim);
+void d_cvt_int_to_dense_qp_dim(int nv, int ne, int nb, int ng, int nsb, int nsg, struct d_dense_qp_dim *dim);
 
 
 
