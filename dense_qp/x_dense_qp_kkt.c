@@ -1025,15 +1025,7 @@ void FACT_SOLVE_LQ_KKT_STEP_DENSE_QP(struct DENSE_QP *qp, struct DENSE_QP_SOL *q
 //blasfeo_print_dmat(nv, nv, lq1, 0, nv);
 //blasfeo_print_dmat(nv, ng, lq1, 0, nv+ng);
 
-#if defined(LA_HIGH_PERFORMANCE)
-//		TRCP_L(nv, Lv+1, 0, 0, lq1, 0, 0);
-//		GELQF_PD(nv, nv+nv+ng, lq1, 0, 0, lq1, 0, 0, lq_work1);
-//		GELQF_PD_LA(nv, nv+ng, lq1, 0, 0, lq1, 0, nv, lq_work1);
-//		GELQF_PD_LLA(nv, ng, lq1, 0, 0, lq1, 0, nv, lq1, 0, 2*nv, lq_work1);
-//		TRCP_L(nv, lq1, 0, 0, Lv, 0, 0);
-		TRCP_L(nv, Lv+1, 0, 0, Lv, 0, 0);
-		GELQF_PD_LLA(nv, ng, Lv, 0, 0, lq1, 0, nv, lq1, 0, 2*nv, lq_work1); // TODO reduce lq1 size !!!
-#elif defined(LA_REFERENCE)
+#if defined(LA_HIGH_PERFORMANCE) | defined(LA_REFERENCE)
 //		TRCP_L(nv, Lv+1, 0, 0, lq1, 0, 0);
 //		GELQF_PD(nv, nv+nv+ng, lq1, 0, 0, lq1, 0, 0, lq_work1);
 //		GELQF_PD_LA(nv, nv+ng, lq1, 0, 0, lq1, 0, nv, lq_work1);

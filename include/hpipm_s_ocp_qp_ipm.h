@@ -48,6 +48,7 @@ struct s_ocp_qp_ipm_arg
 	float res_b_max; // exit cond on inf norm of residuals
 	float res_d_max; // exit cond on inf norm of residuals
 	float res_m_max; // exit cond on inf norm of residuals
+	float reg_prim; // reg of primal hessian
 	float lam_min; // min value in lam vector
 	float t_min; // min value in t vector
 	int iter_max; // exit cond in iter number
@@ -55,6 +56,7 @@ struct s_ocp_qp_ipm_arg
 	int pred_corr; // use Mehrotra's predictor-corrector IPM algirthm
 	int cond_pred_corr; // conditional Mehrotra's predictor-corrector
 	int warm_start; // 0 no warm start, 1 warm start primal sol
+	int lq_fact; // 0 syrk+potrf, 1 lq
 	int memsize;
 	};
 
@@ -76,9 +78,11 @@ struct s_ocp_qp_ipm_workspace
 	struct blasfeo_svec *Pb; // Pb
 	struct blasfeo_svec *Zs_inv;
 	struct blasfeo_smat *L;
+	struct blasfeo_smat *Lh;
 	struct blasfeo_smat *AL;
 	struct blasfeo_smat *lq0;
 	float *stat; // convergence statistics
+	int *use_hess_fact;
 	void *lq_work0;
 	float qp_res[4]; // infinity norm of residuals
 	float mu0; // mu0

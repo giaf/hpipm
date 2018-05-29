@@ -60,7 +60,9 @@ void SET_DEFAULT_OCP_QP_IPM_ARG(struct OCP_QP_IPM_ARG *arg)
 	arg->stat_max = 20;
 	arg->pred_corr = 1;
 	arg->cond_pred_corr = 1;
+	arg->reg_prim = 1e-15;
 	arg->warm_start = 0;
+	arg->lq_fact = 0;
 	arg->lam_min = 1e-30;
 	arg->t_min = 1e-30;
 
@@ -121,24 +123,30 @@ int MEMSIZE_OCP_QP_IPM(struct OCP_QP_DIM *dim, struct OCP_QP_IPM_ARG *arg)
 	size += 3*N*sizeof(struct STRVEC); // dpi res_b Pb
 	size += 9*sizeof(struct STRVEC); // tmp_nxM (4+2)*tmp_nbgM (1+1)*tmp_nsM
 
-	size += 1*(N+1)*sizeof(struct STRMAT); // L
-	size += 3*sizeof(struct STRMAT); // AL lq0
+	size += 2*(N+1)*sizeof(struct STRMAT); // L Lh
+	size += 2*sizeof(struct STRMAT); // AL
+	if(arg->lq_fact>0)
+		size += 1*sizeof(struct STRMAT); // lq0
 
 	size += 1*SIZE_STRVEC(nxM); // tmp_nxM
 	size += 4*SIZE_STRVEC(nbM+ngM); // tmp_nbgM
 	size += 1*SIZE_STRVEC(nsM); // tmp_nsM
 	for(ii=0; ii<N; ii++) size += 1*SIZE_STRVEC(nx[ii+1]); // Pb
 	for(ii=0; ii<=N; ii++) size += 1*SIZE_STRVEC(2*ns[ii]); // Zs_inv
-	for(ii=0; ii<=N; ii++) size += 1*SIZE_STRMAT(nu[ii]+nx[ii]+1, nu[ii]+nx[ii]); // L
+	for(ii=0; ii<=N; ii++) size += 2*SIZE_STRMAT(nu[ii]+nx[ii]+1, nu[ii]+nx[ii]); // L Lh
 	size += 2*SIZE_STRMAT(nuM+nxM+1, nxM+ngM); // AL
-	size += 1*SIZE_STRMAT(nuM+nxM, nuM+nxM+ngM); // lq0
+	if(arg->lq_fact>0)
+		size += 1*SIZE_STRMAT(nuM+nxM, 2*nuM+3*nxM+ngM); // lq0
 
-	size += 1*GELQF_WORKSIZE(nuM+nxM, 2*nuM+2*nxM+ngM); // lq_work0
+	if(arg->lq_fact>0)
+		size += 1*GELQF_WORKSIZE(nuM+nxM, 2*nuM+3*nxM+ngM); // lq_work0
 
 	size += 1*sizeof(struct CORE_QP_IPM_WORKSPACE);
 	size += 1*MEMSIZE_CORE_QP_IPM(nvt, net, nct);
 
 	size += 5*arg->stat_max*sizeof(REAL);
+
+	size += (N+1)*sizeof(int); // use_hess_fact
 
 	size = (size+63)/64*64; // make multiple of typical cache line size
 	size += 1*64; // align once to typical cache line size
@@ -219,10 +227,15 @@ void CREATE_OCP_QP_IPM(struct OCP_QP_DIM *dim, struct OCP_QP_IPM_ARG *arg, struc
 
 	workspace->L = sm_ptr;
 	sm_ptr += N+1;
+	workspace->Lh = sm_ptr;
+	sm_ptr += N+1;
 	workspace->AL = sm_ptr;
 	sm_ptr += 2;
-	workspace->lq0 = sm_ptr;
-	sm_ptr += 1;
+	if(arg->lq_fact>0)
+		{
+		workspace->lq0 = sm_ptr;
+		sm_ptr += 1;
+		}
 
 
 	// vector struct
@@ -268,12 +281,15 @@ void CREATE_OCP_QP_IPM(struct OCP_QP_DIM *dim, struct OCP_QP_IPM_ARG *arg, struc
 	workspace->stat = d_ptr;
 	d_ptr += 5*arg->stat_max;
 
-	workspace->stat_max = arg->stat_max;
-	workspace->warm_start = arg->warm_start;
+	// int stuff
+	int *i_ptr = (int *) d_ptr;
+
+	workspace->use_hess_fact = i_ptr;
+	i_ptr += N+1;
 
 
 	// align to typicl cache line size
-	size_t s_ptr = (size_t) d_ptr;
+	size_t s_ptr = (size_t) i_ptr;
 	s_ptr = (s_ptr+63)/64*64;
 
 
@@ -286,14 +302,24 @@ void CREATE_OCP_QP_IPM(struct OCP_QP_DIM *dim, struct OCP_QP_IPM_ARG *arg, struc
 		c_ptr += (workspace->L+ii)->memsize;
 		}
 
+	// TODO only if lq_fact>0 !!!!!!!!!!!
+	for(ii=0; ii<=N; ii++)
+		{
+		CREATE_STRMAT(nu[ii]+nx[ii]+1, nu[ii]+nx[ii], workspace->Lh+ii, c_ptr);
+		c_ptr += (workspace->Lh+ii)->memsize;
+		}
+
 	CREATE_STRMAT(nuM+nxM+1, nxM+ngM, workspace->AL+0, c_ptr);
 	c_ptr += (workspace->AL+0)->memsize;
 
 	CREATE_STRMAT(nuM+nxM+1, nxM+ngM, workspace->AL+1, c_ptr);
 	c_ptr += (workspace->AL+1)->memsize;
 
-	CREATE_STRMAT(nuM+nxM, nuM+nxM+ngM, workspace->lq0, c_ptr);
-	c_ptr += (workspace->lq0)->memsize;
+	if(arg->lq_fact>0)
+		{
+		CREATE_STRMAT(nuM+nxM, 2*nuM+3*nxM+ngM, workspace->lq0, c_ptr);
+		c_ptr += (workspace->lq0)->memsize;
+		}
 
 	for(ii=0; ii<N; ii++)
 		{
@@ -331,8 +357,11 @@ void CREATE_OCP_QP_IPM(struct OCP_QP_DIM *dim, struct OCP_QP_IPM_ARG *arg, struc
 	CREATE_CORE_QP_IPM(nvt, net, nct, cws, c_ptr);
 	c_ptr += workspace->core_workspace->memsize;
 
-	workspace->lq_work0 = c_ptr;
-	c_ptr += GELQF_WORKSIZE(nuM+nxM, 2*nuM+2*nxM+ngM);
+	if(arg->lq_fact>0)
+		{
+		workspace->lq_work0 = c_ptr;
+		c_ptr += GELQF_WORKSIZE(nuM+nxM, 2*nuM+3*nxM+ngM);
+		}
 
 
 	// alias members of workspace and core_workspace
@@ -431,6 +460,13 @@ void CREATE_OCP_QP_IPM(struct OCP_QP_DIM *dim, struct OCP_QP_IPM_ARG *arg, struc
 
 
 	workspace->res->dim = dim;
+
+	workspace->stat_max = arg->stat_max;
+
+	workspace->warm_start = arg->warm_start;
+
+	for(ii=0; ii<=N; ii++)
+		workspace->use_hess_fact[ii] = 0;
 
 	workspace->memsize = MEMSIZE_OCP_QP_IPM(dim, arg);
 
@@ -603,8 +639,66 @@ int SOLVE_OCP_QP_IPM(struct OCP_QP *qp, struct OCP_QP_SOL *qp_sol, struct OCP_QP
 		{
 
 		// fact and solve kkt
-		FACT_SOLVE_KKT_STEP_OCP_QP(qp, ws);
-//		FACT_SOLVE_LQ_KKT_STEP_OCP_QP(qp, ws);
+		if(arg->lq_fact==0)
+			{
+
+			// syrk+cholesky
+			FACT_SOLVE_KKT_STEP_OCP_QP(qp, arg, ws);
+
+			}
+		else // lq_fact=={1,2}
+			{
+
+			FACT_SOLVE_LQ_KKT_STEP_OCP_QP(qp, arg, ws);
+
+			}
+
+#if 0
+int N = qp->dim->N;
+int *nx = qp->dim->nx;
+int *nu = qp->dim->nu;
+int *nb = qp->dim->nb;
+int *ng = qp->dim->ng;
+int *ns = qp->dim->ns;
+
+int ii;
+
+//exit(1);
+
+//for(ii=0; ii<=N; ii++)
+//	blasfeo_print_dmat(nu[ii]+nx[ii], nu[ii]+nx[ii], ws->L+ii, 0, 0);
+//exit(1);
+
+printf("\nux\n");
+for(ii=0; ii<=N; ii++)
+	blasfeo_print_tran_dvec(nu[ii]+nx[ii]+2*ns[ii], ws->dux+ii, 0);
+printf("\npi\n");
+for(ii=0; ii<N; ii++)
+	blasfeo_print_tran_dvec(nx[ii+1], ws->dpi+ii, 0);
+//printf("\nlam\n");
+//for(ii=0; ii<=N; ii++)
+//	blasfeo_print_tran_dvec(2*nb[ii]+2*ng[ii]+2*ns[ii], ws->dlam+ii, 0);
+printf("\nt\n");
+for(ii=0; ii<=N; ii++)
+	blasfeo_print_tran_dvec(2*nb[ii]+2*ng[ii]+2*ns[ii], ws->dt+ii, 0);
+
+SOLVE_KKT_STEP_OCP_QP(qp, ws);
+
+printf("\nux\n");
+for(ii=0; ii<=N; ii++)
+	blasfeo_print_tran_dvec(nu[ii]+nx[ii]+2*ns[ii], ws->dux+ii, 0);
+printf("\npi\n");
+for(ii=0; ii<N; ii++)
+	blasfeo_print_tran_dvec(nx[ii+1], ws->dpi+ii, 0);
+//printf("\nlam\n");
+//for(ii=0; ii<=N; ii++)
+//	blasfeo_print_tran_dvec(2*nb[ii]+2*ng[ii]+2*ns[ii], ws->dlam+ii, 0);
+printf("\nt\n");
+for(ii=0; ii<=N; ii++)
+	blasfeo_print_tran_dvec(2*nb[ii]+2*ng[ii]+2*ns[ii], ws->dt+ii, 0);
+
+exit(1);
+#endif
 
 		// alpha
 		COMPUTE_ALPHA_QP(cws);

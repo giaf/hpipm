@@ -53,6 +53,7 @@ struct d_ocp_qp_ipm_arg
 	double res_b_max; // exit cond on inf norm of residuals
 	double res_d_max; // exit cond on inf norm of residuals
 	double res_m_max; // exit cond on inf norm of residuals
+	double reg_prim; // reg of primal hessian
 	double lam_min; // min value in lam vector
 	double t_min; // min value in t vector
 	int iter_max; // exit cond in iter number
@@ -60,6 +61,7 @@ struct d_ocp_qp_ipm_arg
 	int pred_corr; // use Mehrotra's predictor-corrector IPM algirthm
 	int cond_pred_corr; // conditional Mehrotra's predictor-corrector
 	int warm_start; // 0 no warm start, 1 warm start primal sol
+	int lq_fact; // 0 syrk+potrf, 1 lq
 	int memsize;
 	};
 
@@ -81,9 +83,11 @@ struct d_ocp_qp_ipm_workspace
 	struct blasfeo_dvec *Pb; // Pb
 	struct blasfeo_dvec *Zs_inv;
 	struct blasfeo_dmat *L;
+	struct blasfeo_dmat *Lh;
 	struct blasfeo_dmat *AL;
 	struct blasfeo_dmat *lq0;
 	double *stat; // convergence statistics
+	int *use_hess_fact;
 	void *lq_work0;
 	double qp_res[4]; // infinity norm of residuals
 	double mu0; // mu0
