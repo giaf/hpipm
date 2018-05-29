@@ -57,7 +57,7 @@ int MEMSIZE_OCP_QP(struct OCP_QP_DIM *dim)
 	size += 2*(N+1)*sizeof(int *); // idxb idxs
 	size += 2*(N+1)*sizeof(struct STRMAT); // RSqrq DCt
 	size += 1*N*sizeof(struct STRMAT); // BAbt
-	size += 3*(N+1)*sizeof(struct STRVEC); // rqz d Z
+	size += 4*(N+1)*sizeof(struct STRVEC); // rqz d m Z
 	size += 1*N*sizeof(struct STRVEC); // b
 
 	for(ii=0; ii<N; ii++)
@@ -70,6 +70,7 @@ int MEMSIZE_OCP_QP(struct OCP_QP_DIM *dim)
 		size += SIZE_STRVEC(nu[ii]+nx[ii]+2*ns[ii]); // rqz
 		size += SIZE_STRMAT(nu[ii]+nx[ii], ng[ii]); // DCt
 		size += SIZE_STRVEC(2*ns[ii]); // Z
+		size += SIZE_STRVEC(2*nb[ii]+2*ng[ii]+2*ns[ii]); // m
 		}
 	ii = N;
 	size += nb[ii]*sizeof(int); // idxb
@@ -78,6 +79,7 @@ int MEMSIZE_OCP_QP(struct OCP_QP_DIM *dim)
 	size += SIZE_STRVEC(nu[ii]+nx[ii]+2*ns[ii]); // rqz
 	size += SIZE_STRMAT(nu[ii]+nx[ii], ng[ii]); // DCt
 	size += SIZE_STRVEC(2*ns[ii]); // Z
+	size += SIZE_STRVEC(2*nb[ii]+2*ng[ii]+2*ns[ii]); // m
 
 	size += 1*SIZE_STRVEC(2*nbt+2*ngt+2*nst); // d
 
@@ -159,6 +161,10 @@ void CREATE_OCP_QP(struct OCP_QP_DIM *dim, struct OCP_QP *qp, void *mem)
 	qp->d = sv_ptr;
 	sv_ptr += N+1;
 
+	// m
+	qp->m = sv_ptr;
+	sv_ptr += N+1;
+
 	// Z
 	qp->Z = sv_ptr;
 	sv_ptr += N+1;
@@ -236,6 +242,13 @@ void CREATE_OCP_QP(struct OCP_QP_DIM *dim, struct OCP_QP *qp, void *mem)
 		c_ptr += (qp->Z+ii)->memsize;
 		}
 
+	// m
+	for(ii=0; ii<=N; ii++)
+		{
+		CREATE_STRVEC(2*nb[ii]+2*ng[ii]+2*ns[ii], qp->m+ii, c_ptr);
+		c_ptr += (qp->m+ii)->memsize;
+		}
+
 	// d
 	tmp_ptr = c_ptr;
 	c_ptr += SIZE_STRVEC(2*nbt+2*ngt+2*nst);
@@ -258,7 +271,7 @@ void CREATE_OCP_QP(struct OCP_QP_DIM *dim, struct OCP_QP *qp, void *mem)
 #if defined(RUNTIME_CHECKS)
 	if(c_ptr > ((char *) mem) + qp->memsize)
 		{
-		printf("\nCreate_ocp_qp: outsize memory bounds!\n\n");
+		printf("\nCreate_ocp_qp: outside memory bounds!\n\n");
 		exit(1);
 		}
 #endif
@@ -266,40 +279,6 @@ void CREATE_OCP_QP(struct OCP_QP_DIM *dim, struct OCP_QP *qp, void *mem)
 
 	return;
 
-	}
-
-
-
-void CHANGE_BOUNDS_DIMENSIONS_OCP_QP(int *nbu, int *nbx, struct OCP_QP *qp)
-	{
-		// TODO runtime check that new memsize is smaller or equal than old
-		int N = qp->dim->N;
-		int *nb = qp->dim->nb;
-		int *ng = qp->dim->ng;
-		int *ns = qp->dim->ns;
-
-		int ii, jj;
-
-		char *c_ptr;
-		c_ptr = (char *) qp->d->pa;
-
-	for(ii=0; ii<=N; ii++)
-		{
-		qp->dim->nbu[ii] = nbu[ii];
-		qp->dim->nbx[ii] = nbx[ii];
-		nb[ii] = nbu[ii] + nbx[ii];
-		}
-
-	for(ii=0; ii<=N; ii++)
-		{
-		CREATE_STRVEC(2*nb[ii]+2*ng[ii]+2*ns[ii], qp->d+ii, c_ptr);
-		c_ptr += nb[ii]*sizeof(REAL); // lb
-		c_ptr += ng[ii]*sizeof(REAL); // lg
-		c_ptr += nb[ii]*sizeof(REAL); // ub
-		c_ptr += ng[ii]*sizeof(REAL); // ug
-		c_ptr += ns[ii]*sizeof(REAL); // ls
-		c_ptr += ns[ii]*sizeof(REAL); // us
-		}
 	}
 
 
@@ -345,6 +324,8 @@ void CVT_COLMAJ_TO_OCP_QP(REAL **A, REAL **B, REAL **b, REAL **Q, REAL **S, REAL
 			CVT_VEC2STRVEC(nb[ii], d_lb[ii], qp->d+ii, 0);
 			CVT_VEC2STRVEC(nb[ii], d_ub[ii], qp->d+ii, nb[ii]+ng[ii]);
 			VECSC_LIBSTR(nb[ii], -1.0, qp->d+ii, nb[ii]+ng[ii]);
+			VECSE_LIBSTR(nb[ii], 0.0, qp->m+ii, 0);
+			VECSE_LIBSTR(nb[ii], 0.0, qp->m+ii, nb[ii]+ng[ii]);
 			}
 		}
 
@@ -357,6 +338,8 @@ void CVT_COLMAJ_TO_OCP_QP(REAL **A, REAL **B, REAL **b, REAL **Q, REAL **S, REAL
 			CVT_VEC2STRVEC(ng[ii], d_lg[ii], qp->d+ii, nb[ii]);
 			CVT_VEC2STRVEC(ng[ii], d_ug[ii], qp->d+ii, 2*nb[ii]+ng[ii]);
 			VECSC_LIBSTR(ng[ii], -1.0, qp->d+ii, 2*nb[ii]+ng[ii]);
+			VECSE_LIBSTR(ng[ii], 0.0, qp->m+ii, nb[ii]);
+			VECSE_LIBSTR(ng[ii], 0.0, qp->m+ii, 2*nb[ii]+ng[ii]);
 			}
 		}
 
@@ -372,6 +355,8 @@ void CVT_COLMAJ_TO_OCP_QP(REAL **A, REAL **B, REAL **b, REAL **Q, REAL **S, REAL
 			CVT_VEC2STRVEC(ns[ii], zu[ii], qp->rqz+ii, nu[ii]+nx[ii]+ns[ii]);
 			CVT_VEC2STRVEC(ns[ii], d_ls[ii], qp->d+ii, 2*nb[ii]+2*ng[ii]);
 			CVT_VEC2STRVEC(ns[ii], d_us[ii], qp->d+ii, 2*nb[ii]+2*ng[ii]+ns[ii]);
+			VECSE_LIBSTR(ns[ii], 0.0, qp->m+ii, 2*nb[ii]+2*ng[ii]);
+			VECSE_LIBSTR(ns[ii], 0.0, qp->m+ii, 2*nb[ii]+2*ng[ii]+ns[ii]);
 			}
 		}
 
@@ -422,6 +407,8 @@ void CVT_ROWMAJ_TO_OCP_QP(REAL **A, REAL **B, REAL **b, REAL **Q, REAL **S, REAL
 			CVT_VEC2STRVEC(nb[ii], d_lb[ii], qp->d+ii, 0);
 			CVT_VEC2STRVEC(nb[ii], d_ub[ii], qp->d+ii, nb[ii]+ng[ii]);
 			VECSC_LIBSTR(nb[ii], -1.0, qp->d+ii, nb[ii]+ng[ii]);
+			VECSE_LIBSTR(nb[ii], 0.0, qp->m+ii, 0);
+			VECSE_LIBSTR(nb[ii], 0.0, qp->m+ii, nb[ii]+ng[ii]);
 			}
 		}
 
@@ -434,6 +421,8 @@ void CVT_ROWMAJ_TO_OCP_QP(REAL **A, REAL **B, REAL **b, REAL **Q, REAL **S, REAL
 			CVT_VEC2STRVEC(ng[ii], d_lg[ii], qp->d+ii, nb[ii]);
 			CVT_VEC2STRVEC(ng[ii], d_ug[ii], qp->d+ii, 2*nb[ii]+ng[ii]);
 			VECSC_LIBSTR(ng[ii], -1.0, qp->d+ii, 2*nb[ii]+ng[ii]);
+			VECSE_LIBSTR(ng[ii], 0.0, qp->m+ii, nb[ii]);
+			VECSE_LIBSTR(ng[ii], 0.0, qp->m+ii, 2*nb[ii]+ng[ii]);
 			}
 		}
 
@@ -449,6 +438,8 @@ void CVT_ROWMAJ_TO_OCP_QP(REAL **A, REAL **B, REAL **b, REAL **Q, REAL **S, REAL
 			CVT_VEC2STRVEC(ns[ii], zu[ii], qp->rqz+ii, nu[ii]+nx[ii]+ns[ii]);
 			CVT_VEC2STRVEC(ns[ii], d_ls[ii], qp->d+ii, 2*nb[ii]+2*ng[ii]);
 			CVT_VEC2STRVEC(ns[ii], d_us[ii], qp->d+ii, 2*nb[ii]+2*ng[ii]+ns[ii]);
+			VECSE_LIBSTR(ns[ii], 0.0, qp->m+ii, 2*nb[ii]+2*ng[ii]);
+			VECSE_LIBSTR(ns[ii], 0.0, qp->m+ii, 2*nb[ii]+2*ng[ii]+ns[ii]);
 			}
 		}
 
@@ -900,5 +891,44 @@ void CVT_OCP_QP_TO_COLMAJ_UG(int stage, struct OCP_QP *qp, REAL *ug)
 
 	return;
 	}
+
+
+
+void CHANGE_BOUNDS_DIMENSIONS_OCP_QP(int *nbu, int *nbx, struct OCP_QP *qp)
+	{
+		// TODO runtime check that new memsize is smaller or equal than old
+		int N = qp->dim->N;
+		int *nb = qp->dim->nb;
+		int *ng = qp->dim->ng;
+		int *ns = qp->dim->ns;
+
+		int ii, jj;
+
+		char *c_ptr;
+		c_ptr = (char *) qp->d->pa;
+
+	for(ii=0; ii<=N; ii++)
+		{
+		qp->dim->nbu[ii] = nbu[ii];
+		qp->dim->nbx[ii] = nbx[ii];
+		nb[ii] = nbu[ii] + nbx[ii];
+		}
+
+	for(ii=0; ii<=N; ii++)
+		{
+		CREATE_STRVEC(2*nb[ii]+2*ng[ii]+2*ns[ii], qp->d+ii, c_ptr);
+		c_ptr += nb[ii]*sizeof(REAL); // lb
+		c_ptr += ng[ii]*sizeof(REAL); // lg
+		c_ptr += nb[ii]*sizeof(REAL); // ub
+		c_ptr += ng[ii]*sizeof(REAL); // ug
+		c_ptr += ns[ii]*sizeof(REAL); // ls
+		c_ptr += ns[ii]*sizeof(REAL); // us
+		}
+
+	return;
+
+	}
+
+
 
 

@@ -58,6 +58,7 @@
 #define SIZE_STRVEC blasfeo_memsize_dvec
 #define VECCP_LIBSTR blasfeo_dveccp
 #define VECSC_LIBSTR blasfeo_dvecsc
+#define VECSE_LIBSTR blasfeo_dvecse
 
 #define CAST_OCP_QP d_cast_ocp_qp
 #define COPY_OCP_QP d_copy_ocp_qp
