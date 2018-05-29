@@ -158,7 +158,7 @@ void CREATE_DENSE_QP(struct DENSE_QP_DIM *dim, struct DENSE_QP *qp, void *mem)
 #if defined(RUNTIME_CHECKS)
 	if(c_ptr > ((char *) mem) + qp->memsize)
 		{
-		printf("\nCreate_ocp_qp: outsize memory bounds!\n\n");
+		printf("\nCreate_ocp_qp: outside memory bounds!\n\n");
 		exit(1);
 		}
 #endif

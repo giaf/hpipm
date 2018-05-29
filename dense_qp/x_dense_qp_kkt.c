@@ -316,7 +316,8 @@ void COMPUTE_LIN_RES_DENSE_QP(struct DENSE_QP *qp, struct DENSE_QP_SOL *qp_sol, 
 	GEMV_NT(ne, nv, -1.0, -1.0, A, 0, 0, v, 0, pi, 0, 1.0, 1.0, b, 0, res_g, 0, res_b, 0, res_g, 0);
 
 	// res_m res_mu
-	VECCPSC(nct, 1.0, m, 0, res_m, 0);
+//	VECCPSC(nct, 1.0, m, 0, res_m, 0);
+	VECCP(nct, m, 0, res_m, 0);
 	VECMULACC(nct, Lam, 0, t, 0, res_m, 0);
 	VECMULACC(nct, lam, 0, T, 0, res_m, 0);
 //	mu = VECMULDOT(nct, lam, 0, t, 0, res_m, 0);
