@@ -61,7 +61,7 @@ void SET_DEFAULT_OCP_QP_IPM_ARG(struct OCP_QP_IPM_ARG *arg)
 	arg->pred_corr = 1;
 	arg->cond_pred_corr = 1;
 	arg->itref_pred_max = 0;
-	arg->itref_corr_max = 4;
+	arg->itref_corr_max = 0;
 	arg->reg_prim = 1e-15;
 	arg->warm_start = 0;
 	arg->lq_fact = 0;
