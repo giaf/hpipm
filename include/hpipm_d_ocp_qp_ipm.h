@@ -60,6 +60,8 @@ struct d_ocp_qp_ipm_arg
 	int stat_max; // iterations saved in stat
 	int pred_corr; // use Mehrotra's predictor-corrector IPM algirthm
 	int cond_pred_corr; // conditional Mehrotra's predictor-corrector
+	int itref_pred_max; // max number of iterative refinement steps for predictor step
+	int itref_corr_max; // max number of iterative refinement steps for corrector step
 	int warm_start; // 0 no warm start, 1 warm start primal sol
 	int lq_fact; // 0 syrk+potrf, 1 lq
 	int memsize;
@@ -70,11 +72,16 @@ struct d_ocp_qp_ipm_arg
 struct d_ocp_qp_ipm_workspace
 	{
 	struct d_core_qp_ipm_workspace *core_workspace;
-	struct d_ocp_qp_res *res;
 	struct d_ocp_qp_res_workspace *res_workspace;
-	struct blasfeo_dvec *dux;
-	struct blasfeo_dvec *dpi;
-	struct blasfeo_dvec *dt;
+	struct d_ocp_qp_sol *sol_step;
+	struct d_ocp_qp_sol *sol_itref;
+	struct d_ocp_qp *qp_step;
+	struct d_ocp_qp *qp_itref;
+	struct d_ocp_qp_res *res_itref;
+	struct d_ocp_qp_res *res;
+//	struct blasfeo_dvec *dux;
+//	struct blasfeo_dvec *dpi;
+//	struct blasfeo_dvec *dt;
 	struct blasfeo_dvec *Gamma; // hessian update
 	struct blasfeo_dvec *gamma; // hessian update
 	struct blasfeo_dvec *tmp_nxM; // work space of size nxM

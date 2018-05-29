@@ -49,14 +49,18 @@
 
 
 
+#define AXPY_LIBSTR blasfeo_daxpy
 #define BACKUP_RES_M d_backup_res_m
 #define COMPUTE_ALPHA_QP d_compute_alpha_qp
 #define COMPUTE_CENTERING_CORRECTION_QP d_compute_centering_correction_qp
 #define COMPUTE_CENTERING_QP d_compute_centering_qp
 #define COMPUTE_MU_AFF_QP d_compute_mu_aff_qp
+#define COMPUTE_LIN_RES_OCP_QP d_compute_lin_res_ocp_qp
 #define COMPUTE_RES_OCP_QP d_compute_res_ocp_qp
 #define CORE_QP_IPM_WORKSPACE d_core_qp_ipm_workspace
 #define CREATE_CORE_QP_IPM d_create_core_qp_ipm
+#define CREATE_OCP_QP_RES d_create_ocp_qp_res
+#define CREATE_OCP_QP_SOL d_create_ocp_qp_sol
 #define CREATE_STRMAT blasfeo_create_dmat
 #define CREATE_STRVEC blasfeo_create_dvec
 #define CVT_STRVEC2VEC blasfeo_unpack_dvec
@@ -66,6 +70,8 @@
 #define GELQF_WORKSIZE blasfeo_dgelqf_worksize
 #define INIT_VAR_OCP_QP d_init_var_ocp_qp
 #define MEMSIZE_CORE_QP_IPM d_memsize_core_qp_ipm
+#define MEMSIZE_OCP_QP_RES d_memsize_ocp_qp_res
+#define MEMSIZE_OCP_QP_SOL d_memsize_ocp_qp_sol
 #define OCP_QP d_ocp_qp
 #define OCP_QP_IPM_WORKSPACE d_ocp_qp_ipm_workspace
 #define OCP_QP_IPM_ARG d_ocp_qp_ipm_arg

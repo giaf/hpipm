@@ -91,15 +91,14 @@ int MEMSIZE_DENSE_QP_IPM(struct DENSE_QP_DIM *dim, struct DENSE_QP_IPM_ARG *arg)
 	size += 1*sizeof(struct CORE_QP_IPM_WORKSPACE);
 	size += 1*MEMSIZE_CORE_QP_IPM(nv+2*ns, ne, 2*nb+2*ng+2*ns);
 
-	size += 1*sizeof(struct DENSE_QP_RES); // res
 	size += 1*sizeof(struct DENSE_QP_RES_WORKSPACE); // res_workspace
-
-	size += 2*sizeof(struct DENSE_QP_SOL); // sol_step(v,pi,lam,t) sol_itref
-	size += 1*MEMSIZE_DENSE_QP_SOL(dim); // sol_itref
 
 	size += 2*sizeof(struct DENSE_QP); // qp_step qp_itref
 
-	size += 1*sizeof(struct DENSE_QP_RES); // res_itref
+	size += 2*sizeof(struct DENSE_QP_SOL); // sol_step sol_itref
+	size += 1*MEMSIZE_DENSE_QP_SOL(dim); // sol_itref
+
+	size += 2*sizeof(struct DENSE_QP_RES); // res res_itref
 	size += 1*MEMSIZE_DENSE_QP_RES(dim); // res_itref
 
 	size += 22*sizeof(struct STRVEC); // sol_step(v,pi,lam,t) res_g res_b res_d res_m lv (4+2)*tmp_nbg (1+1)*tmp_ns Gamma gamma Zs_inv sv se
@@ -375,7 +374,7 @@ void CREATE_DENSE_QP_IPM(struct DENSE_QP_DIM *dim, struct DENSE_QP_IPM_ARG *arg,
 #if defined(RUNTIME_CHECKS)
 	if(c_ptr > ((char *) mem) + workspace->memsize)
 		{
-		printf("\nCreate_dense_qp_ipm: outsize memory bounds!\n\n");
+		printf("\nCreate_dense_qp_ipm: outside memory bounds!\n\n");
 		exit(1);
 		}
 #endif
@@ -395,13 +394,6 @@ int SOLVE_DENSE_QP_IPM(struct DENSE_QP *qp, struct DENSE_QP_SOL *qp_sol, struct 
 	// arg to core workspace
 	cws->lam_min = arg->lam_min;
 	cws->t_min = arg->t_min;
-
-	// dims
-	int nv = qp->dim->nv;
-	int ne = qp->dim->ne;
-	int nb = qp->dim->nb;
-	int ng = qp->dim->ng;
-	int ns = qp->dim->ns;
 
 	// alias qp vectors into qp_sol
 	cws->v = qp_sol->v->pa;
@@ -438,7 +430,7 @@ int SOLVE_DENSE_QP_IPM(struct DENSE_QP *qp, struct DENSE_QP_SOL *qp_sol, struct 
 	// no constraints
 	if(cws->nc==0)
 		{
-		FACT_SOLVE_KKT_UNCONSTR_DENSE_QP(qp, qp_sol, ws);
+		FACT_SOLVE_KKT_UNCONSTR_DENSE_QP(qp, qp_sol, arg, ws);
 		COMPUTE_RES_DENSE_QP(qp, qp_sol, ws->res, ws->res_workspace);
 		cws->mu = ws->res->res_mu;
 		ws->iter = 0;
@@ -466,6 +458,13 @@ int SOLVE_DENSE_QP_IPM(struct DENSE_QP *qp, struct DENSE_QP_SOL *qp_sol, struct 
 	qp_res[3] = 0;
 
 	ws->mu0 = arg->mu0;
+
+	// dims
+	int nv = qp->dim->nv;
+	int ne = qp->dim->ne;
+	int nb = qp->dim->nb;
+	int ng = qp->dim->ng;
+	int ns = qp->dim->ns;
 
 	int kk, ii, itref0=0, itref1=0;
 	REAL tmp;
@@ -501,6 +500,8 @@ int SOLVE_DENSE_QP_IPM(struct DENSE_QP *qp, struct DENSE_QP_SOL *qp_sol, struct 
 
 	int force_lq = 0;
 
+
+	// IPM loop
 	for(kk=0; \
 			kk<arg->iter_max & \
 			cws->alpha>arg->alpha_min & \
@@ -532,6 +533,8 @@ int SOLVE_DENSE_QP_IPM(struct DENSE_QP *qp, struct DENSE_QP_SOL *qp_sol, struct 
 			VECNRM_INF_LIBSTR(cws->ne, ws->res_itref->res_b, 0, &itref_qp_norm[1]);
 			VECNRM_INF_LIBSTR(cws->nc, ws->res_itref->res_d, 0, &itref_qp_norm[2]);
 			VECNRM_INF_LIBSTR(cws->nc, ws->res_itref->res_m, 0, &itref_qp_norm[3]);
+
+//printf("\n%e\t%e\t%e\t%e\n", itref_qp_norm[0], itref_qp_norm[1], itref_qp_norm[2], itref_qp_norm[3]);
 
 			// inaccurate factorization: switch to lq
 			if(
@@ -657,7 +660,7 @@ blasfeo_print_tran_dvec(cws->nc, ws->sol_step->t, 0);
 //		blasfeo_print_exp_tran_dvec(2*qp->dim->nb+2*qp->dim->ng, ws->res_itref->res_d, 0);
 #endif
 
-#if 1
+#if 0
 		ndp0 = 0;
 		for(ii=0; ii<qp->dim->nv; ii++)
 			{

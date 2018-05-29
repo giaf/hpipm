@@ -441,7 +441,7 @@ void COMPUTE_LIN_RES_OCP_QP(struct OCP_QP *qp, struct OCP_QP_SOL *qp_sol, struct
 
 
 // backward Riccati recursion
-void FACT_SOLVE_KKT_UNCONSTR_OCP_QP(struct OCP_QP *qp, struct OCP_QP_SOL *qp_sol, struct OCP_QP_IPM_WORKSPACE *ws)
+void FACT_SOLVE_KKT_UNCONSTR_OCP_QP(struct OCP_QP *qp, struct OCP_QP_SOL *qp_sol, struct OCP_QP_IPM_ARG *arg, struct OCP_QP_IPM_WORKSPACE *ws)
 	{
 
 	int N = qp->dim->N;
@@ -529,7 +529,7 @@ static void COND_SLACKS_FACT_SOLVE(int ss, struct OCP_QP *qp, struct OCP_QP_IPM_
 	struct STRVEC *Z = qp->Z+ss;
 	int *idxs0 = qp->idxs[ss];
 
-	struct STRVEC *dux = ws->dux+ss;
+	struct STRVEC *dux = ws->sol_step->ux+ss;
 	struct STRVEC *res_g = ws->res->res_g+ss;
 	struct STRVEC *Gamma = ws->Gamma+ss;
 	struct STRVEC *gamma = ws->gamma+ss;
@@ -593,7 +593,7 @@ static void COND_SLACKS_SOLVE(int ss, struct OCP_QP *qp, struct OCP_QP_IPM_WORKS
 
 	int *idxs0 = qp->idxs[ss];
 
-	struct STRVEC *dux = ws->dux+ss;
+	struct STRVEC *dux = ws->sol_step->ux+ss;
 	struct STRVEC *res_g = ws->res->res_g+ss;
 	struct STRVEC *Gamma = ws->Gamma+ss;
 	struct STRVEC *gamma = ws->gamma+ss;
@@ -632,7 +632,7 @@ static void COND_SLACKS_SOLVE(int ss, struct OCP_QP *qp, struct OCP_QP_IPM_WORKS
 
 
 
-static void EXPAND_SLACKS(int ss, struct OCP_QP *qp, struct OCP_QP_IPM_WORKSPACE *ws)
+static void EXPAND_SLACKS(int ss, struct OCP_QP *qp, struct OCP_QP_SOL *qp_sol, struct OCP_QP_IPM_WORKSPACE *ws)
 	{
 
 	int ii, idx;
@@ -645,8 +645,9 @@ static void EXPAND_SLACKS(int ss, struct OCP_QP *qp, struct OCP_QP_IPM_WORKSPACE
 
 	int *idxs0 = qp->idxs[ss];
 
-	struct STRVEC *dux = ws->dux+ss;
-	struct STRVEC *dt = ws->dt+ss;
+	struct STRVEC *dux = qp_sol->ux+ss;
+	struct STRVEC *dt = qp_sol->t+ss;
+
 	struct STRVEC *Gamma = ws->Gamma+ss;
 	struct STRVEC *Zs_inv = ws->Zs_inv+ss;
 
@@ -674,7 +675,7 @@ static void EXPAND_SLACKS(int ss, struct OCP_QP *qp, struct OCP_QP_IPM_WORKSPACE
 
 
 // backward Riccati recursion
-void FACT_SOLVE_KKT_STEP_OCP_QP(struct OCP_QP *qp, struct OCP_QP_IPM_ARG *arg, struct OCP_QP_IPM_WORKSPACE *ws)
+void FACT_SOLVE_KKT_STEP_OCP_QP(struct OCP_QP *qp, struct OCP_QP_SOL *qp_sol, struct OCP_QP_IPM_ARG *arg, struct OCP_QP_IPM_WORKSPACE *ws)
 	{
 
 	int N = qp->dim->N;
@@ -688,16 +689,19 @@ void FACT_SOLVE_KKT_STEP_OCP_QP(struct OCP_QP *qp, struct OCP_QP_IPM_ARG *arg, s
 	struct STRMAT *RSQrq = qp->RSQrq;
 	struct STRMAT *DCt = qp->DCt;
 	struct STRVEC *Z = qp->Z;
+	struct STRVEC *res_g = qp->rqz;
+	struct STRVEC *res_b = qp->b;
 	int **idxb = qp->idxb;
 	int **idxs = qp->idxs;
 
+	struct STRVEC *dux = qp_sol->ux;
+	struct STRVEC *dpi = qp_sol->pi;
+	struct STRVEC *dt = qp_sol->t;
+
 	struct STRMAT *L = ws->L;
 	struct STRMAT *AL = ws->AL;
-	struct STRVEC *res_b = ws->res->res_b;
-	struct STRVEC *res_g = ws->res->res_g;
-	struct STRVEC *dux = ws->dux;
-	struct STRVEC *dpi = ws->dpi;
-	struct STRVEC *dt = ws->dt;
+//	struct STRVEC *res_b = ws->res->res_b;
+//	struct STRVEC *res_g = ws->res->res_g;
 	struct STRVEC *Gamma = ws->Gamma;
 	struct STRVEC *gamma = ws->gamma;
 	struct STRVEC *Pb = ws->Pb;
@@ -841,7 +845,7 @@ void FACT_SOLVE_KKT_STEP_OCP_QP(struct OCP_QP *qp, struct OCP_QP_IPM_ARG *arg, s
 	for(ss=0; ss<=N; ss++)
 		{
 		if(ns[ss]>0)
-			EXPAND_SLACKS(ss, qp, ws);
+			EXPAND_SLACKS(ss, qp, qp_sol, ws);
 		}
 
 	COMPUTE_LAM_T_QP(ws->res->res_d[0].pa, ws->res->res_m[0].pa, cws->dlam, cws->dt, cws);
@@ -852,7 +856,7 @@ void FACT_SOLVE_KKT_STEP_OCP_QP(struct OCP_QP *qp, struct OCP_QP_IPM_ARG *arg, s
 
 
 
-void FACT_SOLVE_LQ_KKT_STEP_OCP_QP(struct OCP_QP *qp, struct OCP_QP_IPM_ARG *arg, struct OCP_QP_IPM_WORKSPACE *ws)
+void FACT_SOLVE_LQ_KKT_STEP_OCP_QP(struct OCP_QP *qp, struct OCP_QP_SOL *qp_sol, struct OCP_QP_IPM_ARG *arg, struct OCP_QP_IPM_WORKSPACE *ws)
 	{
 
 	int N = qp->dim->N;
@@ -866,17 +870,20 @@ void FACT_SOLVE_LQ_KKT_STEP_OCP_QP(struct OCP_QP *qp, struct OCP_QP_IPM_ARG *arg
 	struct STRMAT *RSQrq = qp->RSQrq;
 	struct STRMAT *DCt = qp->DCt;
 	struct STRVEC *Z = qp->Z;
+	struct STRVEC *res_g = qp->rqz;
+	struct STRVEC *res_b = qp->b;
 	int **idxb = qp->idxb;
 	int **idxs = qp->idxs;
+
+	struct STRVEC *dux = qp_sol->ux;
+	struct STRVEC *dpi = qp_sol->pi;
+	struct STRVEC *dt = qp_sol->t;
 
 	struct STRMAT *L = ws->L;
 	struct STRMAT *Lh = ws->Lh;
 	struct STRMAT *AL = ws->AL;
-	struct STRVEC *res_b = ws->res->res_b;
-	struct STRVEC *res_g = ws->res->res_g;
-	struct STRVEC *dux = ws->dux;
-	struct STRVEC *dpi = ws->dpi;
-	struct STRVEC *dt = ws->dt;
+//	struct STRVEC *res_b = ws->res->res_b;
+//	struct STRVEC *res_g = ws->res->res_g;
 	struct STRVEC *Gamma = ws->Gamma;
 	struct STRVEC *gamma = ws->gamma;
 	struct STRVEC *Pb = ws->Pb;
@@ -1149,7 +1156,7 @@ TRMM_RLNN(nu[ss]+nx[ss], nx[ss+1], 1.0, L+ss+1, nu[ss+1], nu[ss+1], BAbt+ss, 0, 
 	for(ss=0; ss<=N; ss++)
 		{
 		if(ns[ss]>0)
-			EXPAND_SLACKS(ss, qp, ws);
+			EXPAND_SLACKS(ss, qp, qp_sol, ws);
 		}
 
 	COMPUTE_LAM_T_QP(ws->res->res_d[0].pa, ws->res->res_m[0].pa, cws->dlam, cws->dt, cws);
@@ -1161,7 +1168,7 @@ TRMM_RLNN(nu[ss]+nx[ss], nx[ss+1], 1.0, L+ss+1, nu[ss+1], nu[ss+1], BAbt+ss, 0, 
 
 
 // backward Riccati recursion
-void SOLVE_KKT_STEP_OCP_QP(struct OCP_QP *qp, struct OCP_QP_IPM_WORKSPACE *ws)
+void SOLVE_KKT_STEP_OCP_QP(struct OCP_QP *qp, struct OCP_QP_SOL *qp_sol, struct OCP_QP_IPM_ARG *arg, struct OCP_QP_IPM_WORKSPACE *ws)
 	{
 
 	int N = qp->dim->N;
@@ -1172,17 +1179,20 @@ void SOLVE_KKT_STEP_OCP_QP(struct OCP_QP *qp, struct OCP_QP_IPM_WORKSPACE *ws)
 	int *ns = qp->dim->ns;
 
 	struct STRMAT *BAbt = qp->BAbt;
-	struct STRMAT *RSQrq = qp->RSQrq;
+//	struct STRMAT *RSQrq = qp->RSQrq;
 	struct STRMAT *DCt = qp->DCt;
+	struct STRVEC *res_g = qp->rqz;
+	struct STRVEC *res_b = qp->b;
 	int **idxb = qp->idxb;
-	int **idxs = qp->idxs;
+//	int **idxs = qp->idxs;
+
+	struct STRVEC *dux = qp_sol->ux;
+	struct STRVEC *dpi = qp_sol->pi;
+	struct STRVEC *dt = qp_sol->t;
 
 	struct STRMAT *L = ws->L;
-	struct STRVEC *res_b = ws->res->res_b;
-	struct STRVEC *res_g = ws->res->res_g;
-	struct STRVEC *dux = ws->dux;
-	struct STRVEC *dpi = ws->dpi;
-	struct STRVEC *dt = ws->dt;
+//	struct STRVEC *res_b = ws->res->res_b;
+//	struct STRVEC *res_g = ws->res->res_g;
 	struct STRVEC *gamma = ws->gamma;
 	struct STRVEC *Pb = ws->Pb;
 	struct STRVEC *tmp_nxM = ws->tmp_nxM;
@@ -1314,7 +1324,7 @@ void SOLVE_KKT_STEP_OCP_QP(struct OCP_QP *qp, struct OCP_QP_IPM_WORKSPACE *ws)
 	for(ss=0; ss<=N; ss++)
 		{
 		if(ns[ss]>0)
-			EXPAND_SLACKS(ss, qp, ws);
+			EXPAND_SLACKS(ss, qp, qp_sol, ws);
 		}
 
 	COMPUTE_LAM_T_QP(ws->res->res_d[0].pa, ws->res->res_m[0].pa, cws->dlam, cws->dt, cws);

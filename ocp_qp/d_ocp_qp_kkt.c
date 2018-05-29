@@ -106,6 +106,7 @@
 
 
 #define INIT_VAR_OCP_QP d_init_var_ocp_qp
+#define COMPUTE_LIN_RES_OCP_QP d_compute_lin_res_ocp_qp
 #define COMPUTE_RES_OCP_QP d_compute_res_ocp_qp
 #define FACT_SOLVE_KKT_UNCONSTR_OCP_QP d_fact_solve_kkt_unconstr_ocp_qp
 #define FACT_SOLVE_KKT_STEP_OCP_QP d_fact_solve_kkt_step_ocp_qp

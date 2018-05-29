@@ -331,7 +331,7 @@ void COMPUTE_LIN_RES_DENSE_QP(struct DENSE_QP *qp, struct DENSE_QP_SOL *qp_sol, 
 
 
 // range-space (Schur complement) method
-void FACT_SOLVE_KKT_UNCONSTR_DENSE_QP(struct DENSE_QP *qp, struct DENSE_QP_SOL *qp_sol, struct DENSE_QP_IPM_WORKSPACE *ws)
+void FACT_SOLVE_KKT_UNCONSTR_DENSE_QP(struct DENSE_QP *qp, struct DENSE_QP_SOL *qp_sol, struct DENSE_QP_IPM_ARG *arg, struct DENSE_QP_IPM_WORKSPACE *ws)
 	{
 
 	int nv = qp->dim->nv;
@@ -874,7 +874,6 @@ void FACT_SOLVE_LQ_KKT_STEP_DENSE_QP(struct DENSE_QP *qp, struct DENSE_QP_SOL *q
 	struct STRMAT *A = qp->A;
 	struct STRMAT *Ct = qp->Ct;
 	int *idxb = qp->idxb;
-
 	struct STRVEC *res_g = qp->gz;
 	struct STRVEC *res_b = qp->b;
 
@@ -1479,7 +1478,6 @@ void SOLVE_KKT_STEP_DENSE_QP(struct DENSE_QP *qp, struct DENSE_QP_SOL *qp_sol, s
 	struct STRMAT *A = qp->A;
 	struct STRMAT *Ct = qp->Ct;
 	int *idxb = qp->idxb;
-
 //	struct STRVEC *res_g = ws->res->res_g;
 //	struct STRVEC *res_b = ws->res->res_b;
 	struct STRVEC *res_g = qp->gz;

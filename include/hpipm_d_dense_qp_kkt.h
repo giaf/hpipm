@@ -45,7 +45,7 @@ void d_compute_lin_res_dense_qp(struct d_dense_qp *qp, struct d_dense_qp_sol *qp
 //
 void d_compute_res_dense_qp(struct d_dense_qp *qp, struct d_dense_qp_sol *qp_sol, struct d_dense_qp_res *res, struct d_dense_qp_res_workspace *ws);
 //
-void d_fact_solve_kkt_unconstr_dense_qp(struct d_dense_qp *qp, struct d_dense_qp_sol *qp_sol, struct d_dense_qp_ipm_workspace *ws);
+void d_fact_solve_kkt_unconstr_dense_qp(struct d_dense_qp *qp, struct d_dense_qp_sol *qp_sol, struct d_dense_qp_ipm_arg *arg, struct d_dense_qp_ipm_workspace *ws);
 //
 void d_fact_solve_kkt_step_dense_qp(struct d_dense_qp *qp, struct d_dense_qp_sol *qp_sol, struct d_dense_qp_ipm_arg *arg, struct d_dense_qp_ipm_workspace *ws);
 //

@@ -72,12 +72,12 @@ struct s_dense_qp_ipm_arg
 struct s_dense_qp_ipm_workspace
 	{
 	struct s_core_qp_ipm_workspace *core_workspace;
-	struct s_dense_qp_res *res;
 	struct s_dense_qp_res_workspace *res_workspace;
 	struct s_dense_qp_sol *sol_step;
 	struct s_dense_qp_sol *sol_itref;
 	struct s_dense_qp *qp_step;
 	struct s_dense_qp *qp_itref;
+	struct s_dense_qp_res *res;
 	struct s_dense_qp_res *res_itref;
 	struct blasfeo_svec *Gamma; //
 	struct blasfeo_svec *gamma; //
