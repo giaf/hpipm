@@ -556,8 +556,6 @@ static void EXPAND_SLACKS(struct DENSE_QP *qp, struct DENSE_QP_SOL *qp_sol, stru
 
 
 
-//#define PIVOT
-
 // range-space (Schur complement) method
 void FACT_SOLVE_KKT_STEP_DENSE_QP(struct DENSE_QP *qp, struct DENSE_QP_SOL *qp_sol, struct DENSE_QP_IPM_ARG *arg, struct DENSE_QP_IPM_WORKSPACE *ws)
 	{
@@ -592,7 +590,6 @@ void FACT_SOLVE_KKT_STEP_DENSE_QP(struct DENSE_QP *qp, struct DENSE_QP_SOL *qp_s
 	struct STRVEC *Gamma = ws->Gamma;
 	struct STRVEC *gamma = ws->gamma;
 	struct STRVEC *tmp_nbg = ws->tmp_nbg;
-	int *ipiv_v = ws->ipiv_v;
 
 	REAL tmp;
 
@@ -605,65 +602,6 @@ void FACT_SOLVE_KKT_STEP_DENSE_QP(struct DENSE_QP *qp, struct DENSE_QP_SOL *qp_s
 
 	if(ne>0)
 		{
-
-#ifdef PIVOT // pivot cholesky
-
-//		TRCP_L(nv, Hg, 0, 0, Lv, 0, 0);
-		GECP(nv, nv, Hg, 0, 0, Lv, 0, 0);
-
-		VECCP(nv, res_g, 0, lv, 0);
-
-		if(ns>0)
-			{
-			COND_SLACKS_FACT_SOLVE(qp, ws);
-			}
-		else if(nb+ng>0)
-			{
-			AXPY(nb+ng,  1.0, Gamma, nb+ng, Gamma, 0, tmp_nbg+0, 0);
-			AXPY(nb+ng, -1.0, gamma, nb+ng, gamma, 0, tmp_nbg+1, 0);
-			}
-		if(nb>0)
-			{
-			DIAAD_SP(nb, 1.0, tmp_nbg+0, 0, idxb, Lv, 0, 0);
-			VECAD_SP(nb, 1.0, tmp_nbg+1, 0, idxb, lv, 0);
-			}
-		if(ng>0)
-			{
-			GEMV_N(nv, ng, 1.0, Ct, 0, 0, tmp_nbg+1, nb, 1.0, lv, 0, lv, 0);
-			GEMM_R_DIAG(nv, ng, 1.0, Ct, 0, 0, tmp_nbg+0, nb, 0.0, Ctx, 0, 0, Ctx, 0, 0);
-			SYRK_LN(nv, ng, 1.0, Ctx, 0, 0, Ct, 0, 0, 1.0, Lv, 0, 0, Lv, 0, 0);
-			PSTRF_L(nv, Lv, 0, 0, Lv, 0, 0, ipiv_v);
-			}
-		else
-			{
-			PSTRF_L(nv, Lv, 0, 0, Lv, 0, 0, ipiv_v);
-			}
-
-		VECCP(nv, lv, 0, dv, 0);
-
-		GECP(ne, nv, A, 0, 0, AL, 0, 0);
-		COLPE(nv, ipiv_v, AL);
-		TRSM_RLTN(ne, nv, 1.0, Lv, 0, 0, AL, 0, 0, AL, 0, 0);
-
-		GESE(ne, ne, 0.0, Le, 0, 0);
-		SYRK_POTRF_LN(ne, ne, nv, AL, 0, 0, AL, 0, 0, Le, 0, 0, Le, 0, 0);
-
-		VECPE(nv, ipiv_v, lv, 0);
-		TRSV_LNN(nv, Lv, 0, 0, lv, 0, lv, 0);
-
-		GEMV_N(ne, nv, 1.0, AL, 0, 0, lv, 0, 1.0, res_b, 0, dpi, 0);
-
-		TRSV_LNN(ne, Le, 0, 0, dpi, 0, dpi, 0);
-		TRSV_LTN(ne, Le, 0, 0, dpi, 0, dpi, 0);
-
-		GEMV_T(ne, nv, 1.0, A, 0, 0, dpi, 0, -1.0, dv, 0, dv, 0);
-
-		VECPE(nv, ipiv_v, dv, 0);
-		TRSV_LNN(nv, Lv, 0, 0, dv, 0, dv, 0);
-		TRSV_LTN(nv, Lv, 0, 0, dv, 0, dv, 0);
-		VECPEI(nv, ipiv_v, dv, 0);
-
-#else // no pivot cholesky
 
 		if(arg->scale)
 			{
@@ -805,8 +743,6 @@ void FACT_SOLVE_KKT_STEP_DENSE_QP(struct DENSE_QP *qp, struct DENSE_QP_SOL *qp_s
 
 
 			} // scale
-
-#endif // pivot cholesky
 
 		}
 	else // ne==0
@@ -956,7 +892,6 @@ void FACT_SOLVE_LQ_KKT_STEP_DENSE_QP(struct DENSE_QP *qp, struct DENSE_QP_SOL *q
 	struct STRVEC *Gamma = ws->Gamma;
 	struct STRVEC *gamma = ws->gamma;
 	struct STRVEC *tmp_nbg = ws->tmp_nbg;
-	int *ipiv_v = ws->ipiv_v;
 	void *lq_work0 = ws->lq_work0;
 	void *lq_work1 = ws->lq_work1;
 	struct STRMAT *lq0 = ws->lq0;
@@ -1563,7 +1498,6 @@ void SOLVE_KKT_STEP_DENSE_QP(struct DENSE_QP *qp, struct DENSE_QP_SOL *qp_sol, s
 	struct STRVEC *se = ws->se;
 	struct STRVEC *gamma = ws->gamma;
 	struct STRVEC *tmp_nbg = ws->tmp_nbg;
-	int *ipiv_v = ws->ipiv_v;
 
 	struct CORE_QP_IPM_WORKSPACE *cws = ws->core_workspace;
 
@@ -1574,46 +1508,6 @@ void SOLVE_KKT_STEP_DENSE_QP(struct DENSE_QP *qp, struct DENSE_QP_SOL *qp_sol, s
 
 	if(ne>0)
 		{
-
-#ifdef PIVOT // pivot cholesky
-
-		VECCP(nv, res_g, 0, lv, 0);
-
-		if(ns>0)
-			{
-			COND_SLACKS_SOLVE(qp, ws);
-			}
-		else if(nb+ng>0)
-			{
-			AXPY(nb+ng, -1.0, gamma, nb+ng, gamma, 0, tmp_nbg+1, 0);
-			}
-		if(nb>0)
-			{
-			VECAD_SP(nb, 1.0, tmp_nbg+1, 0, idxb, lv, 0);
-			}
-		if(ng>0)
-			{
-			GEMV_N(nv, ng, 1.0, Ct, 0, 0, tmp_nbg+1, nb, 1.0, lv, 0, lv, 0);
-			}
-
-		VECCP(nv, lv, 0, dv, 0);
-
-		VECPE(nv, ipiv_v, lv, 0);
-		TRSV_LNN(nv, Lv, 0, 0, lv, 0, lv, 0);
-
-		GEMV_N(ne, nv, 1.0, AL, 0, 0, lv, 0, 1.0, res_b, 0, dpi, 0);
-
-		TRSV_LNN(ne, Le, 0, 0, dpi, 0, dpi, 0);
-		TRSV_LTN(ne, Le, 0, 0, dpi, 0, dpi, 0);
-
-		GEMV_T(ne, nv, 1.0, A, 0, 0, dpi, 0, -1.0, dv, 0, dv, 0);
-
-		VECPE(nv, ipiv_v, dv, 0);
-		TRSV_LNN(nv, Lv, 0, 0, dv, 0, dv, 0);
-		TRSV_LTN(nv, Lv, 0, 0, dv, 0, dv, 0);
-		VECPEI(nv, ipiv_v, dv, 0);
-
-#else // no pivot cholesky
 
 		if(ws->scale)
 			{
@@ -1694,8 +1588,6 @@ void SOLVE_KKT_STEP_DENSE_QP(struct DENSE_QP *qp, struct DENSE_QP_SOL *qp_sol, s
 			TRSV_LTN(nv, Lv, 0, 0, dv, 0, dv, 0);
 
 			} // scale
-
-#endif // pivot cholesky
 
 		}
 	else // ne==0

@@ -94,8 +94,8 @@ struct s_dense_qp_ipm_workspace
 	struct blasfeo_smat *lq0;
 	struct blasfeo_smat *lq1;
 	float *stat; // convergence statistics
-	int *ipiv_v;
-	int *ipiv_e;
+//	int *ipiv_v;
+//	int *ipiv_e;
 	void *lq_work0;
 	void *lq_work1;
 	float qp_res[4]; // infinity norm of residuals
