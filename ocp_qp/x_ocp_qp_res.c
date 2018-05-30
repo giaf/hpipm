@@ -41,14 +41,30 @@ int MEMSIZE_OCP_QP_RES(struct OCP_QP_DIM *dim)
 	int *ng = dim->ng;
 	int *ns = dim->ns;
 
+	// compute core qp size
+	int nvt = 0;
+	int net = 0;
+	int nct = 0;
+	for(ii=0; ii<N; ii++)
+		{
+		nvt += nx[ii]+nu[ii]+2*ns[ii];
+		net += nx[ii+1];
+		nct += 2*nb[ii]+2*ng[ii]+2*ns[ii];
+		}
+	nvt += nx[ii]+nu[ii]+2*ns[ii];
+	nct += 2*nb[ii]+2*ng[ii]+2*ns[ii];
+
 	int size = 0;
 
 	size += 3*(N+1)*sizeof(struct STRVEC); // res_g res_d res_m
 	size += 3*N*sizeof(struct STRVEC); // res_b
 
-	for(ii=0; ii<=N; ii++) size += 1*SIZE_STRVEC(nu[ii]+nx[ii]+2*ns[ii]); // res_g
-	for(ii=0; ii<N; ii++) size += 1*SIZE_STRVEC(nx[ii+1]); // res_b
-	for(ii=0; ii<=N; ii++) size += 2*SIZE_STRVEC(2*nb[ii]+2*ng[ii]+2*ns[ii]); // res_d res_m
+//	for(ii=0; ii<=N; ii++) size += 1*SIZE_STRVEC(nu[ii]+nx[ii]+2*ns[ii]); // res_g
+//	for(ii=0; ii<N; ii++) size += 1*SIZE_STRVEC(nx[ii+1]); // res_b
+//	for(ii=0; ii<=N; ii++) size += 2*SIZE_STRVEC(2*nb[ii]+2*ng[ii]+2*ns[ii]); // res_d res_m
+	size += 1*SIZE_STRVEC(nvt); // res_g
+	size += 1*SIZE_STRVEC(net); // res_b
+	size += 2*SIZE_STRVEC(nct); // res_d res_m
 
 	size = (size+63)/64*64; // make multiple of typical cache line size
 	size += 1*64; // align once to typical cache line size
@@ -73,6 +89,19 @@ void CREATE_OCP_QP_RES(struct OCP_QP_DIM *dim, struct OCP_QP_RES *res, void *mem
 	int *ng = dim->ng;
 	int *ns = dim->ns;
 
+	// compute core qp size
+	int nvt = 0;
+	int net = 0;
+	int nct = 0;
+	for(ii=0; ii<N; ii++)
+		{
+		nvt += nx[ii]+nu[ii]+2*ns[ii];
+		net += nx[ii+1];
+		nct += 2*nb[ii]+2*ng[ii]+2*ns[ii];
+		}
+	nvt += nx[ii]+nu[ii]+2*ns[ii];
+	nct += 2*nb[ii]+2*ng[ii]+2*ns[ii];
+
 
 	// vector struct
 	struct STRVEC *sv_ptr = (struct STRVEC *) mem;
@@ -95,29 +124,81 @@ void CREATE_OCP_QP_RES(struct OCP_QP_DIM *dim, struct OCP_QP_RES *res, void *mem
 	// void stuf
 	char *c_ptr = (char *) s_ptr;
 
+//	for(ii=0; ii<=N; ii++)
+//		{
+//		CREATE_STRVEC(nu[ii]+nx[ii]+2*ns[ii], res->res_g+ii, c_ptr);
+//		c_ptr += (res->res_g+ii)->memsize;
+//		}
+	CREATE_STRVEC(nvt, res->res_g, c_ptr);
+	c_ptr += SIZE_STRVEC(nvt);
+
+//	for(ii=0; ii<N; ii++)
+//		{
+//		CREATE_STRVEC(nx[ii+1], res->res_b+ii, c_ptr);
+//		c_ptr += (res->res_b+ii)->memsize;
+//		}
+	CREATE_STRVEC(net, res->res_b, c_ptr);
+	c_ptr += SIZE_STRVEC(net);
+
+//	for(ii=0; ii<=N; ii++)
+//		{
+//		CREATE_STRVEC(2*nb[ii]+2*ng[ii]+2*ns[ii], res->res_d+ii, c_ptr);
+//		c_ptr += (res->res_d+ii)->memsize;
+//		}
+	CREATE_STRVEC(nct, res->res_d, c_ptr);
+	c_ptr += SIZE_STRVEC(nct);
+
+//	for(ii=0; ii<=N; ii++)
+//		{
+//		CREATE_STRVEC(2*nb[ii]+2*ng[ii]+2*ns[ii], res->res_m+ii, c_ptr);
+//		c_ptr += (res->res_m+ii)->memsize;
+//		}
+	CREATE_STRVEC(nct, res->res_m, c_ptr);
+	c_ptr += SIZE_STRVEC(nct);
+
+	// alias
+	//
+	c_ptr = (char *) res->res_g->pa;
 	for(ii=0; ii<=N; ii++)
 		{
 		CREATE_STRVEC(nu[ii]+nx[ii]+2*ns[ii], res->res_g+ii, c_ptr);
-		c_ptr += (res->res_g+ii)->memsize;
+		c_ptr += (nu[ii]+nx[ii])*sizeof(REAL);
+		c_ptr += ns[ii]*sizeof(REAL);
+		c_ptr += ns[ii]*sizeof(REAL);
 		}
-
+	//
+	c_ptr = (char *) res->res_b->pa;
 	for(ii=0; ii<N; ii++)
 		{
 		CREATE_STRVEC(nx[ii+1], res->res_b+ii, c_ptr);
-		c_ptr += (res->res_b+ii)->memsize;
+		c_ptr += (nx[ii+1])*sizeof(REAL);
 		}
-
+	//
+	c_ptr = (char *) res->res_d->pa;
 	for(ii=0; ii<=N; ii++)
 		{
 		CREATE_STRVEC(2*nb[ii]+2*ng[ii]+2*ns[ii], res->res_d+ii, c_ptr);
-		c_ptr += (res->res_d+ii)->memsize;
+		c_ptr += nb[ii]*sizeof(REAL);
+		c_ptr += ng[ii]*sizeof(REAL);
+		c_ptr += nb[ii]*sizeof(REAL);
+		c_ptr += ng[ii]*sizeof(REAL);
+		c_ptr += ns[ii]*sizeof(REAL);
+		c_ptr += ns[ii]*sizeof(REAL);
 		}
-
+	//
+	c_ptr = (char *) res->res_m->pa;
 	for(ii=0; ii<=N; ii++)
 		{
 		CREATE_STRVEC(2*nb[ii]+2*ng[ii]+2*ns[ii], res->res_m+ii, c_ptr);
-		c_ptr += (res->res_m+ii)->memsize;
+		c_ptr += nb[ii]*sizeof(REAL);
+		c_ptr += ng[ii]*sizeof(REAL);
+		c_ptr += nb[ii]*sizeof(REAL);
+		c_ptr += ng[ii]*sizeof(REAL);
+		c_ptr += ns[ii]*sizeof(REAL);
+		c_ptr += ns[ii]*sizeof(REAL);
 		}
+
+
 
 	res->dim = dim;
 

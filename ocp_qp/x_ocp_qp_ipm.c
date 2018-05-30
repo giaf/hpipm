@@ -415,7 +415,7 @@ void CREATE_OCP_QP_IPM(struct OCP_QP_DIM *dim, struct OCP_QP_IPM_ARG *arg, struc
 	c_ptr = (char *) cws->dv;
 	for(ii=0; ii<=N; ii++)
 		{
-		CREATE_STRVEC(nu[ii]+nx[ii], workspace->sol_step->ux+ii, c_ptr);
+		CREATE_STRVEC(nu[ii]+nx[ii]+2*ns[ii], workspace->sol_step->ux+ii, c_ptr);
 		c_ptr += (nu[ii]+nx[ii])*sizeof(REAL);
 		c_ptr += ns[ii]*sizeof(REAL);
 		c_ptr += ns[ii]*sizeof(REAL);
@@ -455,7 +455,7 @@ void CREATE_OCP_QP_IPM(struct OCP_QP_DIM *dim, struct OCP_QP_IPM_ARG *arg, struc
 	c_ptr = (char *) cws->res_g;
 	for(ii=0; ii<=N; ii++)
 		{
-		CREATE_STRVEC(nu[ii]+nx[ii], workspace->res->res_g+ii, c_ptr);
+		CREATE_STRVEC(nu[ii]+nx[ii]+2*ns[ii], workspace->res->res_g+ii, c_ptr);
 		c_ptr += (nu[ii]+nx[ii])*sizeof(REAL);
 		c_ptr += ns[ii]*sizeof(REAL);
 		c_ptr += ns[ii]*sizeof(REAL);
@@ -471,7 +471,7 @@ void CREATE_OCP_QP_IPM(struct OCP_QP_DIM *dim, struct OCP_QP_IPM_ARG *arg, struc
 	c_ptr = (char *) cws->res_d;
 	for(ii=0; ii<=N; ii++)
 		{
-		CREATE_STRVEC(nb[ii], workspace->res->res_d+ii, c_ptr);
+		CREATE_STRVEC(2*nb[ii]+2*ng[ii]+2*ns[ii], workspace->res->res_d+ii, c_ptr);
 		c_ptr += nb[ii]*sizeof(REAL);
 		c_ptr += ng[ii]*sizeof(REAL);
 		c_ptr += nb[ii]*sizeof(REAL);
@@ -483,7 +483,7 @@ void CREATE_OCP_QP_IPM(struct OCP_QP_DIM *dim, struct OCP_QP_IPM_ARG *arg, struc
 	c_ptr = (char *) cws->res_m;
 	for(ii=0; ii<=N; ii++)
 		{
-		CREATE_STRVEC(nb[ii], workspace->res->res_m+ii, c_ptr);
+		CREATE_STRVEC(2*nb[ii]+2*ng[ii]+2*ns[ii], workspace->res->res_m+ii, c_ptr);
 		c_ptr += nb[ii]*sizeof(REAL);
 		c_ptr += ng[ii]*sizeof(REAL);
 		c_ptr += nb[ii]*sizeof(REAL);
@@ -495,7 +495,7 @@ void CREATE_OCP_QP_IPM(struct OCP_QP_DIM *dim, struct OCP_QP_IPM_ARG *arg, struc
 	c_ptr = (char *) cws->Gamma;
 	for(ii=0; ii<=N; ii++)
 		{
-		CREATE_STRVEC(nb[ii], workspace->Gamma+ii, c_ptr);
+		CREATE_STRVEC(2*nb[ii]+2*ng[ii]+2*ns[ii], workspace->Gamma+ii, c_ptr);
 		c_ptr += nb[ii]*sizeof(REAL);
 		c_ptr += ng[ii]*sizeof(REAL);
 		c_ptr += nb[ii]*sizeof(REAL);
@@ -507,7 +507,7 @@ void CREATE_OCP_QP_IPM(struct OCP_QP_DIM *dim, struct OCP_QP_IPM_ARG *arg, struc
 	c_ptr = (char *) cws->gamma;
 	for(ii=0; ii<=N; ii++)
 		{
-		CREATE_STRVEC(nb[ii], workspace->gamma+ii, c_ptr);
+		CREATE_STRVEC(2*nb[ii]+2*ng[ii]+2*ns[ii], workspace->gamma+ii, c_ptr);
 		c_ptr += nb[ii]*sizeof(REAL);
 		c_ptr += ng[ii]*sizeof(REAL);
 		c_ptr += nb[ii]*sizeof(REAL);
@@ -960,6 +960,14 @@ exit(1);
 
 				COMPUTE_LIN_RES_OCP_QP(ws->qp_step, qp_sol, ws->sol_step, ws->res_itref, ws->res_workspace);
 
+//for(ii=0; ii<=N; ii++)
+//	blasfeo_dvecse(nu[ii]+nx[ii], 0.0, ws->res_itref->res_g+ii, 0);
+//for(ii=0; ii<N; ii++)
+//	blasfeo_dvecse(nx[ii+1], 0.0, ws->res_itref->res_b+ii, 0);
+//for(ii=0; ii<=N; ii++)
+//	blasfeo_dvecse(2*nb[ii]+2*ng[ii], 0.0, ws->res_itref->res_d+ii, 0);
+//for(ii=0; ii<=N; ii++)
+//	blasfeo_dvecse(2*nb[ii]+2*ng[ii], 0.0, ws->res_itref->res_m+ii, 0);
 				VECNRM_INF_LIBSTR(cws->nv, ws->res_itref->res_g, 0, &itref_qp_norm[0]);
 				VECNRM_INF_LIBSTR(cws->ne, ws->res_itref->res_b, 0, &itref_qp_norm[1]);
 				VECNRM_INF_LIBSTR(cws->nc, ws->res_itref->res_d, 0, &itref_qp_norm[2]);
@@ -973,7 +981,7 @@ exit(1);
 					itref_qp_norm0[3] = itref_qp_norm[3];
 					}
 
-//printf("\n%e\t%e\t%e\t%e\n", itref_qp_norm[0], itref_qp_norm[1], itref_qp_norm[2], itref_qp_norm[3]);
+//printf("\nitref1 %d\t%e\t%e\t%e\t%e\n", itref1, itref_qp_norm[0], itref_qp_norm[1], itref_qp_norm[2], itref_qp_norm[3]);
 
 				if( \
 						(itref_qp_norm[0]<1e0*arg->res_g_max | itref_qp_norm[0]<1e-3*qp_res[0]) & \
@@ -988,8 +996,39 @@ exit(1);
 					break;
 					}
 
+//printf("\nres_g\n");
+//ii = 0;
+//blasfeo_print_exp_tran_dvec(nu[ii]+nx[ii], ws->res_itref->res_g+ii, 0);
+//for(ii=0; ii<=N; ii++)
+//	blasfeo_print_exp_tran_dvec(nu[ii]+nx[ii], ws->res_itref->res_g+ii, 0);
+//printf("\nres_b\n");
+//for(ii=0; ii<N; ii++)
+//	blasfeo_print_exp_tran_dvec(nx[ii+1], ws->res_itref->res_b+ii, 0);
+//printf("\nres_d\n");
+//for(ii=0; ii<=N; ii++)
+//	blasfeo_print_exp_tran_dvec(2*nb[ii]+2*ng[ii], ws->res_itref->res_d+ii, 0);
+//printf("\nres_m\n");
+//for(ii=0; ii<=N; ii++)
+//	blasfeo_print_exp_tran_dvec(2*nb[ii]+2*ng[ii], ws->res_itref->res_m+ii, 0);
+
 				SOLVE_KKT_STEP_OCP_QP(ws->qp_itref, ws->sol_itref, arg, ws);
+//				FACT_SOLVE_LQ_KKT_STEP_OCP_QP(ws->qp_itref, ws->sol_itref, arg, ws);
 				iter_ref_step = 1;
+
+//printf("\nux_corr\n");
+//ii = 0;
+//blasfeo_print_exp_tran_dvec(nu[ii]+nx[ii], ws->sol_itref->ux+ii, 0);
+//for(ii=0; ii<=N; ii++)
+//	blasfeo_print_exp_tran_dvec(nu[ii]+nx[ii], ws->sol_itref->ux+ii, 0);
+//printf("\npi_corr\n");
+//for(ii=0; ii<N; ii++)
+//	blasfeo_print_exp_tran_dvec(nx[ii+1], ws->sol_itref->pi+ii, 0);
+//printf("\nlam_corr\n");
+//for(ii=0; ii<=N; ii++)
+//	blasfeo_print_exp_tran_dvec(2*nb[ii]+2*ng[ii], ws->sol_itref->lam+ii, 0);
+//printf("\nt_corr\n");
+//for(ii=0; ii<=N; ii++)
+//	blasfeo_print_exp_tran_dvec(2*nb[ii]+2*ng[ii], ws->sol_itref->t+ii, 0);
 
 				for(ii=0; ii<=N; ii++)
 					AXPY_LIBSTR(nu[ii]+nx[ii]+2*ns[ii], 1.0, ws->sol_itref->ux+ii, 0, ws->sol_step->ux+ii, 0, ws->sol_step->ux+ii, 0);
@@ -1027,6 +1066,8 @@ exit(1);
 		VECNRM_INF_LIBSTR(cws->ne, &str_res_b, 0, &qp_res[1]);
 		VECNRM_INF_LIBSTR(cws->nc, &str_res_d, 0, &qp_res[2]);
 		VECNRM_INF_LIBSTR(cws->nc, &str_res_m, 0, &qp_res[3]);
+
+//printf("\niter %d\t%e\t%e\t%e\t%e\n", kk, qp_res[0], qp_res[1], qp_res[2], qp_res[3]);
 
 		}
 

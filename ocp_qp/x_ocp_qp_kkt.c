@@ -691,17 +691,22 @@ void FACT_SOLVE_KKT_STEP_OCP_QP(struct OCP_QP *qp, struct OCP_QP_SOL *qp_sol, st
 	struct STRVEC *Z = qp->Z;
 	struct STRVEC *res_g = qp->rqz;
 	struct STRVEC *res_b = qp->b;
+	struct STRVEC *res_d = qp->d;
+	struct STRVEC *res_m = qp->m;
 	int **idxb = qp->idxb;
 	int **idxs = qp->idxs;
 
 	struct STRVEC *dux = qp_sol->ux;
 	struct STRVEC *dpi = qp_sol->pi;
+	struct STRVEC *dlam = qp_sol->lam;
 	struct STRVEC *dt = qp_sol->t;
 
 	struct STRMAT *L = ws->L;
 	struct STRMAT *AL = ws->AL;
 //	struct STRVEC *res_b = ws->res->res_b;
 //	struct STRVEC *res_g = ws->res->res_g;
+//	struct STRVEC *res_d = ws->res->res_d;
+//	struct STRVEC *res_m = ws->res->res_m;
 	struct STRVEC *Gamma = ws->Gamma;
 	struct STRVEC *gamma = ws->gamma;
 	struct STRVEC *Pb = ws->Pb;
@@ -716,7 +721,7 @@ void FACT_SOLVE_KKT_STEP_OCP_QP(struct OCP_QP *qp, struct OCP_QP_SOL *qp_sol, st
 
 	struct CORE_QP_IPM_WORKSPACE *cws = ws->core_workspace;
 
-	COMPUTE_GAMMA_GAMMA_QP(ws->res->res_d[0].pa, ws->res->res_m[0].pa, cws);
+	COMPUTE_GAMMA_GAMMA_QP(res_d[0].pa, res_m[0].pa, cws);
 
 	// factorization and backward substitution
 
@@ -848,7 +853,7 @@ void FACT_SOLVE_KKT_STEP_OCP_QP(struct OCP_QP *qp, struct OCP_QP_SOL *qp_sol, st
 			EXPAND_SLACKS(ss, qp, qp_sol, ws);
 		}
 
-	COMPUTE_LAM_T_QP(ws->res->res_d[0].pa, ws->res->res_m[0].pa, cws->dlam, cws->dt, cws);
+	COMPUTE_LAM_T_QP(res_d[0].pa, res_m[0].pa, dlam[0].pa, dt[0].pa, cws);
 
 	return;
 
@@ -872,11 +877,14 @@ void FACT_SOLVE_LQ_KKT_STEP_OCP_QP(struct OCP_QP *qp, struct OCP_QP_SOL *qp_sol,
 	struct STRVEC *Z = qp->Z;
 	struct STRVEC *res_g = qp->rqz;
 	struct STRVEC *res_b = qp->b;
+	struct STRVEC *res_d = qp->d;
+	struct STRVEC *res_m = qp->m;
 	int **idxb = qp->idxb;
 	int **idxs = qp->idxs;
 
 	struct STRVEC *dux = qp_sol->ux;
 	struct STRVEC *dpi = qp_sol->pi;
+	struct STRVEC *dlam = qp_sol->lam;
 	struct STRVEC *dt = qp_sol->t;
 
 	struct STRMAT *L = ws->L;
@@ -884,6 +892,8 @@ void FACT_SOLVE_LQ_KKT_STEP_OCP_QP(struct OCP_QP *qp, struct OCP_QP_SOL *qp_sol,
 	struct STRMAT *AL = ws->AL;
 //	struct STRVEC *res_b = ws->res->res_b;
 //	struct STRVEC *res_g = ws->res->res_g;
+//	struct STRVEC *res_d = ws->res->res_d;
+//	struct STRVEC *res_m = ws->res->res_m;
 	struct STRVEC *Gamma = ws->Gamma;
 	struct STRVEC *gamma = ws->gamma;
 	struct STRVEC *Pb = ws->Pb;
@@ -902,7 +912,7 @@ void FACT_SOLVE_LQ_KKT_STEP_OCP_QP(struct OCP_QP *qp, struct OCP_QP_SOL *qp_sol,
 
 	struct CORE_QP_IPM_WORKSPACE *cws = ws->core_workspace;
 
-	COMPUTE_GAMMA_GAMMA_QP(ws->res->res_d[0].pa, ws->res->res_m[0].pa, cws);
+	COMPUTE_GAMMA_GAMMA_QP(res_d[0].pa, res_m[0].pa, cws);
 
 	// factorization and backward substitution
 
@@ -1049,7 +1059,6 @@ void FACT_SOLVE_LQ_KKT_STEP_OCP_QP(struct OCP_QP *qp, struct OCP_QP_SOL *qp_sol,
 	GESE(nu[ss]+nx[ss], nu[ss]+nx[ss]+ng[ss], 0.0, lq0, 0, nu[ss]+nx[ss]);
 
 	TRMM_RLNN(nu[ss]+nx[ss], nx[ss+1], 1.0, L+ss+1, nu[ss+1], nu[ss+1], BAbt+ss, 0, 0, lq0, 0, 2*nu[ss]+2*nx[ss]+ng[ss]);
-TRMM_RLNN(nu[ss]+nx[ss], nx[ss+1], 1.0, L+ss+1, nu[ss+1], nu[ss+1], BAbt+ss, 0, 0, AL, 0, 0);
 	TRMV_LTN(nx[ss+1], nx[ss+1], L+ss+1, nu[ss+1], nu[ss+1], res_b+ss, 0, Pb+ss, 0);
 	TRMV_LNN(nx[ss+1], nx[ss+1], L+ss+1, nu[ss+1], nu[ss+1], Pb+ss, 0, Pb+ss, 0);
 
@@ -1159,7 +1168,7 @@ TRMM_RLNN(nu[ss]+nx[ss], nx[ss+1], 1.0, L+ss+1, nu[ss+1], nu[ss+1], BAbt+ss, 0, 
 			EXPAND_SLACKS(ss, qp, qp_sol, ws);
 		}
 
-	COMPUTE_LAM_T_QP(ws->res->res_d[0].pa, ws->res->res_m[0].pa, cws->dlam, cws->dt, cws);
+	COMPUTE_LAM_T_QP(res_d[0].pa, res_m[0].pa, dlam[0].pa, dt[0].pa, cws);
 
 	return;
 
@@ -1183,16 +1192,21 @@ void SOLVE_KKT_STEP_OCP_QP(struct OCP_QP *qp, struct OCP_QP_SOL *qp_sol, struct 
 	struct STRMAT *DCt = qp->DCt;
 	struct STRVEC *res_g = qp->rqz;
 	struct STRVEC *res_b = qp->b;
+	struct STRVEC *res_d = qp->d;
+	struct STRVEC *res_m = qp->m;
 	int **idxb = qp->idxb;
 //	int **idxs = qp->idxs;
 
 	struct STRVEC *dux = qp_sol->ux;
 	struct STRVEC *dpi = qp_sol->pi;
+	struct STRVEC *dlam = qp_sol->lam;
 	struct STRVEC *dt = qp_sol->t;
 
 	struct STRMAT *L = ws->L;
 //	struct STRVEC *res_b = ws->res->res_b;
 //	struct STRVEC *res_g = ws->res->res_g;
+//	struct STRVEC *res_d = ws->res->res_d;
+//	struct STRVEC *res_m = ws->res->res_m;
 	struct STRVEC *gamma = ws->gamma;
 	struct STRVEC *Pb = ws->Pb;
 	struct STRVEC *tmp_nxM = ws->tmp_nxM;
@@ -1203,13 +1217,16 @@ void SOLVE_KKT_STEP_OCP_QP(struct OCP_QP *qp, struct OCP_QP_SOL *qp_sol, struct 
 
 	struct CORE_QP_IPM_WORKSPACE *cws = ws->core_workspace;
 
-	COMPUTE_GAMMA_QP(ws->res->res_d[0].pa, ws->res->res_m[0].pa, cws);
+//printf("\nin solve\n");
+	COMPUTE_GAMMA_QP(res_d[0].pa, res_m[0].pa, cws);
 
 	// backward substitution
 
 	// last stage
 	ss = N;
+//blasfeo_print_exp_tran_dvec(2*nb[ss]+2*ng[ss], gamma+ss, 0);
 	VECCP(nu[ss]+nx[ss], res_g+ss, 0, dux+ss, 0);
+//blasfeo_print_exp_tran_dvec(nu[ss]+nx[ss], dux+ss, 0);
 	if(ns[ss]>0)
 		{
 		COND_SLACKS_SOLVE(ss, qp, ws);
@@ -1222,11 +1239,14 @@ void SOLVE_KKT_STEP_OCP_QP(struct OCP_QP *qp, struct OCP_QP_SOL *qp_sol, struct 
 		{
 		VECAD_SP(nb[ss], 1.0, tmp_nbgM+1, 0, idxb[ss], dux+ss, 0);
 		}
+//blasfeo_print_exp_tran_dvec(nu[ss]+nx[ss], dux+ss, 0);
 	if(ng[ss]>0)
 		{
 		GEMV_N(nu[ss]+nx[ss], ng[ss], 1.0, DCt+ss, 0, 0, tmp_nbgM+1, nb[ss], 1.0, dux+ss, 0, dux+ss, 0);
 		}
+//blasfeo_print_exp_tran_dvec(nu[ss]+nx[ss], dux+ss, 0);
 	TRSV_LNN_MN(nu[ss]+nx[ss], nu[ss], L+ss, 0, 0, dux+ss, 0, dux+ss, 0);
+//blasfeo_print_exp_tran_dvec(nu[ss]+nx[ss], dux+ss, 0);
 
 	// middle stages
 	for(nn=0; nn<N-1; nn++)
@@ -1249,6 +1269,8 @@ void SOLVE_KKT_STEP_OCP_QP(struct OCP_QP *qp, struct OCP_QP_SOL *qp_sol, struct 
 			{
 			GEMV_N(nu[ss]+nx[ss], ng[ss], 1.0, DCt+ss, 0, 0, tmp_nbgM+1, nb[ss], 1.0, dux+ss, 0, dux+ss, 0);
 			}
+TRMV_LTN(nx[ss+1], nx[ss+1], L+ss+1, nu[ss+1], nu[ss+1], res_b+ss, 0, Pb+ss, 0);
+TRMV_LNN(nx[ss+1], nx[ss+1], L+ss+1, nu[ss+1], nu[ss+1], Pb+ss, 0, Pb+ss, 0);
 		AXPY(nx[ss+1], 1.0, dux+ss+1, nu[ss+1], Pb+ss, 0, tmp_nxM, 0);
 		GEMV_N(nu[ss]+nx[ss], nx[ss+1], 1.0, BAbt+ss, 0, 0, tmp_nxM, 0, 1.0, dux+ss, 0, dux+ss, 0);
 		TRSV_LNN_MN(nu[ss]+nx[ss], nu[ss], L+ss, 0, 0, dux+ss, 0, dux+ss, 0);
@@ -1274,6 +1296,8 @@ void SOLVE_KKT_STEP_OCP_QP(struct OCP_QP *qp, struct OCP_QP_SOL *qp_sol, struct 
 		{
 		GEMV_N(nu[ss]+nx[ss], ng[ss], 1.0, DCt+ss, 0, 0, tmp_nbgM+1, nb[ss], 1.0, dux+ss, 0, dux+ss, 0);
 		}
+TRMV_LTN(nx[ss+1], nx[ss+1], L+ss+1, nu[ss+1], nu[ss+1], res_b+ss, 0, Pb+ss, 0);
+TRMV_LNN(nx[ss+1], nx[ss+1], L+ss+1, nu[ss+1], nu[ss+1], Pb+ss, 0, Pb+ss, 0);
 	AXPY(nx[ss+1], 1.0, dux+ss+1, nu[ss+1], Pb+ss, 0, tmp_nxM, 0);
 	GEMV_N(nu[ss]+nx[ss], nx[ss+1], 1.0, BAbt+ss, 0, 0, tmp_nxM, 0, 1.0, dux+ss, 0, dux+ss, 0);
 	TRSV_LNN(nu[ss]+nx[ss], L+ss, 0, 0, dux+ss, 0, dux+ss, 0);
@@ -1327,7 +1351,7 @@ void SOLVE_KKT_STEP_OCP_QP(struct OCP_QP *qp, struct OCP_QP_SOL *qp_sol, struct 
 			EXPAND_SLACKS(ss, qp, qp_sol, ws);
 		}
 
-	COMPUTE_LAM_T_QP(ws->res->res_d[0].pa, ws->res->res_m[0].pa, cws->dlam, cws->dt, cws);
+	COMPUTE_LAM_T_QP(res_d[0].pa, res_m[0].pa, dlam[0].pa, dt[0].pa, cws);
 
 	return;
 

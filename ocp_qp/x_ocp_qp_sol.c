@@ -139,7 +139,7 @@ void CREATE_OCP_QP_SOL(struct OCP_QP_DIM *dim, struct OCP_QP_SOL *qp_sol, void *
 	for(ii=0; ii<N; ii++)
 		{
 		CREATE_STRVEC(nx[ii+1], qp_sol->pi+ii, tmp_ptr);
-		tmp_ptr += (nx[ii+1])*sizeof(REAL); // pi
+		tmp_ptr += nx[ii+1]*sizeof(REAL); // pi
 		}
 	// lam
 	tmp_ptr = c_ptr;
