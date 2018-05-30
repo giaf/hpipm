@@ -45,6 +45,15 @@ extern "C" {
 
 
 
+enum d_ocp_qp_ipm_mode
+	{
+	SPEED,
+	BALANCE,
+	ROBUST,
+	};
+
+
+
 struct d_ocp_qp_ipm_arg
 	{
 	double mu0; // initial value for duality measure
@@ -111,7 +120,7 @@ int d_memsize_ocp_qp_ipm_arg(struct d_ocp_qp_dim *ocp_dim);
 //
 void d_create_ocp_qp_ipm_arg(struct d_ocp_qp_dim *ocp_dim, struct d_ocp_qp_ipm_arg *arg, void *mem);
 //
-void d_set_default_ocp_qp_ipm_arg(struct d_ocp_qp_ipm_arg *arg);
+void d_set_default_ocp_qp_ipm_arg(enum d_ocp_qp_ipm_mode mode, struct d_ocp_qp_ipm_arg *arg);
 
 //
 int d_memsize_ocp_qp_ipm(struct d_ocp_qp_dim *ocp_dim, struct d_ocp_qp_ipm_arg *arg);

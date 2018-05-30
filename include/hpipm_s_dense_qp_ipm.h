@@ -43,6 +43,15 @@ extern "C" {
 
 
 
+enum s_dense_qp_ipm_mode
+	{
+	SPEED,
+	BALANCE,
+	ROBUST,
+	};
+
+
+
 struct s_dense_qp_ipm_arg
 	{
 	float mu0; // initial value for duality measure
@@ -115,7 +124,7 @@ int s_memsize_dense_qp_ipm_arg(struct s_dense_qp_dim *qp_dim);
 //
 void s_create_dense_qp_ipm_arg(struct s_dense_qp_dim *qp_dim, struct s_dense_qp_ipm_arg *arg, void *mem);
 //
-void s_set_default_dense_qp_ipm_arg(struct s_dense_qp_ipm_arg *arg);
+void s_set_default_dense_qp_ipm_arg(enum s_dense_qp_ipm_mode mode, struct s_dense_qp_ipm_arg *arg);
 
 //
 int s_memsize_dense_qp_ipm(struct s_dense_qp_dim *qp_dim, struct s_dense_qp_ipm_arg *arg);

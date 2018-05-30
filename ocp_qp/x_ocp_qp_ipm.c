@@ -47,26 +47,74 @@ void CREATE_OCP_QP_IPM_ARG(struct OCP_QP_DIM *dim, struct OCP_QP_IPM_ARG *arg, v
 
 
 
-void SET_DEFAULT_OCP_QP_IPM_ARG(struct OCP_QP_IPM_ARG *arg)
+void SET_DEFAULT_OCP_QP_IPM_ARG(enum OCP_QP_IPM_MODE mode, struct OCP_QP_IPM_ARG *arg)
 	{
 
-	arg->mu0 = 10;
-	arg->alpha_min = 1e-12;
-	arg->res_g_max = 1e-6;
-	arg->res_b_max = 1e-8;
-	arg->res_d_max = 1e-8;
-	arg->res_m_max = 1e-8;
-	arg->iter_max = 20;
-	arg->stat_max = 20;
-	arg->pred_corr = 1;
-	arg->cond_pred_corr = 1;
-	arg->itref_pred_max = 0;
-	arg->itref_corr_max = 0;
-	arg->reg_prim = 1e-15;
-	arg->warm_start = 0;
-	arg->lq_fact = 0;
-	arg->lam_min = 1e-30;
-	arg->t_min = 1e-30;
+	if(mode==SPEED)
+		{
+		arg->mu0 = 1e1;
+		arg->alpha_min = 1e-12;
+		arg->res_g_max = 1e-6;
+		arg->res_b_max = 1e-8;
+		arg->res_d_max = 1e-8;
+		arg->res_m_max = 1e-8;
+		arg->iter_max = 15;
+		arg->stat_max = 15;
+		arg->pred_corr = 1;
+		arg->cond_pred_corr = 1;
+		arg->itref_pred_max = 0;
+		arg->itref_corr_max = 0;
+		arg->reg_prim = 1e-15;
+		arg->lq_fact = 0;
+		arg->lam_min = 1e-30;
+		arg->t_min = 1e-30;
+		arg->warm_start = 0;
+		}
+	else if(mode==BALANCE)
+		{
+		arg->mu0 = 1e1;
+		arg->alpha_min = 1e-12;
+		arg->res_g_max = 1e-6;
+		arg->res_b_max = 1e-8;
+		arg->res_d_max = 1e-8;
+		arg->res_m_max = 1e-8;
+		arg->iter_max = 30;
+		arg->stat_max = 30;
+		arg->pred_corr = 1;
+		arg->cond_pred_corr = 1;
+		arg->itref_pred_max = 0;
+		arg->itref_corr_max = 2;
+		arg->reg_prim = 1e-15;
+		arg->lq_fact = 1;
+		arg->lam_min = 1e-30;
+		arg->t_min = 1e-30;
+		arg->warm_start = 0;
+		}
+	else if(mode==ROBUST)
+		{
+		arg->mu0 = 1e2;
+		arg->alpha_min = 1e-12;
+		arg->res_g_max = 1e-6;
+		arg->res_b_max = 1e-8;
+		arg->res_d_max = 1e-8;
+		arg->res_m_max = 1e-8;
+		arg->iter_max = 100;
+		arg->stat_max = 100;
+		arg->pred_corr = 1;
+		arg->cond_pred_corr = 1;
+		arg->itref_pred_max = 0;
+		arg->itref_corr_max = 4;
+		arg->reg_prim = 1e-15;
+		arg->lq_fact = 2;
+		arg->lam_min = 1e-30;
+		arg->t_min = 1e-30;
+		arg->warm_start = 0;
+		}
+	else
+		{
+		printf("\nwrong set default mode\n");
+		exit(1);
+		}
 
 	return;
 

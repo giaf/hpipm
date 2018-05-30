@@ -153,7 +153,7 @@ int main()
 
 	int ii, jj;
 
-	int rep, nrep=1;
+	int rep, nrep=1000;
 
 	struct timeval tv0, tv1;
 
@@ -890,14 +890,17 @@ int main()
 
 	struct d_dense_qp_ipm_arg dense_arg;
 	d_create_dense_qp_ipm_arg(&qp_dim, &dense_arg, ipm_arg_mem);
-	d_set_default_dense_qp_ipm_arg(&dense_arg);
+	enum d_dense_qp_ipm_mode mode = SPEED;
+//	enum d_dense_qp_ipm_mode mode = BALANCE;
+//	enum d_dense_qp_ipm_mode mode = ROBUST;
+	d_set_default_dense_qp_ipm_arg(mode, &dense_arg);
 
 //	arg.alpha_min = 1e-8;
 //	arg.res_g_max = 1e-8;
 //	arg.res_b_max = 1e-8;
 //	arg.res_d_max = 1e-12;
 //	arg.res_m_max = 1e-12;
-	dense_arg.mu0 = mu0;
+//	dense_arg.mu0 = mu0;
 //	arg.iter_max = 20;
 //	arg.stat_max = 100;
 //	arg.pred_corr = 1;

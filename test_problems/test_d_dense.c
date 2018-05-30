@@ -234,7 +234,10 @@ int main()
 
 	struct d_dense_qp_ipm_arg arg;
 	d_create_dense_qp_ipm_arg(&qp_dim, &arg, ipm_arg_mem);
-	d_set_default_dense_qp_ipm_arg(&arg);
+	enum d_dense_qp_ipm_mode mode = SPEED;
+//	enum d_dense_qp_ipm_mode mode = BALANCE;
+//	enum d_dense_qp_ipm_mode mode = ROBUST;
+	d_set_default_dense_qp_ipm_arg(mode, &arg);
 
 //	arg.alpha_min = 1e-8;
 //	arg.res_g_max = 1e-8;
@@ -242,10 +245,10 @@ int main()
 //	arg.res_d_max = 1e-12;
 //	arg.res_m_max = 1e-12;
 //	arg.mu0 = 10.0;
-	arg.iter_max = 10;
-	arg.stat_max = 10;
-	arg.pred_corr = 1;
-	arg.scale = 1;
+//	arg.iter_max = 10;
+//	arg.stat_max = 10;
+//	arg.pred_corr = 1;
+//	arg.scale = 1;
 
 /************************************************
 * ipm
@@ -258,7 +261,7 @@ int main()
 	struct d_dense_qp_ipm_workspace workspace;
 	d_create_dense_qp_ipm(&qp_dim, &arg, &workspace, ipm_mem);
 
-	int rep, nrep=1;
+	int rep, nrep=1000;
 
 	int hpipm_return; // 0 normal; 1 max iter
 
