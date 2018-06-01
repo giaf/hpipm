@@ -68,21 +68,16 @@ int MEMSIZE_OCP_QP(struct OCP_QP_DIM *dim)
 		size += nb[ii]*sizeof(int); // idxb
 		size += ns[ii]*sizeof(int); // idxs
 		size += SIZE_STRMAT(nu[ii]+nx[ii]+1, nx[ii+1]); // BAbt
-//		size += SIZE_STRVEC(nx[ii+1]); // b
 		size += SIZE_STRMAT(nu[ii]+nx[ii]+1, nu[ii]+nx[ii]); // RSQrq
-//		size += SIZE_STRVEC(nu[ii]+nx[ii]+2*ns[ii]); // rqz
 		size += SIZE_STRMAT(nu[ii]+nx[ii], ng[ii]); // DCt
 		size += SIZE_STRVEC(2*ns[ii]); // Z
-//		size += SIZE_STRVEC(2*nb[ii]+2*ng[ii]+2*ns[ii]); // m
 		}
 	ii = N;
 	size += nb[ii]*sizeof(int); // idxb
 	size += ns[ii]*sizeof(int); // idxs
 	size += SIZE_STRMAT(nu[ii]+nx[ii]+1, nu[ii]+nx[ii]); // RSQrq
-//	size += SIZE_STRVEC(nu[ii]+nx[ii]+2*ns[ii]); // rqz
 	size += SIZE_STRMAT(nu[ii]+nx[ii], ng[ii]); // DCt
 	size += SIZE_STRVEC(2*ns[ii]); // Z
-//	size += SIZE_STRVEC(2*nb[ii]+2*ng[ii]+2*ns[ii]); // m
 
 	size += 1*SIZE_STRVEC(nvt); // rqz
 	size += 1*SIZE_STRVEC(net); // b
@@ -230,33 +225,12 @@ void CREATE_OCP_QP(struct OCP_QP_DIM *dim, struct OCP_QP *qp, void *mem)
 		c_ptr += (qp->DCt+ii)->memsize;
 		}
 
-	// b
-//	for(ii=0; ii<N; ii++)
-//		{
-//		CREATE_STRVEC(nx[ii+1], qp->b+ii, c_ptr);
-//		c_ptr += (qp->b+ii)->memsize;
-//		}
-
-	// rqz
-//	for(ii=0; ii<=N; ii++)
-//		{
-//		CREATE_STRVEC(nu[ii]+nx[ii]+2*ns[ii], qp->rqz+ii, c_ptr);
-//		c_ptr += (qp->rqz+ii)->memsize;
-//		}
-
 	// Z
 	for(ii=0; ii<=N; ii++)
 		{
 		CREATE_STRVEC(2*ns[ii], qp->Z+ii, c_ptr);
 		c_ptr += (qp->Z+ii)->memsize;
 		}
-
-	// m
-//	for(ii=0; ii<=N; ii++)
-//		{
-//		CREATE_STRVEC(2*nb[ii]+2*ng[ii]+2*ns[ii], qp->m+ii, c_ptr);
-//		c_ptr += (qp->m+ii)->memsize;
-//		}
 
 	// g
 	tmp_ptr = c_ptr;

@@ -69,7 +69,6 @@ int MEMSIZE_TREE_OCP_QP(struct TREE_OCP_QP_DIM *dim)
 		idx = ii+1;
 		idxdad = (ttree->root+idx)->dad;
 		size += SIZE_STRMAT(nu[idxdad]+nx[idxdad]+1, nx[idx]); // BAbt
-//		size += SIZE_STRVEC(nx[idx]); // b
 		}
 
 	for(ii=0; ii<Nn; ii++)
@@ -77,7 +76,6 @@ int MEMSIZE_TREE_OCP_QP(struct TREE_OCP_QP_DIM *dim)
 		size += nb[ii]*sizeof(int); // idxb
 		size += ns[ii]*sizeof(int); // idxs
 		size += SIZE_STRMAT(nu[ii]+nx[ii]+1, nu[ii]+nx[ii]); // RSQrq
-//		size += SIZE_STRVEC(nu[ii]+nx[ii]+2*ns[ii]); // rqz
 		size += SIZE_STRMAT(nu[ii]+nx[ii], ng[ii]); // DCt
 		size += SIZE_STRVEC(2*ns[ii]); // Z
 		}
@@ -230,21 +228,6 @@ void CREATE_TREE_OCP_QP(struct TREE_OCP_QP_DIM *dim, struct TREE_OCP_QP *qp, voi
 		{
 		CREATE_STRMAT(nu[ii]+nx[ii], ng[ii], qp->DCt+ii, c_ptr);
 		c_ptr += (qp->DCt+ii)->memsize;
-		}
-
-	// b
-	for(ii=0; ii<Nn-1; ii++)
-		{
-		idx = ii+1;
-		CREATE_STRVEC(nx[idx], qp->b+ii, c_ptr);
-		c_ptr += (qp->b+ii)->memsize;
-		}
-
-	// rqz
-	for(ii=0; ii<Nn; ii++)
-		{
-		CREATE_STRVEC(nu[ii]+nx[ii]+2*ns[ii], qp->rqz+ii, c_ptr);
-		c_ptr += (qp->rqz+ii)->memsize;
 		}
 
 	// Z
