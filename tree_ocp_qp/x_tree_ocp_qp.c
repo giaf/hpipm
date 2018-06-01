@@ -41,14 +41,19 @@ int MEMSIZE_TREE_OCP_QP(struct TREE_OCP_QP_DIM *dim)
 
 	int ii, idx, idxdad;
 
-	int nbt = 0;
-	int ngt = 0;
-	int nst = 0;
+	// compute core qp size
+	int nvt = 0;
+	int net = 0;
+	int nct = 0;
 	for(ii=0; ii<Nn; ii++)
 		{
-		nbt += nb[ii];
-		ngt += ng[ii];
-		nst += ns[ii];
+		nvt += nx[ii]+nu[ii]+2*ns[ii];
+		nct += 2*nb[ii]+2*ng[ii]+2*ns[ii];
+		}
+	for(ii=0; ii<Nn-1; ii++)
+		{
+		idx = ii+1;
+		net += nx[idx];
 		}
 
 	int size = 0;
@@ -56,7 +61,7 @@ int MEMSIZE_TREE_OCP_QP(struct TREE_OCP_QP_DIM *dim)
 	size += 2*Nn*sizeof(int *); // idxb inxbs
 	size += 2*Nn*sizeof(struct STRMAT); // RSQrq DCt
 	size += 1*(Nn-1)*sizeof(struct STRMAT); // BAbt
-	size += 3*Nn*sizeof(struct STRVEC); // rqz d Z
+	size += 4*Nn*sizeof(struct STRVEC); // rqz d m Z
 	size += 1*(Nn-1)*sizeof(struct STRVEC); // b
 
 	for(ii=0; ii<Nn-1; ii++)
@@ -64,7 +69,7 @@ int MEMSIZE_TREE_OCP_QP(struct TREE_OCP_QP_DIM *dim)
 		idx = ii+1;
 		idxdad = (ttree->root+idx)->dad;
 		size += SIZE_STRMAT(nu[idxdad]+nx[idxdad]+1, nx[idx]); // BAbt
-		size += SIZE_STRVEC(nx[idx]); // b
+//		size += SIZE_STRVEC(nx[idx]); // b
 		}
 
 	for(ii=0; ii<Nn; ii++)
@@ -72,12 +77,14 @@ int MEMSIZE_TREE_OCP_QP(struct TREE_OCP_QP_DIM *dim)
 		size += nb[ii]*sizeof(int); // idxb
 		size += ns[ii]*sizeof(int); // idxs
 		size += SIZE_STRMAT(nu[ii]+nx[ii]+1, nu[ii]+nx[ii]); // RSQrq
-		size += SIZE_STRVEC(nu[ii]+nx[ii]+2*ns[ii]); // rqz
+//		size += SIZE_STRVEC(nu[ii]+nx[ii]+2*ns[ii]); // rqz
 		size += SIZE_STRMAT(nu[ii]+nx[ii], ng[ii]); // DCt
 		size += SIZE_STRVEC(2*ns[ii]); // Z
 		}
 
-	size += 1*SIZE_STRVEC(2*nbt+2*ngt+2*nst); // d
+	size += 1*SIZE_STRVEC(nvt); // rqz
+	size += 1*SIZE_STRVEC(net); // b
+	size += 2*SIZE_STRVEC(nct); // d m
 
 	size = (size+63)/64*64; // make multiple of typical cache line size
 	size += 64; // align to typical cache line size
@@ -104,15 +111,21 @@ void CREATE_TREE_OCP_QP(struct TREE_OCP_QP_DIM *dim, struct TREE_OCP_QP *qp, voi
 
 
 
-	int nbt = 0;
-	int ngt = 0;
-	int nst = 0;
+	// compute core qp size
+	int nvt = 0;
+	int net = 0;
+	int nct = 0;
 	for(ii=0; ii<Nn; ii++)
 		{
-		nbt += nb[ii];
-		ngt += ng[ii];
-		nst += ns[ii];
+		nvt += nx[ii]+nu[ii]+2*ns[ii];
+		nct += 2*nb[ii]+2*ng[ii]+2*ns[ii];
 		}
+	for(ii=0; ii<Nn-1; ii++)
+		{
+		idx = ii+1;
+		net += nx[idx];
+		}
+
 
 
 	// int pointer stuff
@@ -157,6 +170,10 @@ void CREATE_TREE_OCP_QP(struct TREE_OCP_QP_DIM *dim, struct TREE_OCP_QP *qp, voi
 
 	// d
 	qp->d = sv_ptr;
+	sv_ptr += Nn;
+
+	// m
+	qp->m = sv_ptr;
 	sv_ptr += Nn;
 
 	// Z
@@ -237,12 +254,48 @@ void CREATE_TREE_OCP_QP(struct TREE_OCP_QP_DIM *dim, struct TREE_OCP_QP *qp, voi
 		c_ptr += (qp->Z+ii)->memsize;
 		}
 
+	// g
+	tmp_ptr = c_ptr;
+	c_ptr += SIZE_STRVEC(nvt);
+	for(ii=0; ii<Nn; ii++)
+		{
+		CREATE_STRVEC(nu[ii]+nx[ii]+2*ns[ii], qp->rqz+ii, tmp_ptr);
+		tmp_ptr += nu[ii]*sizeof(REAL);
+		tmp_ptr += nx[ii]*sizeof(REAL);
+		tmp_ptr += ns[ii]*sizeof(REAL);
+		tmp_ptr += ns[ii]*sizeof(REAL);
+		}
+
+	// b
+	tmp_ptr = c_ptr;
+	c_ptr += SIZE_STRVEC(net);
+	for(ii=0; ii<Nn-1; ii++)
+		{
+		idx = ii+1;
+		CREATE_STRVEC(nx[idx], qp->b+ii, tmp_ptr);
+		tmp_ptr += nx[idx]*sizeof(REAL);
+		}
+
 	// d
 	tmp_ptr = c_ptr;
-	c_ptr += SIZE_STRVEC(2*nbt+2*ngt+2*nst);
+	c_ptr += SIZE_STRVEC(nct);
 	for(ii=0; ii<Nn; ii++)
 		{
 		CREATE_STRVEC(2*nb[ii]+2*ng[ii]+2*ns[ii], qp->d+ii, tmp_ptr);
+		tmp_ptr += nb[ii]*sizeof(REAL);
+		tmp_ptr += ng[ii]*sizeof(REAL);
+		tmp_ptr += nb[ii]*sizeof(REAL);
+		tmp_ptr += ng[ii]*sizeof(REAL);
+		tmp_ptr += ns[ii]*sizeof(REAL);
+		tmp_ptr += ns[ii]*sizeof(REAL);
+		}
+
+	// m
+	tmp_ptr = c_ptr;
+	c_ptr += SIZE_STRVEC(nct);
+	for(ii=0; ii<Nn; ii++)
+		{
+		CREATE_STRVEC(2*nb[ii]+2*ng[ii]+2*ns[ii], qp->m+ii, tmp_ptr);
 		tmp_ptr += nb[ii]*sizeof(REAL);
 		tmp_ptr += ng[ii]*sizeof(REAL);
 		tmp_ptr += nb[ii]*sizeof(REAL);
@@ -259,7 +312,7 @@ void CREATE_TREE_OCP_QP(struct TREE_OCP_QP_DIM *dim, struct TREE_OCP_QP *qp, voi
 #if defined(RUNTIME_CHECKS)
 	if(c_ptr > ((char *) mem) + qp->memsize)
 		{
-		printf("\nCreate_tree_ocp_qp: outsize memory bounds!\n\n");
+		printf("\nCreate_tree_ocp_qp: outside memory bounds!\n\n");
 		exit(1);
 		}
 #endif
@@ -315,6 +368,8 @@ void CVT_COLMAJ_TO_TREE_OCP_QP(REAL **A, REAL **B, REAL **b, REAL **Q, REAL **S,
 			CVT_VEC2STRVEC(nb[ii], d_lb[ii], qp->d+ii, 0);
 			CVT_VEC2STRVEC(nb[ii], d_ub[ii], qp->d+ii, nb[ii]+ng[ii]);
 			VECSC_LIBSTR(nb[ii], -1.0, qp->d+ii, nb[ii]+ng[ii]);
+			VECSE_LIBSTR(nb[ii], 0.0, qp->m+ii, 0);
+			VECSE_LIBSTR(nb[ii], 0.0, qp->m+ii, nb[ii]+ng[ii]);
 			}
 		}
 
@@ -327,6 +382,8 @@ void CVT_COLMAJ_TO_TREE_OCP_QP(REAL **A, REAL **B, REAL **b, REAL **Q, REAL **S,
 			CVT_VEC2STRVEC(ng[ii], d_lg[ii], qp->d+ii, nb[ii]);
 			CVT_VEC2STRVEC(ng[ii], d_ug[ii], qp->d+ii, 2*nb[ii]+ng[ii]);
 			VECSC_LIBSTR(ng[ii], -1.0, qp->d+ii, 2*nb[ii]+ng[ii]);
+			VECSE_LIBSTR(ng[ii], 0.0, qp->m+ii, nb[ii]);
+			VECSE_LIBSTR(ng[ii], 0.0, qp->m+ii, 2*nb[ii]+ng[ii]);
 			}
 		}
 
@@ -342,6 +399,8 @@ void CVT_COLMAJ_TO_TREE_OCP_QP(REAL **A, REAL **B, REAL **b, REAL **Q, REAL **S,
 			CVT_VEC2STRVEC(ns[ii], zu[ii], qp->rqz+ii, nu[ii]+nx[ii]+ns[ii]);
 			CVT_VEC2STRVEC(ns[ii], d_ls[ii], qp->d+ii, 2*nb[ii]+2*ng[ii]);
 			CVT_VEC2STRVEC(ns[ii], d_us[ii], qp->d+ii, 2*nb[ii]+2*ng[ii]+ns[ii]);
+			VECSE_LIBSTR(ns[ii], 0.0, qp->m+ii, 2*nb[ii]+2*ng[ii]);
+			VECSE_LIBSTR(ns[ii], 0.0, qp->m+ii, 2*nb[ii]+2*ng[ii]+ns[ii]);
 			}
 		}
 

@@ -54,6 +54,7 @@
 #define TREE_OCP_QP d_tree_ocp_qp
 #define TREE_OCP_QP_DIM d_tree_ocp_qp_dim
 #define VECSC_LIBSTR blasfeo_dvecsc
+#define VECSE_LIBSTR blasfeo_dvecse
 
 #define MEMSIZE_TREE_OCP_QP d_memsize_tree_ocp_qp
 #define CREATE_TREE_OCP_QP d_create_tree_ocp_qp
