@@ -288,10 +288,10 @@ int main()
 		nbu[ii] = nu[ii];
 		nb[ii] = nbx[ii] + nbu[ii];
 		ng[ii] = 0;
-		ns[ii] = nx[ii]/2;
-		nsbx[ii] = ns[ii];
+		nsbx[ii] = nx[ii]/2;
 		nsbu[ii] = 0;
 		nsg[ii] = 0;
+		ns[ii] = nsbx[ii]+nsbu[ii]+nsg[ii];
 		}
 	nx[Nh] = nx_;
 	nu[Nh] = 0;
@@ -299,10 +299,10 @@ int main()
 	nbu[Nh] = nu[Nh];
 	nb[Nh] = nbx[Nh] + nbu[Nh];
 	ng[Nh] = 0;
-	ns[Nh] = nx[Nh]/2;
-	nsbx[Nh] = ns[Nh];
+	nsbx[Nh] = nx[Nh]/2;
 	nsbu[Nh] = 0;
 	nsg[Nh] = 0;
+	ns[ii] = nsbx[ii]+nsbu[ii]+nsg[ii];
 
 /************************************************
 * dynamical system
