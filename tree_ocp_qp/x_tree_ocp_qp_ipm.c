@@ -213,13 +213,13 @@ void CREATE_TREE_OCP_QP_IPM(struct TREE_OCP_QP *qp, struct TREE_OCP_QP_IPM_ARG *
 	workspace->dux = sv_ptr;
 	sv_ptr += Nn;
 	workspace->dpi = sv_ptr;
-	sv_ptr += Nn;
+	sv_ptr += Nn-1;
 	workspace->dt = sv_ptr;
 	sv_ptr += Nn;
 	workspace->res_g = sv_ptr;
 	sv_ptr += Nn;
 	workspace->res_b = sv_ptr;
-	sv_ptr += Nn;
+	sv_ptr += Nn-1;
 	workspace->res_d = sv_ptr;
 	sv_ptr += Nn;
 	workspace->res_m = sv_ptr;
@@ -229,7 +229,7 @@ void CREATE_TREE_OCP_QP_IPM(struct TREE_OCP_QP *qp, struct TREE_OCP_QP_IPM_ARG *
 	workspace->gamma = sv_ptr;
 	sv_ptr += Nn;
 	workspace->Pb = sv_ptr;
-	sv_ptr += Nn;
+	sv_ptr += Nn-1;
 	workspace->Zs_inv = sv_ptr;
 	sv_ptr += Nn;
 	workspace->tmp_nxM = sv_ptr;
