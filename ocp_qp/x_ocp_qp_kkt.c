@@ -200,7 +200,7 @@ void COMPUTE_RES_OCP_QP(struct OCP_QP *qp, struct OCP_QP_SOL *qp_sol, struct OCP
 	int nct = 0;
 	for(ii=0; ii<=N; ii++)
 		nct += 2*nb[ii]+2*ng[ii]+2*ns[ii];
-	
+
 	REAL nct_inv = 1.0/nct;
 
 	struct STRMAT *BAbt = qp->BAbt;
@@ -323,12 +323,6 @@ void COMPUTE_LIN_RES_OCP_QP(struct OCP_QP *qp, struct OCP_QP_SOL *qp_sol, struct
 	int *ng = qp->dim->ng;
 	int *ns = qp->dim->ns;
 
-	int nct = 0;
-	for(ii=0; ii<=N; ii++)
-		nct += 2*nb[ii]+2*ng[ii]+2*ns[ii];
-	
-	REAL nct_inv = 1.0/nct;
-
 	struct STRMAT *BAbt = qp->BAbt;
 	struct STRMAT *RSQrq = qp->RSQrq;
 	struct STRMAT *DCt = qp->DCt;
@@ -425,14 +419,11 @@ void COMPUTE_LIN_RES_OCP_QP(struct OCP_QP *qp, struct OCP_QP_SOL *qp_sol, struct
 
 			}
 
-//		mu += VECMULDOT(2*nb0+2*ng0+2*ns0, lam+ii, 0, t+ii, 0, res_m+ii, 0);
 		VECCP(2*nb0+2*ng0+2*ns0, m+ii, 0, res_m+ii, 0);
 		VECMULACC(2*nb0+2*ng0+2*ns0, Lam+ii, 0, t+ii, 0, res_m+ii, 0);
 		VECMULACC(2*nb0+2*ng0+2*ns0, lam+ii, 0, T+ii, 0, res_m+ii, 0);
 
 		}
-
-//	res->res_mu = mu*nct_inv;
 
 	return;
 
@@ -515,7 +506,7 @@ void FACT_SOLVE_KKT_UNCONSTR_OCP_QP(struct OCP_QP *qp, struct OCP_QP_SOL *qp_sol
 
 
 
-static void COND_SLACKS_FACT_SOLVE(int ss, struct OCP_QP *qp, struct OCP_QP_IPM_WORKSPACE *ws)
+static void COND_SLACKS_FACT_SOLVE(int ss, struct OCP_QP *qp, struct OCP_QP_SOL *qp_sol, struct OCP_QP_IPM_WORKSPACE *ws)
 	{
 
 	int ii, idx;
@@ -529,8 +520,12 @@ static void COND_SLACKS_FACT_SOLVE(int ss, struct OCP_QP *qp, struct OCP_QP_IPM_
 	struct STRVEC *Z = qp->Z+ss;
 	int *idxs0 = qp->idxs[ss];
 
-	struct STRVEC *dux = ws->sol_step->ux+ss;
-	struct STRVEC *res_g = ws->res->res_g+ss;
+//	struct STRVEC *res_g = ws->res->res_g+ss; // TODO !!!
+	struct STRVEC *res_g = qp->rqz+ss;
+
+//	struct STRVEC *dux = ws->sol_step->ux+ss; // TODO !!!
+	struct STRVEC *dux = qp_sol->ux+ss;
+
 	struct STRVEC *Gamma = ws->Gamma+ss;
 	struct STRVEC *gamma = ws->gamma+ss;
 	struct STRVEC *Zs_inv = ws->Zs_inv+ss;
@@ -580,7 +575,7 @@ static void COND_SLACKS_FACT_SOLVE(int ss, struct OCP_QP *qp, struct OCP_QP_IPM_
 
 
 
-static void COND_SLACKS_SOLVE(int ss, struct OCP_QP *qp, struct OCP_QP_IPM_WORKSPACE *ws)
+static void COND_SLACKS_SOLVE(int ss, struct OCP_QP *qp, struct OCP_QP_SOL *qp_sol, struct OCP_QP_IPM_WORKSPACE *ws)
 	{
 
 	int ii, idx;
@@ -593,8 +588,12 @@ static void COND_SLACKS_SOLVE(int ss, struct OCP_QP *qp, struct OCP_QP_IPM_WORKS
 
 	int *idxs0 = qp->idxs[ss];
 
-	struct STRVEC *dux = ws->sol_step->ux+ss;
-	struct STRVEC *res_g = ws->res->res_g+ss;
+//	struct STRVEC *res_g = ws->res->res_g+ss; // TODO !!!
+	struct STRVEC *res_g = qp->rqz+ss;
+
+//	struct STRVEC *dux = ws->sol_step->ux+ss; // TODO !!!
+	struct STRVEC *dux = qp_sol->ux+ss;
+
 	struct STRVEC *Gamma = ws->Gamma+ss;
 	struct STRVEC *gamma = ws->gamma+ss;
 	struct STRVEC *Zs_inv = ws->Zs_inv+ss;
@@ -703,10 +702,6 @@ void FACT_SOLVE_KKT_STEP_OCP_QP(struct OCP_QP *qp, struct OCP_QP_SOL *qp_sol, st
 
 	struct STRMAT *L = ws->L;
 	struct STRMAT *AL = ws->AL;
-//	struct STRVEC *res_b = ws->res->res_b;
-//	struct STRVEC *res_g = ws->res->res_g;
-//	struct STRVEC *res_d = ws->res->res_d;
-//	struct STRVEC *res_m = ws->res->res_m;
 	struct STRVEC *Gamma = ws->Gamma;
 	struct STRVEC *gamma = ws->gamma;
 	struct STRVEC *Pb = ws->Pb;
@@ -737,7 +732,7 @@ void FACT_SOLVE_KKT_STEP_OCP_QP(struct OCP_QP *qp, struct OCP_QP_SOL *qp_sol, st
 
 	if(ns[ss]>0)
 		{
-		COND_SLACKS_FACT_SOLVE(ss, qp, ws);
+		COND_SLACKS_FACT_SOLVE(ss, qp, qp_sol, ws);
 		}
 	else if(nb[ss]+ng[ss]>0)
 		{
@@ -780,7 +775,7 @@ void FACT_SOLVE_KKT_STEP_OCP_QP(struct OCP_QP *qp, struct OCP_QP_SOL *qp_sol, st
 
 		if(ns[ss]>0)
 			{
-			COND_SLACKS_FACT_SOLVE(ss, qp, ws);
+			COND_SLACKS_FACT_SOLVE(ss, qp, qp_sol, ws);
 			}
 		else if(nb[ss]+ng[ss]>0)
 			{
@@ -926,7 +921,7 @@ void FACT_SOLVE_LQ_KKT_STEP_OCP_QP(struct OCP_QP *qp, struct OCP_QP_SOL *qp_sol,
 
 	if(ns[ss]>0)
 		{
-		COND_SLACKS_FACT_SOLVE(ss, qp, ws);
+		COND_SLACKS_FACT_SOLVE(ss, qp, qp_sol, ws);
 		}
 	else if(nb[ss]+ng[ss]>0)
 		{
@@ -997,7 +992,7 @@ void FACT_SOLVE_LQ_KKT_STEP_OCP_QP(struct OCP_QP *qp, struct OCP_QP_SOL *qp_sol,
 
 		if(ns[ss]>0)
 			{
-			COND_SLACKS_FACT_SOLVE(ss, qp, ws);
+			COND_SLACKS_FACT_SOLVE(ss, qp, qp_sol, ws);
 			}
 		else if(nb[ss]+ng[ss]>0)
 			{
@@ -1068,7 +1063,7 @@ void FACT_SOLVE_LQ_KKT_STEP_OCP_QP(struct OCP_QP *qp, struct OCP_QP_SOL *qp_sol,
 
 	if(ns[ss]>0)
 		{
-		COND_SLACKS_FACT_SOLVE(ss, qp, ws);
+		COND_SLACKS_FACT_SOLVE(ss, qp, qp_sol, ws);
 		}
 	else if(nb[ss]+ng[ss]>0)
 		{
@@ -1203,10 +1198,6 @@ void SOLVE_KKT_STEP_OCP_QP(struct OCP_QP *qp, struct OCP_QP_SOL *qp_sol, struct 
 	struct STRVEC *dt = qp_sol->t;
 
 	struct STRMAT *L = ws->L;
-//	struct STRVEC *res_b = ws->res->res_b;
-//	struct STRVEC *res_g = ws->res->res_g;
-//	struct STRVEC *res_d = ws->res->res_d;
-//	struct STRVEC *res_m = ws->res->res_m;
 	struct STRVEC *gamma = ws->gamma;
 	struct STRVEC *Pb = ws->Pb;
 	struct STRVEC *tmp_nxM = ws->tmp_nxM;
@@ -1229,7 +1220,7 @@ void SOLVE_KKT_STEP_OCP_QP(struct OCP_QP *qp, struct OCP_QP_SOL *qp_sol, struct 
 //blasfeo_print_exp_tran_dvec(nu[ss]+nx[ss], dux+ss, 0);
 	if(ns[ss]>0)
 		{
-		COND_SLACKS_SOLVE(ss, qp, ws);
+		COND_SLACKS_SOLVE(ss, qp, qp_sol, ws);
 		}
 	else if(nb[ss]+ng[ss]>0)
 		{
@@ -1255,7 +1246,7 @@ void SOLVE_KKT_STEP_OCP_QP(struct OCP_QP *qp, struct OCP_QP_SOL *qp_sol, struct 
 		VECCP(nu[ss]+nx[ss], res_g+ss, 0, dux+ss, 0);
 		if(ns[ss]>0)
 			{
-			COND_SLACKS_SOLVE(ss, qp, ws);
+			COND_SLACKS_SOLVE(ss, qp, qp_sol, ws);
 			}
 		else if(nb[ss]+ng[ss]>0)
 			{
@@ -1282,7 +1273,7 @@ TRMV_LNN(nx[ss+1], nx[ss+1], L+ss+1, nu[ss+1], nu[ss+1], Pb+ss, 0, Pb+ss, 0);
 	VECCP(nu[ss]+nx[ss], res_g+ss, 0, dux+ss, 0);
 	if(ns[ss]>0)
 		{
-		COND_SLACKS_SOLVE(ss, qp, ws);
+		COND_SLACKS_SOLVE(ss, qp, qp_sol, ws);
 		}
 	else if(nb[ss]+ng[ss]>0)
 		{

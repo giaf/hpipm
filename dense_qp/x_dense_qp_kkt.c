@@ -400,7 +400,7 @@ void FACT_SOLVE_KKT_UNCONSTR_DENSE_QP(struct DENSE_QP *qp, struct DENSE_QP_SOL *
 
 
 
-static void COND_SLACKS_FACT_SOLVE(struct DENSE_QP *qp, struct DENSE_QP_IPM_WORKSPACE *ws)
+static void COND_SLACKS_FACT_SOLVE(struct DENSE_QP *qp, struct DENSE_QP_SOL *qp_sol, struct DENSE_QP_IPM_WORKSPACE *ws)
 	{
 
 	int ii, idx;
@@ -413,8 +413,12 @@ static void COND_SLACKS_FACT_SOLVE(struct DENSE_QP *qp, struct DENSE_QP_IPM_WORK
 	struct STRVEC *Z = qp->Z;
 	int *idxs = qp->idxs;
 
-	struct STRVEC *dv = ws->sol_step->v;
-	struct STRVEC *res_g = ws->res->res_g;
+//	struct STRVEC *dv = ws->sol_step->v;
+	struct STRVEC *dv = qp_sol->v;
+
+//	struct STRVEC *res_g = ws->res->res_g;
+	struct STRVEC *res_g = qp->gz;
+
 	struct STRVEC *Gamma = ws->Gamma;
 	struct STRVEC *gamma = ws->gamma;
 	struct STRVEC *Zs_inv = ws->Zs_inv;
@@ -464,7 +468,7 @@ static void COND_SLACKS_FACT_SOLVE(struct DENSE_QP *qp, struct DENSE_QP_IPM_WORK
 
 
 
-static void COND_SLACKS_SOLVE(struct DENSE_QP *qp, struct DENSE_QP_IPM_WORKSPACE *ws)
+static void COND_SLACKS_SOLVE(struct DENSE_QP *qp, struct DENSE_QP_SOL *qp_sol, struct DENSE_QP_IPM_WORKSPACE *ws)
 	{
 
 	int ii, idx;
@@ -476,8 +480,12 @@ static void COND_SLACKS_SOLVE(struct DENSE_QP *qp, struct DENSE_QP_IPM_WORKSPACE
 
 	int *idxs = qp->idxs;
 
-	struct STRVEC *dv = ws->sol_step->v;
-	struct STRVEC *res_g = ws->res->res_g;
+//	struct STRVEC *dv = ws->sol_step->v;
+	struct STRVEC *dv = qp_sol->v;
+
+//	struct STRVEC *res_g = ws->res->res_g;
+	struct STRVEC *res_g = qp->gz;
+
 	struct STRVEC *Gamma = ws->Gamma;
 	struct STRVEC *gamma = ws->gamma;
 	struct STRVEC *Zs_inv = ws->Zs_inv;
@@ -613,7 +621,7 @@ void FACT_SOLVE_KKT_STEP_DENSE_QP(struct DENSE_QP *qp, struct DENSE_QP_SOL *qp_s
 
 			if(ns>0)
 				{
-				COND_SLACKS_FACT_SOLVE(qp, ws);
+				COND_SLACKS_FACT_SOLVE(qp, qp_sol, ws);
 				}
 			else if(nb+ng>0)
 				{
@@ -699,7 +707,7 @@ void FACT_SOLVE_KKT_STEP_DENSE_QP(struct DENSE_QP *qp, struct DENSE_QP_SOL *qp_s
 
 			if(ns>0)
 				{
-				COND_SLACKS_FACT_SOLVE(qp, ws);
+				COND_SLACKS_FACT_SOLVE(qp, qp_sol, ws);
 				}
 			else if(nb+ng>0)
 				{
@@ -756,7 +764,7 @@ void FACT_SOLVE_KKT_STEP_DENSE_QP(struct DENSE_QP *qp, struct DENSE_QP_SOL *qp_s
 
 			if(ns>0)
 				{
-				COND_SLACKS_FACT_SOLVE(qp, ws);
+				COND_SLACKS_FACT_SOLVE(qp, qp_sol, ws);
 				}
 			else if(nb+ng>0)
 				{
@@ -806,7 +814,7 @@ void FACT_SOLVE_KKT_STEP_DENSE_QP(struct DENSE_QP *qp, struct DENSE_QP_SOL *qp_s
 
 			if(ns>0)
 				{
-				COND_SLACKS_FACT_SOLVE(qp, ws);
+				COND_SLACKS_FACT_SOLVE(qp, qp_sol, ws);
 				}
 			else if(nb+ng>0)
 				{
@@ -923,7 +931,7 @@ void FACT_SOLVE_LQ_KKT_STEP_DENSE_QP(struct DENSE_QP *qp, struct DENSE_QP_SOL *q
 
 		if(ns>0)
 			{
-			COND_SLACKS_FACT_SOLVE(qp, ws);
+			COND_SLACKS_FACT_SOLVE(qp, qp_sol, ws);
 			}
 		else if(nb+ng>0)
 			{
@@ -1044,7 +1052,7 @@ void FACT_SOLVE_LQ_KKT_STEP_DENSE_QP(struct DENSE_QP *qp, struct DENSE_QP_SOL *q
 
 		if(ns>0)
 			{
-			COND_SLACKS_FACT_SOLVE(qp, ws);
+			COND_SLACKS_FACT_SOLVE(qp, qp_sol, ws);
 			}
 		else if(nb+ng>0)
 			{
@@ -1202,7 +1210,7 @@ void FACT_SOLVE_LU_KKT_STEP_DENSE_QP(struct DENSE_QP *qp, struct DENSE_QP_SOL *q
 
 			if(ns>0)
 				{
-				COND_SLACKS_FACT_SOLVE(qp, ws);
+				COND_SLACKS_FACT_SOLVE(qp, qp_sol, ws);
 				}
 			else if(nb+ng>0)
 				{
@@ -1288,7 +1296,7 @@ void FACT_SOLVE_LU_KKT_STEP_DENSE_QP(struct DENSE_QP *qp, struct DENSE_QP_SOL *q
 
 			if(ns>0)
 				{
-				COND_SLACKS_FACT_SOLVE(qp, ws);
+				COND_SLACKS_FACT_SOLVE(qp, qp_sol, ws);
 				}
 			else if(nb+ng>0)
 				{
@@ -1359,7 +1367,7 @@ void FACT_SOLVE_LU_KKT_STEP_DENSE_QP(struct DENSE_QP *qp, struct DENSE_QP_SOL *q
 
 			if(ns>0)
 				{
-				COND_SLACKS_FACT_SOLVE(qp, ws);
+				COND_SLACKS_FACT_SOLVE(qp, qp_sol, ws);
 				}
 			else if(nb+ng>0)
 				{
@@ -1409,7 +1417,7 @@ void FACT_SOLVE_LU_KKT_STEP_DENSE_QP(struct DENSE_QP *qp, struct DENSE_QP_SOL *q
 
 			if(ns>0)
 				{
-				COND_SLACKS_FACT_SOLVE(qp, ws);
+				COND_SLACKS_FACT_SOLVE(qp, qp_sol, ws);
 				}
 			else if(nb+ng>0)
 				{
@@ -1514,7 +1522,7 @@ void SOLVE_KKT_STEP_DENSE_QP(struct DENSE_QP *qp, struct DENSE_QP_SOL *qp_sol, s
 
 			if(ns>0)
 				{
-				COND_SLACKS_SOLVE(qp, ws);
+				COND_SLACKS_SOLVE(qp, qp_sol, ws);
 				}
 			else if(nb+ng>0)
 				{
@@ -1556,7 +1564,7 @@ void SOLVE_KKT_STEP_DENSE_QP(struct DENSE_QP *qp, struct DENSE_QP_SOL *qp_sol, s
 
 			if(ns>0)
 				{
-				COND_SLACKS_SOLVE(qp, ws);
+				COND_SLACKS_SOLVE(qp, qp_sol, ws);
 				}
 			else if(nb+ng>0)
 				{
@@ -1598,7 +1606,7 @@ void SOLVE_KKT_STEP_DENSE_QP(struct DENSE_QP *qp, struct DENSE_QP_SOL *qp_sol, s
 
 			if(ns>0)
 				{
-				COND_SLACKS_SOLVE(qp, ws);
+				COND_SLACKS_SOLVE(qp, qp_sol, ws);
 				}
 			else if(nb+ng>0)
 				{
@@ -1629,7 +1637,7 @@ void SOLVE_KKT_STEP_DENSE_QP(struct DENSE_QP *qp, struct DENSE_QP_SOL *qp_sol, s
 
 			if(ns>0)
 				{
-				COND_SLACKS_SOLVE(qp, ws);
+				COND_SLACKS_SOLVE(qp, qp_sol, ws);
 				}
 			else if(nb+ng>0)
 				{
