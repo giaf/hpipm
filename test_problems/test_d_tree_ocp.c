@@ -42,6 +42,7 @@
 #include "../include/hpipm_d_tree_ocp_qp_dim.h"
 #include "../include/hpipm_d_tree_ocp_qp.h"
 #include "../include/hpipm_d_tree_ocp_qp_sol.h"
+#include "../include/hpipm_d_tree_ocp_qp_res.h"
 #include "../include/hpipm_d_tree_ocp_qp_ipm.h"
 
 #include "d_tools.h"
@@ -925,13 +926,16 @@ exit(1);
 * ipm arg
 ************************************************/
 
-	int ipm_arg_size = d_memsize_tree_ocp_qp_ipm_arg(&qp);
+	int ipm_arg_size = d_memsize_tree_ocp_qp_ipm_arg(&dim);
 	printf("\nipm arg size = %d\n", ipm_arg_size);
 	void *ipm_arg_mem = malloc(ipm_arg_size);
 
 	struct d_tree_ocp_qp_ipm_arg arg;
-	d_create_tree_ocp_qp_ipm_arg(&qp, &arg, ipm_arg_mem);
-	d_set_default_tree_ocp_qp_ipm_arg(&arg);
+	d_create_tree_ocp_qp_ipm_arg(&dim, &arg, ipm_arg_mem);
+	enum d_tree_ocp_qp_ipm_mode mode = SPEED;
+//	enum d_tree_ocp_qp_ipm_mode mode = BALANCE;
+//	enum d_tree_ocp_qp_ipm_mode mode = ROBUST;
+	d_set_default_tree_ocp_qp_ipm_arg(mode, &arg);
 
 //	arg.alpha_min = 1e-8;
 //	arg.res_g_max = 1e-8;
@@ -947,12 +951,12 @@ exit(1);
 * ipm
 ************************************************/
 
-	int ipm_size = d_memsize_tree_ocp_qp_ipm(&qp, &arg);
+	int ipm_size = d_memsize_tree_ocp_qp_ipm(&dim, &arg);
 	printf("\nipm size = %d\n", ipm_size);
 	void *ipm_memory = malloc(ipm_size);
 
 	struct d_tree_ocp_qp_ipm_workspace workspace;
-	d_create_tree_ocp_qp_ipm(&qp, &arg, &workspace, ipm_memory);
+	d_create_tree_ocp_qp_ipm(&dim, &arg, &workspace, ipm_memory);
 
 	int hpipm_return; // 0 normal; 1 max iter
 
@@ -1029,36 +1033,36 @@ exit(1);
 	printf("\nresiduals\n\n");
 	printf("\nres_g\n");
 	for(ii=0; ii<Nn; ii++)
-		d_print_e_mat(1, nut[ii]+nxt[ii], (workspace.res_g+ii)->pa, 1);
+		d_print_e_mat(1, nut[ii]+nxt[ii], (workspace.res->res_g+ii)->pa, 1);
 	printf("\nres_b\n");
 	for(ii=0; ii<Nn-1; ii++)
-		d_print_e_mat(1, nxt[ii+1], (workspace.res_b+ii)->pa, 1);
+		d_print_e_mat(1, nxt[ii+1], (workspace.res->res_b+ii)->pa, 1);
 	printf("\nres_m_lb\n");
 	for(ii=0; ii<Nn; ii++)
-		d_print_e_mat(1, nbt[ii], (workspace.res_m+ii)->pa+0, 1);
+		d_print_e_mat(1, nbt[ii], (workspace.res->res_m+ii)->pa+0, 1);
 	printf("\nres_m_ub\n");
 	for(ii=0; ii<Nn; ii++)
-		d_print_e_mat(1, nbt[ii], (workspace.res_m+ii)->pa+nbt[ii]+ngt[ii], 1);
+		d_print_e_mat(1, nbt[ii], (workspace.res->res_m+ii)->pa+nbt[ii]+ngt[ii], 1);
 	printf("\nres_m_lg\n");
 	for(ii=0; ii<Nn; ii++)
-		d_print_e_mat(1, ngt[ii], (workspace.res_m+ii)->pa+nbt[ii], 1);
+		d_print_e_mat(1, ngt[ii], (workspace.res->res_m+ii)->pa+nbt[ii], 1);
 	printf("\nres_m_ug\n");
 	for(ii=0; ii<Nn; ii++)
-		d_print_e_mat(1, ngt[ii], (workspace.res_m+ii)->pa+2*nbt[ii]+ngt[ii], 1);
+		d_print_e_mat(1, ngt[ii], (workspace.res->res_m+ii)->pa+2*nbt[ii]+ngt[ii], 1);
 	printf("\nres_d_lb\n");
 	for(ii=0; ii<Nn; ii++)
-		d_print_e_mat(1, nbt[ii], (workspace.res_d+ii)->pa+0, 1);
+		d_print_e_mat(1, nbt[ii], (workspace.res->res_d+ii)->pa+0, 1);
 	printf("\nres_d_ub\n");
 	for(ii=0; ii<Nn; ii++)
-		d_print_e_mat(1, nbt[ii], (workspace.res_d+ii)->pa+nbt[ii]+ngt[ii], 1);
+		d_print_e_mat(1, nbt[ii], (workspace.res->res_d+ii)->pa+nbt[ii]+ngt[ii], 1);
 	printf("\nres_d_lg\n");
 	for(ii=0; ii<Nn; ii++)
-		d_print_e_mat(1, ngt[ii], (workspace.res_d+ii)->pa+nbt[ii], 1);
+		d_print_e_mat(1, ngt[ii], (workspace.res->res_d+ii)->pa+nbt[ii], 1);
 	printf("\nres_d_ug\n");
 	for(ii=0; ii<Nn; ii++)
-		d_print_e_mat(1, ngt[ii], (workspace.res_d+ii)->pa+2*nbt[ii]+ngt[ii], 1);
+		d_print_e_mat(1, ngt[ii], (workspace.res->res_d+ii)->pa+2*nbt[ii]+ngt[ii], 1);
 	printf("\nres_mu\n");
-	printf("\n%e\n\n", workspace.res_mu);
+	printf("\n%e\n\n", workspace.res->res_mu);
 #endif
 
 /************************************************

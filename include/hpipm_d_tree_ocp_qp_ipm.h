@@ -35,6 +35,16 @@ extern "C" {
 #endif
 
 
+
+enum d_tree_ocp_qp_ipm_mode
+	{
+	SPEED,
+	BALANCE,
+	ROBUST,
+	};
+
+
+
 struct d_tree_ocp_qp_ipm_arg
 	{
 	double mu0; // initial value for duality measure
@@ -43,13 +53,17 @@ struct d_tree_ocp_qp_ipm_arg
 	double res_b_max; // exit cond on inf norm of residuals
 	double res_d_max; // exit cond on inf norm of residuals
 	double res_m_max; // exit cond on inf norm of residuals
+	double reg_prim; // reg of primal hessian
 	double lam_min; // min value in lam vector
 	double t_min; // min value in t vector
 	int iter_max; // exit cond in iter number
 	int stat_max; // iterations saved in stat
 	int pred_corr; // use Mehrotra's predictor-corrector IPM algirthm
 	int cond_pred_corr; // conditional Mehrotra's predictor-corrector
+	int itref_pred_max; // max number of iterative refinement steps for predictor step
+	int itref_corr_max; // max number of iterative refinement steps for corrector step
 	int warm_start; // 0 no warm start, 1 warm start primal sol
+	int lq_fact; // 0 syrk+potrf, 1 mix, 2 lq
 	int memsize;
 	};
 
@@ -58,13 +72,13 @@ struct d_tree_ocp_qp_ipm_arg
 struct d_tree_ocp_qp_ipm_workspace
 	{
 	struct d_core_qp_ipm_workspace *core_workspace;
-	struct blasfeo_dvec *dux;
-	struct blasfeo_dvec *dpi;
-	struct blasfeo_dvec *dt;
-	struct blasfeo_dvec *res_g; // q-residuals
-	struct blasfeo_dvec *res_b; // b-residuals
-	struct blasfeo_dvec *res_d; // d-residuals
-	struct blasfeo_dvec *res_m; // m-residuals
+	struct d_tree_ocp_qp_res_workspace *res_workspace;
+	struct d_tree_ocp_qp_sol *sol_step;
+	struct d_tree_ocp_qp_sol *sol_itref;
+	struct d_tree_ocp_qp *qp_step;
+	struct d_tree_ocp_qp *qp_itref;
+	struct d_tree_ocp_qp_res *res_itref;
+	struct d_tree_ocp_qp_res *res;
 	struct blasfeo_dvec *Gamma; // hessian update
 	struct blasfeo_dvec *gamma; // hessian update
 	struct blasfeo_dvec *tmp_nxM; // work space of size nxM
@@ -73,11 +87,14 @@ struct d_tree_ocp_qp_ipm_workspace
 	struct blasfeo_dvec *Pb; // Pb
 	struct blasfeo_dvec *Zs_inv;
 	struct blasfeo_dmat *L;
+	struct blasfeo_dmat *Lh;
 	struct blasfeo_dmat *AL;
+	struct blasfeo_dmat *lq0;
 	double *stat; // convergence statistics
+	int *use_hess_fact;
+	void *lq_work0;
 	double qp_res[4]; // infinity norm of residuals
 	double mu0; // mu0
-	double res_mu; // mu-residual
 	int iter; // iteration number
 	int stat_max; // iterations saved in stat
 	int warm_start; // 0 no warm start, 1 warm start primal sol
@@ -87,16 +104,16 @@ struct d_tree_ocp_qp_ipm_workspace
 
 
 //
-int d_memsize_tree_ocp_qp_ipm_arg(struct d_tree_ocp_qp *qp);
+int d_memsize_tree_ocp_qp_ipm_arg(struct d_tree_ocp_qp_dim *dim);
 //
-void d_create_tree_ocp_qp_ipm_arg(struct d_tree_ocp_qp *qp, struct d_tree_ocp_qp_ipm_arg *arg, void *mem);
+void d_create_tree_ocp_qp_ipm_arg(struct d_tree_ocp_qp_dim *dim, struct d_tree_ocp_qp_ipm_arg *arg, void *mem);
 //
-void d_set_default_tree_ocp_qp_ipm_arg(struct d_tree_ocp_qp_ipm_arg *arg);
+void d_set_default_tree_ocp_qp_ipm_arg(enum d_tree_ocp_qp_ipm_mode mode, struct d_tree_ocp_qp_ipm_arg *arg);
 
 //
-int d_memsize_tree_ocp_qp_ipm(struct d_tree_ocp_qp *qp, struct d_tree_ocp_qp_ipm_arg *arg);
+int d_memsize_tree_ocp_qp_ipm(struct d_tree_ocp_qp_dim *dim, struct d_tree_ocp_qp_ipm_arg *arg);
 //
-void d_create_tree_ocp_qp_ipm(struct d_tree_ocp_qp *qp, struct d_tree_ocp_qp_ipm_arg *arg, struct d_tree_ocp_qp_ipm_workspace *ws, void *mem);
+void d_create_tree_ocp_qp_ipm(struct d_tree_ocp_qp_dim *dim, struct d_tree_ocp_qp_ipm_arg *arg, struct d_tree_ocp_qp_ipm_workspace *ws, void *mem);
 //
 int d_solve_tree_ocp_qp_ipm(struct d_tree_ocp_qp *qp, struct d_tree_ocp_qp_sol *qp_sol, struct d_tree_ocp_qp_ipm_arg *arg, struct d_tree_ocp_qp_ipm_workspace *ws);
 

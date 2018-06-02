@@ -856,7 +856,7 @@ void FACT_SOLVE_KKT_STEP_OCP_QP(struct OCP_QP *qp, struct OCP_QP_SOL *qp_sol, st
 
 
 
-void FACT_SOLVE_LQ_KKT_STEP_OCP_QP(struct OCP_QP *qp, struct OCP_QP_SOL *qp_sol, struct OCP_QP_IPM_ARG *arg, struct OCP_QP_IPM_WORKSPACE *ws)
+void FACT_LQ_SOLVE_KKT_STEP_OCP_QP(struct OCP_QP *qp, struct OCP_QP_SOL *qp_sol, struct OCP_QP_IPM_ARG *arg, struct OCP_QP_IPM_WORKSPACE *ws)
 	{
 
 	int N = qp->dim->N;
@@ -885,10 +885,6 @@ void FACT_SOLVE_LQ_KKT_STEP_OCP_QP(struct OCP_QP *qp, struct OCP_QP_SOL *qp_sol,
 	struct STRMAT *L = ws->L;
 	struct STRMAT *Lh = ws->Lh;
 	struct STRMAT *AL = ws->AL;
-//	struct STRVEC *res_b = ws->res->res_b;
-//	struct STRVEC *res_g = ws->res->res_g;
-//	struct STRVEC *res_d = ws->res->res_d;
-//	struct STRVEC *res_m = ws->res->res_m;
 	struct STRVEC *Gamma = ws->Gamma;
 	struct STRVEC *gamma = ws->gamma;
 	struct STRVEC *Pb = ws->Pb;

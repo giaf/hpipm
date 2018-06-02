@@ -831,7 +831,7 @@ blasfeo_print_tran_dvec(cws->nc, ws->sol_step->t, 0);
 #endif
 
 				// refactorize using lq
-				FACT_SOLVE_LQ_KKT_STEP_OCP_QP(ws->qp_step, ws->sol_step, arg, ws);
+				FACT_LQ_SOLVE_KKT_STEP_OCP_QP(ws->qp_step, ws->sol_step, arg, ws);
 
 				// switch to lq
 				force_lq = 1;
@@ -849,7 +849,7 @@ blasfeo_print_tran_dvec(cws->nc, ws->sol_step->t, 0);
 		else // arg->lq_fact==2
 			{
 
-			FACT_SOLVE_LQ_KKT_STEP_OCP_QP(ws->qp_step, ws->sol_step, arg, ws);
+			FACT_LQ_SOLVE_KKT_STEP_OCP_QP(ws->qp_step, ws->sol_step, arg, ws);
 
 			}
 

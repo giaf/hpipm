@@ -72,7 +72,7 @@ struct d_ocp_qp_ipm_arg
 	int itref_pred_max; // max number of iterative refinement steps for predictor step
 	int itref_corr_max; // max number of iterative refinement steps for corrector step
 	int warm_start; // 0 no warm start, 1 warm start primal sol
-	int lq_fact; // 0 syrk+potrf, 1 lq
+	int lq_fact; // 0 syrk+potrf, 1 mix, 2 lq
 	int memsize;
 	};
 
@@ -88,9 +88,6 @@ struct d_ocp_qp_ipm_workspace
 	struct d_ocp_qp *qp_itref;
 	struct d_ocp_qp_res *res_itref;
 	struct d_ocp_qp_res *res;
-//	struct blasfeo_dvec *dux;
-//	struct blasfeo_dvec *dpi;
-//	struct blasfeo_dvec *dt;
 	struct blasfeo_dvec *Gamma; // hessian update
 	struct blasfeo_dvec *gamma; // hessian update
 	struct blasfeo_dvec *tmp_nxM; // work space of size nxM

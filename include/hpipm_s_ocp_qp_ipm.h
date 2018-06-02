@@ -67,7 +67,7 @@ struct s_ocp_qp_ipm_arg
 	int itref_pred_max; // max number of iterative refinement steps for predictor step
 	int itref_corr_max; // max number of iterative refinement steps for corrector step
 	int warm_start; // 0 no warm start, 1 warm start primal sol
-	int lq_fact; // 0 syrk+potrf, 1 lq
+	int lq_fact; // 0 syrk+potrf, 1 mix, 2 lq
 	int memsize;
 	};
 
