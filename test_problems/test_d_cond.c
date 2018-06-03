@@ -890,9 +890,9 @@ int main()
 
 	struct d_dense_qp_ipm_arg dense_arg;
 	d_create_dense_qp_ipm_arg(&qp_dim, &dense_arg, ipm_arg_mem);
-	enum d_dense_qp_ipm_mode mode = SPEED;
-//	enum d_dense_qp_ipm_mode mode = BALANCE;
-//	enum d_dense_qp_ipm_mode mode = ROBUST;
+	enum dense_qp_ipm_mode mode = SPEED;
+//	enum dense_qp_ipm_mode mode = BALANCE;
+//	enum dense_qp_ipm_mode mode = ROBUST;
 	d_set_default_dense_qp_ipm_arg(mode, &dense_arg);
 
 //	arg.alpha_min = 1e-8;

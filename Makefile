@@ -64,6 +64,9 @@ OBJS += dense_qp/s_dense_qp_sol.o
 OBJS += dense_qp/s_dense_qp_res.o 
 OBJS += dense_qp/s_dense_qp_kkt.o 
 OBJS += dense_qp/s_dense_qp_ipm.o
+#mixed
+OBJS += dense_qp/m_dense_qp_dim.o 
+OBJS += dense_qp/m_dense_qp.o 
 
 # ipm core
 # double

@@ -65,7 +65,7 @@
 #define CREATE_STRVEC blasfeo_create_dvec
 #define DENSE_QP d_dense_qp
 #define DENSE_QP_IPM_ARG d_dense_qp_ipm_arg
-#define DENSE_QP_IPM_MODE d_dense_qp_ipm_mode
+#define DENSE_QP_IPM_MODE dense_qp_ipm_mode
 #define DENSE_QP_IPM_WORKSPACE d_dense_qp_ipm_workspace
 #define DENSE_QP_DIM d_dense_qp_dim
 #define DENSE_QP_RES d_dense_qp_res
