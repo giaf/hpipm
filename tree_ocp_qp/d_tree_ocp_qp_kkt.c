@@ -25,6 +25,8 @@
 *                                                                                                 *
 **************************************************************************************************/
 
+#include <math.h>
+
 #include <blasfeo_target.h>
 #include <blasfeo_common.h>
 #include <blasfeo_d_aux.h>
@@ -47,11 +49,17 @@
 #define DIARE blasfeo_ddiare
 #define GEAD blasfeo_dgead
 #define GECP blasfeo_dgecp
+#define GELQF blasfeo_dgelqf
+#define GELQF_PD blasfeo_dgelqf_pd
+#define GELQF_PD_LA blasfeo_dgelqf_pd_la
+#define GELQF_PD_LLA blasfeo_dgelqf_pd_lla
 #define GEMM_R_DIAG blasfeo_dgemm_nd
 #define GEMV_DIAG blasfeo_dgemv_d
 #define GEMV_N blasfeo_dgemv_n
 #define GEMV_NT blasfeo_dgemv_nt
 #define GEMV_T blasfeo_dgemv_t
+#define GESE blasfeo_dgese
+#define POTRF_L blasfeo_dpotrf_l
 #define POTRF_L_MN blasfeo_dpotrf_l_mn
 #define REAL double
 #define ROWAD_SP blasfeo_drowad_sp
@@ -60,6 +68,7 @@
 #define STRMAT blasfeo_dmat
 #define STRVEC blasfeo_dvec
 #define SYMV_L blasfeo_dsymv_l
+#define SYRK_LN blasfeo_dsyrk_ln
 #define SYRK_LN_MN blasfeo_dsyrk_ln_mn
 #define SYRK_POTRF_LN blasfeo_dsyrk_dpotrf_ln
 #define TRCP_L blasfeo_dtrcp_l

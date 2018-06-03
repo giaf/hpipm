@@ -25,6 +25,8 @@
 *                                                                                                 *
 **************************************************************************************************/
 
+#include <math.h>
+
 #include <blasfeo_target.h>
 #include <blasfeo_common.h>
 #include <blasfeo_s_aux.h>
@@ -47,11 +49,17 @@
 #define DIARE blasfeo_sdiare
 #define GEAD blasfeo_sgead
 #define GECP blasfeo_sgecp
+#define GELQF blasfeo_sgelqf
+#define GELQF_PD blasfeo_sgelqf_pd
+#define GELQF_PD_LA blasfeo_sgelqf_pd_la
+#define GELQF_PD_LLA blasfeo_sgelqf_pd_lla
 #define GEMM_R_DIAG blasfeo_sgemm_nd
 #define GEMV_DIAG blasfeo_sgemv_d
 #define GEMV_N blasfeo_sgemv_n
 #define GEMV_NT blasfeo_sgemv_nt
 #define GEMV_T blasfeo_sgemv_t
+#define GESE blasfeo_sgese
+#define POTRF_L blasfeo_spotrf_l
 #define POTRF_L_MN blasfeo_spotrf_l_mn
 #define REAL float
 #define ROWAD_SP blasfeo_srowad_sp
@@ -60,8 +68,10 @@
 #define STRMAT blasfeo_smat
 #define STRVEC blasfeo_svec
 #define SYMV_L blasfeo_ssymv_l
+#define SYRK_LN blasfeo_ssyrk_ln
 #define SYRK_LN_MN blasfeo_ssyrk_ln_mn
 #define SYRK_POTRF_LN blasfeo_ssyrk_spotrf_ln
+#define TRCP_L blasfeo_strcp_l
 #define TREE_OCP_QP s_tree_ocp_qp
 #define TREE_OCP_QP_IPM_ARG s_tree_ocp_qp_ipm_arg
 #define TREE_OCP_QP_IPM_WORKSPACE s_tree_ocp_qp_ipm_workspace
