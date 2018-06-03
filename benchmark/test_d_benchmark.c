@@ -557,7 +557,10 @@ int main()
 
         struct d_dense_qp_ipm_arg argd;
         d_create_dense_qp_ipm_arg(&dim, &argd, ipm_arg_mem);
-        d_set_default_dense_qp_ipm_arg(&argd);
+//		enum d_dense_qp_ipm_mode mode = SPEED;
+		enum d_dense_qp_ipm_mode mode = BALANCE;
+//		enum d_dense_qp_ipm_mode mode = ROBUST;
+        d_set_default_dense_qp_ipm_arg(mode, &argd);
         /* consistent with setting in acore */
         argd.res_g_max = 1e-6;
         argd.res_b_max = 1e-6;
@@ -565,16 +568,16 @@ int main()
         argd.res_m_max = 1e-6;
         argd.iter_max = 200;
         argd.stat_max = 200;
-        argd.alpha_min = 1e-12;
+//        argd.alpha_min = 1e-12;
         argd.mu0 = 1e1;
-		argd.pred_corr = 1;
-		argd.cond_pred_corr = 1;
-		argd.scale = 1;
-		argd.itref_pred_max = 0;
-		argd.itref_corr_max = 4;
-		argd.reg_prim = 1e-15;
-		argd.reg_dual = 1e-15;
-		argd.lq_fact = 1;
+//		argd.pred_corr = 1;
+//		argd.cond_pred_corr = 1;
+//		argd.scale = 1;
+//		argd.itref_pred_max = 0;
+//		argd.itref_corr_max = 4;
+//		argd.reg_prim = 1e-15;
+//		argd.reg_dual = 1e-15;
+//		argd.lq_fact = 1;
 
         /************************************************
         * dense ipm
