@@ -27,20 +27,21 @@
 
 
 
+#ifndef HPIPM_S_TREE_OCP_QP_IPM_H_
+#define HPIPM_S_TREE_OCP_QP_IPM_H_
+
+
+
 #include <blasfeo_target.h>
 #include <blasfeo_common.h>
+
+#include "hpipm_x_tree_ocp_qp_ipm.h"
+
+
 
 #ifdef __cplusplus
 extern "C" {
 #endif
-
-
-enum s_tree_ocp_qp_ipm_mode
-	{
-	SPEED,
-	BALANCE,
-	ROBUST,
-	};
 
 
 
@@ -107,7 +108,7 @@ int s_memsize_tree_ocp_qp_ipm_arg(struct s_tree_ocp_qp_dim *dim);
 //
 void s_create_tree_ocp_qp_ipm_arg(struct s_tree_ocp_qp_dim *dim, struct s_tree_ocp_qp_ipm_arg *arg, void *mem);
 //
-void s_set_default_tree_ocp_qp_ipm_arg(enum s_tree_ocp_qp_ipm_mode mode, struct s_tree_ocp_qp_ipm_arg *arg);
+void s_set_default_tree_ocp_qp_ipm_arg(enum tree_ocp_qp_ipm_mode mode, struct s_tree_ocp_qp_ipm_arg *arg);
 
 //
 int s_memsize_tree_ocp_qp_ipm(struct s_tree_ocp_qp_dim *dim, struct s_tree_ocp_qp_ipm_arg *arg);
@@ -119,3 +120,7 @@ int s_solve_tree_ocp_qp_ipm(struct s_tree_ocp_qp *qp, struct s_tree_ocp_qp_sol *
 #ifdef __cplusplus
 } /* extern "C" */
 #endif
+
+
+
+#endif // HPIPM_S_TREE_OCP_QP_IPM_H_

@@ -123,13 +123,13 @@ OBJS += tree_ocp_qp/s_tree_ocp_qp_ipm.o
 all: clean static_library
 
 static_library: target
-	( cd cond; $(MAKE) obj)
-	( cd dense_qp; $(MAKE) obj)
-	( cd ipm_core; $(MAKE) obj)
-	( cd ocp_nlp; $(MAKE) obj)
-	( cd ocp_qp; $(MAKE) obj)
-	( cd sim_core; $(MAKE) obj)
-	( cd tree_ocp_qp; $(MAKE) obj)
+	( cd cond; $(MAKE) obj TOP=$(TOP) )
+	( cd dense_qp; $(MAKE) obj TOP=$(TOP) )
+	( cd ipm_core; $(MAKE) obj TOP=$(TOP) )
+	( cd ocp_nlp; $(MAKE) obj TOP=$(TOP) )
+	( cd ocp_qp; $(MAKE) obj TOP=$(TOP) )
+	( cd sim_core; $(MAKE) obj TOP=$(TOP) )
+	( cd tree_ocp_qp; $(MAKE) obj TOP=$(TOP) )
 	ar rcs libhpipm.a $(OBJS) 
 	cp libhpipm.a ./lib/
 	@echo
@@ -137,13 +137,13 @@ static_library: target
 	@echo
 
 shared_library: target
-	( cd cond; $(MAKE) obj)
-	( cd dense_qp; $(MAKE) obj)
-	( cd ipm_core; $(MAKE) obj)
-	( cd ocp_nlp; $(MAKE) obj)
-	( cd ocp_qp; $(MAKE) obj)
-	( cd sim_core; $(MAKE) obj)
-	( cd tree_ocp_qp; $(MAKE) obj)
+	( cd cond; $(MAKE) obj TOP=$(TOP) )
+	( cd dense_qp; $(MAKE) obj TOP=$(TOP) )
+	( cd ipm_core; $(MAKE) obj TOP=$(TOP) )
+	( cd ocp_nlp; $(MAKE) obj TOP=$(TOP) )
+	( cd ocp_qp; $(MAKE) obj TOP=$(TOP) )
+	( cd sim_core; $(MAKE) obj TOP=$(TOP) )
+	( cd tree_ocp_qp; $(MAKE) obj TOP=$(TOP) )
 	gcc -shared -o libhpipm.so $(OBJS)
 	cp libhpipm.so ./lib/
 	@echo
@@ -174,7 +174,7 @@ install_shared:
 
 test_problem:
 	cp libhpipm.a ./test_problems/libhpipm.a
-	make -C test_problems obj
+	make -C test_problems obj TOP=$(TOP)
 	@echo
 	@echo " Test problem build complete."
 	@echo

@@ -439,7 +439,10 @@ void mexFunction( int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
 
 	struct d_ocp_qp_ipm_arg arg;
 	d_create_ocp_qp_ipm_arg(&dim, &arg, ipm_arg_mem);
-	d_set_default_ocp_qp_ipm_arg(&arg);
+	enum ocp_qp_ipm_mode mode = SPEED;
+//	enum ocp_qp_ipm_mode mode = BALANCE;
+//	enum ocp_qp_ipm_mode mode = ROBUST;
+	d_set_default_ocp_qp_ipm_arg(mode, &arg);
 
 //	arg.alpha_min = 1e-12;
 //	arg.res_g_max = 1e-4;

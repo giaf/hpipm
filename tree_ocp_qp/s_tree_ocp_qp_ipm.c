@@ -36,13 +36,15 @@
 #include <blasfeo_s_aux.h>
 #include <blasfeo_s_blas.h>
 
-#include "../include/hpipm_s_tree_ocp_qp.h"
-#include "../include/hpipm_s_tree_ocp_qp_sol.h"
-#include "../include/hpipm_s_tree_ocp_qp_res.h"
-#include "../include/hpipm_s_tree_ocp_qp_ipm.h"
-#include "../include/hpipm_s_tree_ocp_qp_kkt.h"
-#include "../include/hpipm_s_core_qp_ipm.h"
-#include "../include/hpipm_s_core_qp_ipm_aux.h"
+#include <hpipm_s_tree_ocp_qp.h>
+#include <hpipm_s_tree_ocp_qp_sol.h>
+#include <hpipm_s_tree_ocp_qp_res.h>
+#include <hpipm_s_tree_ocp_qp_ipm.h>
+#include <hpipm_s_tree_ocp_qp_kkt.h>
+#include <hpipm_s_core_qp_ipm.h>
+#include <hpipm_s_core_qp_ipm_aux.h>
+
+
 
 #define AXPY_LIBSTR blasfeo_saxpy
 #define BACKUP_RES_M s_backup_res_m
@@ -75,7 +77,7 @@
 #define TREE_OCP_QP s_tree_ocp_qp
 #define TREE_OCP_QP_DIM s_tree_ocp_qp_dim
 #define TREE_OCP_QP_IPM_ARG s_tree_ocp_qp_ipm_arg
-#define TREE_OCP_QP_IPM_MODE s_tree_ocp_qp_ipm_mode
+#define TREE_OCP_QP_IPM_MODE tree_ocp_qp_ipm_mode
 #define TREE_OCP_QP_IPM_WORKSPACE s_tree_ocp_qp_ipm_workspace
 #define TREE_OCP_QP_RES s_tree_ocp_qp_res
 #define TREE_OCP_QP_RES_WORKSPACE s_tree_ocp_qp_res_workspace

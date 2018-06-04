@@ -27,49 +27,35 @@
 
 
 
-#include <stdlib.h>
-#include <stdio.h>
+#ifndef HPIPM_X_OCP_QP_IPM_H_
+#define HPIPM_X_OCP_QP_IPM_H_
+
+
 
 #include <blasfeo_target.h>
 #include <blasfeo_common.h>
-#include <blasfeo_d_aux.h>
-
-#include <hpipm_d_dense_qp_dim.h>
-#include <hpipm_d_dense_qp.h>
-
-
-#define CREATE_STRMAT blasfeo_create_dmat
-#define CREATE_STRVEC blasfeo_create_dvec
-#define CVT_MAT2STRMAT blasfeo_pack_dmat
-#define CVT_TRAN_MAT2STRMAT blasfeo_pack_tran_dmat
-#define CVT_TRAN_STRMAT2MAT blasfeo_unpack_tran_dmat
-#define CVT_VEC2STRVEC blasfeo_pack_dvec
-#define CVT_STRMAT2MAT blasfeo_unpack_dmat
-#define CVT_STRVEC2VEC blasfeo_unpack_dvec
-#define DENSE_QP d_dense_qp
-#define DENSE_QP_DIM d_dense_qp_dim
-#define GECP_LIBSTR blasfeo_dgecp
-#define GETR_LIBSTR blasfeo_dgetr
-#define REAL double
-#define ROWIN_LIBSTR blasfeo_drowin
-#define SIZE_STRMAT blasfeo_memsize_dmat
-#define SIZE_STRVEC blasfeo_memsize_dvec
-#define STRMAT blasfeo_dmat
-#define STRVEC blasfeo_dvec
-#define VECCP_LIBSTR blasfeo_dveccp
-#define VECSC_LIBSTR blasfeo_dvecsc
-#define VECSE_LIBSTR blasfeo_dvecse
-
-#define MEMSIZE_DENSE_QP d_memsize_dense_qp
-#define CREATE_DENSE_QP d_create_dense_qp
-#define CVT_COLMAJ_TO_DENSE_QP d_cvt_colmaj_to_dense_qp
-#define CVT_DENSE_QP_TO_COLMAJ d_cvt_dense_qp_to_colmaj
-#define CVT_ROWMAJ_TO_DENSE_QP d_cvt_rowmaj_to_dense_qp
-#define CVT_DENSE_QP_TO_ROWMAJ d_cvt_dense_qp_to_rowmaj
-#define CVT_LIBSTR_TO_DENSE_QP d_cvt_libstr_to_dense_qp
-#define CVT_DENSE_QP_TO_LIBSTR d_cvt_dense_qp_to_libstr
-#define CAST_DENSE_QP_DIM d_cast_dense_qp_dim
 
 
 
-#include "x_dense_qp.c"
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+
+
+enum ocp_qp_ipm_mode
+	{
+	SPEED,
+	BALANCE,
+	ROBUST,
+	};
+
+
+
+#ifdef __cplusplus
+} /* extern "C" */
+#endif
+
+
+
+#endif // HPIPM_X_OCP_QP_IPM_H_

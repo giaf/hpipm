@@ -27,25 +27,26 @@
 
 
 
+#ifndef HPIPM_S_OCP_QP_IPM_H_
+#define HPIPM_S_OCP_QP_IPM_H_
+
+
+
 #include <blasfeo_target.h>
 #include <blasfeo_common.h>
 
-#include "hpipm_s_ocp_qp_res.h"
+#include <hpipm_s_ocp_qp_dim.h>
+#include <hpipm_s_ocp_qp.h>
+#include <hpipm_s_ocp_qp_res.h>
+#include <hpipm_s_ocp_qp_sol.h>
+
+#include "hpipm_x_ocp_qp_ipm.h"
 
 
 
 #ifdef __cplusplus
 extern "C" {
 #endif
-
-
-
-enum s_ocp_qp_ipm_mode
-	{
-	SPEED,
-	BALANCE,
-	ROBUST,
-	};
 
 
 
@@ -115,7 +116,7 @@ int s_memsize_ocp_qp_ipm_arg(struct s_ocp_qp_dim *ocp_dim);
 //
 void s_create_ocp_qp_ipm_arg(struct s_ocp_qp_dim *ocp_dim, struct s_ocp_qp_ipm_arg *arg, void *mem);
 //
-void s_set_default_ocp_qp_ipm_arg(enum s_ocp_qp_ipm_mode mode, struct s_ocp_qp_ipm_arg *arg);
+void s_set_default_ocp_qp_ipm_arg(enum ocp_qp_ipm_mode mode, struct s_ocp_qp_ipm_arg *arg);
 
 //
 int s_memsize_ocp_qp_ipm(struct s_ocp_qp_dim *ocp_dim, struct s_ocp_qp_ipm_arg *arg);
@@ -124,7 +125,12 @@ void s_create_ocp_qp_ipm(struct s_ocp_qp_dim *ocp_dim, struct s_ocp_qp_ipm_arg *
 //
 int s_solve_ocp_qp_ipm(struct s_ocp_qp *qp, struct s_ocp_qp_sol *qp_sol, struct s_ocp_qp_ipm_arg *arg, struct s_ocp_qp_ipm_workspace *ws);
 
+
+
 #ifdef __cplusplus
 } /* extern "C" */
 #endif
 
+
+
+#endif // HPIPM_S_OCP_QP_IPM_H_

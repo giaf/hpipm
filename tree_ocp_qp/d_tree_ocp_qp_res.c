@@ -34,8 +34,8 @@
 #include <blasfeo_common.h>
 #include <blasfeo_d_aux.h>
 
-#include "../include/hpipm_d_tree_ocp_qp_dim.h"
-#include "../include/hpipm_d_tree_ocp_qp_res.h"
+#include <hpipm_d_tree_ocp_qp_dim.h>
+#include <hpipm_d_tree_ocp_qp_res.h>
 
 
 

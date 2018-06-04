@@ -38,14 +38,14 @@
 #include <blasfeo_d_aux.h>
 #include <blasfeo_d_blas.h>
 
-#include "../include/hpipm_d_ocp_qp_dim.h"
-#include "../include/hpipm_d_ocp_qp.h"
-#include "../include/hpipm_d_ocp_qp_sol.h"
-#include "../include/hpipm_d_ocp_qp_ipm.h"
-#include "../include/hpipm_d_core_qp_ipm.h"
-#include "../include/hpipm_d_core_qp_ipm_aux.h"
-#include "../include/hpipm_d_ocp_qp_res.h"
-#include "../include/hpipm_d_ocp_qp_kkt.h"
+#include <hpipm_d_ocp_qp_dim.h>
+#include <hpipm_d_ocp_qp.h>
+#include <hpipm_d_ocp_qp_sol.h>
+#include <hpipm_d_ocp_qp_ipm.h>
+#include <hpipm_d_core_qp_ipm.h>
+#include <hpipm_d_core_qp_ipm_aux.h>
+#include <hpipm_d_ocp_qp_res.h>
+#include <hpipm_d_ocp_qp_kkt.h>
 
 
 
@@ -74,7 +74,7 @@
 #define MEMSIZE_OCP_QP_SOL d_memsize_ocp_qp_sol
 #define OCP_QP d_ocp_qp
 #define OCP_QP_IPM_ARG d_ocp_qp_ipm_arg
-#define OCP_QP_IPM_MODE d_ocp_qp_ipm_mode
+#define OCP_QP_IPM_MODE ocp_qp_ipm_mode
 #define OCP_QP_IPM_WORKSPACE d_ocp_qp_ipm_workspace
 #define OCP_QP_RES d_ocp_qp_res
 #define OCP_QP_RES_WORKSPACE d_ocp_qp_res_workspace
