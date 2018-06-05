@@ -489,8 +489,8 @@ int main()
 			}
 		else // state
 			{
-			d_lb1[ii] = - 1.0; // xmin
-			d_ub1[ii] =   1.0; // xmax
+			d_lb1[ii] = - 4.0; // xmin
+			d_ub1[ii] =   4.0; // xmax
 			}
 		idxb1[ii] = ii;
 		}
@@ -864,6 +864,10 @@ int main()
 
 	struct timeval tv0, tv1;
 
+/************************************************
+* solve phase I
+************************************************/
+
 	gettimeofday(&tv0, NULL); // start
 
 	for(rep=0; rep<nrep; rep++)
@@ -873,7 +877,7 @@ int main()
 
 	gettimeofday(&tv1, NULL); // stop
 
-	double time_ocp_ipm = (tv1.tv_sec-tv0.tv_sec)/(nrep+0.0)+(tv1.tv_usec-tv0.tv_usec)/(nrep*1e6);
+	double time_ocp_ipm_phase_I = (tv1.tv_sec-tv0.tv_sec)/(nrep+0.0)+(tv1.tv_usec-tv0.tv_usec)/(nrep*1e6);
 
 /************************************************
 * extract and print solution
@@ -890,6 +894,121 @@ int main()
 	double *lam_ug[N+1]; for(ii=0; ii<=N; ii++) d_zeros(lam_ug+ii, ng[ii], 1);
 	double *lam_ls[N+1]; for(ii=0; ii<=N; ii++) d_zeros(lam_ls+ii, ns[ii], 1);
 	double *lam_us[N+1]; for(ii=0; ii<=N; ii++) d_zeros(lam_us+ii, ns[ii], 1);
+
+	d_cvt_ocp_qp_sol_to_colmaj(&qp_sol, u, x, ls, us, pi, lam_lb, lam_ub, lam_lg, lam_ug, lam_ls, lam_us);
+
+#if 1
+	printf("\nsolution\n\n");
+	printf("\nu\n");
+	for(ii=0; ii<=N; ii++)
+		d_print_mat(1, nu[ii], u[ii], 1);
+	printf("\nx\n");
+	for(ii=0; ii<=N; ii++)
+		d_print_mat(1, nx[ii], x[ii], 1);
+	printf("\nls\n");
+	for(ii=0; ii<=N; ii++)
+		d_print_mat(1, ns[ii], ls[ii], 1);
+	printf("\nus\n");
+	for(ii=0; ii<=N; ii++)
+		d_print_mat(1, ns[ii], us[ii], 1);
+	printf("\npi\n");
+	for(ii=0; ii<N; ii++)
+		d_print_mat(1, nx[ii+1], pi[ii], 1);
+	printf("\nlam_lb\n");
+	for(ii=0; ii<=N; ii++)
+		d_print_mat(1, nb[ii], lam_lb[ii], 1);
+	printf("\nlam_ub\n");
+	for(ii=0; ii<=N; ii++)
+		d_print_mat(1, nb[ii], lam_ub[ii], 1);
+	printf("\nlam_lg\n");
+	for(ii=0; ii<=N; ii++)
+		d_print_mat(1, ng[ii], lam_lg[ii], 1);
+	printf("\nlam_ug\n");
+	for(ii=0; ii<=N; ii++)
+		d_print_mat(1, ng[ii], lam_ug[ii], 1);
+	printf("\nlam_ls\n");
+	for(ii=0; ii<=N; ii++)
+		d_print_mat(1, ns[ii], lam_ls[ii], 1);
+	printf("\nlam_us\n");
+	for(ii=0; ii<=N; ii++)
+		d_print_mat(1, ns[ii], lam_us[ii], 1);
+
+	printf("\nt_lb\n");
+	for(ii=0; ii<=N; ii++)
+		d_print_mat(1, nb[ii], (qp_sol.t+ii)->pa, 1);
+	printf("\nt_ub\n");
+	for(ii=0; ii<=N; ii++)
+		d_print_mat(1, nb[ii], (qp_sol.t+ii)->pa+nb[ii]+ng[ii], 1);
+	printf("\nt_lg\n");
+	for(ii=0; ii<=N; ii++)
+		d_print_mat(1, ng[ii], (qp_sol.t+ii)->pa+nb[ii], 1);
+	printf("\nt_ug\n");
+	for(ii=0; ii<=N; ii++)
+		d_print_mat(1, ng[ii], (qp_sol.t+ii)->pa+2*nb[ii]+ng[ii], 1);
+	printf("\nt_ls\n");
+	for(ii=0; ii<=N; ii++)
+		d_print_mat(1, ns[ii], (qp_sol.t+ii)->pa+2*nb[ii]+2*ng[ii], 1);
+	printf("\nt_us\n");
+	for(ii=0; ii<=N; ii++)
+		d_print_mat(1, ns[ii], (qp_sol.t+ii)->pa+2*nb[ii]+2*ng[ii]+ns[ii], 1);
+#endif
+
+/************************************************
+* print ipm statistics
+************************************************/
+
+	printf("\nipm return = %d\n", hpipm_return);
+	printf("\nipm residuals max: res_g = %e, res_b = %e, res_d = %e, res_m = %e\n", workspace.qp_res[0], workspace.qp_res[1], workspace.qp_res[2], workspace.qp_res[3]);
+
+	printf("\nipm iter = %d\n", workspace.iter);
+	printf("\nalpha_aff\tmu_aff\t\tsigma\t\talpha\t\tmu\n");
+	d_print_e_tran_mat(5, workspace.iter, workspace.stat, 5);
+
+	printf("\nocp ipm time = %e [s]\n\n", time_ocp_ipm_phase_I);
+
+
+/************************************************
+* solve actual problem
+************************************************/
+
+	for(ii=0; ii<nx_; ii++) Q[ii*(nx_+1)] = 1.0;
+
+	for(ii=0; ii<nu_; ii++) R[ii*(nu_+1)] = 2.0;
+
+	d_cvt_colmaj_to_ocp_qp(hA, hB, hb, hQ, hS, hR, hq, hr, hidxb, hd_lb, hd_ub, hC, hD, hd_lg, hd_ug, hZl, hZu, hzl, hzu, hidxs, hd_ls, hd_us, &qp);
+
+	// war start
+	arg.warm_start = 1;
+
+	// call solver
+	gettimeofday(&tv0, NULL); // start
+
+	for(rep=0; rep<nrep; rep++)
+		{
+		hpipm_return = d_solve_ocp_qp_ipm(&qp, &qp_sol, &arg, &workspace);
+		}
+
+	gettimeofday(&tv1, NULL); // stop
+
+	double time_ocp_ipm = (tv1.tv_sec-tv0.tv_sec)/(nrep+0.0)+(tv1.tv_usec-tv0.tv_usec)/(nrep*1e6);
+
+/************************************************
+* extract and print solution
+************************************************/
+
+#if 0
+	double *u[N+1]; for(ii=0; ii<=N; ii++) d_zeros(u+ii, nu[ii], 1);
+	double *x[N+1]; for(ii=0; ii<=N; ii++) d_zeros(x+ii, nx[ii], 1);
+	double *ls[N+1]; for(ii=0; ii<=N; ii++) d_zeros(ls+ii, ns[ii], 1);
+	double *us[N+1]; for(ii=0; ii<=N; ii++) d_zeros(us+ii, ns[ii], 1);
+	double *pi[N]; for(ii=0; ii<N; ii++) d_zeros(pi+ii, nx[ii+1], 1);
+	double *lam_lb[N+1]; for(ii=0; ii<=N; ii++) d_zeros(lam_lb+ii, nb[ii], 1);
+	double *lam_ub[N+1]; for(ii=0; ii<=N; ii++) d_zeros(lam_ub+ii, nb[ii], 1);
+	double *lam_lg[N+1]; for(ii=0; ii<=N; ii++) d_zeros(lam_lg+ii, ng[ii], 1);
+	double *lam_ug[N+1]; for(ii=0; ii<=N; ii++) d_zeros(lam_ug+ii, ng[ii], 1);
+	double *lam_ls[N+1]; for(ii=0; ii<=N; ii++) d_zeros(lam_ls+ii, ns[ii], 1);
+	double *lam_us[N+1]; for(ii=0; ii<=N; ii++) d_zeros(lam_us+ii, ns[ii], 1);
+#endif
 
 	d_cvt_ocp_qp_sol_to_colmaj(&qp_sol, u, x, ls, us, pi, lam_lb, lam_ub, lam_lg, lam_ug, lam_ls, lam_us);
 
@@ -1041,35 +1160,6 @@ int main()
 
 	printf("\nocp ipm time = %e [s]\n\n", time_ocp_ipm);
 
-
-/************************************************
-* setup actual problem
-************************************************/
-
-	for(ii=0; ii<nx_; ii++) Q[ii*(nx_+1)] = 1.0;
-
-	for(ii=0; ii<nu_; ii++) R[ii*(nu_+1)] = 2.0;
-
-	d_cvt_colmaj_to_ocp_qp(hA, hB, hb, hQ, hS, hR, hq, hr, hidxb, hd_lb, hd_ub, hC, hD, hd_lg, hd_ug, hZl, hZu, hzl, hzu, hidxs, hd_ls, hd_us, &qp);
-
-	// war start
-	arg.warm_start = 1;
-
-	// call solver
-	hpipm_return = d_solve_ocp_qp_ipm(&qp, &qp_sol, &arg, &workspace);
-
-	// extract solution
-	d_cvt_ocp_qp_sol_to_colmaj(&qp_sol, u, x, ls, us, pi, lam_lb, lam_ub, lam_lg, lam_ug, lam_ls, lam_us);
-
-	// print statistics
-	printf("\nipm return = %d\n", hpipm_return);
-	printf("\nipm residuals max: res_g = %e, res_b = %e, res_d = %e, res_m = %e\n", workspace.qp_res[0], workspace.qp_res[1], workspace.qp_res[2], workspace.qp_res[3]);
-
-	printf("\nipm iter = %d\n", workspace.iter);
-	printf("\nalpha_aff\tmu_aff\t\tsigma\t\talpha\t\tmu\n");
-	d_print_e_tran_mat(5, workspace.iter, workspace.stat, 5);
-
-	printf("\nocp ipm time = %e [s]\n\n", time_ocp_ipm);
 
 /************************************************
 * free memory
