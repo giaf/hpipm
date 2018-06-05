@@ -42,6 +42,9 @@ REF_BLAS = 0
 #REF_BLAS = BLIS
 #REF_BLAS = ATLAS
 
+# Installation directory
+TOP = $(shell pwd)
+
 # operating system
 #UNAME_S := $(shell uname -s)
 #ifeq ($(UNAME_S),Linux)
@@ -79,7 +82,7 @@ CFLAGS += -O2 -fPIC
 CFLAGS  += #-g #-Wall -pedantic -Wfloat-equal #-pg
 
 # search directories
-CFLAGS += -I$(BLASFEO_PATH)/include
+CFLAGS += -I$(BLASFEO_PATH)/include -I$(TOP)/include
 
 # definirions
 #ifeq ($(OS), LINUX)

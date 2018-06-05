@@ -27,15 +27,15 @@
 
 
 
+#ifndef HPIPM_S_DENSE_QP_IPM_H_
+#define HPIPM_S_DENSE_QP_IPM_H_
+
+
+
 #include <blasfeo_target.h>
 #include <blasfeo_common.h>
 
-#include "../include/hpipm_x_dense_qp_ipm.h"
-
-
-
-#ifndef HPIPM_S_DENSE_QP_IPM_H_
-#define HPIPM_S_DENSE_QP_IPM_H_
+#include "hpipm_x_dense_qp_ipm.h"
 
 
 

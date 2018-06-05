@@ -32,13 +32,15 @@
 #include <blasfeo_s_aux.h>
 #include <blasfeo_s_blas.h>
 
-#include "../include/hpipm_tree.h"
-#include "../include/hpipm_s_tree_ocp_qp.h"
-#include "../include/hpipm_s_tree_ocp_qp_sol.h"
-#include "../include/hpipm_s_tree_ocp_qp_res.h"
-#include "../include/hpipm_s_tree_ocp_qp_ipm.h"
-#include "../include/hpipm_s_core_qp_ipm.h"
-#include "../include/hpipm_s_core_qp_ipm_aux.h"
+#include <hpipm_tree.h>
+#include <hpipm_s_tree_ocp_qp.h>
+#include <hpipm_s_tree_ocp_qp_sol.h>
+#include <hpipm_s_tree_ocp_qp_res.h>
+#include <hpipm_s_tree_ocp_qp_ipm.h>
+#include <hpipm_s_core_qp_ipm.h>
+#include <hpipm_s_core_qp_ipm_aux.h>
+
+
 
 #define AXPY blasfeo_saxpy
 #define COMPUTE_LAM_T_QP s_compute_lam_t_qp

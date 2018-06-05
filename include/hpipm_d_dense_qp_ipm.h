@@ -35,7 +35,7 @@
 #include <blasfeo_target.h>
 #include <blasfeo_common.h>
 
-#include "../include/hpipm_x_dense_qp_ipm.h"
+#include "hpipm_x_dense_qp_ipm.h"
 
 
 #ifdef __cplusplus

@@ -38,14 +38,14 @@
 #include <blasfeo_s_aux.h>
 #include <blasfeo_s_blas.h>
 
-#include "../include/hpipm_s_dense_qp_dim.h"
-#include "../include/hpipm_s_dense_qp.h"
-#include "../include/hpipm_s_dense_qp_sol.h"
-#include "../include/hpipm_s_dense_qp_res.h"
-#include "../include/hpipm_s_dense_qp_ipm.h"
-#include "../include/hpipm_s_core_qp_ipm.h"
-#include "../include/hpipm_s_core_qp_ipm_aux.h"
-#include "../include/hpipm_s_dense_qp_kkt.h"
+#include <hpipm_s_dense_qp_dim.h>
+#include <hpipm_s_dense_qp.h>
+#include <hpipm_s_dense_qp_sol.h>
+#include <hpipm_s_dense_qp_res.h>
+#include <hpipm_s_dense_qp_ipm.h>
+#include <hpipm_s_core_qp_ipm.h>
+#include <hpipm_s_core_qp_ipm_aux.h>
+#include <hpipm_s_dense_qp_kkt.h>
 
 
 

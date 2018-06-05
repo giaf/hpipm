@@ -27,7 +27,7 @@
 
 
 
-#include "../include/hpipm_s_ocp_qp_dim.h"
+#include <hpipm_s_ocp_qp_dim.h>
 
 
 
