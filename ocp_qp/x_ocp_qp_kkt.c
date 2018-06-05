@@ -27,7 +27,7 @@
 
 
 
-void INIT_VAR_OCP_QP(struct OCP_QP *qp, struct OCP_QP_SOL *qp_sol, struct OCP_QP_IPM_WORKSPACE *ws)
+void INIT_VAR_OCP_QP(struct OCP_QP *qp, struct OCP_QP_SOL *qp_sol, struct OCP_QP_IPM_ARG *arg, struct OCP_QP_IPM_WORKSPACE *ws)
 	{
 
 //	struct CORE_QP_IPM_WORKSPACE *cws = ws->core_workspace;
@@ -52,8 +52,9 @@ void INIT_VAR_OCP_QP(struct OCP_QP *qp, struct OCP_QP_SOL *qp_sol, struct OCP_QP
 	REAL thr0 = 0.1;
 
 	// ux
-	if(ws->warm_start==0)
+	if(arg->warm_start==0)
 		{
+
 		// cold start
 		for(ii=0; ii<=N; ii++)
 			{
@@ -63,9 +64,11 @@ void INIT_VAR_OCP_QP(struct OCP_QP *qp, struct OCP_QP_SOL *qp_sol, struct OCP_QP
 				ux[jj] = 0.0;
 				}
 			}
+
 		}
 	else
 		{
+
 		// warm start (keep u and x in solution)
 		for(ii=0; ii<=N; ii++)
 			{
@@ -75,6 +78,7 @@ void INIT_VAR_OCP_QP(struct OCP_QP *qp, struct OCP_QP_SOL *qp_sol, struct OCP_QP
 				ux[jj] = 0.0;
 				}
 			}
+
 		}
 	
 	// pi

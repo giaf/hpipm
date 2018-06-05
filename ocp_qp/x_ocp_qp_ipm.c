@@ -756,7 +756,7 @@ int SOLVE_OCP_QP_IPM(struct OCP_QP *qp, struct OCP_QP_SOL *qp_sol, struct OCP_QP
 	REAL mu_aff0;
 
 	// init solver
-	INIT_VAR_OCP_QP(qp, qp_sol, ws);
+	INIT_VAR_OCP_QP(qp, qp_sol, arg, ws);
 
 	// compute residuals
 	COMPUTE_RES_OCP_QP(qp, qp_sol, ws->res, ws->res_workspace);
@@ -770,6 +770,8 @@ int SOLVE_OCP_QP_IPM(struct OCP_QP *qp, struct OCP_QP_SOL *qp_sol, struct OCP_QP
 	VECNRM_INF_LIBSTR(cws->ne, &str_res_b, 0, &qp_res[1]);
 	VECNRM_INF_LIBSTR(cws->nc, &str_res_d, 0, &qp_res[2]);
 	VECNRM_INF_LIBSTR(cws->nc, &str_res_m, 0, &qp_res[3]);
+
+//printf("\niter %d\t%e\t%e\t%e\t%e\n", -1, qp_res[0], qp_res[1], qp_res[2], qp_res[3]);
 
 	REAL itref_qp_norm[4] = {0,0,0,0};
 	REAL itref_qp_norm0[4] = {0,0,0,0};
