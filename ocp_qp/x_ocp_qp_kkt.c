@@ -43,7 +43,7 @@ void INIT_VAR_OCP_QP(struct OCP_QP *qp, struct OCP_QP_SOL *qp_sol, struct OCP_QP
 	int *ng = qp->dim->ng;
 	int *ns = qp->dim->ns;
 
-	REAL mu0 = ws->mu0;
+	REAL mu0 = arg->mu0;
 
 	//
 	REAL *ux, *pi, *d_lb, *d_ub, *d_lg, *d_ug, *lam_lb, *lam_ub, *lam_lg, *lam_ug, *t_lb, *t_ub, *t_lg, *t_ug;

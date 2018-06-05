@@ -31,7 +31,7 @@ extern "C" {
 
 
 //
-void d_init_var_tree_ocp_qp(struct d_tree_ocp_qp *qp, struct d_tree_ocp_qp_sol *qp_sol, struct d_tree_ocp_qp_ipm_workspace *ws);
+void d_init_var_tree_ocp_qp(struct d_tree_ocp_qp *qp, struct d_tree_ocp_qp_sol *qp_sol, struct d_tree_ocp_qp_ipm_arg *arg, struct d_tree_ocp_qp_ipm_workspace *ws);
 //
 void d_compute_res_tree_ocp_qp(struct d_tree_ocp_qp *qp, struct d_tree_ocp_qp_sol *qp_sol, struct d_tree_ocp_qp_res *res, struct d_tree_ocp_qp_res_workspace *ws);
 //

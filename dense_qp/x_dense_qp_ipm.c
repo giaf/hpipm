@@ -313,7 +313,6 @@ void CREATE_DENSE_QP_IPM(struct DENSE_QP_DIM *dim, struct DENSE_QP_IPM_ARG *arg,
 	d_ptr += 5*arg->stat_max;
 
 	workspace->stat_max = arg->stat_max;
-	workspace->warm_start = arg->warm_start;
 
 
 	// int suff
@@ -525,8 +524,6 @@ int SOLVE_DENSE_QP_IPM(struct DENSE_QP *qp, struct DENSE_QP_SOL *qp_sol, struct 
 	qp_res[2] = 0;
 	qp_res[3] = 0;
 
-	ws->mu0 = arg->mu0;
-
 	// dims
 	int nv = qp->dim->nv;
 	int ne = qp->dim->ne;
@@ -540,7 +537,7 @@ int SOLVE_DENSE_QP_IPM(struct DENSE_QP *qp, struct DENSE_QP_SOL *qp_sol, struct 
 	int iter_ref_step;
 
 	// init solver
-	INIT_VAR_DENSE_QP(qp, qp_sol, ws);
+	INIT_VAR_DENSE_QP(qp, qp_sol, arg, ws);
 
 	// compute residuals
 	COMPUTE_RES_DENSE_QP(qp, qp_sol, ws->res, ws->res_workspace);

@@ -94,10 +94,8 @@ struct s_tree_ocp_qp_ipm_workspace
 	int *use_hess_fact;
 	void *lq_work0;
 	float qp_res[4]; // infinity norm of residuals
-	float mu0; // mu0
 	int iter; // iteration number
 	int stat_max; // iterations saved in stat
-	int warm_start; // 0 no warm start, 1 warm start primal sol
 	int memsize;
 	};
 

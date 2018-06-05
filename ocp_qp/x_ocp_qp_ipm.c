@@ -569,8 +569,6 @@ void CREATE_OCP_QP_IPM(struct OCP_QP_DIM *dim, struct OCP_QP_IPM_ARG *arg, struc
 
 	workspace->stat_max = arg->stat_max;
 
-	workspace->warm_start = arg->warm_start;
-
 	for(ii=0; ii<=N; ii++)
 		workspace->use_hess_fact[ii] = 0;
 
@@ -741,8 +739,6 @@ int SOLVE_OCP_QP_IPM(struct OCP_QP *qp, struct OCP_QP_SOL *qp_sol, struct OCP_QP
 	qp_res[1] = 0;
 	qp_res[2] = 0;
 	qp_res[3] = 0;
-
-	ws->mu0 = arg->mu0;
 
 	int N = qp->dim->N;
 	int *nx = qp->dim->nx;

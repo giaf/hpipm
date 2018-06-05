@@ -39,7 +39,7 @@ extern "C" {
 
 
 //
-void s_init_var_dense_qp(struct s_dense_qp *qp, struct s_dense_qp_sol *qp_sol, struct s_dense_qp_ipm_workspace *ws);
+void s_init_var_dense_qp(struct s_dense_qp *qp, struct s_dense_qp_sol *qp_sol, struct s_dense_qp_ipm_arg *arg, struct s_dense_qp_ipm_workspace *ws);
 //
 void s_compute_lin_res_dense_qp(struct s_dense_qp *qp, struct s_dense_qp_sol *qp_sol, struct s_dense_qp_sol *qp_step, struct s_dense_qp_res *res, struct s_dense_qp_res_workspace *ws);
 //

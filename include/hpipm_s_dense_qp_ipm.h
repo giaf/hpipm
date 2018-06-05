@@ -101,10 +101,8 @@ struct s_dense_qp_ipm_workspace
 	void *lq_work0;
 	void *lq_work1;
 	float qp_res[4]; // infinity norm of residuals
-	float mu0; // mu0
 	int iter; // iteration number
 	int stat_max; // iterations saved in stat
-	int warm_start; // 0 no warm start, 1 warm start primal sol
 	int scale;
 	int use_hess_fact;
 	int memsize; // memory size (in bytes) of workspace

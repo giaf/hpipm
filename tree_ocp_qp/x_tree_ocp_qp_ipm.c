@@ -100,7 +100,7 @@ void SET_DEFAULT_TREE_OCP_QP_IPM_ARG(enum TREE_OCP_QP_IPM_MODE mode, struct TREE
 		arg->res_b_max = 1e-8;
 		arg->res_d_max = 1e-8;
 		arg->res_m_max = 1e-8;
-		arg->iter_max = 100;
+		//arg->iter_max = 100;
 		arg->stat_max = 100;
 		arg->pred_corr = 1;
 		arg->cond_pred_corr = 1;
@@ -571,8 +571,6 @@ void CREATE_TREE_OCP_QP_IPM(struct TREE_OCP_QP_DIM *dim, struct TREE_OCP_QP_IPM_
 
 	workspace->stat_max = arg->stat_max;
 
-	workspace->warm_start = arg->warm_start;
-
 	for(ii=0; ii<Nn; ii++)
 		workspace->use_hess_fact[ii] = 0;
 
@@ -667,8 +665,6 @@ int SOLVE_TREE_OCP_QP_IPM(struct TREE_OCP_QP *qp, struct TREE_OCP_QP_SOL *qp_sol
 	qp_res[2] = 0;
 	qp_res[3] = 0;
 
-	ws->mu0 = arg->mu0;
-
 	int Nn = qp->dim->Nn;
 	int *nx = qp->dim->nx;
 	int *nu = qp->dim->nu;
@@ -681,7 +677,7 @@ int SOLVE_TREE_OCP_QP_IPM(struct TREE_OCP_QP *qp, struct TREE_OCP_QP_SOL *qp_sol
 	REAL mu_aff0;
 
 	// init solver
-	INIT_VAR_TREE_OCP_QP(qp, qp_sol, ws);
+	INIT_VAR_TREE_OCP_QP(qp, qp_sol, arg, ws);
 
 	// compute residuals
 	COMPUTE_RES_TREE_OCP_QP(qp, qp_sol, ws->res, ws->res_workspace);

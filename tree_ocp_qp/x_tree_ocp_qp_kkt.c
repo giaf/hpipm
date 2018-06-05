@@ -25,10 +25,10 @@
 *                                                                                                 *
 **************************************************************************************************/
 
-void INIT_VAR_TREE_OCP_QP(struct TREE_OCP_QP *qp, struct TREE_OCP_QP_SOL *qp_sol, struct TREE_OCP_QP_IPM_WORKSPACE *ws)
+void INIT_VAR_TREE_OCP_QP(struct TREE_OCP_QP *qp, struct TREE_OCP_QP_SOL *qp_sol, struct TREE_OCP_QP_IPM_ARG *arg, struct TREE_OCP_QP_IPM_WORKSPACE *ws)
 	{
 
-	struct CORE_QP_IPM_WORKSPACE *cws = ws->core_workspace;
+//	struct CORE_QP_IPM_WORKSPACE *cws = ws->core_workspace;
 	
 	// loop index
 	int ii, jj;
@@ -41,7 +41,7 @@ void INIT_VAR_TREE_OCP_QP(struct TREE_OCP_QP *qp, struct TREE_OCP_QP_SOL *qp_sol
 	int *ng = qp->dim->ng;
 	int *ns = qp->dim->ns;
 
-	REAL mu0 = ws->mu0;
+	REAL mu0 = arg->mu0;
 
 	//
 	REAL *ux, *pi, *d_lb, *d_ub, *d_lg, *d_ug, *lam_lb, *lam_ub, *lam_lg, *lam_ug, *t_lb, *t_ub, *t_lg, *t_ug;
@@ -50,7 +50,7 @@ void INIT_VAR_TREE_OCP_QP(struct TREE_OCP_QP *qp, struct TREE_OCP_QP_SOL *qp_sol
 	REAL thr0 = 0.1;
 
 	// ux
-	if(ws->warm_start==0)
+	if(arg->warm_start==0)
 		{
 		// cold start
 		for(ii=0; ii<Nn; ii++)

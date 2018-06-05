@@ -27,10 +27,10 @@
 
 
 
-void INIT_VAR_DENSE_QP(struct DENSE_QP *qp, struct DENSE_QP_SOL *qp_sol, struct DENSE_QP_IPM_WORKSPACE *ws)
+void INIT_VAR_DENSE_QP(struct DENSE_QP *qp, struct DENSE_QP_SOL *qp_sol, struct DENSE_QP_IPM_ARG *arg, struct DENSE_QP_IPM_WORKSPACE *ws)
 	{
 
-	struct CORE_QP_IPM_WORKSPACE *cws = ws->core_workspace;
+//	struct CORE_QP_IPM_WORKSPACE *cws = ws->core_workspace;
 
 	// extract cws members
 	int nv = qp->dim->nv;
@@ -47,7 +47,7 @@ void INIT_VAR_DENSE_QP(struct DENSE_QP *qp, struct DENSE_QP_SOL *qp_sol, struct 
 	REAL *lam = qp_sol->lam->pa;
 	REAL *t = qp_sol->t->pa;
 
-	REAL mu0 = ws->mu0;
+	REAL mu0 = arg->mu0;
 
 	// local variables
 	int ii;
@@ -55,7 +55,7 @@ void INIT_VAR_DENSE_QP(struct DENSE_QP *qp, struct DENSE_QP_SOL *qp_sol, struct 
 	REAL thr0 = 0.5;
 
 	// primal variables
-	if(ws->warm_start==0)
+	if(arg->warm_start==0)
 		{
 		// cold start
 		for(ii=0; ii<nv+2*ns; ii++)
