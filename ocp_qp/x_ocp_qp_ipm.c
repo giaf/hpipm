@@ -762,10 +762,10 @@ int SOLVE_OCP_QP_IPM(struct OCP_QP *qp, struct OCP_QP_SOL *qp_sol, struct OCP_QP
 	cws->alpha = 1.0;
 
 	// compute infinity norm of residuals
-	VECNRM_INF_LIBSTR(cws->nv, &str_res_g, 0, &qp_res[0]);
-	VECNRM_INF_LIBSTR(cws->ne, &str_res_b, 0, &qp_res[1]);
-	VECNRM_INF_LIBSTR(cws->nc, &str_res_d, 0, &qp_res[2]);
-	VECNRM_INF_LIBSTR(cws->nc, &str_res_m, 0, &qp_res[3]);
+	VECNRM_INF(cws->nv, &str_res_g, 0, &qp_res[0]);
+	VECNRM_INF(cws->ne, &str_res_b, 0, &qp_res[1]);
+	VECNRM_INF(cws->nc, &str_res_d, 0, &qp_res[2]);
+	VECNRM_INF(cws->nc, &str_res_m, 0, &qp_res[3]);
 
 //printf("\niter %d\t%e\t%e\t%e\t%e\n", -1, qp_res[0], qp_res[1], qp_res[2], qp_res[3]);
 
@@ -774,6 +774,67 @@ int SOLVE_OCP_QP_IPM(struct OCP_QP *qp, struct OCP_QP_SOL *qp_sol, struct OCP_QP
 	int ndp0, ndp1;
 
 	int force_lq = 0;
+
+
+
+#if 0
+	// IPM loop (absolute formulation)
+	for(kk=0; kk<arg->iter_max; kk++)
+		{
+
+		// fact solve
+		FACT_SOLVE_KKT_STEP_OCP_QP(qp, ws->sol_step, arg, ws);
+
+#if 0
+blasfeo_print_tran_dvec(cws->nv, ws->sol_step->ux, 0);
+blasfeo_print_tran_dvec(cws->ne, ws->sol_step->pi, 0);
+blasfeo_print_tran_dvec(cws->nc, ws->sol_step->lam, 0);
+blasfeo_print_tran_dvec(cws->nc, ws->sol_step->t, 0);
+#endif
+
+		// compute step
+		AXPY(cws->nv, -1.0, qp_sol->ux, 0, ws->sol_step->ux, 0, ws->sol_step->ux, 0);
+		AXPY(cws->ne, -1.0, qp_sol->pi, 0, ws->sol_step->pi, 0, ws->sol_step->pi, 0);
+		AXPY(cws->nc, -1.0, qp_sol->lam, 0, ws->sol_step->lam, 0, ws->sol_step->lam, 0);
+		AXPY(cws->nc, -1.0, qp_sol->t, 0, ws->sol_step->t, 0, ws->sol_step->t, 0);
+
+#if 0
+blasfeo_print_tran_dvec(cws->nv, ws->sol_step->ux, 0);
+blasfeo_print_tran_dvec(cws->ne, ws->sol_step->pi, 0);
+blasfeo_print_tran_dvec(cws->nc, ws->sol_step->lam, 0);
+blasfeo_print_tran_dvec(cws->nc, ws->sol_step->t, 0);
+#endif
+
+		// alpha
+		COMPUTE_ALPHA_QP(cws);
+		if(kk<ws->stat_max)
+			ws->stat[5*kk+0] = cws->alpha;
+
+		//
+		UPDATE_VAR_QP(cws);
+
+		// compute residuals
+		COMPUTE_RES_OCP_QP(qp, qp_sol, ws->res, ws->res_workspace);
+		BACKUP_RES_M(cws);
+		cws->mu = ws->res->res_mu;
+		if(kk<ws->stat_max)
+			ws->stat[5*kk+4] = ws->res->res_mu;
+
+		// compute infinity norm of residuals
+		VECNRM_INF(cws->nv, &str_res_g, 0, &qp_res[0]);
+		VECNRM_INF(cws->ne, &str_res_b, 0, &qp_res[1]);
+		VECNRM_INF(cws->nc, &str_res_d, 0, &qp_res[2]);
+		VECNRM_INF(cws->nc, &str_res_m, 0, &qp_res[3]);
+
+//		exit(1);
+
+		}
+
+	ws->iter = kk;
+
+	return 0;
+#endif
+
 
 
 	// IPM loop
@@ -801,10 +862,10 @@ int SOLVE_OCP_QP_IPM(struct OCP_QP *qp, struct OCP_QP_SOL *qp_sol, struct OCP_QP
 
 			// compute res of linear system
 			COMPUTE_LIN_RES_OCP_QP(ws->qp_step, qp_sol, ws->sol_step, ws->res_itref, ws->res_workspace);
-			VECNRM_INF_LIBSTR(cws->nv, ws->res_itref->res_g, 0, &itref_qp_norm[0]);
-			VECNRM_INF_LIBSTR(cws->ne, ws->res_itref->res_b, 0, &itref_qp_norm[1]);
-			VECNRM_INF_LIBSTR(cws->nc, ws->res_itref->res_d, 0, &itref_qp_norm[2]);
-			VECNRM_INF_LIBSTR(cws->nc, ws->res_itref->res_m, 0, &itref_qp_norm[3]);
+			VECNRM_INF(cws->nv, ws->res_itref->res_g, 0, &itref_qp_norm[0]);
+			VECNRM_INF(cws->ne, ws->res_itref->res_b, 0, &itref_qp_norm[1]);
+			VECNRM_INF(cws->nc, ws->res_itref->res_d, 0, &itref_qp_norm[2]);
+			VECNRM_INF(cws->nc, ws->res_itref->res_m, 0, &itref_qp_norm[3]);
 
 //printf("\n%e\t%e\t%e\t%e\n", itref_qp_norm[0], itref_qp_norm[1], itref_qp_norm[2], itref_qp_norm[3]);
 
@@ -857,10 +918,10 @@ blasfeo_print_tran_dvec(cws->nc, ws->sol_step->t, 0);
 
 			COMPUTE_LIN_RES_OCP_QP(ws->qp_step, qp_sol, ws->sol_step, ws->res_itref, ws->res_workspace);
 
-			VECNRM_INF_LIBSTR(cws->nv, ws->res_itref->res_g, 0, &itref_qp_norm[0]);
-			VECNRM_INF_LIBSTR(cws->ne, ws->res_itref->res_b, 0, &itref_qp_norm[1]);
-			VECNRM_INF_LIBSTR(cws->nc, ws->res_itref->res_d, 0, &itref_qp_norm[2]);
-			VECNRM_INF_LIBSTR(cws->nc, ws->res_itref->res_m, 0, &itref_qp_norm[3]);
+			VECNRM_INF(cws->nv, ws->res_itref->res_g, 0, &itref_qp_norm[0]);
+			VECNRM_INF(cws->ne, ws->res_itref->res_b, 0, &itref_qp_norm[1]);
+			VECNRM_INF(cws->nc, ws->res_itref->res_d, 0, &itref_qp_norm[2]);
+			VECNRM_INF(cws->nc, ws->res_itref->res_m, 0, &itref_qp_norm[3]);
 
 			if(itref0==0)
 				{
@@ -886,13 +947,13 @@ blasfeo_print_tran_dvec(cws->nc, ws->sol_step->t, 0);
 			SOLVE_KKT_STEP_OCP_QP(ws->qp_itref, ws->sol_itref, arg, ws);
 
 			for(ii=0; ii<=N; ii++)
-				AXPY_LIBSTR(nu[ii]+nx[ii]+2*ns[ii], 1.0, ws->sol_itref->ux+ii, 0, ws->sol_step->ux+ii, 0, ws->sol_step->ux+ii, 0);
+				AXPY(nu[ii]+nx[ii]+2*ns[ii], 1.0, ws->sol_itref->ux+ii, 0, ws->sol_step->ux+ii, 0, ws->sol_step->ux+ii, 0);
 			for(ii=0; ii<N; ii++)
-				AXPY_LIBSTR(nx[ii+1], 1.0, ws->sol_itref->pi+ii, 0, ws->sol_step->pi+ii, 0, ws->sol_step->pi+ii, 0);
+				AXPY(nx[ii+1], 1.0, ws->sol_itref->pi+ii, 0, ws->sol_step->pi+ii, 0, ws->sol_step->pi+ii, 0);
 			for(ii=0; ii<=N; ii++)
-				AXPY_LIBSTR(2*nb[ii]+2*ng[ii]+2*ns[ii], 1.0, ws->sol_itref->lam+ii, 0, ws->sol_step->lam+ii, 0, ws->sol_step->lam+ii, 0);
+				AXPY(2*nb[ii]+2*ng[ii]+2*ns[ii], 1.0, ws->sol_itref->lam+ii, 0, ws->sol_step->lam+ii, 0, ws->sol_step->lam+ii, 0);
 			for(ii=0; ii<=N; ii++)
-				AXPY_LIBSTR(2*nb[ii]+2*ng[ii]+2*ns[ii], 1.0, ws->sol_itref->t+ii, 0, ws->sol_step->t+ii, 0, ws->sol_step->t+ii, 0);
+				AXPY(2*nb[ii]+2*ng[ii]+2*ns[ii], 1.0, ws->sol_itref->t+ii, 0, ws->sol_step->t+ii, 0, ws->sol_step->t+ii, 0);
 
 			}
 
@@ -1014,10 +1075,10 @@ exit(1);
 //	blasfeo_dvecse(2*nb[ii]+2*ng[ii], 0.0, ws->res_itref->res_d+ii, 0);
 //for(ii=0; ii<=N; ii++)
 //	blasfeo_dvecse(2*nb[ii]+2*ng[ii], 0.0, ws->res_itref->res_m+ii, 0);
-				VECNRM_INF_LIBSTR(cws->nv, ws->res_itref->res_g, 0, &itref_qp_norm[0]);
-				VECNRM_INF_LIBSTR(cws->ne, ws->res_itref->res_b, 0, &itref_qp_norm[1]);
-				VECNRM_INF_LIBSTR(cws->nc, ws->res_itref->res_d, 0, &itref_qp_norm[2]);
-				VECNRM_INF_LIBSTR(cws->nc, ws->res_itref->res_m, 0, &itref_qp_norm[3]);
+				VECNRM_INF(cws->nv, ws->res_itref->res_g, 0, &itref_qp_norm[0]);
+				VECNRM_INF(cws->ne, ws->res_itref->res_b, 0, &itref_qp_norm[1]);
+				VECNRM_INF(cws->nc, ws->res_itref->res_d, 0, &itref_qp_norm[2]);
+				VECNRM_INF(cws->nc, ws->res_itref->res_m, 0, &itref_qp_norm[3]);
 
 				if(itref1==0)
 					{
@@ -1077,13 +1138,13 @@ exit(1);
 //	blasfeo_print_exp_tran_dvec(2*nb[ii]+2*ng[ii], ws->sol_itref->t+ii, 0);
 
 				for(ii=0; ii<=N; ii++)
-					AXPY_LIBSTR(nu[ii]+nx[ii]+2*ns[ii], 1.0, ws->sol_itref->ux+ii, 0, ws->sol_step->ux+ii, 0, ws->sol_step->ux+ii, 0);
+					AXPY(nu[ii]+nx[ii]+2*ns[ii], 1.0, ws->sol_itref->ux+ii, 0, ws->sol_step->ux+ii, 0, ws->sol_step->ux+ii, 0);
 				for(ii=0; ii<N; ii++)
-					AXPY_LIBSTR(nx[ii+1], 1.0, ws->sol_itref->pi+ii, 0, ws->sol_step->pi+ii, 0, ws->sol_step->pi+ii, 0);
+					AXPY(nx[ii+1], 1.0, ws->sol_itref->pi+ii, 0, ws->sol_step->pi+ii, 0, ws->sol_step->pi+ii, 0);
 				for(ii=0; ii<=N; ii++)
-					AXPY_LIBSTR(2*nb[ii]+2*ng[ii]+2*ns[ii], 1.0, ws->sol_itref->lam+ii, 0, ws->sol_step->lam+ii, 0, ws->sol_step->lam+ii, 0);
+					AXPY(2*nb[ii]+2*ng[ii]+2*ns[ii], 1.0, ws->sol_itref->lam+ii, 0, ws->sol_step->lam+ii, 0, ws->sol_step->lam+ii, 0);
 				for(ii=0; ii<=N; ii++)
-					AXPY_LIBSTR(2*nb[ii]+2*ng[ii]+2*ns[ii], 1.0, ws->sol_itref->t+ii, 0, ws->sol_step->t+ii, 0, ws->sol_step->t+ii, 0);
+					AXPY(2*nb[ii]+2*ng[ii]+2*ns[ii], 1.0, ws->sol_itref->t+ii, 0, ws->sol_step->t+ii, 0, ws->sol_step->t+ii, 0);
 
 				}
 
@@ -1108,10 +1169,10 @@ exit(1);
 			ws->stat[5*kk+4] = ws->res->res_mu;
 
 		// compute infinity norm of residuals
-		VECNRM_INF_LIBSTR(cws->nv, &str_res_g, 0, &qp_res[0]);
-		VECNRM_INF_LIBSTR(cws->ne, &str_res_b, 0, &qp_res[1]);
-		VECNRM_INF_LIBSTR(cws->nc, &str_res_d, 0, &qp_res[2]);
-		VECNRM_INF_LIBSTR(cws->nc, &str_res_m, 0, &qp_res[3]);
+		VECNRM_INF(cws->nv, &str_res_g, 0, &qp_res[0]);
+		VECNRM_INF(cws->ne, &str_res_b, 0, &qp_res[1]);
+		VECNRM_INF(cws->nc, &str_res_d, 0, &qp_res[2]);
+		VECNRM_INF(cws->nc, &str_res_m, 0, &qp_res[3]);
 
 //printf("\niter %d\t%e\t%e\t%e\t%e\n", kk, qp_res[0], qp_res[1], qp_res[2], qp_res[3]);
 

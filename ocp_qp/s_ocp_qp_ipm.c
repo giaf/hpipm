@@ -49,7 +49,7 @@
 
 
 
-#define AXPY_LIBSTR blasfeo_saxpy
+#define AXPY blasfeo_saxpy
 #define BACKUP_RES_M s_backup_res_m
 #define COMPUTE_ALPHA_QP s_compute_alpha_qp
 #define COMPUTE_CENTERING_CORRECTION_QP s_compute_centering_correction_qp
@@ -93,7 +93,7 @@
 #define STRMAT blasfeo_smat
 #define STRVEC blasfeo_svec
 #define UPDATE_VAR_QP s_update_var_qp
-#define VECNRM_INF_LIBSTR blasfeo_svecnrm_inf
+#define VECNRM_INF blasfeo_svecnrm_inf
 
 
 
