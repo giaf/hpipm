@@ -832,6 +832,7 @@ int main()
 
 	struct d_ocp_qp_ipm_arg arg;
 	d_create_ocp_qp_ipm_arg(&dim, &arg, ipm_arg_mem);
+//	enum ocp_qp_ipm_mode mode = SPEED_ABS;
 	enum ocp_qp_ipm_mode mode = SPEED;
 //	enum ocp_qp_ipm_mode mode = BALANCE;
 //	enum ocp_qp_ipm_mode mode = ROBUST;

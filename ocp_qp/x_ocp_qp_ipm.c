@@ -50,7 +50,28 @@ void CREATE_OCP_QP_IPM_ARG(struct OCP_QP_DIM *dim, struct OCP_QP_IPM_ARG *arg, v
 void SET_DEFAULT_OCP_QP_IPM_ARG(enum OCP_QP_IPM_MODE mode, struct OCP_QP_IPM_ARG *arg)
 	{
 
-	if(mode==SPEED)
+	if(mode==SPEED_ABS)
+		{
+		arg->mu0 = 1e1;
+		arg->alpha_min = 1e-12;
+		arg->res_g_max = 1e0; // not used
+		arg->res_b_max = 1e0; // not used
+		arg->res_d_max = 1e0; // not used
+		arg->res_m_max = 1e-8;
+		arg->iter_max = 15;
+		arg->stat_max = 15;
+		arg->pred_corr = 1;
+		arg->cond_pred_corr = 0; // not used
+		arg->itref_pred_max = 0; // not used
+		arg->itref_corr_max = 0; // not used
+		arg->reg_prim = 1e-15;
+		arg->lq_fact = 0; // not used
+		arg->lam_min = 1e-30;
+		arg->t_min = 1e-30;
+		arg->warm_start = 0;
+		arg->abs_form = 1;
+		}
+	else if(mode==SPEED)
 		{
 		arg->mu0 = 1e1;
 		arg->alpha_min = 1e-12;
@@ -69,6 +90,7 @@ void SET_DEFAULT_OCP_QP_IPM_ARG(enum OCP_QP_IPM_MODE mode, struct OCP_QP_IPM_ARG
 		arg->lam_min = 1e-30;
 		arg->t_min = 1e-30;
 		arg->warm_start = 0;
+		arg->abs_form = 0;
 		}
 	else if(mode==BALANCE)
 		{
@@ -89,6 +111,7 @@ void SET_DEFAULT_OCP_QP_IPM_ARG(enum OCP_QP_IPM_MODE mode, struct OCP_QP_IPM_ARG
 		arg->lam_min = 1e-30;
 		arg->t_min = 1e-30;
 		arg->warm_start = 0;
+		arg->abs_form = 0;
 		}
 	else if(mode==ROBUST)
 		{
@@ -109,6 +132,7 @@ void SET_DEFAULT_OCP_QP_IPM_ARG(enum OCP_QP_IPM_MODE mode, struct OCP_QP_IPM_ARG
 		arg->lam_min = 1e-30;
 		arg->t_min = 1e-30;
 		arg->warm_start = 0;
+		arg->abs_form = 0;
 		}
 	else
 		{
@@ -179,9 +203,9 @@ int MEMSIZE_OCP_QP_IPM(struct OCP_QP_DIM *dim, struct OCP_QP_IPM_ARG *arg)
 	size += 2*sizeof(struct OCP_QP_RES); // res res_itref
 	size += 1*MEMSIZE_OCP_QP_RES(dim); // res_itref
 
-	size += 9*(N+1)*sizeof(struct STRVEC); // res_g res_d res_m Gamma gamma Zs_inv sol_step(v,lam,t) 
+	size += 9*(N+1)*sizeof(struct STRVEC); // res_g res_d res_m Gamma gamma Zs_inv sol_step(v,lam,t)
 	size += 3*N*sizeof(struct STRVEC); // res_b Pb sol_step(pi) 
-	size += 9*sizeof(struct STRVEC); // tmp_nxM (4+2)*tmp_nbgM (1+1)*tmp_nsM
+	size += 10*sizeof(struct STRVEC); // tmp_nxM (4+2)*tmp_nbgM (1+1)*tmp_nsM tmp_m
 
 	size += 1*(N+1)*sizeof(struct STRMAT); // L
 	if(arg->lq_fact>0)
@@ -201,6 +225,7 @@ int MEMSIZE_OCP_QP_IPM(struct OCP_QP_DIM *dim, struct OCP_QP_IPM_ARG *arg)
 	size += 2*SIZE_STRMAT(nuM+nxM+1, nxM+ngM); // AL
 	if(arg->lq_fact>0)
 		size += 1*SIZE_STRMAT(nuM+nxM, 2*nuM+3*nxM+ngM); // lq0
+	size += 1*SIZE_STRVEC(nct); // tmp_m
 
 	if(arg->lq_fact>0)
 		size += 1*GELQF_WORKSIZE(nuM+nxM, 2*nuM+3*nxM+ngM); // lq_work0
@@ -359,6 +384,8 @@ void CREATE_OCP_QP_IPM(struct OCP_QP_DIM *dim, struct OCP_QP_IPM_ARG *arg, struc
 	sv_ptr += 1;
 	workspace->res_workspace->tmp_nsM = sv_ptr;
 	sv_ptr += 1;
+	workspace->tmp_m = sv_ptr;
+	sv_ptr += 1;
 
 
 	// double/float stuff
@@ -447,6 +474,9 @@ void CREATE_OCP_QP_IPM(struct OCP_QP_DIM *dim, struct OCP_QP_IPM_ARG *arg, struc
 	CREATE_STRVEC(nsM, workspace->tmp_nsM+0, c_ptr);
 	CREATE_STRVEC(nsM, workspace->res_workspace->tmp_nsM+0, c_ptr);
 	c_ptr += (workspace->tmp_nsM+0)->memsize;
+
+	CREATE_STRVEC(nct, workspace->tmp_m, c_ptr);
+	c_ptr += SIZE_STRVEC(nct);
 
 	CREATE_CORE_QP_IPM(nvt, net, nct, cws, c_ptr);
 	c_ptr += workspace->core_workspace->memsize;
@@ -749,17 +779,153 @@ int SOLVE_OCP_QP_IPM(struct OCP_QP *qp, struct OCP_QP_SOL *qp_sol, struct OCP_QP
 
 	int kk, ii, itref0=0, itref1=0, iter_ref_step;
 	REAL tmp;
-	REAL mu_aff0;
+	REAL mu_aff0, mu;
 
 	// init solver
 	INIT_VAR_OCP_QP(qp, qp_sol, arg, ws);
+
+	cws->alpha = 1.0;
+
+
+
+	// absolute IPM formulation
+
+	if(arg->abs_form)
+		{
+
+		// alias members of qp_step
+		ws->qp_step->dim = qp->dim;
+		ws->qp_step->RSQrq = qp->RSQrq;
+		ws->qp_step->BAbt = qp->BAbt;
+		ws->qp_step->DCt = qp->DCt;
+		ws->qp_step->Z = qp->Z;
+		ws->qp_step->idxb = qp->idxb;
+		ws->qp_step->idxs = qp->idxs;
+		ws->qp_step->rqz = qp->rqz;
+		ws->qp_step->b = qp->b;
+		ws->qp_step->d = qp->d;
+		ws->qp_step->m = ws->tmp_m;
+
+		// alias core workspace
+		cws->res_m = ws->qp_step->m->pa;
+		cws->res_m_bkp = ws->qp_step->m->pa;
+
+		mu = VECMULDOT(cws->nc, qp_sol->lam, 0, qp_sol->t, 0, ws->tmp_m, 0);
+		mu /= cws->nc;
+		cws->mu = mu;
+
+		// IPM loop (absolute formulation)
+		for(kk=0; \
+				kk<arg->iter_max & \
+				cws->alpha>arg->alpha_min & \
+				mu>arg->res_m_max; kk++)
+			{
+
+			VECSC(cws->nc, -1.0, ws->tmp_m, 0);
+
+			// fact solve
+			FACT_SOLVE_KKT_STEP_OCP_QP(ws->qp_step, ws->sol_step, arg, ws);
+//blasfeo_print_tran_dvec(cws->nv, ws->sol_step->ux, 0);
+
+			// compute step
+			AXPY(cws->nv, -1.0, qp_sol->ux, 0, ws->sol_step->ux, 0, ws->sol_step->ux, 0);
+			AXPY(cws->ne, -1.0, qp_sol->pi, 0, ws->sol_step->pi, 0, ws->sol_step->pi, 0);
+			AXPY(cws->nc, -1.0, qp_sol->lam, 0, ws->sol_step->lam, 0, ws->sol_step->lam, 0);
+			AXPY(cws->nc, -1.0, qp_sol->t, 0, ws->sol_step->t, 0, ws->sol_step->t, 0);
+
+			// alpha
+			COMPUTE_ALPHA_QP(cws);
+			if(kk<ws->stat_max)
+				ws->stat[5*kk+0] = cws->alpha;
+
+			// Mehrotra's predictor-corrector
+			if(arg->pred_corr==1)
+				{
+				// mu_aff
+				COMPUTE_MU_AFF_QP(cws);
+				if(kk<ws->stat_max)
+					ws->stat[5*kk+1] = cws->mu_aff;
+
+				tmp = cws->mu_aff/cws->mu;
+				cws->sigma = tmp*tmp*tmp;
+				if(kk<ws->stat_max)
+					ws->stat[5*kk+2] = cws->sigma;
+
+				COMPUTE_CENTERING_CORRECTION_QP(cws);
+
+				// fact and solve kkt
+				SOLVE_KKT_STEP_OCP_QP(ws->qp_step, ws->sol_step, arg, ws);
+
+				// compute step
+				AXPY(cws->nv, -1.0, qp_sol->ux, 0, ws->sol_step->ux, 0, ws->sol_step->ux, 0);
+				AXPY(cws->ne, -1.0, qp_sol->pi, 0, ws->sol_step->pi, 0, ws->sol_step->pi, 0);
+				AXPY(cws->nc, -1.0, qp_sol->lam, 0, ws->sol_step->lam, 0, ws->sol_step->lam, 0);
+				AXPY(cws->nc, -1.0, qp_sol->t, 0, ws->sol_step->t, 0, ws->sol_step->t, 0);
+
+				// alpha
+				COMPUTE_ALPHA_QP(cws);
+				if(kk<ws->stat_max)
+					ws->stat[5*kk+3] = cws->alpha;
+
+				}
+
+			//
+			UPDATE_VAR_QP(cws);
+
+			// compute mu
+			mu = VECMULDOT(cws->nc, qp_sol->lam, 0, qp_sol->t, 0, ws->tmp_m, 0);
+			mu /= cws->nc;
+			cws->mu = mu;
+			if(kk<ws->stat_max)
+				ws->stat[5*kk+4] = mu;
+
+	//		exit(1);
+
+			}
+
+		// compute residuals
+		COMPUTE_RES_OCP_QP(qp, qp_sol, ws->res, ws->res_workspace);
+//		BACKUP_RES_M(cws);
+//		cws->mu = ws->res->res_mu;
+//		if(kk<ws->stat_max)
+//			ws->stat[5*kk+4] = ws->res->res_mu;
+
+		// compute infinity norm of residuals
+		VECNRM_INF(cws->nv, &str_res_g, 0, &qp_res[0]);
+		VECNRM_INF(cws->ne, &str_res_b, 0, &qp_res[1]);
+		VECNRM_INF(cws->nc, &str_res_d, 0, &qp_res[2]);
+		VECNRM_INF(cws->nc, &str_res_m, 0, &qp_res[3]);
+
+		ws->iter = kk;
+
+		// max iteration number reached
+		if(kk == arg->iter_max)
+			return 1;
+
+		// min step lenght
+		if(cws->alpha <= arg->alpha_min)
+			return 2;
+
+		// NaN in the solution
+	#ifdef USE_C99_MATH
+		if(isnan(cws->mu))
+			return 3;
+	#else
+		if(cws->mu != cws->mu)
+			return 3;
+	#endif
+
+		// normal return
+		return 0;
+
+		}
+
+
 
 	// compute residuals
 	COMPUTE_RES_OCP_QP(qp, qp_sol, ws->res, ws->res_workspace);
 	BACKUP_RES_M(cws);
 	cws->mu = ws->res->res_mu;
-
-	cws->alpha = 1.0;
 
 	// compute infinity norm of residuals
 	VECNRM_INF(cws->nv, &str_res_g, 0, &qp_res[0]);

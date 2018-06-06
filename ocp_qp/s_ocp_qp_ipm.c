@@ -93,7 +93,9 @@
 #define STRMAT blasfeo_smat
 #define STRVEC blasfeo_svec
 #define UPDATE_VAR_QP s_update_var_qp
+#define VECMULDOT blasfeo_svecmuldot
 #define VECNRM_INF blasfeo_svecnrm_inf
+#define VECSC blasfeo_svecsc
 
 
 

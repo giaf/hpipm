@@ -585,6 +585,7 @@ int main()
         * ipm arg
         ************************************************/
 
+//		enum dense_qp_ipm_mode mode = SPEED_ABS;
 //		enum dense_qp_ipm_mode mode = SPEED;
 		enum dense_qp_ipm_mode mode = BALANCE;
 //		enum dense_qp_ipm_mode mode = ROBUST;
