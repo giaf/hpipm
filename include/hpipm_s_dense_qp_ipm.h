@@ -66,6 +66,7 @@ struct s_dense_qp_ipm_arg
 	int itref_corr_max; // max number of iterative refinement steps for corrector step
 	int warm_start; // 0 no warm start, 1 warm start primal sol
 	int lq_fact; // 0 syrk+potrf, 1 mix, 2 lq
+	int abs_form; // absolute IPM formulation
 	int memsize;
 	};
 
@@ -95,6 +96,7 @@ struct s_dense_qp_ipm_workspace
 	struct blasfeo_svec *tmp_ns; // work space of size ns
 	struct blasfeo_smat *lq0;
 	struct blasfeo_smat *lq1;
+	struct blasfeo_svec *tmp_m;
 	float *stat; // convergence statistics
 //	int *ipiv_v;
 //	int *ipiv_e;

@@ -49,7 +49,7 @@
 
 
 
-#define AXPY_LIBSTR blasfeo_saxpy
+#define AXPY blasfeo_saxpy
 #define BACKUP_RES_M s_backup_res_m
 #define COMPUTE_ALPHA_QP s_compute_alpha_qp
 #define COMPUTE_CENTERING_CORRECTION_QP s_compute_centering_correction_qp
@@ -71,6 +71,7 @@
 #define DENSE_QP_RES s_dense_qp_res
 #define DENSE_QP_RES_WORKSPACE s_dense_qp_res_workspace
 #define DENSE_QP_SOL s_dense_qp_sol
+#define DOT blasfeo_sdot
 #define FACT_LQ_SOLVE_KKT_STEP_DENSE_QP s_fact_lq_solve_kkt_step_dense_qp
 #define FACT_SOLVE_LU_KKT_STEP_DENSE_QP s_fact_solve_lu_kkt_step_dense_qp
 #define FACT_SOLVE_KKT_STEP_DENSE_QP s_fact_solve_kkt_step_dense_qp
@@ -87,7 +88,10 @@
 #define STRMAT blasfeo_smat
 #define STRVEC blasfeo_svec
 #define UPDATE_VAR_QP s_update_var_qp
-#define VECNRM_INF_LIBSTR blasfeo_svecnrm_inf
+#define VECMUL blasfeo_svecmul
+#define VECMULDOT blasfeo_svecmuldot
+#define VECNRM_INF blasfeo_svecnrm_inf
+#define VECSC blasfeo_svecsc
 
 
 

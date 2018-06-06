@@ -45,9 +45,10 @@ extern "C" {
 
 enum dense_qp_ipm_mode
 	{
-	SPEED,
-	BALANCE,
-	ROBUST,
+	SPEED_ABS, // focus on speed, absolute IPM formulation
+	SPEED, // focus on speed, relative IPM formulation
+	BALANCE, // balanced mode, relative IPM formulation
+	ROBUST, // focus on robustness, relative IPM formulation
 	};
 
 

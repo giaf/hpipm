@@ -234,6 +234,7 @@ int main()
 
 	struct d_dense_qp_ipm_arg arg;
 	d_create_dense_qp_ipm_arg(&qp_dim, &arg, ipm_arg_mem);
+//	enum dense_qp_ipm_mode mode = SPEED_ABS;
 	enum dense_qp_ipm_mode mode = SPEED;
 //	enum dense_qp_ipm_mode mode = BALANCE;
 //	enum dense_qp_ipm_mode mode = ROBUST;
