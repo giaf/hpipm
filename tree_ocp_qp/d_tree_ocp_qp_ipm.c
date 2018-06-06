@@ -46,7 +46,7 @@
 
 
 
-#define AXPY_LIBSTR blasfeo_daxpy
+#define AXPY blasfeo_daxpy
 #define BACKUP_RES_M d_backup_res_m
 #define COMPUTE_ALPHA_QP d_compute_alpha_qp
 #define COMPUTE_CENTERING_CORRECTION_QP d_compute_centering_correction_qp
@@ -83,7 +83,9 @@
 #define TREE_OCP_QP_RES_WORKSPACE d_tree_ocp_qp_res_workspace
 #define TREE_OCP_QP_SOL d_tree_ocp_qp_sol
 #define UPDATE_VAR_QP d_update_var_qp
-#define VECNRM_INF_LIBSTR blasfeo_dvecnrm_inf
+#define VECMULDOT blasfeo_dvecmuldot
+#define VECNRM_INF blasfeo_dvecnrm_inf
+#define VECSC blasfeo_dvecsc
 
 #define MEMSIZE_TREE_OCP_QP_IPM_ARG d_memsize_tree_ocp_qp_ipm_arg
 #define CREATE_TREE_OCP_QP_IPM_ARG d_create_tree_ocp_qp_ipm_arg

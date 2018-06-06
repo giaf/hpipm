@@ -671,10 +671,6 @@ int SOLVE_DENSE_QP_IPM(struct DENSE_QP *qp, struct DENSE_QP_SOL *qp_sol, struct 
 
 		// compute residuals
 		COMPUTE_RES_DENSE_QP(qp, qp_sol, ws->res, ws->res_workspace);
-		BACKUP_RES_M(cws);
-		cws->mu = ws->res->res_mu;
-		if(kk<ws->stat_max)
-			ws->stat[5*kk+4] = ws->res->res_mu;
 
 		// compute infinity norm of residuals
 		VECNRM_INF(cws->nv, &str_res_g, 0, &qp_res[0]);

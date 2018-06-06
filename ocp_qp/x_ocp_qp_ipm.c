@@ -885,10 +885,6 @@ int SOLVE_OCP_QP_IPM(struct OCP_QP *qp, struct OCP_QP_SOL *qp_sol, struct OCP_QP
 
 		// compute residuals
 		COMPUTE_RES_OCP_QP(qp, qp_sol, ws->res, ws->res_workspace);
-//		BACKUP_RES_M(cws);
-//		cws->mu = ws->res->res_mu;
-//		if(kk<ws->stat_max)
-//			ws->stat[5*kk+4] = ws->res->res_mu;
 
 		// compute infinity norm of residuals
 		VECNRM_INF(cws->nv, &str_res_g, 0, &qp_res[0]);
