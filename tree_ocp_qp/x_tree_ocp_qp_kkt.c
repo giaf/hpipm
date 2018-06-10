@@ -1191,10 +1191,16 @@ void SOLVE_KKT_STEP_TREE_OCP_QP(struct TREE_OCP_QP *qp, struct TREE_OCP_QP_SOL *
 
 			idxkid = (ttree->root+idx)->kids[jj];
 
-			// TODO avoid recomputation when b is the same as the factorization
-			TRMV_LTN(nx[idxkid], nx[idxkid], L+idxkid, nu[idxkid], nu[idxkid], res_b+idxkid-1, 0, Pb+idxkid-1, 0);
-			TRMV_LNN(nx[idxkid], nx[idxkid], L+idxkid, nu[idxkid], nu[idxkid], Pb+idxkid-1, 0, Pb+idxkid-1, 0);
-			AXPY(nx[idxkid], 1.0, dux+idxkid, nu[idxkid], Pb+idxkid-1, 0, tmp_nxM, 0);
+			if(ws->use_Pb)
+				{
+				AXPY(nx[idxkid], 1.0, dux+idxkid, nu[idxkid], Pb+idxkid-1, 0, tmp_nxM, 0);
+				}
+			else
+				{
+				TRMV_LTN(nx[idxkid], nx[idxkid], L+idxkid, nu[idxkid], nu[idxkid], res_b+idxkid-1, 0, tmp_nxM, 0);
+				TRMV_LNN(nx[idxkid], nx[idxkid], L+idxkid, nu[idxkid], nu[idxkid], tmp_nxM, 0, tmp_nxM, 0);
+				AXPY(nx[idxkid], 1.0, dux+idxkid, nu[idxkid], tmp_nxM, 0, tmp_nxM, 0);
+				}
 			GEMV_N(nu[idx]+nx[idx], nx[idxkid], 1.0, BAbt+idxkid-1, 0, 0, tmp_nxM, 0, 1.0, dux+idx, 0, dux+idx, 0);
 
 			}

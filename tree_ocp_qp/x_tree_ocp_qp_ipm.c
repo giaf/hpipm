@@ -604,6 +604,8 @@ void CREATE_TREE_OCP_QP_IPM(struct TREE_OCP_QP_DIM *dim, struct TREE_OCP_QP_IPM_
 	for(ii=0; ii<Nn; ii++)
 		workspace->use_hess_fact[ii] = 0;
 
+	workspace->use_Pb = 0;
+
 	workspace->memsize = MEMSIZE_TREE_OCP_QP_IPM(dim, arg);
 
 
@@ -779,6 +781,7 @@ int SOLVE_TREE_OCP_QP_IPM(struct TREE_OCP_QP *qp, struct TREE_OCP_QP_SOL *qp_sol
 				COMPUTE_CENTERING_CORRECTION_QP(cws);
 
 				// fact and solve kkt
+				ws->use_Pb = 1;
 				SOLVE_KKT_STEP_TREE_OCP_QP(ws->qp_step, ws->sol_step, arg, ws);
 
 				// compute step
@@ -952,6 +955,7 @@ int SOLVE_TREE_OCP_QP_IPM(struct TREE_OCP_QP *qp, struct TREE_OCP_QP_SOL *qp_sol
 				break;
 				}
 
+			ws->use_Pb = 0;
 			SOLVE_KKT_STEP_TREE_OCP_QP(ws->qp_itref, ws->sol_itref, arg, ws);
 
 			for(ii=0; ii<Nn; ii++)
@@ -986,6 +990,7 @@ int SOLVE_TREE_OCP_QP_IPM(struct TREE_OCP_QP *qp, struct TREE_OCP_QP_SOL *qp_sol
 			COMPUTE_CENTERING_CORRECTION_QP(cws);
 
 			// fact and solve kkt
+			ws->use_Pb = 1;
 			SOLVE_KKT_STEP_TREE_OCP_QP(ws->qp_step, ws->sol_step, arg, ws);
 
 			// alpha
@@ -1011,6 +1016,7 @@ int SOLVE_TREE_OCP_QP_IPM(struct TREE_OCP_QP *qp, struct TREE_OCP_QP_SOL *qp_sol
 					COMPUTE_CENTERING_QP(cws);
 
 					// solve kkt
+					ws->use_Pb = 1;
 					SOLVE_KKT_STEP_TREE_OCP_QP(ws->qp_step, ws->sol_step, arg, ws);
 
 					// alpha
@@ -1054,6 +1060,7 @@ int SOLVE_TREE_OCP_QP_IPM(struct TREE_OCP_QP *qp, struct TREE_OCP_QP_SOL *qp_sol
 					break;
 					}
 
+				ws->use_Pb = 0;
 				SOLVE_KKT_STEP_TREE_OCP_QP(ws->qp_itref, ws->sol_itref, arg, ws);
 				iter_ref_step = 1;
 

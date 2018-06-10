@@ -601,6 +601,8 @@ void CREATE_OCP_QP_IPM(struct OCP_QP_DIM *dim, struct OCP_QP_IPM_ARG *arg, struc
 
 	for(ii=0; ii<=N; ii++)
 		workspace->use_hess_fact[ii] = 0;
+	
+	workspace->use_Pb = 0;
 
 	workspace->memsize = MEMSIZE_OCP_QP_IPM(dim, arg);
 
@@ -854,6 +856,7 @@ int SOLVE_OCP_QP_IPM(struct OCP_QP *qp, struct OCP_QP_SOL *qp_sol, struct OCP_QP
 				COMPUTE_CENTERING_CORRECTION_QP(cws);
 
 				// fact and solve kkt
+				ws->use_Pb = 1;
 				SOLVE_KKT_STEP_OCP_QP(ws->qp_step, ws->sol_step, arg, ws);
 
 				// compute step
@@ -1106,6 +1109,7 @@ blasfeo_print_tran_dvec(cws->nc, ws->sol_step->t, 0);
 				break;
 				}
 
+			ws->use_Pb = 0;
 			SOLVE_KKT_STEP_OCP_QP(ws->qp_itref, ws->sol_itref, arg, ws);
 
 			for(ii=0; ii<=N; ii++)
@@ -1187,6 +1191,7 @@ exit(1);
 			COMPUTE_CENTERING_CORRECTION_QP(cws);
 
 			// fact and solve kkt
+			ws->use_Pb = 1;
 			SOLVE_KKT_STEP_OCP_QP(ws->qp_step, ws->sol_step, arg, ws);
 
 			// alpha
@@ -1212,6 +1217,7 @@ exit(1);
 					COMPUTE_CENTERING_QP(cws);
 
 					// solve kkt
+					ws->use_Pb = 1;
 					SOLVE_KKT_STEP_OCP_QP(ws->qp_step, ws->sol_step, arg, ws);
 
 					// alpha
@@ -1280,6 +1286,7 @@ exit(1);
 //for(ii=0; ii<=N; ii++)
 //	blasfeo_print_exp_tran_dvec(2*nb[ii]+2*ng[ii], ws->res_itref->res_m+ii, 0);
 
+				ws->use_Pb = 0;
 				SOLVE_KKT_STEP_OCP_QP(ws->qp_itref, ws->sol_itref, arg, ws);
 //				FACT_SOLVE_LQ_KKT_STEP_OCP_QP(ws->qp_itref, ws->sol_itref, arg, ws);
 				iter_ref_step = 1;
