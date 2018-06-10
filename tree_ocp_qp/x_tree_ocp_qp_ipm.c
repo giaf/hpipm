@@ -72,6 +72,8 @@ void SET_DEFAULT_TREE_OCP_QP_IPM_ARG(enum TREE_OCP_QP_IPM_MODE mode, struct TREE
 		arg->t_min = 1e-30;
 		arg->warm_start = 0;
 		arg->abs_form = 1;
+		arg->comp_dual_sol = 0;
+		arg->comp_res_exit = 0;
 		}
 	else if(mode==SPEED)
 		{
@@ -93,6 +95,8 @@ void SET_DEFAULT_TREE_OCP_QP_IPM_ARG(enum TREE_OCP_QP_IPM_MODE mode, struct TREE
 		arg->t_min = 1e-30;
 		arg->warm_start = 0;
 		arg->abs_form = 0;
+		arg->comp_dual_sol = 1;
+		arg->comp_res_exit = 1;
 		}
 	else if(mode==BALANCE)
 		{
@@ -114,6 +118,8 @@ void SET_DEFAULT_TREE_OCP_QP_IPM_ARG(enum TREE_OCP_QP_IPM_MODE mode, struct TREE
 		arg->t_min = 1e-30;
 		arg->warm_start = 0;
 		arg->abs_form = 0;
+		arg->comp_dual_sol = 1;
+		arg->comp_res_exit = 1;
 		}
 	else if(mode==ROBUST)
 		{
@@ -135,6 +141,8 @@ void SET_DEFAULT_TREE_OCP_QP_IPM_ARG(enum TREE_OCP_QP_IPM_MODE mode, struct TREE
 		arg->t_min = 1e-30;
 		arg->warm_start = 0;
 		arg->abs_form = 0;
+		arg->comp_dual_sol = 1;
+		arg->comp_res_exit = 1;
 		}
 	else
 		{
@@ -811,14 +819,17 @@ int SOLVE_TREE_OCP_QP_IPM(struct TREE_OCP_QP *qp, struct TREE_OCP_QP_SOL *qp_sol
 
 			}
 
-		// compute residuals
-		COMPUTE_RES_TREE_OCP_QP(qp, qp_sol, ws->res, ws->res_workspace);
+		if(arg->comp_res_exit & arg->comp_dual_sol)
+			{
+			// compute residuals
+			COMPUTE_RES_TREE_OCP_QP(qp, qp_sol, ws->res, ws->res_workspace);
 
-		// compute infinity norm of residuals
-		VECNRM_INF(cws->nv, &str_res_g, 0, &qp_res[0]);
-		VECNRM_INF(cws->ne, &str_res_b, 0, &qp_res[1]);
-		VECNRM_INF(cws->nc, &str_res_d, 0, &qp_res[2]);
-		VECNRM_INF(cws->nc, &str_res_m, 0, &qp_res[3]);
+			// compute infinity norm of residuals
+			VECNRM_INF(cws->nv, &str_res_g, 0, &qp_res[0]);
+			VECNRM_INF(cws->ne, &str_res_b, 0, &qp_res[1]);
+			VECNRM_INF(cws->nc, &str_res_d, 0, &qp_res[2]);
+			VECNRM_INF(cws->nc, &str_res_m, 0, &qp_res[3]);
+			}
 
 		ws->iter = kk;
 
