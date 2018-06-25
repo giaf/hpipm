@@ -5,7 +5,8 @@
 \usepackage[pdftex]{graphicx}
 %\usepackage{graphics}
 \usepackage{subfig}
-
+\setlength\parindent{0pt}
+\usepackage{natbib}           % required for bibliography
 
 
 \title{HPIPM reference guide}
@@ -26,16 +27,14 @@
 \chapter{Introduction}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-HPIPM - High-Performance Interior Point Method.
-
-HPIPM is a library providing a collection of quadratic programs (QP) and routines to manage them.
+HPIPM, which stands for High-Performance Interior Point Method, is a library providing a collection of quadratic programs (QP) and routines to manage them.
 Aim of the library is to provide both stand-alone IPM solvers for the QPs and the building blocks for more complex optimization algorithms.
 
 At the moment, three QPs types are provided: dense QPs, optimal control problem (OCP) QPs, and tree-structured OCP QPs.
 These QPs are defined using C structures.
 HPIPM provides routines to manage the QPs, and to convert between them.
 
-HPIPM is written entirely in C, and it builds on top of BLASFEO~\cite{BLASFEO}, that provides high-performance implementations of basic linear algebra (LA) routines, optimized for matrices of moderate size (as common in embedded optimization).
+HPIPM is written entirely in C, and it builds on top of BLASFEO~\cite{Frison2018}, that provides high-performance implementations of basic linear algebra (LA) routines, optimized for matrices of moderate size (as common in embedded optimization).
 
 
 
@@ -102,5 +101,7 @@ void d_cvt_colmaj_to_ocp_qp(double **A, double **B, double **b,
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 
+\bibliographystyle{plain}
+\bibliography{doc_bibliography}             % bib file to produce the bibliography
 
 \end{document}
