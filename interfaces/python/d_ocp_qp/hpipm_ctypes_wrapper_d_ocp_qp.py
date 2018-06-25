@@ -20,6 +20,7 @@ class d_ocp_qp_dim(Structure):
 
 
 
+
 # d_ocp_qp - include/hpipm_d_ocp.h
 class d_ocp_qp(Structure):
     _fields_ = [
@@ -35,7 +36,8 @@ class d_ocp_qp(Structure):
         ("idxb",    POINTER(POINTER(c_int)),    # index of box constraints
         ("idxs",    POINTER(POINTER(c_int)),    # index of soft constraints
         ("memsize", c_int)                      # memory size in bytes
-       
+    
+
 
 
 # d_ocp_qp - include/hpipm_d_ocp_qp_sol.h
@@ -78,6 +80,7 @@ class d_ocp_qp_ipm_arg(Structure):
         ("comp_res_exit",   c_int),    # compute res. on exit (only for abs_form==1 and comp_dual_sol==1)
         ("memsize",         c_int)     # memory size
         ]       
+
 
 
 
