@@ -1,5 +1,6 @@
 from ctypes import *
 from os import *
+from hpipm_python.external.blasfeo.wrapper import *
 
 # d_ocp_qp - include/hpipm_d_ocp_qp_ipm_dim.h
 class d_ocp_qp_dim(Structure):
@@ -33,8 +34,8 @@ class d_ocp_qp(Structure):
         ("d",       POINTER(blasfeo_dvec)),     # inequality constraints vector
         ("m",       POINTER(blasfeo_dvec)),     # rhs of complementarity condition
         ("Z",       POINTER(blasfeo_dvec)),     # (diagonal) hessian of slacks
-        ("idxb",    POINTER(POINTER(c_int))),    # index of box constraints
-        ("idxs",    POINTER(POINTER(c_int))),    # index of soft constraints
+        ("idxb",    POINTER(POINTER(c_int))),   # index of box constraints
+        ("idxs",    POINTER(POINTER(c_int))),   # index of soft constraints
         ("memsize", c_int)                      # memory size in bytes
         ]    
 
@@ -48,8 +49,8 @@ class d_ocp_qp_sol(Structure):
         ("pi",      POINTER(blasfeo_dvec)),      # eq. multipliers
         ("lam",     POINTER(blasfeo_dvec)),      # ineq. multipliers
         ("t",       POINTER(blasfeo_dvec)),      # slack variables 
-        ("misc",    c_void_p)                   # miscellaneous 
-        ("memsize", c_int)                      # memory size in bytes
+        ("misc",    c_void_p),                   # miscellaneous 
+        ("memsize", c_int)                       # memory size in bytes
         ]
         
 
@@ -85,7 +86,7 @@ class d_ocp_qp_ipm_arg(Structure):
 
 
 class d_ocp_qp_ipm_workspace(Structure):
-    _fields_ [
+    _fields_  = [
         ("core_workspace",  POINTER(d_core_qp_ipm_workspace)),
         ("res_workspace",   POINTER(d_ocp_qp_res_workspace)),
         ("sol_step",        POINTER(d_ocp_qp_sol)),
