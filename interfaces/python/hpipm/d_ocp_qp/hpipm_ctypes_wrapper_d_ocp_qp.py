@@ -33,21 +33,21 @@ class d_ocp_qp(Structure):
         ("d",       POINTER(blasfeo_dvec)),     # inequality constraints vector
         ("m",       POINTER(blasfeo_dvec)),     # rhs of complementarity condition
         ("Z",       POINTER(blasfeo_dvec)),     # (diagonal) hessian of slacks
-        ("idxb",    POINTER(POINTER(c_int)),    # index of box constraints
-        ("idxs",    POINTER(POINTER(c_int)),    # index of soft constraints
+        ("idxb",    POINTER(POINTER(c_int))),    # index of box constraints
+        ("idxs",    POINTER(POINTER(c_int))),    # index of soft constraints
         ("memsize", c_int)                      # memory size in bytes
-    
+        ]    
 
 
 
 # d_ocp_qp - include/hpipm_d_ocp_qp_sol.h
 class d_ocp_qp_sol(Structure):
     _fields_ = [
-        ("dim",     POINTER(d_ocp_qp_dim),      # dimensions
-        ("ux",      POINTER(blasfeo_dvec),      # input-states
-        ("pi",      POINTER(blasfeo_dvec),      # eq. multipliers
-        ("lam",     POINTER(blasfeo_dvec),      # ineq. multipliers
-        ("t",       POINTER(blasfeo_dvec),      # slack variables 
+        ("dim",     POINTER(d_ocp_qp_dim)),      # dimensions
+        ("ux",      POINTER(blasfeo_dvec)),      # input-states
+        ("pi",      POINTER(blasfeo_dvec)),      # eq. multipliers
+        ("lam",     POINTER(blasfeo_dvec)),      # ineq. multipliers
+        ("t",       POINTER(blasfeo_dvec)),      # slack variables 
         ("misc",    c_void_p)                   # miscellaneous 
         ("memsize", c_int)                      # memory size in bytes
         ]
@@ -89,24 +89,23 @@ class d_ocp_qp_ipm_workspace(Structure):
         ("core_workspace",  POINTER(d_core_qp_ipm_workspace)),
         ("res_workspace",   POINTER(d_ocp_qp_res_workspace)),
         ("sol_step",        POINTER(d_ocp_qp_sol)),
-        ("sol_itref",       POINTER(d_ocp_qp_sol),
-        ("qp_step",         POINTER(d_ocp_qp),
-        ("qp_itref",        POINTER(d_ocp_qp),
-        ("res_itref",       POINTER(d_ocp_qp_res),
-        ("res",             POINTER(d_ocp_qp_res),
-        ("Gamma",           POINTER(blasfeo_dvec), # hessian update
-        ("gamma",           POINTER(blasfeo_dvec), # hessian update
-        ("tmp_nsM",         POINTER(blasfeo_dvec), # work space of size nxM
-        ("tmp_nbgM",        POINTER(blasfeo_dvec), # work space of size nbM+ngM
-        ("tmp_nsM",         POINTER(blasfeo_dvec), # work space of size nsM
-        ("Pb",              POINTER(blasfeo_dvec), # Pb
-        ("Zs_inv",          POINTER(blasfeo_dvec),
-        ("L",               POINTER(blasfeo_dmat),
-        ("Lh",              POINTER(blasfeo_dmat),
-        ("AL",              POINTER(blasfeo_dmat),
-        ("lq0",             POINTER(blasfeo_dmat),
-        ("tmp_m"            POINTER(blasfeo_dvec),
-
+        ("sol_itref",       POINTER(d_ocp_qp_sol)),
+        ("qp_step",         POINTER(d_ocp_qp)),
+        ("qp_itref",        POINTER(d_ocp_qp)),
+        ("res_itref",       POINTER(d_ocp_qp_res)),
+        ("res",             POINTER(d_ocp_qp_res)),
+        ("Gamma",           POINTER(blasfeo_dvec)), # hessian update
+        ("gamma",           POINTER(blasfeo_dvec)), # hessian update
+        ("tmp_nsM",         POINTER(blasfeo_dvec)), # work space of size nxM
+        ("tmp_nbgM",        POINTER(blasfeo_dvec)), # work space of size nbM+ngM
+        ("tmp_nsM",         POINTER(blasfeo_dvec)), # work space of size nsM
+        ("Pb",              POINTER(blasfeo_dvec)), # Pb
+        ("Zs_inv",          POINTER(blasfeo_dvec)),
+        ("L",               POINTER(blasfeo_dmat)),
+        ("Lh",              POINTER(blasfeo_dmat)),
+        ("AL",              POINTER(blasfeo_dmat)),
+        ("lq0",             POINTER(blasfeo_dmat)),
+        ("tmp_m",           POINTER(blasfeo_dvec)),
         ("stat",            POINTER(c_double)), # convergence statistics
         ("use_hess_fact",   POINTER(c_int)),
         ("lq_work0",        c_void_p),
@@ -114,5 +113,5 @@ class d_ocp_qp_ipm_workspace(Structure):
         ("iter",            c_int), # iteration number
         ("stat_max",        c_int), # iterations saved in stat
         ("use_Pb",          c_int),
-        ("memsize",         c_int),
+        ("memsize",         c_int)
         ]
