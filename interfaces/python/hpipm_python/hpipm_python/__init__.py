@@ -8,3 +8,4 @@ from . import hpipm
 from . import external 
 from hpipm_python.external.blasfeo.wrapper import *
 from hpipm_python.hpipm.d_ocp_qp.wrapper import *
+from hpipm_python.hpipm.core.wrapper import *

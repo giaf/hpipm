@@ -1,6 +1,7 @@
 from ctypes import *
 from os import *
 from hpipm_python.external.blasfeo.wrapper import *
+from hpipm_python.hpipm.core.wrapper import *
 
 # d_ocp_qp - include/hpipm_d_ocp_qp_ipm_dim.h
 class d_ocp_qp_dim(Structure):
@@ -85,6 +86,30 @@ class d_ocp_qp_ipm_arg(Structure):
 
 
 
+class d_ocp_qp_res(Structure):
+    _fields_ = [
+	("dim",     POINTER(d_ocp_qp_dim)),  
+        ("res_g",   POINTER(blasfeo_dvec)),   # q-residuals
+	("res_b",   POINTER(blasfeo_dvec)),   # b-residuals
+	("res_d",   POINTER(blasfeo_dvec)),   # d-residuals
+	("res_m",   POINTER(blasfeo_dvec)),   # m-residuals
+	("res_mu",  POINTER(blasfeo_dvec)),         # mu-residual
+        ("memsize", c_int)
+	]
+
+
+
+
+class d_ocp_qp_res_workspace(Structure):
+    _fields_ = [
+            ("tmp_nbgM", POINTER(blasfeo_dvec)),  # work space of size nbM+ngM
+	    ("tmp_nsM", POINTER(blasfeo_dvec)),   # work space of size nsM
+	    ("memsize", c_int)
+	]
+
+        
+        
+        
 class d_ocp_qp_ipm_workspace(Structure):
     _fields_  = [
         ("core_workspace",  POINTER(d_core_qp_ipm_workspace)),
