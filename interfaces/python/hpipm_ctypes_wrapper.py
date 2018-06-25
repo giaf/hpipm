@@ -1,6 +1,7 @@
 from ctypes import *
 from os import *
 
+# d_ocp_qp - include/hpipm_d_ocp_qp_ipm_dim.h
 class d_ocp_qp_dim(Structure):
     _fields_ = [
         ("nx",      POINTER(c_int)),            # number of states
@@ -19,6 +20,7 @@ class d_ocp_qp_dim(Structure):
 
 
 
+# d_ocp_qp - include/hpipm_d_ocp.h
 class d_ocp_qp(Structure):
     _fields_ = [
         ("dim",     POINTER(d_ocp_qp_dim)),     # ocp_qp dimensios struct
@@ -36,6 +38,7 @@ class d_ocp_qp(Structure):
        
 
 
+# d_ocp_qp - include/hpipm_d_ocp_qp_sol.h
 class d_ocp_qp_sol(Structure):
     _fields_ = [
         ("dim",     POINTER(d_ocp_qp_dim),      # dimensions
@@ -50,6 +53,7 @@ class d_ocp_qp_sol(Structure):
 
 
 
+# d_ocp_qp - hpipm_d_ocp_qp_ipm.h
 class d_ocp_qp_ipm_arg(Structure):
     _fields_ = [
         ("mu0",             c_double), # initial value for duality measure
@@ -77,8 +81,8 @@ class d_ocp_qp_ipm_arg(Structure):
 
 
 
-    class d_ocp_qp_ipm_workspace(Structure):
-        _fields_ [
+class d_ocp_qp_ipm_workspace(Structure):
+    _fields_ [
         ("core_workspace",  POINTER(d_core_qp_ipm_workspace)),
         ("res_workspace",   POINTER(d_ocp_qp_res_workspace)),
         ("sol_step",        POINTER(d_ocp_qp_sol)),
