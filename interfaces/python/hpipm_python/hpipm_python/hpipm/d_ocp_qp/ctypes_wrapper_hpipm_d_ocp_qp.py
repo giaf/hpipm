@@ -1,5 +1,6 @@
 from ctypes import *
 from os import *
+from ctypes_wrapper_external_blasfeo import *
 
 # d_ocp_qp - include/hpipm_d_ocp_qp_ipm_dim.h
 class d_ocp_qp_dim(Structure):
