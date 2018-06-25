@@ -4,4 +4,8 @@ This is the Python interface to the QP solver HPIPM.
 Copyright 2018 (c) Andrea Zanelli, Gianluca Frison 
 """
 
-from .external/blasfeo import 
+from . import hpipm
+from . import external 
+
+from .hpipm import *
+from .external import *
