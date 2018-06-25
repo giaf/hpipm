@@ -102,9 +102,9 @@ class d_ocp_qp_res(Structure):
 
 class d_ocp_qp_res_workspace(Structure):
     _fields_ = [
-            ("tmp_nbgM", POINTER(blasfeo_dvec)),  # work space of size nbM+ngM
-	    ("tmp_nsM", POINTER(blasfeo_dvec)),   # work space of size nsM
-	    ("memsize", c_int)
+        ("tmp_nbgM", POINTER(blasfeo_dvec)),  # work space of size nbM+ngM
+        ("tmp_nsM", POINTER(blasfeo_dvec)),   # work space of size nsM
+        ("memsize", c_int)
 	]
 
         
