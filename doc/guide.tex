@@ -6,7 +6,7 @@
 %\usepackage{graphics}
 \usepackage{subfig}
 \setlength\parindent{0pt}
-\usepackage{natbib}           % required for bibliography
+%\usepackage{natbib}           % required for bibliography
 
 
 \title{HPIPM reference guide}
@@ -48,8 +48,8 @@ The dense QP is a QP in the form
 \text{s.t.} & \quad A v = b, \\
 & \quad \begin{bmatrix} \underline v \\ \underline d \end{bmatrix} \leq \begin{bmatrix} J_{b,v} \\ C \end{bmatrix} v + \begin{bmatrix} J_{s,v} \\ J_{s,g} \end{bmatrix} s^l, \\
 & \quad \begin{bmatrix} J_{b,v} \\ C_n \end{bmatrix} v - \begin{bmatrix} J_{s,v} \\ J_{s,g} \end{bmatrix} s^u \leq \begin{bmatrix} \overline v \\ \overline d \end{bmatrix}, \\
-& \quad s^l\geq 0, \\
-& \quad s^u\geq 0,
+& \quad s^l\geq \underline s^l, \\
+& \quad s^u\geq \underline s^u,
 \end{align*}
 where $v$ are the primal variables, $s^l$ ($s^u$) are the slack variables of the soft lower (upper) constraints.
 The matrices $J_{\dots}$ are made of rows from identity matrices.
@@ -102,7 +102,18 @@ void d_cvt_colmaj_to_ocp_qp(double **A, double **B, double **b,
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 
-\bibliographystyle{plain}
-\bibliography{doc_bibliography}             % bib file to produce the bibliography
+%\bibliographystyle{plain}
+%\bibliography{biblio}             % bib file to produce the bibliography
+
+\begin{thebibliography}{1}
+
+\bibitem{Frison2018}
+G.~Frison, D.~Kouzoupis, T.~Sartor, A.~Zanelli, and M.~Diehl.
+\newblock {BLASFEO}: Basic linear algebra subroutines for embedded
+  optimization.
+\newblock {\em ACM Transactions on Mathematical Software (TOMS)}, 2018.
+\newblock (accepted).
+
+\end{thebibliography}
 
 \end{document}
