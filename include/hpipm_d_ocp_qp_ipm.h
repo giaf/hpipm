@@ -33,12 +33,11 @@
 #include <blasfeo_target.h>
 #include <blasfeo_common.h>
 
+#include <hpipm_common.h>
 #include <hpipm_d_ocp_qp_dim.h>
 #include <hpipm_d_ocp_qp.h>
 #include <hpipm_d_ocp_qp_res.h>
 #include <hpipm_d_ocp_qp_sol.h>
-
-#include "hpipm_x_ocp_qp_ipm.h"
 
 
 
@@ -114,7 +113,7 @@ int d_memsize_ocp_qp_ipm_arg(struct d_ocp_qp_dim *ocp_dim);
 //
 void d_create_ocp_qp_ipm_arg(struct d_ocp_qp_dim *ocp_dim, struct d_ocp_qp_ipm_arg *arg, void *mem);
 //
-void d_set_default_ocp_qp_ipm_arg(enum ocp_qp_ipm_mode mode, struct d_ocp_qp_ipm_arg *arg);
+void d_set_default_ocp_qp_ipm_arg(enum hpipm_mode mode, struct d_ocp_qp_ipm_arg *arg);
 
 //
 int d_memsize_ocp_qp_ipm(struct d_ocp_qp_dim *ocp_dim, struct d_ocp_qp_ipm_arg *arg);

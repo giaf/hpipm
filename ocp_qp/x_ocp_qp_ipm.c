@@ -47,7 +47,7 @@ void CREATE_OCP_QP_IPM_ARG(struct OCP_QP_DIM *dim, struct OCP_QP_IPM_ARG *arg, v
 
 
 
-void SET_DEFAULT_OCP_QP_IPM_ARG(enum OCP_QP_IPM_MODE mode, struct OCP_QP_IPM_ARG *arg)
+void SET_DEFAULT_OCP_QP_IPM_ARG(enum HPIPM_MODE mode, struct OCP_QP_IPM_ARG *arg)
 	{
 
 	if(mode==SPEED_ABS)

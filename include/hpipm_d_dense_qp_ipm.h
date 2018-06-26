@@ -35,7 +35,11 @@
 #include <blasfeo_target.h>
 #include <blasfeo_common.h>
 
-#include "hpipm_x_dense_qp_ipm.h"
+#include <hpipm_common.h>
+#include <hpipm_d_dense_qp_dim.h>
+#include <hpipm_d_dense_qp.h>
+#include <hpipm_d_dense_qp_res.h>
+#include <hpipm_d_dense_qp_sol.h>
 
 
 #ifdef __cplusplus
@@ -117,7 +121,7 @@ int d_memsize_dense_qp_ipm_arg(struct d_dense_qp_dim *dim);
 //
 void d_create_dense_qp_ipm_arg(struct d_dense_qp_dim *dim, struct d_dense_qp_ipm_arg *arg, void *mem);
 //
-void d_set_default_dense_qp_ipm_arg(enum dense_qp_ipm_mode mode, struct d_dense_qp_ipm_arg *arg);
+void d_set_default_dense_qp_ipm_arg(enum hpipm_mode mode, struct d_dense_qp_ipm_arg *arg);
 
 //
 int d_memsize_dense_qp_ipm(struct d_dense_qp_dim *qp_dim, struct d_dense_qp_ipm_arg *arg);

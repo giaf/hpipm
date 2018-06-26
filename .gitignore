@@ -11,6 +11,8 @@ hpipm_target.h
 build/
 octave-workspace
 *.aux
+*.bbl
+*.blg
 *.toc
 *.log
 *.synctex.gz

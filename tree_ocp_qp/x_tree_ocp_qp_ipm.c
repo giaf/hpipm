@@ -49,7 +49,7 @@ void CREATE_TREE_OCP_QP_IPM_ARG(struct TREE_OCP_QP_DIM *dim, struct TREE_OCP_QP_
 
 
 
-void SET_DEFAULT_TREE_OCP_QP_IPM_ARG(enum TREE_OCP_QP_IPM_MODE mode, struct TREE_OCP_QP_IPM_ARG *arg)
+void SET_DEFAULT_TREE_OCP_QP_IPM_ARG(enum HPIPM_MODE mode, struct TREE_OCP_QP_IPM_ARG *arg)
 	{
 
 	if(mode==SPEED_ABS)

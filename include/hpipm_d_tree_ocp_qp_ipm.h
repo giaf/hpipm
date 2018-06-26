@@ -35,7 +35,11 @@
 #include <blasfeo_target.h>
 #include <blasfeo_common.h>
 
-#include "hpipm_x_tree_ocp_qp_ipm.h"
+#include <hpipm_common.h>
+#include <hpipm_d_tree_ocp_qp_dim.h>
+#include <hpipm_d_tree_ocp_qp.h>
+#include <hpipm_d_tree_ocp_qp_res.h>
+#include <hpipm_d_tree_ocp_qp_sol.h>
 
 
 
@@ -111,7 +115,7 @@ int d_memsize_tree_ocp_qp_ipm_arg(struct d_tree_ocp_qp_dim *dim);
 //
 void d_create_tree_ocp_qp_ipm_arg(struct d_tree_ocp_qp_dim *dim, struct d_tree_ocp_qp_ipm_arg *arg, void *mem);
 //
-void d_set_default_tree_ocp_qp_ipm_arg(enum tree_ocp_qp_ipm_mode mode, struct d_tree_ocp_qp_ipm_arg *arg);
+void d_set_default_tree_ocp_qp_ipm_arg(enum hpipm_mode mode, struct d_tree_ocp_qp_ipm_arg *arg);
 
 //
 int d_memsize_tree_ocp_qp_ipm(struct d_tree_ocp_qp_dim *dim, struct d_tree_ocp_qp_ipm_arg *arg);

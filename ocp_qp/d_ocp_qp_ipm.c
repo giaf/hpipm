@@ -74,7 +74,7 @@
 #define MEMSIZE_OCP_QP_SOL d_memsize_ocp_qp_sol
 #define OCP_QP d_ocp_qp
 #define OCP_QP_IPM_ARG d_ocp_qp_ipm_arg
-#define OCP_QP_IPM_MODE ocp_qp_ipm_mode
+#define HPIPM_MODE hpipm_mode
 #define OCP_QP_IPM_WORKSPACE d_ocp_qp_ipm_workspace
 #define OCP_QP_RES d_ocp_qp_res
 #define OCP_QP_RES_WORKSPACE d_ocp_qp_res_workspace

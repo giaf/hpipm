@@ -77,7 +77,7 @@
 #define TREE_OCP_QP d_tree_ocp_qp
 #define TREE_OCP_QP_DIM d_tree_ocp_qp_dim
 #define TREE_OCP_QP_IPM_ARG d_tree_ocp_qp_ipm_arg
-#define TREE_OCP_QP_IPM_MODE tree_ocp_qp_ipm_mode
+#define HPIPM_MODE hpipm_mode
 #define TREE_OCP_QP_IPM_WORKSPACE d_tree_ocp_qp_ipm_workspace
 #define TREE_OCP_QP_RES d_tree_ocp_qp_res
 #define TREE_OCP_QP_RES_WORKSPACE d_tree_ocp_qp_res_workspace

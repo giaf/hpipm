@@ -932,10 +932,10 @@ exit(1);
 
 	struct d_tree_ocp_qp_ipm_arg arg;
 	d_create_tree_ocp_qp_ipm_arg(&dim, &arg, ipm_arg_mem);
-//	enum tree_ocp_qp_ipm_mode mode = SPEED_ABS;
-	enum tree_ocp_qp_ipm_mode mode = SPEED;
-//	enum tree_ocp_qp_ipm_mode mode = BALANCE;
-//	enum tree_ocp_qp_ipm_mode mode = ROBUST;
+//	enum hpipm_mode mode = SPEED_ABS;
+	enum hpipm_mode mode = SPEED;
+//	enum hpipm_mode mode = BALANCE;
+//	enum hpipm_mode mode = ROBUST;
 	d_set_default_tree_ocp_qp_ipm_arg(mode, &arg);
 
 //	arg.alpha_min = 1e-8;

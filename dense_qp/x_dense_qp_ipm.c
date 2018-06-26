@@ -47,7 +47,7 @@ void CREATE_DENSE_QP_IPM_ARG(struct DENSE_QP_DIM *dim, struct DENSE_QP_IPM_ARG *
 
 
 
-void SET_DEFAULT_DENSE_QP_IPM_ARG(enum DENSE_QP_IPM_MODE mode, struct DENSE_QP_IPM_ARG *arg)
+void SET_DEFAULT_DENSE_QP_IPM_ARG(enum HPIPM_MODE mode, struct DENSE_QP_IPM_ARG *arg)
 	{
 
 	if(mode==SPEED_ABS)
