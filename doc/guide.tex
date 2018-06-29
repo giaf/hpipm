@@ -72,8 +72,14 @@ s.t. & \quad x_{n+1} = A_n x_n + B_n u_n + b_n & \quad n=0,\dots,N-1 \\
 \end{align*}
 where $u_n$ are the control inputs, $x_n$ are the states, $s^l_n$ ($s^u_n$) are the slack variables of the soft lower (upper) constraints.
 The matrices $J_{\dots,n}$ are made of rows from identity matrices.
+The matrices $J_{s,\dots}$ are made of rows from an identity matrix of size $n_s$ or of zeros.
+So there may well be no soft constraints ($n_s=0$), or only on some constraints (and then the other constraints have a row of zeros in $J_{s,\dots}$.)
+\texttt{idxs[j]=i} means that the element \texttt{[i,j]} of the stacked $J_{s,\dots}$ matrix is one.
+
 Note that all quantities can vary stage-wise.
 Furthermore, note that the constraint matrix with respect to $u$ and $x$ is the same for the upper and the lower constraints.
+
+
 
 \begin{verbatim}
 int d_memsize_ocp_qp(int N, int *nx, int *nu, int *nb, int *ng, int *ns);
