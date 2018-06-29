@@ -637,10 +637,10 @@ int main()
 //	hyb_arg.ipm_arg = &arg;
 	hyb_arg.erk_arg = erk_args;
 //	hyb_arg.alpha_min = 1e-8;
-//	hyb_arg.nlp_res_g_max = 1e-8;
-//	hyb_arg.nlp_res_b_max = 1e-8;
-//	hyb_arg.nlp_res_d_max = 1e-8;
-//	hyb_arg.nlp_res_m_max = 1e-8;
+	hyb_arg.nlp_res_g_max = 1e-6;
+	hyb_arg.nlp_res_b_max = 1e-8;
+	hyb_arg.nlp_res_d_max = 1e-8;
+	hyb_arg.nlp_res_m_max = 1e-8;
 //	hyb_arg.nlp_iter_max = 20;
 //	hyb_arg.stat_max = 20;
 	hyb_arg.N2 = 2;
@@ -712,7 +712,7 @@ int main()
 
 #if 1
 	printf("\nalpha_aff\tmu_aff\t\tsigma\t\talpha\t\tmu\n");
-	d_print_e_tran_mat(5, hyb_ws.iter_nlp, hyb_ws.ipm_workspace->stat, 5);
+	d_print_e_tran_mat(5, hyb_ws.iter_qp+hyb_ws.iter_nlp, hyb_ws.ipm_workspace->stat, 5);
 
 	printf("\nsolution\n\n");
 	printf("\nu\n");

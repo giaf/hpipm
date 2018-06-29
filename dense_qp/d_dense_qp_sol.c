@@ -36,19 +36,21 @@
 #include <blasfeo_common.h>
 #include <blasfeo_d_aux.h>
 
-#include "../include/hpipm_d_dense_qp.h"
-#include "../include/hpipm_d_dense_qp_sol.h"
+#include <hpipm_d_dense_qp_dim.h>
+#include <hpipm_d_dense_qp.h>
+#include <hpipm_d_dense_qp_sol.h>
 
 
 
-#define CREATE_STRVEC d_create_strvec
-#define CVT_STRVEC2VEC d_cvt_strvec2vec
+#define CREATE_STRVEC blasfeo_create_dvec
+#define CVT_STRVEC2VEC blasfeo_unpack_dvec
 #define DENSE_QP d_dense_qp
+#define DENSE_QP_DIM d_dense_qp_dim
 #define DENSE_QP_SOL d_dense_qp_sol
 #define REAL double
-#define STRVEC d_strvec
-#define SIZE_STRVEC d_size_strvec
-#define VECCP_LIBSTR dveccp_libstr
+#define STRVEC blasfeo_dvec
+#define SIZE_STRVEC blasfeo_memsize_dvec
+#define VECCP_LIBSTR blasfeo_dveccp
 
 #define CREATE_DENSE_QP_SOL d_create_dense_qp_sol
 #define MEMSIZE_DENSE_QP_SOL d_memsize_dense_qp_sol

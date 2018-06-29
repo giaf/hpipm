@@ -27,8 +27,21 @@
 
 
 
+#ifndef HPIPM_S_DENSE_QP_IPM_H_
+#define HPIPM_S_DENSE_QP_IPM_H_
+
+
+
 #include <blasfeo_target.h>
 #include <blasfeo_common.h>
+
+#include "hpipm_x_dense_qp_ipm.h"
+
+
+
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 
 
@@ -40,9 +53,21 @@ struct s_dense_qp_ipm_arg
 	float res_b_max; // exit cond on inf norm of residuals
 	float res_d_max; // exit cond on inf norm of residuals
 	float res_m_max; // exit cond on inf norm of residuals
+	float reg_prim; // reg of primal hessian
+	float reg_dual; // reg of dual hessian
+	float lam_min; // min value in lam vector
+	float t_min; // min value in t vector
 	int iter_max; // exit cond in iter number
 	int stat_max; // iterations saved in stat
-	int pred_corr; // use Mehrotra's predictor-corrector IPM algirthm
+	int pred_corr; // Mehrotra's predictor-corrector IPM algirthm
+	int cond_pred_corr; // conditional Mehrotra's predictor-corrector
+	int scale; // scale hessian
+	int itref_pred_max; // max number of iterative refinement steps for predictor step
+	int itref_corr_max; // max number of iterative refinement steps for corrector step
+	int warm_start; // 0 no warm start, 1 warm start primal sol
+	int lq_fact; // 0 syrk+potrf, 1 mix, 2 lq
+	int abs_form; // absolute IPM formulation
+	int comp_res_exit; // compute residuals on exit (only for abs_form==1)
 	int memsize;
 	};
 
@@ -51,45 +76,63 @@ struct s_dense_qp_ipm_arg
 struct s_dense_qp_ipm_workspace
 	{
 	struct s_core_qp_ipm_workspace *core_workspace;
-	struct s_strvec *dv; // step in v
-	struct s_strvec *dpi; // step in pi
-	struct s_strvec *dlam; // step in lam XXX needed ???
-	struct s_strvec *dt; // step in t XXX needed ???
-	struct s_strvec *res_g; // q-residuals
-	struct s_strvec *res_b; // b-residuals
-	struct s_strvec *res_d; // d-residuals
-	struct s_strvec *res_m; // m-residuals
-	struct s_strvec *Gamma; //
-	struct s_strvec *gamma; //
-	struct s_strvec *Zs_inv; //
-	struct s_strmat *Lv; //
-	struct s_strmat *AL; //
-	struct s_strmat *Le; //
-	struct s_strmat *Ctx; //
-	struct s_strvec *lv; //
-	struct s_strvec *tmp_nbg; // work space of size nb+ng
-	struct s_strvec *tmp_ns; // work space of size ns
+	struct s_dense_qp_res_workspace *res_workspace;
+	struct s_dense_qp_sol *sol_step;
+	struct s_dense_qp_sol *sol_itref;
+	struct s_dense_qp *qp_step;
+	struct s_dense_qp *qp_itref;
+	struct s_dense_qp_res *res;
+	struct s_dense_qp_res *res_itref;
+	struct blasfeo_svec *Gamma; //
+	struct blasfeo_svec *gamma; //
+	struct blasfeo_svec *Zs_inv; //
+	struct blasfeo_smat *Lv; //
+	struct blasfeo_smat *AL; //
+	struct blasfeo_smat *Le; //
+	struct blasfeo_smat *Ctx; //
+	struct blasfeo_svec *lv; //
+	struct blasfeo_svec *sv; // scale for Lv
+	struct blasfeo_svec *se; // scale for Le
+	struct blasfeo_svec *tmp_nbg; // work space of size nb+ng
+	struct blasfeo_svec *tmp_ns; // work space of size ns
+	struct blasfeo_smat *lq0;
+	struct blasfeo_smat *lq1;
+	struct blasfeo_svec *tmp_m;
 	float *stat; // convergence statistics
-	float mu0; // mu0
-	float res_mu; // mu-residual
+//	int *ipiv_v;
+//	int *ipiv_e;
+	void *lq_work0;
+	void *lq_work1;
+	float qp_res[4]; // infinity norm of residuals
 	int iter; // iteration number
 	int stat_max; // iterations saved in stat
+	int scale;
+	int use_hess_fact;
 	int memsize; // memory size (in bytes) of workspace
 	};
 
 
 
 //
-int s_memsize_dense_qp_ipm_arg(struct s_dense_qp *qp);
+int s_memsize_dense_qp_ipm_arg(struct s_dense_qp_dim *qp_dim);
 //
-void s_create_dense_qp_ipm_arg(struct s_dense_qp *qp, struct s_dense_qp_ipm_arg *arg, void *mem);
+void s_create_dense_qp_ipm_arg(struct s_dense_qp_dim *qp_dim, struct s_dense_qp_ipm_arg *arg, void *mem);
 //
-void s_set_default_dense_qp_ipm_arg(struct s_dense_qp_ipm_arg *arg);
+void s_set_default_dense_qp_ipm_arg(enum dense_qp_ipm_mode mode, struct s_dense_qp_ipm_arg *arg);
 
 //
-int s_memsize_dense_qp_ipm(struct s_dense_qp *qp, struct s_dense_qp_ipm_arg *arg);
+int s_memsize_dense_qp_ipm(struct s_dense_qp_dim *qp_dim, struct s_dense_qp_ipm_arg *arg);
 //
-void s_create_dense_qp_ipm(struct s_dense_qp *qp, struct s_dense_qp_ipm_arg *arg, struct s_dense_qp_ipm_workspace *ws, void *mem);
+void s_create_dense_qp_ipm(struct s_dense_qp_dim *qp_dim, struct s_dense_qp_ipm_arg *arg, struct s_dense_qp_ipm_workspace *ws, void *mem);
 //
 int s_solve_dense_qp_ipm(struct s_dense_qp *qp, struct s_dense_qp_sol *qp_sol, struct s_dense_qp_ipm_arg *arg, struct s_dense_qp_ipm_workspace *ws);
 
+
+
+#ifdef __cplusplus
+} /* extern "C" */
+#endif
+
+
+
+#endif // HPIPM_S_DENSE_QP_IPM_H_

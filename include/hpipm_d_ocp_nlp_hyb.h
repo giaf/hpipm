@@ -30,7 +30,9 @@
 #include <blasfeo_target.h>
 #include <blasfeo_common.h>
 
-
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 
 struct d_ocp_nlp_hyb_arg
@@ -90,3 +92,7 @@ int d_memsize_ocp_nlp_hyb(struct d_ocp_nlp *nlp, struct d_ocp_nlp_hyb_arg *arg);
 void d_create_ocp_nlp_hyb(struct d_ocp_nlp *nlp, struct d_ocp_nlp_hyb_arg *arg, struct d_ocp_nlp_hyb_workspace *ws, void *mem);
 //
 int d_solve_ocp_nlp_hyb(struct d_ocp_nlp *nlp, struct d_ocp_nlp_sol *nlp_sol, struct d_ocp_nlp_hyb_arg *arg, struct d_ocp_nlp_hyb_workspace *ws);
+
+#ifdef __cplusplus
+} /* extern "C" */
+#endif

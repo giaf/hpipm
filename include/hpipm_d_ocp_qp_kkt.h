@@ -25,16 +25,26 @@
 *                                                                                                 *
 **************************************************************************************************/
 
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 
+//
+void d_init_var_ocp_qp(struct d_ocp_qp *qp, struct d_ocp_qp_sol *qp_sol, struct d_ocp_qp_ipm_arg *arg, struct d_ocp_qp_ipm_workspace *ws);
+//
+void d_compute_res_ocp_qp(struct d_ocp_qp *qp, struct d_ocp_qp_sol *qp_sol, struct d_ocp_qp_res *res, struct d_ocp_qp_res_workspace *ws);
+//
+void d_compute_lin_res_ocp_qp(struct d_ocp_qp *qp, struct d_ocp_qp_sol *qp_sol, struct d_ocp_qp_sol *qp_step, struct d_ocp_qp_res *res, struct d_ocp_qp_res_workspace *ws);
+//
+void d_fact_solve_kkt_unconstr_ocp_qp(struct d_ocp_qp *qp, struct d_ocp_qp_sol *qp_sol, struct d_ocp_qp_ipm_arg *arg, struct d_ocp_qp_ipm_workspace *ws);
+//
+void d_fact_solve_kkt_step_ocp_qp(struct d_ocp_qp *qp, struct d_ocp_qp_sol *qp_sol, struct d_ocp_qp_ipm_arg *arg, struct d_ocp_qp_ipm_workspace *ws);
+//
+void d_fact_lq_solve_kkt_step_ocp_qp(struct d_ocp_qp *qp, struct d_ocp_qp_sol *qp_sol, struct d_ocp_qp_ipm_arg *arg, struct d_ocp_qp_ipm_workspace *ws);
+//
+void d_solve_kkt_step_ocp_qp(struct d_ocp_qp *qp, struct d_ocp_qp_sol *qp_sol, struct d_ocp_qp_ipm_arg *arg, struct d_ocp_qp_ipm_workspace *ws);
 
-//
-void d_init_var_ocp_qp(struct d_ocp_qp *qp, struct d_ocp_qp_sol *qp_sol, struct d_ocp_qp_ipm_workspace *ws);
-//
-void d_compute_res_ocp_qp(struct d_ocp_qp *qp, struct d_ocp_qp_sol *qp_sol, struct d_ocp_qp_ipm_workspace *ws);
-//
-void d_fact_solve_kkt_unconstr_ocp_qp(struct d_ocp_qp *qp, struct d_ocp_qp_sol *qp_sol, struct d_ocp_qp_ipm_workspace *ws);
-//
-void d_fact_solve_kkt_step_ocp_qp(struct d_ocp_qp *qp, struct d_ocp_qp_ipm_workspace *ws);
-//
-void d_solve_kkt_step_ocp_qp(struct d_ocp_qp *qp, struct d_ocp_qp_ipm_workspace *ws);
+#ifdef __cplusplus
+} /* extern "C" */
+#endif

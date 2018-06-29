@@ -42,34 +42,43 @@
 
 
 
-#define AXPY_LIBSTR daxpy_libstr
+#define AXPY_LIBSTR blasfeo_daxpy
+#define COND_QP_OCP2DENSE_ARG d_cond_qp_ocp2dense_arg
 #define COND_QP_OCP2DENSE_WORKSPACE d_cond_qp_ocp2dense_workspace
 #define DENSE_QP_SOL d_dense_qp_sol
-#define GEAD_LIBSTR dgead_libstr
-#define GECP_LIBSTR dgecp_libstr
-#define GEEX1_LIBSTR dgeex1_libstr
-#define GESE_LIBSTR dgese_libstr
-#define GEMM_NN_LIBSTR dgemm_nn_libstr
-#define GEMV_T_LIBSTR dgemv_t_libstr
-#define GEMV_N_LIBSTR dgemv_n_libstr
+#define GEAD_LIBSTR blasfeo_dgead
+#define GECP_LIBSTR blasfeo_dgecp
+#define GEEX1_LIBSTR blasfeo_dgeex1
+#define GESE_LIBSTR blasfeo_dgese
+#define GEMM_NN_LIBSTR blasfeo_dgemm_nn
+#define GEMV_T_LIBSTR blasfeo_dgemv_t
+#define GEMV_N_LIBSTR blasfeo_dgemv_n
 #define OCP_QP d_ocp_qp
 #define OCP_QP_SOL d_ocp_qp_sol
-#define POTRF_L_MN_LIBSTR dpotrf_l_mn_libstr
+#define POTRF_L_MN_LIBSTR blasfeo_dpotrf_l_mn
 #define REAL double
-#define ROWEX_LIBSTR drowex_libstr
-#define STRMAT d_strmat
-#define STRVEC d_strvec
-#define SYMV_L_LIBSTR dsymv_l_libstr
-#define SYRK_LN_MN_LIBSTR dsyrk_ln_mn_libstr
-#define TRCP_L_LIBSTR dtrcp_l_libstr
-#define TRMM_RLNN_LIBSTR dtrmm_rlnn_libstr
-#define VECCP_LIBSTR dveccp_libstr
+#define ROWAD_LIBSTR blasfeo_drowad
+#define ROWEX_LIBSTR blasfeo_drowex
+#define ROWIN_LIBSTR blasfeo_drowin
+#define STRMAT blasfeo_dmat
+#define STRVEC blasfeo_dvec
+#define SYMV_L_LIBSTR blasfeo_dsymv_l
+#define SYRK_LN_MN_LIBSTR blasfeo_dsyrk_ln_mn
+#define TRCP_L_LIBSTR blasfeo_dtrcp_l
+#define TRMM_RLNN_LIBSTR blasfeo_dtrmm_rlnn
+#define VECCP_LIBSTR blasfeo_dveccp
 
-#define COMPUTE_GAMMA d_compute_Gamma
 #define COND_BABT d_cond_BAbt
+#define COND_B d_cond_b
 #define COND_RSQRQ_N2NX3 d_cond_RSQrq_N2nx3
+#define COND_RQ_N2NX3 d_cond_rq_N2nx3
 #define COND_DCTD d_cond_DCtd
+#define COND_D d_cond_d
 #define EXPAND_SOL d_expand_sol
+#define EXPAND_PRIMAL_SOL d_expand_primal_sol
+#define UPDATE_COND_BABT d_update_cond_BAbt
+#define UPDATE_COND_RSQRQ_N2NX3 d_update_cond_RSQrq_N2nx3
+#define UPDATE_COND_DCTD d_update_cond_DCtd
 
 
 

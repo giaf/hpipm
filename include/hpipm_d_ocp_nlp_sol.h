@@ -30,14 +30,16 @@
 #include <blasfeo_target.h>
 #include <blasfeo_common.h>
 
-
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 struct d_ocp_nlp_sol
 	{
-	struct d_strvec *ux;
-	struct d_strvec *pi;
-	struct d_strvec *lam;
-	struct d_strvec *t;
+	struct blasfeo_dvec *ux;
+	struct blasfeo_dvec *pi;
+	struct blasfeo_dvec *lam;
+	struct blasfeo_dvec *t;
 	int memsize; // memory size in bytes
 	};
 
@@ -52,4 +54,8 @@ void d_cvt_ocp_nlp_sol_to_colmaj(struct d_ocp_nlp *qp, struct d_ocp_nlp_sol *qp_
 //
 void d_cvt_ocp_nlp_sol_to_rowmaj(struct d_ocp_nlp *qp, struct d_ocp_nlp_sol *qp_sol, double **u, double **x, double **ls, double **us, double **pi, double **lam_lb, double **lam_ub, double **lam_lg, double **lam_ug, double **lam_ls, double **lam_us);
 //
-void d_cvt_ocp_nlp_sol_to_libstr(struct d_ocp_nlp *qp, struct d_ocp_nlp_sol *qp_sol, struct d_strvec *u, struct d_strvec *ls, struct d_strvec *us, struct d_strvec *x, struct d_strvec *pi, struct d_strvec *lam_lb, struct d_strvec *lam_ub, struct d_strvec *lam_lg, struct d_strvec *lam_ug, struct d_strvec *lam_ls, struct d_strvec *lam_us);
+void d_cvt_ocp_nlp_sol_to_libstr(struct d_ocp_nlp *qp, struct d_ocp_nlp_sol *qp_sol, struct blasfeo_dvec *u, struct blasfeo_dvec *ls, struct blasfeo_dvec *us, struct blasfeo_dvec *x, struct blasfeo_dvec *pi, struct blasfeo_dvec *lam_lb, struct blasfeo_dvec *lam_ub, struct blasfeo_dvec *lam_lg, struct blasfeo_dvec *lam_ug, struct blasfeo_dvec *lam_ls, struct blasfeo_dvec *lam_us);
+
+#ifdef __cplusplus
+} /* extern "C" */
+#endif

@@ -25,7 +25,9 @@
 *                                                                                                 *
 **************************************************************************************************/
 
-
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 struct s_core_qp_ipm_workspace
 	{
@@ -42,13 +44,18 @@ struct s_core_qp_ipm_workspace
 	float *res_b; // b-residuals
 	float *res_d; // d-residuals
 	float *res_m; // m-residuals
+	float *res_m_bkp; // m-residuals
 	float *Gamma; // Hessian update
 	float *gamma; // gradient update
+	float alpha_prim; // step length
+	float alpha_dual; // step length
 	float alpha; // step length
 	float sigma; // centering XXX
 	float mu; // duality measuere
 	float mu_aff; // affine duality measuere
 	float nc_inv; // 1.0/nt, where nt is the total number of constraints
+	float lam_min; // min value in t vector
+	float t_min; // min value in lam vector
 	int nv; // number of primal variables
 	int ne; // number of equality constraints
 	int nc; // number of (two-sided) inequality constraints
@@ -64,3 +71,6 @@ void s_create_core_qp_ipm(int nv, int ne, int nc, struct s_core_qp_ipm_workspace
 //
 void s_core_qp_ipm(struct s_core_qp_ipm_workspace *workspace);
 
+#ifdef __cplusplus
+} /* extern "C" */
+#endif

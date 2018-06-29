@@ -30,43 +30,106 @@ include ./Makefile.rule
 OBJS = 
 
 ifeq ($(TARGET), GENERIC)
-OBJS +=
+# ipm core
+# double
+OBJS += ipm_core/d_core_qp_ipm_aux.o 
+# single
+OBJS += ipm_core/s_core_qp_ipm_aux.o 
+endif
+
+ifeq ($(TARGET), AVX)
+# ipm core
+# double
+OBJS += ipm_core/d_core_qp_ipm_aux_avx.o 
+# single
+OBJS += ipm_core/s_core_qp_ipm_aux_avx.o 
 endif
 
 # cond
 OBJS += cond/d_cond_aux.o cond/d_cond.o cond/d_part_cond.o
 OBJS += cond/s_cond_aux.o cond/s_cond.o cond/s_part_cond.o
+
 # dense qp
-OBJS += dense_qp/d_dense_qp.o dense_qp/d_dense_qp_sol.o dense_qp/d_dense_qp_kkt.o dense_qp/d_dense_qp_ipm.o
-OBJS += dense_qp/s_dense_qp.o dense_qp/s_dense_qp_sol.o dense_qp/s_dense_qp_kkt.o dense_qp/s_dense_qp_ipm.o
+# double
+OBJS += dense_qp/d_dense_qp_dim.o 
+OBJS += dense_qp/d_dense_qp.o 
+OBJS += dense_qp/d_dense_qp_sol.o 
+OBJS += dense_qp/d_dense_qp_res.o 
+OBJS += dense_qp/d_dense_qp_kkt.o 
+OBJS += dense_qp/d_dense_qp_ipm.o
+# single
+OBJS += dense_qp/s_dense_qp_dim.o 
+OBJS += dense_qp/s_dense_qp.o 
+OBJS += dense_qp/s_dense_qp_sol.o 
+OBJS += dense_qp/s_dense_qp_res.o 
+OBJS += dense_qp/s_dense_qp_kkt.o 
+OBJS += dense_qp/s_dense_qp_ipm.o
+#mixed
+OBJS += dense_qp/m_dense_qp_dim.o 
+OBJS += dense_qp/m_dense_qp.o 
+
 # ipm core
-OBJS += ipm_core/d_core_qp_ipm_aux.o ipm_core/d_core_qp_ipm.o
-OBJS += ipm_core/s_core_qp_ipm_aux.o ipm_core/s_core_qp_ipm.o
+# double
+#OBJS += ipm_core/d_core_qp_ipm_aux.o 
+OBJS += ipm_core/d_core_qp_ipm.o
+# single
+#OBJS += ipm_core/s_core_qp_ipm_aux.o 
+OBJS += ipm_core/s_core_qp_ipm.o
+
 # ocp nlp
-OBJS += ocp_nlp/d_ocp_nlp.o ocp_nlp/d_ocp_nlp_sol.o ocp_nlp/d_ocp_nlp_aux.o ocp_nlp/d_ocp_nlp_hyb.o ocp_nlp/d_ocp_nlp_ipm.o ocp_nlp/d_ocp_nlp_sqp.o
-OBJS +=
+#OBJS += ocp_nlp/d_ocp_nlp.o ocp_nlp/d_ocp_nlp_sol.o ocp_nlp/d_ocp_nlp_aux.o ocp_nlp/d_ocp_nlp_hyb.o ocp_nlp/d_ocp_nlp_ipm.o ocp_nlp/d_ocp_nlp_sqp.o
+#OBJS +=
+
 # ocp qp
-OBJS += ocp_qp/d_ocp_qp.o ocp_qp/d_ocp_qp_sol.o ocp_qp/d_ocp_qp_kkt.o ocp_qp/d_ocp_qp_ipm.o
-OBJS += ocp_qp/s_ocp_qp.o ocp_qp/s_ocp_qp_sol.o ocp_qp/s_ocp_qp_kkt.o ocp_qp/s_ocp_qp_ipm.o
+# double
+OBJS += ocp_qp/d_ocp_qp_dim.o
+OBJS += ocp_qp/d_ocp_qp.o
+OBJS += ocp_qp/d_ocp_qp_sol.o
+OBJS += ocp_qp/d_ocp_qp_res.o
+OBJS += ocp_qp/d_ocp_qp_kkt.o
+OBJS += ocp_qp/d_ocp_qp_ipm.o
+# single
+OBJS += ocp_qp/s_ocp_qp_dim.o
+OBJS += ocp_qp/s_ocp_qp.o
+OBJS += ocp_qp/s_ocp_qp_sol.o
+OBJS += ocp_qp/s_ocp_qp_res.o
+OBJS += ocp_qp/s_ocp_qp_kkt.o
+OBJS += ocp_qp/s_ocp_qp_ipm.o
+# mixed
 #OBJS += ocp_qp/m_ocp_qp.o                       ocp_qp/m_ocp_qp_kkt.o ocp_qp/m_ocp_qp_ipm.o
+
 # sim core
-OBJS += sim_core/d_rk_int.o sim_core/d_erk_int.o sim_core/d_irk_int.o
-OBJS +=
+#OBJS += sim_core/d_rk_int.o sim_core/d_erk_int.o sim_core/d_irk_int.o
+#OBJS +=
+
 # tree ocp qp
+# common
 OBJS += tree_ocp_qp/scenario_tree.o
-OBJS += tree_ocp_qp/d_tree_ocp_qp.o tree_ocp_qp/d_tree_ocp_qp_sol.o tree_ocp_qp/d_tree_ocp_qp_kkt.o tree_ocp_qp/d_tree_ocp_qp_ipm.o
-OBJS += tree_ocp_qp/s_tree_ocp_qp.o tree_ocp_qp/s_tree_ocp_qp_sol.o tree_ocp_qp/s_tree_ocp_qp_kkt.o tree_ocp_qp/s_tree_ocp_qp_ipm.o
+# double
+OBJS += tree_ocp_qp/d_tree_ocp_qp_dim.o
+OBJS += tree_ocp_qp/d_tree_ocp_qp.o
+OBJS += tree_ocp_qp/d_tree_ocp_qp_sol.o
+OBJS += tree_ocp_qp/d_tree_ocp_qp_res.o
+OBJS += tree_ocp_qp/d_tree_ocp_qp_kkt.o
+OBJS += tree_ocp_qp/d_tree_ocp_qp_ipm.o
+# single
+OBJS += tree_ocp_qp/s_tree_ocp_qp_dim.o
+OBJS += tree_ocp_qp/s_tree_ocp_qp.o
+OBJS += tree_ocp_qp/s_tree_ocp_qp_sol.o
+OBJS += tree_ocp_qp/s_tree_ocp_qp_res.o
+OBJS += tree_ocp_qp/s_tree_ocp_qp_kkt.o
+OBJS += tree_ocp_qp/s_tree_ocp_qp_ipm.o
 
 all: clean static_library
 
 static_library: target
-	( cd cond; $(MAKE) obj)
-	( cd dense_qp; $(MAKE) obj)
-	( cd ipm_core; $(MAKE) obj)
-	( cd ocp_nlp; $(MAKE) obj)
-	( cd ocp_qp; $(MAKE) obj)
-	( cd sim_core; $(MAKE) obj)
-	( cd tree_ocp_qp; $(MAKE) obj)
+	( cd cond; $(MAKE) obj TOP=$(TOP) )
+	( cd dense_qp; $(MAKE) obj TOP=$(TOP) )
+	( cd ipm_core; $(MAKE) obj TOP=$(TOP) )
+	( cd ocp_nlp; $(MAKE) obj TOP=$(TOP) )
+	( cd ocp_qp; $(MAKE) obj TOP=$(TOP) )
+	( cd sim_core; $(MAKE) obj TOP=$(TOP) )
+	( cd tree_ocp_qp; $(MAKE) obj TOP=$(TOP) )
 	ar rcs libhpipm.a $(OBJS) 
 	cp libhpipm.a ./lib/
 	@echo
@@ -74,13 +137,13 @@ static_library: target
 	@echo
 
 shared_library: target
-	( cd cond; $(MAKE) obj)
-	( cd dense_qp; $(MAKE) obj)
-	( cd ipm_core; $(MAKE) obj)
-	( cd ocp_nlp; $(MAKE) obj)
-	( cd ocp_qp; $(MAKE) obj)
-	( cd sim_core; $(MAKE) obj)
-	( cd tree_ocp_qp; $(MAKE) obj)
+	( cd cond; $(MAKE) obj TOP=$(TOP) )
+	( cd dense_qp; $(MAKE) obj TOP=$(TOP) )
+	( cd ipm_core; $(MAKE) obj TOP=$(TOP) )
+	( cd ocp_nlp; $(MAKE) obj TOP=$(TOP) )
+	( cd ocp_qp; $(MAKE) obj TOP=$(TOP) )
+	( cd sim_core; $(MAKE) obj TOP=$(TOP) )
+	( cd tree_ocp_qp; $(MAKE) obj TOP=$(TOP) )
 	gcc -shared -o libhpipm.so $(OBJS)
 	cp libhpipm.so ./lib/
 	@echo
@@ -111,7 +174,7 @@ install_shared:
 
 test_problem:
 	cp libhpipm.a ./test_problems/libhpipm.a
-	make -C test_problems obj
+	make -C test_problems obj TOP=$(TOP)
 	@echo
 	@echo " Test problem build complete."
 	@echo

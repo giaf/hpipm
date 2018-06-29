@@ -30,7 +30,9 @@
 #include <blasfeo_target.h>
 #include <blasfeo_common.h>
 
-
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 struct d_ocp_nlp_model
 	{
@@ -46,13 +48,13 @@ struct d_ocp_nlp_model
 struct d_ocp_nlp
 	{
 	struct d_ocp_nlp_model *model;
-	struct d_strmat *RSQ; // hessian
-	struct d_strvec *rq; // gradient
-	struct d_strmat *DCt; // constraints matrix
-	struct d_strvec *d; // constraints rhs
-	struct d_strvec *Z; // soft constr slack diag hessian
-	struct d_strvec *z; // soft constr slack grad
-	struct d_strvec *tmp_nuxM; // work space of size max(nu+nx)
+	struct blasfeo_dmat *RSQ; // hessian
+	struct blasfeo_dvec *rq; // gradient
+	struct blasfeo_dmat *DCt; // constraints matrix
+	struct blasfeo_dvec *d; // constraints rhs
+	struct blasfeo_dvec *Z; // soft constr slack diag hessian
+	struct blasfeo_dvec *z; // soft constr slack grad
+	struct blasfeo_dvec *tmp_nuxM; // work space of size max(nu+nx)
 	int *nx; // number of states
 	int *nu; // number of inputs
 	int *nb; // number of box constraints
@@ -72,3 +74,7 @@ int d_memsize_ocp_nlp(int N, int *nx, int *nu, int *nb, int *ng, int *ns);
 void d_create_ocp_nlp(int N, int *nx, int *nu, int *nb, int *ng, int *ns, struct d_ocp_nlp *nlp, void *memory);
 //
 void d_cvt_colmaj_to_ocp_nlp(struct d_ocp_nlp_model *model, double **Q, double **S, double **R, double **x_ref, double **u_ref, int **idxb, double **d_lb, double **d_ub, double **C, double **D, double **d_lg, double **d_ug, double **Zl, double **Zu, double **zl, double **zu, int **idxs, struct d_ocp_nlp *nlp);
+
+#ifdef __cplusplus
+} /* extern "C" */
+#endif

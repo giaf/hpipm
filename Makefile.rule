@@ -26,7 +26,13 @@
 ###################################################################################################
 
 # Target architecture
-TARGET = GENERIC
+TARGET = AVX
+#TARGET = GENERIC
+
+# Use C99 extension to math library
+#
+# USE_C99_MATH = 0
+USE_C99_MATH = 1
 
 # BLAS and LAPACK version (for LA=BLAS in BLASFEO)
 REF_BLAS = 0
@@ -35,6 +41,9 @@ REF_BLAS = 0
 #REF_BLAS = MKL
 #REF_BLAS = BLIS
 #REF_BLAS = ATLAS
+
+# Installation directory
+TOP = $(shell pwd)
 
 # operating system
 #UNAME_S := $(shell uname -s)
@@ -60,8 +69,8 @@ PREFIX = /opt
 BLASFEO_PATH = /opt/blasfeo
 
 # enable runtine checks
-#RUNTIME_CHECKS = 0
-RUNTIME_CHECKS = 1
+RUNTIME_CHECKS = 0
+#RUNTIME_CHECKS = 1
 
 # compiler flags
 CFLAGS  = 
@@ -73,7 +82,7 @@ CFLAGS += -O2 -fPIC
 CFLAGS  += #-g #-Wall -pedantic -Wfloat-equal #-pg
 
 # search directories
-CFLAGS += -I$(BLASFEO_PATH)/include
+CFLAGS += -I$(BLASFEO_PATH)/include -I$(TOP)/include
 
 # definirions
 #ifeq ($(OS), LINUX)
@@ -85,6 +94,10 @@ CFLAGS += -I$(BLASFEO_PATH)/include
 #ifeq ($(OS), WINDOWS)
 #CFLAGS  += -DOS_WINDOWS
 #endif
+
+ifeq ($(USE_C99_MATH), 1)
+CFLAGS += -DUSE_C99_MATH
+endif
 
 ifeq ($(REF_BLAS), 0)
 CFLAGS  += 
@@ -110,6 +123,9 @@ CFLAGS += -DRUNTIME_CHECKS
 endif
 
 # architecture-specific flags
+ifeq ($(TARGET), AVX)
+CFLAGS  += -mavx -DTARGET_AVX
+endif
 ifeq ($(TARGET), GENERIC)
 CFLAGS  += -DTARGET_GENERIC
 endif

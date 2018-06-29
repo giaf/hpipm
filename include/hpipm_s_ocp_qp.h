@@ -25,41 +25,122 @@
 *                                                                                                 *
 **************************************************************************************************/
 
+#ifndef HPIPM_S_OCP_QP_H_
+#define HPIPM_S_OCP_QP_H_
+
 
 
 #include <blasfeo_target.h>
 #include <blasfeo_common.h>
 
+#include "hpipm_s_ocp_qp_dim.h"
+
+
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 
 
 struct s_ocp_qp
 	{
-	struct s_strmat *BAbt;
-	struct s_strvec *b;
-	struct s_strmat *RSQrq;
-	struct s_strvec *rq;
-	struct s_strmat *DCt;
-	struct s_strvec *d;
-	struct s_strvec *Z;
-	struct s_strvec *z;
-	int *nx; // number of states
-	int *nu; // number of inputs
-	int *nb; // number of box constraints
+	struct s_ocp_qp_dim *dim;
+	struct blasfeo_smat *BAbt; // dynamics matrix & vector work space
+	struct blasfeo_smat *RSQrq; // hessian of cost & vector work space
+	struct blasfeo_smat *DCt; // inequality constraints matrix
+	struct blasfeo_svec *b; // dynamics vector
+	struct blasfeo_svec *rqz; // gradient of cost & gradient of slacks
+	struct blasfeo_svec *d; // inequality constraints vector
+	struct blasfeo_svec *m; // rhs of complementarity condition
+	struct blasfeo_svec *Z; // (diagonal) hessian of slacks
 	int **idxb; // index of box constraints
-	int *ng; // number of general constraints
-	int *ns; // number of soft constraints
 	int **idxs; // index of soft constraints
-	int N; // hotizon lenght
 	int memsize; // memory size in bytes
 	};
 
 
 
 //
-int s_memsize_ocp_qp(int N, int *nx, int *nu, int *nb, int *ng, int *ns);
+int s_memsize_ocp_qp(struct s_ocp_qp_dim *dim);
 //
-void s_create_ocp_qp(int N, int *nx, int *nu, int *nb, int *ng, int *ns, struct s_ocp_qp *qp, void *memory);
+void s_create_ocp_qp(struct s_ocp_qp_dim *dim, struct s_ocp_qp *qp, void *memory);
 //
-void s_cvt_colmaj_to_ocp_qp(float **A, float **B, float **b, float **Q, float **S, float **R, float **q, float **r, int **idxb, float **lb, float **ub, float **C, float **D, float **lg, float **ug, float **Zl, float **Zu, float **zl, float **zu, int **idxs, struct s_ocp_qp *qp);
+void s_change_bounds_dimensions_ocp_qp(int *nbu, int *nbx, struct s_ocp_qp *qp);
 //
-void s_cvt_rowmaj_to_ocp_qp(float **A, float **B, float **b, float **Q, float **S, float **R, float **q, float **r, int **idxb, float **lb, float **ub, float **C, float **D, float **lg, float **ug, float **Zl, float **Zu, float **zl, float **zu, int **idxs, struct s_ocp_qp *qp);
+void s_cvt_colmaj_to_ocp_qp(float **A, float **B, float **b, float **Q, float **S, float **R, float **q, float **r, int **idxb, float **lb, float **ub, float **C, float **D, float **lg, float **ug, float **Zl, float **Zu, float **zl, float **zu, int **idxs, float **ls, float **us, struct s_ocp_qp *qp);
+//
+void s_cvt_rowmaj_to_ocp_qp(float **A, float **B, float **b, float **Q, float **S, float **R, float **q, float **r, int **idxb, float **lb, float **ub, float **C, float **D, float **lg, float **ug, float **Zl, float **Zu, float **zl, float **zu, int **idxs, float **ls, float **us, struct s_ocp_qp *qp);
+//
+void s_cvt_colmaj_to_ocp_qp_Q(int stage, float *mat, struct s_ocp_qp *qp);
+//
+void s_cvt_ocp_qp_to_colmaj_Q(int stage, struct s_ocp_qp *qp, float *mat);
+//
+void s_cvt_colmaj_to_ocp_qp_S(int stage, float *mat, struct s_ocp_qp *qp);
+//
+void s_cvt_ocp_qp_to_colmaj_S(int stage, struct s_ocp_qp *qp, float *mat);
+//
+void s_cvt_colmaj_to_ocp_qp_R(int stage, float *mat, struct s_ocp_qp *qp);
+//
+void s_cvt_ocp_qp_to_colmaj_R(int stage, struct s_ocp_qp *qp, float *mat);
+//
+void s_cvt_colmaj_to_ocp_qp_q(int stage, float *vec, struct s_ocp_qp *qp);
+//
+void s_cvt_ocp_qp_to_colmaj_q(int stage, struct s_ocp_qp *qp, float *vec);
+//
+void s_cvt_colmaj_to_ocp_qp_r(int stage, float *vec, struct s_ocp_qp *qp);
+//
+void s_cvt_ocp_qp_to_colmaj_r(int stage, struct s_ocp_qp *qp, float *vec);
+//
+void s_cvt_colmaj_to_ocp_qp_A(int stage, float *mat, struct s_ocp_qp *qp);
+//
+void s_cvt_ocp_qp_to_colmaj_A(int stage, struct s_ocp_qp *qp, float *mat);
+//
+void s_cvt_colmaj_to_ocp_qp_B(int stage, float *mat, struct s_ocp_qp *qp);
+//
+void s_cvt_ocp_qp_to_colmaj_B(int stage, struct s_ocp_qp *qp, float *mat);
+//
+void s_cvt_colmaj_to_ocp_qp_b(int stage, float *vec, struct s_ocp_qp *qp);
+//
+void s_cvt_ocp_qp_to_colmaj_b(int stage, struct s_ocp_qp *qp, float *vec);
+//
+void s_cvt_colmaj_to_ocp_qp_lbx(int stage, float *vec, struct s_ocp_qp *qp);
+//
+void s_cvt_ocp_qp_to_colmaj_lbx(int stage, struct s_ocp_qp *qp, float *vec);
+//
+void s_cvt_colmaj_to_ocp_qp_ubx(int stage, float *vec, struct s_ocp_qp *qp);
+//
+void s_cvt_ocp_qp_to_colmaj_ubx(int stage, struct s_ocp_qp *qp, float *vec);
+//
+void s_cvt_colmaj_to_ocp_qp_lbu(int stage, float *vec, struct s_ocp_qp *qp);
+//
+void s_cvt_ocp_qp_to_colmaj_lbu(int stage, struct s_ocp_qp *qp, float *vec);
+//
+void s_cvt_colmaj_to_ocp_qp_ubu(int stage, float *vec, struct s_ocp_qp *qp);
+//
+void s_cvt_ocp_qp_to_colmaj_ubu(int stage, struct s_ocp_qp *qp, float *vec);
+//
+void s_cvt_colmaj_to_ocp_qp_C(int stage, float *mat, struct s_ocp_qp *qp);
+//
+void s_cvt_ocp_qp_to_colmaj_C(int stage, struct s_ocp_qp *qp, float *mat);
+//
+void s_cvt_colmaj_to_ocp_qp_D(int stage, float *mat, struct s_ocp_qp *qp);
+//
+void s_cvt_ocp_qp_to_colmaj_D(int stage, struct s_ocp_qp *qp, float *mat);
+//
+void s_cvt_colmaj_to_ocp_qp_lg(int stage, float *vec, struct s_ocp_qp *qp);
+//
+void s_cvt_ocp_qp_to_colmaj_lg(int stage, struct s_ocp_qp *qp, float *vec);
+//
+void s_cvt_colmaj_to_ocp_qp_ug(int stage, float *vec, struct s_ocp_qp *qp);
+//
+void s_cvt_ocp_qp_to_colmaj_ug(int stage, struct s_ocp_qp *qp, float *vec);
+
+
+#ifdef __cplusplus
+} /* extern "C" */
+#endif
+
+
+
+#endif // HPIPM_S_OCP_QP_H_

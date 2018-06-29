@@ -21,7 +21,7 @@
 * License along with HPIPM; if not, write to the Free Software                                    *
 * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA                  *
 *                                                                                                 *
-* Author: Gianluca Frison, gianluca.frison (at) imtek.uni-freiburg.de                             *                          
+* Author: Gianluca Frison, gianluca.frison (at) imtek.uni-freiburg.de                             *
 *                                                                                                 *
 **************************************************************************************************/
 
@@ -39,8 +39,10 @@
 
 #include "../include/hpipm_tree.h"
 #include "../include/hpipm_scenario_tree.h"
+#include "../include/hpipm_d_tree_ocp_qp_dim.h"
 #include "../include/hpipm_d_tree_ocp_qp.h"
 #include "../include/hpipm_d_tree_ocp_qp_sol.h"
+#include "../include/hpipm_d_tree_ocp_qp_res.h"
 #include "../include/hpipm_d_tree_ocp_qp_ipm.h"
 
 #include "d_tools.h"
@@ -81,7 +83,7 @@ void d_print_mat(int m, int n, double *A, int lda)
 		printf("\n");
 		}
 	printf("\n");
-	}	
+	}
 /* prints the transposed of a matrix in column-major format */
 void d_print_tran_mat(int row, int col, double *A, int lda)
 	{
@@ -95,7 +97,7 @@ void d_print_tran_mat(int row, int col, double *A, int lda)
 		printf("\n");
 		}
 	printf("\n");
-	}	
+	}
 /* prints a matrix in column-major format (exponential notation) */
 void d_print_e_mat(int m, int n, double *A, int lda)
 	{
@@ -109,7 +111,7 @@ void d_print_e_mat(int m, int n, double *A, int lda)
 		printf("\n");
 		}
 	printf("\n");
-	}	
+	}
 /* prints the transposed of a matrix in column-major format (exponential notation) */
 void d_print_e_tran_mat(int row, int col, double *A, int lda)
 	{
@@ -123,7 +125,7 @@ void d_print_e_tran_mat(int row, int col, double *A, int lda)
 		printf("\n");
 		}
 	printf("\n");
-	}	
+	}
 /* creates a zero matrix aligned */
 void int_zeros(int **pA, int row, int col)
 	{
@@ -151,13 +153,13 @@ void int_print_mat(int row, int col, int *A, int lda)
 		printf("\n");
 		}
 	printf("\n");
-	}	
+	}
 #endif
 
 
 
-/************************************************ 
-Mass-spring system: nx/2 masses connected each other with springs (in a row), and the first and the last one to walls. nu (<=nx) controls act on the first nu masses. The system is sampled with sampling time Ts. 
+/************************************************
+Mass-spring system: nx/2 masses connected each other with springs (in a row), and the first and the last one to walls. nu (<=nx) controls act on the first nu masses. The system is sampled with sampling time Ts.
 ************************************************/
 void mass_spring_system(double Ts, int nx, int nu, double *A, double *B, double *b, double *x0)
 	{
@@ -167,11 +169,11 @@ void mass_spring_system(double Ts, int nx, int nu, double *A, double *B, double 
 	int info = 0;
 
 	int pp = nx/2; // number of masses
-	
+
 /************************************************
-* build the continuous time system 
+* build the continuous time system
 ************************************************/
-	
+
 	double *T; d_zeros(&T, pp, pp);
 	int ii;
 	for(ii=0; ii<pp; ii++) T[ii*(pp+1)] = -2;
@@ -184,27 +186,27 @@ void mass_spring_system(double Ts, int nx, int nu, double *A, double *B, double 
 	dmcopy(pp, pp, Z, pp, Ac, nx);
 	dmcopy(pp, pp, T, pp, Ac+pp, nx);
 	dmcopy(pp, pp, I, pp, Ac+pp*nx, nx);
-	dmcopy(pp, pp, Z, pp, Ac+pp*(nx+1), nx); 
+	dmcopy(pp, pp, Z, pp, Ac+pp*(nx+1), nx);
 	free(T);
 	free(Z);
 	free(I);
-	
+
 	d_zeros(&I, nu, nu); for(ii=0; ii<nu; ii++) I[ii*(nu+1)]=1.0; //I = eye(nu);
 	double *Bc; d_zeros(&Bc, nx, nu);
 	dmcopy(nu, nu, I, nu, Bc+pp, nx);
 	free(I);
-	
+
 /************************************************
-* compute the discrete time system 
+* compute the discrete time system
 ************************************************/
 
 	double *bb; d_zeros(&bb, nx, 1);
 	dmcopy(nx, 1, bb, nx, b, nx);
-		
+
 	dmcopy(nx, nx, Ac, nx, A, nx);
 	dscal_3l(nx2, Ts, A);
 	expm(nx, A);
-	
+
 	d_zeros(&T, nx, nx);
 	d_zeros(&I, nx, nx); for(ii=0; ii<nx; ii++) I[ii*(nx+1)]=1.0; //I = eye(nx);
 	dmcopy(nx, nx, A, nx, T, nx);
@@ -212,7 +214,7 @@ void mass_spring_system(double Ts, int nx, int nu, double *A, double *B, double 
 	dgemm_nn_3l(nx, nu, nx, T, nx, Bc, nx, B, nx);
 	free(T);
 	free(I);
-	
+
 	int *ipiv = (int *) malloc(nx*sizeof(int));
 	dgesv_3l(nx, nu, Ac, nx, ipiv, B, nx, &info);
 	free(ipiv);
@@ -220,12 +222,12 @@ void mass_spring_system(double Ts, int nx, int nu, double *A, double *B, double 
 	free(Ac);
 	free(Bc);
 	free(bb);
-	
-			
+
+
 /************************************************
-* initial state 
+* initial state
 ************************************************/
-	
+
 	if(nx==4)
 		{
 		x0[0] = 5;
@@ -260,32 +262,52 @@ int main()
 	// stage-wise size
 	int nx[Nh+1];
 	int nu[Nh+1];
+	int nbx[Nh+1];
+	int nbu[Nh+1];
 	int nb[Nh+1];
 	int ng[Nh+1];
 	int ns[Nh+1];
+	int nsbx[Nh+1];
+	int nsbu[Nh+1];
+	int nsg[Nh+1];
 
 	nx[0] = 0;
 	nu[0] = nu_;
-	nb[0] = nu[0]+nx[0]/2;
+	nbx[0] = nx[0]/2;
+	nbu[0] = nu[0];
+	nb[0] = nbx[0] + nbu[0];
 	ng[0] = 0;
 	ns[0] = 0;
+	nsbx[0] = 0;
+	nsbu[0] = 0;
+	nsg[0] = 0;
 	for(ii=1; ii<Nh; ii++)
 		{
 		nx[ii] = nx_;
 		nu[ii] = nu_;
-		nb[ii] = nu[ii]+nx[ii]/2;
+		nbx[ii] = nx[ii]/2;
+		nbu[ii] = nu[ii];
+		nb[ii] = nbx[ii] + nbu[ii];
 		ng[ii] = 0;
-		ns[ii] = nx[ii]/2;
+		nsbx[ii] = nx[ii]/2;
+		nsbu[ii] = 0;
+		nsg[ii] = 0;
+		ns[ii] = nsbx[ii]+nsbu[ii]+nsg[ii];
 		}
 	nx[Nh] = nx_;
 	nu[Nh] = 0;
-	nb[Nh] = nu[Nh]+nx[Nh]/2;
+	nbx[Nh] = nx[Nh]/2;
+	nbu[Nh] = nu[Nh];
+	nb[Nh] = nbx[Nh] + nbu[Nh];
 	ng[Nh] = 0;
-	ns[Nh] = nx[Nh]/2;
+	nsbx[Nh] = nx[Nh]/2;
+	nsbu[Nh] = 0;
+	nsg[Nh] = 0;
+	ns[ii] = nsbx[ii]+nsbu[ii]+nsg[ii];
 
 /************************************************
 * dynamical system
-************************************************/	
+************************************************/
 
 	double *A; d_zeros(&A, nx_, nx_); // states update matrix
 
@@ -296,10 +318,10 @@ int main()
 
 	double Ts = 0.5; // sampling time
 	mass_spring_system(Ts, nx_, nu_, A, B, b, x0);
-	
+
 	for(jj=0; jj<nx_; jj++)
 		b[jj] = 0.0;
-	
+
 	for(jj=0; jj<nx_; jj++)
 		x0[jj] = 0;
 	x0[0] = 2.5;
@@ -319,8 +341,8 @@ int main()
 
 /************************************************
 * cost function
-************************************************/	
-	
+************************************************/
+
 	double *Q; d_zeros(&Q, nx_, nx_);
 	for(ii=0; ii<nx_; ii++) Q[ii*(nx_+1)] = 0.0;
 
@@ -353,7 +375,7 @@ int main()
 
 /************************************************
 * box & general constraints
-************************************************/	
+************************************************/
 
 	int *idxb0; int_zeros(&idxb0, nb[0], 1);
 	double *d_lb0; d_zeros(&d_lb0, nb[0], 1);
@@ -488,7 +510,7 @@ int main()
 
 /************************************************
 * soft constraints
-************************************************/	
+************************************************/
 
 	double *Zl0; d_zeros(&Zl0, ns[0], 1);
 	for(ii=0; ii<ns[0]; ii++)
@@ -505,6 +527,12 @@ int main()
 	int *idxs0; int_zeros(&idxs0, ns[0], 1);
 	for(ii=0; ii<ns[0]; ii++)
 		idxs0[ii] = nu[0]+ii;
+	double *d_ls0; d_zeros(&d_ls0, ns[0], 1);
+	for(ii=0; ii<ns[0]; ii++)
+		d_ls0[ii] = 0.0;
+	double *d_us0; d_zeros(&d_us0, ns[0], 1);
+	for(ii=0; ii<ns[0]; ii++)
+		d_us0[ii] = 0.0;
 
 	double *Zl1; d_zeros(&Zl1, ns[1], 1);
 	for(ii=0; ii<ns[1]; ii++)
@@ -521,6 +549,12 @@ int main()
 	int *idxs1; int_zeros(&idxs1, ns[1], 1);
 	for(ii=0; ii<ns[1]; ii++)
 		idxs1[ii] = nu[1]+ii;
+	double *d_ls1; d_zeros(&d_ls1, ns[1], 1);
+	for(ii=0; ii<ns[1]; ii++)
+		d_ls1[ii] = 0.0;
+	double *d_us1; d_zeros(&d_us1, ns[1], 1);
+	for(ii=0; ii<ns[1]; ii++)
+		d_us1[ii] = 0.0;
 
 	double *ZlN; d_zeros(&ZlN, ns[Nh], 1);
 	for(ii=0; ii<ns[Nh]; ii++)
@@ -537,6 +571,12 @@ int main()
 	int *idxsN; int_zeros(&idxsN, ns[Nh], 1);
 	for(ii=0; ii<ns[Nh]; ii++)
 		idxsN[ii] = nu[Nh]+ii;
+	double *d_lsN; d_zeros(&d_lsN, ns[Nh], 1);
+	for(ii=0; ii<ns[Nh]; ii++)
+		d_lsN[ii] = 0.0;
+	double *d_usN; d_zeros(&d_usN, ns[Nh], 1);
+	for(ii=0; ii<ns[Nh]; ii++)
+		d_usN[ii] = 0.0;
 
 #if 1
 	// soft constraints
@@ -545,25 +585,31 @@ int main()
 	d_print_mat(1, ns[0], Zu0, 1);
 	d_print_mat(1, ns[0], zl0, 1);
 	d_print_mat(1, ns[0], zu0, 1);
+	d_print_mat(1, ns[0], d_ls0, 1);
+	d_print_mat(1, ns[0], d_us0, 1);
 	int_print_mat(1, ns[1], idxs1, 1);
 	d_print_mat(1, ns[1], Zl1, 1);
 	d_print_mat(1, ns[1], Zu1, 1);
 	d_print_mat(1, ns[1], zl1, 1);
 	d_print_mat(1, ns[1], zu1, 1);
+	d_print_mat(1, ns[1], d_ls1, 1);
+	d_print_mat(1, ns[1], d_us1, 1);
 	int_print_mat(1, ns[Nh], idxsN, 1);
 	d_print_mat(1, ns[Nh], ZlN, 1);
 	d_print_mat(1, ns[Nh], ZuN, 1);
 	d_print_mat(1, ns[Nh], zlN, 1);
 	d_print_mat(1, ns[Nh], zuN, 1);
+	d_print_mat(1, ns[Nh], d_lsN, 1);
+	d_print_mat(1, ns[Nh], d_usN, 1);
 #endif
 
 /************************************************
 * create scenario tree
-************************************************/	
+************************************************/
 
-	int tree_memory_size = memsize_sctree(md, Nr, Nh);
-	printf("\ntree memsize = %d\n", tree_memory_size);
-	void *tree_memory = malloc(tree_memory_size);
+	int tree_memsize = memsize_sctree(md, Nr, Nh);
+	printf("\ntree memsize = %d\n", tree_memsize);
+	void *tree_memory = malloc(tree_memsize);
 
 	struct sctree st;
 	create_sctree(md, Nr, Nh, &st, tree_memory);
@@ -591,7 +637,7 @@ int main()
 
 /************************************************
 * cast scenario tree into tree
-************************************************/	
+************************************************/
 
 	struct tree ttree;
 	cast_sctree2tree(&st, &ttree);
@@ -617,25 +663,35 @@ int main()
 
 /************************************************
 * tree ocp problem size
-************************************************/	
+************************************************/
 
 	// node-wise size
 	int nxt[Nn];
 	int nut[Nn];
+	int nbxt[Nn];
+	int nbut[Nn];
 	int nbt[Nn];
 	int ngt[Nn];
 	int nst[Nn];
+	int nsbxt[Nn];
+	int nsbut[Nn];
+	int nsgt[Nn];
 
 	for(ii=0; ii<Nn; ii++)
 		{
 		stage = (ttree.root+ii)->stage;
 		nxt[ii] = nx[stage];
 		nut[ii] = nu[stage];
+		nbxt[ii] = nbx[stage];
+		nbut[ii] = nbu[stage];
 		nbt[ii] = nb[stage];
 		ngt[ii] = ng[stage];
 		nst[ii] = ns[stage];
+		nsbxt[ii] = nsbx[stage];
+		nsbut[ii] = nsbu[stage];
+		nsgt[ii] = nsg[stage];
 		}
-	
+
 #if 0
 	for(ii=0; ii<Nn; ii++)
 		{
@@ -645,7 +701,7 @@ int main()
 
 /************************************************
 * tree ocp data
-************************************************/	
+************************************************/
 
 	// stage-wise data
 
@@ -657,18 +713,20 @@ int main()
 	double *hR[Nh+1];
 	double *hq[Nh+1];
 	double *hr[Nh+1];
+	int *hidxb[Nh+1];
 	double *hd_lb[Nh+1];
 	double *hd_ub[Nh+1];
-	double *hd_lg[Nh+1];
-	double *hd_ug[Nh+1];
 	double *hC[Nh+1];
 	double *hD[Nh+1];
-	int *hidxb[Nh+1];
+	double *hd_lg[Nh+1];
+	double *hd_ug[Nh+1];
 	double *hZl[Nh+1];
 	double *hZu[Nh+1];
 	double *hzl[Nh+1];
 	double *hzu[Nh+1];
 	int *hidxs[Nh+1];
+	double *hd_ls[Nh+1];
+	double *hd_us[Nh+1];
 
 	hA[0] = A;
 	hB[0] = B;
@@ -681,15 +739,17 @@ int main()
 	hidxb[0] = idxb0;
 	hd_lb[0] = d_lb0;
 	hd_ub[0] = d_ub0;
-	hd_lg[0] = d_lg0;
-	hd_ug[0] = d_ug0;
 	hC[0] = C0;
 	hD[0] = D0;
+	hd_lg[0] = d_lg0;
+	hd_ug[0] = d_ug0;
 	hZl[0] = Zl0;
 	hZu[0] = Zu0;
 	hzl[0] = zl0;
 	hzu[0] = zu0;
 	hidxs[0] = idxs0;
+	hd_ls[0] = d_ls0;
+	hd_us[0] = d_us0;
 	for(ii=1; ii<Nh; ii++)
 		{
 		hA[ii] = A;
@@ -703,15 +763,17 @@ int main()
 		hidxb[ii] = idxb1;
 		hd_lb[ii] = d_lb1;
 		hd_ub[ii] = d_ub1;
-		hd_lg[ii] = d_lg1;
-		hd_ug[ii] = d_ug1;
 		hC[ii] = C1;
 		hD[ii] = D1;
+		hd_lg[ii] = d_lg1;
+		hd_ug[ii] = d_ug1;
 		hZl[ii] = Zl1;
 		hZu[ii] = Zu1;
 		hzl[ii] = zl1;
 		hzu[ii] = zu1;
 		hidxs[ii] = idxs1;
+		hd_ls[ii] = d_ls1;
+		hd_us[ii] = d_us1;
 		}
 	hQ[Nh] = Q;
 	hS[Nh] = S;
@@ -721,16 +783,18 @@ int main()
 	hidxb[Nh] = idxbN;
 	hd_lb[Nh] = d_lbN;
 	hd_ub[Nh] = d_ubN;
-	hd_lg[Nh] = d_lgN;
-	hd_ug[Nh] = d_ugN;
 	hC[Nh] = CN;
 	hD[Nh] = DN;
+	hd_lg[Nh] = d_lgN;
+	hd_ug[Nh] = d_ugN;
 	hZl[Nh] = ZlN;
 	hZu[Nh] = ZuN;
 	hzl[Nh] = zlN;
 	hzu[Nh] = zuN;
 	hidxs[Nh] = idxsN;
-	
+	hd_ls[Nh] = d_lsN;
+	hd_us[Nh] = d_usN;
+
 	// node-wise data
 
 	double *hAt[Nn-1];
@@ -741,18 +805,20 @@ int main()
 	double *hRt[Nn];
 	double *hqt[Nn];
 	double *hrt[Nn];
+	int *hidxbt[Nn];
 	double *hd_lbt[Nn];
 	double *hd_ubt[Nn];
-	double *hd_lgt[Nn];
-	double *hd_ugt[Nn];
 	double *hCt[Nn];
 	double *hDt[Nn];
-	int *hidxbt[Nn];
+	double *hd_lgt[Nn];
+	double *hd_ugt[Nn];
 	double *hZlt[Nn];
 	double *hZut[Nn];
 	double *hzlt[Nn];
 	double *hzut[Nn];
 	int *hidxst[Nn];
+	double *hd_lst[Nn];
+	double *hd_ust[Nn];
 
 	for(ii=0; ii<Nn-1; ii++)
 		{
@@ -770,33 +836,49 @@ int main()
 		hSt[ii] = hS[stage];
 		hqt[ii] = hq[stage];
 		hrt[ii] = hr[stage];
+		hidxbt[ii] = hidxb[stage];
 		hd_lbt[ii] = hd_lb[stage];
 		hd_ubt[ii] = hd_ub[stage];
+		hCt[ii] = hC[stage];
+		hDt[ii] = hD[stage];
 		hd_lgt[ii] = hd_lg[stage];
 		hd_ugt[ii] = hd_ug[stage];
-		hidxbt[ii] = hidxb[stage];
 		hZlt[ii] = hZl[stage];
 		hZut[ii] = hZu[stage];
 		hzlt[ii] = hzl[stage];
 		hzut[ii] = hzu[stage];
 		hidxst[ii] = hidxs[stage];
+		hd_lst[ii] = hd_ls[stage];
+		hd_ust[ii] = hd_us[stage];
 		}
 
 /************************************************
-* create tree ocp qp
-************************************************/	
+* create tree ocp qp dim
+************************************************/
 
-	int tree_ocp_qp_memory_size = d_memsize_tree_ocp_qp(&ttree, nxt, nut, nbt, ngt, nst);
-	printf("\ntree ocp qp memsize = %d\n", tree_ocp_qp_memory_size);
-	void *tree_ocp_qp_memory = malloc(tree_ocp_qp_memory_size);
+	int dim_size = d_memsize_tree_ocp_qp_dim(Nn);
+	printf("\ndim size = %d\n", dim_size);
+	void *dim_mem = malloc(dim_size);
+
+	struct d_tree_ocp_qp_dim dim;
+	d_create_tree_ocp_qp_dim(Nn, &dim, dim_mem);
+	d_cvt_int_to_tree_ocp_qp_dim(&ttree, nxt, nut, nbxt, nbut, ngt, nsbxt, nsbut, nsgt, &dim);
+
+/************************************************
+* create tree ocp qp
+************************************************/
+
+	int tree_ocp_qp_memsize = d_memsize_tree_ocp_qp(&dim);
+	printf("\ntree ocp qp memsize = %d\n", tree_ocp_qp_memsize);
+	void *tree_ocp_qp_memory = malloc(tree_ocp_qp_memsize);
 
 	struct d_tree_ocp_qp qp;
-	d_create_tree_ocp_qp(&ttree, nxt, nut, nbt, ngt, nst, &qp, tree_ocp_qp_memory);
-	d_cvt_colmaj_to_tree_ocp_qp(hAt, hBt, hbt, hQt, hSt, hRt, hqt, hrt, hidxbt, hd_lbt, hd_ubt, hCt, hDt, hd_lgt, hd_ugt, hZlt, hZut, hzlt, hzut, hidxst, &qp);
+	d_create_tree_ocp_qp(&dim, &qp, tree_ocp_qp_memory);
+	d_cvt_colmaj_to_tree_ocp_qp(hAt, hBt, hbt, hQt, hSt, hRt, hqt, hrt, hidxbt, hd_lbt, hd_ubt, hCt, hDt, hd_lgt, hd_ugt, hZlt, hZut, hzlt, hzut, hidxst, hd_lst, hd_ust, &qp);
 
 #if 0
-	struct d_strmat *tmat;
-	struct d_strvec *tvec;
+	struct blasfeo_dmat *tmat;
+	struct blasfeo_dvec *tvec;
 	for(ii=0; ii<Nn-1; ii++)
 		{
 		tmat = qp.BAbt+ii;
@@ -805,7 +887,7 @@ int main()
 	for(ii=0; ii<Nn-1; ii++)
 		{
 		tvec = qp.b+ii;
-		d_print_tran_strvec(tvec->m, tvec, 0);
+		blasfeo_print_tran_dvec(tvec->m, tvec, 0);
 		}
 	for(ii=0; ii<Nn; ii++)
 		{
@@ -815,12 +897,12 @@ int main()
 	for(ii=0; ii<Nn; ii++)
 		{
 		tvec = qp.rq+ii;
-		d_print_tran_strvec(tvec->m, tvec, 0);
+		blasfeo_print_tran_dvec(tvec->m, tvec, 0);
 		}
 	for(ii=0; ii<Nn; ii++)
 		{
 		tvec = qp.d+ii;
-		d_print_tran_strvec(tvec->m, tvec, 0);
+		blasfeo_print_tran_dvec(tvec->m, tvec, 0);
 		}
 	for(ii=0; ii<Nn; ii++)
 		{
@@ -831,26 +913,30 @@ exit(1);
 
 /************************************************
 * ocp qp sol
-************************************************/	
-	
-	int tree_ocp_qp_sol_size = d_memsize_tree_ocp_qp_sol(&ttree, nxt, nut, nbt, ngt, nst);
+************************************************/
+
+	int tree_ocp_qp_sol_size = d_memsize_tree_ocp_qp_sol(&dim);
 	printf("\ntree ocp qp sol memsize = %d\n", tree_ocp_qp_sol_size);
 	void *tree_ocp_qp_sol_memory = malloc(tree_ocp_qp_sol_size);
 
 	struct d_tree_ocp_qp_sol qp_sol;
-	d_create_tree_ocp_qp_sol(&ttree, nxt, nut, nbt, ngt, nst, &qp_sol, tree_ocp_qp_sol_memory);
+	d_create_tree_ocp_qp_sol(&dim, &qp_sol, tree_ocp_qp_sol_memory);
 
 /************************************************
 * ipm arg
-************************************************/	
+************************************************/
 
-	int ipm_arg_size = d_memsize_tree_ocp_qp_ipm_arg(&qp);
+	int ipm_arg_size = d_memsize_tree_ocp_qp_ipm_arg(&dim);
 	printf("\nipm arg size = %d\n", ipm_arg_size);
 	void *ipm_arg_mem = malloc(ipm_arg_size);
 
 	struct d_tree_ocp_qp_ipm_arg arg;
-	d_create_tree_ocp_qp_ipm_arg(&qp, &arg, ipm_arg_mem);
-	d_set_default_tree_ocp_qp_ipm_arg(&arg);
+	d_create_tree_ocp_qp_ipm_arg(&dim, &arg, ipm_arg_mem);
+//	enum tree_ocp_qp_ipm_mode mode = SPEED_ABS;
+	enum tree_ocp_qp_ipm_mode mode = SPEED;
+//	enum tree_ocp_qp_ipm_mode mode = BALANCE;
+//	enum tree_ocp_qp_ipm_mode mode = ROBUST;
+	d_set_default_tree_ocp_qp_ipm_arg(mode, &arg);
 
 //	arg.alpha_min = 1e-8;
 //	arg.res_g_max = 1e-8;
@@ -864,14 +950,16 @@ exit(1);
 
 /************************************************
 * ipm
-************************************************/	
+************************************************/
 
-	int ipm_size = d_memsize_tree_ocp_qp_ipm(&qp, &arg);
+	int ipm_size = d_memsize_tree_ocp_qp_ipm(&dim, &arg);
 	printf("\nipm size = %d\n", ipm_size);
 	void *ipm_memory = malloc(ipm_size);
 
 	struct d_tree_ocp_qp_ipm_workspace workspace;
-	d_create_tree_ocp_qp_ipm(&qp, &arg, &workspace, ipm_memory);
+	d_create_tree_ocp_qp_ipm(&dim, &arg, &workspace, ipm_memory);
+
+	int hpipm_return; // 0 normal; 1 max iter
 
 	int rep, nrep=100;
 
@@ -881,7 +969,7 @@ exit(1);
 
 	for(rep=0; rep<nrep; rep++)
 		{
-		d_solve_tree_ocp_qp_ipm(&qp, &qp_sol, &arg, &workspace);
+		hpipm_return = d_solve_tree_ocp_qp_ipm(&qp, &qp_sol, &arg, &workspace);
 		}
 
 	gettimeofday(&tv1, NULL); // stop
@@ -890,7 +978,7 @@ exit(1);
 
 /************************************************
 * extract and print solution
-************************************************/	
+************************************************/
 
 	double *u[Nn]; for(ii=0; ii<Nn; ii++) d_zeros(u+ii, nut[ii], 1);
 	double *x[Nn]; for(ii=0; ii<Nn; ii++) d_zeros(x+ii, nxt[ii], 1);
@@ -946,37 +1034,44 @@ exit(1);
 	printf("\nresiduals\n\n");
 	printf("\nres_g\n");
 	for(ii=0; ii<Nn; ii++)
-		d_print_e_mat(1, nut[ii]+nxt[ii], (workspace.res_g+ii)->pa, 1);
+		d_print_e_mat(1, nut[ii]+nxt[ii], (workspace.res->res_g+ii)->pa, 1);
 	printf("\nres_b\n");
 	for(ii=0; ii<Nn-1; ii++)
-		d_print_e_mat(1, nxt[ii+1], (workspace.res_b+ii)->pa, 1);
+		d_print_e_mat(1, nxt[ii+1], (workspace.res->res_b+ii)->pa, 1);
 	printf("\nres_m_lb\n");
 	for(ii=0; ii<Nn; ii++)
-		d_print_e_mat(1, nbt[ii], (workspace.res_m+ii)->pa+0, 1);
+		d_print_e_mat(1, nbt[ii], (workspace.res->res_m+ii)->pa+0, 1);
 	printf("\nres_m_ub\n");
 	for(ii=0; ii<Nn; ii++)
-		d_print_e_mat(1, nbt[ii], (workspace.res_m+ii)->pa+nbt[ii]+ngt[ii], 1);
+		d_print_e_mat(1, nbt[ii], (workspace.res->res_m+ii)->pa+nbt[ii]+ngt[ii], 1);
 	printf("\nres_m_lg\n");
 	for(ii=0; ii<Nn; ii++)
-		d_print_e_mat(1, ngt[ii], (workspace.res_m+ii)->pa+nbt[ii], 1);
+		d_print_e_mat(1, ngt[ii], (workspace.res->res_m+ii)->pa+nbt[ii], 1);
 	printf("\nres_m_ug\n");
 	for(ii=0; ii<Nn; ii++)
-		d_print_e_mat(1, ngt[ii], (workspace.res_m+ii)->pa+2*nbt[ii]+ngt[ii], 1);
+		d_print_e_mat(1, ngt[ii], (workspace.res->res_m+ii)->pa+2*nbt[ii]+ngt[ii], 1);
 	printf("\nres_d_lb\n");
 	for(ii=0; ii<Nn; ii++)
-		d_print_e_mat(1, nbt[ii], (workspace.res_d+ii)->pa+0, 1);
+		d_print_e_mat(1, nbt[ii], (workspace.res->res_d+ii)->pa+0, 1);
 	printf("\nres_d_ub\n");
 	for(ii=0; ii<Nn; ii++)
-		d_print_e_mat(1, nbt[ii], (workspace.res_d+ii)->pa+nbt[ii]+ngt[ii], 1);
+		d_print_e_mat(1, nbt[ii], (workspace.res->res_d+ii)->pa+nbt[ii]+ngt[ii], 1);
 	printf("\nres_d_lg\n");
 	for(ii=0; ii<Nn; ii++)
-		d_print_e_mat(1, ngt[ii], (workspace.res_d+ii)->pa+nbt[ii], 1);
+		d_print_e_mat(1, ngt[ii], (workspace.res->res_d+ii)->pa+nbt[ii], 1);
 	printf("\nres_d_ug\n");
 	for(ii=0; ii<Nn; ii++)
-		d_print_e_mat(1, ngt[ii], (workspace.res_d+ii)->pa+2*nbt[ii]+ngt[ii], 1);
+		d_print_e_mat(1, ngt[ii], (workspace.res->res_d+ii)->pa+2*nbt[ii]+ngt[ii], 1);
 	printf("\nres_mu\n");
-	printf("\n%e\n\n", workspace.res_mu);
+	printf("\n%e\n\n", workspace.res->res_mu);
 #endif
+
+/************************************************
+* print ipm statistics
+************************************************/
+
+	printf("\nipm return = %d\n", hpipm_return);
+	printf("\nipm residuals max: res_g = %e, res_b = %e, res_d = %e, res_m = %e\n", workspace.qp_res[0], workspace.qp_res[1], workspace.qp_res[2], workspace.qp_res[3]);
 
 	printf("\nipm iter = %d\n", workspace.iter);
 	printf("\nalpha_aff\tmu_aff\t\tsigma\t\talpha\t\tmu\n");
@@ -986,7 +1081,7 @@ exit(1);
 
 /************************************************
 * free memory
-************************************************/	
+************************************************/
 
 	free(A);
 	free(B);

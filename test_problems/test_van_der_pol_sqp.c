@@ -572,10 +572,10 @@ int main()
 //	struct d_ocp_nlp_sqp_arg sqp_arg;
 //	sqp_arg.ipm_arg = &arg;
 	sqp_arg.erk_arg = erk_args;
-//	sqp_arg.nlp_res_g_max = 1e-8;
-//	sqp_arg.nlp_res_b_max = 1e-8;
-//	sqp_arg.nlp_res_d_max = 1e-8;
-//	sqp_arg.nlp_res_m_max = 1e-8;
+	sqp_arg.nlp_res_g_max = 1e-6;
+	sqp_arg.nlp_res_b_max = 1e-8;
+	sqp_arg.nlp_res_d_max = 1e-8;
+	sqp_arg.nlp_res_m_max = 1e-8;
 //	sqp_arg.nlp_iter_max = 20;
 	sqp_arg.N2 = 1;
 

@@ -26,6 +26,8 @@
 **************************************************************************************************/
 
 
+#ifndef HPIPM_TREE_H_
+#define HPIPM_TREE_H_
 
 #ifdef __cplusplus
 extern "C" {
@@ -58,5 +60,7 @@ struct tree
 
 
 #ifdef __cplusplus
-}
+} /* extern "C" */
 #endif
+
+#endif // HPIPM_TREE_H_

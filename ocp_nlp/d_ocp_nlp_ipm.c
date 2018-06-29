@@ -61,7 +61,7 @@
 #define CREATE_OCP_QP d_create_ocp_qp
 #define CREATE_OCP_QP_IPM d_create_ocp_qp_ipm
 #define CREATE_OCP_QP_SOL d_create_ocp_qp_sol
-#define CREATE_STRVEC d_create_strvec
+#define CREATE_STRVEC blasfeo_create_dvec
 #define ERK_ARG d_erk_arg
 #define ERK_WORKSPACE d_erk_workspace
 #define FACT_SOLVE_KKT_STEP_OCP_QP d_fact_solve_kkt_step_ocp_qp
@@ -81,9 +81,9 @@
 #define OCP_QP_IPM_WORKSPACE d_ocp_qp_ipm_workspace
 #define OCP_QP_SOL d_ocp_qp_sol
 #define REAL double
-#define SIZE_STRVEC d_size_strvec
+#define SIZE_STRVEC blasfeo_memsize_dvec
 #define SOLVE_KKT_STEP_OCP_QP d_solve_kkt_step_ocp_qp
-#define STRVEC d_strvec
+#define STRVEC blasfeo_dvec
 #define UPDATE_VAR_QP d_update_var_qp
 
 #define MEMSIZE_OCP_NLP_IPM d_memsize_ocp_nlp_ipm
@@ -342,24 +342,24 @@ int SOLVE_OCP_NLP_IPM(struct OCP_NLP *nlp, struct OCP_NLP_SOL *nlp_sol, struct O
 
 	// initialize nlp sol (to zero atm)
 	for(nn=0; nn<=N; nn++)
-		dvecse_libstr(nlp->nu[nn]+nlp->nx[nn], 0.0, nlp_sol->ux+nn, 0);
+		blasfeo_dvecse(nlp->nu[nn]+nlp->nx[nn], 0.0, nlp_sol->ux+nn, 0);
 	for(nn=0; nn<N; nn++)
-		dvecse_libstr(nlp->nx[nn+1], 0.0, nlp_sol->pi+nn, 0);
+		blasfeo_dvecse(nlp->nx[nn+1], 0.0, nlp_sol->pi+nn, 0);
 	for(nn=0; nn<=N; nn++)
-		dvecse_libstr(2*nlp->nb[nn]+2*nlp->ng[nn], 0.0, nlp_sol->lam+nn, 0);
+		blasfeo_dvecse(2*nlp->nb[nn]+2*nlp->ng[nn], 0.0, nlp_sol->lam+nn, 0);
 	for(nn=0; nn<=N; nn++)
-		dvecse_libstr(2*nlp->nb[nn]+2*nlp->ng[nn], 0.0, nlp_sol->t+nn, 0);
+		blasfeo_dvecse(2*nlp->nb[nn]+2*nlp->ng[nn], 0.0, nlp_sol->t+nn, 0);
 
 
 	// copy nlp into qp
 	nn = 0;
 	for(; nn<=N; nn++)
 		{
-		dgecp_libstr(nu[nn]+nx[nn], nu[nn]+nx[nn], nlp->RSQ+nn, 0, 0, qp->RSQrq+nn, 0, 0);
-		dgecp_libstr(nu[nn]+nx[nn], ng[nn], nlp->DCt+nn, 0, 0, qp->DCt+nn, 0, 0);
-		dveccp_libstr(nu[nn]+nx[nn], nlp->rq+nn, 0, qp->rq+nn, 0);
-		drowin_libstr(nu[nn]+nx[nn], 1.0, qp->rq+nn, 0, qp->RSQrq+nn, nu[nn]+nx[nn], 0);
-		dveccp_libstr(2*nb[nn]+2*ng[nn]+2*ns[nn], nlp->d+nn, 0, qp->d+nn, 0);
+		blasfeo_dgecp(nu[nn]+nx[nn], nu[nn]+nx[nn], nlp->RSQ+nn, 0, 0, qp->RSQrq+nn, 0, 0);
+		blasfeo_dgecp(nu[nn]+nx[nn], ng[nn], nlp->DCt+nn, 0, 0, qp->DCt+nn, 0, 0);
+		blasfeo_dveccp(nu[nn]+nx[nn], nlp->rq+nn, 0, qp->rq+nn, 0);
+		blasfeo_drowin(nu[nn]+nx[nn], 1.0, qp->rq+nn, 0, qp->RSQrq+nn, nu[nn]+nx[nn], 0);
+		blasfeo_dveccp(2*nb[nn]+2*ng[nn]+2*ns[nn], nlp->d+nn, 0, qp->d+nn, 0);
 		for(ii=0; ii<nb[nn]; ii++) qp->idxb[nn][ii] = nlp->idxb[nn][ii];
 		for(ii=0; ii<ns[nn]; ii++) qp->idxs[nn][ii] = nlp->idxs[nn][ii];
 		}
@@ -384,27 +384,27 @@ int SOLVE_OCP_NLP_IPM(struct OCP_NLP *nlp, struct OCP_NLP_SOL *nlp_sol, struct O
 			}
 
 //for(ii=0; ii<N; ii++)
-//	d_print_e_strmat(nlp->nu[ii]+nlp->nx[ii]+1, nlp->nx[ii+1], qp->BAbt+ii, 0, 0);
+//	blasfeo_print_exp_dmat(nlp->nu[ii]+nlp->nx[ii]+1, nlp->nx[ii+1], qp->BAbt+ii, 0, 0);
 	
 
 #if 0
 printf("\n%d %d\n", nu[0], nx[0]);
-d_print_tran_strvec(nu[0]+nx[0], qp->rq+0, 0);
-d_print_tran_strvec(nx[1], qp->b+0, 0);
+blasfeo_print_tran_dvec(nu[0]+nx[0], qp->rq+0, 0);
+blasfeo_print_tran_dvec(nx[1], qp->b+0, 0);
 exit(1);
 #endif
 
 		// compute residuals
-		COMPUTE_RES_OCP_QP(qp, qp_sol, ipm_ws);
-		cws->mu = ipm_ws->res_mu;
+		COMPUTE_RES_OCP_QP(qp, qp_sol, ipm_ws->res_workspace);
+		cws->mu = ipm_ws->res_workspace->res_mu;
 		if(ss>0 & ss<ipm_ws->stat_max)
-			ipm_ws->stat[5*(ss-1)+4] = ipm_ws->res_mu;
+			ipm_ws->stat[5*(ss-1)+4] = ipm_ws->res_workspace->res_mu;
 
 		// compute infinity norm of residuals
-		dvecnrm_inf_libstr(cws->nv, &str_res_g, 0, &nlp_res[0]);
-		dvecnrm_inf_libstr(cws->ne, &str_res_b, 0, &nlp_res[1]);
-		dvecnrm_inf_libstr(cws->nc, &str_res_d, 0, &nlp_res[2]);
-		dvecnrm_inf_libstr(cws->nc, &str_res_m, 0, &nlp_res[3]);
+		blasfeo_dvecnrm_inf(cws->nv, &str_res_g, 0, &nlp_res[0]);
+		blasfeo_dvecnrm_inf(cws->ne, &str_res_b, 0, &nlp_res[1]);
+		blasfeo_dvecnrm_inf(cws->nc, &str_res_d, 0, &nlp_res[2]);
+		blasfeo_dvecnrm_inf(cws->nc, &str_res_m, 0, &nlp_res[3]);
 
 #if 0
 printf("\nresiduals\n");
@@ -478,13 +478,13 @@ d_print_e_tran_mat(5, kk, ipm_ws->stat, 5);
 
 		// update NLP variables
 		for(nn=0; nn<=N; nn++)
-			dveccp_libstr(nu[nn]+nx[nn]+2*ns[ii], qp_sol->ux+nn, 0, nlp_sol->ux+nn, 0);
+			blasfeo_dveccp(nu[nn]+nx[nn]+2*ns[ii], qp_sol->ux+nn, 0, nlp_sol->ux+nn, 0);
 		for(nn=0; nn<N; nn++)
-			dveccp_libstr(nx[nn+1], qp_sol->pi+nn, 0, nlp_sol->pi+nn, 0);
+			blasfeo_dveccp(nx[nn+1], qp_sol->pi+nn, 0, nlp_sol->pi+nn, 0);
 		for(nn=0; nn<=N; nn++)
-			dveccp_libstr(2*nb[nn]+2*ng[nn]+2*ns[ii], qp_sol->lam+nn, 0, nlp_sol->lam+nn, 0);
+			blasfeo_dveccp(2*nb[nn]+2*ng[nn]+2*ns[ii], qp_sol->lam+nn, 0, nlp_sol->lam+nn, 0);
 		for(nn=0; nn<=N; nn++)
-			dveccp_libstr(2*nb[nn]+2*ng[nn]+2*ns[ii], qp_sol->t+nn, 0, nlp_sol->t+nn, 0);
+			blasfeo_dveccp(2*nb[nn]+2*ng[nn]+2*ns[ii], qp_sol->t+nn, 0, nlp_sol->t+nn, 0);
 
 		}
 	

@@ -53,11 +53,11 @@
 
 
 
-#define AXPY_LIBSTR daxpy_libstr
-#define GEMV_T_LIBSTR dgemv_t_libstr
-#define ROWIN_LIBSTR drowin_libstr
-#define SYMV_L_LIBSTR dsymv_l_libstr
-#define VECEX_SP_LIBSTR dvecex_sp_libstr
+#define AXPY_LIBSTR blasfeo_daxpy
+#define GEMV_T_LIBSTR blasfeo_dgemv_t
+#define ROWIN_LIBSTR blasfeo_drowin
+#define SYMV_L_LIBSTR blasfeo_dsymv_l
+#define VECEX_SP_LIBSTR blasfeo_dvecex_sp
 
 #define COMPUTE_ALPHA_QP d_compute_alpha_qp
 #define COMPUTE_CENTERING_CORRECTION_QP d_compute_centering_correction_qp
@@ -68,7 +68,7 @@
 #define CREATE_OCP_QP d_create_ocp_qp
 #define CREATE_OCP_QP_IPM d_create_ocp_qp_ipm
 #define CREATE_OCP_QP_SOL d_create_ocp_qp_sol
-#define CREATE_STRVEC d_create_strvec
+#define CREATE_STRVEC blasfeo_create_dvec
 #define ERK_ARG d_erk_arg
 #define ERK_WORKSPACE d_erk_workspace
 #define FACT_SOLVE_KKT_STEP_OCP_QP d_fact_solve_kkt_step_ocp_qp
@@ -86,9 +86,9 @@
 #define OCP_QP_IPM_WORKSPACE d_ocp_qp_ipm_workspace
 #define OCP_QP_SOL d_ocp_qp_sol
 #define REAL double
-#define SIZE_STRVEC d_size_strvec
+#define SIZE_STRVEC blasfeo_memsize_dvec
 #define SOLVE_KKT_STEP_OCP_QP d_solve_kkt_step_ocp_qp
-#define STRVEC d_strvec
+#define STRVEC blasfeo_dvec
 #define UPDATE_VAR_QP d_update_var_qp
 
 #define MEMSIZE_OCP_NLP_HYB d_memsize_ocp_nlp_hyb
@@ -470,13 +470,14 @@ int SOLVE_OCP_NLP_HYB(struct OCP_NLP *nlp, struct OCP_NLP_SOL *nlp_sol, struct O
 	int *ns = qp->ns;
 
 	int N2 = arg->N2;
-#if 0
+#if 1
 	int *nx2 = qp2->nx;
 	int *nu2 = qp2->nu;
 	int *nb2 = qp2->nb;
 	int *ng2 = qp2->ng;
 	int *ns2 = qp2->ns;
 #endif
+
 
 #if 0
 for(ii=0; ii<=N2; ii++)
@@ -499,6 +500,24 @@ exit(1);
 	str_res_d.pa = cws->res_d;
 	str_res_m.pa = cws->res_m;
 
+	struct CORE_QP_IPM_WORKSPACE *cws2;
+	struct STRVEC str_res_g2;
+	struct STRVEC str_res_b2;
+	struct STRVEC str_res_d2;
+	struct STRVEC str_res_m2;
+	if(N2<N)
+		{
+		cws2 = ipm_ws2->core_workspace;
+		str_res_g2.m = cws2->nv;
+		str_res_b2.m = cws2->ne;
+		str_res_d2.m = cws2->nc;
+		str_res_m2.m = cws2->nc;
+		str_res_g2.pa = cws2->res_g;
+		str_res_b2.pa = cws2->res_b;
+		str_res_d2.pa = cws2->res_d;
+		str_res_m2.pa = cws2->res_m;
+		}
+
 	double nlp_res[4];
 
 	double tmp;
@@ -506,13 +525,13 @@ exit(1);
 
 	// initialize solution (to zero atm)
 	for(nn=0; nn<=N; nn++)
-		dvecse_libstr(nu[nn]+nx[nn], 0.0, nlp_sol->ux+nn, 0);
+		blasfeo_dvecse(nu[nn]+nx[nn], 0.0, nlp_sol->ux+nn, 0);
 	for(nn=0; nn<N; nn++)
-		dvecse_libstr(nx[nn+1], 0.0, nlp_sol->pi+nn, 0);
+		blasfeo_dvecse(nx[nn+1], 0.0, nlp_sol->pi+nn, 0);
 	for(nn=0; nn<=N; nn++)
-		dvecse_libstr(2*nb[nn]+2*ng[nn], 0.0, nlp_sol->lam+nn, 0);
+		blasfeo_dvecse(2*nb[nn]+2*ng[nn], 0.0, nlp_sol->lam+nn, 0);
 	for(nn=0; nn<=N; nn++)
-		dvecse_libstr(2*nb[nn]+2*ng[nn], 0.0, nlp_sol->t+nn, 0);
+		blasfeo_dvecse(2*nb[nn]+2*ng[nn], 0.0, nlp_sol->t+nn, 0);
 
 	// 1 sqp iteration
 
@@ -520,8 +539,8 @@ exit(1);
 	nn = 0;
 	for(; nn<=N; nn++)
 		{
-		dgecp_libstr(nu[nn]+nx[nn], nu[nn]+nx[nn], nlp->RSQ+nn, 0, 0, qp->RSQrq+nn, 0, 0);
-		dgecp_libstr(nu[nn]+nx[nn], ng[nn], nlp->DCt+nn, 0, 0, qp->DCt+nn, 0, 0);
+		blasfeo_dgecp(nu[nn]+nx[nn], nu[nn]+nx[nn], nlp->RSQ+nn, 0, 0, qp->RSQrq+nn, 0, 0);
+		blasfeo_dgecp(nu[nn]+nx[nn], ng[nn], nlp->DCt+nn, 0, 0, qp->DCt+nn, 0, 0);
 		for(ii=0; ii<nb[nn]; ii++) qp->idxb[nn][ii] = nlp->idxb[nn][ii];
 		for(ii=0; ii<ns[nn]; ii++) qp->idxs[nn][ii] = nlp->idxs[nn][ii];
 		}
@@ -542,23 +561,23 @@ exit(1);
 
 	// setup gradient
 	for(nn=0; nn<=N; nn++)
-		dveccp_libstr(nu[nn]+nx[nn], nlp->rq+nn, 0, qp->rq+nn, 0);
+		blasfeo_dveccp(nu[nn]+nx[nn], nlp->rq+nn, 0, qp->rq+nn, 0);
 	// setup constraints
 	for(nn=0; nn<=N; nn++)
-		dveccp_libstr(2*nb[nn]+2*ng[nn], nlp->d+nn, 0, qp->d+nn, 0);
+		blasfeo_dveccp(2*nb[nn]+2*ng[nn], nlp->d+nn, 0, qp->d+nn, 0);
 
 
 #if 0
 for(nn=0; nn<=N; nn++)
 	d_print_strmat(nu[nn]+nx[nn]+1, nu[nn]+nx[nn], qp->RSQrq+nn, 0, 0);
 for(nn=0; nn<=N; nn++)
-	d_print_tran_strvec(nu[nn]+nx[nn], qp->rq+nn, 0);
+	blasfeo_print_tran_dvec(nu[nn]+nx[nn], qp->rq+nn, 0);
 for(nn=0; nn<N; nn++)
 	d_print_strmat(nu[nn]+nx[nn]+1, nx[nn+1], qp->BAbt+nn, 0, 0);
 for(nn=0; nn<N; nn++)
-	d_print_tran_strvec(nx[nn+1], qp->b+nn, 0);
+	blasfeo_print_tran_dvec(nx[nn+1], qp->b+nn, 0);
 for(nn=0; nn<=N; nn++)
-	d_print_tran_strvec(2*nb[nn]+2*ng[nn]+2*ns[nn], qp->d+nn, 0);
+	blasfeo_print_tran_dvec(2*nb[nn]+2*ng[nn]+2*ns[nn], qp->d+nn, 0);
 //exit(1);
 #endif
 
@@ -570,13 +589,13 @@ exit(1);
 
 	// copy nlp_sol into qp_sol
 	for(nn=0; nn<=N; nn++)
-		dveccp_libstr(nu[nn]+nx[nn]+2*ns[ii], nlp_sol->ux+nn, 0, qp_sol->ux+nn, 0);
+		blasfeo_dveccp(nu[nn]+nx[nn]+2*ns[ii], nlp_sol->ux+nn, 0, qp_sol->ux+nn, 0);
 	for(nn=0; nn<N; nn++)
-		dveccp_libstr(nx[nn+1], nlp_sol->pi+nn, 0, qp_sol->pi+nn, 0);
+		blasfeo_dveccp(nx[nn+1], nlp_sol->pi+nn, 0, qp_sol->pi+nn, 0);
 	for(nn=0; nn<=N; nn++)
-		dveccp_libstr(2*nb[nn]+2*ng[nn]+2*ns[ii], nlp_sol->lam+nn, 0, qp_sol->lam+nn, 0);
+		blasfeo_dveccp(2*nb[nn]+2*ng[nn]+2*ns[ii], nlp_sol->lam+nn, 0, qp_sol->lam+nn, 0);
 	for(nn=0; nn<=N; nn++)
-		dveccp_libstr(2*nb[nn]+2*ng[nn]+2*ns[ii], nlp_sol->t+nn, 0, qp_sol->t+nn, 0);
+		blasfeo_dveccp(2*nb[nn]+2*ng[nn]+2*ns[ii], nlp_sol->t+nn, 0, qp_sol->t+nn, 0);
 
 
 //	// compute residuals
@@ -584,10 +603,10 @@ exit(1);
 //	cws->mu = ipm_ws->res_mu;
 
 	// compute infinity norm of residuals
-//	dvecnrm_inf_libstr(cws->nv, &str_res_g, 0, &nlp_res[0]);
-//	dvecnrm_inf_libstr(cws->ne, &str_res_b, 0, &nlp_res[1]);
-//	dvecnrm_inf_libstr(cws->nc, &str_res_d, 0, &nlp_res[2]);
-//	dvecnrm_inf_libstr(cws->nc, &str_res_m, 0, &nlp_res[3]);
+//	blasfeo_dvecnrm_inf(cws->nv, &str_res_g, 0, &nlp_res[0]);
+//	blasfeo_dvecnrm_inf(cws->ne, &str_res_b, 0, &nlp_res[1]);
+//	blasfeo_dvecnrm_inf(cws->nc, &str_res_d, 0, &nlp_res[2]);
+//	blasfeo_dvecnrm_inf(cws->nc, &str_res_m, 0, &nlp_res[3]);
 
 #if 0
 printf("\nresiduals\n");
@@ -664,7 +683,7 @@ for(nn=0; nn<=N; nn++)
 for(nn=0; nn<N; nn++)
 	d_print_strmat(nu[nn]+nx[nn]+1, nx[nn+1], qp->BAbt+nn, 0, 0);
 for(nn=0; nn<=N; nn++)
-	d_print_tran_strvec(2*nb[nn]+2*ng[nn]+2*ns[nn], qp->d+nn, 0);
+	blasfeo_print_tran_dvec(2*nb[nn]+2*ng[nn]+2*ns[nn], qp->d+nn, 0);
 exit(1);
 #endif
 
@@ -683,24 +702,26 @@ for(nn=0; nn<=N2; nn++)
 for(nn=0; nn<N2; nn++)
 	d_print_strmat(nu2[nn]+nx2[nn]+1, nx2[nn+1], qp2->BAbt+nn, 0, 0);
 for(nn=0; nn<=N2; nn++)
-	d_print_tran_strvec(2*nb2[nn]+2*ng2[nn]+2*ns2[nn], qp2->d+nn, 0);
+	blasfeo_print_tran_dvec(2*nb2[nn]+2*ng2[nn]+2*ns2[nn], qp2->d+nn, 0);
 exit(1);
 #endif
 
 		// solve qp
 		d_solve_ocp_qp_ipm(qp2, qp_sol2, ipm_arg, ipm_ws2);
 		ws->iter_qp = ipm_ws2->iter;
+		for(ii=0; ii<5*ws->iter_qp; ii++)
+			ipm_ws->stat[ii] = ipm_ws2->stat[ii];
 
 #if 0
 printf("\nqp sol\n");
 for(nn=0; nn<=N2; nn++)
-	d_print_tran_strvec(nu2[nn]+nx2[nn]+2*ns2[nn], qp_sol2->ux+nn, 0);
+	blasfeo_print_tran_dvec(nu2[nn]+nx2[nn]+2*ns2[nn], qp_sol2->ux+nn, 0);
 for(nn=0; nn<N2; nn++)
-	d_print_tran_strvec(nx2[nn+1], qp_sol2->pi+nn, 0);
+	blasfeo_print_tran_dvec(nx2[nn+1], qp_sol2->pi+nn, 0);
 for(nn=0; nn<=N2; nn++)
-	d_print_tran_strvec(2*nb2[nn]+2*ng2[nn]+2*ns2[nn], qp_sol2->lam+nn, 0);
+	blasfeo_print_tran_dvec(2*nb2[nn]+2*ng2[nn]+2*ns2[nn], qp_sol2->lam+nn, 0);
 for(nn=0; nn<=N2; nn++)
-	d_print_tran_strvec(2*nb2[nn]+2*ng2[nn]+2*ns2[nn], qp_sol2->t+nn, 0);
+	blasfeo_print_tran_dvec(2*nb2[nn]+2*ng2[nn]+2*ns2[nn], qp_sol2->t+nn, 0);
 d_print_e_tran_mat(5, ipm_ws->iter, ipm_ws->stat, 5);
 exit(1);
 #endif
@@ -722,38 +743,38 @@ exit(1);
 #if 0
 printf("\nqp sol\n");
 for(nn=0; nn<=N; nn++)
-	d_print_tran_strvec(nu[nn]+nx[nn]+2*ns[nn], qp_sol->ux+nn, 0);
+	blasfeo_print_tran_dvec(nu[nn]+nx[nn]+2*ns[nn], qp_sol->ux+nn, 0);
 for(nn=0; nn<N; nn++)
-	d_print_tran_strvec(nx[nn+1], qp_sol->pi+nn, 0);
+	blasfeo_print_tran_dvec(nx[nn+1], qp_sol->pi+nn, 0);
 for(nn=0; nn<=N; nn++)
-	d_print_tran_strvec(2*nb[nn]+2*ng[nn]+2*ns[nn], qp_sol->lam+nn, 0);
+	blasfeo_print_tran_dvec(2*nb[nn]+2*ng[nn]+2*ns[nn], qp_sol->lam+nn, 0);
 for(nn=0; nn<=N; nn++)
-	d_print_tran_strvec(2*nb[nn]+2*ng[nn]+2*ns[nn], qp_sol->t+nn, 0);
+	blasfeo_print_tran_dvec(2*nb[nn]+2*ng[nn]+2*ns[nn], qp_sol->t+nn, 0);
 d_print_e_tran_mat(5, ipm_ws->iter, ipm_ws->stat, 5);
 exit(1);
 #endif
 
 	// update primal variables (full step)
 	for(nn=0; nn<=N; nn++)
-		daxpy_libstr(nu[nn]+nx[nn], 1.0, qp_sol->ux+nn, 0, nlp_sol->ux+nn, 0, nlp_sol->ux+nn, 0);
+		blasfeo_daxpy(nu[nn]+nx[nn], 1.0, qp_sol->ux+nn, 0, nlp_sol->ux+nn, 0, nlp_sol->ux+nn, 0);
 	// copy dual multipliers
 	for(nn=0; nn<N; nn++)
-		dveccp_libstr(nx[nn+1], qp_sol->pi+nn, 0, nlp_sol->pi+nn, 0);
+		blasfeo_dveccp(nx[nn+1], qp_sol->pi+nn, 0, nlp_sol->pi+nn, 0);
 	for(nn=0; nn<=N; nn++)
-		dveccp_libstr(2*nb[nn]+2*ng[nn], qp_sol->lam+nn, 0, nlp_sol->lam+nn, 0);
+		blasfeo_dveccp(2*nb[nn]+2*ng[nn], qp_sol->lam+nn, 0, nlp_sol->lam+nn, 0);
 	for(nn=0; nn<=N; nn++)
-		dveccp_libstr(2*nb[nn]+2*ng[nn], qp_sol->t+nn, 0, nlp_sol->t+nn, 0);
+		blasfeo_dveccp(2*nb[nn]+2*ng[nn], qp_sol->t+nn, 0, nlp_sol->t+nn, 0);
 
 #if 0
 printf("\nnlp sol\n");
 for(nn=0; nn<=N; nn++)
-	d_print_tran_strvec(nlp->nu[nn]+nlp->nx[nn]+2*nlp->ns[nn], nlp_sol->ux+nn, 0);
+	blasfeo_print_tran_dvec(nlp->nu[nn]+nlp->nx[nn]+2*nlp->ns[nn], nlp_sol->ux+nn, 0);
 for(nn=0; nn<N; nn++)
-	d_print_tran_strvec(nlp->nx[nn+1], nlp_sol->pi+nn, 0);
+	blasfeo_print_tran_dvec(nlp->nx[nn+1], nlp_sol->pi+nn, 0);
 for(nn=0; nn<=N; nn++)
-	d_print_tran_strvec(2*nlp->nb[nn]+2*nlp->ng[nn]+2*nlp->ns[nn], nlp_sol->lam+nn, 0);
+	blasfeo_print_tran_dvec(2*nlp->nb[nn]+2*nlp->ng[nn]+2*nlp->ns[nn], nlp_sol->lam+nn, 0);
 for(nn=0; nn<=N; nn++)
-	d_print_tran_strvec(2*nlp->nb[nn]+2*nlp->ng[nn]+2*nlp->ns[nn], nlp_sol->t+nn, 0);
+	blasfeo_print_tran_dvec(2*nlp->nb[nn]+2*nlp->ng[nn]+2*nlp->ns[nn], nlp_sol->t+nn, 0);
 //d_print_e_tran_mat(5, ipm_ws->iter, ipm_ws->stat, 5);
 //		exit(1);
 #endif
@@ -764,11 +785,11 @@ for(nn=0; nn<=N; nn++)
 	nn = 0;
 	for(; nn<=N; nn++)
 		{
-//		dgecp_libstr(nu[nn]+nx[nn], nu[nn]+nx[nn], nlp->RSQ+nn, 0, 0, qp->RSQrq+nn, 0, 0);
-//		dgecp_libstr(nu[nn]+nx[nn], ng[nn], nlp->DCt+nn, 0, 0, qp->DCt+nn, 0, 0);
-		dveccp_libstr(nu[nn]+nx[nn], nlp->rq+nn, 0, qp->rq+nn, 0);
-		drowin_libstr(nu[nn]+nx[nn], 1.0, qp->rq+nn, 0, qp->RSQrq+nn, nu[nn]+nx[nn], 0);
-		dveccp_libstr(2*nb[nn]+2*ng[nn]+2*ns[nn], nlp->d+nn, 0, qp->d+nn, 0);
+//		blasfeo_dgecp(nu[nn]+nx[nn], nu[nn]+nx[nn], nlp->RSQ+nn, 0, 0, qp->RSQrq+nn, 0, 0);
+//		blasfeo_dgecp(nu[nn]+nx[nn], ng[nn], nlp->DCt+nn, 0, 0, qp->DCt+nn, 0, 0);
+		blasfeo_dveccp(nu[nn]+nx[nn], nlp->rq+nn, 0, qp->rq+nn, 0);
+		blasfeo_drowin(nu[nn]+nx[nn], 1.0, qp->rq+nn, 0, qp->RSQrq+nn, nu[nn]+nx[nn], 0);
+		blasfeo_dveccp(2*nb[nn]+2*ng[nn]+2*ns[nn], nlp->d+nn, 0, qp->d+nn, 0);
 //		for(ii=0; ii<nb[nn]; ii++) qp->idxb[nn][ii] = nlp->idxb[nn][ii];
 //		for(ii=0; ii<ns[nn]; ii++) qp->idxs[nn][ii] = nlp->idxs[nn][ii];
 		}
@@ -782,59 +803,208 @@ for(nn=0; nn<=N; nn++)
 	for(ss=0; ss<arg->nlp_iter_max; ss++)	
 		{
 
-	for(nn=0; nn<=N; nn++)
-		{
-		dveccp_libstr(nu[nn]+nx[nn], nlp->rq+nn, 0, qp->rq+nn, 0);
-//		drowin_libstr(nu[nn]+nx[nn], 1.0, qp->rq+nn, 0, qp->RSQrq+nn, nu[nn]+nx[nn], 0);
-		}
+		for(nn=0; nn<=N; nn++)
+			{
+			blasfeo_dveccp(nu[nn]+nx[nn], nlp->rq+nn, 0, qp->rq+nn, 0);
+//			blasfeo_drowin(nu[nn]+nx[nn], 1.0, qp->rq+nn, 0, qp->RSQrq+nn, nu[nn]+nx[nn], 0);
+			}
 
 		// simulation & sensitivity propagation
-		for(nn=0; nn<N; nn++)
+		if(ss<=0)
+//		if(1)
 			{
-			x  = (nlp_sol->ux+nn)->pa+nu[nn];
-			u  = (nlp_sol->ux+nn)->pa;
-			pi = (nlp_sol->pi+nn)->pa;
-			if(ss<=0)
-//			if(1)
+			for(nn=0; nn<N; nn++)
 				{
+				x  = (nlp_sol->ux+nn)->pa+nu[nn];
+				u  = (nlp_sol->ux+nn)->pa;
+				pi = (nlp_sol->pi+nn)->pa;
 				d_init_erk_int(nx[nn]+nu[nn], 0, x, u, (nlp->model+nn)->forward_seed, NULL, (nlp->model+nn)->expl_vde_for, NULL, (nlp->model+nn)->arg, erk_ws+nn);
 				d_erk_int(erk_ws+nn);
 				d_cvt_erk_int_to_ocp_qp(nn, erk_ws+nn, qp, nlp_sol);
 				}
-				// TODO partial condensing
-			else
+			// TODO partial condensing
+			if(N2<N)
 				{
+				d_cond_qp_ocp2ocp(qp, qp2, part_cond_ws);
+				}
+			}
+		else
+			{
+			for(nn=0; nn<N; nn++)
+				{
+				x  = (nlp_sol->ux+nn)->pa+nu[nn];
+				u  = (nlp_sol->ux+nn)->pa;
+				pi = (nlp_sol->pi+nn)->pa;
 //				d_init_erk_int(0, 1, x, u, NULL, pi, (nlp->model+nn)->expl_vde_for, (nlp->model+nn)->expl_vde_adj, (nlp->model+nn)->arg, erk_ws+nn);
 				d_init_erk_int(0, 1, x, u, NULL, pi, (nlp->model+nn)->expl_ode, (nlp->model+nn)->expl_vde_adj, (nlp->model+nn)->arg, erk_ws+nn);
 				d_erk_int(erk_ws+nn);
 				d_cvt_erk_int_to_ocp_qp_rhs(nn, erk_ws+nn, qp, nlp_sol);
-				// TODO partial condensing rhs
+				}
+			// TODO partial condensing rhs
+			if(N2<N)
+				{
+				d_cond_qp_ocp2ocp(qp, qp2, part_cond_ws);
+//				d_cond_rhs_qp_ocp2ocp(qp, qp2, part_cond_ws);
 				}
 			}
 
+// TODO compare qp_sol with qp_sol2 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
 //for(ii=0; ii<N; ii++)
-//	d_print_e_strmat(nlp->nu[ii]+nlp->nx[ii]+1, nlp->nx[ii+1], qp->BAbt+ii, 0, 0);
+//	blasfeo_print_exp_dmat(nlp->nu[ii]+nlp->nx[ii]+1, nlp->nx[ii+1], qp->BAbt+ii, 0, 0);
 	
+		if(N2<N) // partially condensed space solution
+//		if(0) // partially condensed space solution
+			{
 
 #if 0
-printf("\n%d %d\n", nu[0], nx[0]);
-d_print_tran_strvec(nu[0]+nx[0], qp->rq+0, 0);
-d_print_tran_strvec(nx[1], qp->b+0, 0);
+printf("\nsol\n");
+d_print_e_mat(1, cws2->nv, cws2->v, 1);
+d_print_e_mat(1, cws2->ne, cws2->pi, 1);
+d_print_e_mat(1, cws2->nc, cws2->lam, 1);
+d_print_e_mat(1, cws2->nc, cws2->t, 1);
 exit(1);
 #endif
 
-		// compute residuals
-		COMPUTE_RES_OCP_QP(qp, qp_sol, ipm_ws);
-		cws->mu = ipm_ws->res_mu;
-		if(ss>0 & ss<ipm_ws->stat_max)
-			ipm_ws->stat[5*(ss-1)+4] = ipm_ws->res_mu;
+			// compute residuals
+			COMPUTE_RES_OCP_QP(qp2, qp_sol2, ipm_ws2->res_workspace);
+			cws2->mu = ipm_ws2->res_workspace->res_mu;
+			if(ss>0 & ws->iter_qp+ss<ipm_ws->stat_max)
+				ipm_ws->stat[5*(ws->iter_qp+ss-1)+4] = ipm_ws2->res_workspace->res_mu;
 
-		// compute infinity norm of residuals
-		dvecnrm_inf_libstr(cws->nv, &str_res_g, 0, &nlp_res[0]);
-		dvecnrm_inf_libstr(cws->ne, &str_res_b, 0, &nlp_res[1]);
-		dvecnrm_inf_libstr(cws->nc, &str_res_d, 0, &nlp_res[2]);
-		dvecnrm_inf_libstr(cws->nc, &str_res_m, 0, &nlp_res[3]);
+			// compute infinity norm of residuals
+			blasfeo_dvecnrm_inf(cws2->nv, &str_res_g2, 0, &nlp_res[0]); // XXX
+			blasfeo_dvecnrm_inf(cws2->ne, &str_res_b2, 0, &nlp_res[1]); // XXX
+			blasfeo_dvecnrm_inf(cws2->nc, &str_res_d2, 0, &nlp_res[2]); // XXX
+			blasfeo_dvecnrm_inf(cws2->nc, &str_res_m2, 0, &nlp_res[3]); // XXX
+
+//printf("\n%e %e %e %e\n", nlp_res[0], nlp_res[1], nlp_res[2], nlp_res[3]);
+
+#if 0
+printf("\nresiduals\n");
+d_print_e_mat(1, cws2->nv, cws2->res_g, 1);
+d_print_e_mat(1, cws2->ne, cws2->res_b, 1);
+d_print_e_mat(1, cws2->nc, cws2->res_d, 1);
+d_print_e_mat(1, cws2->nc, cws2->res_m, 1);
+exit(1);
+#endif
+
+			// exit condition on residuals
+			if(!(nlp_res[0]>arg->nlp_res_g_max | nlp_res[1]>arg->nlp_res_b_max | nlp_res[2]>arg->nlp_res_d_max | nlp_res[3]>arg->nlp_res_m_max))
+				{
+
+				// part expand
+				d_expand_sol_ocp2ocp(qp, qp2, qp_sol2, qp_sol, part_cond_ws);
+
+				// compute residuals (full space)
+				COMPUTE_RES_OCP_QP(qp, qp_sol, ipm_ws->res_workspace);
+
+				// compute infinity norm of residuals
+				blasfeo_dvecnrm_inf(cws->nv, &str_res_g, 0, &nlp_res[0]);
+				blasfeo_dvecnrm_inf(cws->ne, &str_res_b, 0, &nlp_res[1]);
+				blasfeo_dvecnrm_inf(cws->nc, &str_res_d, 0, &nlp_res[2]);
+				blasfeo_dvecnrm_inf(cws->nc, &str_res_m, 0, &nlp_res[3]);
+
+				ws->iter_nlp = ss;
+				ws->nlp_res_g = nlp_res[0];
+				ws->nlp_res_b = nlp_res[1];
+				ws->nlp_res_d = nlp_res[2];
+				ws->nlp_res_m = nlp_res[3];
+
+				return 0;
+				}
+
+
+			// fact and solve kkt
+			FACT_SOLVE_KKT_STEP_OCP_QP(qp2, ipm_ws2);
+
+			// alpha
+			COMPUTE_ALPHA_QP(cws2);
+			if(ws->iter_qp+ss<ipm_ws->stat_max)
+				ipm_ws->stat[5*(ws->iter_qp+ss)+0] = cws2->alpha;
+
+			// Mehrotra's corrector
+			if(arg->pred_corr==1)
+				{
+				// mu_aff
+				COMPUTE_MU_AFF_QP(cws2);
+				if(ws->iter_qp+ss<ipm_ws->stat_max)
+					ipm_ws->stat[5*(ws->iter_qp+ss)+1] = cws2->mu_aff;
+
+				tmp = cws2->mu_aff/cws2->mu;
+				cws2->sigma = tmp*tmp*tmp;
+				if(ws->iter_qp+ss<ipm_ws->stat_max)
+					ipm_ws->stat[5*(ws->iter_qp+ss)+2] = cws2->sigma;
+
+				COMPUTE_CENTERING_CORRECTION_QP(cws2);
+
+				// fact and solve kkt
+				SOLVE_KKT_STEP_OCP_QP(qp2, ipm_ws2);
+
+				// alpha
+				COMPUTE_ALPHA_QP(cws2);
+				if(ws->iter_qp+ss<ipm_ws->stat_max)
+					ipm_ws->stat[5*(ws->iter_qp+ss)+3] = cws2->alpha;
+				}
+
+			// update QP variables
+			UPDATE_VAR_QP(cws2);
+
+			// part expand
+			d_expand_sol_ocp2ocp(qp, qp2, qp_sol2, qp_sol, part_cond_ws);
+
+#if 0
+printf("\nqp sol\n");
+d_print_e_mat(1, cws->nv, cws->v, 1);
+d_print_e_mat(1, cws->ne, cws->pi, 1);
+d_print_e_mat(1, cws->nc, cws->lam, 1);
+d_print_e_mat(1, cws->nc, cws->t, 1);
+#endif
+
+			// update NLP variables
+			for(nn=0; nn<=N; nn++)
+				blasfeo_dveccp(nu[nn]+nx[nn]+2*ns[ii], qp_sol->ux+nn, 0, nlp_sol->ux+nn, 0);
+			for(nn=0; nn<N; nn++)
+				blasfeo_dveccp(nx[nn+1], qp_sol->pi+nn, 0, nlp_sol->pi+nn, 0);
+			for(nn=0; nn<=N; nn++)
+				blasfeo_dveccp(2*nb[nn]+2*ng[nn]+2*ns[ii], qp_sol->lam+nn, 0, nlp_sol->lam+nn, 0);
+			for(nn=0; nn<=N; nn++)
+				blasfeo_dveccp(2*nb[nn]+2*ng[nn]+2*ns[ii], qp_sol->t+nn, 0, nlp_sol->t+nn, 0);
+
+			}
+		else // full space solution
+			{
+
+
+#if 0
+printf("\n%d %d\n", nu[0], nx[0]);
+blasfeo_print_tran_dvec(nu[0]+nx[0], qp->rq+0, 0);
+blasfeo_print_tran_dvec(nx[1], qp->b+0, 0);
+exit(1);
+#endif
+
+#if 0
+printf("\nsol\n");
+d_print_e_mat(1, cws->nv, cws->v, 1);
+d_print_e_mat(1, cws->ne, cws->pi, 1);
+d_print_e_mat(1, cws->nc, cws->lam, 1);
+d_print_e_mat(1, cws->nc, cws->t, 1);
+exit(1);
+#endif
+
+			// compute residuals
+			COMPUTE_RES_OCP_QP(qp, qp_sol, ipm_ws->res_workspace);
+			cws->mu = ipm_ws->res_workspace->res_mu;
+			if(ss>0 & ws->iter_qp+ss<ipm_ws->stat_max)
+				ipm_ws->stat[5*(ws->iter_qp+ss-1)+4] = ipm_ws->res_workspace->res_mu;
+
+			// compute infinity norm of residuals
+			blasfeo_dvecnrm_inf(cws->nv, &str_res_g, 0, &nlp_res[0]);
+			blasfeo_dvecnrm_inf(cws->ne, &str_res_b, 0, &nlp_res[1]);
+			blasfeo_dvecnrm_inf(cws->nc, &str_res_d, 0, &nlp_res[2]);
+			blasfeo_dvecnrm_inf(cws->nc, &str_res_m, 0, &nlp_res[3]);
+
+//printf("\n%e %e %e %e\n", nlp_res[0], nlp_res[1], nlp_res[2], nlp_res[3]);
 
 #if 0
 printf("\nresiduals\n");
@@ -842,55 +1012,56 @@ d_print_e_mat(1, cws->nv, cws->res_g, 1);
 d_print_e_mat(1, cws->ne, cws->res_b, 1);
 d_print_e_mat(1, cws->nc, cws->res_d, 1);
 d_print_e_mat(1, cws->nc, cws->res_m, 1);
+exit(1);
 #endif
 
 #if 0
 printf("\n\niter %d nlp inf norm res %e %e %e %e\n", ss, nlp_res[0], nlp_res[1], nlp_res[2], nlp_res[3]);
 #endif
 
-		// exit condition on residuals
-		if(!(nlp_res[0]>arg->nlp_res_g_max | nlp_res[1]>arg->nlp_res_b_max | nlp_res[2]>arg->nlp_res_d_max | nlp_res[3]>arg->nlp_res_m_max))
-			{
-			ws->iter_nlp = ss;
-			ws->nlp_res_g = nlp_res[0];
-			ws->nlp_res_b = nlp_res[1];
-			ws->nlp_res_d = nlp_res[2];
-			ws->nlp_res_m = nlp_res[3];
-			return 0;
-			}
+			// exit condition on residuals
+			if(!(nlp_res[0]>arg->nlp_res_g_max | nlp_res[1]>arg->nlp_res_b_max | nlp_res[2]>arg->nlp_res_d_max | nlp_res[3]>arg->nlp_res_m_max))
+				{
+				ws->iter_nlp = ss;
+				ws->nlp_res_g = nlp_res[0];
+				ws->nlp_res_b = nlp_res[1];
+				ws->nlp_res_d = nlp_res[2];
+				ws->nlp_res_m = nlp_res[3];
+				return 0;
+				}
 
-
-		// fact and solve kkt
-		FACT_SOLVE_KKT_STEP_OCP_QP(qp, ipm_ws);
-
-		// alpha
-		COMPUTE_ALPHA_QP(cws);
-		if(ss<ipm_ws->stat_max)
-			ipm_ws->stat[5*ss+0] = cws->alpha;
-
-		// Mehrotra's corrector
-		if(arg->pred_corr==1)
-			{
-			// mu_aff
-			COMPUTE_MU_AFF_QP(cws);
-			if(ss<ipm_ws->stat_max)
-				ipm_ws->stat[5*ss+1] = cws->mu_aff;
-
-			tmp = cws->mu_aff/cws->mu;
-			cws->sigma = tmp*tmp*tmp;
-			if(ss<ipm_ws->stat_max)
-				ipm_ws->stat[5*ss+2] = cws->sigma;
-
-			COMPUTE_CENTERING_CORRECTION_QP(cws);
 
 			// fact and solve kkt
-			SOLVE_KKT_STEP_OCP_QP(qp, ipm_ws);
+			FACT_SOLVE_KKT_STEP_OCP_QP(qp, ipm_ws);
 
 			// alpha
 			COMPUTE_ALPHA_QP(cws);
-			if(ss<ipm_ws->stat_max)
-				ipm_ws->stat[5*ss+3] = cws->alpha;
-			}
+			if(ws->iter_qp+ss<ipm_ws->stat_max)
+				ipm_ws->stat[5*(ws->iter_qp+ss)+0] = cws->alpha;
+
+			// Mehrotra's corrector
+			if(arg->pred_corr==1)
+				{
+				// mu_aff
+				COMPUTE_MU_AFF_QP(cws);
+				if(ws->iter_qp+ss<ipm_ws->stat_max)
+					ipm_ws->stat[5*(ws->iter_qp+ss)+1] = cws->mu_aff;
+
+				tmp = cws->mu_aff/cws->mu;
+				cws->sigma = tmp*tmp*tmp;
+				if(ws->iter_qp+ss<ipm_ws->stat_max)
+					ipm_ws->stat[5*(ws->iter_qp+ss)+2] = cws->sigma;
+
+				COMPUTE_CENTERING_CORRECTION_QP(cws);
+
+				// fact and solve kkt
+				SOLVE_KKT_STEP_OCP_QP(qp, ipm_ws);
+
+				// alpha
+				COMPUTE_ALPHA_QP(cws);
+				if(ws->iter_qp+ss<ipm_ws->stat_max)
+					ipm_ws->stat[5*(ws->iter_qp+ss)+3] = cws->alpha;
+				}
 
 #if 0
 printf("\nstep\n");
@@ -899,22 +1070,32 @@ d_print_e_mat(1, cws->ne, cws->dpi, 1);
 d_print_e_mat(1, cws->nc, cws->dlam, 1);
 d_print_e_mat(1, cws->nc, cws->dt, 1);
 #endif
-		// update QP variables
-		UPDATE_VAR_QP(cws);
+			// update QP variables
+			UPDATE_VAR_QP(cws);
+
+#if 0
+printf("\nqp sol\n");
+d_print_e_mat(1, cws->nv, cws->v, 1);
+d_print_e_mat(1, cws->ne, cws->pi, 1);
+d_print_e_mat(1, cws->nc, cws->lam, 1);
+d_print_e_mat(1, cws->nc, cws->t, 1);
+#endif
 
 #if 0
 d_print_e_tran_mat(5, kk, ipm_ws->stat, 5);
 #endif
 
-		// update NLP variables
-		for(nn=0; nn<=N; nn++)
-			dveccp_libstr(nu[nn]+nx[nn]+2*ns[ii], qp_sol->ux+nn, 0, nlp_sol->ux+nn, 0);
-		for(nn=0; nn<N; nn++)
-			dveccp_libstr(nx[nn+1], qp_sol->pi+nn, 0, nlp_sol->pi+nn, 0);
-		for(nn=0; nn<=N; nn++)
-			dveccp_libstr(2*nb[nn]+2*ng[nn]+2*ns[ii], qp_sol->lam+nn, 0, nlp_sol->lam+nn, 0);
-		for(nn=0; nn<=N; nn++)
-			dveccp_libstr(2*nb[nn]+2*ng[nn]+2*ns[ii], qp_sol->t+nn, 0, nlp_sol->t+nn, 0);
+			// update NLP variables
+			for(nn=0; nn<=N; nn++)
+				blasfeo_dveccp(nu[nn]+nx[nn]+2*ns[ii], qp_sol->ux+nn, 0, nlp_sol->ux+nn, 0);
+			for(nn=0; nn<N; nn++)
+				blasfeo_dveccp(nx[nn+1], qp_sol->pi+nn, 0, nlp_sol->pi+nn, 0);
+			for(nn=0; nn<=N; nn++)
+				blasfeo_dveccp(2*nb[nn]+2*ng[nn]+2*ns[ii], qp_sol->lam+nn, 0, nlp_sol->lam+nn, 0);
+			for(nn=0; nn<=N; nn++)
+				blasfeo_dveccp(2*nb[nn]+2*ng[nn]+2*ns[ii], qp_sol->t+nn, 0, nlp_sol->t+nn, 0);
+
+			}
 
 		}
 	

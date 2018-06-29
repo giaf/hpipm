@@ -42,7 +42,7 @@ int MEMSIZE_CORE_QP_IPM(int nv, int ne, int nc)
 
 	size += 2*nv0*sizeof(REAL); // dv res_g
 	size += 2*ne0*sizeof(REAL); // dpi res_b
-	size += 7*nc0*sizeof(REAL); // dlam dt res_d res_m t_inv Gamma gamma
+	size += 8*nc0*sizeof(REAL); // dlam dt res_d res_m res_m_bkp t_inv Gamma gamma
 
 	size = (size+63)/64*64; // make multiple of cache line size
 
@@ -94,6 +94,9 @@ void CREATE_CORE_QP_IPM(int nv, int ne, int nc, struct CORE_QP_IPM_WORKSPACE *wo
 	workspace->res_m = d_ptr; // res_m
 	d_ptr += nc0;
 
+	workspace->res_m_bkp = d_ptr; // res_m_bkp
+	d_ptr += nc0;
+
 	workspace->Gamma = d_ptr; // Gamma
 	d_ptr += nc0;
 
@@ -104,6 +107,10 @@ void CREATE_CORE_QP_IPM(int nv, int ne, int nc, struct CORE_QP_IPM_WORKSPACE *wo
 		workspace->nc_inv = 1.0/nc;
 	else
 		workspace->nc_inv = 0.0;
+
+
+	workspace->lam_min = 0.0;
+	workspace->t_min = 0.0;
 
 
 	workspace->memsize = MEMSIZE_CORE_QP_IPM(nv, ne, nc);

@@ -27,15 +27,15 @@
 
 
 
-void COMPUTE_GAMMA_GAMMA_QP(struct CORE_QP_IPM_WORKSPACE *cws)
+void COMPUTE_GAMMA_GAMMA_QP(REAL *res_d, REAL *res_m, struct CORE_QP_IPM_WORKSPACE *cws)
 	{
 
 	int nc = cws->nc;
 
 	REAL *lam = cws->lam;
 	REAL *t = cws->t;
-	REAL *res_m = cws->res_m;
-	REAL *res_d = cws->res_d;
+//	REAL *res_d = cws->res_d; // TODO rename d ???
+//	REAL *res_m = cws->res_m; // TODO rename m ???
 	REAL *t_inv = cws->t_inv;
 	REAL *Gamma = cws->Gamma;
 	REAL *gamma = cws->gamma;
@@ -56,16 +56,39 @@ void COMPUTE_GAMMA_GAMMA_QP(struct CORE_QP_IPM_WORKSPACE *cws)
 
 
 
-void COMPUTE_LAM_T_QP(struct CORE_QP_IPM_WORKSPACE *cws)
+void COMPUTE_GAMMA_QP(REAL *res_d, REAL *res_m, struct CORE_QP_IPM_WORKSPACE *cws)
 	{
 
 	int nc = cws->nc;
 
 	REAL *lam = cws->lam;
-	REAL *dlam = cws->dlam;
-	REAL *dt = cws->dt;
-	REAL *res_d = cws->res_d;
-	REAL *res_m = cws->res_m;
+//	REAL *res_m = cws->res_m;
+//	REAL *res_d = cws->res_d;
+	REAL *t_inv = cws->t_inv;
+	REAL *gamma = cws->gamma;
+
+	// local variables
+	int ii;
+
+	for(ii=0; ii<nc; ii++)
+		{
+		gamma[ii] = t_inv[ii]*(res_m[ii]-lam[ii]*res_d[ii]);
+		}
+
+	return;
+
+	}
+
+void COMPUTE_LAM_T_QP(REAL *res_d, REAL *res_m, REAL *dlam, REAL *dt, struct CORE_QP_IPM_WORKSPACE *cws)
+	{
+
+	int nc = cws->nc;
+
+	REAL *lam = cws->lam;
+//	REAL *dlam = cws->dlam;
+//	REAL *dt = cws->dt;
+//	REAL *res_d = cws->res_d; // TODO rename d ???
+//	REAL *res_m = cws->res_m; // TODO rename m ???
 	REAL *t_inv = cws->t_inv;
 
 	// local variables
@@ -95,7 +118,36 @@ void COMPUTE_ALPHA_QP(struct CORE_QP_IPM_WORKSPACE *cws)
 	REAL *dlam_lb = cws->dlam;
 	REAL *dt_lb = cws->dt;
 
+	REAL alpha_prim = - 1.0;
+	REAL alpha_dual = - 1.0;
 	REAL alpha = - 1.0;
+
+#if 1
+
+	// local variables
+	int ii;
+
+	for(ii=0; ii<nc; ii++)
+		{
+
+		if( alpha_dual*dlam_lb[ii+0]>lam_lb[ii+0] )
+			{
+			alpha_dual = lam_lb[ii+0] / dlam_lb[ii+0];
+			}
+		if( alpha_prim*dt_lb[ii+0]>t_lb[ii+0] )
+			{
+			alpha_prim = t_lb[ii+0] / dt_lb[ii+0];
+			}
+
+		}
+
+#else // fraction to the boundary
+
+	REAL mu = cws->mu;
+	REAL tau = 1.0;
+//	REAL tau = 0.995;
+
+	tau = tau>(1-mu) ? tau : 1-mu;
 	
 	// local variables
 	int ii;
@@ -103,18 +155,23 @@ void COMPUTE_ALPHA_QP(struct CORE_QP_IPM_WORKSPACE *cws)
 	for(ii=0; ii<nc; ii++)
 		{
 
-		if( alpha*dlam_lb[ii+0]>lam_lb[ii+0] )
+		if( alpha_dual*dlam_lb[ii+0]>tau*lam_lb[ii+0] )
 			{
-			alpha = lam_lb[ii+0] / dlam_lb[ii+0];
+			alpha_dual = tau*lam_lb[ii+0] / dlam_lb[ii+0];
 			}
-		if( alpha*dt_lb[ii+0]>t_lb[ii+0] )
+		if( alpha_prim*dt_lb[ii+0]>tau*t_lb[ii+0] )
 			{
-			alpha = t_lb[ii+0] / dt_lb[ii+0];
+			alpha_prim = tau*t_lb[ii+0] / dt_lb[ii+0];
 			}
 
 		}
 
+#endif
+	alpha = alpha_prim>alpha_dual ? alpha_prim : alpha_dual;
+
 	// store alpha
+	cws->alpha_prim = - alpha_prim;
+	cws->alpha_dual = - alpha_dual;
 	cws->alpha = - alpha;
 
 	return;
@@ -140,15 +197,23 @@ void UPDATE_VAR_QP(struct CORE_QP_IPM_WORKSPACE *cws)
 	REAL *dlam = cws->dlam;
 	REAL *dt = cws->dt;
 	REAL alpha = cws->alpha;
+	REAL alpha_prim = cws->alpha_prim;
+	REAL alpha_dual = cws->alpha_dual;
 #if 0
 	if(alpha<1.0)
 		alpha *= 0.995;
 #else
+//	alpha_prim = alpha_prim * ((1.0-alpha)*0.99 + alpha*0.9999999);
+//	alpha_dual = alpha_dual * ((1.0-alpha)*0.99 + alpha*0.9999999);
+	alpha_prim = alpha_prim * ((1.0-alpha_prim)*0.99 + alpha_prim*0.9999999);
+	alpha_dual = alpha_dual * ((1.0-alpha_dual)*0.99 + alpha_dual*0.9999999);
 	alpha = alpha * ((1.0-alpha)*0.99 + alpha*0.9999999);
 #endif
 
 	// local variables
 	int ii;
+
+#if 1
 
 	// update v
 	for(ii=0; ii<nv; ii++)
@@ -166,14 +231,44 @@ void UPDATE_VAR_QP(struct CORE_QP_IPM_WORKSPACE *cws)
 	for(ii=0; ii<nc; ii++)
 		{
 		lam[ii] += alpha * dlam[ii];
+		lam[ii] = lam[ii]<=cws->lam_min ? cws->lam_min : lam[ii];
 		}
 
 	// update t
 	for(ii=0; ii<nc; ii++)
 		{
 		t[ii] += alpha * dt[ii];
+		t[ii] = t[ii]<=cws->t_min ? cws->t_min : t[ii];
 		}
-	
+
+#else // split step
+
+	// update v
+	for(ii=0; ii<nv; ii++)
+		{
+		v[ii] += alpha_prim * dv[ii];
+		}
+
+	// update pi
+	for(ii=0; ii<ne; ii++)
+		{
+		pi[ii] += alpha_dual * dpi[ii];
+		}
+
+	// update lam
+	for(ii=0; ii<nc; ii++)
+		{
+		lam[ii] += alpha_dual * dlam[ii];
+		}
+
+	// update t
+	for(ii=0; ii<nc; ii++)
+		{
+		t[ii] += alpha_prim * dt[ii];
+		}
+
+#endif
+
 	return;
 
 	}
@@ -211,6 +306,28 @@ void COMPUTE_MU_AFF_QP(struct CORE_QP_IPM_WORKSPACE *cws)
 
 
 
+void BACKUP_RES_M(struct CORE_QP_IPM_WORKSPACE *cws)
+	{
+
+	int ii;
+
+	// extract workspace members
+	int nc = cws->nc;
+
+	REAL *ptr_res_m = cws->res_m;
+	REAL *ptr_res_m_bkp = cws->res_m_bkp;
+
+	for(ii=0; ii<nc; ii++)
+		{
+		ptr_res_m_bkp[ii+0] = ptr_res_m[ii+0];
+		}
+
+	return;
+
+	}
+
+
+
 void COMPUTE_CENTERING_CORRECTION_QP(struct CORE_QP_IPM_WORKSPACE *cws)
 	{
 
@@ -222,12 +339,13 @@ void COMPUTE_CENTERING_CORRECTION_QP(struct CORE_QP_IPM_WORKSPACE *cws)
 	REAL *ptr_dlam = cws->dlam;
 	REAL *ptr_dt = cws->dt;
 	REAL *ptr_res_m = cws->res_m;
+	REAL *ptr_res_m_bkp = cws->res_m_bkp;
 
 	REAL sigma_mu = cws->sigma*cws->mu;
 
 	for(ii=0; ii<nc; ii++)
 		{
-		ptr_res_m[ii+0] += ptr_dt[ii+0] * ptr_dlam[ii+0] - sigma_mu;
+		ptr_res_m[ii+0] = ptr_res_m_bkp[ii+0] + ptr_dt[ii+0] * ptr_dlam[ii+0] - sigma_mu;
 		}
 
 	return;
@@ -236,27 +354,30 @@ void COMPUTE_CENTERING_CORRECTION_QP(struct CORE_QP_IPM_WORKSPACE *cws)
 
 
 
-void COMPUTE_GAMMA_QP(struct CORE_QP_IPM_WORKSPACE *cws)
+void COMPUTE_CENTERING_QP(struct CORE_QP_IPM_WORKSPACE *cws)
 	{
 
+	int ii;
+
+	// extract workspace members
 	int nc = cws->nc;
 
-	REAL *lam = cws->lam;
-	REAL *res_m = cws->res_m;
-	REAL *res_d = cws->res_d;
-	REAL *t_inv = cws->t_inv;
-	REAL *gamma = cws->gamma;
+	REAL *ptr_dlam = cws->dlam;
+	REAL *ptr_dt = cws->dt;
+	REAL *ptr_res_m = cws->res_m;
+	REAL *ptr_res_m_bkp = cws->res_m_bkp;
 
-	// local variables
-	int ii;
+	REAL sigma_mu = cws->sigma*cws->mu;
 
 	for(ii=0; ii<nc; ii++)
 		{
-		gamma[ii] = t_inv[ii]*(res_m[ii]-lam[ii]*res_d[ii]);
+		ptr_res_m[ii+0] = ptr_res_m_bkp[ii+0] - sigma_mu;
 		}
 
 	return;
 
 	}
+
+
 
 

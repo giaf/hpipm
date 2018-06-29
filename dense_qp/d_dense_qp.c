@@ -27,39 +27,38 @@
 
 
 
-#if defined(RUNTIME_CHECKS)
 #include <stdlib.h>
 #include <stdio.h>
-#endif
 
 #include <blasfeo_target.h>
 #include <blasfeo_common.h>
 #include <blasfeo_d_aux.h>
 
-#include "../include/hpipm_d_dense_qp.h"
+#include <hpipm_d_dense_qp_dim.h>
+#include <hpipm_d_dense_qp.h>
 
 
-#define CREATE_STRMAT d_create_strmat
-#define CREATE_STRVEC d_create_strvec
-#define CVT_MAT2STRMAT d_cvt_mat2strmat
-#define CVT_TRAN_MAT2STRMAT d_cvt_tran_mat2strmat
-#define CVT_TRAN_STRMAT2MAT d_cvt_tran_strmat2mat
-#define CVT_VEC2STRVEC d_cvt_vec2strvec
-#define CVT_STRMAT2MAT d_cvt_strmat2mat
-#define CVT_STRVEC2VEC d_cvt_strvec2vec
-#define DENSE_QP_DIM d_dense_qp_dim
-#define DENSE_QP_VEC d_dense_qp_vec
-#define DENSE_QP_MAT d_dense_qp_mat
+#define CREATE_STRMAT blasfeo_create_dmat
+#define CREATE_STRVEC blasfeo_create_dvec
+#define CVT_MAT2STRMAT blasfeo_pack_dmat
+#define CVT_TRAN_MAT2STRMAT blasfeo_pack_tran_dmat
+#define CVT_TRAN_STRMAT2MAT blasfeo_unpack_tran_dmat
+#define CVT_VEC2STRVEC blasfeo_pack_dvec
+#define CVT_STRMAT2MAT blasfeo_unpack_dmat
+#define CVT_STRVEC2VEC blasfeo_unpack_dvec
 #define DENSE_QP d_dense_qp
-#define GECP_LIBSTR dgecp_libstr
-#define GETR_LIBSTR dgetr_libstr
+#define DENSE_QP_DIM d_dense_qp_dim
+#define GECP_LIBSTR blasfeo_dgecp
+#define GETR_LIBSTR blasfeo_dgetr
 #define REAL double
-#define ROWIN_LIBSTR drowin_libstr
-#define SIZE_STRMAT d_size_strmat
-#define SIZE_STRVEC d_size_strvec
-#define STRMAT d_strmat
-#define STRVEC d_strvec
-#define VECCP_LIBSTR dveccp_libstr
+#define ROWIN_LIBSTR blasfeo_drowin
+#define SIZE_STRMAT blasfeo_memsize_dmat
+#define SIZE_STRVEC blasfeo_memsize_dvec
+#define STRMAT blasfeo_dmat
+#define STRVEC blasfeo_dvec
+#define VECCP_LIBSTR blasfeo_dveccp
+#define VECSC_LIBSTR blasfeo_dvecsc
+#define VECSE_LIBSTR blasfeo_dvecse
 
 #define MEMSIZE_DENSE_QP d_memsize_dense_qp
 #define CREATE_DENSE_QP d_create_dense_qp
@@ -70,8 +69,6 @@
 #define CVT_LIBSTR_TO_DENSE_QP d_cvt_libstr_to_dense_qp
 #define CVT_DENSE_QP_TO_LIBSTR d_cvt_dense_qp_to_libstr
 #define CAST_DENSE_QP_DIM d_cast_dense_qp_dim
-//#define CREATE_DENSE_QP d_create_dense_qp
-//#define COPY_DENSE_QP d_copy_dense_qp
 
 
 

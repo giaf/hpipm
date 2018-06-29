@@ -25,7 +25,9 @@
 *                                                                                                 *
 **************************************************************************************************/
 
-
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 struct d_irk_workspace
 	{
@@ -33,9 +35,9 @@ struct d_irk_workspace
 	void (*d_jac_impl_ode)(int t, double *xdot, double *x, double *p, void *ode_args, double *jac); // function pointer to jacobian of implicit ode
 	void *ode_args; // pointer to ode args
 	struct d_rk_data *rk_data; // integrator data
-	struct d_strmat *JG; // jacobian of G
-	struct d_strmat *rG; // residuals of G
-	struct d_strmat *K; // internal variables
+	struct blasfeo_dmat *JG; // jacobian of G
+	struct blasfeo_dmat *rG; // residuals of G
+	struct blasfeo_dmat *K; // internal variables
 	double *x; // states and forward sensitivities
 	double *p; // parameter
 	double *xt0; // temporary states and forward sensitivities
@@ -73,3 +75,6 @@ void d_update_p_irk_int(double *p0, struct d_irk_workspace *ws);
 //
 void d_irk_int(struct d_irk_args *irk_args, struct d_irk_workspace *workspace);
 
+#ifdef __cplusplus
+} /* extern "C" */
+#endif

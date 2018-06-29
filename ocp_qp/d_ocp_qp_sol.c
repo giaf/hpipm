@@ -36,25 +36,36 @@
 #include <blasfeo_common.h>
 #include <blasfeo_d_aux.h>
 
-#include "../include/hpipm_d_ocp_qp.h"
-#include "../include/hpipm_d_ocp_qp_sol.h"
+#include <hpipm_d_ocp_qp_dim.h>
+#include <hpipm_d_ocp_qp.h>
+#include <hpipm_d_ocp_qp_sol.h>
 
 
 
-#define CREATE_STRVEC d_create_strvec
-#define CVT_STRVEC2VEC d_cvt_strvec2vec
+#define CREATE_STRVEC blasfeo_create_dvec
+#define CVT_STRVEC2VEC blasfeo_unpack_dvec
+#define CVT_VEC2STRVEC blasfeo_pack_dvec
 #define OCP_QP d_ocp_qp
+#define OCP_QP_DIM d_ocp_qp_dim
 #define OCP_QP_SOL d_ocp_qp_sol
 #define REAL double
-#define STRVEC d_strvec
-#define SIZE_STRVEC d_size_strvec
-#define VECCP_LIBSTR dveccp_libstr
+#define STRVEC blasfeo_dvec
+#define SIZE_STRVEC blasfeo_memsize_dvec
+#define VECCP_LIBSTR blasfeo_dveccp
 
 #define CREATE_OCP_QP_SOL d_create_ocp_qp_sol
 #define MEMSIZE_OCP_QP_SOL d_memsize_ocp_qp_sol
 #define CVT_OCP_QP_SOL_TO_COLMAJ d_cvt_ocp_qp_sol_to_colmaj
+#define CVT_COLMAJ_TO_OCP_QP_SOL d_cvt_colmaj_to_ocp_qp_sol
 #define CVT_OCP_QP_SOL_TO_ROWMAJ d_cvt_ocp_qp_sol_to_rowmaj
 #define CVT_OCP_QP_SOL_TO_LIBSTR d_cvt_ocp_qp_sol_to_libstr
+#define CVT_OCP_QP_SOL_TO_COLMAJ_X d_cvt_ocp_qp_sol_to_colmaj_x
+#define CVT_OCP_QP_SOL_TO_COLMAJ_U d_cvt_ocp_qp_sol_to_colmaj_u
+#define CVT_OCP_QP_SOL_TO_COLMAJ_PI d_cvt_ocp_qp_sol_to_colmaj_pi
+#define CVT_OCP_QP_SOL_TO_COLMAJ_LAM_LB d_cvt_ocp_qp_sol_to_colmaj_lam_lb
+#define CVT_OCP_QP_SOL_TO_COLMAJ_LAM_UB d_cvt_ocp_qp_sol_to_colmaj_lam_ub
+#define CVT_OCP_QP_SOL_TO_COLMAJ_LAM_LG d_cvt_ocp_qp_sol_to_colmaj_lam_lg
+#define CVT_OCP_QP_SOL_TO_COLMAJ_LAM_UG d_cvt_ocp_qp_sol_to_colmaj_lam_ug
 
 
 

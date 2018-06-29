@@ -53,18 +53,21 @@ else()
 	set(BLASFEO_INCLUDE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/../blasfeo/include)
 endif()
 
+# headers installation directory
+set(HPIPM_HEADERS_INSTALLATION_DIRECTORY "include" CACHE STRING "Headers local installation directory")
+
 # enable runtine checks
 set(RUNTIME_CHECKS 0)
-#set(RUNTIME_CHECKS 0)
+#set(RUNTIME_CHECKS 1)
 
-# compiler flags
-set(CMAKE_C_FLAGS "")
-
-# optimization flags
-set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -O2")
-if(CMAKE_COMPILER_ID MATCHES "GNU" OR CMAKE_COMPILER_ID MATCHES "Clang")
-	set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -fPIC")
-endif()
+## compiler flags
+#set(CMAKE_C_FLAGS "")
+#
+## optimization flags
+#set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -O2")
+#if(CMAKE_COMPILER_ID MATCHES "GNU" OR CMAKE_COMPILER_ID MATCHES "Clang")
+#	set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -fPIC")
+#endif()
 
 #
 if(${REF_BLAS} MATCHES 0)
@@ -109,13 +112,17 @@ file(GLOB COND_SRC
 # dense qp
 file(GLOB DENSE_QP_SRC
 	${PROJECT_SOURCE_DIR}/dense_qp/d_dense_qp.c
+	${PROJECT_SOURCE_DIR}/dense_qp/d_dense_qp_dim.c
 	${PROJECT_SOURCE_DIR}/dense_qp/d_dense_qp_sol.c
 	${PROJECT_SOURCE_DIR}/dense_qp/d_dense_qp_kkt.c
 	${PROJECT_SOURCE_DIR}/dense_qp/d_dense_qp_ipm.c
+	${PROJECT_SOURCE_DIR}/dense_qp/d_dense_qp_res.c
 	${PROJECT_SOURCE_DIR}/dense_qp/s_dense_qp.c
+	${PROJECT_SOURCE_DIR}/dense_qp/s_dense_qp_dim.c
 	${PROJECT_SOURCE_DIR}/dense_qp/s_dense_qp_sol.c
 	${PROJECT_SOURCE_DIR}/dense_qp/s_dense_qp_kkt.c
 	${PROJECT_SOURCE_DIR}/dense_qp/s_dense_qp_ipm.c
+	${PROJECT_SOURCE_DIR}/dense_qp/s_dense_qp_res.c
 	)
 # core ipm
 file(GLOB IPM_CORE_SRC
@@ -127,13 +134,17 @@ file(GLOB IPM_CORE_SRC
 # ocp qp
 file(GLOB OCP_QP_SRC
 	${PROJECT_SOURCE_DIR}/ocp_qp/d_ocp_qp.c
+	${PROJECT_SOURCE_DIR}/ocp_qp/d_ocp_qp_dim.c
 	${PROJECT_SOURCE_DIR}/ocp_qp/d_ocp_qp_sol.c
 	${PROJECT_SOURCE_DIR}/ocp_qp/d_ocp_qp_kkt.c
 	${PROJECT_SOURCE_DIR}/ocp_qp/d_ocp_qp_ipm.c
+	${PROJECT_SOURCE_DIR}/ocp_qp/d_ocp_qp_res.c
 	${PROJECT_SOURCE_DIR}/ocp_qp/s_ocp_qp.c
+	${PROJECT_SOURCE_DIR}/ocp_qp/s_ocp_qp_dim.c
 	${PROJECT_SOURCE_DIR}/ocp_qp/s_ocp_qp_sol.c
 	${PROJECT_SOURCE_DIR}/ocp_qp/s_ocp_qp_kkt.c
 	${PROJECT_SOURCE_DIR}/ocp_qp/s_ocp_qp_ipm.c
+	${PROJECT_SOURCE_DIR}/ocp_qp/s_ocp_qp_res.c
 #	${PROJECT_SOURCE_DIR}/ocp_qp/m_ocp_qp.c
 #	${PROJECT_SOURCE_DIR}/ocp_qp/m_ocp_qp_kkt.c
 #	${PROJECT_SOURCE_DIR}/ocp_qp/m_ocp_qp_ipm_hard.c
@@ -154,8 +165,18 @@ file(GLOB TREE_OCP_QP_SRC
 set(HPIPM_SRC ${COND_SRC} ${DENSE_QP_SRC} ${IPM_CORE_SRC} ${OCP_QP_SRC} ${TREE_OCP_QP_SRC})
 
 add_library(hpipm ${HPIPM_SRC})
-target_include_directories(hpipm PUBLIC include ${BLASFEO_INCLUDE_DIR})
+target_include_directories(hpipm PRIVATE "include" "${BLASFEO_INCLUDE_DIR}")
 target_link_libraries(hpipm blasfeo)
+
+install(TARGETS hpipm EXPORT hpipmConfig
+	LIBRARY DESTINATION lib
+	ARCHIVE DESTINATION lib
+	RUNTIME DESTINATION bin)
+
+install(EXPORT hpipmConfig DESTINATION cmake)
+
+file(GLOB_RECURSE HPIPM_HEADERS "include/*.h")
+install(FILES ${HPIPM_HEADERS} DESTINATION ${HPIPM_HEADERS_INSTALLATION_DIRECTORY})
 
 # test problems
 #add_subdirectory(test_problems)

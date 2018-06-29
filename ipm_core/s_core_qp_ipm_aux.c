@@ -25,13 +25,6 @@
 *                                                                                                 *
 **************************************************************************************************/
 
-
-
-#include <blasfeo_target.h>
-#include <blasfeo_common.h>
-#include <blasfeo_s_aux.h>
-#include <blasfeo_s_blas.h>
-
 #include "../include/hpipm_s_core_qp_ipm.h"
 
 
@@ -44,7 +37,9 @@
 #define COMPUTE_ALPHA_QP s_compute_alpha_qp
 #define UPDATE_VAR_QP s_update_var_qp
 #define COMPUTE_MU_AFF_QP s_compute_mu_aff_qp
+#define BACKUP_RES_M s_backup_res_m
 #define COMPUTE_CENTERING_CORRECTION_QP s_compute_centering_correction_qp
+#define COMPUTE_CENTERING_QP s_compute_centering_qp
 #define COMPUTE_GAMMA_QP s_compute_gamma_qp
 
 

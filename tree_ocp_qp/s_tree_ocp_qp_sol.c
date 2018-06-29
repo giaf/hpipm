@@ -34,17 +34,20 @@
 #include <blasfeo_common.h>
 #include <blasfeo_s_aux.h>
 
-#include "../include/hpipm_tree.h"
-#include "../include/hpipm_scenario_tree.h"
-#include "../include/hpipm_s_tree_ocp_qp.h"
-#include "../include/hpipm_s_tree_ocp_qp_sol.h"
+#include <hpipm_tree.h>
+#include <hpipm_scenario_tree.h>
+#include <hpipm_s_tree_ocp_qp.h>
+#include <hpipm_s_tree_ocp_qp_sol.h>
 
-#define CREATE_STRVEC s_create_strvec
-#define CVT_STRVEC2VEC s_cvt_strvec2vec
+
+
+#define CREATE_STRVEC blasfeo_create_svec
+#define CVT_STRVEC2VEC blasfeo_unpack_svec
 #define REAL float
-#define SIZE_STRVEC s_size_strvec
-#define STRVEC s_strvec
+#define SIZE_STRVEC blasfeo_memsize_svec
+#define STRVEC blasfeo_svec
 #define TREE_OCP_QP s_tree_ocp_qp
+#define TREE_OCP_QP_DIM s_tree_ocp_qp_dim
 #define TREE_OCP_QP_SOL s_tree_ocp_qp_sol
 
 #define MEMSIZE_TREE_OCP_QP_SOL s_memsize_tree_ocp_qp_sol

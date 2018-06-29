@@ -52,10 +52,10 @@ int d_memsize_irk_int(struct d_rk_data *rk_data, int nx, int nf, int np)
 
 	int size = 0;
 
-	size += 3*sizeof(struct d_strmat); // JG rG K
+	size += 3*sizeof(struct blasfeo_dmat); // JG rG K
 
-	size += 1*d_size_strmat(nx*ns, nx*ns); // JG
-	size += 2*d_size_strmat(nx*ns, nf+1); // rG K
+	size += 1*blasfeo_memsize_dmat(nx*ns, nx*ns); // JG
+	size += 2*blasfeo_memsize_dmat(nx*ns, nf+1); // rG K
 
 	size += 1*nx*sizeof(double); // xt1
 	size += 4*nX*sizeof(double); // x xt0 Kt rGt
@@ -87,7 +87,7 @@ void d_create_irk_int(struct d_rk_data *rk_data, int nx, int nf, int np, struct 
 
 
 	// matrix struct stuff
-	struct d_strmat *sm_ptr = (struct d_strmat *) mem;
+	struct blasfeo_dmat *sm_ptr = (struct blasfeo_dmat *) mem;
 
 	// JG
 	ws->JG = sm_ptr;
@@ -147,14 +147,14 @@ void d_create_irk_int(struct d_rk_data *rk_data, int nx, int nf, int np, struct 
 	c_ptr = (char *) l_ptr;
 
 	// JG
-	d_create_strmat(nx*ns, nx*ns, ws->JG, c_ptr);
-	c_ptr += ws->JG->memory_size;
+	blasfeo_create_dmat(nx*ns, nx*ns, ws->JG, c_ptr);
+	c_ptr += ws->JG->memsize;
 	// rG
-	d_create_strmat(nx*ns, nf+1, ws->rG, c_ptr);
-	c_ptr += ws->rG->memory_size;
+	blasfeo_create_dmat(nx*ns, nf+1, ws->rG, c_ptr);
+	c_ptr += ws->rG->memsize;
 	// rG
-	d_create_strmat(nx*ns, nf+1, ws->K, c_ptr);
-	c_ptr += ws->K->memory_size;
+	blasfeo_create_dmat(nx*ns, nf+1, ws->K, c_ptr);
+	c_ptr += ws->K->memsize;
 
 
 
@@ -187,7 +187,7 @@ void d_init_irk_int(double *x0, double *fs0, double *p0, void (*d_res_impl_vde)(
 	int nx = ws->nx;
 	int nf = ws->nf;
 	int np = ws->np;
-	struct d_strmat *K = ws->K;
+	struct blasfeo_dmat *K = ws->K;
 
 	int nX = nx*(1+nf);
 
@@ -205,8 +205,8 @@ void d_init_irk_int(double *x0, double *fs0, double *p0, void (*d_res_impl_vde)(
 	
 	// TODO initialize K !!!!!
 //	for(ii=0; ii<ns; ii++)
-//		d_cvt_mat2strmat(nx, nf+1, xdot0, nx, K, ii*nx, 0);
-	dgese_libstr(nx*ns, nf+1, 0.0, K, 0, 0);
+//		blasfeo_pack_dmat(nx, nf+1, xdot0, nx, K, ii*nx, 0);
+	blasfeo_dgese(nx*ns, nf+1, 0.0, K, 0, 0);
 
 	ws->d_res_impl_vde = d_res_impl_vde;
 	ws->d_jac_impl_ode = d_jac_impl_ode;
@@ -237,9 +237,9 @@ void d_irk_int(struct d_irk_args *irk_args, struct d_irk_workspace *ws)
 	double *Jt0 = ws->Jt0;
 	double *Jt1 = ws->Jt1;
 	int *ipiv = ws->ipiv;
-	struct d_strmat *JG = ws->JG;
-	struct d_strmat *rG = ws->rG;
-	struct d_strmat *K = ws->K;
+	struct blasfeo_dmat *JG = ws->JG;
+	struct blasfeo_dmat *rG = ws->rG;
+	struct blasfeo_dmat *K = ws->K;
 
 	int ns = rk_data->ns;
 	double *A_rk = rk_data->A_rk;
@@ -248,10 +248,10 @@ void d_irk_int(struct d_irk_args *irk_args, struct d_irk_workspace *ws)
 
 	int nX = nx*(1+nf);
 
-	struct d_strvec sxt0;
-	d_create_strvec(nX, &sxt0, xt0);
-	struct d_strvec sxt1;
-	d_create_strvec(nx, &sxt1, xt1);
+	struct blasfeo_dvec sxt0;
+	blasfeo_create_dvec(nX, &sxt0, xt0);
+	struct blasfeo_dvec sxt1;
+	blasfeo_create_dvec(nx, &sxt1, xt1);
 
 	int ii, jj, step, iter, ss;
 	double t, a, b;
@@ -275,36 +275,36 @@ void d_irk_int(struct d_irk_args *irk_args, struct d_irk_workspace *ws)
 						a = a * h;
 						for(jj=0; jj<1+nf; jj++)
 							{
-							dcolex_libstr(nx, K, ii*nx, jj, &sxt1, 0);
-							daxpy_libstr(nx, a, &sxt1, 0, &sxt0, jj*nx, &sxt0, jj*nx);
+							blasfeo_dcolex(nx, K, ii*nx, jj, &sxt1, 0);
+							blasfeo_daxpy(nx, a, &sxt1, 0, &sxt0, jj*nx, &sxt0, jj*nx);
 							}
 						}
 					}
-				d_cvt_strmat2mat(nx, nf+1, K, ss*nx, 0, Kt, nx);
+				blasfeo_unpack_dmat(nx, nf+1, K, ss*nx, 0, Kt, nx);
 				ws->d_res_impl_vde(t+h*C_rk[ss], Kt, xt0, p, ws->ode_args, rGt);
 				ws->d_jac_impl_ode(t+h*C_rk[ss], Kt, xt0, p, ws->ode_args, Jt0);
-				d_cvt_mat2strmat(nx, nf+1, rGt, nx, rG, ss*nx, 0);
+				blasfeo_pack_dmat(nx, nf+1, rGt, nx, rG, ss*nx, 0);
 				for(ii=0; ii<ns; ii++)
 					{
 					a = - h * A_rk[ss+ns*ii];
 					for(jj=0; jj<nx*nx; jj++)
 						Jt1[jj] = a * Jt0[jj];
-					d_cvt_mat2strmat(nx, nx, Jt1, nx, JG, ss*nx, ii*nx);
+					blasfeo_pack_dmat(nx, nx, Jt1, nx, JG, ss*nx, ii*nx);
 					}
 				}
-			ddiare_libstr(ns*nx, 1.0, JG, 0, 0);
-			dgetrf_libstr(ns*nx, ns*nx, JG, 0, 0, JG, 0, 0, ipiv); // LU factorization with pivoting
-			drowpe_libstr(ns*nx, ipiv, rG);  // row permutations
-			dtrsm_llnu_libstr(ns*nx, 1+nf, 1.0, JG, 0, 0, rG, 0, 0, rG, 0, 0);  // L backsolve
-			dtrsm_lunn_libstr(ns*nx, 1+nf, 1.0, JG, 0, 0, rG, 0, 0, rG, 0, 0);  // U backsolve
-			dgead_libstr(ns*nx, nf+1, 1.0, rG, 0, 0, K, 0, 0);
+			blasfeo_ddiare(ns*nx, 1.0, JG, 0, 0);
+			blasfeo_dgetrf_rowpivot(ns*nx, ns*nx, JG, 0, 0, JG, 0, 0, ipiv); // LU factorization with pivoting
+			blasfeo_drowpe(ns*nx, ipiv, rG);  // row permutations
+			blasfeo_dtrsm_llnu(ns*nx, 1+nf, 1.0, JG, 0, 0, rG, 0, 0, rG, 0, 0);  // L backsolve
+			blasfeo_dtrsm_lunn(ns*nx, 1+nf, 1.0, JG, 0, 0, rG, 0, 0, rG, 0, 0);  // U backsolve
+			blasfeo_dgead(ns*nx, nf+1, 1.0, rG, 0, 0, K, 0, 0);
 			}
 		for(ss=0; ss<ns; ss++)
 			{
 			b = h*B_rk[ss];
 			for(ii=0; ii<1+nf; ii++)
 				{
-				dcolex_libstr(nx, K, ss*nx, ii, &sxt1, 0);
+				blasfeo_dcolex(nx, K, ss*nx, ii, &sxt1, 0);
 				for(jj=0; jj<nx; jj++)
 					x[jj+ii*nx] += b*xt1[jj];
 				}
