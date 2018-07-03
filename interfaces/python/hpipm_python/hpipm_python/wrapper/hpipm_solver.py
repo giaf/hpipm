@@ -9,10 +9,11 @@ import numpy as np
 class hpipm_solver:
     def __init__(self, dim, N):
         
-        _h = CDLL('libhpipm.so')
-        dim_size = _h.d_memsize_ocp_qp_dim(N)
+        _blasfeo = CDLL('libblasfeo.so')
+        _hpipm = CDLL('libhpipm.so')
+        dim_size = _hpipm.d_memsize_ocp_qp_dim(N)
         dim_mem = c_void_p()
-        v_zeros(byref(dim_size), dim_mem)
+        _blasfeo.v_zeros(byref(dim_mem), dim_size)
 
 
 

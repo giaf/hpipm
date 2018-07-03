@@ -139,7 +139,7 @@ shared_library: target
 	( cd ocp_qp; $(MAKE) obj)
 	( cd sim_core; $(MAKE) obj)
 	( cd tree_ocp_qp; $(MAKE) obj)
-	gcc -shared -o libhpipm.so $(OBJS)
+	gcc -L$(BLASFEO_PATH)/lib -shared -o libhpipm.so $(OBJS) -lblasfeo
 	cp libhpipm.so ./lib/
 	@echo
 	@echo " libhpipm.so shared library build complete."
