@@ -13,12 +13,12 @@ class hpipm_solver:
         __hpipm   = CDLL('libhpipm.so')
 
         # cast dimensions to contiguous int
-        nx  = np.ascontiguousarray(qp_dims.nx, dtype=np.int64)
-        nu  = np.ascontiguousarray(qp_dims.nu, dtype=np.int64)
-        nbx = np.ascontiguousarray(qp_dims.nbx, dtype=np.int64)
-        nbu = np.ascontiguousarray(qp_dims.nbu, dtype=np.int64)
-        ng  = np.ascontiguousarray(qp_dims.ng, dtype=np.int64)
-        ns  = np.ascontiguousarray(qp_dims.ns, dtype=np.int64)
+        nx  = np.ascontiguousarray(qp_dims.nx, dtype=np.int32)
+        nu  = np.ascontiguousarray(qp_dims.nu, dtype=np.int32)
+        nbx = np.ascontiguousarray(qp_dims.nbx, dtype=np.int32)
+        nbu = np.ascontiguousarray(qp_dims.nbu, dtype=np.int32)
+        ng  = np.ascontiguousarray(qp_dims.ng, dtype=np.int32)
+        ns  = np.ascontiguousarray(qp_dims.ns, dtype=np.int32)
 
         # allocate memory for dimemsions struct
         dim = d_ocp_qp_dim()
@@ -70,129 +70,127 @@ class hpipm_solver:
         for i in range(N):
             # dynamics
             qp_data.A[i] = np.ascontiguousarray(qp_data.A[i], dtype= np.float64)
-            A[i] = POINTER(c_double)(c_void_p(qp_data.A[i].ctypes.data))
+            A[i] = cast(qp_data.A[i].ctypes.data, POINTER(c_double))
             qp_data.B[i] = np.ascontiguousarray(qp_data.B[i], dtype=np.float64)
-            B[i] = POINTER(c_double)(c_void_p(qp_data.B[i].ctypes.data)) 
+            B[i] = cast(qp_data.B[i].ctypes.data, POINTER(c_double))
             qp_data.b[i] = np.ascontiguousarray(qp_data.b[i], dtype=np.float64)
-            b[i] = POINTER(c_double)(c_void_p(qp_data.b[i].ctypes.data)) 
+            b[i] = cast(qp_data.b[i].ctypes.data, POINTER(c_double))
              
             # cost
             qp_data.Q[i] = np.ascontiguousarray(qp_data.Q[i], dtype=np.float64)
-            Q[i] = POINTER(c_double)(c_void_p(qp_data.Q[i].ctypes.data)) 
+            Q[i] = cast(qp_data.Q[i].ctypes.data, POINTER(c_double))
             qp_data.S[i] = np.ascontiguousarray(qp_data.S[i], dtype=np.float64)
-            S[i] = POINTER(c_double)(c_void_p(qp_data.S[i].ctypes.data)) 
+            S[i] = cast(qp_data.S[i].ctypes.data, POINTER(c_double))
             qp_data.R[i] = np.ascontiguousarray(qp_data.R[i], dtype=np.float64)
-            R[i] = POINTER(c_double)(c_void_p(qp_data.R[i].ctypes.data)) 
+            R[i] = cast(qp_data.R[i].ctypes.data, POINTER(c_double))
 
             qp_data.q[i] = np.ascontiguousarray(qp_data.q[i], dtype=np.float64)
-            q[i] = POINTER(c_double)(c_void_p(qp_data.q[i].ctypes.data)) 
+            q[i] = cast(qp_data.q[i].ctypes.data, POINTER(c_double))
             qp_data.r[i] = np.ascontiguousarray(qp_data.r[i], dtype=np.float64)
-            r[i] = POINTER(c_double)(c_void_p(qp_data.r[i].ctypes.data)) 
+            r[i] = cast(qp_data.r[i].ctypes.data, POINTER(c_double))
 
             # simple bounds
             if qp_dims.nb[i] > 0:
                 qp_data.d_lb[i] = np.ascontiguousarray(qp_data.d_lb[i], dtype=np.float64)
-                d_lb[i] = POINTER(c_double)(c_void_p(qp_data.d_lb[i].ctypes.data)) 
+                d_lb[i] = cast(qp_data.d_lb[i].ctypes.data, POINTER(c_double))
                 qp_data.d_ub[i] = np.ascontiguousarray(qp_data.d_ub[i], dtype=np.float64)
-                d_ub[i] = POINTER(c_double)(c_void_p(qp_data.d_ub[i].ctypes.data)) 
+                d_ub[i] = cast(qp_data.d_ub[i].ctypes.data, POINTER(c_double))
              
-                qp_data.idxb[i] = np.ascontiguousarray(qp_data.idxb[i], dtype=np.int64)
-                idxb[i] = POINTER(c_int)(c_void_p(qp_data.idxb[i].ctypes.data)) 
+                qp_data.idxb[i] = np.ascontiguousarray(qp_data.idxb[i], dtype=np.int32)
+                idxb[i] = cast(qp_data.idxb[i].ctypes.data, POINTER(c_int))
 
             # polytopic constraints
             if qp_dims.ng[i] > 0:
                 qp_data.C[i] = np.ascontiguousarray(qp_data.C[i], dtype=np.float64)
-                C[i] = POINTER(c_double)(c_void_p(qp_data.C[i].ctypes.data)) 
+                C[i] = cast(qp_data.C[i].ctypes.data, POINTER(c_double))
                 qp_data.D[i] = np.ascontiguousarray(qp_data.D[i], dtype=np.float64)
-                D[i] = POINTER(c_double)(c_void_p(qp_data.D[i].ctypes.data)) 
+                D[i] = cast(qp_data.D[i].ctypes.data, POINTER(c_double))
 
                 qp_data.d_lg[i] = np.ascontiguousarray(qp_data.d_lg[i], dtype=np.float64)
-                d_lg[i] = POINTER(c_double)(c_void_p(qp_data.d_lg[i].ctypes.data)) 
+                d_lg[i] = cast(qp_data.d_lg[i].ctypes.data, POINTER(c_double))
                 qp_data.d_ug[i] = np.ascontiguousarray(qp_data.d_ug[i], dtype=np.float64)
-                d_ug[i] = POINTER(c_double)(c_void_p(qp_data.d_ug[i].ctypes.data)) 
+                d_ug[i] = cast(qp_data.d_ug[i].ctypes.data, POINTER(c_double))
              
 
             # slacks
             if qp_dims.ns[i] > 0:
                 qp_data.Zl[i] = np.ascontiguousarray(qp_data.Zl[i], dtype=np.float64)
-                Zl[i] = POINTER(c_double)(c_void_p(qp_data.Zl[i].ctypes.data)) 
+                Zl[i] = cast(qp_data.Zl[i].ctypes.data, POINTER(c_double))
                 qp_data.Zu[i] = np.ascontiguousarray(qp_data.Zu[i], dtype=np.float64)
-                Zu[i] = POINTER(c_double)(c_void_p(qp_data.Zu[i].ctypes.data)) 
+                Zu[i] = cast(qp_data.Zu[i].ctypes.data, POINTER(c_double))
              
                 qp_data.zl[i] = np.ascontiguousarray(qp_data.zl[i], dtype=np.float64)
-                zl[i] = POINTER(c_double)(c_void_p(qp_data.zl[i].ctypes.data)) 
+                zl[i] = cast(qp_data.zl[i].ctypes.data, POINTER(c_double))
                 qp_data.zu[i] = np.ascontiguousarray(qp_data.zu[i], dtype=np.float64)
-                zu[i] = POINTER(c_double)(c_void_p(qp_data.zu[i].ctypes.data)) 
+                zu[i] = cast(qp_data.zu[i].ctypes.data, POINTER(c_double))
              
                 qp_data.d_ls[i] = np.ascontiguousarray(qp_data.d_ls[i], dtype=np.float64)
-                d_ls[i] = POINTER(c_double)(c_void_p(qp_data.d_ls[i].ctypes.data)) 
-             
+                d_ls[i] = cast(qp_data.d_ls[i].ctypes.data, POINTER(c_double))
                 qp_data.d_us[i] = np.ascontiguousarray(qp_data.d_us[i], dtype=np.float64)
-                d_us[i] = POINTER(c_double)(c_void_p(qp_data.d_us[i].ctypes.data)) 
+                d_us[i] = cast(qp_data.d_us[i].ctypes.data, POINTER(c_double))
              
                 # slack indeces
-                qp_data.idxs[i] = np.ascontiguousarray(qp_data.idxs[i], dtype=np.int64)
-                idxs[i] = POINTER(c_int)(c_void_p(qp_data.idxs[i].ctypes.data)) 
+                qp_data.idxs[i] = np.ascontiguousarray(qp_data.idxs[i], dtype=np.int32)
+                idxs[i] = cast(qp_data.idxs[i].ctypes.data, POINTER(c_int))
         
         i = N
         
         # cost
         qp_data.Q[i] = np.ascontiguousarray(qp_data.Q[i], dtype=np.float64)
-        Q[i] = POINTER(c_double)(c_void_p(qp_data.Q[i].ctypes.data)) 
+        Q[i] = cast(qp_data.Q[i].ctypes.data, POINTER(c_double))
         qp_data.S[i] = np.ascontiguousarray(qp_data.S[i], dtype=np.float64)
-        S[i] = POINTER(c_double)(c_void_p(qp_data.S[i].ctypes.data)) 
+        S[i] = cast(qp_data.S[i].ctypes.data, POINTER(c_double))
         qp_data.R[i] = np.ascontiguousarray(qp_data.R[i], dtype=np.float64)
-        R[i] = POINTER(c_double)(c_void_p(qp_data.R[i].ctypes.data)) 
+        R[i] = cast(qp_data.R[i].ctypes.data, POINTER(c_double))
 
         qp_data.q[i] = np.ascontiguousarray(qp_data.q[i], dtype=np.float64)
-        q[i] = POINTER(c_double)(c_void_p(qp_data.q[i].ctypes.data)) 
+        q[i] = cast(qp_data.q[i].ctypes.data, POINTER(c_double))
         qp_data.r[i] = np.ascontiguousarray(qp_data.r[i], dtype=np.float64)
-        r[i] = POINTER(c_double)(c_void_p(qp_data.r[i].ctypes.data)) 
+        r[i] = cast(qp_data.r[i].ctypes.data, POINTER(c_double))
 
         # simple bounds
         if qp_dims.nb[i] > 0:
             qp_data.d_lb[i] = np.ascontiguousarray(qp_data.d_lb[i], dtype=np.float64)
-            d_lb[i] = POINTER(c_double)(c_void_p(qp_data.d_lb[i].ctypes.data)) 
+            d_lb[i] = cast(qp_data.d_lb[i].ctypes.data, POINTER(c_double))
             qp_data.d_ub[i] = np.ascontiguousarray(qp_data.d_ub[i], dtype=np.float64)
-            d_ub[i] = POINTER(c_double)(c_void_p(qp_data.d_ub[i].ctypes.data)) 
+            d_ub[i] = cast(qp_data.d_ub[i].ctypes.data, POINTER(c_double))
          
-            qp_data.idxb[i] = np.ascontiguousarray(qp_data.idxb[i], dtype=np.int64)
-            idxb[i] = POINTER(c_int)(c_void_p(qp_data.idxb[i].ctypes.data)) 
+            qp_data.idxb[i] = np.ascontiguousarray(qp_data.idxb[i], dtype=np.int32)
+            idxb[i] = cast(qp_data.idxb[i].ctypes.data, POINTER(c_int))
 
         # polytopic constraints
         if qp_dims.ng[i] > 0:
             qp_data.C[i] = np.ascontiguousarray(qp_data.C[i], dtype=np.float64)
-            C[i] = POINTER(c_double)(c_void_p(qp_data.C[i].ctypes.data)) 
+            C[i] = cast(qp_data.C[i].ctypes.data, POINTER(c_double))
             qp_data.D[i] = np.ascontiguousarray(qp_data.D[i], dtype=np.float64)
-            D[i] = POINTER(c_double)(c_void_p(qp_data.D[i].ctypes.data)) 
+            D[i] = cast(qp_data.D[i].ctypes.data, POINTER(c_double))
 
             qp_data.d_lg[i] = np.ascontiguousarray(qp_data.d_lg[i], dtype=np.float64)
-            d_lg[i] = POINTER(c_double)(c_void_p(qp_data.d_lg[i].ctypes.data)) 
+            d_lg[i] = cast(qp_data.d_lg[i].ctypes.data, POINTER(c_double))
             qp_data.d_ug[i] = np.ascontiguousarray(qp_data.d_ug[i], dtype=np.float64)
-            d_ug[i] = POINTER(c_double)(c_void_p(qp_data.d_ug[i].ctypes.data)) 
+            d_ug[i] = cast(qp_data.d_ug[i].ctypes.data, POINTER(c_double))
          
 
         # slacks
         if qp_dims.ns[i] > 0:
             qp_data.Zl[i] = np.ascontiguousarray(qp_data.Zl[i], dtype=np.float64)
-            Zl[i] = POINTER(c_double)(c_void_p(qp_data.Zl[i].ctypes.data)) 
+            Zl[i] = cast(qp_data.Zl[i].ctypes.data, POINTER(c_double))
             qp_data.Zu[i] = np.ascontiguousarray(qp_data.Zu[i], dtype=np.float64)
-            Zu[i] = POINTER(c_double)(c_void_p(qp_data.Zu[i].ctypes.data)) 
+            Zu[i] = cast(qp_data.Zu[i].ctypes.data, POINTER(c_double))
          
             qp_data.zl[i] = np.ascontiguousarray(qp_data.zl[i], dtype=np.float64)
-            zl[i] = POINTER(c_double)(c_void_p(qp_data.zl[i].ctypes.data)) 
+            zl[i] = cast(qp_data.zl[i].ctypes.data, POINTER(c_double))
             qp_data.zu[i] = np.ascontiguousarray(qp_data.zu[i], dtype=np.float64)
-            zu[i] = POINTER(c_double)(c_void_p(qp_data.zu[i].ctypes.data)) 
+            zu[i] = cast(qp_data.zu[i].ctypes.data, POINTER(c_double))
          
             qp_data.d_ls[i] = np.ascontiguousarray(qp_data.d_ls[i], dtype=np.float64)
-            d_ls[i] = POINTER(c_double)(c_void_p(qp_data.d_ls[i].ctypes.data)) 
-         
+            d_ls[i] = cast(qp_data.d_ls[i].ctypes.data, POINTER(c_double))
             qp_data.d_us[i] = np.ascontiguousarray(qp_data.d_us[i], dtype=np.float64)
-            d_us[i] = POINTER(c_double)(c_void_p(qp_data.d_us[i].ctypes.data)) 
+            d_us[i] = cast(qp_data.d_us[i].ctypes.data, POINTER(c_double))
          
             # slack indeces
-            qp_data.idxs[i] = np.ascontiguousarray(qp_data.idxs[i], dtype=np.int64)
-            idxs[i] = POINTER(c_int)(c_void_p(qp_data.idxs[i].ctypes.data)) 
+            qp_data.idxs[i] = np.ascontiguousarray(qp_data.idxs[i], dtype=np.int32)
+            idxs[i] = cast(qp_data.idxs[i].ctypes.data, POINTER(c_int))
 
         # allocate memory for qp struct 
         qp_size = __hpipm.d_memsize_ocp_qp(byref(dim))
@@ -204,7 +202,8 @@ class hpipm_solver:
         qp = d_ocp_qp()
         __hpipm.d_create_ocp_qp(byref(dim), byref(qp), qp_mem)
         __hpipm.d_cvt_rowmaj_to_ocp_qp(A, B, b, Q, S, R, q, r, idxb, d_lb, d_ub, C, D, d_lg, d_ug, Zl, Zu, zl, zu, idxs, d_ls, d_us, byref(qp))
-        
+       
+        # import pdb; pdb.set_trace()
         # allocate memory for ocp_qp_sol struct
         qp_sol_size = __hpipm.d_memsize_ocp_qp_sol(byref(dim))
         qp_sol_mem = c_void_p()
@@ -240,7 +239,8 @@ class hpipm_solver:
         self.qp_sol = qp_sol
         self.arg = arg
         self.workspace = workspace
-
+        self.dim = dim
+        
         self.__hpipm = __hpipm
         self.__blasfeo = __blasfeo
 
