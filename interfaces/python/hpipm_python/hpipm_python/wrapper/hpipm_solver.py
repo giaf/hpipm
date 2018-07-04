@@ -236,6 +236,17 @@ class hpipm_solver:
         workspace = d_ocp_qp_ipm_workspace()
         __hpipm.d_create_ocp_qp_ipm(byref(dim), byref(arg), byref(workspace), ipm_mem)
 
+        self.qp = qp
+        self.qp_sol = qp_sol
+        self.arg = arg
+        self.workspace = workspace
+
+        self.__hpipm = __hpipm
+        self.__blasfeo = __blasfeo
+
+    def solve(self):
+        return self.__hpipm.d_solve_ocp_qp_ipm(byref(self.qp), byref(self.qp_sol), byref(self.arg), byref(self.workspace))
+
 class hpipm_dims:
     def __init__(self):
         self.nx   = None
