@@ -68,7 +68,6 @@ class hpipm_solver:
         x0 = (POINTER(c_double)*1)()  
 
         for i in range(N):
-            print(i)
             # dynamics
             qp_data.A[i] = np.ascontiguousarray(qp_data.A[i], dtype= np.float64)
             A[i] = POINTER(c_double)(c_void_p(qp_data.A[i].ctypes.data))
@@ -91,59 +90,47 @@ class hpipm_solver:
             r[i] = POINTER(c_double)(c_void_p(qp_data.r[i].ctypes.data)) 
 
             # simple bounds
-            if qp_data.d_lb is not None:
+            if qp_dims.nb[i] > 0:
                 qp_data.d_lb[i] = np.ascontiguousarray(qp_data.d_lb[i], dtype=np.float64)
                 d_lb[i] = POINTER(c_double)(c_void_p(qp_data.d_lb[i].ctypes.data)) 
-            if qp_data.d_ub is not None:
                 qp_data.d_ub[i] = np.ascontiguousarray(qp_data.d_ub[i], dtype=np.float64)
                 d_ub[i] = POINTER(c_double)(c_void_p(qp_data.d_ub[i].ctypes.data)) 
              
+                qp_data.idxb[i] = np.ascontiguousarray(qp_data.idxb[i], dtype=np.int64)
+                idxb[i] = POINTER(c_int)(c_void_p(qp_data.idxb[i].ctypes.data)) 
+
             # polytopic constraints
-            if qp_data.C is not None:
+            if qp_dims.ng[i] > 0:
                 qp_data.C[i] = np.ascontiguousarray(qp_data.C[i], dtype=np.float64)
                 C[i] = POINTER(c_double)(c_void_p(qp_data.C[i].ctypes.data)) 
-            if qp_data.D is not None:
                 qp_data.D[i] = np.ascontiguousarray(qp_data.D[i], dtype=np.float64)
                 D[i] = POINTER(c_double)(c_void_p(qp_data.D[i].ctypes.data)) 
-             
-            if qp_data.d_lg is not None:
+
                 qp_data.d_lg[i] = np.ascontiguousarray(qp_data.d_lg[i], dtype=np.float64)
                 d_lg[i] = POINTER(c_double)(c_void_p(qp_data.d_lg[i].ctypes.data)) 
-            if qp_data.d_ug is not None:
                 qp_data.d_ug[i] = np.ascontiguousarray(qp_data.d_ug[i], dtype=np.float64)
                 d_ug[i] = POINTER(c_double)(c_void_p(qp_data.d_ug[i].ctypes.data)) 
              
-            # simple bound indeces
-            if qp_data.idxb is not None:
-                qp_data.idxb[i] = np.ascontiguousarray(qp_data.idxb[i], dtype=np.int64)
-                import pdb; pdb.set_trace()
-                idxb[i] = POINTER(c_int)(c_void_p(qp_data.idxb[i].ctypes.data)) 
 
             # slacks
-            if qp_data.Zl is not None:
+            if qp_dims.ns[i] > 0:
                 qp_data.Zl[i] = np.ascontiguousarray(qp_data.Zl[i], dtype=np.float64)
                 Zl[i] = POINTER(c_double)(c_void_p(qp_data.Zl[i].ctypes.data)) 
-            if qp_data.Zu is not None:
                 qp_data.Zu[i] = np.ascontiguousarray(qp_data.Zu[i], dtype=np.float64)
                 Zu[i] = POINTER(c_double)(c_void_p(qp_data.Zu[i].ctypes.data)) 
              
-            if qp_data.zl is not None:
                 qp_data.zl[i] = np.ascontiguousarray(qp_data.zl[i], dtype=np.float64)
                 zl[i] = POINTER(c_double)(c_void_p(qp_data.zl[i].ctypes.data)) 
-            if qp_data.zu is not None:
                 qp_data.zu[i] = np.ascontiguousarray(qp_data.zu[i], dtype=np.float64)
                 zu[i] = POINTER(c_double)(c_void_p(qp_data.zu[i].ctypes.data)) 
              
-            if qp_data.d_ls is not None:
                 qp_data.d_ls[i] = np.ascontiguousarray(qp_data.d_ls[i], dtype=np.float64)
                 d_ls[i] = POINTER(c_double)(c_void_p(qp_data.d_ls[i].ctypes.data)) 
              
-            if qp_data.d_us is not None:
                 qp_data.d_us[i] = np.ascontiguousarray(qp_data.d_us[i], dtype=np.float64)
                 d_us[i] = POINTER(c_double)(c_void_p(qp_data.d_us[i].ctypes.data)) 
              
-            # slack indeces
-            if qp_data.idxs is not None:
+                # slack indeces
                 qp_data.idxs[i] = np.ascontiguousarray(qp_data.idxs[i], dtype=np.int64)
                 idxs[i] = POINTER(c_int)(c_void_p(qp_data.idxs[i].ctypes.data)) 
         
@@ -163,58 +150,47 @@ class hpipm_solver:
         r[i] = POINTER(c_double)(c_void_p(qp_data.r[i].ctypes.data)) 
 
         # simple bounds
-        if qp_data.d_lb is not None:
+        if qp_dims.nb[i] > 0:
             qp_data.d_lb[i] = np.ascontiguousarray(qp_data.d_lb[i], dtype=np.float64)
             d_lb[i] = POINTER(c_double)(c_void_p(qp_data.d_lb[i].ctypes.data)) 
-        if qp_data.d_ub is not None:
             qp_data.d_ub[i] = np.ascontiguousarray(qp_data.d_ub[i], dtype=np.float64)
             d_ub[i] = POINTER(c_double)(c_void_p(qp_data.d_ub[i].ctypes.data)) 
          
-        # polytopic constraints
-        if qp_data.C is not None:
-            qp_data.C[i] = np.ascontiguousarray(qp_data.C[i], dtype=np.float64)
-            C[i] = POINTER(c_double)(c_void_p(qp_data.C[i].ctypes.data)) 
-        if qp_data.D is not None:
-            qp_data.D[i] = np.ascontiguousarray(qp_data.D[i], dtype=np.float64)
-            D[i] = POINTER(c_double)(c_void_p(qp_data.D[i].ctypes.data)) 
-         
-        if qp_data.d_lg is not None:
-            qp_data.d_lg[i] = np.ascontiguousarray(qp_data.d_lg[i], dtype=np.float64)
-            d_lg[i] = POINTER(c_double)(c_void_p(qp_data.d_lg[i].ctypes.data)) 
-        if qp_data.d_ug is not None:
-            qp_data.d_ug[i] = np.ascontiguousarray(qp_data.d_ug[i], dtype=np.float64)
-            d_ug[i] = POINTER(c_double)(c_void_p(qp_data.d_ug[i].ctypes.data)) 
-         
-        # simple bound indeces
-        if qp_data.idxb is not None:
             qp_data.idxb[i] = np.ascontiguousarray(qp_data.idxb[i], dtype=np.int64)
             idxb[i] = POINTER(c_int)(c_void_p(qp_data.idxb[i].ctypes.data)) 
 
+        # polytopic constraints
+        if qp_dims.ng[i] > 0:
+            qp_data.C[i] = np.ascontiguousarray(qp_data.C[i], dtype=np.float64)
+            C[i] = POINTER(c_double)(c_void_p(qp_data.C[i].ctypes.data)) 
+            qp_data.D[i] = np.ascontiguousarray(qp_data.D[i], dtype=np.float64)
+            D[i] = POINTER(c_double)(c_void_p(qp_data.D[i].ctypes.data)) 
+
+            qp_data.d_lg[i] = np.ascontiguousarray(qp_data.d_lg[i], dtype=np.float64)
+            d_lg[i] = POINTER(c_double)(c_void_p(qp_data.d_lg[i].ctypes.data)) 
+            qp_data.d_ug[i] = np.ascontiguousarray(qp_data.d_ug[i], dtype=np.float64)
+            d_ug[i] = POINTER(c_double)(c_void_p(qp_data.d_ug[i].ctypes.data)) 
+         
+
         # slacks
-        if qp_data.Zl is not None:
+        if qp_dims.ns[i] > 0:
             qp_data.Zl[i] = np.ascontiguousarray(qp_data.Zl[i], dtype=np.float64)
             Zl[i] = POINTER(c_double)(c_void_p(qp_data.Zl[i].ctypes.data)) 
-        if qp_data.Zu is not None:
             qp_data.Zu[i] = np.ascontiguousarray(qp_data.Zu[i], dtype=np.float64)
             Zu[i] = POINTER(c_double)(c_void_p(qp_data.Zu[i].ctypes.data)) 
          
-        if qp_data.zl is not None:
             qp_data.zl[i] = np.ascontiguousarray(qp_data.zl[i], dtype=np.float64)
             zl[i] = POINTER(c_double)(c_void_p(qp_data.zl[i].ctypes.data)) 
-        if qp_data.zu is not None:
             qp_data.zu[i] = np.ascontiguousarray(qp_data.zu[i], dtype=np.float64)
             zu[i] = POINTER(c_double)(c_void_p(qp_data.zu[i].ctypes.data)) 
          
-        if qp_data.d_ls is not None:
             qp_data.d_ls[i] = np.ascontiguousarray(qp_data.d_ls[i], dtype=np.float64)
             d_ls[i] = POINTER(c_double)(c_void_p(qp_data.d_ls[i].ctypes.data)) 
          
-        if qp_data.d_us is not None:
             qp_data.d_us[i] = np.ascontiguousarray(qp_data.d_us[i], dtype=np.float64)
             d_us[i] = POINTER(c_double)(c_void_p(qp_data.d_us[i].ctypes.data)) 
          
-        # slack indeces
-        if qp_data.idxs is not None:
+            # slack indeces
             qp_data.idxs[i] = np.ascontiguousarray(qp_data.idxs[i], dtype=np.int64)
             idxs[i] = POINTER(c_int)(c_void_p(qp_data.idxs[i].ctypes.data)) 
 
