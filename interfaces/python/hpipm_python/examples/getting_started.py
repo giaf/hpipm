@@ -3,17 +3,29 @@ import numpy as np
 
 qp_data = hpipm_data()
 
-qp_data.A = np.array([1, 0, 1, 1])
-qp_data.B = np.array([0, 1])
-qp_data.b = np.array([0, 0])
+A = np.array([1, 0, 1, 1])
+B = np.array([0, 1])
+b = np.array([0, 0])
 
-qp_data.Q = np.array([1, 0, 0, 1])
-qp_data.S = np.array([0, 0])
-qp_data.R = np.array([1])
-qp_data.q = np.array([1, 1])
-qp_data.r = np.array([0])
+Q = np.array([1, 0, 0, 1])
+S = np.array([0, 0])
+R = np.array([1])
+q = np.array([1, 1])
+r = np.array([0])
 
-qp_data.x0 = np.array([1, 1])
+qp_data.A = [A, A, A, A, A]
+qp_data.B = [B, B, B, B, B]
+qp_data.b = [b, b, b, b, b]
+qp_data.Q = [Q, Q, Q, Q, Q, Q]
+qp_data.S = [S, S, S, S, S, S]
+qp_data.R = [R, R, R, R, R]
+qp_data.q = [q, q, q, q, q, q]
+qp_data.r = [r, r, r, r, r, r]
+
+x0 = np.array([1, 1])
+
+qp_data.lb = [x0]
+qp_data.ub = [x0]
 
 qp_dims = hpipm_dims()
 

@@ -12,13 +12,13 @@ class hpipm_solver:
         __blasfeo = CDLL('libblasfeo.so')
         __hpipm   = CDLL('libhpipm.so')
 
-        # cast dimensions to int
-        nx  = qp_dims.nx.astype(int)
-        nu  = qp_dims.nu.astype(int)
-        nbx = qp_dims.nbx.astype(int)
-        nbu = qp_dims.nbu.astype(int)
-        ng  = qp_dims.ng.astype(int)
-        ns  = qp_dims.ns.astype(int)
+        # cast dimensions to contiguous int
+        qp_dims.nx  = np.ascontiguousarray(qp_dims.nx, dtype=int)
+        qp_dims.nu  = np.ascontiguousarray(qp_dims.nu, dtype=int)
+        qp_dims.nbx = np.ascontiguousarray(qp_dims.nbx, dtype=int)
+        qp_dims.nbu = np.ascontiguousarray(qp_dims.nbu, dtype=int)
+        qp_dims.ng  = np.ascontiguousarray(qp_dims.ng, dtype=int)
+        qp_dims.ns  = np.ascontiguousarray(qp_dims.ns, dtype=int)
 
         # allocate memory for dimemsions struct
         dim = d_ocp_qp_dim()
@@ -27,29 +27,176 @@ class hpipm_solver:
         __blasfeo.v_zeros(byref(dim_mem), dim_size)
         self.dim_mem = dim_mem
 
-        # set up dimension structure
+        # set up dimensions structure
         __hpipm.d_create_ocp_qp_dim(qp_dims.N, byref(dim), dim_mem)
         __hpipm.d_cvt_int_to_ocp_qp_dim(qp_dims.N, c_void_p(nx.ctypes.data), c_void_p(nu.ctypes.data), 
                 c_void_p(nbx.ctypes.data), c_void_p(nbu.ctypes.data), c_void_p(ng.ctypes.data), c_void_p(ns.ctypes.data), byref(dim))
         
-        # cast data to double
-        nx  = qp_data.nx.astype(float64)
-        nu  = qp_data.nu.astype(float64)
-        nbx = qp_data.nbx.astype(float64)
-        nbu = qp_data.nbu.astype(float64)
-        ng  = qp_data.ng.astype(float64)
-        ns  = qp_data.ns.astype(float64)
+        N = qp_data.N
+
+        A = (POINTER(c_double)*(N))()
+        B = (POINTER(c_double)*(N))()
+        b = (POINTER(c_double)*(N))()  
+
+        Q = (POINTER(c_double)*(N+1))()    
+        S = (POINTER(c_double)*(N+1))()   
+        R = (POINTER(c_double)*(N+1))()   
+        q = (POINTER(c_double)*(N+1))()   
+        r = (POINTER(c_double)*(N+1))()   
+       
+        d_lb = (POINTER(c_double)*(N+1))()
+        d_ub = (POINTER(c_double)*(N+1))()
+
+        C = (POINTER(c_double)*(N+1))()   
+        D = (POINTER(c_double)*(N+1))()   
+
+        d_lg = (POINTER(c_double)*(N+1))()
+        d_ug = (POINTER(c_double)*(N+1))()
+
+        Zl = (POINTER(c_double)*(N+1))()  
+        Zu = (POINTER(c_double)*(N+1))()  
+
+        zl = (POINTER(c_double)*(N+1))()  
+        zu = (POINTER(c_double)*(N+1))()  
+
+        d_ls = (POINTER(c_double)*(N+1))()
+        d_us = (POINTER(c_double)*(N+1))()
+
+        idxb = (POINTER(c_int)*(N+1))()
+
+        x0 = (POINTER(c_double)*1)()  
+
+        for i in range(N):
+            # dynamics
+            qp_data.A[i] = np.ascontiguousarray(qp_data.A[i], dtype= float64)
+            A[i] = c_void_p(qp_data.A[i].ctypes.data) 
+            qp_data.B[i] = np.ascontiguousarray(qp_data.B[i], dtype=float64)
+            B[i] = c_void_p(qp_data.B[i].ctypes.data) 
+            qp_data.b[i] = np.ascontiguousarray(qp_data.b[i] dtype=float64)
+            b[i] = c_void_p(qp_data.b[i].ctypes.data) 
+             
+            # cost
+            qp_data.Q[i] = np.ascontiguousarray(qp_data.Q[i], dtype=float64)
+            Q[i] = c_void_p(qp_data.Q[i].ctypes.data) 
+            qp_data.S[i] = np.ascontiguousarray(qp_data.S[i], dtype=float64)
+            S[i] = c_void_p(qp_data.S[i].ctypes.data) 
+            qp_data.R[i] = np.ascontiguousarray(qp_data.R[i], dtype=float64)
+            R[i] = c_void_p(qp_data.R[i].ctypes.data) 
+
+            qp_data.q[i] = np.ascontiguousarray(qp_data.q[i], dtype=float64)
+            q[i] = c_void_p(qp_data.q[i].ctypes.data) 
+            qp_data.r[i] = np.ascontiguousarray(qp_data.r[i], dtype=float64)
+            r[i] = c_void_p(qp_data.r[i].ctypes.data) 
+
+            # simple bounds
+            qp_data.d_lb[i] = np.ascontiguousarray(qp_data.d_lb[i], dtype=float64)
+            d_lb[i] = c_void_p(qp_data.d_lb[i].ctypes.data) 
+            qp_data.d_ub[i] = np.ascontiguousarray(qp_data.d_ub[i], dtype=float64)
+            d_ub[i] = c_void_p(qp_data.d_ub[i].ctypes.data) 
+             
+            # polytopic constraints
+            qp_data.C[i] = np.ascontiguousarray(qp_data.C[i], dtype=float64)
+            C[i] = c_void_p(qp_data.C[i].ctypes.data) 
+            qp_data.D[i] = np.ascontiguousarray(qp_data.D[i], dtype=float64)
+            D[i] = c_void_p(qp_data.D[i].ctypes.data) 
+             
+            qp_data.d_lg[i] = np.ascontiguousarray(qp_data.d_lg[i], dtype=float64)
+            d_lg[i] = c_void_p(qp_data.d_lg[i].ctypes.data) 
+            qp_data.d_ug[i] = np.ascontiguousarray(qp_data.d_ug[i], dtype=float64)
+            d_ug[i] = c_void_p(qp_data.d_ug[i].ctypes.data) 
+             
+            # simple bound indeces
+            qp_data.idxb[i] = np.ascontiguousarray(qp_data.idxb[i], dtype=int)
+            idxb[i] = c_void_p(qp_data.idxb[i].ctypes.data) 
+
+            # slacks
+            qp_data.Zl[i] = np.ascontiguousarray(qp_data.Zl[i], dtype=float64)
+            Zl[i] = c_void_p(qp_data.Zl[i].ctypes.data) 
+            qp_data.Zu[i] = np.ascontiguousarray(qp_data.Zu[i], dtype=float64)
+            Zu[i] = c_void_p(qp_data.Zu[i].ctypes.data) 
+             
+            qp_data.zl[i] = np.ascontiguousarray(qp_data.zl[i], dtype=float64)
+            zl[i] = c_void_p(qp_data.zl[i].ctypes.data) 
+            qp_data.zu[i] = np.ascontiguousarray(qp_data.zu[i], dtype=float64)
+            zu[i] = c_void_p(qp_data.zu[i].ctypes.data) 
+             
+            qp_data.d_ls[i] = np.ascontiguousarray(qp_data.d_ls[i], dtype=float64)
+            d_ls[i] = c_void_p(qp_data.d_ls[i].ctypes.data) 
+             
+            qp_data.d_us[i] = np.ascontiguousarray(qp_data.d_us[i], dtype=float64)
+            d_us[i] = c_void_p(qp_data.d_us[i].ctypes.data) 
+             
+            # slack indeces
+            qp_data.idxs[i] = np.ascontiguousarray(qp_data.idxs[i], dtype=int)
+            idxs[i] = c_void_p(qp_data.idxs[i].ctypes.data) 
+        
+        i = N
+         
+        # cost
+        qp_data.Q[i] = np.ascontiguousarray(qp_data.Q[i], dtype=float64)
+        Q[i] = c_void_p(qp_data.Q[i].ctypes.data) 
+        qp_data.S[i] = np.ascontiguousarray(qp_data.S[i], dtype=float64)
+        S[i] = c_void_p(qp_data.S[i].ctypes.data) 
+        qp_data.R[i] = np.ascontiguousarray(qp_data.R[i], dtype=float64)
+        R[i] = c_void_p(qp_data.R[i].ctypes.data) 
+
+        qp_data.q[i] = np.ascontiguousarray(qp_data.q[i], dtype=float64)
+        q[i] = c_void_p(qp_data.q[i].ctypes.data) 
+        qp_data.r[i] = np.ascontiguousarray(qp_data.r[i], dtype=float64)
+        r[i] = c_void_p(qp_data.r[i].ctypes.data) 
+
+        # simple bounds
+        qp_data.d_lb[i] = np.ascontiguousarray(qp_data.d_lb[i], dtype=float64)
+        d_lb[i] = c_void_p(qp_data.d_lb[i].ctypes.data) 
+        qp_data.d_ub[i] = np.ascontiguousarray(qp_data.d_ub[i], dtype=float64)
+        d_ub[i] = c_void_p(qp_data.d_ub[i].ctypes.data) 
+         
+        # polytopic constraints
+        qp_data.C[i] = np.ascontiguousarray(qp_data.C[i], dtype=float64)
+        C[i] = c_void_p(qp_data.C[i].ctypes.data) 
+        qp_data.D[i] = np.ascontiguousarray(qp_data.D[i], dtype=float64)
+        D[i] = c_void_p(qp_data.D[i].ctypes.data) 
+         
+        qp_data.d_lg[i] = np.ascontiguousarray(qp_data.d_lg[i], dtype=float64)
+        d_lg[i] = c_void_p(qp_data.d_lg[i].ctypes.data) 
+        qp_data.d_ug[i] = np.ascontiguousarray(qp_data.d_ug[i], dtype=float64)
+        d_ug[i] = c_void_p(qp_data.d_ug[i].ctypes.data) 
+         
+        # simple bound indeces
+        qp_data.idxb[i] = np.ascontiguousarray(qp_data.idxb[i], dtype=int)
+        idxb[i] = c_void_p(qp_data.idxb[i].ctypes.data) 
+
+        # slacks
+        qp_data.Zl[i] = np.ascontiguousarray(qp_data.Zl[i], dtype=float64)
+        Zl[i] = c_void_p(qp_data.Zl[i].ctypes.data) 
+        qp_data.Zu[i] = np.ascontiguousarray(qp_data.Zu[i], dtype=float64)
+        Zu[i] = c_void_p(qp_data.Zu[i].ctypes.data) 
+         
+        qp_data.zl[i] = np.ascontiguousarray(qp_data.zl[i], dtype=float64)
+        zl[i] = c_void_p(qp_data.zl[i].ctypes.data) 
+        qp_data.zu[i] = np.ascontiguousarray(qp_data.zu[i], dtype=float64)
+        zu[i] = c_void_p(qp_data.zu[i].ctypes.data) 
+         
+        qp_data.d_ls[i] = np.ascontiguousarray(qp_data.d_ls[i], dtype=float64)
+        d_ls[i] = c_void_p(qp_data.d_ls[i].ctypes.data) 
+         
+        qp_data.d_us[i] = np.ascontiguousarray(qp_data.d_us[i], dtype=float64)
+        d_us[i] = c_void_p(qp_data.d_us[i].ctypes.data) 
+         
+        # slack indeces
+        qp_data.idxs[i] = np.ascontiguousarray(qp_data.idxs[i], dtype=int)
+        idxs[i] = c_void_p(qp_data.idxs[i].ctypes.data) 
 
         # allocate memory for qp struct 
-	qp_size = d_memsize_ocp_qp(byref(dim));
-	qp_mem = c_void_p()
-        __blasfeo.v_zeros(byref(qp_mem), qp_size);
+        qp_size = d_memsize_ocp_qp(byref(dim))
+        qp_mem = c_void_p()
+        __blasfeo.v_zeros(byref(qp_mem), qp_size)
         self.qp_mem = qp_mem
 
         # setup ocp_qp structure
         qp = __hpipm.d_ocp_qp()
-        d_create_ocp_qp(byref(dim), byref(qp), qp_mem);
-        d_cvt_colmaj_to_ocp_qp(A, B, b, Q, S, R, q, r, idxb, d_lb, d_ub, C, D, d_lg, d_ug, Zl, Zu, zl, zu, idxs, d_ls, d_us, &qp)
+        d_create_ocp_qp(byref(dim), byref(qp), qp_mem)
+        d_cvt_rowmaj_to_ocp_qp(A, B, b, Q, S, R, q, r, idxb, d_lb, d_ub, C, D, d_lg, d_ug, Zl, Zu, zl, zu, idxs, d_ls, d_us, byref(qp))
 
 class hpipm_dims:
     def __init__(self):
@@ -60,7 +207,7 @@ class hpipm_dims:
         self.ns   = None
         self.nbx  = None
         self.nbu  = None
-        self.
+        
         self.N    = None
 
         self.idbx = None
@@ -68,32 +215,32 @@ class hpipm_dims:
 
 class hpipm_data:
     def __init__(self):
-        self.A  = None
-        self.B  = None
-        self.b  = None
+        self.A    = None
+        self.B    = None
+        self.b    = None
 
-        self.Q  = None
-        self.S  = None
-        self.R  = None
-        self.q  = None
-        self.r  = None
+        self.Q    = None
+        self.S    = None
+        self.R    = None
+        self.q    = None
+        self.r    = None
        
         self.d_lb = None
         self.d_ub = None
 
-        self.C = None
-        self.D = None
+        self.C    = None
+        self.D    = None
 
         self.d_lg = None
         self.d_ug = None
 
-        self.Zl = None
-        self.Zu = None
+        self.Zl   = None
+        self.Zu   = None
 
-        self.zl = None
-        self.zu = None
+        self.zl   = None
+        self.zu   = None
 
         self.d_ls = None
         self.d_us = None
 
-        self.x0 = None
+        self.x0   = None
