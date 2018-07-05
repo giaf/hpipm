@@ -11,10 +11,10 @@
 #include <blasfeo_i_aux_ext_dep.h>
 #include <blasfeo_d_aux.h>
 
+#include "../../include/hpipm_d_ocp_qp_ipm.h"
 #include "../../include/hpipm_d_ocp_qp_dim.h"
 #include "../../include/hpipm_d_ocp_qp.h"
 #include "../../include/hpipm_d_ocp_qp_sol.h"
-#include "../../include/hpipm_d_ocp_qp_ipm.h"
 
 #define QP_HORIZON 5
 
@@ -38,6 +38,8 @@ int main() {
     int nb[] = {2, 0, 0, 0, 0, 0};
     int ng[] = {0, 0, 0, 0, 0, 0};
     int ns[] = {0, 0, 0, 0, 0, 0};
+    int nsbx[] = {0, 0, 0, 0, 0, 0};
+    int nsbu[] = {0, 0, 0, 0, 0, 0};
     int nbx[] = {2, 0, 0, 0, 0, 0};
     int nbu[] = {0, 0, 0, 0, 0, 0};
 
@@ -53,7 +55,7 @@ int main() {
 
 	struct d_ocp_qp_dim dim;
 	d_create_ocp_qp_dim(N, &dim, dim_mem);
-	d_cvt_int_to_ocp_qp_dim(N, nx, nu, nbx, nbu, ng, ns, &dim);
+	d_cvt_int_to_ocp_qp_dim(N, nx, nu, nbx, nbu, ng, ns, nsbx, nsbu, &dim);
 
     double *hA[] = {A, A, A, A, A};
     double *hB[] = {B, B, B, B, B};
@@ -102,7 +104,7 @@ int main() {
 
 	struct d_ocp_qp_ipm_arg arg;
 	d_create_ocp_qp_ipm_arg(&dim, &arg, ipm_arg_mem);
-	d_set_default_ocp_qp_ipm_arg(&arg);
+	d_set_default_ocp_qp_ipm_arg(1, &arg);
 
 	int ipm_size = d_memsize_ocp_qp_ipm(&dim, &arg);
 	printf("\nipm size = %d\n", ipm_size);
@@ -125,5 +127,28 @@ int main() {
     }
 
 	gettimeofday(&tv1, NULL); // stop
+
+    /************************************************
+    * extract and print solution
+    ************************************************/
+    
+    int ii;
+	double *u[N+1]; for(ii=0; ii<=N; ii++) d_zeros(u+ii, nu[ii], 1);
+	double *x[N+1]; for(ii=0; ii<=N; ii++) d_zeros(x+ii, nx[ii], 1);
+	double *ls[N+1]; for(ii=0; ii<=N; ii++) d_zeros(ls+ii, ns[ii], 1);
+	double *us[N+1]; for(ii=0; ii<=N; ii++) d_zeros(us+ii, ns[ii], 1);
+	double *pi[N]; for(ii=0; ii<N; ii++) d_zeros(pi+ii, nx[ii+1], 1);
+	double *lam_lb[N+1]; for(ii=0; ii<=N; ii++) d_zeros(lam_lb+ii, nb[ii], 1);
+	double *lam_ub[N+1]; for(ii=0; ii<=N; ii++) d_zeros(lam_ub+ii, nb[ii], 1);
+	double *lam_lg[N+1]; for(ii=0; ii<=N; ii++) d_zeros(lam_lg+ii, ng[ii], 1);
+	double *lam_ug[N+1]; for(ii=0; ii<=N; ii++) d_zeros(lam_ug+ii, ng[ii], 1);
+	double *lam_ls[N+1]; for(ii=0; ii<=N; ii++) d_zeros(lam_ls+ii, ns[ii], 1);
+	double *lam_us[N+1]; for(ii=0; ii<=N; ii++) d_zeros(lam_us+ii, ns[ii], 1);
+
+	d_cvt_ocp_qp_sol_to_colmaj(&qp_sol, u, x, ls, us, pi, lam_lb, lam_ub, lam_lg, lam_ug, lam_ls, lam_us);
+	free(qp_mem);
+	free(qp_sol_mem);
+	free(ipm_arg_mem);
+	free(ipm_mem);
 
 }
