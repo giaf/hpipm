@@ -281,7 +281,7 @@ int main()
 	int nbu[N+1];
 	for (ii=0; ii<N; ii++)
 		nbu[ii] = nu[ii];
-
+	nbu[N] = 0;
 #if 1
 	int nbx[N+1];
 #if KEEP_X0
@@ -307,6 +307,18 @@ int main()
 	for(ii=1; ii<N; ii++)
 		ns[ii] = nx[ii]/2;
 	ns[N] = nx[N]/2;
+
+	int nsbx[N+1];
+	for(ii=0; ii<=N; ii++)
+		nsbx[ii] = ns[ii];
+
+	int nsg[N+1];
+	int nsbu[N+1];
+	for(ii=0; ii<=N; ii++)
+	{
+		nsg[ii] = 0;
+		nsbu[ii] = 0;
+	}
 #elif 0
 	int nb[N+1];
 	nb[0] = 0;
@@ -760,7 +772,7 @@ int main()
 
 	struct d_ocp_qp_dim dim;
 	d_create_ocp_qp_dim(N, &dim, dim_mem);
-	d_cvt_int_to_ocp_qp_dim(N, nx, nu, nbx, nbu, ng, ns, &dim);
+	d_cvt_int_to_ocp_qp_dim(N, nx, nu, nbx, nbu, ng, nsbx, nsbu, nsg, &dim);
 
 /************************************************
 * ocp qp
@@ -820,14 +832,18 @@ int main()
 
 	struct d_ocp_qp_ipm_arg arg;
 	d_create_ocp_qp_ipm_arg(&dim, &arg, ipm_arg_mem);
-	d_set_default_ocp_qp_ipm_arg(&arg);
+//	enum hpipm_mode mode = SPEED_ABS;
+	enum hpipm_mode mode = SPEED;
+//	enum hpipm_mode mode = BALANCE;
+//	enum hpipm_mode mode = ROBUST;
+	d_set_default_ocp_qp_ipm_arg(mode, &arg);
 
 //	arg.alpha_min = 1e-8;
-//	arg.res_g_max = 1e-8;
-//	arg.res_b_max = 1e-8;
+//	arg.res_g_max = 1e-12;
+//	arg.res_b_max = 1e-12;
 //	arg.res_d_max = 1e-12;
 //	arg.res_m_max = 1e-12;
-	arg.mu0 = mu0;
+//	arg.mu0 = mu0;
 //	arg.iter_max = 10;
 //	arg.stat_max = 100;
 //	arg.pred_corr = 1;

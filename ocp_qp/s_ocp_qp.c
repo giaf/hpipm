@@ -36,8 +36,8 @@
 #include <blasfeo_common.h>
 #include <blasfeo_s_aux.h>
 
-#include "../include/hpipm_s_ocp_qp_dim.h"
-#include "../include/hpipm_s_ocp_qp.h"
+#include <hpipm_s_ocp_qp_dim.h>
+#include <hpipm_s_ocp_qp.h>
 
 
 
@@ -58,6 +58,7 @@
 #define SIZE_STRVEC blasfeo_memsize_svec
 #define VECCP_LIBSTR blasfeo_sveccp
 #define VECSC_LIBSTR blasfeo_svecsc
+#define VECSE_LIBSTR blasfeo_svecse
 
 #define CAST_OCP_QP s_cast_ocp_qp
 #define COPY_OCP_QP s_copy_ocp_qp

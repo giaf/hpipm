@@ -36,10 +36,12 @@
 #include <blasfeo_common.h>
 #include <blasfeo_d_aux.h>
 
-#include "../include/hpipm_tree.h"
-#include "../include/hpipm_scenario_tree.h"
-#include "../include/hpipm_d_tree_ocp_qp_dim.h"
-#include "../include/hpipm_d_tree_ocp_qp.h"
+#include <hpipm_tree.h>
+#include <hpipm_scenario_tree.h>
+#include <hpipm_d_tree_ocp_qp_dim.h>
+#include <hpipm_d_tree_ocp_qp.h>
+
+
 
 #define CREATE_STRMAT blasfeo_create_dmat
 #define CREATE_STRVEC blasfeo_create_dvec
@@ -54,6 +56,7 @@
 #define TREE_OCP_QP d_tree_ocp_qp
 #define TREE_OCP_QP_DIM d_tree_ocp_qp_dim
 #define VECSC_LIBSTR blasfeo_dvecsc
+#define VECSE_LIBSTR blasfeo_dvecse
 
 #define MEMSIZE_TREE_OCP_QP d_memsize_tree_ocp_qp
 #define CREATE_TREE_OCP_QP d_create_tree_ocp_qp

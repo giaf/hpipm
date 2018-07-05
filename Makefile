@@ -64,6 +64,9 @@ OBJS += dense_qp/s_dense_qp_sol.o
 OBJS += dense_qp/s_dense_qp_res.o 
 OBJS += dense_qp/s_dense_qp_kkt.o 
 OBJS += dense_qp/s_dense_qp_ipm.o
+#mixed
+OBJS += dense_qp/m_dense_qp_dim.o 
+OBJS += dense_qp/m_dense_qp.o 
 
 # ipm core
 # double
@@ -106,25 +109,27 @@ OBJS += tree_ocp_qp/scenario_tree.o
 OBJS += tree_ocp_qp/d_tree_ocp_qp_dim.o
 OBJS += tree_ocp_qp/d_tree_ocp_qp.o
 OBJS += tree_ocp_qp/d_tree_ocp_qp_sol.o
+OBJS += tree_ocp_qp/d_tree_ocp_qp_res.o
 OBJS += tree_ocp_qp/d_tree_ocp_qp_kkt.o
 OBJS += tree_ocp_qp/d_tree_ocp_qp_ipm.o
 # single
 OBJS += tree_ocp_qp/s_tree_ocp_qp_dim.o
 OBJS += tree_ocp_qp/s_tree_ocp_qp.o
 OBJS += tree_ocp_qp/s_tree_ocp_qp_sol.o
+OBJS += tree_ocp_qp/s_tree_ocp_qp_res.o
 OBJS += tree_ocp_qp/s_tree_ocp_qp_kkt.o
 OBJS += tree_ocp_qp/s_tree_ocp_qp_ipm.o
 
 all: clean static_library
 
 static_library: target
-	( cd cond; $(MAKE) obj)
-	( cd dense_qp; $(MAKE) obj)
-	( cd ipm_core; $(MAKE) obj)
-	( cd ocp_nlp; $(MAKE) obj)
-	( cd ocp_qp; $(MAKE) obj)
-	( cd sim_core; $(MAKE) obj)
-	( cd tree_ocp_qp; $(MAKE) obj)
+	( cd cond; $(MAKE) obj TOP=$(TOP) )
+	( cd dense_qp; $(MAKE) obj TOP=$(TOP) )
+	( cd ipm_core; $(MAKE) obj TOP=$(TOP) )
+	( cd ocp_nlp; $(MAKE) obj TOP=$(TOP) )
+	( cd ocp_qp; $(MAKE) obj TOP=$(TOP) )
+	( cd sim_core; $(MAKE) obj TOP=$(TOP) )
+	( cd tree_ocp_qp; $(MAKE) obj TOP=$(TOP) )
 	ar rcs libhpipm.a $(OBJS) 
 	cp libhpipm.a ./lib/
 	@echo
@@ -132,14 +137,14 @@ static_library: target
 	@echo
 
 shared_library: target
-	( cd cond; $(MAKE) obj)
-	( cd dense_qp; $(MAKE) obj)
-	( cd ipm_core; $(MAKE) obj)
-	( cd ocp_nlp; $(MAKE) obj)
-	( cd ocp_qp; $(MAKE) obj)
-	( cd sim_core; $(MAKE) obj)
-	( cd tree_ocp_qp; $(MAKE) obj)
-	gcc -L$(BLASFEO_PATH)/lib -shared -o libhpipm.so $(OBJS) -lblasfeo
+	( cd cond; $(MAKE) obj TOP=$(TOP) )
+	( cd dense_qp; $(MAKE) obj TOP=$(TOP) )
+	( cd ipm_core; $(MAKE) obj TOP=$(TOP) )
+	( cd ocp_nlp; $(MAKE) obj TOP=$(TOP) )
+	( cd ocp_qp; $(MAKE) obj TOP=$(TOP) )
+	( cd sim_core; $(MAKE) obj TOP=$(TOP) )
+	( cd tree_ocp_qp; $(MAKE) obj TOP=$(TOP) )
+  gcc -L$(BLASFEO_PATH)/lib -shared -o libhpipm.so $(OBJS) -lblasfeo
 	cp libhpipm.so ./lib/
 	@echo
 	@echo " libhpipm.so shared library build complete."
@@ -169,7 +174,7 @@ install_shared:
 
 test_problem:
 	cp libhpipm.a ./test_problems/libhpipm.a
-	make -C test_problems obj
+	make -C test_problems obj TOP=$(TOP)
 	@echo
 	@echo " Test problem build complete."
 	@echo

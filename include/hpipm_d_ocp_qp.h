@@ -46,13 +46,14 @@ extern "C" {
 struct d_ocp_qp
 	{
 	struct d_ocp_qp_dim *dim;
-	struct blasfeo_dmat *BAbt;
-	struct blasfeo_dvec *b;
-	struct blasfeo_dmat *RSQrq;
-	struct blasfeo_dvec *rqz;
-	struct blasfeo_dmat *DCt;
-	struct blasfeo_dvec *d;
-	struct blasfeo_dvec *Z;
+	struct blasfeo_dmat *BAbt; // dynamics matrix & vector work space
+	struct blasfeo_dmat *RSQrq; // hessian of cost & vector work space
+	struct blasfeo_dmat *DCt; // inequality constraints matrix
+	struct blasfeo_dvec *b; // dynamics vector
+	struct blasfeo_dvec *rqz; // gradient of cost & gradient of slacks
+	struct blasfeo_dvec *d; // inequality constraints vector
+	struct blasfeo_dvec *m; // rhs of complementarity condition
+	struct blasfeo_dvec *Z; // (diagonal) hessian of slacks
 	int **idxb; // index of box constraints
 	int **idxs; // index of soft constraints
 	int memsize; // memory size in bytes

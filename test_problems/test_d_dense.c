@@ -21,7 +21,7 @@
 * License along with HPMPC; if not, write to the Free Software                                    *
 * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA                  *
 *                                                                                                 *
-* Author: Gianluca Frison, gianluca.frison (at) imtek.uni-freiburg.de                             *                          
+* Author: Gianluca Frison, gianluca.frison (at) imtek.uni-freiburg.de                             *
 *                                                                                                 *
 **************************************************************************************************/
 
@@ -63,7 +63,7 @@ void d_print_mat(int m, int n, double *A, int lda)
 		printf("\n");
 		}
 	printf("\n");
-	}	
+	}
 /* prints the transposed of a matrix in column-major format */
 void d_print_tran_mat(int row, int col, double *A, int lda)
 	{
@@ -77,7 +77,7 @@ void d_print_tran_mat(int row, int col, double *A, int lda)
 		printf("\n");
 		}
 	printf("\n");
-	}	
+	}
 /* prints a matrix in column-major format (exponential notation) */
 void d_print_e_mat(int m, int n, double *A, int lda)
 	{
@@ -91,7 +91,7 @@ void d_print_e_mat(int m, int n, double *A, int lda)
 		printf("\n");
 		}
 	printf("\n");
-	}	
+	}
 /* prints the transposed of a matrix in column-major format (exponential notation) */
 void d_print_e_tran_mat(int row, int col, double *A, int lda)
 	{
@@ -105,7 +105,7 @@ void d_print_e_tran_mat(int row, int col, double *A, int lda)
 		printf("\n");
 		}
 	printf("\n");
-	}	
+	}
 #endif
 
 
@@ -117,14 +117,16 @@ int main()
 
 /************************************************
 * qp dimension and data
-************************************************/	
+************************************************/
 
 #if 1
 	int nv = 2;
 	int ne = 1;
 	int nb = 2;
 	int ng = 0;
-	int ns = 0;
+	int ns = 2;
+	int nsb = 2;
+	int nsg = 0;
 
 	double H[] = {4.0, 1.0, 1.0, 2.0};
 	double g[] = {1.0, 1.0};
@@ -173,8 +175,8 @@ int main()
 
 /************************************************
 * dense qp dim
-************************************************/	
-	
+************************************************/
+
 	int dense_qp_dim_size = d_memsize_dense_qp_dim();
 	printf("\nqp dim size = %d\n", dense_qp_dim_size);
 	void *dense_qp_dim_mem = malloc(dense_qp_dim_size);
@@ -182,11 +184,11 @@ int main()
 	struct d_dense_qp_dim qp_dim;
 	d_create_dense_qp_dim(&qp_dim, dense_qp_dim_mem);
 
-	d_cvt_int_to_dense_qp_dim(nv, ne, nb, ng, ns, &qp_dim);
+	d_cvt_int_to_dense_qp_dim(nv, ne, nb, ng, nsb, nsg, &qp_dim);
 
 /************************************************
 * dense qp
-************************************************/	
+************************************************/
 
 	int qp_size = d_memsize_dense_qp(&qp_dim);
 	printf("\nqp size = %d\n", qp_size);
@@ -213,7 +215,7 @@ int main()
 
 /************************************************
 * dense qp sol
-************************************************/	
+************************************************/
 
 	int qp_sol_size = d_memsize_dense_qp_sol(&qp_dim);
 	printf("\nqp sol size = %d\n", qp_sol_size);
@@ -224,7 +226,7 @@ int main()
 
 /************************************************
 * ipm arg
-************************************************/	
+************************************************/
 
 	int ipm_arg_size = d_memsize_dense_qp_ipm_arg(&qp_dim);
 	printf("\nipm arg size = %d\n", ipm_arg_size);
@@ -232,7 +234,11 @@ int main()
 
 	struct d_dense_qp_ipm_arg arg;
 	d_create_dense_qp_ipm_arg(&qp_dim, &arg, ipm_arg_mem);
-	d_set_default_dense_qp_ipm_arg(&arg);
+//	enum hpipm_mode mode = SPEED_ABS;
+	enum hpipm_mode mode = SPEED;
+//	enum hpipm_mode mode = BALANCE;
+//	enum hpipm_mode mode = ROBUST;
+	d_set_default_dense_qp_ipm_arg(mode, &arg);
 
 //	arg.alpha_min = 1e-8;
 //	arg.res_g_max = 1e-8;
@@ -240,14 +246,14 @@ int main()
 //	arg.res_d_max = 1e-12;
 //	arg.res_m_max = 1e-12;
 //	arg.mu0 = 10.0;
-	arg.iter_max = 10;
-	arg.stat_max = 10;
-	arg.pred_corr = 1;
-	arg.scale = 1;
+//	arg.iter_max = 10;
+//	arg.stat_max = 10;
+//	arg.pred_corr = 1;
+//	arg.scale = 1;
 
 /************************************************
 * ipm
-************************************************/	
+************************************************/
 
 	int ipm_size = d_memsize_dense_qp_ipm(&qp_dim, &arg);
 	printf("\nipm size = %d\n", ipm_size);
@@ -256,7 +262,7 @@ int main()
 	struct d_dense_qp_ipm_workspace workspace;
 	d_create_dense_qp_ipm(&qp_dim, &arg, &workspace, ipm_mem);
 
-	int rep, nrep=1;
+	int rep, nrep=1000;
 
 	int hpipm_return; // 0 normal; 1 max iter
 
@@ -321,7 +327,7 @@ int main()
 
 /************************************************
 * print ipm statistics
-************************************************/	
+************************************************/
 
 	printf("\nipm return = %d\n", hpipm_return);
 	printf("\nipm residuals max: res_g = %e, res_b = %e, res_d = %e, res_m = %e\n", workspace.qp_res[0], workspace.qp_res[1], workspace.qp_res[2], workspace.qp_res[3]);
@@ -334,7 +340,7 @@ int main()
 
 /************************************************
 * free memory
-************************************************/	
+************************************************/
 
 	free(qp_mem);
 	free(qp_sol_mem);
@@ -342,10 +348,10 @@ int main()
 
 /************************************************
 * return
-************************************************/	
+************************************************/
 
 	return 0;
 
 	}
 
-	
+

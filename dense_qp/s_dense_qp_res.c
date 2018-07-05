@@ -34,8 +34,8 @@
 #include <blasfeo_common.h>
 #include <blasfeo_s_aux.h>
 
-#include "../include/hpipm_s_dense_qp_dim.h"
-#include "../include/hpipm_s_dense_qp_res.h"
+#include <hpipm_s_dense_qp_dim.h>
+#include <hpipm_s_dense_qp_res.h>
 
 
 

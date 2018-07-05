@@ -34,37 +34,46 @@
 #include <blasfeo_s_aux.h>
 #include <blasfeo_s_blas.h>
 
-#include "../include/hpipm_s_ocp_qp_dim.h"
-#include "../include/hpipm_s_ocp_qp.h"
-#include "../include/hpipm_s_ocp_qp_sol.h"
-#include "../include/hpipm_s_ocp_qp_ipm.h"
-#include "../include/hpipm_s_core_qp_ipm.h"
-#include "../include/hpipm_s_core_qp_ipm_aux.h"
+#include <hpipm_s_ocp_qp_dim.h>
+#include <hpipm_s_ocp_qp.h>
+#include <hpipm_s_ocp_qp_sol.h>
+#include <hpipm_s_ocp_qp_ipm.h>
+#include <hpipm_s_core_qp_ipm.h>
+#include <hpipm_s_core_qp_ipm_aux.h>
 
 
 
 #define SINGLE_PRECISION
 
-#define AXPY_LIBSTR blasfeo_saxpy
+#define AXPY blasfeo_saxpy
+#define COLSC blasfeo_scolsc
 #define COMPUTE_LAM_T_QP s_compute_lam_t_qp
 #define COMPUTE_GAMMA_GAMMA_QP s_compute_Gamma_gamma_qp
 #define COMPUTE_GAMMA_QP s_compute_gamma_qp
 #define CORE_QP_IPM_WORKSPACE s_core_qp_ipm_workspace
-#define DIAAD_SP_LIBSTR blasfeo_sdiaad_sp
-#define GEAD_LIBSTR blasfeo_sgead
-#define GECP_LIBSTR blasfeo_sgecp
-#define GEMM_R_DIAG_LIBSTR blasfeo_sgemm_nd
-#define GEMV_DIAG_LIBSTR blasfeo_sgemv_d
-#define GEMV_N_LIBSTR blasfeo_sgemv_n
-#define GEMV_NT_LIBSTR blasfeo_sgemv_nt
-#define GEMV_T_LIBSTR blasfeo_sgemv_t
+#define DIAAD_SP blasfeo_sdiaad_sp
+#define DIARE blasfeo_sdiare
+#define GEAD blasfeo_sgead
+#define GECP blasfeo_sgecp
+#define GELQF blasfeo_sgelqf
+#define GELQF_PD blasfeo_sgelqf_pd
+#define GELQF_PD_LA blasfeo_sgelqf_pd_la
+#define GELQF_PD_LLA blasfeo_sgelqf_pd_lla
+#define GEMM_R_DIAG blasfeo_sgemm_nd
+#define GEMV_DIAG blasfeo_sgemv_d
+#define GEMV_N blasfeo_sgemv_n
+#define GEMV_NT blasfeo_sgemv_nt
+#define GEMV_T blasfeo_sgemv_t
+#define GESE blasfeo_sgese
 #define OCP_QP s_ocp_qp
+#define OCP_QP_IPM_ARG s_ocp_qp_ipm_arg
 #define OCP_QP_IPM_WORKSPACE s_ocp_qp_ipm_workspace
 #define OCP_QP_RES s_ocp_qp_res
 #define OCP_QP_RES_WORKSPACE s_ocp_qp_res_workspace
 #define OCP_QP_DIM s_ocp_qp_dim
 #define OCP_QP_SOL s_ocp_qp_sol
-#define POTRF_L_MN_LIBSTR blasfeo_spotrf_l_mn
+#define POTRF_L blasfeo_spotrf_l
+#define POTRF_L_MN blasfeo_spotrf_l_mn
 #define PRINT_E_MAT s_print_e_mat
 #define PRINT_E_STRVEC blasfeo_print_exp_svec
 #define PRINT_E_TRAN_STRVEC blasfeo_print_exp_tran_svec
@@ -72,34 +81,38 @@
 #define PRINT_STRVEC blasfeo_print_svec
 #define PRINT_TRAN_STRVEC blasfeo_print_tran_svec
 #define REAL float
-#define ROWAD_SP_LIBSTR blasfeo_srowad_sp
-#define ROWEX_LIBSTR blasfeo_srowex
-#define ROWIN_LIBSTR blasfeo_srowin
+#define ROWAD_SP blasfeo_srowad_sp
+#define ROWEX blasfeo_srowex
+#define ROWIN blasfeo_srowin
 #define STRMAT blasfeo_smat
 #define STRVEC blasfeo_svec
-#define SYMV_L_LIBSTR blasfeo_ssymv_l
-#define SYRK_POTRF_LN_LIBSTR blasfeo_ssyrk_spotrf_ln
-#define TRCP_L_LIBSTR blasfeo_strcp_l
-#define TRMM_RLNN_LIBSTR blasfeo_strmm_rlnn
-#define TRMV_LNN_LIBSTR blasfeo_strmv_lnn
-#define TRMV_LTN_LIBSTR blasfeo_strmv_ltn
-#define TRSV_LNN_LIBSTR blasfeo_strsv_lnn
-#define TRSV_LTN_LIBSTR blasfeo_strsv_ltn
-#define TRSV_LNN_MN_LIBSTR blasfeo_strsv_lnn_mn
-#define TRSV_LTN_MN_LIBSTR blasfeo_strsv_ltn_mn
-#define VECAD_SP_LIBSTR blasfeo_svecad_sp
-#define VECCP_LIBSTR blasfeo_sveccp
-#define VECEX_SP_LIBSTR blasfeo_svecex_sp
-#define VECMULDOT_LIBSTR blasfeo_svecmuldot
-#define VECSC_LIBSTR blasfeo_svecsc
+#define SYMV_L blasfeo_ssymv_l
+#define SYRK_LN blasfeo_ssyrk_ln
+#define SYRK_POTRF_LN blasfeo_ssyrk_spotrf_ln
+#define TRCP_L blasfeo_strcp_l
+#define TRMM_RLNN blasfeo_strmm_rlnn
+#define TRMV_LNN blasfeo_strmv_lnn
+#define TRMV_LTN blasfeo_strmv_ltn
+#define TRSV_LNN blasfeo_strsv_lnn
+#define TRSV_LTN blasfeo_strsv_ltn
+#define TRSV_LNN_MN blasfeo_strsv_lnn_mn
+#define TRSV_LTN_MN blasfeo_strsv_ltn_mn
+#define VECAD_SP blasfeo_svecad_sp
+#define VECCP blasfeo_sveccp
+#define VECEX_SP blasfeo_svecex_sp
+#define VECMULACC blasfeo_svecmulacc
+#define VECMULDOT blasfeo_svecmuldot
+#define VECSC blasfeo_svecsc
 
 
 
 #define INIT_VAR_OCP_QP s_init_var_ocp_qp
+#define COMPUTE_LIN_RES_OCP_QP s_compute_lin_res_ocp_qp
 #define COMPUTE_RES_OCP_QP s_compute_res_ocp_qp
 #define FACT_SOLVE_KKT_UNCONSTR_OCP_QP s_fact_solve_kkt_unconstr_ocp_qp
 #define COND_SLACKS s_cond_slacks
 #define FACT_SOLVE_KKT_STEP_OCP_QP s_fact_solve_kkt_step_ocp_qp
+#define FACT_LQ_SOLVE_KKT_STEP_OCP_QP s_fact_lq_solve_kkt_step_ocp_qp
 #define SOLVE_KKT_STEP_OCP_QP s_solve_kkt_step_ocp_qp
 
 
