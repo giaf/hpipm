@@ -3,6 +3,7 @@ from hpipm_python.hpipm.core.wrapper import *
 from hpipm_python.hpipm.d_ocp_qp.wrapper import *
 
 from ctypes import *
+import ctypes.util 
 import numpy as np
 from copy import deepcopy
 
@@ -12,7 +13,7 @@ class hpipm_solver:
         # load blasfeo and hpipm shared libraries
         __blasfeo = CDLL('libblasfeo.so')
         __hpipm   = CDLL('libhpipm.so')
-
+        
         # cast dimensions to contiguous int
         nx   = np.ascontiguousarray(qp_dims.nx,  dtype=np.int32)
         nu   = np.ascontiguousarray(qp_dims.nu,  dtype=np.int32)
@@ -255,6 +256,15 @@ class hpipm_solver:
         
         self.__hpipm = __hpipm
         self.__blasfeo = __blasfeo
+
+    def __del__(self):
+        __libc = CDLL(ctypes.util.find_library("c"))
+        __libc.free(self.dim_mem)
+        __libc.free(self.qp_mem)
+        __libc.free(self.qp_sol_mem)
+        __libc.free(self.ipm_mem)
+        __libc.free(self.ipm_arg_mem)
+        return
 
     def solve(self):
         return self.__hpipm.d_solve_ocp_qp_ipm(byref(self.qp), byref(self.qp_sol), 
