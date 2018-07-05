@@ -146,7 +146,33 @@ int main() {
 	double *lam_us[N+1]; for(ii=0; ii<=N; ii++) d_zeros(lam_us+ii, ns[ii], 1);
 
 	d_cvt_ocp_qp_sol_to_colmaj(&qp_sol, u, x, ls, us, pi, lam_lb, lam_ub, lam_lg, lam_ug, lam_ls, lam_us);
-	free(qp_mem);
+	for(ii=0; ii<N; ii++)
+    {
+		d_free(u[ii]);
+		d_free(x[ii]);
+		d_free(ls[ii]);
+		d_free(us[ii]);
+		d_free(pi[ii]);
+		d_free(lam_lb[ii]);
+		d_free(lam_ub[ii]);
+		d_free(lam_lg[ii]);
+		d_free(lam_ug[ii]);
+		d_free(lam_ls[ii]);
+		d_free(lam_us[ii]);
+    }
+
+	d_free(u[ii]);
+	d_free(x[ii]);
+	d_free(ls[ii]);
+	d_free(us[ii]);
+	d_free(lam_lb[ii]);
+	d_free(lam_ub[ii]);
+	d_free(lam_lg[ii]);
+	d_free(lam_ug[ii]);
+	d_free(lam_ls[ii]);
+	d_free(lam_us[ii]);
+	
+    free(qp_mem);
 	free(qp_sol_mem);
 	free(ipm_arg_mem);
 	free(ipm_mem);
