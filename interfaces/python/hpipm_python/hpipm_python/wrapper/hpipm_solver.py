@@ -17,6 +17,7 @@ class hpipm_solver:
         # cast dimensions to contiguous int
         nx   = np.ascontiguousarray(qp_dims.nx,  dtype=np.int32)
         nu   = np.ascontiguousarray(qp_dims.nu,  dtype=np.int32)
+        nb   = np.ascontiguousarray(qp_dims.nb,  dtype=np.int32)
         nbx  = np.ascontiguousarray(qp_dims.nbx, dtype=np.int32)
         nbu  = np.ascontiguousarray(qp_dims.nbu, dtype=np.int32)
         ng   = np.ascontiguousarray(qp_dims.ng,  dtype=np.int32)

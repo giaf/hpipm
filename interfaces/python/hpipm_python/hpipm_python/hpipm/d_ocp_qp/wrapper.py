@@ -122,7 +122,7 @@ class d_ocp_qp_ipm_workspace(Structure):
         ("res",             POINTER(d_ocp_qp_res)),
         ("Gamma",           POINTER(blasfeo_dvec)), # hessian update
         ("gamma",           POINTER(blasfeo_dvec)), # hessian update
-        ("tmp_nsM",         POINTER(blasfeo_dvec)), # work space of size nxM
+        ("tmp_nxM",         POINTER(blasfeo_dvec)), # work space of size nxM
         ("tmp_nbgM",        POINTER(blasfeo_dvec)), # work space of size nbM+ngM
         ("tmp_nsM",         POINTER(blasfeo_dvec)), # work space of size nsM
         ("Pb",              POINTER(blasfeo_dvec)), # Pb
@@ -135,7 +135,7 @@ class d_ocp_qp_ipm_workspace(Structure):
         ("stat",            POINTER(c_double)), # convergence statistics
         ("use_hess_fact",   POINTER(c_int)),
         ("lq_work0",        c_void_p),
-        ("qp_res",          c_int*4), # infinity norm of residuals
+        ("qp_res",          c_double*4), # infinity norm of residuals
         ("iter",            c_int), # iteration number
         ("stat_max",        c_int), # iterations saved in stat
         ("use_Pb",          c_int),
