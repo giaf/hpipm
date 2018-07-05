@@ -4,6 +4,7 @@ from hpipm_python.hpipm.d_ocp_qp.wrapper import *
 
 from ctypes import *
 import numpy as np
+from copy import deepcopy
 
 class hpipm_solver:
     def __init__(self, qp_dims, qp_data):
@@ -13,12 +14,13 @@ class hpipm_solver:
         __hpipm   = CDLL('libhpipm.so')
 
         # cast dimensions to contiguous int
-        nx  = np.ascontiguousarray(qp_dims.nx, dtype=np.int32)
-        nu  = np.ascontiguousarray(qp_dims.nu, dtype=np.int32)
+        nx  = np.ascontiguousarray(qp_dims.nx,  dtype=np.int32)
+        nu  = np.ascontiguousarray(qp_dims.nu,  dtype=np.int32)
         nbx = np.ascontiguousarray(qp_dims.nbx, dtype=np.int32)
         nbu = np.ascontiguousarray(qp_dims.nbu, dtype=np.int32)
-        ng  = np.ascontiguousarray(qp_dims.ng, dtype=np.int32)
-        ns  = np.ascontiguousarray(qp_dims.ns, dtype=np.int32)
+        ng  = np.ascontiguousarray(qp_dims.ng,  dtype=np.int32)
+        ns  = np.ascontiguousarray(qp_dims.ns,  dtype=np.int32)
+        N   = qp_dims.N
 
         # allocate memory for dimemsions struct
         dim = d_ocp_qp_dim()
@@ -28,11 +30,15 @@ class hpipm_solver:
         self.dim_mem = dim_mem
 
         # set up dimensions structure
-        __hpipm.d_create_ocp_qp_dim(qp_dims.N, byref(dim), dim_mem)
-        __hpipm.d_cvt_int_to_ocp_qp_dim(qp_dims.N, c_void_p(nx.ctypes.data), c_void_p(nu.ctypes.data), 
-                c_void_p(nbx.ctypes.data), c_void_p(nbu.ctypes.data), c_void_p(ng.ctypes.data), c_void_p(ns.ctypes.data), byref(dim))
-        
-        N = qp_dims.N
+        __hpipm.d_create_ocp_qp_dim(N, byref(dim), dim_mem)
+        __hpipm.d_cvt_int_to_ocp_qp_dim(N, 
+            cast(nx.ctypes.data, POINTER(c_double)), 
+            cast(nu.ctypes.data, POINTER(c_double)), 
+            cast(nbx.ctypes.data, POINTER(c_double)), 
+            cast(nbu.ctypes.data, POINTER(c_double)), 
+            cast(ng.ctypes.data, POINTER(c_double)), 
+            cast(ns.ctypes.data, POINTER(c_double)), 
+            byref(dim))
 
         A = (POINTER(c_double)*(N))()
         B = (POINTER(c_double)*(N))()
@@ -201,9 +207,9 @@ class hpipm_solver:
         # set up ocp_qp structure
         qp = d_ocp_qp()
         __hpipm.d_create_ocp_qp(byref(dim), byref(qp), qp_mem)
-        __hpipm.d_cvt_rowmaj_to_ocp_qp(A, B, b, Q, S, R, q, r, idxb, d_lb, d_ub, C, D, d_lg, d_ug, Zl, Zu, zl, zu, idxs, d_ls, d_us, byref(qp))
+        __hpipm.d_cvt_rowmaj_to_ocp_qp(A, B, b, Q, S, R, q, r, idxb, d_lb, 
+            d_ub, C, D, d_lg, d_ug, Zl, Zu, zl, zu, idxs, d_ls, d_us, byref(qp))
        
-        # import pdb; pdb.set_trace()
         # allocate memory for ocp_qp_sol struct
         qp_sol_size = __hpipm.d_memsize_ocp_qp_sol(byref(dim))
         qp_sol_mem = c_void_p()
@@ -245,7 +251,31 @@ class hpipm_solver:
         self.__blasfeo = __blasfeo
 
     def solve(self):
-        return self.__hpipm.d_solve_ocp_qp_ipm(byref(self.qp), byref(self.qp_sol), byref(self.arg), byref(self.workspace))
+        return self.__hpipm.d_solve_ocp_qp_ipm(byref(self.qp), byref(self.qp_sol), 
+            byref(self.arg), byref(self.workspace))
+
+    def print_sol(self):
+
+        print("ux =\n")
+        for ii in range(self.dim.N+1):
+            self.__blasfeo.blasfeo_print_tran_dvec(self.dim.nu[ii] + self.dim.nx[ii] + 2 * self.dim.ns[ii], byref(self.qp_sol.ux[ii]), 0);
+
+        print("pi =\n")
+        for ii in range(self.dim.N):
+            self.__blasfeo.blasfeo_print_tran_dvec(self.dim.nx[ii+1], byref(self.qp_sol.pi[ii]), 0);
+
+        print("lam =\n")
+        for ii in range(self.dim.N+1):
+            self.__blasfeo.blasfeo_print_tran_dvec(2*self.dim.nb[ii] + 2*self.dim.ng[ii] +2*self.dim.ns[ii] , byref(self.qp_sol.lam[ii]), 0);
+
+        print("t =\n")
+        for ii in range(self.dim.N+1):
+            self.__blasfeo.blasfeo_print_tran_dvec(2*self.dim.nb[ii] + 2*self.dim.ng[ii] +2*self.dim.ns[ii] , byref(self.qp_sol.t[ii]), 0);
+
+        # printf("t =\n")
+        # for (ii = 0; ii <= N; ii++)
+        #     blasfeo_print_exp_tran_dvec(2 * nb[ii] + 2 * ng[ii] + 2 * ns[ii], &qp_out->t[ii], 0);
+        return 
 
 class hpipm_dims:
     def __init__(self):

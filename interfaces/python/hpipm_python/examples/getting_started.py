@@ -46,5 +46,9 @@ solver = hpipm_solver(qp_dims, qp_data)
 # solve qp
 return_flag = solver.solve()
 
-print('hpipm returned with flag {0:2d}'.format(return_flag))
-solver.print_sol()
+print('HPIPM returned with flag {0:1d}.'.format(return_flag))
+if return_flag == 0:
+    print('-> QP solved! Solution:\n')
+    solver.print_sol()
+else:
+    print('-> Solver failed!')
