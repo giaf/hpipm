@@ -50,14 +50,16 @@ void CREATE_DENSE_QP_DIM(struct DENSE_QP_DIM *size, void *memory)
 	}
 
 
-void CVT_INT_TO_DENSE_QP_DIM(int nv, int ne, int nb, int ng, int ns, struct DENSE_QP_DIM *size)
+void CVT_INT_TO_DENSE_QP_DIM(int nv, int ne, int nb, int ng, int nsb, int nsg, struct DENSE_QP_DIM *size)
 	{
 
 	size->nv = nv;
 	size->ne = ne;
 	size->nb = nb;
 	size->ng = ng;
-	size->ns = ns;
+	size->ns = nsb+nsg;
+	size->nsb = nsb;
+	size->nsg = nsg;
 
 	return;
 

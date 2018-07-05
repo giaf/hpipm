@@ -272,7 +272,8 @@ void d_update_var_qp(struct d_core_qp_ipm_workspace *cws)
 
 	__m256d
 		y_tmp0, y_tmp1,
-		y_alpha;
+		y_alpha,
+		y_lam_min, y_t_min, y_mask0, y_mask1;
 	
 #if 0
 	if(alpha<1.0)
@@ -319,6 +320,8 @@ void d_update_var_qp(struct d_core_qp_ipm_workspace *cws)
 		}
 
 	// update lam and t
+	y_lam_min = _mm256_broadcast_sd( &cws->lam_min );
+	y_t_min = _mm256_broadcast_sd( &cws->t_min );
 	ii = 0;
 	for(; ii<nc-3; ii+=4)
 		{
@@ -326,6 +329,13 @@ void d_update_var_qp(struct d_core_qp_ipm_workspace *cws)
 		y_tmp1 = _mm256_mul_pd( y_alpha, _mm256_loadu_pd( &dt[ii] ) );
 		y_tmp0 = _mm256_add_pd( y_tmp0, _mm256_loadu_pd( &lam[ii] ) );
 		y_tmp1 = _mm256_add_pd( y_tmp1, _mm256_loadu_pd( &t[ii] ) );
+		// max does not preserve NaN !!!
+//		y_tmp0 = _mm256_max_pd( y_tmp0, y_lam_min );
+//		y_tmp1 = _mm256_max_pd( y_tmp1, y_t_min );
+		y_mask0 = _mm256_cmp_pd( y_tmp0, y_lam_min, 2 );
+		y_mask1 = _mm256_cmp_pd( y_tmp1, y_t_min, 2 );
+		y_tmp0 = _mm256_blendv_pd( y_tmp0, y_lam_min, y_mask0 );
+		y_tmp1 = _mm256_blendv_pd( y_tmp1, y_t_min, y_mask1 );
 		_mm256_storeu_pd( &lam[ii], y_tmp0 );
 		_mm256_storeu_pd( &t[ii], y_tmp1 );
 		}
@@ -333,6 +343,8 @@ void d_update_var_qp(struct d_core_qp_ipm_workspace *cws)
 		{
 		lam[ii] += alpha * dlam[ii];
 		t[ii] += alpha * dt[ii];
+		lam[ii] = lam[ii]<=cws->lam_min ? cws->lam_min : lam[ii];
+		t[ii] = t[ii]<=cws->t_min ? cws->t_min : t[ii];
 		}
 
 #else // split step

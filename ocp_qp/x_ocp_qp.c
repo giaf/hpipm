@@ -41,15 +41,18 @@ int MEMSIZE_OCP_QP(struct OCP_QP_DIM *dim)
 	// loop index
 	int ii;
 
-	int nbt = 0;
-	int ngt = 0;
-	int nst = 0;
-	for(ii=0; ii<=N; ii++)
+	// compute core qp size
+	int nvt = 0;
+	int net = 0;
+	int nct = 0;
+	for(ii=0; ii<N; ii++)
 		{
-		nbt += nb[ii];
-		ngt += ng[ii];
-		nst += ns[ii];
+		nvt += nx[ii]+nu[ii]+2*ns[ii];
+		net += nx[ii+1];
+		nct += 2*nb[ii]+2*ng[ii]+2*ns[ii];
 		}
+	nvt += nx[ii]+nu[ii]+2*ns[ii];
+	nct += 2*nb[ii]+2*ng[ii]+2*ns[ii];
 
 	int size = 0;
 
@@ -57,7 +60,7 @@ int MEMSIZE_OCP_QP(struct OCP_QP_DIM *dim)
 	size += 2*(N+1)*sizeof(int *); // idxb idxs
 	size += 2*(N+1)*sizeof(struct STRMAT); // RSqrq DCt
 	size += 1*N*sizeof(struct STRMAT); // BAbt
-	size += 3*(N+1)*sizeof(struct STRVEC); // rqz d Z
+	size += 4*(N+1)*sizeof(struct STRVEC); // rqz d m Z
 	size += 1*N*sizeof(struct STRVEC); // b
 
 	for(ii=0; ii<N; ii++)
@@ -65,9 +68,7 @@ int MEMSIZE_OCP_QP(struct OCP_QP_DIM *dim)
 		size += nb[ii]*sizeof(int); // idxb
 		size += ns[ii]*sizeof(int); // idxs
 		size += SIZE_STRMAT(nu[ii]+nx[ii]+1, nx[ii+1]); // BAbt
-		size += SIZE_STRVEC(nx[ii+1]); // b
 		size += SIZE_STRMAT(nu[ii]+nx[ii]+1, nu[ii]+nx[ii]); // RSQrq
-		size += SIZE_STRVEC(nu[ii]+nx[ii]+2*ns[ii]); // rqz
 		size += SIZE_STRMAT(nu[ii]+nx[ii], ng[ii]); // DCt
 		size += SIZE_STRVEC(2*ns[ii]); // Z
 		}
@@ -75,11 +76,12 @@ int MEMSIZE_OCP_QP(struct OCP_QP_DIM *dim)
 	size += nb[ii]*sizeof(int); // idxb
 	size += ns[ii]*sizeof(int); // idxs
 	size += SIZE_STRMAT(nu[ii]+nx[ii]+1, nu[ii]+nx[ii]); // RSQrq
-	size += SIZE_STRVEC(nu[ii]+nx[ii]+2*ns[ii]); // rqz
 	size += SIZE_STRMAT(nu[ii]+nx[ii], ng[ii]); // DCt
 	size += SIZE_STRVEC(2*ns[ii]); // Z
 
-	size += 1*SIZE_STRVEC(2*nbt+2*ngt+2*nst); // d
+	size += 1*SIZE_STRVEC(nvt); // rqz
+	size += 1*SIZE_STRVEC(net); // b
+	size += 2*SIZE_STRVEC(nct); // d m
 
 	size = (size+63)/64*64; // make multiple of typical cache line size
 	size += 64; // align to typical cache line size
@@ -104,15 +106,19 @@ void CREATE_OCP_QP(struct OCP_QP_DIM *dim, struct OCP_QP *qp, void *mem)
 	// loop index
 	int ii;
 
-	int nbt = 0;
-	int ngt = 0;
-	int nst = 0;
-	for(ii=0; ii<=N; ii++)
+	// compute core qp size
+	int nvt = 0;
+	int net = 0;
+	int nct = 0;
+	for(ii=0; ii<N; ii++)
 		{
-		nbt += nb[ii];
-		ngt += ng[ii];
-		nst += ns[ii];
+		nvt += nx[ii]+nu[ii]+2*ns[ii];
+		net += nx[ii+1];
+		nct += 2*nb[ii]+2*ng[ii]+2*ns[ii];
 		}
+	nvt += nx[ii]+nu[ii]+2*ns[ii];
+	nct += 2*nb[ii]+2*ng[ii]+2*ns[ii];
+
 
 
 	// int pointer stuff
@@ -157,6 +163,10 @@ void CREATE_OCP_QP(struct OCP_QP_DIM *dim, struct OCP_QP *qp, void *mem)
 
 	// d
 	qp->d = sv_ptr;
+	sv_ptr += N+1;
+
+	// m
+	qp->m = sv_ptr;
 	sv_ptr += N+1;
 
 	// Z
@@ -215,20 +225,6 @@ void CREATE_OCP_QP(struct OCP_QP_DIM *dim, struct OCP_QP *qp, void *mem)
 		c_ptr += (qp->DCt+ii)->memsize;
 		}
 
-	// b
-	for(ii=0; ii<N; ii++)
-		{
-		CREATE_STRVEC(nx[ii+1], qp->b+ii, c_ptr);
-		c_ptr += (qp->b+ii)->memsize;
-		}
-
-	// rqz
-	for(ii=0; ii<=N; ii++)
-		{
-		CREATE_STRVEC(nu[ii]+nx[ii]+2*ns[ii], qp->rqz+ii, c_ptr);
-		c_ptr += (qp->rqz+ii)->memsize;
-		}
-
 	// Z
 	for(ii=0; ii<=N; ii++)
 		{
@@ -236,12 +232,47 @@ void CREATE_OCP_QP(struct OCP_QP_DIM *dim, struct OCP_QP *qp, void *mem)
 		c_ptr += (qp->Z+ii)->memsize;
 		}
 
+	// g
+	tmp_ptr = c_ptr;
+	c_ptr += SIZE_STRVEC(nvt);
+	for(ii=0; ii<=N; ii++)
+		{
+		CREATE_STRVEC(nu[ii]+nx[ii]+2*ns[ii], qp->rqz+ii, tmp_ptr);
+		tmp_ptr += nu[ii]*sizeof(REAL);
+		tmp_ptr += nx[ii]*sizeof(REAL);
+		tmp_ptr += ns[ii]*sizeof(REAL);
+		tmp_ptr += ns[ii]*sizeof(REAL);
+		}
+
+	// b
+	tmp_ptr = c_ptr;
+	c_ptr += SIZE_STRVEC(net);
+	for(ii=0; ii<N; ii++)
+		{
+		CREATE_STRVEC(nx[ii+1], qp->b+ii, tmp_ptr);
+		tmp_ptr += nx[ii+1]*sizeof(REAL);
+		}
+
 	// d
 	tmp_ptr = c_ptr;
-	c_ptr += SIZE_STRVEC(2*nbt+2*ngt+2*nst);
+	c_ptr += SIZE_STRVEC(nct);
 	for(ii=0; ii<=N; ii++)
 		{
 		CREATE_STRVEC(2*nb[ii]+2*ng[ii]+2*ns[ii], qp->d+ii, tmp_ptr);
+		tmp_ptr += nb[ii]*sizeof(REAL); // lb
+		tmp_ptr += ng[ii]*sizeof(REAL); // lg
+		tmp_ptr += nb[ii]*sizeof(REAL); // ub
+		tmp_ptr += ng[ii]*sizeof(REAL); // ug
+		tmp_ptr += ns[ii]*sizeof(REAL); // ls
+		tmp_ptr += ns[ii]*sizeof(REAL); // us
+		}
+
+	// m
+	tmp_ptr = c_ptr;
+	c_ptr += SIZE_STRVEC(nct);
+	for(ii=0; ii<=N; ii++)
+		{
+		CREATE_STRVEC(2*nb[ii]+2*ng[ii]+2*ns[ii], qp->m+ii, tmp_ptr);
 		tmp_ptr += nb[ii]*sizeof(REAL); // lb
 		tmp_ptr += ng[ii]*sizeof(REAL); // lg
 		tmp_ptr += nb[ii]*sizeof(REAL); // ub
@@ -258,7 +289,7 @@ void CREATE_OCP_QP(struct OCP_QP_DIM *dim, struct OCP_QP *qp, void *mem)
 #if defined(RUNTIME_CHECKS)
 	if(c_ptr > ((char *) mem) + qp->memsize)
 		{
-		printf("\nCreate_ocp_qp: outsize memory bounds!\n\n");
+		printf("\nCreate_ocp_qp: outside memory bounds!\n\n");
 		exit(1);
 		}
 #endif
@@ -266,40 +297,6 @@ void CREATE_OCP_QP(struct OCP_QP_DIM *dim, struct OCP_QP *qp, void *mem)
 
 	return;
 
-	}
-
-
-
-void CHANGE_BOUNDS_DIMENSIONS_OCP_QP(int *nbu, int *nbx, struct OCP_QP *qp)
-	{
-		// TODO runtime check that new memsize is smaller or equal than old
-		int N = qp->dim->N;
-		int *nb = qp->dim->nb;
-		int *ng = qp->dim->ng;
-		int *ns = qp->dim->ns;
-
-		int ii, jj;
-
-		char *c_ptr;
-		c_ptr = (char *) qp->d->pa;
-
-	for(ii=0; ii<=N; ii++)
-		{
-		qp->dim->nbu[ii] = nbu[ii];
-		qp->dim->nbx[ii] = nbx[ii];
-		nb[ii] = nbu[ii] + nbx[ii];
-		}
-
-	for(ii=0; ii<=N; ii++)
-		{
-		CREATE_STRVEC(2*nb[ii]+2*ng[ii]+2*ns[ii], qp->d+ii, c_ptr);
-		c_ptr += nb[ii]*sizeof(REAL); // lb
-		c_ptr += ng[ii]*sizeof(REAL); // lg
-		c_ptr += nb[ii]*sizeof(REAL); // ub
-		c_ptr += ng[ii]*sizeof(REAL); // ug
-		c_ptr += ns[ii]*sizeof(REAL); // ls
-		c_ptr += ns[ii]*sizeof(REAL); // us
-		}
 	}
 
 
@@ -345,6 +342,8 @@ void CVT_COLMAJ_TO_OCP_QP(REAL **A, REAL **B, REAL **b, REAL **Q, REAL **S, REAL
 			CVT_VEC2STRVEC(nb[ii], d_lb[ii], qp->d+ii, 0);
 			CVT_VEC2STRVEC(nb[ii], d_ub[ii], qp->d+ii, nb[ii]+ng[ii]);
 			VECSC_LIBSTR(nb[ii], -1.0, qp->d+ii, nb[ii]+ng[ii]);
+			VECSE_LIBSTR(nb[ii], 0.0, qp->m+ii, 0);
+			VECSE_LIBSTR(nb[ii], 0.0, qp->m+ii, nb[ii]+ng[ii]);
 			}
 		}
 
@@ -357,6 +356,8 @@ void CVT_COLMAJ_TO_OCP_QP(REAL **A, REAL **B, REAL **b, REAL **Q, REAL **S, REAL
 			CVT_VEC2STRVEC(ng[ii], d_lg[ii], qp->d+ii, nb[ii]);
 			CVT_VEC2STRVEC(ng[ii], d_ug[ii], qp->d+ii, 2*nb[ii]+ng[ii]);
 			VECSC_LIBSTR(ng[ii], -1.0, qp->d+ii, 2*nb[ii]+ng[ii]);
+			VECSE_LIBSTR(ng[ii], 0.0, qp->m+ii, nb[ii]);
+			VECSE_LIBSTR(ng[ii], 0.0, qp->m+ii, 2*nb[ii]+ng[ii]);
 			}
 		}
 
@@ -372,6 +373,8 @@ void CVT_COLMAJ_TO_OCP_QP(REAL **A, REAL **B, REAL **b, REAL **Q, REAL **S, REAL
 			CVT_VEC2STRVEC(ns[ii], zu[ii], qp->rqz+ii, nu[ii]+nx[ii]+ns[ii]);
 			CVT_VEC2STRVEC(ns[ii], d_ls[ii], qp->d+ii, 2*nb[ii]+2*ng[ii]);
 			CVT_VEC2STRVEC(ns[ii], d_us[ii], qp->d+ii, 2*nb[ii]+2*ng[ii]+ns[ii]);
+			VECSE_LIBSTR(ns[ii], 0.0, qp->m+ii, 2*nb[ii]+2*ng[ii]);
+			VECSE_LIBSTR(ns[ii], 0.0, qp->m+ii, 2*nb[ii]+2*ng[ii]+ns[ii]);
 			}
 		}
 
@@ -422,6 +425,8 @@ void CVT_ROWMAJ_TO_OCP_QP(REAL **A, REAL **B, REAL **b, REAL **Q, REAL **S, REAL
 			CVT_VEC2STRVEC(nb[ii], d_lb[ii], qp->d+ii, 0);
 			CVT_VEC2STRVEC(nb[ii], d_ub[ii], qp->d+ii, nb[ii]+ng[ii]);
 			VECSC_LIBSTR(nb[ii], -1.0, qp->d+ii, nb[ii]+ng[ii]);
+			VECSE_LIBSTR(nb[ii], 0.0, qp->m+ii, 0);
+			VECSE_LIBSTR(nb[ii], 0.0, qp->m+ii, nb[ii]+ng[ii]);
 			}
 		}
 
@@ -434,6 +439,8 @@ void CVT_ROWMAJ_TO_OCP_QP(REAL **A, REAL **B, REAL **b, REAL **Q, REAL **S, REAL
 			CVT_VEC2STRVEC(ng[ii], d_lg[ii], qp->d+ii, nb[ii]);
 			CVT_VEC2STRVEC(ng[ii], d_ug[ii], qp->d+ii, 2*nb[ii]+ng[ii]);
 			VECSC_LIBSTR(ng[ii], -1.0, qp->d+ii, 2*nb[ii]+ng[ii]);
+			VECSE_LIBSTR(ng[ii], 0.0, qp->m+ii, nb[ii]);
+			VECSE_LIBSTR(ng[ii], 0.0, qp->m+ii, 2*nb[ii]+ng[ii]);
 			}
 		}
 
@@ -449,6 +456,8 @@ void CVT_ROWMAJ_TO_OCP_QP(REAL **A, REAL **B, REAL **b, REAL **Q, REAL **S, REAL
 			CVT_VEC2STRVEC(ns[ii], zu[ii], qp->rqz+ii, nu[ii]+nx[ii]+ns[ii]);
 			CVT_VEC2STRVEC(ns[ii], d_ls[ii], qp->d+ii, 2*nb[ii]+2*ng[ii]);
 			CVT_VEC2STRVEC(ns[ii], d_us[ii], qp->d+ii, 2*nb[ii]+2*ng[ii]+ns[ii]);
+			VECSE_LIBSTR(ns[ii], 0.0, qp->m+ii, 2*nb[ii]+2*ng[ii]);
+			VECSE_LIBSTR(ns[ii], 0.0, qp->m+ii, 2*nb[ii]+2*ng[ii]+ns[ii]);
 			}
 		}
 
@@ -900,5 +909,44 @@ void CVT_OCP_QP_TO_COLMAJ_UG(int stage, struct OCP_QP *qp, REAL *ug)
 
 	return;
 	}
+
+
+
+void CHANGE_BOUNDS_DIMENSIONS_OCP_QP(int *nbu, int *nbx, struct OCP_QP *qp)
+	{
+		// TODO runtime check that new memsize is smaller or equal than old
+		int N = qp->dim->N;
+		int *nb = qp->dim->nb;
+		int *ng = qp->dim->ng;
+		int *ns = qp->dim->ns;
+
+		int ii, jj;
+
+		char *c_ptr;
+		c_ptr = (char *) qp->d->pa;
+
+	for(ii=0; ii<=N; ii++)
+		{
+		qp->dim->nbu[ii] = nbu[ii];
+		qp->dim->nbx[ii] = nbx[ii];
+		nb[ii] = nbu[ii] + nbx[ii];
+		}
+
+	for(ii=0; ii<=N; ii++)
+		{
+		CREATE_STRVEC(2*nb[ii]+2*ng[ii]+2*ns[ii], qp->d+ii, c_ptr);
+		c_ptr += nb[ii]*sizeof(REAL); // lb
+		c_ptr += ng[ii]*sizeof(REAL); // lg
+		c_ptr += nb[ii]*sizeof(REAL); // ub
+		c_ptr += ng[ii]*sizeof(REAL); // ug
+		c_ptr += ns[ii]*sizeof(REAL); // ls
+		c_ptr += ns[ii]*sizeof(REAL); // us
+		}
+
+	return;
+
+	}
+
+
 
 

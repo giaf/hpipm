@@ -29,40 +29,53 @@
 
 #include <stdlib.h>
 #include <stdio.h>
+#ifdef USE_C99_MATH
+#include <math.h>
+#endif
 
 #include <blasfeo_target.h>
 #include <blasfeo_common.h>
 #include <blasfeo_s_aux.h>
+#include <blasfeo_s_blas.h>
 
-#include "../include/hpipm_s_ocp_qp_dim.h"
-#include "../include/hpipm_s_ocp_qp.h"
-#include "../include/hpipm_s_ocp_qp_sol.h"
-#include "../include/hpipm_s_ocp_qp_ipm.h"
-#include "../include/hpipm_s_core_qp_ipm.h"
-#include "../include/hpipm_s_core_qp_ipm_aux.h"
-#include "../include/hpipm_s_ocp_qp_res.h"
-#include "../include/hpipm_s_ocp_qp_kkt.h"
+#include <hpipm_s_ocp_qp_dim.h>
+#include <hpipm_s_ocp_qp.h>
+#include <hpipm_s_ocp_qp_sol.h>
+#include <hpipm_s_ocp_qp_ipm.h>
+#include <hpipm_s_core_qp_ipm.h>
+#include <hpipm_s_core_qp_ipm_aux.h>
+#include <hpipm_s_ocp_qp_res.h>
+#include <hpipm_s_ocp_qp_kkt.h>
 
 
 
+#define AXPY blasfeo_saxpy
 #define BACKUP_RES_M s_backup_res_m
 #define COMPUTE_ALPHA_QP s_compute_alpha_qp
 #define COMPUTE_CENTERING_CORRECTION_QP s_compute_centering_correction_qp
 #define COMPUTE_CENTERING_QP s_compute_centering_qp
 #define COMPUTE_MU_AFF_QP s_compute_mu_aff_qp
+#define COMPUTE_LIN_RES_OCP_QP s_compute_lin_res_ocp_qp
 #define COMPUTE_RES_OCP_QP s_compute_res_ocp_qp
 #define CORE_QP_IPM_WORKSPACE s_core_qp_ipm_workspace
 #define CREATE_CORE_QP_IPM s_create_core_qp_ipm
+#define CREATE_OCP_QP_RES s_create_ocp_qp_res
+#define CREATE_OCP_QP_SOL s_create_ocp_qp_sol
 #define CREATE_STRMAT blasfeo_create_smat
 #define CREATE_STRVEC blasfeo_create_svec
 #define CVT_STRVEC2VEC blasfeo_unpack_svec
 #define FACT_SOLVE_KKT_STEP_OCP_QP s_fact_solve_kkt_step_ocp_qp
+#define FACT_LQ_SOLVE_KKT_STEP_OCP_QP s_fact_lq_solve_kkt_step_ocp_qp
 #define FACT_SOLVE_KKT_UNCONSTR_OCP_QP s_fact_solve_kkt_unconstr_ocp_qp
+#define GELQF_WORKSIZE blasfeo_sgelqf_worksize
 #define INIT_VAR_OCP_QP s_init_var_ocp_qp
 #define MEMSIZE_CORE_QP_IPM s_memsize_core_qp_ipm
+#define MEMSIZE_OCP_QP_RES s_memsize_ocp_qp_res
+#define MEMSIZE_OCP_QP_SOL s_memsize_ocp_qp_sol
 #define OCP_QP s_ocp_qp
-#define OCP_QP_IPM_WORKSPACE s_ocp_qp_ipm_workspace
 #define OCP_QP_IPM_ARG s_ocp_qp_ipm_arg
+#define HPIPM_MODE hpipm_mode
+#define OCP_QP_IPM_WORKSPACE s_ocp_qp_ipm_workspace
 #define OCP_QP_RES s_ocp_qp_res
 #define OCP_QP_RES_WORKSPACE s_ocp_qp_res_workspace
 #define OCP_QP_DIM s_ocp_qp_dim
@@ -80,7 +93,9 @@
 #define STRMAT blasfeo_smat
 #define STRVEC blasfeo_svec
 #define UPDATE_VAR_QP s_update_var_qp
-#define VECNRM_INF_LIBSTR blasfeo_svecnrm_inf
+#define VECMULDOT blasfeo_svecmuldot
+#define VECNRM_INF blasfeo_svecnrm_inf
+#define VECSC blasfeo_svecsc
 
 
 

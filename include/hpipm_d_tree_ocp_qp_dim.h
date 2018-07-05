@@ -46,6 +46,9 @@ struct d_tree_ocp_qp_dim
 	int *nbu; // number of input box constraints // Nn
 	int *ng; // number of general constraints // Nn
 	int *ns; // number of soft constraints // Nn
+	int *nsbx; // number of soft state box constraints
+	int *nsbu; // number of soft input box constraints
+	int *nsg; // number of soft general constraints
 	int Nn; // number of nodes
 	int memsize;
 	};
@@ -57,7 +60,7 @@ int d_memsize_tree_ocp_qp_dim(int Nn);
 //
 void d_create_tree_ocp_qp_dim(int Nn, struct d_tree_ocp_qp_dim *qp_dim, void *memory);
 //
-void d_cvt_int_to_tree_ocp_qp_dim(struct tree *ttree, int *nx, int *nu, int *nbx, int *nbu, int *ng, int *ns, struct d_tree_ocp_qp_dim *dim);
+void d_cvt_int_to_tree_ocp_qp_dim(struct tree *ttree, int *nx, int *nu, int *nbx, int *nbu, int *ng, int *nsbx, int *nsbu, int *nsg, struct d_tree_ocp_qp_dim *dim);
 
 
 

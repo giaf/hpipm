@@ -34,10 +34,12 @@
 #include <blasfeo_common.h>
 #include <blasfeo_s_aux.h>
 
-#include "../include/hpipm_tree.h"
-#include "../include/hpipm_scenario_tree.h"
-#include "../include/hpipm_s_tree_ocp_qp.h"
-#include "../include/hpipm_s_tree_ocp_qp_sol.h"
+#include <hpipm_tree.h>
+#include <hpipm_scenario_tree.h>
+#include <hpipm_s_tree_ocp_qp.h>
+#include <hpipm_s_tree_ocp_qp_sol.h>
+
+
 
 #define CREATE_STRVEC blasfeo_create_svec
 #define CVT_STRVEC2VEC blasfeo_unpack_svec

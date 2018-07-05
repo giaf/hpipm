@@ -158,7 +158,7 @@ void CREATE_DENSE_QP(struct DENSE_QP_DIM *dim, struct DENSE_QP *qp, void *mem)
 #if defined(RUNTIME_CHECKS)
 	if(c_ptr > ((char *) mem) + qp->memsize)
 		{
-		printf("\nCreate_ocp_qp: outsize memory bounds!\n\n");
+		printf("\nCreate_ocp_qp: outside memory bounds!\n\n");
 		exit(1);
 		}
 #endif
@@ -259,7 +259,7 @@ void CVT_DENSE_QP_TO_COLMAJ(struct DENSE_QP *qp, REAL *H, REAL *g, REAL *A, REAL
 		}
 	if(ns>0)
 		{
-		for(ii=0; ii<ns; ii++) qp->idxs[ii] = idxs[ii];
+		for(ii=0; ii<ns; ii++) idxs[ii] = qp->idxs[ii];
 		CVT_STRVEC2VEC(ns, qp->Z, 0, Zl);
 		CVT_STRVEC2VEC(ns, qp->Z, ns, Zu);
 		CVT_STRVEC2VEC(ns, qp->gz, nv, zl);
@@ -363,7 +363,7 @@ void CVT_DENSE_QP_TO_ROWMAJ(struct DENSE_QP *qp, REAL *H, REAL *g, REAL *A, REAL
 		}
 	if(ns>0)
 		{
-		for(ii=0; ii<ns; ii++) qp->idxs[ii] = idxs[ii];
+		for(ii=0; ii<ns; ii++) idxs[ii] = qp->idxs[ii];
 		CVT_STRVEC2VEC(ns, qp->Z, 0, Zl);
 		CVT_STRVEC2VEC(ns, qp->Z, ns, Zu);
 		CVT_STRVEC2VEC(ns, qp->gz, nv, zl);

@@ -27,7 +27,7 @@
 
 
 
-#include "../include/hpipm_s_dense_qp_dim.h"
+#include <hpipm_s_dense_qp_dim.h>
 
 
 

@@ -35,7 +35,11 @@
 #include <blasfeo_target.h>
 #include <blasfeo_common.h>
 
-
+#include "hpipm_d_dense_qp.h"
+#include "hpipm_d_dense_qp_sol.h"
+#include "hpipm_d_ocp_qp.h"
+#include "hpipm_d_ocp_qp_dim.h"
+#include "hpipm_d_ocp_qp_sol.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -47,6 +51,7 @@ struct d_cond_qp_ocp2dense_arg
 	{
 	int cond_last_stage; // condense last stage
 //	int cond_variant; // TODO
+	int comp_dual_sol; // dual solution
 	int memsize;
 	};
 
@@ -88,7 +93,7 @@ void d_cond_qp_ocp2dense(struct d_ocp_qp *ocp_qp, struct d_dense_qp *dense_qp, s
 void d_cond_rhs_qp_ocp2dense(struct d_ocp_qp *ocp_qp, struct d_dense_qp *dense_qp, struct d_cond_qp_ocp2dense_arg *cond_arg, struct d_cond_qp_ocp2dense_workspace *cond_ws);
 //
 void d_expand_sol_dense2ocp(struct d_ocp_qp *ocp_qp, struct d_dense_qp_sol *dense_qp_sol, struct d_ocp_qp_sol *ocp_qp_sol, struct d_cond_qp_ocp2dense_arg *cond_arg, struct d_cond_qp_ocp2dense_workspace *cond_ws);
-//
+// TODO remove
 void d_expand_primal_sol_dense2ocp(struct d_ocp_qp *ocp_qp, struct d_dense_qp_sol *dense_qp_sol, struct d_ocp_qp_sol *ocp_qp_sol, struct d_cond_qp_ocp2dense_arg *cond_arg, struct d_cond_qp_ocp2dense_workspace *cond_ws);
 
 //

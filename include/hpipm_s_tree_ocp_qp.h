@@ -47,11 +47,12 @@ struct s_tree_ocp_qp
 	{
 	struct s_tree_ocp_qp_dim *dim;
 	struct blasfeo_smat *BAbt; // Nn-1
-	struct blasfeo_svec *b; // Nn-1
 	struct blasfeo_smat *RSQrq; // Nn
-	struct blasfeo_svec *rqz; // Nn
 	struct blasfeo_smat *DCt; // Nn
+	struct blasfeo_svec *b; // Nn-1
+	struct blasfeo_svec *rqz; // Nn
 	struct blasfeo_svec *d; // Nn
+	struct blasfeo_svec *m; // Nn
 	struct blasfeo_svec *Z; // Nn
 	int **idxb; // index of box constraints // Nn
 	int **idxs; // index of soft constraints

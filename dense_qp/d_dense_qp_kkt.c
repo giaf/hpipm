@@ -34,19 +34,20 @@
 #include <blasfeo_d_aux.h>
 #include <blasfeo_d_blas.h>
 
-#include "../include/hpipm_d_dense_qp_dim.h"
-#include "../include/hpipm_d_dense_qp.h"
-#include "../include/hpipm_d_dense_qp_sol.h"
-#include "../include/hpipm_d_dense_qp_res.h"
-#include "../include/hpipm_d_dense_qp_ipm.h"
-#include "../include/hpipm_d_core_qp_ipm.h"
-#include "../include/hpipm_d_core_qp_ipm_aux.h"
+#include <hpipm_d_dense_qp_dim.h>
+#include <hpipm_d_dense_qp.h>
+#include <hpipm_d_dense_qp_sol.h>
+#include <hpipm_d_dense_qp_res.h>
+#include <hpipm_d_dense_qp_ipm.h>
+#include <hpipm_d_core_qp_ipm.h>
+#include <hpipm_d_core_qp_ipm_aux.h>
 
 
 
-#define AXPY_LIBSTR blasfeo_daxpy
-#define COLPE_LIBSTR blasfeo_dcolpe
-#define COLPEI_LIBSTR blasfeo_dcolpei
+#define AXPY blasfeo_daxpy
+#define COLPE blasfeo_dcolpe
+#define COLPEI blasfeo_dcolpei
+#define COLSC blasfeo_dcolsc
 #define COMPUTE_LAM_T_QP d_compute_lam_t_qp
 #define COMPUTE_GAMMA_GAMMA_QP d_compute_Gamma_gamma_qp
 #define COMPUTE_GAMMA_QP d_compute_gamma_qp
@@ -57,49 +58,65 @@
 #define DENSE_QP_RES d_dense_qp_res
 #define DENSE_QP_RES_WORKSPACE d_dense_qp_res_workspace
 #define DENSE_QP_SOL d_dense_qp_sol
-#define DIAAD_SP_LIBSTR blasfeo_ddiaad_sp
-#define DIAEX_LIBSTR blasfeo_ddiaex
-#define DIARE_LIBSTR blasfeo_ddiare
-#define GECP_LIBSTR blasfeo_dgecp
-#define GEMM_L_DIAG_LIBSTR blasfeo_dgemm_dn
-#define GEMM_R_DIAG_LIBSTR blasfeo_dgemm_nd
-#define GEMV_DIAG_LIBSTR blasfeo_dgemv_d
-#define GEMV_N_LIBSTR blasfeo_dgemv_n
-#define GEMV_NT_LIBSTR blasfeo_dgemv_nt
-#define GEMV_T_LIBSTR blasfeo_dgemv_t
-#define GESE_LIBSTR blasfeo_dgese
-#define POTRF_L_LIBSTR blasfeo_dpotrf_l
-#define POTRF_L_MN_LIBSTR blasfeo_dpotrf_l_mn
-#define PSTRF_L_LIBSTR dpstrf_l_libstr
+#define DIAAD_SP blasfeo_ddiaad_sp
+#define DIAEX blasfeo_ddiaex
+#define DIARE blasfeo_ddiare
+#define GECP blasfeo_dgecp
+#define GELQF blasfeo_dgelqf
+#define GELQF_PD_LA blasfeo_dgelqf_pd_la
+#define GELQF_PD_LLA blasfeo_dgelqf_pd_lla
+#define GELQF_PD blasfeo_dgelqf_pd
+#define GELQF_WORKSIZE blasfeo_dgelqf_worksize
+#define GEMM_L_DIAG blasfeo_dgemm_dn
+#define GEMM_R_DIAG blasfeo_dgemm_nd
+#define GEMV_DIAG blasfeo_dgemv_d
+#define GEMV_N blasfeo_dgemv_n
+#define GEMV_NT blasfeo_dgemv_nt
+#define GEMV_T blasfeo_dgemv_t
+#define GESE blasfeo_dgese
+//#define GETRF blasfeo_dgetrf_rowpivot
+#define POTRF_L blasfeo_dpotrf_l
+#define POTRF_L_MN blasfeo_dpotrf_l_mn
+#define PSTRF_L dpstrf_l_libstr
 #define REAL double
-#define ROWAD_SP_LIBSTR blasfeo_drowad_sp
-#define ROWEX_LIBSTR blasfeo_drowex
-#define ROWIN_LIBSTR blasfeo_drowin
-#define ROWPE_LIBSTR blasfeo_drowpe
-#define ROWPEI_LIBSTR blasfeo_drowpei
+#define ROWAD_SP blasfeo_drowad_sp
+#define ROWEX blasfeo_drowex
+#define ROWIN blasfeo_drowin
+#define ROWPE blasfeo_drowpe
+#define ROWPEI blasfeo_drowpei
 #define STRMAT blasfeo_dmat
 #define STRVEC blasfeo_dvec
-#define SYMV_L_LIBSTR blasfeo_dsymv_l
-#define SYRK_LN_LIBSTR blasfeo_dsyrk_ln
-#define SYRK_POTRF_LN_LIBSTR blasfeo_dsyrk_dpotrf_ln
-#define TRCP_L_LIBSTR blasfeo_dtrcp_l
-#define TRSM_RLTN_LIBSTR blasfeo_dtrsm_rltn
-#define TRSV_LNN_LIBSTR blasfeo_dtrsv_lnn
-#define TRSV_LTN_LIBSTR blasfeo_dtrsv_ltn
-#define VECAD_SP_LIBSTR blasfeo_dvecad_sp
-#define VECCP_LIBSTR blasfeo_dveccp
-#define VECEX_SP_LIBSTR blasfeo_dvecex_sp
-#define VECMULACC_LIBSTR blasfeo_dvecmulacc
-#define VECMULDOT_LIBSTR blasfeo_dvecmuldot
-#define VECSC_LIBSTR blasfeo_dvecsc
-#define VECCPSC_LIBSTR blasfeo_dveccpsc
-#define VECPE_LIBSTR blasfeo_dvecpe
-#define VECPEI_LIBSTR blasfeo_dvecpei
+#define SYMV_L blasfeo_dsymv_l
+#define SYRK_LN blasfeo_dsyrk_ln
+#define SYRK_LN_MN blasfeo_dsyrk_ln_mn
+#define SYRK_POTRF_LN blasfeo_dsyrk_dpotrf_ln
+#define TRCP_L blasfeo_dtrcp_l
+#define TRSM_RLTN blasfeo_dtrsm_rltn
+#define TRSM_RLTU blasfeo_dtrsm_rltu
+#define TRSM_RUNN blasfeo_dtrsm_runn
+#define TRSV_LNN blasfeo_dtrsv_lnn
+#define TRSV_LNU blasfeo_dtrsv_lnu
+#define TRSV_LTN blasfeo_dtrsv_ltn
+#define TRSV_UNN blasfeo_dtrsv_unn
+#define TRTR_L blasfeo_dtrtr_l
+#define TRTR_U blasfeo_dtrtr_u
+#define VECAD_SP blasfeo_dvecad_sp
+#define VECCP blasfeo_dveccp
+#define VECEX_SP blasfeo_dvecex_sp
+#define VECMULACC blasfeo_dvecmulacc
+#define VECMULDOT blasfeo_dvecmuldot
+#define VECSC blasfeo_dvecsc
+#define VECSE blasfeo_dvecse
+#define VECCPSC blasfeo_dveccpsc
+#define VECPE blasfeo_dvecpe
+#define VECPEI blasfeo_dvecpei
 
 #define INIT_VAR_DENSE_QP d_init_var_dense_qp
 #define COMPUTE_RES_DENSE_QP d_compute_res_dense_qp
 #define COMPUTE_LIN_RES_DENSE_QP d_compute_lin_res_dense_qp
 #define FACT_SOLVE_KKT_UNCONSTR_DENSE_QP d_fact_solve_kkt_unconstr_dense_qp
+#define FACT_LQ_SOLVE_KKT_STEP_DENSE_QP d_fact_lq_solve_kkt_step_dense_qp
+//#define FACT_SOLVE_LU_KKT_STEP_DENSE_QP d_fact_solve_lu_kkt_step_dense_qp
 #define FACT_SOLVE_KKT_STEP_DENSE_QP d_fact_solve_kkt_step_dense_qp
 #define SOLVE_KKT_STEP_DENSE_QP d_solve_kkt_step_dense_qp
 

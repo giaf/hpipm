@@ -49,10 +49,18 @@ extern "C" {
 #include <blasfeo_d_aux.h>
 #include <blasfeo_d_blas.h>
 // hpipm
+#include "../include/hpipm_d_dense_qp_dim.h"
 #include "../include/hpipm_d_dense_qp.h"
 #include "../include/hpipm_d_dense_qp_sol.h"
 #include "../include/hpipm_d_dense_qp_res.h"
 #include "../include/hpipm_d_dense_qp_ipm.h"
+#include "../include/hpipm_s_dense_qp_dim.h"
+#include "../include/hpipm_s_dense_qp.h"
+#include "../include/hpipm_s_dense_qp_sol.h"
+#include "../include/hpipm_s_dense_qp_res.h"
+#include "../include/hpipm_s_dense_qp_ipm.h"
+#include "../include/hpipm_m_dense_qp_dim.h"
+#include "../include/hpipm_m_dense_qp.h"
 
 #define MAX_STRING_LENGTH 160
 //#define EPSILON 1e-5 // regularization parameter
