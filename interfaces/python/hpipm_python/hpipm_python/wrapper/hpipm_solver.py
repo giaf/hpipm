@@ -207,9 +207,10 @@ class hpipm_solver:
         # set up ocp_qp structure
         qp = d_ocp_qp()
         __hpipm.d_create_ocp_qp(byref(dim), byref(qp), qp_mem)
-        __hpipm.d_cvt_rowmaj_to_ocp_qp(A, B, b, Q, S, R, q, r, idxb, d_lb, 
+        __hpipm.d_cvt_colmaj_to_ocp_qp(A, B, b, Q, S, R, q, r, idxb, d_lb, 
             d_ub, C, D, d_lg, d_ug, Zl, Zu, zl, zu, idxs, d_ls, d_us, byref(qp))
-       
+        
+        # import pdb; pdb.set_trace()
         # allocate memory for ocp_qp_sol struct
         qp_sol_size = __hpipm.d_memsize_ocp_qp_sol(byref(dim))
         qp_sol_mem = c_void_p()
@@ -272,9 +273,6 @@ class hpipm_solver:
         for ii in range(self.dim.N+1):
             self.__blasfeo.blasfeo_print_tran_dvec(2*self.dim.nb[ii] + 2*self.dim.ng[ii] +2*self.dim.ns[ii] , byref(self.qp_sol.t[ii]), 0);
 
-        # printf("t =\n")
-        # for (ii = 0; ii <= N; ii++)
-        #     blasfeo_print_exp_tran_dvec(2 * nb[ii] + 2 * ng[ii] + 2 * ns[ii], &qp_out->t[ii], 0);
         return 
 
 class hpipm_dims:
