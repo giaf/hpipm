@@ -174,9 +174,18 @@ test_problem:
 	@echo " Test problem build complete."
 	@echo
 
+examples:
+	cp libhpipm.a ./examples/c/libhpipm.a
+	make -C examples/c obj
+	@echo
+	@echo " Examples build complete."
+	@echo
+
 run:
 	./test_problems/test.out
 
+
+.PHONY: examples
 clean:
 	rm -f libhpipm.a
 	rm -f libhpipm.so
@@ -190,4 +199,5 @@ clean:
 	make -C sim_core clean
 	make -C tree_ocp_qp clean
 	make -C test_problems clean
+	make -C examples/c clean
 
