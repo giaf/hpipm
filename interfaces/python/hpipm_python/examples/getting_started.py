@@ -47,3 +47,4 @@ solver = hpipm_solver(qp_dims, qp_data)
 return_flag = solver.solve()
 
 print('hpipm returned with flag {0:2d}'.format(return_flag))
+solver.print_sol()

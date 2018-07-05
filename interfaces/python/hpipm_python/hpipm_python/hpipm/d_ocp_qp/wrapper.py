@@ -13,9 +13,6 @@ class d_ocp_qp_dim(Structure):
         ("nbu",     POINTER(c_int)),            # number of input box constraints
         ("ng",      POINTER(c_int)),            # number of general constraints
         ("ns",      POINTER(c_int)),            # number of soft constraints
-        ("nsbx",    POINTER(c_int)),            # number of soft state box constraints
-        ("nsbu",    POINTER(c_int)),            # number of soft input box constraints
-        ("nsg",     POINTER(c_int)),            # number of soft general constraints
         ("N",       c_int),                     # horizon length
         ("memsize", c_int)                      # memory size
         ]
@@ -88,14 +85,14 @@ class d_ocp_qp_ipm_arg(Structure):
 
 class d_ocp_qp_res(Structure):
     _fields_ = [
-	("dim",     POINTER(d_ocp_qp_dim)),  
+        ("dim",     POINTER(d_ocp_qp_dim)),  
         ("res_g",   POINTER(blasfeo_dvec)),   # q-residuals
-	("res_b",   POINTER(blasfeo_dvec)),   # b-residuals
-	("res_d",   POINTER(blasfeo_dvec)),   # d-residuals
-	("res_m",   POINTER(blasfeo_dvec)),   # m-residuals
-	("res_mu",  POINTER(blasfeo_dvec)),         # mu-residual
+        ("res_b",   POINTER(blasfeo_dvec)),   # b-residuals
+        ("res_d",   POINTER(blasfeo_dvec)),   # d-residuals
+        ("res_m",   POINTER(blasfeo_dvec)),   # m-residuals
+        ("res_mu",  POINTER(blasfeo_dvec)),         # mu-residual
         ("memsize", c_int)
-	]
+        ]
 
 
 
@@ -105,7 +102,7 @@ class d_ocp_qp_res_workspace(Structure):
         ("tmp_nbgM", POINTER(blasfeo_dvec)),  # work space of size nbM+ngM
         ("tmp_nsM", POINTER(blasfeo_dvec)),   # work space of size nsM
         ("memsize", c_int)
-	]
+        ]
 
         
         
