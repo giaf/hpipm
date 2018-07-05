@@ -13,6 +13,9 @@ class d_ocp_qp_dim(Structure):
         ("nbu",     POINTER(c_int)),            # number of input box constraints
         ("ng",      POINTER(c_int)),            # number of general constraints
         ("ns",      POINTER(c_int)),            # number of soft constraints
+        ("nsbx",    POINTER(c_int)),            # number of soft state box constraints
+        ("nsbu",    POINTER(c_int)),            # number of soft input box constraints
+        ("nsg",     POINTER(c_int)),            # number of soft general constraints
         ("N",       c_int),                     # horizon length
         ("memsize", c_int)                      # memory size
         ]

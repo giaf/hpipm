@@ -14,13 +14,16 @@ class hpipm_solver:
         __hpipm   = CDLL('libhpipm.so')
 
         # cast dimensions to contiguous int
-        nx  = np.ascontiguousarray(qp_dims.nx,  dtype=np.int32)
-        nu  = np.ascontiguousarray(qp_dims.nu,  dtype=np.int32)
-        nbx = np.ascontiguousarray(qp_dims.nbx, dtype=np.int32)
-        nbu = np.ascontiguousarray(qp_dims.nbu, dtype=np.int32)
-        ng  = np.ascontiguousarray(qp_dims.ng,  dtype=np.int32)
-        ns  = np.ascontiguousarray(qp_dims.ns,  dtype=np.int32)
-        N   = qp_dims.N
+        nx   = np.ascontiguousarray(qp_dims.nx,  dtype=np.int32)
+        nu   = np.ascontiguousarray(qp_dims.nu,  dtype=np.int32)
+        nbx  = np.ascontiguousarray(qp_dims.nbx, dtype=np.int32)
+        nbu  = np.ascontiguousarray(qp_dims.nbu, dtype=np.int32)
+        ng   = np.ascontiguousarray(qp_dims.ng,  dtype=np.int32)
+        ns   = np.ascontiguousarray(qp_dims.ns,  dtype=np.int32)
+        nsbx = np.ascontiguousarray(qp_dims.nsbx,  dtype=np.int32)
+        nsbu = np.ascontiguousarray(qp_dims.nsbu,  dtype=np.int32)
+        nsg  = np.ascontiguousarray(qp_dims.nsg,  dtype=np.int32)
+        N    = qp_dims.N
 
         # allocate memory for dimemsions struct
         dim = d_ocp_qp_dim()
@@ -37,7 +40,9 @@ class hpipm_solver:
             cast(nbx.ctypes.data, POINTER(c_double)), 
             cast(nbu.ctypes.data, POINTER(c_double)), 
             cast(ng.ctypes.data, POINTER(c_double)), 
-            cast(ns.ctypes.data, POINTER(c_double)), 
+            cast(nsbx.ctypes.data, POINTER(c_double)), 
+            cast(nsbu.ctypes.data, POINTER(c_double)), 
+            cast(nsg.ctypes.data, POINTER(c_double)), 
             byref(dim))
 
         A = (POINTER(c_double)*(N))()
@@ -230,7 +235,7 @@ class hpipm_solver:
         # set up ipm_arg
         arg = d_ocp_qp_ipm_arg()
         __hpipm.d_create_ocp_qp_ipm_arg(byref(dim), byref(arg), ipm_arg_mem)
-        __hpipm.d_set_default_ocp_qp_ipm_arg(byref(arg))
+        __hpipm.d_set_default_ocp_qp_ipm_arg(1, byref(arg))
 
         # allocate memory for ipm workspace 
         ipm_size = __hpipm.d_memsize_ocp_qp_ipm(byref(dim), byref(arg))
@@ -280,10 +285,13 @@ class hpipm_dims:
         self.nx   = None
         self.nu   = None
         self.nb   = None
-        self.ng   = None
-        self.ns   = None
         self.nbx  = None
         self.nbu  = None
+        self.ng   = None
+        self.ns   = None
+        self.nsbx = None
+        self.nsbu = None
+        self.nsg  = None
         
         self.N    = None
 

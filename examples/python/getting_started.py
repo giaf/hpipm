@@ -31,14 +31,17 @@ qp_data.idxb = [np.array([1, 2])]
 
 qp_dims = hpipm_dims()
 
-qp_dims.nx = np.array([2, 2, 2, 2, 2, 2])
-qp_dims.nu = np.array([1, 1, 1, 1, 1, 0])
-qp_dims.nb = np.array([2, 0, 0, 0, 0, 0])
-qp_dims.ng = np.array([0, 0, 0, 0, 0, 0])
-qp_dims.ns = np.array([0, 0, 0, 0, 0, 0])
-qp_dims.nbx = np.array([2, 0, 0, 0, 0, 0])
-qp_dims.nbu = np.array([0, 0, 0, 0, 0, 0])
-qp_dims.N = 5
+qp_dims.nx   = np.array([2, 2, 2, 2, 2, 2])
+qp_dims.nu   = np.array([1, 1, 1, 1, 1, 0])
+qp_dims.nb   = np.array([2, 0, 0, 0, 0, 0])
+qp_dims.nbx  = np.array([2, 0, 0, 0, 0, 0])
+qp_dims.nbu  = np.array([0, 0, 0, 0, 0, 0])
+qp_dims.ng   = np.array([0, 0, 0, 0, 0, 0])
+qp_dims.ns   = np.array([0, 0, 0, 0, 0, 0])
+qp_dims.nsbx = np.array([0, 0, 0, 0, 0, 0])
+qp_dims.nsbu = np.array([0, 0, 0, 0, 0, 0])
+qp_dims.nsg  = np.array([0, 0, 0, 0, 0, 0])
+qp_dims.N    = 5
 
 # set up solver
 solver = hpipm_solver(qp_dims, qp_data)

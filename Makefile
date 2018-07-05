@@ -144,7 +144,7 @@ shared_library: target
 	( cd ocp_qp; $(MAKE) obj TOP=$(TOP) )
 	( cd sim_core; $(MAKE) obj TOP=$(TOP) )
 	( cd tree_ocp_qp; $(MAKE) obj TOP=$(TOP) )
-  gcc -L$(BLASFEO_PATH)/lib -shared -o libhpipm.so $(OBJS) -lblasfeo
+	gcc -L$(BLASFEO_PATH)/lib -shared -o libhpipm.so $(OBJS) -lblasfeo
 	cp libhpipm.so ./lib/
 	@echo
 	@echo " libhpipm.so shared library build complete."
@@ -181,7 +181,7 @@ test_problem:
 
 examples:
 	cp libhpipm.a ./examples/c/libhpipm.a
-	make -C examples/c obj
+	( cd examples/c; $(MAKE) obj )
 	@echo
 	@echo " Examples build complete."
 	@echo
