@@ -50,7 +50,6 @@ int main() {
     ************************************************/
 
 	int dim_size = d_memsize_ocp_qp_dim(N);
-	printf("\ndim size = %d\n", dim_size);
 	void *dim_mem = malloc(dim_size);
 
 	struct d_ocp_qp_dim dim;
@@ -74,7 +73,6 @@ int main() {
     ************************************************/
 
 	int qp_size = d_memsize_ocp_qp(&dim);
-	printf("\nqp size = %d\n", qp_size);
 	void *qp_mem = malloc(qp_size);
 
 	struct d_ocp_qp qp;
@@ -88,7 +86,6 @@ int main() {
     ************************************************/
 
 	int qp_sol_size = d_memsize_ocp_qp_sol(&dim);
-	printf("\nqp sol size = %d\n", qp_sol_size);
 	void *qp_sol_mem = malloc(qp_sol_size);
 
 	struct d_ocp_qp_sol qp_sol;
@@ -99,7 +96,6 @@ int main() {
     ************************************************/
 
 	int ipm_arg_size = d_memsize_ocp_qp_ipm_arg(&dim);
-	printf("\nipm arg size = %d\n", ipm_arg_size);
 	void *ipm_arg_mem = malloc(ipm_arg_size);
 
 	struct d_ocp_qp_ipm_arg arg;
@@ -107,7 +103,6 @@ int main() {
 	d_set_default_ocp_qp_ipm_arg(1, &arg);
 
 	int ipm_size = d_memsize_ocp_qp_ipm(&dim, &arg);
-	printf("\nipm size = %d\n", ipm_size);
 	void *ipm_mem = malloc(ipm_size);
 
 	struct d_ocp_qp_ipm_workspace workspace;
@@ -146,6 +141,21 @@ int main() {
 	double *lam_us[N+1]; for(ii=0; ii<=N; ii++) d_zeros(lam_us+ii, ns[ii], 1);
 
 	d_cvt_ocp_qp_sol_to_colmaj(&qp_sol, u, x, ls, us, pi, lam_lb, lam_ub, lam_lg, lam_ug, lam_ls, lam_us);
+
+    printf("HPIPM returned with flag %i.\n", hpipm_return);
+    if(hpipm_return == 0)
+    {
+        printf("\n -> QP solved! Solution:\n\n");
+        printf("\nu\n");
+        for(ii=0; ii<=N; ii++)
+            d_print_mat(1, nu[ii], u[ii], 1);
+        printf("\nx\n");
+        for(ii=0; ii<=N; ii++)
+            d_print_mat(1, nx[ii], x[ii], 1);
+    } else {
+        printf("\n -> Solver failed!\n");
+    }
+
 	for(ii=0; ii<N; ii++)
     {
 		d_free(u[ii]);
