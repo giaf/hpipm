@@ -114,11 +114,14 @@ int main() {
 
 	struct timeval tv0, tv1;
 
+    arg.print_level = 1;
+
 	gettimeofday(&tv0, NULL); // start
 
 	for(rep=0; rep<nrep; rep++)
     {
 		hpipm_return = d_solve_ocp_qp_ipm(&qp, &qp_sol, &arg, &workspace);
+        arg.print_level = 0;
     }
 
 	gettimeofday(&tv1, NULL); // stop
@@ -142,10 +145,11 @@ int main() {
 
 	d_cvt_ocp_qp_sol_to_colmaj(&qp_sol, u, x, ls, us, pi, lam_lb, lam_ub, lam_lg, lam_ug, lam_ls, lam_us);
 
-    printf("HPIPM returned with flag %i.\n", hpipm_return);
+    printf("in main(): HPIPM returned with flag %i.\n", hpipm_return);
     if(hpipm_return == 0)
     {
-        printf("\n -> QP solved! Solution:\n\n");
+        printf("\n -> QP solved! \n\n");
+        printf("optimal solution:\n");
         printf("\nu\n");
         for(ii=0; ii<=N; ii++)
             d_print_mat(1, nu[ii], u[ii], 1);
