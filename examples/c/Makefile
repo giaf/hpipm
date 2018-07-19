@@ -57,7 +57,7 @@ OBJS_EXMP = getting_started.o
 #OBJS_TEST = d_tools.o test_d_tree_ocp.o
 
 obj: $(OBJS_EXMP)
-	$(CC) -o geting_started.out $(OBJS_EXMP) -L. libhpipm.a $(LIBS) #-pg
+	$(CC) -o  geting_started.out $(OBJS_EXMP) -L. libhpipm.a $(LIBS) -I../../include #-pg
 
 clean:
 	rm -f *.o
