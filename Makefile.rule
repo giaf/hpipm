@@ -82,7 +82,7 @@ CFLAGS += -O2 -fPIC
 CFLAGS  += #-g #-Wall -pedantic -Wfloat-equal #-pg
 
 # search directories
-CFLAGS += -I$(BLASFEO_PATH)/include -I$(TOP)/include
+CFLAGS += -I$(BLASFEO_PATH)/include -I$(TOP)/include -I/$(TOP)/../../include
 
 # definirions
 #ifeq ($(OS), LINUX)
