@@ -259,6 +259,7 @@ class hpipm_solver:
         self.__blasfeo = __blasfeo
 
     def __del__(self):
+        # TODO(giaf): use corresponding blasfeo frees
         __libc = CDLL(ctypes.util.find_library("c"))
         __libc.free(self.dim_mem)
         __libc.free(self.qp_mem)
