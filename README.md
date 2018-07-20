@@ -2,7 +2,7 @@ This is HPIPM, a high-performance interior-point method solver for dense, optima
 
 References:
 
-- G. Frison, H.H. B. Sørensen, B. Dammann, and J.B. Jørgensen. Highperformance
+- G. Frison, H.H. B. Sørensen, B. Dammann, and J.B. Jørgensen. High-performance
 small-scale solvers for linear model predictive control. In
 IEEE European Control Conference, pages 128–133. IEEE, 2014 - <https://ieeexplore.ieee.org/document/6981589/>
 
