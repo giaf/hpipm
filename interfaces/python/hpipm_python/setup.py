@@ -1,14 +1,6 @@
 from setuptools import setup, find_packages
-from pkgutil import walk_packages
 
 import hpipm_python
-
-# def find_packages(path=__path__, prefix=""):
-#     yield prefix
-#     prefix = prefix + "."
-#     for _, name, ispkg in walk_packages(path, prefix):
-#         if ispkg:
-#             yield name
 
 setup(name='hpipm-python',
    version='0.1',
