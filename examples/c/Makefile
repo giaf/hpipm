@@ -25,108 +25,43 @@
 #                                                                                                 #
 ###################################################################################################
 
-# Target architecture
-TARGET = AVX
-#TARGET = GENERIC
+include ../../Makefile.rule
 
-# Use C99 extension to math library
-#
-# USE_C99_MATH = 0
-USE_C99_MATH = 1
+LIBS =
 
-# BLAS and LAPACK version (for LA=BLAS in BLASFEO)
-REF_BLAS = 0
-#REF_BLAS = OPENBLAS
-#REF_BLAS = NETLIB
-#REF_BLAS = MKL
-#REF_BLAS = BLIS
-#REF_BLAS = ATLAS
-
-# Installation directory
-TOP = $(shell pwd)
-
-# operating system
-#UNAME_S := $(shell uname -s)
-#ifeq ($(UNAME_S),Linux)
-#    OS = LINUX
-#endif
-#ifeq ($(UNAME_S),Darwin)
-#    OS = MAC
-#endif
-#OS = LINUX
-#OS = MAC
-#OS = WINDOWS
-
-# C Compiler
-CC = gcc
-#CC = clang
-#CC = x86_64-w64-mingw32-gcc
-
-# Installation directory
-PREFIX = /opt
-
-# BLASFEO installation directory
-BLASFEO_PATH = /opt/blasfeo
-
-# enable runtine checks
-RUNTIME_CHECKS = 0
-#RUNTIME_CHECKS = 1
-
-# compiler flags
-CFLAGS  = 
-
-# optimization flags
-CFLAGS += -O2 -fPIC
-
-# debugging flags
-CFLAGS  += #-g #-Wall -pedantic -Wfloat-equal #-pg
-
-# search directories
-CFLAGS += -I$(BLASFEO_PATH)/include -I$(TOP)/include -I/$(TOP)/../../include
-
-# definirions
-#ifeq ($(OS), LINUX)
-#CFLAGS  += -DOS_LINUX
-#endif
-#ifeq ($(OS), MAC)
-#CFLAGS  += -DOS_MAC
-#endif
-#ifeq ($(OS), WINDOWS)
-#CFLAGS  += -DOS_WINDOWS
-#endif
-
-ifeq ($(USE_C99_MATH), 1)
-CFLAGS += -DUSE_C99_MATH
-endif
+LIBS += $(BLASFEO_PATH)/lib/libblasfeo.a
 
 ifeq ($(REF_BLAS), 0)
-CFLAGS  += 
+LIBS += -lm 
 endif
 ifeq ($(REF_BLAS), OPENBLAS)
-CFLAGS  += -DREF_BLAS_OPENBLAS -I/opt/openblas/include
+LIBS += /opt/openblas/lib/libopenblas.a -pthread -lgfortran -lm
 endif
 ifeq ($(REF_BLAS), BLIS)
-CFLAGS  += -DREF_BLAS_BLIS -std=c99
+LIBS += /opt/netlib/liblapack.a /opt/blis/lib/libblis.a -lgfortran -lm -fopenmp
 endif
 ifeq ($(REF_BLAS), NETLIB)
-CFLAGS  += -DREF_BLAS_NETLIB
+LIBS += /opt/netlib/liblapack.a /opt/netlib/libblas.a -lgfortran -lm
 endif
 ifeq ($(REF_BLAS), MKL)
-CFLAGS  += -DREF_BLAS_MKL -m64 -I/opt/intel/mkl/include
+LIBS += -Wl,--start-group /opt/intel/mkl/lib/intel64/libmkl_gf_lp64.a /opt/intel/mkl/lib/intel64/libmkl_core.a /opt/intel/mkl/lib/intel64/libmkl_sequential.a -Wl,--end-group -ldl -lpthread -lm
 endif
 ifeq ($(REF_BLAS), ATLAS)
-CFLAGS  += -DREF_BLAS_ATLAS
+LIBS += /opt/atlas/lib/liblapack.a /opt/atlas/lib/libcblas.a /opt/atlas/lib/libf77blas.a /opt/atlas/lib/libatlas.a -lgfortran -lm
 endif
 
-ifeq ($(RUNTIME_CHECKS), 1)
-CFLAGS += -DRUNTIME_CHECKS
-endif
+#OBJS_TEST = d_tools.o test_d_cond.o
+#OBJS_TEST = d_tools.o test_d_part_cond.o
+#OBJS_TEST = test_d_dense.o
+OBJS_EXMP = getting_started.o
+#OBJS_TEST = d_tools.o test_d_tree_ocp.o
 
-# architecture-specific flags
-ifeq ($(TARGET), AVX)
-CFLAGS  += -mavx -DTARGET_AVX
-endif
-ifeq ($(TARGET), GENERIC)
-CFLAGS  += -DTARGET_GENERIC
-endif
+obj: $(OBJS_EXMP)
+	$(CC) -o  geting_started.out $(OBJS_EXMP) -L. libhpipm.a $(LIBS) -I../../include #-pg
+
+clean:
+	rm -f *.o
+	rm -f getting_started.out
+	rm -f libhpipm.a
+
 
