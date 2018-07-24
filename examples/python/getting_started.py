@@ -1,4 +1,5 @@
 from hpipm_python import *
+from hpipm_python.common import *
 import numpy as np
 
 qp_data = hpipm_data()
