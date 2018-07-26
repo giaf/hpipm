@@ -96,11 +96,33 @@ static double *qq[6] = {q, q, q, q, q, q};
 //
 static double *rr[6] = {r, r, r, r, r, r};
 //
+static int *iidxb[6] = {idxb0, NULL, NULL, NULL, NULL, NULL};
+//
 static double *llb[6] = {x0, NULL, NULL, NULL, NULL, NULL};
 //
 static double *uub[6] = {x0, NULL, NULL, NULL, NULL, NULL};
 //
-static int *iidxb[6] = {idxb0, NULL, NULL, NULL, NULL, NULL};
+static double *CC[6] = {};
+//
+static double *DD[6] = {};
+//
+static double *llg[6] = {};
+//
+static double *uug[6] = {};
+//
+static double *ZZl[6] = {};
+//
+static double *ZZu[6] = {};
+//
+static double *zzl[6] = {};
+//
+static double *zzu[6] = {};
+//
+static int *iidxs[6] = {};
+//
+static double *llls[6] = {};
+//
+static double *uuls[6] = {};
 
 
 
@@ -122,6 +144,17 @@ double **hR = RR;
 double **hS = SS;
 double **hq = qq;
 double **hr = rr;
+int **hidxb = iidxb;
 double **hlb = llb;
 double **hub = uub;
-int **hidxb = iidxb;
+double **hC = CC;
+double **hD = DD;
+double **hlg = llg;
+double **hug = uug;
+double **hZl = ZZl;
+double **hZu = ZZu;
+double **hzl = zzl;
+double **hzu = zzu;
+int **hidxs = iidxs;
+double **hlls = llls;
+double **huls = uuls;

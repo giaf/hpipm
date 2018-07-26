@@ -38,6 +38,7 @@
 
 
 
+// qp data as global data
 extern int N;
 extern int *nx;
 extern int *nu;
@@ -55,9 +56,20 @@ extern double **hR;
 extern double **hS;
 extern double **hq;
 extern double **hr;
+extern int **hidxb;
 extern double **hlb;
 extern double **hub;
-extern int **hidxb;
+extern double **hC;
+extern double **hD;
+extern double **hlg;
+extern double **hug;
+extern double **hZl;
+extern double **hZu;
+extern double **hzl;
+extern double **hzu;
+extern int **hidxs;
+extern double **hlls;
+extern double **huls;
 
 
 
@@ -95,7 +107,7 @@ int main()
 	struct d_ocp_qp qp;
 	d_create_ocp_qp(&dim, &qp, qp_mem);
 
-	d_cvt_colmaj_to_ocp_qp(hA, hB, hb, hQ, hS, hR, hq, hr, hidxb, hlb, hub, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, &qp);
+	d_cvt_colmaj_to_ocp_qp(hA, hB, hb, hQ, hS, hR, hq, hr, hidxb, hlb, hub, hC, hD, hlg, hug, hZl, hZu, hzl, hzu, hidxs, hlls, huls, &qp);
 
     /************************************************
     * ocp qp sol
