@@ -29,6 +29,8 @@
 #include <stdio.h>
 #include <sys/time.h>
 
+#include <blasfeo_d_aux_ext_dep.h>
+
 #include "../../include/hpipm_d_ocp_qp_ipm.h"
 #include "../../include/hpipm_d_ocp_qp_dim.h"
 #include "../../include/hpipm_d_ocp_qp.h"
@@ -62,6 +64,8 @@ extern int **hidxb;
 // main
 int main()
 	{
+
+	int ii;
 
 	int hpipm_return;
 
@@ -165,6 +169,42 @@ int main()
 	printf("\n\n");
 
     /************************************************
+    * extract and print solution
+    ************************************************/
+
+	// u
+
+	int nu_max = nu[0];
+	for(ii=1; ii<=N; ii++)
+		if(nu[ii]>nu_max)
+			nu_max = nu[ii];
+
+	double *u = malloc(nu_max*sizeof(double));
+
+	printf("\nu = \n");
+	for(ii=0; ii<=N; ii++)
+		{
+		d_cvt_ocp_qp_sol_to_colmaj_u(&qp_sol, u, ii);
+		d_print_mat(1, nu[ii], u, 1);
+		}
+
+	// x
+
+	int nx_max = nx[0];
+	for(ii=1; ii<=N; ii++)
+		if(nx[ii]>nx_max)
+			nx_max = nx[ii];
+
+	double *x = malloc(nx_max*sizeof(double));
+
+	printf("\nx = \n");
+	for(ii=0; ii<=N; ii++)
+		{
+		d_cvt_ocp_qp_sol_to_colmaj_x(&qp_sol, x, ii);
+		d_print_mat(1, nx[ii], x, 1);
+		}
+
+    /************************************************
     * free memory and return
     ************************************************/
 
@@ -172,6 +212,9 @@ int main()
 	free(qp_sol_mem);
 	free(ipm_arg_mem);
 	free(ipm_mem);
+
+	free(u);
+	free(x);
 
 	return 0;
 
