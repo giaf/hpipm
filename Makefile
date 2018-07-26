@@ -175,6 +175,9 @@ test_problem:
 	@echo " Test problem build complete."
 	@echo
 
+run_test_problems:
+	./test_problems/test.out
+
 examples:
 	cp libhpipm.a ./examples/c/libhpipm.a
 	( cd examples/c; $(MAKE) obj )
@@ -182,8 +185,8 @@ examples:
 	@echo " Examples build complete."
 	@echo
 
-run:
-	./test_problems/test.out
+run_examples:
+	./examples/c/example.out
 
 
 .PHONY: examples
