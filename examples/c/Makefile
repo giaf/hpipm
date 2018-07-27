@@ -52,6 +52,7 @@ endif
 
 #OBJS_EXMP = getting_started.o
 OBJS_EXMP = data_getting_started.o example_d_ocp_qp.o
+#OBJS_EXMP = ocp_qp_data.o example_d_ocp_qp.o
 
 obj: $(OBJS_EXMP)
 	$(CC) -o  example.out $(OBJS_EXMP) -L. libhpipm.a $(LIBS) -I../../include #-pg

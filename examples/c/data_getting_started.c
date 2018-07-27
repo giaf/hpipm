@@ -41,7 +41,6 @@ static int nnx[6] = {2, 2, 2, 2, 2, 2};
 static int nnbu[6] = {0, 0, 0, 0, 0, 0};
 // number of states box constraints
 static int nnbx[6] = {2, 0, 0, 0, 0, 0};
-int *nbx = nnbx;
 // number of general constraints
 static int nng[6] = {0, 0, 0, 0, 0, 0};
 // number of softed input box constraints
@@ -131,6 +130,7 @@ static double *uuls[6] = {};
 int *nu = nnu;
 int *nx = nnx;
 int *nbu = nnbu;
+int *nbx = nnbx;
 int *ng = nng;
 int *nsbu = nnsbu;
 int *nsbx = nnsbx;
