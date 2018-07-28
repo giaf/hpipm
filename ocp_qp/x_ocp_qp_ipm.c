@@ -1388,5 +1388,13 @@ exit(1);
 
 	}
 
+// interface functions
+int SIZEOF_OCP_QP_IPM_ARG()
+    {
+        return sizeof(struct OCP_QP_IPM_ARG);
+    }
 
-
+int SIZEOF_OCP_QP_IPM_WORKSPACE()
+    {
+        return sizeof(struct OCP_QP_IPM_WORKSPACE);
+    }

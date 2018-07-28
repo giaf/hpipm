@@ -136,6 +136,8 @@ void d_cvt_colmaj_to_ocp_qp_ug(int stage, double *vec, struct d_ocp_qp *qp);
 //
 void d_cvt_ocp_qp_to_colmaj_ug(int stage, struct d_ocp_qp *qp, double *vec);
 
+// interface functions
+int d_sizeof_ocp_qp();
 
 #ifdef __cplusplus
 }	// #extern "C"

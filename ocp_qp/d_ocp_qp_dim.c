@@ -37,5 +37,8 @@
 #define CREATE_OCP_QP_DIM d_create_ocp_qp_dim
 #define CVT_INT_TO_OCP_QP_DIM d_cvt_int_to_ocp_qp_dim
 
+// interface functions
+#define SIZEOF_OCP_QP_DIM d_sizeof_ocp_qp_dim
+
 
 #include "x_ocp_qp_dim.c"

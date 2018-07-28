@@ -122,3 +122,9 @@ void CVT_INT_TO_OCP_QP_DIM(int N, int *nx, int *nu, int *nbx, int *nbu, int *ng,
 	return;
 
 	}
+
+// interface functions
+int SIZEOF_OCP_QP_DIM()
+    {
+        return sizeof(struct OCP_QP_DIM);
+    }

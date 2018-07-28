@@ -62,7 +62,8 @@ void d_create_ocp_qp_dim(int N, struct d_ocp_qp_dim *qp_dim, void *memory);
 //
 void d_cvt_int_to_ocp_qp_dim(int N, int *nx, int *nu, int *nbx, int *nbu, int *ng, int *nsbx, int *nsbu, int* nsg, struct d_ocp_qp_dim *dim);
 
-
+// interface functions
+int d_sizeof_ocp_qp_dim();
 
 #ifdef __cplusplus
 }	// #extern "C"

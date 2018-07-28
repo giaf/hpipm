@@ -28,14 +28,17 @@ class hpipm_solver:
         N    = qp_dims.N
 
         # allocate memory for dimemsions struct
-        dim = d_ocp_qp_dim()
+        # dim = d_ocp_qp_dim()
+        dim = c_void_p()
+        sizeof_d_ocp_qp_dim = __hpipm.d_sizeof_ocp_qp_dim()
+        __blasfeo.v_zeros(byref(dim), sizeof_d_ocp_qp_dim)
         dim_size = __hpipm.d_memsize_ocp_qp_dim(qp_dims.N)
         dim_mem = c_void_p()
         __blasfeo.v_zeros(byref(dim_mem), dim_size)
         self.dim_mem = dim_mem
 
         # set up dimensions structure
-        __hpipm.d_create_ocp_qp_dim(N, byref(dim), dim_mem)
+        __hpipm.d_create_ocp_qp_dim(N, dim, dim_mem)
         __hpipm.d_cvt_int_to_ocp_qp_dim(N, 
             cast(nx.ctypes.data, POINTER(c_double)), 
             cast(nu.ctypes.data, POINTER(c_double)), 
@@ -45,8 +48,8 @@ class hpipm_solver:
             cast(nsbx.ctypes.data, POINTER(c_double)), 
             cast(nsbu.ctypes.data, POINTER(c_double)), 
             cast(nsg.ctypes.data, POINTER(c_double)), 
-            byref(dim))
-
+            dim)
+        
         A = (POINTER(c_double)*(N))()
         B = (POINTER(c_double)*(N))()
         b = (POINTER(c_double)*(N))()  
@@ -206,48 +209,59 @@ class hpipm_solver:
             idxs[i] = cast(qp_data.idxs[i].ctypes.data, POINTER(c_int))
 
         # allocate memory for qp struct 
-        qp_size = __hpipm.d_memsize_ocp_qp(byref(dim))
+        qp_size = __hpipm.d_memsize_ocp_qp(dim)
         qp_mem = c_void_p()
         __blasfeo.v_zeros(byref(qp_mem), qp_size)
         self.qp_mem = qp_mem
 
         # set up ocp_qp structure
-        qp = d_ocp_qp()
-        __hpipm.d_create_ocp_qp(byref(dim), byref(qp), qp_mem)
+        # qp = d_ocp_qp()
+        qp = c_void_p()
+        sizeof_d_ocp_qp = __hpipm.d_sizeof_ocp_qp()
+        __blasfeo.v_zeros(byref(qp), sizeof_d_ocp_qp)
+        __hpipm.d_create_ocp_qp(dim, qp, qp_mem)
         __hpipm.d_cvt_colmaj_to_ocp_qp(A, B, b, Q, S, R, q, r, idxb, d_lb, 
-            d_ub, C, D, d_lg, d_ug, Zl, Zu, zl, zu, idxs, d_ls, d_us, byref(qp))
+            d_ub, C, D, d_lg, d_ug, Zl, Zu, zl, zu, idxs, d_ls, d_us, qp)
         
         # import pdb; pdb.set_trace()
         # allocate memory for ocp_qp_sol struct
-        qp_sol_size = __hpipm.d_memsize_ocp_qp_sol(byref(dim))
+        qp_sol_size = __hpipm.d_memsize_ocp_qp_sol(dim)
         qp_sol_mem = c_void_p()
         __blasfeo.v_zeros(byref(qp_sol_mem), qp_sol_size)
         self.qp_sol_mem = qp_sol_mem
 
         # set up ocp_qp_sol struct
-        qp_sol = d_ocp_qp_sol() 
-        __hpipm.d_create_ocp_qp_sol(byref(dim), byref(qp_sol), qp_sol_mem)
+        qp_sol = c_void_p()
+        sizeof_d_ocp_qp_sol = __hpipm.d_sizeof_ocp_qp_sol()
+        __blasfeo.v_zeros(byref(qp_sol), sizeof_d_ocp_qp_sol)
+        __hpipm.d_create_ocp_qp_sol(dim, qp_sol, qp_sol_mem)
 
         # allocate memory for ipm_arg struct
-        ipm_arg_size = __hpipm.d_memsize_ocp_qp_ipm_arg(byref(dim))
+        ipm_arg_size = __hpipm.d_memsize_ocp_qp_ipm_arg(dim)
         ipm_arg_mem = c_void_p()
         __blasfeo.v_zeros(byref(ipm_arg_mem), ipm_arg_size)
         self.ipm_arg_mem = ipm_arg_mem
     
         # set up ipm_arg
-        arg = d_ocp_qp_ipm_arg()
-        __hpipm.d_create_ocp_qp_ipm_arg(byref(dim), byref(arg), ipm_arg_mem)
-        __hpipm.d_set_default_ocp_qp_ipm_arg(1, byref(arg))
+        # arg = d_ocp_qp_ipm_arg()
+        arg = c_void_p() 
+        sizeof_d_ocp_qp_ipm_arg = __hpipm.d_sizeof_ocp_qp_ipm_arg()
+        __blasfeo.v_zeros(byref(arg), sizeof_d_ocp_qp_ipm_arg)
+        __hpipm.d_create_ocp_qp_ipm_arg(dim, arg, ipm_arg_mem)
+        __hpipm.d_set_default_ocp_qp_ipm_arg(1, arg)
 
         # allocate memory for ipm workspace 
-        ipm_size = __hpipm.d_memsize_ocp_qp_ipm(byref(dim), byref(arg))
+        ipm_size = __hpipm.d_memsize_ocp_qp_ipm(dim, arg)
         ipm_mem = c_void_p()
         __blasfeo.v_zeros(byref(ipm_mem), ipm_size)
         self.ipm_mem = ipm_mem
 
         # set up ipm workspace
-        workspace = d_ocp_qp_ipm_workspace()
-        __hpipm.d_create_ocp_qp_ipm(byref(dim), byref(arg), byref(workspace), ipm_mem)
+        # workspace = d_ocp_qp_ipm_workspace()
+        workspace = c_void_p() 
+        sizeof_d_ocp_qp_ipm_workspace = __hpipm.d_sizeof_ocp_qp_ipm_workspace()
+        __blasfeo.v_zeros(byref(workspace), sizeof_d_ocp_qp_ipm_workspace)
+        __hpipm.d_create_ocp_qp_ipm(dim, arg, workspace, ipm_mem)
 
         self.qp = qp
         self.qp_sol = qp_sol
@@ -260,17 +274,17 @@ class hpipm_solver:
 
     def __del__(self):
         # TODO(giaf): use corresponding blasfeo frees
-        __libc = CDLL(ctypes.util.find_library("c"))
-        __libc.free(self.dim_mem)
-        __libc.free(self.qp_mem)
-        __libc.free(self.qp_sol_mem)
-        __libc.free(self.ipm_mem)
-        __libc.free(self.ipm_arg_mem)
+        # __libc = CDLL(ctypes.util.find_library("c"))
+        # __libc.free(self.dim_mem)
+        # __libc.free(self.qp_mem)
+        # __libc.free(self.qp_sol_mem)
+        # __libc.free(self.ipm_mem)
+        # __libc.free(self.ipm_arg_mem)
         return
 
     def solve(self):
-        return self.__hpipm.d_solve_ocp_qp_ipm(byref(self.qp), byref(self.qp_sol), 
-            byref(self.arg), byref(self.workspace))
+        return self.__hpipm.d_solve_ocp_qp_ipm(self.qp, self.qp_sol, 
+            self.arg, self.workspace)
 
     def print_sol(self):
 

@@ -416,3 +416,10 @@ void CVT_OCP_QP_SOL_TO_COLMAJ_LAM_UG(struct OCP_QP_SOL *qp_sol, REAL *vec, int s
 		int *ng = qp_sol->dim->ng;
 		CVT_STRVEC2VEC(ng[stage], qp_sol->lam+stage, 2*nb[stage]+ng[stage], vec);
 	}
+
+// interface functions
+int SIZEOF_OCP_QP_SOL()
+    {
+        return sizeof(struct OCP_QP_SOL);
+    }
+

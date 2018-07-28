@@ -947,6 +947,10 @@ void CHANGE_BOUNDS_DIMENSIONS_OCP_QP(int *nbu, int *nbx, struct OCP_QP *qp)
 
 	}
 
-
+// interface functions
+int SIZEOF_OCP_QP()
+    {
+        return sizeof(struct OCP_QP);
+    }
 
 

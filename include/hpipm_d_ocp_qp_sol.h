@@ -83,6 +83,9 @@ void d_cvt_ocp_qp_sol_to_colmaj_lam_lg(struct d_ocp_qp_sol *qp_sol, double *vec,
 //
 void d_cvt_ocp_qp_sol_to_colmaj_lam_ug(struct d_ocp_qp_sol *qp_sol, double *vec, int stage);
 
+// interface functions
+int d_sizeof_ocp_qp_sol();
+
 #ifdef __cplusplus
 }	// #extern "C"
 #endif
