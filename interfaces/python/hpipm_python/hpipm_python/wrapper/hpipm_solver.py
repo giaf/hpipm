@@ -274,12 +274,18 @@ class hpipm_solver:
 
     def __del__(self):
         # TODO(giaf): use corresponding blasfeo frees
-        # __libc = CDLL(ctypes.util.find_library("c"))
-        # __libc.free(self.dim_mem)
-        # __libc.free(self.qp_mem)
-        # __libc.free(self.qp_sol_mem)
-        # __libc.free(self.ipm_mem)
-        # __libc.free(self.ipm_arg_mem)
+        __libc = CDLL(ctypes.util.find_library("c"))
+        __libc.free(self.dim)
+        __libc.free(self.qp)
+        __libc.free(self.qp_sol)
+        __libc.free(self.arg)
+        __libc.free(self.workspace)
+
+        __libc.free(self.dim_mem)
+        __libc.free(self.qp_mem)
+        __libc.free(self.qp_sol_mem)
+        __libc.free(self.ipm_mem)
+        __libc.free(self.ipm_arg_mem)
         return
 
     def solve(self):
