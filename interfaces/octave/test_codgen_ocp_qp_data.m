@@ -5,6 +5,7 @@ N = 5;
 
 % dims
 dims = create_ocp_qp_dims(N);
+
 % number of states
 for ii=1:N+1
 	dims.nx(ii) = 2;
@@ -14,7 +15,17 @@ for ii=1:N
 	dims.nu(ii) = 1;
 end
 % number of state box constraints
-dims.nbx(1) = dims.nx(1);
+for ii=1:N+1
+	dims.nbx(ii) = dims.nx(ii);
+end
+% number of input box constraints
+for ii=1:N
+	dims.nbu(ii) = dims.nu(ii);
+end
+% number of general constraints
+dims.ng(N+1) = 2;
+% number of general constraints which are softed
+dims.nsg(N+1) = dims.ng(N+1);
 
 %dims
 
@@ -36,10 +47,40 @@ q = [1; 1];
 %
 r = [0];
 %
+Jx0 = [1 0; 0 1];
+%
 x0 = [1; 1];
 %
-Jx0 = [1 0; 0 1];
+Jx = [1 0; 0 1];
+%
+lx = [-5; -5];
+%
+ux = [5; 5];
+%
+Ju = [1];
+%
+lu = [-0.5];
+%
+uu = [0.5];
+%
+CN = [1 0; 0 1];
+%
+lgN = [0; 0];
+%
+ugN = [0; 0];
+%
+ZlN = [1e6 0; 0 1e6];
+%
+ZuN = [1e6 0; 0 1e6];
+%
+zlN = [0; 0];
+%
+zuN = [0; 0];
+%
+JsgN = [1 0; 0 1];
 
+% qp
+%
 qp = create_ocp_qp(dims);
 
 %
@@ -76,10 +117,47 @@ for ii=1:N
 end
 %
 qp.Jx{1} = Jx0;
+for ii=2:N+1
+	qp.Jx{ii} = Jx;
+end
 %
 qp.lx{1} = x0;
+for ii=2:N+1
+	qp.lx{ii} = lx;
+end
 %
 qp.ux{1} = x0;
+for ii=2:N+1
+	qp.ux{ii} = ux;
+end
+%
+for ii=1:N
+	qp.Ju{ii} = Ju;
+end
+%
+for ii=1:N
+	qp.lu{ii} = lu;
+end
+%
+for ii=1:N
+	qp.uu{ii} = uu;
+end
+%
+qp.C{N+1} = CN;
+%
+qp.lg{N+1} = lgN;
+%
+qp.ug{N+1} = ugN;
+%
+qp.Zl{N+1} = ZlN;
+%
+qp.Zu{N+1} = ZuN;
+%
+qp.zl{N+1} = zlN;
+%
+qp.zu{N+1} = zuN;
+%
+qp.Jsg{N+1} = JsgN;
 
 %qp
 

@@ -11,6 +11,8 @@ nsbx = dims.nsbx;
 nsbu = dims.nsbu;
 nsg = dims.nsg;
 
+ns = nsbx+nsbu+nsg;
+
 %
 qp.A = {};
 for ii=1:N
@@ -80,6 +82,71 @@ end
 qp.uu = {};
 for ii=1:N+1
 	qp.uu{ii} = zeros(nbu(ii), 1);
+end
+%
+qp.C = {};
+for ii=1:N+1
+	qp.C{ii} = zeros(ng(ii), nx(ii));
+end
+%
+qp.D = {};
+for ii=1:N+1
+	qp.D{ii} = zeros(ng(ii), nu(ii));
+end
+%
+qp.lg = {};
+for ii=1:N+1
+	qp.lg{ii} = zeros(ng(ii), 1);
+end
+%
+qp.ug = {};
+for ii=1:N+1
+	qp.ug{ii} = zeros(ng(ii), 1);
+end
+%
+qp.Zl = {};
+for ii=1:N+1
+	qp.Zl{ii} = zeros(ns(ii), ns(ii));
+end
+%
+qp.Zu = {};
+for ii=1:N+1
+	qp.Zu{ii} = zeros(ns(ii), ns(ii));
+end
+%
+qp.zl = {};
+for ii=1:N+1
+	qp.zl{ii} = zeros(ns(ii), 1);
+end
+%
+qp.zu = {};
+for ii=1:N+1
+	qp.zu{ii} = zeros(ns(ii), 1);
+end
+%
+qp.Jsbx = {};
+for ii=1:N+1
+	qp.Jsbx{ii} = zeros(nbx(ii), ns(ii));
+end
+%
+qp.Jsbu = {};
+for ii=1:N+1
+	qp.Jsbu{ii} = zeros(nbu(ii), ns(ii));
+end
+%
+qp.Jsg = {};
+for ii=1:N+1
+	qp.Jsg{ii} = zeros(ng(ii), ns(ii));
+end
+%
+qp.lls = {};
+for ii=1:N+1
+	qp.lls{ii} = zeros(ns(ii), 1);
+end
+%
+qp.lus = {};
+for ii=1:N+1
+	qp.lus{ii} = zeros(ns(ii), 1);
 end
 
 return;

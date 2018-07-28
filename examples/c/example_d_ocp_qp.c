@@ -69,7 +69,7 @@ extern double **hzl;
 extern double **hzu;
 extern int **hidxs;
 extern double **hlls;
-extern double **huls;
+extern double **hlus;
 
 
 
@@ -107,7 +107,7 @@ int main()
 	struct d_ocp_qp qp;
 	d_create_ocp_qp(&dim, &qp, qp_mem);
 
-	d_cvt_colmaj_to_ocp_qp(hA, hB, hb, hQ, hS, hR, hq, hr, hidxb, hlb, hub, hC, hD, hlg, hug, hZl, hZu, hzl, hzu, hidxs, hlls, huls, &qp);
+	d_cvt_colmaj_to_ocp_qp(hA, hB, hb, hQ, hS, hR, hq, hr, hidxb, hlb, hub, hC, hD, hlg, hug, hZl, hZu, hzl, hzu, hidxs, hlls, hlus, &qp);
 
     /************************************************
     * ocp qp sol
@@ -129,7 +129,11 @@ int main()
 	struct d_ocp_qp_ipm_arg arg;
 	d_create_ocp_qp_ipm_arg(&dim, &arg, ipm_arg_mem);
 
-	d_set_default_ocp_qp_ipm_arg(1, &arg);
+//	enum hpipm_mode mode = SPEED_ABS;
+//	enum hpipm_mode mode = SPEED;
+	enum hpipm_mode mode = BALANCE;
+//	enum hpipm_mode mode = ROBUST;
+	d_set_default_ocp_qp_ipm_arg(mode, &arg);
 
     /************************************************
     * ipm solver
