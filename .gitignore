@@ -19,3 +19,6 @@ octave-workspace
 .vscode
 
 change_name.sh
+
+__pycache__
+*egg-info

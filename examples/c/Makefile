@@ -50,18 +50,16 @@ ifeq ($(REF_BLAS), ATLAS)
 LIBS += /opt/atlas/lib/liblapack.a /opt/atlas/lib/libcblas.a /opt/atlas/lib/libf77blas.a /opt/atlas/lib/libatlas.a -lgfortran -lm
 endif
 
-#OBJS_TEST = d_tools.o test_d_cond.o
-#OBJS_TEST = d_tools.o test_d_part_cond.o
-#OBJS_TEST = test_d_dense.o
-OBJS_EXMP = getting_started.o
-#OBJS_TEST = d_tools.o test_d_tree_ocp.o
+#OBJS_EXMP = getting_started.o
+OBJS_EXMP = data_getting_started.o example_d_ocp_qp.o
+#OBJS_EXMP = ocp_qp_data.o example_d_ocp_qp.o
 
 obj: $(OBJS_EXMP)
-	$(CC) -o  geting_started.out $(OBJS_EXMP) -L. libhpipm.a $(LIBS) -I../../include #-pg
+	$(CC) -o  example.out $(OBJS_EXMP) -L. libhpipm.a $(LIBS) -I../../include #-pg
 
 clean:
 	rm -f *.o
-	rm -f getting_started.out
+	rm -f example.out
 	rm -f libhpipm.a
 
 
