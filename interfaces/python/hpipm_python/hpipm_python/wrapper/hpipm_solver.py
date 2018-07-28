@@ -1,7 +1,6 @@
 from ctypes import *
 import ctypes.util 
 import numpy as np
-from copy import deepcopy
 
 class hpipm_solver:
     def __init__(self, qp_dims, qp_data):
