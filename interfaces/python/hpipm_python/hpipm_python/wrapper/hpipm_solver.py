@@ -211,7 +211,6 @@ class hpipm_solver:
         self.qp_mem = qp_mem
 
         # set up ocp_qp structure
-        # qp = d_ocp_qp()
         qp = c_void_p()
         sizeof_d_ocp_qp = __hpipm.d_sizeof_ocp_qp()
         __blasfeo.v_zeros(byref(qp), sizeof_d_ocp_qp)
@@ -241,7 +240,6 @@ class hpipm_solver:
         self.ipm_arg_mem = ipm_arg_mem
     
         # set up ipm_arg
-        # arg = d_ocp_qp_ipm_arg()
         arg = c_void_p() 
         sizeof_d_ocp_qp_ipm_arg = __hpipm.d_sizeof_ocp_qp_ipm_arg()
         __blasfeo.v_zeros(byref(arg), sizeof_d_ocp_qp_ipm_arg)
@@ -257,7 +255,6 @@ class hpipm_solver:
         self.ipm_mem = ipm_mem
 
         # set up ipm workspace
-        # workspace = d_ocp_qp_ipm_workspace()
         workspace = c_void_p() 
         sizeof_d_ocp_qp_ipm_workspace = __hpipm.d_sizeof_ocp_qp_ipm_workspace()
         __blasfeo.v_zeros(byref(workspace), sizeof_d_ocp_qp_ipm_workspace)
@@ -295,23 +292,7 @@ class hpipm_solver:
             self.arg, self.workspace)
 
     def print_sol(self):
-
-        print("ux =\n")
-        for ii in range(self.dim.N+1):
-            self.__blasfeo.blasfeo_print_tran_dvec(self.dim.nu[ii] + self.dim.nx[ii] + 2 * self.dim.ns[ii], byref(self.qp_sol.ux[ii]), 0);
-
-        print("pi =\n")
-        for ii in range(self.dim.N):
-            self.__blasfeo.blasfeo_print_tran_dvec(self.dim.nx[ii+1], byref(self.qp_sol.pi[ii]), 0);
-
-        print("lam =\n")
-        for ii in range(self.dim.N+1):
-            self.__blasfeo.blasfeo_print_tran_dvec(2*self.dim.nb[ii] + 2*self.dim.ng[ii] +2*self.dim.ns[ii] , byref(self.qp_sol.lam[ii]), 0);
-
-        print("t =\n")
-        for ii in range(self.dim.N+1):
-            self.__blasfeo.blasfeo_print_tran_dvec(2*self.dim.nb[ii] + 2*self.dim.ng[ii] +2*self.dim.ns[ii] , byref(self.qp_sol.t[ii]), 0);
-
+        self.__hpipm.d_print_ocp_qp_sol(self.ocp_qp_sol, self.ocp_qp_dim)
         return 
 
 class hpipm_dims:
