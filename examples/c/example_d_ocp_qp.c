@@ -81,13 +81,13 @@ int main()
 
 	int hpipm_return;
 
-	int rep, nrep=1000;
+	int rep, nrep=10;
 
 	struct timeval tv0, tv1;
 
-    /************************************************
-    * ocp qp dim
-    ************************************************/
+/************************************************
+* ocp qp dim
+************************************************/
 
 	int dim_size = d_memsize_ocp_qp_dim(N);
 	void *dim_mem = malloc(dim_size);
@@ -97,9 +97,9 @@ int main()
 
 	d_cvt_int_to_ocp_qp_dim(N, nx, nu, nbx, nbu, ng, nsbx, nsbu, nsg, &dim);
 
-    /************************************************
-    * ocp qp
-    ************************************************/
+/************************************************
+* ocp qp
+************************************************/
 
 	int qp_size = d_memsize_ocp_qp(&dim);
 	void *qp_mem = malloc(qp_size);
@@ -109,9 +109,9 @@ int main()
 
 	d_cvt_colmaj_to_ocp_qp(hA, hB, hb, hQ, hS, hR, hq, hr, hidxb, hlb, hub, hC, hD, hlg, hug, hZl, hZu, hzl, hzu, hidxs, hlls, hlus, &qp);
 
-    /************************************************
-    * ocp qp sol
-    ************************************************/
+/************************************************
+* ocp qp sol
+************************************************/
 
 	int qp_sol_size = d_memsize_ocp_qp_sol(&dim);
 	void *qp_sol_mem = malloc(qp_sol_size);
@@ -119,9 +119,9 @@ int main()
 	struct d_ocp_qp_sol qp_sol;
 	d_create_ocp_qp_sol(&dim, &qp_sol, qp_sol_mem);
 
-    /************************************************
-    * ipm arg
-    ************************************************/
+/************************************************
+* ipm arg
+************************************************/
 
 	int ipm_arg_size = d_memsize_ocp_qp_ipm_arg(&dim);
 	void *ipm_arg_mem = malloc(ipm_arg_size);
@@ -130,14 +130,22 @@ int main()
 	d_create_ocp_qp_ipm_arg(&dim, &arg, ipm_arg_mem);
 
 //	enum hpipm_mode mode = SPEED_ABS;
-//	enum hpipm_mode mode = SPEED;
-	enum hpipm_mode mode = BALANCE;
+	enum hpipm_mode mode = SPEED;
+//	enum hpipm_mode mode = BALANCE;
 //	enum hpipm_mode mode = ROBUST;
 	d_set_default_ocp_qp_ipm_arg(mode, &arg);
 
-    /************************************************
-    * ipm solver
-    ************************************************/
+	arg.mu0 = 1e4;
+	arg.iter_max = 30;
+	arg.stat_max = arg.iter_max;
+	arg.res_g_max = 1e-5;
+	arg.res_b_max = 1e-5;
+	arg.res_d_max = 1e-5;
+	arg.res_m_max = 1e-5;
+
+/************************************************
+* ipm solver
+************************************************/
 
 	int ipm_size = d_memsize_ocp_qp_ipm(&dim, &arg);
 	void *ipm_mem = malloc(ipm_size);
@@ -156,9 +164,9 @@ int main()
 
 	double time_ipm = (tv1.tv_sec-tv0.tv_sec)/(nrep+0.0)+(tv1.tv_usec-tv0.tv_usec)/(nrep*1e6);
 
-    /************************************************
-    * print solution info
-    ************************************************/
+/************************************************
+* print solution info
+************************************************/
 
     printf("\nHPIPM returned with flag %i.\n", hpipm_return);
     if(hpipm_return == 0)
@@ -184,9 +192,9 @@ int main()
     printf("\nAverage solution time over %i runs: %e [s]\n", nrep, time_ipm);
 	printf("\n\n");
 
-    /************************************************
-    * extract and print solution
-    ************************************************/
+/************************************************
+* extract and print solution
+************************************************/
 
 	// u
 
@@ -220,9 +228,22 @@ int main()
 		d_print_mat(1, nx[ii], x, 1);
 		}
 
-    /************************************************
-    * free memory and return
-    ************************************************/
+/************************************************
+* print ipm statistics
+************************************************/
+
+	printf("\nipm return = %d\n", hpipm_return);
+	printf("\nipm residuals max: res_g = %e, res_b = %e, res_d = %e, res_m = %e\n", workspace.qp_res[0], workspace.qp_res[1], workspace.qp_res[2], workspace.qp_res[3]);
+
+	printf("\nipm iter = %d\n", workspace.iter);
+	printf("\nalpha_aff\tmu_aff\t\tsigma\t\talpha\t\tmu\n");
+	d_print_e_tran_mat(5, workspace.iter, workspace.stat, 5);
+
+	printf("\nocp ipm time = %e [s]\n\n", time_ipm);
+
+/************************************************
+* free memory and return
+************************************************/
 
     free(qp_mem);
 	free(qp_sol_mem);

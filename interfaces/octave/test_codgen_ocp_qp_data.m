@@ -83,62 +83,62 @@ JsgN = [1 0; 0 1];
 %
 qp = create_ocp_qp(dims);
 
-%
+% A
 for ii=1:N
 	qp.A{ii} = A;
 end
-%
+% B
 for ii=1:N
 	qp.B{ii} = B;
 end
-%
+% b
 for ii=1:N
 	qp.b{ii} = b;
 end
-%
+% Q
 for ii=1:N+1
 	qp.Q{ii} = Q;
 end
-%
-for ii=1:N
-	qp.S{ii} = S;
-end
-%
+% R
 for ii=1:N
 	qp.R{ii} = R;
 end
-%
+% S
+for ii=1:N
+	qp.S{ii} = S;
+end
+% q
 for ii=1:N+1
 	qp.q{ii} = q;
 end
-%
+% r
 for ii=1:N
 	qp.r{ii} = r;
 end
-%
+% Jx
 qp.Jx{1} = Jx0;
 for ii=2:N+1
 	qp.Jx{ii} = Jx;
 end
-%
+% lx
 qp.lx{1} = x0;
 for ii=2:N+1
 	qp.lx{ii} = lx;
 end
-%
+% ux
 qp.ux{1} = x0;
 for ii=2:N+1
 	qp.ux{ii} = ux;
 end
-%
+% Ju
 for ii=1:N
 	qp.Ju{ii} = Ju;
 end
-%
+% lu
 for ii=1:N
 	qp.lu{ii} = lu;
 end
-%
+% uu
 for ii=1:N
 	qp.uu{ii} = uu;
 end

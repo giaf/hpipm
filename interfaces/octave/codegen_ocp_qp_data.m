@@ -78,7 +78,7 @@ fprintf(fid, "\n");
 for ii=1:N
 	fprintf(fid, "static double A%d[] = {", ii-1);
 	for jj=1:nx(ii+1)*nx(ii)
-		fprintf(fid, "%e, ", qp.A{ii}(:)(jj));
+		fprintf(fid, "%18.15e, ", qp.A{ii}(:)(jj));
 	end
 	fprintf(fid, "};\n");
 end
@@ -87,7 +87,7 @@ fprintf(fid, "\n");
 for ii=1:N
 	fprintf(fid, "static double B%d[] = {", ii-1);
 	for jj=1:nx(ii+1)*nu(ii)
-		fprintf(fid, "%e, ", qp.B{ii}(:)(jj));
+		fprintf(fid, "%18.15e, ", qp.B{ii}(:)(jj));
 	end
 	fprintf(fid, "};\n");
 end
@@ -96,7 +96,7 @@ fprintf(fid, "\n");
 for ii=1:N
 	fprintf(fid, "static double b%d[] = {", ii-1);
 	for jj=1:nx(ii+1)
-		fprintf(fid, "%e, ", qp.b{ii}(jj));
+		fprintf(fid, "%18.15e, ", qp.b{ii}(jj));
 	end
 	fprintf(fid, "};\n");
 end
@@ -105,7 +105,7 @@ fprintf(fid, "\n");
 for ii=1:N+1
 	fprintf(fid, "static double Q%d[] = {", ii-1);
 	for jj=1:nx(ii)*nx(ii)
-		fprintf(fid, "%e, ", qp.Q{ii}(:)(jj));
+		fprintf(fid, "%18.15e, ", qp.Q{ii}(:)(jj));
 	end
 	fprintf(fid, "};\n");
 end
@@ -114,7 +114,7 @@ fprintf(fid, "\n");
 for ii=1:N+1
 	fprintf(fid, "static double R%d[] = {", ii-1);
 	for jj=1:nu(ii)*nu(ii)
-		fprintf(fid, "%e, ", qp.R{ii}(:)(jj));
+		fprintf(fid, "%18.15e, ", qp.R{ii}(:)(jj));
 	end
 	fprintf(fid, "};\n");
 end
@@ -123,7 +123,7 @@ fprintf(fid, "\n");
 for ii=1:N+1
 	fprintf(fid, "static double S%d[] = {", ii-1);
 	for jj=1:nu(ii)*nx(ii)
-		fprintf(fid, "%e, ", qp.S{ii}(:)(jj));
+		fprintf(fid, "%18.15e, ", qp.S{ii}(:)(jj));
 	end
 	fprintf(fid, "};\n");
 end
@@ -132,7 +132,7 @@ fprintf(fid, "\n");
 for ii=1:N+1
 	fprintf(fid, "static double q%d[] = {", ii-1);
 	for jj=1:nx(ii)
-		fprintf(fid, "%e, ", qp.q{ii}(jj));
+		fprintf(fid, "%18.15e, ", qp.q{ii}(jj));
 	end
 	fprintf(fid, "};\n");
 end
@@ -141,7 +141,7 @@ fprintf(fid, "\n");
 for ii=1:N+1
 	fprintf(fid, "static double r%d[] = {", ii-1);
 	for jj=1:nu(ii)
-		fprintf(fid, "%e, ", qp.r{ii}(jj));
+		fprintf(fid, "%18.15e, ", qp.r{ii}(jj));
 	end
 	fprintf(fid, "};\n");
 end
@@ -174,10 +174,10 @@ fprintf(fid, "\n");
 for ii=1:N+1
 	fprintf(fid, "static double lb%d[] = {", ii-1);
 	for jj=1:nbu(ii)
-		fprintf(fid, "%e, ", qp.lu{ii}(jj));
+		fprintf(fid, "%18.15e, ", qp.lu{ii}(jj));
 	end
 	for jj=1:nbx(ii)
-		fprintf(fid, "%e, ", qp.lx{ii}(jj));
+		fprintf(fid, "%18.15e, ", qp.lx{ii}(jj));
 	end
 	fprintf(fid, "};\n");
 end
@@ -186,10 +186,10 @@ fprintf(fid, "\n");
 for ii=1:N+1
 	fprintf(fid, "static double ub%d[] = {", ii-1);
 	for jj=1:nbu(ii)
-		fprintf(fid, "%e, ", qp.uu{ii}(jj));
+		fprintf(fid, "%18.15e, ", qp.uu{ii}(jj));
 	end
 	for jj=1:nbx(ii)
-		fprintf(fid, "%e, ", qp.ux{ii}(jj));
+		fprintf(fid, "%18.15e, ", qp.ux{ii}(jj));
 	end
 	fprintf(fid, "};\n");
 end
@@ -198,7 +198,7 @@ fprintf(fid, "\n");
 for ii=1:N+1
 	fprintf(fid, "static double C%d[] = {", ii-1);
 	for jj=1:ng(ii)*nx(ii)
-		fprintf(fid, "%e, ", qp.C{ii}(:)(jj));
+		fprintf(fid, "%18.15e, ", qp.C{ii}(:)(jj));
 	end
 	fprintf(fid, "};\n");
 end
@@ -207,7 +207,7 @@ fprintf(fid, "\n");
 for ii=1:N+1
 	fprintf(fid, "static double D%d[] = {", ii-1);
 	for jj=1:ng(ii)*nu(ii)
-		fprintf(fid, "%e, ", qp.D{ii}(:)(jj));
+		fprintf(fid, "%18.15e, ", qp.D{ii}(:)(jj));
 	end
 	fprintf(fid, "};\n");
 end
@@ -216,7 +216,7 @@ fprintf(fid, "\n");
 for ii=1:N+1
 	fprintf(fid, "static double lg%d[] = {", ii-1);
 	for jj=1:ng(ii)
-		fprintf(fid, "%e, ", qp.lg{ii}(jj));
+		fprintf(fid, "%18.15e, ", qp.lg{ii}(jj));
 	end
 	fprintf(fid, "};\n");
 end
@@ -225,7 +225,7 @@ fprintf(fid, "\n");
 for ii=1:N+1
 	fprintf(fid, "static double ug%d[] = {", ii-1);
 	for jj=1:ng(ii)
-		fprintf(fid, "%e, ", qp.ug{ii}(jj));
+		fprintf(fid, "%18.15e, ", qp.ug{ii}(jj));
 	end
 	fprintf(fid, "};\n");
 end
@@ -234,7 +234,7 @@ fprintf(fid, "\n");
 for ii=1:N+1
 	fprintf(fid, "static double Zl%d[] = {", ii-1);
 	for jj=1:ns(ii)
-		fprintf(fid, "%e, ", qp.Zl{ii}(jj,jj));
+		fprintf(fid, "%18.15e, ", qp.Zl{ii}(jj,jj));
 	end
 	fprintf(fid, "};\n");
 end
@@ -243,7 +243,7 @@ fprintf(fid, "\n");
 for ii=1:N+1
 	fprintf(fid, "static double Zu%d[] = {", ii-1);
 	for jj=1:ns(ii)
-		fprintf(fid, "%e, ", qp.Zu{ii}(jj,jj));
+		fprintf(fid, "%18.15e, ", qp.Zu{ii}(jj,jj));
 	end
 	fprintf(fid, "};\n");
 end
@@ -252,7 +252,7 @@ fprintf(fid, "\n");
 for ii=1:N+1
 	fprintf(fid, "static double zl%d[] = {", ii-1);
 	for jj=1:ns(ii)
-		fprintf(fid, "%e, ", qp.zl{ii}(jj));
+		fprintf(fid, "%18.15e, ", qp.zl{ii}(jj));
 	end
 	fprintf(fid, "};\n");
 end
@@ -261,7 +261,7 @@ fprintf(fid, "\n");
 for ii=1:N+1
 	fprintf(fid, "static double zu%d[] = {", ii-1);
 	for jj=1:ns(ii)
-		fprintf(fid, "%e, ", qp.zu{ii}(jj));
+		fprintf(fid, "%18.15e, ", qp.zu{ii}(jj));
 	end
 	fprintf(fid, "};\n");
 end
@@ -270,7 +270,6 @@ fprintf(fid, "\n");
 for ii=1:N+1
 	Jt = [qp.Jsbu{ii}; qp.Jsbx{ii}; qp.Jsg{ii}]';
 	fprintf(fid, "static int idxs%d[] = {", ii-1);
-% TODO
 	for jj=1:ns(ii)
 		kk0 = 0;
 		for kk=1:nbx(ii)+nbu(ii)+ng(ii)
@@ -280,7 +279,6 @@ for ii=1:N+1
 			end
 		end
 	end
-% TODO
 	fprintf(fid, "};\n");
 end
 fprintf(fid, "\n");
@@ -288,7 +286,7 @@ fprintf(fid, "\n");
 for ii=1:N+1
 	fprintf(fid, "static double lls%d[] = {", ii-1);
 	for jj=1:ns(ii)
-		fprintf(fid, "%e, ", qp.lls{ii}(jj));
+		fprintf(fid, "%18.15e, ", qp.lls{ii}(jj));
 	end
 	fprintf(fid, "};\n");
 end
@@ -297,7 +295,7 @@ fprintf(fid, "\n");
 for ii=1:N+1
 	fprintf(fid, "static double lus%d[] = {", ii-1);
 	for jj=1:ns(ii)
-		fprintf(fid, "%e, ", qp.lus{ii}(jj));
+		fprintf(fid, "%18.15e, ", qp.lus{ii}(jj));
 	end
 	fprintf(fid, "};\n");
 end
