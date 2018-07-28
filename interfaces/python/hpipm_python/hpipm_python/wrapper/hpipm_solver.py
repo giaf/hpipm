@@ -1,7 +1,3 @@
-from hpipm_python.external.blasfeo.wrapper import *
-from hpipm_python.hpipm.core.wrapper import *
-from hpipm_python.hpipm.d_ocp_qp.wrapper import *
-
 from ctypes import *
 import ctypes.util 
 import numpy as np
