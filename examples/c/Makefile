@@ -50,10 +50,9 @@ ifeq ($(REF_BLAS), ATLAS)
 LIBS += /opt/atlas/lib/liblapack.a /opt/atlas/lib/libcblas.a /opt/atlas/lib/libf77blas.a /opt/atlas/lib/libatlas.a -lgfortran -lm
 endif
 
-OBJS_DATA = data_getting_started.o 
-#OBJS_DATA = ocp_qp_data.o 
+OBJS_DATA = data/getting_started_data.o 
+#OBJS_DATA = data/ocp_qp_data.o 
 
-#OBJS_EXMP = getting_started.o
 #OBJS_EXMP = $(OBJS_DATA) example_d_ocp_qp.o
 OBJS_EXMP = $(OBJS_DATA) example_d_ocp_qp_part_cond.o
 
