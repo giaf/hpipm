@@ -135,13 +135,12 @@ int main()
 //	enum hpipm_mode mode = ROBUST;
 	d_set_default_ocp_qp_ipm_arg(mode, &arg);
 
-	arg.mu0 = 1e4;
-	arg.iter_max = 30;
-	arg.stat_max = arg.iter_max;
-	arg.res_g_max = 1e-5;
-	arg.res_b_max = 1e-5;
-	arg.res_d_max = 1e-5;
-	arg.res_m_max = 1e-5;
+	d_set_ocp_qp_ipm_arg_mu0(1e4, &arg);
+	d_set_ocp_qp_ipm_arg_iter_max(30, &arg);
+	d_set_ocp_qp_ipm_arg_tol_stat(1e-4, &arg);
+	d_set_ocp_qp_ipm_arg_tol_eq(1e-5, &arg);
+	d_set_ocp_qp_ipm_arg_tol_ineq(1e-5, &arg);
+	d_set_ocp_qp_ipm_arg_tol_comp(1e-5, &arg);
 
 /************************************************
 * ipm workspace
