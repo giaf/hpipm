@@ -40,6 +40,7 @@ OBJS += d_ocp_qp_sol.o
 OBJS += d_ocp_qp_res.o
 OBJS += d_ocp_qp_kkt.o
 OBJS += d_ocp_qp_ipm.o
+OBJS += d_ocp_qp_utils.o
 # single
 OBJS += s_ocp_qp_dim.o
 OBJS += s_ocp_qp.o

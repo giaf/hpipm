@@ -107,6 +107,8 @@
 #define SOLVE_OCP_QP_IPM d_solve_ocp_qp_ipm
 #define SOLVE_OCP_QP_IPM2 d_solve_ocp_qp_ipm2
 
-
+// interface functions
+#define SIZEOF_OCP_QP_IPM_ARG d_sizeof_ocp_qp_ipm_arg
+#define SIZEOF_OCP_QP_IPM_WORKSPACE d_sizeof_ocp_qp_ipm_workspace
 
 #include "x_ocp_qp_ipm.c"

@@ -100,4 +100,7 @@
 #define CVT_COLMAJ_TO_OCP_QP_UG d_cvt_colmaj_to_ocp_qp_ug
 #define CVT_OCP_QP_TO_COLMAJ_UG d_cvt_ocp_qp_to_colmaj_ug
 
+// interface functions
+#define SIZEOF_OCP_QP d_sizeof_ocp_qp
+
 #include "x_ocp_qp.c"

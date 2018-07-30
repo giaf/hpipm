@@ -30,6 +30,7 @@
 #include <stdlib.h>
 /*#include <math.h>*/
 
+#include "hpipm_common.h"
 #include "hpipm_d_ocp_qp_dim.h"
 #include "hpipm_d_ocp_qp.h"
 #include "hpipm_d_ocp_qp_sol.h"
@@ -439,19 +440,19 @@ void mexFunction( int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
 
 	struct d_ocp_qp_ipm_arg arg;
 	d_create_ocp_qp_ipm_arg(&dim, &arg, ipm_arg_mem);
-	enum ocp_qp_ipm_mode mode = SPEED;
-//	enum ocp_qp_ipm_mode mode = BALANCE;
-//	enum ocp_qp_ipm_mode mode = ROBUST;
+	enum hpipm_mode mode = SPEED;
+//	enum hpipm_mode mode = BALANCE;
+//	enum hpipm_mode mode = ROBUST;
 	d_set_default_ocp_qp_ipm_arg(mode, &arg);
 
 //	arg.alpha_min = 1e-12;
-//	arg.res_g_max = 1e-4;
-//	arg.res_b_max = 1e-4;
-//	arg.res_d_max = 1e-4;
-//	arg.res_m_max = 1e-4;
-//	arg.mu0 = 2.0;
-//	arg.iter_max = 10;
-//	arg.stat_max = 100;
+	arg.res_g_max = tol;
+	arg.res_b_max = tol;
+	arg.res_d_max = tol;
+	arg.res_m_max = tol;
+	arg.mu0 = mu0;
+	arg.iter_max = k_max;
+	arg.stat_max = k_max;
 //	arg.pred_corr = 1;
 //	arg.cond_pred_corr = 1;
 

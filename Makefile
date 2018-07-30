@@ -88,6 +88,7 @@ OBJS += ocp_qp/d_ocp_qp_sol.o
 OBJS += ocp_qp/d_ocp_qp_res.o
 OBJS += ocp_qp/d_ocp_qp_kkt.o
 OBJS += ocp_qp/d_ocp_qp_ipm.o
+OBJS += ocp_qp/d_ocp_qp_utils.o
 # single
 OBJS += ocp_qp/s_ocp_qp_dim.o
 OBJS += ocp_qp/s_ocp_qp.o
@@ -126,9 +127,7 @@ static_library: target
 	( cd cond; $(MAKE) obj TOP=$(TOP) )
 	( cd dense_qp; $(MAKE) obj TOP=$(TOP) )
 	( cd ipm_core; $(MAKE) obj TOP=$(TOP) )
-	( cd ocp_nlp; $(MAKE) obj TOP=$(TOP) )
 	( cd ocp_qp; $(MAKE) obj TOP=$(TOP) )
-	( cd sim_core; $(MAKE) obj TOP=$(TOP) )
 	( cd tree_ocp_qp; $(MAKE) obj TOP=$(TOP) )
 	ar rcs libhpipm.a $(OBJS) 
 	cp libhpipm.a ./lib/
@@ -140,9 +139,7 @@ shared_library: target
 	( cd cond; $(MAKE) obj TOP=$(TOP) )
 	( cd dense_qp; $(MAKE) obj TOP=$(TOP) )
 	( cd ipm_core; $(MAKE) obj TOP=$(TOP) )
-	( cd ocp_nlp; $(MAKE) obj TOP=$(TOP) )
 	( cd ocp_qp; $(MAKE) obj TOP=$(TOP) )
-	( cd sim_core; $(MAKE) obj TOP=$(TOP) )
 	( cd tree_ocp_qp; $(MAKE) obj TOP=$(TOP) )
 	gcc -L$(BLASFEO_PATH)/lib -shared -o libhpipm.so $(OBJS) -lblasfeo
 	cp libhpipm.so ./lib/
@@ -179,6 +176,9 @@ test_problem:
 	@echo " Test problem build complete."
 	@echo
 
+run_test_problems:
+	./test_problems/test.out
+
 examples:
 	cp libhpipm.a ./examples/c/libhpipm.a
 	( cd examples/c; $(MAKE) obj )
@@ -186,8 +186,8 @@ examples:
 	@echo " Examples build complete."
 	@echo
 
-run:
-	./test_problems/test.out
+run_examples:
+	./examples/c/example.out
 
 
 .PHONY: examples
@@ -199,9 +199,7 @@ clean:
 	make -C cond clean
 	make -C dense_qp clean
 	make -C ipm_core clean
-	make -C ocp_nlp clean
 	make -C ocp_qp clean
-	make -C sim_core clean
 	make -C tree_ocp_qp clean
 	make -C test_problems clean
 	make -C examples/c clean

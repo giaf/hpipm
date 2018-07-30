@@ -123,7 +123,9 @@ void d_create_ocp_qp_ipm(struct d_ocp_qp_dim *ocp_dim, struct d_ocp_qp_ipm_arg *
 //
 int d_solve_ocp_qp_ipm(struct d_ocp_qp *qp, struct d_ocp_qp_sol *qp_sol, struct d_ocp_qp_ipm_arg *arg, struct d_ocp_qp_ipm_workspace *ws);
 
-
+// interface functions
+int d_sizeof_ocp_qp_ipm_arg();
+int d_sizeof_ocp_qp_ipm_workspace();
 
 #ifdef __cplusplus
 }   // #extern "C"

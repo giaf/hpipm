@@ -25,106 +25,136 @@
 *                                                                                                 *
 **************************************************************************************************/
 
-
-
-int MEMSIZE_OCP_QP_DIM(int N)
-	{
-
-	int size = 0;
-
-	size += 10*(N+1)*sizeof(int);
-
-	size = (size+8-1)/8*8;
-
-	return size;
-
-	}
+#include <stdlib.h>
 
 
 
-void CREATE_OCP_QP_DIM(int N, struct OCP_QP_DIM *dim, void *memory)
-	{
+// QP size
 
-	// loop index
-	int ii;
-
-	char *c_ptr = memory;
-
-	// nx
-	dim->nx = (int *) c_ptr;
-	c_ptr += (N+1)*sizeof(int);
-	// nu
-	dim->nu = (int *) c_ptr;
-	c_ptr += (N+1)*sizeof(int);
-	// nb
-	dim->nb = (int *) c_ptr;
-	c_ptr += (N+1)*sizeof(int);
-	// nbx
-	dim->nbx = (int *) c_ptr;
-	c_ptr += (N+1)*sizeof(int);
-	// nbu
-	dim->nbu = (int *) c_ptr;
-	c_ptr += (N+1)*sizeof(int);
-	// ng
-	dim->ng = (int *) c_ptr;
-	c_ptr += (N+1)*sizeof(int);
-	// ns
-	dim->ns = (int *) c_ptr;
-	c_ptr += (N+1)*sizeof(int);
-	// nsbx
-	dim->nsbx = (int *) c_ptr;
-	c_ptr += (N+1)*sizeof(int);
-	// nsbu
-	dim->nsbu = (int *) c_ptr;
-	c_ptr += (N+1)*sizeof(int);
-	// nsg
-	dim->nsg = (int *) c_ptr;
-	c_ptr += (N+1)*sizeof(int);
-
-	dim->memsize = MEMSIZE_OCP_QP_DIM(N);
-
-	return;
-
-	}
+// horizon lenght
+int N = 5;
+// number of input
+static int nnu[6] = {1, 1, 1, 1, 1, 0};
+// number of states
+static int nnx[6] = {2, 2, 2, 2, 2, 2};
+// number of input box constraints
+static int nnbu[6] = {0, 0, 0, 0, 0, 0};
+// number of states box constraints
+static int nnbx[6] = {2, 0, 0, 0, 0, 0};
+// number of general constraints
+static int nng[6] = {0, 0, 0, 0, 0, 0};
+// number of softed input box constraints
+static int nnsbu[6] = {0, 0, 0, 0, 0, 0};
+// number of softed state box constraints
+static int nnsbx[6] = {0, 0, 0, 0, 0, 0};
+// number of softed general constraints
+static int nnsg[6] = {0, 0, 0, 0, 0, 0};
 
 
-void CVT_INT_TO_OCP_QP_DIM(int N, int *nx, int *nu, int *nbx, int *nbu, int *ng, int *nsbx, int *nsbu, int *nsg, struct OCP_QP_DIM *dim)
-	{
+// QP data
 
-	// loop index
-	int ii;
+//
+static double A[] = {1, 0, 1, 1};
+//
+static double B[] = {0, 1};
+//
+static double b[] = {0, 0};
 
-	// N
-	dim->N = N;
+//
+static double Q[] = {1, 0, 0, 1};
+//
+static double R[] = {1};
+//
+static double S[] = {0, 0};
+//
+static double q[] = {1, 1};
+//
+static double r[] = {0};
 
-	// copy qp dim
-	for(ii=0; ii<=N; ii++)
-		dim->nx[ii] = nx[ii];
-	for(ii=0; ii<=N; ii++)
-		dim->nu[ii] = nu[ii];
-	for(ii=0; ii<=N; ii++)
-		dim->nb[ii] = nbx[ii]+nbu[ii];
-	for(ii=0; ii<=N; ii++)
-		dim->nbx[ii] = nbx[ii];
-	for(ii=0; ii<=N; ii++)
-		dim->nbu[ii] = nbu[ii];
-	for(ii=0; ii<=N; ii++)
-		dim->ng[ii] = ng[ii];
-	for(ii=0; ii<=N; ii++)
-		dim->ns[ii] = nsbx[ii]+nsbu[ii]+nsg[ii];
-	for(ii=0; ii<=N; ii++)
-		dim->nsbx[ii] = nsbx[ii];
-	for(ii=0; ii<=N; ii++)
-		dim->nsbu[ii] = nsbu[ii];
-	for(ii=0; ii<=N; ii++)
-		dim->nsg[ii] = nsg[ii];
+//
+static double x0[] = {1, 1};
+//
+static int idxb0[] = {1, 2};
 
-	return;
+// array of pointers
 
-	}
+//
+static double *AA[5] = {A, A, A, A, A};
+//
+static double *BB[5] = {B, B, B, B, B};
+//
+static double *bb[5] = {b, b, b, b, b};
+//
+static double *QQ[6] = {Q, Q, Q, Q, Q, Q};
+//
+static double *RR[6] = {R, R, R, R, R, R};
+//
+static double *SS[6] = {S, S, S, S, S, S};
+//
+static double *qq[6] = {q, q, q, q, q, q};
+//
+static double *rr[6] = {r, r, r, r, r, r};
+//
+static int *iidxb[6] = {idxb0, NULL, NULL, NULL, NULL, NULL};
+//
+static double *llb[6] = {x0, NULL, NULL, NULL, NULL, NULL};
+//
+static double *uub[6] = {x0, NULL, NULL, NULL, NULL, NULL};
+//
+static double *CC[6] = {};
+//
+static double *DD[6] = {};
+//
+static double *llg[6] = {};
+//
+static double *uug[6] = {};
+//
+static double *ZZl[6] = {};
+//
+static double *ZZu[6] = {};
+//
+static double *zzl[6] = {};
+//
+static double *zzu[6] = {};
+//
+static int *iidxs[6] = {};
+//
+static double *llls[6] = {};
+//
+static double *uuls[6] = {};
 
-// interface functions
-int SIZEOF_OCP_QP_DIM()
-    {
-        return sizeof(struct OCP_QP_DIM);
-    }
+
+
+// export as global data
+
+int *nu = nnu;
+int *nx = nnx;
+int *nbu = nnbu;
+int *nbx = nnbx;
+int *ng = nng;
+int *nsbu = nnsbu;
+int *nsbx = nnsbx;
+int *nsg = nnsg;
+
+double **hA = AA;
+double **hB = BB;
+double **hb = bb;
+double **hQ = QQ;
+double **hR = RR;
+double **hS = SS;
+double **hq = qq;
+double **hr = rr;
+int **hidxb = iidxb;
+double **hlb = llb;
+double **hub = uub;
+double **hC = CC;
+double **hD = DD;
+double **hlg = llg;
+double **hug = uug;
+double **hZl = ZZl;
+double **hZu = ZZu;
+double **hzl = zzl;
+double **hzu = zzu;
+int **hidxs = iidxs;
+double **hlls = llls;
+double **huls = uuls;
