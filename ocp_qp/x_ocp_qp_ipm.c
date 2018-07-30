@@ -51,7 +51,7 @@ void SET_DEFAULT_OCP_QP_IPM_ARG(enum HPIPM_MODE mode, struct OCP_QP_IPM_ARG *arg
 	{
 
     // set common default arguments
-    arg->print_level = 0;
+    arg->print_level = 1;
 
     // set mode-specific default arguments
 	if(mode==SPEED_ABS)
@@ -908,6 +908,17 @@ int SOLVE_OCP_QP_IPM(struct OCP_QP *qp, struct OCP_QP_SOL *qp_sol, struct OCP_QP
 			VECNRM_INF(cws->ne, &str_res_b, 0, &qp_res[1]);
 			VECNRM_INF(cws->nc, &str_res_d, 0, &qp_res[2]);
 			VECNRM_INF(cws->nc, &str_res_m, 0, &qp_res[3]);
+
+            if(arg->print_level > 0) 
+                {
+                    if(kk%10 == 0)  
+                        {
+                            printf("=======================================================================================================\n");
+                            printf("it. #      res_g           res_b           res_d           res_m           alpha           mu          \n");
+                            printf("=======================================================================================================\n");
+                        }
+                    printf("%-10d %-15e %-15e %-15e %-15e %-15e %-15e\n", kk, qp_res[0], qp_res[1], qp_res[2], qp_res[3], cws->alpha, cws->mu);
+                }
 			}
 
 		ws->iter = kk;
@@ -1372,14 +1383,16 @@ exit(1);
 		VECNRM_INF(cws->nc, &str_res_d, 0, &qp_res[2]);
 		VECNRM_INF(cws->nc, &str_res_m, 0, &qp_res[3]);
 
-        if(arg->print_level > 0){
-            if(kk%10 == 0){
-                printf("=======================================================================================================\n");
-                printf("it. #      res_g           res_b           res_d           res_m           alpha           mu          \n");
-                printf("=======================================================================================================\n");
+        if(arg->print_level > 0) 
+            {
+                if(kk%10 == 0)  
+                    {
+                        printf("=======================================================================================================\n");
+                        printf("it. #      res_g           res_b           res_d           res_m           alpha           mu          \n");
+                        printf("=======================================================================================================\n");
+                    }
+                printf("%-10d %-15e %-15e %-15e %-15e %-15e %-15e\n", kk, qp_res[0], qp_res[1], qp_res[2], qp_res[3], cws->alpha, cws->mu);
             }
-            printf("%-10d %-15e %-15e %-15e %-15e %-15e %-15e\n", kk, qp_res[0], qp_res[1], qp_res[2], qp_res[3], cws->alpha, cws->mu);
-        }
 		}
 
 	ws->iter = kk;
