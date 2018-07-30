@@ -26,34 +26,22 @@
 *                                                                                                 *
 **************************************************************************************************/
 
+#include <stdlib.h>
+#include <stdio.h>
 
+#include <blasfeo_target.h>
+#include <blasfeo_common.h>
+#include <blasfeo_s_aux.h>
+#include <blasfeo_s_aux_ext_dep.h>
 
-void PRINT_OCP_QP_SOL(struct OCP_QP_SOL *qp_sol, struct OCP_QP_DIM *qp_dim)
-	{
-	int ii;
+#include <hpipm_s_ocp_qp_sol.h>
+#include <hpipm_s_ocp_qp_dim.h>
 
-	int N   = qp_dim->N;
-	int *nx = qp_dim->nx;
-	int *nu = qp_dim->nu;
-	int *nb = qp_dim->nb;
-	int *ng = qp_dim->ng;
-	int *ns = qp_dim->ns;
+#define BLASFEO_PRINT_TRAN_VEC blasfeo_print_tran_svec
+#define OCP_QP_SOL s_ocp_qp_sol
+#define OCP_QP_DIM s_ocp_qp_dim
 
-	printf("ux =\n");
-	for (ii = 0; ii <= N; ii++)
-		BLASFEO_PRINT_TRAN_VEC(nu[ii] + nx[ii] + 2 * ns[ii], &qp_sol->ux[ii], 0);
+#define PRINT_OCP_QP_SOL s_print_ocp_qp_sol
 
-	printf("pi =\n");
-	for (ii = 0; ii < N; ii++)
-		BLASFEO_PRINT_TRAN_VEC(nx[ii + 1], &qp_sol->pi[ii], 0);
+#include "x_ocp_qp_utils.c"
 
-	printf("lam =\n");
-	for (ii = 0; ii <= N; ii++)
-		BLASFEO_PRINT_TRAN_VEC(2 * nb[ii] + 2 * ng[ii] + 2 * ns[ii], &qp_sol->lam[ii], 0);
-
-	printf("t =\n");
-	for (ii = 0; ii <= N; ii++)
-		BLASFEO_PRINT_TRAN_VEC(2 * nb[ii] + 2 * ng[ii] + 2 * ns[ii], &qp_sol->t[ii], 0);
-
-	return;
-	}

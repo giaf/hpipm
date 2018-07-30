@@ -21,24 +21,26 @@
 * License along with HPMPC; if not, write to the Free Software                                    *
 * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA                  *
 *                                                                                                 *
-* Author: Gianluca Frison, Andrea Zanelli: {gianluca.frison, andrea.zanelli} (at) imtek.uni-freiburg.de                             *
+* Author: Gianluca Frison  {gianluca.frison} (at) imtek.uni-freiburg.de                           *
+*       , Andrea Zanelli {andrea.zanelli} (at) imtek.uni-freiburg.de                              *
 *                                                                                                 *
 **************************************************************************************************/
 
-#if defined(RUNTIME_CHECKS)
 #include <stdlib.h>
 #include <stdio.h>
-#endif
 
 #include <blasfeo_target.h>
 #include <blasfeo_common.h>
 #include <blasfeo_d_aux.h>
+#include <blasfeo_d_aux_ext_dep.h>
 
 #include <hpipm_d_ocp_qp_sol.h>
 #include <hpipm_d_ocp_qp_dim.h>
 
-#define OCP_QP_SOL d_ocp_qp_sol
+#define BLASFEO_PRINT_TRAN_VEC blasfeo_print_tran_dvec
 #define OCP_QP_DIM d_ocp_qp_dim
+#define OCP_QP_SOL d_ocp_qp_sol
+
 #define PRINT_OCP_QP_SOL d_print_ocp_qp_sol
 
 #include "x_ocp_qp_utils.c"

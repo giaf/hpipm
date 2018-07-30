@@ -27,6 +27,13 @@
 
 
 
+int SIZEOF_OCP_QP_IPM_ARG()
+	{
+	return sizeof(struct OCP_QP_IPM_ARG);
+	}
+
+
+
 int MEMSIZE_OCP_QP_IPM_ARG(struct OCP_QP_DIM *dim)
     {
 
@@ -158,100 +165,159 @@ void SET_DEFAULT_OCP_QP_IPM_ARG(enum HPIPM_MODE mode, struct OCP_QP_IPM_ARG *arg
 
 
 
+void SET_OCP_QP_IPM_ARG_ITER_MAX(int iter_max, struct OCP_QP_IPM_ARG *arg)
+	{
+	arg->iter_max = iter_max;
+	return;
+	}
+
+
+
+void SET_OCP_QP_IPM_ARG_MU0(REAL mu0, struct OCP_QP_IPM_ARG *arg)
+	{
+	arg->mu0 = mu0;
+	return;
+	}
+
+
+
+void SET_OCP_QP_IPM_ARG_TOL_STAT(REAL tol_stat, struct OCP_QP_IPM_ARG *arg)
+	{
+	arg->res_g_max = tol_stat;
+	return;
+	}
+
+
+
+void SET_OCP_QP_IPM_ARG_TOL_EQ(REAL tol_eq, struct OCP_QP_IPM_ARG *arg)
+	{
+	arg->res_b_max = tol_eq;
+	return;
+	}
+
+
+
+void SET_OCP_QP_IPM_ARG_TOL_INEQ(REAL tol_ineq, struct OCP_QP_IPM_ARG *arg)
+	{
+	arg->res_d_max = tol_ineq;
+	return;
+	}
+
+
+
+void SET_OCP_QP_IPM_ARG_TOL_COMP(REAL tol_comp, struct OCP_QP_IPM_ARG *arg)
+	{
+	arg->res_m_max = tol_comp;
+	return;
+	}
+
+
+
+int SIZEOF_OCP_QP_IPM_WORKSPACE()
+	{
+	return sizeof(struct OCP_QP_IPM_WORKSPACE);
+	}
+
+
+
 int MEMSIZE_OCP_QP_IPM(struct OCP_QP_DIM *dim, struct OCP_QP_IPM_ARG *arg)
-    {
+	{
 
-    // loop index
-    int ii;
+	// stat_max is at least as big as iter_max
+	if(arg->iter_max > arg->stat_max)
+		arg->stat_max = arg->iter_max;
 
-    // extract ocp qp size
-    int N = dim->N;
-    int *nx = dim->nx;
-    int *nu = dim->nu;
-    int *nb = dim->nb;
-    int *ng = dim->ng;
-    int *ns = dim->ns;
+	// loop index
+	int ii;
 
-    // compute core qp size and max size
-    int nvt = 0;
-    int net = 0;
-    int nct = 0;
-    int nxM = 0;
-    int nuM = 0;
-    int nbM = 0;
-    int ngM = 0;
-    int nsM = 0;
-    for(ii=0; ii<N; ii++)
-        {
-        nvt += nx[ii]+nu[ii]+2*ns[ii];
-        net += nx[ii+1];
-        nct += 2*nb[ii]+2*ng[ii]+2*ns[ii];
-        nxM = nx[ii]>nxM ? nx[ii] : nxM;
-        nuM = nu[ii]>nuM ? nu[ii] : nuM;
-        nbM = nb[ii]>nbM ? nb[ii] : nbM;
-        ngM = ng[ii]>ngM ? ng[ii] : ngM;
-        nsM = ns[ii]>nsM ? ns[ii] : nsM;
-        }
-    nvt += nx[ii]+nu[ii]+2*ns[ii];
-    nct += 2*nb[ii]+2*ng[ii]+2*ns[ii];
-    nxM = nx[ii]>nxM ? nx[ii] : nxM;
-    nuM = nu[ii]>nuM ? nu[ii] : nuM;
-    nbM = nb[ii]>nbM ? nb[ii] : nbM;
-    ngM = ng[ii]>ngM ? ng[ii] : ngM;
-    nsM = ns[ii]>nsM ? ns[ii] : nsM;
+	// extract ocp qp size
+	int N = dim->N;
+	int *nx = dim->nx;
+	int *nu = dim->nu;
+	int *nb = dim->nb;
+	int *ng = dim->ng;
+	int *ns = dim->ns;
 
-    int size = 0;
+	// compute core qp size and max size
+	int nvt = 0;
+	int net = 0;
+	int nct = 0;
+	int nxM = 0;
+	int nuM = 0;
+	int nbM = 0;
+	int ngM = 0;
+	int nsM = 0;
+	for(ii=0; ii<N; ii++)
+		{
+		nvt += nx[ii]+nu[ii]+2*ns[ii];
+		net += nx[ii+1];
+		nct += 2*nb[ii]+2*ng[ii]+2*ns[ii];
+		nxM = nx[ii]>nxM ? nx[ii] : nxM;
+		nuM = nu[ii]>nuM ? nu[ii] : nuM;
+		nbM = nb[ii]>nbM ? nb[ii] : nbM;
+		ngM = ng[ii]>ngM ? ng[ii] : ngM;
+		nsM = ns[ii]>nsM ? ns[ii] : nsM;
+		}
+	nvt += nx[ii]+nu[ii]+2*ns[ii];
+	nct += 2*nb[ii]+2*ng[ii]+2*ns[ii];
+	nxM = nx[ii]>nxM ? nx[ii] : nxM;
+	nuM = nu[ii]>nuM ? nu[ii] : nuM;
+	nbM = nb[ii]>nbM ? nb[ii] : nbM;
+	ngM = ng[ii]>ngM ? ng[ii] : ngM;
+	nsM = ns[ii]>nsM ? ns[ii] : nsM;
 
-    size += 1*sizeof(struct CORE_QP_IPM_WORKSPACE);
-    size += 1*MEMSIZE_CORE_QP_IPM(nvt, net, nct);
+	int size = 0;
 
-    size += 1*sizeof(struct OCP_QP_RES_WORKSPACE); // res_workspace
+	size += 1*sizeof(struct CORE_QP_IPM_WORKSPACE);
+	size += 1*MEMSIZE_CORE_QP_IPM(nvt, net, nct);
 
-    size += 2*sizeof(struct OCP_QP); // qp_step qp_itref
+	size += 1*sizeof(struct OCP_QP_RES_WORKSPACE); // res_workspace
 
-    size += 2*sizeof(struct OCP_QP_SOL); // sol_step sol_itref
-    size += 1*MEMSIZE_OCP_QP_SOL(dim); // sol_itref
+	size += 2*sizeof(struct OCP_QP); // qp_step qp_itref
 
-    size += 2*sizeof(struct OCP_QP_RES); // res res_itref
-    size += 1*MEMSIZE_OCP_QP_RES(dim); // res_itref
+	size += 2*sizeof(struct OCP_QP_SOL); // sol_step sol_itref
+	size += 1*MEMSIZE_OCP_QP_SOL(dim); // sol_itref
 
-    size += 9*(N+1)*sizeof(struct STRVEC); // res_g res_d res_m Gamma gamma Zs_inv sol_step(v,lam,t)
-    size += 3*N*sizeof(struct STRVEC); // res_b Pb sol_step(pi) 
-    size += 10*sizeof(struct STRVEC); // tmp_nxM (4+2)*tmp_nbgM (1+1)*tmp_nsM tmp_m
+	size += 2*sizeof(struct OCP_QP_RES); // res res_itref
+	size += 1*MEMSIZE_OCP_QP_RES(dim); // res_itref
 
-    size += 1*(N+1)*sizeof(struct STRMAT); // L
-    if(arg->lq_fact>0)
-        size += 1*(N+1)*sizeof(struct STRMAT); // Lh
-    size += 2*sizeof(struct STRMAT); // AL
-    if(arg->lq_fact>0)
-        size += 1*sizeof(struct STRMAT); // lq0
+	size += 9*(N+1)*sizeof(struct STRVEC); // res_g res_d res_m Gamma gamma Zs_inv sol_step(v,lam,t)
+	size += 3*N*sizeof(struct STRVEC); // res_b Pb sol_step(pi) 
+	size += 10*sizeof(struct STRVEC); // tmp_nxM (4+2)*tmp_nbgM (1+1)*tmp_nsM tmp_m
 
-    size += 1*SIZE_STRVEC(nxM); // tmp_nxM
-    size += 4*SIZE_STRVEC(nbM+ngM); // tmp_nbgM
-    size += 1*SIZE_STRVEC(nsM); // tmp_nsM
-    for(ii=0; ii<N; ii++) size += 1*SIZE_STRVEC(nx[ii+1]); // Pb
-    for(ii=0; ii<=N; ii++) size += 1*SIZE_STRVEC(2*ns[ii]); // Zs_inv
-    for(ii=0; ii<=N; ii++) size += 2*SIZE_STRMAT(nu[ii]+nx[ii]+1, nu[ii]+nx[ii]); // L
-    if(arg->lq_fact>0)
-        for(ii=0; ii<=N; ii++) size += 2*SIZE_STRMAT(nu[ii]+nx[ii]+1, nu[ii]+nx[ii]); // Lh
-    size += 2*SIZE_STRMAT(nuM+nxM+1, nxM+ngM); // AL
-    if(arg->lq_fact>0)
-        size += 1*SIZE_STRMAT(nuM+nxM, 2*nuM+3*nxM+ngM); // lq0
-    size += 1*SIZE_STRVEC(nct); // tmp_m
+	size += 1*(N+1)*sizeof(struct STRMAT); // L
+	if(arg->lq_fact>0)
+		size += 1*(N+1)*sizeof(struct STRMAT); // Lh
+	size += 2*sizeof(struct STRMAT); // AL
+	if(arg->lq_fact>0)
+		size += 1*sizeof(struct STRMAT); // lq0
 
-    if(arg->lq_fact>0)
-        size += 1*GELQF_WORKSIZE(nuM+nxM, 2*nuM+3*nxM+ngM); // lq_work0
+	size += 1*SIZE_STRVEC(nxM); // tmp_nxM
+	size += 4*SIZE_STRVEC(nbM+ngM); // tmp_nbgM
+	size += 1*SIZE_STRVEC(nsM); // tmp_nsM
+	for(ii=0; ii<N; ii++) size += 1*SIZE_STRVEC(nx[ii+1]); // Pb
+	for(ii=0; ii<=N; ii++) size += 1*SIZE_STRVEC(2*ns[ii]); // Zs_inv
+	for(ii=0; ii<=N; ii++) size += 2*SIZE_STRMAT(nu[ii]+nx[ii]+1, nu[ii]+nx[ii]); // L
+	if(arg->lq_fact>0)
+		for(ii=0; ii<=N; ii++) size += 2*SIZE_STRMAT(nu[ii]+nx[ii]+1, nu[ii]+nx[ii]); // Lh
+	size += 2*SIZE_STRMAT(nuM+nxM+1, nxM+ngM); // AL
+	if(arg->lq_fact>0)
+		size += 1*SIZE_STRMAT(nuM+nxM, 2*nuM+3*nxM+ngM); // lq0
+	size += 1*SIZE_STRVEC(nct); // tmp_m
 
-    size += 5*arg->stat_max*sizeof(REAL);
+	if(arg->lq_fact>0)
+		size += 1*GELQF_WORKSIZE(nuM+nxM, 2*nuM+3*nxM+ngM); // lq_work0
 
-    size += (N+1)*sizeof(int); // use_hess_fact
+	size += 5*arg->stat_max*sizeof(REAL);
 
-    size = (size+63)/64*64; // make multiple of typical cache line size
-    size += 1*64; // align once to typical cache line size
+	size += (N+1)*sizeof(int); // use_hess_fact
 
-    return size;
+	size = (size+63)/64*64; // make multiple of typical cache line size
+	size += 1*64; // align once to typical cache line size
 
-    }
+	return size;
+
+	}
 
 
 
@@ -1439,13 +1505,3 @@ exit(1);
 
     }
 
-// interface functions
-int SIZEOF_OCP_QP_IPM_ARG()
-    {
-        return sizeof(struct OCP_QP_IPM_ARG);
-    }
-
-int SIZEOF_OCP_QP_IPM_WORKSPACE()
-    {
-        return sizeof(struct OCP_QP_IPM_WORKSPACE);
-    }

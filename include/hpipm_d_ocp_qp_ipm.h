@@ -49,7 +49,7 @@ extern "C" {
 
 struct d_ocp_qp_ipm_arg
 	{
-	double mu0; // initial value for duality measure
+	double mu0; // initial value for complementarity slackness
 	double alpha_min; // exit cond on step length
 	double res_g_max; // exit cond on inf norm of residuals
 	double res_b_max; // exit cond on inf norm of residuals
@@ -110,12 +110,28 @@ struct d_ocp_qp_ipm_workspace
 
 
 //
+int d_sizeof_ocp_qp_ipm_arg();
+//
 int d_memsize_ocp_qp_ipm_arg(struct d_ocp_qp_dim *ocp_dim);
 //
 void d_create_ocp_qp_ipm_arg(struct d_ocp_qp_dim *ocp_dim, struct d_ocp_qp_ipm_arg *arg, void *mem);
 //
 void d_set_default_ocp_qp_ipm_arg(enum hpipm_mode mode, struct d_ocp_qp_ipm_arg *arg);
+//
+void d_set_ocp_qp_ipm_arg_iter_max(int iter_max, struct d_ocp_qp_ipm_arg *arg);
+//
+void d_set_ocp_qp_ipm_arg_mu0(double mu0, struct d_ocp_qp_ipm_arg *arg);
+//
+void d_set_ocp_qp_ipm_arg_tol_stat(double tol_stat, struct d_ocp_qp_ipm_arg *arg);
+//
+void d_set_ocp_qp_ipm_arg_tol_eq(double tol_eq, struct d_ocp_qp_ipm_arg *arg);
+//
+void d_set_ocp_qp_ipm_arg_tol_ineq(double tol_ineq, struct d_ocp_qp_ipm_arg *arg);
+//
+void d_set_ocp_qp_ipm_arg_tol_comp(double tol_comp, struct d_ocp_qp_ipm_arg *arg);
 
+//
+int d_sizeof_ocp_qp_ipm_workspace();
 //
 int d_memsize_ocp_qp_ipm(struct d_ocp_qp_dim *ocp_dim, struct d_ocp_qp_ipm_arg *arg);
 //
@@ -123,9 +139,8 @@ void d_create_ocp_qp_ipm(struct d_ocp_qp_dim *ocp_dim, struct d_ocp_qp_ipm_arg *
 //
 int d_solve_ocp_qp_ipm(struct d_ocp_qp *qp, struct d_ocp_qp_sol *qp_sol, struct d_ocp_qp_ipm_arg *arg, struct d_ocp_qp_ipm_workspace *ws);
 
-// interface functions
-int d_sizeof_ocp_qp_ipm_arg();
-int d_sizeof_ocp_qp_ipm_workspace();
+
+
 
 #ifdef __cplusplus
 }	// #extern "C"

@@ -48,6 +48,7 @@ OBJS += s_ocp_qp_sol.o
 OBJS += s_ocp_qp_res.o
 OBJS += s_ocp_qp_kkt.o
 OBJS += s_ocp_qp_ipm.o
+OBJS += s_ocp_qp_utils.o
 # mixed
 #OBJS += m_ocp_qp.o                m_ocp_qp_kkt.o m_ocp_qp_ipm.o
 
@@ -69,3 +70,5 @@ d_ocp_qp_kkt.o: d_ocp_qp_kkt.c x_ocp_qp_kkt.c
 s_ocp_qp_kkt.o: s_ocp_qp_kkt.c x_ocp_qp_kkt.c
 d_ocp_qp_ipm.o: d_ocp_qp_ipm.c x_ocp_qp_ipm.c
 s_ocp_qp_ipm.o: s_ocp_qp_ipm.c x_ocp_qp_ipm.c
+d_ocp_qp_utils.o: d_ocp_qp_utils.c x_ocp_qp_utils.c
+s_ocp_qp_utils.o: s_ocp_qp_utils.c x_ocp_qp_utils.c
