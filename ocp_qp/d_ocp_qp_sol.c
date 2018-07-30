@@ -67,6 +67,8 @@
 #define CVT_OCP_QP_SOL_TO_COLMAJ_LAM_LG d_cvt_ocp_qp_sol_to_colmaj_lam_lg
 #define CVT_OCP_QP_SOL_TO_COLMAJ_LAM_UG d_cvt_ocp_qp_sol_to_colmaj_lam_ug
 
+// interface functions
+#define SIZEOF_OCP_QP_SOL d_sizeof_ocp_qp_sol
 
 
 #include "x_ocp_qp_sol.c"

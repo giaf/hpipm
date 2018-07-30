@@ -7,127 +7,47 @@
 * Developed at IMTEK (University of Freiburg) under the supervision of Moritz Diehl.              *
 * All rights reserved.                                                                            *
 *                                                                                                 *
-* HPIPM is free software; you can redistribute it and/or                                          *
+* HPMPC is free software; you can redistribute it and/or                                          *
 * modify it under the terms of the GNU Lesser General Public                                      *
 * License as published by the Free Software Foundation; either                                    *
 * version 2.1 of the License, or (at your option) any later version.                              *
 *                                                                                                 *
-* HPIPM is distributed in the hope that it will be useful,                                        *
+* HPMPC is distributed in the hope that it will be useful,                                        *
 * but WITHOUT ANY WARRANTY; without even the implied warranty of                                  *
 * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.                                            *
 * See the GNU Lesser General Public License for more details.                                     *
 *                                                                                                 *
 * You should have received a copy of the GNU Lesser General Public                                *
-* License along with HPIPM; if not, write to the Free Software                                    *
+* License along with HPMPC; if not, write to the Free Software                                    *
 * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA                  *
 *                                                                                                 *
-* Author: Gianluca Frison, gianluca.frison (at) imtek.uni-freiburg.de                             *
+* Author: Gianluca Frison, Andrea Zanelli: {gianluca.frison, andrea.zanelli} (at) imtek.uni-freiburg.de                             *
 *                                                                                                 *
 **************************************************************************************************/
 
-
-
-int MEMSIZE_OCP_QP_DIM(int N)
-	{
-
-	int size = 0;
-
-	size += 10*(N+1)*sizeof(int);
-
-	size = (size+8-1)/8*8;
-
-	return size;
-
-	}
+#ifndef HPIPM_D_OCP_QP_UTILS_H_
+#define HPIPM_D_OCP_QP_UTILS_H_
 
 
 
-void CREATE_OCP_QP_DIM(int N, struct OCP_QP_DIM *dim, void *memory)
-	{
+#include <blasfeo_target.h>
+#include <blasfeo_common.h>
 
-	// loop index
-	int ii;
-
-	char *c_ptr = memory;
-
-	// nx
-	dim->nx = (int *) c_ptr;
-	c_ptr += (N+1)*sizeof(int);
-	// nu
-	dim->nu = (int *) c_ptr;
-	c_ptr += (N+1)*sizeof(int);
-	// nb
-	dim->nb = (int *) c_ptr;
-	c_ptr += (N+1)*sizeof(int);
-	// nbx
-	dim->nbx = (int *) c_ptr;
-	c_ptr += (N+1)*sizeof(int);
-	// nbu
-	dim->nbu = (int *) c_ptr;
-	c_ptr += (N+1)*sizeof(int);
-	// ng
-	dim->ng = (int *) c_ptr;
-	c_ptr += (N+1)*sizeof(int);
-	// ns
-	dim->ns = (int *) c_ptr;
-	c_ptr += (N+1)*sizeof(int);
-	// nsbx
-	dim->nsbx = (int *) c_ptr;
-	c_ptr += (N+1)*sizeof(int);
-	// nsbu
-	dim->nsbu = (int *) c_ptr;
-	c_ptr += (N+1)*sizeof(int);
-	// nsg
-	dim->nsg = (int *) c_ptr;
-	c_ptr += (N+1)*sizeof(int);
-
-	// N
-	dim->N = N;
-
-	dim->memsize = MEMSIZE_OCP_QP_DIM(N);
-
-	return;
-
-	}
+#include "hpipm_d_ocp_qp_dim.h"
+#include "hpipm_d_ocp_qp_sol.h"
 
 
-void CVT_INT_TO_OCP_QP_DIM(int N, int *nx, int *nu, int *nbx, int *nbu, int *ng, int *nsbx, int *nsbu, int *nsg, struct OCP_QP_DIM *dim)
-	{
 
-	// loop index
-	int ii;
+#ifdef __cplusplus
+extern "C" {
+#endif
 
-	// N
-	dim->N = N;
+void d_print_ocp_qp_sol(struct d_ocp_qp_sol *ocp_qp_sol, struct d_ocp_qp_dim *ocp_qp_dim);
 
-	// copy qp dim
-	for(ii=0; ii<=N; ii++)
-		dim->nx[ii] = nx[ii];
-	for(ii=0; ii<=N; ii++)
-		dim->nu[ii] = nu[ii];
-	for(ii=0; ii<=N; ii++)
-		dim->nb[ii] = nbx[ii]+nbu[ii];
-	for(ii=0; ii<=N; ii++)
-		dim->nbx[ii] = nbx[ii];
-	for(ii=0; ii<=N; ii++)
-		dim->nbu[ii] = nbu[ii];
-	for(ii=0; ii<=N; ii++)
-		dim->ng[ii] = ng[ii];
-	for(ii=0; ii<=N; ii++)
-		dim->ns[ii] = nsbx[ii]+nsbu[ii]+nsg[ii];
-	for(ii=0; ii<=N; ii++)
-		dim->nsbx[ii] = nsbx[ii];
-	for(ii=0; ii<=N; ii++)
-		dim->nsbu[ii] = nsbu[ii];
-	for(ii=0; ii<=N; ii++)
-		dim->nsg[ii] = nsg[ii];
+#ifdef __cplusplus
+}	// #extern "C"
+#endif
 
-	return;
 
-	}
 
-// interface functions
-int SIZEOF_OCP_QP_DIM()
-    {
-        return sizeof(struct OCP_QP_DIM);
-    }
+#endif // HPIPM_D_OCP_QP_UTILS_H_

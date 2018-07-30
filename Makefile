@@ -88,6 +88,7 @@ OBJS += ocp_qp/d_ocp_qp_sol.o
 OBJS += ocp_qp/d_ocp_qp_res.o
 OBJS += ocp_qp/d_ocp_qp_kkt.o
 OBJS += ocp_qp/d_ocp_qp_ipm.o
+OBJS += ocp_qp/d_ocp_qp_utils.o
 # single
 OBJS += ocp_qp/s_ocp_qp_dim.o
 OBJS += ocp_qp/s_ocp_qp.o
