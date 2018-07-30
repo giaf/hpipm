@@ -121,7 +121,7 @@ static int *iidxs[6] = {};
 //
 static double *llls[6] = {};
 //
-static double *uuls[6] = {};
+static double *llus[6] = {};
 
 
 
@@ -157,4 +157,4 @@ double **hzl = zzl;
 double **hzu = zzu;
 int **hidxs = iidxs;
 double **hlls = llls;
-double **huls = uuls;
+double **hlus = llus;
