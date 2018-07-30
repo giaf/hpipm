@@ -73,6 +73,7 @@ struct s_dense_qp_ipm_arg
 	int abs_form; // absolute IPM formulation
 	int comp_res_exit; // compute residuals on exit (only for abs_form==1)
 	int memsize;
+	int print_level;
 	};
 
 
