@@ -57,7 +57,6 @@ println("HPIPM returned with flag $(return_flag)\n")
 
 if return_flag == 0
     println("-> QP solved Solution:\n")
-    println("-> QP solved! Solution:\n")
     solver[:print_sol]()
 else
     println("-> Solver failed.\n")
