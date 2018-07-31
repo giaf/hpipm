@@ -6,11 +6,11 @@ np = py.importlib.import_module('numpy');
 
 qp_data = hp.hpipm_data();
 
-A = m2py([1, 0; 1, 1].', np);
+A = m2py([1, 0; 1, 1], np);
 B = m2py([0, 1].', np);
 b = m2py([0, 0].', np);
 
-Q = m2py([1, 0; 0, 1].', np);
+Q = m2py([1, 0; 0, 1], np);
 S = m2py([0, 0].', np);
 R = m2py([1].', np);
 q = m2py([1, 1].', np);
