@@ -99,16 +99,24 @@
 
 
 
+// arg
+#define SIZEOF_OCP_QP_IPM_ARG d_sizeof_ocp_qp_ipm_arg
 #define MEMSIZE_OCP_QP_IPM_ARG d_memsize_ocp_qp_ipm_arg
 #define CREATE_OCP_QP_IPM_ARG d_create_ocp_qp_ipm_arg
 #define SET_DEFAULT_OCP_QP_IPM_ARG d_set_default_ocp_qp_ipm_arg
+#define SET_OCP_QP_IPM_ARG_ITER_MAX d_set_ocp_qp_ipm_arg_iter_max
+#define SET_OCP_QP_IPM_ARG_MU0 d_set_ocp_qp_ipm_arg_mu0
+#define SET_OCP_QP_IPM_ARG_TOL_STAT d_set_ocp_qp_ipm_arg_tol_stat
+#define SET_OCP_QP_IPM_ARG_TOL_EQ d_set_ocp_qp_ipm_arg_tol_eq
+#define SET_OCP_QP_IPM_ARG_TOL_INEQ d_set_ocp_qp_ipm_arg_tol_ineq
+#define SET_OCP_QP_IPM_ARG_TOL_COMP d_set_ocp_qp_ipm_arg_tol_comp
+// ipm
+#define SIZEOF_OCP_QP_IPM_WORKSPACE d_sizeof_ocp_qp_ipm_workspace
 #define MEMSIZE_OCP_QP_IPM d_memsize_ocp_qp_ipm
 #define CREATE_OCP_QP_IPM d_create_ocp_qp_ipm
 #define SOLVE_OCP_QP_IPM d_solve_ocp_qp_ipm
 #define SOLVE_OCP_QP_IPM2 d_solve_ocp_qp_ipm2
 
-// interface functions
-#define SIZEOF_OCP_QP_IPM_ARG d_sizeof_ocp_qp_ipm_arg
-#define SIZEOF_OCP_QP_IPM_WORKSPACE d_sizeof_ocp_qp_ipm_workspace
+
 
 #include "x_ocp_qp_ipm.c"

@@ -27,6 +27,13 @@
 
 
 
+int SIZEOF_OCP_QP_IPM_ARG()
+	{
+	return sizeof(struct OCP_QP_IPM_ARG);
+	}
+
+
+
 int MEMSIZE_OCP_QP_IPM_ARG(struct OCP_QP_DIM *dim)
 	{
 
@@ -154,8 +161,67 @@ void SET_DEFAULT_OCP_QP_IPM_ARG(enum HPIPM_MODE mode, struct OCP_QP_IPM_ARG *arg
 
 
 
+void SET_OCP_QP_IPM_ARG_ITER_MAX(int iter_max, struct OCP_QP_IPM_ARG *arg)
+	{
+	arg->iter_max = iter_max;
+	return;
+	}
+
+
+
+void SET_OCP_QP_IPM_ARG_MU0(REAL mu0, struct OCP_QP_IPM_ARG *arg)
+	{
+	arg->mu0 = mu0;
+	return;
+	}
+
+
+
+void SET_OCP_QP_IPM_ARG_TOL_STAT(REAL tol_stat, struct OCP_QP_IPM_ARG *arg)
+	{
+	arg->res_g_max = tol_stat;
+	return;
+	}
+
+
+
+void SET_OCP_QP_IPM_ARG_TOL_EQ(REAL tol_eq, struct OCP_QP_IPM_ARG *arg)
+	{
+	arg->res_b_max = tol_eq;
+	return;
+	}
+
+
+
+void SET_OCP_QP_IPM_ARG_TOL_INEQ(REAL tol_ineq, struct OCP_QP_IPM_ARG *arg)
+	{
+	arg->res_d_max = tol_ineq;
+	return;
+	}
+
+
+
+void SET_OCP_QP_IPM_ARG_TOL_COMP(REAL tol_comp, struct OCP_QP_IPM_ARG *arg)
+	{
+	arg->res_m_max = tol_comp;
+	return;
+	}
+
+
+
+int SIZEOF_OCP_QP_IPM_WORKSPACE()
+	{
+	return sizeof(struct OCP_QP_IPM_WORKSPACE);
+	}
+
+
+
 int MEMSIZE_OCP_QP_IPM(struct OCP_QP_DIM *dim, struct OCP_QP_IPM_ARG *arg)
 	{
+
+	// stat_max is at least as big as iter_max
+	if(arg->iter_max > arg->stat_max)
+		arg->stat_max = arg->iter_max;
 
 	// loop index
 	int ii;
@@ -1388,13 +1454,3 @@ exit(1);
 
 	}
 
-// interface functions
-int SIZEOF_OCP_QP_IPM_ARG()
-    {
-        return sizeof(struct OCP_QP_IPM_ARG);
-    }
-
-int SIZEOF_OCP_QP_IPM_WORKSPACE()
-    {
-        return sizeof(struct OCP_QP_IPM_WORKSPACE);
-    }

@@ -81,6 +81,9 @@ void CREATE_TREE_OCP_QP_DIM(int Nn, struct TREE_OCP_QP_DIM *dim, void *memory)
 	dim->nsg = (int *) c_ptr;
 	c_ptr += Nn*sizeof(int);
 
+	// Nn
+	dim->Nn = Nn;
+
 	dim->memsize = MEMSIZE_TREE_OCP_QP_DIM(Nn);
 
 	return;

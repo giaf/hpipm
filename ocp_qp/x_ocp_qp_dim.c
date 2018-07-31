@@ -81,6 +81,9 @@ void CREATE_OCP_QP_DIM(int N, struct OCP_QP_DIM *dim, void *memory)
 	dim->nsg = (int *) c_ptr;
 	c_ptr += (N+1)*sizeof(int);
 
+	// N
+	dim->N = N;
+
 	dim->memsize = MEMSIZE_OCP_QP_DIM(N);
 
 	return;

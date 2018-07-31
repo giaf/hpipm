@@ -146,6 +146,7 @@ file(GLOB OCP_QP_SRC
 	${PROJECT_SOURCE_DIR}/ocp_qp/s_ocp_qp_kkt.c
 	${PROJECT_SOURCE_DIR}/ocp_qp/s_ocp_qp_ipm.c
 	${PROJECT_SOURCE_DIR}/ocp_qp/s_ocp_qp_res.c
+	${PROJECT_SOURCE_DIR}/ocp_qp/s_ocp_qp_utils.c
 #	${PROJECT_SOURCE_DIR}/ocp_qp/m_ocp_qp.c
 #	${PROJECT_SOURCE_DIR}/ocp_qp/m_ocp_qp_kkt.c
 #	${PROJECT_SOURCE_DIR}/ocp_qp/m_ocp_qp_ipm_hard.c
