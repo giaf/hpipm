@@ -156,6 +156,54 @@ void SET_DEFAULT_TREE_OCP_QP_IPM_ARG(enum HPIPM_MODE mode, struct TREE_OCP_QP_IP
 
 
 
+void SET_TREE_OCP_QP_IPM_ARG_ITER_MAX(int iter_max, struct TREE_OCP_QP_IPM_ARG *arg)
+	{
+	arg->iter_max = iter_max;
+	return;
+	}
+
+
+
+void SET_TREE_OCP_QP_IPM_ARG_MU0(REAL mu0, struct TREE_OCP_QP_IPM_ARG *arg)
+	{
+	arg->mu0 = mu0;
+	return;
+	}
+
+
+
+void SET_TREE_OCP_QP_IPM_ARG_TOL_STAT(REAL tol_stat, struct TREE_OCP_QP_IPM_ARG *arg)
+	{
+	arg->res_g_max = tol_stat;
+	return;
+	}
+
+
+
+void SET_TREE_OCP_QP_IPM_ARG_TOL_EQ(REAL tol_eq, struct TREE_OCP_QP_IPM_ARG *arg)
+	{
+	arg->res_b_max = tol_eq;
+	return;
+	}
+
+
+
+void SET_TREE_OCP_QP_IPM_ARG_TOL_INEQ(REAL tol_ineq, struct TREE_OCP_QP_IPM_ARG *arg)
+	{
+	arg->res_d_max = tol_ineq;
+	return;
+	}
+
+
+
+void SET_TREE_OCP_QP_IPM_ARG_TOL_COMP(REAL tol_comp, struct TREE_OCP_QP_IPM_ARG *arg)
+	{
+	arg->res_m_max = tol_comp;
+	return;
+	}
+
+
+
 int MEMSIZE_TREE_OCP_QP_IPM(struct TREE_OCP_QP_DIM *dim, struct TREE_OCP_QP_IPM_ARG *arg)
 	{
 
@@ -627,6 +675,51 @@ void CREATE_TREE_OCP_QP_IPM(struct TREE_OCP_QP_DIM *dim, struct TREE_OCP_QP_IPM_
 
 
 	return;
+
+	}
+
+
+
+REAL GET_TREE_OCP_QP_IPM_RES_STAT(struct TREE_OCP_QP_IPM_WORKSPACE *ws)
+	{
+
+	return ws->qp_res[0];
+
+	}
+
+
+
+REAL GET_TREE_OCP_QP_IPM_RES_EQ(struct TREE_OCP_QP_IPM_WORKSPACE *ws)
+	{
+
+	return ws->qp_res[1];
+
+	}
+
+
+
+REAL GET_TREE_OCP_QP_IPM_RES_INEQ(struct TREE_OCP_QP_IPM_WORKSPACE *ws)
+	{
+
+	return ws->qp_res[2];
+
+	}
+
+
+
+REAL GET_TREE_OCP_QP_IPM_RES_COMP(struct TREE_OCP_QP_IPM_WORKSPACE *ws)
+	{
+
+	return ws->qp_res[3];
+
+	}
+
+
+
+REAL *GET_TREE_OCP_QP_IPM_STAT(struct TREE_OCP_QP_IPM_WORKSPACE *ws)
+	{
+
+	return ws->stat;
 
 	}
 
