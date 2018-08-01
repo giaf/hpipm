@@ -114,6 +114,12 @@
 #define SIZEOF_OCP_QP_IPM_WORKSPACE s_sizeof_ocp_qp_ipm_workspace
 #define MEMSIZE_OCP_QP_IPM s_memsize_ocp_qp_ipm
 #define CREATE_OCP_QP_IPM s_create_ocp_qp_ipm
+#define GET_OCP_QP_IPM_ITER s_get_ocp_qp_ipm_iter
+#define GET_OCP_QP_IPM_RES_STAT s_get_ocp_qp_ipm_res_stat
+#define GET_OCP_QP_IPM_RES_EQ s_get_ocp_qp_ipm_res_eq
+#define GET_OCP_QP_IPM_RES_INEQ s_get_ocp_qp_ipm_res_ineq
+#define GET_OCP_QP_IPM_RES_COMP s_get_ocp_qp_ipm_res_comp
+#define GET_OCP_QP_IPM_STAT s_get_ocp_qp_ipm_stat
 #define SOLVE_OCP_QP_IPM s_solve_ocp_qp_ipm
 #define SOLVE_OCP_QP_IPM2 s_solve_ocp_qp_ipm2
 
