@@ -2,9 +2,10 @@
 % py.sys.path
 
 % addpath("~/pytave")
+
 clear all
 close all
-% clc
+clc
 
 import hpipm_matlab.*
 

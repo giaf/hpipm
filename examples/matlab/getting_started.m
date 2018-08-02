@@ -5,7 +5,7 @@
 
 clear all
 close all
-% clc
+clc
 
 import hpipm_matlab.*
 
