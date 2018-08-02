@@ -95,11 +95,25 @@
 
 
 
+// arg
 #define MEMSIZE_DENSE_QP_IPM_ARG s_memsize_dense_qp_ipm_arg
 #define CREATE_DENSE_QP_IPM_ARG s_create_dense_qp_ipm_arg
 #define SET_DEFAULT_DENSE_QP_IPM_ARG s_set_default_dense_qp_ipm_arg
+#define SET_DENSE_QP_IPM_ARG_ITER_MAX s_set_dense_qp_ipm_arg_iter_max
+#define SET_DENSE_QP_IPM_ARG_MU0 s_set_dense_qp_ipm_arg_mu0
+#define SET_DENSE_QP_IPM_ARG_TOL_STAT s_set_dense_qp_ipm_arg_tol_stat
+#define SET_DENSE_QP_IPM_ARG_TOL_EQ s_set_dense_qp_ipm_arg_tol_eq
+#define SET_DENSE_QP_IPM_ARG_TOL_INEQ s_set_dense_qp_ipm_arg_tol_ineq
+#define SET_DENSE_QP_IPM_ARG_TOL_COMP s_set_dense_qp_ipm_arg_tol_comp
+// ipm
 #define MEMSIZE_DENSE_QP_IPM s_memsize_dense_qp_ipm
 #define CREATE_DENSE_QP_IPM s_create_dense_qp_ipm
+#define GET_DENSE_QP_IPM_ITER s_get_dense_qp_ipm_iter
+#define GET_DENSE_QP_IPM_RES_STAT s_get_dense_qp_ipm_res_stat
+#define GET_DENSE_QP_IPM_RES_EQ s_get_dense_qp_ipm_res_eq
+#define GET_DENSE_QP_IPM_RES_INEQ s_get_dense_qp_ipm_res_ineq
+#define GET_DENSE_QP_IPM_RES_COMP s_get_dense_qp_ipm_res_comp
+#define GET_DENSE_QP_IPM_STAT s_get_dense_qp_ipm_stat
 #define SOLVE_DENSE_QP_IPM s_solve_dense_qp_ipm
 #define SOLVE_DENSE_QP_IPM2 s_solve_dense_qp_ipm2
 

@@ -986,7 +986,7 @@ int main()
 
 	printf("\nipm iter = %d\n", dense_workspace.iter);
 	printf("\nalpha_aff\tmu_aff\t\tsigma\t\talpha\t\tmu\n");
-	d_print_e_tran_mat(5, dense_workspace.iter, dense_workspace.stat, 5);
+	d_print_exp_tran_mat(5, dense_workspace.iter, dense_workspace.stat, 5);
 
 	printf("\ncond time           = %e [s]\n", time_cond);
 	printf("\nupdate cond time    = %e [s]\n", time_update_cond);

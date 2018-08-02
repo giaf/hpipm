@@ -95,7 +95,7 @@ void d_print_tran_mat(int row, int col, double *A, int lda)
 	printf("\n");
 	}
 /* prints a matrix in column-major format (exponential notation) */
-void d_print_e_mat(int m, int n, double *A, int lda)
+void d_print_exp_mat(int m, int n, double *A, int lda)
 	{
 	int i, j;
 	for(i=0; i<m; i++)
@@ -109,7 +109,7 @@ void d_print_e_mat(int m, int n, double *A, int lda)
 	printf("\n");
 	}
 /* prints the transposed of a matrix in column-major format (exponential notation) */
-void d_print_e_tran_mat(int row, int col, double *A, int lda)
+void d_print_exp_tran_mat(int row, int col, double *A, int lda)
 	{
 	int i, j;
 	for(j=0; j<col; j++)
@@ -914,55 +914,55 @@ int main()
 	printf("\nresiduals\n\n");
 	printf("\nres_r\n");
 	for(ii=0; ii<=N; ii++)
-		d_print_e_mat(1, nu[ii], res_r[ii], 1);
+		d_print_exp_mat(1, nu[ii], res_r[ii], 1);
 	printf("\nres_q\n");
 	for(ii=0; ii<=N; ii++)
-		d_print_e_mat(1, nx[ii], res_q[ii], 1);
+		d_print_exp_mat(1, nx[ii], res_q[ii], 1);
 	printf("\nres_ls\n");
 	for(ii=0; ii<=N; ii++)
-		d_print_e_mat(1, ns[ii], res_ls[ii], 1);
+		d_print_exp_mat(1, ns[ii], res_ls[ii], 1);
 	printf("\nres_us\n");
 	for(ii=0; ii<=N; ii++)
-		d_print_e_mat(1, ns[ii], res_us[ii], 1);
+		d_print_exp_mat(1, ns[ii], res_us[ii], 1);
 	printf("\nres_b\n");
 	for(ii=0; ii<N; ii++)
-		d_print_e_mat(1, nx[ii+1], res_b[ii], 1);
+		d_print_exp_mat(1, nx[ii+1], res_b[ii], 1);
 	printf("\nres_d_lb\n");
 	for(ii=0; ii<=N; ii++)
-		d_print_e_mat(1, nb[ii], res_d_lb[ii], 1);
+		d_print_exp_mat(1, nb[ii], res_d_lb[ii], 1);
 	printf("\nres_d_ub\n");
 	for(ii=0; ii<=N; ii++)
-		d_print_e_mat(1, nb[ii], res_d_ub[ii], 1);
+		d_print_exp_mat(1, nb[ii], res_d_ub[ii], 1);
 	printf("\nres_d_lg\n");
 	for(ii=0; ii<=N; ii++)
-		d_print_e_mat(1, ng[ii], res_d_lg[ii], 1);
+		d_print_exp_mat(1, ng[ii], res_d_lg[ii], 1);
 	printf("\nres_d_ug\n");
 	for(ii=0; ii<=N; ii++)
-		d_print_e_mat(1, ng[ii], res_d_ug[ii], 1);
+		d_print_exp_mat(1, ng[ii], res_d_ug[ii], 1);
 	printf("\nres_d_ls\n");
 	for(ii=0; ii<=N; ii++)
-		d_print_e_mat(1, ns[ii], res_d_ls[ii], 1);
+		d_print_exp_mat(1, ns[ii], res_d_ls[ii], 1);
 	printf("\nres_d_us\n");
 	for(ii=0; ii<=N; ii++)
-		d_print_e_mat(1, ns[ii], res_d_us[ii], 1);
+		d_print_exp_mat(1, ns[ii], res_d_us[ii], 1);
 	printf("\nres_m_lb\n");
 	for(ii=0; ii<=N; ii++)
-		d_print_e_mat(1, nb[ii], res_m_lb[ii], 1);
+		d_print_exp_mat(1, nb[ii], res_m_lb[ii], 1);
 	printf("\nres_m_ub\n");
 	for(ii=0; ii<=N; ii++)
-		d_print_e_mat(1, nb[ii], res_m_ub[ii], 1);
+		d_print_exp_mat(1, nb[ii], res_m_ub[ii], 1);
 	printf("\nres_m_lg\n");
 	for(ii=0; ii<=N; ii++)
-		d_print_e_mat(1, ng[ii], res_m_lg[ii], 1);
+		d_print_exp_mat(1, ng[ii], res_m_lg[ii], 1);
 	printf("\nres_m_ug\n");
 	for(ii=0; ii<=N; ii++)
-		d_print_e_mat(1, ng[ii], res_m_ug[ii], 1);
+		d_print_exp_mat(1, ng[ii], res_m_ug[ii], 1);
 	printf("\nres_m_ls\n");
 	for(ii=0; ii<=N; ii++)
-		d_print_e_mat(1, ns[ii], res_m_ls[ii], 1);
+		d_print_exp_mat(1, ns[ii], res_m_ls[ii], 1);
 	printf("\nres_m_us\n");
 	for(ii=0; ii<=N; ii++)
-		d_print_e_mat(1, ns[ii], res_m_us[ii], 1);
+		d_print_exp_mat(1, ns[ii], res_m_us[ii], 1);
 #endif
 
 /************************************************
@@ -973,7 +973,7 @@ int main()
 
 	printf("\nipm iter = %d\n", workspace.iter);
 	printf("\nalpha_aff\tmu_aff\t\tsigma\t\talpha\t\tmu\n");
-	d_print_e_tran_mat(5, workspace.iter, workspace.stat, 5);
+	d_print_exp_tran_mat(5, workspace.iter, workspace.stat, 5);
 
 	printf("\nocp ipm time = %e [s]\n\n", time_ocp_ipm);
 

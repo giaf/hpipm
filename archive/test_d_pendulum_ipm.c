@@ -47,13 +47,11 @@
 #include "../include/hpipm_d_ocp_qp_ipm.h"
 #include "../include/hpipm_d_ocp_nlp.h"
 #include "../include/hpipm_d_ocp_nlp_sol.h"
-#include "../include/hpipm_d_ocp_nlp_hyb.h"
+#include "../include/hpipm_d_ocp_nlp_ipm.h"
 
 
 
-int odeFun(double **arg, double **res, int *iw, double *w, int mem);
-int vdeFun(double **arg, double **res, int *iw, double *w, int mem);
-int adjFun(double **arg, double **res, int *iw, double *w, int mem);
+int vdeFun(double** arg, double** res, int* iw, double* w, int mem);
 
 
 
@@ -63,35 +61,6 @@ struct vde_fun_arg
 	int nu;
 	};
 
-
-
-void ode_fun_model(int t, double *x, double *u, void *ode_arg, double *out)
-	{
-
-	struct vde_fun_arg *arg = ode_arg;
-
-	int nx = arg->nx;
-	int nu = arg->nu;
-
-	double *x_out = out;
-
-	double *casadi_arg[2];
-	double *casadi_res[1];
-
-	casadi_arg[0] = x;
-	casadi_arg[1] = u;
-
-	casadi_res[0] = x_out;
-
-	int* iw = 0;
-	double* w = 0;
-	int mem = 0;
-
-	odeFun(casadi_arg, casadi_res, iw, w, mem);
-
-	return;
-
-	}
 
 
 void vde_fun_model(int t, double *x, double *u, void *ode_arg, double *out)
@@ -126,45 +95,6 @@ void vde_fun_model(int t, double *x, double *u, void *ode_arg, double *out)
 	int mem = 0;
 
 	vdeFun(casadi_arg, casadi_res, iw, w, mem);
-
-	return;
-
-	}
-
-
-void vde_adj_model(int t, double *adj_in, void *ode_arg, double *adj_out)
-	{
-
-	struct vde_fun_arg *arg = ode_arg;
-
-	int nx = arg->nx;
-	int nu = arg->nu;
-
-	// extract inputs
-	double *x = adj_in + 0;
-	double *l = adj_in + nx;
-	double *u = adj_in + nx + nx;
-
-	// extract output
-	double *l_u_out = adj_out + 0;
-	double *l_x_out = adj_out + nu;
-
-	double *casadi_arg[3];
-	double *casadi_res[1];
-
-	casadi_arg[0] = x;
-	casadi_arg[1] = l;
-	casadi_arg[2] = u;
-
-	casadi_res[0] = l_u_out;
-
-	int* iw = 0;
-	double* w = 0;
-	int mem = 0;
-
-	adjFun(casadi_arg, casadi_res, iw, w, mem);
-
-	return;
 
 	}
 
@@ -273,7 +203,7 @@ int main()
 	erk_arg.steps = 10;
 	erk_arg.h = Ts/erk_arg.steps;
 	erk_arg.for_sens = 1; // XXX needed ???
-	erk_arg.adj_sens = 1;
+	erk_arg.adj_sens = 0;
 
 /************************************************
 * ocp qp
@@ -507,9 +437,9 @@ int main()
 	vde_arg.nu = nu_;
 
 	struct d_ocp_nlp_model model1;
-	model1.expl_ode = &ode_fun_model;
+	model1.expl_ode = NULL;
 	model1.expl_vde_for = &vde_fun_model;
-	model1.expl_vde_adj = &vde_adj_model;
+	model1.expl_vde_adj = NULL;
 	model1.forward_seed = fs1;
 	model1.arg = &vde_arg;
 
@@ -618,62 +548,46 @@ int main()
 	d_create_ocp_nlp_sol(N, nx, nu, nb, ng, ns, &nlp_sol, nlp_sol_mem);
 
 /************************************************
-* ocp nlp hyb arg
+* ocp nlp ipm arg
 ************************************************/	
 
-	int hyb_arg_size = d_memsize_ocp_nlp_hyb_arg(&nlp);
-	printf("\nipm arg size = %d\n", hyb_arg_size);
-	void *hyb_arg_mem = malloc(hyb_arg_size);
+	int ipm_arg_size = d_memsize_ocp_nlp_ipm_arg(&nlp);
+	printf("\nipm arg size = %d\n", ipm_arg_size);
+	void *ipm_arg_mem = malloc(ipm_arg_size);
 
-	struct d_ocp_nlp_hyb_arg hyb_arg;
-	d_create_ocp_nlp_hyb_arg(&nlp, &hyb_arg, hyb_arg_mem);
-	d_set_default_ocp_nlp_hyb_arg(&hyb_arg);
+	struct d_ocp_nlp_ipm_arg ipm_arg;
+	d_create_ocp_nlp_ipm_arg(&nlp, &ipm_arg, ipm_arg_mem);
+	d_set_default_ocp_nlp_ipm_arg(&ipm_arg);
 
 	struct d_erk_arg erk_args[N];
 	for(ii=0; ii<N; ii++)
 		erk_args[ii] = erk_arg;
 
-//	struct d_ocp_nlp_hyb_arg hyb_arg;
-//	hyb_arg.ipm_arg = &arg;
-	hyb_arg.erk_arg = erk_args;
-//	hyb_arg.alpha_min = 1e-8;
-	hyb_arg.nlp_res_g_max = 1e-6;
-	hyb_arg.nlp_res_b_max = 1e-8;
-	hyb_arg.nlp_res_d_max = 1e-8;
-	hyb_arg.nlp_res_m_max = 1e-8;
-//	hyb_arg.nlp_iter_max = 20;
-//	hyb_arg.stat_max = 20;
-	hyb_arg.N2 = 2;
-//	hyb_arg.pred_corr = 1;
+//	struct d_ocp_nlp_ipm_arg ipm_arg;
+	ipm_arg.erk_arg = erk_args;
+//	ipm_arg.alpha_min = 1e-8;
+	ipm_arg.nlp_res_g_max = 1e-6;
+	ipm_arg.nlp_res_b_max = 1e-8;
+	ipm_arg.nlp_res_d_max = 1e-8;
+	ipm_arg.nlp_res_m_max = 1e-8;
+//	ipm_arg.nlp_iter_max = 100;
+//	ipm_arg.stat_max = 100;
+//	ipm_arg.mu0 = 1000.0;
+//	ipm_arg.pred_corr = 1;
 
 /************************************************
-* ipm arg
+* ocp nlp ipm ws
 ************************************************/	
 
-//	struct d_ocp_qp_ipm_arg arg;
-//	arg.alpha_min = 1e-8;
-//	arg.res_g_max = 1e-1;
-//	arg.res_b_max = 1e-1;
-//	arg.res_d_max = 1e-1;
-//	arg.res_m_max = 1e-0;
-//	arg.mu0 = 1000.0;
-//	arg.iter_max = 20;
-//	arg.stat_max = 20;
-//	arg.pred_corr = 1;
-
-/************************************************
-* ocp nlp hyb ws
-************************************************/	
-
-	int nlp_ws_size = d_memsize_ocp_nlp_hyb(&nlp, &hyb_arg);
+	int nlp_ws_size = d_memsize_ocp_nlp_ipm(&nlp, &ipm_arg);
 	printf("\nnlp ws size = %d\n", nlp_ws_size);
 	void *nlp_ws_mem = malloc(nlp_ws_size);
 	
-	struct d_ocp_nlp_hyb_workspace hyb_ws;
-	d_create_ocp_nlp_hyb(&nlp, &hyb_arg, &hyb_ws, nlp_ws_mem);
+	struct d_ocp_nlp_ipm_workspace ipm_ws;
+	d_create_ocp_nlp_ipm(&nlp, &ipm_arg, &ipm_ws, nlp_ws_mem);
 
 /************************************************
-* ocp nlp hyb
+* ocp nlp ipm
 ************************************************/	
 
 	int nlp_return;
@@ -685,12 +599,12 @@ int main()
 
 	for(rep=0; rep<nrep; rep++)
 		{
-		nlp_return = d_solve_ocp_nlp_hyb(&nlp, &nlp_sol, &hyb_arg, &hyb_ws);
+		nlp_return = d_solve_ocp_nlp_ipm(&nlp, &nlp_sol, &ipm_arg, &ipm_ws);
 		}
 
 	gettimeofday(&tv1, NULL); // stop
 
-	double time_ocp_nlp_hyb = (tv1.tv_sec-tv0.tv_sec)/(nrep+0.0)+(tv1.tv_usec-tv0.tv_usec)/(nrep*1e6);
+	double time_ocp_nlp_ipm = (tv1.tv_sec-tv0.tv_sec)/(nrep+0.0)+(tv1.tv_usec-tv0.tv_usec)/(nrep*1e6);
 
 /************************************************
 * extract and print solution
@@ -712,7 +626,7 @@ int main()
 
 #if 1
 	printf("\nalpha_aff\tmu_aff\t\tsigma\t\talpha\t\tmu\n");
-	d_print_e_tran_mat(5, hyb_ws.iter_qp+hyb_ws.iter_nlp, hyb_ws.ipm_workspace->stat, 5);
+	d_print_exp_tran_mat(5, ipm_ws.iter, ipm_ws.ipm_workspace->stat, 5);
 
 	printf("\nsolution\n\n");
 	printf("\nu\n");
@@ -770,11 +684,11 @@ int main()
 #endif
 
 /************************************************
-* print hyb statistics
+* print ipm statistics
 ************************************************/	
 
-	printf("\nnlp_res_g = %e, nlp_res_b = %e, nlp_res_d = %e, nlp_res_m = %e\n", hyb_ws.nlp_res_g, hyb_ws.nlp_res_b, hyb_ws.nlp_res_d, hyb_ws.nlp_res_m);
-	printf("\nocp nlp hyb: iter_qp = %d, iter_nlp = %d, time = %e [s]\n\n", hyb_ws.iter_qp, hyb_ws.iter_nlp, time_ocp_nlp_hyb);
+	printf("\nnlp_res_g = %e, nlp_res_b = %e, nlp_res_d = %e, nlp_res_m = %e\n", ipm_ws.nlp_res_g, ipm_ws.nlp_res_b, ipm_ws.nlp_res_d, ipm_ws.nlp_res_m);
+	printf("\nocp nlp ipm: iter = %d, time = %e [s]\n\n", ipm_ws.iter, time_ocp_nlp_ipm);
 
 /************************************************
 * free memory

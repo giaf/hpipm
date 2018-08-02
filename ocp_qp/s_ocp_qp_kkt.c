@@ -74,7 +74,7 @@
 #define OCP_QP_SOL s_ocp_qp_sol
 #define POTRF_L blasfeo_spotrf_l
 #define POTRF_L_MN blasfeo_spotrf_l_mn
-#define PRINT_E_MAT s_print_e_mat
+#define PRINT_E_MAT s_print_exp_mat
 #define PRINT_E_STRVEC blasfeo_print_exp_svec
 #define PRINT_E_TRAN_STRVEC blasfeo_print_exp_tran_svec
 #define PRINT_STRMAT blasfeo_print_smat

@@ -57,7 +57,7 @@ struct s_tree_ocp_qp_ipm_arg
 	float res_b_max; // exit cond on inf norm of residuals
 	float res_d_max; // exit cond on inf norm of residuals
 	float res_m_max; // exit cond on inf norm of residuals
-	double reg_prim; // reg of primal hessian
+	float reg_prim; // reg of primal hessian
 	float lam_min; // min value in lam vector
 	float t_min; // min value in t vector
 	int iter_max; // exit cond in iter number
@@ -116,11 +116,35 @@ int s_memsize_tree_ocp_qp_ipm_arg(struct s_tree_ocp_qp_dim *dim);
 void s_create_tree_ocp_qp_ipm_arg(struct s_tree_ocp_qp_dim *dim, struct s_tree_ocp_qp_ipm_arg *arg, void *mem);
 //
 void s_set_default_tree_ocp_qp_ipm_arg(enum hpipm_mode mode, struct s_tree_ocp_qp_ipm_arg *arg);
+//
+void s_set_tree_ocp_qp_ipm_arg_iter_max(int iter_max, struct s_tree_ocp_qp_ipm_arg *arg);
+//
+void s_set_tree_ocp_qp_ipm_arg_mu0(float mu0, struct s_tree_ocp_qp_ipm_arg *arg);
+//
+void s_set_tree_ocp_qp_ipm_arg_tol_stat(float tol_stat, struct s_tree_ocp_qp_ipm_arg *arg);
+//
+void s_set_tree_ocp_qp_ipm_arg_tol_eq(float tol_eq, struct s_tree_ocp_qp_ipm_arg *arg);
+//
+void s_set_tree_ocp_qp_ipm_arg_tol_ineq(float tol_ineq, struct s_tree_ocp_qp_ipm_arg *arg);
+//
+void s_set_tree_ocp_qp_ipm_arg_tol_comp(float tol_comp, struct s_tree_ocp_qp_ipm_arg *arg);
 
 //
 int s_memsize_tree_ocp_qp_ipm(struct s_tree_ocp_qp_dim *dim, struct s_tree_ocp_qp_ipm_arg *arg);
 //
 void s_create_tree_ocp_qp_ipm(struct s_tree_ocp_qp_dim *dim, struct s_tree_ocp_qp_ipm_arg *arg, struct s_tree_ocp_qp_ipm_workspace *ws, void *mem);
+//
+int s_get_tree_ocp_qp_ipm_iter(struct s_tree_ocp_qp_ipm_workspace *ws);
+//
+float s_get_tree_ocp_qp_ipm_res_stat(struct s_tree_ocp_qp_ipm_workspace *ws);
+//
+float s_get_tree_ocp_qp_ipm_res_eq(struct s_tree_ocp_qp_ipm_workspace *ws);
+//
+float s_get_tree_ocp_qp_ipm_res_ineq(struct s_tree_ocp_qp_ipm_workspace *ws);
+//
+float s_get_tree_ocp_qp_ipm_res_comp(struct s_tree_ocp_qp_ipm_workspace *ws);
+//
+float *s_get_tree_ocp_qp_ipm_stat(struct s_tree_ocp_qp_ipm_workspace *ws);
 //
 int s_solve_tree_ocp_qp_ipm(struct s_tree_ocp_qp *qp, struct s_tree_ocp_qp_sol *qp_sol, struct s_tree_ocp_qp_ipm_arg *arg, struct s_tree_ocp_qp_ipm_workspace *ws);
 

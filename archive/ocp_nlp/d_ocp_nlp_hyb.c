@@ -610,10 +610,10 @@ exit(1);
 
 #if 0
 printf("\nresiduals\n");
-d_print_e_mat(1, cws->nv, cws->res_g, 1);
-d_print_e_mat(1, cws->ne, cws->res_b, 1);
-d_print_e_mat(1, cws->nc, cws->res_d, 1);
-d_print_e_mat(1, cws->nc, cws->res_m, 1);
+d_print_exp_mat(1, cws->nv, cws->res_g, 1);
+d_print_exp_mat(1, cws->ne, cws->res_b, 1);
+d_print_exp_mat(1, cws->nc, cws->res_d, 1);
+d_print_exp_mat(1, cws->nc, cws->res_m, 1);
 #endif
 
 #if 0
@@ -722,7 +722,7 @@ for(nn=0; nn<=N2; nn++)
 	blasfeo_print_tran_dvec(2*nb2[nn]+2*ng2[nn]+2*ns2[nn], qp_sol2->lam+nn, 0);
 for(nn=0; nn<=N2; nn++)
 	blasfeo_print_tran_dvec(2*nb2[nn]+2*ng2[nn]+2*ns2[nn], qp_sol2->t+nn, 0);
-d_print_e_tran_mat(5, ipm_ws->iter, ipm_ws->stat, 5);
+d_print_exp_tran_mat(5, ipm_ws->iter, ipm_ws->stat, 5);
 exit(1);
 #endif
 
@@ -750,7 +750,7 @@ for(nn=0; nn<=N; nn++)
 	blasfeo_print_tran_dvec(2*nb[nn]+2*ng[nn]+2*ns[nn], qp_sol->lam+nn, 0);
 for(nn=0; nn<=N; nn++)
 	blasfeo_print_tran_dvec(2*nb[nn]+2*ng[nn]+2*ns[nn], qp_sol->t+nn, 0);
-d_print_e_tran_mat(5, ipm_ws->iter, ipm_ws->stat, 5);
+d_print_exp_tran_mat(5, ipm_ws->iter, ipm_ws->stat, 5);
 exit(1);
 #endif
 
@@ -775,7 +775,7 @@ for(nn=0; nn<=N; nn++)
 	blasfeo_print_tran_dvec(2*nlp->nb[nn]+2*nlp->ng[nn]+2*nlp->ns[nn], nlp_sol->lam+nn, 0);
 for(nn=0; nn<=N; nn++)
 	blasfeo_print_tran_dvec(2*nlp->nb[nn]+2*nlp->ng[nn]+2*nlp->ns[nn], nlp_sol->t+nn, 0);
-//d_print_e_tran_mat(5, ipm_ws->iter, ipm_ws->stat, 5);
+//d_print_exp_tran_mat(5, ipm_ws->iter, ipm_ws->stat, 5);
 //		exit(1);
 #endif
 
@@ -859,10 +859,10 @@ for(nn=0; nn<=N; nn++)
 
 #if 0
 printf("\nsol\n");
-d_print_e_mat(1, cws2->nv, cws2->v, 1);
-d_print_e_mat(1, cws2->ne, cws2->pi, 1);
-d_print_e_mat(1, cws2->nc, cws2->lam, 1);
-d_print_e_mat(1, cws2->nc, cws2->t, 1);
+d_print_exp_mat(1, cws2->nv, cws2->v, 1);
+d_print_exp_mat(1, cws2->ne, cws2->pi, 1);
+d_print_exp_mat(1, cws2->nc, cws2->lam, 1);
+d_print_exp_mat(1, cws2->nc, cws2->t, 1);
 exit(1);
 #endif
 
@@ -882,10 +882,10 @@ exit(1);
 
 #if 0
 printf("\nresiduals\n");
-d_print_e_mat(1, cws2->nv, cws2->res_g, 1);
-d_print_e_mat(1, cws2->ne, cws2->res_b, 1);
-d_print_e_mat(1, cws2->nc, cws2->res_d, 1);
-d_print_e_mat(1, cws2->nc, cws2->res_m, 1);
+d_print_exp_mat(1, cws2->nv, cws2->res_g, 1);
+d_print_exp_mat(1, cws2->ne, cws2->res_b, 1);
+d_print_exp_mat(1, cws2->nc, cws2->res_d, 1);
+d_print_exp_mat(1, cws2->nc, cws2->res_m, 1);
 exit(1);
 #endif
 
@@ -955,10 +955,10 @@ exit(1);
 
 #if 0
 printf("\nqp sol\n");
-d_print_e_mat(1, cws->nv, cws->v, 1);
-d_print_e_mat(1, cws->ne, cws->pi, 1);
-d_print_e_mat(1, cws->nc, cws->lam, 1);
-d_print_e_mat(1, cws->nc, cws->t, 1);
+d_print_exp_mat(1, cws->nv, cws->v, 1);
+d_print_exp_mat(1, cws->ne, cws->pi, 1);
+d_print_exp_mat(1, cws->nc, cws->lam, 1);
+d_print_exp_mat(1, cws->nc, cws->t, 1);
 #endif
 
 			// update NLP variables
@@ -985,10 +985,10 @@ exit(1);
 
 #if 0
 printf("\nsol\n");
-d_print_e_mat(1, cws->nv, cws->v, 1);
-d_print_e_mat(1, cws->ne, cws->pi, 1);
-d_print_e_mat(1, cws->nc, cws->lam, 1);
-d_print_e_mat(1, cws->nc, cws->t, 1);
+d_print_exp_mat(1, cws->nv, cws->v, 1);
+d_print_exp_mat(1, cws->ne, cws->pi, 1);
+d_print_exp_mat(1, cws->nc, cws->lam, 1);
+d_print_exp_mat(1, cws->nc, cws->t, 1);
 exit(1);
 #endif
 
@@ -1008,10 +1008,10 @@ exit(1);
 
 #if 0
 printf("\nresiduals\n");
-d_print_e_mat(1, cws->nv, cws->res_g, 1);
-d_print_e_mat(1, cws->ne, cws->res_b, 1);
-d_print_e_mat(1, cws->nc, cws->res_d, 1);
-d_print_e_mat(1, cws->nc, cws->res_m, 1);
+d_print_exp_mat(1, cws->nv, cws->res_g, 1);
+d_print_exp_mat(1, cws->ne, cws->res_b, 1);
+d_print_exp_mat(1, cws->nc, cws->res_d, 1);
+d_print_exp_mat(1, cws->nc, cws->res_m, 1);
 exit(1);
 #endif
 
@@ -1065,24 +1065,24 @@ printf("\n\niter %d nlp inf norm res %e %e %e %e\n", ss, nlp_res[0], nlp_res[1],
 
 #if 0
 printf("\nstep\n");
-d_print_e_mat(1, cws->nv, cws->dv, 1);
-d_print_e_mat(1, cws->ne, cws->dpi, 1);
-d_print_e_mat(1, cws->nc, cws->dlam, 1);
-d_print_e_mat(1, cws->nc, cws->dt, 1);
+d_print_exp_mat(1, cws->nv, cws->dv, 1);
+d_print_exp_mat(1, cws->ne, cws->dpi, 1);
+d_print_exp_mat(1, cws->nc, cws->dlam, 1);
+d_print_exp_mat(1, cws->nc, cws->dt, 1);
 #endif
 			// update QP variables
 			UPDATE_VAR_QP(cws);
 
 #if 0
 printf("\nqp sol\n");
-d_print_e_mat(1, cws->nv, cws->v, 1);
-d_print_e_mat(1, cws->ne, cws->pi, 1);
-d_print_e_mat(1, cws->nc, cws->lam, 1);
-d_print_e_mat(1, cws->nc, cws->t, 1);
+d_print_exp_mat(1, cws->nv, cws->v, 1);
+d_print_exp_mat(1, cws->ne, cws->pi, 1);
+d_print_exp_mat(1, cws->nc, cws->lam, 1);
+d_print_exp_mat(1, cws->nc, cws->t, 1);
 #endif
 
 #if 0
-d_print_e_tran_mat(5, kk, ipm_ws->stat, 5);
+d_print_exp_tran_mat(5, kk, ipm_ws->stat, 5);
 #endif
 
 			// update NLP variables

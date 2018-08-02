@@ -236,11 +236,17 @@ int main()
 ************************************************/
 
 	printf("\nipm return = %d\n", hpipm_return);
-	printf("\nipm residuals max: res_g = %e, res_b = %e, res_d = %e, res_m = %e\n", workspace.qp_res[0], workspace.qp_res[1], workspace.qp_res[2], workspace.qp_res[3]);
+	double res_stat = d_get_ocp_qp_ipm_res_stat(&workspace);
+	double res_eq = d_get_ocp_qp_ipm_res_eq(&workspace);
+	double res_ineq = d_get_ocp_qp_ipm_res_ineq(&workspace);
+	double res_comp = d_get_ocp_qp_ipm_res_comp(&workspace);
+	printf("\nipm residuals max: res_g = %e, res_b = %e, res_d = %e, res_m = %e\n", res_stat, res_eq, res_ineq, res_comp);
 
-	printf("\nipm iter = %d\n", workspace.iter);
+	int iter = d_get_ocp_qp_ipm_iter(&workspace);
+	printf("\nipm iter = %d\n", iter);
+	double *stat = d_get_ocp_qp_ipm_stat(&workspace);
 	printf("\nalpha_aff\tmu_aff\t\tsigma\t\talpha\t\tmu\n");
-	d_print_e_tran_mat(5, workspace.iter, workspace.stat, 5);
+	d_print_exp_tran_mat(5, iter, stat, 5);
 
 	printf("\nocp ipm time = %e [s]\n\n", time_ipm);
 
