@@ -299,14 +299,14 @@ def hpipm_solve:
     # set up dimensions structure
     __hpipm.d_create_ocp_qp_dim(N, dim, dim_mem)
     __hpipm.d_cvt_int_to_ocp_qp_dim(N, 
-        cast(nx.ctypes.data, POINTER(c_double)), 
-        cast(nu.ctypes.data, POINTER(c_double)), 
-        cast(nbx.ctypes.data, POINTER(c_double)), 
-        cast(nbu.ctypes.data, POINTER(c_double)), 
-        cast(ng.ctypes.data, POINTER(c_double)), 
-        cast(nsbx.ctypes.data, POINTER(c_double)), 
-        cast(nsbu.ctypes.data, POINTER(c_double)), 
-        cast(nsg.ctypes.data, POINTER(c_double)), 
+        cast(nx.ctypes.data, POINTER(c_int)), 
+        cast(nu.ctypes.data, POINTER(c_int)), 
+        cast(nbx.ctypes.data, POINTER(c_int)), 
+        cast(nbu.ctypes.data, POINTER(c_int)), 
+        cast(ng.ctypes.data, POINTER(c_int)), 
+        cast(nsbx.ctypes.data, POINTER(c_int)), 
+        cast(nsbu.ctypes.data, POINTER(c_int)), 
+        cast(nsg.ctypes.data, POINTER(c_int)), 
         dim)
     
     A = (POINTER(c_double)*(N))()
