@@ -246,7 +246,7 @@ int main()
 	printf("\nipm iter = %d\n", iter);
 	double *stat = d_get_ocp_qp_ipm_stat(&workspace);
 	printf("\nalpha_aff\tmu_aff\t\tsigma\t\talpha\t\tmu\n");
-	d_print_e_tran_mat(5, iter, stat, 5);
+	d_print_exp_tran_mat(5, iter, stat, 5);
 
 	printf("\nocp ipm time = %e [s]\n\n", time_ipm);
 

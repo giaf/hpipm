@@ -80,7 +80,7 @@
 #define OCP_QP_RES_WORKSPACE s_ocp_qp_res_workspace
 #define OCP_QP_DIM s_ocp_qp_dim
 #define OCP_QP_SOL s_ocp_qp_sol
-#define PRINT_E_MAT s_print_e_mat
+#define PRINT_E_MAT s_print_exp_mat
 #define PRINT_E_STRVEC blasfeo_print_exp_svec
 #define PRINT_E_TRAN_STRVEC blasfeo_print_exp_tran_svec
 #define PRINT_STRMAT blasfeo_print_smat

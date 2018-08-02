@@ -25,8 +25,6 @@
 *                                                                                                 *
 **************************************************************************************************/
 
-
-
 #include <stdlib.h>
 #include <stdio.h>
 #include <math.h>
@@ -48,54 +46,179 @@
 #include "../include/hpipm_d_ocp_nlp.h"
 #include "../include/hpipm_d_ocp_nlp_sol.h"
 #include "../include/hpipm_d_ocp_nlp_ipm.h"
+#include "../include/hpipm_d_ocp_qp_sim.h"
+
+#include "d_tools.h"
 
 
 
-int vdeFun(double** arg, double** res, int* iw, double* w, int mem);
-
-
-
-struct vde_fun_arg
+/************************************************ 
+Mass-spring system: nx/2 masses connected each other with springs (in a row), and the first and the last one to walls. nu (<=nx) controls act on the first nu masses. The system is sampled with sampling time Ts. 
+************************************************/
+void mass_spring_system(int nx, int nu, double *Ac, double *Bc)
 	{
+
+	int ii;
+
+	int nx2 = nx*nx;
+
+	int pp = nx/2; // number of masses
+	
+	// Ac
+	for(ii=0; ii<nx*nx; ii++)
+		Ac[ii] = 0.0;
+	for(ii=0; ii<pp; ii++)
+		Ac[ii+nx*(pp+ii)] = 1.0;
+	for(ii=0; ii<pp; ii++)
+		Ac[pp+ii+nx*(ii)] = -2.0;
+	for(ii=0; ii<pp-1; ii++)
+		Ac[pp+ii+nx*(1+ii)] = 1.0;
+	for(ii=0; ii<pp; ii++)
+		Ac[1+pp+ii+nx*(ii)] = 1.0;
+
+	// Bc
+	for(ii=0; ii<nx*nu; ii++)
+		Bc[ii] = 0.0;
+	for(ii=0; ii<nu; ii++)
+		Bc[pp+ii+nx*ii] = 1.0;
+
+	return;
+
+	}
+
+
+
+struct d_linear_system
+	{
+	double *Ac;
+	double *Bc;
 	int nx;
 	int nu;
+	int memsize;
 	};
 
 
 
-void vde_fun_model(int t, double *x, double *u, void *ode_arg, double *out)
+int d_memsize_linear_system(int nx, int nu)
 	{
+	int size = 0;
+	size += (nx*nx+nx*nu)*sizeof(double);
+	return size;
+	}
 
-	struct vde_fun_arg *arg = ode_arg;
 
-	int nx = arg->nx;
-	int nu = arg->nu;
 
-	double *Su = x + nx;
-	double *Sx = x + nx + nu * nx;
+void d_create_linear_system(int nx, int nu, struct d_linear_system *lin_sys, void *memory)
+	{
+	lin_sys->nx = nx;
+	lin_sys->nu = nu;
+	char * c_ptr = (char *) memory;
+	lin_sys->Ac = (double *) c_ptr;
+	c_ptr += nx*nx*sizeof(double);
+	lin_sys->Bc = (double *) c_ptr;
+	c_ptr += nx*nu*sizeof(double);
+	return;
+	}
 
-	double *x_out = out;
-	double *Su_out = out + nx;
-	double *Sx_out = out + nx + nu * nx;
 
-	double *casadi_arg[4];
-	double *casadi_res[3];
 
-	casadi_arg[0] = x;
-	casadi_arg[1] = Sx;
-	casadi_arg[2] = Su;
-	casadi_arg[3] = u;
+void d_cvt_colmaj_to_linear_system(double *A,  double *B, struct d_linear_system *lin_sys)
+	{
+	int ii;
+	int nx = lin_sys->nx;
+	int nu = lin_sys->nu;
+	double *Ac = lin_sys->Ac;
+	double *Bc = lin_sys->Bc;
+	for(ii=0; ii<nx*nx; ii++)
+		Ac[ii] = A[ii];
+	for(ii=0; ii<nx*nu; ii++)
+		Bc[ii] = B[ii];
+	return;
+	}
+		
 
-	casadi_res[0] = x_out;
-	casadi_res[1] = Sx_out;
-	casadi_res[2] = Su_out;
 
-	int* iw = 0;
-	double* w = 0;
-	int mem = 0;
+void d_linear_ode(int t, double *x, double *u, void *ode_args, double *xdot)
+	{
+	struct d_linear_system *lin_sys = ode_args;
+	int ii, jj;
+	int nx = lin_sys->nx;
+	int nu = lin_sys->nu;
+	double *Ac = lin_sys->Ac;
+	double *Bc = lin_sys->Bc;
+	for(ii=0; ii<nx; ii++)
+		xdot[ii] = 0.0;
+	for(jj=0; jj<nx; jj++)
+		for(ii=0; ii<nx; ii++)
+			xdot[ii] += Ac[ii+nx*jj] * x[jj];
+	for(jj=0; jj<nu; jj++)
+		for(ii=0; ii<nx; ii++)
+			xdot[ii] += Bc[ii+nx*jj] * u[jj];
+	return;
+	}
 
-	vdeFun(casadi_arg, casadi_res, iw, w, mem);
 
+
+void d_linear_vde0(int t, double *x, double *u, void *ode_args, double *xdot)
+	{
+	struct d_linear_system *lin_sys = ode_args;
+	int ii, jj, kk;
+	int nx = lin_sys->nx;
+	int nu = lin_sys->nu;
+	double *Ac = lin_sys->Ac;
+	double *Bc = lin_sys->Bc;
+	double *tmp;
+	// init to zero
+	for(ii=0; ii<nx*(nu+1); ii++)
+		xdot[ii] = 0.0;
+	// Sx + Su + x
+	for(kk=0; kk<nu+1; kk++)
+		for(jj=0; jj<nx; jj++)
+			for(ii=0; ii<nx; ii++)
+				xdot[ii+nx*kk] += Ac[ii+nx*jj] * x[jj+nx*kk];
+	// x
+	tmp = xdot;
+	for(jj=0; jj<nu; jj++)
+		for(ii=0; ii<nx; ii++)
+			tmp[ii] += Bc[ii+nx*jj] * u[jj];
+	// Su
+	tmp = xdot + nx;
+	for(jj=0; jj<nu; jj++)
+		for(ii=0; ii<nx; ii++)
+			tmp[ii+nx*jj] += Bc[ii+nx*jj];
+	return;
+	}
+
+
+
+void d_linear_vde1(int t, double *x, double *u, void *ode_args, double *xdot)
+	{
+	struct d_linear_system *lin_sys = ode_args;
+	int ii, jj, kk;
+	int nx = lin_sys->nx;
+	int nu = lin_sys->nu;
+	double *Ac = lin_sys->Ac;
+	double *Bc = lin_sys->Bc;
+	double *tmp;
+	// init to zero
+	for(ii=0; ii<nx*(nu+nx+1); ii++)
+		xdot[ii] = 0.0;
+	// Sx + Su + x
+	for(kk=0; kk<nu+nx+1; kk++)
+		for(jj=0; jj<nx; jj++)
+			for(ii=0; ii<nx; ii++)
+				xdot[ii+nx*kk] += Ac[ii+nx*jj] * x[jj+nx*kk];
+	// x
+	tmp = xdot;
+	for(jj=0; jj<nu; jj++)
+		for(ii=0; ii<nx; ii++)
+			tmp[ii] += Bc[ii+nx*jj] * u[jj];
+	// Su
+	tmp = xdot + nx;
+	for(jj=0; jj<nu; jj++)
+		for(ii=0; ii<nx; ii++)
+			tmp[ii+nx*jj] += Bc[ii+nx*jj];
+	return;
 	}
 
 
@@ -103,42 +226,83 @@ void vde_fun_model(int t, double *x, double *u, void *ode_arg, double *out)
 int main()
 	{
 
-	int ii;
+	int ii, jj;
 
 /************************************************
 * problem size
 ************************************************/	
 	
-	int nx_ = 4;
-	int nu_ = 1;
-	int N   = 25;
+	int nx_ = 8;
+	int nu_ = 3;
+	int N   = 4;
 
 /************************************************
-* initial state and control
+* (continuous time) mass sprint system
 ************************************************/	
 	
-	double *x0 = malloc(nx_*sizeof(double));
-	x0[0] = 0.0;
-	x0[1] = 0.5;
-	x0[2] = 0.0;
-	x0[3] = 0.0;
+	double *Ac; d_zeros(&Ac, nx_, nx_);
+	double *Bc; d_zeros(&Bc, nx_, nu_);
 
-	double *u0 = malloc(nu_*sizeof(double));
-	u0[0] = 0.0;
+	mass_spring_system(nx_, nu_, Ac, Bc);
+
+	d_print_mat(nx_, nx_, Ac, nx_);
+	d_print_mat(nx_, nu_, Bc, nx_);
+
+	int lin_sys_memsize = d_memsize_linear_system(nx_, nu_);
+	printf("\nlin_sys memsize = %d\n", lin_sys_memsize);
+	void *lin_sys_memory = malloc(lin_sys_memsize);
+
+	struct d_linear_system lin_sys;
+	d_create_linear_system(nx_, nu_, &lin_sys, lin_sys_memory);
+
+	d_cvt_colmaj_to_linear_system(Ac, Bc, &lin_sys);
+
+	d_print_mat(nx_, nx_, lin_sys.Ac, nx_);
+	d_print_mat(nx_, nu_, lin_sys.Bc, nx_);
+
+	double *x0; d_zeros(&x0, nx_, 1);
+	x0[0] = 2.5;
+	x0[1] = 2.5;
+
+	d_print_mat(1, nx_, x0, 1);
+
+/************************************************
+* (discrete time) mass sprint system
+************************************************/	
+
+	double Ts = 0.5;
+
+	double *A = malloc(nx_*nx_*sizeof(double));
+	double *B = malloc(nx_*nu_*sizeof(double));
+	double *T = malloc(nx_*nx_*sizeof(double));
+	int *ipiv = malloc(nx_*sizeof(int));
+
+	for(ii=0; ii<nx_*nx_; ii++)
+		A[ii] = Ts*Ac[ii];
+	expm(nx_, A);
+
+	for(ii=0; ii<nx_*nx_; ii++) T[ii] = A[ii];
+	for(ii=0; ii<nx_; ii++) T[ii*(nx_+1)] -= 1.0;
+	dgemm_nn_3l(nx_, nu_, nx_, T, nx_, Bc, nx_, B, nx_);
+
+	int info = 0;
+	dgesv_3l(nx_, nu_, Ac, nx_, ipiv, B, nx_, &info);
+
+	double *b; d_zeros(&b, nx_, 1);
+
+	d_print_mat(nx_, nx_, A, nx_);
+	d_print_mat(nx_, nu_, B, nx_);
+	d_print_mat(1, nx_, b, 1);
 
 /************************************************
 * quadratic cost function
 ************************************************/	
 	
 	double *Q; d_zeros(&Q, nx_, nx_);
-//	for(ii=0; ii<nx_; ii++) Q[ii*(nx_+1)] = 10.0;
-	Q[0+nx_*0] = 1;
-	Q[1+nx_*1] = 1000;
-	Q[2+nx_*2] = 1;
-	Q[3+nx_*3] = 0.1;
+	for(ii=0; ii<nx_; ii++) Q[ii*(nx_+1)] = 1.0;
 
 	double *R; d_zeros(&R, nu_, nu_);
-	for(ii=0; ii<nu_; ii++) R[ii*(nu_+1)] = 0.1;
+	for(ii=0; ii<nu_; ii++) R[ii*(nu_+1)] = 2.0;
 
 	double *S; d_zeros(&S, nu_, nx_);
 
@@ -155,13 +319,12 @@ int main()
 	d_print_mat(1, nu_, r, 1);
 
 /************************************************
-* integrator type and arg
+* integrator type and args
 ************************************************/	
 	
 #if 1
 	// rk4
 	int nsta = 4; // number of stages
-	int expl = 1;
 	double A_rk[] = {0.0, 0.0, 0.0, 0.0,
 	                 0.5, 0.0, 0.0, 0.0,
 	                 0.0, 0.5, 0.0, 0.0,
@@ -171,7 +334,6 @@ int main()
 #elif 1
 	// midpoint rule
 	int nsta = 2; // number of stages
-	int expl = 1;
 	double A_rk[] = {0.0, 0.0,
 	                 0.5, 0.0};
 	double B_rk[] = {0.0, 1.0};
@@ -179,7 +341,6 @@ int main()
 #else
 	// explicit euler
 	int nsta = 1; // number of stages
-	int expl = 1;
 	double A_rk[] = {0.0};
 	double B_rk[] = {1.0};
 	double C_rk[] = {0.0};
@@ -193,17 +354,12 @@ int main()
 	struct d_rk_data rk_data;
 	d_create_rk_data(nsta, &rk_data, memory_rk_data);
 
-	d_cvt_rowmaj_to_rk_data(expl, A_rk, B_rk, C_rk, &rk_data);
+	d_cvt_rowmaj_to_rk_data(A_rk, B_rk, C_rk, &rk_data);
 
-	double Ts = 0.1;
-
-	// erk arg structure
-	struct d_erk_arg erk_arg;
-	erk_arg.rk_data = &rk_data;
+	// erk args structure
+	struct d_erk_args erk_arg;
 	erk_arg.steps = 10;
 	erk_arg.h = Ts/erk_arg.steps;
-	erk_arg.for_sens = 1; // XXX needed ???
-	erk_arg.adj_sens = 0;
 
 /************************************************
 * ocp qp
@@ -224,13 +380,13 @@ int main()
 		{
 		nx[ii] = nx_;
 		nu[ii] = nu_;
-		nb[ii] = nu_;
+		nb[ii] = nu_+nx_/2;
 		ng[ii] = 0;
 		ns[ii] = 0;
 		}
 	nx[N] = nx_;
 	nu[N] = 0;
-	nb[N] = 0;//nx_;
+	nb[N] = nx_;
 	ng[N] = 0;
 	ns[N] = 0;
 
@@ -247,8 +403,8 @@ int main()
 		{
 		if(ii<nu[0]) // input
 			{
-			d_lb0[ii] = - 10.0; // umin
-			d_ub0[ii] =   10.0; // umax
+			d_lb0[ii] = - 0.5; // umin
+			d_ub0[ii] =   0.5; // umax
 			}
 		else // (initial) state
 			{
@@ -267,10 +423,15 @@ int main()
 		{
 		if(ii<nu[1]) // input
 			{
-			d_lb1[ii] = - 10.0; // umin
-			d_ub1[ii] =   10.0; // umax
-			idxb1[ii] = ii;
+			d_lb1[ii] = - 0.5; // umin
+			d_ub1[ii] =   0.5; // umax
 			}
+		else // state
+			{
+			d_lb1[ii] = - 4.0; // xmin
+			d_ub1[ii] =   4.0; // xmax
+			}
+		idxb1[ii] = ii;
 		}
 
 	int *idxbN; int_zeros(&idxbN, nb[N], 1);
@@ -278,20 +439,11 @@ int main()
 	double *d_ubN; d_zeros(&d_ubN, nb[N], 1);
 	double *d_lgN; d_zeros(&d_lgN, ng[N], 1);
 	double *d_ugN; d_zeros(&d_ugN, ng[N], 1);
-	if(nb[N]==nx[N])
+	for(ii=0; ii<nb[N]; ii++)
 		{
-		d_lbN[0] = - 1000.0; //
-		d_ubN[0] =   1000.0; //
-		idxbN[0] = 0;
-		d_lbN[1] = - 0.0; //
-		d_ubN[1] =   0.0; //
-		idxbN[1] = 1;
-		d_lbN[2] = - 10.0; //
-		d_ubN[2] =   10.0; //
-		idxbN[2] = 2;
-		d_lbN[3] = - 10.0; //
-		d_ubN[3] =   10.0; //
-		idxbN[3] = 3;
+		d_lbN[ii] = - 4.0; // xmin
+		d_ubN[ii] =   4.0; // xmax
+		idxbN[ii] = ii;
 		}
 
 	double *C0; d_zeros(&C0, ng[0], nx[0]);
@@ -415,33 +567,16 @@ int main()
 * ocp nlp model
 ************************************************/	
 
-	// stage 0
-//	double *fs0 = malloc(nx_*nu_*sizeof(double));
-//	for(ii=0; ii<nx_*nu_; ii++)
-//		fs0[ii] = 0.0;
-//
-//	struct d_ocp_nlp_model model0;
-//	model0.expl_vde = &d_van_der_pol_vde0;
-//	model0.forward_seed = fs0;
-//	model0.arg = NULL;
-
-	// stage 1
 	double *fs1 = malloc(nx_*(nu_+nx_)*sizeof(double));
 	for(ii=0; ii<nx_*(nu_+nx_); ii++)
 		fs1[ii] = 0.0;
 	for(ii=0; ii<nx_; ii++)
 		fs1[nu_*nx_+ii*(nx_+1)] = 1.0;
 
-	struct vde_fun_arg vde_arg;
-	vde_arg.nx = nx_;
-	vde_arg.nu = nu_;
-
 	struct d_ocp_nlp_model model1;
-	model1.expl_ode = NULL;
-	model1.expl_vde_for = &vde_fun_model;
-	model1.expl_vde_adj = NULL;
+	model1.expl_vde = &d_linear_vde1;
 	model1.forward_seed = fs1;
-	model1.arg = &vde_arg;
+	model1.arg = &lin_sys;
 
 /************************************************
 * ocp nlp data
@@ -551,29 +686,22 @@ int main()
 * ocp nlp ipm arg
 ************************************************/	
 
-	int ipm_arg_size = d_memsize_ocp_nlp_ipm_arg(&nlp);
-	printf("\nipm arg size = %d\n", ipm_arg_size);
-	void *ipm_arg_mem = malloc(ipm_arg_size);
-
-	struct d_ocp_nlp_ipm_arg ipm_arg;
-	d_create_ocp_nlp_ipm_arg(&nlp, &ipm_arg, ipm_arg_mem);
-	d_set_default_ocp_nlp_ipm_arg(&ipm_arg);
-
-	struct d_erk_arg erk_args[N];
+	struct d_erk_args erk_args[N];
 	for(ii=0; ii<N; ii++)
 		erk_args[ii] = erk_arg;
 
-//	struct d_ocp_nlp_ipm_arg ipm_arg;
+	struct d_ocp_nlp_ipm_arg ipm_arg;
+	ipm_arg.rk_data = &rk_data;
 	ipm_arg.erk_arg = erk_args;
-//	ipm_arg.alpha_min = 1e-8;
-	ipm_arg.nlp_res_g_max = 1e-6;
+	ipm_arg.alpha_min = 1e-8;
+	ipm_arg.nlp_res_g_max = 1e-8;
 	ipm_arg.nlp_res_b_max = 1e-8;
 	ipm_arg.nlp_res_d_max = 1e-8;
 	ipm_arg.nlp_res_m_max = 1e-8;
-//	ipm_arg.nlp_iter_max = 100;
-//	ipm_arg.stat_max = 100;
-//	ipm_arg.mu0 = 1000.0;
-//	ipm_arg.pred_corr = 1;
+	ipm_arg.nlp_iter_max = 20;
+	ipm_arg.stat_max = 20;
+	ipm_arg.mu0 = 2.0;
+	ipm_arg.pred_corr = 1;
 
 /************************************************
 * ocp nlp ipm ws
@@ -593,7 +721,7 @@ int main()
 	int nlp_return;
 
 	struct timeval tv0, tv1;
-	int rep, nrep = 100;
+	int rep, nrep = 1000;
 
 	gettimeofday(&tv0, NULL); // start
 
@@ -626,7 +754,7 @@ int main()
 
 #if 1
 	printf("\nalpha_aff\tmu_aff\t\tsigma\t\talpha\t\tmu\n");
-	d_print_e_tran_mat(5, ipm_ws.iter, ipm_ws.ipm_workspace->stat, 5);
+	d_print_exp_tran_mat(5, ipm_ws.iter, ipm_ws.ipm_workspace->stat, 5);
 
 	printf("\nsolution\n\n");
 	printf("\nu\n");
@@ -635,12 +763,12 @@ int main()
 	printf("\nx\n");
 	for(ii=0; ii<=N; ii++)
 		d_print_mat(1, nx[ii], x[ii], 1);
-//	printf("\nls\n");
-//	for(ii=0; ii<=N; ii++)
-//		d_print_mat(1, ns[ii], ls[ii], 1);
-//	printf("\nus\n");
-//	for(ii=0; ii<=N; ii++)
-//		d_print_mat(1, ns[ii], us[ii], 1);
+	printf("\nls\n");
+	for(ii=0; ii<=N; ii++)
+		d_print_mat(1, ns[ii], ls[ii], 1);
+	printf("\nus\n");
+	for(ii=0; ii<=N; ii++)
+		d_print_mat(1, ns[ii], us[ii], 1);
 	printf("\npi\n");
 	for(ii=0; ii<N; ii++)
 		d_print_mat(1, nx[ii+1], pi[ii], 1);
@@ -650,37 +778,37 @@ int main()
 	printf("\nlam_ub\n");
 	for(ii=0; ii<=N; ii++)
 		d_print_mat(1, nb[ii], lam_ub[ii], 1);
-//	printf("\nlam_lg\n");
-//	for(ii=0; ii<=N; ii++)
-//		d_print_mat(1, ng[ii], lam_lg[ii], 1);
-//	printf("\nlam_ug\n");
-//	for(ii=0; ii<=N; ii++)
-//		d_print_mat(1, ng[ii], lam_ug[ii], 1);
-//	printf("\nlam_ls\n");
-//	for(ii=0; ii<=N; ii++)
-//		d_print_mat(1, ns[ii], lam_ls[ii], 1);
-//	printf("\nlam_us\n");
-//	for(ii=0; ii<=N; ii++)
-//		d_print_mat(1, ns[ii], lam_us[ii], 1);
+	printf("\nlam_lg\n");
+	for(ii=0; ii<=N; ii++)
+		d_print_mat(1, ng[ii], lam_lg[ii], 1);
+	printf("\nlam_ug\n");
+	for(ii=0; ii<=N; ii++)
+		d_print_mat(1, ng[ii], lam_ug[ii], 1);
+	printf("\nlam_ls\n");
+	for(ii=0; ii<=N; ii++)
+		d_print_mat(1, ns[ii], lam_ls[ii], 1);
+	printf("\nlam_us\n");
+	for(ii=0; ii<=N; ii++)
+		d_print_mat(1, ns[ii], lam_us[ii], 1);
 
-//	printf("\nt_lb\n");
-//	for(ii=0; ii<=N; ii++)
-//		d_print_mat(1, nb[ii], (nlp_sol.t+ii)->pa, 1);
-//	printf("\nt_ub\n");
-//	for(ii=0; ii<=N; ii++)
-//		d_print_mat(1, nb[ii], (nlp_sol.t+ii)->pa+nb[ii]+ng[ii], 1);
-//	printf("\nt_lg\n");
-//	for(ii=0; ii<=N; ii++)
-//		d_print_mat(1, ng[ii], (nlp_sol.t+ii)->pa+nb[ii], 1);
-//	printf("\nt_ug\n");
-//	for(ii=0; ii<=N; ii++)
-//		d_print_mat(1, ng[ii], (nlp_sol.t+ii)->pa+2*nb[ii]+ng[ii], 1);
-//	printf("\nt_ls\n");
-//	for(ii=0; ii<=N; ii++)
-//		d_print_mat(1, ns[ii], (nlp_sol.t+ii)->pa+2*nb[ii]+2*ng[ii], 1);
-//	printf("\nt_us\n");
-//	for(ii=0; ii<=N; ii++)
-//		d_print_mat(1, ns[ii], (nlp_sol.t+ii)->pa+2*nb[ii]+2*ng[ii]+ns[ii], 1);
+	printf("\nt_lb\n");
+	for(ii=0; ii<=N; ii++)
+		d_print_mat(1, nb[ii], (nlp_sol.t+ii)->pa, 1);
+	printf("\nt_ub\n");
+	for(ii=0; ii<=N; ii++)
+		d_print_mat(1, nb[ii], (nlp_sol.t+ii)->pa+nb[ii]+ng[ii], 1);
+	printf("\nt_lg\n");
+	for(ii=0; ii<=N; ii++)
+		d_print_mat(1, ng[ii], (nlp_sol.t+ii)->pa+nb[ii], 1);
+	printf("\nt_ug\n");
+	for(ii=0; ii<=N; ii++)
+		d_print_mat(1, ng[ii], (nlp_sol.t+ii)->pa+2*nb[ii]+ng[ii], 1);
+	printf("\nt_ls\n");
+	for(ii=0; ii<=N; ii++)
+		d_print_mat(1, ns[ii], (nlp_sol.t+ii)->pa+2*nb[ii]+2*ng[ii], 1);
+	printf("\nt_us\n");
+	for(ii=0; ii<=N; ii++)
+		d_print_mat(1, ns[ii], (nlp_sol.t+ii)->pa+2*nb[ii]+2*ng[ii]+ns[ii], 1);
 #endif
 
 /************************************************
@@ -688,19 +816,97 @@ int main()
 ************************************************/	
 
 	printf("\nnlp_res_g = %e, nlp_res_b = %e, nlp_res_d = %e, nlp_res_m = %e\n", ipm_ws.nlp_res_g, ipm_ws.nlp_res_b, ipm_ws.nlp_res_d, ipm_ws.nlp_res_m);
-	printf("\nocp nlp ipm: iter = %d, time = %e [s]\n\n", ipm_ws.iter, time_ocp_nlp_ipm);
+	printf("\nocp nlp ipm iter = %d, time = %e [s]\n\n", ipm_ws.iter, time_ocp_nlp_ipm);
 
 /************************************************
 * free memory
 ************************************************/	
 	
+	free(lin_sys_memory);
+	free(Ac);
+	free(Bc);
 	free(x0);
-	free(u0);
-	
-/************************************************
-* return
-************************************************/	
-	
+	free(A);
+	free(B);
+	free(T);
+	free(ipiv);
+	free(b);
+	free(Q);
+	free(S);
+	free(R);
+	free(q);
+	free(r);
+	free(x_ref);
+	free(u_ref);
+	int_free(idxb0);
+	d_free(d_lb0);
+	d_free(d_ub0);
+	int_free(idxb1);
+	d_free(d_lb1);
+	d_free(d_ub1);
+	int_free(idxbN);
+	d_free(d_lbN);
+	d_free(d_ubN);
+	d_free(C0);
+	d_free(D0);
+	d_free(d_lg0);
+	d_free(d_ug0);
+	d_free(C1);
+	d_free(D1);
+	d_free(d_lg1);
+	d_free(d_ug1);
+	d_free(CN);
+	d_free(DN);
+	d_free(d_lgN);
+	d_free(d_ugN);
+	d_free(Zl0);
+	d_free(Zu0);
+	d_free(zl0);
+	d_free(zu0);
+	int_free(idxs0);
+	d_free(Zl1);
+	d_free(Zu1);
+	d_free(zl1);
+	d_free(zu1);
+	int_free(idxs1);
+	d_free(ZlN);
+	d_free(ZuN);
+	d_free(zlN);
+	d_free(zuN);
+	int_free(idxsN);
+
+	for(ii=0; ii<N; ii++)
+		{
+		d_free(u[ii]);
+		d_free(x[ii]);
+		d_free(ls[ii]);
+		d_free(us[ii]);
+		d_free(pi[ii]);
+		d_free(lam_lb[ii]);
+		d_free(lam_ub[ii]);
+		d_free(lam_lg[ii]);
+		d_free(lam_ug[ii]);
+		d_free(lam_ls[ii]);
+		d_free(lam_us[ii]);
+		}
+	d_free(u[ii]);
+	d_free(x[ii]);
+	d_free(ls[ii]);
+	d_free(us[ii]);
+	d_free(lam_lb[ii]);
+	d_free(lam_ub[ii]);
+	d_free(lam_lg[ii]);
+	d_free(lam_ug[ii]);
+	d_free(lam_ls[ii]);
+	d_free(lam_us[ii]);
+
+	free(memory_rk_data);
+	free(nlp_mem);
+	free(nlp_sol_mem);
+	free(nlp_ws_mem);
+
 	return 0;
 
 	}
+
+

@@ -567,10 +567,10 @@ exit(1);
 
 #if 0
 printf("\nresiduals\n");
-d_print_e_mat(1, cws->nv, cws->res_g, 1);
-d_print_e_mat(1, cws->ne, cws->res_b, 1);
-d_print_e_mat(1, cws->nc, cws->res_d, 1);
-d_print_e_mat(1, cws->nc, cws->res_m, 1);
+d_print_exp_mat(1, cws->nv, cws->res_g, 1);
+d_print_exp_mat(1, cws->ne, cws->res_b, 1);
+d_print_exp_mat(1, cws->nc, cws->res_d, 1);
+d_print_exp_mat(1, cws->nc, cws->res_m, 1);
 #endif
 
 #if 0
@@ -676,7 +676,7 @@ for(nn=0; nn<=N2; nn++)
 	blasfeo_print_tran_dvec(2*nb2[nn]+2*ng2[nn]+2*ns2[nn], qp_sol2->lam+nn, 0);
 for(nn=0; nn<=N2; nn++)
 	blasfeo_print_tran_dvec(2*nb2[nn]+2*ng2[nn]+2*ns2[nn], qp_sol2->t+nn, 0);
-d_print_e_tran_mat(5, ipm_ws->iter, ipm_ws->stat, 5);
+d_print_exp_tran_mat(5, ipm_ws->iter, ipm_ws->stat, 5);
 exit(1);
 #endif
 
@@ -703,7 +703,7 @@ for(nn=0; nn<=N; nn++)
 	blasfeo_print_tran_dvec(2*nb[nn]+2*ng[nn]+2*ns[nn], qp_sol->lam+nn, 0);
 for(nn=0; nn<=N; nn++)
 	blasfeo_print_tran_dvec(2*nb[nn]+2*ng[nn]+2*ns[nn], qp_sol->t+nn, 0);
-d_print_e_tran_mat(5, ipm_ws->iter, ipm_ws->stat, 5);
+d_print_exp_tran_mat(5, ipm_ws->iter, ipm_ws->stat, 5);
 exit(1);
 #endif
 
@@ -728,7 +728,7 @@ for(nn=0; nn<=N; nn++)
 	blasfeo_print_tran_dvec(2*nlp->nb[nn]+2*nlp->ng[nn]+2*nlp->ns[nn], nlp_sol->lam+nn, 0);
 for(nn=0; nn<=N; nn++)
 	blasfeo_print_tran_dvec(2*nlp->nb[nn]+2*nlp->ng[nn]+2*nlp->ns[nn], nlp_sol->t+nn, 0);
-//d_print_e_tran_mat(5, ipm_ws->iter, ipm_ws->stat, 5);
+//d_print_exp_tran_mat(5, ipm_ws->iter, ipm_ws->stat, 5);
 //		exit(1);
 #endif
 
