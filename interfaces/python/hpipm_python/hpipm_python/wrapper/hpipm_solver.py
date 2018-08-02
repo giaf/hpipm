@@ -275,6 +275,7 @@ def hpipm_solve:
     __hpipm   = CDLL('libhpipm.so')
     
     # cast dimensions to contiguous int
+    # TODO(andrea): int32 might not be portable to Windows
     nx   = np.ascontiguousarray(qp_dims.nx,  dtype=np.int32)
     nu   = np.ascontiguousarray(qp_dims.nu,  dtype=np.int32)
     nb   = np.ascontiguousarray(qp_dims.nb,  dtype=np.int32)
