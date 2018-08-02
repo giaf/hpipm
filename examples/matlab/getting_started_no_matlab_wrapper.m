@@ -7,8 +7,6 @@ clear all
 close all
 clc
 
-import hpipm_matlab.*
-
 hp = py.importlib.import_module('hpipm_python');
 np = py.importlib.import_module('numpy');
 
