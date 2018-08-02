@@ -1,4 +1,5 @@
-function m_obj = py2m_obj(py_obj)    
+function m_obj = py2m_obj(py_obj)
+    import hpipm_matlab.*
     props = fieldnames(py_obj);
     for iprop = 1:length(props)
         thisprop = props{iprop};
