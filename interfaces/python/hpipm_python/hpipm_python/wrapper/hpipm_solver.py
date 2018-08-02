@@ -269,7 +269,7 @@ class hpipm_solver:
         self.__hpipm.d_print_ocp_qp_sol(self.ocp_qp_sol, self.ocp_qp_dim)
         return 
 
-def hpipm_solve:
+def hpipm_solve(qp_dims, qp_data):
     # load blasfeo and hpipm shared libraries
     __blasfeo = CDLL('libblasfeo.so')
     __hpipm   = CDLL('libhpipm.so')
@@ -579,3 +579,4 @@ class hpipm_sol:
         self.pi = None
         self.lam = None
         self.t = None
+

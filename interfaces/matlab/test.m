@@ -1,6 +1,8 @@
 % pyversion /usr/bin/python3
 % py.sys.path
 
+% addpath("~/pytave")
+
 hp = py.importlib.import_module('hpipm_python');
 np = py.importlib.import_module('numpy');
 
