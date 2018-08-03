@@ -1,18 +1,16 @@
 % pyversion /usr/bin/python3
 % py.sys.path
-% setenv('LD_LIBRARY_PATH', [getenv('LD_LIBRARY_PATH') ':/opt/blasfeo/lib:/opt/hpipm/lib']);
 
 hp = py.importlib.import_module('hpipm_python');
-temp_mod = py.importlib.import_module('hpipm_python.wrapper.hpipm_solver');
 np = py.importlib.import_module('numpy');
 
-qp_data = temp_mod.hpipm_data();
+qp_data = hp.hpipm_data();
 
-A = m2py([1, 0; 1, 1].', np);
+A = m2py([1, 0; 1, 1], np);
 B = m2py([0, 1].', np);
 b = m2py([0, 0].', np);
 
-Q = m2py([1, 0; 0, 1].', np);
+Q = m2py([1, 0; 0, 1], np);
 S = m2py([0, 0].', np);
 R = m2py([1].', np);
 q = m2py([1, 1].', np);
@@ -34,7 +32,7 @@ qp_data.d_ub = py.list({x0});
 
 qp_data.idxb = py.list({m2py([1, 2].', np)});
 
-qp_dims = temp_mod.hpipm_dims();
+qp_dims = hp.hpipm_dims();
 
 qp_dims.nx   = m2py([2, 2, 2, 2, 2, 2].', np);
 qp_dims.nu   = m2py([1, 1, 1, 1, 1, 0].', np);
