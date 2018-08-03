@@ -8,7 +8,7 @@ clear all
 close all
 clc
 
-import hpipm_matlab.*
+octave_import hpipm_matlab.*
 
 qp_data = hpipm_data();
 
