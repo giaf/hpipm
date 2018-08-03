@@ -1,13 +1,12 @@
 % pyversion /usr/bin/python3
 % py.sys.path
 
-% addpath("~/pytave")
-
 clear all
 close all
 clc
 
 import hpipm_matlab.*
+addpath('../../interfaces/matlab/hpipm_matlab')
 
 qp_data = hpipm_data();
 
@@ -57,5 +56,6 @@ solver = hpipm_solver(qp_dims, qp_data);
 % solve qp
 return_flag = solver.solve();
 
+% print solution
 solver.print_sol();
 
