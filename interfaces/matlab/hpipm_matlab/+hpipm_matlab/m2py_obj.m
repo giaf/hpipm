@@ -1,6 +1,5 @@
 function py_obj = m2py_obj(m_obj, py_obj) 
     np = py.importlib.import_module('numpy');
-    import hpipm_matlab.*
     py_props = properties(py_obj);
     for iprop = 1:length(py_props)
         py_thisprop = py_props{iprop};
@@ -15,7 +14,7 @@ function py_obj = m2py_obj(m_obj, py_obj)
             eval(['attr_type = class(m_obj.', py_thisprop, ');']);
             switch attr_type
                 case 'cell'
-                    try eval(['py_obj.', py_thisprop, '=', 'm2py_cell(m_obj.', py_thisprop, ', np);']);
+                    try eval(['py_obj.', py_thisprop, '=', 'hpipm_matlab.m2py_cell(m_obj.', py_thisprop, ', np);']);
                         
                     catch
                         error(['Cannot assign "', py_thisprop, '" to Pyton object.']);
@@ -23,7 +22,7 @@ function py_obj = m2py_obj(m_obj, py_obj)
                 case 'double'
                     eval(['attr_size = sum(size(m_obj.', py_thisprop,'));']);
                     if attr_size > 2
-                        try eval(['py_obj.', py_thisprop, '=', 'm2py(m_obj.', py_thisprop, ', np);']);
+                        try eval(['py_obj.', py_thisprop, '=', 'hpipm_matlab.m2py(m_obj.', py_thisprop, ', np);']);
                             
                         catch
                             error(['Cannot assign "', py_thisprop, '" to Pyton object.']);
