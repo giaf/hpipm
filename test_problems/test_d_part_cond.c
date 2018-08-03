@@ -1093,55 +1093,55 @@ int main()
 	printf("\npart cond residuals\n\n");
 	printf("\nres_r\n");
 	for(ii=0; ii<=N2; ii++)
-		d_print_e_mat(1, nu2[ii], res_r2[ii], 1);
+		d_print_exp_mat(1, nu2[ii], res_r2[ii], 1);
 	printf("\nres_q\n");
 	for(ii=0; ii<=N2; ii++)
-		d_print_e_mat(1, nx2[ii], res_q2[ii], 1);
+		d_print_exp_mat(1, nx2[ii], res_q2[ii], 1);
 	printf("\nres_ls\n");
 	for(ii=0; ii<=N2; ii++)
-		d_print_e_mat(1, ns2[ii], res_ls2[ii], 1);
+		d_print_exp_mat(1, ns2[ii], res_ls2[ii], 1);
 	printf("\nres_us\n");
 	for(ii=0; ii<=N2; ii++)
-		d_print_e_mat(1, ns2[ii], res_us2[ii], 1);
+		d_print_exp_mat(1, ns2[ii], res_us2[ii], 1);
 	printf("\nres_b\n");
 	for(ii=0; ii<N2; ii++)
-		d_print_e_mat(1, nx2[ii+1], res_b2[ii], 1);
+		d_print_exp_mat(1, nx2[ii+1], res_b2[ii], 1);
 	printf("\nres_d_lb\n");
 	for(ii=0; ii<=N2; ii++)
-		d_print_e_mat(1, nb2[ii], res_d_lb2[ii], 1);
+		d_print_exp_mat(1, nb2[ii], res_d_lb2[ii], 1);
 	printf("\nres_d_ub\n");
 	for(ii=0; ii<=N2; ii++)
-		d_print_e_mat(1, nb2[ii], res_d_ub2[ii], 1);
+		d_print_exp_mat(1, nb2[ii], res_d_ub2[ii], 1);
 	printf("\nres_d_lg\n");
 	for(ii=0; ii<=N2; ii++)
-		d_print_e_mat(1, ng2[ii], res_d_lg2[ii], 1);
+		d_print_exp_mat(1, ng2[ii], res_d_lg2[ii], 1);
 	printf("\nres_d_ug\n");
 	for(ii=0; ii<=N2; ii++)
-		d_print_e_mat(1, ng2[ii], res_d_ug2[ii], 1);
+		d_print_exp_mat(1, ng2[ii], res_d_ug2[ii], 1);
 	printf("\nres_d_ls\n");
 	for(ii=0; ii<=N2; ii++)
-		d_print_e_mat(1, ns2[ii], res_d_ls2[ii], 1);
+		d_print_exp_mat(1, ns2[ii], res_d_ls2[ii], 1);
 	printf("\nres_d_us\n");
 	for(ii=0; ii<=N2; ii++)
-		d_print_e_mat(1, ns2[ii], res_d_us2[ii], 1);
+		d_print_exp_mat(1, ns2[ii], res_d_us2[ii], 1);
 	printf("\nres_m_lb\n");
 	for(ii=0; ii<=N2; ii++)
-		d_print_e_mat(1, nb2[ii], res_m_lb2[ii], 1);
+		d_print_exp_mat(1, nb2[ii], res_m_lb2[ii], 1);
 	printf("\nres_m_ub\n");
 	for(ii=0; ii<=N2; ii++)
-		d_print_e_mat(1, nb2[ii], res_m_ub2[ii], 1);
+		d_print_exp_mat(1, nb2[ii], res_m_ub2[ii], 1);
 	printf("\nres_m_lg\n");
 	for(ii=0; ii<=N2; ii++)
-		d_print_e_mat(1, ng2[ii], res_m_lg2[ii], 1);
+		d_print_exp_mat(1, ng2[ii], res_m_lg2[ii], 1);
 	printf("\nres_m_ug\n");
 	for(ii=0; ii<=N2; ii++)
-		d_print_e_mat(1, ng2[ii], res_m_ug2[ii], 1);
+		d_print_exp_mat(1, ng2[ii], res_m_ug2[ii], 1);
 	printf("\nres_m_ls\n");
 	for(ii=0; ii<=N2; ii++)
-		d_print_e_mat(1, ns2[ii], res_m_ls2[ii], 1);
+		d_print_exp_mat(1, ns2[ii], res_m_ls2[ii], 1);
 	printf("\nres_m_us\n");
 	for(ii=0; ii<=N2; ii++)
-		d_print_e_mat(1, ns2[ii], res_m_us2[ii], 1);
+		d_print_exp_mat(1, ns2[ii], res_m_us2[ii], 1);
 #endif
 
 /************************************************
@@ -1153,7 +1153,7 @@ int main()
 
 	printf("\nipm iter = %d\n", workspace.iter);
 	printf("\nalpha_aff\tmu_aff\t\tsigma\t\talpha\t\tmu\n");
-	d_print_e_tran_mat(5, workspace.iter, workspace.stat, 5);
+	d_print_exp_tran_mat(5, workspace.iter, workspace.stat, 5);
 
 	printf("\npart cond time         = %e [s]\n", time_cond);
 	printf("\nupdate part cond time  = %e [s]\n", time_update_cond);

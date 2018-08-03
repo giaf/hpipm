@@ -79,7 +79,7 @@ void d_print_tran_mat(int row, int col, double *A, int lda)
 	printf("\n");
 	}
 /* prints a matrix in column-major format (exponential notation) */
-void d_print_e_mat(int m, int n, double *A, int lda)
+void d_print_exp_mat(int m, int n, double *A, int lda)
 	{
 	int i, j;
 	for(i=0; i<m; i++)
@@ -93,7 +93,7 @@ void d_print_e_mat(int m, int n, double *A, int lda)
 	printf("\n");
 	}
 /* prints the transposed of a matrix in column-major format (exponential notation) */
-void d_print_e_tran_mat(int row, int col, double *A, int lda)
+void d_print_exp_tran_mat(int row, int col, double *A, int lda)
 	{
 	int i, j;
 	for(j=0; j<col; j++)
@@ -315,13 +315,13 @@ int main()
 
 	printf("\nresiduals\n\n");
 	printf("\nres_g\n");
-	d_print_e_mat(1, nv+2*ns, workspace.res->res_g->pa, 1);
+	d_print_exp_mat(1, nv+2*ns, workspace.res->res_g->pa, 1);
 	printf("\nres_b\n");
-	d_print_e_mat(1, ne, workspace.res->res_b->pa, 1);
+	d_print_exp_mat(1, ne, workspace.res->res_b->pa, 1);
 	printf("\nres_d\n");
-	d_print_e_mat(1, 2*nb+2*ng+2*ns, workspace.res->res_d->pa, 1);
+	d_print_exp_mat(1, 2*nb+2*ng+2*ns, workspace.res->res_d->pa, 1);
 	printf("\nres_m\n");
-	d_print_e_mat(1, 2*nb+2*ng+2*ns, workspace.res->res_m->pa, 1);
+	d_print_exp_mat(1, 2*nb+2*ng+2*ns, workspace.res->res_m->pa, 1);
 	printf("\nres_mu\n");
 	printf("\n%e\n\n", workspace.res->res_mu);
 
@@ -334,7 +334,7 @@ int main()
 
 	printf("\nipm iter = %d\n", workspace.iter);
 	printf("\nalpha_aff\tmu_aff\t\tsigma\t\talpha\t\tmu\n");
-	d_print_e_tran_mat(5, workspace.iter, workspace.stat, 5);
+	d_print_exp_tran_mat(5, workspace.iter, workspace.stat, 5);
 
 	printf("\ndense ipm time = %e [s]\n\n", time_dense_ipm);
 

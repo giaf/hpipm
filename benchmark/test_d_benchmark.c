@@ -709,7 +709,7 @@ int main()
 			{
 			printf("\nipm iter = %d\n", workspace.iter);
 			printf("\nalpha_aff\tmu_aff\t\tsigma\t\talpha\t\tmu\n");
-			d_print_e_tran_mat(5, workspace.iter, workspace.stat, 5);
+			d_print_exp_tran_mat(5, workspace.iter, workspace.stat, 5);
 			printf("\n\n\n\n");
 			}
 #endif

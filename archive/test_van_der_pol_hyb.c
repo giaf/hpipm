@@ -47,7 +47,7 @@
 #include "../include/hpipm_d_ocp_qp_ipm.h"
 #include "../include/hpipm_d_ocp_nlp.h"
 #include "../include/hpipm_d_ocp_nlp_sol.h"
-#include "../include/hpipm_d_ocp_nlp_ipm.h"
+#include "../include/hpipm_d_ocp_nlp_hyb.h"
 
 
 
@@ -61,50 +61,56 @@ void d_van_der_pol_ode(int t, double *x, double *u, void *ode_arg, double *xdot)
 
 
 
-void d_van_der_pol_vde0(int t, double *x, double *u, void *ode_arg, double *xdot)
+void d_van_der_pol_vde_for(int t, double *x, double *u, void *ode_arg, double *xdot)
 	{
-	double mu = 1.0;
-	int ii, jj, kk;
-	double *xdot_tmp, *x_tmp;
-	int nx = 2;
-	int nu = 1;
-	// jacobian of ode
-	double Ac[4];
-	x_tmp = x;
-	Ac[0+nx*0] = 0.0;
-	Ac[0+nx*1] = 1.0;
-	Ac[1+nx*0] = - 1.0 - 2.0*mu*x_tmp[0]*x_tmp[1];
-	Ac[1+nx*1] = mu*(1.0 - x_tmp[0]*x_tmp[0]);
-	double Bc[2];
-	Bc[0+nx*0] = 0.0;
-	Bc[1+nx*0] = 1.0;
-	// init to zero
-	for(ii=0; ii<nx*(nu+1); ii++)
-		xdot[ii] = 0.0;
-	// x
-	xdot_tmp = xdot;
-	x_tmp = x;
-	xdot_tmp[0] = x_tmp[1];
-	xdot_tmp[1] = u[0] - x_tmp[0] + mu*(1.0 - x_tmp[0]*x_tmp[0])*x_tmp[1];
-	// Sx + Su
-	xdot_tmp = xdot + nx;
-	x_tmp = x + nx;
-	for(kk=0; kk<nu; kk++)
-		for(jj=0; jj<nx; jj++)
-			for(ii=0; ii<nx; ii++)
-				xdot_tmp[ii+nx*kk] += Ac[ii+nx*jj] * x_tmp[jj+nx*kk];
-	// Su
-	xdot_tmp = xdot + nx;
-	for(jj=0; jj<nu; jj++)
-		for(ii=0; ii<nx; ii++)
-			xdot_tmp[ii+nx*jj] += Bc[ii+nx*jj];
-	return;
-	}
+#if 1
+	double z0, z1, z2, z3, z4, z5, z6, z7;
+	double J0, J1, J2, J3, J4, J5, J6, J7;
 
+	z0 = u[0];
+	z1 = x[0];
+	z2 = x[1];
+	z3 = z1*z1;
+	z4 = 1.0-z3;
+	z5 = z4*z2;
+	z6 = z0-z1;
+	z7 = z6+z5;
+	xdot[0] = z2;
+	xdot[1] = z7;
 
+	J0 = 1.0;//x[2];
+	J1 = x[2];
+	J2 = x[3];
+	J3 = 2.0*z1*J1;
+	J4 = -J3;
+	J5 = z2*J4+z4*J2;
+	J6 = J0-J1;
+	J7 = J6+J5;
+	xdot[2] = J2;
+	xdot[3] = J7;
 
-void d_van_der_pol_vde1(int t, double *x, double *u, void *ode_arg, double *xdot)
-	{
+	J0 = 0.0;//x[3];
+	J1 = x[4];
+	J2 = x[5];
+	J3 = 2.0*z1*J1;
+	J4 = -J3;
+	J5 = z2*J4+z4*J2;
+	J6 = J0-J1;
+	J7 = J6+J5;
+	xdot[4] = J2;
+	xdot[5] = J7;
+
+	J0 = 0.0;//x[8];
+	J1 = x[6];
+	J2 = x[7];
+	J3 = 2.0*z1*J1;
+	J4 = -J3;
+	J5 = z2*J4+z4*J2;
+	J6 = J0-J1;
+	J7 = J6+J5;
+	xdot[6] = J2;
+	xdot[7] = J7;
+#else
 	double mu = 1.0;
 	int ii, jj, kk;
 	double *xdot_tmp, *x_tmp;
@@ -140,6 +146,47 @@ void d_van_der_pol_vde1(int t, double *x, double *u, void *ode_arg, double *xdot
 	for(jj=0; jj<nu; jj++)
 		for(ii=0; ii<nx; ii++)
 			xdot_tmp[ii+nx*jj] += Bc[ii+nx*jj];
+#endif
+	return;
+	}
+
+
+
+void d_van_der_pol_vde_adj(int t, double *adj_in, void *ode_arg, double *adj_out)
+	{
+	double mu = 1.0;
+	int ii, jj, kk;
+	int nx = 2;
+	int nu = 1;
+	// extract inputs
+	double *x = adj_in + 0;
+	double *l = adj_in + nx;
+	double *u = adj_in + nx + nx;
+	// extract output
+	double *l_u_out = adj_out + 0;
+	double *l_x_out = adj_out + nu;
+	// jacobian of ode
+	double Ac[4];
+	Ac[0+nx*0] = 0.0;
+	Ac[0+nx*1] = 1.0;
+	Ac[1+nx*0] = - 1.0 - 2.0*mu*x[0]*x[1];
+	Ac[1+nx*1] = mu*(1.0 - x[0]*x[0]);
+	double Bc[2];
+	Bc[0+nx*0] = 0.0;
+	Bc[1+nx*0] = 1.0;
+	// l_out
+	for(jj=0; jj<nx; jj++)
+		{
+		l_x_out[jj] = 0.0;
+		for(ii=0; ii<nx; ii++)
+			l_x_out[jj] += Ac[ii+nx*jj] * l[ii];
+		}
+	for(jj=0; jj<nu; jj++)
+		{
+		l_u_out[jj] = 0.0;
+		for(ii=0; ii<nx; ii++)
+			l_u_out[jj] += Bc[ii+nx*jj] * l[ii];
+		}
 	return;
 	}
 
@@ -190,15 +237,15 @@ int main()
 	for(ii=0; ii<nx_*(nu_+nx_+1); ii++)
 		fs0[ii] = 0.0;
 	for(ii=0; ii<nx_; ii++)
-		fs0[nx_*nu_+ii*(nx_+1)] = 1.0;
+		fs0[ii] = x0[ii];
 	for(ii=0; ii<nx_; ii++)
-		fs0[nx_*(nu_+nx_)+ii] = x0[ii];
+		fs0[nx_+nx_*nu_+ii*(nx_+1)] = 1.0;
 		
 	d_print_mat(nx_, nu_+nx_+1, fs0, nx_);
 
 	double *fsdot = malloc(nx_*(nu_+nx_+1)*sizeof(double));
 
-	d_van_der_pol_vde1(0, fs0, u0, NULL, fsdot);
+	d_van_der_pol_vde_for(0, fs0, u0, NULL, fsdot);
 
 	d_print_mat(nx_, nu_+nx_+1, fsdot, nx_);
 
@@ -278,7 +325,7 @@ int main()
 	erk_arg.steps = 10;
 	erk_arg.h = Ts/erk_arg.steps;
 	erk_arg.for_sens = 1; // XXX needed ???
-	erk_arg.adj_sens = 0;
+	erk_arg.adj_sens = 1;
 
 /************************************************
 * ocp qp
@@ -478,19 +525,6 @@ int main()
 * ocp nlp model
 ************************************************/	
 
-	// stage 0
-	double *fs0 = malloc(nx_*nu_*sizeof(double));
-	for(ii=0; ii<nx_*nu_; ii++)
-		fs0[ii] = 0.0;
-
-	struct d_ocp_nlp_model model0;
-	model0.expl_ode = NULL;
-	model0.expl_vde_for = &d_van_der_pol_vde0;
-	model0.expl_vde_adj = NULL;
-	model0.forward_seed = fs0;
-	model0.arg = NULL;
-
-	// stage 1
 	double *fs1 = malloc(nx_*(nu_+nx_)*sizeof(double));
 	for(ii=0; ii<nx_*(nu_+nx_); ii++)
 		fs1[ii] = 0.0;
@@ -498,9 +532,9 @@ int main()
 		fs1[nu_*nx_+ii*(nx_+1)] = 1.0;
 
 	struct d_ocp_nlp_model model1;
-	model1.expl_ode = NULL;
-	model1.expl_vde_for = &d_van_der_pol_vde1;
-	model1.expl_vde_adj = NULL;
+	model1.expl_ode = &d_van_der_pol_ode;
+	model1.expl_vde_for = &d_van_der_pol_vde_for;
+	model1.expl_vde_adj = &d_van_der_pol_vde_adj;
 	model1.forward_seed = fs1;
 	model1.arg = NULL;
 
@@ -609,46 +643,62 @@ int main()
 	d_create_ocp_nlp_sol(N, nx, nu, nb, ng, ns, &nlp_sol, nlp_sol_mem);
 
 /************************************************
-* ocp nlp ipm arg
+* ocp nlp hyb arg
 ************************************************/	
 
-	int ipm_arg_size = d_memsize_ocp_nlp_ipm_arg(&nlp);
-	printf("\nipm arg size = %d\n", ipm_arg_size);
-	void *ipm_arg_mem = malloc(ipm_arg_size);
+	int hyb_arg_size = d_memsize_ocp_nlp_hyb_arg(&nlp);
+	printf("\nipm arg size = %d\n", hyb_arg_size);
+	void *hyb_arg_mem = malloc(hyb_arg_size);
 
-	struct d_ocp_nlp_ipm_arg ipm_arg;
-	d_create_ocp_nlp_ipm_arg(&nlp, &ipm_arg, ipm_arg_mem);
-	d_set_default_ocp_nlp_ipm_arg(&ipm_arg);
+	struct d_ocp_nlp_hyb_arg hyb_arg;
+	d_create_ocp_nlp_hyb_arg(&nlp, &hyb_arg, hyb_arg_mem);
+	d_set_default_ocp_nlp_hyb_arg(&hyb_arg);
 
 	struct d_erk_arg erk_args[N];
 	for(ii=0; ii<N; ii++)
 		erk_args[ii] = erk_arg;
 
-//	struct d_ocp_nlp_ipm_arg ipm_arg;
-	ipm_arg.erk_arg = erk_args;
-//	ipm_arg.alpha_min = 1e-8;
-	ipm_arg.nlp_res_g_max = 1e-6;
-	ipm_arg.nlp_res_b_max = 1e-8;
-	ipm_arg.nlp_res_d_max = 1e-8;
-	ipm_arg.nlp_res_m_max = 1e-8;
-//	ipm_arg.nlp_iter_max = 20;
-//	ipm_arg.stat_max = 20;
-//	ipm_arg.mu0 = 2.0;
-//	ipm_arg.pred_corr = 1;
+//	struct d_ocp_nlp_hyb_arg hyb_arg;
+//	hyb_arg.ipm_arg = &arg;
+	hyb_arg.erk_arg = erk_args;
+//	hyb_arg.alpha_min = 1e-8;
+	hyb_arg.nlp_res_g_max = 1e-6;
+	hyb_arg.nlp_res_b_max = 1e-8;
+	hyb_arg.nlp_res_d_max = 1e-8;
+	hyb_arg.nlp_res_m_max = 1e-8;
+//	hyb_arg.nlp_iter_max = 20;
+//	hyb_arg.stat_max = 100;
+	hyb_arg.N2 = 1;
+//	hyb_arg.pred_corr = 1;
 
 /************************************************
-* ocp nlp ipm ws
+* ipm arg
 ************************************************/	
 
-	int nlp_ws_size = d_memsize_ocp_nlp_ipm(&nlp, &ipm_arg);
+//	struct d_ocp_qp_ipm_arg arg;
+//	arg.alpha_min = 1e-8;
+//	arg.res_g_max = 1e-1;
+//	arg.res_b_max = 1e-1;
+//	arg.res_d_max = 1e-1;
+//	arg.res_m_max = 1e-0;
+//	arg.mu0 = 1000.0;
+//	arg.iter_max = 20;
+//	arg.stat_max = 20;
+//	arg.pred_corr = 1;
+
+/************************************************
+* ocp nlp hyb ws
+************************************************/	
+
+	int nlp_ws_size = d_memsize_ocp_nlp_hyb(&nlp, &hyb_arg);
 	printf("\nnlp ws size = %d\n", nlp_ws_size);
 	void *nlp_ws_mem = malloc(nlp_ws_size);
 	
-	struct d_ocp_nlp_ipm_workspace ipm_ws;
-	d_create_ocp_nlp_ipm(&nlp, &ipm_arg, &ipm_ws, nlp_ws_mem);
+	struct d_ocp_nlp_hyb_workspace hyb_ws;
+	d_create_ocp_nlp_hyb(&nlp, &hyb_arg, &hyb_ws, nlp_ws_mem);
 
 /************************************************
-* ocp nlp ipm
+* ocp nlp hyb
 ************************************************/	
 
 	int nlp_return;
@@ -660,12 +710,12 @@ int main()
 
 	for(rep=0; rep<nrep; rep++)
 		{
-		nlp_return = d_solve_ocp_nlp_ipm(&nlp, &nlp_sol, &ipm_arg, &ipm_ws);
+		nlp_return = d_solve_ocp_nlp_hyb(&nlp, &nlp_sol, &hyb_arg, &hyb_ws);
 		}
 
 	gettimeofday(&tv1, NULL); // stop
 
-	double time_ocp_nlp_ipm = (tv1.tv_sec-tv0.tv_sec)/(nrep+0.0)+(tv1.tv_usec-tv0.tv_usec)/(nrep*1e6);
+	double time_ocp_nlp_hyb = (tv1.tv_sec-tv0.tv_sec)/(nrep+0.0)+(tv1.tv_usec-tv0.tv_usec)/(nrep*1e6);
 
 /************************************************
 * extract and print solution
@@ -687,7 +737,7 @@ int main()
 
 #if 1
 	printf("\nalpha_aff\tmu_aff\t\tsigma\t\talpha\t\tmu\n");
-	d_print_e_tran_mat(5, ipm_ws.iter, ipm_ws.ipm_workspace->stat, 5);
+	d_print_exp_tran_mat(5, hyb_ws.iter_qp+hyb_ws.iter_nlp, hyb_ws.ipm_workspace->stat, 5);
 
 	printf("\nsolution\n\n");
 	printf("\nu\n");
@@ -745,11 +795,11 @@ int main()
 #endif
 
 /************************************************
-* print ipm statistics
+* print hyb statistics
 ************************************************/	
 
-	printf("\nnlp_res_g = %e, nlp_res_b = %e, nlp_res_d = %e, nlp_res_m = %e\n", ipm_ws.nlp_res_g, ipm_ws.nlp_res_b, ipm_ws.nlp_res_d, ipm_ws.nlp_res_m);
-	printf("\nocp nlp ipm: iter = %d, time = %e [s]\n\n", ipm_ws.iter, time_ocp_nlp_ipm);
+	printf("\nnlp_res_g = %e, nlp_res_b = %e, nlp_res_d = %e, nlp_res_m = %e\n", hyb_ws.nlp_res_g, hyb_ws.nlp_res_b, hyb_ws.nlp_res_d, hyb_ws.nlp_res_m);
+	printf("\nocp nlp hyb: iter_qp = %d, iter_nlp = %d, time = %e [s]\n\n", hyb_ws.iter_qp, hyb_ws.iter_nlp, time_ocp_nlp_hyb);
 
 /************************************************
 * free memory
