@@ -90,7 +90,7 @@ void d_print_tran_mat(int row, int col, double *A, int lda)
 	printf("\n");
 	}	
 /* prints a matrix in column-major format (exponential notation) */
-void d_print_e_mat(int m, int n, double *A, int lda)
+void d_print_exp_mat(int m, int n, double *A, int lda)
 	{
 	int i, j;
 	for(i=0; i<m; i++)
@@ -104,7 +104,7 @@ void d_print_e_mat(int m, int n, double *A, int lda)
 	printf("\n");
 	}	
 /* prints the transposed of a matrix in column-major format (exponential notation) */
-void d_print_e_tran_mat(int row, int col, double *A, int lda)
+void d_print_exp_tran_mat(int row, int col, double *A, int lda)
 	{
 	int i, j;
 	for(j=0; j<col; j++)
@@ -493,7 +493,7 @@ int main()
 	printf("\nx erk\n");
 	d_print_mat(1, nx, x_erk, 1);
 	printf("\nerror erk\n");
-	d_print_e_mat(1, nx, ex_erk, 1);
+	d_print_exp_mat(1, nx, ex_erk, 1);
 #else
 
 /************************************************
@@ -558,9 +558,9 @@ int main()
 	d_print_mat(nx, nx, x_erk+nx*nu, nx); // A
 	d_print_mat(nx, nu, x_erk, nx); // B
 	printf("\nerror erk\n");
-	d_print_e_mat(1, nx, ex_erk, 1);
-	d_print_e_mat(nx, nx, ex_erk+nx+nx*nu, nx);
-	d_print_e_mat(nx, nu, ex_erk+nx, nx);
+	d_print_exp_mat(1, nx, ex_erk, 1);
+	d_print_exp_mat(nx, nx, ex_erk+nx+nx*nu, nx);
+	d_print_exp_mat(nx, nu, ex_erk+nx, nx);
 #endif
 
 /************************************************
@@ -607,9 +607,9 @@ int main()
 	d_print_mat(nx, nx, x_irk+nx*nu, nx); // A
 	d_print_mat(nx, nu, x_irk, nx); // B
 	printf("\nerror irk\n");
-	d_print_e_mat(1, nx, ex_irk, 1);
-	d_print_e_mat(nx, nx, ex_irk+nx+nx*nu, nx);
-	d_print_e_mat(nx, nu, ex_irk+nx, nx);
+	d_print_exp_mat(1, nx, ex_irk, 1);
+	d_print_exp_mat(nx, nx, ex_irk+nx+nx*nu, nx);
+	d_print_exp_mat(nx, nu, ex_irk+nx, nx);
 
 //	blasfeo_dgese(nu+nx+1, nx, 0.0, &sBAbt, 0, 0);
 //	d_cvt_irk_int_to_ocp_qp(0, &irk_workspace, xref, &qp);

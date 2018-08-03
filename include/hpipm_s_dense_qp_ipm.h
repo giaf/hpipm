@@ -123,11 +123,35 @@ int s_memsize_dense_qp_ipm_arg(struct s_dense_qp_dim *qp_dim);
 void s_create_dense_qp_ipm_arg(struct s_dense_qp_dim *qp_dim, struct s_dense_qp_ipm_arg *arg, void *mem);
 //
 void s_set_default_dense_qp_ipm_arg(enum hpipm_mode mode, struct s_dense_qp_ipm_arg *arg);
+//
+void s_set_dense_qp_ipm_arg_iter_max(int iter_max, struct s_dense_qp_ipm_arg *arg);
+//
+void s_set_dense_qp_ipm_arg_mu0(float mu0, struct s_dense_qp_ipm_arg *arg);
+//
+void s_set_dense_qp_ipm_arg_tol_stat(float tol_stat, struct s_dense_qp_ipm_arg *arg);
+//
+void s_set_dense_qp_ipm_arg_tol_eq(float tol_eq, struct s_dense_qp_ipm_arg *arg);
+//
+void s_set_dense_qp_ipm_arg_tol_ineq(float tol_ineq, struct s_dense_qp_ipm_arg *arg);
+//
+void s_set_dense_qp_ipm_arg_tol_comp(float tol_comp, struct s_dense_qp_ipm_arg *arg);
 
 //
 int s_memsize_dense_qp_ipm(struct s_dense_qp_dim *qp_dim, struct s_dense_qp_ipm_arg *arg);
 //
 void s_create_dense_qp_ipm(struct s_dense_qp_dim *qp_dim, struct s_dense_qp_ipm_arg *arg, struct s_dense_qp_ipm_workspace *ws, void *mem);
+//
+int s_get_dense_qp_ipm_iter(struct s_dense_qp_ipm_workspace *ws);
+//
+float s_get_dense_qp_ipm_res_stat(struct s_dense_qp_ipm_workspace *ws);
+//
+float s_get_dense_qp_ipm_res_eq(struct s_dense_qp_ipm_workspace *ws);
+//
+float s_get_dense_qp_ipm_res_ineq(struct s_dense_qp_ipm_workspace *ws);
+//
+float s_get_dense_qp_ipm_res_comp(struct s_dense_qp_ipm_workspace *ws);
+//
+float *s_get_dense_qp_ipm_stat(struct s_dense_qp_ipm_workspace *ws);
 //
 int s_solve_dense_qp_ipm(struct s_dense_qp *qp, struct s_dense_qp_sol *qp_sol, struct s_dense_qp_ipm_arg *arg, struct s_dense_qp_ipm_workspace *ws);
 

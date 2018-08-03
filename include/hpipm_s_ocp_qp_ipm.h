@@ -138,6 +138,18 @@ int s_memsize_ocp_qp_ipm(struct s_ocp_qp_dim *ocp_dim, struct s_ocp_qp_ipm_arg *
 //
 void s_create_ocp_qp_ipm(struct s_ocp_qp_dim *ocp_dim, struct s_ocp_qp_ipm_arg *arg, struct s_ocp_qp_ipm_workspace *ws, void *mem);
 //
+int s_get_ocp_qp_ipm_iter(struct s_ocp_qp_ipm_workspace *ws);
+//
+float s_get_ocp_qp_ipm_res_stat(struct s_ocp_qp_ipm_workspace *ws);
+//
+float s_get_ocp_qp_ipm_res_eq(struct s_ocp_qp_ipm_workspace *ws);
+//
+float s_get_ocp_qp_ipm_res_ineq(struct s_ocp_qp_ipm_workspace *ws);
+//
+float s_get_ocp_qp_ipm_res_comp(struct s_ocp_qp_ipm_workspace *ws);
+//
+float *s_get_ocp_qp_ipm_stat(struct s_ocp_qp_ipm_workspace *ws);
+//
 int s_solve_ocp_qp_ipm(struct s_ocp_qp *qp, struct s_ocp_qp_sol *qp_sol, struct s_ocp_qp_ipm_arg *arg, struct s_ocp_qp_ipm_workspace *ws);
 
 

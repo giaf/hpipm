@@ -695,6 +695,59 @@ void CREATE_OCP_QP_IPM(struct OCP_QP_DIM *dim, struct OCP_QP_IPM_ARG *arg, struc
 	}
 
 
+int GET_OCP_QP_IPM_ITER(struct OCP_QP_IPM_WORKSPACE *ws)
+	{
+
+	return ws->iter;
+
+	}
+
+
+
+REAL GET_OCP_QP_IPM_RES_STAT(struct OCP_QP_IPM_WORKSPACE *ws)
+	{
+
+	return ws->qp_res[0];
+
+	}
+
+
+
+REAL GET_OCP_QP_IPM_RES_EQ(struct OCP_QP_IPM_WORKSPACE *ws)
+	{
+
+	return ws->qp_res[1];
+
+	}
+
+
+
+REAL GET_OCP_QP_IPM_RES_INEQ(struct OCP_QP_IPM_WORKSPACE *ws)
+	{
+
+	return ws->qp_res[2];
+
+	}
+
+
+
+REAL GET_OCP_QP_IPM_RES_COMP(struct OCP_QP_IPM_WORKSPACE *ws)
+	{
+
+	return ws->qp_res[3];
+
+	}
+
+
+
+REAL *GET_OCP_QP_IPM_STAT(struct OCP_QP_IPM_WORKSPACE *ws)
+	{
+
+	return ws->stat;
+
+	}
+
+
 
 int SOLVE_OCP_QP_IPM(struct OCP_QP *qp, struct OCP_QP_SOL *qp_sol, struct OCP_QP_IPM_ARG *arg, struct OCP_QP_IPM_WORKSPACE *ws)
 	{

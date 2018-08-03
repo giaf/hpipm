@@ -158,6 +158,54 @@ void SET_DEFAULT_DENSE_QP_IPM_ARG(enum HPIPM_MODE mode, struct DENSE_QP_IPM_ARG 
 
 
 
+void SET_DENSE_QP_IPM_ARG_ITER_MAX(int iter_max, struct DENSE_QP_IPM_ARG *arg)
+	{
+	arg->iter_max = iter_max;
+	return;
+	}
+
+
+
+void SET_DENSE_QP_IPM_ARG_MU0(REAL mu0, struct DENSE_QP_IPM_ARG *arg)
+	{
+	arg->mu0 = mu0;
+	return;
+	}
+
+
+
+void SET_DENSE_QP_IPM_ARG_TOL_STAT(REAL tol_stat, struct DENSE_QP_IPM_ARG *arg)
+	{
+	arg->res_g_max = tol_stat;
+	return;
+	}
+
+
+
+void SET_DENSE_QP_IPM_ARG_TOL_EQ(REAL tol_eq, struct DENSE_QP_IPM_ARG *arg)
+	{
+	arg->res_b_max = tol_eq;
+	return;
+	}
+
+
+
+void SET_DENSE_QP_IPM_ARG_TOL_INEQ(REAL tol_ineq, struct DENSE_QP_IPM_ARG *arg)
+	{
+	arg->res_d_max = tol_ineq;
+	return;
+	}
+
+
+
+void SET_DENSE_QP_IPM_ARG_TOL_COMP(REAL tol_comp, struct DENSE_QP_IPM_ARG *arg)
+	{
+	arg->res_m_max = tol_comp;
+	return;
+	}
+
+
+
 int MEMSIZE_DENSE_QP_IPM(struct DENSE_QP_DIM *dim, struct DENSE_QP_IPM_ARG *arg)
 	{
 
@@ -484,6 +532,60 @@ void CREATE_DENSE_QP_IPM(struct DENSE_QP_DIM *dim, struct DENSE_QP_IPM_ARG *arg,
 
 
 	return;
+
+	}
+
+
+
+int GET_DENSE_QP_IPM_ITER(struct DENSE_QP_IPM_WORKSPACE *ws)
+	{
+
+	return ws->iter;
+
+	}
+
+
+
+REAL GET_DENSE_QP_IPM_RES_STAT(struct DENSE_QP_IPM_WORKSPACE *ws)
+	{
+
+	return ws->qp_res[0];
+
+	}
+
+
+
+REAL GET_DENSE_QP_IPM_RES_EQ(struct DENSE_QP_IPM_WORKSPACE *ws)
+	{
+
+	return ws->qp_res[1];
+
+	}
+
+
+
+REAL GET_DENSE_QP_IPM_RES_INEQ(struct DENSE_QP_IPM_WORKSPACE *ws)
+	{
+
+	return ws->qp_res[2];
+
+	}
+
+
+
+REAL GET_DENSE_QP_IPM_RES_COMP(struct DENSE_QP_IPM_WORKSPACE *ws)
+	{
+
+	return ws->qp_res[3];
+
+	}
+
+
+
+REAL *GET_DENSE_QP_IPM_STAT(struct DENSE_QP_IPM_WORKSPACE *ws)
+	{
+
+	return ws->stat;
 
 	}
 

@@ -178,7 +178,7 @@ int main()
 
 	printf("\nipm iter = %d\n", workspace.iter);
 	printf("\nalpha_aff\tmu_aff\t\tsigma\t\talpha\t\tmu\n");
-	s_print_e_tran_mat(5, workspace.iter, workspace.stat, 5);
+	s_print_exp_tran_mat(5, workspace.iter, workspace.stat, 5);
 
 	printf("\ndense ipm time = %e [s]\n\n", time_dense_ipm);
 
