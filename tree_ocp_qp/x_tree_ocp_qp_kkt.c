@@ -843,7 +843,7 @@ void FACT_SOLVE_KKT_STEP_TREE_OCP_QP(struct TREE_OCP_QP *qp, struct TREE_OCP_QP_
 			{
 			GEMM_R_DIAG(nu[idx]+nx[idx], ng[idx], 1.0, DCt+idx, 0, 0, tmp_nbgM+0, nb[idx], 0.0, AL+0, 0, 0, AL+0, 0, 0);
 			ROWIN(ng[idx], 1.0, tmp_nbgM+1, nb[idx], AL+0, nu[idx]+nx[idx], 0);
-			SYRK_POTRF_LN(nu[idx]+nx[idx]+1, nu[idx]+nx[idx], ng[idx], AL+0, 0, 0, DCt+idx, 0, 0, L+idx, 0, 0, L+idx, 0, 0);
+			SYRK_POTRF_LN_MN(nu[idx]+nx[idx]+1, nu[idx]+nx[idx], ng[idx], AL+0, 0, 0, DCt+idx, 0, 0, L+idx, 0, 0, L+idx, 0, 0);
 			}
 		else
 			{

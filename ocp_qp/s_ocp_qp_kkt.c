@@ -88,7 +88,7 @@
 #define STRVEC blasfeo_svec
 #define SYMV_L blasfeo_ssymv_l
 #define SYRK_LN blasfeo_ssyrk_ln
-#define SYRK_POTRF_LN blasfeo_ssyrk_spotrf_ln
+#define SYRK_POTRF_LN_MN blasfeo_ssyrk_spotrf_ln_mn
 #define TRCP_L blasfeo_strcp_l
 #define TRMM_RLNN blasfeo_strmm_rlnn
 #define TRMV_LNN blasfeo_strmv_lnn

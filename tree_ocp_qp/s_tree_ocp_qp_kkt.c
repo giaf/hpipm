@@ -72,7 +72,7 @@
 #define SYMV_L blasfeo_ssymv_l
 #define SYRK_LN blasfeo_ssyrk_ln
 #define SYRK_LN_MN blasfeo_ssyrk_ln_mn
-#define SYRK_POTRF_LN blasfeo_ssyrk_spotrf_ln
+#define SYRK_POTRF_LN_MN blasfeo_ssyrk_spotrf_ln_mn
 #define TRCP_L blasfeo_strcp_l
 #define TREE_OCP_QP s_tree_ocp_qp
 #define TREE_OCP_QP_IPM_ARG s_tree_ocp_qp_ipm_arg
