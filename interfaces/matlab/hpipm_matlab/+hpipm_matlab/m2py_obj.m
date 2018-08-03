@@ -1,14 +1,19 @@
 function py_obj = m2py_obj(m_obj, py_obj) 
     np = py.importlib.import_module('numpy');
-    py_props = properties(py_obj);
+    import hpipm_matlab.*
+    py_props = fieldnames(py_obj);
+//    py_props = properties(py_obj);
+
     for iprop = 1:length(py_props)
         py_thisprop = py_props{iprop};
         py_thisprop_value = py_obj.(py_thisprop);
         
-        if py_thisprop_value ~= py.NoneType
-            error(['Trying to assign to non-None attribute "', py_thisprop, '" in Python object.']);
+        % TODO(andrea): py.NoneType not supported in Octave
+        if ~isOctave()
+            if py_thisprop_value ~= py.NoneType
+                error(['Trying to assign to non-None attribute "', py_thisprop, '" in Python object.']);
+            end
         end
-        
         eval(['isempty_attr = isempty(m_obj.', py_thisprop, ');']);
         if ~isempty_attr    
             eval(['attr_type = class(m_obj.', py_thisprop, ');']);
