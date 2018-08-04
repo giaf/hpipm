@@ -53,7 +53,7 @@ qp_dims["nsbu"] = [0, 0, 0, 0, 0, 0]
 qp_dims["nsg"]  = [0, 0, 0, 0, 0, 0]
 qp_dims["N"]    = 5
 
-py_qp_dims = hpipm_dims()
+py_qp_dims = hp.hpipm_dims()
 py_qp_dims = ju2py_obj(qp_dims, py_qp_dims)
 
 # set up solver

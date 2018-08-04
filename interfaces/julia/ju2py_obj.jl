@@ -16,8 +16,13 @@ function ju2py_obj(ju_obj, py_obj)
                     catch
                         error("Could not assign attribute $(py_attr[i]).")
                     end
-                elseif ju_eltype == Int64 || ju_eltype == Float64
+                elseif (ju_eltype == Int64 || ju_eltype == Float64) && size(ju_obj[ju_key_name]) != ()
                     try py_obj[py_attr_name] = np.array(ju_obj[ju_key_name])
+                    catch
+                        error("Could not assign attribute $(py_attr[i]).")
+                    end
+                elseif size(ju_obj[ju_key_name]) == ()
+                    try py_obj[py_attr_name] = ju_obj[ju_key_name]
                     catch
                         error("Could not assign attribute $(py_attr[i]).")
                     end
