@@ -38,31 +38,35 @@ qp_data["d_ub"] = [x0]
 qp_data["idxb"] = [[1, 2]]
 py_qp_data = hp.hpipm_data()
 py_qp_data = ju2py_obj(qp_data, py_qp_data) 
-#qp_dims = hp.hpipm_dims()
-#
-#qp_dims[:nx]   = np.array([2, 2, 2, 2, 2, 2])
-#qp_dims[:nu]   = np.array([1, 1, 1, 1, 1, 0])
-#qp_dims[:nb]   = np.array([2, 0, 0, 0, 0, 0])
-#qp_dims[:nbx]  = np.array([2, 0, 0, 0, 0, 0])
-#qp_dims[:nbu]  = np.array([0, 0, 0, 0, 0, 0])
-#qp_dims[:ng]   = np.array([0, 0, 0, 0, 0, 0])
-#qp_dims[:ns]   = np.array([0, 0, 0, 0, 0, 0])
-#qp_dims[:nsbx] = np.array([0, 0, 0, 0, 0, 0])
-#qp_dims[:nsbu] = np.array([0, 0, 0, 0, 0, 0])
-#qp_dims[:nsg]  = np.array([0, 0, 0, 0, 0, 0])
-#qp_dims[:N]    = 5
-#
-## set up solver
-#solver = hp.hpipm_solver(qp_dims, qp_data)
-#
-## solve qp
-#return_flag = solver[:solve]()
-#
-#println("HPIPM returned with flag $(return_flag)\n")
-#
-#if return_flag == 0
-#    println("-> QP solved Solution:\n")
-#    solver[:print_sol]()
-#else
-#    println("-> Solver failed.\n")
-#end
+
+qp_dims = hpipm_dims()
+
+qp_dims["nx"]   = [2, 2, 2, 2, 2, 2]
+qp_dims["nu"]   = [1, 1, 1, 1, 1, 0]
+qp_dims["nb"]   = [2, 0, 0, 0, 0, 0]
+qp_dims["nbx"]  = [2, 0, 0, 0, 0, 0]
+qp_dims["nbu"]  = [0, 0, 0, 0, 0, 0]
+qp_dims["ng"]   = [0, 0, 0, 0, 0, 0]
+qp_dims["ns"]   = [0, 0, 0, 0, 0, 0]
+qp_dims["nsbx"] = [0, 0, 0, 0, 0, 0]
+qp_dims["nsbu"] = [0, 0, 0, 0, 0, 0]
+qp_dims["nsg"]  = [0, 0, 0, 0, 0, 0]
+qp_dims["N"]    = 5
+
+py_qp_dims = hpipm_dims()
+py_qp_dims = ju2py_obj(qp_dims, py_qp_dims)
+
+# set up solver
+solver = hp.hpipm_solver(py_qp_dims, py_qp_data)
+
+# solve qp
+return_flag = solver[:solve]()
+
+println("HPIPM returned with flag $(return_flag)\n")
+
+if return_flag == 0
+    println("-> QP solved Solution:\n")
+    solver[:print_sol]()
+else
+    println("-> Solver failed.\n")
+end
