@@ -6,6 +6,7 @@ using PyCall
 @pyimport numpy as np
 
 include("py2ju_obj.jl")
+include("ju2py_obj.jl")
 include("hpipm_solver.jl")
 
 qp_data = hpipm_data()
