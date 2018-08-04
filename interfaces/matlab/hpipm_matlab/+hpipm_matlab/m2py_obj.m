@@ -2,7 +2,6 @@ function py_obj = m2py_obj(m_obj, py_obj)
     np = py.importlib.import_module('numpy');
     import hpipm_matlab.*
     py_props = fieldnames(py_obj);
-//    py_props = properties(py_obj);
 
     for iprop = 1:length(py_props)
         py_thisprop = py_props{iprop};
