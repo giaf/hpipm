@@ -6,11 +6,11 @@ using PyCall
 @pyimport numpy as np
 
 include("py2ju_obj.jl")
+include("hpipm_solver.jl")
 
-py_qp_data = hp.hpipm_data()
-qp_data = py2ju_obj(py_qp_data)
+qp_data = hpipm_data()
 
-A = [1 0; 1 1]
+A = [1.0 0; 1 1]
 B = [0, 1]
 b = [0, 0]
 
