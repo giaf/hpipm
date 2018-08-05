@@ -5,11 +5,7 @@ using PyCall
 @pyimport hpipm_python as hp
 @pyimport numpy as np
 
-include("py2ju_obj.jl")
-include("ju2py_obj.jl")
-include("hpipm_solver.jl")
-include("hpipm_data.jl")
-include("hpipm_dims.jl")
+using hpipm_julia
 
 qp_data = hpipm_data()
 

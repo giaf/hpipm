@@ -31,4 +31,3 @@ type hpipm_solver
         return this
     end
 end
-
