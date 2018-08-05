@@ -1,10 +1,7 @@
 # ENV["PYTHON"] = /usr/bin/python3
 # Pkg.build("PyCall")
 
-using PyCall
-@pyimport hpipm_python as hp
-@pyimport numpy as np
-
+include("../../interfaces/julia/hpipm_julia.jl")
 using hpipm_julia
 
 qp_data = hpipm_data()
