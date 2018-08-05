@@ -8,6 +8,8 @@ using PyCall
 include("py2ju_obj.jl")
 include("ju2py_obj.jl")
 include("hpipm_solver.jl")
+include("hpipm_data.jl")
+include("hpipm_dims.jl")
 
 qp_data = hpipm_data()
 
@@ -36,8 +38,6 @@ qp_data["d_lb"] = [x0]
 qp_data["d_ub"] = [x0]
 
 qp_data["idxb"] = [[1, 2]]
-py_qp_data = hp.hpipm_data()
-py_qp_data = ju2py_obj(qp_data, py_qp_data) 
 
 qp_dims = hpipm_dims()
 
@@ -53,20 +53,17 @@ qp_dims["nsbu"] = [0, 0, 0, 0, 0, 0]
 qp_dims["nsg"]  = [0, 0, 0, 0, 0, 0]
 qp_dims["N"]    = 5
 
-py_qp_dims = hp.hpipm_dims()
-py_qp_dims = ju2py_obj(qp_dims, py_qp_dims)
-
 # set up solver
-solver = hp.hpipm_solver(py_qp_dims, py_qp_data)
+solver = hpipm_solver(qp_dims, qp_data)
 
 # solve qp
-return_flag = solver[:solve]()
+return_flag = solver.solve()
 
 println("HPIPM returned with flag $(return_flag)\n")
 
 if return_flag == 0
     println("-> QP solved Solution:\n")
-    solver[:print_sol]()
+    solver.print_sol()
 else
     println("-> Solver failed.\n")
 end

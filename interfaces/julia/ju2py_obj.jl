@@ -29,8 +29,8 @@ function ju2py_obj(ju_obj, py_obj)
                     catch
                         error("Could not assign attribute $(py_attr[i]).")
                     end
-                else
                 # the Julia Dictionary containts something that it should not contain
+                else
                     error("Julia dictionary contains something not an Array{Int/Float64} or Int/Float64.")
                 end
             end
