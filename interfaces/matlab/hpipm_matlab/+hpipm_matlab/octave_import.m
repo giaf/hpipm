@@ -1,4 +1,4 @@
-function import(varargin)
+function octave_import(varargin)
  % Import a package. Only entire packages can be imported currently.
  error(nargchk(1, inf, nargin, 'struct'));
  % Import the packages one-by-one

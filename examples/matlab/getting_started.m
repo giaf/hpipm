@@ -5,6 +5,7 @@ clear all
 close all
 clc
 
+addpath('../../interfaces/matlab/hpipm_matlab')
 import hpipm_matlab.*
 addpath('../../interfaces/matlab/hpipm_matlab')
 
