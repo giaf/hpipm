@@ -993,7 +993,7 @@ void FACT_LQ_SOLVE_KKT_STEP_TREE_OCP_QP(struct TREE_OCP_QP *qp, struct TREE_OCP_
 #if defined(LA_HIGH_PERFORMANCE) | defined(LA_REFERENCE)
 		TRCP_L(nu[idx]+nx[idx], Lh+idx, 0, 0, L+idx, 0, 0);
 #else
-#error
+		GECP(nu[idx]+nx[idx], nu[idx]+nx[idx], Lh+idx, 0, 0, L+idx, 0, 0);
 #endif
 
 		VECCP(nu[idx]+nx[idx], res_g+idx, 0, dux+idx, 0);
@@ -1035,7 +1035,12 @@ void FACT_LQ_SOLVE_KKT_STEP_TREE_OCP_QP(struct TREE_OCP_QP *qp, struct TREE_OCP_
 #if defined(LA_HIGH_PERFORMANCE) | defined(LA_REFERENCE)
 		GELQF_PD_LLA(nu[idx]+nx[idx], ng[idx], L+idx, 0, 0, lq0, 0, nu[idx]+nx[idx], lq0, 0, 2*nu[idx]+2*nx[idx], lq_work0); // TODO reduce lq1 size !!!
 #else
-#error
+		TRCP_L(nu[idx]+nx[idx], L+idx, 0, 0, lq0, 0, 0);
+		GELQF(nu[idx]+nx[idx], 2*nu[idx]+2*nx[idx]+ng[idx], lq0, 0, 0, lq0, 0, 0, lq_work0);
+		TRCP_L(nu[idx]+nx[idx], lq0, 0, 0, L+idx, 0, 0);
+		for(ii=0; ii<nu[idx]+nx[idx]; ii++)
+			if(BLASFEO_DMATEL(L+idx, ii, ii) < 0)
+				COLSC(nu[idx]+nx[idx]-ii, -1.0, L+idx, ii, ii);
 #endif
 
 		for(jj=0; jj<nkids; jj++)
@@ -1048,7 +1053,12 @@ void FACT_LQ_SOLVE_KKT_STEP_TREE_OCP_QP(struct TREE_OCP_QP *qp, struct TREE_OCP_
 #if defined(LA_HIGH_PERFORMANCE) | defined(LA_REFERENCE)
 			GELQF_PD_LA(nu[idx]+nx[idx], nx[idxkid], L+idx, 0, 0, lq0, 0, nu[idx]+nx[idx], lq_work0);
 #else
-#error
+			TRCP_L(nu[idx]+nx[idx], L+idx, 0, 0, lq0, 0, 0);
+			GELQF(nu[idx]+nx[idx], nu[idx]+nx[idx]+nx[idxkid], lq0, 0, 0, lq0, 0, 0, lq_work0);
+			TRCP_L(nu[idx]+nx[idx], lq0, 0, 0, L+idx, 0, 0);
+			for(ii=0; ii<nu[idx]+nx[idx]; ii++)
+				if(BLASFEO_DMATEL(L+idx, ii, ii) < 0)
+					COLSC(nu[idx]+nx[idx]-ii, -1.0, L+idx, ii, ii);
 #endif
 
 			TRMV_LTN(nx[idxkid], nx[idxkid], L+idxkid, nu[idxkid], nu[idxkid], res_b+idxkid-1, 0, Pb+idxkid-1, 0);
