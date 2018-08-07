@@ -53,14 +53,16 @@ endif
 OBJS_DATA = data/getting_started_data.o 
 #OBJS_DATA = data/ocp_qp_data.o 
 
-#OBJS_EXMP = $(OBJS_DATA) example_d_ocp_qp.o
-OBJS_EXMP = $(OBJS_DATA) example_d_ocp_qp_part_cond.o
+#OBJS_EXMP = $(OBJS_DATA) example_d_ocp_qp_unconstr.o
+OBJS_EXMP = $(OBJS_DATA) example_d_ocp_qp.o
+#OBJS_EXMP = $(OBJS_DATA) example_d_ocp_qp_part_cond.o
 
 obj: $(OBJS_EXMP)
 	$(CC) -o  example.out $(OBJS_EXMP) -L. libhpipm.a $(LIBS) -I../../include #-pg
 
 clean:
 	rm -f *.o
+	rm -f data/*.o
 	rm -f example.out
 	rm -f libhpipm.a
 
