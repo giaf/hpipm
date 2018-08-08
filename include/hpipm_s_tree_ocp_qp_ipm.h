@@ -128,6 +128,8 @@ void s_set_tree_ocp_qp_ipm_arg_tol_eq(float tol_eq, struct s_tree_ocp_qp_ipm_arg
 void s_set_tree_ocp_qp_ipm_arg_tol_ineq(float tol_ineq, struct s_tree_ocp_qp_ipm_arg *arg);
 //
 void s_set_tree_ocp_qp_ipm_arg_tol_comp(float tol_comp, struct s_tree_ocp_qp_ipm_arg *arg);
+//
+void s_set_tree_ocp_qp_ipm_arg_reg_prim(float reg, struct s_tree_ocp_qp_ipm_arg *arg);
 
 //
 int s_memsize_tree_ocp_qp_ipm(struct s_tree_ocp_qp_dim *dim, struct s_tree_ocp_qp_ipm_arg *arg);

@@ -209,6 +209,14 @@ void SET_OCP_QP_IPM_ARG_TOL_COMP(REAL tol_comp, struct OCP_QP_IPM_ARG *arg)
 
 
 
+void SET_OCP_QP_IPM_ARG_REG_PRIM(REAL reg, struct OCP_QP_IPM_ARG *arg)
+	{
+	arg->reg_prim = reg;
+	return;
+	}
+
+
+
 int SIZEOF_OCP_QP_IPM_WORKSPACE()
 	{
 	return sizeof(struct OCP_QP_IPM_WORKSPACE);

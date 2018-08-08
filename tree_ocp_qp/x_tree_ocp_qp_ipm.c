@@ -204,6 +204,14 @@ void SET_TREE_OCP_QP_IPM_ARG_TOL_COMP(REAL tol_comp, struct TREE_OCP_QP_IPM_ARG 
 
 
 
+void SET_TREE_OCP_QP_IPM_ARG_REG_PRIM(REAL reg, struct TREE_OCP_QP_IPM_ARG *arg)
+	{
+	arg->reg_prim = reg;
+	return;
+	}
+
+
+
 int MEMSIZE_TREE_OCP_QP_IPM(struct TREE_OCP_QP_DIM *dim, struct TREE_OCP_QP_IPM_ARG *arg)
 	{
 

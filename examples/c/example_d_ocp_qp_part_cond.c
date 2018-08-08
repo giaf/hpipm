@@ -196,6 +196,7 @@ int main()
 	d_set_ocp_qp_ipm_arg_tol_eq(1e-5, &arg);
 	d_set_ocp_qp_ipm_arg_tol_ineq(1e-5, &arg);
 	d_set_ocp_qp_ipm_arg_tol_comp(1e-5, &arg);
+	d_set_ocp_qp_ipm_arg_reg_prim(1e-12, &arg);
 
 /************************************************
 * part cond workspace

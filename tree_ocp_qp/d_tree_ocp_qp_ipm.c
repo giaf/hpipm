@@ -97,6 +97,7 @@
 #define SET_TREE_OCP_QP_IPM_ARG_TOL_EQ d_set_tree_ocp_qp_ipm_arg_tol_eq
 #define SET_TREE_OCP_QP_IPM_ARG_TOL_INEQ d_set_tree_ocp_qp_ipm_arg_tol_ineq
 #define SET_TREE_OCP_QP_IPM_ARG_TOL_COMP d_set_tree_ocp_qp_ipm_arg_tol_comp
+#define SET_TREE_OCP_QP_IPM_ARG_REG_PRIM d_set_tree_ocp_qp_ipm_arg_reg_prim
 // ipm
 #define MEMSIZE_TREE_OCP_QP_IPM d_memsize_tree_ocp_qp_ipm
 #define CREATE_TREE_OCP_QP_IPM d_create_tree_ocp_qp_ipm

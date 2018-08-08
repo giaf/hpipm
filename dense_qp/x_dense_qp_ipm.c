@@ -206,6 +206,22 @@ void SET_DENSE_QP_IPM_ARG_TOL_COMP(REAL tol_comp, struct DENSE_QP_IPM_ARG *arg)
 
 
 
+void SET_DENSE_QP_IPM_ARG_REG_PRIM(REAL reg, struct DENSE_QP_IPM_ARG *arg)
+	{
+	arg->reg_prim = reg;
+	return;
+	}
+
+
+
+void SET_DENSE_QP_IPM_ARG_REG_DUAL(REAL reg, struct DENSE_QP_IPM_ARG *arg)
+	{
+	arg->reg_dual = reg;
+	return;
+	}
+
+
+
 int MEMSIZE_DENSE_QP_IPM(struct DENSE_QP_DIM *dim, struct DENSE_QP_IPM_ARG *arg)
 	{
 

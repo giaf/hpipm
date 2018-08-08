@@ -86,7 +86,7 @@ int main()
 	struct timeval tv0, tv1;
 
 /************************************************
-* new first stage
+* new first stage data
 ************************************************/
 
 	double *x0 = malloc(nx[0]*sizeof(double));
@@ -95,7 +95,6 @@ int main()
 		x0[ii] = hlb[0][nu[0]+ii];
 
 	d_print_mat(1, nx[0], x0, 1);
-//	exit(1);
 
 	int *idxb0 = malloc(nx[0]*sizeof(int));
 
@@ -111,19 +110,20 @@ int main()
 		for(jj=0; jj<nx[0]; jj++)
 			b0[ii] += hA[0][ii+nx[1]*jj]*x0[jj];
 	
+	double *r0 = malloc(nu[0]*sizeof(double));
 
-//	d_print_mat(1, nx[1], b0, 1);
-//	d_print_mat(1, nx[1], hb[0], 1);
-//	exit(1);
+	for(ii=0; ii<nu[0]; ii++)
+		r0[ii] = hr[0][ii];
+	
+	for(ii=0; ii<nu[0]; ii++)
+		for(jj=0; jj<nx[0]; jj++)
+			r0[ii] += hS[0][ii+nu[0]*jj]*x0[jj];
 
 /************************************************
 * remove constraints
 ************************************************/
 
-//	d_print_mat(1, nbu[0]+nbx[0], hlb[0], 1);
-//	int_print_mat(1, nbu[0]+nbx[0], hidxb[0], 1);
-
-#if 1
+#if 0
 	for(ii=1; ii<=N; ii++)
 		nbx[ii] = 0;
 
@@ -137,7 +137,7 @@ int main()
 		nbx[ii] = 0;
 
 	hb[0] = b0;
-	// TODO
+	hr[0] = r0;
 #endif
 
 	for(ii=0; ii<=N; ii++)
@@ -154,9 +154,6 @@ int main()
 
 	for(ii=0; ii<=N; ii++)
 		nsg[ii] = 0;
-
-//	d_print_mat(1, nbu[0]+nbx[0], hlb[0], 1);
-//	int_print_mat(1, nbu[0]+nbx[0], hidxb[0], 1);
 
 /************************************************
 * ocp qp dim
@@ -214,6 +211,7 @@ int main()
 	d_set_ocp_qp_ipm_arg_tol_eq(1e-5, &arg);
 	d_set_ocp_qp_ipm_arg_tol_ineq(1e-5, &arg);
 	d_set_ocp_qp_ipm_arg_tol_comp(1e-5, &arg);
+	d_set_ocp_qp_ipm_arg_reg_prim(1e-12, &arg);
 
 /************************************************
 * ipm workspace
@@ -327,7 +325,10 @@ int main()
 * free memory and return
 ************************************************/
 
+	free(x0);
+	free(idxb0);
 	free(b0);
+	free(r0);
 
     free(dim_mem);
     free(qp_mem);
