@@ -105,7 +105,7 @@
 #define GET_TREE_OCP_QP_IPM_RES_EQ s_get_tree_ocp_qp_ipm_res_eq
 #define GET_TREE_OCP_QP_IPM_RES_INEQ s_get_tree_ocp_qp_ipm_res_ineq
 #define GET_TREE_OCP_QP_IPM_RES_COMP s_get_tree_ocp_qp_ipm_res_comp
-#define GET_TREE_OCP_QP_IPM_STAT d_get_tree_ocp_qp_ipm_stat
+#define GET_TREE_OCP_QP_IPM_STAT s_get_tree_ocp_qp_ipm_stat
 #define SOLVE_TREE_OCP_QP_IPM s_solve_tree_ocp_qp_ipm
 #define SOLVE_TREE_OCP_QP_IPM2 s_solve_tree_ocp_qp_ipm2
 
