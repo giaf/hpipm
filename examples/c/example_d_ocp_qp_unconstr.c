@@ -124,6 +124,7 @@ int main()
 ************************************************/
 
 #if 0
+	// keep x0 as an optimization variable, set its value using equal upper-lower bounds
 	for(ii=1; ii<=N; ii++)
 		nbx[ii] = 0;
 
@@ -131,6 +132,7 @@ int main()
 	hub[0] = x0;
 	hidxb[0] = idxb0;
 #else
+	// remove x0 from the optimization variables
 	nx[0] = 0;
 
 	for(ii=0; ii<=N; ii++)
