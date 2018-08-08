@@ -47,6 +47,7 @@
 #define COMPUTE_GAMMA_GAMMA_QP s_compute_Gamma_gamma_qp
 #define COMPUTE_GAMMA_QP s_compute_gamma_qp
 #define CORE_QP_IPM_WORKSPACE s_core_qp_ipm_workspace
+#define COLSC blasfeo_scolsc
 #define DIAAD_SP blasfeo_sdiaad_sp
 #define DIARE blasfeo_sdiare
 #define GEAD blasfeo_sgead
