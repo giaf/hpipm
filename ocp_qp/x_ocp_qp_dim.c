@@ -91,7 +91,7 @@ void CREATE_OCP_QP_DIM(int N, struct OCP_QP_DIM *dim, void *memory)
 	}
 
 
-void CVT_INT_TO_OCP_QP_DIM(int N, int *nx, int *nu, int *nbx, int *nbu, int *ng, int *nsbx, int *nsbu, int *nsg, struct OCP_QP_DIM *dim)
+void CVT_INT_TO_OCP_QP_DIM(int N, int *nx, int *nu, int *nbx, int *nbu, int *ng, int *ns, struct OCP_QP_DIM *dim)
 	{
 
 	// loop index
@@ -114,13 +114,13 @@ void CVT_INT_TO_OCP_QP_DIM(int N, int *nx, int *nu, int *nbx, int *nbu, int *ng,
 	for(ii=0; ii<=N; ii++)
 		dim->ng[ii] = ng[ii];
 	for(ii=0; ii<=N; ii++)
-		dim->ns[ii] = nsbx[ii]+nsbu[ii]+nsg[ii];
+		dim->ns[ii] = ns[ii];//nsbx[ii]+nsbu[ii]+nsg[ii];
 	for(ii=0; ii<=N; ii++)
-		dim->nsbx[ii] = nsbx[ii];
+		dim->nsbx[ii] = -1;//nsbx[ii];
 	for(ii=0; ii<=N; ii++)
-		dim->nsbu[ii] = nsbu[ii];
+		dim->nsbu[ii] = -1;//nsbu[ii];
 	for(ii=0; ii<=N; ii++)
-		dim->nsg[ii] = nsg[ii];
+		dim->nsg[ii] = -1;//nsg[ii];
 
 	return;
 

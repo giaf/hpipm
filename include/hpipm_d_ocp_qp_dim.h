@@ -45,7 +45,6 @@ struct d_ocp_qp_dim
 	int *nbu; // number of input box constraints
 	int *ng; // number of general constraints
 	int *ns; // number of soft constraints
-	// int *nsb; // number of soft box constraints
 	int *nsbx; // number of soft state box constraints
 	int *nsbu; // number of soft input box constraints
 	int *nsg; // number of soft general constraints
@@ -60,7 +59,7 @@ int d_memsize_ocp_qp_dim(int N);
 //
 void d_create_ocp_qp_dim(int N, struct d_ocp_qp_dim *qp_dim, void *memory);
 //
-void d_cvt_int_to_ocp_qp_dim(int N, int *nx, int *nu, int *nbx, int *nbu, int *ng, int *nsbx, int *nsbu, int* nsg, struct d_ocp_qp_dim *dim);
+void d_cvt_int_to_ocp_qp_dim(int N, int *nx, int *nu, int *nbx, int *nbu, int *ng, int *ns, struct d_ocp_qp_dim *dim);
 
 // interface functions
 int d_sizeof_ocp_qp_dim();

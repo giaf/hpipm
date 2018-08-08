@@ -211,17 +211,6 @@ int main()
 		ns[ii] = nx[ii]/2;
 	ns[N] = nx[N]/2;
 
-	int nsbx[N+1];
-	for(ii=0; ii<=N; ii++)
-		nsbx[ii] = ns[ii];
-
-	int nsg[N+1];
-	int nsbu[N+1];
-	for(ii=0; ii<=N; ii++)
-	{
-		nsg[ii] = 0;
-		nsbu[ii] = 0;
-	}
 #elif 0
 	int nb[N+1];
 	nb[0] = 0;
@@ -663,7 +652,7 @@ int main()
 
 	struct d_ocp_qp_dim dim;
 	d_create_ocp_qp_dim(N, &dim, dim_mem);
-	d_cvt_int_to_ocp_qp_dim(N, nx, nu, nbx, nbu, ng, nsbx, nsbu, nsg, &dim);
+	d_cvt_int_to_ocp_qp_dim(N, nx, nu, nbx, nbu, ng, ns, &dim);
 
 /************************************************
 * ocp qp
@@ -724,7 +713,7 @@ int main()
 
 	struct d_ocp_qp_dim dim2;
 	d_create_ocp_qp_dim(N2, &dim2, dim_mem2);
-	d_cvt_int_to_ocp_qp_dim(N2, nx2, nu2, nbx2, nbu2, ng2, nsbx2, nsbu2, nsg2, &dim2);
+	d_cvt_int_to_ocp_qp_dim(N2, nx2, nu2, nbx2, nbu2, ng2, ns2, &dim2);
 
 /************************************************
 * part dense qp
