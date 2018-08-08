@@ -70,6 +70,41 @@
 #define CVT_DENSE_QP_TO_LIBSTR d_cvt_dense_qp_to_libstr
 #define CAST_DENSE_QP_DIM d_cast_dense_qp_dim
 
+#define DENSE_QP_SET_H d_dense_qp_set_H
+#define DENSE_QP_SET_G d_dense_qp_set_g
+#define DENSE_QP_SET_A d_dense_qp_set_A
+#define DENSE_QP_SET_B d_dense_qp_set_b
+#define DENSE_QP_SET_IDXB d_dense_qp_set_idxb
+#define DENSE_QP_SET_LB d_dense_qp_set_lb
+#define DENSE_QP_SET_UB d_dense_qp_set_ub
+#define DENSE_QP_SET_C d_dense_qp_set_C
+#define DENSE_QP_SET_LG d_dense_qp_set_lg
+#define DENSE_QP_SET_UG d_dense_qp_set_ug
+#define DENSE_QP_SET_IDXS d_dense_qp_set_idxs
+#define DENSE_QP_SET_ZZL d_dense_qp_set_Zl
+#define DENSE_QP_SET_ZZU d_dense_qp_set_Zu
+#define DENSE_QP_SET_ZL d_dense_qp_set_zl
+#define DENSE_QP_SET_ZU d_dense_qp_set_zu
+#define DENSE_QP_SET_LS d_dense_qp_set_ls
+#define DENSE_QP_SET_US d_dense_qp_set_us
+
+#define DENSE_QP_GET_H d_dense_qp_get_H
+#define DENSE_QP_GET_G d_dense_qp_get_g
+#define DENSE_QP_GET_A d_dense_qp_get_A
+#define DENSE_QP_GET_B d_dense_qp_get_b
+#define DENSE_QP_GET_IDXB d_dense_qp_get_idxb
+#define DENSE_QP_GET_LB d_dense_qp_get_lb
+#define DENSE_QP_GET_UB d_dense_qp_get_ub
+#define DENSE_QP_GET_C d_dense_qp_get_C
+#define DENSE_QP_GET_LG d_dense_qp_get_lg
+#define DENSE_QP_GET_UG d_dense_qp_get_ug
+#define DENSE_QP_GET_IDXS d_dense_qp_get_idxs
+#define DENSE_QP_GET_ZZL d_dense_qp_get_Zl
+#define DENSE_QP_GET_ZZU d_dense_qp_get_Zu
+#define DENSE_QP_GET_ZL d_dense_qp_get_zl
+#define DENSE_QP_GET_ZU d_dense_qp_get_zu
+#define DENSE_QP_GET_LS d_dense_qp_get_ls
+#define DENSE_QP_GET_US d_dense_qp_get_us
 
 
 #include "x_dense_qp.c"

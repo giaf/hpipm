@@ -196,7 +196,30 @@ int main()
 
 	struct d_dense_qp qp;
 	d_create_dense_qp(&qp_dim, &qp, qp_mem);
+
+#if 1
+	// test setters
+
+	d_dense_qp_set_H(H, &qp);
+	d_dense_qp_set_g(g, &qp);
+	d_dense_qp_set_A(A, &qp);
+	d_dense_qp_set_b(b, &qp);
+	d_dense_qp_set_idxb(idxb, &qp);
+	d_dense_qp_set_lb(d_lb, &qp);
+	d_dense_qp_set_ub(d_ub, &qp);
+	d_dense_qp_set_C(C, &qp);
+	d_dense_qp_set_lg(d_lg, &qp);
+	d_dense_qp_set_ug(d_ug, &qp);
+	d_dense_qp_set_Zl(Zl, &qp);
+	d_dense_qp_set_Zu(Zu, &qp);
+	d_dense_qp_set_zl(zl, &qp);
+	d_dense_qp_set_zu(zu, &qp);
+	d_dense_qp_set_idxs(idxs, &qp);
+	d_dense_qp_set_ls(d_ls, &qp);
+	d_dense_qp_set_us(d_us, &qp);
+#else
 	d_cvt_colmaj_to_dense_qp(H, g, A, b, idxb, d_lb, d_ub, C, d_lg, d_ug, Zl, Zu, zl, zu, idxs, d_ls, d_us, &qp);
+#endif
 
 #if 1
 	printf("\nH = \n");
