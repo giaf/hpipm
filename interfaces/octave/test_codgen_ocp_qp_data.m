@@ -25,7 +25,7 @@ end
 % number of general constraints
 dims.ng(N+1) = 2;
 % number of general constraints which are softed
-dims.nsg(N+1) = dims.ng(N+1);
+dims.ns(N+1) = dims.ng(N+1);
 
 %dims
 

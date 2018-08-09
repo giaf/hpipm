@@ -34,11 +34,7 @@ nu = dims.nu;
 nbx = dims.nbx;
 nbu = dims.nbu;
 ng = dims.ng;
-nsbx = dims.nsbx;
-nsbu = dims.nsbu;
-nsg = dims.nsg;
-
-ns = nsbx+nsbu+nsg;
+ns = dims.ns;
 
 %
 qp.A = {};

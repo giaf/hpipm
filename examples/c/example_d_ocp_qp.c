@@ -45,9 +45,7 @@ extern int *nu;
 extern int *nbu;
 extern int *nbx;
 extern int *ng;
-extern int *nsbu;
-extern int *nsbx;
-extern int *nsg;
+extern int *ns;
 extern double **hA;
 extern double **hB;
 extern double **hb;
@@ -94,10 +92,6 @@ int main()
 
 	struct d_ocp_qp_dim dim;
 	d_create_ocp_qp_dim(N, &dim, dim_mem);
-
-	int ns[N+1];
-	for(ii=0; ii<=N; ii++)
-		ns[ii] = nsbx[ii]+nsbu[ii]+nsg[ii];
 
 	d_cvt_int_to_ocp_qp_dim(N, nx, nu, nbx, nbu, ng, ns, &dim);
 

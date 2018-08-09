@@ -41,11 +41,7 @@ nu = dims.nu;
 nbx = dims.nbx;
 nbu = dims.nbu;
 ng = dims.ng;
-nsbx = dims.nsbx;
-nsbu = dims.nsbu;
-nsg = dims.nsg;
-
-ns = nsbx+nsbu+nsg;
+ns = dims.ns;
 
 % N
 fprintf(fid, "int N = %d;\n", N);
@@ -79,24 +75,12 @@ for ii=1:N
 	fprintf(fid, "%d, ", ng(ii));
 end
 fprintf(fid, "%d};\n", ng(ii+1));
-% nsbx
-fprintf(fid, "static int nnsbx[] = {");
+% ns
+fprintf(fid, "static int nns[] = {");
 for ii=1:N
-	fprintf(fid, "%d, ", nsbx(ii));
+	fprintf(fid, "%d, ", ns(ii));
 end
-fprintf(fid, "%d};\n", nsbx(ii+1));
-% nsbu
-fprintf(fid, "static int nnsbu[] = {");
-for ii=1:N
-	fprintf(fid, "%d, ", nsbu(ii));
-end
-fprintf(fid, "%d};\n", nsbu(ii+1));
-% nsg
-fprintf(fid, "static int nnsg[] = {");
-for ii=1:N
-	fprintf(fid, "%d, ", nsg(ii));
-end
-fprintf(fid, "%d};\n", nsg(N+1));
+fprintf(fid, "%d};\n", ns(ii+1));
 %
 fprintf(fid, "\n");
 
@@ -474,9 +458,7 @@ fprintf(fid, "int *nx = nnx;\n");
 fprintf(fid, "int *nbu = nnbu;\n");
 fprintf(fid, "int *nbx = nnbx;\n");
 fprintf(fid, "int *ng = nng;\n");
-fprintf(fid, "int *nsbu = nnsbu;\n");
-fprintf(fid, "int *nsbx = nnsbx;\n");
-fprintf(fid, "int *nsg = nnsg;\n");
+fprintf(fid, "int *ns = nns;\n");
 
 fprintf(fid, "double **hA = AA;\n");
 fprintf(fid, "double **hB = BB;\n");
