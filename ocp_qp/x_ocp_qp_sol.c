@@ -27,6 +27,13 @@
 
 
 
+int SIZEOF_OCP_QP_SOL()
+	{
+	return sizeof(struct OCP_QP_SOL);
+	}
+
+
+
 int MEMSIZE_OCP_QP_SOL(struct OCP_QP_DIM *dim)
 	{
 
@@ -372,7 +379,15 @@ void CVT_OCP_QP_SOL_TO_LIBSTR(struct OCP_QP_SOL *qp_sol, struct STRVEC *u, struc
 
 
 
-void CVT_OCP_QP_SOL_TO_COLMAJ_X(struct OCP_QP_SOL *qp_sol, REAL *vec, int stage)
+void CVT_OCP_QP_SOL_TO_COLMAJ_U(int stage, struct OCP_QP_SOL *qp_sol, REAL *vec)
+	{
+	int *nu = qp_sol->dim->nu;
+	CVT_STRVEC2VEC(nu[stage], qp_sol->ux+stage, 0, vec);
+	}
+
+
+
+void CVT_OCP_QP_SOL_TO_COLMAJ_X(int stage, struct OCP_QP_SOL *qp_sol, REAL *vec)
 	{
 	int *nx = qp_sol->dim->nx;
 	int *nu = qp_sol->dim->nu;
@@ -381,15 +396,7 @@ void CVT_OCP_QP_SOL_TO_COLMAJ_X(struct OCP_QP_SOL *qp_sol, REAL *vec, int stage)
 
 
 
-void CVT_OCP_QP_SOL_TO_COLMAJ_U(struct OCP_QP_SOL *qp_sol, REAL *vec, int stage)
-	{
-	int *nu = qp_sol->dim->nu;
-	CVT_STRVEC2VEC(nu[stage], qp_sol->ux+stage, 0, vec);
-	}
-
-
-
-void CVT_OCP_QP_SOL_TO_COLMAJ_PI(struct OCP_QP_SOL *qp_sol, REAL *vec, int stage)
+void CVT_OCP_QP_SOL_TO_COLMAJ_PI(int stage, struct OCP_QP_SOL *qp_sol, REAL *vec)
 	{
 	int *nx = qp_sol->dim->nx;
 	CVT_STRVEC2VEC(nx[stage+1], qp_sol->pi+stage, 0, vec);
@@ -397,7 +404,7 @@ void CVT_OCP_QP_SOL_TO_COLMAJ_PI(struct OCP_QP_SOL *qp_sol, REAL *vec, int stage
 
 
 
-void CVT_OCP_QP_SOL_TO_COLMAJ_LAM_LB(struct OCP_QP_SOL *qp_sol, REAL *vec, int stage)
+void CVT_OCP_QP_SOL_TO_COLMAJ_LAM_LB(int stage, struct OCP_QP_SOL *qp_sol, REAL *vec)
 	{
 	int *nb = qp_sol->dim->nb;
 	CVT_STRVEC2VEC(nb[stage], qp_sol->lam+stage, 0, vec);
@@ -405,7 +412,7 @@ void CVT_OCP_QP_SOL_TO_COLMAJ_LAM_LB(struct OCP_QP_SOL *qp_sol, REAL *vec, int s
 
 
 
-void CVT_OCP_QP_SOL_TO_COLMAJ_LAM_UB(struct OCP_QP_SOL *qp_sol, REAL *vec, int stage)
+void CVT_OCP_QP_SOL_TO_COLMAJ_LAM_UB(int stage, struct OCP_QP_SOL *qp_sol, REAL *vec)
 	{
 	int *nb = qp_sol->dim->nb;
 	int *ng = qp_sol->dim->ng;
@@ -414,7 +421,7 @@ void CVT_OCP_QP_SOL_TO_COLMAJ_LAM_UB(struct OCP_QP_SOL *qp_sol, REAL *vec, int s
 
 
 
-void CVT_OCP_QP_SOL_TO_COLMAJ_LAM_LG(struct OCP_QP_SOL *qp_sol, REAL *vec, int stage)
+void CVT_OCP_QP_SOL_TO_COLMAJ_LAM_LG(int stage, struct OCP_QP_SOL *qp_sol, REAL *vec)
 	{
 	int *nb = qp_sol->dim->nb;
 	int *ng = qp_sol->dim->ng;
@@ -423,16 +430,50 @@ void CVT_OCP_QP_SOL_TO_COLMAJ_LAM_LG(struct OCP_QP_SOL *qp_sol, REAL *vec, int s
 
 
 
-void CVT_OCP_QP_SOL_TO_COLMAJ_LAM_UG(struct OCP_QP_SOL *qp_sol, REAL *vec, int stage)
+void CVT_OCP_QP_SOL_TO_COLMAJ_LAM_UG(int stage, struct OCP_QP_SOL *qp_sol, REAL *vec)
 	{
 	int *nb = qp_sol->dim->nb;
 	int *ng = qp_sol->dim->ng;
 	CVT_STRVEC2VEC(ng[stage], qp_sol->lam+stage, 2*nb[stage]+ng[stage], vec);
 	}
 
-// interface functions
-int SIZEOF_OCP_QP_SOL()
-    {
-        return sizeof(struct OCP_QP_SOL);
-    }
 
+
+void CVT_COLMAJ_TO_OCP_QP_SOL_U(int stage, REAL *vec, struct OCP_QP_SOL *qp_sol)
+	{
+	int *nu = qp_sol->dim->nu;
+	CVT_VEC2STRVEC(nu[stage], vec, qp_sol->ux+stage, 0);
+	return;
+	}
+
+
+
+void CVT_COLMAJ_TO_OCP_QP_SOL_X(int stage, REAL *vec, struct OCP_QP_SOL *qp_sol)
+	{
+	int *nu = qp_sol->dim->nu;
+	int *nx = qp_sol->dim->nx;
+	CVT_VEC2STRVEC(nx[stage], vec, qp_sol->ux+stage, nu[stage]);
+	return;
+	}
+
+
+
+void CVT_COLMAJ_TO_OCP_QP_SOL_SL(int stage, REAL *vec, struct OCP_QP_SOL *qp_sol)
+	{
+	int *nu = qp_sol->dim->nu;
+	int *nx = qp_sol->dim->nx;
+	int *ns = qp_sol->dim->ns;
+	CVT_VEC2STRVEC(ns[stage], vec, qp_sol->ux+stage, nu[stage]+nx[stage]);
+	return;
+	}
+
+
+
+void CVT_COLMAJ_TO_OCP_QP_SOL_SU(int stage, REAL *vec, struct OCP_QP_SOL *qp_sol)
+	{
+	int *nu = qp_sol->dim->nu;
+	int *nx = qp_sol->dim->nx;
+	int *ns = qp_sol->dim->ns;
+	CVT_VEC2STRVEC(ns[stage], vec, qp_sol->ux+stage, nu[stage]+nx[stage]+ns[stage]);
+	return;
+	}

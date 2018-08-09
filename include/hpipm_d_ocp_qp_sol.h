@@ -57,6 +57,8 @@ struct d_ocp_qp_sol
 
 
 //
+int d_sizeof_ocp_qp_sol();
+//
 int d_memsize_ocp_qp_sol(struct d_ocp_qp_dim *dim);
 //
 void d_create_ocp_qp_sol(struct d_ocp_qp_dim *dim, struct d_ocp_qp_sol *qp_sol, void *memory);
@@ -69,22 +71,29 @@ void d_cvt_ocp_qp_sol_to_rowmaj(struct d_ocp_qp_sol *qp_sol, double **u, double 
 //
 void d_cvt_ocp_qp_sol_to_libstr(struct d_ocp_qp_sol *qp_sol, struct blasfeo_dvec *u, struct blasfeo_dvec *ls, struct blasfeo_dvec *us, struct blasfeo_dvec *x, struct blasfeo_dvec *pi, struct blasfeo_dvec *lam_lb, struct blasfeo_dvec *lam_ub, struct blasfeo_dvec *lam_lg, struct blasfeo_dvec *lam_ug, struct blasfeo_dvec *lam_ls, struct blasfeo_dvec *lam_us);
 //
-void d_cvt_ocp_qp_sol_to_colmaj_x(struct d_ocp_qp_sol *qp_sol, double *vec, int stage);
+void d_cvt_ocp_qp_sol_to_colmaj_u(int stage, struct d_ocp_qp_sol *qp_sol, double *vec);
 //
-void d_cvt_ocp_qp_sol_to_colmaj_u(struct d_ocp_qp_sol *qp_sol, double *vec, int stage);
+void d_cvt_ocp_qp_sol_to_colmaj_x(int stage, struct d_ocp_qp_sol *qp_sol, double *vec);
 //
-void d_cvt_ocp_qp_sol_to_colmaj_pi(struct d_ocp_qp_sol *qp_sol, double *vec, int stage);
+void d_cvt_ocp_qp_sol_to_colmaj_pi(int stage, struct d_ocp_qp_sol *qp_sol, double *vec);
 //
-void d_cvt_ocp_qp_sol_to_colmaj_lam_lb(struct d_ocp_qp_sol *qp_sol, double *vec, int stage);
+void d_cvt_ocp_qp_sol_to_colmaj_lam_lb(int stage, struct d_ocp_qp_sol *qp_sol, double *vec);
 //
-void d_cvt_ocp_qp_sol_to_colmaj_lam_ub(struct d_ocp_qp_sol *qp_sol, double *vec, int stage);
+void d_cvt_ocp_qp_sol_to_colmaj_lam_ub(int stage, struct d_ocp_qp_sol *qp_sol, double *vec);
 //
-void d_cvt_ocp_qp_sol_to_colmaj_lam_lg(struct d_ocp_qp_sol *qp_sol, double *vec, int stage);
+void d_cvt_ocp_qp_sol_to_colmaj_lam_lg(int stage, struct d_ocp_qp_sol *qp_sol, double *vec);
 //
-void d_cvt_ocp_qp_sol_to_colmaj_lam_ug(struct d_ocp_qp_sol *qp_sol, double *vec, int stage);
+void d_cvt_ocp_qp_sol_to_colmaj_lam_ug(int stage, struct d_ocp_qp_sol *qp_sol, double *vec);
+//
+void d_cvt_colmaj_to_ocp_qp_sol_u(int stage, double *vec, struct d_ocp_qp_sol *qp_sol);
+//
+void d_cvt_colmaj_to_ocp_qp_sol_x(int stage, double *vec, struct d_ocp_qp_sol *qp_sol);
+//
+void d_cvt_colmaj_to_ocp_qp_sol_sl(int stage, double *vec, struct d_ocp_qp_sol *qp_sol);
+//
+void d_cvt_colmaj_to_ocp_qp_sol_su(int stage, double *vec, struct d_ocp_qp_sol *qp_sol);
 
-// interface functions
-int d_sizeof_ocp_qp_sol();
+
 
 #ifdef __cplusplus
 }	// #extern "C"

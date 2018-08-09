@@ -132,6 +132,8 @@ void s_set_ocp_qp_ipm_arg_tol_ineq(float tol_ineq, struct s_ocp_qp_ipm_arg *arg)
 void s_set_ocp_qp_ipm_arg_tol_comp(float tol_comp, struct s_ocp_qp_ipm_arg *arg);
 //
 void s_set_ocp_qp_ipm_arg_reg_prim(float tol_comp, struct s_ocp_qp_ipm_arg *arg);
+//
+void s_set_ocp_qp_ipm_arg_warm_start(int warm_start, struct s_ocp_qp_ipm_arg *arg);
 
 //
 int s_sizeof_ocp_qp_ipm_workspace();

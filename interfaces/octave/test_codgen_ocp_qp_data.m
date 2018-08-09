@@ -29,6 +29,7 @@ dims.ns(N+1) = dims.ng(N+1);
 
 %dims
 
+
 % data
 % 
 A = [1 1; 0 1];
@@ -78,6 +79,12 @@ zlN = [0; 0];
 zuN = [0; 0];
 %
 JsgN = [1 0; 0 1];
+
+%
+slN = [1; 1];
+%
+suN = [1; 1];
+
 
 % qp
 %
@@ -161,5 +168,16 @@ qp.Jsg{N+1} = JsgN;
 
 %qp
 
-codegen_ocp_qp_data(dims, qp);
+
+% sol_guess
+%
+sol_guess = create_ocp_qp_sol(dims);
+%
+sol_guess.sl{N+1} = slN;
+%
+sol_guess.su{N+1} = suN;
+
+
+% codgen data
+codegen_ocp_qp_data(dims, qp, sol_guess);
 

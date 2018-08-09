@@ -68,6 +68,10 @@ extern double **hzu;
 extern int **hidxs;
 extern double **hlls;
 extern double **hlus;
+extern double **hu_guess;
+extern double **hx_guess;
+extern double **hsl_guess;
+extern double **hsu_guess;
 
 
 
@@ -140,6 +144,7 @@ int main()
 	d_set_ocp_qp_ipm_arg_tol_ineq(1e-5, &arg);
 	d_set_ocp_qp_ipm_arg_tol_comp(1e-5, &arg);
 	d_set_ocp_qp_ipm_arg_reg_prim(1e-12, &arg);
+	d_set_ocp_qp_ipm_arg_warm_start(0, &arg);
 
 /************************************************
 * ipm workspace
@@ -159,6 +164,17 @@ int main()
 
 	for(rep=0; rep<nrep; rep++)
 		{
+		// solution guess
+		for(ii=0; ii<=N; ii++)
+			d_cvt_colmaj_to_ocp_qp_sol_u(ii, hu_guess[ii], &qp_sol);
+		for(ii=0; ii<=N; ii++)
+			d_cvt_colmaj_to_ocp_qp_sol_x(ii, hx_guess[ii], &qp_sol);
+		for(ii=0; ii<=N; ii++)
+			d_cvt_colmaj_to_ocp_qp_sol_sl(ii, hsl_guess[ii], &qp_sol);
+		for(ii=0; ii<=N; ii++)
+			d_cvt_colmaj_to_ocp_qp_sol_su(ii, hsu_guess[ii], &qp_sol);
+
+		// call solver
 		hpipm_return = d_solve_ocp_qp_ipm(&qp, &qp_sol, &arg, &workspace);
 		}
 
@@ -210,7 +226,7 @@ int main()
 	printf("\nu = \n");
 	for(ii=0; ii<=N; ii++)
 		{
-		d_cvt_ocp_qp_sol_to_colmaj_u(&qp_sol, u, ii);
+		d_cvt_ocp_qp_sol_to_colmaj_u(ii, &qp_sol, u);
 		d_print_mat(1, nu[ii], u, 1);
 		}
 
@@ -226,7 +242,7 @@ int main()
 	printf("\nx = \n");
 	for(ii=0; ii<=N; ii++)
 		{
-		d_cvt_ocp_qp_sol_to_colmaj_x(&qp_sol, x, ii);
+		d_cvt_ocp_qp_sol_to_colmaj_x(ii, &qp_sol, x);
 		d_print_mat(1, nx[ii], x, 1);
 		}
 

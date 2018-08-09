@@ -53,22 +53,24 @@
 #define SIZE_STRVEC blasfeo_memsize_dvec
 #define VECCP_LIBSTR blasfeo_dveccp
 
+#define SIZEOF_OCP_QP_SOL d_sizeof_ocp_qp_sol
 #define CREATE_OCP_QP_SOL d_create_ocp_qp_sol
 #define MEMSIZE_OCP_QP_SOL d_memsize_ocp_qp_sol
 #define CVT_OCP_QP_SOL_TO_COLMAJ d_cvt_ocp_qp_sol_to_colmaj
 #define CVT_COLMAJ_TO_OCP_QP_SOL d_cvt_colmaj_to_ocp_qp_sol
 #define CVT_OCP_QP_SOL_TO_ROWMAJ d_cvt_ocp_qp_sol_to_rowmaj
 #define CVT_OCP_QP_SOL_TO_LIBSTR d_cvt_ocp_qp_sol_to_libstr
-#define CVT_OCP_QP_SOL_TO_COLMAJ_X d_cvt_ocp_qp_sol_to_colmaj_x
 #define CVT_OCP_QP_SOL_TO_COLMAJ_U d_cvt_ocp_qp_sol_to_colmaj_u
+#define CVT_OCP_QP_SOL_TO_COLMAJ_X d_cvt_ocp_qp_sol_to_colmaj_x
 #define CVT_OCP_QP_SOL_TO_COLMAJ_PI d_cvt_ocp_qp_sol_to_colmaj_pi
 #define CVT_OCP_QP_SOL_TO_COLMAJ_LAM_LB d_cvt_ocp_qp_sol_to_colmaj_lam_lb
 #define CVT_OCP_QP_SOL_TO_COLMAJ_LAM_UB d_cvt_ocp_qp_sol_to_colmaj_lam_ub
 #define CVT_OCP_QP_SOL_TO_COLMAJ_LAM_LG d_cvt_ocp_qp_sol_to_colmaj_lam_lg
 #define CVT_OCP_QP_SOL_TO_COLMAJ_LAM_UG d_cvt_ocp_qp_sol_to_colmaj_lam_ug
-
-// interface functions
-#define SIZEOF_OCP_QP_SOL d_sizeof_ocp_qp_sol
+#define CVT_COLMAJ_TO_OCP_QP_SOL_U d_cvt_colmaj_to_ocp_qp_sol_u
+#define CVT_COLMAJ_TO_OCP_QP_SOL_X d_cvt_colmaj_to_ocp_qp_sol_x
+#define CVT_COLMAJ_TO_OCP_QP_SOL_SL d_cvt_colmaj_to_ocp_qp_sol_sl
+#define CVT_COLMAJ_TO_OCP_QP_SOL_SU d_cvt_colmaj_to_ocp_qp_sol_su
 
 
 #include "x_ocp_qp_sol.c"

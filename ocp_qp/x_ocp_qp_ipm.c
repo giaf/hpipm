@@ -217,6 +217,14 @@ void SET_OCP_QP_IPM_ARG_REG_PRIM(REAL reg, struct OCP_QP_IPM_ARG *arg)
 
 
 
+void SET_OCP_QP_IPM_ARG_WARM_START(int warm_start, struct OCP_QP_IPM_ARG *arg)
+	{
+	arg->warm_start = warm_start;
+	return;
+	}
+
+
+
 int SIZEOF_OCP_QP_IPM_WORKSPACE()
 	{
 	return sizeof(struct OCP_QP_IPM_WORKSPACE);

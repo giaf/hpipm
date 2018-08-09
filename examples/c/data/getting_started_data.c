@@ -157,6 +157,34 @@ static double lus3[] = {};
 static double lus4[] = {};
 static double lus5[] = {0.000000000000000e+00, 0.000000000000000e+00, };
 
+static double u_guess0[] = {0.000000000000000e+00, };
+static double u_guess1[] = {0.000000000000000e+00, };
+static double u_guess2[] = {0.000000000000000e+00, };
+static double u_guess3[] = {0.000000000000000e+00, };
+static double u_guess4[] = {0.000000000000000e+00, };
+static double u_guess5[] = {};
+
+static double x_guess0[] = {0.000000000000000e+00, 0.000000000000000e+00, };
+static double x_guess1[] = {0.000000000000000e+00, 0.000000000000000e+00, };
+static double x_guess2[] = {0.000000000000000e+00, 0.000000000000000e+00, };
+static double x_guess3[] = {0.000000000000000e+00, 0.000000000000000e+00, };
+static double x_guess4[] = {0.000000000000000e+00, 0.000000000000000e+00, };
+static double x_guess5[] = {0.000000000000000e+00, 0.000000000000000e+00, };
+
+static double sl_guess0[] = {};
+static double sl_guess1[] = {};
+static double sl_guess2[] = {};
+static double sl_guess3[] = {};
+static double sl_guess4[] = {};
+static double sl_guess5[] = {1.000000000000000e+00, 1.000000000000000e+00, };
+
+static double su_guess0[] = {};
+static double su_guess1[] = {};
+static double su_guess2[] = {};
+static double su_guess3[] = {};
+static double su_guess4[] = {};
+static double su_guess5[] = {1.000000000000000e+00, 1.000000000000000e+00, };
+
 static double *AA[] = {A0, A1, A2, A3, A4};
 static double *BB[] = {B0, B1, B2, B3, B4};
 static double *bb[] = {b0, b1, b2, b3, b4};
@@ -179,6 +207,10 @@ static double *zzu[] = {zu0, zu1, zu2, zu3, zu4, zu5};
 static int *iidxs[] = {idxs0, idxs1, idxs2, idxs3, idxs4, idxs5};
 static double *llls[] = {lls0, lls1, lls2, lls3, lls4, lls5};
 static double *llus[] = {lus0, lus1, lus2, lus3, lus4, lus5};
+static double *uu_guess[] = {u_guess0, u_guess1, u_guess2, u_guess3, u_guess4, u_guess5};
+static double *xx_guess[] = {x_guess0, x_guess1, x_guess2, x_guess3, x_guess4, x_guess5};
+static double *ssl_guess[] = {sl_guess0, sl_guess1, sl_guess2, sl_guess3, sl_guess4, sl_guess5};
+static double *ssu_guess[] = {su_guess0, su_guess1, su_guess2, su_guess3, su_guess4, su_guess5};
 
 int *nu = nnu;
 int *nx = nnx;
@@ -208,3 +240,7 @@ double **hzu = zzu;
 int **hidxs = iidxs;
 double **hlls = llls;
 double **hlus = llus;
+double **hu_guess = uu_guess;
+double **hx_guess = xx_guess;
+double **hsl_guess = ssl_guess;
+double **hsu_guess = ssu_guess;

@@ -305,7 +305,7 @@ int main()
 	printf("\nu = \n");
 	for(ii=0; ii<=N; ii++)
 		{
-		d_cvt_ocp_qp_sol_to_colmaj_u(&qp_sol, u, ii);
+		d_cvt_ocp_qp_sol_to_colmaj_u(ii, &qp_sol, u);
 		d_print_mat(1, nu[ii], u, 1);
 		}
 
@@ -321,7 +321,7 @@ int main()
 	printf("\nx = \n");
 	for(ii=0; ii<=N; ii++)
 		{
-		d_cvt_ocp_qp_sol_to_colmaj_x(&qp_sol, x, ii);
+		d_cvt_ocp_qp_sol_to_colmaj_x(ii, &qp_sol, x);
 		d_print_mat(1, nx[ii], x, 1);
 		}
 

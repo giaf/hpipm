@@ -25,7 +25,7 @@
 %                                                                                                 %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-function codegen_ocp_qp_data( dims, qp );
+function codegen_ocp_qp_data( dims, qp, sol_guess );
 
 
 % filename
@@ -312,6 +312,43 @@ for ii=1:N+1
 end
 fprintf(fid, "\n");
 
+% u_guess
+for ii=1:N+1
+	fprintf(fid, "static double u_guess%d[] = {", ii-1);
+	for jj=1:nu(ii)
+		fprintf(fid, "%18.15e, ", sol_guess.u{ii}(jj));
+	end
+	fprintf(fid, "};\n");
+end
+fprintf(fid, "\n");
+% x_guess
+for ii=1:N+1
+	fprintf(fid, "static double x_guess%d[] = {", ii-1);
+	for jj=1:nx(ii)
+		fprintf(fid, "%18.15e, ", sol_guess.x{ii}(jj));
+	end
+	fprintf(fid, "};\n");
+end
+fprintf(fid, "\n");
+% sl_guess
+for ii=1:N+1
+	fprintf(fid, "static double sl_guess%d[] = {", ii-1);
+	for jj=1:ns(ii)
+		fprintf(fid, "%18.15e, ", sol_guess.sl{ii}(jj));
+	end
+	fprintf(fid, "};\n");
+end
+fprintf(fid, "\n");
+% su_guess
+for ii=1:N+1
+	fprintf(fid, "static double su_guess%d[] = {", ii-1);
+	for jj=1:ns(ii)
+		fprintf(fid, "%18.15e, ", sol_guess.su{ii}(jj));
+	end
+	fprintf(fid, "};\n");
+end
+fprintf(fid, "\n");
+
 
 
 % AA
@@ -447,6 +484,31 @@ for ii=1:N
 end
 fprintf(fid, "lus%d};\n", ii);
 
+% uu_guess
+fprintf(fid, "static double *uu_guess[] = {");
+for ii=1:N
+	fprintf(fid, "u_guess%d, ", ii-1);
+end
+fprintf(fid, "u_guess%d};\n", ii);
+% xx_guess
+fprintf(fid, "static double *xx_guess[] = {");
+for ii=1:N
+	fprintf(fid, "x_guess%d, ", ii-1);
+end
+fprintf(fid, "x_guess%d};\n", ii);
+% ssl_guess
+fprintf(fid, "static double *ssl_guess[] = {");
+for ii=1:N
+	fprintf(fid, "sl_guess%d, ", ii-1);
+end
+fprintf(fid, "sl_guess%d};\n", ii);
+% ssu_guess
+fprintf(fid, "static double *ssu_guess[] = {");
+for ii=1:N
+	fprintf(fid, "su_guess%d, ", ii-1);
+end
+fprintf(fid, "su_guess%d};\n", ii);
+
 
 
 fprintf(fid, "\n");
@@ -482,6 +544,10 @@ fprintf(fid, "double **hzu = zzu;\n");
 fprintf(fid, "int **hidxs = iidxs;\n");
 fprintf(fid, "double **hlls = llls;\n");
 fprintf(fid, "double **hlus = llus;\n");
+fprintf(fid, "double **hu_guess = uu_guess;\n");
+fprintf(fid, "double **hx_guess = xx_guess;\n");
+fprintf(fid, "double **hsl_guess = ssl_guess;\n");
+fprintf(fid, "double **hsu_guess = ssu_guess;\n");
 
 
 
