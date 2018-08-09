@@ -358,6 +358,7 @@ void d_update_var_qp(struct d_core_qp_ipm_workspace *cws)
 	// update pi
 	for(ii=0; ii<ne; ii++)
 		{
+//		pi[ii] += alpha_prim * dpi[ii];
 		pi[ii] += alpha_dual * dpi[ii];
 		}
 
@@ -365,12 +366,14 @@ void d_update_var_qp(struct d_core_qp_ipm_workspace *cws)
 	for(ii=0; ii<nc; ii++)
 		{
 		lam[ii] += alpha_dual * dlam[ii];
+		lam[ii] = lam[ii]<=cws->lam_min ? cws->lam_min : lam[ii];
 		}
 
 	// update t
 	for(ii=0; ii<nc; ii++)
 		{
 		t[ii] += alpha_prim * dt[ii];
+		t[ii] = t[ii]<=cws->t_min ? cws->t_min : t[ii];
 		}
 
 #endif

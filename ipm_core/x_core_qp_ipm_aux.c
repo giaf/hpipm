@@ -259,12 +259,14 @@ void UPDATE_VAR_QP(struct CORE_QP_IPM_WORKSPACE *cws)
 	for(ii=0; ii<nc; ii++)
 		{
 		lam[ii] += alpha_dual * dlam[ii];
+		lam[ii] = lam[ii]<=cws->lam_min ? cws->lam_min : lam[ii];
 		}
 
 	// update t
 	for(ii=0; ii<nc; ii++)
 		{
 		t[ii] += alpha_prim * dt[ii];
+		t[ii] = t[ii]<=cws->t_min ? cws->t_min : t[ii];
 		}
 
 #endif
