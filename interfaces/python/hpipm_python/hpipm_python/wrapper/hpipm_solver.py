@@ -1,6 +1,9 @@
 from ctypes import *
 import ctypes.util 
 import numpy as np
+import faulthandler
+
+faulthandler.enable()
 
 class hpipm_solver:
     def __init__(self, qp_dims, qp_data):
@@ -301,7 +304,7 @@ def hpipm_solve(qp_dims, qp_data):
         cast(ng.ctypes.data, POINTER(c_int)), 
         cast(ns.ctypes.data, POINTER(c_int)), 
         dim)
-    
+
     A = (POINTER(c_double)*(N))()
     B = (POINTER(c_double)*(N))()
     b = (POINTER(c_double)*(N))()  
