@@ -98,9 +98,11 @@
 #define TRSV_LTN_MN blasfeo_dtrsv_ltn_mn
 #define VECAD_SP blasfeo_dvecad_sp
 #define VECCP blasfeo_dveccp
+#define VECCPSC blasfeo_dveccpsc
 #define VECEX_SP blasfeo_dvecex_sp
 #define VECMULDOT blasfeo_dvecmuldot
 #define VECMULACC blasfeo_dvecmulacc
+#define VECSC blasfeo_dvecsc
 #define VECSC blasfeo_dvecsc
 
 

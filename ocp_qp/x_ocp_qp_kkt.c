@@ -46,10 +46,11 @@ void INIT_VAR_OCP_QP(struct OCP_QP *qp, struct OCP_QP_SOL *qp_sol, struct OCP_QP
 	REAL mu0 = arg->mu0;
 
 	//
-	REAL *ux, *pi, *d_lb, *d_ub, *d_lg, *d_ug, *lam_lb, *lam_ub, *lam_lg, *lam_ug, *t_lb, *t_ub, *t_lg, *t_ug;
-	int *idxb;
+	REAL *ux, *s, *pi, *d_lb, *d_ub, *d_lg, *d_ug, *d_ls, *lam_lb, *lam_ub, *lam_lg, *lam_ug, *lam_ls, *t_lb, *t_ub, *t_lg, *t_ug, *t_ls;
+	int *idxb, *idxs;
+	int idx;
 
-	REAL thr0 = 0.1;
+	REAL thr0 = 1e-1;
 
 	// ux
 	if(arg->warm_start==0)
@@ -91,6 +92,10 @@ void INIT_VAR_OCP_QP(struct OCP_QP *qp, struct OCP_QP_SOL *qp_sol, struct OCP_QP
 			}
 		}
 
+#if 0 // old version
+
+
+
 	// box constraints
 	for(ii=0; ii<=N; ii++)
 		{
@@ -107,11 +112,13 @@ void INIT_VAR_OCP_QP(struct OCP_QP *qp, struct OCP_QP_SOL *qp_sol, struct OCP_QP
 #if 1
 			t_lb[jj] = - d_lb[jj] + ux[idxb[jj]];
 			t_ub[jj] = - d_ub[jj] - ux[idxb[jj]];
+//			printf("\n%d %f %f\n", jj, t_lb[jj], t_ub[jj]);
 			if(t_lb[jj]<thr0)
 				{
 				if(t_ub[jj]<thr0)
 					{
-					ux[idxb[jj]] = 0.5*(d_lb[jj] + d_ub[jj]);
+//					ux[idxb[jj]] = 0.5*(d_lb[jj] + d_ub[jj]);
+					ux[idxb[jj]] = 0.5*(d_lb[jj] - d_ub[jj]);
 					t_lb[jj] = thr0;
 					t_ub[jj] = thr0;
 					}
@@ -133,6 +140,12 @@ void INIT_VAR_OCP_QP(struct OCP_QP *qp, struct OCP_QP_SOL *qp_sol, struct OCP_QP
 			lam_lb[jj] = mu0/t_lb[jj];
 			lam_ub[jj] = mu0/t_ub[jj];
 			}
+//		blasfeo_print_tran_dvec(nb[ii], qp->d+ii, 0);
+//		blasfeo_print_tran_dvec(nb[ii], qp->d+ii, nb[ii]+ng[ii]);
+//		blasfeo_print_tran_dvec(nu[ii]+nx[ii], qp_sol->ux+ii, 0);
+//		blasfeo_print_tran_dvec(nb[ii], qp_sol->t+ii, 0);
+//		blasfeo_print_tran_dvec(nb[ii], qp_sol->t+ii, nb[ii]+ng[ii]);
+//		exit(1);
 		}
 	
 	// general constraints
@@ -176,10 +189,157 @@ void INIT_VAR_OCP_QP(struct OCP_QP *qp, struct OCP_QP_SOL *qp_sol, struct OCP_QP
 			{
 			t_lb[jj] = 1.0; // thr0;
 			t_ub[jj] = 1.0; // thr0;
+//			t_lb[jj] = sqrt(mu0); // thr0;
+//			t_ub[jj] = sqrt(mu0); // thr0;
 			lam_lb[jj] = mu0/t_lb[jj];
 			lam_ub[jj] = mu0/t_ub[jj];
 			}
 		}
+
+
+
+#else // new version
+
+
+
+	for(ii=0; ii<=N; ii++)
+		{
+
+//		printf("\nii = %d\n", ii);
+
+		ux = qp_sol->ux[ii].pa;
+		s = qp_sol->ux[ii].pa+nu[ii]+nx[ii];
+		d_lb = qp->d[ii].pa+0;
+		d_ub = qp->d[ii].pa+nb[ii]+ng[ii];
+		d_lg = qp->d[ii].pa+nb[ii];
+		d_ug = qp->d[ii].pa+2*nb[ii]+ng[ii];
+		d_ls = qp->d[ii].pa+2*nb[ii]+2*ng[ii];
+		lam_lb = qp_sol->lam[ii].pa+0;
+		lam_ub = qp_sol->lam[ii].pa+nb[ii]+ng[ii];
+		lam_lg = qp_sol->lam[ii].pa+nb[ii];
+		lam_ug = qp_sol->lam[ii].pa+2*nb[ii]+ng[ii];
+		lam_ls = qp_sol->lam[ii].pa+2*nb[ii]+2*ng[ii];
+		t_lb = qp_sol->t[ii].pa+0;
+		t_ub = qp_sol->t[ii].pa+nb[ii]+ng[ii];
+		t_lg = qp_sol->t[ii].pa+nb[ii];
+		t_ug = qp_sol->t[ii].pa+2*nb[ii]+ng[ii];
+		t_ls = qp_sol->t[ii].pa+2*nb[ii]+2*ng[ii];
+		idxb = qp->idxb[ii];
+		idxs = qp->idxs[ii];
+
+		// lower bound on slacks
+		AXPY(2*ns[ii], -1.0, qp->d+ii, 2*nb[ii]+2*ng[ii], qp_sol->ux+ii, nu[ii]+nx[ii], qp_sol->t+ii, 2*nb[ii]+2*ng[ii]);
+		for(jj=0; jj<2*ns[ii]; jj++)
+			{
+#if 1
+			if(t_ls[jj]<thr0)
+				{
+				t_ls[jj] = thr0; //1.0;
+				s[jj] = d_ls[jj] + t_ls[jj];
+				}
+#else
+			t_ls[jj] = 1.0;
+//			t_ls[jj] = sqrt(mu0);
+#endif
+			}
+//		blasfeo_print_tran_dvec(2*ns[ii], qp_sol->ux+ii, nu[ii]+nx[ii]);
+//		blasfeo_print_tran_dvec(2*ns[ii], qp_sol->t+ii, 2*nb[ii]+2*ng[ii]);
+
+		// upper and lower bounds on inputs and states
+		VECEX_SP(nb[ii], 1.0, qp->idxb[ii], qp_sol->ux+ii, 0, qp_sol->t+ii, 0);
+		VECCPSC(nb[ii], -1.0, qp_sol->t+ii, 0, qp_sol->t+ii, nb[ii]+ng[ii]);
+		for(jj=0; jj<ns[ii]; jj++)
+			{
+			idx = idxs[jj];
+			if(idx<nb[ii])
+				{
+				// softed bound
+				t_lb[idx] += s[jj];
+				t_ub[idx] += s[ns[ii]+jj];
+				}
+			}
+		AXPY(nb[ii], -1.0, qp->d+ii, 0, qp_sol->t+ii, 0, qp_sol->t+ii, 0);
+		AXPY(nb[ii], -1.0, qp->d+ii, nb[ii]+ng[ii], qp_sol->t+ii, nb[ii]+ng[ii], qp_sol->t+ii, nb[ii]+ng[ii]);
+//		blasfeo_print_tran_dvec(nb[ii], qp_sol->t+ii, 0);
+//		blasfeo_print_tran_dvec(nb[ii], qp_sol->t+ii, nb[ii]+ng[ii]);
+		for(jj=0; jj<nb[ii]; jj++)
+			{
+#if 1
+			if(t_lb[jj]<thr0)
+				{
+				if(t_ub[jj]<thr0)
+					{
+//					ux[idxb[jj]] = 0.5*(d_lb[jj] + d_ub[jj]);
+					ux[idxb[jj]] = 0.5*(d_lb[jj] - d_ub[jj]);
+					t_lb[jj] = thr0;
+					t_ub[jj] = thr0;
+					}
+				else
+					{
+					t_lb[jj] = thr0;
+					ux[idxb[jj]] = d_lb[jj] + thr0;
+					}
+				}
+			else if(t_ub[jj]<thr0)
+				{
+				t_ub[jj] = thr0;
+				ux[idxb[jj]] = - d_ub[jj] - thr0;
+				}
+#else
+			t_lb[jj] = 1.0;
+			t_ub[jj] = 1.0;
+#endif
+			}
+//		blasfeo_print_tran_dvec(nu[ii]+nx[ii], qp_sol->ux+ii, 0);
+//		blasfeo_print_tran_dvec(nb[ii], qp_sol->t+ii, 0);
+//		blasfeo_print_tran_dvec(nb[ii], qp_sol->t+ii, nb[ii]+ng[ii]);
+
+		// upper and lower general constaints
+		GEMV_T(nu[ii]+nx[ii], ng[ii], 1.0, qp->DCt+ii, 0, 0, qp_sol->ux+ii, 0, 0.0, qp_sol->t+ii, nb[ii], qp_sol->t+ii, nb[ii]);
+		VECCPSC(ng[ii], -1.0, qp_sol->t+ii, nb[ii], qp_sol->t+ii, 2*nb[ii]+ng[ii]);
+//		blasfeo_print_tran_dvec(ng[ii], qp_sol->t+ii, nb[ii]);
+//		blasfeo_print_tran_dvec(ng[ii], qp_sol->t+ii, 2*nb[ii]+ng[ii]);
+		for(jj=0; jj<ns[ii]; jj++)
+			{
+			idx = idxs[jj];
+			if(idx>=nb[ii])
+				{
+				// softed general constraint
+				idx -= nb[ii];
+				t_lg[idx] += s[jj];
+				t_ug[idx] += s[ns[ii]+jj];
+				}
+			}
+//		blasfeo_print_tran_dvec(ng[ii], qp_sol->t+ii, nb[ii]);
+//		blasfeo_print_tran_dvec(ng[ii], qp_sol->t+ii, 2*nb[ii]+ng[ii]);
+		AXPY(ng[ii], -1.0, qp->d+ii, nb[ii], qp_sol->t+ii, nb[ii], qp_sol->t+ii, nb[ii]);
+		AXPY(ng[ii], -1.0, qp->d+ii, 2*nb[ii]+ng[ii], qp_sol->t+ii, 2*nb[ii]+ng[ii], qp_sol->t+ii, 2*nb[ii]+ng[ii]);
+		for(jj=0; jj<ng[ii]; jj++)
+			{
+#if 1
+			t_lg[jj] = thr0>t_lg[jj] ? thr0 : t_lg[jj];
+			t_ug[jj] = thr0>t_ug[jj] ? thr0 : t_ug[jj];
+#else
+			t_lg[jj] = 1.0;
+			t_ug[jj] = 1.0;
+#endif
+			}
+//		blasfeo_print_tran_dvec(ng[ii], qp_sol->t+ii, nb[ii]);
+//		blasfeo_print_tran_dvec(ng[ii], qp_sol->t+ii, 2*nb[ii]+ng[ii]);
+
+		// multipliers
+		for(jj=0; jj<2*nb[ii]+2*ng[ii]+2*ns[ii]; jj++)
+			lam_lb[jj] = mu0/t_lb[jj];
+
+		}
+
+//	exit(1);
+
+
+
+#endif // new version
+
+
 
 	return;
 
