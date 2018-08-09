@@ -17,9 +17,9 @@ class hpipm_solver:
         nbu  = np.ascontiguousarray(qp_dims.nbu, dtype=np.int32)
         ng   = np.ascontiguousarray(qp_dims.ng,  dtype=np.int32)
         ns   = np.ascontiguousarray(qp_dims.ns,  dtype=np.int32)
-        nsbx = np.ascontiguousarray(qp_dims.nsbx,  dtype=np.int32)
-        nsbu = np.ascontiguousarray(qp_dims.nsbu,  dtype=np.int32)
-        nsg  = np.ascontiguousarray(qp_dims.nsg,  dtype=np.int32)
+#        nsbx = np.ascontiguousarray(qp_dims.nsbx,  dtype=np.int32)
+#        nsbu = np.ascontiguousarray(qp_dims.nsbu,  dtype=np.int32)
+#        nsg  = np.ascontiguousarray(qp_dims.nsg,  dtype=np.int32)
         N    = qp_dims.N
 
         # allocate memory for dimemsions struct
@@ -39,9 +39,10 @@ class hpipm_solver:
             cast(nbx.ctypes.data, POINTER(c_double)), 
             cast(nbu.ctypes.data, POINTER(c_double)), 
             cast(ng.ctypes.data, POINTER(c_double)), 
-            cast(nsbx.ctypes.data, POINTER(c_double)), 
-            cast(nsbu.ctypes.data, POINTER(c_double)), 
-            cast(nsg.ctypes.data, POINTER(c_double)), 
+            cast(ns.ctypes.data, POINTER(c_double)), 
+#            cast(nsbx.ctypes.data, POINTER(c_double)), 
+#            cast(nsbu.ctypes.data, POINTER(c_double)), 
+#            cast(nsg.ctypes.data, POINTER(c_double)), 
             dim)
         
         A = (POINTER(c_double)*(N))()
@@ -269,6 +270,8 @@ class hpipm_solver:
         self.__hpipm.d_print_ocp_qp_sol(self.ocp_qp_sol, self.ocp_qp_dim)
         return 
 
+
+
 def hpipm_solve(qp_dims, qp_data):
     # load blasfeo and hpipm shared libraries
     __blasfeo = CDLL('libblasfeo.so')
@@ -283,9 +286,9 @@ def hpipm_solve(qp_dims, qp_data):
     nbu  = np.ascontiguousarray(qp_dims.nbu, dtype=np.int32)
     ng   = np.ascontiguousarray(qp_dims.ng,  dtype=np.int32)
     ns   = np.ascontiguousarray(qp_dims.ns,  dtype=np.int32)
-    nsbx = np.ascontiguousarray(qp_dims.nsbx,  dtype=np.int32)
-    nsbu = np.ascontiguousarray(qp_dims.nsbu,  dtype=np.int32)
-    nsg  = np.ascontiguousarray(qp_dims.nsg,  dtype=np.int32)
+#    nsbx = np.ascontiguousarray(qp_dims.nsbx,  dtype=np.int32)
+#    nsbu = np.ascontiguousarray(qp_dims.nsbu,  dtype=np.int32)
+#    nsg  = np.ascontiguousarray(qp_dims.nsg,  dtype=np.int32)
     N    = qp_dims.N
 
     # allocate memory for dimemsions struct
@@ -305,9 +308,10 @@ def hpipm_solve(qp_dims, qp_data):
         cast(nbx.ctypes.data, POINTER(c_int)), 
         cast(nbu.ctypes.data, POINTER(c_int)), 
         cast(ng.ctypes.data, POINTER(c_int)), 
-        cast(nsbx.ctypes.data, POINTER(c_int)), 
-        cast(nsbu.ctypes.data, POINTER(c_int)), 
-        cast(nsg.ctypes.data, POINTER(c_int)), 
+        cast(ns.ctypes.data, POINTER(c_int)), 
+#        cast(nsbx.ctypes.data, POINTER(c_int)), 
+#        cast(nsbu.ctypes.data, POINTER(c_int)), 
+#        cast(nsg.ctypes.data, POINTER(c_int)), 
         dim)
     
     A = (POINTER(c_double)*(N))()
@@ -521,6 +525,8 @@ def hpipm_solve(qp_dims, qp_data):
     return __hpipm.d_solve_ocp_qp_ipm(qp, qp_sol, 
         arg, workspace)
 
+
+
 class hpipm_dims:
     def __init__(self):
         self.nx   = None
@@ -535,6 +541,7 @@ class hpipm_dims:
         self.nsg  = None
         
         self.N    = None
+
 
 
 class hpipm_data:
@@ -572,6 +579,8 @@ class hpipm_data:
         self.idxs = None
 
         self.x0   = None
+
+
 
 class hpipm_sol:
     def __init__(self):

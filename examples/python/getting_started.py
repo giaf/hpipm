@@ -39,9 +39,9 @@ qp_dims.nbx  = np.array([2, 0, 0, 0, 0, 0])
 qp_dims.nbu  = np.array([0, 0, 0, 0, 0, 0])
 qp_dims.ng   = np.array([0, 0, 0, 0, 0, 0])
 qp_dims.ns   = np.array([0, 0, 0, 0, 0, 0])
-qp_dims.nsbx = np.array([0, 0, 0, 0, 0, 0])
-qp_dims.nsbu = np.array([0, 0, 0, 0, 0, 0])
-qp_dims.nsg  = np.array([0, 0, 0, 0, 0, 0])
+#qp_dims.nsbx = np.array([0, 0, 0, 0, 0, 0])
+#qp_dims.nsbu = np.array([0, 0, 0, 0, 0, 0])
+#qp_dims.nsg  = np.array([0, 0, 0, 0, 0, 0])
 qp_dims.N    = 5
 
 # set up solver
