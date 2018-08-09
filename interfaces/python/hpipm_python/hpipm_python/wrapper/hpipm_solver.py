@@ -1,6 +1,9 @@
 from ctypes import *
 import ctypes.util 
 import numpy as np
+import faulthandler
+
+faulthandler.enable()
 
 class hpipm_solver:
     def __init__(self, qp_dims, qp_data):
@@ -17,9 +20,6 @@ class hpipm_solver:
         nbu  = np.ascontiguousarray(qp_dims.nbu, dtype=np.int32)
         ng   = np.ascontiguousarray(qp_dims.ng,  dtype=np.int32)
         ns   = np.ascontiguousarray(qp_dims.ns,  dtype=np.int32)
-#        nsbx = np.ascontiguousarray(qp_dims.nsbx,  dtype=np.int32)
-#        nsbu = np.ascontiguousarray(qp_dims.nsbu,  dtype=np.int32)
-#        nsg  = np.ascontiguousarray(qp_dims.nsg,  dtype=np.int32)
         N    = qp_dims.N
 
         # allocate memory for dimemsions struct
@@ -40,9 +40,6 @@ class hpipm_solver:
             cast(nbu.ctypes.data, POINTER(c_double)), 
             cast(ng.ctypes.data, POINTER(c_double)), 
             cast(ns.ctypes.data, POINTER(c_double)), 
-#            cast(nsbx.ctypes.data, POINTER(c_double)), 
-#            cast(nsbu.ctypes.data, POINTER(c_double)), 
-#            cast(nsg.ctypes.data, POINTER(c_double)), 
             dim)
         
         A = (POINTER(c_double)*(N))()
@@ -286,9 +283,6 @@ def hpipm_solve(qp_dims, qp_data):
     nbu  = np.ascontiguousarray(qp_dims.nbu, dtype=np.int32)
     ng   = np.ascontiguousarray(qp_dims.ng,  dtype=np.int32)
     ns   = np.ascontiguousarray(qp_dims.ns,  dtype=np.int32)
-#    nsbx = np.ascontiguousarray(qp_dims.nsbx,  dtype=np.int32)
-#    nsbu = np.ascontiguousarray(qp_dims.nsbu,  dtype=np.int32)
-#    nsg  = np.ascontiguousarray(qp_dims.nsg,  dtype=np.int32)
     N    = qp_dims.N
 
     # allocate memory for dimemsions struct
@@ -309,11 +303,8 @@ def hpipm_solve(qp_dims, qp_data):
         cast(nbu.ctypes.data, POINTER(c_int)), 
         cast(ng.ctypes.data, POINTER(c_int)), 
         cast(ns.ctypes.data, POINTER(c_int)), 
-#        cast(nsbx.ctypes.data, POINTER(c_int)), 
-#        cast(nsbu.ctypes.data, POINTER(c_int)), 
-#        cast(nsg.ctypes.data, POINTER(c_int)), 
         dim)
-    
+
     A = (POINTER(c_double)*(N))()
     B = (POINTER(c_double)*(N))()
     b = (POINTER(c_double)*(N))()  
