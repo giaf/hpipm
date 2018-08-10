@@ -2,6 +2,27 @@ from hpipm_python import *
 from hpipm_python.common import *
 import numpy as np
 
+
+
+# dims
+qp_dims = hpipm_dims(5)
+
+qp_dims.set_nx(np.array([2, 2, 2, 2, 2, 2]))
+qp_dims.set_nu(np.array([1, 1, 1, 1, 1]))
+qp_dims.set_nbx(2, 0)
+#qp_dims.set_nbu(np.array([0, 0, 0, 0, 0, 0]))
+#qp_dims.set_ng(np.array([0, 0, 0, 0, 0, 0]))
+#qp_dims.set_ns(np.array([0, 0, 0, 0, 0, 0]))
+
+print(qp_dims.nx)
+print(qp_dims.nu)
+print(qp_dims.nbx)
+print(qp_dims.nbu)
+print(qp_dims.ng)
+print(qp_dims.ns)
+
+
+
 qp_data = hpipm_data()
 
 A = np.array([1, 0, 1, 1])
@@ -29,17 +50,6 @@ qp_data.d_lb = [x0]
 qp_data.d_ub = [x0]
 
 qp_data.idxb = [np.array([1, 2])]
-
-qp_dims = hpipm_dims()
-
-qp_dims.nx   = np.array([2, 2, 2, 2, 2, 2])
-qp_dims.nu   = np.array([1, 1, 1, 1, 1, 0])
-qp_dims.nb   = np.array([2, 0, 0, 0, 0, 0])
-qp_dims.nbx  = np.array([2, 0, 0, 0, 0, 0])
-qp_dims.nbu  = np.array([0, 0, 0, 0, 0, 0])
-qp_dims.ng   = np.array([0, 0, 0, 0, 0, 0])
-qp_dims.ns   = np.array([0, 0, 0, 0, 0, 0])
-qp_dims.N    = 5
 
 # set up solver
 solver = hpipm_solver(qp_dims, qp_data)

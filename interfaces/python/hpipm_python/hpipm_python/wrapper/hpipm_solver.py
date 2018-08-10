@@ -13,14 +13,13 @@ class hpipm_solver:
         __hpipm   = CDLL('libhpipm.so')
         
         # cast dimensions to contiguous int
+        N    = qp_dims.N
         nx   = np.ascontiguousarray(qp_dims.nx,  dtype=np.int32)
         nu   = np.ascontiguousarray(qp_dims.nu,  dtype=np.int32)
-        nb   = np.ascontiguousarray(qp_dims.nb,  dtype=np.int32)
         nbx  = np.ascontiguousarray(qp_dims.nbx, dtype=np.int32)
         nbu  = np.ascontiguousarray(qp_dims.nbu, dtype=np.int32)
         ng   = np.ascontiguousarray(qp_dims.ng,  dtype=np.int32)
         ns   = np.ascontiguousarray(qp_dims.ns,  dtype=np.int32)
-        N    = qp_dims.N
 
         # allocate memory for dimemsions struct
         sizeof_d_ocp_qp_dim = __hpipm.d_sizeof_ocp_qp_dim()
@@ -98,7 +97,7 @@ class hpipm_solver:
             r[i] = cast(qp_data.r[i].ctypes.data, POINTER(c_double))
 
             # simple bounds
-            if qp_dims.nb[i] > 0:
+            if qp_dims.nbx[i]+qp_dims.nbu[i] > 0:
                 qp_data.d_lb[i] = np.ascontiguousarray(qp_data.d_lb[i], dtype=np.float64)
                 d_lb[i] = cast(qp_data.d_lb[i].ctypes.data, POINTER(c_double))
                 qp_data.d_ub[i] = np.ascontiguousarray(qp_data.d_ub[i], dtype=np.float64)
@@ -157,7 +156,7 @@ class hpipm_solver:
         r[i] = cast(qp_data.r[i].ctypes.data, POINTER(c_double))
 
         # simple bounds
-        if qp_dims.nb[i] > 0:
+        if qp_dims.nbx[i]+qp_dims.nbu[i] > 0:
             qp_data.d_lb[i] = np.ascontiguousarray(qp_data.d_lb[i], dtype=np.float64)
             d_lb[i] = cast(qp_data.d_lb[i].ctypes.data, POINTER(c_double))
             qp_data.d_ub[i] = np.ascontiguousarray(qp_data.d_ub[i], dtype=np.float64)
@@ -278,7 +277,6 @@ def hpipm_solve(qp_dims, qp_data):
     # TODO(andrea): int32 might not be portable to Windows
     nx   = np.ascontiguousarray(qp_dims.nx,  dtype=np.int32)
     nu   = np.ascontiguousarray(qp_dims.nu,  dtype=np.int32)
-    nb   = np.ascontiguousarray(qp_dims.nb,  dtype=np.int32)
     nbx  = np.ascontiguousarray(qp_dims.nbx, dtype=np.int32)
     nbu  = np.ascontiguousarray(qp_dims.nbu, dtype=np.int32)
     ng   = np.ascontiguousarray(qp_dims.ng,  dtype=np.int32)
@@ -361,7 +359,7 @@ def hpipm_solve(qp_dims, qp_data):
         r[i] = cast(qp_data.r[i].ctypes.data, POINTER(c_double))
 
         # simple bounds
-        if qp_dims.nb[i] > 0:
+        if qp_dims.nbx[i]+qp_dims.nbu[i] > 0:
             qp_data.d_lb[i] = np.ascontiguousarray(qp_data.d_lb[i], dtype=np.float64)
             d_lb[i] = cast(qp_data.d_lb[i].ctypes.data, POINTER(c_double))
             qp_data.d_ub[i] = np.ascontiguousarray(qp_data.d_ub[i], dtype=np.float64)
@@ -420,7 +418,7 @@ def hpipm_solve(qp_dims, qp_data):
     r[i] = cast(qp_data.r[i].ctypes.data, POINTER(c_double))
 
     # simple bounds
-    if qp_dims.nb[i] > 0:
+    if qp_dims.nbx[i]+qp_dims.nbu[i] > 0:
         qp_data.d_lb[i] = np.ascontiguousarray(qp_data.d_lb[i], dtype=np.float64)
         d_lb[i] = cast(qp_data.d_lb[i].ctypes.data, POINTER(c_double))
         qp_data.d_ub[i] = np.ascontiguousarray(qp_data.d_ub[i], dtype=np.float64)
@@ -519,57 +517,100 @@ def hpipm_solve(qp_dims, qp_data):
 
 
 class hpipm_dims:
-    def __init__(self):
-        self.nx   = None
-        self.nu   = None
-        self.nb   = None
-        self.nbx  = None
-        self.nbu  = None
-        self.ng   = None
-        self.ns   = None
-        self.nsbx = None
-        self.nsbu = None
-        self.nsg  = None
-        
-        self.N    = None
+	def __init__(self, N):
+		self.N    = N
+		self.nx   = np.zeros(N+1, dtype=int)
+		self.nu   = np.zeros(N+1, dtype=int)
+		self.nbx  = np.zeros(N+1, dtype=int)
+		self.nbu  = np.zeros(N+1, dtype=int)
+		self.ng   = np.zeros(N+1, dtype=int)
+		self.ns   = np.zeros(N+1, dtype=int)
+
+	def set_nx(self, nx, idx=None):
+		if idx==None:
+			for i in range(nx.size):
+				self.nx[i] = nx[i]
+		else:
+			self.nx[idx] = nx
+		return
+
+	def set_nu(self, nu, idx=None):
+		if idx==None:
+			for i in range(nu.size):
+				self.nu[i] = nu[i]
+		else:
+			self.nu[idx] = nu
+		return
+
+	def set_nbx(self, nbx, idx=None):
+		if idx==None:
+			for i in range(nbx.size):
+				self.nbx[i] = nbx[i]
+		else:
+			self.nbx[idx] = nbx
+		return
+
+	def set_nbu(self, nbu, idx=None):
+		if idx==None:
+			for i in range(nbu.size):
+				self.nbu[i] = nbu[i]
+		else:
+			self.nbu[idx] = nbu
+		return
+
+	def set_ng(self, ng, idx=None):
+		if idx==None:
+			for i in range(ng.size):
+				self.ng[i] = ng[i]
+		else:
+			self.ng[idx] = ng
+		return
+
+	def set_ns(self, ns, idx=None):
+		if idx==None:
+			for i in range(ns.size):
+				self.ns[i] = ns[i]
+		else:
+			self.ns[idx] = ns
+		return
 
 
 
 class hpipm_data:
-    def __init__(self):
-        self.A    = None
-        self.B    = None
-        self.b    = None
+	def __init__(self):
+		self.A    = None
+		self.B    = None
+		self.b    = None
 
-        self.Q    = None
-        self.S    = None
-        self.R    = None
-        self.q    = None
-        self.r    = None
-       
-        self.d_lb = None
-        self.d_ub = None
+		self.Q    = None
+		self.S    = None
+		self.R    = None
+		self.q    = None
+		self.r    = None
 
-        self.C    = None
-        self.D    = None
+		self.d_lb = None
+		self.d_ub = None
 
-        self.d_lg = None
-        self.d_ug = None
+		self.C    = None
+		self.D    = None
 
-        self.idxb = None
+		self.d_lg = None
+		self.d_ug = None
 
-        self.Zl   = None
-        self.Zu   = None
+		self.idxb = None
 
-        self.zl   = None
-        self.zu   = None
+		self.Zl   = None
+		self.Zu   = None
 
-        self.d_ls = None
-        self.d_us = None
+		self.zl   = None
+		self.zu   = None
 
-        self.idxs = None
+		self.d_ls = None
+		self.d_us = None
 
-        self.x0   = None
+		self.idxs = None
+
+		self.x0   = None
 
 
 
