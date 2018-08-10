@@ -516,7 +516,7 @@ def hpipm_solve(qp_dims, qp_data):
 
 
 
-class hpipm_dims:
+class hpipm_ocp_qp_dims:
 	def __init__(self, N):
 		self.N    = N
 		self.nx   = np.zeros(N+1, dtype=int)
@@ -576,18 +576,74 @@ class hpipm_dims:
 
 
 
-class hpipm_data:
-	def __init__(self):
-		self.A    = None
-		self.B    = None
-		self.b    = None
+class hpipm_ocp_qp:
+	def __init__(self, dims):
+		N = dims.N
+		nx = dims.nx
+		nu = dims.nu
+		nbx = dims.nbx
+		nbu = dims.nbu
+		ng = dims.ng
+		ns = dims.ns
 
-		self.Q    = None
-		self.S    = None
-		self.R    = None
-		self.q    = None
-		self.r    = None
+		self.A = []
+		for i in range(N):
+			self.A.append(np.zeros((nx[i+1], nx[i])))
 
+		self.B = []
+		for i in range(N):
+			self.B.append(np.zeros((nx[i+1], nu[i])))
+
+		self.b = []
+		for i in range(N):
+			self.b.append(np.zeros((nx[i+1], 1)))
+
+		self.Q = []
+		for i in range(N+1):
+			self.Q.append(np.zeros((nx[i], nx[i])))
+
+		self.R = []
+		for i in range(N+1):
+			self.R.append(np.zeros((nu[i], nu[i])))
+
+		self.S = []
+		for i in range(N+1):
+			self.S.append(np.zeros((nu[i], nx[i])))
+
+		self.q = []
+		for i in range(N+1):
+			self.q.append(np.zeros((nx[i], 1)))
+
+		self.r = []
+		for i in range(N+1):
+			self.r.append(np.zeros((nu[i], 1)))
+
+		self.Jx = []
+		for i in range(N+1):
+			self.Jx.append(np.zeros((nbx[i], nx[i])))
+
+		self.lx = []
+		for i in range(N+1):
+			self.lx.append(np.zeros((nbx[i], 1)))
+
+		self.ux = []
+		for i in range(N+1):
+			self.ux.append(np.zeros((nbx[i], 1)))
+
+		self.Ju = []
+		for i in range(N+1):
+			self.Ju.append(np.zeros((nbu[i], nu[i])))
+
+		self.lu = []
+		for i in range(N+1):
+			self.lu.append(np.zeros((nbu[i], 1)))
+
+		self.uu = []
+		for i in range(N+1):
+			self.uu.append(np.zeros((nbu[i], 1)))
+
+
+		# old interface
 		self.d_lb = None
 		self.d_ub = None
 
@@ -612,9 +668,121 @@ class hpipm_data:
 
 		self.x0   = None
 
+	def set_A(self, A, idx=None):
+		if idx==None:
+			for i in range(len(A)):
+				self.A[i] = A[i]
+		else:
+			self.A[idx] = A
+		return
+
+	def set_B(self, B, idx=None):
+		if idx==None:
+			for i in range(len(B)):
+				self.B[i] = B[i]
+		else:
+			self.B[idx] = B
+		return
+
+	def set_b(self, b, idx=None):
+		if idx==None:
+			for i in range(len(b)):
+				self.b[i] = b[i]
+		else:
+			self.b[idx] = b
+		return
+
+	def set_Q(self, Q, idx=None):
+		if idx==None:
+			for i in range(len(Q)):
+				self.Q[i] = Q[i]
+		else:
+			self.Q[idx] = Q
+		return
+
+	def set_R(self, R, idx=None):
+		if idx==None:
+			for i in range(len(R)):
+				self.R[i] = R[i]
+		else:
+			self.R[idx] = R
+		return
+
+	def set_S(self, S, idx=None):
+		if idx==None:
+			for i in range(len(S)):
+				self.S[i] = S[i]
+		else:
+			self.S[idx] = S
+		return
+
+	def set_q(self, q, idx=None):
+		if idx==None:
+			for i in range(len(q)):
+				self.q[i] = q[i]
+		else:
+			self.q[idx] = q
+		return
+
+	def set_r(self, r, idx=None):
+		if idx==None:
+			for i in range(len(r)):
+				self.r[i] = r[i]
+		else:
+			self.r[idx] = r
+		return
+
+	def set_Jx(self, Jx, idx=None):
+		if idx==None:
+			for i in range(len(Jx)):
+				self.Jx[i] = Jx[i]
+		else:
+			self.Jx[idx] = Jx
+		return
+
+	def set_lx(self, lx, idx=None):
+		if idx==None:
+			for i in range(len(lx)):
+				self.lx[i] = lx[i]
+		else:
+			self.lx[idx] = lx
+		return
+
+	def set_ux(self, ux, idx=None):
+		if idx==None:
+			for i in range(len(ux)):
+				self.ux[i] = ux[i]
+		else:
+			self.ux[idx] = ux
+		return
+
+	def set_Ju(self, Ju, idx=None):
+		if idx==None:
+			for i in range(len(Ju)):
+				self.Ju[i] = Ju[i]
+		else:
+			self.Ju[idx] = Ju
+		return
+
+	def set_lu(self, lu, idx=None):
+		if idx==None:
+			for i in range(len(lu)):
+				self.lu[i] = lu[i]
+		else:
+			self.lu[idx] = lu
+		return
+
+	def set_uu(self, uu, idx=None):
+		if idx==None:
+			for i in range(len(uu)):
+				self.uu[i] = uu[i]
+		else:
+			self.uu[idx] = uu
+		return
 
 
-class hpipm_sol:
+
+class hpipm_ocp_qp_sol:
     def __init__(self):
         self.ux = None
         self.pi = None
