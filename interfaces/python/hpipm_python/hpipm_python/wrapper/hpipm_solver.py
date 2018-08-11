@@ -48,37 +48,38 @@ class hpipm_solver:
 
 		iidxb = []
 		for i in range(N+1):
-			iidxb.append(np.zeros((nbx[i]+nbu[i], 1), dtype=int))
+			iidxb.append(np.zeros((nbx[i]+nbu[i], 1), dtype=np.int32))
 			for j in range(nbu[i]):
 				k0 = -1
-				qp_data.Ju[i] = qp_data.Ju[i].reshape((nbu[i], nu[i]))
 				for k in range(nu[i]):
 					if (k0==-1) & (qp_data.Ju[i][j][k]!=0):
 						k0 = k
 						iidxb[i][j] = k
 			for j in range(nbx[i]):
 				k0 = -1
-				qp_data.Jx[i] = qp_data.Jx[i].reshape((nbx[i], nx[i]))
 				for k in range(nx[i]):
 					if (k0==-1) & (qp_data.Jx[i][j][k]!=0):
 						k0 = k
 						iidxb[i][nbu[i]+j] = nu[i]+k
+			iidxb[i] = np.ascontiguousarray(iidxb[i], dtype=np.int32)
 
 		llb = []
 		for i in range(N+1):
-			llb.append(np.zeros((nbx[i]+nbu[i], 1)))
+			llb.append(np.zeros((nbx[i]+nbu[i], 1), dtype=np.float64))
 			for j in range(nbu[i]):
 				llb[i][j] = qp_data.lu[i][j]
 			for j in range(nbx[i]):
 				llb[i][nbu[i]+j] = qp_data.lx[i][j]
+			llb[i] = np.ascontiguousarray(llb[i], dtype=np.float64)
 
 		uub = []
 		for i in range(N+1):
-			uub.append(np.zeros((nbx[i]+nbu[i], 1)))
+			uub.append(np.zeros((nbx[i]+nbu[i], 1), dtype=np.float64))
 			for j in range(nbu[i]):
 				uub[i][j] = qp_data.uu[i][j]
 			for j in range(nbx[i]):
 				uub[i][nbu[i]+j] = qp_data.ux[i][j]
+			uub[i] = np.ascontiguousarray(uub[i], dtype=np.float64)
 
 
 		# array of pointer
@@ -115,50 +116,29 @@ class hpipm_solver:
 
 			if(i<N):
 				# dynamics
-				qp_data.A[i] = np.ascontiguousarray(qp_data.A[i], dtype=np.float64)
 				A[i] = cast(qp_data.A[i].ctypes.data, POINTER(c_double))
-				qp_data.B[i] = np.ascontiguousarray(qp_data.B[i], dtype=np.float64)
 				B[i] = cast(qp_data.B[i].ctypes.data, POINTER(c_double))
-				qp_data.b[i] = np.ascontiguousarray(qp_data.b[i], dtype=np.float64)
 				b[i] = cast(qp_data.b[i].ctypes.data, POINTER(c_double))
 
 			# cost
-			qp_data.Q[i] = np.ascontiguousarray(qp_data.Q[i], dtype=np.float64)
 			Q[i] = cast(qp_data.Q[i].ctypes.data, POINTER(c_double))
-			qp_data.S[i] = np.ascontiguousarray(qp_data.S[i], dtype=np.float64)
 			S[i] = cast(qp_data.S[i].ctypes.data, POINTER(c_double))
-			qp_data.R[i] = np.ascontiguousarray(qp_data.R[i], dtype=np.float64)
 			R[i] = cast(qp_data.R[i].ctypes.data, POINTER(c_double))
-
-			qp_data.q[i] = np.ascontiguousarray(qp_data.q[i], dtype=np.float64)
 			q[i] = cast(qp_data.q[i].ctypes.data, POINTER(c_double))
-			qp_data.r[i] = np.ascontiguousarray(qp_data.r[i], dtype=np.float64)
 			r[i] = cast(qp_data.r[i].ctypes.data, POINTER(c_double))
 
 			# simple bounds
 			if qp_dims.nbx[i]+qp_dims.nbu[i] > 0:
-				# lb
-				llb[i] = np.ascontiguousarray(llb[i], dtype=np.float64)
 				lb[i] = cast(llb[i].ctypes.data, POINTER(c_double))
-				# ub
-				uub[i] = np.ascontiguousarray(uub[i], dtype=np.float64)
 				ub[i] = cast(uub[i].ctypes.data, POINTER(c_double))
-				# idxb
-				iidxb[i] = np.ascontiguousarray(iidxb[i], dtype=np.int32)
 				idxb[i] = cast(iidxb[i].ctypes.data, POINTER(c_int))
 
 			# polytopic constraints
 			if qp_dims.ng[i] > 0:
-				qp_data.C[i] = np.ascontiguousarray(qp_data.C[i], dtype=np.float64)
 				C[i] = cast(qp_data.C[i].ctypes.data, POINTER(c_double))
-				qp_data.D[i] = np.ascontiguousarray(qp_data.D[i], dtype=np.float64)
 				D[i] = cast(qp_data.D[i].ctypes.data, POINTER(c_double))
-
-				qp_data.lg[i] = np.ascontiguousarray(qp_data.lg[i], dtype=np.float64)
 				lg[i] = cast(qp_data.lg[i].ctypes.data, POINTER(c_double))
-				qp_data.ug[i] = np.ascontiguousarray(qp_data.ug[i], dtype=np.float64)
 				ug[i] = cast(qp_data.ug[i].ctypes.data, POINTER(c_double))
-
 
 			# slacks
 			if qp_dims.ns[i] > 0:
@@ -568,6 +548,14 @@ class hpipm_ocp_qp:
 		ng = dims.ng
 		ns = dims.ns
 
+		self.dims = hpipm_ocp_qp_dims(N)
+		self.dims.set_nx(nx);
+		self.dims.set_nu(nu);
+		self.dims.set_nbx(nbx);
+		self.dims.set_nbu(nbu);
+		self.dims.set_ng(ng);
+		self.dims.set_ns(ns);
+
 		self.A = []
 		for i in range(N):
 			self.A.append(np.zeros((nx[i+1], nx[i])))
@@ -655,147 +643,243 @@ class hpipm_ocp_qp:
 		self.idxs = None
 
 	def set_A(self, A, idx=None):
+		nx = self.dims.nx
 		if idx==None:
 			for i in range(len(A)):
 				self.A[i] = A[i]
+				self.A[i] = np.ascontiguousarray(self.A[i], dtype=np.float64)
+				self.A[i] = self.A[i].reshape((nx[i+1], nx[i]))
 		else:
 			self.A[idx] = A
+			self.A[idx] = np.ascontiguousarray(self.A[idx], dtype=np.float64)
+			self.A[idx] = self.A[i].reshape((nx[idx+1], nx[idx]))
 		return
 
 	def set_B(self, B, idx=None):
+		nx = self.dims.nx
+		nu = self.dims.nu
 		if idx==None:
 			for i in range(len(B)):
 				self.B[i] = B[i]
+				self.B[i] = np.ascontiguousarray(self.B[i], dtype=np.float64)
+				self.B[i] = self.B[i].reshape((nx[i+1], nu[i]))
 		else:
 			self.B[idx] = B
+			self.B[idx] = np.ascontiguousarray(self.B[idx], dtype=np.float64)
+			self.B[idx] = self.B[idx].reshape((nx[idx+1], nu[idx]))
 		return
 
 	def set_b(self, b, idx=None):
+		nx = self.dims.nx
 		if idx==None:
 			for i in range(len(b)):
 				self.b[i] = b[i]
+				self.b[i] = np.ascontiguousarray(self.b[i], dtype=np.float64)
+				self.b[i] = self.b[i].reshape((nx[i+1], 1))
 		else:
 			self.b[idx] = b
+			self.b[idx] = np.ascontiguousarray(self.b[idx], dtype=np.float64)
+			self.b[idx] = self.b[idx].reshape((nx[idx+1], 1))
 		return
 
 	def set_Q(self, Q, idx=None):
+		nx = self.dims.nx
 		if idx==None:
 			for i in range(len(Q)):
 				self.Q[i] = Q[i]
+				self.Q[i] = np.ascontiguousarray(self.Q[i], dtype=np.float64)
+				self.Q[i] = self.Q[i].reshape((nx[i], nx[i]))
 		else:
 			self.Q[idx] = Q
+			self.Q[idx] = np.ascontiguousarray(self.Q[idx], dtype=np.float64)
+			self.Q[idx] = self.Q[idx].reshape((nx[idx], nx[idx]))
 		return
 
 	def set_R(self, R, idx=None):
+		nu = self.dims.nu
 		if idx==None:
 			for i in range(len(R)):
 				self.R[i] = R[i]
+				self.R[i] = np.ascontiguousarray(self.R[i], dtype=np.float64)
+				self.R[i] = self.R[i].reshape((nu[i], nu[i]))
 		else:
 			self.R[idx] = R
+			self.R[idx] = np.ascontiguousarray(self.R[idx], dtype=np.float64)
+			self.R[idx] = self.R[idx].reshape((nu[idx], nu[idx]))
 		return
 
 	def set_S(self, S, idx=None):
+		nu = self.dims.nu
+		nx = self.dims.nx
 		if idx==None:
 			for i in range(len(S)):
 				self.S[i] = S[i]
+				self.S[i] = np.ascontiguousarray(self.S[i], dtype=np.float64)
+				self.S[i] = self.S[i].reshape((nx[i], nu[i]))
 		else:
 			self.S[idx] = S
+			self.S[idx] = np.ascontiguousarray(self.S[idx], dtype=np.float64)
+			self.S[idx] = self.S[idx].reshape((nu[idx], nx[idx]))
 		return
 
 	def set_q(self, q, idx=None):
+		nx = self.dims.nx
 		if idx==None:
 			for i in range(len(q)):
 				self.q[i] = q[i]
+				self.q[i] = np.ascontiguousarray(self.q[i], dtype=np.float64)
+				self.q[i] = self.q[i].reshape((nx[i], 1))
 		else:
 			self.q[idx] = q
+			self.q[idx] = np.ascontiguousarray(self.q[idx], dtype=np.float64)
+			self.q[idx] = self.q[idx].reshape((nx[idx], 1))
 		return
 
 	def set_r(self, r, idx=None):
+		nu = self.dims.nu
 		if idx==None:
 			for i in range(len(r)):
 				self.r[i] = r[i]
+				self.r[i] = np.ascontiguousarray(self.r[i], dtype=np.float64)
+				self.r[i] = self.r[i].reshape((nx[i], 1))
 		else:
 			self.r[idx] = r
+			self.r[idx] = np.ascontiguousarray(self.r[idx], dtype=np.float64)
+			self.r[idx] = self.r[idx].reshape((nx[idx], 1))
 		return
 
 	def set_Jx(self, Jx, idx=None):
+		nx = self.dims.nx
+		nbx = self.dims.nbx
 		if idx==None:
 			for i in range(len(Jx)):
 				self.Jx[i] = Jx[i]
+				self.Jx[i] = np.ascontiguousarray(self.Jx[i], dtype=np.float64)
+				self.Jx[i] = self.Jx[i].reshape((nbx[i], nx[i]))
 		else:
 			self.Jx[idx] = Jx
+			self.Jx[idx] = np.ascontiguousarray(self.Jx[idx], dtype=np.float64)
+			self.Jx[idx] = self.Jx[idx].reshape((nbx[idx], nx[idx]))
 		return
 
 	def set_lx(self, lx, idx=None):
+		nbx = self.dims.nbx
 		if idx==None:
 			for i in range(len(lx)):
 				self.lx[i] = lx[i]
+				self.lx[i] = np.ascontiguousarray(self.lx[i], dtype=np.float64)
+				self.lx[i] = self.lx[i].reshape((nbx[i], 1))
 		else:
 			self.lx[idx] = lx
+			self.lx[idx] = np.ascontiguousarray(self.lx[idx], dtype=np.float64)
+			self.lx[idx] = self.lx[idx].reshape((nbx[idx], 1))
 		return
 
 	def set_ux(self, ux, idx=None):
+		nbx = self.dims.nbx
 		if idx==None:
 			for i in range(len(ux)):
 				self.ux[i] = ux[i]
+				self.ux[i] = np.ascontiguousarray(self.ux[i], dtype=np.float64)
+				self.ux[i] = self.ux[i].reshape((nbx[i], 1))
 		else:
 			self.ux[idx] = ux
+			self.ux[idx] = np.ascontiguousarray(self.ux[idx], dtype=np.float64)
+			self.ux[idx] = self.ux[idx].reshape((nbx[idx], 1))
 		return
 
 	def set_Ju(self, Ju, idx=None):
+		nu = self.dims.nu
+		nbu = self.dims.nbu
 		if idx==None:
 			for i in range(len(Ju)):
 				self.Ju[i] = Ju[i]
+				self.Ju[i] = np.ascontiguousarray(self.Ju[i], dtype=np.float64)
+				self.Ju[i] = self.Ju[i].reshape((nbu[i], nu[i]))
 		else:
 			self.Ju[idx] = Ju
+			self.Ju[idx] = np.ascontiguousarray(self.Ju[idx], dtype=np.float64)
+			self.Ju[idx] = self.Ju[idx].reshape((nbu[idx], nu[idx]))
 		return
 
 	def set_lu(self, lu, idx=None):
+		nbu = self.dims.nbu
 		if idx==None:
 			for i in range(len(lu)):
 				self.lu[i] = lu[i]
+				self.lu[i] = np.ascontiguousarray(self.lu[i], dtype=np.float64)
+				self.lu[i] = self.lu[i].reshape((nbu[i], 1))
 		else:
 			self.lu[idx] = lu
+			self.lu[idx] = np.ascontiguousarray(self.lu[idx], dtype=np.float64)
+			self.lu[idx] = self.lu[idx].reshape((nbu[idx], 1))
 		return
 
 	def set_uu(self, uu, idx=None):
+		nbu = self.dims.nbu
 		if idx==None:
 			for i in range(len(uu)):
 				self.uu[i] = uu[i]
+				self.uu[i] = np.ascontiguousarray(self.uu[i], dtype=np.float64)
+				self.uu[i] = self.uu[i].reshape((nbu[i], 1))
 		else:
 			self.uu[idx] = uu
+			self.uu[idx] = np.ascontiguousarray(self.uu[idx], dtype=np.float64)
+			self.uu[idx] = self.uu[idx].reshape((nbu[idx], 1))
 		return
 
 	def set_C(self, C, idx=None):
+		nx = self.dims.nx
+		ng = self.dims.ng
 		if idx==None:
 			for i in range(len(C)):
 				self.C[i] = C[i]
+				self.C[i] = np.ascontiguousarray(self.C[i], dtype=np.float64)
+				self.C[i] = self.C[i].reshape((ng[i], nx[i]))
 		else:
 			self.C[idx] = C
+			self.C[idx] = np.ascontiguousarray(self.C[idx], dtype=np.float64)
+			self.C[idx] = self.C[idx].reshape((ng[idx], nx[idx]))
 		return
 
 	def set_D(self, D, idx=None):
+		nu = self.dims.nu
+		ng = self.dims.ng
 		if idx==None:
 			for i in range(len(D)):
 				self.D[i] = D[i]
+				self.D[i] = np.ascontiguousarray(self.D[i], dtype=np.float64)
+				self.D[i] = self.D[i].reshape((ng[i], nu[i]))
 		else:
 			self.D[idx] = D
+			self.D[idx] = np.ascontiguousarray(self.D[idx], dtype=np.float64)
+			self.D[idx] = self.D[idx].reshape((ng[idx], nu[idx]))
 		return
 
 	def set_lg(self, lg, idx=None):
+		ng = self.dims.ng
 		if idx==None:
 			for i in range(len(lg)):
 				self.lg[i] = lg[i]
+				self.lg[i] = np.ascontiguousarray(self.lg[i], dtype=np.float64)
+				self.lg[i] = self.lg[i].reshape((ng[i], 1))
 		else:
 			self.lg[idx] = lg
+			self.lg[idx] = np.ascontiguousarray(self.lg[idx], dtype=np.float64)
+			self.lg[idx] = self.lg[idx].reshape((ng[idx], 1))
 		return
 
 	def set_ug(self, ug, idx=None):
+		ng = self.dims.ng
 		if idx==None:
 			for i in range(len(ug)):
 				self.ug[i] = ug[i]
+				self.ug[i] = np.ascontiguousarray(self.ug[i], dtype=np.float64)
+				self.ug[i] = self.ug[i].reshape((ng[i], 1))
 		else:
 			self.ug[idx] = ug
+			self.ug[idx] = np.ascontiguousarray(self.ug[idx], dtype=np.float64)
+			self.ug[idx] = self.ug[idx].reshape((ng[idx], 1))
 		return
 
 

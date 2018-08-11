@@ -10,8 +10,8 @@ dims = hpipm_ocp_qp_dims(5)
 
 dims.set_nx(np.array([2, 2, 2, 2, 2, 2]))
 dims.set_nu(np.array([1, 1, 1, 1, 1]))
-#dims.set_nbx(2, 0)
-dims.set_ng(2, 0)
+dims.set_nbx(2, 0)
+#dims.set_ng(2, 0)
 
 
 # data
@@ -41,12 +41,12 @@ qp.set_S([S, S, S, S, S])
 qp.set_R([R, R, R, R, R])
 qp.set_q([q, q, q, q, q, q])
 #qp.set_r([r, r, r, r, r])
-#qp.set_Jx(Jx, 0)
-#qp.set_lx(x0, 0)
-#qp.set_ux(x0, 0)
-qp.set_C(Jx, 0)
-qp.set_lg(x0, 0)
-qp.set_ug(x0, 0)
+qp.set_Jx(Jx, 0)
+qp.set_lx(x0, 0)
+qp.set_ux(x0, 0)
+#qp.set_C(Jx, 0)
+#qp.set_lg(x0, 0)
+#qp.set_ug(x0, 0)
 
 
 # set up solver
