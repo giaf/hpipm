@@ -44,63 +44,6 @@ class hpipm_solver:
 			dim)
 
 
-		# new memory to handle change of API
-
-		iidxb = []
-		for i in range(N+1):
-			iidxb.append(np.zeros((nbx[i]+nbu[i], 1), dtype=np.int32))
-			for j in range(nbu[i]):
-				k0 = -1
-				for k in range(nu[i]):
-					if (k0==-1) & (qp_data.Ju[i][j][k]!=0):
-						k0 = k
-						iidxb[i][j] = k
-			for j in range(nbx[i]):
-				k0 = -1
-				for k in range(nx[i]):
-					if (k0==-1) & (qp_data.Jx[i][j][k]!=0):
-						k0 = k
-						iidxb[i][nbu[i]+j] = nu[i]+k
-			iidxb[i] = np.ascontiguousarray(iidxb[i], dtype=np.int32)
-
-		llb = []
-		for i in range(N+1):
-			llb.append(np.zeros((nbx[i]+nbu[i], 1), dtype=np.float64))
-			for j in range(nbu[i]):
-				llb[i][j] = qp_data.lu[i][j]
-			for j in range(nbx[i]):
-				llb[i][nbu[i]+j] = qp_data.lx[i][j]
-			llb[i] = np.ascontiguousarray(llb[i], dtype=np.float64)
-
-		uub = []
-		for i in range(N+1):
-			uub.append(np.zeros((nbx[i]+nbu[i], 1), dtype=np.float64))
-			for j in range(nbu[i]):
-				uub[i][j] = qp_data.uu[i][j]
-			for j in range(nbx[i]):
-				uub[i][nbu[i]+j] = qp_data.ux[i][j]
-			uub[i] = np.ascontiguousarray(uub[i], dtype=np.float64)
-
-		iidxs = []
-		for i in range(N+1):
-			iidxs.append(np.zeros((ns[i], 1), dtype=np.int32))
-			for j in range(ns[i]):
-				k0 = -1
-				for k in range(nbu[i]):
-					if (k0==-1) & (qp_data.Jsu[i][k][j]!=0):
-						k0 = k
-						iidxs[i][j] = k
-				for k in range(nbx[i]):
-					if (k0==-1) & (qp_data.Jsx[i][k][j]!=0):
-						k0 = k
-						iidxs[i][j] = nbu[i]+k
-				for k in range(ng[i]):
-					if (k0==-1) & (qp_data.Jsg[i][k][j]!=0):
-						k0 = k
-						iidxs[i][j] = nbu[i]+ng[i]+k
-			iidxs[i] = np.ascontiguousarray(iidxs[i], dtype=np.int32)
-
-
 		# array of pointer
 		A = (POINTER(c_double)*(N))()
 		B = (POINTER(c_double)*(N))()
@@ -148,9 +91,9 @@ class hpipm_solver:
 
 			# simple bounds
 			if qp_dims.nbx[i]+qp_dims.nbu[i] > 0:
-				lb[i] = cast(llb[i].ctypes.data, POINTER(c_double))
-				ub[i] = cast(uub[i].ctypes.data, POINTER(c_double))
-				idxb[i] = cast(iidxb[i].ctypes.data, POINTER(c_int))
+				lb[i] = cast(qp_data.lb[i].ctypes.data, POINTER(c_double))
+				ub[i] = cast(qp_data.ub[i].ctypes.data, POINTER(c_double))
+				idxb[i] = cast(qp_data.idxb[i].ctypes.data, POINTER(c_int))
 
 			# polytopic constraints
 			if qp_dims.ng[i] > 0:
@@ -167,7 +110,7 @@ class hpipm_solver:
 				zu[i] = cast(qp_data.zu[i].ctypes.data, POINTER(c_double))
 				lls[i] = cast(qp_data.lls[i].ctypes.data, POINTER(c_double))
 				lus[i] = cast(qp_data.lus[i].ctypes.data, POINTER(c_double))
-				idxs[i] = cast(iidxs[i].ctypes.data, POINTER(c_int))
+				idxs[i] = cast(qp_data.idxs[i].ctypes.data, POINTER(c_int))
 
 		# allocate memory for qp struct 
 		qp_size = __hpipm.d_memsize_ocp_qp(dim)
@@ -235,254 +178,6 @@ class hpipm_solver:
 	def print_sol(self):
 		self.__hpipm.d_print_ocp_qp_sol(self.ocp_qp_sol, self.ocp_qp_dim)
 		return 
-
-
-
-def hpipm_solve(qp_dims, qp_data):
-	# load blasfeo and hpipm shared libraries
-	__blasfeo = CDLL('libblasfeo.so')
-	__hpipm   = CDLL('libhpipm.so')
-	
-	# cast dimensions to contiguous int
-	# TODO(andrea): int32 might not be portable to Windows
-	nx   = np.ascontiguousarray(qp_dims.nx,  dtype=np.int32)
-	nu   = np.ascontiguousarray(qp_dims.nu,  dtype=np.int32)
-	nbx  = np.ascontiguousarray(qp_dims.nbx, dtype=np.int32)
-	nbu  = np.ascontiguousarray(qp_dims.nbu, dtype=np.int32)
-	ng   = np.ascontiguousarray(qp_dims.ng,  dtype=np.int32)
-	ns   = np.ascontiguousarray(qp_dims.ns,  dtype=np.int32)
-	N	= qp_dims.N
-
-	# allocate memory for dimemsions struct
-	sizeof_d_ocp_qp_dim = __hpipm.d_sizeof_ocp_qp_dim()
-	dim = cast(create_string_buffer(sizeof_d_ocp_qp_dim), c_void_p)
-	ocp_qp_dim = dim
-
-	dim_size = __hpipm.d_memsize_ocp_qp_dim(qp_dims.N)
-	dim_mem = cast(create_string_buffer(dim_size), c_void_p)
-	dim_mem = dim_mem
-
-	# set up dimensions structure
-	__hpipm.d_create_ocp_qp_dim(N, dim, dim_mem)
-	__hpipm.d_cvt_int_to_ocp_qp_dim(N, 
-		cast(nx.ctypes.data, POINTER(c_int)), 
-		cast(nu.ctypes.data, POINTER(c_int)), 
-		cast(nbx.ctypes.data, POINTER(c_int)), 
-		cast(nbu.ctypes.data, POINTER(c_int)), 
-		cast(ng.ctypes.data, POINTER(c_int)), 
-		cast(ns.ctypes.data, POINTER(c_int)), 
-		dim)
-
-	A = (POINTER(c_double)*(N))()
-	B = (POINTER(c_double)*(N))()
-	b = (POINTER(c_double)*(N))()  
-
-	Q = (POINTER(c_double)*(N+1))()	
-	S = (POINTER(c_double)*(N+1))()   
-	R = (POINTER(c_double)*(N+1))()   
-	q = (POINTER(c_double)*(N+1))()   
-	r = (POINTER(c_double)*(N+1))()   
-   
-	d_lb = (POINTER(c_double)*(N+1))()
-	d_ub = (POINTER(c_double)*(N+1))()
-
-	C = (POINTER(c_double)*(N+1))()   
-	D = (POINTER(c_double)*(N+1))()   
-
-	d_lg = (POINTER(c_double)*(N+1))()
-	d_ug = (POINTER(c_double)*(N+1))()
-
-	Zl = (POINTER(c_double)*(N+1))()  
-	Zu = (POINTER(c_double)*(N+1))()  
-
-	zl = (POINTER(c_double)*(N+1))()  
-	zu = (POINTER(c_double)*(N+1))()  
-
-	d_ls = (POINTER(c_double)*(N+1))()
-	d_us = (POINTER(c_double)*(N+1))()
-
-	idxb = (POINTER(c_int)*(N+1))()
-	idxs = (POINTER(c_int)*(N+1))()
-
-	x0 = (POINTER(c_double)*1)()  
-
-	for i in range(N):
-		# dynamics
-		qp_data.A[i] = np.ascontiguousarray(qp_data.A[i], dtype= np.float64)
-		A[i] = cast(qp_data.A[i].ctypes.data, POINTER(c_double))
-		qp_data.B[i] = np.ascontiguousarray(qp_data.B[i], dtype=np.float64)
-		B[i] = cast(qp_data.B[i].ctypes.data, POINTER(c_double))
-		qp_data.b[i] = np.ascontiguousarray(qp_data.b[i], dtype=np.float64)
-		b[i] = cast(qp_data.b[i].ctypes.data, POINTER(c_double))
-		 
-		# cost
-		qp_data.Q[i] = np.ascontiguousarray(qp_data.Q[i], dtype=np.float64)
-		Q[i] = cast(qp_data.Q[i].ctypes.data, POINTER(c_double))
-		qp_data.S[i] = np.ascontiguousarray(qp_data.S[i], dtype=np.float64)
-		S[i] = cast(qp_data.S[i].ctypes.data, POINTER(c_double))
-		qp_data.R[i] = np.ascontiguousarray(qp_data.R[i], dtype=np.float64)
-		R[i] = cast(qp_data.R[i].ctypes.data, POINTER(c_double))
-
-		qp_data.q[i] = np.ascontiguousarray(qp_data.q[i], dtype=np.float64)
-		q[i] = cast(qp_data.q[i].ctypes.data, POINTER(c_double))
-		qp_data.r[i] = np.ascontiguousarray(qp_data.r[i], dtype=np.float64)
-		r[i] = cast(qp_data.r[i].ctypes.data, POINTER(c_double))
-
-		# simple bounds
-		if qp_dims.nbx[i]+qp_dims.nbu[i] > 0:
-			qp_data.d_lb[i] = np.ascontiguousarray(qp_data.d_lb[i], dtype=np.float64)
-			d_lb[i] = cast(qp_data.d_lb[i].ctypes.data, POINTER(c_double))
-			qp_data.d_ub[i] = np.ascontiguousarray(qp_data.d_ub[i], dtype=np.float64)
-			d_ub[i] = cast(qp_data.d_ub[i].ctypes.data, POINTER(c_double))
-		 
-			qp_data.idxb[i] = np.ascontiguousarray(qp_data.idxb[i], dtype=np.int32)
-			idxb[i] = cast(qp_data.idxb[i].ctypes.data, POINTER(c_int))
-
-		# polytopic constraints
-		if qp_dims.ng[i] > 0:
-			qp_data.C[i] = np.ascontiguousarray(qp_data.C[i], dtype=np.float64)
-			C[i] = cast(qp_data.C[i].ctypes.data, POINTER(c_double))
-			qp_data.D[i] = np.ascontiguousarray(qp_data.D[i], dtype=np.float64)
-			D[i] = cast(qp_data.D[i].ctypes.data, POINTER(c_double))
-
-			qp_data.d_lg[i] = np.ascontiguousarray(qp_data.d_lg[i], dtype=np.float64)
-			d_lg[i] = cast(qp_data.d_lg[i].ctypes.data, POINTER(c_double))
-			qp_data.d_ug[i] = np.ascontiguousarray(qp_data.d_ug[i], dtype=np.float64)
-			d_ug[i] = cast(qp_data.d_ug[i].ctypes.data, POINTER(c_double))
-		 
-
-		# slacks
-		if qp_dims.ns[i] > 0:
-			qp_data.Zl[i] = np.ascontiguousarray(qp_data.Zl[i], dtype=np.float64)
-			Zl[i] = cast(qp_data.Zl[i].ctypes.data, POINTER(c_double))
-			qp_data.Zu[i] = np.ascontiguousarray(qp_data.Zu[i], dtype=np.float64)
-			Zu[i] = cast(qp_data.Zu[i].ctypes.data, POINTER(c_double))
-		 
-			qp_data.zl[i] = np.ascontiguousarray(qp_data.zl[i], dtype=np.float64)
-			zl[i] = cast(qp_data.zl[i].ctypes.data, POINTER(c_double))
-			qp_data.zu[i] = np.ascontiguousarray(qp_data.zu[i], dtype=np.float64)
-			zu[i] = cast(qp_data.zu[i].ctypes.data, POINTER(c_double))
-		 
-			qp_data.d_ls[i] = np.ascontiguousarray(qp_data.d_ls[i], dtype=np.float64)
-			d_ls[i] = cast(qp_data.d_ls[i].ctypes.data, POINTER(c_double))
-			qp_data.d_us[i] = np.ascontiguousarray(qp_data.d_us[i], dtype=np.float64)
-			d_us[i] = cast(qp_data.d_us[i].ctypes.data, POINTER(c_double))
-		 
-			# slack indeces
-			qp_data.idxs[i] = np.ascontiguousarray(qp_data.idxs[i], dtype=np.int32)
-			idxs[i] = cast(qp_data.idxs[i].ctypes.data, POINTER(c_int))
-	
-	i = N
-	
-	# cost
-	qp_data.Q[i] = np.ascontiguousarray(qp_data.Q[i], dtype=np.float64)
-	Q[i] = cast(qp_data.Q[i].ctypes.data, POINTER(c_double))
-	qp_data.S[i] = np.ascontiguousarray(qp_data.S[i], dtype=np.float64)
-	S[i] = cast(qp_data.S[i].ctypes.data, POINTER(c_double))
-	qp_data.R[i] = np.ascontiguousarray(qp_data.R[i], dtype=np.float64)
-	R[i] = cast(qp_data.R[i].ctypes.data, POINTER(c_double))
-
-	qp_data.q[i] = np.ascontiguousarray(qp_data.q[i], dtype=np.float64)
-	q[i] = cast(qp_data.q[i].ctypes.data, POINTER(c_double))
-	qp_data.r[i] = np.ascontiguousarray(qp_data.r[i], dtype=np.float64)
-	r[i] = cast(qp_data.r[i].ctypes.data, POINTER(c_double))
-
-	# simple bounds
-	if qp_dims.nbx[i]+qp_dims.nbu[i] > 0:
-		qp_data.d_lb[i] = np.ascontiguousarray(qp_data.d_lb[i], dtype=np.float64)
-		d_lb[i] = cast(qp_data.d_lb[i].ctypes.data, POINTER(c_double))
-		qp_data.d_ub[i] = np.ascontiguousarray(qp_data.d_ub[i], dtype=np.float64)
-		d_ub[i] = cast(qp_data.d_ub[i].ctypes.data, POINTER(c_double))
-	 
-		qp_data.idxb[i] = np.ascontiguousarray(qp_data.idxb[i], dtype=np.int32)
-		idxb[i] = cast(qp_data.idxb[i].ctypes.data, POINTER(c_int))
-
-	# polytopic constraints
-	if qp_dims.ng[i] > 0:
-		qp_data.C[i] = np.ascontiguousarray(qp_data.C[i], dtype=np.float64)
-		C[i] = cast(qp_data.C[i].ctypes.data, POINTER(c_double))
-		qp_data.D[i] = np.ascontiguousarray(qp_data.D[i], dtype=np.float64)
-		D[i] = cast(qp_data.D[i].ctypes.data, POINTER(c_double))
-
-		qp_data.d_lg[i] = np.ascontiguousarray(qp_data.d_lg[i], dtype=np.float64)
-		d_lg[i] = cast(qp_data.d_lg[i].ctypes.data, POINTER(c_double))
-		qp_data.d_ug[i] = np.ascontiguousarray(qp_data.d_ug[i], dtype=np.float64)
-		d_ug[i] = cast(qp_data.d_ug[i].ctypes.data, POINTER(c_double))
-	 
-
-	# slacks
-	if qp_dims.ns[i] > 0:
-		qp_data.Zl[i] = np.ascontiguousarray(qp_data.Zl[i], dtype=np.float64)
-		Zl[i] = cast(qp_data.Zl[i].ctypes.data, POINTER(c_double))
-		qp_data.Zu[i] = np.ascontiguousarray(qp_data.Zu[i], dtype=np.float64)
-		Zu[i] = cast(qp_data.Zu[i].ctypes.data, POINTER(c_double))
-	 
-		qp_data.zl[i] = np.ascontiguousarray(qp_data.zl[i], dtype=np.float64)
-		zl[i] = cast(qp_data.zl[i].ctypes.data, POINTER(c_double))
-		qp_data.zu[i] = np.ascontiguousarray(qp_data.zu[i], dtype=np.float64)
-		zu[i] = cast(qp_data.zu[i].ctypes.data, POINTER(c_double))
-	 
-		qp_data.d_ls[i] = np.ascontiguousarray(qp_data.d_ls[i], dtype=np.float64)
-		d_ls[i] = cast(qp_data.d_ls[i].ctypes.data, POINTER(c_double))
-		qp_data.d_us[i] = np.ascontiguousarray(qp_data.d_us[i], dtype=np.float64)
-		d_us[i] = cast(qp_data.d_us[i].ctypes.data, POINTER(c_double))
-	 
-		# slack indeces
-		qp_data.idxs[i] = np.ascontiguousarray(qp_data.idxs[i], dtype=np.int32)
-		idxs[i] = cast(qp_data.idxs[i].ctypes.data, POINTER(c_int))
-
-	# allocate memory for qp struct 
-	qp_size = __hpipm.d_memsize_ocp_qp(dim)
-	qp_mem = cast(create_string_buffer(qp_size), c_void_p)
-	qp_mem = qp_mem
-
-	# set up ocp_qp structure
-	sizeof_d_ocp_qp = __hpipm.d_sizeof_ocp_qp()
-	qp = cast(create_string_buffer(sizeof_d_ocp_qp), c_void_p)
-	ocp_qp = qp
-
-	__hpipm.d_create_ocp_qp(dim, qp, qp_mem)
-	__hpipm.d_cvt_colmaj_to_ocp_qp(A, B, b, Q, S, R, q, r, idxb, d_lb, 
-		d_ub, C, D, d_lg, d_ug, Zl, Zu, zl, zu, idxs, d_ls, d_us, qp)
-	
-	# allocate memory for ocp_qp_sol struct
-	qp_sol_size = __hpipm.d_memsize_ocp_qp_sol(dim)
-	qp_sol_mem = cast(create_string_buffer(qp_sol_size), c_void_p)
-	qp_sol_mem = qp_sol_mem
-
-	# set up ocp_qp_sol struct
-	sizeof_d_ocp_qp_sol = __hpipm.d_sizeof_ocp_qp_sol()
-	qp_sol = cast(create_string_buffer(sizeof_d_ocp_qp_sol), c_void_p)
-	__hpipm.d_create_ocp_qp_sol(dim, qp_sol, qp_sol_mem)
-	ocp_qp_sol = qp_sol
-
-	# allocate memory for ipm_arg struct
-	ipm_arg_size = __hpipm.d_memsize_ocp_qp_ipm_arg(dim)
-	ipm_arg_mem = cast(create_string_buffer(ipm_arg_size), c_void_p)
-	ipm_arg_mem = ipm_arg_mem
-
-	# set up ipm_arg
-	sizeof_d_ocp_qp_ipm_arg = __hpipm.d_sizeof_ocp_qp_ipm_arg()
-	arg = cast(create_string_buffer(sizeof_d_ocp_qp_ipm_arg), c_void_p)
-	ocp_qp_ipm_arg = arg
-
-	__hpipm.d_create_ocp_qp_ipm_arg(dim, arg, ipm_arg_mem)
-	__hpipm.d_set_default_ocp_qp_ipm_arg(1, arg)
-
-	# allocate memory for ipm workspace 
-	ipm_size = __hpipm.d_memsize_ocp_qp_ipm(dim, arg)
-	ipm_mem = cast(create_string_buffer(ipm_size), c_void_p)
-	ipm_mem = ipm_mem
-
-	# set up ipm workspace
-	sizeof_d_ocp_qp_ipm_workspace = __hpipm.d_sizeof_ocp_qp_ipm_workspace()
-	workspace = cast(create_string_buffer(sizeof_d_ocp_qp_ipm_workspace), c_void_p)
-	ocp_qp_ipm_workspace = workspace
-
-	__hpipm.d_create_ocp_qp_ipm(dim, arg, workspace, ipm_mem)
-
-	return __hpipm.d_solve_ocp_qp_ipm(qp, qp_sol, 
-		arg, workspace)
 
 
 
@@ -620,6 +315,18 @@ class hpipm_ocp_qp:
 		for i in range(N+1):
 			self.uu.append(np.zeros((nbu[i], 1)))
 
+		self.idxb = []
+		for i in range(N+1):
+			self.idxb.append(np.zeros((nbx[i]+nbu[i], 1), dtype=np.int32))
+
+		self.lb = []
+		for i in range(N+1):
+			self.lb.append(np.zeros((nbu[i]+nbx[i], 1)))
+
+		self.ub = []
+		for i in range(N+1):
+			self.ub.append(np.zeros((nbu[i]+nbx[i], 1)))
+
 		self.C = []
 		for i in range(N+1):
 			self.C.append(np.zeros((ng[i], nx[i])))
@@ -671,6 +378,10 @@ class hpipm_ocp_qp:
 		self.Jsg = []
 		for i in range(N+1):
 			self.Jsg.append(np.zeros((ng[i], ns[i])))
+
+		self.idxs = []
+		for i in range(N+1):
+			self.idxs.append(np.zeros((ns[i], 1), dtype=np.int32))
 
 
 
@@ -782,42 +493,72 @@ class hpipm_ocp_qp:
 
 	def set_Jx(self, Jx, idx=None):
 		nx = self.dims.nx
+		nu = self.dims.nu
 		nbx = self.dims.nbx
+		nbu = self.dims.nbu
 		if idx==None:
 			for i in range(len(Jx)):
 				self.Jx[i] = Jx[i]
 				self.Jx[i] = np.ascontiguousarray(self.Jx[i], dtype=np.float64)
 				self.Jx[i] = self.Jx[i].reshape((nbx[i], nx[i]))
+				for j in range(nbx[i]):
+					k0 = -1
+					for k in range(nx[i]):
+						if (k0==-1) & (self.Jx[i][j][k]!=0):
+							k0 = k
+							self.idxb[i][nbu[i]+j] = nu[i]+k
+				self.idxb[i] = np.ascontiguousarray(self.idxb[i], dtype=np.int32)
 		else:
 			self.Jx[idx] = Jx
 			self.Jx[idx] = np.ascontiguousarray(self.Jx[idx], dtype=np.float64)
 			self.Jx[idx] = self.Jx[idx].reshape((nbx[idx], nx[idx]))
+			for j in range(nbx[idx]):
+				k0 = -1
+				for k in range(nx[idx]):
+					if (k0==-1) & (self.Jx[idx][j][k]!=0):
+						k0 = k
+						self.idxb[idx][nbu[idx]+j] = nu[idx]+k
+			self.idxb[idx] = np.ascontiguousarray(self.idxb[idx], dtype=np.int32)
 		return
 
 	def set_lx(self, lx, idx=None):
 		nbx = self.dims.nbx
+		nbu = self.dims.nbu
 		if idx==None:
 			for i in range(len(lx)):
 				self.lx[i] = lx[i]
 				self.lx[i] = np.ascontiguousarray(self.lx[i], dtype=np.float64)
 				self.lx[i] = self.lx[i].reshape((nbx[i], 1))
+				for j in range(nbx[i]):
+					self.lb[i][nbu[i]+j] = lx[i][j]
+				self.lb[i] = np.ascontiguousarray(self.lb[i], dtype=np.float64)
 		else:
 			self.lx[idx] = lx
 			self.lx[idx] = np.ascontiguousarray(self.lx[idx], dtype=np.float64)
 			self.lx[idx] = self.lx[idx].reshape((nbx[idx], 1))
+			for j in range(nbx[idx]):
+				self.lb[idx][nbu[idx]+j] = lx[j]
+			self.lb[idx] = np.ascontiguousarray(self.lb[idx], dtype=np.float64)
 		return
 
 	def set_ux(self, ux, idx=None):
 		nbx = self.dims.nbx
+		nbu = self.dims.nbu
 		if idx==None:
 			for i in range(len(ux)):
 				self.ux[i] = ux[i]
 				self.ux[i] = np.ascontiguousarray(self.ux[i], dtype=np.float64)
 				self.ux[i] = self.ux[i].reshape((nbx[i], 1))
+				for j in range(nbx[i]):
+					self.ub[i][nbu[i]+j] = ux[i][j]
+				self.ub[i] = np.ascontiguousarray(self.ub[i], dtype=np.float64)
 		else:
 			self.ux[idx] = ux
 			self.ux[idx] = np.ascontiguousarray(self.ux[idx], dtype=np.float64)
 			self.ux[idx] = self.ux[idx].reshape((nbx[idx], 1))
+			for j in range(nbx[idx]):
+				self.ub[idx][nbu[idx]+j] = ux[j]
+			self.ub[idx] = np.ascontiguousarray(self.ub[idx], dtype=np.float64)
 		return
 
 	def set_Ju(self, Ju, idx=None):
@@ -828,10 +569,24 @@ class hpipm_ocp_qp:
 				self.Ju[i] = Ju[i]
 				self.Ju[i] = np.ascontiguousarray(self.Ju[i], dtype=np.float64)
 				self.Ju[i] = self.Ju[i].reshape((nbu[i], nu[i]))
+				for j in range(nbu[i]):
+					k0 = -1
+					for k in range(nu[i]):
+						if (k0==-1) & (self.Ju[i][j][k]!=0):
+							k0 = k
+							self.idxb[i][j] = k
+				self.idxb[i] = np.ascontiguousarray(self.idxb[i], dtype=np.int32)
 		else:
 			self.Ju[idx] = Ju
 			self.Ju[idx] = np.ascontiguousarray(self.Ju[idx], dtype=np.float64)
 			self.Ju[idx] = self.Ju[idx].reshape((nbu[idx], nu[idx]))
+			for j in range(nbu[idx]):
+				k0 = -1
+				for k in range(nu[idx]):
+					if (k0==-1) & (self.Ju[idx][j][k]!=0):
+						k0 = k
+						self.idxb[idx][j] = k
+			self.idxb[idx] = np.ascontiguousarray(self.idxb[idx], dtype=np.int32)
 		return
 
 	def set_lu(self, lu, idx=None):
@@ -841,10 +596,16 @@ class hpipm_ocp_qp:
 				self.lu[i] = lu[i]
 				self.lu[i] = np.ascontiguousarray(self.lu[i], dtype=np.float64)
 				self.lu[i] = self.lu[i].reshape((nbu[i], 1))
+				for j in range(nbu[i]):
+					self.lb[i][j] = lu[i][j]
+				self.lb[i] = np.ascontiguousarray(self.lb[i], dtype=np.float64)
 		else:
 			self.lu[idx] = lu
 			self.lu[idx] = np.ascontiguousarray(self.lu[idx], dtype=np.float64)
 			self.lu[idx] = self.lu[idx].reshape((nbu[idx], 1))
+			for j in range(nbu[idx]):
+				self.lb[idx][j] = lu[j]
+			self.lb[idx] = np.ascontiguousarray(self.lb[idx], dtype=np.float64)
 		return
 
 	def set_uu(self, uu, idx=None):
@@ -854,10 +615,16 @@ class hpipm_ocp_qp:
 				self.uu[i] = uu[i]
 				self.uu[i] = np.ascontiguousarray(self.uu[i], dtype=np.float64)
 				self.uu[i] = self.uu[i].reshape((nbu[i], 1))
+				for j in range(nbu[i]):
+					self.ub[i][j] = uu[i][j]
+				self.ub[i] = np.ascontiguousarray(self.ub[i], dtype=np.float64)
 		else:
 			self.uu[idx] = uu
 			self.uu[idx] = np.ascontiguousarray(self.uu[idx], dtype=np.float64)
 			self.uu[idx] = self.uu[idx].reshape((nbu[idx], 1))
+			for j in range(nbu[idx]):
+				self.ub[idx][j] = uu[j]
+			self.ub[idx] = np.ascontiguousarray(self.ub[idx], dtype=np.float64)
 		return
 
 	def set_C(self, C, idx=None):
@@ -918,11 +685,17 @@ class hpipm_ocp_qp:
 		ns = self.dims.ns
 		if idx==None:
 			for i in range(len(Zl)):
-				self.Zl[i] = Zl[i]
+				tmp = Zl[i].copy()
+				tmp = tmp.reshape((ns[i], ns[i]))
+				for j in range(ns[i]):
+					self.Zl[i][j] = tmp[j][j]
 				self.Zl[i] = np.ascontiguousarray(self.Zl[i], dtype=np.float64)
 				self.Zl[i] = self.Zl[i].reshape((ns[i], 1))
 		else:
-			self.Zl[idx] = Zl
+			tmp = Zl.copy()
+			tmp = tmp.reshape((ns[idx], ns[idx]))
+			for j in range(ns[idx]):
+				self.Zl[idx][j] = tmp[j][j]
 			self.Zl[idx] = np.ascontiguousarray(self.Zl[idx], dtype=np.float64)
 			self.Zl[idx] = self.Zl[idx].reshape((ns[idx], 1))
 		return
@@ -931,11 +704,17 @@ class hpipm_ocp_qp:
 		ns = self.dims.ns
 		if idx==None:
 			for i in range(len(Zu)):
-				self.Zu[i] = Zu[i]
+				tmp = Zu[i].copy()
+				tmp = tmp.reshape((ns[i], ns[i]))
+				for j in range(ns[i]):
+					self.Zu[i][j] = tmp[j][j]
 				self.Zu[i] = np.ascontiguousarray(self.Zu[i], dtype=np.float64)
 				self.Zu[i] = self.Zu[i].reshape((ns[i], 1))
 		else:
-			self.Zu[idx] = Zu
+			tmp = Zu.copy()
+			tmp = tmp.reshape((ns[idx], ns[idx]))
+			for j in range(ns[idx]):
+				self.Zu[idx][j] = tmp[j][j]
 			self.Zu[idx] = np.ascontiguousarray(self.Zu[idx], dtype=np.float64)
 			self.Zu[idx] = self.Zu[idx].reshape((ns[idx], 1))
 		return
@@ -993,34 +772,100 @@ class hpipm_ocp_qp:
 		return
 
 	def set_Jsu(self, Jsu, idx=None):
+		nbx = self.dims.nbx
 		nbu = self.dims.nbu
+		ng = self.dims.ng
 		ns = self.dims.ns
 		if idx==None:
 			for i in range(len(Jsu)):
 				self.Jsu[i] = Jsu[i]
 				self.Jsu[i] = np.ascontiguousarray(self.Jsu[i], dtype=np.float64)
 				self.Jsu[i] = self.Jsu[i].reshape((nbu[i], ns[i]))
+				for j in range(ns[i]):
+					k0 = -1
+					for k in range(nbu[i]):
+						if (k0==-1) & (self.Jsu[i][k][j]!=0):
+							k0 = k
+							self.idxs[i][j] = k
+					for k in range(nbx[i]):
+						if (k0==-1) & (self.Jsx[i][k][j]!=0):
+							k0 = k
+							self.idxs[i][j] = nbu[i]+k
+					for k in range(ng[i]):
+						if (k0==-1) & (self.Jsg[i][k][j]!=0):
+							k0 = k
+							self.idxs[i][j] = nbu[i]+ng[i]+k
+				self.idxs[i] = np.ascontiguousarray(self.idxs[i], dtype=np.int32)
 		else:
 			self.Jsu[idx] = Jsu
 			self.Jsu[idx] = np.ascontiguousarray(self.Jsu[idx], dtype=np.float64)
 			self.Jsu[idx] = self.Jsu[idx].reshape((nbu[idx], ns[idx]))
+			for j in range(ns[idx]):
+				k0 = -1
+				for k in range(nbu[idx]):
+					if (k0==-1) & (self.Jsu[idx][k][j]!=0):
+						k0 = k
+						self.idxs[idx][j] = k
+				for k in range(nbx[idx]):
+					if (k0==-1) & (self.Jsx[idx][k][j]!=0):
+						k0 = k
+						self.idxs[idx][j] = nbu[idx]+k
+				for k in range(ng[idx]):
+					if (k0==-1) & (self.Jsg[idx][k][j]!=0):
+						k0 = k
+						self.idxs[idx][j] = nbu[idx]+ng[idx]+k
+			self.idxs[idx] = np.ascontiguousarray(self.idxs[idx], dtype=np.int32)
 		return
 
 	def set_Jsx(self, Jsx, idx=None):
 		nbx = self.dims.nbx
+		nbu = self.dims.nbu
+		ng = self.dims.ng
 		ns = self.dims.ns
 		if idx==None:
 			for i in range(len(Jsx)):
 				self.Jsx[i] = Jsx[i]
 				self.Jsx[i] = np.ascontiguousarray(self.Jsx[i], dtype=np.float64)
 				self.Jsx[i] = self.Jsx[i].reshape((nbx[i], ns[i]))
+				for j in range(ns[i]):
+					k0 = -1
+					for k in range(nbu[i]):
+						if (k0==-1) & (self.Jsu[i][k][j]!=0):
+							k0 = k
+							self.idxs[i][j] = k
+					for k in range(nbx[i]):
+						if (k0==-1) & (self.Jsx[i][k][j]!=0):
+							k0 = k
+							self.idxs[i][j] = nbu[i]+k
+					for k in range(ng[i]):
+						if (k0==-1) & (self.Jsg[i][k][j]!=0):
+							k0 = k
+							self.idxs[i][j] = nbu[i]+ng[i]+k
+				self.idxs[i] = np.ascontiguousarray(self.idxs[i], dtype=np.int32)
 		else:
 			self.Jsx[idx] = Jsx
 			self.Jsx[idx] = np.ascontiguousarray(self.Jsx[idx], dtype=np.float64)
 			self.Jsx[idx] = self.Jsx[idx].reshape((nbx[idx], ns[idx]))
+			for j in range(ns[idx]):
+				k0 = -1
+				for k in range(nbu[idx]):
+					if (k0==-1) & (self.Jsu[idx][k][j]!=0):
+						k0 = k
+						self.idxs[idx][j] = k
+				for k in range(nbx[idx]):
+					if (k0==-1) & (self.Jsx[idx][k][j]!=0):
+						k0 = k
+						self.idxs[idx][j] = nbu[idx]+k
+				for k in range(ng[idx]):
+					if (k0==-1) & (self.Jsg[idx][k][j]!=0):
+						k0 = k
+						self.idxs[idx][j] = nbu[idx]+ng[idx]+k
+			self.idxs[idx] = np.ascontiguousarray(self.idxs[idx], dtype=np.int32)
 		return
 
 	def set_Jsg(self, Jsg, idx=None):
+		nbx = self.dims.nbx
+		nbu = self.dims.nbu
 		ng = self.dims.ng
 		ns = self.dims.ns
 		if idx==None:
@@ -1028,10 +873,40 @@ class hpipm_ocp_qp:
 				self.Jsg[i] = Jsg[i]
 				self.Jsg[i] = np.ascontiguousarray(self.Jsg[i], dtype=np.float64)
 				self.Jsg[i] = self.Jsg[i].reshape((ng[i], ns[i]))
+				for j in range(ns[i]):
+					k0 = -1
+					for k in range(nbu[i]):
+						if (k0==-1) & (self.Jsu[i][k][j]!=0):
+							k0 = k
+							self.idxs[i][j] = k
+					for k in range(nbx[i]):
+						if (k0==-1) & (self.Jsx[i][k][j]!=0):
+							k0 = k
+							self.idxs[i][j] = nbu[i]+k
+					for k in range(ng[i]):
+						if (k0==-1) & (self.Jsg[i][k][j]!=0):
+							k0 = k
+							self.idxs[i][j] = nbu[i]+ng[i]+k
+				self.idxs[i] = np.ascontiguousarray(self.idxs[i], dtype=np.int32)
 		else:
 			self.Jsg[idx] = Jsg
 			self.Jsg[idx] = np.ascontiguousarray(self.Jsg[idx], dtype=np.float64)
 			self.Jsg[idx] = self.Jsg[idx].reshape((ng[idx], ns[idx]))
+			for j in range(ns[idx]):
+				k0 = -1
+				for k in range(nbu[idx]):
+					if (k0==-1) & (self.Jsu[idx][k][j]!=0):
+						k0 = k
+						self.idxs[idx][j] = k
+				for k in range(nbx[idx]):
+					if (k0==-1) & (self.Jsx[idx][k][j]!=0):
+						k0 = k
+						self.idxs[idx][j] = nbu[idx]+k
+				for k in range(ng[idx]):
+					if (k0==-1) & (self.Jsg[idx][k][j]!=0):
+						k0 = k
+						self.idxs[idx][j] = nbu[idx]+ng[idx]+k
+			self.idxs[idx] = np.ascontiguousarray(self.idxs[idx], dtype=np.int32)
 		return
 
 

@@ -30,6 +30,8 @@ q = np.array([1, 1])
 Jx = np.array([1, 0, 0, 1])
 x0 = np.array([1, 1])
 Jsx = np.array([1, 0, 0, 1])
+Zl = np.array([0e5, 0, 0, 0e5])
+Zu = np.array([0e5, 0, 0, 0e5])
 
 
 
@@ -52,6 +54,8 @@ qp.set_ux(x0, 0)
 #qp.set_ug(x0, 0)
 qp.set_Jx(Jx, 5)
 qp.set_Jsx(Jsx, 5)
+qp.set_Zl(Zl, 5)
+qp.set_Zu(Zu, 5)
 
 
 # set up solver
