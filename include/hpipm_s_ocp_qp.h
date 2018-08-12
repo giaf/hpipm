@@ -62,6 +62,8 @@ struct s_ocp_qp
 
 
 //
+int s_sizeof_ocp_qp();
+//
 int s_memsize_ocp_qp(struct s_ocp_qp_dim *dim);
 //
 void s_create_ocp_qp(struct s_ocp_qp_dim *dim, struct s_ocp_qp *qp, void *memory);
@@ -71,6 +73,18 @@ void s_change_bounds_dimensions_ocp_qp(int *nbu, int *nbx, struct s_ocp_qp *qp);
 void s_cvt_colmaj_to_ocp_qp(float **A, float **B, float **b, float **Q, float **S, float **R, float **q, float **r, int **idxb, float **lb, float **ub, float **C, float **D, float **lg, float **ug, float **Zl, float **Zu, float **zl, float **zu, int **idxs, float **ls, float **us, struct s_ocp_qp *qp);
 //
 void s_cvt_rowmaj_to_ocp_qp(float **A, float **B, float **b, float **Q, float **S, float **R, float **q, float **r, int **idxb, float **lb, float **ub, float **C, float **D, float **lg, float **ug, float **Zl, float **Zu, float **zl, float **zu, int **idxs, float **ls, float **us, struct s_ocp_qp *qp);
+//
+void s_cvt_colmaj_to_ocp_qp_A(int stage, float *mat, struct s_ocp_qp *qp);
+//
+void s_cvt_ocp_qp_to_colmaj_A(int stage, struct s_ocp_qp *qp, float *mat);
+//
+void s_cvt_colmaj_to_ocp_qp_B(int stage, float *mat, struct s_ocp_qp *qp);
+//
+void s_cvt_ocp_qp_to_colmaj_B(int stage, struct s_ocp_qp *qp, float *mat);
+//
+void s_cvt_colmaj_to_ocp_qp_b(int stage, float *vec, struct s_ocp_qp *qp);
+//
+void s_cvt_ocp_qp_to_colmaj_b(int stage, struct s_ocp_qp *qp, float *vec);
 //
 void s_cvt_colmaj_to_ocp_qp_Q(int stage, float *mat, struct s_ocp_qp *qp);
 //
@@ -91,34 +105,34 @@ void s_cvt_ocp_qp_to_colmaj_q(int stage, struct s_ocp_qp *qp, float *vec);
 void s_cvt_colmaj_to_ocp_qp_r(int stage, float *vec, struct s_ocp_qp *qp);
 //
 void s_cvt_ocp_qp_to_colmaj_r(int stage, struct s_ocp_qp *qp, float *vec);
-//
-void s_cvt_colmaj_to_ocp_qp_A(int stage, float *mat, struct s_ocp_qp *qp);
-//
-void s_cvt_ocp_qp_to_colmaj_A(int stage, struct s_ocp_qp *qp, float *mat);
-//
-void s_cvt_colmaj_to_ocp_qp_B(int stage, float *mat, struct s_ocp_qp *qp);
-//
-void s_cvt_ocp_qp_to_colmaj_B(int stage, struct s_ocp_qp *qp, float *mat);
-//
-void s_cvt_colmaj_to_ocp_qp_b(int stage, float *vec, struct s_ocp_qp *qp);
-//
-void s_cvt_ocp_qp_to_colmaj_b(int stage, struct s_ocp_qp *qp, float *vec);
-//
+// TODO remove !!!
 void s_cvt_colmaj_to_ocp_qp_lbx(int stage, float *vec, struct s_ocp_qp *qp);
-//
+// TODO remove !!!
 void s_cvt_ocp_qp_to_colmaj_lbx(int stage, struct s_ocp_qp *qp, float *vec);
-//
+// TODO remove !!!
 void s_cvt_colmaj_to_ocp_qp_ubx(int stage, float *vec, struct s_ocp_qp *qp);
-//
+// TODO remove !!!
 void s_cvt_ocp_qp_to_colmaj_ubx(int stage, struct s_ocp_qp *qp, float *vec);
-//
+// TODO remove !!!
 void s_cvt_colmaj_to_ocp_qp_lbu(int stage, float *vec, struct s_ocp_qp *qp);
-//
+// TODO remove !!!
 void s_cvt_ocp_qp_to_colmaj_lbu(int stage, struct s_ocp_qp *qp, float *vec);
-//
+// TODO remove !!!
 void s_cvt_colmaj_to_ocp_qp_ubu(int stage, float *vec, struct s_ocp_qp *qp);
-//
+// TODO remove !!!
 void s_cvt_ocp_qp_to_colmaj_ubu(int stage, struct s_ocp_qp *qp, float *vec);
+//
+void s_cvt_colmaj_to_ocp_qp_idxb(int stage, int *vec, struct s_ocp_qp *qp);
+//
+void s_cvt_ocp_qp_to_colmaj_idxb(int stage, struct s_ocp_qp *qp, int *vec);
+//
+void s_cvt_colmaj_to_ocp_qp_lb(int stage, float *vec, struct s_ocp_qp *qp);
+//
+void s_cvt_ocp_qp_to_colmaj_lb(int stage, struct s_ocp_qp *qp, float *vec);
+//
+void s_cvt_colmaj_to_ocp_qp_ub(int stage, float *vec, struct s_ocp_qp *qp);
+//
+void s_cvt_ocp_qp_to_colmaj_ub(int stage, struct s_ocp_qp *qp, float *vec);
 //
 void s_cvt_colmaj_to_ocp_qp_C(int stage, float *mat, struct s_ocp_qp *qp);
 //
@@ -135,6 +149,7 @@ void s_cvt_ocp_qp_to_colmaj_lg(int stage, struct s_ocp_qp *qp, float *vec);
 void s_cvt_colmaj_to_ocp_qp_ug(int stage, float *vec, struct s_ocp_qp *qp);
 //
 void s_cvt_ocp_qp_to_colmaj_ug(int stage, struct s_ocp_qp *qp, float *vec);
+
 
 
 #ifdef __cplusplus

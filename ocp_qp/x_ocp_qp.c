@@ -1,29 +1,36 @@
 /**************************************************************************************************
-*                                                                                                 *
-* This file is part of HPIPM.                                                                     *
-*                                                                                                 *
-* HPIPM -- High Performance Interior Point Method.                                                *
-* Copyright (C) 2017 by Gianluca Frison.                                                          *
-* Developed at IMTEK (University of Freiburg) under the supervision of Moritz Diehl.              *
-* All rights reserved.                                                                            *
-*                                                                                                 *
-* HPIPM is free software; you can redistribute it and/or                                          *
-* modify it under the terms of the GNU Lesser General Public                                      *
-* License as published by the Free Software Foundation; either                                    *
-* version 2.1 of the License, or (at your option) any later version.                              *
-*                                                                                                 *
-* HPIPM is distributed in the hope that it will be useful,                                        *
-* but WITHOUT ANY WARRANTY; without even the implied warranty of                                  *
-* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.                                            *
-* See the GNU Lesser General Public License for more details.                                     *
-*                                                                                                 *
-* You should have received a copy of the GNU Lesser General Public                                *
-* License along with HPIPM; if not, write to the Free Software                                    *
-* Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA                  *
-*                                                                                                 *
-* Author: Gianluca Frison, gianluca.frison (at) imtek.uni-freiburg.de                             *
-*                                                                                                 *
+*																								 *
+* This file is part of HPIPM.																	 *
+*																								 *
+* HPIPM -- High Performance Interior Point Method.												*
+* Copyright (C) 2017 by Gianluca Frison.														  *
+* Developed at IMTEK (University of Freiburg) under the supervision of Moritz Diehl.			  *
+* All rights reserved.																			*
+*																								 *
+* HPIPM is free software; you can redistribute it and/or										  *
+* modify it under the terms of the GNU Lesser General Public									  *
+* License as published by the Free Software Foundation; either									*
+* version 2.1 of the License, or (at your option) any later version.							  *
+*																								 *
+* HPIPM is distributed in the hope that it will be useful,										*
+* but WITHOUT ANY WARRANTY; without even the implied warranty of								  *
+* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.											*
+* See the GNU Lesser General Public License for more details.									 *
+*																								 *
+* You should have received a copy of the GNU Lesser General Public								*
+* License along with HPIPM; if not, write to the Free Software									*
+* Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA				  *
+*																								 *
+* Author: Gianluca Frison, gianluca.frison (at) imtek.uni-freiburg.de							 *
+*																								 *
 **************************************************************************************************/
+
+
+
+int SIZEOF_OCP_QP()
+	{
+	return sizeof(struct OCP_QP);
+	}
 
 
 
@@ -467,6 +474,86 @@ void CVT_ROWMAJ_TO_OCP_QP(REAL **A, REAL **B, REAL **b, REAL **Q, REAL **S, REAL
 
 
 
+void CVT_COLMAJ_TO_OCP_QP_A(int stage, REAL *A, struct OCP_QP *qp)
+	{
+	// extract dim
+	int *nx = qp->dim->nx;
+	int *nu = qp->dim->nu;
+
+	CVT_TRAN_MAT2STRMAT(nx[stage+1], nx[stage], A, nx[stage+1], qp->BAbt+stage, nu[stage], 0);
+
+	return;
+	}
+
+
+
+void CVT_OCP_QP_TO_COLMAJ_A(int stage, struct OCP_QP *qp, REAL *A)
+	{
+	// extract dim
+	int *nx = qp->dim->nx;
+	int *nu = qp->dim->nu;
+
+	CVT_TRAN_STRMAT2MAT(nx[stage], nx[stage+1], qp->BAbt+stage, nu[stage], 0, A, nx[stage+1]);
+
+	return;
+	}
+
+
+
+void CVT_COLMAJ_TO_OCP_QP_B(int stage, REAL *B, struct OCP_QP *qp)
+	{
+	// extract dim
+	int *nx = qp->dim->nx;
+	int *nu = qp->dim->nu;
+
+	CVT_TRAN_MAT2STRMAT(nx[stage+1], nu[stage], B, nx[stage+1], qp->BAbt+stage, 0, 0);
+
+	return;
+	}
+
+
+
+void CVT_OCP_QP_TO_COLMAJ_B(int stage, struct OCP_QP *qp, REAL *B)
+	{
+	// extract dim
+	int *nx = qp->dim->nx;
+	int *nu = qp->dim->nu;
+
+	CVT_TRAN_STRMAT2MAT(nu[stage], nx[stage+1], qp->BAbt+stage, 0, 0, B, nx[stage+1]);
+
+	return;
+	}
+
+
+
+void CVT_COLMAJ_TO_OCP_QP_BVEC(int stage, REAL *b, struct OCP_QP *qp)
+	{
+	// extract dim
+	int *nx = qp->dim->nx;
+	int *nu = qp->dim->nu;
+
+	int row_offset = qp->dim->nx[stage] + qp->dim->nu[stage], col_offset = 0;
+	CVT_TRAN_MAT2STRMAT(nx[stage+1], 1, b, nx[stage+1], &(qp->BAbt[stage]), row_offset, col_offset);
+	CVT_VEC2STRVEC(nx[stage+1], b, qp->b+stage, 0);
+
+	return;
+	}
+
+
+
+void CVT_OCP_QP_TO_COLMAJ_BVEC(int stage, struct OCP_QP *qp, REAL *b)
+	{
+	// extract dim
+	int *nx = qp->dim->nx;
+	int *nu = qp->dim->nu;
+
+	CVT_STRVEC2VEC(nx[stage+1], qp->b+stage, 0, b);
+
+	return;
+	}
+
+
+
 void CVT_COLMAJ_TO_OCP_QP_Q(int stage, REAL *Q, struct OCP_QP *qp)
 	{
 	// extract dim
@@ -552,7 +639,7 @@ void CVT_COLMAJ_TO_OCP_QP_QVEC(int stage, REAL *q, struct OCP_QP *qp)
 
 	int row_offset = qp->dim->nu[stage] + qp->dim->nx[stage], col_offset = qp->dim->nu[stage];
  	CVT_TRAN_MAT2STRMAT(nx[stage], 1, q, nx[stage], &(qp->RSQrq[stage]), row_offset, col_offset);
-    CVT_VEC2STRVEC(nx[stage], q, qp->rqz+stage, nu[stage]);
+	CVT_VEC2STRVEC(nx[stage], q, qp->rqz+stage, nu[stage]);
 
 	return;
 	}
@@ -597,86 +684,7 @@ void CVT_OCP_QP_TO_COLMAJ_RVEC(int stage, struct OCP_QP *qp, REAL *r)
 
 
 
-void CVT_COLMAJ_TO_OCP_QP_A(int stage, REAL *A, struct OCP_QP *qp)
-	{
-	// extract dim
-	int *nx = qp->dim->nx;
-	int *nu = qp->dim->nu;
-
-	CVT_TRAN_MAT2STRMAT(nx[stage+1], nx[stage], A, nx[stage+1], qp->BAbt+stage, nu[stage], 0);
-
-	return;
-	}
-
-
-
-void CVT_OCP_QP_TO_COLMAJ_A(int stage, struct OCP_QP *qp, REAL *A)
-	{
-	// extract dim
-	int *nx = qp->dim->nx;
-	int *nu = qp->dim->nu;
-
-	CVT_TRAN_STRMAT2MAT(nx[stage], nx[stage+1], qp->BAbt+stage, nu[stage], 0, A, nx[stage+1]);
-
-	return;
-	}
-
-
-
-void CVT_COLMAJ_TO_OCP_QP_B(int stage, REAL *B, struct OCP_QP *qp)
-	{
-	// extract dim
-	int *nx = qp->dim->nx;
-	int *nu = qp->dim->nu;
-
-	CVT_TRAN_MAT2STRMAT(nx[stage+1], nu[stage], B, nx[stage+1], qp->BAbt+stage, 0, 0);
-
-	return;
-	}
-
-
-
-void CVT_OCP_QP_TO_COLMAJ_B(int stage, struct OCP_QP *qp, REAL *B)
-	{
-	// extract dim
-	int *nx = qp->dim->nx;
-	int *nu = qp->dim->nu;
-
-	CVT_TRAN_STRMAT2MAT(nu[stage], nx[stage+1], qp->BAbt+stage, 0, 0, B, nx[stage+1]);
-
-	return;
-	}
-
-
-
-void CVT_COLMAJ_TO_OCP_QP_BVEC(int stage, REAL *b, struct OCP_QP *qp)
-	{
-	// extract dim
-	int *nx = qp->dim->nx;
-	int *nu = qp->dim->nu;
-
-	int row_offset = qp->dim->nx[stage] + qp->dim->nu[stage], col_offset = 0;
-	CVT_TRAN_MAT2STRMAT(nx[stage+1], 1, b, nx[stage+1], &(qp->BAbt[stage]), row_offset, col_offset);
-	CVT_VEC2STRVEC(nx[stage+1], b, qp->b+stage, 0);
-
-	return;
-	}
-
-
-
-void CVT_OCP_QP_TO_COLMAJ_BVEC(int stage, struct OCP_QP *qp, REAL *b)
-	{
-	// extract dim
-	int *nx = qp->dim->nx;
-	int *nu = qp->dim->nu;
-
-	CVT_STRVEC2VEC(nx[stage+1], qp->b+stage, 0, b);
-
-	return;
-	}
-
-
-
+// TODO remove !!!
 void CVT_COLMAJ_TO_OCP_QP_LBX(int stage, REAL *lbx, struct OCP_QP *qp)
 	{
 	// extract dim
@@ -690,6 +698,7 @@ void CVT_COLMAJ_TO_OCP_QP_LBX(int stage, REAL *lbx, struct OCP_QP *qp)
 
 
 
+// TODO remove !!!
 void CVT_OCP_QP_TO_COLMAJ_LBX(int stage, struct OCP_QP *qp, REAL *lbx)
 	{
 	// extract dim
@@ -703,6 +712,7 @@ void CVT_OCP_QP_TO_COLMAJ_LBX(int stage, struct OCP_QP *qp, REAL *lbx)
 
 
 
+// TODO remove !!!
 void CVT_COLMAJ_TO_OCP_QP_LBU(int stage, REAL *lbu, struct OCP_QP *qp)
 	{
 	// extract dim
@@ -715,6 +725,7 @@ void CVT_COLMAJ_TO_OCP_QP_LBU(int stage, REAL *lbu, struct OCP_QP *qp)
 
 
 
+// TODO remove !!!
 void CVT_OCP_QP_TO_COLMAJ_LBU(int stage, struct OCP_QP *qp, REAL *lbu)
 	{
 	// extract dim
@@ -727,6 +738,7 @@ void CVT_OCP_QP_TO_COLMAJ_LBU(int stage, struct OCP_QP *qp, REAL *lbu)
 
 
 
+// TODO remove !!!
 void CVT_COLMAJ_TO_OCP_QP_UBX(int stage, REAL *lbx, struct OCP_QP *qp)
 	{
 	// extract dim
@@ -736,13 +748,14 @@ void CVT_COLMAJ_TO_OCP_QP_UBX(int stage, REAL *lbx, struct OCP_QP *qp)
 	int *ng = qp->dim->ng;
 
 	CVT_VEC2STRVEC(nbx[stage], lbx, qp->d+stage, nb[stage]+ng[stage]+nbu[stage]);
-    VECSC_LIBSTR(nbx[stage], -1.0, qp->d+stage, nb[stage]+ng[stage]+nbu[stage]);
+	VECSC_LIBSTR(nbx[stage], -1.0, qp->d+stage, nb[stage]+ng[stage]+nbu[stage]);
 
 	return;
 	}
 
 
 
+// TODO remove !!!
 void CVT_OCP_QP_TO_COLMAJ_UBX(int stage, struct OCP_QP *qp, REAL *ubx)
 	{
 	// extract dim
@@ -764,6 +777,7 @@ void CVT_OCP_QP_TO_COLMAJ_UBX(int stage, struct OCP_QP *qp, REAL *ubx)
 
 
 
+// TODO remove !!!
 void CVT_COLMAJ_TO_OCP_QP_UBU(int stage, REAL *ubu, struct OCP_QP *qp)
 	{
 	// extract dim
@@ -772,13 +786,14 @@ void CVT_COLMAJ_TO_OCP_QP_UBU(int stage, REAL *ubu, struct OCP_QP *qp)
 	int *ng = qp->dim->ng;
 
 	CVT_VEC2STRVEC(nbu[stage], ubu, qp->d+stage, nb[stage]+ng[stage]);
-    VECSC_LIBSTR(nbu[stage], -1.0, qp->d+stage, nb[stage]+ng[stage]);
+	VECSC_LIBSTR(nbu[stage], -1.0, qp->d+stage, nb[stage]+ng[stage]);
 
 	return;
 	}
 
 
 
+// TODO remove !!!
 void CVT_OCP_QP_TO_COLMAJ_UBU(int stage, struct OCP_QP *qp, REAL *ubu)
 	{
 	// extract dim
@@ -792,6 +807,98 @@ void CVT_OCP_QP_TO_COLMAJ_UBU(int stage, struct OCP_QP *qp, REAL *ubu)
 	for(i=0; i<nbu[stage]; i++)
 		{
 		ubu[i] = -ubu[i];
+		}
+
+	return;
+	}
+
+
+
+void CVT_COLMAJ_TO_OCP_QP_IDXB(int stage, int *idxb, struct OCP_QP *qp)
+	{
+	// extract dim
+	int *nb = qp->dim->nb;
+
+	int ii;
+	for(ii=0; ii<nb[stage]; ii++)
+		qp->idxb[stage][ii] = idxb[ii];
+
+	return;
+	}
+
+
+
+void CVT_OCP_QP_TO_COLMAJ_IDXB(int stage, struct OCP_QP *qp, int *idxb)
+	{
+	// extract dim
+	int *nb = qp->dim->nb;
+
+	int ii;
+	for(ii=0; ii<nb[stage]; ii++)
+		idxb[ii] = qp->idxb[stage][ii];
+
+	return;
+	}
+
+
+
+void CVT_COLMAJ_TO_OCP_QP_LB(int stage, REAL *lb, struct OCP_QP *qp)
+	{
+	// extract dim
+	int *nb = qp->dim->nb;
+
+	CVT_VEC2STRVEC(nb[stage], lb, qp->d+stage, 0);
+	VECSC_LIBSTR(nb[stage], -1.0, qp->d+stage, 0);
+
+	return;
+	}
+
+
+
+void CVT_OCP_QP_TO_COLMAJ_LB(int stage, struct OCP_QP *qp, REAL *lb)
+	{
+	// extract dim
+	int *nb = qp->dim->nb;
+
+	int i;
+
+	CVT_STRVEC2VEC(nb[stage], qp->d+stage, 0, lb);
+	for(i=0; i<nb[stage]; i++)
+		{
+		lb[i] = -lb[i];
+		}
+
+	return;
+	}
+
+
+
+void CVT_COLMAJ_TO_OCP_QP_UB(int stage, REAL *ub, struct OCP_QP *qp)
+	{
+	// extract dim
+	int *nb = qp->dim->nb;
+	int *ng = qp->dim->ng;
+
+	CVT_VEC2STRVEC(nb[stage], ub, qp->d+stage, nb[stage]+ng[stage]);
+	VECSC_LIBSTR(nb[stage], -1.0, qp->d+stage, nb[stage]+ng[stage]);
+
+	return;
+	}
+
+
+
+void CVT_OCP_QP_TO_COLMAJ_UB(int stage, struct OCP_QP *qp, REAL *ub)
+	{
+	// extract dim
+	int *nb = qp->dim->nb;
+	int *ng = qp->dim->ng;
+
+	int i;
+
+	CVT_STRVEC2VEC(nb[stage], qp->d+stage, nb[stage]+ng[stage], ub);
+	for(i=0; i<nb[stage]; i++)
+		{
+		ub[i] = -ub[i];
 		}
 
 	return;
@@ -886,7 +993,7 @@ void CVT_COLMAJ_TO_OCP_QP_UG(int stage, REAL *ug, struct OCP_QP *qp)
 	int *ng = qp->dim->ng;
 
 	CVT_VEC2STRVEC(ng[stage], ug, qp->d+stage, 2*nb[stage]+ng[stage]);
-    VECSC_LIBSTR(ng[stage], -1.0, qp->d+stage, 2*nb[stage]+ng[stage]);
+	VECSC_LIBSTR(ng[stage], -1.0, qp->d+stage, 2*nb[stage]+ng[stage]);
 
 	return;
 	}
@@ -946,11 +1053,5 @@ void CHANGE_BOUNDS_DIMENSIONS_OCP_QP(int *nbu, int *nbx, struct OCP_QP *qp)
 	return;
 
 	}
-
-// interface functions
-int SIZEOF_OCP_QP()
-    {
-        return sizeof(struct OCP_QP);
-    }
 
 
