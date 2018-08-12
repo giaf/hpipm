@@ -12,6 +12,8 @@ dims.set_nx(np.array([2, 2, 2, 2, 2, 2]))
 dims.set_nu(np.array([1, 1, 1, 1, 1]))
 dims.set_nbx(2, 0)
 #dims.set_ng(2, 0)
+dims.set_nbx(2, 5)
+dims.set_ns(2, 5)
 
 
 # data
@@ -27,6 +29,7 @@ q = np.array([1, 1])
 
 Jx = np.array([1, 0, 0, 1])
 x0 = np.array([1, 1])
+Jsx = np.array([1, 0, 0, 1])
 
 
 
@@ -47,6 +50,8 @@ qp.set_ux(x0, 0)
 #qp.set_C(Jx, 0)
 #qp.set_lg(x0, 0)
 #qp.set_ug(x0, 0)
+qp.set_Jx(Jx, 5)
+qp.set_Jsx(Jsx, 5)
 
 
 # set up solver
