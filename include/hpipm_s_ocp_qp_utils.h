@@ -25,17 +25,17 @@
 *                                                                                                 *
 **************************************************************************************************/
 
-#ifndef HPIPM_D_OCP_QP_UTILS_H_
-#define HPIPM_D_OCP_QP_UTILS_H_
+#ifndef HPIPM_S_OCP_QP_UTILS_H_
+#define HPIPM_S_OCP_QP_UTILS_H_
 
 
 
 #include <blasfeo_target.h>
 #include <blasfeo_common.h>
 
-#include "hpipm_d_ocp_qp_dim.h"
-#include "hpipm_d_ocp_qp.h"
-#include "hpipm_d_ocp_qp_sol.h"
+#include "hpipm_s_ocp_qp_dim.h"
+#include "hpipm_s_ocp_qp.h"
+#include "hpipm_s_ocp_qp_sol.h"
 
 
 
@@ -46,9 +46,9 @@ extern "C" {
 
 
 //
-void d_print_ocp_qp(struct d_ocp_qp *qp);
+void s_print_ocp_qp(struct s_ocp_qp *qp);
 //
-void d_print_ocp_qp_sol(struct d_ocp_qp_sol *ocp_qp_sol, struct d_ocp_qp_dim *ocp_qp_dim);
+void s_print_ocp_qp_sol(struct s_ocp_qp_sol *ocp_qp_sol, struct s_ocp_qp_dim *ocp_qp_dim);
 
 
 
@@ -59,3 +59,4 @@ void d_print_ocp_qp_sol(struct d_ocp_qp_sol *ocp_qp_sol, struct d_ocp_qp_dim *oc
 
 
 #endif // HPIPM_D_OCP_QP_UTILS_H_
+

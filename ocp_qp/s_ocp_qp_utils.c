@@ -33,15 +33,26 @@
 #include <blasfeo_common.h>
 #include <blasfeo_s_aux.h>
 #include <blasfeo_s_aux_ext_dep.h>
+#include <blasfeo_i_aux_ext_dep.h>
 
-#include <hpipm_s_ocp_qp_sol.h>
 #include <hpipm_s_ocp_qp_dim.h>
+#include <hpipm_s_ocp_qp.h>
+#include <hpipm_s_ocp_qp_sol.h>
 
+
+
+#define BLASFEO_PRINT_MAT blasfeo_print_smat
 #define BLASFEO_PRINT_TRAN_VEC blasfeo_print_tran_svec
+#define OCP_QP s_ocp_qp
 #define OCP_QP_SOL s_ocp_qp_sol
 #define OCP_QP_DIM s_ocp_qp_dim
 
+
+
+#define PRINT_OCP_QP s_print_ocp_qp
 #define PRINT_OCP_QP_SOL s_print_ocp_qp_sol
+
+
 
 #include "x_ocp_qp_utils.c"
 

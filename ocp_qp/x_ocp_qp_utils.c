@@ -28,6 +28,60 @@
 
 
 
+void PRINT_OCP_QP(struct OCP_QP *qp)
+	{
+	int ii;
+
+	struct OCP_QP_DIM *dim = qp->dim;
+
+	int N   = dim->N;
+	int *nx = dim->nx;
+	int *nu = dim->nu;
+	int *nb = dim->nb;
+	int *ng = dim->ng;
+	int *ns = dim->ns;
+
+	printf("BAt =\n");
+	for (ii = 0; ii < N; ii++)
+		BLASFEO_PRINT_MAT(nu[ii]+nx[ii], nx[ii+1], qp->BAbt+ii, 0, 0);
+
+	printf("b =\n");
+	for (ii = 0; ii < N; ii++)
+		BLASFEO_PRINT_TRAN_VEC(nx[ii+1], qp->b+ii, 0);
+
+	printf("RSQ =\n");
+	for (ii = 0; ii <= N; ii++)
+		BLASFEO_PRINT_MAT(nu[ii]+nx[ii], nu[ii]+nx[ii], qp->RSQrq+ii, 0, 0);
+
+	printf("Z =\n");
+	for (ii = 0; ii <= N; ii++)
+		BLASFEO_PRINT_TRAN_VEC(2*ns[ii], qp->Z+ii, 0);
+
+	printf("rqz =\n");
+	for (ii = 0; ii <= N; ii++)
+		BLASFEO_PRINT_TRAN_VEC(nu[ii]+nx[ii]+ns[ii], qp->rqz+ii, 0);
+
+	printf("idxb = \n");
+	for (ii = 0; ii <= N; ii++)
+		int_print_mat(1, nb[ii], qp->idxb[ii], 1);
+
+	printf("d =\n");
+	for (ii = 0; ii <= N; ii++)
+		BLASFEO_PRINT_TRAN_VEC(2*nb[ii]+2*ng[ii]+2*ns[ii], qp->d+ii, 0);
+
+	printf("DCt =\n");
+	for (ii = 0; ii <= N; ii++)
+		BLASFEO_PRINT_MAT(nu[ii]+nx[ii], ng[ii], qp->DCt+ii, 0, 0);
+
+	printf("m =\n");
+	for (ii = 0; ii <= N; ii++)
+		BLASFEO_PRINT_TRAN_VEC(2*nb[ii]+2*ng[ii]+2*ns[ii], qp->m+ii, 0);
+
+	return;
+	}
+
+
+
 void PRINT_OCP_QP_SOL(struct OCP_QP_SOL *qp_sol, struct OCP_QP_DIM *qp_dim)
 	{
 	int ii;
