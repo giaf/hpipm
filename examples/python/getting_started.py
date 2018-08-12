@@ -6,7 +6,11 @@ import time
 
 
 # dims
-dims = hpipm_ocp_qp_dims(5)
+start_time = time.time()
+dims = hpipm_ocp_qp_dim(5)
+end_time = time.time()
+
+print('create dim time {:e}'.format(end_time-start_time))
 
 dims.set_nx(np.array([2, 2, 2, 2, 2, 2]))
 dims.set_nu(np.array([1, 1, 1, 1, 1]))

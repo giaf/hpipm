@@ -10,39 +10,12 @@ faulthandler.enable()
 class hpipm_solver:
 	def __init__(self, qp_dims, qp_data):
 
-		# load blasfeo and hpipm shared libraries
-		__blasfeo = CDLL('libblasfeo.so')
+		# load hpipm shared library
 		__hpipm   = CDLL('libhpipm.so')
+		self.__hpipm = __hpipm
 
-		# cast dimensions to contiguous int
+		# extract dim
 		N	= qp_dims.N
-		nx   = np.ascontiguousarray(qp_dims.nx,  dtype=np.int32)
-		nu   = np.ascontiguousarray(qp_dims.nu,  dtype=np.int32)
-		nbx  = np.ascontiguousarray(qp_dims.nbx, dtype=np.int32)
-		nbu  = np.ascontiguousarray(qp_dims.nbu, dtype=np.int32)
-		ng   = np.ascontiguousarray(qp_dims.ng,  dtype=np.int32)
-		ns   = np.ascontiguousarray(qp_dims.ns,  dtype=np.int32)
-
-		# allocate memory for dimemsions struct
-		sizeof_d_ocp_qp_dim = __hpipm.d_sizeof_ocp_qp_dim()
-		dim = cast(create_string_buffer(sizeof_d_ocp_qp_dim), c_void_p)
-		self.ocp_qp_dim = dim
-
-		dim_size = __hpipm.d_memsize_ocp_qp_dim(qp_dims.N)
-		dim_mem = cast(create_string_buffer(dim_size), c_void_p)
-		self.dim_mem = dim_mem
-
-		# set up dimensions structure
-		__hpipm.d_create_ocp_qp_dim(N, dim, dim_mem)
-		__hpipm.d_cvt_int_to_ocp_qp_dim(N,
-			cast(nx.ctypes.data, POINTER(c_double)),
-			cast(nu.ctypes.data, POINTER(c_double)),
-			cast(nbx.ctypes.data, POINTER(c_double)),
-			cast(nbu.ctypes.data, POINTER(c_double)),
-			cast(ng.ctypes.data, POINTER(c_double)),
-			cast(ns.ctypes.data, POINTER(c_double)),
-			dim)
-
 
 		# array of pointer
 		A = (POINTER(c_double)*(N))()
@@ -113,7 +86,7 @@ class hpipm_solver:
 				idxs[i] = cast(qp_data.idxs[i].ctypes.data, POINTER(c_int))
 
 		# allocate memory for qp struct 
-		qp_size = __hpipm.d_memsize_ocp_qp(dim)
+		qp_size = __hpipm.d_memsize_ocp_qp(qp_dims.dim)
 		qp_mem = cast(create_string_buffer(qp_size), c_void_p)
 		self.qp_mem = qp_mem
 
@@ -122,23 +95,23 @@ class hpipm_solver:
 		qp = cast(create_string_buffer(sizeof_d_ocp_qp), c_void_p)
 		self.ocp_qp = qp
 
-		__hpipm.d_create_ocp_qp(dim, qp, qp_mem)
+		__hpipm.d_create_ocp_qp(qp_dims.dim, qp, qp_mem)
 		__hpipm.d_cvt_colmaj_to_ocp_qp(A, B, b, Q, S, R, q, r, idxb, lb, ub,
 			C, D, lg, ug, Zl, Zu, zl, zu, idxs, lls, lus, qp)
 		
 		# allocate memory for ocp_qp_sol struct
-		qp_sol_size = __hpipm.d_memsize_ocp_qp_sol(dim)
+		qp_sol_size = __hpipm.d_memsize_ocp_qp_sol(qp_dims.dim)
 		qp_sol_mem = cast(create_string_buffer(qp_sol_size), c_void_p)
 		self.qp_sol_mem = qp_sol_mem
 
 		# set up ocp_qp_sol struct
 		sizeof_d_ocp_qp_sol = __hpipm.d_sizeof_ocp_qp_sol()
 		qp_sol = cast(create_string_buffer(sizeof_d_ocp_qp_sol), c_void_p)
-		__hpipm.d_create_ocp_qp_sol(dim, qp_sol, qp_sol_mem)
+		__hpipm.d_create_ocp_qp_sol(qp_dims.dim, qp_sol, qp_sol_mem)
 		self.ocp_qp_sol = qp_sol
 
 		# allocate memory for ipm_arg struct
-		ipm_arg_size = __hpipm.d_memsize_ocp_qp_ipm_arg(dim)
+		ipm_arg_size = __hpipm.d_memsize_ocp_qp_ipm_arg(qp_dims.dim)
 		ipm_arg_mem = cast(create_string_buffer(ipm_arg_size), c_void_p)
 		self.ipm_arg_mem = ipm_arg_mem
 
@@ -147,11 +120,11 @@ class hpipm_solver:
 		arg = cast(create_string_buffer(sizeof_d_ocp_qp_ipm_arg), c_void_p)
 		self.ocp_qp_ipm_arg = arg
 
-		__hpipm.d_create_ocp_qp_ipm_arg(dim, arg, ipm_arg_mem)
+		__hpipm.d_create_ocp_qp_ipm_arg(qp_dims.dim, arg, ipm_arg_mem)
 		__hpipm.d_set_default_ocp_qp_ipm_arg(1, arg)
 
 		# allocate memory for ipm workspace 
-		ipm_size = __hpipm.d_memsize_ocp_qp_ipm(dim, arg)
+		ipm_size = __hpipm.d_memsize_ocp_qp_ipm(qp_dims.dim, arg)
 		ipm_mem = cast(create_string_buffer(ipm_size), c_void_p)
 		self.ipm_mem = ipm_mem
 
@@ -160,83 +133,128 @@ class hpipm_solver:
 		workspace = cast(create_string_buffer(sizeof_d_ocp_qp_ipm_workspace), c_void_p)
 		self.ocp_qp_ipm_workspace = workspace
 
-		__hpipm.d_create_ocp_qp_ipm(dim, arg, workspace, ipm_mem)
+		__hpipm.d_create_ocp_qp_ipm(qp_dims.dim, arg, workspace, ipm_mem)
 
 		self.qp = qp
 		self.qp_sol = qp_sol
 		self.arg = arg
 		self.workspace = workspace
-		self.dim = dim
+		self.dim = qp_dims.dim
 		
-		self.__hpipm = __hpipm
-		self.__blasfeo = __blasfeo
-
 	def solve(self):
 		return self.__hpipm.d_solve_ocp_qp_ipm(self.qp, self.qp_sol, 
 			self.arg, self.workspace)
 
 	def print_sol(self):
-		self.__hpipm.d_print_ocp_qp_sol(self.ocp_qp_sol, self.ocp_qp_dim)
+		self.__hpipm.d_print_ocp_qp_sol(self.ocp_qp_sol, self.dim)
 		return 
 
 
 
-class hpipm_ocp_qp_dims:
+class hpipm_ocp_qp_dim:
+
 	def __init__(self, N):
+
+		# memory for python class
 		self.N	= N
-		self.nx   = np.zeros(N+1, dtype=int)
-		self.nu   = np.zeros(N+1, dtype=int)
-		self.nbx  = np.zeros(N+1, dtype=int)
-		self.nbu  = np.zeros(N+1, dtype=int)
-		self.ng   = np.zeros(N+1, dtype=int)
-		self.ns   = np.zeros(N+1, dtype=int)
+		self.nx   = np.zeros(N+1, dtype=np.int32)
+		self.nu   = np.zeros(N+1, dtype=np.int32)
+		self.nbx  = np.zeros(N+1, dtype=np.int32)
+		self.nbu  = np.zeros(N+1, dtype=np.int32)
+		self.ng   = np.zeros(N+1, dtype=np.int32)
+		self.ns   = np.zeros(N+1, dtype=np.int32)
+
+		# load hpipm shared library
+		__hpipm   = CDLL('libhpipm.so')
+		self.__hpipm = __hpipm
+
+		# allocate memory for C dimemsions struct
+		dim_struct_size = __hpipm.d_sizeof_ocp_qp_dim()
+		dim_struct = cast(create_string_buffer(dim_struct_size), c_void_p)
+		self.dim = dim_struct
+
+		dim_mem_size = __hpipm.d_memsize_ocp_qp_dim(N)
+		dim_mem = cast(create_string_buffer(dim_mem_size), c_void_p)
+		self.dim_mem = dim_mem
+
+		# set up dimensions structure
+		__hpipm.d_create_ocp_qp_dim(N, self.dim, self.dim_mem)
+
+#		__hpipm.d_cvt_int_to_ocp_qp_dim(N,
+#			cast(nx.ctypes.data, POINTER(c_double)),
+#			cast(nu.ctypes.data, POINTER(c_double)),
+#			cast(nbx.ctypes.data, POINTER(c_double)),
+#			cast(nbu.ctypes.data, POINTER(c_double)),
+#			cast(ng.ctypes.data, POINTER(c_double)),
+#			cast(ns.ctypes.data, POINTER(c_double)),
+#			self.dim)
+
 
 	def set_nx(self, nx, idx=None):
+#		self.__hpipm.d_set_ocp_qp_dim_nx.restypes = [None]
+		self.__hpipm.d_set_ocp_qp_dim_nx.argtypes = [c_int, c_int, c_void_p]
 		if idx==None:
 			for i in range(nx.size):
 				self.nx[i] = nx[i]
+				self.__hpipm.d_set_ocp_qp_dim_nx(i, nx[i], self.dim)
 		else:
 			self.nx[idx] = nx
+			self.__hpipm.d_set_ocp_qp_dim_nx(idx, nx, self.dim)
 		return
 
 	def set_nu(self, nu, idx=None):
+		self.__hpipm.d_set_ocp_qp_dim_nu.argtypes = [c_int, c_int, c_void_p]
 		if idx==None:
 			for i in range(nu.size):
 				self.nu[i] = nu[i]
+				self.__hpipm.d_set_ocp_qp_dim_nu(i, nu[i], self.dim)
 		else:
 			self.nu[idx] = nu
+			self.__hpipm.d_set_ocp_qp_dim_nu(idx, nu, self.dim)
 		return
 
 	def set_nbx(self, nbx, idx=None):
+		self.__hpipm.d_set_ocp_qp_dim_nbx.argtypes = [c_int, c_int, c_void_p]
 		if idx==None:
 			for i in range(nbx.size):
 				self.nbx[i] = nbx[i]
+				self.__hpipm.d_set_ocp_qp_dim_nbx(i, nbx[i], self.dim)
 		else:
 			self.nbx[idx] = nbx
+			self.__hpipm.d_set_ocp_qp_dim_nbx(idx, nbx, self.dim)
 		return
 
 	def set_nbu(self, nbu, idx=None):
+		self.__hpipm.d_set_ocp_qp_dim_nbu.argtypes = [c_int, c_int, c_void_p]
 		if idx==None:
 			for i in range(nbu.size):
 				self.nbu[i] = nbu[i]
+				self.__hpipm.d_set_ocp_qp_dim_nbu(i, nbu[i], self.dim)
 		else:
 			self.nbu[idx] = nbu
+			self.__hpipm.d_set_ocp_qp_dim_nbu(idx, nbu, self.dim)
 		return
 
 	def set_ng(self, ng, idx=None):
+		self.__hpipm.d_set_ocp_qp_dim_ng.argtypes = [c_int, c_int, c_void_p]
 		if idx==None:
 			for i in range(ng.size):
 				self.ng[i] = ng[i]
+				self.__hpipm.d_set_ocp_qp_dim_ng(i, ng[i], self.dim)
 		else:
 			self.ng[idx] = ng
+			self.__hpipm.d_set_ocp_qp_dim_ng(idx, ng, self.dim)
 		return
 
 	def set_ns(self, ns, idx=None):
+		self.__hpipm.d_set_ocp_qp_dim_ns.argtypes = [c_int, c_int, c_void_p]
 		if idx==None:
 			for i in range(ns.size):
 				self.ns[i] = ns[i]
+				self.__hpipm.d_set_ocp_qp_dim_ns(i, ns[i], self.dim)
 		else:
 			self.ns[idx] = ns
+			self.__hpipm.d_set_ocp_qp_dim_ns(idx, ns, self.dim)
 		return
 
 
@@ -251,13 +269,14 @@ class hpipm_ocp_qp:
 		ng = dims.ng
 		ns = dims.ns
 
-		self.dims = hpipm_ocp_qp_dims(N)
-		self.dims.set_nx(nx);
-		self.dims.set_nu(nu);
-		self.dims.set_nbx(nbx);
-		self.dims.set_nbu(nbu);
-		self.dims.set_ng(ng);
-		self.dims.set_ns(ns);
+		self.dims = dims
+#		self.dims = hpipm_ocp_qp_dim(N)
+#		self.dims.set_nx(nx);
+#		self.dims.set_nu(nu);
+#		self.dims.set_nbx(nbx);
+#		self.dims.set_nbu(nbu);
+#		self.dims.set_ng(ng);
+#		self.dims.set_ns(ns);
 
 		self.A = []
 		for i in range(N):
