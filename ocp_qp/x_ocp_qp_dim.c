@@ -155,62 +155,50 @@ void CVT_INT_TO_OCP_QP_DIM(int N, int *nx, int *nu, int *nbx, int *nbu, int *ng,
 
 
 
-void SET_OCP_QP_DIM_NX(int *nx, struct OCP_QP_DIM *dim)
+void SET_OCP_QP_DIM_NX(int stage, int *nx, struct OCP_QP_DIM *dim)
 	{
-	int ii;
-	for(ii=0; ii<=dim->N; ii++)
-		dim->nx[ii] = nx[ii];
+	dim->nx[stage] = nx[stage];
 	return;
 	}
 
 
 
-void SET_OCP_QP_DIM_NU(int *nu, struct OCP_QP_DIM *dim)
+void SET_OCP_QP_DIM_NU(int stage, int *nu, struct OCP_QP_DIM *dim)
 	{
-	int ii;
-	for(ii=0; ii<=dim->N; ii++)
-		dim->nu[ii] = nu[ii];
+	dim->nu[stage] = nu[stage];
 	return;
 	}
 
 
 
-void SET_OCP_QP_DIM_NBX(int *nbx, struct OCP_QP_DIM *dim)
+void SET_OCP_QP_DIM_NBX(int stage, int *nbx, struct OCP_QP_DIM *dim)
 	{
-	int ii;
-	for(ii=0; ii<=dim->N; ii++)
-		dim->nbx[ii] = nbx[ii];
-		dim->nb[ii] = dim->nbx[ii] + dim->nbu[ii];
+	dim->nbx[stage] = nbx[stage];
+	dim->nb[stage] = dim->nbx[stage] + dim->nbu[stage];
 	return;
 	}
 
 
 
-void SET_OCP_QP_DIM_NBU(int *nbu, struct OCP_QP_DIM *dim)
+void SET_OCP_QP_DIM_NBU(int stage, int *nbu, struct OCP_QP_DIM *dim)
 	{
-	int ii;
-	for(ii=0; ii<=dim->N; ii++)
-		dim->nbu[ii] = nbu[ii];
-		dim->nb[ii] = dim->nbx[ii] + dim->nbu[ii];
+	dim->nbu[stage] = nbu[stage];
+	dim->nb[stage] = dim->nbx[stage] + dim->nbu[stage];
 	return;
 	}
 
 
 
-void SET_OCP_QP_DIM_NG(int *ng, struct OCP_QP_DIM *dim)
+void SET_OCP_QP_DIM_NG(int stage, int *ng, struct OCP_QP_DIM *dim)
 	{
-	int ii;
-	for(ii=0; ii<=dim->N; ii++)
-		dim->ng[ii] = ng[ii];
+	dim->ng[stage] = ng[stage];
 	return;
 	}
 
 
 
-void SET_OCP_QP_DIM_NS(int *ns, struct OCP_QP_DIM *dim)
+void SET_OCP_QP_DIM_NS(int stage, int *ns, struct OCP_QP_DIM *dim)
 	{
-	int ii;
-	for(ii=0; ii<=dim->N; ii++)
-		dim->ns[ii] = ns[ii];
+	dim->ns[stage] = ns[stage];
 	return;
 	}
