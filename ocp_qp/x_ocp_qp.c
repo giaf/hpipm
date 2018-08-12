@@ -848,7 +848,6 @@ void CVT_COLMAJ_TO_OCP_QP_LB(int stage, REAL *lb, struct OCP_QP *qp)
 	int *nb = qp->dim->nb;
 
 	CVT_VEC2STRVEC(nb[stage], lb, qp->d+stage, 0);
-	VECSC_LIBSTR(nb[stage], -1.0, qp->d+stage, 0);
 
 	return;
 	}
@@ -863,10 +862,6 @@ void CVT_OCP_QP_TO_COLMAJ_LB(int stage, struct OCP_QP *qp, REAL *lb)
 	int i;
 
 	CVT_STRVEC2VEC(nb[stage], qp->d+stage, 0, lb);
-	for(i=0; i<nb[stage]; i++)
-		{
-		lb[i] = -lb[i];
-		}
 
 	return;
 	}
