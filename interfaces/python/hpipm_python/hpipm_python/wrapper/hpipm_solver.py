@@ -8,110 +8,25 @@ faulthandler.enable()
 
 
 class hpipm_solver:
-	def __init__(self, qp_dims, qp_data):
+	def __init__(self, qp_dims):
 
 		# load hpipm shared library
 		__hpipm   = CDLL('libhpipm.so')
 		self.__hpipm = __hpipm
 
-		# extract dim
-		N	= qp_dims.N
-
-		# array of pointer
-		A = (POINTER(c_double)*(N))()
-		B = (POINTER(c_double)*(N))()
-		b = (POINTER(c_double)*(N))()
-
-		Q = (POINTER(c_double)*(N+1))()
-		S = (POINTER(c_double)*(N+1))()
-		R = (POINTER(c_double)*(N+1))()
-		q = (POINTER(c_double)*(N+1))()
-		r = (POINTER(c_double)*(N+1))()
-
-		idxb = (POINTER(c_int)*(N+1))()
-		lb = (POINTER(c_double)*(N+1))()
-		ub = (POINTER(c_double)*(N+1))()
-
-		C = (POINTER(c_double)*(N+1))()
-		D = (POINTER(c_double)*(N+1))()
-		lg = (POINTER(c_double)*(N+1))()
-		ug = (POINTER(c_double)*(N+1))()
-
-		Zl = (POINTER(c_double)*(N+1))()
-		Zu = (POINTER(c_double)*(N+1))()
-		zl = (POINTER(c_double)*(N+1))()
-		zu = (POINTER(c_double)*(N+1))()
-
-		idxs = (POINTER(c_int)*(N+1))()
-		lls = (POINTER(c_double)*(N+1))()
-		lus = (POINTER(c_double)*(N+1))()
-
-
-		for i in range(N+1):
-
-			if(i<N):
-				# dynamics
-				A[i] = cast(qp_data.A[i].ctypes.data, POINTER(c_double))
-				B[i] = cast(qp_data.B[i].ctypes.data, POINTER(c_double))
-				b[i] = cast(qp_data.b[i].ctypes.data, POINTER(c_double))
-
-			# cost
-			Q[i] = cast(qp_data.Q[i].ctypes.data, POINTER(c_double))
-			S[i] = cast(qp_data.S[i].ctypes.data, POINTER(c_double))
-			R[i] = cast(qp_data.R[i].ctypes.data, POINTER(c_double))
-			q[i] = cast(qp_data.q[i].ctypes.data, POINTER(c_double))
-			r[i] = cast(qp_data.r[i].ctypes.data, POINTER(c_double))
-
-			# simple bounds
-			if qp_dims.nbx[i]+qp_dims.nbu[i] > 0:
-				lb[i] = cast(qp_data.lb[i].ctypes.data, POINTER(c_double))
-				ub[i] = cast(qp_data.ub[i].ctypes.data, POINTER(c_double))
-				idxb[i] = cast(qp_data.idxb[i].ctypes.data, POINTER(c_int))
-
-			# polytopic constraints
-			if qp_dims.ng[i] > 0:
-				C[i] = cast(qp_data.C[i].ctypes.data, POINTER(c_double))
-				D[i] = cast(qp_data.D[i].ctypes.data, POINTER(c_double))
-				lg[i] = cast(qp_data.lg[i].ctypes.data, POINTER(c_double))
-				ug[i] = cast(qp_data.ug[i].ctypes.data, POINTER(c_double))
-
-			# slacks
-			if qp_dims.ns[i] > 0:
-				Zl[i] = cast(qp_data.Zl[i].ctypes.data, POINTER(c_double))
-				Zu[i] = cast(qp_data.Zu[i].ctypes.data, POINTER(c_double))
-				zl[i] = cast(qp_data.zl[i].ctypes.data, POINTER(c_double))
-				zu[i] = cast(qp_data.zu[i].ctypes.data, POINTER(c_double))
-				lls[i] = cast(qp_data.lls[i].ctypes.data, POINTER(c_double))
-				lus[i] = cast(qp_data.lus[i].ctypes.data, POINTER(c_double))
-				idxs[i] = cast(qp_data.idxs[i].ctypes.data, POINTER(c_int))
-
-		# allocate memory for qp struct 
-		qp_size = __hpipm.d_memsize_ocp_qp(qp_dims.dim)
-		qp_mem = cast(create_string_buffer(qp_size), c_void_p)
-		self.qp_mem = qp_mem
-
-		# set up ocp_qp structure
-		sizeof_d_ocp_qp = __hpipm.d_sizeof_ocp_qp()
-		qp = cast(create_string_buffer(sizeof_d_ocp_qp), c_void_p)
-		self.ocp_qp = qp
-
-		__hpipm.d_create_ocp_qp(qp_dims.dim, qp, qp_mem)
-		__hpipm.d_cvt_colmaj_to_ocp_qp(A, B, b, Q, S, R, q, r, idxb, lb, ub,
-			C, D, lg, ug, Zl, Zu, zl, zu, idxs, lls, lus, qp)
-		
 		# allocate memory for ocp_qp_sol struct
-		qp_sol_size = __hpipm.d_memsize_ocp_qp_sol(qp_dims.dim)
+		qp_sol_size = __hpipm.d_memsize_ocp_qp_sol(qp_dims.dim_struct)
 		qp_sol_mem = cast(create_string_buffer(qp_sol_size), c_void_p)
 		self.qp_sol_mem = qp_sol_mem
 
 		# set up ocp_qp_sol struct
 		sizeof_d_ocp_qp_sol = __hpipm.d_sizeof_ocp_qp_sol()
 		qp_sol = cast(create_string_buffer(sizeof_d_ocp_qp_sol), c_void_p)
-		__hpipm.d_create_ocp_qp_sol(qp_dims.dim, qp_sol, qp_sol_mem)
+		__hpipm.d_create_ocp_qp_sol(qp_dims.dim_struct, qp_sol, qp_sol_mem)
 		self.ocp_qp_sol = qp_sol
 
 		# allocate memory for ipm_arg struct
-		ipm_arg_size = __hpipm.d_memsize_ocp_qp_ipm_arg(qp_dims.dim)
+		ipm_arg_size = __hpipm.d_memsize_ocp_qp_ipm_arg(qp_dims.dim_struct)
 		ipm_arg_mem = cast(create_string_buffer(ipm_arg_size), c_void_p)
 		self.ipm_arg_mem = ipm_arg_mem
 
@@ -120,11 +35,11 @@ class hpipm_solver:
 		arg = cast(create_string_buffer(sizeof_d_ocp_qp_ipm_arg), c_void_p)
 		self.ocp_qp_ipm_arg = arg
 
-		__hpipm.d_create_ocp_qp_ipm_arg(qp_dims.dim, arg, ipm_arg_mem)
+		__hpipm.d_create_ocp_qp_ipm_arg(qp_dims.dim_struct, arg, ipm_arg_mem)
 		__hpipm.d_set_default_ocp_qp_ipm_arg(1, arg)
 
 		# allocate memory for ipm workspace 
-		ipm_size = __hpipm.d_memsize_ocp_qp_ipm(qp_dims.dim, arg)
+		ipm_size = __hpipm.d_memsize_ocp_qp_ipm(qp_dims.dim_struct, arg)
 		ipm_mem = cast(create_string_buffer(ipm_size), c_void_p)
 		self.ipm_mem = ipm_mem
 
@@ -133,20 +48,22 @@ class hpipm_solver:
 		workspace = cast(create_string_buffer(sizeof_d_ocp_qp_ipm_workspace), c_void_p)
 		self.ocp_qp_ipm_workspace = workspace
 
-		__hpipm.d_create_ocp_qp_ipm(qp_dims.dim, arg, workspace, ipm_mem)
+		__hpipm.d_create_ocp_qp_ipm(qp_dims.dim_struct, arg, workspace, ipm_mem)
 
-		self.qp = qp
 		self.qp_sol = qp_sol
 		self.arg = arg
 		self.workspace = workspace
-		self.dim = qp_dims.dim
+		self.dim_struct = qp_dims.dim_struct
 		
-	def solve(self):
-		return self.__hpipm.d_solve_ocp_qp_ipm(self.qp, self.qp_sol, 
-			self.arg, self.workspace)
+
+	def solve(self, qp):
+#		self.__hpipm.d_print_ocp_qp(qp.qp_struct)
+		hpipm_return = self.__hpipm.d_solve_ocp_qp_ipm(qp.qp_struct, self.qp_sol, self.arg, self.workspace)
+		return hpipm_return
+
 
 	def print_sol(self):
-		self.__hpipm.d_print_ocp_qp_sol(self.ocp_qp_sol, self.dim)
+		self.__hpipm.d_print_ocp_qp_sol(self.ocp_qp_sol, self.dim_struct)
 		return 
 
 
@@ -168,17 +85,18 @@ class hpipm_ocp_qp_dim:
 		__hpipm   = CDLL('libhpipm.so')
 		self.__hpipm = __hpipm
 
-		# allocate memory for C dimemsions struct
+		# C dim struct
 		dim_struct_size = __hpipm.d_sizeof_ocp_qp_dim()
 		dim_struct = cast(create_string_buffer(dim_struct_size), c_void_p)
-		self.dim = dim_struct
+		self.dim_struct = dim_struct
 
+		# C dim internal memory
 		dim_mem_size = __hpipm.d_memsize_ocp_qp_dim(N)
 		dim_mem = cast(create_string_buffer(dim_mem_size), c_void_p)
 		self.dim_mem = dim_mem
 
-		# set up dimensions structure
-		__hpipm.d_create_ocp_qp_dim(N, self.dim, self.dim_mem)
+		# create C dim
+		__hpipm.d_create_ocp_qp_dim(N, self.dim_struct, self.dim_mem)
 
 #		__hpipm.d_cvt_int_to_ocp_qp_dim(N,
 #			cast(nx.ctypes.data, POINTER(c_double)),
@@ -187,97 +105,98 @@ class hpipm_ocp_qp_dim:
 #			cast(nbu.ctypes.data, POINTER(c_double)),
 #			cast(ng.ctypes.data, POINTER(c_double)),
 #			cast(ns.ctypes.data, POINTER(c_double)),
-#			self.dim)
+#			self.dim_struct)
 
 
 	def set_nx(self, nx, idx=None):
-#		self.__hpipm.d_set_ocp_qp_dim_nx.restypes = [None]
 		self.__hpipm.d_set_ocp_qp_dim_nx.argtypes = [c_int, c_int, c_void_p]
 		if idx==None:
 			for i in range(nx.size):
 				self.nx[i] = nx[i]
-				self.__hpipm.d_set_ocp_qp_dim_nx(i, nx[i], self.dim)
+				self.__hpipm.d_set_ocp_qp_dim_nx(i, nx[i], self.dim_struct)
 		else:
 			self.nx[idx] = nx
-			self.__hpipm.d_set_ocp_qp_dim_nx(idx, nx, self.dim)
+			self.__hpipm.d_set_ocp_qp_dim_nx(idx, nx, self.dim_struct)
 		return
+
 
 	def set_nu(self, nu, idx=None):
 		self.__hpipm.d_set_ocp_qp_dim_nu.argtypes = [c_int, c_int, c_void_p]
 		if idx==None:
 			for i in range(nu.size):
 				self.nu[i] = nu[i]
-				self.__hpipm.d_set_ocp_qp_dim_nu(i, nu[i], self.dim)
+				self.__hpipm.d_set_ocp_qp_dim_nu(i, nu[i], self.dim_struct)
 		else:
 			self.nu[idx] = nu
-			self.__hpipm.d_set_ocp_qp_dim_nu(idx, nu, self.dim)
+			self.__hpipm.d_set_ocp_qp_dim_nu(idx, nu, self.dim_struct)
 		return
+
 
 	def set_nbx(self, nbx, idx=None):
 		self.__hpipm.d_set_ocp_qp_dim_nbx.argtypes = [c_int, c_int, c_void_p]
 		if idx==None:
 			for i in range(nbx.size):
 				self.nbx[i] = nbx[i]
-				self.__hpipm.d_set_ocp_qp_dim_nbx(i, nbx[i], self.dim)
+				self.__hpipm.d_set_ocp_qp_dim_nbx(i, nbx[i], self.dim_struct)
 		else:
 			self.nbx[idx] = nbx
-			self.__hpipm.d_set_ocp_qp_dim_nbx(idx, nbx, self.dim)
+			self.__hpipm.d_set_ocp_qp_dim_nbx(idx, nbx, self.dim_struct)
 		return
+
 
 	def set_nbu(self, nbu, idx=None):
 		self.__hpipm.d_set_ocp_qp_dim_nbu.argtypes = [c_int, c_int, c_void_p]
 		if idx==None:
 			for i in range(nbu.size):
 				self.nbu[i] = nbu[i]
-				self.__hpipm.d_set_ocp_qp_dim_nbu(i, nbu[i], self.dim)
+				self.__hpipm.d_set_ocp_qp_dim_nbu(i, nbu[i], self.dim_struct)
 		else:
 			self.nbu[idx] = nbu
-			self.__hpipm.d_set_ocp_qp_dim_nbu(idx, nbu, self.dim)
+			self.__hpipm.d_set_ocp_qp_dim_nbu(idx, nbu, self.dim_struct)
 		return
+
 
 	def set_ng(self, ng, idx=None):
 		self.__hpipm.d_set_ocp_qp_dim_ng.argtypes = [c_int, c_int, c_void_p]
 		if idx==None:
 			for i in range(ng.size):
 				self.ng[i] = ng[i]
-				self.__hpipm.d_set_ocp_qp_dim_ng(i, ng[i], self.dim)
+				self.__hpipm.d_set_ocp_qp_dim_ng(i, ng[i], self.dim_struct)
 		else:
 			self.ng[idx] = ng
-			self.__hpipm.d_set_ocp_qp_dim_ng(idx, ng, self.dim)
+			self.__hpipm.d_set_ocp_qp_dim_ng(idx, ng, self.dim_struct)
 		return
+
 
 	def set_ns(self, ns, idx=None):
 		self.__hpipm.d_set_ocp_qp_dim_ns.argtypes = [c_int, c_int, c_void_p]
 		if idx==None:
 			for i in range(ns.size):
 				self.ns[i] = ns[i]
-				self.__hpipm.d_set_ocp_qp_dim_ns(i, ns[i], self.dim)
+				self.__hpipm.d_set_ocp_qp_dim_ns(i, ns[i], self.dim_struct)
 		else:
 			self.ns[idx] = ns
-			self.__hpipm.d_set_ocp_qp_dim_ns(idx, ns, self.dim)
+			self.__hpipm.d_set_ocp_qp_dim_ns(idx, ns, self.dim_struct)
 		return
 
 
 
 class hpipm_ocp_qp:
-	def __init__(self, dims):
-		N = dims.N
-		nx = dims.nx
-		nu = dims.nu
-		nbx = dims.nbx
-		nbu = dims.nbu
-		ng = dims.ng
-		ns = dims.ns
+	def __init__(self, dim):
 
-		self.dims = dims
-#		self.dims = hpipm_ocp_qp_dim(N)
-#		self.dims.set_nx(nx);
-#		self.dims.set_nu(nu);
-#		self.dims.set_nbx(nbx);
-#		self.dims.set_nbu(nbu);
-#		self.dims.set_ng(ng);
-#		self.dims.set_ns(ns);
+		# save dim internally
+		self.dim = dim
 
+		# extract dim
+		N = dim.N
+		nx = dim.nx
+		nu = dim.nu
+		nbx = dim.nbx
+		nbu = dim.nbu
+		ng = dim.ng
+		ns = dim.ns
+
+		# local qp memory
 		self.A = []
 		for i in range(N):
 			self.A.append(np.zeros((nx[i+1], nx[i])))
@@ -402,119 +321,185 @@ class hpipm_ocp_qp:
 		for i in range(N+1):
 			self.idxs.append(np.zeros((ns[i], 1), dtype=np.int32))
 
+		# load hpipm shared library
+		__hpipm   = CDLL('libhpipm.so')
+		self.__hpipm = __hpipm
+
+		# C qp struct
+		qp_struct_size = __hpipm.d_sizeof_ocp_qp()
+		qp_struct = cast(create_string_buffer(qp_struct_size), c_void_p)
+		self.qp_struct = qp_struct
+
+		# C qp internal memory
+		qp_mem_size = __hpipm.d_memsize_ocp_qp(dim.dim_struct)
+		qp_mem = cast(create_string_buffer(qp_mem_size), c_void_p)
+		self.qp_mem = qp_mem
+
+		# create C qp
+		__hpipm.d_create_ocp_qp(dim.dim_struct, qp_struct, qp_mem)
+
 
 
 	def set_A(self, A, idx=None):
-		nx = self.dims.nx
+		self.__hpipm.d_cvt_colmaj_to_ocp_qp_A.argtypes = [c_int, POINTER(c_double), c_void_p]
+		nx = self.dim.nx
 		if idx==None:
 			for i in range(len(A)):
 				self.A[i] = A[i]
 				self.A[i] = np.ascontiguousarray(self.A[i], dtype=np.float64)
 				self.A[i] = self.A[i].reshape((nx[i+1], nx[i]))
+				tmp = cast(self.A[i].ctypes.data, POINTER(c_double))
+				self.__hpipm.d_cvt_colmaj_to_ocp_qp_A(i, tmp, self.qp_struct)
 		else:
 			self.A[idx] = A
 			self.A[idx] = np.ascontiguousarray(self.A[idx], dtype=np.float64)
-			self.A[idx] = self.A[i].reshape((nx[idx+1], nx[idx]))
+			self.A[idx] = self.A[idx].reshape((nx[idx+1], nx[idx]))
+			tmp = cast(self.A[idx].ctypes.data, POINTER(c_double))
+			self.__hpipm.d_cvt_colmaj_to_ocp_qp_A(idx, tmp, self.qp_struct)
 		return
 
+
 	def set_B(self, B, idx=None):
-		nx = self.dims.nx
-		nu = self.dims.nu
+		self.__hpipm.d_cvt_colmaj_to_ocp_qp_B.argtypes = [c_int, POINTER(c_double), c_void_p]
+		nx = self.dim.nx
+		nu = self.dim.nu
 		if idx==None:
 			for i in range(len(B)):
 				self.B[i] = B[i]
 				self.B[i] = np.ascontiguousarray(self.B[i], dtype=np.float64)
 				self.B[i] = self.B[i].reshape((nx[i+1], nu[i]))
+				tmp = cast(self.B[i].ctypes.data, POINTER(c_double))
+				self.__hpipm.d_cvt_colmaj_to_ocp_qp_B(i, tmp, self.qp_struct)
 		else:
 			self.B[idx] = B
 			self.B[idx] = np.ascontiguousarray(self.B[idx], dtype=np.float64)
 			self.B[idx] = self.B[idx].reshape((nx[idx+1], nu[idx]))
+			tmp = cast(self.B[idx].ctypes.data, POINTER(c_double))
+			self.__hpipm.d_cvt_colmaj_to_ocp_qp_B(idx, tmp, self.qp_struct)
 		return
 
+
 	def set_b(self, b, idx=None):
-		nx = self.dims.nx
+		self.__hpipm.d_cvt_colmaj_to_ocp_qp_b.argtypes = [c_int, POINTER(c_double), c_void_p]
+		nx = self.dim.nx
 		if idx==None:
 			for i in range(len(b)):
 				self.b[i] = b[i]
 				self.b[i] = np.ascontiguousarray(self.b[i], dtype=np.float64)
 				self.b[i] = self.b[i].reshape((nx[i+1], 1))
+				tmp = cast(self.b[i].ctypes.data, POINTER(c_double))
+				self.__hpipm.d_cvt_colmaj_to_ocp_qp_b(i, tmp, self.qp_struct)
 		else:
 			self.b[idx] = b
 			self.b[idx] = np.ascontiguousarray(self.b[idx], dtype=np.float64)
 			self.b[idx] = self.b[idx].reshape((nx[idx+1], 1))
+			tmp = cast(self.b[idx].ctypes.data, POINTER(c_double))
+			self.__hpipm.d_cvt_colmaj_to_ocp_qp_b(idx, tmp, self.qp_struct)
 		return
 
+
 	def set_Q(self, Q, idx=None):
-		nx = self.dims.nx
+		self.__hpipm.d_cvt_colmaj_to_ocp_qp_Q.argtypes = [c_int, POINTER(c_double), c_void_p]
+		nx = self.dim.nx
 		if idx==None:
 			for i in range(len(Q)):
 				self.Q[i] = Q[i]
 				self.Q[i] = np.ascontiguousarray(self.Q[i], dtype=np.float64)
 				self.Q[i] = self.Q[i].reshape((nx[i], nx[i]))
+				tmp = cast(self.Q[i].ctypes.data, POINTER(c_double))
+				self.__hpipm.d_cvt_colmaj_to_ocp_qp_Q(i, tmp, self.qp_struct)
 		else:
 			self.Q[idx] = Q
 			self.Q[idx] = np.ascontiguousarray(self.Q[idx], dtype=np.float64)
 			self.Q[idx] = self.Q[idx].reshape((nx[idx], nx[idx]))
+			tmp = cast(self.Q[idx].ctypes.data, POINTER(c_double))
+			self.__hpipm.d_cvt_colmaj_to_ocp_qp_Q(idx, tmp, self.qp_struct)
 		return
 
+
 	def set_R(self, R, idx=None):
-		nu = self.dims.nu
+		self.__hpipm.d_cvt_colmaj_to_ocp_qp_R.argtypes = [c_int, POINTER(c_double), c_void_p]
+		nu = self.dim.nu
 		if idx==None:
 			for i in range(len(R)):
 				self.R[i] = R[i]
 				self.R[i] = np.ascontiguousarray(self.R[i], dtype=np.float64)
 				self.R[i] = self.R[i].reshape((nu[i], nu[i]))
+				tmp = cast(self.R[i].ctypes.data, POINTER(c_double))
+				self.__hpipm.d_cvt_colmaj_to_ocp_qp_R(i, tmp, self.qp_struct)
 		else:
 			self.R[idx] = R
 			self.R[idx] = np.ascontiguousarray(self.R[idx], dtype=np.float64)
 			self.R[idx] = self.R[idx].reshape((nu[idx], nu[idx]))
+			tmp = cast(self.R[idx].ctypes.data, POINTER(c_double))
+			self.__hpipm.d_cvt_colmaj_to_ocp_qp_R(idx, tmp, self.qp_struct)
 		return
 
+
 	def set_S(self, S, idx=None):
-		nu = self.dims.nu
-		nx = self.dims.nx
+		self.__hpipm.d_cvt_colmaj_to_ocp_qp_S.argtypes = [c_int, POINTER(c_double), c_void_p]
+		nu = self.dim.nu
+		nx = self.dim.nx
 		if idx==None:
 			for i in range(len(S)):
 				self.S[i] = S[i]
 				self.S[i] = np.ascontiguousarray(self.S[i], dtype=np.float64)
 				self.S[i] = self.S[i].reshape((nx[i], nu[i]))
+				tmp = cast(self.S[i].ctypes.data, POINTER(c_double))
+				self.__hpipm.d_cvt_colmaj_to_ocp_qp_S(i, tmp, self.qp_struct)
 		else:
 			self.S[idx] = S
 			self.S[idx] = np.ascontiguousarray(self.S[idx], dtype=np.float64)
 			self.S[idx] = self.S[idx].reshape((nu[idx], nx[idx]))
+			tmp = cast(self.S[idx].ctypes.data, POINTER(c_double))
+			self.__hpipm.d_cvt_colmaj_to_ocp_qp_S(idx, tmp, self.qp_struct)
 		return
 
+
 	def set_q(self, q, idx=None):
-		nx = self.dims.nx
+		self.__hpipm.d_cvt_colmaj_to_ocp_qp_q.argtypes = [c_int, POINTER(c_double), c_void_p]
+		nx = self.dim.nx
 		if idx==None:
 			for i in range(len(q)):
 				self.q[i] = q[i]
 				self.q[i] = np.ascontiguousarray(self.q[i], dtype=np.float64)
 				self.q[i] = self.q[i].reshape((nx[i], 1))
+				tmp = cast(self.q[i].ctypes.data, POINTER(c_double))
+				self.__hpipm.d_cvt_colmaj_to_ocp_qp_q(i, tmp, self.qp_struct)
 		else:
 			self.q[idx] = q
 			self.q[idx] = np.ascontiguousarray(self.q[idx], dtype=np.float64)
 			self.q[idx] = self.q[idx].reshape((nx[idx], 1))
+			tmp = cast(self.q[idx].ctypes.data, POINTER(c_double))
+			self.__hpipm.d_cvt_colmaj_to_ocp_qp_q(idx, tmp, self.qp_struct)
 		return
 
+
 	def set_r(self, r, idx=None):
-		nu = self.dims.nu
+		self.__hpipm.d_cvt_colmaj_to_ocp_qp_r.argtypes = [c_int, POINTER(c_double), c_void_p]
+		nu = self.dim.nu
 		if idx==None:
 			for i in range(len(r)):
 				self.r[i] = r[i]
 				self.r[i] = np.ascontiguousarray(self.r[i], dtype=np.float64)
 				self.r[i] = self.r[i].reshape((nx[i], 1))
+				tmp = cast(self.r[i].ctypes.data, POINTER(c_double))
+				self.__hpipm.d_cvt_colmaj_to_ocp_qp_r(i, tmp, self.qp_struct)
 		else:
 			self.r[idx] = r
 			self.r[idx] = np.ascontiguousarray(self.r[idx], dtype=np.float64)
 			self.r[idx] = self.r[idx].reshape((nx[idx], 1))
+			tmp = cast(self.r[idx].ctypes.data, POINTER(c_double))
+			self.__hpipm.d_cvt_colmaj_to_ocp_qp_r(idx, tmp, self.qp_struct)
 		return
 
+
 	def set_Jx(self, Jx, idx=None):
-		nx = self.dims.nx
-		nu = self.dims.nu
-		nbx = self.dims.nbx
-		nbu = self.dims.nbu
+		self.__hpipm.d_cvt_colmaj_to_ocp_qp_idxb.argtypes = [c_int, POINTER(c_int), c_void_p]
+		nx = self.dim.nx
+		nu = self.dim.nu
+		nbx = self.dim.nbx
+		nbu = self.dim.nbu
 		if idx==None:
 			for i in range(len(Jx)):
 				self.Jx[i] = Jx[i]
@@ -527,6 +512,8 @@ class hpipm_ocp_qp:
 							k0 = k
 							self.idxb[i][nbu[i]+j] = nu[i]+k
 				self.idxb[i] = np.ascontiguousarray(self.idxb[i], dtype=np.int32)
+				tmp = cast(self.idxb[i].ctypes.data, POINTER(c_int))
+				self.__hpipm.d_cvt_colmaj_to_ocp_qp_idxb(i, tmp, self.qp_struct)
 		else:
 			self.Jx[idx] = Jx
 			self.Jx[idx] = np.ascontiguousarray(self.Jx[idx], dtype=np.float64)
@@ -538,11 +525,15 @@ class hpipm_ocp_qp:
 						k0 = k
 						self.idxb[idx][nbu[idx]+j] = nu[idx]+k
 			self.idxb[idx] = np.ascontiguousarray(self.idxb[idx], dtype=np.int32)
+			tmp = cast(self.idxb[idx].ctypes.data, POINTER(c_int))
+			self.__hpipm.d_cvt_colmaj_to_ocp_qp_idxb(idx, tmp, self.qp_struct)
 		return
 
+
 	def set_lx(self, lx, idx=None):
-		nbx = self.dims.nbx
-		nbu = self.dims.nbu
+		self.__hpipm.d_cvt_colmaj_to_ocp_qp_lb.argtypes = [c_int, POINTER(c_double), c_void_p]
+		nbx = self.dim.nbx
+		nbu = self.dim.nbu
 		if idx==None:
 			for i in range(len(lx)):
 				self.lx[i] = lx[i]
@@ -551,6 +542,8 @@ class hpipm_ocp_qp:
 				for j in range(nbx[i]):
 					self.lb[i][nbu[i]+j] = lx[i][j]
 				self.lb[i] = np.ascontiguousarray(self.lb[i], dtype=np.float64)
+				tmp = cast(self.lb[i].ctypes.data, POINTER(c_double))
+				self.__hpipm.d_cvt_colmaj_to_ocp_qp_lb(i, tmp, self.qp_struct)
 		else:
 			self.lx[idx] = lx
 			self.lx[idx] = np.ascontiguousarray(self.lx[idx], dtype=np.float64)
@@ -558,11 +551,15 @@ class hpipm_ocp_qp:
 			for j in range(nbx[idx]):
 				self.lb[idx][nbu[idx]+j] = lx[j]
 			self.lb[idx] = np.ascontiguousarray(self.lb[idx], dtype=np.float64)
+			tmp = cast(self.lb[idx].ctypes.data, POINTER(c_double))
+			self.__hpipm.d_cvt_colmaj_to_ocp_qp_lb(idx, tmp, self.qp_struct)
 		return
 
+
 	def set_ux(self, ux, idx=None):
-		nbx = self.dims.nbx
-		nbu = self.dims.nbu
+		self.__hpipm.d_cvt_colmaj_to_ocp_qp_ub.argtypes = [c_int, POINTER(c_double), c_void_p]
+		nbx = self.dim.nbx
+		nbu = self.dim.nbu
 		if idx==None:
 			for i in range(len(ux)):
 				self.ux[i] = ux[i]
@@ -571,6 +568,8 @@ class hpipm_ocp_qp:
 				for j in range(nbx[i]):
 					self.ub[i][nbu[i]+j] = ux[i][j]
 				self.ub[i] = np.ascontiguousarray(self.ub[i], dtype=np.float64)
+				tmp = cast(self.ub[i].ctypes.data, POINTER(c_double))
+				self.__hpipm.d_cvt_colmaj_to_ocp_qp_ub(i, tmp, self.qp_struct)
 		else:
 			self.ux[idx] = ux
 			self.ux[idx] = np.ascontiguousarray(self.ux[idx], dtype=np.float64)
@@ -578,11 +577,15 @@ class hpipm_ocp_qp:
 			for j in range(nbx[idx]):
 				self.ub[idx][nbu[idx]+j] = ux[j]
 			self.ub[idx] = np.ascontiguousarray(self.ub[idx], dtype=np.float64)
+			tmp = cast(self.ub[idx].ctypes.data, POINTER(c_double))
+			self.__hpipm.d_cvt_colmaj_to_ocp_qp_ub(idx, tmp, self.qp_struct)
 		return
 
+
 	def set_Ju(self, Ju, idx=None):
-		nu = self.dims.nu
-		nbu = self.dims.nbu
+		self.__hpipm.d_cvt_colmaj_to_ocp_qp_idxb.argtypes = [c_int, POINTER(c_int), c_void_p]
+		nu = self.dim.nu
+		nbu = self.dim.nbu
 		if idx==None:
 			for i in range(len(Ju)):
 				self.Ju[i] = Ju[i]
@@ -595,6 +598,8 @@ class hpipm_ocp_qp:
 							k0 = k
 							self.idxb[i][j] = k
 				self.idxb[i] = np.ascontiguousarray(self.idxb[i], dtype=np.int32)
+				tmp = cast(self.idxb[i].ctypes.data, POINTER(c_int))
+				self.__hpipm.d_cvt_colmaj_to_ocp_qp_idxb(i, tmp, self.qp_struct)
 		else:
 			self.Ju[idx] = Ju
 			self.Ju[idx] = np.ascontiguousarray(self.Ju[idx], dtype=np.float64)
@@ -606,10 +611,14 @@ class hpipm_ocp_qp:
 						k0 = k
 						self.idxb[idx][j] = k
 			self.idxb[idx] = np.ascontiguousarray(self.idxb[idx], dtype=np.int32)
+			tmp = cast(self.idxb[idx].ctypes.data, POINTER(c_int))
+			self.__hpipm.d_cvt_colmaj_to_ocp_qp_idxb(idx, tmp, self.qp_struct)
 		return
 
+
 	def set_lu(self, lu, idx=None):
-		nbu = self.dims.nbu
+		self.__hpipm.d_cvt_colmaj_to_ocp_qp_lb.argtypes = [c_int, POINTER(c_double), c_void_p]
+		nbu = self.dim.nbu
 		if idx==None:
 			for i in range(len(lu)):
 				self.lu[i] = lu[i]
@@ -618,6 +627,8 @@ class hpipm_ocp_qp:
 				for j in range(nbu[i]):
 					self.lb[i][j] = lu[i][j]
 				self.lb[i] = np.ascontiguousarray(self.lb[i], dtype=np.float64)
+				tmp = cast(self.lb[i].ctypes.data, POINTER(c_double))
+				self.__hpipm.d_cvt_colmaj_to_ocp_qp_lb(i, tmp, self.qp_struct)
 		else:
 			self.lu[idx] = lu
 			self.lu[idx] = np.ascontiguousarray(self.lu[idx], dtype=np.float64)
@@ -625,10 +636,14 @@ class hpipm_ocp_qp:
 			for j in range(nbu[idx]):
 				self.lb[idx][j] = lu[j]
 			self.lb[idx] = np.ascontiguousarray(self.lb[idx], dtype=np.float64)
+			tmp = cast(self.lb[idx].ctypes.data, POINTER(c_double))
+			self.__hpipm.d_cvt_colmaj_to_ocp_qp_lb(idx, tmp, self.qp_struct)
 		return
 
+
 	def set_uu(self, uu, idx=None):
-		nbu = self.dims.nbu
+		self.__hpipm.d_cvt_colmaj_to_ocp_qp_ub.argtypes = [c_int, POINTER(c_double), c_void_p]
+		nbu = self.dim.nbu
 		if idx==None:
 			for i in range(len(uu)):
 				self.uu[i] = uu[i]
@@ -637,6 +652,8 @@ class hpipm_ocp_qp:
 				for j in range(nbu[i]):
 					self.ub[i][j] = uu[i][j]
 				self.ub[i] = np.ascontiguousarray(self.ub[i], dtype=np.float64)
+				tmp = cast(self.ub[i].ctypes.data, POINTER(c_double))
+				self.__hpipm.d_cvt_colmaj_to_ocp_qp_ub(i, tmp, self.qp_struct)
 		else:
 			self.uu[idx] = uu
 			self.uu[idx] = np.ascontiguousarray(self.uu[idx], dtype=np.float64)
@@ -644,64 +661,91 @@ class hpipm_ocp_qp:
 			for j in range(nbu[idx]):
 				self.ub[idx][j] = uu[j]
 			self.ub[idx] = np.ascontiguousarray(self.ub[idx], dtype=np.float64)
+			tmp = cast(self.ub[idx].ctypes.data, POINTER(c_double))
+			self.__hpipm.d_cvt_colmaj_to_ocp_qp_ub(idx, tmp, self.qp_struct)
 		return
 
+
 	def set_C(self, C, idx=None):
-		nx = self.dims.nx
-		ng = self.dims.ng
+		self.__hpipm.d_cvt_colmaj_to_ocp_qp_C.argtypes = [c_int, POINTER(c_double), c_void_p]
+		nx = self.dim.nx
+		ng = self.dim.ng
 		if idx==None:
 			for i in range(len(C)):
 				self.C[i] = C[i]
 				self.C[i] = np.ascontiguousarray(self.C[i], dtype=np.float64)
 				self.C[i] = self.C[i].reshape((ng[i], nx[i]))
+				tmp = cast(self.C[i].ctypes.data, POINTER(c_double))
+				self.__hpipm.d_cvt_colmaj_to_ocp_qp_C(i, tmp, self.qp_struct)
 		else:
 			self.C[idx] = C
 			self.C[idx] = np.ascontiguousarray(self.C[idx], dtype=np.float64)
 			self.C[idx] = self.C[idx].reshape((ng[idx], nx[idx]))
+			tmp = cast(self.C[idx].ctypes.data, POINTER(c_double))
+			self.__hpipm.d_cvt_colmaj_to_ocp_qp_C(idx, tmp, self.qp_struct)
 		return
 
+
 	def set_D(self, D, idx=None):
-		nu = self.dims.nu
-		ng = self.dims.ng
+		self.__hpipm.d_cvt_colmaj_to_ocp_qp_D.argtypes = [c_int, POINTER(c_double), c_void_p]
+		nu = self.dim.nu
+		ng = self.dim.ng
 		if idx==None:
 			for i in range(len(D)):
 				self.D[i] = D[i]
 				self.D[i] = np.ascontiguousarray(self.D[i], dtype=np.float64)
 				self.D[i] = self.D[i].reshape((ng[i], nu[i]))
+				tmp = cast(self.D[i].ctypes.data, POINTER(c_double))
+				self.__hpipm.d_cvt_colmaj_to_ocp_qp_D(i, tmp, self.qp_struct)
 		else:
 			self.D[idx] = D
 			self.D[idx] = np.ascontiguousarray(self.D[idx], dtype=np.float64)
 			self.D[idx] = self.D[idx].reshape((ng[idx], nu[idx]))
+			tmp = cast(self.D[idx].ctypes.data, POINTER(c_double))
+			self.__hpipm.d_cvt_colmaj_to_ocp_qp_D(idx, tmp, self.qp_struct)
 		return
 
+
 	def set_lg(self, lg, idx=None):
-		ng = self.dims.ng
+		self.__hpipm.d_cvt_colmaj_to_ocp_qp_lg.argtypes = [c_int, POINTER(c_double), c_void_p]
+		ng = self.dim.ng
 		if idx==None:
 			for i in range(len(lg)):
 				self.lg[i] = lg[i]
 				self.lg[i] = np.ascontiguousarray(self.lg[i], dtype=np.float64)
 				self.lg[i] = self.lg[i].reshape((ng[i], 1))
+				tmp = cast(self.lg[i].ctypes.data, POINTER(c_double))
+				self.__hpipm.d_cvt_colmaj_to_ocp_qp_lg(i, tmp, self.qp_struct)
 		else:
 			self.lg[idx] = lg
 			self.lg[idx] = np.ascontiguousarray(self.lg[idx], dtype=np.float64)
 			self.lg[idx] = self.lg[idx].reshape((ng[idx], 1))
+			tmp = cast(self.lg[idx].ctypes.data, POINTER(c_double))
+			self.__hpipm.d_cvt_colmaj_to_ocp_qp_lg(idx, tmp, self.qp_struct)
 		return
 
+
 	def set_ug(self, ug, idx=None):
-		ng = self.dims.ng
+		self.__hpipm.d_cvt_colmaj_to_ocp_qp_ug.argtypes = [c_int, POINTER(c_double), c_void_p]
+		ng = self.dim.ng
 		if idx==None:
 			for i in range(len(ug)):
 				self.ug[i] = ug[i]
 				self.ug[i] = np.ascontiguousarray(self.ug[i], dtype=np.float64)
 				self.ug[i] = self.ug[i].reshape((ng[i], 1))
+				tmp = cast(self.ug[i].ctypes.data, POINTER(c_double))
+				self.__hpipm.d_cvt_colmaj_to_ocp_qp_ug(i, tmp, self.qp_struct)
 		else:
 			self.ug[idx] = ug
 			self.ug[idx] = np.ascontiguousarray(self.ug[idx], dtype=np.float64)
 			self.ug[idx] = self.ug[idx].reshape((ng[idx], 1))
+			tmp = cast(self.ug[idx].ctypes.data, POINTER(c_double))
+			self.__hpipm.d_cvt_colmaj_to_ocp_qp_ug(idx, tmp, self.qp_struct)
 		return
 
+
 	def set_Zl(self, Zl, idx=None):
-		ns = self.dims.ns
+		ns = self.dim.ns
 		if idx==None:
 			for i in range(len(Zl)):
 				tmp = Zl[i].copy()
@@ -719,8 +763,9 @@ class hpipm_ocp_qp:
 			self.Zl[idx] = self.Zl[idx].reshape((ns[idx], 1))
 		return
 
+
 	def set_Zu(self, Zu, idx=None):
-		ns = self.dims.ns
+		ns = self.dim.ns
 		if idx==None:
 			for i in range(len(Zu)):
 				tmp = Zu[i].copy()
@@ -738,8 +783,9 @@ class hpipm_ocp_qp:
 			self.Zu[idx] = self.Zu[idx].reshape((ns[idx], 1))
 		return
 
+
 	def set_zl(self, zl, idx=None):
-		ns = self.dims.ns
+		ns = self.dim.ns
 		if idx==None:
 			for i in range(len(zl)):
 				self.zl[i] = zl[i]
@@ -751,8 +797,9 @@ class hpipm_ocp_qp:
 			self.zl[idx] = self.zl[idx].reshape((ns[idx], 1))
 		return
 
+
 	def set_zu(self, zu, idx=None):
-		ns = self.dims.ns
+		ns = self.dim.ns
 		if idx==None:
 			for i in range(len(zu)):
 				self.zu[i] = zu[i]
@@ -764,8 +811,9 @@ class hpipm_ocp_qp:
 			self.zu[idx] = self.zu[idx].reshape((ns[idx], 1))
 		return
 
+
 	def set_lls(self, lls, idx=None):
-		ns = self.dims.ns
+		ns = self.dim.ns
 		if idx==None:
 			for i in range(len(lls)):
 				self.lls[i] = lls[i]
@@ -777,8 +825,9 @@ class hpipm_ocp_qp:
 			self.lls[idx] = self.lls[idx].reshape((ns[idx], 1))
 		return
 
+
 	def set_lus(self, lus, idx=None):
-		ns = self.dims.ns
+		ns = self.dim.ns
 		if idx==None:
 			for i in range(len(lus)):
 				self.lus[i] = lus[i]
@@ -790,11 +839,12 @@ class hpipm_ocp_qp:
 			self.lus[idx] = self.lus[idx].reshape((ns[idx], 1))
 		return
 
+
 	def set_Jsu(self, Jsu, idx=None):
-		nbx = self.dims.nbx
-		nbu = self.dims.nbu
-		ng = self.dims.ng
-		ns = self.dims.ns
+		nbx = self.dim.nbx
+		nbu = self.dim.nbu
+		ng = self.dim.ng
+		ns = self.dim.ns
 		if idx==None:
 			for i in range(len(Jsu)):
 				self.Jsu[i] = Jsu[i]
@@ -836,11 +886,12 @@ class hpipm_ocp_qp:
 			self.idxs[idx] = np.ascontiguousarray(self.idxs[idx], dtype=np.int32)
 		return
 
+
 	def set_Jsx(self, Jsx, idx=None):
-		nbx = self.dims.nbx
-		nbu = self.dims.nbu
-		ng = self.dims.ng
-		ns = self.dims.ns
+		nbx = self.dim.nbx
+		nbu = self.dim.nbu
+		ng = self.dim.ng
+		ns = self.dim.ns
 		if idx==None:
 			for i in range(len(Jsx)):
 				self.Jsx[i] = Jsx[i]
@@ -882,11 +933,12 @@ class hpipm_ocp_qp:
 			self.idxs[idx] = np.ascontiguousarray(self.idxs[idx], dtype=np.int32)
 		return
 
+
 	def set_Jsg(self, Jsg, idx=None):
-		nbx = self.dims.nbx
-		nbu = self.dims.nbu
-		ng = self.dims.ng
-		ns = self.dims.ns
+		nbx = self.dim.nbx
+		nbu = self.dim.nbu
+		ng = self.dim.ng
+		ns = self.dim.ns
 		if idx==None:
 			for i in range(len(Jsg)):
 				self.Jsg[i] = Jsg[i]
