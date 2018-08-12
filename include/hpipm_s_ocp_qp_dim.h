@@ -55,11 +55,25 @@ struct s_ocp_qp_dim
 
 
 //
+int s_sizeof_ocp_qp_dim();
+//
 int s_memsize_ocp_qp_dim(int N);
 //
 void s_create_ocp_qp_dim(int N, struct s_ocp_qp_dim *qp_dim, void *memory);
 //
 void s_cvt_int_to_ocp_qp_dim(int N, int *nx, int *nu, int *nbx, int *nbu, int *ng, int *ns, struct s_ocp_qp_dim *dim);
+//
+void s_set_ocp_qp_dim_nx(int *nx, struct s_ocp_qp_dim *dim);
+//
+void s_set_ocp_qp_dim_nu(int *nu, struct s_ocp_qp_dim *dim);
+//
+void s_set_ocp_qp_dim_nbx(int *nbx, struct s_ocp_qp_dim *dim);
+//
+void s_set_ocp_qp_dim_nbu(int *nbu, struct s_ocp_qp_dim *dim);
+//
+void s_set_ocp_qp_dim_ng(int *ng, struct s_ocp_qp_dim *dim);
+//
+void s_set_ocp_qp_dim_ns(int *ns, struct s_ocp_qp_dim *dim);
 
 
 

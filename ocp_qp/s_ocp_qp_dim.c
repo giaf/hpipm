@@ -33,9 +33,16 @@
 
 #define OCP_QP_DIM s_ocp_qp_dim
 
+#define SIZEOF_OCP_QP_DIM s_sizeof_ocp_qp_dim
 #define MEMSIZE_OCP_QP_DIM s_memsize_ocp_qp_dim
 #define CREATE_OCP_QP_DIM s_create_ocp_qp_dim
 #define CVT_INT_TO_OCP_QP_DIM s_cvt_int_to_ocp_qp_dim
+#define SET_OCP_QP_DIM_NX s_set_ocp_qp_dim_nx
+#define SET_OCP_QP_DIM_NU s_set_ocp_qp_dim_nu
+#define SET_OCP_QP_DIM_NBX s_set_ocp_qp_dim_nbx
+#define SET_OCP_QP_DIM_NBU s_set_ocp_qp_dim_nbu
+#define SET_OCP_QP_DIM_NG s_set_ocp_qp_dim_ng
+#define SET_OCP_QP_DIM_NS s_set_ocp_qp_dim_ns
 
 
 

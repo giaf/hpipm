@@ -1,29 +1,36 @@
 /**************************************************************************************************
-*                                                                                                 *
-* This file is part of HPIPM.                                                                     *
-*                                                                                                 *
-* HPIPM -- High Performance Interior Point Method.                                                *
-* Copyright (C) 2017 by Gianluca Frison.                                                          *
-* Developed at IMTEK (University of Freiburg) under the supervision of Moritz Diehl.              *
-* All rights reserved.                                                                            *
-*                                                                                                 *
-* HPIPM is free software; you can redistribute it and/or                                          *
-* modify it under the terms of the GNU Lesser General Public                                      *
-* License as published by the Free Software Foundation; either                                    *
-* version 2.1 of the License, or (at your option) any later version.                              *
-*                                                                                                 *
-* HPIPM is distributed in the hope that it will be useful,                                        *
-* but WITHOUT ANY WARRANTY; without even the implied warranty of                                  *
-* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.                                            *
-* See the GNU Lesser General Public License for more details.                                     *
-*                                                                                                 *
-* You should have received a copy of the GNU Lesser General Public                                *
-* License along with HPIPM; if not, write to the Free Software                                    *
-* Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA                  *
-*                                                                                                 *
-* Author: Gianluca Frison, gianluca.frison (at) imtek.uni-freiburg.de                             *
-*                                                                                                 *
+*																								 *
+* This file is part of HPIPM.																	 *
+*																								 *
+* HPIPM -- High Performance Interior Point Method.												*
+* Copyright (C) 2017 by Gianluca Frison.														  *
+* Developed at IMTEK (University of Freiburg) under the supervision of Moritz Diehl.			  *
+* All rights reserved.																			*
+*																								 *
+* HPIPM is free software; you can redistribute it and/or										  *
+* modify it under the terms of the GNU Lesser General Public									  *
+* License as published by the Free Software Foundation; either									*
+* version 2.1 of the License, or (at your option) any later version.							  *
+*																								 *
+* HPIPM is distributed in the hope that it will be useful,										*
+* but WITHOUT ANY WARRANTY; without even the implied warranty of								  *
+* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.											*
+* See the GNU Lesser General Public License for more details.									 *
+*																								 *
+* You should have received a copy of the GNU Lesser General Public								*
+* License along with HPIPM; if not, write to the Free Software									*
+* Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA				  *
+*																								 *
+* Author: Gianluca Frison, gianluca.frison (at) imtek.uni-freiburg.de							 *
+*																								 *
 **************************************************************************************************/
+
+
+
+int SIZEOF_OCP_QP_DIM()
+	{
+	return sizeof(struct OCP_QP_DIM);
+	}
 
 
 
@@ -53,33 +60,53 @@ void CREATE_OCP_QP_DIM(int N, struct OCP_QP_DIM *dim, void *memory)
 	// nx
 	dim->nx = (int *) c_ptr;
 	c_ptr += (N+1)*sizeof(int);
+	for(ii=0; ii<=N; ii++)
+		dim->nx[ii] = 0;
 	// nu
 	dim->nu = (int *) c_ptr;
 	c_ptr += (N+1)*sizeof(int);
+	for(ii=0; ii<=N; ii++)
+		dim->nu[ii] = 0;
 	// nb
 	dim->nb = (int *) c_ptr;
 	c_ptr += (N+1)*sizeof(int);
+	for(ii=0; ii<=N; ii++)
+		dim->nb[ii] = 0;
 	// nbx
 	dim->nbx = (int *) c_ptr;
 	c_ptr += (N+1)*sizeof(int);
+	for(ii=0; ii<=N; ii++)
+		dim->nbx[ii] = 0;
 	// nbu
 	dim->nbu = (int *) c_ptr;
 	c_ptr += (N+1)*sizeof(int);
+	for(ii=0; ii<=N; ii++)
+		dim->nbu[ii] = 0;
 	// ng
 	dim->ng = (int *) c_ptr;
 	c_ptr += (N+1)*sizeof(int);
+	for(ii=0; ii<=N; ii++)
+		dim->ng[ii] = 0;
 	// ns
 	dim->ns = (int *) c_ptr;
 	c_ptr += (N+1)*sizeof(int);
+	for(ii=0; ii<=N; ii++)
+		dim->ns[ii] = 0;
 	// nsbx
 	dim->nsbx = (int *) c_ptr;
 	c_ptr += (N+1)*sizeof(int);
+	for(ii=0; ii<=N; ii++)
+		dim->nsbx[ii] = 0;
 	// nsbu
 	dim->nsbu = (int *) c_ptr;
 	c_ptr += (N+1)*sizeof(int);
+	for(ii=0; ii<=N; ii++)
+		dim->nsbu[ii] = 0;
 	// nsg
 	dim->nsg = (int *) c_ptr;
 	c_ptr += (N+1)*sizeof(int);
+	for(ii=0; ii<=N; ii++)
+		dim->ng[ii] = 0;
 
 	// N
 	dim->N = N;
@@ -116,18 +143,74 @@ void CVT_INT_TO_OCP_QP_DIM(int N, int *nx, int *nu, int *nbx, int *nbu, int *ng,
 	for(ii=0; ii<=N; ii++)
 		dim->ns[ii] = ns[ii];//nsbx[ii]+nsbu[ii]+nsg[ii];
 	for(ii=0; ii<=N; ii++)
-		dim->nsbx[ii] = -1;//nsbx[ii];
+		dim->nsbx[ii] = 0;//-1;//nsbx[ii];
 	for(ii=0; ii<=N; ii++)
-		dim->nsbu[ii] = -1;//nsbu[ii];
+		dim->nsbu[ii] = 0;//-1;//nsbu[ii];
 	for(ii=0; ii<=N; ii++)
-		dim->nsg[ii] = -1;//nsg[ii];
+		dim->nsg[ii] = 0;//-1;//nsg[ii];
 
 	return;
 
 	}
 
-// interface functions
-int SIZEOF_OCP_QP_DIM()
-    {
-        return sizeof(struct OCP_QP_DIM);
-    }
+
+
+void SET_OCP_QP_DIM_NX(int *nx, struct OCP_QP_DIM *dim)
+	{
+	int ii;
+	for(ii=0; ii<=dim->N; ii++)
+		dim->nx[ii] = nx[ii];
+	return;
+	}
+
+
+
+void SET_OCP_QP_DIM_NU(int *nu, struct OCP_QP_DIM *dim)
+	{
+	int ii;
+	for(ii=0; ii<=dim->N; ii++)
+		dim->nu[ii] = nu[ii];
+	return;
+	}
+
+
+
+void SET_OCP_QP_DIM_NBX(int *nbx, struct OCP_QP_DIM *dim)
+	{
+	int ii;
+	for(ii=0; ii<=dim->N; ii++)
+		dim->nbx[ii] = nbx[ii];
+		dim->nb[ii] = dim->nbx[ii] + dim->nbu[ii];
+	return;
+	}
+
+
+
+void SET_OCP_QP_DIM_NBU(int *nbu, struct OCP_QP_DIM *dim)
+	{
+	int ii;
+	for(ii=0; ii<=dim->N; ii++)
+		dim->nbu[ii] = nbu[ii];
+		dim->nb[ii] = dim->nbx[ii] + dim->nbu[ii];
+	return;
+	}
+
+
+
+void SET_OCP_QP_DIM_NG(int *ng, struct OCP_QP_DIM *dim)
+	{
+	int ii;
+	for(ii=0; ii<=dim->N; ii++)
+		dim->ng[ii] = ng[ii];
+	return;
+	}
+
+
+
+void SET_OCP_QP_DIM_NS(int *ns, struct OCP_QP_DIM *dim)
+	{
+	int ii;
+	for(ii=0; ii<=dim->N; ii++)
+		dim->ns[ii] = ns[ii];
+	return;
+	}

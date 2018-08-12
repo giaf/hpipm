@@ -33,12 +33,17 @@
 
 #define OCP_QP_DIM d_ocp_qp_dim
 
+#define SIZEOF_OCP_QP_DIM d_sizeof_ocp_qp_dim
 #define MEMSIZE_OCP_QP_DIM d_memsize_ocp_qp_dim
 #define CREATE_OCP_QP_DIM d_create_ocp_qp_dim
 #define CVT_INT_TO_OCP_QP_DIM d_cvt_int_to_ocp_qp_dim
+#define SET_OCP_QP_DIM_NX d_set_ocp_qp_dim_nx
+#define SET_OCP_QP_DIM_NU d_set_ocp_qp_dim_nu
+#define SET_OCP_QP_DIM_NBX d_set_ocp_qp_dim_nbx
+#define SET_OCP_QP_DIM_NBU d_set_ocp_qp_dim_nbu
+#define SET_OCP_QP_DIM_NG d_set_ocp_qp_dim_ng
+#define SET_OCP_QP_DIM_NS d_set_ocp_qp_dim_ns
 
-// interface functions
-#define SIZEOF_OCP_QP_DIM d_sizeof_ocp_qp_dim
 
 
 #include "x_ocp_qp_dim.c"
