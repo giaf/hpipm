@@ -106,6 +106,20 @@
 #define CVT_OCP_QP_TO_COLMAJ_LG s_cvt_ocp_qp_to_colmaj_lg
 #define CVT_COLMAJ_TO_OCP_QP_UG s_cvt_colmaj_to_ocp_qp_ug
 #define CVT_OCP_QP_TO_COLMAJ_UG s_cvt_ocp_qp_to_colmaj_ug
+#define CVT_COLMAJ_TO_OCP_QP_ZL s_cvt_colmaj_to_ocp_qp_Zl
+#define CVT_OCP_QP_TO_COLMAJ_ZL s_cvt_ocp_qp_to_colmaj_Zl
+#define CVT_COLMAJ_TO_OCP_QP_ZU s_cvt_colmaj_to_ocp_qp_Zu
+#define CVT_OCP_QP_TO_COLMAJ_ZU s_cvt_ocp_qp_to_colmaj_Zu
+#define CVT_COLMAJ_TO_OCP_QP_ZLVEC s_cvt_colmaj_to_ocp_qp_zl
+#define CVT_OCP_QP_TO_COLMAJ_ZLVEC s_cvt_ocp_qp_to_colmaj_zl
+#define CVT_COLMAJ_TO_OCP_QP_ZUVEC s_cvt_colmaj_to_ocp_qp_zu
+#define CVT_OCP_QP_TO_COLMAJ_ZUVEC s_cvt_ocp_qp_to_colmaj_zu
+#define CVT_COLMAJ_TO_OCP_QP_IDXS s_cvt_colmaj_to_ocp_qp_idxs
+#define CVT_OCP_QP_TO_COLMAJ_IDXS s_cvt_ocp_qp_to_colmaj_idxs
+#define CVT_COLMAJ_TO_OCP_QP_LS s_cvt_colmaj_to_ocp_qp_ls
+#define CVT_OCP_QP_TO_COLMAJ_LS s_cvt_ocp_qp_to_colmaj_ls
+#define CVT_COLMAJ_TO_OCP_QP_US s_cvt_colmaj_to_ocp_qp_us
+#define CVT_OCP_QP_TO_COLMAJ_US s_cvt_ocp_qp_to_colmaj_us
 
 #include "x_ocp_qp.c"
 

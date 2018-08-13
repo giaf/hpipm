@@ -149,6 +149,26 @@ void s_cvt_ocp_qp_to_colmaj_lg(int stage, struct s_ocp_qp *qp, float *vec);
 void s_cvt_colmaj_to_ocp_qp_ug(int stage, float *vec, struct s_ocp_qp *qp);
 //
 void s_cvt_ocp_qp_to_colmaj_ug(int stage, struct s_ocp_qp *qp, float *vec);
+//
+void s_cvt_ocp_qp_to_colmaj_Zl(int stage, struct s_ocp_qp *qp, float *vec);
+//
+void s_cvt_ocp_qp_to_colmaj_zu(int stage, struct s_ocp_qp *qp, float *vec);
+//
+void s_cvt_ocp_qp_to_colmaj_zl(int stage, struct s_ocp_qp *qp, float *vec);
+//
+void s_cvt_ocp_qp_to_colmaj_Zu(int stage, struct s_ocp_qp *qp, float *vec);
+//
+void s_cvt_colmaj_to_ocp_qp_idxs(int stage, int *vec, struct s_ocp_qp *qp);
+//
+void s_cvt_ocp_qp_to_colmaj_idxs(int stage, struct s_ocp_qp *qp, int *vec);
+//
+void s_cvt_colmaj_to_ocp_qp_ls(int stage, float *vec, struct s_ocp_qp *qp);
+//
+void s_cvt_ocp_qp_to_colmaj_ls(int stage, struct s_ocp_qp *qp, float *vec);
+//
+void s_cvt_colmaj_to_ocp_qp_us(int stage, float *vec, struct s_ocp_qp *qp);
+//
+void s_cvt_ocp_qp_to_colmaj_us(int stage, struct s_ocp_qp *qp, float *vec);
 
 
 

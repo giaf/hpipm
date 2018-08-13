@@ -1022,6 +1022,196 @@ void CVT_OCP_QP_TO_COLMAJ_UG(int stage, struct OCP_QP *qp, REAL *ug)
 
 
 
+void CVT_COLMAJ_TO_OCP_QP_ZL(int stage, REAL *Zl, struct OCP_QP *qp)
+	{
+	// extract dim
+	int *ns = qp->dim->ns;
+
+	CVT_VEC2STRVEC(ns[stage], Zl, qp->Z+stage, 0);
+
+	return;
+	}
+
+
+
+void CVT_OCP_QP_TO_COLMAJ_ZL(int stage, struct OCP_QP *qp, REAL *Zl)
+	{
+	// extract dim
+	int *ns = qp->dim->ns;
+
+	CVT_STRVEC2VEC(ns[stage], qp->Z+stage, 0, Zl);
+
+	return;
+	}
+
+
+
+void CVT_COLMAJ_TO_OCP_QP_ZU(int stage, REAL *Zu, struct OCP_QP *qp)
+	{
+	// extract dim
+	int *ns = qp->dim->ns;
+
+	CVT_VEC2STRVEC(ns[stage], Zu, qp->Z+stage, ns[stage]);
+
+	return;
+	}
+
+
+
+void CVT_OCP_QP_TO_COLMAJ_ZU(int stage, struct OCP_QP *qp, REAL *Zu)
+	{
+	// extract dim
+	int *ns = qp->dim->ns;
+
+	CVT_STRVEC2VEC(ns[stage], qp->Z+stage, ns[stage], Zu);
+
+	return;
+	}
+
+
+
+void CVT_COLMAJ_TO_OCP_QP_ZLVEC(int stage, REAL *zl, struct OCP_QP *qp)
+	{
+	// extract dim
+	int *nu = qp->dim->nu;
+	int *nx = qp->dim->nx;
+	int *ns = qp->dim->ns;
+
+	CVT_VEC2STRVEC(ns[stage], zl, qp->rqz+stage, nu[stage]+nx[stage]);
+
+	return;
+	}
+
+
+
+void CVT_OCP_QP_TO_COLMAJ_ZLVEC(int stage, struct OCP_QP *qp, REAL *zl)
+	{
+	// extract dim
+	int *nu = qp->dim->nu;
+	int *nx = qp->dim->nx;
+	int *ns = qp->dim->ns;
+
+	CVT_STRVEC2VEC(ns[stage], qp->rqz+stage, nu[stage]+nx[stage], zl);
+
+	return;
+	}
+
+
+
+void CVT_COLMAJ_TO_OCP_QP_ZUVEC(int stage, REAL *zu, struct OCP_QP *qp)
+	{
+	// extract dim
+	int *nu = qp->dim->nu;
+	int *nx = qp->dim->nx;
+	int *ns = qp->dim->ns;
+
+	CVT_VEC2STRVEC(ns[stage], zu, qp->rqz+stage, nu[stage]+nx[stage]+ns[stage]);
+
+	return;
+	}
+
+
+
+void CVT_OCP_QP_TO_COLMAJ_ZUVEC(int stage, struct OCP_QP *qp, REAL *zu)
+	{
+	// extract dim
+	int *nu = qp->dim->nu;
+	int *nx = qp->dim->nx;
+	int *ns = qp->dim->ns;
+
+	CVT_STRVEC2VEC(ns[stage], qp->rqz+stage, nu[stage]+nx[stage]+ns[stage], zu);
+
+	return;
+	}
+
+
+
+void CVT_COLMAJ_TO_OCP_QP_IDXS(int stage, int *idxs, struct OCP_QP *qp)
+	{
+	// extract dim
+	int *ns = qp->dim->ns;
+
+	int ii;
+	for(ii=0; ii<ns[stage]; ii++)
+		qp->idxs[stage][ii] = idxs[ii];
+
+	return;
+	}
+
+
+
+void CVT_OCP_QP_TO_COLMAJ_IDXS(int stage, struct OCP_QP *qp, int *idxs)
+	{
+	// extract dim
+	int *ns = qp->dim->ns;
+
+	int ii;
+	for(ii=0; ii<ns[stage]; ii++)
+		idxs[ii] = qp->idxs[stage][ii];
+
+	return;
+	}
+
+
+
+void CVT_COLMAJ_TO_OCP_QP_LS(int stage, REAL *ls, struct OCP_QP *qp)
+	{
+	// extract dim
+	int *nb = qp->dim->nb;
+	int *ng = qp->dim->ng;
+	int *ns = qp->dim->ns;
+
+	CVT_VEC2STRVEC(ns[stage], ls, qp->d+stage, 2*nb[stage]+2*ng[stage]);
+
+	return;
+	}
+
+
+
+void CVT_OCP_QP_TO_COLMAJ_LS(int stage, struct OCP_QP *qp, REAL *ls)
+	{
+	// extract dim
+	int *nb = qp->dim->nb;
+	int *ng = qp->dim->ng;
+	int *ns = qp->dim->ns;
+
+	CVT_STRVEC2VEC(ns[stage], qp->d+stage, 2*nb[stage]+2*ng[stage], ls);
+
+	return;
+	}
+
+
+
+void CVT_COLMAJ_TO_OCP_QP_US(int stage, REAL *us, struct OCP_QP *qp)
+	{
+	// extract dim
+	int *nb = qp->dim->nb;
+	int *ng = qp->dim->ng;
+	int *ns = qp->dim->ns;
+
+	CVT_VEC2STRVEC(ns[stage], us, qp->d+stage, 2*nb[stage]+2*ng[stage]+ns[stage]);
+
+	return;
+	}
+
+
+
+void CVT_OCP_QP_TO_COLMAJ_US(int stage, struct OCP_QP *qp, REAL *us)
+	{
+	// extract dim
+	int *nb = qp->dim->nb;
+	int *ng = qp->dim->ng;
+	int *ns = qp->dim->ns;
+
+	int i;
+
+	CVT_STRVEC2VEC(ns[stage], qp->d+stage, 2*nb[stage]+2*ng[stage]+ns[stage], us);
+
+	return;
+	}
+
+
+
 void CHANGE_BOUNDS_DIMENSIONS_OCP_QP(int *nbu, int *nbx, struct OCP_QP *qp)
 	{
 		// TODO runtime check that new memsize is smaller or equal than old
