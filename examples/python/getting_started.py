@@ -18,8 +18,8 @@ print('set nx time {:e}'.format(end_time-start_time))
 dims.set_nu(np.array([1, 1, 1, 1, 1]))
 dims.set_nbx(2, 0)
 #dims.set_ng(2, 0)
-#dims.set_nbx(2, 5)
-#dims.set_ns(2, 5)
+dims.set_nbx(2, 5)
+dims.set_ns(2, 5)
 
 
 # data
@@ -36,8 +36,10 @@ q = np.array([1, 1])
 Jx = np.array([1, 0, 0, 1])
 x0 = np.array([1, 1])
 Jsx = np.array([1, 0, 0, 1])
-Zl = np.array([0e5, 0, 0, 0e5])
-Zu = np.array([0e5, 0, 0, 0e5])
+Zl = np.array([1e5, 0, 0, 1e5])
+Zu = np.array([1e5, 0, 0, 1e5])
+zl = np.array([1e5, 1e5])
+zu = np.array([1e5, 1e5])
 
 
 
@@ -64,10 +66,12 @@ qp.set_ux(x0, 0)
 #qp.set_C(Jx, 0)
 #qp.set_lg(x0, 0)
 #qp.set_ug(x0, 0)
-#qp.set_Jx(Jx, 5)
-#qp.set_Jsx(Jsx, 5)
+qp.set_Jx(Jx, 5)
+qp.set_Jsx(Jsx, 5)
 #qp.set_Zl(Zl, 5)
 #qp.set_Zu(Zu, 5)
+qp.set_zl(zl, 5)
+qp.set_zu(zu, 5)
 
 
 # set up solver
