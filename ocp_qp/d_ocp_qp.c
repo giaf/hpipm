@@ -49,6 +49,7 @@
 #define CVT_TRAN_STRMAT2MAT blasfeo_unpack_tran_dmat
 #define CVT_VEC2STRVEC blasfeo_pack_dvec
 #define CVT_STRVEC2VEC blasfeo_unpack_dvec
+#define GESE blasfeo_dgese
 #define OCP_QP d_ocp_qp
 #define OCP_QP_DIM d_ocp_qp_dim
 #define REAL double
@@ -58,7 +59,7 @@
 #define SIZE_STRVEC blasfeo_memsize_dvec
 #define VECCP_LIBSTR blasfeo_dveccp
 #define VECSC_LIBSTR blasfeo_dvecsc
-#define VECSE_LIBSTR blasfeo_dvecse
+#define VECSE blasfeo_dvecse
 
 #define CAST_OCP_QP d_cast_ocp_qp
 #define COPY_OCP_QP d_copy_ocp_qp

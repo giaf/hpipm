@@ -216,6 +216,7 @@ void CREATE_OCP_QP(struct OCP_QP_DIM *dim, struct OCP_QP *qp, void *mem)
 		{
 		CREATE_STRMAT(nu[ii]+nx[ii]+1, nx[ii+1], qp->BAbt+ii, c_ptr);
 		c_ptr += (qp->BAbt+ii)->memsize;
+		GESE(nu[ii]+nx[ii]+1, nx[ii+1], 0.0, qp->BAbt+ii, 0, 0);
 		}
 
 	// RSQrq
@@ -223,6 +224,7 @@ void CREATE_OCP_QP(struct OCP_QP_DIM *dim, struct OCP_QP *qp, void *mem)
 		{
 		CREATE_STRMAT(nu[ii]+nx[ii]+1, nu[ii]+nx[ii], qp->RSQrq+ii, c_ptr);
 		c_ptr += (qp->RSQrq+ii)->memsize;
+		GESE(nu[ii]+nx[ii]+1, nu[ii]+nx[ii], 0.0, qp->RSQrq+ii, 0, 0);
 		}
 
 	// DCt
@@ -230,6 +232,7 @@ void CREATE_OCP_QP(struct OCP_QP_DIM *dim, struct OCP_QP *qp, void *mem)
 		{
 		CREATE_STRMAT(nu[ii]+nx[ii], ng[ii], qp->DCt+ii, c_ptr);
 		c_ptr += (qp->DCt+ii)->memsize;
+		GESE(nu[ii]+nx[ii], ng[ii], 0.0, qp->DCt+ii, 0, 0);
 		}
 
 	// Z
@@ -237,6 +240,7 @@ void CREATE_OCP_QP(struct OCP_QP_DIM *dim, struct OCP_QP *qp, void *mem)
 		{
 		CREATE_STRVEC(2*ns[ii], qp->Z+ii, c_ptr);
 		c_ptr += (qp->Z+ii)->memsize;
+		VECSE(2*ns[ii], 0.0, qp->Z+ii, 0);
 		}
 
 	// g
@@ -249,6 +253,7 @@ void CREATE_OCP_QP(struct OCP_QP_DIM *dim, struct OCP_QP *qp, void *mem)
 		tmp_ptr += nx[ii]*sizeof(REAL);
 		tmp_ptr += ns[ii]*sizeof(REAL);
 		tmp_ptr += ns[ii]*sizeof(REAL);
+		VECSE(nu[ii]+nx[ii]+2*ns[ii], 0.0, qp->rqz+ii, 0);
 		}
 
 	// b
@@ -258,6 +263,7 @@ void CREATE_OCP_QP(struct OCP_QP_DIM *dim, struct OCP_QP *qp, void *mem)
 		{
 		CREATE_STRVEC(nx[ii+1], qp->b+ii, tmp_ptr);
 		tmp_ptr += nx[ii+1]*sizeof(REAL);
+		VECSE(nx[ii+1], 0.0, qp->b+ii, 0);
 		}
 
 	// d
@@ -272,6 +278,7 @@ void CREATE_OCP_QP(struct OCP_QP_DIM *dim, struct OCP_QP *qp, void *mem)
 		tmp_ptr += ng[ii]*sizeof(REAL); // ug
 		tmp_ptr += ns[ii]*sizeof(REAL); // ls
 		tmp_ptr += ns[ii]*sizeof(REAL); // us
+		VECSE(2*nb[ii]+2*ng[ii]+2*ns[ii], 0.0, qp->d+ii, 0);
 		}
 
 	// m
@@ -286,6 +293,7 @@ void CREATE_OCP_QP(struct OCP_QP_DIM *dim, struct OCP_QP *qp, void *mem)
 		tmp_ptr += ng[ii]*sizeof(REAL); // ug
 		tmp_ptr += ns[ii]*sizeof(REAL); // ls
 		tmp_ptr += ns[ii]*sizeof(REAL); // us
+		VECSE(2*nb[ii]+2*ng[ii]+2*ns[ii], 0.0, qp->m+ii, 0);
 		}
 
 	qp->dim = dim;
@@ -349,8 +357,8 @@ void CVT_COLMAJ_TO_OCP_QP(REAL **A, REAL **B, REAL **b, REAL **Q, REAL **S, REAL
 			CVT_VEC2STRVEC(nb[ii], d_lb[ii], qp->d+ii, 0);
 			CVT_VEC2STRVEC(nb[ii], d_ub[ii], qp->d+ii, nb[ii]+ng[ii]);
 			VECSC_LIBSTR(nb[ii], -1.0, qp->d+ii, nb[ii]+ng[ii]);
-			VECSE_LIBSTR(nb[ii], 0.0, qp->m+ii, 0);
-			VECSE_LIBSTR(nb[ii], 0.0, qp->m+ii, nb[ii]+ng[ii]);
+			VECSE(nb[ii], 0.0, qp->m+ii, 0);
+			VECSE(nb[ii], 0.0, qp->m+ii, nb[ii]+ng[ii]);
 			}
 		}
 
@@ -363,8 +371,8 @@ void CVT_COLMAJ_TO_OCP_QP(REAL **A, REAL **B, REAL **b, REAL **Q, REAL **S, REAL
 			CVT_VEC2STRVEC(ng[ii], d_lg[ii], qp->d+ii, nb[ii]);
 			CVT_VEC2STRVEC(ng[ii], d_ug[ii], qp->d+ii, 2*nb[ii]+ng[ii]);
 			VECSC_LIBSTR(ng[ii], -1.0, qp->d+ii, 2*nb[ii]+ng[ii]);
-			VECSE_LIBSTR(ng[ii], 0.0, qp->m+ii, nb[ii]);
-			VECSE_LIBSTR(ng[ii], 0.0, qp->m+ii, 2*nb[ii]+ng[ii]);
+			VECSE(ng[ii], 0.0, qp->m+ii, nb[ii]);
+			VECSE(ng[ii], 0.0, qp->m+ii, 2*nb[ii]+ng[ii]);
 			}
 		}
 
@@ -380,8 +388,8 @@ void CVT_COLMAJ_TO_OCP_QP(REAL **A, REAL **B, REAL **b, REAL **Q, REAL **S, REAL
 			CVT_VEC2STRVEC(ns[ii], zu[ii], qp->rqz+ii, nu[ii]+nx[ii]+ns[ii]);
 			CVT_VEC2STRVEC(ns[ii], d_ls[ii], qp->d+ii, 2*nb[ii]+2*ng[ii]);
 			CVT_VEC2STRVEC(ns[ii], d_us[ii], qp->d+ii, 2*nb[ii]+2*ng[ii]+ns[ii]);
-			VECSE_LIBSTR(ns[ii], 0.0, qp->m+ii, 2*nb[ii]+2*ng[ii]);
-			VECSE_LIBSTR(ns[ii], 0.0, qp->m+ii, 2*nb[ii]+2*ng[ii]+ns[ii]);
+			VECSE(ns[ii], 0.0, qp->m+ii, 2*nb[ii]+2*ng[ii]);
+			VECSE(ns[ii], 0.0, qp->m+ii, 2*nb[ii]+2*ng[ii]+ns[ii]);
 			}
 		}
 
@@ -432,8 +440,8 @@ void CVT_ROWMAJ_TO_OCP_QP(REAL **A, REAL **B, REAL **b, REAL **Q, REAL **S, REAL
 			CVT_VEC2STRVEC(nb[ii], d_lb[ii], qp->d+ii, 0);
 			CVT_VEC2STRVEC(nb[ii], d_ub[ii], qp->d+ii, nb[ii]+ng[ii]);
 			VECSC_LIBSTR(nb[ii], -1.0, qp->d+ii, nb[ii]+ng[ii]);
-			VECSE_LIBSTR(nb[ii], 0.0, qp->m+ii, 0);
-			VECSE_LIBSTR(nb[ii], 0.0, qp->m+ii, nb[ii]+ng[ii]);
+			VECSE(nb[ii], 0.0, qp->m+ii, 0);
+			VECSE(nb[ii], 0.0, qp->m+ii, nb[ii]+ng[ii]);
 			}
 		}
 
@@ -446,8 +454,8 @@ void CVT_ROWMAJ_TO_OCP_QP(REAL **A, REAL **B, REAL **b, REAL **Q, REAL **S, REAL
 			CVT_VEC2STRVEC(ng[ii], d_lg[ii], qp->d+ii, nb[ii]);
 			CVT_VEC2STRVEC(ng[ii], d_ug[ii], qp->d+ii, 2*nb[ii]+ng[ii]);
 			VECSC_LIBSTR(ng[ii], -1.0, qp->d+ii, 2*nb[ii]+ng[ii]);
-			VECSE_LIBSTR(ng[ii], 0.0, qp->m+ii, nb[ii]);
-			VECSE_LIBSTR(ng[ii], 0.0, qp->m+ii, 2*nb[ii]+ng[ii]);
+			VECSE(ng[ii], 0.0, qp->m+ii, nb[ii]);
+			VECSE(ng[ii], 0.0, qp->m+ii, 2*nb[ii]+ng[ii]);
 			}
 		}
 
@@ -463,8 +471,8 @@ void CVT_ROWMAJ_TO_OCP_QP(REAL **A, REAL **B, REAL **b, REAL **Q, REAL **S, REAL
 			CVT_VEC2STRVEC(ns[ii], zu[ii], qp->rqz+ii, nu[ii]+nx[ii]+ns[ii]);
 			CVT_VEC2STRVEC(ns[ii], d_ls[ii], qp->d+ii, 2*nb[ii]+2*ng[ii]);
 			CVT_VEC2STRVEC(ns[ii], d_us[ii], qp->d+ii, 2*nb[ii]+2*ng[ii]+ns[ii]);
-			VECSE_LIBSTR(ns[ii], 0.0, qp->m+ii, 2*nb[ii]+2*ng[ii]);
-			VECSE_LIBSTR(ns[ii], 0.0, qp->m+ii, 2*nb[ii]+2*ng[ii]+ns[ii]);
+			VECSE(ns[ii], 0.0, qp->m+ii, 2*nb[ii]+2*ng[ii]);
+			VECSE(ns[ii], 0.0, qp->m+ii, 2*nb[ii]+2*ng[ii]+ns[ii]);
 			}
 		}
 
