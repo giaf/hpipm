@@ -26,12 +26,3 @@
 # Author: Gianluca Frison, gianluca.frison (at) imtek.uni-freiburg.de                             #
 #                                                                                                 #
 ###################################################################################################
-
-all:
-
-clean:
-	rm -f *.o
-	rm -f *.mex
-	rm -f libhpmpc.a
-	rm -f octave-workspace
-
