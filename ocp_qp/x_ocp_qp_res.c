@@ -2,24 +2,26 @@
 *                                                                                                 *
 * This file is part of HPIPM.                                                                     *
 *                                                                                                 *
-* HPIPM -- High Performance Interior Point Method.                                                *
-* Copyright (C) 2017 by Gianluca Frison.                                                          *
+* HPIPM -- High-Performance Interior Point Method.                                                *
+* Copyright (C) 2017-2018 by Gianluca Frison.                                                     *
 * Developed at IMTEK (University of Freiburg) under the supervision of Moritz Diehl.              *
 * All rights reserved.                                                                            *
 *                                                                                                 *
-* HPIPM is free software; you can redistribute it and/or                                          *
-* modify it under the terms of the GNU Lesser General Public                                      *
-* License as published by the Free Software Foundation; either                                    *
-* version 2.1 of the License, or (at your option) any later version.                              *
+* This program is free software: you can redistribute it and/or modify                            *
+* it under the terms of the GNU General Public License as published by                            *
+* the Free Software Foundation, either version 3 of the License, or                               *
+* (at your option) any later version                                                              *.
 *                                                                                                 *
-* HPIPM is distributed in the hope that it will be useful,                                        *
+* This program is distributed in the hope that it will be useful,                                 *
 * but WITHOUT ANY WARRANTY; without even the implied warranty of                                  *
-* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.                                            *
-* See the GNU Lesser General Public License for more details.                                     *
+* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the                                   *
+* GNU General Public License for more details.                                                    *
 *                                                                                                 *
-* You should have received a copy of the GNU Lesser General Public                                *
-* License along with HPIPM; if not, write to the Free Software                                    *
-* Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA                  *
+* You should have received a copy of the GNU General Public License                               *
+* along with this program.  If not, see <https://www.gnu.org/licenses/>.                          *
+*                                                                                                 *
+* The authors designate this particular file as subject to the "Classpath" exception              *
+* as provided by the authors in the LICENSE file that accompained this code.                      *
 *                                                                                                 *
 * Author: Gianluca Frison, gianluca.frison (at) imtek.uni-freiburg.de                             *
 *                                                                                                 *
@@ -41,14 +43,27 @@ int MEMSIZE_OCP_QP_RES(struct OCP_QP_DIM *dim)
 	int *ng = dim->ng;
 	int *ns = dim->ns;
 
+	// compute core qp size
+	int nvt = 0;
+	int net = 0;
+	int nct = 0;
+	for(ii=0; ii<N; ii++)
+		{
+		nvt += nx[ii]+nu[ii]+2*ns[ii];
+		net += nx[ii+1];
+		nct += 2*nb[ii]+2*ng[ii]+2*ns[ii];
+		}
+	nvt += nx[ii]+nu[ii]+2*ns[ii];
+	nct += 2*nb[ii]+2*ng[ii]+2*ns[ii];
+
 	int size = 0;
 
 	size += 3*(N+1)*sizeof(struct STRVEC); // res_g res_d res_m
 	size += 3*N*sizeof(struct STRVEC); // res_b
 
-	for(ii=0; ii<=N; ii++) size += 1*SIZE_STRVEC(nu[ii]+nx[ii]+2*ns[ii]); // res_g
-	for(ii=0; ii<N; ii++) size += 1*SIZE_STRVEC(nx[ii+1]); // res_b
-	for(ii=0; ii<=N; ii++) size += 2*SIZE_STRVEC(2*nb[ii]+2*ng[ii]+2*ns[ii]); // res_d res_m
+	size += 1*SIZE_STRVEC(nvt); // res_g
+	size += 1*SIZE_STRVEC(net); // res_b
+	size += 2*SIZE_STRVEC(nct); // res_d res_m
 
 	size = (size+63)/64*64; // make multiple of typical cache line size
 	size += 1*64; // align once to typical cache line size
@@ -73,6 +88,19 @@ void CREATE_OCP_QP_RES(struct OCP_QP_DIM *dim, struct OCP_QP_RES *res, void *mem
 	int *ng = dim->ng;
 	int *ns = dim->ns;
 
+	// compute core qp size
+	int nvt = 0;
+	int net = 0;
+	int nct = 0;
+	for(ii=0; ii<N; ii++)
+		{
+		nvt += nx[ii]+nu[ii]+2*ns[ii];
+		net += nx[ii+1];
+		nct += 2*nb[ii]+2*ng[ii]+2*ns[ii];
+		}
+	nvt += nx[ii]+nu[ii]+2*ns[ii];
+	nct += 2*nb[ii]+2*ng[ii]+2*ns[ii];
+
 
 	// vector struct
 	struct STRVEC *sv_ptr = (struct STRVEC *) mem;
@@ -95,29 +123,62 @@ void CREATE_OCP_QP_RES(struct OCP_QP_DIM *dim, struct OCP_QP_RES *res, void *mem
 	// void stuf
 	char *c_ptr = (char *) s_ptr;
 
+	CREATE_STRVEC(nvt, res->res_g, c_ptr);
+	c_ptr += SIZE_STRVEC(nvt);
+
+	CREATE_STRVEC(net, res->res_b, c_ptr);
+	c_ptr += SIZE_STRVEC(net);
+
+	CREATE_STRVEC(nct, res->res_d, c_ptr);
+	c_ptr += SIZE_STRVEC(nct);
+
+	CREATE_STRVEC(nct, res->res_m, c_ptr);
+	c_ptr += SIZE_STRVEC(nct);
+
+	// alias
+	//
+	c_ptr = (char *) res->res_g->pa;
 	for(ii=0; ii<=N; ii++)
 		{
 		CREATE_STRVEC(nu[ii]+nx[ii]+2*ns[ii], res->res_g+ii, c_ptr);
-		c_ptr += (res->res_g+ii)->memsize;
+		c_ptr += nu[ii]*sizeof(REAL);
+		c_ptr += nx[ii]*sizeof(REAL);
+		c_ptr += ns[ii]*sizeof(REAL);
+		c_ptr += ns[ii]*sizeof(REAL);
 		}
-
+	//
+	c_ptr = (char *) res->res_b->pa;
 	for(ii=0; ii<N; ii++)
 		{
 		CREATE_STRVEC(nx[ii+1], res->res_b+ii, c_ptr);
-		c_ptr += (res->res_b+ii)->memsize;
+		c_ptr += (nx[ii+1])*sizeof(REAL);
 		}
-
+	//
+	c_ptr = (char *) res->res_d->pa;
 	for(ii=0; ii<=N; ii++)
 		{
 		CREATE_STRVEC(2*nb[ii]+2*ng[ii]+2*ns[ii], res->res_d+ii, c_ptr);
-		c_ptr += (res->res_d+ii)->memsize;
+		c_ptr += nb[ii]*sizeof(REAL);
+		c_ptr += ng[ii]*sizeof(REAL);
+		c_ptr += nb[ii]*sizeof(REAL);
+		c_ptr += ng[ii]*sizeof(REAL);
+		c_ptr += ns[ii]*sizeof(REAL);
+		c_ptr += ns[ii]*sizeof(REAL);
 		}
-
+	//
+	c_ptr = (char *) res->res_m->pa;
 	for(ii=0; ii<=N; ii++)
 		{
 		CREATE_STRVEC(2*nb[ii]+2*ng[ii]+2*ns[ii], res->res_m+ii, c_ptr);
-		c_ptr += (res->res_m+ii)->memsize;
+		c_ptr += nb[ii]*sizeof(REAL);
+		c_ptr += ng[ii]*sizeof(REAL);
+		c_ptr += nb[ii]*sizeof(REAL);
+		c_ptr += ng[ii]*sizeof(REAL);
+		c_ptr += ns[ii]*sizeof(REAL);
+		c_ptr += ns[ii]*sizeof(REAL);
 		}
+
+
 
 	res->dim = dim;
 
@@ -127,7 +188,7 @@ void CREATE_OCP_QP_RES(struct OCP_QP_DIM *dim, struct OCP_QP_RES *res, void *mem
 #if defined(RUNTIME_CHECKS)
 	if(c_ptr > ((char *) mem) + res->memsize)
 		{
-		printf("\ncreate_ocp_qp_res: outsize memory bounds!\n\n");
+		printf("\ncreate_ocp_qp_res: outside memory bounds!\n\n");
 		exit(1);
 		}
 #endif
@@ -246,7 +307,7 @@ void CREATE_OCP_QP_RES_WORKSPACE(struct OCP_QP_DIM *dim, struct OCP_QP_RES_WORKS
 #if defined(RUNTIME_CHECKS)
 	if(c_ptr > ((char *) mem) + ws->memsize)
 		{
-		printf("\ncreate_ocp_qp_res_workspace: outsize memory bounds!\n\n");
+		printf("\ncreate_ocp_qp_res_workspace: outside memory bounds!\n\n");
 		exit(1);
 		}
 #endif

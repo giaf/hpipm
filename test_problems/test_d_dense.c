@@ -2,26 +2,28 @@
 *                                                                                                 *
 * This file is part of HPIPM.                                                                     *
 *                                                                                                 *
-* HPIPM -- High Performance Interior Point Method.                                                *
-* Copyright (C) 2017 by Gianluca Frison.                                                          *
+* HPIPM -- High-Performance Interior Point Method.                                                *
+* Copyright (C) 2017-2018 by Gianluca Frison.                                                     *
 * Developed at IMTEK (University of Freiburg) under the supervision of Moritz Diehl.              *
 * All rights reserved.                                                                            *
 *                                                                                                 *
-* HPMPC is free software; you can redistribute it and/or                                          *
-* modify it under the terms of the GNU Lesser General Public                                      *
-* License as published by the Free Software Foundation; either                                    *
-* version 2.1 of the License, or (at your option) any later version.                              *
+* This program is free software: you can redistribute it and/or modify                            *
+* it under the terms of the GNU General Public License as published by                            *
+* the Free Software Foundation, either version 3 of the License, or                               *
+* (at your option) any later version                                                              *.
 *                                                                                                 *
-* HPMPC is distributed in the hope that it will be useful,                                        *
+* This program is distributed in the hope that it will be useful,                                 *
 * but WITHOUT ANY WARRANTY; without even the implied warranty of                                  *
-* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.                                            *
-* See the GNU Lesser General Public License for more details.                                     *
+* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the                                   *
+* GNU General Public License for more details.                                                    *
 *                                                                                                 *
-* You should have received a copy of the GNU Lesser General Public                                *
-* License along with HPMPC; if not, write to the Free Software                                    *
-* Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA                  *
+* You should have received a copy of the GNU General Public License                               *
+* along with this program.  If not, see <https://www.gnu.org/licenses/>.                          *
 *                                                                                                 *
-* Author: Gianluca Frison, gianluca.frison (at) imtek.uni-freiburg.de                             *                          
+* The authors designate this particular file as subject to the "Classpath" exception              *
+* as provided by the authors in the LICENSE file that accompained this code.                      *
+*                                                                                                 *
+* Author: Gianluca Frison, gianluca.frison (at) imtek.uni-freiburg.de                             *
 *                                                                                                 *
 **************************************************************************************************/
 
@@ -63,7 +65,7 @@ void d_print_mat(int m, int n, double *A, int lda)
 		printf("\n");
 		}
 	printf("\n");
-	}	
+	}
 /* prints the transposed of a matrix in column-major format */
 void d_print_tran_mat(int row, int col, double *A, int lda)
 	{
@@ -77,9 +79,9 @@ void d_print_tran_mat(int row, int col, double *A, int lda)
 		printf("\n");
 		}
 	printf("\n");
-	}	
+	}
 /* prints a matrix in column-major format (exponential notation) */
-void d_print_e_mat(int m, int n, double *A, int lda)
+void d_print_exp_mat(int m, int n, double *A, int lda)
 	{
 	int i, j;
 	for(i=0; i<m; i++)
@@ -91,9 +93,9 @@ void d_print_e_mat(int m, int n, double *A, int lda)
 		printf("\n");
 		}
 	printf("\n");
-	}	
+	}
 /* prints the transposed of a matrix in column-major format (exponential notation) */
-void d_print_e_tran_mat(int row, int col, double *A, int lda)
+void d_print_exp_tran_mat(int row, int col, double *A, int lda)
 	{
 	int i, j;
 	for(j=0; j<col; j++)
@@ -105,7 +107,7 @@ void d_print_e_tran_mat(int row, int col, double *A, int lda)
 		printf("\n");
 		}
 	printf("\n");
-	}	
+	}
 #endif
 
 
@@ -117,14 +119,16 @@ int main()
 
 /************************************************
 * qp dimension and data
-************************************************/	
+************************************************/
 
 #if 1
 	int nv = 2;
 	int ne = 1;
 	int nb = 2;
 	int ng = 0;
-	int ns = 0;
+	int ns = 2;
+	int nsb = 2;
+	int nsg = 0;
 
 	double H[] = {4.0, 1.0, 1.0, 2.0};
 	double g[] = {1.0, 1.0};
@@ -173,8 +177,8 @@ int main()
 
 /************************************************
 * dense qp dim
-************************************************/	
-	
+************************************************/
+
 	int dense_qp_dim_size = d_memsize_dense_qp_dim();
 	printf("\nqp dim size = %d\n", dense_qp_dim_size);
 	void *dense_qp_dim_mem = malloc(dense_qp_dim_size);
@@ -182,11 +186,11 @@ int main()
 	struct d_dense_qp_dim qp_dim;
 	d_create_dense_qp_dim(&qp_dim, dense_qp_dim_mem);
 
-	d_cvt_int_to_dense_qp_dim(nv, ne, nb, ng, ns, &qp_dim);
+	d_cvt_int_to_dense_qp_dim(nv, ne, nb, ng, nsb, nsg, &qp_dim);
 
 /************************************************
 * dense qp
-************************************************/	
+************************************************/
 
 	int qp_size = d_memsize_dense_qp(&qp_dim);
 	printf("\nqp size = %d\n", qp_size);
@@ -194,7 +198,30 @@ int main()
 
 	struct d_dense_qp qp;
 	d_create_dense_qp(&qp_dim, &qp, qp_mem);
+
+#if 1
+	// test setters
+
+	d_dense_qp_set_H(H, &qp);
+	d_dense_qp_set_g(g, &qp);
+	d_dense_qp_set_A(A, &qp);
+	d_dense_qp_set_b(b, &qp);
+	d_dense_qp_set_idxb(idxb, &qp);
+	d_dense_qp_set_lb(d_lb, &qp);
+	d_dense_qp_set_ub(d_ub, &qp);
+	d_dense_qp_set_C(C, &qp);
+	d_dense_qp_set_lg(d_lg, &qp);
+	d_dense_qp_set_ug(d_ug, &qp);
+	d_dense_qp_set_Zl(Zl, &qp);
+	d_dense_qp_set_Zu(Zu, &qp);
+	d_dense_qp_set_zl(zl, &qp);
+	d_dense_qp_set_zu(zu, &qp);
+	d_dense_qp_set_idxs(idxs, &qp);
+	d_dense_qp_set_ls(d_ls, &qp);
+	d_dense_qp_set_us(d_us, &qp);
+#else
 	d_cvt_colmaj_to_dense_qp(H, g, A, b, idxb, d_lb, d_ub, C, d_lg, d_ug, Zl, Zu, zl, zu, idxs, d_ls, d_us, &qp);
+#endif
 
 #if 1
 	printf("\nH = \n");
@@ -213,7 +240,7 @@ int main()
 
 /************************************************
 * dense qp sol
-************************************************/	
+************************************************/
 
 	int qp_sol_size = d_memsize_dense_qp_sol(&qp_dim);
 	printf("\nqp sol size = %d\n", qp_sol_size);
@@ -224,7 +251,7 @@ int main()
 
 /************************************************
 * ipm arg
-************************************************/	
+************************************************/
 
 	int ipm_arg_size = d_memsize_dense_qp_ipm_arg(&qp_dim);
 	printf("\nipm arg size = %d\n", ipm_arg_size);
@@ -232,7 +259,11 @@ int main()
 
 	struct d_dense_qp_ipm_arg arg;
 	d_create_dense_qp_ipm_arg(&qp_dim, &arg, ipm_arg_mem);
-	d_set_default_dense_qp_ipm_arg(&arg);
+//	enum hpipm_mode mode = SPEED_ABS;
+	enum hpipm_mode mode = SPEED;
+//	enum hpipm_mode mode = BALANCE;
+//	enum hpipm_mode mode = ROBUST;
+	d_set_default_dense_qp_ipm_arg(mode, &arg);
 
 //	arg.alpha_min = 1e-8;
 //	arg.res_g_max = 1e-8;
@@ -240,14 +271,14 @@ int main()
 //	arg.res_d_max = 1e-12;
 //	arg.res_m_max = 1e-12;
 //	arg.mu0 = 10.0;
-	arg.iter_max = 10;
-	arg.stat_max = 10;
-	arg.pred_corr = 1;
-	arg.scale = 1;
+//	arg.iter_max = 10;
+//	arg.stat_max = 10;
+//	arg.pred_corr = 1;
+//	arg.scale = 1;
 
 /************************************************
 * ipm
-************************************************/	
+************************************************/
 
 	int ipm_size = d_memsize_dense_qp_ipm(&qp_dim, &arg);
 	printf("\nipm size = %d\n", ipm_size);
@@ -256,7 +287,7 @@ int main()
 	struct d_dense_qp_ipm_workspace workspace;
 	d_create_dense_qp_ipm(&qp_dim, &arg, &workspace, ipm_mem);
 
-	int rep, nrep=1;
+	int rep, nrep=1000;
 
 	int hpipm_return; // 0 normal; 1 max iter
 
@@ -309,32 +340,32 @@ int main()
 
 	printf("\nresiduals\n\n");
 	printf("\nres_g\n");
-	d_print_e_mat(1, nv+2*ns, workspace.res->res_g->pa, 1);
+	d_print_exp_mat(1, nv+2*ns, workspace.res->res_g->pa, 1);
 	printf("\nres_b\n");
-	d_print_e_mat(1, ne, workspace.res->res_b->pa, 1);
+	d_print_exp_mat(1, ne, workspace.res->res_b->pa, 1);
 	printf("\nres_d\n");
-	d_print_e_mat(1, 2*nb+2*ng+2*ns, workspace.res->res_d->pa, 1);
+	d_print_exp_mat(1, 2*nb+2*ng+2*ns, workspace.res->res_d->pa, 1);
 	printf("\nres_m\n");
-	d_print_e_mat(1, 2*nb+2*ng+2*ns, workspace.res->res_m->pa, 1);
+	d_print_exp_mat(1, 2*nb+2*ng+2*ns, workspace.res->res_m->pa, 1);
 	printf("\nres_mu\n");
 	printf("\n%e\n\n", workspace.res->res_mu);
 
 /************************************************
 * print ipm statistics
-************************************************/	
+************************************************/
 
 	printf("\nipm return = %d\n", hpipm_return);
 	printf("\nipm residuals max: res_g = %e, res_b = %e, res_d = %e, res_m = %e\n", workspace.qp_res[0], workspace.qp_res[1], workspace.qp_res[2], workspace.qp_res[3]);
 
 	printf("\nipm iter = %d\n", workspace.iter);
 	printf("\nalpha_aff\tmu_aff\t\tsigma\t\talpha\t\tmu\n");
-	d_print_e_tran_mat(5, workspace.iter, workspace.stat, 5);
+	d_print_exp_tran_mat(5, workspace.iter, workspace.stat, 5);
 
 	printf("\ndense ipm time = %e [s]\n\n", time_dense_ipm);
 
 /************************************************
 * free memory
-************************************************/	
+************************************************/
 
 	free(qp_mem);
 	free(qp_sol_mem);
@@ -342,10 +373,10 @@ int main()
 
 /************************************************
 * return
-************************************************/	
+************************************************/
 
 	return 0;
 
 	}
 
-	
+

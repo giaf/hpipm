@@ -2,24 +2,26 @@
 #                                                                                                 #
 # This file is part of HPIPM.                                                                     #
 #                                                                                                 #
-# HPIPM -- High Performance Interior Point Method.                                                #
-# Copyright (C) 2017 by Gianluca Frison.                                                          #
+# HPIPM -- High-Performance Interior Point Method.                                                #
+# Copyright (C) 2017-2018 by Gianluca Frison.                                                     #
 # Developed at IMTEK (University of Freiburg) under the supervision of Moritz Diehl.              #
 # All rights reserved.                                                                            #
 #                                                                                                 #
-# HPMPC is free software; you can redistribute it and/or                                          #
-# modify it under the terms of the GNU Lesser General Public                                      #
-# License as published by the Free Software Foundation; either                                    #
-# version 2.1 of the License, or (at your option) any later version.                              #
+# This program is free software: you can redistribute it and/or modify                            #
+# it under the terms of the GNU General Public License as published by                            #
+# the Free Software Foundation, either version 3 of the License, or                               #
+# (at your option) any later version                                                              #.
 #                                                                                                 #
-# HPMPC is distributed in the hope that it will be useful,                                        #
+# This program is distributed in the hope that it will be useful,                                 #
 # but WITHOUT ANY WARRANTY; without even the implied warranty of                                  #
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.                                            #
-# See the GNU Lesser General Public License for more details.                                     #
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the                                   #
+# GNU General Public License for more details.                                                    #
 #                                                                                                 #
-# You should have received a copy of the GNU Lesser General Public                                #
-# License along with HPMPC; if not, write to the Free Software                                    #
-# Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA                  #
+# You should have received a copy of the GNU General Public License                               #
+# along with this program.  If not, see <https://www.gnu.org/licenses/>.                          #
+#                                                                                                 #
+# The authors designate this particular file as subject to the "Classpath" exception              #
+# as provided by the authors in the LICENSE file that accompained this code.                      #
 #                                                                                                 #
 # Author: Gianluca Frison, gianluca.frison (at) imtek.uni-freiburg.de                             #
 #                                                                                                 #
@@ -64,6 +66,9 @@ OBJS += dense_qp/s_dense_qp_sol.o
 OBJS += dense_qp/s_dense_qp_res.o 
 OBJS += dense_qp/s_dense_qp_kkt.o 
 OBJS += dense_qp/s_dense_qp_ipm.o
+#mixed
+OBJS += dense_qp/m_dense_qp_dim.o 
+OBJS += dense_qp/m_dense_qp.o 
 
 # ipm core
 # double
@@ -85,6 +90,7 @@ OBJS += ocp_qp/d_ocp_qp_sol.o
 OBJS += ocp_qp/d_ocp_qp_res.o
 OBJS += ocp_qp/d_ocp_qp_kkt.o
 OBJS += ocp_qp/d_ocp_qp_ipm.o
+OBJS += ocp_qp/d_ocp_qp_utils.o
 # single
 OBJS += ocp_qp/s_ocp_qp_dim.o
 OBJS += ocp_qp/s_ocp_qp.o
@@ -92,6 +98,7 @@ OBJS += ocp_qp/s_ocp_qp_sol.o
 OBJS += ocp_qp/s_ocp_qp_res.o
 OBJS += ocp_qp/s_ocp_qp_kkt.o
 OBJS += ocp_qp/s_ocp_qp_ipm.o
+OBJS += ocp_qp/s_ocp_qp_utils.o
 # mixed
 #OBJS += ocp_qp/m_ocp_qp.o                       ocp_qp/m_ocp_qp_kkt.o ocp_qp/m_ocp_qp_ipm.o
 
@@ -106,25 +113,25 @@ OBJS += tree_ocp_qp/scenario_tree.o
 OBJS += tree_ocp_qp/d_tree_ocp_qp_dim.o
 OBJS += tree_ocp_qp/d_tree_ocp_qp.o
 OBJS += tree_ocp_qp/d_tree_ocp_qp_sol.o
+OBJS += tree_ocp_qp/d_tree_ocp_qp_res.o
 OBJS += tree_ocp_qp/d_tree_ocp_qp_kkt.o
 OBJS += tree_ocp_qp/d_tree_ocp_qp_ipm.o
 # single
 OBJS += tree_ocp_qp/s_tree_ocp_qp_dim.o
 OBJS += tree_ocp_qp/s_tree_ocp_qp.o
 OBJS += tree_ocp_qp/s_tree_ocp_qp_sol.o
+OBJS += tree_ocp_qp/s_tree_ocp_qp_res.o
 OBJS += tree_ocp_qp/s_tree_ocp_qp_kkt.o
 OBJS += tree_ocp_qp/s_tree_ocp_qp_ipm.o
 
 all: clean static_library
 
 static_library: target
-	( cd cond; $(MAKE) obj)
-	( cd dense_qp; $(MAKE) obj)
-	( cd ipm_core; $(MAKE) obj)
-	( cd ocp_nlp; $(MAKE) obj)
-	( cd ocp_qp; $(MAKE) obj)
-	( cd sim_core; $(MAKE) obj)
-	( cd tree_ocp_qp; $(MAKE) obj)
+	( cd cond; $(MAKE) obj TOP=$(TOP) )
+	( cd dense_qp; $(MAKE) obj TOP=$(TOP) )
+	( cd ipm_core; $(MAKE) obj TOP=$(TOP) )
+	( cd ocp_qp; $(MAKE) obj TOP=$(TOP) )
+	( cd tree_ocp_qp; $(MAKE) obj TOP=$(TOP) )
 	ar rcs libhpipm.a $(OBJS) 
 	cp libhpipm.a ./lib/
 	@echo
@@ -132,14 +139,12 @@ static_library: target
 	@echo
 
 shared_library: target
-	( cd cond; $(MAKE) obj)
-	( cd dense_qp; $(MAKE) obj)
-	( cd ipm_core; $(MAKE) obj)
-	( cd ocp_nlp; $(MAKE) obj)
-	( cd ocp_qp; $(MAKE) obj)
-	( cd sim_core; $(MAKE) obj)
-	( cd tree_ocp_qp; $(MAKE) obj)
-	gcc -shared -o libhpipm.so $(OBJS)
+	( cd cond; $(MAKE) obj TOP=$(TOP) )
+	( cd dense_qp; $(MAKE) obj TOP=$(TOP) )
+	( cd ipm_core; $(MAKE) obj TOP=$(TOP) )
+	( cd ocp_qp; $(MAKE) obj TOP=$(TOP) )
+	( cd tree_ocp_qp; $(MAKE) obj TOP=$(TOP) )
+	gcc -L$(BLASFEO_PATH)/lib -shared -o libhpipm.so $(OBJS) -lblasfeo
 	cp libhpipm.so ./lib/
 	@echo
 	@echo " libhpipm.so shared library build complete."
@@ -169,14 +174,26 @@ install_shared:
 
 test_problem:
 	cp libhpipm.a ./test_problems/libhpipm.a
-	make -C test_problems obj
+	make -C test_problems obj TOP=$(TOP)
 	@echo
 	@echo " Test problem build complete."
 	@echo
 
-run:
+run_test_problems:
 	./test_problems/test.out
 
+examples:
+	cp libhpipm.a ./examples/c/libhpipm.a
+	( cd examples/c; $(MAKE) obj )
+	@echo
+	@echo " Examples build complete."
+	@echo
+
+run_examples:
+	./examples/c/example.out
+
+
+.PHONY: examples
 clean:
 	rm -f libhpipm.a
 	rm -f libhpipm.so
@@ -185,9 +202,8 @@ clean:
 	make -C cond clean
 	make -C dense_qp clean
 	make -C ipm_core clean
-	make -C ocp_nlp clean
 	make -C ocp_qp clean
-	make -C sim_core clean
 	make -C tree_ocp_qp clean
 	make -C test_problems clean
+	make -C examples/c clean
 

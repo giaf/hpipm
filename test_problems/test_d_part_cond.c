@@ -2,24 +2,26 @@
 *                                                                                                 *
 * This file is part of HPIPM.                                                                     *
 *                                                                                                 *
-* HPIPM -- High Performance Interior Point Method.                                                *
-* Copyright (C) 2017 by Gianluca Frison.                                                          *
+* HPIPM -- High-Performance Interior Point Method.                                                *
+* Copyright (C) 2017-2018 by Gianluca Frison.                                                     *
 * Developed at IMTEK (University of Freiburg) under the supervision of Moritz Diehl.              *
 * All rights reserved.                                                                            *
 *                                                                                                 *
-* HPIPM is free software; you can redistribute it and/or                                          *
-* modify it under the terms of the GNU Lesser General Public                                      *
-* License as published by the Free Software Foundation; either                                    *
-* version 2.1 of the License, or (at your option) any later version.                              *
+* This program is free software: you can redistribute it and/or modify                            *
+* it under the terms of the GNU General Public License as published by                            *
+* the Free Software Foundation, either version 3 of the License, or                               *
+* (at your option) any later version                                                              *.
 *                                                                                                 *
-* HPIPM is distributed in the hope that it will be useful,                                        *
+* This program is distributed in the hope that it will be useful,                                 *
 * but WITHOUT ANY WARRANTY; without even the implied warranty of                                  *
-* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.                                            *
-* See the GNU Lesser General Public License for more details.                                     *
+* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the                                   *
+* GNU General Public License for more details.                                                    *
 *                                                                                                 *
-* You should have received a copy of the GNU Lesser General Public                                *
-* License along with HPIPM; if not, write to the Free Software                                    *
-* Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA                  *
+* You should have received a copy of the GNU General Public License                               *
+* along with this program.  If not, see <https://www.gnu.org/licenses/>.                          *
+*                                                                                                 *
+* The authors designate this particular file as subject to the "Classpath" exception              *
+* as provided by the authors in the LICENSE file that accompained this code.                      *
 *                                                                                                 *
 * Author: Gianluca Frison, gianluca.frison (at) imtek.uni-freiburg.de                             *
 *                                                                                                 *
@@ -210,6 +212,7 @@ int main()
 	for(ii=1; ii<N; ii++)
 		ns[ii] = nx[ii]/2;
 	ns[N] = nx[N]/2;
+
 #elif 0
 	int nb[N+1];
 	nb[0] = 0;
@@ -702,6 +705,9 @@ int main()
 	int nbu2[N2+1];
 	int ng2[N2+1];
 	int ns2[N2+1];
+	int nsbx2[N2+1];
+	int nsbu2[N2+1];
+	int nsg2[N2+1];
 
 	int dim_size2 = d_memsize_ocp_qp_dim(N2);
 	printf("\ndim size2 = %d\n", dim_size2);
@@ -936,14 +942,18 @@ int main()
 
 	struct d_ocp_qp_ipm_arg arg;
 	d_create_ocp_qp_ipm_arg(&dim2, &arg, ipm_arg_mem);
-	d_set_default_ocp_qp_ipm_arg(&arg);
+//	enum hpipm_mode mode = SPEED_ABS;
+	enum hpipm_mode mode = SPEED;
+//	enum hpipm_mode mode = BALANCE;
+//	enum hpipm_mode mode = ROBUST;
+	d_set_default_ocp_qp_ipm_arg(mode, &arg);
 
 //	arg.alpha_min = 1e-8;
 //	arg.res_g_max = 1e-8;
 //	arg.res_b_max = 1e-8;
 //	arg.res_d_max = 1e-12;
 //	arg.res_m_max = 1e-12;
-	arg.mu0 = mu0;
+//	arg.mu0 = mu0;
 //	arg.iter_max = 20;
 //	arg.stat_max = 100;
 //	arg.pred_corr = 1;
@@ -1074,55 +1084,55 @@ int main()
 	printf("\npart cond residuals\n\n");
 	printf("\nres_r\n");
 	for(ii=0; ii<=N2; ii++)
-		d_print_e_mat(1, nu2[ii], res_r2[ii], 1);
+		d_print_exp_mat(1, nu2[ii], res_r2[ii], 1);
 	printf("\nres_q\n");
 	for(ii=0; ii<=N2; ii++)
-		d_print_e_mat(1, nx2[ii], res_q2[ii], 1);
+		d_print_exp_mat(1, nx2[ii], res_q2[ii], 1);
 	printf("\nres_ls\n");
 	for(ii=0; ii<=N2; ii++)
-		d_print_e_mat(1, ns2[ii], res_ls2[ii], 1);
+		d_print_exp_mat(1, ns2[ii], res_ls2[ii], 1);
 	printf("\nres_us\n");
 	for(ii=0; ii<=N2; ii++)
-		d_print_e_mat(1, ns2[ii], res_us2[ii], 1);
+		d_print_exp_mat(1, ns2[ii], res_us2[ii], 1);
 	printf("\nres_b\n");
 	for(ii=0; ii<N2; ii++)
-		d_print_e_mat(1, nx2[ii+1], res_b2[ii], 1);
+		d_print_exp_mat(1, nx2[ii+1], res_b2[ii], 1);
 	printf("\nres_d_lb\n");
 	for(ii=0; ii<=N2; ii++)
-		d_print_e_mat(1, nb2[ii], res_d_lb2[ii], 1);
+		d_print_exp_mat(1, nb2[ii], res_d_lb2[ii], 1);
 	printf("\nres_d_ub\n");
 	for(ii=0; ii<=N2; ii++)
-		d_print_e_mat(1, nb2[ii], res_d_ub2[ii], 1);
+		d_print_exp_mat(1, nb2[ii], res_d_ub2[ii], 1);
 	printf("\nres_d_lg\n");
 	for(ii=0; ii<=N2; ii++)
-		d_print_e_mat(1, ng2[ii], res_d_lg2[ii], 1);
+		d_print_exp_mat(1, ng2[ii], res_d_lg2[ii], 1);
 	printf("\nres_d_ug\n");
 	for(ii=0; ii<=N2; ii++)
-		d_print_e_mat(1, ng2[ii], res_d_ug2[ii], 1);
+		d_print_exp_mat(1, ng2[ii], res_d_ug2[ii], 1);
 	printf("\nres_d_ls\n");
 	for(ii=0; ii<=N2; ii++)
-		d_print_e_mat(1, ns2[ii], res_d_ls2[ii], 1);
+		d_print_exp_mat(1, ns2[ii], res_d_ls2[ii], 1);
 	printf("\nres_d_us\n");
 	for(ii=0; ii<=N2; ii++)
-		d_print_e_mat(1, ns2[ii], res_d_us2[ii], 1);
+		d_print_exp_mat(1, ns2[ii], res_d_us2[ii], 1);
 	printf("\nres_m_lb\n");
 	for(ii=0; ii<=N2; ii++)
-		d_print_e_mat(1, nb2[ii], res_m_lb2[ii], 1);
+		d_print_exp_mat(1, nb2[ii], res_m_lb2[ii], 1);
 	printf("\nres_m_ub\n");
 	for(ii=0; ii<=N2; ii++)
-		d_print_e_mat(1, nb2[ii], res_m_ub2[ii], 1);
+		d_print_exp_mat(1, nb2[ii], res_m_ub2[ii], 1);
 	printf("\nres_m_lg\n");
 	for(ii=0; ii<=N2; ii++)
-		d_print_e_mat(1, ng2[ii], res_m_lg2[ii], 1);
+		d_print_exp_mat(1, ng2[ii], res_m_lg2[ii], 1);
 	printf("\nres_m_ug\n");
 	for(ii=0; ii<=N2; ii++)
-		d_print_e_mat(1, ng2[ii], res_m_ug2[ii], 1);
+		d_print_exp_mat(1, ng2[ii], res_m_ug2[ii], 1);
 	printf("\nres_m_ls\n");
 	for(ii=0; ii<=N2; ii++)
-		d_print_e_mat(1, ns2[ii], res_m_ls2[ii], 1);
+		d_print_exp_mat(1, ns2[ii], res_m_ls2[ii], 1);
 	printf("\nres_m_us\n");
 	for(ii=0; ii<=N2; ii++)
-		d_print_e_mat(1, ns2[ii], res_m_us2[ii], 1);
+		d_print_exp_mat(1, ns2[ii], res_m_us2[ii], 1);
 #endif
 
 /************************************************
@@ -1134,7 +1144,7 @@ int main()
 
 	printf("\nipm iter = %d\n", workspace.iter);
 	printf("\nalpha_aff\tmu_aff\t\tsigma\t\talpha\t\tmu\n");
-	d_print_e_tran_mat(5, workspace.iter, workspace.stat, 5);
+	d_print_exp_tran_mat(5, workspace.iter, workspace.stat, 5);
 
 	printf("\npart cond time         = %e [s]\n", time_cond);
 	printf("\nupdate part cond time  = %e [s]\n", time_update_cond);

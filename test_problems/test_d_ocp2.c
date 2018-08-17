@@ -2,24 +2,26 @@
 *                                                                                                 *
 * This file is part of HPIPM.                                                                     *
 *                                                                                                 *
-* HPIPM -- High Performance Interior Point Method.                                                *
-* Copyright (C) 2017 by Gianluca Frison.                                                          *
+* HPIPM -- High-Performance Interior Point Method.                                                *
+* Copyright (C) 2017-2018 by Gianluca Frison.                                                     *
 * Developed at IMTEK (University of Freiburg) under the supervision of Moritz Diehl.              *
 * All rights reserved.                                                                            *
 *                                                                                                 *
-* HPIPM is free software; you can redistribute it and/or                                          *
-* modify it under the terms of the GNU Lesser General Public                                      *
-* License as published by the Free Software Foundation; either                                    *
-* version 2.1 of the License, or (at your option) any later version.                              *
+* This program is free software: you can redistribute it and/or modify                            *
+* it under the terms of the GNU General Public License as published by                            *
+* the Free Software Foundation, either version 3 of the License, or                               *
+* (at your option) any later version                                                              *.
 *                                                                                                 *
-* HPIPM is distributed in the hope that it will be useful,                                        *
+* This program is distributed in the hope that it will be useful,                                 *
 * but WITHOUT ANY WARRANTY; without even the implied warranty of                                  *
-* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.                                            *
-* See the GNU Lesser General Public License for more details.                                     *
+* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the                                   *
+* GNU General Public License for more details.                                                    *
 *                                                                                                 *
-* You should have received a copy of the GNU Lesser General Public                                *
-* License along with HPIPM; if not, write to the Free Software                                    *
-* Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA                  *
+* You should have received a copy of the GNU General Public License                               *
+* along with this program.  If not, see <https://www.gnu.org/licenses/>.                          *
+*                                                                                                 *
+* The authors designate this particular file as subject to the "Classpath" exception              *
+* as provided by the authors in the LICENSE file that accompained this code.                      *
 *                                                                                                 *
 * Author: Gianluca Frison, gianluca.frison (at) imtek.uni-freiburg.de                             *
 *                                                                                                 *
@@ -95,7 +97,7 @@ void d_print_tran_mat(int row, int col, double *A, int lda)
 	printf("\n");
 	}
 /* prints a matrix in column-major format (exponential notation) */
-void d_print_e_mat(int m, int n, double *A, int lda)
+void d_print_exp_mat(int m, int n, double *A, int lda)
 	{
 	int i, j;
 	for(i=0; i<m; i++)
@@ -109,7 +111,7 @@ void d_print_e_mat(int m, int n, double *A, int lda)
 	printf("\n");
 	}
 /* prints the transposed of a matrix in column-major format (exponential notation) */
-void d_print_e_tran_mat(int row, int col, double *A, int lda)
+void d_print_exp_tran_mat(int row, int col, double *A, int lda)
 	{
 	int i, j;
 	for(j=0; j<col; j++)
@@ -914,55 +916,55 @@ int main()
 	printf("\nresiduals\n\n");
 	printf("\nres_r\n");
 	for(ii=0; ii<=N; ii++)
-		d_print_e_mat(1, nu[ii], res_r[ii], 1);
+		d_print_exp_mat(1, nu[ii], res_r[ii], 1);
 	printf("\nres_q\n");
 	for(ii=0; ii<=N; ii++)
-		d_print_e_mat(1, nx[ii], res_q[ii], 1);
+		d_print_exp_mat(1, nx[ii], res_q[ii], 1);
 	printf("\nres_ls\n");
 	for(ii=0; ii<=N; ii++)
-		d_print_e_mat(1, ns[ii], res_ls[ii], 1);
+		d_print_exp_mat(1, ns[ii], res_ls[ii], 1);
 	printf("\nres_us\n");
 	for(ii=0; ii<=N; ii++)
-		d_print_e_mat(1, ns[ii], res_us[ii], 1);
+		d_print_exp_mat(1, ns[ii], res_us[ii], 1);
 	printf("\nres_b\n");
 	for(ii=0; ii<N; ii++)
-		d_print_e_mat(1, nx[ii+1], res_b[ii], 1);
+		d_print_exp_mat(1, nx[ii+1], res_b[ii], 1);
 	printf("\nres_d_lb\n");
 	for(ii=0; ii<=N; ii++)
-		d_print_e_mat(1, nb[ii], res_d_lb[ii], 1);
+		d_print_exp_mat(1, nb[ii], res_d_lb[ii], 1);
 	printf("\nres_d_ub\n");
 	for(ii=0; ii<=N; ii++)
-		d_print_e_mat(1, nb[ii], res_d_ub[ii], 1);
+		d_print_exp_mat(1, nb[ii], res_d_ub[ii], 1);
 	printf("\nres_d_lg\n");
 	for(ii=0; ii<=N; ii++)
-		d_print_e_mat(1, ng[ii], res_d_lg[ii], 1);
+		d_print_exp_mat(1, ng[ii], res_d_lg[ii], 1);
 	printf("\nres_d_ug\n");
 	for(ii=0; ii<=N; ii++)
-		d_print_e_mat(1, ng[ii], res_d_ug[ii], 1);
+		d_print_exp_mat(1, ng[ii], res_d_ug[ii], 1);
 	printf("\nres_d_ls\n");
 	for(ii=0; ii<=N; ii++)
-		d_print_e_mat(1, ns[ii], res_d_ls[ii], 1);
+		d_print_exp_mat(1, ns[ii], res_d_ls[ii], 1);
 	printf("\nres_d_us\n");
 	for(ii=0; ii<=N; ii++)
-		d_print_e_mat(1, ns[ii], res_d_us[ii], 1);
+		d_print_exp_mat(1, ns[ii], res_d_us[ii], 1);
 	printf("\nres_m_lb\n");
 	for(ii=0; ii<=N; ii++)
-		d_print_e_mat(1, nb[ii], res_m_lb[ii], 1);
+		d_print_exp_mat(1, nb[ii], res_m_lb[ii], 1);
 	printf("\nres_m_ub\n");
 	for(ii=0; ii<=N; ii++)
-		d_print_e_mat(1, nb[ii], res_m_ub[ii], 1);
+		d_print_exp_mat(1, nb[ii], res_m_ub[ii], 1);
 	printf("\nres_m_lg\n");
 	for(ii=0; ii<=N; ii++)
-		d_print_e_mat(1, ng[ii], res_m_lg[ii], 1);
+		d_print_exp_mat(1, ng[ii], res_m_lg[ii], 1);
 	printf("\nres_m_ug\n");
 	for(ii=0; ii<=N; ii++)
-		d_print_e_mat(1, ng[ii], res_m_ug[ii], 1);
+		d_print_exp_mat(1, ng[ii], res_m_ug[ii], 1);
 	printf("\nres_m_ls\n");
 	for(ii=0; ii<=N; ii++)
-		d_print_e_mat(1, ns[ii], res_m_ls[ii], 1);
+		d_print_exp_mat(1, ns[ii], res_m_ls[ii], 1);
 	printf("\nres_m_us\n");
 	for(ii=0; ii<=N; ii++)
-		d_print_e_mat(1, ns[ii], res_m_us[ii], 1);
+		d_print_exp_mat(1, ns[ii], res_m_us[ii], 1);
 #endif
 
 /************************************************
@@ -973,7 +975,7 @@ int main()
 
 	printf("\nipm iter = %d\n", workspace.iter);
 	printf("\nalpha_aff\tmu_aff\t\tsigma\t\talpha\t\tmu\n");
-	d_print_e_tran_mat(5, workspace.iter, workspace.stat, 5);
+	d_print_exp_tran_mat(5, workspace.iter, workspace.stat, 5);
 
 	printf("\nocp ipm time = %e [s]\n\n", time_ocp_ipm);
 

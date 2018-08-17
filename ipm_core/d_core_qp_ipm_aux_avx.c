@@ -2,24 +2,26 @@
 *                                                                                                 *
 * This file is part of HPIPM.                                                                     *
 *                                                                                                 *
-* HPIPM -- High Performance Interior Point Method.                                                *
-* Copyright (C) 2017 by Gianluca Frison.                                                          *
+* HPIPM -- High-Performance Interior Point Method.                                                *
+* Copyright (C) 2017-2018 by Gianluca Frison.                                                     *
 * Developed at IMTEK (University of Freiburg) under the supervision of Moritz Diehl.              *
 * All rights reserved.                                                                            *
 *                                                                                                 *
-* HPIPM is free software; you can redistribute it and/or                                          *
-* modify it under the terms of the GNU Lesser General Public                                      *
-* License as published by the Free Software Foundation; either                                    *
-* version 2.1 of the License, or (at your option) any later version.                              *
+* This program is free software: you can redistribute it and/or modify                            *
+* it under the terms of the GNU General Public License as published by                            *
+* the Free Software Foundation, either version 3 of the License, or                               *
+* (at your option) any later version                                                              *.
 *                                                                                                 *
-* HPIPM is distributed in the hope that it will be useful,                                        *
+* This program is distributed in the hope that it will be useful,                                 *
 * but WITHOUT ANY WARRANTY; without even the implied warranty of                                  *
-* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.                                            *
-* See the GNU Lesser General Public License for more details.                                     *
+* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the                                   *
+* GNU General Public License for more details.                                                    *
 *                                                                                                 *
-* You should have received a copy of the GNU Lesser General Public                                *
-* License along with HPIPM; if not, write to the Free Software                                    *
-* Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA                  *
+* You should have received a copy of the GNU General Public License                               *
+* along with this program.  If not, see <https://www.gnu.org/licenses/>.                          *
+*                                                                                                 *
+* The authors designate this particular file as subject to the "Classpath" exception              *
+* as provided by the authors in the LICENSE file that accompained this code.                      *
 *                                                                                                 *
 * Author: Gianluca Frison, gianluca.frison (at) imtek.uni-freiburg.de                             *
 *                                                                                                 *
@@ -48,8 +50,9 @@ void d_compute_Gamma_gamma_qp(double *res_d, double *res_m, struct d_core_qp_ipm
 	double *gamma = cws->gamma;
 
 	__m256d
-		y_ones, y_tmp0,
-		y_t_inv, y_lam;
+		y_ones,
+		y_tmp0, y_t_inv0, y_lam0,
+		y_tmp1, y_t_inv1, y_lam1;
 
 	y_ones = _mm256_set_pd( 1.0, 1.0, 1.0, 1.0 );
 
@@ -57,16 +60,39 @@ void d_compute_Gamma_gamma_qp(double *res_d, double *res_m, struct d_core_qp_ipm
 	int ii;
 
 	ii = 0;
+#if 0
+	for(; ii<nc-7; ii+=8)
+		{
+		y_t_inv0 = _mm256_div_pd( y_ones, _mm256_loadu_pd( &t[ii+0] ) );
+		y_t_inv1 = _mm256_div_pd( y_ones, _mm256_loadu_pd( &t[ii+4] ) );
+		_mm256_storeu_pd( &t_inv[ii+0], y_t_inv0 );
+		_mm256_storeu_pd( &t_inv[ii+4], y_t_inv1 );
+		y_lam0 = _mm256_loadu_pd( &lam[ii+0] );
+		y_lam1 = _mm256_loadu_pd( &lam[ii+4] );
+		y_tmp0 = _mm256_mul_pd( y_t_inv0, y_lam0 );
+		y_tmp1 = _mm256_mul_pd( y_t_inv1, y_lam1 );
+		_mm256_storeu_pd( &Gamma[ii+0], y_tmp0 );
+		_mm256_storeu_pd( &Gamma[ii+4], y_tmp1 );
+		y_tmp0 = _mm256_mul_pd( y_lam0, _mm256_loadu_pd( &res_d[ii+0] ) );
+		y_tmp1 = _mm256_mul_pd( y_lam1, _mm256_loadu_pd( &res_d[ii+4] ) );
+		y_tmp0 = _mm256_sub_pd( _mm256_loadu_pd( &res_m[ii+0] ), y_tmp0 );
+		y_tmp1 = _mm256_sub_pd( _mm256_loadu_pd( &res_m[ii+4] ), y_tmp1 );
+		y_tmp0 = _mm256_mul_pd( y_t_inv0, y_tmp0 );
+		y_tmp1 = _mm256_mul_pd( y_t_inv1, y_tmp1 );
+		_mm256_storeu_pd( &gamma[ii+0], y_tmp0 );
+		_mm256_storeu_pd( &gamma[ii+4], y_tmp1 );
+		}
+#endif
 	for(; ii<nc-3; ii+=4)
 		{
-		y_t_inv = _mm256_div_pd( y_ones, _mm256_loadu_pd( &t[ii] ) );
-		_mm256_storeu_pd( &t_inv[ii], y_t_inv );
-		y_lam = _mm256_loadu_pd( &lam[ii] );
-		y_tmp0 = _mm256_mul_pd( y_t_inv, y_lam );
+		y_t_inv0 = _mm256_div_pd( y_ones, _mm256_loadu_pd( &t[ii] ) );
+		_mm256_storeu_pd( &t_inv[ii], y_t_inv0 );
+		y_lam0 = _mm256_loadu_pd( &lam[ii] );
+		y_tmp0 = _mm256_mul_pd( y_t_inv0, y_lam0 );
 		_mm256_storeu_pd( &Gamma[ii], y_tmp0 );
-		y_tmp0 = _mm256_mul_pd( y_lam, _mm256_loadu_pd( &res_d[ii] ) );
+		y_tmp0 = _mm256_mul_pd( y_lam0, _mm256_loadu_pd( &res_d[ii] ) );
 		y_tmp0 = _mm256_sub_pd( _mm256_loadu_pd( &res_m[ii] ), y_tmp0 );
-		y_tmp0 = _mm256_mul_pd( y_t_inv, y_tmp0 );
+		y_tmp0 = _mm256_mul_pd( y_t_inv0, y_tmp0 );
 		_mm256_storeu_pd( &gamma[ii], y_tmp0 );
 		}
 	for(; ii<nc; ii++)
@@ -92,17 +118,32 @@ void d_compute_gamma_qp(double *res_d, double *res_m, struct d_core_qp_ipm_works
 	double *gamma = cws->gamma;
 
 	__m256d
-		y_tmp0,
-		y_lam;
+		y_tmp0, y_lam0,
+		y_tmp1, y_lam1;
 
 	// local variables
 	int ii;
 
 	ii = 0;
+#if 0
+	for(; ii<nc-7; ii+=8)
+		{
+		y_lam0 = _mm256_loadu_pd( &lam[ii+0] );
+		y_lam1 = _mm256_loadu_pd( &lam[ii+4] );
+		y_tmp0 = _mm256_mul_pd( y_lam0, _mm256_loadu_pd( &res_d[ii+0] ) );
+		y_tmp1 = _mm256_mul_pd( y_lam1, _mm256_loadu_pd( &res_d[ii+4] ) );
+		y_tmp0 = _mm256_sub_pd( _mm256_loadu_pd( &res_m[ii+0] ), y_tmp0 );
+		y_tmp1 = _mm256_sub_pd( _mm256_loadu_pd( &res_m[ii+4] ), y_tmp1 );
+		y_tmp0 = _mm256_mul_pd( _mm256_loadu_pd( &t_inv[ii+0] ), y_tmp0 );
+		y_tmp1 = _mm256_mul_pd( _mm256_loadu_pd( &t_inv[ii+4] ), y_tmp1 );
+		_mm256_storeu_pd( &gamma[ii+0], y_tmp0 );
+		_mm256_storeu_pd( &gamma[ii+4], y_tmp1 );
+		}
+#endif
 	for(; ii<nc-3; ii+=4)
 		{
-		y_lam = _mm256_loadu_pd( &lam[ii] );
-		y_tmp0 = _mm256_mul_pd( y_lam, _mm256_loadu_pd( &res_d[ii] ) );
+		y_lam0 = _mm256_loadu_pd( &lam[ii] );
+		y_tmp0 = _mm256_mul_pd( y_lam0, _mm256_loadu_pd( &res_d[ii] ) );
 		y_tmp0 = _mm256_sub_pd( _mm256_loadu_pd( &res_m[ii] ), y_tmp0 );
 		y_tmp0 = _mm256_mul_pd( _mm256_loadu_pd( &t_inv[ii] ), y_tmp0 );
 		_mm256_storeu_pd( &gamma[ii], y_tmp0 );
@@ -127,8 +168,9 @@ void d_compute_lam_t_qp(double *res_d, double *res_m, double *dlam, double *dt, 
 	double *t_inv = cws->t_inv;
 
 	__m256d
-		y_sign, y_tmp0, y_tmp1,
-		y_dt;
+		y_sign,
+		y_tmp0, y_tmp2, y_dt0,
+		y_tmp1, y_tmp3, y_dt1;
 
 	long long long_sign = 0x8000000000000000;
 	y_sign = _mm256_broadcast_sd( (double *) &long_sign );
@@ -137,17 +179,40 @@ void d_compute_lam_t_qp(double *res_d, double *res_m, double *dlam, double *dt, 
 	int ii;
 
 	ii = 0;
+#if 0
+	for(; ii<nc-7; ii+=8)
+		{
+		y_dt0 = _mm256_loadu_pd( &dt[ii+0] );
+		y_dt1 = _mm256_loadu_pd( &dt[ii+4] );
+		y_dt0 = _mm256_sub_pd( y_dt0, _mm256_loadu_pd( &res_d[ii+0] ) );
+		y_dt1 = _mm256_sub_pd( y_dt1, _mm256_loadu_pd( &res_d[ii+4] ) );
+		_mm256_storeu_pd( &dt[ii+0], y_dt0 );
+		_mm256_storeu_pd( &dt[ii+4], y_dt1 );
+		y_tmp0 = _mm256_mul_pd( y_dt0, _mm256_loadu_pd( &lam[ii+0] ) );
+		y_tmp1 = _mm256_mul_pd( y_dt1, _mm256_loadu_pd( &lam[ii+4] ) );
+		y_tmp2 = _mm256_loadu_pd( &t_inv[ii+0] );
+		y_tmp3 = _mm256_loadu_pd( &t_inv[ii+4] );
+		y_tmp0 = _mm256_add_pd( y_tmp0, _mm256_loadu_pd( &res_m[ii+0] ) );
+		y_tmp1 = _mm256_add_pd( y_tmp1, _mm256_loadu_pd( &res_m[ii+4] ) );
+		y_tmp2 = _mm256_xor_pd( y_tmp2, y_sign );
+		y_tmp3 = _mm256_xor_pd( y_tmp3, y_sign );
+		y_tmp0 = _mm256_mul_pd( y_tmp0, y_tmp2 );
+		y_tmp1 = _mm256_mul_pd( y_tmp1, y_tmp3 );
+		_mm256_storeu_pd( &dlam[ii+0], y_tmp0 );
+		_mm256_storeu_pd( &dlam[ii+4], y_tmp1 );
+		}
+#endif
 	for(; ii<nc-3; ii+=4)
 		{
-		y_dt = _mm256_loadu_pd( &dt[ii] );
-		y_dt = _mm256_sub_pd( y_dt, _mm256_loadu_pd( &res_d[ii] ) );
-		_mm256_storeu_pd( &dt[ii], y_dt );
-		y_tmp0 = _mm256_mul_pd( y_dt, _mm256_loadu_pd( &lam[ii] ) );
-		y_tmp1 = _mm256_loadu_pd( &t_inv[ii] );
-		y_tmp0 = _mm256_add_pd( y_tmp0, _mm256_loadu_pd( &res_m[ii] ) );
-		y_tmp1 = _mm256_xor_pd( y_tmp1, y_sign );
-		y_tmp0 = _mm256_mul_pd( y_tmp0, y_tmp1 );
-		_mm256_storeu_pd( &dlam[ii], y_tmp0 );
+		y_dt0 = _mm256_loadu_pd( &dt[ii+0] );
+		y_dt0 = _mm256_sub_pd( y_dt0, _mm256_loadu_pd( &res_d[ii+0] ) );
+		_mm256_storeu_pd( &dt[ii+0], y_dt0 );
+		y_tmp0 = _mm256_mul_pd( y_dt0, _mm256_loadu_pd( &lam[ii+0] ) );
+		y_tmp2 = _mm256_loadu_pd( &t_inv[ii+0] );
+		y_tmp0 = _mm256_add_pd( y_tmp0, _mm256_loadu_pd( &res_m[ii+0] ) );
+		y_tmp2 = _mm256_xor_pd( y_tmp2, y_sign );
+		y_tmp0 = _mm256_mul_pd( y_tmp0, y_tmp2 );
+		_mm256_storeu_pd( &dlam[ii+0], y_tmp0 );
 		}
 	for(; ii<nc; ii++)
 		{
@@ -185,32 +250,60 @@ void d_compute_alpha_qp(struct d_core_qp_ipm_workspace *cws)
 
 	__m128
 		s_zeros, s_mones,
-		s_tmp0, s_tmp1,
-		s_mask0, s_mask1,
-		s_alpha0, s_alpha1;
+		s_tmp0, s_tmp2, s_mask0, s_mask2, s_alpha0, s_alpha2,
+		s_tmp1, s_tmp3, s_mask1, s_mask3, s_alpha1, s_alpha3;
 	
 	s_mones  = _mm_set_ps( -1.0, -1.0, -1.0, -1.0 );
 	s_zeros = _mm_setzero_ps( );
 
 	s_alpha0 = _mm_set_ps( -1.0, -1.0, -1.0, -1.0 );
-	s_alpha1 = _mm_set_ps( -1.0, -1.0, -1.0, -1.0 );
+	s_alpha2 = _mm_set_ps( -1.0, -1.0, -1.0, -1.0 );
 
 	// local variables
 	int ii;
 
 	ii = 0;
+#if 0
+	s_alpha1 = _mm_set_ps( -1.0, -1.0, -1.0, -1.0 );
+	s_alpha3 = _mm_set_ps( -1.0, -1.0, -1.0, -1.0 );
+	for(; ii<nc-7; ii+=8)
+		{
+		s_tmp0 = _mm256_cvtpd_ps( _mm256_loadu_pd( &dlam[ii+0] ) );
+		s_tmp1 = _mm256_cvtpd_ps( _mm256_loadu_pd( &dlam[ii+4] ) );
+		s_tmp2 = _mm256_cvtpd_ps( _mm256_loadu_pd( &dt[ii+0] ) );
+		s_tmp3 = _mm256_cvtpd_ps( _mm256_loadu_pd( &dt[ii+4] ) );
+		s_mask0 = _mm_cmp_ps( s_tmp0, s_zeros, 0x01 );
+		s_mask1 = _mm_cmp_ps( s_tmp1, s_zeros, 0x01 );
+		s_mask2 = _mm_cmp_ps( s_tmp2, s_zeros, 0x01 );
+		s_mask3 = _mm_cmp_ps( s_tmp3, s_zeros, 0x01 );
+		s_tmp0 = _mm_div_ps( _mm256_cvtpd_ps( _mm256_loadu_pd( &lam[ii+0] ) ), s_tmp0 );
+		s_tmp1 = _mm_div_ps( _mm256_cvtpd_ps( _mm256_loadu_pd( &lam[ii+4] ) ), s_tmp1 );
+		s_tmp2 = _mm_div_ps( _mm256_cvtpd_ps( _mm256_loadu_pd( &t[ii+0] ) ), s_tmp2 );
+		s_tmp3 = _mm_div_ps( _mm256_cvtpd_ps( _mm256_loadu_pd( &t[ii+4] ) ), s_tmp3 );
+		s_tmp0 = _mm_blendv_ps( s_mones, s_tmp0, s_mask0 );
+		s_tmp1 = _mm_blendv_ps( s_mones, s_tmp1, s_mask1 );
+		s_tmp2 = _mm_blendv_ps( s_mones, s_tmp2, s_mask2 );
+		s_tmp3 = _mm_blendv_ps( s_mones, s_tmp3, s_mask3 );
+		s_alpha0 = _mm_max_ps( s_alpha0, s_tmp0 );
+		s_alpha1 = _mm_max_ps( s_alpha1, s_tmp1 );
+		s_alpha2 = _mm_max_ps( s_alpha2, s_tmp2 );
+		s_alpha3 = _mm_max_ps( s_alpha3, s_tmp3 );
+		}
+	s_alpha0 = _mm_max_ps( s_alpha0, s_alpha1 );
+	s_alpha2 = _mm_max_ps( s_alpha2, s_alpha3 );
+#endif
 	for(; ii<nc-3; ii+=4)
 		{
 		s_tmp0 = _mm256_cvtpd_ps( _mm256_loadu_pd( &dlam[ii+0] ) );
-		s_tmp1 = _mm256_cvtpd_ps( _mm256_loadu_pd( &dt[ii+0] ) );
+		s_tmp2 = _mm256_cvtpd_ps( _mm256_loadu_pd( &dt[ii+0] ) );
 		s_mask0 = _mm_cmp_ps( s_tmp0, s_zeros, 0x01 );
-		s_mask1 = _mm_cmp_ps( s_tmp1, s_zeros, 0x01 );
+		s_mask2 = _mm_cmp_ps( s_tmp2, s_zeros, 0x01 );
 		s_tmp0 = _mm_div_ps( _mm256_cvtpd_ps( _mm256_loadu_pd( &lam[ii+0] ) ), s_tmp0 );
-		s_tmp1 = _mm_div_ps( _mm256_cvtpd_ps( _mm256_loadu_pd( &t[ii+0] ) ), s_tmp1 );
+		s_tmp2 = _mm_div_ps( _mm256_cvtpd_ps( _mm256_loadu_pd( &t[ii+0] ) ), s_tmp2 );
 		s_tmp0 = _mm_blendv_ps( s_mones, s_tmp0, s_mask0 );
-		s_tmp1 = _mm_blendv_ps( s_mones, s_tmp1, s_mask1 );
+		s_tmp2 = _mm_blendv_ps( s_mones, s_tmp2, s_mask2 );
 		s_alpha0 = _mm_max_ps( s_alpha0, s_tmp0 );
-		s_alpha1 = _mm_max_ps( s_alpha1, s_tmp1 );
+		s_alpha2 = _mm_max_ps( s_alpha2, s_tmp2 );
 		}
 	for(; ii<nc; ii++)
 		{
@@ -227,7 +320,7 @@ void d_compute_alpha_qp(struct d_core_qp_ipm_workspace *cws)
 		}
 
 	y_alpha0 = _mm256_cvtps_pd( s_alpha0 );
-	y_alpha1 = _mm256_cvtps_pd( s_alpha1 );
+	y_alpha1 = _mm256_cvtps_pd( s_alpha2 );
 	x_alpha0 = _mm_max_pd( _mm256_extractf128_pd( y_alpha0, 0x1 ), _mm256_castpd256_pd128( y_alpha0 ) );
 	x_alpha1 = _mm_max_pd( _mm256_extractf128_pd( y_alpha1, 0x1 ), _mm256_castpd256_pd128( y_alpha1 ) );
 	x_alpha0 = _mm_max_sd( x_alpha0, _mm_permute_pd( x_alpha0, 0x1 ) );
@@ -272,7 +365,8 @@ void d_update_var_qp(struct d_core_qp_ipm_workspace *cws)
 
 	__m256d
 		y_tmp0, y_tmp1,
-		y_alpha;
+		y_alpha,
+		y_lam_min, y_t_min, y_mask0, y_mask1;
 	
 #if 0
 	if(alpha<1.0)
@@ -319,6 +413,8 @@ void d_update_var_qp(struct d_core_qp_ipm_workspace *cws)
 		}
 
 	// update lam and t
+	y_lam_min = _mm256_broadcast_sd( &cws->lam_min );
+	y_t_min = _mm256_broadcast_sd( &cws->t_min );
 	ii = 0;
 	for(; ii<nc-3; ii+=4)
 		{
@@ -326,6 +422,13 @@ void d_update_var_qp(struct d_core_qp_ipm_workspace *cws)
 		y_tmp1 = _mm256_mul_pd( y_alpha, _mm256_loadu_pd( &dt[ii] ) );
 		y_tmp0 = _mm256_add_pd( y_tmp0, _mm256_loadu_pd( &lam[ii] ) );
 		y_tmp1 = _mm256_add_pd( y_tmp1, _mm256_loadu_pd( &t[ii] ) );
+		// max does not preserve NaN !!!
+//		y_tmp0 = _mm256_max_pd( y_tmp0, y_lam_min );
+//		y_tmp1 = _mm256_max_pd( y_tmp1, y_t_min );
+		y_mask0 = _mm256_cmp_pd( y_tmp0, y_lam_min, 2 );
+		y_mask1 = _mm256_cmp_pd( y_tmp1, y_t_min, 2 );
+		y_tmp0 = _mm256_blendv_pd( y_tmp0, y_lam_min, y_mask0 );
+		y_tmp1 = _mm256_blendv_pd( y_tmp1, y_t_min, y_mask1 );
 		_mm256_storeu_pd( &lam[ii], y_tmp0 );
 		_mm256_storeu_pd( &t[ii], y_tmp1 );
 		}
@@ -333,6 +436,8 @@ void d_update_var_qp(struct d_core_qp_ipm_workspace *cws)
 		{
 		lam[ii] += alpha * dlam[ii];
 		t[ii] += alpha * dt[ii];
+		lam[ii] = lam[ii]<=cws->lam_min ? cws->lam_min : lam[ii];
+		t[ii] = t[ii]<=cws->t_min ? cws->t_min : t[ii];
 		}
 
 #else // split step
@@ -346,6 +451,7 @@ void d_update_var_qp(struct d_core_qp_ipm_workspace *cws)
 	// update pi
 	for(ii=0; ii<ne; ii++)
 		{
+//		pi[ii] += alpha_prim * dpi[ii];
 		pi[ii] += alpha_dual * dpi[ii];
 		}
 
@@ -353,12 +459,14 @@ void d_update_var_qp(struct d_core_qp_ipm_workspace *cws)
 	for(ii=0; ii<nc; ii++)
 		{
 		lam[ii] += alpha_dual * dlam[ii];
+		lam[ii] = lam[ii]<=cws->lam_min ? cws->lam_min : lam[ii];
 		}
 
 	// update t
 	for(ii=0; ii<nc; ii++)
 		{
 		t[ii] += alpha_prim * dt[ii];
+		t[ii] = t[ii]<=cws->t_min ? cws->t_min : t[ii];
 		}
 
 #endif

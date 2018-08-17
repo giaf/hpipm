@@ -11,9 +11,14 @@ hpipm_target.h
 build/
 octave-workspace
 *.aux
+*.bbl
+*.blg
 *.toc
 *.log
 *.synctex.gz
 .vscode
 
 change_name.sh
+
+__pycache__
+*egg-info

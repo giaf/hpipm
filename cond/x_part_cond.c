@@ -2,26 +2,28 @@
 *                                                                                                 *
 * This file is part of HPIPM.                                                                     *
 *                                                                                                 *
-* HPIPM -- High Performance Interior Point Method.                                                *
-* Copyright (C) 2017 by Gianluca Frison.                                                          *
+* HPIPM -- High-Performance Interior Point Method.                                                *
+* Copyright (C) 2017-2018 by Gianluca Frison.                                                     *
 * Developed at IMTEK (University of Freiburg) under the supervision of Moritz Diehl.              *
 * All rights reserved.                                                                            *
 *                                                                                                 *
-* HPIPM is free software; you can redistribute it and/or                                          *
-* modify it under the terms of the GNU Lesser General Public                                      *
-* License as published by the Free Software Foundation; either                                    *
-* version 2.1 of the License, or (at your option) any later version.                              *
+* This program is free software: you can redistribute it and/or modify                            *
+* it under the terms of the GNU General Public License as published by                            *
+* the Free Software Foundation, either version 3 of the License, or                               *
+* (at your option) any later version                                                              *.
 *                                                                                                 *
-* HPIPM is distributed in the hope that it will be useful,                                        *
+* This program is distributed in the hope that it will be useful,                                 *
 * but WITHOUT ANY WARRANTY; without even the implied warranty of                                  *
-* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.                                            *
-* See the GNU Lesser General Public License for more details.                                     *
+* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the                                   *
+* GNU General Public License for more details.                                                    *
 *                                                                                                 *
-* You should have received a copy of the GNU Lesser General Public                                *
-* License along with HPIPM; if not, write to the Free Software                                    *
-* Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA                  *
+* You should have received a copy of the GNU General Public License                               *
+* along with this program.  If not, see <https://www.gnu.org/licenses/>.                          *
 *                                                                                                 *
-* Author: Gianluca Frison, gianluca.frison (at) imtek.uni-freiburg.de                             *                          
+* The authors designate this particular file as subject to the "Classpath" exception              *
+* as provided by the authors in the LICENSE file that accompained this code.                      *
+*                                                                                                 *
+* Author: Gianluca Frison, gianluca.frison (at) imtek.uni-freiburg.de                             *
 *                                                                                                 *
 **************************************************************************************************/
 
@@ -60,6 +62,9 @@ void COMPUTE_QP_DIM_OCP2OCP(struct OCP_QP_DIM *ocp_dim, int *block_size, struct 
 	int *nbu = ocp_dim->nbu;
 	int *ng = ocp_dim->ng;
 	int *ns = ocp_dim->ns;
+	int *nsbx = ocp_dim->nsbx;
+	int *nsbu = ocp_dim->nsbu;
+	int *nsg = ocp_dim->nsg;
 
 	int N2 = part_dense_dim->N;
 	int *nx2 = part_dense_dim->nx;
@@ -69,6 +74,9 @@ void COMPUTE_QP_DIM_OCP2OCP(struct OCP_QP_DIM *ocp_dim, int *block_size, struct 
 	int *nbu2 = part_dense_dim->nbu;
 	int *ng2 = part_dense_dim->ng;
 	int *ns2 = part_dense_dim->ns;
+	int *nsbx2 = part_dense_dim->nsbx;
+	int *nsbu2 = part_dense_dim->nsbu;
+	int *nsg2 = part_dense_dim->nsg;
 
 	int ii, jj;
 
@@ -85,6 +93,9 @@ void COMPUTE_QP_DIM_OCP2OCP(struct OCP_QP_DIM *ocp_dim, int *block_size, struct 
 		nb2[ii] = nb[N_tmp+0];
 		ng2[ii] = ng[N_tmp+0];
 		ns2[ii] = ns[N_tmp+0];
+		nsbx2[ii] = nsbx[N_tmp+0];
+		nsbu2[ii] = nsbu[N_tmp+0];
+		nsg2[ii] = nsg[N_tmp+0];
 		for(jj=1; jj<block_size[ii]; jj++)
 			{
 			nx2[ii] += 0;
@@ -94,6 +105,9 @@ void COMPUTE_QP_DIM_OCP2OCP(struct OCP_QP_DIM *ocp_dim, int *block_size, struct 
 			nb2[ii] += nbu[N_tmp+jj];
 			ng2[ii] += ng[N_tmp+jj] + nbx[N_tmp+jj];
 			ns2[ii] += ns[N_tmp+jj];
+			nsbx2[ii] += 0;
+			nsbu2[ii] += nsbu[N_tmp+jj];
+			nsg2[ii] += nsg[N_tmp+jj] + nsbx[N_tmp+jj];
 			}
 		N_tmp += block_size[ii];
 		}
@@ -106,6 +120,9 @@ void COMPUTE_QP_DIM_OCP2OCP(struct OCP_QP_DIM *ocp_dim, int *block_size, struct 
 	nb2[ii] = nb[N_tmp+0];
 	ng2[ii] = ng[N_tmp+0];
 	ns2[ii] = ns[N_tmp+0];
+	nsbx2[ii] = nsbx[N_tmp+0];
+	nsbu2[ii] = nsbu[N_tmp+0];
+	nsg2[ii] = nsg[N_tmp+0];
 	for(jj=1; jj<block_size[ii]+1; jj++)
 		{
 		nx2[ii] += 0;
@@ -115,6 +132,10 @@ void COMPUTE_QP_DIM_OCP2OCP(struct OCP_QP_DIM *ocp_dim, int *block_size, struct 
 		nb2[ii] += nbu[N_tmp+jj];
 		ng2[ii] += ng[N_tmp+jj] + nbx[N_tmp+jj];
 		ns2[ii] += ns[N_tmp+jj];
+
+		nsbx2[ii] = nsbx[N_tmp+0];
+		nsbu2[ii] = nsbu[N_tmp+0];
+		nsg2[ii] += nsg[N_tmp+jj] + nsbx[N_tmp+jj];
 		}
 
 	return;
@@ -207,7 +228,7 @@ return;
 
 	}
 
-	
+
 
 int MEMSIZE_COND_QP_OCP2OCP(struct OCP_QP_DIM *ocp_dim, int *block_size, struct OCP_QP_DIM *part_dense_dim, struct COND_QP_OCP2OCP_ARG *part_cond_arg)
 	{
@@ -306,7 +327,7 @@ return;
 
 	}
 
-	
+
 
 void COND_QP_OCP2OCP(struct OCP_QP *ocp_qp, struct OCP_QP *part_dense_qp, struct COND_QP_OCP2OCP_ARG *part_cond_arg, struct COND_QP_OCP2OCP_WORKSPACE *part_cond_ws)
 	{

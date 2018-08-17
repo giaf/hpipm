@@ -2,24 +2,26 @@
 *                                                                                                 *
 * This file is part of HPIPM.                                                                     *
 *                                                                                                 *
-* HPIPM -- High Performance Interior Point Method.                                                *
-* Copyright (C) 2017 by Gianluca Frison.                                                          *
+* HPIPM -- High-Performance Interior Point Method.                                                *
+* Copyright (C) 2017-2018 by Gianluca Frison.                                                     *
 * Developed at IMTEK (University of Freiburg) under the supervision of Moritz Diehl.              *
 * All rights reserved.                                                                            *
 *                                                                                                 *
-* HPIPM is free software; you can redistribute it and/or                                          *
-* modify it under the terms of the GNU Lesser General Public                                      *
-* License as published by the Free Software Foundation; either                                    *
-* version 2.1 of the License, or (at your option) any later version.                              *
+* This program is free software: you can redistribute it and/or modify                            *
+* it under the terms of the GNU General Public License as published by                            *
+* the Free Software Foundation, either version 3 of the License, or                               *
+* (at your option) any later version                                                              *.
 *                                                                                                 *
-* HPIPM is distributed in the hope that it will be useful,                                        *
+* This program is distributed in the hope that it will be useful,                                 *
 * but WITHOUT ANY WARRANTY; without even the implied warranty of                                  *
-* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.                                            *
-* See the GNU Lesser General Public License for more details.                                     *
+* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the                                   *
+* GNU General Public License for more details.                                                    *
 *                                                                                                 *
-* You should have received a copy of the GNU Lesser General Public                                *
-* License along with HPIPM; if not, write to the Free Software                                    *
-* Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA                  *
+* You should have received a copy of the GNU General Public License                               *
+* along with this program.  If not, see <https://www.gnu.org/licenses/>.                          *
+*                                                                                                 *
+* The authors designate this particular file as subject to the "Classpath" exception              *
+* as provided by the authors in the LICENSE file that accompained this code.                      *
 *                                                                                                 *
 * Author: Gianluca Frison, gianluca.frison (at) imtek.uni-freiburg.de                             *
 *                                                                                                 *
@@ -42,14 +44,16 @@ int MEMSIZE_TREE_OCP_QP_SOL(struct TREE_OCP_QP_DIM *dim)
 	int nvt = 0;
 	int net = 0;
 	int nct = 0;
-	for(ii=0; ii<Nn-1; ii++)
+	for(ii=0; ii<Nn; ii++)
 		{
 		nvt += nu[ii]+nx[ii]+2*ns[ii];
-		net += nx[ii+1];
-		nct += nb[ii]+ng[ii]+ns[ii];
+		nct += 2*nb[ii]+2*ng[ii]+2*ns[ii];
 		}
-	nvt += nu[ii]+nx[ii]+2*ns[ii];
-	nct += nb[ii]+ng[ii]+ns[ii];
+	for(ii=0; ii<Nn-1; ii++)
+		{
+		idx = ii+1;
+		net += nx[idx];
+		}
 
 	int size = 0;
 
@@ -58,7 +62,7 @@ int MEMSIZE_TREE_OCP_QP_SOL(struct TREE_OCP_QP_DIM *dim)
 
 	size += 1*SIZE_STRVEC(nvt); // ux
 	size += 1*SIZE_STRVEC(net); // pi
-	size += 2*SIZE_STRVEC(2*nct); // lam t
+	size += 2*SIZE_STRVEC(nct); // lam t
 
 	size = (size+63)/64*64; // make multiple of typical cache line size
 	size += 64; // align to typical cache line size
@@ -91,10 +95,10 @@ void CREATE_TREE_OCP_QP_SOL(struct TREE_OCP_QP_DIM *dim, struct TREE_OCP_QP_SOL 
 		{
 		nvt += nu[ii]+nx[ii]+2*ns[ii];
 		net += nx[ii+1];
-		nct += nb[ii]+ng[ii]+ns[ii];
+		nct += 2*nb[ii]+2*ng[ii]+2*ns[ii];
 		}
 	nvt += nu[ii]+nx[ii]+2*ns[ii];
-	nct += nb[ii]+ng[ii]+ns[ii];
+	nct += 2*nb[ii]+2*ng[ii]+2*ns[ii];
 
 
 	// vector struct stuff
@@ -137,12 +141,13 @@ void CREATE_TREE_OCP_QP_SOL(struct TREE_OCP_QP_DIM *dim, struct TREE_OCP_QP_SOL 
 	c_ptr += SIZE_STRVEC(net);
 	for(ii=0; ii<Nn-1; ii++)
 		{
-		CREATE_STRVEC(nx[ii+1], qp_sol->pi+ii, tmp_ptr);
-		tmp_ptr += (nx[ii+1])*sizeof(REAL); // pi
+		idx = ii+1;
+		CREATE_STRVEC(nx[idx], qp_sol->pi+ii, tmp_ptr);
+		tmp_ptr += (nx[idx])*sizeof(REAL); // pi
 		}
 	// lam
 	tmp_ptr = c_ptr;
-	c_ptr += SIZE_STRVEC(2*nct);
+	c_ptr += SIZE_STRVEC(nct);
 	for(ii=0; ii<Nn; ii++)
 		{
 		CREATE_STRVEC(2*nb[ii]+2*ng[ii]+2*ns[ii], qp_sol->lam+ii, tmp_ptr);
@@ -155,7 +160,7 @@ void CREATE_TREE_OCP_QP_SOL(struct TREE_OCP_QP_DIM *dim, struct TREE_OCP_QP_SOL 
 		}
 	// t
 	tmp_ptr = c_ptr;
-	c_ptr += SIZE_STRVEC(2*nct);
+	c_ptr += SIZE_STRVEC(nct);
 	for(ii=0; ii<Nn; ii++)
 		{
 		CREATE_STRVEC(2*nb[ii]+2*ng[ii]+2*ns[ii], qp_sol->t+ii, tmp_ptr);

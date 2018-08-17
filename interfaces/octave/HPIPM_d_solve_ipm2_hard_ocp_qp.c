@@ -2,26 +2,28 @@
 *                                                                                                 *
 * This file is part of HPIPM.                                                                     *
 *                                                                                                 *
-* HPIPM -- High Performance Interior Point Method.                                                *
-* Copyright (C) 2017 by Gianluca Frison.                                                          *
+* HPIPM -- High-Performance Interior Point Method.                                                *
+* Copyright (C) 2017-2018 by Gianluca Frison.                                                     *
 * Developed at IMTEK (University of Freiburg) under the supervision of Moritz Diehl.              *
 * All rights reserved.                                                                            *
 *                                                                                                 *
-* HPIPM is free software; you can redistribute it and/or                                          *
-* modify it under the terms of the GNU Lesser General Public                                      *
-* License as published by the Free Software Foundation; either                                    *
-* version 2.1 of the License, or (at your option) any later version.                              *
+* This program is free software: you can redistribute it and/or modify                            *
+* it under the terms of the GNU General Public License as published by                            *
+* the Free Software Foundation, either version 3 of the License, or                               *
+* (at your option) any later version                                                              *.
 *                                                                                                 *
-* HPIPM is distributed in the hope that it will be useful,                                        *
+* This program is distributed in the hope that it will be useful,                                 *
 * but WITHOUT ANY WARRANTY; without even the implied warranty of                                  *
-* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.                                            *
-* See the GNU Lesser General Public License for more details.                                     *
+* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the                                   *
+* GNU General Public License for more details.                                                    *
 *                                                                                                 *
-* You should have received a copy of the GNU Lesser General Public                                *
-* License along with HPIPM; if not, write to the Free Software                                    *
-* Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA                  *
+* You should have received a copy of the GNU General Public License                               *
+* along with this program.  If not, see <https://www.gnu.org/licenses/>.                          *
 *                                                                                                 *
-* Author: Gianluca Frison, giaf (at) dtu.dk                                                       *
+* The authors designate this particular file as subject to the "Classpath" exception              *
+* as provided by the authors in the LICENSE file that accompained this code.                      *
+*                                                                                                 *
+* Author: Gianluca Frison, gianluca.frison (at) imtek.uni-freiburg.de                             *
 *                                                                                                 *
 **************************************************************************************************/
 
@@ -30,6 +32,7 @@
 #include <stdlib.h>
 /*#include <math.h>*/
 
+#include "hpipm_common.h"
 #include "hpipm_d_ocp_qp_dim.h"
 #include "hpipm_d_ocp_qp.h"
 #include "hpipm_d_ocp_qp_sol.h"
@@ -57,19 +60,19 @@ void dgemv_n_3l(int m, int n, double alpha, double *A, int lda, double *x, doubl
 			z[ii] += A[ii+lda*jj] * tmp;
 			}
 		}
-	
+
 	}
 
 
 
-// the gateway function 
+// the gateway function
 void mexFunction( int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
 	{
-		
-	// get data 
+
+	// get data
 	int k_max;
 	double mu0, tol, *A, *B, *b, *Q, *Qf, *R, *S, *q, *qf, *r, *x, *u, *lb, *ub, *C, *D, *lg, *ug, *CN, *lgN, *ugN, *stat, *kkk, *inf_norm_res, *pi, *lam/*, *t*/;
-	
+
 	kkk   = mxGetPr(prhs[0]);
 	k_max = (int) mxGetScalar(prhs[1]);
 	mu0   = mxGetScalar(prhs[2]);
@@ -112,12 +115,12 @@ void mexFunction( int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
 //	stat = mxGetPr(prhs[38]);
 	inf_norm_res = mxGetPr(prhs[36]);
 	stat = mxGetPr(prhs[37]);
-	
+
 	int kk = -1;
 
 
 
-	// 
+	//
 	int ii, jj;
 	int i_tmp;
 
@@ -165,6 +168,18 @@ void mexFunction( int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
 	int ns_v[N+1];
 	for(ii=0; ii<=N; ii++)
 		ns_v[ii] = 0;
+
+	int nsbx_v[N+1];
+	for(ii=0; ii<=N; ii++)
+		nsbx_v[ii] = 0;
+
+	int nsbu_v[N+1];
+	for(ii=0; ii<=N; ii++)
+		nsbu_v[ii] = 0;
+
+	int nsg_v[N+1];
+	for(ii=0; ii<=N; ii++)
+		nsg_v[ii] = 0;
 
 	int *hidxb[N+1];
 	int *ptr_idx = (int *) malloc((N+1)*nb*sizeof(int));
@@ -253,7 +268,7 @@ void mexFunction( int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
 		for(ii=1; ii<N; ii++)
 			hq[ii] = q;
 		hq[N] = qf;
-		
+
 		hr[0] = r0;
 		for(ii=1; ii<N; ii++)
 			hr[ii] = r;
@@ -318,7 +333,7 @@ void mexFunction( int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
 		for(ii=1; ii<N; ii++)
 			hq[ii] = q+ii*nx;
 		hq[N] = qf;
-		
+
 		hr[0] = r0;
 		for(ii=1; ii<N; ii++)
 			hr[ii] = r+ii*nu;
@@ -355,16 +370,16 @@ void mexFunction( int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
 		hug[N] = ugN;
 
 		}
-	
+
 	for(ii=0; ii<=N; ii++)
 		hx[ii] = x+ii*nx;
 
 	for(ii=0; ii<N; ii++)
 		hu[ii] = u+ii*nu;
-	
+
 	for(ii=0; ii<N; ii++)
 		hpi[ii] = pi+ii*nx;
-	
+
 //	for(ii=0; ii<=N; ii++)
 //		hlam[ii] = lam+ii*(2*nb+2*ng);
 
@@ -388,7 +403,7 @@ void mexFunction( int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
 
 
 
-	// call solver 
+	// call solver
 //	fortran_order_d_ip_ocp_hard_tv(&kk, k_max, mu0, tol, N, nx_v, nu_v, nb_v, hidxb, ng_v, N2, warm_start, hA, hB, hb, hQ, hS, hR, hq, hr, hlb, hub, hC, hD, hlg, hug, hx, hu, hpi, hlam, /*ht,*/ inf_norm_res, work, stat);
 
 
@@ -400,7 +415,7 @@ void mexFunction( int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
 
 	struct d_ocp_qp_dim dim;
 	d_create_ocp_qp_dim(N, &dim, dim_mem);
-	d_cvt_int_to_ocp_qp_dim(N, nx_v, nu_v, nbx_v, nbu_v, ng_v, ns_v, &dim);
+	d_cvt_int_to_ocp_qp_dim(N, nx_v, nu_v, nbx_v, nbu_v, ng_v, nsbx_v, nsbu_v, nsg_v, &dim);
 
 //	for(ii=0; ii<=N; ii++)
 //		printf("\n%d %d %d %d %d %d %d\n", nx_v[ii], nu_v[ii], nb_v[ii], nbu_v[ii], nbx_v[ii], ng_v[ii], ns_v[ii]);
@@ -427,16 +442,19 @@ void mexFunction( int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
 
 	struct d_ocp_qp_ipm_arg arg;
 	d_create_ocp_qp_ipm_arg(&dim, &arg, ipm_arg_mem);
-	d_set_default_ocp_qp_ipm_arg(&arg);
+	enum hpipm_mode mode = SPEED;
+//	enum hpipm_mode mode = BALANCE;
+//	enum hpipm_mode mode = ROBUST;
+	d_set_default_ocp_qp_ipm_arg(mode, &arg);
 
 //	arg.alpha_min = 1e-12;
-//	arg.res_g_max = 1e-4;
-//	arg.res_b_max = 1e-4;
-//	arg.res_d_max = 1e-4;
-//	arg.res_m_max = 1e-4;
-//	arg.mu0 = 2.0;
-//	arg.iter_max = 10;
-//	arg.stat_max = 100;
+	arg.res_g_max = tol;
+	arg.res_b_max = tol;
+	arg.res_d_max = tol;
+	arg.res_m_max = tol;
+	arg.mu0 = mu0;
+	arg.iter_max = k_max;
+	arg.stat_max = k_max;
 //	arg.pred_corr = 1;
 //	arg.cond_pred_corr = 1;
 

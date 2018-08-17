@@ -2,26 +2,28 @@
 *                                                                                                 *
 * This file is part of HPIPM.                                                                     *
 *                                                                                                 *
-* HPIPM -- High Performance Interior Point Method.                                                *
-* Copyright (C) 2017 by Gianluca Frison.                                                          *
+* HPIPM -- High-Performance Interior Point Method.                                                *
+* Copyright (C) 2017-2018 by Gianluca Frison.                                                     *
 * Developed at IMTEK (University of Freiburg) under the supervision of Moritz Diehl.              *
 * All rights reserved.                                                                            *
 *                                                                                                 *
-* HPIPM is free software; you can redistribute it and/or                                          *
-* modify it under the terms of the GNU Lesser General Public                                      *
-* License as published by the Free Software Foundation; either                                    *
-* version 2.1 of the License, or (at your option) any later version.                              *
+* This program is free software: you can redistribute it and/or modify                            *
+* it under the terms of the GNU General Public License as published by                            *
+* the Free Software Foundation, either version 3 of the License, or                               *
+* (at your option) any later version                                                              *.
 *                                                                                                 *
-* HPIPM is distributed in the hope that it will be useful,                                        *
+* This program is distributed in the hope that it will be useful,                                 *
 * but WITHOUT ANY WARRANTY; without even the implied warranty of                                  *
-* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.                                            *
-* See the GNU Lesser General Public License for more details.                                     *
+* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the                                   *
+* GNU General Public License for more details.                                                    *
 *                                                                                                 *
-* You should have received a copy of the GNU Lesser General Public                                *
-* License along with HPIPM; if not, write to the Free Software                                    *
-* Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA                  *
+* You should have received a copy of the GNU General Public License                               *
+* along with this program.  If not, see <https://www.gnu.org/licenses/>.                          *
 *                                                                                                 *
-* Author: Gianluca Frison, gianluca.frison (at) imtek.uni-freiburg.de                             *                          
+* The authors designate this particular file as subject to the "Classpath" exception              *
+* as provided by the authors in the LICENSE file that accompained this code.                      *
+*                                                                                                 *
+* Author: Gianluca Frison, gianluca.frison (at) imtek.uni-freiburg.de                             *
 *                                                                                                 *
 **************************************************************************************************/
 
@@ -1059,7 +1061,11 @@ void EXPAND_SOL(struct OCP_QP *ocp_qp, struct DENSE_QP_SOL *dense_qp_sol, struct
 	// early return
 	if(N==0 & cond_arg->cond_last_stage==1)
 		{
+		// primal solution
 		VECCP_LIBSTR(nu[0]+nx[0]+2*ns[0], dense_qp_sol->v, 0, ocp_qp_sol->ux, 0);
+		if(cond_arg->comp_dual_sol==0)
+			return;
+		// dual solution
 		VECCP_LIBSTR(2*nb[N]+2*ng[N]+2*ns[N], dense_qp_sol->lam, 0, ocp_qp_sol->lam, 0);
 		VECCP_LIBSTR(2*nb[N]+2*ng[N]+2*ns[N], dense_qp_sol->t, 0, ocp_qp_sol->t, 0);
 		return;
@@ -1090,6 +1096,8 @@ void EXPAND_SOL(struct OCP_QP *ocp_qp, struct DENSE_QP_SOL *dense_qp_sol, struct
 	int nb2 = nbb;
 	int nt2 = nb2 + ng2;
 
+	// primal solution
+
 	// inputs & initial states
 	int nu_tmp = 0;
 	// final stages: copy only input
@@ -1106,6 +1114,45 @@ void EXPAND_SOL(struct OCP_QP *ocp_qp, struct DENSE_QP_SOL *dense_qp_sol, struct
 		{
 		GEMV_T_LIBSTR(nu[ii]+nx[ii], nx[ii+1], 1.0, BAbt+ii, 0, 0, ux+ii, 0, 1.0, b+ii, 0, ux+(ii+1), nu[ii+1]);
 		}
+	
+	if(cond_arg->comp_dual_sol==0)
+		{
+		REAL *ptr_ux;
+		REAL *ptr_vc = vc->pa;
+		int is = 0;
+		int nx0, nu0, nb0, ng0, ns0;
+
+		// slack variables
+		for(ii=0; ii<=N; ii++)
+			{
+			nx0 = nx[N-ii];
+			nu0 = nu[N-ii];
+			nb0 = nb[N-ii];
+			ng0 = ng[N-ii];
+			ns0 = ns[N-ii];
+			for(jj=0; jj<nb0+ng0; jj++)
+				idxs_rev[jj] = -1;
+			if(ns0>0)
+				{
+				for(jj=0; jj<ns0; jj++)
+					idxs_rev[idxs[N-ii][jj]] = jj;
+				}
+			ptr_ux = (ux+N-ii)->pa;
+			for(jj=0; jj<nb0+ng0; jj++)
+				{
+				if(idxs_rev[jj]>=0)
+					{
+					ptr_ux[nu0+nx0+idxs_rev[jj]] = ptr_vc[nu2+nx2+is];
+					ptr_ux[nu0+nx0+ns0+idxs_rev[jj]] = ptr_vc[nu2+nx2+ns2+is];
+					is++;
+					}
+				}
+			}
+
+		return;
+		}
+	
+	// dual variables + slacks
 
 	// slack variables and ineq lagrange multipliers
 	nbb = 0;
@@ -1145,17 +1192,6 @@ void EXPAND_SOL(struct OCP_QP *ocp_qp, struct DENSE_QP_SOL *dense_qp_sol, struct
 		nu0 = nu[N-ii];
 		nb0 = nb[N-ii];
 		ng0 = ng[N-ii];
-		ns0 = ns[N-ii];
-		for(jj=0; jj<nb0+ng0; jj++)
-			idxs_rev[jj] = -1;
-		if(ns0>0)
-			{
-			for(jj=0; jj<ns0; jj++)
-				idxs_rev[idxs[N-ii][jj]] = jj;
-			}
-		ptr_ux = (ux+N-ii)->pa;
-		ptr_lam = (lam+N-ii)->pa;
-		ptr_t = (t+N-ii)->pa;
 		ptr_lam_lb = (lam+N-ii)->pa+0;
 		ptr_lam_ub = (lam+N-ii)->pa+nb0+ng0;
 		ptr_t_lb = (t+N-ii)->pa+0;
@@ -1181,16 +1217,6 @@ void EXPAND_SOL(struct OCP_QP *ocp_qp, struct DENSE_QP_SOL *dense_qp_sol, struct
 				ptr_t_ub[jj] = ptr_t_ugc[nbg];
 				nbg++;
 				}
-			if(idxs_rev[jj]>=0)
-				{
-				ptr_lam[2*nb0+2*ng0+idxs_rev[jj]]     = ptr_lamc[2*nb2+2*ng2+is];
-				ptr_lam[2*nb0+2*ng0+ns0+idxs_rev[jj]] = ptr_lamc[2*nb2+2*ng2+ns2+is];
-				ptr_t[2*nb0+2*ng0+idxs_rev[jj]]     = ptr_tc[2*nb2+2*ng2+is];
-				ptr_t[2*nb0+2*ng0+ns0+idxs_rev[jj]] = ptr_tc[2*nb2+2*ng2+ns2+is];
-				ptr_ux[nu0+nx0+idxs_rev[jj]] = ptr_vc[nu2+nx2+is];
-				ptr_ux[nu0+nx0+ns0+idxs_rev[jj]] = ptr_vc[nu2+nx2+ns2+is];
-				is++;
-				}
 			}
 		}
 	// first stage
@@ -1199,40 +1225,49 @@ void EXPAND_SOL(struct OCP_QP *ocp_qp, struct DENSE_QP_SOL *dense_qp_sol, struct
 	nu0 = nu[0];
 	nb0 = nb[0];
 	ng0 = ng[0];
-	ns0 = ns[0];
 	VECCP_LIBSTR(nb0, lamc, 0+nbb, lam+0, 0);
 	VECCP_LIBSTR(nb0, lamc, nb2+ng2+nbb, lam+0, nb0+ng0);
 	VECCP_LIBSTR(nb0, tc, 0+nbb, t+0, 0);
 	VECCP_LIBSTR(nb0, tc, nb2+ng2+nbb, t+0, nb0+ng0);
 	nbb += nb0;
-	for(jj=0; jj<nb0+ng0; jj++)
-		idxs_rev[jj] = -1;
-	if(ns0>0)
-		{
-		for(jj=0; jj<ns0; jj++)
-			idxs_rev[idxs[0][jj]] = jj;
-		}
-	ptr_ux = (ux+0)->pa;
-	ptr_lam = (lam+0)->pa;
-	ptr_t = (t+0)->pa;
-	for(jj=0; jj<nb0; jj++)
-		{
-//		idxb0 = idxb[0][jj];
-		if(idxs_rev[jj]>=0)
-			{
-			ptr_lam[2*nb0+2*ng0+idxs_rev[jj]]     = ptr_lamc[2*nb2+2*ng2+is];
-			ptr_lam[2*nb0+2*ng0+ns0+idxs_rev[jj]] = ptr_lamc[2*nb2+2*ng2+ns2+is];
-			ptr_t[2*nb0+2*ng0+idxs_rev[jj]]     = ptr_tc[2*nb2+2*ng2+is];
-			ptr_t[2*nb0+2*ng0+ns0+idxs_rev[jj]] = ptr_tc[2*nb2+2*ng2+ns2+is];
-			ptr_ux[nu0+nx0+idxs_rev[jj]] = ptr_vc[nu2+nx2+is];
-			ptr_ux[nu0+nx0+ns0+idxs_rev[jj]] = ptr_vc[nu2+nx2+ns2+is];
-			is++;
-			}
-		}
 
 	// general constraints
-	// process as vectors ???
+	// TODO process as vectors ???
+	// XXX change when decide when nbg are placed wrt ng
 	for(ii=0; ii<N; ii++)
+		{
+		nx0 = nx[N-ii];
+		nu0 = nu[N-ii];
+		nb0 = nb[N-ii];
+		ng0 = ng[N-ii];
+		ptr_lam_lg = (lam+(N-ii))->pa+nb0;
+		ptr_lam_ug = (lam+(N-ii))->pa+2*nb0+ng0;
+		ptr_t_lg = (t+(N-ii))->pa+nb0;
+		ptr_t_ug = (t+(N-ii))->pa+2*nb0+ng0;
+		for(jj=0; jj<ng0; jj++)
+			{
+			// genenral as general
+			ptr_lam_lg[jj] = ptr_lam_lgc[nbg+ngg];
+			ptr_lam_ug[jj] = ptr_lam_ugc[nbg+ngg];
+			ptr_t_lg[jj] = ptr_t_lgc[nbg+ngg];
+			ptr_t_ug[jj] = ptr_t_ugc[nbg+ngg];
+			ngg++;
+			}
+		}
+	// first stage
+	// all general as general
+	nx0 = nx[0];
+	nu0 = nu[0];
+	nb0 = nb[0];
+	ng0 = ng[0];
+	VECCP_LIBSTR(ng[0], lamc, nb2+nbg+ngg, lam+0, nb0);
+	VECCP_LIBSTR(ng[0], lamc, 2*nb2+ng2+nbg+ngg, lam+0, 2*nb0+ng0);
+	VECCP_LIBSTR(ng[0], tc, nb2+nbg+ngg, t+0, nb0);
+	VECCP_LIBSTR(ng[0], tc, 2*nb2+ng2+nbg+ngg, t+0, 2*nb0+ng0);
+	ngg += ng0;
+	
+	// soft constraints
+	for(ii=0; ii<=N; ii++)
 		{
 		nx0 = nx[N-ii];
 		nu0 = nu[N-ii];
@@ -1246,69 +1281,21 @@ void EXPAND_SOL(struct OCP_QP *ocp_qp, struct DENSE_QP_SOL *dense_qp_sol, struct
 			for(jj=0; jj<ns0; jj++)
 				idxs_rev[idxs[N-ii][jj]] = jj;
 			}
-		ptr_ux = (ux+(N-ii))->pa;
-		ptr_lam = (lam+(N-ii))->pa;
-		ptr_t = (t+(N-ii))->pa;
-		ptr_lam_lg = (lam+(N-ii))->pa+nb0;
-		ptr_lam_ug = (lam+(N-ii))->pa+2*nb0+ng0;
-		ptr_t_lg = (t+(N-ii))->pa+nb0;
-		ptr_t_ug = (t+(N-ii))->pa+2*nb0+ng0;
-		for(jj=0; jj<ng0; jj++)
+		ptr_ux = (ux+N-ii)->pa;
+		ptr_lam = (lam+N-ii)->pa;
+		ptr_t = (t+N-ii)->pa;
+		for(jj=0; jj<nb0+ng0; jj++)
 			{
-			// genenral as general
-			ptr_lam_lg[jj] = ptr_lam_lgc[nbg+ngg];
-			ptr_lam_ug[jj] = ptr_lam_ugc[nbg+ngg];
-			ptr_t_lg[jj] = ptr_t_lgc[nbg+ngg];
-			ptr_t_ug[jj] = ptr_t_ugc[nbg+ngg];
-			ngg++;
-
-			idxg0 = nb0+jj;
-			if(idxs_rev[idxg0]>=0)
+			if(idxs_rev[jj]>=0)
 				{
-				ptr_lam[2*nb0+2*ng0+idxs_rev[idxg0]]     = ptr_lamc[2*nb2+2*ng2+is];
-				ptr_lam[2*nb0+2*ng0+ns0+idxs_rev[idxg0]] = ptr_lamc[2*nb2+2*ng2+ns2+is];
-				ptr_t[2*nb0+2*ng0+idxs_rev[idxg0]]     = ptr_tc[2*nb2+2*ng2+is];
-				ptr_t[2*nb0+2*ng0+ns0+idxs_rev[idxg0]] = ptr_tc[2*nb2+2*ng2+ns2+is];
-				ptr_ux[nu0+nx0+idxs_rev[idxg0]] = ptr_vc[nu2+nx2+is];
-				ptr_ux[nu0+nx0+ns0+idxs_rev[idxg0]] = ptr_vc[nu2+nx2+ns2+is];
+				ptr_lam[2*nb0+2*ng0+idxs_rev[jj]]     = ptr_lamc[2*nb2+2*ng2+is];
+				ptr_lam[2*nb0+2*ng0+ns0+idxs_rev[jj]] = ptr_lamc[2*nb2+2*ng2+ns2+is];
+				ptr_t[2*nb0+2*ng0+idxs_rev[jj]]     = ptr_tc[2*nb2+2*ng2+is];
+				ptr_t[2*nb0+2*ng0+ns0+idxs_rev[jj]] = ptr_tc[2*nb2+2*ng2+ns2+is];
+				ptr_ux[nu0+nx0+idxs_rev[jj]] = ptr_vc[nu2+nx2+is];
+				ptr_ux[nu0+nx0+ns0+idxs_rev[jj]] = ptr_vc[nu2+nx2+ns2+is];
 				is++;
 				}
-			}
-		}
-	// first stage
-	// all general as general
-	nx0 = nx[0];
-	nu0 = nu[0];
-	nb0 = nb[0];
-	ng0 = ng[0];
-	ns0 = ns[0];
-	VECCP_LIBSTR(ng[0], lamc, nb2+nbg+ngg, lam+0, nb0);
-	VECCP_LIBSTR(ng[0], lamc, 2*nb2+ng2+nbg+ngg, lam+0, 2*nb0+ng0);
-	VECCP_LIBSTR(ng[0], tc, nb2+nbg+ngg, t+0, nb0);
-	VECCP_LIBSTR(ng[0], tc, 2*nb2+ng2+nbg+ngg, t+0, 2*nb0+ng0);
-	ngg += ng0;
-	for(jj=0; jj<nb0+ng0; jj++)
-		idxs_rev[jj] = -1;
-	if(ns0>0)
-		{
-		for(jj=0; jj<ns0; jj++)
-			idxs_rev[idxs[0][jj]] = jj;
-		}
-	ptr_ux = (ux+(0))->pa;
-	ptr_lam = (lam+(0))->pa;
-	ptr_t = (t+(0))->pa;
-	for(jj=0; jj<ng0; jj++)
-		{
-		idxg0 = nb0+jj;
-		if(idxs_rev[idxg0]>=0)
-			{
-			ptr_lam[2*nb0+2*ng0+idxs_rev[idxg0]]     = ptr_lamc[2*nb2+2*ng2+is];
-			ptr_lam[2*nb0+2*ng0+ns0+idxs_rev[idxg0]] = ptr_lamc[2*nb2+2*ng2+ns2+is];
-			ptr_t[2*nb0+2*ng0+idxs_rev[idxg0]]     = ptr_tc[2*nb2+2*ng2+is];
-			ptr_t[2*nb0+2*ng0+ns0+idxs_rev[idxg0]] = ptr_tc[2*nb2+2*ng2+ns2+is];
-			ptr_ux[nu0+nx0+idxs_rev[idxg0]] = ptr_vc[nu2+nx2+is];
-			ptr_ux[nu0+nx0+ns0+idxs_rev[idxg0]] = ptr_vc[nu2+nx2+ns2+is];
-			is++;
 			}
 		}
 

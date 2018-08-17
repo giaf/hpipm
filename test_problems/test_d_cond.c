@@ -2,26 +2,28 @@
 *                                                                                                 *
 * This file is part of HPIPM.                                                                     *
 *                                                                                                 *
-* HPIPM -- High Performance Interior Point Method.                                                *
-* Copyright (C) 2017 by Gianluca Frison.                                                          *
+* HPIPM -- High-Performance Interior Point Method.                                                *
+* Copyright (C) 2017-2018 by Gianluca Frison.                                                     *
 * Developed at IMTEK (University of Freiburg) under the supervision of Moritz Diehl.              *
 * All rights reserved.                                                                            *
 *                                                                                                 *
-* HPIPM is free software; you can redistribute it and/or                                          *
-* modify it under the terms of the GNU Lesser General Public                                      *
-* License as published by the Free Software Foundation; either                                    *
-* version 2.1 of the License, or (at your option) any later version.                              *
+* This program is free software: you can redistribute it and/or modify                            *
+* it under the terms of the GNU General Public License as published by                            *
+* the Free Software Foundation, either version 3 of the License, or                               *
+* (at your option) any later version                                                              *.
 *                                                                                                 *
-* HPIPM is distributed in the hope that it will be useful,                                        *
+* This program is distributed in the hope that it will be useful,                                 *
 * but WITHOUT ANY WARRANTY; without even the implied warranty of                                  *
-* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.                                            *
-* See the GNU Lesser General Public License for more details.                                     *
+* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the                                   *
+* GNU General Public License for more details.                                                    *
 *                                                                                                 *
-* You should have received a copy of the GNU Lesser General Public                                *
-* License along with HPIPM; if not, write to the Free Software                                    *
-* Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA                  *
+* You should have received a copy of the GNU General Public License                               *
+* along with this program.  If not, see <https://www.gnu.org/licenses/>.                          *
 *                                                                                                 *
-* Author: Gianluca Frison, gianluca.frison (at) imtek.uni-freiburg.de                             *                          
+* The authors designate this particular file as subject to the "Classpath" exception              *
+* as provided by the authors in the LICENSE file that accompained this code.                      *
+*                                                                                                 *
+* Author: Gianluca Frison, gianluca.frison (at) imtek.uni-freiburg.de                             *
 *                                                                                                 *
 **************************************************************************************************/
 
@@ -57,8 +59,8 @@
 
 
 
-/************************************************ 
-Mass-spring system: nx/2 masses connected each other with springs (in a row), and the first and the last one to walls. nu (<=nx) controls act on the first nu masses. The system is sampled with sampling time Ts. 
+/************************************************
+Mass-spring system: nx/2 masses connected each other with springs (in a row), and the first and the last one to walls. nu (<=nx) controls act on the first nu masses. The system is sampled with sampling time Ts.
 ************************************************/
 void mass_spring_system(double Ts, int nx, int nu, int N, double *A, double *B, double *b, double *x0)
 	{
@@ -68,11 +70,11 @@ void mass_spring_system(double Ts, int nx, int nu, int N, double *A, double *B, 
 	int info = 0;
 
 	int pp = nx/2; // number of masses
-	
+
 /************************************************
-* build the continuous time system 
+* build the continuous time system
 ************************************************/
-	
+
 	double *T; d_zeros(&T, pp, pp);
 	int ii;
 	for(ii=0; ii<pp; ii++) T[ii*(pp+1)] = -2;
@@ -85,27 +87,27 @@ void mass_spring_system(double Ts, int nx, int nu, int N, double *A, double *B, 
 	dmcopy(pp, pp, Z, pp, Ac, nx);
 	dmcopy(pp, pp, T, pp, Ac+pp, nx);
 	dmcopy(pp, pp, I, pp, Ac+pp*nx, nx);
-	dmcopy(pp, pp, Z, pp, Ac+pp*(nx+1), nx); 
+	dmcopy(pp, pp, Z, pp, Ac+pp*(nx+1), nx);
 	free(T);
 	free(Z);
 	free(I);
-	
+
 	d_zeros(&I, nu, nu); for(ii=0; ii<nu; ii++) I[ii*(nu+1)]=1.0; //I = eye(nu);
 	double *Bc; d_zeros(&Bc, nx, nu);
 	dmcopy(nu, nu, I, nu, Bc+pp, nx);
 	free(I);
-	
+
 /************************************************
-* compute the discrete time system 
+* compute the discrete time system
 ************************************************/
 
 	double *bb; d_zeros(&bb, nx, 1);
 	dmcopy(nx, 1, bb, nx, b, nx);
-		
+
 	dmcopy(nx, nx, Ac, nx, A, nx);
 	dscal_3l(nx2, Ts, A);
 	expm(nx, A);
-	
+
 	d_zeros(&T, nx, nx);
 	d_zeros(&I, nx, nx); for(ii=0; ii<nx; ii++) I[ii*(nx+1)]=1.0; //I = eye(nx);
 	dmcopy(nx, nx, A, nx, T, nx);
@@ -113,7 +115,7 @@ void mass_spring_system(double Ts, int nx, int nu, int N, double *A, double *B, 
 	dgemm_nn_3l(nx, nu, nx, T, nx, Bc, nx, B, nx);
 	free(T);
 	free(I);
-	
+
 	int *ipiv = (int *) malloc(nx*sizeof(int));
 	dgesv_3l(nx, nu, Ac, nx, ipiv, B, nx, &info);
 	free(ipiv);
@@ -121,12 +123,12 @@ void mass_spring_system(double Ts, int nx, int nu, int N, double *A, double *B, 
 	free(Ac);
 	free(Bc);
 	free(bb);
-	
-			
+
+
 /************************************************
-* initial state 
+* initial state
 ************************************************/
-	
+
 	if(nx==4)
 		{
 		x0[0] = 5;
@@ -152,8 +154,8 @@ int main()
 	// local variables
 
 	int ii, jj;
-	
-	int rep, nrep=1;
+
+	int rep, nrep=1000;
 
 	struct timeval tv0, tv1;
 
@@ -213,7 +215,7 @@ int main()
 	for(ii=1; ii<N; ii++)
 		ns[ii] = nx[ii]/2;
 	ns[N] = nx[N]/2;
-//	ns[N] = 0;
+
 #elif 0
 	int nb[N+1];
 	nb[0] = 0;
@@ -250,7 +252,7 @@ int main()
 
 /************************************************
 * dynamical system
-************************************************/	
+************************************************/
 
 	double *A; d_zeros(&A, nx_, nx_); // states update matrix
 
@@ -261,10 +263,10 @@ int main()
 
 	double Ts = 0.5; // sampling time
 	mass_spring_system(Ts, nx_, nu_, N, A, B, b, x0);
-	
+
 	for(jj=0; jj<nx_; jj++)
 		b[jj] = 0.0;
-	
+
 	for(jj=0; jj<nx_; jj++)
 		x0[jj] = 0;
 	x0[0] = 2.5;
@@ -284,8 +286,8 @@ int main()
 
 /************************************************
 * cost function
-************************************************/	
-	
+************************************************/
+
 	double *Q; d_zeros(&Q, nx_, nx_);
 	for(ii=0; ii<nx_; ii++) Q[ii*(nx_+1)] = 0.0;
 
@@ -323,7 +325,7 @@ int main()
 
 /************************************************
 * box & general constraints
-************************************************/	
+************************************************/
 
 	int *idxb0; int_zeros(&idxb0, nb[0], 1);
 	double *d_lb0; d_zeros(&d_lb0, nb[0], 1);
@@ -458,7 +460,7 @@ int main()
 
 /************************************************
 * soft constraints
-************************************************/	
+************************************************/
 
 	double *Zl0; d_zeros(&Zl0, ns[0], 1);
 	for(ii=0; ii<ns[0]; ii++)
@@ -553,7 +555,7 @@ int main()
 
 /************************************************
 * array of matrices
-************************************************/	
+************************************************/
 
 	double *hA[N];
 	double *hB[N];
@@ -644,7 +646,7 @@ int main()
 	hidxs[N] = idxsN;
 	hd_ls[N] = d_lsN;
 	hd_us[N] = d_usN;
-	
+
 /************************************************
 * ocp qp dim
 ************************************************/
@@ -659,8 +661,8 @@ int main()
 
 /************************************************
 * ocp qp
-************************************************/	
-	
+************************************************/
+
 	int ocp_qp_size = d_memsize_ocp_qp(&dim);
 	printf("\nqp size = %d\n", ocp_qp_size);
 	void *ocp_qp_mem = malloc(ocp_qp_size);
@@ -695,8 +697,8 @@ int main()
 
 /************************************************
 * dense qp dim
-************************************************/	
-	
+************************************************/
+
 	int dense_qp_dim_size = d_memsize_dense_qp_dim();
 	printf("\nqp dim size = %d\n", dense_qp_dim_size);
 	void *dense_qp_dim_mem = malloc(dense_qp_dim_size);
@@ -716,8 +718,8 @@ int main()
 
 /************************************************
 * dense qp
-************************************************/	
-	
+************************************************/
+
 	// qp
 	int dense_qp_size = d_memsize_dense_qp(&qp_dim);
 	printf("\nqp size = %d\n", dense_qp_size);
@@ -859,7 +861,7 @@ int main()
 
 /************************************************
 * dense qp sol
-************************************************/	
+************************************************/
 
 	int dense_qp_sol_size = d_memsize_dense_qp_sol(&qp_dim);
 	printf("\ndense qp sol size = %d\n", dense_qp_sol_size);
@@ -870,7 +872,7 @@ int main()
 
 /************************************************
 * ipm arg
-************************************************/	
+************************************************/
 
 	int ipm_arg_size = d_memsize_dense_qp_ipm_arg(&qp_dim);
 	printf("\nipm arg size = %d\n", ipm_arg_size);
@@ -878,21 +880,25 @@ int main()
 
 	struct d_dense_qp_ipm_arg dense_arg;
 	d_create_dense_qp_ipm_arg(&qp_dim, &dense_arg, ipm_arg_mem);
-	d_set_default_dense_qp_ipm_arg(&dense_arg);
+//	enum hpipm_mode mode = SPEED_ABS;
+	enum hpipm_mode mode = SPEED;
+//	enum hpipm_mode mode = BALANCE;
+//	enum hpipm_mode mode = ROBUST;
+	d_set_default_dense_qp_ipm_arg(mode, &dense_arg);
 
 //	arg.alpha_min = 1e-8;
 //	arg.res_g_max = 1e-8;
 //	arg.res_b_max = 1e-8;
 //	arg.res_d_max = 1e-12;
 //	arg.res_m_max = 1e-12;
-	dense_arg.mu0 = mu0;
+//	dense_arg.mu0 = mu0;
 //	arg.iter_max = 20;
 //	arg.stat_max = 100;
 //	arg.pred_corr = 1;
 
 /************************************************
 * ipm
-************************************************/	
+************************************************/
 
 	int dense_ipm_size = d_memsize_dense_qp_ipm(&qp_dim, &dense_arg);
 	printf("\ndense ipm size = %d\n", dense_ipm_size);
@@ -963,14 +969,14 @@ int main()
 
 /************************************************
 * print ipm statistics
-************************************************/	
+************************************************/
 
 	printf("\nipm return = %d\n", hpipm_return);
 	printf("\nipm residuals max: res_g = %e, res_b = %e, res_d = %e, res_m = %e\n", dense_workspace.qp_res[0], dense_workspace.qp_res[1], dense_workspace.qp_res[2], dense_workspace.qp_res[3]);
 
 	printf("\nipm iter = %d\n", dense_workspace.iter);
 	printf("\nalpha_aff\tmu_aff\t\tsigma\t\talpha\t\tmu\n");
-	d_print_e_tran_mat(5, dense_workspace.iter, dense_workspace.stat, 5);
+	d_print_exp_tran_mat(5, dense_workspace.iter, dense_workspace.stat, 5);
 
 	printf("\ncond time           = %e [s]\n", time_cond);
 	printf("\nupdate cond time    = %e [s]\n", time_update_cond);
@@ -979,8 +985,8 @@ int main()
 
 /************************************************
 * ocp qp sol
-************************************************/	
-	
+************************************************/
+
 	int ocp_qp_sol_size = d_memsize_ocp_qp_sol(&dim);
 	printf("\nocp qp sol size = %d\n", ocp_qp_sol_size);
 	void *ocp_qp_sol_mem = malloc(ocp_qp_sol_size);
@@ -990,7 +996,7 @@ int main()
 
 /************************************************
 * expand solution
-************************************************/	
+************************************************/
 
 	d_expand_sol_dense2ocp(&ocp_qp, &dense_qp_sol, &ocp_qp_sol, &cond_arg, &cond_ws);
 
@@ -1066,7 +1072,7 @@ int main()
 
 /************************************************
 * free memory
-************************************************/	
+************************************************/
 
 	d_free(A);
 	d_free(B);
@@ -1132,8 +1138,8 @@ int main()
 
 /************************************************
 * return
-************************************************/	
+************************************************/
 
 	return 0;
 
-	}	
+	}
