@@ -7,6 +7,6 @@ setup(name='hpipm-python',
    description='Python interface to HPIPM',
    url='http://github.com/giaf/hpipm',
    author='Andrea Zanelli - Gianluca Frison',
-   license='LGPL',
+   license='GPL+CE',
    packages = find_packages(),
    zip_safe=False)

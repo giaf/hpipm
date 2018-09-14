@@ -6,8 +6,10 @@ import time
 
 
 # dims
+N = 5
+
 start_time = time.time()
-dims = hpipm_ocp_qp_dim(5)
+dims = hpipm_ocp_qp_dim(N)
 end_time = time.time()
 print('create dim time {:e}'.format(end_time-start_time))
 
@@ -19,7 +21,7 @@ dims.set_nu(np.array([1, 1, 1, 1, 1]))
 dims.set_nbx(2, 0)
 #dims.set_ng(2, 0)
 dims.set_nbx(2, 5)
-dims.set_ns(2, 5)
+#dims.set_ns(2, 5)
 
 
 # data
@@ -67,22 +69,32 @@ qp.set_ux(x0, 0)
 #qp.set_lg(x0, 0)
 #qp.set_ug(x0, 0)
 qp.set_Jx(Jx, 5)
-qp.set_Jsx(Jsx, 5)
+#qp.set_Jsx(Jsx, 5)
 #qp.set_Zl(Zl, 5)
 #qp.set_Zu(Zu, 5)
-qp.set_zl(zl, 5)
-qp.set_zu(zu, 5)
+#qp.set_zl(zl, 5)
+#qp.set_zu(zu, 5)
+
+#qp.print_C_struct()
+
+
+# qp sol
+start_time = time.time()
+qp_sol = hpipm_ocp_qp_sol(dims)
+end_time = time.time()
+print('create qp_sol time {:e}'.format(end_time-start_time))
 
 
 # set up solver
 start_time = time.time()
-solver = hpipm_solver(dims)
+solver = hpipm_ocp_qp_solver(dims)
 end_time = time.time()
 print('create solver time {:e}'.format(end_time-start_time))
 
+
 # solve qp
 start_time = time.time()
-return_flag = solver.solve(qp)
+return_flag = solver.solve(qp, qp_sol)
 end_time = time.time()
 print('solve time {:e}'.format(end_time-start_time))
 
@@ -90,7 +102,18 @@ print('HPIPM returned with flag {0:1d}.'.format(return_flag))
 
 if return_flag == 0:
     print('-> QP solved! Solution:\n')
-    solver.print_sol()
+    qp_sol.print()
 else:
     print('-> Solver failed!')
+
+# extract and print sol
+print('u =')
+u = qp_sol.get_u()
+for i in range(N+1):
+	print(u[i])
+
+print('x =')
+for i in range(N+1):
+	tmp = qp_sol.get_x(i)
+	print(tmp)
 
