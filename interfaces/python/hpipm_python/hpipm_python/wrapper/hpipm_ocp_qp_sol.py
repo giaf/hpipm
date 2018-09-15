@@ -88,7 +88,7 @@ class hpipm_ocp_qp_sol:
 
 
 
-	def print(self):
+	def print_C_struct(self):
 		self.__hpipm.d_print_ocp_qp_sol(self.qp_sol_struct, self.dim.dim_struct)
 		return 
 

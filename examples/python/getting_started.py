@@ -102,7 +102,7 @@ print('HPIPM returned with flag {0:1d}.'.format(return_flag))
 
 if return_flag == 0:
     print('-> QP solved! Solution:\n')
-    qp_sol.print()
+    qp_sol.print_C_struct()
 else:
     print('-> Solver failed!')
 

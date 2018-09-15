@@ -120,4 +120,9 @@ class hpipm_ocp_qp_dim:
 
 
 
+	def print_C_struct(self):
+		self.__hpipm.d_print_ocp_qp_dim(self.dim_struct)
+		return 
+
+
 
