@@ -1,9 +1,9 @@
 from ctypes import *
 import ctypes.util 
 import numpy as np
-import faulthandler
+#import faulthandler
 
-faulthandler.enable()
+#faulthandler.enable()
 
 
 
