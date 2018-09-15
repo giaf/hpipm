@@ -50,6 +50,7 @@
 
 
 
+#define PRINT_OCP_QP_DIM s_print_ocp_qp_dim
 #define PRINT_OCP_QP s_print_ocp_qp
 #define PRINT_OCP_QP_SOL s_print_ocp_qp_sol
 
