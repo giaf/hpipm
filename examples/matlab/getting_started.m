@@ -8,6 +8,32 @@ clc
 addpath('../../interfaces/matlab/hpipm_matlab')
 import hpipm_matlab.*
 
+
+
+% dims
+N = 5;
+
+tic
+dims = hpipm_ocp_qp_dim(N);
+tmp_time = toc
+fprintf('create dim time %e\n', tmp_time);
+
+tic
+dims.set_nx([2, 2, 2, 2, 2, 2]);
+tmp_time = toc
+fprintf('set nx time %e\n', tmp_time);
+dims.set_nu([1, 1, 1, 1, 1]);
+dims.set_nbx(2, 0);
+dims.set_nbx(2, 5);
+
+dims.print_C_struct();
+
+
+
+return
+
+
+
 qp_data = hpipm_data();
 
 A = [1, 0; 1, 1];

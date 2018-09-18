@@ -19,7 +19,10 @@ dims = hp.hpipm_ocp_qp_dim(int32(N));
 tmp_time = toc
 fprintf('create dim time %e\n', tmp_time);
 
+tic
 dims.set_nx(np.array([2, 2, 2, 2, 2, 2], np.int32));
+tmp_time = toc
+fprintf('set nx time %e\n', tmp_time);
 dims.set_nu(np.array([1, 1, 1, 1, 1], np.int32));
 dims.set_nbx(int32(2), int32(0));
 dims.set_nbx(int32(2), int32(5));
