@@ -87,9 +87,24 @@ fprintf('create qp_sol time %e\n', tmp_time);
 
 
 
+% set up solver arg
+tic
+arg = hpipm_ocp_qp_solver_arg(dims);
+tmp_time = toc
+fprintf('create solver arg time %e\n', tmp_time);
+
+arg.set_mu0(1e4);
+arg.set_iter_max(30);
+arg.set_tol_stat(1e-4);
+arg.set_tol_eq(1e-5);
+arg.set_tol_ineq(1e-5);
+arg.set_tol_comp(1e-5);
+arg.set_reg_prim(1e-12);
+
+
 % set up solver
 tic
-solver = hpipm_ocp_qp_solver(dims);
+solver = hpipm_ocp_qp_solver(dims, arg);
 tmp_time = toc
 fprintf('create solver time %e\n', tmp_time);
 
