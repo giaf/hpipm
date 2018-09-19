@@ -31,7 +31,6 @@ dims.print_C_struct();
 
 
 % data
-%A = [1, 1; 0, 1];
 A = [1, 0; 1, 1];
 B = [0; 1];
 %b = [0; 0]
@@ -98,17 +97,26 @@ fprintf('create solver time %e\n', tmp_time);
 
 % solve qp
 tic
-%return_flag = solver.solve(qp, qp_sol);
-solver.solve(qp, qp_sol);
+return_flag = solver.solve(qp, qp_sol);
 tmp_time = toc
 fprintf('solve time %e\n', tmp_time);
 
+fprintf('HPIPM returned with flag %d', return_flag);
 
-qp_sol.print_C_struct()
+if return_flag==0
+    fprintf('-> QP solved! Solution:\n')
+    qp_sol.print_C_struct()
+else
+    fprintf('-> Solver failed!')
+end
 
 
 
 return
+
+
+
+% old example
 
 
 

@@ -21,8 +21,9 @@ classdef hpipm_ocp_qp_solver
 		end
 
 
-		function solve(obj, qp, qp_sol)
-			obj.py_qp_solver.solve(qp.py_qp, qp_sol.py_qp_sol);
+		function return_flag = solve(obj, qp, qp_sol)
+			py_flag = obj.py_qp_solver.solve(qp.py_qp, qp_sol.py_qp_sol);
+			return_flag = int64(py_flag.real);
 		end
 	
 
