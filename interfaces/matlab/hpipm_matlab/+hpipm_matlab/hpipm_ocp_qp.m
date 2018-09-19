@@ -22,7 +22,7 @@ classdef hpipm_ocp_qp
 
 		function set_A(obj, varargin)
 			import hpipm_matlab.*
-			if(length(varargin)==1)
+			if (length(varargin)==1)
 				mat = varargin{1};
 				py_mat = py.list({});
 				for i=1:length(mat)
@@ -40,7 +40,7 @@ classdef hpipm_ocp_qp
 
 		function set_B(obj, varargin)
 			import hpipm_matlab.*
-			if(length(varargin)==1)
+			if (length(varargin)==1)
 				mat = varargin{1};
 				py_mat = py.list({});
 				for i=1:length(mat)

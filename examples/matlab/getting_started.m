@@ -126,8 +126,28 @@ else
 end
 
 
+% extract and print sol
+fprintf('u =');
+u = qp_sol.get_u();
+for i=1:N+1
+	u{i}
+end
+
+fprintf('x =');
+for i=0:N
+	x_tmp = qp_sol.get_x(i);
+	x_tmp
+end
+
+
 
 return
+
+
+
+
+
+
 
 
 
