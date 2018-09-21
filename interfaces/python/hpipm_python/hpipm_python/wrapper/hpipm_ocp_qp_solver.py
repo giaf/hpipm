@@ -36,4 +36,42 @@ class hpipm_ocp_qp_solver:
 		return hpipm_return
 
 
+	def get_res_stat(self):
+		self.__hpipm.d_get_ocp_qp_ipm_res_stat.restype = c_double
+		res = self.__hpipm.d_get_ocp_qp_ipm_res_stat(self.workspace)
+		return res
+
+
+	def get_res_eq(self):
+		self.__hpipm.d_get_ocp_qp_ipm_res_eq.restype = c_double
+		res = self.__hpipm.d_get_ocp_qp_ipm_res_eq(self.workspace)
+		return res
+
+
+	def get_res_ineq(self):
+		self.__hpipm.d_get_ocp_qp_ipm_res_ineq.restype = c_double
+		res = self.__hpipm.d_get_ocp_qp_ipm_res_ineq(self.workspace)
+		return res
+
+
+	def get_res_comp(self):
+		self.__hpipm.d_get_ocp_qp_ipm_res_comp.restype = c_double
+		res = self.__hpipm.d_get_ocp_qp_ipm_res_comp(self.workspace)
+		return res
+
+
+	def get_iter(self):
+		iters = self.__hpipm.d_get_ocp_qp_ipm_iter(self.workspace)
+		return iters
+	
+	def get_stat(self):
+		iters = self.__hpipm.d_get_ocp_qp_ipm_iter(self.workspace)
+		self.__hpipm.d_get_ocp_qp_ipm_stat.restype = POINTER(c_double)
+		stat = self.__hpipm.d_get_ocp_qp_ipm_stat(self.workspace)
+		stat_py = np.zeros((iters, 5))
+		for ii in range(iters):
+			for jj in range(5):
+				stat_py[ii][jj] = stat[jj+ii*5]
+				stat_py[ii][jj] = stat[jj+ii*5]
+		return stat_py
 

@@ -121,6 +121,7 @@ if return_flag == 0:
 else:
     print('-> Solver failed!')
 
+
 # extract and print sol
 print('u =')
 u = qp_sol.get_u()
@@ -132,3 +133,23 @@ for i in range(N+1):
 	tmp = qp_sol.get_x(i)
 	print(tmp)
 
+
+# print solver statistics
+print('\nsolver statistics:\n')
+print('ipm return = {0:1d}\n'.format(return_flag))
+res_stat = solver.get_res_stat()
+print('ipm max res stat = {:e}\n'.format(res_stat))
+res_eq = solver.get_res_eq()
+print('ipm max res eq   = {:e}\n'.format(res_eq))
+res_ineq = solver.get_res_ineq()
+print('ipm max res ineq = {:e}\n'.format(res_ineq))
+res_comp = solver.get_res_comp()
+print('ipm max res comp = {:e}\n'.format(res_comp))
+iters = solver.get_iter()
+print('ipm iter = {0:1d}\n'.format(iters))
+stat = solver.get_stat()
+print('stat =')
+print('\talpha_aff\tmu_aff\t\tsigma\t\talpha\t\tmu')
+for ii in range(iters):
+	print('\t{:e}\t{:e}\t{:e}\t{:e}\t{:e}'.format(stat[ii][0], stat[ii][1], stat[ii][2], stat[ii][3], stat[ii][4]))
+print('')
