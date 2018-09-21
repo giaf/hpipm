@@ -140,6 +140,26 @@ for i=0:N
 end
 
 
+% print solver statistics
+fprintf('\nsolver statistics:\n\n');
+fprintf('ipm return = %d\n\n', return_flag);
+res_stat = solver.get_res_stat();
+fprintf('ipm max res stat = %e\n\n', res_stat);
+res_eq = solver.get_res_eq();
+fprintf('ipm max res eq   = %e\n\n', res_eq);
+res_ineq = solver.get_res_ineq();
+fprintf('ipm max res ineq = %e\n\n', res_ineq);
+res_comp = solver.get_res_comp();
+fprintf('ipm max res comp = %e\n\n', res_comp);
+iters = solver.get_iter();
+fprintf('ipm iter = %d\n\n', iters);
+stat = solver.get_stat();
+fprintf('stat =\n');
+fprintf('\talpha_aff\tmu_aff\t\tsigma\t\talpha\t\tmu\n');
+for ii=1:iters
+	fprintf('\t%e\t%e\t%e\t%e\t%e\n', stat(ii,1), stat(ii,2), stat(ii,3), stat(ii,4), stat(ii,5));
+end
+fprintf('\n');
 
 return
 

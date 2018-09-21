@@ -27,7 +27,40 @@ classdef hpipm_ocp_qp_solver
 			py_flag = obj.py_solver.solve(qp.py_qp, qp_sol.py_qp_sol);
 			return_flag = int64(py_flag.real);
 		end
-	
+
+
+		function res = get_res_stat(obj)
+			res = obj.py_solver.get_res_stat();
+		end
+
+
+		function res = get_res_eq(obj)
+			res = obj.py_solver.get_res_eq();
+		end
+
+
+		function res = get_res_ineq(obj)
+			res = obj.py_solver.get_res_ineq();
+		end
+
+
+		function res = get_res_comp(obj)
+			res = obj.py_solver.get_res_comp();
+		end
+
+
+		function iters = get_iter(obj)
+			py_iters = obj.py_solver.get_iter();
+			iters = int64(py_iters.real);
+		end
+
+
+		function res = get_stat(obj)
+			import hpipm_matlab.*;
+			py_res = obj.py_solver.get_stat();
+			res = py2m(py_res, obj.np);
+		end
+
 
 	end
 
