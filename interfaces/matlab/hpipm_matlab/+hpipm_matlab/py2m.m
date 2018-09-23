@@ -1,6 +1,6 @@
 function m_mat = py2m(py_array, np)
 %	dim = py_array.shape;
-	ndim = np.ndim(py_array);
+	ndim = int64(np.ndim(py_array));
 	shape = np.shape(py_array);
 	if (ndim==1)
 		m = int64(shape{1});

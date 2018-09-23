@@ -6,6 +6,7 @@ close all
 clc
 
 addpath('../../interfaces/matlab/hpipm_matlab')
+
 import hpipm_matlab.*
 
 
@@ -15,12 +16,12 @@ N = 5;
 
 tic
 dims = hpipm_ocp_qp_dim(N);
-tmp_time = toc
+tmp_time = toc;
 fprintf('create dim time %e\n', tmp_time);
 
 tic
 dims.set_nx([2, 2, 2, 2, 2, 2]);
-tmp_time = toc
+tmp_time = toc;
 fprintf('set nx time %e\n', tmp_time);
 dims.set_nu([1, 1, 1, 1, 1]);
 dims.set_nbx(2, 0);
@@ -54,12 +55,12 @@ zu = [1e5; 1e5];
 % qp
 tic
 qp = hpipm_ocp_qp(dims);
-tmp_time = toc
+tmp_time = toc;
 fprintf('create qp time %e\n', tmp_time);
 
 tic
 qp.set_A({A, A, A, A, A});
-tmp_time = toc
+tmp_time = toc;
 fprintf('create set A time %e\n', tmp_time);
 qp.set_B({B, B, B, B, B});
 %qp.set_b({b, b, b, b, b});
@@ -82,7 +83,7 @@ qp.print_C_struct()
 % qp sol
 tic
 qp_sol = hpipm_ocp_qp_sol(dims);
-tmp_time = toc
+tmp_time = toc;
 fprintf('create qp_sol time %e\n', tmp_time);
 
 
@@ -90,7 +91,7 @@ fprintf('create qp_sol time %e\n', tmp_time);
 % set up solver arg
 tic
 arg = hpipm_ocp_qp_solver_arg(dims);
-tmp_time = toc
+tmp_time = toc;
 fprintf('create solver arg time %e\n', tmp_time);
 
 arg.set_mu0(1e4);
@@ -105,7 +106,7 @@ arg.set_reg_prim(1e-12);
 % set up solver
 tic
 solver = hpipm_ocp_qp_solver(dims, arg);
-tmp_time = toc
+tmp_time = toc;
 fprintf('create solver time %e\n', tmp_time);
 
 
@@ -113,7 +114,7 @@ fprintf('create solver time %e\n', tmp_time);
 % solve qp
 tic
 return_flag = solver.solve(qp, qp_sol);
-tmp_time = toc
+tmp_time = toc;
 fprintf('solve time %e\n', tmp_time);
 
 fprintf('HPIPM returned with flag %d', return_flag);
@@ -127,13 +128,13 @@ end
 
 
 % extract and print sol
-fprintf('u =');
+fprintf('u =\n');
 u = qp_sol.get_u();
 for i=1:N+1
 	u{i}
 end
 
-fprintf('x =');
+fprintf('x =\n');
 for i=0:N
 	x_tmp = qp_sol.get_x(i);
 	x_tmp
