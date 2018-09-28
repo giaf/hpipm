@@ -25,7 +25,15 @@ dims.set_nbx(2, 5)
 
 
 # data
-A = np.array([1, 0, 1, 1])
+if 0:
+	# data as a cotigugus array (interpreted as row-major)
+	A = np.array([1, 1, 0, 1])
+else:
+	# data as a matrix
+	A = np.zeros((2,2))
+	A[0][0] = 1.0
+	A[0][1] = 1.0
+	A[1][1] = 1.0
 B = np.array([0, 1])
 #b = np.array([0, 0])
 

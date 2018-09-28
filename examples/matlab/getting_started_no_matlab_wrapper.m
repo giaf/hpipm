@@ -31,7 +31,7 @@ dims.print_C_struct()
 
 
 % data
-A = np.array([1, 0, 1, 1]);
+A = np.array([1, 1, 0, 1]);
 B = np.array([0, 1]);
 %b = np.array([0, 0]);
 
