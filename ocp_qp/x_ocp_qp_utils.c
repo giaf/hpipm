@@ -43,33 +43,33 @@ void PRINT_OCP_QP_DIM(struct OCP_QP_DIM *qp_dim)
 
 	printf("nx =\n");
 	for (ii = 0; ii <= N; ii++)
-		printf("%d\n", nx[ii]);
-	printf("\n");
+		printf("\t%d", nx[ii]);
+	printf("\n\n");
 
 	printf("nu =\n");
 	for (ii = 0; ii <= N; ii++)
-		printf("%d\n", nu[ii]);
-	printf("\n");
+		printf("\t%d", nu[ii]);
+	printf("\n\n");
 
 	printf("nbx =\n");
 	for (ii = 0; ii <= N; ii++)
-		printf("%d\n", nbx[ii]);
-	printf("\n");
+		printf("\t%d", nbx[ii]);
+	printf("\n\n");
 
 	printf("nbu =\n");
 	for (ii = 0; ii <= N; ii++)
-		printf("%d\n", nbu[ii]);
-	printf("\n");
+		printf("\t%d", nbu[ii]);
+	printf("\n\n");
 
 	printf("ng =\n");
 	for (ii = 0; ii <= N; ii++)
-		printf("%d\n", ng[ii]);
-	printf("\n");
+		printf("\t%d", ng[ii]);
+	printf("\n\n");
 
 	printf("ns =\n");
 	for (ii = 0; ii <= N; ii++)
-		printf("%d\n", ns[ii]);
-	printf("\n");
+		printf("\t%d", ns[ii]);
+	printf("\n\n");
 
 	return;
 	}
