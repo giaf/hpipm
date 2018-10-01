@@ -5,7 +5,7 @@ clear all
 close all
 clc
 
-addpath('~/pytave') % or change with your pytave main folder path
+%addpath('~/pytave') % or change with your pytave main folder path
 addpath('../../interfaces/matlab/hpipm_matlab')
 
 %octave_import hpipm_matlab.*
@@ -203,7 +203,7 @@ for ii=1:N-1
 end
 plot(uu')
 title('u')
-axis([0 N-1])
+axis([0 N-1 -1 1])
 
 figure()
 xx = zeros(nx, N+1);
@@ -212,7 +212,7 @@ for ii=1:N
 end
 plot(xx')
 title('x')
-axis([0 N])
+axis([0 N -5 5])
 
 
 % print solver statistics

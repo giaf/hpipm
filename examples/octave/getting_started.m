@@ -5,8 +5,8 @@ clear all
 close all
 clc
 
-addpath("~/pytave") % or change with your pytave main folder path
-addpath("../../interfaces/matlab/hpipm_matlab")
+addpath('~/pytave') % or change with your pytave main folder path
+addpath('../../interfaces/matlab/hpipm_matlab')
 
 %octave_import hpipm_matlab.*
 import hpipm_matlab.*
