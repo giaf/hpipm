@@ -340,7 +340,7 @@ class hpipm_ocp_qp:
 			for i in range(len(Jx)):
 				self.Jx[i] = Jx[i]
 				self.Jx[i] = self.Jx[i].reshape((nbx[i], nx[i]))
-				self.Jx[i] = self.Jx[i].transpose()
+#				self.Jx[i] = self.Jx[i].transpose()
 				self.Jx[i] = np.ascontiguousarray(self.Jx[i], dtype=np.float64)
 				for j in range(nbx[i]):
 					k0 = -1
@@ -354,7 +354,7 @@ class hpipm_ocp_qp:
 		else:
 			self.Jx[idx] = Jx
 			self.Jx[idx] = self.Jx[idx].reshape((nbx[idx], nx[idx]))
-			self.Jx[idx] = self.Jx[idx].transpose()
+#			self.Jx[idx] = self.Jx[idx].transpose()
 			self.Jx[idx] = np.ascontiguousarray(self.Jx[idx], dtype=np.float64)
 			for j in range(nbx[idx]):
 				k0 = -1
@@ -428,7 +428,7 @@ class hpipm_ocp_qp:
 			for i in range(len(Ju)):
 				self.Ju[i] = Ju[i]
 				self.Ju[i] = self.Ju[i].reshape((nbu[i], nu[i]))
-				self.Ju[i] = self.Ju[i].transpose()
+#				self.Ju[i] = self.Ju[i].transpose()
 				self.Ju[i] = np.ascontiguousarray(self.Ju[i], dtype=np.float64)
 				for j in range(nbu[i]):
 					k0 = -1
@@ -442,7 +442,7 @@ class hpipm_ocp_qp:
 		else:
 			self.Ju[idx] = Ju
 			self.Ju[idx] = self.Ju[idx].reshape((nbu[idx], nu[idx]))
-			self.Ju[idx] = self.Ju[idx].transpose()
+#			self.Ju[idx] = self.Ju[idx].transpose()
 			self.Ju[idx] = np.ascontiguousarray(self.Ju[idx], dtype=np.float64)
 			for j in range(nbu[idx]):
 				k0 = -1
@@ -724,7 +724,7 @@ class hpipm_ocp_qp:
 			for i in range(len(Jsu)):
 				self.Jsu[i] = Jsu[i]
 				self.Jsu[i] = self.Jsu[i].reshape((nbu[i], ns[i]))
-				self.Jsu[i] = self.Jsu[i].transpose()
+#				self.Jsu[i] = self.Jsu[i].transpose()
 				self.Jsu[i] = np.ascontiguousarray(self.Jsu[i], dtype=np.float64)
 				for j in range(ns[i]):
 					k0 = -1
@@ -746,7 +746,7 @@ class hpipm_ocp_qp:
 		else:
 			self.Jsu[idx] = Jsu
 			self.Jsu[idx] = self.Jsu[idx].reshape((nbu[idx], ns[idx]))
-			self.Jsu[idx] = self.Jsu[idx].transpose()
+#			self.Jsu[idx] = self.Jsu[idx].transpose()
 			self.Jsu[idx] = np.ascontiguousarray(self.Jsu[idx], dtype=np.float64)
 			for j in range(ns[idx]):
 				k0 = -1
@@ -778,7 +778,7 @@ class hpipm_ocp_qp:
 			for i in range(len(Jsx)):
 				self.Jsx[i] = Jsx[i]
 				self.Jsx[i] = self.Jsx[i].reshape((nbx[i], ns[i]))
-				self.Jsx[i] = self.Jsx[i].transpose()
+#				self.Jsx[i] = self.Jsx[i].transpose()
 				self.Jsx[i] = np.ascontiguousarray(self.Jsx[i], dtype=np.float64)
 				for j in range(ns[i]):
 					k0 = -1
@@ -800,7 +800,7 @@ class hpipm_ocp_qp:
 		else:
 			self.Jsx[idx] = Jsx
 			self.Jsx[idx] = self.Jsx[idx].reshape((nbx[idx], ns[idx]))
-			self.Jsx[idx] = self.Jsx[idx].transpose()
+#			self.Jsx[idx] = self.Jsx[idx].transpose()
 			self.Jsx[idx] = np.ascontiguousarray(self.Jsx[idx], dtype=np.float64)
 			for j in range(ns[idx]):
 				k0 = -1
@@ -832,7 +832,7 @@ class hpipm_ocp_qp:
 			for i in range(len(Jsg)):
 				self.Jsg[i] = Jsg[i]
 				self.Jsg[i] = self.Jsg[i].reshape((ng[i], ns[i]))
-				self.Jsg[i] = self.Jsg[i].transpose()
+#				self.Jsg[i] = self.Jsg[i].transpose()
 				self.Jsg[i] = np.ascontiguousarray(self.Jsg[i], dtype=np.float64)
 				for j in range(ns[i]):
 					k0 = -1
@@ -854,7 +854,7 @@ class hpipm_ocp_qp:
 		else:
 			self.Jsg[idx] = Jsg
 			self.Jsg[idx] = self.Jsg[idx].reshape((ng[idx], ns[idx]))
-			self.Jsg[idx] = self.Jsg[idx].transpose()
+#			self.Jsg[idx] = self.Jsg[idx].transpose()
 			self.Jsg[idx] = np.ascontiguousarray(self.Jsg[idx], dtype=np.float64)
 			for j in range(ns[idx]):
 				k0 = -1

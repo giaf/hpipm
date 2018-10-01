@@ -32,7 +32,9 @@ fprintf('set nx time %e\n', tmp_time);
 for ii=0:N-1
 	dims.set_nu(nu, ii);
 end
+% nbx
 dims.set_nbx(nx, 0);
+% nbu
 for ii=0:N-1
 	dims.set_nbu(nu, ii);
 end
@@ -70,6 +72,7 @@ x0(2) = 3.5;
 Ju = eye(nu);
 lb_u = -0.5*ones(nu,1);
 ub_u =  0.5*ones(nu,1);
+
 
 
 % qp
