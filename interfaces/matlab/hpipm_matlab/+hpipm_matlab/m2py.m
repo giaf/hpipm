@@ -9,7 +9,7 @@ function np_array = m2py(M, np)
 %			itemset(int32(i-1), int32(j-1), double(M(i,j)));
 %		end
 %	end
-% this is faster but it needs trasnposition !!!
+% this is faster but it needs transposition !!!
 	tmp = M';
 	np_array = np.array(tmp(:).');
 end
