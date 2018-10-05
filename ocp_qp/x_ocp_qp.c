@@ -484,6 +484,66 @@ void CVT_ROWMAJ_TO_OCP_QP(REAL **A, REAL **B, REAL **b, REAL **Q, REAL **S, REAL
 
 
 
+void CVT_COLMAJ_TO_OCP_QP_MAT(char *field_name, int stage, REAL *in, struct OCP_QP *qp)
+	{
+	// extract dim
+	int *nx = qp->dim->nx;
+	int *nu = qp->dim->nu;
+    
+    if(hpipm_strcmp(field_name, "A") == 1) 
+        CVT_TRAN_MAT2STRMAT(nx[stage+1], nx[stage], in, nx[stage+1], qp->BAbt+stage, nu[stage], 0);
+    else if(hpipm_strcmp(field_name, "B")) 
+        CVT_TRAN_MAT2STRMAT(nx[stage+1], nu[stage], in, nx[stage+1], qp->BAbt+stage, 0, 0);
+    else
+        printf("error [CVT_ROWMAJ_TO_OCP_QP]: uknown field name.\n");
+
+	return;
+	}
+
+
+
+void CVT_OCP_QP_TO_COLMAJ_MAT(char *field_name, int stage, struct OCP_QP *qp, REAL *out)
+	{
+	// extract dim
+	int *nx = qp->dim->nx;
+	int *nu = qp->dim->nu;
+
+    if(hpipm_strcmp(field_name, "A") == 1) 
+        CVT_TRAN_STRMAT2MAT(nx[stage], nx[stage+1], qp->BAbt+stage, nu[stage], 0, out, nx[stage+1]);
+    else if(hpipm_strcmp(field_name, "B")) 
+        CVT_TRAN_STRMAT2MAT(nu[stage], nx[stage+1], qp->BAbt+stage, 0, 0, out, nx[stage+1]);
+    else
+        printf("error [CVT_ROWMAJ_TO_OCP_QP]: uknown field name.\n");
+
+	return;
+	}
+
+
+
+// void CVT_COLMAJ_TO_OCP_QP_B(int stage, REAL *B, struct OCP_QP *qp)
+// 	{
+// 	// extract dim
+// 	int *nx = qp->dim->nx;
+// 	int *nu = qp->dim->nu;
+
+// 	CVT_TRAN_MAT2STRMAT(nx[stage+1], nu[stage], B, nx[stage+1], qp->BAbt+stage, 0, 0);
+
+// 	return;
+// 	}
+
+
+
+// void CVT_OCP_QP_TO_COLMAJ_B(int stage, struct OCP_QP *qp, REAL *B)
+// 	{
+// 	// extract dim
+// 	int *nx = qp->dim->nx;
+// 	int *nu = qp->dim->nu;
+
+// 	CVT_TRAN_STRMAT2MAT(nu[stage], nx[stage+1], qp->BAbt+stage, 0, 0, B, nx[stage+1]);
+
+// 	return;
+// 	}
+
 void CVT_COLMAJ_TO_OCP_QP_A(int stage, REAL *A, struct OCP_QP *qp)
 	{
 	// extract dim
