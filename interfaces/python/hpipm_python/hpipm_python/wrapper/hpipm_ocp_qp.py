@@ -176,14 +176,16 @@ class hpipm_ocp_qp:
 				self.A[i] = self.A[i].transpose()
 				self.A[i] = np.ascontiguousarray(self.A[i], dtype=np.float64)
 				tmp = cast(self.A[i].ctypes.data, POINTER(c_double))
-				self.__hpipm.d_cvt_colmaj_to_ocp_qp_A(i, tmp, self.qp_struct)
+				# self.__hpipm.d_cvt_colmaj_to_ocp_qp_A(i, tmp, self.qp_struct)
+				self.__hpipm.d_cvt_colmaj_mat_to_ocp_qp('A', i, tmp, self.qp_struct)
 		else:
 			self.A[idx] = A
 			self.A[idx] = self.A[idx].reshape((nx[idx+1], nx[idx]))
 			self.A[idx] = self.A[idx].transpose()
 			self.A[idx] = np.ascontiguousarray(self.A[idx], dtype=np.float64)
 			tmp = cast(self.A[idx].ctypes.data, POINTER(c_double))
-			self.__hpipm.d_cvt_colmaj_to_ocp_qp_A(idx, tmp, self.qp_struct)
+			# self.__hpipm.d_cvt_colmaj_to_ocp_qp_A(idx, tmp, self.qp_struct)
+			self.__hpipm.d_cvt_colmaj_mat_to_ocp_qp('A', idx, tmp, self.qp_struct)
 		return
 
 
