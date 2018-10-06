@@ -168,19 +168,42 @@ class hpipm_ocp_qp:
 
 	def set(self, field, value, idx=None):
 		nx = self.dim.nx
+		nu = self.dim.nu
+		ng = self.dim.ng
+
+		dim_dict = {
+			'A': [nx, 1, nx, 0], 'B': [nx, 1, nu, 0], 
+			'Q': [nx, 0, nx, 0], 'R': [nu, 0, nu, 0], 
+			'S': [nx, 0, nu, 0], 'C': [ng, 0, nx, 0],
+			'D': [ng, 0, nu, 0], 
+			'b': [nx, 1, 1,  0], 'q': [nx, 0, 1,  0],
+			'r': [nu, 0, 1,  0]}
+
+		field_ = getattr(self, field)
 		if idx==None:
 			for i in range(len(value)):
-				field_ = getattr(self, field)
+				reshape_tuple = dim_dict[field]
+				if hasattr(reshape_tuple[2], '__getitem__'):
+					reshape_dim = (reshape_tuple[0][i + reshape_tuple[1]], reshape_tuple[2][i + reshape_tuple[3]])
+				else:
+					reshape_dim = (reshape_tuple[0][i + reshape_tuple[1]], reshape_tuple[2])
+
 				field_[i] = value[i]
-				field_[i] = field_[i].reshape((nx[i+1], nx[i]))
+				field_[i] = field_[i].reshape(reshape_dim)
 				field_[i] = field_[i].transpose()
 				field_[i] = np.ascontiguousarray(field_[i], dtype=np.float64)
 				tmp = cast(field_[i].ctypes.data, POINTER(c_double))
 				field_name_b = field.encode('utf-8')
-				self.__hpipm.d_cvt_colmaj_to_ocp_qp_gf(c_char_p(field_name_b), idx, tmp, self.qp_struct)
+				self.__hpipm.d_cvt_colmaj_to_ocp_qp_gf(c_char_p(field_name_b), i, tmp, self.qp_struct)
 		else:
+			if hasattr(reshape_tuple[2], '__getitem__'):
+				reshape_dim = (reshape_tuple[0][i + reshape_tuple[1]], reshape_tuple[2][i + reshape_tuple[3]])
+			else:
+				reshape_dim = (reshape_tuple[0][i + reshape_tuple[1]], reshape_tuple[2])
+			reshape_dim = (reshape_tuple[0][idx + reshape_tuple[1]], reshape_tuple[2][idx + reshape_tuple[3]])
+			field_ = getattr(self, field)
 			field_[idx] = value
-			field_[idx] = field_[idx].reshape((nx[idx+1], nx[idx]))
+			field_[idx] = field_[idx].reshape(reshape_dim)
 			field_[idx] = field_[idx].transpose()
 			field_[idx] = np.ascontiguousarray(field_[idx], dtype=np.float64)
 			tmp = cast(field_[idx].ctypes.data, POINTER(c_double))
@@ -245,7 +268,7 @@ class hpipm_ocp_qp:
 		else:
 			self.b[idx] = b
 			self.b[idx] = self.b[idx].reshape((nx[idx+1], 1))
-			self.b[idx] = self.A[idx].transpose()
+			self.b[idx] = self.b[idx].transpose()
 			self.b[idx] = np.ascontiguousarray(self.b[idx], dtype=np.float64)
 			tmp = cast(self.b[idx].ctypes.data, POINTER(c_double))
 			self.__hpipm.d_cvt_colmaj_vec_to_ocp_qp('b', idx, tmp, self.qp_struct)
