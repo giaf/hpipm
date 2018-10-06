@@ -489,13 +489,24 @@ void CVT_COLMAJ_MAT_TO_OCP_QP(char *field_name, int stage, REAL *in, struct OCP_
 	// extract dim
 	int *nx = qp->dim->nx;
 	int *nu = qp->dim->nu;
+	int *ng = qp->dim->ng;
     
-	if(hpipm_strcmp(field_name, "A") == 1) 
+	if(hpipm_strcmp(field_name, "A")) 
 		CVT_TRAN_MAT2STRMAT(nx[stage+1], nx[stage], in, nx[stage+1], qp->BAbt+stage, nu[stage], 0);
 	else if(hpipm_strcmp(field_name, "B")) 
 		CVT_TRAN_MAT2STRMAT(nx[stage+1], nu[stage], in, nx[stage+1], qp->BAbt+stage, 0, 0);
+	else if(hpipm_strcmp(field_name, "Q")) 
+		CVT_MAT2STRMAT(nx[stage], nx[stage], in, nx[stage], qp->RSQrq+stage, nu[stage], nu[stage]);
+	else if(hpipm_strcmp(field_name, "S")) 
+		CVT_TRAN_MAT2STRMAT(nu[stage], nx[stage], in, nu[stage], qp->RSQrq+stage, nu[stage], 0);
+	else if(hpipm_strcmp(field_name, "R")) 
+		CVT_MAT2STRMAT(nu[stage], nu[stage], in, nu[stage], qp->RSQrq+stage, 0, 0);
+	else if(hpipm_strcmp(field_name, "C")) 
+		CVT_TRAN_MAT2STRMAT(ng[stage], nx[stage], in, ng[stage], qp->DCt+stage, nu[stage], 0);
+	else if(hpipm_strcmp(field_name, "D")) 
+		CVT_TRAN_MAT2STRMAT(ng[stage], nu[stage], in, ng[stage], qp->DCt+stage, 0, 0);
 	else
-		printf("error [CVT_ROWMAJ_TO_OCP_QP]: unkown field name.\n");
+		printf("error [CVT_COLMAJ_MAT_TO_OCP_QP]: unkown field name.\n");
 	return;
 	}
 
@@ -506,15 +517,24 @@ void CVT_OCP_QP_TO_COLMAJ_MAT(char *field_name, int stage, struct OCP_QP *qp, RE
     // extract dim
     int *nx = qp->dim->nx;
     int *nu = qp->dim->nu;
+	int *ng = qp->dim->ng;
 
-	if(hpipm_strcmp(field_name, "A") == 1) 
+	if(hpipm_strcmp(field_name, "A")) 
 		CVT_TRAN_STRMAT2MAT(nx[stage], nx[stage+1], qp->BAbt+stage, nu[stage], 0, out, nx[stage+1]);
 	else if(hpipm_strcmp(field_name, "B")) 
 		CVT_TRAN_STRMAT2MAT(nu[stage], nx[stage+1], qp->BAbt+stage, 0, 0, out, nx[stage+1]);
-	else if(hpipm_strcmp(field_name, "B")) 
-		CVT_MAT2STRMAT(nx[stage], nx[stage], Q, nx[stage], qp->RSQrq+stage, nu[stage], nu[stage]);
+	else if(hpipm_strcmp(field_name, "Q")) 
+		CVT_STRMAT2MAT(nx[stage], nx[stage], qp->RSQrq+stage, nu[stage], nu[stage], out, nx[stage]);
+	else if(hpipm_strcmp(field_name, "S")) 
+		CVT_TRAN_STRMAT2MAT(nx[stage], nu[stage], qp->RSQrq+stage, nu[stage], 0, out, nu[stage]);
+	else if(hpipm_strcmp(field_name, "R")) 
+		CVT_STRMAT2MAT(nu[stage], nu[stage], qp->RSQrq+stage, 0, 0, out, nu[stage]);
+	else if(hpipm_strcmp(field_name, "C")) 
+		CVT_TRAN_STRMAT2MAT(nx[stage], ng[stage], qp->DCt+stage, nu[stage], 0, out, ng[stage]);
+	else if(hpipm_strcmp(field_name, "D")) 
+		CVT_TRAN_STRMAT2MAT(nu[stage], ng[stage], qp->DCt+stage, 0, 0, out, ng[stage]);
 	else
-		printf("error [CVT_ROWMAJ_TO_OCP_QP]: unkown field name.\n");
+		printf("error [CVT_OCP_QP_TO_COLMAJ_MAT]: unknown field name.\n");
 	return;
 	}
 
@@ -526,14 +546,14 @@ void CVT_COLMAJ_VEC_TO_OCP_QP(char *field_name, int stage, REAL *in, struct OCP_
 	int *nx = qp->dim->nx;
 	int *nu = qp->dim->nu;
     
-	if(hpipm_strcmp(field_name, "b") == 1) 
+	if(hpipm_strcmp(field_name, "b") == 1) { 
 		int row_offset = qp->dim->nx[stage] + qp->dim->nu[stage], col_offset = 0;
-		CVT_TRAN_MAT2STRMAT(nx[stage+1], 1, b, nx[stage+1], &(qp->BAbt[stage]), row_offset, col_offset);
-		CVT_VEC2STRVEC(nx[stage+1], b, qp->b+stage, 0);
-	else if(hpipm_strcmp(field_name, "B")) 
+		CVT_TRAN_MAT2STRMAT(nx[stage+1], 1, in, nx[stage+1], &(qp->BAbt[stage]), row_offset, col_offset);
+		CVT_VEC2STRVEC(nx[stage+1], in, qp->b+stage, 0);
+	} else if(hpipm_strcmp(field_name, "B")) 
 		CVT_TRAN_MAT2STRMAT(nx[stage+1], nu[stage], in, nx[stage+1], qp->BAbt+stage, 0, 0);
 	else
-		printf("error [CVT_ROWMAJ_TO_OCP_QP]: unknown field name.\n");
+		printf("error [CVT_COLMAJ_VEC_TO_OCP_QP]: unknown field name.\n");
 	return;
 	}
 
@@ -546,11 +566,11 @@ void CVT_OCP_QP_TO_COLMAJ_VEC(char *field_name, int stage, struct OCP_QP *qp, RE
     int *nu = qp->dim->nu;
 
 	if(hpipm_strcmp(field_name, "b") == 1) 
-		CVT_STRVEC2VEC(nx[stage+1], qp->b+stage, 0, b);
+		CVT_STRVEC2VEC(nx[stage+1], qp->b+stage, 0, out);
 	else if(hpipm_strcmp(field_name, "B")) 
 		CVT_TRAN_STRMAT2MAT(nu[stage], nx[stage+1], qp->BAbt+stage, 0, 0, out, nx[stage+1]);
 	else
-		printf("error [CVT_ROWMAJ_TO_OCP_QP]: unknown field name.\n");
+		printf("error [CVT_OCP_QP_TO_COLMAJ_VEC]: unknown field name.\n");
 	return;
 	}
 

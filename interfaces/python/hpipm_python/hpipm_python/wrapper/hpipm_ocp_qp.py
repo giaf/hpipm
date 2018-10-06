@@ -176,7 +176,6 @@ class hpipm_ocp_qp:
 				self.A[i] = self.A[i].transpose()
 				self.A[i] = np.ascontiguousarray(self.A[i], dtype=np.float64)
 				tmp = cast(self.A[i].ctypes.data, POINTER(c_double))
-				# self.__hpipm.d_cvt_colmaj_to_ocp_qp_A(i, tmp, self.qp_struct)
 				self.__hpipm.d_cvt_colmaj_mat_to_ocp_qp('A', i, tmp, self.qp_struct)
 		else:
 			self.A[idx] = A
@@ -184,7 +183,6 @@ class hpipm_ocp_qp:
 			self.A[idx] = self.A[idx].transpose()
 			self.A[idx] = np.ascontiguousarray(self.A[idx], dtype=np.float64)
 			tmp = cast(self.A[idx].ctypes.data, POINTER(c_double))
-			# self.__hpipm.d_cvt_colmaj_to_ocp_qp_A(idx, tmp, self.qp_struct)
 			self.__hpipm.d_cvt_colmaj_mat_to_ocp_qp('A', idx, tmp, self.qp_struct)
 		return
 
@@ -200,14 +198,16 @@ class hpipm_ocp_qp:
 				self.B[i] = self.B[i].transpose()
 				self.B[i] = np.ascontiguousarray(self.B[i], dtype=np.float64)
 				tmp = cast(self.B[i].ctypes.data, POINTER(c_double))
-				self.__hpipm.d_cvt_colmaj_to_ocp_qp_B(i, tmp, self.qp_struct)
+				# self.__hpipm.d_cvt_colmaj_to_ocp_qp_B(i, tmp, self.qp_struct)
+				self.__hpipm.d_cvt_colmaj_mat_to_ocp_qp('B', i, tmp, self.qp_struct)
 		else:
 			self.B[idx] = B
 			self.B[idx] = self.B[idx].reshape((nx[idx+1], nu[idx]))
 			self.B[idx] = self.B[idx].transpose()
 			self.B[idx] = np.ascontiguousarray(self.B[idx], dtype=np.float64)
 			tmp = cast(self.B[idx].ctypes.data, POINTER(c_double))
-			self.__hpipm.d_cvt_colmaj_to_ocp_qp_B(idx, tmp, self.qp_struct)
+			# self.__hpipm.d_cvt_colmaj_to_ocp_qp_B(idx, tmp, self.qp_struct)
+			self.__hpipm.d_cvt_colmaj_mat_to_ocp_qp('B', i, tmp, self.qp_struct)
 		return
 
 
@@ -240,14 +240,16 @@ class hpipm_ocp_qp:
 				self.Q[i] = self.Q[i].transpose()
 				self.Q[i] = np.ascontiguousarray(self.Q[i], dtype=np.float64)
 				tmp = cast(self.Q[i].ctypes.data, POINTER(c_double))
-				self.__hpipm.d_cvt_colmaj_to_ocp_qp_Q(i, tmp, self.qp_struct)
+				# self.__hpipm.d_cvt_colmaj_to_ocp_qp_Q(i, tmp, self.qp_struct)
+				self.__hpipm.d_cvt_colmaj_mat_to_ocp_qp('Q', i, tmp, self.qp_struct)
 		else:
 			self.Q[idx] = Q
 			self.Q[idx] = self.Q[idx].reshape((nx[idx], nx[idx]))
 			self.Q[idx] = self.Q[idx].transpose()
 			self.Q[idx] = np.ascontiguousarray(self.Q[idx], dtype=np.float64)
 			tmp = cast(self.Q[idx].ctypes.data, POINTER(c_double))
-			self.__hpipm.d_cvt_colmaj_to_ocp_qp_Q(idx, tmp, self.qp_struct)
+			# self.__hpipm.d_cvt_colmaj_to_ocp_qp_Q(idx, tmp, self.qp_struct)
+			self.__hpipm.d_cvt_colmaj_mat_to_ocp_qp('Q', i, tmp, self.qp_struct)
 		return
 
 
@@ -261,14 +263,16 @@ class hpipm_ocp_qp:
 				self.R[i] = self.R[i].transpose()
 				self.R[i] = np.ascontiguousarray(self.R[i], dtype=np.float64)
 				tmp = cast(self.R[i].ctypes.data, POINTER(c_double))
-				self.__hpipm.d_cvt_colmaj_to_ocp_qp_R(i, tmp, self.qp_struct)
+				# self.__hpipm.d_cvt_colmaj_to_ocp_qp_R(i, tmp, self.qp_struct)
+				self.__hpipm.d_cvt_colmaj_mat_to_ocp_qp('R', i, tmp, self.qp_struct)
 		else:
 			self.R[idx] = R
 			self.R[idx] = self.R[idx].reshape((nu[idx], nu[idx]))
 			self.R[idx] = self.R[idx].transpose()
 			self.R[idx] = np.ascontiguousarray(self.R[idx], dtype=np.float64)
 			tmp = cast(self.R[idx].ctypes.data, POINTER(c_double))
-			self.__hpipm.d_cvt_colmaj_to_ocp_qp_R(idx, tmp, self.qp_struct)
+			# self.__hpipm.d_cvt_colmaj_to_ocp_qp_R(idx, tmp, self.qp_struct)
+			self.__hpipm.d_cvt_colmaj_mat_to_ocp_qp('R', idx, tmp, self.qp_struct)
 		return
 
 
