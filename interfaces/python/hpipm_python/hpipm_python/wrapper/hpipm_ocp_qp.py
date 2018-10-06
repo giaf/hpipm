@@ -166,6 +166,28 @@ class hpipm_ocp_qp:
 
 
 
+	def set(self, field, value, idx=None):
+		nx = self.dim.nx
+		if idx==None:
+			for i in range(len(value)):
+				field_ = getattr(self, field)
+				field_[i] = value[i]
+				field_[i] = field_[i].reshape((nx[i+1], nx[i]))
+				field_[i] = field_[i].transpose()
+				field_[i] = np.ascontiguousarray(field_[i], dtype=np.float64)
+				tmp = cast(field_[i].ctypes.data, POINTER(c_double))
+				field_name_b = field.encode('utf-8')
+				self.__hpipm.d_cvt_colmaj_to_ocp_qp_gf(c_char_p(field_name_b), idx, tmp, self.qp_struct)
+		else:
+			field_[idx] = value
+			field_[idx] = field_[idx].reshape((nx[idx+1], nx[idx]))
+			field_[idx] = field_[idx].transpose()
+			field_[idx] = np.ascontiguousarray(field_[idx], dtype=np.float64)
+			tmp = cast(field_[idx].ctypes.data, POINTER(c_double))
+			field_name_b = field.encode('utf-8')
+			self.__hpipm.d_cvt_colmaj_to_ocp_qp_gf(c_char_p(field_name_b), idx, tmp, self.qp_struct)
+		return
+
 	def set_A(self, A, idx=None):
 		self.__hpipm.d_cvt_colmaj_to_ocp_qp_A.argtypes = [c_int, POINTER(c_double), c_void_p]
 		nx = self.dim.nx
@@ -223,6 +245,7 @@ class hpipm_ocp_qp:
 		else:
 			self.b[idx] = b
 			self.b[idx] = self.b[idx].reshape((nx[idx+1], 1))
+			self.b[idx] = self.A[idx].transpose()
 			self.b[idx] = np.ascontiguousarray(self.b[idx], dtype=np.float64)
 			tmp = cast(self.b[idx].ctypes.data, POINTER(c_double))
 			self.__hpipm.d_cvt_colmaj_vec_to_ocp_qp('b', idx, tmp, self.qp_struct)
