@@ -505,8 +505,10 @@ void CVT_COLMAJ_MAT_TO_OCP_QP(char *field_name, int stage, REAL *in, struct OCP_
 		CVT_TRAN_MAT2STRMAT(ng[stage], nx[stage], in, ng[stage], qp->DCt+stage, nu[stage], 0);
 	else if(hpipm_strcmp(field_name, "D")) 
 		CVT_TRAN_MAT2STRMAT(ng[stage], nu[stage], in, ng[stage], qp->DCt+stage, 0, 0);
-	else
-		printf("error [CVT_COLMAJ_MAT_TO_OCP_QP]: unkown field name.\n");
+	else {
+		printf("error [CVT_COLMAJ_MAT_TO_OCP_QP]: unknown field name '%s'. Exiting.\n", field_name);
+		exit(1);	
+	}
 	return;
 	}
 
@@ -533,8 +535,10 @@ void CVT_OCP_QP_TO_COLMAJ_MAT(char *field_name, int stage, struct OCP_QP *qp, RE
 		CVT_TRAN_STRMAT2MAT(nx[stage], ng[stage], qp->DCt+stage, nu[stage], 0, out, ng[stage]);
 	else if(hpipm_strcmp(field_name, "D")) 
 		CVT_TRAN_STRMAT2MAT(nu[stage], ng[stage], qp->DCt+stage, 0, 0, out, ng[stage]);
-	else
-		printf("error [CVT_OCP_QP_TO_COLMAJ_MAT]: unknown field name.\n");
+	else {
+		printf("error [CVT_OCP_QP_TO_COLMAJ_MAT]: unknown field name '%s'. Exiting.\n", field_name);
+		exit(1);	
+	}
 	return;
 	}
 
@@ -552,8 +556,10 @@ void CVT_COLMAJ_VEC_TO_OCP_QP(char *field_name, int stage, REAL *in, struct OCP_
 		CVT_VEC2STRVEC(nx[stage+1], in, qp->b+stage, 0);
 	} else if(hpipm_strcmp(field_name, "B")) 
 		CVT_TRAN_MAT2STRMAT(nx[stage+1], nu[stage], in, nx[stage+1], qp->BAbt+stage, 0, 0);
-	else
-		printf("error [CVT_COLMAJ_VEC_TO_OCP_QP]: unknown field name.\n");
+	else {
+		printf("error [CVT_COLMAJ_VEC_TO_OCP_QP]: unknown field name '%s'. Exiting.\n", field_name);
+		exit(1);	
+	}
 	return;
 	}
 
@@ -569,8 +575,10 @@ void CVT_OCP_QP_TO_COLMAJ_VEC(char *field_name, int stage, struct OCP_QP *qp, RE
 		CVT_STRVEC2VEC(nx[stage+1], qp->b+stage, 0, out);
 	else if(hpipm_strcmp(field_name, "B")) 
 		CVT_TRAN_STRMAT2MAT(nu[stage], nx[stage+1], qp->BAbt+stage, 0, 0, out, nx[stage+1]);
-	else
-		printf("error [CVT_OCP_QP_TO_COLMAJ_VEC]: unknown field name.\n");
+	else {
+		printf("error [CVT_OCP_QP_TO_COLMAJ_VEC]: unknown field name '%s'. Exiting.\n", field_name);
+		exit(1);
+	}
 	return;
 	}
 
