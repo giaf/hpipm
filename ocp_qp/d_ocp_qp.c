@@ -73,8 +73,12 @@
 #define CHANGE_BOUNDS_DIMENSIONS_OCP_QP d_change_bounds_dimensions_ocp_qp
 
 
+#define CVT_COLMAJ_TO_OCP_QP_GF d_cvt_colmaj_to_ocp_qp_gf
+
 #define CVT_COLMAJ_MAT_TO_OCP_QP d_cvt_colmaj_mat_to_ocp_qp
 #define CVT_OCP_QP_TO_COLMAJ_MAT d_cvt_ocp_qp_to_colmaj_mat
+#define CVT_COLMAJ_VEC_TO_OCP_QP d_cvt_colmaj_vec_to_ocp_qp
+#define CVT_OCP_QP_TO_COLMAJ_VEC d_cvt_ocp_qp_to_colmaj_vec
 
 
 #define CVT_COLMAJ_TO_OCP_QP_A d_cvt_colmaj_to_ocp_qp_A
