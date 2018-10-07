@@ -76,6 +76,16 @@ void s_cvt_colmaj_to_ocp_qp(float **A, float **B, float **b, float **Q, float **
 //
 void s_cvt_rowmaj_to_ocp_qp(float **A, float **B, float **b, float **Q, float **S, float **R, float **q, float **r, int **idxb, float **lb, float **ub, float **C, float **D, float **lg, float **ug, float **Zl, float **Zu, float **zl, float **zu, int **idxs, float **ls, float **us, struct s_ocp_qp *qp);
 //
+void s_cvt_colmaj_to_ocp_qp_gf(char *field_name, int stage, float *mat, struct s_ocp_qp *qp);
+//
+void s_cvt_colmaj_mat_to_ocp_qp(char *field_name, int stage, float *mat, struct s_ocp_qp *qp);
+//
+void s_cvt_colmaj_vec_to_ocp_qp(char *field_name, int stage, float *mat, struct s_ocp_qp *qp);
+//
+void s_cvt_ocp_qp_to_colmaj_mat(char *field_name, int stage, struct s_ocp_qp *qp, float *mat);
+//
+void s_cvt_ocp_qp_to_colmaj_vec(char *field_name, int stage, struct s_ocp_qp *qp, float *mat);
+//
 void s_cvt_colmaj_to_ocp_qp_A(int stage, float *mat, struct s_ocp_qp *qp);
 //
 void s_cvt_ocp_qp_to_colmaj_A(int stage, struct s_ocp_qp *qp, float *mat);

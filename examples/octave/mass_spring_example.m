@@ -25,18 +25,18 @@ fprintf('create dim time %e\n', tmp_time);
 
 tic
 for ii=0:N
-	dims.set_nx(nx, ii);
+	dims.set('nx', nx, ii);
 end
 tmp_time = toc;
 fprintf('set nx time %e\n', tmp_time);
 for ii=0:N-1
-	dims.set_nu(nu, ii);
+	dims.set('nu', nu, ii);
 end
 % nbx
-dims.set_nbx(nx, 0);
+dims.set('nbx', nx, 0);
 % nbu
 for ii=0:N-1
-	dims.set_nbu(nu, ii);
+	dims.set('nbu', nu, ii);
 end
 
 dims.print_C_struct();
@@ -89,11 +89,11 @@ if 1
 	for ii=1:N
 		tmp{ii} = A;
 	end
-	qp.set_A(tmp);
+	qp.set('A', tmp);
 else
 	% slower
 	for ii=0:N-1
-		qp.set_A(A, ii);
+		qp.set('A', A, ii);
 	end
 end
 tmp_time = toc;
@@ -103,43 +103,43 @@ tmp = {};
 for ii=1:N
 	tmp{ii} = B;
 end
-qp.set_B(tmp);
+qp.set('B', tmp);
 % Q
 tmp = {};
 for ii=1:N+1
 	tmp{ii} = Q;
 end
-qp.set_Q(tmp);
+qp.set('Q',tmp);
 % R
 tmp = {};
 for ii=1:N
 	tmp{ii} = R;
 end
-qp.set_R(tmp);
+qp.set('R', tmp);
 % Jx
-qp.set_Jx(Jx0, 0);
+qp.set('Jx', Jx0, 0);
 % lx
-qp.set_lx(x0, 0);
+qp.set('lx', x0, 0);
 % ux
-qp.set_ux(x0, 0);
+qp.set('ux', x0, 0);
 % Ju
 tmp = {};
 for ii=1:N
 	tmp{ii} = Ju;
 end
-qp.set_Ju(tmp);
+qp.set('Ju', tmp);
 % lu
 tmp = {};
 for ii=1:N
 	tmp{ii} = lb_u;
 end
-qp.set_lu(tmp);
+qp.set('lu', tmp);
 % uu
 tmp = {};
 for ii=1:N
 	tmp{ii} = ub_u;
 end
-qp.set_uu(tmp);
+qp.set('uu', tmp);
 
 %qp.print_C_struct()
 

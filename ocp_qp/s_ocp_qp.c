@@ -40,6 +40,7 @@
 
 #include <hpipm_s_ocp_qp_dim.h>
 #include <hpipm_s_ocp_qp.h>
+#include <hpipm_aux_string.h>
 
 
 
@@ -70,6 +71,18 @@
 #define CVT_ROWMAJ_TO_OCP_QP s_cvt_rowmaj_to_ocp_qp
 #define MEMSIZE_OCP_QP s_memsize_ocp_qp
 #define CHANGE_BOUNDS_DIMENSIONS_OCP_QP s_change_bounds_dimensions_ocp_qp
+
+
+
+#define CVT_COLMAJ_TO_OCP_QP_GF s_cvt_colmaj_to_ocp_qp_gf
+
+#define CVT_COLMAJ_MAT_TO_OCP_QP s_cvt_colmaj_mat_to_ocp_qp
+#define CVT_OCP_QP_TO_COLMAJ_MAT s_cvt_ocp_qp_to_colmaj_mat
+#define CVT_COLMAJ_VEC_TO_OCP_QP s_cvt_colmaj_vec_to_ocp_qp
+#define CVT_OCP_QP_TO_COLMAJ_VEC s_cvt_ocp_qp_to_colmaj_vec
+
+
+
 #define CVT_COLMAJ_TO_OCP_QP_A s_cvt_colmaj_to_ocp_qp_A
 #define CVT_OCP_QP_TO_COLMAJ_A s_cvt_ocp_qp_to_colmaj_A
 #define CVT_COLMAJ_TO_OCP_QP_B s_cvt_colmaj_to_ocp_qp_B

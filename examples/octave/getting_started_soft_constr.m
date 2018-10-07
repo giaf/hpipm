@@ -26,16 +26,16 @@ fprintf('create dim time %e\n', tmp_time);
 
 % set dimensions
 tic
-dims.set_nx(nx*ones(1,N+1));
+dims.set('nx', nx*ones(1,N+1));
 tmp_time = toc;
 fprintf('set nx time %e\n', tmp_time);
-dims.set_nu(nu*ones(1,N));
+dims.set('nu', nu*ones(1,N));
 
-dims.set_nbx(nx*ones(1,N+1));
-dims.set_nbu(nu*ones(1,N));
+dims.set('nbx', nx*ones(1,N+1));
+dims.set('nbu', nu*ones(1,N));
 
-dims.set_ng(ng*ones(1,N+1));
-dims.set_ns(ng*ones(1,N+1));
+dims.set('ng', ng*ones(1,N+1));
+dims.set('ns', ng*ones(1,N+1));
 
 dims.print_C_struct();
 
@@ -87,58 +87,58 @@ tic
 
 % set dynamics
 for i = 0:N-1
-    qp.set_A(A,i);
-    qp.set_B(B,i);
+    qp.set('A', A,i);
+    qp.set('B', B,i);
 end
 tmp_time = toc;
 %alternative 
-% qp.set_A({A,A,A,A,...})
+% qp.set('A', {A,A,A,A,...})
 
 % set cost
 for i = 0:N
-    qp.set_Q(Q,i);
-    qp.set_q(q,i);
+    qp.set('Q', Q,i);
+    qp.set('q', q,i);
     if i<N
-       qp.set_R(R,i); 
-%        qp.set_S(S,i);
+       qp.set('R', R,i); 
+%        qp.set('S', S,i);
     end
 end
 
 % set bounds and initial and terminal constraint
 for i = 0:N
-    qp.set_Jx(Jx,i)
+    qp.set('Jx', Jx,i)
     if i == 0
-        qp.set_lx(x0,0)
-        qp.set_ux(x0,0)
+        qp.set('lx',x0,0)
+        qp.set('ux',x0,0)
     elseif i == N
-        qp.set_lx(xN,N)
-        qp.set_ux(xN,N)
+        qp.set('lx',xN,N)
+        qp.set('ux',xN,N)
     else
-        qp.set_lx(lbx,i)
-        qp.set_ux(ubx,i)
+        qp.set('lx',lbx,i)
+        qp.set('ux',ubx,i)
     end
     
     if i<N
-        qp.set_Ju(Ju,i)
-        qp.set_lu(lbu,i)
-        qp.set_uu(ubu,i) 
+        qp.set('Ju',Ju,i)
+        qp.set('lu',lbu,i)
+        qp.set('uu',ubu,i) 
     end
 end
 
 % set polytopic soft constraints
 for i = 0:N
-    qp.set_C(C,i)
+    qp.set('C',C,i)
     if i<N
-        qp.set_D(D,i)
+        qp.set('D',D,i)
     end
-    qp.set_lg(lg,i)
-    qp.set_ug(ug,i)
-    qp.set_Jsg(Jsg,i)
+    qp.set('lg',lg,i)
+    qp.set('ug',ug,i)
+    qp.set('Jsg',Jsg,i)
     
-    qp.set_Zl(Z,i);
-    qp.set_zl(z,i);
-    qp.set_Zu(Z,i);
-    qp.set_zu(z,i);
+    qp.set('Zl',Z,i);
+    qp.set('zl',z,i);
+    qp.set('Zu',Z,i);
+    qp.set('zu',z,i);
 end
 
 qp.print_C_struct()

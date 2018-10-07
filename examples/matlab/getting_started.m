@@ -20,12 +20,12 @@ tmp_time = toc;
 fprintf('create dim time %e\n', tmp_time);
 
 tic
-dims.set_nx([2, 2, 2, 2, 2, 2]);
+dims.set('nx', [2, 2, 2, 2, 2, 2]);
 tmp_time = toc;
 fprintf('set nx time %e\n', tmp_time);
-dims.set_nu([1, 1, 1, 1, 1]);
-dims.set_nbx(2, 0);
-dims.set_nbx(2, 5);
+dims.set('nu', [1, 1, 1, 1, 1]);
+dims.set('nbx', 2, 0);
+dims.set('nbx', 2, 5);
 
 dims.print_C_struct();
 
@@ -59,22 +59,22 @@ tmp_time = toc;
 fprintf('create qp time %e\n', tmp_time);
 
 tic
-qp.set_A({A, A, A, A, A});
+qp.set('A', {A, A, A, A, A});
 tmp_time = toc;
 fprintf('create set A time %e\n', tmp_time);
-qp.set_B({B, B, B, B, B});
+qp.set('B', {B, B, B, B, B});
 %qp.set_b({b, b, b, b, b});
 
-qp.set_Q({Q, Q, Q, Q, Q, Q});
-qp.set_S({S, S, S, S, S});
-qp.set_R({R, R, R, R, R});
-qp.set_q({q, q, q, q, q, q});
-qp.set_q(q, 0);
+qp.set('Q', {Q, Q, Q, Q, Q, Q});
+qp.set('S', {S, S, S, S, S});
+qp.set('R', {R, R, R, R, R});
+qp.set('q', {q, q, q, q, q, q});
+qp.set('q', q, 0);
 %qp.set_r({r, r, r, r, r});
-qp.set_Jx(Jx, 0);
-qp.set_lx(x0, 0);
-qp.set_ux(x0, 0);
-qp.set_Jx(Jx, 5);
+qp.set('Jx', Jx, 0);
+qp.set('lx', x0, 0);
+qp.set('ux', x0, 0);
+qp.set('Jx', Jx, 5);
 
 qp.print_C_struct()
 

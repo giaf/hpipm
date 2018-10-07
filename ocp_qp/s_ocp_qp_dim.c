@@ -30,6 +30,7 @@
 
 
 #include <hpipm_s_ocp_qp_dim.h>
+#include <hpipm_aux_string.h>
 
 
 
@@ -39,6 +40,7 @@
 #define MEMSIZE_OCP_QP_DIM s_memsize_ocp_qp_dim
 #define CREATE_OCP_QP_DIM s_create_ocp_qp_dim
 #define CVT_INT_TO_OCP_QP_DIM s_cvt_int_to_ocp_qp_dim
+#define SET_OCP_QP_DIM_GF s_set_ocp_qp_dim_gf
 #define SET_OCP_QP_DIM_NX s_set_ocp_qp_dim_nx
 #define SET_OCP_QP_DIM_NU s_set_ocp_qp_dim_nu
 #define SET_OCP_QP_DIM_NBX s_set_ocp_qp_dim_nbx
