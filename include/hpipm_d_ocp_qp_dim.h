@@ -65,6 +65,8 @@ void d_create_ocp_qp_dim(int N, struct d_ocp_qp_dim *qp_dim, void *memory);
 //
 void d_cvt_int_to_ocp_qp_dim(int N, int *nx, int *nu, int *nbx, int *nbu, int *ng, int *ns, struct d_ocp_qp_dim *dim);
 //
+void d_set_ocp_qp_dim_gf(char *field, int stage, int in, struct d_ocp_qp_dim *dim);
+//
 void d_set_ocp_qp_dim_nx(int stage, int nx, struct d_ocp_qp_dim *dim);
 //
 void d_set_ocp_qp_dim_nu(int stage, int nu, struct d_ocp_qp_dim *dim);

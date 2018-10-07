@@ -43,7 +43,6 @@ classdef hpipm_ocp_qp
 			obj.py_qp.print_C_struct();
 		end
 
-
 	end
 
 end
