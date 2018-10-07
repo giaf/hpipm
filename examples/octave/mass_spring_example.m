@@ -133,7 +133,7 @@ tmp = {};
 for ii=1:N
 	tmp{ii} = lb_u;
 end
-qp.set('lu',tmp);
+qp.set('lu', tmp);
 % uu
 tmp = {};
 for ii=1:N
