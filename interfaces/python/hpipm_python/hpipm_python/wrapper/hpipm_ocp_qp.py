@@ -165,8 +165,30 @@ class hpipm_ocp_qp:
 		__hpipm.d_create_ocp_qp(dim.dim_struct, qp_struct, qp_mem)
 
 
-
+	
 	def set(self, field, value, idx=None):
+		# non-native setters (not implemented as C APIs)
+		setter_map = {
+			"Jx" : self.set_Jx,
+			"Ju" : self.set_Ju,
+			"lu" : self.set_lu,
+			"uu" : self.set_uu,
+			"Jsu": self.set_Jsu,
+			"Jsx": self.set_Jsx,
+			"Jsg": self.set_Jsg,
+			"lx": self.set_lx,
+			"ux": self.set_ux,
+		}
+		setter = setter_map.get(field)
+		if  setter is not None:
+			# if field is associated with non native setter 
+			setter(value, idx)
+		else:
+			# else call generic setter
+			self.set_gf(field, value, idx)	
+	
+	# generic setter	
+	def set_gf(self, field, value, idx=None):
 		nx = self.dim.nx
 		nu = self.dim.nu
 		ng = self.dim.ng
@@ -180,9 +202,9 @@ class hpipm_ocp_qp:
 			'r': [nu, 0, 1,  0]}
 
 		field_ = getattr(self, field)
+		reshape_tuple = dim_dict[field]
 		if idx==None:
 			for i in range(len(value)):
-				reshape_tuple = dim_dict[field]
 				if hasattr(reshape_tuple[2], '__getitem__'):
 					reshape_dim = (reshape_tuple[0][i + reshape_tuple[1]], reshape_tuple[2][i + reshape_tuple[3]])
 				else:
