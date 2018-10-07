@@ -47,6 +47,23 @@ class hpipm_ocp_qp_dim:
 #			self.dim_struct)
 
 
+	def set(self, field, value, idx=None):
+		self.__hpipm.d_set_ocp_qp_dim_gf.argtypes = [c_char_p, c_int, c_int, c_void_p]
+		if idx==None:
+			for i in range(value.size):
+				field_ = getattr(self, field)
+				field_[i] = value[i]
+				field_name_b = field.encode('utf-8')
+				self.__hpipm.d_set_ocp_qp_dim_gf(c_char_p(field_name_b), i, value[i], self.dim_struct)
+		else:
+			field_ = getattr(self, field)
+			field_[idx] = value
+			field_name_b = field.encode('utf-8')
+			self.__hpipm.d_set_ocp_qp_dim_gf(c_char_p(field_name_b), idx, value, self.dim_struct)
+		return
+
+
+
 	def set_nx(self, nx, idx=None):
 		self.__hpipm.d_set_ocp_qp_dim_nx.argtypes = [c_int, c_int, c_void_p]
 		if idx==None:
