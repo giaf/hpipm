@@ -59,7 +59,7 @@ tmp_time = toc;
 fprintf('create qp time %e\n', tmp_time);
 
 tic
-qp.set_A({A, A, A, A, A});
+qp.set('A', {A, A, A, A, A});
 tmp_time = toc;
 fprintf('create set A time %e\n', tmp_time);
 qp.set_B({B, B, B, B, B});

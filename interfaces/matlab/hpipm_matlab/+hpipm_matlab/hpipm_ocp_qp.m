@@ -20,6 +20,25 @@ classdef hpipm_ocp_qp
 		end
 	
 
+		function set(obj, varargin)
+			import hpipm_matlab.*
+			if (length(varargin)==2)
+				field = varargin{1};
+				mat = varargin{2};
+				py_mat = py.list({});
+				for i=1:length(mat)
+					mat0 = mat{i};
+					py_mat.append(m2py(mat0, obj.np));
+				end
+				obj.py_qp.set(field, py_mat);
+			else
+				field = varargin{1};
+				mat0 = varargin{2};
+				idx = varargin{3};
+				obj.py_qp.set(field, m2py(mat0, obj.np), int32(idx));
+			end
+		end
+
 		function set_A(obj, varargin)
 			import hpipm_matlab.*
 			if (length(varargin)==1)
