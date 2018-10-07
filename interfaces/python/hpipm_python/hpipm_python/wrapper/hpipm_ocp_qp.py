@@ -192,14 +192,20 @@ class hpipm_ocp_qp:
 		nx = self.dim.nx
 		nu = self.dim.nu
 		ng = self.dim.ng
+		ns = self.dim.ns
 
 		dim_dict = {
-			'A': [nx, 1, nx, 0], 'B': [nx, 1, nu, 0], 
-			'Q': [nx, 0, nx, 0], 'R': [nu, 0, nu, 0], 
-			'S': [nx, 0, nu, 0], 'C': [ng, 0, nx, 0],
-			'D': [ng, 0, nu, 0], 
-			'b': [nx, 1, 1,  0], 'q': [nx, 0, 1,  0],
-			'r': [nu, 0, 1,  0]}
+			'A':   [nx, 1, nx, 0], 'B':   [nx, 1, nu, 0], 
+			'Q':   [nx, 0, nx, 0], 'R':   [nu, 0, nu, 0], 
+			'S':   [nx, 0, nu, 0], 'C':   [ng, 0, nx, 0],
+			'D':   [ng, 0, nu, 0], 
+			'b':   [nx, 1, 1,  0], 'q':   [nx, 0, 1,  0],
+			'r':   [nu, 0, 1,  0] ,
+			'lg':  [ng, 0, 1,  0], 'ug':  [ng, 0, 1,  0],
+			'Zl':  [ns, 0, 1,  0], 'Zu':  [ns, 0, 1,  0], 
+			'zl':  [ns, 0, 1,  0], 'zu':  [ns, 0, 1,  0], 
+			'lls': [ns, 0, 1,  0], 'llu': [ns, 0, 1,  0], 
+			}
 
 		field_ = getattr(self, field)
 		reshape_tuple = dim_dict[field]
