@@ -219,10 +219,9 @@ class hpipm_ocp_qp:
 				self.__hpipm.d_cvt_colmaj_to_ocp_qp_gf(c_char_p(field_name_b), i, tmp, self.qp_struct)
 		else:
 			if hasattr(reshape_tuple[2], '__getitem__'):
-				reshape_dim = (reshape_tuple[0][i + reshape_tuple[1]], reshape_tuple[2][i + reshape_tuple[3]])
+				reshape_dim = (reshape_tuple[0][idx + reshape_tuple[1]], reshape_tuple[2][idx + reshape_tuple[3]])
 			else:
-				reshape_dim = (reshape_tuple[0][i + reshape_tuple[1]], reshape_tuple[2])
-			reshape_dim = (reshape_tuple[0][idx + reshape_tuple[1]], reshape_tuple[2][idx + reshape_tuple[3]])
+				reshape_dim = (reshape_tuple[0][idx + reshape_tuple[1]], reshape_tuple[2])
 			field_ = getattr(self, field)
 			field_[idx] = value
 			field_[idx] = field_[idx].reshape(reshape_dim)
