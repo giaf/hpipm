@@ -167,8 +167,12 @@ file(GLOB TREE_OCP_QP_SRC
 	${PROJECT_SOURCE_DIR}/tree_ocp_qp/s_tree_ocp_qp_ipm.c
 	${PROJECT_SOURCE_DIR}/tree_ocp_qp/s_tree_ocp_qp_res.c
 	)
+# auxiliary
+file(GLOB AUXILIARY_SRC
+	${PROJECT_SOURCE_DIR}/auxiliary/aux_string.c
+	)
 
-set(HPIPM_SRC ${COND_SRC} ${DENSE_QP_SRC} ${IPM_CORE_SRC} ${OCP_QP_SRC} ${TREE_OCP_QP_SRC})
+set(HPIPM_SRC ${COND_SRC} ${DENSE_QP_SRC} ${IPM_CORE_SRC} ${OCP_QP_SRC} ${TREE_OCP_QP_SRC} ${AUXILIARY_SRC})
 
 add_library(hpipm ${HPIPM_SRC})
 target_include_directories(hpipm PRIVATE "include" "${BLASFEO_INCLUDE_DIR}")

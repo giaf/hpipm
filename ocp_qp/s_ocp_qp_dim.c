@@ -29,6 +29,9 @@
 
 
 
+#include <stdlib.h>
+#include <stdio.h>
+
 #include <hpipm_s_ocp_qp_dim.h>
 #include <hpipm_aux_string.h>
 

@@ -43,4 +43,4 @@ clean:
 	rm -f *.o
 	rm -f *.s
 
-aux_string.o: aux_string.c
+#aux_string.o: aux_string.c

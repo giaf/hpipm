@@ -159,22 +159,37 @@ void CVT_INT_TO_OCP_QP_DIM(int N, int *nx, int *nu, int *nbx, int *nbu, int *ng,
 
 void SET_OCP_QP_DIM_GF(char *field_name, int stage, int in, struct OCP_QP_DIM *dim)
 	{
-	if(hpipm_strcmp(field_name, "nx")) { 
+	if(hpipm_strcmp(field_name, "nx"))
+		{ 
 		dim->nx[stage] = in;
-	} else if(hpipm_strcmp(field_name, "nu")) { 
+		}
+	else if(hpipm_strcmp(field_name, "nu"))
+		{ 
 		dim->nu[stage] = in;
-	} else if(hpipm_strcmp(field_name, "nbx")) {
+		}
+	else if(hpipm_strcmp(field_name, "nbx"))
+		{
 		dim->nbx[stage] = in;
 		dim->nb[stage] = dim->nbx[stage] + dim->nbu[stage];
-	} else if(hpipm_strcmp(field_name, "nbu")) {
+		}
+	else if(hpipm_strcmp(field_name, "nbu"))
+		{
 		dim->nbu[stage] = in;
 		dim->nb[stage] = dim->nbx[stage] + dim->nbu[stage];
-	} else if(hpipm_strcmp(field_name, "ng")) {
+		}
+	else if(hpipm_strcmp(field_name, "ng"))
+		{
 		dim->ng[stage] = in;
-	} else if(hpipm_strcmp(field_name, "ns")) {
+		}
+	else if(hpipm_strcmp(field_name, "ns"))
+		{
 		dim->ns[stage] = in;
-	} else 
+		}
+	else 
+		{
 		printf("error [SET_OCP_QP_DIM_GF]: unknown field name '%s'. Exiting.\n", field_name);
+		exit(1);
+		}
 	return;
 	}
 

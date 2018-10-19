@@ -125,7 +125,7 @@ OBJS += tree_ocp_qp/s_tree_ocp_qp_kkt.o
 OBJS += tree_ocp_qp/s_tree_ocp_qp_ipm.o
 
 # aux
-OBJS += aux/aux_string.o
+OBJS += auxiliary/aux_string.o
 
 all: clean static_library
 
@@ -135,7 +135,7 @@ static_library: target
 	( cd ipm_core; $(MAKE) obj TOP=$(TOP) )
 	( cd ocp_qp; $(MAKE) obj TOP=$(TOP) )
 	( cd tree_ocp_qp; $(MAKE) obj TOP=$(TOP) )
-	( cd aux; $(MAKE) obj TOP=$(TOP) )
+	( cd auxiliary; $(MAKE) obj TOP=$(TOP) )
 	ar rcs libhpipm.a $(OBJS) 
 	cp libhpipm.a ./lib/
 	@echo
@@ -148,7 +148,7 @@ shared_library: target
 	( cd ipm_core; $(MAKE) obj TOP=$(TOP) )
 	( cd ocp_qp; $(MAKE) obj TOP=$(TOP) )
 	( cd tree_ocp_qp; $(MAKE) obj TOP=$(TOP) )
-	( cd aux; $(MAKE) obj TOP=$(TOP) )
+	( cd auxiliary; $(MAKE) obj TOP=$(TOP) )
 	gcc -L$(BLASFEO_PATH)/lib -shared -o libhpipm.so $(OBJS) -lblasfeo
 	cp libhpipm.so ./lib/
 	@echo
@@ -204,6 +204,7 @@ clean:
 	rm -f libhpipm.so
 	rm -f ./lib/libhpipm.a
 	rm -f ./lib/libhpipm.so
+	make -C auxiliary clean
 	make -C cond clean
 	make -C dense_qp clean
 	make -C ipm_core clean
