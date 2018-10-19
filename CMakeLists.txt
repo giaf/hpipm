@@ -43,6 +43,10 @@ set(REF_BLAS 0)
 #set(REF_BLAS BLIS)
 #set(REF_BLAS ATLAS)
 
+# Options
+set(HPIPM_TESTING ON CACHE BOOL "Tests enabled")
+# set(HPIPM_TESTING OFF CACHE BOOL "Tests disabled")
+
 # BLASFEO
 if(NOT TARGET blasfeo)
 	# BLASFEO installation directory
@@ -54,6 +58,8 @@ else()
 	# TODO: horrible hardcode; needs to go
 	set(BLASFEO_INCLUDE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/../blasfeo/include)
 endif()
+
+set(HPIPM_INCLUDE_DIR ${PROJECT_SOURCE_DIR}/include)
 
 # headers installation directory
 set(HPIPM_HEADERS_INSTALLATION_DIRECTORY "include" CACHE STRING "Headers local installation directory")
@@ -157,11 +163,13 @@ file(GLOB OCP_QP_SRC
 file(GLOB TREE_OCP_QP_SRC
 	${PROJECT_SOURCE_DIR}/tree_ocp_qp/scenario_tree.c
 	${PROJECT_SOURCE_DIR}/tree_ocp_qp/d_tree_ocp_qp.c
+	${PROJECT_SOURCE_DIR}/tree_ocp_qp/d_tree_ocp_qp_dim.c
 	${PROJECT_SOURCE_DIR}/tree_ocp_qp/d_tree_ocp_qp_sol.c
 	${PROJECT_SOURCE_DIR}/tree_ocp_qp/d_tree_ocp_qp_kkt.c
 	${PROJECT_SOURCE_DIR}/tree_ocp_qp/d_tree_ocp_qp_ipm.c
 	${PROJECT_SOURCE_DIR}/tree_ocp_qp/d_tree_ocp_qp_res.c
 	${PROJECT_SOURCE_DIR}/tree_ocp_qp/s_tree_ocp_qp.c
+	${PROJECT_SOURCE_DIR}/tree_ocp_qp/s_tree_ocp_qp_dim.c
 	${PROJECT_SOURCE_DIR}/tree_ocp_qp/s_tree_ocp_qp_sol.c
 	${PROJECT_SOURCE_DIR}/tree_ocp_qp/s_tree_ocp_qp_kkt.c
 	${PROJECT_SOURCE_DIR}/tree_ocp_qp/s_tree_ocp_qp_ipm.c
@@ -189,4 +197,6 @@ file(GLOB_RECURSE HPIPM_HEADERS "include/*.h")
 install(FILES ${HPIPM_HEADERS} DESTINATION ${HPIPM_HEADERS_INSTALLATION_DIRECTORY})
 
 # test problems
-#add_subdirectory(test_problems)
+if(HPIPM_TESTING MATCHES ON)
+	add_subdirectory(test_problems)
+endif()
