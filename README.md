@@ -1,5 +1,7 @@
 This is HPIPM, a high-performance interior-point method solver for dense, optimal control- and tree-structured convex quadratic programs. It provides efficient implementations of dense and structure-exploiting algorithms to solve small to medium scale problems arising in model predictive control and embedded optimization in general and it relies on the high-performance linear algebra package BLASFEO.
 
+--------------------------------------------------
+
 Getting Started: 
 
 The best way to get started with HPIPM is to check out the examples in /hpipm/examples/c/ and /hpipm/examples/python/. In order to run the C example, follow the steps below:
@@ -17,6 +19,8 @@ If you would like to try out the Python interface, you will need to proceed as f
 to avoid running this command whenever opening a new shell. You can add the commands above to your .bashrc.
 5) cd to /hpipm/interfaces/python/hpipm_python and run 'pip3 install .'
 6) cd to /hpipm/examples/python and run 'python3 getting_started.py' to solve a simple OCP-structured QP.
+
+--------------------------------------------------
 
 References:
 
