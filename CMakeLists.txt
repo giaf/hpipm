@@ -30,8 +30,6 @@
 cmake_minimum_required(VERSION 2.8.11)
 project(hpipm)
 
-set(CMAKE_VERBOSE_MAKEFILE ON)
-
 # Target architecture
 set(TARGET GENERIC)
 
@@ -183,7 +181,10 @@ file(GLOB AUXILIARY_SRC
 set(HPIPM_SRC ${COND_SRC} ${DENSE_QP_SRC} ${IPM_CORE_SRC} ${OCP_QP_SRC} ${TREE_OCP_QP_SRC} ${AUXILIARY_SRC})
 
 add_library(hpipm ${HPIPM_SRC})
-target_include_directories(hpipm PRIVATE "include" "${BLASFEO_INCLUDE_DIR}")
+target_include_directories(hpipm
+	PUBLIC
+		$<BUILD_INTERFACE:${CMAKE_CURRENT_LIST_DIR}/include>
+		$<INSTALL_INTERFACE:include/hpipm/include>)
 target_link_libraries(hpipm blasfeo)
 
 install(TARGETS hpipm EXPORT hpipmConfig
