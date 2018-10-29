@@ -44,6 +44,7 @@ REF_BLAS = 0
 
 # Installation directory
 TOP = $(shell pwd)
+#TOP = C:/cygwin64/home/gianluca/hpipm
 
 # operating system
 #UNAME_S := $(shell uname -s)
@@ -67,6 +68,7 @@ PREFIX = /opt
 
 # BLASFEO installation directory
 BLASFEO_PATH = /opt/blasfeo
+#BLASFEO_PATH = C:/cygwin64/home/gianluca/blasfeo
 
 # enable runtine checks
 RUNTIME_CHECKS = 0
