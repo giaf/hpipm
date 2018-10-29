@@ -2,29 +2,77 @@
 *                                                                                                 *
 * This file is part of HPIPM.                                                                     *
 *                                                                                                 *
-* HPIPM -- High Performance Interior Point Method.                                                *
-* Copyright (C) 2017 by Gianluca Frison.                                                          *
+* HPIPM -- High-Performance Interior Point Method.                                                *
+* Copyright (C) 2017-2018 by Gianluca Frison.                                                     *
 * Developed at IMTEK (University of Freiburg) under the supervision of Moritz Diehl.              *
 * All rights reserved.                                                                            *
 *                                                                                                 *
-* HPMPC is free software; you can redistribute it and/or                                          *
-* modify it under the terms of the GNU Lesser General Public                                      *
-* License as published by the Free Software Foundation; either                                    *
-* version 2.1 of the License, or (at your option) any later version.                              *
+* This program is free software: you can redistribute it and/or modify                            *
+* it under the terms of the GNU General Public License as published by                            *
+* the Free Software Foundation, either version 3 of the License, or                               *
+* (at your option) any later version                                                              *.
 *                                                                                                 *
-* HPMPC is distributed in the hope that it will be useful,                                        *
+* This program is distributed in the hope that it will be useful,                                 *
 * but WITHOUT ANY WARRANTY; without even the implied warranty of                                  *
-* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.                                            *
-* See the GNU Lesser General Public License for more details.                                     *
+* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the                                   *
+* GNU General Public License for more details.                                                    *
 *                                                                                                 *
-* You should have received a copy of the GNU Lesser General Public                                *
-* License along with HPMPC; if not, write to the Free Software                                    *
-* Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA                  *
+* You should have received a copy of the GNU General Public License                               *
+* along with this program.  If not, see <https://www.gnu.org/licenses/>.                          *
 *                                                                                                 *
-* Author: Gianluca Frison  {gianluca.frison} (at) imtek.uni-freiburg.de                           *
-*       , Andrea Zanelli {andrea.zanelli} (at) imtek.uni-freiburg.de                              *
+* The authors designate this particular file as subject to the "Classpath" exception              *
+* as provided by the authors in the LICENSE file that accompained this code.                      *
+*                                                                                                 *
+* Author: Gianluca Frison, gianluca.frison (at) imtek.uni-freiburg.de                             *
 *                                                                                                 *
 **************************************************************************************************/
+
+
+
+void PRINT_OCP_QP_DIM(struct OCP_QP_DIM *qp_dim)
+	{
+	int ii;
+
+	int N   = qp_dim->N;
+	int *nx = qp_dim->nx;
+	int *nu = qp_dim->nu;
+	int *nbx = qp_dim->nbx;
+	int *nbu = qp_dim->nbu;
+	int *ng = qp_dim->ng;
+	int *ns = qp_dim->ns;
+
+	printf("nx =\n");
+	for (ii = 0; ii <= N; ii++)
+		printf("\t%d", nx[ii]);
+	printf("\n\n");
+
+	printf("nu =\n");
+	for (ii = 0; ii <= N; ii++)
+		printf("\t%d", nu[ii]);
+	printf("\n\n");
+
+	printf("nbx =\n");
+	for (ii = 0; ii <= N; ii++)
+		printf("\t%d", nbx[ii]);
+	printf("\n\n");
+
+	printf("nbu =\n");
+	for (ii = 0; ii <= N; ii++)
+		printf("\t%d", nbu[ii]);
+	printf("\n\n");
+
+	printf("ng =\n");
+	for (ii = 0; ii <= N; ii++)
+		printf("\t%d", ng[ii]);
+	printf("\n\n");
+
+	printf("ns =\n");
+	for (ii = 0; ii <= N; ii++)
+		printf("\t%d", ns[ii]);
+	printf("\n\n");
+
+	return;
+	}
 
 
 

@@ -2,24 +2,26 @@
 #                                                                                                 #
 # This file is part of HPIPM.                                                                     #
 #                                                                                                 #
-# HPIPM -- High Performance Interior Point Method.                                                #
-# Copyright (C) 2017 by Gianluca Frison.                                                          #
+# HPIPM -- High-Performance Interior Point Method.                                                #
+# Copyright (C) 2017-2018 by Gianluca Frison.                                                     #
 # Developed at IMTEK (University of Freiburg) under the supervision of Moritz Diehl.              #
 # All rights reserved.                                                                            #
 #                                                                                                 #
-# HPMPC is free software; you can redistribute it and/or                                          #
-# modify it under the terms of the GNU Lesser General Public                                      #
-# License as published by the Free Software Foundation; either                                    #
-# version 2.1 of the License, or (at your option) any later version.                              #
+# This program is free software: you can redistribute it and/or modify                            #
+# it under the terms of the GNU General Public License as published by                            #
+# the Free Software Foundation, either version 3 of the License, or                               #
+# (at your option) any later version                                                              #.
 #                                                                                                 #
-# HPMPC is distributed in the hope that it will be useful,                                        #
+# This program is distributed in the hope that it will be useful,                                 #
 # but WITHOUT ANY WARRANTY; without even the implied warranty of                                  #
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.                                            #
-# See the GNU Lesser General Public License for more details.                                     #
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the                                   #
+# GNU General Public License for more details.                                                    #
 #                                                                                                 #
-# You should have received a copy of the GNU Lesser General Public                                #
-# License along with HPMPC; if not, write to the Free Software                                    #
-# Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA                  #
+# You should have received a copy of the GNU General Public License                               #
+# along with this program.  If not, see <https://www.gnu.org/licenses/>.                          #
+#                                                                                                 #
+# The authors designate this particular file as subject to the "Classpath" exception              #
+# as provided by the authors in the LICENSE file that accompained this code.                      #
 #                                                                                                 #
 # Author: Gianluca Frison, gianluca.frison (at) imtek.uni-freiburg.de                             #
 #                                                                                                 #
@@ -41,6 +43,10 @@ set(REF_BLAS 0)
 #set(REF_BLAS BLIS)
 #set(REF_BLAS ATLAS)
 
+# Options
+set(HPIPM_TESTING ON CACHE BOOL "Tests enabled")
+# set(HPIPM_TESTING OFF CACHE BOOL "Tests disabled")
+
 # BLASFEO
 if(NOT TARGET blasfeo)
 	# BLASFEO installation directory
@@ -52,6 +58,8 @@ else()
 	# TODO: horrible hardcode; needs to go
 	set(BLASFEO_INCLUDE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/../blasfeo/include)
 endif()
+
+set(HPIPM_INCLUDE_DIR ${PROJECT_SOURCE_DIR}/include)
 
 # headers installation directory
 set(HPIPM_HEADERS_INSTALLATION_DIRECTORY "include" CACHE STRING "Headers local installation directory")
@@ -155,19 +163,30 @@ file(GLOB OCP_QP_SRC
 file(GLOB TREE_OCP_QP_SRC
 	${PROJECT_SOURCE_DIR}/tree_ocp_qp/scenario_tree.c
 	${PROJECT_SOURCE_DIR}/tree_ocp_qp/d_tree_ocp_qp.c
+	${PROJECT_SOURCE_DIR}/tree_ocp_qp/d_tree_ocp_qp_dim.c
 	${PROJECT_SOURCE_DIR}/tree_ocp_qp/d_tree_ocp_qp_sol.c
 	${PROJECT_SOURCE_DIR}/tree_ocp_qp/d_tree_ocp_qp_kkt.c
 	${PROJECT_SOURCE_DIR}/tree_ocp_qp/d_tree_ocp_qp_ipm.c
+	${PROJECT_SOURCE_DIR}/tree_ocp_qp/d_tree_ocp_qp_res.c
 	${PROJECT_SOURCE_DIR}/tree_ocp_qp/s_tree_ocp_qp.c
+	${PROJECT_SOURCE_DIR}/tree_ocp_qp/s_tree_ocp_qp_dim.c
 	${PROJECT_SOURCE_DIR}/tree_ocp_qp/s_tree_ocp_qp_sol.c
 	${PROJECT_SOURCE_DIR}/tree_ocp_qp/s_tree_ocp_qp_kkt.c
 	${PROJECT_SOURCE_DIR}/tree_ocp_qp/s_tree_ocp_qp_ipm.c
+	${PROJECT_SOURCE_DIR}/tree_ocp_qp/s_tree_ocp_qp_res.c
+	)
+# auxiliary
+file(GLOB AUXILIARY_SRC
+	${PROJECT_SOURCE_DIR}/auxiliary/aux_string.c
 	)
 
-set(HPIPM_SRC ${COND_SRC} ${DENSE_QP_SRC} ${IPM_CORE_SRC} ${OCP_QP_SRC} ${TREE_OCP_QP_SRC})
+set(HPIPM_SRC ${COND_SRC} ${DENSE_QP_SRC} ${IPM_CORE_SRC} ${OCP_QP_SRC} ${TREE_OCP_QP_SRC} ${AUXILIARY_SRC})
 
 add_library(hpipm ${HPIPM_SRC})
-target_include_directories(hpipm PRIVATE "include" "${BLASFEO_INCLUDE_DIR}")
+target_include_directories(hpipm
+	PUBLIC
+		$<BUILD_INTERFACE:${CMAKE_CURRENT_LIST_DIR}/include>
+		$<INSTALL_INTERFACE:include/hpipm/include>)
 target_link_libraries(hpipm blasfeo)
 
 install(TARGETS hpipm EXPORT hpipmConfig
@@ -181,4 +200,6 @@ file(GLOB_RECURSE HPIPM_HEADERS "include/*.h")
 install(FILES ${HPIPM_HEADERS} DESTINATION ${HPIPM_HEADERS_INSTALLATION_DIRECTORY})
 
 # test problems
-#add_subdirectory(test_problems)
+if(HPIPM_TESTING MATCHES ON)
+	add_subdirectory(test_problems)
+endif()

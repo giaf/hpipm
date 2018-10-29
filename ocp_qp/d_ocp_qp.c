@@ -2,24 +2,26 @@
 *                                                                                                 *
 * This file is part of HPIPM.                                                                     *
 *                                                                                                 *
-* HPIPM -- High Performance Interior Point Method.                                                *
-* Copyright (C) 2017 by Gianluca Frison.                                                          *
+* HPIPM -- High-Performance Interior Point Method.                                                *
+* Copyright (C) 2017-2018 by Gianluca Frison.                                                     *
 * Developed at IMTEK (University of Freiburg) under the supervision of Moritz Diehl.              *
 * All rights reserved.                                                                            *
 *                                                                                                 *
-* HPMPC is free software; you can redistribute it and/or                                          *
-* modify it under the terms of the GNU Lesser General Public                                      *
-* License as published by the Free Software Foundation; either                                    *
-* version 2.1 of the License, or (at your option) any later version.                              *
+* This program is free software: you can redistribute it and/or modify                            *
+* it under the terms of the GNU General Public License as published by                            *
+* the Free Software Foundation, either version 3 of the License, or                               *
+* (at your option) any later version                                                              *.
 *                                                                                                 *
-* HPMPC is distributed in the hope that it will be useful,                                        *
+* This program is distributed in the hope that it will be useful,                                 *
 * but WITHOUT ANY WARRANTY; without even the implied warranty of                                  *
-* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.                                            *
-* See the GNU Lesser General Public License for more details.                                     *
+* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the                                   *
+* GNU General Public License for more details.                                                    *
 *                                                                                                 *
-* You should have received a copy of the GNU Lesser General Public                                *
-* License along with HPMPC; if not, write to the Free Software                                    *
-* Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA                  *
+* You should have received a copy of the GNU General Public License                               *
+* along with this program.  If not, see <https://www.gnu.org/licenses/>.                          *
+*                                                                                                 *
+* The authors designate this particular file as subject to the "Classpath" exception              *
+* as provided by the authors in the LICENSE file that accompained this code.                      *
 *                                                                                                 *
 * Author: Gianluca Frison, gianluca.frison (at) imtek.uni-freiburg.de                             *
 *                                                                                                 *
@@ -27,10 +29,8 @@
 
 
 
-#if defined(RUNTIME_CHECKS)
-#include <stdlib.h>
 #include <stdio.h>
-#endif
+#include <stdlib.h>
 
 #include <blasfeo_target.h>
 #include <blasfeo_common.h>
@@ -38,6 +38,7 @@
 
 #include <hpipm_d_ocp_qp_dim.h>
 #include <hpipm_d_ocp_qp.h>
+#include <hpipm_aux_string.h>
 
 
 
@@ -68,6 +69,16 @@
 #define CVT_ROWMAJ_TO_OCP_QP d_cvt_rowmaj_to_ocp_qp
 #define MEMSIZE_OCP_QP d_memsize_ocp_qp
 #define CHANGE_BOUNDS_DIMENSIONS_OCP_QP d_change_bounds_dimensions_ocp_qp
+
+
+#define CVT_COLMAJ_TO_OCP_QP_GF d_cvt_colmaj_to_ocp_qp_gf
+
+#define CVT_COLMAJ_MAT_TO_OCP_QP d_cvt_colmaj_mat_to_ocp_qp
+#define CVT_OCP_QP_TO_COLMAJ_MAT d_cvt_ocp_qp_to_colmaj_mat
+#define CVT_COLMAJ_VEC_TO_OCP_QP d_cvt_colmaj_vec_to_ocp_qp
+#define CVT_OCP_QP_TO_COLMAJ_VEC d_cvt_ocp_qp_to_colmaj_vec
+
+
 #define CVT_COLMAJ_TO_OCP_QP_A d_cvt_colmaj_to_ocp_qp_A
 #define CVT_OCP_QP_TO_COLMAJ_A d_cvt_ocp_qp_to_colmaj_A
 #define CVT_COLMAJ_TO_OCP_QP_B d_cvt_colmaj_to_ocp_qp_B

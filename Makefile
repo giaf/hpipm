@@ -2,24 +2,26 @@
 #                                                                                                 #
 # This file is part of HPIPM.                                                                     #
 #                                                                                                 #
-# HPIPM -- High Performance Interior Point Method.                                                #
-# Copyright (C) 2017 by Gianluca Frison.                                                          #
+# HPIPM -- High-Performance Interior Point Method.                                                #
+# Copyright (C) 2017-2018 by Gianluca Frison.                                                     #
 # Developed at IMTEK (University of Freiburg) under the supervision of Moritz Diehl.              #
 # All rights reserved.                                                                            #
 #                                                                                                 #
-# HPMPC is free software; you can redistribute it and/or                                          #
-# modify it under the terms of the GNU Lesser General Public                                      #
-# License as published by the Free Software Foundation; either                                    #
-# version 2.1 of the License, or (at your option) any later version.                              #
+# This program is free software: you can redistribute it and/or modify                            #
+# it under the terms of the GNU General Public License as published by                            #
+# the Free Software Foundation, either version 3 of the License, or                               #
+# (at your option) any later version                                                              #.
 #                                                                                                 #
-# HPMPC is distributed in the hope that it will be useful,                                        #
+# This program is distributed in the hope that it will be useful,                                 #
 # but WITHOUT ANY WARRANTY; without even the implied warranty of                                  #
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.                                            #
-# See the GNU Lesser General Public License for more details.                                     #
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the                                   #
+# GNU General Public License for more details.                                                    #
 #                                                                                                 #
-# You should have received a copy of the GNU Lesser General Public                                #
-# License along with HPMPC; if not, write to the Free Software                                    #
-# Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA                  #
+# You should have received a copy of the GNU General Public License                               #
+# along with this program.  If not, see <https://www.gnu.org/licenses/>.                          #
+#                                                                                                 #
+# The authors designate this particular file as subject to the "Classpath" exception              #
+# as provided by the authors in the LICENSE file that accompained this code.                      #
 #                                                                                                 #
 # Author: Gianluca Frison, gianluca.frison (at) imtek.uni-freiburg.de                             #
 #                                                                                                 #
@@ -122,6 +124,9 @@ OBJS += tree_ocp_qp/s_tree_ocp_qp_res.o
 OBJS += tree_ocp_qp/s_tree_ocp_qp_kkt.o
 OBJS += tree_ocp_qp/s_tree_ocp_qp_ipm.o
 
+# aux
+OBJS += auxiliary/aux_string.o
+
 all: clean static_library
 
 static_library: target
@@ -130,6 +135,7 @@ static_library: target
 	( cd ipm_core; $(MAKE) obj TOP=$(TOP) )
 	( cd ocp_qp; $(MAKE) obj TOP=$(TOP) )
 	( cd tree_ocp_qp; $(MAKE) obj TOP=$(TOP) )
+	( cd auxiliary; $(MAKE) obj TOP=$(TOP) )
 	ar rcs libhpipm.a $(OBJS) 
 	cp libhpipm.a ./lib/
 	@echo
@@ -142,6 +148,7 @@ shared_library: target
 	( cd ipm_core; $(MAKE) obj TOP=$(TOP) )
 	( cd ocp_qp; $(MAKE) obj TOP=$(TOP) )
 	( cd tree_ocp_qp; $(MAKE) obj TOP=$(TOP) )
+	( cd auxiliary; $(MAKE) obj TOP=$(TOP) )
 	gcc -L$(BLASFEO_PATH)/lib -shared -o libhpipm.so $(OBJS) -lblasfeo
 	cp libhpipm.so ./lib/
 	@echo
@@ -197,6 +204,7 @@ clean:
 	rm -f libhpipm.so
 	rm -f ./lib/libhpipm.a
 	rm -f ./lib/libhpipm.so
+	make -C auxiliary clean
 	make -C cond clean
 	make -C dense_qp clean
 	make -C ipm_core clean

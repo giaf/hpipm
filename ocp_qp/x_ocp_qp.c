@@ -1,28 +1,30 @@
 /**************************************************************************************************
-*																								 *
-* This file is part of HPIPM.																	 *
-*																								 *
-* HPIPM -- High Performance Interior Point Method.												*
-* Copyright (C) 2017 by Gianluca Frison.														  *
-* Developed at IMTEK (University of Freiburg) under the supervision of Moritz Diehl.			  *
-* All rights reserved.																			*
-*																								 *
-* HPIPM is free software; you can redistribute it and/or										  *
-* modify it under the terms of the GNU Lesser General Public									  *
-* License as published by the Free Software Foundation; either									*
-* version 2.1 of the License, or (at your option) any later version.							  *
-*																								 *
-* HPIPM is distributed in the hope that it will be useful,										*
-* but WITHOUT ANY WARRANTY; without even the implied warranty of								  *
-* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.											*
-* See the GNU Lesser General Public License for more details.									 *
-*																								 *
-* You should have received a copy of the GNU Lesser General Public								*
-* License along with HPIPM; if not, write to the Free Software									*
-* Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA				  *
-*																								 *
-* Author: Gianluca Frison, gianluca.frison (at) imtek.uni-freiburg.de							 *
-*																								 *
+*                                                                                                 *
+* This file is part of HPIPM.                                                                     *
+*                                                                                                 *
+* HPIPM -- High-Performance Interior Point Method.                                                *
+* Copyright (C) 2017-2018 by Gianluca Frison.                                                     *
+* Developed at IMTEK (University of Freiburg) under the supervision of Moritz Diehl.              *
+* All rights reserved.                                                                            *
+*                                                                                                 *
+* This program is free software: you can redistribute it and/or modify                            *
+* it under the terms of the GNU General Public License as published by                            *
+* the Free Software Foundation, either version 3 of the License, or                               *
+* (at your option) any later version                                                              *.
+*                                                                                                 *
+* This program is distributed in the hope that it will be useful,                                 *
+* but WITHOUT ANY WARRANTY; without even the implied warranty of                                  *
+* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the                                   *
+* GNU General Public License for more details.                                                    *
+*                                                                                                 *
+* You should have received a copy of the GNU General Public License                               *
+* along with this program.  If not, see <https://www.gnu.org/licenses/>.                          *
+*                                                                                                 *
+* The authors designate this particular file as subject to the "Classpath" exception              *
+* as provided by the authors in the LICENSE file that accompained this code.                      *
+*                                                                                                 *
+* Author: Gianluca Frison, gianluca.frison (at) imtek.uni-freiburg.de                             *
+*                                                                                                 *
 **************************************************************************************************/
 
 
@@ -478,6 +480,353 @@ void CVT_ROWMAJ_TO_OCP_QP(REAL **A, REAL **B, REAL **b, REAL **Q, REAL **S, REAL
 
 	return;
 
+	}
+
+
+// convert generic field
+void CVT_COLMAJ_TO_OCP_QP_GF(char *field_name, int stage, REAL *in, struct OCP_QP *qp)
+	{
+	// extract dim
+	int *nx = qp->dim->nx;
+	int *nu = qp->dim->nu;
+	int *nb = qp->dim->nb;
+	int *ng = qp->dim->ng;
+	int *ns = qp->dim->ns;
+    
+	// matrices
+	if(hpipm_strcmp(field_name, "A")) 
+		{
+		CVT_TRAN_MAT2STRMAT(nx[stage+1], nx[stage], in, nx[stage+1], qp->BAbt+stage, nu[stage], 0);
+		}
+	else if(hpipm_strcmp(field_name, "B")) 
+		{
+		CVT_TRAN_MAT2STRMAT(nx[stage+1], nu[stage], in, nx[stage+1], qp->BAbt+stage, 0, 0);
+		}
+	else if(hpipm_strcmp(field_name, "Q")) 
+		{
+		CVT_MAT2STRMAT(nx[stage], nx[stage], in, nx[stage], qp->RSQrq+stage, nu[stage], nu[stage]);
+		}
+	else if(hpipm_strcmp(field_name, "S")) 
+		{
+		CVT_TRAN_MAT2STRMAT(nu[stage], nx[stage], in, nu[stage], qp->RSQrq+stage, nu[stage], 0);
+		}
+	else if(hpipm_strcmp(field_name, "R")) 
+		{
+		CVT_MAT2STRMAT(nu[stage], nu[stage], in, nu[stage], qp->RSQrq+stage, 0, 0);
+		}
+	else if(hpipm_strcmp(field_name, "C")) 
+		{
+		CVT_TRAN_MAT2STRMAT(ng[stage], nx[stage], in, ng[stage], qp->DCt+stage, nu[stage], 0);
+		}
+	else if(hpipm_strcmp(field_name, "D")) 
+		{
+		CVT_TRAN_MAT2STRMAT(ng[stage], nu[stage], in, ng[stage], qp->DCt+stage, 0, 0);
+		}
+	// vectors
+	else if(hpipm_strcmp(field_name, "b") == 1)
+		{ 
+		CVT_TRAN_MAT2STRMAT(nx[stage+1], 1, in, nx[stage+1], &(qp->BAbt[stage]), nx[stage]+nu[stage], 0);
+		CVT_VEC2STRVEC(nx[stage+1], in, qp->b+stage, 0);
+		}
+	else if(hpipm_strcmp(field_name, "q"))
+		{ 
+		CVT_TRAN_MAT2STRMAT(nx[stage], 1, in, nx[stage], &(qp->RSQrq[stage]), nx[stage]+nu[stage], nu[stage]);
+		CVT_VEC2STRVEC(nx[stage], in, qp->rqz+stage, nu[stage]);
+		}
+	else if(hpipm_strcmp(field_name, "r"))
+		{ 
+		CVT_TRAN_MAT2STRMAT(nu[stage], 1, in, nu[stage], &(qp->RSQrq[stage]), nx[stage]+nu[stage], 0);
+		CVT_VEC2STRVEC(nu[stage], in, qp->rqz+stage, 0);
+		}
+	else if(hpipm_strcmp(field_name, "lb"))
+		{ 
+		CVT_VEC2STRVEC(nb[stage], in, qp->d+stage, 0);
+		}
+	else if(hpipm_strcmp(field_name, "ub"))
+		{ 
+		CVT_VEC2STRVEC(nb[stage], in, qp->d+stage, nb[stage]+ng[stage]);
+		VECSC_LIBSTR(nb[stage], -1.0, qp->d+stage, nb[stage]+ng[stage]);
+		}
+	else if(hpipm_strcmp(field_name, "lg"))
+		{ 
+		CVT_VEC2STRVEC(ng[stage], in, qp->d+stage, nb[stage]);
+		}
+	else if(hpipm_strcmp(field_name, "ug"))
+		{ 
+		CVT_VEC2STRVEC(ng[stage], in, qp->d+stage, 2*nb[stage]+ng[stage]);
+		VECSC_LIBSTR(ng[stage], -1.0, qp->d+stage, 2*nb[stage]+ng[stage]);
+		}
+	else if(hpipm_strcmp(field_name, "Zl"))
+		{ 
+		CVT_VEC2STRVEC(ns[stage], in, qp->Z+stage, 0);
+		}
+	else if(hpipm_strcmp(field_name, "Zu"))
+		{ 
+		CVT_VEC2STRVEC(ns[stage], in, qp->Z+stage, ns[stage]);
+		}
+	else if(hpipm_strcmp(field_name, "zl"))
+		{ 
+		CVT_VEC2STRVEC(ns[stage], in, qp->rqz+stage, nu[stage]+nx[stage]);
+		}
+	else if(hpipm_strcmp(field_name, "zu"))
+		{ 
+		CVT_VEC2STRVEC(ns[stage], in, qp->rqz+stage, nu[stage]+nx[stage]+ns[stage]);
+		}
+	else if(hpipm_strcmp(field_name, "lls"))
+		{ 
+		CVT_VEC2STRVEC(ns[stage], in, qp->d+stage, 2*nb[stage]+2*ng[stage]);
+		}
+	else if(hpipm_strcmp(field_name, "lus"))
+		{ 
+		CVT_VEC2STRVEC(ns[stage], in, qp->d+stage, 2*nb[stage]+2*ng[stage]+ns[stage]);
+		}
+	else
+		{
+		printf("error [CVT_COLMAJ_MAT_TO_OCP_QP]: unknown field name '%s'. Exiting.\n", field_name);
+		exit(1);	
+		}
+	return;
+	}
+
+
+
+void CVT_COLMAJ_MAT_TO_OCP_QP(char *field_name, int stage, REAL *in, struct OCP_QP *qp)
+	{
+	// extract dim
+	int *nx = qp->dim->nx;
+	int *nu = qp->dim->nu;
+	int *ng = qp->dim->ng;
+    
+	if(hpipm_strcmp(field_name, "A")) 
+		{
+		CVT_TRAN_MAT2STRMAT(nx[stage+1], nx[stage], in, nx[stage+1], qp->BAbt+stage, nu[stage], 0);
+		}
+	else if(hpipm_strcmp(field_name, "B")) 
+		{
+		CVT_TRAN_MAT2STRMAT(nx[stage+1], nu[stage], in, nx[stage+1], qp->BAbt+stage, 0, 0);
+		}
+	else if(hpipm_strcmp(field_name, "Q")) 
+		{
+		CVT_MAT2STRMAT(nx[stage], nx[stage], in, nx[stage], qp->RSQrq+stage, nu[stage], nu[stage]);
+		}
+	else if(hpipm_strcmp(field_name, "S")) 
+		{
+		CVT_TRAN_MAT2STRMAT(nu[stage], nx[stage], in, nu[stage], qp->RSQrq+stage, nu[stage], 0);
+		}
+	else if(hpipm_strcmp(field_name, "R")) 
+		{
+		CVT_MAT2STRMAT(nu[stage], nu[stage], in, nu[stage], qp->RSQrq+stage, 0, 0);
+		}
+	else if(hpipm_strcmp(field_name, "C")) 
+		{
+		CVT_TRAN_MAT2STRMAT(ng[stage], nx[stage], in, ng[stage], qp->DCt+stage, nu[stage], 0);
+		}
+	else if(hpipm_strcmp(field_name, "D")) 
+		{
+		CVT_TRAN_MAT2STRMAT(ng[stage], nu[stage], in, ng[stage], qp->DCt+stage, 0, 0);
+		}
+	else
+		{
+		printf("error [CVT_COLMAJ_MAT_TO_OCP_QP]: unknown field name '%s'. Exiting.\n", field_name);
+		exit(1);	
+		}
+	return;
+	}
+
+
+
+void CVT_OCP_QP_TO_COLMAJ_MAT(char *field_name, int stage, struct OCP_QP *qp, REAL *out)
+    {
+    // extract dim
+    int *nx = qp->dim->nx;
+    int *nu = qp->dim->nu;
+	int *ng = qp->dim->ng;
+
+	if(hpipm_strcmp(field_name, "A")) 
+		{
+		CVT_TRAN_STRMAT2MAT(nx[stage], nx[stage+1], qp->BAbt+stage, nu[stage], 0, out, nx[stage+1]);
+		}
+	else if(hpipm_strcmp(field_name, "B")) 
+		{
+		CVT_TRAN_STRMAT2MAT(nu[stage], nx[stage+1], qp->BAbt+stage, 0, 0, out, nx[stage+1]);
+		}
+	else if(hpipm_strcmp(field_name, "Q")) 
+		{
+		CVT_STRMAT2MAT(nx[stage], nx[stage], qp->RSQrq+stage, nu[stage], nu[stage], out, nx[stage]);
+		}
+	else if(hpipm_strcmp(field_name, "S")) 
+		{
+		CVT_TRAN_STRMAT2MAT(nx[stage], nu[stage], qp->RSQrq+stage, nu[stage], 0, out, nu[stage]);
+		}
+	else if(hpipm_strcmp(field_name, "R")) 
+		{
+		CVT_STRMAT2MAT(nu[stage], nu[stage], qp->RSQrq+stage, 0, 0, out, nu[stage]);
+		}
+	else if(hpipm_strcmp(field_name, "C")) 
+		{
+		CVT_TRAN_STRMAT2MAT(nx[stage], ng[stage], qp->DCt+stage, nu[stage], 0, out, ng[stage]);
+		}
+	else if(hpipm_strcmp(field_name, "D")) 
+		{
+		CVT_TRAN_STRMAT2MAT(nu[stage], ng[stage], qp->DCt+stage, 0, 0, out, ng[stage]);
+		}
+	else
+		{
+		printf("error [CVT_OCP_QP_TO_COLMAJ_MAT]: unknown field name '%s'. Exiting.\n", field_name);
+		exit(1);	
+		}
+	return;
+	}
+
+
+
+void CVT_COLMAJ_VEC_TO_OCP_QP(char *field_name, int stage, REAL *in, struct OCP_QP *qp)
+	{
+	// extract dim
+	int *nx = qp->dim->nx;
+	int *nu = qp->dim->nu;
+	int *nb = qp->dim->nb;
+	int *ng = qp->dim->ng;
+	int *ns = qp->dim->ns;
+    
+	if(hpipm_strcmp(field_name, "b") == 1)
+		{ 
+		CVT_TRAN_MAT2STRMAT(nx[stage+1], 1, in, nx[stage+1], &(qp->BAbt[stage]), nx[stage]+nu[stage], 0);
+		CVT_VEC2STRVEC(nx[stage+1], in, qp->b+stage, 0);
+		}
+	else if(hpipm_strcmp(field_name, "q"))
+		{ 
+		CVT_TRAN_MAT2STRMAT(nx[stage], 1, in, nx[stage], &(qp->RSQrq[stage]), nx[stage]+nu[stage], nu[stage]);
+		CVT_VEC2STRVEC(nx[stage], in, qp->rqz+stage, nu[stage]);
+		}
+	else if(hpipm_strcmp(field_name, "r"))
+		{ 
+		CVT_TRAN_MAT2STRMAT(nu[stage], 1, in, nu[stage], &(qp->RSQrq[stage]), nx[stage]+nu[stage], 0);
+		CVT_VEC2STRVEC(nu[stage], in, qp->rqz+stage, 0);
+		}
+	else if(hpipm_strcmp(field_name, "lb"))
+		{ 
+		CVT_VEC2STRVEC(nb[stage], in, qp->d+stage, 0);
+		}
+	else if(hpipm_strcmp(field_name, "ub"))
+		{ 
+		CVT_VEC2STRVEC(nb[stage], in, qp->d+stage, nb[stage]+ng[stage]);
+		VECSC_LIBSTR(nb[stage], -1.0, qp->d+stage, nb[stage]+ng[stage]);
+		}
+	else if(hpipm_strcmp(field_name, "lg"))
+		{ 
+		CVT_VEC2STRVEC(ng[stage], in, qp->d+stage, nb[stage]);
+		}
+	else if(hpipm_strcmp(field_name, "ug"))
+		{ 
+		CVT_VEC2STRVEC(ng[stage], in, qp->d+stage, 2*nb[stage]+ng[stage]);
+		VECSC_LIBSTR(ng[stage], -1.0, qp->d+stage, 2*nb[stage]+ng[stage]);
+		}
+	else if(hpipm_strcmp(field_name, "Zl"))
+		{ 
+		CVT_VEC2STRVEC(ns[stage], in, qp->Z+stage, 0);
+		}
+	else if(hpipm_strcmp(field_name, "Zu"))
+		{ 
+		CVT_VEC2STRVEC(ns[stage], in, qp->Z+stage, ns[stage]);
+		}
+	else if(hpipm_strcmp(field_name, "zl"))
+		{ 
+		CVT_VEC2STRVEC(ns[stage], in, qp->rqz+stage, nu[stage]+nx[stage]);
+		}
+	else if(hpipm_strcmp(field_name, "zu"))
+		{ 
+		CVT_VEC2STRVEC(ns[stage], in, qp->rqz+stage, nu[stage]+nx[stage]+ns[stage]);
+		}
+	else if(hpipm_strcmp(field_name, "lls"))
+		{ 
+		CVT_VEC2STRVEC(ns[stage], in, qp->d+stage, 2*nb[stage]+2*ng[stage]);
+		}
+	else if(hpipm_strcmp(field_name, "lus"))
+		{ 
+		CVT_VEC2STRVEC(ns[stage], in, qp->d+stage, 2*nb[stage]+2*ng[stage]+ns[stage]);
+		}
+	else
+		{
+		printf("error [CVT_COLMAJ_VEC_TO_OCP_QP]: unknown field name '%s'. Exiting.\n", field_name);
+		printf("%c %c", field_name[0], field_name[1]);
+		exit(1);	
+		}
+	return;
+	}
+
+
+
+void CVT_OCP_QP_TO_COLMAJ_VEC(char *field_name, int stage, struct OCP_QP *qp, REAL *out)
+    {
+	int ii;
+    // extract dim
+    int *nx = qp->dim->nx;
+    int *nu = qp->dim->nu;
+    int *nb = qp->dim->nb;
+    int *ng = qp->dim->ng;
+    int *ns = qp->dim->ns;
+
+	if(hpipm_strcmp(field_name, "b") == 1) 
+		{
+		CVT_STRVEC2VEC(nx[stage+1], qp->b+stage, 0, out);
+		}
+	if(hpipm_strcmp(field_name, "q") == 1) 
+		{
+		CVT_STRVEC2VEC(nx[stage], qp->rqz+stage, nu[stage], out);
+		}
+	if(hpipm_strcmp(field_name, "r") == 1) 
+		{
+		CVT_STRVEC2VEC(nu[stage], qp->rqz+stage, 0, out);
+		}
+	if(hpipm_strcmp(field_name, "lb") == 1) 
+		{
+		CVT_STRVEC2VEC(nb[stage], qp->d+stage, 0, out);
+		}
+	if(hpipm_strcmp(field_name, "ub") == 1) 
+		{
+		CVT_STRVEC2VEC(nb[stage], qp->d+stage, nb[stage]+ng[stage], out);
+		for (ii=0; ii<nb[stage]; ii++) out[ii] = - out[ii];
+		}
+	if(hpipm_strcmp(field_name, "lg") == 1) 
+		{
+		CVT_STRVEC2VEC(ng[stage], qp->d+stage, nb[stage], out);
+		}
+	if(hpipm_strcmp(field_name, "ug") == 1) 
+		{
+		CVT_STRVEC2VEC(ng[stage], qp->d+stage, 2*nb[stage]+ng[stage], out);
+		for (ii=0; ii<ng[stage]; ii++) out[ii] = - out[ii];
+		}
+	if(hpipm_strcmp(field_name, "Zl") == 1) 
+		{
+		CVT_STRVEC2VEC(ns[stage], qp->Z+stage, 0, out);
+		}
+	if(hpipm_strcmp(field_name, "Zu") == 1) 
+		{
+		CVT_STRVEC2VEC(ns[stage], qp->Z+stage, ns[stage], out);
+		}
+	if(hpipm_strcmp(field_name, "zl") == 1) 
+		{
+		CVT_STRVEC2VEC(ns[stage], qp->rqz+stage, nu[stage]+nx[stage], out);
+		}
+	if(hpipm_strcmp(field_name, "zu") == 1) 
+		{
+		CVT_STRVEC2VEC(ns[stage], qp->rqz+stage, nu[stage]+nx[stage]+ns[stage], out);
+		}
+	if(hpipm_strcmp(field_name, "lls") == 1) 
+		{
+		CVT_STRVEC2VEC(ns[stage], qp->d+stage, 2*nb[stage]+2*ng[stage], out);
+		}
+	if(hpipm_strcmp(field_name, "lus") == 1) 
+		{
+		CVT_STRVEC2VEC(ns[stage], qp->d+stage, 2*nb[stage]+2*ng[stage]+ns[stage], out);
+		}
+	else
+		{
+		printf("error [CVT_OCP_QP_TO_COLMAJ_VEC]: unknown field name '%s'. Exiting.\n", field_name);
+		exit(1);
+		}
+	return;
 	}
 
 

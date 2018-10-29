@@ -1,5 +1,7 @@
 This is HPIPM, a high-performance interior-point method solver for dense, optimal control- and tree-structured convex quadratic programs. It provides efficient implementations of dense and structure-exploiting algorithms to solve small to medium scale problems arising in model predictive control and embedded optimization in general and it relies on the high-performance linear algebra package BLASFEO.
 
+--------------------------------------------------
+
 Getting Started: 
 
 The best way to get started with HPIPM is to check out the examples in /hpipm/examples/c/ and /hpipm/examples/python/. In order to run the C example, follow the steps below:
@@ -18,6 +20,8 @@ to avoid running this command whenever opening a new shell. You can add the comm
 5) cd to /hpipm/interfaces/python/hpipm_python and run 'pip3 install .'
 6) cd to /hpipm/examples/python and run 'python3 getting_started.py' to solve a simple OCP-structured QP.
 
+--------------------------------------------------
+
 References:
 
 - G. Frison, H.H. B. Sørensen, B. Dammann, and J.B. Jørgensen. High-performance
@@ -29,3 +33,14 @@ G. Frison, D. Kouzoupis, T. Sartor, A. Zanelli, M. Diehl
 ACM Transactions on Mathematical Software (TOMS) (2018) - <https://arxiv.org/abs/1704.02457>
 
 - <https://github.com/giaf/blasfeo>
+
+--------------------------------------------------
+
+Notes:
+
+- HPIPM is released under the GPL+CE (Gnu General Public License version 3.0 with Classpath Exception).
+This license has been chosen to avoid the issues that the LGPL license implies in case of static linking.
+Unformally speaking, the GPL+CE license allows the BLASFEO library to be linked to both statically and dynamically to produce an executable, and the resulting executable can be released under terms of your choice.
+Please refer to the LICENSE.txt file for the legally binding statement of the license.
+
+
