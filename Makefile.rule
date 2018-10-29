@@ -69,6 +69,7 @@ PREFIX = /opt
 
 # BLASFEO installation directory
 BLASFEO_PATH = /opt/blasfeo
+#BLASFEO_PATH = /home/gianluca/blasfeo
 
 # enable runtine checks
 RUNTIME_CHECKS = 0
