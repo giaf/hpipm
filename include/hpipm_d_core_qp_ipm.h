@@ -27,6 +27,9 @@
 *                                                                                                 *
 **************************************************************************************************/
 
+#ifndef HPIPM_D_CORE_QP_IPM_
+#define HPIPM_D_CORE_QP_IPM_
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -76,3 +79,5 @@ void d_core_qp_ipm(struct d_core_qp_ipm_workspace *workspace);
 #ifdef __cplusplus
 } /* extern "C" */
 #endif
+
+#endif // HPIPM_D_CORE_QP_IPM_
