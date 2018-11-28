@@ -58,6 +58,8 @@ int s_memsize_dense_qp_dim();
 void s_create_dense_qp_dim(struct s_dense_qp_dim *qp_dim, void *memory);
 //
 void s_cvt_int_to_dense_qp_dim(int nv, int ne, int nb, int ng, int nsb, int nsg, struct s_dense_qp_dim *dim);
+//
+void s_set_dense_qp_dim(char *field_name, int value, struct s_dense_qp_dim *dim);
 
 
 

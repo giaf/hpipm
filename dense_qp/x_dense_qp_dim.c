@@ -67,3 +67,47 @@ void CVT_INT_TO_DENSE_QP_DIM(int nv, int ne, int nb, int ng, int nsb, int nsg, s
 
 	}
 
+
+void SET_DENSE_QP_DIM(char *field_name, int value, struct DENSE_QP_DIM *dim)
+	{
+	if(hpipm_strcmp(field_name, "nv"))
+		{ 
+		dim->nv = value;
+		}
+	else if(hpipm_strcmp(field_name, "ne"))
+		{ 
+		dim->ne = value;
+		}
+	else if(hpipm_strcmp(field_name, "nb"))
+		{
+		dim->nb = value;
+		}
+	else if(hpipm_strcmp(field_name, "ng"))
+		{
+		dim->ng = value;
+		}
+	else if(hpipm_strcmp(field_name, "nsb"))
+		{
+		dim->nsb = value;
+		dim->ns = dim->nsb + dim->nsg;
+		}
+	else if(hpipm_strcmp(field_name, "nsg"))
+		{
+		dim->nsg = value;
+		dim->ns = dim->nsb + dim->nsg;
+		}
+	else if(hpipm_strcmp(field_name, "ns"))
+		{
+		dim->ns = value;
+		}
+	else 
+		{
+		printf("error [SET_OCP_QP_DIM]: unknown field name '%s'. Exiting.\n", field_name);
+		exit(1);
+		}
+	return;
+	}
+
+
+
+

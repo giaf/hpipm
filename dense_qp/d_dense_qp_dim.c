@@ -29,7 +29,11 @@
 
 
 
+#include <stdlib.h>
+#include <stdio.h>
+
 #include <hpipm_d_dense_qp_dim.h>
+#include <hpipm_aux_string.h>
 
 
 
@@ -38,6 +42,7 @@
 #define MEMSIZE_DENSE_QP_DIM d_memsize_dense_qp_dim
 #define CREATE_DENSE_QP_DIM d_create_dense_qp_dim
 #define CVT_INT_TO_DENSE_QP_DIM d_cvt_int_to_dense_qp_dim
+#define SET_DENSE_QP_DIM d_set_dense_qp_dim
 
 
 #include "x_dense_qp_dim.c"
