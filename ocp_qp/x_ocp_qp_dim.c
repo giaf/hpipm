@@ -157,7 +157,7 @@ void CVT_INT_TO_OCP_QP_DIM(int N, int *nx, int *nu, int *nbx, int *nbu, int *ng,
 
 
 
-void SET_OCP_QP_DIM(char *field_name, int stage, int value, struct OCP_QP_DIM *dim)
+void SET_OCP_QP_DIM(const char *field_name, int stage, int value, struct OCP_QP_DIM *dim)
 	{
 	if(hpipm_strcmp(field_name, "nx"))
 		{ 

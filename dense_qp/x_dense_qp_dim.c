@@ -68,7 +68,7 @@ void CVT_INT_TO_DENSE_QP_DIM(int nv, int ne, int nb, int ng, int nsb, int nsg, s
 	}
 
 
-void SET_DENSE_QP_DIM(char *field_name, int value, struct DENSE_QP_DIM *dim)
+void SET_DENSE_QP_DIM(const char *field_name, int value, struct DENSE_QP_DIM *dim)
 	{
 	if(hpipm_strcmp(field_name, "nv"))
 		{ 
