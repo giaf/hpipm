@@ -44,8 +44,8 @@ set(REF_BLAS 0)
 #set(REF_BLAS ATLAS)
 
 # Options
-set(HPIPM_TESTING ON CACHE BOOL "Tests enabled")
-# set(HPIPM_TESTING OFF CACHE BOOL "Tests disabled")
+# set(HPIPM_TESTING ON CACHE BOOL "Tests enabled")
+set(HPIPM_TESTING OFF CACHE BOOL "Tests disabled")
 
 # BLASFEO
 if(NOT TARGET blasfeo)
