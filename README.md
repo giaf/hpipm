@@ -40,7 +40,7 @@ Notes:
 
 - HPIPM is released under the GPL+CE (Gnu General Public License version 3.0 with Classpath Exception).
 This license has been chosen to avoid the issues that the LGPL license implies in case of static linking.
-Unformally speaking, the GPL+CE license allows the BLASFEO library to be linked to both statically and dynamically to produce an executable, and the resulting executable can be released under terms of your choice.
+Unformally speaking, the GPL+CE license allows the HPIPM library to be linked to both statically and dynamically to produce an executable, and the resulting executable can be released under terms of your choice.
 Please refer to the LICENSE.txt file for the legally binding statement of the license.
 
 
