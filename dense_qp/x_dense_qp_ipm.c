@@ -52,6 +52,10 @@ void CREATE_DENSE_QP_IPM_ARG(struct DENSE_QP_DIM *dim, struct DENSE_QP_IPM_ARG *
 void SET_DEFAULT_DENSE_QP_IPM_ARG(enum HPIPM_MODE mode, struct DENSE_QP_IPM_ARG *arg)
 	{
 
+    // set common default arguments
+    arg->print_level = 0;
+
+    // set mode-specific default arguments
 	if(mode==SPEED_ABS)
 		{
 		arg->mu0 = 1e1;
@@ -803,29 +807,53 @@ int SOLVE_DENSE_QP_IPM(struct DENSE_QP *qp, struct DENSE_QP_SOL *qp_sol, struct 
 			VECNRM_INF(cws->ne, &str_res_b, 0, &qp_res[1]);
 			VECNRM_INF(cws->nc, &str_res_d, 0, &qp_res[2]);
 			VECNRM_INF(cws->nc, &str_res_m, 0, &qp_res[3]);
+                if(arg->print_level > 0) 
+                    {
+                        if(kk%10 == 0)  
+                            {
+                                printf("=======================================================================================================\n");
+                                printf("it. #      res_g           res_b           res_d           res_m           alpha           mu          \n");
+                                printf("=======================================================================================================\n");
+                            }
+                        printf("%-10d %-15e %-15e %-15e %-15e %-15e %-15e\n", kk, qp_res[0], qp_res[1], qp_res[2], qp_res[3], cws->alpha, cws->mu);
+                    }
 			}
 
 		ws->iter = kk;
 
-		// max iteration number reached
-		if(kk == arg->iter_max)
-			return 1;
+        // max iteration number reached
+        if(kk == arg->iter_max) {
+            if (arg->print_level > 0)
+                printf(" \n -> ERROR: maximum number of iterations reached, exiting.\n\n");
+            return 1;
+        }
 
-		// min step lenght
-		if(cws->alpha <= arg->alpha_min)
-			return 2;
+        // min step lenght
+        if(cws->alpha <= arg->alpha_min) {
+            if (arg->print_level > 0)
+                printf(" \n -> ERROR: minimum step size reached, exiting.\n\n");
+            return 2;
+        }
 
-		// NaN in the solution
-	#ifdef USE_C99_MATH
-		if(isnan(cws->mu))
-			return 3;
-	#else
-		if(cws->mu != cws->mu)
-			return 3;
-	#endif
+        // NaN in the solution
+#ifdef USE_C99_MATH
+        if(isnan(cws->mu)) { 
+            if (arg->print_level > 0)
+                printf(" \n -> ERROR: NaN detected, exiting.\n\n");
+            return 3;
+        }
+#else
+        if(cws->mu != cws->mu) { 
+            if (arg->print_level > 0)
+                printf(" \n -> ERROR: NaN detected, exiting.\n\n");
+            return 3;
+        }
+#endif
 
-		// normal return
-		return 0;
+        // normal return
+        if (arg->print_level > 0)
+            printf(" \n -> SOLUTION FOUND. \n\n");
+        return 0;
 
 		}
 
@@ -1164,6 +1192,15 @@ blasfeo_print_tran_dvec(cws->nc, ws->sol_step->t, 0);
 		VECNRM_INF(cws->nc, &str_res_d, 0, &qp_res[2]);
 		VECNRM_INF(cws->nc, &str_res_m, 0, &qp_res[3]);
 
+        if(arg->print_level > 0){
+            if(kk%10 == 0){
+                printf("=======================================================================================================\n");
+                printf("it. #      res_g           res_b           res_d           res_m           alpha           mu          \n");
+                printf("=======================================================================================================\n");
+            }
+            printf("%-10d %-15e %-15e %-15e %-15e %-15e %-15e\n", kk, qp_res[0], qp_res[1], qp_res[2], qp_res[3], cws->alpha, cws->mu);
+        }
+
 #if 0
 printf("%e %e %e\n", cws->alpha, cws->alpha_prim, cws->alpha_dual);
 #endif
@@ -1184,25 +1221,39 @@ printf("iter %3d   alpha %1.3e %1.3e   sigma %1.3e   ndp %3d %3d   itref %d %d  
 
 	ws->iter = kk;
 
-	// max iteration number reached
-	if(kk == arg->iter_max)
-		return 1;
+    // max iteration number reached
+    if(kk == arg->iter_max) {
+        if (arg->print_level > 0)
+            printf(" \n -> ERROR: maximum number of iterations reached, exiting.\n\n");
+        return 1;
+    }
 
-	// min step lenght
-	if(cws->alpha <= arg->alpha_min)
-		return 2;
-	
-	// NaN in the solution
+    // min step lenght
+    if(cws->alpha <= arg->alpha_min) {
+        if (arg->print_level > 0)
+            printf(" \n -> ERROR: minimum step size reached, exiting.\n\n");
+        return 2;
+    }
+
+    // NaN in the solution
 #ifdef USE_C99_MATH
-	if(isnan(cws->mu))
-		return 3;
+    if(isnan(cws->mu)) { 
+        if (arg->print_level > 0)
+            printf(" \n -> ERROR: NaN detected, exiting.\n\n");
+        return 3;
+    }
 #else
-	if(cws->mu != cws->mu)
-		return 3;
+    if(cws->mu != cws->mu) { 
+        if (arg->print_level > 0)
+            printf(" \n -> ERROR: NaN detected, exiting.\n\n");
+        return 3;
+    }
 #endif
 
-	// normal return
-	return 0;
+    // normal return
+    if (arg->print_level > 0)
+        printf(" \n -> SOLUTION FOUND. \n\n");
+    return 0;
 
 	}
 
