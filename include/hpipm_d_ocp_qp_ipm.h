@@ -67,8 +67,8 @@ struct d_ocp_qp_ipm_arg
 	int itref_pred_max; // max number of iterative refinement steps for predictor step
 	int itref_corr_max; // max number of iterative refinement steps for corrector step
 	int warm_start; // 0 no warm start, 1 warm start primal sol
-	int square_root_fact; // 0 classical Riccati, 1 square-root Riccati
-	int lq_fact; // 0 syrk+potrf, 1 mix, 2 lq (for square_root_fact==1)
+	int square_root_alg; // 0 classical Riccati, 1 square-root Riccati
+	int lq_fact; // 0 syrk+potrf, 1 mix, 2 lq (for square_root_alg==1)
 	int abs_form; // absolute IPM formulation
 	int comp_dual_sol; // dual solution (only for abs_form==1)
 	int comp_res_exit; // compute residuals on exit (only for abs_form==1 and comp_dual_sol==1)

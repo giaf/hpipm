@@ -74,7 +74,7 @@ void SET_DEFAULT_OCP_QP_IPM_ARG(enum HPIPM_MODE mode, struct OCP_QP_IPM_ARG *arg
 		arg->itref_pred_max = 0; // not used
 		arg->itref_corr_max = 0; // not used
 		arg->reg_prim = 1e-15;
-		arg->square_root_fact = 1;
+		arg->square_root_alg = 1;
 		arg->lq_fact = 0; // not used
 		arg->lam_min = 1e-30;
 		arg->t_min = 1e-30;
@@ -98,7 +98,7 @@ void SET_DEFAULT_OCP_QP_IPM_ARG(enum HPIPM_MODE mode, struct OCP_QP_IPM_ARG *arg
 		arg->itref_pred_max = 0;
 		arg->itref_corr_max = 0;
 		arg->reg_prim = 1e-15;
-		arg->square_root_fact = 1;
+		arg->square_root_alg = 1;
 		arg->lq_fact = 0;
 		arg->lam_min = 1e-30;
 		arg->t_min = 1e-30;
@@ -122,7 +122,7 @@ void SET_DEFAULT_OCP_QP_IPM_ARG(enum HPIPM_MODE mode, struct OCP_QP_IPM_ARG *arg
 		arg->itref_pred_max = 0;
 		arg->itref_corr_max = 2;
 		arg->reg_prim = 1e-15;
-		arg->square_root_fact = 1;
+		arg->square_root_alg = 1;
 		arg->lq_fact = 1;
 		arg->lam_min = 1e-30;
 		arg->t_min = 1e-30;
@@ -146,7 +146,7 @@ void SET_DEFAULT_OCP_QP_IPM_ARG(enum HPIPM_MODE mode, struct OCP_QP_IPM_ARG *arg
 		arg->itref_pred_max = 0;
 		arg->itref_corr_max = 4;
 		arg->reg_prim = 1e-15;
-		arg->square_root_fact = 1;
+		arg->square_root_alg = 1;
 		arg->lq_fact = 2;
 		arg->lam_min = 1e-30;
 		arg->t_min = 1e-30;
@@ -304,7 +304,7 @@ int MEMSIZE_OCP_QP_IPM(struct OCP_QP_DIM *dim, struct OCP_QP_IPM_ARG *arg)
 	size += 10*sizeof(struct STRVEC); // tmp_nxM (4+2)*tmp_nbgM (1+1)*tmp_nsM tmp_m
 
 	size += 1*(N+1)*sizeof(struct STRMAT); // L
-	if(!arg->square_root_fact)
+	if(!arg->square_root_alg)
 		{
 		size += 1*(N+1)*sizeof(struct STRMAT); // P
 		size += 1*sizeof(struct STRMAT); // Ls
@@ -326,7 +326,7 @@ int MEMSIZE_OCP_QP_IPM(struct OCP_QP_DIM *dim, struct OCP_QP_IPM_ARG *arg)
 	for(ii=0; ii<=N; ii++) size += 1*SIZE_STRVEC(2*ns[ii]); // Zs_inv
 
 	for(ii=0; ii<=N; ii++) size += 1*SIZE_STRMAT(nu[ii]+nx[ii]+1, nu[ii]+nx[ii]); // L
-	if(!arg->square_root_fact)
+	if(!arg->square_root_alg)
 		{
 		for(ii=0; ii<=N; ii++) size += 1*SIZE_STRMAT(nx[ii]+1, nx[ii]); // P
 		size += 1*SIZE_STRMAT(nxM+1, nuM); // Ls
@@ -450,7 +450,7 @@ void CREATE_OCP_QP_IPM(struct OCP_QP_DIM *dim, struct OCP_QP_IPM_ARG *arg, struc
 
 	workspace->L = sm_ptr;
 	sm_ptr += N+1;
-	if(!arg->square_root_fact)
+	if(!arg->square_root_alg)
 		{
 		workspace->P = sm_ptr;
 		sm_ptr += N+1;
@@ -544,7 +544,7 @@ void CREATE_OCP_QP_IPM(struct OCP_QP_DIM *dim, struct OCP_QP_IPM_ARG *arg, struc
 		CREATE_STRMAT(nu[ii]+nx[ii]+1, nu[ii]+nx[ii], workspace->L+ii, c_ptr);
 		c_ptr += (workspace->L+ii)->memsize;
 		}
-	if(!arg->square_root_fact)
+	if(!arg->square_root_alg)
 		{
 		for(ii=0; ii<=N; ii++)
 			{

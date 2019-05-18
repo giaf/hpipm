@@ -147,7 +147,7 @@ int main()
 	d_set_ocp_qp_ipm_arg_warm_start(0, &arg);
 
 //	arg.pred_corr = 0;
-//	arg.square_root_fact = 0;
+//	arg.square_root_alg = 0;
 
 /************************************************
 * ipm workspace
