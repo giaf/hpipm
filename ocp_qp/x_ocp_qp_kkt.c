@@ -601,6 +601,8 @@ void COMPUTE_LIN_RES_OCP_QP(struct OCP_QP *qp, struct OCP_QP_SOL *qp_sol, struct
 void FACT_SOLVE_KKT_UNCONSTR_OCP_QP(struct OCP_QP *qp, struct OCP_QP_SOL *qp_sol, struct OCP_QP_IPM_ARG *arg, struct OCP_QP_IPM_WORKSPACE *ws)
 	{
 
+	int ii;
+
 	int N = qp->dim->N;
 	int *nx = qp->dim->nx;
 	int *nu = qp->dim->nu;
@@ -617,59 +619,134 @@ void FACT_SOLVE_KKT_UNCONSTR_OCP_QP(struct OCP_QP *qp, struct OCP_QP_SOL *qp_sol
 
 	struct STRMAT *L = ws->L;
 	struct STRMAT *AL = ws->AL;
+
 	struct STRVEC *tmp_nxM = ws->tmp_nxM;
 
-	//
-	int ii;
-
-	// factorization and backward substitution
-
-	// last stage
-	ROWIN(nu[N]+nx[N], 1.0, rqz+N, 0, RSQrq+N, nu[N]+nx[N], 0);
-	DIARE(nu[N]+nx[N], arg->reg_prim, RSQrq+N, 0, 0);
-	POTRF_L_MN(nu[N]+nx[N]+1, nu[N]+nx[N], RSQrq+N, 0, 0, L+N, 0, 0);
-	DIARE(nu[N]+nx[N], -arg->reg_prim, RSQrq+N, 0, 0);
-
-	// middle stages
-	for(ii=0; ii<N; ii++)
+	if(arg->square_root_fact)
 		{
-		ROWIN(nx[N-ii], 1.0, b+N-ii-1, 0, BAbt+N-ii-1, nu[N-ii-1]+nx[N-ii-1], 0);
-		TRMM_RLNN(nu[N-ii-1]+nx[N-ii-1]+1, nx[N-ii], 1.0, L+(N-ii), nu[N-ii], nu[N-ii], BAbt+(N-ii-1), 0, 0, AL, 0, 0);
-		GEAD(1, nx[N-ii], 1.0, L+(N-ii), nu[N-ii]+nx[N-ii], nu[N-ii], AL, nu[N-ii-1]+nx[N-ii-1], 0);
 
-		ROWIN(nu[N-ii-1]+nx[N-ii-1], 1.0, rqz+N-ii-1, 0, RSQrq+N-ii-1, nu[N-ii-1]+nx[N-ii-1], 0);
-		DIARE(nu[N-ii-1]+nx[N-ii-1], arg->reg_prim, RSQrq+N-ii-1, 0, 0);
-		SYRK_POTRF_LN_MN(nu[N-ii-1]+nx[N-ii-1]+1, nu[N-ii-1]+nx[N-ii-1], nx[N-ii], AL, 0, 0, AL, 0, 0, RSQrq+(N-ii-1), 0, 0, L+(N-ii-1), 0, 0);
-		DIARE(nu[N-ii-1]+nx[N-ii-1], -arg->reg_prim, RSQrq+N-ii-1, 0, 0);
-		}
+		// factorization and backward substitution
 
-	// forward substitution
+		// last stage
+		ROWIN(nu[N]+nx[N], 1.0, rqz+N, 0, RSQrq+N, nu[N]+nx[N], 0);
+		DIARE(nu[N]+nx[N], arg->reg_prim, RSQrq+N, 0, 0);
+		POTRF_L_MN(nu[N]+nx[N]+1, nu[N]+nx[N], RSQrq+N, 0, 0, L+N, 0, 0);
+		DIARE(nu[N]+nx[N], -arg->reg_prim, RSQrq+N, 0, 0);
 
-	// first stage
-	ii = 0;
-	ROWEX(nu[ii]+nx[ii], -1.0, L+(ii), nu[ii]+nx[ii], 0, ux+ii, 0);
-	TRSV_LTN(nu[ii]+nx[ii], L+ii, 0, 0, ux+ii, 0, ux+ii, 0);
-	GEMV_T(nu[ii]+nx[ii], nx[ii+1], 1.0, BAbt+ii, 0, 0, ux+ii, 0, 1.0, b+ii, 0, ux+(ii+1), nu[ii+1]);
-	ROWEX(nx[ii+1], 1.0, L+(ii+1), nu[ii+1]+nx[ii+1], nu[ii+1], tmp_nxM, 0);
-	TRMV_LTN(nx[ii+1], nx[ii+1], L+(ii+1), nu[ii+1], nu[ii+1], ux+(ii+1), nu[ii+1], pi+ii, 0);
-	AXPY(nx[ii+1], 1.0, tmp_nxM, 0, pi+ii, 0, pi+ii, 0);
-	TRMV_LNN(nx[ii+1], nx[ii+1], L+(ii+1), nu[ii+1], nu[ii+1], pi+ii, 0, pi+ii, 0);
+		// middle stages
+		for(ii=0; ii<N; ii++)
+			{
+			ROWIN(nx[N-ii], 1.0, b+N-ii-1, 0, BAbt+N-ii-1, nu[N-ii-1]+nx[N-ii-1], 0);
+			TRMM_RLNN(nu[N-ii-1]+nx[N-ii-1]+1, nx[N-ii], 1.0, L+(N-ii), nu[N-ii], nu[N-ii], BAbt+N-ii-1, 0, 0, AL, 0, 0);
+			GEAD(1, nx[N-ii], 1.0, L+N-ii, nu[N-ii]+nx[N-ii], nu[N-ii], AL, nu[N-ii-1]+nx[N-ii-1], 0);
 
-	// middle stages
-	for(ii=1; ii<N; ii++)
-		{
-		ROWEX(nu[ii], -1.0, L+(ii), nu[ii]+nx[ii], 0, ux+ii, 0);
-		TRSV_LTN_MN(nu[ii]+nx[ii], nu[ii], L+ii, 0, 0, ux+ii, 0, ux+ii, 0);
-		GEMV_T(nu[ii]+nx[ii], nx[ii+1], 1.0, BAbt+ii, 0, 0, ux+ii, 0, 1.0, b+ii, 0, ux+(ii+1), nu[ii+1]);
-		ROWEX(nx[ii+1], 1.0, L+(ii+1), nu[ii+1]+nx[ii+1], nu[ii+1], tmp_nxM, 0);
+			ROWIN(nu[N-ii-1]+nx[N-ii-1], 1.0, rqz+N-ii-1, 0, RSQrq+N-ii-1, nu[N-ii-1]+nx[N-ii-1], 0);
+			DIARE(nu[N-ii-1]+nx[N-ii-1], arg->reg_prim, RSQrq+N-ii-1, 0, 0);
+			SYRK_POTRF_LN_MN(nu[N-ii-1]+nx[N-ii-1]+1, nu[N-ii-1]+nx[N-ii-1], nx[N-ii], AL, 0, 0, AL, 0, 0, RSQrq+(N-ii-1), 0, 0, L+(N-ii-1), 0, 0);
+			DIARE(nu[N-ii-1]+nx[N-ii-1], -arg->reg_prim, RSQrq+N-ii-1, 0, 0);
+			}
+
+		// forward substitution
+
+		// first stage
+		ii = 0;
+		ROWEX(nu[ii]+nx[ii], -1.0, L+(ii), nu[ii]+nx[ii], 0, ux+ii, 0);
+		TRSV_LTN(nu[ii]+nx[ii], L+ii, 0, 0, ux+ii, 0, ux+ii, 0);
+		GEMV_T(nu[ii]+nx[ii], nx[ii+1], 1.0, BAbt+ii, 0, 0, ux+ii, 0, 1.0, b+ii, 0, ux+ii+1, nu[ii+1]);
+		ROWEX(nx[ii+1], 1.0, L+ii+1, nu[ii+1]+nx[ii+1], nu[ii+1], tmp_nxM, 0);
 		TRMV_LTN(nx[ii+1], nx[ii+1], L+(ii+1), nu[ii+1], nu[ii+1], ux+(ii+1), nu[ii+1], pi+ii, 0);
 		AXPY(nx[ii+1], 1.0, tmp_nxM, 0, pi+ii, 0, pi+ii, 0);
 		TRMV_LNN(nx[ii+1], nx[ii+1], L+(ii+1), nu[ii+1], nu[ii+1], pi+ii, 0, pi+ii, 0);
+
+		// middle stages
+		for(ii=1; ii<N; ii++)
+			{
+			ROWEX(nu[ii], -1.0, L+(ii), nu[ii]+nx[ii], 0, ux+ii, 0);
+			TRSV_LTN_MN(nu[ii]+nx[ii], nu[ii], L+ii, 0, 0, ux+ii, 0, ux+ii, 0);
+			GEMV_T(nu[ii]+nx[ii], nx[ii+1], 1.0, BAbt+ii, 0, 0, ux+ii, 0, 1.0, b+ii, 0, ux+(ii+1), nu[ii+1]);
+			ROWEX(nx[ii+1], 1.0, L+(ii+1), nu[ii+1]+nx[ii+1], nu[ii+1], tmp_nxM, 0);
+			TRMV_LTN(nx[ii+1], nx[ii+1], L+(ii+1), nu[ii+1], nu[ii+1], ux+(ii+1), nu[ii+1], pi+ii, 0);
+			AXPY(nx[ii+1], 1.0, tmp_nxM, 0, pi+ii, 0, pi+ii, 0);
+			TRMV_LNN(nx[ii+1], nx[ii+1], L+(ii+1), nu[ii+1], nu[ii+1], pi+ii, 0, pi+ii, 0);
+			}
+		
+		// last stage
+		ii = N;
+		ROWEX(nu[ii], -1.0, L+(ii), nu[ii]+nx[ii], 0, ux+ii, 0);
+		TRSV_LTN_MN(nu[ii]+nx[ii], nu[ii], L+ii, 0, 0, ux+ii, 0, ux+ii, 0);
+
 		}
-	
-	ii = N;
-	ROWEX(nu[ii], -1.0, L+(ii), nu[ii]+nx[ii], 0, ux+ii, 0);
-	TRSV_LTN_MN(nu[ii]+nx[ii], nu[ii], L+ii, 0, 0, ux+ii, 0, ux+ii, 0);
+	else
+		{
+
+		struct STRMAT *P = ws->P;
+		struct STRMAT *Ls = ws->Ls;
+
+		// factorization and backward substitution
+
+		// last stage
+		ROWIN(nu[N]+nx[N], 1.0, rqz+N, 0, RSQrq+N, nu[N]+nx[N], 0);
+		DIARE(nu[N], arg->reg_prim, RSQrq+N, 0, 0);
+		POTRF_L_MN(nu[N]+nx[N]+1, nu[N], RSQrq+N, 0, 0, L+N, 0, 0);
+		DIARE(nu[N], -arg->reg_prim, RSQrq+N, 0, 0);
+		GECP(nx[N]+1, nu[N], L+N, nu[N], 0, Ls, 0, 0);
+		SYRK_LN_MN(nx[N]+1, nx[N], nu[N], -1.0, Ls, 0, 0, Ls, 0, 0, 1.0, RSQrq+N, nu[N], nu[N], P+N, 0, 0);
+		TRTR_L(nx[N], P+N, 0, 0, P+N, 0, 0);
+
+		// middle statges
+		for(ii=0; ii<N-1; ii++)
+			{
+			ROWIN(nx[N-ii], 1.0, b+N-ii-1, 0, BAbt+N-ii-1, nu[N-ii-1]+nx[N-ii-1], 0);
+			GEMM_NT(nu[N-ii-1]+nx[N-ii-1]+1, nx[N-ii], nx[N-ii], 1.0, BAbt+N-ii-1, 0, 0, P+N-ii, 0, 0, 0.0, AL, 0, 0, AL, 0, 0);
+			GEAD(1, nx[N-ii], 1.0, P+N-ii, nx[N-ii], 0, AL, nu[N-ii-1]+nx[N-ii-1], 0);
+			ROWIN(nu[N-ii-1]+nx[N-ii-1], 1.0, rqz+N-ii-1, 0, RSQrq+N-ii-1, nu[N-ii-1]+nx[N-ii-1], 0);
+			DIARE(nu[N-ii-1], arg->reg_prim, RSQrq+N-ii-1, 0, 0);
+			SYRK_LN_MN(nu[N-ii-1]+nx[N-ii-1]+1, nu[N-ii-1]+nx[N-ii-1], nx[N-ii], 1.0, AL, 0, 0, BAbt+N-ii-1, 0, 0, 1.0, RSQrq+N-ii-1, 0, 0, L+N-ii-1, 0, 0);
+			DIARE(nu[N-ii-1], -arg->reg_prim, RSQrq+N-ii-1, 0, 0);
+			POTRF_L_MN(nu[N-ii-1]+nx[N-ii-1]+1, nu[N-ii-1], L+N-ii-1, 0, 0, L+N-ii-1, 0, 0);
+			GECP(nx[N-ii-1]+1, nu[N-ii-1], L+N-ii-1, nu[N-ii-1], 0, Ls, 0, 0);
+			SYRK_LN_MN(nx[N-ii-1]+1, nx[N-ii-1], nu[N-ii-1], -1.0, Ls, 0, 0, Ls, 0, 0, 1.0, L+N-ii-1, nu[N-ii-1], nu[N-ii-1], P+N-ii-1, 0, 0);
+			TRTR_L(nx[N-ii-1], P+N-ii-1, 0, 0, P+N-ii-1, 0, 0);
+			}
+
+		// first stage: factorize P in L too
+		if(N>0)
+			{
+			ROWIN(nx[N-ii], 1.0, b+N-ii-1, 0, BAbt+N-ii-1, nu[N-ii-1]+nx[N-ii-1], 0);
+			GEMM_NT(nu[N-ii-1]+nx[N-ii-1]+1, nx[N-ii], nx[N-ii], 1.0, BAbt+N-ii-1, 0, 0, P+N-ii, 0, 0, 0.0, AL, 0, 0, AL, 0, 0);
+			GEAD(1, nx[N-ii], 1.0, P+N-ii, nx[N-ii], 0, AL, nu[N-ii-1]+nx[N-ii-1], 0);
+			ROWIN(nu[N-ii-1]+nx[N-ii-1], 1.0, rqz+N-ii-1, 0, RSQrq+N-ii-1, nu[N-ii-1]+nx[N-ii-1], 0);
+			DIARE(nu[N-ii-1], arg->reg_prim, RSQrq+N-ii-1, 0, 0);
+			SYRK_POTRF_LN_MN(nu[N-ii-1]+nx[N-ii-1]+1, nu[N-ii-1]+nx[N-ii-1], nx[N-ii], AL, 0, 0, BAbt+N-ii-1, 0, 0, RSQrq+N-ii-1, 0, 0, L+N-ii-1, 0, 0);
+			DIARE(nu[N-ii-1], -arg->reg_prim, RSQrq+N-ii-1, 0, 0);
+			}
+
+		// forward substitution
+
+		// first stage
+		ii = 0;
+		ROWEX(nu[ii]+nx[ii], -1.0, L+(ii), nu[ii]+nx[ii], 0, ux+ii, 0);
+		TRSV_LTN(nu[ii]+nx[ii], L+ii, 0, 0, ux+ii, 0, ux+ii, 0);
+		GEMV_T(nu[ii]+nx[ii], nx[ii+1], 1.0, BAbt+ii, 0, 0, ux+ii, 0, 1.0, b+ii, 0, ux+ii+1, nu[ii+1]);
+		ROWEX(nx[ii+1], 1.0, P+ii+1, nx[ii+1], 0, tmp_nxM, 0);
+		GEMV_N(nx[ii+1], nx[ii+1], 1.0, P+ii+1, 0, 0, ux+ii+1, nu[ii+1], 1.0, tmp_nxM, 0, pi+ii, 0);
+
+		// middle stages
+		for(ii=1; ii<N; ii++)
+			{
+			ROWEX(nu[ii], -1.0, L+(ii), nu[ii]+nx[ii], 0, ux+ii, 0);
+			TRSV_LTN_MN(nu[ii]+nx[ii], nu[ii], L+ii, 0, 0, ux+ii, 0, ux+ii, 0);
+			GEMV_T(nu[ii]+nx[ii], nx[ii+1], 1.0, BAbt+ii, 0, 0, ux+ii, 0, 1.0, b+ii, 0, ux+(ii+1), nu[ii+1]);
+			ROWEX(nx[ii+1], 1.0, P+ii+1, nx[ii+1], 0, tmp_nxM, 0);
+			GEMV_N(nx[ii+1], nx[ii+1], 1.0, P+ii+1, 0, 0, ux+ii+1, nu[ii+1], 1.0, tmp_nxM, 0, pi+ii, 0);
+			}
+
+		// last stage
+		ii = N;
+		ROWEX(nu[ii], -1.0, L+(ii), nu[ii]+nx[ii], 0, ux+ii, 0);
+		TRSV_LTN_MN(nu[ii]+nx[ii], nu[ii], L+ii, 0, 0, ux+ii, 0, ux+ii, 0);
+
+		}
 
 	return;
 
