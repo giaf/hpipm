@@ -1101,7 +1101,7 @@ void FACT_SOLVE_KKT_STEP_OCP_QP(struct OCP_QP *qp, struct OCP_QP_SOL *qp_sol, st
 		TRSV_LTN_MN(nu[ss]+nx[ss], nu[ss], L+ss, 0, 0, dux+ss, 0, dux+ss, 0);
 
 		}
-	else
+	else // classical algorithm
 		{
 
 		struct STRMAT *P = ws->P;
@@ -1783,7 +1783,7 @@ void SOLVE_KKT_STEP_OCP_QP(struct OCP_QP *qp, struct OCP_QP_SOL *qp_sol, struct 
 		TRSV_LTN_MN(nu[ss]+nx[ss], nu[ss], L+ss, 0, 0, dux+ss, 0, dux+ss, 0);
 
 		}
-	else
+	else // classical algirthm
 		{
 
 		struct STRMAT *P = ws->P;
@@ -1893,7 +1893,7 @@ void SOLVE_KKT_STEP_OCP_QP(struct OCP_QP *qp, struct OCP_QP_SOL *qp_sol, struct 
 		GEMV_T(nu[ss]+nx[ss], nx[ss+1], 1.0, BAbt+ss, 0, 0, dux+ss, 0, 1.0, res_b+ss, 0, dux+ss+1, nu[ss+1]);
 		if(arg->comp_dual_sol)
 			{
-			GEMV_N(nx[ss+1], nx[ss+1], 1.0, L+ss+1, nu[ss+1], nu[ss+1], dux+ss+1, nu[ss+1], 1.0, dpi+ss, 0, dpi+ss, 0);
+			GEMV_N(nx[ss+1], nx[ss+1], 1.0, P+ss+1, 0, 0, dux+ss+1, nu[ss+1], 1.0, dpi+ss, 0, dpi+ss, 0);
 			}
 
 		// middle stages
@@ -1908,7 +1908,7 @@ void SOLVE_KKT_STEP_OCP_QP(struct OCP_QP *qp, struct OCP_QP_SOL *qp_sol, struct 
 			GEMV_T(nu[ss]+nx[ss], nx[ss+1], 1.0, BAbt+ss, 0, 0, dux+ss, 0, 1.0, res_b+ss, 0, dux+ss+1, nu[ss+1]);
 			if(arg->comp_dual_sol)
 				{
-				GEMV_N(nx[ss+1], nx[ss+1], 1.0, L+ss+1, nu[ss+1], nu[ss+1], dux+ss+1, nu[ss+1], 1.0, dpi+ss, 0, dpi+ss, 0);
+				GEMV_N(nx[ss+1], nx[ss+1], 1.0, P+ss+1, 0, 0, dux+ss+1, nu[ss+1], 1.0, dpi+ss, 0, dpi+ss, 0);
 				}
 			}
 
