@@ -214,7 +214,7 @@ int main()
 	d_set_ocp_qp_ipm_arg_reg_prim(1e-12, &arg);
 	d_set_ocp_qp_ipm_arg_warm_start(0, &arg);
 
-//	arg.square_root_alg = 0;
+//	d_set_ocp_qp_ipm_arg_ric_alg(0, &arg);
 
 /************************************************
 * ipm workspace

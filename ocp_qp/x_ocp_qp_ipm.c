@@ -231,6 +231,14 @@ void SET_OCP_QP_IPM_ARG_WARM_START(int warm_start, struct OCP_QP_IPM_ARG *arg)
 
 
 
+void SET_OCP_QP_IPM_ARG_RIC_ALG(int ric_alg, struct OCP_QP_IPM_ARG *arg)
+	{
+	arg->square_root_alg = ric_alg;
+	return;
+	}
+
+
+
 int SIZEOF_OCP_QP_IPM_WORKSPACE()
 	{
 	return sizeof(struct OCP_QP_IPM_WORKSPACE);
