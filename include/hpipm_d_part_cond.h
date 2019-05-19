@@ -68,6 +68,8 @@ int d_memsize_cond_qp_ocp2ocp_arg(int N2);
 void d_create_cond_qp_ocp2ocp_arg(int N2, struct d_cond_qp_ocp2ocp_arg *cond_arg, void *mem);
 //
 void d_set_default_cond_qp_ocp2ocp_arg(int N2, struct d_cond_qp_ocp2ocp_arg *cond_arg);
+// set riccati-like algorithm: 0 classical, 1 squre-root
+void d_set_cond_qp_ocp2ocp_arg_ric_alg(int ric_alg, int N2, struct d_cond_qp_ocp2ocp_arg *cond_arg);
 
 //
 void d_compute_block_size_cond_qp_ocp2ocp(int N, int N2, int *block_size);

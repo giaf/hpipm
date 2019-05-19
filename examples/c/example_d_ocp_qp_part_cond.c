@@ -103,7 +103,7 @@ int main()
 ************************************************/
 
 	// horizon length of partially condensed OCP QP
-	int N2 = 5;
+	int N2 = 2;
 
 	int dim_size2 = d_memsize_ocp_qp_dim(N2);
 	void *dim_mem2 = malloc(dim_size2);
@@ -174,8 +174,7 @@ int main()
 
 	d_set_default_cond_qp_ocp2ocp_arg(dim2.N, &part_cond_arg);
 
-//	for(ii=0; ii<=N2; ii++)
-//		part_cond_arg.cond_arg[ii].square_root_alg = 0;
+//	d_set_cond_qp_ocp2ocp_arg_ric_alg(0, dim2.N, &part_cond_arg);
 
 /************************************************
 * ipm arg

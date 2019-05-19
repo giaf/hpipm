@@ -118,6 +118,17 @@ void SET_DEFAULT_COND_QP_OCP2DENSE_ARG(struct COND_QP_OCP2DENSE_ARG *cond_arg)
 
 
 
+void SET_COND_QP_OCP2DENSE_ARG_RIC_ALG(int ric_alg, struct COND_QP_OCP2DENSE_ARG *cond_arg)
+	{
+
+	cond_arg->square_root_alg = ric_alg;
+
+	return;
+
+	}
+
+
+
 int MEMSIZE_COND_QP_OCP2DENSE(struct OCP_QP_DIM *ocp_dim, struct COND_QP_OCP2DENSE_ARG *cond_arg)
 	{
 

@@ -54,7 +54,7 @@ struct d_cond_qp_ocp2dense_arg
 	int cond_last_stage; // condense last stage
 //	int cond_variant; // TODO
 	int comp_dual_sol; // dual solution
-	int square_root_alg;
+	int square_root_alg; // square root algorithm (faster but requires RSQ>0)
 	int memsize;
 	};
 
@@ -83,6 +83,8 @@ int d_memsize_cond_qp_ocp2dense_arg();
 void d_create_cond_qp_ocp2dense_arg(struct d_cond_qp_ocp2dense_arg *cond_arg, void *mem);
 //
 void d_set_default_cond_qp_ocp2dense_arg(struct d_cond_qp_ocp2dense_arg *cond_arg);
+// set riccati-like algorithm: 0 classical, 1 square-root
+void d_set_cond_qp_ocp2dense_arg_ric_alg(int ric_alg, struct d_cond_qp_ocp2dense_arg *cond_arg);
 
 //
 void d_compute_qp_dim_ocp2dense(struct d_ocp_qp_dim *ocp_dim, struct d_dense_qp_dim *dense_dim);

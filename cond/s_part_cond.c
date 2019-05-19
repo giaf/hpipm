@@ -68,6 +68,7 @@
 #define OCP_QP s_ocp_qp
 #define OCP_QP_DIM s_ocp_qp_dim
 #define OCP_QP_SOL s_ocp_qp_sol
+#define SET_COND_QP_OCP2DENSE_ARG_RIC_ALG s_set_cond_qp_ocp2dense_arg_ric_alg
 #define SET_DEFAULT_COND_QP_OCP2DENSE_ARG s_set_default_cond_qp_ocp2dense_arg
 #define STRVEC blasfeo_svec
 #define UPDATE_COND_BABT s_update_cond_BAbt
@@ -80,6 +81,7 @@
 #define MEMSIZE_COND_QP_OCP2OCP_ARG s_memsize_cond_qp_ocp2ocp_arg
 #define CREATE_COND_QP_OCP2OCP_ARG s_create_cond_qp_ocp2ocp_arg
 #define SET_DEFAULT_COND_QP_OCP2OCP_ARG s_set_default_cond_qp_ocp2ocp_arg
+#define SET_COND_QP_OCP2OCP_ARG_RIC_ALG s_set_cond_qp_ocp2ocp_arg_ric_alg
 #define MEMSIZE_COND_QP_OCP2OCP s_memsize_cond_qp_ocp2ocp
 #define CREATE_COND_QP_OCP2OCP s_create_cond_qp_ocp2ocp
 #define COND_QP_OCP2OCP s_cond_qp_ocp2ocp
