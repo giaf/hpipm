@@ -1018,7 +1018,7 @@ void FACT_SOLVE_KKT_STEP_OCP_QP(struct OCP_QP *qp, struct OCP_QP_SOL *qp_sol, st
 			{
 			POTRF_L_MN(nu[ss]+nx[ss]+1, nu[ss]+nx[ss], L+ss, 0, 0, L+ss, 0, 0);
 			}
-		
+
 		// middle stages
 		for(nn=0; nn<N; nn++)
 			{
@@ -1179,7 +1179,7 @@ void FACT_SOLVE_KKT_STEP_OCP_QP(struct OCP_QP *qp, struct OCP_QP_SOL *qp_sol, st
 				{
 				GEMM_R_DIAG(nu[ss]+nx[ss], ng[ss], 1.0, DCt+ss, 0, 0, tmp_nbgM+0, nb[ss], 0.0, AL+0, 0, nx[ss+1], AL+0, 0, nx[ss+1]);
 				ROWIN(ng[ss], 1.0, tmp_nbgM+1, nb[ss], AL+0, nu[ss]+nx[ss], nx[ss+1]);
-				SYRK_LN_MN(nu[ss]+nx[ss]+1, nu[ss]+nx[ss], nx[ss+1]+ng[ss], 1.0, AL+0, 0, nx[ss+1], DCt+ss, 0, nx[ss+1], 1.0, L+ss, 0, 0, L+ss, 0, 0);
+				SYRK_LN_MN(nu[ss]+nx[ss]+1, nu[ss]+nx[ss], ng[ss], 1.0, AL+0, 0, nx[ss+1], DCt+ss, 0, 0, 1.0, L+ss, 0, 0, L+ss, 0, 0);
 				}
 			SYRK_LN_MN(nu[ss]+nx[ss]+1, nu[ss]+nx[ss], nx[ss+1], 1.0, AL, 0, 0, BAbt+ss, 0, 0, 1.0, L+ss, 0, 0, L+ss, 0, 0);
 			POTRF_L_MN(nu[ss]+nx[ss]+1, nu[ss], L+ss, 0, 0, L+ss, 0, 0);
@@ -1223,7 +1223,7 @@ void FACT_SOLVE_KKT_STEP_OCP_QP(struct OCP_QP *qp, struct OCP_QP_SOL *qp_sol, st
 				{
 				GEMM_R_DIAG(nu[ss]+nx[ss], ng[ss], 1.0, DCt+ss, 0, 0, tmp_nbgM+0, nb[ss], 0.0, AL+0, 0, nx[ss+1], AL+0, 0, nx[ss+1]);
 				ROWIN(ng[ss], 1.0, tmp_nbgM+1, nb[ss], AL+0, nu[ss]+nx[ss], nx[ss+1]);
-				SYRK_LN_MN(nu[ss]+nx[ss]+1, nu[ss]+nx[ss], nx[ss+1]+ng[ss], 1.0, AL+0, 0, nx[ss+1], DCt+ss, 0, nx[ss+1], 1.0, L+ss, 0, 0, L+ss, 0, 0);
+				SYRK_LN_MN(nu[ss]+nx[ss]+1, nu[ss]+nx[ss], ng[ss], 1.0, AL+0, 0, nx[ss+1], DCt+ss, 0, 0, 1.0, L+ss, 0, 0, L+ss, 0, 0);
 				}
 			SYRK_POTRF_LN_MN(nu[ss]+nx[ss]+1, nu[ss]+nx[ss], nx[ss+1], AL, 0, 0, BAbt+ss, 0, 0, L+ss, 0, 0, L+ss, 0, 0);
 			}

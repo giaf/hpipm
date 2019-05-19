@@ -37,6 +37,7 @@
 #include <blasfeo_target.h>
 #include <blasfeo_common.h>
 
+#include "hpipm_d_cond.h"
 
 
 #ifdef __cplusplus
