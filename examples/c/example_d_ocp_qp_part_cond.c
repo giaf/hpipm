@@ -37,6 +37,7 @@
 #include "../../include/hpipm_d_ocp_qp_dim.h"
 #include "../../include/hpipm_d_ocp_qp.h"
 #include "../../include/hpipm_d_ocp_qp_sol.h"
+#include "../include/hpipm_d_cond.h"
 #include "../include/hpipm_d_part_cond.h"
 
 
@@ -174,6 +175,9 @@ int main()
 
 	d_set_default_cond_qp_ocp2ocp_arg(dim2.N, &part_cond_arg);
 
+//	for(ii=0; ii<=N2; ii++)
+//		part_cond_arg.cond_arg[ii].square_root_alg = 0;
+
 /************************************************
 * ipm arg
 ************************************************/
@@ -197,6 +201,8 @@ int main()
 	d_set_ocp_qp_ipm_arg_tol_ineq(1e-5, &arg);
 	d_set_ocp_qp_ipm_arg_tol_comp(1e-5, &arg);
 	d_set_ocp_qp_ipm_arg_reg_prim(1e-12, &arg);
+
+//	arg.square_root_alg = 0;
 
 /************************************************
 * part cond workspace

@@ -186,28 +186,59 @@ void COND_RSQRQ_N2NX3(struct OCP_QP *ocp_qp, struct STRMAT *RSQrq2, struct STRVE
 	int nub = nu2; // backward partial sum
 	int nuf = 0; // forward partial sum
 
-	// final stage 
-	nub -= nu[N];
+	if(cond_arg->square_root_alg)
+		{
 
-	GECP(nu[N]+nx[N], nu[N]+nx[N], &RSQrq[N], 0, 0, &L[N], 0, 0);
-	ROWIN(nu[N]+nx[N], 1.0, &rqz[N], 0, &L[N], nu[N]+nx[N], 0);
+		// final stage 
+		nub -= nu[N];
 
-	// D
-	TRCP_L(nu[N], &L[N], 0, 0, &RSQrq2[0], nuf, nuf);
+		GECP(nu[N]+nx[N], nu[N]+nx[N], &RSQrq[N], 0, 0, &L[N], 0, 0);
+		ROWIN(nu[N]+nx[N], 1.0, &rqz[N], 0, &L[N], nu[N]+nx[N], 0);
 
-	GEMM_NN(nub+nx[0]+1, nu[N], nx[N], 1.0, &Gamma[N-1], 0, 0, &L[N], nu[N], 0, 0.0, &RSQrq2[0], nuf+nu[N], nuf, &RSQrq2[0], nuf+nu[N], nuf);
+		// D
+		TRCP_L(nu[N], &L[N], 0, 0, &RSQrq2[0], nuf, nuf);
 
-	// m
-	GEAD(1, nu[N], 1.0, &L[N], nu[N]+nx[N], 0, &RSQrq2[0], nu2+nx[0], nuf);
+		GEMM_NN(nub+nx[0]+1, nu[N], nx[N], 1.0, &Gamma[N-1], 0, 0, &L[N], nu[N], 0, 0.0, &RSQrq2[0], nuf+nu[N], nuf, &RSQrq2[0], nuf+nu[N], nuf);
 
-	nuf += nu[N];
+		// m
+		GEAD(1, nu[N], 1.0, &L[N], nu[N]+nx[N], 0, &RSQrq2[0], nu2+nx[0], nuf);
+
+		nuf += nu[N];
 
 
+		// middle stages 
+		for(nn=0; nn<N-1; nn++)
+			{	
+			nub -= nu[N-nn-1];
 
-	// middle stages 
-	for(nn=0; nn<N-1; nn++)
-		{	
-		nub -= nu[N-nn-1];
+#if defined(LA_HIGH_PERFORMANCE)
+			GECP(nx[N-nn]+1, nx[N-nn], &L[N-nn], nu[N-nn], nu[N-nn], Lx, 0, 0);
+
+			POTRF_L_MN(nx[N-nn]+1, nx[N-nn], Lx, 0, 0, Lx, 0, 0);
+#else
+			POTRF_L_MN(nx[N-nn]+1, nx[N-nn], &L[N-nn], nu[N-nn], nu[N-nn], Lx, 0, 0);
+#endif
+			ROWIN(nx[N-nn], 1.0, &b[N-nn-1], 0, &BAbt[N-nn-1], nu[N-nn-1]+nx[N-nn-1], 0);
+			TRMM_RLNN(nu[N-nn-1]+nx[N-nn-1]+1, nx[N-nn], 1.0, Lx, 0, 0, &BAbt[N-nn-1], 0, 0, AL, 0, 0);
+			GEAD(1, nx[N-nn], 1.0, Lx, nx[N-nn], 0, AL, nu[N-nn-1]+nx[N-nn-1], 0);
+
+			ROWIN(nu[N-nn-1]+nx[N-nn-1], 1.0, &rqz[N-nn-1], 0, &RSQrq[N-nn-1], nu[N-nn-1]+nx[N-nn-1], 0);
+			SYRK_LN_MN(nu[N-nn-1]+nx[N-nn-1]+1, nu[N-nn-1]+nx[N-nn-1], nx[N-nn], 1.0, AL, 0, 0, AL, 0, 0, 1.0, &RSQrq[N-nn-1], 0, 0, &L[N-nn-1], 0, 0);
+
+			// D
+			TRCP_L(nu[N-nn-1], &L[N-nn-1], 0, 0, &RSQrq2[0], nuf, nuf);
+
+			GEMM_NN(nub+nx[0]+1, nu[N-nn-1], nx[N-nn-1], 1.0, &Gamma[N-nn-2], 0, 0, &L[N-nn-1], nu[N-nn-1], 0, 0.0, &RSQrq2[0], nuf+nu[N-nn-1], nuf, &RSQrq2[0], nuf+nu[N-nn-1], nuf);
+
+			// m
+			GEAD(1, nu[N-nn-1], 1.0, &L[N-nn-1], nu[N-nn-1]+nx[N-nn-1], 0, &RSQrq2[0], nu2+nx[0], nuf);
+
+			nuf += nu[N-nn-1];
+
+			}
+
+		// first stage
+		nn = N-1;
 
 #if defined(LA_HIGH_PERFORMANCE)
 		GECP(nx[N-nn]+1, nx[N-nn], &L[N-nn], nu[N-nn], nu[N-nn], Lx, 0, 0);
@@ -223,41 +254,80 @@ void COND_RSQRQ_N2NX3(struct OCP_QP *ocp_qp, struct STRMAT *RSQrq2, struct STRVE
 		ROWIN(nu[N-nn-1]+nx[N-nn-1], 1.0, &rqz[N-nn-1], 0, &RSQrq[N-nn-1], nu[N-nn-1]+nx[N-nn-1], 0);
 		SYRK_LN_MN(nu[N-nn-1]+nx[N-nn-1]+1, nu[N-nn-1]+nx[N-nn-1], nx[N-nn], 1.0, AL, 0, 0, AL, 0, 0, 1.0, &RSQrq[N-nn-1], 0, 0, &L[N-nn-1], 0, 0);
 
-		// D
-		TRCP_L(nu[N-nn-1], &L[N-nn-1], 0, 0, &RSQrq2[0], nuf, nuf);
-
-		GEMM_NN(nub+nx[0]+1, nu[N-nn-1], nx[N-nn-1], 1.0, &Gamma[N-nn-2], 0, 0, &L[N-nn-1], nu[N-nn-1], 0, 0.0, &RSQrq2[0], nuf+nu[N-nn-1], nuf, &RSQrq2[0], nuf+nu[N-nn-1], nuf);
-
-		// m
-		GEAD(1, nu[N-nn-1], 1.0, &L[N-nn-1], nu[N-nn-1]+nx[N-nn-1], 0, &RSQrq2[0], nu2+nx[0], nuf);
-
-		nuf += nu[N-nn-1];
+		// D, M, m, P, p
+	//	GECP(nu[0]+nx[0]+1, nu[0]+nx[0], &L[N-nn-1], 0, 0, &RSQrq2[0], nuf, nuf); // TODO dtrcp for 'rectangular' matrices
+		TRCP_L(nu[0]+nx[0], &L[N-nn-1], 0, 0, &RSQrq2[0], nuf, nuf); // TODO dtrcp for 'rectangular' matrices
+		GECP(1, nu[0]+nx[0], &L[N-nn-1], nu[0]+nx[0], 0, &RSQrq2[0], nuf+nu[0]+nx[0], nuf); // TODO dtrcp for 'rectangular' matrices
+		// m p
+		ROWEX(nu2+nx[0], 1.0, &RSQrq2[0], nu2+nx[0], 0, &rqz2[0], 0);
 
 		}
+	else
+		{
 
-	// first stage
-	nn = N-1;
+		// final stage 
+		nub -= nu[N];
 
-#if defined(LA_HIGH_PERFORMANCE)
-	GECP(nx[N-nn]+1, nx[N-nn], &L[N-nn], nu[N-nn], nu[N-nn], Lx, 0, 0);
+		GECP(nu[N]+nx[N], nu[N]+nx[N], &RSQrq[N], 0, 0, &L[N], 0, 0);
+		ROWIN(nu[N]+nx[N], 1.0, &rqz[N], 0, &L[N], nu[N]+nx[N], 0);
 
-	POTRF_L_MN(nx[N-nn]+1, nx[N-nn], Lx, 0, 0, Lx, 0, 0);
-#else
-	POTRF_L_MN(nx[N-nn]+1, nx[N-nn], &L[N-nn], nu[N-nn], nu[N-nn], Lx, 0, 0);
-#endif
-	ROWIN(nx[N-nn], 1.0, &b[N-nn-1], 0, &BAbt[N-nn-1], nu[N-nn-1]+nx[N-nn-1], 0);
-	TRMM_RLNN(nu[N-nn-1]+nx[N-nn-1]+1, nx[N-nn], 1.0, Lx, 0, 0, &BAbt[N-nn-1], 0, 0, AL, 0, 0);
-	GEAD(1, nx[N-nn], 1.0, Lx, nx[N-nn], 0, AL, nu[N-nn-1]+nx[N-nn-1], 0);
+		// D
+		TRCP_L(nu[N], &L[N], 0, 0, &RSQrq2[0], nuf, nuf);
 
-	ROWIN(nu[N-nn-1]+nx[N-nn-1], 1.0, &rqz[N-nn-1], 0, &RSQrq[N-nn-1], nu[N-nn-1]+nx[N-nn-1], 0);
-	SYRK_LN_MN(nu[N-nn-1]+nx[N-nn-1]+1, nu[N-nn-1]+nx[N-nn-1], nx[N-nn], 1.0, AL, 0, 0, AL, 0, 0, 1.0, &RSQrq[N-nn-1], 0, 0, &L[N-nn-1], 0, 0);
+		GEMM_NN(nub+nx[0]+1, nu[N], nx[N], 1.0, &Gamma[N-1], 0, 0, &L[N], nu[N], 0, 0.0, &RSQrq2[0], nuf+nu[N], nuf, &RSQrq2[0], nuf+nu[N], nuf);
 
-	// D, M, m, P, p
-//	GECP(nu[0]+nx[0]+1, nu[0]+nx[0], &L[N-nn-1], 0, 0, &RSQrq2[0], nuf, nuf); // TODO dtrcp for 'rectangular' matrices
-	TRCP_L(nu[0]+nx[0], &L[N-nn-1], 0, 0, &RSQrq2[0], nuf, nuf); // TODO dtrcp for 'rectangular' matrices
-	GECP(1, nu[0]+nx[0], &L[N-nn-1], nu[0]+nx[0], 0, &RSQrq2[0], nuf+nu[0]+nx[0], nuf); // TODO dtrcp for 'rectangular' matrices
-	// m p
-	ROWEX(nu2+nx[0], 1.0, &RSQrq2[0], nu2+nx[0], 0, &rqz2[0], 0);
+		// m
+		GEAD(1, nu[N], 1.0, &L[N], nu[N]+nx[N], 0, &RSQrq2[0], nu2+nx[0], nuf);
+
+		nuf += nu[N];
+
+
+		// middle stages 
+		for(nn=0; nn<N-1; nn++)
+			{	
+			nub -= nu[N-nn-1];
+
+			TRCP_L(nx[N-nn], &L[N-nn], nu[N-nn], nu[N-nn], Lx, 0, 0);
+			TRTR_L(nx[N-nn], Lx, 0, 0, Lx, 0, 0);
+			ROWIN(nx[N-nn], 1.0, &b[N-nn-1], 0, &BAbt[N-nn-1], nu[N-nn-1]+nx[N-nn-1], 0);
+			GEMM_NT(nu[N-nn-1]+nx[N-nn-1]+1, nx[N-nn], nx[N-nn], 1.0, &BAbt[N-nn-1], 0, 0, Lx, 0, 0, 0.0, AL, 0, 0, AL, 0, 0); // TODO symm
+			GEAD(1, nx[N-nn], 1.0, L+N-nn, nu[N-nn]+nx[N-nn], nu[N-nn], AL, nu[N-nn-1]+nx[N-nn-1], 0);
+
+			ROWIN(nu[N-nn-1]+nx[N-nn-1], 1.0, &rqz[N-nn-1], 0, &RSQrq[N-nn-1], nu[N-nn-1]+nx[N-nn-1], 0);
+			SYRK_LN_MN(nu[N-nn-1]+nx[N-nn-1]+1, nu[N-nn-1]+nx[N-nn-1], nx[N-nn], 1.0, AL, 0, 0, BAbt+N-nn-1, 0, 0, 1.0, &RSQrq[N-nn-1], 0, 0, &L[N-nn-1], 0, 0);
+
+			// D
+			TRCP_L(nu[N-nn-1], &L[N-nn-1], 0, 0, &RSQrq2[0], nuf, nuf);
+
+			GEMM_NN(nub+nx[0]+1, nu[N-nn-1], nx[N-nn-1], 1.0, &Gamma[N-nn-2], 0, 0, &L[N-nn-1], nu[N-nn-1], 0, 0.0, &RSQrq2[0], nuf+nu[N-nn-1], nuf, &RSQrq2[0], nuf+nu[N-nn-1], nuf);
+
+			// m
+			GEAD(1, nu[N-nn-1], 1.0, &L[N-nn-1], nu[N-nn-1]+nx[N-nn-1], 0, &RSQrq2[0], nu2+nx[0], nuf);
+
+			nuf += nu[N-nn-1];
+
+			}
+
+		// first stage
+		nn = N-1;
+
+		TRCP_L(nx[N-nn], &L[N-nn], nu[N-nn], nu[N-nn], Lx, 0, 0);
+		TRTR_L(nx[N-nn], Lx, 0, 0, Lx, 0, 0);
+		ROWIN(nx[N-nn], 1.0, &b[N-nn-1], 0, &BAbt[N-nn-1], nu[N-nn-1]+nx[N-nn-1], 0);
+		GEMM_NT(nu[N-nn-1]+nx[N-nn-1]+1, nx[N-nn], nx[N-nn], 1.0, &BAbt[N-nn-1], 0, 0, Lx, 0, 0, 0.0, AL, 0, 0, AL, 0, 0); // TODO symm
+		GEAD(1, nx[N-nn], 1.0, L+N-nn, nu[N-nn]+nx[N-nn], nu[N-nn], AL, nu[N-nn-1]+nx[N-nn-1], 0);
+
+		ROWIN(nu[N-nn-1]+nx[N-nn-1], 1.0, &rqz[N-nn-1], 0, &RSQrq[N-nn-1], nu[N-nn-1]+nx[N-nn-1], 0);
+		SYRK_LN_MN(nu[N-nn-1]+nx[N-nn-1]+1, nu[N-nn-1]+nx[N-nn-1], nx[N-nn], 1.0, AL, 0, 0, BAbt+N-nn-1, 0, 0, 1.0, &RSQrq[N-nn-1], 0, 0, &L[N-nn-1], 0, 0);
+
+		// D, M, m, P, p
+	//	GECP(nu[0]+nx[0]+1, nu[0]+nx[0], &L[N-nn-1], 0, 0, &RSQrq2[0], nuf, nuf); // TODO dtrcp for 'rectangular' matrices
+		TRCP_L(nu[0]+nx[0], &L[N-nn-1], 0, 0, &RSQrq2[0], nuf, nuf); // TODO dtrcp for 'rectangular' matrices
+		GECP(1, nu[0]+nx[0], &L[N-nn-1], nu[0]+nx[0], 0, &RSQrq2[0], nuf+nu[0]+nx[0], nuf); // TODO dtrcp for 'rectangular' matrices
+		// m p
+		ROWEX(nu2+nx[0], 1.0, &RSQrq2[0], nu2+nx[0], 0, &rqz2[0], 0);
+
+		}
 
 	return;
 

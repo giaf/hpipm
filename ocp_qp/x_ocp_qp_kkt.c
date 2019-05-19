@@ -704,7 +704,7 @@ void FACT_SOLVE_KKT_UNCONSTR_OCP_QP(struct OCP_QP *qp, struct OCP_QP_SOL *qp_sol
 		for(ii=0; ii<N-1; ii++)
 			{
 			ROWIN(nx[N-ii], 1.0, b+N-ii-1, 0, BAbt+N-ii-1, nu[N-ii-1]+nx[N-ii-1], 0);
-			GEMM_NT(nu[N-ii-1]+nx[N-ii-1]+1, nx[N-ii], nx[N-ii], 1.0, BAbt+N-ii-1, 0, 0, P+N-ii, 0, 0, 0.0, AL, 0, 0, AL, 0, 0);
+			GEMM_NT(nu[N-ii-1]+nx[N-ii-1]+1, nx[N-ii], nx[N-ii], 1.0, BAbt+N-ii-1, 0, 0, P+N-ii, 0, 0, 0.0, AL, 0, 0, AL, 0, 0); // TODO symm
 			GEAD(1, nx[N-ii], 1.0, P+N-ii, nx[N-ii], 0, AL, nu[N-ii-1]+nx[N-ii-1], 0);
 			ROWIN(nu[N-ii-1]+nx[N-ii-1], 1.0, rqz+N-ii-1, 0, RSQrq+N-ii-1, nu[N-ii-1]+nx[N-ii-1], 0);
 			DIARE(nu[N-ii-1], arg->reg_prim, RSQrq+N-ii-1, 0, 0);
@@ -720,7 +720,7 @@ void FACT_SOLVE_KKT_UNCONSTR_OCP_QP(struct OCP_QP *qp, struct OCP_QP_SOL *qp_sol
 		if(N>0)
 			{
 			ROWIN(nx[N-ii], 1.0, b+N-ii-1, 0, BAbt+N-ii-1, nu[N-ii-1]+nx[N-ii-1], 0);
-			GEMM_NT(nu[N-ii-1]+nx[N-ii-1]+1, nx[N-ii], nx[N-ii], 1.0, BAbt+N-ii-1, 0, 0, P+N-ii, 0, 0, 0.0, AL, 0, 0, AL, 0, 0);
+			GEMM_NT(nu[N-ii-1]+nx[N-ii-1]+1, nx[N-ii], nx[N-ii], 1.0, BAbt+N-ii-1, 0, 0, P+N-ii, 0, 0, 0.0, AL, 0, 0, AL, 0, 0); // TODO symm
 			GEAD(1, nx[N-ii], 1.0, P+N-ii, nx[N-ii], 0, AL, nu[N-ii-1]+nx[N-ii-1], 0);
 			ROWIN(nu[N-ii-1]+nx[N-ii-1], 1.0, rqz+N-ii-1, 0, RSQrq+N-ii-1, nu[N-ii-1]+nx[N-ii-1], 0);
 			DIARE(nu[N-ii-1], arg->reg_prim, RSQrq+N-ii-1, 0, 0);
@@ -1149,7 +1149,7 @@ void FACT_SOLVE_KKT_STEP_OCP_QP(struct OCP_QP *qp, struct OCP_QP_SOL *qp_sol, st
 			{
 			ss = N-nn-1;
 			ROWIN(nx[ss+1], 1.0, res_b+ss, 0, BAbt+ss, nu[ss]+nx[ss], 0);
-			GEMM_NT(nu[ss]+nx[ss]+1, nx[ss+1], nx[ss+1], 1.0, BAbt+ss, 0, 0, P+ss+1, 0, 0, 0.0, AL, 0, 0, AL, 0, 0);
+			GEMM_NT(nu[ss]+nx[ss]+1, nx[ss+1], nx[ss+1], 1.0, BAbt+ss, 0, 0, P+ss+1, 0, 0, 0.0, AL, 0, 0, AL, 0, 0); // TODO symm
 			ROWEX(nx[ss+1], 1.0, AL, nu[ss]+nx[ss], 0, Pb+ss, 0);
 			GEAD(1, nx[ss+1], 1.0, P+ss+1, nx[ss+1], 0, AL, nu[ss]+nx[ss], 0);
 
@@ -1193,7 +1193,7 @@ void FACT_SOLVE_KKT_STEP_OCP_QP(struct OCP_QP *qp, struct OCP_QP_SOL *qp_sol, st
 			{
 			ss = N-nn-1;
 			ROWIN(nx[ss+1], 1.0, res_b+ss, 0, BAbt+ss, nu[ss]+nx[ss], 0);
-			GEMM_NT(nu[ss]+nx[ss]+1, nx[ss+1], nx[ss+1], 1.0, BAbt+ss, 0, 0, P+ss+1, 0, 0, 0.0, AL, 0, 0, AL, 0, 0);
+			GEMM_NT(nu[ss]+nx[ss]+1, nx[ss+1], nx[ss+1], 1.0, BAbt+ss, 0, 0, P+ss+1, 0, 0, 0.0, AL, 0, 0, AL, 0, 0); // TODO symm
 			ROWEX(nx[ss+1], 1.0, AL, nu[ss]+nx[ss], 0, Pb+ss, 0);
 			GEAD(1, nx[ss+1], 1.0, P+ss+1, nx[ss+1], 0, AL, nu[ss]+nx[ss], 0);
 

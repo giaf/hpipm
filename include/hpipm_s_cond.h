@@ -50,6 +50,7 @@ struct s_cond_qp_ocp2dense_arg
 	int cond_last_stage; // condense last stage
 //	int cond_variant; // TODO
 	int comp_dual_sol; // dual solution
+	int square_root_alg;
 	int memsize;
 	};
 

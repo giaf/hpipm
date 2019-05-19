@@ -53,6 +53,7 @@
 #define GEEX1 blasfeo_dgeex1
 #define GESE blasfeo_dgese
 #define GEMM_NN blasfeo_dgemm_nn
+#define GEMM_NT blasfeo_dgemm_nt
 #define GEMV_T blasfeo_dgemv_t
 #define GEMV_N blasfeo_dgemv_n
 #define OCP_QP d_ocp_qp
@@ -67,6 +68,7 @@
 #define SYMV_L blasfeo_dsymv_l
 #define SYRK_LN_MN blasfeo_dsyrk_ln_mn
 #define TRCP_L blasfeo_dtrcp_l
+#define TRTR_L blasfeo_dtrtr_l
 #define TRMM_RLNN blasfeo_dtrmm_rlnn
 #define VECCP blasfeo_dveccp
 

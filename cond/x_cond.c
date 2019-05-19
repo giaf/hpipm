@@ -110,6 +110,7 @@ void SET_DEFAULT_COND_QP_OCP2DENSE_ARG(struct COND_QP_OCP2DENSE_ARG *cond_arg)
 
 	cond_arg->cond_last_stage = 1; // condense last stage
 	cond_arg->comp_dual_sol = 1; // compute dual solution
+	cond_arg->square_root_alg = 1; // square root algorithm (faster but requires RSQ>0)
 
 	return;
 
