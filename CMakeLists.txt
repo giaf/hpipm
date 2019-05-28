@@ -32,33 +32,39 @@ project(hpipm)
 
 set(CMAKE_VERBOSE_MAKEFILE ON)
 
-# Target architecture
-set(TARGET GENERIC)
+# Options
 
 # BLAS and LAPACK version (for LA=BLAS in BLASFEO)
-set(REF_BLAS 0)
-#set(REF_BLAS OPENBLAS)
-#set(REF_BLAS NETLIB)
-#set(REF_BLAS MKL)
-#set(REF_BLAS BLIS)
-#set(REF_BLAS ATLAS)
+set(REF_BLAS 0 CACHE STRING "Set CPU architecture target")
+set(REF_BLAS OPENBLAS CACHE STRING "Set CPU architecture target")
+set(REF_BLAS NETLIB   CACHE STRING "Set CPU architecture target")
+set(REF_BLAS MKL      CACHE STRING "Set CPU architecture target")
+set(REF_BLAS BLIS     CACHE STRING "Set CPU architecture target")
+set(REF_BLAS ATLAS    CACHE STRING "Set CPU architecture target")
 
-# Options
 # set(HPIPM_TESTING ON CACHE BOOL "Tests enabled")
 set(HPIPM_TESTING OFF CACHE BOOL "Tests disabled")
 
-# BLASFEO
-if(NOT TARGET blasfeo)
-	# BLASFEO installation directory
-	set(BLASFEO_PATH /opt/blasfeo)
+# Target architecture
+set(TARGET GENERIC CACHE STRING "Set CPU architecture target")
+
+# Installation
+set(CMAKE_INSTALL_PREFIX "/opt/hpipm"  CACHE STRING "Installation path")
+
+# BLASFEO Option
+set(BLASFEO_PATH /opt/blasfeo CACHE STRING "BLASFEO installation path")
+set(HPIPM_BLASFEO_LIB "Static" CACHE STRING "BLASFEO installation path")
+
+if(HPIPM_BLASFEO_LIB MATCHES "Static")
 	add_library(blasfeo STATIC IMPORTED)
 	set_target_properties(blasfeo PROPERTIES IMPORTED_LOCATION ${BLASFEO_PATH}/lib/libblasfeo.a)
-	set(BLASFEO_INCLUDE_DIR ${BLASFEO_PATH}/include)
-else()
-	# TODO: horrible hardcode; needs to go
-	set(BLASFEO_INCLUDE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/../blasfeo/include)
+elseif(HPIPM_BLASFEO_LIB MATCHES "Shared")
+	add_library(blasfeo SHARED IMPORTED)
+	set_target_properties(blasfeo PROPERTIES IMPORTED_LOCATION ${BLASFEO_PATH}/lib/libblasfeo.so)
 endif()
 
+# Needed to compile examples
+set(BLASFEO_INCLUDE_DIR ${BLASFEO_PATH}/include)
 set(HPIPM_INCLUDE_DIR ${PROJECT_SOURCE_DIR}/include)
 
 # headers installation directory
@@ -185,8 +191,9 @@ set(HPIPM_SRC ${COND_SRC} ${DENSE_QP_SRC} ${IPM_CORE_SRC} ${OCP_QP_SRC} ${TREE_O
 add_library(hpipm ${HPIPM_SRC})
 target_include_directories(hpipm
 	PUBLIC
-		$<BUILD_INTERFACE:${CMAKE_CURRENT_LIST_DIR}/include>
-		$<INSTALL_INTERFACE:include/hpipm/include>)
+		$<BUILD_INTERFACE:${HPIPM_INCLUDE_DIR}>
+		$<BUILD_INTERFACE:${BLASFEO_INCLUDE_DIR}>
+		$<INSTALL_INTERFACE:${HPIPM_HEADERS_INSTALLATION_DIRECTORY}>)
 target_link_libraries(hpipm blasfeo)
 
 install(TARGETS hpipm EXPORT hpipmConfig
@@ -203,3 +210,5 @@ install(FILES ${HPIPM_HEADERS} DESTINATION ${HPIPM_HEADERS_INSTALLATION_DIRECTOR
 if(HPIPM_TESTING MATCHES ON)
 	add_subdirectory(test_problems)
 endif()
+
+message(STATUS "Using BLASFEO path: ${BLASFEO_PATH}")
