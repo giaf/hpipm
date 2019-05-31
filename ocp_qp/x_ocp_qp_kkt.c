@@ -57,6 +57,7 @@ void INIT_VAR_OCP_QP(struct OCP_QP *qp, struct OCP_QP_SOL *qp_sol, struct OCP_QP
 
 
 
+	// primal and dual variables
 	if(arg->warm_start==2)
 		{
 
