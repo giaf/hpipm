@@ -64,8 +64,8 @@ elseif(HPIPM_BLASFEO_LIB MATCHES "Shared")
 endif()
 
 # Needed to compile examples
-set(BLASFEO_INCLUDE_DIR ${BLASFEO_PATH}/include)
-set(HPIPM_INCLUDE_DIR ${PROJECT_SOURCE_DIR}/include)
+set(BLASFEO_INCLUDE_DIR "${BLASFEO_PATH}/include")
+set(HPIPM_INCLUDE_DIR "${PROJECT_SOURCE_DIR}/include")
 
 # headers installation directory
 set(HPIPM_HEADERS_INSTALLATION_DIRECTORY "include" CACHE STRING "Headers local installation directory")
