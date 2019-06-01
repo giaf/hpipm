@@ -36,24 +36,24 @@ set(CMAKE_VERBOSE_MAKEFILE ON)
 
 # BLAS and LAPACK version (for LA=BLAS in BLASFEO)
 set(REF_BLAS 0 CACHE STRING "Set CPU architecture target")
-set(REF_BLAS OPENBLAS CACHE STRING "Set CPU architecture target")
-set(REF_BLAS NETLIB   CACHE STRING "Set CPU architecture target")
-set(REF_BLAS MKL      CACHE STRING "Set CPU architecture target")
-set(REF_BLAS BLIS     CACHE STRING "Set CPU architecture target")
-set(REF_BLAS ATLAS    CACHE STRING "Set CPU architecture target")
+# set(REF_BLAS OPENBLAS CACHE STRING "Set CPU architecture target")
+# set(REF_BLAS NETLIB   CACHE STRING "Set CPU architecture target")
+# set(REF_BLAS MKL      CACHE STRING "Set CPU architecture target")
+# set(REF_BLAS BLIS     CACHE STRING "Set CPU architecture target")
+# set(REF_BLAS ATLAS    CACHE STRING "Set CPU architecture target")
 
 # set(HPIPM_TESTING ON CACHE BOOL "Tests enabled")
 set(HPIPM_TESTING OFF CACHE BOOL "Tests disabled")
 
 # Target architecture
-set(TARGET GENERIC CACHE STRING "Set CPU architecture target")
+set(TARGET AVX CACHE STRING "Set CPU architecture target")
 
 # Installation
 set(CMAKE_INSTALL_PREFIX "/opt/hpipm"  CACHE STRING "Installation path")
 
 # BLASFEO Option
-set(BLASFEO_PATH /opt/blasfeo CACHE STRING "BLASFEO installation path")
-set(HPIPM_BLASFEO_LIB "Static" CACHE STRING "BLASFEO installation path")
+set(BLASFEO_PATH "/opt/blasfeo" CACHE STRING "BLASFEO installation path")
+set(HPIPM_BLASFEO_LIB "Static" CACHE STRING "BLASFEO library link type")
 
 if(HPIPM_BLASFEO_LIB MATCHES "Static")
 	add_library(blasfeo STATIC IMPORTED)
