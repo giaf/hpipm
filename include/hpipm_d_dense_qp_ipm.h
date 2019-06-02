@@ -140,6 +140,8 @@ void d_set_dense_qp_ipm_arg_tol_comp(double tol_comp, struct d_dense_qp_ipm_arg 
 void d_set_dense_qp_ipm_arg_reg_prim(double reg, struct d_dense_qp_ipm_arg *arg);
 //
 void d_set_dense_qp_ipm_arg_reg_dual(double reg, struct d_dense_qp_ipm_arg *arg);
+//
+void d_set_dense_qp_ipm_arg_warm_start(int warm_start, struct d_dense_qp_ipm_arg *arg);
 
 //
 int d_memsize_dense_qp_ipm(struct d_dense_qp_dim *qp_dim, struct d_dense_qp_ipm_arg *arg);
