@@ -28,7 +28,8 @@
 ###################################################################################################
 
 cmake_minimum_required(VERSION 2.8.11)
-project(hpipm)
+
+project(hpipm C)
 
 set(CMAKE_VERBOSE_MAKEFILE ON)
 
@@ -47,13 +48,18 @@ set(HPIPM_TESTING OFF CACHE BOOL "Tests disabled")
 
 # Target architecture
 set(TARGET AVX CACHE STRING "Set CPU architecture target")
+#set(TARGET GENERIC CACHE STRING "Set CPU architecture target")
+
+# build shared library
+set(BUILD_SHARED_LIBS OFF CACHE STRING "Build shared libraries")
 
 # Installation
-set(CMAKE_INSTALL_PREFIX "/opt/hpipm"  CACHE STRING "Installation path")
+set(CMAKE_INSTALL_PREFIX "/opt/hpipm" CACHE STRING "Installation path")
 
 # BLASFEO Option
 set(BLASFEO_PATH "/opt/blasfeo" CACHE STRING "BLASFEO installation path")
 set(HPIPM_BLASFEO_LIB "Static" CACHE STRING "BLASFEO library link type")
+#set(HPIPM_BLASFEO_LIB "Shared" CACHE STRING "BLASFEO library link type")
 
 if(HPIPM_BLASFEO_LIB MATCHES "Static")
 	add_library(blasfeo STATIC IMPORTED)
@@ -78,10 +84,19 @@ set(RUNTIME_CHECKS 0)
 #set(CMAKE_C_FLAGS "")
 #
 ## optimization flags
-#set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -O2")
-#if(CMAKE_COMPILER_ID MATCHES "GNU" OR CMAKE_COMPILER_ID MATCHES "Clang")
-#	set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -fPIC")
-#endif()
+# common flags
+if(CMAKE_C_COMPILER_ID MATCHES "GNU" OR CMAKE_C_COMPILER_ID MATCHES "Clang")
+	set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -O2 -fPIC")
+endif()
+# target-specific flags
+if(${TARGET} MATCHES AVX)
+	set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -DTARGET_AVX")
+	if(CMAKE_C_COMPILER_ID MATCHES "GNU" OR CMAKE_C_COMPILER_ID MATCHES "Clang")
+		set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -m64 -mavx")
+	endif()
+else()
+	set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -DTARGET_GENERIC")
+endif()
 
 #
 if(${REF_BLAS} MATCHES 0)
@@ -139,12 +154,21 @@ file(GLOB DENSE_QP_SRC
 	${PROJECT_SOURCE_DIR}/dense_qp/s_dense_qp_res.c
 	)
 # core ipm
-file(GLOB IPM_CORE_SRC
-	${PROJECT_SOURCE_DIR}/ipm_core/d_core_qp_ipm_aux.c
-	${PROJECT_SOURCE_DIR}/ipm_core/d_core_qp_ipm.c
-	${PROJECT_SOURCE_DIR}/ipm_core/s_core_qp_ipm_aux.c
-	${PROJECT_SOURCE_DIR}/ipm_core/s_core_qp_ipm.c
-	)
+if(${TARGET} MATCHES AVX)
+	file(GLOB IPM_CORE_SRC
+		${PROJECT_SOURCE_DIR}/ipm_core/d_core_qp_ipm_aux_avx.c
+		${PROJECT_SOURCE_DIR}/ipm_core/d_core_qp_ipm.c
+		${PROJECT_SOURCE_DIR}/ipm_core/s_core_qp_ipm_aux_avx.c
+		${PROJECT_SOURCE_DIR}/ipm_core/s_core_qp_ipm.c
+		)
+else(${TARGET} MATCHES AVX)
+	file(GLOB IPM_CORE_SRC
+		${PROJECT_SOURCE_DIR}/ipm_core/d_core_qp_ipm_aux.c
+		${PROJECT_SOURCE_DIR}/ipm_core/d_core_qp_ipm.c
+		${PROJECT_SOURCE_DIR}/ipm_core/s_core_qp_ipm_aux.c
+		${PROJECT_SOURCE_DIR}/ipm_core/s_core_qp_ipm.c
+		)
+endif(${TARGET} MATCHES AVX)
 # ocp qp
 file(GLOB OCP_QP_SRC
 	${PROJECT_SOURCE_DIR}/ocp_qp/d_ocp_qp.c
