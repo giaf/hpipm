@@ -57,16 +57,18 @@ set(BUILD_SHARED_LIBS OFF CACHE STRING "Build shared libraries")
 set(CMAKE_INSTALL_PREFIX "/opt/hpipm" CACHE STRING "Installation path")
 
 # BLASFEO Option
-set(BLASFEO_PATH "/opt/blasfeo" CACHE STRING "BLASFEO installation path")
-set(HPIPM_BLASFEO_LIB "Static" CACHE STRING "BLASFEO library link type")
-#set(HPIPM_BLASFEO_LIB "Shared" CACHE STRING "BLASFEO library link type")
+if(NOT TARGET blasfeo)
+	set(BLASFEO_PATH "/opt/blasfeo" CACHE STRING "BLASFEO installation path")
+	set(HPIPM_BLASFEO_LIB "Static" CACHE STRING "BLASFEO library link type")
+	#set(HPIPM_BLASFEO_LIB "Shared" CACHE STRING "BLASFEO library link type")
 
-if(HPIPM_BLASFEO_LIB MATCHES "Static")
-	add_library(blasfeo STATIC IMPORTED)
-	set_target_properties(blasfeo PROPERTIES IMPORTED_LOCATION ${BLASFEO_PATH}/lib/libblasfeo.a)
-elseif(HPIPM_BLASFEO_LIB MATCHES "Shared")
-	add_library(blasfeo SHARED IMPORTED)
-	set_target_properties(blasfeo PROPERTIES IMPORTED_LOCATION ${BLASFEO_PATH}/lib/libblasfeo.so)
+	if(HPIPM_BLASFEO_LIB MATCHES "Static")
+		add_library(blasfeo STATIC IMPORTED)
+		set_target_properties(blasfeo PROPERTIES IMPORTED_LOCATION ${BLASFEO_PATH}/lib/libblasfeo.a)
+	elseif(HPIPM_BLASFEO_LIB MATCHES "Shared")
+		add_library(blasfeo SHARED IMPORTED)
+		set_target_properties(blasfeo PROPERTIES IMPORTED_LOCATION ${BLASFEO_PATH}/lib/libblasfeo.so)
+	endif()
 endif()
 
 # Needed to compile examples
