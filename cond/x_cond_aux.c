@@ -1370,7 +1370,6 @@ void EXPAND_SOL(struct OCP_QP *ocp_qp, struct DENSE_QP_SOL *dense_qp_sol, struct
 		}
 
 	// lagrange multipliers of equality constraints
-	// TODO avoid to multiply by R and B (i.e. the u part)
 	REAL *ptr_nuxM = tmp_nuxM->pa;
 	REAL *ptr_ngM = tmp_ngM->pa;
 	// last stage
@@ -1383,13 +1382,14 @@ void EXPAND_SOL(struct OCP_QP *ocp_qp, struct DENSE_QP_SOL *dense_qp_sol, struct
 		ptr_lam_ub = (lam+Np)->pa+nb[Np]+ng[Np];
 		ptr_lam_lg = (lam+Np)->pa+nb[Np];
 		ptr_lam_ug = (lam+Np)->pa+2*nb[Np]+ng[Np];
-		VECCP(nu[Np]+nx[Np], rqz+(Np), 0, tmp_nuxM, 0);
+		VECCP(nx[Np], rqz+(Np), nu[Np], tmp_nuxM, nu[Np]);
 		for(jj=0; jj<nb[Np]; jj++)
 			ptr_nuxM[idxb[Np][jj]] += ptr_lam_ub[jj] - ptr_lam_lb[jj];
+		// TODO avoid to multiply by R ???
 		SYMV_L(nu[Np]+nx[Np], nu[Np]+nx[Np], 1.0, RSQrq+(Np), 0, 0, ux+(Np), 0, 1.0, tmp_nuxM, 0, tmp_nuxM, 0);
 		for(jj=0; jj<ng[Np]; jj++)
 			ptr_ngM[jj] = ptr_lam_ug[jj] - ptr_lam_lg[jj];
-		GEMV_N(nu[Np]+nx[Np], ng[Np], 1.0, DCt+(Np), 0, 0, tmp_ngM, 0, 1.0, tmp_nuxM, 0, tmp_nuxM, 0);
+		GEMV_N(nx[Np], ng[Np], 1.0, DCt+(Np), nu[Np], 0, tmp_ngM, 0, 1.0, tmp_nuxM, nu[Np], tmp_nuxM, nu[Np]);
 
 		VECCP(nx[Np], tmp_nuxM, nu[Np], pi+(Np-1), 0);
 		}
@@ -1400,14 +1400,15 @@ void EXPAND_SOL(struct OCP_QP *ocp_qp, struct DENSE_QP_SOL *dense_qp_sol, struct
 		ptr_lam_ub = (lam+Np-1-ii)->pa+nb[Np-1-ii]+ng[Np-1-ii];
 		ptr_lam_lg = (lam+Np-1-ii)->pa+nb[Np-1-ii];
 		ptr_lam_ug = (lam+Np-1-ii)->pa+2*nb[Np-1-ii]+ng[Np-1-ii];
-		VECCP(nu[Np-1-ii]+nx[Np-1-ii], rqz+(Np-1-ii), 0, tmp_nuxM, 0);
+		VECCP(nx[Np-1-ii], rqz+(Np-1-ii), nu[Np-1-ii], tmp_nuxM, nu[Np-1-ii]);
 		for(jj=0; jj<nb[Np-1-ii]; jj++)
 			ptr_nuxM[idxb[Np-1-ii][jj]] += ptr_lam_ub[jj] - ptr_lam_lb[jj];
+		// TODO avoid to multiply by R ???
 		SYMV_L(nu[Np-1-ii]+nx[Np-1-ii], nu[Np-1-ii]+nx[Np-1-ii], 1.0, RSQrq+(Np-1-ii), 0, 0, ux+(Np-1-ii), 0, 1.0, tmp_nuxM, 0, tmp_nuxM, 0);
-		GEMV_N(nu[Np-1-ii]+nx[Np-1-ii], nx[Np-ii], 1.0, BAbt+(Np-1-ii), 0, 0, pi+(Np-1-ii), 0, 1.0, tmp_nuxM, 0, tmp_nuxM, 0);
+		GEMV_N(nx[Np-1-ii], nx[Np-ii], 1.0, BAbt+(Np-1-ii), nu[Np-1-ii], 0, pi+(Np-1-ii), 0, 1.0, tmp_nuxM, nu[Np-1-ii], tmp_nuxM, nu[Np-1-ii]);
 		for(jj=0; jj<ng[Np-1-ii]; jj++)
 			ptr_ngM[jj] = ptr_lam_ug[jj] - ptr_lam_lg[jj];
-		GEMV_N(nu[Np-1-ii]+nx[Np-1-ii], ng[Np-1-ii], 1.0, DCt+(Np-1-ii), 0, 0, tmp_ngM, 0, 1.0, tmp_nuxM, 0, tmp_nuxM, 0);
+		GEMV_N(nx[Np-1-ii], ng[Np-1-ii], 1.0, DCt+(Np-1-ii), nu[Np-1-ii], 0, tmp_ngM, 0, 1.0, tmp_nuxM, nu[Np-1-ii], tmp_nuxM, nu[Np-1-ii]);
 
 		VECCP(nx[Np-1-ii], tmp_nuxM, nu[Np-1-ii], pi+(Np-2-ii), 0);
 		}
