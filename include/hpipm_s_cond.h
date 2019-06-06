@@ -64,7 +64,7 @@ struct s_cond_qp_ocp2dense_workspace
 	struct blasfeo_smat *AL;
 	struct blasfeo_svec *Gammab;
 	struct blasfeo_svec *l;
-	struct blasfeo_svec *tmp_ngM;
+	struct blasfeo_svec *tmp_nbgM;
 	struct blasfeo_svec *tmp_nuxM;
 	int *idxs_rev;
 	int bs; // block size

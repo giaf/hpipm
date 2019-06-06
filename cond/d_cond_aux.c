@@ -70,6 +70,7 @@
 #define TRCP_L blasfeo_dtrcp_l
 #define TRTR_L blasfeo_dtrtr_l
 #define TRMM_RLNN blasfeo_dtrmm_rlnn
+#define VECAD_SP blasfeo_dvecad_sp
 #define VECCP blasfeo_dveccp
 
 #define COND_BABT d_cond_BAbt

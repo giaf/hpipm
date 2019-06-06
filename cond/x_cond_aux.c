@@ -460,7 +460,7 @@ void COND_DCTD(struct OCP_QP *ocp_qp, int *idxb2, struct STRMAT *DCt2, struct ST
 	// extract memory members
 	struct STRMAT *Gamma = cond_ws->Gamma;
 	struct STRVEC *Gammab = cond_ws->Gammab;
-	struct STRVEC *tmp_ngM = cond_ws->tmp_ngM;
+	struct STRVEC *tmp_nbgM = cond_ws->tmp_nbgM;
 	int *idxs_rev = cond_ws->idxs_rev;
 
 
@@ -700,11 +700,11 @@ void COND_DCTD(struct OCP_QP *ocp_qp, int *idxb2, struct STRMAT *DCt2, struct ST
 			VECCP(ng0, &d[N-ii], nb0, d2, nb2+nbg+ng_tmp);
 			VECCP(ng0, &d[N-ii], 2*nb0+ng0, d2, 2*nb2+ng2+nbg+ng_tmp);
 
-			GEMV_T(nx0, ng0, 1.0, &DCt[N-ii], nu0, 0, &Gammab[N-ii-1], 0, 0.0, tmp_ngM, 0, tmp_ngM, 0);
+			GEMV_T(nx0, ng0, 1.0, &DCt[N-ii], nu0, 0, &Gammab[N-ii-1], 0, 0.0, tmp_nbgM, 0, tmp_nbgM, 0);
 
-			AXPY(ng0, -1.0, tmp_ngM, 0, d2, nb2+nbg+ng_tmp, d2, nb2+nbg+ng_tmp);
-//			AXPY(ng0, -1.0, tmp_ngM, 0, d2, 2*nb2+ng2+nbg+ng_tmp, d2, 2*nb2+ng2+nbg+ng_tmp);
-			AXPY(ng0,  1.0, tmp_ngM, 0, d2, 2*nb2+ng2+nbg+ng_tmp, d2, 2*nb2+ng2+nbg+ng_tmp); // XXX
+			AXPY(ng0, -1.0, tmp_nbgM, 0, d2, nb2+nbg+ng_tmp, d2, nb2+nbg+ng_tmp);
+//			AXPY(ng0, -1.0, tmp_nbgM, 0, d2, 2*nb2+ng2+nbg+ng_tmp, d2, 2*nb2+ng2+nbg+ng_tmp);
+			AXPY(ng0,  1.0, tmp_nbgM, 0, d2, 2*nb2+ng2+nbg+ng_tmp, d2, 2*nb2+ng2+nbg+ng_tmp); // XXX
 
 			ng_tmp += ng0;
 			
@@ -813,7 +813,7 @@ void COND_D(struct OCP_QP *ocp_qp, struct STRVEC *d2, struct STRVEC *rqz2, struc
 	// extract memory members
 	struct STRMAT *Gamma = cond_ws->Gamma;
 	struct STRVEC *Gammab = cond_ws->Gammab;
-	struct STRVEC *tmp_ngM = cond_ws->tmp_ngM;
+	struct STRVEC *tmp_nbgM = cond_ws->tmp_nbgM;
 	int *idxs_rev = cond_ws->idxs_rev;
 
 
@@ -1023,10 +1023,10 @@ void COND_D(struct OCP_QP *ocp_qp, struct STRVEC *d2, struct STRVEC *rqz2, struc
 			VECCP(ng0, &d[N-ii], nb0, d2, nb2+nbg+ng_tmp);
 			VECCP(ng0, &d[N-ii], 2*nb0+ng0, d2, 2*nb2+ng2+nbg+ng_tmp);
 
-			GEMV_T(nx0, ng0, 1.0, &DCt[N-ii], nu0, 0, &Gammab[N-ii-1], 0, 0.0, tmp_ngM, 0, tmp_ngM, 0);
+			GEMV_T(nx0, ng0, 1.0, &DCt[N-ii], nu0, 0, &Gammab[N-ii-1], 0, 0.0, tmp_nbgM, 0, tmp_nbgM, 0);
 
-			AXPY(ng0, -1.0, tmp_ngM, 0, d2, nb2+nbg+ng_tmp, d2, nb2+nbg+ng_tmp);
-			AXPY(ng0, -1.0, tmp_ngM, 0, d2, 2*nb2+ng2+nbg+ng_tmp, d2, 2*nb2+ng2+nbg+ng_tmp);
+			AXPY(ng0, -1.0, tmp_nbgM, 0, d2, nb2+nbg+ng_tmp, d2, nb2+nbg+ng_tmp);
+			AXPY(ng0, -1.0, tmp_nbgM, 0, d2, 2*nb2+ng2+nbg+ng_tmp, d2, 2*nb2+ng2+nbg+ng_tmp);
 
 			ng_tmp += ng0;
 			
@@ -1125,7 +1125,7 @@ void EXPAND_SOL(struct OCP_QP *ocp_qp, struct DENSE_QP_SOL *dense_qp_sol, struct
 	struct STRVEC *t = ocp_qp_sol->t;
 
 	struct STRVEC *tmp_nuxM = cond_ws->tmp_nuxM;
-	struct STRVEC *tmp_ngM = cond_ws->tmp_ngM;
+	struct STRVEC *tmp_nbgM = cond_ws->tmp_nbgM;
 	int *idxs_rev = cond_ws->idxs_rev;
 
 	// early return
@@ -1370,49 +1370,35 @@ void EXPAND_SOL(struct OCP_QP *ocp_qp, struct DENSE_QP_SOL *dense_qp_sol, struct
 		}
 
 	// lagrange multipliers of equality constraints
-	REAL *ptr_nuxM = tmp_nuxM->pa;
-	REAL *ptr_ngM = tmp_ngM->pa;
 	// last stage
 	if(cond_arg->cond_last_stage==0)
 		VECCP(nx[Np], pic, 0, pi+Np-1, 0);
 	else
 		{
 //		SYMV_L(nx[Np], nx[Np], 1.0, RSQrq+Np, nu[Np], nu[Np], ux+Np, nu[Np], 1.0, rqz+Np, nu[Np], pi+Np-1, 0);
-		ptr_lam_lb = (lam+Np)->pa+0;
-		ptr_lam_ub = (lam+Np)->pa+nb[Np]+ng[Np];
-		ptr_lam_lg = (lam+Np)->pa+nb[Np];
-		ptr_lam_ug = (lam+Np)->pa+2*nb[Np]+ng[Np];
 		VECCP(nx[Np], rqz+(Np), nu[Np], tmp_nuxM, nu[Np]);
-		for(jj=0; jj<nb[Np]; jj++)
-			ptr_nuxM[idxb[Np][jj]] += ptr_lam_ub[jj] - ptr_lam_lb[jj];
+		AXPY(nb[Np]+ng[Np], -1.0, lam+Np, 0, lam+Np, nb[Np]+ng[Np], tmp_nbgM, 0);
+		VECAD_SP(nb[Np], 1.0, tmp_nbgM, 0, idxb[Np], tmp_nuxM, 0);
 		// TODO avoid to multiply by R ???
 		SYMV_L(nu[Np]+nx[Np], nu[Np]+nx[Np], 1.0, RSQrq+(Np), 0, 0, ux+(Np), 0, 1.0, tmp_nuxM, 0, tmp_nuxM, 0);
-		for(jj=0; jj<ng[Np]; jj++)
-			ptr_ngM[jj] = ptr_lam_ug[jj] - ptr_lam_lg[jj];
-		GEMV_N(nx[Np], ng[Np], 1.0, DCt+(Np), nu[Np], 0, tmp_ngM, 0, 1.0, tmp_nuxM, nu[Np], tmp_nuxM, nu[Np]);
+		GEMV_N(nx[Np], ng[Np], 1.0, DCt+(Np), nu[Np], 0, tmp_nbgM, nb[Np], 1.0, tmp_nuxM, nu[Np], tmp_nuxM, nu[Np]);
 
 		VECCP(nx[Np], tmp_nuxM, nu[Np], pi+(Np-1), 0);
 		}
 
 	for(ii=0; ii<Np-1; ii++)
 		{
-		ptr_lam_lb = (lam+Np-1-ii)->pa+0;
-		ptr_lam_ub = (lam+Np-1-ii)->pa+nb[Np-1-ii]+ng[Np-1-ii];
-		ptr_lam_lg = (lam+Np-1-ii)->pa+nb[Np-1-ii];
-		ptr_lam_ug = (lam+Np-1-ii)->pa+2*nb[Np-1-ii]+ng[Np-1-ii];
 		VECCP(nx[Np-1-ii], rqz+(Np-1-ii), nu[Np-1-ii], tmp_nuxM, nu[Np-1-ii]);
-		for(jj=0; jj<nb[Np-1-ii]; jj++)
-			ptr_nuxM[idxb[Np-1-ii][jj]] += ptr_lam_ub[jj] - ptr_lam_lb[jj];
+		AXPY(nb[Np-1-ii]+ng[Np-1-ii], -1.0, lam+Np-1-ii, 0, lam+Np-1-ii, nb[Np-1-ii]+ng[Np-1-ii], tmp_nbgM, 0);
+		VECAD_SP(nb[Np-1-ii], 1.0, tmp_nbgM, 0, idxb[Np-1-ii], tmp_nuxM, 0);
 		// TODO avoid to multiply by R ???
 		SYMV_L(nu[Np-1-ii]+nx[Np-1-ii], nu[Np-1-ii]+nx[Np-1-ii], 1.0, RSQrq+(Np-1-ii), 0, 0, ux+(Np-1-ii), 0, 1.0, tmp_nuxM, 0, tmp_nuxM, 0);
 		GEMV_N(nx[Np-1-ii], nx[Np-ii], 1.0, BAbt+(Np-1-ii), nu[Np-1-ii], 0, pi+(Np-1-ii), 0, 1.0, tmp_nuxM, nu[Np-1-ii], tmp_nuxM, nu[Np-1-ii]);
-		for(jj=0; jj<ng[Np-1-ii]; jj++)
-			ptr_ngM[jj] = ptr_lam_ug[jj] - ptr_lam_lg[jj];
-		GEMV_N(nx[Np-1-ii], ng[Np-1-ii], 1.0, DCt+(Np-1-ii), nu[Np-1-ii], 0, tmp_ngM, 0, 1.0, tmp_nuxM, nu[Np-1-ii], tmp_nuxM, nu[Np-1-ii]);
+		GEMV_N(nx[Np-1-ii], ng[Np-1-ii], 1.0, DCt+(Np-1-ii), nu[Np-1-ii], 0, tmp_nbgM, 0, 1.0, tmp_nuxM, nu[Np-1-ii], tmp_nuxM, nu[Np-1-ii]);
 
 		VECCP(nx[Np-1-ii], tmp_nuxM, nu[Np-1-ii], pi+(Np-2-ii), 0);
 		}
-	
+
 
 	return;
 
@@ -1455,7 +1441,6 @@ void EXPAND_PRIMAL_SOL(struct OCP_QP *ocp_qp, struct DENSE_QP_SOL *dense_qp_sol,
 	struct STRVEC *t = ocp_qp_sol->t;
 
 	struct STRVEC *tmp_nuxM = cond_ws->tmp_nuxM;
-	struct STRVEC *tmp_ngM = cond_ws->tmp_ngM;
 	int *idxs_rev = cond_ws->idxs_rev;
 
 	// early return
@@ -1834,7 +1819,7 @@ void UPDATE_COND_DCTD(int *idxc, struct OCP_QP *ocp_qp, int *idxb2, struct STRMA
 	// extract memory members
 	struct STRMAT *Gamma = cond_ws->Gamma;
 	struct STRVEC *Gammab = cond_ws->Gammab;
-	struct STRVEC *tmp_ngM = cond_ws->tmp_ngM;
+	struct STRVEC *tmp_nbgM = cond_ws->tmp_nbgM;
 	int *idxs_rev = cond_ws->idxs_rev;
 
 
@@ -2074,11 +2059,11 @@ void UPDATE_COND_DCTD(int *idxc, struct OCP_QP *ocp_qp, int *idxb2, struct STRMA
 			VECCP(ng0, &d[N-ii], nb0, d2, nb2+nbg+ng_tmp);
 			VECCP(ng0, &d[N-ii], 2*nb0+ng0, d2, 2*nb2+ng2+nbg+ng_tmp);
 
-			GEMV_T(nx0, ng0, 1.0, &DCt[N-ii], nu0, 0, &Gammab[N-ii-1], 0, 0.0, tmp_ngM, 0, tmp_ngM, 0);
+			GEMV_T(nx0, ng0, 1.0, &DCt[N-ii], nu0, 0, &Gammab[N-ii-1], 0, 0.0, tmp_nbgM, 0, tmp_nbgM, 0);
 
-			AXPY(ng0, -1.0, tmp_ngM, 0, d2, nb2+nbg+ng_tmp, d2, nb2+nbg+ng_tmp);
-//			AXPY(ng0, -1.0, tmp_ngM, 0, d2, 2*nb2+ng2+nbg+ng_tmp, d2, 2*nb2+ng2+nbg+ng_tmp);
-			AXPY(ng0,  1.0, tmp_ngM, 0, d2, 2*nb2+ng2+nbg+ng_tmp, d2, 2*nb2+ng2+nbg+ng_tmp); // XXX
+			AXPY(ng0, -1.0, tmp_nbgM, 0, d2, nb2+nbg+ng_tmp, d2, nb2+nbg+ng_tmp);
+//			AXPY(ng0, -1.0, tmp_nbgM, 0, d2, 2*nb2+ng2+nbg+ng_tmp, d2, 2*nb2+ng2+nbg+ng_tmp);
+			AXPY(ng0,  1.0, tmp_nbgM, 0, d2, 2*nb2+ng2+nbg+ng_tmp, d2, 2*nb2+ng2+nbg+ng_tmp); // XXX
 
 			ng_tmp += ng0;
 			
