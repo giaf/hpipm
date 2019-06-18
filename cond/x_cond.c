@@ -110,6 +110,18 @@ void SET_DEFAULT_COND_QP_OCP2DENSE_ARG(struct COND_QP_OCP2DENSE_ARG *cond_arg)
 
 	cond_arg->cond_last_stage = 1; // condense last stage
 	cond_arg->comp_dual_sol = 1; // compute dual solution
+	cond_arg->square_root_alg = 1; // square root algorithm (faster but requires RSQ>0)
+
+	return;
+
+	}
+
+
+
+void SET_COND_QP_OCP2DENSE_ARG_RIC_ALG(int ric_alg, struct COND_QP_OCP2DENSE_ARG *cond_arg)
+	{
+
+	cond_arg->square_root_alg = ric_alg;
 
 	return;
 
@@ -163,7 +175,7 @@ int MEMSIZE_COND_QP_OCP2DENSE(struct OCP_QP_DIM *ocp_dim, struct COND_QP_OCP2DEN
 	size += 2*(N+1)*sizeof(struct STRMAT); // Gamma L
 	size += 2*sizeof(struct STRMAT); // Lx AL
 	size += 2*(N+1)*sizeof(struct STRVEC); // Gammab l
-	size += 2*sizeof(struct STRVEC); // tmp_ngM tmp_nuxM
+	size += 2*sizeof(struct STRVEC); // tmp_nbgM tmp_nuxM
 
 	int nu_tmp = 0;
 	for(ii=0; ii<N; ii++)
@@ -179,9 +191,8 @@ int MEMSIZE_COND_QP_OCP2DENSE(struct OCP_QP_DIM *ocp_dim, struct COND_QP_OCP2DEN
 		size += 1*SIZE_STRVEC(nx[ii+1]); // Gammab
 	for(ii=0; ii<=N; ii++)
 		size += SIZE_STRVEC(nu[ii]+nx[ii]); // l
-	size += SIZE_STRVEC(ngM); // tmp_ngM
+	size += 1*SIZE_STRVEC(nbM+ngM); // tmp_nbgM
 	size += 1*SIZE_STRVEC(nuM+nxM); // tmp_nuxM
-	size += 1*SIZE_STRVEC(ngM); // tmp_ngM
 
 	size += 1*(nbM+ngM)*sizeof(int); // idxs_rev
 
@@ -256,7 +267,7 @@ void CREATE_COND_QP_OCP2DENSE(struct OCP_QP_DIM *ocp_dim, struct COND_QP_OCP2DEN
 	sv_ptr += N+1;
 	cond_ws->l = sv_ptr;
 	sv_ptr += N+1;
-	cond_ws->tmp_ngM = sv_ptr;
+	cond_ws->tmp_nbgM = sv_ptr;
 	sv_ptr += 1;
 	cond_ws->tmp_nuxM = sv_ptr;
 	sv_ptr += 1;
@@ -306,8 +317,8 @@ void CREATE_COND_QP_OCP2DENSE(struct OCP_QP_DIM *ocp_dim, struct COND_QP_OCP2DEN
 		CREATE_STRVEC(nu[ii]+nx[ii], cond_ws->l+ii, c_ptr);
 		c_ptr += (cond_ws->l+ii)->memsize;
 		}
-	CREATE_STRVEC(ngM, cond_ws->tmp_ngM, c_ptr);
-	c_ptr += cond_ws->tmp_ngM->memsize;
+	CREATE_STRVEC(nbM+ngM, cond_ws->tmp_nbgM, c_ptr);
+	c_ptr += cond_ws->tmp_nbgM->memsize;
 	c_tmp = c_ptr;
 	CREATE_STRVEC(nuM+nxM, cond_ws->tmp_nuxM, c_ptr);
 	c_ptr += cond_ws->tmp_nuxM->memsize;

@@ -374,9 +374,9 @@ void d_update_var_qp(struct d_core_qp_ipm_workspace *cws)
 #else
 //	alpha_prim = alpha_prim * ((1.0-alpha)*0.99 + alpha*0.9999999);
 //	alpha_dual = alpha_dual * ((1.0-alpha)*0.99 + alpha*0.9999999);
-	alpha_prim = alpha_prim * ((1.0-alpha_prim)*0.99 + alpha_prim*0.9999999);
-	alpha_dual = alpha_dual * ((1.0-alpha_dual)*0.99 + alpha_dual*0.9999999);
-	alpha = alpha * ((1.0-alpha)*0.99 + alpha*0.9999999);
+	alpha_prim = alpha_prim * ((1.0-alpha_prim)*0.99 + alpha_prim*0.9999997);
+	alpha_dual = alpha_dual * ((1.0-alpha_dual)*0.99 + alpha_dual*0.9999997);
+	alpha = alpha * ((1.0-alpha)*0.99 + alpha*0.9999997);
 #endif
 
 	// local variables

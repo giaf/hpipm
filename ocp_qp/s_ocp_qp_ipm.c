@@ -114,6 +114,7 @@
 #define SET_OCP_QP_IPM_ARG_TOL_COMP s_set_ocp_qp_ipm_arg_tol_comp
 #define SET_OCP_QP_IPM_ARG_REG_PRIM s_set_ocp_qp_ipm_arg_reg_prim
 #define SET_OCP_QP_IPM_ARG_WARM_START s_set_ocp_qp_ipm_arg_warm_start
+#define SET_OCP_QP_IPM_ARG_RIC_ALG s_set_ocp_qp_ipm_arg_ric_alg
 // ipm
 #define SIZEOF_OCP_QP_IPM_WORKSPACE s_sizeof_ocp_qp_ipm_workspace
 #define MEMSIZE_OCP_QP_IPM s_memsize_ocp_qp_ipm

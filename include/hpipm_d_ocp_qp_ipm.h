@@ -66,8 +66,9 @@ struct d_ocp_qp_ipm_arg
 	int cond_pred_corr; // conditional Mehrotra's predictor-corrector
 	int itref_pred_max; // max number of iterative refinement steps for predictor step
 	int itref_corr_max; // max number of iterative refinement steps for corrector step
-	int warm_start; // 0 no warm start, 1 warm start primal sol
-	int lq_fact; // 0 syrk+potrf, 1 mix, 2 lq
+	int warm_start; // 0 no warm start, 1 warm start primal sol, 2 warm start primal and dual sol
+	int square_root_alg; // 0 classical Riccati, 1 square-root Riccati
+	int lq_fact; // 0 syrk+potrf, 1 mix, 2 lq (for square_root_alg==1)
 	int abs_form; // absolute IPM formulation
 	int comp_dual_sol; // dual solution (only for abs_form==1)
 	int comp_res_exit; // compute residuals on exit (only for abs_form==1 and comp_dual_sol==1)
@@ -94,6 +95,8 @@ struct d_ocp_qp_ipm_workspace
 	struct blasfeo_dvec *Pb; // Pb
 	struct blasfeo_dvec *Zs_inv;
 	struct blasfeo_dmat *L;
+	struct blasfeo_dmat *Ls; // TODO
+	struct blasfeo_dmat *P; // TODO
 	struct blasfeo_dmat *Lh;
 	struct blasfeo_dmat *AL;
 	struct blasfeo_dmat *lq0;
@@ -118,22 +121,24 @@ int d_memsize_ocp_qp_ipm_arg(struct d_ocp_qp_dim *ocp_dim);
 void d_create_ocp_qp_ipm_arg(struct d_ocp_qp_dim *ocp_dim, struct d_ocp_qp_ipm_arg *arg, void *mem);
 //
 void d_set_default_ocp_qp_ipm_arg(enum hpipm_mode mode, struct d_ocp_qp_ipm_arg *arg);
-//
+// set maximum number of iterations
 void d_set_ocp_qp_ipm_arg_iter_max(int iter_max, struct d_ocp_qp_ipm_arg *arg);
-//
+// set initial value of barrier parameter
 void d_set_ocp_qp_ipm_arg_mu0(double mu0, struct d_ocp_qp_ipm_arg *arg);
-//
+// set exit tolerance on stationarity condition
 void d_set_ocp_qp_ipm_arg_tol_stat(double tol_stat, struct d_ocp_qp_ipm_arg *arg);
-//
+// set exit tolerance on equality constr
 void d_set_ocp_qp_ipm_arg_tol_eq(double tol_eq, struct d_ocp_qp_ipm_arg *arg);
-//
+// set exit tolerance on inequality constr
 void d_set_ocp_qp_ipm_arg_tol_ineq(double tol_ineq, struct d_ocp_qp_ipm_arg *arg);
-//
+// set exit tolerance on complementarity condition
 void d_set_ocp_qp_ipm_arg_tol_comp(double tol_comp, struct d_ocp_qp_ipm_arg *arg);
-//
+// set regularization of primal variables
 void d_set_ocp_qp_ipm_arg_reg_prim(double tol_comp, struct d_ocp_qp_ipm_arg *arg);
-//
+// set warm start: 0 no warm start, 1 primal var
 void d_set_ocp_qp_ipm_arg_warm_start(int warm_start, struct d_ocp_qp_ipm_arg *arg);
+// set riccati algorithm: 0 classic, 1 square-root
+void d_set_ocp_qp_ipm_arg_ric_alg(int alg, struct d_ocp_qp_ipm_arg *arg);
 
 //
 int d_sizeof_ocp_qp_ipm_workspace();

@@ -203,7 +203,7 @@ void CREATE_COND_QP_OCP2OCP_ARG(int N2, struct COND_QP_OCP2OCP_ARG *part_cond_ar
 		}
 #endif
 
-return;
+	return;
 
 	}
 
@@ -224,7 +224,23 @@ void SET_DEFAULT_COND_QP_OCP2OCP_ARG(int N2, struct COND_QP_OCP2OCP_ARG *part_co
 	// cond_last_stage at last stage
 	part_cond_arg->cond_arg[N2].cond_last_stage = 1;
 
-return;
+	return;
+
+	}
+
+
+
+void SET_COND_QP_OCP2OCP_ARG_RIC_ALG(int ric_alg, int N2, struct COND_QP_OCP2OCP_ARG *part_cond_arg)
+	{
+
+	int ii;
+
+	for(ii=0; ii<=N2; ii++)
+		{
+		SET_COND_QP_OCP2DENSE_ARG_RIC_ALG(ric_alg, part_cond_arg->cond_arg+ii);
+		}
+
+	return;
 
 	}
 

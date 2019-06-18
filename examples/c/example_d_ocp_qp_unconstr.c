@@ -214,6 +214,8 @@ int main()
 	d_set_ocp_qp_ipm_arg_reg_prim(1e-12, &arg);
 	d_set_ocp_qp_ipm_arg_warm_start(0, &arg);
 
+//	d_set_ocp_qp_ipm_arg_ric_alg(0, &arg);
+
 /************************************************
 * ipm workspace
 ************************************************/
@@ -314,6 +316,16 @@ int main()
 		d_print_mat(1, nx[ii], x, 1);
 		}
 
+	// pi
+	double *pi = malloc(nx_max*sizeof(double));
+
+	printf("\npi = \n");
+	for(ii=0; ii<N; ii++)
+		{
+		d_cvt_ocp_qp_sol_to_colmaj_pi(ii, &qp_sol, pi);
+		d_print_mat(1, nx[ii+1], pi, 1);
+		}
+
 /************************************************
 * print ipm statistics
 ************************************************/
@@ -350,6 +362,7 @@ int main()
 
 	free(u);
 	free(x);
+	free(pi);
 
 	return 0;
 

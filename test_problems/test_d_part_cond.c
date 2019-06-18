@@ -767,6 +767,9 @@ int main()
 	d_create_cond_qp_ocp2ocp_arg(dim2.N, &part_cond_arg, part_cond_arg_mem);
 	d_set_default_cond_qp_ocp2ocp_arg(dim2.N, &part_cond_arg);
 
+//	for(ii=0; ii<=N2; ii++)
+//		part_cond_arg.cond_arg[ii].square_root_alg = 0;
+
 	// ws
 	int part_cond_size = d_memsize_cond_qp_ocp2ocp(&dim, block_size, &dim2, &part_cond_arg);
 	printf("\npart cond size = %d\n", part_cond_size);
@@ -957,6 +960,8 @@ int main()
 //	arg.iter_max = 20;
 //	arg.stat_max = 100;
 //	arg.pred_corr = 1;
+
+//	arg.square_root_alg = 0;
 
 /************************************************
 * ipm

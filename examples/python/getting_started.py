@@ -14,14 +14,17 @@ end_time = time.time()
 print('create dim time {:e}'.format(end_time-start_time))
 
 start_time = time.time()
-dims.set('nx', np.array([2, 2, 2, 2, 2, 2]))
+dims.set('nx', np.array([2, 2, 2, 2, 2, 2])) # number of states
 end_time = time.time()
 print('set nx time {:e}'.format(end_time-start_time))
-dims.set('nu', np.array([1, 1, 1, 1, 1]))
-dims.set('nbx', 2, 0)
+dims.set('nu', np.array([1, 1, 1, 1, 1])) # number of inputs
+dims.set('nbx', 2, 0) # number of state bounds
 #dims.set('ng', 2, 0)
 dims.set('nbx', 2, 5)
 #dims.set('ns', 2, 5)
+
+#dims.print_C_struct()
+
 
 
 # data
