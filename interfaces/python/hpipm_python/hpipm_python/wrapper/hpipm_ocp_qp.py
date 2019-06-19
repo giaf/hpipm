@@ -172,6 +172,8 @@ class hpipm_ocp_qp:
 			value_ = value
 			value = np.array((1,))
 			value[0] = value_
+		    else:
+			raise Exception("Trying to assign value which is not a vector nor a scalar. Exiting.")
 		# non-native setters (not implemented as C APIs)
 		setter_map = {
 			"Jx" : self.set_Jx,
