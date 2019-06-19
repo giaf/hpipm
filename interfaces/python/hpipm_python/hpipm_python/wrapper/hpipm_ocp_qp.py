@@ -167,6 +167,11 @@ class hpipm_ocp_qp:
 
 	
 	def set(self, field, value, idx=None):
+		if type(value) is not np.ndarray:
+		    if type(value) is int:
+			value_ = value
+			value = np.array((1,))
+			value[0] = value_
 		# non-native setters (not implemented as C APIs)
 		setter_map = {
 			"Jx" : self.set_Jx,
