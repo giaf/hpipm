@@ -224,6 +224,14 @@ void SET_DENSE_QP_IPM_ARG_REG_DUAL(REAL reg, struct DENSE_QP_IPM_ARG *arg)
 
 
 
+void SET_DENSE_QP_IPM_ARG_WARM_START(int warm_start, struct DENSE_QP_IPM_ARG *arg)
+	{
+	arg->warm_start = warm_start;
+	return;
+	}
+
+
+
 int MEMSIZE_DENSE_QP_IPM(struct DENSE_QP_DIM *dim, struct DENSE_QP_IPM_ARG *arg)
 	{
 

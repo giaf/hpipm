@@ -37,6 +37,8 @@
 #include <blasfeo_target.h>
 #include <blasfeo_common.h>
 
+#include "hpipm_s_cond.h"
+
 
 
 #ifdef __cplusplus
@@ -67,6 +69,8 @@ int s_memsize_cond_qp_ocp2ocp_arg(int N2);
 void s_create_cond_qp_ocp2ocp_arg(int N2, struct s_cond_qp_ocp2ocp_arg *cond_arg, void *mem);
 //
 void s_set_default_cond_qp_ocp2ocp_arg(int N2, struct s_cond_qp_ocp2ocp_arg *cond_arg);
+// set riccati-like algorithm: 0 classical, 1 squre-root
+void s_set_cond_qp_ocp2ocp_arg_ric_alg(int ric_alg, int N2, struct s_cond_qp_ocp2ocp_arg *cond_arg);
 
 //
 void s_compute_block_size_cond_qp_ocp2ocp(int N, int N2, int *block_size);

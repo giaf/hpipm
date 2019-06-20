@@ -109,6 +109,7 @@
 #define SET_DENSE_QP_IPM_ARG_TOL_COMP s_set_dense_qp_ipm_arg_tol_comp
 #define SET_DENSE_QP_IPM_ARG_REG_PRIM s_set_dense_qp_ipm_arg_reg_prim
 #define SET_DENSE_QP_IPM_ARG_REG_DUAL s_set_dense_qp_ipm_arg_reg_dual
+#define SET_DENSE_QP_IPM_ARG_WARM_START s_set_dense_qp_ipm_arg_warm_start
 // ipm
 #define MEMSIZE_DENSE_QP_IPM s_memsize_dense_qp_ipm
 #define CREATE_DENSE_QP_IPM s_create_dense_qp_ipm

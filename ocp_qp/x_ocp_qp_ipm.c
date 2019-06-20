@@ -74,6 +74,7 @@ void SET_DEFAULT_OCP_QP_IPM_ARG(enum HPIPM_MODE mode, struct OCP_QP_IPM_ARG *arg
 		arg->itref_pred_max = 0; // not used
 		arg->itref_corr_max = 0; // not used
 		arg->reg_prim = 1e-15;
+		arg->square_root_alg = 1;
 		arg->lq_fact = 0; // not used
 		arg->lam_min = 1e-30;
 		arg->t_min = 1e-30;
@@ -97,6 +98,7 @@ void SET_DEFAULT_OCP_QP_IPM_ARG(enum HPIPM_MODE mode, struct OCP_QP_IPM_ARG *arg
 		arg->itref_pred_max = 0;
 		arg->itref_corr_max = 0;
 		arg->reg_prim = 1e-15;
+		arg->square_root_alg = 1;
 		arg->lq_fact = 0;
 		arg->lam_min = 1e-30;
 		arg->t_min = 1e-30;
@@ -120,6 +122,7 @@ void SET_DEFAULT_OCP_QP_IPM_ARG(enum HPIPM_MODE mode, struct OCP_QP_IPM_ARG *arg
 		arg->itref_pred_max = 0;
 		arg->itref_corr_max = 2;
 		arg->reg_prim = 1e-15;
+		arg->square_root_alg = 1;
 		arg->lq_fact = 1;
 		arg->lam_min = 1e-30;
 		arg->t_min = 1e-30;
@@ -143,6 +146,7 @@ void SET_DEFAULT_OCP_QP_IPM_ARG(enum HPIPM_MODE mode, struct OCP_QP_IPM_ARG *arg
 		arg->itref_pred_max = 0;
 		arg->itref_corr_max = 4;
 		arg->reg_prim = 1e-15;
+		arg->square_root_alg = 1;
 		arg->lq_fact = 2;
 		arg->lam_min = 1e-30;
 		arg->t_min = 1e-30;
@@ -227,6 +231,14 @@ void SET_OCP_QP_IPM_ARG_WARM_START(int warm_start, struct OCP_QP_IPM_ARG *arg)
 
 
 
+void SET_OCP_QP_IPM_ARG_RIC_ALG(int ric_alg, struct OCP_QP_IPM_ARG *arg)
+	{
+	arg->square_root_alg = ric_alg;
+	return;
+	}
+
+
+
 int SIZEOF_OCP_QP_IPM_WORKSPACE()
 	{
 	return sizeof(struct OCP_QP_IPM_WORKSPACE);
@@ -300,27 +312,48 @@ int MEMSIZE_OCP_QP_IPM(struct OCP_QP_DIM *dim, struct OCP_QP_IPM_ARG *arg)
 	size += 10*sizeof(struct STRVEC); // tmp_nxM (4+2)*tmp_nbgM (1+1)*tmp_nsM tmp_m
 
 	size += 1*(N+1)*sizeof(struct STRMAT); // L
+	if(!arg->square_root_alg)
+		{
+		size += 1*(N+1)*sizeof(struct STRMAT); // P
+		size += 1*sizeof(struct STRMAT); // Ls
+		}
 	if(arg->lq_fact>0)
+		{
 		size += 1*(N+1)*sizeof(struct STRMAT); // Lh
+		}
 	size += 2*sizeof(struct STRMAT); // AL
 	if(arg->lq_fact>0)
+		{
 		size += 1*sizeof(struct STRMAT); // lq0
+		}
 
 	size += 1*SIZE_STRVEC(nxM); // tmp_nxM
 	size += 4*SIZE_STRVEC(nbM+ngM); // tmp_nbgM
 	size += 1*SIZE_STRVEC(nsM); // tmp_nsM
 	for(ii=0; ii<N; ii++) size += 1*SIZE_STRVEC(nx[ii+1]); // Pb
 	for(ii=0; ii<=N; ii++) size += 1*SIZE_STRVEC(2*ns[ii]); // Zs_inv
-	for(ii=0; ii<=N; ii++) size += 2*SIZE_STRMAT(nu[ii]+nx[ii]+1, nu[ii]+nx[ii]); // L
+
+	for(ii=0; ii<=N; ii++) size += 1*SIZE_STRMAT(nu[ii]+nx[ii]+1, nu[ii]+nx[ii]); // L
+	if(!arg->square_root_alg)
+		{
+		for(ii=0; ii<=N; ii++) size += 1*SIZE_STRMAT(nx[ii]+1, nx[ii]); // P
+		size += 1*SIZE_STRMAT(nxM+1, nuM); // Ls
+		}
 	if(arg->lq_fact>0)
-		for(ii=0; ii<=N; ii++) size += 2*SIZE_STRMAT(nu[ii]+nx[ii]+1, nu[ii]+nx[ii]); // Lh
+		{
+		for(ii=0; ii<=N; ii++) size += 1*SIZE_STRMAT(nu[ii]+nx[ii]+1, nu[ii]+nx[ii]); // Lh
+		}
 	size += 2*SIZE_STRMAT(nuM+nxM+1, nxM+ngM); // AL
 	if(arg->lq_fact>0)
+		{
 		size += 1*SIZE_STRMAT(nuM+nxM, 2*nuM+3*nxM+ngM); // lq0
+		}
 	size += 1*SIZE_STRVEC(nct); // tmp_m
 
 	if(arg->lq_fact>0)
+		{
 		size += 1*GELQF_WORKSIZE(nuM+nxM, 2*nuM+3*nxM+ngM); // lq_work0
+		}
 
 	size += 5*arg->stat_max*sizeof(REAL);
 
@@ -425,6 +458,13 @@ void CREATE_OCP_QP_IPM(struct OCP_QP_DIM *dim, struct OCP_QP_IPM_ARG *arg, struc
 
 	workspace->L = sm_ptr;
 	sm_ptr += N+1;
+	if(!arg->square_root_alg)
+		{
+		workspace->P = sm_ptr;
+		sm_ptr += N+1;
+		workspace->Ls = sm_ptr;
+		sm_ptr += 1;
+		}
 	if(arg->lq_fact>0)
 		{
 		workspace->Lh = sm_ptr;
@@ -511,6 +551,16 @@ void CREATE_OCP_QP_IPM(struct OCP_QP_DIM *dim, struct OCP_QP_IPM_ARG *arg, struc
 		{
 		CREATE_STRMAT(nu[ii]+nx[ii]+1, nu[ii]+nx[ii], workspace->L+ii, c_ptr);
 		c_ptr += (workspace->L+ii)->memsize;
+		}
+	if(!arg->square_root_alg)
+		{
+		for(ii=0; ii<=N; ii++)
+			{
+			CREATE_STRMAT(nx[ii]+1, nx[ii], workspace->P+ii, c_ptr);
+			c_ptr += (workspace->P+ii)->memsize;
+			}
+		CREATE_STRMAT(nxM+1, nuM, workspace->Ls, c_ptr);
+		c_ptr += (workspace->Ls)->memsize;
 		}
 
 	if(arg->lq_fact>0)

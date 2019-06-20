@@ -51,6 +51,33 @@ void INIT_VAR_TREE_OCP_QP(struct TREE_OCP_QP *qp, struct TREE_OCP_QP_SOL *qp_sol
 
 	REAL thr0 = 0.1;
 
+
+
+	// primal and dual variables
+	if(arg->warm_start==2)
+		{
+
+		thr0 = 1e-1;
+
+		for(ii=0; ii<Nn; ii++)
+			{
+			lam_lb = qp_sol->lam[ii].pa+0;
+			t_lb = qp_sol->t[ii].pa+0;
+
+			for(jj=0; jj<2*nb[ii]+2*ng[ii]+2*ns[ii]; jj++)
+				{
+				if(lam_lb[jj]<thr0)
+					lam_lb[jj] = thr0;
+				if(t_lb[jj]<thr0)
+					t_lb[jj] = thr0;
+				}
+			}
+
+		return;
+		}
+
+
+
 	// ux
 	if(arg->warm_start==0)
 		{

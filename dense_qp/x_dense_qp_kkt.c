@@ -56,6 +56,30 @@ void INIT_VAR_DENSE_QP(struct DENSE_QP *qp, struct DENSE_QP_SOL *qp_sol, struct 
 	int idxb0;
 	REAL thr0 = 0.5;
 
+
+
+	// primal and dual variables
+	if(arg->warm_start==2)
+		{
+
+		thr0 = 1e-1;
+
+		for(ii=0; ii<2*nb+2*ng+2*ns; ii++)
+			{
+			if(lam[ii]<thr0)
+				lam[ii] = thr0;
+			if(t[ii]<thr0)
+				t[ii] = thr0;
+			}
+
+
+		return;
+
+		}
+
+
+
+
 	// primal variables
 	if(arg->warm_start==0)
 		{

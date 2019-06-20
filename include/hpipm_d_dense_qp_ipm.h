@@ -69,7 +69,7 @@ struct d_dense_qp_ipm_arg
 	int scale; // scale hessian
 	int itref_pred_max; // max number of iterative refinement steps for predictor step
 	int itref_corr_max; // max number of iterative refinement steps for corrector step
-	int warm_start; // 0 no warm start, 1 warm start primal sol
+	int warm_start; // 0 no warm start, 1 warm start primal sol, 2 warm start primal and dual sol
 	int lq_fact; // 0 syrk+potrf, 1 mix, 2 lq
 	int abs_form; // absolute IPM formulation
 	int comp_res_exit; // compute residuals on exit (only for abs_form==1)
@@ -140,6 +140,8 @@ void d_set_dense_qp_ipm_arg_tol_comp(double tol_comp, struct d_dense_qp_ipm_arg 
 void d_set_dense_qp_ipm_arg_reg_prim(double reg, struct d_dense_qp_ipm_arg *arg);
 //
 void d_set_dense_qp_ipm_arg_reg_dual(double reg, struct d_dense_qp_ipm_arg *arg);
+//
+void d_set_dense_qp_ipm_arg_warm_start(int warm_start, struct d_dense_qp_ipm_arg *arg);
 
 //
 int d_memsize_dense_qp_ipm(struct d_dense_qp_dim *qp_dim, struct d_dense_qp_ipm_arg *arg);

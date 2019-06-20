@@ -50,6 +50,7 @@ struct s_cond_qp_ocp2dense_arg
 	int cond_last_stage; // condense last stage
 //	int cond_variant; // TODO
 	int comp_dual_sol; // dual solution
+	int square_root_alg; // square root algorithm (faster but requires RSQ>0)
 	int memsize;
 	};
 
@@ -63,7 +64,7 @@ struct s_cond_qp_ocp2dense_workspace
 	struct blasfeo_smat *AL;
 	struct blasfeo_svec *Gammab;
 	struct blasfeo_svec *l;
-	struct blasfeo_svec *tmp_ngM;
+	struct blasfeo_svec *tmp_nbgM;
 	struct blasfeo_svec *tmp_nuxM;
 	int *idxs_rev;
 	int bs; // block size
@@ -78,6 +79,8 @@ int s_memsize_cond_qp_ocp2dense_arg();
 void s_create_cond_qp_ocp2dense_arg(struct s_cond_qp_ocp2dense_arg *cond_arg, void *mem);
 //
 void s_set_default_cond_qp_ocp2dense_arg(struct s_cond_qp_ocp2dense_arg *cond_arg);
+// set riccati-like algorithm: 0 classical, 1 square-root
+void s_set_cond_qp_ocp2dense_arg_ric_alg(int ric_alg, struct s_cond_qp_ocp2dense_arg *cond_arg);
 
 //
 void s_compute_qp_dim_ocp2dense(struct s_ocp_qp_dim *ocp_dim, struct s_dense_qp_dim *dense_dim);

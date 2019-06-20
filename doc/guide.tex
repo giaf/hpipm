@@ -65,10 +65,10 @@ The OCP QP is a QP in the form
 \min_{x,u,s} & \quad \sum_{n=0}^N \frac 1 2 \begin{bmatrix} u_n \\ x_n \\ 1 \end{bmatrix}^T \begin{bmatrix} R_n & S_n & r_n \\ S_n^T & Q_n & q_n \\ r_n^T & q_n^T & 0 \end{bmatrix} \begin{bmatrix} u_n \\ x_n \\ 1 \end{bmatrix} + \frac 1 2 \begin{bmatrix} s^l_n \\ s^u_n \\ 1 \end{bmatrix}^T \begin{bmatrix} Z^l_n & 0 & z^l_n \\ 0 & Z^u_n & z^u_n \\ (z^l_n)^T & (z^u_n)^T & 0 \end{bmatrix} \begin{bmatrix} s^l_n \\ s^u_n \\ 1 \end{bmatrix} \\
 \text{s.t}  & & \\
      & \quad x_{n+1} = A_n x_n + B_n u_n + b_n, \qquad \qquad \qquad \qquad \qquad \qquad n=0,\dots,N-1, &\\
-     & \quad \begin{bmatrix} \underline u_n \\ \underline x_n \\ \underline d_n \end{bmatrix} \leq \begin{bmatrix} J_{b,u,n} & 0 \\ 0 & J_{b,x,n} \\ D_n & C_n \end{bmatrix} \begin{bmatrix} u_n \\ x_n \end{bmatrix} + \begin{bmatrix} J_{s,u,n} \\ J_{s,x,n} \\ J_{s,g,n} \end{bmatrix} s^l_n, \quad \qquad \quad \,n=0.\dots,N, &\\
-& \quad \begin{bmatrix} J_{b,u,n} & 0 \\ 0 & J_{b,x,n} \\ D_n & C_n \end{bmatrix} \begin{bmatrix} u_n \\ x_n \end{bmatrix} - \begin{bmatrix} J_{s,u,n} \\ J_{s,x,n} \\ J_{s,g,n} \end{bmatrix} s^u_n \leq \begin{bmatrix} \overline u_n \\ \overline x_n \\ \overline d_n \end{bmatrix} , \qquad \qquad n=0.\dots,N, & & \\
-& \quad s^l_n\geq \underline{s}^l_n, \qquad \qquad \qquad \qquad \qquad \qquad \qquad \qquad \qquad \qquad \,\,\,  n=0.\dots,N, & &\\
-& \quad s^u_n\geq \underline{s}^u_n, \qquad \qquad \qquad \qquad \qquad \qquad \qquad \qquad \qquad \qquad \,\,\,  n=0.\dots,N, & &\\
+     & \quad \begin{bmatrix} \underline u_n \\ \underline x_n \\ \underline d_n \end{bmatrix} \leq \begin{bmatrix} J_{b,u,n} & 0 \\ 0 & J_{b,x,n} \\ D_n & C_n \end{bmatrix} \begin{bmatrix} u_n \\ x_n \end{bmatrix} + \begin{bmatrix} J_{s,u,n} \\ J_{s,x,n} \\ J_{s,g,n} \end{bmatrix} s^l_n, \quad \qquad \quad \,n=0,\dots,N, &\\
+& \quad \begin{bmatrix} J_{b,u,n} & 0 \\ 0 & J_{b,x,n} \\ D_n & C_n \end{bmatrix} \begin{bmatrix} u_n \\ x_n \end{bmatrix} - \begin{bmatrix} J_{s,u,n} \\ J_{s,x,n} \\ J_{s,g,n} \end{bmatrix} s^u_n \leq \begin{bmatrix} \overline u_n \\ \overline x_n \\ \overline d_n \end{bmatrix} , \qquad \qquad n=0,\dots,N, & & \\
+& \quad s^l_n\geq \underline{s}^l_n, \qquad \qquad \qquad \qquad \qquad \qquad \qquad \qquad \qquad \qquad \,\,\,  n=0,\dots,N, & &\\
+& \quad s^u_n\geq \underline{s}^u_n, \qquad \qquad \qquad \qquad \qquad \qquad \qquad \qquad \qquad \qquad \,\,\,  n=0,\dots,N, & &\\
 \end{align*}
 where $u_n$ are the control inputs, $x_n$ are the states, $s^l_n$ ($s^u_n$) are the slack variables of the soft lower (upper) constraints
 and $\underline{s}^l_n$ and $\underline{s}^u_n$ are the lower bounds on lower and upper slacks, respectively.

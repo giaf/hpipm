@@ -44,31 +44,34 @@
 
 
 
-#define AXPY_LIBSTR blasfeo_daxpy
+#define AXPY blasfeo_daxpy
 #define COND_QP_OCP2DENSE_ARG d_cond_qp_ocp2dense_arg
 #define COND_QP_OCP2DENSE_WORKSPACE d_cond_qp_ocp2dense_workspace
 #define DENSE_QP_SOL d_dense_qp_sol
-#define GEAD_LIBSTR blasfeo_dgead
-#define GECP_LIBSTR blasfeo_dgecp
-#define GEEX1_LIBSTR blasfeo_dgeex1
-#define GESE_LIBSTR blasfeo_dgese
-#define GEMM_NN_LIBSTR blasfeo_dgemm_nn
-#define GEMV_T_LIBSTR blasfeo_dgemv_t
-#define GEMV_N_LIBSTR blasfeo_dgemv_n
+#define GEAD blasfeo_dgead
+#define GECP blasfeo_dgecp
+#define GEEX1 blasfeo_dgeex1
+#define GESE blasfeo_dgese
+#define GEMM_NN blasfeo_dgemm_nn
+#define GEMM_NT blasfeo_dgemm_nt
+#define GEMV_T blasfeo_dgemv_t
+#define GEMV_N blasfeo_dgemv_n
 #define OCP_QP d_ocp_qp
 #define OCP_QP_SOL d_ocp_qp_sol
-#define POTRF_L_MN_LIBSTR blasfeo_dpotrf_l_mn
+#define POTRF_L_MN blasfeo_dpotrf_l_mn
 #define REAL double
-#define ROWAD_LIBSTR blasfeo_drowad
-#define ROWEX_LIBSTR blasfeo_drowex
-#define ROWIN_LIBSTR blasfeo_drowin
+#define ROWAD blasfeo_drowad
+#define ROWEX blasfeo_drowex
+#define ROWIN blasfeo_drowin
 #define STRMAT blasfeo_dmat
 #define STRVEC blasfeo_dvec
-#define SYMV_L_LIBSTR blasfeo_dsymv_l
-#define SYRK_LN_MN_LIBSTR blasfeo_dsyrk_ln_mn
-#define TRCP_L_LIBSTR blasfeo_dtrcp_l
-#define TRMM_RLNN_LIBSTR blasfeo_dtrmm_rlnn
-#define VECCP_LIBSTR blasfeo_dveccp
+#define SYMV_L blasfeo_dsymv_l
+#define SYRK_LN_MN blasfeo_dsyrk_ln_mn
+#define TRCP_L blasfeo_dtrcp_l
+#define TRTR_L blasfeo_dtrtr_l
+#define TRMM_RLNN blasfeo_dtrmm_rlnn
+#define VECAD_SP blasfeo_dvecad_sp
+#define VECCP blasfeo_dveccp
 
 #define COND_BABT d_cond_BAbt
 #define COND_B d_cond_b

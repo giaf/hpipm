@@ -60,6 +60,7 @@
 #define GELQF_PD blasfeo_dgelqf_pd
 #define GELQF_PD_LA blasfeo_dgelqf_pd_la
 #define GELQF_PD_LLA blasfeo_dgelqf_pd_lla
+#define GEMM_NT blasfeo_dgemm_nt
 #define GEMM_R_DIAG blasfeo_dgemm_nd
 #define GEMV_DIAG blasfeo_dgemv_d
 #define GEMV_N blasfeo_dgemv_n
@@ -89,6 +90,7 @@
 #define STRVEC blasfeo_dvec
 #define SYMV_L blasfeo_dsymv_l
 #define SYRK_LN blasfeo_dsyrk_ln
+#define SYRK_LN_MN blasfeo_dsyrk_ln_mn
 #define SYRK_POTRF_LN_MN blasfeo_dsyrk_dpotrf_ln_mn
 #define TRCP_L blasfeo_dtrcp_l
 #define TRMM_RLNN blasfeo_dtrmm_rlnn
@@ -98,6 +100,7 @@
 #define TRSV_LNN_MN blasfeo_dtrsv_lnn_mn
 #define TRSV_LTN blasfeo_dtrsv_ltn
 #define TRSV_LTN_MN blasfeo_dtrsv_ltn_mn
+#define TRTR_L blasfeo_dtrtr_l
 #define VECAD_SP blasfeo_dvecad_sp
 #define VECCP blasfeo_dveccp
 #define VECCPSC blasfeo_dveccpsc
