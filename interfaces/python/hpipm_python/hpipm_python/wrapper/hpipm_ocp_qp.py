@@ -173,11 +173,13 @@ class hpipm_ocp_qp:
 				value_ = value
 				value = np.array((1,))
 				value[0] = value_
+
 		# reshape np arrays with empty shape, that occur when using hpipm_matlab
 		if type(value) is np.ndarray and value.shape == ():
 			value_ = value
 			value = np.array((1,))
 			value[0] = value_
+
 		# non-native setters (not implemented as C APIs)
 		setter_map = {
 			"Jx" : self.set_Jx,
