@@ -41,6 +41,8 @@ void PRINT_OCP_QP_DIM(struct OCP_QP_DIM *qp_dim)
 	int *ng = qp_dim->ng;
 	int *ns = qp_dim->ns;
 
+	printf("N = %d\n\n", N);
+
 	printf("nx =\n");
 	for (ii = 0; ii <= N; ii++)
 		printf("\t%d", nx[ii]);
