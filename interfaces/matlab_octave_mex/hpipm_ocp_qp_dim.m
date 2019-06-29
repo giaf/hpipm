@@ -7,8 +7,6 @@ classdef hpipm_ocp_qp_dim < handle
 	methods
 
 		function obj = hpipm_ocp_qp_dim(N)
-			% compile mex for dims
-			compile_mex_ocp_qp_dim();
 			% create dims struct in C
 			obj.C_dim = ocp_qp_dim_create(N);
 		end

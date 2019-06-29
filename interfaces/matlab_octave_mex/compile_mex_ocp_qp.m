@@ -1,4 +1,4 @@
-function compile_mex_ocp_qp_dim()
+function compile_mex_ocp_qp()
 
 % get acados folder
 hpipm_folder = getenv('HPIPM_MAIN_FOLDER');

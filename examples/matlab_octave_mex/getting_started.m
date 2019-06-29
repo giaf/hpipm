@@ -12,6 +12,10 @@ end
 
 
 
+% compile mex interface
+compile_mex_ocp_qp();
+
+
 % dims
 N = 5;
 
