@@ -36,6 +36,10 @@ classdef hpipm_ocp_qp < handle
 			ocp_qp_print(obj.C_qp);
 		end
 
+		function codegen(obj, file_name, mode)
+			ocp_qp_codegen(obj.C_qp, file_name, mode);
+		end
+
 		function delete(obj)
 			%disp('in destructor');
 			ocp_qp_destroy(obj.C_qp);

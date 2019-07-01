@@ -54,6 +54,8 @@ void s_codegen_ocp_qp_dim(char *file_name, char *mode, struct s_ocp_qp_dim *qp_d
 //
 void s_print_ocp_qp(struct s_ocp_qp *qp);
 //
+void s_codegen_ocp_qp(char *file_name, char *mode, struct s_ocp_qp *qp);
+//
 void s_print_ocp_qp_sol(struct s_ocp_qp_sol *ocp_qp_sol, struct s_ocp_qp_dim *ocp_qp_dim);
 
 

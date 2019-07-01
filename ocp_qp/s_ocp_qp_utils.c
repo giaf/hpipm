@@ -42,6 +42,10 @@
 
 
 
+#define SINGLE_PRECISION
+
+
+
 #define BLASFEO_PRINT_MAT blasfeo_print_smat
 #define BLASFEO_PRINT_TRAN_VEC blasfeo_print_tran_svec
 #define OCP_QP s_ocp_qp
@@ -53,6 +57,7 @@
 #define PRINT_OCP_QP_DIM s_print_ocp_qp_dim
 #define CODEGEN_OCP_QP_DIM s_codegen_ocp_qp_dim
 #define PRINT_OCP_QP s_print_ocp_qp
+#define CODEGEN_OCP_QP s_codegen_ocp_qp
 #define PRINT_OCP_QP_SOL s_print_ocp_qp_sol
 
 

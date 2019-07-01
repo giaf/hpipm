@@ -78,7 +78,10 @@ qp.set('lx', x0, 0);
 qp.set('ux', x0, 0);
 qp.set('Jx', Jx, N);
 
+% print to shell
 qp.print_C_struct();
+% codegen
+qp.codegen('qp_data.c', 'a');
 
 
 
