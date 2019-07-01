@@ -76,7 +76,7 @@ void d_cvt_colmaj_to_ocp_qp(double **A, double **B, double **b, double **Q, doub
 //
 void d_cvt_rowmaj_to_ocp_qp(double **A, double **B, double **b, double **Q, double **S, double **R, double **q, double **r, int **idxb, double **lb, double **ub, double **C, double **D, double **lg, double **ug, double **Zl, double **Zu, double **zl, double **zu, int **idxs, double **ls, double **us, struct d_ocp_qp *qp);
 //
-void d_cvt_colmaj_to_ocp_qp_gf(char *field_name, int stage, double *mat, struct d_ocp_qp *qp);
+void d_cvt_colmaj_gen_to_ocp_qp(char *field_name, int stage, void *value, struct d_ocp_qp *qp);
 //
 void d_cvt_colmaj_mat_to_ocp_qp(char *field_name, int stage, double *mat, struct d_ocp_qp *qp);
 //

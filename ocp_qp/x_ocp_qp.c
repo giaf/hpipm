@@ -484,101 +484,183 @@ void CVT_ROWMAJ_TO_OCP_QP(REAL **A, REAL **B, REAL **b, REAL **Q, REAL **S, REAL
 
 
 // convert generic field
-void CVT_COLMAJ_TO_OCP_QP_GF(char *field_name, int stage, REAL *in, struct OCP_QP *qp)
+void CVT_COLMAJ_GEN_TO_OCP_QP(char *field_name, int stage, void *in, struct OCP_QP *qp)
 	{
+	int ii, jj, jj0;
+
 	// extract dim
 	int *nx = qp->dim->nx;
 	int *nu = qp->dim->nu;
 	int *nb = qp->dim->nb;
+	int *nbx = qp->dim->nbx;
+	int *nbu = qp->dim->nbu;
 	int *ng = qp->dim->ng;
 	int *ns = qp->dim->ns;
+
+	REAL *r_ptr;
+	int *i_ptr;
     
 	// matrices
 	if(hpipm_strcmp(field_name, "A")) 
 		{
-		CVT_TRAN_MAT2STRMAT(nx[stage+1], nx[stage], in, nx[stage+1], qp->BAbt+stage, nu[stage], 0);
+		r_ptr = in;
+		CVT_TRAN_MAT2STRMAT(nx[stage+1], nx[stage], r_ptr, nx[stage+1], qp->BAbt+stage, nu[stage], 0);
 		}
 	else if(hpipm_strcmp(field_name, "B")) 
 		{
-		CVT_TRAN_MAT2STRMAT(nx[stage+1], nu[stage], in, nx[stage+1], qp->BAbt+stage, 0, 0);
+		r_ptr = in;
+		CVT_TRAN_MAT2STRMAT(nx[stage+1], nu[stage], r_ptr, nx[stage+1], qp->BAbt+stage, 0, 0);
 		}
 	else if(hpipm_strcmp(field_name, "Q")) 
 		{
-		CVT_MAT2STRMAT(nx[stage], nx[stage], in, nx[stage], qp->RSQrq+stage, nu[stage], nu[stage]);
+		r_ptr = in;
+		CVT_MAT2STRMAT(nx[stage], nx[stage], r_ptr, nx[stage], qp->RSQrq+stage, nu[stage], nu[stage]);
 		}
 	else if(hpipm_strcmp(field_name, "S")) 
 		{
-		CVT_TRAN_MAT2STRMAT(nu[stage], nx[stage], in, nu[stage], qp->RSQrq+stage, nu[stage], 0);
+		r_ptr = in;
+		CVT_TRAN_MAT2STRMAT(nu[stage], nx[stage], r_ptr, nu[stage], qp->RSQrq+stage, nu[stage], 0);
 		}
 	else if(hpipm_strcmp(field_name, "R")) 
 		{
-		CVT_MAT2STRMAT(nu[stage], nu[stage], in, nu[stage], qp->RSQrq+stage, 0, 0);
+		r_ptr = in;
+		CVT_MAT2STRMAT(nu[stage], nu[stage], r_ptr, nu[stage], qp->RSQrq+stage, 0, 0);
 		}
 	else if(hpipm_strcmp(field_name, "C")) 
 		{
-		CVT_TRAN_MAT2STRMAT(ng[stage], nx[stage], in, ng[stage], qp->DCt+stage, nu[stage], 0);
+		r_ptr = in;
+		CVT_TRAN_MAT2STRMAT(ng[stage], nx[stage], r_ptr, ng[stage], qp->DCt+stage, nu[stage], 0);
 		}
 	else if(hpipm_strcmp(field_name, "D")) 
 		{
-		CVT_TRAN_MAT2STRMAT(ng[stage], nu[stage], in, ng[stage], qp->DCt+stage, 0, 0);
+		r_ptr = in;
+		CVT_TRAN_MAT2STRMAT(ng[stage], nu[stage], r_ptr, ng[stage], qp->DCt+stage, 0, 0);
 		}
 	// vectors
 	else if(hpipm_strcmp(field_name, "b") == 1)
 		{ 
-		CVT_TRAN_MAT2STRMAT(nx[stage+1], 1, in, nx[stage+1], &(qp->BAbt[stage]), nx[stage]+nu[stage], 0);
-		CVT_VEC2STRVEC(nx[stage+1], in, qp->b+stage, 0);
+		r_ptr = in;
+		CVT_TRAN_MAT2STRMAT(nx[stage+1], 1, r_ptr, nx[stage+1], &(qp->BAbt[stage]), nx[stage]+nu[stage], 0);
+		CVT_VEC2STRVEC(nx[stage+1], r_ptr, qp->b+stage, 0);
 		}
 	else if(hpipm_strcmp(field_name, "q"))
 		{ 
-		CVT_TRAN_MAT2STRMAT(nx[stage], 1, in, nx[stage], &(qp->RSQrq[stage]), nx[stage]+nu[stage], nu[stage]);
-		CVT_VEC2STRVEC(nx[stage], in, qp->rqz+stage, nu[stage]);
+		r_ptr = in;
+		CVT_TRAN_MAT2STRMAT(nx[stage], 1, r_ptr, nx[stage], &(qp->RSQrq[stage]), nx[stage]+nu[stage], nu[stage]);
+		CVT_VEC2STRVEC(nx[stage], r_ptr, qp->rqz+stage, nu[stage]);
 		}
 	else if(hpipm_strcmp(field_name, "r"))
 		{ 
-		CVT_TRAN_MAT2STRMAT(nu[stage], 1, in, nu[stage], &(qp->RSQrq[stage]), nx[stage]+nu[stage], 0);
-		CVT_VEC2STRVEC(nu[stage], in, qp->rqz+stage, 0);
+		r_ptr = in;
+		CVT_TRAN_MAT2STRMAT(nu[stage], 1, r_ptr, nu[stage], &(qp->RSQrq[stage]), nx[stage]+nu[stage], 0);
+		CVT_VEC2STRVEC(nu[stage], r_ptr, qp->rqz+stage, 0);
 		}
 	else if(hpipm_strcmp(field_name, "lb"))
 		{ 
-		CVT_VEC2STRVEC(nb[stage], in, qp->d+stage, 0);
+		r_ptr = in;
+		CVT_VEC2STRVEC(nb[stage], r_ptr, qp->d+stage, 0);
+		}
+	else if(hpipm_strcmp(field_name, "lu"))
+		{ 
+		r_ptr = in;
+		CVT_VEC2STRVEC(nbu[stage], r_ptr, qp->d+stage, 0);
+		}
+	else if(hpipm_strcmp(field_name, "lx"))
+		{ 
+		r_ptr = in;
+		CVT_VEC2STRVEC(nbx[stage], r_ptr, qp->d+stage, nbu[stage]);
 		}
 	else if(hpipm_strcmp(field_name, "ub"))
 		{ 
-		CVT_VEC2STRVEC(nb[stage], in, qp->d+stage, nb[stage]+ng[stage]);
+		r_ptr = in;
+		CVT_VEC2STRVEC(nb[stage], r_ptr, qp->d+stage, nb[stage]+ng[stage]);
 		VECSC_LIBSTR(nb[stage], -1.0, qp->d+stage, nb[stage]+ng[stage]);
+		}
+	else if(hpipm_strcmp(field_name, "uu"))
+		{ 
+		r_ptr = in;
+		CVT_VEC2STRVEC(nbu[stage], r_ptr, qp->d+stage, nb[stage]+ng[stage]);
+		VECSC_LIBSTR(nbu[stage], -1.0, qp->d+stage, nb[stage]+ng[stage]);
+		}
+	else if(hpipm_strcmp(field_name, "ux"))
+		{ 
+		r_ptr = in;
+		CVT_VEC2STRVEC(nbx[stage], r_ptr, qp->d+stage, nb[stage]+ng[stage]+nbu[stage]);
+		VECSC_LIBSTR(nbx[stage], -1.0, qp->d+stage, nb[stage]+ng[stage]+nbu[stage]);
 		}
 	else if(hpipm_strcmp(field_name, "lg"))
 		{ 
-		CVT_VEC2STRVEC(ng[stage], in, qp->d+stage, nb[stage]);
+		r_ptr = in;
+		CVT_VEC2STRVEC(ng[stage], r_ptr, qp->d+stage, nb[stage]);
 		}
 	else if(hpipm_strcmp(field_name, "ug"))
 		{ 
-		CVT_VEC2STRVEC(ng[stage], in, qp->d+stage, 2*nb[stage]+ng[stage]);
+		r_ptr = in;
+		CVT_VEC2STRVEC(ng[stage], r_ptr, qp->d+stage, 2*nb[stage]+ng[stage]);
 		VECSC_LIBSTR(ng[stage], -1.0, qp->d+stage, 2*nb[stage]+ng[stage]);
 		}
 	else if(hpipm_strcmp(field_name, "Zl"))
 		{ 
-		CVT_VEC2STRVEC(ns[stage], in, qp->Z+stage, 0);
+		r_ptr = in;
+		CVT_VEC2STRVEC(ns[stage], r_ptr, qp->Z+stage, 0);
 		}
 	else if(hpipm_strcmp(field_name, "Zu"))
 		{ 
-		CVT_VEC2STRVEC(ns[stage], in, qp->Z+stage, ns[stage]);
+		r_ptr = in;
+		CVT_VEC2STRVEC(ns[stage], r_ptr, qp->Z+stage, ns[stage]);
 		}
 	else if(hpipm_strcmp(field_name, "zl"))
 		{ 
-		CVT_VEC2STRVEC(ns[stage], in, qp->rqz+stage, nu[stage]+nx[stage]);
+		r_ptr = in;
+		CVT_VEC2STRVEC(ns[stage], r_ptr, qp->rqz+stage, nu[stage]+nx[stage]);
 		}
 	else if(hpipm_strcmp(field_name, "zu"))
 		{ 
-		CVT_VEC2STRVEC(ns[stage], in, qp->rqz+stage, nu[stage]+nx[stage]+ns[stage]);
+		r_ptr = in;
+		CVT_VEC2STRVEC(ns[stage], r_ptr, qp->rqz+stage, nu[stage]+nx[stage]+ns[stage]);
 		}
 	else if(hpipm_strcmp(field_name, "lls"))
 		{ 
-		CVT_VEC2STRVEC(ns[stage], in, qp->d+stage, 2*nb[stage]+2*ng[stage]);
+		r_ptr = in;
+		CVT_VEC2STRVEC(ns[stage], r_ptr, qp->d+stage, 2*nb[stage]+2*ng[stage]);
 		}
 	else if(hpipm_strcmp(field_name, "lus"))
 		{ 
-		CVT_VEC2STRVEC(ns[stage], in, qp->d+stage, 2*nb[stage]+2*ng[stage]+ns[stage]);
+		r_ptr = in;
+		CVT_VEC2STRVEC(ns[stage], r_ptr, qp->d+stage, 2*nb[stage]+2*ng[stage]+ns[stage]);
+		}
+	// int
+	else if(hpipm_strcmp(field_name, "Jx"))
+		{
+		r_ptr = in;
+		for(ii=0; ii<nbx[stage]; ii++)
+			{
+			jj0 = -1;
+			for(jj=0; jj<nx[stage]; jj++)
+				{
+				if(jj0==-1 & r_ptr[ii+jj*nbx[stage]]!=0.0)
+					{
+					jj0 = jj;
+					qp->idxb[stage][nbu[stage]+ii] = nu[stage]+jj;
+					}
+				}
+			}
+		}
+	else if(hpipm_strcmp(field_name, "Ju"))
+		{
+		r_ptr = in;
+		for(ii=0; ii<nbu[stage]; ii++)
+			{
+			jj0 = -1;
+			for(jj=0; jj<nu[stage]; jj++)
+				{
+				if(jj0==-1 & r_ptr[ii+jj*nbu[stage]]!=0.0)
+					{
+					jj0 = jj;
+					qp->idxb[stage][ii] = jj;
+					}
+				}
+			}
 		}
 	else
 		{

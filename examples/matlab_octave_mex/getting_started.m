@@ -16,32 +16,75 @@ end
 compile_mex_ocp_qp();
 
 
-% dims
+% dim
 N = 5;
 
 tic
-dims = hpipm_ocp_qp_dim(N);
+dim = hpipm_ocp_qp_dim(N);
 tmp_time = toc;
 fprintf('create dim time %e\n', tmp_time);
 
-dims.C_dim
+dim.C_dim
 
 tic
-dims.set('nx', 2, 0, N);
+dim.set('nx', 2, 0, N);
 tmp_time = toc;
 fprintf('set nx time %e\n', tmp_time);
-dims.set('nu', 1, 0, N-1);
-dims.set('nbx', 2, 0);
-dims.set('nbx', 2, 5);
+dim.set('nu', 1, 0, N-1);
+dim.set('nbx', 2, 0);
+dim.set('nbx', 2, 5);
 
-dims.print_C_struct();
+dim.print_C_struct();
+
+
+% data
+A = [1, 1; 0, 1];
+B = [0; 1];
+%b = [0; 0]
+
+Q = [1, 1; 0, 1];
+S = [0, 0];
+R = [1];
+q = [1; 1];
+%r = [0];
+
+Jx = [1, 0; 0, 1];
+x0 = [1; 1];
+
+
+% qp
+tic
+qp = hpipm_ocp_qp(dim);
+tmp_time = toc;
+fprintf('create qp time %e\n', tmp_time);
+
+qp.C_qp
+
+tic
+qp.set('A', A, 0, N-1);
+tmp_time = toc;
+fprintf('create set A time %e\n', tmp_time);
+qp.set('B', B, 0, N-1);
+qp.set('Q', Q, 0, N);
+qp.set('S', S, 0, N-1);
+qp.set('R', R, 0, N-1);
+qp.set('q', q, 0, N);
+%qp.set('r', r, 0, N-1);
+qp.set('Jx', Jx, 0);
+qp.set('lx', x0, 0);
+qp.set('ux', x0, 0);
+qp.set('Jx', Jx, N);
+
+qp.print_C_struct();
+
 
 
 
 if is_octave()
 	% directly call destructor for octave 4.2.2 (ubuntu 16.04) + others ???
 	if strcmp(version(), '4.2.2')
-		delete(dims);
+		delete(dim);
+		delete(qp);
 	end
 end
 
