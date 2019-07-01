@@ -34,6 +34,10 @@ classdef hpipm_ocp_qp_dim < handle
 			ocp_qp_dim_print(obj.C_dim);
 		end
 
+		function codegen(obj, file_name, mode)
+			ocp_qp_dim_codegen(obj.C_dim, file_name, mode);
+		end
+
 		function delete(obj)
 			%disp('in destructor');
 			ocp_qp_dim_destroy(obj.C_dim);

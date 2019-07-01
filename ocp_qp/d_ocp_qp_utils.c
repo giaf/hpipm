@@ -51,6 +51,7 @@
 
 
 #define PRINT_OCP_QP_DIM d_print_ocp_qp_dim
+#define CODEGEN_OCP_QP_DIM d_codegen_ocp_qp_dim
 #define PRINT_OCP_QP d_print_ocp_qp
 #define PRINT_OCP_QP_SOL d_print_ocp_qp_sol
 

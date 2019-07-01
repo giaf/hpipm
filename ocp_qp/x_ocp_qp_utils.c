@@ -78,6 +78,66 @@ void PRINT_OCP_QP_DIM(struct OCP_QP_DIM *qp_dim)
 
 
 
+void CODEGEN_OCP_QP_DIM(char *file_name, char *mode, struct OCP_QP_DIM *qp_dim)
+	{
+	int ii;
+
+	FILE *file = fopen(file_name, mode);
+
+	int N   = qp_dim->N;
+	int *nx = qp_dim->nx;
+	int *nu = qp_dim->nu;
+	int *nbx = qp_dim->nbx;
+	int *nbu = qp_dim->nbu;
+	int *ng = qp_dim->ng;
+	int *ns = qp_dim->ns;
+
+	// N
+	fprintf(file, "int N = %d;\n", N);
+	// nx
+	fprintf(file, "static int nnx[] = {");
+	for(ii=0; ii<=N; ii++)
+		fprintf(file, "%d, ", nx[ii]);
+	fprintf(file, "};\n");
+	fprintf(file, "int *nx = nnx;\n");
+	// nu
+	fprintf(file, "static int nnu[] = {");
+	for(ii=0; ii<=N; ii++)
+		fprintf(file, "%d, ", nu[ii]);
+	fprintf(file, "};\n");
+	fprintf(file, "int *nu = nnu;\n");
+	// nbx
+	fprintf(file, "static int nnbx[] = {");
+	for(ii=0; ii<=N; ii++)
+		fprintf(file, "%d, ", nbx[ii]);
+	fprintf(file, "};\n");
+	fprintf(file, "int *nbx = nnbx;\n");
+	// nbu
+	fprintf(file, "static int nnbu[] = {");
+	for(ii=0; ii<=N; ii++)
+		fprintf(file, "%d, ", nbu[ii]);
+	fprintf(file, "};\n");
+	fprintf(file, "int *nbu = nnbu;\n");
+	// ng
+	fprintf(file, "static int nng[] = {");
+	for(ii=0; ii<=N; ii++)
+		fprintf(file, "%d, ", ng[ii]);
+	fprintf(file, "};\n");
+	fprintf(file, "int *ng = nng;\n");
+	// ns
+	fprintf(file, "static int nns[] = {");
+	for(ii=0; ii<=N; ii++)
+		fprintf(file, "%d, ", ns[ii]);
+	fprintf(file, "};\n");
+	fprintf(file, "int *ns = nns;\n");
+
+	fclose(file);
+
+	return;
+	}
+
+
+
 void PRINT_OCP_QP(struct OCP_QP *qp)
 	{
 	int ii;

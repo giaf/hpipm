@@ -34,7 +34,10 @@ dim.set('nu', 1, 0, N-1);
 dim.set('nbx', 2, 0);
 dim.set('nbx', 2, 5);
 
+% print to shell
 dim.print_C_struct();
+% codegen
+dim.codegen('qp_data.c', 'w');
 
 
 % data
