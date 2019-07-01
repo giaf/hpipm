@@ -241,6 +241,7 @@ void CODEGEN_OCP_QP(char *file_name, char *mode, struct OCP_QP *qp)
 #else
 	fprintf(file, "float **hA = AA;\n");
 #endif
+
 	// B
 	for(nn=0; nn<N; nn++)
 		{
@@ -275,6 +276,7 @@ void CODEGEN_OCP_QP(char *file_name, char *mode, struct OCP_QP *qp)
 #else
 	fprintf(file, "float **hB = BB;\n");
 #endif
+
 	// b
 	for(nn=0; nn<N; nn++)
 		{
@@ -305,6 +307,111 @@ void CODEGEN_OCP_QP(char *file_name, char *mode, struct OCP_QP *qp)
 	fprintf(file, "double **hb = bb;\n");
 #else
 	fprintf(file, "float **hb = bb;\n");
+#endif
+
+	// Q
+	for(nn=0; nn<=N; nn++)
+		{
+#ifdef DOUBLE_PRECISION
+		fprintf(file, "static double Q%d[] = {", nn);
+#else
+		fprintf(file, "static float Q%d[] = {", nn);
+#endif
+		for(jj=0; jj<nx[nn]; jj++)
+			{
+			for(ii=0; ii<nx[nn]; ii++)
+				{
+#ifdef DOUBLE_PRECISION
+				fprintf(file, "%18.15e, ", BLASFEO_DMATEL(qp->RSQrq+nn, nu[nn]+ii, nu[nn]+jj));
+#else
+				fprintf(file, "%18.15e, ", BLASFEO_SMATEL(qp->RSQrq+nn, nu[nn]+ii, nu[nn]+jj));
+#endif
+				}
+			}
+		fprintf(file, "};\n");
+		}
+#ifdef DOUBLE_PRECISION
+	fprintf(file, "static double *QQ[] = {");
+#else
+	fprintf(file, "static float *QQ[] = {");
+#endif
+	for(nn=0; nn<=N; nn++)
+		fprintf(file, "Q%d, ", nn);
+	fprintf(file, "};\n");
+#ifdef DOUBLE_PRECISION
+	fprintf(file, "double **hQ = QQ;\n");
+#else
+	fprintf(file, "float **hQ = QQ;\n");
+#endif
+
+	// S
+	for(nn=0; nn<=N; nn++)
+		{
+#ifdef DOUBLE_PRECISION
+		fprintf(file, "static double S%d[] = {", nn);
+#else
+		fprintf(file, "static float S%d[] = {", nn);
+#endif
+		for(ii=0; ii<nx[nn]; ii++)
+			{
+			for(jj=0; jj<nu[nn]; jj++)
+				{
+#ifdef DOUBLE_PRECISION
+				fprintf(file, "%18.15e, ", BLASFEO_DMATEL(qp->RSQrq+nn, nu[nn]+ii, jj));
+#else
+				fprintf(file, "%18.15e, ", BLASFEO_SMATEL(qp->RSQrq+nn, nu[nn]+ii, jj));
+#endif
+				}
+			}
+		fprintf(file, "};\n");
+		}
+#ifdef DOUBLE_PRECISION
+	fprintf(file, "static double *SS[] = {");
+#else
+	fprintf(file, "static float *SS[] = {");
+#endif
+	for(nn=0; nn<=N; nn++)
+		fprintf(file, "S%d, ", nn);
+	fprintf(file, "};\n");
+#ifdef DOUBLE_PRECISION
+	fprintf(file, "double **hS = SS;\n");
+#else
+	fprintf(file, "float **hS = SS;\n");
+#endif
+
+	// R
+	for(nn=0; nn<=N; nn++)
+		{
+#ifdef DOUBLE_PRECISION
+		fprintf(file, "static double R%d[] = {", nn);
+#else
+		fprintf(file, "static float R%d[] = {", nn);
+#endif
+		for(jj=0; jj<nu[nn]; jj++)
+			{
+			for(ii=0; ii<nu[nn]; ii++)
+				{
+#ifdef DOUBLE_PRECISION
+				fprintf(file, "%18.15e, ", BLASFEO_DMATEL(qp->RSQrq+nn, ii, jj));
+#else
+				fprintf(file, "%18.15e, ", BLASFEO_SMATEL(qp->RSQrq+nn, ii, jj));
+#endif
+				}
+			}
+		fprintf(file, "};\n");
+		}
+#ifdef DOUBLE_PRECISION
+	fprintf(file, "static double *RR[] = {");
+#else
+	fprintf(file, "static float *RR[] = {");
+#endif
+	for(nn=0; nn<=N; nn++)
+		fprintf(file, "R%d, ", nn);
+	fprintf(file, "};\n");
+#ifdef DOUBLE_PRECISION
+	fprintf(file, "double **hR = RR;\n");
+#else
+	fprintf(file, "float **hR = RR;\n");
 #endif
 
 	fclose(file);
