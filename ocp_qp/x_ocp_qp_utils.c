@@ -92,39 +92,48 @@ void CODEGEN_OCP_QP_DIM(char *file_name, char *mode, struct OCP_QP_DIM *qp_dim)
 	int *ng = qp_dim->ng;
 	int *ns = qp_dim->ns;
 
+	fprintf(file, "/***************\n* dim\n***************/\n");
+
 	// N
+	fprintf(file, "/* N */\n");
 	fprintf(file, "int N = %d;\n", N);
 	// nx
+	fprintf(file, "/* nx */\n");
 	fprintf(file, "static int nnx[] = {");
 	for(ii=0; ii<=N; ii++)
 		fprintf(file, "%d, ", nx[ii]);
 	fprintf(file, "};\n");
 	fprintf(file, "int *nx = nnx;\n");
 	// nu
+	fprintf(file, "/* nu */\n");
 	fprintf(file, "static int nnu[] = {");
 	for(ii=0; ii<=N; ii++)
 		fprintf(file, "%d, ", nu[ii]);
 	fprintf(file, "};\n");
 	fprintf(file, "int *nu = nnu;\n");
 	// nbx
+	fprintf(file, "/* nbx */\n");
 	fprintf(file, "static int nnbx[] = {");
 	for(ii=0; ii<=N; ii++)
 		fprintf(file, "%d, ", nbx[ii]);
 	fprintf(file, "};\n");
 	fprintf(file, "int *nbx = nnbx;\n");
 	// nbu
+	fprintf(file, "/* nbu */\n");
 	fprintf(file, "static int nnbu[] = {");
 	for(ii=0; ii<=N; ii++)
 		fprintf(file, "%d, ", nbu[ii]);
 	fprintf(file, "};\n");
 	fprintf(file, "int *nbu = nnbu;\n");
 	// ng
+	fprintf(file, "/* ng */\n");
 	fprintf(file, "static int nng[] = {");
 	for(ii=0; ii<=N; ii++)
 		fprintf(file, "%d, ", ng[ii]);
 	fprintf(file, "};\n");
 	fprintf(file, "int *ng = nng;\n");
 	// ns
+	fprintf(file, "/* ns */\n");
 	fprintf(file, "static int nns[] = {");
 	for(ii=0; ii<=N; ii++)
 		fprintf(file, "%d, ", ns[ii]);
@@ -207,7 +216,10 @@ void CODEGEN_OCP_QP(char *file_name, char *mode, struct OCP_QP *qp)
 	int *ng = dim->ng;
 	int *ns = dim->ns;
 
+	fprintf(file, "/***************\n* qp\n***************/\n");
+
 	// A
+	fprintf(file, "/* A */\n");
 	for(nn=0; nn<N; nn++)
 		{
 #ifdef DOUBLE_PRECISION
@@ -243,6 +255,7 @@ void CODEGEN_OCP_QP(char *file_name, char *mode, struct OCP_QP *qp)
 #endif
 
 	// B
+	fprintf(file, "/* B */\n");
 	for(nn=0; nn<N; nn++)
 		{
 #ifdef DOUBLE_PRECISION
@@ -278,6 +291,7 @@ void CODEGEN_OCP_QP(char *file_name, char *mode, struct OCP_QP *qp)
 #endif
 
 	// b
+	fprintf(file, "/* b */\n");
 	for(nn=0; nn<N; nn++)
 		{
 #ifdef DOUBLE_PRECISION
@@ -310,6 +324,7 @@ void CODEGEN_OCP_QP(char *file_name, char *mode, struct OCP_QP *qp)
 #endif
 
 	// Q
+	fprintf(file, "/* Q */\n");
 	for(nn=0; nn<=N; nn++)
 		{
 #ifdef DOUBLE_PRECISION
@@ -345,6 +360,7 @@ void CODEGEN_OCP_QP(char *file_name, char *mode, struct OCP_QP *qp)
 #endif
 
 	// S
+	fprintf(file, "/* S */\n");
 	for(nn=0; nn<=N; nn++)
 		{
 #ifdef DOUBLE_PRECISION
@@ -380,6 +396,7 @@ void CODEGEN_OCP_QP(char *file_name, char *mode, struct OCP_QP *qp)
 #endif
 
 	// R
+	fprintf(file, "/* R */\n");
 	for(nn=0; nn<=N; nn++)
 		{
 #ifdef DOUBLE_PRECISION
@@ -413,6 +430,192 @@ void CODEGEN_OCP_QP(char *file_name, char *mode, struct OCP_QP *qp)
 #else
 	fprintf(file, "float **hR = RR;\n");
 #endif
+
+	// r
+	fprintf(file, "/* r */\n");
+	for(nn=0; nn<=N; nn++)
+		{
+#ifdef DOUBLE_PRECISION
+		fprintf(file, "static double r%d[] = {", nn);
+#else
+		fprintf(file, "static float r%d[] = {", nn);
+#endif
+		for(jj=0; jj<nu[nn]; jj++)
+			{
+#ifdef DOUBLE_PRECISION
+			fprintf(file, "%18.15e, ", BLASFEO_DVECEL(qp->rqz+nn, jj));
+#else
+			fprintf(file, "%18.15e, ", BLASFEO_SVECEL(qp->rqz+nn, jj));
+#endif
+			}
+		fprintf(file, "};\n");
+		}
+#ifdef DOUBLE_PRECISION
+	fprintf(file, "static double *rr[] = {");
+#else
+	fprintf(file, "static float *rr[] = {");
+#endif
+	for(nn=0; nn<=N; nn++)
+		fprintf(file, "r%d, ", nn);
+	fprintf(file, "};\n");
+#ifdef DOUBLE_PRECISION
+	fprintf(file, "double **hr = rr;\n");
+#else
+	fprintf(file, "float **hr = rr;\n");
+#endif
+
+	// q
+	fprintf(file, "/* q */\n");
+	for(nn=0; nn<=N; nn++)
+		{
+#ifdef DOUBLE_PRECISION
+		fprintf(file, "static double q%d[] = {", nn);
+#else
+		fprintf(file, "static float q%d[] = {", nn);
+#endif
+		for(jj=0; jj<nx[nn]; jj++)
+			{
+#ifdef DOUBLE_PRECISION
+			fprintf(file, "%18.15e, ", BLASFEO_DVECEL(qp->rqz+nn, nu[nn]+jj));
+#else
+			fprintf(file, "%18.15e, ", BLASFEO_SVECEL(qp->rqz+nn, nu[nn]+jj));
+#endif
+			}
+		fprintf(file, "};\n");
+		}
+#ifdef DOUBLE_PRECISION
+	fprintf(file, "static double *qq[] = {");
+#else
+	fprintf(file, "static float *qq[] = {");
+#endif
+	for(nn=0; nn<=N; nn++)
+		fprintf(file, "q%d, ", nn);
+	fprintf(file, "};\n");
+#ifdef DOUBLE_PRECISION
+	fprintf(file, "double **hq = qq;\n");
+#else
+	fprintf(file, "float **hq = qq;\n");
+#endif
+
+	// idxbu
+	fprintf(file, "/* idxbu */\n");
+	for(nn=0; nn<=N; nn++)
+		{
+		fprintf(file, "static int idxbu%d[] = {", nn);
+		for(jj=0; jj<nb[nn]; jj++)
+			{
+			if(qp->idxb[nn][jj]<nu[nn])
+				{
+				fprintf(file, "%d, ", qp->idxb[nn][jj]);
+				}
+			}
+		fprintf(file, "};\n");
+		}
+	fprintf(file, "static int *iidxbu[] = {");
+	for(nn=0; nn<=N; nn++)
+		fprintf(file, "idxbu%d, ", nn);
+	fprintf(file, "};\n");
+	fprintf(file, "double **hidxbu = iidxbu;\n");
+
+	// lu
+	fprintf(file, "/* lu */\n");
+	for(nn=0; nn<=N; nn++)
+		{
+		fprintf(file, "static double lu%d[] = {", nn);
+		for(jj=0; jj<nb[nn]; jj++)
+			{
+			if(qp->idxb[nn][jj]<nu[nn])
+				{
+				fprintf(file, "%18.15e, ", BLASFEO_DVECEL(qp->d+nn, jj));
+				}
+			}
+		fprintf(file, "};\n");
+		}
+	fprintf(file, "static double *llu[] = {");
+	for(nn=0; nn<=N; nn++)
+		fprintf(file, "lu%d, ", nn);
+	fprintf(file, "};\n");
+	fprintf(file, "double **hlu = llu;\n");
+
+	// uu
+	fprintf(file, "/* uu */\n");
+	for(nn=0; nn<=N; nn++)
+		{
+		fprintf(file, "static double uu%d[] = {", nn);
+		for(jj=0; jj<nb[nn]; jj++)
+			{
+			if(qp->idxb[nn][jj]<nu[nn])
+				{
+				fprintf(file, "%18.15e, ", -BLASFEO_DVECEL(qp->d+nn, nb[nn]+ng[nn]+jj));
+				}
+			}
+		fprintf(file, "};\n");
+		}
+	fprintf(file, "static double *uuu[] = {");
+	for(nn=0; nn<=N; nn++)
+		fprintf(file, "uu%d, ", nn);
+	fprintf(file, "};\n");
+	fprintf(file, "double **huu = uuu;\n");
+
+	// idxbx
+	fprintf(file, "/* idxbx */\n");
+	for(nn=0; nn<=N; nn++)
+		{
+		fprintf(file, "static int idxbx%d[] = {", nn);
+		for(jj=0; jj<nb[nn]; jj++)
+			{
+			if(qp->idxb[nn][jj]>=nu[nn])
+				{
+				fprintf(file, "%d, ", qp->idxb[nn][jj]-nu[nn]);
+				}
+			}
+		fprintf(file, "};\n");
+		}
+	fprintf(file, "static int *iidxbx[] = {");
+	for(nn=0; nn<=N; nn++)
+		fprintf(file, "idxbx%d, ", nn);
+	fprintf(file, "};\n");
+	fprintf(file, "double **hidxbx = iidxbx;\n");
+
+	// lx
+	fprintf(file, "/* lx */\n");
+	for(nn=0; nn<=N; nn++)
+		{
+		fprintf(file, "static double lx%d[] = {", nn);
+		for(jj=0; jj<nb[nn]; jj++)
+			{
+			if(qp->idxb[nn][jj]>=nu[nn])
+				{
+				fprintf(file, "%18.15e, ", BLASFEO_DVECEL(qp->d+nn, jj));
+				}
+			}
+		fprintf(file, "};\n");
+		}
+	fprintf(file, "static double *llx[] = {");
+	for(nn=0; nn<=N; nn++)
+		fprintf(file, "lx%d, ", nn);
+	fprintf(file, "};\n");
+	fprintf(file, "double **hlx = llx;\n");
+
+	// ux
+	fprintf(file, "/* ux */\n");
+	for(nn=0; nn<=N; nn++)
+		{
+		fprintf(file, "static double ux%d[] = {", nn);
+		for(jj=0; jj<nb[nn]; jj++)
+			{
+			if(qp->idxb[nn][jj]>=nu[nn])
+				{
+				fprintf(file, "%18.15e, ", -BLASFEO_DVECEL(qp->d+nn, nb[nn]+ng[nn]+jj));
+				}
+			}
+		fprintf(file, "};\n");
+		}
+	fprintf(file, "static double *uux[] = {");
+	for(nn=0; nn<=N; nn++)
+		fprintf(file, "ux%d, ", nn);
+	fprintf(file, "};\n");
+	fprintf(file, "double **hux = uux;\n");
 
 	fclose(file);
 

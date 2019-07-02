@@ -87,7 +87,7 @@ qp.codegen('qp_data.c', 'a');
 
 
 if is_octave()
-	% directly call destructor for octave 4.2.2 (ubuntu 16.04) + others ???
+	% directly call destructor for octave 4.2.2 + others ???
 	if strcmp(version(), '4.2.2')
 		delete(dim);
 		delete(qp);

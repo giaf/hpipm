@@ -630,6 +630,14 @@ void CVT_COLMAJ_GEN_TO_OCP_QP(char *field_name, int stage, void *in, struct OCP_
 		CVT_VEC2STRVEC(ns[stage], r_ptr, qp->d+stage, 2*nb[stage]+2*ng[stage]+ns[stage]);
 		}
 	// int
+	else if(hpipm_strcmp(field_name, "idxbx"))
+		{
+		i_ptr = in;
+		for(ii=0; ii<nbx[stage]; ii++)
+			{
+			qp->idxb[stage][nbu[stage]+ii] = nu[stage] + i_ptr[ii];
+			}
+		}
 	else if(hpipm_strcmp(field_name, "Jx"))
 		{
 		r_ptr = in;
@@ -644,6 +652,14 @@ void CVT_COLMAJ_GEN_TO_OCP_QP(char *field_name, int stage, void *in, struct OCP_
 					qp->idxb[stage][nbu[stage]+ii] = nu[stage]+jj;
 					}
 				}
+			}
+		}
+	else if(hpipm_strcmp(field_name, "idxbu"))
+		{
+		i_ptr = in;
+		for(ii=0; ii<nbu[stage]; ii++)
+			{
+			qp->idxb[stage][ii] = i_ptr[ii];
 			}
 		}
 	else if(hpipm_strcmp(field_name, "Ju"))
