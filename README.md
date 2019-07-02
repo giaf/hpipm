@@ -1,4 +1,5 @@
-This is HPIPM, a high-performance interior-point method solver for dense, optimal control- and tree-structured convex quadratic programs. It provides efficient implementations of dense and structure-exploiting algorithms to solve small to medium scale problems arising in model predictive control and embedded optimization in general and it relies on the high-performance linear algebra package BLASFEO.
+This is HPIPM, a high-performance interior-point method solver for dense, optimal control- and tree-structured convex quadratic programs.
+It provides efficient implementations of dense and structure-exploiting algorithms to solve small to medium scale problems arising in model predictive control and embedded optimization in general and it relies on the high-performance linear algebra package BLASFEO.
 
 --------------------------------------------------
 
@@ -61,3 +62,7 @@ Notes:
 This license has been chosen to avoid the issues that the LGPL license implies in case of static linking.
 Unformally speaking, the GPL+CE license allows the HPIPM library to be linked to both statically and dynamically to produce an executable, and the resulting executable can be released under terms of your choice.
 Please refer to the LICENSE.txt file for the legally binding statement of the license.
+
+- HPIPM relies on the high-performance linear algebra library BLASFEO.
+BLASFEO provides several implementations optimized for different computer architectures, and it makes heavy use of assembly code.
+If you get the error `Illegal instruciton` at running time, you are probably using a BLASFEO version (`TARGET`) unsupported by your CPU.
