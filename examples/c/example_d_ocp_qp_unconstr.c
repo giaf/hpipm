@@ -56,9 +56,12 @@ extern double **hR;
 extern double **hS;
 extern double **hq;
 extern double **hr;
-extern int **hidxb;
-extern double **hlb;
-extern double **hub;
+extern int **hidxbx;
+extern double **hlbx;
+extern double **hubx;
+extern int **hidxbu;
+extern double **hlbu;
+extern double **hubu;
 extern double **hC;
 extern double **hD;
 extern double **hlg;
@@ -96,14 +99,14 @@ int main()
 	double *x0 = malloc(nx[0]*sizeof(double));
 
 	for(ii=0; ii<nx[0]; ii++)
-		x0[ii] = hlb[0][nu[0]+ii];
+		x0[ii] = hlbx[0][ii];
 
 	d_print_mat(1, nx[0], x0, 1);
 
-	int *idxb0 = malloc(nx[0]*sizeof(int));
+	int *idxbx0 = malloc(nx[0]*sizeof(int));
 
 	for(ii=0; ii<nx[0]; ii++)
-		idxb0[ii] = hidxb[0][nbu[0]+ii];
+		idxbx0[ii] = ii;
 
 	double *b0 = malloc(nx[1]*sizeof(double));
 
@@ -134,7 +137,7 @@ int main()
 
 	hlb[0] = x0;
 	hub[0] = x0;
-	hidxb[0] = idxb0;
+	hidxbx[0] = idxbx0;
 #else
 	// remove x0 from the optimization variables
 	nx[0] = 0;
@@ -177,7 +180,7 @@ int main()
 	struct d_ocp_qp qp;
 	d_create_ocp_qp(&dim, &qp, qp_mem);
 
-	d_cvt_colmaj_to_ocp_qp(hA, hB, hb, hQ, hS, hR, hq, hr, hidxb, hlb, hub, hC, hD, hlg, hug, hZl, hZu, hzl, hzu, hidxs, hlls, hlus, &qp);
+	d_cvt_colmaj_to_ocp_qp(hA, hB, hb, hQ, hS, hR, hq, hr, hidxbx, hlbx, hubx, hidxbu, hlbu, hubu, hC, hD, hlg, hug, hZl, hZu, hzl, hzu, hidxs, hlls, hlus, &qp);
 
 /************************************************
 * ocp qp sol
@@ -350,7 +353,7 @@ int main()
 ************************************************/
 
 	free(x0);
-	free(idxb0);
+	free(idxbx0);
 	free(b0);
 	free(r0);
 

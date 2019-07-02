@@ -54,9 +54,12 @@ extern double **hR;
 extern double **hS;
 extern double **hq;
 extern double **hr;
-extern int **hidxb;
-extern double **hlb;
-extern double **hub;
+extern int **hidxbx;
+extern double **hlbx;
+extern double **hubx;
+extern int **hidxbu;
+extern double **hlbu;
+extern double **hubu;
 extern double **hC;
 extern double **hD;
 extern double **hlg;
@@ -109,7 +112,7 @@ int main()
 	struct d_ocp_qp qp;
 	d_create_ocp_qp(&dim, &qp, qp_mem);
 
-	d_cvt_colmaj_to_ocp_qp(hA, hB, hb, hQ, hS, hR, hq, hr, hidxb, hlb, hub, hC, hD, hlg, hug, hZl, hZu, hzl, hzu, hidxs, hlls, hlus, &qp);
+	d_cvt_colmaj_to_ocp_qp(hA, hB, hb, hQ, hS, hR, hq, hr, hidxbx, hlbx, hubx, hidxbu, hlbu, hubu, hC, hD, hlg, hug, hZl, hZu, hzl, hzu, hidxs, hlls, hlus, &qp);
 
 /************************************************
 * ocp qp sol

@@ -72,7 +72,7 @@ static double r[] = {0};
 //
 static double x0[] = {1, 1};
 //
-static int idxb0[] = {1, 2};
+static int idxbx0[] = {0, 1};
 
 //
 static double u_guess[] = {0};
@@ -102,11 +102,17 @@ static double *qq[6] = {q, q, q, q, q, q};
 //
 static double *rr[6] = {r, r, r, r, r, r};
 //
-static int *iidxb[6] = {idxb0, NULL, NULL, NULL, NULL, NULL};
+static int *iidxbx[6] = {idxbx0, NULL, NULL, NULL, NULL, NULL};
 //
-static double *llb[6] = {x0, NULL, NULL, NULL, NULL, NULL};
+static double *llbx[6] = {x0, NULL, NULL, NULL, NULL, NULL};
 //
-static double *uub[6] = {x0, NULL, NULL, NULL, NULL, NULL};
+static double *uubx[6] = {x0, NULL, NULL, NULL, NULL, NULL};
+//
+static int *iidxbu[6] = {};
+//
+static double *llbu[6] = {};
+//
+static double *uubu[6] = {};
 //
 static double *CC[6] = {};
 //
@@ -158,9 +164,12 @@ double **hR = RR;
 double **hS = SS;
 double **hq = qq;
 double **hr = rr;
-int **hidxb = iidxb;
-double **hlb = llb;
-double **hub = uub;
+int **hidxbx = iidxbx;
+double **hlbx = llbx;
+double **hubx = uubx;
+int **hidxbu = iidxbu;
+double **hlbu = llbu;
+double **hubu = uubu;
 double **hC = CC;
 double **hD = DD;
 double **hlg = llg;

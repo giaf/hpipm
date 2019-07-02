@@ -318,7 +318,7 @@ void CREATE_OCP_QP(struct OCP_QP_DIM *dim, struct OCP_QP *qp, void *mem)
 
 
 
-void CVT_COLMAJ_TO_OCP_QP(REAL **A, REAL **B, REAL **b, REAL **Q, REAL **S, REAL **R, REAL **q, REAL **r, int **idxb, REAL **d_lb, REAL **d_ub, REAL **C, REAL **D, REAL **d_lg, REAL **d_ug, REAL **Zl, REAL **Zu, REAL **zl, REAL **zu, int **idxs, REAL **d_ls, REAL **d_us, struct OCP_QP *qp)
+void CVT_COLMAJ_TO_OCP_QP(REAL **A, REAL **B, REAL **b, REAL **Q, REAL **S, REAL **R, REAL **q, REAL **r, int **idxbx, REAL **d_lbx, REAL **d_ubx, int **idxbu, REAL **d_lbu, REAL **d_ubu, REAL **C, REAL **D, REAL **d_lg, REAL **d_ug, REAL **Zl, REAL **Zu, REAL **zl, REAL **zu, int **idxs, REAL **d_ls, REAL **d_us, struct OCP_QP *qp)
 	{
 
 	// extract dim
@@ -326,6 +326,8 @@ void CVT_COLMAJ_TO_OCP_QP(REAL **A, REAL **B, REAL **b, REAL **Q, REAL **S, REAL
 	int *nx = qp->dim->nx;
 	int *nu = qp->dim->nu;
 	int *nb = qp->dim->nb;
+	int *nbx = qp->dim->nbx;
+	int *nbu = qp->dim->nbu;
 	int *ng = qp->dim->ng;
 	int *ns = qp->dim->ns;
 
@@ -354,10 +356,14 @@ void CVT_COLMAJ_TO_OCP_QP(REAL **A, REAL **B, REAL **b, REAL **Q, REAL **S, REAL
 		{
 		if(nb[ii]>0)
 			{
-			for(jj=0; jj<nb[ii]; jj++)
-				qp->idxb[ii][jj] = idxb[ii][jj];
-			CVT_VEC2STRVEC(nb[ii], d_lb[ii], qp->d+ii, 0);
-			CVT_VEC2STRVEC(nb[ii], d_ub[ii], qp->d+ii, nb[ii]+ng[ii]);
+			for(jj=0; jj<nbu[ii]; jj++)
+				qp->idxb[ii][jj] = idxbu[ii][jj];
+			CVT_VEC2STRVEC(nbu[ii], d_lbu[ii], qp->d+ii, 0);
+			CVT_VEC2STRVEC(nbu[ii], d_ubu[ii], qp->d+ii, nb[ii]+ng[ii]);
+			for(jj=0; jj<nbx[ii]; jj++)
+				qp->idxb[ii][nbu[ii]+jj] = nu[ii]+idxbx[ii][jj];
+			CVT_VEC2STRVEC(nbx[ii], d_lbx[ii], qp->d+ii, nbu[ii]);
+			CVT_VEC2STRVEC(nbx[ii], d_ubx[ii], qp->d+ii, nb[ii]+ng[ii]+nbu[ii]);
 			VECSC_LIBSTR(nb[ii], -1.0, qp->d+ii, nb[ii]+ng[ii]);
 			VECSE(nb[ii], 0.0, qp->m+ii, 0);
 			VECSE(nb[ii], 0.0, qp->m+ii, nb[ii]+ng[ii]);
@@ -401,7 +407,7 @@ void CVT_COLMAJ_TO_OCP_QP(REAL **A, REAL **B, REAL **b, REAL **Q, REAL **S, REAL
 
 
 
-void CVT_ROWMAJ_TO_OCP_QP(REAL **A, REAL **B, REAL **b, REAL **Q, REAL **S, REAL **R, REAL **q, REAL **r, int **idxb, REAL **d_lb, REAL **d_ub, REAL **C, REAL **D, REAL **d_lg, REAL **d_ug, REAL **Zl, REAL **Zu, REAL **zl, REAL **zu, int **idxs, REAL **d_ls, REAL **d_us, struct OCP_QP *qp)
+void CVT_ROWMAJ_TO_OCP_QP(REAL **A, REAL **B, REAL **b, REAL **Q, REAL **S, REAL **R, REAL **q, REAL **r, int **idxbx, REAL **d_lbx, REAL **d_ubx, int **idxbu, REAL **d_lbu, REAL **d_ubu, REAL **C, REAL **D, REAL **d_lg, REAL **d_ug, REAL **Zl, REAL **Zu, REAL **zl, REAL **zu, int **idxs, REAL **d_ls, REAL **d_us, struct OCP_QP *qp)
 	{
 
 	// extract dim
@@ -409,6 +415,8 @@ void CVT_ROWMAJ_TO_OCP_QP(REAL **A, REAL **B, REAL **b, REAL **Q, REAL **S, REAL
 	int *nx = qp->dim->nx;
 	int *nu = qp->dim->nu;
 	int *nb = qp->dim->nb;
+	int *nbx = qp->dim->nbx;
+	int *nbu = qp->dim->nbu;
 	int *ng = qp->dim->ng;
 	int *ns = qp->dim->ns;
 
@@ -437,10 +445,14 @@ void CVT_ROWMAJ_TO_OCP_QP(REAL **A, REAL **B, REAL **b, REAL **Q, REAL **S, REAL
 		{
 		if(nb[ii]>0)
 			{
-			for(jj=0; jj<nb[ii]; jj++)
-				qp->idxb[ii][jj] = idxb[ii][jj];
-			CVT_VEC2STRVEC(nb[ii], d_lb[ii], qp->d+ii, 0);
-			CVT_VEC2STRVEC(nb[ii], d_ub[ii], qp->d+ii, nb[ii]+ng[ii]);
+			for(jj=0; jj<nbu[ii]; jj++)
+				qp->idxb[ii][jj] = idxbu[ii][jj];
+			CVT_VEC2STRVEC(nbu[ii], d_lbu[ii], qp->d+ii, 0);
+			CVT_VEC2STRVEC(nbu[ii], d_ubu[ii], qp->d+ii, nb[ii]+ng[ii]);
+			for(jj=0; jj<nbx[ii]; jj++)
+				qp->idxb[ii][nbu[ii]+jj] = nu[ii]+idxbx[ii][jj];
+			CVT_VEC2STRVEC(nbx[ii], d_lbx[ii], qp->d+ii, nbu[ii]);
+			CVT_VEC2STRVEC(nbx[ii], d_ubx[ii], qp->d+ii, nb[ii]+ng[ii]+nbu[ii]);
 			VECSC_LIBSTR(nb[ii], -1.0, qp->d+ii, nb[ii]+ng[ii]);
 			VECSE(nb[ii], 0.0, qp->m+ii, 0);
 			VECSE(nb[ii], 0.0, qp->m+ii, nb[ii]+ng[ii]);

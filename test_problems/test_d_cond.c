@@ -327,24 +327,25 @@ int main()
 * box & general constraints
 ************************************************/
 
-	int *idxb0; int_zeros(&idxb0, nb[0], 1);
-	double *d_lb0; d_zeros(&d_lb0, nb[0], 1);
-	double *d_ub0; d_zeros(&d_ub0, nb[0], 1);
+	int *idxbx0; int_zeros(&idxbx0, nbx[0], 1);
+	double *d_lbx0; d_zeros(&d_lbx0, nbx[0], 1);
+	double *d_ubx0; d_zeros(&d_ubx0, nbx[0], 1);
+	int *idxbu0; int_zeros(&idxbu0, nbu[0], 1);
+	double *d_lbu0; d_zeros(&d_lbu0, nbu[0], 1);
+	double *d_ubu0; d_zeros(&d_ubu0, nbu[0], 1);
 	double *d_lg0; d_zeros(&d_lg0, ng[0], 1);
 	double *d_ug0; d_zeros(&d_ug0, ng[0], 1);
-	for(ii=0; ii<nb[0]; ii++)
+	for(ii=0; ii<nbu[0]; ii++)
 		{
-		if(ii<nu[0]) // input
-			{
-			d_lb0[ii] = - 0.5; // umin
-			d_ub0[ii] =   0.5; // umax
-			}
-		else // state
-			{
-			d_lb0[ii] = - 4.0; // xmin
-			d_ub0[ii] =   4.0; // xmax
-			}
-		idxb0[ii] = ii;
+		d_lbu0[ii] = - 0.5; // umin
+		d_ubu0[ii] =   0.5; // umax
+		idxbu0[ii] = ii;
+		}
+	for(ii=0; ii<nbx[0]; ii++)
+		{
+		d_lbx0[ii] = - 4.0; // xmin
+		d_ubx0[ii] =   4.0; // xmax
+		idxbx0[ii] = ii;
 		}
 	for(ii=0; ii<ng[0]; ii++)
 		{
@@ -360,24 +361,25 @@ int main()
 			}
 		}
 
-	int *idxb1; int_zeros(&idxb1, nb[1], 1);
-	double *d_lb1; d_zeros(&d_lb1, nb[1], 1);
-	double *d_ub1; d_zeros(&d_ub1, nb[1], 1);
+	int *idxbx1; int_zeros(&idxbx1, nbx[1], 1);
+	double *d_lbx1; d_zeros(&d_lbx1, nbx[1], 1);
+	double *d_ubx1; d_zeros(&d_ubx1, nbx[1], 1);
+	int *idxbu1; int_zeros(&idxbu1, nbu[1], 1);
+	double *d_lbu1; d_zeros(&d_lbu1, nbu[1], 1);
+	double *d_ubu1; d_zeros(&d_ubu1, nbu[1], 1);
 	double *d_lg1; d_zeros(&d_lg1, ng[1], 1);
 	double *d_ug1; d_zeros(&d_ug1, ng[1], 1);
-	for(ii=0; ii<nb[1]; ii++)
+	for(ii=0; ii<nbu[1]; ii++)
 		{
-		if(ii<nu[1]) // input
-			{
-			d_lb1[ii] = - 0.5; // umin
-			d_ub1[ii] =   0.5; // umax
-			}
-		else // state
-			{
-			d_lb1[ii] = - 1.0; // xmin
-			d_ub1[ii] =   1.0; // xmax
-			}
-		idxb1[ii] = ii;
+		d_lbu1[ii] = - 0.5; // umin
+		d_ubu1[ii] =   0.5; // umax
+		idxbu1[ii] = ii;
+		}
+	for(ii=0; ii<nbx[1]; ii++)
+		{
+		d_lbx1[ii] = - 1.0; // xmin
+		d_ubx1[ii] =   1.0; // xmax
+		idxbx1[ii] = ii;
 		}
 	for(ii=0; ii<ng[1]; ii++)
 		{
@@ -394,16 +396,16 @@ int main()
 		}
 
 
-	int *idxbN; int_zeros(&idxbN, nb[N], 1);
-	double *d_lbN; d_zeros(&d_lbN, nb[N], 1);
-	double *d_ubN; d_zeros(&d_ubN, nb[N], 1);
+	int *idxbxN; int_zeros(&idxbxN, nbx[N], 1);
+	double *d_lbxN; d_zeros(&d_lbxN, nbx[N], 1);
+	double *d_ubxN; d_zeros(&d_ubxN, nbx[N], 1);
 	double *d_lgN; d_zeros(&d_lgN, ng[N], 1);
 	double *d_ugN; d_zeros(&d_ugN, ng[N], 1);
-	for(ii=0; ii<nb[N]; ii++)
+	for(ii=0; ii<nbx[N]; ii++)
 		{
-		d_lbN[ii] = - 1.0; // xmin
-		d_ubN[ii] =   1.0; // xmax
-		idxbN[ii] = ii;
+		d_lbxN[ii] = - 1.0; // xmin
+		d_ubxN[ii] =   1.0; // xmax
+		idxbxN[ii] = ii;
 		}
 	for(ii=0; ii<ng[N]; ii++)
 		{
@@ -434,15 +436,21 @@ int main()
 
 #if PRINT
 	// box constraints
-	int_print_mat(1, nb[0], idxb0, 1);
-	d_print_mat(1, nb[0], d_lb0, 1);
-	d_print_mat(1, nb[0], d_ub0, 1);
-	int_print_mat(1, nb[1], idxb1, 1);
-	d_print_mat(1, nb[1], d_lb1, 1);
-	d_print_mat(1, nb[1], d_ub1, 1);
-	int_print_mat(1, nb[N], idxbN, 1);
-	d_print_mat(1, nb[N], d_lbN, 1);
-	d_print_mat(1, nb[N], d_ubN, 1);
+	int_print_mat(1, nbx[0], idxbx0, 1);
+	d_print_mat(1, nbx[0], d_lbx0, 1);
+	d_print_mat(1, nbx[0], d_ubx0, 1);
+	int_print_mat(1, nbu[0], idxbu0, 1);
+	d_print_mat(1, nbu[0], d_lbu0, 1);
+	d_print_mat(1, nbu[0], d_ubu0, 1);
+	int_print_mat(1, nbx[1], idxbx1, 1);
+	d_print_mat(1, nbx[1], d_lbx1, 1);
+	d_print_mat(1, nbx[1], d_ubx1, 1);
+	int_print_mat(1, nbu[1], idxbu1, 1);
+	d_print_mat(1, nbu[1], d_lbu1, 1);
+	d_print_mat(1, nbu[1], d_ubu1, 1);
+	int_print_mat(1, nbx[N], idxbxN, 1);
+	d_print_mat(1, nbx[N], d_lbxN, 1);
+	d_print_mat(1, nbx[N], d_ubxN, 1);
 	// general constraints
 	d_print_mat(1, ng[0], d_lg0, 1);
 	d_print_mat(1, ng[0], d_ug0, 1);
@@ -565,9 +573,12 @@ int main()
 	double *hR[N+1];
 	double *hq[N+1];
 	double *hr[N+1];
-	int *hidxb[N+1];
-	double *hd_lb[N+1];
-	double *hd_ub[N+1];
+	int *hidxbx[N+1];
+	double *hd_lbx[N+1];
+	double *hd_ubx[N+1];
+	int *hidxbu[N+1];
+	double *hd_lbu[N+1];
+	double *hd_ubu[N+1];
 	double *hC[N+1];
 	double *hD[N+1];
 	double *hd_lg[N+1];
@@ -588,9 +599,12 @@ int main()
 	hR[0] = R;
 	hq[0] = q;
 	hr[0] = r0;
-	hidxb[0] = idxb0;
-	hd_lb[0] = d_lb0;
-	hd_ub[0] = d_ub0;
+	hidxbx[0] = idxbx0;
+	hd_lbx[0] = d_lbx0;
+	hd_ubx[0] = d_ubx0;
+	hidxbu[0] = idxbu0;
+	hd_lbu[0] = d_lbu0;
+	hd_ubu[0] = d_ubu0;
 	hC[0] = C0;
 	hD[0] = D0;
 	hd_lg[0] = d_lg0;
@@ -612,9 +626,12 @@ int main()
 		hR[ii] = R;
 		hq[ii] = q;
 		hr[ii] = r;
-		hidxb[ii] = idxb1;
-		hd_lb[ii] = d_lb1;
-		hd_ub[ii] = d_ub1;
+		hidxbx[ii] = idxbx1;
+		hd_lbx[ii] = d_lbx1;
+		hd_ubx[ii] = d_ubx1;
+		hidxbu[ii] = idxbu1;
+		hd_lbu[ii] = d_lbu1;
+		hd_ubu[ii] = d_ubu1;
 		hd_lg[ii] = d_lg1;
 		hd_ug[ii] = d_ug1;
 		hC[ii] = C1;
@@ -632,9 +649,9 @@ int main()
 	hR[N] = R;
 	hq[N] = q;
 	hr[N] = r;
-	hidxb[N] = idxbN;
-	hd_lb[N] = d_lbN;
-	hd_ub[N] = d_ubN;
+	hidxbx[N] = idxbxN;
+	hd_lbx[N] = d_lbxN;
+	hd_ubx[N] = d_ubxN;
 	hd_lg[N] = d_lgN;
 	hd_ug[N] = d_ugN;
 	hC[N] = CN;
@@ -669,7 +686,7 @@ int main()
 
 	struct d_ocp_qp ocp_qp;
 	d_create_ocp_qp(&dim, &ocp_qp, ocp_qp_mem);
-	d_cvt_colmaj_to_ocp_qp(hA, hB, hb, hQ, hS, hR, hq, hr, hidxb, hd_lb, hd_ub, hC, hD, hd_lg, hd_ug, hZl, hZu, hzl, hzu, hidxs, hd_ls, hd_us, &ocp_qp);
+	d_cvt_colmaj_to_ocp_qp(hA, hB, hb, hQ, hS, hR, hq, hr, hidxbx, hd_lbx, hd_ubx, hidxbu, hd_lbu, hd_ubu, hC, hD, hd_lg, hd_ug, hZl, hZu, hzl, hzu, hidxs, hd_ls, hd_us, &ocp_qp);
 
 #if 0
 	printf("\nN = %d\n", ocp_qp.N);
@@ -1084,15 +1101,21 @@ int main()
 	d_free(q);
 	d_free(r);
 	d_free(r0);
-	int_free(idxb0);
-	d_free(d_lb0);
-	d_free(d_ub0);
-	int_free(idxb1);
-	d_free(d_lb1);
-	d_free(d_ub1);
-	int_free(idxbN);
-	d_free(d_lbN);
-	d_free(d_ubN);
+	int_free(idxbx0);
+	d_free(d_lbx0);
+	d_free(d_ubx0);
+	int_free(idxbu0);
+	d_free(d_lbu0);
+	d_free(d_ubu0);
+	int_free(idxbx1);
+	d_free(d_lbx1);
+	d_free(d_ubx1);
+	int_free(idxbu1);
+	d_free(d_lbu1);
+	d_free(d_ubu1);
+	int_free(idxbxN);
+	d_free(d_lbxN);
+	d_free(d_ubxN);
 	d_free(C0);
 	d_free(D0);
 	d_free(d_lg0);
