@@ -12,8 +12,16 @@ end
 
 
 
+% define flags
+compile_mex = 1; % compile mex interface (necessary the first time, or if the HPIPM and BLASFEO libraries are recompiled)
+constr_type = 1; % 0 box, 1 general
+
+
+
 % compile mex interface
-compile_mex_ocp_qp();
+if compile_mex
+	compile_mex_ocp_qp();
+end
 
 
 % dim
@@ -31,8 +39,13 @@ dim.set('nx', 2, 0, N);
 tmp_time = toc;
 fprintf('set nx time %e\n', tmp_time);
 dim.set('nu', 1, 0, N-1);
-dim.set('nbx', 2, 0);
-dim.set('nbx', 2, 5);
+if(constr_type==0)
+	dim.set('nbx', 2, 0);
+	dim.set('nbx', 2, 5);
+else
+	dim.set('ng', 2, 0);
+	dim.set('ng', 2, 5);
+end
 
 % print to shell
 dim.print_C_struct();
@@ -73,10 +86,17 @@ qp.set('S', S, 0, N-1);
 qp.set('R', R, 0, N-1);
 qp.set('q', q, 0, N);
 %qp.set('r', r, 0, N-1);
-qp.set('Jx', Jx, 0);
-qp.set('lx', x0, 0);
-qp.set('ux', x0, 0);
-qp.set('Jx', Jx, N);
+if(constr_type==0)
+	qp.set('Jx', Jx, 0);
+	qp.set('lx', x0, 0);
+	qp.set('ux', x0, 0);
+	qp.set('Jx', Jx, N);
+else
+	qp.set('C', Jx, 0);
+	qp.set('lg', x0, 0);
+	qp.set('ug', x0, 0);
+	qp.set('C', Jx, N);
+end
 
 % print to shell
 qp.print_C_struct();

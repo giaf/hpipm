@@ -517,7 +517,7 @@ void CODEGEN_OCP_QP(char *file_name, char *mode, struct OCP_QP *qp)
 	fprintf(file, "};\n");
 	fprintf(file, "int **hidxbu = iidxbu;\n");
 
-	// lu
+	// lbu
 	fprintf(file, "/* lbu */\n");
 	for(nn=0; nn<=N; nn++)
 		{
@@ -549,7 +549,7 @@ void CODEGEN_OCP_QP(char *file_name, char *mode, struct OCP_QP *qp)
 	fprintf(file, "float **hlbu = llbu;\n");
 #endif
 
-	// uu
+	// ubu
 	fprintf(file, "/* ubu */\n");
 	for(nn=0; nn<=N; nn++)
 		{
@@ -601,7 +601,7 @@ void CODEGEN_OCP_QP(char *file_name, char *mode, struct OCP_QP *qp)
 	fprintf(file, "};\n");
 	fprintf(file, "int **hidxbx = iidxbx;\n");
 
-	// lx
+	// lbx
 	fprintf(file, "/* lbx */\n");
 	for(nn=0; nn<=N; nn++)
 		{
@@ -633,7 +633,7 @@ void CODEGEN_OCP_QP(char *file_name, char *mode, struct OCP_QP *qp)
 	fprintf(file, "float **hlbx = llbx;\n");
 #endif
 
-	// ux
+	// ubx
 	fprintf(file, "/* ubx */\n");
 	for(nn=0; nn<=N; nn++)
 		{
@@ -667,34 +667,132 @@ void CODEGEN_OCP_QP(char *file_name, char *mode, struct OCP_QP *qp)
 
 	// C
 	fprintf(file, "/* C */\n");
+	for(nn=0; nn<=N; nn++)
+		{
 #ifdef DOUBLE_PRECISION
-	fprintf(file, "double **hC;\n");
+		fprintf(file, "static double C%d[] = {", nn);
 #else
-	fprintf(file, "float **hC;\n");
+		fprintf(file, "static float C%d[] = {", nn);
+#endif
+		for(ii=0; ii<nx[nn]; ii++)
+			{
+			for(jj=0; jj<ng[nn]; jj++)
+				{
+#ifdef DOUBLE_PRECISION
+				fprintf(file, "%18.15e, ", BLASFEO_DMATEL(qp->DCt+nn, nu[nn]+ii, jj));
+#else
+				fprintf(file, "%18.15e, ", BLASFEO_SMATEL(qp->DCt+nn, nu[nn]+ii, jj));
+#endif
+				}
+			}
+		fprintf(file, "};\n");
+		}
+#ifdef DOUBLE_PRECISION
+	fprintf(file, "static double *CC[] = {");
+#else
+	fprintf(file, "static float *CC[] = {");
+#endif
+	for(nn=0; nn<=N; nn++)
+		fprintf(file, "C%d, ", nn);
+	fprintf(file, "};\n");
+#ifdef DOUBLE_PRECISION
+	fprintf(file, "double **hC = CC;\n");
+#else
+	fprintf(file, "float **hC = CC;\n");
 #endif
 
 	// D
 	fprintf(file, "/* D */\n");
+	for(nn=0; nn<=N; nn++)
+		{
 #ifdef DOUBLE_PRECISION
-	fprintf(file, "double **hD;\n");
+		fprintf(file, "static double D%d[] = {", nn);
 #else
-	fprintf(file, "float **hD;\n");
+		fprintf(file, "static float D%d[] = {", nn);
+#endif
+		for(ii=0; ii<nu[nn]; ii++)
+			{
+			for(jj=0; jj<ng[nn]; jj++)
+				{
+#ifdef DOUBLE_PRECISION
+				fprintf(file, "%18.15e, ", BLASFEO_DMATEL(qp->DCt+nn, ii, jj));
+#else
+				fprintf(file, "%18.15e, ", BLASFEO_SMATEL(qp->DCt+nn, ii, jj));
+#endif
+				}
+			}
+		fprintf(file, "};\n");
+		}
+#ifdef DOUBLE_PRECISION
+	fprintf(file, "static double *DD[] = {");
+#else
+	fprintf(file, "static float *DD[] = {");
+#endif
+	for(nn=0; nn<=N; nn++)
+		fprintf(file, "D%d, ", nn);
+	fprintf(file, "};\n");
+#ifdef DOUBLE_PRECISION
+	fprintf(file, "double **hD = DD;\n");
+#else
+	fprintf(file, "float **hD = DD;\n");
 #endif
 
 	// lg
 	fprintf(file, "/* lg */\n");
+	for(nn=0; nn<=N; nn++)
+		{
 #ifdef DOUBLE_PRECISION
-	fprintf(file, "double **hlg;\n");
+		fprintf(file, "static double lg%d[] = {", nn);
 #else
-	fprintf(file, "float **hlg;\n");
+		fprintf(file, "static float lg%d[] = {", nn);
+#endif
+		for(jj=0; jj<ng[nn]; jj++)
+			{
+			fprintf(file, "%18.15e, ", BLASFEO_DVECEL(qp->d+nn, nb[nn]+jj));
+			}
+		fprintf(file, "};\n");
+		}
+#ifdef DOUBLE_PRECISION
+	fprintf(file, "static double *llg[] = {");
+#else
+	fprintf(file, "static float *llg[] = {");
+#endif
+	for(nn=0; nn<=N; nn++)
+		fprintf(file, "lg%d, ", nn);
+	fprintf(file, "};\n");
+#ifdef DOUBLE_PRECISION
+	fprintf(file, "double **hlg = llg;\n");
+#else
+	fprintf(file, "float **hlg = llg;\n");
 #endif
 
 	// ug
 	fprintf(file, "/* ug */\n");
+	for(nn=0; nn<=N; nn++)
+		{
 #ifdef DOUBLE_PRECISION
-	fprintf(file, "double **hug;\n");
+		fprintf(file, "static double ug%d[] = {", nn);
 #else
-	fprintf(file, "float **hug;\n");
+		fprintf(file, "static float ug%d[] = {", nn);
+#endif
+		for(jj=0; jj<ng[nn]; jj++)
+			{
+			fprintf(file, "%18.15e, ", -BLASFEO_DVECEL(qp->d+nn, 2*nb[nn]+ng[nn]+jj));
+			}
+		fprintf(file, "};\n");
+		}
+#ifdef DOUBLE_PRECISION
+	fprintf(file, "static double *uug[] = {");
+#else
+	fprintf(file, "static float *uug[] = {");
+#endif
+	for(nn=0; nn<=N; nn++)
+		fprintf(file, "ug%d, ", nn);
+	fprintf(file, "};\n");
+#ifdef DOUBLE_PRECISION
+	fprintf(file, "double **hug = uug;\n");
+#else
+	fprintf(file, "float **hug = uug;\n");
 #endif
 
 	// Zl

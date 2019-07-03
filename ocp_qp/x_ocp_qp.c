@@ -113,7 +113,7 @@ void CREATE_OCP_QP(struct OCP_QP_DIM *dim, struct OCP_QP *qp, void *mem)
 	int *ns = dim->ns;
 
 	// loop index
-	int ii;
+	int ii, jj;
 
 	// compute core qp size
 	int nvt = 0;
@@ -192,6 +192,8 @@ void CREATE_OCP_QP(struct OCP_QP_DIM *dim, struct OCP_QP *qp, void *mem)
 		{
 		(qp->idxb)[ii] = i_ptr;
 		i_ptr += nb[ii];
+		for(jj=0; jj<nb[ii]; jj++)
+			qp->idxb[ii][jj] = 0;
 		}
 
 	// idxs
@@ -199,6 +201,8 @@ void CREATE_OCP_QP(struct OCP_QP_DIM *dim, struct OCP_QP *qp, void *mem)
 		{
 		(qp->idxs)[ii] = i_ptr;
 		i_ptr += ns[ii];
+		for(jj=0; jj<ns[ii]; jj++)
+			qp->idxs[ii][jj] = 0;
 		}
 
 
