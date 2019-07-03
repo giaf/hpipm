@@ -45,8 +45,12 @@ static int nnbu[6] = {0, 0, 0, 0, 0, 0};
 static int nnbx[6] = {2, 0, 0, 0, 0, 0};
 // number of general constraints
 static int nng[6] = {0, 0, 0, 0, 0, 0};
-// number of softed constraints
-static int nns[6] = {0, 0, 0, 0, 0, 0};
+// number of softed constraints on state box constraints
+static int nnsbx[6] = {0, 0, 0, 0, 0, 0};
+// number of softed constraints on input box constraints
+static int nnsbu[6] = {0, 0, 0, 0, 0, 0};
+// number of softed constraints on general constraints
+static int nnsg[6] = {0, 0, 0, 0, 0, 0};
 
 
 // QP data
@@ -154,7 +158,9 @@ int *nx = nnx;
 int *nbu = nnbu;
 int *nbx = nnbx;
 int *ng = nng;
-int *ns = nns;
+int *nsbx = nnsbx;
+int *nsbu = nnsbu;
+int *nsg = nnsg;
 
 double **hA = AA;
 double **hB = BB;

@@ -39,7 +39,9 @@ void PRINT_OCP_QP_DIM(struct OCP_QP_DIM *qp_dim)
 	int *nbx = qp_dim->nbx;
 	int *nbu = qp_dim->nbu;
 	int *ng = qp_dim->ng;
-	int *ns = qp_dim->ns;
+	int *nsbx = qp_dim->nsbx;
+	int *nsbu = qp_dim->nsbu;
+	int *nsg = qp_dim->nsg;
 
 	printf("N = %d\n\n", N);
 
@@ -68,9 +70,19 @@ void PRINT_OCP_QP_DIM(struct OCP_QP_DIM *qp_dim)
 		printf("\t%d", ng[ii]);
 	printf("\n\n");
 
-	printf("ns =\n");
+	printf("nsbx =\n");
 	for (ii = 0; ii <= N; ii++)
-		printf("\t%d", ns[ii]);
+		printf("\t%d", nsbx[ii]);
+	printf("\n\n");
+
+	printf("nsbu =\n");
+	for (ii = 0; ii <= N; ii++)
+		printf("\t%d", nsbu[ii]);
+	printf("\n\n");
+
+	printf("nsg =\n");
+	for (ii = 0; ii <= N; ii++)
+		printf("\t%d", nsg[ii]);
 	printf("\n\n");
 
 	return;
@@ -90,7 +102,9 @@ void CODEGEN_OCP_QP_DIM(char *file_name, char *mode, struct OCP_QP_DIM *qp_dim)
 	int *nbx = qp_dim->nbx;
 	int *nbu = qp_dim->nbu;
 	int *ng = qp_dim->ng;
-	int *ns = qp_dim->ns;
+	int *nsbx = qp_dim->nsbx;
+	int *nsbu = qp_dim->nsbu;
+	int *nsg = qp_dim->nsg;
 
 	fprintf(file, "/***************\n* dim\n***************/\n");
 
@@ -132,13 +146,27 @@ void CODEGEN_OCP_QP_DIM(char *file_name, char *mode, struct OCP_QP_DIM *qp_dim)
 		fprintf(file, "%d, ", ng[ii]);
 	fprintf(file, "};\n");
 	fprintf(file, "int *ng = nng;\n");
-	// ns
-	fprintf(file, "/* ns */\n");
-	fprintf(file, "static int nns[] = {");
+	// nsbx
+	fprintf(file, "/* nsbx */\n");
+	fprintf(file, "static int nnsbx[] = {");
 	for(ii=0; ii<=N; ii++)
-		fprintf(file, "%d, ", ns[ii]);
+		fprintf(file, "%d, ", nsbx[ii]);
 	fprintf(file, "};\n");
-	fprintf(file, "int *ns = nns;\n");
+	fprintf(file, "int *nsbx = nnsbx;\n");
+	// nsbu
+	fprintf(file, "/* nsbu */\n");
+	fprintf(file, "static int nnsbu[] = {");
+	for(ii=0; ii<=N; ii++)
+		fprintf(file, "%d, ", nsbu[ii]);
+	fprintf(file, "};\n");
+	fprintf(file, "int *nsbu = nnsbu;\n");
+	// nsg
+	fprintf(file, "/* nsg */\n");
+	fprintf(file, "static int nnsg[] = {");
+	for(ii=0; ii<=N; ii++)
+		fprintf(file, "%d, ", nsg[ii]);
+	fprintf(file, "};\n");
+	fprintf(file, "int *nsg = nnsg;\n");
 
 	fclose(file);
 

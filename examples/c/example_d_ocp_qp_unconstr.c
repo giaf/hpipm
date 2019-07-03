@@ -47,7 +47,9 @@ extern int *nu;
 extern int *nbu;
 extern int *nbx;
 extern int *ng;
-extern int *ns;
+extern int *nsbx;
+extern int *nsbu;
+extern int *nsg;
 extern double **hA;
 extern double **hB;
 extern double **hb;
@@ -156,19 +158,25 @@ int main()
 		ng[ii] = 0;
 
 	for(ii=0; ii<=N; ii++)
-		ns[ii] = 0;
+		nsbx[ii] = 0;
+
+	for(ii=0; ii<=N; ii++)
+		nsbu[ii] = 0;
+
+	for(ii=0; ii<=N; ii++)
+		nsg[ii] = 0;
 
 /************************************************
 * ocp qp dim
 ************************************************/
 
-	int dim_size = d_memsize_ocp_qp_dim(N);
+	int dim_size = d_ocp_qp_dim_memsize(N);
 	void *dim_mem = malloc(dim_size);
 
 	struct d_ocp_qp_dim dim;
-	d_create_ocp_qp_dim(N, &dim, dim_mem);
+	d_ocp_qp_dim_create(N, &dim, dim_mem);
 
-	d_cvt_int_to_ocp_qp_dim(N, nx, nu, nbx, nbu, ng, ns, &dim);
+	d_ocp_qp_dim_set_all(N, nx, nu, nbx, nbu, ng, nsbx, nsbu, nsg, &dim);
 
 /************************************************
 * ocp qp

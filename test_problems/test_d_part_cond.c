@@ -207,11 +207,23 @@ int main()
 		ng[ii] = 0;
 	ng[N] = 0;
 
-	int ns[N+1];
-	ns[0] = 0;
+	int nsbx[N+1];
+	nsbx[0] = 0;
 	for(ii=1; ii<N; ii++)
-		ns[ii] = nx[ii]/2;
-	ns[N] = nx[N]/2;
+		nsbx[ii] = nx[ii]/2;
+	nsbx[N] = nx[N]/2;
+
+	int nsbu[N+1];
+	for(ii=0; ii<=N; ii++)
+		nsbu[ii] = 0;
+
+	int nsg[N+1];
+	for(ii=0; ii<=N; ii++)
+		nsg[ii] = 0;
+
+	int ns[N+1];
+	for(ii=0; ii<=N; ii++)
+		ns[ii] = nsbx[ii] + nsbu[ii] + nsg[ii];
 
 #elif 0
 	int nb[N+1];
@@ -665,13 +677,13 @@ int main()
 * ocp qp dim
 ************************************************/
 
-	int dim_size = d_memsize_ocp_qp_dim(N);
+	int dim_size = d_ocp_qp_dim_memsize(N);
 	printf("\ndim size = %d\n", dim_size);
 	void *dim_mem = malloc(dim_size);
 
 	struct d_ocp_qp_dim dim;
-	d_create_ocp_qp_dim(N, &dim, dim_mem);
-	d_cvt_int_to_ocp_qp_dim(N, nx, nu, nbx, nbu, ng, ns, &dim);
+	d_ocp_qp_dim_create(N, &dim, dim_mem);
+	d_ocp_qp_dim_set_all(N, nx, nu, nbx, nbu, ng, nsbx, nsbu, nsg, &dim);
 
 /************************************************
 * ocp qp
@@ -726,13 +738,13 @@ int main()
 	int nsbu2[N2+1];
 	int nsg2[N2+1];
 
-	int dim_size2 = d_memsize_ocp_qp_dim(N2);
+	int dim_size2 = d_ocp_qp_dim_memsize(N2);
 	printf("\ndim size2 = %d\n", dim_size2);
 	void *dim_mem2 = malloc(dim_size2);
 
 	struct d_ocp_qp_dim dim2;
-	d_create_ocp_qp_dim(N2, &dim2, dim_mem2);
-	d_cvt_int_to_ocp_qp_dim(N2, nx2, nu2, nbx2, nbu2, ng2, ns2, &dim2);
+	d_ocp_qp_dim_create(N2, &dim2, dim_mem2);
+	d_ocp_qp_dim_set_all(N2, nx2, nu2, nbx2, nbu2, ng2, nsbx2, nsbu2, nsg2, &dim2);
 
 /************************************************
 * part dense qp
@@ -764,6 +776,12 @@ int main()
 		ng2[ii] = dim2.ng[ii];
 	for(ii=0; ii<=N2; ii++)
 		ns2[ii] = dim2.ns[ii];
+	for(ii=0; ii<=N2; ii++)
+		nsbx2[ii] = dim2.nsbx[ii];
+	for(ii=0; ii<=N2; ii++)
+		nsbu2[ii] = dim2.nsbu[ii];
+	for(ii=0; ii<=N2; ii++)
+		nsg2[ii] = dim2.nsg[ii];
 	for(ii=0; ii<=N2; ii++)
 		printf("\n%d %d %d %d\n", nx2[ii], nu2[ii], nb2[ii], ng2[ii]);
 

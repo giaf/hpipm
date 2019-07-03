@@ -48,7 +48,9 @@ extern int *nu;
 extern int *nbu;
 extern int *nbx;
 extern int *ng;
-extern int *ns;
+extern int *nsbx;
+extern int *nsbu;
+extern int *nsg;
 extern double **hA;
 extern double **hB;
 extern double **hb;
@@ -93,13 +95,13 @@ int main()
 * ocp qp dim
 ************************************************/
 
-	int dim_size = d_memsize_ocp_qp_dim(N);
+	int dim_size = d_ocp_qp_dim_memsize(N);
 	void *dim_mem = malloc(dim_size);
 
 	struct d_ocp_qp_dim dim;
-	d_create_ocp_qp_dim(N, &dim, dim_mem);
+	d_ocp_qp_dim_create(N, &dim, dim_mem);
 
-	d_cvt_int_to_ocp_qp_dim(N, nx, nu, nbx, nbu, ng, ns, &dim);
+	d_ocp_qp_dim_set_all(N, nx, nu, nbx, nbu, ng, nsbx, nsbu, nsg, &dim);
 
 /************************************************
 * ocp qp dim part cond
@@ -108,11 +110,11 @@ int main()
 	// horizon length of partially condensed OCP QP
 	int N2 = 2;
 
-	int dim_size2 = d_memsize_ocp_qp_dim(N2);
+	int dim_size2 = d_ocp_qp_dim_memsize(N2);
 	void *dim_mem2 = malloc(dim_size2);
 
 	struct d_ocp_qp_dim dim2;
-	d_create_ocp_qp_dim(N2, &dim2, dim_mem2);
+	d_ocp_qp_dim_create(N2, &dim2, dim_mem2);
 
 	int *block_size = malloc((N+1)*sizeof(int));
 	d_compute_block_size_cond_qp_ocp2ocp(N, N2, block_size);

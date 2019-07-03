@@ -39,17 +39,21 @@
 
 #define OCP_QP_DIM s_ocp_qp_dim
 
-#define SIZEOF_OCP_QP_DIM s_sizeof_ocp_qp_dim
-#define MEMSIZE_OCP_QP_DIM s_memsize_ocp_qp_dim
-#define CREATE_OCP_QP_DIM s_create_ocp_qp_dim
-#define CVT_INT_TO_OCP_QP_DIM s_cvt_int_to_ocp_qp_dim
-#define SET_OCP_QP_DIM s_set_ocp_qp_dim
-#define SET_OCP_QP_DIM_NX s_set_ocp_qp_dim_nx
-#define SET_OCP_QP_DIM_NU s_set_ocp_qp_dim_nu
-#define SET_OCP_QP_DIM_NBX s_set_ocp_qp_dim_nbx
-#define SET_OCP_QP_DIM_NBU s_set_ocp_qp_dim_nbu
-#define SET_OCP_QP_DIM_NG s_set_ocp_qp_dim_ng
-#define SET_OCP_QP_DIM_NS s_set_ocp_qp_dim_ns
+
+
+#define OCP_QP_DIM_STRSIZE s_ocp_qp_dim_strsize
+#define OCP_QP_DIM_MEMSIZE s_ocp_qp_dim_memsize
+#define OCP_QP_DIM_CREATE s_ocp_qp_dim_create
+#define OCP_QP_DIM_SET_ALL s_ocp_qp_dim_set_all
+#define OCP_QP_DIM_SET s_ocp_qp_dim_set
+#define OCP_QP_DIM_SET_NX s_ocp_qp_dim_set_nx
+#define OCP_QP_DIM_SET_NU s_ocp_qp_dim_set_nu
+#define OCP_QP_DIM_SET_NBX s_ocp_qp_dim_set_nbx
+#define OCP_QP_DIM_SET_NBU s_ocp_qp_dim_set_nbu
+#define OCP_QP_DIM_SET_NG s_ocp_qp_dim_set_ng
+#define OCP_QP_DIM_SET_NSBX s_ocp_qp_dim_set_nsbx
+#define OCP_QP_DIM_SET_NSBU s_ocp_qp_dim_set_nsbu
+#define OCP_QP_DIM_SET_NSG s_ocp_qp_dim_set_nsg
 
 
 

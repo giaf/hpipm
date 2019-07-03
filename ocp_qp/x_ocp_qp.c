@@ -576,12 +576,12 @@ void CVT_COLMAJ_GEN_TO_OCP_QP(char *field_name, int stage, void *in, struct OCP_
 		r_ptr = in;
 		CVT_VEC2STRVEC(nb[stage], r_ptr, qp->d+stage, 0);
 		}
-	else if(hpipm_strcmp(field_name, "lu"))
+	else if(hpipm_strcmp(field_name, "lbu"))
 		{ 
 		r_ptr = in;
 		CVT_VEC2STRVEC(nbu[stage], r_ptr, qp->d+stage, 0);
 		}
-	else if(hpipm_strcmp(field_name, "lx"))
+	else if(hpipm_strcmp(field_name, "lbx"))
 		{ 
 		r_ptr = in;
 		CVT_VEC2STRVEC(nbx[stage], r_ptr, qp->d+stage, nbu[stage]);
@@ -592,13 +592,13 @@ void CVT_COLMAJ_GEN_TO_OCP_QP(char *field_name, int stage, void *in, struct OCP_
 		CVT_VEC2STRVEC(nb[stage], r_ptr, qp->d+stage, nb[stage]+ng[stage]);
 		VECSC_LIBSTR(nb[stage], -1.0, qp->d+stage, nb[stage]+ng[stage]);
 		}
-	else if(hpipm_strcmp(field_name, "uu"))
+	else if(hpipm_strcmp(field_name, "ubu"))
 		{ 
 		r_ptr = in;
 		CVT_VEC2STRVEC(nbu[stage], r_ptr, qp->d+stage, nb[stage]+ng[stage]);
 		VECSC_LIBSTR(nbu[stage], -1.0, qp->d+stage, nb[stage]+ng[stage]);
 		}
-	else if(hpipm_strcmp(field_name, "ux"))
+	else if(hpipm_strcmp(field_name, "ubx"))
 		{ 
 		r_ptr = in;
 		CVT_VEC2STRVEC(nbx[stage], r_ptr, qp->d+stage, nb[stage]+ng[stage]+nbu[stage]);
@@ -654,7 +654,7 @@ void CVT_COLMAJ_GEN_TO_OCP_QP(char *field_name, int stage, void *in, struct OCP_
 			qp->idxb[stage][nbu[stage]+ii] = nu[stage] + i_ptr[ii];
 			}
 		}
-	else if(hpipm_strcmp(field_name, "Jx"))
+	else if(hpipm_strcmp(field_name, "Jbx"))
 		{
 		r_ptr = in;
 		for(ii=0; ii<nbx[stage]; ii++)
@@ -678,7 +678,7 @@ void CVT_COLMAJ_GEN_TO_OCP_QP(char *field_name, int stage, void *in, struct OCP_
 			qp->idxb[stage][ii] = i_ptr[ii];
 			}
 		}
-	else if(hpipm_strcmp(field_name, "Ju"))
+	else if(hpipm_strcmp(field_name, "Jbu"))
 		{
 		r_ptr = in;
 		for(ii=0; ii<nbu[stage]; ii++)

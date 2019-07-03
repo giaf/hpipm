@@ -46,12 +46,12 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
 		{
 		for(ii=stage0; ii<=stage1; ii++)
 			{
-			d_set_ocp_qp_dim(field, ii, value, dim);
+			d_ocp_qp_dim_set(field, ii, value, dim);
 			}
 		}
 	else
 		{
-		d_set_ocp_qp_dim(field, stage0, value, dim);
+		d_ocp_qp_dim_set(field, stage0, value, dim);
 		}
 
 	return;
