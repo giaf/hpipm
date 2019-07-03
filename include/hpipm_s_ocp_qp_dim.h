@@ -63,7 +63,7 @@ int s_ocp_qp_dim_memsize(int N);
 //
 void s_ocp_qp_dim_create(int N, struct s_ocp_qp_dim *qp_dim, void *memory);
 //
-void s_ocp_qp_dim_set_all(int N, int *nx, int *nu, int *nbx, int *nbu, int *ng, int *nsbx, int *nsbu, int *nsg, struct s_ocp_qp_dim *dim);
+void s_ocp_qp_dim_set_all(int *nx, int *nu, int *nbx, int *nbu, int *ng, int *nsbx, int *nsbu, int *nsg, struct s_ocp_qp_dim *dim);
 //
 void s_ocp_qp_dim_set(char *field, int stage, int value, struct s_ocp_qp_dim *dim);
 //

@@ -120,14 +120,14 @@ void OCP_QP_DIM_CREATE(int N, struct OCP_QP_DIM *dim, void *memory)
 	}
 
 
-void OCP_QP_DIM_SET_ALL(int N, int *nx, int *nu, int *nbx, int *nbu, int *ng, int *nsbx, int *nsbu, int *nsg, struct OCP_QP_DIM *dim)
+void OCP_QP_DIM_SET_ALL(int *nx, int *nu, int *nbx, int *nbu, int *ng, int *nsbx, int *nsbu, int *nsg, struct OCP_QP_DIM *dim)
 	{
 
 	// loop index
 	int ii;
 
 	// N
-	dim->N = N;
+	int N = dim->N;
 
 	// copy qp dim
 	for(ii=0; ii<=N; ii++)
