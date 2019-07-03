@@ -515,13 +515,17 @@ void CODEGEN_OCP_QP(char *file_name, char *mode, struct OCP_QP *qp)
 	for(nn=0; nn<=N; nn++)
 		fprintf(file, "idxbu%d, ", nn);
 	fprintf(file, "};\n");
-	fprintf(file, "double **hidxbu = iidxbu;\n");
+	fprintf(file, "int **hidxbu = iidxbu;\n");
 
 	// lu
-	fprintf(file, "/* lu */\n");
+	fprintf(file, "/* lbu */\n");
 	for(nn=0; nn<=N; nn++)
 		{
-		fprintf(file, "static double lu%d[] = {", nn);
+#ifdef DOUBLE_PRECISION
+		fprintf(file, "static double lbu%d[] = {", nn);
+#else
+		fprintf(file, "static float lbu%d[] = {", nn);
+#endif
 		for(jj=0; jj<nb[nn]; jj++)
 			{
 			if(qp->idxb[nn][jj]<nu[nn])
@@ -531,17 +535,29 @@ void CODEGEN_OCP_QP(char *file_name, char *mode, struct OCP_QP *qp)
 			}
 		fprintf(file, "};\n");
 		}
-	fprintf(file, "static double *llu[] = {");
+#ifdef DOUBLE_PRECISION
+	fprintf(file, "static double *llbu[] = {");
+#else
+	fprintf(file, "static float *llbu[] = {");
+#endif
 	for(nn=0; nn<=N; nn++)
-		fprintf(file, "lu%d, ", nn);
+		fprintf(file, "lbu%d, ", nn);
 	fprintf(file, "};\n");
-	fprintf(file, "double **hlu = llu;\n");
+#ifdef DOUBLE_PRECISION
+	fprintf(file, "double **hlbu = llbu;\n");
+#else
+	fprintf(file, "float **hlbu = llbu;\n");
+#endif
 
 	// uu
-	fprintf(file, "/* uu */\n");
+	fprintf(file, "/* ubu */\n");
 	for(nn=0; nn<=N; nn++)
 		{
-		fprintf(file, "static double uu%d[] = {", nn);
+#ifdef DOUBLE_PRECISION
+		fprintf(file, "static double ubu%d[] = {", nn);
+#else
+		fprintf(file, "static float ubu%d[] = {", nn);
+#endif
 		for(jj=0; jj<nb[nn]; jj++)
 			{
 			if(qp->idxb[nn][jj]<nu[nn])
@@ -551,11 +567,19 @@ void CODEGEN_OCP_QP(char *file_name, char *mode, struct OCP_QP *qp)
 			}
 		fprintf(file, "};\n");
 		}
-	fprintf(file, "static double *uuu[] = {");
+#ifdef DOUBLE_PRECISION
+	fprintf(file, "static double *uubu[] = {");
+#else
+	fprintf(file, "static float *uubu[] = {");
+#endif
 	for(nn=0; nn<=N; nn++)
-		fprintf(file, "uu%d, ", nn);
+		fprintf(file, "ubu%d, ", nn);
 	fprintf(file, "};\n");
-	fprintf(file, "double **huu = uuu;\n");
+#ifdef DOUBLE_PRECISION
+	fprintf(file, "double **hubu = uubu;\n");
+#else
+	fprintf(file, "float **hubu = uubu;\n");
+#endif
 
 	// idxbx
 	fprintf(file, "/* idxbx */\n");
@@ -575,13 +599,17 @@ void CODEGEN_OCP_QP(char *file_name, char *mode, struct OCP_QP *qp)
 	for(nn=0; nn<=N; nn++)
 		fprintf(file, "idxbx%d, ", nn);
 	fprintf(file, "};\n");
-	fprintf(file, "double **hidxbx = iidxbx;\n");
+	fprintf(file, "int **hidxbx = iidxbx;\n");
 
 	// lx
-	fprintf(file, "/* lx */\n");
+	fprintf(file, "/* lbx */\n");
 	for(nn=0; nn<=N; nn++)
 		{
-		fprintf(file, "static double lx%d[] = {", nn);
+#ifdef DOUBLE_PRECISION
+		fprintf(file, "static double lbx%d[] = {", nn);
+#else
+		fprintf(file, "static float lbx%d[] = {", nn);
+#endif
 		for(jj=0; jj<nb[nn]; jj++)
 			{
 			if(qp->idxb[nn][jj]>=nu[nn])
@@ -591,17 +619,29 @@ void CODEGEN_OCP_QP(char *file_name, char *mode, struct OCP_QP *qp)
 			}
 		fprintf(file, "};\n");
 		}
-	fprintf(file, "static double *llx[] = {");
+#ifdef DOUBLE_PRECISION
+	fprintf(file, "static double *llbx[] = {");
+#else
+	fprintf(file, "static float *llbx[] = {");
+#endif
 	for(nn=0; nn<=N; nn++)
-		fprintf(file, "lx%d, ", nn);
+		fprintf(file, "lbx%d, ", nn);
 	fprintf(file, "};\n");
-	fprintf(file, "double **hlx = llx;\n");
+#ifdef DOUBLE_PRECISION
+	fprintf(file, "double **hlbx = llbx;\n");
+#else
+	fprintf(file, "float **hlbx = llbx;\n");
+#endif
 
 	// ux
-	fprintf(file, "/* ux */\n");
+	fprintf(file, "/* ubx */\n");
 	for(nn=0; nn<=N; nn++)
 		{
-		fprintf(file, "static double ux%d[] = {", nn);
+#ifdef DOUBLE_PRECISION
+		fprintf(file, "static double ubx%d[] = {", nn);
+#else
+		fprintf(file, "static float ubx%d[] = {", nn);
+#endif
 		for(jj=0; jj<nb[nn]; jj++)
 			{
 			if(qp->idxb[nn][jj]>=nu[nn])
@@ -611,11 +651,125 @@ void CODEGEN_OCP_QP(char *file_name, char *mode, struct OCP_QP *qp)
 			}
 		fprintf(file, "};\n");
 		}
-	fprintf(file, "static double *uux[] = {");
+#ifdef DOUBLE_PRECISION
+	fprintf(file, "static double *uubx[] = {");
+#else
+	fprintf(file, "static float *uubx[] = {");
+#endif
 	for(nn=0; nn<=N; nn++)
-		fprintf(file, "ux%d, ", nn);
+		fprintf(file, "ubx%d, ", nn);
 	fprintf(file, "};\n");
-	fprintf(file, "double **hux = uux;\n");
+#ifdef DOUBLE_PRECISION
+	fprintf(file, "double **hubx = uubx;\n");
+#else
+	fprintf(file, "float **hubx = uubx;\n");
+#endif
+
+	// C
+	fprintf(file, "/* C */\n");
+#ifdef DOUBLE_PRECISION
+	fprintf(file, "double **hC;\n");
+#else
+	fprintf(file, "float **hC;\n");
+#endif
+
+	// D
+	fprintf(file, "/* D */\n");
+#ifdef DOUBLE_PRECISION
+	fprintf(file, "double **hD;\n");
+#else
+	fprintf(file, "float **hD;\n");
+#endif
+
+	// lg
+	fprintf(file, "/* lg */\n");
+#ifdef DOUBLE_PRECISION
+	fprintf(file, "double **hlg;\n");
+#else
+	fprintf(file, "float **hlg;\n");
+#endif
+
+	// ug
+	fprintf(file, "/* ug */\n");
+#ifdef DOUBLE_PRECISION
+	fprintf(file, "double **hug;\n");
+#else
+	fprintf(file, "float **hug;\n");
+#endif
+
+	// Zl
+	fprintf(file, "/* Zl */\n");
+#ifdef DOUBLE_PRECISION
+	fprintf(file, "double **hZl;\n");
+#else
+	fprintf(file, "float **hZl;\n");
+#endif
+
+	// Zu
+	fprintf(file, "/* Zu */\n");
+#ifdef DOUBLE_PRECISION
+	fprintf(file, "double **hZu;\n");
+#else
+	fprintf(file, "float **hZu;\n");
+#endif
+
+	// zl
+	fprintf(file, "/* zl */\n");
+#ifdef DOUBLE_PRECISION
+	fprintf(file, "double **hzl;\n");
+#else
+	fprintf(file, "float **hzl;\n");
+#endif
+
+	// zu
+	fprintf(file, "/* zu */\n");
+#ifdef DOUBLE_PRECISION
+	fprintf(file, "double **hzu;\n");
+#else
+	fprintf(file, "float **hzu;\n");
+#endif
+
+	// idxs
+	fprintf(file, "/* idxs */\n");
+#ifdef DOUBLE_PRECISION
+	fprintf(file, "double **hidxs;\n");
+#else
+	fprintf(file, "float **hidxs;\n");
+#endif
+
+	// lls
+	fprintf(file, "/* lls */\n");
+#ifdef DOUBLE_PRECISION
+	fprintf(file, "double **hlls;\n");
+#else
+	fprintf(file, "float **hlls;\n");
+#endif
+
+	// lus
+	fprintf(file, "/* lus */\n");
+#ifdef DOUBLE_PRECISION
+	fprintf(file, "double **hlus;\n");
+#else
+	fprintf(file, "float **hlus;\n");
+#endif
+
+	// XXX what follows is not part of the QP !!!
+
+	// u_guess
+//	fprintf(file, "/* u_guess */\n");
+//	fprintf(file, "double **hu_guess;\n");
+
+	// x_guess
+//	fprintf(file, "/* x_guess */\n");
+//	fprintf(file, "double **hx_guess;\n");
+
+	// sl_guess
+//	fprintf(file, "/* sl_guess */\n");
+//	fprintf(file, "double **hsl_guess;\n");
+
+	// su_guess
+//	fprintf(file, "/* su_guess */\n");
+//	fprintf(file, "double **hsu_guess;\n");
 
 	fclose(file);
 
