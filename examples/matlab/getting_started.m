@@ -1,7 +1,7 @@
 % pyversion /usr/bin/python3
 % py.sys.path
 
-clear all
+clearvars
 close all
 clc
 
@@ -44,8 +44,6 @@ q = [1; 1];
 
 Jx = [1, 0; 0, 1];
 x0 = [1; 1];
-Jsx = [1, 0; 0, 1];
-Zl = [1e5, 0; 0, 1e5];
 Zu = [1e5, 0; 0, 1e5];
 zl = [1e5; 1e5];
 zu = [1e5; 1e5];
