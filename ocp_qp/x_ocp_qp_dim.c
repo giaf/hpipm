@@ -193,7 +193,7 @@ void OCP_QP_DIM_SET(char *field_name, int stage, int value, struct OCP_QP_DIM *d
 		}
 	else 
 		{
-		printf("error [SET_OCP_QP_DIM]: unknown field name '%s'. Exiting.\n", field_name);
+		printf("error [OCP_QP_DIM_SET]: unknown field name '%s'. Exiting.\n", field_name);
 		exit(1);
 		}
 	return;

@@ -302,7 +302,7 @@ int MEMSIZE_OCP_QP_IPM(struct OCP_QP_DIM *dim, struct OCP_QP_IPM_ARG *arg)
 	size += 2*sizeof(struct OCP_QP); // qp_step qp_itref
 
 	size += 2*sizeof(struct OCP_QP_SOL); // sol_step sol_itref
-	size += 1*MEMSIZE_OCP_QP_SOL(dim); // sol_itref
+	size += 1*OCP_QP_SOL_MEMSIZE(dim); // sol_itref
 
 	size += 2*sizeof(struct OCP_QP_RES); // res res_itref
 	size += 1*MEMSIZE_OCP_QP_RES(dim); // res_itref
@@ -541,7 +541,7 @@ void CREATE_OCP_QP_IPM(struct OCP_QP_DIM *dim, struct OCP_QP_IPM_ARG *arg, struc
 	// void stuf
 	char *c_ptr = (char *) s_ptr;
 
-	CREATE_OCP_QP_SOL(dim, workspace->sol_itref, c_ptr);
+	OCP_QP_SOL_CREATE(dim, workspace->sol_itref, c_ptr);
 	c_ptr += workspace->sol_itref->memsize;
 
 	CREATE_OCP_QP_RES(dim, workspace->res_itref, c_ptr);

@@ -29,10 +29,8 @@
 
 
 
-#if defined(RUNTIME_CHECKS)
 #include <stdlib.h>
 #include <stdio.h>
-#endif
 
 #include <blasfeo_target.h>
 #include <blasfeo_common.h>
@@ -41,6 +39,7 @@
 #include <hpipm_s_ocp_qp_dim.h>
 #include <hpipm_s_ocp_qp.h>
 #include <hpipm_s_ocp_qp_sol.h>
+#include <hpipm_aux_string.h>
 
 
 
@@ -56,24 +55,24 @@
 #define VECCP_LIBSTR blasfeo_sveccp
 #define VECSE blasfeo_svecse
 
-#define SIZEOF_OCP_QP_SOL s_sizeof_ocp_qp_sol
-#define CREATE_OCP_QP_SOL s_create_ocp_qp_sol
-#define MEMSIZE_OCP_QP_SOL s_memsize_ocp_qp_sol
-#define CVT_OCP_QP_SOL_TO_COLMAJ s_cvt_ocp_qp_sol_to_colmaj
-#define CVT_COLMAJ_TO_OCP_QP_SOL s_cvt_colmaj_to_ocp_qp_sol
-#define CVT_OCP_QP_SOL_TO_ROWMAJ s_cvt_ocp_qp_sol_to_rowmaj
-#define CVT_OCP_QP_SOL_TO_LIBSTR s_cvt_ocp_qp_sol_to_libstr
-#define CVT_OCP_QP_SOL_TO_COLMAJ_U s_cvt_ocp_qp_sol_to_colmaj_u
-#define CVT_OCP_QP_SOL_TO_COLMAJ_X s_cvt_ocp_qp_sol_to_colmaj_x
-#define CVT_OCP_QP_SOL_TO_COLMAJ_PI s_cvt_ocp_qp_sol_to_colmaj_pi
-#define CVT_OCP_QP_SOL_TO_COLMAJ_LAM_LB s_cvt_ocp_qp_sol_to_colmaj_lam_lb
-#define CVT_OCP_QP_SOL_TO_COLMAJ_LAM_UB s_cvt_ocp_qp_sol_to_colmaj_lam_ub
-#define CVT_OCP_QP_SOL_TO_COLMAJ_LAM_LG s_cvt_ocp_qp_sol_to_colmaj_lam_lg
-#define CVT_OCP_QP_SOL_TO_COLMAJ_LAM_UG s_cvt_ocp_qp_sol_to_colmaj_lam_ug
-#define CVT_COLMAJ_TO_OCP_QP_SOL_U s_cvt_colmaj_to_ocp_qp_sol_u
-#define CVT_COLMAJ_TO_OCP_QP_SOL_X s_cvt_colmaj_to_ocp_qp_sol_x
-#define CVT_COLMAJ_TO_OCP_QP_SOL_SL s_cvt_colmaj_to_ocp_qp_sol_sl
-#define CVT_COLMAJ_TO_OCP_QP_SOL_SU s_cvt_colmaj_to_ocp_qp_sol_su
+#define OCP_QP_SOL_STRSIZE s_ocp_qp_sol_strsize
+#define OCP_QP_SOL_MEMSIZE s_ocp_qp_sol_memsize
+#define OCP_QP_SOL_CREATE s_ocp_qp_sol_create
+#define OCP_QP_SOL_GET_ALL s_ocp_qp_sol_get_all
+#define OCP_QP_SOL_SET_ALL s_ocp_qp_sol_set_all
+#define OCP_QP_SOL_GET s_ocp_qp_sol_get
+#define OCP_QP_SOL_GET_U s_ocp_qp_sol_get_u
+#define OCP_QP_SOL_GET_X s_ocp_qp_sol_get_x
+#define OCP_QP_SOL_GET_PI s_ocp_qp_sol_get_pi
+#define OCP_QP_SOL_GET_LAM_LB s_ocp_qp_sol_get_lam_lb
+#define OCP_QP_SOL_GET_LAM_UB s_ocp_qp_sol_get_lam_ub
+#define OCP_QP_SOL_GET_LAM_LG s_ocp_qp_sol_get_lam_lg
+#define OCP_QP_SOL_GET_LAM_UG s_ocp_qp_sol_get_lam_ug
+#define OCP_QP_SOL_SET s_ocp_qp_sol_set
+#define OCP_QP_SOL_SET_U s_ocp_qp_sol_set_u
+#define OCP_QP_SOL_SET_X s_ocp_qp_sol_set_x
+#define OCP_QP_SOL_SET_SL s_ocp_qp_sol_set_sl
+#define OCP_QP_SOL_SET_SU s_ocp_qp_sol_set_su
 
 
 #include "x_ocp_qp_sol.c"

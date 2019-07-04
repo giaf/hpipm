@@ -26,6 +26,8 @@ end
 
 % dim
 N = 5;
+nx = 2;
+nu = 1;
 
 tic
 dim = hpipm_ocp_qp_dim(N);
@@ -33,16 +35,16 @@ tmp_time = toc;
 fprintf('create dim time %e\n', tmp_time);
 
 tic
-dim.set('nx', 2, 0, N);
+dim.set('nx', nx, 0, N);
 tmp_time = toc;
 fprintf('set nx time %e\n', tmp_time);
-dim.set('nu', 1, 0, N-1);
+dim.set('nu', nu, 0, N-1);
 if(constr_type==0)
-	dim.set('nbx', 2, 0);
-	dim.set('nbx', 2, 5);
+	dim.set('nbx', nx, 0);
+	dim.set('nbx', nx, 5);
 else
-	dim.set('ng', 2, 0);
-	dim.set('ng', 2, 5);
+	dim.set('ng', nx, 0);
+	dim.set('ng', nx, 5);
 end
 
 % print to shell
@@ -75,7 +77,7 @@ fprintf('create qp time %e\n', tmp_time);
 tic
 qp.set('A', A, 0, N-1);
 tmp_time = toc;
-fprintf('create set A time %e\n', tmp_time);
+fprintf('set A time %e\n', tmp_time);
 qp.set('B', B, 0, N-1);
 qp.set('Q', Q, 0, N);
 qp.set('S', S, 0, N-1);
@@ -105,6 +107,14 @@ tic
 sol = hpipm_ocp_qp_sol(dim);
 tmp_time = toc;
 fprintf('create sol time %e\n', tmp_time);
+
+x = zeros(nx, N+1);
+tic
+sol.get('x', x, 0, N);
+tmp_time = toc;
+fprintf('get x time %e\n', tmp_time);
+
+x
 
 % print to shell
 sol.print_C_struct();

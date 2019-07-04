@@ -27,7 +27,7 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
 
 	/* body */
 
-	int sol_size = sizeof(struct d_ocp_qp_sol) + d_memsize_ocp_qp_sol(dim);
+	int sol_size = sizeof(struct d_ocp_qp_sol) + d_ocp_qp_sol_memsize(dim);
 	void *sol_mem = malloc(sol_size);
 
 	c_ptr = sol_mem;
@@ -35,8 +35,8 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
 	struct d_ocp_qp_sol *sol = (struct d_ocp_qp_sol *) c_ptr;
 	c_ptr += sizeof(struct d_ocp_qp_sol);
 
-	d_create_ocp_qp_sol(dim, sol, c_ptr);
-	c_ptr += d_memsize_ocp_qp_sol(dim);
+	d_ocp_qp_sol_create(dim, sol, c_ptr);
+	c_ptr += d_ocp_qp_sol_memsize(dim);
 
 	/* LHS */
 

@@ -194,11 +194,11 @@ int main()
 * ocp qp sol
 ************************************************/
 
-	int qp_sol_size = d_memsize_ocp_qp_sol(&dim);
+	int qp_sol_size = d_ocp_qp_sol_memsize(&dim);
 	void *qp_sol_mem = malloc(qp_sol_size);
 
 	struct d_ocp_qp_sol qp_sol;
-	d_create_ocp_qp_sol(&dim, &qp_sol, qp_sol_mem);
+	d_ocp_qp_sol_create(&dim, &qp_sol, qp_sol_mem);
 
 /************************************************
 * ipm arg
@@ -307,7 +307,7 @@ int main()
 	printf("\nu = \n");
 	for(ii=0; ii<=N; ii++)
 		{
-		d_cvt_ocp_qp_sol_to_colmaj_u(ii, &qp_sol, u);
+		d_ocp_qp_sol_get("u", ii, &qp_sol, u);
 		d_print_mat(1, nu[ii], u, 1);
 		}
 
@@ -323,7 +323,7 @@ int main()
 	printf("\nx = \n");
 	for(ii=0; ii<=N; ii++)
 		{
-		d_cvt_ocp_qp_sol_to_colmaj_x(ii, &qp_sol, x);
+		d_ocp_qp_sol_get("x", ii, &qp_sol, x);
 		d_print_mat(1, nx[ii], x, 1);
 		}
 
@@ -333,7 +333,7 @@ int main()
 	printf("\npi = \n");
 	for(ii=0; ii<N; ii++)
 		{
-		d_cvt_ocp_qp_sol_to_colmaj_pi(ii, &qp_sol, pi);
+		d_ocp_qp_sol_get("pi", ii, &qp_sol, pi);
 		d_print_mat(1, nx[ii+1], pi, 1);
 		}
 

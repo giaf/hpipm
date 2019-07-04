@@ -835,12 +835,12 @@ int main()
 * ocp qp sol
 ************************************************/
 
-	int qp_sol_size = d_memsize_ocp_qp_sol(&dim);
+	int qp_sol_size = d_ocp_qp_sol_memsize(&dim);
 	printf("\nqp sol size = %d\n", qp_sol_size);
 	void *qp_sol_mem = malloc(qp_sol_size);
 
 	struct d_ocp_qp_sol qp_sol;
-	d_create_ocp_qp_sol(&dim, &qp_sol, qp_sol_mem);
+	d_ocp_qp_sol_create(&dim, &qp_sol, qp_sol_mem);
 
 /************************************************
 * ipm arg
@@ -916,7 +916,7 @@ int main()
 	double *lam_ls[N+1]; for(ii=0; ii<=N; ii++) d_zeros(lam_ls+ii, ns[ii], 1);
 	double *lam_us[N+1]; for(ii=0; ii<=N; ii++) d_zeros(lam_us+ii, ns[ii], 1);
 
-	d_cvt_ocp_qp_sol_to_colmaj(&qp_sol, u, x, ls, us, pi, lam_lb, lam_ub, lam_lg, lam_ug, lam_ls, lam_us);
+	d_ocp_qp_sol_get_all(&qp_sol, u, x, ls, us, pi, lam_lb, lam_ub, lam_lg, lam_ug, lam_ls, lam_us);
 
 #if 1
 	printf("\nsolution\n\n");
@@ -1031,7 +1031,7 @@ int main()
 	double *lam_us[N+1]; for(ii=0; ii<=N; ii++) d_zeros(lam_us+ii, ns[ii], 1);
 #endif
 
-	d_cvt_ocp_qp_sol_to_colmaj(&qp_sol, u, x, ls, us, pi, lam_lb, lam_ub, lam_lg, lam_ug, lam_ls, lam_us);
+	d_ocp_qp_sol_get_all(&qp_sol, u, x, ls, us, pi, lam_lb, lam_ub, lam_lg, lam_ug, lam_ls, lam_us);
 
 #if 1
 	printf("\nsolution\n\n");

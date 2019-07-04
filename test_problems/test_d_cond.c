@@ -1016,12 +1016,12 @@ int main()
 * ocp qp sol
 ************************************************/
 
-	int ocp_qp_sol_size = d_memsize_ocp_qp_sol(&dim);
+	int ocp_qp_sol_size = d_ocp_qp_sol_memsize(&dim);
 	printf("\nocp qp sol size = %d\n", ocp_qp_sol_size);
 	void *ocp_qp_sol_mem = malloc(ocp_qp_sol_size);
 
 	struct d_ocp_qp_sol ocp_qp_sol;
-	d_create_ocp_qp_sol(&dim, &ocp_qp_sol, ocp_qp_sol_mem);
+	d_ocp_qp_sol_create(&dim, &ocp_qp_sol, ocp_qp_sol_mem);
 
 /************************************************
 * expand solution
@@ -1041,7 +1041,7 @@ int main()
 	double *lam_ls[N+1]; for(ii=0; ii<=N; ii++) d_zeros(lam_ls+ii, ns[ii], 1);
 	double *lam_us[N+1]; for(ii=0; ii<=N; ii++) d_zeros(lam_us+ii, ns[ii], 1);
 
-	d_cvt_ocp_qp_sol_to_colmaj(&ocp_qp_sol, u, x, ls, us, pi, lam_lb, lam_ub, lam_lg, lam_ug, lam_ls, lam_us);
+	d_ocp_qp_sol_get_all(&ocp_qp_sol, u, x, ls, us, pi, lam_lb, lam_ub, lam_lg, lam_ug, lam_ls, lam_us);
 
 #if 1
 	printf("\nfull space solution\n\n");

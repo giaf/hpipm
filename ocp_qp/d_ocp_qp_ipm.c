@@ -62,7 +62,7 @@
 #define CORE_QP_IPM_WORKSPACE d_core_qp_ipm_workspace
 #define CREATE_CORE_QP_IPM d_create_core_qp_ipm
 #define CREATE_OCP_QP_RES d_create_ocp_qp_res
-#define CREATE_OCP_QP_SOL d_create_ocp_qp_sol
+#define OCP_QP_SOL_CREATE d_ocp_qp_sol_create
 #define CREATE_STRMAT blasfeo_create_dmat
 #define CREATE_STRVEC blasfeo_create_dvec
 #define CVT_STRVEC2VEC blasfeo_unpack_dvec
@@ -73,7 +73,7 @@
 #define INIT_VAR_OCP_QP d_init_var_ocp_qp
 #define MEMSIZE_CORE_QP_IPM d_memsize_core_qp_ipm
 #define MEMSIZE_OCP_QP_RES d_memsize_ocp_qp_res
-#define MEMSIZE_OCP_QP_SOL d_memsize_ocp_qp_sol
+#define OCP_QP_SOL_MEMSIZE d_ocp_qp_sol_memsize
 #define OCP_QP d_ocp_qp
 #define OCP_QP_IPM_ARG d_ocp_qp_ipm_arg
 #define HPIPM_MODE hpipm_mode
