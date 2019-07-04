@@ -141,6 +141,7 @@ void CREATE_OCP_QP_SOL(struct OCP_QP_DIM *dim, struct OCP_QP_SOL *qp_sol, void *
 		tmp_ptr += nx[ii]*sizeof(REAL); // x
 		tmp_ptr += ns[ii]*sizeof(REAL); // s_ls
 		tmp_ptr += ns[ii]*sizeof(REAL); // s_us
+		VECSE(nu[ii]+nx[ii]+2*ns[ii], 0.0, qp_sol->ux+ii, 0);
 		}
 	// pi
 	tmp_ptr = c_ptr;
@@ -149,6 +150,7 @@ void CREATE_OCP_QP_SOL(struct OCP_QP_DIM *dim, struct OCP_QP_SOL *qp_sol, void *
 		{
 		CREATE_STRVEC(nx[ii+1], qp_sol->pi+ii, tmp_ptr);
 		tmp_ptr += nx[ii+1]*sizeof(REAL); // pi
+		VECSE(nx[ii+1], 0.0, qp_sol->pi+ii, 0);
 		}
 	// lam
 	tmp_ptr = c_ptr;
@@ -162,6 +164,7 @@ void CREATE_OCP_QP_SOL(struct OCP_QP_DIM *dim, struct OCP_QP_SOL *qp_sol, void *
 		tmp_ptr += ng[ii]*sizeof(REAL); // ug
 		tmp_ptr += ns[ii]*sizeof(REAL); // ls
 		tmp_ptr += ns[ii]*sizeof(REAL); // us
+		VECSE(2*nb[ii]+2*ng[ii]+2*ns[ii], 0.0, qp_sol->lam+ii, 0);
 		}
 	// t
 	tmp_ptr = c_ptr;
@@ -175,6 +178,7 @@ void CREATE_OCP_QP_SOL(struct OCP_QP_DIM *dim, struct OCP_QP_SOL *qp_sol, void *
 		tmp_ptr += ng[ii]*sizeof(REAL); // ug
 		tmp_ptr += ns[ii]*sizeof(REAL); // ls
 		tmp_ptr += ns[ii]*sizeof(REAL); // us
+		VECSE(2*nb[ii]+2*ng[ii]+2*ns[ii], 0.0, qp_sol->t+ii, 0);
 		}
 
 	qp_sol->dim = dim;

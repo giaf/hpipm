@@ -4,7 +4,7 @@
 #include <string.h>
 // hpipm
 #include "hpipm_d_ocp_qp_dim.h"
-#include "hpipm_d_ocp_qp.h"
+#include "hpipm_d_ocp_qp_sol.h"
 // mex
 #include "mex.h"
 
@@ -13,7 +13,7 @@
 void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
 	{
 
-//	printf("\nin ocp_qp_create\n");
+//	printf("\nin ocp_qp_sol_create\n");
 
 	mxArray *tmp_mat;
 	long long *l_ptr;
@@ -27,27 +27,28 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
 
 	/* body */
 
-	int qp_size = sizeof(struct d_ocp_qp) + d_memsize_ocp_qp(dim);
-	void *qp_mem = malloc(qp_size);
+	int sol_size = sizeof(struct d_ocp_qp_sol) + d_memsize_ocp_qp_sol(dim);
+	void *sol_mem = malloc(sol_size);
 
-	c_ptr = qp_mem;
+	c_ptr = sol_mem;
 
-	struct d_ocp_qp *qp = (struct d_ocp_qp *) c_ptr;
-	c_ptr += sizeof(struct d_ocp_qp);
+	struct d_ocp_qp_sol *sol = (struct d_ocp_qp_sol *) c_ptr;
+	c_ptr += sizeof(struct d_ocp_qp_sol);
 
-	d_create_ocp_qp(dim, qp, c_ptr);
-	c_ptr += d_memsize_ocp_qp(dim);
+	d_create_ocp_qp_sol(dim, sol, c_ptr);
+	c_ptr += d_memsize_ocp_qp_sol(dim);
 
 	/* LHS */
 
 	tmp_mat = mxCreateNumericMatrix(1, 1, mxINT64_CLASS, mxREAL);
 	l_ptr = mxGetData(tmp_mat);
-	l_ptr[0] = (long long) qp_mem;
+	l_ptr[0] = (long long) sol_mem;
 	plhs[0] = tmp_mat;
 
 	return;
 
 	}
+
 
 
 

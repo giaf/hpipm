@@ -33,7 +33,7 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
 	c_ptr += sizeof(struct d_ocp_qp_dim);
 
 	d_ocp_qp_dim_create(N, dim, c_ptr);
-	c_ptr += dim->memsize;
+	c_ptr += d_ocp_qp_dim_memsize(N);
 
 	/* LHS */
 

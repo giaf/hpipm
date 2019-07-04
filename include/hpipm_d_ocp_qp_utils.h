@@ -48,15 +48,15 @@ extern "C" {
 
 
 //
-void d_print_ocp_qp_dim(struct d_ocp_qp_dim *qp_dim);
+void d_ocp_qp_dim_print(struct d_ocp_qp_dim *qp_dim);
 //
-void d_codegen_ocp_qp_dim(char *file_name, char *mode, struct d_ocp_qp_dim *qp_dim);
+void d_ocp_qp_dim_codegen(char *file_name, char *mode, struct d_ocp_qp_dim *qp_dim);
 //
-void d_print_ocp_qp(struct d_ocp_qp *qp);
+void d_ocp_qp_print(struct d_ocp_qp_dim *qp_dim, struct d_ocp_qp *qp);
 //
-void d_codegen_ocp_qp(char *file_name, char *mode, struct d_ocp_qp *qp);
+void d_ocp_qp_codegen(char *file_name, char *mode, struct d_ocp_qp_dim *qp_dim, struct d_ocp_qp *qp);
 //
-void d_print_ocp_qp_sol(struct d_ocp_qp_sol *ocp_qp_sol, struct d_ocp_qp_dim *ocp_qp_dim);
+void d_ocp_qp_sol_print(struct d_ocp_qp_dim *qp_dim, struct d_ocp_qp_sol *ocp_qp_sol);
 
 
 

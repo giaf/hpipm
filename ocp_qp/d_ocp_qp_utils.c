@@ -54,11 +54,11 @@
 
 
 
-#define PRINT_OCP_QP_DIM d_print_ocp_qp_dim
-#define CODEGEN_OCP_QP_DIM d_codegen_ocp_qp_dim
-#define PRINT_OCP_QP d_print_ocp_qp
-#define CODEGEN_OCP_QP d_codegen_ocp_qp
-#define PRINT_OCP_QP_SOL d_print_ocp_qp_sol
+#define OCP_QP_DIM_PRINT d_ocp_qp_dim_print
+#define OCP_QP_DIM_CODEGEN d_ocp_qp_dim_codegen
+#define OCP_QP_PRINT d_ocp_qp_print
+#define OCP_QP_CODEGEN d_ocp_qp_codegen
+#define OCP_QP_SOL_PRINT d_ocp_qp_sol_print
 
 
 

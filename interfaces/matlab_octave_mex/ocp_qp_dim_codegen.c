@@ -30,7 +30,7 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
 	char *mode = mxArrayToString( prhs[2] );
 
 	/* body */
-	d_codegen_ocp_qp_dim(file_name, mode, dim);
+	d_ocp_qp_dim_codegen(file_name, mode, dim);
 
 	return;
 

@@ -29,7 +29,7 @@
 
 
 
-void PRINT_OCP_QP_DIM(struct OCP_QP_DIM *qp_dim)
+void OCP_QP_DIM_PRINT(struct OCP_QP_DIM *qp_dim)
 	{
 	int ii;
 
@@ -90,7 +90,7 @@ void PRINT_OCP_QP_DIM(struct OCP_QP_DIM *qp_dim)
 
 
 
-void CODEGEN_OCP_QP_DIM(char *file_name, char *mode, struct OCP_QP_DIM *qp_dim)
+void OCP_QP_DIM_CODEGEN(char *file_name, char *mode, struct OCP_QP_DIM *qp_dim)
 	{
 	int ii;
 
@@ -175,11 +175,9 @@ void CODEGEN_OCP_QP_DIM(char *file_name, char *mode, struct OCP_QP_DIM *qp_dim)
 
 
 
-void PRINT_OCP_QP(struct OCP_QP *qp)
+void OCP_QP_PRINT(struct OCP_QP_DIM *dim, struct OCP_QP *qp)
 	{
 	int ii;
-
-	struct OCP_QP_DIM *dim = qp->dim;
 
 	int N   = dim->N;
 	int *nx = dim->nx;
@@ -229,13 +227,11 @@ void PRINT_OCP_QP(struct OCP_QP *qp)
 
 
 
-void CODEGEN_OCP_QP(char *file_name, char *mode, struct OCP_QP *qp)
+void OCP_QP_CODEGEN(char *file_name, char *mode, struct OCP_QP_DIM *dim, struct OCP_QP *qp)
 	{
 	int nn, ii, jj;
 
 	FILE *file = fopen(file_name, mode);
-
-	struct OCP_QP_DIM *dim = qp->dim;
 
 	int N   = dim->N;
 	int *nx = dim->nx;
@@ -904,7 +900,7 @@ void CODEGEN_OCP_QP(char *file_name, char *mode, struct OCP_QP *qp)
 
 
 
-void PRINT_OCP_QP_SOL(struct OCP_QP_SOL *qp_sol, struct OCP_QP_DIM *qp_dim)
+void OCP_QP_SOL_PRINT(struct OCP_QP_DIM *qp_dim, struct OCP_QP_SOL *qp_sol)
 	{
 	int ii;
 
@@ -915,7 +911,7 @@ void PRINT_OCP_QP_SOL(struct OCP_QP_SOL *qp_sol, struct OCP_QP_DIM *qp_dim)
 	int *ng = qp_dim->ng;
 	int *ns = qp_dim->ns;
 
-	printf("ux =\n");
+	printf("uxs =\n");
 	for (ii = 0; ii <= N; ii++)
 		BLASFEO_PRINT_TRAN_VEC(nu[ii] + nx[ii] + 2 * ns[ii], &qp_sol->ux[ii], 0);
 

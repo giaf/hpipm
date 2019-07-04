@@ -23,7 +23,7 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
 	l_ptr = mxGetData( prhs[0] );
 	struct d_ocp_qp_dim *dim = (struct d_ocp_qp_dim *) *l_ptr;
 
-	d_print_ocp_qp_dim(dim);
+	d_ocp_qp_dim_print(dim);
 
 	return;
 

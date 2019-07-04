@@ -32,8 +32,6 @@ dim = hpipm_ocp_qp_dim(N);
 tmp_time = toc;
 fprintf('create dim time %e\n', tmp_time);
 
-dim.C_dim
-
 tic
 dim.set('nx', 2, 0, N);
 tmp_time = toc;
@@ -74,8 +72,6 @@ qp = hpipm_ocp_qp(dim);
 tmp_time = toc;
 fprintf('create qp time %e\n', tmp_time);
 
-qp.C_qp
-
 tic
 qp.set('A', A, 0, N-1);
 tmp_time = toc;
@@ -104,6 +100,16 @@ qp.print_C_struct();
 qp.codegen('qp_data.c', 'a');
 
 
+% sol
+tic
+sol = hpipm_ocp_qp_sol(dim);
+tmp_time = toc;
+fprintf('create sol time %e\n', tmp_time);
+
+% print to shell
+sol.print_C_struct();
+
+
 
 
 if is_octave()
@@ -111,6 +117,7 @@ if is_octave()
 	if strcmp(version(), '4.2.2')
 		delete(dim);
 		delete(qp);
+		delete(sol);
 	end
 end
 

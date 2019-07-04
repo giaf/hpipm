@@ -54,6 +54,7 @@
 #define STRVEC blasfeo_dvec
 #define SIZE_STRVEC blasfeo_memsize_dvec
 #define VECCP_LIBSTR blasfeo_dveccp
+#define VECSE blasfeo_dvecse
 
 #define SIZEOF_OCP_QP_SOL d_sizeof_ocp_qp_sol
 #define CREATE_OCP_QP_SOL d_create_ocp_qp_sol
