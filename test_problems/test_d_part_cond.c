@@ -689,13 +689,13 @@ int main()
 * ocp qp
 ************************************************/
 
-	int ocp_qp_size = d_memsize_ocp_qp(&dim);
+	int ocp_qp_size = d_ocp_qp_memsize(&dim);
 	printf("\nocp qp size = %d\n", ocp_qp_size);
 	void *ocp_qp_mem = malloc(ocp_qp_size);
 
 	struct d_ocp_qp ocp_qp;
-	d_create_ocp_qp(&dim, &ocp_qp, ocp_qp_mem);
-	d_cvt_colmaj_to_ocp_qp(hA, hB, hb, hQ, hS, hR, hq, hr, hidxbx, hd_lbx, hd_ubx, hidxbu, hd_lbu, hd_ubu, hC, hD, hd_lg, hd_ug, hZl, hZu, hzl, hzu, hidxs, hd_ls, hd_us, &ocp_qp);
+	d_ocp_qp_create(&dim, &ocp_qp, ocp_qp_mem);
+	d_ocp_qp_set_all(hA, hB, hb, hQ, hS, hR, hq, hr, hidxbx, hd_lbx, hd_ubx, hidxbu, hd_lbu, hd_ubu, hC, hD, hd_lg, hd_ug, hZl, hZu, hzl, hzu, hidxs, hd_ls, hd_us, &ocp_qp);
 
 #if 0
 	printf("\nN = %d\n", ocp_qp.N);
@@ -786,12 +786,12 @@ int main()
 		printf("\n%d %d %d %d\n", nx2[ii], nu2[ii], nb2[ii], ng2[ii]);
 
 	// qp
-	int part_dense_qp_size = d_memsize_ocp_qp(&dim2);
+	int part_dense_qp_size = d_ocp_qp_memsize(&dim2);
 	printf("\npart dense qp size = %d\n", part_dense_qp_size);
 	void *part_dense_qp_mem = malloc(part_dense_qp_size);
 
 	struct d_ocp_qp part_dense_qp;
-	d_create_ocp_qp(&dim2, &part_dense_qp, part_dense_qp_mem);
+	d_ocp_qp_create(&dim2, &part_dense_qp, part_dense_qp_mem);
 
 	// arg
 	int part_cond_arg_size = d_memsize_cond_qp_ocp2ocp_arg(dim2.N);

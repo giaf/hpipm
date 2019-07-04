@@ -798,13 +798,13 @@ int main()
 * ocp qp
 ************************************************/
 
-	int qp_size = d_memsize_ocp_qp(&dim);
+	int qp_size = d_ocp_qp_memsize(&dim);
 	printf("\nqp size = %d\n", qp_size);
 	void *qp_mem = malloc(qp_size);
 
 	struct d_ocp_qp qp;
-	d_create_ocp_qp(&dim, &qp, qp_mem);
-	d_cvt_colmaj_to_ocp_qp(hA, hB, hb, hQ, hS, hR, hq, hr, hidxbx, hd_lbx, hd_ubx, hidxbu, hd_lbu, hd_ubu, hC, hD, hd_lg, hd_ug, hZl, hZu, hzl, hzu, hidxs, hd_ls, hd_us, &qp);
+	d_ocp_qp_create(&dim, &qp, qp_mem);
+	d_ocp_qp_set_all(hA, hB, hb, hQ, hS, hR, hq, hr, hidxbx, hd_lbx, hd_ubx, hidxbu, hd_lbu, hd_ubu, hC, hD, hd_lg, hd_ug, hZl, hZu, hzl, hzu, hidxs, hd_ls, hd_us, &qp);
 
 #if 0
 	printf("\nN = %d\n", qp.dim->N);

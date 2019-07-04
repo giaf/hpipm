@@ -129,23 +129,23 @@ int main()
 * ocp qp
 ************************************************/
 
-	int qp_size = d_memsize_ocp_qp(&dim);
+	int qp_size = d_ocp_qp_memsize(&dim);
 	void *qp_mem = malloc(qp_size);
 
 	struct d_ocp_qp qp;
-	d_create_ocp_qp(&dim, &qp, qp_mem);
+	d_ocp_qp_create(&dim, &qp, qp_mem);
 
-	d_cvt_colmaj_to_ocp_qp(hA, hB, hb, hQ, hS, hR, hq, hr, hidxbx, hlbx, hubx, hidxbu, hlbu, hubu, hC, hD, hlg, hug, hZl, hZu, hzl, hzu, hidxs, hlls, hlus, &qp);
+	d_ocp_qp_set_all(hA, hB, hb, hQ, hS, hR, hq, hr, hidxbx, hlbx, hubx, hidxbu, hlbu, hubu, hC, hD, hlg, hug, hZl, hZu, hzl, hzu, hidxs, hlls, hlus, &qp);
 
 /************************************************
 * ocp qp part cond
 ************************************************/
 
-	int qp_size2 = d_memsize_ocp_qp(&dim2);
+	int qp_size2 = d_ocp_qp_memsize(&dim2);
 	void *qp_mem2 = malloc(qp_size2);
 
 	struct d_ocp_qp qp2;
-	d_create_ocp_qp(&dim2, &qp2, qp_mem2);
+	d_ocp_qp_create(&dim2, &qp2, qp_mem2);
 
 /************************************************
 * ocp qp sol

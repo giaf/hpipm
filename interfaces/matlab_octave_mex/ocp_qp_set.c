@@ -47,12 +47,12 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
 		{
 		for(ii=stage0; ii<=stage1; ii++)
 			{
-			d_cvt_colmaj_gen_to_ocp_qp(field, ii, value, qp);
+			d_ocp_qp_set(field, ii, value, qp);
 			}
 		}
 	else
 		{
-		d_cvt_colmaj_gen_to_ocp_qp(field, stage0, value, qp);
+		d_ocp_qp_set(field, stage0, value, qp);
 		}
 
 	return;

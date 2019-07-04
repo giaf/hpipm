@@ -14,7 +14,7 @@ end
 
 % define flags
 compile_mex = 1; % compile mex interface (necessary the first time, or if the HPIPM and BLASFEO libraries are recompiled)
-constr_type = 1; % 0 box, 1 general
+constr_type = 0; % 0 box, 1 general
 
 
 
@@ -85,10 +85,10 @@ qp.set('R', R, 0, N-1);
 qp.set('q', q, 0, N);
 %qp.set('r', r, 0, N-1);
 if(constr_type==0)
-	qp.set('Jx', Jx, 0);
-	qp.set('lx', x0, 0);
-	qp.set('ux', x0, 0);
-	qp.set('Jx', Jx, N);
+	qp.set('Jbx', Jx, 0);
+	qp.set('lbx', x0, 0);
+	qp.set('ubx', x0, 0);
+	qp.set('Jbx', Jx, N);
 else
 	qp.set('C', Jx, 0);
 	qp.set('lg', x0, 0);

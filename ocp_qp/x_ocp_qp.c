@@ -29,14 +29,14 @@
 
 
 
-int SIZEOF_OCP_QP()
+int OCP_QP_STRSIZE()
 	{
 	return sizeof(struct OCP_QP);
 	}
 
 
 
-int MEMSIZE_OCP_QP(struct OCP_QP_DIM *dim)
+int OCP_QP_MEMSIZE(struct OCP_QP_DIM *dim)
 	{
 
 	// extract dim
@@ -101,7 +101,7 @@ int MEMSIZE_OCP_QP(struct OCP_QP_DIM *dim)
 
 
 
-void CREATE_OCP_QP(struct OCP_QP_DIM *dim, struct OCP_QP *qp, void *mem)
+void OCP_QP_CREATE(struct OCP_QP_DIM *dim, struct OCP_QP *qp, void *mem)
 	{
 
 	// extract dim
@@ -304,7 +304,7 @@ void CREATE_OCP_QP(struct OCP_QP_DIM *dim, struct OCP_QP *qp, void *mem)
 
 	qp->dim = dim;
 
-	qp->memsize = MEMSIZE_OCP_QP(dim);
+	qp->memsize = OCP_QP_MEMSIZE(dim);
 
 
 #if defined(RUNTIME_CHECKS)
@@ -322,7 +322,7 @@ void CREATE_OCP_QP(struct OCP_QP_DIM *dim, struct OCP_QP *qp, void *mem)
 
 
 
-void CVT_COLMAJ_TO_OCP_QP(REAL **A, REAL **B, REAL **b, REAL **Q, REAL **S, REAL **R, REAL **q, REAL **r, int **idxbx, REAL **d_lbx, REAL **d_ubx, int **idxbu, REAL **d_lbu, REAL **d_ubu, REAL **C, REAL **D, REAL **d_lg, REAL **d_ug, REAL **Zl, REAL **Zu, REAL **zl, REAL **zu, int **idxs, REAL **d_ls, REAL **d_us, struct OCP_QP *qp)
+void OCP_QP_SET_ALL(REAL **A, REAL **B, REAL **b, REAL **Q, REAL **S, REAL **R, REAL **q, REAL **r, int **idxbx, REAL **d_lbx, REAL **d_ubx, int **idxbu, REAL **d_lbu, REAL **d_ubu, REAL **C, REAL **D, REAL **d_lg, REAL **d_ug, REAL **Zl, REAL **Zu, REAL **zl, REAL **zu, int **idxs, REAL **d_ls, REAL **d_us, struct OCP_QP *qp)
 	{
 
 	// extract dim
@@ -411,96 +411,7 @@ void CVT_COLMAJ_TO_OCP_QP(REAL **A, REAL **B, REAL **b, REAL **Q, REAL **S, REAL
 
 
 
-void CVT_ROWMAJ_TO_OCP_QP(REAL **A, REAL **B, REAL **b, REAL **Q, REAL **S, REAL **R, REAL **q, REAL **r, int **idxbx, REAL **d_lbx, REAL **d_ubx, int **idxbu, REAL **d_lbu, REAL **d_ubu, REAL **C, REAL **D, REAL **d_lg, REAL **d_ug, REAL **Zl, REAL **Zu, REAL **zl, REAL **zu, int **idxs, REAL **d_ls, REAL **d_us, struct OCP_QP *qp)
-	{
-
-	// extract dim
-	int N = qp->dim->N;
-	int *nx = qp->dim->nx;
-	int *nu = qp->dim->nu;
-	int *nb = qp->dim->nb;
-	int *nbx = qp->dim->nbx;
-	int *nbu = qp->dim->nbu;
-	int *ng = qp->dim->ng;
-	int *ns = qp->dim->ns;
-
-	int ii, jj;
-
-	for(ii=0; ii<N; ii++)
-		{
-		CVT_MAT2STRMAT(nu[ii], nx[ii+1], B[ii], nu[ii], qp->BAbt+ii, 0, 0);
-		CVT_MAT2STRMAT(nx[ii], nx[ii+1], A[ii], nx[ii], qp->BAbt+ii, nu[ii], 0);
-		CVT_TRAN_MAT2STRMAT(nx[ii+1], 1, b[ii], nx[ii+1], qp->BAbt+ii, nu[ii]+nx[ii], 0);
-		CVT_VEC2STRVEC(nx[ii+1], b[ii], qp->b+ii, 0);
-		}
-
-	for(ii=0; ii<=N; ii++)
-		{
-		CVT_TRAN_MAT2STRMAT(nu[ii], nu[ii], R[ii], nu[ii], qp->RSQrq+ii, 0, 0);
-		CVT_MAT2STRMAT(nx[ii], nu[ii], S[ii], nx[ii], qp->RSQrq+ii, nu[ii], 0);
-		CVT_TRAN_MAT2STRMAT(nx[ii], nx[ii], Q[ii], nx[ii], qp->RSQrq+ii, nu[ii], nu[ii]);
-		CVT_TRAN_MAT2STRMAT(nu[ii], 1, r[ii], nu[ii], qp->RSQrq+ii, nu[ii]+nx[ii], 0);
-		CVT_TRAN_MAT2STRMAT(nx[ii], 1, q[ii], nx[ii], qp->RSQrq+ii, nu[ii]+nx[ii], nu[ii]);
-		CVT_VEC2STRVEC(nu[ii], r[ii], qp->rqz+ii, 0);
-		CVT_VEC2STRVEC(nx[ii], q[ii], qp->rqz+ii, nu[ii]);
-		}
-
-	for(ii=0; ii<=N; ii++)
-		{
-		if(nb[ii]>0)
-			{
-			for(jj=0; jj<nbu[ii]; jj++)
-				qp->idxb[ii][jj] = idxbu[ii][jj];
-			CVT_VEC2STRVEC(nbu[ii], d_lbu[ii], qp->d+ii, 0);
-			CVT_VEC2STRVEC(nbu[ii], d_ubu[ii], qp->d+ii, nb[ii]+ng[ii]);
-			for(jj=0; jj<nbx[ii]; jj++)
-				qp->idxb[ii][nbu[ii]+jj] = nu[ii]+idxbx[ii][jj];
-			CVT_VEC2STRVEC(nbx[ii], d_lbx[ii], qp->d+ii, nbu[ii]);
-			CVT_VEC2STRVEC(nbx[ii], d_ubx[ii], qp->d+ii, nb[ii]+ng[ii]+nbu[ii]);
-			VECSC_LIBSTR(nb[ii], -1.0, qp->d+ii, nb[ii]+ng[ii]);
-			VECSE(nb[ii], 0.0, qp->m+ii, 0);
-			VECSE(nb[ii], 0.0, qp->m+ii, nb[ii]+ng[ii]);
-			}
-		}
-
-	for(ii=0; ii<=N; ii++)
-		{
-		if(ng[ii]>0)
-			{
-			CVT_MAT2STRMAT(nu[ii], ng[ii], D[ii], nu[ii], qp->DCt+ii, 0, 0);
-			CVT_MAT2STRMAT(nx[ii], ng[ii], C[ii], nx[ii], qp->DCt+ii, nu[ii], 0);
-			CVT_VEC2STRVEC(ng[ii], d_lg[ii], qp->d+ii, nb[ii]);
-			CVT_VEC2STRVEC(ng[ii], d_ug[ii], qp->d+ii, 2*nb[ii]+ng[ii]);
-			VECSC_LIBSTR(ng[ii], -1.0, qp->d+ii, 2*nb[ii]+ng[ii]);
-			VECSE(ng[ii], 0.0, qp->m+ii, nb[ii]);
-			VECSE(ng[ii], 0.0, qp->m+ii, 2*nb[ii]+ng[ii]);
-			}
-		}
-
-	for(ii=0; ii<=N; ii++)
-		{
-		if(ns[ii]>0)
-			{
-			for(jj=0; jj<ns[ii]; jj++)
-				qp->idxs[ii][jj] = idxs[ii][jj];
-			CVT_VEC2STRVEC(ns[ii], Zl[ii], qp->Z+ii, 0);
-			CVT_VEC2STRVEC(ns[ii], Zu[ii], qp->Z+ii, ns[ii]);
-			CVT_VEC2STRVEC(ns[ii], zl[ii], qp->rqz+ii, nu[ii]+nx[ii]);
-			CVT_VEC2STRVEC(ns[ii], zu[ii], qp->rqz+ii, nu[ii]+nx[ii]+ns[ii]);
-			CVT_VEC2STRVEC(ns[ii], d_ls[ii], qp->d+ii, 2*nb[ii]+2*ng[ii]);
-			CVT_VEC2STRVEC(ns[ii], d_us[ii], qp->d+ii, 2*nb[ii]+2*ng[ii]+ns[ii]);
-			VECSE(ns[ii], 0.0, qp->m+ii, 2*nb[ii]+2*ng[ii]);
-			VECSE(ns[ii], 0.0, qp->m+ii, 2*nb[ii]+2*ng[ii]+ns[ii]);
-			}
-		}
-
-	return;
-
-	}
-
-
-// convert generic field
-void CVT_COLMAJ_GEN_TO_OCP_QP(char *field_name, int stage, void *in, struct OCP_QP *qp)
+void OCP_QP_SET(char *field, int stage, void *value, struct OCP_QP *qp)
 	{
 	int ii, jj, jj0;
 
@@ -517,186 +428,128 @@ void CVT_COLMAJ_GEN_TO_OCP_QP(char *field_name, int stage, void *in, struct OCP_
 	int *i_ptr;
     
 	// matrices
-	if(hpipm_strcmp(field_name, "A")) 
+	if(hpipm_strcmp(field, "A")) 
 		{
-		r_ptr = in;
-		CVT_TRAN_MAT2STRMAT(nx[stage+1], nx[stage], r_ptr, nx[stage+1], qp->BAbt+stage, nu[stage], 0);
+		OCP_QP_SET_A(stage, value, qp);
 		}
-	else if(hpipm_strcmp(field_name, "B")) 
+	else if(hpipm_strcmp(field, "B")) 
 		{
-		r_ptr = in;
-		CVT_TRAN_MAT2STRMAT(nx[stage+1], nu[stage], r_ptr, nx[stage+1], qp->BAbt+stage, 0, 0);
+		OCP_QP_SET_B(stage, value, qp);
 		}
-	else if(hpipm_strcmp(field_name, "Q")) 
+	else if(hpipm_strcmp(field, "Q")) 
 		{
-		r_ptr = in;
-		CVT_MAT2STRMAT(nx[stage], nx[stage], r_ptr, nx[stage], qp->RSQrq+stage, nu[stage], nu[stage]);
+		OCP_QP_SET_Q(stage, value, qp);
 		}
-	else if(hpipm_strcmp(field_name, "S")) 
+	else if(hpipm_strcmp(field, "S")) 
 		{
-		r_ptr = in;
-		CVT_TRAN_MAT2STRMAT(nu[stage], nx[stage], r_ptr, nu[stage], qp->RSQrq+stage, nu[stage], 0);
+		OCP_QP_SET_S(stage, value, qp);
 		}
-	else if(hpipm_strcmp(field_name, "R")) 
+	else if(hpipm_strcmp(field, "R")) 
 		{
-		r_ptr = in;
-		CVT_MAT2STRMAT(nu[stage], nu[stage], r_ptr, nu[stage], qp->RSQrq+stage, 0, 0);
+		OCP_QP_SET_R(stage, value, qp);
 		}
-	else if(hpipm_strcmp(field_name, "C")) 
+	else if(hpipm_strcmp(field, "C")) 
 		{
-		r_ptr = in;
-		CVT_TRAN_MAT2STRMAT(ng[stage], nx[stage], r_ptr, ng[stage], qp->DCt+stage, nu[stage], 0);
+		OCP_QP_SET_C(stage, value, qp);
 		}
-	else if(hpipm_strcmp(field_name, "D")) 
+	else if(hpipm_strcmp(field, "D")) 
 		{
-		r_ptr = in;
-		CVT_TRAN_MAT2STRMAT(ng[stage], nu[stage], r_ptr, ng[stage], qp->DCt+stage, 0, 0);
+		OCP_QP_SET_D(stage, value, qp);
 		}
 	// vectors
-	else if(hpipm_strcmp(field_name, "b") == 1)
+	else if(hpipm_strcmp(field, "b"))
 		{ 
-		r_ptr = in;
-		CVT_TRAN_MAT2STRMAT(nx[stage+1], 1, r_ptr, nx[stage+1], &(qp->BAbt[stage]), nx[stage]+nu[stage], 0);
-		CVT_VEC2STRVEC(nx[stage+1], r_ptr, qp->b+stage, 0);
+		OCP_QP_SET_BVEC(stage, value, qp);
 		}
-	else if(hpipm_strcmp(field_name, "q"))
+	else if(hpipm_strcmp(field, "q"))
 		{ 
-		r_ptr = in;
-		CVT_TRAN_MAT2STRMAT(nx[stage], 1, r_ptr, nx[stage], &(qp->RSQrq[stage]), nx[stage]+nu[stage], nu[stage]);
-		CVT_VEC2STRVEC(nx[stage], r_ptr, qp->rqz+stage, nu[stage]);
+		OCP_QP_SET_QVEC(stage, value, qp);
 		}
-	else if(hpipm_strcmp(field_name, "r"))
+	else if(hpipm_strcmp(field, "r"))
 		{ 
-		r_ptr = in;
-		CVT_TRAN_MAT2STRMAT(nu[stage], 1, r_ptr, nu[stage], &(qp->RSQrq[stage]), nx[stage]+nu[stage], 0);
-		CVT_VEC2STRVEC(nu[stage], r_ptr, qp->rqz+stage, 0);
+		OCP_QP_SET_RVEC(stage, value, qp);
 		}
-	else if(hpipm_strcmp(field_name, "lb"))
+	else if(hpipm_strcmp(field, "lb"))
 		{ 
-		r_ptr = in;
-		CVT_VEC2STRVEC(nb[stage], r_ptr, qp->d+stage, 0);
+		OCP_QP_SET_LB(stage, value, qp);
 		}
-	else if(hpipm_strcmp(field_name, "lbu"))
+	else if(hpipm_strcmp(field, "lbu"))
 		{ 
-		r_ptr = in;
-		CVT_VEC2STRVEC(nbu[stage], r_ptr, qp->d+stage, 0);
+		OCP_QP_SET_LBU(stage, value, qp);
 		}
-	else if(hpipm_strcmp(field_name, "lbx"))
+	else if(hpipm_strcmp(field, "lbx"))
 		{ 
-		r_ptr = in;
-		CVT_VEC2STRVEC(nbx[stage], r_ptr, qp->d+stage, nbu[stage]);
+		OCP_QP_SET_LBX(stage, value, qp);
 		}
-	else if(hpipm_strcmp(field_name, "ub"))
+	else if(hpipm_strcmp(field, "ub"))
 		{ 
-		r_ptr = in;
-		CVT_VEC2STRVEC(nb[stage], r_ptr, qp->d+stage, nb[stage]+ng[stage]);
-		VECSC_LIBSTR(nb[stage], -1.0, qp->d+stage, nb[stage]+ng[stage]);
+		OCP_QP_SET_UB(stage, value, qp);
 		}
-	else if(hpipm_strcmp(field_name, "ubu"))
+	else if(hpipm_strcmp(field, "ubu"))
 		{ 
-		r_ptr = in;
-		CVT_VEC2STRVEC(nbu[stage], r_ptr, qp->d+stage, nb[stage]+ng[stage]);
-		VECSC_LIBSTR(nbu[stage], -1.0, qp->d+stage, nb[stage]+ng[stage]);
+		OCP_QP_SET_UBU(stage, value, qp);
 		}
-	else if(hpipm_strcmp(field_name, "ubx"))
+	else if(hpipm_strcmp(field, "ubx"))
 		{ 
-		r_ptr = in;
-		CVT_VEC2STRVEC(nbx[stage], r_ptr, qp->d+stage, nb[stage]+ng[stage]+nbu[stage]);
-		VECSC_LIBSTR(nbx[stage], -1.0, qp->d+stage, nb[stage]+ng[stage]+nbu[stage]);
+		OCP_QP_SET_UBX(stage, value, qp);
 		}
-	else if(hpipm_strcmp(field_name, "lg"))
+	else if(hpipm_strcmp(field, "lg"))
 		{ 
-		r_ptr = in;
-		CVT_VEC2STRVEC(ng[stage], r_ptr, qp->d+stage, nb[stage]);
+		OCP_QP_SET_LG(stage, value, qp);
 		}
-	else if(hpipm_strcmp(field_name, "ug"))
+	else if(hpipm_strcmp(field, "ug"))
 		{ 
-		r_ptr = in;
-		CVT_VEC2STRVEC(ng[stage], r_ptr, qp->d+stage, 2*nb[stage]+ng[stage]);
-		VECSC_LIBSTR(ng[stage], -1.0, qp->d+stage, 2*nb[stage]+ng[stage]);
+		OCP_QP_SET_UG(stage, value, qp);
 		}
-	else if(hpipm_strcmp(field_name, "Zl"))
+	else if(hpipm_strcmp(field, "Zl"))
 		{ 
-		r_ptr = in;
-		CVT_VEC2STRVEC(ns[stage], r_ptr, qp->Z+stage, 0);
+		OCP_QP_SET_ZL(stage, value, qp);
 		}
-	else if(hpipm_strcmp(field_name, "Zu"))
+	else if(hpipm_strcmp(field, "Zu"))
 		{ 
-		r_ptr = in;
-		CVT_VEC2STRVEC(ns[stage], r_ptr, qp->Z+stage, ns[stage]);
+		OCP_QP_SET_ZU(stage, value, qp);
 		}
-	else if(hpipm_strcmp(field_name, "zl"))
+	else if(hpipm_strcmp(field, "zl"))
 		{ 
-		r_ptr = in;
-		CVT_VEC2STRVEC(ns[stage], r_ptr, qp->rqz+stage, nu[stage]+nx[stage]);
+		OCP_QP_SET_ZLVEC(stage, value, qp);
 		}
-	else if(hpipm_strcmp(field_name, "zu"))
+	else if(hpipm_strcmp(field, "zu"))
 		{ 
-		r_ptr = in;
-		CVT_VEC2STRVEC(ns[stage], r_ptr, qp->rqz+stage, nu[stage]+nx[stage]+ns[stage]);
+		OCP_QP_SET_ZUVEC(stage, value, qp);
 		}
-	else if(hpipm_strcmp(field_name, "lls"))
+	else if(hpipm_strcmp(field, "lls"))
 		{ 
-		r_ptr = in;
-		CVT_VEC2STRVEC(ns[stage], r_ptr, qp->d+stage, 2*nb[stage]+2*ng[stage]);
+		OCP_QP_SET_LLS(stage, value, qp);
 		}
-	else if(hpipm_strcmp(field_name, "lus"))
+	else if(hpipm_strcmp(field, "lus"))
 		{ 
-		r_ptr = in;
-		CVT_VEC2STRVEC(ns[stage], r_ptr, qp->d+stage, 2*nb[stage]+2*ng[stage]+ns[stage]);
+		OCP_QP_SET_LUS(stage, value, qp);
 		}
 	// int
-	else if(hpipm_strcmp(field_name, "idxbx"))
+	else if(hpipm_strcmp(field, "idxb"))
 		{
-		i_ptr = in;
-		for(ii=0; ii<nbx[stage]; ii++)
-			{
-			qp->idxb[stage][nbu[stage]+ii] = nu[stage] + i_ptr[ii];
-			}
+		OCP_QP_SET_IDXB(stage, value, qp);
 		}
-	else if(hpipm_strcmp(field_name, "Jbx"))
+	else if(hpipm_strcmp(field, "idxbx"))
 		{
-		r_ptr = in;
-		for(ii=0; ii<nbx[stage]; ii++)
-			{
-			jj0 = -1;
-			for(jj=0; jj<nx[stage]; jj++)
-				{
-				if(jj0==-1 & r_ptr[ii+jj*nbx[stage]]!=0.0)
-					{
-					jj0 = jj;
-					qp->idxb[stage][nbu[stage]+ii] = nu[stage]+jj;
-					}
-				}
-			}
+		OCP_QP_SET_IDXBX(stage, value, qp);
 		}
-	else if(hpipm_strcmp(field_name, "idxbu"))
+	else if(hpipm_strcmp(field, "Jbx"))
 		{
-		i_ptr = in;
-		for(ii=0; ii<nbu[stage]; ii++)
-			{
-			qp->idxb[stage][ii] = i_ptr[ii];
-			}
+		OCP_QP_SET_JBX(stage, value, qp);
 		}
-	else if(hpipm_strcmp(field_name, "Jbu"))
+	else if(hpipm_strcmp(field, "idxbu"))
 		{
-		r_ptr = in;
-		for(ii=0; ii<nbu[stage]; ii++)
-			{
-			jj0 = -1;
-			for(jj=0; jj<nu[stage]; jj++)
-				{
-				if(jj0==-1 & r_ptr[ii+jj*nbu[stage]]!=0.0)
-					{
-					jj0 = jj;
-					qp->idxb[stage][ii] = jj;
-					}
-				}
-			}
+		OCP_QP_SET_IDXBU(stage, value, qp);
 		}
+	else if(hpipm_strcmp(field, "Jbu"))
+		{
+		OCP_QP_SET_JBU(stage, value, qp);
+		}
+	// TODO idxs !!!!!!!!!!!!!!!!!!
 	else
 		{
-		printf("error [CVT_COLMAJ_MAT_TO_OCP_QP]: unknown field name '%s'. Exiting.\n", field_name);
+		printf("error [OCP_QP_SET]: unknown field name '%s'. Exiting.\n", field);
 		exit(1);	
 		}
 	return;
@@ -704,248 +557,7 @@ void CVT_COLMAJ_GEN_TO_OCP_QP(char *field_name, int stage, void *in, struct OCP_
 
 
 
-void CVT_COLMAJ_MAT_TO_OCP_QP(char *field_name, int stage, REAL *in, struct OCP_QP *qp)
-	{
-	// extract dim
-	int *nx = qp->dim->nx;
-	int *nu = qp->dim->nu;
-	int *ng = qp->dim->ng;
-    
-	if(hpipm_strcmp(field_name, "A")) 
-		{
-		CVT_TRAN_MAT2STRMAT(nx[stage+1], nx[stage], in, nx[stage+1], qp->BAbt+stage, nu[stage], 0);
-		}
-	else if(hpipm_strcmp(field_name, "B")) 
-		{
-		CVT_TRAN_MAT2STRMAT(nx[stage+1], nu[stage], in, nx[stage+1], qp->BAbt+stage, 0, 0);
-		}
-	else if(hpipm_strcmp(field_name, "Q")) 
-		{
-		CVT_MAT2STRMAT(nx[stage], nx[stage], in, nx[stage], qp->RSQrq+stage, nu[stage], nu[stage]);
-		}
-	else if(hpipm_strcmp(field_name, "S")) 
-		{
-		CVT_TRAN_MAT2STRMAT(nu[stage], nx[stage], in, nu[stage], qp->RSQrq+stage, nu[stage], 0);
-		}
-	else if(hpipm_strcmp(field_name, "R")) 
-		{
-		CVT_MAT2STRMAT(nu[stage], nu[stage], in, nu[stage], qp->RSQrq+stage, 0, 0);
-		}
-	else if(hpipm_strcmp(field_name, "C")) 
-		{
-		CVT_TRAN_MAT2STRMAT(ng[stage], nx[stage], in, ng[stage], qp->DCt+stage, nu[stage], 0);
-		}
-	else if(hpipm_strcmp(field_name, "D")) 
-		{
-		CVT_TRAN_MAT2STRMAT(ng[stage], nu[stage], in, ng[stage], qp->DCt+stage, 0, 0);
-		}
-	else
-		{
-		printf("error [CVT_COLMAJ_MAT_TO_OCP_QP]: unknown field name '%s'. Exiting.\n", field_name);
-		exit(1);	
-		}
-	return;
-	}
-
-
-
-void CVT_OCP_QP_TO_COLMAJ_MAT(char *field_name, int stage, struct OCP_QP *qp, REAL *out)
-    {
-    // extract dim
-    int *nx = qp->dim->nx;
-    int *nu = qp->dim->nu;
-	int *ng = qp->dim->ng;
-
-	if(hpipm_strcmp(field_name, "A")) 
-		{
-		CVT_TRAN_STRMAT2MAT(nx[stage], nx[stage+1], qp->BAbt+stage, nu[stage], 0, out, nx[stage+1]);
-		}
-	else if(hpipm_strcmp(field_name, "B")) 
-		{
-		CVT_TRAN_STRMAT2MAT(nu[stage], nx[stage+1], qp->BAbt+stage, 0, 0, out, nx[stage+1]);
-		}
-	else if(hpipm_strcmp(field_name, "Q")) 
-		{
-		CVT_STRMAT2MAT(nx[stage], nx[stage], qp->RSQrq+stage, nu[stage], nu[stage], out, nx[stage]);
-		}
-	else if(hpipm_strcmp(field_name, "S")) 
-		{
-		CVT_TRAN_STRMAT2MAT(nx[stage], nu[stage], qp->RSQrq+stage, nu[stage], 0, out, nu[stage]);
-		}
-	else if(hpipm_strcmp(field_name, "R")) 
-		{
-		CVT_STRMAT2MAT(nu[stage], nu[stage], qp->RSQrq+stage, 0, 0, out, nu[stage]);
-		}
-	else if(hpipm_strcmp(field_name, "C")) 
-		{
-		CVT_TRAN_STRMAT2MAT(nx[stage], ng[stage], qp->DCt+stage, nu[stage], 0, out, ng[stage]);
-		}
-	else if(hpipm_strcmp(field_name, "D")) 
-		{
-		CVT_TRAN_STRMAT2MAT(nu[stage], ng[stage], qp->DCt+stage, 0, 0, out, ng[stage]);
-		}
-	else
-		{
-		printf("error [CVT_OCP_QP_TO_COLMAJ_MAT]: unknown field name '%s'. Exiting.\n", field_name);
-		exit(1);	
-		}
-	return;
-	}
-
-
-
-void CVT_COLMAJ_VEC_TO_OCP_QP(char *field_name, int stage, REAL *in, struct OCP_QP *qp)
-	{
-	// extract dim
-	int *nx = qp->dim->nx;
-	int *nu = qp->dim->nu;
-	int *nb = qp->dim->nb;
-	int *ng = qp->dim->ng;
-	int *ns = qp->dim->ns;
-    
-	if(hpipm_strcmp(field_name, "b") == 1)
-		{ 
-		CVT_TRAN_MAT2STRMAT(nx[stage+1], 1, in, nx[stage+1], &(qp->BAbt[stage]), nx[stage]+nu[stage], 0);
-		CVT_VEC2STRVEC(nx[stage+1], in, qp->b+stage, 0);
-		}
-	else if(hpipm_strcmp(field_name, "q"))
-		{ 
-		CVT_TRAN_MAT2STRMAT(nx[stage], 1, in, nx[stage], &(qp->RSQrq[stage]), nx[stage]+nu[stage], nu[stage]);
-		CVT_VEC2STRVEC(nx[stage], in, qp->rqz+stage, nu[stage]);
-		}
-	else if(hpipm_strcmp(field_name, "r"))
-		{ 
-		CVT_TRAN_MAT2STRMAT(nu[stage], 1, in, nu[stage], &(qp->RSQrq[stage]), nx[stage]+nu[stage], 0);
-		CVT_VEC2STRVEC(nu[stage], in, qp->rqz+stage, 0);
-		}
-	else if(hpipm_strcmp(field_name, "lb"))
-		{ 
-		CVT_VEC2STRVEC(nb[stage], in, qp->d+stage, 0);
-		}
-	else if(hpipm_strcmp(field_name, "ub"))
-		{ 
-		CVT_VEC2STRVEC(nb[stage], in, qp->d+stage, nb[stage]+ng[stage]);
-		VECSC_LIBSTR(nb[stage], -1.0, qp->d+stage, nb[stage]+ng[stage]);
-		}
-	else if(hpipm_strcmp(field_name, "lg"))
-		{ 
-		CVT_VEC2STRVEC(ng[stage], in, qp->d+stage, nb[stage]);
-		}
-	else if(hpipm_strcmp(field_name, "ug"))
-		{ 
-		CVT_VEC2STRVEC(ng[stage], in, qp->d+stage, 2*nb[stage]+ng[stage]);
-		VECSC_LIBSTR(ng[stage], -1.0, qp->d+stage, 2*nb[stage]+ng[stage]);
-		}
-	else if(hpipm_strcmp(field_name, "Zl"))
-		{ 
-		CVT_VEC2STRVEC(ns[stage], in, qp->Z+stage, 0);
-		}
-	else if(hpipm_strcmp(field_name, "Zu"))
-		{ 
-		CVT_VEC2STRVEC(ns[stage], in, qp->Z+stage, ns[stage]);
-		}
-	else if(hpipm_strcmp(field_name, "zl"))
-		{ 
-		CVT_VEC2STRVEC(ns[stage], in, qp->rqz+stage, nu[stage]+nx[stage]);
-		}
-	else if(hpipm_strcmp(field_name, "zu"))
-		{ 
-		CVT_VEC2STRVEC(ns[stage], in, qp->rqz+stage, nu[stage]+nx[stage]+ns[stage]);
-		}
-	else if(hpipm_strcmp(field_name, "lls"))
-		{ 
-		CVT_VEC2STRVEC(ns[stage], in, qp->d+stage, 2*nb[stage]+2*ng[stage]);
-		}
-	else if(hpipm_strcmp(field_name, "lus"))
-		{ 
-		CVT_VEC2STRVEC(ns[stage], in, qp->d+stage, 2*nb[stage]+2*ng[stage]+ns[stage]);
-		}
-	else
-		{
-		printf("error [CVT_COLMAJ_VEC_TO_OCP_QP]: unknown field name '%s'. Exiting.\n", field_name);
-		printf("%c %c", field_name[0], field_name[1]);
-		exit(1);	
-		}
-	return;
-	}
-
-
-
-void CVT_OCP_QP_TO_COLMAJ_VEC(char *field_name, int stage, struct OCP_QP *qp, REAL *out)
-    {
-	int ii;
-    // extract dim
-    int *nx = qp->dim->nx;
-    int *nu = qp->dim->nu;
-    int *nb = qp->dim->nb;
-    int *ng = qp->dim->ng;
-    int *ns = qp->dim->ns;
-
-	if(hpipm_strcmp(field_name, "b") == 1) 
-		{
-		CVT_STRVEC2VEC(nx[stage+1], qp->b+stage, 0, out);
-		}
-	if(hpipm_strcmp(field_name, "q") == 1) 
-		{
-		CVT_STRVEC2VEC(nx[stage], qp->rqz+stage, nu[stage], out);
-		}
-	if(hpipm_strcmp(field_name, "r") == 1) 
-		{
-		CVT_STRVEC2VEC(nu[stage], qp->rqz+stage, 0, out);
-		}
-	if(hpipm_strcmp(field_name, "lb") == 1) 
-		{
-		CVT_STRVEC2VEC(nb[stage], qp->d+stage, 0, out);
-		}
-	if(hpipm_strcmp(field_name, "ub") == 1) 
-		{
-		CVT_STRVEC2VEC(nb[stage], qp->d+stage, nb[stage]+ng[stage], out);
-		for (ii=0; ii<nb[stage]; ii++) out[ii] = - out[ii];
-		}
-	if(hpipm_strcmp(field_name, "lg") == 1) 
-		{
-		CVT_STRVEC2VEC(ng[stage], qp->d+stage, nb[stage], out);
-		}
-	if(hpipm_strcmp(field_name, "ug") == 1) 
-		{
-		CVT_STRVEC2VEC(ng[stage], qp->d+stage, 2*nb[stage]+ng[stage], out);
-		for (ii=0; ii<ng[stage]; ii++) out[ii] = - out[ii];
-		}
-	if(hpipm_strcmp(field_name, "Zl") == 1) 
-		{
-		CVT_STRVEC2VEC(ns[stage], qp->Z+stage, 0, out);
-		}
-	if(hpipm_strcmp(field_name, "Zu") == 1) 
-		{
-		CVT_STRVEC2VEC(ns[stage], qp->Z+stage, ns[stage], out);
-		}
-	if(hpipm_strcmp(field_name, "zl") == 1) 
-		{
-		CVT_STRVEC2VEC(ns[stage], qp->rqz+stage, nu[stage]+nx[stage], out);
-		}
-	if(hpipm_strcmp(field_name, "zu") == 1) 
-		{
-		CVT_STRVEC2VEC(ns[stage], qp->rqz+stage, nu[stage]+nx[stage]+ns[stage], out);
-		}
-	if(hpipm_strcmp(field_name, "lls") == 1) 
-		{
-		CVT_STRVEC2VEC(ns[stage], qp->d+stage, 2*nb[stage]+2*ng[stage], out);
-		}
-	if(hpipm_strcmp(field_name, "lus") == 1) 
-		{
-		CVT_STRVEC2VEC(ns[stage], qp->d+stage, 2*nb[stage]+2*ng[stage]+ns[stage], out);
-		}
-	else
-		{
-		printf("error [CVT_OCP_QP_TO_COLMAJ_VEC]: unknown field name '%s'. Exiting.\n", field_name);
-		exit(1);
-		}
-	return;
-	}
-
-
-
-void CVT_COLMAJ_TO_OCP_QP_A(int stage, REAL *A, struct OCP_QP *qp)
+void OCP_QP_SET_A(int stage, REAL *A, struct OCP_QP *qp)
 	{
 	// extract dim
 	int *nx = qp->dim->nx;
@@ -958,7 +570,7 @@ void CVT_COLMAJ_TO_OCP_QP_A(int stage, REAL *A, struct OCP_QP *qp)
 
 
 
-void CVT_OCP_QP_TO_COLMAJ_A(int stage, struct OCP_QP *qp, REAL *A)
+void OCP_QP_GET_A(int stage, struct OCP_QP *qp, REAL *A)
 	{
 	// extract dim
 	int *nx = qp->dim->nx;
@@ -971,7 +583,7 @@ void CVT_OCP_QP_TO_COLMAJ_A(int stage, struct OCP_QP *qp, REAL *A)
 
 
 
-void CVT_COLMAJ_TO_OCP_QP_B(int stage, REAL *B, struct OCP_QP *qp)
+void OCP_QP_SET_B(int stage, REAL *B, struct OCP_QP *qp)
 	{
 	// extract dim
 	int *nx = qp->dim->nx;
@@ -984,7 +596,7 @@ void CVT_COLMAJ_TO_OCP_QP_B(int stage, REAL *B, struct OCP_QP *qp)
 
 
 
-void CVT_OCP_QP_TO_COLMAJ_B(int stage, struct OCP_QP *qp, REAL *B)
+void OCP_QP_GET_B(int stage, struct OCP_QP *qp, REAL *B)
 	{
 	// extract dim
 	int *nx = qp->dim->nx;
@@ -997,14 +609,13 @@ void CVT_OCP_QP_TO_COLMAJ_B(int stage, struct OCP_QP *qp, REAL *B)
 
 
 
-void CVT_COLMAJ_TO_OCP_QP_BVEC(int stage, REAL *b, struct OCP_QP *qp)
+void OCP_QP_SET_BVEC(int stage, REAL *b, struct OCP_QP *qp)
 	{
 	// extract dim
 	int *nx = qp->dim->nx;
 	int *nu = qp->dim->nu;
 
-	int row_offset = qp->dim->nx[stage] + qp->dim->nu[stage], col_offset = 0;
-	CVT_TRAN_MAT2STRMAT(nx[stage+1], 1, b, nx[stage+1], &(qp->BAbt[stage]), row_offset, col_offset);
+	CVT_TRAN_MAT2STRMAT(nx[stage+1], 1, b, nx[stage+1], &(qp->BAbt[stage]), nu[stage]+nx[stage], 0); // TODO remove ???
 	CVT_VEC2STRVEC(nx[stage+1], b, qp->b+stage, 0);
 
 	return;
@@ -1012,7 +623,7 @@ void CVT_COLMAJ_TO_OCP_QP_BVEC(int stage, REAL *b, struct OCP_QP *qp)
 
 
 
-void CVT_OCP_QP_TO_COLMAJ_BVEC(int stage, struct OCP_QP *qp, REAL *b)
+void OCP_QP_GET_BVEC(int stage, struct OCP_QP *qp, REAL *b)
 	{
 	// extract dim
 	int *nx = qp->dim->nx;
@@ -1025,7 +636,7 @@ void CVT_OCP_QP_TO_COLMAJ_BVEC(int stage, struct OCP_QP *qp, REAL *b)
 
 
 
-void CVT_COLMAJ_TO_OCP_QP_Q(int stage, REAL *Q, struct OCP_QP *qp)
+void OCP_QP_SET_Q(int stage, REAL *Q, struct OCP_QP *qp)
 	{
 	// extract dim
 	int *nx = qp->dim->nx;
@@ -1038,7 +649,7 @@ void CVT_COLMAJ_TO_OCP_QP_Q(int stage, REAL *Q, struct OCP_QP *qp)
 
 
 
-void CVT_OCP_QP_TO_COLMAJ_Q(int stage, struct OCP_QP *qp, REAL *Q)
+void OCP_QP_GET_Q(int stage, struct OCP_QP *qp, REAL *Q)
 	{
 	// extract dim
 	int *nx = qp->dim->nx;
@@ -1051,7 +662,7 @@ void CVT_OCP_QP_TO_COLMAJ_Q(int stage, struct OCP_QP *qp, REAL *Q)
 
 
 
-void CVT_COLMAJ_TO_OCP_QP_S(int stage, REAL *S, struct OCP_QP *qp)
+void OCP_QP_SET_S(int stage, REAL *S, struct OCP_QP *qp)
 	{
 	// extract dim
 	int *nx = qp->dim->nx;
@@ -1064,7 +675,7 @@ void CVT_COLMAJ_TO_OCP_QP_S(int stage, REAL *S, struct OCP_QP *qp)
 
 
 
-void CVT_OCP_QP_TO_COLMAJ_S(int stage, struct OCP_QP *qp, REAL *S)
+void OCP_QP_GET_S(int stage, struct OCP_QP *qp, REAL *S)
 	{
 	// extract dim
 	int *nx = qp->dim->nx;
@@ -1077,7 +688,7 @@ void CVT_OCP_QP_TO_COLMAJ_S(int stage, struct OCP_QP *qp, REAL *S)
 
 
 
-void CVT_COLMAJ_TO_OCP_QP_R(int stage, REAL *R, struct OCP_QP *qp)
+void OCP_QP_SET_R(int stage, REAL *R, struct OCP_QP *qp)
 	{
 	// extract dim
 	int *nx = qp->dim->nx;
@@ -1090,7 +701,7 @@ void CVT_COLMAJ_TO_OCP_QP_R(int stage, REAL *R, struct OCP_QP *qp)
 
 
 
-void CVT_OCP_QP_TO_COLMAJ_R(int stage, struct OCP_QP *qp, REAL *R)
+void OCP_QP_GET_R(int stage, struct OCP_QP *qp, REAL *R)
 	{
 	// extract dim
 	int *nu = qp->dim->nu;
@@ -1102,14 +713,13 @@ void CVT_OCP_QP_TO_COLMAJ_R(int stage, struct OCP_QP *qp, REAL *R)
 
 
 
-void CVT_COLMAJ_TO_OCP_QP_QVEC(int stage, REAL *q, struct OCP_QP *qp)
+void OCP_QP_SET_QVEC(int stage, REAL *q, struct OCP_QP *qp)
 	{
 	// extract dim
 	int *nx = qp->dim->nx;
 	int *nu = qp->dim->nu;
 
-	int row_offset = qp->dim->nu[stage] + qp->dim->nx[stage], col_offset = qp->dim->nu[stage];
- 	CVT_TRAN_MAT2STRMAT(nx[stage], 1, q, nx[stage], &(qp->RSQrq[stage]), row_offset, col_offset);
+ 	CVT_TRAN_MAT2STRMAT(nx[stage], 1, q, nx[stage], &(qp->RSQrq[stage]), nu[stage]+nx[stage], nu[stage]); // TODO remove ???
 	CVT_VEC2STRVEC(nx[stage], q, qp->rqz+stage, nu[stage]);
 
 	return;
@@ -1117,7 +727,7 @@ void CVT_COLMAJ_TO_OCP_QP_QVEC(int stage, REAL *q, struct OCP_QP *qp)
 
 
 
-void CVT_OCP_QP_TO_COLMAJ_QVEC(int stage, struct OCP_QP *qp, REAL *q)
+void OCP_QP_GET_QVEC(int stage, struct OCP_QP *qp, REAL *q)
 	{
 	// extract dim
 	int *nx = qp->dim->nx;
@@ -1130,12 +740,13 @@ void CVT_OCP_QP_TO_COLMAJ_QVEC(int stage, struct OCP_QP *qp, REAL *q)
 
 
 
-void CVT_COLMAJ_TO_OCP_QP_RVEC(int stage, REAL *r, struct OCP_QP *qp)
+void OCP_QP_SET_RVEC(int stage, REAL *r, struct OCP_QP *qp)
 	{
 	// extract dim
+	int *nx = qp->dim->nx;
 	int *nu = qp->dim->nu;
-	int row_offset = qp->dim->nu[stage] + qp->dim->nx[stage], col_offset = 0;
-	CVT_TRAN_MAT2STRMAT(nu[stage], 1, r, nu[stage], &(qp->RSQrq[stage]), row_offset, col_offset);
+
+	CVT_TRAN_MAT2STRMAT(nu[stage], 1, r, nu[stage], &(qp->RSQrq[stage]), nu[stage]+nx[stage], 0); // TODO remove ???
 	CVT_VEC2STRVEC(nu[stage], r, qp->rqz+stage, 0);
 
 	return;
@@ -1143,7 +754,7 @@ void CVT_COLMAJ_TO_OCP_QP_RVEC(int stage, REAL *r, struct OCP_QP *qp)
 
 
 
-void CVT_OCP_QP_TO_COLMAJ_RVEC(int stage, struct OCP_QP *qp, REAL *r)
+void OCP_QP_GET_RVEC(int stage, struct OCP_QP *qp, REAL *r)
 	{
 	// extract dim
 	int *nu = qp->dim->nu;
@@ -1155,8 +766,33 @@ void CVT_OCP_QP_TO_COLMAJ_RVEC(int stage, struct OCP_QP *qp, REAL *r)
 
 
 
-// TODO remove !!!
-void CVT_COLMAJ_TO_OCP_QP_LBX(int stage, REAL *lbx, struct OCP_QP *qp)
+void OCP_QP_SET_LB(int stage, REAL *lb, struct OCP_QP *qp)
+	{
+	// extract dim
+	int *nb = qp->dim->nb;
+
+	CVT_VEC2STRVEC(nb[stage], lb, qp->d+stage, 0);
+
+	return;
+	}
+
+
+
+void OCP_QP_GET_LB(int stage, struct OCP_QP *qp, REAL *lb)
+	{
+	// extract dim
+	int *nb = qp->dim->nb;
+
+	int i;
+
+	CVT_STRVEC2VEC(nb[stage], qp->d+stage, 0, lb);
+
+	return;
+	}
+
+
+
+void OCP_QP_SET_LBX(int stage, REAL *lbx, struct OCP_QP *qp)
 	{
 	// extract dim
 	int *nbu = qp->dim->nbu;
@@ -1169,8 +805,7 @@ void CVT_COLMAJ_TO_OCP_QP_LBX(int stage, REAL *lbx, struct OCP_QP *qp)
 
 
 
-// TODO remove !!!
-void CVT_OCP_QP_TO_COLMAJ_LBX(int stage, struct OCP_QP *qp, REAL *lbx)
+void OCP_QP_GET_LBX(int stage, struct OCP_QP *qp, REAL *lbx)
 	{
 	// extract dim
 	int *nbu = qp->dim->nbu;
@@ -1183,8 +818,7 @@ void CVT_OCP_QP_TO_COLMAJ_LBX(int stage, struct OCP_QP *qp, REAL *lbx)
 
 
 
-// TODO remove !!!
-void CVT_COLMAJ_TO_OCP_QP_LBU(int stage, REAL *lbu, struct OCP_QP *qp)
+void OCP_QP_SET_LBU(int stage, REAL *lbu, struct OCP_QP *qp)
 	{
 	// extract dim
 	int *nbu = qp->dim->nbu;
@@ -1196,8 +830,7 @@ void CVT_COLMAJ_TO_OCP_QP_LBU(int stage, REAL *lbu, struct OCP_QP *qp)
 
 
 
-// TODO remove !!!
-void CVT_OCP_QP_TO_COLMAJ_LBU(int stage, struct OCP_QP *qp, REAL *lbu)
+void OCP_QP_GET_LBU(int stage, struct OCP_QP *qp, REAL *lbu)
 	{
 	// extract dim
 	int *nbu = qp->dim->nbu;
@@ -1209,8 +842,40 @@ void CVT_OCP_QP_TO_COLMAJ_LBU(int stage, struct OCP_QP *qp, REAL *lbu)
 
 
 
-// TODO remove !!!
-void CVT_COLMAJ_TO_OCP_QP_UBX(int stage, REAL *lbx, struct OCP_QP *qp)
+void OCP_QP_SET_UB(int stage, REAL *ub, struct OCP_QP *qp)
+	{
+	// extract dim
+	int *nb = qp->dim->nb;
+	int *ng = qp->dim->ng;
+
+	CVT_VEC2STRVEC(nb[stage], ub, qp->d+stage, nb[stage]+ng[stage]);
+	VECSC_LIBSTR(nb[stage], -1.0, qp->d+stage, nb[stage]+ng[stage]);
+
+	return;
+	}
+
+
+
+void OCP_QP_GET_UB(int stage, struct OCP_QP *qp, REAL *ub)
+	{
+	// extract dim
+	int *nb = qp->dim->nb;
+	int *ng = qp->dim->ng;
+
+	int i;
+
+	CVT_STRVEC2VEC(nb[stage], qp->d+stage, nb[stage]+ng[stage], ub);
+	for(i=0; i<nb[stage]; i++)
+		{
+		ub[i] = -ub[i];
+		}
+
+	return;
+	}
+
+
+
+void OCP_QP_SET_UBX(int stage, REAL *lbx, struct OCP_QP *qp)
 	{
 	// extract dim
 	int *nb = qp->dim->nb;
@@ -1226,8 +891,7 @@ void CVT_COLMAJ_TO_OCP_QP_UBX(int stage, REAL *lbx, struct OCP_QP *qp)
 
 
 
-// TODO remove !!!
-void CVT_OCP_QP_TO_COLMAJ_UBX(int stage, struct OCP_QP *qp, REAL *ubx)
+void OCP_QP_GET_UBX(int stage, struct OCP_QP *qp, REAL *ubx)
 	{
 	// extract dim
 	int *nb = qp->dim->nb;
@@ -1248,8 +912,7 @@ void CVT_OCP_QP_TO_COLMAJ_UBX(int stage, struct OCP_QP *qp, REAL *ubx)
 
 
 
-// TODO remove !!!
-void CVT_COLMAJ_TO_OCP_QP_UBU(int stage, REAL *ubu, struct OCP_QP *qp)
+void OCP_QP_SET_UBU(int stage, REAL *ubu, struct OCP_QP *qp)
 	{
 	// extract dim
 	int *nb = qp->dim->nb;
@@ -1264,8 +927,7 @@ void CVT_COLMAJ_TO_OCP_QP_UBU(int stage, REAL *ubu, struct OCP_QP *qp)
 
 
 
-// TODO remove !!!
-void CVT_OCP_QP_TO_COLMAJ_UBU(int stage, struct OCP_QP *qp, REAL *ubu)
+void OCP_QP_GET_UBU(int stage, struct OCP_QP *qp, REAL *ubu)
 	{
 	// extract dim
 	int *nb = qp->dim->nb;
@@ -1285,7 +947,7 @@ void CVT_OCP_QP_TO_COLMAJ_UBU(int stage, struct OCP_QP *qp, REAL *ubu)
 
 
 
-void CVT_COLMAJ_TO_OCP_QP_IDXB(int stage, int *idxb, struct OCP_QP *qp)
+void OCP_QP_SET_IDXB(int stage, int *idxb, struct OCP_QP *qp)
 	{
 	// extract dim
 	int *nb = qp->dim->nb;
@@ -1299,7 +961,7 @@ void CVT_COLMAJ_TO_OCP_QP_IDXB(int stage, int *idxb, struct OCP_QP *qp)
 
 
 
-void CVT_OCP_QP_TO_COLMAJ_IDXB(int stage, struct OCP_QP *qp, int *idxb)
+void OCP_QP_GET_IDXB(int stage, struct OCP_QP *qp, int *idxb)
 	{
 	// extract dim
 	int *nb = qp->dim->nb;
@@ -1313,58 +975,17 @@ void CVT_OCP_QP_TO_COLMAJ_IDXB(int stage, struct OCP_QP *qp, int *idxb)
 
 
 
-void CVT_COLMAJ_TO_OCP_QP_LB(int stage, REAL *lb, struct OCP_QP *qp)
+void OCP_QP_SET_IDXBX(int stage, int *idxbx, struct OCP_QP *qp)
 	{
 	// extract dim
-	int *nb = qp->dim->nb;
+	int *nu = qp->dim->nu;
+	int *nbx = qp->dim->nbx;
+	int *nbu = qp->dim->nbu;
 
-	CVT_VEC2STRVEC(nb[stage], lb, qp->d+stage, 0);
-
-	return;
-	}
-
-
-
-void CVT_OCP_QP_TO_COLMAJ_LB(int stage, struct OCP_QP *qp, REAL *lb)
-	{
-	// extract dim
-	int *nb = qp->dim->nb;
-
-	int i;
-
-	CVT_STRVEC2VEC(nb[stage], qp->d+stage, 0, lb);
-
-	return;
-	}
-
-
-
-void CVT_COLMAJ_TO_OCP_QP_UB(int stage, REAL *ub, struct OCP_QP *qp)
-	{
-	// extract dim
-	int *nb = qp->dim->nb;
-	int *ng = qp->dim->ng;
-
-	CVT_VEC2STRVEC(nb[stage], ub, qp->d+stage, nb[stage]+ng[stage]);
-	VECSC_LIBSTR(nb[stage], -1.0, qp->d+stage, nb[stage]+ng[stage]);
-
-	return;
-	}
-
-
-
-void CVT_OCP_QP_TO_COLMAJ_UB(int stage, struct OCP_QP *qp, REAL *ub)
-	{
-	// extract dim
-	int *nb = qp->dim->nb;
-	int *ng = qp->dim->ng;
-
-	int i;
-
-	CVT_STRVEC2VEC(nb[stage], qp->d+stage, nb[stage]+ng[stage], ub);
-	for(i=0; i<nb[stage]; i++)
+	int ii;
+	for(ii=0; ii<nbx[stage]; ii++)
 		{
-		ub[i] = -ub[i];
+		qp->idxb[stage][nbu[stage]+ii] = nu[stage] + idxbx[ii];
 		}
 
 	return;
@@ -1372,7 +993,105 @@ void CVT_OCP_QP_TO_COLMAJ_UB(int stage, struct OCP_QP *qp, REAL *ub)
 
 
 
-void CVT_COLMAJ_TO_OCP_QP_C(int stage, REAL *C, struct OCP_QP *qp)
+//void OCP_QP_GET_IDXBX(int stage, struct OCP_QP *qp, int *idxb)
+//	{
+//	TODO
+//	return;
+//	}
+
+
+
+void OCP_QP_SET_JBX(int stage, REAL *Jbx, struct OCP_QP *qp)
+	{
+	// extract dim
+	int *nx = qp->dim->nx;
+	int *nu = qp->dim->nu;
+	int *nbx = qp->dim->nbx;
+	int *nbu = qp->dim->nbu;
+
+	int ii, jj, jj0;
+	for(ii=0; ii<nbx[stage]; ii++)
+		{
+		jj0 = -1;
+		for(jj=0; jj<nx[stage]; jj++)
+			{
+			if(jj0==-1 & Jbx[ii+jj*nbx[stage]]!=0.0)
+				{
+				jj0 = jj;
+				qp->idxb[stage][nbu[stage]+ii] = nu[stage]+jj;
+				}
+			}
+		}
+	return;
+	}
+
+
+
+//void OCP_QP_GET_JBX(int stage, struct OCP_QP *qp, int *Jbx)
+//	{
+//	TODO
+//	return;
+//	}
+
+
+
+void OCP_QP_SET_IDXBU(int stage, int *idxbx, struct OCP_QP *qp)
+	{
+	// extract dim
+	int *nbu = qp->dim->nbu;
+
+	int ii;
+	for(ii=0; ii<nbu[stage]; ii++)
+		{
+		qp->idxb[stage][ii] = idxbx[ii];
+		}
+
+	return;
+	}
+
+
+
+//void OCP_QP_GET_IDXBU(int stage, struct OCP_QP *qp, int *idxbu)
+//	{
+//	TODO
+//	return;
+//	}
+
+
+
+void OCP_QP_SET_JBU(int stage, REAL *Jbu, struct OCP_QP *qp)
+	{
+	// extract dim
+	int *nu = qp->dim->nu;
+	int *nbu = qp->dim->nbu;
+
+	int ii, jj, jj0;
+	for(ii=0; ii<nbu[stage]; ii++)
+		{
+		jj0 = -1;
+		for(jj=0; jj<nu[stage]; jj++)
+			{
+			if(jj0==-1 & Jbu[ii+jj*nbu[stage]]!=0.0)
+				{
+				jj0 = jj;
+				qp->idxb[stage][ii] = jj;
+				}
+			}
+		}
+	return;
+	}
+
+
+
+//void OCP_QP_GET_JBU(int stage, struct OCP_QP *qp, int *Jbu)
+//	{
+//	TODO
+//	return;
+//	}
+
+
+
+void OCP_QP_SET_C(int stage, REAL *C, struct OCP_QP *qp)
 	{
 	// extract dim
 	int *nx = qp->dim->nx;
@@ -1386,7 +1105,7 @@ void CVT_COLMAJ_TO_OCP_QP_C(int stage, REAL *C, struct OCP_QP *qp)
 
 
 
-void CVT_OCP_QP_TO_COLMAJ_C(int stage, struct OCP_QP *qp, REAL *C)
+void OCP_QP_GET_C(int stage, struct OCP_QP *qp, REAL *C)
 	{
 	// extract dim
 	int *nx = qp->dim->nx;
@@ -1400,7 +1119,7 @@ void CVT_OCP_QP_TO_COLMAJ_C(int stage, struct OCP_QP *qp, REAL *C)
 
 
 
-void CVT_COLMAJ_TO_OCP_QP_D(int stage, REAL *D, struct OCP_QP *qp)
+void OCP_QP_SET_D(int stage, REAL *D, struct OCP_QP *qp)
 	{
 	// extract dim
 	int *nu = qp->dim->nu;
@@ -1413,7 +1132,7 @@ void CVT_COLMAJ_TO_OCP_QP_D(int stage, REAL *D, struct OCP_QP *qp)
 
 
 
-void CVT_OCP_QP_TO_COLMAJ_D(int stage, struct OCP_QP *qp, REAL *D)
+void OCP_QP_GET_D(int stage, struct OCP_QP *qp, REAL *D)
 	{
 	// extract dim
 	int *nu = qp->dim->nu;
@@ -1426,7 +1145,7 @@ void CVT_OCP_QP_TO_COLMAJ_D(int stage, struct OCP_QP *qp, REAL *D)
 
 
 
-void CVT_COLMAJ_TO_OCP_QP_LG(int stage, REAL *lg, struct OCP_QP *qp)
+void OCP_QP_SET_LG(int stage, REAL *lg, struct OCP_QP *qp)
 	{
 	// extract dim
 	int *nb = qp->dim->nb;
@@ -1439,7 +1158,7 @@ void CVT_COLMAJ_TO_OCP_QP_LG(int stage, REAL *lg, struct OCP_QP *qp)
 
 
 
-void CVT_OCP_QP_TO_COLMAJ_LG(int stage, struct OCP_QP *qp, REAL *lg)
+void OCP_QP_GET_LG(int stage, struct OCP_QP *qp, REAL *lg)
 	{
 	// extract dim
 	int *nb = qp->dim->nb;
@@ -1452,7 +1171,7 @@ void CVT_OCP_QP_TO_COLMAJ_LG(int stage, struct OCP_QP *qp, REAL *lg)
 
 
 
-void CVT_COLMAJ_TO_OCP_QP_UG(int stage, REAL *ug, struct OCP_QP *qp)
+void OCP_QP_SET_UG(int stage, REAL *ug, struct OCP_QP *qp)
 	{
 	// extract dim
 	int *nb = qp->dim->nb;
@@ -1466,7 +1185,7 @@ void CVT_COLMAJ_TO_OCP_QP_UG(int stage, REAL *ug, struct OCP_QP *qp)
 
 
 
-void CVT_OCP_QP_TO_COLMAJ_UG(int stage, struct OCP_QP *qp, REAL *ug)
+void OCP_QP_GET_UG(int stage, struct OCP_QP *qp, REAL *ug)
 	{
 	// extract dim
 	int *nb = qp->dim->nb;
@@ -1485,7 +1204,7 @@ void CVT_OCP_QP_TO_COLMAJ_UG(int stage, struct OCP_QP *qp, REAL *ug)
 
 
 
-void CVT_COLMAJ_TO_OCP_QP_ZL(int stage, REAL *Zl, struct OCP_QP *qp)
+void OCP_QP_SET_ZL(int stage, REAL *Zl, struct OCP_QP *qp)
 	{
 	// extract dim
 	int *ns = qp->dim->ns;
@@ -1497,7 +1216,7 @@ void CVT_COLMAJ_TO_OCP_QP_ZL(int stage, REAL *Zl, struct OCP_QP *qp)
 
 
 
-void CVT_OCP_QP_TO_COLMAJ_ZL(int stage, struct OCP_QP *qp, REAL *Zl)
+void OCP_QP_GET_ZL(int stage, struct OCP_QP *qp, REAL *Zl)
 	{
 	// extract dim
 	int *ns = qp->dim->ns;
@@ -1509,7 +1228,7 @@ void CVT_OCP_QP_TO_COLMAJ_ZL(int stage, struct OCP_QP *qp, REAL *Zl)
 
 
 
-void CVT_COLMAJ_TO_OCP_QP_ZU(int stage, REAL *Zu, struct OCP_QP *qp)
+void OCP_QP_SET_ZU(int stage, REAL *Zu, struct OCP_QP *qp)
 	{
 	// extract dim
 	int *ns = qp->dim->ns;
@@ -1521,7 +1240,7 @@ void CVT_COLMAJ_TO_OCP_QP_ZU(int stage, REAL *Zu, struct OCP_QP *qp)
 
 
 
-void CVT_OCP_QP_TO_COLMAJ_ZU(int stage, struct OCP_QP *qp, REAL *Zu)
+void OCP_QP_GET_ZU(int stage, struct OCP_QP *qp, REAL *Zu)
 	{
 	// extract dim
 	int *ns = qp->dim->ns;
@@ -1533,7 +1252,7 @@ void CVT_OCP_QP_TO_COLMAJ_ZU(int stage, struct OCP_QP *qp, REAL *Zu)
 
 
 
-void CVT_COLMAJ_TO_OCP_QP_ZLVEC(int stage, REAL *zl, struct OCP_QP *qp)
+void OCP_QP_SET_ZLVEC(int stage, REAL *zl, struct OCP_QP *qp)
 	{
 	// extract dim
 	int *nu = qp->dim->nu;
@@ -1547,7 +1266,7 @@ void CVT_COLMAJ_TO_OCP_QP_ZLVEC(int stage, REAL *zl, struct OCP_QP *qp)
 
 
 
-void CVT_OCP_QP_TO_COLMAJ_ZLVEC(int stage, struct OCP_QP *qp, REAL *zl)
+void OCP_QP_GET_ZLVEC(int stage, struct OCP_QP *qp, REAL *zl)
 	{
 	// extract dim
 	int *nu = qp->dim->nu;
@@ -1561,7 +1280,7 @@ void CVT_OCP_QP_TO_COLMAJ_ZLVEC(int stage, struct OCP_QP *qp, REAL *zl)
 
 
 
-void CVT_COLMAJ_TO_OCP_QP_ZUVEC(int stage, REAL *zu, struct OCP_QP *qp)
+void OCP_QP_SET_ZUVEC(int stage, REAL *zu, struct OCP_QP *qp)
 	{
 	// extract dim
 	int *nu = qp->dim->nu;
@@ -1575,7 +1294,7 @@ void CVT_COLMAJ_TO_OCP_QP_ZUVEC(int stage, REAL *zu, struct OCP_QP *qp)
 
 
 
-void CVT_OCP_QP_TO_COLMAJ_ZUVEC(int stage, struct OCP_QP *qp, REAL *zu)
+void OCP_QP_GET_ZUVEC(int stage, struct OCP_QP *qp, REAL *zu)
 	{
 	// extract dim
 	int *nu = qp->dim->nu;
@@ -1589,7 +1308,7 @@ void CVT_OCP_QP_TO_COLMAJ_ZUVEC(int stage, struct OCP_QP *qp, REAL *zu)
 
 
 
-void CVT_COLMAJ_TO_OCP_QP_IDXS(int stage, int *idxs, struct OCP_QP *qp)
+void OCP_QP_SET_IDXS(int stage, int *idxs, struct OCP_QP *qp)
 	{
 	// extract dim
 	int *ns = qp->dim->ns;
@@ -1603,7 +1322,7 @@ void CVT_COLMAJ_TO_OCP_QP_IDXS(int stage, int *idxs, struct OCP_QP *qp)
 
 
 
-void CVT_OCP_QP_TO_COLMAJ_IDXS(int stage, struct OCP_QP *qp, int *idxs)
+void OCP_QP_GET_IDXS(int stage, struct OCP_QP *qp, int *idxs)
 	{
 	// extract dim
 	int *ns = qp->dim->ns;
@@ -1617,7 +1336,7 @@ void CVT_OCP_QP_TO_COLMAJ_IDXS(int stage, struct OCP_QP *qp, int *idxs)
 
 
 
-void CVT_COLMAJ_TO_OCP_QP_LS(int stage, REAL *ls, struct OCP_QP *qp)
+void OCP_QP_SET_LLS(int stage, REAL *ls, struct OCP_QP *qp)
 	{
 	// extract dim
 	int *nb = qp->dim->nb;
@@ -1631,7 +1350,7 @@ void CVT_COLMAJ_TO_OCP_QP_LS(int stage, REAL *ls, struct OCP_QP *qp)
 
 
 
-void CVT_OCP_QP_TO_COLMAJ_LS(int stage, struct OCP_QP *qp, REAL *ls)
+void OCP_QP_GET_LLS(int stage, struct OCP_QP *qp, REAL *ls)
 	{
 	// extract dim
 	int *nb = qp->dim->nb;
@@ -1645,7 +1364,7 @@ void CVT_OCP_QP_TO_COLMAJ_LS(int stage, struct OCP_QP *qp, REAL *ls)
 
 
 
-void CVT_COLMAJ_TO_OCP_QP_US(int stage, REAL *us, struct OCP_QP *qp)
+void OCP_QP_SET_LUS(int stage, REAL *us, struct OCP_QP *qp)
 	{
 	// extract dim
 	int *nb = qp->dim->nb;
@@ -1659,7 +1378,7 @@ void CVT_COLMAJ_TO_OCP_QP_US(int stage, REAL *us, struct OCP_QP *qp)
 
 
 
-void CVT_OCP_QP_TO_COLMAJ_US(int stage, struct OCP_QP *qp, REAL *us)
+void OCP_QP_GET_LUS(int stage, struct OCP_QP *qp, REAL *us)
 	{
 	// extract dim
 	int *nb = qp->dim->nb;
@@ -1675,6 +1394,7 @@ void CVT_OCP_QP_TO_COLMAJ_US(int stage, struct OCP_QP *qp, REAL *us)
 
 
 
+// TODO remove !!!!!!!!!!!!!!!1
 void CHANGE_BOUNDS_DIMENSIONS_OCP_QP(int *nbu, int *nbx, struct OCP_QP *qp)
 	{
 		// TODO runtime check that new memsize is smaller or equal than old

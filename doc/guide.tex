@@ -122,11 +122,11 @@ where {\tt field} can be one of {\tt nx, nu, nbx, nbu, ng, nsbx, nsbu, nsg}.
 %%%%%%%%%%%%%%%%
 
 \begin{verbatim}
-int d_memsize_ocp_qp(struct d_ocp_qp_dim *dim);
+int d_ocp_qp_memsize(struct d_ocp_qp_dim *dim);
 \end{verbatim}
 
 \begin{verbatim}
-void d_create_ocp_qp(struct d_ocp_qp_dim *dim, struct d_ocp_qp *qp, void *memory);
+void d_ocp_qp_create(struct d_ocp_qp_dim *dim, struct d_ocp_qp *qp, void *memory);
 \end{verbatim}
 
 %%%%%%%%%%%%%%%%
@@ -135,7 +135,7 @@ void d_create_ocp_qp(struct d_ocp_qp_dim *dim, struct d_ocp_qp *qp, void *memory
 
 Once created, an OCP QP structure can be populated using the global conversion routine
 \begin{verbatim}
-void d_cvt_colmaj_to_ocp_qp(double **A, double **B, double **b, 
+void d_ocp_qp_set_all(double **A, double **B, double **b, 
     double **Q, double **S, double **R, double **q, double **r, 
     int **idxbx, double **lbx, double **ubx, 
     int **idxbu, double **lbu, double **ubu, 
@@ -148,10 +148,10 @@ which is useful when all the structure fileds have to be populated at once.
 
 Alternatively, it is possible to set the individual structure fields with the setter routine
 \begin{verbatim}
-void d_cvt_colmaj_gen_to_ocp_qp(char *field, int *stage, void *value,
+void d_ocp_qp_set(char *field, int *stage, void *value,
     struct d_ocp_qp *qp);
 \end{verbatim}
-where {\tt filed} can be one of {\tt A, B, b, Q, S, R, q, r, idxb, lb, ub, Jx, idxbx, lbx, ubx, Ju, idxbu, lbu, ubu, C, D, lg, ug, Zl, Zu, zl, zu, idxs, lls, lus}.
+where {\tt filed} can be one of {\tt A, B, b, Q, S, R, q, r, idxb, lb, ub, Jbx, idxbx, lbx, ubx, Jbu, idxbu, lbu, ubu, C, D, lg, ug, Zl, Zu, zl, zu, idxs, lls, lus}.
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
