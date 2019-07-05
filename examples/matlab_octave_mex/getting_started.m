@@ -122,11 +122,17 @@ sol.print_C_struct();
 
 
 % set up solver arg
+%mode = 'speed_abs';
+mode = 'speed';
+%mode = 'balance';
+%mode = 'robust';
 tic
-arg = hpipm_ocp_qp_solver_arg(dim);
+% create and set default arg based on mode
+arg = hpipm_ocp_qp_solver_arg(dim, mode);
 tmp_time = toc;
 fprintf('create solver arg time %e\n', tmp_time);
 
+% overwrite default argument values
 arg.set('mu0', 1e4);
 arg.set('iter_max', 30);
 arg.set('tol_stat', 1e-4);
@@ -134,6 +140,9 @@ arg.set('tol_eq', 1e-5);
 arg.set('tol_ineq', 1e-5);
 arg.set('tol_comp', 1e-5);
 arg.set('reg_prim', 1e-12);
+
+% codegen
+arg.codegen('qp_data.c', 'a');
 
 
 

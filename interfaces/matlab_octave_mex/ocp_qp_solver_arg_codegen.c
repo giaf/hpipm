@@ -4,7 +4,7 @@
 #include <string.h>
 // hpipm
 #include "hpipm_d_ocp_qp_dim.h"
-#include "hpipm_d_ocp_qp.h"
+#include "hpipm_d_ocp_qp_ipm.h"
 #include "hpipm_d_ocp_qp_utils.h"
 // mex
 #include "mex.h"
@@ -24,9 +24,9 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
 	l_ptr = mxGetData( prhs[0] );
 	struct d_ocp_qp_dim *dim = (struct d_ocp_qp_dim *) *l_ptr;
 
-	// qp
+	// arg
 	l_ptr = mxGetData( prhs[1] );
-	struct d_ocp_qp *qp = (struct d_ocp_qp *) *l_ptr;
+	struct d_ocp_qp_ipm_arg *arg = (struct d_ocp_qp_ipm_arg *) *l_ptr;
 
 	// file
 	char *file_name = mxArrayToString( prhs[2] );
@@ -35,11 +35,12 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
 	char *mode = mxArrayToString( prhs[3] );
 
 	/* body */
-	d_ocp_qp_codegen(file_name, mode, dim, qp);
+	d_ocp_qp_ipm_arg_codegen(file_name, mode, dim, arg);
 
 	return;
 
 	}
+
 
 
 

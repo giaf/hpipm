@@ -39,6 +39,7 @@
 #include <hpipm_d_ocp_qp_dim.h>
 #include <hpipm_d_ocp_qp.h>
 #include <hpipm_d_ocp_qp_sol.h>
+#include "hpipm_d_ocp_qp_ipm.h"
 
 
 
@@ -50,6 +51,7 @@
 #define BLASFEO_PRINT_TRAN_VEC blasfeo_print_tran_dvec
 #define OCP_QP d_ocp_qp
 #define OCP_QP_DIM d_ocp_qp_dim
+#define OCP_QP_IPM_ARG d_ocp_qp_ipm_arg
 #define OCP_QP_SOL d_ocp_qp_sol
 
 
@@ -59,6 +61,7 @@
 #define OCP_QP_PRINT d_ocp_qp_print
 #define OCP_QP_CODEGEN d_ocp_qp_codegen
 #define OCP_QP_SOL_PRINT d_ocp_qp_sol_print
+#define OCP_QP_IPM_ARG_CODEGEN d_ocp_qp_ipm_arg_codegen
 
 
 

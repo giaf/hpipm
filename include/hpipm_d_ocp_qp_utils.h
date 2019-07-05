@@ -38,6 +38,7 @@
 #include "hpipm_d_ocp_qp_dim.h"
 #include "hpipm_d_ocp_qp.h"
 #include "hpipm_d_ocp_qp_sol.h"
+#include "hpipm_d_ocp_qp_ipm.h"
 
 
 
@@ -57,6 +58,8 @@ void d_ocp_qp_print(struct d_ocp_qp_dim *qp_dim, struct d_ocp_qp *qp);
 void d_ocp_qp_codegen(char *file_name, char *mode, struct d_ocp_qp_dim *qp_dim, struct d_ocp_qp *qp);
 //
 void d_ocp_qp_sol_print(struct d_ocp_qp_dim *qp_dim, struct d_ocp_qp_sol *ocp_qp_sol);
+//
+void d_ocp_qp_ipm_arg_codegen(char *file_name, char *mode, struct d_ocp_qp_dim *qp_dim, struct d_ocp_qp_ipm_arg *arg);
 
 
 

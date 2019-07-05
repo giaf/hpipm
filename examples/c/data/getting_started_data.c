@@ -192,3 +192,18 @@ double **hu_guess = uu_guess;
 double **hx_guess = xx_guess;
 double **hsl_guess = ssl_guess;
 double **hsu_guess = ssu_guess;
+
+// arg
+int mode = 1;
+int iter_max = 30;
+double alpha_min = 1e-8;
+double mu0 = 1e4;
+double tol_stat = 1e-4;
+double tol_eq = 1e-5;
+double tol_ineq = 1e-5;
+double tol_comp = 1e-5;
+double reg_prim = 1e-12;
+int warm_start = 0;
+int pred_corr = 1;
+int ric_alg = 0;
+

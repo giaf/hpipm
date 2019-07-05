@@ -28,10 +28,18 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
 	// field
 	char *field = mxArrayToString( prhs[1] );
 
-	// value
-	double *value = mxGetData( prhs[2] );
-
-	d_ocp_qp_ipm_arg_set(field, value, arg);
+	// manually set integers
+	if(!strcmp(field, "iter_max") | !strcmp(field, "warm_start") | !strcmp(field, "pred_corr") | !strcmp(field, "ric_alg"))
+		{
+		int value = mxGetScalar( prhs[2] );
+		d_ocp_qp_ipm_arg_set(field, &value, arg);
+		}
+	else // real
+		{
+		// value
+		double *value = mxGetData( prhs[2] );
+		d_ocp_qp_ipm_arg_set(field, value, arg);
+		}
 
 	return;
 

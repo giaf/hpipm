@@ -82,6 +82,7 @@ void OCP_QP_IPM_ARG_SET_DEFAULT(enum HPIPM_MODE mode, struct OCP_QP_IPM_ARG *arg
 		arg->abs_form = 1;
 		arg->comp_dual_sol = 0;
 		arg->comp_res_exit = 0;
+		arg->mode = mode;
 		}
 	else if(mode==SPEED)
 		{
@@ -106,6 +107,7 @@ void OCP_QP_IPM_ARG_SET_DEFAULT(enum HPIPM_MODE mode, struct OCP_QP_IPM_ARG *arg
 		arg->abs_form = 0;
 		arg->comp_dual_sol = 1;
 		arg->comp_res_exit = 1;
+		arg->mode = mode;
 		}
 	else if(mode==BALANCE)
 		{
@@ -130,6 +132,7 @@ void OCP_QP_IPM_ARG_SET_DEFAULT(enum HPIPM_MODE mode, struct OCP_QP_IPM_ARG *arg
 		arg->abs_form = 0;
 		arg->comp_dual_sol = 1;
 		arg->comp_res_exit = 1;
+		arg->mode = mode;
 		}
 	else if(mode==ROBUST)
 		{
@@ -154,6 +157,7 @@ void OCP_QP_IPM_ARG_SET_DEFAULT(enum HPIPM_MODE mode, struct OCP_QP_IPM_ARG *arg
 		arg->abs_form = 0;
 		arg->comp_dual_sol = 1;
 		arg->comp_res_exit = 1;
+		arg->mode = mode;
 		}
 	else
 		{

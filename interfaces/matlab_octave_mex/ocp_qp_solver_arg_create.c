@@ -25,6 +25,32 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
 	l_ptr = mxGetData( prhs[0] );
 	struct d_ocp_qp_dim *dim = (struct d_ocp_qp_dim *) *l_ptr;
 
+	// mode
+	char *str_mode = mxArrayToString( prhs[1] );
+
+	int mode;
+	if(!strcmp(str_mode, "speed_abs"))
+		{
+		mode = SPEED_ABS;
+		}
+	else if(!strcmp(str_mode, "speed"))
+		{
+		mode = SPEED;
+		}
+	else if(!strcmp(str_mode, "balance"))
+		{
+		mode = BALANCE;
+		}
+	else if(!strcmp(str_mode, "robust"))
+		{
+		mode = ROBUST;
+		}
+	else
+		{
+		mode = SPEED;
+		mexPrintf("\nocp_qp_solver_arg_create: mode not supported: %s; speed mode used instead\n", str_mode);
+		}
+
 	/* body */
 
 	int arg_size = sizeof(struct d_ocp_qp_ipm_arg) + d_ocp_qp_ipm_arg_memsize(dim);
@@ -37,6 +63,8 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
 
 	d_ocp_qp_ipm_arg_create(dim, arg, c_ptr);
 	c_ptr += d_ocp_qp_ipm_arg_memsize(dim);
+
+	d_ocp_qp_ipm_arg_set_default(mode, arg);
 
 	/* LHS */
 

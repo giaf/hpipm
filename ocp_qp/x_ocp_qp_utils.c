@@ -929,3 +929,54 @@ void OCP_QP_SOL_PRINT(struct OCP_QP_DIM *qp_dim, struct OCP_QP_SOL *qp_sol)
 
 	return;
 	}
+
+
+
+void OCP_QP_IPM_ARG_CODEGEN(char *file_name, char *mode, struct OCP_QP_DIM *qp_dim, struct OCP_QP_IPM_ARG *arg)
+	{
+	int ii;
+
+	FILE *file = fopen(file_name, mode);
+
+	// iter_max
+	fprintf(file, "/* mode */\n");
+	fprintf(file, "int mode = %d;\n", arg->mode);
+	// iter_max
+	fprintf(file, "/* iter_max */\n");
+	fprintf(file, "int iter_max = %d;\n", arg->iter_max);
+	// alpha_min
+	fprintf(file, "/* alpha_min */\n");
+	fprintf(file, "double alpha_min = %18.15e;\n", arg->alpha_min);
+	// mu0
+	fprintf(file, "/* mu0 */\n");
+	fprintf(file, "double mu0 = %18.15e;\n", arg->mu0);
+	// tol_stat
+	fprintf(file, "/* tol_stat */\n");
+	fprintf(file, "double tol_stat = %18.15e;\n", arg->res_g_max);
+	// tol_eq
+	fprintf(file, "/* tol_eq */\n");
+	fprintf(file, "double tol_eq = %18.15e;\n", arg->res_b_max);
+	// tol_ineq
+	fprintf(file, "/* tol_ineq */\n");
+	fprintf(file, "double tol_ineq = %18.15e;\n", arg->res_d_max);
+	// tol_comp
+	fprintf(file, "/* tol_comp */\n");
+	fprintf(file, "double tol_comp = %18.15e;\n", arg->res_m_max);
+	// reg_prim
+	fprintf(file, "/* reg_prim */\n");
+	fprintf(file, "double reg_prim = %18.15e;\n", arg->reg_prim);
+	// warm_start
+	fprintf(file, "/* warm_start */\n");
+	fprintf(file, "int warm_start = %d;\n", arg->warm_start);
+	// pred_corr
+	fprintf(file, "/* pred_corr */\n");
+	fprintf(file, "int pred_corr = %d;\n", arg->pred_corr);
+	// ric_alg
+	fprintf(file, "/* ric_alg */\n");
+	fprintf(file, "int ric_alg = %d;\n", arg->square_root_alg);
+
+	fclose(file);
+
+	return;
+	}
+

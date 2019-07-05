@@ -76,6 +76,19 @@ extern double **hzu;
 extern int **hidxs;
 extern double **hlls;
 extern double **hlus;
+// arg
+extern int mode;
+extern int iter_max;
+extern double alpha_min;
+extern double mu0;
+extern double tol_stat;
+extern double tol_eq;
+extern double tol_ineq;
+extern double tol_comp;
+extern double reg_prim;
+extern int warm_start;
+extern int pred_corr;
+extern int ric_alg;
 
 
 
@@ -191,21 +204,7 @@ int main()
 	struct d_ocp_qp_ipm_arg arg;
 	d_ocp_qp_ipm_arg_create(&dim, &arg, ipm_arg_mem);
 
-//	enum hpipm_mode mode = SPEED_ABS;
-	enum hpipm_mode mode = SPEED;
-//	enum hpipm_mode mode = BALANCE;
-//	enum hpipm_mode mode = ROBUST;
 	d_ocp_qp_ipm_arg_set_default(mode, &arg);
-
-	double mu0 = 1e4;
-	int iter_max = 30;
-	double tol_stat = 1e-4;
-	double tol_eq = 1e-5;
-	double tol_ineq = 1e-5;
-	double tol_comp = 1e-5;
-	double reg_prim = 1e-12;
-	int warm_start = 0;
-	int ric_alg = 0;
 
 	d_ocp_qp_ipm_arg_set_mu0(&mu0, &arg);
 	d_ocp_qp_ipm_arg_set_iter_max(&iter_max, &arg);
