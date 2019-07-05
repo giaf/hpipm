@@ -78,7 +78,7 @@
 #define OCP_QP s_ocp_qp
 #define OCP_QP_IPM_ARG s_ocp_qp_ipm_arg
 #define HPIPM_MODE hpipm_mode
-#define OCP_QP_IPM_WORKSPACE s_ocp_qp_ipm_workspace
+#define OCP_QP_IPM_WS s_ocp_qp_ipm_ws
 #define OCP_QP_RES s_ocp_qp_res
 #define OCP_QP_RES_WORKSPACE s_ocp_qp_res_workspace
 #define OCP_QP_DIM s_ocp_qp_dim
@@ -120,17 +120,18 @@
 #define OCP_QP_IPM_ARG_SET_PRED_CORR s_ocp_qp_ipm_arg_set_pred_corr
 #define OCP_QP_IPM_ARG_SET_RIC_ALG s_ocp_qp_ipm_arg_set_ric_alg
 // ipm
-#define SIZEOF_OCP_QP_IPM_WORKSPACE s_sizeof_ocp_qp_ipm_workspace
-#define MEMSIZE_OCP_QP_IPM s_memsize_ocp_qp_ipm
-#define CREATE_OCP_QP_IPM s_create_ocp_qp_ipm
-#define GET_OCP_QP_IPM_ITER s_get_ocp_qp_ipm_iter
-#define GET_OCP_QP_IPM_RES_STAT s_get_ocp_qp_ipm_res_stat
-#define GET_OCP_QP_IPM_RES_EQ s_get_ocp_qp_ipm_res_eq
-#define GET_OCP_QP_IPM_RES_INEQ s_get_ocp_qp_ipm_res_ineq
-#define GET_OCP_QP_IPM_RES_COMP s_get_ocp_qp_ipm_res_comp
-#define GET_OCP_QP_IPM_STAT s_get_ocp_qp_ipm_stat
-#define SOLVE_OCP_QP_IPM s_solve_ocp_qp_ipm
-#define SOLVE_OCP_QP_IPM2 s_solve_ocp_qp_ipm2
+#define OCP_QP_IPM_WS_STRSIZE s_ocp_qp_ipm_ws_strsize
+#define OCP_QP_IPM_WS_MEMSIZE s_ocp_qp_ipm_ws_memsize
+#define OCP_QP_IPM_WS_CREATE s_ocp_qp_ipm_ws_create
+#define OCP_QP_IPM_GET s_ocp_qp_ipm_get
+#define OCP_QP_IPM_GET_STATUS s_ocp_qp_ipm_get_status
+#define OCP_QP_IPM_GET_ITER s_ocp_qp_ipm_get_iter
+#define OCP_QP_IPM_GET_RES_STAT s_ocp_qp_ipm_get_res_stat
+#define OCP_QP_IPM_GET_RES_EQ s_ocp_qp_ipm_get_res_eq
+#define OCP_QP_IPM_GET_RES_INEQ s_ocp_qp_ipm_get_res_ineq
+#define OCP_QP_IPM_GET_RES_COMP s_ocp_qp_ipm_get_res_comp
+#define OCP_QP_IPM_GET_STAT s_ocp_qp_ipm_get_stat
+#define OCP_QP_IPM_SOLVE s_ocp_qp_ipm_solve
 
 
 

@@ -121,7 +121,7 @@ sol.print_C_struct();
 
 
 
-% set up solver arg
+% solver arg
 %mode = 'speed_abs';
 mode = 'speed';
 %mode = 'balance';
@@ -146,12 +146,17 @@ arg.codegen('qp_data.c', 'a');
 
 
 
+% solver
+
+
+
 if is_octave()
 	% directly call destructor for octave 4.2.2 (ubuntu 18.04) + others ???
 	if strcmp(version(), '4.2.2')
 		delete(dim);
 		delete(qp);
 		delete(sol);
+		delete(arg);
 	end
 end
 

@@ -938,6 +938,8 @@ void OCP_QP_IPM_ARG_CODEGEN(char *file_name, char *mode, struct OCP_QP_DIM *qp_d
 
 	FILE *file = fopen(file_name, mode);
 
+	fprintf(file, "/***************\n* arg\n***************/\n");
+
 	// iter_max
 	fprintf(file, "/* mode */\n");
 	fprintf(file, "int mode = %d;\n", arg->mode);

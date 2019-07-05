@@ -99,7 +99,7 @@ int main()
 
 	int ii;
 
-	int hpipm_return;
+	int hpipm_status;
 
 	int rep, nrep=10;
 
@@ -165,11 +165,11 @@ int main()
 * ipm workspace
 ************************************************/
 
-	int ipm_size = d_memsize_ocp_qp_ipm(&dim, &arg);
+	int ipm_size = d_ocp_qp_ipm_ws_memsize(&dim, &arg);
 	void *ipm_mem = malloc(ipm_size);
 
-	struct d_ocp_qp_ipm_workspace workspace;
-	d_create_ocp_qp_ipm(&dim, &arg, &workspace, ipm_mem);
+	struct d_ocp_qp_ipm_ws workspace;
+	d_ocp_qp_ipm_ws_create(&dim, &arg, &workspace, ipm_mem);
 
 /************************************************
 * ipm solver
@@ -190,7 +190,8 @@ int main()
 //			d_cvt_colmaj_to_ocp_qp_sol_su(ii, hsu_guess[ii], &qp_sol);
 
 		// call solver
-		hpipm_return = d_solve_ocp_qp_ipm(&qp, &qp_sol, &arg, &workspace);
+		d_ocp_qp_ipm_solve(&qp, &qp_sol, &arg, &workspace);
+		d_ocp_qp_ipm_get_status(&workspace, &hpipm_status);
 		}
 
 	gettimeofday(&tv1, NULL); // stop
@@ -201,20 +202,20 @@ int main()
 * print solution info
 ************************************************/
 
-    printf("\nHPIPM returned with flag %i.\n", hpipm_return);
-    if(hpipm_return == 0)
+    printf("\nHPIPM returned with flag %i.\n", hpipm_status);
+    if(hpipm_status == 0)
 		{
         printf("\n -> QP solved!\n");
 		}
-	else if(hpipm_return==1)
+	else if(hpipm_status==1)
 		{
         printf("\n -> Solver failed! Maximum number of iterations reached\n");
 		}
-	else if(hpipm_return==2)
+	else if(hpipm_status==2)
 		{
         printf("\n -> Solver failed! Minimum step lenght reached\n");
 		}
-	else if(hpipm_return==2)
+	else if(hpipm_status==2)
 		{
         printf("\n -> Solver failed! NaN in computations\n");
 		}
@@ -241,7 +242,7 @@ int main()
 	printf("\nu = \n");
 	for(ii=0; ii<=N; ii++)
 		{
-		d_ocp_qp_sol_get("u", ii, &qp_sol, u);
+		d_ocp_qp_sol_get_u(ii, &qp_sol, u);
 		d_print_mat(1, nu[ii], u, 1);
 		}
 
@@ -257,7 +258,7 @@ int main()
 	printf("\nx = \n");
 	for(ii=0; ii<=N; ii++)
 		{
-		d_ocp_qp_sol_get("x", ii, &qp_sol, x);
+		d_ocp_qp_sol_get_x(ii, &qp_sol, x);
 		d_print_mat(1, nx[ii], x, 1);
 		}
 
@@ -267,7 +268,7 @@ int main()
 	printf("\npi = \n");
 	for(ii=0; ii<N; ii++)
 		{
-		d_ocp_qp_sol_get("pi", ii, &qp_sol, pi);
+		d_ocp_qp_sol_get_pi(ii, &qp_sol, pi);
 		d_print_mat(1, nx[ii+1], pi, 1);
 		}
 
@@ -275,16 +276,17 @@ int main()
 * print ipm statistics
 ************************************************/
 
-	printf("\nipm return = %d\n", hpipm_return);
-	double res_stat = d_get_ocp_qp_ipm_res_stat(&workspace);
-	double res_eq = d_get_ocp_qp_ipm_res_eq(&workspace);
-	double res_ineq = d_get_ocp_qp_ipm_res_ineq(&workspace);
-	double res_comp = d_get_ocp_qp_ipm_res_comp(&workspace);
+	int iter; d_ocp_qp_ipm_get_iter(&workspace, &iter);
+	double res_stat; d_ocp_qp_ipm_get_res_stat(&workspace, &res_stat);
+	double res_eq; d_ocp_qp_ipm_get_res_eq(&workspace, &res_eq);
+	double res_ineq; d_ocp_qp_ipm_get_res_ineq(&workspace, &res_ineq);
+	double res_comp; d_ocp_qp_ipm_get_res_comp(&workspace, &res_comp);
+	double *stat; d_ocp_qp_ipm_get_stat(&workspace, &stat);
+
+	printf("\nipm return = %d\n", hpipm_status);
 	printf("\nipm residuals max: res_g = %e, res_b = %e, res_d = %e, res_m = %e\n", res_stat, res_eq, res_ineq, res_comp);
 
-	int iter = d_get_ocp_qp_ipm_iter(&workspace);
 	printf("\nipm iter = %d\n", iter);
-	double *stat = d_get_ocp_qp_ipm_stat(&workspace);
 	printf("\nalpha_aff\tmu_aff\t\tsigma\t\talpha\t\tmu\n");
 	d_print_exp_tran_mat(5, iter, stat, 5);
 

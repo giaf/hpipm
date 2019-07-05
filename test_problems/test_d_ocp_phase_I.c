@@ -885,14 +885,14 @@ int main()
 * ipm
 ************************************************/
 
-	int ipm_size = d_memsize_ocp_qp_ipm(&dim, &arg);
+	int ipm_size = d_ocp_qp_ipm_ws_memsize(&dim, &arg);
 	printf("\nipm size = %d\n", ipm_size);
 	void *ipm_mem = malloc(ipm_size);
 
-	struct d_ocp_qp_ipm_workspace workspace;
-	d_create_ocp_qp_ipm(&dim, &arg, &workspace, ipm_mem);
+	struct d_ocp_qp_ipm_ws workspace;
+	d_ocp_qp_ipm_ws_create(&dim, &arg, &workspace, ipm_mem);
 
-	int hpipm_return; // 0 normal; 1 max iter
+	int hpipm_status; // 0 normal; 1 max iter
 
 	int rep, nrep=1;
 
@@ -906,7 +906,8 @@ int main()
 
 	for(rep=0; rep<nrep; rep++)
 		{
-		hpipm_return = d_solve_ocp_qp_ipm(&qp, &qp_sol, &arg, &workspace);
+		d_ocp_qp_ipm_solve(&qp, &qp_sol, &arg, &workspace);
+		d_ocp_qp_ipm_get_status(&workspace, &hpipm_status);
 		}
 
 	gettimeofday(&tv1, NULL); // stop
@@ -991,7 +992,7 @@ int main()
 * print ipm statistics
 ************************************************/
 
-	printf("\nipm return = %d\n", hpipm_return);
+	printf("\nipm return = %d\n", hpipm_status);
 	printf("\nipm residuals max: res_g = %e, res_b = %e, res_d = %e, res_m = %e\n", workspace.qp_res[0], workspace.qp_res[1], workspace.qp_res[2], workspace.qp_res[3]);
 
 	printf("\nipm iter = %d\n", workspace.iter);
@@ -1019,7 +1020,8 @@ int main()
 
 	for(rep=0; rep<nrep; rep++)
 		{
-		hpipm_return = d_solve_ocp_qp_ipm(&qp, &qp_sol, &arg, &workspace);
+		d_ocp_qp_ipm_solve(&qp, &qp_sol, &arg, &workspace);
+		d_ocp_qp_ipm_get_status(&workspace, &hpipm_status);
 		}
 
 	gettimeofday(&tv1, NULL); // stop
@@ -1185,7 +1187,7 @@ int main()
 * print ipm statistics
 ************************************************/
 
-	printf("\nipm return = %d\n", hpipm_return);
+	printf("\nipm return = %d\n", hpipm_status);
 	printf("\nipm residuals max: res_g = %e, res_b = %e, res_d = %e, res_m = %e\n", workspace.qp_res[0], workspace.qp_res[1], workspace.qp_res[2], workspace.qp_res[3]);
 
 	printf("\nipm iter = %d\n", workspace.iter);

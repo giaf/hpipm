@@ -80,7 +80,7 @@ struct s_ocp_qp_ipm_arg
 
 
 
-struct s_ocp_qp_ipm_workspace
+struct s_ocp_qp_ipm_ws
 	{
 	struct s_core_qp_ipm_workspace *core_workspace;
 	struct s_ocp_qp_res_workspace *res_workspace;
@@ -111,6 +111,7 @@ struct s_ocp_qp_ipm_workspace
 	int iter; // iteration number
 	int stat_max; // iterations saved in stat
 	int use_Pb;
+	int status; // solver status
 	int memsize;
 	};
 
@@ -150,25 +151,29 @@ void s_ocp_qp_ipm_arg_set_pred_corr(int *pred_corr, struct s_ocp_qp_ipm_arg *arg
 void s_ocp_qp_ipm_arg_set_ric_alg(int *alg, struct s_ocp_qp_ipm_arg *arg);
 
 //
-int s_sizeof_ocp_qp_ipm_workspace();
+int s_ocp_qp_ipm_ws_strsize();
 //
-int s_memsize_ocp_qp_ipm(struct s_ocp_qp_dim *ocp_dim, struct s_ocp_qp_ipm_arg *arg);
+int s_ocp_qp_ipm_ws_memsize(struct s_ocp_qp_dim *ocp_dim, struct s_ocp_qp_ipm_arg *arg);
 //
-void s_create_ocp_qp_ipm(struct s_ocp_qp_dim *ocp_dim, struct s_ocp_qp_ipm_arg *arg, struct s_ocp_qp_ipm_workspace *ws, void *mem);
+void s_ocp_qp_ipm_ws_create(struct s_ocp_qp_dim *ocp_dim, struct s_ocp_qp_ipm_arg *arg, struct s_ocp_qp_ipm_ws *ws, void *mem);
 //
-int s_get_ocp_qp_ipm_iter(struct s_ocp_qp_ipm_workspace *ws);
+void s_ocp_qp_ipm_get(char *field, struct s_ocp_qp_ipm_ws *ws, void *value);
 //
-float s_get_ocp_qp_ipm_res_stat(struct s_ocp_qp_ipm_workspace *ws);
+void s_ocp_qp_ipm_get_status(struct s_ocp_qp_ipm_ws *ws, int *status);
 //
-float s_get_ocp_qp_ipm_res_eq(struct s_ocp_qp_ipm_workspace *ws);
+void s_ocp_qp_ipm_get_iter(struct s_ocp_qp_ipm_ws *ws, int *iter);
 //
-float s_get_ocp_qp_ipm_res_ineq(struct s_ocp_qp_ipm_workspace *ws);
+void s_ocp_qp_ipm_get_res_stat(struct s_ocp_qp_ipm_ws *ws, float *res_stat);
 //
-float s_get_ocp_qp_ipm_res_comp(struct s_ocp_qp_ipm_workspace *ws);
+void s_ocp_qp_ipm_get_res_eq(struct s_ocp_qp_ipm_ws *ws, float *res_eq);
 //
-float *s_get_ocp_qp_ipm_stat(struct s_ocp_qp_ipm_workspace *ws);
+void s_ocp_qp_ipm_get_res_ineq(struct s_ocp_qp_ipm_ws *ws, float *res_ineq);
 //
-int s_solve_ocp_qp_ipm(struct s_ocp_qp *qp, struct s_ocp_qp_sol *qp_sol, struct s_ocp_qp_ipm_arg *arg, struct s_ocp_qp_ipm_workspace *ws);
+void s_ocp_qp_ipm_get_res_comp(struct s_ocp_qp_ipm_ws *ws, float *res_comp);
+//
+void s_ocp_qp_ipm_get_stat(struct s_ocp_qp_ipm_ws *ws, float **stat);
+//
+void s_ocp_qp_ipm_solve(struct s_ocp_qp *qp, struct s_ocp_qp_sol *qp_sol, struct s_ocp_qp_ipm_arg *arg, struct s_ocp_qp_ipm_ws *ws);
 
 
 

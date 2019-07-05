@@ -315,14 +315,14 @@ void OCP_QP_IPM_ARG_SET_RIC_ALG(int *ric_alg, struct OCP_QP_IPM_ARG *arg)
 
 
 
-int SIZEOF_OCP_QP_IPM_WORKSPACE()
+int OCP_QP_IPM_WS_STRSIZE()
 	{
-	return sizeof(struct OCP_QP_IPM_WORKSPACE);
+	return sizeof(struct OCP_QP_IPM_WS);
 	}
 
 
 
-int MEMSIZE_OCP_QP_IPM(struct OCP_QP_DIM *dim, struct OCP_QP_IPM_ARG *arg)
+int OCP_QP_IPM_WS_MEMSIZE(struct OCP_QP_DIM *dim, struct OCP_QP_IPM_ARG *arg)
 	{
 
 	// stat_max is at least as big as iter_max
@@ -444,7 +444,7 @@ int MEMSIZE_OCP_QP_IPM(struct OCP_QP_DIM *dim, struct OCP_QP_IPM_ARG *arg)
 
 
 
-void CREATE_OCP_QP_IPM(struct OCP_QP_DIM *dim, struct OCP_QP_IPM_ARG *arg, struct OCP_QP_IPM_WORKSPACE *workspace, void *mem)
+void OCP_QP_IPM_WS_CREATE(struct OCP_QP_DIM *dim, struct OCP_QP_IPM_ARG *arg, struct OCP_QP_IPM_WS *workspace, void *mem)
 	{
 
 	// loop index
@@ -822,7 +822,7 @@ void CREATE_OCP_QP_IPM(struct OCP_QP_DIM *dim, struct OCP_QP_IPM_ARG *arg, struc
 	
 	workspace->use_Pb = 0;
 
-	workspace->memsize = MEMSIZE_OCP_QP_IPM(dim, arg);
+	workspace->memsize = OCP_QP_IPM_WS_MEMSIZE(dim, arg);
 
 
 #if defined(RUNTIME_CHECKS)
@@ -839,61 +839,102 @@ void CREATE_OCP_QP_IPM(struct OCP_QP_DIM *dim, struct OCP_QP_IPM_ARG *arg, struc
 	}
 
 
-int GET_OCP_QP_IPM_ITER(struct OCP_QP_IPM_WORKSPACE *ws)
+void OCP_QP_IPM_GET(char *field, struct OCP_QP_IPM_WS *ws, void *value)
 	{
-
-	return ws->iter;
-
+	if(hpipm_strcmp(field, "status"))
+		{ 
+		OCP_QP_IPM_GET_STATUS(ws, value);
+		}
+	else if(hpipm_strcmp(field, "iter"))
+		{ 
+		OCP_QP_IPM_GET_ITER(ws, value);
+		}
+	else if(hpipm_strcmp(field, "res_stat"))
+		{ 
+		OCP_QP_IPM_GET_RES_STAT(ws, value);
+		}
+	else if(hpipm_strcmp(field, "res_eq"))
+		{ 
+		OCP_QP_IPM_GET_RES_EQ(ws, value);
+		}
+	else if(hpipm_strcmp(field, "res_ineq"))
+		{ 
+		OCP_QP_IPM_GET_RES_INEQ(ws, value);
+		}
+	else if(hpipm_strcmp(field, "res_comp"))
+		{ 
+		OCP_QP_IPM_GET_RES_COMP(ws, value);
+		}
+	else if(hpipm_strcmp(field, "stat"))
+		{ 
+		OCP_QP_IPM_GET_STAT(ws, value);
+		}
+	else 
+		{
+		printf("error [OCP_QP_IPM_GET]: unknown field name '%s'. Exiting.\n", field);
+		exit(1);
+		}
+	return;
 	}
 
 
 
-REAL GET_OCP_QP_IPM_RES_STAT(struct OCP_QP_IPM_WORKSPACE *ws)
+void OCP_QP_IPM_GET_STATUS(struct OCP_QP_IPM_WS *ws, int *status)
 	{
-
-	return ws->qp_res[0];
-
+	*status = ws->status;
+	return;
 	}
 
 
 
-REAL GET_OCP_QP_IPM_RES_EQ(struct OCP_QP_IPM_WORKSPACE *ws)
+void OCP_QP_IPM_GET_ITER(struct OCP_QP_IPM_WS *ws, int *iter)
 	{
-
-	return ws->qp_res[1];
-
+	*iter = ws->iter;
+	return;
 	}
 
 
 
-REAL GET_OCP_QP_IPM_RES_INEQ(struct OCP_QP_IPM_WORKSPACE *ws)
+void OCP_QP_IPM_GET_RES_STAT(struct OCP_QP_IPM_WS *ws, REAL *res_stat)
 	{
-
-	return ws->qp_res[2];
-
+	*res_stat = ws->qp_res[0];
+	return;
 	}
 
 
 
-REAL GET_OCP_QP_IPM_RES_COMP(struct OCP_QP_IPM_WORKSPACE *ws)
+void OCP_QP_IPM_GET_RES_EQ(struct OCP_QP_IPM_WS *ws, REAL *res_eq)
 	{
-
-	return ws->qp_res[3];
-
+	*res_eq = ws->qp_res[1];
+	return;
 	}
 
 
 
-REAL *GET_OCP_QP_IPM_STAT(struct OCP_QP_IPM_WORKSPACE *ws)
+void OCP_QP_IPM_GET_RES_INEQ(struct OCP_QP_IPM_WS *ws, REAL *res_ineq)
 	{
-
-	return ws->stat;
-
+	*res_ineq = ws->qp_res[2];
+	return;
 	}
 
 
 
-int SOLVE_OCP_QP_IPM(struct OCP_QP *qp, struct OCP_QP_SOL *qp_sol, struct OCP_QP_IPM_ARG *arg, struct OCP_QP_IPM_WORKSPACE *ws)
+void OCP_QP_IPM_GET_RES_COMP(struct OCP_QP_IPM_WS *ws, REAL *res_comp)
+	{
+	*res_comp = ws->qp_res[3];
+	return;
+	}
+
+
+
+void OCP_QP_IPM_GET_STAT(struct OCP_QP_IPM_WS *ws, REAL **stat)
+	{
+	*stat = ws->stat;
+	}
+
+
+
+void OCP_QP_IPM_SOLVE(struct OCP_QP *qp, struct OCP_QP_SOL *qp_sol, struct OCP_QP_IPM_ARG *arg, struct OCP_QP_IPM_WS *ws)
 	{
 
 #if 0
@@ -1020,7 +1061,8 @@ int SOLVE_OCP_QP_IPM(struct OCP_QP *qp, struct OCP_QP_SOL *qp_sol, struct OCP_QP
 		COMPUTE_RES_OCP_QP(qp, qp_sol, ws->res, ws->res_workspace);
 		cws->mu = ws->res->res_mu;
 		ws->iter = 0;
-		return 0;
+		ws->status = 0;
+		return;
 		}
 
 	// blasfeo alias for residuals
@@ -1173,23 +1215,25 @@ int SOLVE_OCP_QP_IPM(struct OCP_QP *qp, struct OCP_QP_SOL *qp_sol, struct OCP_QP
 
 		// max iteration number reached
 		if(kk == arg->iter_max)
-			return 1;
+			ws->status = 1;
 
 		// min step lenght
 		if(cws->alpha <= arg->alpha_min)
-			return 2;
+			ws->status = 2;
 
 		// NaN in the solution
 	#ifdef USE_C99_MATH
 		if(isnan(cws->mu))
-			return 3;
+			ws->status = 3;
 	#else
 		if(cws->mu != cws->mu)
-			return 3;
+			ws->status = 3;
 	#endif
 
 		// normal return
-		return 0;
+		ws->status = 0;
+
+		return;
 
 		}
 
@@ -1631,23 +1675,25 @@ exit(1);
 
 	// max iteration number reached
 	if(kk == arg->iter_max)
-		return 1;
+		ws->status = 1;
 
 	// min step lenght
 	if(cws->alpha <= arg->alpha_min)
-		return 2;
+		ws->status = 2;
 
 	// NaN in the solution
 #ifdef USE_C99_MATH
 	if(isnan(cws->mu))
-		return 3;
+		ws->status = 3;
 #else
 	if(cws->mu != cws->mu)
-		return 3;
+		ws->status = 3;
 #endif
 
 	// normal return
-	return 0;
+	ws->status = 0;
+
+	return;
 
 	}
 

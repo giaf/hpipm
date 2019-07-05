@@ -69,7 +69,7 @@
 #define GESE blasfeo_dgese
 #define OCP_QP d_ocp_qp
 #define OCP_QP_IPM_ARG d_ocp_qp_ipm_arg
-#define OCP_QP_IPM_WORKSPACE d_ocp_qp_ipm_workspace
+#define OCP_QP_IPM_WORKSPACE d_ocp_qp_ipm_ws
 #define OCP_QP_RES d_ocp_qp_res
 #define OCP_QP_RES_WORKSPACE d_ocp_qp_res_workspace
 #define OCP_QP_DIM d_ocp_qp_dim
