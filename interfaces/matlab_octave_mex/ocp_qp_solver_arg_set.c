@@ -32,6 +32,7 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
 	if(!strcmp(field, "iter_max") | !strcmp(field, "warm_start") | !strcmp(field, "pred_corr") | !strcmp(field, "ric_alg"))
 		{
 		int value = mxGetScalar( prhs[2] );
+//		printf("\nset %d\n", value);
 		d_ocp_qp_ipm_arg_set(field, &value, arg);
 		}
 	else // real

@@ -12,19 +12,20 @@
 void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
 	{
 
-//	mexPrintf("\nin ocp_solver_arg_destroy\n");
+//	mexPrintf("\nin ocp_solver_destroy\n");
 
 	long long *ptr;
 
 	/* RHS */
 
-	// arg_mem
+	// ws_mem
 	ptr = (long long *) mxGetData( prhs[0] );
 	free( (void *) ptr[0] );
 
 	return;
 
 	}
+
 
 
 

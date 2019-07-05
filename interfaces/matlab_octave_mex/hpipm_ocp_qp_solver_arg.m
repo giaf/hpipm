@@ -1,7 +1,6 @@
 classdef hpipm_ocp_qp_solver_arg < handle
 	
 	properties
-		dim
 		C_dim
 		C_arg
 	end
@@ -9,7 +8,6 @@ classdef hpipm_ocp_qp_solver_arg < handle
 	methods
 
 		function obj = hpipm_ocp_qp_solver_arg(dim, mode)
-			obj.dim = dim;
 			obj.C_dim = dim.C_dim;
 			% create struct in C
 			obj.C_arg = ocp_qp_solver_arg_create(obj.C_dim, mode);

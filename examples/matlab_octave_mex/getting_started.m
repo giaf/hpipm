@@ -108,17 +108,6 @@ sol = hpipm_ocp_qp_sol(dim);
 tmp_time = toc;
 fprintf('create sol time %e\n', tmp_time);
 
-x = zeros(nx, N+1);
-tic
-sol.get('x', x, 0, N);
-tmp_time = toc;
-fprintf('get x time %e\n', tmp_time);
-
-x
-
-% print to shell
-sol.print_C_struct();
-
 
 
 % solver arg
@@ -134,7 +123,7 @@ fprintf('create solver arg time %e\n', tmp_time);
 
 % overwrite default argument values
 arg.set('mu0', 1e4);
-arg.set('iter_max', 30);
+arg.set('iter_max', 20);
 arg.set('tol_stat', 1e-4);
 arg.set('tol_eq', 1e-5);
 arg.set('tol_ineq', 1e-5);
@@ -147,6 +136,42 @@ arg.codegen('qp_data.c', 'a');
 
 
 % solver
+tic
+solver = hpipm_ocp_qp_solver(dim, arg);
+tmp_time = toc;
+fprintf('create solver time %e\n', tmp_time);
+
+% arg allowed to be changed
+solver.set('iter_max', 30);
+arg.set('tol_stat', 1e-8);
+arg.set('tol_eq', 1e-8);
+arg.set('tol_ineq', 1e-8);
+arg.set('tol_comp', 1e-8);
+
+% solve qp
+nrep = 100;
+tic
+for rep=1:nrep
+	solver.solve(qp, sol);
+end
+tmp_time = toc;
+fprintf('solve time %e\n', tmp_time/nrep);
+
+% TODO get status, iter, res, stat, .....
+
+
+
+% get / print solution
+x = zeros(nx, N+1);
+tic
+sol.get('x', x, 0, N); % TODO this must return a new matrix !!!!!
+tmp_time = toc;
+fprintf('get x time %e\n', tmp_time);
+
+x
+
+% print to shell
+sol.print_C_struct();
 
 
 
@@ -157,6 +182,7 @@ if is_octave()
 		delete(qp);
 		delete(sol);
 		delete(arg);
+		delete(solver);
 	end
 end
 

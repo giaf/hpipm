@@ -13,7 +13,7 @@
 void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
 	{
 
-//	printf("\nin ocp_qp_create\n");
+//	printf("\nin ocp_solver_arg_create\n");
 
 	mxArray *tmp_mat;
 	long long *l_ptr;

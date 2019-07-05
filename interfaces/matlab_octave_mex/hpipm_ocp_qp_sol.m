@@ -31,6 +31,7 @@ classdef hpipm_ocp_qp_sol < handle
 				ocp_qp_sol_get(obj.C_sol, field, value, stage0, stage1);
 			else
 				disp('hpipm_ocp_qp_sol.get: wrong number of input arguments (3 or 4 allowed)');
+				keyboard;
 			end
 		end
 
