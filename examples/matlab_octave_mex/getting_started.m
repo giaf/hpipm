@@ -121,6 +121,21 @@ sol.print_C_struct();
 
 
 
+% set up solver arg
+tic
+arg = hpipm_ocp_qp_solver_arg(dim);
+tmp_time = toc;
+fprintf('create solver arg time %e\n', tmp_time);
+
+arg.set('mu0', 1e4);
+arg.set('iter_max', 30);
+arg.set('tol_stat', 1e-4);
+arg.set('tol_eq', 1e-5);
+arg.set('tol_ineq', 1e-5);
+arg.set('tol_comp', 1e-5);
+arg.set('reg_prim', 1e-12);
+
+
 
 if is_octave()
 	% directly call destructor for octave 4.2.2 (ubuntu 18.04) + others ???
