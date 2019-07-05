@@ -130,28 +130,37 @@ int main()
 * ipm arg
 ************************************************/
 
-	int ipm_arg_size = d_memsize_ocp_qp_ipm_arg(&dim);
+	int ipm_arg_size = d_ocp_qp_ipm_arg_memsize(&dim);
 	void *ipm_arg_mem = malloc(ipm_arg_size);
 
 	struct d_ocp_qp_ipm_arg arg;
-	d_create_ocp_qp_ipm_arg(&dim, &arg, ipm_arg_mem);
+	d_ocp_qp_ipm_arg_create(&dim, &arg, ipm_arg_mem);
 
 //	enum hpipm_mode mode = SPEED_ABS;
 	enum hpipm_mode mode = SPEED;
 //	enum hpipm_mode mode = BALANCE;
 //	enum hpipm_mode mode = ROBUST;
-	d_set_default_ocp_qp_ipm_arg(mode, &arg);
+	d_ocp_qp_ipm_arg_set_default(mode, &arg);
 
-	d_set_ocp_qp_ipm_arg_mu0(1e4, &arg);
-	d_set_ocp_qp_ipm_arg_iter_max(30, &arg);
-	d_set_ocp_qp_ipm_arg_tol_stat(1e-4, &arg);
-	d_set_ocp_qp_ipm_arg_tol_eq(1e-5, &arg);
-	d_set_ocp_qp_ipm_arg_tol_ineq(1e-5, &arg);
-	d_set_ocp_qp_ipm_arg_tol_comp(1e-5, &arg);
-	d_set_ocp_qp_ipm_arg_reg_prim(1e-12, &arg);
-	d_set_ocp_qp_ipm_arg_warm_start(0, &arg);
+	double mu0 = 1e4;
+	int iter_max = 30;
+	double tol_stat = 1e-4;
+	double tol_eq = 1e-5;
+	double tol_ineq = 1e-5;
+	double tol_comp = 1e-5;
+	double reg_prim = 1e-12;
+	int warm_start = 0;
+	int ric_alg = 0;
 
-//	d_set_ocp_qp_ipm_arg_ric_alg(0, &arg);
+	d_ocp_qp_ipm_arg_set_mu0(&mu0, &arg);
+	d_ocp_qp_ipm_arg_set_iter_max(&iter_max, &arg);
+	d_ocp_qp_ipm_arg_set_tol_stat(&tol_stat, &arg);
+	d_ocp_qp_ipm_arg_set_tol_eq(&tol_eq, &arg);
+	d_ocp_qp_ipm_arg_set_tol_ineq(&tol_ineq, &arg);
+	d_ocp_qp_ipm_arg_set_tol_comp(&tol_comp, &arg);
+	d_ocp_qp_ipm_arg_set_reg_prim(&reg_prim, &arg);
+	d_ocp_qp_ipm_arg_set_warm_start(&warm_start, &arg);
+//	d_ocp_qp_ipm_arg_set_ric_alg(&ric_alg, &arg);
 
 /************************************************
 * ipm workspace

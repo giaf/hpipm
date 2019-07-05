@@ -48,6 +48,7 @@
 #include <hpipm_s_core_qp_ipm_aux.h>
 #include <hpipm_s_ocp_qp_res.h>
 #include <hpipm_s_ocp_qp_kkt.h>
+#include <hpipm_aux_string.h>
 
 
 
@@ -102,19 +103,22 @@
 
 
 // arg
-#define SIZEOF_OCP_QP_IPM_ARG s_sizeof_ocp_qp_ipm_arg
-#define MEMSIZE_OCP_QP_IPM_ARG s_memsize_ocp_qp_ipm_arg
-#define CREATE_OCP_QP_IPM_ARG s_create_ocp_qp_ipm_arg
-#define SET_DEFAULT_OCP_QP_IPM_ARG s_set_default_ocp_qp_ipm_arg
-#define SET_OCP_QP_IPM_ARG_ITER_MAX s_set_ocp_qp_ipm_arg_iter_max
-#define SET_OCP_QP_IPM_ARG_MU0 s_set_ocp_qp_ipm_arg_mu0
-#define SET_OCP_QP_IPM_ARG_TOL_STAT s_set_ocp_qp_ipm_arg_tol_stat
-#define SET_OCP_QP_IPM_ARG_TOL_EQ s_set_ocp_qp_ipm_arg_tol_eq
-#define SET_OCP_QP_IPM_ARG_TOL_INEQ s_set_ocp_qp_ipm_arg_tol_ineq
-#define SET_OCP_QP_IPM_ARG_TOL_COMP s_set_ocp_qp_ipm_arg_tol_comp
-#define SET_OCP_QP_IPM_ARG_REG_PRIM s_set_ocp_qp_ipm_arg_reg_prim
-#define SET_OCP_QP_IPM_ARG_WARM_START s_set_ocp_qp_ipm_arg_warm_start
-#define SET_OCP_QP_IPM_ARG_RIC_ALG s_set_ocp_qp_ipm_arg_ric_alg
+#define OCP_QP_IPM_ARG_STRSIZE s_ocp_qp_ipm_arg_strsize
+#define OCP_QP_IPM_ARG_MEMSIZE s_ocp_qp_ipm_arg_memsize
+#define OCP_QP_IPM_ARG_CREATE s_ocp_qp_ipm_arg_create
+#define OCP_QP_IPM_ARG_SET_DEFAULT s_ocp_qp_ipm_arg_set_default
+#define OCP_QP_IPM_ARG_SET s_ocp_qp_ipm_arg_set
+#define OCP_QP_IPM_ARG_SET_ITER_MAX s_ocp_qp_ipm_arg_set_iter_max
+#define OCP_QP_IPM_ARG_SET_ALPHA_MIN s_ocp_qp_ipm_arg_set_alpha_min
+#define OCP_QP_IPM_ARG_SET_MU0 s_ocp_qp_ipm_arg_set_mu0
+#define OCP_QP_IPM_ARG_SET_TOL_STAT s_ocp_qp_ipm_arg_set_tol_stat
+#define OCP_QP_IPM_ARG_SET_TOL_EQ s_ocp_qp_ipm_arg_set_tol_eq
+#define OCP_QP_IPM_ARG_SET_TOL_INEQ s_ocp_qp_ipm_arg_set_tol_ineq
+#define OCP_QP_IPM_ARG_SET_TOL_COMP s_ocp_qp_ipm_arg_set_tol_comp
+#define OCP_QP_IPM_ARG_SET_REG_PRIM s_ocp_qp_ipm_arg_set_reg_prim
+#define OCP_QP_IPM_ARG_SET_WARM_START s_ocp_qp_ipm_arg_set_warm_start
+#define OCP_QP_IPM_ARG_SET_PRED_CORR s_ocp_qp_ipm_arg_set_pred_corr
+#define OCP_QP_IPM_ARG_SET_RIC_ALG s_ocp_qp_ipm_arg_set_ric_alg
 // ipm
 #define SIZEOF_OCP_QP_IPM_WORKSPACE s_sizeof_ocp_qp_ipm_workspace
 #define MEMSIZE_OCP_QP_IPM s_memsize_ocp_qp_ipm

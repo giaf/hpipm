@@ -114,31 +114,37 @@ struct d_ocp_qp_ipm_workspace
 
 
 //
-int d_sizeof_ocp_qp_ipm_arg();
+int d_ocp_qp_ipm_arg_strseize();
 //
-int d_memsize_ocp_qp_ipm_arg(struct d_ocp_qp_dim *ocp_dim);
+int d_ocp_qp_ipm_arg_memsize(struct d_ocp_qp_dim *ocp_dim);
 //
-void d_create_ocp_qp_ipm_arg(struct d_ocp_qp_dim *ocp_dim, struct d_ocp_qp_ipm_arg *arg, void *mem);
+void d_ocp_qp_ipm_arg_create(struct d_ocp_qp_dim *ocp_dim, struct d_ocp_qp_ipm_arg *arg, void *mem);
 //
-void d_set_default_ocp_qp_ipm_arg(enum hpipm_mode mode, struct d_ocp_qp_ipm_arg *arg);
+void d_ocp_qp_ipm_arg_set_default(enum hpipm_mode mode, struct d_ocp_qp_ipm_arg *arg);
+//
+void d_ocp_qp_ipm_arg_set(char *field, void *value, struct d_ocp_qp_ipm_arg *arg);
 // set maximum number of iterations
-void d_set_ocp_qp_ipm_arg_iter_max(int iter_max, struct d_ocp_qp_ipm_arg *arg);
+void d_ocp_qp_ipm_arg_set_iter_max(int *iter_max, struct d_ocp_qp_ipm_arg *arg);
+// set minimum step lenght
+void d_ocp_qp_ipm_arg_set_alpha_min(double *alpha_min, struct d_ocp_qp_ipm_arg *arg);
 // set initial value of barrier parameter
-void d_set_ocp_qp_ipm_arg_mu0(double mu0, struct d_ocp_qp_ipm_arg *arg);
+void d_ocp_qp_ipm_arg_set_mu0(double *mu0, struct d_ocp_qp_ipm_arg *arg);
 // set exit tolerance on stationarity condition
-void d_set_ocp_qp_ipm_arg_tol_stat(double tol_stat, struct d_ocp_qp_ipm_arg *arg);
+void d_ocp_qp_ipm_arg_set_tol_stat(double *tol_stat, struct d_ocp_qp_ipm_arg *arg);
 // set exit tolerance on equality constr
-void d_set_ocp_qp_ipm_arg_tol_eq(double tol_eq, struct d_ocp_qp_ipm_arg *arg);
+void d_ocp_qp_ipm_arg_set_tol_eq(double *tol_eq, struct d_ocp_qp_ipm_arg *arg);
 // set exit tolerance on inequality constr
-void d_set_ocp_qp_ipm_arg_tol_ineq(double tol_ineq, struct d_ocp_qp_ipm_arg *arg);
+void d_ocp_qp_ipm_arg_set_tol_ineq(double *tol_ineq, struct d_ocp_qp_ipm_arg *arg);
 // set exit tolerance on complementarity condition
-void d_set_ocp_qp_ipm_arg_tol_comp(double tol_comp, struct d_ocp_qp_ipm_arg *arg);
+void d_ocp_qp_ipm_arg_set_tol_comp(double *tol_comp, struct d_ocp_qp_ipm_arg *arg);
 // set regularization of primal variables
-void d_set_ocp_qp_ipm_arg_reg_prim(double tol_comp, struct d_ocp_qp_ipm_arg *arg);
+void d_ocp_qp_ipm_arg_set_reg_prim(double *tol_comp, struct d_ocp_qp_ipm_arg *arg);
 // set warm start: 0 no warm start, 1 primal var
-void d_set_ocp_qp_ipm_arg_warm_start(int warm_start, struct d_ocp_qp_ipm_arg *arg);
+void d_ocp_qp_ipm_arg_set_warm_start(int *warm_start, struct d_ocp_qp_ipm_arg *arg);
+// Mehrotra's predictor-corrector IPM algorithm: 0 no predictor-corrector, 1 use predictor-corrector
+void d_ocp_qp_ipm_arg_set_pred_corr(int *pred_corr, struct d_ocp_qp_ipm_arg *arg);
 // set riccati algorithm: 0 classic, 1 square-root
-void d_set_ocp_qp_ipm_arg_ric_alg(int alg, struct d_ocp_qp_ipm_arg *arg);
+void d_ocp_qp_ipm_arg_set_ric_alg(int *alg, struct d_ocp_qp_ipm_arg *arg);
 
 //
 int d_sizeof_ocp_qp_ipm_workspace();

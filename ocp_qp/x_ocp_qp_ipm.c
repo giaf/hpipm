@@ -29,14 +29,14 @@
 
 
 
-int SIZEOF_OCP_QP_IPM_ARG()
+int OCP_QP_IPM_ARG_STRSIZE()
 	{
 	return sizeof(struct OCP_QP_IPM_ARG);
 	}
 
 
 
-int MEMSIZE_OCP_QP_IPM_ARG(struct OCP_QP_DIM *dim)
+int OCP_QP_IPM_ARG_MEMSIZE(struct OCP_QP_DIM *dim)
 	{
 
 	return 0;
@@ -45,7 +45,7 @@ int MEMSIZE_OCP_QP_IPM_ARG(struct OCP_QP_DIM *dim)
 
 
 
-void CREATE_OCP_QP_IPM_ARG(struct OCP_QP_DIM *dim, struct OCP_QP_IPM_ARG *arg, void *mem)
+void OCP_QP_IPM_ARG_CREATE(struct OCP_QP_DIM *dim, struct OCP_QP_IPM_ARG *arg, void *mem)
 	{
 
 	arg->memsize = 0;
@@ -56,7 +56,7 @@ void CREATE_OCP_QP_IPM_ARG(struct OCP_QP_DIM *dim, struct OCP_QP_IPM_ARG *arg, v
 
 
 
-void SET_DEFAULT_OCP_QP_IPM_ARG(enum HPIPM_MODE mode, struct OCP_QP_IPM_ARG *arg)
+void OCP_QP_IPM_ARG_SET_DEFAULT(enum HPIPM_MODE mode, struct OCP_QP_IPM_ARG *arg)
 	{
 
 	if(mode==SPEED_ABS)
@@ -167,73 +167,145 @@ void SET_DEFAULT_OCP_QP_IPM_ARG(enum HPIPM_MODE mode, struct OCP_QP_IPM_ARG *arg
 
 
 
-void SET_OCP_QP_IPM_ARG_ITER_MAX(int iter_max, struct OCP_QP_IPM_ARG *arg)
+void OCP_QP_IPM_ARG_SET(char *field, void *value, struct OCP_QP_IPM_ARG *arg)
 	{
-	arg->iter_max = iter_max;
+	if(hpipm_strcmp(field, "iter_max")) 
+		{
+		OCP_QP_IPM_ARG_SET_ITER_MAX(value, arg);
+		}
+	else if(hpipm_strcmp(field, "alpha_min")) 
+		{
+		OCP_QP_IPM_ARG_SET_ALPHA_MIN(value, arg);
+		}
+	else if(hpipm_strcmp(field, "mu0")) 
+		{
+		OCP_QP_IPM_ARG_SET_MU0(value, arg);
+		}
+	else if(hpipm_strcmp(field, "tol_stat")) 
+		{
+		OCP_QP_IPM_ARG_SET_TOL_STAT(value, arg);
+		}
+	else if(hpipm_strcmp(field, "tol_eq")) 
+		{
+		OCP_QP_IPM_ARG_SET_TOL_EQ(value, arg);
+		}
+	else if(hpipm_strcmp(field, "tol_ineq")) 
+		{
+		OCP_QP_IPM_ARG_SET_TOL_INEQ(value, arg);
+		}
+	else if(hpipm_strcmp(field, "tol_comp")) 
+		{
+		OCP_QP_IPM_ARG_SET_TOL_COMP(value, arg);
+		}
+	else if(hpipm_strcmp(field, "reg_prim")) 
+		{
+		OCP_QP_IPM_ARG_SET_REG_PRIM(value, arg);
+		}
+	else if(hpipm_strcmp(field, "warm_start")) 
+		{
+		OCP_QP_IPM_ARG_SET_WARM_START(value, arg);
+		}
+	else if(hpipm_strcmp(field, "pred_corr")) 
+		{
+		OCP_QP_IPM_ARG_SET_PRED_CORR(value, arg);
+		}
+	else if(hpipm_strcmp(field, "ric_alg")) 
+		{
+		OCP_QP_IPM_ARG_SET_RIC_ALG(value, arg);
+		}
+	else
+		{
+		printf("error [OCP_QP_IPM_ARG_SET]: unknown field name '%s'. Exiting.\n", field);
+		exit(1);	
+		}
 	return;
 	}
 
 
 
-void SET_OCP_QP_IPM_ARG_MU0(REAL mu0, struct OCP_QP_IPM_ARG *arg)
+void OCP_QP_IPM_ARG_SET_ITER_MAX(int *iter_max, struct OCP_QP_IPM_ARG *arg)
 	{
-	arg->mu0 = mu0;
+	arg->iter_max = *iter_max;
 	return;
 	}
 
 
 
-void SET_OCP_QP_IPM_ARG_TOL_STAT(REAL tol_stat, struct OCP_QP_IPM_ARG *arg)
+void OCP_QP_IPM_ARG_SET_ALPHA_MIN(REAL *alpha_min, struct OCP_QP_IPM_ARG *arg)
 	{
-	arg->res_g_max = tol_stat;
+	arg->alpha_min = *alpha_min;
 	return;
 	}
 
 
 
-void SET_OCP_QP_IPM_ARG_TOL_EQ(REAL tol_eq, struct OCP_QP_IPM_ARG *arg)
+void OCP_QP_IPM_ARG_SET_MU0(REAL *mu0, struct OCP_QP_IPM_ARG *arg)
 	{
-	arg->res_b_max = tol_eq;
+	arg->mu0 = *mu0;
 	return;
 	}
 
 
 
-void SET_OCP_QP_IPM_ARG_TOL_INEQ(REAL tol_ineq, struct OCP_QP_IPM_ARG *arg)
+void OCP_QP_IPM_ARG_SET_TOL_STAT(REAL *tol_stat, struct OCP_QP_IPM_ARG *arg)
 	{
-	arg->res_d_max = tol_ineq;
+	arg->res_g_max = *tol_stat;
 	return;
 	}
 
 
 
-void SET_OCP_QP_IPM_ARG_TOL_COMP(REAL tol_comp, struct OCP_QP_IPM_ARG *arg)
+void OCP_QP_IPM_ARG_SET_TOL_EQ(REAL *tol_eq, struct OCP_QP_IPM_ARG *arg)
 	{
-	arg->res_m_max = tol_comp;
+	arg->res_b_max = *tol_eq;
 	return;
 	}
 
 
 
-void SET_OCP_QP_IPM_ARG_REG_PRIM(REAL reg, struct OCP_QP_IPM_ARG *arg)
+void OCP_QP_IPM_ARG_SET_TOL_INEQ(REAL *tol_ineq, struct OCP_QP_IPM_ARG *arg)
 	{
-	arg->reg_prim = reg;
+	arg->res_d_max = *tol_ineq;
 	return;
 	}
 
 
 
-void SET_OCP_QP_IPM_ARG_WARM_START(int warm_start, struct OCP_QP_IPM_ARG *arg)
+void OCP_QP_IPM_ARG_SET_TOL_COMP(REAL *tol_comp, struct OCP_QP_IPM_ARG *arg)
 	{
-	arg->warm_start = warm_start;
+	arg->res_m_max = *tol_comp;
 	return;
 	}
 
 
 
-void SET_OCP_QP_IPM_ARG_RIC_ALG(int ric_alg, struct OCP_QP_IPM_ARG *arg)
+void OCP_QP_IPM_ARG_SET_REG_PRIM(REAL *reg, struct OCP_QP_IPM_ARG *arg)
 	{
-	arg->square_root_alg = ric_alg;
+	arg->reg_prim = *reg;
+	return;
+	}
+
+
+
+void OCP_QP_IPM_ARG_SET_WARM_START(int *warm_start, struct OCP_QP_IPM_ARG *arg)
+	{
+	arg->warm_start = *warm_start;
+	return;
+	}
+
+
+
+void OCP_QP_IPM_ARG_SET_PRED_CORR(int *pred_corr, struct OCP_QP_IPM_ARG *arg)
+	{
+	arg->pred_corr = *pred_corr;
+	return;
+	}
+
+
+
+void OCP_QP_IPM_ARG_SET_RIC_ALG(int *ric_alg, struct OCP_QP_IPM_ARG *arg)
+	{
+	arg->square_root_alg = *ric_alg;
 	return;
 	}
 
