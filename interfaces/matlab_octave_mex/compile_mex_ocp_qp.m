@@ -1,5 +1,13 @@
 function compile_mex_ocp_qp()
 
+% check that env.sh has been run
+env_run = getenv('ENV_RUN');
+if (~strcmp(env_run, 'true'))
+	disp('ERROR: env.sh has not been sourced! Before executing this example, run:');
+	disp('source env.sh');
+	return;
+end
+
 % get acados folder
 hpipm_folder = getenv('HPIPM_MAIN_FOLDER');
 blasfeo_folder = getenv('BLASFEO_MAIN_FOLDER');

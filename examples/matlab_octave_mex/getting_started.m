@@ -18,12 +18,6 @@ constr_type = 0; % 0 box, 1 general
 
 
 
-% compile mex interface
-if compile_mex
-	compile_mex_ocp_qp();
-end
-
-
 % dim
 N = 5;
 nx = 2;
