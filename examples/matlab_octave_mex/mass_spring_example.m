@@ -4,7 +4,7 @@ clc
 
 
 
-fprintf('\nHPIPM matlab interface: getting started example\n');
+fprintf('\nHPIPM matlab interface: mass spring example\n');
 
 
 
@@ -18,28 +18,37 @@ end
 
 
 
-% define flags
-constr_type = 0; % 0 box, 1 general
-
-
-
 %%% data %%%
-N = 5;
-nx = 2;
-nu = 1;
+nx = 8;				% number of states
+nu = 3;				% number of inputs (controls)
+N = 30;				% horizon length
 
-A = [1, 1; 0, 1];
-B = [0; 1];
-%b = [0; 0]
+% mass sprint system
+Ts = 0.5; % sampling time
 
-Q = [1, 0; 0, 1];
-S = [0, 0];
-R = [1];
-q = [1; 1];
-%r = [0];
+Ac = [zeros(nx/2), eye(nx/2); diag(-2*ones(nx/2,1))+diag(ones(nx/2-1,1),-1)+diag(ones(nx/2-1,1),1), zeros(nx/2) ];
+Bc = [zeros(nx/2,nu); eye(nu); zeros(nx/2-nu, nu)];
 
-Jx = [1, 0; 0, 1];
-x0 = [1; 1];
+M = expm([Ts*Ac, Ts*Bc; zeros(nu, 2*nx/2+nu)]);
+
+% dynamical system
+A = M(1:nx,1:nx);
+B = M(1:nx,nx+1:end);
+
+% cost function
+Q = eye(nx);
+R = 2*eye(nu);
+
+% initial state
+Jx0 = eye(nx);
+x0 = zeros(nx, 1);
+x0(1) = 3.5;
+x0(2) = 3.5;
+
+% input bounds
+Jbu = eye(nu);
+lbu = -0.5*ones(nu,1);
+ubu =  0.5*ones(nu,1);
 
 
 
@@ -48,13 +57,8 @@ dim = hpipm_ocp_qp_dim(N);
 
 dim.set('nx', nx, 0, N);
 dim.set('nu', nu, 0, N-1);
-if(constr_type==0)
-	dim.set('nbx', nx, 0);
-	dim.set('nbx', nx, 5);
-else
-	dim.set('ng', nx, 0);
-	dim.set('ng', nx, 5);
-end
+dim.set('nbx', nx, 0);
+dim.set('nbu', nu, 0, N-1);
 
 % print to shell
 %dim.print_C_struct();
@@ -69,21 +73,16 @@ qp = hpipm_ocp_qp(dim);
 qp.set('A', A, 0, N-1);
 qp.set('B', B, 0, N-1);
 qp.set('Q', Q, 0, N);
-qp.set('S', S, 0, N-1);
+%qp.set('S', S, 0, N-1);
 qp.set('R', R, 0, N-1);
-qp.set('q', q, 0, N);
+%qp.set('q', q, 0, N);
 %qp.set('r', r, 0, N-1);
-if(constr_type==0)
-	qp.set('Jbx', Jx, 0);
-	qp.set('lbx', x0, 0);
-	qp.set('ubx', x0, 0);
-	qp.set('Jbx', Jx, N);
-else
-	qp.set('C', Jx, 0);
-	qp.set('lg', x0, 0);
-	qp.set('ug', x0, 0);
-	qp.set('C', Jx, N);
-end
+qp.set('Jbx', Jx0, 0);
+qp.set('lbx', x0, 0);
+qp.set('ubx', x0, 0);
+qp.set('Jbu', Jbu, 0, N-1);
+qp.set('lbu', lbu, 0, N-1);
+qp.set('ubu', ubu, 0, N-1);
 
 % print to shell
 %qp.print_C_struct();
@@ -154,7 +153,7 @@ end
 
 
 
-% get / print solution
+% get solution
 % x
 x = sol.get('x', 0, N);
 x = reshape(x, nx, N+1);
@@ -162,11 +161,21 @@ x = reshape(x, nx, N+1);
 u = sol.get('u', 0, N-1);
 u = reshape(u, nu, N);
 
-x
-u
-
 % print to shell
 %sol.print_C_struct();
+
+
+
+% plot solution
+figure()
+subplot(2, 1, 1)
+plot(0:N, x);
+title('trajectory')
+ylabel('x')
+subplot(2, 1, 2)
+plot(1:N, u);
+ylabel('u')
+xlabel('sample')
 
 
 
@@ -196,4 +205,5 @@ waitforbuttonpress;
 
 
 return
+
 
