@@ -431,7 +431,7 @@ int OCP_QP_IPM_WS_MEMSIZE(struct OCP_QP_DIM *dim, struct OCP_QP_IPM_ARG *arg)
 		size += 1*GELQF_WORKSIZE(nuM+nxM, 2*nuM+3*nxM+ngM); // lq_work0
 		}
 
-	size += 5*arg->stat_max*sizeof(REAL);
+	size += 9*(1+arg->stat_max)*sizeof(REAL); // stat
 
 	size += (N+1)*sizeof(int); // use_hess_fact
 
@@ -600,7 +600,7 @@ void OCP_QP_IPM_WS_CREATE(struct OCP_QP_DIM *dim, struct OCP_QP_IPM_ARG *arg, st
 	REAL *d_ptr = (REAL *) sv_ptr;
 
 	workspace->stat = d_ptr;
-	d_ptr += 5*arg->stat_max;
+	d_ptr += 9*(1+arg->stat_max);
 
 	// int stuff
 	int *i_ptr = (int *) d_ptr;
@@ -817,6 +817,8 @@ void OCP_QP_IPM_WS_CREATE(struct OCP_QP_DIM *dim, struct OCP_QP_IPM_ARG *arg, st
 
 	workspace->stat_max = arg->stat_max;
 
+	workspace->stat_m = 9;
+
 	for(ii=0; ii<=N; ii++)
 		workspace->use_hess_fact[ii] = 0;
 	
@@ -940,7 +942,7 @@ void OCP_QP_IPM_GET_STAT(struct OCP_QP_IPM_WS *ws, REAL **stat)
 
 void OCP_QP_IPM_GET_STAT_M(struct OCP_QP_IPM_WS *ws, int *stat_m)
 	{
-	*stat_m = 5;
+	*stat_m = ws->stat_m;
 	}
 
 
@@ -1065,17 +1067,6 @@ void OCP_QP_IPM_SOLVE(struct OCP_QP *qp, struct OCP_QP_SOL *qp_sol, struct OCP_Q
 
 	// alias members of qp_itref
 
-	// no constraints
-	if(cws->nc==0)
-		{
-		FACT_SOLVE_KKT_UNCONSTR_OCP_QP(qp, qp_sol, arg, ws);
-		COMPUTE_RES_OCP_QP(qp, qp_sol, ws->res, ws->res_workspace);
-		cws->mu = ws->res->res_mu;
-		ws->iter = 0;
-		ws->status = 0;
-		return;
-		}
-
 	// blasfeo alias for residuals
 	struct STRVEC str_res_g;
 	struct STRVEC str_res_b;
@@ -1095,6 +1086,26 @@ void OCP_QP_IPM_SOLVE(struct OCP_QP *qp, struct OCP_QP_SOL *qp_sol, struct OCP_Q
 	qp_res[1] = 0;
 	qp_res[2] = 0;
 	qp_res[3] = 0;
+
+	// no constraints
+	if(cws->nc==0)
+		{
+		FACT_SOLVE_KKT_UNCONSTR_OCP_QP(qp, qp_sol, arg, ws);
+		COMPUTE_RES_OCP_QP(qp, qp_sol, ws->res, ws->res_workspace);
+		// compute infinity norm of residuals
+		VECNRM_INF(cws->nv, &str_res_g, 0, &qp_res[0]);
+		VECNRM_INF(cws->ne, &str_res_b, 0, &qp_res[1]);
+		VECNRM_INF(cws->nc, &str_res_d, 0, &qp_res[2]);
+		VECNRM_INF(cws->nc, &str_res_m, 0, &qp_res[3]);
+		ws->stat[5] = qp_res[0];
+		ws->stat[6] = qp_res[1];
+		ws->stat[7] = qp_res[2];
+		ws->stat[8] = qp_res[3];
+		cws->mu = ws->res->res_mu;
+		ws->iter = 0;
+		ws->status = 0;
+		return;
+		}
 
 	int N = qp->dim->N;
 	int *nx = qp->dim->nx;
@@ -1162,7 +1173,7 @@ void OCP_QP_IPM_SOLVE(struct OCP_QP *qp, struct OCP_QP_SOL *qp_sol, struct OCP_Q
 			// alpha
 			COMPUTE_ALPHA_QP(cws);
 			if(kk<ws->stat_max)
-				ws->stat[5*kk+0] = cws->alpha;
+				ws->stat[ws->stat_m*(kk+1)+0] = cws->alpha;
 
 			// Mehrotra's predictor-corrector
 			if(arg->pred_corr==1)
@@ -1170,12 +1181,12 @@ void OCP_QP_IPM_SOLVE(struct OCP_QP *qp, struct OCP_QP_SOL *qp_sol, struct OCP_Q
 				// mu_aff
 				COMPUTE_MU_AFF_QP(cws);
 				if(kk<ws->stat_max)
-					ws->stat[5*kk+1] = cws->mu_aff;
+					ws->stat[ws->stat_m*(kk+1)+1] = cws->mu_aff;
 
 				tmp = cws->mu_aff/cws->mu;
 				cws->sigma = tmp*tmp*tmp;
 				if(kk<ws->stat_max)
-					ws->stat[5*kk+2] = cws->sigma;
+					ws->stat[ws->stat_m*(kk+1)+2] = cws->sigma;
 
 				COMPUTE_CENTERING_CORRECTION_QP(cws);
 
@@ -1192,7 +1203,7 @@ void OCP_QP_IPM_SOLVE(struct OCP_QP *qp, struct OCP_QP_SOL *qp_sol, struct OCP_Q
 				// alpha
 				COMPUTE_ALPHA_QP(cws);
 				if(kk<ws->stat_max)
-					ws->stat[5*kk+3] = cws->alpha;
+					ws->stat[ws->stat_m*(kk+1)+3] = cws->alpha;
 
 				}
 
@@ -1204,7 +1215,7 @@ void OCP_QP_IPM_SOLVE(struct OCP_QP *qp, struct OCP_QP_SOL *qp_sol, struct OCP_Q
 			mu /= cws->nc;
 			cws->mu = mu;
 			if(kk<ws->stat_max)
-				ws->stat[5*kk+4] = mu;
+				ws->stat[ws->stat_m*(kk+1)+4] = mu;
 
 	//		exit(1);
 
@@ -1261,6 +1272,11 @@ void OCP_QP_IPM_SOLVE(struct OCP_QP *qp, struct OCP_QP_SOL *qp_sol, struct OCP_Q
 	VECNRM_INF(cws->nc, &str_res_d, 0, &qp_res[2]);
 	VECNRM_INF(cws->nc, &str_res_m, 0, &qp_res[3]);
 
+	ws->stat[ws->stat_m*(0)+5] = qp_res[0];
+	ws->stat[ws->stat_m*(0)+6] = qp_res[1];
+	ws->stat[ws->stat_m*(0)+7] = qp_res[2];
+	ws->stat[ws->stat_m*(0)+8] = qp_res[3];
+
 //printf("\niter %d\t%e\t%e\t%e\t%e\n", -1, qp_res[0], qp_res[1], qp_res[2], qp_res[3]);
 
 	REAL itref_qp_norm[4] = {0,0,0,0};
@@ -1302,7 +1318,7 @@ blasfeo_print_tran_dvec(cws->nc, ws->sol_step->t, 0);
 		// alpha
 		COMPUTE_ALPHA_QP(cws);
 		if(kk<ws->stat_max)
-			ws->stat[5*kk+0] = cws->alpha;
+			ws->stat[ws->stat_m*(kk+1)+0] = cws->alpha;
 
 		//
 		UPDATE_VAR_QP(cws);
@@ -1312,7 +1328,7 @@ blasfeo_print_tran_dvec(cws->nc, ws->sol_step->t, 0);
 		BACKUP_RES_M(cws);
 		cws->mu = ws->res->res_mu;
 		if(kk<ws->stat_max)
-			ws->stat[5*kk+4] = ws->res->res_mu;
+			ws->stat[ws->stat_m*(kk+1)+4] = ws->res->res_mu;
 
 		// compute infinity norm of residuals
 		VECNRM_INF(cws->nv, &str_res_g, 0, &qp_res[0]);
@@ -1502,7 +1518,7 @@ exit(1);
 		// alpha
 		COMPUTE_ALPHA_QP(cws);
 		if(kk<ws->stat_max)
-			ws->stat[5*kk+0] = cws->alpha;
+			ws->stat[ws->stat_m*(kk+1)+0] = cws->alpha;
 
 		// Mehrotra's predictor-corrector
 		if(arg->pred_corr==1)
@@ -1510,12 +1526,12 @@ exit(1);
 			// mu_aff
 			COMPUTE_MU_AFF_QP(cws);
 			if(kk<ws->stat_max)
-				ws->stat[5*kk+1] = cws->mu_aff;
+				ws->stat[ws->stat_m*(kk+1)+1] = cws->mu_aff;
 
 			tmp = cws->mu_aff/cws->mu;
 			cws->sigma = tmp*tmp*tmp;
 			if(kk<ws->stat_max)
-				ws->stat[5*kk+2] = cws->sigma;
+				ws->stat[ws->stat_m*(kk+1)+2] = cws->sigma;
 
 			COMPUTE_CENTERING_CORRECTION_QP(cws);
 
@@ -1526,7 +1542,7 @@ exit(1);
 			// alpha
 			COMPUTE_ALPHA_QP(cws);
 			if(kk<ws->stat_max)
-				ws->stat[5*kk+3] = cws->alpha;
+				ws->stat[ws->stat_m*(kk+1)+3] = cws->alpha;
 
 			// conditional Mehrotra's predictor-corrector
 			if(arg->cond_pred_corr==1)
@@ -1552,7 +1568,7 @@ exit(1);
 					// alpha
 					COMPUTE_ALPHA_QP(cws);
 					if(kk<ws->stat_max)
-						ws->stat[5*kk+3] = cws->alpha;
+						ws->stat[ws->stat_m*(kk+1)+3] = cws->alpha;
 
 					}
 
@@ -1651,7 +1667,7 @@ exit(1);
 				// alpha
 				COMPUTE_ALPHA_QP(cws);
 				if(kk<ws->stat_max)
-					ws->stat[5*kk+3] = cws->alpha;
+					ws->stat[ws->stat_m*(kk+1)+3] = cws->alpha;
 				}
 
 			}
@@ -1664,13 +1680,18 @@ exit(1);
 		BACKUP_RES_M(cws);
 		cws->mu = ws->res->res_mu;
 		if(kk<ws->stat_max)
-			ws->stat[5*kk+4] = ws->res->res_mu;
+			ws->stat[ws->stat_m*(kk+1)+4] = ws->res->res_mu;
 
 		// compute infinity norm of residuals
 		VECNRM_INF(cws->nv, &str_res_g, 0, &qp_res[0]);
 		VECNRM_INF(cws->ne, &str_res_b, 0, &qp_res[1]);
 		VECNRM_INF(cws->nc, &str_res_d, 0, &qp_res[2]);
 		VECNRM_INF(cws->nc, &str_res_m, 0, &qp_res[3]);
+
+		ws->stat[ws->stat_m*(kk+1)+5] = qp_res[0];
+		ws->stat[ws->stat_m*(kk+1)+6] = qp_res[1];
+		ws->stat[ws->stat_m*(kk+1)+7] = qp_res[2];
+		ws->stat[ws->stat_m*(kk+1)+8] = qp_res[3];
 
 //printf("\niter %d\t%e\t%e\t%e\t%e\n", kk, qp_res[0], qp_res[1], qp_res[2], qp_res[3]);
 

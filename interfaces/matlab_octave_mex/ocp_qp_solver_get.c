@@ -49,14 +49,14 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
 		d_ocp_qp_ipm_get("iter", ws, &iter);
 		d_ocp_qp_ipm_get("stat_m", ws, &stat_m);
 		d_ocp_qp_ipm_get("stat", ws, &stat);
-		plhs[0] = mxCreateNumericMatrix(iter, stat_m+1, mxDOUBLE_CLASS, mxREAL);
+		plhs[0] = mxCreateNumericMatrix(iter+1, stat_m+1, mxDOUBLE_CLASS, mxREAL);
 		double *mat_ptr = mxGetPr( plhs[0] );
-		for(ii=0; ii<iter; ii++)
+		for(ii=0; ii<iter+1; ii++)
 			{
 			mat_ptr[ii+0] = ii;
 			for(jj=0; jj<stat_m; jj++)
 				{
-				mat_ptr[ii+(jj+1)*iter] = stat[jj+ii*stat_m];
+				mat_ptr[ii+(jj+1)*(iter+1)] = stat[jj+ii*stat_m];
 				}
 			}
 		}

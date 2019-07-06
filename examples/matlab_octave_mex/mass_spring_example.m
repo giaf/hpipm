@@ -146,9 +146,9 @@ res_eq = solver.get('res_eq')
 res_ineq = solver.get('res_ineq')
 res_comp = solver.get('res_comp')
 stat = solver.get('stat');
-fprintf('iter\talpha_aff\tmu_aff\t\tsigma\t\talpha\t\tmu\n');
-for ii=1:iter
-	fprintf('%d\t%e\t%e\t%e\t%e\t%e\n', stat(ii,1), stat(ii,2), stat(ii,3), stat(ii,4), stat(ii,5), stat(ii,6));
+fprintf('iter\talpha_aff\tmu_aff\t\tsigma\t\talpha\t\tmu\t\tres_stat\tres_eq\t\tres_ineq\tres_comp\n');
+for ii=1:iter+1
+	fprintf('%d\t%e\t%e\t%e\t%e\t%e\t%e\t%e\t%e\t%e\n', stat(ii,1), stat(ii,2), stat(ii,3), stat(ii,4), stat(ii,5), stat(ii,6), stat(ii,7), stat(ii,8), stat(ii,9), stat(ii,10));
 end
 
 

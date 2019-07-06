@@ -992,12 +992,20 @@ int main()
 * print ipm statistics
 ************************************************/
 
-	printf("\nipm return = %d\n", hpipm_status);
-	printf("\nipm residuals max: res_g = %e, res_b = %e, res_d = %e, res_m = %e\n", workspace.qp_res[0], workspace.qp_res[1], workspace.qp_res[2], workspace.qp_res[3]);
+	int iter; d_ocp_qp_ipm_get_iter(&workspace, &iter);
+	double res_stat; d_ocp_qp_ipm_get_res_stat(&workspace, &res_stat);
+	double res_eq; d_ocp_qp_ipm_get_res_eq(&workspace, &res_eq);
+	double res_ineq; d_ocp_qp_ipm_get_res_ineq(&workspace, &res_ineq);
+	double res_comp; d_ocp_qp_ipm_get_res_comp(&workspace, &res_comp);
+	double *stat; d_ocp_qp_ipm_get_stat(&workspace, &stat);
+	int stat_m; d_ocp_qp_ipm_get_stat_m(&workspace, &stat_m);
 
-	printf("\nipm iter = %d\n", workspace.iter);
-	printf("\nalpha_aff\tmu_aff\t\tsigma\t\talpha\t\tmu\n");
-	d_print_exp_tran_mat(5, workspace.iter, workspace.stat, 5);
+	printf("\nipm return = %d\n", hpipm_status);
+	printf("\nipm residuals max: res_g = %e, res_b = %e, res_d = %e, res_m = %e\n", res_stat, res_eq, res_ineq, res_comp);
+
+	printf("\nipm iter = %d\n", iter);
+	printf("\nalpha_aff\tmu_aff\t\tsigma\t\talpha\t\tmu\t\tres_stat\tres_eq\t\tres_ineq\tres_comp\n");
+	d_print_exp_tran_mat(stat_m, iter+1, stat, stat_m);
 
 	printf("\nocp ipm time = %e [s]\n\n", time_ocp_ipm_phase_I);
 
@@ -1187,12 +1195,20 @@ int main()
 * print ipm statistics
 ************************************************/
 
-	printf("\nipm return = %d\n", hpipm_status);
-	printf("\nipm residuals max: res_g = %e, res_b = %e, res_d = %e, res_m = %e\n", workspace.qp_res[0], workspace.qp_res[1], workspace.qp_res[2], workspace.qp_res[3]);
+	d_ocp_qp_ipm_get_iter(&workspace, &iter);
+	d_ocp_qp_ipm_get_res_stat(&workspace, &res_stat);
+	d_ocp_qp_ipm_get_res_eq(&workspace, &res_eq);
+	d_ocp_qp_ipm_get_res_ineq(&workspace, &res_ineq);
+	d_ocp_qp_ipm_get_res_comp(&workspace, &res_comp);
+	d_ocp_qp_ipm_get_stat(&workspace, &stat);
+	d_ocp_qp_ipm_get_stat_m(&workspace, &stat_m);
 
-	printf("\nipm iter = %d\n", workspace.iter);
-	printf("\nalpha_aff\tmu_aff\t\tsigma\t\talpha\t\tmu\n");
-	d_print_exp_tran_mat(5, workspace.iter, workspace.stat, 5);
+	printf("\nipm return = %d\n", hpipm_status);
+	printf("\nipm residuals max: res_g = %e, res_b = %e, res_d = %e, res_m = %e\n", res_stat, res_eq, res_ineq, res_comp);
+
+	printf("\nipm iter = %d\n", iter);
+	printf("\nalpha_aff\tmu_aff\t\tsigma\t\talpha\t\tmu\t\tres_stat\tres_eq\t\tres_ineq\tres_comp\n");
+	d_print_exp_tran_mat(stat_m, iter+1, stat, stat_m);
 
 	printf("\nocp ipm time = %e [s]\n\n", time_ocp_ipm);
 

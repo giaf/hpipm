@@ -110,6 +110,7 @@ struct s_ocp_qp_ipm_ws
 	float qp_res[4]; // infinity norm of residuals
 	int iter; // iteration number
 	int stat_max; // iterations saved in stat
+	int stat_m; // number of recorded stat per IPM iter
 	int use_Pb;
 	int status; // solver status
 	int memsize;
