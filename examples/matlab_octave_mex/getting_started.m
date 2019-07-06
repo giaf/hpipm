@@ -135,7 +135,7 @@ solver = hpipm_ocp_qp_solver(dim, arg);
 tmp_time = toc;
 fprintf('create solver time %e\n', tmp_time);
 
-% arg allowed to be changed
+% arg which are allowed to be changed
 solver.set('iter_max', 30);
 arg.set('tol_stat', 1e-8);
 arg.set('tol_eq', 1e-8);
@@ -156,13 +156,18 @@ fprintf('solve time %e\n', tmp_time/nrep);
 
 
 % get / print solution
-x = zeros(nx, N+1);
+% x
 tic
-sol.get('x', x, 0, N); % TODO this must return a new matrix !!!!!
+x = sol.get('x', 0, N);
+x = reshape(x, nx, N+1);
 tmp_time = toc;
 fprintf('get x time %e\n', tmp_time);
+% u
+u = sol.get('u', 0, N-1);
+u = reshape(u, nu, N);
 
 x
+u
 
 % print to shell
 sol.print_C_struct();
