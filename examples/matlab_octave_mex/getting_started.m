@@ -42,7 +42,7 @@ else
 end
 
 % print to shell
-dim.print_C_struct();
+%dim.print_C_struct();
 % codegen
 dim.codegen('qp_data.c', 'w');
 
@@ -91,7 +91,7 @@ else
 end
 
 % print to shell
-qp.print_C_struct();
+%qp.print_C_struct();
 % codegen
 qp.codegen('qp_data.c', 'a');
 
@@ -152,6 +152,18 @@ tmp_time = toc;
 fprintf('solve time %e\n', tmp_time/nrep);
 
 % TODO get status, iter, res, stat, .....
+fprintf('\nprint solver statistics\n');
+status = solver.get('status')
+iter = solver.get('iter')
+res_stat = solver.get('res_stat')
+res_eq = solver.get('res_eq')
+res_ineq = solver.get('res_ineq')
+res_comp = solver.get('res_comp')
+stat = solver.get('stat');
+fprintf('iter\talpha_aff\tmu_aff\t\tsigma\t\talpha\t\tmu\n');
+for ii=1:iter
+	fprintf('%d\t%e\t%e\t%e\t%e\t%e\n', stat(ii,1), stat(ii,2), stat(ii,3), stat(ii,4), stat(ii,5), stat(ii,6));
+end
 
 
 
@@ -170,7 +182,7 @@ x
 u
 
 % print to shell
-sol.print_C_struct();
+%sol.print_C_struct();
 
 
 

@@ -132,6 +132,7 @@
 #define OCP_QP_IPM_GET_RES_INEQ d_ocp_qp_ipm_get_res_ineq
 #define OCP_QP_IPM_GET_RES_COMP d_ocp_qp_ipm_get_res_comp
 #define OCP_QP_IPM_GET_STAT d_ocp_qp_ipm_get_stat
+#define OCP_QP_IPM_GET_STAT_M d_ocp_qp_ipm_get_stat_m
 #define OCP_QP_IPM_SOLVE d_ocp_qp_ipm_solve
 
 

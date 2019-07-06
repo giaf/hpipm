@@ -28,6 +28,10 @@ classdef hpipm_ocp_qp_solver < handle
 			end
 		end
 
+		function value = get(obj, field)
+			value = ocp_qp_solver_get(obj.C_ws, field);
+		end
+
 %		function print_C_struct(obj)
 %			ocp_qp_print(obj.C_dim, obj.C_qp);
 %		end

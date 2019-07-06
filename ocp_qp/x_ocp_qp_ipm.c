@@ -869,6 +869,10 @@ void OCP_QP_IPM_GET(char *field, struct OCP_QP_IPM_WS *ws, void *value)
 		{ 
 		OCP_QP_IPM_GET_STAT(ws, value);
 		}
+	else if(hpipm_strcmp(field, "stat_m"))
+		{ 
+		OCP_QP_IPM_GET_STAT_M(ws, value);
+		}
 	else 
 		{
 		printf("error [OCP_QP_IPM_GET]: unknown field name '%s'. Exiting.\n", field);
@@ -930,6 +934,13 @@ void OCP_QP_IPM_GET_RES_COMP(struct OCP_QP_IPM_WS *ws, REAL *res_comp)
 void OCP_QP_IPM_GET_STAT(struct OCP_QP_IPM_WS *ws, REAL **stat)
 	{
 	*stat = ws->stat;
+	}
+
+
+
+void OCP_QP_IPM_GET_STAT_M(struct OCP_QP_IPM_WS *ws, int *stat_m)
+	{
+	*stat_m = 5;
 	}
 
 
