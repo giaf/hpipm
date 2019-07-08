@@ -133,11 +133,11 @@ end
 solver = hpipm_ocp_qp_solver(dim, arg);
 
 % arg which are allowed to be changed
-%solver.set('iter_max', 30);
-%arg.set('tol_stat', 1e-8);
-%arg.set('tol_eq', 1e-8);
-%arg.set('tol_ineq', 1e-8);
-%arg.set('tol_comp', 1e-8);
+solver.set('iter_max', 30);
+arg.set('tol_stat', 1e-8);
+arg.set('tol_eq', 1e-8);
+arg.set('tol_ineq', 1e-8);
+arg.set('tol_comp', 1e-8);
 
 % solve qp
 nrep = 100;
@@ -151,6 +151,8 @@ solve_time = toc;
 fprintf('\nprint solver statistics\n');
 status = solver.get('status')
 fprintf('average solve time over %d runs: %e [s]\n', nrep, solve_time/nrep);
+time_ext = solver.get('time_ext');
+fprintf('solve time of last run (measured in mex interface): %e [s]\n', time_ext);
 iter = solver.get('iter')
 res_stat = solver.get('res_stat')
 res_eq = solver.get('res_eq')

@@ -4,6 +4,7 @@ classdef hpipm_ocp_qp_solver < handle
 		C_dim
 		C_arg
 		C_ws
+		time_ext
 	end
 
 	methods
@@ -16,7 +17,7 @@ classdef hpipm_ocp_qp_solver < handle
 		end
 
 		function solve(obj, qp, sol)
-			ocp_qp_solver_solve(qp.C_qp, sol.C_sol, obj.C_arg, obj.C_ws);
+			obj.time_ext = ocp_qp_solver_solve(qp.C_qp, sol.C_sol, obj.C_arg, obj.C_ws);
 		end
 
 		function set(obj, field, value)
@@ -29,7 +30,11 @@ classdef hpipm_ocp_qp_solver < handle
 		end
 
 		function value = get(obj, field)
-			value = ocp_qp_solver_get(obj.C_ws, field);
+			if(strcmp(field, 'time_ext'))
+				value = obj.time_ext;
+			else
+				value = ocp_qp_solver_get(obj.C_ws, field);
+			end
 		end
 
 %		function print_C_struct(obj)

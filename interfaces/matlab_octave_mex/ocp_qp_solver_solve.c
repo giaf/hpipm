@@ -3,6 +3,7 @@
 #include <stdio.h>
 #include <string.h>
 // hpipm
+#include "hpipm_timing.h"
 #include "hpipm_d_ocp_qp_dim.h"
 #include "hpipm_d_ocp_qp_ipm.h"
 // mex
@@ -37,9 +38,21 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
 	l_ptr = mxGetData( prhs[3] );
 	struct d_ocp_qp_ipm_ws *ws = (struct d_ocp_qp_ipm_ws *) *l_ptr;
 
+	/* RHS */
+
+	// time_ext
+	plhs[0] = mxCreateNumericMatrix(1, 1, mxDOUBLE_CLASS, mxREAL);
+	double *mat_ptr = mxGetPr( plhs[0] );
+
 	/* body */
 
+	hpipm_timer timer;
+	hpipm_tic(&timer);
+
 	d_ocp_qp_ipm_solve(qp, qp_sol, arg, ws);
+
+	double time_ext = hpipm_toc(&timer);
+	*mat_ptr = time_ext;
 
 	return;
 
