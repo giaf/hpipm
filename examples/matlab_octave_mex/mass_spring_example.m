@@ -18,6 +18,11 @@ end
 
 
 
+% define flags
+codegen_data = 1; % export qp data in the file qp_data.c for use from C examples
+
+
+
 %%% data %%%
 nx = 8;				% number of states
 nu = 3;				% number of inputs (controls)
@@ -63,7 +68,9 @@ dim.set('nbu', nu, 0, N-1);
 % print to shell
 %dim.print_C_struct();
 % codegen
-dim.codegen('qp_data.c', 'w');
+if codegen_data
+	dim.codegen('qp_data.c', 'w');
+end
 
 
 
@@ -87,7 +94,9 @@ qp.set('ubu', ubu, 0, N-1);
 % print to shell
 %qp.print_C_struct();
 % codegen
-qp.codegen('qp_data.c', 'a');
+if codegen_data
+	qp.codegen('qp_data.c', 'a');
+end
 
 
 
@@ -114,7 +123,9 @@ arg.set('tol_comp', 1e-5);
 arg.set('reg_prim', 1e-12);
 
 % codegen
-arg.codegen('qp_data.c', 'a');
+if codegen_data
+	arg.codegen('qp_data.c', 'a');
+end
 
 
 
@@ -122,11 +133,11 @@ arg.codegen('qp_data.c', 'a');
 solver = hpipm_ocp_qp_solver(dim, arg);
 
 % arg which are allowed to be changed
-solver.set('iter_max', 30);
-arg.set('tol_stat', 1e-8);
-arg.set('tol_eq', 1e-8);
-arg.set('tol_ineq', 1e-8);
-arg.set('tol_comp', 1e-8);
+%solver.set('iter_max', 30);
+%arg.set('tol_stat', 1e-8);
+%arg.set('tol_eq', 1e-8);
+%arg.set('tol_ineq', 1e-8);
+%arg.set('tol_comp', 1e-8);
 
 % solve qp
 nrep = 100;
