@@ -36,6 +36,7 @@ OBJS +=
 endif
 
 OBJS += aux_string.o
+OBJS += timing.o
 
 obj: $(OBJS)
 

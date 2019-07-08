@@ -35,6 +35,7 @@
 #include "../../include/hpipm_d_ocp_qp_dim.h"
 #include "../../include/hpipm_d_ocp_qp.h"
 #include "../../include/hpipm_d_ocp_qp_sol.h"
+#include "../../include/hpipm_timing.h"
 
 
 
@@ -175,7 +176,9 @@ int main()
 * ipm solver
 ************************************************/
 
-	gettimeofday(&tv0, NULL); // start
+//	gettimeofday(&tv0, NULL); // start
+	hpipm_timer timer;
+	hpipm_tic(&timer);
 
 	for(rep=0; rep<nrep; rep++)
 		{
@@ -194,9 +197,9 @@ int main()
 		d_ocp_qp_ipm_get_status(&workspace, &hpipm_status);
 		}
 
-	gettimeofday(&tv1, NULL); // stop
-
-	double time_ipm = (tv1.tv_sec-tv0.tv_sec)/(nrep+0.0)+(tv1.tv_usec-tv0.tv_usec)/(nrep*1e6);
+//	gettimeofday(&tv1, NULL); // stop
+//	double time_ipm = (tv1.tv_sec-tv0.tv_sec)/(nrep+0.0)+(tv1.tv_usec-tv0.tv_usec)/(nrep*1e6);
+	double time_ipm = hpipm_toc(&timer) / nrep;
 
 /************************************************
 * print solution info

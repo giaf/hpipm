@@ -23,16 +23,21 @@
 * The authors designate this particular file as subject to the "Classpath" exception              *
 * as provided by the authors in the LICENSE file that accompained this code.                      *
 *                                                                                                 *
-* Author: Andrea Zanelli, Gianluca Frison, gianluca.frison (at) imtek.uni-freiburg.de             *
+* Author: Gianluca Frison, gianluca.frison (at) imtek.uni-freiburg.de                             *
 *                                                                                                 *
 **************************************************************************************************/
 
-int hpipm_strcmp(char *str1, char *str2) {
-	int i = 0;   
-	while (str1[i] == str2[i] && str1[i] != '\0')
-		i++;
-	if ((str1[i] > str2[i]) || (str1[i] < str2[i]))
-		return 0;
-	else
-	return 1;
-}
+#include "../include/hpipm_timing.h"
+
+void hpipm_tic(hpipm_timer *t)
+	{
+	blasfeo_tic(t);
+	return;
+	}
+
+
+
+double hpipm_toc(hpipm_timer *t)
+	{
+	return blasfeo_toc(t);
+	}
