@@ -210,6 +210,7 @@ file(GLOB TREE_OCP_QP_SRC
 # auxiliary
 file(GLOB AUXILIARY_SRC
 	${PROJECT_SOURCE_DIR}/auxiliary/aux_string.c
+	${PROJECT_SOURCE_DIR}/auxiliary/timing.c
 	)
 
 set(HPIPM_SRC ${COND_SRC} ${DENSE_QP_SRC} ${IPM_CORE_SRC} ${OCP_QP_SRC} ${TREE_OCP_QP_SRC} ${AUXILIARY_SRC})

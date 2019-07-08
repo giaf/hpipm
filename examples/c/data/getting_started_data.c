@@ -45,8 +45,12 @@ static int nnbu[6] = {0, 0, 0, 0, 0, 0};
 static int nnbx[6] = {2, 0, 0, 0, 0, 0};
 // number of general constraints
 static int nng[6] = {0, 0, 0, 0, 0, 0};
-// number of softed constraints
-static int nns[6] = {0, 0, 0, 0, 0, 0};
+// number of softed constraints on state box constraints
+static int nnsbx[6] = {0, 0, 0, 0, 0, 0};
+// number of softed constraints on input box constraints
+static int nnsbu[6] = {0, 0, 0, 0, 0, 0};
+// number of softed constraints on general constraints
+static int nnsg[6] = {0, 0, 0, 0, 0, 0};
 
 
 // QP data
@@ -72,7 +76,7 @@ static double r[] = {0};
 //
 static double x0[] = {1, 1};
 //
-static int idxb0[] = {1, 2};
+static int idxbx0[] = {0, 1};
 
 //
 static double u_guess[] = {0};
@@ -102,11 +106,17 @@ static double *qq[6] = {q, q, q, q, q, q};
 //
 static double *rr[6] = {r, r, r, r, r, r};
 //
-static int *iidxb[6] = {idxb0, NULL, NULL, NULL, NULL, NULL};
+static int *iidxbx[6] = {idxbx0, NULL, NULL, NULL, NULL, NULL};
 //
-static double *llb[6] = {x0, NULL, NULL, NULL, NULL, NULL};
+static double *llbx[6] = {x0, NULL, NULL, NULL, NULL, NULL};
 //
-static double *uub[6] = {x0, NULL, NULL, NULL, NULL, NULL};
+static double *uubx[6] = {x0, NULL, NULL, NULL, NULL, NULL};
+//
+static int *iidxbu[6] = {};
+//
+static double *llbu[6] = {};
+//
+static double *uubu[6] = {};
 //
 static double *CC[6] = {};
 //
@@ -148,7 +158,9 @@ int *nx = nnx;
 int *nbu = nnbu;
 int *nbx = nnbx;
 int *ng = nng;
-int *ns = nns;
+int *nsbx = nnsbx;
+int *nsbu = nnsbu;
+int *nsg = nnsg;
 
 double **hA = AA;
 double **hB = BB;
@@ -158,9 +170,12 @@ double **hR = RR;
 double **hS = SS;
 double **hq = qq;
 double **hr = rr;
-int **hidxb = iidxb;
-double **hlb = llb;
-double **hub = uub;
+int **hidxbx = iidxbx;
+double **hlbx = llbx;
+double **hubx = uubx;
+int **hidxbu = iidxbu;
+double **hlbu = llbu;
+double **hubu = uubu;
 double **hC = CC;
 double **hD = DD;
 double **hlg = llg;
@@ -177,3 +192,18 @@ double **hu_guess = uu_guess;
 double **hx_guess = xx_guess;
 double **hsl_guess = ssl_guess;
 double **hsu_guess = ssu_guess;
+
+// arg
+int mode = 1;
+int iter_max = 30;
+double alpha_min = 1e-8;
+double mu0 = 1e4;
+double tol_stat = 1e-4;
+double tol_eq = 1e-5;
+double tol_ineq = 1e-5;
+double tol_comp = 1e-5;
+double reg_prim = 1e-12;
+int warm_start = 0;
+int pred_corr = 1;
+int ric_alg = 0;
+

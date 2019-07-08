@@ -56,6 +56,7 @@ The matrices $J_{\dots}$ are made of rows from identity matrices.
 Furthermore, note that the constraint matrix with respect to $v$ is the same for the upper and the lower constraints.
 
 
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \chapter{OCP QP}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -76,25 +77,81 @@ The matrices $J_{\dots,n}$ are made of rows from identity matrices.
 Note that all quantities can vary stage-wise.
 Furthermore, note that the constraint matrix with respect to $u$ and $x$ is the same for the upper and the lower constraints.
 
+%%%%%%%%%%%%%%%%
+\section{QP dimensions structure}
+%%%%%%%%%%%%%%%%
+
+%%%%%%%%%%%%%%%%
+\subsection{Create structure}
+%%%%%%%%%%%%%%%%
+
 \begin{verbatim}
-int d_memsize_ocp_qp(int N, int *nx, int *nu, int *nb, int *ng, int *ns);
+int d_ocp_qp_dim_memsize(int N);
 \end{verbatim}
 
 \begin{verbatim}
-void d_create_ocp_qp(int N, int *nx, int *nu, int *nb, int *ng, int *ns, 
-    struct d_ocp_qp *qp, void *memory);
+void d_ocp_qp_dim_create(int N, struct d_ocp_qp *qp, void *memory);
+\end{verbatim}
+
+%%%%%%%%%%%%%%%%
+\subsection{Populate structure}
+%%%%%%%%%%%%%%%%
+
+Once created, an OCP QP dimmensions structure can be populated using the global setter routine
+\begin{verbatim}
+void d_ocp_qp_dim_set_all(int *nx, int *nu,
+    int *nbx, int *nbu, int *ng,
+    int *nsbx, int *nsbu, int *nsg,
+    struct d_ocp_qp_dim *dim);
+\end{verbatim}
+which is useful when all structure fields have to be populated at onece.
+
+Alternatively, it is possible to set the individual structure fields with the setter routine
+\begin{verbatim}
+void d_ocp_qp_dim_set(char *field, int *stage, int value,
+    struct d_ocp_qp_dim *dim);
+\end{verbatim}
+where {\tt field} can be one of {\tt nx, nu, nbx, nbu, ng, nsbx, nsbu, nsg}.
+
+%%%%%%%%%%%%%%%%
+\section{QP structure}
+%%%%%%%%%%%%%%%%
+
+%%%%%%%%%%%%%%%%
+\subsection{Create structure}
+%%%%%%%%%%%%%%%%
+
+\begin{verbatim}
+int d_ocp_qp_memsize(struct d_ocp_qp_dim *dim);
 \end{verbatim}
 
 \begin{verbatim}
-void d_cvt_colmaj_to_ocp_qp(double **A, double **B, double **b, 
+void d_ocp_qp_create(struct d_ocp_qp_dim *dim, struct d_ocp_qp *qp, void *memory);
+\end{verbatim}
+
+%%%%%%%%%%%%%%%%
+\subsection{Populate structure}
+%%%%%%%%%%%%%%%%
+
+Once created, an OCP QP structure can be populated using the global conversion routine
+\begin{verbatim}
+void d_ocp_qp_set_all(double **A, double **B, double **b, 
     double **Q, double **S, double **R, double **q, double **r, 
-    int **idxb, double **lb, double **ub, 
+    int **idxbx, double **lbx, double **ubx, 
+    int **idxbu, double **lbu, double **ubu, 
     double **C, double **D, double **lg, double **ug, 
-    double **Zl, double **Zu, double **zl, double **zu, int **idxs, 
-    double **ls, double **us,
+    double **Zl, double **Zu, double **zl, double **zu, 
+    int **idxs, double **lls, double **lus,
     struct d_ocp_qp *qp);
 \end{verbatim}
+which is useful when all the structure fileds have to be populated at once.
 
+Alternatively, it is possible to set the individual structure fields with the setter routine
+\begin{verbatim}
+void d_ocp_qp_set(char *field, int *stage, void *value,
+    struct d_ocp_qp *qp);
+\end{verbatim}
+where {\tt filed} can be one of {\tt A, B, b, Q, S, R, q, r, idxb, lb, ub, Jbx, idxbx, lbx, ubx, Jbu, idxbu, lbu, ubu, C, D, lg, ug, Zl, Zu, zl, zu, idxs, lls, lus}.
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%

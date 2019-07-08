@@ -57,27 +57,31 @@ struct d_ocp_qp_dim
 
 
 //
-int d_sizeof_ocp_qp_dim();
+int d_ocp_qp_dim_strsize();
 //
-int d_memsize_ocp_qp_dim(int N);
+int d_ocp_qp_dim_memsize(int N);
 //
-void d_create_ocp_qp_dim(int N, struct d_ocp_qp_dim *qp_dim, void *memory);
+void d_ocp_qp_dim_create(int N, struct d_ocp_qp_dim *qp_dim, void *memory);
 //
-void d_cvt_int_to_ocp_qp_dim(int N, int *nx, int *nu, int *nbx, int *nbu, int *ng, int *ns, struct d_ocp_qp_dim *dim);
+void d_ocp_qp_dim_set_all(int *nx, int *nu, int *nbx, int *nbu, int *ng, int *nsbx, int *nsbu, int *nsg, struct d_ocp_qp_dim *dim);
 //
-void d_set_ocp_qp_dim(char *field, int stage, int in, struct d_ocp_qp_dim *dim);
+void d_ocp_qp_dim_set(char *field, int stage, int value, struct d_ocp_qp_dim *dim);
 //
-void d_set_ocp_qp_dim_nx(int stage, int nx, struct d_ocp_qp_dim *dim);
+void d_ocp_qp_dim_set_nx(int stage, int value, struct d_ocp_qp_dim *dim);
 //
-void d_set_ocp_qp_dim_nu(int stage, int nu, struct d_ocp_qp_dim *dim);
+void d_ocp_qp_dim_set_nu(int stage, int value, struct d_ocp_qp_dim *dim);
 //
-void d_set_ocp_qp_dim_nbx(int stage, int nbx, struct d_ocp_qp_dim *dim);
+void d_ocp_qp_dim_set_nbx(int stage, int value, struct d_ocp_qp_dim *dim);
 //
-void d_set_ocp_qp_dim_nbu(int stage, int nbu, struct d_ocp_qp_dim *dim);
+void d_ocp_qp_dim_set_nbu(int stage, int value, struct d_ocp_qp_dim *dim);
 //
-void d_set_ocp_qp_dim_ng(int stage, int ng, struct d_ocp_qp_dim *dim);
+void d_ocp_qp_dim_set_ng(int stage, int value, struct d_ocp_qp_dim *dim);
 //
-void d_set_ocp_qp_dim_ns(int stage, int ns, struct d_ocp_qp_dim *dim);
+void d_ocp_qp_dim_set_nsbx(int stage, int value, struct d_ocp_qp_dim *dim);
+//
+void d_ocp_qp_dim_set_nsbu(int stage, int value, struct d_ocp_qp_dim *dim);
+//
+void d_ocp_qp_dim_set_nsg(int stage, int value, struct d_ocp_qp_dim *dim);
 
 
 

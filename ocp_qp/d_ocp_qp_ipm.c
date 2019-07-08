@@ -48,6 +48,7 @@
 #include <hpipm_d_core_qp_ipm_aux.h>
 #include <hpipm_d_ocp_qp_res.h>
 #include <hpipm_d_ocp_qp_kkt.h>
+#include <hpipm_aux_string.h>
 
 
 
@@ -62,7 +63,7 @@
 #define CORE_QP_IPM_WORKSPACE d_core_qp_ipm_workspace
 #define CREATE_CORE_QP_IPM d_create_core_qp_ipm
 #define CREATE_OCP_QP_RES d_create_ocp_qp_res
-#define CREATE_OCP_QP_SOL d_create_ocp_qp_sol
+#define OCP_QP_SOL_CREATE d_ocp_qp_sol_create
 #define CREATE_STRMAT blasfeo_create_dmat
 #define CREATE_STRVEC blasfeo_create_dvec
 #define CVT_STRVEC2VEC blasfeo_unpack_dvec
@@ -73,11 +74,11 @@
 #define INIT_VAR_OCP_QP d_init_var_ocp_qp
 #define MEMSIZE_CORE_QP_IPM d_memsize_core_qp_ipm
 #define MEMSIZE_OCP_QP_RES d_memsize_ocp_qp_res
-#define MEMSIZE_OCP_QP_SOL d_memsize_ocp_qp_sol
+#define OCP_QP_SOL_MEMSIZE d_ocp_qp_sol_memsize
 #define OCP_QP d_ocp_qp
 #define OCP_QP_IPM_ARG d_ocp_qp_ipm_arg
 #define HPIPM_MODE hpipm_mode
-#define OCP_QP_IPM_WORKSPACE d_ocp_qp_ipm_workspace
+#define OCP_QP_IPM_WS d_ocp_qp_ipm_ws
 #define OCP_QP_RES d_ocp_qp_res
 #define OCP_QP_RES_WORKSPACE d_ocp_qp_res_workspace
 #define OCP_QP_DIM d_ocp_qp_dim
@@ -102,31 +103,37 @@
 
 
 // arg
+#define OCP_QP_IPM_ARG_STRSIZE d_ocp_qp_ipm_arg_strsize
 #define SIZEOF_OCP_QP_IPM_ARG d_sizeof_ocp_qp_ipm_arg
-#define MEMSIZE_OCP_QP_IPM_ARG d_memsize_ocp_qp_ipm_arg
-#define CREATE_OCP_QP_IPM_ARG d_create_ocp_qp_ipm_arg
-#define SET_DEFAULT_OCP_QP_IPM_ARG d_set_default_ocp_qp_ipm_arg
-#define SET_OCP_QP_IPM_ARG_ITER_MAX d_set_ocp_qp_ipm_arg_iter_max
-#define SET_OCP_QP_IPM_ARG_MU0 d_set_ocp_qp_ipm_arg_mu0
-#define SET_OCP_QP_IPM_ARG_TOL_STAT d_set_ocp_qp_ipm_arg_tol_stat
-#define SET_OCP_QP_IPM_ARG_TOL_EQ d_set_ocp_qp_ipm_arg_tol_eq
-#define SET_OCP_QP_IPM_ARG_TOL_INEQ d_set_ocp_qp_ipm_arg_tol_ineq
-#define SET_OCP_QP_IPM_ARG_TOL_COMP d_set_ocp_qp_ipm_arg_tol_comp
-#define SET_OCP_QP_IPM_ARG_REG_PRIM d_set_ocp_qp_ipm_arg_reg_prim
-#define SET_OCP_QP_IPM_ARG_WARM_START d_set_ocp_qp_ipm_arg_warm_start
-#define SET_OCP_QP_IPM_ARG_RIC_ALG d_set_ocp_qp_ipm_arg_ric_alg
+#define OCP_QP_IPM_ARG_MEMSIZE d_ocp_qp_ipm_arg_memsize
+#define OCP_QP_IPM_ARG_CREATE d_ocp_qp_ipm_arg_create
+#define OCP_QP_IPM_ARG_SET_DEFAULT d_ocp_qp_ipm_arg_set_default
+#define OCP_QP_IPM_ARG_SET d_ocp_qp_ipm_arg_set
+#define OCP_QP_IPM_ARG_SET_ITER_MAX d_ocp_qp_ipm_arg_set_iter_max
+#define OCP_QP_IPM_ARG_SET_ALPHA_MIN d_ocp_qp_ipm_arg_set_alpha_min
+#define OCP_QP_IPM_ARG_SET_MU0 d_ocp_qp_ipm_arg_set_mu0
+#define OCP_QP_IPM_ARG_SET_TOL_STAT d_ocp_qp_ipm_arg_set_tol_stat
+#define OCP_QP_IPM_ARG_SET_TOL_EQ d_ocp_qp_ipm_arg_set_tol_eq
+#define OCP_QP_IPM_ARG_SET_TOL_INEQ d_ocp_qp_ipm_arg_set_tol_ineq
+#define OCP_QP_IPM_ARG_SET_TOL_COMP d_ocp_qp_ipm_arg_set_tol_comp
+#define OCP_QP_IPM_ARG_SET_REG_PRIM d_ocp_qp_ipm_arg_set_reg_prim
+#define OCP_QP_IPM_ARG_SET_WARM_START d_ocp_qp_ipm_arg_set_warm_start
+#define OCP_QP_IPM_ARG_SET_PRED_CORR d_ocp_qp_ipm_arg_set_pred_corr
+#define OCP_QP_IPM_ARG_SET_RIC_ALG d_ocp_qp_ipm_arg_set_ric_alg
 // ipm
-#define SIZEOF_OCP_QP_IPM_WORKSPACE d_sizeof_ocp_qp_ipm_workspace
-#define MEMSIZE_OCP_QP_IPM d_memsize_ocp_qp_ipm
-#define CREATE_OCP_QP_IPM d_create_ocp_qp_ipm
-#define GET_OCP_QP_IPM_ITER d_get_ocp_qp_ipm_iter
-#define GET_OCP_QP_IPM_RES_STAT d_get_ocp_qp_ipm_res_stat
-#define GET_OCP_QP_IPM_RES_EQ d_get_ocp_qp_ipm_res_eq
-#define GET_OCP_QP_IPM_RES_INEQ d_get_ocp_qp_ipm_res_ineq
-#define GET_OCP_QP_IPM_RES_COMP d_get_ocp_qp_ipm_res_comp
-#define GET_OCP_QP_IPM_STAT d_get_ocp_qp_ipm_stat
-#define SOLVE_OCP_QP_IPM d_solve_ocp_qp_ipm
-#define SOLVE_OCP_QP_IPM2 d_solve_ocp_qp_ipm2
+#define OCP_QP_IPM_WS_STRSIZE d_ocp_qp_ipm_ws_strsize
+#define OCP_QP_IPM_WS_MEMSIZE d_ocp_qp_ipm_ws_memsize
+#define OCP_QP_IPM_WS_CREATE d_ocp_qp_ipm_ws_create
+#define OCP_QP_IPM_GET d_ocp_qp_ipm_get
+#define OCP_QP_IPM_GET_STATUS d_ocp_qp_ipm_get_status
+#define OCP_QP_IPM_GET_ITER d_ocp_qp_ipm_get_iter
+#define OCP_QP_IPM_GET_RES_STAT d_ocp_qp_ipm_get_res_stat
+#define OCP_QP_IPM_GET_RES_EQ d_ocp_qp_ipm_get_res_eq
+#define OCP_QP_IPM_GET_RES_INEQ d_ocp_qp_ipm_get_res_ineq
+#define OCP_QP_IPM_GET_RES_COMP d_ocp_qp_ipm_get_res_comp
+#define OCP_QP_IPM_GET_STAT d_ocp_qp_ipm_get_stat
+#define OCP_QP_IPM_GET_STAT_M d_ocp_qp_ipm_get_stat_m
+#define OCP_QP_IPM_SOLVE d_ocp_qp_ipm_solve
 
 
 

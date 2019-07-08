@@ -72,12 +72,13 @@ struct d_ocp_qp_ipm_arg
 	int abs_form; // absolute IPM formulation
 	int comp_dual_sol; // dual solution (only for abs_form==1)
 	int comp_res_exit; // compute residuals on exit (only for abs_form==1 and comp_dual_sol==1)
+	int mode;
 	int memsize;
 	};
 
 
 
-struct d_ocp_qp_ipm_workspace
+struct d_ocp_qp_ipm_ws
 	{
 	struct d_core_qp_ipm_workspace *core_workspace;
 	struct d_ocp_qp_res_workspace *res_workspace;
@@ -107,59 +108,73 @@ struct d_ocp_qp_ipm_workspace
 	double qp_res[4]; // infinity norm of residuals
 	int iter; // iteration number
 	int stat_max; // iterations saved in stat
+	int stat_m; // number of recorded stat per IPM iter
 	int use_Pb;
+	int status; // solver status
 	int memsize;
 	};
 
 
 
 //
-int d_sizeof_ocp_qp_ipm_arg();
+int d_ocp_qp_ipm_arg_strseize();
 //
-int d_memsize_ocp_qp_ipm_arg(struct d_ocp_qp_dim *ocp_dim);
+int d_ocp_qp_ipm_arg_memsize(struct d_ocp_qp_dim *ocp_dim);
 //
-void d_create_ocp_qp_ipm_arg(struct d_ocp_qp_dim *ocp_dim, struct d_ocp_qp_ipm_arg *arg, void *mem);
+void d_ocp_qp_ipm_arg_create(struct d_ocp_qp_dim *ocp_dim, struct d_ocp_qp_ipm_arg *arg, void *mem);
 //
-void d_set_default_ocp_qp_ipm_arg(enum hpipm_mode mode, struct d_ocp_qp_ipm_arg *arg);
+void d_ocp_qp_ipm_arg_set_default(enum hpipm_mode mode, struct d_ocp_qp_ipm_arg *arg);
+//
+void d_ocp_qp_ipm_arg_set(char *field, void *value, struct d_ocp_qp_ipm_arg *arg);
 // set maximum number of iterations
-void d_set_ocp_qp_ipm_arg_iter_max(int iter_max, struct d_ocp_qp_ipm_arg *arg);
+void d_ocp_qp_ipm_arg_set_iter_max(int *iter_max, struct d_ocp_qp_ipm_arg *arg);
+// set minimum step lenght
+void d_ocp_qp_ipm_arg_set_alpha_min(double *alpha_min, struct d_ocp_qp_ipm_arg *arg);
 // set initial value of barrier parameter
-void d_set_ocp_qp_ipm_arg_mu0(double mu0, struct d_ocp_qp_ipm_arg *arg);
+void d_ocp_qp_ipm_arg_set_mu0(double *mu0, struct d_ocp_qp_ipm_arg *arg);
 // set exit tolerance on stationarity condition
-void d_set_ocp_qp_ipm_arg_tol_stat(double tol_stat, struct d_ocp_qp_ipm_arg *arg);
+void d_ocp_qp_ipm_arg_set_tol_stat(double *tol_stat, struct d_ocp_qp_ipm_arg *arg);
 // set exit tolerance on equality constr
-void d_set_ocp_qp_ipm_arg_tol_eq(double tol_eq, struct d_ocp_qp_ipm_arg *arg);
+void d_ocp_qp_ipm_arg_set_tol_eq(double *tol_eq, struct d_ocp_qp_ipm_arg *arg);
 // set exit tolerance on inequality constr
-void d_set_ocp_qp_ipm_arg_tol_ineq(double tol_ineq, struct d_ocp_qp_ipm_arg *arg);
+void d_ocp_qp_ipm_arg_set_tol_ineq(double *tol_ineq, struct d_ocp_qp_ipm_arg *arg);
 // set exit tolerance on complementarity condition
-void d_set_ocp_qp_ipm_arg_tol_comp(double tol_comp, struct d_ocp_qp_ipm_arg *arg);
+void d_ocp_qp_ipm_arg_set_tol_comp(double *tol_comp, struct d_ocp_qp_ipm_arg *arg);
 // set regularization of primal variables
-void d_set_ocp_qp_ipm_arg_reg_prim(double tol_comp, struct d_ocp_qp_ipm_arg *arg);
+void d_ocp_qp_ipm_arg_set_reg_prim(double *tol_comp, struct d_ocp_qp_ipm_arg *arg);
 // set warm start: 0 no warm start, 1 primal var
-void d_set_ocp_qp_ipm_arg_warm_start(int warm_start, struct d_ocp_qp_ipm_arg *arg);
+void d_ocp_qp_ipm_arg_set_warm_start(int *warm_start, struct d_ocp_qp_ipm_arg *arg);
+// Mehrotra's predictor-corrector IPM algorithm: 0 no predictor-corrector, 1 use predictor-corrector
+void d_ocp_qp_ipm_arg_set_pred_corr(int *pred_corr, struct d_ocp_qp_ipm_arg *arg);
 // set riccati algorithm: 0 classic, 1 square-root
-void d_set_ocp_qp_ipm_arg_ric_alg(int alg, struct d_ocp_qp_ipm_arg *arg);
+void d_ocp_qp_ipm_arg_set_ric_alg(int *alg, struct d_ocp_qp_ipm_arg *arg);
 
 //
-int d_sizeof_ocp_qp_ipm_workspace();
+int d_ocp_qp_ipm_ws_strsize();
 //
-int d_memsize_ocp_qp_ipm(struct d_ocp_qp_dim *ocp_dim, struct d_ocp_qp_ipm_arg *arg);
+int d_ocp_qp_ipm_ws_memsize(struct d_ocp_qp_dim *ocp_dim, struct d_ocp_qp_ipm_arg *arg);
 //
-void d_create_ocp_qp_ipm(struct d_ocp_qp_dim *ocp_dim, struct d_ocp_qp_ipm_arg *arg, struct d_ocp_qp_ipm_workspace *ws, void *mem);
+void d_ocp_qp_ipm_ws_create(struct d_ocp_qp_dim *ocp_dim, struct d_ocp_qp_ipm_arg *arg, struct d_ocp_qp_ipm_ws *ws, void *mem);
 //
-int d_get_ocp_qp_ipm_iter(struct d_ocp_qp_ipm_workspace *ws);
+void d_ocp_qp_ipm_get(char *field, struct d_ocp_qp_ipm_ws *ws, void *value);
 //
-double d_get_ocp_qp_ipm_res_stat(struct d_ocp_qp_ipm_workspace *ws);
+void d_ocp_qp_ipm_get_status(struct d_ocp_qp_ipm_ws *ws, int *status);
 //
-double d_get_ocp_qp_ipm_res_eq(struct d_ocp_qp_ipm_workspace *ws);
+void d_ocp_qp_ipm_get_iter(struct d_ocp_qp_ipm_ws *ws, int *iter);
 //
-double d_get_ocp_qp_ipm_res_ineq(struct d_ocp_qp_ipm_workspace *ws);
+void d_ocp_qp_ipm_get_res_stat(struct d_ocp_qp_ipm_ws *ws, double *res_stat);
 //
-double d_get_ocp_qp_ipm_res_comp(struct d_ocp_qp_ipm_workspace *ws);
+void d_ocp_qp_ipm_get_res_eq(struct d_ocp_qp_ipm_ws *ws, double *res_eq);
 //
-double *d_get_ocp_qp_ipm_stat(struct d_ocp_qp_ipm_workspace *ws);
+void d_ocp_qp_ipm_get_res_ineq(struct d_ocp_qp_ipm_ws *ws, double *res_ineq);
 //
-int d_solve_ocp_qp_ipm(struct d_ocp_qp *qp, struct d_ocp_qp_sol *qp_sol, struct d_ocp_qp_ipm_arg *arg, struct d_ocp_qp_ipm_workspace *ws);
+void d_ocp_qp_ipm_get_res_comp(struct d_ocp_qp_ipm_ws *ws, double *res_comp);
+//
+void d_ocp_qp_ipm_get_stat(struct d_ocp_qp_ipm_ws *ws, double **stat);
+//
+void d_ocp_qp_ipm_get_stat_m(struct d_ocp_qp_ipm_ws *ws, int *stat_m);
+//
+void d_ocp_qp_ipm_solve(struct d_ocp_qp *qp, struct d_ocp_qp_sol *qp_sol, struct d_ocp_qp_ipm_arg *arg, struct d_ocp_qp_ipm_ws *ws);
 
 
 

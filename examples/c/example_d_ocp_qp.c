@@ -35,6 +35,7 @@
 #include "../../include/hpipm_d_ocp_qp_dim.h"
 #include "../../include/hpipm_d_ocp_qp.h"
 #include "../../include/hpipm_d_ocp_qp_sol.h"
+#include "../../include/hpipm_timing.h"
 
 
 
@@ -45,7 +46,9 @@ extern int *nu;
 extern int *nbu;
 extern int *nbx;
 extern int *ng;
-extern int *ns;
+extern int *nsbx;
+extern int *nsbu;
+extern int *nsg;
 extern double **hA;
 extern double **hB;
 extern double **hb;
@@ -54,9 +57,12 @@ extern double **hR;
 extern double **hS;
 extern double **hq;
 extern double **hr;
-extern int **hidxb;
-extern double **hlb;
-extern double **hub;
+extern int **hidxbx;
+extern double **hlbx;
+extern double **hubx;
+extern int **hidxbu;
+extern double **hlbu;
+extern double **hubu;
 extern double **hC;
 extern double **hD;
 extern double **hlg;
@@ -68,10 +74,23 @@ extern double **hzu;
 extern int **hidxs;
 extern double **hlls;
 extern double **hlus;
-extern double **hu_guess;
-extern double **hx_guess;
-extern double **hsl_guess;
-extern double **hsu_guess;
+//extern double **hu_guess;
+//extern double **hx_guess;
+//extern double **hsl_guess;
+//extern double **hsu_guess;
+// arg
+extern int mode;
+extern int iter_max;
+extern double alpha_min;
+extern double mu0;
+extern double tol_stat;
+extern double tol_eq;
+extern double tol_ineq;
+extern double tol_comp;
+extern double reg_prim;
+extern int warm_start;
+extern int pred_corr;
+extern int ric_alg;
 
 
 
@@ -81,7 +100,7 @@ int main()
 
 	int ii;
 
-	int hpipm_return;
+	int hpipm_status;
 
 	int rep, nrep=10;
 
@@ -91,117 +110,115 @@ int main()
 * ocp qp dim
 ************************************************/
 
-	int dim_size = d_memsize_ocp_qp_dim(N);
+	int dim_size = d_ocp_qp_dim_memsize(N);
 	void *dim_mem = malloc(dim_size);
 
 	struct d_ocp_qp_dim dim;
-	d_create_ocp_qp_dim(N, &dim, dim_mem);
+	d_ocp_qp_dim_create(N, &dim, dim_mem);
 
-	d_cvt_int_to_ocp_qp_dim(N, nx, nu, nbx, nbu, ng, ns, &dim);
+	d_ocp_qp_dim_set_all(nx, nu, nbx, nbu, ng, nsbx, nsbu, nsg, &dim);
 
 /************************************************
 * ocp qp
 ************************************************/
 
-	int qp_size = d_memsize_ocp_qp(&dim);
+	int qp_size = d_ocp_qp_memsize(&dim);
 	void *qp_mem = malloc(qp_size);
 
 	struct d_ocp_qp qp;
-	d_create_ocp_qp(&dim, &qp, qp_mem);
+	d_ocp_qp_create(&dim, &qp, qp_mem);
 
-	d_cvt_colmaj_to_ocp_qp(hA, hB, hb, hQ, hS, hR, hq, hr, hidxb, hlb, hub, hC, hD, hlg, hug, hZl, hZu, hzl, hzu, hidxs, hlls, hlus, &qp);
+	d_ocp_qp_set_all(hA, hB, hb, hQ, hS, hR, hq, hr, hidxbx, hlbx, hubx, hidxbu, hlbu, hubu, hC, hD, hlg, hug, hZl, hZu, hzl, hzu, hidxs, hlls, hlus, &qp);
 
 /************************************************
 * ocp qp sol
 ************************************************/
 
-	int qp_sol_size = d_memsize_ocp_qp_sol(&dim);
+	int qp_sol_size = d_ocp_qp_sol_memsize(&dim);
 	void *qp_sol_mem = malloc(qp_sol_size);
 
 	struct d_ocp_qp_sol qp_sol;
-	d_create_ocp_qp_sol(&dim, &qp_sol, qp_sol_mem);
+	d_ocp_qp_sol_create(&dim, &qp_sol, qp_sol_mem);
 
 /************************************************
 * ipm arg
 ************************************************/
 
-	int ipm_arg_size = d_memsize_ocp_qp_ipm_arg(&dim);
+	int ipm_arg_size = d_ocp_qp_ipm_arg_memsize(&dim);
 	void *ipm_arg_mem = malloc(ipm_arg_size);
 
 	struct d_ocp_qp_ipm_arg arg;
-	d_create_ocp_qp_ipm_arg(&dim, &arg, ipm_arg_mem);
+	d_ocp_qp_ipm_arg_create(&dim, &arg, ipm_arg_mem);
 
-//	enum hpipm_mode mode = SPEED_ABS;
-	enum hpipm_mode mode = SPEED;
-//	enum hpipm_mode mode = BALANCE;
-//	enum hpipm_mode mode = ROBUST;
-	d_set_default_ocp_qp_ipm_arg(mode, &arg);
+	d_ocp_qp_ipm_arg_set_default(mode, &arg);
 
-	d_set_ocp_qp_ipm_arg_mu0(1e4, &arg);
-	d_set_ocp_qp_ipm_arg_iter_max(30, &arg);
-	d_set_ocp_qp_ipm_arg_tol_stat(1e-4, &arg);
-	d_set_ocp_qp_ipm_arg_tol_eq(1e-5, &arg);
-	d_set_ocp_qp_ipm_arg_tol_ineq(1e-5, &arg);
-	d_set_ocp_qp_ipm_arg_tol_comp(1e-5, &arg);
-	d_set_ocp_qp_ipm_arg_reg_prim(1e-12, &arg);
-	d_set_ocp_qp_ipm_arg_warm_start(0, &arg);
-
-//	d_set_ocp_qp_ipm_arg_ric_alg(0, &arg);
+	d_ocp_qp_ipm_arg_set_mu0(&mu0, &arg);
+	d_ocp_qp_ipm_arg_set_iter_max(&iter_max, &arg);
+	d_ocp_qp_ipm_arg_set_tol_stat(&tol_stat, &arg);
+	d_ocp_qp_ipm_arg_set_tol_eq(&tol_eq, &arg);
+	d_ocp_qp_ipm_arg_set_tol_ineq(&tol_ineq, &arg);
+	d_ocp_qp_ipm_arg_set_tol_comp(&tol_comp, &arg);
+	d_ocp_qp_ipm_arg_set_reg_prim(&reg_prim, &arg);
+	d_ocp_qp_ipm_arg_set_warm_start(&warm_start, &arg);
+//	d_ocp_qp_ipm_arg_set_ric_alg(&ric_alg, &arg);
 
 /************************************************
 * ipm workspace
 ************************************************/
 
-	int ipm_size = d_memsize_ocp_qp_ipm(&dim, &arg);
+	int ipm_size = d_ocp_qp_ipm_ws_memsize(&dim, &arg);
 	void *ipm_mem = malloc(ipm_size);
 
-	struct d_ocp_qp_ipm_workspace workspace;
-	d_create_ocp_qp_ipm(&dim, &arg, &workspace, ipm_mem);
+	struct d_ocp_qp_ipm_ws workspace;
+	d_ocp_qp_ipm_ws_create(&dim, &arg, &workspace, ipm_mem);
 
 /************************************************
 * ipm solver
 ************************************************/
 
-	gettimeofday(&tv0, NULL); // start
+//	gettimeofday(&tv0, NULL); // start
+	hpipm_timer timer;
+	hpipm_tic(&timer);
 
 	for(rep=0; rep<nrep; rep++)
 		{
 		// solution guess
-		for(ii=0; ii<=N; ii++)
-			d_cvt_colmaj_to_ocp_qp_sol_u(ii, hu_guess[ii], &qp_sol);
-		for(ii=0; ii<=N; ii++)
-			d_cvt_colmaj_to_ocp_qp_sol_x(ii, hx_guess[ii], &qp_sol);
-		for(ii=0; ii<=N; ii++)
-			d_cvt_colmaj_to_ocp_qp_sol_sl(ii, hsl_guess[ii], &qp_sol);
-		for(ii=0; ii<=N; ii++)
-			d_cvt_colmaj_to_ocp_qp_sol_su(ii, hsu_guess[ii], &qp_sol);
+//		for(ii=0; ii<=N; ii++)
+//			d_cvt_colmaj_to_ocp_qp_sol_u(ii, hu_guess[ii], &qp_sol);
+//		for(ii=0; ii<=N; ii++)
+//			d_cvt_colmaj_to_ocp_qp_sol_x(ii, hx_guess[ii], &qp_sol);
+//		for(ii=0; ii<=N; ii++)
+//			d_cvt_colmaj_to_ocp_qp_sol_sl(ii, hsl_guess[ii], &qp_sol);
+//		for(ii=0; ii<=N; ii++)
+//			d_cvt_colmaj_to_ocp_qp_sol_su(ii, hsu_guess[ii], &qp_sol);
 
 		// call solver
-		hpipm_return = d_solve_ocp_qp_ipm(&qp, &qp_sol, &arg, &workspace);
+		d_ocp_qp_ipm_solve(&qp, &qp_sol, &arg, &workspace);
+		d_ocp_qp_ipm_get_status(&workspace, &hpipm_status);
 		}
 
-	gettimeofday(&tv1, NULL); // stop
-
-	double time_ipm = (tv1.tv_sec-tv0.tv_sec)/(nrep+0.0)+(tv1.tv_usec-tv0.tv_usec)/(nrep*1e6);
+//	gettimeofday(&tv1, NULL); // stop
+//	double time_ipm = (tv1.tv_sec-tv0.tv_sec)/(nrep+0.0)+(tv1.tv_usec-tv0.tv_usec)/(nrep*1e6);
+	double time_ipm = hpipm_toc(&timer) / nrep;
 
 /************************************************
 * print solution info
 ************************************************/
 
-    printf("\nHPIPM returned with flag %i.\n", hpipm_return);
-    if(hpipm_return == 0)
+    printf("\nHPIPM returned with flag %i.\n", hpipm_status);
+    if(hpipm_status == 0)
 		{
         printf("\n -> QP solved!\n");
 		}
-	else if(hpipm_return==1)
+	else if(hpipm_status==1)
 		{
         printf("\n -> Solver failed! Maximum number of iterations reached\n");
 		}
-	else if(hpipm_return==2)
+	else if(hpipm_status==2)
 		{
         printf("\n -> Solver failed! Minimum step lenght reached\n");
 		}
-	else if(hpipm_return==2)
+	else if(hpipm_status==2)
 		{
         printf("\n -> Solver failed! NaN in computations\n");
 		}
@@ -228,7 +245,7 @@ int main()
 	printf("\nu = \n");
 	for(ii=0; ii<=N; ii++)
 		{
-		d_cvt_ocp_qp_sol_to_colmaj_u(ii, &qp_sol, u);
+		d_ocp_qp_sol_get_u(ii, &qp_sol, u);
 		d_print_mat(1, nu[ii], u, 1);
 		}
 
@@ -244,7 +261,7 @@ int main()
 	printf("\nx = \n");
 	for(ii=0; ii<=N; ii++)
 		{
-		d_cvt_ocp_qp_sol_to_colmaj_x(ii, &qp_sol, x);
+		d_ocp_qp_sol_get_x(ii, &qp_sol, x);
 		d_print_mat(1, nx[ii], x, 1);
 		}
 
@@ -254,7 +271,7 @@ int main()
 	printf("\npi = \n");
 	for(ii=0; ii<N; ii++)
 		{
-		d_cvt_ocp_qp_sol_to_colmaj_pi(ii, &qp_sol, pi);
+		d_ocp_qp_sol_get_pi(ii, &qp_sol, pi);
 		d_print_mat(1, nx[ii+1], pi, 1);
 		}
 
@@ -262,18 +279,20 @@ int main()
 * print ipm statistics
 ************************************************/
 
-	printf("\nipm return = %d\n", hpipm_return);
-	double res_stat = d_get_ocp_qp_ipm_res_stat(&workspace);
-	double res_eq = d_get_ocp_qp_ipm_res_eq(&workspace);
-	double res_ineq = d_get_ocp_qp_ipm_res_ineq(&workspace);
-	double res_comp = d_get_ocp_qp_ipm_res_comp(&workspace);
+	int iter; d_ocp_qp_ipm_get_iter(&workspace, &iter);
+	double res_stat; d_ocp_qp_ipm_get_res_stat(&workspace, &res_stat);
+	double res_eq; d_ocp_qp_ipm_get_res_eq(&workspace, &res_eq);
+	double res_ineq; d_ocp_qp_ipm_get_res_ineq(&workspace, &res_ineq);
+	double res_comp; d_ocp_qp_ipm_get_res_comp(&workspace, &res_comp);
+	double *stat; d_ocp_qp_ipm_get_stat(&workspace, &stat);
+	int stat_m; d_ocp_qp_ipm_get_stat_m(&workspace, &stat_m);
+
+	printf("\nipm return = %d\n", hpipm_status);
 	printf("\nipm residuals max: res_g = %e, res_b = %e, res_d = %e, res_m = %e\n", res_stat, res_eq, res_ineq, res_comp);
 
-	int iter = d_get_ocp_qp_ipm_iter(&workspace);
 	printf("\nipm iter = %d\n", iter);
-	double *stat = d_get_ocp_qp_ipm_stat(&workspace);
-	printf("\nalpha_aff\tmu_aff\t\tsigma\t\talpha\t\tmu\n");
-	d_print_exp_tran_mat(5, iter, stat, 5);
+	printf("\nalpha_aff\tmu_aff\t\tsigma\t\talpha\t\tmu\t\tres_stat\tres_eq\t\tres_ineq\tres_comp\n");
+	d_print_exp_tran_mat(stat_m, iter+1, stat, stat_m);
 
 	printf("\nocp ipm time = %e [s]\n\n", time_ipm);
 

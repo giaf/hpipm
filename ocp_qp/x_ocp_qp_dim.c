@@ -29,14 +29,14 @@
 
 
 
-int SIZEOF_OCP_QP_DIM()
+int OCP_QP_DIM_STRSIZE()
 	{
 	return sizeof(struct OCP_QP_DIM);
 	}
 
 
 
-int MEMSIZE_OCP_QP_DIM(int N)
+int OCP_QP_DIM_MEMSIZE(int N)
 	{
 
 	int size = 0;
@@ -51,7 +51,7 @@ int MEMSIZE_OCP_QP_DIM(int N)
 
 
 
-void CREATE_OCP_QP_DIM(int N, struct OCP_QP_DIM *dim, void *memory)
+void OCP_QP_DIM_CREATE(int N, struct OCP_QP_DIM *dim, void *memory)
 	{
 
 	// loop index
@@ -108,26 +108,26 @@ void CREATE_OCP_QP_DIM(int N, struct OCP_QP_DIM *dim, void *memory)
 	dim->nsg = (int *) c_ptr;
 	c_ptr += (N+1)*sizeof(int);
 	for(ii=0; ii<=N; ii++)
-		dim->ng[ii] = 0;
+		dim->nsg[ii] = 0;
 
 	// N
 	dim->N = N;
 
-	dim->memsize = MEMSIZE_OCP_QP_DIM(N);
+	dim->memsize = OCP_QP_DIM_MEMSIZE(N);
 
 	return;
 
 	}
 
 
-void CVT_INT_TO_OCP_QP_DIM(int N, int *nx, int *nu, int *nbx, int *nbu, int *ng, int *ns, struct OCP_QP_DIM *dim)
+void OCP_QP_DIM_SET_ALL(int *nx, int *nu, int *nbx, int *nbu, int *ng, int *nsbx, int *nsbu, int *nsg, struct OCP_QP_DIM *dim)
 	{
 
 	// loop index
 	int ii;
 
 	// N
-	dim->N = N;
+	int N = dim->N;
 
 	// copy qp dim
 	for(ii=0; ii<=N; ii++)
@@ -143,13 +143,13 @@ void CVT_INT_TO_OCP_QP_DIM(int N, int *nx, int *nu, int *nbx, int *nbu, int *ng,
 	for(ii=0; ii<=N; ii++)
 		dim->ng[ii] = ng[ii];
 	for(ii=0; ii<=N; ii++)
-		dim->ns[ii] = ns[ii];//nsbx[ii]+nsbu[ii]+nsg[ii];
+		dim->ns[ii] = nsbx[ii]+nsbu[ii]+nsg[ii];
 	for(ii=0; ii<=N; ii++)
-		dim->nsbx[ii] = 0;//-1;//nsbx[ii];
+		dim->nsbx[ii] = nsbx[ii];
 	for(ii=0; ii<=N; ii++)
-		dim->nsbu[ii] = 0;//-1;//nsbu[ii];
+		dim->nsbu[ii] = nsbu[ii];
 	for(ii=0; ii<=N; ii++)
-		dim->nsg[ii] = 0;//-1;//nsg[ii];
+		dim->nsg[ii] = nsg[ii];
 
 	return;
 
@@ -157,37 +157,43 @@ void CVT_INT_TO_OCP_QP_DIM(int N, int *nx, int *nu, int *nbx, int *nbu, int *ng,
 
 
 
-void SET_OCP_QP_DIM(char *field_name, int stage, int value, struct OCP_QP_DIM *dim)
+void OCP_QP_DIM_SET(char *field_name, int stage, int value, struct OCP_QP_DIM *dim)
 	{
 	if(hpipm_strcmp(field_name, "nx"))
 		{ 
-		dim->nx[stage] = value;
+		OCP_QP_DIM_SET_NX(stage, value, dim);
 		}
 	else if(hpipm_strcmp(field_name, "nu"))
 		{ 
-		dim->nu[stage] = value;
+		OCP_QP_DIM_SET_NU(stage, value, dim);
 		}
 	else if(hpipm_strcmp(field_name, "nbx"))
 		{
-		dim->nbx[stage] = value;
-		dim->nb[stage] = dim->nbx[stage] + dim->nbu[stage];
+		OCP_QP_DIM_SET_NBX(stage, value, dim);
 		}
 	else if(hpipm_strcmp(field_name, "nbu"))
 		{
-		dim->nbu[stage] = value;
-		dim->nb[stage] = dim->nbx[stage] + dim->nbu[stage];
+		OCP_QP_DIM_SET_NBU(stage, value, dim);
 		}
 	else if(hpipm_strcmp(field_name, "ng"))
 		{
-		dim->ng[stage] = value;
+		OCP_QP_DIM_SET_NG(stage, value, dim);
 		}
-	else if(hpipm_strcmp(field_name, "ns"))
+	else if(hpipm_strcmp(field_name, "nsbx"))
 		{
-		dim->ns[stage] = value;
+		OCP_QP_DIM_SET_NSBX(stage, value, dim);
+		}
+	else if(hpipm_strcmp(field_name, "nsbu"))
+		{
+		OCP_QP_DIM_SET_NSBU(stage, value, dim);
+		}
+	else if(hpipm_strcmp(field_name, "nsg"))
+		{
+		OCP_QP_DIM_SET_NSG(stage, value, dim);
 		}
 	else 
 		{
-		printf("error [SET_OCP_QP_DIM]: unknown field name '%s'. Exiting.\n", field_name);
+		printf("error [OCP_QP_DIM_SET]: unknown field name '%s'. Exiting.\n", field_name);
 		exit(1);
 		}
 	return;
@@ -195,50 +201,69 @@ void SET_OCP_QP_DIM(char *field_name, int stage, int value, struct OCP_QP_DIM *d
 
 
 
-void SET_OCP_QP_DIM_NX(int stage, int nx, struct OCP_QP_DIM *dim)
+void OCP_QP_DIM_SET_NX(int stage, int value, struct OCP_QP_DIM *dim)
 	{
-	dim->nx[stage] = nx;
+	dim->nx[stage] = value;
 	return;
 	}
 
 
 
-void SET_OCP_QP_DIM_NU(int stage, int nu, struct OCP_QP_DIM *dim)
+void OCP_QP_DIM_SET_NU(int stage, int value, struct OCP_QP_DIM *dim)
 	{
-	dim->nu[stage] = nu;
+	dim->nu[stage] = value;
 	return;
 	}
 
 
 
-void SET_OCP_QP_DIM_NBX(int stage, int nbx, struct OCP_QP_DIM *dim)
+void OCP_QP_DIM_SET_NBX(int stage, int value, struct OCP_QP_DIM *dim)
 	{
-	dim->nbx[stage] = nbx;
+	dim->nbx[stage] = value;
 	dim->nb[stage] = dim->nbx[stage] + dim->nbu[stage];
 	return;
 	}
 
 
 
-void SET_OCP_QP_DIM_NBU(int stage, int nbu, struct OCP_QP_DIM *dim)
+void OCP_QP_DIM_SET_NBU(int stage, int value, struct OCP_QP_DIM *dim)
 	{
-	dim->nbu[stage] = nbu;
+	dim->nbu[stage] = value;
 	dim->nb[stage] = dim->nbx[stage] + dim->nbu[stage];
 	return;
 	}
 
 
 
-void SET_OCP_QP_DIM_NG(int stage, int ng, struct OCP_QP_DIM *dim)
+void OCP_QP_DIM_SET_NG(int stage, int value, struct OCP_QP_DIM *dim)
 	{
-	dim->ng[stage] = ng;
+	dim->ng[stage] = value;
 	return;
 	}
 
 
 
-void SET_OCP_QP_DIM_NS(int stage, int ns, struct OCP_QP_DIM *dim)
+void OCP_QP_DIM_SET_NSBX(int stage, int value, struct OCP_QP_DIM *dim)
 	{
-	dim->ns[stage] = ns;
+	dim->nsbx[stage] = value;
+	dim->ns[stage] = dim->nsbx[stage] + dim->nsbu[stage] + dim->nsg[stage];
+	return;
+	}
+
+
+
+void OCP_QP_DIM_SET_NSBU(int stage, int value, struct OCP_QP_DIM *dim)
+	{
+	dim->nsbu[stage] = value;
+	dim->ns[stage] = dim->nsbx[stage] + dim->nsbu[stage] + dim->nsg[stage];
+	return;
+	}
+
+
+
+void OCP_QP_DIM_SET_NSG(int stage, int value, struct OCP_QP_DIM *dim)
+	{
+	dim->nsg[stage] = value;
+	dim->ns[stage] = dim->nsbx[stage] + dim->nsbu[stage] + dim->nsg[stage];
 	return;
 	}

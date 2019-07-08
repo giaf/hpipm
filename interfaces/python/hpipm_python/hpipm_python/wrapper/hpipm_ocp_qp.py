@@ -235,7 +235,7 @@ class hpipm_ocp_qp:
 				field_[i] = np.ascontiguousarray(field_[i], dtype=np.float64)
 				tmp = cast(field_[i].ctypes.data, POINTER(c_double))
 				field_name_b = field.encode('utf-8')
-				self.__hpipm.d_cvt_colmaj_to_ocp_qp_gf(c_char_p(field_name_b), i, tmp, self.qp_struct)
+				self.__hpipm.d_cvt_colmaj_gen_to_ocp_qp(c_char_p(field_name_b), i, tmp, self.qp_struct)
 		else:
 			if hasattr(reshape_tuple[2], '__getitem__'):
 				reshape_dim = (reshape_tuple[0][idx + reshape_tuple[1]], reshape_tuple[2][idx + reshape_tuple[3]])
@@ -248,7 +248,7 @@ class hpipm_ocp_qp:
 			field_[idx] = np.ascontiguousarray(field_[idx], dtype=np.float64)
 			tmp = cast(field_[idx].ctypes.data, POINTER(c_double))
 			field_name_b = field.encode('utf-8')
-			self.__hpipm.d_cvt_colmaj_to_ocp_qp_gf(c_char_p(field_name_b), idx, tmp, self.qp_struct)
+			self.__hpipm.d_cvt_colmaj_gen_to_ocp_qp(c_char_p(field_name_b), idx, tmp, self.qp_struct)
 		return
 
 
