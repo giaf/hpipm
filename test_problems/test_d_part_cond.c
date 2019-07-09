@@ -1130,7 +1130,7 @@ int main()
 	double *res_m_ls2[N2+1]; for(ii=0; ii<=N2; ii++) d_zeros(res_m_ls2+ii, ns2[ii], 1);
 	double *res_m_us2[N2+1]; for(ii=0; ii<=N2; ii++) d_zeros(res_m_us2+ii, ns2[ii], 1);
 
-	d_cvt_ocp_qp_res_to_colmaj(workspace.res, res_r2, res_q2, res_ls2, res_us2, res_b2, res_d_lb2, res_d_ub2, res_d_lg2, res_d_ug2, res_d_ls2, res_d_us2, res_m_lb2, res_m_ub2, res_m_lg2, res_m_ug2, res_m_ls2, res_m_us2);
+	d_ocp_qp_res_get_all(workspace.res, res_r2, res_q2, res_ls2, res_us2, res_b2, res_d_lb2, res_d_ub2, res_d_lg2, res_d_ug2, res_d_ls2, res_d_us2, res_m_lb2, res_m_ub2, res_m_lg2, res_m_ug2, res_m_ls2, res_m_us2);
 
 #if 1
 	printf("\npart cond residuals\n\n");

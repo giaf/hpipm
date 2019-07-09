@@ -56,7 +56,7 @@ struct s_ocp_qp_res
 
 
 
-struct s_ocp_qp_res_workspace
+struct s_ocp_qp_res_ws
 	{
 	struct blasfeo_svec *tmp_nbgM; // work space of size nbM+ngM
 	struct blasfeo_svec *tmp_nsM; // work space of size nsM
@@ -66,17 +66,15 @@ struct s_ocp_qp_res_workspace
 
 
 //
-int s_memsize_ocp_qp_res(struct s_ocp_qp_dim *ocp_dim);
+int s_ocp_qp_res_memsize(struct s_ocp_qp_dim *ocp_dim);
 //
-void s_create_ocp_qp_res(struct s_ocp_qp_dim *ocp_dim, struct s_ocp_qp_res *res, void *mem);
+void s_ocp_qp_res_create(struct s_ocp_qp_dim *ocp_dim, struct s_ocp_qp_res *res, void *mem);
 //
-int s_memsize_ocp_qp_res_workspace(struct s_ocp_qp_dim *ocp_dim);
+int s_ocp_qp_res_ws_memsize(struct s_ocp_qp_dim *ocp_dim);
 //
-void s_create_ocp_qp_res_workspace(struct s_ocp_qp_dim *ocp_dim, struct s_ocp_qp_res_workspace *workspace, void *mem);
+void s_ocp_qp_res_ws_create(struct s_ocp_qp_dim *ocp_dim, struct s_ocp_qp_res_ws *workspace, void *mem);
 //
-void s_cvt_ocp_qp_res_to_colmaj(struct s_ocp_qp_res *res, float **res_r, float **res_q, float **res_ls, float **res_us, float **res_b, float **res_d_lb, float **res_d_ub, float **res_d_lg, float **res_d_ug, float **res_d_ls, float **res_d_us, float **res_m_lb, float **res_m_ub, float **res_m_lg, float **res_m_ug, float **res_m_ls, float **res_m_us);
-//
-void s_cvt_ocp_qp_res_to_rowmaj(struct s_ocp_qp_res *res, float **res_r, float **res_q, float **res_ls, float **res_us, float **res_b, float **res_d_lb, float **res_d_ub, float **res_d_lg, float **res_d_ug, float **res_d_ls, float **res_d_us, float **res_m_lb, float **res_m_ub, float **res_m_lg, float **res_m_ug, float **res_m_ls, float **res_m_us);
+void s_ocp_qp_res_get_all(struct s_ocp_qp_res *res, float **res_r, float **res_q, float **res_ls, float **res_us, float **res_b, float **res_d_lb, float **res_d_ub, float **res_d_lg, float **res_d_ug, float **res_d_ls, float **res_d_us, float **res_m_lb, float **res_m_ub, float **res_m_lg, float **res_m_ug, float **res_m_ls, float **res_m_us);
 
 
 

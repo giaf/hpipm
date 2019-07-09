@@ -83,7 +83,7 @@ struct s_ocp_qp_ipm_arg
 struct s_ocp_qp_ipm_ws
 	{
 	struct s_core_qp_ipm_workspace *core_workspace;
-	struct s_ocp_qp_res_workspace *res_workspace;
+	struct s_ocp_qp_res_ws *res_workspace;
 	struct s_ocp_qp_sol *sol_step;
 	struct s_ocp_qp_sol *sol_itref;
 	struct s_ocp_qp *qp_step;

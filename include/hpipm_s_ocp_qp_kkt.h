@@ -35,9 +35,9 @@ extern "C" {
 //
 void s_init_var_ocp_qp(struct s_ocp_qp *qp, struct s_ocp_qp_sol *qp_sol, struct s_ocp_qp_ipm_arg *arg, struct s_ocp_qp_ipm_ws *ws);
 //
-void s_compute_res_ocp_qp(struct s_ocp_qp *qp, struct s_ocp_qp_sol *qp_sol, struct s_ocp_qp_res *res, struct s_ocp_qp_res_workspace *ws);
+void s_compute_res_ocp_qp(struct s_ocp_qp *qp, struct s_ocp_qp_sol *qp_sol, struct s_ocp_qp_res *res, struct s_ocp_qp_res_ws *ws);
 //
-void s_compute_lin_res_ocp_qp(struct s_ocp_qp *qp, struct s_ocp_qp_sol *qp_sol, struct s_ocp_qp_sol *qp_step, struct s_ocp_qp_res *res, struct s_ocp_qp_res_workspace *ws);
+void s_compute_lin_res_ocp_qp(struct s_ocp_qp *qp, struct s_ocp_qp_sol *qp_sol, struct s_ocp_qp_sol *qp_step, struct s_ocp_qp_res *res, struct s_ocp_qp_res_ws *ws);
 //
 void s_fact_solve_kkt_unconstr_ocp_qp(struct s_ocp_qp *qp, struct s_ocp_qp_sol *qp_sol, struct s_ocp_qp_ipm_arg *arg, struct s_ocp_qp_ipm_ws *ws);
 //

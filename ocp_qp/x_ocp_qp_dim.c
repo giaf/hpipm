@@ -43,7 +43,7 @@ int OCP_QP_DIM_MEMSIZE(int N)
 
 	size += 10*(N+1)*sizeof(int);
 
-	size = (size+8-1)/8*8;
+	size = (size+8-1)/8*8; // make multiple of 8 bytes
 
 	return size;
 

@@ -62,7 +62,7 @@
 #define COMPUTE_RES_OCP_QP d_compute_res_ocp_qp
 #define CORE_QP_IPM_WORKSPACE d_core_qp_ipm_workspace
 #define CREATE_CORE_QP_IPM d_create_core_qp_ipm
-#define CREATE_OCP_QP_RES d_create_ocp_qp_res
+#define OCP_QP_RES_CREATE d_ocp_qp_res_create
 #define OCP_QP_SOL_CREATE d_ocp_qp_sol_create
 #define CREATE_STRMAT blasfeo_create_dmat
 #define CREATE_STRVEC blasfeo_create_dvec
@@ -73,14 +73,14 @@
 #define GELQF_WORKSIZE blasfeo_dgelqf_worksize
 #define INIT_VAR_OCP_QP d_init_var_ocp_qp
 #define MEMSIZE_CORE_QP_IPM d_memsize_core_qp_ipm
-#define MEMSIZE_OCP_QP_RES d_memsize_ocp_qp_res
+#define OCP_QP_RES_MEMSIZE d_ocp_qp_res_memsize
 #define OCP_QP_SOL_MEMSIZE d_ocp_qp_sol_memsize
 #define OCP_QP d_ocp_qp
 #define OCP_QP_IPM_ARG d_ocp_qp_ipm_arg
 #define HPIPM_MODE hpipm_mode
 #define OCP_QP_IPM_WS d_ocp_qp_ipm_ws
 #define OCP_QP_RES d_ocp_qp_res
-#define OCP_QP_RES_WORKSPACE d_ocp_qp_res_workspace
+#define OCP_QP_RES_WS d_ocp_qp_res_ws
 #define OCP_QP_DIM d_ocp_qp_dim
 #define OCP_QP_SOL d_ocp_qp_sol
 #define PRINT_E_MAT d_print_exp_mat

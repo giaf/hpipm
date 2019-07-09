@@ -45,19 +45,18 @@
 #define CVT_STRVEC2VEC blasfeo_unpack_dvec
 #define OCP_QP_DIM d_ocp_qp_dim
 #define OCP_QP_RES d_ocp_qp_res
-#define OCP_QP_RES_WORKSPACE d_ocp_qp_res_workspace
+#define OCP_QP_RES_WS d_ocp_qp_res_ws
 #define REAL double
 #define SIZE_STRVEC blasfeo_memsize_dvec
 #define STRVEC blasfeo_dvec
 
 
 
-#define MEMSIZE_OCP_QP_RES d_memsize_ocp_qp_res
-#define CREATE_OCP_QP_RES d_create_ocp_qp_res
-#define MEMSIZE_OCP_QP_RES_WORKSPACE d_memsize_ocp_qp_res_workspace
-#define CREATE_OCP_QP_RES_WORKSPACE d_create_ocp_qp_res_workspace
-#define CVT_OCP_QP_RES_TO_COLMAJ d_cvt_ocp_qp_res_to_colmaj
-#define CVT_OCP_QP_RES_TO_ROWMAJ d_cvt_ocp_qp_res_to_rowmaj
+#define OCP_QP_RES_MEMSIZE d_ocp_qp_res_memsize
+#define OCP_QP_RES_CREATE d_ocp_qp_res_create
+#define OCP_QP_RES_WS_MEMSIZE d_ocp_qp_res_ws_memsize
+#define OCP_QP_RES_WS_CREATE d_ocp_qp_res_ws_create
+#define OCP_QP_RES_GET_ALL d_ocp_qp_res_get_all
 
 
 

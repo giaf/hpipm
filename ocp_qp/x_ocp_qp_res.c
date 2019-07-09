@@ -29,7 +29,7 @@
 
 
 
-int MEMSIZE_OCP_QP_RES(struct OCP_QP_DIM *dim)
+int OCP_QP_RES_MEMSIZE(struct OCP_QP_DIM *dim)
 	{
 
 	// loop index
@@ -74,11 +74,38 @@ int MEMSIZE_OCP_QP_RES(struct OCP_QP_DIM *dim)
 
 
 
-void CREATE_OCP_QP_RES(struct OCP_QP_DIM *dim, struct OCP_QP_RES *res, void *mem)
+void OCP_QP_RES_CREATE(struct OCP_QP_DIM *dim, struct OCP_QP_RES *res, void *mem)
 	{
 
 	// loop index
 	int ii;
+
+	// zero memory (to avoid corrupted memory like e.g. NaN)
+	int memsize = OCP_QP_RES_MEMSIZE(dim);
+	int memsize_m8 = memsize/8; // sizeof(double) is 8
+//	int memsize_r8 = memsize - 8*memsize_m8;
+	double *double_ptr = mem;
+	// XXX exploit that it is multiple of 64 bytes !!!!!
+	for(ii=0; ii<memsize_m8-7; ii+=8)
+		{
+		double_ptr[ii+0] = 0.0;
+		double_ptr[ii+1] = 0.0;
+		double_ptr[ii+2] = 0.0;
+		double_ptr[ii+3] = 0.0;
+		double_ptr[ii+4] = 0.0;
+		double_ptr[ii+5] = 0.0;
+		double_ptr[ii+6] = 0.0;
+		double_ptr[ii+7] = 0.0;
+		}
+//	for(; ii<memsize_m8; ii++)
+//		{
+//		double_ptr[ii] = 0.0;
+//		}
+//	char *char_ptr = (char *) (&double_ptr[ii]);
+//	for(ii=0; ii<memsize_r8; ii++)
+//		{
+//		char_ptr[ii] = 0;
+//		}
 
 	// extract ocp qp size
 	int N = dim->N;
@@ -182,7 +209,7 @@ void CREATE_OCP_QP_RES(struct OCP_QP_DIM *dim, struct OCP_QP_RES *res, void *mem
 
 	res->dim = dim;
 
-	res->memsize = MEMSIZE_OCP_QP_RES(dim);
+	res->memsize = OCP_QP_RES_MEMSIZE(dim);
 
 
 #if defined(RUNTIME_CHECKS)
@@ -200,7 +227,7 @@ void CREATE_OCP_QP_RES(struct OCP_QP_DIM *dim, struct OCP_QP_RES *res, void *mem
 
 
 
-int MEMSIZE_OCP_QP_RES_WORKSPACE(struct OCP_QP_DIM *dim)
+int OCP_QP_RES_WS_MEMSIZE(struct OCP_QP_DIM *dim)
 	{
 
 	// loop index
@@ -244,11 +271,38 @@ int MEMSIZE_OCP_QP_RES_WORKSPACE(struct OCP_QP_DIM *dim)
 
 
 
-void CREATE_OCP_QP_RES_WORKSPACE(struct OCP_QP_DIM *dim, struct OCP_QP_RES_WORKSPACE *ws, void *mem)
+void OCP_QP_RES_WS_CREATE(struct OCP_QP_DIM *dim, struct OCP_QP_RES_WS *ws, void *mem)
 	{
 
 	// loop index
 	int ii;
+
+	// zero memory (to avoid corrupted memory like e.g. NaN)
+	int memsize = OCP_QP_RES_WS_MEMSIZE(dim);
+	int memsize_m8 = memsize/8; // sizeof(double) is 8
+//	int memsize_r8 = memsize - 8*memsize_m8;
+	double *double_ptr = mem;
+	// XXX exploit that it is multiple of 64 bytes !!!!!
+	for(ii=0; ii<memsize_m8-7; ii+=8)
+		{
+		double_ptr[ii+0] = 0.0;
+		double_ptr[ii+1] = 0.0;
+		double_ptr[ii+2] = 0.0;
+		double_ptr[ii+3] = 0.0;
+		double_ptr[ii+4] = 0.0;
+		double_ptr[ii+5] = 0.0;
+		double_ptr[ii+6] = 0.0;
+		double_ptr[ii+7] = 0.0;
+		}
+//	for(; ii<memsize_m8; ii++)
+//		{
+//		double_ptr[ii] = 0.0;
+//		}
+//	char *char_ptr = (char *) (&double_ptr[ii]);
+//	for(ii=0; ii<memsize_r8; ii++)
+//		{
+//		char_ptr[ii] = 0;
+//		}
 
 	// extract ocp qp size
 	int N = dim->N;
@@ -301,7 +355,7 @@ void CREATE_OCP_QP_RES_WORKSPACE(struct OCP_QP_DIM *dim, struct OCP_QP_RES_WORKS
 	CREATE_STRVEC(nsM, ws->tmp_nsM+0, c_ptr);
 	c_ptr += (ws->tmp_nsM+0)->memsize;
 
-	ws->memsize = MEMSIZE_OCP_QP_RES(dim);
+	ws->memsize = OCP_QP_RES_WS_MEMSIZE(dim);
 
 
 #if defined(RUNTIME_CHECKS)
@@ -319,7 +373,7 @@ void CREATE_OCP_QP_RES_WORKSPACE(struct OCP_QP_DIM *dim, struct OCP_QP_RES_WORKS
 
 
 
-void CVT_OCP_QP_RES_TO_COLMAJ(struct OCP_QP_RES *res, REAL **res_r, REAL **res_q, REAL **res_ls, REAL **res_us, REAL **res_b, REAL **res_d_lb, REAL **res_d_ub, REAL **res_d_lg, REAL **res_d_ug, REAL **res_d_ls, REAL **res_d_us, REAL **res_m_lb, REAL **res_m_ub, REAL **res_m_lg, REAL **res_m_ug, REAL **res_m_ls, REAL **res_m_us)
+void OCP_QP_RES_GET_ALL(struct OCP_QP_RES *res, REAL **res_r, REAL **res_q, REAL **res_ls, REAL **res_us, REAL **res_b, REAL **res_d_lb, REAL **res_d_ub, REAL **res_d_lg, REAL **res_d_ug, REAL **res_d_ls, REAL **res_d_us, REAL **res_m_lb, REAL **res_m_ub, REAL **res_m_lg, REAL **res_m_ug, REAL **res_m_ls, REAL **res_m_us)
 	{
 
 	int N = res->dim->N;
@@ -406,98 +460,6 @@ void CVT_OCP_QP_RES_TO_COLMAJ(struct OCP_QP_RES *res, REAL **res_r, REAL **res_q
 	return;
 
 	}
-
-
-
-void CVT_OCP_QP_RES_TO_ROWMAJ(struct OCP_QP_RES *res, REAL **res_r, REAL **res_q, REAL **res_ls, REAL **res_us, REAL **res_b, REAL **res_d_lb, REAL **res_d_ub, REAL **res_d_lg, REAL **res_d_ug, REAL **res_d_ls, REAL **res_d_us, REAL **res_m_lb, REAL **res_m_ub, REAL **res_m_lg, REAL **res_m_ug, REAL **res_m_ls, REAL **res_m_us)
-	{
-
-	int N = res->dim->N;
-	int *nx = res->dim->nx;
-	int *nu = res->dim->nu;
-	int *nb = res->dim->nb;
-	int *ng = res->dim->ng;
-	int *ns = res->dim->ns;
-
-	int ii;
-
-	for(ii=0; ii<N; ii++)
-		{
-		// cost
-		CVT_STRVEC2VEC(nu[ii], res->res_g+ii, 0, res_r[ii]);
-		CVT_STRVEC2VEC(nx[ii], res->res_g+ii, nu[ii], res_q[ii]);
-
-		// dynamics
-		CVT_STRVEC2VEC(nx[ii+1], res->res_b+ii, 0, res_b[ii]);
-
-		// box constraints
-		if(nb[ii]>0)
-			{
-			CVT_STRVEC2VEC(nb[ii], res->res_d+ii, 0, res_d_lb[ii]);
-			CVT_STRVEC2VEC(nb[ii], res->res_d+ii, nb[ii]+ng[ii], res_d_ub[ii]);
-			CVT_STRVEC2VEC(nb[ii], res->res_m+ii, 0, res_m_lb[ii]);
-			CVT_STRVEC2VEC(nb[ii], res->res_m+ii, nb[ii]+ng[ii], res_m_ub[ii]);
-			}
-
-		// general constraints
-		if(ng[ii]>0)
-			{
-			CVT_STRVEC2VEC(ng[ii], res->res_d+ii, nb[ii], res_d_lg[ii]);
-			CVT_STRVEC2VEC(ng[ii], res->res_d+ii, 2*nb[ii]+ng[ii], res_d_ug[ii]);
-			CVT_STRVEC2VEC(ng[ii], res->res_m+ii, nb[ii], res_m_lg[ii]);
-			CVT_STRVEC2VEC(ng[ii], res->res_m+ii, 2*nb[ii]+ng[ii], res_m_ug[ii]);
-			}
-
-		// soft constraints
-		if(ns[ii]>0)
-			{
-			CVT_STRVEC2VEC(ns[ii], res->res_g+ii, nu[ii]+nx[ii], res_ls[ii]);
-			CVT_STRVEC2VEC(ns[ii], res->res_g+ii, nu[ii]+nx[ii]+ns[ii], res_us[ii]);
-			CVT_STRVEC2VEC(ns[ii], res->res_d+ii, 2*nb[ii]+2*ng[ii], res_d_ls[ii]);
-			CVT_STRVEC2VEC(ns[ii], res->res_d+ii, 2*nb[ii]+2*ng[ii]+ns[ii], res_d_us[ii]);
-			CVT_STRVEC2VEC(ns[ii], res->res_m+ii, 2*nb[ii]+2*ng[ii], res_m_ls[ii]);
-			CVT_STRVEC2VEC(ns[ii], res->res_m+ii, 2*nb[ii]+2*ng[ii]+ns[ii], res_m_us[ii]);
-			}
-		}
-
-	// cost
-	CVT_STRVEC2VEC(nu[ii], res->res_g+ii, 0, res_r[ii]);
-	CVT_STRVEC2VEC(nx[ii], res->res_g+ii, nu[ii], res_q[ii]);
-
-	// box constraints
-	if(nb[ii]>0)
-		{
-		CVT_STRVEC2VEC(nb[ii], res->res_d+ii, 0, res_d_lb[ii]);
-		CVT_STRVEC2VEC(nb[ii], res->res_d+ii, nb[ii]+ng[ii], res_d_ub[ii]);
-		CVT_STRVEC2VEC(nb[ii], res->res_m+ii, 0, res_m_lb[ii]);
-		CVT_STRVEC2VEC(nb[ii], res->res_m+ii, nb[ii]+ng[ii], res_m_ub[ii]);
-		}
-
-	// general constraints
-	if(ng[ii]>0)
-		{
-		CVT_STRVEC2VEC(ng[ii], res->res_d+ii, nb[ii], res_d_lg[ii]);
-		CVT_STRVEC2VEC(ng[ii], res->res_d+ii, 2*nb[ii]+ng[ii], res_d_ug[ii]);
-		CVT_STRVEC2VEC(ng[ii], res->res_m+ii, nb[ii], res_m_lg[ii]);
-		CVT_STRVEC2VEC(ng[ii], res->res_m+ii, 2*nb[ii]+ng[ii], res_m_ug[ii]);
-		}
-
-	// soft constraints
-	if(ns[ii]>0)
-		{
-		CVT_STRVEC2VEC(ns[ii], res->res_g+ii, nu[ii]+nx[ii], res_ls[ii]);
-		CVT_STRVEC2VEC(ns[ii], res->res_g+ii, nu[ii]+nx[ii]+ns[ii], res_us[ii]);
-		CVT_STRVEC2VEC(ns[ii], res->res_d+ii, 2*nb[ii]+2*ng[ii], res_d_ls[ii]);
-		CVT_STRVEC2VEC(ns[ii], res->res_d+ii, 2*nb[ii]+2*ng[ii]+ns[ii], res_d_us[ii]);
-		CVT_STRVEC2VEC(ns[ii], res->res_m+ii, 2*nb[ii]+2*ng[ii], res_m_ls[ii]);
-		CVT_STRVEC2VEC(ns[ii], res->res_m+ii, 2*nb[ii]+2*ng[ii]+ns[ii], res_m_us[ii]);
-		}
-
-	return;
-
-	}
-
-
 
 
 

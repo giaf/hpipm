@@ -48,6 +48,38 @@ int OCP_QP_IPM_ARG_MEMSIZE(struct OCP_QP_DIM *dim)
 void OCP_QP_IPM_ARG_CREATE(struct OCP_QP_DIM *dim, struct OCP_QP_IPM_ARG *arg, void *mem)
 	{
 
+#if 0
+	// loop index
+	int ii;
+
+	// zero memory (to avoid corrupted memory like e.g. NaN)
+	int memsize = OCP_QP_IPM_ARG_MEMSIZE(dim);
+	int memsize_m8 = memsize/8; // sizeof(double) is 8
+//	int memsize_r8 = memsize - 8*memsize_m8;
+	double *double_ptr = mem;
+	// XXX exploit that it is multiple of 64 bytes !!!!!
+	for(ii=0; ii<memsize_m8-7; ii+=8)
+		{
+		double_ptr[ii+0] = 0.0;
+		double_ptr[ii+1] = 0.0;
+		double_ptr[ii+2] = 0.0;
+		double_ptr[ii+3] = 0.0;
+		double_ptr[ii+4] = 0.0;
+		double_ptr[ii+5] = 0.0;
+		double_ptr[ii+6] = 0.0;
+		double_ptr[ii+7] = 0.0;
+		}
+//	for(; ii<memsize_m8; ii++)
+//		{
+//		double_ptr[ii] = 0.0;
+//		}
+//	char *char_ptr = (char *) (&double_ptr[ii]);
+//	for(ii=0; ii<memsize_r8; ii++)
+//		{
+//		char_ptr[ii] = 0;
+//		}
+#endif
+
 	arg->memsize = 0;
 
 	return;
@@ -373,7 +405,7 @@ int OCP_QP_IPM_WS_MEMSIZE(struct OCP_QP_DIM *dim, struct OCP_QP_IPM_ARG *arg)
 	size += 1*sizeof(struct CORE_QP_IPM_WORKSPACE);
 	size += 1*MEMSIZE_CORE_QP_IPM(nvt, net, nct);
 
-	size += 1*sizeof(struct OCP_QP_RES_WORKSPACE); // res_workspace
+	size += 1*sizeof(struct OCP_QP_RES_WS); // res_workspace
 
 	size += 2*sizeof(struct OCP_QP); // qp_step qp_itref
 
@@ -381,7 +413,7 @@ int OCP_QP_IPM_WS_MEMSIZE(struct OCP_QP_DIM *dim, struct OCP_QP_IPM_ARG *arg)
 	size += 1*OCP_QP_SOL_MEMSIZE(dim); // sol_itref
 
 	size += 2*sizeof(struct OCP_QP_RES); // res res_itref
-	size += 1*MEMSIZE_OCP_QP_RES(dim); // res_itref
+	size += 1*OCP_QP_RES_MEMSIZE(dim); // res_itref
 
 	size += 9*(N+1)*sizeof(struct STRVEC); // res_g res_d res_m Gamma gamma Zs_inv sol_step(v,lam,t)
 	size += 3*N*sizeof(struct STRVEC); // res_b Pb sol_step(pi) 
@@ -450,6 +482,33 @@ void OCP_QP_IPM_WS_CREATE(struct OCP_QP_DIM *dim, struct OCP_QP_IPM_ARG *arg, st
 	// loop index
 	int ii;
 
+	// zero memory (to avoid corrupted memory like e.g. NaN)
+	int memsize = OCP_QP_IPM_WS_MEMSIZE(dim, arg);
+	int memsize_m8 = memsize/8; // sizeof(double) is 8
+//	int memsize_r8 = memsize - 8*memsize_m8;
+	double *double_ptr = mem;
+	// XXX exploit that it is multiple of 64 bytes !!!!!
+	for(ii=0; ii<memsize_m8-7; ii+=8)
+		{
+		double_ptr[ii+0] = 0.0;
+		double_ptr[ii+1] = 0.0;
+		double_ptr[ii+2] = 0.0;
+		double_ptr[ii+3] = 0.0;
+		double_ptr[ii+4] = 0.0;
+		double_ptr[ii+5] = 0.0;
+		double_ptr[ii+6] = 0.0;
+		double_ptr[ii+7] = 0.0;
+		}
+//	for(; ii<memsize_m8; ii++)
+//		{
+//		double_ptr[ii] = 0.0;
+//		}
+//	char *char_ptr = (char *) (&double_ptr[ii]);
+//	for(ii=0; ii<memsize_r8; ii++)
+//		{
+//		char_ptr[ii] = 0;
+//		}
+
 	// extract ocp qp size
 	int N = dim->N;
 	int *nx = dim->nx;
@@ -506,7 +565,7 @@ void OCP_QP_IPM_WS_CREATE(struct OCP_QP_DIM *dim, struct OCP_QP_IPM_ARG *arg, st
 
 
 	// res workspace struct
-	struct OCP_QP_RES_WORKSPACE *res_ws_ptr = (struct OCP_QP_RES_WORKSPACE *) res_ptr;
+	struct OCP_QP_RES_WS *res_ws_ptr = (struct OCP_QP_RES_WS *) res_ptr;
 	workspace->res_workspace = res_ws_ptr;
 	res_ws_ptr += 1;
 
@@ -620,7 +679,7 @@ void OCP_QP_IPM_WS_CREATE(struct OCP_QP_DIM *dim, struct OCP_QP_IPM_ARG *arg, st
 	OCP_QP_SOL_CREATE(dim, workspace->sol_itref, c_ptr);
 	c_ptr += workspace->sol_itref->memsize;
 
-	CREATE_OCP_QP_RES(dim, workspace->res_itref, c_ptr);
+	OCP_QP_RES_CREATE(dim, workspace->res_itref, c_ptr);
 	c_ptr += workspace->res_itref->memsize;
 
 	for(ii=0; ii<=N; ii++)
@@ -824,7 +883,7 @@ void OCP_QP_IPM_WS_CREATE(struct OCP_QP_DIM *dim, struct OCP_QP_IPM_ARG *arg, st
 	
 	workspace->use_Pb = 0;
 
-	workspace->memsize = OCP_QP_IPM_WS_MEMSIZE(dim, arg);
+	workspace->memsize = memsize; //OCP_QP_IPM_WS_MEMSIZE(dim, arg);
 
 
 #if defined(RUNTIME_CHECKS)

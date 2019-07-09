@@ -83,6 +83,36 @@ int OCP_QP_SOL_MEMSIZE(struct OCP_QP_DIM *dim)
 void OCP_QP_SOL_CREATE(struct OCP_QP_DIM *dim, struct OCP_QP_SOL *qp_sol, void *mem)
 	{
 
+	// loop index
+	int ii;
+
+	// zero memory (to avoid corrupted memory like e.g. NaN)
+	int memsize = OCP_QP_SOL_MEMSIZE(dim);
+	int memsize_m8 = memsize/8; // sizeof(double) is 8
+//	int memsize_r8 = memsize - 8*memsize_m8;
+	double *double_ptr = mem;
+	// XXX exploit that it is multiple of 64 bytes !!!!!
+	for(ii=0; ii<memsize_m8-7; ii+=8)
+		{
+		double_ptr[ii+0] = 0.0;
+		double_ptr[ii+1] = 0.0;
+		double_ptr[ii+2] = 0.0;
+		double_ptr[ii+3] = 0.0;
+		double_ptr[ii+4] = 0.0;
+		double_ptr[ii+5] = 0.0;
+		double_ptr[ii+6] = 0.0;
+		double_ptr[ii+7] = 0.0;
+		}
+//	for(; ii<memsize_m8; ii++)
+//		{
+//		double_ptr[ii] = 0.0;
+//		}
+//	char *char_ptr = (char *) (&double_ptr[ii]);
+//	for(ii=0; ii<memsize_r8; ii++)
+//		{
+//		char_ptr[ii] = 0;
+//		}
+
 	// extract dim
 	int N = dim->N;
 	int *nx = dim->nx;
@@ -90,9 +120,6 @@ void OCP_QP_SOL_CREATE(struct OCP_QP_DIM *dim, struct OCP_QP_SOL *qp_sol, void *
 	int *nb = dim->nb;
 	int *ng = dim->ng;
 	int *ns = dim->ns;
-
-	// loop index
-	int ii;
 
 	int nvt = 0;
 	int net = 0;
