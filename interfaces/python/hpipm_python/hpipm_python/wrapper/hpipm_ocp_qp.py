@@ -425,9 +425,11 @@ class hpipm_ocp_qp:
 	
 
 	def print_C_struct(self):
-		print('in print')
 		self.__hpipm.d_ocp_qp_print(self.dim.dim_struct, self.qp_struct)
 
-
-
+	def codegen(self, file_name, mode):
+		file_name_b = file_name.encode('utf-8')
+		mode_b = mode.encode('utf-8')
+		self.__hpipm.d_ocp_qp_codegen(c_char_p(file_name_b), c_char_p(mode_b), self.dim.dim_struct, self.qp_struct)
+		return 
 

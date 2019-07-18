@@ -55,6 +55,7 @@ endif
 OBJS_DATA = data/getting_started_data.o 
 #OBJS_DATA = data/ocp_qp_data.o 
 #OBJS_DATA = ../matlab_octave_mex/qp_data.o
+#OBJS_DATA = ../python/qp_data.o
 
 #OBJS_EXMP = $(OBJS_DATA) example_d_ocp_qp_unconstr.o
 OBJS_EXMP = $(OBJS_DATA) example_d_ocp_qp.o

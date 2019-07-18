@@ -5,6 +5,11 @@ import time
 
 
 
+# define flags
+codegen_data = 1; # export qp data in the file qp_data.c for use from C examples
+
+
+
 # dims
 N = 5
 
@@ -23,7 +28,11 @@ dims.set('nbx', 2, 0) # number of state bounds
 dims.set('nbx', 2, 5)
 #dims.set('ns', 2, 5)
 
+# print to shell
 #dims.print_C_struct()
+# codegen
+if codegen_data:
+	dims.codegen('qp_data.c', 'w')
 
 
 
@@ -86,7 +95,11 @@ qp.set('Jx', Jx, 5)
 #qp.set('zl', zl, 5)
 #qp.set('zu', zu, 5)
 
-qp.print_C_struct()
+# print to shell
+#qp.print_C_struct()
+# codegen
+if codegen_data:
+	qp.codegen('qp_data.c', 'a')
 
 
 # qp sol
@@ -110,6 +123,9 @@ arg.set_tol_ineq(1e-5)
 arg.set_tol_comp(1e-5)
 arg.set_reg_prim(1e-12)
 
+# codegen
+if codegen_data:
+	arg.codegen('qp_data.c', 'a')
 
 # set up solver
 start_time = time.time()
