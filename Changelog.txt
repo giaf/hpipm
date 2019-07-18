@@ -14,6 +14,9 @@ Matlab/Octave interface:
 	* reimplement an unified Matlab & Octave interface based on mex (and independent of the python interface)
 	* allow for codegen of dims, qp and ipm_args from Matlab/Octave
 
+python interface:
+	* allow for codegen of dims, qp and ipm_args from python
+
 ====================================================================
 Version 0.1.0
 04-Jul-2019
