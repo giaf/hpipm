@@ -167,11 +167,19 @@ class hpipm_ocp_qp:
 
 	
 	def set(self, field, value, idx=None):
+		# cast to np array
 		if type(value) is not np.ndarray:
-			if type(value) is int:
+			if (type(value) is int) or (type(value) is float):
 				value_ = value
 				value = np.array((1,))
 				value[0] = value_
+
+		# reshape np arrays with empty shape, that occur when using hpipm_matlab
+		if type(value) is np.ndarray and value.shape == ():
+			value_ = value
+			value = np.array((1,))
+			value[0] = value_
+
 		# non-native setters (not implemented as C APIs)
 		setter_map = {
 			"Jsu": self.set_Jsu,
