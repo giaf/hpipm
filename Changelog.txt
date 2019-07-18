@@ -3,6 +3,18 @@ HPIPM ChangeLog
 
 
 ====================================================================
+Version 0.1.1-dev
+18-Jul-2019
+
+ocp_qp:
+	* general renaming of routines, e.g. d_create_ocp_qp_dim => d_ocp_qp_dim_create
+	* add codegen functionality to export dims, qp and ipm_args as global variables in a C source file
+
+Matlab/Octave interface:
+	* reimplement an unified Matlab & Octave interface based on mex (and independent of the python interface)
+	* allow for codegen of dims, qp and ipm_args from Matlab/Octave
+
+====================================================================
 Version 0.1.0
 04-Jul-2019
 
