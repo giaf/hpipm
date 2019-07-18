@@ -38,19 +38,21 @@ class hpipm_ocp_qp_sol:
 		self.__hpipm = __hpipm
 
 		# C qp struct
-		qp_sol_struct_size = __hpipm.d_sizeof_ocp_qp_sol()
+		qp_sol_struct_size = __hpipm.d_ocp_qp_sol_strsize()
 		qp_sol_struct = cast(create_string_buffer(qp_sol_struct_size), c_void_p)
 		self.qp_sol_struct = qp_sol_struct
 
 		# C qp internal memory
-		qp_sol_mem_size = __hpipm.d_memsize_ocp_qp_sol(dim.dim_struct)
+		qp_sol_mem_size = __hpipm.d_ocp_qp_sol_memsize(dim.dim_struct)
 		qp_sol_mem = cast(create_string_buffer(qp_sol_mem_size), c_void_p)
 		self.qp_sol_mem = qp_sol_mem
 
 		# create C qp
-		__hpipm.d_create_ocp_qp_sol(dim.dim_struct, qp_sol_struct, qp_sol_mem)
+		__hpipm.d_ocp_qp_sol_create(dim.dim_struct, qp_sol_struct, qp_sol_mem)
 
 
+
+	# TODO single getter !!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
 	def get_u(self, idx=None):
 		# extract dims
@@ -61,11 +63,11 @@ class hpipm_ocp_qp_sol:
 			for i in range(N+1):
 				u.append(np.zeros((nu[i], 1)))
 				tmp = cast(u[i].ctypes.data, POINTER(c_double))
-				self.__hpipm.d_cvt_ocp_qp_sol_to_colmaj_u(i, self.qp_sol_struct, tmp)
+				self.__hpipm.d_ocp_qp_sol_get_u(i, self.qp_sol_struct, tmp)
 		else:
 			u = np.zeros((nu[idx], 1))
 			tmp = cast(u.ctypes.data, POINTER(c_double))
-			self.__hpipm.d_cvt_ocp_qp_sol_to_colmaj_u(idx, self.qp_sol_struct, tmp)
+			self.__hpipm.d_ocp_qp_sol_get_u(idx, self.qp_sol_struct, tmp)
 		return u
 
 
@@ -79,17 +81,17 @@ class hpipm_ocp_qp_sol:
 			for i in range(N+1):
 				x.append(np.zeros((nx[i], 1)))
 				tmp = cast(x[i].ctypes.data, POINTER(c_double))
-				self.__hpipm.d_cvt_ocp_qp_sol_to_colmaj_x(i, self.qp_sol_struct, tmp)
+				self.__hpipm.d_ocp_qp_sol_get_x(i, self.qp_sol_struct, tmp)
 		else:
 			x = np.zeros((nx[idx], 1))
 			tmp = cast(x.ctypes.data, POINTER(c_double))
-			self.__hpipm.d_cvt_ocp_qp_sol_to_colmaj_x(idx, self.qp_sol_struct, tmp)
+			self.__hpipm.d_ocp_qp_sol_get_x(idx, self.qp_sol_struct, tmp)
 		return x
 
 
 
 	def print_C_struct(self):
-		self.__hpipm.d_print_ocp_qp_sol(self.qp_sol_struct, self.dim.dim_struct)
+		self.__hpipm.d_ocp_qp_sol_print(self.dim.dim_struct, self.qp_sol_struct)
 		return 
 
 

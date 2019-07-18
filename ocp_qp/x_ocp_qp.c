@@ -500,11 +500,11 @@ void OCP_QP_SET(char *field, int stage, void *value, struct OCP_QP *qp)
 		{ 
 		OCP_QP_SET_LB(stage, value, qp);
 		}
-	else if(hpipm_strcmp(field, "lbu"))
+	else if(hpipm_strcmp(field, "lbu") | hpipm_strcmp(field, "lu"))
 		{ 
 		OCP_QP_SET_LBU(stage, value, qp);
 		}
-	else if(hpipm_strcmp(field, "lbx"))
+	else if(hpipm_strcmp(field, "lbx") | hpipm_strcmp(field, "lx"))
 		{ 
 		OCP_QP_SET_LBX(stage, value, qp);
 		}
@@ -512,11 +512,11 @@ void OCP_QP_SET(char *field, int stage, void *value, struct OCP_QP *qp)
 		{ 
 		OCP_QP_SET_UB(stage, value, qp);
 		}
-	else if(hpipm_strcmp(field, "ubu"))
+	else if(hpipm_strcmp(field, "ubu") | hpipm_strcmp(field, "uu"))
 		{ 
 		OCP_QP_SET_UBU(stage, value, qp);
 		}
-	else if(hpipm_strcmp(field, "ubx"))
+	else if(hpipm_strcmp(field, "ubx") | hpipm_strcmp(field, "ux"))
 		{ 
 		OCP_QP_SET_UBX(stage, value, qp);
 		}
@@ -561,7 +561,7 @@ void OCP_QP_SET(char *field, int stage, void *value, struct OCP_QP *qp)
 		{
 		OCP_QP_SET_IDXBX(stage, value, qp);
 		}
-	else if(hpipm_strcmp(field, "Jbx"))
+	else if(hpipm_strcmp(field, "Jbx") | hpipm_strcmp(field, "Jx"))
 		{
 		OCP_QP_SET_JBX(stage, value, qp);
 		}
@@ -569,7 +569,7 @@ void OCP_QP_SET(char *field, int stage, void *value, struct OCP_QP *qp)
 		{
 		OCP_QP_SET_IDXBU(stage, value, qp);
 		}
-	else if(hpipm_strcmp(field, "Jbu"))
+	else if(hpipm_strcmp(field, "Jbu") | hpipm_strcmp(field, "Ju"))
 		{
 		OCP_QP_SET_JBU(stage, value, qp);
 		}

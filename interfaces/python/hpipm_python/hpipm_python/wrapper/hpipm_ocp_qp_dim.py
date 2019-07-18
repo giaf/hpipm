@@ -23,17 +23,17 @@ class hpipm_ocp_qp_dim:
 		self.__hpipm = __hpipm
 
 		# C dim struct
-		dim_struct_size = __hpipm.d_sizeof_ocp_qp_dim()
+		dim_struct_size = __hpipm.d_ocp_qp_dim_strsize()
 		dim_struct = cast(create_string_buffer(dim_struct_size), c_void_p)
 		self.dim_struct = dim_struct
 
 		# C dim internal memory
-		dim_mem_size = __hpipm.d_memsize_ocp_qp_dim(N)
+		dim_mem_size = __hpipm.d_ocp_qp_dim_memsize(N)
 		dim_mem = cast(create_string_buffer(dim_mem_size), c_void_p)
 		self.dim_mem = dim_mem
 
 		# create C dim
-		__hpipm.d_create_ocp_qp_dim(N, self.dim_struct, self.dim_mem)
+		__hpipm.d_ocp_qp_dim_create(N, self.dim_struct, self.dim_mem)
 
 #		__hpipm.d_cvt_int_to_ocp_qp_dim(N,
 #			cast(nx.ctypes.data, POINTER(c_double)),
@@ -46,21 +46,21 @@ class hpipm_ocp_qp_dim:
 
 
 	def set(self, field, value, idx=None):
-		self.__hpipm.d_set_ocp_qp_dim.argtypes = [c_char_p, c_int, c_int, c_void_p]
+		self.__hpipm.d_ocp_qp_dim_set.argtypes = [c_char_p, c_int, c_int, c_void_p]
 		if idx==None:
 			for i in range(value.size):
 				field_ = getattr(self, field)
 				field_[i] = value[i]
 				field_name_b = field.encode('utf-8')
-				self.__hpipm.d_set_ocp_qp_dim(c_char_p(field_name_b), i, value[i], self.dim_struct)
+				self.__hpipm.d_ocp_qp_dim_set(c_char_p(field_name_b), i, value[i], self.dim_struct)
 		else:
 			field_ = getattr(self, field)
 			field_[idx] = value
 			field_name_b = field.encode('utf-8')
-			self.__hpipm.d_set_ocp_qp_dim(c_char_p(field_name_b), idx, value, self.dim_struct)
+			self.__hpipm.d_ocp_qp_dim_set(c_char_p(field_name_b), idx, value, self.dim_struct)
 		return
 
 	def print_C_struct(self):
-		self.__hpipm.d_print_ocp_qp_dim(self.dim_struct)
+		self.__hpipm.d_ocp_qp_dim_print(self.dim_struct)
 		return 
 
