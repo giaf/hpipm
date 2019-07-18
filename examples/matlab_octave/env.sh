@@ -27,11 +27,11 @@ echo "BLASFEO_MAIN_FOLDER=$BLASFEO_MAIN_FOLDER"
 
 # export matlab_octave_mex folder
 # MATLAB case
-export MATLABPATH=$MATLABPATH:$HPIPM_MAIN_FOLDER/interfaces/matlab_octave_mex/
+export MATLABPATH=$MATLABPATH:$HPIPM_MAIN_FOLDER/interfaces/matlab_octave/
 echo
 echo "MATLABPATH=$MATLABPATH"
 # Octave case
-export OCTAVE_PATH=$OCTAVE_PATH:$HPIPM_MAIN_FOLDER/interfaces/matlab_octave_mex/
+export OCTAVE_PATH=$OCTAVE_PATH:$HPIPM_MAIN_FOLDER/interfaces/matlab_octave/
 echo
 echo "OCTAVE_PATH=$OCTAVE_PATH"
 
