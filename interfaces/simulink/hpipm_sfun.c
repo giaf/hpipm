@@ -294,64 +294,22 @@ static void mdlOutputs(SimStruct *S, int_T tid)
     
     // get solution
 	// u
-    
     int offset = 0;
 	for(ii=0; ii<=N; ii++) {
         
 		d_ocp_qp_sol_get_u(ii, qp_sol, out_u+offset);
-//         printf("u[0] = %f\n",(out_u+offset)[0]);
-
-		d_print_mat(1, nu[ii], out_u+offset, 1);
+		// d_print_mat(1, nu[ii], out_u+offset, 1);
         offset+=nu[ii];
     }
 
 	// x
-    
     offset = 0;
 	for(ii=0; ii<=N; ii++) {
-        
 		d_ocp_qp_sol_get_x(ii, qp_sol, out_x+offset);
-  		d_print_mat(1, nx[ii], out_x+offset, 1);
+  		// d_print_mat(1, nx[ii], out_x+offset, 1);
         offset+=nx[ii];
 
     }
-    
-    	// u
-
-// 	int nu_max = nu[0];
-// 	for(ii=1; ii<=N; ii++)
-// 		if(nu[ii]>nu_max)
-// 			nu_max = nu[ii];
-// 
-// 	double *u = malloc(nu_max*sizeof(double));
-// 
-// 	printf("\nu = \n");
-// 	for(ii=0; ii<=N; ii++)
-// 		{
-// 		d_ocp_qp_sol_get_u(ii, qp_sol, u);
-//      	printf("u[0] = %f\n",u[0]);
-// 
-// 		d_print_mat(1, nu[ii], u, 1);
-// 		}
-// 
-// 	// x
-// 
-// 	int nx_max = nx[0];
-// 	for(ii=1; ii<=N; ii++)
-// 		if(nx[ii]>nx_max)
-// 			nx_max = nx[ii];
-// 
-// 	double *x = malloc(nx_max*sizeof(double));
-// 
-// 	printf("\nx = \n");
-// 	for(ii=0; ii<=N; ii++)
-// 		{
-// 		d_ocp_qp_sol_get_x(ii, qp_sol, x);
-// 		d_print_mat(1, nx[ii], x, 1);
-// 		}
-
-
-
 }
 
 static void mdlTerminate(SimStruct *S)
