@@ -10,6 +10,9 @@
 #include "hpipm_d_ocp_qp_dim.h"
 #include "hpipm_d_ocp_qp.h"
 #include "hpipm_d_ocp_qp_sol.h"
+#include "hpipm_timing.h"
+
+#include "simstruc.h"
 
 #define SAMPLINGTIME -1
 
@@ -23,12 +26,18 @@ void *ipm_mem;
 // hpipm structs as global data
 struct d_ocp_qp *qp;
 struct d_ocp_qp_sol *qp_sol;
+struct d_ocp_qp_dim *dim;
 struct d_ocp_qp_ipm_arg *arg;
 struct d_ocp_qp_ipm_ws *workspace;
 
 // timing structures
 struct timeval tv0, tv1;
 
+// auxiliary dimensions
+int nx_total;
+int nu_total;
+
+// qp data as global data
 // qp data as global data
 extern int N;
 extern int *nx;
@@ -36,7 +45,9 @@ extern int *nu;
 extern int *nbu;
 extern int *nbx;
 extern int *ng;
-extern int *ns;
+extern int *nsbx;
+extern int *nsbu;
+extern int *nsg;
 extern double **hA;
 extern double **hB;
 extern double **hb;
@@ -45,9 +56,12 @@ extern double **hR;
 extern double **hS;
 extern double **hq;
 extern double **hr;
-extern int **hidxb;
-extern double **hlb;
-extern double **hub;
+extern int **hidxbx;
+extern double **hlbx;
+extern double **hubx;
+extern int **hidxbu;
+extern double **hlbu;
+extern double **hubu;
 extern double **hC;
 extern double **hD;
 extern double **hlg;
@@ -60,10 +74,6 @@ extern int **hidxs;
 extern double **hlls;
 extern double **hlus;
 
-// extern double **hu_guess;
-// extern double **hx_guess;
-// extern double **hsl_guess;
-// extern double **hsu_guess;
 
 // arg
 extern int mode;
@@ -90,7 +100,7 @@ static void mdlInitializeSizes (SimStruct *S)
         return;
 
     // specify the number of output ports 
-    if ( !ssSetNumOutputPorts(S, 3) )
+    if ( !ssSetNumOutputPorts(S, 4) )
         return;
 
     // specify dimension information for the input ports 
@@ -98,11 +108,14 @@ static void mdlInitializeSizes (SimStruct *S)
 
     // specify dimension information for the output ports 
 	// compute sum of dimensions
-	int nv = 0;
-	for(int i = 0; i < N; i++) nv += nx[i] + nu[i];
-    ssSetOutputPortVectorDimension(S, 0, nv);  // optimal solution
-    ssSetOutputPortVectorDimension(S, 1, 1 );  // solver status
-    ssSetOutputPortVectorDimension(S, 2, 1);   // computation times
+	nx_total = 0;
+	nu_total = 0;
+	for(int i = 0; i < N; i++) nx_total += nx[i];
+	for(int i = 0; i < N; i++) nu_total += nu[i];
+    ssSetOutputPortVectorDimension(S, 0, nu_total);  // optimal input trajectory
+    ssSetOutputPortVectorDimension(S, 1, nx_total);  // optimal state trajectory
+    ssSetOutputPortVectorDimension(S, 2, 1 );  // solver status
+    ssSetOutputPortVectorDimension(S, 3, 1);   // computation times
 
     // specify the direct feedthrough status 
     ssSetInputPortDirectFeedThrough(S, 0, 1); // current state x0
@@ -143,8 +156,6 @@ static void mdlStart(SimStruct *S)
 {
 	int ii;
 
-	int hpipm_status;
-
 	int rep, nrep=10;
 
 
@@ -156,7 +167,7 @@ static void mdlStart(SimStruct *S)
 	dim_mem = malloc(dim_size);
 	if(dim_mem == NULL) printf("Error allocating memory for dim_mem. Exiting.\n\n");
 
-	dim = malloc(sizeof(d_ocp_qp_dim));
+	dim = malloc(sizeof(struct d_ocp_qp_dim));
 	if(dim == NULL) printf("Error allocating memory for dim. Exiting.\n\n");
 	d_ocp_qp_dim_create(N, dim, dim_mem);
 
@@ -184,7 +195,7 @@ static void mdlStart(SimStruct *S)
 	qp_sol_mem = malloc(qp_sol_size);
 	if(qp_sol_mem == NULL) printf("Error allocating memory for qp_sol_mem. Exiting.\n\n");
 
-	qp_sol = malloc(sizefof(struct d_ocp_qp_sol));
+	qp_sol = malloc(sizeof(struct d_ocp_qp_sol));
 	if(qp_sol == NULL) printf("Error allocating memory for qp_sol. Exiting.\n\n");
 	d_ocp_qp_sol_create(dim, qp_sol, qp_sol_mem);
 
@@ -227,22 +238,25 @@ static void mdlStart(SimStruct *S)
 
 static void mdlOutputs(SimStruct *S, int_T tid)
 {
+    int hpipm_status;
+    int ii; 
+    
     // get input signals
     InputRealPtrsType in_x0_sign;
     // InputRealPtrsType in_y_ref_sign;
     // InputRealPtrsType in_y_ref_e_sign;
     
     // local buffers
-    real_t in_x0[{{ ocp.dims.nx }}];
-    // real_t in_y_ref[{{ ocp.dims.ny }}];
-    // real_t in_y_ref_e[{{ ocp.dims.ny_e }}];
+    double in_x0[nx[0]];
+    // double in_y_ref[{{ ocp.dims.ny }}];
+    // double in_y_ref_e[{{ ocp.dims.ny_e }}];
 
     in_x0_sign = ssGetInputPortRealSignalPtrs(S, 0);
     // in_y_ref_sign = ssGetInputPortRealSignalPtrs(S, 1);
     // in_y_ref_e_sign = ssGetInputPortRealSignalPtrs(S, 2);
 
     // copy signals into local buffers
-    for (int i = 0; i < {{ ocp.dims.nx }}; i++) in_x0[i] = (double)(*in_x0_sign[i]);
+    for (int i = 0; i < nx[0]; i++) in_x0[i] = (double)(*in_x0_sign[i]);
     // for (int i = 0; i < {{ ocp.dims.ny }}; i++) in_y_ref[i] = (double)(*in_y_ref_sign[i]);
     // for (int i = 0; i < {{ ocp.dims.ny_e }}; i++) in_y_ref_e[i] = (double)(*in_y_ref_e_sign[i]);
 
@@ -258,11 +272,12 @@ static void mdlOutputs(SimStruct *S, int_T tid)
         // ocp_nlp_cost_model_set(nlp_config, nlp_dims, nlp_in, ii, "yref", (void *) in_y_ref);
 
     // assign pointers to output signals 
-    real_t *out_u, *out_x, *out_status;
+    double *out_u, *out_x, *out_status, *out_time;
 
     out_u          = ssGetOutputPortRealSignal(S, 0);
     out_x          = ssGetOutputPortRealSignal(S, 1);
     out_status     = ssGetOutputPortRealSignal(S, 2);
+    out_time       = ssGetOutputPortRealSignal(S, 3);
     
 	hpipm_timer timer;
 	hpipm_tic(&timer);
@@ -271,34 +286,21 @@ static void mdlOutputs(SimStruct *S, int_T tid)
 	d_ocp_qp_ipm_solve(qp, qp_sol, arg, workspace);
 	d_ocp_qp_ipm_get_status(workspace, &hpipm_status);
 
-	double time_ipm = hpipm_toc(&timer) / nrep;
+	double time_ipm = hpipm_toc(&timer);
 
-    *out_status   = (real_t) hpipm_status;
+    *out_status   = (double) hpipm_status;
     
     // get solution
 	// u
 
-	int nu_max = nu[0];
-	for(ii=1; ii<=N; ii++)
-		if(nu[ii]>nu_max)
-			nu_max = nu[ii];
-
-	double *u = malloc(nu_max*sizeof(double));
-
 	for(ii=0; ii<=N; ii++)
-		d_ocp_qp_sol_get_u(ii, &qp_sol, u);
+		d_ocp_qp_sol_get_u(ii, qp_sol, out_u);
 
 	// x
 
-	int nx_max = nx[0];
-	for(ii=1; ii<=N; ii++)
-		if(nx[ii]>nx_max)
-			nx_max = nx[ii];
-
-	double *x = malloc(nx_max*sizeof(double));
-
 	for(ii=0; ii<=N; ii++)
-		d_ocp_qp_sol_get_x(ii, &qp_sol, x);
+		d_ocp_qp_sol_get_x(ii, qp_sol, out_x);
+
 
 }
 
@@ -308,11 +310,13 @@ static void mdlTerminate(SimStruct *S)
     free(qp_mem);
 	free(qp_sol_mem);
 	free(ipm_arg_mem);
-	free(ipm_mem);
+	free(ipm_mem); 
 
-	free(u);
-	free(x);
-	free(pi);
+    free(qp);
+    free(qp_sol);
+    free(dim);
+    free(arg);
+    free(workspace);
 
 }
 
