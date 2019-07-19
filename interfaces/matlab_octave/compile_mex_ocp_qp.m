@@ -14,7 +14,7 @@ blasfeo_folder = getenv('BLASFEO_MAIN_FOLDER');
 mex_flags = getenv('HPIPM_MEX_FLAGS');
 
 % set paths
-hpipm_mex_folder = [hpipm_folder, '/interfaces/matlab_octave_mex/'];
+hpipm_mex_folder = [hpipm_folder, '/interfaces/matlab_octave/'];
 hpipm_include = ['-I', hpipm_folder, '/include'];
 hpipm_lib = ['-L', hpipm_folder, '/lib'];
 blasfeo_include = ['-I', blasfeo_folder, '/include'];
