@@ -20,6 +20,15 @@ void *qp_sol_mem;
 void *ipm_arg_mem;
 void *ipm_mem; 
 
+// hpipm structs as global data
+struct d_ocp_qp *qp;
+struct d_ocp_qp_sol *qp_sol;
+struct d_ocp_qp_ipm_arg *arg;
+struct d_ocp_qp_ipm_ws *workspace;
+
+// timing structures
+struct timeval tv0, tv1;
+
 // qp data as global data
 extern int N;
 extern int *nx;
@@ -81,18 +90,19 @@ static void mdlInitializeSizes (SimStruct *S)
         return;
 
     // specify the number of output ports 
-    if ( !ssSetNumOutputPorts(S, 5) )
+    if ( !ssSetNumOutputPorts(S, 3) )
         return;
 
     // specify dimension information for the input ports 
-    ssSetInputPortVectorDimension(S, 0, NX0);
+    ssSetInputPortVectorDimension(S, 0, nx[0]);
 
     // specify dimension information for the output ports 
-    ssSetOutputPortVectorDimension(S, 0, NU);  // optimal input
+	// compute sum of dimensions
+	int nv = 0;
+	for(int i = 0; i < N; i++) nv += nx[i] + nu[i];
+    ssSetOutputPortVectorDimension(S, 0, nv);  // optimal solution
     ssSetOutputPortVectorDimension(S, 1, 1 );  // solver status
-    ssSetOutputPortVectorDimension(S, 2, 1 );  // KKT residuals
-    ssSetOutputPortVectorDimension(S, 3, NX0); // first state
-    ssSetOutputPortVectorDimension(S, 4, 1);   // computation times
+    ssSetOutputPortVectorDimension(S, 2, 1);   // computation times
 
     // specify the direct feedthrough status 
     ssSetInputPortDirectFeedThrough(S, 0, 1); // current state x0
@@ -137,73 +147,81 @@ static void mdlStart(SimStruct *S)
 
 	int rep, nrep=10;
 
-	struct timeval tv0, tv1;
 
 /************************************************
 * ocp qp dim
 ************************************************/
 
 	int dim_size = d_ocp_qp_dim_memsize(N);
-	void *dim_mem = malloc(dim_size);
+	dim_mem = malloc(dim_size);
+	if(dim_mem == NULL) printf("Error allocating memory for dim_mem. Exiting.\n\n");
 
-	struct d_ocp_qp_dim dim;
-	d_ocp_qp_dim_create(N, &dim, dim_mem);
+	dim = malloc(sizeof(d_ocp_qp_dim));
+	if(dim == NULL) printf("Error allocating memory for dim. Exiting.\n\n");
+	d_ocp_qp_dim_create(N, dim, dim_mem);
 
-	d_ocp_qp_dim_set_all(nx, nu, nbx, nbu, ng, nsbx, nsbu, nsg, &dim);
+	d_ocp_qp_dim_set_all(nx, nu, nbx, nbu, ng, nsbx, nsbu, nsg, dim);
 
 /************************************************
 * ocp qp
 ************************************************/
 
-	int qp_size = d_ocp_qp_memsize(&dim);
-	void *qp_mem = malloc(qp_size);
+	int qp_size = d_ocp_qp_memsize(dim);
+	qp_mem = malloc(qp_size);
+	if(qp_mem == NULL) printf("Error allocating memory for qp_mem. Exiting.\n\n");
 
-	struct d_ocp_qp qp;
-	d_ocp_qp_create(&dim, &qp, qp_mem);
+	qp = malloc(sizeof(struct d_ocp_qp));
+	if(qp == NULL) printf("Error allocating memory for qp. Exiting.\n\n");
+	d_ocp_qp_create(dim, qp, qp_mem);
 
-	d_ocp_qp_set_all(hA, hB, hb, hQ, hS, hR, hq, hr, hidxbx, hlbx, hubx, hidxbu, hlbu, hubu, hC, hD, hlg, hug, hZl, hZu, hzl, hzu, hidxs, hlls, hlus, &qp);
+	d_ocp_qp_set_all(hA, hB, hb, hQ, hS, hR, hq, hr, hidxbx, hlbx, hubx, hidxbu, hlbu, hubu, hC, hD, hlg, hug, hZl, hZu, hzl, hzu, hidxs, hlls, hlus, qp);
 
 /************************************************
 * ocp qp sol
 ************************************************/
 
-	int qp_sol_size = d_ocp_qp_sol_memsize(&dim);
-	void *qp_sol_mem = malloc(qp_sol_size);
+	int qp_sol_size = d_ocp_qp_sol_memsize(dim);
+	qp_sol_mem = malloc(qp_sol_size);
+	if(qp_sol_mem == NULL) printf("Error allocating memory for qp_sol_mem. Exiting.\n\n");
 
-	struct d_ocp_qp_sol qp_sol;
-	d_ocp_qp_sol_create(&dim, &qp_sol, qp_sol_mem);
+	qp_sol = malloc(sizefof(struct d_ocp_qp_sol));
+	if(qp_sol == NULL) printf("Error allocating memory for qp_sol. Exiting.\n\n");
+	d_ocp_qp_sol_create(dim, qp_sol, qp_sol_mem);
 
 /************************************************
 * ipm arg
 ************************************************/
 
-	int ipm_arg_size = d_ocp_qp_ipm_arg_memsize(&dim);
-	void *ipm_arg_mem = malloc(ipm_arg_size);
+	int ipm_arg_size = d_ocp_qp_ipm_arg_memsize(dim);
+	ipm_arg_mem = malloc(ipm_arg_size);
+	if(ipm_arg_mem == NULL) printf("Error allocating memory for ipm_arg_mem. Exiting.\n\n");
 
-	struct d_ocp_qp_ipm_arg arg;
-	d_ocp_qp_ipm_arg_create(&dim, &arg, ipm_arg_mem);
+	arg = malloc(sizeof(struct d_ocp_qp_ipm_arg));
+	if(arg == NULL) printf("Error allocating memory for arg. Exiting.\n\n");
+	d_ocp_qp_ipm_arg_create(dim, arg, ipm_arg_mem);
 
-	d_ocp_qp_ipm_arg_set_default(mode, &arg);
+	d_ocp_qp_ipm_arg_set_default(mode, arg);
 
-	d_ocp_qp_ipm_arg_set_mu0(&mu0, &arg);
-	d_ocp_qp_ipm_arg_set_iter_max(&iter_max, &arg);
-	d_ocp_qp_ipm_arg_set_tol_stat(&tol_stat, &arg);
-	d_ocp_qp_ipm_arg_set_tol_eq(&tol_eq, &arg);
-	d_ocp_qp_ipm_arg_set_tol_ineq(&tol_ineq, &arg);
-	d_ocp_qp_ipm_arg_set_tol_comp(&tol_comp, &arg);
-	d_ocp_qp_ipm_arg_set_reg_prim(&reg_prim, &arg);
-	d_ocp_qp_ipm_arg_set_warm_start(&warm_start, &arg);
-//	d_ocp_qp_ipm_arg_set_ric_alg(&ric_alg, &arg);
+	d_ocp_qp_ipm_arg_set_mu0(&mu0, arg);
+	d_ocp_qp_ipm_arg_set_iter_max(&iter_max, arg);
+	d_ocp_qp_ipm_arg_set_tol_stat(&tol_stat, arg);
+	d_ocp_qp_ipm_arg_set_tol_eq(&tol_eq, arg);
+	d_ocp_qp_ipm_arg_set_tol_ineq(&tol_ineq, arg);
+	d_ocp_qp_ipm_arg_set_tol_comp(&tol_comp, arg);
+	d_ocp_qp_ipm_arg_set_reg_prim(&reg_prim, arg);
+	d_ocp_qp_ipm_arg_set_warm_start(&warm_start, arg);
+//	d_ocp_qp_ipm_arg_set_ric_alg(&ric_alg, arg);
 
 /************************************************
 * ipm workspace
 ************************************************/
 
-	int ipm_size = d_ocp_qp_ipm_ws_memsize(&dim, &arg);
-	void *ipm_mem = malloc(ipm_size);
+	int ipm_size = d_ocp_qp_ipm_ws_memsize(dim, arg);
+	ipm_mem = malloc(ipm_size);
 
-	struct d_ocp_qp_ipm_ws workspace;
-	d_ocp_qp_ipm_ws_create(&dim, &arg, &workspace, ipm_mem);
+	workspace = malloc(sizeof(struct d_ocp_qp_ipm_ws));
+	if(workspace == NULL) printf("Error allocating memory for workspace. Exiting.\n\n");
+	d_ocp_qp_ipm_ws_create(dim, arg, workspace, ipm_mem);
 
 }
 
@@ -240,55 +258,47 @@ static void mdlOutputs(SimStruct *S, int_T tid)
         // ocp_nlp_cost_model_set(nlp_config, nlp_dims, nlp_in, ii, "yref", (void *) in_y_ref);
 
     // assign pointers to output signals 
-    real_t *out_u0, *out_status, *out_KKT_res, *out_x1, *out_cpu_time;
+    real_t *out_u, *out_x, *out_status;
 
-    // out_u0          = ssGetOutputPortRealSignal(S, 0);
-    // out_status      = ssGetOutputPortRealSignal(S, 1);
-    // out_KKT_res     = ssGetOutputPortRealSignal(S, 2);
-    // out_x1          = ssGetOutputPortRealSignal(S, 3);
-    // out_cpu_time    = ssGetOutputPortRealSignal(S, 4);
+    out_u          = ssGetOutputPortRealSignal(S, 0);
+    out_x          = ssGetOutputPortRealSignal(S, 1);
+    out_status     = ssGetOutputPortRealSignal(S, 2);
     
-    // solve()
-    // int acados_status = acados_solve();
+	hpipm_timer timer;
+	hpipm_tic(&timer);
+	
+	// call solver
+	d_ocp_qp_ipm_solve(qp, qp_sol, arg, workspace);
+	d_ocp_qp_ipm_get_status(workspace, &hpipm_status);
 
-    *out_status   = (real_t) acados_status;
-    *out_KKT_res  = (real_t) nlp_out->inf_norm_res;
-    *out_cpu_time = (real_t) nlp_out->total_time;
+	double time_ipm = hpipm_toc(&timer) / nrep;
+
+    *out_status   = (real_t) hpipm_status;
     
     // get solution
-    // ocp_nlp_out_get(nlp_config, nlp_dims, nlp_out, 0, "u", (void *) out_u0);
-
-    // get next state
-    // ocp_nlp_out_get(nlp_config, nlp_dims, nlp_out, 1, "x", (void *) out_x1);
-
-	/************************************************
-	* extract and print solution
-	************************************************/
-
 	// u
 
-	// int nu_max = nu[0];
-	// for(ii=1; ii<=N; ii++)
-	// 	if(nu[ii]>nu_max)
-	// 		nu_max = nu[ii];
+	int nu_max = nu[0];
+	for(ii=1; ii<=N; ii++)
+		if(nu[ii]>nu_max)
+			nu_max = nu[ii];
 
-	// double *u = malloc(nu_max*sizeof(double));
+	double *u = malloc(nu_max*sizeof(double));
 
-	// printf("\nu = \n");
-	// for(ii=0; ii<=N; ii++)
-	// 	{
-	// 	d_cvt_ocp_qp_sol_to_colmaj_u(ii, &qp_sol, u);
-	// 	d_print_mat(1, nu[ii], u, 1);
-	// 	}
+	for(ii=0; ii<=N; ii++)
+		d_ocp_qp_sol_get_u(ii, &qp_sol, u);
 
-	// // x
+	// x
 
-	// int nx_max = nx[0];
-	// for(ii=1; ii<=N; ii++)
-	// 	if(nx[ii]>nx_max)
-	// 		nx_max = nx[ii];
+	int nx_max = nx[0];
+	for(ii=1; ii<=N; ii++)
+		if(nx[ii]>nx_max)
+			nx_max = nx[ii];
 
-	// double *x = malloc(nx_max*sizeof(double));
+	double *x = malloc(nx_max*sizeof(double));
+
+	for(ii=0; ii<=N; ii++)
+		d_ocp_qp_sol_get_x(ii, &qp_sol, x);
 
 }
 
