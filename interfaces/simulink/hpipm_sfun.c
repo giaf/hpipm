@@ -110,8 +110,9 @@ static void mdlInitializeSizes (SimStruct *S)
 	// compute sum of dimensions
 	nx_total = 0;
 	nu_total = 0;
-	for(int i = 0; i < N; i++) nx_total += nx[i];
-	for(int i = 0; i < N; i++) nu_total += nu[i];
+	for(int i = 0; i <= N; i++) nu_total += nu[i];
+    for(int i = 0; i <= N; i++) nx_total += nx[i];
+
     ssSetOutputPortVectorDimension(S, 0, nu_total);  // optimal input trajectory
     ssSetOutputPortVectorDimension(S, 1, nx_total);  // optimal state trajectory
     ssSetOutputPortVectorDimension(S, 2, 1 );  // solver status
@@ -264,9 +265,9 @@ static void mdlOutputs(SimStruct *S, int_T tid)
     // ssPrintf("\n");
 
     // set initial condition
-    // ocp_nlp_constraints_model_set(nlp_config, nlp_dims, nlp_in, 0, "lbx", in_x0);
-    // ocp_nlp_constraints_model_set(nlp_config, nlp_dims, nlp_in, 0, "ubx", in_x0);
-
+    d_ocp_qp_set_lbx(0, in_x0, qp);
+    d_ocp_qp_set_ubx(0, in_x0, qp);
+    
     // update reference
     // for (int ii = 0; ii < {{ocp.dims.N}}; ii++)
         // ocp_nlp_cost_model_set(nlp_config, nlp_dims, nlp_in, ii, "yref", (void *) in_y_ref);
@@ -286,20 +287,69 @@ static void mdlOutputs(SimStruct *S, int_T tid)
 	d_ocp_qp_ipm_solve(qp, qp_sol, arg, workspace);
 	d_ocp_qp_ipm_get_status(workspace, &hpipm_status);
 
-	double time_ipm = hpipm_toc(&timer);
+	*out_time = hpipm_toc(&timer);
+    printf("time = %f\n", out_time);
 
     *out_status   = (double) hpipm_status;
     
     // get solution
 	// u
+    
+    int offset = 0;
+	for(ii=0; ii<=N; ii++) {
+        
+		d_ocp_qp_sol_get_u(ii, qp_sol, out_u+offset);
+//         printf("u[0] = %f\n",(out_u+offset)[0]);
 
-	for(ii=0; ii<=N; ii++)
-		d_ocp_qp_sol_get_u(ii, qp_sol, out_u);
+		d_print_mat(1, nu[ii], out_u+offset, 1);
+        offset+=nu[ii];
+    }
 
 	// x
+    
+    offset = 0;
+	for(ii=0; ii<=N; ii++) {
+        
+		d_ocp_qp_sol_get_x(ii, qp_sol, out_x+offset);
+  		d_print_mat(1, nx[ii], out_x+offset, 1);
+        offset+=nx[ii];
 
-	for(ii=0; ii<=N; ii++)
-		d_ocp_qp_sol_get_x(ii, qp_sol, out_x);
+    }
+    
+    	// u
+
+// 	int nu_max = nu[0];
+// 	for(ii=1; ii<=N; ii++)
+// 		if(nu[ii]>nu_max)
+// 			nu_max = nu[ii];
+// 
+// 	double *u = malloc(nu_max*sizeof(double));
+// 
+// 	printf("\nu = \n");
+// 	for(ii=0; ii<=N; ii++)
+// 		{
+// 		d_ocp_qp_sol_get_u(ii, qp_sol, u);
+//      	printf("u[0] = %f\n",u[0]);
+// 
+// 		d_print_mat(1, nu[ii], u, 1);
+// 		}
+// 
+// 	// x
+// 
+// 	int nx_max = nx[0];
+// 	for(ii=1; ii<=N; ii++)
+// 		if(nx[ii]>nx_max)
+// 			nx_max = nx[ii];
+// 
+// 	double *x = malloc(nx_max*sizeof(double));
+// 
+// 	printf("\nx = \n");
+// 	for(ii=0; ii<=N; ii++)
+// 		{
+// 		d_ocp_qp_sol_get_x(ii, qp_sol, x);
+// 		d_print_mat(1, nx[ii], x, 1);
+// 		}
+
 
 
 }
