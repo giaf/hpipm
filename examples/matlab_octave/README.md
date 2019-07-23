@@ -14,7 +14,7 @@ source env.sh
 ```
 This will set some environment flags (comprising LD_LIBRARY_PATH).
 In doing so, it is necessary to know the location of the blasfeo and hpipm root folders (or alternatively, installation folders), which can be specified exporting the environment flags `HPIPM_MAIN_FOLDER` and `BLASFEO_MAIN_FOLDER` _before_ executing the command `source env.sh`.
-If not specified, default locations relataive to the current examples folder will be used (see the `end.sh` file for more details.
+If not specified, default locations relative to the current examples folder will be used (see the `end.sh` file for more details.
 Afterwards, open Matlab or Octave from the same terminal and compile the interface by running the function `compile_mex_ocp_qp` (this step needs to be repeated only if the BLASFEO or HPIPM C libraries are recompiled).
 
 Finally, to run the examples, open a terminal and navigate to the current examples folder, then type the command `source env.sh`.
