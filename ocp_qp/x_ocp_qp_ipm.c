@@ -1294,25 +1294,34 @@ void OCP_QP_IPM_SOLVE(struct OCP_QP *qp, struct OCP_QP_SOL *qp_sol, struct OCP_Q
 
 		ws->iter = kk;
 
-		// max iteration number reached
 		if(kk == arg->iter_max)
+			{
+			// max iteration number reached
 			ws->status = 1;
-
-		// min step lenght
-		if(cws->alpha <= arg->alpha_min)
+			}
+		else if(cws->alpha <= arg->alpha_min)
+			{
+			// min step lenght
 			ws->status = 2;
-
-		// NaN in the solution
-	#ifdef USE_C99_MATH
-		if(isnan(cws->mu))
+			}
+#ifdef USE_C99_MATH
+		else if(isnan(cws->mu))
+			{
+			// NaN in the solution
 			ws->status = 3;
-	#else
-		if(cws->mu != cws->mu)
+			}
+#else
+		else if(cws->mu != cws->mu)
+			{
+			// NaN in the solution
 			ws->status = 3;
-	#endif
-
-		// normal return
-		ws->status = 0;
+			}
+#endif
+		else
+			{
+			// normal return
+			ws->status = 0;
+			}
 
 		return;
 
@@ -1764,25 +1773,34 @@ exit(1);
 		blasfeo_print_tran_dvec(nu[ii]+nx[ii], qp_sol->ux+ii, 0);
 #endif
 
-	// max iteration number reached
 	if(kk == arg->iter_max)
+		{
+		// max iteration number reached
 		ws->status = 1;
-
-	// min step lenght
-	if(cws->alpha <= arg->alpha_min)
+		}
+	else if(cws->alpha <= arg->alpha_min)
+		{
+		// min step lenght
 		ws->status = 2;
-
-	// NaN in the solution
+		}
 #ifdef USE_C99_MATH
-	if(isnan(cws->mu))
+	else if(isnan(cws->mu))
+		{
+		// NaN in the solution
 		ws->status = 3;
+		}
 #else
-	if(cws->mu != cws->mu)
+	else if(cws->mu != cws->mu)
+		{
+		// NaN in the solution
 		ws->status = 3;
+		}
 #endif
-
-	// normal return
-	ws->status = 0;
+	else
+		{
+		// normal return
+		ws->status = 0;
+		}
 
 	return;
 
