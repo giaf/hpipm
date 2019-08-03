@@ -51,6 +51,7 @@
 #define OCP_QP_DIM_SET_NBX d_ocp_qp_dim_set_nbx
 #define OCP_QP_DIM_SET_NBU d_ocp_qp_dim_set_nbu
 #define OCP_QP_DIM_SET_NG d_ocp_qp_dim_set_ng
+#define OCP_QP_DIM_SET_NS d_ocp_qp_dim_set_ns
 #define OCP_QP_DIM_SET_NSBX d_ocp_qp_dim_set_nsbx
 #define OCP_QP_DIM_SET_NSBU d_ocp_qp_dim_set_nsbu
 #define OCP_QP_DIM_SET_NSG d_ocp_qp_dim_set_nsg

@@ -179,6 +179,10 @@ void OCP_QP_DIM_SET(char *field_name, int stage, int value, struct OCP_QP_DIM *d
 		{
 		OCP_QP_DIM_SET_NG(stage, value, dim);
 		}
+	else if(hpipm_strcmp(field_name, "ns"))
+		{
+		OCP_QP_DIM_SET_NS(stage, value, dim);
+		}
 	else if(hpipm_strcmp(field_name, "nsbx"))
 		{
 		OCP_QP_DIM_SET_NSBX(stage, value, dim);
@@ -238,6 +242,14 @@ void OCP_QP_DIM_SET_NBU(int stage, int value, struct OCP_QP_DIM *dim)
 void OCP_QP_DIM_SET_NG(int stage, int value, struct OCP_QP_DIM *dim)
 	{
 	dim->ng[stage] = value;
+	return;
+	}
+
+
+
+void OCP_QP_DIM_SET_NS(int stage, int value, struct OCP_QP_DIM *dim)
+	{
+	dim->ns[stage] = value;
 	return;
 	}
 

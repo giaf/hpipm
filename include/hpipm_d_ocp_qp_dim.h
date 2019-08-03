@@ -77,6 +77,8 @@ void d_ocp_qp_dim_set_nbu(int stage, int value, struct d_ocp_qp_dim *dim);
 //
 void d_ocp_qp_dim_set_ng(int stage, int value, struct d_ocp_qp_dim *dim);
 //
+void d_ocp_qp_dim_set_ns(int stage, int value, struct d_ocp_qp_dim *dim);
+//
 void d_ocp_qp_dim_set_nsbx(int stage, int value, struct d_ocp_qp_dim *dim);
 //
 void d_ocp_qp_dim_set_nsbu(int stage, int value, struct d_ocp_qp_dim *dim);
