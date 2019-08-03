@@ -1337,6 +1337,7 @@ void EXPAND_SOL(struct OCP_QP *ocp_qp, struct DENSE_QP_SOL *dense_qp_sol, struct
 	ngg += ng0;
 	
 	// soft constraints
+	// all box first XXX this keeps the same order as in cond !!!
 	for(ii=0; ii<=N; ii++)
 		{
 		nx0 = nx[N-ii];
@@ -1354,7 +1355,39 @@ void EXPAND_SOL(struct OCP_QP *ocp_qp, struct DENSE_QP_SOL *dense_qp_sol, struct
 		ptr_ux = (ux+N-ii)->pa;
 		ptr_lam = (lam+N-ii)->pa;
 		ptr_t = (t+N-ii)->pa;
+		for(jj=0; jj<nb0; jj++)
+			{
+			if(idxs_rev[jj]>=0)
+				{
+				ptr_lam[2*nb0+2*ng0+idxs_rev[jj]]     = ptr_lamc[2*nb2+2*ng2+is];
+				ptr_lam[2*nb0+2*ng0+ns0+idxs_rev[jj]] = ptr_lamc[2*nb2+2*ng2+ns2+is];
+				ptr_t[2*nb0+2*ng0+idxs_rev[jj]]     = ptr_tc[2*nb2+2*ng2+is];
+				ptr_t[2*nb0+2*ng0+ns0+idxs_rev[jj]] = ptr_tc[2*nb2+2*ng2+ns2+is];
+				ptr_ux[nu0+nx0+idxs_rev[jj]] = ptr_vc[nu2+nx2+is];
+				ptr_ux[nu0+nx0+ns0+idxs_rev[jj]] = ptr_vc[nu2+nx2+ns2+is];
+				is++;
+				}
+			}
+		}
+	// all general after XXX this keeps the same order as in cond !!!
+	for(ii=0; ii<=N; ii++)
+		{
+		nx0 = nx[N-ii];
+		nu0 = nu[N-ii];
+		nb0 = nb[N-ii];
+		ng0 = ng[N-ii];
+		ns0 = ns[N-ii];
 		for(jj=0; jj<nb0+ng0; jj++)
+			idxs_rev[jj] = -1;
+		if(ns0>0)
+			{
+			for(jj=0; jj<ns0; jj++)
+				idxs_rev[idxs[N-ii][jj]] = jj;
+			}
+		ptr_ux = (ux+N-ii)->pa;
+		ptr_lam = (lam+N-ii)->pa;
+		ptr_t = (t+N-ii)->pa;
+		for(jj=nb0; jj<nb0+ng0; jj++)
 			{
 			if(idxs_rev[jj]>=0)
 				{
