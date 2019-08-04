@@ -90,88 +90,164 @@ void OCP_QP_DIM_PRINT(struct OCP_QP_DIM *qp_dim)
 
 
 
-void OCP_QP_DIM_CODEGEN(char *file_name, char *mode, struct OCP_QP_DIM *qp_dim)
+void OCP_QP_DIM_CODEGEN(char *file_name, char *mode, char *target, struct OCP_QP_DIM *qp_dim)
 	{
-	int ii;
+		int ii;
 
-	FILE *file = fopen(file_name, mode);
+		FILE *file = fopen(file_name, mode);
 
-	int N   = qp_dim->N;
-	int *nx = qp_dim->nx;
-	int *nu = qp_dim->nu;
-	int *nbx = qp_dim->nbx;
-	int *nbu = qp_dim->nbu;
-	int *ng = qp_dim->ng;
-	int *nsbx = qp_dim->nsbx;
-	int *nsbu = qp_dim->nsbu;
-	int *nsg = qp_dim->nsg;
+		int N   = qp_dim->N;
+		int *nx = qp_dim->nx;
+		int *nu = qp_dim->nu;
+		int *nbx = qp_dim->nbx;
+		int *nbu = qp_dim->nbu;
+		int *ng = qp_dim->ng;
+		int *nsbx = qp_dim->nsbx;
+		int *nsbu = qp_dim->nsbu;
+		int *nsg = qp_dim->nsg;
 
-	fprintf(file, "/***************\n* dim\n***************/\n");
+		if (hpipm_strcmp(target, "C"))
+		{
 
-	// N
-	fprintf(file, "/* N */\n");
-	fprintf(file, "int N = %d;\n", N);
-	// nx
-	fprintf(file, "/* nx */\n");
-	fprintf(file, "static int nnx[] = {");
-	for(ii=0; ii<=N; ii++)
-		fprintf(file, "%d, ", nx[ii]);
-	fprintf(file, "};\n");
-	fprintf(file, "int *nx = nnx;\n");
-	// nu
-	fprintf(file, "/* nu */\n");
-	fprintf(file, "static int nnu[] = {");
-	for(ii=0; ii<=N; ii++)
-		fprintf(file, "%d, ", nu[ii]);
-	fprintf(file, "};\n");
-	fprintf(file, "int *nu = nnu;\n");
-	// nbx
-	fprintf(file, "/* nbx */\n");
-	fprintf(file, "static int nnbx[] = {");
-	for(ii=0; ii<=N; ii++)
-		fprintf(file, "%d, ", nbx[ii]);
-	fprintf(file, "};\n");
-	fprintf(file, "int *nbx = nnbx;\n");
-	// nbu
-	fprintf(file, "/* nbu */\n");
-	fprintf(file, "static int nnbu[] = {");
-	for(ii=0; ii<=N; ii++)
-		fprintf(file, "%d, ", nbu[ii]);
-	fprintf(file, "};\n");
-	fprintf(file, "int *nbu = nnbu;\n");
-	// ng
-	fprintf(file, "/* ng */\n");
-	fprintf(file, "static int nng[] = {");
-	for(ii=0; ii<=N; ii++)
-		fprintf(file, "%d, ", ng[ii]);
-	fprintf(file, "};\n");
-	fprintf(file, "int *ng = nng;\n");
-	// nsbx
-	fprintf(file, "/* nsbx */\n");
-	fprintf(file, "static int nnsbx[] = {");
-	for(ii=0; ii<=N; ii++)
-		fprintf(file, "%d, ", nsbx[ii]);
-	fprintf(file, "};\n");
-	fprintf(file, "int *nsbx = nnsbx;\n");
-	// nsbu
-	fprintf(file, "/* nsbu */\n");
-	fprintf(file, "static int nnsbu[] = {");
-	for(ii=0; ii<=N; ii++)
-		fprintf(file, "%d, ", nsbu[ii]);
-	fprintf(file, "};\n");
-	fprintf(file, "int *nsbu = nnsbu;\n");
-	// nsg
-	fprintf(file, "/* nsg */\n");
-	fprintf(file, "static int nnsg[] = {");
-	for(ii=0; ii<=N; ii++)
-		fprintf(file, "%d, ", nsg[ii]);
-	fprintf(file, "};\n");
-	fprintf(file, "int *nsg = nnsg;\n");
+			fprintf(file, "/***************\n* dim\n***************/\n");
 
-	fclose(file);
+			// N
+			fprintf(file, "/* N */\n");
+			fprintf(file, "int N = %d;\n", N);
+			// nx
+			fprintf(file, "/* nx */\n");
+			fprintf(file, "static int nnx[] = {");
+			for(ii=0; ii<=N; ii++)
+				fprintf(file, "%d, ", nx[ii]);
+			fprintf(file, "};\n");
+			fprintf(file, "int *nx = nnx;\n");
+			// nu
+			fprintf(file, "/* nu */\n");
+			fprintf(file, "static int nnu[] = {");
+			for(ii=0; ii<=N; ii++)
+				fprintf(file, "%d, ", nu[ii]);
+			fprintf(file, "};\n");
+			fprintf(file, "int *nu = nnu;\n");
+			// nbx
+			fprintf(file, "/* nbx */\n");
+			fprintf(file, "static int nnbx[] = {");
+			for(ii=0; ii<=N; ii++)
+				fprintf(file, "%d, ", nbx[ii]);
+			fprintf(file, "};\n");
+			fprintf(file, "int *nbx = nnbx;\n");
+			// nbu
+			fprintf(file, "/* nbu */\n");
+			fprintf(file, "static int nnbu[] = {");
+			for(ii=0; ii<=N; ii++)
+				fprintf(file, "%d, ", nbu[ii]);
+			fprintf(file, "};\n");
+			fprintf(file, "int *nbu = nnbu;\n");
+			// ng
+			fprintf(file, "/* ng */\n");
+			fprintf(file, "static int nng[] = {");
+			for(ii=0; ii<=N; ii++)
+				fprintf(file, "%d, ", ng[ii]);
+			fprintf(file, "};\n");
+			fprintf(file, "int *ng = nng;\n");
+			// nsbx
+			fprintf(file, "/* nsbx */\n");
+			fprintf(file, "static int nnsbx[] = {");
+			for(ii=0; ii<=N; ii++)
+				fprintf(file, "%d, ", nsbx[ii]);
+			fprintf(file, "};\n");
+			fprintf(file, "int *nsbx = nnsbx;\n");
+			// nsbu
+			fprintf(file, "/* nsbu */\n");
+			fprintf(file, "static int nnsbu[] = {");
+			for(ii=0; ii<=N; ii++)
+				fprintf(file, "%d, ", nsbu[ii]);
+			fprintf(file, "};\n");
+			fprintf(file, "int *nsbu = nnsbu;\n");
+			// nsg
+			fprintf(file, "/* nsg */\n");
+			fprintf(file, "static int nnsg[] = {");
+			for(ii=0; ii<=N; ii++)
+				fprintf(file, "%d, ", nsg[ii]);
+			fprintf(file, "};\n");
+			fprintf(file, "int *nsg = nnsg;\n");
 
-	return;
+			fclose(file);
+
+		} else if (hpipm_strcmp(target, "MATLAB"))
+		{
+
+			fprintf(file, "%**************\n%* dim\n%**************\n");
+
+			// N
+			fprintf(file, "% N \n");
+			fprintf(file, "N = %d\n", N);
+			// nx
+			fprintf(file, "/* nx */\n");
+			fprintf(file, "static int nnx[] = {");
+			for(ii=0; ii<=N; ii++)
+				fprintf(file, "%d, ", nx[ii]);
+			fprintf(file, "};\n");
+			fprintf(file, "int *nx = nnx;\n");
+			// nu
+			fprintf(file, "/* nu */\n");
+			fprintf(file, "static int nnu[] = {");
+			for(ii=0; ii<=N; ii++)
+				fprintf(file, "%d, ", nu[ii]);
+			fprintf(file, "};\n");
+			fprintf(file, "int *nu = nnu;\n");
+			// nbx
+			fprintf(file, "/* nbx */\n");
+			fprintf(file, "static int nnbx[] = {");
+			for(ii=0; ii<=N; ii++)
+				fprintf(file, "%d, ", nbx[ii]);
+			fprintf(file, "};\n");
+			fprintf(file, "int *nbx = nnbx;\n");
+			// nbu
+			fprintf(file, "/* nbu */\n");
+			fprintf(file, "static int nnbu[] = {");
+			for(ii=0; ii<=N; ii++)
+				fprintf(file, "%d, ", nbu[ii]);
+			fprintf(file, "};\n");
+			fprintf(file, "int *nbu = nnbu;\n");
+			// ng
+			fprintf(file, "/* ng */\n");
+			fprintf(file, "static int nng[] = {");
+			for(ii=0; ii<=N; ii++)
+				fprintf(file, "%d, ", ng[ii]);
+			fprintf(file, "};\n");
+			fprintf(file, "int *ng = nng;\n");
+			// nsbx
+			fprintf(file, "/* nsbx */\n");
+			fprintf(file, "static int nnsbx[] = {");
+			for(ii=0; ii<=N; ii++)
+				fprintf(file, "%d, ", nsbx[ii]);
+			fprintf(file, "};\n");
+			fprintf(file, "int *nsbx = nnsbx;\n");
+			// nsbu
+			fprintf(file, "/* nsbu */\n");
+			fprintf(file, "static int nnsbu[] = {");
+			for(ii=0; ii<=N; ii++)
+				fprintf(file, "%d, ", nsbu[ii]);
+			fprintf(file, "};\n");
+			fprintf(file, "int *nsbu = nnsbu;\n");
+			// nsg
+			fprintf(file, "/* nsg */\n");
+			fprintf(file, "static int nnsg[] = {");
+			for(ii=0; ii<=N; ii++)
+				fprintf(file, "%d, ", nsg[ii]);
+			fprintf(file, "};\n");
+			fprintf(file, "int *nsg = nnsg;\n");
+
+			fclose(file);
+
+		} else 
+		{
+			printf("No valid code-generation target provided. Valid options are: C, MATLAB. Exiting.\n");
+			return;
+		}
+		return;
 	}
+
 
 
 
