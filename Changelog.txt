@@ -4,7 +4,10 @@ HPIPM ChangeLog
 
 ====================================================================
 Version 0.1.1-master
-18-Jul-2019
+04-Aug-2019
+
+common:
+	* change license to BSD-2
 
 ocp_qp:
 	* general renaming of routines, e.g. d_create_ocp_qp_dim => d_ocp_qp_dim_create
