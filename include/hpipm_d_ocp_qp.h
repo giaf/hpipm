@@ -64,6 +64,7 @@ struct d_ocp_qp
 	struct blasfeo_dvec *Z; // (diagonal) hessian of slacks
 	int **idxb; // index of box constraints
 	int **idxs; // index of soft constraints
+	int **idxs_rev; // index of soft constraints (reverse storage)
 	int memsize; // memory size in bytes
 	};
 
@@ -199,6 +200,22 @@ void d_ocp_qp_get_lls(int stage, struct d_ocp_qp *qp, double *vec);
 void d_ocp_qp_set_lus(int stage, double *vec, struct d_ocp_qp *qp);
 //
 void d_ocp_qp_get_lus(int stage, struct d_ocp_qp *qp, double *vec);
+//
+void d_ocp_qp_set_idxs(int stage, int *vec, struct d_ocp_qp *qp);
+//
+//void d_ocp_qp_get_idxs(int stage, struct d_ocp_qp *qp, int *vec);
+//
+void d_ocp_qp_set_Jsbu(int stage, double *vec, struct d_ocp_qp *qp);
+//
+//void d_ocp_qp_get_Jsbu(int stage, struct d_ocp_qp *qp, float *vec);
+//
+void d_ocp_qp_set_Jsbx(int stage, double *vec, struct d_ocp_qp *qp);
+//
+//void d_ocp_qp_get_Jsbx(int stage, struct d_ocp_qp *qp, float *vec);
+//
+void d_ocp_qp_set_Jsg(int stage, double *vec, struct d_ocp_qp *qp);
+//
+//void d_ocp_qp_get_Jsg(int stage, struct d_ocp_qp *qp, float *vec);
 // TODO remove ???
 void d_change_bounds_dimensions_ocp_qp(int *nbu, int *nbx, struct d_ocp_qp *qp);
 

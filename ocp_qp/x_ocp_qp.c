@@ -72,7 +72,7 @@ int OCP_QP_MEMSIZE(struct OCP_QP_DIM *dim)
 	int size = 0;
 
 	size += 5*(N+1)*sizeof(int); // nx nu nb ng ns
-	size += 2*(N+1)*sizeof(int *); // idxb idxs
+	size += 3*(N+1)*sizeof(int *); // idxb idxs idxs_rev
 	size += 2*(N+1)*sizeof(struct STRMAT); // RSqrq DCt
 	size += 1*N*sizeof(struct STRMAT); // BAbt
 	size += 4*(N+1)*sizeof(struct STRVEC); // rqz d m Z
@@ -82,6 +82,7 @@ int OCP_QP_MEMSIZE(struct OCP_QP_DIM *dim)
 		{
 		size += nb[ii]*sizeof(int); // idxb
 		size += ns[ii]*sizeof(int); // idxs
+		size += (nb[ii]+ng[ii])*sizeof(int); // idxs_rev
 		size += SIZE_STRMAT(nu[ii]+nx[ii]+1, nx[ii+1]); // BAbt
 		size += SIZE_STRMAT(nu[ii]+nx[ii]+1, nu[ii]+nx[ii]); // RSQrq
 		size += SIZE_STRMAT(nu[ii]+nx[ii], ng[ii]); // DCt
@@ -90,6 +91,7 @@ int OCP_QP_MEMSIZE(struct OCP_QP_DIM *dim)
 	ii = N;
 	size += nb[ii]*sizeof(int); // idxb
 	size += ns[ii]*sizeof(int); // idxs
+	size += (nb[ii]+ng[ii])*sizeof(int); // idxs_rev
 	size += SIZE_STRMAT(nu[ii]+nx[ii]+1, nu[ii]+nx[ii]); // RSQrq
 	size += SIZE_STRMAT(nu[ii]+nx[ii], ng[ii]); // DCt
 	size += SIZE_STRVEC(2*ns[ii]); // Z
@@ -175,6 +177,10 @@ void OCP_QP_CREATE(struct OCP_QP_DIM *dim, struct OCP_QP *qp, void *mem)
 	qp->idxs = ip_ptr;
 	ip_ptr += N+1;
 
+	// idxs_rev
+	qp->idxs_rev = ip_ptr;
+	ip_ptr += N+1;
+
 
 	// matrix struct stuff
 	struct STRMAT *sm_ptr = (struct STRMAT *) ip_ptr;
@@ -236,6 +242,15 @@ void OCP_QP_CREATE(struct OCP_QP_DIM *dim, struct OCP_QP *qp, void *mem)
 		i_ptr += ns[ii];
 		for(jj=0; jj<ns[ii]; jj++)
 			qp->idxs[ii][jj] = 0;
+		}
+
+	// idxs_rev
+	for(ii=0; ii<=N; ii++)
+		{
+		(qp->idxs_rev)[ii] = i_ptr;
+		i_ptr += nb[ii]+ng[ii];
+		for(jj=0; jj<nb[ii]+ng[ii]; jj++)
+			qp->idxs_rev[ii][jj] = -1;
 		}
 
 
@@ -580,6 +595,22 @@ void OCP_QP_SET(char *field, int stage, void *value, struct OCP_QP *qp)
 		OCP_QP_SET_JBU(stage, value, qp);
 		}
 	// TODO idxs !!!!!!!!!!!!!!!!!!
+	else if(hpipm_strcmp(field, "idxs"))
+		{
+		OCP_QP_SET_IDXS(stage, value, qp);
+		}
+	else if(hpipm_strcmp(field, "Jsbu") | hpipm_strcmp(field, "Jsu"))
+		{
+		OCP_QP_SET_JSBU(stage, value, qp);
+		}
+	else if(hpipm_strcmp(field, "Jsbx") | hpipm_strcmp(field, "Jsx"))
+		{
+		OCP_QP_SET_JSBX(stage, value, qp);
+		}
+	else if(hpipm_strcmp(field, "Jsg"))
+		{
+		OCP_QP_SET_JSG(stage, value, qp);
+		}
 	else
 		{
 		printf("error [OCP_QP_SET]: unknown field name '%s'. Exiting.\n", field);
@@ -1366,6 +1397,147 @@ void OCP_QP_GET_IDXS(int stage, struct OCP_QP *qp, int *idxs)
 
 	return;
 	}
+
+
+
+void OCP_QP_SET_JSBU(int stage, REAL *Jsbu, struct OCP_QP *qp)
+	{
+	// extract dim
+	int *nx = qp->dim->nx;
+	int *nu = qp->dim->nu;
+	int *nb = qp->dim->nb;
+	int *nbx = qp->dim->nbx;
+	int *nbu = qp->dim->nbu;
+	int *ng = qp->dim->ng;
+	int *ns = qp->dim->ns;
+
+	int ii, jj, jj0, idx_tmp;
+	// compute nbu part of idxs_rev
+	for(ii=0; ii<nbu[stage]; ii++)
+		{
+		jj0 = -1;
+		for(jj=0; jj<ns[stage]; jj++)
+			{
+			if(jj0==-1 & Jsbu[ii+jj*nbu[stage]]!=0.0)
+				{
+				jj0 = jj;
+				qp->idxs_rev[stage][0+ii] = jj;
+				}
+			}
+		}
+	// update idxs
+	for(ii=0; ii<nb[stage]+ng[stage]; ii++)
+		{
+		idx_tmp = qp->idxs_rev[stage][ii];
+		if(idx_tmp!=0)
+			{
+			qp->idxs[stage][idx_tmp] = ii;
+			}
+		}
+	return;
+	}
+
+
+
+//void OCP_QP_GET_JSBX(int stage, struct OCP_QP *qp, int *Jsbx)
+//	{
+//	TODO
+//	return;
+//	}
+
+
+
+void OCP_QP_SET_JSBX(int stage, REAL *Jsbx, struct OCP_QP *qp)
+	{
+	// extract dim
+	int *nx = qp->dim->nx;
+	int *nu = qp->dim->nu;
+	int *nb = qp->dim->nb;
+	int *nbx = qp->dim->nbx;
+	int *nbu = qp->dim->nbu;
+	int *ng = qp->dim->ng;
+	int *ns = qp->dim->ns;
+
+	int ii, jj, jj0, idx_tmp;
+	// compute nbx part of idxs_rev
+	for(ii=0; ii<nbx[stage]; ii++)
+		{
+		jj0 = -1;
+		for(jj=0; jj<ns[stage]; jj++)
+			{
+			if(jj0==-1 & Jsbx[ii+jj*nbx[stage]]!=0.0)
+				{
+				jj0 = jj;
+				qp->idxs_rev[stage][nbu[stage]+ii] = jj;
+				}
+			}
+		}
+	// update idxs
+	for(ii=0; ii<nb[stage]+ng[stage]; ii++)
+		{
+		idx_tmp = qp->idxs_rev[stage][ii];
+		if(idx_tmp!=0)
+			{
+			qp->idxs[stage][idx_tmp] = ii;
+			}
+		}
+	return;
+	}
+
+
+
+//void OCP_QP_GET_JSBX(int stage, struct OCP_QP *qp, int *Jsbx)
+//	{
+//	TODO
+//	return;
+//	}
+
+
+
+void OCP_QP_SET_JSG(int stage, REAL *Jsg, struct OCP_QP *qp)
+	{
+	// extract dim
+	int *nx = qp->dim->nx;
+	int *nu = qp->dim->nu;
+	int *nb = qp->dim->nb;
+	int *nbx = qp->dim->nbx;
+	int *nbu = qp->dim->nbu;
+	int *ng = qp->dim->ng;
+	int *ns = qp->dim->ns;
+
+	int ii, jj, jj0, idx_tmp;
+	// compute nbx part of idxs_rev
+	for(ii=0; ii<ng[stage]; ii++)
+		{
+		jj0 = -1;
+		for(jj=0; jj<ns[stage]; jj++)
+			{
+			if(jj0==-1 & Jsg[ii+jj*ng[stage]]!=0.0)
+				{
+				jj0 = jj;
+				qp->idxs_rev[stage][nb[stage]+ii] = jj;
+				}
+			}
+		}
+	// update idxs
+	for(ii=0; ii<nb[stage]+ng[stage]; ii++)
+		{
+		idx_tmp = qp->idxs_rev[stage][ii];
+		if(idx_tmp!=0)
+			{
+			qp->idxs[stage][idx_tmp] = ii;
+			}
+		}
+	return;
+	}
+
+
+
+//void OCP_QP_GET_JSG(int stage, struct OCP_QP *qp, int *Jsg)
+//	{
+//	TODO
+//	return;
+//	}
 
 
 
