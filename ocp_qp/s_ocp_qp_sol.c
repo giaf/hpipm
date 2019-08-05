@@ -69,6 +69,8 @@
 #define OCP_QP_SOL_GET s_ocp_qp_sol_get
 #define OCP_QP_SOL_GET_U s_ocp_qp_sol_get_u
 #define OCP_QP_SOL_GET_X s_ocp_qp_sol_get_x
+#define OCP_QP_SOL_GET_SL s_ocp_qp_sol_get_sl
+#define OCP_QP_SOL_GET_SU s_ocp_qp_sol_get_su
 #define OCP_QP_SOL_GET_PI s_ocp_qp_sol_get_pi
 #define OCP_QP_SOL_GET_LAM_LB s_ocp_qp_sol_get_lam_lb
 #define OCP_QP_SOL_GET_LAM_UB s_ocp_qp_sol_get_lam_ub

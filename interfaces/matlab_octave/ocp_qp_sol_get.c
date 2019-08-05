@@ -64,6 +64,7 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
 	int N = dim->N;
 	int *nx = dim->nx;
 	int *nu = dim->nu;
+	int *ns = dim->ns;
 
 	// field
 	char *field = mxArrayToString( prhs[1] );
@@ -128,6 +129,31 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
 			plhs[0] = mxCreateNumericMatrix(nu[stage0], 1, mxDOUBLE_CLASS, mxREAL);
 			double *u = mxGetPr( plhs[0] );
 			d_ocp_qp_sol_get(field, stage0, sol, u);
+			}
+		}
+	else if( (!strcmp(field, "sl")) | (!strcmp(field, "su")) )
+		{
+		if(nrhs==4)
+			{
+			int ns_sum = 0;
+			for(ii=stage0; ii<=stage1; ii++)
+				{
+				ns_sum += ns[ii];
+				}
+			plhs[0] = mxCreateNumericMatrix(ns_sum, 1, mxDOUBLE_CLASS, mxREAL);
+			double *s = mxGetPr( plhs[0] );
+			ns_sum = 0;
+			for(ii=stage0; ii<=stage1; ii++)
+				{
+				d_ocp_qp_sol_get(field, ii, sol, s+ns_sum);
+				ns_sum += ns[ii];
+				}
+			}
+		else
+			{
+			plhs[0] = mxCreateNumericMatrix(ns[stage0], 1, mxDOUBLE_CLASS, mxREAL);
+			double *s = mxGetPr( plhs[0] );
+			d_ocp_qp_sol_get(field, stage0, sol, s);
 			}
 		}
 	else

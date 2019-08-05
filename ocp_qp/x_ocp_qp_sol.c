@@ -336,6 +336,14 @@ void OCP_QP_SOL_GET(char *field, int stage, struct OCP_QP_SOL *qp_sol, REAL *vec
 		{ 
 		OCP_QP_SOL_GET_X(stage, qp_sol, vec);
 		}
+	else if(hpipm_strcmp(field, "sl"))
+		{ 
+		OCP_QP_SOL_GET_SL(stage, qp_sol, vec);
+		}
+	else if(hpipm_strcmp(field, "su"))
+		{ 
+		OCP_QP_SOL_GET_SU(stage, qp_sol, vec);
+		}
 	else if(hpipm_strcmp(field, "pi"))
 		{ 
 		OCP_QP_SOL_GET_PI(stage, qp_sol, vec);
@@ -381,6 +389,27 @@ void OCP_QP_SOL_GET_X(int stage, struct OCP_QP_SOL *qp_sol, REAL *vec)
 	CVT_STRVEC2VEC(nx[stage], qp_sol->ux+stage, nu[stage], vec);
 	}
 
+
+
+void OCP_QP_SOL_GET_SL(int stage, struct OCP_QP_SOL *qp_sol, REAL *vec)
+	{
+	int *nu = qp_sol->dim->nu;
+	int *nx = qp_sol->dim->nx;
+	int *ns = qp_sol->dim->ns;
+	CVT_STRVEC2VEC(ns[stage], qp_sol->ux+stage, nu[stage]+nx[stage], vec);
+	return;
+	}
+
+
+
+void OCP_QP_SOL_GET_SU(int stage, struct OCP_QP_SOL *qp_sol, REAL *vec)
+	{
+	int *nu = qp_sol->dim->nu;
+	int *nx = qp_sol->dim->nx;
+	int *ns = qp_sol->dim->ns;
+	CVT_STRVEC2VEC(ns[stage], qp_sol->ux+stage, nu[stage]+nx[stage]+ns[stage], vec);
+	return;
+	}
 
 
 void OCP_QP_SOL_GET_PI(int stage, struct OCP_QP_SOL *qp_sol, REAL *vec)
