@@ -23,14 +23,17 @@ If you would like to try out the Python interface, check out the examples in `/h
 3) from the HPIPM root folder, run `make shared_library -j4 & sudo make install_shared`
 4) make sure that the location of the installed shared libraries is known to the system by running `export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/opt/blasfeo/lib:/opt/hpipm/lib`.
 If you would like to avoid running this command whenever opening a new shell, you can add the commands above to your .bashrc.
-5) cd to /hpipm/interfaces/python/hpipm_python and run `pip3 install .`
-6) cd to /hpipm/examples/python and run `python3 getting_started.py` to solve a simple OCP-structured QP.
+5) cd to `/hpipm/interfaces/python/hpipm_python` and run `pip3 install .`
+6) cd to `/hpipm/examples/python` and run `python3 getting_started.py` to solve a simple OCP-structured QP.
 
 ### MATLAB and Octave
 The interface for Matlab and Octave is based on mex files.
-Besides downloading, compiling and (optionally) installing BLASFEO and HPIPM (see instruction for Python):
-1) In a terminal, navigate to the folder `hpipm/interfaces/matlab_octave`, set the needed environment flags by running `source env.sh` in that folder and finally compile the interface by running the function `compile_mex_ocp_qp` in a Matlab or Octave instance started from the same terminal.
-2) In a terminal, navigate to the folder `hpipm/examples/matlab_octave`, set the needed environment flatgs by running `source env.sh` in that folder and finally run the examples in a Matlab or Octave instance started from the same terminal.
+1) Compile and install BLASFEO and HPIPM BLASFEO and HPIPM (see instruction for Python 1)-3)):
+2) In a terminal, navigate to the folder `hpipm/interfaces/matlab_octave`, set the needed environment flags by running `source env.sh` in that folder and finally compile the interface by running the function `compile_mex_ocp_qp` in a Matlab or Octave instance started from the same terminal.
+3) In a terminal, navigate to the folder `hpipm/examples/matlab_octave`.
+Set the needed environment flags by running `source env.sh` in that folder.
+Run an instance of Matlab or Octave from the same terminal.
+Get started by running the examples in that folder.
 
 --------------------------------------------------
 

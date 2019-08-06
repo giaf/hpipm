@@ -77,6 +77,9 @@ B = M(1:nx,nx+1:end);
 % cost function
 Q = eye(nx);
 R = 2*eye(nu);
+S = zeros(nx, nu);
+q = zeros(nx, 1);
+r = zeros(nu, 1);
 
 % initial state
 Jx0 = eye(nx);
@@ -94,10 +97,20 @@ ubu =  0.5*ones(nu,1);
 %%% dim %%%
 dim = hpipm_ocp_qp_dim(N);
 
+%% Note:
+% The setters follow the following convention:
+% obj.set('field', value, stage_index);
+% or to set values for multiple consecutive stages:
+% obj.set('field', value, first_stage_index, last_stage);
+ns = 0;
+nbx = nx;
+nbu = nu;
 dim.set('nx', nx, 0, N);
-dim.set('nu', nu, 0, N-1);
-dim.set('nbx', nx, 0);
-dim.set('nbu', nu, 0, N-1);
+dim.set('nu', nu, 0, N-1); % controls
+dim.set('nbx', nbx, 0); % state bounds
+dim.set('nbu', nbu, 0, N-1); % control bounds
+dim.set('ns', ns, 0, N); % slacks
+dim.set('ng', 0, 0, N); % general linear constraints
 
 % print to shell
 %dim.print_C_struct();
@@ -111,19 +124,42 @@ end
 %%% qp %%%
 qp = hpipm_ocp_qp(dim);
 
+% dynamics
 qp.set('A', A, 0, N-1);
 qp.set('B', B, 0, N-1);
+
+% cost
 qp.set('Q', Q, 0, N);
-%qp.set('S', S, 0, N-1);
+qp.set('S', S, 0, N-1);
 qp.set('R', R, 0, N-1);
-%qp.set('q', q, 0, N);
-%qp.set('r', r, 0, N-1);
+qp.set('q', q, 0, N);
+qp.set('r', r, 0, N-1);
+
+slack_L2 = 0;
+slack_L1 = 0;
+Z = slack_L2 * eye(ns);
+z = slack_L1 * ones(ns, 1);
+qp.set('Zl', Z, 0, N-1);
+qp.set('Zu', Z, 0, N-1);
+qp.set('zl', z, 0, N-1);
+qp.set('zu', z, 0, N-1);
+
+% constraints
 qp.set('Jbx', Jx0, 0);
 qp.set('lbx', x0, 0);
 qp.set('ubx', x0, 0);
 qp.set('Jbu', Jbu, 0, N-1);
 qp.set('lbu', lbu, 0, N-1);
 qp.set('ubu', ubu, 0, N-1);
+
+Jsx = eye(nbx, ns);
+qp.set('Jsx', Jsx, 0, N);
+Jsu = zeros(nbu, ns);
+qp.set('Jsu', Jsu, 0, N-1);
+
+slack_bounds = zeros(ns,1);
+qp.set('lus', slack_bounds, 0, N);
+qp.set('lls', slack_bounds, 0, N);
 
 % print to shell
 %qp.print_C_struct();
@@ -207,6 +243,9 @@ x = reshape(x, nx, N+1);
 % u
 u = sol.get('u', 0, N-1);
 u = reshape(u, nu, N);
+% slack values
+su = sol.get('su', 0, N);
+sl = sol.get('sl', 0, N);
 
 % print to shell
 %sol.print_C_struct();

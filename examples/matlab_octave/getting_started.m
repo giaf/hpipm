@@ -81,6 +81,12 @@ x0 = [1; 1];
 %%% dim %%%
 dim = hpipm_ocp_qp_dim(N);
 
+%% Note:
+% The setters follow the following convention:
+% obj.set('field', value, stage_index);
+% or to set values for multiple consecutive stages:
+% obj.set('field', value, first_stage_index, last_stage);
+
 dim.set('nx', nx, 0, N);
 dim.set('nu', nu, 0, N-1);
 if(constr_type==0)
