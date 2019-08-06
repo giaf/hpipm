@@ -200,6 +200,10 @@ void UPDATE_VAR_QP(struct CORE_QP_IPM_WORKSPACE *cws)
 	REAL *pi = cws->pi;
 	REAL *lam = cws->lam;
 	REAL *t = cws->t;
+	REAL *v_bkp = cws->v_bkp;
+	REAL *pi_bkp = cws->pi_bkp;
+	REAL *lam_bkp = cws->lam_bkp;
+	REAL *t_bkp = cws->t_bkp;
 	REAL *dv = cws->dv;
 	REAL *dpi = cws->dpi;
 	REAL *dlam = cws->dlam;
@@ -226,18 +230,21 @@ void UPDATE_VAR_QP(struct CORE_QP_IPM_WORKSPACE *cws)
 	// update v
 	for(ii=0; ii<nv; ii++)
 		{
+		v_bkp[ii] = v[ii];
 		v[ii] += alpha * dv[ii];
 		}
 
 	// update pi
 	for(ii=0; ii<ne; ii++)
 		{
+		pi_bkp[ii] = pi[ii];
 		pi[ii] += alpha * dpi[ii];
 		}
 
 	// update lam
 	for(ii=0; ii<nc; ii++)
 		{
+		lam_bkp[ii] = lam[ii];
 		lam[ii] += alpha * dlam[ii];
 		lam[ii] = lam[ii]<=cws->lam_min ? cws->lam_min : lam[ii];
 		}
@@ -245,6 +252,7 @@ void UPDATE_VAR_QP(struct CORE_QP_IPM_WORKSPACE *cws)
 	// update t
 	for(ii=0; ii<nc; ii++)
 		{
+		t_bkp[ii] = t[ii];
 		t[ii] += alpha * dt[ii];
 		t[ii] = t[ii]<=cws->t_min ? cws->t_min : t[ii];
 		}
@@ -254,18 +262,21 @@ void UPDATE_VAR_QP(struct CORE_QP_IPM_WORKSPACE *cws)
 	// update v
 	for(ii=0; ii<nv; ii++)
 		{
+		v_bkp[ii] = v[ii];
 		v[ii] += alpha_prim * dv[ii];
 		}
 
 	// update pi
 	for(ii=0; ii<ne; ii++)
 		{
+		pi_bkp[ii] = pi[ii];
 		pi[ii] += alpha_dual * dpi[ii];
 		}
 
 	// update lam
 	for(ii=0; ii<nc; ii++)
 		{
+		lam_bkp[ii] = lam[ii];
 		lam[ii] += alpha_dual * dlam[ii];
 		lam[ii] = lam[ii]<=cws->lam_min ? cws->lam_min : lam[ii];
 		}
@@ -273,6 +284,7 @@ void UPDATE_VAR_QP(struct CORE_QP_IPM_WORKSPACE *cws)
 	// update t
 	for(ii=0; ii<nc; ii++)
 		{
+		t_bkp[ii] = t[ii];
 		t[ii] += alpha_prim * dt[ii];
 		t[ii] = t[ii]<=cws->t_min ? cws->t_min : t[ii];
 		}

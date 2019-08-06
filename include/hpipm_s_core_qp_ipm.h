@@ -47,6 +47,10 @@ struct s_core_qp_ipm_workspace
 	float *lam; // inequality constraints multipliers
 	float *t; // inequality constraints slacks
 	float *t_inv; // inverse of t
+	float *v_bkp; // backup of primal variables
+	float *pi_bkp; // backup of equality constraints multipliers
+	float *lam_bkp; // backup of inequality constraints multipliers
+	float *t_bkp; // backup of inequality constraints slacks
 	float *dv; // step in v
 	float *dpi; // step in pi
 	float *dlam; // step in lam

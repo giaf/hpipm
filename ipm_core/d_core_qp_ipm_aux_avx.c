@@ -361,6 +361,10 @@ void d_update_var_qp(struct d_core_qp_ipm_workspace *cws)
 	double *pi = cws->pi;
 	double *lam = cws->lam;
 	double *t = cws->t;
+	double *v_bkp = cws->v_bkp;
+	double *pi_bkp = cws->pi_bkp;
+	double *lam_bkp = cws->lam_bkp;
+	double *t_bkp = cws->t_bkp;
 	double *dv = cws->dv;
 	double *dpi = cws->dpi;
 	double *dlam = cws->dlam;
@@ -370,6 +374,7 @@ void d_update_var_qp(struct d_core_qp_ipm_workspace *cws)
 	double alpha_dual = cws->alpha_dual;
 
 	__m256d
+		x_tmp0, x_tmp1,
 		y_tmp0, y_tmp1,
 		y_alpha,
 		y_lam_min, y_t_min, y_mask0, y_mask1;
@@ -396,12 +401,15 @@ void d_update_var_qp(struct d_core_qp_ipm_workspace *cws)
 	ii = 0;
 	for(; ii<nv-3; ii+=4)
 		{
+		x_tmp0 = _mm256_loadu_pd( &v[ii] );
+		_mm256_storeu_pd( &v_bkp[ii], x_tmp0 );
 		y_tmp0 = _mm256_mul_pd( y_alpha, _mm256_loadu_pd( &dv[ii] ) );
-		y_tmp0 = _mm256_add_pd( y_tmp0, _mm256_loadu_pd( &v[ii] ) );
+		y_tmp0 = _mm256_add_pd( y_tmp0, x_tmp0 );
 		_mm256_storeu_pd( &v[ii], y_tmp0 );
 		}
 	for(; ii<nv; ii++)
 		{
+		v_bkp[ii] = v[ii];
 		v[ii] += alpha * dv[ii];
 		}
 
@@ -409,12 +417,15 @@ void d_update_var_qp(struct d_core_qp_ipm_workspace *cws)
 	ii = 0;
 	for(; ii<ne-3; ii+=4)
 		{
+		x_tmp0 = _mm256_loadu_pd( &pi[ii] );
+		_mm256_storeu_pd( &pi_bkp[ii], x_tmp0 );
 		y_tmp0 = _mm256_mul_pd( y_alpha, _mm256_loadu_pd( &dpi[ii] ) );
-		y_tmp0 = _mm256_add_pd( y_tmp0, _mm256_loadu_pd( &pi[ii] ) );
+		y_tmp0 = _mm256_add_pd( y_tmp0, x_tmp0 );
 		_mm256_storeu_pd( &pi[ii], y_tmp0 );
 		}
 	for(; ii<ne; ii++)
 		{
+		pi_bkp[ii] = pi[ii];
 		pi[ii] += alpha * dpi[ii];
 		}
 
@@ -424,10 +435,14 @@ void d_update_var_qp(struct d_core_qp_ipm_workspace *cws)
 	ii = 0;
 	for(; ii<nc-3; ii+=4)
 		{
+		x_tmp0 = _mm256_loadu_pd( &lam[ii] );
+		x_tmp1 = _mm256_loadu_pd( &t[ii] );
+		_mm256_storeu_pd( &lam_bkp[ii], x_tmp0 );
+		_mm256_storeu_pd( &t_bkp[ii], x_tmp1 );
 		y_tmp0 = _mm256_mul_pd( y_alpha, _mm256_loadu_pd( &dlam[ii] ) );
 		y_tmp1 = _mm256_mul_pd( y_alpha, _mm256_loadu_pd( &dt[ii] ) );
-		y_tmp0 = _mm256_add_pd( y_tmp0, _mm256_loadu_pd( &lam[ii] ) );
-		y_tmp1 = _mm256_add_pd( y_tmp1, _mm256_loadu_pd( &t[ii] ) );
+		y_tmp0 = _mm256_add_pd( y_tmp0, x_tmp0 );
+		y_tmp1 = _mm256_add_pd( y_tmp1, x_tmp1 );
 		// max does not preserve NaN !!!
 //		y_tmp0 = _mm256_max_pd( y_tmp0, y_lam_min );
 //		y_tmp1 = _mm256_max_pd( y_tmp1, y_t_min );
@@ -440,6 +455,8 @@ void d_update_var_qp(struct d_core_qp_ipm_workspace *cws)
 		}
 	for(; ii<nc; ii++)
 		{
+		lam_bkp[ii] = lam[ii];
+		t_bkp[ii] = t[ii];
 		lam[ii] += alpha * dlam[ii];
 		t[ii] += alpha * dt[ii];
 		lam[ii] = lam[ii]<=cws->lam_min ? cws->lam_min : lam[ii];
@@ -451,12 +468,14 @@ void d_update_var_qp(struct d_core_qp_ipm_workspace *cws)
 	// update v
 	for(ii=0; ii<nv; ii++)
 		{
+		v_bkp[ii] = v[ii];
 		v[ii] += alpha_prim * dv[ii];
 		}
 
 	// update pi
 	for(ii=0; ii<ne; ii++)
 		{
+		pi_bkp[ii] = pi[ii];
 //		pi[ii] += alpha_prim * dpi[ii];
 		pi[ii] += alpha_dual * dpi[ii];
 		}
@@ -464,6 +483,7 @@ void d_update_var_qp(struct d_core_qp_ipm_workspace *cws)
 	// update lam
 	for(ii=0; ii<nc; ii++)
 		{
+		lam_bkp[ii] = lam[ii];
 		lam[ii] += alpha_dual * dlam[ii];
 		lam[ii] = lam[ii]<=cws->lam_min ? cws->lam_min : lam[ii];
 		}
@@ -471,6 +491,7 @@ void d_update_var_qp(struct d_core_qp_ipm_workspace *cws)
 	// update t
 	for(ii=0; ii<nc; ii++)
 		{
+		t_bkp[ii] = t[ii];
 		t[ii] += alpha_prim * dt[ii];
 		t[ii] = t[ii]<=cws->t_min ? cws->t_min : t[ii];
 		}

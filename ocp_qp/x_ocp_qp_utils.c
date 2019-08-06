@@ -865,13 +865,13 @@ void OCP_QP_CODEGEN(char *file_name, char *mode, struct OCP_QP_DIM *dim, struct 
 	fprintf(file, "float **hzu;\n");
 #endif
 
-	// idxs
+	// idxs_rev
+	fprintf(file, "/* idxs_rev */\n");
+	fprintf(file, "int **hidxs_rev;\n");
+
+	// idxs // TODO remove !!!
 	fprintf(file, "/* idxs */\n");
-#ifdef DOUBLE_PRECISION
-	fprintf(file, "double **hidxs;\n");
-#else
-	fprintf(file, "float **hidxs;\n");
-#endif
+	fprintf(file, "int **hidxs;\n");
 
 	// lls
 	fprintf(file, "/* lls */\n");

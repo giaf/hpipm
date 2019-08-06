@@ -202,6 +202,10 @@ void s_update_var_qp(struct s_core_qp_ipm_workspace *cws)
 	float *pi = cws->pi;
 	float *lam = cws->lam;
 	float *t = cws->t;
+	float *v_bkp = cws->v_bkp;
+	float *pi_bkp = cws->pi_bkp;
+	float *lam_bkp = cws->lam_bkp;
+	float *t_bkp = cws->t_bkp;
 	float *dv = cws->dv;
 	float *dpi = cws->dpi;
 	float *dlam = cws->dlam;
@@ -228,24 +232,28 @@ void s_update_var_qp(struct s_core_qp_ipm_workspace *cws)
 	// update v
 	for(ii=0; ii<nv; ii++)
 		{
+		v_bkp[ii] = v[ii];
 		v[ii] += alpha * dv[ii];
 		}
 
 	// update pi
 	for(ii=0; ii<ne; ii++)
 		{
+		pi_bkp[ii] = pi[ii];
 		pi[ii] += alpha * dpi[ii];
 		}
 
 	// update lam
 	for(ii=0; ii<nc; ii++)
 		{
+		lam_bkp[ii] = lam[ii];
 		lam[ii] += alpha * dlam[ii];
 		}
 
 	// update t
 	for(ii=0; ii<nc; ii++)
 		{
+		t_bkp[ii] = t[ii];
 		t[ii] += alpha * dt[ii];
 		}
 
@@ -254,24 +262,28 @@ void s_update_var_qp(struct s_core_qp_ipm_workspace *cws)
 	// update v
 	for(ii=0; ii<nv; ii++)
 		{
+		v_bkp[ii] = v[ii];
 		v[ii] += alpha_prim * dv[ii];
 		}
 
 	// update pi
 	for(ii=0; ii<ne; ii++)
 		{
+		pi_bkp[ii] = pi[ii];
 		pi[ii] += alpha_dual * dpi[ii];
 		}
 
 	// update lam
 	for(ii=0; ii<nc; ii++)
 		{
+		lam_bkp[ii] = lam[ii];
 		lam[ii] += alpha_dual * dlam[ii];
 		}
 
 	// update t
 	for(ii=0; ii<nc; ii++)
 		{
+		t_bkp[ii] = lam[ii];
 		t[ii] += alpha_prim * dt[ii];
 		}
 
