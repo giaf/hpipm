@@ -300,12 +300,150 @@ int main()
 	printf("\nocp ipm time = %e [s]\n\n", time_ipm);
 
 /************************************************
+* predict solution of QP with new RHS
+************************************************/
+
+	void *qp_sol1_mem = malloc(qp_sol_size);
+	struct d_ocp_qp_sol qp_sol1;
+	d_ocp_qp_sol_create(&dim, &qp_sol1, qp_sol1_mem);
+
+	// slightly modify RHS of QP
+	double tmp0, tmp1;
+	//
+	tmp0 = hlbx[0][0];
+	tmp1 = hubx[0][0];
+	hlbx[0][0] = 1.1*tmp0;
+	hubx[0][0] = 1.1*tmp1;
+	//
+//	tmp0 = hlbx[0][1];
+//	tmp1 = hubx[0][1];
+//	hlbx[0][1] = 0.95*tmp0;
+//	hubx[0][1] = 0.95*tmp1;
+
+//	d_ocp_qp_set_all(hA, hB, hb, hQ, hS, hR, hq, hr, hidxbx, hlbx, hubx, hidxbu, hlbu, hubu, hC, hD, hlg, hug, hZl, hZu, hzl, hzu, hidxs, hlls, hlus, &qp);
+	d_ocp_qp_set_lbx(0, hlbx[0], &qp);
+	d_ocp_qp_set_ubx(0, hubx[0], &qp);
+
+	hpipm_tic(&timer);
+
+	for(rep=0; rep<nrep; rep++)
+		{
+		d_ocp_qp_ipm_predict(&qp, &qp_sol1, &arg, &workspace);
+		}
+
+	double time_pred = hpipm_toc(&timer) / nrep;
+
+    printf("\nAverage prediction time over %i runs: %e [s]\n", nrep, time_pred);
+	printf("\n\n");
+
+	// predicted solution
+
+	// u
+	printf("\nu_pred = \n");
+	for(ii=0; ii<=N; ii++)
+		{
+		d_ocp_qp_sol_get_u(ii, &qp_sol1, u);
+		d_print_mat(1, nu[ii], u, 1);
+		}
+
+	// x
+	printf("\nx_pred = \n");
+	for(ii=0; ii<=N; ii++)
+		{
+		d_ocp_qp_sol_get_x(ii, &qp_sol1, x);
+		d_print_mat(1, nx[ii], x, 1);
+		}
+
+	// pi
+	printf("\npi_pred = \n");
+	for(ii=0; ii<N; ii++)
+		{
+		d_ocp_qp_sol_get_pi(ii, &qp_sol1, pi);
+		d_print_mat(1, nx[ii+1], pi, 1);
+		}
+
+	d_ocp_qp_ipm_get_res_stat(&workspace, &res_stat);
+	d_ocp_qp_ipm_get_res_eq(&workspace, &res_eq);
+	d_ocp_qp_ipm_get_res_ineq(&workspace, &res_ineq);
+	d_ocp_qp_ipm_get_res_comp(&workspace, &res_comp);
+	printf("\nprediction residuals max: res_g = %e, res_b = %e, res_d = %e, res_m = %e\n", res_stat, res_eq, res_ineq, res_comp);
+
+/************************************************
+* sensitivity of solution of QP
+************************************************/
+
+	void *qp_sol2_mem = malloc(qp_sol_size);
+	struct d_ocp_qp_sol qp_sol2;
+	d_ocp_qp_sol_create(&dim, &qp_sol2, qp_sol2_mem);
+
+	// zero RHS of QP
+	// TODO what to do with inequality constraints ???
+	for(jj=0; jj<=N; jj++)
+		{
+		// q
+		for(ii=0; ii<nx[jj]; ii++)
+			hq[jj][ii] = 0.0;
+		d_ocp_qp_set_q(jj, hq[jj], &qp);
+		// lbx
+		for(ii=0; ii<nbx[jj]; ii++)
+			hlbx[jj][ii] = 0.0;
+		d_ocp_qp_set_lbx(jj, hlbx[jj], &qp);
+		// ubx
+		for(ii=0; ii<nbx[jj]; ii++)
+			hubx[jj][ii] = 0.0;
+		d_ocp_qp_set_ubx(jj, hubx[jj], &qp);
+		}
+
+	// sensitivity of QP RHS wrt parameter
+	//
+	hlbx[0][0] = 1.0;
+	hubx[0][0] = 1.0;
+
+	d_ocp_qp_set_lbx(0, hlbx[0], &qp);
+	d_ocp_qp_set_ubx(0, hubx[0], &qp);
+
+//	d_ocp_qp_print(&dim, &qp);
+//	exit(1);
+
+	// sensitivity solution
+	int comp_res_pred = 0;
+	d_ocp_qp_ipm_arg_set_comp_res_pred(&comp_res_pred, &arg);
+
+	d_ocp_qp_ipm_predict(&qp, &qp_sol2, &arg, &workspace);
+
+	// u
+	printf("\nu_sens = \n");
+	for(ii=0; ii<=N; ii++)
+		{
+		d_ocp_qp_sol_get_u(ii, &qp_sol2, u);
+		d_print_mat(1, nu[ii], u, 1);
+		}
+
+	// x
+	printf("\nx_sens = \n");
+	for(ii=0; ii<=N; ii++)
+		{
+		d_ocp_qp_sol_get_x(ii, &qp_sol2, x);
+		d_print_mat(1, nx[ii], x, 1);
+		}
+
+	// pi
+	printf("\npi_sens = \n");
+	for(ii=0; ii<N; ii++)
+		{
+		d_ocp_qp_sol_get_pi(ii, &qp_sol2, pi);
+		d_print_mat(1, nx[ii+1], pi, 1);
+		}
+
+/************************************************
 * free memory and return
 ************************************************/
 
     free(dim_mem);
     free(qp_mem);
 	free(qp_sol_mem);
+	free(qp_sol1_mem);
+	free(qp_sol2_mem);
 	free(ipm_arg_mem);
 	free(ipm_mem);
 

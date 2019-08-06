@@ -128,6 +128,7 @@
 #define OCP_QP_IPM_ARG_SET_WARM_START s_ocp_qp_ipm_arg_set_warm_start
 #define OCP_QP_IPM_ARG_SET_PRED_CORR s_ocp_qp_ipm_arg_set_pred_corr
 #define OCP_QP_IPM_ARG_SET_RIC_ALG s_ocp_qp_ipm_arg_set_ric_alg
+#define OCP_QP_IPM_ARG_SET_COMP_RES_PRED s_ocp_qp_ipm_arg_set_comp_res_pred
 // ipm
 #define OCP_QP_IPM_WS_STRSIZE s_ocp_qp_ipm_ws_strsize
 #define OCP_QP_IPM_WS_MEMSIZE s_ocp_qp_ipm_ws_memsize

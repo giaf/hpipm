@@ -120,6 +120,7 @@ void OCP_QP_IPM_ARG_SET_DEFAULT(enum HPIPM_MODE mode, struct OCP_QP_IPM_ARG *arg
 		arg->abs_form = 1;
 		arg->comp_dual_sol = 0;
 		arg->comp_res_exit = 0;
+		arg->comp_res_pred = 0;
 		arg->mode = mode;
 		}
 	else if(mode==SPEED)
@@ -145,6 +146,7 @@ void OCP_QP_IPM_ARG_SET_DEFAULT(enum HPIPM_MODE mode, struct OCP_QP_IPM_ARG *arg
 		arg->abs_form = 0;
 		arg->comp_dual_sol = 1;
 		arg->comp_res_exit = 1;
+		arg->comp_res_pred = 1;
 		arg->mode = mode;
 		}
 	else if(mode==BALANCE)
@@ -170,6 +172,7 @@ void OCP_QP_IPM_ARG_SET_DEFAULT(enum HPIPM_MODE mode, struct OCP_QP_IPM_ARG *arg
 		arg->abs_form = 0;
 		arg->comp_dual_sol = 1;
 		arg->comp_res_exit = 1;
+		arg->comp_res_pred = 1;
 		arg->mode = mode;
 		}
 	else if(mode==ROBUST)
@@ -195,6 +198,7 @@ void OCP_QP_IPM_ARG_SET_DEFAULT(enum HPIPM_MODE mode, struct OCP_QP_IPM_ARG *arg
 		arg->abs_form = 0;
 		arg->comp_dual_sol = 1;
 		arg->comp_res_exit = 1;
+		arg->comp_res_pred = 1;
 		arg->mode = mode;
 		}
 	else
@@ -254,6 +258,10 @@ void OCP_QP_IPM_ARG_SET(char *field, void *value, struct OCP_QP_IPM_ARG *arg)
 	else if(hpipm_strcmp(field, "ric_alg")) 
 		{
 		OCP_QP_IPM_ARG_SET_RIC_ALG(value, arg);
+		}
+	else if(hpipm_strcmp(field, "comp_res_pred")) 
+		{
+		OCP_QP_IPM_ARG_SET_COMP_RES_PRED(value, arg);
 		}
 	else
 		{
@@ -348,6 +356,14 @@ void OCP_QP_IPM_ARG_SET_PRED_CORR(int *pred_corr, struct OCP_QP_IPM_ARG *arg)
 void OCP_QP_IPM_ARG_SET_RIC_ALG(int *ric_alg, struct OCP_QP_IPM_ARG *arg)
 	{
 	arg->square_root_alg = *ric_alg;
+	return;
+	}
+
+
+
+void OCP_QP_IPM_ARG_SET_COMP_RES_PRED(int *comp_res_pred, struct OCP_QP_IPM_ARG *arg)
+	{
+	arg->comp_res_pred = *comp_res_pred;
 	return;
 	}
 
@@ -1820,6 +1836,10 @@ printf("\npredict\t%e\t%e\t%e\t%e\n", qp_res[0], qp_res[1], qp_res[2], qp_res[3]
 	for(ii=0; ii<cws->nc; ii++)
 		cws->t[ii] = cws->t_bkp[ii];
 
+	// TODO absolute formulation !!!!!
+
+	// TODO robust formulation !!!!!
+
 	// compute residuals
 	COMPUTE_RES_OCP_QP(qp, qp_sol, ws->res, ws->res_workspace);
 
@@ -1841,16 +1861,17 @@ printf("\npredict\t%e\t%e\t%e\t%e\n", qp_res[0], qp_res[1], qp_res[2], qp_res[3]
 	//
 	UPDATE_VAR_QP(cws);
 
-#if 0
-	// compute residuals in exit
-	COMPUTE_RES_OCP_QP(qp, qp_sol, ws->res, ws->res_workspace);
+	if(arg->comp_res_pred)
+		{
+		// compute residuals in exit
+		COMPUTE_RES_OCP_QP(qp, qp_sol, ws->res, ws->res_workspace);
 
-	// compute infinity norm of residuals
-	VECNRM_INF(cws->nv, &str_res_g, 0, &qp_res[0]);
-	VECNRM_INF(cws->ne, &str_res_b, 0, &qp_res[1]);
-	VECNRM_INF(cws->nc, &str_res_d, 0, &qp_res[2]);
-	VECNRM_INF(cws->nc, &str_res_m, 0, &qp_res[3]);
-#endif
+		// compute infinity norm of residuals
+		VECNRM_INF(cws->nv, &str_res_g, 0, &qp_res[0]);
+		VECNRM_INF(cws->ne, &str_res_b, 0, &qp_res[1]);
+		VECNRM_INF(cws->nc, &str_res_d, 0, &qp_res[2]);
+		VECNRM_INF(cws->nc, &str_res_m, 0, &qp_res[3]);
+		}
 
 //printf("\npredict\t%e\t%e\t%e\t%e\n", qp_res[0], qp_res[1], qp_res[2], qp_res[3]);
 
