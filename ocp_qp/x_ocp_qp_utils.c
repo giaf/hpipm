@@ -224,6 +224,14 @@ void OCP_QP_PRINT(struct OCP_QP_DIM *dim, struct OCP_QP *qp)
 	for (ii = 0; ii <= N; ii++)
 		BLASFEO_PRINT_MAT(nu[ii]+nx[ii], ng[ii], qp->DCt+ii, 0, 0);
 
+	printf("idxs = \n");
+	for (ii = 0; ii <= N; ii++)
+		int_print_mat(1, ns[ii], qp->idxs[ii], 1);
+
+	printf("idxs_rev = \n");
+	for (ii = 0; ii <= N; ii++)
+		int_print_mat(1, nb[ii]+ng[ii], qp->idxs_rev[ii], 1);
+
 	printf("m =\n");
 	for (ii = 0; ii <= N; ii++)
 		BLASFEO_PRINT_TRAN_VEC(2*nb[ii]+2*ng[ii]+2*ns[ii], qp->m+ii, 0);

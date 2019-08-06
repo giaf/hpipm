@@ -59,7 +59,7 @@ void s_ocp_qp_dim_print(struct s_ocp_qp_dim *qp_dim);
 //
 void s_ocp_qp_dim_codegen(char *file_name, char *mode, struct s_ocp_qp_dim *qp_dim);
 //
-void s_ocp_qp_print(struct d_ocp_qp_dim *qp_dim, struct s_ocp_qp *qp);
+void s_ocp_qp_print(struct s_ocp_qp_dim *qp_dim, struct s_ocp_qp *qp);
 //
 void s_ocp_qp_codegen(char *file_name, char *mode, struct s_ocp_qp_dim *qp_dim, struct s_ocp_qp *qp);
 //

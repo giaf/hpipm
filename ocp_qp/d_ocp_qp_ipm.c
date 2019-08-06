@@ -50,6 +50,7 @@
 #include <hpipm_d_ocp_qp.h>
 #include <hpipm_d_ocp_qp_sol.h>
 #include <hpipm_d_ocp_qp_ipm.h>
+#include <hpipm_d_ocp_qp_utils.h>
 #include <hpipm_d_core_qp_ipm.h>
 #include <hpipm_d_core_qp_ipm_aux.h>
 #include <hpipm_d_ocp_qp_res.h>
@@ -68,8 +69,6 @@
 #define COMPUTE_RES_OCP_QP d_compute_res_ocp_qp
 #define CORE_QP_IPM_WORKSPACE d_core_qp_ipm_workspace
 #define CREATE_CORE_QP_IPM d_create_core_qp_ipm
-#define OCP_QP_RES_CREATE d_ocp_qp_res_create
-#define OCP_QP_SOL_CREATE d_ocp_qp_sol_create
 #define CREATE_STRMAT blasfeo_create_dmat
 #define CREATE_STRVEC blasfeo_create_dvec
 #define CVT_STRVEC2VEC blasfeo_unpack_dvec
@@ -77,18 +76,22 @@
 #define FACT_LQ_SOLVE_KKT_STEP_OCP_QP d_fact_lq_solve_kkt_step_ocp_qp
 #define FACT_SOLVE_KKT_UNCONSTR_OCP_QP d_fact_solve_kkt_unconstr_ocp_qp
 #define GELQF_WORKSIZE blasfeo_dgelqf_worksize
+#define HPIPM_MODE hpipm_mode
 #define INIT_VAR_OCP_QP d_init_var_ocp_qp
 #define MEMSIZE_CORE_QP_IPM d_memsize_core_qp_ipm
-#define OCP_QP_RES_MEMSIZE d_ocp_qp_res_memsize
-#define OCP_QP_SOL_MEMSIZE d_ocp_qp_sol_memsize
 #define OCP_QP d_ocp_qp
+#define OCP_QP_DIM d_ocp_qp_dim
+#define OCP_QP_DIM_PRINT d_ocp_qp_dim_print
 #define OCP_QP_IPM_ARG d_ocp_qp_ipm_arg
-#define HPIPM_MODE hpipm_mode
 #define OCP_QP_IPM_WS d_ocp_qp_ipm_ws
+#define OCP_QP_PRINT d_ocp_qp_print
 #define OCP_QP_RES d_ocp_qp_res
 #define OCP_QP_RES_WS d_ocp_qp_res_ws
-#define OCP_QP_DIM d_ocp_qp_dim
+#define OCP_QP_RES_CREATE d_ocp_qp_res_create
+#define OCP_QP_RES_MEMSIZE d_ocp_qp_res_memsize
 #define OCP_QP_SOL d_ocp_qp_sol
+#define OCP_QP_SOL_CREATE d_ocp_qp_sol_create
+#define OCP_QP_SOL_MEMSIZE d_ocp_qp_sol_memsize
 #define PRINT_E_MAT d_print_exp_mat
 #define PRINT_E_STRVEC blasfeo_print_exp_dvec
 #define PRINT_E_TRAN_STRVEC blasfeo_print_exp_tran_dvec
