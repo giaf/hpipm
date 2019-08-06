@@ -181,6 +181,8 @@ void d_ocp_qp_ipm_get_stat(struct d_ocp_qp_ipm_ws *ws, double **stat);
 void d_ocp_qp_ipm_get_stat_m(struct d_ocp_qp_ipm_ws *ws, int *stat_m);
 //
 void d_ocp_qp_ipm_solve(struct d_ocp_qp *qp, struct d_ocp_qp_sol *qp_sol, struct d_ocp_qp_ipm_arg *arg, struct d_ocp_qp_ipm_ws *ws);
+//
+void d_ocp_qp_ipm_predict(struct d_ocp_qp *qp, struct d_ocp_qp_sol *qp_sol, struct d_ocp_qp_ipm_arg *arg, struct d_ocp_qp_ipm_ws *ws);
 
 
 

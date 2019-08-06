@@ -201,6 +201,9 @@ int main()
 //	double time_ipm = (tv1.tv_sec-tv0.tv_sec)/(nrep+0.0)+(tv1.tv_usec-tv0.tv_usec)/(nrep*1e6);
 	double time_ipm = hpipm_toc(&timer) / nrep;
 
+// XXX
+//exit(1);
+
 /************************************************
 * print solution info
 ************************************************/
@@ -295,6 +298,58 @@ int main()
 	d_print_exp_tran_mat(stat_m, iter+1, stat, stat_m);
 
 	printf("\nocp ipm time = %e [s]\n\n", time_ipm);
+
+/************************************************
+* predict solution of QP with new RHS
+************************************************/
+
+	// slightly modify RHS of QP
+	double tmp0 = hlbx[0][0];
+	double tmp1 = hubx[0][0];
+	hlbx[0][0] = 1.1*tmp0;
+	hubx[0][0] = 1.1*tmp1;
+
+//	d_ocp_qp_set_all(hA, hB, hb, hQ, hS, hR, hq, hr, hidxbx, hlbx, hubx, hidxbu, hlbu, hubu, hC, hD, hlg, hug, hZl, hZu, hzl, hzu, hidxs, hlls, hlus, &qp);
+	d_ocp_qp_set_lbx(0, hlbx[0], &qp);
+	d_ocp_qp_set_ubx(0, hubx[0], &qp);
+
+	hpipm_tic(&timer);
+
+	for(rep=0; rep<nrep; rep++)
+		{
+		d_ocp_qp_ipm_predict(&qp, &qp_sol, &arg, &workspace);
+		}
+
+	double time_pred = hpipm_toc(&timer) / nrep;
+
+    printf("\nAverage prediction time over %i runs: %e [s]\n", nrep, time_pred);
+	printf("\n\n");
+
+	// predicted solution
+
+	// u
+	printf("\nu_pred = \n");
+	for(ii=0; ii<=N; ii++)
+		{
+		d_ocp_qp_sol_get_u(ii, &qp_sol, u);
+		d_print_mat(1, nu[ii], u, 1);
+		}
+
+	// x
+	printf("\nx_pred = \n");
+	for(ii=0; ii<=N; ii++)
+		{
+		d_ocp_qp_sol_get_x(ii, &qp_sol, x);
+		d_print_mat(1, nx[ii], x, 1);
+		}
+
+	// pi
+	printf("\npi_pred = \n");
+	for(ii=0; ii<N; ii++)
+		{
+		d_ocp_qp_sol_get_pi(ii, &qp_sol, pi);
+		d_print_mat(1, nx[ii+1], pi, 1);
+		}
 
 /************************************************
 * free memory and return
