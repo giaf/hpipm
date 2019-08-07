@@ -385,16 +385,22 @@ void OCP_QP_SET_ALL(REAL **A, REAL **B, REAL **b, REAL **Q, REAL **S, REAL **R, 
 
 	for(ii=0; ii<=N; ii++)
 		{
-		if(nb[ii]>0)
+		if(nbu[ii]>0)
 			{
 			for(jj=0; jj<nbu[ii]; jj++)
 				qp->idxb[ii][jj] = idxbu[ii][jj];
 			CVT_VEC2STRVEC(nbu[ii], d_lbu[ii], qp->d+ii, 0);
 			CVT_VEC2STRVEC(nbu[ii], d_ubu[ii], qp->d+ii, nb[ii]+ng[ii]);
+			}
+		if(nbx[ii>0])
+			{
 			for(jj=0; jj<nbx[ii]; jj++)
 				qp->idxb[ii][nbu[ii]+jj] = nu[ii]+idxbx[ii][jj];
 			CVT_VEC2STRVEC(nbx[ii], d_lbx[ii], qp->d+ii, nbu[ii]);
 			CVT_VEC2STRVEC(nbx[ii], d_ubx[ii], qp->d+ii, nb[ii]+ng[ii]+nbu[ii]);
+			}
+		if(nb[ii>0])
+			{
 			VECSC_LIBSTR(nb[ii], -1.0, qp->d+ii, nb[ii]+ng[ii]);
 			VECSE(nb[ii], 0.0, qp->m+ii, 0);
 			VECSE(nb[ii], 0.0, qp->m+ii, nb[ii]+ng[ii]);
