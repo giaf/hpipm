@@ -67,6 +67,25 @@ classdef hpipm_ocp_qp_sol < handle
 			end
 		end
 
+		function set(varargin)
+			if nargin==4
+				obj = varargin{1};
+				field = varargin{2};
+				value = varargin{3};
+				stage0 = varargin{4};
+				ocp_qp_sol_set(obj.C_sol, field, value, stage0);
+			elseif nargin==5
+				obj = varargin{1};
+				field = varargin{2};
+				value = varargin{3};
+				stage0 = varargin{4};
+				stage1 = varargin{5};
+				ocp_qp_sol_set(obj.C_sol, field, value, stage0, stage1);
+			else
+				disp('hpipm_ocp_qp_sol.set: wrong number of input arguments (3 or 4 allowed)');
+			end
+		end
+
 		function print_C_struct(obj)
 			ocp_qp_sol_print(obj.C_dim, obj.C_sol);
 		end
