@@ -1852,11 +1852,12 @@ printf("\npredict\t%e\t%e\t%e\t%e\n", qp_res[0], qp_res[1], qp_res[2], qp_res[3]
 //printf("\npredict\t%e\t%e\t%e\t%e\n", qp_res[0], qp_res[1], qp_res[2], qp_res[3]);
 
 	// solve kkt
-	ws->use_Pb = 1;
+	ws->use_Pb = 0;
 	SOLVE_KKT_STEP_OCP_QP(ws->qp_step, ws->sol_step, arg, ws);
 
-	// alpha
-	COMPUTE_ALPHA_QP(cws);
+	// alpha TODO fix alpha=1 !!!!!
+//	COMPUTE_ALPHA_QP(cws);
+	cws->alpha = 1.0;
 
 	//
 	UPDATE_VAR_QP(cws);
@@ -1872,6 +1873,130 @@ printf("\npredict\t%e\t%e\t%e\t%e\n", qp_res[0], qp_res[1], qp_res[2], qp_res[3]
 		VECNRM_INF(cws->nc, &str_res_d, 0, &qp_res[2]);
 		VECNRM_INF(cws->nc, &str_res_m, 0, &qp_res[3]);
 		}
+
+//printf("\npredict\t%e\t%e\t%e\t%e\n", qp_res[0], qp_res[1], qp_res[2], qp_res[3]);
+
+	// TODO
+
+	// do not change status
+
+	return;
+
+	}
+
+
+
+void OCP_QP_IPM_SENS(struct OCP_QP *qp, struct OCP_QP_SOL *qp_sol, struct OCP_QP_IPM_ARG *arg, struct OCP_QP_IPM_WS *ws)
+	{
+
+#if 0
+	OCP_QP_DIM_PRINT(qp->dim);
+	OCP_QP_PRINT(qp->dim, qp);
+#endif
+
+	int ii;
+
+	struct CORE_QP_IPM_WORKSPACE *cws = ws->core_workspace;
+
+	// arg to core workspace
+	cws->lam_min = arg->lam_min;
+	cws->t_min = arg->t_min;
+
+	// alias qp vectors into qp_sol
+	cws->v = qp_sol->ux->pa;
+	cws->pi = qp_sol->pi->pa;
+	cws->lam = qp_sol->lam->pa;
+	cws->t = qp_sol->t->pa;
+
+#if 0
+	// alias members of qp_step
+	ws->qp_step->dim = qp->dim;
+	ws->qp_step->RSQrq = qp->RSQrq;
+	ws->qp_step->BAbt = qp->BAbt;
+	ws->qp_step->DCt = qp->DCt;
+	ws->qp_step->Z = qp->Z;
+	ws->qp_step->idxb = qp->idxb;
+	ws->qp_step->idxs = qp->idxs;
+	ws->qp_step->rqz = res->res_g;
+	ws->qp_step->b = res->res_b;
+	ws->qp_step->d = res->res_d;
+	ws->qp_step->m = res->res_m;
+#endif
+
+	// TODO ?
+
+#if 0
+	// blasfeo alias for residuals
+	struct STRVEC str_res_g;
+	struct STRVEC str_res_b;
+	struct STRVEC str_res_d;
+	struct STRVEC str_res_m;
+	str_res_g.m = cws->nv;
+	str_res_b.m = cws->ne;
+	str_res_d.m = cws->nc;
+	str_res_m.m = cws->nc;
+	str_res_g.pa = cws->res_g;
+	str_res_b.pa = cws->res_b;
+	str_res_d.pa = cws->res_d;
+	str_res_m.pa = cws->res_m;
+
+	REAL *qp_res = ws->qp_res;
+	qp_res[0] = 0;
+	qp_res[1] = 0;
+	qp_res[2] = 0;
+	qp_res[3] = 0;
+#endif
+
+#if 0
+// compute residuals
+COMPUTE_RES_OCP_QP(qp, qp_sol, ws->res, ws->res_workspace);
+
+// compute infinity norm of residuals
+VECNRM_INF(cws->nv, &str_res_g, 0, &qp_res[0]);
+VECNRM_INF(cws->ne, &str_res_b, 0, &qp_res[1]);
+VECNRM_INF(cws->nc, &str_res_d, 0, &qp_res[2]);
+VECNRM_INF(cws->nc, &str_res_m, 0, &qp_res[3]);
+
+printf("\npredict\t%e\t%e\t%e\t%e\n", qp_res[0], qp_res[1], qp_res[2], qp_res[3]);
+#endif
+
+	// load sol from bkp
+	for(ii=0; ii<cws->nv; ii++)
+		cws->v[ii] = cws->v_bkp[ii];
+	for(ii=0; ii<cws->ne; ii++)
+		cws->pi[ii] = cws->pi_bkp[ii];
+	for(ii=0; ii<cws->nc; ii++)
+		cws->lam[ii] = cws->lam_bkp[ii];
+	for(ii=0; ii<cws->nc; ii++)
+		cws->t[ii] = cws->t_bkp[ii];
+
+//printf("\npredict\t%e\t%e\t%e\t%e\n", qp_res[0], qp_res[1], qp_res[2], qp_res[3]);
+
+	// solve kkt
+	ws->use_Pb = 0;
+//	SOLVE_KKT_STEP_OCP_QP(ws->qp_step, ws->sol_step, arg, ws);
+	SOLVE_KKT_STEP_OCP_QP(qp, qp_sol, arg, ws);
+
+#if 0
+	// alpha TODO fix alpha=1 !!!!!
+//	COMPUTE_ALPHA_QP(cws);
+	cws->alpha = 1.0;
+
+	//
+	UPDATE_VAR_QP(cws);
+
+	if(arg->comp_res_pred)
+		{
+		// compute residuals in exit
+		COMPUTE_RES_OCP_QP(qp, qp_sol, ws->res, ws->res_workspace);
+
+		// compute infinity norm of residuals
+		VECNRM_INF(cws->nv, &str_res_g, 0, &qp_res[0]);
+		VECNRM_INF(cws->ne, &str_res_b, 0, &qp_res[1]);
+		VECNRM_INF(cws->nc, &str_res_d, 0, &qp_res[2]);
+		VECNRM_INF(cws->nc, &str_res_m, 0, &qp_res[3]);
+		}
+#endif
 
 //printf("\npredict\t%e\t%e\t%e\t%e\n", qp_res[0], qp_res[1], qp_res[2], qp_res[3]);
 

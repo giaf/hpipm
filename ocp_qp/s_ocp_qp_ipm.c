@@ -144,6 +144,7 @@
 #define OCP_QP_IPM_GET_STAT_M s_ocp_qp_ipm_get_stat_m
 #define OCP_QP_IPM_SOLVE s_ocp_qp_ipm_solve
 #define OCP_QP_IPM_PREDICT s_ocp_qp_ipm_predict
+#define OCP_QP_IPM_SENS s_ocp_qp_ipm_sens
 
 
 

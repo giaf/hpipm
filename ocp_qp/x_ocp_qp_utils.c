@@ -996,3 +996,38 @@ void OCP_QP_IPM_ARG_CODEGEN(char *file_name, char *mode, struct OCP_QP_DIM *qp_d
 	return;
 	}
 
+
+
+void OCP_QP_RES_PRINT(struct OCP_QP_DIM *qp_dim, struct OCP_QP_RES *qp_res)
+	{
+	int ii;
+
+	int N   = qp_dim->N;
+	int *nx = qp_dim->nx;
+	int *nu = qp_dim->nu;
+	int *nb = qp_dim->nb;
+	int *ng = qp_dim->ng;
+	int *ns = qp_dim->ns;
+
+	printf("res_g =\n");
+	for (ii = 0; ii <= N; ii++)
+		BLASFEO_PRINT_TRAN_VEC(nu[ii]+nx[ii]+2*ns[ii], &qp_res->res_g[ii], 0);
+
+	printf("res_b =\n");
+	for (ii = 0; ii < N; ii++)
+		BLASFEO_PRINT_TRAN_VEC(nx[ii+1], &qp_res->res_b[ii], 0);
+
+	printf("res_d =\n");
+	for (ii = 0; ii <= N; ii++)
+		BLASFEO_PRINT_TRAN_VEC(2*nb[ii]+2*ng[ii]+2*ns[ii], &qp_res->res_d[ii], 0);
+
+	printf("res_m =\n");
+	for (ii = 0; ii <= N; ii++)
+		BLASFEO_PRINT_TRAN_VEC(2*nb[ii]+2*ng[ii]+2*ns[ii], &qp_res->res_m[ii], 0);
+
+	return;
+	}
+
+
+
+

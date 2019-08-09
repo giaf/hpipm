@@ -77,6 +77,10 @@ int s_ocp_qp_memsize(struct s_ocp_qp_dim *dim);
 //
 void s_ocp_qp_create(struct s_ocp_qp_dim *dim, struct s_ocp_qp *qp, void *memory);
 //
+void s_ocp_qp_set_all_zero(struct s_ocp_qp *qp);
+//
+void s_ocp_qp_set_rhs_zero(struct s_ocp_qp *qp);
+//
 void s_ocp_qp_set_all(float **A, float **B, float **b, float **Q, float **S, float **R, float **q, float **r, int **idxbx, float **lbx, float **ubx, int **idxbu, float **lbu, float **ubu, float **C, float **D, float **lg, float **ug, float **Zl, float **Zu, float **zl, float **zu, int **idxs, float **ls, float **us, struct s_ocp_qp *qp);
 //
 void s_ocp_qp_set(char *field_name, int stage, void *value, struct s_ocp_qp *qp);

@@ -29,12 +29,14 @@
 #include <stdio.h>
 #include <sys/time.h>
 
+#include <blasfeo_common.h>
 #include <blasfeo_d_aux_ext_dep.h>
 
 #include "../../include/hpipm_d_ocp_qp_ipm.h"
 #include "../../include/hpipm_d_ocp_qp_dim.h"
 #include "../../include/hpipm_d_ocp_qp.h"
 #include "../../include/hpipm_d_ocp_qp_sol.h"
+#include "../../include/hpipm_d_ocp_qp_utils.h"
 #include "../../include/hpipm_timing.h"
 
 
@@ -308,21 +310,21 @@ int main()
 	d_ocp_qp_sol_create(&dim, &qp_sol1, qp_sol1_mem);
 
 	// slightly modify RHS of QP
-	double tmp0, tmp1;
+	double *lbx0_tmp = malloc(nx[0]*sizeof(double));
+	double *ubx0_tmp = malloc(nx[0]*sizeof(double));
 	//
-	tmp0 = hlbx[0][0];
-	tmp1 = hubx[0][0];
-	hlbx[0][0] = 1.1*tmp0;
-	hubx[0][0] = 1.1*tmp1;
+	for(ii=0; ii<nx[0]; ii++)
+		lbx0_tmp[ii] = hlbx[0][ii];
+	for(ii=0; ii<nx[0]; ii++)
+		ubx0_tmp[ii] = hubx[0][ii];
+	lbx0_tmp[0] = 1.1*hlbx[0][0];
+	ubx0_tmp[0] = 1.1*hubx[0][0];
 	//
-//	tmp0 = hlbx[0][1];
-//	tmp1 = hubx[0][1];
-//	hlbx[0][1] = 0.95*tmp0;
-//	hubx[0][1] = 0.95*tmp1;
+//	lbx0_tmp[1] = 0.95*hlbx[0][1];
+//	ubx0_tmp[1] = 0.95*hubx[0][1];
 
-//	d_ocp_qp_set_all(hA, hB, hb, hQ, hS, hR, hq, hr, hidxbx, hlbx, hubx, hidxbu, hlbu, hubu, hC, hD, hlg, hug, hZl, hZu, hzl, hzu, hidxs, hlls, hlus, &qp);
-	d_ocp_qp_set_lbx(0, hlbx[0], &qp);
-	d_ocp_qp_set_ubx(0, hubx[0], &qp);
+	d_ocp_qp_set_lbx(0, lbx0_tmp, &qp);
+	d_ocp_qp_set_ubx(0, ubx0_tmp, &qp);
 
 	hpipm_tic(&timer);
 
@@ -372,44 +374,34 @@ int main()
 * sensitivity of solution of QP
 ************************************************/
 
+	// TODO copy QP
+
+	// new sol struct
 	void *qp_sol2_mem = malloc(qp_sol_size);
 	struct d_ocp_qp_sol qp_sol2;
 	d_ocp_qp_sol_create(&dim, &qp_sol2, qp_sol2_mem);
 
-	// zero RHS of QP
-	// TODO what to do with inequality constraints ???
-	for(jj=0; jj<=N; jj++)
-		{
-		// q
-		for(ii=0; ii<nx[jj]; ii++)
-			hq[jj][ii] = 0.0;
-		d_ocp_qp_set_q(jj, hq[jj], &qp);
-		// lbx
-		for(ii=0; ii<nbx[jj]; ii++)
-			hlbx[jj][ii] = 0.0;
-		d_ocp_qp_set_lbx(jj, hlbx[jj], &qp);
-		// ubx
-		for(ii=0; ii<nbx[jj]; ii++)
-			hubx[jj][ii] = 0.0;
-		d_ocp_qp_set_ubx(jj, hubx[jj], &qp);
-		}
+	// set I to param at RHS
+	d_ocp_qp_set_rhs_zero(&qp);
 
-	// sensitivity of QP RHS wrt parameter
-	//
-	hlbx[0][0] = 1.0;
-	hubx[0][0] = 1.0;
+	for(ii=0; ii<nx[0]; ii++)
+		lbx0_tmp[ii] = 0.0;
+	for(ii=0; ii<nx[0]; ii++)
+		ubx0_tmp[ii] = 0.0;
+	lbx0_tmp[0] = 1.0;
+	ubx0_tmp[0] = 1.0;
 
-	d_ocp_qp_set_lbx(0, hlbx[0], &qp);
-	d_ocp_qp_set_ubx(0, hubx[0], &qp);
+	d_ocp_qp_set_lbx(0, lbx0_tmp, &qp);
+	d_ocp_qp_set_ubx(0, ubx0_tmp, &qp);
 
-//	d_ocp_qp_print(&dim, &qp);
+	d_ocp_qp_print(&dim, &qp);
 //	exit(1);
 
 	// sensitivity solution
-	int comp_res_pred = 0;
-	d_ocp_qp_ipm_arg_set_comp_res_pred(&comp_res_pred, &arg);
+//	int comp_res_pred = 0;
+//	d_ocp_qp_ipm_arg_set_comp_res_pred(&comp_res_pred, &arg);
 
-	d_ocp_qp_ipm_predict(&qp, &qp_sol2, &arg, &workspace);
+	d_ocp_qp_ipm_sens(&qp, &qp_sol2, &arg, &workspace);
 
 	// u
 	printf("\nu_sens = \n");
@@ -446,6 +438,9 @@ int main()
 	free(qp_sol2_mem);
 	free(ipm_arg_mem);
 	free(ipm_mem);
+
+	free(lbx0_tmp);
+	free(ubx0_tmp);
 
 	free(u);
 	free(x);

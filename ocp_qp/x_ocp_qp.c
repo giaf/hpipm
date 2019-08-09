@@ -370,6 +370,83 @@ void OCP_QP_CREATE(struct OCP_QP_DIM *dim, struct OCP_QP *qp, void *mem)
 
 
 
+void OCP_QP_SET_ALL_ZERO(struct OCP_QP *qp)
+	{
+
+	// extract dim
+	int N = qp->dim->N;
+	int *nx = qp->dim->nx;
+	int *nu = qp->dim->nu;
+	int *nb = qp->dim->nb;
+	int *nbx = qp->dim->nbx;
+	int *nbu = qp->dim->nbu;
+	int *ng = qp->dim->ng;
+	int *ns = qp->dim->ns;
+
+	int ii, jj;
+
+	for(ii=0; ii<N; ii++)
+		{
+		GESE(nu[ii]+nx[ii]+1, nx[ii+1], 0.0, qp->BAbt+ii, 0, 0);
+		VECSE(nx[ii+1], 0.0, qp->b+ii, 0);
+		}
+
+	for(ii=0; ii<=N; ii++)
+		{
+		GESE(nu[ii]+nx[ii]+1, nu[ii]+nx[ii], 0.0, qp->RSQrq+ii, 0, 0);
+		VECSE(2*ns[ii], 0.0, qp->Z+ii, 0);
+		VECSE(nu[ii]+nx[ii]+2*ns[ii], 0.0, qp->rqz+ii, 0);
+		for(jj=0; jj<nb[ii]; jj++)
+			qp->idxb[ii][jj] = 0;
+		GESE(nu[ii]+nx[ii], ng[ii], 0.0, qp->DCt+ii, 0, 0);
+		VECSE(2*nb[ii]+2*ng[ii]+2*ns[ii], 0.0, qp->d+ii, 0);
+		VECSE(2*nb[ii]+2*ng[ii]+2*ns[ii], 0.0, qp->m+ii, 0);
+		for(jj=0; jj<ns[ii]; jj++)
+			qp->idxs[ii][jj] = 0;
+		for(jj=0; jj<nb[ii]+ng[ii]; jj++)
+			qp->idxs_rev[ii][jj] = -1;
+		}
+
+	return;
+
+	}
+
+
+
+void OCP_QP_SET_RHS_ZERO(struct OCP_QP *qp)
+	{
+
+	// extract dim
+	int N = qp->dim->N;
+	int *nx = qp->dim->nx;
+	int *nu = qp->dim->nu;
+	int *nb = qp->dim->nb;
+	int *nbx = qp->dim->nbx;
+	int *nbu = qp->dim->nbu;
+	int *ng = qp->dim->ng;
+	int *ns = qp->dim->ns;
+
+	int ii, jj;
+
+	for(ii=0; ii<N; ii++)
+		{
+		VECSE(nx[ii+1], 0.0, qp->b+ii, 0);
+		}
+
+	for(ii=0; ii<=N; ii++)
+		{
+		VECSE(2*ns[ii], 0.0, qp->Z+ii, 0);
+		VECSE(nu[ii]+nx[ii]+2*ns[ii], 0.0, qp->rqz+ii, 0);
+		VECSE(2*nb[ii]+2*ng[ii]+2*ns[ii], 0.0, qp->d+ii, 0);
+		VECSE(2*nb[ii]+2*ng[ii]+2*ns[ii], 0.0, qp->m+ii, 0);
+		}
+
+	return;
+
+	}
+
+
+
 void OCP_QP_SET_ALL(REAL **A, REAL **B, REAL **b, REAL **Q, REAL **S, REAL **R, REAL **q, REAL **r, int **idxbx, REAL **d_lbx, REAL **d_ubx, int **idxbu, REAL **d_lbu, REAL **d_ubu, REAL **C, REAL **D, REAL **d_lg, REAL **d_ug, REAL **Zl, REAL **Zu, REAL **zl, REAL **zu, int **idxs, REAL **d_ls, REAL **d_us, struct OCP_QP *qp)
 	{
 
@@ -448,6 +525,7 @@ void OCP_QP_SET_ALL(REAL **A, REAL **B, REAL **b, REAL **Q, REAL **S, REAL **R, 
 			{
 			for(jj=0; jj<ns[ii]; jj++)
 				qp->idxs[ii][jj] = idxs[ii][jj];
+			// TODO idxs_rev
 			CVT_VEC2STRVEC(ns[ii], Zl[ii], qp->Z+ii, 0);
 			CVT_VEC2STRVEC(ns[ii], Zu[ii], qp->Z+ii, ns[ii]);
 			CVT_VEC2STRVEC(ns[ii], zl[ii], qp->rqz+ii, nu[ii]+nx[ii]);
