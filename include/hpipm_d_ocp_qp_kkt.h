@@ -33,6 +33,15 @@
 *                                                                                                 *
 **************************************************************************************************/
 
+#ifndef HPIPM_D_OCP_QP_KKT_H_
+#define HPIPM_D_OCP_QP_KKT_H_
+
+#include <hpipm_common.h>
+#include <hpipm_d_ocp_qp.h>
+#include <hpipm_d_ocp_qp_sol.h>
+
+
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -40,10 +49,6 @@ extern "C" {
 
 //
 void d_init_var_ocp_qp(struct d_ocp_qp *qp, struct d_ocp_qp_sol *qp_sol, struct d_ocp_qp_ipm_arg *arg, struct d_ocp_qp_ipm_ws *ws);
-//
-void d_compute_res_ocp_qp(struct d_ocp_qp *qp, struct d_ocp_qp_sol *qp_sol, struct d_ocp_qp_res *res, struct d_ocp_qp_res_ws *ws);
-//
-void d_compute_lin_res_ocp_qp(struct d_ocp_qp *qp, struct d_ocp_qp_sol *qp_sol, struct d_ocp_qp_sol *qp_step, struct d_ocp_qp_res *res, struct d_ocp_qp_res_ws *ws);
 //
 void d_fact_solve_kkt_unconstr_ocp_qp(struct d_ocp_qp *qp, struct d_ocp_qp_sol *qp_sol, struct d_ocp_qp_ipm_arg *arg, struct d_ocp_qp_ipm_ws *ws);
 //
@@ -53,6 +58,11 @@ void d_fact_lq_solve_kkt_step_ocp_qp(struct d_ocp_qp *qp, struct d_ocp_qp_sol *q
 //
 void d_solve_kkt_step_ocp_qp(struct d_ocp_qp *qp, struct d_ocp_qp_sol *qp_sol, struct d_ocp_qp_ipm_arg *arg, struct d_ocp_qp_ipm_ws *ws);
 
+
+
 #ifdef __cplusplus
 } /* extern "C" */
 #endif
+
+
+#endif // HPIPM_D_OCP_QP_KKT_H_

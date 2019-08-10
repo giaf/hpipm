@@ -285,10 +285,10 @@ int main()
 ************************************************/
 
 	int iter; d_ocp_qp_ipm_get_iter(&workspace, &iter);
-	double res_stat; d_ocp_qp_ipm_get_res_stat(&workspace, &res_stat);
-	double res_eq; d_ocp_qp_ipm_get_res_eq(&workspace, &res_eq);
-	double res_ineq; d_ocp_qp_ipm_get_res_ineq(&workspace, &res_ineq);
-	double res_comp; d_ocp_qp_ipm_get_res_comp(&workspace, &res_comp);
+	double res_stat; d_ocp_qp_ipm_get_max_res_stat(&workspace, &res_stat);
+	double res_eq; d_ocp_qp_ipm_get_max_res_eq(&workspace, &res_eq);
+	double res_ineq; d_ocp_qp_ipm_get_max_res_ineq(&workspace, &res_ineq);
+	double res_comp; d_ocp_qp_ipm_get_max_res_comp(&workspace, &res_comp);
 	double *stat; d_ocp_qp_ipm_get_stat(&workspace, &stat);
 	int stat_m; d_ocp_qp_ipm_get_stat_m(&workspace, &stat_m);
 
@@ -364,10 +364,10 @@ int main()
 		d_print_mat(1, nx[ii+1], pi, 1);
 		}
 
-	d_ocp_qp_ipm_get_res_stat(&workspace, &res_stat);
-	d_ocp_qp_ipm_get_res_eq(&workspace, &res_eq);
-	d_ocp_qp_ipm_get_res_ineq(&workspace, &res_ineq);
-	d_ocp_qp_ipm_get_res_comp(&workspace, &res_comp);
+	d_ocp_qp_ipm_get_max_res_stat(&workspace, &res_stat);
+	d_ocp_qp_ipm_get_max_res_eq(&workspace, &res_eq);
+	d_ocp_qp_ipm_get_max_res_ineq(&workspace, &res_ineq);
+	d_ocp_qp_ipm_get_max_res_comp(&workspace, &res_comp);
 	printf("\nprediction residuals max: res_g = %e, res_b = %e, res_d = %e, res_m = %e\n", res_stat, res_eq, res_ineq, res_comp);
 
 /************************************************
@@ -394,7 +394,7 @@ int main()
 	d_ocp_qp_set_lbx(0, lbx0_tmp, &qp);
 	d_ocp_qp_set_ubx(0, ubx0_tmp, &qp);
 
-	d_ocp_qp_print(&dim, &qp);
+//	d_ocp_qp_print(&dim, &qp);
 //	exit(1);
 
 	// sensitivity solution

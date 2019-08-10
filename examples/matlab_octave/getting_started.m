@@ -191,10 +191,10 @@ fprintf('average solve time over %d runs: %e [s]\n', nrep, solve_time/nrep);
 time_ext = solver.get('time_ext');
 fprintf('solve time of last run (measured in mex interface): %e [s]\n', time_ext);
 iter = solver.get('iter')
-res_stat = solver.get('res_stat')
-res_eq = solver.get('res_eq')
-res_ineq = solver.get('res_ineq')
-res_comp = solver.get('res_comp')
+res_stat = solver.get('max_res_stat')
+res_eq = solver.get('max_res_eq')
+res_ineq = solver.get('max_res_ineq')
+res_comp = solver.get('max_res_comp')
 stat = solver.get('stat');
 fprintf('iter\talpha_aff\tmu_aff\t\tsigma\t\talpha\t\tmu\t\tres_stat\tres_eq\t\tres_ineq\tres_comp\n');
 for ii=1:iter+1

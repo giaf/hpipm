@@ -69,16 +69,12 @@
 #define GELQF_PD_LLA blasfeo_sgelqf_pd_lla
 #define GEMM_NT blasfeo_sgemm_nt
 #define GEMM_R_DIAG blasfeo_sgemm_nd
-#define GEMV_DIAG blasfeo_sgemv_d
 #define GEMV_N blasfeo_sgemv_n
-#define GEMV_NT blasfeo_sgemv_nt
 #define GEMV_T blasfeo_sgemv_t
 #define GESE blasfeo_sgese
 #define OCP_QP s_ocp_qp
 #define OCP_QP_IPM_ARG s_ocp_qp_ipm_arg
 #define OCP_QP_IPM_WS s_ocp_qp_ipm_ws
-#define OCP_QP_RES s_ocp_qp_res
-#define OCP_QP_RES_WS s_ocp_qp_res_ws
 #define OCP_QP_DIM s_ocp_qp_dim
 #define OCP_QP_SOL s_ocp_qp_sol
 #define POTRF_L blasfeo_spotrf_l
@@ -95,7 +91,6 @@
 #define ROWIN blasfeo_srowin
 #define STRMAT blasfeo_smat
 #define STRVEC blasfeo_svec
-#define SYMV_L blasfeo_ssymv_l
 #define SYRK_LN blasfeo_ssyrk_ln
 #define SYRK_LN_MN blasfeo_ssyrk_ln_mn
 #define SYRK_POTRF_LN_MN blasfeo_ssyrk_spotrf_ln_mn
@@ -112,15 +107,11 @@
 #define VECCP blasfeo_sveccp
 #define VECCPSC blasfeo_sveccpsc
 #define VECEX_SP blasfeo_svecex_sp
-#define VECMULACC blasfeo_svecmulacc
-#define VECMULDOT blasfeo_svecmuldot
 #define VECSC blasfeo_svecsc
 
 
 
 #define INIT_VAR_OCP_QP s_init_var_ocp_qp
-#define COMPUTE_LIN_RES_OCP_QP s_compute_lin_res_ocp_qp
-#define COMPUTE_RES_OCP_QP s_compute_res_ocp_qp
 #define FACT_SOLVE_KKT_UNCONSTR_OCP_QP s_fact_solve_kkt_unconstr_ocp_qp
 #define COND_SLACKS s_cond_slacks
 #define FACT_SOLVE_KKT_STEP_OCP_QP s_fact_solve_kkt_step_ocp_qp

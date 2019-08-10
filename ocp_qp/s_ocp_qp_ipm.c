@@ -65,8 +65,6 @@
 #define COMPUTE_CENTERING_CORRECTION_QP s_compute_centering_correction_qp
 #define COMPUTE_CENTERING_QP s_compute_centering_qp
 #define COMPUTE_MU_AFF_QP s_compute_mu_aff_qp
-#define COMPUTE_LIN_RES_OCP_QP s_compute_lin_res_ocp_qp
-#define COMPUTE_RES_OCP_QP s_compute_res_ocp_qp
 #define CORE_QP_IPM_WORKSPACE s_core_qp_ipm_workspace
 #define CREATE_CORE_QP_IPM s_create_core_qp_ipm
 #define CREATE_STRMAT blasfeo_create_smat
@@ -86,6 +84,8 @@
 #define OCP_QP_IPM_WS s_ocp_qp_ipm_ws
 #define OCP_QP_PRINT s_ocp_qp_print
 #define OCP_QP_RES s_ocp_qp_res
+#define OCP_QP_RES_COMPUTE s_ocp_qp_res_compute
+#define OCP_QP_RES_COMPUTE_LIN s_ocp_qp_res_compute_lin
 #define OCP_QP_RES_CREATE s_ocp_qp_res_create
 #define OCP_QP_RES_MEMSIZE s_ocp_qp_res_memsize
 #define OCP_QP_RES_WS s_ocp_qp_res_ws
@@ -136,10 +136,10 @@
 #define OCP_QP_IPM_GET s_ocp_qp_ipm_get
 #define OCP_QP_IPM_GET_STATUS s_ocp_qp_ipm_get_status
 #define OCP_QP_IPM_GET_ITER s_ocp_qp_ipm_get_iter
-#define OCP_QP_IPM_GET_RES_STAT s_ocp_qp_ipm_get_res_stat
-#define OCP_QP_IPM_GET_RES_EQ s_ocp_qp_ipm_get_res_eq
-#define OCP_QP_IPM_GET_RES_INEQ s_ocp_qp_ipm_get_res_ineq
-#define OCP_QP_IPM_GET_RES_COMP s_ocp_qp_ipm_get_res_comp
+#define OCP_QP_IPM_GET_MAX_RES_STAT s_ocp_qp_ipm_get_max_res_stat
+#define OCP_QP_IPM_GET_MAX_RES_EQ s_ocp_qp_ipm_get_max_res_eq
+#define OCP_QP_IPM_GET_MAX_RES_INEQ s_ocp_qp_ipm_get_max_res_ineq
+#define OCP_QP_IPM_GET_MAX_RES_COMP s_ocp_qp_ipm_get_max_res_comp
 #define OCP_QP_IPM_GET_STAT s_ocp_qp_ipm_get_stat
 #define OCP_QP_IPM_GET_STAT_M s_ocp_qp_ipm_get_stat_m
 #define OCP_QP_IPM_SOLVE s_ocp_qp_ipm_solve

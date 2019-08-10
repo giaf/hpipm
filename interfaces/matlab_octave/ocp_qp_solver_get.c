@@ -69,7 +69,7 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
 		d_ocp_qp_ipm_get(field, ws, &tmp_int);
 		*mat_ptr = (double) tmp_int;
 		}
-	else if(!strcmp(field, "res_stat") | !strcmp(field, "res_eq") | !strcmp(field, "res_ineq") | !strcmp(field, "res_comp"))
+	else if(!strcmp(field, "max_res_stat") | !strcmp(field, "max_res_eq") | !strcmp(field, "max_res_ineq") | !strcmp(field, "max_res_comp"))
 		{
 		plhs[0] = mxCreateNumericMatrix(1, 1, mxDOUBLE_CLASS, mxREAL);
 		double *mat_ptr = mxGetPr( plhs[0] );

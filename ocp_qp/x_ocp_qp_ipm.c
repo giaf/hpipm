@@ -932,21 +932,21 @@ void OCP_QP_IPM_GET(char *field, struct OCP_QP_IPM_WS *ws, void *value)
 		{ 
 		OCP_QP_IPM_GET_ITER(ws, value);
 		}
-	else if(hpipm_strcmp(field, "res_stat"))
+	else if(hpipm_strcmp(field, "max_res_stat"))
 		{ 
-		OCP_QP_IPM_GET_RES_STAT(ws, value);
+		OCP_QP_IPM_GET_MAX_RES_STAT(ws, value);
 		}
-	else if(hpipm_strcmp(field, "res_eq"))
+	else if(hpipm_strcmp(field, "max_res_eq"))
 		{ 
-		OCP_QP_IPM_GET_RES_EQ(ws, value);
+		OCP_QP_IPM_GET_MAX_RES_EQ(ws, value);
 		}
-	else if(hpipm_strcmp(field, "res_ineq"))
+	else if(hpipm_strcmp(field, "max_res_ineq"))
 		{ 
-		OCP_QP_IPM_GET_RES_INEQ(ws, value);
+		OCP_QP_IPM_GET_MAX_RES_INEQ(ws, value);
 		}
-	else if(hpipm_strcmp(field, "res_comp"))
+	else if(hpipm_strcmp(field, "max_res_comp"))
 		{ 
-		OCP_QP_IPM_GET_RES_COMP(ws, value);
+		OCP_QP_IPM_GET_MAX_RES_COMP(ws, value);
 		}
 	else if(hpipm_strcmp(field, "stat"))
 		{ 
@@ -982,7 +982,7 @@ void OCP_QP_IPM_GET_ITER(struct OCP_QP_IPM_WS *ws, int *iter)
 
 
 
-void OCP_QP_IPM_GET_RES_STAT(struct OCP_QP_IPM_WS *ws, REAL *res_stat)
+void OCP_QP_IPM_GET_MAX_RES_STAT(struct OCP_QP_IPM_WS *ws, REAL *res_stat)
 	{
 	*res_stat = ws->qp_res[0];
 	return;
@@ -990,7 +990,7 @@ void OCP_QP_IPM_GET_RES_STAT(struct OCP_QP_IPM_WS *ws, REAL *res_stat)
 
 
 
-void OCP_QP_IPM_GET_RES_EQ(struct OCP_QP_IPM_WS *ws, REAL *res_eq)
+void OCP_QP_IPM_GET_MAX_RES_EQ(struct OCP_QP_IPM_WS *ws, REAL *res_eq)
 	{
 	*res_eq = ws->qp_res[1];
 	return;
@@ -998,7 +998,7 @@ void OCP_QP_IPM_GET_RES_EQ(struct OCP_QP_IPM_WS *ws, REAL *res_eq)
 
 
 
-void OCP_QP_IPM_GET_RES_INEQ(struct OCP_QP_IPM_WS *ws, REAL *res_ineq)
+void OCP_QP_IPM_GET_MAX_RES_INEQ(struct OCP_QP_IPM_WS *ws, REAL *res_ineq)
 	{
 	*res_ineq = ws->qp_res[2];
 	return;
@@ -1006,7 +1006,7 @@ void OCP_QP_IPM_GET_RES_INEQ(struct OCP_QP_IPM_WS *ws, REAL *res_ineq)
 
 
 
-void OCP_QP_IPM_GET_RES_COMP(struct OCP_QP_IPM_WS *ws, REAL *res_comp)
+void OCP_QP_IPM_GET_MAX_RES_COMP(struct OCP_QP_IPM_WS *ws, REAL *res_comp)
 	{
 	*res_comp = ws->qp_res[3];
 	return;
@@ -1098,7 +1098,7 @@ void OCP_QP_IPM_SOLVE(struct OCP_QP *qp, struct OCP_QP_SOL *qp_sol, struct OCP_Q
 	if(cws->nc==0)
 		{
 		FACT_SOLVE_KKT_UNCONSTR_OCP_QP(qp, qp_sol, arg, ws);
-		COMPUTE_RES_OCP_QP(qp, qp_sol, ws->res, ws->res_workspace);
+		OCP_QP_RES_COMPUTE(qp, qp_sol, ws->res, ws->res_workspace);
 		// compute infinity norm of residuals
 		VECNRM_INF(cws->nv, &str_res_g, 0, &qp_res[0]);
 		VECNRM_INF(cws->ne, &str_res_b, 0, &qp_res[1]);
@@ -1231,7 +1231,7 @@ void OCP_QP_IPM_SOLVE(struct OCP_QP *qp, struct OCP_QP_SOL *qp_sol, struct OCP_Q
 		if(arg->comp_res_exit & arg->comp_dual_sol)
 			{
 			// compute residuals
-			COMPUTE_RES_OCP_QP(qp, qp_sol, ws->res, ws->res_workspace);
+			OCP_QP_RES_COMPUTE(qp, qp_sol, ws->res, ws->res_workspace);
 
 			// compute infinity norm of residuals
 			VECNRM_INF(cws->nv, &str_res_g, 0, &qp_res[0]);
@@ -1278,7 +1278,7 @@ void OCP_QP_IPM_SOLVE(struct OCP_QP *qp, struct OCP_QP_SOL *qp_sol, struct OCP_Q
 
 
 	// compute residuals
-	COMPUTE_RES_OCP_QP(qp, qp_sol, ws->res, ws->res_workspace);
+	OCP_QP_RES_COMPUTE(qp, qp_sol, ws->res, ws->res_workspace);
 	BACKUP_RES_M(cws);
 	cws->mu = ws->res->res_mu;
 
@@ -1340,7 +1340,7 @@ blasfeo_print_tran_dvec(cws->nc, ws->sol_step->t, 0);
 		UPDATE_VAR_QP(cws);
 
 		// compute residuals
-		COMPUTE_RES_OCP_QP(qp, qp_sol, ws->res, ws->res_workspace);
+		OCP_QP_RES_COMPUTE(qp, qp_sol, ws->res, ws->res_workspace);
 		BACKUP_RES_M(cws);
 		cws->mu = ws->res->res_mu;
 		if(kk<ws->stat_max)
@@ -1387,7 +1387,7 @@ blasfeo_print_tran_dvec(cws->nc, ws->sol_step->t, 0);
 			FACT_SOLVE_KKT_STEP_OCP_QP(ws->qp_step, ws->sol_step, arg, ws);
 
 			// compute res of linear system
-			COMPUTE_LIN_RES_OCP_QP(ws->qp_step, qp_sol, ws->sol_step, ws->res_itref, ws->res_workspace);
+			OCP_QP_RES_COMPUTE_LIN(ws->qp_step, qp_sol, ws->sol_step, ws->res_itref, ws->res_workspace);
 			VECNRM_INF(cws->nv, ws->res_itref->res_g, 0, &itref_qp_norm[0]);
 			VECNRM_INF(cws->ne, ws->res_itref->res_b, 0, &itref_qp_norm[1]);
 			VECNRM_INF(cws->nc, ws->res_itref->res_d, 0, &itref_qp_norm[2]);
@@ -1442,7 +1442,7 @@ blasfeo_print_tran_dvec(cws->nc, ws->sol_step->t, 0);
 		for(itref0=0; itref0<arg->itref_pred_max; itref0++)
 			{
 
-			COMPUTE_LIN_RES_OCP_QP(ws->qp_step, qp_sol, ws->sol_step, ws->res_itref, ws->res_workspace);
+			OCP_QP_RES_COMPUTE_LIN(ws->qp_step, qp_sol, ws->sol_step, ws->res_itref, ws->res_workspace);
 
 			VECNRM_INF(cws->nv, ws->res_itref->res_g, 0, &itref_qp_norm[0]);
 			VECNRM_INF(cws->ne, ws->res_itref->res_b, 0, &itref_qp_norm[1]);
@@ -1594,7 +1594,7 @@ exit(1);
 			for(itref1=0; itref1<arg->itref_corr_max; itref1++)
 				{
 
-				COMPUTE_LIN_RES_OCP_QP(ws->qp_step, qp_sol, ws->sol_step, ws->res_itref, ws->res_workspace);
+				OCP_QP_RES_COMPUTE_LIN(ws->qp_step, qp_sol, ws->sol_step, ws->res_itref, ws->res_workspace);
 
 //for(ii=0; ii<=N; ii++)
 //	blasfeo_dvecse(nu[ii]+nx[ii], 0.0, ws->res_itref->res_g+ii, 0);
@@ -1692,7 +1692,7 @@ exit(1);
 		UPDATE_VAR_QP(cws);
 
 		// compute residuals
-		COMPUTE_RES_OCP_QP(qp, qp_sol, ws->res, ws->res_workspace);
+		OCP_QP_RES_COMPUTE(qp, qp_sol, ws->res, ws->res_workspace);
 		BACKUP_RES_M(cws);
 		cws->mu = ws->res->res_mu;
 		if(kk<ws->stat_max)
@@ -1815,7 +1815,7 @@ void OCP_QP_IPM_PREDICT(struct OCP_QP *qp, struct OCP_QP_SOL *qp_sol, struct OCP
 
 #if 0
 // compute residuals
-COMPUTE_RES_OCP_QP(qp, qp_sol, ws->res, ws->res_workspace);
+OCP_QP_RES_COMPUTE(qp, qp_sol, ws->res, ws->res_workspace);
 
 // compute infinity norm of residuals
 VECNRM_INF(cws->nv, &str_res_g, 0, &qp_res[0]);
@@ -1841,7 +1841,7 @@ printf("\npredict\t%e\t%e\t%e\t%e\n", qp_res[0], qp_res[1], qp_res[2], qp_res[3]
 	// TODO robust formulation !!!!!
 
 	// compute residuals
-	COMPUTE_RES_OCP_QP(qp, qp_sol, ws->res, ws->res_workspace);
+	OCP_QP_RES_COMPUTE(qp, qp_sol, ws->res, ws->res_workspace);
 
 	// compute infinity norm of residuals
 	VECNRM_INF(cws->nv, &str_res_g, 0, &qp_res[0]);
@@ -1865,7 +1865,7 @@ printf("\npredict\t%e\t%e\t%e\t%e\n", qp_res[0], qp_res[1], qp_res[2], qp_res[3]
 	if(arg->comp_res_pred)
 		{
 		// compute residuals in exit
-		COMPUTE_RES_OCP_QP(qp, qp_sol, ws->res, ws->res_workspace);
+		OCP_QP_RES_COMPUTE(qp, qp_sol, ws->res, ws->res_workspace);
 
 		// compute infinity norm of residuals
 		VECNRM_INF(cws->nv, &str_res_g, 0, &qp_res[0]);
@@ -1949,7 +1949,7 @@ void OCP_QP_IPM_SENS(struct OCP_QP *qp, struct OCP_QP_SOL *qp_sol, struct OCP_QP
 
 #if 0
 // compute residuals
-COMPUTE_RES_OCP_QP(qp, qp_sol, ws->res, ws->res_workspace);
+OCP_QP_RES_COMPUTE(qp, qp_sol, ws->res, ws->res_workspace);
 
 // compute infinity norm of residuals
 VECNRM_INF(cws->nv, &str_res_g, 0, &qp_res[0]);
@@ -1988,7 +1988,7 @@ printf("\npredict\t%e\t%e\t%e\t%e\n", qp_res[0], qp_res[1], qp_res[2], qp_res[3]
 	if(arg->comp_res_pred)
 		{
 		// compute residuals in exit
-		COMPUTE_RES_OCP_QP(qp, qp_sol, ws->res, ws->res_workspace);
+		OCP_QP_RES_COMPUTE(qp, qp_sol, ws->res, ws->res_workspace);
 
 		// compute infinity norm of residuals
 		VECNRM_INF(cws->nv, &str_res_g, 0, &qp_res[0]);

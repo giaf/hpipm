@@ -71,31 +71,31 @@ class hpipm_ocp_qp_solver:
 
 	# TODO single getter !!!!!!!!!!!!!!!!!!!!!!!!!!
 
-	def get_res_stat(self):
+	def get_max_res_stat(self):
 		res = np.zeros((1,1));
 		tmp = cast(res.ctypes.data, POINTER(c_double))
-		self.__hpipm.d_ocp_qp_ipm_get_res_stat(self.ipm_ws_struct, tmp)
+		self.__hpipm.d_ocp_qp_ipm_get_max_res_stat(self.ipm_ws_struct, tmp)
 		return res[0][0]
 
 
-	def get_res_eq(self):
+	def get_max_res_eq(self):
 		res = np.zeros((1,1));
 		tmp = cast(res.ctypes.data, POINTER(c_double))
-		self.__hpipm.d_ocp_qp_ipm_get_res_eq(self.ipm_ws_struct, tmp)
+		self.__hpipm.d_ocp_qp_ipm_get_max_res_eq(self.ipm_ws_struct, tmp)
 		return res[0][0]
 
 
-	def get_res_ineq(self):
+	def get_max_res_ineq(self):
 		res = np.zeros((1,1));
 		tmp = cast(res.ctypes.data, POINTER(c_double))
-		self.__hpipm.d_ocp_qp_ipm_get_res_ineq(self.ipm_ws_struct, tmp)
+		self.__hpipm.d_ocp_qp_ipm_get_max_res_ineq(self.ipm_ws_struct, tmp)
 		return res[0][0]
 
 
-	def get_res_comp(self):
+	def get_max_res_comp(self):
 		res = np.zeros((1,1));
 		tmp = cast(res.ctypes.data, POINTER(c_double))
-		self.__hpipm.d_ocp_qp_ipm_get_res_comp(self.ipm_ws_struct, tmp)
+		self.__hpipm.d_ocp_qp_ipm_get_max_res_comp(self.ipm_ws_struct, tmp)
 		return res[0][0]
 
 

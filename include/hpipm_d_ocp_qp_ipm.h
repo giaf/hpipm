@@ -171,13 +171,13 @@ void d_ocp_qp_ipm_get_status(struct d_ocp_qp_ipm_ws *ws, int *status);
 //
 void d_ocp_qp_ipm_get_iter(struct d_ocp_qp_ipm_ws *ws, int *iter);
 //
-void d_ocp_qp_ipm_get_res_stat(struct d_ocp_qp_ipm_ws *ws, double *res_stat);
+void d_ocp_qp_ipm_get_max_res_stat(struct d_ocp_qp_ipm_ws *ws, double *res_stat);
 //
-void d_ocp_qp_ipm_get_res_eq(struct d_ocp_qp_ipm_ws *ws, double *res_eq);
+void d_ocp_qp_ipm_get_max_res_eq(struct d_ocp_qp_ipm_ws *ws, double *res_eq);
 //
-void d_ocp_qp_ipm_get_res_ineq(struct d_ocp_qp_ipm_ws *ws, double *res_ineq);
+void d_ocp_qp_ipm_get_max_res_ineq(struct d_ocp_qp_ipm_ws *ws, double *res_ineq);
 //
-void d_ocp_qp_ipm_get_res_comp(struct d_ocp_qp_ipm_ws *ws, double *res_comp);
+void d_ocp_qp_ipm_get_max_res_comp(struct d_ocp_qp_ipm_ws *ws, double *res_comp);
 //
 void d_ocp_qp_ipm_get_stat(struct d_ocp_qp_ipm_ws *ws, double **stat);
 //
