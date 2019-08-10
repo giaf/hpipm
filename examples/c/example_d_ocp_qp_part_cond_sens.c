@@ -433,8 +433,7 @@ int main()
 	d_cond_rhs_qp_ocp2ocp(&qp, &qp2, &part_cond_arg, &part_cond_ws);
 
 	// solve
-	d_ocp_qp_ipm_solve(&qp2, &qp_sol2, &arg, &workspace);
-	d_ocp_qp_ipm_get_status(&workspace, &hpipm_status);
+	d_ocp_qp_ipm_predict(&qp2, &qp_sol2, &arg, &workspace);
 
 	// expand sol
 	d_expand_sol_ocp2ocp(&qp, &qp2, &qp_sol2, &qp_sol1, &part_cond_arg, &part_cond_ws);
