@@ -33,9 +33,33 @@
 #                                                                                                 #
 ###################################################################################################
 
+OBJS = \
+	ocp_qp_dim_create.mex \
+	ocp_qp_dim_destroy.mex \
+	ocp_qp_dim_set.mex \
+	ocp_qp_dim_print.mex \
+	ocp_qp_dim_codegen.mex \
+	ocp_qp_create.mex \
+	ocp_qp_destroy.mex \
+	ocp_qp_set.mex \
+	ocp_qp_print.mex \
+	ocp_qp_codegen.mex \
+	ocp_qp_sol_create.mex \
+	ocp_qp_sol_destroy.mex \
+	ocp_qp_sol_get.mex \
+	ocp_qp_sol_set.mex \
+	ocp_qp_sol_print.mex \
+	ocp_qp_solver_arg_create.mex \
+	ocp_qp_solver_arg_destroy.mex \
+	ocp_qp_solver_arg_set.mex \
+	ocp_qp_solver_arg_codegen.mex \
+	ocp_qp_solver_create.mex \
+	ocp_qp_solver_destroy.mex \
+	ocp_qp_solver_solve.mex \
+	ocp_qp_solver_get.mex \
 
-compile_mex_with_octave:
-	octave-cli compile_mex_ocp_qp.m
+compile_mex_with_octave: $(OBJS)
+#	octave-cli compile_mex_ocp_qp.m
 
 clean:
 	rm -f *.so
@@ -43,3 +67,6 @@ clean:
 	rm -f *.mexa64
 	rm -f *.o
 	rm -f cflags_octave.txt
+
+%.mex : %.c
+	octave-cli compile_mex_one.m $<
