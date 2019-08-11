@@ -33,29 +33,7 @@
 %                                                                                                 %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-function compile_mex_one()
-
-input_args = argv();
-
-% check that env.sh has been run
-env_run = getenv('ENV_RUN');
-if (~strcmp(env_run, 'true'))
-	disp('ERROR: env.sh has not been sourced! Before executing this example, run:');
-	disp('source env.sh');
-	return;
-end
-
-% get acados folder
-hpipm_folder = getenv('HPIPM_MAIN_FOLDER');
-blasfeo_folder = getenv('BLASFEO_MAIN_FOLDER');
-mex_flags = getenv('HPIPM_MEX_FLAGS');
-
-% set paths
-hpipm_mex_folder = [hpipm_folder, '/interfaces/matlab_octave/'];
-hpipm_include = ['-I', hpipm_folder, '/include'];
-hpipm_lib = ['-L', hpipm_folder, '/lib'];
-blasfeo_include = ['-I', blasfeo_folder, '/include'];
-blasfeo_lib = ['-L', blasfeo_folder, '/lib'];
+function set_cflags_octave()
 
 if is_octave()
 	if exist('cflags_octave.txt')==0
@@ -71,21 +49,6 @@ if is_octave()
 		fprintf(input_file, '%s', cflags_tmp);
 		fclose(input_file);
 	end
-	input_file = fopen('cflags_octave.txt', 'r');
-	cflags_tmp = fscanf(input_file, '%[^\n]s');
-	fclose(input_file);
-	setenv('CFLAGS', cflags_tmp);
-end
-
-% compile mex
-mex_file = [hpipm_mex_folder, input_args{1}];
-
-%disp(['compiling ', mex_file])
-if is_octave()
-%	mkoctfile -p CFLAGS
-	mex(hpipm_include, blasfeo_include, hpipm_lib, blasfeo_lib, '-lhpipm', '-lblasfeo', mex_file);
-else
-	mex(mex_flags, 'CFLAGS=\$CFLAGS -std=c99', hpipm_include, blasfeo_include, hpipm_lib, blasfeo_lib, '-lhpipm', '-lblasfeo', mex_file);
 end
 
 return;

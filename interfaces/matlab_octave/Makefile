@@ -58,8 +58,14 @@ OBJS = \
 	ocp_qp_solver_solve.mex \
 	ocp_qp_solver_get.mex \
 
+all: set_cflags_octave
+	$(MAKE) compile_mex_with_octave
+
 compile_mex_with_octave: $(OBJS)
 #	octave-cli compile_mex_ocp_qp.m
+
+set_cflags_octave:
+	octave-cli set_cflags_octave.m
 
 clean:
 	rm -f *.so
