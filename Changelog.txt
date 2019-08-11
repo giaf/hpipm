@@ -4,7 +4,7 @@ HPIPM ChangeLog
 
 ====================================================================
 Version 0.1.1-master
-04-Aug-2019
+11-Aug-2019
 
 common:
 	* change license to BSD-2
@@ -12,6 +12,10 @@ common:
 ocp_qp:
 	* general renaming of routines, e.g. d_create_ocp_qp_dim => d_ocp_qp_dim_create
 	* add codegen functionality to export dims, qp and ipm_args as global variables in a C source file
+	* add functionality to compute predicted solution for a new RHS and sensitivity of solution
+
+cond:
+	* general renaming of routines, e.g. d_create_cond_ocp2ocp => d_part_cond_qp_ws_create
 
 Matlab/Octave interface:
 	* reimplement an unified Matlab & Octave interface based on mex (and independent of the python interface)

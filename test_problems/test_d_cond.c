@@ -741,7 +741,7 @@ int main()
 	struct d_dense_qp_dim qp_dim;
 	d_create_dense_qp_dim(&qp_dim, dense_qp_dim_mem);
 
-	d_compute_qp_dim_ocp2dense(&dim, &qp_dim);
+	d_cond_qp_compute_dim(&dim, &qp_dim);
 
 	int nvc = qp_dim.nv;
 	int nec = qp_dim.ne;
@@ -764,21 +764,21 @@ int main()
 	d_create_dense_qp(&qp_dim, &dense_qp, dense_qp_mem);
 
 	// arg
-	int cond_arg_size = d_memsize_cond_qp_ocp2dense_arg();
+	int cond_arg_size = d_cond_qp_arg_memsize();
 	printf("\ncond_arg size = %d\n", cond_arg_size);
 	void *cond_arg_mem = malloc(cond_arg_size);
 
-	struct d_cond_qp_ocp2dense_arg cond_arg;
-	d_create_cond_qp_ocp2dense_arg(&cond_arg, cond_arg_mem);
-	d_set_default_cond_qp_ocp2dense_arg(&cond_arg);
+	struct d_cond_qp_arg cond_arg;
+	d_cond_qp_arg_create(&cond_arg, cond_arg_mem);
+	d_cond_qp_arg_set_default(&cond_arg);
 
 	// ws
-	int cond_size = d_memsize_cond_qp_ocp2dense(&dim, &cond_arg);
+	int cond_size = d_cond_qp_ws_memsize(&dim, &cond_arg);
 	printf("\ncond size = %d\n", cond_size);
 	void *cond_mem = malloc(cond_size);
 
-	struct d_cond_qp_ocp2dense_workspace cond_ws;
-	d_create_cond_qp_ocp2dense(&dim, &cond_arg, &cond_ws, cond_mem);
+	struct d_cond_qp_ws cond_ws;
+	d_cond_qp_ws_create(&dim, &cond_arg, &cond_ws, cond_mem);
 
 	/* cond */
 
@@ -786,7 +786,7 @@ int main()
 
 	for(rep=0; rep<nrep; rep++)
 		{
-		d_cond_qp_ocp2dense(&ocp_qp, &dense_qp, &cond_arg, &cond_ws);
+		d_cond_qp_cond(&ocp_qp, &dense_qp, &cond_arg, &cond_ws);
 		}
 
 	gettimeofday(&tv1, NULL); // stop
@@ -827,7 +827,7 @@ int main()
 
 	for(rep=0; rep<nrep; rep++)
 		{
-		d_update_cond_qp_ocp2dense(idxc, &ocp_qp, &dense_qp, &cond_arg, &cond_ws);
+		d_cond_qp_update(idxc, &ocp_qp, &dense_qp, &cond_arg, &cond_ws);
 		}
 
 	gettimeofday(&tv1, NULL); // stop
@@ -861,7 +861,7 @@ int main()
 
 	for(rep=0; rep<nrep; rep++)
 		{
-		d_cond_rhs_qp_ocp2dense(&ocp_qp, &dense_qp, &cond_arg, &cond_ws);
+		d_cond_qp_cond_rhs(&ocp_qp, &dense_qp, &cond_arg, &cond_ws);
 		}
 
 	gettimeofday(&tv1, NULL); // stop
@@ -1033,7 +1033,7 @@ int main()
 * expand solution
 ************************************************/
 
-	d_expand_sol_dense2ocp(&ocp_qp, &dense_qp_sol, &ocp_qp_sol, &cond_arg, &cond_ws);
+	d_cond_qp_expand_sol(&ocp_qp, &dense_qp_sol, &ocp_qp_sol, &cond_arg, &cond_ws);
 
 	double *u[N+1]; for(ii=0; ii<=N; ii++) d_zeros(u+ii, nu[ii], 1);
 	double *x[N+1]; for(ii=0; ii<=N; ii++) d_zeros(x+ii, nx[ii], 1);

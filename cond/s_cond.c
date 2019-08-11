@@ -57,8 +57,8 @@
 #define COND_BABT s_cond_BAbt
 #define COND_RQ_N2NX3 s_cond_rq_N2nx3
 #define COND_RSQRQ_N2NX3 s_cond_RSQrq_N2nx3
-#define COND_QP_OCP2DENSE_ARG s_cond_qp_ocp2dense_arg
-#define COND_QP_OCP2DENSE_WORKSPACE s_cond_qp_ocp2dense_workspace
+#define COND_QP_ARG s_cond_qp_arg
+#define COND_QP_WS s_cond_qp_ws
 #define CREATE_STRMAT blasfeo_create_smat
 #define CREATE_STRVEC blasfeo_create_svec
 #define DENSE_QP s_dense_qp
@@ -77,18 +77,18 @@
 #define UPDATE_COND_BABT s_update_cond_BAbt
 #define UPDATE_COND_RSQRQ_N2NX3 s_update_cond_RSQrq_N2nx3
 
-#define COMPUTE_QP_DIM_OCP2DENSE s_compute_qp_dim_ocp2dense
-#define MEMSIZE_COND_QP_OCP2DENSE_ARG s_memsize_cond_qp_ocp2dense_arg
-#define CREATE_COND_QP_OCP2DENSE_ARG s_create_cond_qp_ocp2dense_arg
-#define SET_DEFAULT_COND_QP_OCP2DENSE_ARG s_set_default_cond_qp_ocp2dense_arg
-#define SET_COND_QP_OCP2DENSE_ARG_RIC_ALG s_set_cond_qp_ocp2dense_arg_ric_alg
-#define MEMSIZE_COND_QP_OCP2DENSE s_memsize_cond_qp_ocp2dense
-#define CREATE_COND_QP_OCP2DENSE s_create_cond_qp_ocp2dense
-#define COND_QP_OCP2DENSE s_cond_qp_ocp2dense
-#define COND_RHS_QP_OCP2DENSE s_cond_rhs_qp_ocp2dense
-#define EXPAND_SOL_DENSE2OCP s_expand_sol_dense2ocp
-#define EXPAND_SOL_PRIMAL_DENSE2OCP s_expand_primal_sol_dense2ocp
-#define UPDATE_COND_QP_OCP2DENSE s_update_cond_qp_ocp2dense
+#define COND_QP_COMPUTE_DIM s_cond_qp_compute_dim
+#define COND_QP_ARG_MEMSIZE s_cond_qp_arg_memsize
+#define COND_QP_ARG_CREATE s_cond_qp_arg_create
+#define COND_QP_ARG_SET_DEFAULT s_set_default_cond_qp_ocp2dense_arg
+#define COND_QP_ARG_SET_RIC_ALG s_set_cond_qp_ocp2dense_arg_ric_alg
+#define COND_QP_WS_MEMSIZE s_cond_qp_ws_memsize
+#define COND_QP_WS_CREATE s_cond_qp_ws_create
+#define COND_QP_COND s_cond_qp_cond
+#define COND_QP_COND_RHS s_cond_qp_cond_rhs
+#define COND_QP_EXPAND_SOL s_cond_qp_expand_sol
+#define COND_QP_EXPAND_PRIMAL_SOL s_cond_qp_expand_primal_sol
+#define COND_QP_UPDATE s_cond_qp_update
 
 
 

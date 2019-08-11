@@ -51,8 +51,8 @@
 
 
 #define AXPY blasfeo_daxpy
-#define COND_QP_OCP2DENSE_ARG d_cond_qp_ocp2dense_arg
-#define COND_QP_OCP2DENSE_WORKSPACE d_cond_qp_ocp2dense_workspace
+#define COND_QP_ARG d_cond_qp_arg
+#define COND_QP_ARG_WS d_cond_qp_ws
 #define DENSE_QP_SOL d_dense_qp_sol
 #define GEAD blasfeo_dgead
 #define GECP blasfeo_dgecp

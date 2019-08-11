@@ -33,7 +33,7 @@
 *                                                                                                 *
 **************************************************************************************************/
 
-void COMPUTE_QP_DIM_OCP2DENSE(struct OCP_QP_DIM *ocp_dim, struct DENSE_QP_DIM *dense_dim)
+void COND_QP_COMPUTE_DIM(struct OCP_QP_DIM *ocp_dim, struct DENSE_QP_DIM *dense_dim)
 	{
 
 	int N = ocp_dim->N;
@@ -89,7 +89,7 @@ void COMPUTE_QP_DIM_OCP2DENSE(struct OCP_QP_DIM *ocp_dim, struct DENSE_QP_DIM *d
 
 
 
-int MEMSIZE_COND_QP_OCP2DENSE_ARG()
+int COND_QP_ARG_MEMSIZE()
 	{
 
 	int size = 0;
@@ -100,10 +100,10 @@ int MEMSIZE_COND_QP_OCP2DENSE_ARG()
 
 
 
-void CREATE_COND_QP_OCP2DENSE_ARG(struct COND_QP_OCP2DENSE_ARG *cond_arg, void *mem)
+void COND_QP_ARG_CREATE(struct COND_QP_ARG *cond_arg, void *mem)
 	{
 
-	cond_arg->memsize = MEMSIZE_COND_QP_OCP2DENSE_ARG();
+	cond_arg->memsize = COND_QP_ARG_MEMSIZE();
 
 	return;
 
@@ -111,7 +111,7 @@ void CREATE_COND_QP_OCP2DENSE_ARG(struct COND_QP_OCP2DENSE_ARG *cond_arg, void *
 
 
 
-void SET_DEFAULT_COND_QP_OCP2DENSE_ARG(struct COND_QP_OCP2DENSE_ARG *cond_arg)
+void COND_QP_ARG_SET_DEFAULT(struct COND_QP_ARG *cond_arg)
 	{
 
 	cond_arg->cond_last_stage = 1; // condense last stage
@@ -124,7 +124,7 @@ void SET_DEFAULT_COND_QP_OCP2DENSE_ARG(struct COND_QP_OCP2DENSE_ARG *cond_arg)
 
 
 
-void SET_COND_QP_OCP2DENSE_ARG_RIC_ALG(int ric_alg, struct COND_QP_OCP2DENSE_ARG *cond_arg)
+void COND_QP_ARG_SET_RIC_ALG(int ric_alg, struct COND_QP_ARG *cond_arg)
 	{
 
 	cond_arg->square_root_alg = ric_alg;
@@ -135,7 +135,7 @@ void SET_COND_QP_OCP2DENSE_ARG_RIC_ALG(int ric_alg, struct COND_QP_OCP2DENSE_ARG
 
 
 
-int MEMSIZE_COND_QP_OCP2DENSE(struct OCP_QP_DIM *ocp_dim, struct COND_QP_OCP2DENSE_ARG *cond_arg)
+int COND_QP_WS_MEMSIZE(struct OCP_QP_DIM *ocp_dim, struct COND_QP_ARG *cond_arg)
 	{
 
 	int ii;
@@ -211,7 +211,7 @@ int MEMSIZE_COND_QP_OCP2DENSE(struct OCP_QP_DIM *ocp_dim, struct COND_QP_OCP2DEN
 
 
 
-void CREATE_COND_QP_OCP2DENSE(struct OCP_QP_DIM *ocp_dim, struct COND_QP_OCP2DENSE_ARG *cond_arg, struct COND_QP_OCP2DENSE_WORKSPACE *cond_ws, void *mem)
+void COND_QP_WS_CREATE(struct OCP_QP_DIM *ocp_dim, struct COND_QP_ARG *cond_arg, struct COND_QP_WS *cond_ws, void *mem)
 	{
 
 	int ii;
@@ -331,7 +331,7 @@ void CREATE_COND_QP_OCP2DENSE(struct OCP_QP_DIM *ocp_dim, struct COND_QP_OCP2DEN
 
 	cond_ws->bs = N;
 
-	cond_ws->memsize = MEMSIZE_COND_QP_OCP2DENSE(ocp_dim, cond_arg);
+	cond_ws->memsize = COND_QP_WS_MEMSIZE(ocp_dim, cond_arg);
 
 #if defined(RUNTIME_CHECKS)
 	if(c_ptr > ((char *) mem) + cond_ws->memsize)
@@ -347,7 +347,7 @@ void CREATE_COND_QP_OCP2DENSE(struct OCP_QP_DIM *ocp_dim, struct COND_QP_OCP2DEN
 
 
 
-void COND_QP_OCP2DENSE(struct OCP_QP *ocp_qp, struct DENSE_QP *dense_qp, struct COND_QP_OCP2DENSE_ARG *cond_arg, struct COND_QP_OCP2DENSE_WORKSPACE *cond_ws)
+void COND_QP_COND(struct OCP_QP *ocp_qp, struct DENSE_QP *dense_qp, struct COND_QP_ARG *cond_arg, struct COND_QP_WS *cond_ws)
 	{
 
 	COND_BABT(ocp_qp, NULL, NULL, cond_arg, cond_ws);
@@ -362,7 +362,7 @@ void COND_QP_OCP2DENSE(struct OCP_QP *ocp_qp, struct DENSE_QP *dense_qp, struct 
 
 
 
-void COND_RHS_QP_OCP2DENSE(struct OCP_QP *ocp_qp, struct DENSE_QP *dense_qp, struct COND_QP_OCP2DENSE_ARG *cond_arg, struct COND_QP_OCP2DENSE_WORKSPACE *cond_ws)
+void COND_QP_COND_RHS(struct OCP_QP *ocp_qp, struct DENSE_QP *dense_qp, struct COND_QP_ARG *cond_arg, struct COND_QP_WS *cond_ws)
 	{
 
 	COND_B(ocp_qp, NULL, cond_arg, cond_ws);
@@ -377,7 +377,7 @@ void COND_RHS_QP_OCP2DENSE(struct OCP_QP *ocp_qp, struct DENSE_QP *dense_qp, str
 
 
 
-void EXPAND_SOL_DENSE2OCP(struct OCP_QP *ocp_qp, struct DENSE_QP_SOL *dense_qp_sol, struct OCP_QP_SOL *ocp_qp_sol, struct COND_QP_OCP2DENSE_ARG *cond_arg, struct COND_QP_OCP2DENSE_WORKSPACE *cond_ws)
+void COND_QP_EXPAND_SOL(struct OCP_QP *ocp_qp, struct DENSE_QP_SOL *dense_qp_sol, struct OCP_QP_SOL *ocp_qp_sol, struct COND_QP_ARG *cond_arg, struct COND_QP_WS *cond_ws)
 	{
 
 	EXPAND_SOL(ocp_qp, dense_qp_sol, ocp_qp_sol, cond_arg, cond_ws);
@@ -389,7 +389,7 @@ void EXPAND_SOL_DENSE2OCP(struct OCP_QP *ocp_qp, struct DENSE_QP_SOL *dense_qp_s
 
 
 // TODO remove
-void EXPAND_PRIMAL_SOL_DENSE2OCP(struct OCP_QP *ocp_qp, struct DENSE_QP_SOL *dense_qp_sol, struct OCP_QP_SOL *ocp_qp_sol, struct COND_QP_OCP2DENSE_ARG *cond_arg, struct COND_QP_OCP2DENSE_WORKSPACE *cond_ws)
+void COND_QP_EXPAND_PRIMAL_SOL(struct OCP_QP *ocp_qp, struct DENSE_QP_SOL *dense_qp_sol, struct OCP_QP_SOL *ocp_qp_sol, struct COND_QP_ARG *cond_arg, struct COND_QP_WS *cond_ws)
 	{
 
 	EXPAND_PRIMAL_SOL(ocp_qp, dense_qp_sol, ocp_qp_sol, cond_arg, cond_ws);
@@ -404,7 +404,7 @@ void EXPAND_PRIMAL_SOL_DENSE2OCP(struct OCP_QP *ocp_qp, struct DENSE_QP_SOL *den
 * update cond
 ************************************************/
 
-void UPDATE_COND_QP_OCP2DENSE(int *idxc, struct OCP_QP *ocp_qp, struct DENSE_QP *dense_qp, struct COND_QP_OCP2DENSE_ARG *cond_arg, struct COND_QP_OCP2DENSE_WORKSPACE *cond_ws)
+void COND_QP_UPDATE(int *idxc, struct OCP_QP *ocp_qp, struct DENSE_QP *dense_qp, struct COND_QP_ARG *cond_arg, struct COND_QP_WS *cond_ws)
 	{
 
 	UPDATE_COND_BABT(idxc, ocp_qp, NULL, NULL, cond_arg, cond_ws);

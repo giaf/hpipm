@@ -758,7 +758,7 @@ int main()
 
 	int block_size[N2+1];
 #if 1
-	d_compute_block_size_cond_qp_ocp2ocp(N, N2, block_size);
+	d_part_cond_qp_compute_block_size(N, N2, block_size);
 #else
 	block_size[0] = 1;
 	block_size[1] = 1;
@@ -767,7 +767,7 @@ int main()
 	printf("\nblock_size\n");
 	int_print_mat(1, N2+1, block_size, 1);
 
-	d_compute_qp_dim_ocp2ocp(&dim, block_size, &dim2);
+	d_part_cond_qp_compute_dim(&dim, block_size, &dim2);
 	for(ii=0; ii<=N2; ii++)
 		nx2[ii] = dim2.nx[ii];
 	for(ii=0; ii<=N2; ii++)
@@ -800,24 +800,24 @@ int main()
 	d_ocp_qp_create(&dim2, &part_dense_qp, part_dense_qp_mem);
 
 	// arg
-	int part_cond_arg_size = d_memsize_cond_qp_ocp2ocp_arg(dim2.N);
+	int part_cond_arg_size = d_part_cond_qp_arg_memsize(dim2.N);
 	printf("\npart cond_arg size = %d\n", part_cond_arg_size);
 	void *part_cond_arg_mem = malloc(part_cond_arg_size);
 
-	struct d_cond_qp_ocp2ocp_arg part_cond_arg;
-	d_create_cond_qp_ocp2ocp_arg(dim2.N, &part_cond_arg, part_cond_arg_mem);
-	d_set_default_cond_qp_ocp2ocp_arg(dim2.N, &part_cond_arg);
+	struct d_part_cond_qp_arg part_cond_arg;
+	d_part_cond_qp_arg_create(dim2.N, &part_cond_arg, part_cond_arg_mem);
+	d_part_cond_qp_arg_set_default(dim2.N, &part_cond_arg);
 
 //	for(ii=0; ii<=N2; ii++)
 //		part_cond_arg.cond_arg[ii].square_root_alg = 0;
 
 	// ws
-	int part_cond_size = d_memsize_cond_qp_ocp2ocp(&dim, block_size, &dim2, &part_cond_arg);
+	int part_cond_size = d_part_cond_qp_ws_memsize(&dim, block_size, &dim2, &part_cond_arg);
 	printf("\npart cond size = %d\n", part_cond_size);
 	void *part_cond_mem = malloc(part_cond_size);
 
-	struct d_cond_qp_ocp2ocp_workspace part_cond_ws;
-	d_create_cond_qp_ocp2ocp(&dim, block_size, &dim2, &part_cond_arg, &part_cond_ws, part_cond_mem);
+	struct d_part_cond_qp_ws part_cond_ws;
+	d_part_cond_qp_ws_create(&dim, block_size, &dim2, &part_cond_arg, &part_cond_ws, part_cond_mem);
 
 	/* part cond */
 
@@ -825,7 +825,7 @@ int main()
 
 	for(rep=0; rep<nrep; rep++)
 		{
-		d_cond_qp_ocp2ocp(&ocp_qp, &part_dense_qp, &part_cond_arg, &part_cond_ws);
+		d_part_cond_qp_cond(&ocp_qp, &part_dense_qp, &part_cond_arg, &part_cond_ws);
 		}
 
 	gettimeofday(&tv1, NULL); // stop
@@ -880,7 +880,7 @@ int main()
 
 	for(rep=0; rep<nrep; rep++)
 		{
-		d_update_cond_qp_ocp2ocp(idxc, &ocp_qp, &part_dense_qp, &part_cond_arg, &part_cond_ws);
+		d_part_cond_qp_update(idxc, &ocp_qp, &part_dense_qp, &part_cond_arg, &part_cond_ws);
 		}
 
 	gettimeofday(&tv1, NULL); // stop
@@ -925,7 +925,7 @@ int main()
 
 	for(rep=0; rep<nrep; rep++)
 		{
-		d_cond_rhs_qp_ocp2ocp(&ocp_qp, &part_dense_qp, &part_cond_arg, &part_cond_ws);
+		d_part_cond_qp_cond_rhs(&ocp_qp, &part_dense_qp, &part_cond_arg, &part_cond_ws);
 		}
 
 	gettimeofday(&tv1, NULL); // stop
@@ -1232,7 +1232,7 @@ int main()
 * expand solution
 ************************************************/
 
-	d_expand_sol_ocp2ocp(&ocp_qp, &part_dense_qp, &part_dense_qp_sol, &ocp_qp_sol, &part_cond_arg, &part_cond_ws);
+	d_part_cond_qp_expand_sol(&ocp_qp, &part_dense_qp, &part_dense_qp_sol, &ocp_qp_sol, &part_cond_arg, &part_cond_ws);
 
 	double *u[N+1]; for(ii=0; ii<=N; ii++) d_zeros(u+ii, nu[ii], 1);
 	double *x[N+1]; for(ii=0; ii<=N; ii++) d_zeros(x+ii, nx[ii], 1);
