@@ -71,8 +71,8 @@
 #define OCP_QP_STRSIZE s_ocp_qp_strsize
 #define OCP_QP_MEMSIZE s_ocp_qp_memsize
 #define OCP_QP_CREATE s_ocp_qp_create
-#define OCP_QP_SET_ALL_ZERO d_ocp_qp_set_all_zero
-#define OCP_QP_SET_RHS_ZERO d_ocp_qp_set_rhs_zero
+#define OCP_QP_SET_ALL_ZERO s_ocp_qp_set_all_zero
+#define OCP_QP_SET_RHS_ZERO s_ocp_qp_set_rhs_zero
 #define OCP_QP_SET_ALL s_ocp_qp_set_all
 #define OCP_QP_SET s_ocp_qp_set
 #define OCP_QP s_ocp_qp
