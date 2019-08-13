@@ -80,8 +80,8 @@
 #define COND_QP_COMPUTE_DIM s_cond_qp_compute_dim
 #define COND_QP_ARG_MEMSIZE s_cond_qp_arg_memsize
 #define COND_QP_ARG_CREATE s_cond_qp_arg_create
-#define COND_QP_ARG_SET_DEFAULT s_set_default_cond_qp_ocp2dense_arg
-#define COND_QP_ARG_SET_RIC_ALG s_set_cond_qp_ocp2dense_arg_ric_alg
+#define COND_QP_ARG_SET_DEFAULT s_cond_qp_arg_set_default
+#define COND_QP_ARG_SET_RIC_ALG s_cond_qp_arg_set_ric_alg
 #define COND_QP_WS_MEMSIZE s_cond_qp_ws_memsize
 #define COND_QP_WS_CREATE s_cond_qp_ws_create
 #define COND_QP_COND s_cond_qp_cond
