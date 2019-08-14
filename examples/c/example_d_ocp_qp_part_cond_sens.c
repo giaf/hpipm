@@ -408,11 +408,17 @@ int main()
 * predict solution of QP with new RHS
 ************************************************/
 
+	void *qp1_mem = malloc(qp_size);
+	struct d_ocp_qp qp1;
+	d_ocp_qp_create(&dim, &qp1, qp1_mem);
+
 	void *qp_sol1_mem = malloc(qp_sol_size);
 	struct d_ocp_qp_sol qp_sol1;
 	d_ocp_qp_sol_create(&dim, &qp_sol1, qp_sol1_mem);
 
 	// slightly modify RHS of QP
+	d_ocp_qp_copy_all(&qp, &qp1);
+
 	double *lbx0_tmp = malloc(nx[0]*sizeof(double));
 	double *ubx0_tmp = malloc(nx[0]*sizeof(double));
 	//
@@ -426,17 +432,17 @@ int main()
 //	lbx0_tmp[1] = 0.95*hlbx[0][1];
 //	ubx0_tmp[1] = 0.95*hubx[0][1];
 
-	d_ocp_qp_set_lbx(0, lbx0_tmp, &qp);
-	d_ocp_qp_set_ubx(0, ubx0_tmp, &qp);
+	d_ocp_qp_set_lbx(0, lbx0_tmp, &qp1);
+	d_ocp_qp_set_ubx(0, ubx0_tmp, &qp1);
 
 	// cond RHS
-	d_part_cond_qp_cond_rhs(&qp, &qp2, &part_cond_arg, &part_cond_ws);
+	d_part_cond_qp_cond_rhs(&qp1, &qp2, &part_cond_arg, &part_cond_ws);
 
 	// solve
 	d_ocp_qp_ipm_predict(&qp2, &qp_sol2, &arg, &workspace);
 
 	// expand sol
-	d_part_cond_qp_expand_sol(&qp, &qp2, &qp_sol2, &qp_sol1, &part_cond_arg, &part_cond_ws);
+	d_part_cond_qp_expand_sol(&qp1, &qp2, &qp_sol2, &qp_sol1, &part_cond_arg, &part_cond_ws);
 
 	// predicted solution
 
@@ -464,7 +470,7 @@ int main()
 		d_print_mat(1, nx[ii+1], pi, 1);
 		}
 
-	d_ocp_qp_res_compute(&qp, &qp_sol1, &res, &res_ws);
+	d_ocp_qp_res_compute(&qp1, &qp_sol1, &res, &res_ws);
 	d_ocp_qp_res_compute_max(&res, &res_ws);
 
 	d_ocp_qp_res_get_max_res_stat(&res, &res_stat);
@@ -478,14 +484,18 @@ int main()
 * sensitivity of solution of QP
 ************************************************/
 
-	// TODO copy QP
+	void *qp3_mem = malloc(qp_size);
+	struct d_ocp_qp qp3;
+	d_ocp_qp_create(&dim, &qp3, qp1_mem);
 
 	void *qp_sol3_mem = malloc(qp_sol_size);
 	struct d_ocp_qp_sol qp_sol3;
 	d_ocp_qp_sol_create(&dim, &qp_sol3, qp_sol3_mem);
 
 	// set I to param at RHS
-	d_ocp_qp_set_rhs_zero(&qp);
+	d_ocp_qp_copy_all(&qp, &qp3);
+
+	d_ocp_qp_set_rhs_zero(&qp3);
 
 	for(ii=0; ii<nx[0]; ii++)
 		lbx0_tmp[ii] = 0.0;
@@ -494,10 +504,10 @@ int main()
 	lbx0_tmp[0] = 1.0;
 	ubx0_tmp[0] = 1.0;
 
-	d_ocp_qp_set_lbx(0, lbx0_tmp, &qp);
-	d_ocp_qp_set_ubx(0, ubx0_tmp, &qp);
+	d_ocp_qp_set_lbx(0, lbx0_tmp, &qp3);
+	d_ocp_qp_set_ubx(0, ubx0_tmp, &qp3);
 
-//	d_ocp_qp_print(&dim, &qp);
+//	d_ocp_qp_print(&dim, &qp3);
 //	exit(1);
 
 	// sensitivity solution
@@ -505,13 +515,13 @@ int main()
 //	d_ocp_qp_ipm_arg_set_comp_res_pred(&comp_res_pred, &arg);
 
 	// cond RHS
-	d_part_cond_qp_cond_rhs(&qp, &qp2, &part_cond_arg, &part_cond_ws);
+	d_part_cond_qp_cond_rhs(&qp3, &qp2, &part_cond_arg, &part_cond_ws);
 
 	// comp sens
 	d_ocp_qp_ipm_sens(&qp2, &qp_sol2, &arg, &workspace);
 
 	// expand sens
-	d_part_cond_qp_expand_sol(&qp, &qp2, &qp_sol2, &qp_sol3, &part_cond_arg, &part_cond_ws);
+	d_part_cond_qp_expand_sol(&qp3, &qp2, &qp_sol2, &qp_sol3, &part_cond_arg, &part_cond_ws);
 
 	// u
 	printf("\nu_sens = \n");
@@ -545,7 +555,9 @@ int main()
     free(dim_mem2);
     free(block_size);
     free(qp_mem);
+    free(qp1_mem);
     free(qp_mem2);
+    free(qp3_mem);
 	free(qp_sol_mem);
 	free(qp_sol_mem2);
 	free(qp_sol1_mem);

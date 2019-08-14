@@ -77,6 +77,8 @@ int d_ocp_qp_memsize(struct d_ocp_qp_dim *dim);
 //
 void d_ocp_qp_create(struct d_ocp_qp_dim *dim, struct d_ocp_qp *qp, void *memory);
 //
+void d_ocp_qp_copy_all(struct d_ocp_qp *qp_orig, struct d_ocp_qp *qp_dest);
+//
 void d_ocp_qp_set_all_zero(struct d_ocp_qp *qp);
 //
 void d_ocp_qp_set_rhs_zero(struct d_ocp_qp *qp);

@@ -56,6 +56,7 @@
 #define CVT_TRAN_STRMAT2MAT blasfeo_unpack_tran_smat
 #define CVT_VEC2STRVEC blasfeo_pack_svec
 #define CVT_STRVEC2VEC blasfeo_unpack_svec
+#define GECP blasfeo_sgecp
 #define GESE blasfeo_sgese
 #define OCP_QP s_ocp_qp
 #define OCP_QP_DIM s_ocp_qp_dim
@@ -64,13 +65,14 @@
 #define STRVEC blasfeo_svec
 #define SIZE_STRMAT blasfeo_memsize_smat
 #define SIZE_STRVEC blasfeo_memsize_svec
-#define VECCP_LIBSTR blasfeo_sveccp
-#define VECSC_LIBSTR blasfeo_svecsc
+#define VECCP blasfeo_sveccp
+#define VECSC blasfeo_svecsc
 #define VECSE blasfeo_svecse
 
 #define OCP_QP_STRSIZE s_ocp_qp_strsize
 #define OCP_QP_MEMSIZE s_ocp_qp_memsize
 #define OCP_QP_CREATE s_ocp_qp_create
+#define OCP_QP_COPY_ALL s_ocp_qp_copy_all
 #define OCP_QP_SET_ALL_ZERO s_ocp_qp_set_all_zero
 #define OCP_QP_SET_RHS_ZERO s_ocp_qp_set_rhs_zero
 #define OCP_QP_SET_ALL s_ocp_qp_set_all

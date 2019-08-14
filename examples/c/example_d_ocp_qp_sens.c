@@ -305,11 +305,17 @@ int main()
 * predict solution of QP with new RHS
 ************************************************/
 
+	void *qp1_mem = malloc(qp_size);
+	struct d_ocp_qp qp1;
+	d_ocp_qp_create(&dim, &qp1, qp1_mem);
+
 	void *qp_sol1_mem = malloc(qp_sol_size);
 	struct d_ocp_qp_sol qp_sol1;
 	d_ocp_qp_sol_create(&dim, &qp_sol1, qp_sol1_mem);
 
 	// slightly modify RHS of QP
+	d_ocp_qp_copy_all(&qp, &qp1);
+
 	double *lbx0_tmp = malloc(nx[0]*sizeof(double));
 	double *ubx0_tmp = malloc(nx[0]*sizeof(double));
 	//
@@ -323,14 +329,14 @@ int main()
 //	lbx0_tmp[1] = 0.95*hlbx[0][1];
 //	ubx0_tmp[1] = 0.95*hubx[0][1];
 
-	d_ocp_qp_set_lbx(0, lbx0_tmp, &qp);
-	d_ocp_qp_set_ubx(0, ubx0_tmp, &qp);
+	d_ocp_qp_set_lbx(0, lbx0_tmp, &qp1);
+	d_ocp_qp_set_ubx(0, ubx0_tmp, &qp1);
 
 	hpipm_tic(&timer);
 
 	for(rep=0; rep<nrep; rep++)
 		{
-		d_ocp_qp_ipm_predict(&qp, &qp_sol1, &arg, &workspace);
+		d_ocp_qp_ipm_predict(&qp1, &qp_sol1, &arg, &workspace);
 		}
 
 	double time_pred = hpipm_toc(&timer) / nrep;
@@ -374,7 +380,9 @@ int main()
 * sensitivity of solution of QP
 ************************************************/
 
-	// TODO copy QP
+	void *qp2_mem = malloc(qp_size);
+	struct d_ocp_qp qp2;
+	d_ocp_qp_create(&dim, &qp2, qp1_mem);
 
 	// new sol struct
 	void *qp_sol2_mem = malloc(qp_sol_size);
@@ -382,7 +390,9 @@ int main()
 	d_ocp_qp_sol_create(&dim, &qp_sol2, qp_sol2_mem);
 
 	// set I to param at RHS
-	d_ocp_qp_set_rhs_zero(&qp);
+	d_ocp_qp_copy_all(&qp, &qp2);
+
+	d_ocp_qp_set_rhs_zero(&qp2);
 
 	for(ii=0; ii<nx[0]; ii++)
 		lbx0_tmp[ii] = 0.0;
@@ -391,17 +401,17 @@ int main()
 	lbx0_tmp[0] = 1.0;
 	ubx0_tmp[0] = 1.0;
 
-	d_ocp_qp_set_lbx(0, lbx0_tmp, &qp);
-	d_ocp_qp_set_ubx(0, ubx0_tmp, &qp);
+	d_ocp_qp_set_lbx(0, lbx0_tmp, &qp2);
+	d_ocp_qp_set_ubx(0, ubx0_tmp, &qp2);
 
-//	d_ocp_qp_print(&dim, &qp);
+//	d_ocp_qp_print(&dim, &qp2);
 //	exit(1);
 
 	// sensitivity solution
 //	int comp_res_pred = 0;
 //	d_ocp_qp_ipm_arg_set_comp_res_pred(&comp_res_pred, &arg);
 
-	d_ocp_qp_ipm_sens(&qp, &qp_sol2, &arg, &workspace);
+	d_ocp_qp_ipm_sens(&qp2, &qp_sol2, &arg, &workspace);
 
 	// u
 	printf("\nu_sens = \n");
@@ -433,6 +443,8 @@ int main()
 
     free(dim_mem);
     free(qp_mem);
+    free(qp1_mem);
+    free(qp2_mem);
 	free(qp_sol_mem);
 	free(qp_sol1_mem);
 	free(qp_sol2_mem);
