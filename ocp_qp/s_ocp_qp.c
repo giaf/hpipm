@@ -77,7 +77,7 @@
 #define OCP_QP_SET_RHS_ZERO s_ocp_qp_set_rhs_zero
 #define OCP_QP_SET_ALL s_ocp_qp_set_all
 #define OCP_QP_SET s_ocp_qp_set
-#define OCP_QP s_ocp_qp
+#define OCP_QP_SET_EL s_ocp_qp_set_el
 #define OCP_QP_SET_A s_ocp_qp_set_A
 #define OCP_QP_GET_A s_cvt_ocp_qp_A
 #define OCP_QP_SET_B s_ocp_qp_set_B
@@ -95,8 +95,10 @@
 #define OCP_QP_SET_RVEC s_ocp_qp_set_r
 #define OCP_QP_GET_RVEC s_cvt_ocp_qp_r
 #define OCP_QP_SET_LBX s_ocp_qp_set_lbx
+#define OCP_QP_SET_EL_LBX s_ocp_qp_set_el_lbx
 #define OCP_QP_GET_LBX s_cvt_ocp_qp_lbx
 #define OCP_QP_SET_UBX s_ocp_qp_set_ubx
+#define OCP_QP_SET_EL_UBX s_ocp_qp_set_el_ubx
 #define OCP_QP_GET_UBX s_cvt_ocp_qp_ubx
 #define OCP_QP_SET_LBU s_ocp_qp_set_lbu
 #define OCP_QP_GET_LBU s_cvt_ocp_qp_lbu

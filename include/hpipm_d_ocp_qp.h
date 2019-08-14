@@ -87,6 +87,8 @@ void d_ocp_qp_set_all(double **A, double **B, double **b, double **Q, double **S
 //
 void d_ocp_qp_set(char *field_name, int stage, void *value, struct d_ocp_qp *qp);
 //
+void d_ocp_qp_set_el(char *field_name, int stage, int index, void *value, struct d_ocp_qp *qp);
+//
 void d_ocp_qp_set_A(int stage, double *mat, struct d_ocp_qp *qp);
 //
 void d_ocp_qp_get_A(int stage, struct d_ocp_qp *qp, double *mat);
@@ -121,9 +123,13 @@ void d_ocp_qp_get_r(int stage, struct d_ocp_qp *qp, double *vec);
 //
 void d_ocp_qp_set_lbx(int stage, double *vec, struct d_ocp_qp *qp);
 //
+void d_ocp_qp_set_el_lbx(int stage, int index, double *elem, struct d_ocp_qp *qp);
+//
 void d_ocp_qp_get_lbx(int stage, struct d_ocp_qp *qp, double *vec);
 //
 void d_ocp_qp_set_ubx(int stage, double *vec, struct d_ocp_qp *qp);
+//
+void d_ocp_qp_set_el_ubx(int stage, int index, double *elem, struct d_ocp_qp *qp);
 //
 void d_ocp_qp_get_ubx(int stage, struct d_ocp_qp *qp, double *vec);
 //

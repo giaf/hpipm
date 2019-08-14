@@ -497,15 +497,12 @@ int main()
 
 	d_ocp_qp_set_rhs_zero(&qp3);
 
-	for(ii=0; ii<nx[0]; ii++)
-		lbx0_tmp[ii] = 0.0;
-	for(ii=0; ii<nx[0]; ii++)
-		ubx0_tmp[ii] = 0.0;
-	lbx0_tmp[0] = 1.0;
-	ubx0_tmp[0] = 1.0;
-
-	d_ocp_qp_set_lbx(0, lbx0_tmp, &qp3);
-	d_ocp_qp_set_ubx(0, ubx0_tmp, &qp3);
+	double one = 1.0;
+	int index = 0;
+//	d_ocp_qp_set_el_lbx(0, index, &one, &qp3);
+//	d_ocp_qp_set_el_ubx(0, index, &one, &qp3);
+	d_ocp_qp_set_el("lbx", 0, index, &one, &qp3);
+	d_ocp_qp_set_el("ubx", 0, index, &one, &qp3);
 
 //	d_ocp_qp_print(&dim, &qp3);
 //	exit(1);

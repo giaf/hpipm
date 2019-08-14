@@ -48,6 +48,10 @@
 
 
 
+#define DOUBLE_PRECISION
+
+
+
 #define CREATE_STRMAT blasfeo_create_dmat
 #define CREATE_STRVEC blasfeo_create_dvec
 #define CVT_MAT2STRMAT blasfeo_pack_dmat
@@ -77,6 +81,7 @@
 #define OCP_QP_SET_RHS_ZERO d_ocp_qp_set_rhs_zero
 #define OCP_QP_SET_ALL d_ocp_qp_set_all
 #define OCP_QP_SET d_ocp_qp_set
+#define OCP_QP_SET_EL d_ocp_qp_set_el
 #define OCP_QP_SET_A d_ocp_qp_set_A
 #define OCP_QP_GET_A d_cvt_ocp_qp_A
 #define OCP_QP_SET_B d_ocp_qp_set_B
@@ -94,8 +99,10 @@
 #define OCP_QP_SET_RVEC d_ocp_qp_set_r
 #define OCP_QP_GET_RVEC d_cvt_ocp_qp_r
 #define OCP_QP_SET_LBX d_ocp_qp_set_lbx
+#define OCP_QP_SET_EL_LBX d_ocp_qp_set_el_lbx
 #define OCP_QP_GET_LBX d_cvt_ocp_qp_lbx
 #define OCP_QP_SET_UBX d_ocp_qp_set_ubx
+#define OCP_QP_SET_EL_UBX d_ocp_qp_set_el_ubx
 #define OCP_QP_GET_UBX d_cvt_ocp_qp_ubx
 #define OCP_QP_SET_LBU d_ocp_qp_set_lbu
 #define OCP_QP_GET_LBU d_cvt_ocp_qp_lbu

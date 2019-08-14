@@ -743,7 +743,33 @@ void OCP_QP_SET(char *field, int stage, void *value, struct OCP_QP *qp)
 		}
 	else
 		{
-		printf("error [OCP_QP_SET]: unknown field name '%s'. Exiting.\n", field);
+		printf("error [OCP_QP_SET]: wrong field name '%s'. Exiting.\n", field);
+		exit(1);	
+		}
+	return;
+	}
+
+
+
+void OCP_QP_SET_EL(char *field, int stage, int index, void *elem, struct OCP_QP *qp)
+	{
+	int ii, jj, jj0;
+
+	REAL *r_ptr;
+	int *i_ptr;
+    
+	// matrices
+	if(hpipm_strcmp(field, "lbx") | hpipm_strcmp(field, "lx"))
+		{ 
+		OCP_QP_SET_EL_LBX(stage, index, elem, qp);
+		}
+	else if(hpipm_strcmp(field, "ubx") | hpipm_strcmp(field, "ux"))
+		{ 
+		OCP_QP_SET_EL_UBX(stage, index, elem, qp);
+		}
+	else
+		{
+		printf("error [OCP_QP_SET_EL]: wrong field name '%s'. Exiting.\n", field);
 		exit(1);	
 		}
 	return;
@@ -999,6 +1025,22 @@ void OCP_QP_SET_LBX(int stage, REAL *lbx, struct OCP_QP *qp)
 
 
 
+void OCP_QP_SET_EL_LBX(int stage, int index, REAL *elem, struct OCP_QP *qp)
+	{
+	// extract dim
+	int *nbu = qp->dim->nbu;
+
+#ifdef DOUBLE_PRECISION
+	BLASFEO_DVECEL(qp->d+stage, nbu[stage]+index) = *elem;
+#else
+	BLASFEO_SVECEL(qp->d+stage, nbu[stage]+index) = *elem;
+#endif
+
+	return;
+	}
+
+
+
 void OCP_QP_GET_LBX(int stage, struct OCP_QP *qp, REAL *lbx)
 	{
 	// extract dim
@@ -1079,6 +1121,24 @@ void OCP_QP_SET_UBX(int stage, REAL *lbx, struct OCP_QP *qp)
 
 	CVT_VEC2STRVEC(nbx[stage], lbx, qp->d+stage, nb[stage]+ng[stage]+nbu[stage]);
 	VECSC(nbx[stage], -1.0, qp->d+stage, nb[stage]+ng[stage]+nbu[stage]);
+
+	return;
+	}
+
+
+
+void OCP_QP_SET_EL_UBX(int stage, int index, REAL *elem, struct OCP_QP *qp)
+	{
+	// extract dim
+	int *nb = qp->dim->nb;
+	int *nbu = qp->dim->nbu;
+	int *ng = qp->dim->ng;
+
+#ifdef DOUBLE_PRECISION
+	BLASFEO_DVECEL(qp->d+stage, nb[stage]+ng[stage]+nbu[stage]+index) = - *elem;
+#else
+	BLASFEO_SVECEL(qp->d+stage, nb[stage]+ng[stage]+nbu[stage]+index) = - *elem;
+#endif
 
 	return;
 	}
