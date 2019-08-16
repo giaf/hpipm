@@ -58,12 +58,13 @@
 #define REAL double
 #define STRVEC blasfeo_dvec
 #define SIZE_STRVEC blasfeo_memsize_dvec
-#define VECCP_LIBSTR blasfeo_dveccp
+#define VECCP blasfeo_dveccp
 #define VECSE blasfeo_dvecse
 
 #define OCP_QP_SOL_STRSIZE d_ocp_qp_sol_strsize
 #define OCP_QP_SOL_MEMSIZE d_ocp_qp_sol_memsize
 #define OCP_QP_SOL_CREATE d_ocp_qp_sol_create
+#define OCP_QP_SOL_COPY_ALL d_ocp_qp_sol_copy_all
 #define OCP_QP_SOL_GET_ALL d_ocp_qp_sol_get_all
 #define OCP_QP_SOL_SET_ALL d_ocp_qp_sol_set_all
 #define OCP_QP_SOL_GET d_ocp_qp_sol_get

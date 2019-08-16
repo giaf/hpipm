@@ -386,7 +386,7 @@ void OCP_QP_COPY_ALL(struct OCP_QP *qp_orig, struct OCP_QP *qp_dest)
 	int ii, jj;
 
 	// copy dim pointer
-	qp_dest->dim = qp_orig->dim;
+//	qp_dest->dim = qp_orig->dim;
 
 	for(ii=0; ii<N; ii++)
 		{

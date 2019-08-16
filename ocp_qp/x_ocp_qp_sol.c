@@ -234,6 +234,39 @@ void OCP_QP_SOL_CREATE(struct OCP_QP_DIM *dim, struct OCP_QP_SOL *qp_sol, void *
 
 
 
+void OCP_QP_SOL_COPY_ALL(struct OCP_QP_SOL *qp_sol_orig, struct OCP_QP_SOL *qp_sol_dest)
+	{
+
+	int N = qp_sol_orig->dim->N;
+	int *nx = qp_sol_orig->dim->nx;
+	int *nu = qp_sol_orig->dim->nu;
+	int *nb = qp_sol_orig->dim->nb;
+	int *ng = qp_sol_orig->dim->ng;
+	int *ns = qp_sol_orig->dim->ns;
+
+	int ii;
+
+	// copy dim pointer
+//	qp_sol_dest->dim = qp_sol_orig->dim;
+
+	for(ii=0; ii<N; ii++)
+		{
+		VECCP(nu[ii]+nx[ii]+2*ns[ii], qp_sol_orig->ux+ii, 0, qp_sol_dest->ux+ii, 0);
+		VECCP(nx[ii+1], qp_sol_orig->pi+ii, 0, qp_sol_dest->pi+ii, 0);
+		VECCP(2*nb[ii]+2*ng[ii]+2*ns[ii], qp_sol_orig->lam+ii, 0, qp_sol_dest->lam+ii, 0);
+		VECCP(2*nb[ii]+2*ng[ii]+2*ns[ii], qp_sol_orig->t+ii, 0, qp_sol_dest->t+ii, 0);
+		}
+	ii = N;
+	VECCP(nu[ii]+nx[ii]+2*ns[ii], qp_sol_orig->ux+ii, 0, qp_sol_dest->ux+ii, 0);
+	VECCP(2*nb[ii]+2*ng[ii]+2*ns[ii], qp_sol_orig->lam+ii, 0, qp_sol_dest->lam+ii, 0);
+	VECCP(2*nb[ii]+2*ng[ii]+2*ns[ii], qp_sol_orig->t+ii, 0, qp_sol_dest->t+ii, 0);
+
+	return;
+
+	}
+
+
+
 void OCP_QP_SOL_GET_ALL(struct OCP_QP_SOL *qp_sol, REAL **u, REAL **x, REAL **ls, REAL **us, REAL **pi, REAL **lam_lb, REAL **lam_ub, REAL **lam_lg, REAL **lam_ug, REAL **lam_ls, REAL **lam_us)
 	{
 
