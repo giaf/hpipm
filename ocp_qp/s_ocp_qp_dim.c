@@ -50,6 +50,7 @@
 #define OCP_QP_DIM_STRSIZE s_ocp_qp_dim_strsize
 #define OCP_QP_DIM_MEMSIZE s_ocp_qp_dim_memsize
 #define OCP_QP_DIM_CREATE s_ocp_qp_dim_create
+#define OCP_QP_DIM_COPY_ALL s_ocp_qp_dim_copy_all
 #define OCP_QP_DIM_SET_ALL s_ocp_qp_dim_set_all
 #define OCP_QP_DIM_SET s_ocp_qp_dim_set
 #define OCP_QP_DIM_SET_NX s_ocp_qp_dim_set_nx

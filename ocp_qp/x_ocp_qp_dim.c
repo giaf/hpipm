@@ -126,6 +126,51 @@ void OCP_QP_DIM_CREATE(int N, struct OCP_QP_DIM *dim, void *memory)
 	}
 
 
+void OCP_QP_DIM_COPY_ALL(struct OCP_QP_DIM *dim_orig, struct OCP_QP_DIM *dim_dest)
+	{
+
+#if defined(RUNTIME_CHECKS)
+	if(dim_orig->N!=dim_dest->N)
+		{
+		printf("\nerror: OCP_QP_DIM_COPY_ALL: dim_orig->N != dim_dest->N\n");
+		exit(1);
+		}
+#endif
+
+	// loop index
+	int ii;
+
+	// N
+	int N = dim_orig->N;
+
+	// copy qp dim
+	for(ii=0; ii<=N; ii++)
+		dim_dest->nx[ii] = dim_orig->nx[ii];
+	for(ii=0; ii<=N; ii++)
+		dim_dest->nu[ii] = dim_orig->nu[ii];
+	for(ii=0; ii<=N; ii++)
+		dim_dest->nb[ii] = dim_orig->nb[ii];
+	for(ii=0; ii<=N; ii++)
+		dim_dest->nbx[ii] = dim_orig->nbx[ii];
+	for(ii=0; ii<=N; ii++)
+		dim_dest->nbu[ii] = dim_orig->nbu[ii];
+	for(ii=0; ii<=N; ii++)
+		dim_dest->ng[ii] = dim_orig->ng[ii];
+	for(ii=0; ii<=N; ii++)
+		dim_dest->ns[ii] = dim_orig->ns[ii];
+	for(ii=0; ii<=N; ii++)
+		dim_dest->nsbx[ii] = dim_orig->nsbx[ii];
+	for(ii=0; ii<=N; ii++)
+		dim_dest->nsbu[ii] = dim_orig->nsbu[ii];
+	for(ii=0; ii<=N; ii++)
+		dim_dest->nsg[ii] = dim_orig->nsg[ii];
+
+	return;
+
+	}
+
+
+
 void OCP_QP_DIM_SET_ALL(int *nx, int *nu, int *nbx, int *nbu, int *ng, int *nsbx, int *nsbu, int *nsg, struct OCP_QP_DIM *dim)
 	{
 
