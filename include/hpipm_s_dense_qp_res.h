@@ -41,6 +41,10 @@
 #include <blasfeo_target.h>
 #include <blasfeo_common.h>
 
+#include <hpipm_s_dense_qp_dim.h>
+#include <hpipm_s_dense_qp.h>
+#include <hpipm_s_dense_qp_sol.h>
+
 
 
 #ifdef __cplusplus
