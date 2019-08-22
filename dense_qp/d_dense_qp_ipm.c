@@ -120,6 +120,7 @@
 #define DENSE_QP_IPM_ARG_SET_REG_DUAL d_dense_qp_ipm_arg_set_reg_dual
 #define DENSE_QP_IPM_ARG_SET_WARM_START d_dense_qp_ipm_arg_set_warm_start
 #define DENSE_QP_IPM_ARG_SET_PRED_CORR d_dense_qp_ipm_arg_set_pred_corr
+#define DENSE_QP_IPM_ARG_SET_COMP_RES_PRED d_dense_qp_ipm_arg_set_comp_res_pred
 // ipm
 #define DENSE_QP_IPM_MEMSIZE d_dense_qp_ipm_memsize
 #define DENSE_QP_IPM_CREATE d_dense_qp_ipm_create
@@ -133,5 +134,7 @@
 #define DENSE_QP_IPM_GET_STAT d_dense_qp_ipm_get_stat
 #define DENSE_QP_IPM_GET_STAT_M d_dense_qp_ipm_get_stat_m
 #define DENSE_QP_IPM_SOLVE d_dense_qp_ipm_solve
+#define DENSE_QP_IPM_PREDICT d_dense_qp_ipm_predict
+#define DENSE_QP_IPM_SENS d_dense_qp_ipm_sens
 
 #include "x_dense_qp_ipm.c"

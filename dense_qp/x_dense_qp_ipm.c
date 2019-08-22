@@ -81,6 +81,8 @@ void DENSE_QP_IPM_ARG_SET_DEFAULT(enum HPIPM_MODE mode, struct DENSE_QP_IPM_ARG 
 		arg->warm_start = 0;
 		arg->abs_form = 1;
 		arg->comp_res_exit = 0;
+		arg->comp_res_pred = 0;
+		arg->mode = mode;
 		}
 	else if(mode==SPEED)
 		{
@@ -105,6 +107,8 @@ void DENSE_QP_IPM_ARG_SET_DEFAULT(enum HPIPM_MODE mode, struct DENSE_QP_IPM_ARG 
 		arg->warm_start = 0;
 		arg->abs_form = 0;
 		arg->comp_res_exit = 1;
+		arg->comp_res_pred = 0;
+		arg->mode = mode;
 		}
 	else if(mode==BALANCE)
 		{
@@ -129,6 +133,8 @@ void DENSE_QP_IPM_ARG_SET_DEFAULT(enum HPIPM_MODE mode, struct DENSE_QP_IPM_ARG 
 		arg->warm_start = 0;
 		arg->abs_form = 0;
 		arg->comp_res_exit = 1;
+		arg->comp_res_pred = 0;
+		arg->mode = mode;
 		}
 	else if(mode==ROBUST)
 		{
@@ -153,6 +159,8 @@ void DENSE_QP_IPM_ARG_SET_DEFAULT(enum HPIPM_MODE mode, struct DENSE_QP_IPM_ARG 
 		arg->warm_start = 0;
 		arg->abs_form = 0;
 		arg->comp_res_exit = 1;
+		arg->comp_res_pred = 0;
+		arg->mode = mode;
 		}
 	else
 		{
@@ -212,10 +220,10 @@ void DENSE_QP_IPM_ARG_SET(char *field, void *value, struct DENSE_QP_IPM_ARG *arg
 		{
 		DENSE_QP_IPM_ARG_SET_PRED_CORR(value, arg);
 		}
-//	else if(hpipm_strcmp(field, "comp_res_pred")) 
-//		{
-//		DENSE_QP_IPM_ARG_SET_COMP_RES_PRED(value, arg);
-//		}
+	else if(hpipm_strcmp(field, "comp_res_pred")) 
+		{
+		DENSE_QP_IPM_ARG_SET_COMP_RES_PRED(value, arg);
+		}
 	else
 		{
 		printf("error: DENSE_QP_IPM_ARG_SET: wrong field %s\n", field);
@@ -314,11 +322,11 @@ void DENSE_QP_IPM_ARG_SET_PRED_CORR(int *pred_corr, struct DENSE_QP_IPM_ARG *arg
 
 
 
-//void DENSE_QP_IPM_ARG_SET_COMP_RES_PRED(int *comp_res_pred, struct DENSE_QP_IPM_ARG *arg)
-//	{
-//	arg->comp_res_pred = *comp_res_pred;
-//	return;
-//	}
+void DENSE_QP_IPM_ARG_SET_COMP_RES_PRED(int *comp_res_pred, struct DENSE_QP_IPM_ARG *arg)
+	{
+	arg->comp_res_pred = *comp_res_pred;
+	return;
+	}
 
 
 
@@ -1394,3 +1402,199 @@ printf("iter %3d   alpha %1.3e %1.3e   sigma %1.3e   ndp %3d %3d   itref %d %d  
 	}
 
 
+
+void DENSE_QP_IPM_PREDICT(struct DENSE_QP *qp, struct DENSE_QP_SOL *qp_sol, struct DENSE_QP_IPM_ARG *arg, struct DENSE_QP_IPM_WS *ws)
+	{
+
+#if 0
+	DENSE_QP_DIM_PRINT(qp->dim);
+	DENSE_QP_PRINT(qp->dim, qp);
+#endif
+
+	int ii;
+
+	struct CORE_QP_IPM_WORKSPACE *cws = ws->core_workspace;
+
+	// arg to core workspace
+	cws->lam_min = arg->lam_min;
+	cws->t_min = arg->t_min;
+
+	// alias qp vectors into qp_sol
+	cws->v = qp_sol->v->pa;
+	cws->pi = qp_sol->pi->pa;
+	cws->lam = qp_sol->lam->pa;
+	cws->t = qp_sol->t->pa;
+
+	// alias members of qp_step
+	ws->qp_step->dim = qp->dim;
+	ws->qp_step->Hv = qp->Hv;
+	ws->qp_step->A = qp->A;
+	ws->qp_step->Ct = qp->Ct;
+	ws->qp_step->Z = qp->Z;
+	ws->qp_step->idxb = qp->idxb;
+	ws->qp_step->idxs = qp->idxs;
+	ws->qp_step->gz = ws->res->res_g;
+	ws->qp_step->b = ws->res->res_b;
+	ws->qp_step->d = ws->res->res_d;
+	ws->qp_step->m = ws->res->res_m;
+
+
+	// TODO ?
+
+	// blasfeo alias for residuals
+	struct STRVEC str_res_g;
+	struct STRVEC str_res_b;
+	struct STRVEC str_res_d;
+	struct STRVEC str_res_m;
+	str_res_g.m = cws->nv;
+	str_res_b.m = cws->ne;
+	str_res_d.m = cws->nc;
+	str_res_m.m = cws->nc;
+	str_res_g.pa = cws->res_g;
+	str_res_b.pa = cws->res_b;
+	str_res_d.pa = cws->res_d;
+	str_res_m.pa = cws->res_m;
+
+	REAL *qp_res = ws->qp_res;
+	qp_res[0] = 0;
+	qp_res[1] = 0;
+	qp_res[2] = 0;
+	qp_res[3] = 0;
+
+#if 0
+// compute residuals
+DENSE_QP_RES_COMPUTE(qp, qp_sol, ws->res, ws->res_workspace);
+
+// compute infinity norm of residuals
+VECNRM_INF(cws->nv, &str_res_g, 0, &qp_res[0]);
+VECNRM_INF(cws->ne, &str_res_b, 0, &qp_res[1]);
+VECNRM_INF(cws->nc, &str_res_d, 0, &qp_res[2]);
+VECNRM_INF(cws->nc, &str_res_m, 0, &qp_res[3]);
+
+printf("\npredict\t%e\t%e\t%e\t%e\n", qp_res[0], qp_res[1], qp_res[2], qp_res[3]);
+#endif
+
+	// load sol from bkp
+	for(ii=0; ii<cws->nv; ii++)
+		cws->v[ii] = cws->v_bkp[ii];
+	for(ii=0; ii<cws->ne; ii++)
+		cws->pi[ii] = cws->pi_bkp[ii];
+	for(ii=0; ii<cws->nc; ii++)
+		cws->lam[ii] = cws->lam_bkp[ii];
+	for(ii=0; ii<cws->nc; ii++)
+		cws->t[ii] = cws->t_bkp[ii];
+
+	// TODO absolute formulation !!!!!
+
+	// TODO robust formulation !!!!!
+
+	// compute residuals
+	DENSE_QP_RES_COMPUTE(qp, qp_sol, ws->res, ws->res_workspace);
+
+	// compute infinity norm of residuals
+	VECNRM_INF(cws->nv, &str_res_g, 0, &qp_res[0]);
+	VECNRM_INF(cws->ne, &str_res_b, 0, &qp_res[1]);
+	VECNRM_INF(cws->nc, &str_res_d, 0, &qp_res[2]);
+	VECNRM_INF(cws->nc, &str_res_m, 0, &qp_res[3]);
+
+//printf("\npredict\t%e\t%e\t%e\t%e\n", qp_res[0], qp_res[1], qp_res[2], qp_res[3]);
+
+	// solve kkt
+	SOLVE_KKT_STEP_DENSE_QP(ws->qp_step, ws->sol_step, arg, ws);
+
+	// alpha TODO fix alpha=1 !!!!!
+//	COMPUTE_ALPHA_QP(cws);
+	cws->alpha = 1.0;
+
+	//
+	UPDATE_VAR_QP(cws);
+
+	if(arg->comp_res_pred)
+		{
+		// compute residuals in exit
+		DENSE_QP_RES_COMPUTE(qp, qp_sol, ws->res, ws->res_workspace);
+
+		// compute infinity norm of residuals
+		VECNRM_INF(cws->nv, &str_res_g, 0, &qp_res[0]);
+		VECNRM_INF(cws->ne, &str_res_b, 0, &qp_res[1]);
+		VECNRM_INF(cws->nc, &str_res_d, 0, &qp_res[2]);
+		VECNRM_INF(cws->nc, &str_res_m, 0, &qp_res[3]);
+		}
+
+//printf("\npredict\t%e\t%e\t%e\t%e\n", qp_res[0], qp_res[1], qp_res[2], qp_res[3]);
+
+	// TODO
+
+	// do not change status
+
+	return;
+
+	}
+
+
+
+void DENSE_QP_IPM_SENS(struct DENSE_QP *qp, struct DENSE_QP_SOL *qp_sol, struct DENSE_QP_IPM_ARG *arg, struct DENSE_QP_IPM_WS *ws)
+	{
+
+#if 0
+	DENSE_QP_DIM_PRINT(qp->dim);
+	DENSE_QP_PRINT(qp->dim, qp);
+#endif
+
+	int ii;
+
+	struct CORE_QP_IPM_WORKSPACE *cws = ws->core_workspace;
+
+	// arg to core workspace
+	cws->lam_min = arg->lam_min;
+	cws->t_min = arg->t_min;
+
+	// alias qp vectors into qp_sol
+	cws->v = qp_sol->v->pa;
+	cws->pi = qp_sol->pi->pa;
+	cws->lam = qp_sol->lam->pa;
+	cws->t = qp_sol->t->pa;
+
+	// load sol from bkp
+	for(ii=0; ii<cws->nv; ii++)
+		cws->v[ii] = cws->v_bkp[ii];
+	for(ii=0; ii<cws->ne; ii++)
+		cws->pi[ii] = cws->pi_bkp[ii];
+	for(ii=0; ii<cws->nc; ii++)
+		cws->lam[ii] = cws->lam_bkp[ii];
+	for(ii=0; ii<cws->nc; ii++)
+		cws->t[ii] = cws->t_bkp[ii];
+
+	// solve kkt
+	SOLVE_KKT_STEP_DENSE_QP(qp, qp_sol, arg, ws);
+
+#if 0
+	// alpha TODO fix alpha=1 !!!!!
+//	COMPUTE_ALPHA_QP(cws);
+	cws->alpha = 1.0;
+
+	//
+	UPDATE_VAR_QP(cws);
+
+	if(arg->comp_res_pred)
+		{
+		// compute residuals in exit
+		DENSE_QP_RES_COMPUTE(qp, qp_sol, ws->res, ws->res_workspace);
+
+		// compute infinity norm of residuals
+		VECNRM_INF(cws->nv, &str_res_g, 0, &qp_res[0]);
+		VECNRM_INF(cws->ne, &str_res_b, 0, &qp_res[1]);
+		VECNRM_INF(cws->nc, &str_res_d, 0, &qp_res[2]);
+		VECNRM_INF(cws->nc, &str_res_m, 0, &qp_res[3]);
+		}
+#endif
+
+//printf("\npredict\t%e\t%e\t%e\t%e\n", qp_res[0], qp_res[1], qp_res[2], qp_res[3]);
+
+	// TODO
+
+	// do not change status
+
+	return;
+
+	}

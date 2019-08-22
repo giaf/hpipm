@@ -79,6 +79,8 @@ struct d_dense_qp_ipm_arg
 	int lq_fact; // 0 syrk+potrf, 1 mix, 2 lq
 	int abs_form; // absolute IPM formulation
 	int comp_res_exit; // compute residuals on exit (only for abs_form==1)
+	int comp_res_pred; // compute residuals of prediction
+	int mode;
 	int memsize;
 	};
 
@@ -156,6 +158,8 @@ void d_dense_qp_ipm_arg_set_reg_dual(double *reg, struct d_dense_qp_ipm_arg *arg
 void d_dense_qp_ipm_arg_set_warm_start(int *warm_start, struct d_dense_qp_ipm_arg *arg);
 //
 void d_dense_qp_ipm_arg_set_pred_corr(int *pred_corr, struct d_dense_qp_ipm_arg *arg);
+//
+void d_dense_qp_ipm_arg_set_comp_res_pred(int *comp_res_pred, struct d_dense_qp_ipm_arg *arg);
 
 //
 int d_dense_qp_ipm_memsize(struct d_dense_qp_dim *qp_dim, struct d_dense_qp_ipm_arg *arg);
@@ -181,7 +185,10 @@ void d_dense_qp_ipm_get_stat(struct d_dense_qp_ipm_ws *ws, double **stat);
 void d_dense_qp_ipm_get_stat_m(struct d_dense_qp_ipm_ws *ws, int *stat_m);
 //
 void d_dense_qp_ipm_solve(struct d_dense_qp *qp, struct d_dense_qp_sol *qp_sol, struct d_dense_qp_ipm_arg *arg, struct d_dense_qp_ipm_ws *ws);
-
+//
+void d_dense_qp_ipm_predict(struct d_dense_qp *qp, struct d_dense_qp_sol *qp_sol, struct d_dense_qp_ipm_arg *arg, struct d_dense_qp_ipm_ws *ws);
+//
+void d_dense_qp_ipm_sens(struct d_dense_qp *qp, struct d_dense_qp_sol *qp_sol, struct d_dense_qp_ipm_arg *arg, struct d_dense_qp_ipm_ws *ws);
 
 
 #ifdef __cplusplus
