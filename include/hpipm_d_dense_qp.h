@@ -72,20 +72,15 @@ struct d_dense_qp
 
 
 //
-int d_memsize_dense_qp(struct d_dense_qp_dim *dim);
+int d_dense_qp_memsize(struct d_dense_qp_dim *dim);
 //
-void d_create_dense_qp(struct d_dense_qp_dim *dim, struct d_dense_qp *qp, void *memory);
+void d_dense_qp_create(struct d_dense_qp_dim *dim, struct d_dense_qp *qp, void *memory);
 //
-void d_cvt_colmaj_to_dense_qp(double *H, double *g, double *A, double *b, int *idxb, double *d_lb, double *d_ub, double *C, double *d_lg, double *d_ug, double *Zl, double *Zu, double *zl, double *zu, int *idxs, double *d_ls, double *d_us, struct d_dense_qp *qp);
+void d_dense_qp_set_all(double *H, double *g, double *A, double *b, int *idxb, double *d_lb, double *d_ub, double *C, double *d_lg, double *d_ug, double *Zl, double *Zu, double *zl, double *zu, int *idxs, double *d_ls, double *d_us, struct d_dense_qp *qp);
 //
-void d_cvt_dense_qp_to_colmaj(struct d_dense_qp *qp, double *H, double *g, double *A, double *b, int *idxb, double *d_lb, double *d_ub, double *C, double *d_lg, double *d_ug, double *Zl, double *Zu, double *zl, double *zu, int *idxs, double *d_ls, double *d_us);
-//
-void d_cvt_rowmaj_to_dense_qp(double *H, double *g, double *A, double *b, int *idxb, double *d_lb, double *d_ub, double *C, double *d_lg, double *d_ug, double *Zl, double *Zu, double *zl, double *zu, int *idxs, double *d_ls, double *d_us, struct d_dense_qp *qp);
-//
-void d_cvt_dense_qp_to_rowmaj(struct d_dense_qp *qp, double *H, double *g, double *A, double *b, int *idxb, double *d_lb, double *d_ub, double *C, double *d_lg, double *d_ug, double *Zl, double *Zu, double *zl, double *zu, int *idxs, double *d_ls, double *d_us);
+void d_dense_qp_get_all(struct d_dense_qp *qp, double *H, double *g, double *A, double *b, int *idxb, double *d_lb, double *d_ub, double *C, double *d_lg, double *d_ug, double *Zl, double *Zu, double *zl, double *zu, int *idxs, double *d_ls, double *d_us);
 
-// setters (COLMAJ)
-
+//
 void d_dense_qp_set_H(double *H, struct d_dense_qp *qp);
 //
 void d_dense_qp_set_g(double *g, struct d_dense_qp *qp);

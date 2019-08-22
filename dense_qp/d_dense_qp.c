@@ -68,16 +68,10 @@
 #define VECSC_LIBSTR blasfeo_dvecsc
 #define VECSE_LIBSTR blasfeo_dvecse
 
-#define MEMSIZE_DENSE_QP d_memsize_dense_qp
-#define CREATE_DENSE_QP d_create_dense_qp
-#define CVT_COLMAJ_TO_DENSE_QP d_cvt_colmaj_to_dense_qp
-#define CVT_DENSE_QP_TO_COLMAJ d_cvt_dense_qp_to_colmaj
-#define CVT_ROWMAJ_TO_DENSE_QP d_cvt_rowmaj_to_dense_qp
-#define CVT_DENSE_QP_TO_ROWMAJ d_cvt_dense_qp_to_rowmaj
-#define CVT_LIBSTR_TO_DENSE_QP d_cvt_libstr_to_dense_qp
-#define CVT_DENSE_QP_TO_LIBSTR d_cvt_dense_qp_to_libstr
-#define CAST_DENSE_QP_DIM d_cast_dense_qp_dim
-
+#define DENSE_QP_MEMSIZE d_dense_qp_memsize
+#define DENSE_QP_CREATE d_dense_qp_create
+#define DENSE_QP_SET_ALL d_dense_qp_set_all
+#define DENSE_QP_GET_ALL d_dense_qp_get_all
 #define DENSE_QP_SET_H d_dense_qp_set_H
 #define DENSE_QP_SET_G d_dense_qp_set_g
 #define DENSE_QP_SET_A d_dense_qp_set_A
@@ -95,7 +89,6 @@
 #define DENSE_QP_SET_ZU d_dense_qp_set_zu
 #define DENSE_QP_SET_LS d_dense_qp_set_ls
 #define DENSE_QP_SET_US d_dense_qp_set_us
-
 #define DENSE_QP_GET_H d_dense_qp_get_H
 #define DENSE_QP_GET_G d_dense_qp_get_g
 #define DENSE_QP_GET_A d_dense_qp_get_A

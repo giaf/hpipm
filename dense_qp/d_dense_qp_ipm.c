@@ -46,6 +46,7 @@
 #include <blasfeo_d_aux.h>
 #include <blasfeo_d_blas.h>
 
+#include <hpipm_aux_string.h>
 #include <hpipm_d_dense_qp_dim.h>
 #include <hpipm_d_dense_qp.h>
 #include <hpipm_d_dense_qp_sol.h>
@@ -62,23 +63,25 @@
 #define COMPUTE_ALPHA_QP d_compute_alpha_qp
 #define COMPUTE_CENTERING_CORRECTION_QP d_compute_centering_correction_qp
 #define COMPUTE_CENTERING_QP d_compute_centering_qp
-#define COMPUTE_LIN_RES_DENSE_QP d_compute_lin_res_dense_qp
+#define DENSE_QP_RES_COMPUTE_LIN d_dense_qp_res_compute_lin
 #define COMPUTE_MU_AFF_QP d_compute_mu_aff_qp
-#define COMPUTE_RES_DENSE_QP d_compute_res_dense_qp
+#define DENSE_QP_RES_COMPUTE d_dense_qp_res_compute
 #define CORE_QP_IPM_WORKSPACE d_core_qp_ipm_workspace
 #define CREATE_CORE_QP_IPM d_create_core_qp_ipm
-#define CREATE_DENSE_QP_RES d_create_dense_qp_res
-#define CREATE_DENSE_QP_SOL d_create_dense_qp_sol
 #define CREATE_STRMAT blasfeo_create_dmat
 #define CREATE_STRVEC blasfeo_create_dvec
 #define DENSE_QP d_dense_qp
 #define DENSE_QP_IPM_ARG d_dense_qp_ipm_arg
 #define HPIPM_MODE hpipm_mode
-#define DENSE_QP_IPM_WORKSPACE d_dense_qp_ipm_workspace
+#define DENSE_QP_IPM_WS d_dense_qp_ipm_ws
 #define DENSE_QP_DIM d_dense_qp_dim
 #define DENSE_QP_RES d_dense_qp_res
-#define DENSE_QP_RES_WORKSPACE d_dense_qp_res_workspace
+#define DENSE_QP_RES_CREATE d_dense_qp_res_create
+#define DENSE_QP_RES_MEMSIZE d_dense_qp_res_memsize
+#define DENSE_QP_RES_WS d_dense_qp_res_ws
 #define DENSE_QP_SOL d_dense_qp_sol
+#define DENSE_QP_SOL_CREATE d_dense_qp_sol_create
+#define DENSE_QP_SOL_MEMSIZE d_dense_qp_sol_memsize
 #define DOT blasfeo_ddot
 #define FACT_LQ_SOLVE_KKT_STEP_DENSE_QP d_fact_lq_solve_kkt_step_dense_qp
 #define FACT_SOLVE_LU_KKT_STEP_DENSE_QP d_fact_solve_lu_kkt_step_dense_qp
@@ -87,8 +90,6 @@
 #define GELQF_WORKSIZE blasfeo_dgelqf_worksize
 #define INIT_VAR_DENSE_QP d_init_var_dense_qp
 #define MEMSIZE_CORE_QP_IPM d_memsize_core_qp_ipm
-#define MEMSIZE_DENSE_QP_RES d_memsize_dense_qp_res
-#define MEMSIZE_DENSE_QP_SOL d_memsize_dense_qp_sol
 #define REAL double
 #define SIZE_STRMAT blasfeo_memsize_dmat
 #define SIZE_STRVEC blasfeo_memsize_dvec
@@ -104,30 +105,33 @@
 
 
 // arg
-#define MEMSIZE_DENSE_QP_IPM_ARG d_memsize_dense_qp_ipm_arg
-#define CREATE_DENSE_QP_IPM_ARG d_create_dense_qp_ipm_arg
-#define SET_DEFAULT_DENSE_QP_IPM_ARG d_set_default_dense_qp_ipm_arg
-#define SET_DENSE_QP_IPM_ARG_ITER_MAX d_set_dense_qp_ipm_arg_iter_max
-#define SET_DENSE_QP_IPM_ARG_MU0 d_set_dense_qp_ipm_arg_mu0
-#define SET_DENSE_QP_IPM_ARG_TOL_STAT d_set_dense_qp_ipm_arg_tol_stat
-#define SET_DENSE_QP_IPM_ARG_TOL_EQ d_set_dense_qp_ipm_arg_tol_eq
-#define SET_DENSE_QP_IPM_ARG_TOL_INEQ d_set_dense_qp_ipm_arg_tol_ineq
-#define SET_DENSE_QP_IPM_ARG_TOL_COMP d_set_dense_qp_ipm_arg_tol_comp
-#define SET_DENSE_QP_IPM_ARG_REG_PRIM d_set_dense_qp_ipm_arg_reg_prim
-#define SET_DENSE_QP_IPM_ARG_REG_DUAL d_set_dense_qp_ipm_arg_reg_dual
-#define SET_DENSE_QP_IPM_ARG_WARM_START d_set_dense_qp_ipm_arg_warm_start
+#define DENSE_QP_IPM_ARG_MEMSIZE d_dense_qp_ipm_arg_memsize
+#define DENSE_QP_IPM_ARG_CREATE d_dense_qp_ipm_arg_create
+#define DENSE_QP_IPM_ARG_SET_DEFAULT d_dense_qp_ipm_arg_set_default
+#define DENSE_QP_IPM_ARG_SET d_dense_qp_ipm_arg_set
+#define DENSE_QP_IPM_ARG_SET_ITER_MAX d_dense_qp_ipm_arg_set_iter_max
+#define DENSE_QP_IPM_ARG_SET_ALPHA_MIN d_dense_qp_ipm_arg_set_alpha_min
+#define DENSE_QP_IPM_ARG_SET_MU0 d_dense_qp_ipm_arg_set_mu0
+#define DENSE_QP_IPM_ARG_SET_TOL_STAT d_dense_qp_ipm_arg_set_tol_stat
+#define DENSE_QP_IPM_ARG_SET_TOL_EQ d_dense_qp_ipm_arg_set_tol_eq
+#define DENSE_QP_IPM_ARG_SET_TOL_INEQ d_dense_qp_ipm_arg_set_tol_ineq
+#define DENSE_QP_IPM_ARG_SET_TOL_COMP d_dense_qp_ipm_arg_set_tol_comp
+#define DENSE_QP_IPM_ARG_SET_REG_PRIM d_dense_qp_ipm_arg_set_reg_prim
+#define DENSE_QP_IPM_ARG_SET_REG_DUAL d_dense_qp_ipm_arg_set_reg_dual
+#define DENSE_QP_IPM_ARG_SET_WARM_START d_dense_qp_ipm_arg_set_warm_start
+#define DENSE_QP_IPM_ARG_SET_PRED_CORR d_dense_qp_ipm_arg_set_pred_corr
 // ipm
-#define MEMSIZE_DENSE_QP_IPM d_memsize_dense_qp_ipm
-#define CREATE_DENSE_QP_IPM d_create_dense_qp_ipm
-#define GET_DENSE_QP_IPM_ITER d_get_dense_qp_ipm_iter
-#define GET_DENSE_QP_IPM_RES_STAT d_get_dense_qp_ipm_res_stat
-#define GET_DENSE_QP_IPM_RES_EQ d_get_dense_qp_ipm_res_eq
-#define GET_DENSE_QP_IPM_RES_INEQ d_get_dense_qp_ipm_res_ineq
-#define GET_DENSE_QP_IPM_RES_COMP d_get_dense_qp_ipm_res_comp
-#define GET_DENSE_QP_IPM_STAT d_get_dense_qp_ipm_stat
-#define SOLVE_DENSE_QP_IPM d_solve_dense_qp_ipm
-#define SOLVE_DENSE_QP_IPM2 d_solve_dense_qp_ipm2
-
-
+#define DENSE_QP_IPM_MEMSIZE d_dense_qp_ipm_memsize
+#define DENSE_QP_IPM_CREATE d_dense_qp_ipm_create
+#define DENSE_QP_IPM_GET d_dense_qp_ipm_get
+#define DENSE_QP_IPM_GET_STATUS d_dense_qp_ipm_get_status
+#define DENSE_QP_IPM_GET_ITER d_dense_qp_ipm_get_iter
+#define DENSE_QP_IPM_GET_MAX_RES_STAT d_dense_qp_ipm_get_max_res_stat
+#define DENSE_QP_IPM_GET_MAX_RES_EQ d_dense_qp_ipm_get_max_res_eq
+#define DENSE_QP_IPM_GET_MAX_RES_INEQ d_dense_qp_ipm_get_max_res_ineq
+#define DENSE_QP_IPM_GET_MAX_RES_COMP d_dense_qp_ipm_get_max_res_comp
+#define DENSE_QP_IPM_GET_STAT d_dense_qp_ipm_get_stat
+#define DENSE_QP_IPM_GET_STAT_M d_dense_qp_ipm_get_stat_m
+#define DENSE_QP_IPM_SOLVE d_dense_qp_ipm_solve
 
 #include "x_dense_qp_ipm.c"

@@ -35,7 +35,7 @@
 
 
 
-int MEMSIZE_DENSE_QP_DIM()
+int DENSE_QP_DIM_MEMSIZE()
 	{
 
 	int size = 0;
@@ -48,17 +48,17 @@ int MEMSIZE_DENSE_QP_DIM()
 
 
 
-void CREATE_DENSE_QP_DIM(struct DENSE_QP_DIM *size, void *memory)
+void DENSE_QP_DIM_CREATE(struct DENSE_QP_DIM *size, void *memory)
 	{
 
-	size->memsize = MEMSIZE_DENSE_QP_DIM();
+	size->memsize = DENSE_QP_DIM_MEMSIZE();
 
 	return;
 
 	}
 
 
-void CVT_INT_TO_DENSE_QP_DIM(int nv, int ne, int nb, int ng, int nsb, int nsg, struct DENSE_QP_DIM *size)
+void DENSE_QP_DIM_SET_ALL(int nv, int ne, int nb, int ng, int nsb, int nsg, struct DENSE_QP_DIM *size)
 	{
 
 	size->nv = nv;
@@ -74,7 +74,7 @@ void CVT_INT_TO_DENSE_QP_DIM(int nv, int ne, int nb, int ng, int nsb, int nsg, s
 	}
 
 
-void SET_DENSE_QP_DIM(char *field_name, int value, struct DENSE_QP_DIM *dim)
+void DENSE_QP_DIM_SET(char *field_name, int value, struct DENSE_QP_DIM *dim)
 	{
 	if(hpipm_strcmp(field_name, "nv"))
 		{ 
@@ -108,7 +108,7 @@ void SET_DENSE_QP_DIM(char *field_name, int value, struct DENSE_QP_DIM *dim)
 		}
 	else 
 		{
-		printf("error [SET_OCP_QP_DIM]: unknown field name '%s'. Exiting.\n", field_name);
+		printf("error: SET_OCP_QP_DIM: wrong field %s\n", field_name);
 		exit(1);
 		}
 	return;

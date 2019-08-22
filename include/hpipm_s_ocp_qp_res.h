@@ -95,8 +95,6 @@ void s_ocp_qp_res_compute_lin(struct s_ocp_qp *qp, struct s_ocp_qp_sol *qp_sol, 
 //
 void s_ocp_qp_res_compute_max(struct s_ocp_qp_res *res, struct s_ocp_qp_res_ws *ws);
 //
-void s_ocp_qp_res_get(struct s_ocp_qp_res *res, void *value);
-//
 void s_ocp_qp_res_get_all(struct s_ocp_qp_res *res, float **res_r, float **res_q, float **res_ls, float **res_us, float **res_b, float **res_d_lb, float **res_d_ub, float **res_d_lg, float **res_d_ug, float **res_d_ls, float **res_d_us, float **res_m_lb, float **res_m_ub, float **res_m_lg, float **res_m_ug, float **res_m_ls, float **res_m_us);
 //
 void s_ocp_qp_res_get_max_res_stat(struct s_ocp_qp_res *res, float *value);

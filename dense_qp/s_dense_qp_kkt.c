@@ -64,7 +64,7 @@
 #define DENSE_QP_RES_WORKSPACE s_dense_qp_res_workspace
 #define DENSE_QP s_dense_qp
 #define DENSE_QP_IPM_ARG s_dense_qp_ipm_arg
-#define DENSE_QP_IPM_WORKSPACE s_dense_qp_ipm_workspace
+#define DENSE_QP_IPM_WS s_dense_qp_ipm_ws
 #define DENSE_QP_SOL s_dense_qp_sol
 #define DIAAD_SP blasfeo_sdiaad_sp
 #define DIAEX blasfeo_sdiaex
@@ -79,7 +79,6 @@
 #define GEMM_R_DIAG blasfeo_sgemm_nd
 #define GEMV_DIAG blasfeo_sgemv_d
 #define GEMV_N blasfeo_sgemv_n
-#define GEMV_NT blasfeo_sgemv_nt
 #define GEMV_T blasfeo_sgemv_t
 #define GESE blasfeo_sgese
 //#define GETRF blasfeo_sgetrf_rowpivot
@@ -94,7 +93,6 @@
 #define ROWPEI blasfeo_srowpei
 #define STRMAT blasfeo_smat
 #define STRVEC blasfeo_svec
-#define SYMV_L blasfeo_ssymv_l
 #define SYRK_LN blasfeo_ssyrk_ln
 #define SYRK_LN_MN blasfeo_ssyrk_ln_mn
 #define SYRK_POTRF_LN blasfeo_ssyrk_spotrf_ln
@@ -112,8 +110,6 @@
 #define VECAD_SP blasfeo_svecad_sp
 #define VECCP blasfeo_sveccp
 #define VECEX_SP blasfeo_svecex_sp
-#define VECMULACC blasfeo_svecmulacc
-#define VECMULDOT blasfeo_svecmuldot
 #define VECSC blasfeo_svecsc
 #define VECSE blasfeo_svecse
 #define VECCPSC blasfeo_sveccpsc
@@ -121,8 +117,6 @@
 #define VECPEI blasfeo_svecpei
 
 #define INIT_VAR_DENSE_QP s_init_var_dense_qp
-#define COMPUTE_RES_DENSE_QP s_compute_res_dense_qp
-#define COMPUTE_LIN_RES_DENSE_QP s_compute_lin_res_dense_qp
 #define FACT_SOLVE_KKT_UNCONSTR_DENSE_QP s_fact_solve_kkt_unconstr_dense_qp
 #define FACT_LQ_SOLVE_KKT_STEP_DENSE_QP s_fact_lq_solve_kkt_step_dense_qp
 //#define FACT_SOLVE_LU_KKT_STEP_DENSE_QP s_fact_solve_lu_kkt_step_dense_qp

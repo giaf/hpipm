@@ -60,11 +60,9 @@
 #define SIZE_STRVEC blasfeo_memsize_dvec
 #define VECCP_LIBSTR blasfeo_dveccp
 
-#define CREATE_DENSE_QP_SOL d_create_dense_qp_sol
-#define MEMSIZE_DENSE_QP_SOL d_memsize_dense_qp_sol
-#define CVT_DENSE_QP_SOL_TO_COLMAJ d_cvt_dense_qp_sol_to_colmaj
-#define CVT_DENSE_QP_SOL_TO_ROWMAJ d_cvt_dense_qp_sol_to_rowmaj
-#define CVT_DENSE_QP_SOL_TO_LIBSTR d_cvt_dense_qp_sol_to_libstr
+#define DENSE_QP_SOL_MEMSIZE d_dense_qp_sol_memsize
+#define DENSE_QP_SOL_CREATE d_dense_qp_sol_create
+#define DENSE_QP_SOL_GET_ALL d_dense_qp_sol_get_all
 
 
 

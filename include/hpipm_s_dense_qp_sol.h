@@ -67,15 +67,11 @@ struct s_dense_qp_sol
 
 
 //
-int s_memsize_dense_qp_sol(struct s_dense_qp_dim *dim);
+int s_dense_qp_sol_memsize(struct s_dense_qp_dim *dim);
 //
-void s_create_dense_qp_sol(struct s_dense_qp_dim *dim, struct s_dense_qp_sol *qp_sol, void *memory);
+void s_dense_qp_sol_create(struct s_dense_qp_dim *dim, struct s_dense_qp_sol *qp_sol, void *memory);
 //
-void s_cvt_dense_qp_sol_to_colmaj(struct s_dense_qp_sol *qp_sol, float *v, float *ls, float *us, float *pi, float *lam_lb, float *lam_ub, float *lam_lg, float *lam_ug, float *lam_ls, float *lam_us);
-//
-void s_cvt_dense_qp_sol_to_rowmaj(struct s_dense_qp_sol *qp_sol, float *v, float *ls, float *us, float *pi, float *lam_lb, float *lam_ub, float *lam_lg, float *lam_ug, float *lam_ls, float *lam_us);
-//
-void s_cvt_dense_qp_sol_to_libstr(struct s_dense_qp_sol *qp_sol, struct blasfeo_svec *v, struct blasfeo_svec *ls, struct blasfeo_svec *us, struct blasfeo_svec *pi, struct blasfeo_svec *lam_lb, struct blasfeo_svec *lam_ub, struct blasfeo_svec *lam_lg, struct blasfeo_svec *lam_ug, struct blasfeo_svec *lam_ls, struct blasfeo_svec *lam_us);
+void s_dense_qp_sol_get_all(struct s_dense_qp_sol *qp_sol, float *v, float *ls, float *us, float *pi, float *lam_lb, float *lam_ub, float *lam_lg, float *lam_ug, float *lam_ls, float *lam_us);
 
 
 

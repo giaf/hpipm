@@ -203,7 +203,7 @@ void OCP_QP_IPM_ARG_SET_DEFAULT(enum HPIPM_MODE mode, struct OCP_QP_IPM_ARG *arg
 		}
 	else
 		{
-		printf("\nwrong set default mode\n");
+		printf("\nerror: OCP_QP_IPM_ARG_SET_DEFAULT: wrong set default mode\n");
 		exit(1);
 		}
 
@@ -265,7 +265,7 @@ void OCP_QP_IPM_ARG_SET(char *field, void *value, struct OCP_QP_IPM_ARG *arg)
 		}
 	else
 		{
-		printf("error [OCP_QP_IPM_ARG_SET]: unknown field name '%s'. Exiting.\n", field);
+		printf("error: OCP_QP_IPM_ARG_SET: wrong field %s\n", field);
 		exit(1);	
 		}
 	return;
@@ -958,7 +958,7 @@ void OCP_QP_IPM_GET(char *field, struct OCP_QP_IPM_WS *ws, void *value)
 		}
 	else 
 		{
-		printf("error [OCP_QP_IPM_GET]: unknown field name '%s'. Exiting.\n", field);
+		printf("error: OCP_QP_IPM_GET: wrong field %s\n", field);
 		exit(1);
 		}
 	return;
@@ -1303,65 +1303,7 @@ void OCP_QP_IPM_SOLVE(struct OCP_QP *qp, struct OCP_QP_SOL *qp_sol, struct OCP_Q
 
 
 
-#if 0
-	// IPM loop (absolute formulation)
-	for(kk=0; kk<arg->iter_max; kk++)
-		{
-
-		// fact solve
-		FACT_SOLVE_KKT_STEP_OCP_QP(qp, ws->sol_step, arg, ws);
-
-#if 0
-blasfeo_print_tran_dvec(cws->nv, ws->sol_step->ux, 0);
-blasfeo_print_tran_dvec(cws->ne, ws->sol_step->pi, 0);
-blasfeo_print_tran_dvec(cws->nc, ws->sol_step->lam, 0);
-blasfeo_print_tran_dvec(cws->nc, ws->sol_step->t, 0);
-#endif
-
-		// compute step
-		AXPY(cws->nv, -1.0, qp_sol->ux, 0, ws->sol_step->ux, 0, ws->sol_step->ux, 0);
-		AXPY(cws->ne, -1.0, qp_sol->pi, 0, ws->sol_step->pi, 0, ws->sol_step->pi, 0);
-		AXPY(cws->nc, -1.0, qp_sol->lam, 0, ws->sol_step->lam, 0, ws->sol_step->lam, 0);
-		AXPY(cws->nc, -1.0, qp_sol->t, 0, ws->sol_step->t, 0, ws->sol_step->t, 0);
-
-#if 0
-blasfeo_print_tran_dvec(cws->nv, ws->sol_step->ux, 0);
-blasfeo_print_tran_dvec(cws->ne, ws->sol_step->pi, 0);
-blasfeo_print_tran_dvec(cws->nc, ws->sol_step->lam, 0);
-blasfeo_print_tran_dvec(cws->nc, ws->sol_step->t, 0);
-#endif
-
-		// alpha
-		COMPUTE_ALPHA_QP(cws);
-		if(kk<ws->stat_max)
-			ws->stat[ws->stat_m*(kk+1)+0] = cws->alpha;
-
-		//
-		UPDATE_VAR_QP(cws);
-
-		// compute residuals
-		OCP_QP_RES_COMPUTE(qp, qp_sol, ws->res, ws->res_workspace);
-		BACKUP_RES_M(cws);
-		cws->mu = ws->res->res_mu;
-		if(kk<ws->stat_max)
-			ws->stat[ws->stat_m*(kk+1)+4] = ws->res->res_mu;
-
-		// compute infinity norm of residuals
-		VECNRM_INF(cws->nv, &str_res_g, 0, &qp_res[0]);
-		VECNRM_INF(cws->ne, &str_res_b, 0, &qp_res[1]);
-		VECNRM_INF(cws->nc, &str_res_d, 0, &qp_res[2]);
-		VECNRM_INF(cws->nc, &str_res_m, 0, &qp_res[3]);
-
-//		exit(1);
-
-		}
-
-	ws->iter = kk;
-
-	return 0;
-#endif
-
-
+	// relative IPM formulation
 
 	// IPM loop
 	for(kk=0; kk<arg->iter_max & \

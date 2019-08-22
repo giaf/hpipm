@@ -87,6 +87,7 @@ struct d_ocp_qp_ipm_arg
 
 struct d_ocp_qp_ipm_ws
 	{
+	double qp_res[4]; // infinity norm of residuals
 	struct d_core_qp_ipm_workspace *core_workspace;
 	struct d_ocp_qp_res_ws *res_workspace;
 	struct d_ocp_qp_sol *sol_step;
@@ -112,7 +113,6 @@ struct d_ocp_qp_ipm_ws
 	double *stat; // convergence statistics
 	int *use_hess_fact;
 	void *lq_work0;
-	double qp_res[4]; // infinity norm of residuals
 	int iter; // iteration number
 	int stat_max; // iterations saved in stat
 	int stat_m; // number of recorded stat per IPM iter

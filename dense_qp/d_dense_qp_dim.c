@@ -45,10 +45,10 @@
 
 #define DENSE_QP_DIM d_dense_qp_dim
 
-#define MEMSIZE_DENSE_QP_DIM d_memsize_dense_qp_dim
-#define CREATE_DENSE_QP_DIM d_create_dense_qp_dim
-#define CVT_INT_TO_DENSE_QP_DIM d_cvt_int_to_dense_qp_dim
-#define SET_DENSE_QP_DIM d_set_dense_qp_dim
+#define DENSE_QP_DIM_MEMSIZE d_dense_qp_dim_memsize
+#define DENSE_QP_DIM_CREATE d_dense_qp_dim_create
+#define DENSE_QP_DIM_SET_ALL d_dense_qp_dim_set_all
+#define DENSE_QP_DIM_SET d_dense_qp_dim_set
 
 
 #include "x_dense_qp_dim.c"

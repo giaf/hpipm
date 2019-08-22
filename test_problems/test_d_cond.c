@@ -734,12 +734,12 @@ int main()
 * dense qp dim
 ************************************************/
 
-	int dense_qp_dim_size = d_memsize_dense_qp_dim();
+	int dense_qp_dim_size = d_dense_qp_dim_memsize();
 	printf("\nqp dim size = %d\n", dense_qp_dim_size);
 	void *dense_qp_dim_mem = malloc(dense_qp_dim_size);
 
 	struct d_dense_qp_dim qp_dim;
-	d_create_dense_qp_dim(&qp_dim, dense_qp_dim_mem);
+	d_dense_qp_dim_create(&qp_dim, dense_qp_dim_mem);
 
 	d_cond_qp_compute_dim(&dim, &qp_dim);
 
@@ -756,12 +756,12 @@ int main()
 ************************************************/
 
 	// qp
-	int dense_qp_size = d_memsize_dense_qp(&qp_dim);
+	int dense_qp_size = d_dense_qp_memsize(&qp_dim);
 	printf("\nqp size = %d\n", dense_qp_size);
 	void *dense_qp_mem = malloc(dense_qp_size);
 
 	struct d_dense_qp dense_qp;
-	d_create_dense_qp(&qp_dim, &dense_qp, dense_qp_mem);
+	d_dense_qp_create(&qp_dim, &dense_qp, dense_qp_mem);
 
 	// arg
 	int cond_arg_size = d_cond_qp_arg_memsize();
@@ -898,28 +898,28 @@ int main()
 * dense qp sol
 ************************************************/
 
-	int dense_qp_sol_size = d_memsize_dense_qp_sol(&qp_dim);
+	int dense_qp_sol_size = d_dense_qp_sol_memsize(&qp_dim);
 	printf("\ndense qp sol size = %d\n", dense_qp_sol_size);
 	void *dense_qp_sol_mem = malloc(dense_qp_sol_size);
 
 	struct d_dense_qp_sol dense_qp_sol;
-	d_create_dense_qp_sol(&qp_dim, &dense_qp_sol, dense_qp_sol_mem);
+	d_dense_qp_sol_create(&qp_dim, &dense_qp_sol, dense_qp_sol_mem);
 
 /************************************************
 * ipm arg
 ************************************************/
 
-	int ipm_arg_size = d_memsize_dense_qp_ipm_arg(&qp_dim);
+	int ipm_arg_size = d_dense_qp_ipm_arg_memsize(&qp_dim);
 	printf("\nipm arg size = %d\n", ipm_arg_size);
 	void *ipm_arg_mem = malloc(ipm_arg_size);
 
 	struct d_dense_qp_ipm_arg dense_arg;
-	d_create_dense_qp_ipm_arg(&qp_dim, &dense_arg, ipm_arg_mem);
+	d_dense_qp_ipm_arg_create(&qp_dim, &dense_arg, ipm_arg_mem);
 //	enum hpipm_mode mode = SPEED_ABS;
 	enum hpipm_mode mode = SPEED;
 //	enum hpipm_mode mode = BALANCE;
 //	enum hpipm_mode mode = ROBUST;
-	d_set_default_dense_qp_ipm_arg(mode, &dense_arg);
+	d_dense_qp_ipm_arg_set_default(mode, &dense_arg);
 
 //	arg.alpha_min = 1e-8;
 //	arg.res_g_max = 1e-8;
@@ -935,12 +935,12 @@ int main()
 * ipm
 ************************************************/
 
-	int dense_ipm_size = d_memsize_dense_qp_ipm(&qp_dim, &dense_arg);
+	int dense_ipm_size = d_dense_qp_ipm_memsize(&qp_dim, &dense_arg);
 	printf("\ndense ipm size = %d\n", dense_ipm_size);
 	void *dense_ipm_mem = malloc(dense_ipm_size);
 
-	struct d_dense_qp_ipm_workspace dense_workspace;
-	d_create_dense_qp_ipm(&qp_dim, &dense_arg, &dense_workspace, dense_ipm_mem);
+	struct d_dense_qp_ipm_ws dense_workspace;
+	d_dense_qp_ipm_create(&qp_dim, &dense_arg, &dense_workspace, dense_ipm_mem);
 
 	int hpipm_return; // 0 normal; 1 max iter
 
@@ -948,7 +948,8 @@ int main()
 
 	for(rep=0; rep<nrep; rep++)
 		{
-		hpipm_return = d_solve_dense_qp_ipm(&dense_qp, &dense_qp_sol, &dense_arg, &dense_workspace);
+		d_dense_qp_ipm_solve(&dense_qp, &dense_qp_sol, &dense_arg, &dense_workspace);
+		d_dense_qp_ipm_get_status(&dense_workspace, &hpipm_return);
 		}
 
 	gettimeofday(&tv1, NULL); // stop

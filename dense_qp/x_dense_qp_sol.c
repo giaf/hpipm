@@ -35,7 +35,7 @@
 
 
 
-int MEMSIZE_DENSE_QP_SOL(struct DENSE_QP_DIM *dim)
+int DENSE_QP_SOL_MEMSIZE(struct DENSE_QP_DIM *dim)
 	{
 
 	int nv = dim->nv;
@@ -61,7 +61,7 @@ int MEMSIZE_DENSE_QP_SOL(struct DENSE_QP_DIM *dim)
 
 
 
-void CREATE_DENSE_QP_SOL(struct DENSE_QP_DIM *dim, struct DENSE_QP_SOL *qp_sol, void *mem)
+void DENSE_QP_SOL_CREATE(struct DENSE_QP_DIM *dim, struct DENSE_QP_SOL *qp_sol, void *mem)
 	{
 
 	int nv = dim->nv;
@@ -111,7 +111,7 @@ void CREATE_DENSE_QP_SOL(struct DENSE_QP_DIM *dim, struct DENSE_QP_SOL *qp_sol, 
 
 	qp_sol->dim = dim;
 
-	qp_sol->memsize = MEMSIZE_DENSE_QP_SOL(dim);
+	qp_sol->memsize = DENSE_QP_SOL_MEMSIZE(dim);
 
 
 #if defined(RUNTIME_CHECKS)
@@ -129,7 +129,7 @@ void CREATE_DENSE_QP_SOL(struct DENSE_QP_DIM *dim, struct DENSE_QP_SOL *qp_sol, 
 
 
 
-void CVT_DENSE_QP_SOL_TO_COLMAJ(struct DENSE_QP_SOL *qp_sol, REAL *v, REAL *ls, REAL *us, REAL *pi, REAL *lam_lb, REAL *lam_ub, REAL *lam_lg, REAL *lam_ug, REAL *lam_ls, REAL *lam_us)
+void DENSE_QP_SOL_GET_ALL(struct DENSE_QP_SOL *qp_sol, REAL *v, REAL *ls, REAL *us, REAL *pi, REAL *lam_lb, REAL *lam_ub, REAL *lam_lg, REAL *lam_ug, REAL *lam_ls, REAL *lam_us)
 	{
 
 	int nv = qp_sol->dim->nv;
@@ -165,78 +165,3 @@ void CVT_DENSE_QP_SOL_TO_COLMAJ(struct DENSE_QP_SOL *qp_sol, REAL *v, REAL *ls, 
 
 	}
 
-
-
-void CVT_DENSE_QP_SOL_TO_ROWMAJ(struct DENSE_QP_SOL *qp_sol, REAL *v, REAL *ls, REAL *us, REAL *pi, REAL *lam_lb, REAL *lam_ub, REAL *lam_lg, REAL *lam_ug, REAL *lam_ls, REAL *lam_us)
-	{
-
-	int nv = qp_sol->dim->nv;
-	int ne = qp_sol->dim->ne;
-	int nb = qp_sol->dim->nb;
-	int ng = qp_sol->dim->ng;
-	int ns = qp_sol->dim->ns;
-
-	CVT_STRVEC2VEC(nv, qp_sol->v, 0, v);
-	if(ne>0)
-		{
-		CVT_STRVEC2VEC(ne, qp_sol->pi, 0, pi);
-		}
-	if(nb>0)
-		{
-		CVT_STRVEC2VEC(nb, qp_sol->lam, 0, lam_lb);
-		CVT_STRVEC2VEC(nb, qp_sol->lam, nb+ng, lam_ub);
-		}
-	if(ng>0)
-		{
-		CVT_STRVEC2VEC(ng, qp_sol->lam, nb, lam_lg);
-		CVT_STRVEC2VEC(ng, qp_sol->lam, 2*nb+ng, lam_ug);
-		}
-	if(ns>0)
-		{
-		CVT_STRVEC2VEC(ns, qp_sol->v, nv, ls);
-		CVT_STRVEC2VEC(ns, qp_sol->v, nv+ns, us);
-		CVT_STRVEC2VEC(ns, qp_sol->lam, 2*nb+2*ng, lam_ls);
-		CVT_STRVEC2VEC(ns, qp_sol->lam, 2*nb+2*ng+ns, lam_us);
-		}
-
-	return;
-
-	}
-
-
-
-void CVT_DENSE_QP_SOL_TO_LIBSTR(struct DENSE_QP_SOL *qp_sol, struct STRVEC *v, struct STRVEC *ls, struct STRVEC *us, struct STRVEC *pi, struct STRVEC *lam_lb, struct STRVEC *lam_ub, struct STRVEC *lam_lg, struct STRVEC *lam_ug, struct STRVEC *lam_ls, struct STRVEC *lam_us)
-	{
-
-	int nv = qp_sol->dim->nv;
-	int ne = qp_sol->dim->ne;
-	int nb = qp_sol->dim->nb;
-	int ng = qp_sol->dim->ng;
-	int ns = qp_sol->dim->ns;
-
-	VECCP_LIBSTR(nv, qp_sol->v, 0, v, 0);
-	if(ne>0)
-		{
-		VECCP_LIBSTR(ne, qp_sol->pi, 0, pi, 0);
-		}
-	if(nb>0)
-		{
-		VECCP_LIBSTR(nb, qp_sol->lam, 0, lam_lb, 0);
-		VECCP_LIBSTR(nb, qp_sol->lam, nb+ng, lam_ub, 0);
-		}
-	if(ng>0)
-		{
-		VECCP_LIBSTR(ng, qp_sol->lam, nb, lam_lg, 0);
-		VECCP_LIBSTR(ng, qp_sol->lam, 2*nb+ng, lam_ug, 0);
-		}
-	if(ns>0)
-		{
-		VECCP_LIBSTR(ns, qp_sol->v, nv, ls, 0);
-		VECCP_LIBSTR(ns, qp_sol->v, nv+ns, us, 0);
-		VECCP_LIBSTR(ns, qp_sol->lam, 2*nb+2*ng, lam_ls, 0);
-		VECCP_LIBSTR(ns, qp_sol->lam, 2*nb+2*ng+ns, lam_us, 0);
-		}
-
-	return;
-
-	}

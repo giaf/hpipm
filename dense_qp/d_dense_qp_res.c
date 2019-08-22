@@ -41,29 +41,45 @@
 #include <blasfeo_target.h>
 #include <blasfeo_common.h>
 #include <blasfeo_d_aux.h>
+#include <blasfeo_d_blas.h>
 
 #include <hpipm_d_dense_qp_dim.h>
+#include <hpipm_d_dense_qp.h>
+#include <hpipm_d_dense_qp_sol.h>
 #include <hpipm_d_dense_qp_res.h>
 
 
 
+#define AXPY blasfeo_daxpy
 #define CREATE_STRVEC blasfeo_create_dvec
 #define CVT_STRVEC2VEC blasfeo_unpack_dvec
+#define DENSE_QP d_dense_qp
 #define DENSE_QP_DIM d_dense_qp_dim
 #define DENSE_QP_RES d_dense_qp_res
-#define DENSE_QP_RES_WORKSPACE d_dense_qp_res_workspace
+#define DENSE_QP_RES_WS d_dense_qp_res_ws
+#define DENSE_QP_SOL d_dense_qp_sol
+#define GEMV_DIAG blasfeo_dgemv_d
+#define GEMV_NT blasfeo_dgemv_nt
 #define REAL double
 #define SIZE_STRVEC blasfeo_memsize_dvec
+#define STRMAT blasfeo_dmat
 #define STRVEC blasfeo_dvec
+#define SYMV_L blasfeo_dsymv_l
+#define VECAD_SP blasfeo_dvecad_sp
+#define VECCP blasfeo_dveccp
+#define VECEX_SP blasfeo_dvecex_sp
+#define VECMULACC blasfeo_dvecmulacc
+#define VECMULDOT blasfeo_dvecmuldot
 
 
 
-#define MEMSIZE_DENSE_QP_RES d_memsize_dense_qp_res
-#define CREATE_DENSE_QP_RES d_create_dense_qp_res
-#define MEMSIZE_DENSE_QP_RES_WORKSPACE d_memsize_dense_qp_res_workspace
-#define CREATE_DENSE_QP_RES_WORKSPACE d_create_dense_qp_res_workspace
-#define CVT_DENSE_QP_RES_TO_COLMAJ d_cvt_dense_qp_res_to_colmaj
-#define CVT_DENSE_QP_RES_TO_ROWMAJ d_cvt_dense_qp_res_to_rowmaj
+#define DENSE_QP_RES_MEMSIZE d_dense_qp_res_memsize
+#define DENSE_QP_RES_CREATE d_dense_qp_res_create
+#define DENSE_QP_RES_WS_MEMSIZE d_dense_qp_res_ws_memsize
+#define DENSE_QP_RES_WS_CREATE d_dense_qp_res_ws_create
+#define DENSE_QP_RES_COMPUTE d_dense_qp_res_compute
+#define DENSE_QP_RES_COMPUTE_LIN d_dense_qp_res_compute_lin
+#define DENSE_QP_RES_GET_ALL d_dense_qp_res_get_all
 
 
 
