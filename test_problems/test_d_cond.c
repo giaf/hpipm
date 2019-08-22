@@ -935,12 +935,12 @@ int main()
 * ipm
 ************************************************/
 
-	int dense_ipm_size = d_dense_qp_ipm_memsize(&qp_dim, &dense_arg);
+	int dense_ipm_size = d_dense_qp_ipm_ws_memsize(&qp_dim, &dense_arg);
 	printf("\ndense ipm size = %d\n", dense_ipm_size);
 	void *dense_ipm_mem = malloc(dense_ipm_size);
 
 	struct d_dense_qp_ipm_ws dense_workspace;
-	d_dense_qp_ipm_create(&qp_dim, &dense_arg, &dense_workspace, dense_ipm_mem);
+	d_dense_qp_ipm_ws_create(&qp_dim, &dense_arg, &dense_workspace, dense_ipm_mem);
 
 	int hpipm_return; // 0 normal; 1 max iter
 

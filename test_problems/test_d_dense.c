@@ -286,12 +286,12 @@ int main()
 * ipm
 ************************************************/
 
-	int ipm_size = d_dense_qp_ipm_memsize(&qp_dim, &arg);
+	int ipm_size = d_dense_qp_ipm_ws_memsize(&qp_dim, &arg);
 	printf("\nipm size = %d\n", ipm_size);
 	void *ipm_mem = malloc(ipm_size);
 
 	struct d_dense_qp_ipm_ws workspace;
-	d_dense_qp_ipm_create(&qp_dim, &arg, &workspace, ipm_mem);
+	d_dense_qp_ipm_ws_create(&qp_dim, &arg, &workspace, ipm_mem);
 
 	int rep, nrep=1000;
 

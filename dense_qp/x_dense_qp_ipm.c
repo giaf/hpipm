@@ -330,7 +330,7 @@ void DENSE_QP_IPM_ARG_SET_COMP_RES_PRED(int *comp_res_pred, struct DENSE_QP_IPM_
 
 
 
-int DENSE_QP_IPM_MEMSIZE(struct DENSE_QP_DIM *dim, struct DENSE_QP_IPM_ARG *arg)
+int DENSE_QP_IPM_WS_MEMSIZE(struct DENSE_QP_DIM *dim, struct DENSE_QP_IPM_ARG *arg)
 	{
 
 	int nv = dim->nv;
@@ -395,7 +395,7 @@ int DENSE_QP_IPM_MEMSIZE(struct DENSE_QP_DIM *dim, struct DENSE_QP_IPM_ARG *arg)
 
 
 
-void DENSE_QP_IPM_CREATE(struct DENSE_QP_DIM *dim, struct DENSE_QP_IPM_ARG *arg, struct DENSE_QP_IPM_WS *workspace, void *mem)
+void DENSE_QP_IPM_WS_CREATE(struct DENSE_QP_DIM *dim, struct DENSE_QP_IPM_ARG *arg, struct DENSE_QP_IPM_WS *workspace, void *mem)
 	{
 
 	int nv = dim->nv;
@@ -645,7 +645,7 @@ void DENSE_QP_IPM_CREATE(struct DENSE_QP_DIM *dim, struct DENSE_QP_IPM_ARG *arg,
 	workspace->use_hess_fact = 0;
 
 	//
-	workspace->memsize = DENSE_QP_IPM_MEMSIZE(dim, arg);
+	workspace->memsize = DENSE_QP_IPM_WS_MEMSIZE(dim, arg);
 
 
 #if defined(RUNTIME_CHECKS)

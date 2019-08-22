@@ -163,9 +163,9 @@ void s_dense_qp_ipm_arg_set_pred_corr(int *pred_corr, struct s_dense_qp_ipm_arg 
 void s_dense_qp_ipm_arg_set_comp_res_pred(int *comp_res_pred, struct s_dense_qp_ipm_arg *arg);
 
 //
-int s_dense_qp_ipm_memsize(struct s_dense_qp_dim *qp_dim, struct s_dense_qp_ipm_arg *arg);
+int s_dense_qp_ipm_ws_memsize(struct s_dense_qp_dim *qp_dim, struct s_dense_qp_ipm_arg *arg);
 //
-void s_dense_qp_ipm_create(struct s_dense_qp_dim *qp_dim, struct s_dense_qp_ipm_arg *arg, struct s_dense_qp_ipm_ws *ws, void *mem);
+void s_dense_qp_ipm_ws_create(struct s_dense_qp_dim *qp_dim, struct s_dense_qp_ipm_arg *arg, struct s_dense_qp_ipm_ws *ws, void *mem);
 //
 void s_dense_qp_ipm_get(char *field, struct s_dense_qp_ipm_ws *ws, void *value);
 //
