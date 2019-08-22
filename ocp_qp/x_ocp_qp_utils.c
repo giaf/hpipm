@@ -210,7 +210,7 @@ void OCP_QP_PRINT(struct OCP_QP_DIM *dim, struct OCP_QP *qp)
 
 	printf("rqz =\n");
 	for (ii = 0; ii <= N; ii++)
-		BLASFEO_PRINT_TRAN_VEC(nu[ii]+nx[ii]+ns[ii], qp->rqz+ii, 0);
+		BLASFEO_PRINT_TRAN_VEC(nu[ii]+nx[ii]+2*ns[ii], qp->rqz+ii, 0);
 
 	printf("idxb = \n");
 	for (ii = 0; ii <= N; ii++)

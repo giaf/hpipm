@@ -1619,7 +1619,7 @@ void OCP_QP_SET_JSBU(int stage, REAL *Jsbu, struct OCP_QP *qp)
 	for(ii=0; ii<nb[stage]+ng[stage]; ii++)
 		{
 		idx_tmp = qp->idxs_rev[stage][ii];
-		if(idx_tmp!=0)
+		if(idx_tmp!=-1)
 			{
 			qp->idxs[stage][idx_tmp] = ii;
 			}
@@ -1666,7 +1666,7 @@ void OCP_QP_SET_JSBX(int stage, REAL *Jsbx, struct OCP_QP *qp)
 	for(ii=0; ii<nb[stage]+ng[stage]; ii++)
 		{
 		idx_tmp = qp->idxs_rev[stage][ii];
-		if(idx_tmp!=0)
+		if(idx_tmp!=-1)
 			{
 			qp->idxs[stage][idx_tmp] = ii;
 			}
@@ -1713,7 +1713,7 @@ void OCP_QP_SET_JSG(int stage, REAL *Jsg, struct OCP_QP *qp)
 	for(ii=0; ii<nb[stage]+ng[stage]; ii++)
 		{
 		idx_tmp = qp->idxs_rev[stage][ii];
-		if(idx_tmp!=0)
+		if(idx_tmp!=-1)
 			{
 			qp->idxs[stage][idx_tmp] = ii;
 			}
