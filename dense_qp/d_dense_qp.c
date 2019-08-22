@@ -106,6 +106,9 @@
 #define DENSE_QP_GET_ZU d_dense_qp_get_zu
 #define DENSE_QP_GET_LS d_dense_qp_get_ls
 #define DENSE_QP_GET_US d_dense_qp_get_us
+#define DENSE_QP_SET_ALL_ROWMAJ d_dense_qp_set_all_rowmaj
+#define DENSE_QP_GET_ALL_ROWMAJ d_dense_qp_get_all_rowmaj
+
 
 
 #include "x_dense_qp.c"

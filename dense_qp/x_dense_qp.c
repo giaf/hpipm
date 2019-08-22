@@ -759,3 +759,108 @@ void DENSE_QP_GET_US(struct DENSE_QP *qp, REAL *us)
 	return;
 
 	}
+
+
+
+void DENSE_QP_SET_ALL_ROWMAJ(REAL *H, REAL *g, REAL *A, REAL *b, int *idxb, REAL *d_lb, REAL *d_ub, REAL *C, REAL *d_lg, REAL *d_ug, REAL *Zl, REAL *Zu, REAL *zl, REAL *zu, int *idxs, REAL *d_ls, REAL *d_us, struct DENSE_QP *qp)
+	{
+
+	int ii;
+
+	int nv = qp->dim->nv;
+	int ne = qp->dim->ne;
+	int nb = qp->dim->nb;
+	int ng = qp->dim->ng;
+	int ns = qp->dim->ns;
+
+	CVT_TRAN_MAT2STRMAT(nv, nv, H, nv, qp->Hv, 0, 0);
+	CVT_VEC2STRVEC(nv, g, qp->gz, 0);
+	if(ne>0)
+		{
+		CVT_TRAN_MAT2STRMAT(nv, ne, A, nv, qp->A, 0, 0);
+		CVT_VEC2STRVEC(ne, b, qp->b, 0);
+		}
+	if(nb>0)
+		{
+		for(ii=0; ii<nb; ii++) qp->idxb[ii] = idxb[ii];
+		CVT_VEC2STRVEC(nb, d_lb, qp->d, 0);
+		CVT_VEC2STRVEC(nb, d_ub, qp->d, nb+ng);
+		VECSC_LIBSTR(nb, -1.0, qp->d, nb+ng);
+		VECSE_LIBSTR(nb, 0.0, qp->m, 0);
+		VECSE_LIBSTR(nb, 0.0, qp->m, nb+ng);
+		}
+	if(ng>0)
+		{
+		CVT_MAT2STRMAT(nv, ng, C, nv, qp->Ct, 0, 0);
+		CVT_VEC2STRVEC(ng, d_lg, qp->d, nb);
+		CVT_VEC2STRVEC(ng, d_ug, qp->d, 2*nb+ng);
+		VECSC_LIBSTR(ng, -1.0, qp->d, 2*nb+ng);
+		VECSE_LIBSTR(ng, 0.0, qp->m, nb);
+		VECSE_LIBSTR(ng, 0.0, qp->m, 2*nb+ng);
+		}
+	if(ns>0)
+		{
+		for(ii=0; ii<ns; ii++) qp->idxs[ii] = idxs[ii];
+		CVT_VEC2STRVEC(ns, Zl, qp->Z, 0);
+		CVT_VEC2STRVEC(ns, Zu, qp->Z, ns);
+		CVT_VEC2STRVEC(ns, zl, qp->gz, nv);
+		CVT_VEC2STRVEC(ns, zu, qp->gz, nv+ns);
+		CVT_VEC2STRVEC(ns, d_ls, qp->d, 2*nb+2*ng);
+		CVT_VEC2STRVEC(ns, d_us, qp->d, 2*nb+2*ng+ns);
+		VECSE_LIBSTR(ns, 0.0, qp->m, 2*nb+2*ng);
+		VECSE_LIBSTR(ns, 0.0, qp->m, 2*nb+2*ng+ns);
+		}
+
+	return;
+
+	}
+
+
+
+void DENSE_QP_GET_ALL_ROWMAJ(struct DENSE_QP *qp, REAL *H, REAL *g, REAL *A, REAL *b, int *idxb, REAL *d_lb, REAL *d_ub, REAL *C, REAL *d_lg, REAL *d_ug, REAL *Zl, REAL *Zu, REAL *zl, REAL *zu, int *idxs, REAL *d_ls, REAL *d_us)
+	{
+
+	int ii;
+
+	int nv = qp->dim->nv;
+	int ne = qp->dim->ne;
+	int nb = qp->dim->nb;
+	int ng = qp->dim->ng;
+	int ns = qp->dim->ns;
+
+	CVT_TRAN_STRMAT2MAT(nv, nv, qp->Hv, 0, 0, H, nv);
+	CVT_STRVEC2VEC(nv, qp->gz, 0, g);
+	if(ne>0)
+		{
+		CVT_TRAN_STRMAT2MAT(ne, nv, qp->A, 0, 0, A, nv);
+		CVT_STRVEC2VEC(ne, qp->b, 0, b);
+		}
+	if(nb>0)
+		{
+		for(ii=0; ii<nb; ii++) idxb[ii] = qp->idxb[ii];
+		CVT_STRVEC2VEC(nb, qp->d, 0, d_lb);
+		CVT_STRVEC2VEC(nb, qp->d, nb+ng, d_ub);
+		for(ii=0; ii<nb; ii++) d_ub[ii] = - d_ub[ii];
+		}
+	if(ng>0)
+		{
+		CVT_STRMAT2MAT(nv, ng, qp->Ct, 0, 0, C, nv);
+		CVT_STRVEC2VEC(ng, qp->d, nb, d_lg);
+		CVT_STRVEC2VEC(ng, qp->d, 2*nb+ng, d_ug);
+		for(ii=0; ii<ng; ii++) d_ug[ii] = - d_ug[ii];
+		}
+	if(ns>0)
+		{
+		for(ii=0; ii<ns; ii++) idxs[ii] = qp->idxs[ii];
+		CVT_STRVEC2VEC(ns, qp->Z, 0, Zl);
+		CVT_STRVEC2VEC(ns, qp->Z, ns, Zu);
+		CVT_STRVEC2VEC(ns, qp->gz, nv, zl);
+		CVT_STRVEC2VEC(ns, qp->gz, nv+ns, zu);
+		CVT_STRVEC2VEC(ns, qp->d, 2*nb+2*ng, d_ls);
+		CVT_STRVEC2VEC(ns, qp->d, 2*nb+2*ng+ns, d_us);
+		}
+
+	return;
+
+	}
+

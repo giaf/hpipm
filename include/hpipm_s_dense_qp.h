@@ -154,6 +154,10 @@ void s_dense_qp_get_zu(struct s_dense_qp *qp, float *zu);
 void s_dense_qp_get_ls(struct s_dense_qp *qp, float *ls);
 //
 void s_dense_qp_get_us(struct s_dense_qp *qp, float *us);
+//
+void s_dense_qp_set_all_rowmaj(float *H, float *g, float *A, float *b, int *idxb, float *d_lb, float *d_ub, float *C, float *d_lg, float *d_ug, float *Zl, float *Zu, float *zl, float *zu, int *idxs, float *d_ls, float *d_us, struct s_dense_qp *qp);
+//
+void s_dense_qp_get_all_rowmaj(struct s_dense_qp *qp, float *H, float *g, float *A, float *b, int *idxb, float *d_lb, float *d_ub, float *C, float *d_lg, float *d_ug, float *Zl, float *Zu, float *zl, float *zu, int *idxs, float *d_ls, float *d_us);
 
 
 #ifdef __cplusplus
