@@ -71,7 +71,8 @@ set_cflags_octave:
 	octave-cli set_cflags_octave.m
 
 compile_mex_with_matlab:
-	matlab compile_mex_ocp_qp.m
+	matlab -nodisplay -nosplash -nodesktop -r "run('compile_mex_ocp_qp.m');exit;"
+#	~/R2017a/bin/matlab -nodisplay -nosplash -nodesktop -r "run('compile_mex_ocp_qp.m');exit;"
 
 clean:
 	rm -f *.so
