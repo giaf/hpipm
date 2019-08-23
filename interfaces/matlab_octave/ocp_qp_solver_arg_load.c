@@ -33,6 +33,10 @@
 *                                                                                                 *
 **************************************************************************************************/
 
+// macro to string
+#define STR(x) STR_AGAIN(x)
+#define STR_AGAIN(x) #x
+
 // system
 #include <stdlib.h>
 #include <stdio.h>
@@ -43,12 +47,15 @@
 // mex
 #include "mex.h"
 
+// data
+#include STR(QP_DATA_H)
+
 
 
 void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
 	{
 
-//	printf("\nin ocp_solver_arg_create\n");
+//	printf("\nin ocp_qp_dim_load\n");
 
 	mxArray *tmp_mat;
 	long long *l_ptr;
@@ -60,33 +67,7 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
 	l_ptr = mxGetData( prhs[0] );
 	struct d_ocp_qp_dim *dim = (struct d_ocp_qp_dim *) *l_ptr;
 
-	// mode
-	char *str_mode = mxArrayToString( prhs[1] );
-
-	int mode;
-	if(!strcmp(str_mode, "speed_abs"))
-		{
-		mode = SPEED_ABS;
-		}
-	else if(!strcmp(str_mode, "speed"))
-		{
-		mode = SPEED;
-		}
-	else if(!strcmp(str_mode, "balance"))
-		{
-		mode = BALANCE;
-		}
-	else if(!strcmp(str_mode, "robust"))
-		{
-		mode = ROBUST;
-		}
-	else
-		{
-		mode = SPEED;
-		mexPrintf("\nocp_qp_solver_arg_create: mode not supported: %s; speed mode used instead\n", str_mode);
-		}
-
-	/* body */
+	/* arg */
 
 	int arg_size = sizeof(struct d_ocp_qp_ipm_arg) + d_ocp_qp_ipm_arg_memsize(dim);
 	void *arg_mem = malloc(arg_size);
@@ -101,6 +82,19 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
 
 	d_ocp_qp_ipm_arg_set_default(mode, arg);
 
+	d_ocp_qp_ipm_arg_set_mu0(&mu0, arg);
+	d_ocp_qp_ipm_arg_set_iter_max(&iter_max, arg);
+	d_ocp_qp_ipm_arg_set_alpha_min(&alpha_min, arg);
+	d_ocp_qp_ipm_arg_set_mu0(&mu0, arg);
+	d_ocp_qp_ipm_arg_set_tol_stat(&tol_stat, arg);
+	d_ocp_qp_ipm_arg_set_tol_eq(&tol_eq, arg);
+	d_ocp_qp_ipm_arg_set_tol_ineq(&tol_ineq, arg);
+	d_ocp_qp_ipm_arg_set_tol_comp(&tol_comp, arg);
+	d_ocp_qp_ipm_arg_set_reg_prim(&reg_prim, arg);
+	d_ocp_qp_ipm_arg_set_warm_start(&warm_start, arg);
+	d_ocp_qp_ipm_arg_set_pred_corr(&pred_corr, arg);
+	d_ocp_qp_ipm_arg_set_ric_alg(&ric_alg, arg);
+
 	/* LHS */
 
 	tmp_mat = mxCreateNumericMatrix(1, 1, mxINT64_CLASS, mxREAL);
@@ -111,7 +105,3 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
 	return;
 
 	}
-
-
-
-

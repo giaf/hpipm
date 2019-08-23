@@ -33,22 +33,29 @@
 *                                                                                                 *
 **************************************************************************************************/
 
+// macro to string
+#define STR(x) STR_AGAIN(x)
+#define STR_AGAIN(x) #x
+
 // system
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
 // hpipm
 #include "hpipm_d_ocp_qp_dim.h"
-#include "hpipm_d_ocp_qp_ipm.h"
+#include "hpipm_d_ocp_qp.h"
 // mex
 #include "mex.h"
+
+// data
+#include STR(QP_DATA_H)
 
 
 
 void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
 	{
 
-//	printf("\nin ocp_solver_arg_create\n");
+//	printf("\nin ocp_qp_dim_load\n");
 
 	mxArray *tmp_mat;
 	long long *l_ptr;
@@ -60,58 +67,28 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
 	l_ptr = mxGetData( prhs[0] );
 	struct d_ocp_qp_dim *dim = (struct d_ocp_qp_dim *) *l_ptr;
 
-	// mode
-	char *str_mode = mxArrayToString( prhs[1] );
+	/* qp */
 
-	int mode;
-	if(!strcmp(str_mode, "speed_abs"))
-		{
-		mode = SPEED_ABS;
-		}
-	else if(!strcmp(str_mode, "speed"))
-		{
-		mode = SPEED;
-		}
-	else if(!strcmp(str_mode, "balance"))
-		{
-		mode = BALANCE;
-		}
-	else if(!strcmp(str_mode, "robust"))
-		{
-		mode = ROBUST;
-		}
-	else
-		{
-		mode = SPEED;
-		mexPrintf("\nocp_qp_solver_arg_create: mode not supported: %s; speed mode used instead\n", str_mode);
-		}
+	int qp_size = sizeof(struct d_ocp_qp) + d_ocp_qp_memsize(dim);
+	void *qp_mem = malloc(qp_size);
 
-	/* body */
+	c_ptr = qp_mem;
 
-	int arg_size = sizeof(struct d_ocp_qp_ipm_arg) + d_ocp_qp_ipm_arg_memsize(dim);
-	void *arg_mem = malloc(arg_size);
+	struct d_ocp_qp *qp = (struct d_ocp_qp *) c_ptr;
+	c_ptr += sizeof(struct d_ocp_qp);
 
-	c_ptr = arg_mem;
+	d_ocp_qp_create(dim, qp, c_ptr);
+	c_ptr += d_ocp_qp_memsize(dim);
 
-	struct d_ocp_qp_ipm_arg *arg = (struct d_ocp_qp_ipm_arg *) c_ptr;
-	c_ptr += sizeof(struct d_ocp_qp_ipm_arg);
-
-	d_ocp_qp_ipm_arg_create(dim, arg, c_ptr);
-	c_ptr += d_ocp_qp_ipm_arg_memsize(dim);
-
-	d_ocp_qp_ipm_arg_set_default(mode, arg);
+	d_ocp_qp_set_all(hA, hB, hb, hQ, hS, hR, hq, hr, hidxbx, hlbx, hubx, hidxbu, hlbu, hubu, hC, hD, hlg, hug, hZl, hZu, hzl, hzu, hidxs, hlls, hlus, qp);
 
 	/* LHS */
 
 	tmp_mat = mxCreateNumericMatrix(1, 1, mxINT64_CLASS, mxREAL);
 	l_ptr = mxGetData(tmp_mat);
-	l_ptr[0] = (long long) arg_mem;
+	l_ptr[0] = (long long) qp_mem;
 	plhs[0] = tmp_mat;
 
 	return;
 
 	}
-
-
-
-

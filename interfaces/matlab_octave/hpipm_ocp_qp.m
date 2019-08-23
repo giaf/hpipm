@@ -42,11 +42,20 @@ classdef hpipm_ocp_qp < handle
 
 	methods
 
-		function obj = hpipm_ocp_qp(dim)
+		function obj = hpipm_ocp_qp(varargin)
+			dim = varargin{1};
 			obj.dim = dim;
 			obj.C_dim = dim.C_dim;
 			% create struct in C
-			obj.C_qp = ocp_qp_create(obj.C_dim);
+			if nargin>1
+				% load entire dim from C data file
+				file = varargin{2};
+				compile_mex_one_from_script('ocp_qp_load.c', [' -DQP_DATA_H=', file]);
+				obj.C_qp = ocp_qp_load(obj.C_dim);
+			else
+				% create empty qp with dimension dim
+				obj.C_qp = ocp_qp_create(obj.C_dim);
+			end
 		end
 
 		function set(varargin)

@@ -154,13 +154,16 @@ int main()
 
 	d_ocp_qp_ipm_arg_set_mu0(&mu0, &arg);
 	d_ocp_qp_ipm_arg_set_iter_max(&iter_max, &arg);
+	d_ocp_qp_ipm_arg_set_alpha_min(&alpha_min, &arg);
+	d_ocp_qp_ipm_arg_set_mu0(&mu0, &arg);
 	d_ocp_qp_ipm_arg_set_tol_stat(&tol_stat, &arg);
 	d_ocp_qp_ipm_arg_set_tol_eq(&tol_eq, &arg);
 	d_ocp_qp_ipm_arg_set_tol_ineq(&tol_ineq, &arg);
 	d_ocp_qp_ipm_arg_set_tol_comp(&tol_comp, &arg);
 	d_ocp_qp_ipm_arg_set_reg_prim(&reg_prim, &arg);
 	d_ocp_qp_ipm_arg_set_warm_start(&warm_start, &arg);
-//	d_ocp_qp_ipm_arg_set_ric_alg(&ric_alg, &arg);
+	d_ocp_qp_ipm_arg_set_pred_corr(&pred_corr, &arg);
+	d_ocp_qp_ipm_arg_set_ric_alg(&ric_alg, &arg);
 
 /************************************************
 * ipm workspace

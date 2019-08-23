@@ -37,3 +37,5 @@
 clean:
 	rm -f *.c
 	rm -f *.o
+	rm -f *.mex
+	rm -f *.mexa64

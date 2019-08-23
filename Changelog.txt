@@ -11,6 +11,7 @@ common:
 
 dense_qp:
 	* general renaming of routines, e.g. d_create_dense_qp_dim => d_dense_qp_dim_create
+	* add functionality to compute predicted solution for a new RHS and sensitivity of solution
 
 ocp_qp:
 	* general renaming of routines, e.g. d_create_ocp_qp_dim => d_ocp_qp_dim_create

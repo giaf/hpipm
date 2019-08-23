@@ -40,9 +40,18 @@ classdef hpipm_ocp_qp_dim < handle
 
 	methods
 
-		function obj = hpipm_ocp_qp_dim(N)
+		function obj = hpipm_ocp_qp_dim(in)
 			% create dims struct in C
-			obj.C_dim = ocp_qp_dim_create(N);
+			if isa(in, 'char')
+				% load entire dim from C data file
+				file = in;
+				compile_mex_one_from_script('ocp_qp_dim_load.c', [' -DQP_DATA_H=', file]);
+				obj.C_dim = ocp_qp_dim_load();
+			else
+				% create empty dim with horizon N
+				N = in;
+				obj.C_dim = ocp_qp_dim_create(N);
+			end
 		end
 
 		function set(varargin)

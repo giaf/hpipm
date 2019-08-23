@@ -32,47 +32,71 @@
 % Author: Gianluca Frison, gianluca.frison (at) imtek.uni-freiburg.de                             %
 %                                                                                                 %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-classdef hpipm_ocp_qp_solver_arg < handle
-	
-	properties
-		C_dim
-		C_arg
+
+function compile_mex_one_from_script(varargin)
+
+file = varargin{1};
+
+% check that env.sh has been run
+env_run = getenv('ENV_RUN');
+if (~strcmp(env_run, 'true'))
+	disp('ERROR: env.sh has not been sourced! Before executing this example, run:');
+	disp('source env.sh');
+	return;
+end
+
+% get acados folder
+hpipm_folder = getenv('HPIPM_MAIN_FOLDER');
+blasfeo_folder = getenv('BLASFEO_MAIN_FOLDER');
+mex_flags = getenv('HPIPM_MEX_FLAGS');
+
+% set paths
+hpipm_mex_folder = [hpipm_folder, '/interfaces/matlab_octave/'];
+hpipm_include = ['-I', hpipm_folder, '/include'];
+hpipm_lib = ['-L', hpipm_folder, '/lib'];
+blasfeo_include = ['-I', blasfeo_folder, '/include'];
+blasfeo_lib = ['-L', blasfeo_folder, '/lib'];
+
+cflags_octave_file = [hpipm_mex_folder, 'cflags_octave.txt'];
+
+if is_octave()
+	if exist(cflags_octave_file)==0
+		diary cflags_octave_file
+		diary on
+		mkoctfile -p CFLAGS
+		diary off
+		input_file = fopen(cflags_octave_file, 'r');
+		cflags_tmp = fscanf(input_file, '%[^\n]s');
+		fclose(input_file);
+		cflags_tmp = [cflags_tmp, ' -std=c99'];
+		input_file = fopen(cflags_octave_file, 'w');
+		fprintf(input_file, '%s', cflags_tmp);
+		fclose(input_file);
 	end
+	input_file = fopen(cflags_octave_file, 'r');
+	cflags_tmp = fscanf(input_file, '%[^\n]s');
+	if nargin>1
+		cflags_tmp = [cflags_tmp, varargin{2}];
+	end
+	fclose(input_file);
+	setenv('CFLAGS', cflags_tmp);
+end
 
-	methods
+% compile mex
+mex_file = [hpipm_mex_folder, file];
 
-		function obj = hpipm_ocp_qp_solver_arg(dim, in)
-			obj.C_dim = dim.C_dim;
-			% create struct in C
-			if ( strcmp(in, 'speed_abs') || strcmp(in, 'speed') || strcmp(in, 'balance') || strcmp(in, 'robust') )
-				% create empty arg with dimension dim
-				mode = in;
-				obj.C_arg = ocp_qp_solver_arg_create(obj.C_dim, mode);
-			else
-				file = in;
-				compile_mex_one_from_script('ocp_qp_solver_arg_load.c', [' -DQP_DATA_H=', file]);
-				obj.C_arg = ocp_qp_solver_arg_load(obj.C_dim, file);
-			end
-		end
-
-		function set(obj, field, value)
-			ocp_qp_solver_arg_set(obj.C_arg, field, value);
-		end
-
-%		function print_C_struct(obj)
-%			ocp_qp_print(obj.C_dim, obj.C_qp);
-%		end
-
-		function codegen(obj, file_name, mode)
-			ocp_qp_solver_arg_codegen(obj.C_dim, obj.C_arg, file_name, mode);
-		end
-
-		function delete(obj)
-			%disp('in destructor');
-			ocp_qp_solver_arg_destroy(obj.C_arg);
-		end
-
+%disp(['compiling ', mex_file])
+if is_octave()
+%	mkoctfile -p CFLAGS
+	mex(hpipm_include, blasfeo_include, hpipm_lib, blasfeo_lib, '-lhpipm', '-lblasfeo', mex_file);
+else
+	if nargin>1
+		mex(mex_flags, ['CFLAGS=\$CFLAGS -std=c99', varargin{2}], hpipm_include, blasfeo_include, hpipm_lib, blasfeo_lib, '-lhpipm', '-lblasfeo', mex_file);
+	else
+		mex(mex_flags, 'CFLAGS=\$CFLAGS -std=c99', hpipm_include, blasfeo_include, hpipm_lib, blasfeo_lib, '-lhpipm', '-lblasfeo', mex_file);
 	end
 end
+
+return;
 
 
