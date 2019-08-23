@@ -57,6 +57,9 @@ OBJS = \
 	ocp_qp_solver_destroy.mex \
 	ocp_qp_solver_solve.mex \
 	ocp_qp_solver_get.mex \
+#	part_cond_arg_create.mex \
+	part_cond_arg_destroy.mex \
+	part_cond_arg_set.mex \
 
 all: set_cflags_octave
 	$(MAKE) compile_mex_with_octave
@@ -66,6 +69,9 @@ compile_mex_with_octave: $(OBJS)
 
 set_cflags_octave:
 	octave-cli set_cflags_octave.m
+
+compile_mex_with_matlab:
+	matlab compile_mex_ocp_qp.m
 
 clean:
 	rm -f *.so
