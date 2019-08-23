@@ -248,7 +248,7 @@ void OCP_QP_DIM_SET(char *field_name, int stage, int value, struct OCP_QP_DIM *d
 		}
 	else 
 		{
-		printf("error [OCP_QP_DIM_SET]: unknown field name '%s'. Exiting.\n", field_name);
+		printf("error: OCP_QP_DIM_SET: wrong field %s\n", field_name);
 		exit(1);
 		}
 	return;
@@ -328,5 +328,49 @@ void OCP_QP_DIM_SET_NSG(int stage, int value, struct OCP_QP_DIM *dim)
 	{
 	dim->nsg[stage] = value;
 	dim->ns[stage] = dim->nsbx[stage] + dim->nsbu[stage] + dim->nsg[stage];
+	return;
+	}
+
+
+
+void OCP_QP_DIM_GET(struct OCP_QP_DIM *dim, char *field_name, int stage, int *value)
+	{
+	if(hpipm_strcmp(field_name, "nx"))
+		{
+		OCP_QP_DIM_GET_NX(dim, stage, value);
+		}
+	else if(hpipm_strcmp(field_name, "nu"))
+		{
+		OCP_QP_DIM_GET_NU(dim, stage, value);
+		}
+	else
+		{
+		printf("error: OCP_QP_DIM_GET: wrong field %s\n", field_name);
+		exit(1);
+		}
+	return;
+	}
+
+
+
+void OCP_QP_DIM_GET_N(struct OCP_QP_DIM *dim, int *value)
+	{
+	*value = dim->N;
+	return;
+	}
+
+
+
+void OCP_QP_DIM_GET_NX(struct OCP_QP_DIM *dim, int stage, int *value)
+	{
+	*value = dim->nx[stage];
+	return;
+	}
+
+
+
+void OCP_QP_DIM_GET_NU(struct OCP_QP_DIM *dim, int stage, int *value)
+	{
+	*value = dim->nu[stage];
 	return;
 	}

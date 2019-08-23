@@ -92,6 +92,14 @@ void d_ocp_qp_dim_set_nsbx(int stage, int value, struct d_ocp_qp_dim *dim);
 void d_ocp_qp_dim_set_nsbu(int stage, int value, struct d_ocp_qp_dim *dim);
 //
 void d_ocp_qp_dim_set_nsg(int stage, int value, struct d_ocp_qp_dim *dim);
+//
+void d_ocp_qp_dim_get(struct d_ocp_qp_dim *dim, char *field, int stage, int *value);
+//
+void d_ocp_qp_dim_get_N(struct d_ocp_qp_dim *dim, int *value);
+//
+void d_ocp_qp_dim_get_nx(struct d_ocp_qp_dim *dim, int stage, int *value);
+//
+void d_ocp_qp_dim_get_nu(struct d_ocp_qp_dim *dim, int stage, int *value);
 
 
 

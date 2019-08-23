@@ -220,6 +220,19 @@ u
 
 
 
+% plot solution
+figure()
+subplot(2, 1, 1)
+plot(0:N, x);
+title('trajectory')
+ylabel('x')
+subplot(2, 1, 2)
+plot(1:N, u);
+ylabel('u')
+xlabel('sample')
+
+
+
 if status==0
 	fprintf('\nsuccess!\n\n');
 else

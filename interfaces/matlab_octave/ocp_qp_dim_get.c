@@ -32,81 +32,79 @@
 * Author: Gianluca Frison, gianluca.frison (at) imtek.uni-freiburg.de                             *
 *                                                                                                 *
 **************************************************************************************************/
-
-#ifndef HPIPM_S_OCP_QP_DIM_H_
-#define HPIPM_S_OCP_QP_DIM_H_
-
-
-
-#ifdef __cplusplus
-extern "C" {
-#endif
-
+// system
+#include <stdlib.h>
+#include <stdio.h>
+#include <string.h>
+// hpipm
+#include "hpipm_d_ocp_qp_dim.h"
+// mex
+#include "mex.h"
 
 
-struct s_ocp_qp_dim
+
+void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
 	{
-	int *nx; // number of states
-	int *nu; // number of inputs
-	int *nb; // number of box constraints
-	int *nbx; // number of state box constraints
-	int *nbu; // number of input box constraints
-	int *ng; // number of general constraints
-	int *ns; // number of soft constraints
-	int *nsbx;
-	int *nsbu;
-	int *nsg; // number of soft general constraints
-	int N; // horizon length
-	int memsize;
-	};
+
+//	mexPrintf("\nin ocp_qp_dim_set\n");
+
+	long long *l_ptr;
+
+	int ii;
+
+	/* RHS */
+
+	// dim
+	l_ptr = mxGetData( prhs[0] );
+	struct d_ocp_qp_dim *dim = (struct d_ocp_qp_dim *) *l_ptr;
+
+	// field
+	char *field = mxArrayToString( prhs[1] );
+
+	// stage1
+//	int stage1;
+//	if(nrhs==5)
+//		{
+//		stage1 = mxGetScalar( prhs[4] );
+//		}
+	
+	/* body */
+
+//	if(nrhs==5)
+//		{
+//		for(ii=stage0; ii<=stage1; ii++)
+//			{
+//			d_ocp_qp_dim_set(field, ii, value, dim);
+//			}
+//		}
+//	else
+//		{
+//		d_ocp_qp_dim_set(field, stage0, value, dim);
+//		}
+
+	if(!strcmp(field, "N"))
+		{
+		plhs[0] = mxCreateNumericMatrix(1, 1, mxDOUBLE_CLASS, mxREAL);
+		double *mat_ptr = mxGetPr( plhs[0] );
+		int tmp_int;
+		d_ocp_qp_dim_get_N(dim, &tmp_int);
+		*mat_ptr = (double) tmp_int;
+		}
+	else
+		{
+		// stage0
+		int stage0 = mxGetScalar( prhs[2] );
+
+		plhs[0] = mxCreateNumericMatrix(1, 1, mxDOUBLE_CLASS, mxREAL);
+		double *mat_ptr = mxGetPr( plhs[0] );
+		int tmp_int;
+		d_ocp_qp_dim_get(dim, field, stage0, &tmp_int);
+		*mat_ptr = (double) tmp_int;
+		}
+
+	return;
+
+	}
 
 
 
-//
-int s_ocp_qp_dim_strsize();
-//
-int s_ocp_qp_dim_memsize(int N);
-//
-void s_ocp_qp_dim_create(int N, struct s_ocp_qp_dim *qp_dim, void *memory);
-//
-void s_ocp_qp_dim_copy_all(struct s_ocp_qp_dim *dim_orig, struct s_ocp_qp_dim *dim_dest);
-//
-void s_ocp_qp_dim_set_all(int *nx, int *nu, int *nbx, int *nbu, int *ng, int *nsbx, int *nsbu, int *nsg, struct s_ocp_qp_dim *dim);
-//
-void s_ocp_qp_dim_set(char *field, int stage, int value, struct s_ocp_qp_dim *dim);
-//
-void s_ocp_qp_dim_set_nx(int stage, int value, struct s_ocp_qp_dim *dim);
-//
-void s_ocp_qp_dim_set_nu(int stage, int value, struct s_ocp_qp_dim *dim);
-//
-void s_ocp_qp_dim_set_nbx(int stage, int value, struct s_ocp_qp_dim *dim);
-//
-void s_ocp_qp_dim_set_nbu(int stage, int value, struct s_ocp_qp_dim *dim);
-//
-void s_ocp_qp_dim_set_ng(int stage, int value, struct s_ocp_qp_dim *dim);
-//
-void s_ocp_qp_dim_set_ns(int stage, int value, struct s_ocp_qp_dim *dim);
-//
-void s_ocp_qp_dim_set_nsbx(int stage, int value, struct s_ocp_qp_dim *dim);
-//
-void s_ocp_qp_dim_set_nsbu(int stage, int value, struct s_ocp_qp_dim *dim);
-//
-void s_ocp_qp_dim_set_nsg(int stage, int value, struct s_ocp_qp_dim *dim);
-//
-void s_ocp_qp_dim_get(struct s_ocp_qp_dim *dim, char *field, int stage, int *value);
-//
-void s_ocp_qp_dim_get_N(struct s_ocp_qp_dim *dim, int *value);
-//
-void s_ocp_qp_dim_get_nx(struct s_ocp_qp_dim *dim, int stage, int *value);
-//
-void s_ocp_qp_dim_get_nu(struct s_ocp_qp_dim *dim, int stage, int *value);
-
-
-
-#ifdef __cplusplus
-}	// #extern "C"
-#endif
-
-
-
-#endif // HPIPM_S_OCP_QP_DIM_H_

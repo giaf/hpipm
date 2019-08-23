@@ -73,6 +73,19 @@ classdef hpipm_ocp_qp_dim < handle
 			end
 		end
 
+		function value = get(varargin)
+			obj = varargin{1};
+			field = varargin{2};
+			if strcmp(field, 'N')
+				value = ocp_qp_dim_get(obj.C_dim, field);
+			elseif nargin==3
+				stage0 = varargin{3};
+				value = ocp_qp_dim_get(obj.C_dim, field, stage0);
+			else
+				disp('hpipm_ocp_qp_dim.get: wrong number of input arguments (1 or 2 allowed)');
+			end
+		end
+
 		function print_C_struct(obj)
 			ocp_qp_dim_print(obj.C_dim);
 		end

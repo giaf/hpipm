@@ -37,6 +37,7 @@ OBJS = \
 	ocp_qp_dim_create.mex \
 	ocp_qp_dim_destroy.mex \
 	ocp_qp_dim_set.mex \
+	ocp_qp_dim_get.mex \
 	ocp_qp_dim_print.mex \
 	ocp_qp_dim_codegen.mex \
 	ocp_qp_create.mex \

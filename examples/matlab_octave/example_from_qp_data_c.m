@@ -60,6 +60,11 @@ dim = hpipm_ocp_qp_dim('qp_data.c');
 % print to shell
 %dim.print_C_struct();
 
+% extract dims
+N = dim.get('N');
+nx = dim.get('nx', 0);
+nu = dim.get('nu', 0);
+
 
 
 %%% qp %%%
@@ -119,17 +124,30 @@ end
 
 % get / print solution
 % x
-%x = sol.get('x', 0, N);
-%x = reshape(x, nx, N+1);
+x = sol.get('x', 0, N);
+x = reshape(x, nx, N+1);
 % u
-%u = sol.get('u', 0, N-1);
-%u = reshape(u, nu, N);
+u = sol.get('u', 0, N-1);
+u = reshape(u, nu, N);
 
 %x
 %u
 
 % print to shell
 %sol.print_C_struct();
+
+
+
+% plot solution
+figure()
+subplot(2, 1, 1)
+plot(0:N, x);
+title('trajectory')
+ylabel('x')
+subplot(2, 1, 2)
+plot(1:N, u);
+ylabel('u')
+xlabel('sample')
 
 
 
