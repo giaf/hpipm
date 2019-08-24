@@ -43,6 +43,7 @@ OBJS = \
 	ocp_qp_create.mex \
 	ocp_qp_destroy.mex \
 	ocp_qp_set.mex \
+	ocp_qp_get.mex \
 	ocp_qp_print.mex \
 	ocp_qp_codegen.mex \
 	ocp_qp_sol_create.mex \
@@ -72,8 +73,8 @@ set_cflags_octave:
 	octave-cli set_cflags_octave.m
 
 compile_mex_with_matlab:
-	matlab -nodisplay -nosplash -nodesktop -r "run('compile_mex_ocp_qp.m');exit;"
-#	~/R2017a/bin/matlab -nodisplay -nosplash -nodesktop -r "run('compile_mex_ocp_qp.m');exit;"
+	matlab -nodisplay -nosplash -nodesktop -r "run('compile_mex_all.m');exit;"
+#	~/R2017a/bin/matlab -nodisplay -nosplash -nodesktop -r "run('compile_mex_all.m');exit;"
 
 clean:
 	rm -f *.so

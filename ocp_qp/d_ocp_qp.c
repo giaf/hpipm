@@ -83,7 +83,6 @@
 #define OCP_QP_SET d_ocp_qp_set
 #define OCP_QP_SET_EL d_ocp_qp_set_el
 #define OCP_QP_SET_A d_ocp_qp_set_A
-#define OCP_QP_GET_A d_cvt_ocp_qp_A
 #define OCP_QP_SET_B d_ocp_qp_set_B
 #define OCP_QP_GET_B d_cvt_ocp_qp_B
 #define OCP_QP_SET_BVEC d_ocp_qp_set_b
@@ -100,10 +99,8 @@
 #define OCP_QP_GET_RVEC d_cvt_ocp_qp_r
 #define OCP_QP_SET_LBX d_ocp_qp_set_lbx
 #define OCP_QP_SET_EL_LBX d_ocp_qp_set_el_lbx
-#define OCP_QP_GET_LBX d_cvt_ocp_qp_lbx
 #define OCP_QP_SET_UBX d_ocp_qp_set_ubx
 #define OCP_QP_SET_EL_UBX d_ocp_qp_set_el_ubx
-#define OCP_QP_GET_UBX d_cvt_ocp_qp_ubx
 #define OCP_QP_SET_LBU d_ocp_qp_set_lbu
 #define OCP_QP_GET_LBU d_cvt_ocp_qp_lbu
 #define OCP_QP_SET_UBU d_ocp_qp_set_ubu
@@ -150,6 +147,11 @@
 #define OCP_QP_GET_LLS d_cvt_ocp_qp_lls
 #define OCP_QP_SET_LUS d_ocp_qp_set_lus
 #define OCP_QP_GET_LUS d_cvt_ocp_qp_lus
+// getters
+#define OCP_QP_GET d_ocp_qp_get
+#define OCP_QP_GET_A d_ocp_qp_get_A
+#define OCP_QP_GET_LBX d_ocp_qp_get_lbx
+#define OCP_QP_GET_UBX d_ocp_qp_get_ubx
 // TODO remove ???
 #define CHANGE_BOUNDS_DIMENSIONS_OCP_QP d_change_bounds_dimensions_ocp_qp
 

@@ -77,6 +77,24 @@ classdef hpipm_ocp_qp < handle
 			end
 		end
 
+		function value = get(varargin)
+			if nargin==3
+				obj = varargin{1};
+				field = varargin{2};
+				stage0 = varargin{3};
+				value = ocp_qp_get(obj.C_qp, field, stage0);
+			elseif nargin==4
+				obj = varargin{1};
+				field = varargin{2};
+				stage0 = varargin{3};
+				stage1 = varargin{4};
+				value = ocp_qp_get(obj.C_qp, field, stage0, stage1);
+			else
+				disp('hpipm_ocp_qp.get: wrong number of input arguments (2 or 3 allowed)');
+				keyboard;
+			end
+		end
+
 		function print_C_struct(obj)
 			ocp_qp_print(obj.C_dim, obj.C_qp);
 		end

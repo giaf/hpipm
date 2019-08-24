@@ -73,6 +73,11 @@ qp = hpipm_ocp_qp(dim, 'qp_data.c');
 % print to shell
 %qp.print_C_struct();
 
+% extract qp members
+lbx0 = qp.get('lbx', 0);
+ubx0 = qp.get('ubx', 0);
+A0 = qp.get('A', 0);
+
 
 
 %%% sol %%%

@@ -91,8 +91,6 @@ void s_ocp_qp_set_el(char *field_name, int stage, int index, void *value, struct
 //
 void s_ocp_qp_set_A(int stage, float *mat, struct s_ocp_qp *qp);
 //
-void s_ocp_qp_get_A(int stage, struct s_ocp_qp *qp, float *mat);
-//
 void s_ocp_qp_set_B(int stage, float *mat, struct s_ocp_qp *qp);
 //
 void s_ocp_qp_get_B(int stage, struct s_ocp_qp *qp, float *mat);
@@ -124,8 +122,6 @@ void s_ocp_qp_get_r(int stage, struct s_ocp_qp *qp, float *vec);
 void s_ocp_qp_set_lbx(int stage, float *vec, struct s_ocp_qp *qp);
 //
 void s_ocp_qp_set_el_lbx(int stage, int index, float *elem, struct s_ocp_qp *qp);
-//
-void s_ocp_qp_get_lbx(int stage, struct s_ocp_qp *qp, float *vec);
 //
 void s_ocp_qp_set_ubx(int stage, float *vec, struct s_ocp_qp *qp);
 //
@@ -228,6 +224,16 @@ void s_ocp_qp_set_Jsbx(int stage, float *vec, struct s_ocp_qp *qp);
 void s_ocp_qp_set_Jsg(int stage, float *vec, struct s_ocp_qp *qp);
 //
 //void s_ocp_qp_get_Jsg(int stage, struct s_ocp_qp *qp, float *vec);
+// getters
+//
+void s_ocp_qp_get(char *field, int stage, struct s_ocp_qp *qp, void *value);
+//
+void s_ocp_qp_get_A(int stage, struct s_ocp_qp *qp, float *mat);
+//
+void s_ocp_qp_get_lbx(int stage, struct s_ocp_qp *qp, float *vec);
+//
+void s_ocp_qp_get_ubx(int stage, struct s_ocp_qp *qp, float *vec);
+
 // TODO remove ???
 void d_change_bounds_dimensions_ocp_qp(int *nbu, int *nbx, struct s_ocp_qp *qp);
 
