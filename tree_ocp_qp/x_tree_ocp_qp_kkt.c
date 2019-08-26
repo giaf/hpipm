@@ -1023,7 +1023,7 @@ void FACT_LQ_SOLVE_KKT_STEP_TREE_OCP_QP(struct TREE_OCP_QP *qp, struct TREE_OCP_
 		if(ws->use_hess_fact[idx]==0)
 			{
 			POTRF_L(nu[idx]+nx[idx], RSQrq+idx, 0, 0, Lh+idx, 0, 0);
-			ws->use_hess_fact[idx]==1;
+			ws->use_hess_fact[idx]=1;
 			}
 #if defined(LA_HIGH_PERFORMANCE) | defined(LA_REFERENCE)
 		TRCP_L(nu[idx]+nx[idx], Lh+idx, 0, 0, L+idx, 0, 0);

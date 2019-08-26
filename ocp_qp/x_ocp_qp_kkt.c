@@ -1172,7 +1172,7 @@ void FACT_LQ_SOLVE_KKT_STEP_OCP_QP(struct OCP_QP *qp, struct OCP_QP_SOL *qp_sol,
 	if(ws->use_hess_fact[ss]==0)
 		{
 		POTRF_L(nu[ss]+nx[ss], RSQrq+ss, 0, 0, Lh+ss, 0, 0);
-		ws->use_hess_fact[ss]==1;
+		ws->use_hess_fact[ss]=1;
 		}
 
 	DIARE(nu[ss]+nx[ss], arg->reg_prim, lq0, 0, nu[ss]+nx[ss]);
@@ -1243,7 +1243,7 @@ void FACT_LQ_SOLVE_KKT_STEP_OCP_QP(struct OCP_QP *qp, struct OCP_QP_SOL *qp_sol,
 		if(ws->use_hess_fact[ss]==0)
 			{
 			POTRF_L(nu[ss]+nx[ss], RSQrq+ss, 0, 0, Lh+ss, 0, 0);
-			ws->use_hess_fact[ss]==1;
+			ws->use_hess_fact[ss]=1;
 			}
 
 		DIARE(nu[ss]+nx[ss], arg->reg_prim, lq0, 0, nu[ss]+nx[ss]);
@@ -1314,7 +1314,7 @@ void FACT_LQ_SOLVE_KKT_STEP_OCP_QP(struct OCP_QP *qp, struct OCP_QP_SOL *qp_sol,
 	if(ws->use_hess_fact[ss]==0)
 		{
 		POTRF_L(nu[ss]+nx[ss], RSQrq+ss, 0, 0, Lh+ss, 0, 0);
-		ws->use_hess_fact[ss]==1;
+		ws->use_hess_fact[ss]=1;
 		}
 
 	DIARE(nu[ss]+nx[ss], arg->reg_prim, lq0, 0, nu[ss]+nx[ss]);
