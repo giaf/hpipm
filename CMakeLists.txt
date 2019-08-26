@@ -59,8 +59,11 @@ set(CMAKE_INSTALL_PREFIX "/opt/hpipm" CACHE STRING "Installation path")
 # BLASFEO Option
 if(NOT TARGET blasfeo)
 	set(BLASFEO_PATH "/opt/blasfeo" CACHE STRING "BLASFEO installation path")
-	set(HPIPM_BLASFEO_LIB "Static" CACHE STRING "BLASFEO library link type")
-	#set(HPIPM_BLASFEO_LIB "Shared" CACHE STRING "BLASFEO library link type")
+	if(BUILD_SHARED_LIBS MATCHES OFF)
+		set(HPIPM_BLASFEO_LIB "Static" CACHE STRING "BLASFEO library link type")
+	else()
+		set(HPIPM_BLASFEO_LIB "Shared" CACHE STRING "BLASFEO library link type")
+	endif()
 
 	if(HPIPM_BLASFEO_LIB MATCHES "Static")
 		add_library(blasfeo STATIC IMPORTED)
