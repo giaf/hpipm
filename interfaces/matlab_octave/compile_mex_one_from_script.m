@@ -45,10 +45,11 @@ if (~strcmp(env_run, 'true'))
 	return;
 end
 
-% get acados folder
+% get folders
 hpipm_folder = getenv('HPIPM_MAIN_FOLDER');
 blasfeo_folder = getenv('BLASFEO_MAIN_FOLDER');
 mex_flags = getenv('HPIPM_MEX_FLAGS');
+data_folder = getenv('DATA_FOLDER');
 
 % set paths
 hpipm_mex_folder = [hpipm_folder, '/interfaces/matlab_octave/'];
@@ -56,6 +57,7 @@ hpipm_include = ['-I', hpipm_folder, '/include'];
 hpipm_lib = ['-L', hpipm_folder, '/lib'];
 blasfeo_include = ['-I', blasfeo_folder, '/include'];
 blasfeo_lib = ['-L', blasfeo_folder, '/lib'];
+data_include = ['-I', data_folder];
 
 cflags_octave_file = [hpipm_mex_folder, 'cflags_octave.txt'];
 
@@ -91,9 +93,9 @@ if is_octave()
 	mex(hpipm_include, blasfeo_include, hpipm_lib, blasfeo_lib, '-lhpipm', '-lblasfeo', mex_file);
 else
 	if nargin>1
-		mex(mex_flags, ['CFLAGS=\$CFLAGS -std=c99', varargin{2}], hpipm_include, blasfeo_include, hpipm_lib, blasfeo_lib, '-lhpipm', '-lblasfeo', mex_file);
+		mex(mex_flags, ['CFLAGS=\$CFLAGS -std=c99', varargin{2}], hpipm_include, blasfeo_include, hpipm_lib, blasfeo_lib, data_include, '-lhpipm', '-lblasfeo', mex_file);
 	else
-		mex(mex_flags, 'CFLAGS=\$CFLAGS -std=c99', hpipm_include, blasfeo_include, hpipm_lib, blasfeo_lib, '-lhpipm', '-lblasfeo', mex_file);
+		mex(mex_flags, 'CFLAGS=\$CFLAGS -std=c99', hpipm_include, blasfeo_include, hpipm_lib, blasfeo_lib, data_include, '-lhpipm', '-lblasfeo', mex_file);
 	end
 end
 
