@@ -42,21 +42,24 @@ int DENSE_QP_MEMSIZE(struct DENSE_QP_DIM *dim)
 	int ne = dim->ne;
 	int nb = dim->nb;
 	int ng = dim->ng;
+	int nq = dim->nq;
 	int ns = dim->ns;
 
 	int size = 0;
 
-	size += 5*sizeof(struct STRVEC); // gz b d m Z
-	size += 3*sizeof(struct STRMAT); // Hv A Ct
+	size += (nq+5)*sizeof(struct STRVEC); // gz b d m Z gq
+	size += (nq+3)*sizeof(struct STRMAT); // Hv A Ct Hq
 
 	size += 1*SIZE_STRVEC(nv+2*ns); // g
 	size += 1*SIZE_STRVEC(ne); // b
 	size += 2*SIZE_STRVEC(2*nb+2*ng+2*ns); // d m
 	size += 1*SIZE_STRVEC(2*ns); // Z
+	size += nq*SIZE_STRVEC(nv); // gq
 	size += 1*nb*sizeof(int); // idxb
 	size += 1*ns*sizeof(int); // idxb
 
 	size += 1*SIZE_STRMAT(nv+1, nv); // Hv
+	size += nq*SIZE_STRMAT(nv, nv); // Hq
 	size += 1*SIZE_STRMAT(ne, nv); // A
 	size += 1*SIZE_STRMAT(nv, ng); // Ct
 
@@ -72,10 +75,15 @@ int DENSE_QP_MEMSIZE(struct DENSE_QP_DIM *dim)
 void DENSE_QP_CREATE(struct DENSE_QP_DIM *dim, struct DENSE_QP *qp, void *mem)
 	{
 
+	// TODO set memory to zero !!!!!!!
+
+	int ii;
+
 	int nv = dim->nv;
 	int ne = dim->ne;
 	int nb = dim->nb;
 	int ng = dim->ng;
+	int nq = dim->nq;
 	int ns = dim->ns;
 
 
@@ -90,6 +98,9 @@ void DENSE_QP_CREATE(struct DENSE_QP_DIM *dim, struct DENSE_QP *qp, void *mem)
 
 	qp->Ct = sm_ptr;
 	sm_ptr += 1;
+
+	qp->Hq = sm_ptr;
+	sm_ptr += nq;
 
 
 	// vector struct stuff
@@ -109,6 +120,9 @@ void DENSE_QP_CREATE(struct DENSE_QP_DIM *dim, struct DENSE_QP *qp, void *mem)
 
 	qp->Z = sv_ptr;
 	sv_ptr += 1;
+
+	qp->gq = sv_ptr;
+	sv_ptr += nq;
 
 
 	// int stuff
@@ -142,6 +156,12 @@ void DENSE_QP_CREATE(struct DENSE_QP_DIM *dim, struct DENSE_QP *qp, void *mem)
 	CREATE_STRMAT(nv, ng, qp->Ct, c_ptr);
 	c_ptr += qp->Ct->memsize;
 
+	for(ii=0; ii<nq; ii++)
+		{
+		CREATE_STRMAT(nv, nv, qp->Hq+ii, c_ptr);
+		c_ptr += (qp->Hq+ii)->memsize;
+		}
+
 	CREATE_STRVEC(nv+2*ns, qp->gz, c_ptr);
 	c_ptr += qp->gz->memsize;
 
@@ -156,6 +176,12 @@ void DENSE_QP_CREATE(struct DENSE_QP_DIM *dim, struct DENSE_QP *qp, void *mem)
 
 	CREATE_STRVEC(2*ns, qp->Z, c_ptr);
 	c_ptr += qp->Z->memsize;
+
+	for(ii=0; ii<nq; ii++)
+		{
+		CREATE_STRVEC(nv, qp->gq+ii, c_ptr);
+		c_ptr += (qp->gq+ii)->memsize;
+		}
 
 
 	qp->dim = dim;
@@ -178,15 +204,16 @@ void DENSE_QP_CREATE(struct DENSE_QP_DIM *dim, struct DENSE_QP *qp, void *mem)
 
 
 
-void DENSE_QP_SET_ALL(REAL *H, REAL *g, REAL *A, REAL *b, int *idxb, REAL *d_lb, REAL *d_ub, REAL *C, REAL *d_lg, REAL *d_ug, REAL *Zl, REAL *Zu, REAL *zl, REAL *zu, int *idxs, REAL *d_ls, REAL *d_us, struct DENSE_QP *qp)
+void DENSE_QP_SET_ALL(REAL *H, REAL *g, REAL *A, REAL *b, int *idxb, REAL *d_lb, REAL *d_ub, REAL *C, REAL *d_lg, REAL *d_ug, REAL *Hq, REAL *gq, REAL *Zl, REAL *Zu, REAL *zl, REAL *zu, int *idxs, REAL *d_ls, REAL *d_us, struct DENSE_QP *qp)
 	{
 
-	int ii;
+	int ii, jj;
 
 	int nv = qp->dim->nv;
 	int ne = qp->dim->ne;
 	int nb = qp->dim->nb;
 	int ng = qp->dim->ng;
+	int nq = qp->dim->nq;
 	int ns = qp->dim->ns;
 
 	CVT_MAT2STRMAT(nv, nv, H, nv, qp->Hv, 0, 0);
@@ -214,6 +241,11 @@ void DENSE_QP_SET_ALL(REAL *H, REAL *g, REAL *A, REAL *b, int *idxb, REAL *d_lb,
 		VECSE_LIBSTR(ng, 0.0, qp->m, nb);
 		VECSE_LIBSTR(ng, 0.0, qp->m, 2*nb+ng);
 		}
+	for(jj=0; jj<nq; jj++)
+		{
+		CVT_MAT2STRMAT(nv, nv, Hq+jj*nq*nq, nq, qp->Hq+jj, 0, 0);
+		CVT_VEC2STRVEC(nv, gq+jj*nq, qp->gq+jj, 0);
+		}
 	if(ns>0)
 		{
 		for(ii=0; ii<ns; ii++) qp->idxs[ii] = idxs[ii];
@@ -233,6 +265,7 @@ void DENSE_QP_SET_ALL(REAL *H, REAL *g, REAL *A, REAL *b, int *idxb, REAL *d_lb,
 
 
 
+// TODO Hq, gq
 void DENSE_QP_GET_ALL(struct DENSE_QP *qp, REAL *H, REAL *g, REAL *A, REAL *b, int *idxb, REAL *d_lb, REAL *d_ub, REAL *C, REAL *d_lg, REAL *d_ug, REAL *Zl, REAL *Zu, REAL *zl, REAL *zu, int *idxs, REAL *d_ls, REAL *d_us)
 	{
 
@@ -417,6 +450,32 @@ void DENSE_QP_SET_UG(REAL *ug, struct DENSE_QP *qp)
 	CVT_VEC2STRVEC(ng, ug, qp->d, 2*nb+ng);
 	VECSC_LIBSTR(ng, -1.0, qp->d, 2*nb+ng);
 	VECSE_LIBSTR(ng, 0.0, qp->m, 2*nb+ng);
+
+	return;
+
+	}
+
+
+
+void DENSE_QP_SET_HQ(int idx, REAL *HQ, struct DENSE_QP *qp)
+	{
+
+	int nv = qp->dim->nv;
+
+	CVT_MAT2STRMAT(nv, nv, HQ, nv, qp->Hq+idx, 0, 0);
+
+	return;
+
+	}
+
+
+
+void DENSE_QP_SET_GQ(int idx, REAL *gq, struct DENSE_QP *qp)
+	{
+
+	int nv = qp->dim->nv;
+
+	CVT_VEC2STRVEC(nv, gq, qp->gq+idx, 0);
 
 	return;
 

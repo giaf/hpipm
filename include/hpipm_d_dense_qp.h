@@ -59,11 +59,13 @@ struct d_dense_qp
 	struct blasfeo_dmat *Hv; // hessian of cost & vector work space
 	struct blasfeo_dmat *A; // equality constraint matrix
 	struct blasfeo_dmat *Ct; // inequality constraints matrix
+	struct blasfeo_dmat *Hq; // hessians of quadratic constraints
 	struct blasfeo_dvec *gz; // gradient of cost & gradient of slacks
 	struct blasfeo_dvec *b; // equality constraint vector
 	struct blasfeo_dvec *d; // inequality constraints vector
 	struct blasfeo_dvec *m; // rhs of complementarity condition
 	struct blasfeo_dvec *Z; // (diagonal) hessian of slacks
+	struct blasfeo_dvec *gq; // gradients of quadratic constraints
 	int *idxb; // index of box constraints
 	int *idxs; // index of soft constraints
 	int memsize; // memory size in bytes
@@ -76,7 +78,7 @@ int d_dense_qp_memsize(struct d_dense_qp_dim *dim);
 //
 void d_dense_qp_create(struct d_dense_qp_dim *dim, struct d_dense_qp *qp, void *memory);
 //
-void d_dense_qp_set_all(double *H, double *g, double *A, double *b, int *idxb, double *d_lb, double *d_ub, double *C, double *d_lg, double *d_ug, double *Zl, double *Zu, double *zl, double *zu, int *idxs, double *d_ls, double *d_us, struct d_dense_qp *qp);
+void d_dense_qp_set_all(double *H, double *g, double *A, double *b, int *idxb, double *d_lb, double *d_ub, double *C, double *d_lg, double *d_ug, double *Hq, double *gq, double *Zl, double *Zu, double *zl, double *zu, int *idxs, double *d_ls, double *d_us, struct d_dense_qp *qp);
 //
 void d_dense_qp_get_all(struct d_dense_qp *qp, double *H, double *g, double *A, double *b, int *idxb, double *d_lb, double *d_ub, double *C, double *d_lg, double *d_ug, double *Zl, double *Zu, double *zl, double *zu, int *idxs, double *d_ls, double *d_us);
 
@@ -100,6 +102,10 @@ void d_dense_qp_set_C(double *C, struct d_dense_qp *qp);
 void d_dense_qp_set_lg(double *lg, struct d_dense_qp *qp);
 //
 void d_dense_qp_set_ug(double *ug, struct d_dense_qp *qp);
+//
+void d_dense_qp_set_Hq(int idx, double *Hq, struct d_dense_qp *qp);
+//
+void d_dense_qp_set_gq(int idx, double *gq, struct d_dense_qp *qp);
 //
 void d_dense_qp_set_idxs(int *idxs, struct d_dense_qp *qp);
 //
