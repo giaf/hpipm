@@ -50,6 +50,10 @@
 
 
 
+#define SINGLE_PRECISION
+
+
+
 #define AXPY blasfeo_saxpy
 #define CREATE_STRVEC blasfeo_create_svec
 #define CVT_STRVEC2VEC blasfeo_unpack_svec
@@ -58,6 +62,7 @@
 #define DENSE_QP_RES s_dense_qp_res
 #define DENSE_QP_RES_WS s_dense_qp_res_ws
 #define DENSE_QP_SOL s_dense_qp_sol
+#define DOT blasfeo_sdot
 #define GEMV_DIAG blasfeo_sgemv_d
 #define GEMV_NT blasfeo_sgemv_nt
 #define REAL float

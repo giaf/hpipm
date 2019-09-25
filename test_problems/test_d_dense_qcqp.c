@@ -129,12 +129,40 @@ int main()
 	d_dense_qp_sol_print(&qp_dim, &qp_sol);
 
 /************************************************
+* ipm arg
+************************************************/
+
+	int ipm_arg_size = d_dense_qp_ipm_arg_memsize(&qp_dim);
+	printf("\nipm arg size = %d\n", ipm_arg_size);
+	void *ipm_arg_mem = malloc(ipm_arg_size);
+
+	struct d_dense_qp_ipm_arg arg;
+	d_dense_qp_ipm_arg_create(&qp_dim, &arg, ipm_arg_mem);
+//	enum hpipm_mode mode = SPEED_ABS;
+	enum hpipm_mode mode = SPEED;
+//	enum hpipm_mode mode = BALANCE;
+//	enum hpipm_mode mode = ROBUST;
+	d_dense_qp_ipm_arg_set_default(mode, &arg);
+
+//	arg.alpha_min = 1e-8;
+//	arg.res_g_max = 1e-8;
+//	arg.res_b_max = 1e-8;
+//	arg.res_d_max = 1e-12;
+//	arg.res_m_max = 1e-12;
+//	arg.mu0 = 10.0;
+//	arg.iter_max = 10;
+//	arg.stat_max = 10;
+//	arg.pred_corr = 1;
+//	arg.scale = 1;
+
+/************************************************
 * free memory
 ************************************************/
 
 	free(qp_dim_mem);
 	free(qp_mem);
 	free(qp_sol_mem);
+	free(ipm_arg_mem);
 //	free(ipm_mem);
 
 /************************************************

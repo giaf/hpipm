@@ -377,6 +377,7 @@ int main()
 	free(qp_dim_mem);
 	free(qp_mem);
 	free(qp_sol_mem);
+	free(ipm_arg_mem);
 	free(ipm_mem);
 
 /************************************************
