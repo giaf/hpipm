@@ -78,7 +78,7 @@ int s_dense_qp_memsize(struct s_dense_qp_dim *dim);
 //
 void s_dense_qp_create(struct s_dense_qp_dim *dim, struct s_dense_qp *qp, void *memory);
 //
-void s_dense_qp_set_all(float *H, float *g, float *A, float *b, int *idxb, float *d_lb, float *d_ub, float *C, float *d_lg, float *d_ug, float *Hq, float *gq, float *Zl, float *Zu, float *zl, float *zu, int *idxs, float *d_ls, float *d_us, struct s_dense_qp *qp);
+void s_dense_qp_set_all(float *H, float *g, float *A, float *b, int *idxb, float *d_lb, float *d_ub, float *C, float *d_lg, float *d_ug, float *Hq, float *gq, float *d_uq, float *Zl, float *Zu, float *zl, float *zu, int *idxs, float *d_ls, float *d_us, struct s_dense_qp *qp);
 //
 void s_dense_qp_get_all(struct s_dense_qp *qp, float *H, float *g, float *A, float *b, int *idxb, float *d_lb, float *d_ub, float *C, float *d_lg, float *d_ug, float *Zl, float *Zu, float *zl, float *zu, int *idxs, float *d_ls, float *d_us);
 //
@@ -103,9 +103,9 @@ void s_dense_qp_set_lg(float *lg, struct s_dense_qp *qp);
 //
 void s_dense_qp_set_ug(float *ug, struct s_dense_qp *qp);
 //
-void s_dense_qp_set_Hq(int idx, float *Hq, struct s_dense_qp *qp);
+void s_dense_qp_set_Hq(float *Hq, struct s_dense_qp *qp);
 //
-void s_dense_qp_set_gq(int idx, float *gq, struct s_dense_qp *qp);
+void s_dense_qp_set_gq(float *gq, struct s_dense_qp *qp);
 //
 void s_dense_qp_set_idxs(int *idxs, struct s_dense_qp *qp);
 //

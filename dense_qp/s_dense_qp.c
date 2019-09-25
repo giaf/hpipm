@@ -85,6 +85,7 @@
 #define DENSE_QP_SET_UG s_dense_qp_set_ug
 #define DENSE_QP_SET_HQ s_dense_qp_set_Hq
 #define DENSE_QP_SET_GQ s_dense_qp_set_gq
+#define DENSE_QP_SET_UQ s_dense_qp_set_uq
 #define DENSE_QP_SET_IDXS s_dense_qp_set_idxs
 #define DENSE_QP_SET_ZZL s_dense_qp_set_Zl
 #define DENSE_QP_SET_ZZU s_dense_qp_set_Zu

@@ -33,103 +33,114 @@
 *                                                                                                 *
 **************************************************************************************************/
 
+#include <stdlib.h>
+#include <stdio.h>
+#include <math.h>
+#include <sys/time.h>
+
+#include <blasfeo_target.h>
+#include <blasfeo_common.h>
+#include <blasfeo_v_aux_ext_dep.h>
+#include <blasfeo_d_aux_ext_dep.h>
+#include <blasfeo_i_aux_ext_dep.h>
+#include <blasfeo_d_aux.h>
+#include <blasfeo_d_blas.h>
+
+#include "../include/hpipm_d_dense_qp.h"
+#include "../include/hpipm_d_dense_qp_sol.h"
+#include "../include/hpipm_d_dense_qp_res.h"
+#include "../include/hpipm_d_dense_qp_ipm.h"
+#include "../include/hpipm_d_dense_qp_utils.h"
 
 
-int DENSE_QP_DIM_MEMSIZE()
+
+int main()
 	{
 
-	int size = 0;
+	int ii;
 
-	size = (size+8-1)/8*8;
+/************************************************
+* qp dimension and data
+************************************************/
 
-	return size;
+	int nv = 2;
+	int ne = 0;
+	int nb = 0;
+	int ng = 0;
+	int nq = 1;
+	int ns = 0;
+	int nsb = 0;
+	int nsg = 0;
+
+	double H[] = {1.0, 0.0, 0.0, 1.0};
+	double g[] = {0.0, 1.0};
+	double Hq[] = {1.0, 0.0, 0.0, 1.0};
+	double gq[] = {0.0, 0.0};
+	double uq[] = {1.0};
+
+/************************************************
+* dense qp dim
+************************************************/
+
+	int dense_qp_dim_size = d_dense_qp_dim_memsize();
+	printf("\nqp dim size = %d\n", dense_qp_dim_size);
+	void *qp_dim_mem = malloc(dense_qp_dim_size);
+
+	struct d_dense_qp_dim qp_dim;
+	d_dense_qp_dim_create(&qp_dim, qp_dim_mem);
+
+	d_dense_qp_dim_set("nv", nv, &qp_dim);
+	d_dense_qp_dim_set("nq", nq, &qp_dim);
+
+	d_dense_qp_dim_print(&qp_dim);
+
+/************************************************
+* dense qp
+************************************************/
+
+	int qp_size = d_dense_qp_memsize(&qp_dim);
+	printf("\nqp size = %d\n", qp_size);
+	void *qp_mem = malloc(qp_size);
+
+	struct d_dense_qp qp;
+	d_dense_qp_create(&qp_dim, &qp, qp_mem);
+
+	// test setters
+
+	d_dense_qp_set_H(H, &qp);
+	d_dense_qp_set_g(g, &qp);
+	d_dense_qp_set_Hq(Hq, &qp);
+	d_dense_qp_set_gq(gq, &qp);
+	d_dense_qp_set_uq(uq, &qp);
+
+	d_dense_qp_print(&qp_dim, &qp);
+
+/************************************************
+* dense qp sol
+************************************************/
+
+	int qp_sol_size = d_dense_qp_sol_memsize(&qp_dim);
+	printf("\nqp sol size = %d\n", qp_sol_size);
+	void *qp_sol_mem = malloc(qp_sol_size);
+
+	struct d_dense_qp_sol qp_sol;
+	d_dense_qp_sol_create(&qp_dim, &qp_sol, qp_sol_mem);
+
+	d_dense_qp_sol_print(&qp_dim, &qp_sol);
+
+/************************************************
+* free memory
+************************************************/
+
+	free(qp_dim_mem);
+	free(qp_mem);
+	free(qp_sol_mem);
+//	free(ipm_mem);
+
+/************************************************
+* return
+************************************************/
+
+	return 0;
 
 	}
-
-
-
-void DENSE_QP_DIM_CREATE(struct DENSE_QP_DIM *size, void *memory)
-	{
-
-	size->memsize = DENSE_QP_DIM_MEMSIZE();
-
-	// initialize dims to zero by default
-
-	size->nv = 0;
-	size->ne = 0;
-	size->nb = 0;
-	size->ng = 0;
-	size->nq = 0;
-	size->ns = 0;
-	size->nsb = 0;
-	size->nsg = 0;
-
-	return;
-
-	}
-
-
-void DENSE_QP_DIM_SET_ALL(int nv, int ne, int nb, int ng, int nq, int nsb, int nsg, struct DENSE_QP_DIM *size)
-	{
-
-	size->nv = nv;
-	size->ne = ne;
-	size->nb = nb;
-	size->ng = ng;
-	size->nq = nq;
-	size->ns = nsb+nsg;
-	size->nsb = nsb;
-	size->nsg = nsg;
-
-	return;
-
-	}
-
-
-void DENSE_QP_DIM_SET(char *field_name, int value, struct DENSE_QP_DIM *dim)
-	{
-	if(hpipm_strcmp(field_name, "nv"))
-		{ 
-		dim->nv = value;
-		}
-	else if(hpipm_strcmp(field_name, "ne"))
-		{ 
-		dim->ne = value;
-		}
-	else if(hpipm_strcmp(field_name, "nb"))
-		{
-		dim->nb = value;
-		}
-	else if(hpipm_strcmp(field_name, "ng"))
-		{
-		dim->ng = value;
-		}
-	else if(hpipm_strcmp(field_name, "nq"))
-		{
-		dim->nq = value;
-		}
-	else if(hpipm_strcmp(field_name, "nsb"))
-		{
-		dim->nsb = value;
-		dim->ns = dim->nsb + dim->nsg;
-		}
-	else if(hpipm_strcmp(field_name, "nsg"))
-		{
-		dim->nsg = value;
-		dim->ns = dim->nsb + dim->nsg;
-		}
-	else if(hpipm_strcmp(field_name, "ns"))
-		{
-		dim->ns = value;
-		}
-	else 
-		{
-		printf("error: SET_OCP_QP_DIM: wrong field %s\n", field_name);
-		exit(1);
-		}
-	return;
-	}
-
-
-
-

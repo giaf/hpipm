@@ -49,6 +49,7 @@ OBJS += d_dense_qp_sol.o
 OBJS += d_dense_qp_res.o 
 OBJS += d_dense_qp_kkt.o 
 OBJS += d_dense_qp_ipm.o
+OBJS += d_dense_qp_utils.o
 # single
 OBJS += s_dense_qp_dim.o 
 OBJS += s_dense_qp.o 
@@ -56,6 +57,7 @@ OBJS += s_dense_qp_sol.o
 OBJS += s_dense_qp_res.o 
 OBJS += s_dense_qp_kkt.o 
 OBJS += s_dense_qp_ipm.o
+OBJS += s_dense_qp_utils.o
 # mixed
 OBJS += m_dense_qp_dim.o 
 OBJS += m_dense_qp.o 
@@ -78,3 +80,5 @@ d_dense_qp_kkt.o: d_dense_qp_kkt.c x_dense_qp_kkt.c
 s_dense_qp_kkt.o: s_dense_qp_kkt.c x_dense_qp_kkt.c
 d_dense_qp_ipm.o: d_dense_qp_ipm.c x_dense_qp_ipm.c
 s_dense_qp_ipm.o: s_dense_qp_ipm.c x_dense_qp_ipm.c
+d_dense_qp_utils.o: d_dense_qp_utils.c x_dense_qp_utils.c
+s_dense_qp_utils.o: s_dense_qp_utils.c x_dense_qp_utils.c

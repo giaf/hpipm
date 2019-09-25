@@ -35,101 +35,108 @@
 
 
 
-int DENSE_QP_DIM_MEMSIZE()
+void DENSE_QP_DIM_PRINT(struct DENSE_QP_DIM *qp_dim)
 	{
+	int ii;
 
-	int size = 0;
+	int nv = qp_dim->nv;
+	int nb = qp_dim->nb;
+	int ng = qp_dim->ng;
+	int nq = qp_dim->nq;
+	int nsb = qp_dim->nsb;
+	int nsg = qp_dim->nsg;
+	int ns = qp_dim->ns;
 
-	size = (size+8-1)/8*8;
+	printf("nv = %d\n\n", nv);
+	printf("nb = %d\n\n", nb);
+	printf("ng = %d\n\n", ng);
+	printf("nq = %d\n\n", nq);
+	printf("nsb = %d\n\n", nsb);
+	printf("nsg = %d\n\n", nsg);
+	printf("ns = %d\n\n", ns);
 
-	return size;
-
-	}
-
-
-
-void DENSE_QP_DIM_CREATE(struct DENSE_QP_DIM *size, void *memory)
-	{
-
-	size->memsize = DENSE_QP_DIM_MEMSIZE();
-
-	// initialize dims to zero by default
-
-	size->nv = 0;
-	size->ne = 0;
-	size->nb = 0;
-	size->ng = 0;
-	size->nq = 0;
-	size->ns = 0;
-	size->nsb = 0;
-	size->nsg = 0;
-
-	return;
-
-	}
-
-
-void DENSE_QP_DIM_SET_ALL(int nv, int ne, int nb, int ng, int nq, int nsb, int nsg, struct DENSE_QP_DIM *size)
-	{
-
-	size->nv = nv;
-	size->ne = ne;
-	size->nb = nb;
-	size->ng = ng;
-	size->nq = nq;
-	size->ns = nsb+nsg;
-	size->nsb = nsb;
-	size->nsg = nsg;
-
-	return;
-
-	}
-
-
-void DENSE_QP_DIM_SET(char *field_name, int value, struct DENSE_QP_DIM *dim)
-	{
-	if(hpipm_strcmp(field_name, "nv"))
-		{ 
-		dim->nv = value;
-		}
-	else if(hpipm_strcmp(field_name, "ne"))
-		{ 
-		dim->ne = value;
-		}
-	else if(hpipm_strcmp(field_name, "nb"))
-		{
-		dim->nb = value;
-		}
-	else if(hpipm_strcmp(field_name, "ng"))
-		{
-		dim->ng = value;
-		}
-	else if(hpipm_strcmp(field_name, "nq"))
-		{
-		dim->nq = value;
-		}
-	else if(hpipm_strcmp(field_name, "nsb"))
-		{
-		dim->nsb = value;
-		dim->ns = dim->nsb + dim->nsg;
-		}
-	else if(hpipm_strcmp(field_name, "nsg"))
-		{
-		dim->nsg = value;
-		dim->ns = dim->nsb + dim->nsg;
-		}
-	else if(hpipm_strcmp(field_name, "ns"))
-		{
-		dim->ns = value;
-		}
-	else 
-		{
-		printf("error: SET_OCP_QP_DIM: wrong field %s\n", field_name);
-		exit(1);
-		}
 	return;
 	}
 
+
+
+void DENSE_QP_PRINT(struct DENSE_QP_DIM *qp_dim, struct DENSE_QP *qp)
+	{
+	int ii;
+
+	int nv = qp_dim->nv;
+	int ne = qp_dim->ne;
+	int nb = qp_dim->nb;
+	int ng = qp_dim->ng;
+	int nq = qp_dim->nq;
+	int nsb = qp_dim->nsb;
+	int nsg = qp_dim->nsg;
+	int ns = qp_dim->ns;
+
+	printf("H = \n");
+	BLASFEO_PRINT_MAT(nv, nv, qp->Hv, 0, 0);
+
+	printf("A = \n");
+	BLASFEO_PRINT_MAT(ne, nv, qp->A, 0, 0);
+
+	printf("Ct = \n");
+	BLASFEO_PRINT_MAT(nv, ng, qp->Ct, 0, 0);
+
+	printf("Hq = \n");
+	for(ii=0; ii<nq; ii++)
+		BLASFEO_PRINT_MAT(nv, nv, qp->Hq+ii, 0, 0);
+
+	printf("gz = \n");
+	BLASFEO_PRINT_TRAN_VEC(nv+2*ns, qp->gz, 0);
+
+	printf("b = \n");
+	BLASFEO_PRINT_TRAN_VEC(ne, qp->b, 0);
+
+	printf("d = \n");
+	BLASFEO_PRINT_TRAN_VEC(2*nb+2*ng+2*ns+nq, qp->d, 0);
+
+	printf("m = \n");
+	BLASFEO_PRINT_TRAN_VEC(2*nb+2*ng+2*ns+nq, qp->m, 0);
+
+	printf("Z = \n");
+	BLASFEO_PRINT_TRAN_VEC(2*ns, qp->Z, 0);
+
+	printf("gq = \n");
+	for(ii=0; ii<nq; ii++)
+		BLASFEO_PRINT_TRAN_VEC(nv, qp->gq+ii, 0);
+
+	return;
+	}
+
+
+
+void DENSE_QP_SOL_PRINT(struct DENSE_QP_DIM *qp_dim, struct DENSE_QP_SOL *qp_sol)
+	{
+	int ii;
+
+	int nv = qp_dim->nv;
+	int ne = qp_dim->ne;
+	int nb = qp_dim->nb;
+	int ng = qp_dim->ng;
+	int nq = qp_dim->nq;
+	int nsb = qp_dim->nsb;
+	int nsg = qp_dim->nsg;
+	int ns = qp_dim->ns;
+
+	printf("v = \n");
+	BLASFEO_PRINT_TRAN_VEC(nv+2*ns, qp_sol->v, 0);
+
+	printf("pi = \n");
+	BLASFEO_PRINT_TRAN_VEC(ne, qp_sol->pi, 0);
+
+	printf("lam = \n");
+	BLASFEO_PRINT_TRAN_VEC(2*nb+2*ng+2*ns+nq, qp_sol->lam, 0);
+
+	printf("t = \n");
+	BLASFEO_PRINT_TRAN_VEC(2*nb+2*ng+2*ns+nq, qp_sol->t, 0);
+
+	return;
+	}
 
 
 

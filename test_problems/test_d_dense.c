@@ -187,10 +187,10 @@ int main()
 
 	int dense_qp_dim_size = d_dense_qp_dim_memsize();
 	printf("\nqp dim size = %d\n", dense_qp_dim_size);
-	void *dense_qp_dim_mem = malloc(dense_qp_dim_size);
+	void *qp_dim_mem = malloc(dense_qp_dim_size);
 
 	struct d_dense_qp_dim qp_dim;
-	d_dense_qp_dim_create(&qp_dim, dense_qp_dim_mem);
+	d_dense_qp_dim_create(&qp_dim, qp_dim_mem);
 
 	d_dense_qp_dim_set_all(nv, ne, nb, ng, nsb, nsg, &qp_dim);
 
@@ -374,6 +374,7 @@ int main()
 * free memory
 ************************************************/
 
+	free(qp_dim_mem);
 	free(qp_mem);
 	free(qp_sol_mem);
 	free(ipm_mem);

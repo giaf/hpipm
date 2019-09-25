@@ -33,103 +33,50 @@
 *                                                                                                 *
 **************************************************************************************************/
 
-
-
-int DENSE_QP_DIM_MEMSIZE()
-	{
-
-	int size = 0;
-
-	size = (size+8-1)/8*8;
-
-	return size;
-
-	}
+#ifndef HPIPM_S_DENSE_QP_UTILS_H_
+#define HPIPM_S_DENSE_QP_UTILS_H_
 
 
 
-void DENSE_QP_DIM_CREATE(struct DENSE_QP_DIM *size, void *memory)
-	{
+#include <blasfeo_target.h>
+#include <blasfeo_common.h>
 
-	size->memsize = DENSE_QP_DIM_MEMSIZE();
-
-	// initialize dims to zero by default
-
-	size->nv = 0;
-	size->ne = 0;
-	size->nb = 0;
-	size->ng = 0;
-	size->nq = 0;
-	size->ns = 0;
-	size->nsb = 0;
-	size->nsg = 0;
-
-	return;
-
-	}
+#include "hpipm_s_dense_qp_dim.h"
+#include "hpipm_s_dense_qp.h"
+#include "hpipm_s_dense_qp_sol.h"
+#include "hpipm_s_dense_qp_ipm.h"
 
 
-void DENSE_QP_DIM_SET_ALL(int nv, int ne, int nb, int ng, int nq, int nsb, int nsg, struct DENSE_QP_DIM *size)
-	{
 
-	size->nv = nv;
-	size->ne = ne;
-	size->nb = nb;
-	size->ng = ng;
-	size->nq = nq;
-	size->ns = nsb+nsg;
-	size->nsb = nsb;
-	size->nsg = nsg;
-
-	return;
-
-	}
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 
-void DENSE_QP_DIM_SET(char *field_name, int value, struct DENSE_QP_DIM *dim)
-	{
-	if(hpipm_strcmp(field_name, "nv"))
-		{ 
-		dim->nv = value;
-		}
-	else if(hpipm_strcmp(field_name, "ne"))
-		{ 
-		dim->ne = value;
-		}
-	else if(hpipm_strcmp(field_name, "nb"))
-		{
-		dim->nb = value;
-		}
-	else if(hpipm_strcmp(field_name, "ng"))
-		{
-		dim->ng = value;
-		}
-	else if(hpipm_strcmp(field_name, "nq"))
-		{
-		dim->nq = value;
-		}
-	else if(hpipm_strcmp(field_name, "nsb"))
-		{
-		dim->nsb = value;
-		dim->ns = dim->nsb + dim->nsg;
-		}
-	else if(hpipm_strcmp(field_name, "nsg"))
-		{
-		dim->nsg = value;
-		dim->ns = dim->nsb + dim->nsg;
-		}
-	else if(hpipm_strcmp(field_name, "ns"))
-		{
-		dim->ns = value;
-		}
-	else 
-		{
-		printf("error: SET_OCP_QP_DIM: wrong field %s\n", field_name);
-		exit(1);
-		}
-	return;
-	}
+
+//
+void s_dense_qp_dim_print(struct s_dense_qp_dim *qp_dim);
+//
+//void s_dense_qp_dim_codegen(char *file_name, char *mode, struct s_dense_qp_dim *qp_dim);
+//
+void s_dense_qp_print(struct s_dense_qp_dim *qp_dim, struct s_dense_qp *qp);
+//
+//void s_dense_qp_codegen(char *file_name, char *mode, struct s_dense_qp_dim *qp_dim, struct s_dense_qp *qp);
+//
+void s_dense_qp_sol_print(struct s_dense_qp_dim *qp_dim, struct s_dense_qp_sol *dense_qp_sol);
+//
+//void s_dense_qp_ipm_arg_codegen(char *file_name, char *mode, struct s_dense_qp_dim *qp_dim, struct s_dense_qp_ipm_arg *arg);
+//
+//void s_dense_qp_res_print(struct s_dense_qp_dim *qp_dim, struct s_dense_qp_res *dense_qp_res);
 
 
+
+#ifdef __cplusplus
+}	// #extern "C"
+#endif
+
+
+
+#endif // HPIPM_S_DENSE_QP_UTILS_H_
 
 

@@ -33,103 +33,40 @@
 *                                                                                                 *
 **************************************************************************************************/
 
+#include <stdlib.h>
+#include <stdio.h>
 
+#include <blasfeo_target.h>
+#include <blasfeo_common.h>
+#include <blasfeo_d_aux.h>
+#include <blasfeo_d_aux_ext_dep.h>
+#include <blasfeo_i_aux_ext_dep.h>
 
-int DENSE_QP_DIM_MEMSIZE()
-	{
-
-	int size = 0;
-
-	size = (size+8-1)/8*8;
-
-	return size;
-
-	}
-
-
-
-void DENSE_QP_DIM_CREATE(struct DENSE_QP_DIM *size, void *memory)
-	{
-
-	size->memsize = DENSE_QP_DIM_MEMSIZE();
-
-	// initialize dims to zero by default
-
-	size->nv = 0;
-	size->ne = 0;
-	size->nb = 0;
-	size->ng = 0;
-	size->nq = 0;
-	size->ns = 0;
-	size->nsb = 0;
-	size->nsg = 0;
-
-	return;
-
-	}
-
-
-void DENSE_QP_DIM_SET_ALL(int nv, int ne, int nb, int ng, int nq, int nsb, int nsg, struct DENSE_QP_DIM *size)
-	{
-
-	size->nv = nv;
-	size->ne = ne;
-	size->nb = nb;
-	size->ng = ng;
-	size->nq = nq;
-	size->ns = nsb+nsg;
-	size->nsb = nsb;
-	size->nsg = nsg;
-
-	return;
-
-	}
-
-
-void DENSE_QP_DIM_SET(char *field_name, int value, struct DENSE_QP_DIM *dim)
-	{
-	if(hpipm_strcmp(field_name, "nv"))
-		{ 
-		dim->nv = value;
-		}
-	else if(hpipm_strcmp(field_name, "ne"))
-		{ 
-		dim->ne = value;
-		}
-	else if(hpipm_strcmp(field_name, "nb"))
-		{
-		dim->nb = value;
-		}
-	else if(hpipm_strcmp(field_name, "ng"))
-		{
-		dim->ng = value;
-		}
-	else if(hpipm_strcmp(field_name, "nq"))
-		{
-		dim->nq = value;
-		}
-	else if(hpipm_strcmp(field_name, "nsb"))
-		{
-		dim->nsb = value;
-		dim->ns = dim->nsb + dim->nsg;
-		}
-	else if(hpipm_strcmp(field_name, "nsg"))
-		{
-		dim->nsg = value;
-		dim->ns = dim->nsb + dim->nsg;
-		}
-	else if(hpipm_strcmp(field_name, "ns"))
-		{
-		dim->ns = value;
-		}
-	else 
-		{
-		printf("error: SET_OCP_QP_DIM: wrong field %s\n", field_name);
-		exit(1);
-		}
-	return;
-	}
+#include <hpipm_d_dense_qp_dim.h>
+#include <hpipm_d_dense_qp.h>
+#include <hpipm_d_dense_qp_sol.h>
+#include "hpipm_d_dense_qp_ipm.h"
 
 
 
+#define DOUBLE_PRECISION
 
+
+
+#define BLASFEO_PRINT_MAT blasfeo_print_dmat
+#define BLASFEO_PRINT_TRAN_VEC blasfeo_print_tran_dvec
+#define DENSE_QP d_dense_qp
+#define DENSE_QP_DIM d_dense_qp_dim
+#define DENSE_QP_IPM_ARG d_dense_qp_ipm_arg
+#define DENSE_QP_RES d_dense_qp_res
+#define DENSE_QP_SOL d_dense_qp_sol
+
+
+
+#define DENSE_QP_DIM_PRINT d_dense_qp_dim_print
+#define DENSE_QP_PRINT d_dense_qp_print
+#define DENSE_QP_SOL_PRINT d_dense_qp_sol_print
+
+
+
+#include "x_dense_qp_utils.c"

@@ -66,6 +66,7 @@ OBJS += dense_qp/d_dense_qp_sol.o
 OBJS += dense_qp/d_dense_qp_res.o 
 OBJS += dense_qp/d_dense_qp_kkt.o 
 OBJS += dense_qp/d_dense_qp_ipm.o
+OBJS += dense_qp/d_dense_qp_utils.o
 # single
 OBJS += dense_qp/s_dense_qp_dim.o 
 OBJS += dense_qp/s_dense_qp.o 
@@ -73,6 +74,7 @@ OBJS += dense_qp/s_dense_qp_sol.o
 OBJS += dense_qp/s_dense_qp_res.o 
 OBJS += dense_qp/s_dense_qp_kkt.o 
 OBJS += dense_qp/s_dense_qp_ipm.o
+OBJS += dense_qp/s_dense_qp_utils.o
 #mixed
 OBJS += dense_qp/m_dense_qp_dim.o 
 OBJS += dense_qp/m_dense_qp.o 
