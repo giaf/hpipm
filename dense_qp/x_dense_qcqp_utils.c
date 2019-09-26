@@ -33,48 +33,111 @@
 *                                                                                                 *
 **************************************************************************************************/
 
-#ifndef HPIPM_S_DENSE_QP_DIM_H_
-#define HPIPM_S_DENSE_QP_DIM_H_
 
 
-
-#ifdef __cplusplus
-extern "C" {
-#endif
-
-
-
-struct s_dense_qp_dim
+void DENSE_QCQP_DIM_PRINT(struct DENSE_QCQP_DIM *qp_dim)
 	{
-	int nv;  // number of variables
-	int ne;  // number of equality constraints
-	int nb;  // number of box constraints
-	int ng;  // number of general constraints
-	int nsb; // number of softened box constraints
-	int nsg; // number of softened general constraints
-	int ns;  // number of softened constraints (nsb+nsg)
-	int memsize;
-	};
+	int ii;
+
+	int nv = qp_dim->nv;
+	int nb = qp_dim->nb;
+	int ng = qp_dim->ng;
+	int nq = qp_dim->nq;
+	int nsb = qp_dim->nsb;
+	int nsg = qp_dim->nsg;
+	int ns = qp_dim->ns;
+
+	printf("nv = %d\n\n", nv);
+	printf("nb = %d\n\n", nb);
+	printf("ng = %d\n\n", ng);
+	printf("nq = %d\n\n", nq);
+	printf("nsb = %d\n\n", nsb);
+	printf("nsg = %d\n\n", nsg);
+	printf("ns = %d\n\n", ns);
+
+	return;
+	}
 
 
 
-//
-int s_dense_qp_dim_memsize();
-//
-void s_dense_qp_dim_create(struct s_dense_qp_dim *qp_dim, void *memory);
-//
-void s_dense_qp_dim_set_all(int nv, int ne, int nb, int ng, int nsb, int nsg, struct s_dense_qp_dim *dim);
-//
-void s_dense_qp_dim_set(char *field_name, int value, struct s_dense_qp_dim *dim);
+void DENSE_QCQP_PRINT(struct DENSE_QCQP_DIM *qp_dim, struct DENSE_QCQP *qp)
+	{
+	int ii;
+
+	int nv = qp_dim->nv;
+	int ne = qp_dim->ne;
+	int nb = qp_dim->nb;
+	int ng = qp_dim->ng;
+	int nq = qp_dim->nq;
+	int nsb = qp_dim->nsb;
+	int nsg = qp_dim->nsg;
+	int ns = qp_dim->ns;
+
+	printf("H = \n");
+	BLASFEO_PRINT_MAT(nv, nv, qp->Hv, 0, 0);
+
+	printf("A = \n");
+	BLASFEO_PRINT_MAT(ne, nv, qp->A, 0, 0);
+
+	printf("Ct = \n");
+	BLASFEO_PRINT_MAT(nv, ng, qp->Ct, 0, 0);
+
+	printf("Hq = \n");
+	for(ii=0; ii<nq; ii++)
+		BLASFEO_PRINT_MAT(nv, nv, qp->Hq+ii, 0, 0);
+
+	printf("gz = \n");
+	BLASFEO_PRINT_TRAN_VEC(nv+2*ns, qp->gz, 0);
+
+	printf("b = \n");
+	BLASFEO_PRINT_TRAN_VEC(ne, qp->b, 0);
+
+	printf("d = \n");
+	BLASFEO_PRINT_TRAN_VEC(2*nb+2*ng+2*ns+nq, qp->d, 0);
+
+	printf("m = \n");
+	BLASFEO_PRINT_TRAN_VEC(2*nb+2*ng+2*ns+nq, qp->m, 0);
+
+	printf("Z = \n");
+	BLASFEO_PRINT_TRAN_VEC(2*ns, qp->Z, 0);
+
+	printf("gq = \n");
+	for(ii=0; ii<nq; ii++)
+		BLASFEO_PRINT_TRAN_VEC(nv, qp->gq+ii, 0);
+
+	return;
+	}
 
 
 
-#ifdef __cplusplus
-}	// #extern "C"
-#endif
+void DENSE_QCQP_SOL_PRINT(struct DENSE_QCQP_DIM *qp_dim, struct DENSE_QCQP_SOL *qp_sol)
+	{
+	int ii;
+
+	int nv = qp_dim->nv;
+	int ne = qp_dim->ne;
+	int nb = qp_dim->nb;
+	int ng = qp_dim->ng;
+	int nq = qp_dim->nq;
+	int nsb = qp_dim->nsb;
+	int nsg = qp_dim->nsg;
+	int ns = qp_dim->ns;
+
+	printf("v = \n");
+	BLASFEO_PRINT_TRAN_VEC(nv+2*ns, qp_sol->v, 0);
+
+	printf("pi = \n");
+	BLASFEO_PRINT_TRAN_VEC(ne, qp_sol->pi, 0);
+
+	printf("lam = \n");
+	BLASFEO_PRINT_TRAN_VEC(2*nb+2*ng+2*ns+nq, qp_sol->lam, 0);
+
+	printf("t = \n");
+	BLASFEO_PRINT_TRAN_VEC(2*nb+2*ng+2*ns+nq, qp_sol->t, 0);
+
+	return;
+	}
 
 
-
-#endif // HPIPM_S_DENSE_QP_DIM_H_
 
 

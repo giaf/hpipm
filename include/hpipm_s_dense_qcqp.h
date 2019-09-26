@@ -35,15 +35,15 @@
 
 
 
-#ifndef HPIPM_S_DENSE_QP_H_
-#define HPIPM_S_DENSE_QP_H_
+#ifndef HPIPM_S_DENSE_QCQP_H_
+#define HPIPM_S_DENSE_QCQP_H_
 
 
 
 #include <blasfeo_target.h>
 #include <blasfeo_common.h>
 
-#include "hpipm_s_dense_qp_dim.h"
+#include "hpipm_s_dense_qcqp_dim.h"
 
 
 
@@ -53,17 +53,19 @@ extern "C" {
 
 
 
-struct s_dense_qp
+struct s_dense_qcqp
 	{
-	struct s_dense_qp_dim *dim;
-	struct blasfeo_smat *Hv; // hessian & gradient
-	struct blasfeo_smat *A; // dynamics matrix
-	struct blasfeo_smat *Ct; // constraints matrix
-	struct blasfeo_svec *gz; // gradient & gradient of slacks
-	struct blasfeo_svec *b; // dynamics vector
-	struct blasfeo_svec *d; // constraints vector
+	struct s_dense_qcqp_dim *dim;
+	struct blasfeo_smat *Hv; // hessian of cost & vector work space
+	struct blasfeo_smat *A; // equality constraint matrix
+	struct blasfeo_smat *Ct; // inequality constraints matrix
+	struct blasfeo_smat *Hq; // hessians of quadratic constraints
+	struct blasfeo_svec *gz; // gradient of cost & gradient of slacks
+	struct blasfeo_svec *b; // equality constraint vector
+	struct blasfeo_svec *d; // inequality constraints vector
 	struct blasfeo_svec *m; // rhs of complementarity condition
 	struct blasfeo_svec *Z; // (diagonal) hessian of slacks
+	struct blasfeo_svec *gq; // gradients of quadratic constraints
 	int *idxb; // index of box constraints
 	int *idxs; // index of soft constraints
 	int memsize; // memory size in bytes
@@ -72,88 +74,86 @@ struct s_dense_qp
 
 
 //
-int s_dense_qp_memsize(struct s_dense_qp_dim *dim);
+int s_dense_qcqp_memsize(struct s_dense_qcqp_dim *dim);
 //
-void s_dense_qp_create(struct s_dense_qp_dim *dim, struct s_dense_qp *qp, void *memory);
+void s_dense_qcqp_create(struct s_dense_qcqp_dim *dim, struct s_dense_qcqp *qp, void *memory);
+
 //
-void s_dense_qp_set_all(float *H, float *g, float *A, float *b, int *idxb, float *d_lb, float *d_ub, float *C, float *d_lg, float *d_ug, float *Zl, float *Zu, float *zl, float *zu, int *idxs, float *d_ls, float *d_us, struct s_dense_qp *qp);
+void s_dense_qcqp_set_H(float *H, struct s_dense_qcqp *qp);
 //
-void s_dense_qp_get_all(struct s_dense_qp *qp, float *H, float *g, float *A, float *b, int *idxb, float *d_lb, float *d_ub, float *C, float *d_lg, float *d_ug, float *Zl, float *Zu, float *zl, float *zu, int *idxs, float *d_ls, float *d_us);
+void s_dense_qcqp_set_g(float *g, struct s_dense_qcqp *qp);
 //
+void s_dense_qcqp_set_A(float *A, struct s_dense_qcqp *qp);
 //
-void s_dense_qp_set_H(float *H, struct s_dense_qp *qp);
+void s_dense_qcqp_set_b(float *b, struct s_dense_qcqp *qp);
 //
-void s_dense_qp_set_g(float *g, struct s_dense_qp *qp);
+void s_dense_qcqp_set_idxb(int *idxb, struct s_dense_qcqp *qp);
 //
-void s_dense_qp_set_A(float *A, struct s_dense_qp *qp);
+void s_dense_qcqp_set_lb(float *lb, struct s_dense_qcqp *qp);
 //
-void s_dense_qp_set_b(float *b, struct s_dense_qp *qp);
+void s_dense_qcqp_set_ub(float *ub, struct s_dense_qcqp *qp);
 //
-void s_dense_qp_set_idxb(int *idxb, struct s_dense_qp *qp);
+void s_dense_qcqp_set_C(float *C, struct s_dense_qcqp *qp);
 //
-void s_dense_qp_set_lb(float *lb, struct s_dense_qp *qp);
+void s_dense_qcqp_set_lg(float *lg, struct s_dense_qcqp *qp);
 //
-void s_dense_qp_set_ub(float *ub, struct s_dense_qp *qp);
+void s_dense_qcqp_set_ug(float *ug, struct s_dense_qcqp *qp);
 //
-void s_dense_qp_set_C(float *C, struct s_dense_qp *qp);
+void s_dense_qcqp_set_Hq(float *Hq, struct s_dense_qcqp *qp);
 //
-void s_dense_qp_set_lg(float *lg, struct s_dense_qp *qp);
+void s_dense_qcqp_set_gq(float *gq, struct s_dense_qcqp *qp);
 //
-void s_dense_qp_set_ug(float *ug, struct s_dense_qp *qp);
+void s_dense_qcqp_set_uq(float *uq, struct s_dense_qcqp *qp);
 //
-void s_dense_qp_set_idxs(int *idxs, struct s_dense_qp *qp);
+void s_dense_qcqp_set_idxs(int *idxs, struct s_dense_qcqp *qp);
 //
-void s_dense_qp_set_Zl(float *Zl, struct s_dense_qp *qp);
+void s_dense_qcqp_set_Zl(float *Zl, struct s_dense_qcqp *qp);
 //
-void s_dense_qp_set_Zu(float *Zu, struct s_dense_qp *qp);
+void s_dense_qcqp_set_Zu(float *Zu, struct s_dense_qcqp *qp);
 //
-void s_dense_qp_set_zl(float *zl, struct s_dense_qp *qp);
+void s_dense_qcqp_set_zl(float *zl, struct s_dense_qcqp *qp);
 //
-void s_dense_qp_set_zu(float *zu, struct s_dense_qp *qp);
+void s_dense_qcqp_set_zu(float *zu, struct s_dense_qcqp *qp);
 //
-void s_dense_qp_set_ls(float *ls, struct s_dense_qp *qp);
+void s_dense_qcqp_set_ls(float *ls, struct s_dense_qcqp *qp);
 //
-void s_dense_qp_set_us(float *us, struct s_dense_qp *qp);
+void s_dense_qcqp_set_us(float *us, struct s_dense_qcqp *qp);
 
 // getters (COLMAJ)
 
-void s_dense_qp_get_H(struct s_dense_qp *qp, float *H);
+void s_dense_qcqp_get_H(struct s_dense_qcqp *qp, float *H);
 //
-void s_dense_qp_get_g(struct s_dense_qp *qp, float *g);
+void s_dense_qcqp_get_g(struct s_dense_qcqp *qp, float *g);
 //
-void s_dense_qp_get_A(struct s_dense_qp *qp, float *A);
+void s_dense_qcqp_get_A(struct s_dense_qcqp *qp, float *A);
 //
-void s_dense_qp_get_b(struct s_dense_qp *qp, float *b);
+void s_dense_qcqp_get_b(struct s_dense_qcqp *qp, float *b);
 //
-void s_dense_qp_get_idxb(struct s_dense_qp *qp, int *idxb);
+void s_dense_qcqp_get_idxb(struct s_dense_qcqp *qp, int *idxb);
 //
-void s_dense_qp_get_lb(struct s_dense_qp *qp, float *lb);
+void s_dense_qcqp_get_lb(struct s_dense_qcqp *qp, float *lb);
 //
-void s_dense_qp_get_ub(struct s_dense_qp *qp, float *ub);
+void s_dense_qcqp_get_ub(struct s_dense_qcqp *qp, float *ub);
 //
-void s_dense_qp_get_C(struct s_dense_qp *qp, float *C);
+void s_dense_qcqp_get_C(struct s_dense_qcqp *qp, float *C);
 //
-void s_dense_qp_get_lg(struct s_dense_qp *qp, float *lg);
+void s_dense_qcqp_get_lg(struct s_dense_qcqp *qp, float *lg);
 //
-void s_dense_qp_get_ug(struct s_dense_qp *qp, float *ug);
+void s_dense_qcqp_get_ug(struct s_dense_qcqp *qp, float *ug);
 //
-void s_dense_qp_get_idxs(struct s_dense_qp *qp, int *idxs);
+void s_dense_qcqp_get_idxs(struct s_dense_qcqp *qp, int *idxs);
 //
-void s_dense_qp_get_Zl(struct s_dense_qp *qp, float *Zl);
+void s_dense_qcqp_get_Zl(struct s_dense_qcqp *qp, float *Zl);
 //
-void s_dense_qp_get_Zu(struct s_dense_qp *qp, float *Zu);
+void s_dense_qcqp_get_Zu(struct s_dense_qcqp *qp, float *Zu);
 //
-void s_dense_qp_get_zl(struct s_dense_qp *qp, float *zl);
+void s_dense_qcqp_get_zl(struct s_dense_qcqp *qp, float *zl);
 //
-void s_dense_qp_get_zu(struct s_dense_qp *qp, float *zu);
+void s_dense_qcqp_get_zu(struct s_dense_qcqp *qp, float *zu);
 //
-void s_dense_qp_get_ls(struct s_dense_qp *qp, float *ls);
+void s_dense_qcqp_get_ls(struct s_dense_qcqp *qp, float *ls);
 //
-void s_dense_qp_get_us(struct s_dense_qp *qp, float *us);
-//
-void s_dense_qp_set_all_rowmaj(float *H, float *g, float *A, float *b, int *idxb, float *d_lb, float *d_ub, float *C, float *d_lg, float *d_ug, float *Zl, float *Zu, float *zl, float *zu, int *idxs, float *d_ls, float *d_us, struct s_dense_qp *qp);
-//
-void s_dense_qp_get_all_rowmaj(struct s_dense_qp *qp, float *H, float *g, float *A, float *b, int *idxb, float *d_lb, float *d_ub, float *C, float *d_lg, float *d_ug, float *Zl, float *Zu, float *zl, float *zu, int *idxs, float *d_ls, float *d_us);
+void s_dense_qcqp_get_us(struct s_dense_qcqp *qp, float *us);
 
 
 #ifdef __cplusplus
@@ -162,4 +162,6 @@ void s_dense_qp_get_all_rowmaj(struct s_dense_qp *qp, float *H, float *g, float 
 
 
 
-#endif // HPIPM_S_DENSE_QP_H_
+#endif // HPIPM_S_DENSE_QCQP_H_
+
+

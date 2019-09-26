@@ -33,8 +33,8 @@
 *                                                                                                 *
 **************************************************************************************************/
 
-#ifndef HPIPM_S_DENSE_QP_DIM_H_
-#define HPIPM_S_DENSE_QP_DIM_H_
+#ifndef HPIPM_D_DENSE_QCQP_DIM_H_
+#define HPIPM_D_DENSE_QCQP_DIM_H_
 
 
 
@@ -44,12 +44,13 @@ extern "C" {
 
 
 
-struct s_dense_qp_dim
+struct d_dense_qcqp_dim
 	{
 	int nv;  // number of variables
 	int ne;  // number of equality constraints
 	int nb;  // number of box constraints
 	int ng;  // number of general constraints
+	int nq;  // number of quadratic constraints
 	int nsb; // number of softened box constraints
 	int nsg; // number of softened general constraints
 	int ns;  // number of softened constraints (nsb+nsg)
@@ -59,13 +60,11 @@ struct s_dense_qp_dim
 
 
 //
-int s_dense_qp_dim_memsize();
+int d_dense_qcqp_dim_memsize();
 //
-void s_dense_qp_dim_create(struct s_dense_qp_dim *qp_dim, void *memory);
+void d_dense_qcqp_dim_create(struct d_dense_qcqp_dim *dim, void *memory);
 //
-void s_dense_qp_dim_set_all(int nv, int ne, int nb, int ng, int nsb, int nsg, struct s_dense_qp_dim *dim);
-//
-void s_dense_qp_dim_set(char *field_name, int value, struct s_dense_qp_dim *dim);
+void d_dense_qcqp_dim_set(char *field_name, int value, struct d_dense_qcqp_dim *dim);
 
 
 
@@ -75,6 +74,5 @@ void s_dense_qp_dim_set(char *field_name, int value, struct s_dense_qp_dim *dim)
 
 
 
-#endif // HPIPM_S_DENSE_QP_DIM_H_
-
+#endif // HPIPM_D_DENSE_QCQP_DIM_H_
 

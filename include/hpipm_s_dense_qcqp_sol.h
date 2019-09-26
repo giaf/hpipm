@@ -33,8 +33,17 @@
 *                                                                                                 *
 **************************************************************************************************/
 
-#ifndef HPIPM_S_DENSE_QP_DIM_H_
-#define HPIPM_S_DENSE_QP_DIM_H_
+
+
+#ifndef HPIPM_S_DENSE_QCQP_SOL_H_
+#define HPIPM_S_DENSE_QCQP_SOL_H_
+
+
+
+#include <blasfeo_target.h>
+#include <blasfeo_common.h>
+
+#include "hpipm_s_dense_qcqp_dim.h"
 
 
 
@@ -44,37 +53,32 @@ extern "C" {
 
 
 
-struct s_dense_qp_dim
+struct s_dense_qcqp_sol
 	{
-	int nv;  // number of variables
-	int ne;  // number of equality constraints
-	int nb;  // number of box constraints
-	int ng;  // number of general constraints
-	int nsb; // number of softened box constraints
-	int nsg; // number of softened general constraints
-	int ns;  // number of softened constraints (nsb+nsg)
+	struct s_dense_qcqp_dim *dim;
+	struct blasfeo_svec *v;
+	struct blasfeo_svec *pi;
+	struct blasfeo_svec *lam;
+	struct blasfeo_svec *t;
+	void *misc;
 	int memsize;
 	};
 
 
 
 //
-int s_dense_qp_dim_memsize();
+int s_dense_qcqp_sol_memsize(struct s_dense_qcqp_dim *dim);
 //
-void s_dense_qp_dim_create(struct s_dense_qp_dim *qp_dim, void *memory);
-//
-void s_dense_qp_dim_set_all(int nv, int ne, int nb, int ng, int nsb, int nsg, struct s_dense_qp_dim *dim);
-//
-void s_dense_qp_dim_set(char *field_name, int value, struct s_dense_qp_dim *dim);
+void s_dense_qcqp_sol_create(struct s_dense_qcqp_dim *dim, struct s_dense_qcqp_sol *qp_sol, void *memory);
 
 
 
 #ifdef __cplusplus
-}	// #extern "C"
+} /* extern "C" */
 #endif
 
 
 
-#endif // HPIPM_S_DENSE_QP_DIM_H_
+#endif // HPIPM_S_DENSE_QCQP_SOL_H_
 
 

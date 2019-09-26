@@ -42,7 +42,6 @@ void DENSE_QP_DIM_PRINT(struct DENSE_QP_DIM *qp_dim)
 	int nv = qp_dim->nv;
 	int nb = qp_dim->nb;
 	int ng = qp_dim->ng;
-	int nq = qp_dim->nq;
 	int nsb = qp_dim->nsb;
 	int nsg = qp_dim->nsg;
 	int ns = qp_dim->ns;
@@ -50,7 +49,6 @@ void DENSE_QP_DIM_PRINT(struct DENSE_QP_DIM *qp_dim)
 	printf("nv = %d\n\n", nv);
 	printf("nb = %d\n\n", nb);
 	printf("ng = %d\n\n", ng);
-	printf("nq = %d\n\n", nq);
 	printf("nsb = %d\n\n", nsb);
 	printf("nsg = %d\n\n", nsg);
 	printf("ns = %d\n\n", ns);
@@ -68,7 +66,6 @@ void DENSE_QP_PRINT(struct DENSE_QP_DIM *qp_dim, struct DENSE_QP *qp)
 	int ne = qp_dim->ne;
 	int nb = qp_dim->nb;
 	int ng = qp_dim->ng;
-	int nq = qp_dim->nq;
 	int nsb = qp_dim->nsb;
 	int nsg = qp_dim->nsg;
 	int ns = qp_dim->ns;
@@ -82,10 +79,6 @@ void DENSE_QP_PRINT(struct DENSE_QP_DIM *qp_dim, struct DENSE_QP *qp)
 	printf("Ct = \n");
 	BLASFEO_PRINT_MAT(nv, ng, qp->Ct, 0, 0);
 
-	printf("Hq = \n");
-	for(ii=0; ii<nq; ii++)
-		BLASFEO_PRINT_MAT(nv, nv, qp->Hq+ii, 0, 0);
-
 	printf("gz = \n");
 	BLASFEO_PRINT_TRAN_VEC(nv+2*ns, qp->gz, 0);
 
@@ -93,17 +86,13 @@ void DENSE_QP_PRINT(struct DENSE_QP_DIM *qp_dim, struct DENSE_QP *qp)
 	BLASFEO_PRINT_TRAN_VEC(ne, qp->b, 0);
 
 	printf("d = \n");
-	BLASFEO_PRINT_TRAN_VEC(2*nb+2*ng+2*ns+nq, qp->d, 0);
+	BLASFEO_PRINT_TRAN_VEC(2*nb+2*ng+2*ns, qp->d, 0);
 
 	printf("m = \n");
-	BLASFEO_PRINT_TRAN_VEC(2*nb+2*ng+2*ns+nq, qp->m, 0);
+	BLASFEO_PRINT_TRAN_VEC(2*nb+2*ng+2*ns, qp->m, 0);
 
 	printf("Z = \n");
 	BLASFEO_PRINT_TRAN_VEC(2*ns, qp->Z, 0);
-
-	printf("gq = \n");
-	for(ii=0; ii<nq; ii++)
-		BLASFEO_PRINT_TRAN_VEC(nv, qp->gq+ii, 0);
 
 	return;
 	}
@@ -118,7 +107,6 @@ void DENSE_QP_SOL_PRINT(struct DENSE_QP_DIM *qp_dim, struct DENSE_QP_SOL *qp_sol
 	int ne = qp_dim->ne;
 	int nb = qp_dim->nb;
 	int ng = qp_dim->ng;
-	int nq = qp_dim->nq;
 	int nsb = qp_dim->nsb;
 	int nsg = qp_dim->nsg;
 	int ns = qp_dim->ns;
@@ -130,10 +118,10 @@ void DENSE_QP_SOL_PRINT(struct DENSE_QP_DIM *qp_dim, struct DENSE_QP_SOL *qp_sol
 	BLASFEO_PRINT_TRAN_VEC(ne, qp_sol->pi, 0);
 
 	printf("lam = \n");
-	BLASFEO_PRINT_TRAN_VEC(2*nb+2*ng+2*ns+nq, qp_sol->lam, 0);
+	BLASFEO_PRINT_TRAN_VEC(2*nb+2*ng+2*ns, qp_sol->lam, 0);
 
 	printf("t = \n");
-	BLASFEO_PRINT_TRAN_VEC(2*nb+2*ng+2*ns+nq, qp_sol->t, 0);
+	BLASFEO_PRINT_TRAN_VEC(2*nb+2*ng+2*ns, qp_sol->t, 0);
 
 	return;
 	}

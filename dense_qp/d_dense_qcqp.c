@@ -33,48 +33,86 @@
 *                                                                                                 *
 **************************************************************************************************/
 
-#ifndef HPIPM_S_DENSE_QP_DIM_H_
-#define HPIPM_S_DENSE_QP_DIM_H_
+
+
+#include <stdlib.h>
+#include <stdio.h>
+
+#include <blasfeo_target.h>
+#include <blasfeo_common.h>
+#include <blasfeo_d_aux.h>
+
+#include <hpipm_d_dense_qcqp_dim.h>
+#include <hpipm_d_dense_qcqp.h>
+
+
+#define CREATE_STRMAT blasfeo_create_dmat
+#define CREATE_STRVEC blasfeo_create_dvec
+#define CVT_MAT2STRMAT blasfeo_pack_dmat
+#define CVT_TRAN_MAT2STRMAT blasfeo_pack_tran_dmat
+#define CVT_TRAN_STRMAT2MAT blasfeo_unpack_tran_dmat
+#define CVT_VEC2STRVEC blasfeo_pack_dvec
+#define CVT_STRMAT2MAT blasfeo_unpack_dmat
+#define CVT_STRVEC2VEC blasfeo_unpack_dvec
+#define DENSE_QCQP d_dense_qcqp
+#define DENSE_QCQP_DIM d_dense_qcqp_dim
+#define GECP_LIBSTR blasfeo_dgecp
+#define GETR_LIBSTR blasfeo_dgetr
+#define REAL double
+#define ROWIN_LIBSTR blasfeo_drowin
+#define SIZE_STRMAT blasfeo_memsize_dmat
+#define SIZE_STRVEC blasfeo_memsize_dvec
+#define STRMAT blasfeo_dmat
+#define STRVEC blasfeo_dvec
+#define VECCP_LIBSTR blasfeo_dveccp
+#define VECSC_LIBSTR blasfeo_dvecsc
+#define VECSE_LIBSTR blasfeo_dvecse
+
+#define DENSE_QCQP_MEMSIZE d_dense_qcqp_memsize
+#define DENSE_QCQP_CREATE d_dense_qcqp_create
+#define DENSE_QCQP_SET_ALL d_dense_qcqp_set_all
+#define DENSE_QCQP_GET_ALL d_dense_qcqp_get_all
+#define DENSE_QCQP_SET_H d_dense_qcqp_set_H
+#define DENSE_QCQP_SET_G d_dense_qcqp_set_g
+#define DENSE_QCQP_SET_A d_dense_qcqp_set_A
+#define DENSE_QCQP_SET_B d_dense_qcqp_set_b
+#define DENSE_QCQP_SET_IDXB d_dense_qcqp_set_idxb
+#define DENSE_QCQP_SET_LB d_dense_qcqp_set_lb
+#define DENSE_QCQP_SET_UB d_dense_qcqp_set_ub
+#define DENSE_QCQP_SET_C d_dense_qcqp_set_C
+#define DENSE_QCQP_SET_LG d_dense_qcqp_set_lg
+#define DENSE_QCQP_SET_UG d_dense_qcqp_set_ug
+#define DENSE_QCQP_SET_HQ d_dense_qcqp_set_Hq
+#define DENSE_QCQP_SET_GQ d_dense_qcqp_set_gq
+#define DENSE_QCQP_SET_UQ d_dense_qcqp_set_uq
+#define DENSE_QCQP_SET_IDXS d_dense_qcqp_set_idxs
+#define DENSE_QCQP_SET_ZZL d_dense_qcqp_set_Zl
+#define DENSE_QCQP_SET_ZZU d_dense_qcqp_set_Zu
+#define DENSE_QCQP_SET_ZL d_dense_qcqp_set_zl
+#define DENSE_QCQP_SET_ZU d_dense_qcqp_set_zu
+#define DENSE_QCQP_SET_LS d_dense_qcqp_set_ls
+#define DENSE_QCQP_SET_US d_dense_qcqp_set_us
+#define DENSE_QCQP_GET_H d_dense_qcqp_get_H
+#define DENSE_QCQP_GET_G d_dense_qcqp_get_g
+#define DENSE_QCQP_GET_A d_dense_qcqp_get_A
+#define DENSE_QCQP_GET_B d_dense_qcqp_get_b
+#define DENSE_QCQP_GET_IDXB d_dense_qcqp_get_idxb
+#define DENSE_QCQP_GET_LB d_dense_qcqp_get_lb
+#define DENSE_QCQP_GET_UB d_dense_qcqp_get_ub
+#define DENSE_QCQP_GET_C d_dense_qcqp_get_C
+#define DENSE_QCQP_GET_LG d_dense_qcqp_get_lg
+#define DENSE_QCQP_GET_UG d_dense_qcqp_get_ug
+#define DENSE_QCQP_GET_IDXS d_dense_qcqp_get_idxs
+#define DENSE_QCQP_GET_ZZL d_dense_qcqp_get_Zl
+#define DENSE_QCQP_GET_ZZU d_dense_qcqp_get_Zu
+#define DENSE_QCQP_GET_ZL d_dense_qcqp_get_zl
+#define DENSE_QCQP_GET_ZU d_dense_qcqp_get_zu
+#define DENSE_QCQP_GET_LS d_dense_qcqp_get_ls
+#define DENSE_QCQP_GET_US d_dense_qcqp_get_us
+#define DENSE_QCQP_SET_ALL_ROWMAJ d_dense_qcqp_set_all_rowmaj
+#define DENSE_QCQP_GET_ALL_ROWMAJ d_dense_qcqp_get_all_rowmaj
 
 
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
-
-
-struct s_dense_qp_dim
-	{
-	int nv;  // number of variables
-	int ne;  // number of equality constraints
-	int nb;  // number of box constraints
-	int ng;  // number of general constraints
-	int nsb; // number of softened box constraints
-	int nsg; // number of softened general constraints
-	int ns;  // number of softened constraints (nsb+nsg)
-	int memsize;
-	};
-
-
-
-//
-int s_dense_qp_dim_memsize();
-//
-void s_dense_qp_dim_create(struct s_dense_qp_dim *qp_dim, void *memory);
-//
-void s_dense_qp_dim_set_all(int nv, int ne, int nb, int ng, int nsb, int nsg, struct s_dense_qp_dim *dim);
-//
-void s_dense_qp_dim_set(char *field_name, int value, struct s_dense_qp_dim *dim);
-
-
-
-#ifdef __cplusplus
-}	// #extern "C"
-#endif
-
-
-
-#endif // HPIPM_S_DENSE_QP_DIM_H_
-
+#include "x_dense_qcqp.c"
 

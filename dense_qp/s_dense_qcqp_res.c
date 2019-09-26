@@ -33,48 +33,60 @@
 *                                                                                                 *
 **************************************************************************************************/
 
-#ifndef HPIPM_S_DENSE_QP_DIM_H_
-#define HPIPM_S_DENSE_QP_DIM_H_
+
+
+#include <stdlib.h>
+#include <stdio.h>
+
+#include <blasfeo_target.h>
+#include <blasfeo_common.h>
+#include <blasfeo_s_aux.h>
+#include <blasfeo_s_blas.h>
+
+#include <hpipm_s_dense_qcqp_dim.h>
+#include <hpipm_s_dense_qcqp.h>
+#include <hpipm_s_dense_qcqp_sol.h>
+#include <hpipm_s_dense_qcqp_res.h>
 
 
 
-#ifdef __cplusplus
-extern "C" {
-#endif
+#define SINGLE_PRECISION
 
 
 
-struct s_dense_qp_dim
-	{
-	int nv;  // number of variables
-	int ne;  // number of equality constraints
-	int nb;  // number of box constraints
-	int ng;  // number of general constraints
-	int nsb; // number of softened box constraints
-	int nsg; // number of softened general constraints
-	int ns;  // number of softened constraints (nsb+nsg)
-	int memsize;
-	};
+#define AXPY blasfeo_saxpy
+#define CREATE_STRVEC blasfeo_create_svec
+#define CVT_STRVEC2VEC blasfeo_unpack_svec
+#define DENSE_QCQP s_dense_qcqp
+#define DENSE_QCQP_DIM s_dense_qcqp_dim
+#define DENSE_QCQP_RES s_dense_qcqp_res
+#define DENSE_QCQP_RES_WS s_dense_qcqp_res_ws
+#define DENSE_QCQP_SOL s_dense_qcqp_sol
+#define DOT blasfeo_sdot
+#define GEMV_DIAG blasfeo_sgemv_d
+#define GEMV_NT blasfeo_sgemv_nt
+#define REAL double
+#define SIZE_STRVEC blasfeo_memsize_svec
+#define STRMAT blasfeo_smat
+#define STRVEC blasfeo_svec
+#define SYMV_L blasfeo_ssymv_l
+#define VECAD_SP blasfeo_svecad_sp
+#define VECCP blasfeo_sveccp
+#define VECEX_SP blasfeo_svecex_sp
+#define VECMULACC blasfeo_svecmulacc
+#define VECMULDOT blasfeo_svecmuldot
 
 
 
-//
-int s_dense_qp_dim_memsize();
-//
-void s_dense_qp_dim_create(struct s_dense_qp_dim *qp_dim, void *memory);
-//
-void s_dense_qp_dim_set_all(int nv, int ne, int nb, int ng, int nsb, int nsg, struct s_dense_qp_dim *dim);
-//
-void s_dense_qp_dim_set(char *field_name, int value, struct s_dense_qp_dim *dim);
+#define DENSE_QCQP_RES_MEMSIZE s_dense_qcqp_res_memsize
+#define DENSE_QCQP_RES_CREATE s_dense_qcqp_res_create
+#define DENSE_QCQP_RES_WS_MEMSIZE s_dense_qcqp_res_ws_memsize
+#define DENSE_QCQP_RES_WS_CREATE s_dense_qcqp_res_ws_create
+#define DENSE_QCQP_RES_COMPUTE s_dense_qcqp_res_compute
 
 
 
-#ifdef __cplusplus
-}	// #extern "C"
-#endif
+#include "x_dense_qcqp_res.c"
 
-
-
-#endif // HPIPM_S_DENSE_QP_DIM_H_
 
 

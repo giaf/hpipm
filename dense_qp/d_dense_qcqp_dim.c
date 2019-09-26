@@ -33,48 +33,23 @@
 *                                                                                                 *
 **************************************************************************************************/
 
-#ifndef HPIPM_S_DENSE_QP_DIM_H_
-#define HPIPM_S_DENSE_QP_DIM_H_
+
+
+#include <stdlib.h>
+#include <stdio.h>
+
+#include <hpipm_d_dense_qcqp_dim.h>
+#include <hpipm_aux_string.h>
 
 
 
-#ifdef __cplusplus
-extern "C" {
-#endif
+#define DENSE_QCQP_DIM d_dense_qcqp_dim
+
+#define DENSE_QCQP_DIM_MEMSIZE d_dense_qcqp_dim_memsize
+#define DENSE_QCQP_DIM_CREATE d_dense_qcqp_dim_create
+#define DENSE_QCQP_DIM_SET d_dense_qcqp_dim_set
 
 
-
-struct s_dense_qp_dim
-	{
-	int nv;  // number of variables
-	int ne;  // number of equality constraints
-	int nb;  // number of box constraints
-	int ng;  // number of general constraints
-	int nsb; // number of softened box constraints
-	int nsg; // number of softened general constraints
-	int ns;  // number of softened constraints (nsb+nsg)
-	int memsize;
-	};
-
-
-
-//
-int s_dense_qp_dim_memsize();
-//
-void s_dense_qp_dim_create(struct s_dense_qp_dim *qp_dim, void *memory);
-//
-void s_dense_qp_dim_set_all(int nv, int ne, int nb, int ng, int nsb, int nsg, struct s_dense_qp_dim *dim);
-//
-void s_dense_qp_dim_set(char *field_name, int value, struct s_dense_qp_dim *dim);
-
-
-
-#ifdef __cplusplus
-}	// #extern "C"
-#endif
-
-
-
-#endif // HPIPM_S_DENSE_QP_DIM_H_
+#include "x_dense_qcqp_dim.c"
 
 

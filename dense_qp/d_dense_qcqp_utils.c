@@ -33,48 +33,41 @@
 *                                                                                                 *
 **************************************************************************************************/
 
-#ifndef HPIPM_S_DENSE_QP_DIM_H_
-#define HPIPM_S_DENSE_QP_DIM_H_
+#include <stdlib.h>
+#include <stdio.h>
+
+#include <blasfeo_target.h>
+#include <blasfeo_common.h>
+#include <blasfeo_d_aux.h>
+#include <blasfeo_d_aux_ext_dep.h>
+#include <blasfeo_i_aux_ext_dep.h>
+
+#include <hpipm_d_dense_qcqp_dim.h>
+#include <hpipm_d_dense_qcqp.h>
+#include <hpipm_d_dense_qcqp_sol.h>
+//#include "hpipm_d_dense_qcqp_ipm.h"
 
 
 
-#ifdef __cplusplus
-extern "C" {
-#endif
+#define DOUBLE_PRECISION
 
 
 
-struct s_dense_qp_dim
-	{
-	int nv;  // number of variables
-	int ne;  // number of equality constraints
-	int nb;  // number of box constraints
-	int ng;  // number of general constraints
-	int nsb; // number of softened box constraints
-	int nsg; // number of softened general constraints
-	int ns;  // number of softened constraints (nsb+nsg)
-	int memsize;
-	};
+#define BLASFEO_PRINT_MAT blasfeo_print_dmat
+#define BLASFEO_PRINT_TRAN_VEC blasfeo_print_tran_dvec
+#define DENSE_QCQP d_dense_qcqp
+#define DENSE_QCQP_DIM d_dense_qcqp_dim
+#define DENSE_QCQP_IPM_ARG d_dense_qcqp_ipm_arg
+#define DENSE_QCQP_RES d_dense_qcqp_res
+#define DENSE_QCQP_SOL d_dense_qcqp_sol
 
 
 
-//
-int s_dense_qp_dim_memsize();
-//
-void s_dense_qp_dim_create(struct s_dense_qp_dim *qp_dim, void *memory);
-//
-void s_dense_qp_dim_set_all(int nv, int ne, int nb, int ng, int nsb, int nsg, struct s_dense_qp_dim *dim);
-//
-void s_dense_qp_dim_set(char *field_name, int value, struct s_dense_qp_dim *dim);
+#define DENSE_QCQP_DIM_PRINT d_dense_qcqp_dim_print
+#define DENSE_QCQP_PRINT d_dense_qcqp_print
+#define DENSE_QCQP_SOL_PRINT d_dense_qcqp_sol_print
 
 
 
-#ifdef __cplusplus
-}	// #extern "C"
-#endif
-
-
-
-#endif // HPIPM_S_DENSE_QP_DIM_H_
-
+#include "x_dense_qcqp_utils.c"
 

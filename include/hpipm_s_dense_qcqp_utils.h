@@ -33,8 +33,18 @@
 *                                                                                                 *
 **************************************************************************************************/
 
-#ifndef HPIPM_S_DENSE_QP_DIM_H_
-#define HPIPM_S_DENSE_QP_DIM_H_
+#ifndef HPIPM_S_DENSE_QCQP_UTILS_H_
+#define HPIPM_S_DENSE_QCQP_UTILS_H_
+
+
+
+#include <blasfeo_target.h>
+#include <blasfeo_common.h>
+
+#include "hpipm_s_dense_qcqp_dim.h"
+#include "hpipm_s_dense_qcqp.h"
+#include "hpipm_s_dense_qcqp_sol.h"
+//#include "hpipm_s_dense_qcqp_ipm.h"
 
 
 
@@ -44,28 +54,20 @@ extern "C" {
 
 
 
-struct s_dense_qp_dim
-	{
-	int nv;  // number of variables
-	int ne;  // number of equality constraints
-	int nb;  // number of box constraints
-	int ng;  // number of general constraints
-	int nsb; // number of softened box constraints
-	int nsg; // number of softened general constraints
-	int ns;  // number of softened constraints (nsb+nsg)
-	int memsize;
-	};
-
-
-
 //
-int s_dense_qp_dim_memsize();
+void s_dense_qcqp_dim_print(struct s_dense_qcqp_dim *qp_dim);
 //
-void s_dense_qp_dim_create(struct s_dense_qp_dim *qp_dim, void *memory);
+//void s_dense_qcqp_dim_codegen(char *file_name, char *mode, struct s_dense_qcqp_dim *qp_dim);
 //
-void s_dense_qp_dim_set_all(int nv, int ne, int nb, int ng, int nsb, int nsg, struct s_dense_qp_dim *dim);
+void s_dense_qcqp_print(struct s_dense_qcqp_dim *qp_dim, struct s_dense_qcqp *qp);
 //
-void s_dense_qp_dim_set(char *field_name, int value, struct s_dense_qp_dim *dim);
+//void s_dense_qcqp_codegen(char *file_name, char *mode, struct s_dense_qcqp_dim *qp_dim, struct s_dense_qcqp *qp);
+//
+void s_dense_qcqp_sol_print(struct s_dense_qcqp_dim *qp_dim, struct s_dense_qcqp_sol *dense_qcqp_sol);
+//
+//void s_dense_qcqp_ipm_arg_codegen(char *file_name, char *mode, struct s_dense_qcqp_dim *qp_dim, struct s_dense_qcqp_ipm_arg *arg);
+//
+//void s_dense_qcqp_res_print(struct s_dense_qcqp_dim *qp_dim, struct s_dense_qcqp_res *dense_qcqp_res);
 
 
 
@@ -75,6 +77,7 @@ void s_dense_qp_dim_set(char *field_name, int value, struct s_dense_qp_dim *dim)
 
 
 
-#endif // HPIPM_S_DENSE_QP_DIM_H_
+#endif // HPIPM_S_DENSE_QCQP_UTILS_H_
+
 
 

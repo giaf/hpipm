@@ -68,7 +68,6 @@ struct d_dense_qp_res
 
 struct d_dense_qp_res_ws
 	{
-	struct blasfeo_dvec *tmp_nv; // work space of size nv
 	struct blasfeo_dvec *tmp_nbg; // work space of size nbM+ngM
 	struct blasfeo_dvec *tmp_ns; // work space of size nsM
 	int memsize;

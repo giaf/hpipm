@@ -48,38 +48,36 @@ int DENSE_QP_DIM_MEMSIZE()
 
 
 
-void DENSE_QP_DIM_CREATE(struct DENSE_QP_DIM *size, void *memory)
+void DENSE_QP_DIM_CREATE(struct DENSE_QP_DIM *dim, void *memory)
 	{
 
-	size->memsize = DENSE_QP_DIM_MEMSIZE();
+	dim->memsize = DENSE_QP_DIM_MEMSIZE();
 
 	// initialize dims to zero by default
 
-	size->nv = 0;
-	size->ne = 0;
-	size->nb = 0;
-	size->ng = 0;
-	size->nq = 0;
-	size->ns = 0;
-	size->nsb = 0;
-	size->nsg = 0;
+	dim->nv = 0;
+	dim->ne = 0;
+	dim->nb = 0;
+	dim->ng = 0;
+	dim->ns = 0;
+	dim->nsb = 0;
+	dim->nsg = 0;
 
 	return;
 
 	}
 
 
-void DENSE_QP_DIM_SET_ALL(int nv, int ne, int nb, int ng, int nq, int nsb, int nsg, struct DENSE_QP_DIM *size)
+void DENSE_QP_DIM_SET_ALL(int nv, int ne, int nb, int ng, int nsb, int nsg, struct DENSE_QP_DIM *dim)
 	{
 
-	size->nv = nv;
-	size->ne = ne;
-	size->nb = nb;
-	size->ng = ng;
-	size->nq = nq;
-	size->ns = nsb+nsg;
-	size->nsb = nsb;
-	size->nsg = nsg;
+	dim->nv = nv;
+	dim->ne = ne;
+	dim->nb = nb;
+	dim->ng = ng;
+	dim->ns = nsb+nsg;
+	dim->nsb = nsb;
+	dim->nsg = nsg;
 
 	return;
 
@@ -103,10 +101,6 @@ void DENSE_QP_DIM_SET(char *field_name, int value, struct DENSE_QP_DIM *dim)
 	else if(hpipm_strcmp(field_name, "ng"))
 		{
 		dim->ng = value;
-		}
-	else if(hpipm_strcmp(field_name, "nq"))
-		{
-		dim->nq = value;
 		}
 	else if(hpipm_strcmp(field_name, "nsb"))
 		{

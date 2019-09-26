@@ -33,8 +33,17 @@
 *                                                                                                 *
 **************************************************************************************************/
 
-#ifndef HPIPM_S_DENSE_QP_DIM_H_
-#define HPIPM_S_DENSE_QP_DIM_H_
+#ifndef HPIPM_D_DENSE_QCQP_RES_H_
+#define HPIPM_D_DENSE_QCQP_RES_H_
+
+
+
+#include <blasfeo_target.h>
+#include <blasfeo_common.h>
+
+#include <hpipm_d_dense_qcqp_dim.h>
+#include <hpipm_d_dense_qcqp.h>
+#include <hpipm_d_dense_qcqp_sol.h>
 
 
 
@@ -44,28 +53,39 @@ extern "C" {
 
 
 
-struct s_dense_qp_dim
+struct d_dense_qcqp_res
 	{
-	int nv;  // number of variables
-	int ne;  // number of equality constraints
-	int nb;  // number of box constraints
-	int ng;  // number of general constraints
-	int nsb; // number of softened box constraints
-	int nsg; // number of softened general constraints
-	int ns;  // number of softened constraints (nsb+nsg)
+	struct d_dense_qcqp_dim *dim;
+	struct blasfeo_dvec *res_g; // q-residuals
+	struct blasfeo_dvec *res_b; // b-residuals
+	struct blasfeo_dvec *res_d; // d-residuals
+	struct blasfeo_dvec *res_m; // m-residuals
+	double res_mu; // mu-residual
+	int memsize;
+	};
+
+
+
+struct d_dense_qcqp_res_ws
+	{
+	struct blasfeo_dvec *tmp_nv; // work space of size nv
+	struct blasfeo_dvec *tmp_nbg; // work space of size nbM+ngM
+	struct blasfeo_dvec *tmp_ns; // work space of size nsM
 	int memsize;
 	};
 
 
 
 //
-int s_dense_qp_dim_memsize();
+int d_dense_qcqp_res_memsize(struct d_dense_qcqp_dim *dim);
 //
-void s_dense_qp_dim_create(struct s_dense_qp_dim *qp_dim, void *memory);
+void d_dense_qcqp_res_create(struct d_dense_qcqp_dim *dim, struct d_dense_qcqp_res *res, void *mem);
 //
-void s_dense_qp_dim_set_all(int nv, int ne, int nb, int ng, int nsb, int nsg, struct s_dense_qp_dim *dim);
+int d_dense_qcqp_res_ws_memsize(struct d_dense_qcqp_dim *dim);
 //
-void s_dense_qp_dim_set(char *field_name, int value, struct s_dense_qp_dim *dim);
+void d_dense_qcqp_res_ws_create(struct d_dense_qcqp_dim *dim, struct d_dense_qcqp_res_ws *workspace, void *mem);
+//
+void d_dense_qcqp_res_compute(struct d_dense_qcqp *qp, struct d_dense_qcqp_sol *qp_sol, struct d_dense_qcqp_res *res, struct d_dense_qcqp_res_ws *ws);
 
 
 
@@ -74,7 +94,7 @@ void s_dense_qp_dim_set(char *field_name, int value, struct s_dense_qp_dim *dim)
 #endif
 
 
+#endif // HPIPM_D_DENSE_QCQP_RES_H_
 
-#endif // HPIPM_S_DENSE_QP_DIM_H_
 
 

@@ -33,48 +33,87 @@
 *                                                                                                 *
 **************************************************************************************************/
 
-#ifndef HPIPM_S_DENSE_QP_DIM_H_
-#define HPIPM_S_DENSE_QP_DIM_H_
 
 
-
-#ifdef __cplusplus
-extern "C" {
-#endif
-
-
-
-struct s_dense_qp_dim
+int DENSE_QCQP_DIM_MEMSIZE()
 	{
-	int nv;  // number of variables
-	int ne;  // number of equality constraints
-	int nb;  // number of box constraints
-	int ng;  // number of general constraints
-	int nsb; // number of softened box constraints
-	int nsg; // number of softened general constraints
-	int ns;  // number of softened constraints (nsb+nsg)
-	int memsize;
-	};
+
+	int size = 0;
+
+	size = (size+8-1)/8*8;
+
+	return size;
+
+	}
 
 
 
-//
-int s_dense_qp_dim_memsize();
-//
-void s_dense_qp_dim_create(struct s_dense_qp_dim *qp_dim, void *memory);
-//
-void s_dense_qp_dim_set_all(int nv, int ne, int nb, int ng, int nsb, int nsg, struct s_dense_qp_dim *dim);
-//
-void s_dense_qp_dim_set(char *field_name, int value, struct s_dense_qp_dim *dim);
+void DENSE_QCQP_DIM_CREATE(struct DENSE_QCQP_DIM *dim, void *memory)
+	{
+
+	dim->memsize = DENSE_QCQP_DIM_MEMSIZE();
+
+	// initialize dims to zero by default
+
+	dim->nv = 0;
+	dim->ne = 0;
+	dim->nb = 0;
+	dim->ng = 0;
+	dim->nq = 0;
+	dim->ns = 0;
+	dim->nsb = 0;
+	dim->nsg = 0;
+
+	return;
+
+	}
+
+
+void DENSE_QCQP_DIM_SET(char *field_name, int value, struct DENSE_QCQP_DIM *dim)
+	{
+	if(hpipm_strcmp(field_name, "nv"))
+		{ 
+		dim->nv = value;
+		}
+	else if(hpipm_strcmp(field_name, "ne"))
+		{ 
+		dim->ne = value;
+		}
+	else if(hpipm_strcmp(field_name, "nb"))
+		{
+		dim->nb = value;
+		}
+	else if(hpipm_strcmp(field_name, "ng"))
+		{
+		dim->ng = value;
+		}
+	else if(hpipm_strcmp(field_name, "nq"))
+		{
+		dim->nq = value;
+		}
+	else if(hpipm_strcmp(field_name, "nsb"))
+		{
+		dim->nsb = value;
+		dim->ns = dim->nsb + dim->nsg;
+		}
+	else if(hpipm_strcmp(field_name, "nsg"))
+		{
+		dim->nsg = value;
+		dim->ns = dim->nsb + dim->nsg;
+		}
+	else if(hpipm_strcmp(field_name, "ns"))
+		{
+		dim->ns = value;
+		}
+	else 
+		{
+		printf("error: SET_OCP_QCQP_DIM: wrong field %s\n", field_name);
+		exit(1);
+		}
+	return;
+	}
 
 
 
-#ifdef __cplusplus
-}	// #extern "C"
-#endif
-
-
-
-#endif // HPIPM_S_DENSE_QP_DIM_H_
 
 

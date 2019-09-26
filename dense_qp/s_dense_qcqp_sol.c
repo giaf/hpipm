@@ -33,48 +33,39 @@
 *                                                                                                 *
 **************************************************************************************************/
 
-#ifndef HPIPM_S_DENSE_QP_DIM_H_
-#define HPIPM_S_DENSE_QP_DIM_H_
 
 
-
-#ifdef __cplusplus
-extern "C" {
+#if defined(RUNTIME_CHECKS)
+#include <stdlib.h>
+#include <stdio.h>
 #endif
 
+#include <blasfeo_target.h>
+#include <blasfeo_common.h>
+#include <blasfeo_s_aux.h>
 
-
-struct s_dense_qp_dim
-	{
-	int nv;  // number of variables
-	int ne;  // number of equality constraints
-	int nb;  // number of box constraints
-	int ng;  // number of general constraints
-	int nsb; // number of softened box constraints
-	int nsg; // number of softened general constraints
-	int ns;  // number of softened constraints (nsb+nsg)
-	int memsize;
-	};
+#include <hpipm_s_dense_qcqp_dim.h>
+#include <hpipm_s_dense_qcqp.h>
+#include <hpipm_s_dense_qcqp_sol.h>
 
 
 
-//
-int s_dense_qp_dim_memsize();
-//
-void s_dense_qp_dim_create(struct s_dense_qp_dim *qp_dim, void *memory);
-//
-void s_dense_qp_dim_set_all(int nv, int ne, int nb, int ng, int nsb, int nsg, struct s_dense_qp_dim *dim);
-//
-void s_dense_qp_dim_set(char *field_name, int value, struct s_dense_qp_dim *dim);
+#define CREATE_STRVEC blasfeo_create_svec
+#define CVT_STRVEC2VEC blasfeo_unpack_svec
+#define DENSE_QCQP s_dense_qcqp
+#define DENSE_QCQP_DIM s_dense_qcqp_dim
+#define DENSE_QCQP_SOL s_dense_qcqp_sol
+#define REAL float
+#define STRVEC blasfeo_svec
+#define SIZE_STRVEC blasfeo_memsize_svec
+#define VECCP_LIBSTR blasfeo_sveccp
+
+#define DENSE_QCQP_SOL_MEMSIZE s_dense_qcqp_sol_memsize
+#define DENSE_QCQP_SOL_CREATE s_dense_qcqp_sol_create
 
 
 
-#ifdef __cplusplus
-}	// #extern "C"
-#endif
+#include "x_dense_qcqp_sol.c"
 
-
-
-#endif // HPIPM_S_DENSE_QP_DIM_H_
 
 

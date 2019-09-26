@@ -50,7 +50,6 @@ struct d_dense_qp_dim
 	int ne;  // number of equality constraints
 	int nb;  // number of box constraints
 	int ng;  // number of general constraints
-	int nq;  // number of quadratic constraints
 	int nsb; // number of softened box constraints
 	int nsg; // number of softened general constraints
 	int ns;  // number of softened constraints (nsb+nsg)
@@ -64,7 +63,7 @@ int d_dense_qp_dim_memsize();
 //
 void d_dense_qp_dim_create(struct d_dense_qp_dim *qp_dim, void *memory);
 //
-void d_dense_qp_dim_set_all(int nv, int ne, int nb, int ng, int nq, int nsb, int nsg, struct d_dense_qp_dim *dim);
+void d_dense_qp_dim_set_all(int nv, int ne, int nb, int ng, int nsb, int nsg, struct d_dense_qp_dim *dim);
 //
 void d_dense_qp_dim_set(char *field_name, int value, struct d_dense_qp_dim *dim);
 

@@ -33,48 +33,101 @@
 *                                                                                                 *
 **************************************************************************************************/
 
-#ifndef HPIPM_S_DENSE_QP_DIM_H_
-#define HPIPM_S_DENSE_QP_DIM_H_
 
 
-
-#ifdef __cplusplus
-extern "C" {
-#endif
-
-
-
-struct s_dense_qp_dim
+int DENSE_QCQP_SOL_MEMSIZE(struct DENSE_QCQP_DIM *dim)
 	{
-	int nv;  // number of variables
-	int ne;  // number of equality constraints
-	int nb;  // number of box constraints
-	int ng;  // number of general constraints
-	int nsb; // number of softened box constraints
-	int nsg; // number of softened general constraints
-	int ns;  // number of softened constraints (nsb+nsg)
-	int memsize;
-	};
+
+	int nv = dim->nv;
+	int ne = dim->ne;
+	int nb = dim->nb;
+	int ng = dim->ng;
+	int nq = dim->nq;
+	int ns = dim->ns;
+
+	int size = 0;
+
+	size += 4*sizeof(struct STRVEC); // v pi lam t
+
+	size += 1*SIZE_STRVEC(nv+2*ns); // ux
+	size += 1*SIZE_STRVEC(ne); // pi
+	size += 2*SIZE_STRVEC(2*nb+2*ng+2*ns+nq); // lam t
+
+	size = (size+63)/64*64; // make multiple of typical cache line size
+	size += 64; // align to typical cache line size
+	
+	return size;
+
+	}
 
 
 
-//
-int s_dense_qp_dim_memsize();
-//
-void s_dense_qp_dim_create(struct s_dense_qp_dim *qp_dim, void *memory);
-//
-void s_dense_qp_dim_set_all(int nv, int ne, int nb, int ng, int nsb, int nsg, struct s_dense_qp_dim *dim);
-//
-void s_dense_qp_dim_set(char *field_name, int value, struct s_dense_qp_dim *dim);
+void DENSE_QCQP_SOL_CREATE(struct DENSE_QCQP_DIM *dim, struct DENSE_QCQP_SOL *qp_sol, void *mem)
+	{
+
+	// TODO zero out memory
+
+	int nv = dim->nv;
+	int ne = dim->ne;
+	int nb = dim->nb;
+	int ng = dim->ng;
+	int nq = dim->nq;
+	int ns = dim->ns;
 
 
+	// vector struct stuff
+	struct STRVEC *sv_ptr = (struct STRVEC *) mem;
 
-#ifdef __cplusplus
-}	// #extern "C"
+	qp_sol->v = sv_ptr;
+	sv_ptr += 1;
+	qp_sol->pi = sv_ptr;
+	sv_ptr += 1;
+	qp_sol->lam = sv_ptr;
+	sv_ptr += 1;
+	qp_sol->t = sv_ptr;
+	sv_ptr += 1;
+
+
+	// align to typical cache line size
+	long long l_ptr = (long long) sv_ptr;
+	l_ptr = (l_ptr+63)/64*64;
+
+
+	// double stuff
+	char *c_ptr;
+	c_ptr = (char *) l_ptr;
+
+	char *tmp_ptr;
+
+	// v
+	CREATE_STRVEC(nv+2*ns, qp_sol->v, c_ptr);
+	c_ptr += qp_sol->v->memsize;
+	// pi
+	CREATE_STRVEC(ne, qp_sol->pi, c_ptr);
+	c_ptr += qp_sol->pi->memsize;
+	// lam
+	CREATE_STRVEC(2*nb+2*ng+2*ns+nq, qp_sol->lam, c_ptr);
+	c_ptr += qp_sol->lam->memsize;
+	// t
+	CREATE_STRVEC(2*nb+2*ng+2*ns+nq, qp_sol->t, c_ptr);
+	c_ptr += qp_sol->t->memsize;
+
+
+	qp_sol->dim = dim;
+
+	qp_sol->memsize = DENSE_QCQP_SOL_MEMSIZE(dim);
+
+
+#if defined(RUNTIME_CHECKS)
+	if(c_ptr > ((char *) mem) + qp_sol->memsize)
+		{
+		printf("\nCreate_ocp_qp_sol: outsize memory bounds!\n\n");
+		exit(1);
+		}
 #endif
 
 
+	return;
 
-#endif // HPIPM_S_DENSE_QP_DIM_H_
-
+	}
 
