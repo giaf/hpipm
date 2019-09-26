@@ -358,18 +358,24 @@ void DENSE_QP_RES_COMPUTE_LIN(struct DENSE_QP *qp, struct DENSE_QP_SOL *qp_sol, 
 	int nq = qp->dim->nq;
 	int ns = qp->dim->ns;
 
-	int nct = 2*nb+2*ng+2*ns+nq;
+#ifdef RUNTIME_CHECKS
+	if(nq>0)
+		{
+		printf("\nerror: dense_qp_res_compute_lin: nq>0\n");
+		exit(1);
+		}
+#endif
+
+	int nct = 2*nb+2*ng+2*ns;
 
 	REAL nct_inv = 1.0/nct;
 
 	struct STRMAT *Hg = qp->Hv;
 	struct STRMAT *A = qp->A;
 	struct STRMAT *Ct = qp->Ct;
-	struct STRMAT *Hq = qp->Hq;
 	struct STRVEC *gz = qp->gz;
 	struct STRVEC *b = qp->b;
 	struct STRVEC *d = qp->d;
-	struct STRVEC *gq = qp->gq;
 	struct STRVEC *m = qp->m;
 	int *idxb = qp->idxb;
 	struct STRVEC *Z = qp->Z;
@@ -388,7 +394,6 @@ void DENSE_QP_RES_COMPUTE_LIN(struct DENSE_QP *qp, struct DENSE_QP_SOL *qp_sol, 
 	struct STRVEC *res_d = res->res_d;
 	struct STRVEC *res_m = res->res_m;
 
-	struct STRVEC *tmp_nv = ws->tmp_nv;
 	struct STRVEC *tmp_nbg = ws->tmp_nbg;
 	struct STRVEC *tmp_ns = ws->tmp_ns;
 
@@ -418,29 +423,6 @@ void DENSE_QP_RES_COMPUTE_LIN(struct DENSE_QP *qp, struct DENSE_QP_SOL *qp_sol, 
 			}
 		AXPY(nb+ng, -1.0, tmp_nbg+1, 0, res_d, 0, res_d, 0);
 		AXPY(nb+ng,  1.0, tmp_nbg+1, 0, res_d, nb+ng, res_d, nb+ng);
-		}
-	if(nq>0)
-		{
-		// TODO should the quadratic constraint be linearlized here ???
-		AXPY(nq,  1.0, d, 2*nb+2*ng+2*ns, t, 2*nb+2*ng+2*ns, res_d, 2*nb+2*ng+2*ns);
-		for(ii=0; ii<nq; ii++)
-			{
-			SYMV_L(nv, nv, 1.0, Hq+ii, 0, 0, v, 0, 0.0, tmp_nv, 0, tmp_nv, 0);
-#ifdef DOUBLE_PRECISION
-			tmp = BLASFEO_DVECEL(lam, 2*nb+2*ng+2*ng);
-#else
-			tmp = BLASFEO_SVECEL(lam, 2*nb+2*ng+2*ng);
-#endif
-			AXPY(nv, tmp, tmp_nv, 0, res_g, 0, res_g, 0);
-			AXPY(nv, tmp, gq+ii, 0, res_g, 0, res_g, 0);
-			AXPY(nv, 0.5, tmp_nv, 0, gq+ii, 0, tmp_nv, 0);
-			tmp = DOT(nv, tmp_nv, 0, v, 0);
-#ifdef DOUBLE_PRECISION
-			BLASFEO_DVECEL(res_d, 2*nb+2*ng+2*ns+ii) += tmp;
-#else
-			BLASFEO_SVECEL(res_d, 2*nb+2*ng+2*ns+ii) += tmp;
-#endif
-			}
 		}
 	if(ns>0)
 		{
