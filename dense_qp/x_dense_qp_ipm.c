@@ -759,6 +759,142 @@ void DENSE_QP_IPM_GET_STAT_M(struct DENSE_QP_IPM_WS *ws, int *stat_m)
 
 
 
+void DENSE_QP_INIT_VAR(struct DENSE_QP *qp, struct DENSE_QP_SOL *qp_sol, struct DENSE_QP_IPM_ARG *arg, struct DENSE_QP_IPM_WS *ws)
+	{
+
+//	struct CORE_QP_IPM_WORKSPACE *cws = ws->core_workspace;
+
+	// extract cws members
+	int nv = qp->dim->nv;
+	int ne = qp->dim->ne;
+	int nb = qp->dim->nb;
+	int ng = qp->dim->ng;
+	int ns = qp->dim->ns;
+
+	REAL *d = qp->d->pa;
+	int *idxb = qp->idxb;
+
+	REAL *v = qp_sol->v->pa;
+	REAL *pi = qp_sol->pi->pa;
+	REAL *lam = qp_sol->lam->pa;
+	REAL *t = qp_sol->t->pa;
+
+	REAL mu0 = arg->mu0;
+
+	// local variables
+	int ii;
+	int idxb0;
+	REAL thr0 = 0.5;
+
+
+
+	// primal and dual variables
+	if(arg->warm_start==2)
+		{
+
+		thr0 = 1e-1;
+
+		for(ii=0; ii<2*nb+2*ng+2*ns; ii++)
+			{
+			if(lam[ii]<thr0)
+				lam[ii] = thr0;
+			if(t[ii]<thr0)
+				t[ii] = thr0;
+			}
+
+
+		return;
+
+		}
+
+
+
+
+	// primal variables
+	if(arg->warm_start==0)
+		{
+		// cold start
+		for(ii=0; ii<nv+2*ns; ii++)
+			{
+			v[ii] = 0.0;
+			}
+		}
+		
+	// equality constraints
+	for(ii=0; ii<ne; ii++)
+		{
+		pi[ii] = 0.0;
+		}
+	
+	// box constraints
+	for(ii=0; ii<nb; ii++)
+		{
+#if 1
+		idxb0 = idxb[ii];
+		t[0+ii]     = - d[0+ii]     + v[idxb0];
+		t[nb+ng+ii] = - d[nb+ng+ii] - v[idxb0];
+		if(t[0+ii]<thr0)
+			{
+			if(t[nb+ng+ii]<thr0)
+				{
+				v[idxb0] = 0.5*(d[0+ii] + d[nb+ng+ii]);
+				t[0+ii]     = thr0;
+				t[nb+ng+ii] = thr0;
+				}
+			else
+				{
+				t[0+ii] = thr0;
+				v[idxb0] = d[0+ii] + thr0;
+				}
+			}
+		else if(t[nb+ng+ii]<thr0)
+			{
+			t[nb+ng+ii] = thr0;
+			v[idxb0] = - d[nb+ng+ii] - thr0;
+			}
+#else
+		t[0+ii]     = 1.0;
+		t[nb+ng+ii] = 1.0;
+#endif
+		lam[0+ii]     = mu0/t[0+ii];
+		lam[nb+ng+ii] = mu0/t[nb+ng+ii];
+		}
+	
+	// general constraints
+	GEMV_T(nv, ng, 1.0, qp->Ct, 0, 0, qp_sol->v, 0, 0.0, qp_sol->t, nb, qp_sol->t, nb);
+	for(ii=0; ii<ng; ii++)
+		{
+#if 1
+		t[2*nb+ng+ii] = t[nb+ii];
+		t[nb+ii]      -= d[nb+ii];
+		t[2*nb+ng+ii] -= d[2*nb+ng+ii];
+//		t[nb+ii]      = fmax( thr0, t[nb+ii] );
+//		t[2*nb+ng+ii] = fmax( thr0, t[2*nb+ng+ii] );
+		t[nb+ii]      = thr0>t[nb+ii]      ? thr0 : t[nb+ii];
+		t[2*nb+ng+ii] = thr0>t[2*nb+ng+ii] ? thr0 : t[2*nb+ng+ii];
+#else
+		t[nb+ii]      = 1.0;
+		t[2*nb+ng+ii] = 1.0;
+#endif
+		lam[nb+ii]      = mu0/t[nb+ii];
+		lam[2*nb+ng+ii] = mu0/t[2*nb+ng+ii];
+		}
+
+	// soft constraints
+	for(ii=0; ii<ns; ii++)
+		{
+		t[2*nb+2*ng+ii]    = 1.0; // thr0;
+		t[2*nb+2*ng+ns+ii] = 1.0; // thr0;
+		lam[2*nb+2*ng+ii]    = mu0/t[2*nb+2*ng+ii];
+		lam[2*nb+2*ng+ns+ii] = mu0/t[2*nb+2*ng+ns+ii];
+		}
+
+	return;
+
+	}
+
+
+
 void DENSE_QP_IPM_ABS_STEP(int kk, struct DENSE_QP *qp, struct DENSE_QP_SOL *qp_sol, struct DENSE_QP_IPM_ARG *arg, struct DENSE_QP_IPM_WS *ws)
 	{
 
@@ -1222,7 +1358,7 @@ void DENSE_QP_IPM_SOLVE(struct DENSE_QP *qp, struct DENSE_QP_SOL *qp_sol, struct
 	REAL mu;
 
 	// init solver
-	INIT_VAR_DENSE_QP(qp, qp_sol, arg, ws);
+	DENSE_QP_INIT_VAR(qp, qp_sol, arg, ws);
 
 	cws->alpha = 1.0;
 
@@ -1346,7 +1482,7 @@ void DENSE_QP_IPM_SOLVE(struct DENSE_QP *qp, struct DENSE_QP_SOL *qp_sol, struct
 
 
 
-	// relative IPM formulation
+	// relative (delta) IPM formulation
 
 	// IPM loop
 	for(kk=0; \

@@ -72,6 +72,7 @@
 #define CREATE_STRVEC blasfeo_create_svec
 #define DENSE_QP s_dense_qp
 #define DENSE_QP_IPM_ARG s_dense_qp_ipm_arg
+#define GEMV_T blasfeo_sgemv_t
 #define HPIPM_MODE hpipm_mode
 #define DENSE_QP_IPM_WS s_dense_qp_ipm_ws
 #define DENSE_QP_DIM s_dense_qp_dim
@@ -133,6 +134,7 @@
 #define DENSE_QP_IPM_GET_MAX_RES_COMP s_dense_qp_ipm_get_max_res_comp
 #define DENSE_QP_IPM_GET_STAT s_dense_qp_ipm_get_stat
 #define DENSE_QP_IPM_GET_STAT_M s_dense_qp_ipm_get_stat_m
+#define DENSE_QP_INIT_VAR s_dense_qp_init_var
 #define DENSE_QP_IPM_SOLVE s_dense_qp_ipm_solve
 #define DENSE_QP_IPM_PREDICT s_dense_qp_ipm_predict
 #define DENSE_QP_IPM_SENS s_dense_qp_ipm_sens
