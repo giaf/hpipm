@@ -38,16 +38,36 @@
 #include <stdlib.h>
 #include <stdio.h>
 
-#include <hpipm_d_dense_qcqp_dim.h>
 #include <hpipm_aux_string.h>
+#include <hpipm_d_dense_qp_dim.h>
+#include <hpipm_d_dense_qcqp_dim.h>
 
 
 
 #define DENSE_QCQP_DIM d_dense_qcqp_dim
+#define DENSE_QP_DIM d_dense_qp_dim
+#define DENSE_QP_DIM_CREATE d_dense_qp_dim_create
+#define DENSE_QP_DIM_MEMSIZE d_dense_qp_dim_memsize
+#define DENSE_QP_DIM_SET d_dense_qp_dim_set
+#define DENSE_QP_DIM_SET_NV d_dense_qp_dim_set_nv
+#define DENSE_QP_DIM_SET_NE d_dense_qp_dim_set_ne
+#define DENSE_QP_DIM_SET_NB d_dense_qp_dim_set_nb
+#define DENSE_QP_DIM_SET_NG d_dense_qp_dim_set_ng
+#define DENSE_QP_DIM_SET_NSB d_dense_qp_dim_set_nsb
+#define DENSE_QP_DIM_SET_NSG d_dense_qp_dim_set_nsg
+#define DENSE_QP_DIM_SET_NS d_dense_qp_dim_set_ns
 
 #define DENSE_QCQP_DIM_MEMSIZE d_dense_qcqp_dim_memsize
 #define DENSE_QCQP_DIM_CREATE d_dense_qcqp_dim_create
 #define DENSE_QCQP_DIM_SET d_dense_qcqp_dim_set
+#define DENSE_QCQP_DIM_SET_NV d_dense_qcqp_dim_set_nv
+#define DENSE_QCQP_DIM_SET_NE d_dense_qcqp_dim_set_ne
+#define DENSE_QCQP_DIM_SET_NB d_dense_qcqp_dim_set_nb
+#define DENSE_QCQP_DIM_SET_NG d_dense_qcqp_dim_set_ng
+#define DENSE_QCQP_DIM_SET_NQ d_dense_qcqp_dim_set_nq
+#define DENSE_QCQP_DIM_SET_NSB d_dense_qcqp_dim_set_nsb
+#define DENSE_QCQP_DIM_SET_NSG d_dense_qcqp_dim_set_nsg
+#define DENSE_QCQP_DIM_SET_NS d_dense_qcqp_dim_set_ns
 
 
 #include "x_dense_qcqp_dim.c"

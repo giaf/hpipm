@@ -192,7 +192,7 @@ void DENSE_QCQP_CREATE(struct DENSE_QCQP_DIM *dim, struct DENSE_QCQP *qp, void *
 #if defined(RUNTIME_CHECKS)
 	if(c_ptr > ((char *) mem) + qp->memsize)
 		{
-		printf("\nCreate_ocp_qp: outside memory bounds!\n\n");
+		printf("\ndense_qcqp_create: outside memory bounds!\n\n");
 		exit(1);
 		}
 #endif

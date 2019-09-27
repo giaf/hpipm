@@ -46,6 +46,7 @@ extern "C" {
 
 struct s_dense_qcqp_dim
 	{
+	struct s_dense_qp_dim *qp_dim; // dim of qp approximation
 	int nv;  // number of variables
 	int ne;  // number of equality constraints
 	int nb;  // number of box constraints
@@ -64,7 +65,23 @@ int s_dense_qcqp_dim_memsize();
 //
 void s_dense_qcqp_dim_create(struct s_dense_qcqp_dim *dim, void *memory);
 //
-void s_dense_qcqp_dim_set(char *field_name, int value, struct s_dense_qcqp_dim *dim);
+void s_dense_qcqp_dim_set(char *fiels_name, int value, struct s_dense_qcqp_dim *dim);
+//
+void s_dense_qcqp_dim_set_nv(int value, struct s_dense_qcqp_dim *dim);
+//
+void s_dense_qcqp_dim_set_ne(int value, struct s_dense_qcqp_dim *dim);
+//
+void s_dense_qcqp_dim_set_nb(int value, struct s_dense_qcqp_dim *dim);
+//
+void s_dense_qcqp_dim_set_ng(int value, struct s_dense_qcqp_dim *dim);
+//
+void s_dense_qcqp_dim_set_nq(int value, struct s_dense_qcqp_dim *dim);
+//
+void s_dense_qcqp_dim_set_nsb(int value, struct s_dense_qcqp_dim *dim);
+//
+void s_dense_qcqp_dim_set_nsg(int value, struct s_dense_qcqp_dim *dim);
+//
+void s_dense_qcqp_dim_set_ns(int value, struct s_dense_qcqp_dim *dim);
 
 
 

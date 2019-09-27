@@ -93,6 +93,7 @@ int main()
 	d_dense_qcqp_dim_set("nq", nq, &qp_dim);
 
 	d_dense_qcqp_dim_print(&qp_dim);
+	d_dense_qp_dim_print(qp_dim.qp_dim);
 
 /************************************************
 * dense qp

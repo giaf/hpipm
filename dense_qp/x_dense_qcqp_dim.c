@@ -40,7 +40,11 @@ int DENSE_QCQP_DIM_MEMSIZE()
 
 	int size = 0;
 
-	size = (size+8-1)/8*8;
+	size += 1*sizeof(struct DENSE_QP_DIM);
+	size += 1*DENSE_QP_DIM_MEMSIZE();
+
+	size = (size+63)/64*64; // make multiple of typical cache line size
+	size += 1*64; // align once to typical cache line size
 
 	return size;
 
@@ -48,10 +52,35 @@ int DENSE_QCQP_DIM_MEMSIZE()
 
 
 
-void DENSE_QCQP_DIM_CREATE(struct DENSE_QCQP_DIM *dim, void *memory)
+void DENSE_QCQP_DIM_CREATE(struct DENSE_QCQP_DIM *dim, void *mem)
 	{
 
+	// qp_dim struct
+	struct DENSE_QP_DIM *dim_ptr = mem;
+
+	dim->qp_dim = dim_ptr;
+	dim_ptr += 1;
+
+	// align to typical cache line size
+	size_t s_ptr = (size_t) dim_ptr;
+	s_ptr = (s_ptr+63)/64*64;
+
+	// void
+	char *c_ptr = (char *) s_ptr;
+
+	DENSE_QP_DIM_CREATE(dim->qp_dim, c_ptr);
+	c_ptr += dim->qp_dim->memsize;
+
+
 	dim->memsize = DENSE_QCQP_DIM_MEMSIZE();
+
+#if defined(RUNTIME_CHECKS)
+	if(c_ptr > ((char *) mem) + qp->memsize)
+		{
+		printf("\nerror: DENSE_QCQP_DIM_CREATE: outside memory bounds!\n\n");
+		exit(1);
+		}
+#endif
 
 	// initialize dims to zero by default
 
@@ -73,37 +102,35 @@ void DENSE_QCQP_DIM_SET(char *field_name, int value, struct DENSE_QCQP_DIM *dim)
 	{
 	if(hpipm_strcmp(field_name, "nv"))
 		{ 
-		dim->nv = value;
+		DENSE_QCQP_DIM_SET_NV(value, dim);
 		}
 	else if(hpipm_strcmp(field_name, "ne"))
 		{ 
-		dim->ne = value;
+		DENSE_QCQP_DIM_SET_NE(value, dim);
 		}
 	else if(hpipm_strcmp(field_name, "nb"))
 		{
-		dim->nb = value;
+		DENSE_QCQP_DIM_SET_NB(value, dim);
 		}
 	else if(hpipm_strcmp(field_name, "ng"))
 		{
-		dim->ng = value;
+		DENSE_QCQP_DIM_SET_NG(value, dim);
 		}
 	else if(hpipm_strcmp(field_name, "nq"))
 		{
-		dim->nq = value;
+		DENSE_QCQP_DIM_SET_NQ(value, dim);
 		}
 	else if(hpipm_strcmp(field_name, "nsb"))
 		{
-		dim->nsb = value;
-		dim->ns = dim->nsb + dim->nsg;
+		DENSE_QCQP_DIM_SET_NSB(value, dim);
 		}
 	else if(hpipm_strcmp(field_name, "nsg"))
 		{
-		dim->nsg = value;
-		dim->ns = dim->nsb + dim->nsg;
+		DENSE_QCQP_DIM_SET_NSG(value, dim);
 		}
 	else if(hpipm_strcmp(field_name, "ns"))
 		{
-		dim->ns = value;
+		DENSE_QCQP_DIM_SET_NS(value, dim);
 		}
 	else 
 		{
@@ -115,5 +142,93 @@ void DENSE_QCQP_DIM_SET(char *field_name, int value, struct DENSE_QCQP_DIM *dim)
 
 
 
+void DENSE_QCQP_DIM_SET_NV(int value, struct DENSE_QCQP_DIM *dim)
+	{
+	dim->nv = value;
 
+	DENSE_QP_DIM_SET_NV(dim->nv, dim->qp_dim);
+
+	return;
+	}
+
+
+
+void DENSE_QCQP_DIM_SET_NE(int value, struct DENSE_QCQP_DIM *dim)
+	{
+	dim->ne = value;
+
+	DENSE_QP_DIM_SET_NE(dim->ne, dim->qp_dim);
+
+	return;
+	}
+
+
+
+void DENSE_QCQP_DIM_SET_NB(int value, struct DENSE_QCQP_DIM *dim)
+	{
+	dim->nb = value;
+
+	DENSE_QP_DIM_SET_NB(dim->nb, dim->qp_dim);
+
+	return;
+	}
+
+
+
+void DENSE_QCQP_DIM_SET_NG(int value, struct DENSE_QCQP_DIM *dim)
+	{
+	dim->ng = value;
+
+	DENSE_QP_DIM_SET_NG(dim->ng+dim->nq, dim->qp_dim);
+
+	return;
+	}
+
+
+
+void DENSE_QCQP_DIM_SET_NQ(int value, struct DENSE_QCQP_DIM *dim)
+	{
+	dim->nq = value;
+
+	DENSE_QP_DIM_SET_NG(dim->ng+dim->nq, dim->qp_dim);
+
+	return;
+	}
+
+
+
+void DENSE_QCQP_DIM_SET_NSB(int value, struct DENSE_QCQP_DIM *dim)
+	{
+	dim->nsb = value;
+	dim->ns = dim->nsb + dim->nsg;
+
+	DENSE_QP_DIM_SET_NSB(dim->nsb, dim->qp_dim);
+	DENSE_QP_DIM_SET_NS(dim->ns, dim->qp_dim);
+
+	return;
+	}
+
+
+
+void DENSE_QCQP_DIM_SET_NSG(int value, struct DENSE_QCQP_DIM *dim)
+	{
+	dim->nsg = value;
+	dim->ns = dim->nsb + dim->nsg;
+
+	DENSE_QP_DIM_SET_NSG(dim->nsg, dim->qp_dim);
+	DENSE_QP_DIM_SET_NS(dim->ns, dim->qp_dim);
+
+	return;
+	}
+
+
+
+void DENSE_QCQP_DIM_SET_NS(int value, struct DENSE_QCQP_DIM *dim)
+	{
+	dim->ns = value;
+
+	DENSE_QP_DIM_SET_NS(dim->ns, dim->qp_dim);
+
+	return;
+	}
 

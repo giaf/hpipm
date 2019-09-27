@@ -406,7 +406,6 @@ void DENSE_QCQP_IPM_WS_CREATE(struct DENSE_QCQP_DIM *dim, struct DENSE_QCQP_IPM_
 	// core struct
 	struct CORE_QCQP_IPM_WORKSPACE *sr_ptr = mem;
 
-	// core workspace
 	workspace->core_workspace = sr_ptr;
 	sr_ptr += 1;
 	struct CORE_QCQP_IPM_WORKSPACE *cws = workspace->core_workspace;

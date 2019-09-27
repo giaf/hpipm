@@ -65,7 +65,21 @@ void s_dense_qp_dim_create(struct s_dense_qp_dim *qp_dim, void *memory);
 //
 void s_dense_qp_dim_set_all(int nv, int ne, int nb, int ng, int nsb, int nsg, struct s_dense_qp_dim *dim);
 //
-void s_dense_qp_dim_set(char *field_name, int value, struct s_dense_qp_dim *dim);
+void s_dense_qp_dim_set(char *fiels_name, int value, struct s_dense_qp_dim *dim);
+//
+void s_dense_qp_dim_set_nv(int value, struct s_dense_qp_dim *dim);
+//
+void s_dense_qp_dim_set_ne(int value, struct s_dense_qp_dim *dim);
+//
+void s_dense_qp_dim_set_nb(int value, struct s_dense_qp_dim *dim);
+//
+void s_dense_qp_dim_set_ng(int value, struct s_dense_qp_dim *dim);
+//
+void s_dense_qp_dim_set_nsb(int value, struct s_dense_qp_dim *dim);
+//
+void s_dense_qp_dim_set_nsg(int value, struct s_dense_qp_dim *dim);
+//
+void s_dense_qp_dim_set_ns(int value, struct s_dense_qp_dim *dim);
 
 
 
