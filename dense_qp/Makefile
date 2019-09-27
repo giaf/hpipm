@@ -53,8 +53,9 @@ OBJS += d_dense_qp_utils.o
 OBJS += d_dense_qcqp_dim.o 
 OBJS += d_dense_qcqp.o 
 OBJS += d_dense_qcqp_sol.o 
-OBJS += d_dense_qcqp_utils.o 
 OBJS += d_dense_qcqp_res.o 
+OBJS += d_dense_qcqp_ipm.o 
+OBJS += d_dense_qcqp_utils.o 
 # single
 OBJS += s_dense_qp_dim.o 
 OBJS += s_dense_qp.o 
@@ -66,8 +67,9 @@ OBJS += s_dense_qp_utils.o
 OBJS += s_dense_qcqp_dim.o 
 OBJS += s_dense_qcqp.o 
 OBJS += s_dense_qcqp_sol.o 
-OBJS += s_dense_qcqp_utils.o 
 OBJS += s_dense_qcqp_res.o 
+OBJS += s_dense_qcqp_ipm.o 
+OBJS += s_dense_qcqp_utils.o 
 # mixed
 OBJS += m_dense_qp_dim.o 
 OBJS += m_dense_qp.o 
@@ -100,5 +102,7 @@ d_dense_qcqp_sol.o: d_dense_qcqp_sol.c x_dense_qcqp_sol.c
 s_dense_qcqp_sol.o: s_dense_qcqp_sol.c x_dense_qcqp_sol.c
 d_dense_qcqp_res.o: d_dense_qcqp_res.c x_dense_qcqp_res.c
 s_dense_qcqp_res.o: s_dense_qcqp_res.c x_dense_qcqp_res.c
+d_dense_qcqp_ipm.o: d_dense_qcqp_ipm.c x_dense_qcqp_ipm.c
+s_dense_qcqp_ipm.o: s_dense_qcqp_ipm.c x_dense_qcqp_ipm.c
 d_dense_qcqp_utils.o: d_dense_qcqp_utils.c x_dense_qcqp_utils.c
 s_dense_qcqp_utils.o: s_dense_qcqp_utils.c x_dense_qcqp_utils.c

@@ -49,7 +49,7 @@
 #include "../include/hpipm_d_dense_qcqp.h"
 #include "../include/hpipm_d_dense_qcqp_sol.h"
 #include "../include/hpipm_d_dense_qcqp_res.h"
-//#include "../include/hpipm_d_dense_qcqp_ipm.h"
+#include "../include/hpipm_d_dense_qcqp_ipm.h"
 #include "../include/hpipm_d_dense_qcqp_utils.h"
 
 
@@ -132,7 +132,6 @@ int main()
 * ipm arg
 ************************************************/
 
-#if 0
 	int ipm_arg_size = d_dense_qcqp_ipm_arg_memsize(&qp_dim);
 	printf("\nipm arg size = %d\n", ipm_arg_size);
 	void *ipm_arg_mem = malloc(ipm_arg_size);
@@ -155,7 +154,6 @@ int main()
 //	arg.stat_max = 10;
 //	arg.pred_corr = 1;
 //	arg.scale = 1;
-#endif
 
 /************************************************
 * free memory
@@ -164,7 +162,7 @@ int main()
 	free(qp_dim_mem);
 	free(qp_mem);
 	free(qp_sol_mem);
-//	free(ipm_arg_mem);
+	free(ipm_arg_mem);
 //	free(ipm_mem);
 
 /************************************************
