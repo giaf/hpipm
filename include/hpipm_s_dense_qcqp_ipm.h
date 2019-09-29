@@ -58,6 +58,7 @@ extern "C" {
 
 struct s_dense_qcqp_ipm_arg
 	{
+	struct s_dense_qp_ipm_arg *qp_arg;
 	float mu0; // initial value for duality measure
 	float alpha_min; // exit cond on step length
 	float res_g_max; // exit cond on inf norm of residuals
@@ -86,47 +87,26 @@ struct s_dense_qcqp_ipm_arg
 
 
 
-#if 0
 struct s_dense_qcqp_ipm_ws
 	{
-	float qp_res[4]; // infinity norm of residuals
-	struct s_core_qcqp_ipm_workspace *core_workspace;
-	struct s_dense_qcqp_res_ws *res_workspace;
-	struct s_dense_qcqp_sol *sol_step;
-	struct s_dense_qcqp_sol *sol_itref;
-	struct s_dense_qcqp *qp_step;
-	struct s_dense_qcqp *qp_itref;
-	struct s_dense_qcqp_res *res_itref;
-	struct s_dense_qcqp_res *res;
-	struct blasfeo_dvec *Gamma; //
-	struct blasfeo_dvec *gamma; //
-	struct blasfeo_dvec *Zs_inv; //
-	struct blasfeo_dmat *Lv; //
-	struct blasfeo_dmat *AL; //
-	struct blasfeo_dmat *Le; //
-	struct blasfeo_dmat *Ctx; //
-	struct blasfeo_dvec *lv; //
-	struct blasfeo_dvec *sv; // scale for Lv
-	struct blasfeo_dvec *se; // scale for Le
-	struct blasfeo_dvec *tmp_nbg; // work space of size nb+ng
-	struct blasfeo_dvec *tmp_ns; // work space of size ns
-	struct blasfeo_dmat *lq0;
-	struct blasfeo_dmat *lq1;
-	struct blasfeo_dvec *tmp_m;
-	float *stat; // convergence statistics
-//	int *ipiv_v;
-//	int *ipiv_e;
-	void *lq_work0;
-	void *lq_work1;
+//	float qp_res[4]; // infinity norm of residuals
+	struct s_dense_qp_ipm_ws *qp_ws;
+	struct s_dense_qp *qp;
+	struct s_dense_qp_sol *qp_sol;
+	struct s_dense_qcqp_res_ws *qcqp_res_ws;
+	struct s_dense_qcqp_res *qcqp_res;
+	struct blasfeo_svec *tmp_nv;
+	double *stat; // convergence statistics
+//	void *lq_work0;
+//	void *lq_work1;
 	int iter; // iteration number
-	int stat_max; // iterations saved in stat
-	int stat_m; // numer of recorded stat per ipm iter
-	int scale;
-	int use_hess_fact;
+//	int stat_max; // iterations saved in stat
+//	int stat_m; // numer of recorded stat per ipm iter
+//	int scale;
+//	int use_hess_fact;
 	int status;
 	int memsize; // memory size (in bytes) of workspace
 	};
-#endif
 
 
 
@@ -163,7 +143,6 @@ void s_dense_qcqp_ipm_arg_set_pres_corr(int *pres_corr, struct s_dense_qcqp_ipm_
 //
 void s_dense_qcqp_ipm_arg_set_comp_res_pred(int *comp_res_pred, struct s_dense_qcqp_ipm_arg *arg);
 
-#if 0
 //
 int s_dense_qcqp_ipm_ws_memsize(struct s_dense_qcqp_dim *qp_dim, struct s_dense_qcqp_ipm_arg *arg);
 //
@@ -182,14 +161,17 @@ void s_dense_qcqp_ipm_get_max_res_eq(struct s_dense_qcqp_ipm_ws *ws, float *res_
 void s_dense_qcqp_ipm_get_max_res_ineq(struct s_dense_qcqp_ipm_ws *ws, float *res_ineq);
 //
 void s_dense_qcqp_ipm_get_max_res_comp(struct s_dense_qcqp_ipm_ws *ws, float *res_comp);
+#if 0
 //
 void s_dense_qcqp_ipm_get_stat(struct s_dense_qcqp_ipm_ws *ws, float **stat);
 //
 void s_dense_qcqp_ipm_get_stat_m(struct s_dense_qcqp_ipm_ws *ws, int *stat_m);
 //
 void s_dense_qcqp_init_var(struct s_dense_qcqp *qp, struct s_dense_qcqp_sol *qp_sol, struct s_dense_qcqp_ipm_arg *arg, struct s_dense_qcqp_ipm_ws *ws);
+#endif
 //
 void s_dense_qcqp_ipm_solve(struct s_dense_qcqp *qp, struct s_dense_qcqp_sol *qp_sol, struct s_dense_qcqp_ipm_arg *arg, struct s_dense_qcqp_ipm_ws *ws);
+#if 0
 //
 void s_dense_qcqp_ipm_predict(struct s_dense_qcqp *qp, struct s_dense_qcqp_sol *qp_sol, struct s_dense_qcqp_ipm_arg *arg, struct s_dense_qcqp_ipm_ws *ws);
 //

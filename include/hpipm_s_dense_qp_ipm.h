@@ -187,6 +187,10 @@ void s_dense_qp_ipm_get_stat_m(struct s_dense_qp_ipm_ws *ws, int *stat_m);
 //
 void s_dense_qp_init_var(struct s_dense_qp *qp, struct s_dense_qp_sol *qp_sol, struct s_dense_qp_ipm_arg *arg, struct s_dense_qp_ipm_ws *ws);
 //
+void s_dense_qp_ipm_abs_step(int kk, struct s_dense_qp *qp, struct s_dense_qp_sol *qp_sol, struct s_dense_qp_ipm_arg *arg, struct s_dense_qp_ipm_ws *ws);
+//
+void s_dense_qp_ipm_delta_step(int kk, struct s_dense_qp *qp, struct s_dense_qp_sol *qp_sol, struct s_dense_qp_ipm_arg *arg, struct s_dense_qp_ipm_ws *ws);
+//
 void s_dense_qp_ipm_solve(struct s_dense_qp *qp, struct s_dense_qp_sol *qp_sol, struct s_dense_qp_ipm_arg *arg, struct s_dense_qp_ipm_ws *ws);
 //
 void s_dense_qp_ipm_predict(struct s_dense_qp *qp, struct s_dense_qp_sol *qp_sol, struct s_dense_qp_ipm_arg *arg, struct s_dense_qp_ipm_ws *ws);

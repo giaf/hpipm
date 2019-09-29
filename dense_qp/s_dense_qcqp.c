@@ -64,9 +64,9 @@
 #define SIZE_STRVEC blasfeo_memsize_svec
 #define STRMAT blasfeo_smat
 #define STRVEC blasfeo_svec
-#define VECCP_LIBSTR blasfeo_sveccp
-#define VECSC_LIBSTR blasfeo_svecsc
-#define VECSE_LIBSTR blasfeo_svecse
+#define VECCP blasfeo_sveccp
+#define VECSC blasfeo_svecsc
+#define VECSE blasfeo_svecse
 
 #define DENSE_QCQP_MEMSIZE s_dense_qcqp_memsize
 #define DENSE_QCQP_CREATE s_dense_qcqp_create

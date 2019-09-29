@@ -93,10 +93,10 @@ void DENSE_QCQP_PRINT(struct DENSE_QCQP_DIM *qp_dim, struct DENSE_QCQP *qp)
 	BLASFEO_PRINT_TRAN_VEC(ne, qp->b, 0);
 
 	printf("d = \n");
-	BLASFEO_PRINT_TRAN_VEC(2*nb+2*ng+2*ns+nq, qp->d, 0);
+	BLASFEO_PRINT_TRAN_VEC(2*nb+2*ng+2*nq+2*ns, qp->d, 0);
 
 	printf("m = \n");
-	BLASFEO_PRINT_TRAN_VEC(2*nb+2*ng+2*ns+nq, qp->m, 0);
+	BLASFEO_PRINT_TRAN_VEC(2*nb+2*ng+2*nq+2*ns, qp->m, 0);
 
 	printf("Z = \n");
 	BLASFEO_PRINT_TRAN_VEC(2*ns, qp->Z, 0);
@@ -130,14 +130,43 @@ void DENSE_QCQP_SOL_PRINT(struct DENSE_QCQP_DIM *qp_dim, struct DENSE_QCQP_SOL *
 	BLASFEO_PRINT_TRAN_VEC(ne, qp_sol->pi, 0);
 
 	printf("lam = \n");
-	BLASFEO_PRINT_TRAN_VEC(2*nb+2*ng+2*ns+nq, qp_sol->lam, 0);
+	BLASFEO_PRINT_TRAN_VEC(2*nb+2*ng+2*nq+2*ns, qp_sol->lam, 0);
 
 	printf("t = \n");
-	BLASFEO_PRINT_TRAN_VEC(2*nb+2*ng+2*ns+nq, qp_sol->t, 0);
+	BLASFEO_PRINT_TRAN_VEC(2*nb+2*ng+2*nq+2*ns, qp_sol->t, 0);
 
 	return;
 	}
 
+
+
+void DENSE_QCQP_RES_PRINT(struct DENSE_QCQP_DIM *qp_dim, struct DENSE_QCQP_RES *qp_res)
+	{
+	int ii;
+
+	int nv = qp_dim->nv;
+	int ne = qp_dim->ne;
+	int nb = qp_dim->nb;
+	int ng = qp_dim->ng;
+	int nq = qp_dim->nq;
+	int nsb = qp_dim->nsb;
+	int nsg = qp_dim->nsg;
+	int ns = qp_dim->ns;
+
+	printf("res_g = \n");
+	BLASFEO_PRINT_TRAN_VEC(nv+2*ns, qp_res->res_g, 0);
+
+	printf("res_b = \n");
+	BLASFEO_PRINT_TRAN_VEC(ne, qp_res->res_b, 0);
+
+	printf("res_d = \n");
+	BLASFEO_PRINT_TRAN_VEC(2*nb+2*ng+2*nq+2*ns, qp_res->res_d, 0);
+
+	printf("res_m = \n");
+	BLASFEO_PRINT_TRAN_VEC(2*nb+2*ng+2*nq+2*ns, qp_res->res_m, 0);
+
+	return;
+	}
 
 
 

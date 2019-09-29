@@ -128,3 +128,32 @@ void DENSE_QP_SOL_PRINT(struct DENSE_QP_DIM *qp_dim, struct DENSE_QP_SOL *qp_sol
 
 
 
+void DENSE_QP_RES_PRINT(struct DENSE_QP_DIM *qp_dim, struct DENSE_QP_RES *qp_res)
+	{
+	int ii;
+
+	int nv = qp_dim->nv;
+	int ne = qp_dim->ne;
+	int nb = qp_dim->nb;
+	int ng = qp_dim->ng;
+	int nsb = qp_dim->nsb;
+	int nsg = qp_dim->nsg;
+	int ns = qp_dim->ns;
+
+	printf("res_g = \n");
+	BLASFEO_PRINT_TRAN_VEC(nv+2*ns, qp_res->res_g, 0);
+
+	printf("res_b = \n");
+	BLASFEO_PRINT_TRAN_VEC(ne, qp_res->res_b, 0);
+
+	printf("res_d = \n");
+	BLASFEO_PRINT_TRAN_VEC(2*nb+2*ng+2*ns, qp_res->res_d, 0);
+
+	printf("res_m = \n");
+	BLASFEO_PRINT_TRAN_VEC(2*nb+2*ng+2*ns, qp_res->res_m, 0);
+
+	return;
+	}
+
+
+

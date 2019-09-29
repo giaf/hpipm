@@ -364,7 +364,10 @@ int main()
 	printf("\nipm return = %d\n", hpipm_return);
 	printf("\nipm residuals max: res_g = %e, res_b = %e, res_d = %e, res_m = %e\n", workspace.qp_res[0], workspace.qp_res[1], workspace.qp_res[2], workspace.qp_res[3]);
 
-	printf("\nipm iter = %d\n", workspace.iter);
+	int iter;
+	d_dense_qp_ipm_get_iter(&workspace, &iter);
+	printf("\nipm iter = %d\n", iter);
+
 	printf("\nalpha_aff\tmu_aff\t\tsigma\t\talpha\t\tmu\n");
 	d_print_exp_tran_mat(5, workspace.iter, workspace.stat, 5);
 

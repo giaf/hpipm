@@ -67,7 +67,7 @@ void s_dense_qcqp_sol_print(struct s_dense_qcqp_dim *qp_dim, struct s_dense_qcqp
 //
 //void s_dense_qcqp_ipm_arg_codegen(char *file_name, char *mode, struct s_dense_qcqp_dim *qp_dim, struct s_dense_qcqp_ipm_arg *arg);
 //
-//void s_dense_qcqp_res_print(struct s_dense_qcqp_dim *qp_dim, struct s_dense_qcqp_res *dense_qcqp_res);
+void s_dense_qcqp_res_print(struct s_dense_qcqp_dim *qp_dim, struct s_dense_qcqp_res *dense_qcqp_res);
 
 
 

@@ -60,6 +60,7 @@ struct s_dense_qcqp_res
 	struct blasfeo_svec *res_b; // b-residuals
 	struct blasfeo_svec *res_d; // d-residuals
 	struct blasfeo_svec *res_m; // m-residuals
+	float res_max[4]; // infinity norm of residuals
 	float res_mu; // mu-residual
 	int memsize;
 	};
@@ -69,7 +70,7 @@ struct s_dense_qcqp_res
 struct s_dense_qcqp_res_ws
 	{
 	struct blasfeo_svec *tmp_nv; // work space of size nv
-	struct blasfeo_svec *tmp_nbg; // work space of size nbM+ngM
+	struct blasfeo_svec *tmp_nbgq; // work space of size nbM+ngM
 	struct blasfeo_svec *tmp_ns; // work space of size nsM
 	int memsize;
 	};

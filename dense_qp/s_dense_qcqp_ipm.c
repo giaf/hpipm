@@ -63,6 +63,10 @@
 
 
 
+#define SINGLE_PRECISION
+
+
+
 #define AXPY blasfeo_saxpy
 #define BACKUP_RES_M s_backup_res_m
 #define COMPUTE_ALPHA_QCQP s_compute_alpha_qcqp
@@ -71,42 +75,78 @@
 #define DENSE_QCQP_RES_COMPUTE_LIN s_dense_qcqp_res_compute_lin
 #define COMPUTE_MU_AFF_QCQP s_compute_mu_aff_qcqp
 #define DENSE_QCQP_RES_COMPUTE s_dense_qcqp_res_compute
-#define CORE_QCQP_IPM_WORKSPACE s_core_qcqp_ipm_workspace
-#define CREATE_CORE_QCQP_IPM s_create_core_qcqp_ipm
+#define COLIN blasfeo_scolin
+#define CORE_QP_IPM_WORKSPACE s_core_qp_ipm_workspace
+//#define CREATE_CORE_QCQP_IPM s_create_core_qcqp_ipm
 #define CREATE_STRMAT blasfeo_create_smat
 #define CREATE_STRVEC blasfeo_create_svec
 #define DENSE_QCQP s_dense_qcqp
 #define DENSE_QCQP_IPM_ARG s_dense_qcqp_ipm_arg
-#define GEMV_T blasfeo_sgemv_t
-#define HPIPM_MODE hpipm_mode
 #define DENSE_QCQP_IPM_WS s_dense_qcqp_ipm_ws
 #define DENSE_QCQP_DIM s_dense_qcqp_dim
 #define DENSE_QCQP_RES s_dense_qcqp_res
 #define DENSE_QCQP_RES_CREATE s_dense_qcqp_res_create
 #define DENSE_QCQP_RES_MEMSIZE s_dense_qcqp_res_memsize
 #define DENSE_QCQP_RES_WS s_dense_qcqp_res_ws
+#define DENSE_QCQP_RES_WS_CREATE s_dense_qcqp_res_ws_create
+#define DENSE_QCQP_RES_WS_MEMSIZE s_dense_qcqp_res_ws_memsize
 #define DENSE_QCQP_SOL s_dense_qcqp_sol
 #define DENSE_QCQP_SOL_CREATE s_dense_qcqp_sol_create
 #define DENSE_QCQP_SOL_MEMSIZE s_dense_qcqp_sol_memsize
+#define DENSE_QP_IPM_ARG s_dense_qp_ipm_arg
+#define DENSE_QP s_dense_qp
+#define DENSE_QP_CREATE s_dense_qp_create
+#define DENSE_QP_MEMSIZE s_dense_qp_memsize
+#define DENSE_QP_IPM_ARG_CREATE s_dense_qp_ipm_arg_create
+#define DENSE_QP_IPM_ARG_MEMSIZE s_dense_qp_ipm_arg_memsize
+#define DENSE_QP_IPM_ARG_SET_DEFAULT s_dense_qp_ipm_arg_set_default
+#define DENSE_QP_IPM_ARG_SET_ITER_MAX s_dense_qp_ipm_arg_set_iter_max
+#define DENSE_QP_IPM_ARG_SET_ALPHA_MIN s_dense_qp_ipm_arg_set_alpha_min
+#define DENSE_QP_IPM_ARG_SET_MU0 s_dense_qp_ipm_arg_set_mu0
+#define DENSE_QP_IPM_ARG_SET_TOL_STAT s_dense_qp_ipm_arg_set_tol_stat
+#define DENSE_QP_IPM_ARG_SET_TOL_EQ s_dense_qp_ipm_arg_set_tol_eq
+#define DENSE_QP_IPM_ARG_SET_TOL_INEQ s_dense_qp_ipm_arg_set_tol_ineq
+#define DENSE_QP_IPM_ARG_SET_TOL_COMP s_dense_qp_ipm_arg_set_tol_comp
+#define DENSE_QP_IPM_ARG_SET_REG_PRIM s_dense_qp_ipm_arg_set_reg_prim
+#define DENSE_QP_IPM_ARG_SET_REG_DUAL s_dense_qp_ipm_arg_set_reg_dual
+#define DENSE_QP_IPM_ARG_SET_WARM_START s_dense_qp_ipm_arg_set_warm_start
+#define DENSE_QP_IPM_ARG_SET_PRED_CORR s_dense_qp_ipm_arg_set_pred_corr
+#define DENSE_QP_IPM_ARG_SET_COMP_RES_PRED s_dense_qp_ipm_arg_set_comp_res_pred
+#define DENSE_QP_IPM_ABS_STEP s_dense_qp_ipm_abs_step
+#define DENSE_QP_IPM_DELTA_STEP s_dense_qp_ipm_delta_step
+#define DENSE_QP_IPM_WS s_dense_qp_ipm_ws
+#define DENSE_QP_IPM_WS_CREATE s_dense_qp_ipm_ws_create
+#define DENSE_QP_IPM_WS_MEMSIZE s_dense_qp_ipm_ws_memsize
+#define DENSE_QP_RES s_dense_qp_res
+#define DENSE_QP_SOL s_dense_qp_sol
+#define DENSE_QP_SOL_CREATE s_dense_qp_sol_create
+#define DENSE_QP_SOL_MEMSIZE s_dense_qp_sol_memsize
 #define DOT blasfeo_sdot
-#define FACT_LQ_SOLVE_KKT_STEP_DENSE_QCQP s_fact_lq_solve_kkt_step_dense_qcqp
-#define FACT_SOLVE_LU_KKT_STEP_DENSE_QCQP s_fact_solve_lu_kkt_step_dense_qcqp
-#define FACT_SOLVE_KKT_STEP_DENSE_QCQP s_fact_solve_kkt_step_dense_qcqp
-#define FACT_SOLVE_KKT_UNCONSTR_DENSE_QCQP s_fact_solve_kkt_unconstr_dense_qcqp
+#define FACT_LQ_SOLVE_KKT_STEP_DENSE_QP s_fact_lq_solve_kkt_step_dense_qp
+#define FACT_SOLVE_LU_KKT_STEP_DENSE_QP s_fact_solve_lu_kkt_step_dense_qp
+#define FACT_SOLVE_KKT_STEP_DENSE_QP s_fact_solve_kkt_step_dense_qp
+#define FACT_SOLVE_KKT_UNCONSTR_DENSE_QP s_fact_solve_kkt_unconstr_dense_qp
+#define GEAD blasfeo_sgead
+#define GECP blasfeo_sgecp
 #define GELQF_WORKSIZE blasfeo_sgelqf_worksize
+#define GEMV_T blasfeo_sgemv_t
+#define HPIPM_MODE hpipm_mode
 #define INIT_VAR_DENSE_QCQP s_init_var_dense_qcqp
-#define MEMSIZE_CORE_QCQP_IPM s_memsize_core_qcqp_ipm
+//#define MEMSIZE_CORE_QP_IPM s_memsize_core_qp_ipm
 #define REAL float
 #define SIZE_STRMAT blasfeo_memsize_smat
 #define SIZE_STRVEC blasfeo_memsize_svec
 #define SOLVE_KKT_STEP_DENSE_QCQP s_solve_kkt_step_dense_qcqp
 #define STRMAT blasfeo_smat
 #define STRVEC blasfeo_svec
+#define SYMV_L blasfeo_ssymv_l
 #define UPDATE_VAR_QCQP s_update_var_qcqp
+#define VECCP blasfeo_sveccp
 #define VECMUL blasfeo_svecmul
 #define VECMULDOT blasfeo_svecmuldot
 #define VECNRM_INF blasfeo_svecnrm_inf
 #define VECSC blasfeo_svecsc
+#define VECSE blasfeo_svecse
 
 
 

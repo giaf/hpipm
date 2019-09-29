@@ -51,7 +51,7 @@ int DENSE_QCQP_SOL_MEMSIZE(struct DENSE_QCQP_DIM *dim)
 
 	size += 1*SIZE_STRVEC(nv+2*ns); // ux
 	size += 1*SIZE_STRVEC(ne); // pi
-	size += 2*SIZE_STRVEC(2*nb+2*ng+2*ns+nq); // lam t
+	size += 2*SIZE_STRVEC(2*nb+2*ng+2*nq+2*ns); // lam t
 
 	size = (size+63)/64*64; // make multiple of typical cache line size
 	size += 64; // align to typical cache line size
@@ -106,10 +106,10 @@ void DENSE_QCQP_SOL_CREATE(struct DENSE_QCQP_DIM *dim, struct DENSE_QCQP_SOL *qp
 	CREATE_STRVEC(ne, qp_sol->pi, c_ptr);
 	c_ptr += qp_sol->pi->memsize;
 	// lam
-	CREATE_STRVEC(2*nb+2*ng+2*ns+nq, qp_sol->lam, c_ptr);
+	CREATE_STRVEC(2*nb+2*ng+2*nq+2*ns, qp_sol->lam, c_ptr);
 	c_ptr += qp_sol->lam->memsize;
 	// t
-	CREATE_STRVEC(2*nb+2*ng+2*ns+nq, qp_sol->t, c_ptr);
+	CREATE_STRVEC(2*nb+2*ng+2*nq+2*ns, qp_sol->t, c_ptr);
 	c_ptr += qp_sol->t->memsize;
 
 

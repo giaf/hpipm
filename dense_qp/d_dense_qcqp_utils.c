@@ -45,6 +45,7 @@
 #include <hpipm_d_dense_qcqp_dim.h>
 #include <hpipm_d_dense_qcqp.h>
 #include <hpipm_d_dense_qcqp_sol.h>
+#include <hpipm_d_dense_qcqp_res.h>
 //#include "hpipm_d_dense_qcqp_ipm.h"
 
 
@@ -66,6 +67,7 @@
 #define DENSE_QCQP_DIM_PRINT d_dense_qcqp_dim_print
 #define DENSE_QCQP_PRINT d_dense_qcqp_print
 #define DENSE_QCQP_SOL_PRINT d_dense_qcqp_sol_print
+#define DENSE_QCQP_RES_PRINT d_dense_qcqp_res_print
 
 
 

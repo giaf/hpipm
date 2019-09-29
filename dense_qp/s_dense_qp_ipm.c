@@ -135,6 +135,8 @@
 #define DENSE_QP_IPM_GET_STAT s_dense_qp_ipm_get_stat
 #define DENSE_QP_IPM_GET_STAT_M s_dense_qp_ipm_get_stat_m
 #define DENSE_QP_INIT_VAR s_dense_qp_init_var
+#define DENSE_QP_IPM_ABS_STEP s_dense_qp_ipm_abs_step
+#define DENSE_QP_IPM_DELTA_STEP s_dense_qp_ipm_delta_step
 #define DENSE_QP_IPM_SOLVE s_dense_qp_ipm_solve
 #define DENSE_QP_IPM_PREDICT s_dense_qp_ipm_predict
 #define DENSE_QP_IPM_SENS s_dense_qp_ipm_sens

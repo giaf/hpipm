@@ -46,6 +46,7 @@
 #include <blasfeo_d_aux.h>
 #include <blasfeo_d_blas.h>
 
+#include "../include/hpipm_d_dense_qp_utils.h"
 #include "../include/hpipm_d_dense_qcqp.h"
 #include "../include/hpipm_d_dense_qcqp_sol.h"
 #include "../include/hpipm_d_dense_qcqp_res.h"
@@ -73,10 +74,13 @@ int main()
 	int nsg = 0;
 
 	double H[] = {1.0, 0.0, 0.0, 1.0};
-	double g[] = {0.0, 1.0};
-	double Hq[] = {1.0, 0.0, 0.0, 1.0};
+	double g[] = {0.0, 2.0};
+	double Hq[] = {2.0, 0.0, 0.0, 2.0};
 	double gq[] = {0.0, 0.0};
 	double uq[] = {1.0};
+	int idxb[] = {1};
+	double lb[] = {-0.5};
+	double ub[] = {0.5};
 
 /************************************************
 * dense qp dim
@@ -86,64 +90,74 @@ int main()
 	printf("\nqp dim size = %d\n", dense_qcqp_dim_size);
 	void *qp_dim_mem = malloc(dense_qcqp_dim_size);
 
-	struct d_dense_qcqp_dim qp_dim;
-	d_dense_qcqp_dim_create(&qp_dim, qp_dim_mem);
+	struct d_dense_qcqp_dim qcqp_dim;
+	d_dense_qcqp_dim_create(&qcqp_dim, qp_dim_mem);
 
-	d_dense_qcqp_dim_set("nv", nv, &qp_dim);
-	d_dense_qcqp_dim_set("nq", nq, &qp_dim);
+	d_dense_qcqp_dim_set("nv", nv, &qcqp_dim);
+	d_dense_qcqp_dim_set("nb", nb, &qcqp_dim);
+	d_dense_qcqp_dim_set("nq", nq, &qcqp_dim);
 
-	d_dense_qcqp_dim_print(&qp_dim);
-	d_dense_qp_dim_print(qp_dim.qp_dim);
+	d_dense_qcqp_dim_print(&qcqp_dim);
+	d_dense_qp_dim_print(qcqp_dim.qp_dim);
 
 /************************************************
 * dense qp
 ************************************************/
 
-	int qp_size = d_dense_qcqp_memsize(&qp_dim);
+	int qp_size = d_dense_qcqp_memsize(&qcqp_dim);
 	printf("\nqp size = %d\n", qp_size);
 	void *qp_mem = malloc(qp_size);
 
-	struct d_dense_qcqp qp;
-	d_dense_qcqp_create(&qp_dim, &qp, qp_mem);
+	struct d_dense_qcqp qcqp;
+	d_dense_qcqp_create(&qcqp_dim, &qcqp, qp_mem);
 
 	// test setters
 
-	d_dense_qcqp_set_H(H, &qp);
-	d_dense_qcqp_set_g(g, &qp);
-	d_dense_qcqp_set_Hq(Hq, &qp);
-	d_dense_qcqp_set_gq(gq, &qp);
-	d_dense_qcqp_set_uq(uq, &qp);
+	d_dense_qcqp_set_H(H, &qcqp);
+	d_dense_qcqp_set_g(g, &qcqp);
+	d_dense_qcqp_set_Hq(Hq, &qcqp);
+	d_dense_qcqp_set_gq(gq, &qcqp);
+	d_dense_qcqp_set_uq(uq, &qcqp);
+	d_dense_qcqp_set_idxb(idxb, &qcqp);
+	d_dense_qcqp_set_lb(lb, &qcqp);
+	d_dense_qcqp_set_ub(ub, &qcqp);
 
-	d_dense_qcqp_print(&qp_dim, &qp);
+	printf("\nqcqp\n");
+	d_dense_qcqp_print(&qcqp_dim, &qcqp);
+//	exit(1);
 
 /************************************************
 * dense qp sol
 ************************************************/
 
-	int qp_sol_size = d_dense_qcqp_sol_memsize(&qp_dim);
+	int qp_sol_size = d_dense_qcqp_sol_memsize(&qcqp_dim);
 	printf("\nqp sol size = %d\n", qp_sol_size);
 	void *qp_sol_mem = malloc(qp_sol_size);
 
-	struct d_dense_qcqp_sol qp_sol;
-	d_dense_qcqp_sol_create(&qp_dim, &qp_sol, qp_sol_mem);
+	struct d_dense_qcqp_sol qcqp_sol;
+	d_dense_qcqp_sol_create(&qcqp_dim, &qcqp_sol, qp_sol_mem);
 
-	d_dense_qcqp_sol_print(&qp_dim, &qp_sol);
+	printf("\nqcqp_sol\n");
+	d_dense_qcqp_sol_print(&qcqp_dim, &qcqp_sol);
 
 /************************************************
 * ipm arg
 ************************************************/
 
-	int ipm_arg_size = d_dense_qcqp_ipm_arg_memsize(&qp_dim);
+	int ipm_arg_size = d_dense_qcqp_ipm_arg_memsize(&qcqp_dim);
 	printf("\nipm arg size = %d\n", ipm_arg_size);
 	void *ipm_arg_mem = malloc(ipm_arg_size);
 
 	struct d_dense_qcqp_ipm_arg arg;
-	d_dense_qcqp_ipm_arg_create(&qp_dim, &arg, ipm_arg_mem);
+	d_dense_qcqp_ipm_arg_create(&qcqp_dim, &arg, ipm_arg_mem);
 //	enum hpipm_mode mode = SPEED_ABS;
 	enum hpipm_mode mode = SPEED;
 //	enum hpipm_mode mode = BALANCE;
 //	enum hpipm_mode mode = ROBUST;
 	d_dense_qcqp_ipm_arg_set_default(mode, &arg);
+
+	int iter_max = 25;
+	d_dense_qcqp_ipm_arg_set_iter_max(&iter_max, &arg);
 
 //	arg.alpha_min = 1e-8;
 //	arg.res_g_max = 1e-8;
@@ -157,6 +171,47 @@ int main()
 //	arg.scale = 1;
 
 /************************************************
+* ipm
+************************************************/
+
+	int ipm_size = d_dense_qcqp_ipm_ws_memsize(&qcqp_dim, &arg);
+	printf("\nipm size = %d\n", ipm_size);
+	void *ipm_mem = malloc(ipm_size);
+
+	struct d_dense_qcqp_ipm_ws workspace;
+	d_dense_qcqp_ipm_ws_create(&qcqp_dim, &arg, &workspace, ipm_mem);
+
+	int hpipm_return; // 0 normal; 1 max iter
+
+
+	printf("\nsolving ...\n");
+	d_dense_qcqp_ipm_solve(&qcqp, &qcqp_sol, &arg, &workspace);
+	d_dense_qcqp_ipm_get_status(&workspace, &hpipm_return);
+	printf("\ndone!\n");
+
+
+//	printf("\nqp\n");
+//	d_dense_qp_print(qcqp_dim.qp_dim, workspace.qp);
+
+	printf("\nqcqp sol\n");
+	d_dense_qcqp_sol_print(&qcqp_dim, &qcqp_sol);
+
+/************************************************
+* print ipm statistics
+************************************************/
+
+	printf("\nipm return = %d\n", hpipm_return);
+
+	int iter; d_dense_qcqp_ipm_get_iter(&workspace, &iter);
+	printf("\nipm iter = %d\n", iter);
+
+	double max_res_stat; d_dense_qcqp_ipm_get_max_res_stat(&workspace, &max_res_stat);
+	double max_res_eq  ; d_dense_qcqp_ipm_get_max_res_eq(&workspace, &max_res_eq);
+	double max_res_ineq; d_dense_qcqp_ipm_get_max_res_ineq(&workspace, &max_res_ineq);
+	double max_res_comp; d_dense_qcqp_ipm_get_max_res_comp(&workspace, &max_res_comp);
+	printf("\nipm max res: stat = %e, eq =  %e, ineq =  %e, comp = %e\n", max_res_stat, max_res_eq, max_res_ineq, max_res_comp);
+
+/************************************************
 * free memory
 ************************************************/
 
@@ -164,7 +219,7 @@ int main()
 	free(qp_mem);
 	free(qp_sol_mem);
 	free(ipm_arg_mem);
-//	free(ipm_mem);
+	free(ipm_mem);
 
 /************************************************
 * return

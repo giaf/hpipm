@@ -58,115 +58,139 @@ void DENSE_QP_IPM_ARG_CREATE(struct DENSE_QP_DIM *dim, struct DENSE_QP_IPM_ARG *
 void DENSE_QP_IPM_ARG_SET_DEFAULT(enum HPIPM_MODE mode, struct DENSE_QP_IPM_ARG *arg)
 	{
 
+	REAL mu0, alpha_min, res_g, res_b, res_d, res_m, reg_prim, reg_dual, lam_min, t_min;
+	int iter_max, stat_max, pred_corr, cond_pred_corr, itref_pred_max, itref_corr_max, lq_fact, scale, warm_start, abs_form, comp_res_exit, comp_res_pred;
+
 	if(mode==SPEED_ABS)
 		{
-		arg->mu0 = 1e1;
-		arg->alpha_min = 1e-12;
-		arg->res_g_max = 1e0; // not used
-		arg->res_b_max = 1e0; // not used
-		arg->res_d_max = 1e0; // not used
-		arg->res_m_max = 1e-8;
-		arg->iter_max = 15;
-		arg->stat_max = 15;
-		arg->pred_corr = 1;
-		arg->cond_pred_corr = 0; // not used
-		arg->itref_pred_max = 0; // not used
-		arg->itref_corr_max = 0; // not used
-		arg->reg_prim = 1e-15;
-		arg->reg_dual = 1e-15;
-		arg->lq_fact = 0; // not used
-		arg->scale = 0;
-		arg->lam_min = 1e-30;
-		arg->t_min = 1e-30;
-		arg->warm_start = 0;
-		arg->abs_form = 1;
-		arg->comp_res_exit = 0;
-		arg->comp_res_pred = 0;
-		arg->mode = mode;
+		mu0 = 1e1;
+		alpha_min = 1e-12;
+		res_g = 1e0;
+		res_b = 1e0;
+		res_d = 1e0;
+		res_m = 1e-8;
+		iter_max = 15;
+		stat_max = 15;
+		pred_corr = 1;
+		cond_pred_corr = 0;
+		itref_pred_max = 0;
+		itref_corr_max = 0;
+		reg_prim = 1e-15;
+		reg_dual = 1e-15;
+		lq_fact = 0;
+		scale = 0;
+		lam_min = 1e-30;
+		t_min = 1e-30;
+		warm_start = 0;
+		abs_form = 1;
+		comp_res_exit = 0;
+		comp_res_pred = 0;
 		}
 	else if(mode==SPEED)
 		{
-		arg->mu0 = 1e1;
-		arg->alpha_min = 1e-12;
-		arg->res_g_max = 1e-6;
-		arg->res_b_max = 1e-8;
-		arg->res_d_max = 1e-8;
-		arg->res_m_max = 1e-8;
-		arg->iter_max = 15;
-		arg->stat_max = 15;
-		arg->pred_corr = 1;
-		arg->cond_pred_corr = 1;
-		arg->itref_pred_max = 0;
-		arg->itref_corr_max = 0;
-		arg->reg_prim = 1e-15;
-		arg->reg_dual = 1e-15;
-		arg->lq_fact = 0;
-		arg->scale = 0;
-		arg->lam_min = 1e-30;
-		arg->t_min = 1e-30;
-		arg->warm_start = 0;
-		arg->abs_form = 0;
-		arg->comp_res_exit = 1;
-		arg->comp_res_pred = 0;
-		arg->mode = mode;
+		mu0 = 1e1;
+		alpha_min = 1e-12;
+		res_g = 1e-6;
+		res_b = 1e-8;
+		res_d = 1e-8;
+		res_m = 1e-8;
+		iter_max = 15;
+		stat_max = 15;
+		pred_corr = 1;
+		cond_pred_corr = 1;
+		itref_pred_max = 0;
+		itref_corr_max = 0;
+		reg_prim = 1e-15;
+		reg_dual = 1e-15;
+		lq_fact = 0;
+		scale = 0;
+		lam_min = 1e-30;
+		t_min = 1e-30;
+		warm_start = 0;
+		abs_form = 0;
+		comp_res_exit = 1;
+		comp_res_pred = 0;
 		}
 	else if(mode==BALANCE)
 		{
-		arg->mu0 = 1e1;
-		arg->alpha_min = 1e-12;
-		arg->res_g_max = 1e-6;
-		arg->res_b_max = 1e-8;
-		arg->res_d_max = 1e-8;
-		arg->res_m_max = 1e-8;
-		arg->iter_max = 30;
-		arg->stat_max = 30;
-		arg->pred_corr = 1;
-		arg->cond_pred_corr = 1;
-		arg->itref_pred_max = 0;
-		arg->itref_corr_max = 2;
-		arg->reg_prim = 1e-15;
-		arg->reg_dual = 1e-15;
-		arg->lq_fact = 1;
-		arg->scale = 1;
-		arg->lam_min = 1e-30;
-		arg->t_min = 1e-30;
-		arg->warm_start = 0;
-		arg->abs_form = 0;
-		arg->comp_res_exit = 1;
-		arg->comp_res_pred = 0;
-		arg->mode = mode;
+		mu0 = 1e1;
+		alpha_min = 1e-12;
+		res_g = 1e-6;
+		res_b = 1e-8;
+		res_d = 1e-8;
+		res_m = 1e-8;
+		iter_max = 30;
+		stat_max = 30;
+		pred_corr = 1;
+		cond_pred_corr = 1;
+		itref_pred_max = 0;
+		itref_corr_max = 2;
+		reg_prim = 1e-15;
+		reg_dual = 1e-15;
+		lq_fact = 1;
+		scale = 1;
+		lam_min = 1e-30;
+		t_min = 1e-30;
+		warm_start = 0;
+		abs_form = 0;
+		comp_res_exit = 1;
+		comp_res_pred = 0;
 		}
 	else if(mode==ROBUST)
 		{
-		arg->mu0 = 1e2;
-		arg->alpha_min = 1e-12;
-		arg->res_g_max = 1e-6;
-		arg->res_b_max = 1e-8;
-		arg->res_d_max = 1e-8;
-		arg->res_m_max = 1e-8;
-		arg->iter_max = 100;
-		arg->stat_max = 100;
-		arg->pred_corr = 1;
-		arg->cond_pred_corr = 1;
-		arg->itref_pred_max = 0;
-		arg->itref_corr_max = 4;
-		arg->reg_prim = 1e-15;
-		arg->reg_dual = 1e-15;
-		arg->lq_fact = 2;
-		arg->scale = 0;
-		arg->lam_min = 1e-30;
-		arg->t_min = 1e-30;
-		arg->warm_start = 0;
-		arg->abs_form = 0;
-		arg->comp_res_exit = 1;
-		arg->comp_res_pred = 0;
-		arg->mode = mode;
+		mu0 = 1e2;
+		alpha_min = 1e-12;
+		res_g = 1e-6;
+		res_b = 1e-8;
+		res_d = 1e-8;
+		res_m = 1e-8;
+		iter_max = 100;
+		stat_max = 100;
+		pred_corr = 1;
+		cond_pred_corr = 1;
+		itref_pred_max = 0;
+		itref_corr_max = 4;
+		reg_prim = 1e-15;
+		reg_dual = 1e-15;
+		lq_fact = 2;
+		scale = 1;
+		lam_min = 1e-30;
+		t_min = 1e-30;
+		warm_start = 0;
+		abs_form = 0;
+		comp_res_exit = 1;
+		comp_res_pred = 0;
 		}
 	else
 		{
 		printf("\nerror: DENSE_QP_IPM_ARG_SET_DEFAULT: wrong set default mode\n");
 		exit(1);
 		}
+
+	// use individual setters when available
+	DENSE_QP_IPM_ARG_SET_MU0(&mu0, arg);
+	DENSE_QP_IPM_ARG_SET_ALPHA_MIN(&alpha_min, arg);
+	DENSE_QP_IPM_ARG_SET_TOL_STAT(&res_g, arg); // not used
+	DENSE_QP_IPM_ARG_SET_TOL_EQ(&res_b, arg); // not used
+	DENSE_QP_IPM_ARG_SET_TOL_INEQ(&res_d, arg); // not used
+	DENSE_QP_IPM_ARG_SET_TOL_COMP(&res_m, arg);
+	DENSE_QP_IPM_ARG_SET_ITER_MAX(&iter_max, arg);
+	arg->stat_max = stat_max;
+	DENSE_QP_IPM_ARG_SET_PRED_CORR(&pred_corr, arg);
+	arg->cond_pred_corr = cond_pred_corr; // not used
+	arg->itref_pred_max = itref_pred_max; // not used
+	arg->itref_corr_max = itref_corr_max; // not used
+	DENSE_QP_IPM_ARG_SET_REG_PRIM(&reg_prim, arg);
+	DENSE_QP_IPM_ARG_SET_REG_DUAL(&reg_prim, arg);
+	arg->lq_fact = lq_fact; // not used
+	arg->scale = scale;
+	arg->lam_min = lam_min;
+	arg->t_min = t_min;
+	DENSE_QP_IPM_ARG_SET_WARM_START(&warm_start, arg);
+	arg->abs_form = abs_form;
+	arg->comp_res_exit = comp_res_exit;
+	DENSE_QP_IPM_ARG_SET_COMP_RES_PRED(&comp_res_pred, arg);
+	arg->mode = mode;
 
 	return;
 
@@ -415,6 +439,7 @@ void DENSE_QP_IPM_WS_CREATE(struct DENSE_QP_DIM *dim, struct DENSE_QP_IPM_ARG *a
 	struct DENSE_QP_RES *res_ptr = (struct DENSE_QP_RES *) sr_ptr;
 
 	workspace->res = res_ptr;
+	workspace->res->dim = dim;
 	res_ptr += 1;
 	workspace->res_itref = res_ptr;
 	res_ptr += 1;
@@ -989,9 +1014,11 @@ void DENSE_QP_IPM_DELTA_STEP(int kk, struct DENSE_QP *qp, struct DENSE_QP_SOL *q
 	if(arg->lq_fact==0)
 		{
 
+d_dense_qp_print(ws->qp_step->dim, ws->qp_step);
 		// syrk+cholesky
 		FACT_SOLVE_KKT_STEP_DENSE_QP(ws->qp_step, ws->sol_step, arg, ws);
 
+d_dense_qp_sol_print(ws->sol_step->dim, ws->sol_step);
 		}
 	else if(arg->lq_fact==1 & force_lq==0)
 		{
@@ -1155,9 +1182,11 @@ blasfeo_print_tran_dvec(cws->nc, ws->sol_step->t, 0);
 	COMPUTE_ALPHA_QP(cws);
 	if(kk<ws->stat_max)
 		ws->stat[ws->stat_m*(kk+1)+0] = cws->alpha;
+	printf("\nalpha %e\n", cws->alpha);
 
 	// Mehrotra's predictor-corrector
-	if(arg->pred_corr==1)
+	if(0)
+//	if(arg->pred_corr==1)
 		{
 		// mu_aff
 		COMPUTE_MU_AFF_QP(cws);
