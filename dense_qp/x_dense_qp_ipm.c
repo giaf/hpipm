@@ -1182,11 +1182,10 @@ blasfeo_print_tran_dvec(cws->nc, ws->sol_step->t, 0);
 	COMPUTE_ALPHA_QP(cws);
 	if(kk<ws->stat_max)
 		ws->stat[ws->stat_m*(kk+1)+0] = cws->alpha;
-	printf("\nalpha %e\n", cws->alpha);
 
 	// Mehrotra's predictor-corrector
-	if(0)
-//	if(arg->pred_corr==1)
+//	if(0)
+	if(arg->pred_corr==1)
 		{
 		// mu_aff
 		COMPUTE_MU_AFF_QP(cws);

@@ -1094,7 +1094,7 @@ d_dense_qp_print(qp->dim, qp);
 		stat[6] = qcqp_res->res_max[1];
 		stat[7] = qcqp_res->res_max[2];
 		stat[8] = qcqp_res->res_max[3];
-//		cws->mu = qp_ws->res->res_mu;
+		cws->mu = qcqp_res->res_mu;
 		qcqp_ws->iter = 0;
 		qcqp_ws->status = 0;
 		return;
@@ -1233,7 +1233,7 @@ printf("\nqp_res\n");
 d_dense_qp_res_print(qp_ws->res->dim, qp_ws->res);
 
 	BACKUP_RES_M(cws);
-//	cws->mu = qp_ws->res->res_mu;
+	cws->mu = qcqp_res->res_mu;
 
 	#if 1
 	// save infinity norm of residuals
@@ -1288,7 +1288,7 @@ printf("\nqp_res\n");
 d_dense_qp_res_print(qp_ws->res->dim, qp_ws->res);
 
 		BACKUP_RES_M(cws);
-		cws->mu = qp_ws->res->res_mu;
+		cws->mu = qcqp_res->res_mu;
 		if(kk<stat_max)
 			stat[qp_ws->stat_m*(kk+1)+4] = qcqp_res->res_mu;
 

@@ -157,7 +157,9 @@ int main()
 	d_dense_qcqp_ipm_arg_set_default(mode, &arg);
 
 	int iter_max = 25;
+	double mu0 = 1e1;
 	d_dense_qcqp_ipm_arg_set_iter_max(&iter_max, &arg);
+	d_dense_qcqp_ipm_arg_set_mu0(&mu0, &arg);
 
 //	arg.alpha_min = 1e-8;
 //	arg.res_g_max = 1e-8;
