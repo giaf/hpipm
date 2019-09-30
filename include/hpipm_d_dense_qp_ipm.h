@@ -160,6 +160,8 @@ void d_dense_qp_ipm_arg_set_warm_start(int *warm_start, struct d_dense_qp_ipm_ar
 void d_dense_qp_ipm_arg_set_pred_corr(int *pred_corr, struct d_dense_qp_ipm_arg *arg);
 //
 void d_dense_qp_ipm_arg_set_comp_res_pred(int *comp_res_pred, struct d_dense_qp_ipm_arg *arg);
+//
+void d_dense_qp_ipm_arg_set_comp_res_exit(int *comp_res_exit, struct d_dense_qp_ipm_arg *arg);
 
 //
 int d_dense_qp_ipm_ws_memsize(struct d_dense_qp_dim *qp_dim, struct d_dense_qp_ipm_arg *arg);

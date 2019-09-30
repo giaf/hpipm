@@ -225,8 +225,8 @@ void DENSE_QCQP_IPM_ARG_SET_DEFAULT(enum HPIPM_MODE mode, struct DENSE_QCQP_IPM_
 	arg->t_min = t_min;
 	DENSE_QCQP_IPM_ARG_SET_WARM_START(&warm_start, arg);
 	arg->abs_form = abs_form;
-	arg->comp_res_exit = comp_res_exit;
 	DENSE_QCQP_IPM_ARG_SET_COMP_RES_PRED(&comp_res_pred, arg);
+	DENSE_QCQP_IPM_ARG_SET_COMP_RES_EXIT(&comp_res_pred, arg);
 	arg->mode = mode;
 
 	return;
@@ -284,6 +284,10 @@ void DENSE_QCQP_IPM_ARG_SET(char *field, void *value, struct DENSE_QCQP_IPM_ARG 
 	else if(hpipm_strcmp(field, "comp_res_pred")) 
 		{
 		DENSE_QCQP_IPM_ARG_SET_COMP_RES_PRED(value, arg);
+		}
+	else if(hpipm_strcmp(field, "comp_res_exit")) 
+		{
+		DENSE_QCQP_IPM_ARG_SET_COMP_RES_EXIT(value, arg);
 		}
 	else
 		{
@@ -398,6 +402,15 @@ void DENSE_QCQP_IPM_ARG_SET_COMP_RES_PRED(int *value, struct DENSE_QCQP_IPM_ARG 
 	{
 	arg->comp_res_pred = *value;
 	DENSE_QP_IPM_ARG_SET_COMP_RES_PRED(value, arg->qp_arg);
+	return;
+	}
+
+
+
+void DENSE_QCQP_IPM_ARG_SET_COMP_RES_EXIT(int *value, struct DENSE_QCQP_IPM_ARG *arg)
+	{
+	arg->comp_res_exit = *value;
+	DENSE_QP_IPM_ARG_SET_COMP_RES_EXIT(value, arg->qp_arg);
 	return;
 	}
 
@@ -698,15 +711,15 @@ void DENSE_QCQP_INIT_VAR(struct DENSE_QCQP *qcqp, struct DENSE_QCQP_SOL *qcqp_so
 		{
 #if 1
 		idxb0 = idxb[ii];
-		t[0+ii]     = - d[0+ii]     + v[idxb0];
-		t[nb+ng+ii] = - d[nb+ng+ii] - v[idxb0];
+		t[0+ii]        = - d[0+ii]        + v[idxb0];
+		t[nb+ng+nq+ii] = - d[nb+ng+nq+ii] - v[idxb0];
 		if(t[0+ii]<thr0)
 			{
-			if(t[nb+ng+ii]<thr0)
+			if(t[nb+ng+nq+ii]<thr0)
 				{
-				v[idxb0] = 0.5*(d[0+ii] + d[nb+ng+ii]);
-				t[0+ii]     = thr0;
-				t[nb+ng+ii] = thr0;
+				v[idxb0] = 0.5*(d[0+ii] + d[nb+ng+nq+ii]);
+				t[0+ii]        = thr0;
+				t[nb+ng+nq+ii] = thr0;
 				}
 			else
 				{
@@ -714,17 +727,17 @@ void DENSE_QCQP_INIT_VAR(struct DENSE_QCQP *qcqp, struct DENSE_QCQP_SOL *qcqp_so
 				v[idxb0] = d[0+ii] + thr0;
 				}
 			}
-		else if(t[nb+ng+ii]<thr0)
+		else if(t[nb+ng+nq+ii]<thr0)
 			{
-			t[nb+ng+ii] = thr0;
-			v[idxb0] = - d[nb+ng+ii] - thr0;
+			t[nb+ng+nq+ii] = thr0;
+			v[idxb0] = - d[nb+ng+nq+ii] - thr0;
 			}
 #else
 		t[0+ii]     = 1.0;
-		t[nb+ng+ii] = 1.0;
+		t[nb+ng+nq+ii] = 1.0;
 #endif
-		lam[0+ii]     = mu0/t[0+ii];
-		lam[nb+ng+ii] = mu0/t[nb+ng+ii];
+		lam[0+ii]        = mu0/t[0+ii];
+		lam[nb+ng+nq+ii] = mu0/t[nb+ng+nq+ii];
 		}
 	
 	// general constraints
@@ -732,39 +745,41 @@ void DENSE_QCQP_INIT_VAR(struct DENSE_QCQP *qcqp, struct DENSE_QCQP_SOL *qcqp_so
 	for(ii=0; ii<ng; ii++)
 		{
 #if 1
-		t[2*nb+ng+ii] = t[nb+ii];
+		t[2*nb+ng+nq+ii] = t[nb+ii];
 		t[nb+ii]      -= d[nb+ii];
-		t[2*nb+ng+ii] -= d[2*nb+ng+ii];
+		t[2*nb+ng+nq+ii] -= d[2*nb+ng+nq+ii];
 //		t[nb+ii]      = fmax( thr0, t[nb+ii] );
-//		t[2*nb+ng+ii] = fmax( thr0, t[2*nb+ng+ii] );
+//		t[2*nb+ng+nq+ii] = fmax( thr0, t[2*nb+ng+nq+ii] );
 		t[nb+ii]      = thr0>t[nb+ii]      ? thr0 : t[nb+ii];
-		t[2*nb+ng+ii] = thr0>t[2*nb+ng+ii] ? thr0 : t[2*nb+ng+ii];
+		t[2*nb+ng+nq+ii] = thr0>t[2*nb+ng+nq+ii] ? thr0 : t[2*nb+ng+nq+ii];
 #else
 		t[nb+ii]      = 1.0;
-		t[2*nb+ng+ii] = 1.0;
+		t[2*nb+ng+nq+ii] = 1.0;
 #endif
 		lam[nb+ii]      = mu0/t[nb+ii];
-		lam[2*nb+ng+ii] = mu0/t[2*nb+ng+ii];
+		lam[2*nb+ng+nq+ii] = mu0/t[2*nb+ng+nq+ii];
 		}
 
 	// soft constraints
 	for(ii=0; ii<ns; ii++)
 		{
-		t[2*nb+2*ng+ii]    = 1.0; // thr0;
-		t[2*nb+2*ng+ns+ii] = 1.0; // thr0;
-		lam[2*nb+2*ng+ii]    = mu0/t[2*nb+2*ng+ii];
-		lam[2*nb+2*ng+ns+ii] = mu0/t[2*nb+2*ng+ns+ii];
+		t[2*nb+2*ng+2*nq+ii]    = 1.0; // thr0;
+		t[2*nb+2*ng+2*nq+ns+ii] = 1.0; // thr0;
+		lam[2*nb+2*ng+2*nq+ii]    = mu0/t[2*nb+2*ng+2*nq+ii];
+		lam[2*nb+2*ng+2*nq+ns+ii] = mu0/t[2*nb+2*ng+2*nq+ns+ii];
 		}
 
 	//  quadratic constraints
 	for(ii=0; ii<nq; ii++)
 		{
 		// TODO improve it !!!!!!!!
-		t[nb+ng+ii]      = 1.0; // thr0;
-		t[2*nb+ng+nq+ii] = 1.0; // thr0;
-		lam[nb+ng+ii]  = mu0/t[nb+ng+ii];
-		lam[2*nb+ng+nq+ii]  = mu0/t[2*nb+ng+nq+ii];
+		t[nb+ng+ii]        = 1.0; // thr0;
+		t[2*nb+2*ng+nq+ii] = 1.0; // thr0;
+		lam[nb+ng+ii]         = mu0/t[nb+ng+ii];
+		lam[2*nb+2*ng+nq+ii]  = mu0/t[2*nb+2*ng+nq+ii];
 		}
+	
+	// TODO rewrite all the above taking some pointers to key parts, e.g. lam_lb, lam_ub, and make relative to them
 
 	return;
 
@@ -1071,15 +1086,15 @@ d_dense_qp_print(qp->dim, qp);
 //	str_res_d.pa = cws->res_d;
 //	str_res_m.pa = cws->res_m;
 
-	REAL *qp_res = qp_ws->qp_res;
+//	REAL *qp_res = qp_ws->qp_res;
 //	qp_res[0] = 0;
 //	qp_res[1] = 0;
 //	qp_res[2] = 0;
 //	qp_res[3] = 0;
-	qp_res[0] = 1e3;
-	qp_res[1] = 1e3;
-	qp_res[2] = 1e3;
-	qp_res[3] = 1e3;
+//	qp_res[0] = 1e3;
+//	qp_res[1] = 1e3;
+//	qp_res[2] = 1e3;
+//	qp_res[3] = 1e3;
 
 	REAL *qcqp_res_max = qcqp_res->res_max;
 
@@ -1116,7 +1131,7 @@ d_dense_qp_print(qp->dim, qp);
 
 	if(qp_arg->abs_form)
 		{
-#if 0
+#if 1
 
 		// alias members of qp_step
 		qp_ws->qp_step->dim = qp->dim;
@@ -1141,70 +1156,83 @@ d_dense_qp_print(qp->dim, qp);
 
 		// IPM loop (absolute formulation)
 		for(kk=0; \
-				kk<qp_arg->iter_max & \
-				cws->alpha>qp_arg->alpha_min & \
-				mu>qp_arg->res_m_max; kk++)
+				kk < qcqp_arg->iter_max & \
+				cws->alpha > qcqp_arg->alpha_min & \
+				mu > qcqp_arg->res_m_max; kk++)
 			{
 
-
+printf("\n**************************************\n");
+printf("\niter %d\n", kk);
 
 			// compute delta step
-			DENSE_QCQP_IPM_ABS_STEP(kk, qp, qp_sol, qp_arg, qp_ws);
+			DENSE_QP_IPM_ABS_STEP(kk, qp, qp_sol, qp_arg, qp_ws);
+
+printf("\nqp_sol\n");
+d_dense_qp_sol_print(qp_sol->dim, qp_sol);
+
+	DENSE_QP_SOL_CONV_QCQP_SOL(qp_sol, qcqp_sol);
+
+printf("\nqcqp_sol\n");
+d_dense_qcqp_sol_print(qcqp_sol->dim, qcqp_sol);
+
+	DENSE_QCQP_UPDATE_QP(qcqp, qcqp_sol, qp, qcqp_ws);
 
 
 
 			// compute mu
-			mu = VECMULDOT(cws->nc, qp_sol->lam, 0, qp_sol->t, 0, qp_ws->tmp_m, 0);
+			mu = VECMULDOT(cws->nc, qcqp_sol->lam, 0, qcqp_sol->t, 0, qp_ws->tmp_m, 0);
 			mu /= cws->nc;
 			cws->mu = mu;
 			if(kk<stat_max)
 				stat[stat_m*(kk+1)+4] = mu;
 
-	//		exit(1);
+//		exit(1);
 
 			}
 
 		if(qp_arg->comp_res_exit)
 			{
 			// compute residuals
-			DENSE_QCQP_RES_COMPUTE(qp, qp_sol, qp_ws->res, qp_ws->res_workspace);
+			DENSE_QCQP_RES_COMPUTE(qcqp, qcqp_sol, qcqp_res, qcqp_res_ws);
 
-			// compute infinity norm of residuals
-			VECNRM_INF(cws->nv, &str_res_g, 0, &qp_res[0]);
-			VECNRM_INF(cws->ne, &str_res_b, 0, &qp_res[1]);
-			VECNRM_INF(cws->nc, &str_res_d, 0, &qp_res[2]);
-			VECNRM_INF(cws->nc, &str_res_m, 0, &qp_res[3]);
+			// save infinity norm of residuals
+			// XXX it is already kk+1
+			stat[stat_m*(kk+0)+5] = qcqp_res->res_max[0];
+			stat[stat_m*(kk+0)+6] = qcqp_res->res_max[1];
+			stat[stat_m*(kk+0)+7] = qcqp_res->res_max[2];
+			stat[stat_m*(kk+0)+8] = qcqp_res->res_max[3];
+
 			}
 
-		qp_ws->iter = kk;
+		qcqp_ws->iter = kk;
 
 		if(kk == qp_arg->iter_max)
 			{
 			// max iteration number reached
-			qp_ws->status = 1;
+			qcqp_ws->status = 1;
 			}
 		else if(cws->alpha <= qp_arg->alpha_min)
 			{
 			// min step lenght
-			qp_ws->status = 2;
+			qcqp_ws->status = 2;
 			}
 #ifdef USE_C99_MATH
 		else if(isnan(cws->mu))
 			{
 			// NaN in the solution
-			qp_ws->status = 3;
+			qcqp_ws->status = 3;
 			}
 #else
 		else if(cws->mu != cws->mu)
 			{
 			// NaN in the solution
-			qp_ws->status = 3;
+			qcqp_ws->status = 3;
 			}
 #endif
 		else
 			{
 			// normal return
-			qp_ws->status = 0;
+			qcqp_ws->status = 0;
 			}
 
 #endif
@@ -1248,12 +1276,12 @@ d_dense_qp_res_print(qp_ws->res->dim, qp_ws->res);
 
 	// IPM loop
 	for(kk=0; \
-			kk<qcqp_arg->iter_max & \
-			cws->alpha>qcqp_arg->alpha_min & \
-			(qcqp_res_max[0]>qcqp_arg->res_g_max | \
-			qcqp_res_max[1]>qcqp_arg->res_b_max | \
-			qcqp_res_max[2]>qcqp_arg->res_d_max | \
-			qcqp_res_max[3]>qcqp_arg->res_m_max); kk++)
+			kk < qcqp_arg->iter_max & \
+			cws->alpha > qcqp_arg->alpha_min & \
+			(qcqp_res_max[0] > qcqp_arg->res_g_max | \
+			qcqp_res_max[1] > qcqp_arg->res_b_max | \
+			qcqp_res_max[2] > qcqp_arg->res_d_max | \
+			qcqp_res_max[3] > qcqp_arg->res_m_max); kk++)
 		{
 
 printf("\n**************************************\n");
@@ -1297,6 +1325,8 @@ d_dense_qp_res_print(qp_ws->res->dim, qp_ws->res);
 		stat[stat_m*(kk+1)+6] = qcqp_res->res_max[1];
 		stat[stat_m*(kk+1)+7] = qcqp_res->res_max[2];
 		stat[stat_m*(kk+1)+8] = qcqp_res->res_max[3];
+
+//		exit(1);
 
 #if 0
 printf("%e %e %e\n", cws->alpha, cws->alpha_prim, cws->alpha_dual);

@@ -184,8 +184,10 @@ void DENSE_QCQP_CREATE(struct DENSE_QCQP_DIM *dim, struct DENSE_QCQP *qp, void *
 		}
 	
 	// default init
-	REAL inf = 1e1;
-	VECSE(nq, -inf, qp->d, 2*nb+2*ng);
+	// TODO put to a larger value, and check that it doesn't make convergence worse
+	// TODO compute unconstr sol and set it just below
+	REAL inf = 1e3;
+	VECSE(nq, -inf, qp->d, nb+ng);
 
 
 	qp->dim = dim;
@@ -397,9 +399,11 @@ void DENSE_QCQP_SET_UQ(REAL *uq, struct DENSE_QCQP *qp)
 	VECSC(nq, -1.0, qp->d, 2*nb+2*ng+nq);
 	VECSE(nq, 0.0, qp->m, 2*nb+2*ng+nq);
 
-	REAL inf = 1e1;
-	VECSE(nq, -inf, qp->d, 2*nb+2*ng);
-	VECSE(nq, 0.0, qp->m, 2*nb+2*ng);
+	// TODO put to a larger value, and check that it doesn't make convergence worse
+	// TODO compute unconstr sol and set it just below
+	REAL inf = 1e3;
+	VECSE(nq, -inf, qp->d, nb+ng);
+	VECSE(nq, 0.0, qp->m, nb+ng);
 
 	return;
 

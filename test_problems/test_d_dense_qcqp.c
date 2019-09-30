@@ -67,20 +67,23 @@ int main()
 	int nv = 2;
 	int ne = 0;
 	int nb = 0;
-	int ng = 0;
+	int ng = 1;
 	int nq = 1;
 	int ns = 0;
 	int nsb = 0;
 	int nsg = 0;
 
 	double H[] = {1.0, 0.0, 0.0, 1.0};
-	double g[] = {0.0, 2.0};
+	double g[] = {2.0, 2.0};
 	double Hq[] = {2.0, 0.0, 0.0, 2.0};
 	double gq[] = {0.0, 0.0};
 	double uq[] = {1.0};
 	int idxb[] = {1};
 	double lb[] = {-0.5};
 	double ub[] = {0.5};
+	double C[] = {0.0, 1.0};
+	double lg[] = {-0.5};
+	double ug[] = {0.5};
 
 /************************************************
 * dense qp dim
@@ -93,11 +96,14 @@ int main()
 	struct d_dense_qcqp_dim qcqp_dim;
 	d_dense_qcqp_dim_create(&qcqp_dim, qp_dim_mem);
 
-	d_dense_qcqp_dim_set("nv", nv, &qcqp_dim);
-	d_dense_qcqp_dim_set("nb", nb, &qcqp_dim);
-	d_dense_qcqp_dim_set("nq", nq, &qcqp_dim);
+	d_dense_qcqp_dim_set_nv(nv, &qcqp_dim);
+	d_dense_qcqp_dim_set_nb(nb, &qcqp_dim);
+	d_dense_qcqp_dim_set_ng(ng, &qcqp_dim);
+	d_dense_qcqp_dim_set_nq(nq, &qcqp_dim);
 
+	printf("\nqcqp dim\n");
 	d_dense_qcqp_dim_print(&qcqp_dim);
+	printf("\nqp dim\n");
 	d_dense_qp_dim_print(qcqp_dim.qp_dim);
 
 /************************************************
@@ -121,6 +127,9 @@ int main()
 	d_dense_qcqp_set_idxb(idxb, &qcqp);
 	d_dense_qcqp_set_lb(lb, &qcqp);
 	d_dense_qcqp_set_ub(ub, &qcqp);
+	d_dense_qcqp_set_C(C, &qcqp);
+	d_dense_qcqp_set_lg(lg, &qcqp);
+	d_dense_qcqp_set_ug(ug, &qcqp);
 
 	printf("\nqcqp\n");
 	d_dense_qcqp_print(&qcqp_dim, &qcqp);
@@ -156,10 +165,12 @@ int main()
 //	enum hpipm_mode mode = ROBUST;
 	d_dense_qcqp_ipm_arg_set_default(mode, &arg);
 
-	int iter_max = 25;
-	double mu0 = 1e1;
+	int iter_max = 8; //25;
 	d_dense_qcqp_ipm_arg_set_iter_max(&iter_max, &arg);
+	double mu0 = 1e1;
 	d_dense_qcqp_ipm_arg_set_mu0(&mu0, &arg);
+	int comp_res_exit = 1;
+	d_dense_qcqp_ipm_arg_set_comp_res_exit(&comp_res_exit, &arg);
 
 //	arg.alpha_min = 1e-8;
 //	arg.res_g_max = 1e-8;
@@ -215,7 +226,7 @@ int main()
 
 	printf("\nalpha_aff\tmu_aff\t\tsigma\t\talpha\t\tmu\n");
 	double *stat; d_dense_qcqp_ipm_get_stat(&workspace, &stat);
-	int *stat_m;  d_dense_qcqp_ipm_get_stat_m(&workspace, &stat_m);
+	int stat_m;  d_dense_qcqp_ipm_get_stat_m(&workspace, &stat_m);
 	d_print_exp_tran_mat(stat_m, iter+1, stat, stat_m);
 
 

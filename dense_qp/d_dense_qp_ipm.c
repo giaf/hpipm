@@ -122,6 +122,7 @@
 #define DENSE_QP_IPM_ARG_SET_WARM_START d_dense_qp_ipm_arg_set_warm_start
 #define DENSE_QP_IPM_ARG_SET_PRED_CORR d_dense_qp_ipm_arg_set_pred_corr
 #define DENSE_QP_IPM_ARG_SET_COMP_RES_PRED d_dense_qp_ipm_arg_set_comp_res_pred
+#define DENSE_QP_IPM_ARG_SET_COMP_RES_EXIT d_dense_qp_ipm_arg_set_comp_res_exit
 // ipm
 #define DENSE_QP_IPM_WS_MEMSIZE d_dense_qp_ipm_ws_memsize
 #define DENSE_QP_IPM_WS_CREATE d_dense_qp_ipm_ws_create

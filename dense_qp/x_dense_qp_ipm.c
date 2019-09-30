@@ -188,7 +188,7 @@ void DENSE_QP_IPM_ARG_SET_DEFAULT(enum HPIPM_MODE mode, struct DENSE_QP_IPM_ARG 
 	arg->t_min = t_min;
 	DENSE_QP_IPM_ARG_SET_WARM_START(&warm_start, arg);
 	arg->abs_form = abs_form;
-	arg->comp_res_exit = comp_res_exit;
+	DENSE_QP_IPM_ARG_SET_COMP_RES_EXIT(&comp_res_exit, arg);
 	DENSE_QP_IPM_ARG_SET_COMP_RES_PRED(&comp_res_pred, arg);
 	arg->mode = mode;
 
@@ -243,6 +243,10 @@ void DENSE_QP_IPM_ARG_SET(char *field, void *value, struct DENSE_QP_IPM_ARG *arg
 	else if(hpipm_strcmp(field, "pred_corr")) 
 		{
 		DENSE_QP_IPM_ARG_SET_PRED_CORR(value, arg);
+		}
+	else if(hpipm_strcmp(field, "comp_res_exit")) 
+		{
+		DENSE_QP_IPM_ARG_SET_COMP_RES_EXIT(value, arg);
 		}
 	else if(hpipm_strcmp(field, "comp_res_pred")) 
 		{
@@ -349,6 +353,14 @@ void DENSE_QP_IPM_ARG_SET_PRED_CORR(int *pred_corr, struct DENSE_QP_IPM_ARG *arg
 void DENSE_QP_IPM_ARG_SET_COMP_RES_PRED(int *comp_res_pred, struct DENSE_QP_IPM_ARG *arg)
 	{
 	arg->comp_res_pred = *comp_res_pred;
+	return;
+	}
+
+
+
+void DENSE_QP_IPM_ARG_SET_COMP_RES_EXIT(int *comp_res_exit, struct DENSE_QP_IPM_ARG *arg)
+	{
+	arg->comp_res_exit = *comp_res_exit;
 	return;
 	}
 
@@ -1010,15 +1022,14 @@ void DENSE_QP_IPM_DELTA_STEP(int kk, struct DENSE_QP *qp, struct DENSE_QP_SOL *q
 
 	ws->scale = arg->scale;
 
+d_dense_qp_print(ws->qp_step->dim, ws->qp_step);
 	// fact and solve kkt
 	if(arg->lq_fact==0)
 		{
 
-d_dense_qp_print(ws->qp_step->dim, ws->qp_step);
 		// syrk+cholesky
 		FACT_SOLVE_KKT_STEP_DENSE_QP(ws->qp_step, ws->sol_step, arg, ws);
 
-d_dense_qp_sol_print(ws->sol_step->dim, ws->sol_step);
 		}
 	else if(arg->lq_fact==1 & force_lq==0)
 		{
@@ -1079,6 +1090,8 @@ blasfeo_print_tran_dvec(cws->nc, ws->sol_step->t, 0);
 
 		}
 
+d_dense_qp_sol_print(ws->sol_step->dim, ws->sol_step);
+//exit(1);
 
 
 #if 0
