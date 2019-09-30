@@ -497,6 +497,7 @@ void DENSE_QCQP_IPM_WS_CREATE(struct DENSE_QCQP_DIM *dim, struct DENSE_QCQP_IPM_
 	CREATE_STRVEC(nv, workspace->tmp_nv+1, c_ptr);
 	c_ptr += (workspace->tmp_nv+1)->memsize;
 
+
 	//
 	workspace->memsize = DENSE_QCQP_IPM_WS_MEMSIZE(dim, arg);
 
@@ -542,14 +543,14 @@ void DENSE_QCQP_IPM_GET(char *field, struct DENSE_QCQP_IPM_WS *ws, void *value)
 		{ 
 		DENSE_QCQP_IPM_GET_MAX_RES_COMP(ws, value);
 		}
-//	else if(hpipm_strcmp(field, "stat"))
-//		{ 
-//		DENSE_QCQP_IPM_GET_STAT(ws, value);
-//		}
-//	else if(hpipm_strcmp(field, "stat_m"))
-//		{ 
-//		DENSE_QCQP_IPM_GET_STAT_M(ws, value);
-//		}
+	else if(hpipm_strcmp(field, "stat"))
+		{ 
+		DENSE_QCQP_IPM_GET_STAT(ws, value);
+		}
+	else if(hpipm_strcmp(field, "stat_m"))
+		{ 
+		DENSE_QCQP_IPM_GET_STAT_M(ws, value);
+		}
 	else 
 		{
 		printf("error: DENSE_QCQP_IPM_GET: wrong field %s\n", field);
@@ -608,19 +609,17 @@ void DENSE_QCQP_IPM_GET_MAX_RES_COMP(struct DENSE_QCQP_IPM_WS *ws, REAL *res_com
 
 
 
-#if 0
 void DENSE_QCQP_IPM_GET_STAT(struct DENSE_QCQP_IPM_WS *ws, REAL **stat)
 	{
-	*stat = ws->stat;
+	DENSE_QP_IPM_GET_STAT(ws->qp_ws, stat);
 	}
 
 
 
 void DENSE_QCQP_IPM_GET_STAT_M(struct DENSE_QCQP_IPM_WS *ws, int *stat_m)
 	{
-	*stat_m = ws->stat_m;
+	DENSE_QP_IPM_GET_STAT_M(ws->qp_ws, stat_m);
 	}
-#endif
 
 
 
@@ -994,6 +993,10 @@ d_dense_qcqp_print(qcqp->dim, qcqp);
 	struct DENSE_QCQP_RES *qcqp_res = qcqp_ws->qcqp_res;
 	struct DENSE_QCQP_RES_WS *qcqp_res_ws = qcqp_ws->qcqp_res_ws;
 
+	REAL *stat = qp_ws->stat;
+	int stat_m = qp_ws->stat_m;
+	int stat_max = qp_ws->stat_max;
+
 	// TODO initialize solution
 	DENSE_QCQP_INIT_VAR(qcqp, qcqp_sol, qcqp_arg, qcqp_ws);
 printf("\nqcqp_sol\n");
@@ -1086,16 +1089,11 @@ d_dense_qp_print(qp->dim, qp);
 		FACT_SOLVE_KKT_UNCONSTR_DENSE_QP(qp, qp_sol, qp_arg, qp_ws);
 		DENSE_QP_SOL_CONV_QCQP_SOL(qp_sol, qcqp_sol);
 		DENSE_QCQP_RES_COMPUTE(qcqp, qcqp_sol, qcqp_res, qcqp_res_ws);
-		// compute infinity norm of residuals
-		// TODO fix
-//		VECNRM_INF(cws->nv, &str_res_g, 0, &qp_res[0]);
-//		VECNRM_INF(cws->ne, &str_res_b, 0, &qp_res[1]);
-//		VECNRM_INF(cws->nc, &str_res_d, 0, &qp_res[2]);
-//		VECNRM_INF(cws->nc, &str_res_m, 0, &qp_res[3]);
-//		qp_ws->stat[5] = qp_res[0];
-//		qp_ws->stat[6] = qp_res[1];
-//		qp_ws->stat[7] = qp_res[2];
-//		qp_ws->stat[8] = qp_res[3];
+		// save infinity norm of residuals
+		stat[5] = qcqp_res->res_max[0];
+		stat[6] = qcqp_res->res_max[1];
+		stat[7] = qcqp_res->res_max[2];
+		stat[8] = qcqp_res->res_max[3];
 //		cws->mu = qp_ws->res->res_mu;
 		qcqp_ws->iter = 0;
 		qcqp_ws->status = 0;
@@ -1159,8 +1157,8 @@ d_dense_qp_print(qp->dim, qp);
 			mu = VECMULDOT(cws->nc, qp_sol->lam, 0, qp_sol->t, 0, qp_ws->tmp_m, 0);
 			mu /= cws->nc;
 			cws->mu = mu;
-			if(kk<qp_ws->stat_max)
-				qp_ws->stat[qp_ws->stat_m*(kk+1)+4] = mu;
+			if(kk<stat_max)
+				stat[stat_m*(kk+1)+4] = mu;
 
 	//		exit(1);
 
@@ -1238,16 +1236,11 @@ d_dense_qp_res_print(qp_ws->res->dim, qp_ws->res);
 //	cws->mu = qp_ws->res->res_mu;
 
 	#if 1
-	// compute infinity norm of residuals
-//	VECNRM_INF(cws->nv, &str_res_g, 0, &qp_res[0]);
-//	VECNRM_INF(cws->ne, &str_res_b, 0, &qp_res[1]);
-//	VECNRM_INF(cws->nc, &str_res_d, 0, &qp_res[2]);
-//	VECNRM_INF(cws->nc, &str_res_m, 0, &qp_res[3]);
-
-//	qp_ws->stat[qp_ws->stat_m*(0)+5] = qp_res[0];
-//	qp_ws->stat[qp_ws->stat_m*(0)+6] = qp_res[1];
-//	qp_ws->stat[qp_ws->stat_m*(0)+7] = qp_res[2];
-//	qp_ws->stat[qp_ws->stat_m*(0)+8] = qp_res[3];
+	// save infinity norm of residuals
+	stat[stat_m*(0)+5] = qcqp_res->res_max[0];
+	stat[stat_m*(0)+6] = qcqp_res->res_max[1];
+	stat[stat_m*(0)+7] = qcqp_res->res_max[2];
+	stat[stat_m*(0)+8] = qcqp_res->res_max[3];
 
 
 
@@ -1296,19 +1289,14 @@ d_dense_qp_res_print(qp_ws->res->dim, qp_ws->res);
 
 		BACKUP_RES_M(cws);
 		cws->mu = qp_ws->res->res_mu;
-		if(kk<qp_ws->stat_max)
-			qp_ws->stat[qp_ws->stat_m*(kk+1)+4] = qp_ws->res->res_mu;
+		if(kk<stat_max)
+			stat[qp_ws->stat_m*(kk+1)+4] = qcqp_res->res_mu;
 
-		// compute infinity norm of residuals
-//		VECNRM_INF(cws->nv, &str_res_g, 0, &qp_res[0]);
-//		VECNRM_INF(cws->ne, &str_res_b, 0, &qp_res[1]);
-//		VECNRM_INF(cws->nc, &str_res_d, 0, &qp_res[2]);
-//		VECNRM_INF(cws->nc, &str_res_m, 0, &qp_res[3]);
-
-//		qp_ws->stat[qp_ws->stat_m*(kk+1)+5] = qp_res[0];
-//		qp_ws->stat[qp_ws->stat_m*(kk+1)+6] = qp_res[1];
-//		qp_ws->stat[qp_ws->stat_m*(kk+1)+7] = qp_res[2];
-//		qp_ws->stat[qp_ws->stat_m*(kk+1)+8] = qp_res[3];
+		// save infinity norm of residuals
+		stat[stat_m*(kk+1)+5] = qcqp_res->res_max[0];
+		stat[stat_m*(kk+1)+6] = qcqp_res->res_max[1];
+		stat[stat_m*(kk+1)+7] = qcqp_res->res_max[2];
+		stat[stat_m*(kk+1)+8] = qcqp_res->res_max[3];
 
 #if 0
 printf("%e %e %e\n", cws->alpha, cws->alpha_prim, cws->alpha_dual);

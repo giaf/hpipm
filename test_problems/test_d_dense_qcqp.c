@@ -211,6 +211,12 @@ int main()
 	double max_res_comp; d_dense_qcqp_ipm_get_max_res_comp(&workspace, &max_res_comp);
 	printf("\nipm max res: stat = %e, eq =  %e, ineq =  %e, comp = %e\n", max_res_stat, max_res_eq, max_res_ineq, max_res_comp);
 
+	printf("\nalpha_aff\tmu_aff\t\tsigma\t\talpha\t\tmu\n");
+	double *stat; d_dense_qcqp_ipm_get_stat(&workspace, &stat);
+	int *stat_m;  d_dense_qcqp_ipm_get_stat_m(&workspace, &stat_m);
+	d_print_exp_tran_mat(stat_m, iter+1, stat, stat_m);
+
+
 /************************************************
 * free memory
 ************************************************/

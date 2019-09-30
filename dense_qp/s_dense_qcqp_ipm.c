@@ -55,11 +55,13 @@
 #include <hpipm_s_dense_qp_res.h>
 #include <hpipm_s_dense_qp_ipm.h>
 #include <hpipm_s_dense_qp_kkt.h>
+#include <hpipm_s_dense_qp_utils.h>
 #include <hpipm_s_dense_qcqp_dim.h>
 #include <hpipm_s_dense_qcqp.h>
 #include <hpipm_s_dense_qcqp_sol.h>
 #include <hpipm_s_dense_qcqp_res.h>
 #include <hpipm_s_dense_qcqp_ipm.h>
+#include <hpipm_s_dense_qcqp_utils.h>
 
 
 
@@ -114,6 +116,8 @@
 #define DENSE_QP_IPM_ARG_SET_COMP_RES_PRED s_dense_qp_ipm_arg_set_comp_res_pred
 #define DENSE_QP_IPM_ABS_STEP s_dense_qp_ipm_abs_step
 #define DENSE_QP_IPM_DELTA_STEP s_dense_qp_ipm_delta_step
+#define DENSE_QP_IPM_GET_STAT s_dense_qp_ipm_get_stat
+#define DENSE_QP_IPM_GET_STAT_M s_dense_qp_ipm_get_stat_m
 #define DENSE_QP_IPM_WS s_dense_qp_ipm_ws
 #define DENSE_QP_IPM_WS_CREATE s_dense_qp_ipm_ws_create
 #define DENSE_QP_IPM_WS_MEMSIZE s_dense_qp_ipm_ws_memsize

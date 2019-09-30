@@ -161,11 +161,11 @@ void d_dense_qcqp_ipm_get_max_res_eq(struct d_dense_qcqp_ipm_ws *ws, double *res
 void d_dense_qcqp_ipm_get_max_res_ineq(struct d_dense_qcqp_ipm_ws *ws, double *res_ineq);
 //
 void d_dense_qcqp_ipm_get_max_res_comp(struct d_dense_qcqp_ipm_ws *ws, double *res_comp);
-#if 0
 //
 void d_dense_qcqp_ipm_get_stat(struct d_dense_qcqp_ipm_ws *ws, double **stat);
 //
 void d_dense_qcqp_ipm_get_stat_m(struct d_dense_qcqp_ipm_ws *ws, int *stat_m);
+#if 0
 //
 void d_dense_qcqp_init_var(struct d_dense_qcqp *qp, struct d_dense_qcqp_sol *qp_sol, struct d_dense_qcqp_ipm_arg *arg, struct d_dense_qcqp_ipm_ws *ws);
 #endif

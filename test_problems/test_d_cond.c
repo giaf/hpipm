@@ -1010,9 +1010,13 @@ int main()
 	printf("\nipm return = %d\n", hpipm_return);
 	printf("\nipm residuals max: res_g = %e, res_b = %e, res_d = %e, res_m = %e\n", dense_workspace.qp_res[0], dense_workspace.qp_res[1], dense_workspace.qp_res[2], dense_workspace.qp_res[3]);
 
-	printf("\nipm iter = %d\n", dense_workspace.iter);
+	int iter; d_dense_qp_ipm_get_iter(&dense_workspace, &iter);
+	printf("\nipm iter = %d\n", iter);
+
 	printf("\nalpha_aff\tmu_aff\t\tsigma\t\talpha\t\tmu\n");
-	d_print_exp_tran_mat(5, dense_workspace.iter, dense_workspace.stat, 5);
+	double *stat; d_dense_qp_ipm_get_stat(&dense_workspace, &stat);
+	int *stat_m;  d_dense_qp_ipm_get_stat_m(&dense_workspace, &stat_m);
+	d_print_exp_tran_mat(stat_m, iter+1, stat, stat_m);
 
 	printf("\ncond time           = %e [s]\n", time_cond);
 	printf("\nupdate cond time    = %e [s]\n", time_update_cond);

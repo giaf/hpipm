@@ -96,7 +96,7 @@ struct s_dense_qcqp_ipm_ws
 	struct s_dense_qcqp_res_ws *qcqp_res_ws;
 	struct s_dense_qcqp_res *qcqp_res;
 	struct blasfeo_svec *tmp_nv;
-	double *stat; // convergence statistics
+//	float *stat; // convergence statistics
 //	void *lq_work0;
 //	void *lq_work1;
 	int iter; // iteration number
@@ -161,11 +161,11 @@ void s_dense_qcqp_ipm_get_max_res_eq(struct s_dense_qcqp_ipm_ws *ws, float *res_
 void s_dense_qcqp_ipm_get_max_res_ineq(struct s_dense_qcqp_ipm_ws *ws, float *res_ineq);
 //
 void s_dense_qcqp_ipm_get_max_res_comp(struct s_dense_qcqp_ipm_ws *ws, float *res_comp);
-#if 0
 //
 void s_dense_qcqp_ipm_get_stat(struct s_dense_qcqp_ipm_ws *ws, float **stat);
 //
 void s_dense_qcqp_ipm_get_stat_m(struct s_dense_qcqp_ipm_ws *ws, int *stat_m);
+#if 0
 //
 void s_dense_qcqp_init_var(struct s_dense_qcqp *qp, struct s_dense_qcqp_sol *qp_sol, struct s_dense_qcqp_ipm_arg *arg, struct s_dense_qcqp_ipm_ws *ws);
 #endif
