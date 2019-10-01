@@ -75,6 +75,7 @@
 #define VECEX_SP blasfeo_dvecex_sp
 #define VECMULACC blasfeo_dvecmulacc
 #define VECMULDOT blasfeo_dvecmuldot
+#define VECNRM_INF blasfeo_dvecnrm_inf
 
 
 

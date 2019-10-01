@@ -141,6 +141,8 @@ void d_dense_qcqp_ipm_arg_set_warm_start(int *warm_start, struct d_dense_qcqp_ip
 //
 void d_dense_qcqp_ipm_arg_set_pred_corr(int *pred_corr, struct d_dense_qcqp_ipm_arg *arg);
 //
+void d_dense_qcqp_ipm_arg_set_cond_pred_corr(int *cond_pred_corr, struct d_dense_qcqp_ipm_arg *arg);
+//
 void d_dense_qcqp_ipm_arg_set_comp_res_pred(int *comp_res_pred, struct d_dense_qcqp_ipm_arg *arg);
 //
 void d_dense_qcqp_ipm_arg_set_comp_res_exit(int *comp_res_exit, struct d_dense_qcqp_ipm_arg *arg);

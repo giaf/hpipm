@@ -117,7 +117,6 @@ struct s_dense_qp_ipm_ws
 //	int *ipiv_e;
 	void *lq_work0;
 	void *lq_work1;
-	float qp_res[4]; // infinity norm of residuals
 	int iter; // iteration number
 	int stat_max; // iterations saved in stat
 	int stat_m; // numer of recorded stat per ipm iter
@@ -159,6 +158,8 @@ void s_dense_qp_ipm_arg_set_reg_dual(float *reg, struct s_dense_qp_ipm_arg *arg)
 void s_dense_qp_ipm_arg_set_warm_start(int *warm_start, struct s_dense_qp_ipm_arg *arg);
 //
 void s_dense_qp_ipm_arg_set_pred_corr(int *pred_corr, struct s_dense_qp_ipm_arg *arg);
+//
+void s_dense_qp_ipm_arg_set_cond_pred_corr(int *cond_pred_corr, struct s_dense_qp_ipm_arg *arg);
 //
 void s_dense_qp_ipm_arg_set_comp_res_pred(int *comp_res_pred, struct s_dense_qp_ipm_arg *arg);
 //

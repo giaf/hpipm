@@ -165,9 +165,9 @@ int main()
 //	enum hpipm_mode mode = ROBUST;
 	d_dense_qcqp_ipm_arg_set_default(mode, &arg);
 
-	int iter_max = 8; //25;
+	int iter_max = 20; //25;
 	d_dense_qcqp_ipm_arg_set_iter_max(&iter_max, &arg);
-	double mu0 = 1e1;
+	double mu0 = 1e3;
 	d_dense_qcqp_ipm_arg_set_mu0(&mu0, &arg);
 	int comp_res_exit = 1;
 	d_dense_qcqp_ipm_arg_set_comp_res_exit(&comp_res_exit, &arg);
@@ -196,10 +196,23 @@ int main()
 
 	int hpipm_return; // 0 normal; 1 max iter
 
+	int rep, nrep=1000;
 
 	printf("\nsolving ...\n");
-	d_dense_qcqp_ipm_solve(&qcqp, &qcqp_sol, &arg, &workspace);
-	d_dense_qcqp_ipm_get_status(&workspace, &hpipm_return);
+	struct timeval tv0, tv1;
+
+	gettimeofday(&tv0, NULL); // start
+
+	for(rep=0; rep<nrep; rep++)
+		{
+		d_dense_qcqp_ipm_solve(&qcqp, &qcqp_sol, &arg, &workspace);
+		d_dense_qcqp_ipm_get_status(&workspace, &hpipm_return);
+		}
+
+	gettimeofday(&tv1, NULL); // stop
+
+	double time_dense_ipm = (tv1.tv_sec-tv0.tv_sec)/(nrep+0.0)+(tv1.tv_usec-tv0.tv_usec)/(nrep*1e6);
+
 	printf("\ndone!\n");
 
 
@@ -229,6 +242,7 @@ int main()
 	int stat_m;  d_dense_qcqp_ipm_get_stat_m(&workspace, &stat_m);
 	d_print_exp_tran_mat(stat_m, iter+1, stat, stat_m);
 
+	printf("\ndense ipm time = %e [s]\n\n", time_dense_ipm);
 
 /************************************************
 * free memory

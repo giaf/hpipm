@@ -88,7 +88,6 @@ struct d_dense_qp_ipm_arg
 
 struct d_dense_qp_ipm_ws
 	{
-	double qp_res[4]; // infinity norm of residuals
 	struct d_core_qp_ipm_workspace *core_workspace;
 	struct d_dense_qp_res_ws *res_workspace;
 	struct d_dense_qp_sol *sol_step;
@@ -158,6 +157,8 @@ void d_dense_qp_ipm_arg_set_reg_dual(double *reg, struct d_dense_qp_ipm_arg *arg
 void d_dense_qp_ipm_arg_set_warm_start(int *warm_start, struct d_dense_qp_ipm_arg *arg);
 //
 void d_dense_qp_ipm_arg_set_pred_corr(int *pred_corr, struct d_dense_qp_ipm_arg *arg);
+//
+void d_dense_qp_ipm_arg_set_cond_pred_corr(int *cond_pred_corr, struct d_dense_qp_ipm_arg *arg);
 //
 void d_dense_qp_ipm_arg_set_comp_res_pred(int *comp_res_pred, struct d_dense_qp_ipm_arg *arg);
 //

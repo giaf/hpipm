@@ -139,7 +139,9 @@ void s_dense_qcqp_ipm_arg_set_reg_dual(float *reg, struct s_dense_qcqp_ipm_arg *
 //
 void s_dense_qcqp_ipm_arg_set_warm_start(int *warm_start, struct s_dense_qcqp_ipm_arg *arg);
 //
-void s_dense_qcqp_ipm_arg_set_pres_corr(int *pres_corr, struct s_dense_qcqp_ipm_arg *arg);
+void s_dense_qcqp_ipm_arg_set_pred_corr(int *pred_corr, struct s_dense_qcqp_ipm_arg *arg);
+//
+void s_dense_qcqp_ipm_arg_set_cond_pred_corr(int *cond_pred_corr, struct s_dense_qcqp_ipm_arg *arg);
 //
 void s_dense_qcqp_ipm_arg_set_comp_res_pred(int *comp_res_pred, struct s_dense_qcqp_ipm_arg *arg);
 //
