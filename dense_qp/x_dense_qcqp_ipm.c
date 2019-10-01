@@ -675,6 +675,7 @@ void DENSE_QCQP_INIT_VAR(struct DENSE_QCQP *qcqp, struct DENSE_QCQP_SOL *qcqp_so
 	// local variables
 	int ii;
 	int idxb0;
+	REAL tmp;
 
 	// TODO move to args ???
 	REAL thr0 = 0.5;
@@ -790,7 +791,11 @@ void DENSE_QCQP_INIT_VAR(struct DENSE_QCQP *qcqp, struct DENSE_QCQP_SOL *qcqp_so
 		lam[nb+ng+ii] = 1.0;
 		t[nb+ng+ii]   = mu0/lam[nb+ng+ii];
 		// upper
-		t[2*nb+2*ng+nq+ii] = 1.0; // thr0;
+//		t[2*nb+2*ng+nq+ii] = 1.0; // thr0;
+		SYMV_L(nv, nv, 0.5, qcqp->Hq+ii, 0, 0, qcqp_sol->v, 0, 1.0, qcqp->gq+ii, 0, ws->tmp_nv, 0);
+		tmp = DOT(nv, ws->tmp_nv, 0, qcqp_sol->v, 0);
+		tmp = - d[2*nb+2*ng+nq+ii] - tmp;
+		t[2*nb+2*ng+nq+ii] = thr0>tmp ? thr0 : tmp;
 		lam[2*nb+2*ng+nq+ii]  = mu0/t[2*nb+2*ng+nq+ii];
 		}
 	
