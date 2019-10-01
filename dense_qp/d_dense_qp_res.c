@@ -50,6 +50,10 @@
 
 
 
+#define DOUBLE_PRECISION
+
+
+
 #define AXPY blasfeo_daxpy
 #define CREATE_STRVEC blasfeo_create_dvec
 #define CVT_STRVEC2VEC blasfeo_unpack_dvec
@@ -58,6 +62,7 @@
 #define DENSE_QP_RES d_dense_qp_res
 #define DENSE_QP_RES_WS d_dense_qp_res_ws
 #define DENSE_QP_SOL d_dense_qp_sol
+#define DOT blasfeo_ddot
 #define GEMV_DIAG blasfeo_dgemv_d
 #define GEMV_NT blasfeo_dgemv_nt
 #define REAL double
@@ -70,6 +75,7 @@
 #define VECEX_SP blasfeo_dvecex_sp
 #define VECMULACC blasfeo_dvecmulacc
 #define VECMULDOT blasfeo_dvecmuldot
+#define VECNRM_INF blasfeo_dvecnrm_inf
 
 
 

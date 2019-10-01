@@ -81,7 +81,6 @@
 #define GEMV_N blasfeo_sgemv_n
 #define GEMV_T blasfeo_sgemv_t
 #define GESE blasfeo_sgese
-//#define GETRF blasfeo_sgetrf_rowpivot
 #define POTRF_L blasfeo_spotrf_l
 #define POTRF_L_MN blasfeo_spotrf_l_mn
 #define PSTRF_L spstrf_l_libstr
@@ -116,10 +115,8 @@
 #define VECPE blasfeo_svecpe
 #define VECPEI blasfeo_svecpei
 
-#define INIT_VAR_DENSE_QP s_init_var_dense_qp
 #define FACT_SOLVE_KKT_UNCONSTR_DENSE_QP s_fact_solve_kkt_unconstr_dense_qp
 #define FACT_LQ_SOLVE_KKT_STEP_DENSE_QP s_fact_lq_solve_kkt_step_dense_qp
-//#define FACT_SOLVE_LU_KKT_STEP_DENSE_QP s_fact_solve_lu_kkt_step_dense_qp
 #define FACT_SOLVE_KKT_STEP_DENSE_QP s_fact_solve_kkt_step_dense_qp
 #define SOLVE_KKT_STEP_DENSE_QP s_solve_kkt_step_dense_qp
 

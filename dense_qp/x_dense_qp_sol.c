@@ -64,6 +64,8 @@ int DENSE_QP_SOL_MEMSIZE(struct DENSE_QP_DIM *dim)
 void DENSE_QP_SOL_CREATE(struct DENSE_QP_DIM *dim, struct DENSE_QP_SOL *qp_sol, void *mem)
 	{
 
+	// TODO zero out memory
+
 	int nv = dim->nv;
 	int ne = dim->ne;
 	int nb = dim->nb;

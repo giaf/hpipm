@@ -72,6 +72,10 @@ int DENSE_QP_MEMSIZE(struct DENSE_QP_DIM *dim)
 void DENSE_QP_CREATE(struct DENSE_QP_DIM *dim, struct DENSE_QP *qp, void *mem)
 	{
 
+	// TODO set memory to zero !!!!!!!
+
+	int ii;
+
 	int nv = dim->nv;
 	int ne = dim->ne;
 	int nb = dim->nb;
@@ -181,7 +185,7 @@ void DENSE_QP_CREATE(struct DENSE_QP_DIM *dim, struct DENSE_QP *qp, void *mem)
 void DENSE_QP_SET_ALL(REAL *H, REAL *g, REAL *A, REAL *b, int *idxb, REAL *d_lb, REAL *d_ub, REAL *C, REAL *d_lg, REAL *d_ug, REAL *Zl, REAL *Zu, REAL *zl, REAL *zu, int *idxs, REAL *d_ls, REAL *d_us, struct DENSE_QP *qp)
 	{
 
-	int ii;
+	int ii, jj;
 
 	int nv = qp->dim->nv;
 	int ne = qp->dim->ne;

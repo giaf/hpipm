@@ -187,10 +187,10 @@ int main()
 
 	int dense_qp_dim_size = d_dense_qp_dim_memsize();
 	printf("\nqp dim size = %d\n", dense_qp_dim_size);
-	void *dense_qp_dim_mem = malloc(dense_qp_dim_size);
+	void *qp_dim_mem = malloc(dense_qp_dim_size);
 
 	struct d_dense_qp_dim qp_dim;
-	d_dense_qp_dim_create(&qp_dim, dense_qp_dim_mem);
+	d_dense_qp_dim_create(&qp_dim, qp_dim_mem);
 
 	d_dense_qp_dim_set_all(nv, ne, nb, ng, nsb, nsg, &qp_dim);
 
@@ -362,11 +362,20 @@ int main()
 ************************************************/
 
 	printf("\nipm return = %d\n", hpipm_return);
-	printf("\nipm residuals max: res_g = %e, res_b = %e, res_d = %e, res_m = %e\n", workspace.qp_res[0], workspace.qp_res[1], workspace.qp_res[2], workspace.qp_res[3]);
 
-	printf("\nipm iter = %d\n", workspace.iter);
+	int iter; d_dense_qp_ipm_get_iter(&workspace, &iter);
+	printf("\nipm iter = %d\n", iter);
+
+	double max_res_stat; d_dense_qp_ipm_get_max_res_stat(&workspace, &max_res_stat);
+	double max_res_eq  ; d_dense_qp_ipm_get_max_res_eq(&workspace, &max_res_eq);
+	double max_res_ineq; d_dense_qp_ipm_get_max_res_ineq(&workspace, &max_res_ineq);
+	double max_res_comp; d_dense_qp_ipm_get_max_res_comp(&workspace, &max_res_comp);
+	printf("\nipm max res: stat = %e, eq =  %e, ineq =  %e, comp = %e\n", max_res_stat, max_res_eq, max_res_ineq, max_res_comp);
+
 	printf("\nalpha_aff\tmu_aff\t\tsigma\t\talpha\t\tmu\n");
-	d_print_exp_tran_mat(5, workspace.iter, workspace.stat, 5);
+	double *stat; d_dense_qp_ipm_get_stat(&workspace, &stat);
+	int stat_m;  d_dense_qp_ipm_get_stat_m(&workspace, &stat_m);
+	d_print_exp_tran_mat(stat_m, iter+1, stat, stat_m);
 
 	printf("\ndense ipm time = %e [s]\n\n", time_dense_ipm);
 
@@ -374,8 +383,10 @@ int main()
 * free memory
 ************************************************/
 
+	free(qp_dim_mem);
 	free(qp_mem);
 	free(qp_sol_mem);
+	free(ipm_arg_mem);
 	free(ipm_mem);
 
 /************************************************

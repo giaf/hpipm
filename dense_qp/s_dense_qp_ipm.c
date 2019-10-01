@@ -72,6 +72,7 @@
 #define CREATE_STRVEC blasfeo_create_svec
 #define DENSE_QP s_dense_qp
 #define DENSE_QP_IPM_ARG s_dense_qp_ipm_arg
+#define GEMV_T blasfeo_sgemv_t
 #define HPIPM_MODE hpipm_mode
 #define DENSE_QP_IPM_WS s_dense_qp_ipm_ws
 #define DENSE_QP_DIM s_dense_qp_dim
@@ -120,7 +121,9 @@
 #define DENSE_QP_IPM_ARG_SET_REG_DUAL s_dense_qp_ipm_arg_set_reg_dual
 #define DENSE_QP_IPM_ARG_SET_WARM_START s_dense_qp_ipm_arg_set_warm_start
 #define DENSE_QP_IPM_ARG_SET_PRED_CORR s_dense_qp_ipm_arg_set_pred_corr
+#define DENSE_QP_IPM_ARG_SET_COND_PRED_CORR s_dense_qp_ipm_arg_set_cond_pred_corr
 #define DENSE_QP_IPM_ARG_SET_COMP_RES_PRED s_dense_qp_ipm_arg_set_comp_res_pred
+#define DENSE_QP_IPM_ARG_SET_COMP_RES_EXIT s_dense_qp_ipm_arg_set_comp_res_exit
 // ipm
 #define DENSE_QP_IPM_WS_MEMSIZE s_dense_qp_ipm_ws_memsize
 #define DENSE_QP_IPM_WS_CREATE s_dense_qp_ipm_ws_create
@@ -133,6 +136,9 @@
 #define DENSE_QP_IPM_GET_MAX_RES_COMP s_dense_qp_ipm_get_max_res_comp
 #define DENSE_QP_IPM_GET_STAT s_dense_qp_ipm_get_stat
 #define DENSE_QP_IPM_GET_STAT_M s_dense_qp_ipm_get_stat_m
+#define DENSE_QP_INIT_VAR s_dense_qp_init_var
+#define DENSE_QP_IPM_ABS_STEP s_dense_qp_ipm_abs_step
+#define DENSE_QP_IPM_DELTA_STEP s_dense_qp_ipm_delta_step
 #define DENSE_QP_IPM_SOLVE s_dense_qp_ipm_solve
 #define DENSE_QP_IPM_PREDICT s_dense_qp_ipm_predict
 #define DENSE_QP_IPM_SENS s_dense_qp_ipm_sens

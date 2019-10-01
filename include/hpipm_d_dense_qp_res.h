@@ -60,6 +60,7 @@ struct d_dense_qp_res
 	struct blasfeo_dvec *res_b; // b-residuals
 	struct blasfeo_dvec *res_d; // d-residuals
 	struct blasfeo_dvec *res_m; // m-residuals
+	double res_max[4]; // max of residuals
 	double res_mu; // mu-residual
 	int memsize;
 	};

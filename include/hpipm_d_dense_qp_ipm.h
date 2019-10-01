@@ -88,7 +88,6 @@ struct d_dense_qp_ipm_arg
 
 struct d_dense_qp_ipm_ws
 	{
-	double qp_res[4]; // infinity norm of residuals
 	struct d_core_qp_ipm_workspace *core_workspace;
 	struct d_dense_qp_res_ws *res_workspace;
 	struct d_dense_qp_sol *sol_step;
@@ -159,7 +158,11 @@ void d_dense_qp_ipm_arg_set_warm_start(int *warm_start, struct d_dense_qp_ipm_ar
 //
 void d_dense_qp_ipm_arg_set_pred_corr(int *pred_corr, struct d_dense_qp_ipm_arg *arg);
 //
+void d_dense_qp_ipm_arg_set_cond_pred_corr(int *cond_pred_corr, struct d_dense_qp_ipm_arg *arg);
+//
 void d_dense_qp_ipm_arg_set_comp_res_pred(int *comp_res_pred, struct d_dense_qp_ipm_arg *arg);
+//
+void d_dense_qp_ipm_arg_set_comp_res_exit(int *comp_res_exit, struct d_dense_qp_ipm_arg *arg);
 
 //
 int d_dense_qp_ipm_ws_memsize(struct d_dense_qp_dim *qp_dim, struct d_dense_qp_ipm_arg *arg);
@@ -183,6 +186,12 @@ void d_dense_qp_ipm_get_max_res_comp(struct d_dense_qp_ipm_ws *ws, double *res_c
 void d_dense_qp_ipm_get_stat(struct d_dense_qp_ipm_ws *ws, double **stat);
 //
 void d_dense_qp_ipm_get_stat_m(struct d_dense_qp_ipm_ws *ws, int *stat_m);
+//
+void d_dense_qp_init_var(struct d_dense_qp *qp, struct d_dense_qp_sol *qp_sol, struct d_dense_qp_ipm_arg *arg, struct d_dense_qp_ipm_ws *ws);
+//
+void d_dense_qp_ipm_abs_step(int kk, struct d_dense_qp *qp, struct d_dense_qp_sol *qp_sol, struct d_dense_qp_ipm_arg *arg, struct d_dense_qp_ipm_ws *ws);
+//
+void d_dense_qp_ipm_delta_step(int kk, struct d_dense_qp *qp, struct d_dense_qp_sol *qp_sol, struct d_dense_qp_ipm_arg *arg, struct d_dense_qp_ipm_ws *ws);
 //
 void d_dense_qp_ipm_solve(struct d_dense_qp *qp, struct d_dense_qp_sol *qp_sol, struct d_dense_qp_ipm_arg *arg, struct d_dense_qp_ipm_ws *ws);
 //

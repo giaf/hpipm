@@ -229,6 +229,8 @@ void DENSE_QP_RES_COMPUTE(struct DENSE_QP *qp, struct DENSE_QP_SOL *qp_sol, stru
 	int ng = qp->dim->ng;
 	int ns = qp->dim->ns;
 
+	int nvt = nv+2*ns;
+	int net = ne;
 	int nct = 2*nb+2*ng+2*ns;
 
 	REAL nct_inv = 1.0/nct;
@@ -257,7 +259,9 @@ void DENSE_QP_RES_COMPUTE(struct DENSE_QP *qp, struct DENSE_QP_SOL *qp_sol, stru
 	struct STRVEC *tmp_nbg = ws->tmp_nbg;
 	struct STRVEC *tmp_ns = ws->tmp_ns;
 
-	REAL mu;
+	REAL mu, tmp;
+
+	int ii;
 
 	// res g
 	SYMV_L(nv, nv, 1.0, Hg, 0, 0, v, 0, 1.0, gz, 0, res_g, 0);
@@ -306,6 +310,11 @@ void DENSE_QP_RES_COMPUTE(struct DENSE_QP *qp, struct DENSE_QP_SOL *qp_sol, stru
 	AXPY(nct, -1.0, m, 0, res_m, 0, res_m, 0);
 	res->res_mu = mu*nct_inv;
 
+	// compute infinity norm
+	VECNRM_INF(nvt, res_g, 0, res->res_max+0);
+	VECNRM_INF(net, res_b, 0, res->res_max+1);
+	VECNRM_INF(nct, res_d, 0, res->res_max+2);
+	VECNRM_INF(nct, res_m, 0, res->res_max+3);
 
 	return;
 
@@ -321,6 +330,8 @@ void DENSE_QP_RES_COMPUTE_LIN(struct DENSE_QP *qp, struct DENSE_QP_SOL *qp_sol, 
 	int ng = qp->dim->ng;
 	int ns = qp->dim->ns;
 
+	int nvt = nv+2*ns;
+	int net = ne;
 	int nct = 2*nb+2*ng+2*ns;
 
 	REAL nct_inv = 1.0/nct;
@@ -352,7 +363,9 @@ void DENSE_QP_RES_COMPUTE_LIN(struct DENSE_QP *qp, struct DENSE_QP_SOL *qp_sol, 
 	struct STRVEC *tmp_nbg = ws->tmp_nbg;
 	struct STRVEC *tmp_ns = ws->tmp_ns;
 
-	REAL mu;
+	REAL mu, tmp;
+
+	int ii;
 
 	// res g
 	SYMV_L(nv, nv, 1.0, Hg, 0, 0, v, 0, 1.0, gz, 0, res_g, 0);
@@ -405,6 +418,11 @@ void DENSE_QP_RES_COMPUTE_LIN(struct DENSE_QP *qp, struct DENSE_QP_SOL *qp_sol, 
 //	AXPY(nct, -1.0, m, 0, res_m, 0, res_m, 0);
 //	res->res_mu = mu*nct_inv;
 
+	// compute infinity norm
+	VECNRM_INF(nvt, res_g, 0, res->res_max+0);
+	VECNRM_INF(net, res_b, 0, res->res_max+1);
+	VECNRM_INF(nct, res_d, 0, res->res_max+2);
+	VECNRM_INF(nct, res_m, 0, res->res_max+3);
 
 	return;
 
