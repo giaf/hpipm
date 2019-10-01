@@ -3,8 +3,8 @@ HPIPM ChangeLog
 
 
 ====================================================================
-Version 0.1.1-master
-22-Aug-2019
+Version 0.1.1
+01-Oct-2019
 
 common:
 	* change license to BSD-2
