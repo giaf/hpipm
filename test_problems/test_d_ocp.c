@@ -611,10 +611,10 @@ int main()
 		idxs0[ii] = nu[0]+ii;
 	double *d_ls0; d_zeros(&d_ls0, ns[0], 1);
 	for(ii=0; ii<ns[0]; ii++)
-		d_ls0[ii] = 0.0; //-1.0;
+		d_ls0[ii] = -1.0; //0.0; //-1.0;
 	double *d_us0; d_zeros(&d_us0, ns[0], 1);
 	for(ii=0; ii<ns[0]; ii++)
-		d_us0[ii] = 0.0;
+		d_us0[ii] = -1.0; //0.0;
 
 	double *Zl1; d_zeros(&Zl1, ns[1], 1);
 	for(ii=0; ii<ns[1]; ii++)
@@ -633,10 +633,10 @@ int main()
 		idxs1[ii] = nu[1]+ii;
 	double *d_ls1; d_zeros(&d_ls1, ns[1], 1);
 	for(ii=0; ii<ns[1]; ii++)
-		d_ls1[ii] = 0.0; //-1.0;
+		d_ls1[ii] = -1.0; //0.0; //-1.0;
 	double *d_us1; d_zeros(&d_us1, ns[1], 1);
 	for(ii=0; ii<ns[1]; ii++)
-		d_us1[ii] = 0.0;
+		d_us1[ii] = -1.0; //0.0;
 
 	double *ZlN; d_zeros(&ZlN, ns[N], 1);
 	for(ii=0; ii<ns[N]; ii++)
@@ -655,10 +655,10 @@ int main()
 		idxsN[ii] = nu[N]+ii;
 	double *d_lsN; d_zeros(&d_lsN, ns[N], 1);
 	for(ii=0; ii<ns[N]; ii++)
-		d_lsN[ii] = 0.0; //-1.0;
+		d_lsN[ii] = -1.0; //0.0; //-1.0;
 	double *d_usN; d_zeros(&d_usN, ns[N], 1);
 	for(ii=0; ii<ns[N]; ii++)
-		d_usN[ii] = 0.0;
+		d_usN[ii] = -1.0; //0.0;
 
 #if 1
 	// soft constraints
@@ -864,7 +864,7 @@ int main()
 //	enum hpipm_mode mode = ROBUST;
 	d_ocp_qp_ipm_arg_set_default(mode, &arg);
 
-	int iter_max = 20;
+	int iter_max = 30;
 	double alpha_min = 1e-8;
 	double tol_stat = 1e-8;
 	double tol_eq = 1e-12;
@@ -1089,6 +1089,25 @@ int main()
 	d_print_exp_tran_mat(stat_m, iter+1, stat, stat_m);
 
 	printf("\nocp ipm time = %e [s]\n\n", time_ocp_ipm);
+
+/************************************************
+* get riccati matrices
+************************************************/
+
+#if 0
+	double *Lr = malloc(nu_*nu_*sizeof(double));
+	double *Ls = malloc(nx_*nu_*sizeof(double));
+
+	d_ocp_qp_ipm_get_ric_Lr(0, &workspace, Lr);
+	d_print_exp_mat(nu_, nu_, Lr, nu_);
+	d_ocp_qp_ipm_get_ric_Ls(0, &workspace, Ls);
+	d_print_exp_mat(nx_, nu_, Ls, nx_);
+
+	d_ocp_qp_ipm_get_ric_Lr(1, &workspace, Lr);
+	d_print_exp_mat(nu_, nu_, Lr, nu_);
+	d_ocp_qp_ipm_get_ric_Ls(1, &workspace, Ls);
+	d_print_exp_mat(nx_, nu_, Ls, nx_);
+#endif
 
 /************************************************
 * free memory

@@ -89,6 +89,7 @@ struct d_ocp_qp_ipm_ws
 	{
 	double qp_res[4]; // infinity norm of residuals
 	struct d_core_qp_ipm_workspace *core_workspace;
+	struct d_ocp_qp_dim *dim;
 	struct d_ocp_qp_res_ws *res_workspace;
 	struct d_ocp_qp_sol *sol_step;
 	struct d_ocp_qp_sol *sol_itref;
@@ -182,6 +183,10 @@ void d_ocp_qp_ipm_get_max_res_comp(struct d_ocp_qp_ipm_ws *ws, double *res_comp)
 void d_ocp_qp_ipm_get_stat(struct d_ocp_qp_ipm_ws *ws, double **stat);
 //
 void d_ocp_qp_ipm_get_stat_m(struct d_ocp_qp_ipm_ws *ws, int *stat_m);
+//
+void d_ocp_qp_ipm_get_ric_Lr(int stage, struct d_ocp_qp_ipm_ws *ws, double *Lr);
+//
+void d_ocp_qp_ipm_get_ric_Ls(int stage, struct d_ocp_qp_ipm_ws *ws, double *Ls);
 //
 void d_ocp_qp_ipm_solve(struct d_ocp_qp *qp, struct d_ocp_qp_sol *qp_sol, struct d_ocp_qp_ipm_arg *arg, struct d_ocp_qp_ipm_ws *ws);
 //

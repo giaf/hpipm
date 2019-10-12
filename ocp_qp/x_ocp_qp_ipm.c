@@ -894,6 +894,8 @@ void OCP_QP_IPM_WS_CREATE(struct OCP_QP_DIM *dim, struct OCP_QP_IPM_ARG *arg, st
 		}
 
 
+	workspace->dim = dim;
+
 	workspace->res->dim = dim;
 
 	workspace->stat_max = arg->stat_max;
@@ -1024,6 +1026,30 @@ void OCP_QP_IPM_GET_STAT(struct OCP_QP_IPM_WS *ws, REAL **stat)
 void OCP_QP_IPM_GET_STAT_M(struct OCP_QP_IPM_WS *ws, int *stat_m)
 	{
 	*stat_m = ws->stat_m;
+	}
+
+
+
+void OCP_QP_IPM_GET_RIC_LR(int stage, struct OCP_QP_IPM_WS *ws, REAL *Lr)
+	{
+	int *nu = ws->dim->nu;
+
+	int nu0 = nu[stage];
+
+	UNPACK_MAT(nu0, nu0, ws->L+stage, 0, 0, Lr, nu0);
+	}
+
+
+
+void OCP_QP_IPM_GET_RIC_LS(int stage, struct OCP_QP_IPM_WS *ws, REAL *Ls)
+	{
+	int *nu = ws->dim->nu;
+	int *nx = ws->dim->nx;
+
+	int nu0 = nu[stage];
+	int nx0 = nx[stage];
+
+	UNPACK_MAT(nx0, nu0, ws->L+stage, nu0, 0, Ls, nx0);
 	}
 
 

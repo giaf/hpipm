@@ -91,6 +91,7 @@ struct s_ocp_qp_ipm_ws
 	{
 	struct s_core_qp_ipm_workspace *core_workspace;
 	struct s_ocp_qp_res_ws *res_workspace;
+	struct s_ocp_qp_dim *dim;
 	struct s_ocp_qp_sol *sol_step;
 	struct s_ocp_qp_sol *sol_itref;
 	struct s_ocp_qp *qp_step;
@@ -184,6 +185,10 @@ void s_ocp_qp_ipm_get_max_res_comp(struct s_ocp_qp_ipm_ws *ws, float *res_comp);
 void s_ocp_qp_ipm_get_stat(struct s_ocp_qp_ipm_ws *ws, float **stat);
 //
 void s_ocp_qp_ipm_get_stat_m(struct s_ocp_qp_ipm_ws *ws, int *stat_m);
+//
+void s_ocp_qp_ipm_get_ric_Lr(int stage, struct s_ocp_qp_ipm_ws *ws, float *Lr);
+//
+void s_ocp_qp_ipm_get_ric_Ls(int stage, struct s_ocp_qp_ipm_ws *ws, float *Ls);
 //
 void s_ocp_qp_ipm_solve(struct s_ocp_qp *qp, struct s_ocp_qp_sol *qp_sol, struct s_ocp_qp_ipm_arg *arg, struct s_ocp_qp_ipm_ws *ws);
 //

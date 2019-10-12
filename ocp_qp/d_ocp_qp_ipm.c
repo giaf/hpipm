@@ -69,7 +69,6 @@
 #define CREATE_CORE_QP_IPM d_create_core_qp_ipm
 #define CREATE_STRMAT blasfeo_create_dmat
 #define CREATE_STRVEC blasfeo_create_dvec
-#define CVT_STRVEC2VEC blasfeo_unpack_dvec
 #define FACT_SOLVE_KKT_STEP_OCP_QP d_fact_solve_kkt_step_ocp_qp
 #define FACT_LQ_SOLVE_KKT_STEP_OCP_QP d_fact_lq_solve_kkt_step_ocp_qp
 #define FACT_SOLVE_KKT_UNCONSTR_OCP_QP d_fact_solve_kkt_unconstr_ocp_qp
@@ -104,6 +103,8 @@
 #define SOLVE_KKT_STEP_OCP_QP d_solve_kkt_step_ocp_qp
 #define STRMAT blasfeo_dmat
 #define STRVEC blasfeo_dvec
+#define UNPACK_MAT blasfeo_unpack_dmat
+#define UNPACK_VEC blasfeo_unpack_dvec
 #define UPDATE_VAR_QP d_update_var_qp
 #define VECMULDOT blasfeo_dvecmuldot
 #define VECNRM_INF blasfeo_dvecnrm_inf
@@ -143,6 +144,8 @@
 #define OCP_QP_IPM_GET_MAX_RES_COMP d_ocp_qp_ipm_get_max_res_comp
 #define OCP_QP_IPM_GET_STAT d_ocp_qp_ipm_get_stat
 #define OCP_QP_IPM_GET_STAT_M d_ocp_qp_ipm_get_stat_m
+#define OCP_QP_IPM_GET_RIC_LR d_ocp_qp_ipm_get_ric_Lr
+#define OCP_QP_IPM_GET_RIC_LS d_ocp_qp_ipm_get_ric_Ls
 #define OCP_QP_IPM_SOLVE d_ocp_qp_ipm_solve
 #define OCP_QP_IPM_PREDICT d_ocp_qp_ipm_predict
 #define OCP_QP_IPM_SENS d_ocp_qp_ipm_sens
