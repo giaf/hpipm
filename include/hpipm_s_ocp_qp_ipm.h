@@ -106,8 +106,8 @@ struct s_ocp_qp_ipm_ws
 	struct blasfeo_svec *Pb; // Pb
 	struct blasfeo_svec *Zs_inv;
 	struct blasfeo_smat *L;
-	struct blasfeo_smat *Ls; // TODO
-	struct blasfeo_smat *P; // TODO
+	struct blasfeo_smat *Ls;
+	struct blasfeo_smat *P;
 	struct blasfeo_smat *Lh;
 	struct blasfeo_smat *AL;
 	struct blasfeo_smat *lq0;
@@ -191,6 +191,8 @@ void s_ocp_qp_ipm_get_stat_m(struct s_ocp_qp_ipm_ws *ws, int *stat_m);
 void s_ocp_qp_ipm_get_ric_Lr(int stage, struct s_ocp_qp_ipm_ws *ws, float *Lr);
 //
 void s_ocp_qp_ipm_get_ric_Ls(int stage, struct s_ocp_qp_ipm_ws *ws, float *Ls);
+//
+void s_ocp_qp_ipm_get_ric_P(int stage, struct s_ocp_qp_ipm_ws *ws, float *P);
 //
 void s_ocp_qp_ipm_solve(struct s_ocp_qp *qp, struct s_ocp_qp_sol *qp_sol, struct s_ocp_qp_ipm_arg *arg, struct s_ocp_qp_ipm_ws *ws);
 //

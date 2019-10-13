@@ -73,6 +73,7 @@
 #define FACT_LQ_SOLVE_KKT_STEP_OCP_QP d_fact_lq_solve_kkt_step_ocp_qp
 #define FACT_SOLVE_KKT_UNCONSTR_OCP_QP d_fact_solve_kkt_unconstr_ocp_qp
 #define GELQF_WORKSIZE blasfeo_dgelqf_worksize
+#define GESE blasfeo_dgese
 #define HPIPM_MODE hpipm_mode
 #define INIT_VAR_OCP_QP d_init_var_ocp_qp
 #define MEMSIZE_CORE_QP_IPM d_memsize_core_qp_ipm
@@ -103,6 +104,9 @@
 #define SOLVE_KKT_STEP_OCP_QP d_solve_kkt_step_ocp_qp
 #define STRMAT blasfeo_dmat
 #define STRVEC blasfeo_dvec
+#define SYRK_LN blasfeo_dsyrk_ln
+#define TRCP_L blasfeo_dtrcp_l
+#define TRTR_L blasfeo_dtrtr_l
 #define UNPACK_MAT blasfeo_unpack_dmat
 #define UNPACK_VEC blasfeo_unpack_dvec
 #define UPDATE_VAR_QP d_update_var_qp
@@ -146,6 +150,7 @@
 #define OCP_QP_IPM_GET_STAT_M d_ocp_qp_ipm_get_stat_m
 #define OCP_QP_IPM_GET_RIC_LR d_ocp_qp_ipm_get_ric_Lr
 #define OCP_QP_IPM_GET_RIC_LS d_ocp_qp_ipm_get_ric_Ls
+#define OCP_QP_IPM_GET_RIC_P d_ocp_qp_ipm_get_ric_P
 #define OCP_QP_IPM_SOLVE d_ocp_qp_ipm_solve
 #define OCP_QP_IPM_PREDICT d_ocp_qp_ipm_predict
 #define OCP_QP_IPM_SENS d_ocp_qp_ipm_sens

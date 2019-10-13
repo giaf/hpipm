@@ -447,6 +447,10 @@ int OCP_QP_IPM_WS_MEMSIZE(struct OCP_QP_DIM *dim, struct OCP_QP_IPM_ARG *arg)
 		size += 1*(N+1)*sizeof(struct STRMAT); // P
 		size += 1*sizeof(struct STRMAT); // Ls
 		}
+	else
+		{
+		size += 2*sizeof(struct STRMAT); // P
+		}
 	if(arg->lq_fact>0)
 		{
 		size += 1*(N+1)*sizeof(struct STRMAT); // Lh
@@ -468,6 +472,10 @@ int OCP_QP_IPM_WS_MEMSIZE(struct OCP_QP_DIM *dim, struct OCP_QP_IPM_ARG *arg)
 		{
 		for(ii=0; ii<=N; ii++) size += 1*SIZE_STRMAT(nx[ii]+1, nx[ii]); // P
 		size += 1*SIZE_STRMAT(nxM+1, nuM); // Ls
+		}
+	else
+		{
+		size += 2*SIZE_STRMAT(nxM, nxM); // P
 		}
 	if(arg->lq_fact>0)
 		{
@@ -622,6 +630,11 @@ void OCP_QP_IPM_WS_CREATE(struct OCP_QP_DIM *dim, struct OCP_QP_IPM_ARG *arg, st
 		workspace->Ls = sm_ptr;
 		sm_ptr += 1;
 		}
+	else
+		{
+		workspace->P = sm_ptr;
+		sm_ptr += 2;
+		}
 	if(arg->lq_fact>0)
 		{
 		workspace->Lh = sm_ptr;
@@ -718,6 +731,13 @@ void OCP_QP_IPM_WS_CREATE(struct OCP_QP_DIM *dim, struct OCP_QP_IPM_ARG *arg, st
 			}
 		CREATE_STRMAT(nxM+1, nuM, workspace->Ls, c_ptr);
 		c_ptr += (workspace->Ls)->memsize;
+		}
+	else
+		{
+		CREATE_STRMAT(nxM, nxM, workspace->P+0, c_ptr);
+		c_ptr += (workspace->P+0)->memsize;
+		CREATE_STRMAT(nxM, nxM, workspace->P+1, c_ptr);
+		c_ptr += (workspace->P+1)->memsize;
 		}
 
 	if(arg->lq_fact>0)
@@ -1053,6 +1073,30 @@ void OCP_QP_IPM_GET_RIC_LS(int stage, struct OCP_QP_IPM_WS *ws, REAL *Ls)
 	int nx0 = nx[stage];
 
 	UNPACK_MAT(nx0, nu0, ws->L+stage, nu0, 0, Ls, nx0);
+	}
+
+
+
+void OCP_QP_IPM_GET_RIC_P(int stage, struct OCP_QP_IPM_WS *ws, REAL *P)
+	{
+	int *nu = ws->dim->nu;
+	int *nx = ws->dim->nx;
+
+	int nu0 = nu[stage];
+	int nx0 = nx[stage];
+
+	if(ws->square_root_alg)
+		{
+		GESE(nx0, nx0, 0.0, ws->P+0, 0, 0);
+		TRCP_L(nx0, ws->L+stage, nu0, nu0, ws->P+0, 0, 0);
+		SYRK_LN(nx0, nx0, 1.0, ws->P+0, 0, 0, ws->P+0, 0, 0, 0.0, ws->P+1, 0, 0, ws->P+1, 0, 0); // TODO lauum
+		TRTR_L(nx0, ws->P+1, 0, 0, ws->P+1, 0, 0);
+		UNPACK_MAT(nx0, nx0, ws->P+1, 0, 0, P, nx0);
+		}
+	else
+		{
+		UNPACK_MAT(nx0, nx0, ws->P+stage, 0, 0, P, nx0);
+		}
 	}
 
 
