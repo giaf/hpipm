@@ -150,6 +150,7 @@
 #define OCP_QP_IPM_GET_RIC_LR s_ocp_qp_ipm_get_ric_Lr
 #define OCP_QP_IPM_GET_RIC_LS s_ocp_qp_ipm_get_ric_Ls
 #define OCP_QP_IPM_GET_RIC_P s_ocp_qp_ipm_get_ric_P
+#define OCP_QP_IPM_GET_RIC_LR_VEC s_ocp_qp_ipm_get_ric_lr
 #define OCP_QP_IPM_SOLVE s_ocp_qp_ipm_solve
 #define OCP_QP_IPM_PREDICT s_ocp_qp_ipm_predict
 #define OCP_QP_IPM_SENS s_ocp_qp_ipm_sens

@@ -1098,6 +1098,7 @@ int main()
 	double *Lr = malloc(nu_*nu_*sizeof(double));
 	double *Ls = malloc(nx_*nu_*sizeof(double));
 	double *P = malloc(nx_*nx_*sizeof(double));
+	double *lr = malloc(nu_*sizeof(double));
 
 	d_ocp_qp_ipm_get_ric_Lr(0, &workspace, Lr);
 	d_print_exp_mat(nu_, nu_, Lr, nu_);
@@ -1105,6 +1106,8 @@ int main()
 	d_print_exp_mat(nx_, nu_, Ls, nx_);
 	d_ocp_qp_ipm_get_ric_P(0, &workspace, P);
 	d_print_exp_mat(nx_, nx_, P, nx_);
+	d_ocp_qp_ipm_get_ric_lr(0, &workspace, lr);
+	d_print_exp_mat(1, nu_, lr, 1);
 
 	d_ocp_qp_ipm_get_ric_Lr(1, &workspace, Lr);
 	d_print_exp_mat(nu_, nu_, Lr, nu_);
@@ -1112,6 +1115,13 @@ int main()
 	d_print_exp_mat(nx_, nu_, Ls, nx_);
 	d_ocp_qp_ipm_get_ric_P(1, &workspace, P);
 	d_print_exp_mat(nx_, nx_, P, nx_);
+	d_ocp_qp_ipm_get_ric_lr(1, &workspace, lr);
+	d_print_exp_mat(1, nu_, lr, 1);
+
+	free(Lr);
+	free(Ls);
+	free(P);
+	free(lr);
 #endif
 
 /************************************************

@@ -1101,6 +1101,19 @@ void OCP_QP_IPM_GET_RIC_P(int stage, struct OCP_QP_IPM_WS *ws, REAL *P)
 
 
 
+void OCP_QP_IPM_GET_RIC_LR_VEC(int stage, struct OCP_QP_IPM_WS *ws, REAL *lr)
+	{
+	int *nu = ws->dim->nu;
+	int *nx = ws->dim->nx;
+
+	int nu0 = nu[stage];
+	int nx0 = nx[stage];
+
+	UNPACK_MAT(1, nu0, ws->L+stage, nu0+nx0, 0, lr, 1);
+	}
+
+
+
 void OCP_QP_IPM_SOLVE(struct OCP_QP *qp, struct OCP_QP_SOL *qp_sol, struct OCP_QP_IPM_ARG *arg, struct OCP_QP_IPM_WS *ws)
 	{
 
