@@ -89,7 +89,7 @@ struct d_ocp_qp_ipm_ws
 	{
 	double qp_res[4]; // infinity norm of residuals
 	struct d_core_qp_ipm_workspace *core_workspace;
-	struct d_ocp_qp_dim *dim;
+	struct d_ocp_qp_dim *dim; // cache dim
 	struct d_ocp_qp_res_ws *res_workspace;
 	struct d_ocp_qp_sol *sol_step;
 	struct d_ocp_qp_sol *sol_itref;
@@ -119,6 +119,8 @@ struct d_ocp_qp_ipm_ws
 	int stat_m; // number of recorded stat per IPM iter
 	int use_Pb;
 	int status; // solver status
+	int square_root_alg; // cache from arg
+	int lq_fact; // cache from arg
 	int memsize;
 	};
 

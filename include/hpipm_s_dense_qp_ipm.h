@@ -123,6 +123,7 @@ struct s_dense_qp_ipm_ws
 	int scale;
 	int use_hess_fact;
 	int status;
+	int lq_fact; // cache from arg
 	int memsize; // memory size (in bytes) of workspace
 	};
 

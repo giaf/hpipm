@@ -408,7 +408,7 @@ void FACT_SOLVE_KKT_UNCONSTR_OCP_QP(struct OCP_QP *qp, struct OCP_QP_SOL *qp_sol
 
 	struct STRVEC *tmp_nxM = ws->tmp_nxM;
 
-	if(arg->square_root_alg)
+	if(ws->square_root_alg)
 		{
 
 		// factorization and backward substitution
@@ -764,7 +764,7 @@ void FACT_SOLVE_KKT_STEP_OCP_QP(struct OCP_QP *qp, struct OCP_QP_SOL *qp_sol, st
 
 	COMPUTE_GAMMA_GAMMA_QP(res_d[0].pa, res_m[0].pa, cws);
 
-	if(arg->square_root_alg)
+	if(ws->square_root_alg)
 		{
 
 		// factorization and backward substitution
@@ -1074,7 +1074,7 @@ void FACT_LQ_SOLVE_KKT_STEP_OCP_QP(struct OCP_QP *qp, struct OCP_QP_SOL *qp_sol,
 	{
 
 	// TODO find something better ???
-	if(!arg->square_root_alg)
+	if(!ws->square_root_alg)
 		{
 		FACT_SOLVE_KKT_STEP_OCP_QP(qp, qp_sol, arg, ws);
 		return;
@@ -1428,7 +1428,7 @@ void SOLVE_KKT_STEP_OCP_QP(struct OCP_QP *qp, struct OCP_QP_SOL *qp_sol, struct 
 //printf("\nin solve\n");
 	COMPUTE_GAMMA_QP(res_d[0].pa, res_m[0].pa, cws);
 
-	if(arg->square_root_alg)
+	if(ws->square_root_alg)
 		{
 
 		// backward substitution

@@ -170,19 +170,19 @@ void DENSE_QP_IPM_ARG_SET_DEFAULT(enum HPIPM_MODE mode, struct DENSE_QP_IPM_ARG 
 	// use individual setters when available
 	DENSE_QP_IPM_ARG_SET_MU0(&mu0, arg);
 	DENSE_QP_IPM_ARG_SET_ALPHA_MIN(&alpha_min, arg);
-	DENSE_QP_IPM_ARG_SET_TOL_STAT(&res_g, arg); // not used
-	DENSE_QP_IPM_ARG_SET_TOL_EQ(&res_b, arg); // not used
-	DENSE_QP_IPM_ARG_SET_TOL_INEQ(&res_d, arg); // not used
+	DENSE_QP_IPM_ARG_SET_TOL_STAT(&res_g, arg);
+	DENSE_QP_IPM_ARG_SET_TOL_EQ(&res_b, arg);
+	DENSE_QP_IPM_ARG_SET_TOL_INEQ(&res_d, arg);
 	DENSE_QP_IPM_ARG_SET_TOL_COMP(&res_m, arg);
 	DENSE_QP_IPM_ARG_SET_ITER_MAX(&iter_max, arg);
 	arg->stat_max = stat_max;
 	DENSE_QP_IPM_ARG_SET_PRED_CORR(&pred_corr, arg);
 	DENSE_QP_IPM_ARG_SET_COND_PRED_CORR(&cond_pred_corr, arg);
-	arg->itref_pred_max = itref_pred_max; // not used
-	arg->itref_corr_max = itref_corr_max; // not used
+	arg->itref_pred_max = itref_pred_max;
+	arg->itref_corr_max = itref_corr_max;
 	DENSE_QP_IPM_ARG_SET_REG_PRIM(&reg_prim, arg);
 	DENSE_QP_IPM_ARG_SET_REG_DUAL(&reg_prim, arg);
-	arg->lq_fact = lq_fact; // not used
+	arg->lq_fact = lq_fact;
 	arg->scale = scale;
 	arg->lam_min = lam_min;
 	arg->t_min = t_min;
@@ -683,6 +683,9 @@ void DENSE_QP_IPM_WS_CREATE(struct DENSE_QP_DIM *dim, struct DENSE_QP_IPM_ARG *a
 	//
 	workspace->use_hess_fact = 0;
 
+	// cache stuff
+	workspace->lq_fact = arg->lq_fact;
+
 	//
 	workspace->memsize = DENSE_QP_IPM_WS_MEMSIZE(dim, arg);
 
@@ -1071,12 +1074,12 @@ void DENSE_QP_IPM_DELTA_STEP(int kk, struct DENSE_QP *qp, struct DENSE_QP_SOL *q
 	ws->scale = arg->scale;
 
 	// fact and solve kkt
-	if(arg->lq_fact==0)
+	if(ws->lq_fact==0)
 		{
 		// syrk+cholesky
 		FACT_SOLVE_KKT_STEP_DENSE_QP(ws->qp_step, ws->sol_step, arg, ws);
 		}
-	else if(arg->lq_fact==1 & force_lq==0)
+	else if(ws->lq_fact==1 & force_lq==0)
 		{
 		// syrk+chol, switch to lq when needed
 		FACT_SOLVE_KKT_STEP_DENSE_QP(ws->qp_step, ws->sol_step, arg, ws);
@@ -1125,7 +1128,7 @@ blasfeo_print_tran_dvec(cws->nc, ws->sol_step->t, 0);
 
 			}
 		}
-	else // arg->lq_fact==2
+	else // ws->lq_fact==2
 		{
 		// lq
 		FACT_LQ_SOLVE_KKT_STEP_DENSE_QP(ws->qp_step, ws->sol_step, arg, ws);

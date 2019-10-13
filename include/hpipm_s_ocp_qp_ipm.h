@@ -91,7 +91,7 @@ struct s_ocp_qp_ipm_ws
 	{
 	struct s_core_qp_ipm_workspace *core_workspace;
 	struct s_ocp_qp_res_ws *res_workspace;
-	struct s_ocp_qp_dim *dim;
+	struct s_ocp_qp_dim *dim; // cache dim
 	struct s_ocp_qp_sol *sol_step;
 	struct s_ocp_qp_sol *sol_itref;
 	struct s_ocp_qp *qp_step;
@@ -121,6 +121,8 @@ struct s_ocp_qp_ipm_ws
 	int stat_m; // number of recorded stat per IPM iter
 	int use_Pb;
 	int status; // solver status
+	int square_root_alg; // cache from arg
+	int lq_fact; // cache from arg
 	int memsize;
 	};
 

@@ -894,8 +894,6 @@ void OCP_QP_IPM_WS_CREATE(struct OCP_QP_DIM *dim, struct OCP_QP_IPM_ARG *arg, st
 		}
 
 
-	workspace->dim = dim;
-
 	workspace->res->dim = dim;
 
 	workspace->stat_max = arg->stat_max;
@@ -906,6 +904,11 @@ void OCP_QP_IPM_WS_CREATE(struct OCP_QP_DIM *dim, struct OCP_QP_IPM_ARG *arg, st
 		workspace->use_hess_fact[ii] = 0;
 	
 	workspace->use_Pb = 0;
+
+	// cache stuff
+	workspace->dim = dim;
+	workspace->square_root_alg = arg->square_root_alg;
+	workspace->lq_fact = arg->lq_fact;
 
 	workspace->memsize = memsize; //OCP_QP_IPM_WS_MEMSIZE(dim, arg);
 
@@ -1341,14 +1344,14 @@ void OCP_QP_IPM_SOLVE(struct OCP_QP *qp, struct OCP_QP_SOL *qp_sol, struct OCP_Q
 		{
 
 		// fact and solve kkt
-		if(arg->lq_fact==0)
+		if(ws->lq_fact==0)
 			{
 
 			// syrk+cholesky
 			FACT_SOLVE_KKT_STEP_OCP_QP(ws->qp_step, ws->sol_step, arg, ws);
 
 			}
-		else if(arg->lq_fact==1 & force_lq==0)
+		else if(ws->lq_fact==1 & force_lq==0)
 			{
 
 			// syrk+chol, switch to lq when needed
@@ -1399,7 +1402,7 @@ blasfeo_print_tran_dvec(cws->nc, ws->sol_step->t, 0);
 				}
 
 			}
-		else // arg->lq_fact==2
+		else // ws->lq_fact==2
 			{
 
 			FACT_LQ_SOLVE_KKT_STEP_OCP_QP(ws->qp_step, ws->sol_step, arg, ws);

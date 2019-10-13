@@ -113,6 +113,7 @@ struct d_tree_ocp_qp_ipm_workspace
 	int iter; // iteration number
 	int stat_max; // iterations saved in stat
 	int use_Pb;
+	int lq_fact; // cache from arg
 	int memsize;
 	};
 

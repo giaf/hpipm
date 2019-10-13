@@ -678,8 +678,10 @@ void CREATE_TREE_OCP_QP_IPM(struct TREE_OCP_QP_DIM *dim, struct TREE_OCP_QP_IPM_
 
 	workspace->use_Pb = 0;
 
-	workspace->memsize = MEMSIZE_TREE_OCP_QP_IPM(dim, arg);
+	// cache stuff
+	workspace->lq_fact = arg->lq_fact;
 
+	workspace->memsize = MEMSIZE_TREE_OCP_QP_IPM(dim, arg);
 
 #if defined(RUNTIME_CHECKS)
 	if(c_ptr > ((char *) mem) + workspace->memsize)
