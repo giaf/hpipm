@@ -99,6 +99,7 @@
 #define PRINT_STRVEC blasfeo_print_svec
 #define PRINT_TRAN_STRVEC blasfeo_print_tran_svec
 #define REAL float
+#define ROWEX blasfeo_srowex
 #define SIZE_STRMAT blasfeo_memsize_smat
 #define SIZE_STRVEC blasfeo_memsize_svec
 #define SOLVE_KKT_STEP_OCP_QP s_solve_kkt_step_ocp_qp
@@ -106,6 +107,8 @@
 #define STRVEC blasfeo_svec
 #define SYRK_LN blasfeo_ssyrk_ln
 #define TRCP_L blasfeo_strcp_l
+#define TRMV_LNN blasfeo_strmv_lnn
+#define TRMV_LTN blasfeo_strmv_ltn
 #define TRTR_L blasfeo_strtr_l
 #define UNPACK_MAT blasfeo_unpack_smat
 #define UNPACK_VEC blasfeo_unpack_svec
@@ -151,6 +154,7 @@
 #define OCP_QP_IPM_GET_RIC_LS s_ocp_qp_ipm_get_ric_Ls
 #define OCP_QP_IPM_GET_RIC_P s_ocp_qp_ipm_get_ric_P
 #define OCP_QP_IPM_GET_RIC_LR_VEC s_ocp_qp_ipm_get_ric_lr
+#define OCP_QP_IPM_GET_RIC_P_VEC s_ocp_qp_ipm_get_ric_p
 #define OCP_QP_IPM_SOLVE s_ocp_qp_ipm_solve
 #define OCP_QP_IPM_PREDICT s_ocp_qp_ipm_predict
 #define OCP_QP_IPM_SENS s_ocp_qp_ipm_sens

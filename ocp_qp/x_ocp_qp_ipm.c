@@ -1101,6 +1101,7 @@ void OCP_QP_IPM_GET_RIC_P(int stage, struct OCP_QP_IPM_WS *ws, REAL *P)
 
 
 
+// XXX valid only in the unconstrained case !!!
 void OCP_QP_IPM_GET_RIC_LR_VEC(int stage, struct OCP_QP_IPM_WS *ws, REAL *lr)
 	{
 	int *nu = ws->dim->nu;
@@ -1110,6 +1111,29 @@ void OCP_QP_IPM_GET_RIC_LR_VEC(int stage, struct OCP_QP_IPM_WS *ws, REAL *lr)
 	int nx0 = nx[stage];
 
 	UNPACK_MAT(1, nu0, ws->L+stage, nu0+nx0, 0, lr, 1);
+	}
+
+
+
+// XXX valid only in the unconstrained case !!!
+void OCP_QP_IPM_GET_RIC_P_VEC(int stage, struct OCP_QP_IPM_WS *ws, REAL *p)
+	{
+	int *nu = ws->dim->nu;
+	int *nx = ws->dim->nx;
+
+	int nu0 = nu[stage];
+	int nx0 = nx[stage];
+
+	if(ws->square_root_alg)
+		{
+		ROWEX(nx0, 1.0, ws->L+stage, nu0+nx0, nu0, ws->tmp_nxM, 0);
+		TRMV_LNN(nx0, nx0, ws->L+stage, nu0, nu0, ws->tmp_nxM, 0, ws->tmp_nxM, 0);
+		UNPACK_VEC(nx0, ws->tmp_nxM, 0, p);
+		}
+	else
+		{
+		UNPACK_MAT(1, nx0, ws->P+stage, nx0, 0, p, 1);
+		}
 	}
 
 

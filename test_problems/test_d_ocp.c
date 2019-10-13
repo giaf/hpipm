@@ -873,7 +873,7 @@ int main()
 	double reg_prim = 1e-12;
 	int warm_start = 0;
 	int pred_corr = 1;
-	int ric_alg = 1;
+	int ric_alg = 0;
 
 	d_ocp_qp_ipm_arg_set_mu0(&mu0, &arg);
 	d_ocp_qp_ipm_arg_set_iter_max(&iter_max, &arg);
@@ -1089,40 +1089,6 @@ int main()
 	d_print_exp_tran_mat(stat_m, iter+1, stat, stat_m);
 
 	printf("\nocp ipm time = %e [s]\n\n", time_ocp_ipm);
-
-/************************************************
-* get riccati matrices
-************************************************/
-
-#if 0
-	double *Lr = malloc(nu_*nu_*sizeof(double));
-	double *Ls = malloc(nx_*nu_*sizeof(double));
-	double *P = malloc(nx_*nx_*sizeof(double));
-	double *lr = malloc(nu_*sizeof(double));
-
-	d_ocp_qp_ipm_get_ric_Lr(0, &workspace, Lr);
-	d_print_exp_mat(nu_, nu_, Lr, nu_);
-	d_ocp_qp_ipm_get_ric_Ls(0, &workspace, Ls);
-	d_print_exp_mat(nx_, nu_, Ls, nx_);
-	d_ocp_qp_ipm_get_ric_P(0, &workspace, P);
-	d_print_exp_mat(nx_, nx_, P, nx_);
-	d_ocp_qp_ipm_get_ric_lr(0, &workspace, lr);
-	d_print_exp_mat(1, nu_, lr, 1);
-
-	d_ocp_qp_ipm_get_ric_Lr(1, &workspace, Lr);
-	d_print_exp_mat(nu_, nu_, Lr, nu_);
-	d_ocp_qp_ipm_get_ric_Ls(1, &workspace, Ls);
-	d_print_exp_mat(nx_, nu_, Ls, nx_);
-	d_ocp_qp_ipm_get_ric_P(1, &workspace, P);
-	d_print_exp_mat(nx_, nx_, P, nx_);
-	d_ocp_qp_ipm_get_ric_lr(1, &workspace, lr);
-	d_print_exp_mat(1, nu_, lr, 1);
-
-	free(Lr);
-	free(Ls);
-	free(P);
-	free(lr);
-#endif
 
 /************************************************
 * free memory

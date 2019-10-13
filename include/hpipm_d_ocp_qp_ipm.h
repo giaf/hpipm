@@ -191,8 +191,10 @@ void d_ocp_qp_ipm_get_ric_Lr(int stage, struct d_ocp_qp_ipm_ws *ws, double *Lr);
 void d_ocp_qp_ipm_get_ric_Ls(int stage, struct d_ocp_qp_ipm_ws *ws, double *Ls);
 //
 void d_ocp_qp_ipm_get_ric_P(int stage, struct d_ocp_qp_ipm_ws *ws, double *P);
-//
+// valid only in the unconstrained case
 void d_ocp_qp_ipm_get_ric_lr(int stage, struct d_ocp_qp_ipm_ws *ws, double *lr);
+// valid only in the unconstrained case
+void d_ocp_qp_ipm_get_ric_p(int stage, struct d_ocp_qp_ipm_ws *ws, double *p);
 //
 void d_ocp_qp_ipm_solve(struct d_ocp_qp *qp, struct d_ocp_qp_sol *qp_sol, struct d_ocp_qp_ipm_arg *arg, struct d_ocp_qp_ipm_ws *ws);
 //
