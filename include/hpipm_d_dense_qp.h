@@ -62,6 +62,7 @@ struct d_dense_qp
 	struct blasfeo_dvec *gz; // gradient of cost & gradient of slacks
 	struct blasfeo_dvec *b; // equality constraint vector
 	struct blasfeo_dvec *d; // inequality constraints vector
+	struct blasfeo_dvec *d_mask; // inequality constraints mask vector
 	struct blasfeo_dvec *m; // rhs of complementarity condition
 	struct blasfeo_dvec *Z; // (diagonal) hessian of slacks
 	int *idxb; // index of box constraints
@@ -93,13 +94,21 @@ void d_dense_qp_set_idxb(int *idxb, struct d_dense_qp *qp);
 //
 void d_dense_qp_set_lb(double *lb, struct d_dense_qp *qp);
 //
+void d_dense_qp_set_lb_mask(double *lb, struct d_dense_qp *qp);
+//
 void d_dense_qp_set_ub(double *ub, struct d_dense_qp *qp);
+//
+void d_dense_qp_set_ub_mask(double *ub, struct d_dense_qp *qp);
 //
 void d_dense_qp_set_C(double *C, struct d_dense_qp *qp);
 //
 void d_dense_qp_set_lg(double *lg, struct d_dense_qp *qp);
 //
+void d_dense_qp_set_lg_mask(double *lg, struct d_dense_qp *qp);
+//
 void d_dense_qp_set_ug(double *ug, struct d_dense_qp *qp);
+//
+void d_dense_qp_set_ug_mask(double *ug, struct d_dense_qp *qp);
 //
 void d_dense_qp_set_idxs(int *idxs, struct d_dense_qp *qp);
 //
@@ -113,7 +122,11 @@ void d_dense_qp_set_zu(double *zu, struct d_dense_qp *qp);
 //
 void d_dense_qp_set_ls(double *ls, struct d_dense_qp *qp);
 //
+void d_dense_qp_set_ls_mask(double *ls, struct d_dense_qp *qp);
+//
 void d_dense_qp_set_us(double *us, struct d_dense_qp *qp);
+//
+void d_dense_qp_set_us_mask(double *us, struct d_dense_qp *qp);
 
 // getters (COLMAJ)
 

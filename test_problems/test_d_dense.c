@@ -244,6 +244,15 @@ int main()
 	blasfeo_print_dvec(2*nb+2*ng, qp.d, 0);
 #endif
 
+//qp.d_mask->pa[0] = 0;
+//qp.d_mask->pa[1] = 0;
+//qp.d_mask->pa[2] = 0;
+//qp.d_mask->pa[3] = 0;
+//qp.d_mask->pa[4] = 0;
+//qp.d_mask->pa[5] = 0;
+//qp.d_mask->pa[6] = 0;
+//qp.d_mask->pa[7] = 0;
+
 /************************************************
 * dense qp sol
 ************************************************/

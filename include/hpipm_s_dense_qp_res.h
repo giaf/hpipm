@@ -85,9 +85,11 @@ int s_dense_qp_res_ws_memsize(struct s_dense_qp_dim *dim);
 //
 void s_dense_qp_res_ws_create(struct s_dense_qp_dim *dim, struct s_dense_qp_res_ws *workspace, void *mem);
 //
+void s_dense_qp_res_compute(struct s_dense_qp *qp, struct s_dense_qp_sol *qp_sol, struct s_dense_qp_res *res, struct s_dense_qp_res_ws *ws);
+//
 void s_dense_qp_res_compute_lin(struct s_dense_qp *qp, struct s_dense_qp_sol *qp_sol, struct s_dense_qp_sol *qp_step, struct s_dense_qp_res *res, struct s_dense_qp_res_ws *ws);
 //
-void s_dense_qp_res_compute(struct s_dense_qp *qp, struct s_dense_qp_sol *qp_sol, struct s_dense_qp_res *res, struct s_dense_qp_res_ws *ws);
+void s_dense_qp_res_compute_inf_norm(struct s_dense_qp_res *res);
 //
 void s_dense_qp_res_get_all(struct s_dense_qp_res *res, float *res_g, float *res_ls, float *res_us, float *res_b, float *res_d_lb, float *res_d_ub, float *res_d_lg, float *res_d_ug, float *res_d_ls, float *res_d_us, float *res_m_lb, float *res_m_ub, float *res_m_lg, float *res_m_ug, float *res_m_ls, float *res_m_us);
 

@@ -46,6 +46,11 @@
 #include <hpipm_d_dense_qp.h>
 
 
+
+#define DOUBLE_PRECISION
+
+
+
 #define CREATE_STRMAT blasfeo_create_dmat
 #define CREATE_STRVEC blasfeo_create_dvec
 #define CVT_MAT2STRMAT blasfeo_pack_dmat
@@ -66,7 +71,7 @@
 #define STRVEC blasfeo_dvec
 #define VECCP_LIBSTR blasfeo_dveccp
 #define VECSC_LIBSTR blasfeo_dvecsc
-#define VECSE_LIBSTR blasfeo_dvecse
+#define VECSE blasfeo_dvecse
 
 #define DENSE_QP_MEMSIZE d_dense_qp_memsize
 #define DENSE_QP_CREATE d_dense_qp_create
@@ -78,17 +83,23 @@
 #define DENSE_QP_SET_B d_dense_qp_set_b
 #define DENSE_QP_SET_IDXB d_dense_qp_set_idxb
 #define DENSE_QP_SET_LB d_dense_qp_set_lb
+#define DENSE_QP_SET_LB_MASK d_dense_qp_set_lb_mask
 #define DENSE_QP_SET_UB d_dense_qp_set_ub
+#define DENSE_QP_SET_UB_MASK d_dense_qp_set_ub_mask
 #define DENSE_QP_SET_C d_dense_qp_set_C
 #define DENSE_QP_SET_LG d_dense_qp_set_lg
+#define DENSE_QP_SET_LG_MASK d_dense_qp_set_lg_mask
 #define DENSE_QP_SET_UG d_dense_qp_set_ug
+#define DENSE_QP_SET_UG_MASK d_dense_qp_set_ug_mask
 #define DENSE_QP_SET_IDXS d_dense_qp_set_idxs
 #define DENSE_QP_SET_ZZL d_dense_qp_set_Zl
 #define DENSE_QP_SET_ZZU d_dense_qp_set_Zu
 #define DENSE_QP_SET_ZL d_dense_qp_set_zl
 #define DENSE_QP_SET_ZU d_dense_qp_set_zu
 #define DENSE_QP_SET_LS d_dense_qp_set_ls
+#define DENSE_QP_SET_LS_MASK d_dense_qp_set_ls_mask
 #define DENSE_QP_SET_US d_dense_qp_set_us
+#define DENSE_QP_SET_US_MASK d_dense_qp_set_us_mask
 #define DENSE_QP_GET_H d_dense_qp_get_H
 #define DENSE_QP_GET_G d_dense_qp_get_g
 #define DENSE_QP_GET_A d_dense_qp_get_A

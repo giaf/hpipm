@@ -80,6 +80,7 @@ struct d_dense_qp_ipm_arg
 	int abs_form; // absolute IPM formulation
 	int comp_res_exit; // compute residuals on exit (only for abs_form==1)
 	int comp_res_pred; // compute residuals of prediction
+	int mask_constr; // use constr mask
 	int mode;
 	int memsize;
 	};

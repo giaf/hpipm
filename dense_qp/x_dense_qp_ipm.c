@@ -59,7 +59,7 @@ void DENSE_QP_IPM_ARG_SET_DEFAULT(enum HPIPM_MODE mode, struct DENSE_QP_IPM_ARG 
 	{
 
 	REAL mu0, alpha_min, res_g, res_b, res_d, res_m, reg_prim, reg_dual, lam_min, t_min;
-	int iter_max, stat_max, pred_corr, cond_pred_corr, itref_pred_max, itref_corr_max, lq_fact, scale, warm_start, abs_form, comp_res_exit, comp_res_pred;
+	int iter_max, stat_max, pred_corr, cond_pred_corr, itref_pred_max, itref_corr_max, lq_fact, scale, warm_start, abs_form, comp_res_exit, comp_res_pred, mask_constr;
 
 	if(mode==SPEED_ABS)
 		{
@@ -85,6 +85,7 @@ void DENSE_QP_IPM_ARG_SET_DEFAULT(enum HPIPM_MODE mode, struct DENSE_QP_IPM_ARG 
 		abs_form = 1;
 		comp_res_exit = 0;
 		comp_res_pred = 0;
+		mask_constr = 1;
 		}
 	else if(mode==SPEED)
 		{
@@ -110,6 +111,7 @@ void DENSE_QP_IPM_ARG_SET_DEFAULT(enum HPIPM_MODE mode, struct DENSE_QP_IPM_ARG 
 		abs_form = 0;
 		comp_res_exit = 1;
 		comp_res_pred = 0;
+		mask_constr = 1;
 		}
 	else if(mode==BALANCE)
 		{
@@ -135,6 +137,7 @@ void DENSE_QP_IPM_ARG_SET_DEFAULT(enum HPIPM_MODE mode, struct DENSE_QP_IPM_ARG 
 		abs_form = 0;
 		comp_res_exit = 1;
 		comp_res_pred = 0;
+		mask_constr = 1;
 		}
 	else if(mode==ROBUST)
 		{
@@ -160,6 +163,7 @@ void DENSE_QP_IPM_ARG_SET_DEFAULT(enum HPIPM_MODE mode, struct DENSE_QP_IPM_ARG 
 		abs_form = 0;
 		comp_res_exit = 1;
 		comp_res_pred = 0;
+		mask_constr = 1;
 		}
 	else
 		{
@@ -190,6 +194,7 @@ void DENSE_QP_IPM_ARG_SET_DEFAULT(enum HPIPM_MODE mode, struct DENSE_QP_IPM_ARG 
 	arg->abs_form = abs_form;
 	DENSE_QP_IPM_ARG_SET_COMP_RES_EXIT(&comp_res_exit, arg);
 	DENSE_QP_IPM_ARG_SET_COMP_RES_PRED(&comp_res_pred, arg);
+	arg->mask_constr = mask_constr;
 	arg->mode = mode;
 
 	return;
@@ -966,6 +971,12 @@ void DENSE_QP_IPM_ABS_STEP(int kk, struct DENSE_QP *qp, struct DENSE_QP_SOL *qp_
 	AXPY(cws->ne, -1.0, qp_sol->pi, 0, ws->sol_step->pi, 0, ws->sol_step->pi, 0);
 	AXPY(cws->nc, -1.0, qp_sol->lam, 0, ws->sol_step->lam, 0, ws->sol_step->lam, 0);
 	AXPY(cws->nc, -1.0, qp_sol->t, 0, ws->sol_step->t, 0, ws->sol_step->t, 0);
+	if(arg->mask_constr)
+		{
+		// mask out disregarded constraints
+		VECMUL(cws->nc, qp->d_mask, 0, ws->sol_step->t, 0, ws->sol_step->t, 0);
+		VECMUL(cws->nc, qp->d_mask, 0, ws->sol_step->lam, 0, ws->sol_step->lam, 0);
+		}
 
 	// alpha
 	COMPUTE_ALPHA_QP(cws);
@@ -986,6 +997,11 @@ void DENSE_QP_IPM_ABS_STEP(int kk, struct DENSE_QP *qp, struct DENSE_QP_SOL *qp_
 			ws->stat[ws->stat_m*(kk+1)+2] = cws->sigma;
 
 		COMPUTE_CENTERING_CORRECTION_QP(cws);
+		if(arg->mask_constr)
+			{
+			// mask out disregarded constraints
+			VECMUL(cws->nc, qp->d_mask, 0, ws->res->res_m, 0, ws->res->res_m, 0);
+			}
 
 		// fact and solve kkt
 		SOLVE_KKT_STEP_DENSE_QP(ws->qp_step, ws->sol_step, arg, ws);
@@ -994,6 +1010,12 @@ void DENSE_QP_IPM_ABS_STEP(int kk, struct DENSE_QP *qp, struct DENSE_QP_SOL *qp_
 		AXPY(cws->ne, -1.0, qp_sol->pi, 0, ws->sol_step->pi, 0, ws->sol_step->pi, 0);
 		AXPY(cws->nc, -1.0, qp_sol->lam, 0, ws->sol_step->lam, 0, ws->sol_step->lam, 0);
 		AXPY(cws->nc, -1.0, qp_sol->t, 0, ws->sol_step->t, 0, ws->sol_step->t, 0);
+		if(arg->mask_constr)
+			{
+			// mask out disregarded constraints
+			VECMUL(cws->nc, qp->d_mask, 0, ws->sol_step->t, 0, ws->sol_step->t, 0);
+			VECMUL(cws->nc, qp->d_mask, 0, ws->sol_step->lam, 0, ws->sol_step->lam, 0);
+			}
 
 		// alpha
 		COMPUTE_ALPHA_QP(cws);
@@ -1016,6 +1038,11 @@ void DENSE_QP_IPM_ABS_STEP(int kk, struct DENSE_QP *qp, struct DENSE_QP_SOL *qp_
 
 				// centering direction
 				COMPUTE_CENTERING_QP(cws);
+				if(arg->mask_constr)
+					{
+					// mask out disregarded constraints
+					VECMUL(cws->nc, qp->d_mask, 0, ws->res->res_m, 0, ws->res->res_m, 0);
+					}
 
 				// solve kkt
 				SOLVE_KKT_STEP_DENSE_QP(ws->qp_step, ws->sol_step, arg, ws);
@@ -1024,6 +1051,12 @@ void DENSE_QP_IPM_ABS_STEP(int kk, struct DENSE_QP *qp, struct DENSE_QP_SOL *qp_
 				AXPY(cws->ne, -1.0, qp_sol->pi, 0, ws->sol_step->pi, 0, ws->sol_step->pi, 0);
 				AXPY(cws->nc, -1.0, qp_sol->lam, 0, ws->sol_step->lam, 0, ws->sol_step->lam, 0);
 				AXPY(cws->nc, -1.0, qp_sol->t, 0, ws->sol_step->t, 0, ws->sol_step->t, 0);
+				if(arg->mask_constr)
+					{
+					// mask out disregarded constraints
+					VECMUL(cws->nc, qp->d_mask, 0, ws->sol_step->t, 0, ws->sol_step->t, 0);
+					VECMUL(cws->nc, qp->d_mask, 0, ws->sol_step->lam, 0, ws->sol_step->lam, 0);
+					}
 
 				// alpha
 				COMPUTE_ALPHA_QP(cws);
@@ -1078,18 +1111,42 @@ void DENSE_QP_IPM_DELTA_STEP(int kk, struct DENSE_QP *qp, struct DENSE_QP_SOL *q
 		{
 		// syrk+cholesky
 		FACT_SOLVE_KKT_STEP_DENSE_QP(ws->qp_step, ws->sol_step, arg, ws);
+		if(arg->mask_constr)
+			{
+			// mask out disregarded constraints
+			VECMUL(cws->nc, qp->d_mask, 0, ws->sol_step->t, 0, ws->sol_step->t, 0);
+			VECMUL(cws->nc, qp->d_mask, 0, ws->sol_step->lam, 0, ws->sol_step->lam, 0);
+			}
 		}
 	else if(ws->lq_fact==1 & force_lq==0)
 		{
 		// syrk+chol, switch to lq when needed
 		FACT_SOLVE_KKT_STEP_DENSE_QP(ws->qp_step, ws->sol_step, arg, ws);
+		if(arg->mask_constr)
+			{
+			// mask out disregarded constraints
+			VECMUL(cws->nc, qp->d_mask, 0, ws->sol_step->t, 0, ws->sol_step->t, 0);
+			VECMUL(cws->nc, qp->d_mask, 0, ws->sol_step->lam, 0, ws->sol_step->lam, 0);
+			}
 
 		// compute res of linear system
 		DENSE_QP_RES_COMPUTE_LIN(ws->qp_step, qp_sol, ws->sol_step, ws->res_itref, ws->res_workspace);
-		VECNRM_INF(cws->nv, ws->res_itref->res_g, 0, &itref_qp_norm[0]);
-		VECNRM_INF(cws->ne, ws->res_itref->res_b, 0, &itref_qp_norm[1]);
-		VECNRM_INF(cws->nc, ws->res_itref->res_d, 0, &itref_qp_norm[2]);
-		VECNRM_INF(cws->nc, ws->res_itref->res_m, 0, &itref_qp_norm[3]);
+		// TODO mask
+		if(arg->mask_constr)
+			{
+			// mask out disregarded constraints
+			VECMUL(cws->nc, qp->d_mask, 0, ws->res_itref->res_d, 0, ws->res_itref->res_d, 0);
+			VECMUL(cws->nc, qp->d_mask, 0, ws->res_itref->res_m, 0, ws->res_itref->res_m, 0);
+			}
+		DENSE_QP_RES_COMPUTE_INF_NORM(ws->res_itref);
+		itref_qp_norm[0] = ws->res_itref->res_max[0];
+		itref_qp_norm[1] = ws->res_itref->res_max[1];
+		itref_qp_norm[2] = ws->res_itref->res_max[2];
+		itref_qp_norm[3] = ws->res_itref->res_max[3];
+//		VECNRM_INF(cws->nv, ws->res_itref->res_g, 0, &itref_qp_norm[0]);
+//		VECNRM_INF(cws->ne, ws->res_itref->res_b, 0, &itref_qp_norm[1]);
+//		VECNRM_INF(cws->nc, ws->res_itref->res_d, 0, &itref_qp_norm[2]);
+//		VECNRM_INF(cws->nc, ws->res_itref->res_m, 0, &itref_qp_norm[3]);
 
 //printf("\n%e\t%e\t%e\t%e\n", itref_qp_norm[0], itref_qp_norm[1], itref_qp_norm[2], itref_qp_norm[3]);
 
@@ -1115,6 +1172,12 @@ blasfeo_print_tran_dvec(cws->nc, ws->sol_step->t, 0);
 
 			// refactorize using lq
 			FACT_LQ_SOLVE_KKT_STEP_DENSE_QP(ws->qp_step, ws->sol_step, arg, ws);
+			if(arg->mask_constr)
+				{
+				// mask out disregarded constraints
+				VECMUL(cws->nc, qp->d_mask, 0, ws->sol_step->t, 0, ws->sol_step->t, 0);
+				VECMUL(cws->nc, qp->d_mask, 0, ws->sol_step->lam, 0, ws->sol_step->lam, 0);
+				}
 
 			// switch to lq
 			force_lq = 1;
@@ -1132,14 +1195,26 @@ blasfeo_print_tran_dvec(cws->nc, ws->sol_step->t, 0);
 		{
 		// lq
 		FACT_LQ_SOLVE_KKT_STEP_DENSE_QP(ws->qp_step, ws->sol_step, arg, ws);
+		if(arg->mask_constr)
+			{
+			// mask out disregarded constraints
+			VECMUL(cws->nc, qp->d_mask, 0, ws->sol_step->t, 0, ws->sol_step->t, 0);
+			VECMUL(cws->nc, qp->d_mask, 0, ws->sol_step->lam, 0, ws->sol_step->lam, 0);
+			}
 		}
 
 #if 0
 	DENSE_QP_RES_COMPUTE_LIN(ws->qp_step, qp_sol, ws->sol_step, ws->res_itref, ws->res_workspace);
-	VECNRM_INF(cws->nv, ws->res_itref->res_g, 0, &itref_qp_norm[0]);
-	VECNRM_INF(cws->ne, ws->res_itref->res_b, 0, &itref_qp_norm[1]);
-	VECNRM_INF(cws->nc, ws->res_itref->res_d, 0, &itref_qp_norm[2]);
-	VECNRM_INF(cws->nc, ws->res_itref->res_m, 0, &itref_qp_norm[3]);
+	// TODO mask
+	DENSE_QP_RES_COMPUTE_INF_NORM(ws->res_itref);
+	itref_qp_norm[0] = ws->res_itref->res_max[0];
+	itref_qp_norm[1] = ws->res_itref->res_max[1];
+	itref_qp_norm[2] = ws->res_itref->res_max[2];
+	itref_qp_norm[3] = ws->res_itref->res_max[3];
+//	VECNRM_INF(cws->nv, ws->res_itref->res_g, 0, &itref_qp_norm[0]);
+//	VECNRM_INF(cws->ne, ws->res_itref->res_b, 0, &itref_qp_norm[1]);
+//	VECNRM_INF(cws->nc, ws->res_itref->res_d, 0, &itref_qp_norm[2]);
+//	VECNRM_INF(cws->nc, ws->res_itref->res_m, 0, &itref_qp_norm[3]);
 //		printf("%e\t%e\t%e\t%e\t%e\t%e\t%e\t%e\t\n", qp_res[0], qp_res[1], qp_res[2], qp_res[3], itref_qp_norm[0], itref_qp_norm[1], itref_qp_norm[2], itref_qp_norm[3]);
 	if(itref_qp_norm[0]==0.0 & BLASFEO_DVECEL(ws->res_itref->res_g, 0)!=BLASFEO_DVECEL(ws->res_itref->res_g, 0))
 		printf("NaN!!!\n");
@@ -1150,11 +1225,22 @@ blasfeo_print_tran_dvec(cws->nc, ws->sol_step->t, 0);
 		{
 
 		DENSE_QP_RES_COMPUTE_LIN(ws->qp_step, qp_sol, ws->sol_step, ws->res_itref, ws->res_workspace);
-
-		VECNRM_INF(cws->nv, ws->res_itref->res_g, 0, &itref_qp_norm[0]);
-		VECNRM_INF(cws->ne, ws->res_itref->res_b, 0, &itref_qp_norm[1]);
-		VECNRM_INF(cws->nc, ws->res_itref->res_d, 0, &itref_qp_norm[2]);
-		VECNRM_INF(cws->nc, ws->res_itref->res_m, 0, &itref_qp_norm[3]);
+		// TODO mask
+		if(arg->mask_constr)
+			{
+			// mask out disregarded constraints
+			VECMUL(cws->nc, qp->d_mask, 0, ws->res_itref->res_d, 0, ws->res_itref->res_d, 0);
+			VECMUL(cws->nc, qp->d_mask, 0, ws->res_itref->res_m, 0, ws->res_itref->res_m, 0);
+			}
+		DENSE_QP_RES_COMPUTE_INF_NORM(ws->res_itref);
+		itref_qp_norm[0] = ws->res_itref->res_max[0];
+		itref_qp_norm[1] = ws->res_itref->res_max[1];
+		itref_qp_norm[2] = ws->res_itref->res_max[2];
+		itref_qp_norm[3] = ws->res_itref->res_max[3];
+//		VECNRM_INF(cws->nv, ws->res_itref->res_g, 0, &itref_qp_norm[0]);
+//		VECNRM_INF(cws->ne, ws->res_itref->res_b, 0, &itref_qp_norm[1]);
+//		VECNRM_INF(cws->nc, ws->res_itref->res_d, 0, &itref_qp_norm[2]);
+//		VECNRM_INF(cws->nc, ws->res_itref->res_m, 0, &itref_qp_norm[3]);
 
 		if(itref0==0)
 			{
@@ -1178,6 +1264,12 @@ blasfeo_print_tran_dvec(cws->nc, ws->sol_step->t, 0);
 			}
 
 		SOLVE_KKT_STEP_DENSE_QP(ws->qp_itref, ws->sol_itref, arg, ws);
+		if(arg->mask_constr)
+			{
+			// mask out disregarded constraints
+			VECMUL(cws->nc, qp->d_mask, 0, ws->sol_itref->t, 0, ws->sol_itref->t, 0);
+			VECMUL(cws->nc, qp->d_mask, 0, ws->sol_itref->lam, 0, ws->sol_itref->lam, 0);
+			}
 
 		AXPY(nv+2*ns, 1.0, ws->sol_itref->v, 0, ws->sol_step->v, 0, ws->sol_step->v, 0);
 		AXPY(ne, 1.0, ws->sol_itref->pi, 0, ws->sol_step->pi, 0, ws->sol_step->pi, 0);
@@ -1188,10 +1280,16 @@ blasfeo_print_tran_dvec(cws->nc, ws->sol_step->t, 0);
 
 #if 0
 	DENSE_QP_RES_COMPUTE_LIN(ws->qp_step, qp_sol, ws->sol_step, ws->res_itref, ws->res_workspace);
-	VECNRM_INF(cws->nv, ws->res_itref->res_g, 0, &itref_qp_norm0[0]);
-	VECNRM_INF(cws->ne, ws->res_itref->res_b, 0, &itref_qp_norm0[1]);
-	VECNRM_INF(cws->nc, ws->res_itref->res_d, 0, &itref_qp_norm0[2]);
-	VECNRM_INF(cws->nc, ws->res_itref->res_m, 0, &itref_qp_norm0[3]);
+	// TODO mask
+	DENSE_QP_RES_COMPUTE_INF_NORM(ws->res_itref);
+	itref_qp_norm[0] = ws->res_itref->res_max[0];
+	itref_qp_norm[1] = ws->res_itref->res_max[1];
+	itref_qp_norm[2] = ws->res_itref->res_max[2];
+	itref_qp_norm[3] = ws->res_itref->res_max[3];
+//	VECNRM_INF(cws->nv, ws->res_itref->res_g, 0, &itref_qp_norm0[0]);
+//	VECNRM_INF(cws->ne, ws->res_itref->res_b, 0, &itref_qp_norm0[1]);
+//	VECNRM_INF(cws->nc, ws->res_itref->res_d, 0, &itref_qp_norm0[2]);
+//	VECNRM_INF(cws->nc, ws->res_itref->res_m, 0, &itref_qp_norm0[3]);
 //		printf("\nkk = %d\n", kk);
 //		blasfeo_print_exp_tran_dvec(qp->dim->nv, ws->res_itref->res_g, 0);
 //		blasfeo_print_exp_tran_dvec(qp->dim->ne, ws->res_itref->res_b, 0);
@@ -1200,10 +1298,16 @@ blasfeo_print_tran_dvec(cws->nc, ws->sol_step->t, 0);
 
 #if 0
 	DENSE_QP_RES_COMPUTE(ws->qp_step, ws->sol_step, ws->res_itref, ws->res_workspace);
-	VECNRM_INF(cws->nv, ws->res_itref->res_g, 0, &itref_qp_norm0[0]);
-	VECNRM_INF(cws->ne, ws->res_itref->res_b, 0, &itref_qp_norm0[1]);
-	VECNRM_INF(cws->nc, ws->res_itref->res_d, 0, &itref_qp_norm0[2]);
-	VECNRM_INF(cws->nc, ws->res_itref->res_m, 0, &itref_qp_norm0[3]);
+	// TODO mask
+	DENSE_QP_RES_COMPUTE_INF_NORM(ws->res_itref);
+	itref_qp_norm[0] = ws->res_itref->res_max[0];
+	itref_qp_norm[1] = ws->res_itref->res_max[1];
+	itref_qp_norm[2] = ws->res_itref->res_max[2];
+	itref_qp_norm[3] = ws->res_itref->res_max[3];
+//	VECNRM_INF(cws->nv, ws->res_itref->res_g, 0, &itref_qp_norm0[0]);
+//	VECNRM_INF(cws->ne, ws->res_itref->res_b, 0, &itref_qp_norm0[1]);
+//	VECNRM_INF(cws->nc, ws->res_itref->res_d, 0, &itref_qp_norm0[2]);
+//	VECNRM_INF(cws->nc, ws->res_itref->res_m, 0, &itref_qp_norm0[3]);
 //		printf("\nkk = %d\n", kk);
 //		blasfeo_print_exp_tran_dvec(qp->dim->nv, ws->res_itref->res_g, 0);
 //		blasfeo_print_exp_tran_dvec(qp->dim->ne, ws->res_itref->res_b, 0);
@@ -1252,9 +1356,20 @@ blasfeo_print_tran_dvec(cws->nc, ws->sol_step->t, 0);
 			ws->stat[ws->stat_m*(kk+1)+2] = cws->sigma;
 
 		COMPUTE_CENTERING_CORRECTION_QP(cws);
+		if(arg->mask_constr)
+			{
+			// mask out disregarded constraints
+			VECMUL(cws->nc, qp->d_mask, 0, ws->res->res_m, 0, ws->res->res_m, 0);
+			}
 
 		// solve kkt
 		SOLVE_KKT_STEP_DENSE_QP(ws->qp_step, ws->sol_step, arg, ws);
+		if(arg->mask_constr)
+			{
+			// mask out disregarded constraints
+			VECMUL(cws->nc, qp->d_mask, 0, ws->sol_step->t, 0, ws->sol_step->t, 0);
+			VECMUL(cws->nc, qp->d_mask, 0, ws->sol_step->lam, 0, ws->sol_step->lam, 0);
+			}
 
 		// alpha
 		COMPUTE_ALPHA_QP(cws);
@@ -1277,9 +1392,20 @@ blasfeo_print_tran_dvec(cws->nc, ws->sol_step->t, 0);
 
 				// centering direction
 				COMPUTE_CENTERING_QP(cws);
+				if(arg->mask_constr)
+					{
+					// mask out disregarded constraints
+					VECMUL(cws->nc, qp->d_mask, 0, ws->res->res_m, 0, ws->res->res_m, 0);
+					}
 
 				// solve kkt
 				SOLVE_KKT_STEP_DENSE_QP(ws->qp_step, ws->sol_step, arg, ws);
+				if(arg->mask_constr)
+					{
+					// mask out disregarded constraints
+					VECMUL(cws->nc, qp->d_mask, 0, ws->sol_step->t, 0, ws->sol_step->t, 0);
+					VECMUL(cws->nc, qp->d_mask, 0, ws->sol_step->lam, 0, ws->sol_step->lam, 0);
+					}
 
 				// alpha
 				COMPUTE_ALPHA_QP(cws);
@@ -1295,11 +1421,22 @@ blasfeo_print_tran_dvec(cws->nc, ws->sol_step->t, 0);
 			{
 
 			DENSE_QP_RES_COMPUTE_LIN(ws->qp_step, qp_sol, ws->sol_step, ws->res_itref, ws->res_workspace);
-
-			VECNRM_INF(cws->nv, ws->res_itref->res_g, 0, &itref_qp_norm[0]);
-			VECNRM_INF(cws->ne, ws->res_itref->res_b, 0, &itref_qp_norm[1]);
-			VECNRM_INF(cws->nc, ws->res_itref->res_d, 0, &itref_qp_norm[2]);
-			VECNRM_INF(cws->nc, ws->res_itref->res_m, 0, &itref_qp_norm[3]);
+			// TODO mask
+			if(arg->mask_constr)
+				{
+				// mask out disregarded constraints
+				VECMUL(cws->nc, qp->d_mask, 0, ws->res_itref->res_d, 0, ws->res_itref->res_d, 0);
+				VECMUL(cws->nc, qp->d_mask, 0, ws->res_itref->res_m, 0, ws->res_itref->res_m, 0);
+				}
+			DENSE_QP_RES_COMPUTE_INF_NORM(ws->res_itref);
+			itref_qp_norm[0] = ws->res_itref->res_max[0];
+			itref_qp_norm[1] = ws->res_itref->res_max[1];
+			itref_qp_norm[2] = ws->res_itref->res_max[2];
+			itref_qp_norm[3] = ws->res_itref->res_max[3];
+//			VECNRM_INF(cws->nv, ws->res_itref->res_g, 0, &itref_qp_norm[0]);
+//			VECNRM_INF(cws->ne, ws->res_itref->res_b, 0, &itref_qp_norm[1]);
+//			VECNRM_INF(cws->nc, ws->res_itref->res_d, 0, &itref_qp_norm[2]);
+//			VECNRM_INF(cws->nc, ws->res_itref->res_m, 0, &itref_qp_norm[3]);
 
 			if(itref1==0)
 				{
@@ -1323,6 +1460,12 @@ blasfeo_print_tran_dvec(cws->nc, ws->sol_step->t, 0);
 				}
 
 			SOLVE_KKT_STEP_DENSE_QP(ws->qp_itref, ws->sol_itref, arg, ws);
+			if(arg->mask_constr)
+				{
+				// mask out disregarded constraints
+				VECMUL(cws->nc, qp->d_mask, 0, ws->sol_itref->t, 0, ws->sol_itref->t, 0);
+				VECMUL(cws->nc, qp->d_mask, 0, ws->sol_itref->lam, 0, ws->sol_itref->lam, 0);
+				}
 			iter_ref_step = 1;
 
 			AXPY(nv+2*ns, 1.0, ws->sol_itref->v, 0, ws->sol_step->v, 0, ws->sol_step->v, 0);
@@ -1356,7 +1499,7 @@ void DENSE_QP_IPM_SOLVE(struct DENSE_QP *qp, struct DENSE_QP_SOL *qp_sol, struct
 
 	struct CORE_QP_IPM_WORKSPACE *cws = ws->core_workspace;
 
-	int kk;
+	int kk, ii;
 	REAL mu;
 
 	REAL *stat = ws->stat;
@@ -1384,6 +1527,7 @@ void DENSE_QP_IPM_SOLVE(struct DENSE_QP *qp, struct DENSE_QP_SOL *qp_sol, struct
 	ws->qp_step->b = ws->res->res_b;
 	ws->qp_step->d = ws->res->res_d;
 	ws->qp_step->m = ws->res->res_m;
+	ws->qp_step->d_mask = qp->d_mask; // XXX
 
 	// alias members of qp_itref
 	ws->qp_itref->dim = qp->dim;
@@ -1397,6 +1541,7 @@ void DENSE_QP_IPM_SOLVE(struct DENSE_QP *qp, struct DENSE_QP_SOL *qp_sol, struct
 	ws->qp_itref->b = ws->res_itref->res_b;
 	ws->qp_itref->d = ws->res_itref->res_d;
 	ws->qp_itref->m = ws->res_itref->res_m;
+	ws->qp_itref->d_mask = qp->d_mask; // XXX
 
 	// blasfeo alias for residuals
 	struct STRVEC str_res_g;
@@ -1414,15 +1559,47 @@ void DENSE_QP_IPM_SOLVE(struct DENSE_QP *qp, struct DENSE_QP_SOL *qp_sol, struct
 
 	REAL *qp_res_max = ws->res->res_max;
 
+	// detect constr mask
+	REAL tmp_mul;
+	REAL tmp_add;
+	REAL tmp;
+	int mask_unconstr;
+	tmp_mul = 1.0;
+	tmp_add = 0.0;
+	for(ii=0; ii<cws->nc; ii++)
+		{
+		tmp = qp->d_mask->pa[ii];
+		tmp_mul *= tmp;
+		tmp_add += tmp;
+		}
+	if(tmp_mul==0.0)
+		{
+		arg->mask_constr = 1;
+		}
+	else
+		{
+		arg->mask_constr = 0;
+		}
+	if(tmp_add==0.0)
+		{
+		mask_unconstr = 1;
+		}
+	else
+		{
+		mask_unconstr = 0;
+		}
+
 
 	// no constraints
-	if(cws->nc==0)
+	if(cws->nc==0 | mask_unconstr==1)
 		{
 		FACT_SOLVE_KKT_UNCONSTR_DENSE_QP(qp, qp_sol, arg, ws);
 		if(arg->comp_res_exit)
 			{
 			// compute residuals
 			DENSE_QP_RES_COMPUTE(qp, qp_sol, ws->res, ws->res_workspace);
+			// XXX no constraints, so no mask
+			DENSE_QP_RES_COMPUTE_INF_NORM(ws->res);
 			// save infinity norm of residuals
 			stat[5] = qp_res_max[0];
 			stat[6] = qp_res_max[1];
@@ -1439,6 +1616,11 @@ void DENSE_QP_IPM_SOLVE(struct DENSE_QP *qp, struct DENSE_QP_SOL *qp_sol, struct
 
 	// init solver
 	DENSE_QP_INIT_VAR(qp, qp_sol, arg, ws);
+	if(arg->mask_constr)
+		{
+		// mask out disregarded constraints
+		VECMUL(cws->nc, qp->d_mask, 0, qp_sol->lam, 0, qp_sol->lam, 0);
+		}
 
 	cws->alpha = 1.0;
 
@@ -1491,6 +1673,13 @@ void DENSE_QP_IPM_SOLVE(struct DENSE_QP *qp, struct DENSE_QP_SOL *qp_sol, struct
 			{
 			// compute residuals
 			DENSE_QP_RES_COMPUTE(qp, qp_sol, ws->res, ws->res_workspace);
+			if(arg->mask_constr)
+				{
+				// mask out disregarded constraints
+				VECMUL(cws->nc, qp->d_mask, 0, ws->res->res_d, 0, ws->res->res_d, 0);
+				VECMUL(cws->nc, qp->d_mask, 0, ws->res->res_m, 0, ws->res->res_m, 0);
+				}
+			DENSE_QP_RES_COMPUTE_INF_NORM(ws->res);
 			// save infinity norm of residuals
 			// XXX it is already kk+1
 			stat[stat_m*(kk+0)+5] = qp_res_max[0];
@@ -1538,6 +1727,13 @@ void DENSE_QP_IPM_SOLVE(struct DENSE_QP *qp, struct DENSE_QP_SOL *qp_sol, struct
 
 	// compute residuals
 	DENSE_QP_RES_COMPUTE(qp, qp_sol, ws->res, ws->res_workspace);
+	if(arg->mask_constr)
+		{
+		// mask out disregarded constraints
+		VECMUL(cws->nc, qp->d_mask, 0, ws->res->res_d, 0, ws->res->res_d, 0);
+		VECMUL(cws->nc, qp->d_mask, 0, ws->res->res_m, 0, ws->res->res_m, 0);
+		}
+	DENSE_QP_RES_COMPUTE_INF_NORM(ws->res);
 	cws->mu = ws->res->res_mu;
 	// save infinity norm of residuals
 	stat[stat_m*(0)+5] = qp_res_max[0];
@@ -1564,6 +1760,13 @@ void DENSE_QP_IPM_SOLVE(struct DENSE_QP *qp, struct DENSE_QP_SOL *qp_sol, struct
 
 		// compute residuals
 		DENSE_QP_RES_COMPUTE(qp, qp_sol, ws->res, ws->res_workspace);
+		if(arg->mask_constr)
+			{
+			// mask out disregarded constraints
+			VECMUL(cws->nc, qp->d_mask, 0, ws->res->res_d, 0, ws->res->res_d, 0);
+			VECMUL(cws->nc, qp->d_mask, 0, ws->res->res_m, 0, ws->res->res_m, 0);
+			}
+		DENSE_QP_RES_COMPUTE_INF_NORM(ws->res);
 		cws->mu = ws->res->res_mu;
 		if(kk<ws->stat_max)
 			ws->stat[ws->stat_m*(kk+1)+4] = ws->res->res_mu;
@@ -1697,7 +1900,7 @@ printf("\npredict\t%e\t%e\t%e\t%e\n", qp_res[0], qp_res[1], qp_res[2], qp_res[3]
 	SOLVE_KKT_STEP_DENSE_QP(ws->qp_step, ws->sol_step, arg, ws);
 
 	// alpha TODO fix alpha=1 !!!!!
-//	COMPUTE_ALPHA_QP(cws);
+//	COMPUTE_ALPHA_QP(cws->dlam, cws->dt, cws);
 	cws->alpha = 1.0;
 
 	//
@@ -1758,7 +1961,7 @@ void DENSE_QP_IPM_SENS(struct DENSE_QP *qp, struct DENSE_QP_SOL *qp_sol, struct 
 
 #if 0
 	// alpha TODO fix alpha=1 !!!!!
-//	COMPUTE_ALPHA_QP(cws);
+//	COMPUTE_ALPHA_QP(cws->dlam, cws->dt, cws);
 	cws->alpha = 1.0;
 
 	//

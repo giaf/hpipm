@@ -73,6 +73,7 @@
 #define VECAD_SP blasfeo_svecad_sp
 #define VECCP blasfeo_sveccp
 #define VECEX_SP blasfeo_svecex_sp
+#define VECMUL blasfeo_svecmul
 #define VECMULACC blasfeo_svecmulacc
 #define VECMULDOT blasfeo_svecmuldot
 #define VECNRM_INF blasfeo_svecnrm_inf
@@ -85,6 +86,7 @@
 #define DENSE_QP_RES_WS_CREATE s_dense_qp_res_ws_create
 #define DENSE_QP_RES_COMPUTE s_dense_qp_res_compute
 #define DENSE_QP_RES_COMPUTE_LIN s_dense_qp_res_compute_lin
+#define DENSE_QP_RES_COMPUTE_INF_NORM s_dense_qp_res_compute_inf_norm
 #define DENSE_QP_RES_GET_ALL s_dense_qp_res_get_all
 
 

@@ -108,7 +108,7 @@ void COMPUTE_LAM_T_QP(REAL *res_d, REAL *res_m, REAL *dlam, REAL *dt, struct COR
 		// TODO compute lamda alone ???
 		dlam[ii] = - t_inv[ii] * (lam[ii]*dt[ii] + res_m[ii]);
 		}
-	
+
 	return;
 
 	}
@@ -121,10 +121,10 @@ void COMPUTE_ALPHA_QP(struct CORE_QP_IPM_WORKSPACE *cws)
 	// extract workspace members
 	int nc = cws->nc;
 
-	REAL *lam_lb = cws->lam;
-	REAL *t_lb = cws->t;
-	REAL *dlam_lb = cws->dlam;
-	REAL *dt_lb = cws->dt;
+	REAL *lam = cws->lam;
+	REAL *t = cws->t;
+	REAL *dlam = cws->dlam;
+	REAL *dt = cws->dt;
 
 	REAL alpha_prim = - 1.0;
 	REAL alpha_dual = - 1.0;
@@ -132,19 +132,20 @@ void COMPUTE_ALPHA_QP(struct CORE_QP_IPM_WORKSPACE *cws)
 
 #if 1
 
+
 	// local variables
 	int ii;
 
 	for(ii=0; ii<nc; ii++)
 		{
 
-		if( alpha_dual*dlam_lb[ii+0]>lam_lb[ii+0] )
+		if( alpha_dual*dlam[ii+0]>lam[ii+0] )
 			{
-			alpha_dual = lam_lb[ii+0] / dlam_lb[ii+0];
+			alpha_dual = lam[ii+0] / dlam[ii+0];
 			}
-		if( alpha_prim*dt_lb[ii+0]>t_lb[ii+0] )
+		if( alpha_prim*dt[ii+0]>t[ii+0] )
 			{
-			alpha_prim = t_lb[ii+0] / dt_lb[ii+0];
+			alpha_prim = t[ii+0] / dt[ii+0];
 			}
 
 		}
@@ -163,13 +164,13 @@ void COMPUTE_ALPHA_QP(struct CORE_QP_IPM_WORKSPACE *cws)
 	for(ii=0; ii<nc; ii++)
 		{
 
-		if( alpha_dual*dlam_lb[ii+0]>tau*lam_lb[ii+0] )
+		if( alpha_dual*dlam[ii+0]>tau*lam[ii+0] )
 			{
-			alpha_dual = tau*lam_lb[ii+0] / dlam_lb[ii+0];
+			alpha_dual = tau*lam[ii+0] / dlam[ii+0];
 			}
-		if( alpha_prim*dt_lb[ii+0]>tau*t_lb[ii+0] )
+		if( alpha_prim*dt[ii+0]>tau*t[ii+0] )
 			{
-			alpha_prim = tau*t_lb[ii+0] / dt_lb[ii+0];
+			alpha_prim = tau*t[ii+0] / dt[ii+0];
 			}
 
 		}

@@ -310,12 +310,6 @@ void DENSE_QP_RES_COMPUTE(struct DENSE_QP *qp, struct DENSE_QP_SOL *qp_sol, stru
 	AXPY(nct, -1.0, m, 0, res_m, 0, res_m, 0);
 	res->res_mu = mu*nct_inv;
 
-	// compute infinity norm
-	VECNRM_INF(nvt, res_g, 0, res->res_max+0);
-	VECNRM_INF(net, res_b, 0, res->res_max+1);
-	VECNRM_INF(nct, res_d, 0, res->res_max+2);
-	VECNRM_INF(nct, res_m, 0, res->res_max+3);
-
 	return;
 
 	}
@@ -418,6 +412,30 @@ void DENSE_QP_RES_COMPUTE_LIN(struct DENSE_QP *qp, struct DENSE_QP_SOL *qp_sol, 
 //	AXPY(nct, -1.0, m, 0, res_m, 0, res_m, 0);
 //	res->res_mu = mu*nct_inv;
 
+	return;
+
+	}
+
+
+
+void DENSE_QP_RES_COMPUTE_INF_NORM(struct DENSE_QP_RES *res)
+	{
+
+	int nv = res->dim->nv;
+	int ne = res->dim->ne;
+	int nb = res->dim->nb;
+	int ng = res->dim->ng;
+	int ns = res->dim->ns;
+
+	int nvt = nv+2*ns;
+	int net = ne;
+	int nct = 2*nb+2*ng+2*ns;
+
+	struct STRVEC *res_g = res->res_g;
+	struct STRVEC *res_b = res->res_b;
+	struct STRVEC *res_d = res->res_d;
+	struct STRVEC *res_m = res->res_m;
+
 	// compute infinity norm
 	VECNRM_INF(nvt, res_g, 0, res->res_max+0);
 	VECNRM_INF(net, res_b, 0, res->res_max+1);
@@ -427,6 +445,7 @@ void DENSE_QP_RES_COMPUTE_LIN(struct DENSE_QP *qp, struct DENSE_QP_SOL *qp_sol, 
 	return;
 
 	}
+
 
 
 void DENSE_QP_RES_GET_ALL(struct DENSE_QP_RES *res, REAL *res_g, REAL *res_ls, REAL *res_us, REAL *res_b, REAL *res_d_lb, REAL *res_d_ub, REAL *res_d_lg, REAL *res_d_ug, REAL *res_d_ls, REAL *res_d_us, REAL *res_m_lb, REAL *res_m_ub, REAL *res_m_lg, REAL *res_m_ug, REAL *res_m_ls, REAL *res_m_us)

@@ -123,10 +123,10 @@ void s_compute_alpha_qp(struct s_core_qp_ipm_workspace *cws)
 	// extract workspace members
 	int nc = cws->nc;
 
-	float *lam_lb = cws->lam;
-	float *t_lb = cws->t;
-	float *dlam_lb = cws->dlam;
-	float *dt_lb = cws->dt;
+	float *lam = cws->lam;
+	float *t = cws->t;
+	float *dlam = cws->dlam;
+	float *dt = cws->dt;
 
 	float alpha_prim = - 1.0;
 	float alpha_dual = - 1.0;
@@ -140,13 +140,13 @@ void s_compute_alpha_qp(struct s_core_qp_ipm_workspace *cws)
 	for(ii=0; ii<nc; ii++)
 		{
 
-		if( alpha_dual*dlam_lb[ii+0]>lam_lb[ii+0] )
+		if( alpha_dual*dlam[ii+0]>lam[ii+0] )
 			{
-			alpha_dual = lam_lb[ii+0] / dlam_lb[ii+0];
+			alpha_dual = lam[ii+0] / dlam[ii+0];
 			}
-		if( alpha_prim*dt_lb[ii+0]>t_lb[ii+0] )
+		if( alpha_prim*dt[ii+0]>t[ii+0] )
 			{
-			alpha_prim = t_lb[ii+0] / dt_lb[ii+0];
+			alpha_prim = t[ii+0] / dt[ii+0];
 			}
 
 		}
@@ -165,13 +165,13 @@ void s_compute_alpha_qp(struct s_core_qp_ipm_workspace *cws)
 	for(ii=0; ii<nc; ii++)
 		{
 
-		if( alpha_dual*dlam_lb[ii+0]>tau*lam_lb[ii+0] )
+		if( alpha_dual*dlam[ii+0]>tau*lam[ii+0] )
 			{
-			alpha_dual = tau*lam_lb[ii+0] / dlam_lb[ii+0];
+			alpha_dual = tau*lam[ii+0] / dlam[ii+0];
 			}
-		if( alpha_prim*dt_lb[ii+0]>tau*t_lb[ii+0] )
+		if( alpha_prim*dt[ii+0]>tau*t[ii+0] )
 			{
-			alpha_prim = tau*t_lb[ii+0] / dt_lb[ii+0];
+			alpha_prim = tau*t[ii+0] / dt[ii+0];
 			}
 
 		}
