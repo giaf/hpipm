@@ -63,6 +63,7 @@ struct s_dense_qcqp
 	struct blasfeo_svec *gz; // gradient of cost & gradient of slacks
 	struct blasfeo_svec *b; // equality constraint vector
 	struct blasfeo_svec *d; // inequality constraints vector
+	struct blasfeo_svec *d_mask; // inequality constraints mask vector
 	struct blasfeo_svec *m; // rhs of complementarity condition
 	struct blasfeo_svec *Z; // (diagonal) hessian of slacks
 	struct blasfeo_svec *gq; // gradients of quadratic constraints

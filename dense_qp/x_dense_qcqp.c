@@ -47,12 +47,12 @@ int DENSE_QCQP_MEMSIZE(struct DENSE_QCQP_DIM *dim)
 
 	int size = 0;
 
-	size += (nq+5)*sizeof(struct STRVEC); // gz b d m Z gq
+	size += (nq+6)*sizeof(struct STRVEC); // gz b d m Z gq d_mask
 	size += (nq+3)*sizeof(struct STRMAT); // Hv A Ct Hq
 
 	size += 1*SIZE_STRVEC(nv+2*ns); // g
 	size += 1*SIZE_STRVEC(ne); // b
-	size += 2*SIZE_STRVEC(2*nb+2*ng+2*nq+2*ns); // d m
+	size += 3*SIZE_STRVEC(2*nb+2*ng+2*nq+2*ns); // d m d_mask
 	size += 1*SIZE_STRVEC(2*ns); // Z
 	size += nq*SIZE_STRVEC(nv); // gq
 	size += 1*nb*sizeof(int); // idxb

@@ -786,10 +786,9 @@ void DENSE_QCQP_INIT_VAR(struct DENSE_QCQP *qcqp, struct DENSE_QCQP_SOL *qcqp_so
 	//  quadratic constraints
 	for(ii=0; ii<nq; ii++)
 		{
-		// TODO improve it !!!!!!!!
-		// lower
-		lam[nb+ng+ii] = 1.0;
-		t[nb+ng+ii]   = mu0/lam[nb+ng+ii];
+		// disregard lower
+		lam[nb+ng+ii] = 0.0;
+		t[nb+ng+ii]   = 1.0;
 		// upper
 //		t[2*nb+2*ng+nq+ii] = 1.0; // thr0;
 		SYMV_L(nv, nv, 0.5, qcqp->Hq+ii, 0, 0, qcqp_sol->v, 0, 1.0, qcqp->gq+ii, 0, ws->tmp_nv, 0);
@@ -818,11 +817,12 @@ void DENSE_QCQP_APPROX_QP(struct DENSE_QCQP *qcqp, struct DENSE_QCQP_SOL *qcqp_s
 	int ns = qcqp->dim->ns;
 
 	// TODO move to args ???
-	REAL inf = 1e8;
+//	REAL inf = 1e8;
 
 	REAL tmp;
 
 	int ii;
+
 
 	VECCP(2*nb+2*ng+2*nq+2*ns, qcqp->d, 0, qp->d, 0);
 
@@ -852,6 +852,9 @@ void DENSE_QCQP_APPROX_QP(struct DENSE_QCQP *qcqp, struct DENSE_QCQP_SOL *qcqp_s
 		BLASFEO_SVECEL(qp->d, 2*nb+2*ng+nq+ii) += + tmp;
 #endif
 		}
+
+	// disregard lower quadratic constr
+	VECSE(nq, 0.0, qp->d_mask, nb+ng);
 
 	GECP(ne, nv, qcqp->A, 0, 0, qp->A, 0, 0);
 
@@ -892,7 +895,7 @@ void DENSE_QCQP_UPDATE_QP(struct DENSE_QCQP *qcqp, struct DENSE_QCQP_SOL *qcqp_s
 	int nG = qp->dim->ng;
 
 	// TODO move to args ???
-	REAL inf = 1e8;
+//	REAL inf = 1e8;
 
 	REAL tmp;
 
@@ -1021,21 +1024,22 @@ void DENSE_QCQP_IPM_SOLVE(struct DENSE_QCQP *qcqp, struct DENSE_QCQP_SOL *qcqp_s
 	struct DENSE_QP_IPM_WS *qp_ws = qcqp_ws->qp_ws;
 	struct DENSE_QP_IPM_ARG *qp_arg = qcqp_arg->qp_arg;
 
+	struct DENSE_QCQP_DIM *qcqp_dim = qcqp->dim;
 	struct DENSE_QCQP_RES *qcqp_res = qcqp_ws->qcqp_res;
 	struct DENSE_QCQP_RES_WS *qcqp_res_ws = qcqp_ws->qcqp_res_ws;
 
 	struct CORE_QP_IPM_WORKSPACE *cws = qp_ws->core_workspace;
 
-	int kk;
+	int kk, ii;
 	REAL mu;
 
 	REAL *stat = qp_ws->stat;
 	int stat_m = qp_ws->stat_m;
 	int stat_max = qp_ws->stat_max;
 
-	int qcqp_nv = qcqp->dim->nv+2*qcqp->dim->ns;
-	int qcqp_ne = qcqp->dim->ne;
-	int qcqp_nc = 2*qcqp->dim->nb+2*qcqp->dim->ng+2*qcqp->dim->ns;
+//	int qcqp_nv = qcqp->dim->nv + 2*qcqp->dim->ns;
+//	int qcqp_ne = qcqp->dim->ne;
+//	int qcqp_nc = 2*qcqp->dim->nb + 2*qcqp->dim->ng + qcqp->dim->nq + 2*qcqp->dim->ns;
 
 
 	// qp_arg to core workspace
@@ -1077,6 +1081,9 @@ void DENSE_QCQP_IPM_SOLVE(struct DENSE_QCQP *qcqp, struct DENSE_QCQP_SOL *qcqp_s
 	REAL *qcqp_res_max = qcqp_res->res_max;
 
 
+	// disregard lower quadratic constr
+
+
 	// initialize qcqp & qp
 	DENSE_QCQP_INIT_VAR(qcqp, qcqp_sol, qcqp_arg, qcqp_ws);
 	DENSE_QCQP_SOL_CONV_QP_SOL(qcqp_sol, qp_sol);
@@ -1085,8 +1092,29 @@ void DENSE_QCQP_IPM_SOLVE(struct DENSE_QCQP *qcqp, struct DENSE_QCQP_SOL *qcqp_s
 	DENSE_QCQP_APPROX_QP(qcqp, qcqp_sol, qp, qcqp_ws);
 
 
+	// detect constr mask
+	REAL tmp_add;
+	REAL tmp;
+	int mask_unconstr;
+	tmp_add = 0.0;
+	for(ii=0; ii<cws->nc; ii++)
+		{
+		tmp = qp->d_mask->pa[ii];
+		tmp_add += tmp;
+		}
+	if(tmp_add==0.0)
+		{
+		mask_unconstr = 1;
+		}
+	else
+		{
+		mask_unconstr = 0;
+		}
+	// always mask lower quadratic constr
+	qp_arg->mask_constr = 1;
+
 	// no constraints
-	if(cws->nc==0)
+	if(cws->nc==0 | mask_unconstr==1)
 		{
 		FACT_SOLVE_KKT_UNCONSTR_DENSE_QP(qp, qp_sol, qp_arg, qp_ws);
 		DENSE_QP_SOL_CONV_QCQP_SOL(qp_sol, qcqp_sol);
@@ -1145,7 +1173,14 @@ void DENSE_QCQP_IPM_SOLVE(struct DENSE_QCQP *qcqp, struct DENSE_QCQP_SOL *qcqp_s
 
 			// compute delta step
 			DENSE_QP_IPM_ABS_STEP(kk, qp, qp_sol, qp_arg, qp_ws);
+//blasfeo_print_exp_tran_dvec(cws->nc, qp_sol->lam, 0);
 			DENSE_QP_SOL_CONV_QCQP_SOL(qp_sol, qcqp_sol);
+			// XXX maybe not needed
+//			if(qp_arg->mask_constr)
+//				{
+//				// mask out disregarded constraints
+//				VECMUL(cws->nc, qp->d_mask, 0, qcqp_sol->lam, 0, qcqp_sol->lam, 0);
+//				}
 
 			// update approximation of qcqp as qp
 			DENSE_QCQP_UPDATE_QP(qcqp, qcqp_sol, qp, qcqp_ws);
@@ -1163,6 +1198,13 @@ void DENSE_QCQP_IPM_SOLVE(struct DENSE_QCQP *qcqp, struct DENSE_QCQP_SOL *qcqp_s
 			{
 			// compute residuals
 			DENSE_QCQP_RES_COMPUTE(qcqp, qcqp_sol, qcqp_res, qcqp_res_ws);
+			if(qp_arg->mask_constr)
+				{
+				// mask out disregarded constraints
+				VECMUL(cws->nc, qp->d_mask, 0, qcqp_res->res_d, 0, qcqp_res->res_d, 0);
+				VECMUL(cws->nc, qp->d_mask, 0, qcqp_res->res_m, 0, qcqp_res->res_m, 0);
+				}
+			DENSE_QCQP_RES_COMPUTE_INF_NORM(qcqp_res);
 			// save infinity norm of residuals
 			// XXX it is already kk+1
 			stat[stat_m*(kk+0)+5] = qcqp_res_max[0];
@@ -1210,6 +1252,13 @@ void DENSE_QCQP_IPM_SOLVE(struct DENSE_QCQP *qcqp, struct DENSE_QCQP_SOL *qcqp_s
 
 	// compute residuals
 	DENSE_QCQP_RES_COMPUTE(qcqp, qcqp_sol, qcqp_res, qcqp_res_ws);
+	if(qp_arg->mask_constr)
+		{
+		// mask out disregarded constraints
+		VECMUL(cws->nc, qp->d_mask, 0, qcqp_res->res_d, 0, qcqp_res->res_d, 0);
+		VECMUL(cws->nc, qp->d_mask, 0, qcqp_res->res_m, 0, qcqp_res->res_m, 0);
+		}
+	DENSE_QCQP_RES_COMPUTE_INF_NORM(qcqp_res);
 	DENSE_QCQP_RES_CONV_QP_RES(qcqp_res, qp_ws->res);
 	cws->mu = qcqp_res->res_mu;
 	// save infinity norm of residuals
@@ -1229,15 +1278,32 @@ void DENSE_QCQP_IPM_SOLVE(struct DENSE_QCQP *qcqp, struct DENSE_QCQP_SOL *qcqp_s
 			qcqp_res_max[3] > qcqp_arg->res_m_max); kk++)
 		{
 
+		// hessian is updated with quad constr: can not reuse hessian factorization !!!
+		qp_ws->use_hess_fact = 0;
+
 		// compute delta step
 		DENSE_QP_IPM_DELTA_STEP(kk, qp, qp_sol, qp_arg, qp_ws);
+//blasfeo_print_exp_tran_dvec(cws->nc, qp_sol->lam, 0);
 		DENSE_QP_SOL_CONV_QCQP_SOL(qp_sol, qcqp_sol);
+		// XXX maybe not needed
+		if(qp_arg->mask_constr)
+			{
+			// mask out disregarded constraints
+			VECMUL(cws->nc, qp->d_mask, 0, qcqp_sol->lam, 0, qcqp_sol->lam, 0);
+			}
 
 		// update approximation of qcqp as qp
 		DENSE_QCQP_UPDATE_QP(qcqp, qcqp_sol, qp, qcqp_ws);
 
 		// compute residuals
 		DENSE_QCQP_RES_COMPUTE(qcqp, qcqp_sol, qcqp_res, qcqp_res_ws);
+		if(qp_arg->mask_constr)
+			{
+			// mask out disregarded constraints
+			VECMUL(cws->nc, qp->d_mask, 0, qcqp_res->res_d, 0, qcqp_res->res_d, 0);
+			VECMUL(cws->nc, qp->d_mask, 0, qcqp_res->res_m, 0, qcqp_res->res_m, 0);
+			}
+		DENSE_QCQP_RES_COMPUTE_INF_NORM(qcqp_res);
 		DENSE_QCQP_RES_CONV_QP_RES(qcqp_res, qp_ws->res);
 		cws->mu = qcqp_res->res_mu;
 		if(kk<stat_max)

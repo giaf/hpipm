@@ -299,7 +299,6 @@ void DENSE_QCQP_RES_COMPUTE(struct DENSE_QCQP *qp, struct DENSE_QCQP_SOL *qp_sol
 			}
 		if(nq>0)
 			{
-			// TODO
 			AXPY(nq,  1.0, d, 2*nb+2*ng+2*ns, t, 2*nb+2*ng+2*ns, res_d, 2*nb+2*ng+2*ns);
 			for(ii=0; ii<nq; ii++)
 				{
@@ -347,6 +346,31 @@ void DENSE_QCQP_RES_COMPUTE(struct DENSE_QCQP *qp, struct DENSE_QCQP_SOL *qp_sol
 	AXPY(nct, -1.0, m, 0, res_m, 0, res_m, 0);
 	res->res_mu = mu*nct_inv;
 
+	return;
+
+	}
+
+
+
+void DENSE_QCQP_RES_COMPUTE_INF_NORM(struct DENSE_QCQP_RES *res)
+	{
+
+	int nv = res->dim->nv;
+	int ne = res->dim->ne;
+	int nb = res->dim->nb;
+	int ng = res->dim->ng;
+	int nq = res->dim->nq;
+	int ns = res->dim->ns;
+
+	int nvt = nv+2*ns;
+	int net = ne;
+	int nct = 2*nb+2*ng+2*nq+2*ns;
+
+	struct STRVEC *res_g = res->res_g;
+	struct STRVEC *res_b = res->res_b;
+	struct STRVEC *res_d = res->res_d;
+	struct STRVEC *res_m = res->res_m;
+
 	// compute infinity norm
 	VECNRM_INF(nvt, res_g, 0, res->res_max+0);
 	VECNRM_INF(net, res_b, 0, res->res_max+1);
@@ -356,4 +380,7 @@ void DENSE_QCQP_RES_COMPUTE(struct DENSE_QCQP *qp, struct DENSE_QCQP_SOL *qp_sol
 	return;
 
 	}
+
+
+
 

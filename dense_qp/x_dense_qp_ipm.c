@@ -434,6 +434,10 @@ int DENSE_QP_IPM_WS_MEMSIZE(struct DENSE_QP_DIM *dim, struct DENSE_QP_IPM_ARG *a
 		size += 1*GELQF_WORKSIZE(nv, nv+nv+ng); // lq_work1
 		}
 
+	// cache value of stat_max used for memory allocation
+	if(arg->stat_max<arg->iter_max)
+		arg->stat_max = arg->iter_max;
+
 	size += 9*(1+arg->stat_max)*sizeof(REAL); // stat
 
 	size = (size+63)/64*64; // make multiple of typical cache line size
@@ -1070,6 +1074,11 @@ void DENSE_QP_IPM_ABS_STEP(int kk, struct DENSE_QP *qp, struct DENSE_QP_SOL *qp_
 
 	//
 	UPDATE_VAR_QP(cws);
+	if(arg->mask_constr)
+		{
+		// mask out disregarded constraints
+		VECMUL(cws->nc, qp->d_mask, 0, qp_sol->lam, 0, qp_sol->lam, 0);
+		}
 
 	return;
 
@@ -1487,6 +1496,11 @@ blasfeo_print_tran_dvec(cws->nc, ws->sol_step->t, 0);
 
 	//
 	UPDATE_VAR_QP(cws);
+	if(arg->mask_constr)
+		{
+		// mask out disregarded constraints
+		VECMUL(cws->nc, qp->d_mask, 0, qp_sol->lam, 0, qp_sol->lam, 0);
+		}
 
 	return;
 
@@ -1527,7 +1541,7 @@ void DENSE_QP_IPM_SOLVE(struct DENSE_QP *qp, struct DENSE_QP_SOL *qp_sol, struct
 	ws->qp_step->b = ws->res->res_b;
 	ws->qp_step->d = ws->res->res_d;
 	ws->qp_step->m = ws->res->res_m;
-	ws->qp_step->d_mask = qp->d_mask; // XXX
+//	ws->qp_step->d_mask = qp->d_mask; // XXX
 
 	// alias members of qp_itref
 	ws->qp_itref->dim = qp->dim;
@@ -1541,7 +1555,7 @@ void DENSE_QP_IPM_SOLVE(struct DENSE_QP *qp, struct DENSE_QP_SOL *qp_sol, struct
 	ws->qp_itref->b = ws->res_itref->res_b;
 	ws->qp_itref->d = ws->res_itref->res_d;
 	ws->qp_itref->m = ws->res_itref->res_m;
-	ws->qp_itref->d_mask = qp->d_mask; // XXX
+//	ws->qp_itref->d_mask = qp->d_mask; // XXX
 
 	// blasfeo alias for residuals
 	struct STRVEC str_res_g;

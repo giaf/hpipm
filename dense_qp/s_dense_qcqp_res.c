@@ -84,6 +84,7 @@
 #define DENSE_QCQP_RES_WS_MEMSIZE s_dense_qcqp_res_ws_memsize
 #define DENSE_QCQP_RES_WS_CREATE s_dense_qcqp_res_ws_create
 #define DENSE_QCQP_RES_COMPUTE s_dense_qcqp_res_compute
+#define DENSE_QCQP_RES_COMPUTE_INF_NORM s_dense_qcqp_res_compute_inf_norm
 
 
 

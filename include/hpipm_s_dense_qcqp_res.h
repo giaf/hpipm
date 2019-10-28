@@ -87,6 +87,8 @@ int s_dense_qcqp_res_ws_memsize(struct s_dense_qcqp_dim *dim);
 void s_dense_qcqp_res_ws_create(struct s_dense_qcqp_dim *dim, struct s_dense_qcqp_res_ws *workspace, void *mem);
 //
 void s_dense_qcqp_res_compute(struct s_dense_qcqp *qp, struct s_dense_qcqp_sol *qp_sol, struct s_dense_qcqp_res *res, struct s_dense_qcqp_res_ws *ws);
+//
+void s_dense_qcqp_res_compute_inf_norm(struct s_dense_qcqp_res *res);
 
 
 

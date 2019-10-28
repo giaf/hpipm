@@ -77,6 +77,7 @@
 #define DENSE_QCQP_RES_COMPUTE_LIN d_dense_qcqp_res_compute_lin
 #define COMPUTE_MU_AFF_QCQP d_compute_mu_aff_qcqp
 #define DENSE_QCQP_RES_COMPUTE d_dense_qcqp_res_compute
+#define DENSE_QCQP_RES_COMPUTE_INF_NORM d_dense_qcqp_res_compute_inf_norm
 #define COLIN blasfeo_dcolin
 #define CORE_QP_IPM_WORKSPACE d_core_qp_ipm_workspace
 //#define CREATE_CORE_QP_IPM d_create_core_qp_ipm
