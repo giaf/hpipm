@@ -815,7 +815,7 @@ void DENSE_QCQP_APPROX_QP(struct DENSE_QCQP *qcqp, struct DENSE_QCQP_SOL *qcqp_s
 
 	REAL tmp;
 
-	int ii;
+	int ii, idx;
 
 
 	VECCP(2*nb+2*ng+2*nq+2*ns, qcqp->d, 0, qp->d, 0);
@@ -852,8 +852,17 @@ void DENSE_QCQP_APPROX_QP(struct DENSE_QCQP *qcqp, struct DENSE_QCQP_SOL *qcqp_s
 #endif
 		}
 
+	VECCP(2*nb+2*ng+2*nq+2*ns, qcqp->d_mask, 0, qp->d_mask, 0);
 	// disregard lower quadratic constr
-	VECSE(nq, 0.0, qp->d_mask, nb+ng);
+	VECSE(nq, 0.0, qp->d_mask, nb+ng); // TODO needed ???
+	// TODO check idxs and remove softed lower quad constr !!!!!
+	for(ii=0; ii<ns; ii++)
+		{
+		idx = qp->idxs[ii];
+		if(idx>=nb+ng) // quadr constr
+			VECSE(1, 0.0, qcqp->d_mask, 2*nb+2*ng+2*ns+ii);
+			VECSE(1, 0.0, qp->d_mask, 2*nb+2*ng+2*ns+ii);
+		}
 
 	GECP(ne, nv, qcqp->A, 0, 0, qp->A, 0, 0);
 

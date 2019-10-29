@@ -89,6 +89,9 @@ void DENSE_QP_PRINT(struct DENSE_QP_DIM *qp_dim, struct DENSE_QP *qp)
 	printf("d = \n");
 	BLASFEO_PRINT_TRAN_VEC(2*nb+2*ng+2*ns, qp->d, 0);
 
+	printf("d_mask = \n");
+	BLASFEO_PRINT_TRAN_VEC(2*nb+2*ng+2*ns, qp->d_mask, 0);
+
 	printf("m = \n");
 	BLASFEO_PRINT_TRAN_VEC(2*nb+2*ng+2*ns, qp->m, 0);
 

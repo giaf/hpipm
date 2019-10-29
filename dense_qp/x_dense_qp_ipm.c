@@ -848,7 +848,6 @@ void DENSE_QP_INIT_VAR(struct DENSE_QP *qp, struct DENSE_QP_SOL *qp_sol, struct 
 	REAL thr0 = 0.5;
 
 
-
 	// primal and dual variables
 	if(arg->warm_start==2)
 		{
@@ -867,8 +866,6 @@ void DENSE_QP_INIT_VAR(struct DENSE_QP *qp, struct DENSE_QP_SOL *qp_sol, struct 
 		return;
 
 		}
-
-
 
 
 	// primal variables
@@ -1493,7 +1490,6 @@ blasfeo_print_tran_dvec(cws->nc, ws->sol_step->t, 0);
 			}
 
 		}
-
 	//
 	UPDATE_VAR_QP(cws);
 	if(arg->mask_constr)

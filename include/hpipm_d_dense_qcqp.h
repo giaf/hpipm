@@ -92,19 +92,29 @@ void d_dense_qcqp_set_idxb(int *idxb, struct d_dense_qcqp *qp);
 //
 void d_dense_qcqp_set_lb(double *lb, struct d_dense_qcqp *qp);
 //
+void d_dense_qcqp_set_lb_mask(double *lb, struct d_dense_qcqp *qp);
+//
 void d_dense_qcqp_set_ub(double *ub, struct d_dense_qcqp *qp);
+//
+void d_dense_qcqp_set_ub_mask(double *ub, struct d_dense_qcqp *qp);
 //
 void d_dense_qcqp_set_C(double *C, struct d_dense_qcqp *qp);
 //
 void d_dense_qcqp_set_lg(double *lg, struct d_dense_qcqp *qp);
 //
+void d_dense_qcqp_set_lg_mask(double *lg, struct d_dense_qcqp *qp);
+//
 void d_dense_qcqp_set_ug(double *ug, struct d_dense_qcqp *qp);
+//
+void d_dense_qcqp_set_ug_mask(double *ug, struct d_dense_qcqp *qp);
 //
 void d_dense_qcqp_set_Hq(double *Hq, struct d_dense_qcqp *qp);
 //
 void d_dense_qcqp_set_gq(double *gq, struct d_dense_qcqp *qp);
 //
 void d_dense_qcqp_set_uq(double *uq, struct d_dense_qcqp *qp);
+//
+void d_dense_qcqp_set_uq_mask(double *uq, struct d_dense_qcqp *qp);
 //
 void d_dense_qcqp_set_idxs(int *idxs, struct d_dense_qcqp *qp);
 //
@@ -118,7 +128,11 @@ void d_dense_qcqp_set_zu(double *zu, struct d_dense_qcqp *qp);
 //
 void d_dense_qcqp_set_ls(double *ls, struct d_dense_qcqp *qp);
 //
+void d_dense_qcqp_set_ls_mask(double *ls, struct d_dense_qcqp *qp);
+//
 void d_dense_qcqp_set_us(double *us, struct d_dense_qcqp *qp);
+//
+void d_dense_qcqp_set_us_mask(double *us, struct d_dense_qcqp *qp);
 
 // getters (COLMAJ)
 

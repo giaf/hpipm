@@ -72,7 +72,7 @@ int main()
 //	int ns = 1;
 	int nsb = 0;
 	int nsg = 0;
-	int nsq = 0;
+	int nsq = 1;
 
 	double H[] = {1.0, 0.0, 0.0, 1.0};
 	double g[] = {2.0, 2.0};
@@ -85,8 +85,8 @@ int main()
 	double C[] = {0.0, 1.0};
 	double lg[] = {-0.5};
 	double ug[] = {0.5};
-	double Zl[] = {0e2};
-	double Zu[] = {0e2};
+	double Zl[] = {1e-4};
+	double Zu[] = {1e-4};
 	double zl[] = {1e1};
 	double zu[] = {1e1};
 	int idxs[] = {1};
