@@ -825,18 +825,21 @@ void DENSE_QCQP_APPROX_QP(struct DENSE_QCQP *qcqp, struct DENSE_QCQP_SOL *qcqp_s
 
 	GECP(nv, nv, qcqp->Hv, 0, 0, qp->Hv, 0, 0);
 
+	VECSE(nv, 0.0, ws->qcqp_res_ws->q_adj, 0);
+
 	for(ii=0; ii<nq; ii++)
 		{
 #ifdef DOUBLE_PRECISION
-		tmp = - BLASFEO_DVECEL(qcqp_sol->lam, nb+ng+ii) + BLASFEO_DVECEL(qcqp_sol->lam, 2*nb+ng+nq+ii);
+		tmp = - BLASFEO_DVECEL(qcqp_sol->lam, nb+ng+ii) + BLASFEO_DVECEL(qcqp_sol->lam, 2*nb+2*ng+nq+ii);
 #else
-		tmp = - BLASFEO_SVECEL(qcqp_sol->lam, nb+ng+ii) + BLASFEO_SVECEL(qcqp_sol->lam, 2*nb+ng+nq+ii);
+		tmp = - BLASFEO_SVECEL(qcqp_sol->lam, nb+ng+ii) + BLASFEO_SVECEL(qcqp_sol->lam, 2*nb+2*ng+nq+ii);
 #endif
 		GEAD(nv, nv, tmp, qcqp->Hq+ii, 0, 0, qp->Hv, 0, 0);
 
 		SYMV_L(nv, nv, 1.0, qcqp->Hq+ii, 0, 0, qcqp_sol->v, 0, 0.0, ws->tmp_nv+0, 0, ws->tmp_nv+0, 0);
 		AXPY(nv, 1.0, ws->tmp_nv+0, 0, qcqp->gq+ii, 0, ws->tmp_nv+1, 0);
 		COLIN(nv, ws->tmp_nv+1, 0, qp->Ct, 0, ng+ii);
+		AXPY(nv, tmp, ws->tmp_nv+1, 0, ws->qcqp_res_ws->q_adj, 0, ws->qcqp_res_ws->q_adj, 0);
 
 		AXPY(nv, 0.5, ws->tmp_nv+0, 0, qcqp->gq+ii, 0, ws->tmp_nv+1, 0);
 		tmp = DOT(nv, ws->tmp_nv+1, 0, qcqp_sol->v, 0);
@@ -844,9 +847,11 @@ void DENSE_QCQP_APPROX_QP(struct DENSE_QCQP *qcqp, struct DENSE_QCQP_SOL *qcqp_s
 		// TODO maybe swap signs?
 		BLASFEO_DVECEL(qp->d, nb+ng+ii) += - tmp;
 		BLASFEO_DVECEL(qp->d, 2*nb+2*ng+nq+ii) += + tmp;
+		BLASFEO_DVECEL(ws->qcqp_res_ws->q_fun, ii) = tmp;
 #else
 		BLASFEO_SVECEL(qp->d, nb+ng+ii) += - tmp;
 		BLASFEO_SVECEL(qp->d, 2*nb+2*ng+nq+ii) += + tmp;
+		BLASFEO_SVECEL(ws->qcqp_res_ws->q_fun, ii) = tmp;
 #endif
 		}
 
@@ -902,18 +907,21 @@ void DENSE_QCQP_UPDATE_QP(struct DENSE_QCQP *qcqp, struct DENSE_QCQP_SOL *qcqp_s
 
 	GECP(nv, nv, qcqp->Hv, 0, 0, qp->Hv, 0, 0);
 
+	VECSE(nv, 0.0, ws->qcqp_res_ws->q_adj, 0);
+
 	for(ii=0; ii<nq; ii++)
 		{
 #ifdef DOUBLE_PRECISION
-		tmp = - BLASFEO_DVECEL(qcqp_sol->lam, nb+ng+ii) + BLASFEO_DVECEL(qcqp_sol->lam, 2*nb+ng+nq+ii);
+		tmp = - BLASFEO_DVECEL(qcqp_sol->lam, nb+ng+ii) + BLASFEO_DVECEL(qcqp_sol->lam, 2*nb+2*ng+nq+ii);
 #else
-		tmp = - BLASFEO_SVECEL(qcqp_sol->lam, nb+ng+ii) + BLASFEO_SVECEL(qcqp_sol->lam, 2*nb+ng+nq+ii);
+		tmp = - BLASFEO_SVECEL(qcqp_sol->lam, nb+ng+ii) + BLASFEO_SVECEL(qcqp_sol->lam, 2*nb+2*ng+nq+ii);
 #endif
 		GEAD(nv, nv, tmp, qcqp->Hq+ii, 0, 0, qp->Hv, 0, 0);
 
 		SYMV_L(nv, nv, 1.0, qcqp->Hq+ii, 0, 0, qcqp_sol->v, 0, 0.0, ws->tmp_nv+0, 0, ws->tmp_nv+0, 0);
 		AXPY(nv, 1.0, ws->tmp_nv+0, 0, qcqp->gq+ii, 0, ws->tmp_nv+1, 0);
 		COLIN(nv, ws->tmp_nv+1, 0, qp->Ct, 0, ng+ii);
+		AXPY(nv, tmp, ws->tmp_nv+1, 0, ws->qcqp_res_ws->q_adj, 0, ws->qcqp_res_ws->q_adj, 0);
 
 		AXPY(nv, 0.5, ws->tmp_nv+0, 0, qcqp->gq+ii, 0, ws->tmp_nv+1, 0);
 		tmp = DOT(nv, ws->tmp_nv+1, 0, qcqp_sol->v, 0);
@@ -921,9 +929,11 @@ void DENSE_QCQP_UPDATE_QP(struct DENSE_QCQP *qcqp, struct DENSE_QCQP_SOL *qcqp_s
 		// TODO maybe swap signs?
 		BLASFEO_DVECEL(qp->d, nb+ng+ii) += - tmp;
 		BLASFEO_DVECEL(qp->d, 2*nb+2*ng+nq+ii) += + tmp;
+		BLASFEO_DVECEL(ws->qcqp_res_ws->q_fun, ii) = tmp;
 #else
 		BLASFEO_SVECEL(qp->d, nb+ng+ii) += - tmp;
 		BLASFEO_SVECEL(qp->d, 2*nb+2*ng+nq+ii) += + tmp;
+		BLASFEO_DVECEL(ws->qcqp_res_ws->q_fun, ii) = tmp;
 #endif
 		}
 
@@ -960,18 +970,21 @@ void DENSE_QCQP_UPDATE_QP_ABS_STEP(struct DENSE_QCQP *qcqp, struct DENSE_QCQP_SO
 
 	GECP(nv, nv, qcqp->Hv, 0, 0, qp->Hv, 0, 0);
 
+	VECSE(nv, 0.0, ws->qcqp_res_ws->q_adj, 0);
+
 	for(ii=0; ii<nq; ii++)
 		{
 #ifdef DOUBLE_PRECISION
-		tmp = - BLASFEO_DVECEL(qcqp_sol->lam, nb+ng+ii) + BLASFEO_DVECEL(qcqp_sol->lam, 2*nb+ng+nq+ii);
+		tmp = - BLASFEO_DVECEL(qcqp_sol->lam, nb+ng+ii) + BLASFEO_DVECEL(qcqp_sol->lam, 2*nb+2*ng+nq+ii);
 #else
-		tmp = - BLASFEO_SVECEL(qcqp_sol->lam, nb+ng+ii) + BLASFEO_SVECEL(qcqp_sol->lam, 2*nb+ng+nq+ii);
+		tmp = - BLASFEO_SVECEL(qcqp_sol->lam, nb+ng+ii) + BLASFEO_SVECEL(qcqp_sol->lam, 2*nb+2*ng+nq+ii);
 #endif
 		GEAD(nv, nv, tmp, qcqp->Hq+ii, 0, 0, qp->Hv, 0, 0);
 
 		SYMV_L(nv, nv, 1.0, qcqp->Hq+ii, 0, 0, qcqp_sol->v, 0, 0.0, ws->tmp_nv+0, 0, ws->tmp_nv+0, 0);
 		AXPY(nv, 1.0, ws->tmp_nv+0, 0, qcqp->gq+ii, 0, ws->tmp_nv+1, 0);
 		COLIN(nv, ws->tmp_nv+1, 0, qp->Ct, 0, ng+ii);
+		AXPY(nv, tmp, ws->tmp_nv+1, 0, ws->qcqp_res_ws->q_adj, 0, ws->qcqp_res_ws->q_adj, 0);
 
 //		AXPY(nv, 0.5, ws->tmp_nv+0, 0, qcqp->gq+ii, 0, ws->tmp_nv+1, 0);
 		AXPY(nv, 0.5, ws->tmp_nv+0, 0, qcqp->gq+ii, 0, ws->tmp_nv+0, 0);
@@ -981,9 +994,11 @@ void DENSE_QCQP_UPDATE_QP_ABS_STEP(struct DENSE_QCQP *qcqp, struct DENSE_QCQP_SO
 		// TODO maybe swap signs?
 		BLASFEO_DVECEL(qp->d, nb+ng+ii) += - tmp;
 		BLASFEO_DVECEL(qp->d, 2*nb+2*ng+nq+ii) += + tmp;
+		BLASFEO_DVECEL(ws->qcqp_res_ws->q_fun, ii) = tmp;
 #else
 		BLASFEO_SVECEL(qp->d, nb+ng+ii) += - tmp;
 		BLASFEO_SVECEL(qp->d, 2*nb+2*ng+nq+ii) += + tmp;
+		BLASFEO_SVECEL(ws->qcqp_res_ws->q_fun, ii) = tmp;
 #endif
 		}
 
@@ -1138,7 +1153,9 @@ void DENSE_QCQP_IPM_SOLVE(struct DENSE_QCQP *qcqp, struct DENSE_QCQP_SOL *qcqp_s
 	REAL *qcqp_res_max = qcqp_res->res_max;
 
 
-	// disregard lower quadratic constr
+	// cache q_fun & q_adj from approx/update for res
+	qcqp_ws->qcqp_res_ws->use_q_fun = 0;
+	qcqp_ws->qcqp_res_ws->use_q_adj = 0;
 
 
 	// initialize qcqp & qp

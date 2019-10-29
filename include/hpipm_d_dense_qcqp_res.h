@@ -72,6 +72,10 @@ struct d_dense_qcqp_res_ws
 	struct blasfeo_dvec *tmp_nv; // work space of size nv
 	struct blasfeo_dvec *tmp_nbgq; // work space of size nbM+ngM
 	struct blasfeo_dvec *tmp_ns; // work space of size nsM
+	struct blasfeo_dvec *q_fun; // value for evaluation of quadr constr
+	struct blasfeo_dvec *q_adj; // value for adjoint of quadr constr
+	int use_q_fun; // reuse cached value for evaluation of quadr constr
+	int use_q_adj; // reuse cached value for adjoint of quadr constr
 	int memsize;
 	};
 

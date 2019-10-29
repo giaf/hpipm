@@ -150,11 +150,12 @@ int DENSE_QCQP_RES_WS_MEMSIZE(struct DENSE_QCQP_DIM *dim)
 
 	int size = 0;
 
-	size += 4*sizeof(struct STRVEC); // tmp_nv 2*tmp_nbgq tmp_ns
+	size += 6*sizeof(struct STRVEC); // tmp_nv 2*tmp_nbgq tmp_ns q_fun q_adj
 
-	size += 1*SIZE_STRVEC(nv); // tmp_nv
+	size += 2*SIZE_STRVEC(nv); // tmp_nv q_adj
 	size += 2*SIZE_STRVEC(nb+ng+nq); // tmp_nbgq
 	size += 1*SIZE_STRVEC(ns); // tmp_ns
+	size += 1*SIZE_STRVEC(nq); // q_fun
 
 	size = (size+63)/64*64; // make multiple of typical cache line size
 	size += 1*64; // align once to typical cache line size
@@ -189,6 +190,10 @@ void DENSE_QCQP_RES_WS_CREATE(struct DENSE_QCQP_DIM *dim, struct DENSE_QCQP_RES_
 	sv_ptr += 2;
 	ws->tmp_ns = sv_ptr;
 	sv_ptr += 1;
+	ws->q_fun = sv_ptr;
+	sv_ptr += 1;
+	ws->q_adj = sv_ptr;
+	sv_ptr += 1;
 
 
 	// align to typicl cache line size
@@ -211,6 +216,15 @@ void DENSE_QCQP_RES_WS_CREATE(struct DENSE_QCQP_DIM *dim, struct DENSE_QCQP_RES_
 
 	CREATE_STRVEC(ns, ws->tmp_ns+0, c_ptr);
 	c_ptr += (ws->tmp_ns+0)->memsize;
+
+	CREATE_STRVEC(nq, ws->q_fun, c_ptr);
+	c_ptr += (ws->q_fun)->memsize;
+
+	CREATE_STRVEC(nv, ws->q_adj, c_ptr);
+	c_ptr += (ws->q_adj)->memsize;
+
+	ws->use_q_fun = 0;
+	ws->use_q_adj = 0;
 
 	ws->memsize = DENSE_QCQP_RES_WS_MEMSIZE(dim);
 
@@ -300,23 +314,31 @@ void DENSE_QCQP_RES_COMPUTE(struct DENSE_QCQP *qp, struct DENSE_QCQP_SOL *qp_sol
 		if(nq>0)
 			{
 			AXPY(nq,  1.0, d, 2*nb+2*ng+2*ns, t, 2*nb+2*ng+2*ns, res_d, 2*nb+2*ng+2*ns);
-			for(ii=0; ii<nq; ii++)
+			if(ws->use_q_fun & ws->use_q_adj)
 				{
-				SYMV_L(nv, nv, 1.0, Hq+ii, 0, 0, v, 0, 0.0, tmp_nv, 0, tmp_nv, 0);
+				VECCP(nq, ws->q_fun, 0, tmp_nbgq+1, nb+ng);
+				AXPY(nv, 1.0, ws->q_adj, 0, res_g, 0, res_g, 0);
+				}
+			else
+				{
+				for(ii=0; ii<nq; ii++)
+					{
+					SYMV_L(nv, nv, 1.0, Hq+ii, 0, 0, v, 0, 0.0, tmp_nv, 0, tmp_nv, 0);
 #ifdef DOUBLE_PRECISION
-				tmp = BLASFEO_DVECEL(tmp_nbgq+0, nb+ng+ii);
+					tmp = BLASFEO_DVECEL(tmp_nbgq+0, nb+ng+ii);
 #else
-				tmp = BLASFEO_SVECEL(tmp_nbgq+0, nb+ng+ii);
+					tmp = BLASFEO_SVECEL(tmp_nbgq+0, nb+ng+ii);
 #endif
-				AXPY(nv, tmp, tmp_nv, 0, res_g, 0, res_g, 0);
-				AXPY(nv, tmp, gq+ii, 0, res_g, 0, res_g, 0);
-				AXPY(nv, 0.5, tmp_nv, 0, gq+ii, 0, tmp_nv, 0);
-				tmp = DOT(nv, tmp_nv, 0, v, 0);
+					AXPY(nv, tmp, tmp_nv, 0, res_g, 0, res_g, 0);
+					AXPY(nv, tmp, gq+ii, 0, res_g, 0, res_g, 0);
+					AXPY(nv, 0.5, tmp_nv, 0, gq+ii, 0, tmp_nv, 0);
+					tmp = DOT(nv, tmp_nv, 0, v, 0);
 #ifdef DOUBLE_PRECISION
-				BLASFEO_DVECEL(tmp_nbgq+1, nb+ng+ii) = tmp;
+					BLASFEO_DVECEL(tmp_nbgq+1, nb+ng+ii) = tmp;
 #else
-				BLASFEO_SVECEL(tmp_nbgq+1, nb+ng+ii) = tmp;
+					BLASFEO_SVECEL(tmp_nbgq+1, nb+ng+ii) = tmp;
 #endif
+					}
 				}
 			}
 		AXPY(nb+ng+nq, -1.0, tmp_nbgq+1, 0, res_d, 0, res_d, 0);
