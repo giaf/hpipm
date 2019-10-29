@@ -167,7 +167,7 @@ int main()
 
 	int iter_max = 20; //25;
 	d_dense_qcqp_ipm_arg_set_iter_max(&iter_max, &arg);
-	double mu0 = 1e3;
+	double mu0 = 1e0;
 	d_dense_qcqp_ipm_arg_set_mu0(&mu0, &arg);
 	int comp_res_exit = 1;
 	d_dense_qcqp_ipm_arg_set_comp_res_exit(&comp_res_exit, &arg);
