@@ -183,13 +183,6 @@ void DENSE_QCQP_CREATE(struct DENSE_QCQP_DIM *dim, struct DENSE_QCQP *qp, void *
 		c_ptr += (qp->gq+ii)->memsize;
 		}
 	
-	// default init
-	// TODO put to a larger value, and check that it doesn't make convergence worse
-	// TODO compute unconstr sol and set it just below
-	REAL inf = 1e3;
-	VECSE(nq, -inf, qp->d, nb+ng);
-
-
 	qp->dim = dim;
 
 	qp->memsize = DENSE_QCQP_MEMSIZE(dim);

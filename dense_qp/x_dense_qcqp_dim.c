@@ -92,6 +92,7 @@ void DENSE_QCQP_DIM_CREATE(struct DENSE_QCQP_DIM *dim, void *mem)
 	dim->ns = 0;
 	dim->nsb = 0;
 	dim->nsg = 0;
+	dim->nsq = 0;
 
 	return;
 
@@ -127,6 +128,10 @@ void DENSE_QCQP_DIM_SET(char *field_name, int value, struct DENSE_QCQP_DIM *dim)
 	else if(hpipm_strcmp(field_name, "nsg"))
 		{
 		DENSE_QCQP_DIM_SET_NSG(value, dim);
+		}
+	else if(hpipm_strcmp(field_name, "nsq"))
+		{
+		DENSE_QCQP_DIM_SET_NSQ(value, dim);
 		}
 	else if(hpipm_strcmp(field_name, "ns"))
 		{
@@ -200,7 +205,7 @@ void DENSE_QCQP_DIM_SET_NQ(int value, struct DENSE_QCQP_DIM *dim)
 void DENSE_QCQP_DIM_SET_NSB(int value, struct DENSE_QCQP_DIM *dim)
 	{
 	dim->nsb = value;
-	dim->ns = dim->nsb + dim->nsg;
+	dim->ns = dim->nsb + dim->nsg + dim->nsq;
 
 	DENSE_QP_DIM_SET_NSB(dim->nsb, dim->qp_dim);
 	DENSE_QP_DIM_SET_NS(dim->ns, dim->qp_dim);
@@ -213,9 +218,22 @@ void DENSE_QCQP_DIM_SET_NSB(int value, struct DENSE_QCQP_DIM *dim)
 void DENSE_QCQP_DIM_SET_NSG(int value, struct DENSE_QCQP_DIM *dim)
 	{
 	dim->nsg = value;
-	dim->ns = dim->nsb + dim->nsg;
+	dim->ns = dim->nsb + dim->nsg + dim->nsq;
 
-	DENSE_QP_DIM_SET_NSG(dim->nsg, dim->qp_dim);
+	DENSE_QP_DIM_SET_NSG(dim->nsg+dim->nsq, dim->qp_dim);
+	DENSE_QP_DIM_SET_NS(dim->ns, dim->qp_dim);
+
+	return;
+	}
+
+
+
+void DENSE_QCQP_DIM_SET_NSQ(int value, struct DENSE_QCQP_DIM *dim)
+	{
+	dim->nsq = value;
+	dim->ns = dim->nsb + dim->nsg + dim->nsq;
+
+	DENSE_QP_DIM_SET_NSG(dim->nsg+dim->nsq, dim->qp_dim);
 	DENSE_QP_DIM_SET_NS(dim->ns, dim->qp_dim);
 
 	return;

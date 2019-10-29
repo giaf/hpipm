@@ -66,8 +66,6 @@ void DENSE_QP_PRINT(struct DENSE_QP_DIM *qp_dim, struct DENSE_QP *qp)
 	int ne = qp_dim->ne;
 	int nb = qp_dim->nb;
 	int ng = qp_dim->ng;
-	int nsb = qp_dim->nsb;
-	int nsg = qp_dim->nsg;
 	int ns = qp_dim->ns;
 
 	printf("H = \n");
@@ -78,6 +76,9 @@ void DENSE_QP_PRINT(struct DENSE_QP_DIM *qp_dim, struct DENSE_QP *qp)
 
 	printf("Ct = \n");
 	BLASFEO_PRINT_MAT(nv, ng, qp->Ct, 0, 0);
+
+	printf("idxb = \n");
+	int_print_mat(1, nb, qp->idxb, 1);
 
 	printf("gz = \n");
 	BLASFEO_PRINT_TRAN_VEC(nv+2*ns, qp->gz, 0);
@@ -94,6 +95,9 @@ void DENSE_QP_PRINT(struct DENSE_QP_DIM *qp_dim, struct DENSE_QP *qp)
 	printf("Z = \n");
 	BLASFEO_PRINT_TRAN_VEC(2*ns, qp->Z, 0);
 
+	printf("idxs = \n");
+	int_print_mat(1, ns, qp->idxs, 1);
+
 	return;
 	}
 
@@ -107,8 +111,6 @@ void DENSE_QP_SOL_PRINT(struct DENSE_QP_DIM *qp_dim, struct DENSE_QP_SOL *qp_sol
 	int ne = qp_dim->ne;
 	int nb = qp_dim->nb;
 	int ng = qp_dim->ng;
-	int nsb = qp_dim->nsb;
-	int nsg = qp_dim->nsg;
 	int ns = qp_dim->ns;
 
 	printf("v = \n");
@@ -136,8 +138,6 @@ void DENSE_QP_RES_PRINT(struct DENSE_QP_DIM *qp_dim, struct DENSE_QP_RES *qp_res
 	int ne = qp_dim->ne;
 	int nb = qp_dim->nb;
 	int ng = qp_dim->ng;
-	int nsb = qp_dim->nsb;
-	int nsg = qp_dim->nsg;
 	int ns = qp_dim->ns;
 
 	printf("res_g = \n");

@@ -681,7 +681,6 @@ void DENSE_QCQP_INIT_VAR(struct DENSE_QCQP *qcqp, struct DENSE_QCQP_SOL *qcqp_so
 	REAL thr0 = 0.5;
 
 
-
 	// primal and dual variables
 	if(arg->warm_start==2)
 		{
@@ -700,8 +699,6 @@ void DENSE_QCQP_INIT_VAR(struct DENSE_QCQP *qcqp, struct DENSE_QCQP_SOL *qcqp_so
 		return;
 
 		}
-
-
 
 
 	// primal variables

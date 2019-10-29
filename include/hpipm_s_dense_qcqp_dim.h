@@ -54,7 +54,8 @@ struct s_dense_qcqp_dim
 	int nq;  // number of quadratic constraints
 	int nsb; // number of softened box constraints
 	int nsg; // number of softened general constraints
-	int ns;  // number of softened constraints (nsb+nsg)
+	int nsq; // number of softened quadratic constraints
+	int ns;  // number of softened constraints (nsb+nsg+nsq) TODO number of slacks
 	int memsize;
 	};
 
@@ -80,6 +81,8 @@ void s_dense_qcqp_dim_set_nq(int value, struct s_dense_qcqp_dim *dim);
 void s_dense_qcqp_dim_set_nsb(int value, struct s_dense_qcqp_dim *dim);
 //
 void s_dense_qcqp_dim_set_nsg(int value, struct s_dense_qcqp_dim *dim);
+//
+void s_dense_qcqp_dim_set_nsq(int value, struct s_dense_qcqp_dim *dim);
 //
 void s_dense_qcqp_dim_set_ns(int value, struct s_dense_qcqp_dim *dim);
 

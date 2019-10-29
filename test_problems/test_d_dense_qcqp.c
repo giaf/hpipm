@@ -66,12 +66,13 @@ int main()
 
 	int nv = 2;
 	int ne = 0;
-	int nb = 0;
-	int ng = 1;
+	int nb = 1;
+	int ng = 0;
 	int nq = 1;
-	int ns = 0;
+//	int ns = 1;
 	int nsb = 0;
 	int nsg = 0;
+	int nsq = 0;
 
 	double H[] = {1.0, 0.0, 0.0, 1.0};
 	double g[] = {2.0, 2.0};
@@ -84,6 +85,11 @@ int main()
 	double C[] = {0.0, 1.0};
 	double lg[] = {-0.5};
 	double ug[] = {0.5};
+	double Zl[] = {0e2};
+	double Zu[] = {0e2};
+	double zl[] = {1e1};
+	double zu[] = {1e1};
+	int idxs[] = {1};
 
 /************************************************
 * dense qp dim
@@ -100,6 +106,7 @@ int main()
 	d_dense_qcqp_dim_set_nb(nb, &qcqp_dim);
 	d_dense_qcqp_dim_set_ng(ng, &qcqp_dim);
 	d_dense_qcqp_dim_set_nq(nq, &qcqp_dim);
+	d_dense_qcqp_dim_set_nsq(nsq, &qcqp_dim);
 
 	printf("\nqcqp dim\n");
 	d_dense_qcqp_dim_print(&qcqp_dim);
@@ -130,6 +137,11 @@ int main()
 	d_dense_qcqp_set_C(C, &qcqp);
 	d_dense_qcqp_set_lg(lg, &qcqp);
 	d_dense_qcqp_set_ug(ug, &qcqp);
+	d_dense_qcqp_set_Zl(Zl, &qcqp);
+	d_dense_qcqp_set_Zu(Zu, &qcqp);
+	d_dense_qcqp_set_zl(zl, &qcqp);
+	d_dense_qcqp_set_zu(zu, &qcqp);
+	d_dense_qcqp_set_idxs(idxs, &qcqp);
 
 	printf("\nqcqp\n");
 	d_dense_qcqp_print(&qcqp_dim, &qcqp);

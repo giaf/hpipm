@@ -70,7 +70,7 @@ struct d_dense_qcqp_res
 struct d_dense_qcqp_res_ws
 	{
 	struct blasfeo_dvec *tmp_nv; // work space of size nv
-	struct blasfeo_dvec *tmp_nbgq; // work space of size nbM+ngM
+	struct blasfeo_dvec *tmp_nbgq; // work space of size nbM+ngM+nqM
 	struct blasfeo_dvec *tmp_ns; // work space of size nsM
 	struct blasfeo_dvec *q_fun; // value for evaluation of quadr constr
 	struct blasfeo_dvec *q_adj; // value for adjoint of quadr constr

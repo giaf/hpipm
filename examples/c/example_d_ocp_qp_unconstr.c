@@ -440,8 +440,8 @@ int main()
 	free(b0);
 	free(r0);
 
-    free(dim_mem);
-    free(qp_mem);
+	free(dim_mem);
+	free(qp_mem);
 	free(qp_sol_mem);
 	free(ipm_arg_mem);
 	free(ipm_mem);
