@@ -816,9 +816,6 @@ void DENSE_QCQP_APPROX_QP(struct DENSE_QCQP *qcqp, struct DENSE_QCQP_SOL *qcqp_s
 	int nq = qcqp->dim->nq;
 	int ns = qcqp->dim->ns;
 
-	// TODO move to args ???
-//	REAL inf = 1e8;
-
 	REAL tmp;
 
 	int ii;
@@ -919,6 +916,66 @@ void DENSE_QCQP_UPDATE_QP(struct DENSE_QCQP *qcqp, struct DENSE_QCQP_SOL *qcqp_s
 		COLIN(nv, ws->tmp_nv+1, 0, qp->Ct, 0, ng+ii);
 
 		AXPY(nv, 0.5, ws->tmp_nv+0, 0, qcqp->gq+ii, 0, ws->tmp_nv+1, 0);
+		tmp = DOT(nv, ws->tmp_nv+1, 0, qcqp_sol->v, 0);
+#ifdef DOUBLE_PRECISION
+		// TODO maybe swap signs?
+		BLASFEO_DVECEL(qp->d, nb+ng+ii) += - tmp;
+		BLASFEO_DVECEL(qp->d, 2*nb+2*ng+nq+ii) += + tmp;
+#else
+		BLASFEO_SVECEL(qp->d, nb+ng+ii) += - tmp;
+		BLASFEO_SVECEL(qp->d, 2*nb+2*ng+nq+ii) += + tmp;
+#endif
+		}
+
+	VECCP(2*nb+2*ng+2*nq+2*ns, qcqp->m, 0, qp->m, 0);
+
+	// TODO what about idxs_rev ???
+
+	return;
+
+	}
+
+
+
+void DENSE_QCQP_UPDATE_QP_ABS_STEP(struct DENSE_QCQP *qcqp, struct DENSE_QCQP_SOL *qcqp_sol, struct DENSE_QP *qp, struct DENSE_QCQP_IPM_WS *ws)
+	{
+
+	int nv = qcqp->dim->nv;
+	int ne = qcqp->dim->ne;
+	int nb = qcqp->dim->nb;
+	int ng = qcqp->dim->ng;
+	int nq = qcqp->dim->nq;
+	int ns = qcqp->dim->ns;
+
+	int nG = qp->dim->ng;
+
+	// TODO move to args ???
+//	REAL inf = 1e8;
+
+	REAL tmp;
+
+	int ii;
+
+	VECCP(2*nb+2*ng+2*nq+2*ns, qcqp->d, 0, qp->d, 0);
+
+	GECP(nv, nv, qcqp->Hv, 0, 0, qp->Hv, 0, 0);
+
+	for(ii=0; ii<nq; ii++)
+		{
+#ifdef DOUBLE_PRECISION
+		tmp = - BLASFEO_DVECEL(qcqp_sol->lam, nb+ng+ii) + BLASFEO_DVECEL(qcqp_sol->lam, 2*nb+ng+nq+ii);
+#else
+		tmp = - BLASFEO_SVECEL(qcqp_sol->lam, nb+ng+ii) + BLASFEO_SVECEL(qcqp_sol->lam, 2*nb+ng+nq+ii);
+#endif
+		GEAD(nv, nv, tmp, qcqp->Hq+ii, 0, 0, qp->Hv, 0, 0);
+
+		SYMV_L(nv, nv, 1.0, qcqp->Hq+ii, 0, 0, qcqp_sol->v, 0, 0.0, ws->tmp_nv+0, 0, ws->tmp_nv+0, 0);
+		AXPY(nv, 1.0, ws->tmp_nv+0, 0, qcqp->gq+ii, 0, ws->tmp_nv+1, 0);
+		COLIN(nv, ws->tmp_nv+1, 0, qp->Ct, 0, ng+ii);
+
+//		AXPY(nv, 0.5, ws->tmp_nv+0, 0, qcqp->gq+ii, 0, ws->tmp_nv+1, 0);
+		AXPY(nv, 0.5, ws->tmp_nv+0, 0, qcqp->gq+ii, 0, ws->tmp_nv+0, 0);
+		AXPY(nv, -1.0, ws->tmp_nv+1, 0, ws->tmp_nv+0, 0, ws->tmp_nv+1, 0);
 		tmp = DOT(nv, ws->tmp_nv+1, 0, qcqp_sol->v, 0);
 #ifdef DOUBLE_PRECISION
 		// TODO maybe swap signs?
@@ -1159,6 +1216,9 @@ void DENSE_QCQP_IPM_SOLVE(struct DENSE_QCQP *qcqp, struct DENSE_QCQP_SOL *qcqp_s
 		// alias core workspace
 		cws->res_m = qp_ws->qp_step->m->pa;
 
+		// update approximation of qcqp as qp for absolute step
+		DENSE_QCQP_UPDATE_QP_ABS_STEP(qcqp, qcqp_sol, qp, qcqp_ws);
+
 		// compute mu
 		mu = VECMULDOT(cws->nc, qp_sol->lam, 0, qp_sol->t, 0, qp_ws->tmp_m, 0);
 		mu /= cws->nc;
@@ -1182,8 +1242,8 @@ void DENSE_QCQP_IPM_SOLVE(struct DENSE_QCQP *qcqp, struct DENSE_QCQP_SOL *qcqp_s
 //				VECMUL(cws->nc, qp->d_mask, 0, qcqp_sol->lam, 0, qcqp_sol->lam, 0);
 //				}
 
-			// update approximation of qcqp as qp
-			DENSE_QCQP_UPDATE_QP(qcqp, qcqp_sol, qp, qcqp_ws);
+			// update approximation of qcqp as qp for absolute step
+			DENSE_QCQP_UPDATE_QP_ABS_STEP(qcqp, qcqp_sol, qp, qcqp_ws);
 
 			// compute mu
 			mu = VECMULDOT(cws->nc, qcqp_sol->lam, 0, qcqp_sol->t, 0, qp_ws->tmp_m, 0);
