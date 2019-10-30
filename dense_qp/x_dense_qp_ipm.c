@@ -981,7 +981,7 @@ void DENSE_QP_IPM_ABS_STEP(int kk, struct DENSE_QP *qp, struct DENSE_QP_SOL *qp_
 
 	// alpha
 	COMPUTE_ALPHA_QP(cws);
-	if(kk<ws->stat_max)
+	if(kk+1<ws->stat_max)
 		ws->stat[ws->stat_m*(kk+1)+0] = cws->alpha;
 
 	// Mehrotra's predictor-corrector
@@ -989,12 +989,12 @@ void DENSE_QP_IPM_ABS_STEP(int kk, struct DENSE_QP *qp, struct DENSE_QP_SOL *qp_
 		{
 		// mu_aff
 		COMPUTE_MU_AFF_QP(cws);
-		if(kk<ws->stat_max)
+		if(kk+1<ws->stat_max)
 			ws->stat[ws->stat_m*(kk+1)+1] = cws->mu_aff;
 
 		tmp = cws->mu_aff/cws->mu;
 		cws->sigma = tmp*tmp*tmp;
-		if(kk<ws->stat_max)
+		if(kk+1<ws->stat_max)
 			ws->stat[ws->stat_m*(kk+1)+2] = cws->sigma;
 
 		COMPUTE_CENTERING_CORRECTION_QP(cws);
@@ -1020,7 +1020,7 @@ void DENSE_QP_IPM_ABS_STEP(int kk, struct DENSE_QP *qp, struct DENSE_QP_SOL *qp_
 
 		// alpha
 		COMPUTE_ALPHA_QP(cws);
-		if(kk<ws->stat_max)
+		if(kk+1<ws->stat_max)
 			ws->stat[ws->stat_m*(kk+1)+3] = cws->alpha;
 
 		// conditional Mehrotra's predictor-corrector
@@ -1061,7 +1061,7 @@ void DENSE_QP_IPM_ABS_STEP(int kk, struct DENSE_QP *qp, struct DENSE_QP_SOL *qp_
 
 				// alpha
 				COMPUTE_ALPHA_QP(cws);
-				if(kk<ws->stat_max)
+				if(kk+1<ws->stat_max)
 					ws->stat[ws->stat_m*(kk+1)+3] = cws->alpha;
 
 				}
@@ -1343,7 +1343,7 @@ blasfeo_print_tran_dvec(cws->nc, ws->sol_step->t, 0);
 
 	// alpha
 	COMPUTE_ALPHA_QP(cws);
-	if(kk<ws->stat_max)
+	if(kk+1<ws->stat_max)
 		ws->stat[ws->stat_m*(kk+1)+0] = cws->alpha;
 
 	// Mehrotra's predictor-corrector
@@ -1351,14 +1351,14 @@ blasfeo_print_tran_dvec(cws->nc, ws->sol_step->t, 0);
 		{
 		// mu_aff
 		COMPUTE_MU_AFF_QP(cws);
-		if(kk<ws->stat_max)
+		if(kk+1<ws->stat_max)
 			ws->stat[ws->stat_m*(kk+1)+1] = cws->mu_aff;
 
 		// compute centering parameter
 		tmp = cws->mu_aff/cws->mu;
 		cws->sigma = tmp*tmp*tmp;
 //			cws->sigma = sigma_min>cws->sigma ? sigma_min : cws->sigma;
-		if(kk<ws->stat_max)
+		if(kk+1<ws->stat_max)
 			ws->stat[ws->stat_m*(kk+1)+2] = cws->sigma;
 
 		COMPUTE_CENTERING_CORRECTION_QP(cws);
@@ -1379,7 +1379,7 @@ blasfeo_print_tran_dvec(cws->nc, ws->sol_step->t, 0);
 
 		// alpha
 		COMPUTE_ALPHA_QP(cws);
-		if(kk<ws->stat_max)
+		if(kk+1<ws->stat_max)
 			ws->stat[ws->stat_m*(kk+1)+3] = cws->alpha;
 
 		// conditional Mehrotra's predictor-corrector
@@ -1415,7 +1415,7 @@ blasfeo_print_tran_dvec(cws->nc, ws->sol_step->t, 0);
 
 				// alpha
 				COMPUTE_ALPHA_QP(cws);
-				if(kk<ws->stat_max)
+				if(kk+1<ws->stat_max)
 					ws->stat[ws->stat_m*(kk+1)+3] = cws->alpha;
 
 				}
@@ -1485,7 +1485,7 @@ blasfeo_print_tran_dvec(cws->nc, ws->sol_step->t, 0);
 			{
 			// alpha
 			COMPUTE_ALPHA_QP(cws);
-			if(kk<ws->stat_max)
+			if(kk+1<ws->stat_max)
 				ws->stat[ws->stat_m*(kk+1)+3] = cws->alpha;
 			}
 
@@ -1611,10 +1611,13 @@ void DENSE_QP_IPM_SOLVE(struct DENSE_QP *qp, struct DENSE_QP_SOL *qp_sol, struct
 			// XXX no constraints, so no mask
 			DENSE_QP_RES_COMPUTE_INF_NORM(ws->res);
 			// save infinity norm of residuals
-			stat[5] = qp_res_max[0];
-			stat[6] = qp_res_max[1];
-			stat[7] = qp_res_max[2];
-			stat[8] = qp_res_max[3];
+			if(0<ws->stat_max)
+				{
+				stat[5] = qp_res_max[0];
+				stat[6] = qp_res_max[1];
+				stat[7] = qp_res_max[2];
+				stat[8] = qp_res_max[3];
+				}
 			cws->mu = ws->res->res_mu;
 			}
 		// save info before return
@@ -1674,7 +1677,7 @@ void DENSE_QP_IPM_SOLVE(struct DENSE_QP *qp, struct DENSE_QP_SOL *qp_sol, struct
 			mu = VECMULDOT(cws->nc, qp_sol->lam, 0, qp_sol->t, 0, ws->tmp_m, 0);
 			mu /= cws->nc;
 			cws->mu = mu;
-			if(kk<ws->stat_max)
+			if(kk+1<ws->stat_max)
 				stat[stat_m*(kk+1)+4] = mu;
 
 			}
@@ -1692,10 +1695,13 @@ void DENSE_QP_IPM_SOLVE(struct DENSE_QP *qp, struct DENSE_QP_SOL *qp_sol, struct
 			DENSE_QP_RES_COMPUTE_INF_NORM(ws->res);
 			// save infinity norm of residuals
 			// XXX it is already kk+1
-			stat[stat_m*(kk+0)+5] = qp_res_max[0];
-			stat[stat_m*(kk+0)+6] = qp_res_max[1];
-			stat[stat_m*(kk+0)+7] = qp_res_max[2];
-			stat[stat_m*(kk+0)+8] = qp_res_max[3];
+			if(kk<ws->stat_max)
+				{
+				stat[stat_m*(kk+0)+5] = qp_res_max[0];
+				stat[stat_m*(kk+0)+6] = qp_res_max[1];
+				stat[stat_m*(kk+0)+7] = qp_res_max[2];
+				stat[stat_m*(kk+0)+8] = qp_res_max[3];
+				}
 			}
 
 		// save info before return
@@ -1746,10 +1752,13 @@ void DENSE_QP_IPM_SOLVE(struct DENSE_QP *qp, struct DENSE_QP_SOL *qp_sol, struct
 	DENSE_QP_RES_COMPUTE_INF_NORM(ws->res);
 	cws->mu = ws->res->res_mu;
 	// save infinity norm of residuals
-	stat[stat_m*(0)+5] = qp_res_max[0];
-	stat[stat_m*(0)+6] = qp_res_max[1];
-	stat[stat_m*(0)+7] = qp_res_max[2];
-	stat[stat_m*(0)+8] = qp_res_max[3];
+	if(0<ws->stat_max)
+		{
+		stat[stat_m*(0)+5] = qp_res_max[0];
+		stat[stat_m*(0)+6] = qp_res_max[1];
+		stat[stat_m*(0)+7] = qp_res_max[2];
+		stat[stat_m*(0)+8] = qp_res_max[3];
+		}
 
 
 
@@ -1778,13 +1787,15 @@ void DENSE_QP_IPM_SOLVE(struct DENSE_QP *qp, struct DENSE_QP_SOL *qp_sol, struct
 			}
 		DENSE_QP_RES_COMPUTE_INF_NORM(ws->res);
 		cws->mu = ws->res->res_mu;
-		if(kk<ws->stat_max)
+		if(kk+1<ws->stat_max)
+			{
 			ws->stat[ws->stat_m*(kk+1)+4] = ws->res->res_mu;
-		// save infinity norm of residuals
-		stat[stat_m*(kk+1)+5] = qp_res_max[0];
-		stat[stat_m*(kk+1)+6] = qp_res_max[1];
-		stat[stat_m*(kk+1)+7] = qp_res_max[2];
-		stat[stat_m*(kk+1)+8] = qp_res_max[3];
+			// save infinity norm of residuals
+			stat[stat_m*(kk+1)+5] = qp_res_max[0];
+			stat[stat_m*(kk+1)+6] = qp_res_max[1];
+			stat[stat_m*(kk+1)+7] = qp_res_max[2];
+			stat[stat_m*(kk+1)+8] = qp_res_max[3];
+			}
 
 		}
 
