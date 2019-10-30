@@ -1104,10 +1104,13 @@ void OCP_QP_IPM_SOLVE(struct OCP_QP *qp, struct OCP_QP_SOL *qp_sol, struct OCP_Q
 		VECNRM_INF(cws->ne, &str_res_b, 0, &qp_res[1]);
 		VECNRM_INF(cws->nc, &str_res_d, 0, &qp_res[2]);
 		VECNRM_INF(cws->nc, &str_res_m, 0, &qp_res[3]);
-		ws->stat[5] = qp_res[0];
-		ws->stat[6] = qp_res[1];
-		ws->stat[7] = qp_res[2];
-		ws->stat[8] = qp_res[3];
+		if(0<ws->stat_max)
+			{
+			ws->stat[5] = qp_res[0];
+			ws->stat[6] = qp_res[1];
+			ws->stat[7] = qp_res[2];
+			ws->stat[8] = qp_res[3];
+			}
 		cws->mu = ws->res->res_mu;
 		ws->iter = 0;
 		ws->status = 0;
@@ -1179,7 +1182,7 @@ void OCP_QP_IPM_SOLVE(struct OCP_QP *qp, struct OCP_QP_SOL *qp_sol, struct OCP_Q
 
 			// alpha
 			COMPUTE_ALPHA_QP(cws);
-			if(kk<ws->stat_max)
+			if(kk+1<ws->stat_max)
 				ws->stat[ws->stat_m*(kk+1)+0] = cws->alpha;
 
 			// Mehrotra's predictor-corrector
@@ -1187,12 +1190,12 @@ void OCP_QP_IPM_SOLVE(struct OCP_QP *qp, struct OCP_QP_SOL *qp_sol, struct OCP_Q
 				{
 				// mu_aff
 				COMPUTE_MU_AFF_QP(cws);
-				if(kk<ws->stat_max)
+				if(kk+1<ws->stat_max)
 					ws->stat[ws->stat_m*(kk+1)+1] = cws->mu_aff;
 
 				tmp = cws->mu_aff/cws->mu;
 				cws->sigma = tmp*tmp*tmp;
-				if(kk<ws->stat_max)
+				if(kk+1<ws->stat_max)
 					ws->stat[ws->stat_m*(kk+1)+2] = cws->sigma;
 
 				COMPUTE_CENTERING_CORRECTION_QP(cws);
@@ -1209,7 +1212,7 @@ void OCP_QP_IPM_SOLVE(struct OCP_QP *qp, struct OCP_QP_SOL *qp_sol, struct OCP_Q
 
 				// alpha
 				COMPUTE_ALPHA_QP(cws);
-				if(kk<ws->stat_max)
+				if(kk+1<ws->stat_max)
 					ws->stat[ws->stat_m*(kk+1)+3] = cws->alpha;
 
 				}
@@ -1221,7 +1224,7 @@ void OCP_QP_IPM_SOLVE(struct OCP_QP *qp, struct OCP_QP_SOL *qp_sol, struct OCP_Q
 			mu = VECMULDOT(cws->nc, qp_sol->lam, 0, qp_sol->t, 0, ws->tmp_m, 0);
 			mu /= cws->nc;
 			cws->mu = mu;
-			if(kk<ws->stat_max)
+			if(kk+1<ws->stat_max)
 				ws->stat[ws->stat_m*(kk+1)+4] = mu;
 
 	//		exit(1);
@@ -1288,10 +1291,13 @@ void OCP_QP_IPM_SOLVE(struct OCP_QP *qp, struct OCP_QP_SOL *qp_sol, struct OCP_Q
 	VECNRM_INF(cws->nc, &str_res_d, 0, &qp_res[2]);
 	VECNRM_INF(cws->nc, &str_res_m, 0, &qp_res[3]);
 
-	ws->stat[ws->stat_m*(0)+5] = qp_res[0];
-	ws->stat[ws->stat_m*(0)+6] = qp_res[1];
-	ws->stat[ws->stat_m*(0)+7] = qp_res[2];
-	ws->stat[ws->stat_m*(0)+8] = qp_res[3];
+	if(0<ws->stat_max)
+		{
+		ws->stat[ws->stat_m*(0)+5] = qp_res[0];
+		ws->stat[ws->stat_m*(0)+6] = qp_res[1];
+		ws->stat[ws->stat_m*(0)+7] = qp_res[2];
+		ws->stat[ws->stat_m*(0)+8] = qp_res[3];
+		}
 
 //printf("\niter %d\t%e\t%e\t%e\t%e\n", -1, qp_res[0], qp_res[1], qp_res[2], qp_res[3]);
 
@@ -1475,7 +1481,7 @@ exit(1);
 
 		// alpha
 		COMPUTE_ALPHA_QP(cws);
-		if(kk<ws->stat_max)
+		if(kk+1<ws->stat_max)
 			ws->stat[ws->stat_m*(kk+1)+0] = cws->alpha;
 
 		// Mehrotra's predictor-corrector
@@ -1483,12 +1489,12 @@ exit(1);
 			{
 			// mu_aff
 			COMPUTE_MU_AFF_QP(cws);
-			if(kk<ws->stat_max)
+			if(kk+1<ws->stat_max)
 				ws->stat[ws->stat_m*(kk+1)+1] = cws->mu_aff;
 
 			tmp = cws->mu_aff/cws->mu;
 			cws->sigma = tmp*tmp*tmp;
-			if(kk<ws->stat_max)
+			if(kk+1<ws->stat_max)
 				ws->stat[ws->stat_m*(kk+1)+2] = cws->sigma;
 
 			COMPUTE_CENTERING_CORRECTION_QP(cws);
@@ -1499,7 +1505,7 @@ exit(1);
 
 			// alpha
 			COMPUTE_ALPHA_QP(cws);
-			if(kk<ws->stat_max)
+			if(kk+1<ws->stat_max)
 				ws->stat[ws->stat_m*(kk+1)+3] = cws->alpha;
 
 			// conditional Mehrotra's predictor-corrector
@@ -1525,7 +1531,7 @@ exit(1);
 
 					// alpha
 					COMPUTE_ALPHA_QP(cws);
-					if(kk<ws->stat_max)
+					if(kk+1<ws->stat_max)
 						ws->stat[ws->stat_m*(kk+1)+3] = cws->alpha;
 
 					}
@@ -1624,7 +1630,7 @@ exit(1);
 				{
 				// alpha
 				COMPUTE_ALPHA_QP(cws);
-				if(kk<ws->stat_max)
+				if(kk+1<ws->stat_max)
 					ws->stat[ws->stat_m*(kk+1)+3] = cws->alpha;
 				}
 
@@ -1637,7 +1643,7 @@ exit(1);
 		OCP_QP_RES_COMPUTE(qp, qp_sol, ws->res, ws->res_workspace);
 		BACKUP_RES_M(cws);
 		cws->mu = ws->res->res_mu;
-		if(kk<ws->stat_max)
+		if(kk+1<ws->stat_max)
 			ws->stat[ws->stat_m*(kk+1)+4] = ws->res->res_mu;
 
 		// compute infinity norm of residuals
@@ -1646,10 +1652,13 @@ exit(1);
 		VECNRM_INF(cws->nc, &str_res_d, 0, &qp_res[2]);
 		VECNRM_INF(cws->nc, &str_res_m, 0, &qp_res[3]);
 
-		ws->stat[ws->stat_m*(kk+1)+5] = qp_res[0];
-		ws->stat[ws->stat_m*(kk+1)+6] = qp_res[1];
-		ws->stat[ws->stat_m*(kk+1)+7] = qp_res[2];
-		ws->stat[ws->stat_m*(kk+1)+8] = qp_res[3];
+		if(kk+1<ws->stat_max)
+			{
+			ws->stat[ws->stat_m*(kk+1)+5] = qp_res[0];
+			ws->stat[ws->stat_m*(kk+1)+6] = qp_res[1];
+			ws->stat[ws->stat_m*(kk+1)+7] = qp_res[2];
+			ws->stat[ws->stat_m*(kk+1)+8] = qp_res[3];
+			}
 
 //printf("\niter %d\t%e\t%e\t%e\t%e\n", kk, qp_res[0], qp_res[1], qp_res[2], qp_res[3]);
 
