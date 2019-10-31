@@ -44,6 +44,7 @@
 
 #include <hpipm_d_dense_qp_dim.h>
 #include <hpipm_d_dense_qp.h>
+#include <hpipm_aux_string.h>
 
 
 
@@ -77,6 +78,7 @@
 #define DENSE_QP_CREATE d_dense_qp_create
 #define DENSE_QP_SET_ALL d_dense_qp_set_all
 #define DENSE_QP_GET_ALL d_dense_qp_get_all
+#define DENSE_QP_SET d_dense_qp_set
 #define DENSE_QP_SET_H d_dense_qp_set_H
 #define DENSE_QP_SET_G d_dense_qp_set_g
 #define DENSE_QP_SET_A d_dense_qp_set_A

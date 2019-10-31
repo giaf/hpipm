@@ -80,7 +80,8 @@ void d_dense_qp_create(struct d_dense_qp_dim *dim, struct d_dense_qp *qp, void *
 void d_dense_qp_set_all(double *H, double *g, double *A, double *b, int *idxb, double *d_lb, double *d_ub, double *C, double *d_lg, double *d_ug, double *Zl, double *Zu, double *zl, double *zu, int *idxs, double *d_ls, double *d_us, struct d_dense_qp *qp);
 //
 void d_dense_qp_get_all(struct d_dense_qp *qp, double *H, double *g, double *A, double *b, int *idxb, double *d_lb, double *d_ub, double *C, double *d_lg, double *d_ug, double *Zl, double *Zu, double *zl, double *zu, int *idxs, double *d_ls, double *d_us);
-
+//
+void d_dense_qp_set(char *field, void *value, struct d_dense_qp *qp);
 //
 void d_dense_qp_set_H(double *H, struct d_dense_qp *qp);
 //
