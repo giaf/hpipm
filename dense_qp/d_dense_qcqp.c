@@ -44,6 +44,7 @@
 
 #include <hpipm_d_dense_qcqp_dim.h>
 #include <hpipm_d_dense_qcqp.h>
+#include <hpipm_aux_string.h>
 
 
 #define CREATE_STRMAT blasfeo_create_dmat
@@ -72,6 +73,7 @@
 #define DENSE_QCQP_CREATE d_dense_qcqp_create
 #define DENSE_QCQP_SET_ALL d_dense_qcqp_set_all
 #define DENSE_QCQP_GET_ALL d_dense_qcqp_get_all
+#define DENSE_QCQP_SET d_dense_qcqp_set
 #define DENSE_QCQP_SET_H d_dense_qcqp_set_H
 #define DENSE_QCQP_SET_G d_dense_qcqp_set_g
 #define DENSE_QCQP_SET_A d_dense_qcqp_set_A
@@ -96,7 +98,9 @@
 #define DENSE_QCQP_SET_ZL d_dense_qcqp_set_zl
 #define DENSE_QCQP_SET_ZU d_dense_qcqp_set_zu
 #define DENSE_QCQP_SET_LS d_dense_qcqp_set_ls
+#define DENSE_QCQP_SET_LS_MASK d_dense_qcqp_set_ls_mask
 #define DENSE_QCQP_SET_US d_dense_qcqp_set_us
+#define DENSE_QCQP_SET_US_MASK d_dense_qcqp_set_us_mask
 #define DENSE_QCQP_GET_H d_dense_qcqp_get_H
 #define DENSE_QCQP_GET_G d_dense_qcqp_get_g
 #define DENSE_QCQP_GET_A d_dense_qcqp_get_A

@@ -242,6 +242,132 @@ void DENSE_QCQP_CREATE(struct DENSE_QCQP_DIM *dim, struct DENSE_QCQP *qp, void *
 
 
 
+void DENSE_QCQP_SET(char *field, void *value, struct DENSE_QCQP *qp)
+	{
+	REAL *r_ptr;
+	int *i_ptr;
+    
+	// matrices
+	if(hpipm_strcmp(field, "H")) 
+		{
+		DENSE_QCQP_SET_H(value, qp);
+		}
+	else if(hpipm_strcmp(field, "A")) 
+		{
+		DENSE_QCQP_SET_A(value, qp);
+		}
+	else if(hpipm_strcmp(field, "C")) 
+		{
+		DENSE_QCQP_SET_C(value, qp);
+		}
+	else if(hpipm_strcmp(field, "HQ")) 
+		{
+		DENSE_QCQP_SET_HQ(value, qp);
+		}
+	// vectors
+	else if(hpipm_strcmp(field, "g")) 
+		{
+		DENSE_QCQP_SET_G(value, qp);
+		}
+	else if(hpipm_strcmp(field, "b")) 
+		{
+		DENSE_QCQP_SET_B(value, qp);
+		}
+	else if(hpipm_strcmp(field, "lb")) 
+		{
+		DENSE_QCQP_SET_LB(value, qp);
+		}
+	else if(hpipm_strcmp(field, "lb_mask")) 
+		{
+		DENSE_QCQP_SET_LB_MASK(value, qp);
+		}
+	else if(hpipm_strcmp(field, "ub")) 
+		{
+		DENSE_QCQP_SET_UB(value, qp);
+		}
+	else if(hpipm_strcmp(field, "ub_mask")) 
+		{
+		DENSE_QCQP_SET_UB_MASK(value, qp);
+		}
+	else if(hpipm_strcmp(field, "lg")) 
+		{
+		DENSE_QCQP_SET_LG(value, qp);
+		}
+	else if(hpipm_strcmp(field, "lg_mask")) 
+		{
+		DENSE_QCQP_SET_LG_MASK(value, qp);
+		}
+	else if(hpipm_strcmp(field, "ug")) 
+		{
+		DENSE_QCQP_SET_UG(value, qp);
+		}
+	else if(hpipm_strcmp(field, "ug_mask")) 
+		{
+		DENSE_QCQP_SET_UG_MASK(value, qp);
+		}
+	else if(hpipm_strcmp(field, "gq")) 
+		{
+		DENSE_QCQP_SET_GQ(value, qp);
+		}
+	else if(hpipm_strcmp(field, "uq")) 
+		{
+		DENSE_QCQP_SET_UQ(value, qp);
+		}
+	else if(hpipm_strcmp(field, "uq_mask")) 
+		{
+		DENSE_QCQP_SET_UQ_MASK(value, qp);
+		}
+	else if(hpipm_strcmp(field, "Zl")) 
+		{
+		DENSE_QCQP_SET_ZZL(value, qp);
+		}
+	else if(hpipm_strcmp(field, "Zu")) 
+		{
+		DENSE_QCQP_SET_ZZU(value, qp);
+		}
+	else if(hpipm_strcmp(field, "zl")) 
+		{
+		DENSE_QCQP_SET_ZL(value, qp);
+		}
+	else if(hpipm_strcmp(field, "zu")) 
+		{
+		DENSE_QCQP_SET_ZU(value, qp);
+		}
+	else if(hpipm_strcmp(field, "lls")) 
+		{
+		DENSE_QCQP_SET_LS(value, qp);
+		}
+	else if(hpipm_strcmp(field, "lls_mask")) 
+		{
+		DENSE_QCQP_SET_LS_MASK(value, qp);
+		}
+	else if(hpipm_strcmp(field, "lus")) 
+		{
+		DENSE_QCQP_SET_US(value, qp);
+		}
+	else if(hpipm_strcmp(field, "lus_mask")) 
+		{
+		DENSE_QCQP_SET_US_MASK(value, qp);
+		}
+	// int
+	else if(hpipm_strcmp(field, "idxb"))
+		{
+		DENSE_QCQP_SET_IDXB(value, qp);
+		}
+	else if(hpipm_strcmp(field, "idxs"))
+		{
+		DENSE_QCQP_SET_IDXS(value, qp);
+		}
+	else
+		{
+		printf("error: DENSE_QCQP_SET: wrong field name '%s'. Exiting.\n", field);
+		exit(1);	
+		}
+	return;
+	}
+
+
+
 void DENSE_QCQP_SET_H(REAL *H, struct DENSE_QCQP *qp)
 	{
 

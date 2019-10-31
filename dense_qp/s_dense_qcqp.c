@@ -44,6 +44,7 @@
 
 #include <hpipm_s_dense_qcqp_dim.h>
 #include <hpipm_s_dense_qcqp.h>
+#include <hpipm_aux_string.h>
 
 
 #define CREATE_STRMAT blasfeo_create_smat
@@ -72,6 +73,7 @@
 #define DENSE_QCQP_CREATE s_dense_qcqp_create
 #define DENSE_QCQP_SET_ALL s_dense_qcqp_set_all
 #define DENSE_QCQP_GET_ALL s_dense_qcqp_get_all
+#define DENSE_QCQP_SET s_dense_qcqp_set
 #define DENSE_QCQP_SET_H s_dense_qcqp_set_H
 #define DENSE_QCQP_SET_G s_dense_qcqp_set_g
 #define DENSE_QCQP_SET_A s_dense_qcqp_set_A

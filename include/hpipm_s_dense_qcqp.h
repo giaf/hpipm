@@ -80,6 +80,8 @@ int s_dense_qcqp_memsize(struct s_dense_qcqp_dim *dim);
 void s_dense_qcqp_create(struct s_dense_qcqp_dim *dim, struct s_dense_qcqp *qp, void *memory);
 
 //
+void s_dense_qcqp_set(char *field, void *value, struct s_dense_qcqp *qp);
+//
 void s_dense_qcqp_set_H(float *H, struct s_dense_qcqp *qp);
 //
 void s_dense_qcqp_set_g(float *g, struct s_dense_qcqp *qp);
