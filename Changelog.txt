@@ -4,10 +4,13 @@ HPIPM ChangeLog
 
 ====================================================================
 Version 0.1.2-master
-01-Oct-2019
+31-Oct-2019
+
+dense_qp:
+	* add mask to disregard constraints (e.g. for one sided constr, or dynamic constr removal)
 
 dense_qcqp:
-	* add qcqp ipm solver built on top of qp ipm solver
+	* add dense qcqp ipm solver built on top of dense qp ipm solver
 
 ====================================================================
 Version 0.1.1
