@@ -1094,7 +1094,7 @@ void DENSE_QP_IPM_ABS_STEP(int kk, struct DENSE_QP *qp, struct DENSE_QP_SOL *qp_
 void DENSE_QP_IPM_DELTA_STEP(int kk, struct DENSE_QP *qp, struct DENSE_QP_SOL *qp_sol, struct DENSE_QP_IPM_ARG *arg, struct DENSE_QP_IPM_WS *ws)
 	{
 
-	// dims
+	// dim
 	int nv = qp->dim->nv;
 	int ne = qp->dim->ne;
 	int nb = qp->dim->nb;
@@ -1103,14 +1103,15 @@ void DENSE_QP_IPM_DELTA_STEP(int kk, struct DENSE_QP *qp, struct DENSE_QP_SOL *q
 
 	struct CORE_QP_IPM_WORKSPACE *cws = ws->core_workspace;
 
-	int itref0=0, itref1=0;
+	int itref0=0, itref1=0, iter_ref_step;
 	REAL tmp;
 	REAL mu_aff0; //, mu;
-	int iter_ref_step;
 
 	REAL itref_qp_norm[4] = {0,0,0,0};
 	REAL itref_qp_norm0[4] = {0,0,0,0};
-	int ndp0, ndp1;
+//	int ndp0, ndp1;
+
+	REAL *qp_res_max = ws->res->res_max;
 
 	int force_lq = 0;
 
@@ -1160,10 +1161,6 @@ void DENSE_QP_IPM_DELTA_STEP(int kk, struct DENSE_QP *qp, struct DENSE_QP_SOL *q
 		itref_qp_norm[1] = ws->res_itref->res_max[1];
 		itref_qp_norm[2] = ws->res_itref->res_max[2];
 		itref_qp_norm[3] = ws->res_itref->res_max[3];
-//		VECNRM_INF(cws->nv, ws->res_itref->res_g, 0, &itref_qp_norm[0]);
-//		VECNRM_INF(cws->ne, ws->res_itref->res_b, 0, &itref_qp_norm[1]);
-//		VECNRM_INF(cws->nc, ws->res_itref->res_d, 0, &itref_qp_norm[2]);
-//		VECNRM_INF(cws->nc, ws->res_itref->res_m, 0, &itref_qp_norm[3]);
 
 //printf("\n%e\t%e\t%e\t%e\n", itref_qp_norm[0], itref_qp_norm[1], itref_qp_norm[2], itref_qp_norm[3]);
 
@@ -1180,13 +1177,6 @@ void DENSE_QP_IPM_DELTA_STEP(int kk, struct DENSE_QP *qp, struct DENSE_QP_SOL *q
 			itref_qp_norm[3]>1e-5 )
 			{
 
-#if 0
-blasfeo_print_tran_dvec(cws->nv, ws->sol_step->v, 0);
-blasfeo_print_tran_dvec(cws->ne, ws->sol_step->pi, 0);
-blasfeo_print_tran_dvec(cws->nc, ws->sol_step->lam, 0);
-blasfeo_print_tran_dvec(cws->nc, ws->sol_step->t, 0);
-#endif
-
 			// refactorize using lq
 			FACT_LQ_SOLVE_KKT_STEP_DENSE_QP(ws->qp_step, ws->sol_step, arg, ws);
 			if(arg->mask_constr)
@@ -1199,13 +1189,6 @@ blasfeo_print_tran_dvec(cws->nc, ws->sol_step->t, 0);
 
 			// switch to lq
 			force_lq = 1;
-
-#if 0
-blasfeo_print_tran_dvec(cws->nv, ws->sol_step->v, 0);
-blasfeo_print_tran_dvec(cws->ne, ws->sol_step->pi, 0);
-blasfeo_print_tran_dvec(cws->nc, ws->sol_step->lam, 0);
-blasfeo_print_tran_dvec(cws->nc, ws->sol_step->t, 0);
-#endif
 
 			}
 		}
@@ -1221,23 +1204,6 @@ blasfeo_print_tran_dvec(cws->nc, ws->sol_step->t, 0);
 			VECMUL(cws->nc, qp->d_mask, 0, ws->sol_step->lam, 0, ws->sol_step->lam, 0);
 			}
 		}
-
-#if 0
-	DENSE_QP_RES_COMPUTE_LIN(ws->qp_step, qp_sol, ws->sol_step, ws->res_itref, ws->res_workspace);
-	// TODO mask
-	DENSE_QP_RES_COMPUTE_INF_NORM(ws->res_itref);
-	itref_qp_norm[0] = ws->res_itref->res_max[0];
-	itref_qp_norm[1] = ws->res_itref->res_max[1];
-	itref_qp_norm[2] = ws->res_itref->res_max[2];
-	itref_qp_norm[3] = ws->res_itref->res_max[3];
-//	VECNRM_INF(cws->nv, ws->res_itref->res_g, 0, &itref_qp_norm[0]);
-//	VECNRM_INF(cws->ne, ws->res_itref->res_b, 0, &itref_qp_norm[1]);
-//	VECNRM_INF(cws->nc, ws->res_itref->res_d, 0, &itref_qp_norm[2]);
-//	VECNRM_INF(cws->nc, ws->res_itref->res_m, 0, &itref_qp_norm[3]);
-//		printf("%e\t%e\t%e\t%e\t%e\t%e\t%e\t%e\t\n", qp_res[0], qp_res[1], qp_res[2], qp_res[3], itref_qp_norm[0], itref_qp_norm[1], itref_qp_norm[2], itref_qp_norm[3]);
-	if(itref_qp_norm[0]==0.0 & BLASFEO_DVECEL(ws->res_itref->res_g, 0)!=BLASFEO_DVECEL(ws->res_itref->res_g, 0))
-		printf("NaN!!!\n");
-#endif
 
 	// iterative refinement on prediction step
 	for(itref0=0; itref0<arg->itref_pred_max; itref0++)
@@ -1257,10 +1223,6 @@ blasfeo_print_tran_dvec(cws->nc, ws->sol_step->t, 0);
 		itref_qp_norm[1] = ws->res_itref->res_max[1];
 		itref_qp_norm[2] = ws->res_itref->res_max[2];
 		itref_qp_norm[3] = ws->res_itref->res_max[3];
-//		VECNRM_INF(cws->nv, ws->res_itref->res_g, 0, &itref_qp_norm[0]);
-//		VECNRM_INF(cws->ne, ws->res_itref->res_b, 0, &itref_qp_norm[1]);
-//		VECNRM_INF(cws->nc, ws->res_itref->res_d, 0, &itref_qp_norm[2]);
-//		VECNRM_INF(cws->nc, ws->res_itref->res_m, 0, &itref_qp_norm[3]);
 
 		if(itref0==0)
 			{
@@ -1275,10 +1237,6 @@ blasfeo_print_tran_dvec(cws->nc, ws->sol_step->t, 0);
 				(itref_qp_norm[1]<1e0*arg->res_b_max | itref_qp_norm[1]<1e-3*ws->res->res_max[1]) & \
 				(itref_qp_norm[2]<1e0*arg->res_d_max | itref_qp_norm[2]<1e-3*ws->res->res_max[2]) & \
 				(itref_qp_norm[3]<1e0*arg->res_m_max | itref_qp_norm[3]<1e-3*ws->res->res_max[3]) )
-//					(itref_qp_norm[0]<=arg->res_g_max) & \
-				(itref_qp_norm[1]<=arg->res_b_max) & \
-				(itref_qp_norm[2]<=arg->res_d_max) & \
-				(itref_qp_norm[3]<=arg->res_m_max) )
 			{
 			break;
 			}
@@ -1298,42 +1256,6 @@ blasfeo_print_tran_dvec(cws->nc, ws->sol_step->t, 0);
 		AXPY(2*nb+2*ng+2*ns, 1.0, ws->sol_itref->t, 0, ws->sol_step->t, 0, ws->sol_step->t, 0);
 
 		}
-
-#if 0
-	DENSE_QP_RES_COMPUTE_LIN(ws->qp_step, qp_sol, ws->sol_step, ws->res_itref, ws->res_workspace);
-	// TODO mask
-	DENSE_QP_RES_COMPUTE_INF_NORM(ws->res_itref);
-	itref_qp_norm[0] = ws->res_itref->res_max[0];
-	itref_qp_norm[1] = ws->res_itref->res_max[1];
-	itref_qp_norm[2] = ws->res_itref->res_max[2];
-	itref_qp_norm[3] = ws->res_itref->res_max[3];
-//	VECNRM_INF(cws->nv, ws->res_itref->res_g, 0, &itref_qp_norm0[0]);
-//	VECNRM_INF(cws->ne, ws->res_itref->res_b, 0, &itref_qp_norm0[1]);
-//	VECNRM_INF(cws->nc, ws->res_itref->res_d, 0, &itref_qp_norm0[2]);
-//	VECNRM_INF(cws->nc, ws->res_itref->res_m, 0, &itref_qp_norm0[3]);
-//		printf("\nkk = %d\n", kk);
-//		blasfeo_print_exp_tran_dvec(qp->dim->nv, ws->res_itref->res_g, 0);
-//		blasfeo_print_exp_tran_dvec(qp->dim->ne, ws->res_itref->res_b, 0);
-//		blasfeo_print_exp_tran_dvec(2*qp->dim->nb+2*qp->dim->ng, ws->res_itref->res_d, 0);
-#endif
-
-#if 0
-	DENSE_QP_RES_COMPUTE(ws->qp_step, ws->sol_step, ws->res_itref, ws->res_workspace);
-	// TODO mask
-	DENSE_QP_RES_COMPUTE_INF_NORM(ws->res_itref);
-	itref_qp_norm[0] = ws->res_itref->res_max[0];
-	itref_qp_norm[1] = ws->res_itref->res_max[1];
-	itref_qp_norm[2] = ws->res_itref->res_max[2];
-	itref_qp_norm[3] = ws->res_itref->res_max[3];
-//	VECNRM_INF(cws->nv, ws->res_itref->res_g, 0, &itref_qp_norm0[0]);
-//	VECNRM_INF(cws->ne, ws->res_itref->res_b, 0, &itref_qp_norm0[1]);
-//	VECNRM_INF(cws->nc, ws->res_itref->res_d, 0, &itref_qp_norm0[2]);
-//	VECNRM_INF(cws->nc, ws->res_itref->res_m, 0, &itref_qp_norm0[3]);
-//		printf("\nkk = %d\n", kk);
-//		blasfeo_print_exp_tran_dvec(qp->dim->nv, ws->res_itref->res_g, 0);
-//		blasfeo_print_exp_tran_dvec(qp->dim->ne, ws->res_itref->res_b, 0);
-//		blasfeo_print_exp_tran_dvec(2*qp->dim->nb+2*qp->dim->ng, ws->res_itref->res_d, 0);
-#endif
 
 #if 0
 	ndp0 = 0;
@@ -1457,10 +1379,6 @@ blasfeo_print_tran_dvec(cws->nc, ws->sol_step->t, 0);
 			itref_qp_norm[1] = ws->res_itref->res_max[1];
 			itref_qp_norm[2] = ws->res_itref->res_max[2];
 			itref_qp_norm[3] = ws->res_itref->res_max[3];
-//			VECNRM_INF(cws->nv, ws->res_itref->res_g, 0, &itref_qp_norm[0]);
-//			VECNRM_INF(cws->ne, ws->res_itref->res_b, 0, &itref_qp_norm[1]);
-//			VECNRM_INF(cws->nc, ws->res_itref->res_d, 0, &itref_qp_norm[2]);
-//			VECNRM_INF(cws->nc, ws->res_itref->res_m, 0, &itref_qp_norm[3]);
 
 			if(itref1==0)
 				{
@@ -1475,10 +1393,6 @@ blasfeo_print_tran_dvec(cws->nc, ws->sol_step->t, 0);
 					(itref_qp_norm[1]<1e0*arg->res_b_max | itref_qp_norm[1]<1e-3*ws->res->res_max[1]) & \
 					(itref_qp_norm[2]<1e0*arg->res_d_max | itref_qp_norm[2]<1e-3*ws->res->res_max[2]) & \
 					(itref_qp_norm[3]<1e0*arg->res_m_max | itref_qp_norm[3]<1e-3*ws->res->res_max[3]) )
-//						(itref_qp_norm[0]<=arg->res_g_max) & \
-					(itref_qp_norm[1]<=arg->res_b_max) & \
-					(itref_qp_norm[2]<=arg->res_d_max) & \
-					(itref_qp_norm[3]<=arg->res_m_max) )
 				{
 				break;
 				}
@@ -1594,6 +1508,10 @@ void DENSE_QP_IPM_SOLVE(struct DENSE_QP *qp, struct DENSE_QP_SOL *qp_sol, struct
 	str_res_m.pa = cws->res_m;
 
 	REAL *qp_res_max = ws->res->res_max;
+	qp_res_max[0] = 0;
+	qp_res_max[1] = 0;
+	qp_res_max[2] = 0;
+	qp_res_max[3] = 0;
 
 	// detect constr mask
 	REAL tmp_mul;

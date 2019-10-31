@@ -111,9 +111,8 @@
 
 
 
-#define INIT_VAR_OCP_QP s_init_var_ocp_qp
 #define FACT_SOLVE_KKT_UNCONSTR_OCP_QP s_fact_solve_kkt_unconstr_ocp_qp
-#define COND_SLACKS s_cond_slacks
+//#define COND_SLACKS s_cond_slacks
 #define FACT_SOLVE_KKT_STEP_OCP_QP s_fact_solve_kkt_step_ocp_qp
 #define FACT_LQ_SOLVE_KKT_STEP_OCP_QP s_fact_lq_solve_kkt_step_ocp_qp
 #define SOLVE_KKT_STEP_OCP_QP s_solve_kkt_step_ocp_qp

@@ -61,11 +61,8 @@ struct s_ocp_qp_res
 	struct blasfeo_svec *res_b; // b-residuals
 	struct blasfeo_svec *res_d; // d-residuals
 	struct blasfeo_svec *res_m; // m-residuals
-	double res_mu; // mu-residual
-	float max_res_stat;
-	float max_res_eq;
-	float max_res_ineq;
-	float max_res_comp;
+	float res_max[4]; // max of residuals
+	float res_mu; // mu-residual
 	int memsize;
 	};
 
@@ -93,7 +90,7 @@ void s_ocp_qp_res_compute(struct s_ocp_qp *qp, struct s_ocp_qp_sol *qp_sol, stru
 //
 void s_ocp_qp_res_compute_lin(struct s_ocp_qp *qp, struct s_ocp_qp_sol *qp_sol, struct s_ocp_qp_sol *qp_step, struct s_ocp_qp_res *res, struct s_ocp_qp_res_ws *ws);
 //
-void s_ocp_qp_res_compute_max(struct s_ocp_qp_res *res, struct s_ocp_qp_res_ws *ws);
+void s_ocp_qp_res_compute_inf_norm(struct s_ocp_qp_res *res);
 //
 void s_ocp_qp_res_get_all(struct s_ocp_qp_res *res, float **res_r, float **res_q, float **res_ls, float **res_us, float **res_b, float **res_d_lb, float **res_d_ub, float **res_d_lg, float **res_d_ug, float **res_d_ls, float **res_d_us, float **res_m_lb, float **res_m_ub, float **res_m_lg, float **res_m_ug, float **res_m_ls, float **res_m_us);
 //

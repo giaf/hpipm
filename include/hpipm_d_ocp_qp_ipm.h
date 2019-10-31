@@ -196,6 +196,12 @@ void d_ocp_qp_ipm_get_ric_lr(int stage, struct d_ocp_qp_ipm_ws *ws, double *lr);
 // valid only in the unconstrained case
 void d_ocp_qp_ipm_get_ric_p(int stage, struct d_ocp_qp_ipm_ws *ws, double *p);
 //
+void d_ocp_qp_init_var(struct d_ocp_qp *qp, struct d_ocp_qp_sol *qp_sol, struct d_ocp_qp_ipm_arg *arg, struct d_ocp_qp_ipm_ws *ws);
+//
+void d_ocp_qp_ipm_abs_step(int kk, struct d_ocp_qp *qp, struct d_ocp_qp_sol *qp_sol, struct d_ocp_qp_ipm_arg *arg, struct d_ocp_qp_ipm_ws *ws);
+//
+void d_ocp_qp_ipm_delta_step(int kk, struct d_ocp_qp *qp, struct d_ocp_qp_sol *qp_sol, struct d_ocp_qp_ipm_arg *arg, struct d_ocp_qp_ipm_ws *ws);
+//
 void d_ocp_qp_ipm_solve(struct d_ocp_qp *qp, struct d_ocp_qp_sol *qp_sol, struct d_ocp_qp_ipm_arg *arg, struct d_ocp_qp_ipm_ws *ws);
 //
 void d_ocp_qp_ipm_predict(struct d_ocp_qp *qp, struct d_ocp_qp_sol *qp_sol, struct d_ocp_qp_ipm_arg *arg, struct d_ocp_qp_ipm_ws *ws);
