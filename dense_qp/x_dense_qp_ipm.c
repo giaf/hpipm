@@ -958,6 +958,11 @@ void DENSE_QP_IPM_ABS_STEP(int kk, struct DENSE_QP *qp, struct DENSE_QP_SOL *qp_
 
 	struct CORE_QP_IPM_WORKSPACE *cws = ws->core_workspace;
 
+	int nv = qp->dim->nv;
+	int nb = qp->dim->nb;
+	int ng = qp->dim->ng;
+	int ns = qp->dim->ns;
+
 	REAL tmp;
 	REAL mu_aff0; //, mu;
 
@@ -975,6 +980,7 @@ void DENSE_QP_IPM_ABS_STEP(int kk, struct DENSE_QP *qp, struct DENSE_QP_SOL *qp_
 	if(arg->mask_constr)
 		{
 		// mask out disregarded constraints
+		VECMUL(2*ns, qp->d_mask, 2*nb+2*ng, ws->sol_step->v, nv, ws->sol_step->v, nv);
 		VECMUL(cws->nc, qp->d_mask, 0, ws->sol_step->t, 0, ws->sol_step->t, 0);
 		VECMUL(cws->nc, qp->d_mask, 0, ws->sol_step->lam, 0, ws->sol_step->lam, 0);
 		}
@@ -1014,6 +1020,7 @@ void DENSE_QP_IPM_ABS_STEP(int kk, struct DENSE_QP *qp, struct DENSE_QP_SOL *qp_
 		if(arg->mask_constr)
 			{
 			// mask out disregarded constraints
+			VECMUL(2*ns, qp->d_mask, 2*nb+2*ng, ws->sol_step->v, nv, ws->sol_step->v, nv);
 			VECMUL(cws->nc, qp->d_mask, 0, ws->sol_step->t, 0, ws->sol_step->t, 0);
 			VECMUL(cws->nc, qp->d_mask, 0, ws->sol_step->lam, 0, ws->sol_step->lam, 0);
 			}
@@ -1055,6 +1062,7 @@ void DENSE_QP_IPM_ABS_STEP(int kk, struct DENSE_QP *qp, struct DENSE_QP_SOL *qp_
 				if(arg->mask_constr)
 					{
 					// mask out disregarded constraints
+					VECMUL(2*ns, qp->d_mask, 2*nb+2*ng, ws->sol_step->v, nv, ws->sol_step->v, nv);
 					VECMUL(cws->nc, qp->d_mask, 0, ws->sol_step->t, 0, ws->sol_step->t, 0);
 					VECMUL(cws->nc, qp->d_mask, 0, ws->sol_step->lam, 0, ws->sol_step->lam, 0);
 					}
@@ -1120,6 +1128,7 @@ void DENSE_QP_IPM_DELTA_STEP(int kk, struct DENSE_QP *qp, struct DENSE_QP_SOL *q
 		if(arg->mask_constr)
 			{
 			// mask out disregarded constraints
+			VECMUL(2*ns, qp->d_mask, 2*nb+2*ng, ws->sol_step->v, nv, ws->sol_step->v, nv);
 			VECMUL(cws->nc, qp->d_mask, 0, ws->sol_step->t, 0, ws->sol_step->t, 0);
 			VECMUL(cws->nc, qp->d_mask, 0, ws->sol_step->lam, 0, ws->sol_step->lam, 0);
 			}
@@ -1131,6 +1140,7 @@ void DENSE_QP_IPM_DELTA_STEP(int kk, struct DENSE_QP *qp, struct DENSE_QP_SOL *q
 		if(arg->mask_constr)
 			{
 			// mask out disregarded constraints
+			VECMUL(2*ns, qp->d_mask, 2*nb+2*ng, ws->sol_step->v, nv, ws->sol_step->v, nv);
 			VECMUL(cws->nc, qp->d_mask, 0, ws->sol_step->t, 0, ws->sol_step->t, 0);
 			VECMUL(cws->nc, qp->d_mask, 0, ws->sol_step->lam, 0, ws->sol_step->lam, 0);
 			}
@@ -1141,6 +1151,7 @@ void DENSE_QP_IPM_DELTA_STEP(int kk, struct DENSE_QP *qp, struct DENSE_QP_SOL *q
 		if(arg->mask_constr)
 			{
 			// mask out disregarded constraints
+			VECMUL(2*ns, qp->d_mask, 2*nb+2*ng, ws->res_itref->res_g, nv, ws->res_itref->res_g, nv);
 			VECMUL(cws->nc, qp->d_mask, 0, ws->res_itref->res_d, 0, ws->res_itref->res_d, 0);
 			VECMUL(cws->nc, qp->d_mask, 0, ws->res_itref->res_m, 0, ws->res_itref->res_m, 0);
 			}
@@ -1181,6 +1192,7 @@ blasfeo_print_tran_dvec(cws->nc, ws->sol_step->t, 0);
 			if(arg->mask_constr)
 				{
 				// mask out disregarded constraints
+				VECMUL(2*ns, qp->d_mask, 2*nb+2*ng, ws->sol_step->v, nv, ws->sol_step->v, nv);
 				VECMUL(cws->nc, qp->d_mask, 0, ws->sol_step->t, 0, ws->sol_step->t, 0);
 				VECMUL(cws->nc, qp->d_mask, 0, ws->sol_step->lam, 0, ws->sol_step->lam, 0);
 				}
@@ -1204,6 +1216,7 @@ blasfeo_print_tran_dvec(cws->nc, ws->sol_step->t, 0);
 		if(arg->mask_constr)
 			{
 			// mask out disregarded constraints
+			VECMUL(2*ns, qp->d_mask, 2*nb+2*ng, ws->sol_step->v, nv, ws->sol_step->v, nv);
 			VECMUL(cws->nc, qp->d_mask, 0, ws->sol_step->t, 0, ws->sol_step->t, 0);
 			VECMUL(cws->nc, qp->d_mask, 0, ws->sol_step->lam, 0, ws->sol_step->lam, 0);
 			}
@@ -1235,6 +1248,7 @@ blasfeo_print_tran_dvec(cws->nc, ws->sol_step->t, 0);
 		if(arg->mask_constr)
 			{
 			// mask out disregarded constraints
+			VECMUL(2*ns, qp->d_mask, 2*nb+2*ng, ws->res_itref->res_g, nv, ws->res_itref->res_g, nv);
 			VECMUL(cws->nc, qp->d_mask, 0, ws->res_itref->res_d, 0, ws->res_itref->res_d, 0);
 			VECMUL(cws->nc, qp->d_mask, 0, ws->res_itref->res_m, 0, ws->res_itref->res_m, 0);
 			}
@@ -1273,6 +1287,7 @@ blasfeo_print_tran_dvec(cws->nc, ws->sol_step->t, 0);
 		if(arg->mask_constr)
 			{
 			// mask out disregarded constraints
+			VECMUL(2*ns, qp->d_mask, 2*nb+2*ng, ws->sol_step->v, nv, ws->sol_step->v, nv);
 			VECMUL(cws->nc, qp->d_mask, 0, ws->sol_itref->t, 0, ws->sol_itref->t, 0);
 			VECMUL(cws->nc, qp->d_mask, 0, ws->sol_itref->lam, 0, ws->sol_itref->lam, 0);
 			}
@@ -1373,6 +1388,7 @@ blasfeo_print_tran_dvec(cws->nc, ws->sol_step->t, 0);
 		if(arg->mask_constr)
 			{
 			// mask out disregarded constraints
+			VECMUL(2*ns, qp->d_mask, 2*nb+2*ng, ws->sol_step->v, nv, ws->sol_step->v, nv);
 			VECMUL(cws->nc, qp->d_mask, 0, ws->sol_step->t, 0, ws->sol_step->t, 0);
 			VECMUL(cws->nc, qp->d_mask, 0, ws->sol_step->lam, 0, ws->sol_step->lam, 0);
 			}
@@ -1409,6 +1425,7 @@ blasfeo_print_tran_dvec(cws->nc, ws->sol_step->t, 0);
 				if(arg->mask_constr)
 					{
 					// mask out disregarded constraints
+					VECMUL(2*ns, qp->d_mask, 2*nb+2*ng, ws->sol_step->v, nv, ws->sol_step->v, nv);
 					VECMUL(cws->nc, qp->d_mask, 0, ws->sol_step->t, 0, ws->sol_step->t, 0);
 					VECMUL(cws->nc, qp->d_mask, 0, ws->sol_step->lam, 0, ws->sol_step->lam, 0);
 					}
@@ -1431,6 +1448,7 @@ blasfeo_print_tran_dvec(cws->nc, ws->sol_step->t, 0);
 			if(arg->mask_constr)
 				{
 				// mask out disregarded constraints
+				VECMUL(2*ns, qp->d_mask, 2*nb+2*ng, ws->res_itref->res_g, nv, ws->res_itref->res_g, nv);
 				VECMUL(cws->nc, qp->d_mask, 0, ws->res_itref->res_d, 0, ws->res_itref->res_d, 0);
 				VECMUL(cws->nc, qp->d_mask, 0, ws->res_itref->res_m, 0, ws->res_itref->res_m, 0);
 				}
@@ -1469,6 +1487,7 @@ blasfeo_print_tran_dvec(cws->nc, ws->sol_step->t, 0);
 			if(arg->mask_constr)
 				{
 				// mask out disregarded constraints
+				VECMUL(2*ns, qp->d_mask, 2*nb+2*ng, ws->sol_step->v, nv, ws->sol_step->v, nv);
 				VECMUL(cws->nc, qp->d_mask, 0, ws->sol_itref->t, 0, ws->sol_itref->t, 0);
 				VECMUL(cws->nc, qp->d_mask, 0, ws->sol_itref->lam, 0, ws->sol_itref->lam, 0);
 				}
@@ -1506,6 +1525,13 @@ blasfeo_print_tran_dvec(cws->nc, ws->sol_step->t, 0);
 
 void DENSE_QP_IPM_SOLVE(struct DENSE_QP *qp, struct DENSE_QP_SOL *qp_sol, struct DENSE_QP_IPM_ARG *arg, struct DENSE_QP_IPM_WS *ws)
 	{
+
+	// dims
+	int nv = qp->dim->nv;
+	int ne = qp->dim->ne;
+	int nb = qp->dim->nb;
+	int ng = qp->dim->ng;
+	int ns = qp->dim->ns;
 
 	struct CORE_QP_IPM_WORKSPACE *cws = ws->core_workspace;
 
@@ -1689,6 +1715,7 @@ void DENSE_QP_IPM_SOLVE(struct DENSE_QP *qp, struct DENSE_QP_SOL *qp_sol, struct
 			if(arg->mask_constr)
 				{
 				// mask out disregarded constraints
+				VECMUL(2*ns, qp->d_mask, 2*nb+2*ng, ws->res->res_g, nv, ws->res->res_g, nv);
 				VECMUL(cws->nc, qp->d_mask, 0, ws->res->res_d, 0, ws->res->res_d, 0);
 				VECMUL(cws->nc, qp->d_mask, 0, ws->res->res_m, 0, ws->res->res_m, 0);
 				}
@@ -1746,6 +1773,7 @@ void DENSE_QP_IPM_SOLVE(struct DENSE_QP *qp, struct DENSE_QP_SOL *qp_sol, struct
 	if(arg->mask_constr)
 		{
 		// mask out disregarded constraints
+		VECMUL(2*ns, qp->d_mask, 2*nb+2*ng, ws->res->res_g, nv, ws->res->res_g, nv);
 		VECMUL(cws->nc, qp->d_mask, 0, ws->res->res_d, 0, ws->res->res_d, 0);
 		VECMUL(cws->nc, qp->d_mask, 0, ws->res->res_m, 0, ws->res->res_m, 0);
 		}
@@ -1782,6 +1810,7 @@ void DENSE_QP_IPM_SOLVE(struct DENSE_QP *qp, struct DENSE_QP_SOL *qp_sol, struct
 		if(arg->mask_constr)
 			{
 			// mask out disregarded constraints
+			VECMUL(2*ns, qp->d_mask, 2*nb+2*ng, ws->res->res_g, nv, ws->res->res_g, nv);
 			VECMUL(cws->nc, qp->d_mask, 0, ws->res->res_d, 0, ws->res->res_d, 0);
 			VECMUL(cws->nc, qp->d_mask, 0, ws->res->res_m, 0, ws->res->res_m, 0);
 			}

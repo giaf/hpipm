@@ -85,10 +85,10 @@ int main()
 	double C[] = {0.0, 1.0};
 	double lg[] = {-0.5};
 	double ug[] = {0.5};
-	double Zl[] = {1e-4};
-	double Zu[] = {1e-4};
-	double zl[] = {1e1};
-	double zu[] = {1e1};
+	double Zl[] = {0e0};
+	double Zu[] = {0e0};
+	double zl[] = {0e0};
+	double zu[] = {1e0};
 	int idxs[] = {1};
 
 /************************************************

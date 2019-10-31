@@ -1095,6 +1095,13 @@ void DENSE_QCQP_RES_CONV_QP_RES(struct DENSE_QCQP_RES *qcqp_res, struct DENSE_QP
 void DENSE_QCQP_IPM_SOLVE(struct DENSE_QCQP *qcqp, struct DENSE_QCQP_SOL *qcqp_sol, struct DENSE_QCQP_IPM_ARG *qcqp_arg, struct DENSE_QCQP_IPM_WS *qcqp_ws)
 	{
 
+	int nv = qcqp->dim->nv;
+	int ne = qcqp->dim->ne;
+	int nb = qcqp->dim->nb;
+	int ng = qcqp->dim->ng;
+	int nq = qcqp->dim->nq;
+	int ns = qcqp->dim->ns;
+
 	// extract stuff
 
 	struct DENSE_QP *qp = qcqp_ws->qp;
@@ -1284,6 +1291,7 @@ void DENSE_QCQP_IPM_SOLVE(struct DENSE_QCQP *qcqp, struct DENSE_QCQP_SOL *qcqp_s
 			if(qp_arg->mask_constr)
 				{
 				// mask out disregarded constraints
+				VECMUL(2*ns, qp->d_mask, 2*nb+2*ng+2*nq, qcqp_res->res_g, nv, qcqp_res->res_g, nv);
 				VECMUL(cws->nc, qp->d_mask, 0, qcqp_res->res_d, 0, qcqp_res->res_d, 0);
 				VECMUL(cws->nc, qp->d_mask, 0, qcqp_res->res_m, 0, qcqp_res->res_m, 0);
 				}
@@ -1338,6 +1346,7 @@ void DENSE_QCQP_IPM_SOLVE(struct DENSE_QCQP *qcqp, struct DENSE_QCQP_SOL *qcqp_s
 	if(qp_arg->mask_constr)
 		{
 		// mask out disregarded constraints
+		VECMUL(2*ns, qp->d_mask, 2*nb+2*ng+2*nq, qcqp_res->res_g, nv, qcqp_res->res_g, nv);
 		VECMUL(cws->nc, qp->d_mask, 0, qcqp_res->res_d, 0, qcqp_res->res_d, 0);
 		VECMUL(cws->nc, qp->d_mask, 0, qcqp_res->res_m, 0, qcqp_res->res_m, 0);
 		}
@@ -1383,6 +1392,7 @@ void DENSE_QCQP_IPM_SOLVE(struct DENSE_QCQP *qcqp, struct DENSE_QCQP_SOL *qcqp_s
 		if(qp_arg->mask_constr)
 			{
 			// mask out disregarded constraints
+			VECMUL(2*ns, qp->d_mask, 2*nb+2*ng+2*nq, qcqp_res->res_g, nv, qcqp_res->res_g, nv);
 			VECMUL(cws->nc, qp->d_mask, 0, qcqp_res->res_d, 0, qcqp_res->res_d, 0);
 			VECMUL(cws->nc, qp->d_mask, 0, qcqp_res->res_m, 0, qcqp_res->res_m, 0);
 			}
