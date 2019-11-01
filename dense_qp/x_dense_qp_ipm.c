@@ -59,7 +59,7 @@ void DENSE_QP_IPM_ARG_SET_DEFAULT(enum HPIPM_MODE mode, struct DENSE_QP_IPM_ARG 
 	{
 
 	REAL mu0, alpha_min, res_g, res_b, res_d, res_m, reg_prim, reg_dual, lam_min, t_min;
-	int iter_max, stat_max, pred_corr, cond_pred_corr, itref_pred_max, itref_corr_max, lq_fact, scale, warm_start, abs_form, comp_res_exit, comp_res_pred, mask_constr;
+	int iter_max, stat_max, pred_corr, cond_pred_corr, itref_pred_max, itref_corr_max, lq_fact, scale, warm_start, abs_form, comp_res_exit, comp_res_pred;
 
 	if(mode==SPEED_ABS)
 		{
@@ -85,7 +85,6 @@ void DENSE_QP_IPM_ARG_SET_DEFAULT(enum HPIPM_MODE mode, struct DENSE_QP_IPM_ARG 
 		abs_form = 1;
 		comp_res_exit = 0;
 		comp_res_pred = 0;
-		mask_constr = 1;
 		}
 	else if(mode==SPEED)
 		{
@@ -111,7 +110,6 @@ void DENSE_QP_IPM_ARG_SET_DEFAULT(enum HPIPM_MODE mode, struct DENSE_QP_IPM_ARG 
 		abs_form = 0;
 		comp_res_exit = 1;
 		comp_res_pred = 0;
-		mask_constr = 1;
 		}
 	else if(mode==BALANCE)
 		{
@@ -137,7 +135,6 @@ void DENSE_QP_IPM_ARG_SET_DEFAULT(enum HPIPM_MODE mode, struct DENSE_QP_IPM_ARG 
 		abs_form = 0;
 		comp_res_exit = 1;
 		comp_res_pred = 0;
-		mask_constr = 1;
 		}
 	else if(mode==ROBUST)
 		{
@@ -163,7 +160,6 @@ void DENSE_QP_IPM_ARG_SET_DEFAULT(enum HPIPM_MODE mode, struct DENSE_QP_IPM_ARG 
 		abs_form = 0;
 		comp_res_exit = 1;
 		comp_res_pred = 0;
-		mask_constr = 1;
 		}
 	else
 		{
@@ -194,7 +190,6 @@ void DENSE_QP_IPM_ARG_SET_DEFAULT(enum HPIPM_MODE mode, struct DENSE_QP_IPM_ARG 
 	arg->abs_form = abs_form;
 	DENSE_QP_IPM_ARG_SET_COMP_RES_EXIT(&comp_res_exit, arg);
 	DENSE_QP_IPM_ARG_SET_COMP_RES_PRED(&comp_res_pred, arg);
-	arg->mask_constr = mask_constr;
 	arg->mode = mode;
 
 	return;
@@ -977,7 +972,7 @@ void DENSE_QP_IPM_ABS_STEP(int kk, struct DENSE_QP *qp, struct DENSE_QP_SOL *qp_
 	AXPY(cws->ne, -1.0, qp_sol->pi, 0, ws->sol_step->pi, 0, ws->sol_step->pi, 0);
 	AXPY(cws->nc, -1.0, qp_sol->lam, 0, ws->sol_step->lam, 0, ws->sol_step->lam, 0);
 	AXPY(cws->nc, -1.0, qp_sol->t, 0, ws->sol_step->t, 0, ws->sol_step->t, 0);
-	if(arg->mask_constr)
+	if(ws->mask_constr)
 		{
 		// mask out disregarded constraints
 		VECMUL(2*ns, qp->d_mask, 2*nb+2*ng, ws->sol_step->v, nv, ws->sol_step->v, nv);
@@ -1004,7 +999,7 @@ void DENSE_QP_IPM_ABS_STEP(int kk, struct DENSE_QP *qp, struct DENSE_QP_SOL *qp_
 			ws->stat[ws->stat_m*(kk+1)+2] = cws->sigma;
 
 		COMPUTE_CENTERING_CORRECTION_QP(cws);
-		if(arg->mask_constr)
+		if(ws->mask_constr)
 			{
 			// mask out disregarded constraints
 			VECMUL(cws->nc, qp->d_mask, 0, ws->res->res_m, 0, ws->res->res_m, 0);
@@ -1017,7 +1012,7 @@ void DENSE_QP_IPM_ABS_STEP(int kk, struct DENSE_QP *qp, struct DENSE_QP_SOL *qp_
 		AXPY(cws->ne, -1.0, qp_sol->pi, 0, ws->sol_step->pi, 0, ws->sol_step->pi, 0);
 		AXPY(cws->nc, -1.0, qp_sol->lam, 0, ws->sol_step->lam, 0, ws->sol_step->lam, 0);
 		AXPY(cws->nc, -1.0, qp_sol->t, 0, ws->sol_step->t, 0, ws->sol_step->t, 0);
-		if(arg->mask_constr)
+		if(ws->mask_constr)
 			{
 			// mask out disregarded constraints
 			VECMUL(2*ns, qp->d_mask, 2*nb+2*ng, ws->sol_step->v, nv, ws->sol_step->v, nv);
@@ -1046,7 +1041,7 @@ void DENSE_QP_IPM_ABS_STEP(int kk, struct DENSE_QP *qp, struct DENSE_QP_SOL *qp_
 
 				// centering direction
 				COMPUTE_CENTERING_QP(cws);
-				if(arg->mask_constr)
+				if(ws->mask_constr)
 					{
 					// mask out disregarded constraints
 					VECMUL(cws->nc, qp->d_mask, 0, ws->res->res_m, 0, ws->res->res_m, 0);
@@ -1059,7 +1054,7 @@ void DENSE_QP_IPM_ABS_STEP(int kk, struct DENSE_QP *qp, struct DENSE_QP_SOL *qp_
 				AXPY(cws->ne, -1.0, qp_sol->pi, 0, ws->sol_step->pi, 0, ws->sol_step->pi, 0);
 				AXPY(cws->nc, -1.0, qp_sol->lam, 0, ws->sol_step->lam, 0, ws->sol_step->lam, 0);
 				AXPY(cws->nc, -1.0, qp_sol->t, 0, ws->sol_step->t, 0, ws->sol_step->t, 0);
-				if(arg->mask_constr)
+				if(ws->mask_constr)
 					{
 					// mask out disregarded constraints
 					VECMUL(2*ns, qp->d_mask, 2*nb+2*ng, ws->sol_step->v, nv, ws->sol_step->v, nv);
@@ -1079,7 +1074,7 @@ void DENSE_QP_IPM_ABS_STEP(int kk, struct DENSE_QP *qp, struct DENSE_QP_SOL *qp_
 
 	//
 	UPDATE_VAR_QP(cws);
-	if(arg->mask_constr)
+	if(ws->mask_constr)
 		{
 		// mask out disregarded constraints
 		VECMUL(cws->nc, qp->d_mask, 0, qp_sol->lam, 0, qp_sol->lam, 0);
@@ -1126,7 +1121,7 @@ void DENSE_QP_IPM_DELTA_STEP(int kk, struct DENSE_QP *qp, struct DENSE_QP_SOL *q
 		{
 		// syrk+cholesky
 		FACT_SOLVE_KKT_STEP_DENSE_QP(ws->qp_step, ws->sol_step, arg, ws);
-		if(arg->mask_constr)
+		if(ws->mask_constr)
 			{
 			// mask out disregarded constraints
 			VECMUL(2*ns, qp->d_mask, 2*nb+2*ng, ws->sol_step->v, nv, ws->sol_step->v, nv);
@@ -1138,7 +1133,7 @@ void DENSE_QP_IPM_DELTA_STEP(int kk, struct DENSE_QP *qp, struct DENSE_QP_SOL *q
 		{
 		// syrk+chol, switch to lq when needed
 		FACT_SOLVE_KKT_STEP_DENSE_QP(ws->qp_step, ws->sol_step, arg, ws);
-		if(arg->mask_constr)
+		if(ws->mask_constr)
 			{
 			// mask out disregarded constraints
 			VECMUL(2*ns, qp->d_mask, 2*nb+2*ng, ws->sol_step->v, nv, ws->sol_step->v, nv);
@@ -1149,7 +1144,7 @@ void DENSE_QP_IPM_DELTA_STEP(int kk, struct DENSE_QP *qp, struct DENSE_QP_SOL *q
 		// compute res of linear system
 		DENSE_QP_RES_COMPUTE_LIN(ws->qp_step, qp_sol, ws->sol_step, ws->res_itref, ws->res_workspace);
 		// TODO mask
-		if(arg->mask_constr)
+		if(ws->mask_constr)
 			{
 			// mask out disregarded constraints
 			VECMUL(2*ns, qp->d_mask, 2*nb+2*ng, ws->res_itref->res_g, nv, ws->res_itref->res_g, nv);
@@ -1179,7 +1174,7 @@ void DENSE_QP_IPM_DELTA_STEP(int kk, struct DENSE_QP *qp, struct DENSE_QP_SOL *q
 
 			// refactorize using lq
 			FACT_LQ_SOLVE_KKT_STEP_DENSE_QP(ws->qp_step, ws->sol_step, arg, ws);
-			if(arg->mask_constr)
+			if(ws->mask_constr)
 				{
 				// mask out disregarded constraints
 				VECMUL(2*ns, qp->d_mask, 2*nb+2*ng, ws->sol_step->v, nv, ws->sol_step->v, nv);
@@ -1196,7 +1191,7 @@ void DENSE_QP_IPM_DELTA_STEP(int kk, struct DENSE_QP *qp, struct DENSE_QP_SOL *q
 		{
 		// lq
 		FACT_LQ_SOLVE_KKT_STEP_DENSE_QP(ws->qp_step, ws->sol_step, arg, ws);
-		if(arg->mask_constr)
+		if(ws->mask_constr)
 			{
 			// mask out disregarded constraints
 			VECMUL(2*ns, qp->d_mask, 2*nb+2*ng, ws->sol_step->v, nv, ws->sol_step->v, nv);
@@ -1210,8 +1205,7 @@ void DENSE_QP_IPM_DELTA_STEP(int kk, struct DENSE_QP *qp, struct DENSE_QP_SOL *q
 		{
 
 		DENSE_QP_RES_COMPUTE_LIN(ws->qp_step, qp_sol, ws->sol_step, ws->res_itref, ws->res_workspace);
-		// TODO mask
-		if(arg->mask_constr)
+		if(ws->mask_constr)
 			{
 			// mask out disregarded constraints
 			VECMUL(2*ns, qp->d_mask, 2*nb+2*ng, ws->res_itref->res_g, nv, ws->res_itref->res_g, nv);
@@ -1242,7 +1236,7 @@ void DENSE_QP_IPM_DELTA_STEP(int kk, struct DENSE_QP *qp, struct DENSE_QP_SOL *q
 			}
 
 		SOLVE_KKT_STEP_DENSE_QP(ws->qp_itref, ws->sol_itref, arg, ws);
-		if(arg->mask_constr)
+		if(ws->mask_constr)
 			{
 			// mask out disregarded constraints
 			VECMUL(2*ns, qp->d_mask, 2*nb+2*ng, ws->sol_step->v, nv, ws->sol_step->v, nv);
@@ -1299,7 +1293,7 @@ void DENSE_QP_IPM_DELTA_STEP(int kk, struct DENSE_QP *qp, struct DENSE_QP_SOL *q
 			ws->stat[ws->stat_m*(kk+1)+2] = cws->sigma;
 
 		COMPUTE_CENTERING_CORRECTION_QP(cws);
-		if(arg->mask_constr)
+		if(ws->mask_constr)
 			{
 			// mask out disregarded constraints
 			VECMUL(cws->nc, qp->d_mask, 0, ws->res->res_m, 0, ws->res->res_m, 0);
@@ -1307,7 +1301,7 @@ void DENSE_QP_IPM_DELTA_STEP(int kk, struct DENSE_QP *qp, struct DENSE_QP_SOL *q
 
 		// solve kkt
 		SOLVE_KKT_STEP_DENSE_QP(ws->qp_step, ws->sol_step, arg, ws);
-		if(arg->mask_constr)
+		if(ws->mask_constr)
 			{
 			// mask out disregarded constraints
 			VECMUL(2*ns, qp->d_mask, 2*nb+2*ng, ws->sol_step->v, nv, ws->sol_step->v, nv);
@@ -1336,7 +1330,7 @@ void DENSE_QP_IPM_DELTA_STEP(int kk, struct DENSE_QP *qp, struct DENSE_QP_SOL *q
 
 				// centering direction
 				COMPUTE_CENTERING_QP(cws);
-				if(arg->mask_constr)
+				if(ws->mask_constr)
 					{
 					// mask out disregarded constraints
 					VECMUL(cws->nc, qp->d_mask, 0, ws->res->res_m, 0, ws->res->res_m, 0);
@@ -1344,7 +1338,7 @@ void DENSE_QP_IPM_DELTA_STEP(int kk, struct DENSE_QP *qp, struct DENSE_QP_SOL *q
 
 				// solve kkt
 				SOLVE_KKT_STEP_DENSE_QP(ws->qp_step, ws->sol_step, arg, ws);
-				if(arg->mask_constr)
+				if(ws->mask_constr)
 					{
 					// mask out disregarded constraints
 					VECMUL(2*ns, qp->d_mask, 2*nb+2*ng, ws->sol_step->v, nv, ws->sol_step->v, nv);
@@ -1366,8 +1360,7 @@ void DENSE_QP_IPM_DELTA_STEP(int kk, struct DENSE_QP *qp, struct DENSE_QP_SOL *q
 			{
 
 			DENSE_QP_RES_COMPUTE_LIN(ws->qp_step, qp_sol, ws->sol_step, ws->res_itref, ws->res_workspace);
-			// TODO mask
-			if(arg->mask_constr)
+			if(ws->mask_constr)
 				{
 				// mask out disregarded constraints
 				VECMUL(2*ns, qp->d_mask, 2*nb+2*ng, ws->res_itref->res_g, nv, ws->res_itref->res_g, nv);
@@ -1398,7 +1391,7 @@ void DENSE_QP_IPM_DELTA_STEP(int kk, struct DENSE_QP *qp, struct DENSE_QP_SOL *q
 				}
 
 			SOLVE_KKT_STEP_DENSE_QP(ws->qp_itref, ws->sol_itref, arg, ws);
-			if(arg->mask_constr)
+			if(ws->mask_constr)
 				{
 				// mask out disregarded constraints
 				VECMUL(2*ns, qp->d_mask, 2*nb+2*ng, ws->sol_step->v, nv, ws->sol_step->v, nv);
@@ -1425,7 +1418,7 @@ void DENSE_QP_IPM_DELTA_STEP(int kk, struct DENSE_QP *qp, struct DENSE_QP_SOL *q
 		}
 	//
 	UPDATE_VAR_QP(cws);
-	if(arg->mask_constr)
+	if(ws->mask_constr)
 		{
 		// mask out disregarded constraints
 		VECMUL(cws->nc, qp->d_mask, 0, qp_sol->lam, 0, qp_sol->lam, 0);
@@ -1440,7 +1433,7 @@ void DENSE_QP_IPM_DELTA_STEP(int kk, struct DENSE_QP *qp, struct DENSE_QP_SOL *q
 void DENSE_QP_IPM_SOLVE(struct DENSE_QP *qp, struct DENSE_QP_SOL *qp_sol, struct DENSE_QP_IPM_ARG *arg, struct DENSE_QP_IPM_WS *ws)
 	{
 
-	// dims
+	// dim
 	int nv = qp->dim->nv;
 	int ne = qp->dim->ne;
 	int nb = qp->dim->nb;
@@ -1528,11 +1521,11 @@ void DENSE_QP_IPM_SOLVE(struct DENSE_QP *qp, struct DENSE_QP_SOL *qp_sol, struct
 		}
 	if(tmp_mul==0.0)
 		{
-		arg->mask_constr = 1;
+		ws->mask_constr = 1;
 		}
 	else
 		{
-		arg->mask_constr = 0;
+		ws->mask_constr = 0;
 		}
 	if(tmp_add==0.0)
 		{
@@ -1573,7 +1566,7 @@ void DENSE_QP_IPM_SOLVE(struct DENSE_QP *qp, struct DENSE_QP_SOL *qp_sol, struct
 
 	// init solver
 	DENSE_QP_INIT_VAR(qp, qp_sol, arg, ws);
-	if(arg->mask_constr)
+	if(ws->mask_constr)
 		{
 		// mask out disregarded constraints
 		VECMUL(cws->nc, qp->d_mask, 0, qp_sol->lam, 0, qp_sol->lam, 0);
@@ -1630,7 +1623,7 @@ void DENSE_QP_IPM_SOLVE(struct DENSE_QP *qp, struct DENSE_QP_SOL *qp_sol, struct
 			{
 			// compute residuals
 			DENSE_QP_RES_COMPUTE(qp, qp_sol, ws->res, ws->res_workspace);
-			if(arg->mask_constr)
+			if(ws->mask_constr)
 				{
 				// mask out disregarded constraints
 				VECMUL(2*ns, qp->d_mask, 2*nb+2*ng, ws->res->res_g, nv, ws->res->res_g, nv);
@@ -1688,7 +1681,7 @@ void DENSE_QP_IPM_SOLVE(struct DENSE_QP *qp, struct DENSE_QP_SOL *qp_sol, struct
 
 	// compute residuals
 	DENSE_QP_RES_COMPUTE(qp, qp_sol, ws->res, ws->res_workspace);
-	if(arg->mask_constr)
+	if(ws->mask_constr)
 		{
 		// mask out disregarded constraints
 		VECMUL(2*ns, qp->d_mask, 2*nb+2*ng, ws->res->res_g, nv, ws->res->res_g, nv);
@@ -1725,7 +1718,7 @@ void DENSE_QP_IPM_SOLVE(struct DENSE_QP *qp, struct DENSE_QP_SOL *qp_sol, struct
 
 		// compute residuals
 		DENSE_QP_RES_COMPUTE(qp, qp_sol, ws->res, ws->res_workspace);
-		if(arg->mask_constr)
+		if(ws->mask_constr)
 			{
 			// mask out disregarded constraints
 			VECMUL(2*ns, qp->d_mask, 2*nb+2*ng, ws->res->res_g, nv, ws->res->res_g, nv);

@@ -121,6 +121,7 @@ struct d_ocp_qp_ipm_ws
 	int status; // solver status
 	int square_root_alg; // cache from arg
 	int lq_fact; // cache from arg
+	int mask_constr; // use constr mask
 	int memsize;
 	};
 
@@ -157,9 +158,11 @@ void d_ocp_qp_ipm_arg_set_warm_start(int *warm_start, struct d_ocp_qp_ipm_arg *a
 // Mehrotra's predictor-corrector IPM algorithm: 0 no predictor-corrector, 1 use predictor-corrector
 void d_ocp_qp_ipm_arg_set_pred_corr(int *pred_corr, struct d_ocp_qp_ipm_arg *arg);
 // set riccati algorithm: 0 classic, 1 square-root
-void d_ocp_qp_ipm_arg_set_ric_alg(int *alg, struct d_ocp_qp_ipm_arg *arg);
+void d_ocp_qp_ipm_arg_set_ric_alg(int *value, struct d_ocp_qp_ipm_arg *arg);
+// compute residuals after solution
+void d_ocp_qp_ipm_arg_set_comp_res_exit(int *value, struct d_ocp_qp_ipm_arg *arg);
 // compute residuals of prediction
-void d_ocp_qp_ipm_arg_set_comp_res_pred(int *alg, struct d_ocp_qp_ipm_arg *arg);
+void d_ocp_qp_ipm_arg_set_comp_res_pred(int *value, struct d_ocp_qp_ipm_arg *arg);
 
 //
 int d_ocp_qp_ipm_ws_strsize();

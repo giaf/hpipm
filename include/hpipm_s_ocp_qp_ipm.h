@@ -123,6 +123,7 @@ struct s_ocp_qp_ipm_ws
 	int status; // solver status
 	int square_root_alg; // cache from arg
 	int lq_fact; // cache from arg
+	int mask_constr; // use constr mask
 	int memsize;
 	};
 
@@ -160,6 +161,8 @@ void s_ocp_qp_ipm_arg_set_warm_start(int *warm_start, struct s_ocp_qp_ipm_arg *a
 void s_ocp_qp_ipm_arg_set_pred_corr(int *pred_corr, struct s_ocp_qp_ipm_arg *arg);
 // set riccati algorithm: 0 classic, 1 square-root
 void s_ocp_qp_ipm_arg_set_ric_alg(int *alg, struct s_ocp_qp_ipm_arg *arg);
+// compute residuals after solution
+void s_ocp_qp_ipm_arg_set_comp_res_exit(int *value, struct s_ocp_qp_ipm_arg *arg);
 // compute residuals of prediction
 void s_ocp_qp_ipm_arg_set_comp_res_pred(int *alg, struct s_ocp_qp_ipm_arg *arg);
 

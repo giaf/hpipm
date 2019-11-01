@@ -220,6 +220,10 @@ void OCP_QP_PRINT(struct OCP_QP_DIM *dim, struct OCP_QP *qp)
 	for (ii = 0; ii <= N; ii++)
 		BLASFEO_PRINT_TRAN_VEC(2*nb[ii]+2*ng[ii]+2*ns[ii], qp->d+ii, 0);
 
+	printf("d_mask =\n");
+	for (ii = 0; ii <= N; ii++)
+		BLASFEO_PRINT_TRAN_VEC(2*nb[ii]+2*ng[ii]+2*ns[ii], qp->d_mask+ii, 0);
+
 	printf("DCt =\n");
 	for (ii = 0; ii <= N; ii++)
 		BLASFEO_PRINT_MAT(nu[ii]+nx[ii], ng[ii], qp->DCt+ii, 0, 0);
@@ -587,6 +591,38 @@ void OCP_QP_CODEGEN(char *file_name, char *mode, struct OCP_QP_DIM *dim, struct 
 	fprintf(file, "float **hlbu = llbu;\n");
 #endif
 
+	// lbu_mask
+	fprintf(file, "/* lbu_mask */\n");
+	for(nn=0; nn<=N; nn++)
+		{
+#ifdef DOUBLE_PRECISION
+		fprintf(file, "static double lbu_mask%d[] = {", nn);
+#else
+		fprintf(file, "static float lbu_mask%d[] = {", nn);
+#endif
+		for(jj=0; jj<nb[nn]; jj++)
+			{
+			if(qp->idxb[nn][jj]<nu[nn])
+				{
+				fprintf(file, "%18.15e, ", BLASFEO_DVECEL(qp->d+nn, jj));
+				}
+			}
+		fprintf(file, "};\n");
+		}
+#ifdef DOUBLE_PRECISION
+	fprintf(file, "static double *llbu_mask[] = {");
+#else
+	fprintf(file, "static float *llbu_mask[] = {");
+#endif
+	for(nn=0; nn<=N; nn++)
+		fprintf(file, "lbu_mask%d, ", nn);
+	fprintf(file, "};\n");
+#ifdef DOUBLE_PRECISION
+	fprintf(file, "double **hlbu_mask = llbu_mask;\n");
+#else
+	fprintf(file, "float **hlbu_mask = llbu_mask;\n");
+#endif
+
 	// ubu
 	fprintf(file, "/* ubu */\n");
 	for(nn=0; nn<=N; nn++)
@@ -617,6 +653,38 @@ void OCP_QP_CODEGEN(char *file_name, char *mode, struct OCP_QP_DIM *dim, struct 
 	fprintf(file, "double **hubu = uubu;\n");
 #else
 	fprintf(file, "float **hubu = uubu;\n");
+#endif
+
+	// ubu_mask
+	fprintf(file, "/* ubu_mask */\n");
+	for(nn=0; nn<=N; nn++)
+		{
+#ifdef DOUBLE_PRECISION
+		fprintf(file, "static double ubu_mask%d[] = {", nn);
+#else
+		fprintf(file, "static float ubu_mask%d[] = {", nn);
+#endif
+		for(jj=0; jj<nb[nn]; jj++)
+			{
+			if(qp->idxb[nn][jj]<nu[nn])
+				{
+				fprintf(file, "%18.15e, ", -BLASFEO_DVECEL(qp->d+nn, nb[nn]+ng[nn]+jj));
+				}
+			}
+		fprintf(file, "};\n");
+		}
+#ifdef DOUBLE_PRECISION
+	fprintf(file, "static double *uubu_mask[] = {");
+#else
+	fprintf(file, "static float *uubu_mask[] = {");
+#endif
+	for(nn=0; nn<=N; nn++)
+		fprintf(file, "ubu_mask%d, ", nn);
+	fprintf(file, "};\n");
+#ifdef DOUBLE_PRECISION
+	fprintf(file, "double **hubu_mask = uubu_mask;\n");
+#else
+	fprintf(file, "float **hubu_mask = uubu_mask;\n");
 #endif
 
 	// idxbx
@@ -671,6 +739,38 @@ void OCP_QP_CODEGEN(char *file_name, char *mode, struct OCP_QP_DIM *dim, struct 
 	fprintf(file, "float **hlbx = llbx;\n");
 #endif
 
+	// lbx_mask
+	fprintf(file, "/* lbx_mask */\n");
+	for(nn=0; nn<=N; nn++)
+		{
+#ifdef DOUBLE_PRECISION
+		fprintf(file, "static double lbx_mask%d[] = {", nn);
+#else
+		fprintf(file, "static float lbx_mask%d[] = {", nn);
+#endif
+		for(jj=0; jj<nb[nn]; jj++)
+			{
+			if(qp->idxb[nn][jj]>=nu[nn])
+				{
+				fprintf(file, "%18.15e, ", BLASFEO_DVECEL(qp->d+nn, jj));
+				}
+			}
+		fprintf(file, "};\n");
+		}
+#ifdef DOUBLE_PRECISION
+	fprintf(file, "static double *llbx_mask[] = {");
+#else
+	fprintf(file, "static float *llbx_mask[] = {");
+#endif
+	for(nn=0; nn<=N; nn++)
+		fprintf(file, "lbx_mask%d, ", nn);
+	fprintf(file, "};\n");
+#ifdef DOUBLE_PRECISION
+	fprintf(file, "double **hlbx_mask = llbx_mask;\n");
+#else
+	fprintf(file, "float **hlbx_mask = llbx_mask;\n");
+#endif
+
 	// ubx
 	fprintf(file, "/* ubx */\n");
 	for(nn=0; nn<=N; nn++)
@@ -701,6 +801,38 @@ void OCP_QP_CODEGEN(char *file_name, char *mode, struct OCP_QP_DIM *dim, struct 
 	fprintf(file, "double **hubx = uubx;\n");
 #else
 	fprintf(file, "float **hubx = uubx;\n");
+#endif
+
+	// ubx_mask
+	fprintf(file, "/* ubx_mask */\n");
+	for(nn=0; nn<=N; nn++)
+		{
+#ifdef DOUBLE_PRECISION
+		fprintf(file, "static double ubx_mask%d[] = {", nn);
+#else
+		fprintf(file, "static float ubx_mask%d[] = {", nn);
+#endif
+		for(jj=0; jj<nb[nn]; jj++)
+			{
+			if(qp->idxb[nn][jj]>=nu[nn])
+				{
+				fprintf(file, "%18.15e, ", -BLASFEO_DVECEL(qp->d+nn, nb[nn]+ng[nn]+jj));
+				}
+			}
+		fprintf(file, "};\n");
+		}
+#ifdef DOUBLE_PRECISION
+	fprintf(file, "static double *uubx_mask[] = {");
+#else
+	fprintf(file, "static float *uubx_mask[] = {");
+#endif
+	for(nn=0; nn<=N; nn++)
+		fprintf(file, "ubx_mask%d, ", nn);
+	fprintf(file, "};\n");
+#ifdef DOUBLE_PRECISION
+	fprintf(file, "double **hubx_mask = uubx_mask;\n");
+#else
+	fprintf(file, "float **hubx_mask = uubx_mask;\n");
 #endif
 
 	// C
@@ -804,6 +936,35 @@ void OCP_QP_CODEGEN(char *file_name, char *mode, struct OCP_QP_DIM *dim, struct 
 	fprintf(file, "float **hlg = llg;\n");
 #endif
 
+	// lg_mask
+	fprintf(file, "/* lg_mask */\n");
+	for(nn=0; nn<=N; nn++)
+		{
+#ifdef DOUBLE_PRECISION
+		fprintf(file, "static double lg_mask%d[] = {", nn);
+#else
+		fprintf(file, "static float lg_mask%d[] = {", nn);
+#endif
+		for(jj=0; jj<ng[nn]; jj++)
+			{
+			fprintf(file, "%18.15e, ", BLASFEO_DVECEL(qp->d+nn, nb[nn]+jj));
+			}
+		fprintf(file, "};\n");
+		}
+#ifdef DOUBLE_PRECISION
+	fprintf(file, "static double *llg_mask[] = {");
+#else
+	fprintf(file, "static float *llg_mask[] = {");
+#endif
+	for(nn=0; nn<=N; nn++)
+		fprintf(file, "lg_mask%d, ", nn);
+	fprintf(file, "};\n");
+#ifdef DOUBLE_PRECISION
+	fprintf(file, "double **hlg_mask = llg_mask;\n");
+#else
+	fprintf(file, "float **hlg_mask = llg_mask;\n");
+#endif
+
 	// ug
 	fprintf(file, "/* ug */\n");
 	for(nn=0; nn<=N; nn++)
@@ -831,6 +992,35 @@ void OCP_QP_CODEGEN(char *file_name, char *mode, struct OCP_QP_DIM *dim, struct 
 	fprintf(file, "double **hug = uug;\n");
 #else
 	fprintf(file, "float **hug = uug;\n");
+#endif
+
+	// ug_mask
+	fprintf(file, "/* ug_mask */\n");
+	for(nn=0; nn<=N; nn++)
+		{
+#ifdef DOUBLE_PRECISION
+		fprintf(file, "static double ug_mask%d[] = {", nn);
+#else
+		fprintf(file, "static float ug_mask%d[] = {", nn);
+#endif
+		for(jj=0; jj<ng[nn]; jj++)
+			{
+			fprintf(file, "%18.15e, ", -BLASFEO_DVECEL(qp->d+nn, 2*nb[nn]+ng[nn]+jj));
+			}
+		fprintf(file, "};\n");
+		}
+#ifdef DOUBLE_PRECISION
+	fprintf(file, "static double *uug_mask[] = {");
+#else
+	fprintf(file, "static float *uug_mask[] = {");
+#endif
+	for(nn=0; nn<=N; nn++)
+		fprintf(file, "ug_mask%d, ", nn);
+	fprintf(file, "};\n");
+#ifdef DOUBLE_PRECISION
+	fprintf(file, "double **hug_mask = uug_mask;\n");
+#else
+	fprintf(file, "float **hug_mask = uug_mask;\n");
 #endif
 
 	// Zl

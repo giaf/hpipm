@@ -87,6 +87,7 @@
 #define OCP_QP_RES d_ocp_qp_res
 #define OCP_QP_RES_WS d_ocp_qp_res_ws
 #define OCP_QP_RES_COMPUTE d_ocp_qp_res_compute
+#define OCP_QP_RES_COMPUTE_INF_NORM d_ocp_qp_res_compute_inf_norm
 #define OCP_QP_RES_COMPUTE_LIN d_ocp_qp_res_compute_lin
 #define OCP_QP_RES_CREATE d_ocp_qp_res_create
 #define OCP_QP_RES_MEMSIZE d_ocp_qp_res_memsize
@@ -116,6 +117,7 @@
 #define UPDATE_VAR_QP d_update_var_qp
 #define VECCPSC blasfeo_dveccpsc
 #define VECEX_SP blasfeo_dvecex_sp
+#define VECMUL blasfeo_dvecmul
 #define VECMULDOT blasfeo_dvecmuldot
 #define VECNRM_INF blasfeo_dvecnrm_inf
 #define VECSC blasfeo_dvecsc
@@ -140,6 +142,7 @@
 #define OCP_QP_IPM_ARG_SET_WARM_START d_ocp_qp_ipm_arg_set_warm_start
 #define OCP_QP_IPM_ARG_SET_PRED_CORR d_ocp_qp_ipm_arg_set_pred_corr
 #define OCP_QP_IPM_ARG_SET_RIC_ALG d_ocp_qp_ipm_arg_set_ric_alg
+#define OCP_QP_IPM_ARG_SET_COMP_RES_EXIT d_ocp_qp_ipm_arg_set_comp_res_exit
 #define OCP_QP_IPM_ARG_SET_COMP_RES_PRED d_ocp_qp_ipm_arg_set_comp_res_pred
 // ipm
 #define OCP_QP_IPM_WS_STRSIZE d_ocp_qp_ipm_ws_strsize

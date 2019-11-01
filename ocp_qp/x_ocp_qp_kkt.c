@@ -204,7 +204,7 @@ void FACT_SOLVE_KKT_UNCONSTR_OCP_QP(struct OCP_QP *qp, struct OCP_QP_SOL *qp_sol
 
 
 
-static void COND_SLACKS_FACT_SOLVE(int ss, struct OCP_QP *qp, struct OCP_QP_SOL *qp_sol, struct OCP_QP_IPM_WS *ws)
+static void COND_SLACKS_FACT_SOLVE(int ss, struct OCP_QP *qp, struct OCP_QP_SOL *qp_sol, struct OCP_QP_IPM_ARG *arg, struct OCP_QP_IPM_WS *ws)
 	{
 
 	int ii, idx;
@@ -250,8 +250,8 @@ static void COND_SLACKS_FACT_SOLVE(int ss, struct OCP_QP *qp, struct OCP_QP_SOL 
 	for(ii=0; ii<ns0; ii++)
 		{
 		idx = idxs0[ii];
-		ptr_Zs_inv[0+ii]   = ptr_Z[0+ii]   + ptr_Gamma[0+idx]       + ptr_Gamma[2*nb0+2*ng0+ii];
-		ptr_Zs_inv[ns0+ii] = ptr_Z[ns0+ii] + ptr_Gamma[nb0+ng0+idx] + ptr_Gamma[2*nb0+2*ng0+ns0+ii];
+		ptr_Zs_inv[0+ii]   = ptr_Z[0+ii]   + arg->reg_prim + ptr_Gamma[0+idx]       + ptr_Gamma[2*nb0+2*ng0+ii];
+		ptr_Zs_inv[ns0+ii] = ptr_Z[ns0+ii] + arg->reg_prim + ptr_Gamma[nb0+ng0+idx] + ptr_Gamma[2*nb0+2*ng0+ns0+ii];
 		ptr_dux[nu0+nx0+ii]      = ptr_res_g[nu0+nx0+ii]     + ptr_gamma[0+idx]   + ptr_gamma[2*nb0+2*ng0+ii];
 		ptr_dux[nu0+nx0+ns0+ii]  = ptr_res_g[nu0+nx0+ns0+ii] + ptr_gamma[nb0+ng0+idx] + ptr_gamma[2*nb0+2*ng0+ns0+ii];
 		ptr_Zs_inv[0+ii]   = 1.0/ptr_Zs_inv[0+ii];
@@ -433,7 +433,7 @@ void FACT_SOLVE_KKT_STEP_OCP_QP(struct OCP_QP *qp, struct OCP_QP_SOL *qp_sol, st
 
 		if(ns[ss]>0)
 			{
-			COND_SLACKS_FACT_SOLVE(ss, qp, qp_sol, ws);
+			COND_SLACKS_FACT_SOLVE(ss, qp, qp_sol, arg, ws);
 			}
 		else if(nb[ss]+ng[ss]>0)
 			{
@@ -476,7 +476,7 @@ void FACT_SOLVE_KKT_STEP_OCP_QP(struct OCP_QP *qp, struct OCP_QP_SOL *qp_sol, st
 
 			if(ns[ss]>0)
 				{
-				COND_SLACKS_FACT_SOLVE(ss, qp, qp_sol, ws);
+				COND_SLACKS_FACT_SOLVE(ss, qp, qp_sol, arg, ws);
 				}
 			else if(nb[ss]+ng[ss]>0)
 				{
@@ -558,7 +558,7 @@ void FACT_SOLVE_KKT_STEP_OCP_QP(struct OCP_QP *qp, struct OCP_QP_SOL *qp_sol, st
 
 		if(ns[ss]>0)
 			{
-			COND_SLACKS_FACT_SOLVE(ss, qp, qp_sol, ws);
+			COND_SLACKS_FACT_SOLVE(ss, qp, qp_sol, arg, ws);
 			}
 		else if(nb[ss]+ng[ss]>0)
 			{
@@ -600,7 +600,7 @@ void FACT_SOLVE_KKT_STEP_OCP_QP(struct OCP_QP *qp, struct OCP_QP_SOL *qp_sol, st
 
 			if(ns[ss]>0)
 				{
-				COND_SLACKS_FACT_SOLVE(ss, qp, qp_sol, ws);
+				COND_SLACKS_FACT_SOLVE(ss, qp, qp_sol, arg, ws);
 				}
 			else if(nb[ss]+ng[ss]>0)
 				{
@@ -644,7 +644,7 @@ void FACT_SOLVE_KKT_STEP_OCP_QP(struct OCP_QP *qp, struct OCP_QP_SOL *qp_sol, st
 
 			if(ns[ss]>0)
 				{
-				COND_SLACKS_FACT_SOLVE(ss, qp, qp_sol, ws);
+				COND_SLACKS_FACT_SOLVE(ss, qp, qp_sol, arg, ws);
 				}
 			else if(nb[ss]+ng[ss]>0)
 				{
@@ -790,7 +790,7 @@ void FACT_LQ_SOLVE_KKT_STEP_OCP_QP(struct OCP_QP *qp, struct OCP_QP_SOL *qp_sol,
 
 	if(ns[ss]>0)
 		{
-		COND_SLACKS_FACT_SOLVE(ss, qp, qp_sol, ws);
+		COND_SLACKS_FACT_SOLVE(ss, qp, qp_sol, arg, ws);
 		}
 	else if(nb[ss]+ng[ss]>0)
 		{
@@ -861,7 +861,7 @@ void FACT_LQ_SOLVE_KKT_STEP_OCP_QP(struct OCP_QP *qp, struct OCP_QP_SOL *qp_sol,
 
 		if(ns[ss]>0)
 			{
-			COND_SLACKS_FACT_SOLVE(ss, qp, qp_sol, ws);
+			COND_SLACKS_FACT_SOLVE(ss, qp, qp_sol, arg, ws);
 			}
 		else if(nb[ss]+ng[ss]>0)
 			{
@@ -932,7 +932,7 @@ void FACT_LQ_SOLVE_KKT_STEP_OCP_QP(struct OCP_QP *qp, struct OCP_QP_SOL *qp_sol,
 
 	if(ns[ss]>0)
 		{
-		COND_SLACKS_FACT_SOLVE(ss, qp, qp_sol, ws);
+		COND_SLACKS_FACT_SOLVE(ss, qp, qp_sol, arg, ws);
 		}
 	else if(nb[ss]+ng[ss]>0)
 		{

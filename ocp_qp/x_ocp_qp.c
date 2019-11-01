@@ -351,7 +351,7 @@ void OCP_QP_CREATE(struct OCP_QP_DIM *dim, struct OCP_QP *qp, void *mem)
 		tmp_ptr += ng[ii]*sizeof(REAL); // ug
 		tmp_ptr += ns[ii]*sizeof(REAL); // ls
 		tmp_ptr += ns[ii]*sizeof(REAL); // us
-		VECSE(2*nb[ii]+2*ng[ii]+2*ns[ii], 0.0, qp->d_mask+ii, 0);
+		VECSE(2*nb[ii]+2*ng[ii]+2*ns[ii], 1.0, qp->d_mask+ii, 0);
 		}
 
 	// m
@@ -694,7 +694,7 @@ void OCP_QP_SET(char *field, int stage, void *value, struct OCP_QP *qp)
 		{ 
 		OCP_QP_SET_UBU(stage, value, qp);
 		}
-	else if(hpipm_strcmp(field, "ubu_maks"))
+	else if(hpipm_strcmp(field, "ubu_mask"))
 		{ 
 		OCP_QP_SET_UBU_MASK(stage, value, qp);
 		}
@@ -742,7 +742,7 @@ void OCP_QP_SET(char *field, int stage, void *value, struct OCP_QP *qp)
 		{ 
 		OCP_QP_SET_LLS(stage, value, qp);
 		}
-	else if(hpipm_strcmp(field, "lls_maks"))
+	else if(hpipm_strcmp(field, "lls_mask"))
 		{ 
 		OCP_QP_SET_LLS_MASK(stage, value, qp);
 		}
@@ -992,7 +992,7 @@ void OCP_QP_SET_LBX_MASK(int stage, REAL *lbx_mask, struct OCP_QP *qp)
 	int *nbu = qp->dim->nbu;
 	int *nbx = qp->dim->nbx;
 
-	CVT_VEC2STRVEC(nbx[stage], lbx_mask, qp->d+stage, nbu[stage]);
+	CVT_VEC2STRVEC(nbx[stage], lbx_mask, qp->d_mask+stage, nbu[stage]);
 
 	return;
 	}
