@@ -1243,7 +1243,7 @@ void OCP_QP_INIT_VAR(struct OCP_QP *qp, struct OCP_QP_SOL *qp_sol, struct OCP_QP
 			}
 		}
 
-#if 0 // old version
+#if 1 // old version
 
 
 
