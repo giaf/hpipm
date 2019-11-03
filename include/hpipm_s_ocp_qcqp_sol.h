@@ -33,130 +33,83 @@
 *                                                                                                 *
 **************************************************************************************************/
 
-
-
-int DENSE_QCQP_SOL_MEMSIZE(struct DENSE_QCQP_DIM *dim)
-	{
-
-	int nv = dim->nv;
-	int ne = dim->ne;
-	int nb = dim->nb;
-	int ng = dim->ng;
-	int nq = dim->nq;
-	int ns = dim->ns;
-
-	int size = 0;
-
-	size += 4*sizeof(struct STRVEC); // v pi lam t
-
-	size += 1*SIZE_STRVEC(nv+2*ns); // ux
-	size += 1*SIZE_STRVEC(ne); // pi
-	size += 2*SIZE_STRVEC(2*nb+2*ng+2*nq+2*ns); // lam t
-
-	size = (size+63)/64*64; // make multiple of typical cache line size
-	size += 64; // align to typical cache line size
-	
-	return size;
-
-	}
+#ifndef HPIPM_S_OCP_QCQP_SOL_H_
+#define HPIPM_S_OCP_QCQP_SOL_H_
 
 
 
-void DENSE_QCQP_SOL_CREATE(struct DENSE_QCQP_DIM *dim, struct DENSE_QCQP_SOL *qp_sol, void *mem)
-	{
+#include <blasfeo_target.h>
+#include <blasfeo_common.h>
 
-	// loop index
-	int ii;
-
-	// zero memory (to avoid corrupted memory like e.g. NaN)
-	int memsize = DENSE_QCQP_SOL_MEMSIZE(dim);
-	int memsize_m8 = memsize/8; // sizeof(double) is 8
-//	int memsize_r8 = memsize - 8*memsize_m8;
-	double *double_ptr = mem;
-	// XXX exploit that it is multiple of 64 bytes !!!!!
-	for(ii=0; ii<memsize_m8-7; ii+=8)
-		{
-		double_ptr[ii+0] = 0.0;
-		double_ptr[ii+1] = 0.0;
-		double_ptr[ii+2] = 0.0;
-		double_ptr[ii+3] = 0.0;
-		double_ptr[ii+4] = 0.0;
-		double_ptr[ii+5] = 0.0;
-		double_ptr[ii+6] = 0.0;
-		double_ptr[ii+7] = 0.0;
-		}
-//	for(; ii<memsize_m8; ii++)
-//		{
-//		double_ptr[ii] = 0.0;
-//		}
-//	char *char_ptr = (char *) (&double_ptr[ii]);
-//	for(ii=0; ii<memsize_r8; ii++)
-//		{
-//		char_ptr[ii] = 0;
-//		}
-
-	// extract dim
-	int nv = dim->nv;
-	int ne = dim->ne;
-	int nb = dim->nb;
-	int ng = dim->ng;
-	int nq = dim->nq;
-	int ns = dim->ns;
+#include "hpipm_s_ocp_qcqp_dim.h"
 
 
-	// vector struct stuff
-	struct STRVEC *sv_ptr = (struct STRVEC *) mem;
 
-	qp_sol->v = sv_ptr;
-	sv_ptr += 1;
-	qp_sol->pi = sv_ptr;
-	sv_ptr += 1;
-	qp_sol->lam = sv_ptr;
-	sv_ptr += 1;
-	qp_sol->t = sv_ptr;
-	sv_ptr += 1;
-
-
-	// align to typical cache line size
-	long long l_ptr = (long long) sv_ptr;
-	l_ptr = (l_ptr+63)/64*64;
-
-
-	// double stuff
-	char *c_ptr;
-	c_ptr = (char *) l_ptr;
-
-	char *tmp_ptr;
-
-	// v
-	CREATE_STRVEC(nv+2*ns, qp_sol->v, c_ptr);
-	c_ptr += qp_sol->v->memsize;
-	// pi
-	CREATE_STRVEC(ne, qp_sol->pi, c_ptr);
-	c_ptr += qp_sol->pi->memsize;
-	// lam
-	CREATE_STRVEC(2*nb+2*ng+2*nq+2*ns, qp_sol->lam, c_ptr);
-	c_ptr += qp_sol->lam->memsize;
-	// t
-	CREATE_STRVEC(2*nb+2*ng+2*nq+2*ns, qp_sol->t, c_ptr);
-	c_ptr += qp_sol->t->memsize;
-
-
-	qp_sol->dim = dim;
-
-	qp_sol->memsize = DENSE_QCQP_SOL_MEMSIZE(dim);
-
-
-#if defined(RUNTIME_CHECKS)
-	if(c_ptr > ((char *) mem) + qp_sol->memsize)
-		{
-		printf("\nCreate_ocp_qp_sol: outsize memory bounds!\n\n");
-		exit(1);
-		}
+#ifdef __cplusplus
+extern "C" {
 #endif
 
 
-	return;
 
-	}
+struct s_ocp_qcqp_sol
+	{
+	struct s_ocp_qcqp_dim *dim;
+	struct blasfeo_svec *ux;
+	struct blasfeo_svec *pi;
+	struct blasfeo_svec *lam;
+	struct blasfeo_svec *t;
+	int memsize; // memory size in bytes
+	};
+
+
+
+//
+int s_ocp_qcqp_sol_strsize();
+//
+int s_ocp_qcqp_sol_memsize(struct s_ocp_qcqp_dim *dim);
+//
+void s_ocp_qcqp_sol_create(struct s_ocp_qcqp_dim *dim, struct s_ocp_qcqp_sol *qp_sol, void *memory);
+//
+void s_ocp_qcqp_sol_copy_all(struct s_ocp_qcqp_sol *qp_sol_orig, struct s_ocp_qcqp_sol *qp_sol_dest);
+//
+void s_ocp_qcqp_sol_get(char *field, int stage, struct s_ocp_qcqp_sol *qp_sol, float *vec);
+//
+void s_ocp_qcqp_sol_get_u(int stage, struct s_ocp_qcqp_sol *qp_sol, float *vec);
+//
+void s_ocp_qcqp_sol_get_x(int stage, struct s_ocp_qcqp_sol *qp_sol, float *vec);
+//
+void s_ocp_qcqp_sol_get_sl(int stage, struct s_ocp_qcqp_sol *qp_sol, float *vec);
+//
+void s_ocp_qcqp_sol_get_su(int stage, struct s_ocp_qcqp_sol *qp_sol, float *vec);
+//
+void s_ocp_qcqp_sol_get_pi(int stage, struct s_ocp_qcqp_sol *qp_sol, float *vec);
+//
+void s_ocp_qcqp_sol_get_lam_lb(int stage, struct s_ocp_qcqp_sol *qp_sol, float *vec);
+//
+void s_ocp_qcqp_sol_get_lam_ub(int stage, struct s_ocp_qcqp_sol *qp_sol, float *vec);
+//
+void s_ocp_qcqp_sol_get_lam_lg(int stage, struct s_ocp_qcqp_sol *qp_sol, float *vec);
+//
+void s_ocp_qcqp_sol_get_lam_ug(int stage, struct s_ocp_qcqp_sol *qp_sol, float *vec);
+//
+void s_ocp_qcqp_sol_set(char *field, int stage, float *vec, struct s_ocp_qcqp_sol *qp_sol);
+//
+void s_ocp_qcqp_sol_set_u(int stage, float *vec, struct s_ocp_qcqp_sol *qp_sol);
+//
+void s_ocp_qcqp_sol_set_x(int stage, float *vec, struct s_ocp_qcqp_sol *qp_sol);
+//
+void s_ocp_qcqp_sol_set_sl(int stage, float *vec, struct s_ocp_qcqp_sol *qp_sol);
+//
+void s_ocp_qcqp_sol_set_su(int stage, float *vec, struct s_ocp_qcqp_sol *qp_sol);
+
+
+
+#ifdef __cplusplus
+}	// #extern "C"
+#endif
+
+
+
+#endif // HPIPM_S_OCP_QCQP_SOL_H_
+
 

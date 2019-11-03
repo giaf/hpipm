@@ -35,128 +35,54 @@
 
 
 
-int DENSE_QCQP_SOL_MEMSIZE(struct DENSE_QCQP_DIM *dim)
-	{
+#include <stdlib.h>
+#include <stdio.h>
 
-	int nv = dim->nv;
-	int ne = dim->ne;
-	int nb = dim->nb;
-	int ng = dim->ng;
-	int nq = dim->nq;
-	int ns = dim->ns;
+#include <blasfeo_target.h>
+#include <blasfeo_common.h>
+#include <blasfeo_d_aux.h>
 
-	int size = 0;
-
-	size += 4*sizeof(struct STRVEC); // v pi lam t
-
-	size += 1*SIZE_STRVEC(nv+2*ns); // ux
-	size += 1*SIZE_STRVEC(ne); // pi
-	size += 2*SIZE_STRVEC(2*nb+2*ng+2*nq+2*ns); // lam t
-
-	size = (size+63)/64*64; // make multiple of typical cache line size
-	size += 64; // align to typical cache line size
-	
-	return size;
-
-	}
+#include <hpipm_d_ocp_qcqp_dim.h>
+#include <hpipm_d_ocp_qp.h>
+#include <hpipm_d_ocp_qcqp_sol.h>
+#include <hpipm_aux_string.h>
 
 
 
-void DENSE_QCQP_SOL_CREATE(struct DENSE_QCQP_DIM *dim, struct DENSE_QCQP_SOL *qp_sol, void *mem)
-	{
+#define CREATE_STRVEC blasfeo_create_dvec
+#define CVT_STRVEC2VEC blasfeo_unpack_dvec
+#define CVT_VEC2STRVEC blasfeo_pack_dvec
+#define OCP_QP d_ocp_qp
+#define OCP_QCQP_DIM d_ocp_qcqp_dim
+#define OCP_QCQP_SOL d_ocp_qcqp_sol
+#define REAL double
+#define STRVEC blasfeo_dvec
+#define SIZE_STRVEC blasfeo_memsize_dvec
+#define VECCP blasfeo_dveccp
+#define VECSE blasfeo_dvecse
 
-	// loop index
-	int ii;
-
-	// zero memory (to avoid corrupted memory like e.g. NaN)
-	int memsize = DENSE_QCQP_SOL_MEMSIZE(dim);
-	int memsize_m8 = memsize/8; // sizeof(double) is 8
-//	int memsize_r8 = memsize - 8*memsize_m8;
-	double *double_ptr = mem;
-	// XXX exploit that it is multiple of 64 bytes !!!!!
-	for(ii=0; ii<memsize_m8-7; ii+=8)
-		{
-		double_ptr[ii+0] = 0.0;
-		double_ptr[ii+1] = 0.0;
-		double_ptr[ii+2] = 0.0;
-		double_ptr[ii+3] = 0.0;
-		double_ptr[ii+4] = 0.0;
-		double_ptr[ii+5] = 0.0;
-		double_ptr[ii+6] = 0.0;
-		double_ptr[ii+7] = 0.0;
-		}
-//	for(; ii<memsize_m8; ii++)
-//		{
-//		double_ptr[ii] = 0.0;
-//		}
-//	char *char_ptr = (char *) (&double_ptr[ii]);
-//	for(ii=0; ii<memsize_r8; ii++)
-//		{
-//		char_ptr[ii] = 0;
-//		}
-
-	// extract dim
-	int nv = dim->nv;
-	int ne = dim->ne;
-	int nb = dim->nb;
-	int ng = dim->ng;
-	int nq = dim->nq;
-	int ns = dim->ns;
+#define OCP_QCQP_SOL_STRSIZE d_ocp_qcqp_sol_strsize
+#define OCP_QCQP_SOL_MEMSIZE d_ocp_qcqp_sol_memsize
+#define OCP_QCQP_SOL_CREATE d_ocp_qcqp_sol_create
+#define OCP_QCQP_SOL_COPY_ALL d_ocp_qcqp_sol_copy_all
+#define OCP_QCQP_SOL_GET_ALL d_ocp_qcqp_sol_get_all
+#define OCP_QCQP_SOL_SET_ALL d_ocp_qcqp_sol_set_all
+#define OCP_QCQP_SOL_GET d_ocp_qcqp_sol_get
+#define OCP_QCQP_SOL_GET_U d_ocp_qcqp_sol_get_u
+#define OCP_QCQP_SOL_GET_X d_ocp_qcqp_sol_get_x
+#define OCP_QCQP_SOL_GET_SL d_ocp_qcqp_sol_get_sl
+#define OCP_QCQP_SOL_GET_SU d_ocp_qcqp_sol_get_su
+#define OCP_QCQP_SOL_GET_PI d_ocp_qcqp_sol_get_pi
+#define OCP_QCQP_SOL_GET_LAM_LB d_ocp_qcqp_sol_get_lam_lb
+#define OCP_QCQP_SOL_GET_LAM_UB d_ocp_qcqp_sol_get_lam_ub
+#define OCP_QCQP_SOL_GET_LAM_LG d_ocp_qcqp_sol_get_lam_lg
+#define OCP_QCQP_SOL_GET_LAM_UG d_ocp_qcqp_sol_get_lam_ug
+#define OCP_QCQP_SOL_SET d_ocp_qcqp_sol_set
+#define OCP_QCQP_SOL_SET_U d_ocp_qcqp_sol_set_u
+#define OCP_QCQP_SOL_SET_X d_ocp_qcqp_sol_set_x
+#define OCP_QCQP_SOL_SET_SL d_ocp_qcqp_sol_set_sl
+#define OCP_QCQP_SOL_SET_SU d_ocp_qcqp_sol_set_su
 
 
-	// vector struct stuff
-	struct STRVEC *sv_ptr = (struct STRVEC *) mem;
-
-	qp_sol->v = sv_ptr;
-	sv_ptr += 1;
-	qp_sol->pi = sv_ptr;
-	sv_ptr += 1;
-	qp_sol->lam = sv_ptr;
-	sv_ptr += 1;
-	qp_sol->t = sv_ptr;
-	sv_ptr += 1;
-
-
-	// align to typical cache line size
-	long long l_ptr = (long long) sv_ptr;
-	l_ptr = (l_ptr+63)/64*64;
-
-
-	// double stuff
-	char *c_ptr;
-	c_ptr = (char *) l_ptr;
-
-	char *tmp_ptr;
-
-	// v
-	CREATE_STRVEC(nv+2*ns, qp_sol->v, c_ptr);
-	c_ptr += qp_sol->v->memsize;
-	// pi
-	CREATE_STRVEC(ne, qp_sol->pi, c_ptr);
-	c_ptr += qp_sol->pi->memsize;
-	// lam
-	CREATE_STRVEC(2*nb+2*ng+2*nq+2*ns, qp_sol->lam, c_ptr);
-	c_ptr += qp_sol->lam->memsize;
-	// t
-	CREATE_STRVEC(2*nb+2*ng+2*nq+2*ns, qp_sol->t, c_ptr);
-	c_ptr += qp_sol->t->memsize;
-
-
-	qp_sol->dim = dim;
-
-	qp_sol->memsize = DENSE_QCQP_SOL_MEMSIZE(dim);
-
-
-#if defined(RUNTIME_CHECKS)
-	if(c_ptr > ((char *) mem) + qp_sol->memsize)
-		{
-		printf("\nCreate_ocp_qp_sol: outsize memory bounds!\n\n");
-		exit(1);
-		}
-#endif
-
-
-	return;
-
-	}
+#include "x_ocp_qcqp_sol.c"
 

@@ -52,6 +52,7 @@ OBJS += d_ocp_qp_ipm.o
 OBJS += d_ocp_qp_utils.o
 OBJS += d_ocp_qcqp_dim.o
 OBJS += d_ocp_qcqp.o
+OBJS += d_ocp_qcqp_sol.o
 # single
 OBJS += s_ocp_qp_dim.o
 OBJS += s_ocp_qp.o
@@ -62,6 +63,7 @@ OBJS += s_ocp_qp_ipm.o
 OBJS += s_ocp_qp_utils.o
 OBJS += s_ocp_qcqp_dim.o
 OBJS += s_ocp_qcqp.o
+OBJS += s_ocp_qcqp_sol.o
 # mixed
 #OBJS += m_ocp_qp.o                m_ocp_qp_kkt.o m_ocp_qp_ipm.o
 
@@ -89,3 +91,5 @@ d_ocp_qcqp_dim.o: d_ocp_qcqp_dim.c x_ocp_qcqp_dim.c
 s_ocp_qcqp_dim.o: s_ocp_qcqp_dim.c x_ocp_qcqp_dim.c
 d_ocp_qcqp.o: d_ocp_qcqp.c x_ocp_qcqp.c
 s_ocp_qcqp.o: s_ocp_qcqp.c x_ocp_qcqp.c
+d_ocp_qcqp_sol.o: d_ocp_qcqp_sol.c x_ocp_qcqp_sol.c
+s_ocp_qcqp_sol.o: s_ocp_qcqp_sol.c x_ocp_qcqp_sol.c
