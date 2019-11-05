@@ -123,7 +123,7 @@ void OCP_QCQP_DIM_CREATE(int N, struct OCP_QCQP_DIM *dim, void *mem)
 	dim->nsg = (int *) c_ptr;
 	c_ptr += (N+1)*sizeof(int);
 	// nsq
-	dim->nsg = (int *) c_ptr;
+	dim->nsq = (int *) c_ptr;
 	c_ptr += (N+1)*sizeof(int);
 
 	// N

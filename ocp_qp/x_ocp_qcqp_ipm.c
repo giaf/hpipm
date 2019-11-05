@@ -1137,7 +1137,7 @@ void OCP_QCQP_APPROX_QP(struct OCP_QCQP *qcqp, struct OCP_QCQP_SOL *qcqp_sol, st
 
 		VECCP(2*nb[ii]+2*ng[ii]+2*nq[ii]+2*ns[ii], qcqp->d+ii, 0, qp->d+ii, 0);
 
-		GECP(nu[ii]+nx[ii]+1, nu[ii]+ns[ii], qcqp->RSQrq+ii, 0, 0, qp->RSQrq+ii, 0, 0);
+		GECP(nu[ii]+nx[ii]+1, nu[ii]+nx[ii], qcqp->RSQrq+ii, 0, 0, qp->RSQrq+ii, 0, 0);
 
 		VECSE(nu[ii]+nx[ii], 0.0, ws->qcqp_res_ws->q_adj+ii, 0);
 
