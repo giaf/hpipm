@@ -852,11 +852,11 @@ void OCP_QCQP_INIT_VAR(struct OCP_QCQP *qp, struct OCP_QCQP_SOL *qp_sol, struct 
 		{
 		ux = qp_sol->ux[ii].pa;
 		d_lb = qp->d[ii].pa+0;
-		d_ub = qp->d[ii].pa+nb[ii]+ng[ii];
+		d_ub = qp->d[ii].pa+nb[ii]+ng[ii]+nq[ii];
 		lam_lb = qp_sol->lam[ii].pa+0;
-		lam_ub = qp_sol->lam[ii].pa+nb[ii]+ng[ii];
+		lam_ub = qp_sol->lam[ii].pa+nb[ii]+ng[ii]+nq[ii];
 		t_lb = qp_sol->t[ii].pa+0;
-		t_ub = qp_sol->t[ii].pa+nb[ii]+ng[ii];
+		t_ub = qp_sol->t[ii].pa+nb[ii]+ng[ii]+nq[ii];
 		idxb = qp->idxb[ii];
 		for(jj=0; jj<nb[ii]; jj++)
 			{
@@ -898,16 +898,15 @@ void OCP_QCQP_INIT_VAR(struct OCP_QCQP *qp, struct OCP_QCQP_SOL *qp_sol, struct 
 //		blasfeo_print_tran_dvec(nb[ii], qp_sol->t+ii, nb[ii]+ng[ii]);
 //		exit(1);
 		}
-	
 	// general constraints
 	for(ii=0; ii<=N; ii++)
 		{
 		t_lg = qp_sol->t[ii].pa+nb[ii];
-		t_ug = qp_sol->t[ii].pa+2*nb[ii]+ng[ii];
+		t_ug = qp_sol->t[ii].pa+2*nb[ii]+ng[ii]+nq[ii];
 		lam_lg = qp_sol->lam[ii].pa+nb[ii];
-		lam_ug = qp_sol->lam[ii].pa+2*nb[ii]+ng[ii];
+		lam_ug = qp_sol->lam[ii].pa+2*nb[ii]+ng[ii]+nq[ii];
 		d_lg = qp->d[ii].pa+nb[ii];
-		d_ug = qp->d[ii].pa+2*nb[ii]+ng[ii];
+		d_ug = qp->d[ii].pa+2*nb[ii]+ng[ii]+nq[ii];
 		ux = qp_sol->ux[ii].pa;
 		GEMV_T(nu[ii]+nx[ii], ng[ii], 1.0, qp->DCt+ii, 0, 0, qp_sol->ux+ii, 0, 0.0, qp_sol->t+ii, nb[ii], qp_sol->t+ii, nb[ii]);
 		for(jj=0; jj<ng[ii]; jj++)
@@ -979,25 +978,25 @@ void OCP_QCQP_INIT_VAR(struct OCP_QCQP *qp, struct OCP_QCQP_SOL *qp_sol, struct 
 		ux = qp_sol->ux[ii].pa;
 		s = qp_sol->ux[ii].pa+nu[ii]+nx[ii];
 		d_lb = qp->d[ii].pa+0;
-		d_ub = qp->d[ii].pa+nb[ii]+ng[ii];
+		d_ub = qp->d[ii].pa+nb[ii]+ng[ii]+nq[ii];
 		d_lg = qp->d[ii].pa+nb[ii];
-		d_ug = qp->d[ii].pa+2*nb[ii]+ng[ii];
-		d_ls = qp->d[ii].pa+2*nb[ii]+2*ng[ii];
+		d_ug = qp->d[ii].pa+2*nb[ii]+ng[ii]+nq[ii];
+		d_ls = qp->d[ii].pa+2*nb[ii]+2*ng[ii]+2*nq[ii];
 		lam_lb = qp_sol->lam[ii].pa+0;
-		lam_ub = qp_sol->lam[ii].pa+nb[ii]+ng[ii];
+		lam_ub = qp_sol->lam[ii].pa+nb[ii]+ng[ii]+nq[ii];
 		lam_lg = qp_sol->lam[ii].pa+nb[ii];
-		lam_ug = qp_sol->lam[ii].pa+2*nb[ii]+ng[ii];
-		lam_ls = qp_sol->lam[ii].pa+2*nb[ii]+2*ng[ii];
+		lam_ug = qp_sol->lam[ii].pa+2*nb[ii]+ng[ii]+nq[ii];
+		lam_ls = qp_sol->lam[ii].pa+2*nb[ii]+2*ng[ii]+2*nq[ii];
 		t_lb = qp_sol->t[ii].pa+0;
-		t_ub = qp_sol->t[ii].pa+nb[ii]+ng[ii];
+		t_ub = qp_sol->t[ii].pa+nb[ii]+ng[ii]+nq[ii];
 		t_lg = qp_sol->t[ii].pa+nb[ii];
-		t_ug = qp_sol->t[ii].pa+2*nb[ii]+ng[ii];
-		t_ls = qp_sol->t[ii].pa+2*nb[ii]+2*ng[ii];
+		t_ug = qp_sol->t[ii].pa+2*nb[ii]+ng[ii]+nq[ii];
+		t_ls = qp_sol->t[ii].pa+2*nb[ii]+2*ng[ii]+2*nq[ii];
 		idxb = qp->idxb[ii];
 		idxs = qp->idxs[ii];
 
 		// lower bound on slacks
-		AXPY(2*ns[ii], -1.0, qp->d+ii, 2*nb[ii]+2*ng[ii], qp_sol->ux+ii, nu[ii]+nx[ii], qp_sol->t+ii, 2*nb[ii]+2*ng[ii]);
+		AXPY(2*ns[ii], -1.0, qp->d+ii, 2*nb[ii]+2*ng[ii]+2*nq[ii], qp_sol->ux+ii, nu[ii]+nx[ii], qp_sol->t+ii, 2*nb[ii]+2*ng[ii]+2*nq[ii]);
 		for(jj=0; jj<2*ns[ii]; jj++)
 			{
 #if 1
@@ -1012,11 +1011,11 @@ void OCP_QCQP_INIT_VAR(struct OCP_QCQP *qp, struct OCP_QCQP_SOL *qp_sol, struct 
 #endif
 			}
 //		blasfeo_print_tran_dvec(2*ns[ii], qp_sol->ux+ii, nu[ii]+nx[ii]);
-//		blasfeo_print_tran_dvec(2*ns[ii], qp_sol->t+ii, 2*nb[ii]+2*ng[ii]);
+//		blasfeo_print_tran_dvec(2*ns[ii], qp_sol->t+ii, 2*nb[ii]+2*ng[ii]+2*nq[ii]);
 
 		// upper and lower bounds on inputs and states
 		VECEX_SP(nb[ii], 1.0, qp->idxb[ii], qp_sol->ux+ii, 0, qp_sol->t+ii, 0);
-		VECCPSC(nb[ii], -1.0, qp_sol->t+ii, 0, qp_sol->t+ii, nb[ii]+ng[ii]);
+		VECCPSC(nb[ii], -1.0, qp_sol->t+ii, 0, qp_sol->t+ii, nb[ii]+ng[ii]+nq[ii]);
 		for(jj=0; jj<ns[ii]; jj++)
 			{
 			idx = idxs[jj];
@@ -1028,9 +1027,9 @@ void OCP_QCQP_INIT_VAR(struct OCP_QCQP *qp, struct OCP_QCQP_SOL *qp_sol, struct 
 				}
 			}
 		AXPY(nb[ii], -1.0, qp->d+ii, 0, qp_sol->t+ii, 0, qp_sol->t+ii, 0);
-		AXPY(nb[ii], -1.0, qp->d+ii, nb[ii]+ng[ii], qp_sol->t+ii, nb[ii]+ng[ii], qp_sol->t+ii, nb[ii]+ng[ii]);
+		AXPY(nb[ii], -1.0, qp->d+ii, nb[ii]+ng[ii]+nq[ii], qp_sol->t+ii, nb[ii]+ng[ii]+nq[ii], qp_sol->t+ii, nb[ii]+ng[ii]+nq[ii]);
 //		blasfeo_print_tran_dvec(nb[ii], qp_sol->t+ii, 0);
-//		blasfeo_print_tran_dvec(nb[ii], qp_sol->t+ii, nb[ii]+ng[ii]);
+//		blasfeo_print_tran_dvec(nb[ii], qp_sol->t+ii, nb[ii]+ng[ii]+nq[ii]);
 		for(jj=0; jj<nb[ii]; jj++)
 			{
 #if 1
@@ -1061,13 +1060,13 @@ void OCP_QCQP_INIT_VAR(struct OCP_QCQP *qp, struct OCP_QCQP_SOL *qp_sol, struct 
 			}
 //		blasfeo_print_tran_dvec(nu[ii]+nx[ii], qp_sol->ux+ii, 0);
 //		blasfeo_print_tran_dvec(nb[ii], qp_sol->t+ii, 0);
-//		blasfeo_print_tran_dvec(nb[ii], qp_sol->t+ii, nb[ii]+ng[ii]);
+//		blasfeo_print_tran_dvec(nb[ii], qp_sol->t+ii, nb[ii]+ng[ii]+nq[ii]);
 
 		// upper and lower general constaints
 		GEMV_T(nu[ii]+nx[ii], ng[ii], 1.0, qp->DCt+ii, 0, 0, qp_sol->ux+ii, 0, 0.0, qp_sol->t+ii, nb[ii], qp_sol->t+ii, nb[ii]);
-		VECCPSC(ng[ii], -1.0, qp_sol->t+ii, nb[ii], qp_sol->t+ii, 2*nb[ii]+ng[ii]);
+		VECCPSC(ng[ii], -1.0, qp_sol->t+ii, nb[ii], qp_sol->t+ii, 2*nb[ii]+ng[ii]+nq[ii]);
 //		blasfeo_print_tran_dvec(ng[ii], qp_sol->t+ii, nb[ii]);
-//		blasfeo_print_tran_dvec(ng[ii], qp_sol->t+ii, 2*nb[ii]+ng[ii]);
+//		blasfeo_print_tran_dvec(ng[ii], qp_sol->t+ii, 2*nb[ii]+ng[ii]+nq[ii]);
 		for(jj=0; jj<ns[ii]; jj++)
 			{
 			idx = idxs[jj];
@@ -1080,9 +1079,9 @@ void OCP_QCQP_INIT_VAR(struct OCP_QCQP *qp, struct OCP_QCQP_SOL *qp_sol, struct 
 				}
 			}
 //		blasfeo_print_tran_dvec(ng[ii], qp_sol->t+ii, nb[ii]);
-//		blasfeo_print_tran_dvec(ng[ii], qp_sol->t+ii, 2*nb[ii]+ng[ii]);
+//		blasfeo_print_tran_dvec(ng[ii], qp_sol->t+ii, 2*nb[ii]+ng[ii]+nq[ii]);
 		AXPY(ng[ii], -1.0, qp->d+ii, nb[ii], qp_sol->t+ii, nb[ii], qp_sol->t+ii, nb[ii]);
-		AXPY(ng[ii], -1.0, qp->d+ii, 2*nb[ii]+ng[ii], qp_sol->t+ii, 2*nb[ii]+ng[ii], qp_sol->t+ii, 2*nb[ii]+ng[ii]);
+		AXPY(ng[ii], -1.0, qp->d+ii, 2*nb[ii]+ng[ii]+nq[ii], qp_sol->t+ii, 2*nb[ii]+ng[ii]+nq[ii], qp_sol->t+ii, 2*nb[ii]+ng[ii]+nq[ii]);
 		for(jj=0; jj<ng[ii]; jj++)
 			{
 #if 1
@@ -1094,10 +1093,10 @@ void OCP_QCQP_INIT_VAR(struct OCP_QCQP *qp, struct OCP_QCQP_SOL *qp_sol, struct 
 #endif
 			}
 //		blasfeo_print_tran_dvec(ng[ii], qp_sol->t+ii, nb[ii]);
-//		blasfeo_print_tran_dvec(ng[ii], qp_sol->t+ii, 2*nb[ii]+ng[ii]);
+//		blasfeo_print_tran_dvec(ng[ii], qp_sol->t+ii, 2*nb[ii]+ng[ii]+nq[ii]);
 
 		// multipliers
-		for(jj=0; jj<2*nb[ii]+2*ng[ii]+2*ns[ii]; jj++)
+		for(jj=0; jj<2*nb[ii]+2*ng[ii]+2*nq[ii]+2*ns[ii]; jj++)
 			lam_lb[jj] = mu0/t_lb[jj];
 
 		}
@@ -1107,7 +1106,6 @@ void OCP_QCQP_INIT_VAR(struct OCP_QCQP *qp, struct OCP_QCQP_SOL *qp_sol, struct 
 
 
 #endif // new version
-
 
 
 	return;

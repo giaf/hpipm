@@ -1662,6 +1662,9 @@ void OCP_QP_IPM_ABS_STEP(int kk, struct OCP_QP *qp, struct OCP_QP_SOL *qp_sol, s
 void OCP_QP_IPM_DELTA_STEP(int kk, struct OCP_QP *qp, struct OCP_QP_SOL *qp_sol, struct OCP_QP_IPM_ARG *arg, struct OCP_QP_IPM_WS *ws)
 	{
 
+//d_ocp_qp_print(qp->dim, qp);
+//d_ocp_qp_sol_print(qp->dim, qp_sol);
+//exit(1);
 	// dim
 	int N = qp->dim->N;
 	int *nx = qp->dim->nx;
@@ -1997,6 +2000,8 @@ void OCP_QP_IPM_DELTA_STEP(int kk, struct OCP_QP *qp, struct OCP_QP_SOL *qp_sol,
 		VECMUL(cws->nc, qp->d_mask, 0, qp_sol->lam, 0, qp_sol->lam, 0);
 		}
 
+//d_ocp_qp_sol_print(qp->dim, qp_sol);
+//exit(1);
 	return;
 
 	}

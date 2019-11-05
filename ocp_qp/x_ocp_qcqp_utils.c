@@ -261,11 +261,11 @@ void OCP_QCQP_PRINT(struct OCP_QCQP_DIM *dim, struct OCP_QCQP *qp)
 
 	printf("d =\n");
 	for (ii = 0; ii <= N; ii++)
-		BLASFEO_PRINT_TRAN_VEC(2*nb[ii]+2*ng[ii]+2*ns[ii], qp->d+ii, 0);
+		BLASFEO_PRINT_TRAN_VEC(2*nb[ii]+2*ng[ii]+2*nq[ii]+2*ns[ii], qp->d+ii, 0);
 
 	printf("d_mask =\n");
 	for (ii = 0; ii <= N; ii++)
-		BLASFEO_PRINT_TRAN_VEC(2*nb[ii]+2*ng[ii]+2*ns[ii], qp->d_mask+ii, 0);
+		BLASFEO_PRINT_TRAN_VEC(2*nb[ii]+2*ng[ii]+2*nq[ii]+2*ns[ii], qp->d_mask+ii, 0);
 
 	printf("DCt =\n");
 	for (ii = 0; ii <= N; ii++)

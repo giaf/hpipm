@@ -195,8 +195,10 @@ void OCP_QCQP_RES_CREATE(struct OCP_QCQP_DIM *dim, struct OCP_QCQP_RES *res, voi
 		CREATE_STRVEC(2*nb[ii]+2*ng[ii]+2*nq[ii]+2*ns[ii], res->res_d+ii, c_ptr);
 		c_ptr += nb[ii]*sizeof(REAL);
 		c_ptr += ng[ii]*sizeof(REAL);
+		c_ptr += nq[ii]*sizeof(REAL);
 		c_ptr += nb[ii]*sizeof(REAL);
 		c_ptr += ng[ii]*sizeof(REAL);
+		c_ptr += nq[ii]*sizeof(REAL);
 		c_ptr += ns[ii]*sizeof(REAL);
 		c_ptr += ns[ii]*sizeof(REAL);
 		}
@@ -207,8 +209,10 @@ void OCP_QCQP_RES_CREATE(struct OCP_QCQP_DIM *dim, struct OCP_QCQP_RES *res, voi
 		CREATE_STRVEC(2*nb[ii]+2*ng[ii]+2*nq[ii]+2*ns[ii], res->res_m+ii, c_ptr);
 		c_ptr += nb[ii]*sizeof(REAL);
 		c_ptr += ng[ii]*sizeof(REAL);
+		c_ptr += nq[ii]*sizeof(REAL);
 		c_ptr += nb[ii]*sizeof(REAL);
 		c_ptr += ng[ii]*sizeof(REAL);
+		c_ptr += nq[ii]*sizeof(REAL);
 		c_ptr += ns[ii]*sizeof(REAL);
 		c_ptr += ns[ii]*sizeof(REAL);
 		}
