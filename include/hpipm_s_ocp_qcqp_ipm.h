@@ -33,10 +33,8 @@
 *                                                                                                 *
 **************************************************************************************************/
 
-
-
-#ifndef HPIPM_S_OCP_QP_IPM_H_
-#define HPIPM_S_OCP_QP_IPM_H_
+#ifndef HPIPM_S_OCP_QCQP_IPM_H_
+#define HPIPM_S_OCP_QCQP_IPM_H_
 
 
 
@@ -44,10 +42,10 @@
 #include <blasfeo_common.h>
 
 #include <hpipm_common.h>
-#include <hpipm_s_ocp_qp_dim.h>
+#include <hpipm_s_ocp_qcqp_dim.h>
 #include <hpipm_s_ocp_qp.h>
-#include <hpipm_s_ocp_qp_res.h>
-#include <hpipm_s_ocp_qp_sol.h>
+#include <hpipm_s_ocp_qcqp_res.h>
+#include <hpipm_s_ocp_qcqp_sol.h>
 
 
 
@@ -57,8 +55,9 @@ extern "C" {
 
 
 
-struct s_ocp_qp_ipm_arg
+struct s_ocp_qcqp_ipm_arg
 	{
+	struct s_ocp_qp_ipm_arg *qp_arg;
 	float mu0; // initial value for complementarity slackness
 	float alpha_min; // exit cond on step length
 	float res_g_max; // exit cond on inf norm of residuals
@@ -87,140 +86,96 @@ struct s_ocp_qp_ipm_arg
 
 
 
-struct s_ocp_qp_ipm_ws
+struct s_ocp_qcqp_ipm_ws
 	{
-	struct s_core_qp_ipm_workspace *core_workspace;
-	struct s_ocp_qp_res_ws *res_workspace;
-	struct s_ocp_qp_dim *dim; // cache dim
-	struct s_ocp_qp_sol *sol_step;
-	struct s_ocp_qp_sol *sol_itref;
-	struct s_ocp_qp *qp_step;
-	struct s_ocp_qp *qp_itref;
-	struct s_ocp_qp_res *res;
-	struct s_ocp_qp_res *res_itref;
-	struct blasfeo_svec *Gamma; // hessian update
-	struct blasfeo_svec *gamma; // hessian update
-	struct blasfeo_svec *tmp_nxM; // work space of size nxM
-	struct blasfeo_svec *tmp_nbgM; // work space of size nbM+ngM
-	struct blasfeo_svec *tmp_nsM; // work space of size nsM
-	struct blasfeo_svec *Pb; // Pb
-	struct blasfeo_svec *Zs_inv;
-	struct blasfeo_smat *L;
-	struct blasfeo_smat *Ls;
-	struct blasfeo_smat *P;
-	struct blasfeo_smat *Lh;
-	struct blasfeo_smat *AL;
-	struct blasfeo_smat *lq0;
-	struct blasfeo_svec *tmp_m;
-	float *stat; // convergence statistics
-	int *use_hess_fact;
-	void *lq_work0;
-	float qp_res[4]; // infinity norm of residuals
+	struct s_ocp_qp_ipm_ws *qp_ws;
+	struct s_ocp_qp *qp;
+	struct s_ocp_qp_sol *qp_sol;
+	struct s_ocp_qcqp_res_ws *qcqp_res_ws;
+	struct s_ocp_qcqp_res *qcqp_res;
+	struct blasfeo_svec *tmp_nuxM;
 	int iter; // iteration number
-	int stat_max; // iterations saved in stat
-	int stat_m; // number of recorded stat per IPM iter
-	int use_Pb;
-	int status; // solver status
-	int square_root_alg; // cache from arg
-	int lq_fact; // cache from arg
-	int mask_constr; // use constr mask
+	int status;
 	int memsize;
 	};
 
 
 
 //
-int s_ocp_qp_ipm_arg_strsize();
+int s_ocp_qcqp_ipm_arg_strseize();
 //
-int s_ocp_qp_ipm_arg_memsize(struct s_ocp_qp_dim *ocp_dim);
+int s_ocp_qcqp_ipm_arg_memsize(struct s_ocp_qcqp_dim *ocp_dim);
 //
-void s_ocp_qp_ipm_arg_create(struct s_ocp_qp_dim *ocp_dim, struct s_ocp_qp_ipm_arg *arg, void *mem);
+void s_ocp_qcqp_ipm_arg_create(struct s_ocp_qcqp_dim *ocp_dim, struct s_ocp_qcqp_ipm_arg *arg, void *mem);
 //
-void s_ocp_qp_ipm_arg_set_default(enum hpipm_mode mode, struct s_ocp_qp_ipm_arg *arg);
+void s_ocp_qcqp_ipm_arg_set_default(enum hpipm_mode mode, struct s_ocp_qcqp_ipm_arg *arg);
 //
-void s_ocp_qp_ipm_arg_set(char *field, void *value, struct s_ocp_qp_ipm_arg *arg);
+void s_ocp_qcqp_ipm_arg_set(char *field, void *value, struct s_ocp_qcqp_ipm_arg *arg);
 // set maximum number of iterations
-void s_ocp_qp_ipm_arg_set_iter_max(int *iter_max, struct s_ocp_qp_ipm_arg *arg);
+void s_ocp_qcqp_ipm_arg_set_iter_max(int *value, struct s_ocp_qcqp_ipm_arg *arg);
 // set minimum step lenght
-void s_ocp_qp_ipm_arg_set_alpha_min(float *alpha_min, struct s_ocp_qp_ipm_arg *arg);
+void s_ocp_qcqp_ipm_arg_set_alpha_min(float *value, struct s_ocp_qcqp_ipm_arg *arg);
 // set initial value of barrier parameter
-void s_ocp_qp_ipm_arg_set_mu0(float *mu0, struct s_ocp_qp_ipm_arg *arg);
+void s_ocp_qcqp_ipm_arg_set_mu0(float *value, struct s_ocp_qcqp_ipm_arg *arg);
 // set exit tolerance on stationarity condition
-void s_ocp_qp_ipm_arg_set_tol_stat(float *tol_stat, struct s_ocp_qp_ipm_arg *arg);
+void s_ocp_qcqp_ipm_arg_set_tol_stat(float *value, struct s_ocp_qcqp_ipm_arg *arg);
 // set exit tolerance on equality constr
-void s_ocp_qp_ipm_arg_set_tol_eq(float *tol_eq, struct s_ocp_qp_ipm_arg *arg);
+void s_ocp_qcqp_ipm_arg_set_tol_eq(float *value, struct s_ocp_qcqp_ipm_arg *arg);
 // set exit tolerance on inequality constr
-void s_ocp_qp_ipm_arg_set_tol_ineq(float *tol_ineq, struct s_ocp_qp_ipm_arg *arg);
+void s_ocp_qcqp_ipm_arg_set_tol_ineq(float *value, struct s_ocp_qcqp_ipm_arg *arg);
 // set exit tolerance on complementarity condition
-void s_ocp_qp_ipm_arg_set_tol_comp(float *tol_comp, struct s_ocp_qp_ipm_arg *arg);
+void s_ocp_qcqp_ipm_arg_set_tol_comp(float *value, struct s_ocp_qcqp_ipm_arg *arg);
 // set regularization of primal variables
-void s_ocp_qp_ipm_arg_set_reg_prim(float *tol_comp, struct s_ocp_qp_ipm_arg *arg);
+void s_ocp_qcqp_ipm_arg_set_reg_prim(float *value, struct s_ocp_qcqp_ipm_arg *arg);
 // set warm start: 0 no warm start, 1 primal var
-void s_ocp_qp_ipm_arg_set_warm_start(int *warm_start, struct s_ocp_qp_ipm_arg *arg);
+void s_ocp_qcqp_ipm_arg_set_warm_start(int *value, struct s_ocp_qcqp_ipm_arg *arg);
 // Mehrotra's predictor-corrector IPM algorithm: 0 no predictor-corrector, 1 use predictor-corrector
-void s_ocp_qp_ipm_arg_set_pred_corr(int *pred_corr, struct s_ocp_qp_ipm_arg *arg);
+void s_ocp_qcqp_ipm_arg_set_pred_corr(int *value, struct s_ocp_qcqp_ipm_arg *arg);
 // conditional predictor-corrector: 0 no conditinal predictor-corrector, 1 conditional predictor-corrector
-void s_ocp_qp_ipm_arg_set_cond_pred_corr(int *value, struct s_ocp_qp_ipm_arg *arg);
+void s_ocp_qcqp_ipm_arg_set_cond_pred_corr(int *value, struct s_ocp_qcqp_ipm_arg *arg);
 // set riccati algorithm: 0 classic, 1 square-root
-void s_ocp_qp_ipm_arg_set_ric_alg(int *alg, struct s_ocp_qp_ipm_arg *arg);
+void s_ocp_qcqp_ipm_arg_set_ric_alg(int *value, struct s_ocp_qcqp_ipm_arg *arg);
 // compute residuals after solution
-void s_ocp_qp_ipm_arg_set_comp_res_exit(int *value, struct s_ocp_qp_ipm_arg *arg);
+void s_ocp_qcqp_ipm_arg_set_comp_res_exit(int *value, struct s_ocp_qcqp_ipm_arg *arg);
 // compute residuals of prediction
-void s_ocp_qp_ipm_arg_set_comp_res_pred(int *alg, struct s_ocp_qp_ipm_arg *arg);
+void s_ocp_qcqp_ipm_arg_set_comp_res_pred(int *value, struct s_ocp_qcqp_ipm_arg *arg);
 
 //
-int s_ocp_qp_ipm_ws_strsize();
+int s_ocp_qcqp_ipm_ws_strsize();
 //
-int s_ocp_qp_ipm_ws_memsize(struct s_ocp_qp_dim *ocp_dim, struct s_ocp_qp_ipm_arg *arg);
+int s_ocp_qcqp_ipm_ws_memsize(struct s_ocp_qcqp_dim *ocp_dim, struct s_ocp_qcqp_ipm_arg *arg);
 //
-void s_ocp_qp_ipm_ws_create(struct s_ocp_qp_dim *ocp_dim, struct s_ocp_qp_ipm_arg *arg, struct s_ocp_qp_ipm_ws *ws, void *mem);
+void s_ocp_qcqp_ipm_ws_create(struct s_ocp_qcqp_dim *ocp_dim, struct s_ocp_qcqp_ipm_arg *arg, struct s_ocp_qcqp_ipm_ws *ws, void *mem);
 //
-void s_ocp_qp_ipm_get(char *field, struct s_ocp_qp_ipm_ws *ws, void *value);
+void s_ocp_qcqp_ipm_get(char *field, struct s_ocp_qcqp_ipm_ws *ws, void *value);
 //
-void s_ocp_qp_ipm_get_status(struct s_ocp_qp_ipm_ws *ws, int *status);
+void s_ocp_qcqp_ipm_get_status(struct s_ocp_qcqp_ipm_ws *ws, int *status);
 //
-void s_ocp_qp_ipm_get_iter(struct s_ocp_qp_ipm_ws *ws, int *iter);
+void s_ocp_qcqp_ipm_get_iter(struct s_ocp_qcqp_ipm_ws *ws, int *iter);
 //
-void s_ocp_qp_ipm_get_max_res_stat(struct s_ocp_qp_ipm_ws *ws, float *res_stat);
+void s_ocp_qcqp_ipm_get_max_res_stat(struct s_ocp_qcqp_ipm_ws *ws, float *res_stat);
 //
-void s_ocp_qp_ipm_get_max_res_eq(struct s_ocp_qp_ipm_ws *ws, float *res_eq);
+void s_ocp_qcqp_ipm_get_max_res_eq(struct s_ocp_qcqp_ipm_ws *ws, float *res_eq);
 //
-void s_ocp_qp_ipm_get_max_res_ineq(struct s_ocp_qp_ipm_ws *ws, float *res_ineq);
+void s_ocp_qcqp_ipm_get_max_res_ineq(struct s_ocp_qcqp_ipm_ws *ws, float *res_ineq);
 //
-void s_ocp_qp_ipm_get_max_res_comp(struct s_ocp_qp_ipm_ws *ws, float *res_comp);
+void s_ocp_qcqp_ipm_get_max_res_comp(struct s_ocp_qcqp_ipm_ws *ws, float *res_comp);
 //
-void s_ocp_qp_ipm_get_stat(struct s_ocp_qp_ipm_ws *ws, float **stat);
+void s_ocp_qcqp_ipm_get_stat(struct s_ocp_qcqp_ipm_ws *ws, float **stat);
 //
-void s_ocp_qp_ipm_get_stat_m(struct s_ocp_qp_ipm_ws *ws, int *stat_m);
+void s_ocp_qcqp_ipm_get_stat_m(struct s_ocp_qcqp_ipm_ws *ws, int *stat_m);
 //
-void s_ocp_qp_ipm_get_ric_Lr(int stage, struct s_ocp_qp_ipm_ws *ws, float *Lr);
+void s_ocp_qcqp_init_var(struct s_ocp_qcqp *qp, struct s_ocp_qcqp_sol *qp_sol, struct s_ocp_qcqp_ipm_arg *arg, struct s_ocp_qcqp_ipm_ws *ws);
 //
-void s_ocp_qp_ipm_get_ric_Ls(int stage, struct s_ocp_qp_ipm_ws *ws, float *Ls);
-//
-void s_ocp_qp_ipm_get_ric_P(int stage, struct s_ocp_qp_ipm_ws *ws, float *P);
-// valid only in the unconstrained case
-void s_ocp_qp_ipm_get_ric_lr(int stage, struct s_ocp_qp_ipm_ws *ws, float *lr);
-// valid only in the unconstrained case
-void s_ocp_qp_ipm_get_ric_p(int stage, struct s_ocp_qp_ipm_ws *ws, float *p);
-//
-void s_ocp_qp_init_var(struct s_ocp_qp *qp, struct s_ocp_qp_sol *qp_sol, struct s_ocp_qp_ipm_arg *arg, struct s_ocp_qp_ipm_ws *ws);
-//
-void s_ocp_qp_ipm_abs_step(int kk, struct s_ocp_qp *qp, struct s_ocp_qp_sol *qp_sol, struct s_ocp_qp_ipm_arg *arg, struct s_ocp_qp_ipm_ws *ws);
-//
-void s_ocp_qp_ipm_delta_step(int kk, struct s_ocp_qp *qp, struct s_ocp_qp_sol *qp_sol, struct s_ocp_qp_ipm_arg *arg, struct s_ocp_qp_ipm_ws *ws);
-//
-void s_ocp_qp_ipm_solve(struct s_ocp_qp *qp, struct s_ocp_qp_sol *qp_sol, struct s_ocp_qp_ipm_arg *arg, struct s_ocp_qp_ipm_ws *ws);
-//
-void s_ocp_qp_ipm_predict(struct s_ocp_qp *qp, struct s_ocp_qp_sol *qp_sol, struct s_ocp_qp_ipm_arg *arg, struct s_ocp_qp_ipm_ws *ws);
-//
-void s_ocp_qp_ipm_sens(struct s_ocp_qp *qp, struct s_ocp_qp_sol *qp_sol, struct s_ocp_qp_ipm_arg *arg, struct s_ocp_qp_ipm_ws *ws);
+void s_ocp_qcqp_ipm_solve(struct s_ocp_qcqp *qp, struct s_ocp_qcqp_sol *qp_sol, struct s_ocp_qcqp_ipm_arg *arg, struct s_ocp_qcqp_ipm_ws *ws);
 
 
 
 #ifdef __cplusplus
-} /* extern "C" */
+}	// #extern "C"
 #endif
 
 
+#endif // HPIPM_S_OCP_QCQP_IPM_H_
 
-#endif // HPIPM_S_OCP_QP_IPM_H_
+

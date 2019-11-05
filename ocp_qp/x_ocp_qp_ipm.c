@@ -255,6 +255,10 @@ void OCP_QP_IPM_ARG_SET(char *field, void *value, struct OCP_QP_IPM_ARG *arg)
 		{
 		OCP_QP_IPM_ARG_SET_PRED_CORR(value, arg);
 		}
+	else if(hpipm_strcmp(field, "cond_pred_corr")) 
+		{
+		OCP_QP_IPM_ARG_SET_COND_PRED_CORR(value, arg);
+		}
 	else if(hpipm_strcmp(field, "ric_alg")) 
 		{
 		OCP_QP_IPM_ARG_SET_RIC_ALG(value, arg);
@@ -352,6 +356,14 @@ void OCP_QP_IPM_ARG_SET_WARM_START(int *warm_start, struct OCP_QP_IPM_ARG *arg)
 void OCP_QP_IPM_ARG_SET_PRED_CORR(int *pred_corr, struct OCP_QP_IPM_ARG *arg)
 	{
 	arg->pred_corr = *pred_corr;
+	return;
+	}
+
+
+
+void OCP_QP_IPM_ARG_SET_COND_PRED_CORR(int *value, struct OCP_QP_IPM_ARG *arg)
+	{
+	arg->cond_pred_corr = *value;
 	return;
 	}
 
@@ -2047,20 +2059,6 @@ void OCP_QP_IPM_SOLVE(struct OCP_QP *qp, struct OCP_QP_SOL *qp_sol, struct OCP_Q
 	ws->qp_itref->b = ws->res_itref->res_b;
 	ws->qp_itref->d = ws->res_itref->res_d;
 	ws->qp_itref->m = ws->res_itref->res_m;
-
-	// blasfeo alias for residuals
-	struct STRVEC str_res_g;
-	struct STRVEC str_res_b;
-	struct STRVEC str_res_d;
-	struct STRVEC str_res_m;
-	str_res_g.m = cws->nv;
-	str_res_b.m = cws->ne;
-	str_res_d.m = cws->nc;
-	str_res_m.m = cws->nc;
-	str_res_g.pa = cws->res_g;
-	str_res_b.pa = cws->res_b;
-	str_res_d.pa = cws->res_d;
-	str_res_m.pa = cws->res_m;
 
 	REAL *qp_res_max = ws->res->res_max;
 	qp_res_max[0] = 0;

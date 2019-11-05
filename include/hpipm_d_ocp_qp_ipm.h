@@ -157,6 +157,8 @@ void d_ocp_qp_ipm_arg_set_reg_prim(double *tol_comp, struct d_ocp_qp_ipm_arg *ar
 void d_ocp_qp_ipm_arg_set_warm_start(int *warm_start, struct d_ocp_qp_ipm_arg *arg);
 // Mehrotra's predictor-corrector IPM algorithm: 0 no predictor-corrector, 1 use predictor-corrector
 void d_ocp_qp_ipm_arg_set_pred_corr(int *pred_corr, struct d_ocp_qp_ipm_arg *arg);
+// conditional predictor-corrector: 0 no conditinal predictor-corrector, 1 conditional predictor-corrector
+void d_ocp_qp_ipm_arg_set_cond_pred_corr(int *value, struct d_ocp_qp_ipm_arg *arg);
 // set riccati algorithm: 0 classic, 1 square-root
 void d_ocp_qp_ipm_arg_set_ric_alg(int *value, struct d_ocp_qp_ipm_arg *arg);
 // compute residuals after solution

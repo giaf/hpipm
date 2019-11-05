@@ -1486,20 +1486,6 @@ void DENSE_QP_IPM_SOLVE(struct DENSE_QP *qp, struct DENSE_QP_SOL *qp_sol, struct
 	ws->qp_itref->m = ws->res_itref->res_m;
 //	ws->qp_itref->d_mask = qp->d_mask; // XXX
 
-	// blasfeo alias for residuals
-	struct STRVEC str_res_g;
-	struct STRVEC str_res_b;
-	struct STRVEC str_res_d;
-	struct STRVEC str_res_m;
-	str_res_g.m = cws->nv;
-	str_res_b.m = cws->ne;
-	str_res_d.m = cws->nc;
-	str_res_m.m = cws->nc;
-	str_res_g.pa = cws->res_g;
-	str_res_b.pa = cws->res_b;
-	str_res_d.pa = cws->res_d;
-	str_res_m.pa = cws->res_m;
-
 	REAL *qp_res_max = ws->res->res_max;
 	qp_res_max[0] = 0;
 	qp_res_max[1] = 0;
