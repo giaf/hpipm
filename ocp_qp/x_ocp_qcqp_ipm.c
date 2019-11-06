@@ -1739,7 +1739,8 @@ void OCP_QCQP_IPM_SOLVE(struct OCP_QCQP *qcqp, struct OCP_QCQP_SOL *qcqp_sol, st
 
 		// hessian is updated with quad constr: can not reuse hessian factorization !!!
 		// XXX is it in ocp ws ?????
-		qp_ws->use_hess_fact = 0;
+		for(ii=0; ii<=N; ii++)
+			qp_ws->use_hess_fact[ii] = 0;
 
 		// compute delta step
 		OCP_QP_IPM_DELTA_STEP(kk, qp, qp_sol, qp_arg, qp_ws);
