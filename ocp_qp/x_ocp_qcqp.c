@@ -1355,7 +1355,7 @@ void OCP_QCQP_SET_SQ(int stage, REAL *Sq, struct OCP_QCQP *qp)
 	int ii;
 
 	for(ii=0; ii<nq[stage]; ii++)
-		CVT_TRAN_MAT2STRMAT(nu[stage], nx[stage], Sq+nu[stage]*nx[stage], nu[stage], &qp->Hq[stage][ii], nu[stage], 0);
+		CVT_TRAN_MAT2STRMAT(nu[stage], nx[stage], Sq+ii*nu[stage]*nx[stage], nu[stage], &qp->Hq[stage][ii], nu[stage], 0);
 
 	return;
 	}
@@ -1372,7 +1372,7 @@ void OCP_QCQP_SET_RQ(int stage, REAL *Rq, struct OCP_QCQP *qp)
 	int ii;
 
 	for(ii=0; ii<nq[stage]; ii++)
-		CVT_MAT2STRMAT(nu[stage], nu[stage], Rq+nu[stage]*nu[stage], nu[stage], &qp->Hq[stage][ii], 0, 0);
+		CVT_MAT2STRMAT(nu[stage], nu[stage], Rq+ii*nu[stage]*nu[stage], nu[stage], &qp->Hq[stage][ii], 0, 0);
 
 	return;
 	}
@@ -1389,7 +1389,7 @@ void OCP_QCQP_SET_QQVEC(int stage, REAL *qq, struct OCP_QCQP *qp)
 	int ii;
 
 	for(ii=0; ii<nq[stage]; ii++)
-		CVT_VEC2STRVEC(nx[stage], qq, &qp->gq[stage][ii], nu[stage]);
+		CVT_VEC2STRVEC(nx[stage], qq+ii*nx[stage], &qp->gq[stage][ii], nu[stage]);
 
 	return;
 	}
@@ -1406,7 +1406,7 @@ void OCP_QCQP_SET_RQVEC(int stage, REAL *rq, struct OCP_QCQP *qp)
 	int ii;
 
 	for(ii=0; ii<nq[stage]; ii++)
-		CVT_VEC2STRVEC(nu[stage], rq, &qp->gq[stage][ii], 0);
+		CVT_VEC2STRVEC(nu[stage], rq+ii*nu[stage], &qp->gq[stage][ii], 0);
 
 	return;
 	}

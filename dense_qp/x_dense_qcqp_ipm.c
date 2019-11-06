@@ -1203,8 +1203,8 @@ void DENSE_QCQP_IPM_SOLVE(struct DENSE_QCQP *qcqp, struct DENSE_QCQP_SOL *qcqp_s
 
 
 	// cache q_fun & q_adj from approx/update for res
-	qcqp_ws->qcqp_res_ws->use_q_fun = 0;
-	qcqp_ws->qcqp_res_ws->use_q_adj = 0;
+	qcqp_ws->qcqp_res_ws->use_q_fun = 1;
+	qcqp_ws->qcqp_res_ws->use_q_adj = 1;
 
 
 	// disregard soft constr on (disregarded) lower quard constr

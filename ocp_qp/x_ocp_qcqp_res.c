@@ -496,7 +496,7 @@ void OCP_QCQP_RES_COMPUTE(struct OCP_QCQP *qp, struct OCP_QCQP_SOL *qp_sol, stru
 
 		if(nb0+ng0+nq0>0)
 			{
-			AXPY(nb0+ng0, -1.0, lam+ii, 0, lam+ii, nb0+ng0+nq0, tmp_nbgqM+0, 0);
+			AXPY(nb0+ng0+nq0, -1.0, lam+ii, 0, lam+ii, nb0+ng0+nq0, tmp_nbgqM+0, 0);
 //			AXPY(nb0+ng0,  1.0, d+ii, 0, t+ii, 0, res_d+ii, 0);
 //			AXPY(nb0+ng0,  1.0, d+ii, nb0+ng0, t+ii, nb0+ng0, res_d+ii, nb0+ng0);
 			AXPY(2*nb0+2*ng0+2*nq0,  1.0, d+ii, 0, t+ii, 0, res_d+ii, 0);

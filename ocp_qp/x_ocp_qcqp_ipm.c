@@ -1505,8 +1505,8 @@ void OCP_QCQP_IPM_SOLVE(struct OCP_QCQP *qcqp, struct OCP_QCQP_SOL *qcqp_sol, st
 
 
 	// cache q_fun & q_adj from approx/update for res
-	qcqp_ws->qcqp_res_ws->use_q_fun = 0;
-	qcqp_ws->qcqp_res_ws->use_q_adj = 0;
+	qcqp_ws->qcqp_res_ws->use_q_fun = 1;
+	qcqp_ws->qcqp_res_ws->use_q_adj = 1;
 
 
 	// disregard soft constr on (disregarded) lower quard constr

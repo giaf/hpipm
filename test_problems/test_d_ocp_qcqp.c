@@ -315,7 +315,7 @@ int main()
 	nq[0] = 0;
 	for(ii=1; ii<N; ii++)
 		nq[ii] = 1;
-	nq[N] = 1;
+	nq[N] = 0;
 
 	int nsbx[N+1];
 	nsbx[0] = 0;
@@ -565,16 +565,31 @@ int main()
 * quadratic constraints
 ************************************************/
 	
-	double *Qq; d_zeros(&Qq, nx[1], nx[1]);
+	double *Qq1; d_zeros(&Qq1, nx[1], nx[1]);
 	for(ii=0; ii<nx[1]/2; ii++)
-		Qq[(nx[1]/2+ii)*(nx[1]+1)] = 0.5;
-//	d_print_mat(nx[1], nx[1], Qq, nx[1]);
+		Qq1[(nx[1]/2+ii)*(nx[1]+1)] = 0.5;
+//	d_print_mat(nx[1], nx[1], Qq1, nx[1]);
 
-	double *uq; d_zeros(&uq, nq[1], 1);
-	uq[0] = 10.0;
+	double *uq1; d_zeros(&uq1, nq[1], 1);
+	uq1[0] = 1.71;
 
-	double *uq_mask; d_zeros(&uq_mask, nq[1], 1);
-	uq_mask[0] = 0.0;
+	double *uq1_mask; d_zeros(&uq1_mask, nq[1], 1);
+	uq1_mask[0] = 1.0;
+
+
+	double *QqN; d_zeros(&QqN, nx[N], nx[N]*nq[N]);
+
+	double *qqN; d_zeros(&qqN, nx[N], nq[N]);
+	qqN[0*nx[N]+0] = -1;
+	qqN[1*nx[N]+0] =  1;
+
+	double *uqN; d_zeros(&uqN, nq[N], 1);
+	uqN[0] = 0.0;
+	uqN[1] = 0.0;
+
+	double *uqN_mask; d_zeros(&uqN_mask, nq[N], 1);
+	uqN_mask[0] = 1.0;
+	uqN_mask[1] = 1.0;
 
 /************************************************
 * soft constraints
@@ -861,8 +876,9 @@ int main()
 		d_ocp_qcqp_set_D(ii, D1, &qcqp);
 		d_ocp_qcqp_set_lg(ii, lg1, &qcqp);
 		d_ocp_qcqp_set_ug(ii, ug1, &qcqp);
-		d_ocp_qcqp_set_Qq(ii, Qq, &qcqp);
-		d_ocp_qcqp_set_uq(ii, uq, &qcqp);
+		d_ocp_qcqp_set_Qq(ii, Qq1, &qcqp);
+		d_ocp_qcqp_set_uq(ii, uq1, &qcqp);
+		d_ocp_qcqp_set_uq_mask(ii, uq1_mask, &qcqp);
 		}
 	ii = N;
 	d_ocp_qcqp_set_idxbx(ii, idxbxN, &qcqp);
@@ -871,8 +887,10 @@ int main()
 	d_ocp_qcqp_set_C(ii, CN, &qcqp);
 	d_ocp_qcqp_set_lg(ii, lgN, &qcqp);
 	d_ocp_qcqp_set_ug(ii, ugN, &qcqp);
-	d_ocp_qcqp_set_Qq(ii, Qq, &qcqp);
-	d_ocp_qcqp_set_uq(ii, uq, &qcqp);
+	d_ocp_qcqp_set_Qq(ii, QqN, &qcqp);
+	d_ocp_qcqp_set_qq(ii, qqN, &qcqp);
+	d_ocp_qcqp_set_uq(ii, uqN, &qcqp);
+	d_ocp_qcqp_set_uq_mask(ii, uqN_mask, &qcqp);
 
 	// dynamic constraints removal
 	double *lbu_mask; d_zeros(&lbu_mask, nbu[0], 1);
@@ -883,9 +901,6 @@ int main()
 //	d_ocp_qp_set("ubu_mask", 0, ubu_mask, &qp);
 //	d_ocp_qp_set("lbx_mask", N, lbx_mask, &qp);
 //	d_ocp_qp_set("ubx_mask", N, ubx_mask, &qp);
-
-//	for(ii=1; ii<=N; ii++)
-//		d_ocp_qcqp_set_uq_mask(ii, uq_mask, &qcqp);
 
 	d_ocp_qcqp_print(&dim, &qcqp);
 
@@ -911,15 +926,15 @@ int main()
 	d_ocp_qcqp_ipm_arg_create(&dim, &arg, ipm_arg_mem);
 
 //	enum hpipm_mode mode = SPEED_ABS;
-	enum hpipm_mode mode = SPEED;
+//	enum hpipm_mode mode = SPEED;
 //	enum hpipm_mode mode = BALANCE;
-//	enum hpipm_mode mode = ROBUST;
+	enum hpipm_mode mode = ROBUST;
 	d_ocp_qcqp_ipm_arg_set_default(mode, &arg);
 
-	double mu0 = 1e1;
+	double mu0 = 1e0;
 	int iter_max = 30;
 	double alpha_min = 1e-8;
-	double tol_stat = 1e-6;
+	double tol_stat = 1e-5;
 	double tol_eq = 1e-8;
 	double tol_ineq = 1e-8;
 	double tol_comp = 1e-8;
@@ -1047,9 +1062,13 @@ int main()
 	d_free(DN);
 	d_free(lgN);
 	d_free(ugN);
-	d_free(Qq);
-	d_free(uq);
-	d_free(uq_mask);
+	d_free(Qq1);
+	d_free(QqN);
+	d_free(qqN);
+	d_free(uq1);
+	d_free(uqN);
+	d_free(uq1_mask);
+	d_free(uqN_mask);
 	d_free(lbu_mask);
 	d_free(ubu_mask);
 	d_free(lbx_mask);
