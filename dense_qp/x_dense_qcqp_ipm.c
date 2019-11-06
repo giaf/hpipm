@@ -871,7 +871,7 @@ void DENSE_QCQP_APPROX_QP(struct DENSE_QCQP *qcqp, struct DENSE_QCQP_SOL *qcqp_s
 
 	REAL tmp;
 
-	int ii, idx;
+	int ii;
 
 
 	VECCP(2*nb+2*ng+2*nq+2*ns, qcqp->d, 0, qp->d, 0);
@@ -909,16 +909,6 @@ void DENSE_QCQP_APPROX_QP(struct DENSE_QCQP *qcqp, struct DENSE_QCQP_SOL *qcqp_s
 		}
 
 	VECCP(2*nb+2*ng+2*nq+2*ns, qcqp->d_mask, 0, qp->d_mask, 0);
-	// disregard lower quadratic constr
-	VECSE(nq, 0.0, qp->d_mask, nb+ng); // TODO needed ???
-	// TODO check idxs and remove softed lower quad constr !!!!!
-	for(ii=0; ii<ns; ii++)
-		{
-		idx = qp->idxs[ii];
-		if(idx>=nb+ng) // quadr constr
-//			VECSE(1, 0.0, qcqp->d_mask, 2*nb+2*ng+2*ns+ii);
-			VECSE(1, 0.0, qp->d_mask, 2*nb+2*ng+2*ns+ii);
-		}
 
 	GECP(ne, nv, qcqp->A, 0, 0, qp->A, 0, 0);
 
@@ -1161,7 +1151,7 @@ void DENSE_QCQP_IPM_SOLVE(struct DENSE_QCQP *qcqp, struct DENSE_QCQP_SOL *qcqp_s
 
 	struct CORE_QP_IPM_WORKSPACE *cws = qp_ws->core_workspace;
 
-	int kk, ii;
+	int kk, ii, idx;
 	REAL mu;
 
 	REAL *stat = qp_ws->stat;
@@ -1217,6 +1207,16 @@ void DENSE_QCQP_IPM_SOLVE(struct DENSE_QCQP *qcqp, struct DENSE_QCQP_SOL *qcqp_s
 	qcqp_ws->qcqp_res_ws->use_q_adj = 0;
 
 
+	// disregard soft constr on (disregarded) lower quard constr
+	VECSE(nq, 0.0, qcqp->d_mask, nb+ng); // TODO needed ???
+	for(ii=0; ii<ns; ii++)
+		{
+		idx = qcqp->idxs[ii];
+		if(idx>=nb+ng) // quadr constr
+			VECSE(1, 0.0, qcqp->d_mask, 2*nb+2*ng+2*nq+ii);
+		}
+
+
 	// initialize qcqp & qp
 	DENSE_QCQP_INIT_VAR(qcqp, qcqp_sol, qcqp_arg, qcqp_ws);
 	DENSE_QCQP_SOL_CONV_QP_SOL(qcqp_sol, qp_sol);
@@ -1226,22 +1226,24 @@ void DENSE_QCQP_IPM_SOLVE(struct DENSE_QCQP *qcqp, struct DENSE_QCQP_SOL *qcqp_s
 
 
 	// detect constr mask
-	REAL tmp_add;
-	REAL tmp;
 	int mask_unconstr;
-	tmp_add = 0.0;
+	int nc_mask = 0;
 	for(ii=0; ii<cws->nc; ii++)
 		{
-		tmp = qp->d_mask->pa[ii];
-		tmp_add += tmp;
+		if(qp->d_mask->pa[ii]!=0.0)
+			nc_mask++;
 		}
-	if(tmp_add==0.0)
+	if(nc_mask==0)
 		{
 		mask_unconstr = 1;
+		cws->nc_mask = 0;
+		cws->nc_mask_inv = 0.0;
 		}
 	else
 		{
 		mask_unconstr = 0;
+		cws->nc_mask = nc_mask;
+		cws->nc_mask_inv = 1.0/nc_mask;
 		}
 	// always mask lower quadratic constr
 	qp_ws->mask_constr = 1;

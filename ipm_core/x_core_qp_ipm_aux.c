@@ -321,7 +321,7 @@ void COMPUTE_MU_AFF_QP(struct CORE_QP_IPM_WORKSPACE *cws)
 		mu += (ptr_lam[ii+0] + alpha*ptr_dlam[ii+0]) * (ptr_t[ii+0] + alpha*ptr_dt[ii+0]);
 		}
 	
-	cws->mu_aff = mu*cws->nc_inv;
+	cws->mu_aff = mu*cws->nc_mask_inv;
 
 	return;
 

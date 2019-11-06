@@ -553,7 +553,7 @@ void d_compute_mu_aff_qp(struct d_core_qp_ipm_workspace *cws)
 	x_mu = _mm_add_sd( x_mu, _mm_load_sd( &mu ) );
 	_mm_store_sd( &mu, x_mu );
 
-	cws->mu_aff = mu*cws->nc_inv;
+	cws->mu_aff = mu*cws->nc_mask_inv;
 
 	return;
 

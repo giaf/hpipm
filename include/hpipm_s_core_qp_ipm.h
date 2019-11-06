@@ -68,12 +68,14 @@ struct s_core_qp_ipm_workspace
 	float sigma; // centering XXX
 	float mu; // duality measuere
 	float mu_aff; // affine duality measuere
-	float nc_inv; // 1.0/nt, where nt is the total number of constraints
+	float nc_inv; // 1.0/nc, where nc is the total number of constraints
+	float nc_mask_inv; // 1.0/nc_mask
 	float lam_min; // min value in t vector
 	float t_min; // min value in lam vector
 	int nv; // number of primal variables
 	int ne; // number of equality constraints
-	int nc; // number of (two-sided) inequality constraints
+	int nc; // (twice the) number of (two-sided) inequality constraints
+	int nc_mask; // total number of ineq constr after masking
 	int memsize; // memory size (in bytes) of workspace
 	};
 

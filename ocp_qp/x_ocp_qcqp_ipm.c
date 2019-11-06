@@ -1127,7 +1127,7 @@ void OCP_QCQP_APPROX_QP(struct OCP_QCQP *qcqp, struct OCP_QCQP_SOL *qcqp_sol, st
 
 	REAL tmp;
 
-	int ii, jj, idx;
+	int ii, jj;
 
 
 	for(ii=0; ii<=N; ii++)
@@ -1168,16 +1168,6 @@ void OCP_QCQP_APPROX_QP(struct OCP_QCQP *qcqp, struct OCP_QCQP_SOL *qcqp_sol, st
 			}
 
 		VECCP(2*nb[ii]+2*ng[ii]+2*nq[ii]+2*ns[ii], qcqp->d_mask+ii, 0, qp->d_mask+ii, 0);
-		// disregard lower quadratic constr
-		VECSE(nq[ii], 0.0, qp->d_mask+ii, nb[ii]+ng[ii]); // TODO needed ???
-		// TODO check idxs and remove softed lower quad constr !!!!!
-		for(jj=0; jj<ns[ii]; jj++)
-			{
-			idx = qp->idxs[ii][jj];
-			if(idx>=nb[ii]+ng[ii]) // quadr constr
-	//			VECSE(1, 0.0, qcqp->d_mask+ii, 2*nb[ii]+2*ng[ii]+2*ns[ii]+jj);
-				VECSE(1, 0.0, qp->d_mask+ii, 2*nb[ii]+2*ng[ii]+2*ns[ii]+jj);
-			}
 
 		GECP(nu[ii]+nx[ii], ng[ii], qcqp->DCt+ii, 0, 0, qp->DCt+ii, 0, 0);
 
@@ -1463,7 +1453,7 @@ void OCP_QCQP_IPM_SOLVE(struct OCP_QCQP *qcqp, struct OCP_QCQP_SOL *qcqp_sol, st
 
 	struct CORE_QP_IPM_WORKSPACE *cws = qp_ws->core_workspace;
 
-	int kk, ii;
+	int kk, ii, jj, idx;
 	REAL mu;
 
 	REAL *stat = qp_ws->stat;
@@ -1519,8 +1509,27 @@ void OCP_QCQP_IPM_SOLVE(struct OCP_QCQP *qcqp, struct OCP_QCQP_SOL *qcqp_sol, st
 	qcqp_ws->qcqp_res_ws->use_q_adj = 0;
 
 
+	// disregard soft constr on (disregarded) lower quard constr
+	for(ii=0; ii<=N; ii++)
+		{
+		VECSE(nq[ii], 0.0, qcqp->d_mask+ii, nb[ii]+ng[ii]); // TODO needed ???
+		for(jj=0; jj<ns[ii]; jj++)
+			{
+			idx = qcqp->idxs[ii][jj];
+			if(idx>=nb[ii]+ng[ii]) // quadr constr
+#ifdef DOUBLE_PRECISION
+			BLASFEO_DVECEL(qcqp->d_mask+ii, 2*nb[ii]+2*ng[ii]+2*nq[ii]+jj) = 0.0;
+#else
+			BLASFEO_SVECEL(qcqp->d_mask+ii, 2*nb[ii]+2*ng[ii]+2*nq[ii]+jj) = 0.0;
+#endif
+			}
+		}
+
+
 	// initialize qcqp & qp
 	OCP_QCQP_INIT_VAR(qcqp, qcqp_sol, qcqp_arg, qcqp_ws);
+	// mask out disregarded constraints
+	VECMUL(cws->nc, qcqp->d_mask, 0, qcqp_sol->lam, 0, qcqp_sol->lam, 0);
 	OCP_QCQP_SOL_CONV_QP_SOL(qcqp_sol, qp_sol);
 
 	// approximate qcqp with a qp
@@ -1528,22 +1537,24 @@ void OCP_QCQP_IPM_SOLVE(struct OCP_QCQP *qcqp, struct OCP_QCQP_SOL *qcqp_sol, st
 
 
 	// detect constr mask
-	REAL tmp_add;
-	REAL tmp;
 	int mask_unconstr;
-	tmp_add = 0.0;
+	int nc_mask = 0;
 	for(ii=0; ii<cws->nc; ii++)
 		{
-		tmp = qp->d_mask->pa[ii];
-		tmp_add += tmp;
+		if(qp->d_mask->pa[ii]!=0.0)
+			nc_mask++;
 		}
-	if(tmp_add==0.0)
+	if(nc_mask==0)
 		{
 		mask_unconstr = 1;
+		cws->nc_mask = 0;
+		cws->nc_mask_inv = 0.0;
 		}
 	else
 		{
 		mask_unconstr = 0;
+		cws->nc_mask = nc_mask;
+		cws->nc_mask_inv = 1.0/nc_mask;
 		}
 	// always mask lower quadratic constr
 	qp_ws->mask_constr = 1;

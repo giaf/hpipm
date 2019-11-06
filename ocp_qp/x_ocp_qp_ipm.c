@@ -2000,8 +2000,6 @@ void OCP_QP_IPM_DELTA_STEP(int kk, struct OCP_QP *qp, struct OCP_QP_SOL *qp_sol,
 		VECMUL(cws->nc, qp->d_mask, 0, qp_sol->lam, 0, qp_sol->lam, 0);
 		}
 
-//d_ocp_qp_sol_print(qp->dim, qp_sol);
-//exit(1);
 	return;
 
 	}
@@ -2071,20 +2069,16 @@ void OCP_QP_IPM_SOLVE(struct OCP_QP *qp, struct OCP_QP_SOL *qp_sol, struct OCP_Q
 	qp_res_max[2] = 0;
 	qp_res_max[3] = 0;
 
+
 	// detect constr mask
-	REAL tmp_mul;
-	REAL tmp_add;
-	REAL tmp;
 	int mask_unconstr;
-	tmp_mul = 1.0;
-	tmp_add = 0.0;
+	int nc_mask = 0;
 	for(ii=0; ii<cws->nc; ii++)
 		{
-		tmp = qp->d_mask->pa[ii];
-		tmp_mul *= tmp;
-		tmp_add += tmp;
+		if(qp->d_mask->pa[ii]!=0.0)
+			nc_mask++;
 		}
-	if(tmp_mul==0.0)
+	if(nc_mask<cws->nc)
 		{
 		ws->mask_constr = 1;
 		}
@@ -2092,13 +2086,17 @@ void OCP_QP_IPM_SOLVE(struct OCP_QP *qp, struct OCP_QP_SOL *qp_sol, struct OCP_Q
 		{
 		ws->mask_constr = 0;
 		}
-	if(tmp_add==0.0)
+	if(nc_mask==0)
 		{
 		mask_unconstr = 1;
+		cws->nc_mask = 0;
+		cws->nc_mask_inv = 0.0;
 		}
 	else
 		{
 		mask_unconstr = 0;
+		cws->nc_mask = nc_mask;
+		cws->nc_mask_inv = 1.0/nc_mask;
 		}
 
 
