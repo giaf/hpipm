@@ -79,8 +79,8 @@ void DENSE_QP_IPM_ARG_SET_DEFAULT(enum HPIPM_MODE mode, struct DENSE_QP_IPM_ARG 
 		reg_dual = 1e-15;
 		lq_fact = 0;
 		scale = 0;
-		lam_min = 1e-30;
-		t_min = 1e-30;
+		lam_min = 1e-17;
+		t_min = 1e-17;
 		warm_start = 0;
 		abs_form = 1;
 		comp_res_exit = 0;
@@ -104,8 +104,8 @@ void DENSE_QP_IPM_ARG_SET_DEFAULT(enum HPIPM_MODE mode, struct DENSE_QP_IPM_ARG 
 		reg_dual = 1e-15;
 		lq_fact = 0;
 		scale = 0;
-		lam_min = 1e-30;
-		t_min = 1e-30;
+		lam_min = 1e-17;
+		t_min = 1e-17;
 		warm_start = 0;
 		abs_form = 0;
 		comp_res_exit = 1;
@@ -129,8 +129,8 @@ void DENSE_QP_IPM_ARG_SET_DEFAULT(enum HPIPM_MODE mode, struct DENSE_QP_IPM_ARG 
 		reg_dual = 1e-15;
 		lq_fact = 1;
 		scale = 1;
-		lam_min = 1e-30;
-		t_min = 1e-30;
+		lam_min = 1e-17;
+		t_min = 1e-17;
 		warm_start = 0;
 		abs_form = 0;
 		comp_res_exit = 1;
@@ -154,8 +154,8 @@ void DENSE_QP_IPM_ARG_SET_DEFAULT(enum HPIPM_MODE mode, struct DENSE_QP_IPM_ARG 
 		reg_dual = 1e-15;
 		lq_fact = 2;
 		scale = 1;
-		lam_min = 1e-30;
-		t_min = 1e-30;
+		lam_min = 1e-17;
+		t_min = 1e-17;
 		warm_start = 0;
 		abs_form = 0;
 		comp_res_exit = 1;
@@ -433,7 +433,8 @@ int DENSE_QP_IPM_WS_MEMSIZE(struct DENSE_QP_DIM *dim, struct DENSE_QP_IPM_ARG *a
 	if(arg->stat_max<arg->iter_max)
 		arg->stat_max = arg->iter_max;
 
-	size += 9*(1+arg->stat_max)*sizeof(REAL); // stat
+	int stat_m = 11;
+	size += stat_m*(1+arg->stat_max)*sizeof(REAL); // stat
 
 	size = (size+63)/64*64; // make multiple of typical cache line size
 	size += 1*64; // align once to typical cache line size
@@ -565,7 +566,8 @@ void DENSE_QP_IPM_WS_CREATE(struct DENSE_QP_DIM *dim, struct DENSE_QP_IPM_ARG *a
 	REAL *d_ptr = (REAL *) sv_ptr;
 	
 	workspace->stat = d_ptr;
-	d_ptr += 9*(1+arg->stat_max);
+	int stat_m = 11;
+	d_ptr += stat_m*(1+arg->stat_max);
 
 
 	// int suff
@@ -681,8 +683,7 @@ void DENSE_QP_IPM_WS_CREATE(struct DENSE_QP_DIM *dim, struct DENSE_QP_IPM_ARG *a
 	workspace->sol_step->dim = dim;
 
 	workspace->stat_max = arg->stat_max;
-
-	workspace->stat_m = 9;
+	workspace->stat_m = stat_m;
 
 	//
 	workspace->use_hess_fact = 0;
@@ -1250,6 +1251,8 @@ void DENSE_QP_IPM_DELTA_STEP(int kk, struct DENSE_QP *qp, struct DENSE_QP_SOL *q
 		AXPY(2*nb+2*ng+2*ns, 1.0, ws->sol_itref->t, 0, ws->sol_step->t, 0, ws->sol_step->t, 0);
 
 		}
+	if(kk+1<ws->stat_max)
+		ws->stat[ws->stat_m*(kk+1)+9] = itref0;
 
 #if 0
 	ndp0 = 0;
@@ -1416,6 +1419,9 @@ void DENSE_QP_IPM_DELTA_STEP(int kk, struct DENSE_QP *qp, struct DENSE_QP_SOL *q
 			}
 
 		}
+	if(kk+1<ws->stat_max)
+		ws->stat[ws->stat_m*(kk+1)+10] = itref1;
+
 	//
 	UPDATE_VAR_QP(cws);
 	if(ws->mask_constr)

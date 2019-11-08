@@ -93,10 +93,6 @@ void COMPUTE_LAM_T_QP(REAL *res_d, REAL *res_m, REAL *dlam, REAL *dt, struct COR
 	int nc = cws->nc;
 
 	REAL *lam = cws->lam;
-//	REAL *dlam = cws->dlam;
-//	REAL *dt = cws->dt;
-//	REAL *res_d = cws->res_d; // TODO rename d ???
-//	REAL *res_m = cws->res_m; // TODO rename m ???
 	REAL *t_inv = cws->t_inv;
 
 	// local variables
@@ -104,9 +100,10 @@ void COMPUTE_LAM_T_QP(REAL *res_d, REAL *res_m, REAL *dlam, REAL *dt, struct COR
 
 	for(ii=0; ii<nc; ii++)
 		{
+		dlam[ii] = - t_inv[ii] * (res_m[ii] + lam[ii]*dt[ii] - lam[ii]*res_d[ii]);
 		dt[ii] -= res_d[ii];
 		// TODO compute lamda alone ???
-		dlam[ii] = - t_inv[ii] * (lam[ii]*dt[ii] + res_m[ii]);
+//		dlam[ii] = - t_inv[ii] * (lam[ii]*dt[ii] + res_m[ii]);
 		}
 
 	return;

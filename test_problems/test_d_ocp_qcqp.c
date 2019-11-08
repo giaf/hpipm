@@ -314,8 +314,8 @@ int main()
 	int nq[N+1];
 	nq[0] = 0;
 	for(ii=1; ii<N; ii++)
-		nq[ii] = 1;
-	nq[N] = 0;
+		nq[ii] = 2;
+	nq[N] = 1;
 
 	int nsbx[N+1];
 	nsbx[0] = 0;
@@ -565,31 +565,36 @@ int main()
 * quadratic constraints
 ************************************************/
 	
-	double *Qq1; d_zeros(&Qq1, nx[1], nx[1]);
+	double *Qq1; d_zeros(&Qq1, nx[1], nx[1]*nq[1]);
 	for(ii=0; ii<nx[1]/2; ii++)
-		Qq1[(nx[1]/2+ii)*(nx[1]+1)] = 0.5;
+		Qq1[(nx[1]/2+ii)*(nx[1]+1)] = 0.0;
 //	d_print_mat(nx[1], nx[1], Qq1, nx[1]);
 
+	double *qq1; d_zeros(&qq1, nx[1], nq[1]);
+	qq1[0*nx[1]+0] = -1;
+	qq1[1*nx[1]+0] =  1;
+
 	double *uq1; d_zeros(&uq1, nq[1], 1);
-	uq1[0] = 1.71;
+	uq1[0] =  4.0;
+	uq1[1] =  4.0;
 
 	double *uq1_mask; d_zeros(&uq1_mask, nq[1], 1);
 	uq1_mask[0] = 1.0;
+	uq1_mask[1] = 1.0;
 
 
 	double *QqN; d_zeros(&QqN, nx[N], nx[N]*nq[N]);
+	for(ii=0; ii<nx[N]/2; ii++)
+		QqN[(nx[N]/2+ii)*(nx[N]+1)] = 1.0;
 
 	double *qqN; d_zeros(&qqN, nx[N], nq[N]);
-	qqN[0*nx[N]+0] = -1;
-	qqN[1*nx[N]+0] =  1;
+	qqN[0*nx[N]+0] = 0.0;
 
 	double *uqN; d_zeros(&uqN, nq[N], 1);
-	uqN[0] = 0.0;
-	uqN[1] = 0.0;
+	uqN[0] = 1.71;
 
 	double *uqN_mask; d_zeros(&uqN_mask, nq[N], 1);
 	uqN_mask[0] = 1.0;
-	uqN_mask[1] = 1.0;
 
 /************************************************
 * soft constraints
@@ -877,6 +882,7 @@ int main()
 		d_ocp_qcqp_set_lg(ii, lg1, &qcqp);
 		d_ocp_qcqp_set_ug(ii, ug1, &qcqp);
 		d_ocp_qcqp_set_Qq(ii, Qq1, &qcqp);
+		d_ocp_qcqp_set_qq(ii, qq1, &qcqp);
 		d_ocp_qcqp_set_uq(ii, uq1, &qcqp);
 		d_ocp_qcqp_set_uq_mask(ii, uq1_mask, &qcqp);
 		}
@@ -926,22 +932,22 @@ int main()
 	d_ocp_qcqp_ipm_arg_create(&dim, &arg, ipm_arg_mem);
 
 //	enum hpipm_mode mode = SPEED_ABS;
-//	enum hpipm_mode mode = SPEED;
+	enum hpipm_mode mode = SPEED;
 //	enum hpipm_mode mode = BALANCE;
-	enum hpipm_mode mode = ROBUST;
+//	enum hpipm_mode mode = ROBUST;
 	d_ocp_qcqp_ipm_arg_set_default(mode, &arg);
 
 	double mu0 = 1e0;
 	int iter_max = 30;
 	double alpha_min = 1e-8;
-	double tol_stat = 1e-5;
+	double tol_stat = 1e-6;
 	double tol_eq = 1e-8;
 	double tol_ineq = 1e-8;
 	double tol_comp = 1e-8;
 	double reg_prim = 1e-12;
 	int warm_start = 0;
 	int pred_corr = 1;
-	int ric_alg = 0;
+	int ric_alg = 1;
 	int comp_res_exit = 1;
 
 	d_ocp_qcqp_ipm_arg_set_mu0(&mu0, &arg);
@@ -1014,7 +1020,7 @@ int main()
 	printf("\nipm residuals max: res_g = %e, res_b = %e, res_d = %e, res_m = %e\n", res_stat, res_eq, res_ineq, res_comp);
 
 	printf("\nipm iter = %d\n", iter);
-	printf("\nalpha_aff\tmu_aff\t\tsigma\t\talpha\t\tmu\t\tres_stat\tres_eq\t\tres_ineq\tres_comp\n");
+	printf("\nalpha_aff\tmu_aff\t\tsigma\t\talpha\t\tmu\t\tres_stat\tres_eq\t\tres_ineq\tres_comp\titref pred\titref corr\n");
 	d_print_exp_tran_mat(stat_m, iter+1, stat, stat_m);
 
 	printf("\nocp ipm time = %e [s]\n\n", time_ocp_ipm);

@@ -144,8 +144,8 @@ void DENSE_QCQP_IPM_ARG_SET_DEFAULT(enum HPIPM_MODE mode, struct DENSE_QCQP_IPM_
 		reg_dual = 1e-15;
 		lq_fact = 0;
 		scale = 0;
-		lam_min = 1e-30;
-		t_min = 1e-30;
+		lam_min = 1e-17;
+		t_min = 1e-17;
 		warm_start = 0;
 		abs_form = 1;
 		comp_res_exit = 0;
@@ -169,8 +169,8 @@ void DENSE_QCQP_IPM_ARG_SET_DEFAULT(enum HPIPM_MODE mode, struct DENSE_QCQP_IPM_
 		reg_dual = 1e-15;
 		lq_fact = 0;
 		scale = 0;
-		lam_min = 1e-30;
-		t_min = 1e-30;
+		lam_min = 1e-17;
+		t_min = 1e-17;
 		warm_start = 0;
 		abs_form = 0;
 		comp_res_exit = 1;
@@ -194,8 +194,8 @@ void DENSE_QCQP_IPM_ARG_SET_DEFAULT(enum HPIPM_MODE mode, struct DENSE_QCQP_IPM_
 		reg_dual = 1e-15;
 		lq_fact = 1;
 		scale = 1;
-		lam_min = 1e-30;
-		t_min = 1e-30;
+		lam_min = 1e-17;
+		t_min = 1e-17;
 		warm_start = 0;
 		abs_form = 0;
 		comp_res_exit = 1;
@@ -219,8 +219,8 @@ void DENSE_QCQP_IPM_ARG_SET_DEFAULT(enum HPIPM_MODE mode, struct DENSE_QCQP_IPM_
 		reg_dual = 1e-15;
 		lq_fact = 2;
 		scale = 1;
-		lam_min = 1e-30;
-		t_min = 1e-30;
+		lam_min = 1e-17;
+		t_min = 1e-17;
 		warm_start = 0;
 		abs_form = 0;
 		comp_res_exit = 1;
@@ -1327,7 +1327,7 @@ void DENSE_QCQP_IPM_SOLVE(struct DENSE_QCQP *qcqp, struct DENSE_QCQP_SOL *qcqp_s
 			mu = VECMULDOT(cws->nc, qcqp_sol->lam, 0, qcqp_sol->t, 0, qp_ws->tmp_m, 0);
 			mu /= cws->nc;
 			cws->mu = mu;
-			if(kk<stat_max)
+			if(kk+1<stat_max)
 				stat[stat_m*(kk+1)+4] = mu;
 
 			}
@@ -1453,7 +1453,7 @@ void DENSE_QCQP_IPM_SOLVE(struct DENSE_QCQP *qcqp, struct DENSE_QCQP_SOL *qcqp_s
 		DENSE_QCQP_RES_COMPUTE_INF_NORM(qcqp_res);
 		DENSE_QCQP_RES_CONV_QP_RES(qcqp_res, qp_ws->res);
 		cws->mu = qcqp_res->res_mu;
-		if(kk<stat_max)
+		if(kk+1<stat_max)
 			stat[stat_m*(kk+1)+4] = qcqp_res->res_mu;
 		// save infinity norm of residuals
 		if(kk+1<stat_max)

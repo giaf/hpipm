@@ -114,8 +114,8 @@ void OCP_QP_IPM_ARG_SET_DEFAULT(enum HPIPM_MODE mode, struct OCP_QP_IPM_ARG *arg
 		arg->reg_prim = 1e-15;
 		arg->square_root_alg = 1;
 		arg->lq_fact = 0; // not used
-		arg->lam_min = 1e-30;
-		arg->t_min = 1e-30;
+		arg->lam_min = 1e-17;
+		arg->t_min = 1e-17;
 		arg->warm_start = 0;
 		arg->abs_form = 1;
 		arg->comp_dual_sol = 0;
@@ -140,8 +140,8 @@ void OCP_QP_IPM_ARG_SET_DEFAULT(enum HPIPM_MODE mode, struct OCP_QP_IPM_ARG *arg
 		arg->reg_prim = 1e-15;
 		arg->square_root_alg = 1;
 		arg->lq_fact = 0;
-		arg->lam_min = 1e-30;
-		arg->t_min = 1e-30;
+		arg->lam_min = 1e-17;
+		arg->t_min = 1e-17;
 		arg->warm_start = 0;
 		arg->abs_form = 0;
 		arg->comp_dual_sol = 1;
@@ -166,8 +166,8 @@ void OCP_QP_IPM_ARG_SET_DEFAULT(enum HPIPM_MODE mode, struct OCP_QP_IPM_ARG *arg
 		arg->reg_prim = 1e-15;
 		arg->square_root_alg = 1;
 		arg->lq_fact = 1;
-		arg->lam_min = 1e-30;
-		arg->t_min = 1e-30;
+		arg->lam_min = 1e-17;
+		arg->t_min = 1e-17;
 		arg->warm_start = 0;
 		arg->abs_form = 0;
 		arg->comp_dual_sol = 1;
@@ -192,8 +192,8 @@ void OCP_QP_IPM_ARG_SET_DEFAULT(enum HPIPM_MODE mode, struct OCP_QP_IPM_ARG *arg
 		arg->reg_prim = 1e-15;
 		arg->square_root_alg = 1;
 		arg->lq_fact = 2;
-		arg->lam_min = 1e-30;
-		arg->t_min = 1e-30;
+		arg->lam_min = 1e-17;
+		arg->t_min = 1e-17;
 		arg->warm_start = 0;
 		arg->abs_form = 0;
 		arg->comp_dual_sol = 1;
@@ -519,7 +519,8 @@ int OCP_QP_IPM_WS_MEMSIZE(struct OCP_QP_DIM *dim, struct OCP_QP_IPM_ARG *arg)
 		size += 1*GELQF_WORKSIZE(nuM+nxM, 2*nuM+3*nxM+ngM); // lq_work0
 		}
 
-	size += 9*(1+arg->stat_max)*sizeof(REAL); // stat
+	int stat_m = 11;
+	size += stat_m*(1+arg->stat_max)*sizeof(REAL); // stat
 
 	size += (N+1)*sizeof(int); // use_hess_fact
 
@@ -720,7 +721,8 @@ void OCP_QP_IPM_WS_CREATE(struct OCP_QP_DIM *dim, struct OCP_QP_IPM_ARG *arg, st
 	REAL *d_ptr = (REAL *) sv_ptr;
 
 	workspace->stat = d_ptr;
-	d_ptr += 9*(1+arg->stat_max);
+	int stat_m = 11;
+	d_ptr += stat_m*(1+arg->stat_max);
 
 	// int stuff
 	int *i_ptr = (int *) d_ptr;
@@ -942,8 +944,7 @@ void OCP_QP_IPM_WS_CREATE(struct OCP_QP_DIM *dim, struct OCP_QP_IPM_ARG *arg, st
 	workspace->res->dim = dim;
 
 	workspace->stat_max = arg->stat_max;
-
-	workspace->stat_m = 9;
+	workspace->stat_m = stat_m;
 
 	for(ii=0; ii<=N; ii++)
 		workspace->use_hess_fact[ii] = 0;
@@ -1835,6 +1836,8 @@ void OCP_QP_IPM_DELTA_STEP(int kk, struct OCP_QP *qp, struct OCP_QP_SOL *qp_sol,
 			AXPY(2*nb[ii]+2*ng[ii]+2*ns[ii], 1.0, ws->sol_itref->t+ii, 0, ws->sol_step->t+ii, 0, ws->sol_step->t+ii, 0);
 
 		}
+	if(kk+1<ws->stat_max)
+		ws->stat[ws->stat_m*(kk+1)+9] = itref0;
 
 	// alpha
 	COMPUTE_ALPHA_QP(cws);
@@ -1989,6 +1992,8 @@ void OCP_QP_IPM_DELTA_STEP(int kk, struct OCP_QP *qp, struct OCP_QP_SOL *qp_sol,
 			}
 
 		}
+	if(kk+1<ws->stat_max)
+		ws->stat[ws->stat_m*(kk+1)+10] = itref1;
 
 	//
 	UPDATE_VAR_QP(cws);

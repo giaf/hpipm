@@ -151,8 +151,8 @@ void OCP_QCQP_IPM_ARG_SET_DEFAULT(enum HPIPM_MODE mode, struct OCP_QCQP_IPM_ARG 
 		reg_prim = 1e-15;
 		square_root_alg = 1;
 		lq_fact = 0; // not used
-		lam_min = 1e-30;
-		t_min = 1e-30;
+		lam_min = 1e-17;
+		t_min = 1e-17;
 		warm_start = 0;
 		abs_form = 1;
 		comp_dual_sol = 0;
@@ -177,8 +177,8 @@ void OCP_QCQP_IPM_ARG_SET_DEFAULT(enum HPIPM_MODE mode, struct OCP_QCQP_IPM_ARG 
 		reg_prim = 1e-15;
 		square_root_alg = 1;
 		lq_fact = 0;
-		lam_min = 1e-30;
-		t_min = 1e-30;
+		lam_min = 1e-17;
+		t_min = 1e-17;
 		warm_start = 0;
 		abs_form = 0;
 		comp_dual_sol = 1;
@@ -203,8 +203,8 @@ void OCP_QCQP_IPM_ARG_SET_DEFAULT(enum HPIPM_MODE mode, struct OCP_QCQP_IPM_ARG 
 		reg_prim = 1e-15;
 		square_root_alg = 1;
 		lq_fact = 1;
-		lam_min = 1e-30;
-		t_min = 1e-30;
+		lam_min = 1e-17;
+		t_min = 1e-17;
 		warm_start = 0;
 		abs_form = 0;
 		comp_dual_sol = 1;
@@ -229,8 +229,8 @@ void OCP_QCQP_IPM_ARG_SET_DEFAULT(enum HPIPM_MODE mode, struct OCP_QCQP_IPM_ARG 
 		reg_prim = 1e-15;
 		square_root_alg = 1;
 		lq_fact = 2;
-		lam_min = 1e-30;
-		t_min = 1e-30;
+		lam_min = 1e-17;
+		t_min = 1e-17;
 		warm_start = 0;
 		abs_form = 0;
 		comp_dual_sol = 1;
@@ -1638,7 +1638,7 @@ void OCP_QCQP_IPM_SOLVE(struct OCP_QCQP *qcqp, struct OCP_QCQP_SOL *qcqp_sol, st
 			mu = VECMULDOT(cws->nc, qcqp_sol->lam, 0, qcqp_sol->t, 0, qp_ws->tmp_m, 0);
 			mu /= cws->nc;
 			cws->mu = mu;
-			if(kk<stat_max)
+			if(kk+1<stat_max)
 				stat[stat_m*(kk+1)+4] = mu;
 
 			}
@@ -1769,7 +1769,7 @@ void OCP_QCQP_IPM_SOLVE(struct OCP_QCQP *qcqp, struct OCP_QCQP_SOL *qcqp_sol, st
 		OCP_QCQP_RES_COMPUTE_INF_NORM(qcqp_res);
 		OCP_QCQP_RES_CONV_QP_RES(qcqp_res, qp_ws->res);
 		cws->mu = qcqp_res->res_mu;
-		if(kk<stat_max)
+		if(kk+1<stat_max)
 			stat[stat_m*(kk+1)+4] = qcqp_res->res_mu;
 		// save infinity norm of residuals
 		if(kk+1<stat_max)
