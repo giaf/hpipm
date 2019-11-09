@@ -161,6 +161,7 @@
 
 
 // arg
+#define OCP_QCQP_IPM_ARG_STRSIZE d_ocp_qcqp_ipm_arg_strsize
 #define OCP_QCQP_IPM_ARG_MEMSIZE d_ocp_qcqp_ipm_arg_memsize
 #define OCP_QCQP_IPM_ARG_CREATE d_ocp_qcqp_ipm_arg_create
 #define OCP_QCQP_IPM_ARG_SET_DEFAULT d_ocp_qcqp_ipm_arg_set_default
@@ -180,6 +181,7 @@
 #define OCP_QCQP_IPM_ARG_SET_COMP_RES_EXIT d_ocp_qcqp_ipm_arg_set_comp_res_exit
 #define OCP_QCQP_IPM_ARG_SET_RIC_ALG d_ocp_qcqp_ipm_arg_set_ric_alg
 // ipm
+#define OCP_QCQP_IPM_WS_STRSIZE d_ocp_qcqp_ipm_ws_strsize
 #define OCP_QCQP_IPM_WS_MEMSIZE d_ocp_qcqp_ipm_ws_memsize
 #define OCP_QCQP_IPM_WS_CREATE d_ocp_qcqp_ipm_ws_create
 #define OCP_QCQP_IPM_GET d_ocp_qcqp_ipm_get
