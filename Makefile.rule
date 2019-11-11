@@ -34,6 +34,20 @@
 ###################################################################################################
 
 
+# Do something in this makefile
+$(info Parsing Makefile.rule)
+
+# Get path of Makefile.rule as main project directory
+#CURRENT_DIR  := $(dir $(lastword $(MAKEFILE_LIST)))
+MAKEFILE_PATH := $(abspath $(lastword $(MAKEFILE_LIST)))
+CURRENT_DIR := $(patsubst %/,%,$(dir $(MAKEFILE_PATH)))
+
+
+
+#################################################
+### main makefile options
+#################################################
+
 # Target architecture
 TARGET = AVX
 #TARGET = GENERIC
@@ -52,7 +66,8 @@ REF_BLAS = 0
 #REF_BLAS = ATLAS
 
 # Installation directory
-TOP = $(shell pwd)
+TOP = $(CURRENT_DIR)
+#TOP = $(shell pwd)
 #TOP = C:/cygwin64/home/gianluca/hpipm
 
 # operating system
@@ -94,7 +109,7 @@ CFLAGS += -O2 -fPIC
 CFLAGS  += #-g #-Wall -pedantic -Wfloat-equal #-pg
 
 # search directories
-CFLAGS += -I$(BLASFEO_PATH)/include -I$(TOP)/include -I$(TOP)/../../include
+CFLAGS += -I$(BLASFEO_PATH)/include -I$(TOP)/include #-I$(TOP)/../../include
 
 # definirions
 #ifeq ($(OS), LINUX)
