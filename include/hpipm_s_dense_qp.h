@@ -76,6 +76,8 @@ struct s_dense_qp
 int s_dense_qp_memsize(struct s_dense_qp_dim *dim);
 //
 void s_dense_qp_create(struct s_dense_qp_dim *dim, struct s_dense_qp *qp, void *memory);
+
+// setters - colmaj
 //
 void s_dense_qp_set_all(float *H, float *g, float *A, float *b, int *idxb, float *d_lb, float *d_ub, float *C, float *d_lg, float *d_ug, float *Zl, float *Zu, float *zl, float *zu, int *idxs, float *d_ls, float *d_us, struct s_dense_qp *qp);
 //
@@ -129,8 +131,8 @@ void s_dense_qp_set_us(float *us, struct s_dense_qp *qp);
 //
 void s_dense_qp_set_us_mask(float *us, struct s_dense_qp *qp);
 
-// getters (COLMAJ)
-
+// getters - colmaj
+//
 void s_dense_qp_get_H(struct s_dense_qp *qp, float *H);
 //
 void s_dense_qp_get_g(struct s_dense_qp *qp, float *g);
@@ -164,8 +166,12 @@ void s_dense_qp_get_zu(struct s_dense_qp *qp, float *zu);
 void s_dense_qp_get_ls(struct s_dense_qp *qp, float *ls);
 //
 void s_dense_qp_get_us(struct s_dense_qp *qp, float *us);
+
+// setters - rowmaj
 //
 void s_dense_qp_set_all_rowmaj(float *H, float *g, float *A, float *b, int *idxb, float *d_lb, float *d_ub, float *C, float *d_lg, float *d_ug, float *Zl, float *Zu, float *zl, float *zu, int *idxs, float *d_ls, float *d_us, struct s_dense_qp *qp);
+
+// getters - rowmaj
 //
 void s_dense_qp_get_all_rowmaj(struct s_dense_qp *qp, float *H, float *g, float *A, float *b, int *idxb, float *d_lb, float *d_ub, float *C, float *d_lg, float *d_ug, float *Zl, float *Zu, float *zl, float *zu, int *idxs, float *d_ls, float *d_us);
 

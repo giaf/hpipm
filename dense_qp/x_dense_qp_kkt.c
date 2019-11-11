@@ -433,6 +433,11 @@ void FACT_SOLVE_KKT_STEP_DENSE_QP(struct DENSE_QP *qp, struct DENSE_QP_SOL *qp_s
 				{
 				POTRF_L(nv, Lv, 0, 0, Lv, 0, 0);
 				}
+//int pd = 1;
+//for(ii=0; ii<nv; ii++)
+//	if(Lv->dA[ii]==0.0)
+//		pd = 0;
+//printf(" chol pd %d\n", pd);
 
 			VECCP(nv, lv, 0, dv, 0);
 
@@ -630,6 +635,11 @@ void FACT_LQ_SOLVE_KKT_STEP_DENSE_QP(struct DENSE_QP *qp, struct DENSE_QP_SOL *q
 			POTRF_L(nv, Hg, 0, 0, Lv+1, 0, 0);
 			ws->use_hess_fact=1;
 			}
+//int pd = 1;
+//for(ii=0; ii<nv; ii++)
+//	if((Lv+1)->dA[ii]==0.0)
+//		pd = 0;
+//printf(" lq pd %d\n", pd);
 
 		VECCP(nv, res_g, 0, lv, 0);
 
