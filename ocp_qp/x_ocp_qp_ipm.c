@@ -97,115 +97,142 @@ void OCP_QP_IPM_ARG_CREATE(struct OCP_QP_DIM *dim, struct OCP_QP_IPM_ARG *arg, v
 void OCP_QP_IPM_ARG_SET_DEFAULT(enum HPIPM_MODE mode, struct OCP_QP_IPM_ARG *arg)
 	{
 
+	REAL mu0, alpha_min, res_g_max, res_b_max, res_d_max, res_m_max, reg_prim, lam_min, t_min;
+	int iter_max, stat_max, pred_corr, cond_pred_corr, itref_pred_max, itref_corr_max, lq_fact, warm_start, abs_form, comp_res_exit, comp_res_pred, square_root_alg, comp_dual_sol;
+
 	if(mode==SPEED_ABS)
 		{
-		arg->mu0 = 1e1;
-		arg->alpha_min = 1e-12;
-		arg->res_g_max = 1e0; // not used
-		arg->res_b_max = 1e0; // not used
-		arg->res_d_max = 1e0; // not used
-		arg->res_m_max = 1e-8;
-		arg->iter_max = 15;
-		arg->stat_max = 15;
-		arg->pred_corr = 1;
-		arg->cond_pred_corr = 1;
-		arg->itref_pred_max = 0; // not used
-		arg->itref_corr_max = 0; // not used
-		arg->reg_prim = 1e-15;
-		arg->square_root_alg = 1;
-		arg->lq_fact = 0; // not used
-		arg->lam_min = 1e-16;
-		arg->t_min = 1e-16;
-		arg->warm_start = 0;
-		arg->abs_form = 1;
-		arg->comp_dual_sol = 0;
-		arg->comp_res_exit = 0;
-		arg->comp_res_pred = 0;
-		arg->mode = mode;
+		mu0 = 1e1;
+		alpha_min = 1e-12;
+		res_g_max = 1e0; // not used
+		res_b_max = 1e0; // not used
+		res_d_max = 1e0; // not used
+		res_m_max = 1e-8;
+		iter_max = 15;
+		stat_max = 15;
+		pred_corr = 1;
+		cond_pred_corr = 1;
+		itref_pred_max = 0; // not used
+		itref_corr_max = 0; // not used
+		reg_prim = 1e-15;
+		square_root_alg = 1;
+		lq_fact = 0; // not used
+		lam_min = 1e-16;
+		t_min = 1e-16;
+		warm_start = 0;
+		abs_form = 1;
+		comp_dual_sol = 0;
+		comp_res_exit = 0;
+		comp_res_pred = 0;
+		mode = mode;
 		}
 	else if(mode==SPEED)
 		{
-		arg->mu0 = 1e1;
-		arg->alpha_min = 1e-12;
-		arg->res_g_max = 1e-6;
-		arg->res_b_max = 1e-8;
-		arg->res_d_max = 1e-8;
-		arg->res_m_max = 1e-8;
-		arg->iter_max = 15;
-		arg->stat_max = 15;
-		arg->pred_corr = 1;
-		arg->cond_pred_corr = 1;
-		arg->itref_pred_max = 0;
-		arg->itref_corr_max = 0;
-		arg->reg_prim = 1e-15;
-		arg->square_root_alg = 1;
-		arg->lq_fact = 0;
-		arg->lam_min = 1e-16;
-		arg->t_min = 1e-16;
-		arg->warm_start = 0;
-		arg->abs_form = 0;
-		arg->comp_dual_sol = 1;
-		arg->comp_res_exit = 1;
-		arg->comp_res_pred = 1;
-		arg->mode = mode;
+		mu0 = 1e1;
+		alpha_min = 1e-12;
+		res_g_max = 1e-6;
+		res_b_max = 1e-8;
+		res_d_max = 1e-8;
+		res_m_max = 1e-8;
+		iter_max = 15;
+		stat_max = 15;
+		pred_corr = 1;
+		cond_pred_corr = 1;
+		itref_pred_max = 0;
+		itref_corr_max = 0;
+		reg_prim = 1e-15;
+		square_root_alg = 1;
+		lq_fact = 0;
+		lam_min = 1e-16;
+		t_min = 1e-16;
+		warm_start = 0;
+		abs_form = 0;
+		comp_dual_sol = 1;
+		comp_res_exit = 1;
+		comp_res_pred = 1;
+		mode = mode;
 		}
 	else if(mode==BALANCE)
 		{
-		arg->mu0 = 1e1;
-		arg->alpha_min = 1e-12;
-		arg->res_g_max = 1e-6;
-		arg->res_b_max = 1e-8;
-		arg->res_d_max = 1e-8;
-		arg->res_m_max = 1e-8;
-		arg->iter_max = 30;
-		arg->stat_max = 30;
-		arg->pred_corr = 1;
-		arg->cond_pred_corr = 1;
-		arg->itref_pred_max = 0;
-		arg->itref_corr_max = 2;
-		arg->reg_prim = 1e-15;
-		arg->square_root_alg = 1;
-		arg->lq_fact = 1;
-		arg->lam_min = 1e-16;
-		arg->t_min = 1e-16;
-		arg->warm_start = 0;
-		arg->abs_form = 0;
-		arg->comp_dual_sol = 1;
-		arg->comp_res_exit = 1;
-		arg->comp_res_pred = 1;
-		arg->mode = mode;
+		mu0 = 1e1;
+		alpha_min = 1e-12;
+		res_g_max = 1e-6;
+		res_b_max = 1e-8;
+		res_d_max = 1e-8;
+		res_m_max = 1e-8;
+		iter_max = 30;
+		stat_max = 30;
+		pred_corr = 1;
+		cond_pred_corr = 1;
+		itref_pred_max = 0;
+		itref_corr_max = 2;
+		reg_prim = 1e-15;
+		square_root_alg = 1;
+		lq_fact = 1;
+		lam_min = 1e-16;
+		t_min = 1e-16;
+		warm_start = 0;
+		abs_form = 0;
+		comp_dual_sol = 1;
+		comp_res_exit = 1;
+		comp_res_pred = 1;
+		mode = mode;
 		}
 	else if(mode==ROBUST)
 		{
-		arg->mu0 = 1e2;
-		arg->alpha_min = 1e-12;
-		arg->res_g_max = 1e-6;
-		arg->res_b_max = 1e-8;
-		arg->res_d_max = 1e-8;
-		arg->res_m_max = 1e-8;
-		arg->iter_max = 100;
-		arg->stat_max = 100;
-		arg->pred_corr = 1;
-		arg->cond_pred_corr = 1;
-		arg->itref_pred_max = 0;
-		arg->itref_corr_max = 4;
-		arg->reg_prim = 1e-15;
-		arg->square_root_alg = 1;
-		arg->lq_fact = 2;
-		arg->lam_min = 1e-16;
-		arg->t_min = 1e-16;
-		arg->warm_start = 0;
-		arg->abs_form = 0;
-		arg->comp_dual_sol = 1;
-		arg->comp_res_exit = 1;
-		arg->comp_res_pred = 1;
-		arg->mode = mode;
+		mu0 = 1e2;
+		alpha_min = 1e-12;
+		res_g_max = 1e-6;
+		res_b_max = 1e-8;
+		res_d_max = 1e-8;
+		res_m_max = 1e-8;
+		iter_max = 100;
+		stat_max = 100;
+		pred_corr = 1;
+		cond_pred_corr = 1;
+		itref_pred_max = 0;
+		itref_corr_max = 4;
+		reg_prim = 1e-15;
+		square_root_alg = 1;
+		lq_fact = 2;
+		lam_min = 1e-16;
+		t_min = 1e-16;
+		warm_start = 0;
+		abs_form = 0;
+		comp_dual_sol = 1;
+		comp_res_exit = 1;
+		comp_res_pred = 1;
+		mode = mode;
 		}
 	else
 		{
 		printf("\nerror: OCP_QP_IPM_ARG_SET_DEFAULT: wrong set default mode\n");
 		exit(1);
 		}
+
+	// use individual setters when available
+	OCP_QP_IPM_ARG_SET_MU0(&mu0, arg);
+	OCP_QP_IPM_ARG_SET_ALPHA_MIN(&alpha_min, arg);
+	OCP_QP_IPM_ARG_SET_TOL_STAT(&res_g_max, arg);
+	OCP_QP_IPM_ARG_SET_TOL_EQ(&res_b_max, arg);
+	OCP_QP_IPM_ARG_SET_TOL_INEQ(&res_d_max, arg);
+	OCP_QP_IPM_ARG_SET_TOL_COMP(&res_m_max, arg);
+	OCP_QP_IPM_ARG_SET_ITER_MAX(&iter_max, arg);
+	arg->stat_max = stat_max;
+	OCP_QP_IPM_ARG_SET_PRED_CORR(&pred_corr, arg);
+	OCP_QP_IPM_ARG_SET_COND_PRED_CORR(&cond_pred_corr, arg);
+	OCP_QP_IPM_ARG_SET_RIC_ALG(&square_root_alg, arg);
+	arg->itref_pred_max = itref_pred_max;
+	arg->itref_corr_max = itref_corr_max;
+	OCP_QP_IPM_ARG_SET_REG_PRIM(&reg_prim, arg);
+	arg->lq_fact = lq_fact;
+	OCP_QP_IPM_ARG_SET_LAM_MIN(&lam_min, arg);
+	OCP_QP_IPM_ARG_SET_T_MIN(&t_min, arg);
+	OCP_QP_IPM_ARG_SET_WARM_START(&warm_start, arg);
+	arg->abs_form = abs_form;
+	OCP_QP_IPM_ARG_SET_COMP_RES_PRED(&comp_res_pred, arg);
+	OCP_QP_IPM_ARG_SET_COMP_RES_EXIT(&comp_res_pred, arg);
+	arg->mode = mode;
 
 	return;
 
@@ -270,6 +297,14 @@ void OCP_QP_IPM_ARG_SET(char *field, void *value, struct OCP_QP_IPM_ARG *arg)
 	else if(hpipm_strcmp(field, "comp_res_pred")) 
 		{
 		OCP_QP_IPM_ARG_SET_COMP_RES_PRED(value, arg);
+		}
+	else if(hpipm_strcmp(field, "lam_min")) 
+		{
+		OCP_QP_IPM_ARG_SET_LAM_MIN(value, arg);
+		}
+	else if(hpipm_strcmp(field, "t_min")) 
+		{
+		OCP_QP_IPM_ARG_SET_T_MIN(value, arg);
 		}
 	else
 		{
@@ -390,6 +425,22 @@ void OCP_QP_IPM_ARG_SET_COMP_RES_EXIT(int *comp_res_exit, struct OCP_QP_IPM_ARG 
 void OCP_QP_IPM_ARG_SET_COMP_RES_PRED(int *comp_res_pred, struct OCP_QP_IPM_ARG *arg)
 	{
 	arg->comp_res_pred = *comp_res_pred;
+	return;
+	}
+
+
+
+void OCP_QP_IPM_ARG_SET_LAM_MIN(REAL *value, struct OCP_QP_IPM_ARG *arg)
+	{
+	arg->lam_min = *value;
+	return;
+	}
+
+
+
+void OCP_QP_IPM_ARG_SET_T_MIN(REAL *value, struct OCP_QP_IPM_ARG *arg)
+	{
+	arg->t_min = *value;
 	return;
 	}
 

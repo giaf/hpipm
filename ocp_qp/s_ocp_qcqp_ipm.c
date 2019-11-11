@@ -132,6 +132,8 @@
 #define OCP_QP_IPM_ARG_SET_COMP_RES_PRED s_ocp_qp_ipm_arg_set_comp_res_pred
 #define OCP_QP_IPM_ARG_SET_COMP_RES_EXIT s_ocp_qp_ipm_arg_set_comp_res_exit
 #define OCP_QP_IPM_ARG_SET_RIC_ALG s_ocp_qp_ipm_arg_set_ric_alg
+#define OCP_QP_IPM_ARG_SET_LAM_MIN s_ocp_qp_ipm_arg_set_lam_min
+#define OCP_QP_IPM_ARG_SET_T_MIN s_ocp_qp_ipm_arg_set_t_min
 #define OCP_QP_IPM_ABS_STEP s_ocp_qp_ipm_abs_step
 #define OCP_QP_IPM_DELTA_STEP s_ocp_qp_ipm_delta_step
 #define OCP_QP_IPM_GET_STAT s_ocp_qp_ipm_get_stat
@@ -180,6 +182,8 @@
 #define OCP_QCQP_IPM_ARG_SET_COMP_RES_PRED s_ocp_qcqp_ipm_arg_set_comp_res_pred
 #define OCP_QCQP_IPM_ARG_SET_COMP_RES_EXIT s_ocp_qcqp_ipm_arg_set_comp_res_exit
 #define OCP_QCQP_IPM_ARG_SET_RIC_ALG s_ocp_qcqp_ipm_arg_set_ric_alg
+#define OCP_QCQP_IPM_ARG_SET_LAM_MIN s_ocp_qcqp_ipm_arg_set_lam_min
+#define OCP_QCQP_IPM_ARG_SET_T_MIN s_ocp_qcqp_ipm_arg_set_t_min
 // ipm
 #define OCP_QCQP_IPM_WS_STRSIZE s_ocp_qcqp_ipm_ws_strsize
 #define OCP_QCQP_IPM_WS_MEMSIZE s_ocp_qcqp_ipm_ws_memsize

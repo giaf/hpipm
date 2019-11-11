@@ -251,6 +251,8 @@ void DENSE_QCQP_IPM_ARG_SET_DEFAULT(enum HPIPM_MODE mode, struct DENSE_QCQP_IPM_
 	arg->scale = scale;
 	arg->lam_min = lam_min;
 	arg->t_min = t_min;
+	DENSE_QCQP_IPM_ARG_SET_LAM_MIN(&lam_min, arg);
+	DENSE_QCQP_IPM_ARG_SET_T_MIN(&t_min, arg);
 	DENSE_QCQP_IPM_ARG_SET_WARM_START(&warm_start, arg);
 	arg->abs_form = abs_form;
 	DENSE_QCQP_IPM_ARG_SET_COMP_RES_PRED(&comp_res_pred, arg);
@@ -320,6 +322,14 @@ void DENSE_QCQP_IPM_ARG_SET(char *field, void *value, struct DENSE_QCQP_IPM_ARG 
 	else if(hpipm_strcmp(field, "comp_res_exit")) 
 		{
 		DENSE_QCQP_IPM_ARG_SET_COMP_RES_EXIT(value, arg);
+		}
+	else if(hpipm_strcmp(field, "lam_min")) 
+		{
+		DENSE_QCQP_IPM_ARG_SET_LAM_MIN(value, arg);
+		}
+	else if(hpipm_strcmp(field, "t_min")) 
+		{
+		DENSE_QCQP_IPM_ARG_SET_T_MIN(value, arg);
 		}
 	else
 		{
@@ -452,6 +462,24 @@ void DENSE_QCQP_IPM_ARG_SET_COMP_RES_PRED(int *value, struct DENSE_QCQP_IPM_ARG 
 	{
 	arg->comp_res_pred = *value;
 	DENSE_QP_IPM_ARG_SET_COMP_RES_PRED(value, arg->qp_arg);
+	return;
+	}
+
+
+
+void DENSE_QCQP_IPM_ARG_SET_LAM_MIN(REAL *value, struct DENSE_QCQP_IPM_ARG *arg)
+	{
+	arg->lam_min = *value;
+	DENSE_QP_IPM_ARG_SET_LAM_MIN(value, arg->qp_arg);
+	return;
+	}
+
+
+
+void DENSE_QCQP_IPM_ARG_SET_T_MIN(REAL *value, struct DENSE_QCQP_IPM_ARG *arg)
+	{
+	arg->t_min = *value;
+	DENSE_QP_IPM_ARG_SET_T_MIN(value, arg->qp_arg);
 	return;
 	}
 

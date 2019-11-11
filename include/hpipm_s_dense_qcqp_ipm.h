@@ -146,6 +146,10 @@ void s_dense_qcqp_ipm_arg_set_cond_pred_corr(int *cond_pred_corr, struct s_dense
 void s_dense_qcqp_ipm_arg_set_comp_res_pred(int *comp_res_pred, struct s_dense_qcqp_ipm_arg *arg);
 //
 void s_dense_qcqp_ipm_arg_set_comp_res_exit(int *comp_res_exit, struct s_dense_qcqp_ipm_arg *arg);
+//
+void s_dense_qcqp_ipm_arg_set_lam_min(float *value, struct s_dense_qcqp_ipm_arg *arg);
+//
+void s_dense_qcqp_ipm_arg_set_t_min(float *value, struct s_dense_qcqp_ipm_arg *arg);
 
 //
 int s_dense_qcqp_ipm_ws_memsize(struct s_dense_qcqp_dim *qp_dim, struct s_dense_qcqp_ipm_arg *arg);

@@ -184,8 +184,8 @@ void DENSE_QP_IPM_ARG_SET_DEFAULT(enum HPIPM_MODE mode, struct DENSE_QP_IPM_ARG 
 	DENSE_QP_IPM_ARG_SET_REG_DUAL(&reg_prim, arg);
 	arg->lq_fact = lq_fact;
 	arg->scale = scale;
-	arg->lam_min = lam_min;
-	arg->t_min = t_min;
+	DENSE_QP_IPM_ARG_SET_LAM_MIN(&lam_min, arg);
+	DENSE_QP_IPM_ARG_SET_T_MIN(&t_min, arg);
 	DENSE_QP_IPM_ARG_SET_WARM_START(&warm_start, arg);
 	arg->abs_form = abs_form;
 	DENSE_QP_IPM_ARG_SET_COMP_RES_EXIT(&comp_res_exit, arg);
@@ -255,6 +255,14 @@ void DENSE_QP_IPM_ARG_SET(char *field, void *value, struct DENSE_QP_IPM_ARG *arg
 	else if(hpipm_strcmp(field, "comp_res_pred")) 
 		{
 		DENSE_QP_IPM_ARG_SET_COMP_RES_PRED(value, arg);
+		}
+	else if(hpipm_strcmp(field, "lam_min")) 
+		{
+		DENSE_QP_IPM_ARG_SET_LAM_MIN(value, arg);
+		}
+	else if(hpipm_strcmp(field, "t_min")) 
+		{
+		DENSE_QP_IPM_ARG_SET_T_MIN(value, arg);
 		}
 	else
 		{
@@ -373,6 +381,22 @@ void DENSE_QP_IPM_ARG_SET_COMP_RES_PRED(int *comp_res_pred, struct DENSE_QP_IPM_
 void DENSE_QP_IPM_ARG_SET_COMP_RES_EXIT(int *comp_res_exit, struct DENSE_QP_IPM_ARG *arg)
 	{
 	arg->comp_res_exit = *comp_res_exit;
+	return;
+	}
+
+
+
+void DENSE_QP_IPM_ARG_SET_LAM_MIN(REAL *value, struct DENSE_QP_IPM_ARG *arg)
+	{
+	arg->lam_min = *value;
+	return;
+	}
+
+
+
+void DENSE_QP_IPM_ARG_SET_T_MIN(REAL *value, struct DENSE_QP_IPM_ARG *arg)
+	{
+	arg->t_min = *value;
 	return;
 	}
 

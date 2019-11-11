@@ -167,6 +167,10 @@ void s_ocp_qp_ipm_arg_set_ric_alg(int *alg, struct s_ocp_qp_ipm_arg *arg);
 void s_ocp_qp_ipm_arg_set_comp_res_exit(int *value, struct s_ocp_qp_ipm_arg *arg);
 // compute residuals of prediction
 void s_ocp_qp_ipm_arg_set_comp_res_pred(int *alg, struct s_ocp_qp_ipm_arg *arg);
+// min value of lam in the solution
+void s_ocp_qp_ipm_arg_set_lam_min(float *value, struct s_ocp_qp_ipm_arg *arg);
+// min value of t in the solution
+void s_ocp_qp_ipm_arg_set_t_min(float *value, struct s_ocp_qp_ipm_arg *arg);
 
 //
 int s_ocp_qp_ipm_ws_strsize();

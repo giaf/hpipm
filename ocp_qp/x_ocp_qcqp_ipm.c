@@ -260,8 +260,8 @@ void OCP_QCQP_IPM_ARG_SET_DEFAULT(enum HPIPM_MODE mode, struct OCP_QCQP_IPM_ARG 
 	arg->itref_corr_max = itref_corr_max;
 	OCP_QCQP_IPM_ARG_SET_REG_PRIM(&reg_prim, arg);
 	arg->lq_fact = lq_fact;
-	arg->lam_min = lam_min;
-	arg->t_min = t_min;
+	OCP_QCQP_IPM_ARG_SET_LAM_MIN(&lam_min, arg);
+	OCP_QCQP_IPM_ARG_SET_T_MIN(&t_min, arg);
 	OCP_QCQP_IPM_ARG_SET_WARM_START(&warm_start, arg);
 	arg->abs_form = abs_form;
 	OCP_QCQP_IPM_ARG_SET_COMP_RES_PRED(&comp_res_pred, arg);
@@ -331,6 +331,14 @@ void OCP_QCQP_IPM_ARG_SET(char *field, void *value, struct OCP_QCQP_IPM_ARG *arg
 	else if(hpipm_strcmp(field, "comp_res_pred")) 
 		{
 		OCP_QCQP_IPM_ARG_SET_COMP_RES_PRED(value, arg);
+		}
+	else if(hpipm_strcmp(field, "lam_min")) 
+		{
+		OCP_QCQP_IPM_ARG_SET_LAM_MIN(value, arg);
+		}
+	else if(hpipm_strcmp(field, "t_min")) 
+		{
+		OCP_QCQP_IPM_ARG_SET_T_MIN(value, arg);
 		}
 	else
 		{
@@ -465,6 +473,24 @@ void OCP_QCQP_IPM_ARG_SET_COMP_RES_PRED(int *value, struct OCP_QCQP_IPM_ARG *arg
 	{
 	arg->comp_res_pred = *value;
 	OCP_QP_IPM_ARG_SET_COMP_RES_PRED(value, arg->qp_arg);
+	return;
+	}
+
+
+
+void OCP_QCQP_IPM_ARG_SET_LAM_MIN(REAL *value, struct OCP_QCQP_IPM_ARG *arg)
+	{
+	arg->lam_min = *value;
+	OCP_QP_IPM_ARG_SET_LAM_MIN(value, arg->qp_arg);
+	return;
+	}
+
+
+
+void OCP_QCQP_IPM_ARG_SET_T_MIN(REAL *value, struct OCP_QCQP_IPM_ARG *arg)
+	{
+	arg->t_min = *value;
+	OCP_QP_IPM_ARG_SET_T_MIN(value, arg->qp_arg);
 	return;
 	}
 
