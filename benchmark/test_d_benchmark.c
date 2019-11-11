@@ -56,7 +56,7 @@ int d_memsize_benchmark_qp(int nv, int ne, int nc)
 	int size = 0;
 
 	// size of double, int
-	size += nv * nv * sizeof(double);         // H
+	size += nv * nv * sizeof(double);		 // H
 	size += (nv + 2 * nv) * sizeof(double);  // g, lbx, ubx
 	size += (ne + nc) * nv * sizeof(double); // C
 	size += 2 * (ne + nc) * sizeof(double);  // lbC, ubC
@@ -229,8 +229,7 @@ int cvt_benchmark_to_hpipm(struct benchmark_qp *qp_bench, struct d_dense_qp *qpd
 	}
 	*/
 
-	d_cvt_rowmaj_to_dense_qp(H, g, C_eq, b, idxb, d_lb, d_ub, C_ieq, d_lg0, d_ug0,
-						  NULL, NULL, NULL, NULL, NULL, NULL, NULL, qpd);
+	d_dense_qp_set_all_rowmaj(H, g, C_eq, b, idxb, d_lb, d_ub, C_ieq, d_lg0, d_ug0, NULL, NULL, NULL, NULL, NULL, NULL, NULL, qpd);
 
 	return 0;
 
@@ -272,8 +271,8 @@ int readFromFileI(int* data, int n, const char* datafilename)
 }
 
 int readOQPdimensions(const char* path,
-	     	              int* nQP, int* nV,
-                      int* nC, int* nEC)
+		 				  int* nQP, int* nV,
+					  int* nC, int* nEC)
 {
 
 	int dims[4];
@@ -290,7 +289,7 @@ int readOQPdimensions(const char* path,
 	*nC  = dims[2];
 	*nEC = dims[3];
 
-//  printf( "nQP = %d,  nV = %d,  nC = %d,  nEC = %d\n", *nQP, *nV, *nC, *nEC );
+//	printf( "nQP = %d,  nV = %d,  nC = %d,  nEC = %d\n", *nQP, *nV, *nC, *nEC );
 
 	return 0;
 
@@ -335,15 +334,15 @@ int readFromFileM(double* data, int nrow, int ncol, const char* datafilename)
 }
 
 int readOQPdata(const char* path,
-					      int* nQP, int* nV,
-                int* nC, int* nEC,
-						    double* H, double* g,
-                double* A,
-                double* lb, double* ub,
-                double* lbA,
-                double* ubA,
+						  int* nQP, int* nV,
+				int* nC, int* nEC,
+							double* H, double* g,
+				double* A,
+				double* lb, double* ub,
+				double* lbA,
+				double* ubA,
 							  double* xOpt, double* yOpt,
-                double* objOpt)
+				double* objOpt)
 {
 	char filename[MAX_STRING_LENGTH];
 
@@ -353,7 +352,7 @@ int readOQPdata(const char* path,
 	/* 2) Allocate memory and load OQP data: */
 	/* Hessian matrix */
 	snprintf( filename,MAX_STRING_LENGTH,"%sH.oqp",path );
-  readFromFileM( H,(*nV),(*nV),filename );
+	readFromFileM( H,(*nV),(*nV),filename );
 
 	/* gradient vector sequence */
 	snprintf( filename,MAX_STRING_LENGTH,"%sg.oqp",path );
@@ -361,11 +360,11 @@ int readOQPdata(const char* path,
 
 	/* lower bound vector sequence */
 	snprintf( filename,MAX_STRING_LENGTH,"%slb.oqp",path );
-  readFromFileM( lb,(*nQP),(*nV),filename );
+	readFromFileM( lb,(*nQP),(*nV),filename );
 
 	/* upper bound vector sequence */
 	snprintf( filename,MAX_STRING_LENGTH,"%sub.oqp",path );
-  readFromFileM( ub,(*nQP),(*nV),filename );
+	readFromFileM( ub,(*nQP),(*nV),filename );
 
 	if ( (*nC) > 0 )
 	{
@@ -409,30 +408,30 @@ int readOQPdata(const char* path,
 
 
 /************************************************
-        test benchmark problem
+		test benchmark problem
 ************************************************/
 int main()
 	{
 
-    printf("\n");
-    printf("\n");
-    printf("\n");
-    printf(" HPIPM -- High-Performance Interior Point Method.\n");
-    printf("\n");
-    printf("\n");
-    printf("\n");
+	printf("\n");
+	printf("\n");
+	printf("\n");
+	printf(" HPIPM -- High-Performance Interior Point Method.\n");
+	printf("\n");
+	printf("\n");
+	printf("\n");
 
-    int nQP, nv, ne, ng;
-    int nproblems, i, j;
-    struct dirent **namelist;
-    char resstr[200], OQPproblem[200];
-    char *problem;
-    nproblems = scandir("./projects.coin-or.org/svn/qpOASES/misc/testingdata/cpp/problems", &namelist, NULL, alphasort);
-    /*
-    int ii,jj;
-    char filename[1024];
-    FILE * pFile;
-    */
+	int nQP, nv, ne, ng;
+	int nproblems, i, j;
+	struct dirent **namelist;
+	char resstr[200], OQPproblem[200];
+	char *problem;
+	nproblems = scandir("./projects.coin-or.org/svn/qpOASES/misc/testingdata/cpp/problems", &namelist, NULL, alphasort);
+	/*
+	int ii,jj;
+	char filename[1024];
+	FILE * pFile;
+	*/
 
 	printf("probl\tnv\tne\tnc\tdp\treturn\titer\tres_g\t\tres_b\t\tres_d\t\tres_m\t\tmu\t\ttime\t\ttime[ms]\n");
 
@@ -444,104 +443,106 @@ int main()
 
 	int ii;
 
-    /************** benchmark loop *********************/
+	/************** benchmark loop *********************/
 
-//    for (i = 0; i < nproblems; i++)
-    for (i = 0; i < nproblems-1; i++)
-//    for (i = 44; i < 45; i++)
+//	for (i = 0; i < nproblems; i++)
+	for (i = 0; i < nproblems-1; i++)
+//	for (i = 44; i < 45; i++)
 		{
 
-        /************************************************
-        * bechmark data setting
-        ************************************************/
+		/************************************************
+		* bechmark data setting
+		************************************************/
 
-        /* skip special directories and zip file cuter.*bz2 */
-        if (namelist[i]->d_name[0] == '.' || namelist[i]->d_name[0] == 'c')
+		/* skip special directories and zip file cuter.*bz2 */
+		if (namelist[i]->d_name[0] == '.' || namelist[i]->d_name[0] == 'c')
 			{
-            free(namelist[i]);
-            continue;
+			free(namelist[i]);
+			continue;
 			}
-        problem = namelist[i]->d_name;
-        snprintf(OQPproblem, 199, "./projects.coin-or.org/svn/qpOASES/misc/testingdata/cpp/problems/%s/", problem);
+		problem = namelist[i]->d_name;
+		snprintf(OQPproblem, 199, "./projects.coin-or.org/svn/qpOASES/misc/testingdata/cpp/problems/%s/", problem);
 
-        /* read dimensions */
-        readOQPdimensions( OQPproblem, &nQP, &nv, &ng, &ne );
+		/* read dimensions */
+		readOQPdimensions( OQPproblem, &nQP, &nv, &ng, &ne );
 
-        /************************************************
-        * dense qp benchmark
-        ************************************************/
+		/************************************************
+		* dense qp benchmark
+		************************************************/
 
-        int nc = ng-ne; // inequality constraint
-        int benchmark_size = d_memsize_benchmark_qp(nv, ne, nc);
-        void *benchmark_mem = calloc(benchmark_size,1);
+		int nc = ng-ne; // inequality constraint
+		int benchmark_size = d_memsize_benchmark_qp(nv, ne, nc);
+		void *benchmark_mem = calloc(benchmark_size,1);
 
-        struct benchmark_qp qp_bench;
-        d_create_benchmark_qp(nv, ne, nc, &qp_bench, benchmark_mem);
+		struct benchmark_qp qp_bench;
+		d_create_benchmark_qp(nv, ne, nc, &qp_bench, benchmark_mem);
 
-        /* read data */
-        readOQPdata(OQPproblem, &nQP, &nv, &ng, &ne, qp_bench.H, qp_bench.g, qp_bench.C, qp_bench.lbx, qp_bench.ubx, qp_bench.lbC, qp_bench.ubC, NULL, NULL, NULL);
+		/* read data */
+		readOQPdata(OQPproblem, &nQP, &nv, &ng, &ne, qp_bench.H, qp_bench.g, qp_bench.C, qp_bench.lbx, qp_bench.ubx, qp_bench.lbC, qp_bench.ubC, NULL, NULL, NULL);
 
-        // print data to text files
-        /*
-        snprintf(filename, sizeof(filename), "matrixH%d.txt", i);
-        pFile = fopen(filename,"w");
-        for (ii = 0; ii < nv; ii++){
-           for (jj = 0; jj < nv; jj++)
-           {
-               fprintf(pFile, "%e ", H[ii*nv+jj]);
-           }
-           fputc('\n', pFile);
-        }
-        fclose(pFile);
-        */
+		// print data to text files
+		/*
+		snprintf(filename, sizeof(filename), "matrixH%d.txt", i);
+		pFile = fopen(filename,"w");
+		for (ii = 0; ii < nv; ii++){
+			for (jj = 0; jj < nv; jj++)
+			{
+				fprintf(pFile, "%e ", H[ii*nv+jj]);
+			}
+			fputc('\n', pFile);
+		}
+		fclose(pFile);
+		*/
 
-        /************************************************
-        * benchmark to hpipm workspace
-        ************************************************/
+		/************************************************
+		* benchmark to hpipm workspace
+		************************************************/
 
-        int tran_size = d_memsize_benchmark_to_hpipm(nv, ne, nc);
-        void *tran_mem = calloc(tran_size,1);
+		int tran_size = d_memsize_benchmark_to_hpipm(nv, ne, nc);
+		void *tran_mem = calloc(tran_size,1);
 
-        struct benchmark_to_hpipm tran_space;
-        d_create_benchmark_to_hpipm(nv, ne, nc, &tran_space, tran_mem);
+		struct benchmark_to_hpipm tran_space;
+		d_create_benchmark_to_hpipm(nv, ne, nc, &tran_space, tran_mem);
 
-        /************************************************
-        * dense qp dim
-        ************************************************/
+		/************************************************
+		* dense qp dim
+		************************************************/
 
 		// double
 
-		int qp_dim_size = d_memsize_dense_qp_dim();
+		int qp_dim_size = d_dense_qp_dim_memsize();
 		void *qp_dim_mem = calloc(qp_dim_size, 1);
 
 		struct d_dense_qp_dim dim;
-		d_create_dense_qp_dim(&dim, qp_dim_mem);
+		d_dense_qp_dim_create(&dim, qp_dim_mem);
 
-		d_cvt_int_to_dense_qp_dim(nv, ne, nv, nc, 0, 0, &dim);
+		d_dense_qp_dim_set_all(nv, ne, nv, nc, 0, 0, &dim);
+//		d_dense_qp_dim_print(&dim);
 
 		// single
 
-		int s_qp_dim_size = s_memsize_dense_qp_dim();
+		int s_qp_dim_size = s_dense_qp_dim_memsize();
 		void *s_qp_dim_mem = calloc(s_qp_dim_size, 1);
 
 		struct s_dense_qp_dim s_dim;
-		s_create_dense_qp_dim(&s_dim, s_qp_dim_mem);
+		s_dense_qp_dim_create(&s_dim, s_qp_dim_mem);
 
 		cvt_d2s_dense_qp_dim(&dim, &s_dim);
 
-        /************************************************
-        * dense qp
-        ************************************************/
+		/************************************************
+		* dense qp
+		************************************************/
 
 		// double
 
-        int qp_size = d_memsize_dense_qp(&dim);
-        void *qp_mem = calloc(qp_size, 1);
+		int qp_size = d_dense_qp_memsize(&dim);
+		void *qp_mem = calloc(qp_size, 1);
 
-        struct d_dense_qp qpd_hpipm;
-        d_create_dense_qp(&dim, &qpd_hpipm, qp_mem);
+		struct d_dense_qp qpd_hpipm;
+		d_dense_qp_create(&dim, &qpd_hpipm, qp_mem);
 
-        cvt_benchmark_to_hpipm(&qp_bench, &qpd_hpipm, &tran_space);
+		cvt_benchmark_to_hpipm(&qp_bench, &qpd_hpipm, &tran_space);
+//		d_dense_qp_print(&dim, &qpd_hpipm);
 
 		double reg = 0e-8;
 		blasfeo_ddiare(nv, reg, qpd_hpipm.Hv, 0, 0);
@@ -561,60 +562,68 @@ int main()
 
 		// single
 
-        int s_qp_size = s_memsize_dense_qp(&s_dim);
-        void *s_qp_mem = calloc(s_qp_size, 1);
+		int s_qp_size = s_dense_qp_memsize(&s_dim);
+		void *s_qp_mem = calloc(s_qp_size, 1);
 
-        struct s_dense_qp s_qpd_hpipm;
-        s_create_dense_qp(&s_dim, &s_qpd_hpipm, s_qp_mem);
+		struct s_dense_qp s_qpd_hpipm;
+		s_dense_qp_create(&s_dim, &s_qpd_hpipm, s_qp_mem);
 
 		cvt_d2s_dense_qp(&qpd_hpipm, &s_qpd_hpipm);
 
-        /************************************************
-        * dense sol
-        ************************************************/
+		/************************************************
+		* dense sol
+		************************************************/
 
 		// double
 
-        int qp_sol_size = d_memsize_dense_qp_sol(&dim);
-        void *qp_sol_mem = calloc(qp_sol_size,1);
+		int qp_sol_size = d_dense_qp_sol_memsize(&dim);
+		void *qp_sol_mem = calloc(qp_sol_size,1);
 
-        struct d_dense_qp_sol qpd_sol;
-        d_create_dense_qp_sol(&dim, &qpd_sol, qp_sol_mem);
+		struct d_dense_qp_sol qpd_sol;
+		d_dense_qp_sol_create(&dim, &qpd_sol, qp_sol_mem);
 
 		// single
 
-        int s_qp_sol_size = s_memsize_dense_qp_sol(&s_dim);
-        void *s_qp_sol_mem = calloc(s_qp_sol_size,1);
+		int s_qp_sol_size = s_dense_qp_sol_memsize(&s_dim);
+		void *s_qp_sol_mem = calloc(s_qp_sol_size,1);
 
-        struct s_dense_qp_sol s_qpd_sol;
-        s_create_dense_qp_sol(&s_dim, &s_qpd_sol, s_qp_sol_mem);
+		struct s_dense_qp_sol s_qpd_sol;
+		s_dense_qp_sol_create(&s_dim, &s_qpd_sol, s_qp_sol_mem);
 
-        /************************************************
-        * ipm arg
-        ************************************************/
+		/************************************************
+		* ipm arg
+		************************************************/
 
-//		enum dense_qp_ipm_mode mode = SPEED_ABS;
-//		enum dense_qp_ipm_mode mode = SPEED;
-		enum dense_qp_ipm_mode mode = BALANCE;
-//		enum dense_qp_ipm_mode mode = ROBUST;
+//		enum hpipm_mode mode = SPEED_ABS;
+//		enum hpipm_mode mode = SPEED;
+		enum hpipm_mode mode = BALANCE;
+//		enum hpipm_mode mode = ROBUST;
 
 		// double
 
-        int ipm_arg_size = d_memsize_dense_qp_ipm_arg(&dim);
-        void *ipm_arg_mem = calloc(ipm_arg_size,1);
+		int ipm_arg_size = d_dense_qp_ipm_arg_memsize(&dim);
+		void *ipm_arg_mem = calloc(ipm_arg_size,1);
 
-        struct d_dense_qp_ipm_arg argd;
-        d_create_dense_qp_ipm_arg(&dim, &argd, ipm_arg_mem);
-        d_set_default_dense_qp_ipm_arg(mode, &argd);
+		struct d_dense_qp_ipm_arg argd;
+		d_dense_qp_ipm_arg_create(&dim, &argd, ipm_arg_mem);
+		d_dense_qp_ipm_arg_set_default(mode, &argd);
+
 		// overwirte default
-        argd.res_g_max = 1e-6;
-        argd.res_b_max = 1e-6;
-        argd.res_d_max = 1e-6;
-        argd.res_m_max = 1e-6;
-        argd.iter_max = 200;
-        argd.stat_max = 200;
-//        argd.alpha_min = 1e-12;
-        argd.mu0 = 1e1;
+		double d_tol_stat = 1e-6;
+		double d_tol_eq = 1e-6;
+		double d_tol_ineq = 1e-6;
+		double d_tol_comp = 1e-6;
+		int d_iter_max = 200;
+		double d_mu0 = 1e1;
+
+		d_dense_qp_ipm_arg_set_tol_stat(&d_tol_stat, &argd);
+		d_dense_qp_ipm_arg_set_tol_eq(&d_tol_eq, &argd);
+		d_dense_qp_ipm_arg_set_tol_ineq(&d_tol_ineq, &argd);
+		d_dense_qp_ipm_arg_set_tol_comp(&d_tol_comp, &argd);
+		d_dense_qp_ipm_arg_set_iter_max(&d_iter_max, &argd);
+		d_dense_qp_ipm_arg_set_mu0(&d_mu0, &argd);
+
+//		argd.alpha_min = 1e-12;
 //		argd.pred_corr = 1;
 //		argd.cond_pred_corr = 1;
 //		argd.scale = 1;
@@ -626,21 +635,21 @@ int main()
 
 		// single
 
-        int s_ipm_arg_size = s_memsize_dense_qp_ipm_arg(&s_dim);
-        void *s_ipm_arg_mem = calloc(s_ipm_arg_size,1);
+		int s_ipm_arg_size = s_dense_qp_ipm_arg_memsize(&s_dim);
+		void *s_ipm_arg_mem = calloc(s_ipm_arg_size,1);
 
-        struct s_dense_qp_ipm_arg s_argd;
-        s_create_dense_qp_ipm_arg(&s_dim, &s_argd, s_ipm_arg_mem);
-        s_set_default_dense_qp_ipm_arg(mode, &s_argd);
+		struct s_dense_qp_ipm_arg s_argd;
+		s_dense_qp_ipm_arg_create(&s_dim, &s_argd, s_ipm_arg_mem);
+		s_dense_qp_ipm_arg_set_default(mode, &s_argd);
 		// overwirte default
-        s_argd.res_g_max = 1e-3;
-        s_argd.res_b_max = 1e-3;
-        s_argd.res_d_max = 1e-3;
-        s_argd.res_m_max = 1e-3;
-        s_argd.iter_max = 200;
-        s_argd.stat_max = 200;
+		s_argd.res_g_max = 1e-3;
+		s_argd.res_b_max = 1e-3;
+		s_argd.res_d_max = 1e-3;
+		s_argd.res_m_max = 1e-3;
+		s_argd.iter_max = 200;
+		s_argd.stat_max = 200;
 //		s_argd.alpha_min = 1e-12;
-        s_argd.mu0 = 1e1;
+		s_argd.mu0 = 1e1;
 //		s_argd.pred_corr = 1;
 //		s_argd.cond_pred_corr = 1;
 //		s_argd.scale = 1;
@@ -650,9 +659,9 @@ int main()
 		s_argd.reg_dual = 1e-7;
 //		s_argd.lq_fact = 1;
 
-        /************************************************
-        * dense ipm
-        ************************************************/
+		/************************************************
+		* dense ipm
+		************************************************/
 
 		struct timeval tv0, tv1;
 
@@ -660,13 +669,13 @@ int main()
 
 		// double
 
-        int ipm_size = d_memsize_dense_qp_ipm(&dim, &argd);
+		int ipm_size = d_dense_qp_ipm_ws_memsize(&dim, &argd);
 
-        void *ipm_mem = calloc(ipm_size,1);
-        struct d_dense_qp_ipm_workspace workspace;
-        d_create_dense_qp_ipm(&dim, &argd, &workspace, ipm_mem);
+		void *ipm_mem = calloc(ipm_size,1);
+		struct d_dense_qp_ipm_ws workspace;
+		d_dense_qp_ipm_ws_create(&dim, &argd, &workspace, ipm_mem);
 
-        int hpipm_return; // 0 normal; 1 max iter; 2 alpha_minl; 3 NaN
+		int hpipm_return; // 0 normal; 1 max iter; 2 alpha_minl; 3 NaN
 
 		double sol_time;
 
@@ -675,7 +684,8 @@ int main()
 		for(rep=0; rep<nrep; rep++)
 			{
 #ifdef DOUBLE
-			hpipm_return = d_solve_dense_qp_ipm(&qpd_hpipm, &qpd_sol, &argd, &workspace);
+			d_dense_qp_ipm_solve(&qpd_hpipm, &qpd_sol, &argd, &workspace);
+			d_dense_qp_ipm_get_status(&workspace, &hpipm_return);
 #endif
 			}
 
@@ -685,13 +695,13 @@ int main()
 
 		// single
 
-        int s_ipm_size = s_memsize_dense_qp_ipm(&s_dim, &s_argd);
+		int s_ipm_size = s_dense_qp_ipm_ws_memsize(&s_dim, &s_argd);
 
-        void *s_ipm_mem = calloc(s_ipm_size,1);
-        struct s_dense_qp_ipm_workspace s_workspace;
-        s_create_dense_qp_ipm(&s_dim, &s_argd, &s_workspace, s_ipm_mem);
+		void *s_ipm_mem = calloc(s_ipm_size,1);
+		struct s_dense_qp_ipm_ws s_workspace;
+		s_dense_qp_ipm_ws_create(&s_dim, &s_argd, &s_workspace, s_ipm_mem);
 
-        int s_hpipm_return; // 0 normal; 1 max iter; 2 alpha_minl; 3 NaN
+		int s_hpipm_return; // 0 normal; 1 max iter; 2 alpha_minl; 3 NaN
 
 		double s_sol_time;
 
@@ -700,7 +710,8 @@ int main()
 		for(rep=0; rep<nrep; rep++)
 			{
 #ifdef SINGLE
-			s_hpipm_return = s_solve_dense_qp_ipm(&s_qpd_hpipm, &s_qpd_sol, &s_argd, &s_workspace);
+			s_dense_qp_ipm_solve(&s_qpd_hpipm, &s_qpd_sol, &s_argd, &s_workspace);
+			s_dense_qp_ipm_get_status(&workspace, &s_hpipm_return);
 #endif
 			}
 
@@ -708,20 +719,9 @@ int main()
 
 		s_sol_time = (tv1.tv_sec-tv0.tv_sec)/(nrep+0.0)+(tv1.tv_usec-tv0.tv_usec)/(nrep*1e6);
 
-        /************************************************
-        * print ipm statistics
-        ************************************************/
-#if 0
-//		if(i==17)
-		if(1)
-			{
-			printf("\nipm iter = %d\n", workspace.iter);
-			printf("\nalpha_aff\tmu_aff\t\tsigma\t\talpha\t\tmu\n");
-			d_print_exp_tran_mat(5, workspace.iter, workspace.stat, 5);
-			printf("\n\n\n\n");
-			}
-#endif
-
+		/************************************************
+		* print ipm statistics
+		************************************************/
 		// number of passed and failed problems
 		if(hpipm_return==0)
 			npass++;
@@ -729,7 +729,14 @@ int main()
 			nfail++;
 
 #ifdef DOUBLE
-		printf("%d\t%d\t%d\t%d\t%d\t%d\t%d\t%e\t%e\t%e\t%e\t%e\t%e%12.4f\n", i-1, nv, ne, nc, dp, hpipm_return, workspace.iter, workspace.qp_res[0], workspace.qp_res[1], workspace.qp_res[2], workspace.qp_res[3], workspace.res->res_mu, sol_time, sol_time*1000);
+		int d_iter;
+		d_dense_qp_ipm_get_iter(&workspace, &d_iter);
+		double d_res[4];
+		d_dense_qp_ipm_get_max_res_stat(&workspace, d_res+0);
+		d_dense_qp_ipm_get_max_res_eq(&workspace, d_res+1);
+		d_dense_qp_ipm_get_max_res_ineq(&workspace, d_res+2);
+		d_dense_qp_ipm_get_max_res_comp(&workspace, d_res+3);
+		printf("%d\t%d\t%d\t%d\t%d\t%d\t%d\t%e\t%e\t%e\t%e\t%e\t%e%12.4f\n", i-1, nv, ne, nc, dp, hpipm_return, d_iter, d_res[0], d_res[1], d_res[2], d_res[3], workspace.res->res_mu, sol_time, sol_time*1000);
 #endif
 
 		// number of passed and failed problems
@@ -739,32 +746,55 @@ int main()
 			s_nfail++;
 
 #ifdef SINGLE
-		printf("%d\t%d\t%d\t%d\t%d\t%d\t%d\t%e\t%e\t%e\t%e\t%e\t%e%12.4f\n", i-1, nv, ne, nc, dp, s_hpipm_return, s_workspace.iter, s_workspace.qp_res[0], s_workspace.qp_res[1], s_workspace.qp_res[2], s_workspace.qp_res[3], s_workspace.res->res_mu, s_sol_time, s_sol_time*1000);
+		int s_iter;
+		s_dense_qp_ipm_get_iter(&workspace, &s_iter);
+		float s_res[4];
+		s_dense_qp_ipm_get_max_res_stat(&workspace, s_res+0);
+		s_dense_qp_ipm_get_max_res_eq(&workspace, s_res+1);
+		s_dense_qp_ipm_get_max_res_ineq(&workspace, s_res+2);
+		s_dense_qp_ipm_get_max_res_comp(&workspace, s_res+3);
+		printf("%d\t%d\t%d\t%d\t%d\t%d\t%d\t%e\t%e\t%e\t%e\t%e\t%e%12.4f\n", i-1, nv, ne, nc, dp, s_hpipm_return, s_iter, s_res[0], s_res[1], s_res[2], s_res[3], s_workspace.res->res_mu, s_sol_time, s_sol_time*1000);
 #endif
 
-        /************************************************
-        * free memory
-        ************************************************/
+#if 0
+//		if(i==17)
+//		if(1)
+//			{
+//			printf("\nipm iter = %d\n", workspace.iter);
+//			printf("\nalpha_aff\tmu_aff\t\tsigma\t\talpha\t\tmu\n");
+//			d_print_exp_tran_mat(5, workspace.iter, workspace.stat, 5);
+//			printf("\n\n\n\n");
+//			}
+		printf("\nalpha_aff\tmu_aff\t\tsigma\t\talpha\t\tmu\t\tres_stat\tres_eq\t\tres_ineq\tres_comp\titref pred\titref corr\n");
+		double *stat; d_dense_qp_ipm_get_stat(&workspace, &stat);
+		int stat_m;  d_dense_qp_ipm_get_stat_m(&workspace, &stat_m);
+		d_print_exp_tran_mat(stat_m, d_iter+1, stat, stat_m);
+
+#endif
+
+		/************************************************
+		* free memory
+		************************************************/
 
 		// double
-        free(benchmark_mem);
-        free(tran_mem);
-        free(qp_mem);
+		free(benchmark_mem);
+		free(tran_mem);
+		free(qp_mem);
 		free(H_fact_mem);
-      	free(qp_sol_mem);
-      	free(ipm_mem);
-        free(ipm_arg_mem);
+		free(qp_sol_mem);
+		free(ipm_mem);
+		free(ipm_arg_mem);
 		// single
-        free(s_qp_mem);
-      	free(s_qp_sol_mem);
-      	free(s_ipm_mem);
-        free(s_ipm_arg_mem);
+		free(s_qp_mem);
+		free(s_qp_sol_mem);
+		free(s_ipm_mem);
+		free(s_ipm_arg_mem);
 
 		}
 
-    /************************************************
-    * overall statistics
-    ************************************************/
+	/************************************************
+	* overall statistics
+	************************************************/
 
 #ifdef DOUBLE
 	printf("\n\nTestbench results (double precision):\n");
@@ -786,10 +816,10 @@ int main()
 	printf("\n\n");
 #endif
 
-    /************************************************
-    * return
-    ************************************************/
+	/************************************************
+	* return
+	************************************************/
 
-  	return 0;
+	return 0;
 
 	}
