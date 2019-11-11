@@ -79,8 +79,8 @@ void DENSE_QP_IPM_ARG_SET_DEFAULT(enum HPIPM_MODE mode, struct DENSE_QP_IPM_ARG 
 		reg_dual = 1e-15;
 		lq_fact = 0;
 		scale = 0;
-		lam_min = 1e-17;
-		t_min = 1e-17;
+		lam_min = 1e-16;
+		t_min = 1e-16;
 		warm_start = 0;
 		abs_form = 1;
 		comp_res_exit = 0;
@@ -104,8 +104,8 @@ void DENSE_QP_IPM_ARG_SET_DEFAULT(enum HPIPM_MODE mode, struct DENSE_QP_IPM_ARG 
 		reg_dual = 1e-15;
 		lq_fact = 0;
 		scale = 0;
-		lam_min = 1e-17;
-		t_min = 1e-17;
+		lam_min = 1e-16;
+		t_min = 1e-16;
 		warm_start = 0;
 		abs_form = 0;
 		comp_res_exit = 1;
@@ -128,9 +128,9 @@ void DENSE_QP_IPM_ARG_SET_DEFAULT(enum HPIPM_MODE mode, struct DENSE_QP_IPM_ARG 
 		reg_prim = 1e-15;
 		reg_dual = 1e-15;
 		lq_fact = 1;
-		scale = 1;
-		lam_min = 1e-17;
-		t_min = 1e-17;
+		scale = 0;
+		lam_min = 1e-16;
+		t_min = 1e-16;
 		warm_start = 0;
 		abs_form = 0;
 		comp_res_exit = 1;
@@ -153,9 +153,9 @@ void DENSE_QP_IPM_ARG_SET_DEFAULT(enum HPIPM_MODE mode, struct DENSE_QP_IPM_ARG 
 		reg_prim = 1e-15;
 		reg_dual = 1e-15;
 		lq_fact = 2;
-		scale = 1;
-		lam_min = 1e-17;
-		t_min = 1e-17;
+		scale = 0;
+		lam_min = 1e-16;
+		t_min = 1e-16;
 		warm_start = 0;
 		abs_form = 0;
 		comp_res_exit = 1;

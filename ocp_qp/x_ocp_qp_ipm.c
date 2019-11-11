@@ -114,8 +114,8 @@ void OCP_QP_IPM_ARG_SET_DEFAULT(enum HPIPM_MODE mode, struct OCP_QP_IPM_ARG *arg
 		arg->reg_prim = 1e-15;
 		arg->square_root_alg = 1;
 		arg->lq_fact = 0; // not used
-		arg->lam_min = 1e-17;
-		arg->t_min = 1e-17;
+		arg->lam_min = 1e-16;
+		arg->t_min = 1e-16;
 		arg->warm_start = 0;
 		arg->abs_form = 1;
 		arg->comp_dual_sol = 0;
@@ -140,8 +140,8 @@ void OCP_QP_IPM_ARG_SET_DEFAULT(enum HPIPM_MODE mode, struct OCP_QP_IPM_ARG *arg
 		arg->reg_prim = 1e-15;
 		arg->square_root_alg = 1;
 		arg->lq_fact = 0;
-		arg->lam_min = 1e-17;
-		arg->t_min = 1e-17;
+		arg->lam_min = 1e-16;
+		arg->t_min = 1e-16;
 		arg->warm_start = 0;
 		arg->abs_form = 0;
 		arg->comp_dual_sol = 1;
@@ -166,8 +166,8 @@ void OCP_QP_IPM_ARG_SET_DEFAULT(enum HPIPM_MODE mode, struct OCP_QP_IPM_ARG *arg
 		arg->reg_prim = 1e-15;
 		arg->square_root_alg = 1;
 		arg->lq_fact = 1;
-		arg->lam_min = 1e-17;
-		arg->t_min = 1e-17;
+		arg->lam_min = 1e-16;
+		arg->t_min = 1e-16;
 		arg->warm_start = 0;
 		arg->abs_form = 0;
 		arg->comp_dual_sol = 1;
@@ -192,8 +192,8 @@ void OCP_QP_IPM_ARG_SET_DEFAULT(enum HPIPM_MODE mode, struct OCP_QP_IPM_ARG *arg
 		arg->reg_prim = 1e-15;
 		arg->square_root_alg = 1;
 		arg->lq_fact = 2;
-		arg->lam_min = 1e-17;
-		arg->t_min = 1e-17;
+		arg->lam_min = 1e-16;
+		arg->t_min = 1e-16;
 		arg->warm_start = 0;
 		arg->abs_form = 0;
 		arg->comp_dual_sol = 1;
