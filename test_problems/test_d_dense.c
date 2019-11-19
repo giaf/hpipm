@@ -127,13 +127,13 @@ int main()
 * qp dimension and data
 ************************************************/
 
-#if 1
+#if 0
 	int nv = 2;
 	int ne = 1;
-	int nb = 2;
+	int nb = 0; //2;
 	int ng = 0;
-	int ns = 2;
-	int nsb = 2;
+	int ns = 0; //2;
+	int nsb = 0; //2;
 	int nsg = 0;
 
 	double H[] = {4.0, 1.0, 1.0, 2.0};
@@ -155,6 +155,34 @@ int main()
 	int idxs[] = {0, 1};
 	double d_ls[] = {0, 0};
 	double d_us[] = {0, 0};
+#elif 1
+	int nv = 3;
+	int ne = 2;
+	int nb = 0; //2;
+	int ng = 0;
+	int ns = 0; //2;
+	int nsb = 0; //2;
+	int nsg = 0;
+
+	double H[] = {6.0, 2.0, 1.0, 2.0, 5.0, 2.0, 1.0, 2.0, 4.0};
+	double g[] = {-8.0, -3.0, -3.0};
+	double A[] = {1.0, 0.0, 0.0, 1.0, 1.0, 1.0};
+	double b[] = {3.0, 0.0};
+//	double d_lb[] = {0.0, 0.0};
+//	double d_ub[] = {INFINITY, INFINITY};
+	double d_lb[] = {};
+	double d_ub[] = {};
+	int idxb[] = {};
+	double C[] = {};
+	double d_lg[] = {};
+	double d_ug[] = {};
+	double Zl[] = {};
+	double Zu[] = {};
+	double zl[] = {};
+	double zu[] = {};
+	int idxs[] = {};
+	double d_ls[] = {};
+	double d_us[] = {};
 #else
 	int nv = 10;
 	int ne = 0;
@@ -287,6 +315,7 @@ int main()
 	double tol_eq = 1e-12;
 	double tol_ineq = 1e-12;
 	double tol_comp = 1e-12;
+	int kkt_fact_alg = 1;
 
 	d_dense_qp_ipm_arg_set_iter_max(&iter_max, &arg);
 	d_dense_qp_ipm_arg_set_mu0(&mu0, &arg);
@@ -295,6 +324,7 @@ int main()
 	d_dense_qp_ipm_arg_set_tol_eq(&tol_eq, &arg);
 	d_dense_qp_ipm_arg_set_tol_ineq(&tol_ineq, &arg);
 	d_dense_qp_ipm_arg_set_tol_comp(&tol_comp, &arg);
+	d_dense_qp_ipm_arg_set_kkt_fact_alg(&kkt_fact_alg, &arg);
 
 //	arg.alpha_min = 1e-8;
 //	arg.res_g_max = 1e-8;

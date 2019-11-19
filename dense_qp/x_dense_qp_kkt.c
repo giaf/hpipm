@@ -58,27 +58,116 @@ void FACT_SOLVE_KKT_UNCONSTR_DENSE_QP(struct DENSE_QP *qp, struct DENSE_QP_SOL *
 	struct STRMAT *AL = ws->AL;
 	struct STRVEC *lv = ws->lv;
 
+	struct STRMAT *A_LQ = ws->A_LQ;
+	struct STRMAT *A_Q = ws->A_Q;
+	struct STRMAT *Zt = ws->Zt;
+	struct STRMAT *ZtH = ws->ZtH;
+	struct STRMAT *ZtHZ = ws->ZtHZ;
+	struct STRVEC *xy = ws->xy;
+	struct STRVEC *Yxy = ws->Yxy;
+	struct STRVEC *xz = ws->xz;
+	struct STRVEC *tmp_nv = ws->tmp_nv;
+
+	void *lq_work = ws->lq_work_null;
+
 	if(ne>0)
 		{
-		POTRF_L(nv, Hg, 0, 0, Lv, 0, 0);
+		if(arg->kkt_fact_alg==0) // null space method
+			{
+			GELQF(ne, nv, A, 0, 0, A_LQ, 0, 0, lq_work);
+//			printf("\nA_LQ\n");
+//			blasfeo_print_dmat(ne, nv, A_LQ, 0, 0);
 
-//		GECP(ne, nv, A, 0, 0, AL, 0, 0);
-		TRSM_RLTN(ne, nv, 1.0, Lv, 0, 0, A, 0, 0, AL, 0, 0);
+			// TODO cache dA containing tau into another vector !!!!!
 
-		GESE(ne, ne, 0.0, Le, 0, 0);
-		SYRK_POTRF_LN(ne, nv, AL, 0, 0, AL, 0, 0, Le, 0, 0, Le, 0, 0);
+			// TODO change dorglq API to pass tau explicitly as a vector !!!!!
+			// TODO allocate its dedicated workspace !!!!!
+			ORGLQ(nv, nv, ne, A_LQ, 0, 0, A_Q, 0, 0, lq_work);
+//			printf("\nA_Q\n");
+//			blasfeo_print_dmat(nv, nv, A_Q, 0, 0);
 
-		TRSV_LNN(nv, Lv, 0, 0, gz, 0, lv, 0);
+			GECP(nv-ne, nv, A_Q, ne, 0, Zt, 0, 0);
+//			printf("\nZt\n");
+//			blasfeo_print_dmat(nv-ne, nv, Zt, 0, 0);
 
-		GEMV_N(ne, nv, 1.0, AL, 0, 0, lv, 0, 1.0, b, 0, pi, 0);
+			GEMM_NT(nv-ne, nv, nv, 1.0, Zt, 0, 0, Hg, 0, 0, 0.0, ZtH, 0, 0, ZtH, 0, 0);
+//			printf("\nZtH\n");
+//			blasfeo_print_dmat(nv-ne, nv, ZtH, 0, 0);
 
-		TRSV_LNN(ne, Le, 0, 0, pi, 0, pi, 0);
-		TRSV_LTN(ne, Le, 0, 0, pi, 0, pi, 0);
+			SYRK_LN(nv-ne, nv, 1.0, ZtH, 0, 0, Zt, 0, 0, 0.0, ZtHZ, 0, 0, ZtHZ, 0, 0);
+//			printf("\nZtHZ\n");
+//			blasfeo_print_dmat(nv-ne, nv-ne, ZtHZ, 0, 0);
 
-		GEMV_T(ne, nv, 1.0, A, 0, 0, pi, 0, -1.0, gz, 0, v, 0);
+			POTRF_L(nv-ne, ZtHZ, 0, 0, ZtHZ, 0, 0);
+//			printf("\nZtHZ\n");
+//			blasfeo_print_dmat(nv-ne, nv-ne, ZtHZ, 0, 0);
 
-		TRSV_LNN(nv, Lv, 0, 0, v, 0, v, 0);
-		TRSV_LTN(nv, Lv, 0, 0, v, 0, v, 0);
+			TRSV_LNN(ne, A_LQ, 0, 0, b, 0, xy, 0);
+//			printf("\nxy\n");
+//			blasfeo_print_dvec(ne, xy, 0);
+
+			GEMV_T(ne, nv, 1.0, A_Q, 0, 0, xy, 0, 0.0, Yxy, 0, Yxy, 0);
+//			printf("\nYxy\n");
+//			blasfeo_print_dvec(nv, Yxy, 0);
+
+			GEMV_N(nv-ne, nv, -1.0, ZtH, 0, 0, Yxy, 0, 0.0, xz, 0, xz, 0);
+//			printf("\nxz\n");
+//			blasfeo_print_dvec(nv-ne, xz, 0);
+
+			GEMV_N(nv-ne, nv, -1.0, Zt, 0, 0, gz, 0, 1.0, xz, 0, xz, 0);
+//			printf("\nxz\n");
+//			blasfeo_print_dvec(nv-ne, xz, 0);
+
+			TRSV_LNN(nv-ne, ZtHZ, 0, 0, xz, 0, xz, 0);
+//			printf("\nxz\n");
+//			blasfeo_print_dvec(nv-ne, xz, 0);
+
+			TRSV_LTN(nv-ne, ZtHZ, 0, 0, xz, 0, xz, 0);
+//			printf("\nxz\n");
+//			blasfeo_print_dvec(nv-ne, xz, 0);
+
+			GEMV_T(nv-ne, nv, 1.0, Zt, 0, 0, xz, 0, 1.0, Yxy, 0, v, 0);
+//			printf("\nv\n");
+//			blasfeo_print_dvec(nv, v, 0);
+
+			SYMV_L(nv, nv, 1.0, Hg, 0, 0, v, 0, 1.0, gz, 0, tmp_nv, 0);
+//			printf("\ntmp_nv\n");
+//			blasfeo_print_dvec(nv, tmp_nv, 0);
+
+			GEMV_N(ne, nv, 1.0, A_Q, 0, 0, tmp_nv, 0, 0.0, pi, 0, pi, 0);
+//			printf("\npi\n");
+//			blasfeo_print_dvec(ne, pi, 0);
+
+			TRSV_LTN(ne, A_LQ, 0, 0, pi, 0, pi, 0);
+//			printf("\npi\n");
+//			blasfeo_print_dvec(ne, pi, 0);
+
+			// TODO
+//			printf("\ndone!\n");
+//			exit(1);
+			}
+		else // range space method
+			{
+			POTRF_L(nv, Hg, 0, 0, Lv, 0, 0);
+
+//			GECP(ne, nv, A, 0, 0, AL, 0, 0);
+			TRSM_RLTN(ne, nv, 1.0, Lv, 0, 0, A, 0, 0, AL, 0, 0);
+
+			GESE(ne, ne, 0.0, Le, 0, 0);
+			SYRK_POTRF_LN(ne, nv, AL, 0, 0, AL, 0, 0, Le, 0, 0, Le, 0, 0);
+
+			TRSV_LNN(nv, Lv, 0, 0, gz, 0, lv, 0);
+
+			GEMV_N(ne, nv, 1.0, AL, 0, 0, lv, 0, 1.0, b, 0, pi, 0);
+
+			TRSV_LNN(ne, Le, 0, 0, pi, 0, pi, 0);
+			TRSV_LTN(ne, Le, 0, 0, pi, 0, pi, 0);
+
+			GEMV_T(ne, nv, 1.0, A, 0, 0, pi, 0, -1.0, gz, 0, v, 0);
+
+			TRSV_LNN(nv, Lv, 0, 0, v, 0, v, 0);
+			TRSV_LTN(nv, Lv, 0, 0, v, 0, v, 0);
+			}
 		}
 	else
 		{

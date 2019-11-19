@@ -59,7 +59,7 @@ void DENSE_QP_IPM_ARG_SET_DEFAULT(enum HPIPM_MODE mode, struct DENSE_QP_IPM_ARG 
 	{
 
 	REAL mu0, alpha_min, res_g, res_b, res_d, res_m, reg_prim, reg_dual, lam_min, t_min;
-	int iter_max, stat_max, pred_corr, cond_pred_corr, itref_pred_max, itref_corr_max, lq_fact, scale, warm_start, abs_form, comp_res_exit, comp_res_pred;
+	int iter_max, stat_max, pred_corr, cond_pred_corr, itref_pred_max, itref_corr_max, lq_fact, scale, warm_start, abs_form, comp_res_exit, comp_res_pred, kkt_fact_alg;
 
 	if(mode==SPEED_ABS)
 		{
@@ -85,6 +85,7 @@ void DENSE_QP_IPM_ARG_SET_DEFAULT(enum HPIPM_MODE mode, struct DENSE_QP_IPM_ARG 
 		abs_form = 1;
 		comp_res_exit = 0;
 		comp_res_pred = 0;
+		kkt_fact_alg = 1;
 		}
 	else if(mode==SPEED)
 		{
@@ -110,6 +111,7 @@ void DENSE_QP_IPM_ARG_SET_DEFAULT(enum HPIPM_MODE mode, struct DENSE_QP_IPM_ARG 
 		abs_form = 0;
 		comp_res_exit = 1;
 		comp_res_pred = 0;
+		kkt_fact_alg = 1;
 		}
 	else if(mode==BALANCE)
 		{
@@ -135,6 +137,7 @@ void DENSE_QP_IPM_ARG_SET_DEFAULT(enum HPIPM_MODE mode, struct DENSE_QP_IPM_ARG 
 		abs_form = 0;
 		comp_res_exit = 1;
 		comp_res_pred = 0;
+		kkt_fact_alg = 1;
 		}
 	else if(mode==ROBUST)
 		{
@@ -160,6 +163,7 @@ void DENSE_QP_IPM_ARG_SET_DEFAULT(enum HPIPM_MODE mode, struct DENSE_QP_IPM_ARG 
 		abs_form = 0;
 		comp_res_exit = 1;
 		comp_res_pred = 0;
+		kkt_fact_alg = 1;
 		}
 	else
 		{
@@ -190,6 +194,7 @@ void DENSE_QP_IPM_ARG_SET_DEFAULT(enum HPIPM_MODE mode, struct DENSE_QP_IPM_ARG 
 	arg->abs_form = abs_form;
 	DENSE_QP_IPM_ARG_SET_COMP_RES_EXIT(&comp_res_exit, arg);
 	DENSE_QP_IPM_ARG_SET_COMP_RES_PRED(&comp_res_pred, arg);
+	DENSE_QP_IPM_ARG_SET_KKT_FACT_ALG(&kkt_fact_alg, arg);
 	arg->mode = mode;
 
 	return;
@@ -263,6 +268,10 @@ void DENSE_QP_IPM_ARG_SET(char *field, void *value, struct DENSE_QP_IPM_ARG *arg
 	else if(hpipm_strcmp(field, "t_min")) 
 		{
 		DENSE_QP_IPM_ARG_SET_T_MIN(value, arg);
+		}
+	else if(hpipm_strcmp(field, "kkt_fact_alg")) 
+		{
+		DENSE_QP_IPM_ARG_SET_KKT_FACT_ALG(value, arg);
 		}
 	else
 		{
@@ -402,6 +411,14 @@ void DENSE_QP_IPM_ARG_SET_T_MIN(REAL *value, struct DENSE_QP_IPM_ARG *arg)
 
 
 
+void DENSE_QP_IPM_ARG_SET_KKT_FACT_ALG(int *value, struct DENSE_QP_IPM_ARG *arg)
+	{
+	arg->kkt_fact_alg = *value;
+	return;
+	}
+
+
+
 int DENSE_QP_IPM_WS_MEMSIZE(struct DENSE_QP_DIM *dim, struct DENSE_QP_IPM_ARG *arg)
 	{
 
@@ -430,6 +447,15 @@ int DENSE_QP_IPM_WS_MEMSIZE(struct DENSE_QP_DIM *dim, struct DENSE_QP_IPM_ARG *a
 	size += 5*sizeof(struct STRMAT); // 2*Lv AL Le Ctx
 	if(arg->lq_fact>0)
 		size += 2*sizeof(struct STRMAT); // lq0 lq1
+	if(arg->kkt_fact_alg==0)
+		{
+		size += 5*sizeof(struct STRMAT); // A_LQ A_Q Zt ZtH ZthZ
+		size += 4*sizeof(struct STRMAT); // xy Yxy xz tmp_nv
+		}
+	else
+		{
+//		TODO
+		}
 
 	size += 4*SIZE_STRVEC(nb+ng); // 4*tmp_nbg
 	size += 1*SIZE_STRVEC(ns); // tmp_ns
@@ -446,6 +472,21 @@ int DENSE_QP_IPM_WS_MEMSIZE(struct DENSE_QP_DIM *dim, struct DENSE_QP_IPM_ARG *a
 		size += 1*SIZE_STRMAT(nv, nv+nv+ng); // lq1
 		}
 	size += 1*SIZE_STRVEC(2*nb+2*ng+2*ns); // tmp_m
+	if(arg->kkt_fact_alg==0)
+		{
+		size += 1*SIZE_STRMAT(ne, nv); // A_LQ
+		size += 1*SIZE_STRMAT(nv, nv); // A_Q
+		size += 2*SIZE_STRMAT(nv-ne, nv); // Zt ZtH
+		size += 1*SIZE_STRMAT(nv-ne, nv-ne); // ZtHZ
+		size += 1*GELQF_WORKSIZE(ne, nv); // lq_work_null
+		size += 2*SIZE_STRVEC(nv); // Yxy tmp_nv
+		size += 1*SIZE_STRVEC(ne); // xy
+		size += 1*SIZE_STRVEC(nv-ne); // xz
+		}
+	else
+		{
+		// TODO
+		}
 
 	if(arg->lq_fact>0)
 		{
@@ -541,6 +582,23 @@ void DENSE_QP_IPM_WS_CREATE(struct DENSE_QP_DIM *dim, struct DENSE_QP_IPM_ARG *a
 		workspace->lq1 = sm_ptr;
 		sm_ptr += 1;
 		}
+	if(arg->kkt_fact_alg==0)
+		{
+		workspace->A_LQ = sm_ptr;
+		sm_ptr += 1;
+		workspace->A_Q = sm_ptr;
+		sm_ptr += 1;
+		workspace->Zt = sm_ptr;
+		sm_ptr += 1;
+		workspace->ZtH = sm_ptr;
+		sm_ptr += 1;
+		workspace->ZtHZ = sm_ptr;
+		sm_ptr += 1;
+		}
+	else
+		{
+		// TODO
+		}
 
 
 	// vector struct
@@ -584,6 +642,21 @@ void DENSE_QP_IPM_WS_CREATE(struct DENSE_QP_DIM *dim, struct DENSE_QP_IPM_ARG *a
 	sv_ptr += 1;
 	workspace->tmp_m = sv_ptr;
 	sv_ptr += 1;
+	if(arg->kkt_fact_alg==0)
+		{
+		workspace->xy = sv_ptr;
+		sv_ptr += 1;
+		workspace->Yxy = sv_ptr;
+		sv_ptr += 1;
+		workspace->xz = sv_ptr;
+		sv_ptr += 1;
+		workspace->tmp_nv = sv_ptr;
+		sv_ptr += 1;
+		}
+	else
+		{
+		// TODO
+		}
 
 
 	// double/float stuff
@@ -635,6 +708,29 @@ void DENSE_QP_IPM_WS_CREATE(struct DENSE_QP_DIM *dim, struct DENSE_QP_IPM_ARG *a
 		c_ptr += workspace->lq1->memsize;
 		}
 
+	if(arg->kkt_fact_alg==0)
+		{
+		CREATE_STRMAT(ne, nv, workspace->A_LQ, c_ptr);
+		c_ptr += workspace->A_LQ->memsize;
+
+		CREATE_STRMAT(nv, nv, workspace->A_Q, c_ptr);
+		c_ptr += workspace->A_Q->memsize;
+
+		CREATE_STRMAT(nv-ne, nv, workspace->Zt, c_ptr);
+		c_ptr += workspace->Zt->memsize;
+
+		CREATE_STRMAT(nv-ne, nv, workspace->ZtH, c_ptr);
+		c_ptr += workspace->ZtH->memsize;
+
+		CREATE_STRMAT(nv-ne, nv-ne, workspace->ZtHZ, c_ptr);
+		c_ptr += workspace->ZtHZ->memsize;
+
+		}
+	else
+		{
+		// TODO
+		}
+
 	CREATE_STRVEC(nv, workspace->lv, c_ptr);
 	c_ptr += workspace->lv->memsize;
 
@@ -668,6 +764,26 @@ void DENSE_QP_IPM_WS_CREATE(struct DENSE_QP_DIM *dim, struct DENSE_QP_IPM_ARG *a
 	CREATE_STRVEC(2*nb+2*ng+2*ns, workspace->tmp_m, c_ptr);
 	c_ptr += (workspace->tmp_m)->memsize;
 
+	if(arg->kkt_fact_alg==0)
+		{
+		CREATE_STRVEC(ne, workspace->xy, c_ptr);
+		c_ptr += workspace->xy->memsize;
+
+		CREATE_STRVEC(nv, workspace->Yxy, c_ptr);
+		c_ptr += workspace->Yxy->memsize;
+
+		CREATE_STRVEC(nv-ne, workspace->xz, c_ptr);
+		c_ptr += workspace->xz->memsize;
+
+		CREATE_STRVEC(nv, workspace->tmp_nv, c_ptr);
+		c_ptr += workspace->tmp_nv->memsize;
+
+		}
+	else
+		{
+		// TODO
+		}
+
 	CREATE_CORE_QP_IPM(nv+2*ns, ne, 2*nb+2*ng+2*ns, cws, c_ptr);
 	c_ptr += workspace->core_workspace->memsize;
 
@@ -680,6 +796,15 @@ void DENSE_QP_IPM_WS_CREATE(struct DENSE_QP_DIM *dim, struct DENSE_QP_IPM_ARG *a
 		c_ptr += GELQF_WORKSIZE(nv, nv+nv+ng);
 		}
 
+	if(arg->kkt_fact_alg==0)
+		{
+		workspace->lq_work_null = c_ptr;
+		c_ptr += GELQF_WORKSIZE(ne, nv);
+		}
+	else
+		{
+		// TODO
+		}
 
 	// alias members of workspace and core_workspace
 	//

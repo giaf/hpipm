@@ -81,6 +81,7 @@ struct s_dense_qp_ipm_arg
 	int abs_form; // absolute IPM formulation
 	int comp_res_exit; // compute residuals on exit (only for abs_form==1)
 	int comp_res_pred; // compute residuals of prediction
+	int kkt_fact_alg; // 0 null-space, 1 schur-complement
 	int mode;
 	int memsize;
 	};
@@ -112,11 +113,21 @@ struct s_dense_qp_ipm_ws
 	struct blasfeo_smat *lq0;
 	struct blasfeo_smat *lq1;
 	struct blasfeo_svec *tmp_m;
+	struct blasfeo_smat *A_LQ;
+	struct blasfeo_smat *A_Q;
+	struct blasfeo_smat *Zt;
+	struct blasfeo_smat *ZtH;
+	struct blasfeo_smat *ZtHZ;
+	struct blasfeo_svec *xy;
+	struct blasfeo_svec *Yxy;
+	struct blasfeo_svec *xz;
+	struct blasfeo_svec *tmp_nv;
 	float *stat; // convergence statistics
 //	int *ipiv_v;
 //	int *ipiv_e;
 	void *lq_work0;
 	void *lq_work1;
+	void *lq_work_null;
 	int iter; // iteration number
 	int stat_max; // iterations saved in stat
 	int stat_m; // numer of recorded stat per ipm iter
@@ -170,6 +181,8 @@ void s_dense_qp_ipm_arg_set_comp_res_exit(int *comp_res_exit, struct s_dense_qp_
 void s_dense_qp_ipm_arg_set_lam_min(float *value, struct s_dense_qp_ipm_arg *arg);
 //
 void s_dense_qp_ipm_arg_set_t_min(float *value, struct s_dense_qp_ipm_arg *arg);
+//
+void s_dense_qp_ipm_arg_set_kkt_fact_alg(int *value, struct s_dense_qp_ipm_arg *arg);
 
 //
 int s_dense_qp_ipm_ws_memsize(struct s_dense_qp_dim *qp_dim, struct s_dense_qp_ipm_arg *arg);
