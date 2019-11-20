@@ -1229,6 +1229,7 @@ void DENSE_QCQP_IPM_SOLVE(struct DENSE_QCQP *qcqp, struct DENSE_QCQP_SOL *qcqp_s
 
 	REAL *qcqp_res_max = qcqp_res->res_max;
 
+	qp_ws->use_A_fact = 0;
 
 	// cache q_fun & q_adj from approx/update for res
 	qcqp_ws->qcqp_res_ws->use_q_fun = 1;

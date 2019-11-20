@@ -493,6 +493,15 @@ int DENSE_QP_IPM_WS_MEMSIZE(struct DENSE_QP_DIM *dim, struct DENSE_QP_IPM_ARG *a
 		size += 1*GELQF_WORKSIZE(ne, nv); // lq_work0
 		size += 1*GELQF_WORKSIZE(nv, nv+nv+ng); // lq_work1
 		}
+	if(arg->kkt_fact_alg==0)
+		{
+		size += 1*GELQF_WORKSIZE(ne, nv); // lq_null
+		size += 1*ORGLQ_WORKSIZE(nv, nv, ne); // lq_null
+		}
+	else
+		{
+		// TODO
+		}
 
 	// cache value of stat_max used for memory allocation
 	if(arg->stat_max<arg->iter_max)
@@ -800,6 +809,8 @@ void DENSE_QP_IPM_WS_CREATE(struct DENSE_QP_DIM *dim, struct DENSE_QP_IPM_ARG *a
 		{
 		workspace->lq_work_null = c_ptr;
 		c_ptr += GELQF_WORKSIZE(ne, nv);
+		workspace->orglq_work_null = c_ptr;
+		c_ptr += ORGLQ_WORKSIZE(nv, nv, ne);
 		}
 	else
 		{
@@ -836,6 +847,7 @@ void DENSE_QP_IPM_WS_CREATE(struct DENSE_QP_DIM *dim, struct DENSE_QP_IPM_ARG *a
 
 	//
 	workspace->use_hess_fact = 0;
+	workspace->use_A_fact = 0;
 
 	// cache stuff
 	workspace->lq_fact = arg->lq_fact;
@@ -1647,6 +1659,8 @@ void DENSE_QP_IPM_SOLVE(struct DENSE_QP *qp, struct DENSE_QP_SOL *qp_sol, struct
 	qp_res_max[2] = 0;
 	qp_res_max[3] = 0;
 
+	ws->use_hess_fact = 0;
+	ws->use_A_fact = 0;
 
 	// detect constr mask
 	int mask_unconstr;

@@ -50,6 +50,7 @@
 #include <hpipm_d_dense_qp_sol.h>
 
 
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -127,11 +128,13 @@ struct d_dense_qp_ipm_ws
 	void *lq_work0;
 	void *lq_work1;
 	void *lq_work_null;
+	void *orglq_work_null;
 	int iter; // iteration number
 	int stat_max; // iterations saved in stat
 	int stat_m; // numer of recorded stat per ipm iter
 	int scale;
 	int use_hess_fact;
+	int use_A_fact;
 	int status;
 	int lq_fact; // cache from arg
 	int mask_constr; // use constr mask

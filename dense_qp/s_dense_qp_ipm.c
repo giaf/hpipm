@@ -91,6 +91,7 @@
 #define GEMV_T blasfeo_sgemv_t
 #define HPIPM_MODE hpipm_mode
 #define INIT_VAR_DENSE_QP s_init_var_dense_qp
+#define ORGLQ_WORKSIZE blasfeo_sorglq_worksize
 #define MEMSIZE_CORE_QP_IPM s_memsize_core_qp_ipm
 #define REAL float
 #define SIZE_STRMAT blasfeo_memsize_smat
