@@ -64,6 +64,7 @@ endif
 #OBJS_TEST = test_d_dense.o
 #OBJS_TEST = test_d_dense_qcqp.o
 OBJS_TEST = d_tools.o test_d_ocp.o
+#OBJS_TEST = d_tools.o test_d_ocp_qcqp.o
 #OBJS_TEST = d_tools.o test_d_ocp_phase_I.o
 #OBJS_TEST = d_tools.o test_d_tree_ocp.o
 

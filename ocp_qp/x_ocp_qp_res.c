@@ -445,7 +445,7 @@ void OCP_QP_RES_COMPUTE(struct OCP_QP *qp, struct OCP_QP_SOL *qp_sol, struct OCP
 
 		if(nb0+ng0>0)
 			{
-			AXPY(nb0+ng0, -1.0, lam+ii, 0, lam+ii, nb[ii]+ng[ii], tmp_nbgM+0, 0);
+			AXPY(nb0+ng0, -1.0, lam+ii, 0, lam+ii, nb0+ng0, tmp_nbgM+0, 0);
 //			AXPY(nb0+ng0,  1.0, d+ii, 0, t+ii, 0, res_d+ii, 0);
 //			AXPY(nb0+ng0,  1.0, d+ii, nb0+ng0, t+ii, nb0+ng0, res_d+ii, nb0+ng0);
 			AXPY(2*nb0+2*ng0,  1.0, d+ii, 0, t+ii, 0, res_d+ii, 0);
@@ -627,7 +627,7 @@ void OCP_QP_RES_COMPUTE_LIN (struct OCP_QP *qp, struct OCP_QP_SOL *qp_sol, struc
 
 
 
-void OCP_QP_RES_COMPUTE_MAX(struct OCP_QP_RES *res, struct OCP_QP_RES_WS *ws)
+void OCP_QP_RES_COMPUTE_INF_NORM(struct OCP_QP_RES *res)
 	{
 
 	struct OCP_QP_DIM *dim = res->dim;
@@ -654,10 +654,11 @@ void OCP_QP_RES_COMPUTE_MAX(struct OCP_QP_RES *res, struct OCP_QP_RES_WS *ws)
 	nv += nu[ii]+nx[ii]+2*ns[ii];
 	nc += 2*nb[ii]+2*ng[ii]+2*ns[ii];
 
-	VECNRM_INF(nv, res->res_g, 0, &res->max_res_stat);
-	VECNRM_INF(ne, res->res_b, 0, &res->max_res_eq);
-	VECNRM_INF(nc, res->res_d, 0, &res->max_res_ineq);
-	VECNRM_INF(nc, res->res_m, 0, &res->max_res_comp);
+	// compute infinity norm
+	VECNRM_INF(nv, res->res_g, 0, res->res_max+0);
+	VECNRM_INF(ne, res->res_b, 0, res->res_max+1);
+	VECNRM_INF(nc, res->res_d, 0, res->res_max+2);
+	VECNRM_INF(nc, res->res_m, 0, res->res_max+3);
 
 	return;
 
@@ -758,7 +759,7 @@ void OCP_QP_RES_GET_ALL(struct OCP_QP_RES *res, REAL **res_r, REAL **res_q, REAL
 void OCP_QP_RES_GET_MAX_RES_STAT(struct OCP_QP_RES *res, REAL *value)
 	{
 
-	*value = res->max_res_stat;
+	*value = res->res_max[0];
 
 	return;
 
@@ -769,7 +770,7 @@ void OCP_QP_RES_GET_MAX_RES_STAT(struct OCP_QP_RES *res, REAL *value)
 void OCP_QP_RES_GET_MAX_RES_EQ(struct OCP_QP_RES *res, REAL *value)
 	{
 
-	*value = res->max_res_eq;
+	*value = res->res_max[1];
 
 	return;
 
@@ -780,7 +781,7 @@ void OCP_QP_RES_GET_MAX_RES_EQ(struct OCP_QP_RES *res, REAL *value)
 void OCP_QP_RES_GET_MAX_RES_INEQ(struct OCP_QP_RES *res, REAL *value)
 	{
 
-	*value = res->max_res_ineq;
+	*value = res->res_max[2];
 
 	return;
 
@@ -791,7 +792,7 @@ void OCP_QP_RES_GET_MAX_RES_INEQ(struct OCP_QP_RES *res, REAL *value)
 void OCP_QP_RES_GET_MAX_RES_COMP(struct OCP_QP_RES *res, REAL *value)
 	{
 
-	*value = res->max_res_comp;
+	*value = res->res_max[3];
 
 	return;
 

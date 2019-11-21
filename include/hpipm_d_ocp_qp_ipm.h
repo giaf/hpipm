@@ -121,6 +121,7 @@ struct d_ocp_qp_ipm_ws
 	int status; // solver status
 	int square_root_alg; // cache from arg
 	int lq_fact; // cache from arg
+	int mask_constr; // use constr mask
 	int memsize;
 	};
 
@@ -156,10 +157,18 @@ void d_ocp_qp_ipm_arg_set_reg_prim(double *tol_comp, struct d_ocp_qp_ipm_arg *ar
 void d_ocp_qp_ipm_arg_set_warm_start(int *warm_start, struct d_ocp_qp_ipm_arg *arg);
 // Mehrotra's predictor-corrector IPM algorithm: 0 no predictor-corrector, 1 use predictor-corrector
 void d_ocp_qp_ipm_arg_set_pred_corr(int *pred_corr, struct d_ocp_qp_ipm_arg *arg);
+// conditional predictor-corrector: 0 no conditinal predictor-corrector, 1 conditional predictor-corrector
+void d_ocp_qp_ipm_arg_set_cond_pred_corr(int *value, struct d_ocp_qp_ipm_arg *arg);
 // set riccati algorithm: 0 classic, 1 square-root
-void d_ocp_qp_ipm_arg_set_ric_alg(int *alg, struct d_ocp_qp_ipm_arg *arg);
+void d_ocp_qp_ipm_arg_set_ric_alg(int *value, struct d_ocp_qp_ipm_arg *arg);
+// compute residuals after solution
+void d_ocp_qp_ipm_arg_set_comp_res_exit(int *value, struct d_ocp_qp_ipm_arg *arg);
 // compute residuals of prediction
-void d_ocp_qp_ipm_arg_set_comp_res_pred(int *alg, struct d_ocp_qp_ipm_arg *arg);
+void d_ocp_qp_ipm_arg_set_comp_res_pred(int *value, struct d_ocp_qp_ipm_arg *arg);
+// min value of lam in the solution
+void d_ocp_qp_ipm_arg_set_lam_min(double *value, struct d_ocp_qp_ipm_arg *arg);
+// min value of t in the solution
+void d_ocp_qp_ipm_arg_set_t_min(double *value, struct d_ocp_qp_ipm_arg *arg);
 
 //
 int d_ocp_qp_ipm_ws_strsize();
@@ -195,6 +204,12 @@ void d_ocp_qp_ipm_get_ric_P(int stage, struct d_ocp_qp_ipm_ws *ws, double *P);
 void d_ocp_qp_ipm_get_ric_lr(int stage, struct d_ocp_qp_ipm_ws *ws, double *lr);
 // valid only in the unconstrained case
 void d_ocp_qp_ipm_get_ric_p(int stage, struct d_ocp_qp_ipm_ws *ws, double *p);
+//
+void d_ocp_qp_init_var(struct d_ocp_qp *qp, struct d_ocp_qp_sol *qp_sol, struct d_ocp_qp_ipm_arg *arg, struct d_ocp_qp_ipm_ws *ws);
+//
+void d_ocp_qp_ipm_abs_step(int kk, struct d_ocp_qp *qp, struct d_ocp_qp_sol *qp_sol, struct d_ocp_qp_ipm_arg *arg, struct d_ocp_qp_ipm_ws *ws);
+//
+void d_ocp_qp_ipm_delta_step(int kk, struct d_ocp_qp *qp, struct d_ocp_qp_sol *qp_sol, struct d_ocp_qp_ipm_arg *arg, struct d_ocp_qp_ipm_ws *ws);
 //
 void d_ocp_qp_ipm_solve(struct d_ocp_qp *qp, struct d_ocp_qp_sol *qp_sol, struct d_ocp_qp_ipm_arg *arg, struct d_ocp_qp_ipm_ws *ws);
 //

@@ -78,7 +78,7 @@
 #define OCP_QP_RES_WS_CREATE s_ocp_qp_res_ws_create
 #define OCP_QP_RES_COMPUTE s_ocp_qp_res_compute
 #define OCP_QP_RES_COMPUTE_LIN s_ocp_qp_res_compute_lin
-#define OCP_QP_RES_COMPUTE_MAX s_ocp_qp_res_compute_max
+#define OCP_QP_RES_COMPUTE_INF_NORM s_ocp_qp_res_compute_inf_norm
 #define OCP_QP_RES_GET_ALL s_ocp_qp_res_get_all
 #define OCP_QP_RES_GET_MAX_RES_STAT s_ocp_qp_res_get_max_res_stat
 #define OCP_QP_RES_GET_MAX_RES_EQ s_ocp_qp_res_get_max_res_eq

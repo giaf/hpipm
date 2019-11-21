@@ -97,115 +97,142 @@ void OCP_QP_IPM_ARG_CREATE(struct OCP_QP_DIM *dim, struct OCP_QP_IPM_ARG *arg, v
 void OCP_QP_IPM_ARG_SET_DEFAULT(enum HPIPM_MODE mode, struct OCP_QP_IPM_ARG *arg)
 	{
 
+	REAL mu0, alpha_min, res_g_max, res_b_max, res_d_max, res_m_max, reg_prim, lam_min, t_min;
+	int iter_max, stat_max, pred_corr, cond_pred_corr, itref_pred_max, itref_corr_max, lq_fact, warm_start, abs_form, comp_res_exit, comp_res_pred, square_root_alg, comp_dual_sol;
+
 	if(mode==SPEED_ABS)
 		{
-		arg->mu0 = 1e1;
-		arg->alpha_min = 1e-12;
-		arg->res_g_max = 1e0; // not used
-		arg->res_b_max = 1e0; // not used
-		arg->res_d_max = 1e0; // not used
-		arg->res_m_max = 1e-8;
-		arg->iter_max = 15;
-		arg->stat_max = 15;
-		arg->pred_corr = 1;
-		arg->cond_pred_corr = 0; // not used
-		arg->itref_pred_max = 0; // not used
-		arg->itref_corr_max = 0; // not used
-		arg->reg_prim = 1e-15;
-		arg->square_root_alg = 1;
-		arg->lq_fact = 0; // not used
-		arg->lam_min = 1e-30;
-		arg->t_min = 1e-30;
-		arg->warm_start = 0;
-		arg->abs_form = 1;
-		arg->comp_dual_sol = 0;
-		arg->comp_res_exit = 0;
-		arg->comp_res_pred = 0;
-		arg->mode = mode;
+		mu0 = 1e1;
+		alpha_min = 1e-12;
+		res_g_max = 1e0; // not used
+		res_b_max = 1e0; // not used
+		res_d_max = 1e0; // not used
+		res_m_max = 1e-8;
+		iter_max = 15;
+		stat_max = 15;
+		pred_corr = 1;
+		cond_pred_corr = 1;
+		itref_pred_max = 0; // not used
+		itref_corr_max = 0; // not used
+		reg_prim = 1e-15;
+		square_root_alg = 1;
+		lq_fact = 0; // not used
+		lam_min = 1e-16;
+		t_min = 1e-16;
+		warm_start = 0;
+		abs_form = 1;
+		comp_dual_sol = 0;
+		comp_res_exit = 0;
+		comp_res_pred = 0;
+		mode = mode;
 		}
 	else if(mode==SPEED)
 		{
-		arg->mu0 = 1e1;
-		arg->alpha_min = 1e-12;
-		arg->res_g_max = 1e-6;
-		arg->res_b_max = 1e-8;
-		arg->res_d_max = 1e-8;
-		arg->res_m_max = 1e-8;
-		arg->iter_max = 15;
-		arg->stat_max = 15;
-		arg->pred_corr = 1;
-		arg->cond_pred_corr = 1;
-		arg->itref_pred_max = 0;
-		arg->itref_corr_max = 0;
-		arg->reg_prim = 1e-15;
-		arg->square_root_alg = 1;
-		arg->lq_fact = 0;
-		arg->lam_min = 1e-30;
-		arg->t_min = 1e-30;
-		arg->warm_start = 0;
-		arg->abs_form = 0;
-		arg->comp_dual_sol = 1;
-		arg->comp_res_exit = 1;
-		arg->comp_res_pred = 1;
-		arg->mode = mode;
+		mu0 = 1e1;
+		alpha_min = 1e-12;
+		res_g_max = 1e-6;
+		res_b_max = 1e-8;
+		res_d_max = 1e-8;
+		res_m_max = 1e-8;
+		iter_max = 15;
+		stat_max = 15;
+		pred_corr = 1;
+		cond_pred_corr = 1;
+		itref_pred_max = 0;
+		itref_corr_max = 0;
+		reg_prim = 1e-15;
+		square_root_alg = 1;
+		lq_fact = 0;
+		lam_min = 1e-16;
+		t_min = 1e-16;
+		warm_start = 0;
+		abs_form = 0;
+		comp_dual_sol = 1;
+		comp_res_exit = 1;
+		comp_res_pred = 1;
+		mode = mode;
 		}
 	else if(mode==BALANCE)
 		{
-		arg->mu0 = 1e1;
-		arg->alpha_min = 1e-12;
-		arg->res_g_max = 1e-6;
-		arg->res_b_max = 1e-8;
-		arg->res_d_max = 1e-8;
-		arg->res_m_max = 1e-8;
-		arg->iter_max = 30;
-		arg->stat_max = 30;
-		arg->pred_corr = 1;
-		arg->cond_pred_corr = 1;
-		arg->itref_pred_max = 0;
-		arg->itref_corr_max = 2;
-		arg->reg_prim = 1e-15;
-		arg->square_root_alg = 1;
-		arg->lq_fact = 1;
-		arg->lam_min = 1e-30;
-		arg->t_min = 1e-30;
-		arg->warm_start = 0;
-		arg->abs_form = 0;
-		arg->comp_dual_sol = 1;
-		arg->comp_res_exit = 1;
-		arg->comp_res_pred = 1;
-		arg->mode = mode;
+		mu0 = 1e1;
+		alpha_min = 1e-12;
+		res_g_max = 1e-6;
+		res_b_max = 1e-8;
+		res_d_max = 1e-8;
+		res_m_max = 1e-8;
+		iter_max = 30;
+		stat_max = 30;
+		pred_corr = 1;
+		cond_pred_corr = 1;
+		itref_pred_max = 0;
+		itref_corr_max = 2;
+		reg_prim = 1e-15;
+		square_root_alg = 1;
+		lq_fact = 1;
+		lam_min = 1e-16;
+		t_min = 1e-16;
+		warm_start = 0;
+		abs_form = 0;
+		comp_dual_sol = 1;
+		comp_res_exit = 1;
+		comp_res_pred = 1;
+		mode = mode;
 		}
 	else if(mode==ROBUST)
 		{
-		arg->mu0 = 1e2;
-		arg->alpha_min = 1e-12;
-		arg->res_g_max = 1e-6;
-		arg->res_b_max = 1e-8;
-		arg->res_d_max = 1e-8;
-		arg->res_m_max = 1e-8;
-		arg->iter_max = 100;
-		arg->stat_max = 100;
-		arg->pred_corr = 1;
-		arg->cond_pred_corr = 1;
-		arg->itref_pred_max = 0;
-		arg->itref_corr_max = 4;
-		arg->reg_prim = 1e-15;
-		arg->square_root_alg = 1;
-		arg->lq_fact = 2;
-		arg->lam_min = 1e-30;
-		arg->t_min = 1e-30;
-		arg->warm_start = 0;
-		arg->abs_form = 0;
-		arg->comp_dual_sol = 1;
-		arg->comp_res_exit = 1;
-		arg->comp_res_pred = 1;
-		arg->mode = mode;
+		mu0 = 1e2;
+		alpha_min = 1e-12;
+		res_g_max = 1e-6;
+		res_b_max = 1e-8;
+		res_d_max = 1e-8;
+		res_m_max = 1e-8;
+		iter_max = 100;
+		stat_max = 100;
+		pred_corr = 1;
+		cond_pred_corr = 1;
+		itref_pred_max = 0;
+		itref_corr_max = 4;
+		reg_prim = 1e-15;
+		square_root_alg = 1;
+		lq_fact = 2;
+		lam_min = 1e-16;
+		t_min = 1e-16;
+		warm_start = 0;
+		abs_form = 0;
+		comp_dual_sol = 1;
+		comp_res_exit = 1;
+		comp_res_pred = 1;
+		mode = mode;
 		}
 	else
 		{
 		printf("\nerror: OCP_QP_IPM_ARG_SET_DEFAULT: wrong set default mode\n");
 		exit(1);
 		}
+
+	// use individual setters when available
+	OCP_QP_IPM_ARG_SET_MU0(&mu0, arg);
+	OCP_QP_IPM_ARG_SET_ALPHA_MIN(&alpha_min, arg);
+	OCP_QP_IPM_ARG_SET_TOL_STAT(&res_g_max, arg);
+	OCP_QP_IPM_ARG_SET_TOL_EQ(&res_b_max, arg);
+	OCP_QP_IPM_ARG_SET_TOL_INEQ(&res_d_max, arg);
+	OCP_QP_IPM_ARG_SET_TOL_COMP(&res_m_max, arg);
+	OCP_QP_IPM_ARG_SET_ITER_MAX(&iter_max, arg);
+	arg->stat_max = stat_max;
+	OCP_QP_IPM_ARG_SET_PRED_CORR(&pred_corr, arg);
+	OCP_QP_IPM_ARG_SET_COND_PRED_CORR(&cond_pred_corr, arg);
+	OCP_QP_IPM_ARG_SET_RIC_ALG(&square_root_alg, arg);
+	arg->itref_pred_max = itref_pred_max;
+	arg->itref_corr_max = itref_corr_max;
+	OCP_QP_IPM_ARG_SET_REG_PRIM(&reg_prim, arg);
+	arg->lq_fact = lq_fact;
+	OCP_QP_IPM_ARG_SET_LAM_MIN(&lam_min, arg);
+	OCP_QP_IPM_ARG_SET_T_MIN(&t_min, arg);
+	OCP_QP_IPM_ARG_SET_WARM_START(&warm_start, arg);
+	arg->abs_form = abs_form;
+	OCP_QP_IPM_ARG_SET_COMP_RES_PRED(&comp_res_pred, arg);
+	OCP_QP_IPM_ARG_SET_COMP_RES_EXIT(&comp_res_pred, arg);
+	arg->mode = mode;
 
 	return;
 
@@ -255,13 +282,29 @@ void OCP_QP_IPM_ARG_SET(char *field, void *value, struct OCP_QP_IPM_ARG *arg)
 		{
 		OCP_QP_IPM_ARG_SET_PRED_CORR(value, arg);
 		}
+	else if(hpipm_strcmp(field, "cond_pred_corr")) 
+		{
+		OCP_QP_IPM_ARG_SET_COND_PRED_CORR(value, arg);
+		}
 	else if(hpipm_strcmp(field, "ric_alg")) 
 		{
 		OCP_QP_IPM_ARG_SET_RIC_ALG(value, arg);
 		}
+	else if(hpipm_strcmp(field, "comp_res_exit")) 
+		{
+		OCP_QP_IPM_ARG_SET_COMP_RES_EXIT(value, arg);
+		}
 	else if(hpipm_strcmp(field, "comp_res_pred")) 
 		{
 		OCP_QP_IPM_ARG_SET_COMP_RES_PRED(value, arg);
+		}
+	else if(hpipm_strcmp(field, "lam_min")) 
+		{
+		OCP_QP_IPM_ARG_SET_LAM_MIN(value, arg);
+		}
+	else if(hpipm_strcmp(field, "t_min")) 
+		{
+		OCP_QP_IPM_ARG_SET_T_MIN(value, arg);
 		}
 	else
 		{
@@ -353,6 +396,14 @@ void OCP_QP_IPM_ARG_SET_PRED_CORR(int *pred_corr, struct OCP_QP_IPM_ARG *arg)
 
 
 
+void OCP_QP_IPM_ARG_SET_COND_PRED_CORR(int *value, struct OCP_QP_IPM_ARG *arg)
+	{
+	arg->cond_pred_corr = *value;
+	return;
+	}
+
+
+
 void OCP_QP_IPM_ARG_SET_RIC_ALG(int *ric_alg, struct OCP_QP_IPM_ARG *arg)
 	{
 	arg->square_root_alg = *ric_alg;
@@ -361,9 +412,35 @@ void OCP_QP_IPM_ARG_SET_RIC_ALG(int *ric_alg, struct OCP_QP_IPM_ARG *arg)
 
 
 
+void OCP_QP_IPM_ARG_SET_COMP_RES_EXIT(int *comp_res_exit, struct OCP_QP_IPM_ARG *arg)
+	{
+	arg->comp_res_exit = *comp_res_exit;
+	if(*comp_res_exit!=0)
+		arg->comp_dual_sol = 1;
+	return;
+	}
+
+
+
 void OCP_QP_IPM_ARG_SET_COMP_RES_PRED(int *comp_res_pred, struct OCP_QP_IPM_ARG *arg)
 	{
 	arg->comp_res_pred = *comp_res_pred;
+	return;
+	}
+
+
+
+void OCP_QP_IPM_ARG_SET_LAM_MIN(REAL *value, struct OCP_QP_IPM_ARG *arg)
+	{
+	arg->lam_min = *value;
+	return;
+	}
+
+
+
+void OCP_QP_IPM_ARG_SET_T_MIN(REAL *value, struct OCP_QP_IPM_ARG *arg)
+	{
+	arg->t_min = *value;
 	return;
 	}
 
@@ -493,7 +570,8 @@ int OCP_QP_IPM_WS_MEMSIZE(struct OCP_QP_DIM *dim, struct OCP_QP_IPM_ARG *arg)
 		size += 1*GELQF_WORKSIZE(nuM+nxM, 2*nuM+3*nxM+ngM); // lq_work0
 		}
 
-	size += 9*(1+arg->stat_max)*sizeof(REAL); // stat
+	int stat_m = 11;
+	size += stat_m*(1+arg->stat_max)*sizeof(REAL); // stat
 
 	size += (N+1)*sizeof(int); // use_hess_fact
 
@@ -694,14 +772,14 @@ void OCP_QP_IPM_WS_CREATE(struct OCP_QP_DIM *dim, struct OCP_QP_IPM_ARG *arg, st
 	REAL *d_ptr = (REAL *) sv_ptr;
 
 	workspace->stat = d_ptr;
-	d_ptr += 9*(1+arg->stat_max);
+	int stat_m = 11;
+	d_ptr += stat_m*(1+arg->stat_max);
 
 	// int stuff
 	int *i_ptr = (int *) d_ptr;
 
 	workspace->use_hess_fact = i_ptr;
 	i_ptr += N+1;
-
 
 	// align to typicl cache line size
 	size_t s_ptr = (size_t) i_ptr;
@@ -917,8 +995,7 @@ void OCP_QP_IPM_WS_CREATE(struct OCP_QP_DIM *dim, struct OCP_QP_IPM_ARG *arg, st
 	workspace->res->dim = dim;
 
 	workspace->stat_max = arg->stat_max;
-
-	workspace->stat_m = 9;
+	workspace->stat_m = stat_m;
 
 	for(ii=0; ii<=N; ii++)
 		workspace->use_hess_fact[ii] = 0;
@@ -940,7 +1017,6 @@ void OCP_QP_IPM_WS_CREATE(struct OCP_QP_DIM *dim, struct OCP_QP_IPM_ARG *arg, st
 		exit(1);
 		}
 #endif
-
 
 	return;
 
@@ -1009,7 +1085,7 @@ void OCP_QP_IPM_GET_ITER(struct OCP_QP_IPM_WS *ws, int *iter)
 
 void OCP_QP_IPM_GET_MAX_RES_STAT(struct OCP_QP_IPM_WS *ws, REAL *res_stat)
 	{
-	*res_stat = ws->qp_res[0];
+	*res_stat = ws->res->res_max[0];
 	return;
 	}
 
@@ -1017,7 +1093,7 @@ void OCP_QP_IPM_GET_MAX_RES_STAT(struct OCP_QP_IPM_WS *ws, REAL *res_stat)
 
 void OCP_QP_IPM_GET_MAX_RES_EQ(struct OCP_QP_IPM_WS *ws, REAL *res_eq)
 	{
-	*res_eq = ws->qp_res[1];
+	*res_eq = ws->res->res_max[1];
 	return;
 	}
 
@@ -1025,7 +1101,7 @@ void OCP_QP_IPM_GET_MAX_RES_EQ(struct OCP_QP_IPM_WS *ws, REAL *res_eq)
 
 void OCP_QP_IPM_GET_MAX_RES_INEQ(struct OCP_QP_IPM_WS *ws, REAL *res_ineq)
 	{
-	*res_ineq = ws->qp_res[2];
+	*res_ineq = ws->res->res_max[2];
 	return;
 	}
 
@@ -1033,7 +1109,7 @@ void OCP_QP_IPM_GET_MAX_RES_INEQ(struct OCP_QP_IPM_WS *ws, REAL *res_ineq)
 
 void OCP_QP_IPM_GET_MAX_RES_COMP(struct OCP_QP_IPM_WS *ws, REAL *res_comp)
 	{
-	*res_comp = ws->qp_res[3];
+	*res_comp = ws->res->res_max[3];
 	return;
 	}
 
@@ -1138,6 +1214,852 @@ void OCP_QP_IPM_GET_RIC_P_VEC(int stage, struct OCP_QP_IPM_WS *ws, REAL *p)
 
 
 
+// with warm_start==2 also init dual variables
+void OCP_QP_INIT_VAR(struct OCP_QP *qp, struct OCP_QP_SOL *qp_sol, struct OCP_QP_IPM_ARG *arg, struct OCP_QP_IPM_WS *ws)
+	{
+
+//	struct CORE_QP_IPM_WORKSPACE *cws = ws->core_workspace;
+	
+	// loop index
+	int ii, jj;
+
+	//
+	int N = qp->dim->N;
+	int *nx = qp->dim->nx;
+	int *nu = qp->dim->nu;
+	int *nb = qp->dim->nb;
+	int *ng = qp->dim->ng;
+	int *ns = qp->dim->ns;
+
+	REAL mu0 = arg->mu0;
+
+	//
+	REAL *ux, *s, *pi, *d_lb, *d_ub, *d_lg, *d_ug, *d_ls, *lam_lb, *lam_ub, *lam_lg, *lam_ug, *lam_ls, *t_lb, *t_ub, *t_lg, *t_ug, *t_ls;
+	int *idxb, *idxs;
+	int idx;
+
+	REAL thr0 = 1e-1;
+
+
+	// primal and dual variables
+	if(arg->warm_start==2)
+		{
+
+		thr0 = 1e-1;
+
+		for(ii=0; ii<=N; ii++)
+			{
+			lam_lb = qp_sol->lam[ii].pa+0;
+			t_lb = qp_sol->t[ii].pa+0;
+
+			for(jj=0; jj<2*nb[ii]+2*ng[ii]+2*ns[ii]; jj++)
+				{
+				if(lam_lb[jj]<thr0)
+					lam_lb[jj] = thr0;
+				if(t_lb[jj]<thr0)
+					t_lb[jj] = thr0;
+				}
+			}
+
+		return;
+		}
+
+
+	// ux
+	if(arg->warm_start==0)
+		{
+
+		// cold start
+		for(ii=0; ii<=N; ii++)
+			{
+			ux = qp_sol->ux[ii].pa;
+			for(jj=0; jj<nu[ii]+nx[ii]+2*ns[ii]; jj++)
+				{
+				ux[jj] = 0.0;
+				}
+			}
+
+		}
+//	else
+//		{
+//
+//		// warm start (keep u and x in solution)
+//		for(ii=0; ii<=N; ii++)
+//			{
+//			ux = qp_sol->ux[ii].pa;
+//			for(jj=nu[ii]+nx[ii]; jj<nu[ii]+nx[ii]+2*ns[ii]; jj++)
+//				{
+//				ux[jj] = 0.0;
+//				}
+//			}
+//
+//		}
+	
+	// pi
+	for(ii=0; ii<N; ii++)
+		{
+		pi = qp_sol->pi[ii].pa;
+		for(jj=0; jj<nx[ii+1]; jj++)
+			{
+			pi[jj] = 0.0;
+			}
+		}
+
+#if 1 // old version
+
+
+
+	// box constraints
+	for(ii=0; ii<=N; ii++)
+		{
+		ux = qp_sol->ux[ii].pa;
+		d_lb = qp->d[ii].pa+0;
+		d_ub = qp->d[ii].pa+nb[ii]+ng[ii];
+		lam_lb = qp_sol->lam[ii].pa+0;
+		lam_ub = qp_sol->lam[ii].pa+nb[ii]+ng[ii];
+		t_lb = qp_sol->t[ii].pa+0;
+		t_ub = qp_sol->t[ii].pa+nb[ii]+ng[ii];
+		idxb = qp->idxb[ii];
+		for(jj=0; jj<nb[ii]; jj++)
+			{
+#if 1
+			t_lb[jj] = - d_lb[jj] + ux[idxb[jj]];
+			t_ub[jj] = - d_ub[jj] - ux[idxb[jj]];
+//			printf("\n%d %f %f\n", jj, t_lb[jj], t_ub[jj]);
+			if(t_lb[jj]<thr0)
+				{
+				if(t_ub[jj]<thr0)
+					{
+//					ux[idxb[jj]] = 0.5*(d_lb[jj] + d_ub[jj]);
+					ux[idxb[jj]] = 0.5*(d_lb[jj] - d_ub[jj]);
+					t_lb[jj] = thr0;
+					t_ub[jj] = thr0;
+					}
+				else
+					{
+					t_lb[jj] = thr0;
+					ux[idxb[jj]] = d_lb[jj] + thr0;
+					}
+				}
+			else if(t_ub[jj]<thr0)
+				{
+				t_ub[jj] = thr0;
+				ux[idxb[jj]] = - d_ub[jj] - thr0;
+				}
+#else
+			t_lb[jj] = 1.0;
+			t_ub[jj] = 1.0;
+#endif
+			lam_lb[jj] = mu0/t_lb[jj];
+			lam_ub[jj] = mu0/t_ub[jj];
+			}
+//		blasfeo_print_tran_dvec(nb[ii], qp->d+ii, 0);
+//		blasfeo_print_tran_dvec(nb[ii], qp->d+ii, nb[ii]+ng[ii]);
+//		blasfeo_print_tran_dvec(nu[ii]+nx[ii], qp_sol->ux+ii, 0);
+//		blasfeo_print_tran_dvec(nb[ii], qp_sol->t+ii, 0);
+//		blasfeo_print_tran_dvec(nb[ii], qp_sol->t+ii, nb[ii]+ng[ii]);
+//		exit(1);
+		}
+	
+	// general constraints
+	for(ii=0; ii<=N; ii++)
+		{
+		t_lg = qp_sol->t[ii].pa+nb[ii];
+		t_ug = qp_sol->t[ii].pa+2*nb[ii]+ng[ii];
+		lam_lg = qp_sol->lam[ii].pa+nb[ii];
+		lam_ug = qp_sol->lam[ii].pa+2*nb[ii]+ng[ii];
+		d_lg = qp->d[ii].pa+nb[ii];
+		d_ug = qp->d[ii].pa+2*nb[ii]+ng[ii];
+		ux = qp_sol->ux[ii].pa;
+		GEMV_T(nu[ii]+nx[ii], ng[ii], 1.0, qp->DCt+ii, 0, 0, qp_sol->ux+ii, 0, 0.0, qp_sol->t+ii, nb[ii], qp_sol->t+ii, nb[ii]);
+		for(jj=0; jj<ng[ii]; jj++)
+			{
+#if 1
+			t_ug[jj] = - t_lg[jj];
+			t_lg[jj] -= d_lg[jj];
+			t_ug[jj] -= d_ug[jj];
+//			t_lg[jj] = fmax(thr0, t_lg[jj]);
+//			t_ug[jj] = fmax(thr0, t_ug[jj]);
+			t_lg[jj] = thr0>t_lg[jj] ? thr0 : t_lg[jj];
+			t_ug[jj] = thr0>t_ug[jj] ? thr0 : t_ug[jj];
+#else
+			t_lg[jj] = 1.0;
+			t_ug[jj] = 1.0;
+#endif
+			lam_lg[jj] = mu0/t_lg[jj];
+			lam_ug[jj] = mu0/t_ug[jj];
+			}
+		}
+
+	// soft constraints
+	for(ii=0; ii<=N; ii++)
+		{
+		lam_lb = qp_sol->lam[ii].pa+2*nb[ii]+2*ng[ii];
+		lam_ub = qp_sol->lam[ii].pa+2*nb[ii]+2*ng[ii]+ns[ii];
+		t_lb = qp_sol->t[ii].pa+2*nb[ii]+2*ng[ii];
+		t_ub = qp_sol->t[ii].pa+2*nb[ii]+2*ng[ii]+ns[ii];
+		for(jj=0; jj<ns[ii]; jj++)
+			{
+			t_lb[jj] = 1.0; // thr0;
+			t_ub[jj] = 1.0; // thr0;
+//			t_lb[jj] = sqrt(mu0); // thr0;
+//			t_ub[jj] = sqrt(mu0); // thr0;
+			lam_lb[jj] = mu0/t_lb[jj];
+			lam_ub[jj] = mu0/t_ub[jj];
+			}
+		}
+
+
+
+#else // new version
+
+
+
+	for(ii=0; ii<=N; ii++)
+		{
+
+//		printf("\nii = %d\n", ii);
+
+		ux = qp_sol->ux[ii].pa;
+		s = qp_sol->ux[ii].pa+nu[ii]+nx[ii];
+		d_lb = qp->d[ii].pa+0;
+		d_ub = qp->d[ii].pa+nb[ii]+ng[ii];
+		d_lg = qp->d[ii].pa+nb[ii];
+		d_ug = qp->d[ii].pa+2*nb[ii]+ng[ii];
+		d_ls = qp->d[ii].pa+2*nb[ii]+2*ng[ii];
+		lam_lb = qp_sol->lam[ii].pa+0;
+		lam_ub = qp_sol->lam[ii].pa+nb[ii]+ng[ii];
+		lam_lg = qp_sol->lam[ii].pa+nb[ii];
+		lam_ug = qp_sol->lam[ii].pa+2*nb[ii]+ng[ii];
+		lam_ls = qp_sol->lam[ii].pa+2*nb[ii]+2*ng[ii];
+		t_lb = qp_sol->t[ii].pa+0;
+		t_ub = qp_sol->t[ii].pa+nb[ii]+ng[ii];
+		t_lg = qp_sol->t[ii].pa+nb[ii];
+		t_ug = qp_sol->t[ii].pa+2*nb[ii]+ng[ii];
+		t_ls = qp_sol->t[ii].pa+2*nb[ii]+2*ng[ii];
+		idxb = qp->idxb[ii];
+		idxs = qp->idxs[ii];
+
+		// lower bound on slacks
+		AXPY(2*ns[ii], -1.0, qp->d+ii, 2*nb[ii]+2*ng[ii], qp_sol->ux+ii, nu[ii]+nx[ii], qp_sol->t+ii, 2*nb[ii]+2*ng[ii]);
+		for(jj=0; jj<2*ns[ii]; jj++)
+			{
+#if 1
+			if(t_ls[jj]<thr0)
+				{
+				t_ls[jj] = thr0; //1.0;
+				s[jj] = d_ls[jj] + t_ls[jj];
+				}
+#else
+			t_ls[jj] = 1.0;
+//			t_ls[jj] = sqrt(mu0);
+#endif
+			}
+//		blasfeo_print_tran_dvec(2*ns[ii], qp_sol->ux+ii, nu[ii]+nx[ii]);
+//		blasfeo_print_tran_dvec(2*ns[ii], qp_sol->t+ii, 2*nb[ii]+2*ng[ii]);
+
+		// upper and lower bounds on inputs and states
+		VECEX_SP(nb[ii], 1.0, qp->idxb[ii], qp_sol->ux+ii, 0, qp_sol->t+ii, 0);
+		VECCPSC(nb[ii], -1.0, qp_sol->t+ii, 0, qp_sol->t+ii, nb[ii]+ng[ii]);
+		for(jj=0; jj<ns[ii]; jj++)
+			{
+			idx = idxs[jj];
+			if(idx<nb[ii])
+				{
+				// softed bound
+				t_lb[idx] += s[jj];
+				t_ub[idx] += s[ns[ii]+jj];
+				}
+			}
+		AXPY(nb[ii], -1.0, qp->d+ii, 0, qp_sol->t+ii, 0, qp_sol->t+ii, 0);
+		AXPY(nb[ii], -1.0, qp->d+ii, nb[ii]+ng[ii], qp_sol->t+ii, nb[ii]+ng[ii], qp_sol->t+ii, nb[ii]+ng[ii]);
+//		blasfeo_print_tran_dvec(nb[ii], qp_sol->t+ii, 0);
+//		blasfeo_print_tran_dvec(nb[ii], qp_sol->t+ii, nb[ii]+ng[ii]);
+		for(jj=0; jj<nb[ii]; jj++)
+			{
+#if 1
+			if(t_lb[jj]<thr0)
+				{
+				if(t_ub[jj]<thr0)
+					{
+//					ux[idxb[jj]] = 0.5*(d_lb[jj] + d_ub[jj]);
+					ux[idxb[jj]] = 0.5*(d_lb[jj] - d_ub[jj]);
+					t_lb[jj] = thr0;
+					t_ub[jj] = thr0;
+					}
+				else
+					{
+					t_lb[jj] = thr0;
+					ux[idxb[jj]] = d_lb[jj] + thr0;
+					}
+				}
+			else if(t_ub[jj]<thr0)
+				{
+				t_ub[jj] = thr0;
+				ux[idxb[jj]] = - d_ub[jj] - thr0;
+				}
+#else
+			t_lb[jj] = 1.0;
+			t_ub[jj] = 1.0;
+#endif
+			}
+//		blasfeo_print_tran_dvec(nu[ii]+nx[ii], qp_sol->ux+ii, 0);
+//		blasfeo_print_tran_dvec(nb[ii], qp_sol->t+ii, 0);
+//		blasfeo_print_tran_dvec(nb[ii], qp_sol->t+ii, nb[ii]+ng[ii]);
+
+		// upper and lower general constaints
+		GEMV_T(nu[ii]+nx[ii], ng[ii], 1.0, qp->DCt+ii, 0, 0, qp_sol->ux+ii, 0, 0.0, qp_sol->t+ii, nb[ii], qp_sol->t+ii, nb[ii]);
+		VECCPSC(ng[ii], -1.0, qp_sol->t+ii, nb[ii], qp_sol->t+ii, 2*nb[ii]+ng[ii]);
+//		blasfeo_print_tran_dvec(ng[ii], qp_sol->t+ii, nb[ii]);
+//		blasfeo_print_tran_dvec(ng[ii], qp_sol->t+ii, 2*nb[ii]+ng[ii]);
+		for(jj=0; jj<ns[ii]; jj++)
+			{
+			idx = idxs[jj];
+			if(idx>=nb[ii])
+				{
+				// softed general constraint
+				idx -= nb[ii];
+				t_lg[idx] += s[jj];
+				t_ug[idx] += s[ns[ii]+jj];
+				}
+			}
+//		blasfeo_print_tran_dvec(ng[ii], qp_sol->t+ii, nb[ii]);
+//		blasfeo_print_tran_dvec(ng[ii], qp_sol->t+ii, 2*nb[ii]+ng[ii]);
+		AXPY(ng[ii], -1.0, qp->d+ii, nb[ii], qp_sol->t+ii, nb[ii], qp_sol->t+ii, nb[ii]);
+		AXPY(ng[ii], -1.0, qp->d+ii, 2*nb[ii]+ng[ii], qp_sol->t+ii, 2*nb[ii]+ng[ii], qp_sol->t+ii, 2*nb[ii]+ng[ii]);
+		for(jj=0; jj<ng[ii]; jj++)
+			{
+#if 1
+			t_lg[jj] = thr0>t_lg[jj] ? thr0 : t_lg[jj];
+			t_ug[jj] = thr0>t_ug[jj] ? thr0 : t_ug[jj];
+#else
+			t_lg[jj] = 1.0;
+			t_ug[jj] = 1.0;
+#endif
+			}
+//		blasfeo_print_tran_dvec(ng[ii], qp_sol->t+ii, nb[ii]);
+//		blasfeo_print_tran_dvec(ng[ii], qp_sol->t+ii, 2*nb[ii]+ng[ii]);
+
+		// multipliers
+		for(jj=0; jj<2*nb[ii]+2*ng[ii]+2*ns[ii]; jj++)
+			lam_lb[jj] = mu0/t_lb[jj];
+
+		}
+
+//	exit(1);
+
+
+
+#endif // new version
+
+
+
+	return;
+
+	}
+
+
+
+void OCP_QP_IPM_ABS_STEP(int kk, struct OCP_QP *qp, struct OCP_QP_SOL *qp_sol, struct OCP_QP_IPM_ARG *arg, struct OCP_QP_IPM_WS *ws)
+	{
+	
+	struct CORE_QP_IPM_WORKSPACE *cws = ws->core_workspace;
+
+	int N = qp->dim->N;
+	int *nx = qp->dim->nx;
+	int *nu = qp->dim->nu;
+	int *nb = qp->dim->nb;
+	int *ng = qp->dim->ng;
+	int *ns = qp->dim->ns;
+
+	int ii;
+
+	REAL tmp;
+	REAL mu_aff0; //, mu;
+
+	VECSC(cws->nc, -1.0, ws->tmp_m, 0);
+
+	BACKUP_RES_M(cws);
+
+	// fact solve
+	FACT_SOLVE_KKT_STEP_OCP_QP(ws->qp_step, ws->sol_step, arg, ws);
+//blasfeo_print_tran_dvec(cws->nv, ws->sol_step->ux, 0);
+
+	// compute step
+	AXPY(cws->nv, -1.0, qp_sol->ux, 0, ws->sol_step->ux, 0, ws->sol_step->ux, 0);
+	AXPY(cws->ne, -1.0, qp_sol->pi, 0, ws->sol_step->pi, 0, ws->sol_step->pi, 0);
+	AXPY(cws->nc, -1.0, qp_sol->lam, 0, ws->sol_step->lam, 0, ws->sol_step->lam, 0);
+	AXPY(cws->nc, -1.0, qp_sol->t, 0, ws->sol_step->t, 0, ws->sol_step->t, 0);
+	if(ws->mask_constr)
+		{
+		// mask out disregarded constraints
+		for(ii=0; ii<=N; ii++)
+			VECMUL(2*ns[ii], qp->d_mask+ii, 2*nb[ii]+2*ng[ii], ws->sol_step->ux+ii, nu[ii]+nx[ii], ws->sol_step->ux+ii, nu[ii]+nx[ii]);
+		VECMUL(cws->nc, qp->d_mask, 0, ws->sol_step->t, 0, ws->sol_step->t, 0);
+		VECMUL(cws->nc, qp->d_mask, 0, ws->sol_step->lam, 0, ws->sol_step->lam, 0);
+		}
+
+	// alpha
+	COMPUTE_ALPHA_QP(cws);
+	if(kk+1<ws->stat_max)
+		ws->stat[ws->stat_m*(kk+1)+0] = cws->alpha;
+
+	// Mehrotra's predictor-corrector
+	if(arg->pred_corr==1)
+		{
+		// mu_aff
+		COMPUTE_MU_AFF_QP(cws);
+		if(kk+1<ws->stat_max)
+			ws->stat[ws->stat_m*(kk+1)+1] = cws->mu_aff;
+
+		tmp = cws->mu_aff/cws->mu;
+		cws->sigma = tmp*tmp*tmp;
+		if(kk+1<ws->stat_max)
+			ws->stat[ws->stat_m*(kk+1)+2] = cws->sigma;
+
+		COMPUTE_CENTERING_CORRECTION_QP(cws);
+		if(ws->mask_constr)
+			{
+			// mask out disregarded constraints
+			VECMUL(cws->nc, qp->d_mask, 0, ws->res->res_m, 0, ws->res->res_m, 0);
+			}
+
+		// fact and solve kkt
+		ws->use_Pb = 1;
+		SOLVE_KKT_STEP_OCP_QP(ws->qp_step, ws->sol_step, arg, ws);
+
+		// compute step
+		AXPY(cws->nv, -1.0, qp_sol->ux, 0, ws->sol_step->ux, 0, ws->sol_step->ux, 0);
+		AXPY(cws->ne, -1.0, qp_sol->pi, 0, ws->sol_step->pi, 0, ws->sol_step->pi, 0);
+		AXPY(cws->nc, -1.0, qp_sol->lam, 0, ws->sol_step->lam, 0, ws->sol_step->lam, 0);
+		AXPY(cws->nc, -1.0, qp_sol->t, 0, ws->sol_step->t, 0, ws->sol_step->t, 0);
+		if(ws->mask_constr)
+			{
+			// mask out disregarded constraints
+			for(ii=0; ii<=N; ii++)
+				VECMUL(2*ns[ii], qp->d_mask+ii, 2*nb[ii]+2*ng[ii], ws->sol_step->ux+ii, nu[ii]+nx[ii], ws->sol_step->ux+ii, nu[ii]+nx[ii]);
+			VECMUL(cws->nc, qp->d_mask, 0, ws->sol_step->t, 0, ws->sol_step->t, 0);
+			VECMUL(cws->nc, qp->d_mask, 0, ws->sol_step->lam, 0, ws->sol_step->lam, 0);
+			}
+
+		// alpha
+		COMPUTE_ALPHA_QP(cws);
+		if(kk+1<ws->stat_max)
+			ws->stat[ws->stat_m*(kk+1)+3] = cws->alpha;
+
+		// conditional Mehrotra's predictor-corrector
+		if(arg->cond_pred_corr==1)
+			{
+
+			// save mu_aff (from prediction sol_step)
+			mu_aff0 = cws->mu_aff;
+
+			// compute mu for predictor-corrector-centering
+			COMPUTE_MU_AFF_QP(cws);
+
+//			if(cws->mu_aff > 2.0*cws->mu)
+			if(cws->mu_aff > 2.0*mu_aff0)
+				{
+
+				// centering direction
+				COMPUTE_CENTERING_QP(cws);
+				if(ws->mask_constr)
+					{
+					// mask out disregarded constraints
+					VECMUL(cws->nc, qp->d_mask, 0, ws->res->res_m, 0, ws->res->res_m, 0);
+					}
+
+				// solve kkt
+				SOLVE_KKT_STEP_OCP_QP(ws->qp_step, ws->sol_step, arg, ws);
+				// compute step
+				AXPY(cws->nv, -1.0, qp_sol->ux, 0, ws->sol_step->ux, 0, ws->sol_step->ux, 0);
+				AXPY(cws->ne, -1.0, qp_sol->pi, 0, ws->sol_step->pi, 0, ws->sol_step->pi, 0);
+				AXPY(cws->nc, -1.0, qp_sol->lam, 0, ws->sol_step->lam, 0, ws->sol_step->lam, 0);
+				AXPY(cws->nc, -1.0, qp_sol->t, 0, ws->sol_step->t, 0, ws->sol_step->t, 0);
+				if(ws->mask_constr)
+					{
+					// mask out disregarded constraints
+					for(ii=0; ii<=N; ii++)
+						VECMUL(2*ns[ii], qp->d_mask+ii, 2*nb[ii]+2*ng[ii], ws->sol_step->ux+ii, nu[ii]+nx[ii], ws->sol_step->ux+ii, nu[ii]+nx[ii]);
+					VECMUL(cws->nc, qp->d_mask, 0, ws->sol_step->t, 0, ws->sol_step->t, 0);
+					VECMUL(cws->nc, qp->d_mask, 0, ws->sol_step->lam, 0, ws->sol_step->lam, 0);
+					}
+
+				// alpha
+				COMPUTE_ALPHA_QP(cws);
+				if(kk+1<ws->stat_max)
+					ws->stat[ws->stat_m*(kk+1)+3] = cws->alpha;
+
+				}
+			}
+
+		}
+
+	//
+	UPDATE_VAR_QP(cws);
+	if(ws->mask_constr)
+		{
+		// mask out disregarded constraints
+		VECMUL(cws->nc, qp->d_mask, 0, qp_sol->lam, 0, qp_sol->lam, 0);
+		}
+
+	return;
+
+	}
+
+
+
+void OCP_QP_IPM_DELTA_STEP(int kk, struct OCP_QP *qp, struct OCP_QP_SOL *qp_sol, struct OCP_QP_IPM_ARG *arg, struct OCP_QP_IPM_WS *ws)
+	{
+
+//d_ocp_qp_print(qp->dim, qp);
+//d_ocp_qp_sol_print(qp->dim, qp_sol);
+//exit(1);
+	// dim
+	int N = qp->dim->N;
+	int *nx = qp->dim->nx;
+	int *nu = qp->dim->nu;
+	int *nb = qp->dim->nb;
+	int *ng = qp->dim->ng;
+	int *ns = qp->dim->ns;
+
+	struct CORE_QP_IPM_WORKSPACE *cws = ws->core_workspace;
+
+	int itref0=0, itref1=0, iter_ref_step;
+	int ii;
+	REAL tmp;
+	REAL mu_aff0, mu;
+
+	REAL itref_qp_norm[4] = {0,0,0,0};
+	REAL itref_qp_norm0[4] = {0,0,0,0};
+
+	int force_lq = 0;
+
+	// step body
+
+	BACKUP_RES_M(cws);
+
+	// fact and solve kkt
+	if(ws->lq_fact==0)
+		{
+
+		// syrk+cholesky
+		FACT_SOLVE_KKT_STEP_OCP_QP(ws->qp_step, ws->sol_step, arg, ws);
+		if(ws->mask_constr)
+			{
+			// mask out disregarded constraints
+			for(ii=0; ii<=N; ii++)
+				VECMUL(2*ns[ii], qp->d_mask+ii, 2*nb[ii]+2*ng[ii], ws->sol_step->ux+ii, nu[ii]+nx[ii], ws->sol_step->ux+ii, nu[ii]+nx[ii]);
+			VECMUL(cws->nc, qp->d_mask, 0, ws->sol_step->t, 0, ws->sol_step->t, 0);
+			VECMUL(cws->nc, qp->d_mask, 0, ws->sol_step->lam, 0, ws->sol_step->lam, 0);
+			}
+
+		}
+	else if(ws->lq_fact==1 & force_lq==0)
+		{
+
+		// syrk+chol, switch to lq when needed
+		FACT_SOLVE_KKT_STEP_OCP_QP(ws->qp_step, ws->sol_step, arg, ws);
+		if(ws->mask_constr)
+			{
+			// mask out disregarded constraints
+			for(ii=0; ii<=N; ii++)
+				VECMUL(2*ns[ii], qp->d_mask+ii, 2*nb[ii]+2*ng[ii], ws->sol_step->ux+ii, nu[ii]+nx[ii], ws->sol_step->ux+ii, nu[ii]+nx[ii]);
+			VECMUL(cws->nc, qp->d_mask, 0, ws->sol_step->t, 0, ws->sol_step->t, 0);
+			VECMUL(cws->nc, qp->d_mask, 0, ws->sol_step->lam, 0, ws->sol_step->lam, 0);
+			}
+
+		// compute res of linear system
+		OCP_QP_RES_COMPUTE_LIN(ws->qp_step, qp_sol, ws->sol_step, ws->res_itref, ws->res_workspace);
+		if(ws->mask_constr)
+			{
+			// mask out disregarded constraints
+			for(ii=0; ii<=N; ii++)
+				VECMUL(2*ns[ii], qp->d_mask+ii, 2*nb[ii]+2*ng[ii], ws->res_itref->res_g+ii, nu[ii]+nx[ii], ws->res_itref->res_g+ii, nu[ii]+nx[ii]);
+			VECMUL(cws->nc, qp->d_mask, 0, ws->res_itref->res_d, 0, ws->res_itref->res_d, 0);
+			VECMUL(cws->nc, qp->d_mask, 0, ws->res_itref->res_m, 0, ws->res_itref->res_m, 0);
+			}
+		OCP_QP_RES_COMPUTE_INF_NORM(ws->res_itref);
+		itref_qp_norm[0] = ws->res_itref->res_max[0];
+		itref_qp_norm[1] = ws->res_itref->res_max[1];
+		itref_qp_norm[2] = ws->res_itref->res_max[2];
+		itref_qp_norm[3] = ws->res_itref->res_max[3];
+
+		// inaccurate factorization: switch to lq
+		if(
+#ifdef USE_C99_MATH
+			( itref_qp_norm[0]==0.0 & isnan(BLASFEO_DVECEL(ws->res_itref->res_g+0, 0)) ) |
+#else
+			( itref_qp_norm[0]==0.0 & BLASFEO_DVECEL(ws->res_itref->res_g+0, 0)!=BLASFEO_DVECEL(ws->res_itref->res_g+0, 0) ) |
+#endif
+			itref_qp_norm[0]>1e-5 |
+			itref_qp_norm[1]>1e-5 |
+			itref_qp_norm[2]>1e-5 |
+			itref_qp_norm[3]>1e-5 )
+			{
+
+			// refactorize using lq
+			FACT_LQ_SOLVE_KKT_STEP_OCP_QP(ws->qp_step, ws->sol_step, arg, ws);
+			if(ws->mask_constr)
+				{
+				// mask out disregarded constraints
+				for(ii=0; ii<=N; ii++)
+					VECMUL(2*ns[ii], qp->d_mask+ii, 2*nb[ii]+2*ng[ii], ws->sol_step->ux+ii, nu[ii]+nx[ii], ws->sol_step->ux+ii, nu[ii]+nx[ii]);
+				VECMUL(cws->nc, qp->d_mask, 0, ws->sol_step->t, 0, ws->sol_step->t, 0);
+				VECMUL(cws->nc, qp->d_mask, 0, ws->sol_step->lam, 0, ws->sol_step->lam, 0);
+				}
+
+			// switch to lq
+			force_lq = 1;
+
+			}
+
+		}
+	else // ws->lq_fact==2
+		{
+
+		FACT_LQ_SOLVE_KKT_STEP_OCP_QP(ws->qp_step, ws->sol_step, arg, ws);
+		if(ws->mask_constr)
+			{
+			// mask out disregarded constraints
+			for(ii=0; ii<=N; ii++)
+				VECMUL(2*ns[ii], qp->d_mask+ii, 2*nb[ii]+2*ng[ii], ws->sol_step->ux+ii, nu[ii]+nx[ii], ws->sol_step->ux+ii, nu[ii]+nx[ii]);
+			VECMUL(cws->nc, qp->d_mask, 0, ws->sol_step->t, 0, ws->sol_step->t, 0);
+			VECMUL(cws->nc, qp->d_mask, 0, ws->sol_step->lam, 0, ws->sol_step->lam, 0);
+			}
+
+		}
+
+	// iterative refinement on prediction step
+	for(itref0=0; itref0<arg->itref_pred_max; itref0++)
+		{
+
+		OCP_QP_RES_COMPUTE_LIN(ws->qp_step, qp_sol, ws->sol_step, ws->res_itref, ws->res_workspace);
+		if(ws->mask_constr)
+			{
+			// mask out disregarded constraints
+			for(ii=0; ii<=N; ii++)
+				VECMUL(2*ns[ii], qp->d_mask+ii, 2*nb[ii]+2*ng[ii], ws->res_itref->res_g+ii, nu[ii]+nx[ii], ws->res_itref->res_g+ii, nu[ii]+nx[ii]);
+			VECMUL(cws->nc, qp->d_mask, 0, ws->res_itref->res_d, 0, ws->res_itref->res_d, 0);
+			VECMUL(cws->nc, qp->d_mask, 0, ws->res_itref->res_m, 0, ws->res_itref->res_m, 0);
+			}
+		OCP_QP_RES_COMPUTE_INF_NORM(ws->res_itref);
+		itref_qp_norm[0] = ws->res_itref->res_max[0];
+		itref_qp_norm[1] = ws->res_itref->res_max[1];
+		itref_qp_norm[2] = ws->res_itref->res_max[2];
+		itref_qp_norm[3] = ws->res_itref->res_max[3];
+
+		if(itref0==0)
+			{
+			itref_qp_norm0[0] = itref_qp_norm[0];
+			itref_qp_norm0[1] = itref_qp_norm[1];
+			itref_qp_norm0[2] = itref_qp_norm[2];
+			itref_qp_norm0[3] = itref_qp_norm[3];
+			}
+
+		if( \
+				(itref_qp_norm[0]<1e0*arg->res_g_max | itref_qp_norm[0]<1e-3*ws->res->res_max[0]) & \
+				(itref_qp_norm[1]<1e0*arg->res_b_max | itref_qp_norm[1]<1e-3*ws->res->res_max[1]) & \
+				(itref_qp_norm[2]<1e0*arg->res_d_max | itref_qp_norm[2]<1e-3*ws->res->res_max[2]) & \
+				(itref_qp_norm[3]<1e0*arg->res_m_max | itref_qp_norm[3]<1e-3*ws->res->res_max[3]) )
+			{
+			break;
+			}
+
+		ws->use_Pb = 0;
+		SOLVE_KKT_STEP_OCP_QP(ws->qp_itref, ws->sol_itref, arg, ws);
+		if(ws->mask_constr)
+			{
+			// mask out disregarded constraints
+			for(ii=0; ii<=N; ii++)
+				VECMUL(2*ns[ii], qp->d_mask+ii, 2*nb[ii]+2*ng[ii], ws->sol_step->ux+ii, nu[ii]+nx[ii], ws->sol_step->ux+ii, nu[ii]+nx[ii]);
+			VECMUL(cws->nc, qp->d_mask, 0, ws->sol_step->t, 0, ws->sol_step->t, 0);
+			VECMUL(cws->nc, qp->d_mask, 0, ws->sol_step->lam, 0, ws->sol_step->lam, 0);
+			}
+
+		for(ii=0; ii<=N; ii++)
+			AXPY(nu[ii]+nx[ii]+2*ns[ii], 1.0, ws->sol_itref->ux+ii, 0, ws->sol_step->ux+ii, 0, ws->sol_step->ux+ii, 0);
+		for(ii=0; ii<N; ii++)
+			AXPY(nx[ii+1], 1.0, ws->sol_itref->pi+ii, 0, ws->sol_step->pi+ii, 0, ws->sol_step->pi+ii, 0);
+		for(ii=0; ii<=N; ii++)
+			AXPY(2*nb[ii]+2*ng[ii]+2*ns[ii], 1.0, ws->sol_itref->lam+ii, 0, ws->sol_step->lam+ii, 0, ws->sol_step->lam+ii, 0);
+		for(ii=0; ii<=N; ii++)
+			AXPY(2*nb[ii]+2*ng[ii]+2*ns[ii], 1.0, ws->sol_itref->t+ii, 0, ws->sol_step->t+ii, 0, ws->sol_step->t+ii, 0);
+
+		}
+	if(kk+1<ws->stat_max)
+		ws->stat[ws->stat_m*(kk+1)+9] = itref0;
+
+	// alpha
+	COMPUTE_ALPHA_QP(cws);
+	if(kk+1<ws->stat_max)
+		ws->stat[ws->stat_m*(kk+1)+0] = cws->alpha;
+
+	// Mehrotra's predictor-corrector
+	if(arg->pred_corr==1)
+		{
+		// mu_aff
+		COMPUTE_MU_AFF_QP(cws);
+		if(kk+1<ws->stat_max)
+			ws->stat[ws->stat_m*(kk+1)+1] = cws->mu_aff;
+
+		tmp = cws->mu_aff/cws->mu;
+		cws->sigma = tmp*tmp*tmp;
+		if(kk+1<ws->stat_max)
+			ws->stat[ws->stat_m*(kk+1)+2] = cws->sigma;
+
+		COMPUTE_CENTERING_CORRECTION_QP(cws);
+		if(ws->mask_constr)
+			{
+			// mask out disregarded constraints
+			VECMUL(cws->nc, qp->d_mask, 0, ws->res->res_m, 0, ws->res->res_m, 0);
+			}
+
+		// fact and solve kkt
+		ws->use_Pb = 1;
+		SOLVE_KKT_STEP_OCP_QP(ws->qp_step, ws->sol_step, arg, ws);
+		if(ws->mask_constr)
+			{
+			// mask out disregarded constraints
+			for(ii=0; ii<=N; ii++)
+				VECMUL(2*ns[ii], qp->d_mask+ii, 2*nb[ii]+2*ng[ii], ws->sol_step->ux+ii, nu[ii]+nx[ii], ws->sol_step->ux+ii, nu[ii]+nx[ii]);
+			VECMUL(cws->nc, qp->d_mask, 0, ws->sol_step->t, 0, ws->sol_step->t, 0);
+			VECMUL(cws->nc, qp->d_mask, 0, ws->sol_step->lam, 0, ws->sol_step->lam, 0);
+			}
+
+		// alpha
+		COMPUTE_ALPHA_QP(cws);
+		if(kk+1<ws->stat_max)
+			ws->stat[ws->stat_m*(kk+1)+3] = cws->alpha;
+
+		// conditional Mehrotra's predictor-corrector
+		if(arg->cond_pred_corr==1)
+			{
+
+			// save mu_aff (from prediction step)
+			mu_aff0 = cws->mu_aff;
+
+			// compute mu for predictor-corrector-centering
+			COMPUTE_MU_AFF_QP(cws);
+
+//				if(cws->mu_aff > 2.0*cws->mu)
+			if(cws->mu_aff > 2.0*mu_aff0)
+				{
+
+				// centering direction
+				COMPUTE_CENTERING_QP(cws);
+				if(ws->mask_constr)
+					{
+					// mask out disregarded constraints
+					VECMUL(cws->nc, qp->d_mask, 0, ws->res->res_m, 0, ws->res->res_m, 0);
+					}
+
+				// solve kkt
+				ws->use_Pb = 1;
+				SOLVE_KKT_STEP_OCP_QP(ws->qp_step, ws->sol_step, arg, ws);
+				if(ws->mask_constr)
+					{
+					// mask out disregarded constraints
+					for(ii=0; ii<=N; ii++)
+						VECMUL(2*ns[ii], qp->d_mask+ii, 2*nb[ii]+2*ng[ii], ws->sol_step->ux+ii, nu[ii]+nx[ii], ws->sol_step->ux+ii, nu[ii]+nx[ii]);
+					VECMUL(cws->nc, qp->d_mask, 0, ws->sol_step->t, 0, ws->sol_step->t, 0);
+					VECMUL(cws->nc, qp->d_mask, 0, ws->sol_step->lam, 0, ws->sol_step->lam, 0);
+					}
+
+				// alpha
+				COMPUTE_ALPHA_QP(cws);
+				if(kk+1<ws->stat_max)
+					ws->stat[ws->stat_m*(kk+1)+3] = cws->alpha;
+
+				}
+
+			}
+
+		iter_ref_step = 0;
+		for(itref1=0; itref1<arg->itref_corr_max; itref1++)
+			{
+
+			OCP_QP_RES_COMPUTE_LIN(ws->qp_step, qp_sol, ws->sol_step, ws->res_itref, ws->res_workspace);
+			if(ws->mask_constr)
+				{
+				// mask out disregarded constraints
+				for(ii=0; ii<=N; ii++)
+					VECMUL(2*ns[ii], qp->d_mask+ii, 2*nb[ii]+2*ng[ii], ws->res_itref->res_g+ii, nu[ii]+nx[ii], ws->res_itref->res_g+ii, nu[ii]+nx[ii]);
+				VECMUL(cws->nc, qp->d_mask, 0, ws->res_itref->res_d, 0, ws->res_itref->res_d, 0);
+				VECMUL(cws->nc, qp->d_mask, 0, ws->res_itref->res_m, 0, ws->res_itref->res_m, 0);
+				}
+			OCP_QP_RES_COMPUTE_INF_NORM(ws->res_itref);
+			itref_qp_norm[0] = ws->res_itref->res_max[0];
+			itref_qp_norm[1] = ws->res_itref->res_max[1];
+			itref_qp_norm[2] = ws->res_itref->res_max[2];
+			itref_qp_norm[3] = ws->res_itref->res_max[3];
+
+			if(itref1==0)
+				{
+				itref_qp_norm0[0] = itref_qp_norm[0];
+				itref_qp_norm0[1] = itref_qp_norm[1];
+				itref_qp_norm0[2] = itref_qp_norm[2];
+				itref_qp_norm0[3] = itref_qp_norm[3];
+				}
+
+			if( \
+					(itref_qp_norm[0]<1e0*arg->res_g_max | itref_qp_norm[0]<1e-3*ws->res->res_max[0]) & \
+					(itref_qp_norm[1]<1e0*arg->res_b_max | itref_qp_norm[1]<1e-3*ws->res->res_max[1]) & \
+					(itref_qp_norm[2]<1e0*arg->res_d_max | itref_qp_norm[2]<1e-3*ws->res->res_max[2]) & \
+					(itref_qp_norm[3]<1e0*arg->res_m_max | itref_qp_norm[3]<1e-3*ws->res->res_max[3]) )
+				{
+				break;
+				}
+
+			ws->use_Pb = 0;
+			SOLVE_KKT_STEP_OCP_QP(ws->qp_itref, ws->sol_itref, arg, ws);
+			if(ws->mask_constr)
+				{
+				// mask out disregarded constraints
+				for(ii=0; ii<=N; ii++)
+					VECMUL(2*ns[ii], qp->d_mask+ii, 2*nb[ii]+2*ng[ii], ws->sol_step->ux+ii, nu[ii]+nx[ii], ws->sol_step->ux+ii, nu[ii]+nx[ii]);
+				VECMUL(cws->nc, qp->d_mask, 0, ws->sol_step->t, 0, ws->sol_step->t, 0);
+				VECMUL(cws->nc, qp->d_mask, 0, ws->sol_step->lam, 0, ws->sol_step->lam, 0);
+				}
+			iter_ref_step = 1;
+
+			for(ii=0; ii<=N; ii++)
+				AXPY(nu[ii]+nx[ii]+2*ns[ii], 1.0, ws->sol_itref->ux+ii, 0, ws->sol_step->ux+ii, 0, ws->sol_step->ux+ii, 0);
+			for(ii=0; ii<N; ii++)
+				AXPY(nx[ii+1], 1.0, ws->sol_itref->pi+ii, 0, ws->sol_step->pi+ii, 0, ws->sol_step->pi+ii, 0);
+			for(ii=0; ii<=N; ii++)
+				AXPY(2*nb[ii]+2*ng[ii]+2*ns[ii], 1.0, ws->sol_itref->lam+ii, 0, ws->sol_step->lam+ii, 0, ws->sol_step->lam+ii, 0);
+			for(ii=0; ii<=N; ii++)
+				AXPY(2*nb[ii]+2*ng[ii]+2*ns[ii], 1.0, ws->sol_itref->t+ii, 0, ws->sol_step->t+ii, 0, ws->sol_step->t+ii, 0);
+
+			}
+
+		if(iter_ref_step)
+			{
+			// alpha
+			COMPUTE_ALPHA_QP(cws);
+			if(kk+1<ws->stat_max)
+				ws->stat[ws->stat_m*(kk+1)+3] = cws->alpha;
+			}
+
+		}
+	if(kk+1<ws->stat_max)
+		ws->stat[ws->stat_m*(kk+1)+10] = itref1;
+
+	//
+	UPDATE_VAR_QP(cws);
+	if(ws->mask_constr)
+		{
+		// mask out disregarded constraints
+		VECMUL(cws->nc, qp->d_mask, 0, qp_sol->lam, 0, qp_sol->lam, 0);
+		}
+
+	return;
+
+	}
+
+
+
 void OCP_QP_IPM_SOLVE(struct OCP_QP *qp, struct OCP_QP_SOL *qp_sol, struct OCP_QP_IPM_ARG *arg, struct OCP_QP_IPM_WS *ws)
 	{
 
@@ -1146,7 +2068,18 @@ void OCP_QP_IPM_SOLVE(struct OCP_QP *qp, struct OCP_QP_SOL *qp_sol, struct OCP_Q
 	OCP_QP_PRINT(qp->dim, qp);
 #endif
 
+	// dim
+	int N = qp->dim->N;
+	int *nx = qp->dim->nx;
+	int *nu = qp->dim->nu;
+	int *nb = qp->dim->nb;
+	int *ng = qp->dim->ng;
+	int *ns = qp->dim->ns;
+
 	struct CORE_QP_IPM_WORKSPACE *cws = ws->core_workspace;
+
+	int kk, ii;
+	REAL mu;
 
 	// arg to core workspace
 	cws->lam_min = arg->lam_min;
@@ -1184,62 +2117,74 @@ void OCP_QP_IPM_SOLVE(struct OCP_QP *qp, struct OCP_QP_SOL *qp_sol, struct OCP_Q
 	ws->qp_itref->d = ws->res_itref->res_d;
 	ws->qp_itref->m = ws->res_itref->res_m;
 
-	// blasfeo alias for residuals
-	struct STRVEC str_res_g;
-	struct STRVEC str_res_b;
-	struct STRVEC str_res_d;
-	struct STRVEC str_res_m;
-	str_res_g.m = cws->nv;
-	str_res_b.m = cws->ne;
-	str_res_d.m = cws->nc;
-	str_res_m.m = cws->nc;
-	str_res_g.pa = cws->res_g;
-	str_res_b.pa = cws->res_b;
-	str_res_d.pa = cws->res_d;
-	str_res_m.pa = cws->res_m;
+	REAL *qp_res_max = ws->res->res_max;
+	qp_res_max[0] = 0;
+	qp_res_max[1] = 0;
+	qp_res_max[2] = 0;
+	qp_res_max[3] = 0;
 
-	REAL *qp_res = ws->qp_res;
-	qp_res[0] = 0;
-	qp_res[1] = 0;
-	qp_res[2] = 0;
-	qp_res[3] = 0;
+
+	// detect constr mask
+	int mask_unconstr;
+	int nc_mask = 0;
+	for(ii=0; ii<cws->nc; ii++)
+		{
+		if(qp->d_mask->pa[ii]!=0.0)
+			nc_mask++;
+		}
+	if(nc_mask<cws->nc)
+		{
+		ws->mask_constr = 1;
+		}
+	else
+		{
+		ws->mask_constr = 0;
+		}
+	if(nc_mask==0)
+		{
+		mask_unconstr = 1;
+		cws->nc_mask = 0;
+		cws->nc_mask_inv = 0.0;
+		}
+	else
+		{
+		mask_unconstr = 0;
+		cws->nc_mask = nc_mask;
+		cws->nc_mask_inv = 1.0/nc_mask;
+		}
+
 
 	// no constraints
-	if(cws->nc==0)
+	if(cws->nc==0 | mask_unconstr==1)
 		{
 		FACT_SOLVE_KKT_UNCONSTR_OCP_QP(qp, qp_sol, arg, ws);
-		OCP_QP_RES_COMPUTE(qp, qp_sol, ws->res, ws->res_workspace);
-		// compute infinity norm of residuals
-		VECNRM_INF(cws->nv, &str_res_g, 0, &qp_res[0]);
-		VECNRM_INF(cws->ne, &str_res_b, 0, &qp_res[1]);
-		VECNRM_INF(cws->nc, &str_res_d, 0, &qp_res[2]);
-		VECNRM_INF(cws->nc, &str_res_m, 0, &qp_res[3]);
-		if(0<ws->stat_max)
+		if(arg->comp_res_exit)
 			{
-			ws->stat[5] = qp_res[0];
-			ws->stat[6] = qp_res[1];
-			ws->stat[7] = qp_res[2];
-			ws->stat[8] = qp_res[3];
+			OCP_QP_RES_COMPUTE(qp, qp_sol, ws->res, ws->res_workspace);
+			// XXX no constraints, so no mask
+			OCP_QP_RES_COMPUTE_INF_NORM(ws->res);
+			if(0<ws->stat_max)
+				{
+				ws->stat[5] = qp_res_max[0];
+				ws->stat[6] = qp_res_max[1];
+				ws->stat[7] = qp_res_max[2];
+				ws->stat[8] = qp_res_max[3];
+				}
+			cws->mu = ws->res->res_mu;
 			}
-		cws->mu = ws->res->res_mu;
 		ws->iter = 0;
 		ws->status = 0;
 		return;
 		}
 
-	int N = qp->dim->N;
-	int *nx = qp->dim->nx;
-	int *nu = qp->dim->nu;
-	int *nb = qp->dim->nb;
-	int *ng = qp->dim->ng;
-	int *ns = qp->dim->ns;
-
-	int kk, ii, itref0=0, itref1=0, iter_ref_step;
-	REAL tmp;
-	REAL mu_aff0, mu;
 
 	// init solver
-	INIT_VAR_OCP_QP(qp, qp_sol, arg, ws);
+	OCP_QP_INIT_VAR(qp, qp_sol, arg, ws);
+	if(ws->mask_constr)
+		{
+		// mask out disregarded constraints
+		VECMUL(cws->nc, qp->d_mask, 0, qp_sol->lam, 0, qp_sol->lam, 0);
+		}
 
 	cws->alpha = 1.0;
 
@@ -1265,7 +2210,7 @@ void OCP_QP_IPM_SOLVE(struct OCP_QP *qp, struct OCP_QP_SOL *qp_sol, struct OCP_Q
 
 		// alias core workspace
 		cws->res_m = ws->qp_step->m->pa;
-		cws->res_m_bkp = ws->qp_step->m->pa;
+		cws->res_m_bkp = ws->qp_step->m->pa; // TODO remove (as in dense qp) ???
 
 		mu = VECMULDOT(cws->nc, qp_sol->lam, 0, qp_sol->t, 0, ws->tmp_m, 0);
 		mu /= cws->nc;
@@ -1278,57 +2223,8 @@ void OCP_QP_IPM_SOLVE(struct OCP_QP *qp, struct OCP_QP_SOL *qp_sol, struct OCP_Q
 				mu>arg->res_m_max; kk++)
 			{
 
-			VECSC(cws->nc, -1.0, ws->tmp_m, 0);
-
-			// fact solve
-			FACT_SOLVE_KKT_STEP_OCP_QP(ws->qp_step, ws->sol_step, arg, ws);
-//blasfeo_print_tran_dvec(cws->nv, ws->sol_step->ux, 0);
-
-			// compute step
-			AXPY(cws->nv, -1.0, qp_sol->ux, 0, ws->sol_step->ux, 0, ws->sol_step->ux, 0);
-			AXPY(cws->ne, -1.0, qp_sol->pi, 0, ws->sol_step->pi, 0, ws->sol_step->pi, 0);
-			AXPY(cws->nc, -1.0, qp_sol->lam, 0, ws->sol_step->lam, 0, ws->sol_step->lam, 0);
-			AXPY(cws->nc, -1.0, qp_sol->t, 0, ws->sol_step->t, 0, ws->sol_step->t, 0);
-
-			// alpha
-			COMPUTE_ALPHA_QP(cws);
-			if(kk+1<ws->stat_max)
-				ws->stat[ws->stat_m*(kk+1)+0] = cws->alpha;
-
-			// Mehrotra's predictor-corrector
-			if(arg->pred_corr==1)
-				{
-				// mu_aff
-				COMPUTE_MU_AFF_QP(cws);
-				if(kk+1<ws->stat_max)
-					ws->stat[ws->stat_m*(kk+1)+1] = cws->mu_aff;
-
-				tmp = cws->mu_aff/cws->mu;
-				cws->sigma = tmp*tmp*tmp;
-				if(kk+1<ws->stat_max)
-					ws->stat[ws->stat_m*(kk+1)+2] = cws->sigma;
-
-				COMPUTE_CENTERING_CORRECTION_QP(cws);
-
-				// fact and solve kkt
-				ws->use_Pb = 1;
-				SOLVE_KKT_STEP_OCP_QP(ws->qp_step, ws->sol_step, arg, ws);
-
-				// compute step
-				AXPY(cws->nv, -1.0, qp_sol->ux, 0, ws->sol_step->ux, 0, ws->sol_step->ux, 0);
-				AXPY(cws->ne, -1.0, qp_sol->pi, 0, ws->sol_step->pi, 0, ws->sol_step->pi, 0);
-				AXPY(cws->nc, -1.0, qp_sol->lam, 0, ws->sol_step->lam, 0, ws->sol_step->lam, 0);
-				AXPY(cws->nc, -1.0, qp_sol->t, 0, ws->sol_step->t, 0, ws->sol_step->t, 0);
-
-				// alpha
-				COMPUTE_ALPHA_QP(cws);
-				if(kk+1<ws->stat_max)
-					ws->stat[ws->stat_m*(kk+1)+3] = cws->alpha;
-
-				}
-
-			//
-			UPDATE_VAR_QP(cws);
+			// compute delta step
+			OCP_QP_IPM_ABS_STEP(kk, qp, qp_sol, arg, ws);
 
 			// compute mu
 			mu = VECMULDOT(cws->nc, qp_sol->lam, 0, qp_sol->t, 0, ws->tmp_m, 0);
@@ -1337,20 +2233,30 @@ void OCP_QP_IPM_SOLVE(struct OCP_QP *qp, struct OCP_QP_SOL *qp_sol, struct OCP_Q
 			if(kk+1<ws->stat_max)
 				ws->stat[ws->stat_m*(kk+1)+4] = mu;
 
-	//		exit(1);
-
 			}
 
 		if(arg->comp_res_exit & arg->comp_dual_sol)
 			{
 			// compute residuals
 			OCP_QP_RES_COMPUTE(qp, qp_sol, ws->res, ws->res_workspace);
-
-			// compute infinity norm of residuals
-			VECNRM_INF(cws->nv, &str_res_g, 0, &qp_res[0]);
-			VECNRM_INF(cws->ne, &str_res_b, 0, &qp_res[1]);
-			VECNRM_INF(cws->nc, &str_res_d, 0, &qp_res[2]);
-			VECNRM_INF(cws->nc, &str_res_m, 0, &qp_res[3]);
+			if(ws->mask_constr)
+				{
+				// mask out disregarded constraints
+				for(ii=0; ii<=N; ii++)
+					VECMUL(2*ns[ii], qp->d_mask+ii, 2*nb[ii]+2*ng[ii], ws->res->res_g+ii, nu[ii]+nx[ii], ws->res->res_g+ii, nu[ii]+nx[ii]);
+				VECMUL(cws->nc, qp->d_mask, 0, ws->res->res_d, 0, ws->res->res_d, 0);
+				VECMUL(cws->nc, qp->d_mask, 0, ws->res->res_m, 0, ws->res->res_m, 0);
+				}
+			OCP_QP_RES_COMPUTE_INF_NORM(ws->res);
+			// save infinity norm of residuals
+			// XXX it is already kk+1
+			if(kk<ws->stat_max)
+				{
+				ws->stat[ws->stat_m*(kk+0)+5] = qp_res_max[0];
+				ws->stat[ws->stat_m*(kk+0)+6] = qp_res_max[1];
+				ws->stat[ws->stat_m*(kk+0)+7] = qp_res_max[2];
+				ws->stat[ws->stat_m*(kk+0)+8] = qp_res_max[3];
+				}
 			}
 
 		ws->iter = kk;
@@ -1392,395 +2298,68 @@ void OCP_QP_IPM_SOLVE(struct OCP_QP *qp, struct OCP_QP_SOL *qp_sol, struct OCP_Q
 
 	// compute residuals
 	OCP_QP_RES_COMPUTE(qp, qp_sol, ws->res, ws->res_workspace);
-	BACKUP_RES_M(cws);
+	if(ws->mask_constr)
+		{
+		// mask out disregarded constraints
+		for(ii=0; ii<=N; ii++)
+			VECMUL(2*ns[ii], qp->d_mask+ii, 2*nb[ii]+2*ng[ii], ws->res->res_g+ii, nu[ii]+nx[ii], ws->res->res_g+ii, nu[ii]+nx[ii]);
+		VECMUL(cws->nc, qp->d_mask, 0, ws->res->res_d, 0, ws->res->res_d, 0);
+		VECMUL(cws->nc, qp->d_mask, 0, ws->res->res_m, 0, ws->res->res_m, 0);
+		}
 	cws->mu = ws->res->res_mu;
-
-	// compute infinity norm of residuals
-	VECNRM_INF(cws->nv, &str_res_g, 0, &qp_res[0]);
-	VECNRM_INF(cws->ne, &str_res_b, 0, &qp_res[1]);
-	VECNRM_INF(cws->nc, &str_res_d, 0, &qp_res[2]);
-	VECNRM_INF(cws->nc, &str_res_m, 0, &qp_res[3]);
-
+	OCP_QP_RES_COMPUTE_INF_NORM(ws->res);
+	// save infinity norm of residuals
 	if(0<ws->stat_max)
 		{
-		ws->stat[ws->stat_m*(0)+5] = qp_res[0];
-		ws->stat[ws->stat_m*(0)+6] = qp_res[1];
-		ws->stat[ws->stat_m*(0)+7] = qp_res[2];
-		ws->stat[ws->stat_m*(0)+8] = qp_res[3];
+		ws->stat[ws->stat_m*(0)+5] = qp_res_max[0];
+		ws->stat[ws->stat_m*(0)+6] = qp_res_max[1];
+		ws->stat[ws->stat_m*(0)+7] = qp_res_max[2];
+		ws->stat[ws->stat_m*(0)+8] = qp_res_max[3];
 		}
 
-//printf("\niter %d\t%e\t%e\t%e\t%e\n", -1, qp_res[0], qp_res[1], qp_res[2], qp_res[3]);
-
-	REAL itref_qp_norm[4] = {0,0,0,0};
-	REAL itref_qp_norm0[4] = {0,0,0,0};
-	int ndp0, ndp1;
-
-	int force_lq = 0;
 
 
 
-	// relative IPM formulation
+	// relative (delta) IPM formulation
 
 	// IPM loop
 	for(kk=0; kk<arg->iter_max & \
 			cws->alpha>arg->alpha_min & \
-			(qp_res[0]>arg->res_g_max | \
-			qp_res[1]>arg->res_b_max | \
-			qp_res[2]>arg->res_d_max | \
-			qp_res[3]>arg->res_m_max); kk++)
+			(qp_res_max[0]>arg->res_g_max | \
+			qp_res_max[1]>arg->res_b_max | \
+			qp_res_max[2]>arg->res_d_max | \
+			qp_res_max[3]>arg->res_m_max); kk++)
 		{
 
-		// fact and solve kkt
-		if(ws->lq_fact==0)
-			{
-
-			// syrk+cholesky
-			FACT_SOLVE_KKT_STEP_OCP_QP(ws->qp_step, ws->sol_step, arg, ws);
-
-			}
-		else if(ws->lq_fact==1 & force_lq==0)
-			{
-
-			// syrk+chol, switch to lq when needed
-			FACT_SOLVE_KKT_STEP_OCP_QP(ws->qp_step, ws->sol_step, arg, ws);
-
-			// compute res of linear system
-			OCP_QP_RES_COMPUTE_LIN(ws->qp_step, qp_sol, ws->sol_step, ws->res_itref, ws->res_workspace);
-			VECNRM_INF(cws->nv, ws->res_itref->res_g, 0, &itref_qp_norm[0]);
-			VECNRM_INF(cws->ne, ws->res_itref->res_b, 0, &itref_qp_norm[1]);
-			VECNRM_INF(cws->nc, ws->res_itref->res_d, 0, &itref_qp_norm[2]);
-			VECNRM_INF(cws->nc, ws->res_itref->res_m, 0, &itref_qp_norm[3]);
-
-//printf("\n%e\t%e\t%e\t%e\n", itref_qp_norm[0], itref_qp_norm[1], itref_qp_norm[2], itref_qp_norm[3]);
-
-			// inaccurate factorization: switch to lq
-			if(
-#ifdef USE_C99_MATH
-				( itref_qp_norm[0]==0.0 & isnan(BLASFEO_DVECEL(ws->res_itref->res_g+0, 0)) ) |
-#else
-				( itref_qp_norm[0]==0.0 & BLASFEO_DVECEL(ws->res_itref->res_g+0, 0)!=BLASFEO_DVECEL(ws->res_itref->res_g+0, 0) ) |
-#endif
-				itref_qp_norm[0]>1e-5 |
-				itref_qp_norm[1]>1e-5 |
-				itref_qp_norm[2]>1e-5 |
-				itref_qp_norm[3]>1e-5 )
-				{
-
-#if 0
-blasfeo_print_tran_dvec(cws->nv, ws->sol_step->v, 0);
-blasfeo_print_tran_dvec(cws->ne, ws->sol_step->pi, 0);
-blasfeo_print_tran_dvec(cws->nc, ws->sol_step->lam, 0);
-blasfeo_print_tran_dvec(cws->nc, ws->sol_step->t, 0);
-#endif
-
-				// refactorize using lq
-				FACT_LQ_SOLVE_KKT_STEP_OCP_QP(ws->qp_step, ws->sol_step, arg, ws);
-
-				// switch to lq
-				force_lq = 1;
-
-#if 0
-blasfeo_print_tran_dvec(cws->nv, ws->sol_step->v, 0);
-blasfeo_print_tran_dvec(cws->ne, ws->sol_step->pi, 0);
-blasfeo_print_tran_dvec(cws->nc, ws->sol_step->lam, 0);
-blasfeo_print_tran_dvec(cws->nc, ws->sol_step->t, 0);
-#endif
-
-				}
-
-			}
-		else // ws->lq_fact==2
-			{
-
-			FACT_LQ_SOLVE_KKT_STEP_OCP_QP(ws->qp_step, ws->sol_step, arg, ws);
-
-			}
-
-		// iterative refinement on prediction step
-		for(itref0=0; itref0<arg->itref_pred_max; itref0++)
-			{
-
-			OCP_QP_RES_COMPUTE_LIN(ws->qp_step, qp_sol, ws->sol_step, ws->res_itref, ws->res_workspace);
-
-			VECNRM_INF(cws->nv, ws->res_itref->res_g, 0, &itref_qp_norm[0]);
-			VECNRM_INF(cws->ne, ws->res_itref->res_b, 0, &itref_qp_norm[1]);
-			VECNRM_INF(cws->nc, ws->res_itref->res_d, 0, &itref_qp_norm[2]);
-			VECNRM_INF(cws->nc, ws->res_itref->res_m, 0, &itref_qp_norm[3]);
-
-			if(itref0==0)
-				{
-				itref_qp_norm0[0] = itref_qp_norm[0];
-				itref_qp_norm0[1] = itref_qp_norm[1];
-				itref_qp_norm0[2] = itref_qp_norm[2];
-				itref_qp_norm0[3] = itref_qp_norm[3];
-				}
-
-			if( \
-					(itref_qp_norm[0]<1e0*arg->res_g_max | itref_qp_norm[0]<1e-3*qp_res[0]) & \
-					(itref_qp_norm[1]<1e0*arg->res_b_max | itref_qp_norm[1]<1e-3*qp_res[1]) & \
-					(itref_qp_norm[2]<1e0*arg->res_d_max | itref_qp_norm[2]<1e-3*qp_res[2]) & \
-					(itref_qp_norm[3]<1e0*arg->res_m_max | itref_qp_norm[3]<1e-3*qp_res[3]) )
-//					(itref_qp_norm[0]<=arg->res_g_max) & \
-					(itref_qp_norm[1]<=arg->res_b_max) & \
-					(itref_qp_norm[2]<=arg->res_d_max) & \
-					(itref_qp_norm[3]<=arg->res_m_max) )
-				{
-				break;
-				}
-
-			ws->use_Pb = 0;
-			SOLVE_KKT_STEP_OCP_QP(ws->qp_itref, ws->sol_itref, arg, ws);
-
-			for(ii=0; ii<=N; ii++)
-				AXPY(nu[ii]+nx[ii]+2*ns[ii], 1.0, ws->sol_itref->ux+ii, 0, ws->sol_step->ux+ii, 0, ws->sol_step->ux+ii, 0);
-			for(ii=0; ii<N; ii++)
-				AXPY(nx[ii+1], 1.0, ws->sol_itref->pi+ii, 0, ws->sol_step->pi+ii, 0, ws->sol_step->pi+ii, 0);
-			for(ii=0; ii<=N; ii++)
-				AXPY(2*nb[ii]+2*ng[ii]+2*ns[ii], 1.0, ws->sol_itref->lam+ii, 0, ws->sol_step->lam+ii, 0, ws->sol_step->lam+ii, 0);
-			for(ii=0; ii<=N; ii++)
-				AXPY(2*nb[ii]+2*ng[ii]+2*ns[ii], 1.0, ws->sol_itref->t+ii, 0, ws->sol_step->t+ii, 0, ws->sol_step->t+ii, 0);
-
-			}
-
-#if 0
-int N = qp->dim->N;
-int *nx = qp->dim->nx;
-int *nu = qp->dim->nu;
-int *nb = qp->dim->nb;
-int *ng = qp->dim->ng;
-int *ns = qp->dim->ns;
-
-int ii;
-
-//exit(1);
-
-//for(ii=0; ii<=N; ii++)
-//	blasfeo_print_dmat(nu[ii]+nx[ii], nu[ii]+nx[ii], ws->L+ii, 0, 0);
-//exit(1);
-
-printf("\nux\n");
-for(ii=0; ii<=N; ii++)
-	blasfeo_print_tran_dvec(nu[ii]+nx[ii]+2*ns[ii], ws->dux+ii, 0);
-printf("\npi\n");
-for(ii=0; ii<N; ii++)
-	blasfeo_print_tran_dvec(nx[ii+1], ws->dpi+ii, 0);
-//printf("\nlam\n");
-//for(ii=0; ii<=N; ii++)
-//	blasfeo_print_tran_dvec(2*nb[ii]+2*ng[ii]+2*ns[ii], ws->dlam+ii, 0);
-printf("\nt\n");
-for(ii=0; ii<=N; ii++)
-	blasfeo_print_tran_dvec(2*nb[ii]+2*ng[ii]+2*ns[ii], ws->dt+ii, 0);
-
-SOLVE_KKT_STEP_OCP_QP(qp, ws);
-
-printf("\nux\n");
-for(ii=0; ii<=N; ii++)
-	blasfeo_print_tran_dvec(nu[ii]+nx[ii]+2*ns[ii], ws->dux+ii, 0);
-printf("\npi\n");
-for(ii=0; ii<N; ii++)
-	blasfeo_print_tran_dvec(nx[ii+1], ws->dpi+ii, 0);
-//printf("\nlam\n");
-//for(ii=0; ii<=N; ii++)
-//	blasfeo_print_tran_dvec(2*nb[ii]+2*ng[ii]+2*ns[ii], ws->dlam+ii, 0);
-printf("\nt\n");
-for(ii=0; ii<=N; ii++)
-	blasfeo_print_tran_dvec(2*nb[ii]+2*ng[ii]+2*ns[ii], ws->dt+ii, 0);
-
-exit(1);
-#endif
-
-		// alpha
-		COMPUTE_ALPHA_QP(cws);
-		if(kk+1<ws->stat_max)
-			ws->stat[ws->stat_m*(kk+1)+0] = cws->alpha;
-
-		// Mehrotra's predictor-corrector
-		if(arg->pred_corr==1)
-			{
-			// mu_aff
-			COMPUTE_MU_AFF_QP(cws);
-			if(kk+1<ws->stat_max)
-				ws->stat[ws->stat_m*(kk+1)+1] = cws->mu_aff;
-
-			tmp = cws->mu_aff/cws->mu;
-			cws->sigma = tmp*tmp*tmp;
-			if(kk+1<ws->stat_max)
-				ws->stat[ws->stat_m*(kk+1)+2] = cws->sigma;
-
-			COMPUTE_CENTERING_CORRECTION_QP(cws);
-
-			// fact and solve kkt
-			ws->use_Pb = 1;
-			SOLVE_KKT_STEP_OCP_QP(ws->qp_step, ws->sol_step, arg, ws);
-
-			// alpha
-			COMPUTE_ALPHA_QP(cws);
-			if(kk+1<ws->stat_max)
-				ws->stat[ws->stat_m*(kk+1)+3] = cws->alpha;
-
-			// conditional Mehrotra's predictor-corrector
-			if(arg->cond_pred_corr==1)
-				{
-
-				// save mu_aff (from prediction step)
-				mu_aff0 = cws->mu_aff;
-
-				// compute mu for predictor-corrector-centering
-				COMPUTE_MU_AFF_QP(cws);
-
-//				if(cws->mu_aff > 2.0*cws->mu)
-				if(cws->mu_aff > 2.0*mu_aff0)
-					{
-
-					// centering direction
-					COMPUTE_CENTERING_QP(cws);
-
-					// solve kkt
-					ws->use_Pb = 1;
-					SOLVE_KKT_STEP_OCP_QP(ws->qp_step, ws->sol_step, arg, ws);
-
-					// alpha
-					COMPUTE_ALPHA_QP(cws);
-					if(kk+1<ws->stat_max)
-						ws->stat[ws->stat_m*(kk+1)+3] = cws->alpha;
-
-					}
-
-				}
-
-			iter_ref_step = 0;
-			for(itref1=0; itref1<arg->itref_corr_max; itref1++)
-				{
-
-				OCP_QP_RES_COMPUTE_LIN(ws->qp_step, qp_sol, ws->sol_step, ws->res_itref, ws->res_workspace);
-
-//for(ii=0; ii<=N; ii++)
-//	blasfeo_dvecse(nu[ii]+nx[ii], 0.0, ws->res_itref->res_g+ii, 0);
-//for(ii=0; ii<N; ii++)
-//	blasfeo_dvecse(nx[ii+1], 0.0, ws->res_itref->res_b+ii, 0);
-//for(ii=0; ii<=N; ii++)
-//	blasfeo_dvecse(2*nb[ii]+2*ng[ii], 0.0, ws->res_itref->res_d+ii, 0);
-//for(ii=0; ii<=N; ii++)
-//	blasfeo_dvecse(2*nb[ii]+2*ng[ii], 0.0, ws->res_itref->res_m+ii, 0);
-				VECNRM_INF(cws->nv, ws->res_itref->res_g, 0, &itref_qp_norm[0]);
-				VECNRM_INF(cws->ne, ws->res_itref->res_b, 0, &itref_qp_norm[1]);
-				VECNRM_INF(cws->nc, ws->res_itref->res_d, 0, &itref_qp_norm[2]);
-				VECNRM_INF(cws->nc, ws->res_itref->res_m, 0, &itref_qp_norm[3]);
-
-				if(itref1==0)
-					{
-					itref_qp_norm0[0] = itref_qp_norm[0];
-					itref_qp_norm0[1] = itref_qp_norm[1];
-					itref_qp_norm0[2] = itref_qp_norm[2];
-					itref_qp_norm0[3] = itref_qp_norm[3];
-					}
-
-//printf("\nitref1 %d\t%e\t%e\t%e\t%e\n", itref1, itref_qp_norm[0], itref_qp_norm[1], itref_qp_norm[2], itref_qp_norm[3]);
-
-				if( \
-						(itref_qp_norm[0]<1e0*arg->res_g_max | itref_qp_norm[0]<1e-3*qp_res[0]) & \
-						(itref_qp_norm[1]<1e0*arg->res_b_max | itref_qp_norm[1]<1e-3*qp_res[1]) & \
-						(itref_qp_norm[2]<1e0*arg->res_d_max | itref_qp_norm[2]<1e-3*qp_res[2]) & \
-						(itref_qp_norm[3]<1e0*arg->res_m_max | itref_qp_norm[3]<1e-3*qp_res[3]) )
-//						(itref_qp_norm[0]<=arg->res_g_max) & \
-						(itref_qp_norm[1]<=arg->res_b_max) & \
-						(itref_qp_norm[2]<=arg->res_d_max) & \
-						(itref_qp_norm[3]<=arg->res_m_max) )
-					{
-					break;
-					}
-
-//printf("\nres_g\n");
-//ii = 0;
-//blasfeo_print_exp_tran_dvec(nu[ii]+nx[ii], ws->res_itref->res_g+ii, 0);
-//for(ii=0; ii<=N; ii++)
-//	blasfeo_print_exp_tran_dvec(nu[ii]+nx[ii], ws->res_itref->res_g+ii, 0);
-//printf("\nres_b\n");
-//for(ii=0; ii<N; ii++)
-//	blasfeo_print_exp_tran_dvec(nx[ii+1], ws->res_itref->res_b+ii, 0);
-//printf("\nres_d\n");
-//for(ii=0; ii<=N; ii++)
-//	blasfeo_print_exp_tran_dvec(2*nb[ii]+2*ng[ii], ws->res_itref->res_d+ii, 0);
-//printf("\nres_m\n");
-//for(ii=0; ii<=N; ii++)
-//	blasfeo_print_exp_tran_dvec(2*nb[ii]+2*ng[ii], ws->res_itref->res_m+ii, 0);
-
-				ws->use_Pb = 0;
-				SOLVE_KKT_STEP_OCP_QP(ws->qp_itref, ws->sol_itref, arg, ws);
-//				FACT_SOLVE_LQ_KKT_STEP_OCP_QP(ws->qp_itref, ws->sol_itref, arg, ws);
-				iter_ref_step = 1;
-
-//printf("\nux_corr\n");
-//ii = 0;
-//blasfeo_print_exp_tran_dvec(nu[ii]+nx[ii], ws->sol_itref->ux+ii, 0);
-//for(ii=0; ii<=N; ii++)
-//	blasfeo_print_exp_tran_dvec(nu[ii]+nx[ii], ws->sol_itref->ux+ii, 0);
-//printf("\npi_corr\n");
-//for(ii=0; ii<N; ii++)
-//	blasfeo_print_exp_tran_dvec(nx[ii+1], ws->sol_itref->pi+ii, 0);
-//printf("\nlam_corr\n");
-//for(ii=0; ii<=N; ii++)
-//	blasfeo_print_exp_tran_dvec(2*nb[ii]+2*ng[ii], ws->sol_itref->lam+ii, 0);
-//printf("\nt_corr\n");
-//for(ii=0; ii<=N; ii++)
-//	blasfeo_print_exp_tran_dvec(2*nb[ii]+2*ng[ii], ws->sol_itref->t+ii, 0);
-
-				for(ii=0; ii<=N; ii++)
-					AXPY(nu[ii]+nx[ii]+2*ns[ii], 1.0, ws->sol_itref->ux+ii, 0, ws->sol_step->ux+ii, 0, ws->sol_step->ux+ii, 0);
-				for(ii=0; ii<N; ii++)
-					AXPY(nx[ii+1], 1.0, ws->sol_itref->pi+ii, 0, ws->sol_step->pi+ii, 0, ws->sol_step->pi+ii, 0);
-				for(ii=0; ii<=N; ii++)
-					AXPY(2*nb[ii]+2*ng[ii]+2*ns[ii], 1.0, ws->sol_itref->lam+ii, 0, ws->sol_step->lam+ii, 0, ws->sol_step->lam+ii, 0);
-				for(ii=0; ii<=N; ii++)
-					AXPY(2*nb[ii]+2*ng[ii]+2*ns[ii], 1.0, ws->sol_itref->t+ii, 0, ws->sol_step->t+ii, 0, ws->sol_step->t+ii, 0);
-
-				}
-
-			if(iter_ref_step)
-				{
-				// alpha
-				COMPUTE_ALPHA_QP(cws);
-				if(kk+1<ws->stat_max)
-					ws->stat[ws->stat_m*(kk+1)+3] = cws->alpha;
-				}
-
-			}
-
-		//
-		UPDATE_VAR_QP(cws);
+		// compute delta step
+		OCP_QP_IPM_DELTA_STEP(kk, qp, qp_sol, arg, ws);
 
 		// compute residuals
 		OCP_QP_RES_COMPUTE(qp, qp_sol, ws->res, ws->res_workspace);
-		BACKUP_RES_M(cws);
+		if(ws->mask_constr)
+			{
+			// mask out disregarded constraints
+			for(ii=0; ii<=N; ii++)
+				VECMUL(2*ns[ii], qp->d_mask+ii, 2*nb[ii]+2*ng[ii], ws->res->res_g+ii, nu[ii]+nx[ii], ws->res->res_g+ii, nu[ii]+nx[ii]);
+			VECMUL(cws->nc, qp->d_mask, 0, ws->res->res_d, 0, ws->res->res_d, 0);
+			VECMUL(cws->nc, qp->d_mask, 0, ws->res->res_m, 0, ws->res->res_m, 0);
+			}
 		cws->mu = ws->res->res_mu;
 		if(kk+1<ws->stat_max)
 			ws->stat[ws->stat_m*(kk+1)+4] = ws->res->res_mu;
-
-		// compute infinity norm of residuals
-		VECNRM_INF(cws->nv, &str_res_g, 0, &qp_res[0]);
-		VECNRM_INF(cws->ne, &str_res_b, 0, &qp_res[1]);
-		VECNRM_INF(cws->nc, &str_res_d, 0, &qp_res[2]);
-		VECNRM_INF(cws->nc, &str_res_m, 0, &qp_res[3]);
-
+		OCP_QP_RES_COMPUTE_INF_NORM(ws->res);
+		// save infinity norm of residuals
 		if(kk+1<ws->stat_max)
 			{
-			ws->stat[ws->stat_m*(kk+1)+5] = qp_res[0];
-			ws->stat[ws->stat_m*(kk+1)+6] = qp_res[1];
-			ws->stat[ws->stat_m*(kk+1)+7] = qp_res[2];
-			ws->stat[ws->stat_m*(kk+1)+8] = qp_res[3];
+			ws->stat[ws->stat_m*(kk+1)+5] = qp_res_max[0];
+			ws->stat[ws->stat_m*(kk+1)+6] = qp_res_max[1];
+			ws->stat[ws->stat_m*(kk+1)+7] = qp_res_max[2];
+			ws->stat[ws->stat_m*(kk+1)+8] = qp_res_max[3];
 			}
-
-//printf("\niter %d\t%e\t%e\t%e\t%e\n", kk, qp_res[0], qp_res[1], qp_res[2], qp_res[3]);
 
 		}
 
 	ws->iter = kk;
-
-#if 0
-	printf("\nux\n");
-	for(ii=0; ii<=N; ii++)
-		blasfeo_print_tran_dvec(nu[ii]+nx[ii], qp_sol->ux+ii, 0);
-#endif
 
 	if(kk == arg->iter_max)
 		{
@@ -1868,24 +2447,11 @@ void OCP_QP_IPM_PREDICT(struct OCP_QP *qp, struct OCP_QP_SOL *qp_sol, struct OCP
 	str_res_d.pa = cws->res_d;
 	str_res_m.pa = cws->res_m;
 
-	REAL *qp_res = ws->qp_res;
-	qp_res[0] = 0;
-	qp_res[1] = 0;
-	qp_res[2] = 0;
-	qp_res[3] = 0;
-
-#if 0
-// compute residuals
-OCP_QP_RES_COMPUTE(qp, qp_sol, ws->res, ws->res_workspace);
-
-// compute infinity norm of residuals
-VECNRM_INF(cws->nv, &str_res_g, 0, &qp_res[0]);
-VECNRM_INF(cws->ne, &str_res_b, 0, &qp_res[1]);
-VECNRM_INF(cws->nc, &str_res_d, 0, &qp_res[2]);
-VECNRM_INF(cws->nc, &str_res_m, 0, &qp_res[3]);
-
-printf("\npredict\t%e\t%e\t%e\t%e\n", qp_res[0], qp_res[1], qp_res[2], qp_res[3]);
-#endif
+	REAL *qp_res_max = ws->res->res_max;
+	qp_res_max[0] = 0;
+	qp_res_max[1] = 0;
+	qp_res_max[2] = 0;
+	qp_res_max[3] = 0;
 
 	// load sol from bkp
 	for(ii=0; ii<cws->nv; ii++)
@@ -1905,12 +2471,12 @@ printf("\npredict\t%e\t%e\t%e\t%e\n", qp_res[0], qp_res[1], qp_res[2], qp_res[3]
 	OCP_QP_RES_COMPUTE(qp, qp_sol, ws->res, ws->res_workspace);
 
 	// compute infinity norm of residuals
-	VECNRM_INF(cws->nv, &str_res_g, 0, &qp_res[0]);
-	VECNRM_INF(cws->ne, &str_res_b, 0, &qp_res[1]);
-	VECNRM_INF(cws->nc, &str_res_d, 0, &qp_res[2]);
-	VECNRM_INF(cws->nc, &str_res_m, 0, &qp_res[3]);
+	VECNRM_INF(cws->nv, &str_res_g, 0, &qp_res_max[0]);
+	VECNRM_INF(cws->ne, &str_res_b, 0, &qp_res_max[1]);
+	VECNRM_INF(cws->nc, &str_res_d, 0, &qp_res_max[2]);
+	VECNRM_INF(cws->nc, &str_res_m, 0, &qp_res_max[3]);
 
-//printf("\npredict\t%e\t%e\t%e\t%e\n", qp_res[0], qp_res[1], qp_res[2], qp_res[3]);
+//printf("\npredict\t%e\t%e\t%e\t%e\n", qp_res_max[0], qp_res_max[1], qp_res_max[2], qp_res_max[3]);
 
 	// solve kkt
 	ws->use_Pb = 0;
@@ -1929,13 +2495,13 @@ printf("\npredict\t%e\t%e\t%e\t%e\n", qp_res[0], qp_res[1], qp_res[2], qp_res[3]
 		OCP_QP_RES_COMPUTE(qp, qp_sol, ws->res, ws->res_workspace);
 
 		// compute infinity norm of residuals
-		VECNRM_INF(cws->nv, &str_res_g, 0, &qp_res[0]);
-		VECNRM_INF(cws->ne, &str_res_b, 0, &qp_res[1]);
-		VECNRM_INF(cws->nc, &str_res_d, 0, &qp_res[2]);
-		VECNRM_INF(cws->nc, &str_res_m, 0, &qp_res[3]);
+		VECNRM_INF(cws->nv, &str_res_g, 0, &qp_res_max[0]);
+		VECNRM_INF(cws->ne, &str_res_b, 0, &qp_res_max[1]);
+		VECNRM_INF(cws->nc, &str_res_d, 0, &qp_res_max[2]);
+		VECNRM_INF(cws->nc, &str_res_m, 0, &qp_res_max[3]);
 		}
 
-//printf("\npredict\t%e\t%e\t%e\t%e\n", qp_res[0], qp_res[1], qp_res[2], qp_res[3]);
+//printf("\npredict\t%e\t%e\t%e\t%e\n", qp_res_max[0], qp_res_max[1], qp_res_max[2], qp_res_max[3]);
 
 	// TODO
 
@@ -2001,11 +2567,11 @@ void OCP_QP_IPM_SENS(struct OCP_QP *qp, struct OCP_QP_SOL *qp_sol, struct OCP_QP
 	str_res_d.pa = cws->res_d;
 	str_res_m.pa = cws->res_m;
 
-	REAL *qp_res = ws->qp_res;
-	qp_res[0] = 0;
-	qp_res[1] = 0;
-	qp_res[2] = 0;
-	qp_res[3] = 0;
+	REAL *qp_res_max = ws->qp_res_max;
+	qp_res_max[0] = 0;
+	qp_res_max[1] = 0;
+	qp_res_max[2] = 0;
+	qp_res_max[3] = 0;
 #endif
 
 #if 0
@@ -2013,12 +2579,12 @@ void OCP_QP_IPM_SENS(struct OCP_QP *qp, struct OCP_QP_SOL *qp_sol, struct OCP_QP
 OCP_QP_RES_COMPUTE(qp, qp_sol, ws->res, ws->res_workspace);
 
 // compute infinity norm of residuals
-VECNRM_INF(cws->nv, &str_res_g, 0, &qp_res[0]);
-VECNRM_INF(cws->ne, &str_res_b, 0, &qp_res[1]);
-VECNRM_INF(cws->nc, &str_res_d, 0, &qp_res[2]);
-VECNRM_INF(cws->nc, &str_res_m, 0, &qp_res[3]);
+VECNRM_INF(cws->nv, &str_res_g, 0, &qp_res_max[0]);
+VECNRM_INF(cws->ne, &str_res_b, 0, &qp_res_max[1]);
+VECNRM_INF(cws->nc, &str_res_d, 0, &qp_res_max[2]);
+VECNRM_INF(cws->nc, &str_res_m, 0, &qp_res_max[3]);
 
-printf("\npredict\t%e\t%e\t%e\t%e\n", qp_res[0], qp_res[1], qp_res[2], qp_res[3]);
+printf("\npredict\t%e\t%e\t%e\t%e\n", qp_res_max[0], qp_res_max[1], qp_res_max[2], qp_res_max[3]);
 #endif
 
 	// load sol from bkp
@@ -2031,7 +2597,7 @@ printf("\npredict\t%e\t%e\t%e\t%e\n", qp_res[0], qp_res[1], qp_res[2], qp_res[3]
 	for(ii=0; ii<cws->nc; ii++)
 		cws->t[ii] = cws->t_bkp[ii];
 
-//printf("\npredict\t%e\t%e\t%e\t%e\n", qp_res[0], qp_res[1], qp_res[2], qp_res[3]);
+//printf("\npredict\t%e\t%e\t%e\t%e\n", qp_res_max[0], qp_res_max[1], qp_res_max[2], qp_res_max[3]);
 
 	// solve kkt
 	ws->use_Pb = 0;
@@ -2052,14 +2618,14 @@ printf("\npredict\t%e\t%e\t%e\t%e\n", qp_res[0], qp_res[1], qp_res[2], qp_res[3]
 		OCP_QP_RES_COMPUTE(qp, qp_sol, ws->res, ws->res_workspace);
 
 		// compute infinity norm of residuals
-		VECNRM_INF(cws->nv, &str_res_g, 0, &qp_res[0]);
-		VECNRM_INF(cws->ne, &str_res_b, 0, &qp_res[1]);
-		VECNRM_INF(cws->nc, &str_res_d, 0, &qp_res[2]);
-		VECNRM_INF(cws->nc, &str_res_m, 0, &qp_res[3]);
+		VECNRM_INF(cws->nv, &str_res_g, 0, &qp_res_max[0]);
+		VECNRM_INF(cws->ne, &str_res_b, 0, &qp_res_max[1]);
+		VECNRM_INF(cws->nc, &str_res_d, 0, &qp_res_max[2]);
+		VECNRM_INF(cws->nc, &str_res_m, 0, &qp_res_max[3]);
 		}
 #endif
 
-//printf("\npredict\t%e\t%e\t%e\t%e\n", qp_res[0], qp_res[1], qp_res[2], qp_res[3]);
+//printf("\npredict\t%e\t%e\t%e\t%e\n", qp_res_max[0], qp_res_max[1], qp_res_max[2], qp_res_max[3]);
 
 	// TODO
 

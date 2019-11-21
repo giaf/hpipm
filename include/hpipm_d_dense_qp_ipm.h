@@ -50,6 +50,7 @@
 #include <hpipm_d_dense_qp_sol.h>
 
 
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -80,7 +81,7 @@ struct d_dense_qp_ipm_arg
 	int abs_form; // absolute IPM formulation
 	int comp_res_exit; // compute residuals on exit (only for abs_form==1)
 	int comp_res_pred; // compute residuals of prediction
-	int mask_constr; // use constr mask
+	int kkt_fact_alg; // 0 null-space, 1 schur-complement
 	int mode;
 	int memsize;
 	};
@@ -112,18 +113,31 @@ struct d_dense_qp_ipm_ws
 	struct blasfeo_dmat *lq0;
 	struct blasfeo_dmat *lq1;
 	struct blasfeo_dvec *tmp_m;
+	struct blasfeo_dmat *A_LQ;
+	struct blasfeo_dmat *A_Q;
+	struct blasfeo_dmat *Zt;
+	struct blasfeo_dmat *ZtH;
+	struct blasfeo_dmat *ZtHZ;
+	struct blasfeo_dvec *xy;
+	struct blasfeo_dvec *Yxy;
+	struct blasfeo_dvec *xz;
+	struct blasfeo_dvec *tmp_nv;
 	double *stat; // convergence statistics
 //	int *ipiv_v;
 //	int *ipiv_e;
 	void *lq_work0;
 	void *lq_work1;
+	void *lq_work_null;
+	void *orglq_work_null;
 	int iter; // iteration number
 	int stat_max; // iterations saved in stat
 	int stat_m; // numer of recorded stat per ipm iter
 	int scale;
 	int use_hess_fact;
+	int use_A_fact;
 	int status;
 	int lq_fact; // cache from arg
+	int mask_constr; // use constr mask
 	int memsize; // memory size (in bytes) of workspace
 	};
 
@@ -165,6 +179,12 @@ void d_dense_qp_ipm_arg_set_cond_pred_corr(int *cond_pred_corr, struct d_dense_q
 void d_dense_qp_ipm_arg_set_comp_res_pred(int *comp_res_pred, struct d_dense_qp_ipm_arg *arg);
 //
 void d_dense_qp_ipm_arg_set_comp_res_exit(int *comp_res_exit, struct d_dense_qp_ipm_arg *arg);
+//
+void d_dense_qp_ipm_arg_set_lam_min(double *value, struct d_dense_qp_ipm_arg *arg);
+//
+void d_dense_qp_ipm_arg_set_t_min(double *value, struct d_dense_qp_ipm_arg *arg);
+//
+void d_dense_qp_ipm_arg_set_kkt_fact_alg(int *value, struct d_dense_qp_ipm_arg *arg);
 
 //
 int d_dense_qp_ipm_ws_memsize(struct d_dense_qp_dim *qp_dim, struct d_dense_qp_ipm_arg *arg);

@@ -42,6 +42,8 @@
 #include <blasfeo_d_aux.h>
 #include <blasfeo_d_blas.h>
 
+#include <blasfeo_d_aux_ext_dep.h>
+
 #include <hpipm_d_dense_qp_dim.h>
 #include <hpipm_d_dense_qp.h>
 #include <hpipm_d_dense_qp_sol.h>
@@ -76,11 +78,13 @@
 #define GELQF_PD blasfeo_dgelqf_pd
 #define GELQF_WORKSIZE blasfeo_dgelqf_worksize
 #define GEMM_L_DIAG blasfeo_dgemm_dn
+#define GEMM_NT blasfeo_dgemm_nt
 #define GEMM_R_DIAG blasfeo_dgemm_nd
 #define GEMV_DIAG blasfeo_dgemv_d
 #define GEMV_N blasfeo_dgemv_n
 #define GEMV_T blasfeo_dgemv_t
 #define GESE blasfeo_dgese
+#define ORGLQ blasfeo_dorglq
 #define POTRF_L blasfeo_dpotrf_l
 #define POTRF_L_MN blasfeo_dpotrf_l_mn
 #define PSTRF_L dpstrf_l_libstr
@@ -92,6 +96,7 @@
 #define ROWPEI blasfeo_drowpei
 #define STRMAT blasfeo_dmat
 #define STRVEC blasfeo_dvec
+#define SYMV_L blasfeo_dsymv_l
 #define SYRK_LN blasfeo_dsyrk_ln
 #define SYRK_LN_MN blasfeo_dsyrk_ln_mn
 #define SYRK_POTRF_LN blasfeo_dsyrk_dpotrf_ln

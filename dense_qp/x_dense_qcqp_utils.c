@@ -40,6 +40,7 @@ void DENSE_QCQP_DIM_PRINT(struct DENSE_QCQP_DIM *qp_dim)
 	int ii;
 
 	int nv = qp_dim->nv;
+	int ne = qp_dim->ne;
 	int nb = qp_dim->nb;
 	int ng = qp_dim->ng;
 	int nq = qp_dim->nq;
@@ -49,6 +50,7 @@ void DENSE_QCQP_DIM_PRINT(struct DENSE_QCQP_DIM *qp_dim)
 	int ns = qp_dim->ns;
 
 	printf("nv = %d\n\n", nv);
+	printf("ne = %d\n\n", ne);
 	printf("nb = %d\n\n", nb);
 	printf("ng = %d\n\n", ng);
 	printf("nq = %d\n\n", nq);

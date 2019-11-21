@@ -39,6 +39,8 @@
 void FACT_SOLVE_KKT_UNCONSTR_DENSE_QP(struct DENSE_QP *qp, struct DENSE_QP_SOL *qp_sol, struct DENSE_QP_IPM_ARG *arg, struct DENSE_QP_IPM_WS *ws)
 	{
 
+	int ii, jj;
+
 	int nv = qp->dim->nv;
 	int ne = qp->dim->ne;
 	int nb = qp->dim->nb;
@@ -58,27 +60,143 @@ void FACT_SOLVE_KKT_UNCONSTR_DENSE_QP(struct DENSE_QP *qp, struct DENSE_QP_SOL *
 	struct STRMAT *AL = ws->AL;
 	struct STRVEC *lv = ws->lv;
 
+	// null space
+	struct STRMAT *A_LQ = ws->A_LQ;
+	struct STRMAT *A_Q = ws->A_Q;
+	struct STRMAT *Zt = ws->Zt;
+	struct STRMAT *ZtH = ws->ZtH;
+	struct STRMAT *ZtHZ = ws->ZtHZ;
+	struct STRVEC *xy = ws->xy;
+	struct STRVEC *Yxy = ws->Yxy;
+	struct STRVEC *xz = ws->xz;
+	struct STRVEC *tmp_nv = ws->tmp_nv;
+	void *lq_work_null = ws->lq_work_null;
+	void *orglq_work_null = ws->orglq_work_null;
+
 	if(ne>0)
 		{
-		POTRF_L(nv, Hg, 0, 0, Lv, 0, 0);
+		if(arg->kkt_fact_alg==0) // null space method
+			{
+			// TODO check to cache LQ across IPM iterations !!!!!
+			GELQF(ne, nv, A, 0, 0, A_LQ, 0, 0, lq_work_null);
+//			printf("\nA_LQ\n");
+//			blasfeo_print_dmat(ne, nv, A_LQ, 0, 0);
 
-//		GECP(ne, nv, A, 0, 0, AL, 0, 0);
-		TRSM_RLTN(ne, nv, 1.0, Lv, 0, 0, A, 0, 0, AL, 0, 0);
+			// TODO cache dA containing tau into another vector !!!!!
 
-		GESE(ne, ne, 0.0, Le, 0, 0);
-		SYRK_POTRF_LN(ne, nv, AL, 0, 0, AL, 0, 0, Le, 0, 0, Le, 0, 0);
+			// TODO change dorglq API to pass tau explicitly as a vector !!!!!
+			// TODO allocate its dedicated workspace !!!!!
+			ORGLQ(nv, nv, ne, A_LQ, 0, 0, A_Q, 0, 0, orglq_work_null);
+//			printf("\nA_Q\n");
+//			blasfeo_print_dmat(nv, nv, A_Q, 0, 0);
 
-		TRSV_LNN(nv, Lv, 0, 0, gz, 0, lv, 0);
+			GECP(nv-ne, nv, A_Q, ne, 0, Zt, 0, 0);
+//			printf("\nZt\n");
+//			blasfeo_print_dmat(nv-ne, nv, Zt, 0, 0);
 
-		GEMV_N(ne, nv, 1.0, AL, 0, 0, lv, 0, 1.0, b, 0, pi, 0);
+#if 0
+//printf("\nA\n");
+//blasfeo_print_dmat(ne, nv, A, 0, 0);
+//printf("\nA_LQ\n");
+//blasfeo_print_dmat(ne, nv, A_LQ, 0, 0);
+//printf("\nA_Q\n");
+//blasfeo_print_dmat(nv, nv, A_Q, 0, 0);
 
-		TRSV_LNN(ne, Le, 0, 0, pi, 0, pi, 0);
-		TRSV_LTN(ne, Le, 0, 0, pi, 0, pi, 0);
+for(ii=0; ii<ne; ii++)
+	for(jj=ii+1; jj<nv; jj++)
+		BLASFEO_DMATEL(A_LQ, ii, jj) = 0;
+blasfeo_dgemm_nn(ne, nv, nv, 1.0, A_LQ, 0, 0, A_Q, 0, 0, -1.0, A, 0, 0, AL, 0, 0);
+double max_err = 0.0;
+double tmp;
+for(ii=0; ii<ne; ii++)
+	for(jj=ii+1; jj<nv; jj++)
+		{
+		tmp = BLASFEO_DMATEL(AL, ii, jj);
+		max_err = fabs(tmp)>max_err ? fabs(tmp) : max_err;
+		}
+printf("\nA_LQ * A_Q - A max err %e\n", max_err);
+//blasfeo_print_exp_dmat(ne, nv, AL, 0, 0);
+//exit(1);
+#endif
 
-		GEMV_T(ne, nv, 1.0, A, 0, 0, pi, 0, -1.0, gz, 0, v, 0);
+			GEMM_NT(nv-ne, nv, nv, 1.0, Zt, 0, 0, Hg, 0, 0, 0.0, ZtH, 0, 0, ZtH, 0, 0);
+//			printf("\nZtH\n");
+//			blasfeo_print_dmat(nv-ne, nv, ZtH, 0, 0);
 
-		TRSV_LNN(nv, Lv, 0, 0, v, 0, v, 0);
-		TRSV_LTN(nv, Lv, 0, 0, v, 0, v, 0);
+			SYRK_LN(nv-ne, nv, 1.0, ZtH, 0, 0, Zt, 0, 0, 0.0, ZtHZ, 0, 0, ZtHZ, 0, 0);
+//			printf("\nZtHZ\n");
+//			blasfeo_print_dmat(nv-ne, nv-ne, ZtHZ, 0, 0);
+
+			POTRF_L(nv-ne, ZtHZ, 0, 0, ZtHZ, 0, 0);
+//			printf("\nZtHZ\n");
+//			blasfeo_print_dmat(nv-ne, nv-ne, ZtHZ, 0, 0);
+
+			TRSV_LNN(ne, A_LQ, 0, 0, b, 0, xy, 0);
+//			printf("\nxy\n");
+//			blasfeo_print_dvec(ne, xy, 0);
+
+			GEMV_T(ne, nv, 1.0, A_Q, 0, 0, xy, 0, 0.0, Yxy, 0, Yxy, 0);
+//			printf("\nYxy\n");
+//			blasfeo_print_dvec(nv, Yxy, 0);
+
+			GEMV_N(nv-ne, nv, -1.0, ZtH, 0, 0, Yxy, 0, 0.0, xz, 0, xz, 0);
+//			printf("\nxz\n");
+//			blasfeo_print_dvec(nv-ne, xz, 0);
+
+			GEMV_N(nv-ne, nv, -1.0, Zt, 0, 0, gz, 0, 1.0, xz, 0, xz, 0);
+//			printf("\nxz\n");
+//			blasfeo_print_dvec(nv-ne, xz, 0);
+
+			TRSV_LNN(nv-ne, ZtHZ, 0, 0, xz, 0, xz, 0);
+//			printf("\nxz\n");
+//			blasfeo_print_dvec(nv-ne, xz, 0);
+
+			TRSV_LTN(nv-ne, ZtHZ, 0, 0, xz, 0, xz, 0);
+//			printf("\nxz\n");
+//			blasfeo_print_dvec(nv-ne, xz, 0);
+
+			GEMV_T(nv-ne, nv, 1.0, Zt, 0, 0, xz, 0, 1.0, Yxy, 0, v, 0);
+//			printf("\nv\n");
+//			blasfeo_print_dvec(nv, v, 0);
+
+			SYMV_L(nv, nv, 1.0, Hg, 0, 0, v, 0, 1.0, gz, 0, tmp_nv, 0);
+//			printf("\ntmp_nv\n");
+//			blasfeo_print_dvec(nv, tmp_nv, 0);
+
+			GEMV_N(ne, nv, 1.0, A_Q, 0, 0, tmp_nv, 0, 0.0, pi, 0, pi, 0);
+//			printf("\npi\n");
+//			blasfeo_print_dvec(ne, pi, 0);
+
+			TRSV_LTN(ne, A_LQ, 0, 0, pi, 0, pi, 0);
+//			printf("\npi\n");
+//			blasfeo_print_dvec(ne, pi, 0);
+
+			// TODO
+//			printf("\ndone!\n");
+//			exit(1);
+			}
+		else // range space method
+			{
+			POTRF_L(nv, Hg, 0, 0, Lv, 0, 0);
+
+//			GECP(ne, nv, A, 0, 0, AL, 0, 0);
+			TRSM_RLTN(ne, nv, 1.0, Lv, 0, 0, A, 0, 0, AL, 0, 0);
+
+			GESE(ne, ne, 0.0, Le, 0, 0);
+			SYRK_POTRF_LN(ne, nv, AL, 0, 0, AL, 0, 0, Le, 0, 0, Le, 0, 0);
+
+			TRSV_LNN(nv, Lv, 0, 0, gz, 0, lv, 0);
+
+			GEMV_N(ne, nv, 1.0, AL, 0, 0, lv, 0, 1.0, b, 0, pi, 0);
+
+			TRSV_LNN(ne, Le, 0, 0, pi, 0, pi, 0);
+			TRSV_LTN(ne, Le, 0, 0, pi, 0, pi, 0);
+
+			GEMV_T(ne, nv, 1.0, A, 0, 0, pi, 0, -1.0, gz, 0, v, 0);
+
+			TRSV_LNN(nv, Lv, 0, 0, v, 0, v, 0);
+			TRSV_LTN(nv, Lv, 0, 0, v, 0, v, 0);
+			}
 		}
 	else
 		{
@@ -272,7 +390,7 @@ static void EXPAND_SLACKS(struct DENSE_QP *qp, struct DENSE_QP_SOL *qp_sol, stru
 void FACT_SOLVE_KKT_STEP_DENSE_QP(struct DENSE_QP *qp, struct DENSE_QP_SOL *qp_sol, struct DENSE_QP_IPM_ARG *arg, struct DENSE_QP_IPM_WS *ws)
 	{
 
-	int ii;
+	int ii, jj;
 
 	int nv = qp->dim->nv;
 	int ne = qp->dim->ne;
@@ -303,6 +421,19 @@ void FACT_SOLVE_KKT_STEP_DENSE_QP(struct DENSE_QP *qp, struct DENSE_QP_SOL *qp_s
 	struct STRVEC *gamma = ws->gamma;
 	struct STRVEC *tmp_nbg = ws->tmp_nbg;
 
+	// null space
+	struct STRMAT *A_LQ = ws->A_LQ;
+	struct STRMAT *A_Q = ws->A_Q;
+	struct STRMAT *Zt = ws->Zt;
+	struct STRMAT *ZtH = ws->ZtH;
+	struct STRMAT *ZtHZ = ws->ZtHZ;
+	struct STRVEC *xy = ws->xy;
+	struct STRVEC *Yxy = ws->Yxy;
+	struct STRVEC *xz = ws->xz;
+	struct STRVEC *tmp_nv = ws->tmp_nv;
+	void *lq_work_null = ws->lq_work_null;
+	void *orglq_work_null = ws->orglq_work_null;
+
 	REAL tmp;
 
 	struct CORE_QP_IPM_WORKSPACE *cws = ws->core_workspace;
@@ -315,11 +446,52 @@ void FACT_SOLVE_KKT_STEP_DENSE_QP(struct DENSE_QP *qp, struct DENSE_QP_SOL *qp_s
 	if(ne>0)
 		{
 
-		if(arg->scale)
+		if(arg->kkt_fact_alg==0) // null space method
 			{
 
-//			TRCP_L(nv, Hg, 0, 0, Lv, 0, 0);
-			GECP(nv, nv, Hg, 0, 0, Lv, 0, 0);
+			if(ws->use_A_fact==0)
+				{
+				GELQF(ne, nv, A, 0, 0, A_LQ, 0, 0, lq_work_null);
+
+				// TODO cache dA containing tau into another vector !!!!!
+
+				// TODO change dorglq API to pass tau explicitly as a vector !!!!!
+				// TODO allocate its dedicated workspace !!!!!
+				ORGLQ(nv, nv, ne, A_LQ, 0, 0, A_Q, 0, 0, orglq_work_null);
+
+				GECP(nv-ne, nv, A_Q, ne, 0, Zt, 0, 0);
+
+#if 0
+printf("\nA\n");
+blasfeo_print_dmat(ne, nv, A, 0, 0);
+printf("\nA_LQ\n");
+blasfeo_print_dmat(ne, nv, A_LQ, 0, 0);
+printf("\nA_Q\n");
+blasfeo_print_dmat(nv, nv, A_Q, 0, 0);
+
+for(ii=0; ii<ne; ii++)
+	for(jj=ii+1; jj<nv; jj++)
+		BLASFEO_DMATEL(A_LQ, ii, jj) = 0;
+blasfeo_dgemm_nn(ne, nv, nv, 1.0, A_LQ, 0, 0, A_Q, 0, 0, -1.0, A, 0, 0, AL, 0, 0);
+double max_err = 0.0;
+double tmp;
+for(ii=0; ii<ne; ii++)
+	for(jj=ii+1; jj<nv; jj++)
+		{
+		tmp = BLASFEO_DMATEL(AL, ii, jj);
+		max_err = fabs(tmp)>max_err ? fabs(tmp) : max_err;
+		}
+printf("\nA_LQ * A_Q - A max err %e\n", max_err);
+//blasfeo_print_exp_dmat(ne, nv, AL, 0, 0);
+//exit(1);
+#endif
+				ws->use_A_fact=1;
+				}
+
+
+			TRCP_L(nv, Hg, 0, 0, Lv, 0, 0);
+//			GECP(nv, nv, Hg, 0, 0, Lv, 0, 0);
+//			DIARE(nv, arg->reg_prim, Lv, 0, 0);
 
 			VECCP(nv, res_g, 0, lv, 0);
 
@@ -344,117 +516,180 @@ void FACT_SOLVE_KKT_STEP_DENSE_QP(struct DENSE_QP *qp, struct DENSE_QP_SOL *qp_s
 				SYRK_LN(nv, ng, 1.0, Ctx, 0, 0, Ct, 0, 0, 1.0, Lv, 0, 0, Lv, 0, 0);
 				}
 
-			DIAEX(nv, 1.0, Lv, 0, 0, sv, 0);
-			for(ii=0; ii<nv; ii++)
-				{
-				tmp = sqrt(sv->pa[ii]);
-//				tmp = sqrt(tmp);
-//				tmp = sqrt(sv->pa[ii]+tmp);
-//				tmp = 1.0;
-				sv->pa[ii] = tmp==0 ? 1.0 : 1.0/tmp;
-				}
+			TRTR_L(nv, Lv, 0, 0, Lv, 0, 0);
 
-			GEMM_L_DIAG(nv, nv, 1.0, sv, 0, Lv, 0, 0, 0.0, Lv, 0, 0, Lv, 0, 0);
-			GEMM_R_DIAG(nv, nv, 1.0, Lv, 0, 0, sv, 0, 0.0, Lv, 0, 0, Lv, 0, 0);
-			DIARE(nv, arg->reg_prim, Lv, 0, 0);
-			POTRF_L(nv, Lv, 0, 0, Lv, 0, 0);
+			GEMM_NT(nv-ne, nv, nv, 1.0, Zt, 0, 0, Lv, 0, 0, 0.0, ZtH, 0, 0, ZtH, 0, 0);
+			SYRK_LN(nv-ne, nv, 1.0, ZtH, 0, 0, Zt, 0, 0, 0.0, ZtHZ, 0, 0, ZtHZ, 0, 0);
+			DIARE(nv-ne, arg->reg_prim, ZtHZ, 0, 0);
+			POTRF_L(nv-ne, ZtHZ, 0, 0, ZtHZ, 0, 0);
 
-			GEMV_DIAG(nv, 1.0, sv, 0, lv, 0, 0.0, lv, 0, lv, 0);
-			VECCP(nv, lv, 0, dv, 0);
+			TRSV_LNN(ne, A_LQ, 0, 0, res_b, 0, xy, 0);
+//printf("\nxy\n");
+//blasfeo_print_tran_dvec(ne, xy, 0);
+			GEMV_T(ne, nv, 1.0, A_Q, 0, 0, xy, 0, 0.0, Yxy, 0, Yxy, 0);
 
-			GECP(ne, nv, A, 0, 0, AL, 0, 0);
-			GEMM_R_DIAG(ne, nv, 1.0, AL, 0, 0, sv, 0, 0.0, AL, 0, 0, AL, 0, 0);
-			TRSM_RLTN(ne, nv, 1.0, Lv, 0, 0, AL, 0, 0, AL, 0, 0);
+			GEMV_N(nv-ne, nv, -1.0, ZtH, 0, 0, Yxy, 0, 0.0, xz, 0, xz, 0);
+			GEMV_N(nv-ne, nv, -1.0, Zt, 0, 0, lv, 0, 1.0, xz, 0, xz, 0);
+			TRSV_LNN(nv-ne, ZtHZ, 0, 0, xz, 0, xz, 0);
+			TRSV_LTN(nv-ne, ZtHZ, 0, 0, xz, 0, xz, 0);
 
-			TRSV_LNN(nv, Lv, 0, 0, lv, 0, lv, 0);
+			GEMV_T(nv-ne, nv, 1.0, Zt, 0, 0, xz, 0, 1.0, Yxy, 0, dv, 0);
 
-			GESE(ne, ne, 0.0, Le, 0, 0);
-			SYRK_LN(ne, nv, 1.0, AL, 0, 0, AL, 0, 0, 1.0, Le, 0, 0, Le, 0, 0);
-
-			DIAEX(ne, 1.0, Le, 0, 0, se, 0);
-			for(ii=0; ii<ne; ii++)
-				{
-				tmp = sqrt(se->pa[ii]);
-//				tmp = sqrt(tmp);
-//				tmp = sqrt(se->pa[ii]+tmp);
-//				tmp = 1.0;
-				se->pa[ii] = tmp==0 ? 1.0 : 1.0/tmp;
-				}
-
-			GEMM_L_DIAG(ne, ne, 1.0, se, 0, Le, 0, 0, 0.0, Le, 0, 0, Le, 0, 0);
-			GEMM_R_DIAG(ne, ne, 1.0, Le, 0, 0, se, 0, 0.0, Le, 0, 0, Le, 0, 0);
-			DIARE(ne, arg->reg_prim, Le, 0, 0);
-			POTRF_L(ne, Le, 0, 0, Le, 0, 0);
-
-			GEMV_N(ne, nv, 1.0, AL, 0, 0, lv, 0, 1.0, res_b, 0, dpi, 0);
-
-			GEMV_DIAG(ne, 1.0, se, 0, dpi, 0, 0.0, dpi, 0, dpi, 0);
-			TRSV_LNN(ne, Le, 0, 0, dpi, 0, dpi, 0);
-			TRSV_LTN(ne, Le, 0, 0, dpi, 0, dpi, 0);
-			GEMV_DIAG(ne, 1.0, se, 0, dpi, 0, 0.0, dpi, 0, dpi, 0);
-
-			GEMV_T(ne, nv, 1.0, A, 0, 0, dpi, 0, 0.0, lv, 0, lv, 0);
-			GEMV_DIAG(nv, 1.0, sv, 0, lv, 0, -1.0, dv, 0, dv, 0);
-
-			TRSV_LNN(nv, Lv, 0, 0, dv, 0, dv, 0);
-			TRSV_LTN(nv, Lv, 0, 0, dv, 0, dv, 0);
-			GEMV_DIAG(nv, 1.0, sv, 0, dv, 0, 0.0, dv, 0, dv, 0);
+			SYMV_L(nv, nv, 1.0, Lv, 0, 0, dv, 0, 1.0, lv, 0, tmp_nv, 0);
+			GEMV_N(ne, nv, 1.0, A_Q, 0, 0, tmp_nv, 0, 0.0, dpi, 0, dpi, 0);
+			TRSV_LTN(ne, A_LQ, 0, 0, dpi, 0, dpi, 0);
 
 			}
-		else // no scale
+		else // schur-complement method
 			{
 
-//			TRCP_L(nv, Hg, 0, 0, Lv, 0, 0);
-			GECP(nv, nv, Hg, 0, 0, Lv, 0, 0);
+			if(arg->scale)
+				{
 
-			VECCP(nv, res_g, 0, lv, 0);
+	//			TRCP_L(nv, Hg, 0, 0, Lv, 0, 0);
+				GECP(nv, nv, Hg, 0, 0, Lv, 0, 0);
 
-			if(ns>0)
-				{
-				COND_SLACKS_FACT_SOLVE(qp, qp_sol, arg, ws);
-				}
-			else if(nb+ng>0)
-				{
-				AXPY(nb+ng,  1.0, Gamma, nb+ng, Gamma, 0, tmp_nbg+0, 0);
-				AXPY(nb+ng, -1.0, gamma, nb+ng, gamma, 0, tmp_nbg+1, 0);
-				}
-			if(nb>0)
-				{
-				DIAAD_SP(nb, 1.0, tmp_nbg+0, 0, idxb, Lv, 0, 0);
-				VECAD_SP(nb, 1.0, tmp_nbg+1, 0, idxb, lv, 0);
-				}
-			if(ng>0)
-				{
-				GEMV_N(nv, ng, 1.0, Ct, 0, 0, tmp_nbg+1, nb, 1.0, lv, 0, lv, 0);
-				GEMM_R_DIAG(nv, ng, 1.0, Ct, 0, 0, tmp_nbg+0, nb, 0.0, Ctx, 0, 0, Ctx, 0, 0);
-				SYRK_POTRF_LN(nv, ng, Ctx, 0, 0, Ct, 0, 0, Lv, 0, 0, Lv, 0, 0);
-				}
-			else
-				{
+				VECCP(nv, res_g, 0, lv, 0);
+
+				if(ns>0)
+					{
+					COND_SLACKS_FACT_SOLVE(qp, qp_sol, arg, ws);
+					}
+				else if(nb+ng>0)
+					{
+					AXPY(nb+ng,  1.0, Gamma, nb+ng, Gamma, 0, tmp_nbg+0, 0);
+					AXPY(nb+ng, -1.0, gamma, nb+ng, gamma, 0, tmp_nbg+1, 0);
+					}
+				if(nb>0)
+					{
+					DIAAD_SP(nb, 1.0, tmp_nbg+0, 0, idxb, Lv, 0, 0);
+					VECAD_SP(nb, 1.0, tmp_nbg+1, 0, idxb, lv, 0);
+					}
+				if(ng>0)
+					{
+					GEMV_N(nv, ng, 1.0, Ct, 0, 0, tmp_nbg+1, nb, 1.0, lv, 0, lv, 0);
+					GEMM_R_DIAG(nv, ng, 1.0, Ct, 0, 0, tmp_nbg+0, nb, 0.0, Ctx, 0, 0, Ctx, 0, 0);
+					SYRK_LN(nv, ng, 1.0, Ctx, 0, 0, Ct, 0, 0, 1.0, Lv, 0, 0, Lv, 0, 0);
+					}
+
+				DIAEX(nv, 1.0, Lv, 0, 0, sv, 0);
+				for(ii=0; ii<nv; ii++)
+					{
+					tmp = sqrt(sv->pa[ii]);
+	//				tmp = sqrt(tmp);
+	//				tmp = sqrt(sv->pa[ii]+tmp);
+	//				tmp = 1.0;
+					sv->pa[ii] = tmp==0 ? 1.0 : 1.0/tmp;
+					}
+
+				GEMM_L_DIAG(nv, nv, 1.0, sv, 0, Lv, 0, 0, 0.0, Lv, 0, 0, Lv, 0, 0);
+				GEMM_R_DIAG(nv, nv, 1.0, Lv, 0, 0, sv, 0, 0.0, Lv, 0, 0, Lv, 0, 0);
+				DIARE(nv, arg->reg_prim, Lv, 0, 0);
 				POTRF_L(nv, Lv, 0, 0, Lv, 0, 0);
+
+				GEMV_DIAG(nv, 1.0, sv, 0, lv, 0, 0.0, lv, 0, lv, 0);
+				VECCP(nv, lv, 0, dv, 0);
+
+				GECP(ne, nv, A, 0, 0, AL, 0, 0);
+				GEMM_R_DIAG(ne, nv, 1.0, AL, 0, 0, sv, 0, 0.0, AL, 0, 0, AL, 0, 0);
+				TRSM_RLTN(ne, nv, 1.0, Lv, 0, 0, AL, 0, 0, AL, 0, 0);
+
+				TRSV_LNN(nv, Lv, 0, 0, lv, 0, lv, 0);
+
+				GESE(ne, ne, 0.0, Le, 0, 0);
+				SYRK_LN(ne, nv, 1.0, AL, 0, 0, AL, 0, 0, 1.0, Le, 0, 0, Le, 0, 0);
+
+				DIAEX(ne, 1.0, Le, 0, 0, se, 0);
+				for(ii=0; ii<ne; ii++)
+					{
+					tmp = sqrt(se->pa[ii]);
+	//				tmp = sqrt(tmp);
+	//				tmp = sqrt(se->pa[ii]+tmp);
+	//				tmp = 1.0;
+					se->pa[ii] = tmp==0 ? 1.0 : 1.0/tmp;
+					}
+
+				GEMM_L_DIAG(ne, ne, 1.0, se, 0, Le, 0, 0, 0.0, Le, 0, 0, Le, 0, 0);
+				GEMM_R_DIAG(ne, ne, 1.0, Le, 0, 0, se, 0, 0.0, Le, 0, 0, Le, 0, 0);
+				DIARE(ne, arg->reg_prim, Le, 0, 0);
+				POTRF_L(ne, Le, 0, 0, Le, 0, 0);
+
+				GEMV_N(ne, nv, 1.0, AL, 0, 0, lv, 0, 1.0, res_b, 0, dpi, 0);
+
+				GEMV_DIAG(ne, 1.0, se, 0, dpi, 0, 0.0, dpi, 0, dpi, 0);
+				TRSV_LNN(ne, Le, 0, 0, dpi, 0, dpi, 0);
+				TRSV_LTN(ne, Le, 0, 0, dpi, 0, dpi, 0);
+				GEMV_DIAG(ne, 1.0, se, 0, dpi, 0, 0.0, dpi, 0, dpi, 0);
+
+				GEMV_T(ne, nv, 1.0, A, 0, 0, dpi, 0, 0.0, lv, 0, lv, 0);
+				GEMV_DIAG(nv, 1.0, sv, 0, lv, 0, -1.0, dv, 0, dv, 0);
+
+				TRSV_LNN(nv, Lv, 0, 0, dv, 0, dv, 0);
+				TRSV_LTN(nv, Lv, 0, 0, dv, 0, dv, 0);
+				GEMV_DIAG(nv, 1.0, sv, 0, dv, 0, 0.0, dv, 0, dv, 0);
+
 				}
+			else // no scale
+				{
 
-			VECCP(nv, lv, 0, dv, 0);
+	//			TRCP_L(nv, Hg, 0, 0, Lv, 0, 0);
+				GECP(nv, nv, Hg, 0, 0, Lv, 0, 0);
 
-			TRSM_RLTN(ne, nv, 1.0, Lv, 0, 0, A, 0, 0, AL, 0, 0);
+				VECCP(nv, res_g, 0, lv, 0);
 
-			TRSV_LNN(nv, Lv, 0, 0, lv, 0, lv, 0);
+				if(ns>0)
+					{
+					COND_SLACKS_FACT_SOLVE(qp, qp_sol, arg, ws);
+					}
+				else if(nb+ng>0)
+					{
+					AXPY(nb+ng,  1.0, Gamma, nb+ng, Gamma, 0, tmp_nbg+0, 0);
+					AXPY(nb+ng, -1.0, gamma, nb+ng, gamma, 0, tmp_nbg+1, 0);
+					}
+				if(nb>0)
+					{
+					DIAAD_SP(nb, 1.0, tmp_nbg+0, 0, idxb, Lv, 0, 0);
+					VECAD_SP(nb, 1.0, tmp_nbg+1, 0, idxb, lv, 0);
+					}
+				if(ng>0)
+					{
+					GEMV_N(nv, ng, 1.0, Ct, 0, 0, tmp_nbg+1, nb, 1.0, lv, 0, lv, 0);
+					GEMM_R_DIAG(nv, ng, 1.0, Ct, 0, 0, tmp_nbg+0, nb, 0.0, Ctx, 0, 0, Ctx, 0, 0);
+					SYRK_POTRF_LN(nv, ng, Ctx, 0, 0, Ct, 0, 0, Lv, 0, 0, Lv, 0, 0);
+					}
+				else
+					{
+					POTRF_L(nv, Lv, 0, 0, Lv, 0, 0);
+					}
+	//int pd = 1;
+	//for(ii=0; ii<nv; ii++)
+	//	if(Lv->dA[ii]==0.0)
+	//		pd = 0;
+	//printf(" chol pd %d\n", pd);
 
-			GEMV_N(ne, nv, 1.0, AL, 0, 0, lv, 0, 1.0, res_b, 0, dpi, 0);
+				VECCP(nv, lv, 0, dv, 0);
 
-			GESE(ne, ne, 0.0, Le, 0, 0);
-			SYRK_POTRF_LN(ne, nv, AL, 0, 0, AL, 0, 0, Le, 0, 0, Le, 0, 0);
+				TRSM_RLTN(ne, nv, 1.0, Lv, 0, 0, A, 0, 0, AL, 0, 0);
 
-			TRSV_LNN(ne, Le, 0, 0, dpi, 0, dpi, 0);
-			TRSV_LTN(ne, Le, 0, 0, dpi, 0, dpi, 0);
+				TRSV_LNN(nv, Lv, 0, 0, lv, 0, lv, 0);
 
-			GEMV_T(ne, nv, 1.0, A, 0, 0, dpi, 0, -1.0, dv, 0, dv, 0);
+				GEMV_N(ne, nv, 1.0, AL, 0, 0, lv, 0, 1.0, res_b, 0, dpi, 0);
 
-			TRSV_LNN(nv, Lv, 0, 0, dv, 0, dv, 0);
-			TRSV_LTN(nv, Lv, 0, 0, dv, 0, dv, 0);
+				GESE(ne, ne, 0.0, Le, 0, 0);
+				SYRK_POTRF_LN(ne, nv, AL, 0, 0, AL, 0, 0, Le, 0, 0, Le, 0, 0);
+
+				TRSV_LNN(ne, Le, 0, 0, dpi, 0, dpi, 0);
+				TRSV_LTN(ne, Le, 0, 0, dpi, 0, dpi, 0);
+
+				GEMV_T(ne, nv, 1.0, A, 0, 0, dpi, 0, -1.0, dv, 0, dv, 0);
+
+				TRSV_LNN(nv, Lv, 0, 0, dv, 0, dv, 0);
+				TRSV_LTN(nv, Lv, 0, 0, dv, 0, dv, 0);
 
 
-			} // scale
+				} // scale
+
+			}
 
 		}
 	else // ne==0
@@ -548,6 +783,9 @@ void FACT_SOLVE_KKT_STEP_DENSE_QP(struct DENSE_QP *qp, struct DENSE_QP_SOL *qp_s
 
 		} // ne>0
 
+//blasfeo_print_tran_dvec(nv, dv, 0);
+//blasfeo_print_tran_dvec(ne, dpi, 0);
+//exit(1);
 	if(nb+ng>0)
 		{
 		if(nb>0)
@@ -608,6 +846,19 @@ void FACT_LQ_SOLVE_KKT_STEP_DENSE_QP(struct DENSE_QP *qp, struct DENSE_QP_SOL *q
 	struct STRMAT *lq0 = ws->lq0;
 	struct STRMAT *lq1 = ws->lq1;
 
+	// null space
+	struct STRMAT *A_LQ = ws->A_LQ;
+	struct STRMAT *A_Q = ws->A_Q;
+	struct STRMAT *Zt = ws->Zt;
+	struct STRMAT *ZtH = ws->ZtH;
+	struct STRMAT *ZtHZ = ws->ZtHZ;
+	struct STRVEC *xy = ws->xy;
+	struct STRVEC *Yxy = ws->Yxy;
+	struct STRVEC *xz = ws->xz;
+	struct STRVEC *tmp_nv = ws->tmp_nv;
+	void *lq_work_null = ws->lq_work_null;
+	void *orglq_work_null = ws->orglq_work_null;
+
 	REAL tmp;
 
 	struct CORE_QP_IPM_WORKSPACE *cws = ws->core_workspace;
@@ -622,122 +873,198 @@ void FACT_LQ_SOLVE_KKT_STEP_DENSE_QP(struct DENSE_QP *qp, struct DENSE_QP_SOL *q
 	if(ne>0)
 		{
 
-		// XXX needed ???
-		GESE(nv, nv+nv+ng, 0.0, lq1, 0, 0); // TODO not the first part for HP and RF
+		if(arg->kkt_fact_alg==0) // null space method
+			{
 
-		if(ws->use_hess_fact==0)
-			{
-			POTRF_L(nv, Hg, 0, 0, Lv+1, 0, 0);
-			ws->use_hess_fact=1;
-			}
-
-		VECCP(nv, res_g, 0, lv, 0);
-
-		if(ns>0)
-			{
-			COND_SLACKS_FACT_SOLVE(qp, qp_sol, arg, ws);
-			}
-		else if(nb+ng>0)
-			{
-			AXPY(nb+ng,  1.0, Gamma, nb+ng, Gamma, 0, tmp_nbg+0, 0);
-			AXPY(nb+ng, -1.0, gamma, nb+ng, gamma, 0, tmp_nbg+1, 0);
-			}
-		if(nb>0)
-			{
-			for(ii=0; ii<nb; ii++)
+			if(ws->use_A_fact==0)
 				{
-				tmp = BLASFEO_DVECEL(tmp_nbg+0, ii);
-				tmp = tmp>=0.0 ? tmp : 0.0;
-				tmp = sqrt( tmp );
-				BLASFEO_DMATEL(lq1, idxb[ii], nv+idxb[ii]) = tmp>0.0 ? tmp : 0.0;
+				GELQF(ne, nv, A, 0, 0, A_LQ, 0, 0, lq_work_null);
+
+				// TODO cache dA containing tau into another vector !!!!!
+
+				// TODO change dorglq API to pass tau explicitly as a vector !!!!!
+				// TODO allocate its dedicated workspace !!!!!
+				ORGLQ(nv, nv, ne, A_LQ, 0, 0, A_Q, 0, 0, orglq_work_null);
+
+				GECP(nv-ne, nv, A_Q, ne, 0, Zt, 0, 0);
+
+				ws->use_A_fact=1;
 				}
-			VECAD_SP(nb, 1.0, tmp_nbg+1, 0, idxb, lv, 0);
-			}
-		if(ng>0)
-			{
-			for(ii=0; ii<ng; ii++)
+
+
+			TRCP_L(nv, Hg, 0, 0, Lv, 0, 0);
+//			GECP(nv, nv, Hg, 0, 0, Lv, 0, 0);
+
+			VECCP(nv, res_g, 0, lv, 0);
+
+			if(ns>0)
 				{
-				tmp = BLASFEO_DVECEL(tmp_nbg+0, nb+ii);
-				tmp = tmp>=0.0 ? tmp : 0.0;
-				tmp = sqrt( tmp );
-				BLASFEO_DVECEL(tmp_nbg+0, nb+ii) = tmp;
+				COND_SLACKS_FACT_SOLVE(qp, qp_sol, arg, ws);
 				}
-			GEMM_R_DIAG(nv, ng, 1.0, Ct, 0, 0, tmp_nbg+0, nb, 0.0, lq1, 0, nv+nv, lq1, 0, nv+nv);
-			GEMV_N(nv, ng, 1.0, Ct, 0, 0, tmp_nbg+1, nb, 1.0, lv, 0, lv, 0);
+			else if(nb+ng>0)
+				{
+				AXPY(nb+ng,  1.0, Gamma, nb+ng, Gamma, 0, tmp_nbg+0, 0);
+				AXPY(nb+ng, -1.0, gamma, nb+ng, gamma, 0, tmp_nbg+1, 0);
+				}
+			if(nb>0)
+				{
+				DIAAD_SP(nb, 1.0, tmp_nbg+0, 0, idxb, Lv, 0, 0);
+				VECAD_SP(nb, 1.0, tmp_nbg+1, 0, idxb, lv, 0);
+				}
+			if(ng>0)
+				{
+				GEMV_N(nv, ng, 1.0, Ct, 0, 0, tmp_nbg+1, nb, 1.0, lv, 0, lv, 0);
+				GEMM_R_DIAG(nv, ng, 1.0, Ct, 0, 0, tmp_nbg+0, nb, 0.0, Ctx, 0, 0, Ctx, 0, 0);
+				SYRK_LN(nv, ng, 1.0, Ctx, 0, 0, Ct, 0, 0, 1.0, Lv, 0, 0, Lv, 0, 0);
+				}
+
+			TRTR_L(nv, Lv, 0, 0, Lv, 0, 0);
+
+			GEMM_NT(nv-ne, nv, nv, 1.0, Zt, 0, 0, Lv, 0, 0, 0.0, ZtH, 0, 0, ZtH, 0, 0);
+			SYRK_LN(nv-ne, nv, 1.0, ZtH, 0, 0, Zt, 0, 0, 0.0, ZtHZ, 0, 0, ZtHZ, 0, 0);
+			POTRF_L(nv-ne, ZtHZ, 0, 0, ZtHZ, 0, 0);
+
+			TRSV_LNN(ne, A_LQ, 0, 0, res_b, 0, xy, 0);
+			GEMV_T(ne, nv, 1.0, A_Q, 0, 0, xy, 0, 0.0, Yxy, 0, Yxy, 0);
+
+			GEMV_N(nv-ne, nv, -1.0, ZtH, 0, 0, Yxy, 0, 0.0, xz, 0, xz, 0);
+			GEMV_N(nv-ne, nv, -1.0, Zt, 0, 0, lv, 0, 1.0, xz, 0, xz, 0);
+			TRSV_LNN(nv-ne, ZtHZ, 0, 0, xz, 0, xz, 0);
+			TRSV_LTN(nv-ne, ZtHZ, 0, 0, xz, 0, xz, 0);
+
+			GEMV_T(nv-ne, nv, 1.0, Zt, 0, 0, xz, 0, 1.0, Yxy, 0, dv, 0);
+
+			SYMV_L(nv, nv, 1.0, Lv, 0, 0, dv, 0, 1.0, lv, 0, tmp_nv, 0);
+			GEMV_N(ne, nv, 1.0, A_Q, 0, 0, tmp_nv, 0, 0.0, dpi, 0, dpi, 0);
+			TRSV_LTN(ne, A_LQ, 0, 0, dpi, 0, dpi, 0);
+
 			}
+		else // schur-complement method
+			{
 
-		DIARE(nv, arg->reg_prim, lq1, 0, nv);
+			// XXX needed ???
+			GESE(nv, nv+nv+ng, 0.0, lq1, 0, 0); // TODO not the first part for HP and RF
 
-//blasfeo_print_dmat(nv, nv, lq1, 0, 0);
-//blasfeo_print_dmat(nv, nv, lq1, 0, nv);
-//blasfeo_print_dmat(nv, ng, lq1, 0, nv+ng);
+			if(ws->use_hess_fact==0)
+				{
+				POTRF_L(nv, Hg, 0, 0, Lv+1, 0, 0);
+				ws->use_hess_fact=1;
+				}
+	//int pd = 1;
+	//for(ii=0; ii<nv; ii++)
+	//	if((Lv+1)->dA[ii]==0.0)
+	//		pd = 0;
+	//printf(" lq pd %d\n", pd);
+
+			VECCP(nv, res_g, 0, lv, 0);
+
+			if(ns>0)
+				{
+				COND_SLACKS_FACT_SOLVE(qp, qp_sol, arg, ws);
+				}
+			else if(nb+ng>0)
+				{
+				AXPY(nb+ng,  1.0, Gamma, nb+ng, Gamma, 0, tmp_nbg+0, 0);
+				AXPY(nb+ng, -1.0, gamma, nb+ng, gamma, 0, tmp_nbg+1, 0);
+				}
+			if(nb>0)
+				{
+				for(ii=0; ii<nb; ii++)
+					{
+					tmp = BLASFEO_DVECEL(tmp_nbg+0, ii);
+					tmp = tmp>=0.0 ? tmp : 0.0;
+					tmp = sqrt( tmp );
+					BLASFEO_DMATEL(lq1, idxb[ii], nv+idxb[ii]) = tmp>0.0 ? tmp : 0.0;
+					}
+				VECAD_SP(nb, 1.0, tmp_nbg+1, 0, idxb, lv, 0);
+				}
+			if(ng>0)
+				{
+				for(ii=0; ii<ng; ii++)
+					{
+					tmp = BLASFEO_DVECEL(tmp_nbg+0, nb+ii);
+					tmp = tmp>=0.0 ? tmp : 0.0;
+					tmp = sqrt( tmp );
+					BLASFEO_DVECEL(tmp_nbg+0, nb+ii) = tmp;
+					}
+				GEMM_R_DIAG(nv, ng, 1.0, Ct, 0, 0, tmp_nbg+0, nb, 0.0, lq1, 0, nv+nv, lq1, 0, nv+nv);
+				GEMV_N(nv, ng, 1.0, Ct, 0, 0, tmp_nbg+1, nb, 1.0, lv, 0, lv, 0);
+				}
+
+			DIARE(nv, arg->reg_prim, lq1, 0, nv);
+
+	//blasfeo_print_dmat(nv, nv, lq1, 0, 0);
+	//blasfeo_print_dmat(nv, nv, lq1, 0, nv);
+	//blasfeo_print_dmat(nv, ng, lq1, 0, nv+ng);
 
 #if defined(LA_HIGH_PERFORMANCE) | defined(LA_REFERENCE)
-//		TRCP_L(nv, Lv+1, 0, 0, lq1, 0, 0);
-//		GELQF_PD(nv, nv+nv+ng, lq1, 0, 0, lq1, 0, 0, lq_work1);
-//		GELQF_PD_LA(nv, nv+ng, lq1, 0, 0, lq1, 0, nv, lq_work1);
-//		GELQF_PD_LLA(nv, ng, lq1, 0, 0, lq1, 0, nv, lq1, 0, 2*nv, lq_work1);
-//		TRCP_L(nv, lq1, 0, 0, Lv, 0, 0);
-		TRCP_L(nv, Lv+1, 0, 0, Lv, 0, 0);
-		GELQF_PD_LLA(nv, ng, Lv, 0, 0, lq1, 0, nv, lq1, 0, 2*nv, lq_work1); // TODO reduce lq1 size !!!
+	//		TRCP_L(nv, Lv+1, 0, 0, lq1, 0, 0);
+	//		GELQF_PD(nv, nv+nv+ng, lq1, 0, 0, lq1, 0, 0, lq_work1);
+	//		GELQF_PD_LA(nv, nv+ng, lq1, 0, 0, lq1, 0, nv, lq_work1);
+	//		GELQF_PD_LLA(nv, ng, lq1, 0, 0, lq1, 0, nv, lq1, 0, 2*nv, lq_work1);
+	//		TRCP_L(nv, lq1, 0, 0, Lv, 0, 0);
+			TRCP_L(nv, Lv+1, 0, 0, Lv, 0, 0);
+			GELQF_PD_LLA(nv, ng, Lv, 0, 0, lq1, 0, nv, lq1, 0, 2*nv, lq_work1); // TODO reduce lq1 size !!!
 #else // LA_BLAS_WRAPPER
-		TRCP_L(nv, Lv+1, 0, 0, lq1, 0, 0);
-		GELQF(nv, nv+nv+ng, lq1, 0, 0, lq1, 0, 0, lq_work1);
-		TRCP_L(nv, lq1, 0, 0, Lv, 0, 0);
-		for(ii=0; ii<nv; ii++)
-			if(BLASFEO_DMATEL(Lv, ii, ii) < 0)
-				COLSC(nv-ii, -1.0, Lv, ii, ii);
+			TRCP_L(nv, Lv+1, 0, 0, lq1, 0, 0);
+			GELQF(nv, nv+nv+ng, lq1, 0, 0, lq1, 0, 0, lq_work1);
+			TRCP_L(nv, lq1, 0, 0, Lv, 0, 0);
+			for(ii=0; ii<nv; ii++)
+				if(BLASFEO_DMATEL(Lv, ii, ii) < 0)
+					COLSC(nv-ii, -1.0, Lv, ii, ii);
 #endif
 
-//blasfeo_print_dmat(nv, nv, Lv, 0, 0);
+	//blasfeo_print_dmat(nv, nv, Lv, 0, 0);
 
-		VECCP(nv, lv, 0, dv, 0);
+			VECCP(nv, lv, 0, dv, 0);
 
-		TRSM_RLTN(ne, nv, 1.0, Lv, 0, 0, A, 0, 0, AL, 0, 0);
+			TRSM_RLTN(ne, nv, 1.0, Lv, 0, 0, A, 0, 0, AL, 0, 0);
 
-		TRSV_LNN(nv, Lv, 0, 0, lv, 0, lv, 0);
+			TRSV_LNN(nv, Lv, 0, 0, lv, 0, lv, 0);
 
-		GEMV_N(ne, nv, 1.0, AL, 0, 0, lv, 0, 1.0, res_b, 0, dpi, 0);
+			GEMV_N(ne, nv, 1.0, AL, 0, 0, lv, 0, 1.0, res_b, 0, dpi, 0);
 
-		GECP(ne, nv, AL, 0, 0, lq0, 0, ne);
+			GECP(ne, nv, AL, 0, 0, lq0, 0, ne);
 
 #if defined(LA_HIGH_PERFORMANCE)
-//		GESE(ne, ne, 0.0, lq0, 0, 0);
-//		DIARE(ne, arg->reg_dual, lq0, 0, 0);
-//		GELQF_PD(ne, ne+nv, lq0, 0, 0, lq0, 0, 0, lq_work0);
-//		GELQF_PD_LA(ne, nv, lq0, 0, 0, lq0, 0, ne, lq_work0);
-//		TRCP_L(ne, lq0, 0, 0, Le, 0, 0);
-		GESE(ne, ne, 0.0, Le, 0, 0);
-		DIARE(ne, arg->reg_dual, Le, 0, 0);
-		GELQF_PD_LA(ne, nv, Le, 0, 0, lq0, 0, ne, lq_work0); // TODO reduce lq0 size !!!
+	//		GESE(ne, ne, 0.0, lq0, 0, 0);
+	//		DIARE(ne, arg->reg_dual, lq0, 0, 0);
+	//		GELQF_PD(ne, ne+nv, lq0, 0, 0, lq0, 0, 0, lq_work0);
+	//		GELQF_PD_LA(ne, nv, lq0, 0, 0, lq0, 0, ne, lq_work0);
+	//		TRCP_L(ne, lq0, 0, 0, Le, 0, 0);
+			GESE(ne, ne, 0.0, Le, 0, 0);
+			DIARE(ne, arg->reg_dual, Le, 0, 0);
+			GELQF_PD_LA(ne, nv, Le, 0, 0, lq0, 0, ne, lq_work0); // TODO reduce lq0 size !!!
 #elif defined(LA_REFERENCE)
-//		GESE(ne, ne, 0.0, lq0, 0, 0);
-//		DIARE(ne, arg->reg_dual, lq0, 0, 0);
-//		GELQF_PD(ne, ne+nv, lq0, 0, 0, lq0, 0, 0, lq_work0);
-//		GELQF_PD_LA(ne, nv, lq0, 0, 0, lq0, 0, ne, lq_work0);
-//		TRCP_L(ne, lq0, 0, 0, Le, 0, 0);
-		GESE(ne, ne, 0.0, Le, 0, 0);
-		DIARE(ne, arg->reg_dual, Le, 0, 0);
-		GELQF_PD_LA(ne, nv, Le, 0, 0, lq0, 0, ne, lq_work0); // TODO reduce lq0 size !!!
+	//		GESE(ne, ne, 0.0, lq0, 0, 0);
+	//		DIARE(ne, arg->reg_dual, lq0, 0, 0);
+	//		GELQF_PD(ne, ne+nv, lq0, 0, 0, lq0, 0, 0, lq_work0);
+	//		GELQF_PD_LA(ne, nv, lq0, 0, 0, lq0, 0, ne, lq_work0);
+	//		TRCP_L(ne, lq0, 0, 0, Le, 0, 0);
+			GESE(ne, ne, 0.0, Le, 0, 0);
+			DIARE(ne, arg->reg_dual, Le, 0, 0);
+			GELQF_PD_LA(ne, nv, Le, 0, 0, lq0, 0, ne, lq_work0); // TODO reduce lq0 size !!!
 #else // LA_BLAS_WRAPPER
-		GESE(ne, ne, 0.0, lq0, 0, 0);
-		DIARE(ne, arg->reg_dual, lq0, 0, 0);
-		GELQF(ne, ne+nv, lq0, 0, 0, lq0, 0, 0, lq_work0);
-		TRCP_L(ne, lq0, 0, 0, Le, 0, 0);
-		for(ii=0; ii<ne; ii++)
-			if(BLASFEO_DMATEL(Le, ii, ii) < 0)
-				COLSC(ne-ii, -1.0, Le, ii, ii);
+			GESE(ne, ne, 0.0, lq0, 0, 0);
+			DIARE(ne, arg->reg_dual, lq0, 0, 0);
+			GELQF(ne, ne+nv, lq0, 0, 0, lq0, 0, 0, lq_work0);
+			TRCP_L(ne, lq0, 0, 0, Le, 0, 0);
+			for(ii=0; ii<ne; ii++)
+				if(BLASFEO_DMATEL(Le, ii, ii) < 0)
+					COLSC(ne-ii, -1.0, Le, ii, ii);
 #endif
 
-//		blasfeo_print_dmat(ne, ne, Le, 0, 0);
+	//		blasfeo_print_dmat(ne, ne, Le, 0, 0);
 
-		TRSV_LNN(ne, Le, 0, 0, dpi, 0, dpi, 0);
-		TRSV_LTN(ne, Le, 0, 0, dpi, 0, dpi, 0);
+			TRSV_LNN(ne, Le, 0, 0, dpi, 0, dpi, 0);
+			TRSV_LTN(ne, Le, 0, 0, dpi, 0, dpi, 0);
 
-		GEMV_T(ne, nv, 1.0, A, 0, 0, dpi, 0, -1.0, dv, 0, dv, 0);
+			GEMV_T(ne, nv, 1.0, A, 0, 0, dpi, 0, -1.0, dv, 0, dv, 0);
 
-		TRSV_LNN(nv, Lv, 0, 0, dv, 0, dv, 0);
-		TRSV_LTN(nv, Lv, 0, 0, dv, 0, dv, 0);
+			TRSV_LNN(nv, Lv, 0, 0, dv, 0, dv, 0);
+			TRSV_LTN(nv, Lv, 0, 0, dv, 0, dv, 0);
+
+			} // schur-complement method
 
 		}
 	else // ne==0
@@ -1209,6 +1536,18 @@ void SOLVE_KKT_STEP_DENSE_QP(struct DENSE_QP *qp, struct DENSE_QP_SOL *qp_sol, s
 	struct STRVEC *gamma = ws->gamma;
 	struct STRVEC *tmp_nbg = ws->tmp_nbg;
 
+	// null space
+	struct STRMAT *A_LQ = ws->A_LQ;
+	struct STRMAT *A_Q = ws->A_Q;
+	struct STRMAT *Zt = ws->Zt;
+	struct STRMAT *ZtH = ws->ZtH;
+	struct STRMAT *ZtHZ = ws->ZtHZ;
+	struct STRVEC *xy = ws->xy;
+	struct STRVEC *Yxy = ws->Yxy;
+	struct STRVEC *xz = ws->xz;
+	struct STRVEC *tmp_nv = ws->tmp_nv;
+	void *lq_work = ws->lq_work_null;
+
 	struct CORE_QP_IPM_WORKSPACE *cws = ws->core_workspace;
 
 	if(nb>0 | ng>0)
@@ -1216,88 +1555,92 @@ void SOLVE_KKT_STEP_DENSE_QP(struct DENSE_QP *qp, struct DENSE_QP_SOL *qp_sol, s
 		COMPUTE_GAMMA_QP(qp->d->pa, qp->m->pa, cws);
 		}
 
+	VECCP(nv, res_g, 0, lv, 0);
+
+	if(ns>0)
+		{
+		COND_SLACKS_SOLVE(qp, qp_sol, ws);
+		}
+	else if(nb+ng>0)
+		{
+		AXPY(nb+ng, -1.0, gamma, nb+ng, gamma, 0, tmp_nbg+1, 0);
+		}
+	if(nb>0)
+		{
+		VECAD_SP(nb, 1.0, tmp_nbg+1, 0, idxb, lv, 0);
+		}
+	if(ng>0)
+		{
+		GEMV_N(nv, ng, 1.0, Ct, 0, 0, tmp_nbg+1, nb, 1.0, lv, 0, lv, 0);
+		}
+
 	if(ne>0)
 		{
 
-		if(ws->scale)
+		if(arg->kkt_fact_alg==0) // null space method
 			{
 
-			VECCP(nv, res_g, 0, lv, 0);
+			TRSV_LNN(ne, A_LQ, 0, 0, res_b, 0, xy, 0);
+			GEMV_T(ne, nv, 1.0, A_Q, 0, 0, xy, 0, 0.0, Yxy, 0, Yxy, 0);
 
-			if(ns>0)
-				{
-				COND_SLACKS_SOLVE(qp, qp_sol, ws);
-				}
-			else if(nb+ng>0)
-				{
-				AXPY(nb+ng, -1.0, gamma, nb+ng, gamma, 0, tmp_nbg+1, 0);
-				}
-			if(nb>0)
-				{
-				VECAD_SP(nb, 1.0, tmp_nbg+1, 0, idxb, lv, 0);
-				}
-			if(ng>0)
-				{
-				GEMV_N(nv, ng, 1.0, Ct, 0, 0, tmp_nbg+1, nb, 1.0, lv, 0, lv, 0);
-				}
+			GEMV_N(nv-ne, nv, -1.0, ZtH, 0, 0, Yxy, 0, 0.0, xz, 0, xz, 0);
+			GEMV_N(nv-ne, nv, -1.0, Zt, 0, 0, lv, 0, 1.0, xz, 0, xz, 0);
+			TRSV_LNN(nv-ne, ZtHZ, 0, 0, xz, 0, xz, 0);
+			TRSV_LTN(nv-ne, ZtHZ, 0, 0, xz, 0, xz, 0);
 
-			GEMV_DIAG(nv, 1.0, sv, 0, lv, 0, 0.0, lv, 0, lv, 0);
-			VECCP(nv, lv, 0, dv, 0);
+			GEMV_T(nv-ne, nv, 1.0, Zt, 0, 0, xz, 0, 1.0, Yxy, 0, dv, 0);
 
-			TRSV_LNN(nv, Lv, 0, 0, lv, 0, lv, 0);
-
-			GEMV_N(ne, nv, 1.0, AL, 0, 0, lv, 0, 1.0, res_b, 0, dpi, 0);
-
-			GEMV_DIAG(ne, 1.0, se, 0, dpi, 0, 0.0, dpi, 0, dpi, 0);
-			TRSV_LNN(ne, Le, 0, 0, dpi, 0, dpi, 0);
-			TRSV_LTN(ne, Le, 0, 0, dpi, 0, dpi, 0);
-			GEMV_DIAG(ne, 1.0, se, 0, dpi, 0, 0.0, dpi, 0, dpi, 0);
-
-			GEMV_T(ne, nv, 1.0, A, 0, 0, dpi, 0, 0.0, lv, 0, lv, 0);
-			GEMV_DIAG(nv, 1.0, sv, 0, lv, 0, -1.0, dv, 0, dv, 0);
-
-			TRSV_LNN(nv, Lv, 0, 0, dv, 0, dv, 0);
-			TRSV_LTN(nv, Lv, 0, 0, dv, 0, dv, 0);
-			GEMV_DIAG(nv, 1.0, sv, 0, dv, 0, 0.0, dv, 0, dv, 0);
+			SYMV_L(nv, nv, 1.0, Lv, 0, 0, dv, 0, 1.0, lv, 0, tmp_nv, 0);
+			GEMV_N(ne, nv, 1.0, A_Q, 0, 0, tmp_nv, 0, 0.0, dpi, 0, dpi, 0);
+			TRSV_LTN(ne, A_LQ, 0, 0, dpi, 0, dpi, 0);
 
 			}
-		else // no scale
+		else // schur-complement method
 			{
 
-			VECCP(nv, res_g, 0, lv, 0);
-
-			if(ns>0)
+			if(ws->scale)
 				{
-				COND_SLACKS_SOLVE(qp, qp_sol, ws);
+
+				GEMV_DIAG(nv, 1.0, sv, 0, lv, 0, 0.0, lv, 0, lv, 0);
+				VECCP(nv, lv, 0, dv, 0);
+
+				TRSV_LNN(nv, Lv, 0, 0, lv, 0, lv, 0);
+
+				GEMV_N(ne, nv, 1.0, AL, 0, 0, lv, 0, 1.0, res_b, 0, dpi, 0);
+
+				GEMV_DIAG(ne, 1.0, se, 0, dpi, 0, 0.0, dpi, 0, dpi, 0);
+				TRSV_LNN(ne, Le, 0, 0, dpi, 0, dpi, 0);
+				TRSV_LTN(ne, Le, 0, 0, dpi, 0, dpi, 0);
+				GEMV_DIAG(ne, 1.0, se, 0, dpi, 0, 0.0, dpi, 0, dpi, 0);
+
+				GEMV_T(ne, nv, 1.0, A, 0, 0, dpi, 0, 0.0, lv, 0, lv, 0);
+				GEMV_DIAG(nv, 1.0, sv, 0, lv, 0, -1.0, dv, 0, dv, 0);
+
+				TRSV_LNN(nv, Lv, 0, 0, dv, 0, dv, 0);
+				TRSV_LTN(nv, Lv, 0, 0, dv, 0, dv, 0);
+				GEMV_DIAG(nv, 1.0, sv, 0, dv, 0, 0.0, dv, 0, dv, 0);
+
 				}
-			else if(nb+ng>0)
+			else // no scale
 				{
-				AXPY(nb+ng, -1.0, gamma, nb+ng, gamma, 0, tmp_nbg+1, 0);
-				}
-			if(nb>0)
-				{
-				VECAD_SP(nb, 1.0, tmp_nbg+1, 0, idxb, lv, 0);
-				}
-			if(ng>0)
-				{
-				GEMV_N(nv, ng, 1.0, Ct, 0, 0, tmp_nbg+1, nb, 1.0, lv, 0, lv, 0);
-				}
 
-			VECCP(nv, lv, 0, dv, 0);
+				VECCP(nv, lv, 0, dv, 0);
 
-			TRSV_LNN(nv, Lv, 0, 0, lv, 0, lv, 0);
+				TRSV_LNN(nv, Lv, 0, 0, lv, 0, lv, 0);
 
-			GEMV_N(ne, nv, 1.0, AL, 0, 0, lv, 0, 1.0, res_b, 0, dpi, 0);
+				GEMV_N(ne, nv, 1.0, AL, 0, 0, lv, 0, 1.0, res_b, 0, dpi, 0);
 
-			TRSV_LNN(ne, Le, 0, 0, dpi, 0, dpi, 0);
-			TRSV_LTN(ne, Le, 0, 0, dpi, 0, dpi, 0);
+				TRSV_LNN(ne, Le, 0, 0, dpi, 0, dpi, 0);
+				TRSV_LTN(ne, Le, 0, 0, dpi, 0, dpi, 0);
 
-			GEMV_T(ne, nv, 1.0, A, 0, 0, dpi, 0, -1.0, dv, 0, dv, 0);
+				GEMV_T(ne, nv, 1.0, A, 0, 0, dpi, 0, -1.0, dv, 0, dv, 0);
 
-			TRSV_LNN(nv, Lv, 0, 0, dv, 0, dv, 0);
-			TRSV_LTN(nv, Lv, 0, 0, dv, 0, dv, 0);
+				TRSV_LNN(nv, Lv, 0, 0, dv, 0, dv, 0);
+				TRSV_LTN(nv, Lv, 0, 0, dv, 0, dv, 0);
 
-			} // scale
+				} // scale
+
+			} // schur-complemen method
 
 		}
 	else // ne==0
@@ -1305,25 +1648,6 @@ void SOLVE_KKT_STEP_DENSE_QP(struct DENSE_QP *qp, struct DENSE_QP_SOL *qp_sol, s
 
 		if(ws->scale)
 			{
-
-			VECCP(nv, res_g, 0, lv, 0);
-
-			if(ns>0)
-				{
-				COND_SLACKS_SOLVE(qp, qp_sol, ws);
-				}
-			else if(nb+ng>0)
-				{
-				AXPY(nb+ng, -1.0, gamma, nb+ng, gamma, 0, tmp_nbg+1, 0);
-				}
-			if(nb>0)
-				{
-				VECAD_SP(nb, 1.0, tmp_nbg+1, 0, idxb, lv, 0);
-				}
-			if(ng>0)
-				{
-				GEMV_N(nv, ng, 1.0, Ct, 0, 0, tmp_nbg+1, nb, 1.0, lv, 0, lv, 0);
-				}
 
 			VECCP(nv, lv, 0, dv, 0);
 			VECSC(nv, -1.0, dv, 0);
@@ -1336,25 +1660,6 @@ void SOLVE_KKT_STEP_DENSE_QP(struct DENSE_QP *qp, struct DENSE_QP_SOL *qp_sol, s
 			}
 		else // no scale
 			{
-
-			VECCP(nv, res_g, 0, lv, 0);
-
-			if(ns>0)
-				{
-				COND_SLACKS_SOLVE(qp, qp_sol, ws);
-				}
-			else if(nb+ng>0)
-				{
-				AXPY(nb+ng, -1.0, gamma, nb+ng, gamma, 0, tmp_nbg+1, 0);
-				}
-			if(nb>0)
-				{
-				VECAD_SP(nb, 1.0, tmp_nbg+1, 0, idxb, lv, 0);
-				}
-			if(ng>0)
-				{
-				GEMV_N(nv, ng, 1.0, Ct, 0, 0, tmp_nbg+1, nb, 1.0, lv, 0, lv, 0);
-				}
 
 			VECCP(nv, lv, 0, dv, 0);
 			VECSC(nv, -1.0, dv, 0);

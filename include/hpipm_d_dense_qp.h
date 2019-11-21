@@ -76,11 +76,14 @@ struct d_dense_qp
 int d_dense_qp_memsize(struct d_dense_qp_dim *dim);
 //
 void d_dense_qp_create(struct d_dense_qp_dim *dim, struct d_dense_qp *qp, void *memory);
+
+// setters - colmaj
 //
 void d_dense_qp_set_all(double *H, double *g, double *A, double *b, int *idxb, double *d_lb, double *d_ub, double *C, double *d_lg, double *d_ug, double *Zl, double *Zu, double *zl, double *zu, int *idxs, double *d_ls, double *d_us, struct d_dense_qp *qp);
 //
 void d_dense_qp_get_all(struct d_dense_qp *qp, double *H, double *g, double *A, double *b, int *idxb, double *d_lb, double *d_ub, double *C, double *d_lg, double *d_ug, double *Zl, double *Zu, double *zl, double *zu, int *idxs, double *d_ls, double *d_us);
-
+//
+void d_dense_qp_set(char *field, void *value, struct d_dense_qp *qp);
 //
 void d_dense_qp_set_H(double *H, struct d_dense_qp *qp);
 //
@@ -128,8 +131,8 @@ void d_dense_qp_set_us(double *us, struct d_dense_qp *qp);
 //
 void d_dense_qp_set_us_mask(double *us, struct d_dense_qp *qp);
 
-// getters (COLMAJ)
-
+// getters - colmaj
+//
 void d_dense_qp_get_H(struct d_dense_qp *qp, double *H);
 //
 void d_dense_qp_get_g(struct d_dense_qp *qp, double *g);
@@ -163,8 +166,12 @@ void d_dense_qp_get_zu(struct d_dense_qp *qp, double *zu);
 void d_dense_qp_get_ls(struct d_dense_qp *qp, double *ls);
 //
 void d_dense_qp_get_us(struct d_dense_qp *qp, double *us);
+
+// setters - rowmaj
 //
 void d_dense_qp_set_all_rowmaj(double *H, double *g, double *A, double *b, int *idxb, double *d_lb, double *d_ub, double *C, double *d_lg, double *d_ug, double *Zl, double *Zu, double *zl, double *zu, int *idxs, double *d_ls, double *d_us, struct d_dense_qp *qp);
+
+// getters - rowmaj
 //
 void d_dense_qp_get_all_rowmaj(struct d_dense_qp *qp, double *H, double *g, double *A, double *b, int *idxb, double *d_lb, double *d_ub, double *C, double *d_lg, double *d_ug, double *Zl, double *Zu, double *zl, double *zu, int *idxs, double *d_ls, double *d_us);
 

@@ -91,6 +91,7 @@
 #define GEMV_T blasfeo_sgemv_t
 #define HPIPM_MODE hpipm_mode
 #define INIT_VAR_DENSE_QP s_init_var_dense_qp
+#define ORGLQ_WORKSIZE blasfeo_sorglq_worksize
 #define MEMSIZE_CORE_QP_IPM s_memsize_core_qp_ipm
 #define REAL float
 #define SIZE_STRMAT blasfeo_memsize_smat
@@ -125,6 +126,9 @@
 #define DENSE_QP_IPM_ARG_SET_COND_PRED_CORR s_dense_qp_ipm_arg_set_cond_pred_corr
 #define DENSE_QP_IPM_ARG_SET_COMP_RES_PRED s_dense_qp_ipm_arg_set_comp_res_pred
 #define DENSE_QP_IPM_ARG_SET_COMP_RES_EXIT s_dense_qp_ipm_arg_set_comp_res_exit
+#define DENSE_QP_IPM_ARG_SET_LAM_MIN s_dense_qp_ipm_arg_set_lam_min
+#define DENSE_QP_IPM_ARG_SET_T_MIN s_dense_qp_ipm_arg_set_t_min
+#define DENSE_QP_IPM_ARG_SET_KKT_FACT_ALG s_dense_qp_ipm_arg_set_kkt_fact_alg
 // ipm
 #define DENSE_QP_IPM_WS_MEMSIZE s_dense_qp_ipm_ws_memsize
 #define DENSE_QP_IPM_WS_CREATE s_dense_qp_ipm_ws_create

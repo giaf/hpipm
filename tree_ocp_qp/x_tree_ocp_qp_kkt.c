@@ -609,7 +609,7 @@ void FACT_SOLVE_KKT_UNCONSTR_TREE_OCP_QP(struct TREE_OCP_QP *qp, struct TREE_OCP
 
 
 
-static void COND_SLACKS_FACT_SOLVE(int ss, struct TREE_OCP_QP *qp, struct TREE_OCP_QP_SOL *qp_sol, struct TREE_OCP_QP_IPM_WORKSPACE *ws)
+static void COND_SLACKS_FACT_SOLVE(int ss, struct TREE_OCP_QP *qp, struct TREE_OCP_QP_SOL *qp_sol, struct TREE_OCP_QP_IPM_ARG *arg, struct TREE_OCP_QP_IPM_WORKSPACE *ws)
 	{
 
 	int ii, idx;
@@ -655,8 +655,8 @@ static void COND_SLACKS_FACT_SOLVE(int ss, struct TREE_OCP_QP *qp, struct TREE_O
 	for(ii=0; ii<ns0; ii++)
 		{
 		idx = idxs0[ii];
-		ptr_Zs_inv[0+ii]   = ptr_Z[0+ii]   + ptr_Gamma[0+idx]       + ptr_Gamma[2*nb0+2*ng0+ii];
-		ptr_Zs_inv[ns0+ii] = ptr_Z[ns0+ii] + ptr_Gamma[nb0+ng0+idx] + ptr_Gamma[2*nb0+2*ng0+ns0+ii];
+		ptr_Zs_inv[0+ii]   = ptr_Z[0+ii]   + arg->reg_prim + ptr_Gamma[0+idx]       + ptr_Gamma[2*nb0+2*ng0+ii];
+		ptr_Zs_inv[ns0+ii] = ptr_Z[ns0+ii] + arg->reg_prim + ptr_Gamma[nb0+ng0+idx] + ptr_Gamma[2*nb0+2*ng0+ns0+ii];
 		ptr_dux[nu0+nx0+ii]      = ptr_res_g[nu0+nx0+ii]     + ptr_gamma[0+idx]   + ptr_gamma[2*nb0+2*ng0+ii];
 		ptr_dux[nu0+nx0+ns0+ii]  = ptr_res_g[nu0+nx0+ns0+ii] + ptr_gamma[nb0+ng0+idx] + ptr_gamma[2*nb0+2*ng0+ns0+ii];
 		ptr_Zs_inv[0+ii]   = 1.0/ptr_Zs_inv[0+ii];
@@ -862,7 +862,7 @@ void FACT_SOLVE_KKT_STEP_TREE_OCP_QP(struct TREE_OCP_QP *qp, struct TREE_OCP_QP_
 
 		if(ns[idx]>0)
 			{
-			COND_SLACKS_FACT_SOLVE(idx, qp, qp_sol, ws);
+			COND_SLACKS_FACT_SOLVE(idx, qp, qp_sol, arg, ws);
 			}
 		else if(nb[idx]+ng[idx]>0)
 			{
@@ -1035,7 +1035,7 @@ void FACT_LQ_SOLVE_KKT_STEP_TREE_OCP_QP(struct TREE_OCP_QP *qp, struct TREE_OCP_
 
 		if(ns[idx]>0)
 			{
-			COND_SLACKS_FACT_SOLVE(idx, qp, qp_sol, ws);
+			COND_SLACKS_FACT_SOLVE(idx, qp, qp_sol, arg, ws);
 			}
 		else if(nb[idx]+ng[idx]>0)
 			{

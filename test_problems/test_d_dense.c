@@ -127,13 +127,13 @@ int main()
 * qp dimension and data
 ************************************************/
 
-#if 1
+#if 0
 	int nv = 2;
 	int ne = 1;
-	int nb = 2;
+	int nb = 0; //2;
 	int ng = 0;
-	int ns = 2;
-	int nsb = 2;
+	int ns = 0; //2;
+	int nsb = 0; //2;
 	int nsg = 0;
 
 	double H[] = {4.0, 1.0, 1.0, 2.0};
@@ -155,6 +155,34 @@ int main()
 	int idxs[] = {0, 1};
 	double d_ls[] = {0, 0};
 	double d_us[] = {0, 0};
+#elif 1
+	int nv = 3;
+	int ne = 2;
+	int nb = 0; //2;
+	int ng = 0;
+	int ns = 0; //2;
+	int nsb = 0; //2;
+	int nsg = 0;
+
+	double H[] = {6.0, 2.0, 1.0, 2.0, 5.0, 2.0, 1.0, 2.0, 4.0};
+	double g[] = {-8.0, -3.0, -3.0};
+	double A[] = {1.0, 0.0, 0.0, 1.0, 1.0, 1.0};
+	double b[] = {3.0, 0.0};
+//	double d_lb[] = {0.0, 0.0};
+//	double d_ub[] = {INFINITY, INFINITY};
+	double d_lb[] = {};
+	double d_ub[] = {};
+	int idxb[] = {};
+	double C[] = {};
+	double d_lg[] = {};
+	double d_ug[] = {};
+	double Zl[] = {};
+	double Zu[] = {};
+	double zl[] = {};
+	double zu[] = {};
+	int idxs[] = {};
+	double d_ls[] = {};
+	double d_us[] = {};
 #else
 	int nv = 10;
 	int ne = 0;
@@ -280,6 +308,24 @@ int main()
 //	enum hpipm_mode mode = ROBUST;
 	d_dense_qp_ipm_arg_set_default(mode, &arg);
 
+	int iter_max = 20; //25;
+	double mu0 = 1e1;
+	int comp_res_exit = 1;
+	double tol_stat = 1e-12;
+	double tol_eq = 1e-12;
+	double tol_ineq = 1e-12;
+	double tol_comp = 1e-12;
+	int kkt_fact_alg = 1;
+
+	d_dense_qp_ipm_arg_set_iter_max(&iter_max, &arg);
+	d_dense_qp_ipm_arg_set_mu0(&mu0, &arg);
+	d_dense_qp_ipm_arg_set_comp_res_exit(&comp_res_exit, &arg);
+	d_dense_qp_ipm_arg_set_tol_stat(&tol_stat, &arg);
+	d_dense_qp_ipm_arg_set_tol_eq(&tol_eq, &arg);
+	d_dense_qp_ipm_arg_set_tol_ineq(&tol_ineq, &arg);
+	d_dense_qp_ipm_arg_set_tol_comp(&tol_comp, &arg);
+	d_dense_qp_ipm_arg_set_kkt_fact_alg(&kkt_fact_alg, &arg);
+
 //	arg.alpha_min = 1e-8;
 //	arg.res_g_max = 1e-8;
 //	arg.res_b_max = 1e-8;
@@ -381,7 +427,7 @@ int main()
 	double max_res_comp; d_dense_qp_ipm_get_max_res_comp(&workspace, &max_res_comp);
 	printf("\nipm max res: stat = %e, eq =  %e, ineq =  %e, comp = %e\n", max_res_stat, max_res_eq, max_res_ineq, max_res_comp);
 
-	printf("\nalpha_aff\tmu_aff\t\tsigma\t\talpha\t\tmu\n");
+	printf("\nalpha_aff\tmu_aff\t\tsigma\t\talpha\t\tmu\t\tres_stat\tres_eq\t\tres_ineq\tres_comp\titref pred\titref corr\n");
 	double *stat; d_dense_qp_ipm_get_stat(&workspace, &stat);
 	int stat_m;  d_dense_qp_ipm_get_stat_m(&workspace, &stat_m);
 	d_print_exp_tran_mat(stat_m, iter+1, stat, stat_m);

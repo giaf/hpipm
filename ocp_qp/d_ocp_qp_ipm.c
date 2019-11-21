@@ -73,6 +73,7 @@
 #define FACT_LQ_SOLVE_KKT_STEP_OCP_QP d_fact_lq_solve_kkt_step_ocp_qp
 #define FACT_SOLVE_KKT_UNCONSTR_OCP_QP d_fact_solve_kkt_unconstr_ocp_qp
 #define GELQF_WORKSIZE blasfeo_dgelqf_worksize
+#define GEMV_T blasfeo_dgemv_t
 #define GESE blasfeo_dgese
 #define HPIPM_MODE hpipm_mode
 #define INIT_VAR_OCP_QP d_init_var_ocp_qp
@@ -86,6 +87,7 @@
 #define OCP_QP_RES d_ocp_qp_res
 #define OCP_QP_RES_WS d_ocp_qp_res_ws
 #define OCP_QP_RES_COMPUTE d_ocp_qp_res_compute
+#define OCP_QP_RES_COMPUTE_INF_NORM d_ocp_qp_res_compute_inf_norm
 #define OCP_QP_RES_COMPUTE_LIN d_ocp_qp_res_compute_lin
 #define OCP_QP_RES_CREATE d_ocp_qp_res_create
 #define OCP_QP_RES_MEMSIZE d_ocp_qp_res_memsize
@@ -113,6 +115,9 @@
 #define UNPACK_MAT blasfeo_unpack_dmat
 #define UNPACK_VEC blasfeo_unpack_dvec
 #define UPDATE_VAR_QP d_update_var_qp
+#define VECCPSC blasfeo_dveccpsc
+#define VECEX_SP blasfeo_dvecex_sp
+#define VECMUL blasfeo_dvecmul
 #define VECMULDOT blasfeo_dvecmuldot
 #define VECNRM_INF blasfeo_dvecnrm_inf
 #define VECSC blasfeo_dvecsc
@@ -136,8 +141,12 @@
 #define OCP_QP_IPM_ARG_SET_REG_PRIM d_ocp_qp_ipm_arg_set_reg_prim
 #define OCP_QP_IPM_ARG_SET_WARM_START d_ocp_qp_ipm_arg_set_warm_start
 #define OCP_QP_IPM_ARG_SET_PRED_CORR d_ocp_qp_ipm_arg_set_pred_corr
+#define OCP_QP_IPM_ARG_SET_COND_PRED_CORR d_ocp_qp_ipm_arg_set_cond_pred_corr
 #define OCP_QP_IPM_ARG_SET_RIC_ALG d_ocp_qp_ipm_arg_set_ric_alg
+#define OCP_QP_IPM_ARG_SET_COMP_RES_EXIT d_ocp_qp_ipm_arg_set_comp_res_exit
 #define OCP_QP_IPM_ARG_SET_COMP_RES_PRED d_ocp_qp_ipm_arg_set_comp_res_pred
+#define OCP_QP_IPM_ARG_SET_LAM_MIN d_ocp_qp_ipm_arg_set_lam_min
+#define OCP_QP_IPM_ARG_SET_T_MIN d_ocp_qp_ipm_arg_set_t_min
 // ipm
 #define OCP_QP_IPM_WS_STRSIZE d_ocp_qp_ipm_ws_strsize
 #define OCP_QP_IPM_WS_MEMSIZE d_ocp_qp_ipm_ws_memsize
@@ -156,6 +165,9 @@
 #define OCP_QP_IPM_GET_RIC_P d_ocp_qp_ipm_get_ric_P
 #define OCP_QP_IPM_GET_RIC_LR_VEC d_ocp_qp_ipm_get_ric_lr
 #define OCP_QP_IPM_GET_RIC_P_VEC d_ocp_qp_ipm_get_ric_p
+#define OCP_QP_INIT_VAR d_ocp_qp_init_var
+#define OCP_QP_IPM_ABS_STEP d_ocp_qp_ipm_abs_step
+#define OCP_QP_IPM_DELTA_STEP d_ocp_qp_ipm_delta_step
 #define OCP_QP_IPM_SOLVE d_ocp_qp_ipm_solve
 #define OCP_QP_IPM_PREDICT d_ocp_qp_ipm_predict
 #define OCP_QP_IPM_SENS d_ocp_qp_ipm_sens

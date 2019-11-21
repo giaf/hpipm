@@ -123,10 +123,19 @@ void CREATE_CORE_QP_IPM(int nv, int ne, int nc, struct CORE_QP_IPM_WORKSPACE *wo
 	workspace->gamma = d_ptr; // gamma
 	d_ptr += nc0;
 
+	// by default no constr masking
+	workspace->nc_mask = nc;
+
 	if(nc>0)
+		{
 		workspace->nc_inv = 1.0/nc;
+		workspace->nc_mask_inv = workspace->nc_inv;
+		}
 	else
+		{
 		workspace->nc_inv = 0.0;
+		workspace->nc_mask_inv = 0.0;
+		}
 
 
 	workspace->lam_min = 0.0;
