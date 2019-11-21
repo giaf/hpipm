@@ -334,14 +334,14 @@ int readFromFileM(double* data, int nrow, int ncol, const char* datafilename)
 }
 
 int readOQPdata(const char* path,
-						  int* nQP, int* nV,
+				int* nQP, int* nV,
 				int* nC, int* nEC,
-							double* H, double* g,
+				double* H, double* g,
 				double* A,
 				double* lb, double* ub,
 				double* lbA,
 				double* ubA,
-							  double* xOpt, double* yOpt,
+				double* xOpt, double* yOpt,
 				double* objOpt)
 {
 	char filename[MAX_STRING_LENGTH];
@@ -381,21 +381,21 @@ int readOQPdata(const char* path,
 		readFromFileM( ubA,(*nQP),(*nC),filename );
 	}
 
-	if ( xOpt != 0 )
+	if ( xOpt != NULL )
 	{
 		/* primal solution vector sequence */
 		snprintf( filename,MAX_STRING_LENGTH,"%sx_opt.oqp",path );
 		readFromFileM( xOpt,(*nQP),(*nV),filename );
 	}
 
-	if ( yOpt != 0 )
+	if ( yOpt != NULL )
 	{
 		/* dual solution vector sequence */
 		snprintf( filename,MAX_STRING_LENGTH,"%sy_opt.oqp",path );
 		readFromFileM( yOpt,(*nQP),(*nV)+(*nC),filename );
 	}
 
-	if ( objOpt != 0 )
+	if ( objOpt != NULL )
 	{
 		/* dual solution vector sequence */
 		snprintf( filename,MAX_STRING_LENGTH,"%sobj_opt.oqp",path );
@@ -447,6 +447,7 @@ int main()
 
 //	for (i = 0; i < nproblems; i++)
 	for (i = 0; i < nproblems-1; i++)
+//	for (i = 31; i < 32; i++)
 //	for (i = 44; i < 45; i++)
 		{
 
@@ -615,6 +616,8 @@ int main()
 		double d_tol_comp = 1e-6;
 		int d_iter_max = 200;
 		double d_mu0 = 1e1;
+		int d_comp_res_exit = 1;
+		int kkt_fact_alg = 1;
 
 		d_dense_qp_ipm_arg_set_tol_stat(&d_tol_stat, &argd);
 		d_dense_qp_ipm_arg_set_tol_eq(&d_tol_eq, &argd);
@@ -622,6 +625,8 @@ int main()
 		d_dense_qp_ipm_arg_set_tol_comp(&d_tol_comp, &argd);
 		d_dense_qp_ipm_arg_set_iter_max(&d_iter_max, &argd);
 		d_dense_qp_ipm_arg_set_mu0(&d_mu0, &argd);
+		d_dense_qp_ipm_arg_set_comp_res_exit(&d_comp_res_exit, &argd);
+		d_dense_qp_ipm_arg_set_kkt_fact_alg(&kkt_fact_alg, &argd);
 
 //		argd.alpha_min = 1e-12;
 //		argd.pred_corr = 1;
