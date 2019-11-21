@@ -57,7 +57,7 @@ extern "C" {
 //
 void d_ocp_qp_dim_print(struct d_ocp_qp_dim *qp_dim);
 //
-void d_ocp_qp_dim_codegen(char *file_name, char *mode, char *target, struct d_ocp_qp_dim *qp_dim);
+void d_ocp_qp_dim_codegen(char *file_name, char *mode, struct d_ocp_qp_dim *qp_dim);
 //
 void d_ocp_qp_print(struct d_ocp_qp_dim *qp_dim, struct d_ocp_qp *qp);
 //
