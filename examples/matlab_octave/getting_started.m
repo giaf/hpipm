@@ -60,22 +60,22 @@ constr_type = 0; % 0 box, 1 general
 
 
 %%% data %%%
-N = 5;
+N = 20;
 nx = 2;
 nu = 1;
 
-A = [1, 1; 0, 1];
-B = [0; 1];
+A = [0.9, -0.01; -0.2, 0.3];
+B = [0.2; 0.1];
 %b = [0; 0]
 
-Q = [1, 0; 0, 1];
+Q = 100*[1, 0; 0, 1];
 S = [0, 0];
-R = [1];
+R = 1e-3*[1];
 q = [1; 1];
 %r = [0];
 
 Jx = [1, 0; 0, 1];
-x0 = [1; 1];
+x0 = [-1; 3];
 
 
 
@@ -112,7 +112,8 @@ qp = hpipm_ocp_qp(dim);
 
 qp.set('A', A, 0, N-1);
 qp.set('B', B, 0, N-1);
-qp.set('Q', Q, 0, N);
+qp.set('Q', Q, 0, N-1);
+qp.set('Q', Q, N);
 qp.set('S', S, 0, N-1);
 qp.set('R', R, 0, N-1);
 qp.set('q', q, 0, N);
@@ -224,10 +225,12 @@ u
 figure()
 subplot(2, 1, 1)
 plot(0:N, x);
+grid on
 title('trajectory')
 ylabel('x')
 subplot(2, 1, 2)
-plot(1:N, u);
+stairs(1:N, u);
+grid on
 ylabel('u')
 xlabel('sample')
 
