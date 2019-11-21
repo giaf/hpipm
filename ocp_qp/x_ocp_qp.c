@@ -3,25 +3,31 @@
 * This file is part of HPIPM.                                                                     *
 *                                                                                                 *
 * HPIPM -- High-Performance Interior Point Method.                                                *
-* Copyright (C) 2017-2018 by Gianluca Frison.                                                     *
+* Copyright (C) 2019 by Gianluca Frison.                                                          *
 * Developed at IMTEK (University of Freiburg) under the supervision of Moritz Diehl.              *
 * All rights reserved.                                                                            *
 *                                                                                                 *
-* This program is free software: you can redistribute it and/or modify                            *
-* it under the terms of the GNU General Public License as published by                            *
-* the Free Software Foundation, either version 3 of the License, or                               *
-* (at your option) any later version                                                              *.
+* The 2-Clause BSD License                                                                        *
 *                                                                                                 *
-* This program is distributed in the hope that it will be useful,                                 *
-* but WITHOUT ANY WARRANTY; without even the implied warranty of                                  *
-* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the                                   *
-* GNU General Public License for more details.                                                    *
+* Redistribution and use in source and binary forms, with or without                              *
+* modification, are permitted provided that the following conditions are met:                     *
 *                                                                                                 *
-* You should have received a copy of the GNU General Public License                               *
-* along with this program.  If not, see <https://www.gnu.org/licenses/>.                          *
+* 1. Redistributions of source code must retain the above copyright notice, this                  *
+*    list of conditions and the following disclaimer.                                             *
+* 2. Redistributions in binary form must reproduce the above copyright notice,                    *
+*    this list of conditions and the following disclaimer in the documentation                    *
+*    and/or other materials provided with the distribution.                                       *
 *                                                                                                 *
-* The authors designate this particular file as subject to the "Classpath" exception              *
-* as provided by the authors in the LICENSE file that accompained this code.                      *
+* THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND                 *
+* ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED                   *
+* WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE                          *
+* DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR                 *
+* ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES                  *
+* (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;                    *
+* LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND                     *
+* ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT                      *
+* (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS                   *
+* SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.                                    *
 *                                                                                                 *
 * Author: Gianluca Frison, gianluca.frison (at) imtek.uni-freiburg.de                             *
 *                                                                                                 *
@@ -66,7 +72,7 @@ int OCP_QP_MEMSIZE(struct OCP_QP_DIM *dim)
 	int size = 0;
 
 	size += 5*(N+1)*sizeof(int); // nx nu nb ng ns
-	size += 2*(N+1)*sizeof(int *); // idxb idxs
+	size += 3*(N+1)*sizeof(int *); // idxb idxs idxs_rev
 	size += 2*(N+1)*sizeof(struct STRMAT); // RSqrq DCt
 	size += 1*N*sizeof(struct STRMAT); // BAbt
 	size += 4*(N+1)*sizeof(struct STRVEC); // rqz d m Z
@@ -76,6 +82,7 @@ int OCP_QP_MEMSIZE(struct OCP_QP_DIM *dim)
 		{
 		size += nb[ii]*sizeof(int); // idxb
 		size += ns[ii]*sizeof(int); // idxs
+		size += (nb[ii]+ng[ii])*sizeof(int); // idxs_rev
 		size += SIZE_STRMAT(nu[ii]+nx[ii]+1, nx[ii+1]); // BAbt
 		size += SIZE_STRMAT(nu[ii]+nx[ii]+1, nu[ii]+nx[ii]); // RSQrq
 		size += SIZE_STRMAT(nu[ii]+nx[ii], ng[ii]); // DCt
@@ -84,6 +91,7 @@ int OCP_QP_MEMSIZE(struct OCP_QP_DIM *dim)
 	ii = N;
 	size += nb[ii]*sizeof(int); // idxb
 	size += ns[ii]*sizeof(int); // idxs
+	size += (nb[ii]+ng[ii])*sizeof(int); // idxs_rev
 	size += SIZE_STRMAT(nu[ii]+nx[ii]+1, nu[ii]+nx[ii]); // RSQrq
 	size += SIZE_STRMAT(nu[ii]+nx[ii], ng[ii]); // DCt
 	size += SIZE_STRVEC(2*ns[ii]); // Z
@@ -169,6 +177,10 @@ void OCP_QP_CREATE(struct OCP_QP_DIM *dim, struct OCP_QP *qp, void *mem)
 	qp->idxs = ip_ptr;
 	ip_ptr += N+1;
 
+	// idxs_rev
+	qp->idxs_rev = ip_ptr;
+	ip_ptr += N+1;
+
 
 	// matrix struct stuff
 	struct STRMAT *sm_ptr = (struct STRMAT *) ip_ptr;
@@ -230,6 +242,15 @@ void OCP_QP_CREATE(struct OCP_QP_DIM *dim, struct OCP_QP *qp, void *mem)
 		i_ptr += ns[ii];
 		for(jj=0; jj<ns[ii]; jj++)
 			qp->idxs[ii][jj] = 0;
+		}
+
+	// idxs_rev
+	for(ii=0; ii<=N; ii++)
+		{
+		(qp->idxs_rev)[ii] = i_ptr;
+		i_ptr += nb[ii]+ng[ii];
+		for(jj=0; jj<nb[ii]+ng[ii]; jj++)
+			qp->idxs_rev[ii][jj] = -1;
 		}
 
 
@@ -337,11 +358,134 @@ void OCP_QP_CREATE(struct OCP_QP_DIM *dim, struct OCP_QP *qp, void *mem)
 #if defined(RUNTIME_CHECKS)
 	if(c_ptr > ((char *) mem) + qp->memsize)
 		{
-		printf("\nCreate_ocp_qp: outside memory bounds!\n\n");
+		printf("\nerror: OCP_QP_CREATE: outside memory bounds!\n\n");
 		exit(1);
 		}
 #endif
 
+
+	return;
+
+	}
+
+
+
+void OCP_QP_COPY_ALL(struct OCP_QP *qp_orig, struct OCP_QP *qp_dest)
+	{
+
+	// extract dim
+	int N = qp_orig->dim->N;
+	int *nx = qp_orig->dim->nx;
+	int *nu = qp_orig->dim->nu;
+	int *nb = qp_orig->dim->nb;
+	int *nbx = qp_orig->dim->nbx;
+	int *nbu = qp_orig->dim->nbu;
+	int *ng = qp_orig->dim->ng;
+	int *ns = qp_orig->dim->ns;
+
+	int ii, jj;
+
+	// copy dim pointer
+//	qp_dest->dim = qp_orig->dim;
+
+	for(ii=0; ii<N; ii++)
+		{
+		GECP(nu[ii]+nx[ii]+1, nx[ii+1], qp_orig->BAbt+ii, 0, 0, qp_dest->BAbt+ii, 0, 0);
+		VECCP(nx[ii+1], qp_orig->b+ii, 0, qp_dest->b+ii, 0);
+		}
+
+	for(ii=0; ii<=N; ii++)
+		{
+		GECP(nu[ii]+nx[ii]+1, nu[ii]+nx[ii], qp_orig->RSQrq+ii, 0, 0, qp_dest->RSQrq+ii, 0, 0);
+		VECCP(2*ns[ii], qp_orig->Z+ii, 0, qp_dest->Z+ii, 0);
+		VECCP(nu[ii]+nx[ii]+2*ns[ii], qp_orig->rqz+ii, 0, qp_dest->rqz+ii, 0);
+		for(jj=0; jj<nb[ii]; jj++)
+			qp_dest->idxb[ii][jj] = qp_orig->idxb[ii][jj];
+		GECP(nu[ii]+nx[ii], ng[ii], qp_orig->DCt+ii, 0, 0, qp_dest->DCt+ii, 0, 0);
+		VECCP(2*nb[ii]+2*ng[ii]+2*ns[ii], qp_orig->d+ii, 0, qp_dest->d+ii, 0);
+		VECCP(2*nb[ii]+2*ng[ii]+2*ns[ii], qp_orig->m+ii, 0, qp_dest->m+ii, 0);
+		for(jj=0; jj<ns[ii]; jj++)
+			qp_dest->idxs[ii][jj] = qp_orig->idxs[ii][jj];
+		for(jj=0; jj<nb[ii]+ng[ii]; jj++)
+			qp_dest->idxs_rev[ii][jj] = qp_orig->idxs_rev[ii][jj];
+		}
+
+	return;
+
+	}
+
+
+
+void OCP_QP_SET_ALL_ZERO(struct OCP_QP *qp)
+	{
+
+	// extract dim
+	int N = qp->dim->N;
+	int *nx = qp->dim->nx;
+	int *nu = qp->dim->nu;
+	int *nb = qp->dim->nb;
+	int *nbx = qp->dim->nbx;
+	int *nbu = qp->dim->nbu;
+	int *ng = qp->dim->ng;
+	int *ns = qp->dim->ns;
+
+	int ii, jj;
+
+	for(ii=0; ii<N; ii++)
+		{
+		GESE(nu[ii]+nx[ii]+1, nx[ii+1], 0.0, qp->BAbt+ii, 0, 0);
+		VECSE(nx[ii+1], 0.0, qp->b+ii, 0);
+		}
+
+	for(ii=0; ii<=N; ii++)
+		{
+		GESE(nu[ii]+nx[ii]+1, nu[ii]+nx[ii], 0.0, qp->RSQrq+ii, 0, 0);
+		VECSE(2*ns[ii], 0.0, qp->Z+ii, 0);
+		VECSE(nu[ii]+nx[ii]+2*ns[ii], 0.0, qp->rqz+ii, 0);
+		for(jj=0; jj<nb[ii]; jj++)
+			qp->idxb[ii][jj] = 0;
+		GESE(nu[ii]+nx[ii], ng[ii], 0.0, qp->DCt+ii, 0, 0);
+		VECSE(2*nb[ii]+2*ng[ii]+2*ns[ii], 0.0, qp->d+ii, 0);
+		VECSE(2*nb[ii]+2*ng[ii]+2*ns[ii], 0.0, qp->m+ii, 0);
+		for(jj=0; jj<ns[ii]; jj++)
+			qp->idxs[ii][jj] = 0;
+		for(jj=0; jj<nb[ii]+ng[ii]; jj++)
+			qp->idxs_rev[ii][jj] = -1;
+		}
+
+	return;
+
+	}
+
+
+
+void OCP_QP_SET_RHS_ZERO(struct OCP_QP *qp)
+	{
+
+	// extract dim
+	int N = qp->dim->N;
+	int *nx = qp->dim->nx;
+	int *nu = qp->dim->nu;
+	int *nb = qp->dim->nb;
+	int *nbx = qp->dim->nbx;
+	int *nbu = qp->dim->nbu;
+	int *ng = qp->dim->ng;
+	int *ns = qp->dim->ns;
+
+	int ii, jj;
+
+	for(ii=0; ii<N; ii++)
+		{
+		VECSE(nx[ii+1], 0.0, qp->b+ii, 0);
+		}
+
+	for(ii=0; ii<=N; ii++)
+		{
+		VECSE(2*ns[ii], 0.0, qp->Z+ii, 0);
+		VECSE(nu[ii]+nx[ii]+2*ns[ii], 0.0, qp->rqz+ii, 0);
+		VECSE(2*nb[ii]+2*ng[ii]+2*ns[ii], 0.0, qp->d+ii, 0);
+		VECSE(2*nb[ii]+2*ng[ii]+2*ns[ii], 0.0, qp->m+ii, 0);
+		}
 
 	return;
 
@@ -385,17 +529,23 @@ void OCP_QP_SET_ALL(REAL **A, REAL **B, REAL **b, REAL **Q, REAL **S, REAL **R, 
 
 	for(ii=0; ii<=N; ii++)
 		{
-		if(nb[ii]>0)
+		if(nbu[ii]>0)
 			{
 			for(jj=0; jj<nbu[ii]; jj++)
 				qp->idxb[ii][jj] = idxbu[ii][jj];
 			CVT_VEC2STRVEC(nbu[ii], d_lbu[ii], qp->d+ii, 0);
 			CVT_VEC2STRVEC(nbu[ii], d_ubu[ii], qp->d+ii, nb[ii]+ng[ii]);
+			}
+		if(nbx[ii>0])
+			{
 			for(jj=0; jj<nbx[ii]; jj++)
 				qp->idxb[ii][nbu[ii]+jj] = nu[ii]+idxbx[ii][jj];
 			CVT_VEC2STRVEC(nbx[ii], d_lbx[ii], qp->d+ii, nbu[ii]);
 			CVT_VEC2STRVEC(nbx[ii], d_ubx[ii], qp->d+ii, nb[ii]+ng[ii]+nbu[ii]);
-			VECSC_LIBSTR(nb[ii], -1.0, qp->d+ii, nb[ii]+ng[ii]);
+			}
+		if(nb[ii>0])
+			{
+			VECSC(nb[ii], -1.0, qp->d+ii, nb[ii]+ng[ii]);
 			VECSE(nb[ii], 0.0, qp->m+ii, 0);
 			VECSE(nb[ii], 0.0, qp->m+ii, nb[ii]+ng[ii]);
 			}
@@ -409,7 +559,7 @@ void OCP_QP_SET_ALL(REAL **A, REAL **B, REAL **b, REAL **Q, REAL **S, REAL **R, 
 			CVT_TRAN_MAT2STRMAT(ng[ii], nx[ii], C[ii], ng[ii], qp->DCt+ii, nu[ii], 0);
 			CVT_VEC2STRVEC(ng[ii], d_lg[ii], qp->d+ii, nb[ii]);
 			CVT_VEC2STRVEC(ng[ii], d_ug[ii], qp->d+ii, 2*nb[ii]+ng[ii]);
-			VECSC_LIBSTR(ng[ii], -1.0, qp->d+ii, 2*nb[ii]+ng[ii]);
+			VECSC(ng[ii], -1.0, qp->d+ii, 2*nb[ii]+ng[ii]);
 			VECSE(ng[ii], 0.0, qp->m+ii, nb[ii]);
 			VECSE(ng[ii], 0.0, qp->m+ii, 2*nb[ii]+ng[ii]);
 			}
@@ -421,6 +571,7 @@ void OCP_QP_SET_ALL(REAL **A, REAL **B, REAL **b, REAL **Q, REAL **S, REAL **R, 
 			{
 			for(jj=0; jj<ns[ii]; jj++)
 				qp->idxs[ii][jj] = idxs[ii][jj];
+			// TODO idxs_rev
 			CVT_VEC2STRVEC(ns[ii], Zl[ii], qp->Z+ii, 0);
 			CVT_VEC2STRVEC(ns[ii], Zu[ii], qp->Z+ii, ns[ii]);
 			CVT_VEC2STRVEC(ns[ii], zl[ii], qp->rqz+ii, nu[ii]+nx[ii]);
@@ -574,9 +725,51 @@ void OCP_QP_SET(char *field, int stage, void *value, struct OCP_QP *qp)
 		OCP_QP_SET_JBU(stage, value, qp);
 		}
 	// TODO idxs !!!!!!!!!!!!!!!!!!
+	else if(hpipm_strcmp(field, "idxs"))
+		{
+		OCP_QP_SET_IDXS(stage, value, qp);
+		}
+	else if(hpipm_strcmp(field, "Jsbu") | hpipm_strcmp(field, "Jsu"))
+		{
+		OCP_QP_SET_JSBU(stage, value, qp);
+		}
+	else if(hpipm_strcmp(field, "Jsbx") | hpipm_strcmp(field, "Jsx"))
+		{
+		OCP_QP_SET_JSBX(stage, value, qp);
+		}
+	else if(hpipm_strcmp(field, "Jsg"))
+		{
+		OCP_QP_SET_JSG(stage, value, qp);
+		}
 	else
 		{
-		printf("error [OCP_QP_SET]: unknown field name '%s'. Exiting.\n", field);
+		printf("error [OCP_QP_SET]: wrong field name '%s'. Exiting.\n", field);
+		exit(1);	
+		}
+	return;
+	}
+
+
+
+void OCP_QP_SET_EL(char *field, int stage, int index, void *elem, struct OCP_QP *qp)
+	{
+	int ii, jj, jj0;
+
+	REAL *r_ptr;
+	int *i_ptr;
+    
+	// matrices
+	if(hpipm_strcmp(field, "lbx") | hpipm_strcmp(field, "lx"))
+		{ 
+		OCP_QP_SET_EL_LBX(stage, index, elem, qp);
+		}
+	else if(hpipm_strcmp(field, "ubx") | hpipm_strcmp(field, "ux"))
+		{ 
+		OCP_QP_SET_EL_UBX(stage, index, elem, qp);
+		}
+	else
+		{
+		printf("error: OCP_QP_SET: wrong field%s\n", field);
 		exit(1);	
 		}
 	return;
@@ -591,19 +784,6 @@ void OCP_QP_SET_A(int stage, REAL *A, struct OCP_QP *qp)
 	int *nu = qp->dim->nu;
 
 	CVT_TRAN_MAT2STRMAT(nx[stage+1], nx[stage], A, nx[stage+1], qp->BAbt+stage, nu[stage], 0);
-
-	return;
-	}
-
-
-
-void OCP_QP_GET_A(int stage, struct OCP_QP *qp, REAL *A)
-	{
-	// extract dim
-	int *nx = qp->dim->nx;
-	int *nu = qp->dim->nu;
-
-	CVT_TRAN_STRMAT2MAT(nx[stage], nx[stage+1], qp->BAbt+stage, nu[stage], 0, A, nx[stage+1]);
 
 	return;
 	}
@@ -832,13 +1012,16 @@ void OCP_QP_SET_LBX(int stage, REAL *lbx, struct OCP_QP *qp)
 
 
 
-void OCP_QP_GET_LBX(int stage, struct OCP_QP *qp, REAL *lbx)
+void OCP_QP_SET_EL_LBX(int stage, int index, REAL *elem, struct OCP_QP *qp)
 	{
 	// extract dim
 	int *nbu = qp->dim->nbu;
-	int *nbx = qp->dim->nbx;
 
-	CVT_STRVEC2VEC(nbx[stage], qp->d+stage, nbu[stage], lbx);
+#ifdef DOUBLE_PRECISION
+	BLASFEO_DVECEL(qp->d+stage, nbu[stage]+index) = *elem;
+#else
+	BLASFEO_SVECEL(qp->d+stage, nbu[stage]+index) = *elem;
+#endif
 
 	return;
 	}
@@ -876,7 +1059,7 @@ void OCP_QP_SET_UB(int stage, REAL *ub, struct OCP_QP *qp)
 	int *ng = qp->dim->ng;
 
 	CVT_VEC2STRVEC(nb[stage], ub, qp->d+stage, nb[stage]+ng[stage]);
-	VECSC_LIBSTR(nb[stage], -1.0, qp->d+stage, nb[stage]+ng[stage]);
+	VECSC(nb[stage], -1.0, qp->d+stage, nb[stage]+ng[stage]);
 
 	return;
 	}
@@ -911,28 +1094,25 @@ void OCP_QP_SET_UBX(int stage, REAL *lbx, struct OCP_QP *qp)
 	int *ng = qp->dim->ng;
 
 	CVT_VEC2STRVEC(nbx[stage], lbx, qp->d+stage, nb[stage]+ng[stage]+nbu[stage]);
-	VECSC_LIBSTR(nbx[stage], -1.0, qp->d+stage, nb[stage]+ng[stage]+nbu[stage]);
+	VECSC(nbx[stage], -1.0, qp->d+stage, nb[stage]+ng[stage]+nbu[stage]);
 
 	return;
 	}
 
 
 
-void OCP_QP_GET_UBX(int stage, struct OCP_QP *qp, REAL *ubx)
+void OCP_QP_SET_EL_UBX(int stage, int index, REAL *elem, struct OCP_QP *qp)
 	{
 	// extract dim
 	int *nb = qp->dim->nb;
-	int *nbx = qp->dim->nbx;
 	int *nbu = qp->dim->nbu;
 	int *ng = qp->dim->ng;
 
-	int i;
-
-	CVT_STRVEC2VEC(nbx[stage], qp->d+stage, nb[stage]+ng[stage]+nbu[stage], ubx);
-	for(i=0; i<nbx[stage]; i++)
-		{
-		ubx[i] = -ubx[i];
-		}
+#ifdef DOUBLE_PRECISION
+	BLASFEO_DVECEL(qp->d+stage, nb[stage]+ng[stage]+nbu[stage]+index) = - *elem;
+#else
+	BLASFEO_SVECEL(qp->d+stage, nb[stage]+ng[stage]+nbu[stage]+index) = - *elem;
+#endif
 
 	return;
 	}
@@ -947,7 +1127,7 @@ void OCP_QP_SET_UBU(int stage, REAL *ubu, struct OCP_QP *qp)
 	int *ng = qp->dim->ng;
 
 	CVT_VEC2STRVEC(nbu[stage], ubu, qp->d+stage, nb[stage]+ng[stage]);
-	VECSC_LIBSTR(nbu[stage], -1.0, qp->d+stage, nb[stage]+ng[stage]);
+	VECSC(nbu[stage], -1.0, qp->d+stage, nb[stage]+ng[stage]);
 
 	return;
 	}
@@ -1205,7 +1385,7 @@ void OCP_QP_SET_UG(int stage, REAL *ug, struct OCP_QP *qp)
 	int *ng = qp->dim->ng;
 
 	CVT_VEC2STRVEC(ng[stage], ug, qp->d+stage, 2*nb[stage]+ng[stage]);
-	VECSC_LIBSTR(ng[stage], -1.0, qp->d+stage, 2*nb[stage]+ng[stage]);
+	VECSC(ng[stage], -1.0, qp->d+stage, 2*nb[stage]+ng[stage]);
 
 	return;
 	}
@@ -1363,6 +1543,147 @@ void OCP_QP_GET_IDXS(int stage, struct OCP_QP *qp, int *idxs)
 
 
 
+void OCP_QP_SET_JSBU(int stage, REAL *Jsbu, struct OCP_QP *qp)
+	{
+	// extract dim
+	int *nx = qp->dim->nx;
+	int *nu = qp->dim->nu;
+	int *nb = qp->dim->nb;
+	int *nbx = qp->dim->nbx;
+	int *nbu = qp->dim->nbu;
+	int *ng = qp->dim->ng;
+	int *ns = qp->dim->ns;
+
+	int ii, jj, jj0, idx_tmp;
+	// compute nbu part of idxs_rev
+	for(ii=0; ii<nbu[stage]; ii++)
+		{
+		jj0 = -1;
+		for(jj=0; jj<ns[stage]; jj++)
+			{
+			if(jj0==-1 & Jsbu[ii+jj*nbu[stage]]!=0.0)
+				{
+				jj0 = jj;
+				qp->idxs_rev[stage][0+ii] = jj;
+				}
+			}
+		}
+	// update idxs
+	for(ii=0; ii<nb[stage]+ng[stage]; ii++)
+		{
+		idx_tmp = qp->idxs_rev[stage][ii];
+		if(idx_tmp!=-1)
+			{
+			qp->idxs[stage][idx_tmp] = ii;
+			}
+		}
+	return;
+	}
+
+
+
+//void OCP_QP_GET_JSBX(int stage, struct OCP_QP *qp, int *Jsbx)
+//	{
+//	TODO
+//	return;
+//	}
+
+
+
+void OCP_QP_SET_JSBX(int stage, REAL *Jsbx, struct OCP_QP *qp)
+	{
+	// extract dim
+	int *nx = qp->dim->nx;
+	int *nu = qp->dim->nu;
+	int *nb = qp->dim->nb;
+	int *nbx = qp->dim->nbx;
+	int *nbu = qp->dim->nbu;
+	int *ng = qp->dim->ng;
+	int *ns = qp->dim->ns;
+
+	int ii, jj, jj0, idx_tmp;
+	// compute nbx part of idxs_rev
+	for(ii=0; ii<nbx[stage]; ii++)
+		{
+		jj0 = -1;
+		for(jj=0; jj<ns[stage]; jj++)
+			{
+			if(jj0==-1 & Jsbx[ii+jj*nbx[stage]]!=0.0)
+				{
+				jj0 = jj;
+				qp->idxs_rev[stage][nbu[stage]+ii] = jj;
+				}
+			}
+		}
+	// update idxs
+	for(ii=0; ii<nb[stage]+ng[stage]; ii++)
+		{
+		idx_tmp = qp->idxs_rev[stage][ii];
+		if(idx_tmp!=-1)
+			{
+			qp->idxs[stage][idx_tmp] = ii;
+			}
+		}
+	return;
+	}
+
+
+
+//void OCP_QP_GET_JSBX(int stage, struct OCP_QP *qp, int *Jsbx)
+//	{
+//	TODO
+//	return;
+//	}
+
+
+
+void OCP_QP_SET_JSG(int stage, REAL *Jsg, struct OCP_QP *qp)
+	{
+	// extract dim
+	int *nx = qp->dim->nx;
+	int *nu = qp->dim->nu;
+	int *nb = qp->dim->nb;
+	int *nbx = qp->dim->nbx;
+	int *nbu = qp->dim->nbu;
+	int *ng = qp->dim->ng;
+	int *ns = qp->dim->ns;
+
+	int ii, jj, jj0, idx_tmp;
+	// compute nbx part of idxs_rev
+	for(ii=0; ii<ng[stage]; ii++)
+		{
+		jj0 = -1;
+		for(jj=0; jj<ns[stage]; jj++)
+			{
+			if(jj0==-1 & Jsg[ii+jj*ng[stage]]!=0.0)
+				{
+				jj0 = jj;
+				qp->idxs_rev[stage][nb[stage]+ii] = jj;
+				}
+			}
+		}
+	// update idxs
+	for(ii=0; ii<nb[stage]+ng[stage]; ii++)
+		{
+		idx_tmp = qp->idxs_rev[stage][ii];
+		if(idx_tmp!=-1)
+			{
+			qp->idxs[stage][idx_tmp] = ii;
+			}
+		}
+	return;
+	}
+
+
+
+//void OCP_QP_GET_JSG(int stage, struct OCP_QP *qp, int *Jsg)
+//	{
+//	TODO
+//	return;
+//	}
+
+
+
 void OCP_QP_SET_LLS(int stage, REAL *ls, struct OCP_QP *qp)
 	{
 	// extract dim
@@ -1415,6 +1736,80 @@ void OCP_QP_GET_LUS(int stage, struct OCP_QP *qp, REAL *us)
 	int i;
 
 	CVT_STRVEC2VEC(ns[stage], qp->d+stage, 2*nb[stage]+2*ng[stage]+ns[stage], us);
+
+	return;
+	}
+
+
+
+void OCP_QP_GET(char *field, int stage, struct OCP_QP *qp, void *value)
+	{
+	// matrices
+	if(hpipm_strcmp(field, "A")) 
+		{
+		OCP_QP_GET_A(stage, qp, value);
+		}
+	// vectors
+	else if(hpipm_strcmp(field, "lbx") | hpipm_strcmp(field, "lx"))
+		{ 
+		OCP_QP_GET_LBX(stage, qp, value);
+		}
+	else if(hpipm_strcmp(field, "ubx") | hpipm_strcmp(field, "ux"))
+		{ 
+		OCP_QP_GET_UBX(stage, qp, value);
+		}
+	// int
+	else
+		{
+		printf("error: OCP_QP_GET: wrong field %s\n", field);
+		exit(1);	
+		}
+	return;
+	}
+
+
+
+void OCP_QP_GET_A(int stage, struct OCP_QP *qp, REAL *A)
+	{
+	// extract dim
+	int *nx = qp->dim->nx;
+	int *nu = qp->dim->nu;
+
+	CVT_TRAN_STRMAT2MAT(nx[stage], nx[stage+1], qp->BAbt+stage, nu[stage], 0, A, nx[stage+1]);
+
+	return;
+	}
+
+
+
+void OCP_QP_GET_LBX(int stage, struct OCP_QP *qp, REAL *lbx)
+	{
+	// extract dim
+	int *nbu = qp->dim->nbu;
+	int *nbx = qp->dim->nbx;
+
+	CVT_STRVEC2VEC(nbx[stage], qp->d+stage, nbu[stage], lbx);
+
+	return;
+	}
+
+
+
+void OCP_QP_GET_UBX(int stage, struct OCP_QP *qp, REAL *ubx)
+	{
+	// extract dim
+	int *nb = qp->dim->nb;
+	int *nbx = qp->dim->nbx;
+	int *nbu = qp->dim->nbu;
+	int *ng = qp->dim->ng;
+
+	int i;
+
+	CVT_STRVEC2VEC(nbx[stage], qp->d+stage, nb[stage]+ng[stage]+nbu[stage], ubx);
+	for(i=0; i<nbx[stage]; i++)
+		{
+		ubx[i] = -ubx[i];
+		}
 
 	return;
 	}

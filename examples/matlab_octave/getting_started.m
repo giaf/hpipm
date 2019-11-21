@@ -1,3 +1,38 @@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%                                                                                                 %
+% This file is part of HPIPM.                                                                     %
+%                                                                                                 %
+% HPIPM -- High-Performance Interior Point Method.                                                %
+% Copyright (C) 2019 by Gianluca Frison.                                                          %
+% Developed at IMTEK (University of Freiburg) under the supervision of Moritz Diehl.              %
+% All rights reserved.                                                                            %
+%                                                                                                 %
+% The 2-Clause BSD License                                                                        %
+%                                                                                                 %
+% Redistribution and use in source and binary forms, with or without                              %
+% modification, are permitted provided that the following conditions are met:                     %
+%                                                                                                 %
+% 1. Redistributions of source code must retain the above copyright notice, this                  %
+%    list of conditions and the following disclaimer.                                             %
+% 2. Redistributions in binary form must reproduce the above copyright notice,                    %
+%    this list of conditions and the following disclaimer in the documentation                    %
+%    and/or other materials provided with the distribution.                                       %
+%                                                                                                 %
+% THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND                 %
+% ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED                   %
+% WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE                          %
+% DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR                 %
+% ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES                  %
+% (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;                    %
+% LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND                     %
+% ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT                      %
+% (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS                   %
+% SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.                                    %
+%                                                                                                 %
+% Author: Gianluca Frison, gianluca.frison (at) imtek.uni-freiburg.de                             %
+%                                                                                                 %
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
 clear all
 close all
 clc
@@ -46,6 +81,12 @@ x0 = [1; 1];
 
 %%% dim %%%
 dim = hpipm_ocp_qp_dim(N);
+
+%% Note:
+% The setters follow the following convention:
+% obj.set('field', value, stage_index);
+% or to set values for multiple consecutive stages:
+% obj.set('field', value, first_stage_index, last_stage);
 
 dim.set('nx', nx, 0, N);
 dim.set('nu', nu, 0, N-1);
@@ -151,10 +192,10 @@ fprintf('average solve time over %d runs: %e [s]\n', nrep, solve_time/nrep);
 time_ext = solver.get('time_ext');
 fprintf('solve time of last run (measured in mex interface): %e [s]\n', time_ext);
 iter = solver.get('iter')
-res_stat = solver.get('res_stat')
-res_eq = solver.get('res_eq')
-res_ineq = solver.get('res_ineq')
-res_comp = solver.get('res_comp')
+res_stat = solver.get('max_res_stat')
+res_eq = solver.get('max_res_eq')
+res_ineq = solver.get('max_res_ineq')
+res_comp = solver.get('max_res_comp')
 stat = solver.get('stat');
 fprintf('iter\talpha_aff\tmu_aff\t\tsigma\t\talpha\t\tmu\t\tres_stat\tres_eq\t\tres_ineq\tres_comp\n');
 for ii=1:iter+1
@@ -176,6 +217,19 @@ u
 
 % print to shell
 %sol.print_C_struct();
+
+
+
+% plot solution
+figure()
+subplot(2, 1, 1)
+plot(0:N, x);
+title('trajectory')
+ylabel('x')
+subplot(2, 1, 2)
+plot(1:N, u);
+ylabel('u')
+xlabel('sample')
 
 
 

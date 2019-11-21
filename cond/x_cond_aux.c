@@ -3,31 +3,37 @@
 * This file is part of HPIPM.                                                                     *
 *                                                                                                 *
 * HPIPM -- High-Performance Interior Point Method.                                                *
-* Copyright (C) 2017-2018 by Gianluca Frison.                                                     *
+* Copyright (C) 2019 by Gianluca Frison.                                                          *
 * Developed at IMTEK (University of Freiburg) under the supervision of Moritz Diehl.              *
 * All rights reserved.                                                                            *
 *                                                                                                 *
-* This program is free software: you can redistribute it and/or modify                            *
-* it under the terms of the GNU General Public License as published by                            *
-* the Free Software Foundation, either version 3 of the License, or                               *
-* (at your option) any later version                                                              *.
+* The 2-Clause BSD License                                                                        *
 *                                                                                                 *
-* This program is distributed in the hope that it will be useful,                                 *
-* but WITHOUT ANY WARRANTY; without even the implied warranty of                                  *
-* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the                                   *
-* GNU General Public License for more details.                                                    *
+* Redistribution and use in source and binary forms, with or without                              *
+* modification, are permitted provided that the following conditions are met:                     *
 *                                                                                                 *
-* You should have received a copy of the GNU General Public License                               *
-* along with this program.  If not, see <https://www.gnu.org/licenses/>.                          *
+* 1. Redistributions of source code must retain the above copyright notice, this                  *
+*    list of conditions and the following disclaimer.                                             *
+* 2. Redistributions in binary form must reproduce the above copyright notice,                    *
+*    this list of conditions and the following disclaimer in the documentation                    *
+*    and/or other materials provided with the distribution.                                       *
 *                                                                                                 *
-* The authors designate this particular file as subject to the "Classpath" exception              *
-* as provided by the authors in the LICENSE file that accompained this code.                      *
+* THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND                 *
+* ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED                   *
+* WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE                          *
+* DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR                 *
+* ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES                  *
+* (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;                    *
+* LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND                     *
+* ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT                      *
+* (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS                   *
+* SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.                                    *
 *                                                                                                 *
 * Author: Gianluca Frison, gianluca.frison (at) imtek.uni-freiburg.de                             *
 *                                                                                                 *
 **************************************************************************************************/
 
-void COND_BABT(struct OCP_QP *ocp_qp, struct STRMAT *BAbt2, struct STRVEC *b2, struct COND_QP_OCP2DENSE_ARG *cond_arg, struct COND_QP_OCP2DENSE_WORKSPACE *cond_ws)
+void COND_BABT(struct OCP_QP *ocp_qp, struct STRMAT *BAbt2, struct STRVEC *b2, struct COND_QP_ARG *cond_arg, struct COND_QP_ARG_WS *cond_ws)
 	{
 
 	int N = ocp_qp->dim->N;
@@ -94,7 +100,7 @@ void COND_BABT(struct OCP_QP *ocp_qp, struct STRMAT *BAbt2, struct STRVEC *b2, s
 
 
 
-void COND_B(struct OCP_QP *ocp_qp, struct STRVEC *b2, struct COND_QP_OCP2DENSE_ARG *cond_arg, struct COND_QP_OCP2DENSE_WORKSPACE *cond_ws)
+void COND_B(struct OCP_QP *ocp_qp, struct STRVEC *b2, struct COND_QP_ARG *cond_arg, struct COND_QP_ARG_WS *cond_ws)
 	{
 
 	int N = ocp_qp->dim->N;
@@ -143,7 +149,7 @@ void COND_B(struct OCP_QP *ocp_qp, struct STRVEC *b2, struct COND_QP_OCP2DENSE_A
 
 
 
-void COND_RSQRQ_N2NX3(struct OCP_QP *ocp_qp, struct STRMAT *RSQrq2, struct STRVEC *rqz2, struct COND_QP_OCP2DENSE_ARG *cond_arg, struct COND_QP_OCP2DENSE_WORKSPACE *cond_ws)
+void COND_RSQRQ_N2NX3(struct OCP_QP *ocp_qp, struct STRMAT *RSQrq2, struct STRVEC *rqz2, struct COND_QP_ARG *cond_arg, struct COND_QP_ARG_WS *cond_ws)
 	{
 
 	int N = ocp_qp->dim->N;
@@ -335,7 +341,7 @@ void COND_RSQRQ_N2NX3(struct OCP_QP *ocp_qp, struct STRMAT *RSQrq2, struct STRVE
 
 
 
-void COND_RQ_N2NX3(struct OCP_QP *ocp_qp, struct STRVEC *rqz2, struct COND_QP_OCP2DENSE_ARG *cond_arg, struct COND_QP_OCP2DENSE_WORKSPACE *cond_ws)
+void COND_RQ_N2NX3(struct OCP_QP *ocp_qp, struct STRVEC *rqz2, struct COND_QP_ARG *cond_arg, struct COND_QP_ARG_WS *cond_ws)
 	{
 
 	int N = ocp_qp->dim->N;
@@ -418,7 +424,7 @@ void COND_RQ_N2NX3(struct OCP_QP *ocp_qp, struct STRVEC *rqz2, struct COND_QP_OC
 
 
 
-void COND_DCTD(struct OCP_QP *ocp_qp, int *idxb2, struct STRMAT *DCt2, struct STRVEC *d2, int *idxs2, struct STRVEC *Z2, struct STRVEC *rqz2, struct COND_QP_OCP2DENSE_ARG *cond_arg, struct COND_QP_OCP2DENSE_WORKSPACE *cond_ws)
+void COND_DCTD(struct OCP_QP *ocp_qp, int *idxb2, struct STRMAT *DCt2, struct STRVEC *d2, int *idxs2, struct STRVEC *Z2, struct STRVEC *rqz2, struct COND_QP_ARG *cond_arg, struct COND_QP_ARG_WS *cond_ws)
 	{
 
 	int N = ocp_qp->dim->N;
@@ -775,7 +781,7 @@ void COND_DCTD(struct OCP_QP *ocp_qp, int *idxb2, struct STRMAT *DCt2, struct ST
 
 
 
-void COND_D(struct OCP_QP *ocp_qp, struct STRVEC *d2, struct STRVEC *rqz2, struct COND_QP_OCP2DENSE_ARG *cond_arg, struct COND_QP_OCP2DENSE_WORKSPACE *cond_ws)
+void COND_D(struct OCP_QP *ocp_qp, struct STRVEC *d2, struct STRVEC *rqz2, struct COND_QP_ARG *cond_arg, struct COND_QP_ARG_WS *cond_ws)
 	{
 
 	int N = ocp_qp->dim->N;
@@ -1090,7 +1096,7 @@ void COND_D(struct OCP_QP *ocp_qp, struct STRVEC *d2, struct STRVEC *rqz2, struc
 
 
 
-void EXPAND_SOL(struct OCP_QP *ocp_qp, struct DENSE_QP_SOL *dense_qp_sol, struct OCP_QP_SOL *ocp_qp_sol, struct COND_QP_OCP2DENSE_ARG *cond_arg, struct COND_QP_OCP2DENSE_WORKSPACE *cond_ws)
+void EXPAND_SOL(struct OCP_QP *ocp_qp, struct DENSE_QP_SOL *dense_qp_sol, struct OCP_QP_SOL *ocp_qp_sol, struct COND_QP_ARG *cond_arg, struct COND_QP_ARG_WS *cond_ws)
 	{
 
 	int N = ocp_qp->dim->N;
@@ -1337,6 +1343,7 @@ void EXPAND_SOL(struct OCP_QP *ocp_qp, struct DENSE_QP_SOL *dense_qp_sol, struct
 	ngg += ng0;
 	
 	// soft constraints
+	// all box first XXX this keeps the same order as in cond !!!
 	for(ii=0; ii<=N; ii++)
 		{
 		nx0 = nx[N-ii];
@@ -1354,7 +1361,39 @@ void EXPAND_SOL(struct OCP_QP *ocp_qp, struct DENSE_QP_SOL *dense_qp_sol, struct
 		ptr_ux = (ux+N-ii)->pa;
 		ptr_lam = (lam+N-ii)->pa;
 		ptr_t = (t+N-ii)->pa;
+		for(jj=0; jj<nb0; jj++)
+			{
+			if(idxs_rev[jj]>=0)
+				{
+				ptr_lam[2*nb0+2*ng0+idxs_rev[jj]]     = ptr_lamc[2*nb2+2*ng2+is];
+				ptr_lam[2*nb0+2*ng0+ns0+idxs_rev[jj]] = ptr_lamc[2*nb2+2*ng2+ns2+is];
+				ptr_t[2*nb0+2*ng0+idxs_rev[jj]]     = ptr_tc[2*nb2+2*ng2+is];
+				ptr_t[2*nb0+2*ng0+ns0+idxs_rev[jj]] = ptr_tc[2*nb2+2*ng2+ns2+is];
+				ptr_ux[nu0+nx0+idxs_rev[jj]] = ptr_vc[nu2+nx2+is];
+				ptr_ux[nu0+nx0+ns0+idxs_rev[jj]] = ptr_vc[nu2+nx2+ns2+is];
+				is++;
+				}
+			}
+		}
+	// all general after XXX this keeps the same order as in cond !!!
+	for(ii=0; ii<=N; ii++)
+		{
+		nx0 = nx[N-ii];
+		nu0 = nu[N-ii];
+		nb0 = nb[N-ii];
+		ng0 = ng[N-ii];
+		ns0 = ns[N-ii];
 		for(jj=0; jj<nb0+ng0; jj++)
+			idxs_rev[jj] = -1;
+		if(ns0>0)
+			{
+			for(jj=0; jj<ns0; jj++)
+				idxs_rev[idxs[N-ii][jj]] = jj;
+			}
+		ptr_ux = (ux+N-ii)->pa;
+		ptr_lam = (lam+N-ii)->pa;
+		ptr_t = (t+N-ii)->pa;
+		for(jj=nb0; jj<nb0+ng0; jj++)
 			{
 			if(idxs_rev[jj]>=0)
 				{
@@ -1406,7 +1445,7 @@ void EXPAND_SOL(struct OCP_QP *ocp_qp, struct DENSE_QP_SOL *dense_qp_sol, struct
 
 
 
-void EXPAND_PRIMAL_SOL(struct OCP_QP *ocp_qp, struct DENSE_QP_SOL *dense_qp_sol, struct OCP_QP_SOL *ocp_qp_sol, struct COND_QP_OCP2DENSE_ARG *cond_arg, struct COND_QP_OCP2DENSE_WORKSPACE *cond_ws)
+void EXPAND_PRIMAL_SOL(struct OCP_QP *ocp_qp, struct DENSE_QP_SOL *dense_qp_sol, struct OCP_QP_SOL *ocp_qp_sol, struct COND_QP_ARG *cond_arg, struct COND_QP_ARG_WS *cond_ws)
 	{
 
 	int N = ocp_qp->dim->N;
@@ -1503,7 +1542,7 @@ void EXPAND_PRIMAL_SOL(struct OCP_QP *ocp_qp, struct DENSE_QP_SOL *dense_qp_sol,
 ************************************************/
 
 // update cond assuming that dynamics change in [0,idx-1], and to remain the same in [idx,N-1]
-void UPDATE_COND_BABT(int *idxc, struct OCP_QP *ocp_qp, struct STRMAT *BAbt2, struct STRVEC *b2, struct COND_QP_OCP2DENSE_ARG *cond_arg, struct COND_QP_OCP2DENSE_WORKSPACE *cond_ws)
+void UPDATE_COND_BABT(int *idxc, struct OCP_QP *ocp_qp, struct STRMAT *BAbt2, struct STRVEC *b2, struct COND_QP_ARG *cond_arg, struct COND_QP_ARG_WS *cond_ws)
 	{
 
 	int N = ocp_qp->dim->N;
@@ -1601,7 +1640,7 @@ void UPDATE_COND_BABT(int *idxc, struct OCP_QP *ocp_qp, struct STRMAT *BAbt2, st
 
 
 // update cond assuming that dynamics change in [0,idx-1], and to remain the same in [idx,N-1]
-void UPDATE_COND_RSQRQ_N2NX3(int *idxc, struct OCP_QP *ocp_qp, struct STRMAT *RSQrq2, struct STRVEC *rqz2, struct COND_QP_OCP2DENSE_ARG *cond_arg, struct COND_QP_OCP2DENSE_WORKSPACE *cond_ws)
+void UPDATE_COND_RSQRQ_N2NX3(int *idxc, struct OCP_QP *ocp_qp, struct STRMAT *RSQrq2, struct STRVEC *rqz2, struct COND_QP_ARG *cond_arg, struct COND_QP_ARG_WS *cond_ws)
 	{
 
 	int N = ocp_qp->dim->N;
@@ -1762,7 +1801,7 @@ void UPDATE_COND_RSQRQ_N2NX3(int *idxc, struct OCP_QP *ocp_qp, struct STRMAT *RS
 
 
 // TODO
-void UPDATE_COND_DCTD(int *idxc, struct OCP_QP *ocp_qp, int *idxb2, struct STRMAT *DCt2, struct STRVEC *d2, int *idxs2, struct STRVEC *Z2, struct STRVEC *rqz2, struct COND_QP_OCP2DENSE_ARG *cond_arg, struct COND_QP_OCP2DENSE_WORKSPACE *cond_ws)
+void UPDATE_COND_DCTD(int *idxc, struct OCP_QP *ocp_qp, int *idxb2, struct STRMAT *DCt2, struct STRVEC *d2, int *idxs2, struct STRVEC *Z2, struct STRVEC *rqz2, struct COND_QP_ARG *cond_arg, struct COND_QP_ARG_WS *cond_ws)
 	{
 
 	int N = ocp_qp->dim->N;

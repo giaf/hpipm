@@ -1,3 +1,37 @@
+###################################################################################################
+#                                                                                                 #
+# This file is part of HPIPM.                                                                     #
+#                                                                                                 #
+# HPIPM -- High-Performance Interior Point Method.                                                #
+# Copyright (C) 2019 by Gianluca Frison.                                                          #
+# Developed at IMTEK (University of Freiburg) under the supervision of Moritz Diehl.              #
+# All rights reserved.                                                                            #
+#                                                                                                 #
+# The 2-Clause BSD License                                                                        #
+#                                                                                                 #
+# Redistribution and use in source and binary forms, with or without                              #
+# modification, are permitted provided that the following conditions are met:                     #
+#                                                                                                 #
+# 1. Redistributions of source code must retain the above copyright notice, this                  #
+#    list of conditions and the following disclaimer.                                             #
+# 2. Redistributions in binary form must reproduce the above copyright notice,                    #
+#    this list of conditions and the following disclaimer in the documentation                    #
+#    and/or other materials provided with the distribution.                                       #
+#                                                                                                 #
+# THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND                 #
+# ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED                   #
+# WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE                          #
+# DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR                 #
+# ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES                  #
+# (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;                    #
+# LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND                     #
+# ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT                      #
+# (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS                   #
+# SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.                                    #
+#                                                                                                 #
+# Author: Gianluca Frison, gianluca.frison (at) imtek.uni-freiburg.de                             #
+#                                                                                                 #
+###################################################################################################
 from hpipm_python import *
 from hpipm_python.common import *
 import numpy as np
@@ -164,13 +198,13 @@ for i in range(N+1):
 # print solver statistics
 print('\nsolver statistics:\n')
 print('ipm return = {0:1d}\n'.format(return_flag))
-res_stat = solver.get_res_stat()
+res_stat = solver.get_max_res_stat()
 print('ipm max res stat = {:e}\n'.format(res_stat))
-res_eq = solver.get_res_eq()
+res_eq = solver.get_max_res_eq()
 print('ipm max res eq   = {:e}\n'.format(res_eq))
-res_ineq = solver.get_res_ineq()
+res_ineq = solver.get_max_res_ineq()
 print('ipm max res ineq = {:e}\n'.format(res_ineq))
-res_comp = solver.get_res_comp()
+res_comp = solver.get_max_res_comp()
 print('ipm max res comp = {:e}\n'.format(res_comp))
 iters = solver.get_iter()
 print('ipm iter = {0:1d}\n'.format(iters))

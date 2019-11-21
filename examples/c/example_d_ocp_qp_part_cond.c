@@ -130,13 +130,13 @@ int main()
 	d_ocp_qp_dim_create(N2, &dim2, dim_mem2);
 
 	int *block_size = malloc((N+1)*sizeof(int));
-	d_compute_block_size_cond_qp_ocp2ocp(N, N2, block_size);
+	d_part_cond_qp_compute_block_size(N, N2, block_size);
 //	block_size[0] = 1;
 //	block_size[1] = 1;
 //	printf("\nblock_size\n");
 //	int_print_mat(1, N2+1, block_size, 1);
 
-	d_compute_qp_dim_ocp2ocp(&dim, block_size, &dim2);
+	d_part_cond_qp_compute_dim(&dim, block_size, &dim2);
 
 /************************************************
 * ocp qp
@@ -184,13 +184,13 @@ int main()
 * part cond arg
 ************************************************/
 
-	int part_cond_arg_size = d_memsize_cond_qp_ocp2ocp_arg(dim2.N);
+	int part_cond_arg_size = d_part_cond_qp_arg_memsize(dim2.N);
 	void *part_cond_arg_mem = malloc(part_cond_arg_size);
 
-	struct d_cond_qp_ocp2ocp_arg part_cond_arg;
-	d_create_cond_qp_ocp2ocp_arg(dim2.N, &part_cond_arg, part_cond_arg_mem);
+	struct d_part_cond_qp_arg part_cond_arg;
+	d_part_cond_qp_arg_create(dim2.N, &part_cond_arg, part_cond_arg_mem);
 
-	d_set_default_cond_qp_ocp2ocp_arg(dim2.N, &part_cond_arg);
+	d_part_cond_qp_arg_set_default(dim2.N, &part_cond_arg);
 
 //	d_set_cond_qp_ocp2ocp_arg_ric_alg(0, dim2.N, &part_cond_arg);
 
@@ -220,11 +220,11 @@ int main()
 * part cond workspace
 ************************************************/
 
-	int part_cond_size = d_memsize_cond_qp_ocp2ocp(&dim, block_size, &dim2, &part_cond_arg);
+	int part_cond_size = d_part_cond_qp_ws_memsize(&dim, block_size, &dim2, &part_cond_arg);
 	void *part_cond_mem = malloc(part_cond_size);
 
-	struct d_cond_qp_ocp2ocp_workspace part_cond_ws;
-	d_create_cond_qp_ocp2ocp(&dim, block_size, &dim2, &part_cond_arg, &part_cond_ws, part_cond_mem);
+	struct d_part_cond_qp_ws part_cond_ws;
+	d_part_cond_qp_ws_create(&dim, block_size, &dim2, &part_cond_arg, &part_cond_ws, part_cond_mem);
 
 /************************************************
 * ipm workspace
@@ -244,7 +244,7 @@ int main()
 
 	for(rep=0; rep<nrep; rep++)
 		{
-		d_cond_qp_ocp2ocp(&qp, &qp2, &part_cond_arg, &part_cond_ws);
+		d_part_cond_qp_cond(&qp, &qp2, &part_cond_arg, &part_cond_ws);
 		}
 
 	gettimeofday(&tv1, NULL); // stop
@@ -275,7 +275,7 @@ int main()
 
 	for(rep=0; rep<nrep; rep++)
 		{
-		d_expand_sol_ocp2ocp(&qp, &qp2, &qp_sol2, &qp_sol, &part_cond_arg, &part_cond_ws);
+		d_part_cond_qp_expand_sol(&qp, &qp2, &qp_sol2, &qp_sol, &part_cond_arg, &part_cond_ws);
 		}
 
 	gettimeofday(&tv1, NULL); // stop
@@ -351,10 +351,10 @@ int main()
 ************************************************/
 
 	int iter; d_ocp_qp_ipm_get_iter(&workspace, &iter);
-	double res_stat; d_ocp_qp_ipm_get_res_stat(&workspace, &res_stat);
-	double res_eq; d_ocp_qp_ipm_get_res_eq(&workspace, &res_eq);
-	double res_ineq; d_ocp_qp_ipm_get_res_ineq(&workspace, &res_ineq);
-	double res_comp; d_ocp_qp_ipm_get_res_comp(&workspace, &res_comp);
+	double res_stat; d_ocp_qp_ipm_get_max_res_stat(&workspace, &res_stat);
+	double res_eq; d_ocp_qp_ipm_get_max_res_eq(&workspace, &res_eq);
+	double res_ineq; d_ocp_qp_ipm_get_max_res_ineq(&workspace, &res_ineq);
+	double res_comp; d_ocp_qp_ipm_get_max_res_comp(&workspace, &res_comp);
 	double *stat; d_ocp_qp_ipm_get_stat(&workspace, &stat);
 	int stat_m; d_ocp_qp_ipm_get_stat_m(&workspace, &stat_m);
 

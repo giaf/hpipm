@@ -3,25 +3,31 @@
 * This file is part of HPIPM.                                                                     *
 *                                                                                                 *
 * HPIPM -- High-Performance Interior Point Method.                                                *
-* Copyright (C) 2017-2018 by Gianluca Frison.                                                     *
+* Copyright (C) 2019 by Gianluca Frison.                                                          *
 * Developed at IMTEK (University of Freiburg) under the supervision of Moritz Diehl.              *
 * All rights reserved.                                                                            *
 *                                                                                                 *
-* This program is free software: you can redistribute it and/or modify                            *
-* it under the terms of the GNU General Public License as published by                            *
-* the Free Software Foundation, either version 3 of the License, or                               *
-* (at your option) any later version                                                              *.
+* The 2-Clause BSD License                                                                        *
 *                                                                                                 *
-* This program is distributed in the hope that it will be useful,                                 *
-* but WITHOUT ANY WARRANTY; without even the implied warranty of                                  *
-* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the                                   *
-* GNU General Public License for more details.                                                    *
+* Redistribution and use in source and binary forms, with or without                              *
+* modification, are permitted provided that the following conditions are met:                     *
 *                                                                                                 *
-* You should have received a copy of the GNU General Public License                               *
-* along with this program.  If not, see <https://www.gnu.org/licenses/>.                          *
+* 1. Redistributions of source code must retain the above copyright notice, this                  *
+*    list of conditions and the following disclaimer.                                             *
+* 2. Redistributions in binary form must reproduce the above copyright notice,                    *
+*    this list of conditions and the following disclaimer in the documentation                    *
+*    and/or other materials provided with the distribution.                                       *
 *                                                                                                 *
-* The authors designate this particular file as subject to the "Classpath" exception              *
-* as provided by the authors in the LICENSE file that accompained this code.                      *
+* THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND                 *
+* ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED                   *
+* WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE                          *
+* DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR                 *
+* ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES                  *
+* (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;                    *
+* LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND                     *
+* ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT                      *
+* (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS                   *
+* SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.                                    *
 *                                                                                                 *
 * Author: Gianluca Frison, gianluca.frison (at) imtek.uni-freiburg.de                             *
 *                                                                                                 *
@@ -58,6 +64,7 @@ struct s_ocp_qp
 	struct blasfeo_svec *Z; // (diagonal) hessian of slacks
 	int **idxb; // index of box constraints
 	int **idxs; // index of soft constraints
+	int **idxs_rev; // index of soft constraints (reverse storage)
 	int memsize; // memory size in bytes
 	};
 
@@ -70,13 +77,19 @@ int s_ocp_qp_memsize(struct s_ocp_qp_dim *dim);
 //
 void s_ocp_qp_create(struct s_ocp_qp_dim *dim, struct s_ocp_qp *qp, void *memory);
 //
+void s_ocp_qp_copy_all(struct s_ocp_qp *qp_orig, struct s_ocp_qp *qp_dest);
+//
+void s_ocp_qp_set_all_zero(struct s_ocp_qp *qp);
+//
+void s_ocp_qp_set_rhs_zero(struct s_ocp_qp *qp);
+//
 void s_ocp_qp_set_all(float **A, float **B, float **b, float **Q, float **S, float **R, float **q, float **r, int **idxbx, float **lbx, float **ubx, int **idxbu, float **lbu, float **ubu, float **C, float **D, float **lg, float **ug, float **Zl, float **Zu, float **zl, float **zu, int **idxs, float **ls, float **us, struct s_ocp_qp *qp);
 //
 void s_ocp_qp_set(char *field_name, int stage, void *value, struct s_ocp_qp *qp);
 //
-void s_ocp_qp_set_A(int stage, float *mat, struct s_ocp_qp *qp);
+void s_ocp_qp_set_el(char *field_name, int stage, int index, void *value, struct s_ocp_qp *qp);
 //
-void s_ocp_qp_get_A(int stage, struct s_ocp_qp *qp, float *mat);
+void s_ocp_qp_set_A(int stage, float *mat, struct s_ocp_qp *qp);
 //
 void s_ocp_qp_set_B(int stage, float *mat, struct s_ocp_qp *qp);
 //
@@ -108,9 +121,11 @@ void s_ocp_qp_get_r(int stage, struct s_ocp_qp *qp, float *vec);
 //
 void s_ocp_qp_set_lbx(int stage, float *vec, struct s_ocp_qp *qp);
 //
-void s_ocp_qp_get_lbx(int stage, struct s_ocp_qp *qp, float *vec);
+void s_ocp_qp_set_el_lbx(int stage, int index, float *elem, struct s_ocp_qp *qp);
 //
 void s_ocp_qp_set_ubx(int stage, float *vec, struct s_ocp_qp *qp);
+//
+void s_ocp_qp_set_el_ubx(int stage, int index, float *elem, struct s_ocp_qp *qp);
 //
 void s_ocp_qp_get_ubx(int stage, struct s_ocp_qp *qp, float *vec);
 //
@@ -193,6 +208,32 @@ void s_ocp_qp_get_lls(int stage, struct s_ocp_qp *qp, float *vec);
 void s_ocp_qp_set_lus(int stage, float *vec, struct s_ocp_qp *qp);
 //
 void s_ocp_qp_get_lus(int stage, struct s_ocp_qp *qp, float *vec);
+//
+void s_ocp_qp_set_idxs(int stage, int *vec, struct s_ocp_qp *qp);
+//
+//void s_ocp_qp_get_idxs(int stage, struct s_ocp_qp *qp, int *vec);
+//
+void s_ocp_qp_set_Jsbu(int stage, float *vec, struct s_ocp_qp *qp);
+//
+//void s_ocp_qp_get_Jsbu(int stage, struct s_ocp_qp *qp, float *vec);
+//
+void s_ocp_qp_set_Jsbx(int stage, float *vec, struct s_ocp_qp *qp);
+//
+//void s_ocp_qp_get_Jsbx(int stage, struct s_ocp_qp *qp, float *vec);
+//
+void s_ocp_qp_set_Jsg(int stage, float *vec, struct s_ocp_qp *qp);
+//
+//void s_ocp_qp_get_Jsg(int stage, struct s_ocp_qp *qp, float *vec);
+// getters
+//
+void s_ocp_qp_get(char *field, int stage, struct s_ocp_qp *qp, void *value);
+//
+void s_ocp_qp_get_A(int stage, struct s_ocp_qp *qp, float *mat);
+//
+void s_ocp_qp_get_lbx(int stage, struct s_ocp_qp *qp, float *vec);
+//
+void s_ocp_qp_get_ubx(int stage, struct s_ocp_qp *qp, float *vec);
+
 // TODO remove ???
 void d_change_bounds_dimensions_ocp_qp(int *nbu, int *nbx, struct s_ocp_qp *qp);
 

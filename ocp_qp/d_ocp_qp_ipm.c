@@ -3,25 +3,31 @@
 * This file is part of HPIPM.                                                                     *
 *                                                                                                 *
 * HPIPM -- High-Performance Interior Point Method.                                                *
-* Copyright (C) 2017-2018 by Gianluca Frison.                                                     *
+* Copyright (C) 2019 by Gianluca Frison.                                                          *
 * Developed at IMTEK (University of Freiburg) under the supervision of Moritz Diehl.              *
 * All rights reserved.                                                                            *
 *                                                                                                 *
-* This program is free software: you can redistribute it and/or modify                            *
-* it under the terms of the GNU General Public License as published by                            *
-* the Free Software Foundation, either version 3 of the License, or                               *
-* (at your option) any later version                                                              *.
+* The 2-Clause BSD License                                                                        *
 *                                                                                                 *
-* This program is distributed in the hope that it will be useful,                                 *
-* but WITHOUT ANY WARRANTY; without even the implied warranty of                                  *
-* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the                                   *
-* GNU General Public License for more details.                                                    *
+* Redistribution and use in source and binary forms, with or without                              *
+* modification, are permitted provided that the following conditions are met:                     *
 *                                                                                                 *
-* You should have received a copy of the GNU General Public License                               *
-* along with this program.  If not, see <https://www.gnu.org/licenses/>.                          *
+* 1. Redistributions of source code must retain the above copyright notice, this                  *
+*    list of conditions and the following disclaimer.                                             *
+* 2. Redistributions in binary form must reproduce the above copyright notice,                    *
+*    this list of conditions and the following disclaimer in the documentation                    *
+*    and/or other materials provided with the distribution.                                       *
 *                                                                                                 *
-* The authors designate this particular file as subject to the "Classpath" exception              *
-* as provided by the authors in the LICENSE file that accompained this code.                      *
+* THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND                 *
+* ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED                   *
+* WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE                          *
+* DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR                 *
+* ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES                  *
+* (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;                    *
+* LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND                     *
+* ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT                      *
+* (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS                   *
+* SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.                                    *
 *                                                                                                 *
 * Author: Gianluca Frison, gianluca.frison (at) imtek.uni-freiburg.de                             *
 *                                                                                                 *
@@ -44,6 +50,7 @@
 #include <hpipm_d_ocp_qp.h>
 #include <hpipm_d_ocp_qp_sol.h>
 #include <hpipm_d_ocp_qp_ipm.h>
+#include <hpipm_d_ocp_qp_utils.h>
 #include <hpipm_d_core_qp_ipm.h>
 #include <hpipm_d_core_qp_ipm_aux.h>
 #include <hpipm_d_ocp_qp_res.h>
@@ -58,31 +65,33 @@
 #define COMPUTE_CENTERING_CORRECTION_QP d_compute_centering_correction_qp
 #define COMPUTE_CENTERING_QP d_compute_centering_qp
 #define COMPUTE_MU_AFF_QP d_compute_mu_aff_qp
-#define COMPUTE_LIN_RES_OCP_QP d_compute_lin_res_ocp_qp
-#define COMPUTE_RES_OCP_QP d_compute_res_ocp_qp
 #define CORE_QP_IPM_WORKSPACE d_core_qp_ipm_workspace
 #define CREATE_CORE_QP_IPM d_create_core_qp_ipm
-#define OCP_QP_RES_CREATE d_ocp_qp_res_create
-#define OCP_QP_SOL_CREATE d_ocp_qp_sol_create
 #define CREATE_STRMAT blasfeo_create_dmat
 #define CREATE_STRVEC blasfeo_create_dvec
-#define CVT_STRVEC2VEC blasfeo_unpack_dvec
 #define FACT_SOLVE_KKT_STEP_OCP_QP d_fact_solve_kkt_step_ocp_qp
 #define FACT_LQ_SOLVE_KKT_STEP_OCP_QP d_fact_lq_solve_kkt_step_ocp_qp
 #define FACT_SOLVE_KKT_UNCONSTR_OCP_QP d_fact_solve_kkt_unconstr_ocp_qp
 #define GELQF_WORKSIZE blasfeo_dgelqf_worksize
+#define GESE blasfeo_dgese
+#define HPIPM_MODE hpipm_mode
 #define INIT_VAR_OCP_QP d_init_var_ocp_qp
 #define MEMSIZE_CORE_QP_IPM d_memsize_core_qp_ipm
-#define OCP_QP_RES_MEMSIZE d_ocp_qp_res_memsize
-#define OCP_QP_SOL_MEMSIZE d_ocp_qp_sol_memsize
 #define OCP_QP d_ocp_qp
+#define OCP_QP_DIM d_ocp_qp_dim
+#define OCP_QP_DIM_PRINT d_ocp_qp_dim_print
 #define OCP_QP_IPM_ARG d_ocp_qp_ipm_arg
-#define HPIPM_MODE hpipm_mode
 #define OCP_QP_IPM_WS d_ocp_qp_ipm_ws
+#define OCP_QP_PRINT d_ocp_qp_print
 #define OCP_QP_RES d_ocp_qp_res
 #define OCP_QP_RES_WS d_ocp_qp_res_ws
-#define OCP_QP_DIM d_ocp_qp_dim
+#define OCP_QP_RES_COMPUTE d_ocp_qp_res_compute
+#define OCP_QP_RES_COMPUTE_LIN d_ocp_qp_res_compute_lin
+#define OCP_QP_RES_CREATE d_ocp_qp_res_create
+#define OCP_QP_RES_MEMSIZE d_ocp_qp_res_memsize
 #define OCP_QP_SOL d_ocp_qp_sol
+#define OCP_QP_SOL_CREATE d_ocp_qp_sol_create
+#define OCP_QP_SOL_MEMSIZE d_ocp_qp_sol_memsize
 #define PRINT_E_MAT d_print_exp_mat
 #define PRINT_E_STRVEC blasfeo_print_exp_dvec
 #define PRINT_E_TRAN_STRVEC blasfeo_print_exp_tran_dvec
@@ -90,11 +99,19 @@
 #define PRINT_STRVEC blasfeo_print_dvec
 #define PRINT_TRAN_STRVEC blasfeo_print_tran_dvec
 #define REAL double
+#define ROWEX blasfeo_drowex
 #define SIZE_STRMAT blasfeo_memsize_dmat
 #define SIZE_STRVEC blasfeo_memsize_dvec
 #define SOLVE_KKT_STEP_OCP_QP d_solve_kkt_step_ocp_qp
 #define STRMAT blasfeo_dmat
 #define STRVEC blasfeo_dvec
+#define SYRK_LN blasfeo_dsyrk_ln
+#define TRCP_L blasfeo_dtrcp_l
+#define TRMV_LNN blasfeo_dtrmv_lnn
+#define TRMV_LTN blasfeo_dtrmv_ltn
+#define TRTR_L blasfeo_dtrtr_l
+#define UNPACK_MAT blasfeo_unpack_dmat
+#define UNPACK_VEC blasfeo_unpack_dvec
 #define UPDATE_VAR_QP d_update_var_qp
 #define VECMULDOT blasfeo_dvecmuldot
 #define VECNRM_INF blasfeo_dvecnrm_inf
@@ -120,6 +137,7 @@
 #define OCP_QP_IPM_ARG_SET_WARM_START d_ocp_qp_ipm_arg_set_warm_start
 #define OCP_QP_IPM_ARG_SET_PRED_CORR d_ocp_qp_ipm_arg_set_pred_corr
 #define OCP_QP_IPM_ARG_SET_RIC_ALG d_ocp_qp_ipm_arg_set_ric_alg
+#define OCP_QP_IPM_ARG_SET_COMP_RES_PRED d_ocp_qp_ipm_arg_set_comp_res_pred
 // ipm
 #define OCP_QP_IPM_WS_STRSIZE d_ocp_qp_ipm_ws_strsize
 #define OCP_QP_IPM_WS_MEMSIZE d_ocp_qp_ipm_ws_memsize
@@ -127,13 +145,20 @@
 #define OCP_QP_IPM_GET d_ocp_qp_ipm_get
 #define OCP_QP_IPM_GET_STATUS d_ocp_qp_ipm_get_status
 #define OCP_QP_IPM_GET_ITER d_ocp_qp_ipm_get_iter
-#define OCP_QP_IPM_GET_RES_STAT d_ocp_qp_ipm_get_res_stat
-#define OCP_QP_IPM_GET_RES_EQ d_ocp_qp_ipm_get_res_eq
-#define OCP_QP_IPM_GET_RES_INEQ d_ocp_qp_ipm_get_res_ineq
-#define OCP_QP_IPM_GET_RES_COMP d_ocp_qp_ipm_get_res_comp
+#define OCP_QP_IPM_GET_MAX_RES_STAT d_ocp_qp_ipm_get_max_res_stat
+#define OCP_QP_IPM_GET_MAX_RES_EQ d_ocp_qp_ipm_get_max_res_eq
+#define OCP_QP_IPM_GET_MAX_RES_INEQ d_ocp_qp_ipm_get_max_res_ineq
+#define OCP_QP_IPM_GET_MAX_RES_COMP d_ocp_qp_ipm_get_max_res_comp
 #define OCP_QP_IPM_GET_STAT d_ocp_qp_ipm_get_stat
 #define OCP_QP_IPM_GET_STAT_M d_ocp_qp_ipm_get_stat_m
+#define OCP_QP_IPM_GET_RIC_LR d_ocp_qp_ipm_get_ric_Lr
+#define OCP_QP_IPM_GET_RIC_LS d_ocp_qp_ipm_get_ric_Ls
+#define OCP_QP_IPM_GET_RIC_P d_ocp_qp_ipm_get_ric_P
+#define OCP_QP_IPM_GET_RIC_LR_VEC d_ocp_qp_ipm_get_ric_lr
+#define OCP_QP_IPM_GET_RIC_P_VEC d_ocp_qp_ipm_get_ric_p
 #define OCP_QP_IPM_SOLVE d_ocp_qp_ipm_solve
+#define OCP_QP_IPM_PREDICT d_ocp_qp_ipm_predict
+#define OCP_QP_IPM_SENS d_ocp_qp_ipm_sens
 
 
 

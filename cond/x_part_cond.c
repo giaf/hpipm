@@ -3,31 +3,37 @@
 * This file is part of HPIPM.                                                                     *
 *                                                                                                 *
 * HPIPM -- High-Performance Interior Point Method.                                                *
-* Copyright (C) 2017-2018 by Gianluca Frison.                                                     *
+* Copyright (C) 2019 by Gianluca Frison.                                                          *
 * Developed at IMTEK (University of Freiburg) under the supervision of Moritz Diehl.              *
 * All rights reserved.                                                                            *
 *                                                                                                 *
-* This program is free software: you can redistribute it and/or modify                            *
-* it under the terms of the GNU General Public License as published by                            *
-* the Free Software Foundation, either version 3 of the License, or                               *
-* (at your option) any later version                                                              *.
+* The 2-Clause BSD License                                                                        *
 *                                                                                                 *
-* This program is distributed in the hope that it will be useful,                                 *
-* but WITHOUT ANY WARRANTY; without even the implied warranty of                                  *
-* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the                                   *
-* GNU General Public License for more details.                                                    *
+* Redistribution and use in source and binary forms, with or without                              *
+* modification, are permitted provided that the following conditions are met:                     *
 *                                                                                                 *
-* You should have received a copy of the GNU General Public License                               *
-* along with this program.  If not, see <https://www.gnu.org/licenses/>.                          *
+* 1. Redistributions of source code must retain the above copyright notice, this                  *
+*    list of conditions and the following disclaimer.                                             *
+* 2. Redistributions in binary form must reproduce the above copyright notice,                    *
+*    this list of conditions and the following disclaimer in the documentation                    *
+*    and/or other materials provided with the distribution.                                       *
 *                                                                                                 *
-* The authors designate this particular file as subject to the "Classpath" exception              *
-* as provided by the authors in the LICENSE file that accompained this code.                      *
+* THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND                 *
+* ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED                   *
+* WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE                          *
+* DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR                 *
+* ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES                  *
+* (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;                    *
+* LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND                     *
+* ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT                      *
+* (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS                   *
+* SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.                                    *
 *                                                                                                 *
 * Author: Gianluca Frison, gianluca.frison (at) imtek.uni-freiburg.de                             *
 *                                                                                                 *
 **************************************************************************************************/
 
-void COMPUTE_BLOCK_SIZE_COND_QP_OCP2OCP(int N, int N2, int *block_size)
+void PART_COND_QP_COMPUTE_BLOCK_SIZE(int N, int N2, int *block_size)
 	{
 
 	int ii;
@@ -49,7 +55,7 @@ void COMPUTE_BLOCK_SIZE_COND_QP_OCP2OCP(int N, int N2, int *block_size)
 
 
 
-void COMPUTE_QP_DIM_OCP2OCP(struct OCP_QP_DIM *ocp_dim, int *block_size, struct OCP_QP_DIM *part_dense_dim)
+void PART_COND_QP_COMPUTE_DIM(struct OCP_QP_DIM *ocp_dim, int *block_size, struct OCP_QP_DIM *part_dense_dim)
 	{
 
 	// TODO run time check on sum(block_size) = N
@@ -144,19 +150,19 @@ void COMPUTE_QP_DIM_OCP2OCP(struct OCP_QP_DIM *ocp_dim, int *block_size, struct 
 
 
 
-int MEMSIZE_COND_QP_OCP2OCP_ARG(int N2)
+int PART_COND_QP_ARG_MEMSIZE(int N2)
 	{
 
 	int ii;
 
 	int size = 0;
 
-	size += (N2+1)*sizeof(struct COND_QP_OCP2DENSE_ARG);
+	size += (N2+1)*sizeof(struct COND_QP_ARG);
 
 	for(ii=0; ii<=N2; ii++)
 		{
 
-		size += MEMSIZE_COND_QP_OCP2DENSE_ARG();
+		size += COND_QP_ARG_MEMSIZE();
 
 		}
 
@@ -169,13 +175,13 @@ int MEMSIZE_COND_QP_OCP2OCP_ARG(int N2)
 
 
 
-void CREATE_COND_QP_OCP2OCP_ARG(int N2, struct COND_QP_OCP2OCP_ARG *part_cond_arg, void *mem)
+void PART_COND_QP_ARG_CREATE(int N2, struct PART_COND_QP_ARG *part_cond_arg, void *mem)
 	{
 
 	int ii;
 
 	// cond workspace struct
-	struct COND_QP_OCP2DENSE_ARG *cws_ptr = mem;
+	struct COND_QP_ARG *cws_ptr = mem;
 	part_cond_arg->cond_arg = cws_ptr;
 	cws_ptr += N2+1;
 
@@ -188,12 +194,12 @@ void CREATE_COND_QP_OCP2OCP_ARG(int N2, struct COND_QP_OCP2OCP_ARG *part_cond_ar
 	for(ii=0; ii<=N2; ii++)
 		{
 
-		CREATE_COND_QP_OCP2DENSE_ARG(part_cond_arg->cond_arg+ii, c_ptr);
+		COND_QP_ARG_CREATE(part_cond_arg->cond_arg+ii, c_ptr);
 		c_ptr += (part_cond_arg->cond_arg+ii)->memsize;
 
 		}
 
-	part_cond_arg->memsize = MEMSIZE_COND_QP_OCP2OCP_ARG(N2);
+	part_cond_arg->memsize = PART_COND_QP_ARG_MEMSIZE(N2);
 
 #if defined(RUNTIME_CHECKS)
 	if(c_ptr > ((char *) mem) + part_cond_arg->memsize)
@@ -209,7 +215,7 @@ void CREATE_COND_QP_OCP2OCP_ARG(int N2, struct COND_QP_OCP2OCP_ARG *part_cond_ar
 
 
 
-void SET_DEFAULT_COND_QP_OCP2OCP_ARG(int N2, struct COND_QP_OCP2OCP_ARG *part_cond_arg)
+void PART_COND_QP_ARG_SET_DEFAULT(int N2, struct PART_COND_QP_ARG *part_cond_arg)
 	{
 
 	int ii;
@@ -217,7 +223,7 @@ void SET_DEFAULT_COND_QP_OCP2OCP_ARG(int N2, struct COND_QP_OCP2OCP_ARG *part_co
 	for(ii=0; ii<=N2; ii++)
 		{
 
-		SET_DEFAULT_COND_QP_OCP2DENSE_ARG(part_cond_arg->cond_arg+ii);
+		COND_QP_ARG_SET_DEFAULT(part_cond_arg->cond_arg+ii);
 		(part_cond_arg->cond_arg+ii)->cond_last_stage = 0;
 
 		}
@@ -230,14 +236,14 @@ void SET_DEFAULT_COND_QP_OCP2OCP_ARG(int N2, struct COND_QP_OCP2OCP_ARG *part_co
 
 
 
-void SET_COND_QP_OCP2OCP_ARG_RIC_ALG(int ric_alg, int N2, struct COND_QP_OCP2OCP_ARG *part_cond_arg)
+void PART_COND_QP_ARG_SET_RIC_ALG(int ric_alg, int N2, struct PART_COND_QP_ARG *part_cond_arg)
 	{
 
 	int ii;
 
 	for(ii=0; ii<=N2; ii++)
 		{
-		SET_COND_QP_OCP2DENSE_ARG_RIC_ALG(ric_alg, part_cond_arg->cond_arg+ii);
+		COND_QP_ARG_SET_RIC_ALG(ric_alg, part_cond_arg->cond_arg+ii);
 		}
 
 	return;
@@ -246,7 +252,7 @@ void SET_COND_QP_OCP2OCP_ARG_RIC_ALG(int ric_alg, int N2, struct COND_QP_OCP2OCP
 
 
 
-int MEMSIZE_COND_QP_OCP2OCP(struct OCP_QP_DIM *ocp_dim, int *block_size, struct OCP_QP_DIM *part_dense_dim, struct COND_QP_OCP2OCP_ARG *part_cond_arg)
+int PART_COND_QP_WS_MEMSIZE(struct OCP_QP_DIM *ocp_dim, int *block_size, struct OCP_QP_DIM *part_dense_dim, struct PART_COND_QP_ARG *part_cond_arg)
 	{
 
 	struct OCP_QP_DIM tmp_ocp_dim;
@@ -258,7 +264,7 @@ int MEMSIZE_COND_QP_OCP2OCP(struct OCP_QP_DIM *ocp_dim, int *block_size, struct 
 
 	int size = 0;
 
-	size += (N2+1)*sizeof(struct COND_QP_OCP2DENSE_WORKSPACE);
+	size += (N2+1)*sizeof(struct COND_QP_ARG_WS);
 
 	int N_tmp = 0; // temporary sum of horizons
 	for(ii=0; ii<=N2; ii++)
@@ -273,7 +279,7 @@ int MEMSIZE_COND_QP_OCP2OCP(struct OCP_QP_DIM *ocp_dim, int *block_size, struct 
 		tmp_ocp_dim.nb = ocp_dim->nb+N_tmp;
 		tmp_ocp_dim.ng = ocp_dim->ng+N_tmp;
 
-		size += MEMSIZE_COND_QP_OCP2DENSE(&tmp_ocp_dim, part_cond_arg->cond_arg+ii);
+		size += COND_QP_WS_MEMSIZE(&tmp_ocp_dim, part_cond_arg->cond_arg+ii);
 
 		N_tmp += block_size[ii];
 
@@ -288,7 +294,7 @@ int MEMSIZE_COND_QP_OCP2OCP(struct OCP_QP_DIM *ocp_dim, int *block_size, struct 
 
 
 
-void CREATE_COND_QP_OCP2OCP(struct OCP_QP_DIM *ocp_dim, int *block_size, struct OCP_QP_DIM *part_dense_dim, struct COND_QP_OCP2OCP_ARG *part_cond_arg, struct COND_QP_OCP2OCP_WORKSPACE *part_cond_ws, void *mem)
+void PART_COND_QP_WS_CREATE(struct OCP_QP_DIM *ocp_dim, int *block_size, struct OCP_QP_DIM *part_dense_dim, struct PART_COND_QP_ARG *part_cond_arg, struct PART_COND_QP_WS *part_cond_ws, void *mem)
 	{
 
 	struct OCP_QP_DIM tmp_ocp_dim;
@@ -299,7 +305,7 @@ void CREATE_COND_QP_OCP2OCP(struct OCP_QP_DIM *ocp_dim, int *block_size, struct 
 	int N2 = part_dense_dim->N;
 
 	// cond workspace struct
-	struct COND_QP_OCP2DENSE_WORKSPACE *cws_ptr = mem;
+	struct COND_QP_ARG_WS *cws_ptr = mem;
 	part_cond_ws->cond_workspace = cws_ptr;
 	cws_ptr += N2+1;
 
@@ -322,14 +328,14 @@ void CREATE_COND_QP_OCP2OCP(struct OCP_QP_DIM *ocp_dim, int *block_size, struct 
 		tmp_ocp_dim.nb = ocp_dim->nb+N_tmp;
 		tmp_ocp_dim.ng = ocp_dim->ng+N_tmp;
 
-		CREATE_COND_QP_OCP2DENSE(&tmp_ocp_dim, part_cond_arg->cond_arg+ii, part_cond_ws->cond_workspace+ii, c_ptr);
+		COND_QP_WS_CREATE(&tmp_ocp_dim, part_cond_arg->cond_arg+ii, part_cond_ws->cond_workspace+ii, c_ptr);
 		c_ptr += (part_cond_ws->cond_workspace+ii)->memsize;
 
 		N_tmp += block_size[ii];
 
 		}
 
-	part_cond_ws->memsize = MEMSIZE_COND_QP_OCP2OCP(ocp_dim, block_size, part_dense_dim, part_cond_arg);
+	part_cond_ws->memsize = PART_COND_QP_WS_MEMSIZE(ocp_dim, block_size, part_dense_dim, part_cond_arg);
 
 #if defined(RUNTIME_CHECKS)
 	if(c_ptr > ((char *) mem) + part_cond_ws->memsize)
@@ -345,7 +351,7 @@ return;
 
 
 
-void COND_QP_OCP2OCP(struct OCP_QP *ocp_qp, struct OCP_QP *part_dense_qp, struct COND_QP_OCP2OCP_ARG *part_cond_arg, struct COND_QP_OCP2OCP_WORKSPACE *part_cond_ws)
+void PART_COND_QP_COND(struct OCP_QP *ocp_qp, struct OCP_QP *part_dense_qp, struct PART_COND_QP_ARG *part_cond_arg, struct PART_COND_QP_WS *part_cond_ws)
 	{
 
 	struct OCP_QP_DIM tmp_ocp_dim;
@@ -419,7 +425,7 @@ void COND_QP_OCP2OCP(struct OCP_QP *ocp_qp, struct OCP_QP *part_dense_qp, struct
 
 
 
-void COND_RHS_QP_OCP2OCP(struct OCP_QP *ocp_qp, struct OCP_QP *part_dense_qp, struct COND_QP_OCP2OCP_ARG *part_cond_arg, struct COND_QP_OCP2OCP_WORKSPACE *part_cond_ws)
+void PART_COND_QP_COND_RHS(struct OCP_QP *ocp_qp, struct OCP_QP *part_dense_qp, struct PART_COND_QP_ARG *part_cond_arg, struct PART_COND_QP_WS *part_cond_ws)
 	{
 
 	struct OCP_QP_DIM tmp_ocp_dim;
@@ -488,7 +494,7 @@ void COND_RHS_QP_OCP2OCP(struct OCP_QP *ocp_qp, struct OCP_QP *part_dense_qp, st
 
 
 
-void EXPAND_SOL_OCP2OCP(struct OCP_QP *ocp_qp, struct OCP_QP *part_dense_qp, struct OCP_QP_SOL *part_dense_qp_sol, struct OCP_QP_SOL *ocp_qp_sol, struct COND_QP_OCP2OCP_ARG *part_cond_arg, struct COND_QP_OCP2OCP_WORKSPACE *part_cond_ws)
+void PART_COND_QP_EXPAND_SOL(struct OCP_QP *ocp_qp, struct OCP_QP *part_dense_qp, struct OCP_QP_SOL *part_dense_qp_sol, struct OCP_QP_SOL *ocp_qp_sol, struct PART_COND_QP_ARG *part_cond_arg, struct PART_COND_QP_WS *part_cond_ws)
 	{
 
 	struct OCP_QP_DIM tmp_ocp_dim;
@@ -569,7 +575,7 @@ void EXPAND_SOL_OCP2OCP(struct OCP_QP *ocp_qp, struct OCP_QP *part_dense_qp, str
 * update cond
 ************************************************/
 
-void UPDATE_COND_QP_OCP2OCP(int *idxc, struct OCP_QP *ocp_qp, struct OCP_QP *part_dense_qp, struct COND_QP_OCP2OCP_ARG *part_cond_arg, struct COND_QP_OCP2OCP_WORKSPACE *part_cond_ws)
+void PART_COND_QP_UPDATE(int *idxc, struct OCP_QP *ocp_qp, struct OCP_QP *part_dense_qp, struct PART_COND_QP_ARG *part_cond_arg, struct PART_COND_QP_WS *part_cond_ws)
 	{
 
 	struct OCP_QP_DIM tmp_ocp_dim;

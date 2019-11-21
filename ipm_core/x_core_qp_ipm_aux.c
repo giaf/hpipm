@@ -3,25 +3,31 @@
 * This file is part of HPIPM.                                                                     *
 *                                                                                                 *
 * HPIPM -- High-Performance Interior Point Method.                                                *
-* Copyright (C) 2017-2018 by Gianluca Frison.                                                     *
+* Copyright (C) 2019 by Gianluca Frison.                                                          *
 * Developed at IMTEK (University of Freiburg) under the supervision of Moritz Diehl.              *
 * All rights reserved.                                                                            *
 *                                                                                                 *
-* This program is free software: you can redistribute it and/or modify                            *
-* it under the terms of the GNU General Public License as published by                            *
-* the Free Software Foundation, either version 3 of the License, or                               *
-* (at your option) any later version                                                              *.
+* The 2-Clause BSD License                                                                        *
 *                                                                                                 *
-* This program is distributed in the hope that it will be useful,                                 *
-* but WITHOUT ANY WARRANTY; without even the implied warranty of                                  *
-* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the                                   *
-* GNU General Public License for more details.                                                    *
+* Redistribution and use in source and binary forms, with or without                              *
+* modification, are permitted provided that the following conditions are met:                     *
 *                                                                                                 *
-* You should have received a copy of the GNU General Public License                               *
-* along with this program.  If not, see <https://www.gnu.org/licenses/>.                          *
+* 1. Redistributions of source code must retain the above copyright notice, this                  *
+*    list of conditions and the following disclaimer.                                             *
+* 2. Redistributions in binary form must reproduce the above copyright notice,                    *
+*    this list of conditions and the following disclaimer in the documentation                    *
+*    and/or other materials provided with the distribution.                                       *
 *                                                                                                 *
-* The authors designate this particular file as subject to the "Classpath" exception              *
-* as provided by the authors in the LICENSE file that accompained this code.                      *
+* THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND                 *
+* ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED                   *
+* WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE                          *
+* DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR                 *
+* ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES                  *
+* (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;                    *
+* LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND                     *
+* ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT                      *
+* (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS                   *
+* SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.                                    *
 *                                                                                                 *
 * Author: Gianluca Frison, gianluca.frison (at) imtek.uni-freiburg.de                             *
 *                                                                                                 *
@@ -102,7 +108,7 @@ void COMPUTE_LAM_T_QP(REAL *res_d, REAL *res_m, REAL *dlam, REAL *dt, struct COR
 		// TODO compute lamda alone ???
 		dlam[ii] = - t_inv[ii] * (lam[ii]*dt[ii] + res_m[ii]);
 		}
-	
+
 	return;
 
 	}
@@ -115,10 +121,10 @@ void COMPUTE_ALPHA_QP(struct CORE_QP_IPM_WORKSPACE *cws)
 	// extract workspace members
 	int nc = cws->nc;
 
-	REAL *lam_lb = cws->lam;
-	REAL *t_lb = cws->t;
-	REAL *dlam_lb = cws->dlam;
-	REAL *dt_lb = cws->dt;
+	REAL *lam = cws->lam;
+	REAL *t = cws->t;
+	REAL *dlam = cws->dlam;
+	REAL *dt = cws->dt;
 
 	REAL alpha_prim = - 1.0;
 	REAL alpha_dual = - 1.0;
@@ -126,19 +132,20 @@ void COMPUTE_ALPHA_QP(struct CORE_QP_IPM_WORKSPACE *cws)
 
 #if 1
 
+
 	// local variables
 	int ii;
 
 	for(ii=0; ii<nc; ii++)
 		{
 
-		if( alpha_dual*dlam_lb[ii+0]>lam_lb[ii+0] )
+		if( alpha_dual*dlam[ii+0]>lam[ii+0] )
 			{
-			alpha_dual = lam_lb[ii+0] / dlam_lb[ii+0];
+			alpha_dual = lam[ii+0] / dlam[ii+0];
 			}
-		if( alpha_prim*dt_lb[ii+0]>t_lb[ii+0] )
+		if( alpha_prim*dt[ii+0]>t[ii+0] )
 			{
-			alpha_prim = t_lb[ii+0] / dt_lb[ii+0];
+			alpha_prim = t[ii+0] / dt[ii+0];
 			}
 
 		}
@@ -157,13 +164,13 @@ void COMPUTE_ALPHA_QP(struct CORE_QP_IPM_WORKSPACE *cws)
 	for(ii=0; ii<nc; ii++)
 		{
 
-		if( alpha_dual*dlam_lb[ii+0]>tau*lam_lb[ii+0] )
+		if( alpha_dual*dlam[ii+0]>tau*lam[ii+0] )
 			{
-			alpha_dual = tau*lam_lb[ii+0] / dlam_lb[ii+0];
+			alpha_dual = tau*lam[ii+0] / dlam[ii+0];
 			}
-		if( alpha_prim*dt_lb[ii+0]>tau*t_lb[ii+0] )
+		if( alpha_prim*dt[ii+0]>tau*t[ii+0] )
 			{
-			alpha_prim = tau*t_lb[ii+0] / dt_lb[ii+0];
+			alpha_prim = tau*t[ii+0] / dt[ii+0];
 			}
 
 		}
@@ -194,6 +201,10 @@ void UPDATE_VAR_QP(struct CORE_QP_IPM_WORKSPACE *cws)
 	REAL *pi = cws->pi;
 	REAL *lam = cws->lam;
 	REAL *t = cws->t;
+	REAL *v_bkp = cws->v_bkp;
+	REAL *pi_bkp = cws->pi_bkp;
+	REAL *lam_bkp = cws->lam_bkp;
+	REAL *t_bkp = cws->t_bkp;
 	REAL *dv = cws->dv;
 	REAL *dpi = cws->dpi;
 	REAL *dlam = cws->dlam;
@@ -220,18 +231,21 @@ void UPDATE_VAR_QP(struct CORE_QP_IPM_WORKSPACE *cws)
 	// update v
 	for(ii=0; ii<nv; ii++)
 		{
+		v_bkp[ii] = v[ii];
 		v[ii] += alpha * dv[ii];
 		}
 
 	// update pi
 	for(ii=0; ii<ne; ii++)
 		{
+		pi_bkp[ii] = pi[ii];
 		pi[ii] += alpha * dpi[ii];
 		}
 
 	// update lam
 	for(ii=0; ii<nc; ii++)
 		{
+		lam_bkp[ii] = lam[ii];
 		lam[ii] += alpha * dlam[ii];
 		lam[ii] = lam[ii]<=cws->lam_min ? cws->lam_min : lam[ii];
 		}
@@ -239,6 +253,7 @@ void UPDATE_VAR_QP(struct CORE_QP_IPM_WORKSPACE *cws)
 	// update t
 	for(ii=0; ii<nc; ii++)
 		{
+		t_bkp[ii] = t[ii];
 		t[ii] += alpha * dt[ii];
 		t[ii] = t[ii]<=cws->t_min ? cws->t_min : t[ii];
 		}
@@ -248,18 +263,21 @@ void UPDATE_VAR_QP(struct CORE_QP_IPM_WORKSPACE *cws)
 	// update v
 	for(ii=0; ii<nv; ii++)
 		{
+		v_bkp[ii] = v[ii];
 		v[ii] += alpha_prim * dv[ii];
 		}
 
 	// update pi
 	for(ii=0; ii<ne; ii++)
 		{
+		pi_bkp[ii] = pi[ii];
 		pi[ii] += alpha_dual * dpi[ii];
 		}
 
 	// update lam
 	for(ii=0; ii<nc; ii++)
 		{
+		lam_bkp[ii] = lam[ii];
 		lam[ii] += alpha_dual * dlam[ii];
 		lam[ii] = lam[ii]<=cws->lam_min ? cws->lam_min : lam[ii];
 		}
@@ -267,6 +285,7 @@ void UPDATE_VAR_QP(struct CORE_QP_IPM_WORKSPACE *cws)
 	// update t
 	for(ii=0; ii<nc; ii++)
 		{
+		t_bkp[ii] = t[ii];
 		t[ii] += alpha_prim * dt[ii];
 		t[ii] = t[ii]<=cws->t_min ? cws->t_min : t[ii];
 		}

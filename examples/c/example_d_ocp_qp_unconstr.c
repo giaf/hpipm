@@ -147,12 +147,12 @@ int main()
 
 #if 0
 	// keep x0 as an optimization variable, set its value using equal upper-lower bounds
-	for(ii=1; ii<=N; ii++)
-		nbx[ii] = 0;
+//	for(ii=1; ii<=N; ii++)
+//		nbx[ii] = 0;
 
-	hlb[0] = x0;
-	hub[0] = x0;
-	hidxbx[0] = idxbx0;
+//	hlbx[0] = x0;
+//	hubx[0] = x0;
+//	hidxbx[0] = idxbx0;
 #else
 	// remove x0 from the optimization variables
 	nx[0] = 0;
@@ -233,7 +233,7 @@ int main()
 	d_ocp_qp_ipm_arg_set_tol_comp(&tol_comp, &arg);
 	d_ocp_qp_ipm_arg_set_reg_prim(&reg_prim, &arg);
 	d_ocp_qp_ipm_arg_set_warm_start(&warm_start, &arg);
-//	d_ocp_qp_ipm_arg_set_ric_alg(&ric_alg, &arg);
+	d_ocp_qp_ipm_arg_set_ric_alg(&ric_alg, &arg);
 
 /************************************************
 * ipm workspace
@@ -351,10 +351,10 @@ int main()
 ************************************************/
 
 	int iter; d_ocp_qp_ipm_get_iter(&workspace, &iter);
-	double res_stat; d_ocp_qp_ipm_get_res_stat(&workspace, &res_stat);
-	double res_eq; d_ocp_qp_ipm_get_res_eq(&workspace, &res_eq);
-	double res_ineq; d_ocp_qp_ipm_get_res_ineq(&workspace, &res_ineq);
-	double res_comp; d_ocp_qp_ipm_get_res_comp(&workspace, &res_comp);
+	double res_stat; d_ocp_qp_ipm_get_max_res_stat(&workspace, &res_stat);
+	double res_eq; d_ocp_qp_ipm_get_max_res_eq(&workspace, &res_eq);
+	double res_ineq; d_ocp_qp_ipm_get_max_res_ineq(&workspace, &res_ineq);
+	double res_comp; d_ocp_qp_ipm_get_max_res_comp(&workspace, &res_comp);
 	double *stat; d_ocp_qp_ipm_get_stat(&workspace, &stat);
 	int stat_m; d_ocp_qp_ipm_get_stat_m(&workspace, &stat_m);
 
@@ -368,6 +368,70 @@ int main()
 	printf("\nocp ipm time = %e [s]\n\n", time_ipm);
 
 /************************************************
+* get riccati matrices and vectors
+************************************************/
+
+#if 1
+	printf("\nget Riccati recursion matrices and vectors\n");
+
+	double *Lr0 = malloc(nu[0]*nu[0]*sizeof(double));
+	double *Ls0 = malloc(nx[0]*nu[0]*sizeof(double));
+	double *P0 = malloc(nx[0]*nx[0]*sizeof(double));
+	double *lr0 = malloc(nu[0]*sizeof(double));
+	double *p0 = malloc(nx[0]*sizeof(double));
+
+	double *Lr1 = malloc(nu[1]*nu[1]*sizeof(double));
+	double *Ls1 = malloc(nx[1]*nu[1]*sizeof(double));
+	double *P1 = malloc(nx[1]*nx[1]*sizeof(double));
+	double *lr1 = malloc(nu[1]*sizeof(double));
+	double *p1 = malloc(nx[1]*sizeof(double));
+
+	d_ocp_qp_ipm_get_ric_Lr(0, &workspace, Lr0);
+	printf("\nLr0\n");
+	d_print_exp_mat(nu[0], nu[0], Lr0, nu[0]);
+	d_ocp_qp_ipm_get_ric_Ls(0, &workspace, Ls0);
+	printf("\nLs0\n");
+	d_print_exp_mat(nx[0], nu[0], Ls0, nx[0]);
+	d_ocp_qp_ipm_get_ric_P(0, &workspace, P0);
+	printf("\nP0\n");
+	d_print_exp_mat(nx[0], nx[0], P0, nx[0]);
+	d_ocp_qp_ipm_get_ric_lr(0, &workspace, lr0);
+	printf("\nlr0 (valid only in the unconstrained case)\n");
+	d_print_exp_mat(1, nu[0], lr0, 1);
+	d_ocp_qp_ipm_get_ric_p(0, &workspace, p0);
+	printf("\np0 (valid only in the unconstrained case)\n");
+	d_print_exp_mat(1, nx[0], p0, 1);
+
+	d_ocp_qp_ipm_get_ric_Lr(1, &workspace, Lr1);
+	printf("\nLr1\n");
+	d_print_exp_mat(nu[1], nu[1], Lr1, nu[1]);
+	d_ocp_qp_ipm_get_ric_Ls(1, &workspace, Ls1);
+	printf("\nLs1\n");
+	d_print_exp_mat(nx[1], nu[1], Ls1, nx[1]);
+	d_ocp_qp_ipm_get_ric_P(1, &workspace, P1);
+	printf("\nP1\n");
+	d_print_exp_mat(nx[1], nx[1], P1, nx[1]);
+	d_ocp_qp_ipm_get_ric_lr(1, &workspace, lr1);
+	printf("\nlr1 (valid only in the unconstrained case)\n");
+	d_print_exp_mat(1, nu[1], lr1, 1);
+	d_ocp_qp_ipm_get_ric_p(1, &workspace, p1);
+	printf("\np1 (valid only in the unconstrained case)\n");
+	d_print_exp_mat(1, nx[1], p1, 1);
+
+	free(Lr0);
+	free(Ls0);
+	free(P0);
+	free(lr0);
+	free(p0);
+
+	free(Lr1);
+	free(Ls1);
+	free(P1);
+	free(lr1);
+	free(p1);
+#endif
+
+/************************************************
 * free memory and return
 ************************************************/
 
@@ -376,8 +440,8 @@ int main()
 	free(b0);
 	free(r0);
 
-    free(dim_mem);
-    free(qp_mem);
+	free(dim_mem);
+	free(qp_mem);
 	free(qp_sol_mem);
 	free(ipm_arg_mem);
 	free(ipm_mem);

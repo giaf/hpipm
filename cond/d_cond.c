@@ -3,25 +3,31 @@
 * This file is part of HPIPM.                                                                     *
 *                                                                                                 *
 * HPIPM -- High-Performance Interior Point Method.                                                *
-* Copyright (C) 2017-2018 by Gianluca Frison.                                                     *
+* Copyright (C) 2019 by Gianluca Frison.                                                          *
 * Developed at IMTEK (University of Freiburg) under the supervision of Moritz Diehl.              *
 * All rights reserved.                                                                            *
 *                                                                                                 *
-* This program is free software: you can redistribute it and/or modify                            *
-* it under the terms of the GNU General Public License as published by                            *
-* the Free Software Foundation, either version 3 of the License, or                               *
-* (at your option) any later version                                                              *.
+* The 2-Clause BSD License                                                                        *
 *                                                                                                 *
-* This program is distributed in the hope that it will be useful,                                 *
-* but WITHOUT ANY WARRANTY; without even the implied warranty of                                  *
-* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the                                   *
-* GNU General Public License for more details.                                                    *
+* Redistribution and use in source and binary forms, with or without                              *
+* modification, are permitted provided that the following conditions are met:                     *
 *                                                                                                 *
-* You should have received a copy of the GNU General Public License                               *
-* along with this program.  If not, see <https://www.gnu.org/licenses/>.                          *
+* 1. Redistributions of source code must retain the above copyright notice, this                  *
+*    list of conditions and the following disclaimer.                                             *
+* 2. Redistributions in binary form must reproduce the above copyright notice,                    *
+*    this list of conditions and the following disclaimer in the documentation                    *
+*    and/or other materials provided with the distribution.                                       *
 *                                                                                                 *
-* The authors designate this particular file as subject to the "Classpath" exception              *
-* as provided by the authors in the LICENSE file that accompained this code.                      *
+* THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND                 *
+* ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED                   *
+* WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE                          *
+* DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR                 *
+* ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES                  *
+* (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;                    *
+* LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND                     *
+* ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT                      *
+* (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS                   *
+* SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.                                    *
 *                                                                                                 *
 * Author: Gianluca Frison, gianluca.frison (at) imtek.uni-freiburg.de                             *
 *                                                                                                 *
@@ -51,8 +57,8 @@
 #define COND_BABT d_cond_BAbt
 #define COND_RQ_N2NX3 d_cond_rq_N2nx3
 #define COND_RSQRQ_N2NX3 d_cond_RSQrq_N2nx3
-#define COND_QP_OCP2DENSE_ARG d_cond_qp_ocp2dense_arg
-#define COND_QP_OCP2DENSE_WORKSPACE d_cond_qp_ocp2dense_workspace
+#define COND_QP_ARG d_cond_qp_arg
+#define COND_QP_WS d_cond_qp_ws
 #define CREATE_STRMAT blasfeo_create_dmat
 #define CREATE_STRVEC blasfeo_create_dvec
 #define DENSE_QP d_dense_qp
@@ -71,18 +77,18 @@
 #define UPDATE_COND_BABT d_update_cond_BAbt
 #define UPDATE_COND_RSQRQ_N2NX3 d_update_cond_RSQrq_N2nx3
 
-#define COMPUTE_QP_DIM_OCP2DENSE d_compute_qp_dim_ocp2dense
-#define MEMSIZE_COND_QP_OCP2DENSE_ARG d_memsize_cond_qp_ocp2dense_arg
-#define CREATE_COND_QP_OCP2DENSE_ARG d_create_cond_qp_ocp2dense_arg
-#define SET_DEFAULT_COND_QP_OCP2DENSE_ARG d_set_default_cond_qp_ocp2dense_arg
-#define SET_COND_QP_OCP2DENSE_ARG_RIC_ALG d_set_cond_qp_ocp2dense_arg_ric_alg
-#define MEMSIZE_COND_QP_OCP2DENSE d_memsize_cond_qp_ocp2dense
-#define CREATE_COND_QP_OCP2DENSE d_create_cond_qp_ocp2dense
-#define COND_QP_OCP2DENSE d_cond_qp_ocp2dense
-#define COND_RHS_QP_OCP2DENSE d_cond_rhs_qp_ocp2dense
-#define EXPAND_SOL_DENSE2OCP d_expand_sol_dense2ocp
-#define EXPAND_PRIMAL_SOL_DENSE2OCP d_expand_primal_sol_dense2ocp
-#define UPDATE_COND_QP_OCP2DENSE d_update_cond_qp_ocp2dense
+#define COND_QP_COMPUTE_DIM d_cond_qp_compute_dim
+#define COND_QP_ARG_MEMSIZE d_cond_qp_arg_memsize
+#define COND_QP_ARG_CREATE d_cond_qp_arg_create
+#define COND_QP_ARG_SET_DEFAULT d_cond_qp_arg_set_default
+#define COND_QP_ARG_SET_RIC_ALG d_cond_qp_arg_set_ric_alg
+#define COND_QP_WS_MEMSIZE d_cond_qp_ws_memsize
+#define COND_QP_WS_CREATE d_cond_qp_ws_create
+#define COND_QP_COND d_cond_qp_cond
+#define COND_QP_COND_RHS d_cond_qp_cond_rhs
+#define COND_QP_EXPAND_SOL d_cond_qp_expand_sol
+#define COND_QP_EXPAND_PRIMAL_SOL d_cond_qp_expand_primal_sol
+#define COND_QP_UPDATE d_cond_qp_update
 
 
 

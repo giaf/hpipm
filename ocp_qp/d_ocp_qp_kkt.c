@@ -3,25 +3,31 @@
 * This file is part of HPIPM.                                                                     *
 *                                                                                                 *
 * HPIPM -- High-Performance Interior Point Method.                                                *
-* Copyright (C) 2017-2018 by Gianluca Frison.                                                     *
+* Copyright (C) 2019 by Gianluca Frison.                                                          *
 * Developed at IMTEK (University of Freiburg) under the supervision of Moritz Diehl.              *
 * All rights reserved.                                                                            *
 *                                                                                                 *
-* This program is free software: you can redistribute it and/or modify                            *
-* it under the terms of the GNU General Public License as published by                            *
-* the Free Software Foundation, either version 3 of the License, or                               *
-* (at your option) any later version                                                              *.
+* The 2-Clause BSD License                                                                        *
 *                                                                                                 *
-* This program is distributed in the hope that it will be useful,                                 *
-* but WITHOUT ANY WARRANTY; without even the implied warranty of                                  *
-* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the                                   *
-* GNU General Public License for more details.                                                    *
+* Redistribution and use in source and binary forms, with or without                              *
+* modification, are permitted provided that the following conditions are met:                     *
 *                                                                                                 *
-* You should have received a copy of the GNU General Public License                               *
-* along with this program.  If not, see <https://www.gnu.org/licenses/>.                          *
+* 1. Redistributions of source code must retain the above copyright notice, this                  *
+*    list of conditions and the following disclaimer.                                             *
+* 2. Redistributions in binary form must reproduce the above copyright notice,                    *
+*    this list of conditions and the following disclaimer in the documentation                    *
+*    and/or other materials provided with the distribution.                                       *
 *                                                                                                 *
-* The authors designate this particular file as subject to the "Classpath" exception              *
-* as provided by the authors in the LICENSE file that accompained this code.                      *
+* THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND                 *
+* ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED                   *
+* WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE                          *
+* DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR                 *
+* ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES                  *
+* (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;                    *
+* LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND                     *
+* ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT                      *
+* (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS                   *
+* SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.                                    *
 *                                                                                                 *
 * Author: Gianluca Frison, gianluca.frison (at) imtek.uni-freiburg.de                             *
 *                                                                                                 *
@@ -62,16 +68,12 @@
 #define GELQF_PD_LLA blasfeo_dgelqf_pd_lla
 #define GEMM_NT blasfeo_dgemm_nt
 #define GEMM_R_DIAG blasfeo_dgemm_nd
-#define GEMV_DIAG blasfeo_dgemv_d
 #define GEMV_N blasfeo_dgemv_n
-#define GEMV_NT blasfeo_dgemv_nt
 #define GEMV_T blasfeo_dgemv_t
 #define GESE blasfeo_dgese
 #define OCP_QP d_ocp_qp
 #define OCP_QP_IPM_ARG d_ocp_qp_ipm_arg
 #define OCP_QP_IPM_WS d_ocp_qp_ipm_ws
-#define OCP_QP_RES d_ocp_qp_res
-#define OCP_QP_RES_WS d_ocp_qp_res_ws
 #define OCP_QP_DIM d_ocp_qp_dim
 #define OCP_QP_SOL d_ocp_qp_sol
 #define POTRF_L blasfeo_dpotrf_l
@@ -88,7 +90,6 @@
 #define ROWIN blasfeo_drowin
 #define STRMAT blasfeo_dmat
 #define STRVEC blasfeo_dvec
-#define SYMV_L blasfeo_dsymv_l
 #define SYRK_LN blasfeo_dsyrk_ln
 #define SYRK_LN_MN blasfeo_dsyrk_ln_mn
 #define SYRK_POTRF_LN_MN blasfeo_dsyrk_dpotrf_ln_mn
@@ -105,16 +106,11 @@
 #define VECCP blasfeo_dveccp
 #define VECCPSC blasfeo_dveccpsc
 #define VECEX_SP blasfeo_dvecex_sp
-#define VECMULDOT blasfeo_dvecmuldot
-#define VECMULACC blasfeo_dvecmulacc
-#define VECSC blasfeo_dvecsc
 #define VECSC blasfeo_dvecsc
 
 
 
 #define INIT_VAR_OCP_QP d_init_var_ocp_qp
-#define COMPUTE_LIN_RES_OCP_QP d_compute_lin_res_ocp_qp
-#define COMPUTE_RES_OCP_QP d_compute_res_ocp_qp
 #define FACT_SOLVE_KKT_UNCONSTR_OCP_QP d_fact_solve_kkt_unconstr_ocp_qp
 #define FACT_SOLVE_KKT_STEP_OCP_QP d_fact_solve_kkt_step_ocp_qp
 #define FACT_LQ_SOLVE_KKT_STEP_OCP_QP d_fact_lq_solve_kkt_step_ocp_qp

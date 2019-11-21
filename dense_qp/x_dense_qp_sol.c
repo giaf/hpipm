@@ -3,25 +3,31 @@
 * This file is part of HPIPM.                                                                     *
 *                                                                                                 *
 * HPIPM -- High-Performance Interior Point Method.                                                *
-* Copyright (C) 2017-2018 by Gianluca Frison.                                                     *
+* Copyright (C) 2019 by Gianluca Frison.                                                          *
 * Developed at IMTEK (University of Freiburg) under the supervision of Moritz Diehl.              *
 * All rights reserved.                                                                            *
 *                                                                                                 *
-* This program is free software: you can redistribute it and/or modify                            *
-* it under the terms of the GNU General Public License as published by                            *
-* the Free Software Foundation, either version 3 of the License, or                               *
-* (at your option) any later version                                                              *.
+* The 2-Clause BSD License                                                                        *
 *                                                                                                 *
-* This program is distributed in the hope that it will be useful,                                 *
-* but WITHOUT ANY WARRANTY; without even the implied warranty of                                  *
-* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the                                   *
-* GNU General Public License for more details.                                                    *
+* Redistribution and use in source and binary forms, with or without                              *
+* modification, are permitted provided that the following conditions are met:                     *
 *                                                                                                 *
-* You should have received a copy of the GNU General Public License                               *
-* along with this program.  If not, see <https://www.gnu.org/licenses/>.                          *
+* 1. Redistributions of source code must retain the above copyright notice, this                  *
+*    list of conditions and the following disclaimer.                                             *
+* 2. Redistributions in binary form must reproduce the above copyright notice,                    *
+*    this list of conditions and the following disclaimer in the documentation                    *
+*    and/or other materials provided with the distribution.                                       *
 *                                                                                                 *
-* The authors designate this particular file as subject to the "Classpath" exception              *
-* as provided by the authors in the LICENSE file that accompained this code.                      *
+* THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND                 *
+* ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED                   *
+* WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE                          *
+* DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR                 *
+* ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES                  *
+* (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;                    *
+* LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND                     *
+* ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT                      *
+* (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS                   *
+* SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.                                    *
 *                                                                                                 *
 * Author: Gianluca Frison, gianluca.frison (at) imtek.uni-freiburg.de                             *
 *                                                                                                 *
@@ -29,7 +35,7 @@
 
 
 
-int MEMSIZE_DENSE_QP_SOL(struct DENSE_QP_DIM *dim)
+int DENSE_QP_SOL_MEMSIZE(struct DENSE_QP_DIM *dim)
 	{
 
 	int nv = dim->nv;
@@ -55,8 +61,10 @@ int MEMSIZE_DENSE_QP_SOL(struct DENSE_QP_DIM *dim)
 
 
 
-void CREATE_DENSE_QP_SOL(struct DENSE_QP_DIM *dim, struct DENSE_QP_SOL *qp_sol, void *mem)
+void DENSE_QP_SOL_CREATE(struct DENSE_QP_DIM *dim, struct DENSE_QP_SOL *qp_sol, void *mem)
 	{
+
+	// TODO zero out memory
 
 	int nv = dim->nv;
 	int ne = dim->ne;
@@ -105,7 +113,7 @@ void CREATE_DENSE_QP_SOL(struct DENSE_QP_DIM *dim, struct DENSE_QP_SOL *qp_sol, 
 
 	qp_sol->dim = dim;
 
-	qp_sol->memsize = MEMSIZE_DENSE_QP_SOL(dim);
+	qp_sol->memsize = DENSE_QP_SOL_MEMSIZE(dim);
 
 
 #if defined(RUNTIME_CHECKS)
@@ -123,7 +131,7 @@ void CREATE_DENSE_QP_SOL(struct DENSE_QP_DIM *dim, struct DENSE_QP_SOL *qp_sol, 
 
 
 
-void CVT_DENSE_QP_SOL_TO_COLMAJ(struct DENSE_QP_SOL *qp_sol, REAL *v, REAL *ls, REAL *us, REAL *pi, REAL *lam_lb, REAL *lam_ub, REAL *lam_lg, REAL *lam_ug, REAL *lam_ls, REAL *lam_us)
+void DENSE_QP_SOL_GET_ALL(struct DENSE_QP_SOL *qp_sol, REAL *v, REAL *ls, REAL *us, REAL *pi, REAL *lam_lb, REAL *lam_ub, REAL *lam_lg, REAL *lam_ug, REAL *lam_ls, REAL *lam_us)
 	{
 
 	int nv = qp_sol->dim->nv;
@@ -159,78 +167,3 @@ void CVT_DENSE_QP_SOL_TO_COLMAJ(struct DENSE_QP_SOL *qp_sol, REAL *v, REAL *ls, 
 
 	}
 
-
-
-void CVT_DENSE_QP_SOL_TO_ROWMAJ(struct DENSE_QP_SOL *qp_sol, REAL *v, REAL *ls, REAL *us, REAL *pi, REAL *lam_lb, REAL *lam_ub, REAL *lam_lg, REAL *lam_ug, REAL *lam_ls, REAL *lam_us)
-	{
-
-	int nv = qp_sol->dim->nv;
-	int ne = qp_sol->dim->ne;
-	int nb = qp_sol->dim->nb;
-	int ng = qp_sol->dim->ng;
-	int ns = qp_sol->dim->ns;
-
-	CVT_STRVEC2VEC(nv, qp_sol->v, 0, v);
-	if(ne>0)
-		{
-		CVT_STRVEC2VEC(ne, qp_sol->pi, 0, pi);
-		}
-	if(nb>0)
-		{
-		CVT_STRVEC2VEC(nb, qp_sol->lam, 0, lam_lb);
-		CVT_STRVEC2VEC(nb, qp_sol->lam, nb+ng, lam_ub);
-		}
-	if(ng>0)
-		{
-		CVT_STRVEC2VEC(ng, qp_sol->lam, nb, lam_lg);
-		CVT_STRVEC2VEC(ng, qp_sol->lam, 2*nb+ng, lam_ug);
-		}
-	if(ns>0)
-		{
-		CVT_STRVEC2VEC(ns, qp_sol->v, nv, ls);
-		CVT_STRVEC2VEC(ns, qp_sol->v, nv+ns, us);
-		CVT_STRVEC2VEC(ns, qp_sol->lam, 2*nb+2*ng, lam_ls);
-		CVT_STRVEC2VEC(ns, qp_sol->lam, 2*nb+2*ng+ns, lam_us);
-		}
-
-	return;
-
-	}
-
-
-
-void CVT_DENSE_QP_SOL_TO_LIBSTR(struct DENSE_QP_SOL *qp_sol, struct STRVEC *v, struct STRVEC *ls, struct STRVEC *us, struct STRVEC *pi, struct STRVEC *lam_lb, struct STRVEC *lam_ub, struct STRVEC *lam_lg, struct STRVEC *lam_ug, struct STRVEC *lam_ls, struct STRVEC *lam_us)
-	{
-
-	int nv = qp_sol->dim->nv;
-	int ne = qp_sol->dim->ne;
-	int nb = qp_sol->dim->nb;
-	int ng = qp_sol->dim->ng;
-	int ns = qp_sol->dim->ns;
-
-	VECCP_LIBSTR(nv, qp_sol->v, 0, v, 0);
-	if(ne>0)
-		{
-		VECCP_LIBSTR(ne, qp_sol->pi, 0, pi, 0);
-		}
-	if(nb>0)
-		{
-		VECCP_LIBSTR(nb, qp_sol->lam, 0, lam_lb, 0);
-		VECCP_LIBSTR(nb, qp_sol->lam, nb+ng, lam_ub, 0);
-		}
-	if(ng>0)
-		{
-		VECCP_LIBSTR(ng, qp_sol->lam, nb, lam_lg, 0);
-		VECCP_LIBSTR(ng, qp_sol->lam, 2*nb+ng, lam_ug, 0);
-		}
-	if(ns>0)
-		{
-		VECCP_LIBSTR(ns, qp_sol->v, nv, ls, 0);
-		VECCP_LIBSTR(ns, qp_sol->v, nv+ns, us, 0);
-		VECCP_LIBSTR(ns, qp_sol->lam, 2*nb+2*ng, lam_ls, 0);
-		VECCP_LIBSTR(ns, qp_sol->lam, 2*nb+2*ng+ns, lam_us, 0);
-		}
-
-	return;
-
-	}

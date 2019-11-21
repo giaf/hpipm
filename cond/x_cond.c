@@ -3,31 +3,37 @@
 * This file is part of HPIPM.                                                                     *
 *                                                                                                 *
 * HPIPM -- High-Performance Interior Point Method.                                                *
-* Copyright (C) 2017-2018 by Gianluca Frison.                                                     *
+* Copyright (C) 2019 by Gianluca Frison.                                                          *
 * Developed at IMTEK (University of Freiburg) under the supervision of Moritz Diehl.              *
 * All rights reserved.                                                                            *
 *                                                                                                 *
-* This program is free software: you can redistribute it and/or modify                            *
-* it under the terms of the GNU General Public License as published by                            *
-* the Free Software Foundation, either version 3 of the License, or                               *
-* (at your option) any later version                                                              *.
+* The 2-Clause BSD License                                                                        *
 *                                                                                                 *
-* This program is distributed in the hope that it will be useful,                                 *
-* but WITHOUT ANY WARRANTY; without even the implied warranty of                                  *
-* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the                                   *
-* GNU General Public License for more details.                                                    *
+* Redistribution and use in source and binary forms, with or without                              *
+* modification, are permitted provided that the following conditions are met:                     *
 *                                                                                                 *
-* You should have received a copy of the GNU General Public License                               *
-* along with this program.  If not, see <https://www.gnu.org/licenses/>.                          *
+* 1. Redistributions of source code must retain the above copyright notice, this                  *
+*    list of conditions and the following disclaimer.                                             *
+* 2. Redistributions in binary form must reproduce the above copyright notice,                    *
+*    this list of conditions and the following disclaimer in the documentation                    *
+*    and/or other materials provided with the distribution.                                       *
 *                                                                                                 *
-* The authors designate this particular file as subject to the "Classpath" exception              *
-* as provided by the authors in the LICENSE file that accompained this code.                      *
+* THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND                 *
+* ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED                   *
+* WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE                          *
+* DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR                 *
+* ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES                  *
+* (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;                    *
+* LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND                     *
+* ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT                      *
+* (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS                   *
+* SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.                                    *
 *                                                                                                 *
 * Author: Gianluca Frison, gianluca.frison (at) imtek.uni-freiburg.de                             *
 *                                                                                                 *
 **************************************************************************************************/
 
-void COMPUTE_QP_DIM_OCP2DENSE(struct OCP_QP_DIM *ocp_dim, struct DENSE_QP_DIM *dense_dim)
+void COND_QP_COMPUTE_DIM(struct OCP_QP_DIM *ocp_dim, struct DENSE_QP_DIM *dense_dim)
 	{
 
 	int N = ocp_dim->N;
@@ -83,7 +89,7 @@ void COMPUTE_QP_DIM_OCP2DENSE(struct OCP_QP_DIM *ocp_dim, struct DENSE_QP_DIM *d
 
 
 
-int MEMSIZE_COND_QP_OCP2DENSE_ARG()
+int COND_QP_ARG_MEMSIZE()
 	{
 
 	int size = 0;
@@ -94,10 +100,10 @@ int MEMSIZE_COND_QP_OCP2DENSE_ARG()
 
 
 
-void CREATE_COND_QP_OCP2DENSE_ARG(struct COND_QP_OCP2DENSE_ARG *cond_arg, void *mem)
+void COND_QP_ARG_CREATE(struct COND_QP_ARG *cond_arg, void *mem)
 	{
 
-	cond_arg->memsize = MEMSIZE_COND_QP_OCP2DENSE_ARG();
+	cond_arg->memsize = COND_QP_ARG_MEMSIZE();
 
 	return;
 
@@ -105,7 +111,7 @@ void CREATE_COND_QP_OCP2DENSE_ARG(struct COND_QP_OCP2DENSE_ARG *cond_arg, void *
 
 
 
-void SET_DEFAULT_COND_QP_OCP2DENSE_ARG(struct COND_QP_OCP2DENSE_ARG *cond_arg)
+void COND_QP_ARG_SET_DEFAULT(struct COND_QP_ARG *cond_arg)
 	{
 
 	cond_arg->cond_last_stage = 1; // condense last stage
@@ -118,7 +124,7 @@ void SET_DEFAULT_COND_QP_OCP2DENSE_ARG(struct COND_QP_OCP2DENSE_ARG *cond_arg)
 
 
 
-void SET_COND_QP_OCP2DENSE_ARG_RIC_ALG(int ric_alg, struct COND_QP_OCP2DENSE_ARG *cond_arg)
+void COND_QP_ARG_SET_RIC_ALG(int ric_alg, struct COND_QP_ARG *cond_arg)
 	{
 
 	cond_arg->square_root_alg = ric_alg;
@@ -129,7 +135,7 @@ void SET_COND_QP_OCP2DENSE_ARG_RIC_ALG(int ric_alg, struct COND_QP_OCP2DENSE_ARG
 
 
 
-int MEMSIZE_COND_QP_OCP2DENSE(struct OCP_QP_DIM *ocp_dim, struct COND_QP_OCP2DENSE_ARG *cond_arg)
+int COND_QP_WS_MEMSIZE(struct OCP_QP_DIM *ocp_dim, struct COND_QP_ARG *cond_arg)
 	{
 
 	int ii;
@@ -205,7 +211,7 @@ int MEMSIZE_COND_QP_OCP2DENSE(struct OCP_QP_DIM *ocp_dim, struct COND_QP_OCP2DEN
 
 
 
-void CREATE_COND_QP_OCP2DENSE(struct OCP_QP_DIM *ocp_dim, struct COND_QP_OCP2DENSE_ARG *cond_arg, struct COND_QP_OCP2DENSE_WORKSPACE *cond_ws, void *mem)
+void COND_QP_WS_CREATE(struct OCP_QP_DIM *ocp_dim, struct COND_QP_ARG *cond_arg, struct COND_QP_WS *cond_ws, void *mem)
 	{
 
 	int ii;
@@ -325,7 +331,7 @@ void CREATE_COND_QP_OCP2DENSE(struct OCP_QP_DIM *ocp_dim, struct COND_QP_OCP2DEN
 
 	cond_ws->bs = N;
 
-	cond_ws->memsize = MEMSIZE_COND_QP_OCP2DENSE(ocp_dim, cond_arg);
+	cond_ws->memsize = COND_QP_WS_MEMSIZE(ocp_dim, cond_arg);
 
 #if defined(RUNTIME_CHECKS)
 	if(c_ptr > ((char *) mem) + cond_ws->memsize)
@@ -341,7 +347,7 @@ void CREATE_COND_QP_OCP2DENSE(struct OCP_QP_DIM *ocp_dim, struct COND_QP_OCP2DEN
 
 
 
-void COND_QP_OCP2DENSE(struct OCP_QP *ocp_qp, struct DENSE_QP *dense_qp, struct COND_QP_OCP2DENSE_ARG *cond_arg, struct COND_QP_OCP2DENSE_WORKSPACE *cond_ws)
+void COND_QP_COND(struct OCP_QP *ocp_qp, struct DENSE_QP *dense_qp, struct COND_QP_ARG *cond_arg, struct COND_QP_WS *cond_ws)
 	{
 
 	COND_BABT(ocp_qp, NULL, NULL, cond_arg, cond_ws);
@@ -356,7 +362,7 @@ void COND_QP_OCP2DENSE(struct OCP_QP *ocp_qp, struct DENSE_QP *dense_qp, struct 
 
 
 
-void COND_RHS_QP_OCP2DENSE(struct OCP_QP *ocp_qp, struct DENSE_QP *dense_qp, struct COND_QP_OCP2DENSE_ARG *cond_arg, struct COND_QP_OCP2DENSE_WORKSPACE *cond_ws)
+void COND_QP_COND_RHS(struct OCP_QP *ocp_qp, struct DENSE_QP *dense_qp, struct COND_QP_ARG *cond_arg, struct COND_QP_WS *cond_ws)
 	{
 
 	COND_B(ocp_qp, NULL, cond_arg, cond_ws);
@@ -371,7 +377,7 @@ void COND_RHS_QP_OCP2DENSE(struct OCP_QP *ocp_qp, struct DENSE_QP *dense_qp, str
 
 
 
-void EXPAND_SOL_DENSE2OCP(struct OCP_QP *ocp_qp, struct DENSE_QP_SOL *dense_qp_sol, struct OCP_QP_SOL *ocp_qp_sol, struct COND_QP_OCP2DENSE_ARG *cond_arg, struct COND_QP_OCP2DENSE_WORKSPACE *cond_ws)
+void COND_QP_EXPAND_SOL(struct OCP_QP *ocp_qp, struct DENSE_QP_SOL *dense_qp_sol, struct OCP_QP_SOL *ocp_qp_sol, struct COND_QP_ARG *cond_arg, struct COND_QP_WS *cond_ws)
 	{
 
 	EXPAND_SOL(ocp_qp, dense_qp_sol, ocp_qp_sol, cond_arg, cond_ws);
@@ -383,7 +389,7 @@ void EXPAND_SOL_DENSE2OCP(struct OCP_QP *ocp_qp, struct DENSE_QP_SOL *dense_qp_s
 
 
 // TODO remove
-void EXPAND_PRIMAL_SOL_DENSE2OCP(struct OCP_QP *ocp_qp, struct DENSE_QP_SOL *dense_qp_sol, struct OCP_QP_SOL *ocp_qp_sol, struct COND_QP_OCP2DENSE_ARG *cond_arg, struct COND_QP_OCP2DENSE_WORKSPACE *cond_ws)
+void COND_QP_EXPAND_PRIMAL_SOL(struct OCP_QP *ocp_qp, struct DENSE_QP_SOL *dense_qp_sol, struct OCP_QP_SOL *ocp_qp_sol, struct COND_QP_ARG *cond_arg, struct COND_QP_WS *cond_ws)
 	{
 
 	EXPAND_PRIMAL_SOL(ocp_qp, dense_qp_sol, ocp_qp_sol, cond_arg, cond_ws);
@@ -398,7 +404,7 @@ void EXPAND_PRIMAL_SOL_DENSE2OCP(struct OCP_QP *ocp_qp, struct DENSE_QP_SOL *den
 * update cond
 ************************************************/
 
-void UPDATE_COND_QP_OCP2DENSE(int *idxc, struct OCP_QP *ocp_qp, struct DENSE_QP *dense_qp, struct COND_QP_OCP2DENSE_ARG *cond_arg, struct COND_QP_OCP2DENSE_WORKSPACE *cond_ws)
+void COND_QP_UPDATE(int *idxc, struct OCP_QP *ocp_qp, struct DENSE_QP *dense_qp, struct COND_QP_ARG *cond_arg, struct COND_QP_WS *cond_ws)
 	{
 
 	UPDATE_COND_BABT(idxc, ocp_qp, NULL, NULL, cond_arg, cond_ws);

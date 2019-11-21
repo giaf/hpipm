@@ -3,25 +3,31 @@
 * This file is part of HPIPM.                                                                     *
 *                                                                                                 *
 * HPIPM -- High-Performance Interior Point Method.                                                *
-* Copyright (C) 2017-2018 by Gianluca Frison.                                                     *
+* Copyright (C) 2019 by Gianluca Frison.                                                          *
 * Developed at IMTEK (University of Freiburg) under the supervision of Moritz Diehl.              *
 * All rights reserved.                                                                            *
 *                                                                                                 *
-* This program is free software: you can redistribute it and/or modify                            *
-* it under the terms of the GNU General Public License as published by                            *
-* the Free Software Foundation, either version 3 of the License, or                               *
-* (at your option) any later version                                                              *.
+* The 2-Clause BSD License                                                                        *
 *                                                                                                 *
-* This program is distributed in the hope that it will be useful,                                 *
-* but WITHOUT ANY WARRANTY; without even the implied warranty of                                  *
-* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the                                   *
-* GNU General Public License for more details.                                                    *
+* Redistribution and use in source and binary forms, with or without                              *
+* modification, are permitted provided that the following conditions are met:                     *
 *                                                                                                 *
-* You should have received a copy of the GNU General Public License                               *
-* along with this program.  If not, see <https://www.gnu.org/licenses/>.                          *
+* 1. Redistributions of source code must retain the above copyright notice, this                  *
+*    list of conditions and the following disclaimer.                                             *
+* 2. Redistributions in binary form must reproduce the above copyright notice,                    *
+*    this list of conditions and the following disclaimer in the documentation                    *
+*    and/or other materials provided with the distribution.                                       *
 *                                                                                                 *
-* The authors designate this particular file as subject to the "Classpath" exception              *
-* as provided by the authors in the LICENSE file that accompained this code.                      *
+* THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND                 *
+* ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED                   *
+* WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE                          *
+* DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR                 *
+* ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES                  *
+* (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;                    *
+* LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND                     *
+* ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT                      *
+* (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS                   *
+* SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.                                    *
 *                                                                                                 *
 * Author: Gianluca Frison, gianluca.frison (at) imtek.uni-freiburg.de                             *
 *                                                                                                 *
@@ -29,7 +35,7 @@
 
 
 
-int MEMSIZE_DENSE_QP_DIM()
+int DENSE_QP_DIM_MEMSIZE()
 	{
 
 	int size = 0;
@@ -42,72 +48,144 @@ int MEMSIZE_DENSE_QP_DIM()
 
 
 
-void CREATE_DENSE_QP_DIM(struct DENSE_QP_DIM *size, void *memory)
+void DENSE_QP_DIM_CREATE(struct DENSE_QP_DIM *dim, void *memory)
 	{
 
-	size->memsize = MEMSIZE_DENSE_QP_DIM();
+	dim->memsize = DENSE_QP_DIM_MEMSIZE();
+
+	// initialize dims to zero by default
+
+	dim->nv = 0;
+	dim->ne = 0;
+	dim->nb = 0;
+	dim->ng = 0;
+	dim->ns = 0;
+	dim->nsb = 0;
+	dim->nsg = 0;
 
 	return;
 
 	}
 
 
-void CVT_INT_TO_DENSE_QP_DIM(int nv, int ne, int nb, int ng, int nsb, int nsg, struct DENSE_QP_DIM *size)
+void DENSE_QP_DIM_SET_ALL(int nv, int ne, int nb, int ng, int nsb, int nsg, struct DENSE_QP_DIM *dim)
 	{
 
-	size->nv = nv;
-	size->ne = ne;
-	size->nb = nb;
-	size->ng = ng;
-	size->ns = nsb+nsg;
-	size->nsb = nsb;
-	size->nsg = nsg;
+	dim->nv = nv;
+	dim->ne = ne;
+	dim->nb = nb;
+	dim->ng = ng;
+	dim->ns = nsb+nsg;
+	dim->nsb = nsb;
+	dim->nsg = nsg;
 
 	return;
 
 	}
 
 
-void SET_DENSE_QP_DIM(char *field_name, int value, struct DENSE_QP_DIM *dim)
+
+void DENSE_QP_DIM_SET(char *field_name, int value, struct DENSE_QP_DIM *dim)
 	{
 	if(hpipm_strcmp(field_name, "nv"))
 		{ 
-		dim->nv = value;
+		DENSE_QP_DIM_SET_NV(value, dim);
 		}
 	else if(hpipm_strcmp(field_name, "ne"))
 		{ 
-		dim->ne = value;
+		DENSE_QP_DIM_SET_NE(value, dim);
 		}
 	else if(hpipm_strcmp(field_name, "nb"))
 		{
-		dim->nb = value;
+		DENSE_QP_DIM_SET_NB(value, dim);
 		}
 	else if(hpipm_strcmp(field_name, "ng"))
 		{
-		dim->ng = value;
+		DENSE_QP_DIM_SET_NG(value, dim);
 		}
 	else if(hpipm_strcmp(field_name, "nsb"))
 		{
-		dim->nsb = value;
-		dim->ns = dim->nsb + dim->nsg;
+		DENSE_QP_DIM_SET_NSB(value, dim);
 		}
 	else if(hpipm_strcmp(field_name, "nsg"))
 		{
-		dim->nsg = value;
-		dim->ns = dim->nsb + dim->nsg;
+		DENSE_QP_DIM_SET_NSG(value, dim);
 		}
 	else if(hpipm_strcmp(field_name, "ns"))
 		{
-		dim->ns = value;
+		DENSE_QP_DIM_SET_NS(value, dim);
 		}
 	else 
 		{
-		printf("error [SET_OCP_QP_DIM]: unknown field name '%s'. Exiting.\n", field_name);
+		printf("error: SET_OCP_QP_DIM: wrong field %s\n", field_name);
 		exit(1);
 		}
 	return;
 	}
 
 
+
+void DENSE_QP_DIM_SET_NV(int value, struct DENSE_QP_DIM *dim)
+	{
+	dim->nv = value;
+
+	return;
+	}
+
+
+
+void DENSE_QP_DIM_SET_NE(int value, struct DENSE_QP_DIM *dim)
+	{
+	dim->ne = value;
+
+	return;
+	}
+
+
+
+void DENSE_QP_DIM_SET_NB(int value, struct DENSE_QP_DIM *dim)
+	{
+	dim->nb = value;
+
+	return;
+	}
+
+
+
+void DENSE_QP_DIM_SET_NG(int value, struct DENSE_QP_DIM *dim)
+	{
+	dim->ng = value;
+
+	return;
+	}
+
+
+
+void DENSE_QP_DIM_SET_NSB(int value, struct DENSE_QP_DIM *dim)
+	{
+	dim->nsb = value;
+	dim->ns = dim->nsb + dim->nsg;
+
+	return;
+	}
+
+
+
+void DENSE_QP_DIM_SET_NSG(int value, struct DENSE_QP_DIM *dim)
+	{
+	dim->nsg = value;
+	dim->ns = dim->nsb + dim->nsg;
+
+	return;
+	}
+
+
+
+void DENSE_QP_DIM_SET_NS(int value, struct DENSE_QP_DIM *dim)
+	{
+	dim->ns = value;
+
+	return;
+	}
 
 

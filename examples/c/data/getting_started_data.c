@@ -74,7 +74,9 @@ static double q[] = {1, 1};
 static double r[] = {0};
 
 //
-static double x0[] = {1, 1};
+static double lbx0[] = {1, 1};
+//
+static double ubx0[] = {1, 1};
 //
 static int idxbx0[] = {0, 1};
 
@@ -108,9 +110,9 @@ static double *rr[6] = {r, r, r, r, r, r};
 //
 static int *iidxbx[6] = {idxbx0, NULL, NULL, NULL, NULL, NULL};
 //
-static double *llbx[6] = {x0, NULL, NULL, NULL, NULL, NULL};
+static double *llbx[6] = {lbx0, NULL, NULL, NULL, NULL, NULL};
 //
-static double *uubx[6] = {x0, NULL, NULL, NULL, NULL, NULL};
+static double *uubx[6] = {ubx0, NULL, NULL, NULL, NULL, NULL};
 //
 static int *iidxbu[6] = {};
 //

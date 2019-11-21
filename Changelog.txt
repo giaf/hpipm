@@ -3,12 +3,33 @@ HPIPM ChangeLog
 
 
 ====================================================================
-Version 0.1.1-master
-18-Jul-2019
+Version 0.1.2-master
+31-Oct-2019
+
+dense_qp:
+	* add mask to disregard constraints (e.g. for one sided constr, or dynamic constr removal)
+
+dense_qcqp:
+	* add dense qcqp ipm solver built on top of dense qp ipm solver
+
+====================================================================
+Version 0.1.1
+01-Oct-2019
+
+common:
+	* change license to BSD-2
+
+dense_qp:
+	* general renaming of routines, e.g. d_create_dense_qp_dim => d_dense_qp_dim_create
+	* add functionality to compute predicted solution for a new RHS and sensitivity of solution
 
 ocp_qp:
 	* general renaming of routines, e.g. d_create_ocp_qp_dim => d_ocp_qp_dim_create
 	* add codegen functionality to export dims, qp and ipm_args as global variables in a C source file
+	* add functionality to compute predicted solution for a new RHS and sensitivity of solution
+
+cond:
+	* general renaming of routines, e.g. d_create_cond_ocp2ocp => d_part_cond_qp_ws_create
 
 Matlab/Octave interface:
 	* reimplement an unified Matlab & Octave interface based on mex (and independent of the python interface)

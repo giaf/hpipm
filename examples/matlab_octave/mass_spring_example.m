@@ -1,3 +1,37 @@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%                                                                                                 %
+% This file is part of HPIPM.                                                                     %
+%                                                                                                 %
+% HPIPM -- High-Performance Interior Point Method.                                                %
+% Copyright (C) 2019 by Gianluca Frison.                                                          %
+% Developed at IMTEK (University of Freiburg) under the supervision of Moritz Diehl.              %
+% All rights reserved.                                                                            %
+%                                                                                                 %
+% The 2-Clause BSD License                                                                        %
+%                                                                                                 %
+% Redistribution and use in source and binary forms, with or without                              %
+% modification, are permitted provided that the following conditions are met:                     %
+%                                                                                                 %
+% 1. Redistributions of source code must retain the above copyright notice, this                  %
+%    list of conditions and the following disclaimer.                                             %
+% 2. Redistributions in binary form must reproduce the above copyright notice,                    %
+%    this list of conditions and the following disclaimer in the documentation                    %
+%    and/or other materials provided with the distribution.                                       %
+%                                                                                                 %
+% THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND                 %
+% ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED                   %
+% WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE                          %
+% DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR                 %
+% ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES                  %
+% (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;                    %
+% LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND                     %
+% ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT                      %
+% (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS                   %
+% SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.                                    %
+%                                                                                                 %
+% Author: Gianluca Frison, gianluca.frison (at) imtek.uni-freiburg.de                             %
+%                                                                                                 %
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 clear all
 close all
 clc
@@ -43,6 +77,9 @@ B = M(1:nx,nx+1:end);
 % cost function
 Q = eye(nx);
 R = 2*eye(nu);
+S = zeros(nx, nu);
+q = zeros(nx, 1);
+r = zeros(nu, 1);
 
 % initial state
 Jx0 = eye(nx);
@@ -60,10 +97,21 @@ ubu =  0.5*ones(nu,1);
 %%% dim %%%
 dim = hpipm_ocp_qp_dim(N);
 
+%% Note:
+% The setters follow the following convention:
+% obj.set('field', value, stage_index);
+% or to set values for multiple consecutive stages:
+% obj.set('field', value, first_stage_index, last_stage);
+nbx = nx;
+nbu = nu;
+%ns = 0;
+%ng = 0;
 dim.set('nx', nx, 0, N);
-dim.set('nu', nu, 0, N-1);
-dim.set('nbx', nx, 0);
-dim.set('nbu', nu, 0, N-1);
+dim.set('nu', nu, 0, N-1); % controls
+dim.set('nbx', nbx, 0); % state bounds
+dim.set('nbu', nbu, 0, N-1); % control bounds
+%dim.set('ng', ng, 0, N); % general linear constraints
+%dim.set('ns', ns, 0, N); % slacks
 
 % print to shell
 %dim.print_C_struct();
@@ -77,19 +125,42 @@ end
 %%% qp %%%
 qp = hpipm_ocp_qp(dim);
 
+% dynamics
 qp.set('A', A, 0, N-1);
 qp.set('B', B, 0, N-1);
+
+% cost
 qp.set('Q', Q, 0, N);
-%qp.set('S', S, 0, N-1);
+qp.set('S', S, 0, N-1);
 qp.set('R', R, 0, N-1);
-%qp.set('q', q, 0, N);
-%qp.set('r', r, 0, N-1);
+qp.set('q', q, 0, N);
+qp.set('r', r, 0, N-1);
+
+%slack_L2 = 0;
+%slack_L1 = 0;
+%Z = slack_L2 * eye(ns);
+%z = slack_L1 * ones(ns, 1);
+%qp.set('Zl', Z, 0, N-1);
+%qp.set('Zu', Z, 0, N-1);
+%qp.set('zl', z, 0, N-1);
+%qp.set('zu', z, 0, N-1);
+
+% constraints
 qp.set('Jbx', Jx0, 0);
 qp.set('lbx', x0, 0);
 qp.set('ubx', x0, 0);
 qp.set('Jbu', Jbu, 0, N-1);
 qp.set('lbu', lbu, 0, N-1);
 qp.set('ubu', ubu, 0, N-1);
+
+%Jsx = eye(nbx, ns);
+%qp.set('Jsx', Jsx, 0, N);
+%Jsu = zeros(nbu, ns);
+%qp.set('Jsu', Jsu, 0, N-1);
+
+%slack_bounds = zeros(ns,1);
+%qp.set('lus', slack_bounds, 0, N);
+%qp.set('lls', slack_bounds, 0, N);
 
 % print to shell
 %qp.print_C_struct();
@@ -121,6 +192,7 @@ arg.set('tol_eq', 1e-5);
 arg.set('tol_ineq', 1e-5);
 arg.set('tol_comp', 1e-5);
 arg.set('reg_prim', 1e-12);
+%arg.set('warm_start', 1);
 
 % codegen
 if codegen_data
@@ -139,6 +211,12 @@ arg.set('tol_eq', 1e-8);
 arg.set('tol_ineq', 1e-8);
 arg.set('tol_comp', 1e-8);
 
+% set solution guess
+%sol.set('x', zeros(nx,1), 0, N);
+%sol.set('u', zeros(nu,1), 0, N-1);
+%sol.set('sl', zeros((N+1)*ns,1), 0, N-1);
+%sol.set('su', zeros((N+1)*ns,1), 0, N-1);
+
 % solve qp
 nrep = 100;
 tic
@@ -154,10 +232,10 @@ fprintf('average solve time over %d runs: %e [s]\n', nrep, solve_time/nrep);
 time_ext = solver.get('time_ext');
 fprintf('solve time of last run (measured in mex interface): %e [s]\n', time_ext);
 iter = solver.get('iter')
-res_stat = solver.get('res_stat')
-res_eq = solver.get('res_eq')
-res_ineq = solver.get('res_ineq')
-res_comp = solver.get('res_comp')
+res_stat = solver.get('max_res_stat')
+res_eq = solver.get('max_res_eq')
+res_ineq = solver.get('max_res_ineq')
+res_comp = solver.get('max_res_comp')
 stat = solver.get('stat');
 fprintf('iter\talpha_aff\tmu_aff\t\tsigma\t\talpha\t\tmu\t\tres_stat\tres_eq\t\tres_ineq\tres_comp\n');
 for ii=1:iter+1
@@ -173,6 +251,9 @@ x = reshape(x, nx, N+1);
 % u
 u = sol.get('u', 0, N-1);
 u = reshape(u, nu, N);
+% slack values
+su = sol.get('su', 0, N);
+sl = sol.get('sl', 0, N);
 
 % print to shell
 %sol.print_C_struct();

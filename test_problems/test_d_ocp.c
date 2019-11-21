@@ -3,25 +3,31 @@
 * This file is part of HPIPM.                                                                     *
 *                                                                                                 *
 * HPIPM -- High-Performance Interior Point Method.                                                *
-* Copyright (C) 2017-2018 by Gianluca Frison.                                                     *
+* Copyright (C) 2019 by Gianluca Frison.                                                          *
 * Developed at IMTEK (University of Freiburg) under the supervision of Moritz Diehl.              *
 * All rights reserved.                                                                            *
 *                                                                                                 *
-* This program is free software: you can redistribute it and/or modify                            *
-* it under the terms of the GNU General Public License as published by                            *
-* the Free Software Foundation, either version 3 of the License, or                               *
-* (at your option) any later version                                                              *.
+* The 2-Clause BSD License                                                                        *
 *                                                                                                 *
-* This program is distributed in the hope that it will be useful,                                 *
-* but WITHOUT ANY WARRANTY; without even the implied warranty of                                  *
-* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the                                   *
-* GNU General Public License for more details.                                                    *
+* Redistribution and use in source and binary forms, with or without                              *
+* modification, are permitted provided that the following conditions are met:                     *
 *                                                                                                 *
-* You should have received a copy of the GNU General Public License                               *
-* along with this program.  If not, see <https://www.gnu.org/licenses/>.                          *
+* 1. Redistributions of source code must retain the above copyright notice, this                  *
+*    list of conditions and the following disclaimer.                                             *
+* 2. Redistributions in binary form must reproduce the above copyright notice,                    *
+*    this list of conditions and the following disclaimer in the documentation                    *
+*    and/or other materials provided with the distribution.                                       *
 *                                                                                                 *
-* The authors designate this particular file as subject to the "Classpath" exception              *
-* as provided by the authors in the LICENSE file that accompained this code.                      *
+* THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND                 *
+* ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED                   *
+* WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE                          *
+* DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR                 *
+* ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES                  *
+* (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;                    *
+* LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND                     *
+* ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT                      *
+* (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS                   *
+* SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.                                    *
 *                                                                                                 *
 * Author: Gianluca Frison, gianluca.frison (at) imtek.uni-freiburg.de                             *
 *                                                                                                 *
@@ -605,10 +611,10 @@ int main()
 		idxs0[ii] = nu[0]+ii;
 	double *d_ls0; d_zeros(&d_ls0, ns[0], 1);
 	for(ii=0; ii<ns[0]; ii++)
-		d_ls0[ii] = -1.0;
+		d_ls0[ii] = -1.0; //0.0; //-1.0;
 	double *d_us0; d_zeros(&d_us0, ns[0], 1);
 	for(ii=0; ii<ns[0]; ii++)
-		d_us0[ii] = 0.0;
+		d_us0[ii] = -1.0; //0.0;
 
 	double *Zl1; d_zeros(&Zl1, ns[1], 1);
 	for(ii=0; ii<ns[1]; ii++)
@@ -627,10 +633,10 @@ int main()
 		idxs1[ii] = nu[1]+ii;
 	double *d_ls1; d_zeros(&d_ls1, ns[1], 1);
 	for(ii=0; ii<ns[1]; ii++)
-		d_ls1[ii] = -1.0;
+		d_ls1[ii] = -1.0; //0.0; //-1.0;
 	double *d_us1; d_zeros(&d_us1, ns[1], 1);
 	for(ii=0; ii<ns[1]; ii++)
-		d_us1[ii] = 0.0;
+		d_us1[ii] = -1.0; //0.0;
 
 	double *ZlN; d_zeros(&ZlN, ns[N], 1);
 	for(ii=0; ii<ns[N]; ii++)
@@ -649,10 +655,10 @@ int main()
 		idxsN[ii] = nu[N]+ii;
 	double *d_lsN; d_zeros(&d_lsN, ns[N], 1);
 	for(ii=0; ii<ns[N]; ii++)
-		d_lsN[ii] = -1.0;
+		d_lsN[ii] = -1.0; //0.0; //-1.0;
 	double *d_usN; d_zeros(&d_usN, ns[N], 1);
 	for(ii=0; ii<ns[N]; ii++)
-		d_usN[ii] = 0.0;
+		d_usN[ii] = -1.0; //0.0;
 
 #if 1
 	// soft constraints
@@ -858,7 +864,7 @@ int main()
 //	enum hpipm_mode mode = ROBUST;
 	d_ocp_qp_ipm_arg_set_default(mode, &arg);
 
-	int iter_max = 20;
+	int iter_max = 30;
 	double alpha_min = 1e-8;
 	double tol_stat = 1e-8;
 	double tol_eq = 1e-12;
@@ -867,7 +873,7 @@ int main()
 	double reg_prim = 1e-12;
 	int warm_start = 0;
 	int pred_corr = 1;
-	int ric_alg = 1;
+	int ric_alg = 0;
 
 	d_ocp_qp_ipm_arg_set_mu0(&mu0, &arg);
 	d_ocp_qp_ipm_arg_set_iter_max(&iter_max, &arg);
@@ -1068,10 +1074,10 @@ int main()
 ************************************************/
 
 	int iter; d_ocp_qp_ipm_get_iter(&workspace, &iter);
-	double res_stat; d_ocp_qp_ipm_get_res_stat(&workspace, &res_stat);
-	double res_eq; d_ocp_qp_ipm_get_res_eq(&workspace, &res_eq);
-	double res_ineq; d_ocp_qp_ipm_get_res_ineq(&workspace, &res_ineq);
-	double res_comp; d_ocp_qp_ipm_get_res_comp(&workspace, &res_comp);
+	double res_stat; d_ocp_qp_ipm_get_max_res_stat(&workspace, &res_stat);
+	double res_eq; d_ocp_qp_ipm_get_max_res_eq(&workspace, &res_eq);
+	double res_ineq; d_ocp_qp_ipm_get_max_res_ineq(&workspace, &res_ineq);
+	double res_comp; d_ocp_qp_ipm_get_max_res_comp(&workspace, &res_comp);
 	double *stat; d_ocp_qp_ipm_get_stat(&workspace, &stat);
 	int stat_m; d_ocp_qp_ipm_get_stat_m(&workspace, &stat_m);
 

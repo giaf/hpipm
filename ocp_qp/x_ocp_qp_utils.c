@@ -3,25 +3,31 @@
 * This file is part of HPIPM.                                                                     *
 *                                                                                                 *
 * HPIPM -- High-Performance Interior Point Method.                                                *
-* Copyright (C) 2017-2018 by Gianluca Frison.                                                     *
+* Copyright (C) 2019 by Gianluca Frison.                                                          *
 * Developed at IMTEK (University of Freiburg) under the supervision of Moritz Diehl.              *
 * All rights reserved.                                                                            *
 *                                                                                                 *
-* This program is free software: you can redistribute it and/or modify                            *
-* it under the terms of the GNU General Public License as published by                            *
-* the Free Software Foundation, either version 3 of the License, or                               *
-* (at your option) any later version                                                              *.
+* The 2-Clause BSD License                                                                        *
 *                                                                                                 *
-* This program is distributed in the hope that it will be useful,                                 *
-* but WITHOUT ANY WARRANTY; without even the implied warranty of                                  *
-* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the                                   *
-* GNU General Public License for more details.                                                    *
+* Redistribution and use in source and binary forms, with or without                              *
+* modification, are permitted provided that the following conditions are met:                     *
 *                                                                                                 *
-* You should have received a copy of the GNU General Public License                               *
-* along with this program.  If not, see <https://www.gnu.org/licenses/>.                          *
+* 1. Redistributions of source code must retain the above copyright notice, this                  *
+*    list of conditions and the following disclaimer.                                             *
+* 2. Redistributions in binary form must reproduce the above copyright notice,                    *
+*    this list of conditions and the following disclaimer in the documentation                    *
+*    and/or other materials provided with the distribution.                                       *
 *                                                                                                 *
-* The authors designate this particular file as subject to the "Classpath" exception              *
-* as provided by the authors in the LICENSE file that accompained this code.                      *
+* THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND                 *
+* ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED                   *
+* WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE                          *
+* DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR                 *
+* ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES                  *
+* (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;                    *
+* LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND                     *
+* ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT                      *
+* (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS                   *
+* SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.                                    *
 *                                                                                                 *
 * Author: Gianluca Frison, gianluca.frison (at) imtek.uni-freiburg.de                             *
 *                                                                                                 *
@@ -280,7 +286,7 @@ void OCP_QP_PRINT(struct OCP_QP_DIM *dim, struct OCP_QP *qp)
 
 	printf("rqz =\n");
 	for (ii = 0; ii <= N; ii++)
-		BLASFEO_PRINT_TRAN_VEC(nu[ii]+nx[ii]+ns[ii], qp->rqz+ii, 0);
+		BLASFEO_PRINT_TRAN_VEC(nu[ii]+nx[ii]+2*ns[ii], qp->rqz+ii, 0);
 
 	printf("idxb = \n");
 	for (ii = 0; ii <= N; ii++)
@@ -293,6 +299,14 @@ void OCP_QP_PRINT(struct OCP_QP_DIM *dim, struct OCP_QP *qp)
 	printf("DCt =\n");
 	for (ii = 0; ii <= N; ii++)
 		BLASFEO_PRINT_MAT(nu[ii]+nx[ii], ng[ii], qp->DCt+ii, 0, 0);
+
+	printf("idxs = \n");
+	for (ii = 0; ii <= N; ii++)
+		int_print_mat(1, ns[ii], qp->idxs[ii], 1);
+
+	printf("idxs_rev = \n");
+	for (ii = 0; ii <= N; ii++)
+		int_print_mat(1, nb[ii]+ng[ii], qp->idxs_rev[ii], 1);
 
 	printf("m =\n");
 	for (ii = 0; ii <= N; ii++)
@@ -927,13 +941,13 @@ void OCP_QP_CODEGEN(char *file_name, char *mode, struct OCP_QP_DIM *dim, struct 
 	fprintf(file, "float **hzu;\n");
 #endif
 
-	// idxs
+	// idxs_rev
+	fprintf(file, "/* idxs_rev */\n");
+	fprintf(file, "int **hidxs_rev;\n");
+
+	// idxs // TODO remove !!!
 	fprintf(file, "/* idxs */\n");
-#ifdef DOUBLE_PRECISION
-	fprintf(file, "double **hidxs;\n");
-#else
-	fprintf(file, "float **hidxs;\n");
-#endif
+	fprintf(file, "int **hidxs;\n");
 
 	// lls
 	fprintf(file, "/* lls */\n");
@@ -989,19 +1003,19 @@ void OCP_QP_SOL_PRINT(struct OCP_QP_DIM *qp_dim, struct OCP_QP_SOL *qp_sol)
 
 	printf("uxs =\n");
 	for (ii = 0; ii <= N; ii++)
-		BLASFEO_PRINT_TRAN_VEC(nu[ii] + nx[ii] + 2 * ns[ii], &qp_sol->ux[ii], 0);
+		BLASFEO_PRINT_TRAN_VEC(nu[ii]+nx[ii]+2*ns[ii], &qp_sol->ux[ii], 0);
 
 	printf("pi =\n");
 	for (ii = 0; ii < N; ii++)
-		BLASFEO_PRINT_TRAN_VEC(nx[ii + 1], &qp_sol->pi[ii], 0);
+		BLASFEO_PRINT_TRAN_VEC(nx[ii+1], &qp_sol->pi[ii], 0);
 
 	printf("lam =\n");
 	for (ii = 0; ii <= N; ii++)
-		BLASFEO_PRINT_TRAN_VEC(2 * nb[ii] + 2 * ng[ii] + 2 * ns[ii], &qp_sol->lam[ii], 0);
+		BLASFEO_PRINT_TRAN_VEC(2*nb[ii]+2*ng[ii]+2*ns[ii], &qp_sol->lam[ii], 0);
 
 	printf("t =\n");
 	for (ii = 0; ii <= N; ii++)
-		BLASFEO_PRINT_TRAN_VEC(2 * nb[ii] + 2 * ng[ii] + 2 * ns[ii], &qp_sol->t[ii], 0);
+		BLASFEO_PRINT_TRAN_VEC(2*nb[ii]+2*ng[ii]+2*ns[ii], &qp_sol->t[ii], 0);
 
 	return;
 	}
@@ -1057,4 +1071,39 @@ void OCP_QP_IPM_ARG_CODEGEN(char *file_name, char *mode, struct OCP_QP_DIM *qp_d
 
 	return;
 	}
+
+
+
+void OCP_QP_RES_PRINT(struct OCP_QP_DIM *qp_dim, struct OCP_QP_RES *qp_res)
+	{
+	int ii;
+
+	int N   = qp_dim->N;
+	int *nx = qp_dim->nx;
+	int *nu = qp_dim->nu;
+	int *nb = qp_dim->nb;
+	int *ng = qp_dim->ng;
+	int *ns = qp_dim->ns;
+
+	printf("res_g =\n");
+	for (ii = 0; ii <= N; ii++)
+		BLASFEO_PRINT_TRAN_VEC(nu[ii]+nx[ii]+2*ns[ii], &qp_res->res_g[ii], 0);
+
+	printf("res_b =\n");
+	for (ii = 0; ii < N; ii++)
+		BLASFEO_PRINT_TRAN_VEC(nx[ii+1], &qp_res->res_b[ii], 0);
+
+	printf("res_d =\n");
+	for (ii = 0; ii <= N; ii++)
+		BLASFEO_PRINT_TRAN_VEC(2*nb[ii]+2*ng[ii]+2*ns[ii], &qp_res->res_d[ii], 0);
+
+	printf("res_m =\n");
+	for (ii = 0; ii <= N; ii++)
+		BLASFEO_PRINT_TRAN_VEC(2*nb[ii]+2*ng[ii]+2*ns[ii], &qp_res->res_m[ii], 0);
+
+	return;
+	}
+
+
+
 

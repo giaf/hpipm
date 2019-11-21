@@ -98,7 +98,7 @@ extern int ric_alg;
 int main()
 	{
 
-	int ii;
+	int ii, jj;
 
 	int hpipm_status;
 
@@ -154,13 +154,16 @@ int main()
 
 	d_ocp_qp_ipm_arg_set_mu0(&mu0, &arg);
 	d_ocp_qp_ipm_arg_set_iter_max(&iter_max, &arg);
+	d_ocp_qp_ipm_arg_set_alpha_min(&alpha_min, &arg);
+	d_ocp_qp_ipm_arg_set_mu0(&mu0, &arg);
 	d_ocp_qp_ipm_arg_set_tol_stat(&tol_stat, &arg);
 	d_ocp_qp_ipm_arg_set_tol_eq(&tol_eq, &arg);
 	d_ocp_qp_ipm_arg_set_tol_ineq(&tol_ineq, &arg);
 	d_ocp_qp_ipm_arg_set_tol_comp(&tol_comp, &arg);
 	d_ocp_qp_ipm_arg_set_reg_prim(&reg_prim, &arg);
 	d_ocp_qp_ipm_arg_set_warm_start(&warm_start, &arg);
-//	d_ocp_qp_ipm_arg_set_ric_alg(&ric_alg, &arg);
+	d_ocp_qp_ipm_arg_set_pred_corr(&pred_corr, &arg);
+	d_ocp_qp_ipm_arg_set_ric_alg(&ric_alg, &arg);
 
 /************************************************
 * ipm workspace
@@ -200,6 +203,9 @@ int main()
 //	gettimeofday(&tv1, NULL); // stop
 //	double time_ipm = (tv1.tv_sec-tv0.tv_sec)/(nrep+0.0)+(tv1.tv_usec-tv0.tv_usec)/(nrep*1e6);
 	double time_ipm = hpipm_toc(&timer) / nrep;
+
+// XXX
+//exit(1);
 
 /************************************************
 * print solution info
@@ -280,10 +286,10 @@ int main()
 ************************************************/
 
 	int iter; d_ocp_qp_ipm_get_iter(&workspace, &iter);
-	double res_stat; d_ocp_qp_ipm_get_res_stat(&workspace, &res_stat);
-	double res_eq; d_ocp_qp_ipm_get_res_eq(&workspace, &res_eq);
-	double res_ineq; d_ocp_qp_ipm_get_res_ineq(&workspace, &res_ineq);
-	double res_comp; d_ocp_qp_ipm_get_res_comp(&workspace, &res_comp);
+	double res_stat; d_ocp_qp_ipm_get_max_res_stat(&workspace, &res_stat);
+	double res_eq; d_ocp_qp_ipm_get_max_res_eq(&workspace, &res_eq);
+	double res_ineq; d_ocp_qp_ipm_get_max_res_ineq(&workspace, &res_ineq);
+	double res_comp; d_ocp_qp_ipm_get_max_res_comp(&workspace, &res_comp);
 	double *stat; d_ocp_qp_ipm_get_stat(&workspace, &stat);
 	int stat_m; d_ocp_qp_ipm_get_stat_m(&workspace, &stat_m);
 

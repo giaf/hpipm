@@ -3,25 +3,31 @@
 * This file is part of HPIPM.                                                                     *
 *                                                                                                 *
 * HPIPM -- High-Performance Interior Point Method.                                                *
-* Copyright (C) 2017-2018 by Gianluca Frison.                                                     *
+* Copyright (C) 2019 by Gianluca Frison.                                                          *
 * Developed at IMTEK (University of Freiburg) under the supervision of Moritz Diehl.              *
 * All rights reserved.                                                                            *
 *                                                                                                 *
-* This program is free software: you can redistribute it and/or modify                            *
-* it under the terms of the GNU General Public License as published by                            *
-* the Free Software Foundation, either version 3 of the License, or                               *
-* (at your option) any later version                                                              *.
+* The 2-Clause BSD License                                                                        *
 *                                                                                                 *
-* This program is distributed in the hope that it will be useful,                                 *
-* but WITHOUT ANY WARRANTY; without even the implied warranty of                                  *
-* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the                                   *
-* GNU General Public License for more details.                                                    *
+* Redistribution and use in source and binary forms, with or without                              *
+* modification, are permitted provided that the following conditions are met:                     *
 *                                                                                                 *
-* You should have received a copy of the GNU General Public License                               *
-* along with this program.  If not, see <https://www.gnu.org/licenses/>.                          *
+* 1. Redistributions of source code must retain the above copyright notice, this                  *
+*    list of conditions and the following disclaimer.                                             *
+* 2. Redistributions in binary form must reproduce the above copyright notice,                    *
+*    this list of conditions and the following disclaimer in the documentation                    *
+*    and/or other materials provided with the distribution.                                       *
 *                                                                                                 *
-* The authors designate this particular file as subject to the "Classpath" exception              *
-* as provided by the authors in the LICENSE file that accompained this code.                      *
+* THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND                 *
+* ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED                   *
+* WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE                          *
+* DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR                 *
+* ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES                  *
+* (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;                    *
+* LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND                     *
+* ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT                      *
+* (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS                   *
+* SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.                                    *
 *                                                                                                 *
 * Author: Gianluca Frison, gianluca.frison (at) imtek.uni-freiburg.de                             *
 *                                                                                                 *
@@ -179,25 +185,25 @@ int main()
 * dense qp dim
 ************************************************/
 
-	int dense_qp_dim_size = d_memsize_dense_qp_dim();
+	int dense_qp_dim_size = d_dense_qp_dim_memsize();
 	printf("\nqp dim size = %d\n", dense_qp_dim_size);
-	void *dense_qp_dim_mem = malloc(dense_qp_dim_size);
+	void *qp_dim_mem = malloc(dense_qp_dim_size);
 
 	struct d_dense_qp_dim qp_dim;
-	d_create_dense_qp_dim(&qp_dim, dense_qp_dim_mem);
+	d_dense_qp_dim_create(&qp_dim, qp_dim_mem);
 
-	d_cvt_int_to_dense_qp_dim(nv, ne, nb, ng, nsb, nsg, &qp_dim);
+	d_dense_qp_dim_set_all(nv, ne, nb, ng, nsb, nsg, &qp_dim);
 
 /************************************************
 * dense qp
 ************************************************/
 
-	int qp_size = d_memsize_dense_qp(&qp_dim);
+	int qp_size = d_dense_qp_memsize(&qp_dim);
 	printf("\nqp size = %d\n", qp_size);
 	void *qp_mem = malloc(qp_size);
 
 	struct d_dense_qp qp;
-	d_create_dense_qp(&qp_dim, &qp, qp_mem);
+	d_dense_qp_create(&qp_dim, &qp, qp_mem);
 
 #if 1
 	// test setters
@@ -220,7 +226,7 @@ int main()
 	d_dense_qp_set_ls(d_ls, &qp);
 	d_dense_qp_set_us(d_us, &qp);
 #else
-	d_cvt_colmaj_to_dense_qp(H, g, A, b, idxb, d_lb, d_ub, C, d_lg, d_ug, Zl, Zu, zl, zu, idxs, d_ls, d_us, &qp);
+	d_dense_qp_set_all(H, g, A, b, idxb, d_lb, d_ub, C, d_lg, d_ug, Zl, Zu, zl, zu, idxs, d_ls, d_us, &qp);
 #endif
 
 #if 1
@@ -238,32 +244,41 @@ int main()
 	blasfeo_print_dvec(2*nb+2*ng, qp.d, 0);
 #endif
 
+//qp.d_mask->pa[0] = 0;
+//qp.d_mask->pa[1] = 0;
+//qp.d_mask->pa[2] = 0;
+//qp.d_mask->pa[3] = 0;
+//qp.d_mask->pa[4] = 0;
+//qp.d_mask->pa[5] = 0;
+//qp.d_mask->pa[6] = 0;
+//qp.d_mask->pa[7] = 0;
+
 /************************************************
 * dense qp sol
 ************************************************/
 
-	int qp_sol_size = d_memsize_dense_qp_sol(&qp_dim);
+	int qp_sol_size = d_dense_qp_sol_memsize(&qp_dim);
 	printf("\nqp sol size = %d\n", qp_sol_size);
 	void *qp_sol_mem = malloc(qp_sol_size);
 
 	struct d_dense_qp_sol qp_sol;
-	d_create_dense_qp_sol(&qp_dim, &qp_sol, qp_sol_mem);
+	d_dense_qp_sol_create(&qp_dim, &qp_sol, qp_sol_mem);
 
 /************************************************
 * ipm arg
 ************************************************/
 
-	int ipm_arg_size = d_memsize_dense_qp_ipm_arg(&qp_dim);
+	int ipm_arg_size = d_dense_qp_ipm_arg_memsize(&qp_dim);
 	printf("\nipm arg size = %d\n", ipm_arg_size);
 	void *ipm_arg_mem = malloc(ipm_arg_size);
 
 	struct d_dense_qp_ipm_arg arg;
-	d_create_dense_qp_ipm_arg(&qp_dim, &arg, ipm_arg_mem);
+	d_dense_qp_ipm_arg_create(&qp_dim, &arg, ipm_arg_mem);
 //	enum hpipm_mode mode = SPEED_ABS;
 	enum hpipm_mode mode = SPEED;
 //	enum hpipm_mode mode = BALANCE;
 //	enum hpipm_mode mode = ROBUST;
-	d_set_default_dense_qp_ipm_arg(mode, &arg);
+	d_dense_qp_ipm_arg_set_default(mode, &arg);
 
 //	arg.alpha_min = 1e-8;
 //	arg.res_g_max = 1e-8;
@@ -280,12 +295,12 @@ int main()
 * ipm
 ************************************************/
 
-	int ipm_size = d_memsize_dense_qp_ipm(&qp_dim, &arg);
+	int ipm_size = d_dense_qp_ipm_ws_memsize(&qp_dim, &arg);
 	printf("\nipm size = %d\n", ipm_size);
 	void *ipm_mem = malloc(ipm_size);
 
-	struct d_dense_qp_ipm_workspace workspace;
-	d_create_dense_qp_ipm(&qp_dim, &arg, &workspace, ipm_mem);
+	struct d_dense_qp_ipm_ws workspace;
+	d_dense_qp_ipm_ws_create(&qp_dim, &arg, &workspace, ipm_mem);
 
 	int rep, nrep=1000;
 
@@ -297,7 +312,8 @@ int main()
 
 	for(rep=0; rep<nrep; rep++)
 		{
-		hpipm_return = d_solve_dense_qp_ipm(&qp, &qp_sol, &arg, &workspace);
+		d_dense_qp_ipm_solve(&qp, &qp_sol, &arg, &workspace);
+		d_dense_qp_ipm_get_status(&workspace, &hpipm_return);
 		}
 
 	gettimeofday(&tv1, NULL); // stop
@@ -355,11 +371,20 @@ int main()
 ************************************************/
 
 	printf("\nipm return = %d\n", hpipm_return);
-	printf("\nipm residuals max: res_g = %e, res_b = %e, res_d = %e, res_m = %e\n", workspace.qp_res[0], workspace.qp_res[1], workspace.qp_res[2], workspace.qp_res[3]);
 
-	printf("\nipm iter = %d\n", workspace.iter);
+	int iter; d_dense_qp_ipm_get_iter(&workspace, &iter);
+	printf("\nipm iter = %d\n", iter);
+
+	double max_res_stat; d_dense_qp_ipm_get_max_res_stat(&workspace, &max_res_stat);
+	double max_res_eq  ; d_dense_qp_ipm_get_max_res_eq(&workspace, &max_res_eq);
+	double max_res_ineq; d_dense_qp_ipm_get_max_res_ineq(&workspace, &max_res_ineq);
+	double max_res_comp; d_dense_qp_ipm_get_max_res_comp(&workspace, &max_res_comp);
+	printf("\nipm max res: stat = %e, eq =  %e, ineq =  %e, comp = %e\n", max_res_stat, max_res_eq, max_res_ineq, max_res_comp);
+
 	printf("\nalpha_aff\tmu_aff\t\tsigma\t\talpha\t\tmu\n");
-	d_print_exp_tran_mat(5, workspace.iter, workspace.stat, 5);
+	double *stat; d_dense_qp_ipm_get_stat(&workspace, &stat);
+	int stat_m;  d_dense_qp_ipm_get_stat_m(&workspace, &stat_m);
+	d_print_exp_tran_mat(stat_m, iter+1, stat, stat_m);
 
 	printf("\ndense ipm time = %e [s]\n\n", time_dense_ipm);
 
@@ -367,8 +392,10 @@ int main()
 * free memory
 ************************************************/
 
+	free(qp_dim_mem);
 	free(qp_mem);
 	free(qp_sol_mem);
+	free(ipm_arg_mem);
 	free(ipm_mem);
 
 /************************************************

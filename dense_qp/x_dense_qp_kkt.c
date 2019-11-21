@@ -3,25 +3,31 @@
 * This file is part of HPIPM.                                                                     *
 *                                                                                                 *
 * HPIPM -- High-Performance Interior Point Method.                                                *
-* Copyright (C) 2017-2018 by Gianluca Frison.                                                     *
+* Copyright (C) 2019 by Gianluca Frison.                                                          *
 * Developed at IMTEK (University of Freiburg) under the supervision of Moritz Diehl.              *
 * All rights reserved.                                                                            *
 *                                                                                                 *
-* This program is free software: you can redistribute it and/or modify                            *
-* it under the terms of the GNU General Public License as published by                            *
-* the Free Software Foundation, either version 3 of the License, or                               *
-* (at your option) any later version                                                              *.
+* The 2-Clause BSD License                                                                        *
 *                                                                                                 *
-* This program is distributed in the hope that it will be useful,                                 *
-* but WITHOUT ANY WARRANTY; without even the implied warranty of                                  *
-* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the                                   *
-* GNU General Public License for more details.                                                    *
+* Redistribution and use in source and binary forms, with or without                              *
+* modification, are permitted provided that the following conditions are met:                     *
 *                                                                                                 *
-* You should have received a copy of the GNU General Public License                               *
-* along with this program.  If not, see <https://www.gnu.org/licenses/>.                          *
+* 1. Redistributions of source code must retain the above copyright notice, this                  *
+*    list of conditions and the following disclaimer.                                             *
+* 2. Redistributions in binary form must reproduce the above copyright notice,                    *
+*    this list of conditions and the following disclaimer in the documentation                    *
+*    and/or other materials provided with the distribution.                                       *
 *                                                                                                 *
-* The authors designate this particular file as subject to the "Classpath" exception              *
-* as provided by the authors in the LICENSE file that accompained this code.                      *
+* THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND                 *
+* ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED                   *
+* WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE                          *
+* DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR                 *
+* ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES                  *
+* (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;                    *
+* LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND                     *
+* ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT                      *
+* (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS                   *
+* SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.                                    *
 *                                                                                                 *
 * Author: Gianluca Frison, gianluca.frison (at) imtek.uni-freiburg.de                             *
 *                                                                                                 *
@@ -29,335 +35,8 @@
 
 
 
-void INIT_VAR_DENSE_QP(struct DENSE_QP *qp, struct DENSE_QP_SOL *qp_sol, struct DENSE_QP_IPM_ARG *arg, struct DENSE_QP_IPM_WORKSPACE *ws)
-	{
-
-//	struct CORE_QP_IPM_WORKSPACE *cws = ws->core_workspace;
-
-	// extract cws members
-	int nv = qp->dim->nv;
-	int ne = qp->dim->ne;
-	int nb = qp->dim->nb;
-	int ng = qp->dim->ng;
-	int ns = qp->dim->ns;
-
-	REAL *d = qp->d->pa;
-	int *idxb = qp->idxb;
-
-	REAL *v = qp_sol->v->pa;
-	REAL *pi = qp_sol->pi->pa;
-	REAL *lam = qp_sol->lam->pa;
-	REAL *t = qp_sol->t->pa;
-
-	REAL mu0 = arg->mu0;
-
-	// local variables
-	int ii;
-	int idxb0;
-	REAL thr0 = 0.5;
-
-
-
-	// primal and dual variables
-	if(arg->warm_start==2)
-		{
-
-		thr0 = 1e-1;
-
-		for(ii=0; ii<2*nb+2*ng+2*ns; ii++)
-			{
-			if(lam[ii]<thr0)
-				lam[ii] = thr0;
-			if(t[ii]<thr0)
-				t[ii] = thr0;
-			}
-
-
-		return;
-
-		}
-
-
-
-
-	// primal variables
-	if(arg->warm_start==0)
-		{
-		// cold start
-		for(ii=0; ii<nv+2*ns; ii++)
-			{
-			v[ii] = 0.0;
-			}
-		}
-		
-	// equality constraints
-	for(ii=0; ii<ne; ii++)
-		{
-		pi[ii] = 0.0;
-		}
-	
-	// box constraints
-	for(ii=0; ii<nb; ii++)
-		{
-#if 1
-		idxb0 = idxb[ii];
-		t[0+ii]     = - d[0+ii]     + v[idxb0];
-		t[nb+ng+ii] = - d[nb+ng+ii] - v[idxb0];
-		if(t[0+ii]<thr0)
-			{
-			if(t[nb+ng+ii]<thr0)
-				{
-				v[idxb0] = 0.5*(d[0+ii] + d[nb+ng+ii]);
-				t[0+ii]     = thr0;
-				t[nb+ng+ii] = thr0;
-				}
-			else
-				{
-				t[0+ii] = thr0;
-				v[idxb0] = d[0+ii] + thr0;
-				}
-			}
-		else if(t[nb+ng+ii]<thr0)
-			{
-			t[nb+ng+ii] = thr0;
-			v[idxb0] = - d[nb+ng+ii] - thr0;
-			}
-#else
-		t[0+ii]     = 1.0;
-		t[nb+ng+ii] = 1.0;
-#endif
-		lam[0+ii]     = mu0/t[0+ii];
-		lam[nb+ng+ii] = mu0/t[nb+ng+ii];
-		}
-	
-	// general constraints
-	GEMV_T(nv, ng, 1.0, qp->Ct, 0, 0, qp_sol->v, 0, 0.0, qp_sol->t, nb, qp_sol->t, nb);
-	for(ii=0; ii<ng; ii++)
-		{
-#if 1
-		t[2*nb+ng+ii] = t[nb+ii];
-		t[nb+ii]      -= d[nb+ii];
-		t[2*nb+ng+ii] -= d[2*nb+ng+ii];
-//		t[nb+ii]      = fmax( thr0, t[nb+ii] );
-//		t[2*nb+ng+ii] = fmax( thr0, t[2*nb+ng+ii] );
-		t[nb+ii]      = thr0>t[nb+ii]      ? thr0 : t[nb+ii];
-		t[2*nb+ng+ii] = thr0>t[2*nb+ng+ii] ? thr0 : t[2*nb+ng+ii];
-#else
-		t[nb+ii]      = 1.0;
-		t[2*nb+ng+ii] = 1.0;
-#endif
-		lam[nb+ii]      = mu0/t[nb+ii];
-		lam[2*nb+ng+ii] = mu0/t[2*nb+ng+ii];
-		}
-
-	// soft constraints
-	for(ii=0; ii<ns; ii++)
-		{
-		t[2*nb+2*ng+ii]    = 1.0; // thr0;
-		t[2*nb+2*ng+ns+ii] = 1.0; // thr0;
-		lam[2*nb+2*ng+ii]    = mu0/t[2*nb+2*ng+ii];
-		lam[2*nb+2*ng+ns+ii] = mu0/t[2*nb+2*ng+ns+ii];
-		}
-
-	return;
-
-	}
-
-
-
-void COMPUTE_RES_DENSE_QP(struct DENSE_QP *qp, struct DENSE_QP_SOL *qp_sol, struct DENSE_QP_RES *res, struct DENSE_QP_RES_WORKSPACE *ws)
-	{
-
-	int nv = qp->dim->nv;
-	int ne = qp->dim->ne;
-	int nb = qp->dim->nb;
-	int ng = qp->dim->ng;
-	int ns = qp->dim->ns;
-
-	int nct = 2*nb+2*ng+2*ns;
-
-	REAL nct_inv = 1.0/nct;
-
-	struct STRMAT *Hg = qp->Hv;
-	struct STRMAT *A = qp->A;
-	struct STRMAT *Ct = qp->Ct;
-	struct STRVEC *gz = qp->gz;
-	struct STRVEC *b = qp->b;
-	struct STRVEC *d = qp->d;
-	struct STRVEC *m = qp->m;
-	int *idxb = qp->idxb;
-	struct STRVEC *Z = qp->Z;
-	int *idxs = qp->idxs;
-
-	struct STRVEC *v = qp_sol->v;
-	struct STRVEC *pi = qp_sol->pi;
-	struct STRVEC *lam = qp_sol->lam;
-	struct STRVEC *t = qp_sol->t;
-
-	struct STRVEC *res_g = res->res_g;
-	struct STRVEC *res_b = res->res_b;
-	struct STRVEC *res_d = res->res_d;
-	struct STRVEC *res_m = res->res_m;
-
-	struct STRVEC *tmp_nbg = ws->tmp_nbg;
-	struct STRVEC *tmp_ns = ws->tmp_ns;
-
-	REAL mu;
-
-	// res g
-	SYMV_L(nv, nv, 1.0, Hg, 0, 0, v, 0, 1.0, gz, 0, res_g, 0);
-
-	if(nb+ng>0)
-		{
-		AXPY(nb+ng, -1.0, lam, 0, lam, nb+ng, tmp_nbg+0, 0);
-//		AXPY(nb+ng,  1.0, d, 0, t, 0, res_d, 0);
-//		AXPY(nb+ng,  1.0, d, nb+ng, t, nb+ng, res_d, nb+ng);
-		AXPY(2*nb+2*ng,  1.0, d, 0, t, 0, res_d, 0);
-		// box
-		if(nb>0)
-			{
-			VECAD_SP(nb, 1.0, tmp_nbg+0, 0, idxb, res_g, 0);
-			VECEX_SP(nb, 1.0, idxb, v, 0, tmp_nbg+1, 0);
-			}
-		// general
-		if(ng>0)
-			{
-			GEMV_NT(nv, ng, 1.0, 1.0, Ct, 0, 0, tmp_nbg+0, nb, v, 0, 1.0, 0.0, res_g, 0, tmp_nbg+1, nb, res_g, 0, tmp_nbg+1, nb);
-			}
-		AXPY(nb+ng, -1.0, tmp_nbg+1, 0, res_d, 0, res_d, 0);
-		AXPY(nb+ng,  1.0, tmp_nbg+1, 0, res_d, nb+ng, res_d, nb+ng);
-		}
-	if(ns>0)
-		{
-		// res_g
-		GEMV_DIAG(2*ns, 1.0, Z, 0, v, nv, 1.0, gz, nv, res_g, nv);
-		AXPY(2*ns, -1.0, lam, 2*nb+2*ng, res_g, nv, res_g, nv);
-		VECEX_SP(ns, 1.0, idxs, lam, 0, tmp_ns, 0);
-		AXPY(ns, -1.0, tmp_ns, 0, res_g, nv, res_g, nv);
-		VECEX_SP(ns, 1.0, idxs, lam, nb+ng, tmp_ns, 0);
-		AXPY(ns, -1.0, tmp_ns, 0, res_g, nv+ns, res_g, nv+ns);
-		// res_d
-		VECAD_SP(ns, -1.0, v, nv, idxs, res_d, 0);
-		VECAD_SP(ns, -1.0, v, nv+ns, idxs, res_d, nb+ng);
-		AXPY(2*ns, -1.0, v, nv, t, 2*nb+2*ng, res_d, 2*nb+2*ng);
-		AXPY(2*ns, 1.0, d, 2*nb+2*ng, res_d, 2*nb+2*ng, res_d, 2*nb+2*ng);
-		}
-	
-	// res b, res g
-	GEMV_NT(ne, nv, -1.0, -1.0, A, 0, 0, v, 0, pi, 0, 1.0, 1.0, b, 0, res_g, 0, res_b, 0, res_g, 0);
-
-	// res_m res_mu
-	mu = VECMULDOT(nct, lam, 0, t, 0, res_m, 0);
-	AXPY(nct, -1.0, m, 0, res_m, 0, res_m, 0);
-	res->res_mu = mu*nct_inv;
-
-
-	return;
-
-	}
-
-
-void COMPUTE_LIN_RES_DENSE_QP(struct DENSE_QP *qp, struct DENSE_QP_SOL *qp_sol, struct DENSE_QP_SOL *qp_step, struct DENSE_QP_RES *res, struct DENSE_QP_RES_WORKSPACE *ws)
-	{
-
-	int nv = qp->dim->nv;
-	int ne = qp->dim->ne;
-	int nb = qp->dim->nb;
-	int ng = qp->dim->ng;
-	int ns = qp->dim->ns;
-
-	int nct = 2*nb+2*ng+2*ns;
-
-	REAL nct_inv = 1.0/nct;
-
-	struct STRMAT *Hg = qp->Hv;
-	struct STRMAT *A = qp->A;
-	struct STRMAT *Ct = qp->Ct;
-	struct STRVEC *gz = qp->gz;
-	struct STRVEC *b = qp->b;
-	struct STRVEC *d = qp->d;
-	struct STRVEC *m = qp->m;
-	int *idxb = qp->idxb;
-	struct STRVEC *Z = qp->Z;
-	int *idxs = qp->idxs;
-
-	struct STRVEC *v = qp_step->v;
-	struct STRVEC *pi = qp_step->pi;
-	struct STRVEC *lam = qp_step->lam;
-	struct STRVEC *t = qp_step->t;
-
-	struct STRVEC *Lam = qp_sol->lam;
-	struct STRVEC *T = qp_sol->t;
-
-	struct STRVEC *res_g = res->res_g;
-	struct STRVEC *res_b = res->res_b;
-	struct STRVEC *res_d = res->res_d;
-	struct STRVEC *res_m = res->res_m;
-
-	struct STRVEC *tmp_nbg = ws->tmp_nbg;
-	struct STRVEC *tmp_ns = ws->tmp_ns;
-
-	REAL mu;
-
-	// res g
-	SYMV_L(nv, nv, 1.0, Hg, 0, 0, v, 0, 1.0, gz, 0, res_g, 0);
-
-	if(nb+ng>0)
-		{
-		AXPY(nb+ng, -1.0, lam, 0, lam, nb+ng, tmp_nbg+0, 0);
-//		AXPY(nb+ng,  1.0, d, 0, t, 0, res_d, 0);
-//		AXPY(nb+ng,  1.0, d, nb+ng, t, nb+ng, res_d, nb+ng);
-		AXPY(2*nb+2*ng,  1.0, d, 0, t, 0, res_d, 0);
-		// box
-		if(nb>0)
-			{
-			VECAD_SP(nb, 1.0, tmp_nbg+0, 0, idxb, res_g, 0);
-			VECEX_SP(nb, 1.0, idxb, v, 0, tmp_nbg+1, 0);
-			}
-		// general
-		if(ng>0)
-			{
-			GEMV_NT(nv, ng, 1.0, 1.0, Ct, 0, 0, tmp_nbg+0, nb, v, 0, 1.0, 0.0, res_g, 0, tmp_nbg+1, nb, res_g, 0, tmp_nbg+1, nb);
-			}
-		AXPY(nb+ng, -1.0, tmp_nbg+1, 0, res_d, 0, res_d, 0);
-		AXPY(nb+ng,  1.0, tmp_nbg+1, 0, res_d, nb+ng, res_d, nb+ng);
-		}
-	if(ns>0)
-		{
-		// res_g
-		GEMV_DIAG(2*ns, 1.0, Z, 0, v, nv, 1.0, gz, nv, res_g, nv);
-		AXPY(2*ns, -1.0, lam, 2*nb+2*ng, res_g, nv, res_g, nv);
-		VECEX_SP(ns, 1.0, idxs, lam, 0, tmp_ns, 0);
-		AXPY(ns, -1.0, tmp_ns, 0, res_g, nv, res_g, nv);
-		VECEX_SP(ns, 1.0, idxs, lam, nb+ng, tmp_ns, 0);
-		AXPY(ns, -1.0, tmp_ns, 0, res_g, nv+ns, res_g, nv+ns);
-		// res_d
-		VECAD_SP(ns, -1.0, v, nv, idxs, res_d, 0);
-		VECAD_SP(ns, -1.0, v, nv+ns, idxs, res_d, nb+ng);
-		AXPY(2*ns, -1.0, v, nv, t, 2*nb+2*ng, res_d, 2*nb+2*ng);
-		AXPY(2*ns, 1.0, d, 2*nb+2*ng, res_d, 2*nb+2*ng, res_d, 2*nb+2*ng);
-		}
-	
-	// res b, res g
-	GEMV_NT(ne, nv, -1.0, -1.0, A, 0, 0, v, 0, pi, 0, 1.0, 1.0, b, 0, res_g, 0, res_b, 0, res_g, 0);
-
-	// res_m res_mu
-//	VECCPSC(nct, 1.0, m, 0, res_m, 0);
-	VECCP(nct, m, 0, res_m, 0);
-	VECMULACC(nct, Lam, 0, t, 0, res_m, 0);
-	VECMULACC(nct, lam, 0, T, 0, res_m, 0);
-//	mu = VECMULDOT(nct, lam, 0, t, 0, res_m, 0);
-//	AXPY(nct, -1.0, m, 0, res_m, 0, res_m, 0);
-//	res->res_mu = mu*nct_inv;
-
-
-	return;
-
-	}
-
-
 // range-space (Schur complement) method
-void FACT_SOLVE_KKT_UNCONSTR_DENSE_QP(struct DENSE_QP *qp, struct DENSE_QP_SOL *qp_sol, struct DENSE_QP_IPM_ARG *arg, struct DENSE_QP_IPM_WORKSPACE *ws)
+void FACT_SOLVE_KKT_UNCONSTR_DENSE_QP(struct DENSE_QP *qp, struct DENSE_QP_SOL *qp_sol, struct DENSE_QP_IPM_ARG *arg, struct DENSE_QP_IPM_WS *ws)
 	{
 
 	int nv = qp->dim->nv;
@@ -426,7 +105,7 @@ void FACT_SOLVE_KKT_UNCONSTR_DENSE_QP(struct DENSE_QP *qp, struct DENSE_QP_SOL *
 
 
 
-static void COND_SLACKS_FACT_SOLVE(struct DENSE_QP *qp, struct DENSE_QP_SOL *qp_sol, struct DENSE_QP_IPM_WORKSPACE *ws)
+static void COND_SLACKS_FACT_SOLVE(struct DENSE_QP *qp, struct DENSE_QP_SOL *qp_sol, struct DENSE_QP_IPM_ARG *arg, struct DENSE_QP_IPM_WS *ws)
 	{
 
 	int ii, idx;
@@ -471,8 +150,8 @@ static void COND_SLACKS_FACT_SOLVE(struct DENSE_QP *qp, struct DENSE_QP_SOL *qp_
 	for(ii=0; ii<ns; ii++)
 		{
 		idx = idxs[ii];
-		ptr_Zs_inv[0+ii]  = ptr_Z[0+ii]  + ptr_Gamma[0+idx]     + ptr_Gamma[2*nb+2*ng+ii];
-		ptr_Zs_inv[ns+ii] = ptr_Z[ns+ii] + ptr_Gamma[nb+ng+idx] + ptr_Gamma[2*nb+2*ng+ns+ii];
+		ptr_Zs_inv[0+ii]  = ptr_Z[0+ii]  + arg->reg_prim + ptr_Gamma[0+idx]     + ptr_Gamma[2*nb+2*ng+ii];
+		ptr_Zs_inv[ns+ii] = ptr_Z[ns+ii] + arg->reg_prim + ptr_Gamma[nb+ng+idx] + ptr_Gamma[2*nb+2*ng+ns+ii];
 		ptr_dv[nv+ii]     = ptr_res_g[nv+ii]    + ptr_gamma[0+idx]     + ptr_gamma[2*nb+2*ng+ii];
 		ptr_dv[nv+ns+ii]  = ptr_res_g[nv+ns+ii] + ptr_gamma[nb+ng+idx] + ptr_gamma[2*nb+2*ng+ns+ii];
 		ptr_Zs_inv[0+ii]  = 1.0/ptr_Zs_inv[0+ii];
@@ -494,7 +173,7 @@ static void COND_SLACKS_FACT_SOLVE(struct DENSE_QP *qp, struct DENSE_QP_SOL *qp_
 
 
 
-static void COND_SLACKS_SOLVE(struct DENSE_QP *qp, struct DENSE_QP_SOL *qp_sol, struct DENSE_QP_IPM_WORKSPACE *ws)
+static void COND_SLACKS_SOLVE(struct DENSE_QP *qp, struct DENSE_QP_SOL *qp_sol, struct DENSE_QP_IPM_WS *ws)
 	{
 
 	int ii, idx;
@@ -549,7 +228,7 @@ static void COND_SLACKS_SOLVE(struct DENSE_QP *qp, struct DENSE_QP_SOL *qp_sol, 
 
 
 
-static void EXPAND_SLACKS(struct DENSE_QP *qp, struct DENSE_QP_SOL *qp_sol, struct DENSE_QP_IPM_WORKSPACE *ws)
+static void EXPAND_SLACKS(struct DENSE_QP *qp, struct DENSE_QP_SOL *qp_sol, struct DENSE_QP_IPM_WS *ws)
 	{
 
 	int ii, idx;
@@ -581,7 +260,6 @@ static void EXPAND_SLACKS(struct DENSE_QP *qp, struct DENSE_QP_SOL *qp_sol, stru
 		ptr_dt[2*nb+2*ng+ns+ii] = ptr_dv[nv+ns+ii];
 		ptr_dt[0+idx]     = ptr_dt[0+idx]     + ptr_dv[nv+ii];
 		ptr_dt[nb+ng+idx] = ptr_dt[nb+ng+idx] + ptr_dv[nv+ns+ii];
-
 		}
 
 	return;
@@ -591,7 +269,7 @@ static void EXPAND_SLACKS(struct DENSE_QP *qp, struct DENSE_QP_SOL *qp_sol, stru
 
 
 // range-space (Schur complement) method
-void FACT_SOLVE_KKT_STEP_DENSE_QP(struct DENSE_QP *qp, struct DENSE_QP_SOL *qp_sol, struct DENSE_QP_IPM_ARG *arg, struct DENSE_QP_IPM_WORKSPACE *ws)
+void FACT_SOLVE_KKT_STEP_DENSE_QP(struct DENSE_QP *qp, struct DENSE_QP_SOL *qp_sol, struct DENSE_QP_IPM_ARG *arg, struct DENSE_QP_IPM_WS *ws)
 	{
 
 	int ii;
@@ -647,7 +325,7 @@ void FACT_SOLVE_KKT_STEP_DENSE_QP(struct DENSE_QP *qp, struct DENSE_QP_SOL *qp_s
 
 			if(ns>0)
 				{
-				COND_SLACKS_FACT_SOLVE(qp, qp_sol, ws);
+				COND_SLACKS_FACT_SOLVE(qp, qp_sol, arg, ws);
 				}
 			else if(nb+ng>0)
 				{
@@ -733,7 +411,7 @@ void FACT_SOLVE_KKT_STEP_DENSE_QP(struct DENSE_QP *qp, struct DENSE_QP_SOL *qp_s
 
 			if(ns>0)
 				{
-				COND_SLACKS_FACT_SOLVE(qp, qp_sol, ws);
+				COND_SLACKS_FACT_SOLVE(qp, qp_sol, arg, ws);
 				}
 			else if(nb+ng>0)
 				{
@@ -790,7 +468,7 @@ void FACT_SOLVE_KKT_STEP_DENSE_QP(struct DENSE_QP *qp, struct DENSE_QP_SOL *qp_s
 
 			if(ns>0)
 				{
-				COND_SLACKS_FACT_SOLVE(qp, qp_sol, ws);
+				COND_SLACKS_FACT_SOLVE(qp, qp_sol, arg, ws);
 				}
 			else if(nb+ng>0)
 				{
@@ -840,7 +518,7 @@ void FACT_SOLVE_KKT_STEP_DENSE_QP(struct DENSE_QP *qp, struct DENSE_QP_SOL *qp_s
 
 			if(ns>0)
 				{
-				COND_SLACKS_FACT_SOLVE(qp, qp_sol, ws);
+				COND_SLACKS_FACT_SOLVE(qp, qp_sol, arg, ws);
 				}
 			else if(nb+ng>0)
 				{
@@ -893,7 +571,7 @@ void FACT_SOLVE_KKT_STEP_DENSE_QP(struct DENSE_QP *qp, struct DENSE_QP_SOL *qp_s
 
 
 
-void FACT_LQ_SOLVE_KKT_STEP_DENSE_QP(struct DENSE_QP *qp, struct DENSE_QP_SOL *qp_sol, struct DENSE_QP_IPM_ARG *arg, struct DENSE_QP_IPM_WORKSPACE *ws)
+void FACT_LQ_SOLVE_KKT_STEP_DENSE_QP(struct DENSE_QP *qp, struct DENSE_QP_SOL *qp_sol, struct DENSE_QP_IPM_ARG *arg, struct DENSE_QP_IPM_WS *ws)
 	{
 
 	int ii;
@@ -957,7 +635,7 @@ void FACT_LQ_SOLVE_KKT_STEP_DENSE_QP(struct DENSE_QP *qp, struct DENSE_QP_SOL *q
 
 		if(ns>0)
 			{
-			COND_SLACKS_FACT_SOLVE(qp, qp_sol, ws);
+			COND_SLACKS_FACT_SOLVE(qp, qp_sol, arg, ws);
 			}
 		else if(nb+ng>0)
 			{
@@ -1078,7 +756,7 @@ void FACT_LQ_SOLVE_KKT_STEP_DENSE_QP(struct DENSE_QP *qp, struct DENSE_QP_SOL *q
 
 		if(ns>0)
 			{
-			COND_SLACKS_FACT_SOLVE(qp, qp_sol, ws);
+			COND_SLACKS_FACT_SOLVE(qp, qp_sol, arg, ws);
 			}
 		else if(nb+ng>0)
 			{
@@ -1178,7 +856,7 @@ exit(1);
 
 
 #if 0
-void FACT_SOLVE_LU_KKT_STEP_DENSE_QP(struct DENSE_QP *qp, struct DENSE_QP_SOL *qp_sol, struct DENSE_QP_IPM_ARG *arg, struct DENSE_QP_IPM_WORKSPACE *ws)
+void FACT_SOLVE_LU_KKT_STEP_DENSE_QP(struct DENSE_QP *qp, struct DENSE_QP_SOL *qp_sol, struct DENSE_QP_IPM_ARG *arg, struct DENSE_QP_IPM_WS *ws)
 	{
 
 	int ii;
@@ -1236,7 +914,7 @@ void FACT_SOLVE_LU_KKT_STEP_DENSE_QP(struct DENSE_QP *qp, struct DENSE_QP_SOL *q
 
 			if(ns>0)
 				{
-				COND_SLACKS_FACT_SOLVE(qp, qp_sol, ws);
+				COND_SLACKS_FACT_SOLVE(qp, qp_sol, arg, ws);
 				}
 			else if(nb+ng>0)
 				{
@@ -1322,7 +1000,7 @@ void FACT_SOLVE_LU_KKT_STEP_DENSE_QP(struct DENSE_QP *qp, struct DENSE_QP_SOL *q
 
 			if(ns>0)
 				{
-				COND_SLACKS_FACT_SOLVE(qp, qp_sol, ws);
+				COND_SLACKS_FACT_SOLVE(qp, qp_sol, arg, ws);
 				}
 			else if(nb+ng>0)
 				{
@@ -1393,7 +1071,7 @@ void FACT_SOLVE_LU_KKT_STEP_DENSE_QP(struct DENSE_QP *qp, struct DENSE_QP_SOL *q
 
 			if(ns>0)
 				{
-				COND_SLACKS_FACT_SOLVE(qp, qp_sol, ws);
+				COND_SLACKS_FACT_SOLVE(qp, qp_sol, arg, ws);
 				}
 			else if(nb+ng>0)
 				{
@@ -1443,7 +1121,7 @@ void FACT_SOLVE_LU_KKT_STEP_DENSE_QP(struct DENSE_QP *qp, struct DENSE_QP_SOL *q
 
 			if(ns>0)
 				{
-				COND_SLACKS_FACT_SOLVE(qp, qp_sol, ws);
+				COND_SLACKS_FACT_SOLVE(qp, qp_sol, arg, ws);
 				}
 			else if(nb+ng>0)
 				{
@@ -1500,7 +1178,7 @@ void FACT_SOLVE_LU_KKT_STEP_DENSE_QP(struct DENSE_QP *qp, struct DENSE_QP_SOL *q
 
 
 // range-space (Schur complement) method
-void SOLVE_KKT_STEP_DENSE_QP(struct DENSE_QP *qp, struct DENSE_QP_SOL *qp_sol, struct DENSE_QP_IPM_ARG *arg, struct DENSE_QP_IPM_WORKSPACE *ws)
+void SOLVE_KKT_STEP_DENSE_QP(struct DENSE_QP *qp, struct DENSE_QP_SOL *qp_sol, struct DENSE_QP_IPM_ARG *arg, struct DENSE_QP_IPM_WS *ws)
 	{
 
 	int nv = qp->dim->nv;
