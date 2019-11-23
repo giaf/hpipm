@@ -211,7 +211,7 @@ install_shared:
 	mkdir -p $(PREFIX)/hpipm/include
 	cp -f ./include/*.h $(PREFIX)/hpipm/include/
 
-test_problem:
+test_problems:
 	cp libhpipm.a ./test_problems/libhpipm.a
 	make -C test_problems obj TOP=$(TOP)
 	@echo
@@ -231,8 +231,17 @@ examples:
 run_examples:
 	./examples/c/example.out
 
+benchmarks:
+	( cd benchmark; $(MAKE) )
+	@echo
+	@echo " Benchmarks build complete."
+	@echo
 
-.PHONY: examples
+run_benchmarks:
+	( cd benchmark; $(MAKE) run )
+
+.PHONY: test_problems examples benchmarks
+
 clean:
 	rm -f libhpipm.a
 	rm -f libhpipm.so
@@ -246,4 +255,5 @@ clean:
 	make -C tree_ocp_qp clean
 	make -C test_problems clean
 	make -C examples/c clean
+	make -C benchmark clean
 

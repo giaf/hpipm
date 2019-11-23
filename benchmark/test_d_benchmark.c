@@ -418,6 +418,8 @@ int main()
 	printf("\n");
 	printf(" HPIPM -- High-Performance Interior Point Method.\n");
 	printf("\n");
+	printf(" Benchmark dense QP solver on the 44 smallest problems from Maros and Meszaros in CUTEr\n");
+	printf("\n");
 	printf("\n");
 	printf("\n");
 
