@@ -71,6 +71,7 @@
 #define DIAAD_SP blasfeo_sdiaad_sp
 #define DIAEX blasfeo_sdiaex
 #define DIARE blasfeo_sdiare
+#define GEAD blasfeo_sgead
 #define GECP blasfeo_sgecp
 #define GELQF blasfeo_sgelqf
 #define GELQF_PD_LA blasfeo_sgelqf_pd_la
@@ -84,6 +85,8 @@
 #define GEMV_N blasfeo_sgemv_n
 #define GEMV_T blasfeo_sgemv_t
 #define GESE blasfeo_sgese
+#define GETR blasfeo_sgetr
+#define GETRF_RP blasfeo_sgetrf_rp
 #define ORGLQ blasfeo_sorglq
 #define POTRF_L blasfeo_spotrf_l
 #define POTRF_L_MN blasfeo_spotrf_l_mn
@@ -125,6 +128,8 @@
 #define FACT_LQ_SOLVE_KKT_STEP_DENSE_QP s_fact_lq_solve_kkt_step_dense_qp
 #define FACT_SOLVE_KKT_STEP_DENSE_QP s_fact_solve_kkt_step_dense_qp
 #define SOLVE_KKT_STEP_DENSE_QP s_solve_kkt_step_dense_qp
+#define DENSE_QP_REMOVE_LIN_DEP_EQ s_dense_qp_remove_lin_dep_eq
+#define DENSE_QP_RESTORE_LIN_DEP_EQ s_dense_qp_restore_lin_dep_eq
 
 
 

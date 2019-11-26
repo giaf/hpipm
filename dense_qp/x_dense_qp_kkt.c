@@ -1693,3 +1693,156 @@ void SOLVE_KKT_STEP_DENSE_QP(struct DENSE_QP *qp, struct DENSE_QP_SOL *qp_sol, s
 	}
 
 
+
+void DENSE_QP_REMOVE_LIN_DEP_EQ(struct DENSE_QP *qp, struct DENSE_QP_IPM_ARG *arg, struct DENSE_QP_IPM_WS *ws)
+	{
+
+	int ii, jj;
+
+	int nv = qp->dim->nv;
+	int ne = qp->dim->ne;
+
+	struct STRMAT *A = qp->A;
+	struct STRVEC *b = qp->b;
+
+	struct STRMAT *A_li = ws->A_li;
+	struct STRVEC *b_li = ws->b_li;
+	struct STRMAT *AL = ws->AL;
+	struct STRMAT *At_LU = ws->At_LU;
+	struct STRMAT *A_LQ = ws->A_LQ;
+	void *lq_work_null = ws->lq_work_null;
+	int *ipiv_v = ws->ipiv_v;
+
+	int ne_li = 0;
+
+	// TODO tuning, single precision
+	REAL thr = 1e-14;
+
+	REAL tmp_diag, pivot, tmp, tmp_b;
+
+//printf("\nA\n");
+//blasfeo_print_dmat(ne, nv, A, 0, 0);
+	if(ne>0)
+		{
+		if(1)
+			{
+			GETR(ne, nv, A, 0, 0, At_LU, 0, 0);
+			GETRF_RP(ne, nv, At_LU, 0, 0, At_LU, 0, 0, ipiv_v);
+			GETR(nv, ne, At_LU, 0, 0, A_LQ, 0, 0);
+			}
+		else //if(arg->kkt_fact_alg==0) // null space method
+			{
+			GELQF(ne, nv, A, 0, 0, A_LQ, 0, 0, lq_work_null);
+			}
+//printf("\nA_LQ\n");
+//blasfeo_print_dmat(ne, nv, A_LQ, 0, 0);
+		GESE(ne, nv, 0.0, AL, 0, 0);
+		for(ii=0; ii<ne; ii++)
+			{
+			tmp_diag = BLASFEO_DMATEL(A_LQ, ii, ii);
+			if(fabs(tmp_diag)<thr)
+				{
+//					printf("%e zero!\n", tmp_diag);
+				GECP(1, ii, A_LQ, ii, 0, AL, ii, 0);
+				tmp_b = BLASFEO_DVECEL(b, ii);
+				for(jj=ii-1; jj>=0; jj--)
+					{
+					pivot = BLASFEO_DMATEL(A_LQ, jj, jj);
+					if(fabs(pivot)>=thr)
+						{
+						tmp = BLASFEO_DMATEL(AL, ii, jj)/pivot; 
+						BLASFEO_DMATEL(AL, ii, jj) = tmp;
+//							printf("\ntmp %e %d\n", tmp, jj);
+//							blasfeo_print_dmat(1, jj, A_LQ, jj, 0);
+//							blasfeo_print_dmat(1, jj, AL, ii, 0);
+						GEAD(1, jj, -tmp, A_LQ, jj, 0, AL, ii, 0);
+//							blasfeo_print_dmat(1, jj, AL, ii, 0);
+//							if(ii==2) exit(1);
+						tmp_b -= tmp * BLASFEO_DVECEL(b, jj);
+						}
+					}
+//					printf("\ntmp_b %e\n", tmp_b);
+				if(fabs(tmp_b)>=thr)
+					{
+					ws->status = INFEASIBLE;
+//						printf("\nproblem unfeasible!\n");
+					}
+				}
+			else
+				{
+//					printf("%e\n", tmp_diag);
+				BLASFEO_DMATEL(AL, ii, ii) = 1.0;
+				GECP(1, nv, A, ii, 0, A_li, ne_li, 0);
+				VECCP(1, b, ii, b_li, ne_li);
+				ne_li++;
+				}
+			}
+//printf("\nAL\n");
+//blasfeo_print_dmat(ne, nv, AL, 0, 0);
+
+		if(ne_li<ne)
+			{
+//			printf("\nne %d, ne_li %d\n", ne, ne_li);
+			ws->ne_bkp = qp->dim->ne;
+			qp->dim->ne = ne_li;
+			ws->A_bkp = qp->A;
+			qp->A = A_li;
+			ws->b_bkp = qp->b;
+			qp->b = b_li;
+			}
+	
+		}
+
+//printf("\nA_li\n");
+//blasfeo_print_dmat(ne_li, nv, A_li, 0, 0);
+//printf("\nb_li\n");
+//blasfeo_print_tran_dvec(ne_li, b_li, 0);
+
+	return;
+
+	}
+					
+
+
+void DENSE_QP_RESTORE_LIN_DEP_EQ(struct DENSE_QP *qp, struct DENSE_QP_IPM_ARG *arg, struct DENSE_QP_IPM_WS *ws)
+	{
+
+	int ii, jj;
+
+	int nv = qp->dim->nv;
+	int ne = qp->dim->ne;
+
+	struct STRMAT *A = qp->A;
+	struct STRVEC *b = qp->b;
+
+	struct STRMAT *A_li = ws->A_li;
+	struct STRVEC *b_li = ws->b_li;
+	struct STRMAT *AL = ws->AL;
+	struct STRMAT *At_LU = ws->At_LU;
+	struct STRMAT *A_LQ = ws->A_LQ;
+	void *lq_work_null = ws->lq_work_null;
+	int *ipiv_v = ws->ipiv_v;
+
+	if(ne>0)
+		{
+		if(ne<ws->ne_bkp)
+			{
+//			printf("\nne %d, ne_li %d\n", ne, ne_li);
+			qp->dim->ne = ws->ne_bkp;
+			qp->A = ws->A_bkp;
+			qp->b = ws->b_bkp;
+			}
+		}
+
+//printf("\nA\n");
+//blasfeo_print_dmat(ne, nv, A, 0, 0);
+//printf("\nb\n");
+//blasfeo_print_tran_dvec(ne, b, 0);
+
+	return;
+
+	}
+					
+
+
+

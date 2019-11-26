@@ -54,6 +54,15 @@ enum hpipm_mode
 	ROBUST, // focus on robustness, relative IPM formulation
 	};
 
+enum hpipm_status
+	{
+	SUCCESS, // found solution satisfying accuracy tolerance
+	MAX_ITER, // maximum iteration number reached
+	MIN_STEP, // minimum step length reached
+	NAN_SOL, // NaN in solution detected
+	INFEASIBLE, // some infeasibility detected (e.g. unconsistent equality constraints)
+	};
+
 
 
 #ifdef __cplusplus

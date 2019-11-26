@@ -82,6 +82,7 @@ struct s_dense_qp_ipm_arg
 	int comp_res_exit; // compute residuals on exit (only for abs_form==1)
 	int comp_res_pred; // compute residuals of prediction
 	int kkt_fact_alg; // 0 null-space, 1 schur-complement
+	int remove_lin_dep_eq; // 0 do not, 1 do check and remove linearly dependent equality constraints
 	int mode;
 	int memsize;
 	};
@@ -122,8 +123,13 @@ struct s_dense_qp_ipm_ws
 	struct blasfeo_svec *Yxy;
 	struct blasfeo_svec *xz;
 	struct blasfeo_svec *tmp_nv;
+	struct blasfeo_smat *A_li; // A of linearly independent equality constraints
+	struct blasfeo_svec *b_li; // b of linearly independent equality constraints
+	struct blasfeo_smat *A_bkp; // pointer to backup A
+	struct blasfeo_svec *b_bkp; // pointer to backup b
+	struct blasfeo_smat *At_LU;
 	float *stat; // convergence statistics
-//	int *ipiv_v;
+	int *ipiv_v;
 //	int *ipiv_e;
 	void *lq_work0;
 	void *lq_work1;
@@ -138,6 +144,8 @@ struct s_dense_qp_ipm_ws
 	int status;
 	int lq_fact; // cache from arg
 	int mask_constr; // use constr mask
+	int ne_li; // number of linearly independent equality constraints
+	int ne_bkp; // ne backup
 	int memsize; // memory size (in bytes) of workspace
 	};
 
@@ -185,6 +193,8 @@ void s_dense_qp_ipm_arg_set_lam_min(float *value, struct s_dense_qp_ipm_arg *arg
 void s_dense_qp_ipm_arg_set_t_min(float *value, struct s_dense_qp_ipm_arg *arg);
 //
 void s_dense_qp_ipm_arg_set_kkt_fact_alg(int *value, struct s_dense_qp_ipm_arg *arg);
+//
+void s_dense_qp_ipm_arg_set_remove_lin_dep_eq(int *value, struct s_dense_qp_ipm_arg *arg);
 
 //
 int s_dense_qp_ipm_ws_memsize(struct s_dense_qp_dim *qp_dim, struct s_dense_qp_ipm_arg *arg);

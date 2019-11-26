@@ -59,7 +59,7 @@ void DENSE_QP_IPM_ARG_SET_DEFAULT(enum HPIPM_MODE mode, struct DENSE_QP_IPM_ARG 
 	{
 
 	REAL mu0, alpha_min, res_g, res_b, res_d, res_m, reg_prim, reg_dual, lam_min, t_min;
-	int iter_max, stat_max, pred_corr, cond_pred_corr, itref_pred_max, itref_corr_max, lq_fact, scale, warm_start, abs_form, comp_res_exit, comp_res_pred, kkt_fact_alg;
+	int iter_max, stat_max, pred_corr, cond_pred_corr, itref_pred_max, itref_corr_max, lq_fact, scale, warm_start, abs_form, comp_res_exit, comp_res_pred, kkt_fact_alg, remove_lin_dep_eq;
 
 	if(mode==SPEED_ABS)
 		{
@@ -86,6 +86,7 @@ void DENSE_QP_IPM_ARG_SET_DEFAULT(enum HPIPM_MODE mode, struct DENSE_QP_IPM_ARG 
 		comp_res_exit = 0;
 		comp_res_pred = 0;
 		kkt_fact_alg = 1;
+		remove_lin_dep_eq = 0;
 		}
 	else if(mode==SPEED)
 		{
@@ -112,6 +113,7 @@ void DENSE_QP_IPM_ARG_SET_DEFAULT(enum HPIPM_MODE mode, struct DENSE_QP_IPM_ARG 
 		comp_res_exit = 1;
 		comp_res_pred = 0;
 		kkt_fact_alg = 1;
+		remove_lin_dep_eq = 0;
 		}
 	else if(mode==BALANCE)
 		{
@@ -138,6 +140,7 @@ void DENSE_QP_IPM_ARG_SET_DEFAULT(enum HPIPM_MODE mode, struct DENSE_QP_IPM_ARG 
 		comp_res_exit = 1;
 		comp_res_pred = 0;
 		kkt_fact_alg = 1;
+		remove_lin_dep_eq = 0;
 		}
 	else if(mode==ROBUST)
 		{
@@ -164,6 +167,7 @@ void DENSE_QP_IPM_ARG_SET_DEFAULT(enum HPIPM_MODE mode, struct DENSE_QP_IPM_ARG 
 		comp_res_exit = 1;
 		comp_res_pred = 0;
 		kkt_fact_alg = 1;
+		remove_lin_dep_eq = 0;
 		}
 	else
 		{
@@ -196,6 +200,7 @@ void DENSE_QP_IPM_ARG_SET_DEFAULT(enum HPIPM_MODE mode, struct DENSE_QP_IPM_ARG 
 	DENSE_QP_IPM_ARG_SET_COMP_RES_PRED(&comp_res_pred, arg);
 	DENSE_QP_IPM_ARG_SET_KKT_FACT_ALG(&kkt_fact_alg, arg);
 	arg->mode = mode;
+	DENSE_QP_IPM_ARG_SET_REMOVE_LIN_DEP_EQ(&remove_lin_dep_eq, arg);
 
 	return;
 
@@ -272,6 +277,10 @@ void DENSE_QP_IPM_ARG_SET(char *field, void *value, struct DENSE_QP_IPM_ARG *arg
 	else if(hpipm_strcmp(field, "kkt_fact_alg")) 
 		{
 		DENSE_QP_IPM_ARG_SET_KKT_FACT_ALG(value, arg);
+		}
+	else if(hpipm_strcmp(field, "remove_lin_dep_eq")) 
+		{
+		DENSE_QP_IPM_ARG_SET_REMOVE_LIN_DEP_EQ(value, arg);
 		}
 	else
 		{
@@ -419,6 +428,14 @@ void DENSE_QP_IPM_ARG_SET_KKT_FACT_ALG(int *value, struct DENSE_QP_IPM_ARG *arg)
 
 
 
+void DENSE_QP_IPM_ARG_SET_REMOVE_LIN_DEP_EQ(int *value, struct DENSE_QP_IPM_ARG *arg)
+	{
+	arg->remove_lin_dep_eq = *value;
+	return;
+	}
+
+
+
 int DENSE_QP_IPM_WS_MEMSIZE(struct DENSE_QP_DIM *dim, struct DENSE_QP_IPM_ARG *arg)
 	{
 
@@ -443,13 +460,13 @@ int DENSE_QP_IPM_WS_MEMSIZE(struct DENSE_QP_DIM *dim, struct DENSE_QP_IPM_ARG *a
 	size += 2*sizeof(struct DENSE_QP_RES); // res res_itref
 	size += 1*DENSE_QP_RES_MEMSIZE(dim); // res_itref
 
-	size += 23*sizeof(struct STRVEC); // sol_step(v,pi,lam,t) res_g res_b res_d res_m lv (4+2)*tmp_nbg (1+1)*tmp_ns Gamma gamma Zs_inv sv se tmp_m
-	size += 5*sizeof(struct STRMAT); // 2*Lv AL Le Ctx
+	size += 26*sizeof(struct STRVEC); // sol_step(v,pi,lam,t) res_g res_b res_d res_m lv (4+2)*tmp_nbg (1+1)*tmp_ns Gamma gamma Zs_inv sv se tmp_m b_li At_LU A_LQ
+	size += 6*sizeof(struct STRMAT); // 2*Lv AL Le Ctx A_li
 	if(arg->lq_fact>0)
 		size += 2*sizeof(struct STRMAT); // lq0 lq1
 	if(arg->kkt_fact_alg==0)
 		{
-		size += 5*sizeof(struct STRMAT); // A_LQ A_Q Zt ZtH ZthZ
+		size += 4*sizeof(struct STRMAT); // A_Q Zt ZtH ZthZ
 		size += 4*sizeof(struct STRMAT); // xy Yxy xz tmp_nv
 		}
 	else
@@ -466,22 +483,25 @@ int DENSE_QP_IPM_WS_MEMSIZE(struct DENSE_QP_DIM *dim, struct DENSE_QP_IPM_ARG *a
 	size += 1*SIZE_STRMAT(ne, nv); // AL
 	size += 1*SIZE_STRMAT(ne, ne); // Le
 	size += 1*SIZE_STRMAT(nv+1, ng); // Ctx
+	size += 1*SIZE_STRVEC(2*nb+2*ng+2*ns); // tmp_m
+	size += 1*SIZE_STRMAT(ne, nv); // A_li
+	size += 1*SIZE_STRVEC(ne); // b_li
+	size += 1*SIZE_STRMAT(nv, ne); // At_LU
+	size += 1*SIZE_STRMAT(ne, nv); // A_LQ
+	size += 1*GELQF_WORKSIZE(ne, nv); // lq_work_null
 	if(arg->lq_fact>0)
 		{
 		size += 1*SIZE_STRMAT(ne, ne+nv); // lq0
 		size += 1*SIZE_STRMAT(nv, nv+nv+ng); // lq1
 		}
-	size += 1*SIZE_STRVEC(2*nb+2*ng+2*ns); // tmp_m
 	if(arg->kkt_fact_alg==0)
 		{
-		size += 1*SIZE_STRMAT(ne, nv); // A_LQ
 		size += 1*SIZE_STRMAT(nv, nv); // A_Q
-		size += 2*SIZE_STRMAT(nv-ne, nv); // Zt ZtH
-		size += 1*SIZE_STRMAT(nv-ne, nv-ne); // ZtHZ
-		size += 1*GELQF_WORKSIZE(ne, nv); // lq_work_null
+		size += 2*SIZE_STRMAT(nv, nv); //nv-ne, nv); // Zt ZtH
+		size += 1*SIZE_STRMAT(nv, nv); //nv-ne, nv-ne); // ZtHZ
 		size += 2*SIZE_STRVEC(nv); // Yxy tmp_nv
 		size += 1*SIZE_STRVEC(ne); // xy
-		size += 1*SIZE_STRVEC(nv-ne); // xz
+		size += 1*SIZE_STRVEC(nv); //nv-ne); // xz
 		}
 	else
 		{
@@ -509,6 +529,8 @@ int DENSE_QP_IPM_WS_MEMSIZE(struct DENSE_QP_DIM *dim, struct DENSE_QP_IPM_ARG *a
 
 	int stat_m = 11;
 	size += stat_m*(1+arg->stat_max)*sizeof(REAL); // stat
+
+	size += nv*sizeof(int); // ipiv_v
 
 	size = (size+63)/64*64; // make multiple of typical cache line size
 	size += 1*64; // align once to typical cache line size
@@ -584,6 +606,12 @@ void DENSE_QP_IPM_WS_CREATE(struct DENSE_QP_DIM *dim, struct DENSE_QP_IPM_ARG *a
 	sm_ptr += 1;
 	workspace->Ctx = sm_ptr;
 	sm_ptr += 1;
+	workspace->A_li = sm_ptr;
+	sm_ptr += 1;
+	workspace->At_LU = sm_ptr;
+	sm_ptr += 1;
+	workspace->A_LQ = sm_ptr;
+	sm_ptr += 1;
 	if(arg->lq_fact>0)
 		{
 		workspace->lq0 = sm_ptr;
@@ -593,8 +621,6 @@ void DENSE_QP_IPM_WS_CREATE(struct DENSE_QP_DIM *dim, struct DENSE_QP_IPM_ARG *a
 		}
 	if(arg->kkt_fact_alg==0)
 		{
-		workspace->A_LQ = sm_ptr;
-		sm_ptr += 1;
 		workspace->A_Q = sm_ptr;
 		sm_ptr += 1;
 		workspace->Zt = sm_ptr;
@@ -651,6 +677,8 @@ void DENSE_QP_IPM_WS_CREATE(struct DENSE_QP_DIM *dim, struct DENSE_QP_IPM_ARG *a
 	sv_ptr += 1;
 	workspace->tmp_m = sv_ptr;
 	sv_ptr += 1;
+	workspace->b_li = sv_ptr;
+	sv_ptr += 1;
 	if(arg->kkt_fact_alg==0)
 		{
 		workspace->xy = sv_ptr;
@@ -678,6 +706,10 @@ void DENSE_QP_IPM_WS_CREATE(struct DENSE_QP_DIM *dim, struct DENSE_QP_IPM_ARG *a
 
 	// int suff
 	int *i_ptr = (int *) d_ptr;
+
+	workspace->ipiv_v = i_ptr;
+	i_ptr += nv;
+
 
 	// align to typicl cache line size
 	size_t s_ptr = (size_t) i_ptr;
@@ -708,6 +740,15 @@ void DENSE_QP_IPM_WS_CREATE(struct DENSE_QP_DIM *dim, struct DENSE_QP_IPM_ARG *a
 	CREATE_STRMAT(nv+1, ng, workspace->Ctx, c_ptr);
 	c_ptr += workspace->Ctx->memsize;
 
+	CREATE_STRMAT(ne, nv, workspace->A_li, c_ptr);
+	c_ptr += workspace->A_li->memsize;
+
+	CREATE_STRMAT(nv, ne, workspace->At_LU, c_ptr);
+	c_ptr += workspace->At_LU->memsize;
+
+	CREATE_STRMAT(ne, nv, workspace->A_LQ, c_ptr);
+	c_ptr += workspace->A_LQ->memsize;
+
 	if(arg->lq_fact>0)
 		{
 		CREATE_STRMAT(ne, ne+nv, workspace->lq0, c_ptr);
@@ -719,19 +760,19 @@ void DENSE_QP_IPM_WS_CREATE(struct DENSE_QP_DIM *dim, struct DENSE_QP_IPM_ARG *a
 
 	if(arg->kkt_fact_alg==0)
 		{
-		CREATE_STRMAT(ne, nv, workspace->A_LQ, c_ptr);
-		c_ptr += workspace->A_LQ->memsize;
-
 		CREATE_STRMAT(nv, nv, workspace->A_Q, c_ptr);
 		c_ptr += workspace->A_Q->memsize;
 
-		CREATE_STRMAT(nv-ne, nv, workspace->Zt, c_ptr);
+//		CREATE_STRMAT(nv-ne, nv, workspace->Zt, c_ptr);
+		CREATE_STRMAT(nv, nv, workspace->Zt, c_ptr);
 		c_ptr += workspace->Zt->memsize;
 
-		CREATE_STRMAT(nv-ne, nv, workspace->ZtH, c_ptr);
+//		CREATE_STRMAT(nv-ne, nv, workspace->ZtH, c_ptr);
+		CREATE_STRMAT(nv, nv, workspace->ZtH, c_ptr);
 		c_ptr += workspace->ZtH->memsize;
 
-		CREATE_STRMAT(nv-ne, nv-ne, workspace->ZtHZ, c_ptr);
+//		CREATE_STRMAT(nv-ne, nv-ne, workspace->ZtHZ, c_ptr);
+		CREATE_STRMAT(nv, nv, workspace->ZtHZ, c_ptr);
 		c_ptr += workspace->ZtHZ->memsize;
 
 		}
@@ -773,6 +814,9 @@ void DENSE_QP_IPM_WS_CREATE(struct DENSE_QP_DIM *dim, struct DENSE_QP_IPM_ARG *a
 	CREATE_STRVEC(2*nb+2*ng+2*ns, workspace->tmp_m, c_ptr);
 	c_ptr += (workspace->tmp_m)->memsize;
 
+	CREATE_STRVEC(ne, workspace->b_li, c_ptr);
+	c_ptr += workspace->b_li->memsize;
+
 	if(arg->kkt_fact_alg==0)
 		{
 		CREATE_STRVEC(ne, workspace->xy, c_ptr);
@@ -781,7 +825,8 @@ void DENSE_QP_IPM_WS_CREATE(struct DENSE_QP_DIM *dim, struct DENSE_QP_IPM_ARG *a
 		CREATE_STRVEC(nv, workspace->Yxy, c_ptr);
 		c_ptr += workspace->Yxy->memsize;
 
-		CREATE_STRVEC(nv-ne, workspace->xz, c_ptr);
+//		CREATE_STRVEC(nv-ne, workspace->xz, c_ptr);
+		CREATE_STRVEC(nv, workspace->xz, c_ptr);
 		c_ptr += workspace->xz->memsize;
 
 		CREATE_STRVEC(nv, workspace->tmp_nv, c_ptr);
@@ -796,6 +841,9 @@ void DENSE_QP_IPM_WS_CREATE(struct DENSE_QP_DIM *dim, struct DENSE_QP_IPM_ARG *a
 	CREATE_CORE_QP_IPM(nv+2*ns, ne, 2*nb+2*ng+2*ns, cws, c_ptr);
 	c_ptr += workspace->core_workspace->memsize;
 
+	workspace->lq_work_null = c_ptr;
+	c_ptr += GELQF_WORKSIZE(ne, nv);
+
 	if(arg->lq_fact>0)
 		{
 		workspace->lq_work0 = c_ptr;
@@ -807,8 +855,6 @@ void DENSE_QP_IPM_WS_CREATE(struct DENSE_QP_DIM *dim, struct DENSE_QP_IPM_ARG *a
 
 	if(arg->kkt_fact_alg==0)
 		{
-		workspace->lq_work_null = c_ptr;
-		c_ptr += GELQF_WORKSIZE(ne, nv);
 		workspace->orglq_work_null = c_ptr;
 		c_ptr += ORGLQ_WORKSIZE(nv, nv, ne);
 		}
@@ -1609,6 +1655,16 @@ void DENSE_QP_IPM_SOLVE(struct DENSE_QP *qp, struct DENSE_QP_SOL *qp_sol, struct
 
 	struct CORE_QP_IPM_WORKSPACE *cws = ws->core_workspace;
 
+	if(arg->remove_lin_dep_eq)
+		{
+		DENSE_QP_REMOVE_LIN_DEP_EQ(qp, arg, ws);
+		if(ws->status==INFEASIBLE)
+			{
+			ws->iter = 0;
+			goto call_return;
+			}
+		}
+
 	int kk, ii;
 	REAL mu;
 
@@ -1714,8 +1770,8 @@ void DENSE_QP_IPM_SOLVE(struct DENSE_QP *qp, struct DENSE_QP_SOL *qp_sol, struct
 			}
 		// save info before return
 		ws->iter = 0;
-		ws->status = 0;
-		return;
+		ws->status = SUCCESS;
+		goto call_return;
 		}
 	
 
@@ -1797,39 +1853,7 @@ void DENSE_QP_IPM_SOLVE(struct DENSE_QP *qp, struct DENSE_QP_SOL *qp_sol, struct
 				}
 			}
 
-		// save info before return
-		ws->iter = kk;
-
-		if(kk == arg->iter_max)
-			{
-			// max iteration number reached
-			ws->status = 1;
-			}
-		else if(cws->alpha <= arg->alpha_min)
-			{
-			// min step lenght
-			ws->status = 2;
-			}
-#ifdef USE_C99_MATH
-		else if(isnan(cws->mu))
-			{
-			// NaN in the solution
-			ws->status = 3;
-			}
-#else
-		else if(cws->mu != cws->mu)
-			{
-			// NaN in the solution
-			ws->status = 3;
-			}
-#endif
-		else
-			{
-			// normal return
-			ws->status = 0;
-			}
-
-		return;
+		goto set_status;
 
 		}
 
@@ -1894,36 +1918,47 @@ void DENSE_QP_IPM_SOLVE(struct DENSE_QP *qp, struct DENSE_QP_SOL *qp_sol, struct
 
 		}
 
+set_status:
+
 	// save info before return
 	ws->iter = kk;
 
 	if(kk == arg->iter_max)
 		{
 		// max iteration number reached
-		ws->status = 1;
+		ws->status = MAX_ITER;
 		}
 	else if(cws->alpha <= arg->alpha_min)
 		{
 		// min step lenght
-		ws->status = 2;
+		ws->status = MIN_STEP;
 		}
 #ifdef USE_C99_MATH
 	else if(isnan(cws->mu))
 		{
 		// NaN in the solution
-		ws->status = 3;
+		ws->status = NAN_SOL;
 		}
 #else
 	else if(cws->mu != cws->mu)
 		{
 		// NaN in the solution
-		ws->status = 3;
+		ws->status = NAN_SOL;
 		}
 #endif
 	else
 		{
 		// normal return
-		ws->status = 0;
+		ws->status = SUCCESS;
+		}
+
+call_return:
+
+	// TODO recover original pi
+
+	if(arg->remove_lin_dep_eq)
+		{
+		DENSE_QP_RESTORE_LIN_DEP_EQ(qp, arg, ws);
 		}
 
 	return;

@@ -72,6 +72,7 @@
 #define DENSE_QP_DIM d_dense_qp_dim
 #define DENSE_QP_IPM_ARG d_dense_qp_ipm_arg
 #define DENSE_QP_IPM_WS d_dense_qp_ipm_ws
+#define DENSE_QP_REMOVE_LIN_DEP_EQ d_dense_qp_remove_lin_dep_eq
 #define DENSE_QP_RES d_dense_qp_res
 #define DENSE_QP_RES_COMPUTE d_dense_qp_res_compute
 #define DENSE_QP_RES_COMPUTE_LIN d_dense_qp_res_compute_lin
@@ -79,6 +80,7 @@
 #define DENSE_QP_RES_CREATE d_dense_qp_res_create
 #define DENSE_QP_RES_MEMSIZE d_dense_qp_res_memsize
 #define DENSE_QP_RES_WS d_dense_qp_res_ws
+#define DENSE_QP_RESTORE_LIN_DEP_EQ d_dense_qp_restore_lin_dep_eq
 #define DENSE_QP_SOL d_dense_qp_sol
 #define DENSE_QP_SOL_CREATE d_dense_qp_sol_create
 #define DENSE_QP_SOL_MEMSIZE d_dense_qp_sol_memsize
@@ -129,6 +131,7 @@
 #define DENSE_QP_IPM_ARG_SET_LAM_MIN d_dense_qp_ipm_arg_set_lam_min
 #define DENSE_QP_IPM_ARG_SET_T_MIN d_dense_qp_ipm_arg_set_t_min
 #define DENSE_QP_IPM_ARG_SET_KKT_FACT_ALG d_dense_qp_ipm_arg_set_kkt_fact_alg
+#define DENSE_QP_IPM_ARG_SET_REMOVE_LIN_DEP_EQ d_dense_qp_ipm_arg_set_remove_lin_dep_eq
 // ipm
 #define DENSE_QP_IPM_WS_MEMSIZE d_dense_qp_ipm_ws_memsize
 #define DENSE_QP_IPM_WS_CREATE d_dense_qp_ipm_ws_create

@@ -155,7 +155,7 @@ int main()
 	int idxs[] = {0, 1};
 	double d_ls[] = {0, 0};
 	double d_us[] = {0, 0};
-#elif 1
+#elif 0
 	int nv = 3;
 	int ne = 2;
 	int nb = 0; //2;
@@ -168,6 +168,47 @@ int main()
 	double g[] = {-8.0, -3.0, -3.0};
 	double A[] = {1.0, 0.0, 0.0, 1.0, 1.0, 1.0};
 	double b[] = {3.0, 0.0};
+//	double d_lb[] = {0.0, 0.0};
+//	double d_ub[] = {INFINITY, INFINITY};
+	double d_lb[] = {};
+	double d_ub[] = {};
+	int idxb[] = {};
+	double C[] = {};
+	double d_lg[] = {};
+	double d_ug[] = {};
+	double Zl[] = {};
+	double Zu[] = {};
+	double zl[] = {};
+	double zu[] = {};
+	int idxs[] = {};
+	double d_ls[] = {};
+	double d_us[] = {};
+#elif 1
+	int nv = 5;
+	int ne = 5;
+	int nb = 0; //2;
+	int ng = 0;
+	int ns = 0; //2;
+	int nsb = 0; //2;
+	int nsg = 0;
+
+	double H[25] = {}; for(ii=0; ii<5; ii++) H[ii*(5+1)] = 1.0;
+	double g[5] = {};
+	double x[] = {1.0, 1.0, 1.0, 1.0, 1.0, 1.0};
+	double y[] = {1.0, 2.0, 3.0, 4.0, 5.0, 6.0};
+	double z[] = {2.0, 0.0, 3.0, 1.0, 3.0, 2.0};
+	double A[25] = {};
+	for(ii=0; ii<5; ii++) A[0+ii*5] = 2*x[ii];
+	for(ii=0; ii<5; ii++) A[1+ii*5] = x[ii]-y[ii];
+	for(ii=0; ii<5; ii++) A[2+ii*5] = 3*x[ii]-2*y[ii];
+	for(ii=0; ii<5; ii++) A[3+ii*5] = x[ii]+z[ii];
+	for(ii=0; ii<5; ii++) A[4+ii*5] = 3*x[ii]+0.5*y[ii]+2*z[ii];
+	double b[5] = {};
+	b[0] = 2*x[5];
+	b[1] = x[5]-y[5];
+	b[2] = 3*x[5]-2*y[5];
+	b[3] = x[5]+z[5];
+	b[4] = 3*x[5]+0.5*y[5]+2*z[5];
 //	double d_lb[] = {0.0, 0.0};
 //	double d_ub[] = {INFINITY, INFINITY};
 	double d_lb[] = {};
@@ -316,6 +357,7 @@ int main()
 	double tol_ineq = 1e-12;
 	double tol_comp = 1e-12;
 	int kkt_fact_alg = 1;
+	int remove_lin_dep_eq = 1;
 
 	d_dense_qp_ipm_arg_set_iter_max(&iter_max, &arg);
 	d_dense_qp_ipm_arg_set_mu0(&mu0, &arg);
@@ -325,6 +367,7 @@ int main()
 	d_dense_qp_ipm_arg_set_tol_ineq(&tol_ineq, &arg);
 	d_dense_qp_ipm_arg_set_tol_comp(&tol_comp, &arg);
 	d_dense_qp_ipm_arg_set_kkt_fact_alg(&kkt_fact_alg, &arg);
+	d_dense_qp_ipm_arg_set_remove_lin_dep_eq(&remove_lin_dep_eq, &arg);
 
 //	arg.alpha_min = 1e-8;
 //	arg.res_g_max = 1e-8;
@@ -347,6 +390,13 @@ int main()
 
 	struct d_dense_qp_ipm_ws workspace;
 	d_dense_qp_ipm_ws_create(&qp_dim, &arg, &workspace, ipm_mem);
+
+	// check for linearly dependent equality constraints
+//	d_dense_qp_remove_lin_dep_eq(&qp, &arg, &workspace);
+//	blasfeo_print_dmat(qp_dim.ne, qp_dim.nv, qp.A, 0, 0);
+//	blasfeo_print_tran_dvec(qp_dim.ne, qp.b, 0);
+//	d_dense_qp_restore_lin_dep_eq(&qp, &arg, &workspace);
+//	exit(1);
 
 	int rep, nrep=1000;
 
