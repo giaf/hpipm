@@ -1727,7 +1727,7 @@ void DENSE_QP_REMOVE_LIN_DEP_EQ(struct DENSE_QP *qp, struct DENSE_QP_IPM_ARG *ar
 		if(1)
 			{
 			GETR(ne, nv, A, 0, 0, At_LU, 0, 0);
-			GETRF_RP(ne, nv, At_LU, 0, 0, At_LU, 0, 0, ipiv_v);
+			GETRF_RP(nv, ne, At_LU, 0, 0, At_LU, 0, 0, ipiv_v);
 			GETR(nv, ne, At_LU, 0, 0, A_LQ, 0, 0);
 			}
 		else //if(arg->kkt_fact_alg==0) // null space method
@@ -1742,7 +1742,7 @@ void DENSE_QP_REMOVE_LIN_DEP_EQ(struct DENSE_QP *qp, struct DENSE_QP_IPM_ARG *ar
 			tmp_diag = BLASFEO_DMATEL(A_LQ, ii, ii);
 			if(fabs(tmp_diag)<thr)
 				{
-//					printf("%e zero!\n", tmp_diag);
+//				printf("%e zero!\n", tmp_diag);
 				GECP(1, ii, A_LQ, ii, 0, AL, ii, 0);
 				tmp_b = BLASFEO_DVECEL(b, ii);
 				for(jj=ii-1; jj>=0; jj--)
@@ -1764,13 +1764,14 @@ void DENSE_QP_REMOVE_LIN_DEP_EQ(struct DENSE_QP *qp, struct DENSE_QP_IPM_ARG *ar
 //					printf("\ntmp_b %e\n", tmp_b);
 				if(fabs(tmp_b)>=thr)
 					{
+//					printf("\ntmp_b %e\n", tmp_b);
 					ws->status = INFEASIBLE;
 //						printf("\nproblem unfeasible!\n");
 					}
 				}
 			else
 				{
-//					printf("%e\n", tmp_diag);
+//				printf("%e\n", tmp_diag);
 				BLASFEO_DMATEL(AL, ii, ii) = 1.0;
 				GECP(1, nv, A, ii, 0, A_li, ne_li, 0);
 				VECCP(1, b, ii, b_li, ne_li);

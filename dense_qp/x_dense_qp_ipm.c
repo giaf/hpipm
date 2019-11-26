@@ -1657,6 +1657,7 @@ void DENSE_QP_IPM_SOLVE(struct DENSE_QP *qp, struct DENSE_QP_SOL *qp_sol, struct
 
 	if(arg->remove_lin_dep_eq)
 		{
+		ws->status = SUCCESS;
 		DENSE_QP_REMOVE_LIN_DEP_EQ(qp, arg, ws);
 		if(ws->status==INFEASIBLE)
 			{

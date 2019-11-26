@@ -541,14 +541,14 @@ int main()
 		int qp_size = d_dense_qp_memsize(&dim);
 		void *qp_mem = calloc(qp_size, 1);
 
-		struct d_dense_qp qpd_hpipm;
-		d_dense_qp_create(&dim, &qpd_hpipm, qp_mem);
+		struct d_dense_qp d_qp;
+		d_dense_qp_create(&dim, &d_qp, qp_mem);
 
-		cvt_benchmark_to_hpipm(&qp_bench, &qpd_hpipm, &tran_space);
-//		d_dense_qp_print(&dim, &qpd_hpipm);
+		cvt_benchmark_to_hpipm(&qp_bench, &d_qp, &tran_space);
+//		d_dense_qp_print(&dim, &d_qp);
 
 		double reg = 0e-8;
-		blasfeo_ddiare(nv, reg, qpd_hpipm.Hv, 0, 0);
+		blasfeo_ddiare(nv, reg, d_qp.Hv, 0, 0);
 
 		int H_fact_size = blasfeo_memsize_dmat(nv, nv);
 		void *H_fact_mem; v_zeros_align(&H_fact_mem, H_fact_size);
@@ -556,7 +556,7 @@ int main()
 		struct blasfeo_dmat H_fact;
 		blasfeo_create_dmat(nv, nv, &H_fact, H_fact_mem);
 
-		blasfeo_dpotrf_l(nv, qpd_hpipm.Hv, 0, 0, &H_fact, 0, 0);
+		blasfeo_dpotrf_l(nv, d_qp.Hv, 0, 0, &H_fact, 0, 0);
 
 		dp = 1;
 		for(ii=0; ii<nv; ii++)
@@ -571,7 +571,7 @@ int main()
 		struct s_dense_qp s_qpd_hpipm;
 		s_dense_qp_create(&s_dim, &s_qpd_hpipm, s_qp_mem);
 
-		cvt_d2s_dense_qp(&qpd_hpipm, &s_qpd_hpipm);
+		cvt_d2s_dense_qp(&d_qp, &s_qpd_hpipm);
 
 		/************************************************
 		* dense sol
@@ -607,9 +607,9 @@ int main()
 		int ipm_arg_size = d_dense_qp_ipm_arg_memsize(&dim);
 		void *ipm_arg_mem = calloc(ipm_arg_size,1);
 
-		struct d_dense_qp_ipm_arg argd;
-		d_dense_qp_ipm_arg_create(&dim, &argd, ipm_arg_mem);
-		d_dense_qp_ipm_arg_set_default(mode, &argd);
+		struct d_dense_qp_ipm_arg d_arg;
+		d_dense_qp_ipm_arg_create(&dim, &d_arg, ipm_arg_mem);
+		d_dense_qp_ipm_arg_set_default(mode, &d_arg);
 
 		// overwirte default
 		double d_tol_stat = 1e-6;
@@ -619,26 +619,28 @@ int main()
 		int d_iter_max = 200;
 		double d_mu0 = 1e1;
 		int d_comp_res_exit = 1;
-		int kkt_fact_alg = 1;
+		int kkt_fact_alg = 0;
+		int remove_lin_dep_eq = 1;
 
-		d_dense_qp_ipm_arg_set_tol_stat(&d_tol_stat, &argd);
-		d_dense_qp_ipm_arg_set_tol_eq(&d_tol_eq, &argd);
-		d_dense_qp_ipm_arg_set_tol_ineq(&d_tol_ineq, &argd);
-		d_dense_qp_ipm_arg_set_tol_comp(&d_tol_comp, &argd);
-		d_dense_qp_ipm_arg_set_iter_max(&d_iter_max, &argd);
-		d_dense_qp_ipm_arg_set_mu0(&d_mu0, &argd);
-		d_dense_qp_ipm_arg_set_comp_res_exit(&d_comp_res_exit, &argd);
-		d_dense_qp_ipm_arg_set_kkt_fact_alg(&kkt_fact_alg, &argd);
+		d_dense_qp_ipm_arg_set_tol_stat(&d_tol_stat, &d_arg);
+		d_dense_qp_ipm_arg_set_tol_eq(&d_tol_eq, &d_arg);
+		d_dense_qp_ipm_arg_set_tol_ineq(&d_tol_ineq, &d_arg);
+		d_dense_qp_ipm_arg_set_tol_comp(&d_tol_comp, &d_arg);
+		d_dense_qp_ipm_arg_set_iter_max(&d_iter_max, &d_arg);
+		d_dense_qp_ipm_arg_set_mu0(&d_mu0, &d_arg);
+		d_dense_qp_ipm_arg_set_comp_res_exit(&d_comp_res_exit, &d_arg);
+		d_dense_qp_ipm_arg_set_kkt_fact_alg(&kkt_fact_alg, &d_arg);
+		d_dense_qp_ipm_arg_set_remove_lin_dep_eq(&remove_lin_dep_eq, &d_arg);
 
-//		argd.alpha_min = 1e-12;
-//		argd.pred_corr = 1;
-//		argd.cond_pred_corr = 1;
-//		argd.scale = 1;
-//		argd.itref_pred_max = 0;
-//		argd.itref_corr_max = 4;
-//		argd.reg_prim = 1e-15;
-//		argd.reg_dual = 1e-15;
-//		argd.lq_fact = 1;
+//		d_arg.alpha_min = 1e-12;
+//		d_arg.pred_corr = 1;
+//		d_arg.cond_pred_corr = 1;
+//		d_arg.scale = 1;
+//		d_arg.itref_pred_max = 0;
+//		d_arg.itref_corr_max = 4;
+//		d_arg.reg_prim = 1e-15;
+//		d_arg.reg_dual = 1e-15;
+//		d_arg.lq_fact = 1;
 
 		// single
 
@@ -676,11 +678,16 @@ int main()
 
 		// double
 
-		int ipm_size = d_dense_qp_ipm_ws_memsize(&dim, &argd);
+		int ipm_size = d_dense_qp_ipm_ws_memsize(&dim, &d_arg);
 
 		void *ipm_mem = calloc(ipm_size,1);
-		struct d_dense_qp_ipm_ws workspace;
-		d_dense_qp_ipm_ws_create(&dim, &argd, &workspace, ipm_mem);
+		struct d_dense_qp_ipm_ws d_ws;
+		d_dense_qp_ipm_ws_create(&dim, &d_arg, &d_ws, ipm_mem);
+
+		// check for linearly dependent equality constraints
+//		printf("\nproblem %d\n", i-1);
+//		d_dense_qp_remove_lin_dep_eq_constr(&d_qp, &d_qp, &d_arg, &d_ws);
+
 
 		int hpipm_return; // 0 normal; 1 max iter; 2 alpha_minl; 3 NaN
 
@@ -691,8 +698,8 @@ int main()
 		for(rep=0; rep<nrep; rep++)
 			{
 #ifdef DOUBLE
-			d_dense_qp_ipm_solve(&qpd_hpipm, &qpd_sol, &argd, &workspace);
-			d_dense_qp_ipm_get_status(&workspace, &hpipm_return);
+			d_dense_qp_ipm_solve(&d_qp, &qpd_sol, &d_arg, &d_ws);
+			d_dense_qp_ipm_get_status(&d_ws, &hpipm_return);
 #endif
 			}
 
@@ -718,7 +725,7 @@ int main()
 			{
 #ifdef SINGLE
 			s_dense_qp_ipm_solve(&s_qpd_hpipm, &s_qpd_sol, &s_argd, &s_workspace);
-			s_dense_qp_ipm_get_status(&workspace, &s_hpipm_return);
+			s_dense_qp_ipm_get_status(&d_ws, &s_hpipm_return);
 #endif
 			}
 
@@ -737,13 +744,13 @@ int main()
 
 #ifdef DOUBLE
 		int d_iter;
-		d_dense_qp_ipm_get_iter(&workspace, &d_iter);
+		d_dense_qp_ipm_get_iter(&d_ws, &d_iter);
 		double d_res[4];
-		d_dense_qp_ipm_get_max_res_stat(&workspace, d_res+0);
-		d_dense_qp_ipm_get_max_res_eq(&workspace, d_res+1);
-		d_dense_qp_ipm_get_max_res_ineq(&workspace, d_res+2);
-		d_dense_qp_ipm_get_max_res_comp(&workspace, d_res+3);
-		printf("%d\t%d\t%d\t%d\t%d\t%d\t%d\t%e\t%e\t%e\t%e\t%e\t%e%12.4f\n", i-1, nv, ne, nc, dp, hpipm_return, d_iter, d_res[0], d_res[1], d_res[2], d_res[3], workspace.res->res_mu, sol_time, sol_time*1000);
+		d_dense_qp_ipm_get_max_res_stat(&d_ws, d_res+0);
+		d_dense_qp_ipm_get_max_res_eq(&d_ws, d_res+1);
+		d_dense_qp_ipm_get_max_res_ineq(&d_ws, d_res+2);
+		d_dense_qp_ipm_get_max_res_comp(&d_ws, d_res+3);
+		printf("%d\t%d\t%d\t%d\t%d\t%d\t%d\t%e\t%e\t%e\t%e\t%e\t%e%12.4f\n", i-1, nv, ne, nc, dp, hpipm_return, d_iter, d_res[0], d_res[1], d_res[2], d_res[3], d_ws.res->res_mu, sol_time, sol_time*1000);
 #endif
 
 		// number of passed and failed problems
@@ -754,12 +761,12 @@ int main()
 
 #ifdef SINGLE
 		int s_iter;
-		s_dense_qp_ipm_get_iter(&workspace, &s_iter);
+		s_dense_qp_ipm_get_iter(&d_ws, &s_iter);
 		float s_res[4];
-		s_dense_qp_ipm_get_max_res_stat(&workspace, s_res+0);
-		s_dense_qp_ipm_get_max_res_eq(&workspace, s_res+1);
-		s_dense_qp_ipm_get_max_res_ineq(&workspace, s_res+2);
-		s_dense_qp_ipm_get_max_res_comp(&workspace, s_res+3);
+		s_dense_qp_ipm_get_max_res_stat(&d_ws, s_res+0);
+		s_dense_qp_ipm_get_max_res_eq(&d_ws, s_res+1);
+		s_dense_qp_ipm_get_max_res_ineq(&d_ws, s_res+2);
+		s_dense_qp_ipm_get_max_res_comp(&d_ws, s_res+3);
 		printf("%d\t%d\t%d\t%d\t%d\t%d\t%d\t%e\t%e\t%e\t%e\t%e\t%e%12.4f\n", i-1, nv, ne, nc, dp, s_hpipm_return, s_iter, s_res[0], s_res[1], s_res[2], s_res[3], s_workspace.res->res_mu, s_sol_time, s_sol_time*1000);
 #endif
 
@@ -767,14 +774,14 @@ int main()
 //		if(i==17)
 //		if(1)
 //			{
-//			printf("\nipm iter = %d\n", workspace.iter);
+//			printf("\nipm iter = %d\n", d_ws.iter);
 //			printf("\nalpha_aff\tmu_aff\t\tsigma\t\talpha\t\tmu\n");
-//			d_print_exp_tran_mat(5, workspace.iter, workspace.stat, 5);
+//			d_print_exp_tran_mat(5, d_ws.iter, d_ws.stat, 5);
 //			printf("\n\n\n\n");
 //			}
 		printf("\nalpha_aff\tmu_aff\t\tsigma\t\talpha\t\tmu\t\tres_stat\tres_eq\t\tres_ineq\tres_comp\titref pred\titref corr\n");
-		double *stat; d_dense_qp_ipm_get_stat(&workspace, &stat);
-		int stat_m;  d_dense_qp_ipm_get_stat_m(&workspace, &stat_m);
+		double *stat; d_dense_qp_ipm_get_stat(&d_ws, &stat);
+		int stat_m;  d_dense_qp_ipm_get_stat_m(&d_ws, &stat_m);
 		d_print_exp_tran_mat(stat_m, d_iter+1, stat, stat_m);
 
 #endif
