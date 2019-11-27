@@ -1765,7 +1765,7 @@ void DENSE_QP_REMOVE_LIN_DEP_EQ(struct DENSE_QP *qp, struct DENSE_QP_IPM_ARG *ar
 				if(fabs(tmp_b)>=thr)
 					{
 //					printf("\ntmp_b %e\n", tmp_b);
-					ws->status = INFEASIBLE;
+					ws->status = INCONS_EQ;
 //						printf("\nproblem unfeasible!\n");
 					}
 				}

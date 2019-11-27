@@ -60,7 +60,7 @@ enum hpipm_status
 	MAX_ITER, // maximum iteration number reached
 	MIN_STEP, // minimum step length reached
 	NAN_SOL, // NaN in solution detected
-	INFEASIBLE, // some infeasibility detected (e.g. unconsistent equality constraints)
+	INCONS_EQ, // unconsistent equality constraints
 	};
 
 

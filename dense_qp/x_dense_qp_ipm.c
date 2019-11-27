@@ -488,7 +488,7 @@ int DENSE_QP_IPM_WS_MEMSIZE(struct DENSE_QP_DIM *dim, struct DENSE_QP_IPM_ARG *a
 	size += 1*SIZE_STRVEC(ne); // b_li
 	size += 1*SIZE_STRMAT(nv, ne); // At_LU
 	size += 1*SIZE_STRMAT(ne, nv); // A_LQ
-	size += 1*GELQF_WORKSIZE(ne, nv); // lq_work_null
+	size += ne>0 ? 1*GELQF_WORKSIZE(ne, nv) : 0; // lq_work_null
 	if(arg->lq_fact>0)
 		{
 		size += 1*SIZE_STRMAT(ne, ne+nv); // lq0
@@ -510,13 +510,12 @@ int DENSE_QP_IPM_WS_MEMSIZE(struct DENSE_QP_DIM *dim, struct DENSE_QP_IPM_ARG *a
 
 	if(arg->lq_fact>0)
 		{
-		size += 1*GELQF_WORKSIZE(ne, nv); // lq_work0
+		size += ne>0 ? 1*GELQF_WORKSIZE(ne, nv) : 0; // lq_work0
 		size += 1*GELQF_WORKSIZE(nv, nv+nv+ng); // lq_work1
 		}
 	if(arg->kkt_fact_alg==0)
 		{
-		size += 1*GELQF_WORKSIZE(ne, nv); // lq_null
-		size += 1*ORGLQ_WORKSIZE(nv, nv, ne); // lq_null
+		size += 1*ORGLQ_WORKSIZE(nv, nv, ne); // orglq_work_null
 		}
 	else
 		{
@@ -842,12 +841,12 @@ void DENSE_QP_IPM_WS_CREATE(struct DENSE_QP_DIM *dim, struct DENSE_QP_IPM_ARG *a
 	c_ptr += workspace->core_workspace->memsize;
 
 	workspace->lq_work_null = c_ptr;
-	c_ptr += GELQF_WORKSIZE(ne, nv);
+	c_ptr += ne>0 ? GELQF_WORKSIZE(ne, nv) : 0;
 
 	if(arg->lq_fact>0)
 		{
 		workspace->lq_work0 = c_ptr;
-		c_ptr += GELQF_WORKSIZE(ne, nv);
+		c_ptr += ne>0 ? GELQF_WORKSIZE(ne, nv) : 0;
 
 		workspace->lq_work1 = c_ptr;
 		c_ptr += GELQF_WORKSIZE(nv, nv+nv+ng);
@@ -1122,23 +1121,26 @@ void DENSE_QP_INIT_VAR(struct DENSE_QP *qp, struct DENSE_QP_SOL *qp_sol, struct 
 		}
 	
 	// general constraints
-	GEMV_T(nv, ng, 1.0, qp->Ct, 0, 0, qp_sol->v, 0, 0.0, qp_sol->t, nb, qp_sol->t, nb);
-	for(ii=0; ii<ng; ii++)
+	if(ng>0)
 		{
+		GEMV_T(nv, ng, 1.0, qp->Ct, 0, 0, qp_sol->v, 0, 0.0, qp_sol->t, nb, qp_sol->t, nb);
+		for(ii=0; ii<ng; ii++)
+			{
 #if 1
-		t[2*nb+ng+ii] = t[nb+ii];
-		t[nb+ii]      -= d[nb+ii];
-		t[2*nb+ng+ii] -= d[2*nb+ng+ii];
-//		t[nb+ii]      = fmax( thr0, t[nb+ii] );
-//		t[2*nb+ng+ii] = fmax( thr0, t[2*nb+ng+ii] );
-		t[nb+ii]      = thr0>t[nb+ii]      ? thr0 : t[nb+ii];
-		t[2*nb+ng+ii] = thr0>t[2*nb+ng+ii] ? thr0 : t[2*nb+ng+ii];
+			t[2*nb+ng+ii] = t[nb+ii];
+			t[nb+ii]      -= d[nb+ii];
+			t[2*nb+ng+ii] -= d[2*nb+ng+ii];
+	//		t[nb+ii]      = fmax( thr0, t[nb+ii] );
+	//		t[2*nb+ng+ii] = fmax( thr0, t[2*nb+ng+ii] );
+			t[nb+ii]      = thr0>t[nb+ii]      ? thr0 : t[nb+ii];
+			t[2*nb+ng+ii] = thr0>t[2*nb+ng+ii] ? thr0 : t[2*nb+ng+ii];
 #else
-		t[nb+ii]      = 1.0;
-		t[2*nb+ng+ii] = 1.0;
+			t[nb+ii]      = 1.0;
+			t[2*nb+ng+ii] = 1.0;
 #endif
-		lam[nb+ii]      = mu0/t[nb+ii];
-		lam[2*nb+ng+ii] = mu0/t[2*nb+ng+ii];
+			lam[nb+ii]      = mu0/t[nb+ii];
+			lam[2*nb+ng+ii] = mu0/t[2*nb+ng+ii];
+			}
 		}
 
 	// soft constraints
@@ -1659,7 +1661,7 @@ void DENSE_QP_IPM_SOLVE(struct DENSE_QP *qp, struct DENSE_QP_SOL *qp_sol, struct
 		{
 		ws->status = SUCCESS;
 		DENSE_QP_REMOVE_LIN_DEP_EQ(qp, arg, ws);
-		if(ws->status==INFEASIBLE)
+		if(ws->status==INCONS_EQ)
 			{
 			ws->iter = 0;
 			goto call_return;

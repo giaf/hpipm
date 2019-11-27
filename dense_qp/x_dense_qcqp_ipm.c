@@ -836,23 +836,26 @@ void DENSE_QCQP_INIT_VAR(struct DENSE_QCQP *qcqp, struct DENSE_QCQP_SOL *qcqp_so
 		}
 	
 	// general constraints
-	GEMV_T(nv, ng, 1.0, qcqp->Ct, 0, 0, qcqp_sol->v, 0, 0.0, qcqp_sol->t, nb, qcqp_sol->t, nb);
-	for(ii=0; ii<ng; ii++)
+	if(ng>0)
 		{
+		GEMV_T(nv, ng, 1.0, qcqp->Ct, 0, 0, qcqp_sol->v, 0, 0.0, qcqp_sol->t, nb, qcqp_sol->t, nb);
+		for(ii=0; ii<ng; ii++)
+			{
 #if 1
-		t[2*nb+ng+nq+ii] = t[nb+ii];
-		t[nb+ii]      -= d[nb+ii];
-		t[2*nb+ng+nq+ii] -= d[2*nb+ng+nq+ii];
-//		t[nb+ii]      = fmax( thr0, t[nb+ii] );
-//		t[2*nb+ng+nq+ii] = fmax( thr0, t[2*nb+ng+nq+ii] );
-		t[nb+ii]      = thr0>t[nb+ii]      ? thr0 : t[nb+ii];
-		t[2*nb+ng+nq+ii] = thr0>t[2*nb+ng+nq+ii] ? thr0 : t[2*nb+ng+nq+ii];
+			t[2*nb+ng+nq+ii] = t[nb+ii];
+			t[nb+ii]      -= d[nb+ii];
+			t[2*nb+ng+nq+ii] -= d[2*nb+ng+nq+ii];
+	//		t[nb+ii]      = fmax( thr0, t[nb+ii] );
+	//		t[2*nb+ng+nq+ii] = fmax( thr0, t[2*nb+ng+nq+ii] );
+			t[nb+ii]      = thr0>t[nb+ii]      ? thr0 : t[nb+ii];
+			t[2*nb+ng+nq+ii] = thr0>t[2*nb+ng+nq+ii] ? thr0 : t[2*nb+ng+nq+ii];
 #else
-		t[nb+ii]      = 1.0;
-		t[2*nb+ng+nq+ii] = 1.0;
+			t[nb+ii]      = 1.0;
+			t[2*nb+ng+nq+ii] = 1.0;
 #endif
-		lam[nb+ii]      = mu0/t[nb+ii];
-		lam[2*nb+ng+nq+ii] = mu0/t[2*nb+ng+nq+ii];
+			lam[nb+ii]      = mu0/t[nb+ii];
+			lam[2*nb+ng+nq+ii] = mu0/t[2*nb+ng+nq+ii];
+			}
 		}
 
 	// soft constraints
