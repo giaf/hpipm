@@ -128,9 +128,11 @@ struct s_dense_qp_ipm_ws
 	struct blasfeo_smat *A_bkp; // pointer to backup A
 	struct blasfeo_svec *b_bkp; // pointer to backup b
 	struct blasfeo_smat *At_LU;
+	struct blasfeo_smat *Ab_LU;
 	float *stat; // convergence statistics
 	int *ipiv_v;
-//	int *ipiv_e;
+	int *ipiv_e;
+	int *ipiv_e1;
 	void *lq_work0;
 	void *lq_work1;
 	void *lq_work_null;

@@ -1696,8 +1696,10 @@ void SOLVE_KKT_STEP_DENSE_QP(struct DENSE_QP *qp, struct DENSE_QP_SOL *qp_sol, s
 
 void DENSE_QP_REMOVE_LIN_DEP_EQ(struct DENSE_QP *qp, struct DENSE_QP_IPM_ARG *arg, struct DENSE_QP_IPM_WS *ws)
 	{
+//printf("\nstart\n");
 
-	int ii, jj;
+	int ii, jj, ll;
+	int stop_jj;
 
 	int nv = qp->dim->nv;
 	int ne = qp->dim->ne;
@@ -1709,21 +1711,153 @@ void DENSE_QP_REMOVE_LIN_DEP_EQ(struct DENSE_QP *qp, struct DENSE_QP_IPM_ARG *ar
 	struct STRVEC *b_li = ws->b_li;
 	struct STRMAT *AL = ws->AL;
 	struct STRMAT *At_LU = ws->At_LU;
+	struct STRMAT *Ab_LU = ws->Ab_LU;
 	struct STRMAT *A_LQ = ws->A_LQ;
 	void *lq_work_null = ws->lq_work_null;
 	int *ipiv_v = ws->ipiv_v;
+	int *ipiv_e = ws->ipiv_e;
+	int *ipiv_e1 = ws->ipiv_e1;
 
 	int ne_li = 0;
 
 	// TODO tuning, single precision
 	REAL thr = 1e-14;
 
-	REAL tmp_diag, pivot, tmp, tmp_b;
+	REAL tmp_diag, pivot, tmp, tmp_b, tmp_max;
+	int idx0_max, idx1_max, tmp_int;
+
+	ws->status = SUCCESS;
+
+//	printf("\nsize %d %d\n", ne, nv);
 
 //printf("\nA\n");
 //blasfeo_print_dmat(ne, nv, A, 0, 0);
 	if(ne>0)
 		{
+		// augment A with b
+		GECP(ne, nv, A, 0, 0, Ab_LU, 0, 0);
+		COLIN(ne, b, 0, Ab_LU, 0, nv);
+//		printf("\nAb\n");
+//		blasfeo_print_dmat(ne, nv+1, Ab_LU, 0, 0);
+
+		// row-pivot LU factorization
+		GETRF_RP(ne, nv+1, Ab_LU, 0, 0, Ab_LU, 0, 0, ipiv_e);
+//		printf("\nAb_LU\n");
+//		blasfeo_print_dmat(ne, nv+1, Ab_LU, 0, 0);
+//		int_print_mat(1, ne, ipiv_e, 1);
+
+		// get pivot in absolute form
+		for(ll=0; ll<ne; ll++)
+			{
+			ipiv_e1[ll] = ll;
+			}
+		for(ll=0; ll<ne; ll++)
+			{
+			tmp_int = ipiv_e1[ll];
+			ipiv_e1[ll] = ipiv_e1[ipiv_e[ll]];
+			ipiv_e1[ipiv_e[ll]] = tmp_int;
+			}
+//		printf("\nipiv_e1\n");
+//		int_print_mat(1, ne, ipiv_e1, 1);
+
+		for(ii=0; ii<ne; ii++)
+			{
+//			printf("\nii %d\n", ii);
+			pivot = BLASFEO_DMATEL(Ab_LU, ii, ii);
+//			printf("\npivot %e\n", pivot);
+			if(fabs(pivot)<=thr)
+				{
+				jj = ii+1;
+				stop_jj = 0;
+				while(stop_jj==0 & jj<nv)
+					{
+					tmp_max = thr;
+					idx0_max = -1;
+					idx1_max = -1;
+					for(ll=ii; ll<ne & ll<=jj; ll++)
+						{
+//						printf("\nii jj ll %d %d %d\n", ii, jj, ll);
+						tmp = fabs(BLASFEO_DMATEL(Ab_LU, ll, jj));
+						if(tmp>tmp_max)
+							{
+							tmp_max = tmp;
+							idx0_max = ll;
+							idx1_max = jj;
+							stop_jj = 1;
+							}
+						}
+					jj++;
+					}
+//				printf("\nstop %d\n", stop_jj);
+				if(stop_jj==1)
+					{
+					// swap rows
+//					printf("\n%d %e %d %d\n", stop_jj, tmp_max, idx0_max, idx1_max);
+					if(tmp_max>thr & idx0_max!=ii)
+						{
+//						printf("\nswap!\n");
+						ROWSW(nv+1-idx1_max, Ab_LU, ii, idx1_max, Ab_LU, idx0_max, idx1_max);
+						tmp_int = ipiv_e1[ii];
+						ipiv_e1[ii] = ipiv_e1[idx0_max];
+						ipiv_e1[idx0_max] = tmp_int;
+//						printf("\nipiv_e1 new\n");
+//						int_print_mat(1, ne, ipiv_e1, 1);
+						}
+					// copy li eq
+//					printf("\nli %d %d %d\n", ii, ipiv_e1[ii], ne_li);
+					GECP(1, nv, A, ipiv_e1[ii], 0, A_li, ne_li, 0);
+					VECCP(1, b, ipiv_e1[ii], b_li, ne_li);
+					ne_li++;
+					// pivot
+					pivot = BLASFEO_DMATEL(Ab_LU, ii, idx1_max);
+//					printf("\npivot to clear %f\n", pivot);
+					// clear below TODO implement using level 2 BLAS !!!
+					for(ll=ii+1; ll<=idx1_max; ll++)
+						{
+						tmp = fabs(BLASFEO_DMATEL(Ab_LU, ll, idx1_max));
+						if(tmp!=0.0)
+							{
+							tmp = -tmp/pivot;
+							GEAD(1, nv+1-idx1_max, tmp, Ab_LU, ii, idx1_max, Ab_LU, ll, idx1_max);
+							}
+						}
+					}
+				else
+					{
+					// all remaining matrix is zero: check b and return
+					for(ll=ii; ll<ne; ll++)
+						{
+						tmp = fabs(BLASFEO_DMATEL(Ab_LU, ll, nv));
+						if(tmp>thr)
+							{
+							ws->status = INCONS_EQ;
+//							printf("\nproblem unfeasible!\n");
+							return;
+							}
+						}
+					//return; TODO uncomment this !!!
+					}
+				}
+			else
+				{
+				// copy li eq
+//				printf("\nli pivot\n");
+				GECP(1, nv, A, ipiv_e1[ii], 0, A_li, ne_li, 0);
+				VECCP(1, b, ipiv_e1[ii], b_li, ne_li);
+				ne_li++;
+				}
+//			blasfeo_print_dmat(ne, nv+1, Ab_LU, 0, 0);
+//			exit(1);
+			}
+
+//printf("\nA_li\n");
+//blasfeo_print_dmat(ne_li, nv, A_li, 0, 0);
+//printf("\nb_li\n");
+//blasfeo_print_tran_dvec(ne_li, b_li, 0);
+
+//		exit(1);
+
+#if 0
 		if(1)
 			{
 			GETR(ne, nv, A, 0, 0, At_LU, 0, 0);
@@ -1764,7 +1898,18 @@ void DENSE_QP_REMOVE_LIN_DEP_EQ(struct DENSE_QP *qp, struct DENSE_QP_IPM_ARG *ar
 //					printf("\ntmp_b %e\n", tmp_b);
 				if(fabs(tmp_b)>=thr)
 					{
-//					printf("\ntmp_b %e\n", tmp_b);
+					printf("\nA = \n");
+					blasfeo_print_dmat(ne, nv, A, 0, 0);
+					printf("\nb = \n");
+					blasfeo_print_tran_dvec(ne, b, 0);
+					exit(1);
+					printf("\ntmp_b %e\n", tmp_b);
+					printf("\nA_LQ = \n");
+					blasfeo_print_dmat(1, ii, A_LQ, ii, 0);
+					printf("\nA = \n");
+					blasfeo_print_dmat(1, nv, A, ii, 0);
+					printf("\nb = \n");
+					blasfeo_print_tran_dvec(1, b, ii);
 					ws->status = INCONS_EQ;
 //						printf("\nproblem unfeasible!\n");
 					}
@@ -1781,6 +1926,7 @@ void DENSE_QP_REMOVE_LIN_DEP_EQ(struct DENSE_QP *qp, struct DENSE_QP_IPM_ARG *ar
 //printf("\nAL\n");
 //blasfeo_print_dmat(ne, nv, AL, 0, 0);
 
+#endif
 		if(ne_li<ne)
 			{
 //			printf("\nne %d, ne_li %d\n", ne, ne_li);
@@ -1798,6 +1944,10 @@ void DENSE_QP_REMOVE_LIN_DEP_EQ(struct DENSE_QP *qp, struct DENSE_QP_IPM_ARG *ar
 //blasfeo_print_dmat(ne_li, nv, A_li, 0, 0);
 //printf("\nb_li\n");
 //blasfeo_print_tran_dvec(ne_li, b_li, 0);
+
+//printf("\nne %d ne_li %d\n", ne, ne_li);
+
+//printf("\nend\n");
 
 	return;
 

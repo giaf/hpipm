@@ -55,6 +55,7 @@
 
 
 #define AXPY blasfeo_saxpy
+#define COLIN blasfeo_scolin
 #define COLPE blasfeo_scolpe
 #define COLPEI blasfeo_scolpei
 #define COLSC blasfeo_scolsc
@@ -97,6 +98,7 @@
 #define ROWIN blasfeo_srowin
 #define ROWPE blasfeo_srowpe
 #define ROWPEI blasfeo_srowpei
+#define ROWSW blasfeo_srowsw
 #define STRMAT blasfeo_smat
 #define STRVEC blasfeo_svec
 #define SYMV_L blasfeo_ssymv_l

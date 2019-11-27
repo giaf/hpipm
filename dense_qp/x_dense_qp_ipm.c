@@ -460,7 +460,7 @@ int DENSE_QP_IPM_WS_MEMSIZE(struct DENSE_QP_DIM *dim, struct DENSE_QP_IPM_ARG *a
 	size += 2*sizeof(struct DENSE_QP_RES); // res res_itref
 	size += 1*DENSE_QP_RES_MEMSIZE(dim); // res_itref
 
-	size += 26*sizeof(struct STRVEC); // sol_step(v,pi,lam,t) res_g res_b res_d res_m lv (4+2)*tmp_nbg (1+1)*tmp_ns Gamma gamma Zs_inv sv se tmp_m b_li At_LU A_LQ
+	size += 27*sizeof(struct STRVEC); // sol_step(v,pi,lam,t) res_g res_b res_d res_m lv (4+2)*tmp_nbg (1+1)*tmp_ns Gamma gamma Zs_inv sv se tmp_m b_li At_LU Ab_LU A_LQ
 	size += 6*sizeof(struct STRMAT); // 2*Lv AL Le Ctx A_li
 	if(arg->lq_fact>0)
 		size += 2*sizeof(struct STRMAT); // lq0 lq1
@@ -487,6 +487,7 @@ int DENSE_QP_IPM_WS_MEMSIZE(struct DENSE_QP_DIM *dim, struct DENSE_QP_IPM_ARG *a
 	size += 1*SIZE_STRMAT(ne, nv); // A_li
 	size += 1*SIZE_STRVEC(ne); // b_li
 	size += 1*SIZE_STRMAT(nv, ne); // At_LU
+	size += 1*SIZE_STRMAT(ne, nv+1); // Ab_LU
 	size += 1*SIZE_STRMAT(ne, nv); // A_LQ
 	size += ne>0 ? 1*GELQF_WORKSIZE(ne, nv) : 0; // lq_work_null
 	if(arg->lq_fact>0)
@@ -530,6 +531,7 @@ int DENSE_QP_IPM_WS_MEMSIZE(struct DENSE_QP_DIM *dim, struct DENSE_QP_IPM_ARG *a
 	size += stat_m*(1+arg->stat_max)*sizeof(REAL); // stat
 
 	size += nv*sizeof(int); // ipiv_v
+	size += 2*ne*sizeof(int); // ipiv_e ipiv_e1
 
 	size = (size+63)/64*64; // make multiple of typical cache line size
 	size += 1*64; // align once to typical cache line size
@@ -608,6 +610,8 @@ void DENSE_QP_IPM_WS_CREATE(struct DENSE_QP_DIM *dim, struct DENSE_QP_IPM_ARG *a
 	workspace->A_li = sm_ptr;
 	sm_ptr += 1;
 	workspace->At_LU = sm_ptr;
+	sm_ptr += 1;
+	workspace->Ab_LU = sm_ptr;
 	sm_ptr += 1;
 	workspace->A_LQ = sm_ptr;
 	sm_ptr += 1;
@@ -709,6 +713,12 @@ void DENSE_QP_IPM_WS_CREATE(struct DENSE_QP_DIM *dim, struct DENSE_QP_IPM_ARG *a
 	workspace->ipiv_v = i_ptr;
 	i_ptr += nv;
 
+	workspace->ipiv_e = i_ptr;
+	i_ptr += ne;
+
+	workspace->ipiv_e1 = i_ptr;
+	i_ptr += ne;
+
 
 	// align to typicl cache line size
 	size_t s_ptr = (size_t) i_ptr;
@@ -744,6 +754,9 @@ void DENSE_QP_IPM_WS_CREATE(struct DENSE_QP_DIM *dim, struct DENSE_QP_IPM_ARG *a
 
 	CREATE_STRMAT(nv, ne, workspace->At_LU, c_ptr);
 	c_ptr += workspace->At_LU->memsize;
+
+	CREATE_STRMAT(ne, nv+1, workspace->Ab_LU, c_ptr);
+	c_ptr += workspace->Ab_LU->memsize;
 
 	CREATE_STRMAT(ne, nv, workspace->A_LQ, c_ptr);
 	c_ptr += workspace->A_LQ->memsize;
@@ -1659,7 +1672,6 @@ void DENSE_QP_IPM_SOLVE(struct DENSE_QP *qp, struct DENSE_QP_SOL *qp_sol, struct
 
 	if(arg->remove_lin_dep_eq)
 		{
-		ws->status = SUCCESS;
 		DENSE_QP_REMOVE_LIN_DEP_EQ(qp, arg, ws);
 		if(ws->status==INCONS_EQ)
 			{

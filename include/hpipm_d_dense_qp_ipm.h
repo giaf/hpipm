@@ -128,9 +128,11 @@ struct d_dense_qp_ipm_ws
 	struct blasfeo_dmat *A_bkp; // pointer to backup A
 	struct blasfeo_dvec *b_bkp; // pointer to backup b
 	struct blasfeo_dmat *At_LU;
+	struct blasfeo_dmat *Ab_LU;
 	double *stat; // convergence statistics
 	int *ipiv_v;
-//	int *ipiv_e;
+	int *ipiv_e;
+	int *ipiv_e1;
 	void *lq_work0;
 	void *lq_work1;
 	void *lq_work_null;
