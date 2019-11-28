@@ -1699,7 +1699,7 @@ void DENSE_QP_REMOVE_LIN_DEP_EQ(struct DENSE_QP *qp, struct DENSE_QP_IPM_ARG *ar
 //printf("\nstart\n");
 
 	int ii, jj, ll;
-	int stop_jj;
+	int stop_jj, jj0;
 
 	int nv = qp->dim->nv;
 	int ne = qp->dim->ne;
@@ -1760,6 +1760,7 @@ void DENSE_QP_REMOVE_LIN_DEP_EQ(struct DENSE_QP *qp, struct DENSE_QP_IPM_ARG *ar
 //		printf("\nipiv_e1\n");
 //		int_print_mat(1, ne, ipiv_e1, 1);
 
+		jj0 = 0;
 		for(ii=0; ii<ne; ii++)
 			{
 //			printf("\nii %d\n", ii);
@@ -1767,7 +1768,8 @@ void DENSE_QP_REMOVE_LIN_DEP_EQ(struct DENSE_QP *qp, struct DENSE_QP_IPM_ARG *ar
 //			printf("\npivot %e\n", pivot);
 			if(fabs(pivot)<=thr)
 				{
-				jj = ii+1;
+//				jj = ii+1;
+				jj = ii+1>jj0 ? ii+1 : jj0;
 				stop_jj = 0;
 				while(stop_jj==0 & jj<nv)
 					{
@@ -1783,6 +1785,7 @@ void DENSE_QP_REMOVE_LIN_DEP_EQ(struct DENSE_QP *qp, struct DENSE_QP_IPM_ARG *ar
 							tmp_max = tmp;
 							idx0_max = ll;
 							idx1_max = jj;
+							jj0 = jj;
 							stop_jj = 1;
 							}
 						}
@@ -1792,7 +1795,7 @@ void DENSE_QP_REMOVE_LIN_DEP_EQ(struct DENSE_QP *qp, struct DENSE_QP_IPM_ARG *ar
 				if(stop_jj==1)
 					{
 					// swap rows
-//					printf("\n%d %e %d %d\n", stop_jj, tmp_max, idx0_max, idx1_max);
+//					printf("\n%d %e %d %d %d\n", stop_jj, tmp_max, ii, idx0_max, idx1_max);
 					if(tmp_max>thr & idx0_max!=ii)
 						{
 //						printf("\nswap!\n");
@@ -1812,7 +1815,7 @@ void DENSE_QP_REMOVE_LIN_DEP_EQ(struct DENSE_QP *qp, struct DENSE_QP_IPM_ARG *ar
 					pivot = BLASFEO_DMATEL(Ab_LU, ii, idx1_max);
 //					printf("\npivot to clear %f\n", pivot);
 					// clear below TODO implement using level 2 BLAS !!!
-					for(ll=ii+1; ll<=idx1_max; ll++)
+					for(ll=ii+1; ll<ne & ll<=idx1_max; ll++)
 						{
 						tmp = fabs(BLASFEO_DMATEL(Ab_LU, ll, idx1_max));
 						if(tmp!=0.0)
@@ -1927,7 +1930,8 @@ void DENSE_QP_REMOVE_LIN_DEP_EQ(struct DENSE_QP *qp, struct DENSE_QP_IPM_ARG *ar
 //blasfeo_print_dmat(ne, nv, AL, 0, 0);
 
 #endif
-		if(ne_li<ne)
+//		if(ne_li<ne)
+		if(0)
 			{
 //			printf("\nne %d, ne_li %d\n", ne, ne_li);
 			ws->ne_bkp = qp->dim->ne;
@@ -1945,7 +1949,7 @@ void DENSE_QP_REMOVE_LIN_DEP_EQ(struct DENSE_QP *qp, struct DENSE_QP_IPM_ARG *ar
 //printf("\nb_li\n");
 //blasfeo_print_tran_dvec(ne_li, b_li, 0);
 
-//printf("\nne %d ne_li %d\n", ne, ne_li);
+printf("\nne %d ne_li %d\n", ne, ne_li);
 
 //printf("\nend\n");
 
@@ -1974,11 +1978,13 @@ void DENSE_QP_RESTORE_LIN_DEP_EQ(struct DENSE_QP *qp, struct DENSE_QP_IPM_ARG *a
 	void *lq_work_null = ws->lq_work_null;
 	int *ipiv_v = ws->ipiv_v;
 
-	if(ne>0)
+//	if(ne>0)
+	if(0)
 		{
 		if(ne<ws->ne_bkp)
 			{
 //			printf("\nne %d, ne_li %d\n", ne, ne_li);
+//printf("\nrestore!\n");
 			qp->dim->ne = ws->ne_bkp;
 			qp->A = ws->A_bkp;
 			qp->b = ws->b_bkp;

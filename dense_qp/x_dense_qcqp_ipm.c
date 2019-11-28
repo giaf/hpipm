@@ -105,7 +105,7 @@ void DENSE_QCQP_IPM_ARG_CREATE(struct DENSE_QCQP_DIM *dim, struct DENSE_QCQP_IPM
 	arg->memsize = DENSE_QCQP_IPM_ARG_MEMSIZE(dim);
 
 #if defined(RUNTIME_CHECKS)
-	if(c_ptr > ((char *) mem) + qp->memsize)
+	if(c_ptr > ((char *) mem) + arg->memsize)
 		{
 		printf("\nerror: DENSE_QCQP_IPM_ARG_CREATE: outside memory bounds!\n\n");
 		exit(1);

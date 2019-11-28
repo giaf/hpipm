@@ -75,7 +75,7 @@ void DENSE_QCQP_DIM_CREATE(struct DENSE_QCQP_DIM *dim, void *mem)
 	dim->memsize = DENSE_QCQP_DIM_MEMSIZE();
 
 #if defined(RUNTIME_CHECKS)
-	if(c_ptr > ((char *) mem) + qp->memsize)
+	if(c_ptr > ((char *) mem) + dim->memsize)
 		{
 		printf("\nerror: DENSE_QCQP_DIM_CREATE: outside memory bounds!\n\n");
 		exit(1);

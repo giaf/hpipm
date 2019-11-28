@@ -113,7 +113,7 @@ void OCP_QCQP_IPM_ARG_CREATE(struct OCP_QCQP_DIM *dim, struct OCP_QCQP_IPM_ARG *
 	arg->memsize = OCP_QCQP_IPM_ARG_MEMSIZE(dim);
 
 #if defined(RUNTIME_CHECKS)
-	if(c_ptr > ((char *) mem) + qp->memsize)
+	if(c_ptr > ((char *) mem) + arg->memsize)
 		{
 		printf("\nerror: OCP_QCQP_IPM_ARG_CREATE: outside memory bounds!\n\n");
 		exit(1);

@@ -460,8 +460,8 @@ int DENSE_QP_IPM_WS_MEMSIZE(struct DENSE_QP_DIM *dim, struct DENSE_QP_IPM_ARG *a
 	size += 2*sizeof(struct DENSE_QP_RES); // res res_itref
 	size += 1*DENSE_QP_RES_MEMSIZE(dim); // res_itref
 
-	size += 27*sizeof(struct STRVEC); // sol_step(v,pi,lam,t) res_g res_b res_d res_m lv (4+2)*tmp_nbg (1+1)*tmp_ns Gamma gamma Zs_inv sv se tmp_m b_li At_LU Ab_LU A_LQ
-	size += 6*sizeof(struct STRMAT); // 2*Lv AL Le Ctx A_li
+	size += 24*sizeof(struct STRVEC); // sol_step(v,pi,lam,t) res_g res_b res_d res_m lv (4+2)*tmp_nbg (1+1)*tmp_ns Gamma gamma Zs_inv sv se tmp_m b_li
+	size += 9*sizeof(struct STRMAT); // 2*Lv AL Le Ctx A_li At_LU Ab_LU A_LQ
 	if(arg->lq_fact>0)
 		size += 2*sizeof(struct STRMAT); // lq0 lq1
 	if(arg->kkt_fact_alg==0)
@@ -720,7 +720,7 @@ void DENSE_QP_IPM_WS_CREATE(struct DENSE_QP_DIM *dim, struct DENSE_QP_IPM_ARG *a
 	i_ptr += ne;
 
 
-	// align to typicl cache line size
+	// align to typical cache line size
 	size_t s_ptr = (size_t) i_ptr;
 	s_ptr = (s_ptr+63)/64*64;
 
@@ -921,7 +921,6 @@ void DENSE_QP_IPM_WS_CREATE(struct DENSE_QP_DIM *dim, struct DENSE_QP_IPM_ARG *a
 		exit(1);
 		}
 #endif
-
 
 	return;
 
