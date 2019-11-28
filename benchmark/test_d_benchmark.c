@@ -618,8 +618,8 @@ int main()
 		int d_iter_max = 200;
 		double d_mu0 = 1e1;
 		int d_comp_res_exit = 1;
-		int kkt_fact_alg = 0;
-		int remove_lin_dep_eq = 1;
+		int kkt_fact_alg = 1;
+		int remove_lin_dep_eq = 0;
 //		double lam_min = 1e-12;
 //		double t_min = 1e-12;
 

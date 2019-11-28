@@ -127,7 +127,6 @@ struct d_dense_qp_ipm_ws
 	struct blasfeo_dvec *b_li; // b of linearly independent equality constraints
 	struct blasfeo_dmat *A_bkp; // pointer to backup A
 	struct blasfeo_dvec *b_bkp; // pointer to backup b
-	struct blasfeo_dmat *At_LU;
 	struct blasfeo_dmat *Ab_LU;
 	double *stat; // convergence statistics
 	int *ipiv_v;
