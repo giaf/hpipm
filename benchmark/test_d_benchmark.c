@@ -449,8 +449,7 @@ int main()
 
 //	for (i = 0; i < nproblems; i++)
 	for (i = 0; i < nproblems-1; i++)
-//	for (i = 31; i < 32; i++)
-//	for (i = 44; i < 45; i++)
+//	for (i = 31; i < 33; i++)
 		{
 
 		/************************************************
@@ -621,6 +620,8 @@ int main()
 		int d_comp_res_exit = 1;
 		int kkt_fact_alg = 0;
 		int remove_lin_dep_eq = 1;
+//		double lam_min = 1e-12;
+//		double t_min = 1e-12;
 
 		d_dense_qp_ipm_arg_set_tol_stat(&d_tol_stat, &d_arg);
 		d_dense_qp_ipm_arg_set_tol_eq(&d_tol_eq, &d_arg);
@@ -631,6 +632,8 @@ int main()
 		d_dense_qp_ipm_arg_set_comp_res_exit(&d_comp_res_exit, &d_arg);
 		d_dense_qp_ipm_arg_set_kkt_fact_alg(&kkt_fact_alg, &d_arg);
 		d_dense_qp_ipm_arg_set_remove_lin_dep_eq(&remove_lin_dep_eq, &d_arg);
+//		d_dense_qp_ipm_arg_set_lam_min(&lam_min, &d_arg);
+//		d_dense_qp_ipm_arg_set_t_min(&t_min, &d_arg);
 
 //		d_arg.alpha_min = 1e-12;
 //		d_arg.pred_corr = 1;
