@@ -287,6 +287,7 @@ void DENSE_QP_RES_COMPUTE(struct DENSE_QP *qp, struct DENSE_QP_SOL *qp_sol, stru
 	int net = ne;
 	int nct = 2*nb+2*ng+2*ns;
 
+	// TODO use nc_mask_inv from cws if available !!!!!
 	REAL nct_inv = 1.0/nct;
 
 	struct STRMAT *Hg = qp->Hv;
@@ -363,6 +364,7 @@ void DENSE_QP_RES_COMPUTE(struct DENSE_QP *qp, struct DENSE_QP_SOL *qp_sol, stru
 	// res_m res_mu
 	mu = VECMULDOT(nct, lam, 0, t, 0, res_m, 0);
 	AXPY(nct, -1.0, m, 0, res_m, 0, res_m, 0);
+	// TODO use nc_mask_inv from cws if available !!!!!
 	res->res_mu = mu*nct_inv;
 
 	return;

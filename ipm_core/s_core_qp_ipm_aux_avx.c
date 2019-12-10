@@ -362,6 +362,7 @@ void s_compute_centering_correction_qp(struct s_core_qp_ipm_workspace *cws)
 	float *ptr_res_m_bkp = cws->res_m_bkp;
 
 	float sigma_mu = cws->sigma*cws->mu;
+	sigma_mu = sigma_mu>cws->tau_min ? sigma_mu : cws->tau_min;
 
 	for(ii=0; ii<nc; ii++)
 		{
@@ -388,6 +389,7 @@ void s_compute_centering_qp(struct s_core_qp_ipm_workspace *cws)
 	float *ptr_res_m_bkp = cws->res_m_bkp;
 
 	float sigma_mu = cws->sigma*cws->mu;
+	sigma_mu = sigma_mu>cws->tau_min ? sigma_mu : cws->tau_min;
 
 	for(ii=0; ii<nc; ii++)
 		{

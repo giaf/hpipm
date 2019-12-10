@@ -72,6 +72,7 @@ struct s_core_qp_ipm_workspace
 	float nc_mask_inv; // 1.0/nc_mask
 	float lam_min; // min value in t vector
 	float t_min; // min value in lam vector
+	float tau_min; // min value of barrier parameter
 	int nv; // number of primal variables
 	int ne; // number of equality constraints
 	int nc; // (twice the) number of (two-sided) inequality constraints

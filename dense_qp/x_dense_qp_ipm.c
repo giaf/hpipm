@@ -58,7 +58,7 @@ void DENSE_QP_IPM_ARG_CREATE(struct DENSE_QP_DIM *dim, struct DENSE_QP_IPM_ARG *
 void DENSE_QP_IPM_ARG_SET_DEFAULT(enum HPIPM_MODE mode, struct DENSE_QP_IPM_ARG *arg)
 	{
 
-	REAL mu0, alpha_min, res_g, res_b, res_d, res_m, reg_prim, reg_dual, lam_min, t_min;
+	REAL mu0, alpha_min, res_g, res_b, res_d, res_m, reg_prim, reg_dual, lam_min, t_min, tau_min;
 	int iter_max, stat_max, pred_corr, cond_pred_corr, itref_pred_max, itref_corr_max, lq_fact, scale, warm_start, abs_form, comp_res_exit, comp_res_pred, kkt_fact_alg, remove_lin_dep_eq;
 
 	if(mode==SPEED_ABS)
@@ -81,6 +81,7 @@ void DENSE_QP_IPM_ARG_SET_DEFAULT(enum HPIPM_MODE mode, struct DENSE_QP_IPM_ARG 
 		scale = 0;
 		lam_min = 1e-16;
 		t_min = 1e-16;
+		tau_min = 1e-16;
 		warm_start = 0;
 		abs_form = 1;
 		comp_res_exit = 0;
@@ -108,6 +109,7 @@ void DENSE_QP_IPM_ARG_SET_DEFAULT(enum HPIPM_MODE mode, struct DENSE_QP_IPM_ARG 
 		scale = 0;
 		lam_min = 1e-16;
 		t_min = 1e-16;
+		tau_min = 1e-16;
 		warm_start = 0;
 		abs_form = 0;
 		comp_res_exit = 1;
@@ -135,6 +137,7 @@ void DENSE_QP_IPM_ARG_SET_DEFAULT(enum HPIPM_MODE mode, struct DENSE_QP_IPM_ARG 
 		scale = 0;
 		lam_min = 1e-16;
 		t_min = 1e-16;
+		tau_min = 1e-16;
 		warm_start = 0;
 		abs_form = 0;
 		comp_res_exit = 1;
@@ -162,6 +165,7 @@ void DENSE_QP_IPM_ARG_SET_DEFAULT(enum HPIPM_MODE mode, struct DENSE_QP_IPM_ARG 
 		scale = 0;
 		lam_min = 1e-16;
 		t_min = 1e-16;
+		tau_min = 1e-16;
 		warm_start = 0;
 		abs_form = 0;
 		comp_res_exit = 1;
@@ -194,6 +198,7 @@ void DENSE_QP_IPM_ARG_SET_DEFAULT(enum HPIPM_MODE mode, struct DENSE_QP_IPM_ARG 
 	arg->scale = scale;
 	DENSE_QP_IPM_ARG_SET_LAM_MIN(&lam_min, arg);
 	DENSE_QP_IPM_ARG_SET_T_MIN(&t_min, arg);
+	DENSE_QP_IPM_ARG_SET_TAU_MIN(&tau_min, arg);
 	DENSE_QP_IPM_ARG_SET_WARM_START(&warm_start, arg);
 	arg->abs_form = abs_form;
 	DENSE_QP_IPM_ARG_SET_COMP_RES_EXIT(&comp_res_exit, arg);
@@ -210,75 +215,79 @@ void DENSE_QP_IPM_ARG_SET_DEFAULT(enum HPIPM_MODE mode, struct DENSE_QP_IPM_ARG 
 
 void DENSE_QP_IPM_ARG_SET(char *field, void *value, struct DENSE_QP_IPM_ARG *arg)
 	{
-	if(hpipm_strcmp(field, "iter_max")) 
+	if(hpipm_strcmp(field, "iter_max"))
 		{
 		DENSE_QP_IPM_ARG_SET_ITER_MAX(value, arg);
 		}
-	else if(hpipm_strcmp(field, "alpha_min")) 
+	else if(hpipm_strcmp(field, "alpha_min"))
 		{
 		DENSE_QP_IPM_ARG_SET_ALPHA_MIN(value, arg);
 		}
-	else if(hpipm_strcmp(field, "mu0")) 
+	else if(hpipm_strcmp(field, "mu0"))
 		{
 		DENSE_QP_IPM_ARG_SET_MU0(value, arg);
 		}
-	else if(hpipm_strcmp(field, "tol_stat")) 
+	else if(hpipm_strcmp(field, "tol_stat"))
 		{
 		DENSE_QP_IPM_ARG_SET_TOL_STAT(value, arg);
 		}
-	else if(hpipm_strcmp(field, "tol_eq")) 
+	else if(hpipm_strcmp(field, "tol_eq"))
 		{
 		DENSE_QP_IPM_ARG_SET_TOL_EQ(value, arg);
 		}
-	else if(hpipm_strcmp(field, "tol_ineq")) 
+	else if(hpipm_strcmp(field, "tol_ineq"))
 		{
 		DENSE_QP_IPM_ARG_SET_TOL_INEQ(value, arg);
 		}
-	else if(hpipm_strcmp(field, "tol_comp")) 
+	else if(hpipm_strcmp(field, "tol_comp"))
 		{
 		DENSE_QP_IPM_ARG_SET_TOL_COMP(value, arg);
 		}
-	else if(hpipm_strcmp(field, "reg_prim")) 
+	else if(hpipm_strcmp(field, "reg_prim"))
 		{
 		DENSE_QP_IPM_ARG_SET_REG_PRIM(value, arg);
 		}
-	else if(hpipm_strcmp(field, "reg_dual")) 
+	else if(hpipm_strcmp(field, "reg_dual"))
 		{
 		DENSE_QP_IPM_ARG_SET_REG_DUAL(value, arg);
 		}
-	else if(hpipm_strcmp(field, "warm_start")) 
+	else if(hpipm_strcmp(field, "warm_start"))
 		{
 		DENSE_QP_IPM_ARG_SET_WARM_START(value, arg);
 		}
-	else if(hpipm_strcmp(field, "pred_corr")) 
+	else if(hpipm_strcmp(field, "pred_corr"))
 		{
 		DENSE_QP_IPM_ARG_SET_PRED_CORR(value, arg);
 		}
-	else if(hpipm_strcmp(field, "cond_pred_corr")) 
+	else if(hpipm_strcmp(field, "cond_pred_corr"))
 		{
 		DENSE_QP_IPM_ARG_SET_COND_PRED_CORR(value, arg);
 		}
-	else if(hpipm_strcmp(field, "comp_res_exit")) 
+	else if(hpipm_strcmp(field, "comp_res_exit"))
 		{
 		DENSE_QP_IPM_ARG_SET_COMP_RES_EXIT(value, arg);
 		}
-	else if(hpipm_strcmp(field, "comp_res_pred")) 
+	else if(hpipm_strcmp(field, "comp_res_pred"))
 		{
 		DENSE_QP_IPM_ARG_SET_COMP_RES_PRED(value, arg);
 		}
-	else if(hpipm_strcmp(field, "lam_min")) 
+	else if(hpipm_strcmp(field, "lam_min"))
 		{
 		DENSE_QP_IPM_ARG_SET_LAM_MIN(value, arg);
 		}
-	else if(hpipm_strcmp(field, "t_min")) 
+	else if(hpipm_strcmp(field, "t_min"))
 		{
 		DENSE_QP_IPM_ARG_SET_T_MIN(value, arg);
 		}
-	else if(hpipm_strcmp(field, "kkt_fact_alg")) 
+	else if(hpipm_strcmp(field, "tau_min"))
+		{
+		DENSE_QP_IPM_ARG_SET_TAU_MIN(value, arg);
+		}
+	else if(hpipm_strcmp(field, "kkt_fact_alg"))
 		{
 		DENSE_QP_IPM_ARG_SET_KKT_FACT_ALG(value, arg);
 		}
-	else if(hpipm_strcmp(field, "remove_lin_dep_eq")) 
+	else if(hpipm_strcmp(field, "remove_lin_dep_eq"))
 		{
 		DENSE_QP_IPM_ARG_SET_REMOVE_LIN_DEP_EQ(value, arg);
 		}
@@ -415,6 +424,14 @@ void DENSE_QP_IPM_ARG_SET_LAM_MIN(REAL *value, struct DENSE_QP_IPM_ARG *arg)
 void DENSE_QP_IPM_ARG_SET_T_MIN(REAL *value, struct DENSE_QP_IPM_ARG *arg)
 	{
 	arg->t_min = *value;
+	return;
+	}
+
+
+
+void DENSE_QP_IPM_ARG_SET_TAU_MIN(REAL *value, struct DENSE_QP_IPM_ARG *arg)
+	{
+	arg->tau_min = *value;
 	return;
 	}
 
@@ -1552,7 +1569,6 @@ void DENSE_QP_IPM_DELTA_STEP(int kk, struct DENSE_QP *qp, struct DENSE_QP_SOL *q
 		// compute centering parameter
 		tmp = cws->mu_aff/cws->mu;
 		cws->sigma = tmp*tmp*tmp;
-//			cws->sigma = sigma_min>cws->sigma ? sigma_min : cws->sigma;
 		if(kk+1<ws->stat_max)
 			ws->stat[ws->stat_m*(kk+1)+2] = cws->sigma;
 
@@ -1724,10 +1740,12 @@ void DENSE_QP_IPM_SOLVE(struct DENSE_QP *qp, struct DENSE_QP_SOL *qp_sol, struct
 
 	REAL *stat = ws->stat;
 	int stat_m = ws->stat_m;
+	REAL tau_min = arg->tau_min;
 
 	// arg to core workspace
 	cws->lam_min = arg->lam_min;
 	cws->t_min = arg->t_min;
+	cws->tau_min = arg->tau_min;
 
 	// alias qp vectors into qp_sol
 	cws->v = qp_sol->v->pa;
@@ -1771,6 +1789,13 @@ void DENSE_QP_IPM_SOLVE(struct DENSE_QP *qp, struct DENSE_QP_SOL *qp_sol, struct
 
 	ws->use_hess_fact = 0;
 	ws->use_A_fact = 0;
+
+//	for(ii=0; ii<cws->nc; ii++)
+//		{
+//		qp->m[0].pa[ii] = 1e-2;
+//		}
+//d_dense_qp_print(qp->dim, qp);
+//exit(1);
 
 	// detect constr mask
 	int mask_unconstr;
@@ -1869,7 +1894,8 @@ void DENSE_QP_IPM_SOLVE(struct DENSE_QP *qp, struct DENSE_QP_SOL *qp_sol, struct
 		for(kk=0; \
 				kk < arg->iter_max & \
 				cws->alpha > arg->alpha_min & \
-				mu > arg->res_m_max; kk++)
+				fabs(mu-tau_min) > arg->res_m_max \
+				; kk++)
 			{
 
 			// compute delta step
@@ -1943,7 +1969,8 @@ void DENSE_QP_IPM_SOLVE(struct DENSE_QP *qp, struct DENSE_QP_SOL *qp_sol, struct
 			(qp_res_max[0] > arg->res_g_max | \
 			qp_res_max[1] > arg->res_b_max | \
 			qp_res_max[2] > arg->res_d_max | \
-			qp_res_max[3] > arg->res_m_max); kk++)
+			fabs(qp_res_max[3]-tau_min) > arg->res_m_max) \
+			; kk++)
 		{
 
 		// compute delta step
@@ -2036,6 +2063,7 @@ void DENSE_QP_IPM_PREDICT(struct DENSE_QP *qp, struct DENSE_QP_SOL *qp_sol, stru
 	// arg to core workspace
 	cws->lam_min = arg->lam_min;
 	cws->t_min = arg->t_min;
+	cws->tau_min = arg->tau_min;
 
 	// alias qp vectors into qp_sol
 	cws->v = qp_sol->v->pa;
@@ -2144,6 +2172,7 @@ void DENSE_QP_IPM_SENS(struct DENSE_QP *qp, struct DENSE_QP_SOL *qp_sol, struct 
 	// arg to core workspace
 	cws->lam_min = arg->lam_min;
 	cws->t_min = arg->t_min;
+	cws->tau_min = arg->tau_min;
 
 	// alias qp vectors into qp_sol
 	cws->v = qp_sol->v->pa;

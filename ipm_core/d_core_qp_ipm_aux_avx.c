@@ -610,6 +610,7 @@ void d_compute_centering_correction_qp(struct d_core_qp_ipm_workspace *cws)
 		y_sigma_mu;
 
 	double sigma_mu = cws->sigma*cws->mu;
+	sigma_mu = sigma_mu>cws->tau_min ? sigma_mu : cws->tau_min;
 
 	y_sigma_mu = _mm256_broadcast_sd( &sigma_mu );
 
@@ -650,6 +651,7 @@ void d_compute_centering_qp(struct d_core_qp_ipm_workspace *cws)
 		y_sigma_mu;
 
 	double sigma_mu = cws->sigma*cws->mu;
+	sigma_mu = sigma_mu>cws->tau_min ? sigma_mu : cws->tau_min;
 
 	y_sigma_mu = _mm256_broadcast_sd( &sigma_mu );
 
