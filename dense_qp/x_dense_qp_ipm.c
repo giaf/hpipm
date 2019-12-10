@@ -59,7 +59,7 @@ void DENSE_QP_IPM_ARG_SET_DEFAULT(enum HPIPM_MODE mode, struct DENSE_QP_IPM_ARG 
 	{
 
 	REAL mu0, alpha_min, res_g, res_b, res_d, res_m, reg_prim, reg_dual, lam_min, t_min, tau_min;
-	int iter_max, stat_max, pred_corr, cond_pred_corr, itref_pred_max, itref_corr_max, lq_fact, scale, warm_start, abs_form, comp_res_exit, comp_res_pred, kkt_fact_alg, remove_lin_dep_eq;
+	int iter_max, stat_max, pred_corr, cond_pred_corr, itref_pred_max, itref_corr_max, lq_fact, scale, warm_start, abs_form, comp_res_exit, comp_res_pred, kkt_fact_alg, remove_lin_dep_eq, compute_obj;
 
 	if(mode==SPEED_ABS)
 		{
@@ -88,6 +88,7 @@ void DENSE_QP_IPM_ARG_SET_DEFAULT(enum HPIPM_MODE mode, struct DENSE_QP_IPM_ARG 
 		comp_res_pred = 0;
 		kkt_fact_alg = 1;
 		remove_lin_dep_eq = 0;
+		compute_obj = 0;
 		}
 	else if(mode==SPEED)
 		{
@@ -116,6 +117,7 @@ void DENSE_QP_IPM_ARG_SET_DEFAULT(enum HPIPM_MODE mode, struct DENSE_QP_IPM_ARG 
 		comp_res_pred = 0;
 		kkt_fact_alg = 1;
 		remove_lin_dep_eq = 0;
+		compute_obj = 0;
 		}
 	else if(mode==BALANCE)
 		{
@@ -144,6 +146,7 @@ void DENSE_QP_IPM_ARG_SET_DEFAULT(enum HPIPM_MODE mode, struct DENSE_QP_IPM_ARG 
 		comp_res_pred = 0;
 		kkt_fact_alg = 1;
 		remove_lin_dep_eq = 0;
+		compute_obj = 0;
 		}
 	else if(mode==ROBUST)
 		{
@@ -172,6 +175,7 @@ void DENSE_QP_IPM_ARG_SET_DEFAULT(enum HPIPM_MODE mode, struct DENSE_QP_IPM_ARG 
 		comp_res_pred = 0;
 		kkt_fact_alg = 1;
 		remove_lin_dep_eq = 0;
+		compute_obj = 0;
 		}
 	else
 		{
@@ -206,6 +210,7 @@ void DENSE_QP_IPM_ARG_SET_DEFAULT(enum HPIPM_MODE mode, struct DENSE_QP_IPM_ARG 
 	DENSE_QP_IPM_ARG_SET_KKT_FACT_ALG(&kkt_fact_alg, arg);
 	arg->mode = mode;
 	DENSE_QP_IPM_ARG_SET_REMOVE_LIN_DEP_EQ(&remove_lin_dep_eq, arg);
+	DENSE_QP_IPM_ARG_SET_COMPUTE_OBJ(&compute_obj, arg);
 
 	return;
 
@@ -290,6 +295,10 @@ void DENSE_QP_IPM_ARG_SET(char *field, void *value, struct DENSE_QP_IPM_ARG *arg
 	else if(hpipm_strcmp(field, "remove_lin_dep_eq"))
 		{
 		DENSE_QP_IPM_ARG_SET_REMOVE_LIN_DEP_EQ(value, arg);
+		}
+	else if(hpipm_strcmp(field, "compute_obj"))
+		{
+		DENSE_QP_IPM_ARG_SET_COMPUTE_OBJ(value, arg);
 		}
 	else
 		{
@@ -453,6 +462,14 @@ void DENSE_QP_IPM_ARG_SET_REMOVE_LIN_DEP_EQ(int *value, struct DENSE_QP_IPM_ARG 
 
 
 
+void DENSE_QP_IPM_ARG_SET_COMPUTE_OBJ(int *value, struct DENSE_QP_IPM_ARG *arg)
+	{
+	arg->compute_obj = *value;
+	return;
+	}
+
+
+
 int DENSE_QP_IPM_WS_MEMSIZE(struct DENSE_QP_DIM *dim, struct DENSE_QP_IPM_ARG *arg)
 	{
 
@@ -477,7 +494,7 @@ int DENSE_QP_IPM_WS_MEMSIZE(struct DENSE_QP_DIM *dim, struct DENSE_QP_IPM_ARG *a
 	size += 2*sizeof(struct DENSE_QP_RES); // res res_itref
 	size += 1*DENSE_QP_RES_MEMSIZE(dim); // res_itref
 
-	size += 23*sizeof(struct STRVEC); // sol_step(v,pi,lam,t) res_g res_b res_d res_m lv (4+2)*tmp_nbg (1+1)*tmp_ns Gamma gamma Zs_inv sv se tmp_m
+	size += 24*sizeof(struct STRVEC); // sol_step(v,pi,lam,t) res_g res_b res_d res_m lv (4+2)*tmp_nbg (1+1)*tmp_ns Gamma gamma Zs_inv sv se tmp_m tmp_nv
 	size += 5*sizeof(struct STRMAT); // 2*Lv AL Le Ctx
 	if(arg->lq_fact>0)
 		{
@@ -486,7 +503,7 @@ int DENSE_QP_IPM_WS_MEMSIZE(struct DENSE_QP_DIM *dim, struct DENSE_QP_IPM_ARG *a
 	if(arg->kkt_fact_alg==0)
 		{
 		size += 5*sizeof(struct STRMAT); // A_LQ A_Q Zt ZtH ZthZ
-		size += 4*sizeof(struct STRMAT); // xy Yxy xz tmp_nv
+		size += 3*sizeof(struct STRVEC); // xy Yxy xz
 		}
 	else
 		{
@@ -509,6 +526,7 @@ int DENSE_QP_IPM_WS_MEMSIZE(struct DENSE_QP_DIM *dim, struct DENSE_QP_IPM_ARG *a
 	size += 1*SIZE_STRMAT(nv+1, ng); // Ctx
 	size += 1*SIZE_STRVEC(2*nb+2*ng+2*ns); // tmp_m
 	size += ne>0 ? 1*GELQF_WORKSIZE(ne, nv) : 0; // lq_work_null
+	size += 1*SIZE_STRVEC(nv); // tmp_nv
 	if(arg->lq_fact>0)
 		{
 		size += 1*SIZE_STRMAT(ne, ne+nv); // lq0
@@ -518,7 +536,7 @@ int DENSE_QP_IPM_WS_MEMSIZE(struct DENSE_QP_DIM *dim, struct DENSE_QP_IPM_ARG *a
 		{
 		size += 1*SIZE_STRMAT(ne, nv); // A_LQ
 		size += 1*SIZE_STRMAT(nv, nv); // A_Q
-		size += 2*SIZE_STRVEC(nv); // Yxy tmp_nv
+		size += 1*SIZE_STRVEC(nv); // Yxy
 		size += 1*SIZE_STRVEC(ne); // xy
 		if(arg->remove_lin_dep_eq!=0)
 			{
@@ -716,6 +734,8 @@ void DENSE_QP_IPM_WS_CREATE(struct DENSE_QP_DIM *dim, struct DENSE_QP_IPM_ARG *a
 	sv_ptr += 1;
 	workspace->tmp_m = sv_ptr;
 	sv_ptr += 1;
+	workspace->tmp_nv = sv_ptr;
+	sv_ptr += 1;
 	if(arg->kkt_fact_alg==0)
 		{
 		workspace->xy = sv_ptr;
@@ -723,8 +743,6 @@ void DENSE_QP_IPM_WS_CREATE(struct DENSE_QP_DIM *dim, struct DENSE_QP_IPM_ARG *a
 		workspace->Yxy = sv_ptr;
 		sv_ptr += 1;
 		workspace->xz = sv_ptr;
-		sv_ptr += 1;
-		workspace->tmp_nv = sv_ptr;
 		sv_ptr += 1;
 		}
 	else
@@ -874,6 +892,9 @@ void DENSE_QP_IPM_WS_CREATE(struct DENSE_QP_DIM *dim, struct DENSE_QP_IPM_ARG *a
 	CREATE_STRVEC(2*nb+2*ng+2*ns, workspace->tmp_m, c_ptr);
 	c_ptr += (workspace->tmp_m)->memsize;
 
+	CREATE_STRVEC(nv, workspace->tmp_nv, c_ptr);
+	c_ptr += workspace->tmp_nv->memsize;
+
 	if(arg->kkt_fact_alg==0)
 		{
 		CREATE_STRVEC(ne, workspace->xy, c_ptr);
@@ -892,9 +913,6 @@ void DENSE_QP_IPM_WS_CREATE(struct DENSE_QP_DIM *dim, struct DENSE_QP_IPM_ARG *a
 			CREATE_STRVEC(nv-ne, workspace->xz, c_ptr);
 			c_ptr += workspace->xz->memsize;
 			}
-
-		CREATE_STRVEC(nv, workspace->tmp_nv, c_ptr);
-		c_ptr += workspace->tmp_nv->memsize;
 
 		}
 	else
@@ -2138,7 +2156,14 @@ call_return:
 		{
 		DENSE_QP_RESTORE_LIN_DEP_EQ(qp, arg, ws);
 		}
+	
+	// compute obj
+	if(arg->compute_obj)
+		{
+		DENSE_QP_COMPUTE_OBJ(qp, qp_sol, arg, ws);
+		}
 
+	// return
 	return;
 
 	}

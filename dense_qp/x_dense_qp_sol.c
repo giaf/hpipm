@@ -139,6 +139,7 @@ void DENSE_QP_SOL_CREATE(struct DENSE_QP_DIM *dim, struct DENSE_QP_SOL *qp_sol, 
 	CREATE_STRVEC(2*nb+2*ng+2*ns, qp_sol->t, c_ptr);
 	c_ptr += qp_sol->t->memsize;
 
+	qp_sol->valid_obj = 0;
 
 	qp_sol->dim = dim;
 
@@ -196,3 +197,24 @@ void DENSE_QP_SOL_GET_ALL(struct DENSE_QP_SOL *qp_sol, REAL *v, REAL *ls, REAL *
 
 	}
 
+
+
+void DENSE_QP_SOL_GET_V(struct DENSE_QP_SOL *qp_sol, REAL *v)
+	{
+	int nv = qp_sol->dim->nv;
+	CVT_STRVEC2VEC(nv, qp_sol->v, 0, v);
+	}
+
+
+
+void DENSE_QP_SOL_GET_VALID_OBJ(struct DENSE_QP_SOL *qp_sol, int *valid_obj)
+	{
+	*valid_obj = qp_sol->valid_obj;
+	}
+
+
+
+void DENSE_QP_SOL_GET_OBJ(struct DENSE_QP_SOL *qp_sol, REAL *obj)
+	{
+	*obj = qp_sol->obj;
+	}

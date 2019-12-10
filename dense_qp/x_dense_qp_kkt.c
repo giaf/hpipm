@@ -1887,4 +1887,26 @@ void DENSE_QP_RESTORE_LIN_DEP_EQ(struct DENSE_QP *qp, struct DENSE_QP_IPM_ARG *a
 					
 
 
+void DENSE_QP_COMPUTE_OBJ(struct DENSE_QP *qp, struct DENSE_QP_SOL *qp_sol, struct DENSE_QP_IPM_ARG *arg, struct DENSE_QP_IPM_WS *ws)
+	{
+
+	int nv = qp->dim->nv;
+
+	struct STRMAT *Hg = qp->Hv;
+	struct STRVEC *gz = qp->gz;
+
+	struct STRVEC *v = qp_sol->v;
+
+	// TODO soft constraints !!!!!!!!!!!!!!!!!!!!!!!
+
+	struct STRVEC *tmp_nv = ws->tmp_nv;
+
+	SYMV_L(nv, nv, 0.5, Hg, 0, 0, v, 0, 1.0, gz, 0, tmp_nv, 0);
+	qp_sol->obj = DOT(nv, tmp_nv, 0, v, 0);
+	qp_sol->valid_obj = 1;
+
+	return;
+
+	}
+
 

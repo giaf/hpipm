@@ -61,6 +61,8 @@ struct s_dense_qp_sol
 	struct blasfeo_svec *lam;
 	struct blasfeo_svec *t;
 	void *misc;
+	float obj;
+	int valid_obj;
 	int memsize;
 	};
 
@@ -72,6 +74,12 @@ int s_dense_qp_sol_memsize(struct s_dense_qp_dim *dim);
 void s_dense_qp_sol_create(struct s_dense_qp_dim *dim, struct s_dense_qp_sol *qp_sol, void *memory);
 //
 void s_dense_qp_sol_get_all(struct s_dense_qp_sol *qp_sol, float *v, float *ls, float *us, float *pi, float *lam_lb, float *lam_ub, float *lam_lg, float *lam_ug, float *lam_ls, float *lam_us);
+//
+void s_dense_qp_sol_get_v(struct s_dense_qp_sol *sol, float *v);
+//
+void s_dense_qp_sol_get_valid_obj(struct s_dense_qp_sol *sol, int *valid_obj);
+//
+void s_dense_qp_sol_get_obj(struct s_dense_qp_sol *sol, float *obj);
 
 
 

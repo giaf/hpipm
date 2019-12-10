@@ -63,6 +63,9 @@
 #define DENSE_QP_SOL_MEMSIZE d_dense_qp_sol_memsize
 #define DENSE_QP_SOL_CREATE d_dense_qp_sol_create
 #define DENSE_QP_SOL_GET_ALL d_dense_qp_sol_get_all
+#define DENSE_QP_SOL_GET_V d_dense_qp_sol_get_v
+#define DENSE_QP_SOL_GET_VALID_OBJ d_dense_qp_sol_get_valid_obj
+#define DENSE_QP_SOL_GET_OBJ d_dense_qp_sol_get_obj
 
 
 

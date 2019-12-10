@@ -72,6 +72,7 @@
 #define DIAAD_SP blasfeo_ddiaad_sp
 #define DIAEX blasfeo_ddiaex
 #define DIARE blasfeo_ddiare
+#define DOT blasfeo_ddot
 #define GEAD blasfeo_dgead
 #define GECP blasfeo_dgecp
 #define GELQF blasfeo_dgelqf
@@ -132,6 +133,7 @@
 #define SOLVE_KKT_STEP_DENSE_QP d_solve_kkt_step_dense_qp
 #define DENSE_QP_REMOVE_LIN_DEP_EQ d_dense_qp_remove_lin_dep_eq
 #define DENSE_QP_RESTORE_LIN_DEP_EQ d_dense_qp_restore_lin_dep_eq
+#define DENSE_QP_COMPUTE_OBJ d_dense_qp_compute_obj
 
 
 

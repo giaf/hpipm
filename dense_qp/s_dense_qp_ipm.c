@@ -69,6 +69,7 @@
 #define CREATE_STRMAT blasfeo_create_smat
 #define CREATE_STRVEC blasfeo_create_svec
 #define DENSE_QP s_dense_qp
+#define DENSE_QP_COMPUTE_OBJ s_dense_qp_compute_obj
 #define DENSE_QP_DIM s_dense_qp_dim
 #define DENSE_QP_IPM_ARG s_dense_qp_ipm_arg
 #define DENSE_QP_IPM_WS s_dense_qp_ipm_ws
@@ -133,6 +134,7 @@
 #define DENSE_QP_IPM_ARG_SET_TAU_MIN s_dense_qp_ipm_arg_set_tau_min
 #define DENSE_QP_IPM_ARG_SET_KKT_FACT_ALG s_dense_qp_ipm_arg_set_kkt_fact_alg
 #define DENSE_QP_IPM_ARG_SET_REMOVE_LIN_DEP_EQ s_dense_qp_ipm_arg_set_remove_lin_dep_eq
+#define DENSE_QP_IPM_ARG_SET_COMPUTE_OBJ s_dense_qp_ipm_arg_set_compute_obj
 // ipm
 #define DENSE_QP_IPM_WS_MEMSIZE s_dense_qp_ipm_ws_memsize
 #define DENSE_QP_IPM_WS_CREATE s_dense_qp_ipm_ws_create

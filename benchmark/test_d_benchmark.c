@@ -435,7 +435,7 @@ int main()
 	FILE * pFile;
 	*/
 
-	printf("probl\tnv\tne\tnc\tdp\treturn\titer\tres_g\t\tres_b\t\tres_d\t\tres_m\t\tmu\t\ttime\t\ttime[ms]\n");
+	printf("probl\tnv\tne\tnc\tdp\treturn\titer\tres_g\t\tres_b\t\tres_d\t\tres_m\t\tmu\t\ttime\t\ttime[ms]\tobj\t\tabs obj err\trel obj err\t\n");
 
 	int npass = 0;
 	int nfail = 0;
@@ -449,7 +449,7 @@ int main()
 
 //	for (i = 0; i < nproblems; i++)
 	for (i = 0; i < nproblems-1; i++)
-//	for (i = 31; i < 33; i++)
+//	for (i = 35; i < 36; i++)
 		{
 
 		/************************************************
@@ -479,8 +479,10 @@ int main()
 		struct benchmark_qp qp_bench;
 		d_create_benchmark_qp(nv, ne, nc, &qp_bench, benchmark_mem);
 
+		double objOpt;
+
 		/* read data */
-		readOQPdata(OQPproblem, &nQP, &nv, &ng, &ne, qp_bench.H, qp_bench.g, qp_bench.C, qp_bench.lbx, qp_bench.ubx, qp_bench.lbC, qp_bench.ubC, NULL, NULL, NULL);
+		readOQPdata(OQPproblem, &nQP, &nv, &ng, &ne, qp_bench.H, qp_bench.g, qp_bench.C, qp_bench.lbx, qp_bench.ubx, qp_bench.lbC, qp_bench.ubC, NULL, NULL, &objOpt);
 
 		// print data to text files
 		/*
@@ -620,8 +622,10 @@ int main()
 		int d_comp_res_exit = 1;
 		int kkt_fact_alg = 1;
 		int remove_lin_dep_eq = 0;
-//		double lam_min = 1e-12;
-//		double t_min = 1e-12;
+		double lam_min = 1e-16;
+		double t_min = 1e-16;
+		double tau_min = 1e-16;
+		int compute_obj = 1;
 
 		d_dense_qp_ipm_arg_set_tol_stat(&d_tol_stat, &d_arg);
 		d_dense_qp_ipm_arg_set_tol_eq(&d_tol_eq, &d_arg);
@@ -634,6 +638,8 @@ int main()
 		d_dense_qp_ipm_arg_set_remove_lin_dep_eq(&remove_lin_dep_eq, &d_arg);
 //		d_dense_qp_ipm_arg_set_lam_min(&lam_min, &d_arg);
 //		d_dense_qp_ipm_arg_set_t_min(&t_min, &d_arg);
+//		d_dense_qp_ipm_arg_set_tau_min(&tau_min, &d_arg);
+		d_dense_qp_ipm_arg_set_compute_obj(&compute_obj, &d_arg);
 
 //		d_arg.alpha_min = 1e-12;
 //		d_arg.pred_corr = 1;
@@ -710,6 +716,14 @@ int main()
 
 		sol_time = (tv1.tv_sec-tv0.tv_sec)/(nrep+0.0)+(tv1.tv_usec-tv0.tv_usec)/(nrep*1e6);
 
+		int d_valid_obj;
+		double d_obj = 0;
+		d_dense_qp_sol_get_valid_obj(&qpd_sol, &d_valid_obj);
+		if(d_valid_obj)
+			{
+			d_dense_qp_sol_get_obj(&qpd_sol, &d_obj);
+			}
+
 		// single
 
 		int s_ipm_size = s_dense_qp_ipm_ws_memsize(&s_dim, &s_argd);
@@ -753,7 +767,7 @@ int main()
 		d_dense_qp_ipm_get_max_res_eq(&d_ws, d_res+1);
 		d_dense_qp_ipm_get_max_res_ineq(&d_ws, d_res+2);
 		d_dense_qp_ipm_get_max_res_comp(&d_ws, d_res+3);
-		printf("%d\t%d\t%d\t%d\t%d\t%d\t%d\t%e\t%e\t%e\t%e\t%e\t%e%12.4f\n", i-1, nv, ne, nc, dp, hpipm_return, d_iter, d_res[0], d_res[1], d_res[2], d_res[3], d_ws.res->res_mu, sol_time, sol_time*1000);
+		printf("%d\t%d\t%d\t%d\t%d\t%d\t%d\t%e\t%e\t%e\t%e\t%e\t%e%12.4f\t%e\t%e\t%e\n", i-1, nv, ne, nc, dp, hpipm_return, d_iter, d_res[0], d_res[1], d_res[2], d_res[3], d_ws.res->res_mu, sol_time, sol_time*1000, d_obj, d_obj-objOpt, (d_obj-objOpt)/objOpt);
 #endif
 
 		// number of passed and failed problems
@@ -773,19 +787,22 @@ int main()
 		printf("%d\t%d\t%d\t%d\t%d\t%d\t%d\t%e\t%e\t%e\t%e\t%e\t%e%12.4f\n", i-1, nv, ne, nc, dp, s_hpipm_return, s_iter, s_res[0], s_res[1], s_res[2], s_res[3], s_workspace.res->res_mu, s_sol_time, s_sol_time*1000);
 #endif
 
-#if 0
+#if 1
 //		if(i==17)
-//		if(1)
 //			{
 //			printf("\nipm iter = %d\n", d_ws.iter);
 //			printf("\nalpha_aff\tmu_aff\t\tsigma\t\talpha\t\tmu\n");
 //			d_print_exp_tran_mat(5, d_ws.iter, d_ws.stat, 5);
 //			printf("\n\n\n\n");
 //			}
-		printf("\nalpha_aff\tmu_aff\t\tsigma\t\talpha\t\tmu\t\tres_stat\tres_eq\t\tres_ineq\tres_comp\titref pred\titref corr\n");
-		double *stat; d_dense_qp_ipm_get_stat(&d_ws, &stat);
-		int stat_m;  d_dense_qp_ipm_get_stat_m(&d_ws, &stat_m);
-		d_print_exp_tran_mat(stat_m, d_iter+1, stat, stat_m);
+//		if(i-1==34 | i-1==4)
+		if(0)
+			{
+			printf("\nalpha_aff\tmu_aff\t\tsigma\t\talpha\t\tmu\t\tres_stat\tres_eq\t\tres_ineq\tres_comp\tlq fact\t\titref pred\titref corr\tlin res_stat\tlin res_eq\tlin res_ineq\trlin es_comp\n");
+			double *stat; d_dense_qp_ipm_get_stat(&d_ws, &stat);
+			int stat_m;  d_dense_qp_ipm_get_stat_m(&d_ws, &stat_m);
+			d_print_exp_tran_mat(stat_m, d_iter+1, stat, stat_m);
+			}
 
 #endif
 
