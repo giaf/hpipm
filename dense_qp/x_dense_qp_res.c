@@ -462,13 +462,15 @@ void DENSE_QP_RES_COMPUTE_LIN(struct DENSE_QP *qp, struct DENSE_QP_SOL *qp_sol, 
 		GEMV_NT(ne, nv, -1.0, -1.0, A, 0, 0, v, 0, pi, 0, 1.0, 1.0, b, 0, res_g, 0, res_b, 0, res_g, 0);
 
 	// res_m res_mu
-//	VECCPSC(nct, 1.0, m, 0, res_m, 0);
-	VECCP(nct, m, 0, res_m, 0);
+//	VECCPSC(nct, -1.0, m, 0, res_m, 0);
+	VECCP(nct, m, 0, res_m, 0); // TODO scale by -1 ?????
 	VECMULACC(nct, Lam, 0, t, 0, res_m, 0);
 	VECMULACC(nct, lam, 0, T, 0, res_m, 0);
+//	for(ii=0; ii<nct; ii++) (res_m->pa)[ii] += 1e-3;
 //	mu = VECMULDOT(nct, lam, 0, t, 0, res_m, 0);
 //	AXPY(nct, -1.0, m, 0, res_m, 0, res_m, 0);
 //	res->res_mu = mu*nct_inv;
+	// TODO use nc_mask_inv from cws if available !!!!!
 
 	return;
 

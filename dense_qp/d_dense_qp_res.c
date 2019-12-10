@@ -72,6 +72,7 @@
 #define SYMV_L blasfeo_dsymv_l
 #define VECAD_SP blasfeo_dvecad_sp
 #define VECCP blasfeo_dveccp
+#define VECCPSC blasfeo_dveccpsc
 #define VECEX_SP blasfeo_dvecex_sp
 #define VECMUL blasfeo_dvecmul
 #define VECMULACC blasfeo_dvecmulacc
