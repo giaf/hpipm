@@ -888,6 +888,7 @@ int main()
 	int pred_corr = 1;
 	int ric_alg = 0;
 	int comp_res_exit = 1;
+//	double tau_min = 1e-12;
 
 	d_ocp_qp_ipm_arg_set_mu0(&mu0, &arg);
 	d_ocp_qp_ipm_arg_set_iter_max(&iter_max, &arg);
@@ -901,6 +902,7 @@ int main()
 	d_ocp_qp_ipm_arg_set_pred_corr(&pred_corr, &arg);
 	d_ocp_qp_ipm_arg_set_ric_alg(&ric_alg, &arg);
 	d_ocp_qp_ipm_arg_set_comp_res_exit(&comp_res_exit, &arg);
+//	d_ocp_qp_ipm_arg_set_tau_min(&tau_min, &arg);
 
 /************************************************
 * ipm

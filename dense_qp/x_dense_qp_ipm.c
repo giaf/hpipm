@@ -1268,6 +1268,9 @@ void DENSE_QP_IPM_ABS_STEP(int kk, struct DENSE_QP *qp, struct DENSE_QP_SOL *qp_
 
 	BACKUP_RES_M(cws);
 
+	// tau_min as barrier parameter for affine step
+	COMPUTE_TAU_MIN_QP(cws);
+
 	// fact solve
 	FACT_SOLVE_KKT_STEP_DENSE_QP(ws->qp_step, ws->sol_step, arg, ws);
 	// compute step
@@ -1413,11 +1416,14 @@ void DENSE_QP_IPM_DELTA_STEP(int kk, struct DENSE_QP *qp, struct DENSE_QP_SOL *q
 
 	int force_lq = 0;
 
+	ws->scale = arg->scale;
+
 	// step body
 
 	BACKUP_RES_M(cws);
 
-	ws->scale = arg->scale;
+	// tau_min as barrier parameter for affine step
+	COMPUTE_TAU_MIN_QP(cws);
 
 	// fact and solve kkt
 	if(ws->lq_fact==0)

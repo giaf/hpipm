@@ -58,6 +58,8 @@ void d_backup_res_m(struct d_core_qp_ipm_workspace *rws);
 void d_compute_centering_correction_qp(struct d_core_qp_ipm_workspace *rws);
 //
 void d_compute_centering_qp(struct d_core_qp_ipm_workspace *rws);
+//
+void d_compute_tau_min_qp(struct d_core_qp_ipm_workspace *rws);
 
 #ifdef __cplusplus
 } /* extern "C" */

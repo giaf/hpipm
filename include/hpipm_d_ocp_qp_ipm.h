@@ -66,6 +66,7 @@ struct d_ocp_qp_ipm_arg
 	double reg_prim; // reg of primal hessian
 	double lam_min; // min value in lam vector
 	double t_min; // min value in t vector
+	double tau_min; // min value of barrier parameter
 	int iter_max; // exit cond in iter number
 	int stat_max; // iterations saved in stat
 	int pred_corr; // use Mehrotra's predictor-corrector IPM algirthm
@@ -169,6 +170,8 @@ void d_ocp_qp_ipm_arg_set_comp_res_pred(int *value, struct d_ocp_qp_ipm_arg *arg
 void d_ocp_qp_ipm_arg_set_lam_min(double *value, struct d_ocp_qp_ipm_arg *arg);
 // min value of t in the solution
 void d_ocp_qp_ipm_arg_set_t_min(double *value, struct d_ocp_qp_ipm_arg *arg);
+// min value of tau in the solution
+void d_ocp_qp_ipm_arg_set_tau_min(double *value, struct d_ocp_qp_ipm_arg *arg);
 
 //
 int d_ocp_qp_ipm_ws_strsize();

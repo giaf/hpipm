@@ -383,8 +383,6 @@ void s_compute_centering_qp(struct s_core_qp_ipm_workspace *cws)
 	// extract workspace members
 	int nc = cws->nc;
 
-	float *ptr_dlam = cws->dlam;
-	float *ptr_dt = cws->dt;
 	float *ptr_res_m = cws->res_m;
 	float *ptr_res_m_bkp = cws->res_m_bkp;
 
@@ -400,6 +398,29 @@ void s_compute_centering_qp(struct s_core_qp_ipm_workspace *cws)
 
 	}
 
+
+
+void s_compute_tau_min_qp(struct s_core_qp_ipm_workspace *cws)
+	{
+
+	int ii;
+
+	// extract workspace members
+	int nc = cws->nc;
+
+	float *ptr_res_m = cws->res_m;
+	float *ptr_res_m_bkp = cws->res_m_bkp;
+
+	float tau_min = cws->tau_min;
+
+	for(ii=0; ii<nc; ii++)
+		{
+		ptr_res_m[ii+0] = ptr_res_m_bkp[ii+0] - tau_min;
+		}
+
+	return;
+
+	}
 
 
 

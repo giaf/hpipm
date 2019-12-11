@@ -65,6 +65,7 @@
 #define COMPUTE_CENTERING_CORRECTION_QP s_compute_centering_correction_qp
 #define COMPUTE_CENTERING_QP s_compute_centering_qp
 #define COMPUTE_MU_AFF_QP s_compute_mu_aff_qp
+#define COMPUTE_TAU_MIN_QP s_compute_tau_min_qp
 #define CORE_QP_IPM_WORKSPACE s_core_qp_ipm_workspace
 #define CREATE_CORE_QP_IPM s_create_core_qp_ipm
 #define CREATE_STRMAT blasfeo_create_smat
@@ -146,6 +147,7 @@
 #define OCP_QP_IPM_ARG_SET_COMP_RES_PRED s_ocp_qp_ipm_arg_set_comp_res_pred
 #define OCP_QP_IPM_ARG_SET_LAM_MIN s_ocp_qp_ipm_arg_set_lam_min
 #define OCP_QP_IPM_ARG_SET_T_MIN s_ocp_qp_ipm_arg_set_t_min
+#define OCP_QP_IPM_ARG_SET_TAU_MIN s_ocp_qp_ipm_arg_set_tau_min
 // ipm
 #define OCP_QP_IPM_WS_STRSIZE s_ocp_qp_ipm_ws_strsize
 #define OCP_QP_IPM_WS_MEMSIZE s_ocp_qp_ipm_ws_memsize

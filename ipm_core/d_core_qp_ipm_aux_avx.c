@@ -641,8 +641,6 @@ void d_compute_centering_qp(struct d_core_qp_ipm_workspace *cws)
 	// extract workspace members
 	int nc = cws->nc;
 
-	double *dlam = cws->dlam;
-	double *dt = cws->dt;
 	double *res_m = cws->res_m;
 	double *res_m_bkp = cws->res_m_bkp;
 
@@ -670,6 +668,41 @@ void d_compute_centering_qp(struct d_core_qp_ipm_workspace *cws)
 
 	}
 
+
+
+void d_compute_tau_min_qp(struct d_core_qp_ipm_workspace *cws)
+	{
+
+	int ii;
+
+	// extract workspace members
+	int nc = cws->nc;
+
+	double *res_m = cws->res_m;
+	double *res_m_bkp = cws->res_m_bkp;
+
+	__m256d
+		y_tmp0,
+		y_tau_min;
+
+	double tau_min = cws->tau_min;
+
+	y_tau_min = _mm256_broadcast_sd( &tau_min );
+
+	ii = 0;
+	for(; ii<nc-3; ii+=4)
+		{
+		y_tmp0 = _mm256_sub_pd( _mm256_loadu_pd( &res_m_bkp[ii] ), y_tau_min );
+		_mm256_storeu_pd( &res_m[ii], y_tmp0 );
+		}
+	for(; ii<nc; ii++)
+		{
+		res_m[ii] = res_m_bkp[ii] - tau_min;
+		}
+
+	return;
+
+	}
 
 
 

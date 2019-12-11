@@ -383,8 +383,6 @@ void COMPUTE_CENTERING_QP(struct CORE_QP_IPM_WORKSPACE *cws)
 	// extract workspace members
 	int nc = cws->nc;
 
-	REAL *ptr_dlam = cws->dlam;
-	REAL *ptr_dt = cws->dt;
 	REAL *ptr_res_m = cws->res_m;
 	REAL *ptr_res_m_bkp = cws->res_m_bkp;
 
@@ -400,6 +398,29 @@ void COMPUTE_CENTERING_QP(struct CORE_QP_IPM_WORKSPACE *cws)
 
 	}
 
+
+
+void COMPUTE_TAU_MIN_QP(struct CORE_QP_IPM_WORKSPACE *cws)
+	{
+
+	int ii;
+
+	// extract workspace members
+	int nc = cws->nc;
+
+	REAL *ptr_res_m = cws->res_m;
+	REAL *ptr_res_m_bkp = cws->res_m_bkp;
+
+	REAL tau_min = cws->tau_min;
+
+	for(ii=0; ii<nc; ii++)
+		{
+		ptr_res_m[ii+0] = ptr_res_m_bkp[ii+0] - tau_min;
+		}
+
+	return;
+
+	}
 
 
 

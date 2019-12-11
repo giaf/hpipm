@@ -41,6 +41,7 @@
 #define REAL float
 
 #define COMPUTE_GAMMA_GAMMA_QP s_compute_Gamma_gamma_qp
+#define COMPUTE_GAMMA_QP s_compute_gamma_qp
 #define COMPUTE_LAM_T_QP s_compute_lam_t_qp
 #define COMPUTE_ALPHA_QP s_compute_alpha_qp
 #define UPDATE_VAR_QP s_update_var_qp
@@ -48,7 +49,7 @@
 #define BACKUP_RES_M s_backup_res_m
 #define COMPUTE_CENTERING_CORRECTION_QP s_compute_centering_correction_qp
 #define COMPUTE_CENTERING_QP s_compute_centering_qp
-#define COMPUTE_GAMMA_QP s_compute_gamma_qp
+#define COMPUTE_TAU_MIN_QP s_compute_tau_min_qp
 
 
 
