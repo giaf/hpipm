@@ -494,7 +494,7 @@ int DENSE_QP_IPM_WS_MEMSIZE(struct DENSE_QP_DIM *dim, struct DENSE_QP_IPM_ARG *a
 	size += 2*sizeof(struct DENSE_QP_RES); // res res_itref
 	size += 1*DENSE_QP_RES_MEMSIZE(dim); // res_itref
 
-	size += 24*sizeof(struct STRVEC); // sol_step(v,pi,lam,t) res_g res_b res_d res_m lv (4+2)*tmp_nbg (1+1)*tmp_ns Gamma gamma Zs_inv sv se tmp_m tmp_nv
+	size += 25*sizeof(struct STRVEC); // sol_step(v,pi,lam,t) res_g res_b res_d res_m lv (4+2)*tmp_nbg (1+1)*tmp_ns Gamma gamma Zs_inv sv se tmp_m tmp_nv tmp_2ns
 	size += 5*sizeof(struct STRMAT); // 2*Lv AL Le Ctx
 	if(arg->lq_fact>0)
 		{
@@ -527,6 +527,7 @@ int DENSE_QP_IPM_WS_MEMSIZE(struct DENSE_QP_DIM *dim, struct DENSE_QP_IPM_ARG *a
 	size += 1*SIZE_STRVEC(2*nb+2*ng+2*ns); // tmp_m
 	size += ne>0 ? 1*GELQF_WORKSIZE(ne, nv) : 0; // lq_work_null
 	size += 1*SIZE_STRVEC(nv); // tmp_nv
+	size += 1*SIZE_STRVEC(2*ns); // tmp_2ns
 	if(arg->lq_fact>0)
 		{
 		size += 1*SIZE_STRMAT(ne, ne+nv); // lq0
@@ -736,6 +737,8 @@ void DENSE_QP_IPM_WS_CREATE(struct DENSE_QP_DIM *dim, struct DENSE_QP_IPM_ARG *a
 	sv_ptr += 1;
 	workspace->tmp_nv = sv_ptr;
 	sv_ptr += 1;
+	workspace->tmp_2ns = sv_ptr;
+	sv_ptr += 1;
 	if(arg->kkt_fact_alg==0)
 		{
 		workspace->xy = sv_ptr;
@@ -894,6 +897,9 @@ void DENSE_QP_IPM_WS_CREATE(struct DENSE_QP_DIM *dim, struct DENSE_QP_IPM_ARG *a
 
 	CREATE_STRVEC(nv, workspace->tmp_nv, c_ptr);
 	c_ptr += workspace->tmp_nv->memsize;
+
+	CREATE_STRVEC(2*ns, workspace->tmp_2ns, c_ptr);
+	c_ptr += workspace->tmp_2ns->memsize;
 
 	if(arg->kkt_fact_alg==0)
 		{

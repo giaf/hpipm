@@ -125,6 +125,7 @@ struct s_dense_qp_ipm_ws
 	struct blasfeo_svec *Yxy;
 	struct blasfeo_svec *xz;
 	struct blasfeo_svec *tmp_nv;
+	struct blasfeo_svec *tmp_2ns;
 	struct blasfeo_smat *A_li; // A of linearly independent equality constraints
 	struct blasfeo_svec *b_li; // b of linearly independent equality constraints
 	struct blasfeo_smat *A_bkp; // pointer to backup A
