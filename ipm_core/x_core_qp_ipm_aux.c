@@ -213,11 +213,14 @@ void UPDATE_VAR_QP(struct CORE_QP_IPM_WORKSPACE *cws)
 	if(alpha<1.0)
 		alpha *= 0.995;
 #else
-//	alpha_prim = alpha_prim * ((1.0-alpha)*0.99 + alpha*0.9999999);
-//	alpha_dual = alpha_dual * ((1.0-alpha)*0.99 + alpha*0.9999999);
-	alpha_prim = alpha_prim * ((1.0-alpha_prim)*0.99 + alpha_prim*0.9999999);
-	alpha_dual = alpha_dual * ((1.0-alpha_dual)*0.99 + alpha_dual*0.9999999);
-	alpha = alpha * ((1.0-alpha)*0.99 + alpha*0.9999999);
+	if(alpha<1.0)
+		{
+//		alpha_prim = alpha_prim * ((1.0-alpha)*0.99 + alpha*0.9999999);
+//		alpha_dual = alpha_dual * ((1.0-alpha)*0.99 + alpha*0.9999999);
+		alpha_prim = alpha_prim * ((1.0-alpha_prim)*0.99 + alpha_prim*0.9999999);
+		alpha_dual = alpha_dual * ((1.0-alpha_dual)*0.99 + alpha_dual*0.9999999);
+		alpha = alpha * ((1.0-alpha)*0.99 + alpha*0.9999999);
+		}
 #endif
 
 	// local variables
