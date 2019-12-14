@@ -47,15 +47,24 @@ void COMPUTE_GAMMA_GAMMA_QP(REAL *res_d, REAL *res_m, struct CORE_QP_IPM_WORKSPA
 	REAL *t_inv = cws->t_inv;
 	REAL *Gamma = cws->Gamma;
 	REAL *gamma = cws->gamma;
+	REAL lam_min = cws->lam_min;
+	REAL t_min = cws->t_min;
+	REAL lam0, t0;
 
 	// local variables
 	int ii;
 
+//printf("\ngamma gamma\n");
 	for(ii=0; ii<nc; ii++)
 		{
-		t_inv[ii] = 1.0/t[ii];
-		Gamma[ii] = t_inv[ii]*lam[ii];
-		gamma[ii] = t_inv[ii]*(res_m[ii]-lam[ii]*res_d[ii]);
+		lam0 = lam[ii];
+		t0 = t[ii];
+//		printf("lam t %e %e\n", lam0, t0);
+//		lam0 = lam0<lam_min ? lam_min : lam0;
+//		t0 = t0<t_min ? t_min : t0;
+		t_inv[ii] = 1.0/t0;
+		Gamma[ii] = t_inv[ii]*lam0;
+		gamma[ii] = t_inv[ii]*(res_m[ii]-lam0*res_d[ii]);
 		}
 
 	return;
@@ -74,13 +83,17 @@ void COMPUTE_GAMMA_QP(REAL *res_d, REAL *res_m, struct CORE_QP_IPM_WORKSPACE *cw
 //	REAL *res_d = cws->res_d;
 	REAL *t_inv = cws->t_inv;
 	REAL *gamma = cws->gamma;
+	REAL lam_min = cws->lam_min;
+	REAL lam0;
 
 	// local variables
 	int ii;
 
 	for(ii=0; ii<nc; ii++)
 		{
-		gamma[ii] = t_inv[ii]*(res_m[ii]-lam[ii]*res_d[ii]);
+		lam0 = lam[ii];
+//		lam0 = lam0<lam_min ? lam_min : lam0;
+		gamma[ii] = t_inv[ii]*(res_m[ii]-lam0*res_d[ii]);
 		}
 
 	return;
@@ -94,16 +107,20 @@ void COMPUTE_LAM_T_QP(REAL *res_d, REAL *res_m, REAL *dlam, REAL *dt, struct COR
 
 	REAL *lam = cws->lam;
 	REAL *t_inv = cws->t_inv;
+	REAL lam_min = cws->lam_min;
+	REAL lam0;
 
 	// local variables
 	int ii;
 
 	for(ii=0; ii<nc; ii++)
 		{
-		dlam[ii] = - t_inv[ii] * (res_m[ii] + lam[ii]*dt[ii] - lam[ii]*res_d[ii]);
+		lam0 = lam[ii];
+//		lam0 = lam0<lam_min ? lam_min : lam0;
+		dlam[ii] = - t_inv[ii] * (res_m[ii] + lam0*dt[ii] - lam0*res_d[ii]);
 		dt[ii] -= res_d[ii];
 		// TODO compute lamda alone ???
-//		dlam[ii] = - t_inv[ii] * (lam[ii]*dt[ii] + res_m[ii]);
+//		dlam[ii] = - t_inv[ii] * (lam0*dt[ii] + res_m[ii]);
 		}
 
 	return;
@@ -209,6 +226,8 @@ void UPDATE_VAR_QP(struct CORE_QP_IPM_WORKSPACE *cws)
 	REAL alpha = cws->alpha;
 	REAL alpha_prim = cws->alpha_prim;
 	REAL alpha_dual = cws->alpha_dual;
+	REAL lam_min = cws->lam_min;
+	REAL t_min = cws->t_min;
 #if 0
 	if(alpha<1.0)
 		alpha *= 0.995;
@@ -247,7 +266,7 @@ void UPDATE_VAR_QP(struct CORE_QP_IPM_WORKSPACE *cws)
 		{
 		lam_bkp[ii] = lam[ii];
 		lam[ii] += alpha * dlam[ii];
-		lam[ii] = lam[ii]<=cws->lam_min ? cws->lam_min : lam[ii];
+		lam[ii] = lam[ii]<=lam_min ? lam_min : lam[ii];
 		}
 
 	// update t
@@ -255,7 +274,7 @@ void UPDATE_VAR_QP(struct CORE_QP_IPM_WORKSPACE *cws)
 		{
 		t_bkp[ii] = t[ii];
 		t[ii] += alpha * dt[ii];
-		t[ii] = t[ii]<=cws->t_min ? cws->t_min : t[ii];
+		t[ii] = t[ii]<=t_min ? t_min : t[ii];
 		}
 
 #else // split step
