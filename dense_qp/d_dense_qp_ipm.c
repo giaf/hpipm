@@ -92,6 +92,8 @@
 #define FACT_SOLVE_KKT_STEP_DENSE_QP d_fact_solve_kkt_step_dense_qp
 #define FACT_SOLVE_KKT_UNCONSTR_DENSE_QP d_fact_solve_kkt_unconstr_dense_qp
 #define GELQF_WORKSIZE blasfeo_dgelqf_worksize
+#define GEMV_DIAG blasfeo_dgemv_d
+#define GEMV_NT blasfeo_dgemv_nt
 #define GEMV_T blasfeo_dgemv_t
 #define HPIPM_MODE hpipm_mode
 #define INIT_VAR_DENSE_QP d_init_var_dense_qp
@@ -103,11 +105,18 @@
 #define SOLVE_KKT_STEP_DENSE_QP d_solve_kkt_step_dense_qp
 #define STRMAT blasfeo_dmat
 #define STRVEC blasfeo_dvec
+#define SYMV_L blasfeo_dsymv_l
 #define UPDATE_VAR_QP d_update_var_qp
+#define VECAD_SP blasfeo_dvecad_sp
+#define VECCP blasfeo_dveccp
+#define VECCPSC blasfeo_dveccpsc
+#define VECEX_SP blasfeo_dvecex_sp
+#define VECIN_SP blasfeo_dvecin_sp
 #define VECMUL blasfeo_dvecmul
 #define VECMULDOT blasfeo_dvecmuldot
 #define VECNRM_INF blasfeo_dvecnrm_inf
 #define VECSC blasfeo_dvecsc
+#define VECSE blasfeo_dvecse
 
 
 
@@ -154,5 +163,6 @@
 #define DENSE_QP_IPM_SOLVE d_dense_qp_ipm_solve
 #define DENSE_QP_IPM_PREDICT d_dense_qp_ipm_predict
 #define DENSE_QP_IPM_SENS d_dense_qp_ipm_sens
+#define DENSE_QP_COMPUTE_STEP_LENGTH d_dense_qp_compute_step_length
 
 #include "x_dense_qp_ipm.c"

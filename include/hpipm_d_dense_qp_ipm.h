@@ -94,13 +94,14 @@ struct d_dense_qp_ipm_arg
 struct d_dense_qp_ipm_ws
 	{
 	struct d_core_qp_ipm_workspace *core_workspace;
-	struct d_dense_qp_res_ws *res_workspace;
+	struct d_dense_qp_res_ws *res_ws;
 	struct d_dense_qp_sol *sol_step;
 	struct d_dense_qp_sol *sol_itref;
 	struct d_dense_qp *qp_step;
 	struct d_dense_qp *qp_itref;
-	struct d_dense_qp_res *res_itref;
 	struct d_dense_qp_res *res;
+	struct d_dense_qp_res *res_itref;
+	struct d_dense_qp_res *res_step;
 	struct blasfeo_dvec *Gamma; //
 	struct blasfeo_dvec *gamma; //
 	struct blasfeo_dvec *Zs_inv; //
@@ -126,6 +127,7 @@ struct d_dense_qp_ipm_ws
 	struct blasfeo_dvec *xz;
 	struct blasfeo_dvec *tmp_nv;
 	struct blasfeo_dvec *tmp_2ns;
+	struct blasfeo_dvec *tmp_nv2ns;
 	struct blasfeo_dmat *A_li; // A of linearly independent equality constraints
 	struct blasfeo_dvec *b_li; // b of linearly independent equality constraints
 	struct blasfeo_dmat *A_bkp; // pointer to backup A
@@ -238,6 +240,8 @@ void d_dense_qp_ipm_solve(struct d_dense_qp *qp, struct d_dense_qp_sol *qp_sol, 
 void d_dense_qp_ipm_predict(struct d_dense_qp *qp, struct d_dense_qp_sol *qp_sol, struct d_dense_qp_ipm_arg *arg, struct d_dense_qp_ipm_ws *ws);
 //
 void d_dense_qp_ipm_sens(struct d_dense_qp *qp, struct d_dense_qp_sol *qp_sol, struct d_dense_qp_ipm_arg *arg, struct d_dense_qp_ipm_ws *ws);
+//
+void d_dense_qp_compute_step_length(struct d_dense_qp *qp, struct d_dense_qp_sol *qp_sol, struct d_dense_qp_ipm_arg *arg, struct d_dense_qp_ipm_ws *ws);
 
 
 #ifdef __cplusplus

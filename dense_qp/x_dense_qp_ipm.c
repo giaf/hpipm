@@ -484,17 +484,17 @@ int DENSE_QP_IPM_WS_MEMSIZE(struct DENSE_QP_DIM *dim, struct DENSE_QP_IPM_ARG *a
 	size += 1*sizeof(struct CORE_QP_IPM_WORKSPACE);
 	size += 1*MEMSIZE_CORE_QP_IPM(nv+2*ns, ne, 2*nb+2*ng+2*ns);
 
-	size += 1*sizeof(struct DENSE_QP_RES_WS); // res_workspace
+	size += 1*sizeof(struct DENSE_QP_RES_WS); // res_ws
 
 	size += 2*sizeof(struct DENSE_QP); // qp_step qp_itref
 
 	size += 2*sizeof(struct DENSE_QP_SOL); // sol_step sol_itref
 	size += 1*DENSE_QP_SOL_MEMSIZE(dim); // sol_itref
 
-	size += 2*sizeof(struct DENSE_QP_RES); // res res_itref
-	size += 1*DENSE_QP_RES_MEMSIZE(dim); // res_itref
+	size += 3*sizeof(struct DENSE_QP_RES); // res res_itref res_step
+	size += 2*DENSE_QP_RES_MEMSIZE(dim); // res_itref res_step
 
-	size += 25*sizeof(struct STRVEC); // sol_step(v,pi,lam,t) res_g res_b res_d res_m lv (4+2)*tmp_nbg (1+1)*tmp_ns Gamma gamma Zs_inv sv se tmp_m tmp_nv tmp_2ns
+	size += 27*sizeof(struct STRVEC); // sol_step(v,pi,lam,t) res_g res_b res_d res_m lv (4+2)*tmp_nbg (1+1)*tmp_ns Gamma gamma Zs_inv sv se tmp_m tmp_nv tmp_2ns tmp_nv2ns
 	size += 5*sizeof(struct STRMAT); // 2*Lv AL Le Ctx
 	if(arg->lq_fact>0)
 		{
@@ -528,6 +528,7 @@ int DENSE_QP_IPM_WS_MEMSIZE(struct DENSE_QP_DIM *dim, struct DENSE_QP_IPM_ARG *a
 	size += ne>0 ? 1*GELQF_WORKSIZE(ne, nv) : 0; // lq_work_null
 	size += 1*SIZE_STRVEC(nv); // tmp_nv
 	size += 1*SIZE_STRVEC(2*ns); // tmp_2ns
+	size += 2*SIZE_STRVEC(nv+2*ns); // tmp_nv2ns
 	if(arg->lq_fact>0)
 		{
 		size += 1*SIZE_STRMAT(ne, ne+nv); // lq0
@@ -623,12 +624,14 @@ void DENSE_QP_IPM_WS_CREATE(struct DENSE_QP_DIM *dim, struct DENSE_QP_IPM_ARG *a
 	res_ptr += 1;
 	workspace->res_itref = res_ptr;
 	res_ptr += 1;
+	workspace->res_step = res_ptr;
+	res_ptr += 1;
 
 
 	// res workspace struct
 	struct DENSE_QP_RES_WS *res_ws_ptr = (struct DENSE_QP_RES_WS *) res_ptr;
 
-	workspace->res_workspace = res_ws_ptr;
+	workspace->res_ws = res_ws_ptr;
 	res_ws_ptr += 1;
 
 
@@ -727,11 +730,11 @@ void DENSE_QP_IPM_WS_CREATE(struct DENSE_QP_DIM *dim, struct DENSE_QP_IPM_ARG *a
 	sv_ptr += 1;
 	workspace->tmp_nbg = sv_ptr;
 	sv_ptr += 4;
-	workspace->res_workspace->tmp_nbg = sv_ptr;
+	workspace->res_ws->tmp_nbg = sv_ptr;
 	sv_ptr += 2;
 	workspace->tmp_ns = sv_ptr;
 	sv_ptr += 1;
-	workspace->res_workspace->tmp_ns = sv_ptr;
+	workspace->res_ws->tmp_ns = sv_ptr;
 	sv_ptr += 1;
 	workspace->tmp_m = sv_ptr;
 	sv_ptr += 1;
@@ -739,6 +742,8 @@ void DENSE_QP_IPM_WS_CREATE(struct DENSE_QP_DIM *dim, struct DENSE_QP_IPM_ARG *a
 	sv_ptr += 1;
 	workspace->tmp_2ns = sv_ptr;
 	sv_ptr += 1;
+	workspace->tmp_nv2ns = sv_ptr;
+	sv_ptr += 2;
 	if(arg->kkt_fact_alg==0)
 		{
 		workspace->xy = sv_ptr;
@@ -793,6 +798,9 @@ void DENSE_QP_IPM_WS_CREATE(struct DENSE_QP_DIM *dim, struct DENSE_QP_IPM_ARG *a
 
 	DENSE_QP_RES_CREATE(dim, workspace->res_itref, c_ptr);
 	c_ptr += workspace->res_itref->memsize;
+
+	DENSE_QP_RES_CREATE(dim, workspace->res_step, c_ptr);
+	c_ptr += workspace->res_step->memsize;
 
 	CREATE_STRMAT(nv+1, nv, workspace->Lv, c_ptr);
 	c_ptr += workspace->Lv->memsize;
@@ -875,11 +883,11 @@ void DENSE_QP_IPM_WS_CREATE(struct DENSE_QP_DIM *dim, struct DENSE_QP_IPM_ARG *a
 	c_ptr += workspace->Zs_inv->memsize;
 
 	CREATE_STRVEC(nb+ng, workspace->tmp_nbg+0, c_ptr);
-	CREATE_STRVEC(nb+ng, workspace->res_workspace->tmp_nbg+0, c_ptr);
+	CREATE_STRVEC(nb+ng, workspace->res_ws->tmp_nbg+0, c_ptr);
 	c_ptr += (workspace->tmp_nbg+0)->memsize;
 
 	CREATE_STRVEC(nb+ng, workspace->tmp_nbg+1, c_ptr);
-	CREATE_STRVEC(nb+ng, workspace->res_workspace->tmp_nbg+1, c_ptr);
+	CREATE_STRVEC(nb+ng, workspace->res_ws->tmp_nbg+1, c_ptr);
 	c_ptr += (workspace->tmp_nbg+1)->memsize;
 
 	CREATE_STRVEC(nb+ng, workspace->tmp_nbg+2, c_ptr);
@@ -889,7 +897,7 @@ void DENSE_QP_IPM_WS_CREATE(struct DENSE_QP_DIM *dim, struct DENSE_QP_IPM_ARG *a
 	c_ptr += (workspace->tmp_nbg+3)->memsize;
 
 	CREATE_STRVEC(ns, workspace->tmp_ns+0, c_ptr);
-	CREATE_STRVEC(ns, workspace->res_workspace->tmp_ns+0, c_ptr);
+	CREATE_STRVEC(ns, workspace->res_ws->tmp_ns+0, c_ptr);
 	c_ptr += (workspace->tmp_ns+0)->memsize;
 
 	CREATE_STRVEC(2*nb+2*ng+2*ns, workspace->tmp_m, c_ptr);
@@ -900,6 +908,12 @@ void DENSE_QP_IPM_WS_CREATE(struct DENSE_QP_DIM *dim, struct DENSE_QP_IPM_ARG *a
 
 	CREATE_STRVEC(2*ns, workspace->tmp_2ns, c_ptr);
 	c_ptr += workspace->tmp_2ns->memsize;
+
+	CREATE_STRVEC(nv+2*ns, workspace->tmp_nv2ns+0, c_ptr);
+	c_ptr += (workspace->tmp_nv2ns+0)->memsize;
+
+	CREATE_STRVEC(nv+2*ns, workspace->tmp_nv2ns+1, c_ptr);
+	c_ptr += (workspace->tmp_nv2ns+1)->memsize;
 
 	if(arg->kkt_fact_alg==0)
 		{
@@ -1453,7 +1467,7 @@ void DENSE_QP_IPM_DELTA_STEP(int kk, struct DENSE_QP *qp, struct DENSE_QP_SOL *q
 			}
 
 		// compute res of linear system
-		DENSE_QP_RES_COMPUTE_LIN(ws->qp_step, qp_sol, ws->sol_step, ws->res_itref, ws->res_workspace);
+		DENSE_QP_RES_COMPUTE_LIN(ws->qp_step, qp_sol, ws->sol_step, ws->res_itref, ws->res_ws);
 		// TODO mask
 		if(ws->mask_constr)
 			{
@@ -1535,7 +1549,7 @@ void DENSE_QP_IPM_DELTA_STEP(int kk, struct DENSE_QP *qp, struct DENSE_QP_SOL *q
 		for(itref0=0; itref0<arg->itref_pred_max; itref0++)
 			{
 
-			DENSE_QP_RES_COMPUTE_LIN(ws->qp_step, qp_sol, ws->sol_step, ws->res_itref, ws->res_workspace);
+			DENSE_QP_RES_COMPUTE_LIN(ws->qp_step, qp_sol, ws->sol_step, ws->res_itref, ws->res_ws);
 			if(ws->mask_constr)
 				{
 				// mask out disregarded constraints
@@ -1590,7 +1604,7 @@ void DENSE_QP_IPM_DELTA_STEP(int kk, struct DENSE_QP *qp, struct DENSE_QP_SOL *q
 			}
 		if(itref0==arg->itref_pred_max)
 			{
-			DENSE_QP_RES_COMPUTE_LIN(ws->qp_step, qp_sol, ws->sol_step, ws->res_itref, ws->res_workspace);
+			DENSE_QP_RES_COMPUTE_LIN(ws->qp_step, qp_sol, ws->sol_step, ws->res_itref, ws->res_ws);
 			if(ws->mask_constr)
 				{
 				// mask out disregarded constraints
@@ -1725,7 +1739,7 @@ void DENSE_QP_IPM_DELTA_STEP(int kk, struct DENSE_QP *qp, struct DENSE_QP_SOL *q
 			for(itref1=0; itref1<arg->itref_corr_max; itref1++)
 				{
 
-				DENSE_QP_RES_COMPUTE_LIN(ws->qp_step, qp_sol, ws->sol_step, ws->res_itref, ws->res_workspace);
+				DENSE_QP_RES_COMPUTE_LIN(ws->qp_step, qp_sol, ws->sol_step, ws->res_itref, ws->res_ws);
 				if(ws->mask_constr)
 					{
 					// mask out disregarded constraints
@@ -1781,7 +1795,7 @@ void DENSE_QP_IPM_DELTA_STEP(int kk, struct DENSE_QP *qp, struct DENSE_QP_SOL *q
 				}
 			if(itref1==arg->itref_corr_max)
 				{
-				DENSE_QP_RES_COMPUTE_LIN(ws->qp_step, qp_sol, ws->sol_step, ws->res_itref, ws->res_workspace);
+				DENSE_QP_RES_COMPUTE_LIN(ws->qp_step, qp_sol, ws->sol_step, ws->res_itref, ws->res_ws);
 				if(ws->mask_constr)
 					{
 					// mask out disregarded constraints
@@ -1825,6 +1839,13 @@ void DENSE_QP_IPM_DELTA_STEP(int kk, struct DENSE_QP *qp, struct DENSE_QP_SOL *q
 		}
 	if(kk+1<ws->stat_max)
 		ws->stat[ws->stat_m*(kk+1)+11] = itref1;
+
+	// compute step minimizing phi
+	DENSE_QP_COMPUTE_STEP_LENGTH(qp, qp_sol, arg, ws);
+
+	// TODO put in new stat col
+	if(kk+1<ws->stat_max)
+		ws->stat[ws->stat_m*(kk+1)+3] = cws->alpha;
 
 	//
 	UPDATE_VAR_QP(cws);
@@ -1961,7 +1982,7 @@ void DENSE_QP_IPM_SOLVE(struct DENSE_QP *qp, struct DENSE_QP_SOL *qp_sol, struct
 		if(arg->comp_res_exit)
 			{
 			// compute residuals
-			DENSE_QP_RES_COMPUTE(qp, qp_sol, ws->res, ws->res_workspace);
+			DENSE_QP_RES_COMPUTE(qp, qp_sol, ws->res, ws->res_ws);
 			// XXX no constraints, so no mask
 			DENSE_QP_RES_COMPUTE_INF_NORM(ws->res);
 			// save infinity norm of residuals
@@ -2040,7 +2061,7 @@ void DENSE_QP_IPM_SOLVE(struct DENSE_QP *qp, struct DENSE_QP_SOL *qp_sol, struct
 		if(arg->comp_res_exit)
 			{
 			// compute residuals
-			DENSE_QP_RES_COMPUTE(qp, qp_sol, ws->res, ws->res_workspace);
+			DENSE_QP_RES_COMPUTE(qp, qp_sol, ws->res, ws->res_ws);
 			if(ws->mask_constr)
 				{
 				// mask out disregarded constraints
@@ -2066,7 +2087,7 @@ void DENSE_QP_IPM_SOLVE(struct DENSE_QP *qp, struct DENSE_QP_SOL *qp_sol, struct
 
 
 	// compute residuals
-	DENSE_QP_RES_COMPUTE(qp, qp_sol, ws->res, ws->res_workspace);
+	DENSE_QP_RES_COMPUTE(qp, qp_sol, ws->res, ws->res_ws);
 	if(ws->mask_constr)
 		{
 		// mask out disregarded constraints
@@ -2104,7 +2125,7 @@ void DENSE_QP_IPM_SOLVE(struct DENSE_QP *qp, struct DENSE_QP_SOL *qp_sol, struct
 		DENSE_QP_IPM_DELTA_STEP(kk, qp, qp_sol, arg, ws);
 
 		// compute residuals
-		DENSE_QP_RES_COMPUTE(qp, qp_sol, ws->res, ws->res_workspace);
+		DENSE_QP_RES_COMPUTE(qp, qp_sol, ws->res, ws->res_ws);
 		if(ws->mask_constr)
 			{
 			// mask out disregarded constraints
@@ -2239,7 +2260,7 @@ void DENSE_QP_IPM_PREDICT(struct DENSE_QP *qp, struct DENSE_QP_SOL *qp_sol, stru
 
 #if 0
 // compute residuals
-DENSE_QP_RES_COMPUTE(qp, qp_sol, ws->res, ws->res_workspace);
+DENSE_QP_RES_COMPUTE(qp, qp_sol, ws->res, ws->res_ws);
 
 printf("\npredict\t%e\t%e\t%e\t%e\n", qp_res[0], qp_res[1], qp_res[2], qp_res[3]);
 #endif
@@ -2259,7 +2280,7 @@ printf("\npredict\t%e\t%e\t%e\t%e\n", qp_res[0], qp_res[1], qp_res[2], qp_res[3]
 	// TODO robust formulation !!!!!
 
 	// compute residuals
-	DENSE_QP_RES_COMPUTE(qp, qp_sol, ws->res, ws->res_workspace);
+	DENSE_QP_RES_COMPUTE(qp, qp_sol, ws->res, ws->res_ws);
 
 //printf("\npredict\t%e\t%e\t%e\t%e\n", qp_res[0], qp_res[1], qp_res[2], qp_res[3]);
 
@@ -2276,7 +2297,7 @@ printf("\npredict\t%e\t%e\t%e\t%e\n", qp_res[0], qp_res[1], qp_res[2], qp_res[3]
 	if(arg->comp_res_pred)
 		{
 		// compute residuals in exit
-		DENSE_QP_RES_COMPUTE(qp, qp_sol, ws->res, ws->res_workspace);
+		DENSE_QP_RES_COMPUTE(qp, qp_sol, ws->res, ws->res_ws);
 		}
 
 //printf("\npredict\t%e\t%e\t%e\t%e\n", qp_res[0], qp_res[1], qp_res[2], qp_res[3]);
@@ -2338,7 +2359,7 @@ void DENSE_QP_IPM_SENS(struct DENSE_QP *qp, struct DENSE_QP_SOL *qp_sol, struct 
 	if(arg->comp_res_pred)
 		{
 		// compute residuals in exit
-		DENSE_QP_RES_COMPUTE(qp, qp_sol, ws->res, ws->res_workspace);
+		DENSE_QP_RES_COMPUTE(qp, qp_sol, ws->res, ws->res_ws);
 		}
 #endif
 
@@ -2351,3 +2372,246 @@ void DENSE_QP_IPM_SENS(struct DENSE_QP *qp, struct DENSE_QP_SOL *qp_sol, struct 
 	return;
 
 	}
+
+
+
+void DENSE_QP_COMPUTE_STEP_LENGTH(struct DENSE_QP *qp, struct DENSE_QP_SOL *qp_sol, struct DENSE_QP_IPM_ARG *arg, struct DENSE_QP_IPM_WS *ws)
+	{
+
+	int nv = qp->dim->nv;
+	int ne = qp->dim->ne;
+	int nb = qp->dim->nb;
+	int ng = qp->dim->ng;
+	int ns = qp->dim->ns;
+
+	int nvt = nv+2*ns;
+	int net = ne;
+	int nct = 2*nb+2*ng+2*ns;
+
+	// TODO use nc_mask_inv from cws if available !!!!!
+	REAL nct_inv = 1.0/nct;
+
+	struct CORE_QP_IPM_WORKSPACE *cws = ws->core_workspace;
+	struct DENSE_QP_SOL *qp_sol_step = ws->sol_step;
+	struct DENSE_QP_RES *res = ws->res;
+	struct DENSE_QP_RES *res_step = ws->res_step;
+
+	struct STRMAT *Hg = qp->Hv;
+	struct STRMAT *A = qp->A;
+	struct STRMAT *Ct = qp->Ct;
+	struct STRVEC *gz = qp->gz;
+	struct STRVEC *b = qp->b;
+	struct STRVEC *d = qp->d;
+	struct STRVEC *m = qp->m;
+	int *idxb = qp->idxb;
+	struct STRVEC *Z = qp->Z;
+	int *idxs = qp->idxs;
+
+	struct STRVEC *v = qp_sol->v;
+	struct STRVEC *pi = qp_sol->pi;
+	struct STRVEC *lam = qp_sol->lam;
+	struct STRVEC *t = qp_sol->t;
+
+	struct STRVEC *dv = qp_sol_step->v;
+	struct STRVEC *dpi = qp_sol_step->pi;
+	struct STRVEC *dlam = qp_sol_step->lam;
+	struct STRVEC *dt = qp_sol_step->t;
+
+	struct STRVEC *res_g = res->res_g;
+	struct STRVEC *res_b = res->res_b;
+	struct STRVEC *res_d = res->res_d;
+	struct STRVEC *res_m = res->res_m;
+
+	struct STRVEC *step_res_g_p = res_step->res_g;
+	struct STRVEC *step_res_g_d = ws->tmp_nv2ns;
+	struct STRVEC *step_res_b = res_step->res_b;
+	struct STRVEC *step_res_d = res_step->res_d;
+	struct STRVEC *step_res_m = res_step->res_m;
+
+	struct STRVEC *tmp_nbg = ws->res_ws->tmp_nbg;
+	struct STRVEC *tmp_ns = ws->res_ws->tmp_ns;
+	struct STRVEC *tmp_nv2ns = ws->tmp_nv2ns+1;
+
+	REAL mu, tmp;
+	REAL phi_H, phi_g, phi_rho, phi_obj0, phi_obj1;
+
+	REAL alpha_stat, alpha0;
+
+	int ii;
+
+	// compute (strictly) linear (i.e. no constr) part of res wrt step
+
+	// res g
+	SYMV_L(nv, nv, 1.0, Hg, 0, 0, dv, 0, 0.0, step_res_g_p, 0, step_res_g_p, 0);
+
+	if(nb+ng>0)
+		{
+		AXPY(nb+ng, -1.0, dlam, 0, dlam, nb+ng, tmp_nbg+0, 0);
+//		AXPY(nb+ng,  1.0, d, 0, t, 0, res_d, 0);
+//		AXPY(nb+ng,  1.0, d, nb+ng, t, nb+ng, res_d, nb+ng);
+//		AXPY(2*nb+2*ng,  1.0, d, 0, t, 0, res_d, 0);
+		VECCP(2*nb+2*ng, dt, 0, step_res_d, 0);
+		// box
+		if(nb>0)
+			{
+			VECSE(nv, 0.0, step_res_g_d, 0);
+			VECAD_SP(nb, 1.0, tmp_nbg+0, 0, idxb, step_res_g_d, 0);
+			VECEX_SP(nb, 1.0, idxb, dv, 0, tmp_nbg+1, 0);
+			}
+		// general
+		if(ng>0)
+			{
+			GEMV_NT(nv, ng, 1.0, 1.0, Ct, 0, 0, tmp_nbg+0, nb, dv, 0, 1.0, 0.0, step_res_g_d, 0, tmp_nbg+1, nb, step_res_g_d, 0, tmp_nbg+1, nb);
+			}
+		AXPY(nb+ng, -1.0, tmp_nbg+1, 0, step_res_d, 0, step_res_d, 0);
+		AXPY(nb+ng,  1.0, tmp_nbg+1, 0, step_res_d, nb+ng, step_res_d, nb+ng);
+		}
+	if(ns>0)
+		{
+		// res_g
+		GEMV_DIAG(2*ns, 1.0, Z, 0, dv, nv, 0.0, step_res_g_p, nv, step_res_g_p, nv);
+//		AXPY(2*ns, -1.0, dlam, 2*nb+2*ng, step_res_g, nv, step_res_g, nv);
+		VECCPSC(2*ns, -1.0, dlam, 2*nb+2*ng, step_res_g_d, nv);
+		VECEX_SP(ns, 1.0, idxs, dlam, 0, tmp_ns, 0);
+		AXPY(ns, -1.0, tmp_ns, 0, step_res_g_d, nv, step_res_g_d, nv);
+		VECEX_SP(ns, 1.0, idxs, dlam, nb+ng, tmp_ns, 0);
+		AXPY(ns, -1.0, tmp_ns, 0, step_res_g_d, nv+ns, step_res_g_d, nv+ns);
+		// res_d
+		VECAD_SP(ns, -1.0, dv, nv, idxs, step_res_d, 0);
+		VECAD_SP(ns, -1.0, dv, nv+ns, idxs, step_res_d, nb+ng);
+		AXPY(2*ns, -1.0, dv, nv, dt, 2*nb+2*ng, step_res_d, 2*nb+2*ng);
+//		AXPY(2*ns, 1.0, d, 2*nb+2*ng, res_d, 2*nb+2*ng, res_d, 2*nb+2*ng);
+		}
+	
+	// res b, res g
+	if(ne>0)
+		GEMV_NT(ne, nv, -1.0, -1.0, A, 0, 0, dv, 0, dpi, 0, 0.0, 1.0, step_res_b, 0, step_res_g_d, 0, step_res_b, 0, step_res_g_d, 0);
+	
+	// compute alpha QP
+
+#if 0
+	
+	alpha_p = cws->alpha_prim;
+	alpha_d = cws->alpha_dual;
+
+	if(alpha_p<alpha_d)
+		{
+		// fix alpha_p
+		AXPY(nv+2*ns, alpha_p, step_res_g_p, 0, res_g, 0, tmp_nv2ns, 0);
+		// TODO
+		phi_H = 0.0;
+		phi_H += DOT(nv+2*ns, step_res_g_d, 0, step_res_g_d, 0);
+		// TODO
+		phi_g = 0.0;
+		phi_g += 2*DOT(nv+2*ns, step_res_g_d, 0, tmp_nv2ns, 0);
+		phi_g += DOT(2*nb+2*ng+2*ns, dlam, 0, t, 0);
+		phi_g += alpha_p*DOT(2*nb+2*ng+2*ns, dlam, 0, dt, 0);
+		// TODO
+		phi_rho = 0.0;
+		phi_rho += DOT(nv+2*ns, tmp_nv2ns, 0, tmp_nv2ns, 0);
+		phi_rho += alpha_p*alpha_p*DOT(ne, step_res_b, 0, step_res_b, 0);
+		phi_rho += alpha_p*2*DOT(ne, step_res_b, 0, res_b, 0);
+		phi_rho += DOT(ne, res_b, 0, res_b, 0);
+		phi_rho += alpha_p*alpha_p*DOT(2*nb+2*ng+2*ns, step_res_d, 0, step_res_d, 0);
+		phi_rho += alpha_p*2*DOT(2*nb+2*ng+2*ns, step_res_d, 0, res_d, 0);
+		phi_rho += DOT(2*nb+2*ng+2*ns, res_d, 0, res_d, 0);
+		phi_rho += DOT(2*nb+2*ng+2*ns, lam, 0, t, 0);
+		phi_rho += alpha_p*DOT(2*nb+2*ng+2*ns, lam, 0, dt, 0);
+		// TODO
+		}
+	else
+		{
+		// fix alpha_d
+		AXPY(nv+2*ns, alpha_d, step_res_g_d, 0, res_g, 0, tmp_nv2ns, 0);
+		// TODO
+		phi_H = 0.0;
+		phi_H += DOT(nv+2*ns, step_res_g_p, 0, step_res_g_p, 0);
+		phi_H += DOT(ne, step_res_b, 0, step_res_b, 0);
+		phi_H += DOT(2*nb+2*ng+2*ns, step_res_d, 0, step_res_d, 0);
+		// TODO
+		phi_g = 0.0;
+		phi_g += 2*DOT(nv+2*ns, step_res_g_p, 0, tmp_nv2ns, 0);
+		phi_g += 2*DOT(ne, step_res_b, 0, res_b, 0);
+		phi_g += 2*DOT(2*nb+2*ng+2*ns, step_res_d, 0, res_d, 0);
+		phi_g += DOT(2*nb+2*ng+2*ns, lam, 0, dt, 0);
+		phi_g += alpha_d*DOT(2*nb+2*ng+2*ns, dlam, 0, dt, 0);
+		// TODO
+		phi_rho = 0.0;
+		phi_rho += DOT(nv+2*ns, tmp_nv2ns, 0, tmp_nv2ns, 0);
+		phi_rho += DOT(ne, res_b, 0, res_b, 0);
+		phi_rho += DOT(2*nb+2*ng+2*ns, res_d, 0, res_d, 0);
+		phi_rho += DOT(2*nb+2*ng+2*ns, lam, 0, t, 0);
+		phi_rho += alpha_d*DOT(2*nb+2*ng+2*ns, dlam, 0, t, 0);
+		// TODO
+		}
+
+#else
+	AXPY(nv+2*ns, 1.0, step_res_g_d, 0, step_res_g_p, 0, step_res_g_p, 0);
+
+	phi_H = 0.0;
+	phi_H += DOT(nv+2*ns, step_res_g_p, 0, step_res_g_p, 0);
+	phi_H += DOT(ne, step_res_b, 0, step_res_b, 0);
+	phi_H += DOT(2*nb+2*ng+2*ns, step_res_d, 0, step_res_d, 0);
+	phi_H += DOT(2*nb+2*ng+2*ns, dlam, 0, dt, 0);
+
+	phi_g = 0.0;
+	phi_g += 2*DOT(nv+2*ns, step_res_g_p, 0, res_g, 0);
+	phi_g += 2*DOT(ne, step_res_b, 0, res_b, 0);
+	phi_g += 2*DOT(2*nb+2*ng+2*ns, step_res_d, 0, res_d, 0);
+	phi_g += DOT(2*nb+2*ng+2*ns, dlam, 0, t, 0);
+	phi_g += DOT(2*nb+2*ng+2*ns, lam, 0, dt, 0);
+
+	phi_rho = 0.0;
+	phi_rho += DOT(nv+2*ns, res_g, 0, res_g, 0);
+	phi_rho += DOT(ne, res_b, 0, res_b, 0);
+	phi_rho += DOT(2*nb+2*ng+2*ns, res_d, 0, res_d, 0);
+	phi_rho += DOT(2*nb+2*ng+2*ns, lam, 0, t, 0);
+
+	alpha_stat = - 0.5 * phi_g / phi_H;
+
+	REAL step_min = 1e-3; // minimum step length
+
+	if(phi_H>0) // alpha_stat is a minimum
+		{
+		alpha0 = alpha_stat>step_min ? alpha_stat : step_min;
+		alpha0 = alpha0<cws->alpha ? alpha0 : cws->alpha;
+		}
+	else // alpha_stat is a maximum
+		{
+		alpha0 = cws->alpha;
+//		if(alpha_stat<=0.0)
+//			{
+//			printf("\nmax < 0\n");
+//			alpha0 = cws->alpha;
+//			}
+//		else if(alpha_stat>=cws->alpha)
+//			{
+//			alpha0 = 0.0;
+//			}
+//		else // 0 < alpha_stat < alpha
+//			{
+//			phi_obj0 = phi_rho;
+//			phi_obj1 = phi_H*cws->alpha*cws->alpha + phi_g*cws->alpha + phi_rho;
+//			printf("\nphi obj %e %e\n", phi_obj0, phi_obj1);
+//			alpha0 = phi_obj0<phi_obj1 ? 0.0 : cws->alpha;
+//			alpha0 = cws->alpha;
+//			}
+		}
+
+//	printf("\nphi %e %e %e alpha %e %e\n", phi_H, phi_g, phi_rho, alpha_stat, alpha0);
+
+	cws->alpha = alpha0;
+#endif
+
+	// res_m res_mu
+//	mu = VECMULDOT(nct, lam, 0, t, 0, res_m, 0);
+//	AXPY(nct, -1.0, m, 0, res_m, 0, res_m, 0);
+	// TODO use nc_mask_inv from cws if available !!!!!
+//	res->res_mu = mu*nct_inv;
+
+	return;
+
+	}
+
+
+
