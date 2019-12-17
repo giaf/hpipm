@@ -2378,6 +2378,8 @@ void DENSE_QP_IPM_SENS(struct DENSE_QP *qp, struct DENSE_QP_SOL *qp_sol, struct 
 void DENSE_QP_COMPUTE_STEP_LENGTH(struct DENSE_QP *qp, struct DENSE_QP_SOL *qp_sol, struct DENSE_QP_IPM_ARG *arg, struct DENSE_QP_IPM_WS *ws)
 	{
 
+	return;
+
 	int nv = qp->dim->nv;
 	int ne = qp->dim->ne;
 	int nb = qp->dim->nb;
@@ -2435,7 +2437,7 @@ void DENSE_QP_COMPUTE_STEP_LENGTH(struct DENSE_QP *qp, struct DENSE_QP_SOL *qp_s
 	REAL mu, tmp;
 	REAL phi_H, phi_g, phi_rho, phi_obj0, phi_obj1;
 
-	REAL alpha_stat, alpha0;
+	REAL alpha_stat, alpha0, alpha1, alpha_p, alpha_d;
 
 	int ii;
 
@@ -2489,7 +2491,7 @@ void DENSE_QP_COMPUTE_STEP_LENGTH(struct DENSE_QP *qp, struct DENSE_QP_SOL *qp_s
 	
 	// compute alpha QP
 
-#if 0
+#if 1
 	
 	alpha_p = cws->alpha_prim;
 	alpha_d = cws->alpha_dual;
@@ -2518,6 +2520,13 @@ void DENSE_QP_COMPUTE_STEP_LENGTH(struct DENSE_QP *qp, struct DENSE_QP_SOL *qp_s
 		phi_rho += DOT(2*nb+2*ng+2*ns, lam, 0, t, 0);
 		phi_rho += alpha_p*DOT(2*nb+2*ng+2*ns, lam, 0, dt, 0);
 		// TODO
+		// unconstr minimizer
+		alpha_stat = - 0.5 * phi_g / phi_H;
+		// clipping
+		alpha1 = alpha_stat>alpha_p ? alpha_stat : alpha_p;
+		alpha1 = alpha1<alpha_d ? alpha1 : alpha_d;
+		// obj
+		phi_obj1 = phi_H*alpha1*alpha1 + phi_g*alpha1 + phi_rho;
 		}
 	else
 		{
@@ -2543,9 +2552,17 @@ void DENSE_QP_COMPUTE_STEP_LENGTH(struct DENSE_QP *qp, struct DENSE_QP_SOL *qp_s
 		phi_rho += DOT(2*nb+2*ng+2*ns, lam, 0, t, 0);
 		phi_rho += alpha_d*DOT(2*nb+2*ng+2*ns, dlam, 0, t, 0);
 		// TODO
+		// unconstr minimizer
+		alpha_stat = - 0.5 * phi_g / phi_H;
+		// clipping
+		alpha1 = alpha_stat>alpha_d ? alpha_stat : alpha_d;
+		alpha1 = alpha1<alpha_p ? alpha1 : alpha_p;
+		// obj
+		phi_obj1 = phi_H*alpha1*alpha1 + phi_g*alpha1 + phi_rho;
 		}
 
-#else
+#endif
+
 	AXPY(nv+2*ns, 1.0, step_res_g_d, 0, step_res_g_p, 0, step_res_g_p, 0);
 
 	phi_H = 0.0;
@@ -2597,11 +2614,32 @@ void DENSE_QP_COMPUTE_STEP_LENGTH(struct DENSE_QP *qp, struct DENSE_QP_SOL *qp_s
 //			alpha0 = cws->alpha;
 //			}
 		}
-
-//	printf("\nphi %e %e %e alpha %e %e\n", phi_H, phi_g, phi_rho, alpha_stat, alpha0);
+	// obj
+	phi_obj0 = phi_H*alpha0*alpha0 + phi_g*alpha0 + phi_rho;
 
 	cws->alpha = alpha0;
-#endif
+
+	if(phi_obj0<=phi_obj1)
+		{
+		cws->alpha_prim = alpha0;
+		cws->alpha_dual = alpha0;
+		}
+	else
+		{
+		if(alpha_p<alpha_d)
+			{
+//			cws->alpha_prim = alpha_p;
+			cws->alpha_dual = alpha1;
+			}
+		else
+			{
+			// TODO
+			cws->alpha_prim = alpha1;
+//			cws->alpha_dual = alpha_d;
+			}
+		}
+
+//	printf("\nobj %e %e alpha %e %e %e %e\n", phi_obj0, phi_obj1, alpha0, alpha_p, alpha_d, alpha1);
 
 	// res_m res_mu
 //	mu = VECMULDOT(nct, lam, 0, t, 0, res_m, 0);
