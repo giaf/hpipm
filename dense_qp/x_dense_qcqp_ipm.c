@@ -1360,7 +1360,7 @@ void DENSE_QCQP_IPM_SOLVE(struct DENSE_QCQP *qcqp, struct DENSE_QCQP_SOL *qcqp_s
 			mu /= cws->nc;
 			cws->mu = mu;
 			if(kk+1<stat_max)
-				stat[stat_m*(kk+1)+4] = mu;
+				stat[stat_m*(kk+1)+5] = mu;
 
 			}
 
@@ -1380,10 +1380,10 @@ void DENSE_QCQP_IPM_SOLVE(struct DENSE_QCQP *qcqp, struct DENSE_QCQP_SOL *qcqp_s
 			// XXX it is already kk+1
 			if(kk<stat_max)
 				{
-				stat[stat_m*(kk+0)+5] = qcqp_res_max[0];
-				stat[stat_m*(kk+0)+6] = qcqp_res_max[1];
-				stat[stat_m*(kk+0)+7] = qcqp_res_max[2];
-				stat[stat_m*(kk+0)+8] = qcqp_res_max[3];
+				stat[stat_m*(kk+0)+6] = qcqp_res_max[0];
+				stat[stat_m*(kk+0)+7] = qcqp_res_max[1];
+				stat[stat_m*(kk+0)+8] = qcqp_res_max[2];
+				stat[stat_m*(kk+0)+9] = qcqp_res_max[3];
 				}
 			}
 
@@ -1439,10 +1439,10 @@ void DENSE_QCQP_IPM_SOLVE(struct DENSE_QCQP *qcqp, struct DENSE_QCQP_SOL *qcqp_s
 	// save infinity norm of residuals
 	if(0<stat_max)
 		{
-		stat[stat_m*(0)+5] = qcqp_res_max[0];
-		stat[stat_m*(0)+6] = qcqp_res_max[1];
-		stat[stat_m*(0)+7] = qcqp_res_max[2];
-		stat[stat_m*(0)+8] = qcqp_res_max[3];
+		stat[stat_m*(0)+6] = qcqp_res_max[0];
+		stat[stat_m*(0)+7] = qcqp_res_max[1];
+		stat[stat_m*(0)+8] = qcqp_res_max[2];
+		stat[stat_m*(0)+9] = qcqp_res_max[3];
 		}
 
 
@@ -1486,14 +1486,14 @@ void DENSE_QCQP_IPM_SOLVE(struct DENSE_QCQP *qcqp, struct DENSE_QCQP_SOL *qcqp_s
 		DENSE_QCQP_RES_CONV_QP_RES(qcqp_res, qp_ws->res);
 		cws->mu = qcqp_res->res_mu;
 		if(kk+1<stat_max)
-			stat[stat_m*(kk+1)+4] = qcqp_res->res_mu;
+			stat[stat_m*(kk+1)+5] = qcqp_res->res_mu;
 		// save infinity norm of residuals
 		if(kk+1<stat_max)
 			{
-			stat[stat_m*(kk+1)+5] = qcqp_res_max[0];
-			stat[stat_m*(kk+1)+6] = qcqp_res_max[1];
-			stat[stat_m*(kk+1)+7] = qcqp_res_max[2];
-			stat[stat_m*(kk+1)+8] = qcqp_res_max[3];
+			stat[stat_m*(kk+1)+6] = qcqp_res_max[0];
+			stat[stat_m*(kk+1)+7] = qcqp_res_max[1];
+			stat[stat_m*(kk+1)+8] = qcqp_res_max[2];
+			stat[stat_m*(kk+1)+9] = qcqp_res_max[3];
 			}
 
 		}
