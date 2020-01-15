@@ -4,13 +4,25 @@ HPIPM ChangeLog
 
 ====================================================================
 Version 0.1.2-master
-31-Oct-2019
+21-Nov-2019
 
 dense_qp:
 	* add mask to disregard constraints (e.g. for one sided constr, or dynamic constr removal)
 
 dense_qcqp:
 	* add dense qcqp ipm solver built on top of dense qp ipm solver
+
+ocp_qp:
+	* add mask to disregard constraints (e.g. for one sided constr, or dynamic constr removal)
+
+ocp_qcqp:
+	* add ocp qcqp ipm solver built on top of ocp qp ipm solver
+
+Matlab/Octave interface:
+	* add option to build QP data and args reading from codegen data files
+
+simulink interface:
+	* add a simulink interface based on a basic s-function
 
 ====================================================================
 Version 0.1.1
