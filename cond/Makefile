@@ -42,8 +42,16 @@ ifeq ($(TARGET), GENERIC)
 OBJS +=
 endif
 
-OBJS += d_cond_aux.o d_cond.o d_part_cond.o
-OBJS += s_cond_aux.o s_cond.o s_part_cond.o
+# double
+OBJS += d_cond_aux.o
+OBJS += d_cond.o
+OBJS += d_part_cond.o
+OBJS += d_cond_qcqp.o
+# single
+OBJS += s_cond_aux.o
+OBJS += s_cond.o
+OBJS += s_part_cond.o
+OBJS += s_cond_qcqp.o
 
 obj: $(OBJS)
 
@@ -57,3 +65,5 @@ d_cond.o: d_cond.c x_cond.c
 s_cond.o: s_cond.c x_cond.c
 d_part_cond.o: d_part_cond.c x_part_cond.c
 s_part_cond.o: s_part_cond.c x_part_cond.c
+d_cond_qcqp.o: d_cond_qcqp.c x_cond_qcqp.c
+s_cond_qcqp.o: s_cond_qcqp.c x_cond_qcqp.c

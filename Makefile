@@ -55,8 +55,16 @@ OBJS += ipm_core/s_core_qp_ipm_aux_avx.o
 endif
 
 # cond
-OBJS += cond/d_cond_aux.o cond/d_cond.o cond/d_part_cond.o
-OBJS += cond/s_cond_aux.o cond/s_cond.o cond/s_part_cond.o
+# double
+OBJS += cond/d_cond_aux.o
+OBJS += cond/d_cond.o
+OBJS += cond/d_part_cond.o
+OBJS += cond/d_cond_qcqp.o
+# single
+OBJS += cond/s_cond_aux.o
+OBJS += cond/s_cond.o
+OBJS += cond/s_part_cond.o
+OBJS += cond/s_cond_qcqp.o
 
 # dense qp
 # double

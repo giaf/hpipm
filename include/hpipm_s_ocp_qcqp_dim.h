@@ -50,15 +50,15 @@ struct s_ocp_qcqp_dim
 	int *nx; // number of states
 	int *nu; // number of inputs
 	int *nb; // number of box constraints
-	int *nbx; // number of state box constraints
-	int *nbu; // number of input box constraints
-	int *ng; // number of general constraints
-	int *nq; // number of general constraints
+	int *nbx; // number of (two-sided) state box constraints
+	int *nbu; // number of (two-sided) input box constraints
+	int *ng; // number of (two-sided) general constraints
+	int *nq; // number of (upper) quadratic constraints
 	int *ns; // number of soft constraints
-	int *nsbx; // number of soft state box constraints
-	int *nsbu; // number of soft input box constraints
-	int *nsg; // number of soft general constraints
-	int *nsq; // number of soft general constraints
+	int *nsbx; // number of (two-sided) soft state box constraints
+	int *nsbu; // number of (two-sided) soft input box constraints
+	int *nsg; // number of (two-sided) soft general constraints
+	int *nsq; // number of (upper) soft quadratic constraints
 	int N; // horizon length
 	int memsize;
 	};

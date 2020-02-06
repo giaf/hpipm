@@ -35,21 +35,19 @@
 
 
 
-#ifndef HPIPM_S_COND_H_
-#define HPIPM_S_COND_H_
+#ifndef HPIPM_S_COND_QCQP_H_
+#define HPIPM_S_COND_QCQP_H_
 
 
 
 #include <blasfeo_target.h>
 #include <blasfeo_common.h>
 
-#include "hpipm_s_dense_qp.h"
-#include "hpipm_s_dense_qp_sol.h"
-#include "hpipm_s_ocp_qp.h"
-#include "hpipm_s_ocp_qp_dim.h"
-#include "hpipm_s_ocp_qp_sol.h"
-
-
+#include "hpipm_s_dense_qcqp.h"
+#include "hpipm_s_dense_qcqp_sol.h"
+#include "hpipm_s_ocp_qcqp.h"
+#include "hpipm_s_ocp_qcqp_dim.h"
+#include "hpipm_s_ocp_qcqp_sol.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -57,8 +55,9 @@ extern "C" {
 
 
 
-struct s_cond_qp_arg
+struct s_cond_qcqp_arg
 	{
+	struct s_cond_qp_arg *qp_arg;
 	int cond_last_stage; // condense last stage
 //	int cond_variant; // TODO
 	int comp_dual_sol; // dual solution
@@ -68,49 +67,44 @@ struct s_cond_qp_arg
 
 
 
-struct s_cond_qp_ws
+struct s_cond_qcqp_ws
 	{
-	struct blasfeo_smat *Gamma;
-	struct blasfeo_smat *L;
-	struct blasfeo_smat *Lx;
-	struct blasfeo_smat *AL;
-	struct blasfeo_svec *Gammab;
-	struct blasfeo_svec *l;
-	struct blasfeo_svec *tmp_nbgM;
-	struct blasfeo_svec *tmp_nuxM;
-	int *idxs_rev;
-	int bs; // block size
+	struct s_cond_qp_ws *qp_ws;
+//	struct blasfeo_smat *Gamma;
+//	struct blasfeo_smat *L;
+//	struct blasfeo_smat *Lx;
+//	struct blasfeo_smat *AL;
+//	struct blasfeo_svec *Gammab;
+//	struct blasfeo_svec *l;
+//	struct blasfeo_svec *tmp_nbgM;
+//	struct blasfeo_svec *tmp_nuxM;
+//	int *idxs_rev;
+//	int bs; // block size
 	int memsize;
 	};
 
 
-
 //
-int s_cond_qp_arg_memsize();
+int s_cond_qcqp_arg_memsize();
 //
-void s_cond_qp_arg_create(struct s_cond_qp_arg *cond_arg, void *mem);
+void s_cond_qcqp_arg_create(struct s_cond_qcqp_arg *cond_arg, void *mem);
 //
-void s_cond_qp_arg_set_default(struct s_cond_qp_arg *cond_arg);
+void s_cond_qcqp_arg_set_default(struct s_cond_qcqp_arg *cond_arg);
 // set riccati-like algorithm: 0 classical, 1 square-root
-void s_cond_qp_arg_set_ric_alg(int ric_alg, struct s_cond_qp_arg *cond_arg);
+void s_cond_qcqp_arg_set_ric_alg(int ric_alg, struct s_cond_qcqp_arg *cond_arg);
 
 //
-void s_cond_qp_compute_dim(struct s_ocp_qp_dim *ocp_dim, struct s_dense_qp_dim *dense_dim);
+void s_cond_qcqp_compute_dim(struct s_ocp_qcqp_dim *ocp_dim, struct s_dense_qcqp_dim *dense_dim);
 //
-int s_cond_qp_ws_memsize(struct s_ocp_qp_dim *ocp_dim, struct s_cond_qp_arg *cond_arg);
+int s_cond_qcqp_ws_memsize(struct s_ocp_qcqp_dim *ocp_dim, struct s_cond_qcqp_arg *cond_arg);
 //
-void s_cond_qp_ws_create(struct s_ocp_qp_dim *ocp_dim, struct s_cond_qp_arg *cond_arg, struct s_cond_qp_ws *cond_ws, void *mem);
+void s_cond_qcqp_ws_create(struct s_ocp_qcqp_dim *ocp_dim, struct s_cond_qcqp_arg *cond_arg, struct s_cond_qcqp_ws *cond_ws, void *mem);
 //
-void s_cond_qp_cond(struct s_ocp_qp *ocp_qp, struct s_dense_qp *dense_qp, struct s_cond_qp_arg *cond_arg, struct s_cond_qp_ws *cond_ws);
+void s_cond_qcqp_cond(struct s_ocp_qcqp *ocp_qp, struct s_dense_qcqp *dense_qp, struct s_cond_qcqp_arg *cond_arg, struct s_cond_qcqp_ws *cond_ws);
 //
-void s_cond_qp_cond_rhs(struct s_ocp_qp *ocp_qp, struct s_dense_qp *dense_qp, struct s_cond_qp_arg *cond_arg, struct s_cond_qp_ws *cond_ws);
+void s_cond_qcqp_cond_rhs(struct s_ocp_qcqp *ocp_qp, struct s_dense_qcqp *dense_qp, struct s_cond_qcqp_arg *cond_arg, struct s_cond_qcqp_ws *cond_ws);
 //
-void s_cond_qp_expand_sol(struct s_ocp_qp *ocp_qp, struct s_dense_qp_sol *dense_qp_sol, struct s_ocp_qp_sol *ocp_qp_sol, struct s_cond_qp_arg *cond_arg, struct s_cond_qp_ws *cond_ws);
-// TODO remove
-void s_cond_qp_expand_primal_sol(struct s_ocp_qp *ocp_qp, struct s_dense_qp_sol *dense_qp_sol, struct s_ocp_qp_sol *ocp_qp_sol, struct s_cond_qp_arg *cond_arg, struct s_cond_qp_ws *cond_ws);
-
-//
-void s_cond_qp_update(int *idxc, struct s_ocp_qp *ocp_qp, struct s_dense_qp *dense_qp, struct s_cond_qp_arg *cond_arg, struct s_cond_qp_ws *cond_ws);
+//void d_cond_qp_expand_sol(struct d_ocp_qp *ocp_qp, struct d_dense_qp_sol *dense_qp_sol, struct d_ocp_qp_sol *ocp_qp_sol, struct d_cond_qp_arg *cond_arg, struct d_cond_qp_ws *cond_ws);
 
 
 #ifdef __cplusplus
@@ -119,4 +113,5 @@ void s_cond_qp_update(int *idxc, struct s_ocp_qp *ocp_qp, struct s_dense_qp *den
 
 
 
-#endif // HPIPM_S_COND_H_
+#endif // HPIPM_S_COND_QCQP_H_
+
