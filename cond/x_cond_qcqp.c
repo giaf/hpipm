@@ -83,15 +83,16 @@ void COND_QCQP_COMPUTE_DIM(struct OCP_QCQP_DIM *ocp_dim, struct DENSE_QCQP_DIM *
 		nsqc += nsq[ii];
 		}
 
-	dense_dim->nv = nvc;
-	dense_dim->ne = nec;
-	dense_dim->nb = nbc;
-	dense_dim->ng = ngc;
-	dense_dim->nq = nqc;
-	dense_dim->ns = nsc;
-	dense_dim->nsb = nsbc;
-	dense_dim->nsg = nsgc;
-	dense_dim->nsq = nsqc;
+	// XXX must use setters to correctly set qp ones too !
+	DENSE_QCQP_DIM_SET_NV(nvc, dense_dim);
+	DENSE_QCQP_DIM_SET_NE(nec, dense_dim);
+	DENSE_QCQP_DIM_SET_NB(nbc, dense_dim);
+	DENSE_QCQP_DIM_SET_NG(ngc, dense_dim);
+	DENSE_QCQP_DIM_SET_NQ(nqc, dense_dim);
+	DENSE_QCQP_DIM_SET_NS(nsc, dense_dim);
+	DENSE_QCQP_DIM_SET_NSB(nsbc, dense_dim);
+	DENSE_QCQP_DIM_SET_NSG(nsgc, dense_dim);
+	DENSE_QCQP_DIM_SET_NSQ(nsqc, dense_dim);
 
 	return;
 
@@ -556,16 +557,55 @@ void COND_QCQP_COND_RHS(struct OCP_QCQP *ocp_qp, struct DENSE_QCQP *dense_qp, st
 
 
 
-#if 0
 void COND_QCQP_EXPAND_SOL(struct OCP_QCQP *ocp_qp, struct DENSE_QCQP_SOL *dense_qp_sol, struct OCP_QCQP_SOL *ocp_qp_sol, struct COND_QCQP_ARG *cond_arg, struct COND_QCQP_WS *cond_ws)
 	{
 
-	EXPAND_SOL(ocp_qp, dense_qp_sol, ocp_qp_sol, cond_arg, cond_ws);
+	// create tmp QP
+	struct OCP_QP tmp_ocp_qp;
+
+	// alias
+	tmp_ocp_qp.dim = ocp_qp->dim->qp_dim;
+	tmp_ocp_qp.idxb = ocp_qp->idxb;
+	tmp_ocp_qp.BAbt = ocp_qp->BAbt;
+	tmp_ocp_qp.b = ocp_qp->b;
+	tmp_ocp_qp.RSQrq = ocp_qp->RSQrq;
+	tmp_ocp_qp.rqz = ocp_qp->rqz;
+	tmp_ocp_qp.DCt = ocp_qp->DCt;
+	tmp_ocp_qp.d = ocp_qp->d;
+	tmp_ocp_qp.Z = ocp_qp->Z;
+	tmp_ocp_qp.idxs = ocp_qp->idxs;
+
+
+	// create tmp QP
+	struct OCP_QP_SOL tmp_ocp_qp_sol;
+
+	// alias
+	tmp_ocp_qp_sol.dim = ocp_qp_sol->dim->qp_dim;
+	tmp_ocp_qp_sol.ux = ocp_qp_sol->ux;
+	tmp_ocp_qp_sol.pi = ocp_qp_sol->pi;
+	tmp_ocp_qp_sol.lam = ocp_qp_sol->lam;
+	tmp_ocp_qp_sol.t = ocp_qp_sol->t;
+
+
+	// create tmp QP
+	struct DENSE_QP_SOL tmp_dense_qp_sol;
+
+	// alias
+	tmp_dense_qp_sol.dim = dense_qp_sol->dim->qp_dim;
+	tmp_dense_qp_sol.v = dense_qp_sol->v;
+	tmp_dense_qp_sol.pi = dense_qp_sol->pi;
+	tmp_dense_qp_sol.lam = dense_qp_sol->lam;
+	tmp_dense_qp_sol.t = dense_qp_sol->t;
+
+	// XXX for now expand only primal sol !!!!!
+	// TODO remove !!!!!
+	cond_arg->comp_dual_sol = 0; // compute dual solution
+
+	EXPAND_SOL(&tmp_ocp_qp, &tmp_dense_qp_sol, &tmp_ocp_qp_sol, cond_arg->qp_arg, cond_ws->qp_ws);
 
 	return;
 
 	}
-#endif
 
 
 

@@ -71,6 +71,15 @@
 #define CREATE_STRVEC blasfeo_create_svec
 #define DENSE_QCQP s_dense_qcqp
 #define DENSE_QCQP_DIM s_dense_qcqp_dim
+#define DENSE_QCQP_DIM_SET_NV s_dense_qcqp_dim_set_nv
+#define DENSE_QCQP_DIM_SET_NE s_dense_qcqp_dim_set_ne
+#define DENSE_QCQP_DIM_SET_NB s_dense_qcqp_dim_set_nb
+#define DENSE_QCQP_DIM_SET_NG s_dense_qcqp_dim_set_ng
+#define DENSE_QCQP_DIM_SET_NQ s_dense_qcqp_dim_set_nq
+#define DENSE_QCQP_DIM_SET_NS s_dense_qcqp_dim_set_ns
+#define DENSE_QCQP_DIM_SET_NSB s_dense_qcqp_dim_set_nsb
+#define DENSE_QCQP_DIM_SET_NSG s_dense_qcqp_dim_set_nsg
+#define DENSE_QCQP_DIM_SET_NSQ s_dense_qcqp_dim_set_nsq
 #define DENSE_QCQP_SOL s_dense_qcqp_sol
 #define DENSE_QP s_dense_qp
 #define DENSE_QP_DIM s_dense_qp_dim

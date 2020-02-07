@@ -178,7 +178,7 @@ int main()
 	d_dense_qcqp_ipm_arg_set_default(mode, &arg);
 
 	int iter_max = 20; //25;
-	double mu0 = 1e0;
+	double mu0 = 1e2;
 	int comp_res_exit = 1;
 	double tol_stat = 1e-12;
 	double tol_eq = 1e-12;
