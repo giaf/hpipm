@@ -59,7 +59,7 @@ int DENSE_QCQP_MEMSIZE(struct DENSE_QCQP_DIM *dim)
 	size += 1*ns*sizeof(int); // idxb
 
 	size += 1*SIZE_STRMAT(nv+1, nv); // Hv
-	size += nq*SIZE_STRMAT(nv, nv); // Hq
+	size += nq*SIZE_STRMAT(nv+1, nv); // Hq
 	size += 1*SIZE_STRMAT(ne, nv); // A
 	size += 1*SIZE_STRMAT(nv, ng); // Ct
 
@@ -187,7 +187,7 @@ void DENSE_QCQP_CREATE(struct DENSE_QCQP_DIM *dim, struct DENSE_QCQP *qp, void *
 
 	for(ii=0; ii<nq; ii++)
 		{
-		CREATE_STRMAT(nv, nv, qp->Hq+ii, c_ptr);
+		CREATE_STRMAT(nv+1, nv, qp->Hq+ii, c_ptr);
 		c_ptr += (qp->Hq+ii)->memsize;
 		}
 

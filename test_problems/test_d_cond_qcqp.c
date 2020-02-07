@@ -221,8 +221,8 @@ int main()
 	int nq[N+1];
 	nq[0] = 0;
 	for(ii=1; ii<N; ii++)
-		nq[ii] = 0;//2;
-	nq[N] = 0;//1;
+		nq[ii] = 2;
+	nq[N] = 1;
 
 	int nsbx[N+1];
 	nsbx[0] = 0;
@@ -286,7 +286,7 @@ int main()
 ************************************************/
 
 	double *Q; d_zeros(&Q, nx_, nx_);
-	for(ii=0; ii<nx_; ii++) Q[ii*(nx_+1)] = 0.1;
+	for(ii=0; ii<nx_; ii++) Q[ii*(nx_+1)] = 1.0;
 
 	double *R; d_zeros(&R, nu_, nu_);
 	for(ii=0; ii<nu_; ii++) R[ii*(nu_+1)] = 2.0;

@@ -94,7 +94,7 @@ int OCP_QCQP_MEMSIZE(struct OCP_QCQP_DIM *dim)
 		size += SIZE_STRMAT(nu[ii]+nx[ii]+1, nu[ii]+nx[ii]); // RSQrq
 		size += SIZE_STRMAT(nu[ii]+nx[ii], ng[ii]); // DCt
 		size += SIZE_STRVEC(2*ns[ii]); // Z
-		size += nq[ii]*SIZE_STRMAT(nu[ii]+nx[ii], nu[ii]+nx[ii]); // Hq
+		size += nq[ii]*SIZE_STRMAT(nu[ii]+nx[ii]+1, nu[ii]+nx[ii]); // Hq
 		size += nq[ii]*SIZE_STRVEC(nu[ii]+nx[ii]); // gq
 		}
 	ii = N;
@@ -104,7 +104,7 @@ int OCP_QCQP_MEMSIZE(struct OCP_QCQP_DIM *dim)
 	size += SIZE_STRMAT(nu[ii]+nx[ii]+1, nu[ii]+nx[ii]); // RSQrq
 	size += SIZE_STRMAT(nu[ii]+nx[ii], ng[ii]); // DCt
 	size += SIZE_STRVEC(2*ns[ii]); // Z
-	size += nq[ii]*SIZE_STRMAT(nu[ii]+nx[ii], nu[ii]+nx[ii]); // Hq
+	size += nq[ii]*SIZE_STRMAT(nu[ii]+nx[ii]+1, nu[ii]+nx[ii]); // Hq
 	size += nq[ii]*SIZE_STRVEC(nu[ii]+nx[ii]); // gq
 
 	size += 1*SIZE_STRVEC(nvt); // rqz
@@ -340,7 +340,7 @@ void OCP_QCQP_CREATE(struct OCP_QCQP_DIM *dim, struct OCP_QCQP *qp, void *mem)
 		{
 		for(jj=0; jj<nq[ii]; jj++)
 			{
-			CREATE_STRMAT(nu[ii]+nx[ii], nu[ii]+nx[ii], &qp->Hq[ii][jj], c_ptr);
+			CREATE_STRMAT(nu[ii]+nx[ii]+1, nu[ii]+nx[ii], &qp->Hq[ii][jj], c_ptr);
 			c_ptr += qp->Hq[ii][jj].memsize;
 //			GESE(nu[ii]+nx[ii], ng[ii], 0.0, qp->DCt+ii, 0, 0);
 			}

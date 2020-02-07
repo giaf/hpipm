@@ -70,6 +70,10 @@ struct s_cond_qcqp_arg
 struct s_cond_qcqp_ws
 	{
 	struct s_cond_qp_ws *qp_ws;
+	struct blasfeo_smat *hess_array;
+	struct blasfeo_smat *zero_hess;
+	struct blasfeo_svec *zero_grad;
+	struct blasfeo_svec *grad_array;
 //	struct blasfeo_smat *Gamma;
 //	struct blasfeo_smat *L;
 //	struct blasfeo_smat *Lx;
