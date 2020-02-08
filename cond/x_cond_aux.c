@@ -424,6 +424,7 @@ void COND_RQ_N2NX3(struct OCP_QP *ocp_qp, struct STRVEC *rqz2, struct COND_QP_AR
 
 
 
+// TODO cond of d_mask !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 void COND_DCTD(struct OCP_QP *ocp_qp, int *idxb2, struct STRMAT *DCt2, struct STRVEC *d2, int *idxs2, struct STRVEC *Z2, struct STRVEC *rqz2, struct COND_QP_ARG *cond_arg, struct COND_QP_ARG_WS *cond_ws)
 	{
 

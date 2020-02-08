@@ -65,22 +65,22 @@ void COND_QCQP_COMPUTE_DIM(struct OCP_QCQP_DIM *ocp_dim, struct DENSE_QCQP_DIM *
 	nvc += nx[0]+nu[0];
 	nbc += nbx[0]+nbu[0];
 	ngc += ng[0];
-	nqc = nq[0];
+	nqc += nq[0];
 	nsc += ns[0];
 	nsbc += nsbx[0]+nsbu[0];
 	nsgc += nsg[0];
-	nsqc = nsq[0];
+	nsqc += nsq[0];
 	// remaining stages
 	for(ii=1; ii<=N; ii++)
 		{
 		nvc += nu[ii];
 		nbc += nbu[ii];
 		ngc += nbx[ii]+ng[ii];
-		nqc = nq[ii]>nqc ? nq[ii] : nqc;
+		nqc += nq[ii];
 		nsc += ns[ii];
 		nsbc += nsbu[ii];
 		nsgc += nsbx[ii]+nsg[ii];
-		nsqc = nsq[ii]>nsqc ? nsq[ii] : nsqc;
+		nsqc += nsq[ii];
 		}
 
 	// XXX must use setters to correctly set qp ones too !
@@ -422,6 +422,9 @@ void COND_QCQP_COND(struct OCP_QCQP *ocp_qp, struct DENSE_QCQP *dense_qp, struct
 	tmp_ocp_qp.Z = ocp_qp->Z;
 	tmp_ocp_qp.idxs = ocp_qp->idxs;
 
+//	d_ocp_qp_dim_print(ocp_qp->dim->qp_dim);
+//	exit(1);
+
 	COND_BABT(&tmp_ocp_qp, NULL, NULL, cond_arg->qp_arg, cond_ws->qp_ws);
 
 	COND_RSQRQ_N2NX3(&tmp_ocp_qp, dense_qp->Hv, dense_qp->gz, cond_arg->qp_arg, cond_ws->qp_ws);
@@ -429,40 +432,44 @@ void COND_QCQP_COND(struct OCP_QCQP *ocp_qp, struct DENSE_QCQP *dense_qp, struct
 	COND_DCTD(&tmp_ocp_qp, dense_qp->idxb, dense_qp->Ct, dense_qp->d, dense_qp->idxs, dense_qp->Z, dense_qp->gz, cond_arg->qp_arg, cond_ws->qp_ws);
 	
 	// TODO cond quadr constr
-	int ii, jj;
+	int ii, jj, kk;
 
 	int N = ocp_qp->dim->N;
 	int *nu = ocp_qp->dim->nu;
 	int *nx = ocp_qp->dim->nx;
 	int *nq = ocp_qp->dim->nq;
 
-	int nqM = nq[0];
-	for(ii=1; ii<=N; ii++)
-		{
-		nqM = nq[ii]>nqM ? nq[ii] : nqM;
-		}
-	
-	for(jj=0; jj<nqM; jj++)
+	int nq_tmp;
+
+	nq_tmp = 0;
+	for(kk=0; kk<=N; kk++)
 		{
 
-		for(ii=0; ii<=N; ii++)
+		for(jj=0; jj<nq[kk]; jj++)
 			{
-			if(jj<nq[ii]) // existing quadr constr
+
+			for(ii=0; ii<=N; ii++)
 				{
-				CREATE_STRMAT(nu[ii]+nx[ii]+1, nu[ii]+nx[ii], cond_ws->hess_array+ii, ocp_qp->Hq[ii][jj].pA);
-				CREATE_STRVEC(nu[ii]+nx[ii], cond_ws->grad_array+ii, ocp_qp->gq[ii][jj].pa);
+				if(ii==kk) // existing quadr constr
+					{
+					CREATE_STRMAT(nu[ii]+nx[ii]+1, nu[ii]+nx[ii], cond_ws->hess_array+ii, ocp_qp->Hq[ii][jj].pA);
+					CREATE_STRVEC(nu[ii]+nx[ii], cond_ws->grad_array+ii, ocp_qp->gq[ii][jj].pa);
+					}
+				else // dummy zero quadr constr
+					{
+					CREATE_STRMAT(nu[ii]+nx[ii]+1, nu[ii]+nx[ii], cond_ws->hess_array+ii, cond_ws->zero_hess->pA);
+					CREATE_STRVEC(nu[ii]+nx[ii], cond_ws->grad_array+ii, cond_ws->zero_grad->pa);
+					}
 				}
-			else // dummy zero quadr constr
-				{
-				CREATE_STRMAT(nu[ii]+nx[ii]+1, nu[ii]+nx[ii], cond_ws->hess_array+ii, cond_ws->zero_hess->pA);
-				CREATE_STRVEC(nu[ii]+nx[ii], cond_ws->grad_array+ii, cond_ws->zero_grad->pa);
-				}
+
+			tmp_ocp_qp.RSQrq = cond_ws->hess_array;
+			tmp_ocp_qp.rqz = cond_ws->grad_array;
+
+			COND_RSQRQ_N2NX3(&tmp_ocp_qp, dense_qp->Hq+nq_tmp, dense_qp->gq+nq_tmp, cond_arg->qp_arg, cond_ws->qp_ws);
+
+			nq_tmp++;
+
 			}
-
-		tmp_ocp_qp.RSQrq = cond_ws->hess_array;
-		tmp_ocp_qp.rqz = cond_ws->grad_array;
-
-		COND_RSQRQ_N2NX3(&tmp_ocp_qp, dense_qp->Hq+jj, dense_qp->gq+jj, cond_arg->qp_arg, cond_ws->qp_ws);
 
 		}
 
