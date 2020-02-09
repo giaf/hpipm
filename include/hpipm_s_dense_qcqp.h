@@ -66,7 +66,7 @@ struct s_dense_qcqp
 	struct blasfeo_svec *d_mask; // inequality constraints mask vector
 	struct blasfeo_svec *m; // rhs of complementarity condition
 	struct blasfeo_svec *Z; // (diagonal) hessian of slacks
-	struct blasfeo_svec *gq; // gradients of quadratic constraints
+//	struct blasfeo_svec *gq; // gradients of quadratic constraints
 	int *idxb; // index of box constraints
 	int *idxs; // index of soft constraints
 	int memsize; // memory size in bytes

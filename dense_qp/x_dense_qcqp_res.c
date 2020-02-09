@@ -177,10 +177,10 @@ int DENSE_QCQP_RES_WS_MEMSIZE(struct DENSE_QCQP_DIM *dim)
 
 	int size = 0;
 
-	size += 6*sizeof(struct STRVEC); // tmp_nv 2*tmp_nbgq tmp_ns q_fun q_adj
+	size += 7*sizeof(struct STRVEC); // 2*tmp_nv 2*tmp_nbgq tmp_ns q_fun q_adj
 
-	size += 2*SIZE_STRVEC(nv); // tmp_nv q_adj
-	size += 2*SIZE_STRVEC(nb+ng+nq); // tmp_nbgq
+	size += 3*SIZE_STRVEC(nv); // 2*tmp_nv q_adj
+	size += 2*SIZE_STRVEC(nb+ng+nq); // 2*tmp_nbgq
 	size += 1*SIZE_STRVEC(ns); // tmp_ns
 	size += 1*SIZE_STRVEC(nq); // q_fun
 
@@ -239,7 +239,7 @@ void DENSE_QCQP_RES_WS_CREATE(struct DENSE_QCQP_DIM *dim, struct DENSE_QCQP_RES_
 	struct STRVEC *sv_ptr = (struct STRVEC *) mem;
 
 	ws->tmp_nv = sv_ptr;
-	sv_ptr += 1;
+	sv_ptr += 2;
 	ws->tmp_nbgq = sv_ptr;
 	sv_ptr += 2;
 	ws->tmp_ns = sv_ptr;
@@ -261,6 +261,9 @@ void DENSE_QCQP_RES_WS_CREATE(struct DENSE_QCQP_DIM *dim, struct DENSE_QCQP_RES_
 
 	CREATE_STRVEC(nv, ws->tmp_nv+0, c_ptr);
 	c_ptr += (ws->tmp_nv+0)->memsize;
+
+	CREATE_STRVEC(nv, ws->tmp_nv+1, c_ptr);
+	c_ptr += (ws->tmp_nv+1)->memsize;
 
 	CREATE_STRVEC(nb+ng+nq, ws->tmp_nbgq+0, c_ptr);
 	c_ptr += (ws->tmp_nbgq+0)->memsize;
@@ -321,7 +324,7 @@ void DENSE_QCQP_RES_COMPUTE(struct DENSE_QCQP *qp, struct DENSE_QCQP_SOL *qp_sol
 	struct STRVEC *gz = qp->gz;
 	struct STRVEC *b = qp->b;
 	struct STRVEC *d = qp->d;
-	struct STRVEC *gq = qp->gq;
+//	struct STRVEC *gq = qp->gq;
 	struct STRVEC *m = qp->m;
 	int *idxb = qp->idxb;
 	struct STRVEC *Z = qp->Z;
@@ -378,16 +381,17 @@ void DENSE_QCQP_RES_COMPUTE(struct DENSE_QCQP *qp, struct DENSE_QCQP_SOL *qp_sol
 				{
 				for(ii=0; ii<nq; ii++)
 					{
-					SYMV_L(nv, nv, 1.0, Hq+ii, 0, 0, v, 0, 0.0, tmp_nv, 0, tmp_nv, 0);
+					SYMV_L(nv, nv, 1.0, Hq+ii, 0, 0, v, 0, 0.0, tmp_nv+0, 0, tmp_nv+0, 0);
 #ifdef DOUBLE_PRECISION
 					tmp = BLASFEO_DVECEL(tmp_nbgq+0, nb+ng+ii);
 #else
 					tmp = BLASFEO_SVECEL(tmp_nbgq+0, nb+ng+ii);
 #endif
-					AXPY(nv, tmp, tmp_nv, 0, res_g, 0, res_g, 0);
-					AXPY(nv, tmp, gq+ii, 0, res_g, 0, res_g, 0);
-					AXPY(nv, 0.5, tmp_nv, 0, gq+ii, 0, tmp_nv, 0);
-					tmp = DOT(nv, tmp_nv, 0, v, 0);
+					AXPY(nv, tmp, tmp_nv+0, 0, res_g, 0, res_g, 0);
+					COLEX(nv, Ct, 0, ng+ii, tmp_nv+1, 0);
+					AXPY(nv, tmp, tmp_nv+1, 0, res_g, 0, res_g, 0);
+					AXPY(nv, 0.5, tmp_nv+0, 0, tmp_nv+1, 0, tmp_nv+0, 0);
+					tmp = DOT(nv, tmp_nv+0, 0, v, 0);
 #ifdef DOUBLE_PRECISION
 					BLASFEO_DVECEL(tmp_nbgq+1, nb+ng+ii) = tmp;
 #else

@@ -70,6 +70,7 @@
 
 
 #define AXPY blasfeo_saxpy
+#define AXPBY blasfeo_saxpby
 #define BACKUP_RES_M s_backup_res_m
 #define COMPUTE_ALPHA_QCQP s_compute_alpha_qcqp
 #define COMPUTE_CENTERING_CORRECTION_QCQP s_compute_centering_correction_qcqp
@@ -78,6 +79,7 @@
 #define COMPUTE_MU_AFF_QCQP s_compute_mu_aff_qcqp
 #define DENSE_QCQP_RES_COMPUTE s_dense_qcqp_res_compute
 #define DENSE_QCQP_RES_COMPUTE_INF_NORM s_dense_qcqp_res_compute_inf_norm
+#define COLEX blasfeo_scolex
 #define COLIN blasfeo_scolin
 #define CORE_QP_IPM_WORKSPACE s_core_qp_ipm_workspace
 //#define CREATE_CORE_QCQP_IPM s_create_core_qcqp_ipm

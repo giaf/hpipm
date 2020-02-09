@@ -47,21 +47,20 @@ int DENSE_QCQP_MEMSIZE(struct DENSE_QCQP_DIM *dim)
 
 	int size = 0;
 
-	size += (nq+6)*sizeof(struct STRVEC); // gz b d m Z gq d_mask
+	size += 6*sizeof(struct STRVEC); // gz b d m Z d_mask
 	size += (nq+3)*sizeof(struct STRMAT); // Hv A Ct Hq
 
 	size += 1*SIZE_STRVEC(nv+2*ns); // g
 	size += 1*SIZE_STRVEC(ne); // b
 	size += 3*SIZE_STRVEC(2*nb+2*ng+2*nq+2*ns); // d m d_mask
 	size += 1*SIZE_STRVEC(2*ns); // Z
-	size += nq*SIZE_STRVEC(nv); // gq
 	size += 1*nb*sizeof(int); // idxb
 	size += 1*ns*sizeof(int); // idxb
 
 	size += 1*SIZE_STRMAT(nv+1, nv); // Hv
 	size += nq*SIZE_STRMAT(nv+1, nv); // Hq
 	size += 1*SIZE_STRMAT(ne, nv); // A
-	size += 1*SIZE_STRMAT(nv, ng); // Ct
+	size += 1*SIZE_STRMAT(nv, ng+nq); // Ct
 
 	size = (size+63)/64*64; // make multiple of typical cache line size
 	size += 1*64; // align once to typical cache line size
@@ -150,9 +149,6 @@ void DENSE_QCQP_CREATE(struct DENSE_QCQP_DIM *dim, struct DENSE_QCQP *qp, void *
 	qp->Z = sv_ptr;
 	sv_ptr += 1;
 
-	qp->gq = sv_ptr;
-	sv_ptr += nq;
-
 
 	// int stuff
 	int *i_ptr;
@@ -182,7 +178,7 @@ void DENSE_QCQP_CREATE(struct DENSE_QCQP_DIM *dim, struct DENSE_QCQP *qp, void *
 	CREATE_STRMAT(ne, nv, qp->A, c_ptr);
 	c_ptr += qp->A->memsize;
 
-	CREATE_STRMAT(nv, ng, qp->Ct, c_ptr);
+	CREATE_STRMAT(nv, ng+nq, qp->Ct, c_ptr);
 	c_ptr += qp->Ct->memsize;
 
 	for(ii=0; ii<nq; ii++)
@@ -209,12 +205,6 @@ void DENSE_QCQP_CREATE(struct DENSE_QCQP_DIM *dim, struct DENSE_QCQP *qp, void *
 	CREATE_STRVEC(2*ns, qp->Z, c_ptr);
 	c_ptr += qp->Z->memsize;
 
-	for(ii=0; ii<nq; ii++)
-		{
-		CREATE_STRVEC(nv, qp->gq+ii, c_ptr);
-		c_ptr += (qp->gq+ii)->memsize;
-		}
-	
 
 	// default initialization
 	VECSE(2*nb+2*ng+2*nq+2*ns, 1.0, qp->d_mask, 0);
@@ -637,13 +627,11 @@ void DENSE_QCQP_SET_HQ(REAL *HQ, struct DENSE_QCQP *qp)
 void DENSE_QCQP_SET_GQ(REAL *gq, struct DENSE_QCQP *qp)
 	{
 
-	int ii;
-
 	int nv = qp->dim->nv;
+	int ng = qp->dim->ng;
 	int nq = qp->dim->nq;
 
-	for(ii=0; ii<nq; ii++)
-		CVT_VEC2STRVEC(nv, gq+ii*nv, qp->gq+ii, 0);
+	CVT_MAT2STRMAT(nv, nq, gq, nv, qp->Ct, 0, ng);
 
 	return;
 

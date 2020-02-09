@@ -875,7 +875,8 @@ void DENSE_QCQP_INIT_VAR(struct DENSE_QCQP *qcqp, struct DENSE_QCQP_SOL *qcqp_so
 		t[nb+ng+ii]   = 1.0;
 		// upper
 //		t[2*nb+2*ng+nq+ii] = 1.0; // thr0;
-		SYMV_L(nv, nv, 0.5, qcqp->Hq+ii, 0, 0, qcqp_sol->v, 0, 1.0, qcqp->gq+ii, 0, ws->tmp_nv, 0);
+		COLEX(nv, qcqp->Ct, 0, ng+ii, ws->tmp_nv, 0);
+		SYMV_L(nv, nv, 0.5, qcqp->Hq+ii, 0, 0, qcqp_sol->v, 0, 1.0, ws->tmp_nv, 0, ws->tmp_nv, 0);
 		tmp = DOT(nv, ws->tmp_nv, 0, qcqp_sol->v, 0);
 		tmp = - d[2*nb+2*ng+nq+ii] - tmp;
 		t[2*nb+2*ng+nq+ii] = thr0>tmp ? thr0 : tmp;
@@ -921,11 +922,13 @@ void DENSE_QCQP_APPROX_QP(struct DENSE_QCQP *qcqp, struct DENSE_QCQP_SOL *qcqp_s
 		GEAD(nv, nv, tmp, qcqp->Hq+ii, 0, 0, qp->Hv, 0, 0);
 
 		SYMV_L(nv, nv, 1.0, qcqp->Hq+ii, 0, 0, qcqp_sol->v, 0, 0.0, ws->tmp_nv+0, 0, ws->tmp_nv+0, 0);
-		AXPY(nv, 1.0, ws->tmp_nv+0, 0, qcqp->gq+ii, 0, ws->tmp_nv+1, 0);
+		COLEX(nv, qcqp->Ct, 0, ng+ii, ws->tmp_nv+1, 0);
+		AXPY(nv, 1.0, ws->tmp_nv+0, 0, ws->tmp_nv+1, 0, ws->tmp_nv+1, 0);
 		COLIN(nv, ws->tmp_nv+1, 0, qp->Ct, 0, ng+ii);
 		AXPY(nv, tmp, ws->tmp_nv+1, 0, ws->qcqp_res_ws->q_adj, 0, ws->qcqp_res_ws->q_adj, 0);
 
-		AXPY(nv, 0.5, ws->tmp_nv+0, 0, qcqp->gq+ii, 0, ws->tmp_nv+1, 0);
+		COLEX(nv, qcqp->Ct, 0, ng+ii, ws->tmp_nv+1, 0);
+		AXPY(nv, 0.5, ws->tmp_nv+0, 0, ws->tmp_nv+1, 0, ws->tmp_nv+1, 0);
 		tmp = DOT(nv, ws->tmp_nv+1, 0, qcqp_sol->v, 0);
 #ifdef DOUBLE_PRECISION
 		// TODO maybe swap signs?
@@ -998,11 +1001,13 @@ void DENSE_QCQP_UPDATE_QP(struct DENSE_QCQP *qcqp, struct DENSE_QCQP_SOL *qcqp_s
 		GEAD(nv, nv, tmp, qcqp->Hq+ii, 0, 0, qp->Hv, 0, 0);
 
 		SYMV_L(nv, nv, 1.0, qcqp->Hq+ii, 0, 0, qcqp_sol->v, 0, 0.0, ws->tmp_nv+0, 0, ws->tmp_nv+0, 0);
-		AXPY(nv, 1.0, ws->tmp_nv+0, 0, qcqp->gq+ii, 0, ws->tmp_nv+1, 0);
+		COLEX(nv, qcqp->Ct, 0, ng+ii, ws->tmp_nv+1, 0);
+		AXPY(nv, 1.0, ws->tmp_nv+0, 0, ws->tmp_nv+1, 0, ws->tmp_nv+1, 0);
 		COLIN(nv, ws->tmp_nv+1, 0, qp->Ct, 0, ng+ii);
 		AXPY(nv, tmp, ws->tmp_nv+1, 0, ws->qcqp_res_ws->q_adj, 0, ws->qcqp_res_ws->q_adj, 0);
 
-		AXPY(nv, 0.5, ws->tmp_nv+0, 0, qcqp->gq+ii, 0, ws->tmp_nv+1, 0);
+		COLEX(nv, qcqp->Ct, 0, ng+ii, ws->tmp_nv+1, 0);
+		AXPY(nv, 0.5, ws->tmp_nv+0, 0, ws->tmp_nv+1, 0, ws->tmp_nv+1, 0);
 		tmp = DOT(nv, ws->tmp_nv+1, 0, qcqp_sol->v, 0);
 #ifdef DOUBLE_PRECISION
 		// TODO maybe swap signs?
@@ -1055,13 +1060,17 @@ void DENSE_QCQP_UPDATE_QP_ABS_STEP(struct DENSE_QCQP *qcqp, struct DENSE_QCQP_SO
 		GEAD(nv, nv, tmp, qcqp->Hq+ii, 0, 0, qp->Hv, 0, 0);
 
 		SYMV_L(nv, nv, 1.0, qcqp->Hq+ii, 0, 0, qcqp_sol->v, 0, 0.0, ws->tmp_nv+0, 0, ws->tmp_nv+0, 0);
-		AXPY(nv, 1.0, ws->tmp_nv+0, 0, qcqp->gq+ii, 0, ws->tmp_nv+1, 0);
+		COLEX(nv, qcqp->Ct, 0, ng+ii, ws->tmp_nv+1, 0);
+		AXPY(nv, 1.0, ws->tmp_nv+0, 0, ws->tmp_nv+1, 0, ws->tmp_nv+1, 0);
 		COLIN(nv, ws->tmp_nv+1, 0, qp->Ct, 0, ng+ii);
 		AXPY(nv, tmp, ws->tmp_nv+1, 0, ws->qcqp_res_ws->q_adj, 0, ws->qcqp_res_ws->q_adj, 0);
 
-//		AXPY(nv, 0.5, ws->tmp_nv+0, 0, qcqp->gq+ii, 0, ws->tmp_nv+1, 0);
-		AXPY(nv, 0.5, ws->tmp_nv+0, 0, qcqp->gq+ii, 0, ws->tmp_nv+0, 0);
-		AXPY(nv, -1.0, ws->tmp_nv+1, 0, ws->tmp_nv+0, 0, ws->tmp_nv+1, 0);
+////		AXPY(nv, 0.5, ws->tmp_nv+0, 0, qcqp->gq+ii, 0, ws->tmp_nv+1, 0);
+//		AXPY(nv, 0.5, ws->tmp_nv+0, 0, qcqp->gq+ii, 0, ws->tmp_nv+0, 0);
+//		AXPY(nv, -1.0, ws->tmp_nv+1, 0, ws->tmp_nv+0, 0, ws->tmp_nv+1, 0);
+		AXPBY(nv, -1.0, ws->tmp_nv+1, 0, 0.5, ws->tmp_nv+0, 0, ws->tmp_nv+1, 0);
+		COLEX(nv, qcqp->Ct, 0, ng+ii, ws->tmp_nv+0, 0);
+		AXPY(nv, 1.0, ws->tmp_nv+0, 0, ws->tmp_nv+1, 0, ws->tmp_nv+1, 0);
 		tmp = DOT(nv, ws->tmp_nv+1, 0, qcqp_sol->v, 0);
 #ifdef DOUBLE_PRECISION
 		// TODO maybe swap signs?

@@ -453,7 +453,8 @@ void COND_QCQP_COND(struct OCP_QCQP *ocp_qp, struct DENSE_QCQP *dense_qp, struct
 				if(ii==kk) // existing quadr constr
 					{
 					CREATE_STRMAT(nu[ii]+nx[ii]+1, nu[ii]+nx[ii], cond_ws->hess_array+ii, ocp_qp->Hq[ii][jj].pA);
-					CREATE_STRVEC(nu[ii]+nx[ii], cond_ws->grad_array+ii, ocp_qp->gq[ii][jj].pa);
+//					CREATE_STRVEC(nu[ii]+nx[ii], cond_ws->grad_array+ii, ocp_qp->gq[ii][jj].pa);
+					CREATE_STRVEC(nu[ii]+nx[ii], cond_ws->grad_array+ii, cond_ws->zero_grad->pa);
 					}
 				else // dummy zero quadr constr
 					{
@@ -465,7 +466,8 @@ void COND_QCQP_COND(struct OCP_QCQP *ocp_qp, struct DENSE_QCQP *dense_qp, struct
 			tmp_ocp_qp.RSQrq = cond_ws->hess_array;
 			tmp_ocp_qp.rqz = cond_ws->grad_array;
 
-			COND_RSQRQ_N2NX3(&tmp_ocp_qp, dense_qp->Hq+nq_tmp, dense_qp->gq+nq_tmp, cond_arg->qp_arg, cond_ws->qp_ws);
+			// TODO use tmp space for gq !!!!!!!!!!!!!!!!!!
+//			COND_RSQRQ_N2NX3(&tmp_ocp_qp, dense_qp->Hq+nq_tmp, dense_qp->gq+nq_tmp, cond_arg->qp_arg, cond_ws->qp_ws);
 
 			nq_tmp++;
 

@@ -56,6 +56,7 @@
 
 #define AXPY blasfeo_daxpy
 #define CREATE_STRVEC blasfeo_create_dvec
+#define COLEX blasfeo_dcolex
 #define CVT_STRVEC2VEC blasfeo_unpack_dvec
 #define DENSE_QCQP d_dense_qcqp
 #define DENSE_QCQP_DIM d_dense_qcqp_dim

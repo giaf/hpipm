@@ -55,6 +55,7 @@
 
 
 #define BLASFEO_PRINT_MAT blasfeo_print_dmat
+#define BLASFEO_PRINT_TRAN_MAT blasfeo_print_tran_dmat
 #define BLASFEO_PRINT_TRAN_VEC blasfeo_print_tran_dvec
 #define DENSE_QCQP d_dense_qcqp
 #define DENSE_QCQP_DIM d_dense_qcqp_dim
