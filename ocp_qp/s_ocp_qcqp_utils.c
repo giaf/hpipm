@@ -54,6 +54,7 @@
 
 
 #define BLASFEO_PRINT_MAT blasfeo_print_smat
+#define BLASFEO_PRINT_TRAN_MAT blasfeo_print_tran_smat
 #define BLASFEO_PRINT_TRAN_VEC blasfeo_print_tran_svec
 #define BLASFEO_PRINT_EXP_TRAN_VEC blasfeo_print_exp_tran_svec
 #define OCP_QCQP s_ocp_qcqp

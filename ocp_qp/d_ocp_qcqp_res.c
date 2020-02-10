@@ -49,6 +49,7 @@
 
 
 #define AXPY blasfeo_daxpy
+#define COLEX blasfeo_dcolex
 #define CREATE_STRVEC blasfeo_create_dvec
 #define CVT_STRVEC2VEC blasfeo_unpack_dvec
 #define DOT blasfeo_ddot

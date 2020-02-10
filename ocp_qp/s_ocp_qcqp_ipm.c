@@ -71,7 +71,9 @@
 
 
 #define AXPY blasfeo_saxpy
+#define AXPBY blasfeo_saxpby
 #define BACKUP_RES_M s_backup_res_m
+#define COLEX blasfeo_scolex
 #define COMPUTE_ALPHA_QCQP s_compute_alpha_qcqp
 #define COMPUTE_CENTERING_CORRECTION_QCQP s_compute_centering_correction_qcqp
 #define COMPUTE_CENTERING_QCQP s_compute_centering_qcqp

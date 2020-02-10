@@ -76,13 +76,12 @@ int OCP_QCQP_MEMSIZE(struct OCP_QCQP_DIM *dim)
 	int size = 0;
 
 	size += (N+1)*sizeof(struct STRMAT *); // Hq
-	size += (N+1)*sizeof(struct STRVEC *); // gq
 
 //	size += 5*(N+1)*sizeof(int); // nx nu nb ng ns
 	size += 3*(N+1)*sizeof(int *); // idxb idxs idxs_rev
 	size += (2*(N+1)+nqt)*sizeof(struct STRMAT); // RSqrq DCt Hq
 	size += 1*N*sizeof(struct STRMAT); // BAbt
-	size += (5*(N+1)+nqt)*sizeof(struct STRVEC); // rqz d m Z d_mask gq
+	size += 5*(N+1)*sizeof(struct STRVEC); // rqz d m Z d_mask
 	size += 1*N*sizeof(struct STRVEC); // b
 
 	for(ii=0; ii<N; ii++)
@@ -92,20 +91,18 @@ int OCP_QCQP_MEMSIZE(struct OCP_QCQP_DIM *dim)
 		size += (nb[ii]+ng[ii]+nq[ii])*sizeof(int); // idxs_rev
 		size += SIZE_STRMAT(nu[ii]+nx[ii]+1, nx[ii+1]); // BAbt
 		size += SIZE_STRMAT(nu[ii]+nx[ii]+1, nu[ii]+nx[ii]); // RSQrq
-		size += SIZE_STRMAT(nu[ii]+nx[ii], ng[ii]); // DCt
+		size += SIZE_STRMAT(nu[ii]+nx[ii], ng[ii]+nq[ii]); // DCt
 		size += SIZE_STRVEC(2*ns[ii]); // Z
 		size += nq[ii]*SIZE_STRMAT(nu[ii]+nx[ii]+1, nu[ii]+nx[ii]); // Hq
-		size += nq[ii]*SIZE_STRVEC(nu[ii]+nx[ii]); // gq
 		}
 	ii = N;
 	size += nb[ii]*sizeof(int); // idxb
 	size += ns[ii]*sizeof(int); // idxs
 	size += (nb[ii]+ng[ii]+nq[ii])*sizeof(int); // idxs_rev
 	size += SIZE_STRMAT(nu[ii]+nx[ii]+1, nu[ii]+nx[ii]); // RSQrq
-	size += SIZE_STRMAT(nu[ii]+nx[ii], ng[ii]); // DCt
+	size += SIZE_STRMAT(nu[ii]+nx[ii], ng[ii]+nq[ii]); // DCt
 	size += SIZE_STRVEC(2*ns[ii]); // Z
 	size += nq[ii]*SIZE_STRMAT(nu[ii]+nx[ii]+1, nu[ii]+nx[ii]); // Hq
-	size += nq[ii]*SIZE_STRVEC(nu[ii]+nx[ii]); // gq
 
 	size += 1*SIZE_STRVEC(nvt); // rqz
 	size += 1*SIZE_STRVEC(net); // b
@@ -202,16 +199,8 @@ void OCP_QCQP_CREATE(struct OCP_QCQP_DIM *dim, struct OCP_QCQP *qp, void *mem)
 	smp_ptr += N+1;
 
 
-	// vector struct pointer stuff
-	struct STRVEC **svp_ptr = (struct STRVEC **) smp_ptr;
-
-	// gq
-	qp->gq = svp_ptr;
-	svp_ptr += N+1;
-
-
 	// matrix struct stuff
-	struct STRMAT *sm_ptr = (struct STRMAT *) svp_ptr;
+	struct STRMAT *sm_ptr = (struct STRMAT *) smp_ptr;
 
 	// BAbt
 	qp->BAbt = sm_ptr;
@@ -259,13 +248,6 @@ void OCP_QCQP_CREATE(struct OCP_QCQP_DIM *dim, struct OCP_QCQP *qp, void *mem)
 	// Z
 	qp->Z = sv_ptr;
 	sv_ptr += N+1;
-
-	// gq
-	for(ii=0; ii<=N; ii++)
-		{
-		qp->gq[ii] = sv_ptr;
-		sv_ptr += nq[ii];
-		}
 
 
 	// integer stuff
@@ -330,7 +312,7 @@ void OCP_QCQP_CREATE(struct OCP_QCQP_DIM *dim, struct OCP_QCQP *qp, void *mem)
 	// DCt
 	for(ii=0; ii<=N; ii++)
 		{
-		CREATE_STRMAT(nu[ii]+nx[ii], ng[ii], qp->DCt+ii, c_ptr);
+		CREATE_STRMAT(nu[ii]+nx[ii], ng[ii]+nq[ii], qp->DCt+ii, c_ptr);
 		c_ptr += (qp->DCt+ii)->memsize;
 //		GESE(nu[ii]+nx[ii], ng[ii], 0.0, qp->DCt+ii, 0, 0);
 		}
@@ -352,17 +334,6 @@ void OCP_QCQP_CREATE(struct OCP_QCQP_DIM *dim, struct OCP_QCQP *qp, void *mem)
 		CREATE_STRVEC(2*ns[ii], qp->Z+ii, c_ptr);
 		c_ptr += (qp->Z+ii)->memsize;
 //		VECSE(2*ns[ii], 0.0, qp->Z+ii, 0);
-		}
-
-	// gq
-	for(ii=0; ii<=N; ii++)
-		{
-		for(jj=0; jj<nq[ii]; jj++)
-			{
-			CREATE_STRVEC(nu[ii]+nx[ii], &qp->gq[ii][jj], c_ptr);
-			c_ptr += qp->gq[ii][jj].memsize;
-//			GESE(nu[ii]+nx[ii], ng[ii], 0.0, qp->DCt+ii, 0, 0);
-			}
 		}
 
 	// g
@@ -491,11 +462,9 @@ void OCP_QCQP_COPY_ALL(struct OCP_QCQP *qp_orig, struct OCP_QCQP *qp_dest)
 		VECCP(nu[ii]+nx[ii]+2*ns[ii], qp_orig->rqz+ii, 0, qp_dest->rqz+ii, 0);
 		for(jj=0; jj<nb[ii]; jj++)
 			qp_dest->idxb[ii][jj] = qp_orig->idxb[ii][jj];
-		GECP(nu[ii]+nx[ii], ng[ii], qp_orig->DCt+ii, 0, 0, qp_dest->DCt+ii, 0, 0);
+		GECP(nu[ii]+nx[ii], ng[ii]+nq[ii], qp_orig->DCt+ii, 0, 0, qp_dest->DCt+ii, 0, 0);
 		for(jj=0; jj<nq[ii]; jj++)
 			GECP(nu[ii]+nx[ii], nu[ii]+nx[ii], &qp_orig->Hq[ii][jj], 0, 0, &qp_dest->Hq[ii][jj], 0, 0);
-		for(jj=0; jj<nq[ii]; jj++)
-			VECCP(nu[ii]+nx[ii], &qp_orig->gq[ii][jj], 0, &qp_dest->gq[ii][jj], 0);
 		VECCP(2*nb[ii]+2*ng[ii]+2*nq[ii]+2*ns[ii], qp_orig->d+ii, 0, qp_dest->d+ii, 0);
 		VECCP(2*nb[ii]+2*ng[ii]+2*nq[ii]+2*ns[ii], qp_orig->d_mask+ii, 0, qp_dest->d_mask+ii, 0);
 		VECCP(2*nb[ii]+2*ng[ii]+2*nq[ii]+2*ns[ii], qp_orig->m+ii, 0, qp_dest->m+ii, 0);
@@ -540,11 +509,9 @@ void OCP_QCQP_SET_ALL_ZERO(struct OCP_QCQP *qp)
 		VECSE(nu[ii]+nx[ii]+2*ns[ii], 0.0, qp->rqz+ii, 0);
 		for(jj=0; jj<nb[ii]; jj++)
 			qp->idxb[ii][jj] = 0;
-		GESE(nu[ii]+nx[ii], ng[ii], 0.0, qp->DCt+ii, 0, 0);
+		GESE(nu[ii]+nx[ii], ng[ii]+nq[ii], 0.0, qp->DCt+ii, 0, 0);
 		for(jj=0; jj<nq[ii]; jj++)
 			GESE(nu[ii]+nx[ii], nu[ii]+nx[ii], 0.0, &qp->Hq[ii][jj], 0, 0);
-		for(jj=0; jj<nq[ii]; jj++)
-			VECSE(nu[ii]+nx[ii], 0.0, &qp->gq[ii][jj], 0);
 		VECSE(2*nb[ii]+2*ng[ii]+2*nq[ii]+2*ns[ii], 0.0, qp->d+ii, 0);
 		VECSE(2*nb[ii]+2*ng[ii]+2*nq[ii]+2*ns[ii], 1.0, qp->d_mask+ii, 0);
 		VECSE(2*nb[ii]+2*ng[ii]+2*nq[ii]+2*ns[ii], 0.0, qp->m+ii, 0);
@@ -1384,12 +1351,12 @@ void OCP_QCQP_SET_QQVEC(int stage, REAL *qq, struct OCP_QCQP *qp)
 	// extract dim
 	int *nx = qp->dim->nx;
 	int *nu = qp->dim->nu;
+	int *ng = qp->dim->ng;
 	int *nq = qp->dim->nq;
 
 	int ii;
 
-	for(ii=0; ii<nq[stage]; ii++)
-		CVT_VEC2STRVEC(nx[stage], qq+ii*nx[stage], &qp->gq[stage][ii], nu[stage]);
+	CVT_MAT2STRMAT(nx[stage], nq[stage], qq, nx[stage], qp->DCt+stage, nu[stage], ng[stage]);
 
 	return;
 	}
@@ -1401,12 +1368,12 @@ void OCP_QCQP_SET_RQVEC(int stage, REAL *rq, struct OCP_QCQP *qp)
 	// extract dim
 	int *nx = qp->dim->nx;
 	int *nu = qp->dim->nu;
+	int *ng = qp->dim->ng;
 	int *nq = qp->dim->nq;
 
 	int ii;
 
-	for(ii=0; ii<nq[stage]; ii++)
-		CVT_VEC2STRVEC(nu[stage], rq+ii*nu[stage], &qp->gq[stage][ii], 0);
+	CVT_MAT2STRMAT(nu[stage], nq[stage], rq, nu[stage], qp->DCt+stage, 0, ng[stage]);
 
 	return;
 	}

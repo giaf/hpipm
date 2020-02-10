@@ -279,7 +279,7 @@ void OCP_QCQP_PRINT(struct OCP_QCQP_DIM *dim, struct OCP_QCQP *qp)
 	printf("gq =\n");
 	for (ii = 0; ii <= N; ii++)
 		for(jj=0; jj<nq[ii]; jj++)
-			BLASFEO_PRINT_TRAN_VEC(nu[ii]+nx[ii], &qp->gq[ii][jj], 0);
+			BLASFEO_PRINT_TRAN_MAT(nu[ii]+nx[ii], 1, qp->DCt+ii, 0, ng[ii]+jj);
 
 	printf("idxs = \n");
 	for (ii = 0; ii <= N; ii++)
@@ -1208,9 +1208,11 @@ void OCP_QCQP_CODEGEN(char *file_name, char *mode, struct OCP_QCQP_DIM *dim, str
 			for(jj=0; jj<nx[nn]; jj++)
 				{
 #ifdef DOUBLE_PRECISION
-				fprintf(file, "%18.15e, ", BLASFEO_DVECEL(&qp->gq[nn][kk], nu[nn]+jj));
+//				fprintf(file, "%18.15e, ", BLASFEO_DVECEL(&qp->gq[nn][kk], nu[nn]+jj));
+				fprintf(file, "%18.15e, ", BLASFEO_DMATEL(qp->DCt+nn, nu[nn]+jj, ng[nn]+kk));
 #else
-				fprintf(file, "%18.15e, ", BLASFEO_SVECEL(&qp->gq[nn][kk], nu[nn]+jj));
+//				fprintf(file, "%18.15e, ", BLASFEO_SVECEL(&qp->gq[nn][kk], nu[nn]+jj));
+				fprintf(file, "%18.15e, ", BLASFEO_SMATEL(qp->DCt+nn, nu[nn]+jj, ng[nn]+kk));
 #endif
 				}
 			}
@@ -1244,9 +1246,11 @@ void OCP_QCQP_CODEGEN(char *file_name, char *mode, struct OCP_QCQP_DIM *dim, str
 			for(jj=0; jj<nu[nn]; jj++)
 				{
 #ifdef DOUBLE_PRECISION
-				fprintf(file, "%18.15e, ", BLASFEO_DVECEL(&qp->gq[nn][kk], jj));
+//				fprintf(file, "%18.15e, ", BLASFEO_DVECEL(&qp->gq[nn][kk], jj));
+				fprintf(file, "%18.15e, ", BLASFEO_DMATEL(qp->DCt+nn, jj, ng[nn]+kk));
 #else
-				fprintf(file, "%18.15e, ", BLASFEO_SVECEL(&qp->gq[nn][kk], jj));
+//				fprintf(file, "%18.15e, ", BLASFEO_SVECEL(&qp->gq[nn][kk], jj));
+				fprintf(file, "%18.15e, ", BLASFEO_SMATEL(qp->DCt+nn, jj, ng[nn]+kk));
 #endif
 				}
 			}

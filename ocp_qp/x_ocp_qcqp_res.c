@@ -273,9 +273,9 @@ int OCP_QCQP_RES_WS_MEMSIZE(struct OCP_QCQP_DIM *dim)
 
 	int size = 0;
 
-	size += (4+2*(N+1))*sizeof(struct STRVEC); // tmp_nuxM 2*tmp_nbgqM tmp_nsM q_fun q_adj
+	size += (5+2*(N+1))*sizeof(struct STRVEC); // 2*tmp_nuxM 2*tmp_nbgqM tmp_nsM q_fun q_adj
 
-	size += 1*SIZE_STRVEC(nuM+nxM); // tmp_nuxM q_adj
+	size += 2*SIZE_STRVEC(nuM+nxM); // 2*tmp_nuxM
 	size += 2*SIZE_STRVEC(nbM+ngM+nqM); // tmp_nbgqM
 	size += 1*SIZE_STRVEC(nsM); // tmp_nsM
 	for(ii=0; ii<=N; ii++)
@@ -358,7 +358,7 @@ void OCP_QCQP_RES_WS_CREATE(struct OCP_QCQP_DIM *dim, struct OCP_QCQP_RES_WS *ws
 	struct STRVEC *sv_ptr = (struct STRVEC *) mem;
 
 	ws->tmp_nuxM = sv_ptr;
-	sv_ptr += 1;
+	sv_ptr += 2;
 	ws->tmp_nbgqM = sv_ptr;
 	sv_ptr += 2;
 	ws->tmp_nsM = sv_ptr;
@@ -378,8 +378,10 @@ void OCP_QCQP_RES_WS_CREATE(struct OCP_QCQP_DIM *dim, struct OCP_QCQP_RES_WS *ws
 	char *c_ptr = (char *) s_ptr;
 
 
-	CREATE_STRVEC(nuM+nxM, ws->tmp_nuxM, c_ptr);
-	c_ptr += (ws->tmp_nuxM)->memsize;
+	CREATE_STRVEC(nuM+nxM, ws->tmp_nuxM+0, c_ptr);
+	c_ptr += (ws->tmp_nuxM+0)->memsize;
+	CREATE_STRVEC(nuM+nxM, ws->tmp_nuxM+1, c_ptr);
+	c_ptr += (ws->tmp_nuxM+1)->memsize;
 
 	CREATE_STRVEC(nbM+ngM, ws->tmp_nbgqM+0, c_ptr);
 	c_ptr += (ws->tmp_nbgqM+0)->memsize;
@@ -453,7 +455,6 @@ void OCP_QCQP_RES_COMPUTE(struct OCP_QCQP *qp, struct OCP_QCQP_SOL *qp_sol, stru
 	struct STRVEC *Z = qp->Z;
 	int **idxs = qp->idxs;
 	struct STRMAT **Hq = qp->Hq;
-	struct STRVEC **gq = qp->gq;
 
 	struct STRVEC *ux = qp_sol->ux;
 	struct STRVEC *pi = qp_sol->pi;
@@ -531,8 +532,9 @@ void OCP_QCQP_RES_COMPUTE(struct OCP_QCQP *qp, struct OCP_QCQP_SOL *qp_sol, stru
 						tmp = BLASFEO_SVECEL(tmp_nbgqM+0, nb0+ng0+jj);
 #endif
 						AXPY(nu0+nx0, tmp, tmp_nuxM, 0, res_g+ii, 0, res_g+ii, 0);
-						AXPY(nu0+nx0, tmp, &gq[ii][jj], 0, res_g+ii, 0, res_g+ii, 0);
-						AXPY(nu0+nx0, 0.5, tmp_nuxM, 0, &gq[ii][jj], 0, tmp_nuxM, 0);
+						COLEX(nu0+nx0, DCt+ii, 0, ng0+jj, tmp_nuxM+1, 0);
+						AXPY(nu0+nx0, tmp, tmp_nuxM+1, 0, res_g+ii, 0, res_g+ii, 0);
+						AXPY(nu0+nx0, 0.5, tmp_nuxM, 0, tmp_nuxM+1, 0, tmp_nuxM, 0);
 						tmp = DOT(nu0+nx0, tmp_nuxM, 0, ux+ii, 0);
 #ifdef DOUBLE_PRECISION
 						BLASFEO_DVECEL(tmp_nbgqM+1, nb0+ng0+jj) = tmp;
