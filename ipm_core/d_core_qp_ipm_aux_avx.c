@@ -254,16 +254,28 @@ void d_compute_alpha_qp(struct d_core_qp_ipm_workspace *cws)
 	__m128d
 		x_alpha0, x_alpha1;
 
+	__m256d
+		d_zeros, d_mones,
+		d_tmp0, d_tmp2, d_mask0, d_mask2, d_alpha0, d_alpha2;
+
+	d_mones  = _mm256_set_pd( -1.0, -1.0, -1.0, -1.0 );
+	d_zeros = _mm256_setzero_pd( );
+
+	d_alpha0 = _mm256_set_pd( -1.0, -1.0, -1.0, -1.0 );
+	d_alpha2 = _mm256_set_pd( -1.0, -1.0, -1.0, -1.0 );
+
+#if 0
 	__m128
 		s_zeros, s_mones,
 		s_tmp0, s_tmp2, s_mask0, s_mask2, s_alpha0, s_alpha2,
 		s_tmp1, s_tmp3, s_mask1, s_mask3, s_alpha1, s_alpha3;
-	
+
 	s_mones  = _mm_set_ps( -1.0, -1.0, -1.0, -1.0 );
 	s_zeros = _mm_setzero_ps( );
 
 	s_alpha0 = _mm_set_ps( -1.0, -1.0, -1.0, -1.0 );
 	s_alpha2 = _mm_set_ps( -1.0, -1.0, -1.0, -1.0 );
+#endif
 
 	// local variables
 	int ii;
@@ -298,6 +310,7 @@ void d_compute_alpha_qp(struct d_core_qp_ipm_workspace *cws)
 	s_alpha0 = _mm_max_ps( s_alpha0, s_alpha1 );
 	s_alpha2 = _mm_max_ps( s_alpha2, s_alpha3 );
 #endif
+#if 0
 	for(; ii<nc-3; ii+=4)
 		{
 		s_tmp0 = _mm256_cvtpd_ps( _mm256_loadu_pd( &dlam[ii+0] ) );
@@ -310,6 +323,20 @@ void d_compute_alpha_qp(struct d_core_qp_ipm_workspace *cws)
 		s_tmp2 = _mm_blendv_ps( s_mones, s_tmp2, s_mask2 );
 		s_alpha0 = _mm_max_ps( s_alpha0, s_tmp0 );
 		s_alpha2 = _mm_max_ps( s_alpha2, s_tmp2 );
+		}
+#endif
+	for(; ii<nc-3; ii+=4)
+		{
+		d_tmp0 = _mm256_loadu_pd( &dlam[ii+0] );
+		d_tmp2 = _mm256_loadu_pd( &dt[ii+0] );
+		d_mask0 = _mm256_cmp_pd( d_tmp0, d_zeros, 0x01 );
+		d_mask2 = _mm256_cmp_pd( d_tmp2, d_zeros, 0x01 );
+		d_tmp0 = _mm256_div_pd( _mm256_loadu_pd( &lam[ii+0] ), d_tmp0 );
+		d_tmp2 = _mm256_div_pd( _mm256_loadu_pd( &t[ii+0] ), d_tmp2 );
+		d_tmp0 = _mm256_blendv_pd( d_mones, d_tmp0, d_mask0 );
+		d_tmp2 = _mm256_blendv_pd( d_mones, d_tmp2, d_mask2 );
+		d_alpha0 = _mm256_max_pd( d_alpha0, d_tmp0 );
+		d_alpha2 = _mm256_max_pd( d_alpha2, d_tmp2 );
 		}
 	for(; ii<nc; ii++)
 		{
@@ -325,8 +352,12 @@ void d_compute_alpha_qp(struct d_core_qp_ipm_workspace *cws)
 
 		}
 
+#if 0
 	y_alpha0 = _mm256_cvtps_pd( s_alpha0 );
 	y_alpha1 = _mm256_cvtps_pd( s_alpha2 );
+#endif
+	y_alpha0 = d_alpha0;
+	y_alpha1 = d_alpha2;
 	x_alpha0 = _mm_max_pd( _mm256_extractf128_pd( y_alpha0, 0x1 ), _mm256_castpd256_pd128( y_alpha0 ) );
 	x_alpha1 = _mm_max_pd( _mm256_extractf128_pd( y_alpha1, 0x1 ), _mm256_castpd256_pd128( y_alpha1 ) );
 	x_alpha0 = _mm_max_sd( x_alpha0, _mm_permute_pd( x_alpha0, 0x1 ) );
@@ -387,9 +418,12 @@ void d_update_var_qp(struct d_core_qp_ipm_workspace *cws)
 		{
 //		alpha_prim = alpha_prim * ((1.0-alpha)*0.99 + alpha*0.9999999);
 //		alpha_dual = alpha_dual * ((1.0-alpha)*0.99 + alpha*0.9999999);
-		alpha_prim = alpha_prim * ((1.0-alpha_prim)*0.99 + alpha_prim*0.9999996);
-		alpha_dual = alpha_dual * ((1.0-alpha_dual)*0.99 + alpha_dual*0.9999996);
-		alpha = alpha * ((1.0-alpha)*0.99 + alpha*0.9999996);
+//		alpha_prim = alpha_prim * ((1.0-alpha_prim)*0.99 + alpha_prim*0.9999996);
+//		alpha_dual = alpha_dual * ((1.0-alpha_dual)*0.99 + alpha_dual*0.9999996);
+//		alpha = alpha * ((1.0-alpha)*0.99 + alpha*0.9999996);
+		alpha_prim = alpha_prim * ((1.0-alpha_prim)*0.99 + alpha_prim*0.9999999);
+		alpha_dual = alpha_dual * ((1.0-alpha_dual)*0.99 + alpha_dual*0.9999999);
+		alpha = alpha * ((1.0-alpha)*0.99 + alpha*0.9999999);
 		}
 #endif
 
