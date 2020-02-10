@@ -70,6 +70,8 @@ struct d_dense_qcqp_sol
 int d_dense_qcqp_sol_memsize(struct d_dense_qcqp_dim *dim);
 //
 void d_dense_qcqp_sol_create(struct d_dense_qcqp_dim *dim, struct d_dense_qcqp_sol *qp_sol, void *memory);
+//
+void d_dense_qcqp_sol_get_v(struct d_dense_qcqp_sol *qp_sol, double *v);
 
 
 

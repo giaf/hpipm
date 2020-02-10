@@ -62,6 +62,7 @@
 
 #define DENSE_QCQP_SOL_MEMSIZE d_dense_qcqp_sol_memsize
 #define DENSE_QCQP_SOL_CREATE d_dense_qcqp_sol_create
+#define DENSE_QCQP_SOL_GET_V d_dense_qcqp_sol_get_v
 
 
 

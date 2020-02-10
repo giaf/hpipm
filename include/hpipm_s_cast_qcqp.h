@@ -35,38 +35,38 @@
 
 
 
-#if defined(RUNTIME_CHECKS)
-#include <stdlib.h>
-#include <stdio.h>
-#endif
+#ifndef HPIPM_S_CAST_QCQP_H_
+#define HPIPM_S_CAST_QCQP_H_
+
+
 
 #include <blasfeo_target.h>
 #include <blasfeo_common.h>
-#include <blasfeo_s_aux.h>
 
-#include <hpipm_s_dense_qcqp_dim.h>
-#include <hpipm_s_dense_qcqp.h>
-#include <hpipm_s_dense_qcqp_sol.h>
+#include "hpipm_s_dense_qcqp.h"
+#include "hpipm_s_dense_qcqp_sol.h"
+#include "hpipm_s_ocp_qcqp.h"
+#include "hpipm_s_ocp_qcqp_dim.h"
+#include "hpipm_s_ocp_qcqp_sol.h"
 
-
-
-#define CREATE_STRVEC blasfeo_create_svec
-#define CVT_STRVEC2VEC blasfeo_unpack_svec
-#define DENSE_QCQP s_dense_qcqp
-#define DENSE_QCQP_DIM s_dense_qcqp_dim
-#define DENSE_QCQP_SOL s_dense_qcqp_sol
-#define REAL float
-#define STRVEC blasfeo_svec
-#define SIZE_STRVEC blasfeo_memsize_svec
-#define VECCP_LIBSTR blasfeo_sveccp
-
-#define DENSE_QCQP_SOL_MEMSIZE s_dense_qcqp_sol_memsize
-#define DENSE_QCQP_SOL_CREATE s_dense_qcqp_sol_create
-#define DENSE_QCQP_SOL_GET_V s_dense_qcqp_sol_get_v
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 
 
-#include "x_dense_qcqp_sol.c"
+//
+void s_cast_qcqp_compute_dim(struct s_ocp_qcqp_dim *ocp_dim, struct s_dense_qcqp_dim *dense_dim);
+//
+void s_cast_qcqp_cond(struct s_ocp_qcqp *ocp_qp, struct s_dense_qcqp *dense_qp);
 
+
+#ifdef __cplusplus
+} /* extern "C" */
+#endif
+
+
+
+#endif // HPIPM_S_CAST_QCQP_H_
 
 
