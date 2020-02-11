@@ -158,7 +158,17 @@ void CAST_QCQP_COND(struct OCP_QCQP *ocp_qp, struct DENSE_QCQP *dense_qp)
 		idxc += nu[ii]+nx[ii];
 		}
 
-	// TODO general constraints
+	// general constraints
+	idxr = 0;
+	idxc = 0;
+	for(ii=0; ii<=N; ii++)
+		{
+		VECCP(ng[ii], ocp_qp->d+ii, nb[ii], dense_qp->d, idxr+nbc);
+		VECCP(ng[ii], ocp_qp->d+ii, 2*nb[ii]+ng[ii]+nq[ii], dense_qp->d, idxr+2*nbc+ngc+nqc);
+		GECP(nu[ii]+nx[ii], ng[ii], ocp_qp->DCt+ii, 0, 0, dense_qp->Ct, idxc, idxr);
+		idxr += ng[ii];
+		idxc += nu[ii]+nx[ii];
+		}
 
 	// quadratic constraints
 	idxr = 0;
@@ -190,7 +200,6 @@ void CAST_QCQP_COND(struct OCP_QCQP *ocp_qp, struct DENSE_QCQP *dense_qp)
 		VECCP(nq[ii], ocp_qp->d+ii, 2*nb[ii]+2*ng[ii]+nq[ii], dense_qp->d, idxr+2*nbc+2*ngc+nqc);
 		idxr += nq[ii];
 		}
-
 
 	// TODO soft constraints
 
