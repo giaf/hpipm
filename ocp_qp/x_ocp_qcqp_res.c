@@ -440,7 +440,7 @@ void OCP_QCQP_RES_COMPUTE(struct OCP_QCQP *qp, struct OCP_QCQP_SOL *qp_sol, stru
 
 	int nct = 0;
 	for(ii=0; ii<=N; ii++)
-		nct += 2*nb[ii]+2*ng[ii]+2*ns[ii];
+		nct += 2*nb[ii]+2*ng[ii]+2*nq[ii]+2*ns[ii];
 
 	REAL nct_inv = 1.0/nct;
 

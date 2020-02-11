@@ -878,15 +878,11 @@ int main()
 //	enum hpipm_mode mode = ROBUST;
 	d_dense_qcqp_ipm_arg_set_default(mode, &dense_arg);
 
-//	arg.alpha_min = 1e-8;
-//	arg.res_g_max = 1e-8;
-//	arg.res_b_max = 1e-8;
-//	arg.res_d_max = 1e-12;
-//	arg.res_m_max = 1e-12;
-//	dense_arg.mu0 = mu0;
-//	arg.iter_max = 20;
-//	arg.stat_max = 100;
-//	arg.pred_corr = 1;
+	double mu0 = 1e1;
+	int iter_max = 30;
+
+	d_dense_qcqp_ipm_arg_set_mu0(&mu0, &dense_arg);
+	d_dense_qcqp_ipm_arg_set_iter_max(&iter_max, &dense_arg);
 
 /************************************************
 * ipm

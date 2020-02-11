@@ -836,7 +836,7 @@ int main()
 //	enum hpipm_mode mode = ROBUST;
 	d_ocp_qcqp_ipm_arg_set_default(mode, &arg);
 
-	double mu0 = 1e0;
+	double mu0 = 1e1;
 	int iter_max = 30;
 	double alpha_min = 1e-8;
 	double tol_stat = 1e-8;
