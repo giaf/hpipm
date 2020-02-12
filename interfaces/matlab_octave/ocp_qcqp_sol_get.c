@@ -32,107 +32,140 @@
 * Author: Gianluca Frison, gianluca.frison (at) imtek.uni-freiburg.de                             *
 *                                                                                                 *
 **************************************************************************************************/
-
-// macro to string
-#define STR(x) STR_AGAIN(x)
-#define STR_AGAIN(x) #x
-
 // system
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
 // hpipm
 #include "hpipm_d_ocp_qcqp_dim.h"
-#include "hpipm_d_ocp_qcqp.h"
+#include "hpipm_d_ocp_qcqp_sol.h"
 // mex
 #include "mex.h"
-
-// data
-#include STR(QP_DATA_H)
 
 
 
 void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
 	{
 
-//	printf("\nin ocp_qcqp_dim_load\n");
+//	mexPrintf("\nin ocp_qcqp_sol_get\n");
 
-	mxArray *tmp_mat;
 	long long *l_ptr;
-	char *c_ptr;
-
-	/* RHS */
-
-	// dim
-	l_ptr = mxGetData( prhs[0] );
-	struct d_ocp_qcqp_dim *dim = (struct d_ocp_qcqp_dim *) *l_ptr;
-
-	/* qp */
-
-	int qp_size = sizeof(struct d_ocp_qcqp) + d_ocp_qcqp_memsize(dim);
-	void *qp_mem = malloc(qp_size);
-
-	c_ptr = qp_mem;
-
-	struct d_ocp_qcqp *qp = (struct d_ocp_qcqp *) c_ptr;
-	c_ptr += sizeof(struct d_ocp_qcqp);
-
-	d_ocp_qcqp_create(dim, qp, c_ptr);
-	c_ptr += d_ocp_qcqp_memsize(dim);
-
-//	d_ocp_qcqp_set_all(hA, hB, hb, hQ, hS, hR, hq, hr, hidxbx, hlbx, hubx, hidxbu, hlbu, hubu, hC, hD, hlg, hug, hZl, hZu, hzl, hzu, hidxs, hlls, hlus, qp);
 
 	int ii;
 
-	// dynamics
-	for(ii=0; ii<N; ii++)
-		{
-		d_ocp_qcqp_set_A(ii, hA[ii], qp);
-		d_ocp_qcqp_set_B(ii, hB[ii], qp);
-		d_ocp_qcqp_set_b(ii, hb[ii], qp);
-		}
-	
-	// cost
-	for(ii=0; ii<=N; ii++)
-		{
-		d_ocp_qcqp_set_Q(ii, hQ[ii], qp);
-		d_ocp_qcqp_set_S(ii, hS[ii], qp);
-		d_ocp_qcqp_set_R(ii, hR[ii], qp);
-		d_ocp_qcqp_set_q(ii, hq[ii], qp);
-		d_ocp_qcqp_set_r(ii, hr[ii], qp);
-		}
-	
-	// constraints
-	for(ii=0; ii<=N; ii++)
-		{
-		d_ocp_qcqp_set_idxbx(ii, hidxbx, qp);
-		d_ocp_qcqp_set_lbx(ii, hlbx, qp);
-		d_ocp_qcqp_set_ubx(ii, hubx, qp);
-		d_ocp_qcqp_set_idxbu(ii, hidxbu, qp);
-		d_ocp_qcqp_set_lbu(ii, hlbu, qp);
-		d_ocp_qcqp_set_ubu(ii, hubu, qp);
-		d_ocp_qcqp_set_C(ii, hC, qp);
-		d_ocp_qcqp_set_D(ii, hD, qp);
-		d_ocp_qcqp_set_lg(ii, hlg, qp);
-		d_ocp_qcqp_set_ug(ii, hug, qp);
-		d_ocp_qcqp_set_Qq(ii, hQq, qp);
-		d_ocp_qcqp_set_Sq(ii, hSq, qp);
-		d_ocp_qcqp_set_Rq(ii, hRq, qp);
-		d_ocp_qcqp_set_qq(ii, hqq, qp);
-		d_ocp_qcqp_set_rq(ii, hrq, qp);
-		d_ocp_qcqp_set_uq(ii, huq, qp);
-		d_ocp_qcqp_set_uq_mask(ii, huq_mask, qp);
-		}
-	
-	// TODO soft constr
+	/* RHS */
 
-	/* LHS */
+	// sol
+	l_ptr = mxGetData( prhs[0] );
+	struct d_ocp_qcqp_sol *sol = (struct d_ocp_qcqp_sol *) *l_ptr;
 
-	tmp_mat = mxCreateNumericMatrix(1, 1, mxINT64_CLASS, mxREAL);
-	l_ptr = mxGetData(tmp_mat);
-	l_ptr[0] = (long long) qp_mem;
-	plhs[0] = tmp_mat;
+	// dim
+	struct d_ocp_qcqp_dim *dim = sol->dim;
+	int N = dim->N;
+	int *nx = dim->nx;
+	int *nu = dim->nu;
+	int *ns = dim->ns;
+
+	// field
+	char *field = mxArrayToString( prhs[1] );
+
+	// stage0
+	int stage0 = mxGetScalar( prhs[2] );
+
+	// stage1
+	int stage1;
+	if(nrhs==4)
+		{
+		stage1 = mxGetScalar( prhs[3] );
+		}
+	
+	/* body */
+
+	if(!strcmp(field, "x"))
+		{
+		if(nrhs==4)
+			{
+			int nx_sum = 0;
+			for(ii=stage0; ii<=stage1; ii++)
+				{
+				nx_sum += nx[ii];
+				}
+			plhs[0] = mxCreateNumericMatrix(nx_sum, 1, mxDOUBLE_CLASS, mxREAL);
+			double *x = mxGetPr( plhs[0] );
+			nx_sum = 0;
+			for(ii=stage0; ii<=stage1; ii++)
+				{
+				d_ocp_qcqp_sol_get(field, ii, sol, x+nx_sum);
+				nx_sum += nx[ii];
+				}
+			}
+		else
+			{
+			plhs[0] = mxCreateNumericMatrix(nx[stage0], 1, mxDOUBLE_CLASS, mxREAL);
+			double *x = mxGetPr( plhs[0] );
+			d_ocp_qcqp_sol_get(field, stage0, sol, x);
+			}
+		}
+	else if(!strcmp(field, "u"))
+		{
+		if(nrhs==4)
+			{
+			int nu_sum = 0;
+			for(ii=stage0; ii<=stage1; ii++)
+				{
+				nu_sum += nu[ii];
+				}
+			plhs[0] = mxCreateNumericMatrix(nu_sum, 1, mxDOUBLE_CLASS, mxREAL);
+			double *u = mxGetPr( plhs[0] );
+			nu_sum = 0;
+			for(ii=stage0; ii<=stage1; ii++)
+				{
+				d_ocp_qcqp_sol_get(field, ii, sol, u+nu_sum);
+				nu_sum += nu[ii];
+				}
+			}
+		else
+			{
+			plhs[0] = mxCreateNumericMatrix(nu[stage0], 1, mxDOUBLE_CLASS, mxREAL);
+			double *u = mxGetPr( plhs[0] );
+			d_ocp_qcqp_sol_get(field, stage0, sol, u);
+			}
+		}
+	else if( (!strcmp(field, "sl")) | (!strcmp(field, "su")) )
+		{
+		if(nrhs==4)
+			{
+			int ns_sum = 0;
+			for(ii=stage0; ii<=stage1; ii++)
+				{
+				ns_sum += ns[ii];
+				}
+			plhs[0] = mxCreateNumericMatrix(ns_sum, 1, mxDOUBLE_CLASS, mxREAL);
+			double *s = mxGetPr( plhs[0] );
+			ns_sum = 0;
+			for(ii=stage0; ii<=stage1; ii++)
+				{
+				d_ocp_qcqp_sol_get(field, ii, sol, s+ns_sum);
+				ns_sum += ns[ii];
+				}
+			}
+		else
+			{
+			plhs[0] = mxCreateNumericMatrix(ns[stage0], 1, mxDOUBLE_CLASS, mxREAL);
+			double *s = mxGetPr( plhs[0] );
+			d_ocp_qcqp_sol_get(field, stage0, sol, s);
+			}
+		}
+	else
+		{
+		mexPrintf("\nocp_qcqp_sol_get: field not supported: %s\n", field);
+		return;
+		}
 
 	return;
 
 	}
+
+
+
+

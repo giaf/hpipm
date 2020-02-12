@@ -722,7 +722,7 @@ void OCP_QCQP_CODEGEN(char *file_name, char *mode, struct OCP_QCQP_DIM *dim, str
 			{
 			if(qp->idxb[nn][jj]<nu[nn])
 				{
-				fprintf(file, "%18.15e, ", -BLASFEO_DVECEL(qp->d_mask+nn, nb[nn]+ng[nn]+jj));
+				fprintf(file, "%18.15e, ", BLASFEO_DVECEL(qp->d_mask+nn, nb[nn]+ng[nn]+jj));
 				}
 			}
 		fprintf(file, "};\n");
@@ -870,7 +870,7 @@ void OCP_QCQP_CODEGEN(char *file_name, char *mode, struct OCP_QCQP_DIM *dim, str
 			{
 			if(qp->idxb[nn][jj]>=nu[nn])
 				{
-				fprintf(file, "%18.15e, ", -BLASFEO_DVECEL(qp->d_mask+nn, nb[nn]+ng[nn]+jj));
+				fprintf(file, "%18.15e, ", BLASFEO_DVECEL(qp->d_mask+nn, nb[nn]+ng[nn]+jj));
 				}
 			}
 		fprintf(file, "};\n");
@@ -1059,7 +1059,7 @@ void OCP_QCQP_CODEGEN(char *file_name, char *mode, struct OCP_QCQP_DIM *dim, str
 #endif
 		for(jj=0; jj<ng[nn]; jj++)
 			{
-			fprintf(file, "%18.15e, ", -BLASFEO_DVECEL(qp->d_mask+nn, 2*nb[nn]+ng[nn]+jj));
+			fprintf(file, "%18.15e, ", BLASFEO_DVECEL(qp->d_mask+nn, 2*nb[nn]+ng[nn]+jj));
 			}
 		fprintf(file, "};\n");
 		}
@@ -1166,9 +1166,9 @@ void OCP_QCQP_CODEGEN(char *file_name, char *mode, struct OCP_QCQP_DIM *dim, str
 #endif
 		for(kk=0; kk<nq[nn]; kk++)
 			{
-			for(jj=0; jj<nx[nn]; jj++)
+			for(jj=0; jj<nu[nn]; jj++)
 				{
-				for(ii=0; ii<nx[nn]; ii++)
+				for(ii=0; ii<nu[nn]; ii++)
 					{
 #ifdef DOUBLE_PRECISION
 					fprintf(file, "%18.15e, ", BLASFEO_DMATEL(&qp->Hq[nn][kk], ii, jj));
@@ -1310,7 +1310,7 @@ void OCP_QCQP_CODEGEN(char *file_name, char *mode, struct OCP_QCQP_DIM *dim, str
 #endif
 		for(jj=0; jj<ng[nn]; jj++)
 			{
-			fprintf(file, "%18.15e, ", -BLASFEO_DVECEL(qp->d_mask+nn, 2*nb[nn]+2*ng[nn]+nq[nn]+jj));
+			fprintf(file, "%18.15e, ", BLASFEO_DVECEL(qp->d_mask+nn, 2*nb[nn]+2*ng[nn]+nq[nn]+jj));
 			}
 		fprintf(file, "};\n");
 		}

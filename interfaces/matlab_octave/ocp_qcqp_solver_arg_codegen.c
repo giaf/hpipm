@@ -32,34 +32,25 @@
 * Author: Gianluca Frison, gianluca.frison (at) imtek.uni-freiburg.de                             *
 *                                                                                                 *
 **************************************************************************************************/
-
-// macro to string
-#define STR(x) STR_AGAIN(x)
-#define STR_AGAIN(x) #x
-
 // system
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
 // hpipm
 #include "hpipm_d_ocp_qcqp_dim.h"
-#include "hpipm_d_ocp_qcqp.h"
+#include "hpipm_d_ocp_qcqp_ipm.h"
+#include "hpipm_d_ocp_qcqp_utils.h"
 // mex
 #include "mex.h"
-
-// data
-#include STR(QP_DATA_H)
 
 
 
 void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
 	{
 
-//	printf("\nin ocp_qcqp_dim_load\n");
+//	mexPrintf("\nin ocp_qcqp_codegen\n");
 
-	mxArray *tmp_mat;
 	long long *l_ptr;
-	char *c_ptr;
 
 	/* RHS */
 
@@ -67,72 +58,25 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
 	l_ptr = mxGetData( prhs[0] );
 	struct d_ocp_qcqp_dim *dim = (struct d_ocp_qcqp_dim *) *l_ptr;
 
-	/* qp */
+	// arg
+	l_ptr = mxGetData( prhs[1] );
+	struct d_ocp_qcqp_ipm_arg *arg = (struct d_ocp_qcqp_ipm_arg *) *l_ptr;
 
-	int qp_size = sizeof(struct d_ocp_qcqp) + d_ocp_qcqp_memsize(dim);
-	void *qp_mem = malloc(qp_size);
+	// file
+	char *file_name = mxArrayToString( prhs[2] );
 
-	c_ptr = qp_mem;
+	// mode
+	char *mode = mxArrayToString( prhs[3] );
 
-	struct d_ocp_qcqp *qp = (struct d_ocp_qcqp *) c_ptr;
-	c_ptr += sizeof(struct d_ocp_qcqp);
-
-	d_ocp_qcqp_create(dim, qp, c_ptr);
-	c_ptr += d_ocp_qcqp_memsize(dim);
-
-//	d_ocp_qcqp_set_all(hA, hB, hb, hQ, hS, hR, hq, hr, hidxbx, hlbx, hubx, hidxbu, hlbu, hubu, hC, hD, hlg, hug, hZl, hZu, hzl, hzu, hidxs, hlls, hlus, qp);
-
-	int ii;
-
-	// dynamics
-	for(ii=0; ii<N; ii++)
-		{
-		d_ocp_qcqp_set_A(ii, hA[ii], qp);
-		d_ocp_qcqp_set_B(ii, hB[ii], qp);
-		d_ocp_qcqp_set_b(ii, hb[ii], qp);
-		}
-	
-	// cost
-	for(ii=0; ii<=N; ii++)
-		{
-		d_ocp_qcqp_set_Q(ii, hQ[ii], qp);
-		d_ocp_qcqp_set_S(ii, hS[ii], qp);
-		d_ocp_qcqp_set_R(ii, hR[ii], qp);
-		d_ocp_qcqp_set_q(ii, hq[ii], qp);
-		d_ocp_qcqp_set_r(ii, hr[ii], qp);
-		}
-	
-	// constraints
-	for(ii=0; ii<=N; ii++)
-		{
-		d_ocp_qcqp_set_idxbx(ii, hidxbx, qp);
-		d_ocp_qcqp_set_lbx(ii, hlbx, qp);
-		d_ocp_qcqp_set_ubx(ii, hubx, qp);
-		d_ocp_qcqp_set_idxbu(ii, hidxbu, qp);
-		d_ocp_qcqp_set_lbu(ii, hlbu, qp);
-		d_ocp_qcqp_set_ubu(ii, hubu, qp);
-		d_ocp_qcqp_set_C(ii, hC, qp);
-		d_ocp_qcqp_set_D(ii, hD, qp);
-		d_ocp_qcqp_set_lg(ii, hlg, qp);
-		d_ocp_qcqp_set_ug(ii, hug, qp);
-		d_ocp_qcqp_set_Qq(ii, hQq, qp);
-		d_ocp_qcqp_set_Sq(ii, hSq, qp);
-		d_ocp_qcqp_set_Rq(ii, hRq, qp);
-		d_ocp_qcqp_set_qq(ii, hqq, qp);
-		d_ocp_qcqp_set_rq(ii, hrq, qp);
-		d_ocp_qcqp_set_uq(ii, huq, qp);
-		d_ocp_qcqp_set_uq_mask(ii, huq_mask, qp);
-		}
-	
-	// TODO soft constr
-
-	/* LHS */
-
-	tmp_mat = mxCreateNumericMatrix(1, 1, mxINT64_CLASS, mxREAL);
-	l_ptr = mxGetData(tmp_mat);
-	l_ptr[0] = (long long) qp_mem;
-	plhs[0] = tmp_mat;
+	/* body */
+	d_ocp_qcqp_ipm_arg_codegen(file_name, mode, dim, arg);
 
 	return;
 
 	}
+
+
+
+
+
+

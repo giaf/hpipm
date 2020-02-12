@@ -32,30 +32,23 @@
 * Author: Gianluca Frison, gianluca.frison (at) imtek.uni-freiburg.de                             *
 *                                                                                                 *
 **************************************************************************************************/
-
-// macro to string
-#define STR(x) STR_AGAIN(x)
-#define STR_AGAIN(x) #x
-
 // system
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
 // hpipm
+#include "hpipm_timing.h"
 #include "hpipm_d_ocp_qcqp_dim.h"
-#include "hpipm_d_ocp_qcqp.h"
+#include "hpipm_d_ocp_qcqp_ipm.h"
 // mex
 #include "mex.h"
-
-// data
-#include STR(QP_DATA_H)
 
 
 
 void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
 	{
 
-//	printf("\nin ocp_qcqp_dim_load\n");
+//	printf("\nin ocp_solver_create\n");
 
 	mxArray *tmp_mat;
 	long long *l_ptr;
@@ -63,76 +56,44 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
 
 	/* RHS */
 
-	// dim
+	// qp
 	l_ptr = mxGetData( prhs[0] );
-	struct d_ocp_qcqp_dim *dim = (struct d_ocp_qcqp_dim *) *l_ptr;
+	struct d_ocp_qcqp *qp = (struct d_ocp_qcqp *) *l_ptr;
 
-	/* qp */
+	// qp_sol
+	l_ptr = mxGetData( prhs[1] );
+	struct d_ocp_qcqp_sol *qp_sol = (struct d_ocp_qcqp_sol *) *l_ptr;
 
-	int qp_size = sizeof(struct d_ocp_qcqp) + d_ocp_qcqp_memsize(dim);
-	void *qp_mem = malloc(qp_size);
+	// arg
+	l_ptr = mxGetData( prhs[2] );
+	struct d_ocp_qcqp_ipm_arg *arg = (struct d_ocp_qcqp_ipm_arg *) *l_ptr;
 
-	c_ptr = qp_mem;
+	// ws
+	l_ptr = mxGetData( prhs[3] );
+	struct d_ocp_qcqp_ipm_ws *ws = (struct d_ocp_qcqp_ipm_ws *) *l_ptr;
 
-	struct d_ocp_qcqp *qp = (struct d_ocp_qcqp *) c_ptr;
-	c_ptr += sizeof(struct d_ocp_qcqp);
+	/* RHS */
 
-	d_ocp_qcqp_create(dim, qp, c_ptr);
-	c_ptr += d_ocp_qcqp_memsize(dim);
+	// time_ext
+	plhs[0] = mxCreateNumericMatrix(1, 1, mxDOUBLE_CLASS, mxREAL);
+	double *mat_ptr = mxGetPr( plhs[0] );
 
-//	d_ocp_qcqp_set_all(hA, hB, hb, hQ, hS, hR, hq, hr, hidxbx, hlbx, hubx, hidxbu, hlbu, hubu, hC, hD, hlg, hug, hZl, hZu, hzl, hzu, hidxs, hlls, hlus, qp);
+	/* body */
 
-	int ii;
+	hpipm_timer timer;
+	hpipm_tic(&timer);
 
-	// dynamics
-	for(ii=0; ii<N; ii++)
-		{
-		d_ocp_qcqp_set_A(ii, hA[ii], qp);
-		d_ocp_qcqp_set_B(ii, hB[ii], qp);
-		d_ocp_qcqp_set_b(ii, hb[ii], qp);
-		}
-	
-	// cost
-	for(ii=0; ii<=N; ii++)
-		{
-		d_ocp_qcqp_set_Q(ii, hQ[ii], qp);
-		d_ocp_qcqp_set_S(ii, hS[ii], qp);
-		d_ocp_qcqp_set_R(ii, hR[ii], qp);
-		d_ocp_qcqp_set_q(ii, hq[ii], qp);
-		d_ocp_qcqp_set_r(ii, hr[ii], qp);
-		}
-	
-	// constraints
-	for(ii=0; ii<=N; ii++)
-		{
-		d_ocp_qcqp_set_idxbx(ii, hidxbx, qp);
-		d_ocp_qcqp_set_lbx(ii, hlbx, qp);
-		d_ocp_qcqp_set_ubx(ii, hubx, qp);
-		d_ocp_qcqp_set_idxbu(ii, hidxbu, qp);
-		d_ocp_qcqp_set_lbu(ii, hlbu, qp);
-		d_ocp_qcqp_set_ubu(ii, hubu, qp);
-		d_ocp_qcqp_set_C(ii, hC, qp);
-		d_ocp_qcqp_set_D(ii, hD, qp);
-		d_ocp_qcqp_set_lg(ii, hlg, qp);
-		d_ocp_qcqp_set_ug(ii, hug, qp);
-		d_ocp_qcqp_set_Qq(ii, hQq, qp);
-		d_ocp_qcqp_set_Sq(ii, hSq, qp);
-		d_ocp_qcqp_set_Rq(ii, hRq, qp);
-		d_ocp_qcqp_set_qq(ii, hqq, qp);
-		d_ocp_qcqp_set_rq(ii, hrq, qp);
-		d_ocp_qcqp_set_uq(ii, huq, qp);
-		d_ocp_qcqp_set_uq_mask(ii, huq_mask, qp);
-		}
-	
-	// TODO soft constr
+	d_ocp_qcqp_ipm_solve(qp, qp_sol, arg, ws);
 
-	/* LHS */
-
-	tmp_mat = mxCreateNumericMatrix(1, 1, mxINT64_CLASS, mxREAL);
-	l_ptr = mxGetData(tmp_mat);
-	l_ptr[0] = (long long) qp_mem;
-	plhs[0] = tmp_mat;
+	double time_ext = hpipm_toc(&timer);
+	*mat_ptr = time_ext;
 
 	return;
 
 	}
+
+
+
+
+
+

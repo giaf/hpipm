@@ -46,7 +46,7 @@
 void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
 	{
 
-//	mexPrintf("\nin ocp_solver_destroy\n");
+//	mexPrintf("\nin ocp_qp_solver_destroy\n");
 
 	long long *ptr;
 

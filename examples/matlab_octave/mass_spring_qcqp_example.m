@@ -58,9 +58,9 @@ codegen_data = 1; % export qp data in the file qp_data.c for use from C examples
 
 
 %%% data %%%
-nx = 8;				% number of states
-nu = 3;				% number of inputs (controls)
-N = 30;				% horizon length
+nx = 2;				% number of states
+nu = 1;				% number of inputs (controls)
+N = 15;				% horizon length
 
 % mass sprint system
 Ts = 0.5; % sampling time
@@ -84,18 +84,22 @@ r = zeros(nu, 1);
 % initial state
 Jx0 = eye(nx);
 x0 = zeros(nx, 1);
-x0(1) = 3.5;
-x0(2) = 3.5;
+x0(1) = 2.5;
+x0(2) = 2.5;
 
 % input bounds
 Jbu = eye(nu);
 lbu = -0.5*ones(nu,1);
 ubu =  0.5*ones(nu,1);
 
+% quadratic constr
+QqN = eye(nx);
+uqN = 1.5;
+
 
 
 %%% dim %%%
-dim = hpipm_ocp_qp_dim(N);
+dim = hpipm_ocp_qcqp_dim(N);
 
 %% Note:
 % The setters follow the following convention:
@@ -112,18 +116,19 @@ dim.set('nbx', nbx, 0); % state bounds
 dim.set('nbu', nbu, 0, N-1); % control bounds
 %dim.set('ng', ng, 0, N); % general linear constraints
 %dim.set('ns', ns, 0, N); % slacks
+dim.set('nq', 1, N);
 
 % print to shell
 %dim.print_C_struct();
 % codegen
 if codegen_data
-	dim.codegen('qp_data.c', 'w');
+	dim.codegen('qcqp_data.c', 'w');
 end
 
 
 
 %%% qp %%%
-qp = hpipm_ocp_qp(dim);
+qp = hpipm_ocp_qcqp(dim);
 
 % dynamics
 qp.set('A', A, 0, N-1);
@@ -162,17 +167,20 @@ qp.set('ubu', ubu, 0, N-1);
 %qp.set('lus', slack_bounds, 0, N);
 %qp.set('lls', slack_bounds, 0, N);
 
+qp.set('Qq', QqN, N);
+qp.set('uq', uqN, N);
+
 % print to shell
 %qp.print_C_struct();
 % codegen
 if codegen_data
-	qp.codegen('qp_data.c', 'a');
+	qp.codegen('qcqp_data.c', 'a');
 end
 
 
 
 %%% sol %%%
-sol = hpipm_ocp_qp_sol(dim);
+sol = hpipm_ocp_qcqp_sol(dim);
 
 
 
@@ -182,10 +190,10 @@ mode = 'speed';
 %mode = 'balance';
 %mode = 'robust';
 % create and set default arg based on mode
-arg = hpipm_ocp_qp_solver_arg(dim, mode);
+arg = hpipm_ocp_qcqp_solver_arg(dim, mode);
 
 % overwrite default argument values
-arg.set('mu0', 1e4);
+arg.set('mu0', 1e1);
 arg.set('iter_max', 20);
 arg.set('tol_stat', 1e-4);
 arg.set('tol_eq', 1e-5);
@@ -196,13 +204,13 @@ arg.set('reg_prim', 1e-12);
 
 % codegen
 if codegen_data
-	arg.codegen('qp_data.c', 'a');
+	arg.codegen('qcqp_data.c', 'a');
 end
 
 
 
 %%% solver %%%
-solver = hpipm_ocp_qp_solver(dim, arg);
+solver = hpipm_ocp_qcqp_solver(dim, arg);
 
 % arg which are allowed to be changed
 solver.set('iter_max', 30);
@@ -257,6 +265,8 @@ sl = sol.get('sl', 0, N);
 
 % print to shell
 %sol.print_C_struct();
+
+%quadr_constr = 0.5*x(:,N+1)'*QqN*x(:,N+1);
 
 
 
