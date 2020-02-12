@@ -372,7 +372,7 @@ int main()
 	printf("\nipm residuals max: res_g = %e, res_b = %e, res_d = %e, res_m = %e\n", res_stat, res_eq, res_ineq, res_comp);
 
 	printf("\nipm iter = %d\n", iter);
-	printf("\nalpha_aff\tmu_aff\t\tsigma\t\talpha\t\tmu\t\tres_stat\tres_eq\t\tres_ineq\tres_comp\n");
+	printf("\nalpha_aff\tmu_aff\t\tsigma\t\talpha_prim\talpha_dual\tmu\t\tres_stat\tres_eq\t\tres_ineq\tres_comp\tlq fact\t\titref pred\titref corr\tlin res stat\tlin res eq\tlin res ineq\tlin res comp\n");
 	d_print_exp_tran_mat(stat_m, iter+1, stat, stat_m);
 
 	printf("\npart cond time = %e [s]\n\n", time_cond);
@@ -395,7 +395,7 @@ int main()
 	d_ocp_qp_res_ws_create(&dim, &res_ws, res_ws_mem);
 
 	d_ocp_qp_res_compute(&qp, &qp_sol, &res, &res_ws);
-	d_ocp_qp_res_compute_max(&res, &res_ws);
+	d_ocp_qp_res_compute_inf_norm(&res);
 
 	d_ocp_qp_res_get_max_res_stat(&res, &res_stat);
 	d_ocp_qp_res_get_max_res_eq(&res, &res_eq);
@@ -471,7 +471,7 @@ int main()
 		}
 
 	d_ocp_qp_res_compute(&qp1, &qp_sol1, &res, &res_ws);
-	d_ocp_qp_res_compute_max(&res, &res_ws);
+	d_ocp_qp_res_compute_inf_norm(&res);
 
 	d_ocp_qp_res_get_max_res_stat(&res, &res_stat);
 	d_ocp_qp_res_get_max_res_eq(&res, &res_eq);

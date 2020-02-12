@@ -866,7 +866,7 @@ int main()
 	double max_res_comp; d_dense_qcqp_ipm_get_max_res_comp(&dense_workspace, &max_res_comp);
 	printf("\nipm max res: stat = %e, eq =  %e, ineq =  %e, comp = %e\n", max_res_stat, max_res_eq, max_res_ineq, max_res_comp);
 
-	printf("\nalpha_aff\tmu_aff\t\tsigma\t\talpha_prim\talpha_dual\tmu\t\tres_stat\tres_eq\t\tres_ineq\tres_comp\titref pred\titref corr\n");
+	printf("\nalpha_aff\tmu_aff\t\tsigma\t\talpha_prim\talpha_dual\tmu\t\tres_stat\tres_eq\t\tres_ineq\tres_comp\tlq fact\t\titref pred\titref corr\tlin res stat\tlin res eq\tlin res ineq\tlin res comp\n");
 	double *stat; d_dense_qcqp_ipm_get_stat(&dense_workspace, &stat);
 	int stat_m;  d_dense_qcqp_ipm_get_stat_m(&dense_workspace, &stat_m);
 	d_print_exp_tran_mat(stat_m, iter+1, stat, stat_m);

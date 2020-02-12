@@ -1258,10 +1258,10 @@ void DENSE_QCQP_IPM_SOLVE(struct DENSE_QCQP *qcqp, struct DENSE_QCQP_SOL *qcqp_s
 			// save infinity norm of residuals
 			if(0<stat_max)
 				{
-				stat[5] = qcqp_res_max[0];
-				stat[6] = qcqp_res_max[1];
-				stat[7] = qcqp_res_max[2];
-				stat[8] = qcqp_res_max[3];
+				stat[6] = qcqp_res_max[0];
+				stat[7] = qcqp_res_max[1];
+				stat[8] = qcqp_res_max[2];
+				stat[9] = qcqp_res_max[3];
 				}
 			cws->mu = qcqp_res->res_mu;
 			}
@@ -1350,39 +1350,7 @@ void DENSE_QCQP_IPM_SOLVE(struct DENSE_QCQP *qcqp, struct DENSE_QCQP_SOL *qcqp_s
 				}
 			}
 
-		// save info before return
-		qcqp_ws->iter = kk;
-
-		if(kk == qp_arg->iter_max)
-			{
-			// max iteration number reached
-			qcqp_ws->status = 1;
-			}
-		else if(cws->alpha <= qp_arg->alpha_min)
-			{
-			// min step lenght
-			qcqp_ws->status = 2;
-			}
-#ifdef USE_C99_MATH
-		else if(isnan(cws->mu))
-			{
-			// NaN in the solution
-			qcqp_ws->status = 3;
-			}
-#else
-		else if(cws->mu != cws->mu)
-			{
-			// NaN in the solution
-			qcqp_ws->status = 3;
-			}
-#endif
-		else
-			{
-			// normal return
-			qcqp_ws->status = 0;
-			}
-
-		return;
+		goto set_status;
 
 		}
 
@@ -1448,11 +1416,10 @@ void DENSE_QCQP_IPM_SOLVE(struct DENSE_QCQP *qcqp, struct DENSE_QCQP_SOL *qcqp_s
 		DENSE_QCQP_RES_COMPUTE_INF_NORM(qcqp_res);
 		DENSE_QCQP_RES_CONV_QP_RES(qcqp_res, qp_ws->res);
 		cws->mu = qcqp_res->res_mu;
-		if(kk+1<stat_max)
-			stat[stat_m*(kk+1)+5] = qcqp_res->res_mu;
 		// save infinity norm of residuals
 		if(kk+1<stat_max)
 			{
+			stat[stat_m*(kk+1)+5] = qcqp_res->res_mu;
 			stat[stat_m*(kk+1)+6] = qcqp_res_max[0];
 			stat[stat_m*(kk+1)+7] = qcqp_res_max[1];
 			stat[stat_m*(kk+1)+8] = qcqp_res_max[2];
@@ -1461,36 +1428,38 @@ void DENSE_QCQP_IPM_SOLVE(struct DENSE_QCQP *qcqp, struct DENSE_QCQP_SOL *qcqp_s
 
 		}
 
+set_status:
+
 	// save info before return
 	qcqp_ws->iter = kk;
 
 	if(kk == qcqp_arg->iter_max)
 		{
 		// max iteration number reached
-		qcqp_ws->status = 1;
+		qcqp_ws->status = MAX_ITER;
 		}
 	else if(cws->alpha <= qcqp_arg->alpha_min)
 		{
 		// min step lenght
-		qcqp_ws->status = 2;
+		qcqp_ws->status = MIN_STEP;
 		}
 #ifdef USE_C99_MATH
 	else if(isnan(cws->mu))
 		{
 		// NaN in the solution
-		qcqp_ws->status = 3;
+		qcqp_ws->status = NAN_SOL;
 		}
 #else
 	else if(cws->mu != cws->mu)
 		{
 		// NaN in the solution
-		qcqp_ws->status = 3;
+		qcqp_ws->status = NAN_SOL;
 		}
 #endif
 	else
 		{
 		// normal return
-		qcqp_ws->status = 0;
+		qcqp_ws->status = SUCCESS;
 		}
 
 	return;

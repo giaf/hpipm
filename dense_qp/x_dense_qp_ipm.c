@@ -2018,10 +2018,10 @@ void DENSE_QP_IPM_SOLVE(struct DENSE_QP *qp, struct DENSE_QP_SOL *qp_sol, struct
 			// save infinity norm of residuals
 			if(0<ws->stat_max)
 				{
-				stat[5] = qp_res_max[0];
-				stat[6] = qp_res_max[1];
-				stat[7] = qp_res_max[2];
-				stat[8] = qp_res_max[3];
+				stat[6] = qp_res_max[0];
+				stat[7] = qp_res_max[1];
+				stat[8] = qp_res_max[2];
+				stat[9] = qp_res_max[3];
 				}
 			cws->mu = ws->res->res_mu;
 			}

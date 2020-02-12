@@ -39,4 +39,4 @@ clean:
 	rm -f *.o
 	rm -f *.mex
 	rm -f *.mexa64
-	rm octave-workspace
+	rm -f octave-workspace
