@@ -45,6 +45,7 @@
 #include <hpipm_d_dense_qp_dim.h>
 #include <hpipm_d_dense_qp.h>
 #include <hpipm_aux_string.h>
+#include <hpipm_aux_mem.h>
 
 
 

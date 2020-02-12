@@ -95,30 +95,7 @@ void OCP_QCQP_SOL_CREATE(struct OCP_QCQP_DIM *dim, struct OCP_QCQP_SOL *qp_sol, 
 
 	// zero memory (to avoid corrupted memory like e.g. NaN)
 	int memsize = OCP_QCQP_SOL_MEMSIZE(dim);
-	int memsize_m8 = memsize/8; // sizeof(double) is 8
-//	int memsize_r8 = memsize - 8*memsize_m8;
-	double *double_ptr = mem;
-	// XXX exploit that it is multiple of 64 bytes !!!!!
-	for(ii=0; ii<memsize_m8-7; ii+=8)
-		{
-		double_ptr[ii+0] = 0.0;
-		double_ptr[ii+1] = 0.0;
-		double_ptr[ii+2] = 0.0;
-		double_ptr[ii+3] = 0.0;
-		double_ptr[ii+4] = 0.0;
-		double_ptr[ii+5] = 0.0;
-		double_ptr[ii+6] = 0.0;
-		double_ptr[ii+7] = 0.0;
-		}
-//	for(; ii<memsize_m8; ii++)
-//		{
-//		double_ptr[ii] = 0.0;
-//		}
-//	char *char_ptr = (char *) (&double_ptr[ii]);
-//	for(ii=0; ii<memsize_r8; ii++)
-//		{
-//		char_ptr[ii] = 0;
-//		}
+	hpipm_zero_memset(memsize, mem);
 
 	// extract dim
 	int N = dim->N;

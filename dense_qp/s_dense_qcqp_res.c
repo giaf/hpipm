@@ -47,6 +47,7 @@
 #include <hpipm_s_dense_qcqp.h>
 #include <hpipm_s_dense_qcqp_sol.h>
 #include <hpipm_s_dense_qcqp_res.h>
+#include <hpipm_aux_mem.h>
 
 
 

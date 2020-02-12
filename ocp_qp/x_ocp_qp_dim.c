@@ -57,13 +57,17 @@ int OCP_QP_DIM_MEMSIZE(int N)
 
 
 
-void OCP_QP_DIM_CREATE(int N, struct OCP_QP_DIM *dim, void *memory)
+void OCP_QP_DIM_CREATE(int N, struct OCP_QP_DIM *dim, void *mem)
 	{
 
 	// loop index
 	int ii;
 
-	char *c_ptr = memory;
+	// zero memory (to avoid corrupted memory like e.g. NaN)
+	int memsize = OCP_QP_DIM_MEMSIZE(N);
+	hpipm_zero_memset(memsize, mem);
+
+	char *c_ptr = mem;
 
 	// nx
 	dim->nx = (int *) c_ptr;

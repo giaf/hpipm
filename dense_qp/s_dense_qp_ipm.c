@@ -55,6 +55,7 @@
 #include <hpipm_s_core_qp_ipm.h>
 #include <hpipm_s_core_qp_ipm_aux.h>
 #include <hpipm_s_dense_qp_kkt.h>
+#include <hpipm_aux_mem.h>
 
 
 

@@ -40,6 +40,7 @@
 
 #include <hpipm_d_ocp_qp_dim.h>
 #include <hpipm_aux_string.h>
+#include <hpipm_aux_mem.h>
 
 
 

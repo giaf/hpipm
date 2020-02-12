@@ -254,6 +254,7 @@ file(GLOB TREE_OCP_QP_SRC
 # auxiliary
 file(GLOB AUXILIARY_SRC
 	${PROJECT_SOURCE_DIR}/auxiliary/aux_string.c
+	${PROJECT_SOURCE_DIR}/auxiliary/aux_mem.c
 	${PROJECT_SOURCE_DIR}/auxiliary/timing.c
 	)
 

@@ -47,6 +47,10 @@ int DENSE_QP_IPM_ARG_MEMSIZE(struct DENSE_QP_DIM *dim)
 void DENSE_QP_IPM_ARG_CREATE(struct DENSE_QP_DIM *dim, struct DENSE_QP_IPM_ARG *arg, void *mem)
 	{
 
+	// zero memory (to avoid corrupted memory like e.g. NaN)
+//	int memsize = DENSE_QP_IPM_ARG_MEMSIZE(dim);
+//	hpipm_zero_memset(memsize, mem);
+
 	arg->memsize = 0;
 
 	return;
@@ -599,6 +603,10 @@ int DENSE_QP_IPM_WS_MEMSIZE(struct DENSE_QP_DIM *dim, struct DENSE_QP_IPM_ARG *a
 
 void DENSE_QP_IPM_WS_CREATE(struct DENSE_QP_DIM *dim, struct DENSE_QP_IPM_ARG *arg, struct DENSE_QP_IPM_WS *workspace, void *mem)
 	{
+
+	// zero memory (to avoid corrupted memory like e.g. NaN)
+	int memsize = DENSE_QP_IPM_WS_MEMSIZE(dim, arg);
+	hpipm_zero_memset(memsize, mem);
 
 	int nv = dim->nv;
 	int ne = dim->ne;

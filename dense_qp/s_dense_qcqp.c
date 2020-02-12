@@ -45,6 +45,7 @@
 #include <hpipm_s_dense_qcqp_dim.h>
 #include <hpipm_s_dense_qcqp.h>
 #include <hpipm_aux_string.h>
+#include <hpipm_aux_mem.h>
 
 
 #define CREATE_STRMAT blasfeo_create_smat

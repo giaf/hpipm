@@ -45,6 +45,7 @@
 
 #include <hpipm_s_ocp_qcqp_dim.h>
 #include <hpipm_s_ocp_qcqp_res.h>
+#include <hpipm_aux_mem.h>
 
 
 

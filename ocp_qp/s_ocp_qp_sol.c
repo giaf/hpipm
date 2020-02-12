@@ -46,6 +46,7 @@
 #include <hpipm_s_ocp_qp.h>
 #include <hpipm_s_ocp_qp_sol.h>
 #include <hpipm_aux_string.h>
+#include <hpipm_aux_mem.h>
 
 
 

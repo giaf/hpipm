@@ -48,6 +48,7 @@
 #include <blasfeo_d_blas.h>
 
 #include <hpipm_aux_string.h>
+#include <hpipm_aux_mem.h>
 #include <hpipm_d_core_qp_ipm.h>
 #include <hpipm_d_core_qp_ipm_aux.h>
 #include <hpipm_d_ocp_qp_dim.h>

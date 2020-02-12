@@ -73,6 +73,10 @@ void OCP_QCQP_DIM_CREATE(int N, struct OCP_QCQP_DIM *dim, void *mem)
 	// loop index
 	int ii;
 
+	// zero memory (to avoid corrupted memory like e.g. NaN)
+	int memsize = OCP_QCQP_DIM_MEMSIZE(N);
+	hpipm_zero_memset(memsize, mem);
+
 	// qp_dim struct
 	struct OCP_QP_DIM *dim_ptr = mem;
 

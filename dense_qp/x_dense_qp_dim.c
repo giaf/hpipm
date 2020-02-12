@@ -48,8 +48,12 @@ int DENSE_QP_DIM_MEMSIZE()
 
 
 
-void DENSE_QP_DIM_CREATE(struct DENSE_QP_DIM *dim, void *memory)
+void DENSE_QP_DIM_CREATE(struct DENSE_QP_DIM *dim, void *mem)
 	{
+
+	// zero memory (to avoid corrupted memory like e.g. NaN)
+//	int memsize = DENSE_QP_DIM_MEMSIZE();
+//	hpipm_zero_memset(memsize, mem);
 
 	dim->memsize = DENSE_QP_DIM_MEMSIZE();
 

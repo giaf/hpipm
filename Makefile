@@ -169,6 +169,7 @@ OBJS += tree_ocp_qp/s_tree_ocp_qp_ipm.o
 
 # aux
 OBJS += auxiliary/aux_string.o
+OBJS += auxiliary/aux_mem.o
 OBJS += auxiliary/timing.o
 
 all: clean static_library

@@ -33,57 +33,54 @@
 *                                                                                                 *
 **************************************************************************************************/
 
+#ifdef TARGET_AVX
+#include <mmintrin.h>
+#include <xmmintrin.h>  // SSE
+#include <emmintrin.h>  // SSE2
+#include <pmmintrin.h>  // SSE3
+#include <smmintrin.h>  // SSE4
+#include <immintrin.h>  // AVX
+#endif
 
+void hpipm_zero_memset(int memsize, void *mem)
+	{
+	int ii;
+	int memsize_m8 = memsize/8; // sizeof(double) is 8
+	int memsize_r8 = memsize%8;
+	double *double_ptr = mem;
+#ifdef TARGET_AVX
+	__m256d
+		y_zeros;
+	
+	y_zeros = _mm256_setzero_pd();
 
-#include <stdlib.h>
-#include <stdio.h>
-
-#include <hpipm_s_ocp_qp_dim.h>
-#include <hpipm_s_ocp_qcqp_dim.h>
-#include <hpipm_aux_string.h>
-#include <hpipm_aux_mem.h>
-
-
-
-#define OCP_QCQP_DIM s_ocp_qcqp_dim
-#define OCP_QP_DIM s_ocp_qp_dim
-#define OCP_QP_DIM_CREATE s_ocp_qp_dim_create
-#define OCP_QP_DIM_MEMSIZE s_ocp_qp_dim_memsize
-#define OCP_QP_DIM_SET_NX s_ocp_qp_dim_set_nx
-#define OCP_QP_DIM_SET_NU s_ocp_qp_dim_set_nu
-#define OCP_QP_DIM_SET_NBX s_ocp_qp_dim_set_nbx
-#define OCP_QP_DIM_SET_NBU s_ocp_qp_dim_set_nbu
-#define OCP_QP_DIM_SET_NG s_ocp_qp_dim_set_ng
-#define OCP_QP_DIM_SET_NS s_ocp_qp_dim_set_ns
-#define OCP_QP_DIM_SET_NSBX s_ocp_qp_dim_set_nsbx
-#define OCP_QP_DIM_SET_NSBU s_ocp_qp_dim_set_nsbu
-#define OCP_QP_DIM_SET_NSG s_ocp_qp_dim_set_nsg
-
-
-
-#define OCP_QCQP_DIM_STRSIZE s_ocp_qcqp_dim_strsize
-#define OCP_QCQP_DIM_MEMSIZE s_ocp_qcqp_dim_memsize
-#define OCP_QCQP_DIM_CREATE s_ocp_qcqp_dim_create
-#define OCP_QCQP_DIM_COPY_ALL s_ocp_qcqp_dim_copy_all
-#define OCP_QCQP_DIM_SET s_ocp_qcqp_dim_set
-#define OCP_QCQP_DIM_SET_NX s_ocp_qcqp_dim_set_nx
-#define OCP_QCQP_DIM_SET_NU s_ocp_qcqp_dim_set_nu
-#define OCP_QCQP_DIM_SET_NBX s_ocp_qcqp_dim_set_nbx
-#define OCP_QCQP_DIM_SET_NBU s_ocp_qcqp_dim_set_nbu
-#define OCP_QCQP_DIM_SET_NG s_ocp_qcqp_dim_set_ng
-#define OCP_QCQP_DIM_SET_NQ s_ocp_qcqp_dim_set_nq
-#define OCP_QCQP_DIM_SET_NS s_ocp_qcqp_dim_set_ns
-#define OCP_QCQP_DIM_SET_NSBX s_ocp_qcqp_dim_set_nsbx
-#define OCP_QCQP_DIM_SET_NSBU s_ocp_qcqp_dim_set_nsbu
-#define OCP_QCQP_DIM_SET_NSG s_ocp_qcqp_dim_set_nsg
-#define OCP_QCQP_DIM_SET_NSQ s_ocp_qcqp_dim_set_nsq
-#define OCP_QCQP_DIM_GET s_ocp_qcqp_dim_get
-#define OCP_QCQP_DIM_GET_N s_ocp_qcqp_dim_get_N
-#define OCP_QCQP_DIM_GET_NX s_ocp_qcqp_dim_get_nx
-#define OCP_QCQP_DIM_GET_NU s_ocp_qcqp_dim_get_nu
-
-
-
-#include "x_ocp_qcqp_dim.c"
-
+	for(ii=0; ii<memsize_m8-7; ii+=8)
+		{
+		_mm256_storeu_pd( double_ptr+ii+0, y_zeros );
+		_mm256_storeu_pd( double_ptr+ii+4, y_zeros );
+		}
+#else
+	for(ii=0; ii<memsize_m8-7; ii+=8)
+		{
+		double_ptr[ii+0] = 0.0;
+		double_ptr[ii+1] = 0.0;
+		double_ptr[ii+2] = 0.0;
+		double_ptr[ii+3] = 0.0;
+		double_ptr[ii+4] = 0.0;
+		double_ptr[ii+5] = 0.0;
+		double_ptr[ii+6] = 0.0;
+		double_ptr[ii+7] = 0.0;
+		}
+#endif
+	for(; ii<memsize_m8; ii++)
+		{
+		double_ptr[ii] = 0.0;
+		}
+	char *char_ptr = (char *) (&double_ptr[ii]);
+	for(ii=0; ii<memsize_r8; ii++)
+		{
+		char_ptr[ii] = 0;
+		}
+	return;
+	}
 

@@ -55,6 +55,10 @@ int DENSE_QCQP_DIM_MEMSIZE()
 void DENSE_QCQP_DIM_CREATE(struct DENSE_QCQP_DIM *dim, void *mem)
 	{
 
+	// zero memory (to avoid corrupted memory like e.g. NaN)
+	int memsize = DENSE_QCQP_DIM_MEMSIZE();
+	hpipm_zero_memset(memsize, mem);
+
 	// qp_dim struct
 	struct DENSE_QP_DIM *dim_ptr = mem;
 
