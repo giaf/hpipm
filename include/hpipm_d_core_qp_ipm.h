@@ -77,6 +77,7 @@ struct d_core_qp_ipm_workspace
 	int ne; // number of equality constraints
 	int nc; // (twice the) number of (two-sided) inequality constraints
 	int nc_mask; // total number of ineq constr after masking
+	int split_step; // use different step for primal and dual variables
 	int memsize; // memory size (in bytes) of workspace
 	};
 

@@ -109,7 +109,7 @@ void OCP_QCQP_IPM_ARG_SET_DEFAULT(enum HPIPM_MODE mode, struct OCP_QCQP_IPM_ARG 
 	OCP_QP_IPM_ARG_SET_DEFAULT(mode, arg->qp_arg);
 
 	REAL mu0, alpha_min, res_g_max, res_b_max, res_d_max, res_m_max, reg_prim, lam_min, t_min;
-	int iter_max, stat_max, pred_corr, cond_pred_corr, itref_pred_max, itref_corr_max, lq_fact, warm_start, abs_form, comp_res_exit, comp_res_pred, square_root_alg, comp_dual_sol;
+	int iter_max, stat_max, pred_corr, cond_pred_corr, itref_pred_max, itref_corr_max, lq_fact, warm_start, abs_form, comp_res_exit, comp_res_pred, square_root_alg, comp_dual_sol, split_step;
 
 	if(mode==SPEED_ABS)
 		{
@@ -135,7 +135,7 @@ void OCP_QCQP_IPM_ARG_SET_DEFAULT(enum HPIPM_MODE mode, struct OCP_QCQP_IPM_ARG 
 		comp_dual_sol = 0;
 		comp_res_exit = 0;
 		comp_res_pred = 0;
-		mode = mode;
+		split_step = 1;
 		}
 	else if(mode==SPEED)
 		{
@@ -161,7 +161,7 @@ void OCP_QCQP_IPM_ARG_SET_DEFAULT(enum HPIPM_MODE mode, struct OCP_QCQP_IPM_ARG 
 		comp_dual_sol = 1;
 		comp_res_exit = 1;
 		comp_res_pred = 1;
-		mode = mode;
+		split_step = 1;
 		}
 	else if(mode==BALANCE)
 		{
@@ -187,7 +187,7 @@ void OCP_QCQP_IPM_ARG_SET_DEFAULT(enum HPIPM_MODE mode, struct OCP_QCQP_IPM_ARG 
 		comp_dual_sol = 1;
 		comp_res_exit = 1;
 		comp_res_pred = 1;
-		mode = mode;
+		split_step = 0;
 		}
 	else if(mode==ROBUST)
 		{
@@ -213,7 +213,7 @@ void OCP_QCQP_IPM_ARG_SET_DEFAULT(enum HPIPM_MODE mode, struct OCP_QCQP_IPM_ARG 
 		comp_dual_sol = 1;
 		comp_res_exit = 1;
 		comp_res_pred = 1;
-		mode = mode;
+		split_step = 0;
 		}
 	else
 		{
@@ -243,6 +243,7 @@ void OCP_QCQP_IPM_ARG_SET_DEFAULT(enum HPIPM_MODE mode, struct OCP_QCQP_IPM_ARG 
 	arg->abs_form = abs_form;
 	OCP_QCQP_IPM_ARG_SET_COMP_RES_PRED(&comp_res_pred, arg);
 	OCP_QCQP_IPM_ARG_SET_COMP_RES_EXIT(&comp_res_pred, arg);
+	OCP_QCQP_IPM_ARG_SET_SPLIT_STEP(&split_step, arg);
 	arg->mode = mode;
 
 	return;
@@ -316,6 +317,10 @@ void OCP_QCQP_IPM_ARG_SET(char *field, void *value, struct OCP_QCQP_IPM_ARG *arg
 	else if(hpipm_strcmp(field, "t_min")) 
 		{
 		OCP_QCQP_IPM_ARG_SET_T_MIN(value, arg);
+		}
+	else if(hpipm_strcmp(field, "split_step")) 
+		{
+		OCP_QCQP_IPM_ARG_SET_SPLIT_STEP(value, arg);
 		}
 	else
 		{
@@ -468,6 +473,15 @@ void OCP_QCQP_IPM_ARG_SET_T_MIN(REAL *value, struct OCP_QCQP_IPM_ARG *arg)
 	{
 	arg->t_min = *value;
 	OCP_QP_IPM_ARG_SET_T_MIN(value, arg->qp_arg);
+	return;
+	}
+
+
+
+void OCP_QCQP_IPM_ARG_SET_SPLIT_STEP(int *value, struct OCP_QCQP_IPM_ARG *arg)
+	{
+	arg->split_step = *value;
+	OCP_QP_IPM_ARG_SET_SPLIT_STEP(value, arg->qp_arg);
 	return;
 	}
 
@@ -1457,6 +1471,7 @@ void OCP_QCQP_IPM_SOLVE(struct OCP_QCQP *qcqp, struct OCP_QCQP_SOL *qcqp_sol, st
 	// qp_arg to core workspace
 	cws->lam_min = qp_arg->lam_min;
 	cws->t_min = qp_arg->t_min;
+	cws->split_step = qp_arg->split_step;
 
 	// alias qp vectors into qp_sol
 	cws->v = qp_sol->ux->pa;

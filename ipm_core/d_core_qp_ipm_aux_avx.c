@@ -407,7 +407,7 @@ void d_update_var_qp(struct d_core_qp_ipm_workspace *cws)
 	__m256d
 		x_tmp0, x_tmp1,
 		y_tmp0, y_tmp1,
-		y_alpha,
+		y_alpha, y_alpha_prim, y_alpha_dual,
 		y_lam_min, y_t_min, y_mask0, y_mask1;
 	
 #if 0
@@ -416,11 +416,6 @@ void d_update_var_qp(struct d_core_qp_ipm_workspace *cws)
 #else
 	if(alpha<1.0)
 		{
-//		alpha_prim = alpha_prim * ((1.0-alpha)*0.99 + alpha*0.9999999);
-//		alpha_dual = alpha_dual * ((1.0-alpha)*0.99 + alpha*0.9999999);
-//		alpha_prim = alpha_prim * ((1.0-alpha_prim)*0.99 + alpha_prim*0.9999996);
-//		alpha_dual = alpha_dual * ((1.0-alpha_dual)*0.99 + alpha_dual*0.9999996);
-//		alpha = alpha * ((1.0-alpha)*0.99 + alpha*0.9999996);
 		alpha_prim = alpha_prim * ((1.0-alpha_prim)*0.99 + alpha_prim*0.9999999);
 		alpha_dual = alpha_dual * ((1.0-alpha_dual)*0.99 + alpha_dual*0.9999999);
 		alpha = alpha * ((1.0-alpha)*0.99 + alpha*0.9999999);
@@ -430,110 +425,151 @@ void d_update_var_qp(struct d_core_qp_ipm_workspace *cws)
 	// local variables
 	int ii;
 
-#if 1
-
-	y_alpha = _mm256_broadcast_sd( &alpha );
-
-	// update v
-	ii = 0;
-	for(; ii<nv-3; ii+=4)
+	if(cws->split_step==0)
 		{
-		x_tmp0 = _mm256_loadu_pd( &v[ii] );
-		_mm256_storeu_pd( &v_bkp[ii], x_tmp0 );
-		y_tmp0 = _mm256_mul_pd( y_alpha, _mm256_loadu_pd( &dv[ii] ) );
-		y_tmp0 = _mm256_add_pd( y_tmp0, x_tmp0 );
-		_mm256_storeu_pd( &v[ii], y_tmp0 );
-		}
-	for(; ii<nv; ii++)
-		{
-		v_bkp[ii] = v[ii];
-		v[ii] += alpha * dv[ii];
-		}
 
-	// update pi
-	ii = 0;
-	for(; ii<ne-3; ii+=4)
-		{
-		x_tmp0 = _mm256_loadu_pd( &pi[ii] );
-		_mm256_storeu_pd( &pi_bkp[ii], x_tmp0 );
-		y_tmp0 = _mm256_mul_pd( y_alpha, _mm256_loadu_pd( &dpi[ii] ) );
-		y_tmp0 = _mm256_add_pd( y_tmp0, x_tmp0 );
-		_mm256_storeu_pd( &pi[ii], y_tmp0 );
-		}
-	for(; ii<ne; ii++)
-		{
-		pi_bkp[ii] = pi[ii];
-		pi[ii] += alpha * dpi[ii];
-		}
+		y_alpha = _mm256_broadcast_sd( &alpha );
 
-	// update lam and t
-	y_lam_min = _mm256_broadcast_sd( &cws->lam_min );
-	y_t_min = _mm256_broadcast_sd( &cws->t_min );
-	ii = 0;
-	for(; ii<nc-3; ii+=4)
-		{
-		x_tmp0 = _mm256_loadu_pd( &lam[ii] );
-		x_tmp1 = _mm256_loadu_pd( &t[ii] );
-		_mm256_storeu_pd( &lam_bkp[ii], x_tmp0 );
-		_mm256_storeu_pd( &t_bkp[ii], x_tmp1 );
-		y_tmp0 = _mm256_mul_pd( y_alpha, _mm256_loadu_pd( &dlam[ii] ) );
-		y_tmp1 = _mm256_mul_pd( y_alpha, _mm256_loadu_pd( &dt[ii] ) );
-		y_tmp0 = _mm256_add_pd( y_tmp0, x_tmp0 );
-		y_tmp1 = _mm256_add_pd( y_tmp1, x_tmp1 );
-		// max does not preserve NaN !!!
-//		y_tmp0 = _mm256_max_pd( y_tmp0, y_lam_min );
-//		y_tmp1 = _mm256_max_pd( y_tmp1, y_t_min );
-		y_mask0 = _mm256_cmp_pd( y_tmp0, y_lam_min, 2 );
-		y_mask1 = _mm256_cmp_pd( y_tmp1, y_t_min, 2 );
-		y_tmp0 = _mm256_blendv_pd( y_tmp0, y_lam_min, y_mask0 );
-		y_tmp1 = _mm256_blendv_pd( y_tmp1, y_t_min, y_mask1 );
-		_mm256_storeu_pd( &lam[ii], y_tmp0 );
-		_mm256_storeu_pd( &t[ii], y_tmp1 );
-		}
-	for(; ii<nc; ii++)
-		{
-		lam_bkp[ii] = lam[ii];
-		t_bkp[ii] = t[ii];
-		lam[ii] += alpha * dlam[ii];
-		t[ii] += alpha * dt[ii];
-		lam[ii] = lam[ii]<=cws->lam_min ? cws->lam_min : lam[ii];
-		t[ii] = t[ii]<=cws->t_min ? cws->t_min : t[ii];
-		}
+		// update v
+		ii = 0;
+		for(; ii<nv-3; ii+=4)
+			{
+			x_tmp0 = _mm256_loadu_pd( &v[ii] );
+			_mm256_storeu_pd( &v_bkp[ii], x_tmp0 );
+			y_tmp0 = _mm256_mul_pd( y_alpha, _mm256_loadu_pd( &dv[ii] ) );
+			y_tmp0 = _mm256_add_pd( y_tmp0, x_tmp0 );
+			_mm256_storeu_pd( &v[ii], y_tmp0 );
+			}
+		for(; ii<nv; ii++)
+			{
+			v_bkp[ii] = v[ii];
+			v[ii] += alpha * dv[ii];
+			}
 
-#else // split step
+		// update pi
+		ii = 0;
+		for(; ii<ne-3; ii+=4)
+			{
+			x_tmp0 = _mm256_loadu_pd( &pi[ii] );
+			_mm256_storeu_pd( &pi_bkp[ii], x_tmp0 );
+			y_tmp0 = _mm256_mul_pd( y_alpha, _mm256_loadu_pd( &dpi[ii] ) );
+			y_tmp0 = _mm256_add_pd( y_tmp0, x_tmp0 );
+			_mm256_storeu_pd( &pi[ii], y_tmp0 );
+			}
+		for(; ii<ne; ii++)
+			{
+			pi_bkp[ii] = pi[ii];
+			pi[ii] += alpha * dpi[ii];
+			}
 
-	// update v
-	for(ii=0; ii<nv; ii++)
-		{
-		v_bkp[ii] = v[ii];
-		v[ii] += alpha_prim * dv[ii];
+		// update lam and t
+		y_lam_min = _mm256_broadcast_sd( &cws->lam_min );
+		y_t_min = _mm256_broadcast_sd( &cws->t_min );
+		ii = 0;
+		for(; ii<nc-3; ii+=4)
+			{
+			x_tmp0 = _mm256_loadu_pd( &lam[ii] );
+			x_tmp1 = _mm256_loadu_pd( &t[ii] );
+			_mm256_storeu_pd( &lam_bkp[ii], x_tmp0 );
+			_mm256_storeu_pd( &t_bkp[ii], x_tmp1 );
+			y_tmp0 = _mm256_mul_pd( y_alpha, _mm256_loadu_pd( &dlam[ii] ) );
+			y_tmp1 = _mm256_mul_pd( y_alpha, _mm256_loadu_pd( &dt[ii] ) );
+			y_tmp0 = _mm256_add_pd( y_tmp0, x_tmp0 );
+			y_tmp1 = _mm256_add_pd( y_tmp1, x_tmp1 );
+			// max does not preserve NaN !!!
+	//		y_tmp0 = _mm256_max_pd( y_tmp0, y_lam_min );
+	//		y_tmp1 = _mm256_max_pd( y_tmp1, y_t_min );
+			y_mask0 = _mm256_cmp_pd( y_tmp0, y_lam_min, 2 );
+			y_mask1 = _mm256_cmp_pd( y_tmp1, y_t_min, 2 );
+			y_tmp0 = _mm256_blendv_pd( y_tmp0, y_lam_min, y_mask0 );
+			y_tmp1 = _mm256_blendv_pd( y_tmp1, y_t_min, y_mask1 );
+			_mm256_storeu_pd( &lam[ii], y_tmp0 );
+			_mm256_storeu_pd( &t[ii], y_tmp1 );
+			}
+		for(; ii<nc; ii++)
+			{
+			lam_bkp[ii] = lam[ii];
+			t_bkp[ii] = t[ii];
+			lam[ii] += alpha * dlam[ii];
+			t[ii] += alpha * dt[ii];
+			lam[ii] = lam[ii]<=cws->lam_min ? cws->lam_min : lam[ii];
+			t[ii] = t[ii]<=cws->t_min ? cws->t_min : t[ii];
+			}
+
 		}
-
-	// update pi
-	for(ii=0; ii<ne; ii++)
+	else // split step
 		{
-		pi_bkp[ii] = pi[ii];
-//		pi[ii] += alpha_prim * dpi[ii];
-		pi[ii] += alpha_dual * dpi[ii];
-		}
 
-	// update lam
-	for(ii=0; ii<nc; ii++)
-		{
-		lam_bkp[ii] = lam[ii];
-		lam[ii] += alpha_dual * dlam[ii];
-		lam[ii] = lam[ii]<=cws->lam_min ? cws->lam_min : lam[ii];
-		}
+		y_alpha_prim = _mm256_broadcast_sd( &alpha_prim );
+		y_alpha_dual = _mm256_broadcast_sd( &alpha_dual );
 
-	// update t
-	for(ii=0; ii<nc; ii++)
-		{
-		t_bkp[ii] = t[ii];
-		t[ii] += alpha_prim * dt[ii];
-		t[ii] = t[ii]<=cws->t_min ? cws->t_min : t[ii];
-		}
+		// update v
+		ii = 0;
+		for(; ii<nv-3; ii+=4)
+			{
+			x_tmp0 = _mm256_loadu_pd( &v[ii] );
+			_mm256_storeu_pd( &v_bkp[ii], x_tmp0 );
+			y_tmp0 = _mm256_mul_pd( y_alpha_prim, _mm256_loadu_pd( &dv[ii] ) );
+			y_tmp0 = _mm256_add_pd( y_tmp0, x_tmp0 );
+			_mm256_storeu_pd( &v[ii], y_tmp0 );
+			}
+		for(; ii<nv; ii++)
+			{
+			v_bkp[ii] = v[ii];
+			v[ii] += alpha_prim * dv[ii];
+			}
 
-#endif
+		// update pi
+		ii = 0;
+		for(; ii<ne-3; ii+=4)
+			{
+			x_tmp0 = _mm256_loadu_pd( &pi[ii] );
+			_mm256_storeu_pd( &pi_bkp[ii], x_tmp0 );
+			y_tmp0 = _mm256_mul_pd( y_alpha_dual, _mm256_loadu_pd( &dpi[ii] ) );
+			y_tmp0 = _mm256_add_pd( y_tmp0, x_tmp0 );
+			_mm256_storeu_pd( &pi[ii], y_tmp0 );
+			}
+		for(; ii<ne; ii++)
+			{
+			pi_bkp[ii] = pi[ii];
+			pi[ii] += alpha_dual * dpi[ii];
+			}
+
+		// update lam and t
+		y_lam_min = _mm256_broadcast_sd( &cws->lam_min );
+		y_t_min = _mm256_broadcast_sd( &cws->t_min );
+		ii = 0;
+		for(; ii<nc-3; ii+=4)
+			{
+			x_tmp0 = _mm256_loadu_pd( &lam[ii] );
+			x_tmp1 = _mm256_loadu_pd( &t[ii] );
+			_mm256_storeu_pd( &lam_bkp[ii], x_tmp0 );
+			_mm256_storeu_pd( &t_bkp[ii], x_tmp1 );
+			y_tmp0 = _mm256_mul_pd( y_alpha_dual, _mm256_loadu_pd( &dlam[ii] ) );
+			y_tmp1 = _mm256_mul_pd( y_alpha_prim, _mm256_loadu_pd( &dt[ii] ) );
+			y_tmp0 = _mm256_add_pd( y_tmp0, x_tmp0 );
+			y_tmp1 = _mm256_add_pd( y_tmp1, x_tmp1 );
+			// max does not preserve NaN !!!
+	//		y_tmp0 = _mm256_max_pd( y_tmp0, y_lam_min );
+	//		y_tmp1 = _mm256_max_pd( y_tmp1, y_t_min );
+			y_mask0 = _mm256_cmp_pd( y_tmp0, y_lam_min, 2 );
+			y_mask1 = _mm256_cmp_pd( y_tmp1, y_t_min, 2 );
+			y_tmp0 = _mm256_blendv_pd( y_tmp0, y_lam_min, y_mask0 );
+			y_tmp1 = _mm256_blendv_pd( y_tmp1, y_t_min, y_mask1 );
+			_mm256_storeu_pd( &lam[ii], y_tmp0 );
+			_mm256_storeu_pd( &t[ii], y_tmp1 );
+			}
+		for(; ii<nc; ii++)
+			{
+			lam_bkp[ii] = lam[ii];
+			t_bkp[ii] = t[ii];
+			lam[ii] += alpha_dual * dlam[ii];
+			t[ii] += alpha_prim * dt[ii];
+			lam[ii] = lam[ii]<=cws->lam_min ? cws->lam_min : lam[ii];
+			t[ii] = t[ii]<=cws->t_min ? cws->t_min : t[ii];
+			}
+
+		}
 
 	return;
 

@@ -228,14 +228,13 @@ void UPDATE_VAR_QP(struct CORE_QP_IPM_WORKSPACE *cws)
 	REAL alpha_dual = cws->alpha_dual;
 	REAL lam_min = cws->lam_min;
 	REAL t_min = cws->t_min;
+
 #if 0
 	if(alpha<1.0)
 		alpha *= 0.995;
 #else
 	if(alpha<1.0)
 		{
-//		alpha_prim = alpha_prim * ((1.0-alpha)*0.99 + alpha*0.9999999);
-//		alpha_dual = alpha_dual * ((1.0-alpha)*0.99 + alpha*0.9999999);
 		alpha_prim = alpha_prim * ((1.0-alpha_prim)*0.99 + alpha_prim*0.9999999);
 		alpha_dual = alpha_dual * ((1.0-alpha_dual)*0.99 + alpha_dual*0.9999999);
 		alpha = alpha * ((1.0-alpha)*0.99 + alpha*0.9999999);
@@ -245,71 +244,70 @@ void UPDATE_VAR_QP(struct CORE_QP_IPM_WORKSPACE *cws)
 	// local variables
 	int ii;
 
-#if 1
-
-	// update v
-	for(ii=0; ii<nv; ii++)
+	if(cws->split_step==0)
 		{
-		v_bkp[ii] = v[ii];
-		v[ii] += alpha * dv[ii];
-		}
+		// update v
+		for(ii=0; ii<nv; ii++)
+			{
+			v_bkp[ii] = v[ii];
+			v[ii] += alpha * dv[ii];
+			}
 
-	// update pi
-	for(ii=0; ii<ne; ii++)
+		// update pi
+		for(ii=0; ii<ne; ii++)
+			{
+			pi_bkp[ii] = pi[ii];
+			pi[ii] += alpha * dpi[ii];
+			}
+
+		// update lam
+		for(ii=0; ii<nc; ii++)
+			{
+			lam_bkp[ii] = lam[ii];
+			lam[ii] += alpha * dlam[ii];
+			lam[ii] = lam[ii]<=lam_min ? lam_min : lam[ii];
+			}
+
+		// update t
+		for(ii=0; ii<nc; ii++)
+			{
+			t_bkp[ii] = t[ii];
+			t[ii] += alpha * dt[ii];
+			t[ii] = t[ii]<=t_min ? t_min : t[ii];
+			}
+		}
+	else // split step
 		{
-		pi_bkp[ii] = pi[ii];
-		pi[ii] += alpha * dpi[ii];
+		// update v
+		for(ii=0; ii<nv; ii++)
+			{
+			v_bkp[ii] = v[ii];
+			v[ii] += alpha_prim * dv[ii];
+			}
+
+		// update pi
+		for(ii=0; ii<ne; ii++)
+			{
+			pi_bkp[ii] = pi[ii];
+			pi[ii] += alpha_dual * dpi[ii];
+			}
+
+		// update lam
+		for(ii=0; ii<nc; ii++)
+			{
+			lam_bkp[ii] = lam[ii];
+			lam[ii] += alpha_dual * dlam[ii];
+			lam[ii] = lam[ii]<=cws->lam_min ? cws->lam_min : lam[ii];
+			}
+
+		// update t
+		for(ii=0; ii<nc; ii++)
+			{
+			t_bkp[ii] = t[ii];
+			t[ii] += alpha_prim * dt[ii];
+			t[ii] = t[ii]<=cws->t_min ? cws->t_min : t[ii];
+			}
 		}
-
-	// update lam
-	for(ii=0; ii<nc; ii++)
-		{
-		lam_bkp[ii] = lam[ii];
-		lam[ii] += alpha * dlam[ii];
-		lam[ii] = lam[ii]<=lam_min ? lam_min : lam[ii];
-		}
-
-	// update t
-	for(ii=0; ii<nc; ii++)
-		{
-		t_bkp[ii] = t[ii];
-		t[ii] += alpha * dt[ii];
-		t[ii] = t[ii]<=t_min ? t_min : t[ii];
-		}
-
-#else // split step
-
-	// update v
-	for(ii=0; ii<nv; ii++)
-		{
-		v_bkp[ii] = v[ii];
-		v[ii] += alpha_prim * dv[ii];
-		}
-
-	// update pi
-	for(ii=0; ii<ne; ii++)
-		{
-		pi_bkp[ii] = pi[ii];
-		pi[ii] += alpha_dual * dpi[ii];
-		}
-
-	// update lam
-	for(ii=0; ii<nc; ii++)
-		{
-		lam_bkp[ii] = lam[ii];
-		lam[ii] += alpha_dual * dlam[ii];
-		lam[ii] = lam[ii]<=cws->lam_min ? cws->lam_min : lam[ii];
-		}
-
-	// update t
-	for(ii=0; ii<nc; ii++)
-		{
-		t_bkp[ii] = t[ii];
-		t[ii] += alpha_prim * dt[ii];
-		t[ii] = t[ii]<=cws->t_min ? cws->t_min : t[ii];
-		}
-
-#endif
 
 	return;
 

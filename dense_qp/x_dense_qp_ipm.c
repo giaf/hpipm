@@ -63,7 +63,7 @@ void DENSE_QP_IPM_ARG_SET_DEFAULT(enum HPIPM_MODE mode, struct DENSE_QP_IPM_ARG 
 	{
 
 	REAL mu0, alpha_min, res_g, res_b, res_d, res_m, reg_prim, reg_dual, lam_min, t_min, tau_min;
-	int iter_max, stat_max, pred_corr, cond_pred_corr, itref_pred_max, itref_corr_max, lq_fact, scale, warm_start, abs_form, comp_res_exit, comp_res_pred, kkt_fact_alg, remove_lin_dep_eq, compute_obj;
+	int iter_max, stat_max, pred_corr, cond_pred_corr, itref_pred_max, itref_corr_max, lq_fact, scale, warm_start, abs_form, comp_res_exit, comp_res_pred, kkt_fact_alg, remove_lin_dep_eq, compute_obj, split_step;
 
 	if(mode==SPEED_ABS)
 		{
@@ -93,6 +93,7 @@ void DENSE_QP_IPM_ARG_SET_DEFAULT(enum HPIPM_MODE mode, struct DENSE_QP_IPM_ARG 
 		kkt_fact_alg = 1;
 		remove_lin_dep_eq = 0;
 		compute_obj = 0;
+		split_step = 1;
 		}
 	else if(mode==SPEED)
 		{
@@ -122,6 +123,7 @@ void DENSE_QP_IPM_ARG_SET_DEFAULT(enum HPIPM_MODE mode, struct DENSE_QP_IPM_ARG 
 		kkt_fact_alg = 1;
 		remove_lin_dep_eq = 0;
 		compute_obj = 0;
+		split_step = 1;
 		}
 	else if(mode==BALANCE)
 		{
@@ -151,6 +153,7 @@ void DENSE_QP_IPM_ARG_SET_DEFAULT(enum HPIPM_MODE mode, struct DENSE_QP_IPM_ARG 
 		kkt_fact_alg = 1;
 		remove_lin_dep_eq = 0;
 		compute_obj = 0;
+		split_step = 0;
 		}
 	else if(mode==ROBUST)
 		{
@@ -180,6 +183,7 @@ void DENSE_QP_IPM_ARG_SET_DEFAULT(enum HPIPM_MODE mode, struct DENSE_QP_IPM_ARG 
 		kkt_fact_alg = 1;
 		remove_lin_dep_eq = 0;
 		compute_obj = 0;
+		split_step = 0;
 		}
 	else
 		{
@@ -215,6 +219,7 @@ void DENSE_QP_IPM_ARG_SET_DEFAULT(enum HPIPM_MODE mode, struct DENSE_QP_IPM_ARG 
 	arg->mode = mode;
 	DENSE_QP_IPM_ARG_SET_REMOVE_LIN_DEP_EQ(&remove_lin_dep_eq, arg);
 	DENSE_QP_IPM_ARG_SET_COMPUTE_OBJ(&compute_obj, arg);
+	DENSE_QP_IPM_ARG_SET_SPLIT_STEP(&split_step, arg);
 
 	return;
 
@@ -303,6 +308,10 @@ void DENSE_QP_IPM_ARG_SET(char *field, void *value, struct DENSE_QP_IPM_ARG *arg
 	else if(hpipm_strcmp(field, "compute_obj"))
 		{
 		DENSE_QP_IPM_ARG_SET_COMPUTE_OBJ(value, arg);
+		}
+	else if(hpipm_strcmp(field, "split_step"))
+		{
+		DENSE_QP_IPM_ARG_SET_SPLIT_STEP(value, arg);
 		}
 	else
 		{
@@ -469,6 +478,14 @@ void DENSE_QP_IPM_ARG_SET_REMOVE_LIN_DEP_EQ(int *value, struct DENSE_QP_IPM_ARG 
 void DENSE_QP_IPM_ARG_SET_COMPUTE_OBJ(int *value, struct DENSE_QP_IPM_ARG *arg)
 	{
 	arg->compute_obj = *value;
+	return;
+	}
+
+
+
+void DENSE_QP_IPM_ARG_SET_SPLIT_STEP(int *value, struct DENSE_QP_IPM_ARG *arg)
+	{
+	arg->split_step = *value;
 	return;
 	}
 
@@ -1924,6 +1941,7 @@ void DENSE_QP_IPM_SOLVE(struct DENSE_QP *qp, struct DENSE_QP_SOL *qp_sol, struct
 	cws->lam_min = arg->lam_min;
 	cws->t_min = arg->t_min;
 	cws->tau_min = arg->tau_min;
+	cws->split_step = arg->split_step;
 
 	// alias qp vectors into qp_sol
 	cws->v = qp_sol->v->pa;

@@ -81,6 +81,7 @@ struct s_dense_qcqp_ipm_arg
 	int abs_form; // absolute IPM formulation
 	int comp_res_exit; // compute residuals on exit (only for abs_form==1)
 	int comp_res_pred; // compute residuals of prediction
+	int split_step; // use different step for primal and dual variables
 	int mode;
 	int memsize;
 	};
@@ -150,6 +151,8 @@ void s_dense_qcqp_ipm_arg_set_comp_res_exit(int *comp_res_exit, struct s_dense_q
 void s_dense_qcqp_ipm_arg_set_lam_min(float *value, struct s_dense_qcqp_ipm_arg *arg);
 //
 void s_dense_qcqp_ipm_arg_set_t_min(float *value, struct s_dense_qcqp_ipm_arg *arg);
+//
+void s_dense_qcqp_ipm_arg_set_split_step(int *value, struct s_dense_qcqp_ipm_arg *arg);
 
 //
 int s_dense_qcqp_ipm_ws_memsize(struct s_dense_qcqp_dim *qp_dim, struct s_dense_qcqp_ipm_arg *arg);

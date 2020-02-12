@@ -80,6 +80,7 @@ struct s_ocp_qcqp_ipm_arg
 	int comp_dual_sol; // dual solution (only for abs_form==1)
 	int comp_res_exit; // compute residuals on exit (only for abs_form==1 and comp_dual_sol==1)
 	int comp_res_pred; // compute residuals of prediction
+	int split_step; // use different step for primal and dual variables
 	int mode;
 	int memsize;
 	};
@@ -143,6 +144,8 @@ void s_ocp_qcqp_ipm_arg_set_comp_res_pred(int *value, struct s_ocp_qcqp_ipm_arg 
 void s_ocp_qcqp_ipm_arg_set_lam_min(float *value, struct s_ocp_qcqp_ipm_arg *arg);
 // min value of t in the solution
 void s_ocp_qcqp_ipm_arg_set_t_min(float *value, struct s_ocp_qcqp_ipm_arg *arg);
+// use different step for primal and dual variables
+void s_ocp_qcqp_ipm_arg_set_split_step(int *value, struct s_ocp_qcqp_ipm_arg *arg);
 
 //
 int s_ocp_qcqp_ipm_ws_strsize();
