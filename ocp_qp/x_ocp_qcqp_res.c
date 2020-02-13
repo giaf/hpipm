@@ -381,6 +381,8 @@ void OCP_QCQP_RES_WS_CREATE(struct OCP_QCQP_DIM *dim, struct OCP_QCQP_RES_WS *ws
 		c_ptr += (ws->q_adj+ii)->memsize;
 		}
 
+	ws->use_q_fun = 0;
+	ws->use_q_adj = 0;
 
 	ws->memsize = OCP_QCQP_RES_WS_MEMSIZE(dim);
 
