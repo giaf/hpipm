@@ -217,6 +217,7 @@ else(${TARGET} MATCHES AVX)
 endif(${TARGET} MATCHES AVX)
 # ocp qp
 file(GLOB OCP_QP_SRC
+	# double
 	${PROJECT_SOURCE_DIR}/ocp_qp/d_ocp_qp.c
 	${PROJECT_SOURCE_DIR}/ocp_qp/d_ocp_qp_dim.c
 	${PROJECT_SOURCE_DIR}/ocp_qp/d_ocp_qp_sol.c
@@ -224,6 +225,13 @@ file(GLOB OCP_QP_SRC
 	${PROJECT_SOURCE_DIR}/ocp_qp/d_ocp_qp_ipm.c
 	${PROJECT_SOURCE_DIR}/ocp_qp/d_ocp_qp_res.c
 	${PROJECT_SOURCE_DIR}/ocp_qp/d_ocp_qp_utils.c
+	${PROJECT_SOURCE_DIR}/ocp_qp/d_ocp_qcqp.c
+	${PROJECT_SOURCE_DIR}/ocp_qp/d_ocp_qcqp_dim.c
+	${PROJECT_SOURCE_DIR}/ocp_qp/d_ocp_qcqp_sol.c
+	${PROJECT_SOURCE_DIR}/ocp_qp/d_ocp_qcqp_ipm.c
+	${PROJECT_SOURCE_DIR}/ocp_qp/d_ocp_qcqp_res.c
+	${PROJECT_SOURCE_DIR}/ocp_qp/d_ocp_qcqp_utils.c
+	# single
 	${PROJECT_SOURCE_DIR}/ocp_qp/s_ocp_qp.c
 	${PROJECT_SOURCE_DIR}/ocp_qp/s_ocp_qp_dim.c
 	${PROJECT_SOURCE_DIR}/ocp_qp/s_ocp_qp_sol.c
@@ -231,6 +239,12 @@ file(GLOB OCP_QP_SRC
 	${PROJECT_SOURCE_DIR}/ocp_qp/s_ocp_qp_ipm.c
 	${PROJECT_SOURCE_DIR}/ocp_qp/s_ocp_qp_res.c
 	${PROJECT_SOURCE_DIR}/ocp_qp/s_ocp_qp_utils.c
+	${PROJECT_SOURCE_DIR}/ocp_qp/s_ocp_qcqp.c
+	${PROJECT_SOURCE_DIR}/ocp_qp/s_ocp_qcqp_dim.c
+	${PROJECT_SOURCE_DIR}/ocp_qp/s_ocp_qcqp_sol.c
+	${PROJECT_SOURCE_DIR}/ocp_qp/s_ocp_qcqp_ipm.c
+	${PROJECT_SOURCE_DIR}/ocp_qp/s_ocp_qcqp_res.c
+	${PROJECT_SOURCE_DIR}/ocp_qp/s_ocp_qcqp_utils.c
 #	${PROJECT_SOURCE_DIR}/ocp_qp/m_ocp_qp.c
 #	${PROJECT_SOURCE_DIR}/ocp_qp/m_ocp_qp_kkt.c
 #	${PROJECT_SOURCE_DIR}/ocp_qp/m_ocp_qp_ipm_hard.c
