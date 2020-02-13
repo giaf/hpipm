@@ -125,30 +125,7 @@ void COND_QCQP_ARG_CREATE(struct COND_QCQP_ARG *cond_arg, void *mem)
 
 	// zero memory (to avoid corrupted memory like e.g. NaN)
 	int memsize = COND_QCQP_ARG_MEMSIZE();
-	int memsize_m8 = memsize/8; // sizeof(double) is 8
-//	int memsize_r8 = memsize - 8*memsize_m8;
-	double *double_ptr = mem;
-	// XXX exploit that it is multiple of 64 bytes !!!!!
-	for(ii=0; ii<memsize_m8-7; ii+=8)
-		{
-		double_ptr[ii+0] = 0.0;
-		double_ptr[ii+1] = 0.0;
-		double_ptr[ii+2] = 0.0;
-		double_ptr[ii+3] = 0.0;
-		double_ptr[ii+4] = 0.0;
-		double_ptr[ii+5] = 0.0;
-		double_ptr[ii+6] = 0.0;
-		double_ptr[ii+7] = 0.0;
-		}
-//	for(; ii<memsize_m8; ii++)
-//		{
-//		double_ptr[ii] = 0.0;
-//		}
-//	char *char_ptr = (char *) (&double_ptr[ii]);
-//	for(ii=0; ii<memsize_r8; ii++)
-//		{
-//		char_ptr[ii] = 0;
-//		}
+	hpipm_zero_memset(memsize, mem);
 
 	struct COND_QP_ARG *arg_ptr = mem;
 
@@ -260,13 +237,20 @@ int COND_QCQP_WS_MEMSIZE(struct OCP_QCQP_DIM *ocp_dim, struct COND_QCQP_ARG *con
 //	nbM = nb[ii]>nbM ? nb[ii] : nbM;
 //	ngM = ng[ii]>ngM ? ng[ii] : ngM;
 
+	int nvc = 0;
+	nvc += nx[0]+nu[0];
+	for(ii=1; ii<=N; ii++)
+		nvc += nu[ii];
+
 	size += 1*(N+1)*sizeof(struct STRMAT); // hess_array
 	size += 1*sizeof(struct STRMAT); // zero_hess
 	size += 1*(N+1)*sizeof(struct STRVEC); // grad_array
-	size += 1*sizeof(struct STRVEC); // zero_grad
+	size += 3*sizeof(struct STRVEC); // zero_grad tmp_nvc tmp_nxM
 
 	size += 1*SIZE_STRMAT(nuM+nxM+1, nuM+nxM); // zero_hess
 	size += 1*SIZE_STRVEC(nuM+nxM); // zero_grad
+	size += 1*SIZE_STRVEC(nvc); // tmp_nvc
+	size += 1*SIZE_STRVEC(nxM); // tmp_nxM
 
 	size = (size+63)/64*64; // make multiple of typical cache line size
 	size += 1*64; // align once to typical cache line size
@@ -285,31 +269,7 @@ void COND_QCQP_WS_CREATE(struct OCP_QCQP_DIM *ocp_dim, struct COND_QCQP_ARG *con
 
 	// zero memory (to avoid corrupted memory like e.g. NaN)
 	int memsize = COND_QCQP_WS_MEMSIZE(ocp_dim, cond_arg);
-	int memsize_m8 = memsize/8; // sizeof(double) is 8
-//	int memsize_r8 = memsize - 8*memsize_m8;
-	double *double_ptr = mem;
-	// XXX exploit that it is multiple of 64 bytes !!!!!
-	for(ii=0; ii<memsize_m8-7; ii+=8)
-		{
-		double_ptr[ii+0] = 0.0;
-		double_ptr[ii+1] = 0.0;
-		double_ptr[ii+2] = 0.0;
-		double_ptr[ii+3] = 0.0;
-		double_ptr[ii+4] = 0.0;
-		double_ptr[ii+5] = 0.0;
-		double_ptr[ii+6] = 0.0;
-		double_ptr[ii+7] = 0.0;
-		}
-//	for(; ii<memsize_m8; ii++)
-//		{
-//		double_ptr[ii] = 0.0;
-//		}
-//	char *char_ptr = (char *) (&double_ptr[ii]);
-//	for(ii=0; ii<memsize_r8; ii++)
-//		{
-//		char_ptr[ii] = 0;
-//		}
-
+	hpipm_zero_memset(memsize, mem);
 
 	int N = ocp_dim->N;
 	int *nx = ocp_dim->nx;
@@ -347,6 +307,11 @@ void COND_QCQP_WS_CREATE(struct OCP_QCQP_DIM *ocp_dim, struct COND_QCQP_ARG *con
 //	nbM = nb[ii]>nbM ? nb[ii] : nbM;
 //	ngM = ng[ii]>ngM ? ng[ii] : ngM;
 
+	int nvc = 0;
+	nvc += nx[0]+nu[0];
+	for(ii=1; ii<=N; ii++)
+		nvc += nu[ii];
+
 
 	// cond qp ws struct
 	struct COND_QP_WS *ws_ptr = mem;
@@ -369,6 +334,10 @@ void COND_QCQP_WS_CREATE(struct OCP_QCQP_DIM *ocp_dim, struct COND_QCQP_ARG *con
 	sv_ptr += N+1;
 	cond_ws->zero_grad = sv_ptr;
 	sv_ptr += 1;
+	cond_ws->tmp_nvc = sv_ptr;
+	sv_ptr += 1;
+	cond_ws->tmp_nxM = sv_ptr;
+	sv_ptr += 1;
 
 	// align to typicl cache line size
 	size_t s_ptr = (size_t) sv_ptr;
@@ -387,8 +356,14 @@ void COND_QCQP_WS_CREATE(struct OCP_QCQP_DIM *ocp_dim, struct COND_QCQP_ARG *con
 	//
 	CREATE_STRVEC(nuM+nxM, cond_ws->zero_grad, c_ptr);
 	c_ptr += cond_ws->zero_grad->memsize;
+	//
+	CREATE_STRVEC(nvc, cond_ws->tmp_nvc, c_ptr);
+	c_ptr += cond_ws->tmp_nvc->memsize;
+	//
+	CREATE_STRVEC(nxM, cond_ws->tmp_nxM, c_ptr);
+	c_ptr += cond_ws->tmp_nxM->memsize;
 
-	cond_ws->memsize = COND_QCQP_WS_MEMSIZE(ocp_dim, cond_arg);
+	cond_ws->memsize = memsize; //COND_QCQP_WS_MEMSIZE(ocp_dim, cond_arg);
 
 #if defined(RUNTIME_CHECKS)
 	if(c_ptr > ((char *) mem) + cond_ws->memsize)
@@ -439,8 +414,16 @@ void COND_QCQP_COND(struct OCP_QCQP *ocp_qp, struct DENSE_QCQP *dense_qp, struct
 	int *nx = ocp_qp->dim->nx;
 	int *nq = ocp_qp->dim->nq;
 
+	int nbc = dense_qp->dim->nb;
+	int ngc = dense_qp->dim->ng;
+	int nqc = dense_qp->dim->nq;
+
 	int nq_tmp;
 
+	REAL rho;
+
+//printf("\nbefore\n");
+//blasfeo_print_tran_dvec(dense_qp->dim->nv, dense_qp->gz, 0);
 	nq_tmp = 0;
 	for(kk=0; kk<=N; kk++)
 		{
@@ -466,14 +449,35 @@ void COND_QCQP_COND(struct OCP_QCQP *ocp_qp, struct DENSE_QCQP *dense_qp, struct
 			tmp_ocp_qp.RSQrq = cond_ws->hess_array;
 			tmp_ocp_qp.rqz = cond_ws->grad_array;
 
-			// TODO use tmp space for gq !!!!!!!!!!!!!!!!!!
-//			COND_RSQRQ_N2NX3(&tmp_ocp_qp, dense_qp->Hq+nq_tmp, dense_qp->gq+nq_tmp, cond_arg->qp_arg, cond_ws->qp_ws);
+			// TODO write tailored routine avoiding recursion for initial (final) zero states !!!!!!!!!!!!!!!!!!
+			// TODO use another condensing algorithm, likely better in case only one stage is not zero !!!!!!!!!
+			COND_RSQRQ_N2NX3(&tmp_ocp_qp, dense_qp->Hq+nq_tmp, cond_ws->tmp_nvc, cond_arg->qp_arg, cond_ws->qp_ws);
+//blasfeo_print_tran_dvec(dense_qp->dim->nv, cond_ws->tmp_nvc, 0);
+			COLAD(dense_qp->dim->nv, 1.0, cond_ws->tmp_nvc, 0, dense_qp->Ct, 0, ngc+nq_tmp);
+
+			rho = 0.0;
+			if(kk>0) // TODO what to do for kk=0 ?????
+				{
+				SYMV_L(nx[kk], nx[kk], 1.0, ocp_qp->Hq[kk]+jj, nu[kk], nu[kk], cond_ws->qp_ws->Gammab+kk-1, 0, 0.0, cond_ws->tmp_nxM, 0, cond_ws->tmp_nxM, 0);
+				rho = 0.5*DOT(nx[kk], cond_ws->tmp_nxM, 0, cond_ws->qp_ws->Gammab+kk-1, 0);
+				}
+//			printf("\nrho %d %f\n", kk, rho);
+#if defined(DOUBLE_PRECISION)
+			BLASFEO_DVECEL(dense_qp->d, nbc+ngc+nq_tmp) -= rho;
+			BLASFEO_DVECEL(dense_qp->d, 2*nbc+2*ngc+nqc+nq_tmp) += rho;
+#else
+			BLASFEO_SVECEL(dense_qp->d, nbc+ngc+nq_tmp) -= rho;
+			BLASFEO_SVECEL(dense_qp->d, 2*nbc+2*ngc+nqc+nq_tmp) += rho;
+#endif
 
 			nq_tmp++;
 
 			}
 
 		}
+//printf("\nafter\n");
+//blasfeo_print_tran_dvec(dense_qp->dim->nv, dense_qp->gz, 0);
+//d_dense_qcqp_print(dense_qp->dim, dense_qp);
 
 	return;
 

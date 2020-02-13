@@ -41,13 +41,14 @@
 #include <blasfeo_d_blas.h>
 #include <blasfeo_d_aux.h>
 
-#include "../include/hpipm_d_ocp_qp_dim.h"
-#include "../include/hpipm_d_ocp_qp.h"
-#include "../include/hpipm_d_ocp_qp_sol.h"
-#include "../include/hpipm_d_dense_qp.h"
-#include "../include/hpipm_d_dense_qp_sol.h"
-#include "../include/hpipm_d_cond.h"
-#include "../include/hpipm_d_cond_aux.h"
+#include <hpipm_d_ocp_qp_dim.h>
+#include <hpipm_d_ocp_qp.h>
+#include <hpipm_d_ocp_qp_sol.h>
+#include <hpipm_d_dense_qp.h>
+#include <hpipm_d_dense_qp_sol.h>
+#include <hpipm_d_cond.h>
+#include <hpipm_d_cond_aux.h>
+#include <hpipm_aux_mem.h>
 
 
 

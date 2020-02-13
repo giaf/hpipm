@@ -216,6 +216,10 @@ void COND_QP_WS_CREATE(struct OCP_QP_DIM *ocp_dim, struct COND_QP_ARG *cond_arg,
 
 	int ii;
 
+	// zero memory (to avoid corrupted memory like e.g. NaN)
+	int memsize = COND_QP_WS_MEMSIZE(ocp_dim, cond_arg);
+	hpipm_zero_memset(memsize, mem);
+
 	int N = ocp_dim->N;
 	int *nx = ocp_dim->nx;
 	int *nu = ocp_dim->nu;

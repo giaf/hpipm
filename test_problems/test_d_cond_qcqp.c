@@ -163,7 +163,7 @@ int main()
 
 	int ii, jj;
 
-	int rep, nrep=1000;
+	int rep, nrep=1;//000;
 
 	struct timeval tv0, tv1;
 
@@ -171,9 +171,9 @@ int main()
 
 	// problem size
 
-	int nx_ = 8; // number of states (it has to be even for the mass-spring system test problem)
-	int nu_ = 3; // number of inputs (controllers) (it has to be at least 1 and at most nx/2 for the mass-spring system test problem)
-	int N  = 8; // horizon lenght
+	int nx_ = 2; // number of states (it has to be even for the mass-spring system test problem)
+	int nu_ = 1; // number of inputs (controllers) (it has to be at least 1 and at most nx/2 for the mass-spring system test problem)
+	int N  = 15; // horizon lenght
 
 
 
@@ -221,7 +221,7 @@ int main()
 	int nq[N+1];
 	nq[0] = 0;
 	for(ii=1; ii<N; ii++)
-		nq[ii] = 2;
+		nq[ii] = 0;//2;
 	nq[N] = 1;
 
 	int nsbx[N+1];
@@ -317,7 +317,7 @@ int main()
 	if(ns[1]>0 | ns[N]>0)
 		mu0 = 1000.0;
 	else
-		mu0 = 2.0;
+		mu0 = 10.0;
 
 
 /************************************************
@@ -468,32 +468,32 @@ int main()
 ************************************************/
 	
 	double *Qq1; d_zeros(&Qq1, nx[1], nx[1]*nq[1]);
-	for(ii=0; ii<nx[1]/2; ii++)
-		Qq1[(nx[1]/2+ii)*(nx[1]+1)] = 0.0;
+//	for(ii=0; ii<nx[1]/2; ii++)
+//		Qq1[(nx[1]/2+ii)*(nx[1]+1)] = 0.0;
 //	d_print_mat(nx[1], nx[1], Qq1, nx[1]);
 
 	double *qq1; d_zeros(&qq1, nx[1], nq[1]);
-	qq1[0*nx[1]+0] = -1;
-	qq1[1*nx[1]+0] =  1;
+//	qq1[0*nx[1]+0] = -1;
+//	qq1[1*nx[1]+0] =  1;
 
 	double *uq1; d_zeros(&uq1, nq[1], 1);
-	uq1[0] =  4.0;
-	uq1[1] =  4.0;
+//	uq1[0] =  4.0;
+//	uq1[1] =  4.0;
 
 	double *uq1_mask; d_zeros(&uq1_mask, nq[1], 1);
-	uq1_mask[0] = 1.0;
-	uq1_mask[1] = 1.0;
+//	uq1_mask[0] = 1.0;
+//	uq1_mask[1] = 1.0;
 
 
 	double *QqN; d_zeros(&QqN, nx[N], nx[N]*nq[N]);
-	for(ii=0; ii<nx[N]/2; ii++)
-		QqN[(nx[N]/2+ii)*(nx[N]+1)] = 1.0;
+	for(ii=0; ii<nx[N]; ii++)
+		QqN[ii*(nx[N]+1)] = 1.0;
 
 	double *qqN; d_zeros(&qqN, nx[N], nq[N]);
-	qqN[0*nx[N]+0] = 0.0;
+//	qqN[0*nx[N]+0] = 0.0;
 
 	double *uqN; d_zeros(&uqN, nq[N], 1);
-	uqN[0] = 1.71;
+	uqN[0] = 1.5;
 
 	double *uqN_mask; d_zeros(&uqN_mask, nq[N], 1);
 	uqN_mask[0] = 1.0;
@@ -778,7 +778,8 @@ int main()
 
 	for(rep=0; rep<nrep; rep++)
 		{
-		d_cond_qcqp_cond_rhs(&ocp_qp, &dense_qp, &cond_arg, &cond_ws);
+		// TODO
+//		d_cond_qcqp_cond_rhs(&ocp_qp, &dense_qp, &cond_arg, &cond_ws);
 		}
 
 	gettimeofday(&tv1, NULL); // stop

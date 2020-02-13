@@ -50,9 +50,15 @@
 #include "../include/hpipm_s_cond.h"
 #include "../include/hpipm_s_cond_aux.h"
 #include "../include/hpipm_s_cond_qcqp.h"
+#include "../include/hpipm_aux_mem.h"
 
 
 
+#define SINGLE_PRECISION
+
+
+
+#define COLAD blasfeo_scolad
 #define COND_DCTD s_cond_DCtd
 #define COND_D s_cond_d
 #define COND_B s_cond_b
@@ -84,6 +90,7 @@
 #define DENSE_QP s_dense_qp
 #define DENSE_QP_DIM s_dense_qp_dim
 #define DENSE_QP_SOL s_dense_qp_sol
+#define DOT blasfeo_sdot
 #define EXPAND_SOL s_expand_sol
 #define EXPAND_PRIMAL_SOL s_expand_primal_sol
 #define OCP_QCQP s_ocp_qcqp
@@ -92,10 +99,12 @@
 #define OCP_QP s_ocp_qp
 #define OCP_QP_DIM s_ocp_qp_dim
 #define OCP_QP_SOL s_ocp_qp_sol
+#define REAL float
 #define SIZE_STRMAT blasfeo_memsize_smat
 #define SIZE_STRVEC blasfeo_memsize_svec
 #define STRMAT blasfeo_smat
 #define STRVEC blasfeo_svec
+#define SYMV_L blasfeo_ssymv_l
 
 #define COND_QCQP_COMPUTE_DIM s_cond_qcqp_compute_dim
 #define COND_QCQP_ARG_MEMSIZE s_cond_qcqp_arg_memsize
