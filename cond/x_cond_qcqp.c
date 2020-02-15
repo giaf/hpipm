@@ -443,6 +443,8 @@ void COND_QCQP_COND(struct OCP_QCQP *ocp_qp, struct DENSE_QCQP *dense_qp, struct
 //printf("\nbefore\n");
 //blasfeo_print_tran_dvec(dense_qp->dim->nv, dense_qp->gz, 0);
 	
+	GESE(nvc, nqc, 0.0, dense_qp->Ct, 0, ngc);
+
 	nu_tmp = 0;
 	nq_tmp = 0;
 	nu_tot_tmp = nvc - nx[0];
@@ -508,7 +510,8 @@ void COND_QCQP_COND(struct OCP_QCQP *ocp_qp, struct DENSE_QCQP *dense_qp, struct
 				GEMM_NN(nu_tmp+nx[0]+1, nu[kk], nx[kk], 1.0, cond_ws->qp_ws->Gamma+kk-1, 0, 0, ocp_qp->Hq[kk]+jj, nu[kk], 0, 1.0, dense_qp->Hq+nq_tmp, nu_tot_tmp+nu[kk], nu_tot_tmp, dense_qp->Hq+nq_tmp, nu_tot_tmp+nu[kk], nu_tot_tmp);
 				// gradient
 				ROWEX(nu_tmp+nx[0], 1.0, dense_qp->Hq+nq_tmp, nvc, nu_tot_tmp+nu[kk], cond_ws->tmp_nvc, 0);
-				COLAD(dense_qp->dim->nv, 1.0, cond_ws->tmp_nvc, 0, dense_qp->Ct, 0, ngc+nq_tmp);
+//				COLAD(dense_qp->dim->nv, 1.0, cond_ws->tmp_nvc, 0, dense_qp->Ct, 0, ngc+nq_tmp);
+				COLAD(nu_tmp+nx[0], 1.0, cond_ws->tmp_nvc, 0, dense_qp->Ct, nu_tot_tmp+nu[kk], ngc+nq_tmp);
 				}
 #endif
 //			printf("\nrho %d %f\n", kk, rho);
