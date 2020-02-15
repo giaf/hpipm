@@ -92,6 +92,9 @@
 #define DENSE_QP_SOL d_dense_qp_sol
 #define DOT blasfeo_ddot
 #define EXPAND_SOL d_expand_sol
+#define GEAD blasfeo_dgead
+#define GEMM_NN blasfeo_dgemm_nn
+#define GESE blasfeo_dgese
 #define OCP_QCQP d_ocp_qcqp
 #define OCP_QCQP_DIM d_ocp_qcqp_dim
 #define OCP_QCQP_SOL d_ocp_qcqp_sol
@@ -99,11 +102,16 @@
 #define OCP_QP_DIM d_ocp_qp_dim
 #define OCP_QP_SOL d_ocp_qp_sol
 #define REAL double
+#define ROWEX blasfeo_drowex
 #define SIZE_STRMAT blasfeo_memsize_dmat
 #define SIZE_STRVEC blasfeo_memsize_dvec
 #define STRMAT blasfeo_dmat
 #define STRVEC blasfeo_dvec
 #define SYMV_L blasfeo_dsymv_l
+#define SYRK_LN blasfeo_dsyrk_ln
+#define SYRK_LN_MN blasfeo_dsyrk_ln_mn
+#define TRCP_L blasfeo_dtrcp_l
+#define TRTR_L blasfeo_dtrtr_l
 
 #define COND_QCQP_COMPUTE_DIM d_cond_qcqp_compute_dim
 #define COND_QCQP_ARG_MEMSIZE d_cond_qcqp_arg_memsize

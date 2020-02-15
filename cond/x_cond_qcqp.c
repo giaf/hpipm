@@ -242,7 +242,7 @@ int COND_QCQP_WS_MEMSIZE(struct OCP_QCQP_DIM *ocp_dim, struct COND_QCQP_ARG *con
 	for(ii=1; ii<=N; ii++)
 		nvc += nu[ii];
 
-	size += 1*(N+1)*sizeof(struct STRMAT); // hess_array
+	size += 2*(N+1)*sizeof(struct STRMAT); // hess_array GammaQ
 	size += 1*sizeof(struct STRMAT); // zero_hess
 	size += 1*(N+1)*sizeof(struct STRVEC); // grad_array
 	size += 3*sizeof(struct STRVEC); // zero_grad tmp_nvc tmp_nxM
@@ -251,6 +251,13 @@ int COND_QCQP_WS_MEMSIZE(struct OCP_QCQP_DIM *ocp_dim, struct COND_QCQP_ARG *con
 	size += 1*SIZE_STRVEC(nuM+nxM); // zero_grad
 	size += 1*SIZE_STRVEC(nvc); // tmp_nvc
 	size += 1*SIZE_STRVEC(nxM); // tmp_nxM
+	int nu_tmp = 0;
+	for(ii=0; ii<N; ii++)
+		{
+		nu_tmp += nu[ii];
+		size += SIZE_STRMAT(nu_tmp+nx[0]+1, nx[ii+1]); // GammaQ
+//		size += SIZE_STRMAT(nu_tmp+nx[0], nx[ii+1]); // GammaQ TODO without the +1 ???
+		}
 
 	size = (size+63)/64*64; // make multiple of typical cache line size
 	size += 1*64; // align once to typical cache line size
@@ -326,6 +333,8 @@ void COND_QCQP_WS_CREATE(struct OCP_QCQP_DIM *ocp_dim, struct COND_QCQP_ARG *con
 	sm_ptr += N+1;
 	cond_ws->zero_hess = sm_ptr;
 	sm_ptr += 1;
+	cond_ws->GammaQ = sm_ptr;
+	sm_ptr += N+1;
 
 	// vector struct
 	struct STRVEC *sv_ptr = (struct STRVEC *) sm_ptr;
@@ -347,6 +356,14 @@ void COND_QCQP_WS_CREATE(struct OCP_QCQP_DIM *ocp_dim, struct COND_QCQP_ARG *con
 	char *c_ptr = (char *) s_ptr;
 	char *c_tmp;
 
+	//
+	int nu_tmp = 0;
+	for(ii=0; ii<N; ii++)
+		{
+		nu_tmp += nu[ii];
+		CREATE_STRMAT(nu_tmp+nx[0]+1, nx[ii+1], cond_ws->GammaQ+ii, c_ptr);
+		c_ptr += (cond_ws->GammaQ+ii)->memsize;
+		}
 	//
 	COND_QP_WS_CREATE(ocp_dim->qp_dim, cond_arg->qp_arg, cond_ws->qp_ws, c_ptr);
 	c_ptr += cond_ws->qp_ws->memsize;
@@ -414,23 +431,31 @@ void COND_QCQP_COND(struct OCP_QCQP *ocp_qp, struct DENSE_QCQP *dense_qp, struct
 	int *nx = ocp_qp->dim->nx;
 	int *nq = ocp_qp->dim->nq;
 
+	int nvc = dense_qp->dim->nv;
 	int nbc = dense_qp->dim->nb;
 	int ngc = dense_qp->dim->ng;
 	int nqc = dense_qp->dim->nq;
 
-	int nq_tmp;
+	int nu_tmp, nq_tmp, nu_tot_tmp;
 
 	REAL rho;
 
 //printf("\nbefore\n");
 //blasfeo_print_tran_dvec(dense_qp->dim->nv, dense_qp->gz, 0);
+	
+	nu_tmp = 0;
 	nq_tmp = 0;
+	nu_tot_tmp = nvc - nx[0];
 	for(kk=0; kk<=N; kk++)
 		{
+
+		nu_tot_tmp -= nu[kk];
+//		printf("\n%d %d %d %d\n", nvc, nu_tot_tmp+nu_tmp, nu_tot_tmp, nu_tmp);
 
 		for(jj=0; jj<nq[kk]; jj++)
 			{
 
+#if 0
 			for(ii=0; ii<=N; ii++)
 				{
 				if(ii==kk) // existing quadr constr
@@ -455,12 +480,37 @@ void COND_QCQP_COND(struct OCP_QCQP *ocp_qp, struct DENSE_QCQP *dense_qp, struct
 //blasfeo_print_tran_dvec(dense_qp->dim->nv, cond_ws->tmp_nvc, 0);
 			COLAD(dense_qp->dim->nv, 1.0, cond_ws->tmp_nvc, 0, dense_qp->Ct, 0, ngc+nq_tmp);
 
+			// cond constant
 			rho = 0.0;
 			if(kk>0) // TODO what to do for kk=0 ?????
 				{
 				SYMV_L(nx[kk], nx[kk], 1.0, ocp_qp->Hq[kk]+jj, nu[kk], nu[kk], cond_ws->qp_ws->Gammab+kk-1, 0, 0.0, cond_ws->tmp_nxM, 0, cond_ws->tmp_nxM, 0);
 				rho = 0.5*DOT(nx[kk], cond_ws->tmp_nxM, 0, cond_ws->qp_ws->Gammab+kk-1, 0);
 				}
+#else
+			GESE(nvc+1, nvc, 0.0, dense_qp->Hq+nq_tmp, 0, 0);
+			if(kk==0)
+				{
+				TRCP_L(nu[0]+nx[0], ocp_qp->Hq[kk]+nq[jj], 0, 0, dense_qp->Hq+nq_tmp, nu_tot_tmp, nu_tot_tmp);
+				rho = 0.0;
+				}
+			else
+				{
+				// XXX make Q full or use SYMM
+				// hessian
+				TRTR_L(nx[kk], ocp_qp->Hq[kk]+jj, nu[kk], nu[kk], ocp_qp->Hq[kk]+jj, nu[kk], nu[kk]);
+				GEMM_NN(nu_tmp+nx[0]+1, nx[kk], nx[kk], 1.0, cond_ws->qp_ws->Gamma+kk-1, 0, 0, ocp_qp->Hq[kk]+jj, nu[kk], nu[kk], 0.0, cond_ws->GammaQ+kk-1, 0, 0, cond_ws->GammaQ+kk-1, 0, 0);
+				ROWEX(nx[kk], 1.0, cond_ws->GammaQ+kk-1, nu_tmp+nx[0], 0, cond_ws->tmp_nxM, 0);
+//				SYMV_L(nx[kk], nx[kk], 1.0, ocp_qp->Hq[kk]+jj, nu[kk], nu[kk], cond_ws->qp_ws->Gammab+kk-1, 0, 0.0, cond_ws->tmp_nxM, 0, cond_ws->tmp_nxM, 0);
+				rho = 0.5*DOT(nx[kk], cond_ws->tmp_nxM, 0, cond_ws->qp_ws->Gammab+kk-1, 0);
+				SYRK_LN_MN(nu_tmp+nx[0]+1, nu_tmp+nx[0], nx[kk], 1.0, cond_ws->qp_ws->Gamma+kk-1, 0, 0, cond_ws->GammaQ+kk-1, 0, 0, 0.0, dense_qp->Hq+nq_tmp, nu_tot_tmp+nu[kk], nu_tot_tmp+nu[kk], dense_qp->Hq+nq_tmp, nu_tot_tmp+nu[kk], nu_tot_tmp+nu[kk]);
+				GEAD(nu[kk], nu[kk], 1.0, ocp_qp->Hq[kk]+jj, 0, 0, dense_qp->Hq+nq_tmp, nu_tot_tmp, nu_tot_tmp);
+				GEMM_NN(nu_tmp+nx[0]+1, nu[kk], nx[kk], 1.0, cond_ws->qp_ws->Gamma+kk-1, 0, 0, ocp_qp->Hq[kk]+jj, nu[kk], 0, 1.0, dense_qp->Hq+nq_tmp, nu_tot_tmp+nu[kk], nu_tot_tmp, dense_qp->Hq+nq_tmp, nu_tot_tmp+nu[kk], nu_tot_tmp);
+				// gradient
+				ROWEX(nu_tmp+nx[0], 1.0, dense_qp->Hq+nq_tmp, nvc, nu_tot_tmp+nu[kk], cond_ws->tmp_nvc, 0);
+				COLAD(dense_qp->dim->nv, 1.0, cond_ws->tmp_nvc, 0, dense_qp->Ct, 0, ngc+nq_tmp);
+				}
+#endif
 //			printf("\nrho %d %f\n", kk, rho);
 #if defined(DOUBLE_PRECISION)
 			BLASFEO_DVECEL(dense_qp->d, nbc+ngc+nq_tmp) -= rho;
@@ -473,6 +523,8 @@ void COND_QCQP_COND(struct OCP_QCQP *ocp_qp, struct DENSE_QCQP *dense_qp, struct
 			nq_tmp++;
 
 			}
+
+		nu_tmp += nu[kk];
 
 		}
 //printf("\nafter\n");

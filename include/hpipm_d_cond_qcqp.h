@@ -76,6 +76,8 @@ struct d_cond_qcqp_ws
 	struct blasfeo_dvec *zero_grad;
 	struct blasfeo_dvec *tmp_nvc;
 	struct blasfeo_dvec *tmp_nxM;
+	struct blasfeo_dmat *GammaQ;
+	struct blasfeo_dmat *tmp_nuM_nxM;
 //	struct blasfeo_dvec *d_qp;
 //	struct blasfeo_dvec *d_mask_qp;
 	int memsize;
