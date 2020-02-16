@@ -163,7 +163,7 @@ int main()
 
 	int ii, jj;
 
-	int rep, nrep=1;//000;
+	int rep, nrep=1000;
 
 	struct timeval tv0, tv1;
 
@@ -222,6 +222,7 @@ int main()
 	nq[0] = 0;
 	for(ii=1; ii<N; ii++)
 		nq[ii] = 0;//2;
+//	nq[N-1] = 1;
 	nq[N] = 1;
 
 	int nsbx[N+1];
@@ -485,6 +486,20 @@ int main()
 //	uq1_mask[1] = 1.0;
 
 
+//	double *QqNm1; d_zeros(&QqNm1, nx[N-1], nx[N-1]*nq[N-1]);
+//	for(ii=0; ii<nx[N-1]; ii++)
+//		QqNm1[ii*(nx[N-1]+1)] = 1.0;
+
+//	double *qqNm1; d_zeros(&qqNm1, nx[N-1], nq[N-1]);
+//	qqN[0*nx[N]+0] = 0.0;
+
+//	double *uqNm1; d_zeros(&uqNm1, nq[N-1], 1);
+//	uqNm1[0] = 1.5;
+
+//	double *uqNm1_mask; d_zeros(&uqNm1_mask, nq[N-1], 1);
+//	uqNm1_mask[0] = 1.0;
+
+
 	double *QqN; d_zeros(&QqN, nx[N], nx[N]*nq[N]);
 	for(ii=0; ii<nx[N]; ii++)
 		QqN[ii*(nx[N]+1)] = 1.0;
@@ -688,6 +703,8 @@ int main()
 		d_ocp_qcqp_set_uq(ii, uq1, &ocp_qp);
 		d_ocp_qcqp_set_uq_mask(ii, uq1_mask, &ocp_qp);
 		}
+//d_ocp_qcqp_set_Qq(N-1, QqNm1, &ocp_qp);
+//d_ocp_qcqp_set_uq(N-1, uqNm1, &ocp_qp);
 	ii = N;
 	d_ocp_qcqp_set_idxbx(ii, idxbxN, &ocp_qp);
 	d_ocp_qcqp_set_lbx(ii, lbxN, &ocp_qp);
@@ -779,7 +796,7 @@ int main()
 	for(rep=0; rep<nrep; rep++)
 		{
 		// TODO
-//		d_cond_qcqp_cond_rhs(&ocp_qp, &dense_qp, &cond_arg, &cond_ws);
+		d_cond_qcqp_cond_rhs(&ocp_qp, &dense_qp, &cond_arg, &cond_ws);
 		}
 
 	gettimeofday(&tv1, NULL); // stop

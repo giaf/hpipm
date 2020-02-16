@@ -315,6 +315,7 @@ int main()
 	nq[0] = 0;
 	for(ii=1; ii<N; ii++)
 		nq[ii] = 0;//2;
+//	nq[N-1] = 1;
 	nq[N] = 1;
 
 	int nsbx[N+1];
@@ -583,14 +584,26 @@ int main()
 //	uq1_mask[1] = 1.0;
 
 
+//	double *QqNm1; d_zeros(&QqNm1, nx[N-1], nx[N-1]*nq[N-1]);
+//	for(ii=0; ii<nx[N-1]; ii++)
+//		QqNm1[ii*(nx[N-1]+1)] = 1.0;
+
+//	double *qqNm1; d_zeros(&qqNm1, nx[N-1], nq[N-1]);
+//	qqN[0*nx[N]+0] = 0.0;
+
+//	double *uqNm1; d_zeros(&uqNm1, nq[N-1], 1);
+//	uqNm1[0] = 1.5;
+
+//	double *uqNm1_mask; d_zeros(&uqNm1_mask, nq[N-1], 1);
+//	uqNm1_mask[0] = 1.0;
+
+
 	double *QqN; d_zeros(&QqN, nx[N], nx[N]*nq[N]);
-//	for(ii=0; ii<nx[N]/2; ii++)
-//		QqN[(nx[N]/2+ii)*(nx[N]+1)] = 1.0;
 	for(ii=0; ii<nx[N]; ii++)
 		QqN[ii*(nx[N]+1)] = 1.0;
 
 	double *qqN; d_zeros(&qqN, nx[N], nq[N]);
-	qqN[0*nx[N]+0] = 0.0;
+//	qqN[0*nx[N]+0] = 0.0;
 
 	double *uqN; d_zeros(&uqN, nq[N], 1);
 	uqN[0] = 1.5;
@@ -785,6 +798,8 @@ int main()
 		d_ocp_qcqp_set_uq(ii, uq1, &qcqp);
 		d_ocp_qcqp_set_uq_mask(ii, uq1_mask, &qcqp);
 		}
+//d_ocp_qcqp_set_Qq(N-1, QqNm1, &qcqp);
+//d_ocp_qcqp_set_uq(N-1, uqNm1, &qcqp);
 	ii = N;
 	d_ocp_qcqp_set_idxbx(ii, idxbxN, &qcqp);
 	d_ocp_qcqp_set_lbx(ii, lbxN, &qcqp);

@@ -96,6 +96,7 @@
 #define GEAD blasfeo_sgead
 #define GECP blasfeo_sgecp
 #define GEMM_NN blasfeo_sgemm_nn
+#define GEMV_N blasfeo_sgemv_n
 #define GESE blasfeo_sgese
 #define OCP_QCQP s_ocp_qcqp
 #define OCP_QCQP_DIM s_ocp_qcqp_dim
