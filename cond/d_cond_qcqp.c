@@ -93,6 +93,7 @@
 #define DOT blasfeo_ddot
 #define EXPAND_SOL d_expand_sol
 #define GEAD blasfeo_dgead
+#define GECP blasfeo_dgecp
 #define GEMM_NN blasfeo_dgemm_nn
 #define GESE blasfeo_dgese
 #define OCP_QCQP d_ocp_qcqp

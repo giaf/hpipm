@@ -94,6 +94,7 @@
 #define EXPAND_SOL s_expand_sol
 #define EXPAND_PRIMAL_SOL s_expand_primal_sol
 #define GEAD blasfeo_sgead
+#define GECP blasfeo_sgecp
 #define GEMM_NN blasfeo_sgemm_nn
 #define GESE blasfeo_sgese
 #define OCP_QCQP s_ocp_qcqp

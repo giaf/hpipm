@@ -60,7 +60,9 @@ struct d_cond_qcqp_arg
 	struct d_cond_qp_arg *qp_arg;
 	int cond_last_stage; // condense last stage
 //	int cond_variant; // TODO
-	int comp_dual_sol; // dual solution
+	int comp_prim_sol; // primal solution (v)
+	int comp_dual_sol_eq; // dual solution equality constr (pi)
+	int comp_dual_sol_ineq; // dual solution equality constr (lam t)
 	int square_root_alg; // square root algorithm (faster but requires RSQ>0)
 	int memsize;
 	};
@@ -70,13 +72,14 @@ struct d_cond_qcqp_arg
 struct d_cond_qcqp_ws
 	{
 	struct d_cond_qp_ws *qp_ws;
-	struct blasfeo_dmat *hess_array;
-	struct blasfeo_dmat *zero_hess;
-	struct blasfeo_dvec *grad_array;
-	struct blasfeo_dvec *zero_grad;
+	struct blasfeo_dmat *hess_array; // TODO remove
+	struct blasfeo_dmat *zero_hess; // TODO remove
+	struct blasfeo_dvec *grad_array; // TODO remove
+	struct blasfeo_dvec *zero_grad; // TODO remove
 	struct blasfeo_dvec *tmp_nvc;
-	struct blasfeo_dvec *tmp_nxM;
+	struct blasfeo_dvec *tmp_nuxM;
 	struct blasfeo_dmat *GammaQ;
+	struct blasfeo_dmat *tmp_DCt;
 	struct blasfeo_dmat *tmp_nuM_nxM;
 //	struct blasfeo_dvec *d_qp;
 //	struct blasfeo_dvec *d_mask_qp;

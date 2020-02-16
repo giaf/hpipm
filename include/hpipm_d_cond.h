@@ -59,7 +59,9 @@ struct d_cond_qp_arg
 	{
 	int cond_last_stage; // condense last stage
 //	int cond_variant; // TODO
-	int comp_dual_sol; // dual solution
+	int comp_prim_sol; // primal solution (v)
+	int comp_dual_sol_eq; // dual solution equality constr (pi)
+	int comp_dual_sol_ineq; // dual solution inequality constr (lam t)
 	int square_root_alg; // square root algorithm (faster but requires RSQ>0)
 	int memsize;
 	};

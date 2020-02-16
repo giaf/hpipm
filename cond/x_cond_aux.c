@@ -1139,12 +1139,16 @@ void EXPAND_SOL(struct OCP_QP *ocp_qp, struct DENSE_QP_SOL *dense_qp_sol, struct
 	if(N==0 & cond_arg->cond_last_stage==1)
 		{
 		// primal solution
-		VECCP(nu[0]+nx[0]+2*ns[0], dense_qp_sol->v, 0, ocp_qp_sol->ux, 0);
-		if(cond_arg->comp_dual_sol==0)
-			return;
+		if(cond_arg->comp_prim_sol!=0)
+			{
+			VECCP(nu[0]+nx[0]+2*ns[0], dense_qp_sol->v, 0, ocp_qp_sol->ux, 0);
+			}
 		// dual solution
-		VECCP(2*nb[N]+2*ng[N]+2*ns[N], dense_qp_sol->lam, 0, ocp_qp_sol->lam, 0);
-		VECCP(2*nb[N]+2*ng[N]+2*ns[N], dense_qp_sol->t, 0, ocp_qp_sol->t, 0);
+		if(cond_arg->comp_dual_sol_ineq!=0)
+			{
+			VECCP(2*nb[N]+2*ng[N]+2*ns[N], dense_qp_sol->lam, 0, ocp_qp_sol->lam, 0);
+			VECCP(2*nb[N]+2*ng[N]+2*ns[N], dense_qp_sol->t, 0, ocp_qp_sol->t, 0);
+			}
 		return;
 		}
 
@@ -1174,6 +1178,12 @@ void EXPAND_SOL(struct OCP_QP *ocp_qp, struct DENSE_QP_SOL *dense_qp_sol, struct
 	int nt2 = nb2 + ng2;
 
 	// primal solution
+prim_sol:
+
+	if(cond_arg->comp_prim_sol==0)
+		{
+		goto dual_sol_ineq;
+		}
 
 	// inputs & initial states
 	int nu_tmp = 0;
@@ -1192,7 +1202,7 @@ void EXPAND_SOL(struct OCP_QP *ocp_qp, struct DENSE_QP_SOL *dense_qp_sol, struct
 		GEMV_T(nu[ii]+nx[ii], nx[ii+1], 1.0, BAbt+ii, 0, 0, ux+ii, 0, 1.0, b+ii, 0, ux+(ii+1), nu[ii+1]);
 		}
 	
-	if(cond_arg->comp_dual_sol==0)
+	if(cond_arg->comp_dual_sol_ineq==0)
 		{
 		REAL *ptr_ux;
 		REAL *ptr_vc = vc->pa;
@@ -1226,10 +1236,16 @@ void EXPAND_SOL(struct OCP_QP *ocp_qp, struct DENSE_QP_SOL *dense_qp_sol, struct
 				}
 			}
 
-		return;
+		goto dual_sol_eq;
 		}
 	
 	// dual variables + slacks
+dual_sol_ineq:
+
+	if(cond_arg->comp_dual_sol_ineq==0)
+		{
+		goto dual_sol_eq;
+		}
 
 	// slack variables and ineq lagrange multipliers
 	nbb = 0;
@@ -1410,9 +1426,18 @@ void EXPAND_SOL(struct OCP_QP *ocp_qp, struct DENSE_QP_SOL *dense_qp_sol, struct
 		}
 
 	// lagrange multipliers of equality constraints
+dual_sol_eq:
+
+	if(cond_arg->comp_dual_sol_eq==0)
+		{
+		goto end;
+		}
+
 	// last stage
 	if(cond_arg->cond_last_stage==0)
-		VECCP(nx[Np], pic, 0, pi+Np-1, 0);
+		{
+		VECCP(nx[Np], pic, 0, pi+Np-1, 0); // XXX is the size nx[Np] correct ? is pic of that size ???
+		}
 	else
 		{
 //		SYMV_L(nx[Np], nx[Np], 1.0, RSQrq+Np, nu[Np], nu[Np], ux+Np, nu[Np], 1.0, rqz+Np, nu[Np], pi+Np-1, 0);
@@ -1439,6 +1464,7 @@ void EXPAND_SOL(struct OCP_QP *ocp_qp, struct DENSE_QP_SOL *dense_qp_sol, struct
 		VECCP(nx[Np-1-ii], tmp_nuxM, nu[Np-1-ii], pi+(Np-2-ii), 0);
 		}
 
+end:
 
 	return;
 

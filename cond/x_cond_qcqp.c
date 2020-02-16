@@ -163,12 +163,16 @@ void COND_QCQP_ARG_SET_DEFAULT(struct COND_QCQP_ARG *cond_arg)
 	{
 
 	cond_arg->cond_last_stage = 1; // condense last stage
-	cond_arg->comp_dual_sol = 1; // compute dual solution
+	cond_arg->comp_prim_sol = 1; // compute primal solution (v)
+	cond_arg->comp_dual_sol_eq = 1; // compute dual solution equality constr (pi)
+	cond_arg->comp_dual_sol_ineq = 1; // compute dual solution inequality constr (lam t)
 	cond_arg->square_root_alg = 1; // square root algorithm (faster but requires RSQ>0)
 
 	// set arg of qp struct
 	cond_arg->qp_arg->cond_last_stage = cond_arg->cond_last_stage;
-	cond_arg->qp_arg->comp_dual_sol = cond_arg->comp_dual_sol;
+	cond_arg->qp_arg->comp_prim_sol = cond_arg->comp_prim_sol;
+	cond_arg->qp_arg->comp_dual_sol_eq = cond_arg->comp_dual_sol_eq;
+	cond_arg->qp_arg->comp_dual_sol_ineq = cond_arg->comp_dual_sol_ineq;
 	cond_arg->qp_arg->square_root_alg = cond_arg->square_root_alg;
 
 	return;
@@ -206,6 +210,7 @@ int COND_QCQP_WS_MEMSIZE(struct OCP_QCQP_DIM *ocp_dim, struct COND_QCQP_ARG *con
 	int *nu = ocp_dim->nu;
 	int *nb = ocp_dim->nb;
 	int *ng = ocp_dim->ng;
+	int *nq = ocp_dim->nq;
 
 	// compute core qp size and max size
 //	int nvt = 0;
@@ -242,21 +247,25 @@ int COND_QCQP_WS_MEMSIZE(struct OCP_QCQP_DIM *ocp_dim, struct COND_QCQP_ARG *con
 	for(ii=1; ii<=N; ii++)
 		nvc += nu[ii];
 
-	size += 2*(N+1)*sizeof(struct STRMAT); // hess_array GammaQ
+	size += 3*(N+1)*sizeof(struct STRMAT); // hess_array GammaQ tmp_DCt
 	size += 1*sizeof(struct STRMAT); // zero_hess
 	size += 1*(N+1)*sizeof(struct STRVEC); // grad_array
-	size += 3*sizeof(struct STRVEC); // zero_grad tmp_nvc tmp_nxM
+	size += 3*sizeof(struct STRVEC); // zero_grad tmp_nvc tmp_nuxM
 
 	size += 1*SIZE_STRMAT(nuM+nxM+1, nuM+nxM); // zero_hess
 	size += 1*SIZE_STRVEC(nuM+nxM); // zero_grad
 	size += 1*SIZE_STRVEC(nvc); // tmp_nvc
-	size += 1*SIZE_STRVEC(nxM); // tmp_nxM
+	size += 1*SIZE_STRVEC(nuM+nxM); // tmp_nuxM
 	int nu_tmp = 0;
 	for(ii=0; ii<N; ii++)
 		{
 		nu_tmp += nu[ii];
 		size += SIZE_STRMAT(nu_tmp+nx[0]+1, nx[ii+1]); // GammaQ
 //		size += SIZE_STRMAT(nu_tmp+nx[0], nx[ii+1]); // GammaQ TODO without the +1 ???
+		}
+	for(ii=0; ii<=N; ii++)
+		{
+		size += SIZE_STRMAT(nu[ii]+nx[ii], ng[ii]+nq[ii]);
 		}
 
 	size = (size+63)/64*64; // make multiple of typical cache line size
@@ -283,6 +292,7 @@ void COND_QCQP_WS_CREATE(struct OCP_QCQP_DIM *ocp_dim, struct COND_QCQP_ARG *con
 	int *nu = ocp_dim->nu;
 	int *nb = ocp_dim->nb;
 	int *ng = ocp_dim->ng;
+	int *nq = ocp_dim->nq;
 
 	// compute core qp dim and max dim
 //	int nvt = 0;
@@ -335,6 +345,8 @@ void COND_QCQP_WS_CREATE(struct OCP_QCQP_DIM *ocp_dim, struct COND_QCQP_ARG *con
 	sm_ptr += 1;
 	cond_ws->GammaQ = sm_ptr;
 	sm_ptr += N+1;
+	cond_ws->tmp_DCt = sm_ptr;
+	sm_ptr += N+1;
 
 	// vector struct
 	struct STRVEC *sv_ptr = (struct STRVEC *) sm_ptr;
@@ -345,7 +357,7 @@ void COND_QCQP_WS_CREATE(struct OCP_QCQP_DIM *ocp_dim, struct COND_QCQP_ARG *con
 	sv_ptr += 1;
 	cond_ws->tmp_nvc = sv_ptr;
 	sv_ptr += 1;
-	cond_ws->tmp_nxM = sv_ptr;
+	cond_ws->tmp_nuxM = sv_ptr;
 	sv_ptr += 1;
 
 	// align to typicl cache line size
@@ -365,6 +377,12 @@ void COND_QCQP_WS_CREATE(struct OCP_QCQP_DIM *ocp_dim, struct COND_QCQP_ARG *con
 		c_ptr += (cond_ws->GammaQ+ii)->memsize;
 		}
 	//
+	for(ii=0; ii<=N; ii++)
+		{
+		CREATE_STRMAT(nu[ii]+nx[ii], ng[ii]+nq[ii], cond_ws->tmp_DCt+ii, c_ptr);
+		c_ptr += (cond_ws->tmp_DCt+ii)->memsize;
+		}
+	//
 	COND_QP_WS_CREATE(ocp_dim->qp_dim, cond_arg->qp_arg, cond_ws->qp_ws, c_ptr);
 	c_ptr += cond_ws->qp_ws->memsize;
 	//
@@ -377,8 +395,8 @@ void COND_QCQP_WS_CREATE(struct OCP_QCQP_DIM *ocp_dim, struct COND_QCQP_ARG *con
 	CREATE_STRVEC(nvc, cond_ws->tmp_nvc, c_ptr);
 	c_ptr += cond_ws->tmp_nvc->memsize;
 	//
-	CREATE_STRVEC(nxM, cond_ws->tmp_nxM, c_ptr);
-	c_ptr += cond_ws->tmp_nxM->memsize;
+	CREATE_STRVEC(nuM+nxM, cond_ws->tmp_nuxM, c_ptr);
+	c_ptr += cond_ws->tmp_nuxM->memsize;
 
 	cond_ws->memsize = memsize; //COND_QCQP_WS_MEMSIZE(ocp_dim, cond_arg);
 
@@ -486,8 +504,8 @@ void COND_QCQP_COND(struct OCP_QCQP *ocp_qp, struct DENSE_QCQP *dense_qp, struct
 			rho = 0.0;
 			if(kk>0) // TODO what to do for kk=0 ?????
 				{
-				SYMV_L(nx[kk], nx[kk], 1.0, ocp_qp->Hq[kk]+jj, nu[kk], nu[kk], cond_ws->qp_ws->Gammab+kk-1, 0, 0.0, cond_ws->tmp_nxM, 0, cond_ws->tmp_nxM, 0);
-				rho = 0.5*DOT(nx[kk], cond_ws->tmp_nxM, 0, cond_ws->qp_ws->Gammab+kk-1, 0);
+				SYMV_L(nx[kk], nx[kk], 1.0, ocp_qp->Hq[kk]+jj, nu[kk], nu[kk], cond_ws->qp_ws->Gammab+kk-1, 0, 0.0, cond_ws->tmp_nuxM, 0, cond_ws->tmp_nuxM, 0);
+				rho = 0.5*DOT(nx[kk], cond_ws->tmp_nuxM, 0, cond_ws->qp_ws->Gammab+kk-1, 0);
 				}
 #else
 			GESE(nvc+1, nvc, 0.0, dense_qp->Hq+nq_tmp, 0, 0);
@@ -502,9 +520,9 @@ void COND_QCQP_COND(struct OCP_QCQP *ocp_qp, struct DENSE_QCQP *dense_qp, struct
 				// hessian
 				TRTR_L(nx[kk], ocp_qp->Hq[kk]+jj, nu[kk], nu[kk], ocp_qp->Hq[kk]+jj, nu[kk], nu[kk]);
 				GEMM_NN(nu_tmp+nx[0]+1, nx[kk], nx[kk], 1.0, cond_ws->qp_ws->Gamma+kk-1, 0, 0, ocp_qp->Hq[kk]+jj, nu[kk], nu[kk], 0.0, cond_ws->GammaQ+kk-1, 0, 0, cond_ws->GammaQ+kk-1, 0, 0);
-				ROWEX(nx[kk], 1.0, cond_ws->GammaQ+kk-1, nu_tmp+nx[0], 0, cond_ws->tmp_nxM, 0);
-//				SYMV_L(nx[kk], nx[kk], 1.0, ocp_qp->Hq[kk]+jj, nu[kk], nu[kk], cond_ws->qp_ws->Gammab+kk-1, 0, 0.0, cond_ws->tmp_nxM, 0, cond_ws->tmp_nxM, 0);
-				rho = 0.5*DOT(nx[kk], cond_ws->tmp_nxM, 0, cond_ws->qp_ws->Gammab+kk-1, 0);
+				ROWEX(nx[kk], 1.0, cond_ws->GammaQ+kk-1, nu_tmp+nx[0], 0, cond_ws->tmp_nuxM, 0);
+//				SYMV_L(nx[kk], nx[kk], 1.0, ocp_qp->Hq[kk]+jj, nu[kk], nu[kk], cond_ws->qp_ws->Gammab+kk-1, 0, 0.0, cond_ws->tmp_nuxM, 0, cond_ws->tmp_nuxM, 0);
+				rho = 0.5*DOT(nx[kk], cond_ws->tmp_nuxM, 0, cond_ws->qp_ws->Gammab+kk-1, 0);
 				SYRK_LN_MN(nu_tmp+nx[0]+1, nu_tmp+nx[0], nx[kk], 1.0, cond_ws->qp_ws->Gamma+kk-1, 0, 0, cond_ws->GammaQ+kk-1, 0, 0, 0.0, dense_qp->Hq+nq_tmp, nu_tot_tmp+nu[kk], nu_tot_tmp+nu[kk], dense_qp->Hq+nq_tmp, nu_tot_tmp+nu[kk], nu_tot_tmp+nu[kk]);
 				GEAD(nu[kk], nu[kk], 1.0, ocp_qp->Hq[kk]+jj, 0, 0, dense_qp->Hq+nq_tmp, nu_tot_tmp, nu_tot_tmp);
 				GEMM_NN(nu_tmp+nx[0]+1, nu[kk], nx[kk], 1.0, cond_ws->qp_ws->Gamma+kk-1, 0, 0, ocp_qp->Hq[kk]+jj, nu[kk], 0, 1.0, dense_qp->Hq+nq_tmp, nu_tot_tmp+nu[kk], nu_tot_tmp, dense_qp->Hq+nq_tmp, nu_tot_tmp+nu[kk], nu_tot_tmp);
@@ -575,6 +593,15 @@ void COND_QCQP_COND_RHS(struct OCP_QCQP *ocp_qp, struct DENSE_QCQP *dense_qp, st
 void COND_QCQP_EXPAND_SOL(struct OCP_QCQP *ocp_qp, struct DENSE_QCQP_SOL *dense_qp_sol, struct OCP_QCQP_SOL *ocp_qp_sol, struct COND_QCQP_ARG *cond_arg, struct COND_QCQP_WS *cond_ws)
 	{
 
+	int ii, jj;
+
+	// extract dim
+	int N = ocp_qp->dim->N;
+	int *nu = ocp_qp->dim->nu;
+	int *nx = ocp_qp->dim->nx;
+	int *ng = ocp_qp->dim->ng;
+	int *nq = ocp_qp->dim->nq;
+
 	// create tmp QP
 	struct OCP_QP tmp_ocp_qp;
 
@@ -612,10 +639,35 @@ void COND_QCQP_EXPAND_SOL(struct OCP_QCQP *ocp_qp, struct DENSE_QCQP_SOL *dense_
 	tmp_dense_qp_sol.lam = dense_qp_sol->lam;
 	tmp_dense_qp_sol.t = dense_qp_sol->t;
 
-	// XXX for now expand only primal sol !!!!!
-	// TODO remove !!!!!
-	cond_arg->comp_dual_sol = 0; // compute dual solution
-	cond_arg->qp_arg->comp_dual_sol = 0; // compute dual solution
+	int bkp_comp_prim_sol = cond_arg->qp_arg->comp_prim_sol;
+	int bkp_comp_dual_sol_eq = cond_arg->qp_arg->comp_dual_sol_eq;
+	int bkp_comp_dual_sol_ineq = cond_arg->qp_arg->comp_dual_sol_ineq;
+
+	cond_arg->qp_arg->comp_prim_sol = 1;
+	cond_arg->qp_arg->comp_dual_sol_eq = 0;
+	cond_arg->qp_arg->comp_dual_sol_ineq = 1;
+
+//	cond_arg->comp_dual_sol = 0; // compute dual solution
+//	cond_arg->qp_arg->comp_dual_sol = 0; // compute dual solution
+
+	EXPAND_SOL(&tmp_ocp_qp, &tmp_dense_qp_sol, &tmp_ocp_qp_sol, cond_arg->qp_arg, cond_ws->qp_ws);
+
+	// linearize quadr constr
+	for(ii=0; ii<=N; ii++)
+		{
+		GECP(nu[ii]+nx[ii], ng[ii]+nq[ii], ocp_qp->DCt+ii, 0, 0, cond_ws->tmp_DCt+ii, 0, 0);
+		for(jj=0; jj<nq[ii]; jj++)
+			{
+			SYMV_L(nu[ii]+nx[ii], nu[ii]+nx[ii], 1.0, ocp_qp->Hq[ii]+jj, 0, 0, ocp_qp_sol->ux+ii, 0, 0.0, cond_ws->tmp_nuxM, 0, cond_ws->tmp_nuxM, 0);
+			COLAD(nu[ii]+nx[ii], 1.0, cond_ws->tmp_nuxM, 0, cond_ws->tmp_DCt+ii, 0, ng[ii]+jj);
+			}
+		}
+
+	tmp_ocp_qp.DCt = cond_ws->tmp_DCt;
+
+	cond_arg->qp_arg->comp_prim_sol = 0;
+	cond_arg->qp_arg->comp_dual_sol_eq = 1;
+	cond_arg->qp_arg->comp_dual_sol_ineq = 0;
 
 	EXPAND_SOL(&tmp_ocp_qp, &tmp_dense_qp_sol, &tmp_ocp_qp_sol, cond_arg->qp_arg, cond_ws->qp_ws);
 
