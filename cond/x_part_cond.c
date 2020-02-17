@@ -138,9 +138,10 @@ void PART_COND_QP_COMPUTE_DIM(struct OCP_QP_DIM *ocp_dim, int *block_size, struc
 		nb2[ii] += nbu[N_tmp+jj];
 		ng2[ii] += ng[N_tmp+jj] + nbx[N_tmp+jj];
 		ns2[ii] += ns[N_tmp+jj];
-
-		nsbx2[ii] = nsbx[N_tmp+0];
-		nsbu2[ii] = nsbu[N_tmp+0];
+		nsbx2[ii] += 0;
+		nsbu2[ii] += nsbu[N_tmp+jj];
+//		nsbx2[ii] = nsbx[N_tmp+0];
+//		nsbu2[ii] = nsbu[N_tmp+0];
 		nsg2[ii] += nsg[N_tmp+jj] + nsbx[N_tmp+jj];
 		}
 
