@@ -192,7 +192,8 @@ void COND_RSQRQ_N2NX3(struct OCP_QP *ocp_qp, struct STRMAT *RSQrq2, struct STRVE
 	int nub = nu2; // backward partial sum
 	int nuf = 0; // forward partial sum
 
-	if(cond_arg->square_root_alg)
+//	if(cond_arg->square_root_alg)
+	if(0)
 		{
 
 		// final stage 
@@ -398,7 +399,9 @@ void COND_RQ_N2NX3(struct OCP_QP *ocp_qp, struct STRVEC *rqz2, struct COND_QP_AR
 		{	
 		nub -= nu[N-nn-1];
 
-		SYMV_L(nx[N-nn], nx[N-nn], 1.0, L+(N-nn), nu[N-nn], nu[N-nn], b+(N-nn-1), 0, 1.0, l+(N-nn), nu[N-nn], tmp_nuxM, 0);
+//		SYMV_L(nx[N-nn], nx[N-nn], 1.0, L+(N-nn), nu[N-nn], nu[N-nn], b+(N-nn-1), 0, 1.0, l+(N-nn), nu[N-nn], tmp_nuxM, 0); // XXX buggy !!!
+		TRTR_L(nx[N-nn]+nu[N-nn], L+N-nn, 0, 0, L+N-nn, 0, 0);
+		GEMV_N(nx[N-nn], nx[N-nn], 1.0, L+(N-nn), nu[N-nn], nu[N-nn], b+(N-nn-1), 0, 1.0, l+(N-nn), nu[N-nn], tmp_nuxM, 0);
 
 		GEMV_N(nu[N-nn-1]+nx[N-nn-1], nx[N-nn], 1.0, BAbt+(N-nn-1), 0, 0, tmp_nuxM, 0, 1.0, rqz+(N-nn-1), 0, l+(N-nn-1), 0);
 
@@ -411,7 +414,9 @@ void COND_RQ_N2NX3(struct OCP_QP *ocp_qp, struct STRVEC *rqz2, struct COND_QP_AR
 	// first stage
 	nn = N-1;
 
-	SYMV_L(nx[N-nn], nx[N-nn], 1.0, L+(N-nn), nu[N-nn], nu[N-nn], b+(N-nn-1), 0, 1.0, l+(N-nn), nu[N-nn], tmp_nuxM, 0);
+//	SYMV_L(nx[N-nn], nx[N-nn], 1.0, L+(N-nn), nu[N-nn], nu[N-nn], b+(N-nn-1), 0, 1.0, l+(N-nn), nu[N-nn], tmp_nuxM, 0);
+	TRTR_L(nx[N-nn]+nu[N-nn], L+N-nn, 0, 0, L+N-nn, 0, 0);
+	GEMV_N(nx[N-nn], nx[N-nn], 1.0, L+(N-nn), nu[N-nn], nu[N-nn], b+(N-nn-1), 0, 1.0, l+(N-nn), nu[N-nn], tmp_nuxM, 0);
 
 	GEMV_N(nu[N-nn-1]+nx[N-nn-1], nx[N-nn], 1.0, BAbt+(N-nn-1), 0, 0, tmp_nuxM, 0, 1.0, rqz+(N-nn-1), 0, l+(N-nn-1), 0);
 

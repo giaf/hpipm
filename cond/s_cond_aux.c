@@ -78,6 +78,7 @@
 #define TRMM_RLNN blasfeo_strmm_rlnn
 #define VECAD_SP blasfeo_svecad_sp
 #define VECCP blasfeo_sveccp
+#define VECSE blasfeo_svecse
 
 #define COND_BABT s_cond_BAbt
 #define COND_B s_cond_b
