@@ -440,7 +440,7 @@ void COND_QCQP_COND(struct OCP_QCQP *ocp_qp, struct DENSE_QCQP *dense_qp, struct
 	COND_RSQRQ_N2NX3(&tmp_ocp_qp, dense_qp->Hv, dense_qp->gz, cond_arg->qp_arg, cond_ws->qp_ws);
 
 	COND_DCTD(&tmp_ocp_qp, dense_qp->idxb, dense_qp->Ct, dense_qp->d, dense_qp->idxs, dense_qp->Z, dense_qp->gz, cond_arg->qp_arg, cond_ws->qp_ws);
-	
+
 	// cond quadr constr
 	int ii, jj, kk;
 
@@ -454,7 +454,7 @@ void COND_QCQP_COND(struct OCP_QCQP *ocp_qp, struct DENSE_QCQP *dense_qp, struct
 	int ngc = dense_qp->dim->ng;
 	int nqc = dense_qp->dim->nq;
 
-	int nu_tmp, nq_tmp, nu_tot_tmp;
+	int nu_tmp, nq_tmp, nu_tot_tmp, nq_tot_tmp;
 
 	REAL rho;
 
@@ -466,11 +466,14 @@ void COND_QCQP_COND(struct OCP_QCQP *ocp_qp, struct DENSE_QCQP *dense_qp, struct
 	nu_tmp = 0;
 	nq_tmp = 0;
 	nu_tot_tmp = nvc - nx[0];
+	nq_tot_tmp = nqc;
 	for(kk=0; kk<=N; kk++)
 		{
 
 		nu_tot_tmp -= nu[kk];
-//		printf("\n%d %d %d %d\n", nvc, nu_tot_tmp+nu_tmp, nu_tot_tmp, nu_tmp);
+		nq_tot_tmp -= nq[kk];
+
+		nq_tmp = nq_tot_tmp;
 
 		for(jj=0; jj<nq[kk]; jj++)
 			{
@@ -596,7 +599,7 @@ void COND_QCQP_COND_RHS(struct OCP_QCQP *ocp_qp, struct DENSE_QCQP *dense_qp, st
 	int ngc = dense_qp->dim->ng;
 	int nqc = dense_qp->dim->nq;
 
-	int nu_tmp, nq_tmp, nu_tot_tmp;
+	int nu_tmp, nq_tmp, nu_tot_tmp, nq_tot_tmp;
 
 	REAL rho;
 
@@ -608,11 +611,14 @@ void COND_QCQP_COND_RHS(struct OCP_QCQP *ocp_qp, struct DENSE_QCQP *dense_qp, st
 	nu_tmp = 0;
 	nq_tmp = 0;
 	nu_tot_tmp = nvc - nx[0];
+	nq_tot_tmp = nqc;
 	for(kk=0; kk<=N; kk++)
 		{
 
 		nu_tot_tmp -= nu[kk];
-//		printf("\n%d %d %d %d\n", nvc, nu_tot_tmp+nu_tmp, nu_tot_tmp, nu_tmp);
+		nq_tot_tmp -= nq[kk];
+
+		nq_tmp = nq_tot_tmp;
 
 		for(jj=0; jj<nq[kk]; jj++)
 			{

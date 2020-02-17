@@ -196,7 +196,7 @@ int main()
 
 	int nbu[N+1];
 	for (ii=0; ii<N; ii++)
-		nbu[ii] = nu[ii];
+		nbu[ii] = 0;//nu[ii];
 	nbu[N] = 0;
 
 	int nbx[N+1];
@@ -209,7 +209,7 @@ int main()
 		nbx[ii] = 0;//nx[ii]/2;
 
 	int nb[N+1];
-	for (ii=0; ii<=N; ii++)
+	for(ii=0; ii<=N; ii++)
 		nb[ii] = nbu[ii]+nbx[ii];
 
 	int ng[N+1];
@@ -219,9 +219,9 @@ int main()
 	ng[N] = 0;
 
 	int nq[N+1];
-	nq[0] = 0;
+	nq[0] = 1;//0;
 	for(ii=1; ii<N; ii++)
-		nq[ii] = 0;//2;
+		nq[ii] = 1;//2;
 //	nq[N-1] = 1;
 	nq[N] = 1;
 
@@ -468,6 +468,11 @@ int main()
 * quadratic constraints
 ************************************************/
 	
+	double *Rq1; d_zeros(&Rq1, nu[1], nu[1]*nq[1]);
+	if(nq[1]>0)
+		for(ii=0; ii<nu[1]; ii++)
+			Rq1[ii*(nu[1]+1)] = 2*1.0;
+
 	double *Qq1; d_zeros(&Qq1, nx[1], nx[1]*nq[1]);
 //	for(ii=0; ii<nx[1]/2; ii++)
 //		Qq1[(nx[1]/2+ii)*(nx[1]+1)] = 0.0;
@@ -478,6 +483,8 @@ int main()
 //	qq1[1*nx[1]+0] =  1;
 
 	double *uq1; d_zeros(&uq1, nq[1], 1);
+	if(nq[1]>0)
+		uq1[0] =  0.5*0.5;
 //	uq1[0] =  4.0;
 //	uq1[1] =  4.0;
 
@@ -501,17 +508,20 @@ int main()
 
 
 	double *QqN; d_zeros(&QqN, nx[N], nx[N]*nq[N]);
-	for(ii=0; ii<nx[N]; ii++)
-		QqN[ii*(nx[N]+1)] = 1.0;
+	if(nq[N]>0)
+		for(ii=0; ii<nx[N]; ii++)
+			QqN[ii*(nx[N]+1)] = 1.0;
 
 	double *qqN; d_zeros(&qqN, nx[N], nq[N]);
 //	qqN[0*nx[N]+0] = 0.0;
 
 	double *uqN; d_zeros(&uqN, nq[N], 1);
-	uqN[0] = 1.5;
+	if(nq[N]>0)
+		uqN[0] = 1.5;
 
 	double *uqN_mask; d_zeros(&uqN_mask, nq[N], 1);
-	uqN_mask[0] = 1.0;
+	if(nq[N]>0)
+		uqN_mask[0] = 1.0;
 
 /************************************************
 * soft constraints
@@ -679,29 +689,32 @@ int main()
 	d_ocp_qcqp_set_idxbx(ii, idxbx0, &ocp_qp);
 	d_ocp_qcqp_set_lbx(ii, lbx0, &ocp_qp);
 	d_ocp_qcqp_set_ubx(ii, ubx0, &ocp_qp);
-	d_ocp_qcqp_set_idxbu(ii, idxbu0, &ocp_qp);
-	d_ocp_qcqp_set_lbu(ii, lbu0, &ocp_qp);
-	d_ocp_qcqp_set_ubu(ii, ubu0, &ocp_qp);
+//	d_ocp_qcqp_set_idxbu(ii, idxbu0, &ocp_qp);
+//	d_ocp_qcqp_set_lbu(ii, lbu0, &ocp_qp);
+//	d_ocp_qcqp_set_ubu(ii, ubu0, &ocp_qp);
 	d_ocp_qcqp_set_C(ii, C0, &ocp_qp);
 	d_ocp_qcqp_set_D(ii, D0, &ocp_qp);
 	d_ocp_qcqp_set_lg(ii, lg0, &ocp_qp);
 	d_ocp_qcqp_set_ug(ii, ug0, &ocp_qp);
+	d_ocp_qcqp_set_Rq(ii, Rq1, &ocp_qp);
+	d_ocp_qcqp_set_uq(ii, uq1, &ocp_qp);
 	for(ii=1; ii<N; ii++)
 		{
 		d_ocp_qcqp_set_idxbx(ii, idxbx1, &ocp_qp);
 		d_ocp_qcqp_set_lbx(ii, lbx1, &ocp_qp);
 		d_ocp_qcqp_set_ubx(ii, ubx1, &ocp_qp);
-		d_ocp_qcqp_set_idxbu(ii, idxbu1, &ocp_qp);
-		d_ocp_qcqp_set_lbu(ii, lbu1, &ocp_qp);
-		d_ocp_qcqp_set_ubu(ii, ubu1, &ocp_qp);
+//		d_ocp_qcqp_set_idxbu(ii, idxbu1, &ocp_qp);
+//		d_ocp_qcqp_set_lbu(ii, lbu1, &ocp_qp);
+//		d_ocp_qcqp_set_ubu(ii, ubu1, &ocp_qp);
 		d_ocp_qcqp_set_C(ii, C1, &ocp_qp);
 		d_ocp_qcqp_set_D(ii, D1, &ocp_qp);
 		d_ocp_qcqp_set_lg(ii, lg1, &ocp_qp);
 		d_ocp_qcqp_set_ug(ii, ug1, &ocp_qp);
+		d_ocp_qcqp_set_Rq(ii, Rq1, &ocp_qp);
 		d_ocp_qcqp_set_Qq(ii, Qq1, &ocp_qp);
 		d_ocp_qcqp_set_qq(ii, qq1, &ocp_qp);
 		d_ocp_qcqp_set_uq(ii, uq1, &ocp_qp);
-		d_ocp_qcqp_set_uq_mask(ii, uq1_mask, &ocp_qp);
+//		d_ocp_qcqp_set_uq_mask(ii, uq1_mask, &ocp_qp);
 		}
 //d_ocp_qcqp_set_Qq(N-1, QqNm1, &ocp_qp);
 //d_ocp_qcqp_set_uq(N-1, uqNm1, &ocp_qp);
@@ -955,6 +968,7 @@ int main()
 	d_free(DN);
 	d_free(lgN);
 	d_free(ugN);
+	d_free(Rq1);
 	d_free(Qq1);
 	d_free(QqN);
 	d_free(qqN);
