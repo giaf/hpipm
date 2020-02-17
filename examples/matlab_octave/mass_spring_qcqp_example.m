@@ -93,6 +93,9 @@ lbu = -0.5*ones(nu,1);
 ubu =  0.5*ones(nu,1);
 
 % quadratic constr
+Rq = 2*eye(nu);
+uq = 0.5*0.5;
+
 QqN = eye(nx);
 uqN = 1.5;
 
@@ -113,10 +116,13 @@ nbu = nu;
 dim.set('nx', nx, 0, N);
 dim.set('nu', nu, 0, N-1); % controls
 dim.set('nbx', nbx, 0); % state bounds
-dim.set('nbu', nbu, 0, N-1); % control bounds
+%dim.set('nbu', nbu, 0, N-1); % control bounds
 %dim.set('ng', ng, 0, N); % general linear constraints
 %dim.set('ns', ns, 0, N); % slacks
-dim.set('nq', 1, N);
+nq = 1;
+nqN = 1;
+dim.set('nq', nq, 0, N-1);
+dim.set('nq', nqN, N);
 
 % print to shell
 %dim.print_C_struct();
@@ -154,9 +160,9 @@ qp.set('r', r, 0, N-1);
 qp.set('Jbx', Jx0, 0);
 qp.set('lbx', x0, 0);
 qp.set('ubx', x0, 0);
-qp.set('Jbu', Jbu, 0, N-1);
-qp.set('lbu', lbu, 0, N-1);
-qp.set('ubu', ubu, 0, N-1);
+%qp.set('Jbu', Jbu, 0, N-1);
+%qp.set('lbu', lbu, 0, N-1);
+%qp.set('ubu', ubu, 0, N-1);
 
 %Jsx = eye(nbx, ns);
 %qp.set('Jsx', Jsx, 0, N);
@@ -166,6 +172,9 @@ qp.set('ubu', ubu, 0, N-1);
 %slack_bounds = zeros(ns,1);
 %qp.set('lus', slack_bounds, 0, N);
 %qp.set('lls', slack_bounds, 0, N);
+
+qp.set('Rq', Rq, 0, N-1);
+qp.set('uq', uq, 0, N-1);
 
 qp.set('Qq', QqN, N);
 qp.set('uq', uqN, N);
