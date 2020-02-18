@@ -193,4 +193,455 @@ void PART_COND_QCQP_COMPUTE_DIM(struct OCP_QCQP_DIM *ocp_dim, int *block_size, s
 
 
 
+int PART_COND_QCQP_ARG_MEMSIZE(int N2)
+	{
+
+	int ii;
+
+	int size = 0;
+
+	size += (N2+1)*sizeof(struct COND_QCQP_ARG);
+
+	for(ii=0; ii<=N2; ii++)
+		{
+
+		size += COND_QCQP_ARG_MEMSIZE();
+
+		}
+
+	size = (size+63)/64*64; // make multiple of typical cache line size
+	size += 1*64; // align once to typical cache line size
+
+	return size;
+
+	}
+
+
+
+void PART_COND_QCQP_ARG_CREATE(int N2, struct PART_COND_QCQP_ARG *part_cond_arg, void *mem)
+	{
+
+	int ii;
+
+	// cond workspace struct
+	struct COND_QCQP_ARG *cws_ptr = mem;
+	part_cond_arg->cond_arg = cws_ptr;
+	cws_ptr += N2+1;
+
+	// align to typicl cache line size
+	size_t s_ptr = (size_t) cws_ptr;
+	s_ptr = (s_ptr+63)/64*64;
+
+	char *c_ptr = (char *) s_ptr;
+
+	for(ii=0; ii<=N2; ii++)
+		{
+
+		COND_QCQP_ARG_CREATE(part_cond_arg->cond_arg+ii, c_ptr);
+		c_ptr += (part_cond_arg->cond_arg+ii)->memsize;
+
+		}
+
+	part_cond_arg->memsize = PART_COND_QCQP_ARG_MEMSIZE(N2);
+
+#if defined(RUNTIME_CHECKS)
+	if(c_ptr > ((char *) mem) + part_cond_arg->memsize)
+		{
+		printf("\nCreate_cond_qcqp_ocp2ocp_arg: outside memory bounds!\n\n");
+		exit(1);
+		}
+#endif
+
+	return;
+
+	}
+
+
+
+void PART_COND_QCQP_ARG_SET_DEFAULT(int N2, struct PART_COND_QCQP_ARG *part_cond_arg)
+	{
+
+	int ii;
+
+	for(ii=0; ii<=N2; ii++)
+		{
+
+		COND_QCQP_ARG_SET_DEFAULT(part_cond_arg->cond_arg+ii);
+		(part_cond_arg->cond_arg+ii)->cond_last_stage = 0;
+
+		}
+	// cond_last_stage at last stage
+	part_cond_arg->cond_arg[N2].cond_last_stage = 1;
+
+	return;
+
+	}
+
+
+
+void PART_COND_QCQP_ARG_SET_RIC_ALG(int ric_alg, int N2, struct PART_COND_QCQP_ARG *part_cond_arg)
+	{
+
+	int ii;
+
+	for(ii=0; ii<=N2; ii++)
+		{
+		COND_QCQP_ARG_SET_RIC_ALG(ric_alg, part_cond_arg->cond_arg+ii);
+		}
+
+	return;
+
+	}
+
+
+
+int PART_COND_QCQP_WS_MEMSIZE(struct OCP_QCQP_DIM *ocp_dim, int *block_size, struct OCP_QCQP_DIM *part_dense_dim, struct PART_COND_QCQP_ARG *part_cond_arg)
+	{
+
+	struct OCP_QCQP_DIM tmp_ocp_dim;
+
+	int ii;
+
+	int N = ocp_dim->N;
+	int N2 = part_dense_dim->N;
+
+	int size = 0;
+
+	size += (N2+1)*sizeof(struct COND_QCQP_ARG_WS);
+
+	int N_tmp = 0; // temporary sum of horizons
+	for(ii=0; ii<=N2; ii++)
+		{
+
+		// alias ocp_dim
+		tmp_ocp_dim.N = block_size[ii];
+		tmp_ocp_dim.nx = ocp_dim->nx+N_tmp;
+		tmp_ocp_dim.nu = ocp_dim->nu+N_tmp;
+		tmp_ocp_dim.nbx = ocp_dim->nbx+N_tmp;
+		tmp_ocp_dim.nbu = ocp_dim->nbu+N_tmp;
+		tmp_ocp_dim.nb = ocp_dim->nb+N_tmp;
+		tmp_ocp_dim.ng = ocp_dim->ng+N_tmp;
+		tmp_ocp_dim.nq = ocp_dim->nq+N_tmp;
+		tmp_ocp_dim.nsbx = ocp_dim->nsbx+N_tmp;
+		tmp_ocp_dim.nsbu = ocp_dim->nsbu+N_tmp;
+		tmp_ocp_dim.nsg = ocp_dim->nsg+N_tmp;
+		tmp_ocp_dim.nsq = ocp_dim->nsq+N_tmp;
+		tmp_ocp_dim.ns = ocp_dim->ns+N_tmp;
+
+		size += COND_QCQP_WS_MEMSIZE(&tmp_ocp_dim, part_cond_arg->cond_arg+ii);
+
+		N_tmp += block_size[ii];
+
+		}
+
+	size = (size+63)/64*64; // make multiple of typical cache line size
+	size += 1*64; // align once to typical cache line size
+
+	return size;
+
+	}
+
+
+
+void PART_COND_QCQP_WS_CREATE(struct OCP_QCQP_DIM *ocp_dim, int *block_size, struct OCP_QCQP_DIM *part_dense_dim, struct PART_COND_QCQP_ARG *part_cond_arg, struct PART_COND_QCQP_WS *part_cond_ws, void *mem)
+	{
+
+	struct OCP_QCQP_DIM tmp_ocp_dim;
+
+	int ii;
+
+	int N = ocp_dim->N;
+	int N2 = part_dense_dim->N;
+
+	// cond workspace struct
+	struct COND_QCQP_ARG_WS *cws_ptr = mem;
+	part_cond_ws->cond_workspace = cws_ptr;
+	cws_ptr += N2+1;
+
+	// align to typicl cache line size
+	size_t s_ptr = (size_t) cws_ptr;
+	s_ptr = (s_ptr+63)/64*64;
+
+	char *c_ptr = (char *) s_ptr;
+
+	int N_tmp = 0; // temporary sum of horizons
+	for(ii=0; ii<=N2; ii++)
+		{
+
+		// alias ocp_dim
+		tmp_ocp_dim.N = block_size[ii];
+		tmp_ocp_dim.nx = ocp_dim->nx+N_tmp;
+		tmp_ocp_dim.nu = ocp_dim->nu+N_tmp;
+		tmp_ocp_dim.nbx = ocp_dim->nbx+N_tmp;
+		tmp_ocp_dim.nbu = ocp_dim->nbu+N_tmp;
+		tmp_ocp_dim.nb = ocp_dim->nb+N_tmp;
+		tmp_ocp_dim.ng = ocp_dim->ng+N_tmp;
+		tmp_ocp_dim.nq = ocp_dim->nq+N_tmp;
+		tmp_ocp_dim.nsbx = ocp_dim->nsbx+N_tmp;
+		tmp_ocp_dim.nsbu = ocp_dim->nsbu+N_tmp;
+		tmp_ocp_dim.nsg = ocp_dim->nsg+N_tmp;
+		tmp_ocp_dim.nsq = ocp_dim->nsq+N_tmp;
+		tmp_ocp_dim.ns = ocp_dim->ns+N_tmp;
+
+		COND_QCQP_WS_CREATE(&tmp_ocp_dim, part_cond_arg->cond_arg+ii, part_cond_ws->cond_workspace+ii, c_ptr);
+		c_ptr += (part_cond_ws->cond_workspace+ii)->memsize;
+
+		N_tmp += block_size[ii];
+
+		}
+
+	part_cond_ws->memsize = PART_COND_QCQP_WS_MEMSIZE(ocp_dim, block_size, part_dense_dim, part_cond_arg);
+
+#if defined(RUNTIME_CHECKS)
+	if(c_ptr > ((char *) mem) + part_cond_ws->memsize)
+		{
+		printf("\nCreate_cond_qp_ocp2ocp: outside memory bounds!\n\n");
+		exit(1);
+		}
+#endif
+
+return;
+
+	}
+
+
+
+void PART_COND_QCQP_COND(struct OCP_QCQP *ocp_qp, struct OCP_QCQP *part_dense_qp, struct PART_COND_QCQP_ARG *part_cond_arg, struct PART_COND_QCQP_WS *part_cond_ws)
+	{
+
+	struct OCP_QCQP_DIM tmp_ocp_dim;
+	struct OCP_QCQP tmp_ocp_qp;
+
+	int ii;
+
+	int N = ocp_qp->dim->N;
+	int N2 = part_dense_qp->dim->N;
+	int bs; // horizon of current block
+
+	int N_tmp = 0; // temporary sum of horizons
+	for(ii=0; ii<=N2; ii++)
+		{
+
+		bs = part_cond_ws->cond_workspace[ii].bs;
+
+		// alias ocp_dim
+		tmp_ocp_dim.N = bs;
+		tmp_ocp_dim.nx = ocp_qp->dim->nx+N_tmp;
+		tmp_ocp_dim.nu = ocp_qp->dim->nu+N_tmp;
+		tmp_ocp_dim.nbx = ocp_qp->dim->nbx+N_tmp;
+		tmp_ocp_dim.nbu = ocp_qp->dim->nbu+N_tmp;
+		tmp_ocp_dim.nb = ocp_qp->dim->nb+N_tmp;
+		tmp_ocp_dim.ng = ocp_qp->dim->ng+N_tmp;
+		tmp_ocp_dim.nq = ocp_qp->dim->nq+N_tmp;
+		tmp_ocp_dim.nsbx = ocp_dim->nsbx+N_tmp;
+		tmp_ocp_dim.nsbu = ocp_dim->nsbu+N_tmp;
+		tmp_ocp_dim.nsg = ocp_dim->nsg+N_tmp;
+		tmp_ocp_dim.nsq = ocp_dim->nsq+N_tmp;
+		tmp_ocp_dim.ns = ocp_qp->dim->ns+N_tmp;
+
+		// alias ocp_qp
+		tmp_ocp_qp.dim = &tmp_ocp_dim;
+		tmp_ocp_qp.idxb = ocp_qp->idxb+N_tmp;
+		tmp_ocp_qp.BAbt = ocp_qp->BAbt+N_tmp;
+		tmp_ocp_qp.b = ocp_qp->b+N_tmp;
+		tmp_ocp_qp.RSQrq = ocp_qp->RSQrq+N_tmp;
+		tmp_ocp_qp.rqz = ocp_qp->rqz+N_tmp;
+		tmp_ocp_qp.DCt = ocp_qp->DCt+N_tmp;
+		tmp_ocp_qp.d = ocp_qp->d+N_tmp;
+		tmp_ocp_qp.Z = ocp_qp->Z+N_tmp;
+		tmp_ocp_qp.idxs = ocp_qp->idxs+N_tmp;
+		// TODO d_mask
+
+		COND_BABT(&tmp_ocp_qp, part_dense_qp->BAbt+ii, part_dense_qp->b+ii, part_cond_arg->cond_arg+ii, part_cond_ws->cond_workspace+ii);
+
+		COND_RSQRQ_N2NX3(&tmp_ocp_qp, part_dense_qp->RSQrq+ii, part_dense_qp->rqz+ii, part_cond_arg->cond_arg+ii, part_cond_ws->cond_workspace+ii);
+
+		COND_DCTD(&tmp_ocp_qp, part_dense_qp->idxb[ii], part_dense_qp->DCt+ii, part_dense_qp->d+ii, part_dense_qp->idxs[ii], part_dense_qp->Z+ii, part_dense_qp->rqz+ii, part_cond_arg->cond_arg+ii, part_cond_ws->cond_workspace+ii);
+
+		N_tmp += bs;
+
+		}
+
+#if 0
+	// copy last stage
+	int *nx = ocp_qp->dim->nx;
+	int *nu = ocp_qp->dim->nu;
+	int *nb = ocp_qp->dim->nb;
+	int *ng = ocp_qp->dim->ng;
+	int *ns = ocp_qp->dim->ns;
+
+	GECP_LIBSTR(nu[N]+nx[N]+1, nu[N]+nx[N], ocp_qp->RSQrq+N, 0, 0, part_dense_qp->RSQrq+N2, 0, 0);
+	VECCP_LIBSTR(nu[N]+nx[N], ocp_qp->rq+N, 0, part_dense_qp->rq+N2, 0);
+	GECP_LIBSTR(nu[N]+nx[N], ng[N], ocp_qp->DCt+N, 0, 0, part_dense_qp->DCt+N2, 0, 0);
+	VECCP_LIBSTR(2*nb[N]+2*ng[N], ocp_qp->d+N, 0, part_dense_qp->d+N2, 0);
+	for(ii=0; ii<nb[N]; ii++) part_dense_qp->idxb[N2][ii] = ocp_qp->idxb[N][ii];
+	VECCP_LIBSTR(2*ns[N], ocp_qp->Z+N, 0, part_dense_qp->Z+N2, 0);
+	VECCP_LIBSTR(2*ns[N], ocp_qp->z+N, 0, part_dense_qp->z+N2, 0);
+	for(ii=0; ii<ns[N]; ii++) part_dense_qp->idxs[N2][ii] = ocp_qp->idxs[N][ii];
+#endif
+
+	return;
+
+	}
+
+
+
+void PART_COND_QP_COND_RHS(struct OCP_QP *ocp_qp, struct OCP_QP *part_dense_qp, struct PART_COND_QP_ARG *part_cond_arg, struct PART_COND_QP_WS *part_cond_ws)
+	{
+
+	struct OCP_QP_DIM tmp_ocp_dim;
+	struct OCP_QP tmp_ocp_qp;
+
+	int ii;
+
+	int N = ocp_qp->dim->N;
+	int N2 = part_dense_qp->dim->N;
+	int bs; // horizon of current block
+
+	int N_tmp = 0; // temporary sum of horizons
+	for(ii=0; ii<=N2; ii++)
+		{
+
+		bs = part_cond_ws->cond_workspace[ii].bs;
+
+		// alias ocp_dim
+		tmp_ocp_dim.N = bs;
+		tmp_ocp_dim.nx = ocp_qp->dim->nx+N_tmp;
+		tmp_ocp_dim.nu = ocp_qp->dim->nu+N_tmp;
+		tmp_ocp_dim.nbx = ocp_qp->dim->nbx+N_tmp;
+		tmp_ocp_dim.nbu = ocp_qp->dim->nbu+N_tmp;
+		tmp_ocp_dim.nb = ocp_qp->dim->nb+N_tmp;
+		tmp_ocp_dim.ng = ocp_qp->dim->ng+N_tmp;
+		tmp_ocp_dim.nq = ocp_qp->dim->nq+N_tmp;
+		tmp_ocp_dim.nsbx = ocp_dim->nsbx+N_tmp;
+		tmp_ocp_dim.nsbu = ocp_dim->nsbu+N_tmp;
+		tmp_ocp_dim.nsg = ocp_dim->nsg+N_tmp;
+		tmp_ocp_dim.nsq = ocp_dim->nsq+N_tmp;
+		tmp_ocp_dim.ns = ocp_qp->dim->ns+N_tmp;
+
+		// alias ocp_qp
+		tmp_ocp_qp.dim = &tmp_ocp_dim;
+		tmp_ocp_qp.idxb = ocp_qp->idxb+N_tmp;
+		tmp_ocp_qp.BAbt = ocp_qp->BAbt+N_tmp;
+		tmp_ocp_qp.b = ocp_qp->b+N_tmp;
+		tmp_ocp_qp.RSQrq = ocp_qp->RSQrq+N_tmp;
+		tmp_ocp_qp.rqz = ocp_qp->rqz+N_tmp;
+		tmp_ocp_qp.DCt = ocp_qp->DCt+N_tmp;
+		tmp_ocp_qp.d = ocp_qp->d+N_tmp;
+		tmp_ocp_qp.Z = ocp_qp->Z+N_tmp;
+		tmp_ocp_qp.idxs = ocp_qp->idxs+N_tmp;
+		// TODO d_mask
+
+		COND_B(&tmp_ocp_qp, part_dense_qp->b+ii, part_cond_arg->cond_arg+ii, part_cond_ws->cond_workspace+ii);
+
+		COND_RQ_N2NX3(&tmp_ocp_qp, part_dense_qp->rqz+ii, part_cond_arg->cond_arg+ii, part_cond_ws->cond_workspace+ii);
+
+		COND_D(&tmp_ocp_qp, part_dense_qp->d+ii, part_dense_qp->rqz+ii, part_cond_arg->cond_arg+ii, part_cond_ws->cond_workspace+ii);
+
+		N_tmp += bs;
+
+		}
+
+#if 0
+	// copy last stage
+	int *nx = ocp_qp->dim->nx;
+	int *nu = ocp_qp->dim->nu;
+	int *nb = ocp_qp->dim->nb;
+	int *ng = ocp_qp->dim->ng;
+	int *ns = ocp_qp->dim->ns;
+
+	VECCP_LIBSTR(nu[N]+nx[N], ocp_qp->rq+N, 0, part_dense_qp->rq+N2, 0);
+	VECCP_LIBSTR(2*nb[N]+2*ng[N], ocp_qp->d+N, 0, part_dense_qp->d+N2, 0);
+	VECCP_LIBSTR(2*ns[N], ocp_qp->z+N, 0, part_dense_qp->z+N2, 0);
+#endif
+
+	return;
+
+	}
+
+
+
+void PART_COND_QP_EXPAND_SOL(struct OCP_QP *ocp_qp, struct OCP_QP *part_dense_qp, struct OCP_QP_SOL *part_dense_qp_sol, struct OCP_QP_SOL *ocp_qp_sol, struct PART_COND_QP_ARG *part_cond_arg, struct PART_COND_QP_WS *part_cond_ws)
+	{
+
+	struct OCP_QP_DIM tmp_ocp_dim;
+	struct OCP_QP tmp_ocp_qp;
+	struct OCP_QP_SOL tmp_ocp_qp_sol;
+	struct DENSE_QP_SOL dense_qp_sol;
+
+	int *nx = ocp_qp->dim->nx;
+	int *nu = ocp_qp->dim->nu;
+	int *nb = ocp_qp->dim->nb;
+	int *ng = ocp_qp->dim->ng;
+	int *ns = ocp_qp->dim->ns;
+
+	int ii;
+
+	int N = ocp_qp->dim->N;
+	int N2 = part_dense_qp->dim->N;
+	int bs; // horizon of current block
+
+	int N_tmp = 0; // temporary sum of horizons
+	for(ii=0; ii<=N2; ii++)
+		{
+
+		bs = part_cond_ws->cond_workspace[ii].bs;
+
+		// alias ocp_dim
+		tmp_ocp_dim.N = bs;
+		tmp_ocp_dim.nx = ocp_qp->dim->nx+N_tmp;
+		tmp_ocp_dim.nu = ocp_qp->dim->nu+N_tmp;
+		tmp_ocp_dim.nbx = ocp_qp->dim->nbx+N_tmp;
+		tmp_ocp_dim.nbu = ocp_qp->dim->nbu+N_tmp;
+		tmp_ocp_dim.nb = ocp_qp->dim->nb+N_tmp;
+		tmp_ocp_dim.ng = ocp_qp->dim->ng+N_tmp;
+		tmp_ocp_dim.nq = ocp_qp->dim->nq+N_tmp;
+		tmp_ocp_dim.nsbx = ocp_dim->nsbx+N_tmp;
+		tmp_ocp_dim.nsbu = ocp_dim->nsbu+N_tmp;
+		tmp_ocp_dim.nsg = ocp_dim->nsg+N_tmp;
+		tmp_ocp_dim.nsq = ocp_dim->nsq+N_tmp;
+		tmp_ocp_dim.ns = ocp_qp->dim->ns+N_tmp;
+
+		// alias ocp_qp
+		tmp_ocp_qp.dim = &tmp_ocp_dim;
+		tmp_ocp_qp.idxb = ocp_qp->idxb+N_tmp;
+		tmp_ocp_qp.BAbt = ocp_qp->BAbt+N_tmp;
+		tmp_ocp_qp.b = ocp_qp->b+N_tmp;
+		tmp_ocp_qp.RSQrq = ocp_qp->RSQrq+N_tmp;
+		tmp_ocp_qp.rqz = ocp_qp->rqz+N_tmp;
+		tmp_ocp_qp.DCt = ocp_qp->DCt+N_tmp;
+		tmp_ocp_qp.d = ocp_qp->d+N_tmp;
+		tmp_ocp_qp.Z = ocp_qp->Z+N_tmp;
+		tmp_ocp_qp.idxs = ocp_qp->idxs+N_tmp;
+		// TODO d_mask
+
+		// alias ocp qp sol
+		tmp_ocp_qp_sol.ux = ocp_qp_sol->ux+N_tmp;
+		tmp_ocp_qp_sol.pi = ocp_qp_sol->pi+N_tmp;
+		tmp_ocp_qp_sol.lam = ocp_qp_sol->lam+N_tmp;
+		tmp_ocp_qp_sol.t = ocp_qp_sol->t+N_tmp;
+
+		// alias ocp qp sol
+		dense_qp_sol.v = part_dense_qp_sol->ux+ii;
+		dense_qp_sol.pi = part_dense_qp_sol->pi+ii;
+		dense_qp_sol.lam = part_dense_qp_sol->lam+ii;
+		dense_qp_sol.t = part_dense_qp_sol->t+ii;
+
+		EXPAND_SOL(&tmp_ocp_qp, &dense_qp_sol, &tmp_ocp_qp_sol, part_cond_arg->cond_arg+ii, part_cond_ws->cond_workspace+ii);
+
+		N_tmp += bs;
+
+		}
+
+#if 0
+	// copy last stage
+	VECCP_LIBSTR(nu[N]+nx[N]+2*ns[N], part_dense_qp_sol->ux+N2, 0, ocp_qp_sol->ux+N, 0);
+	VECCP_LIBSTR(2*nb[N]+2*ng[N]+2*ns[N], part_dense_qp_sol->lam+N2, 0, ocp_qp_sol->lam+N, 0);
+	VECCP_LIBSTR(2*nb[N]+2*ng[N]+2*ns[N], part_dense_qp_sol->t+N2, 0, ocp_qp_sol->t+N, 0);
+#endif
+
+	return;
+
+	}
+
 

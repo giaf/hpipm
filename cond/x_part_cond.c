@@ -279,6 +279,10 @@ int PART_COND_QP_WS_MEMSIZE(struct OCP_QP_DIM *ocp_dim, int *block_size, struct 
 		tmp_ocp_dim.nbu = ocp_dim->nbu+N_tmp;
 		tmp_ocp_dim.nb = ocp_dim->nb+N_tmp;
 		tmp_ocp_dim.ng = ocp_dim->ng+N_tmp;
+		tmp_ocp_dim.nsbx = ocp_dim->nsbx+N_tmp;
+		tmp_ocp_dim.nsbu = ocp_dim->nsbu+N_tmp;
+		tmp_ocp_dim.nsg = ocp_dim->nsg+N_tmp;
+		tmp_ocp_dim.ns = ocp_dim->ns+N_tmp;
 
 		size += COND_QP_WS_MEMSIZE(&tmp_ocp_dim, part_cond_arg->cond_arg+ii);
 
@@ -328,6 +332,10 @@ void PART_COND_QP_WS_CREATE(struct OCP_QP_DIM *ocp_dim, int *block_size, struct 
 		tmp_ocp_dim.nbu = ocp_dim->nbu+N_tmp;
 		tmp_ocp_dim.nb = ocp_dim->nb+N_tmp;
 		tmp_ocp_dim.ng = ocp_dim->ng+N_tmp;
+		tmp_ocp_dim.nsbx = ocp_dim->nsbx+N_tmp;
+		tmp_ocp_dim.nsbu = ocp_dim->nsbu+N_tmp;
+		tmp_ocp_dim.nsg = ocp_dim->nsg+N_tmp;
+		tmp_ocp_dim.ns = ocp_dim->ns+N_tmp;
 
 		COND_QP_WS_CREATE(&tmp_ocp_dim, part_cond_arg->cond_arg+ii, part_cond_ws->cond_workspace+ii, c_ptr);
 		c_ptr += (part_cond_ws->cond_workspace+ii)->memsize;
@@ -378,6 +386,9 @@ void PART_COND_QP_COND(struct OCP_QP *ocp_qp, struct OCP_QP *part_dense_qp, stru
 		tmp_ocp_dim.nbu = ocp_qp->dim->nbu+N_tmp;
 		tmp_ocp_dim.nb = ocp_qp->dim->nb+N_tmp;
 		tmp_ocp_dim.ng = ocp_qp->dim->ng+N_tmp;
+		tmp_ocp_dim.nsbx = ocp_qp->dim->nsbx+N_tmp;
+		tmp_ocp_dim.nsbu = ocp_qp->dim->nsbu+N_tmp;
+		tmp_ocp_dim.nsg = ocp_qp->dim->nsg+N_tmp;
 		tmp_ocp_dim.ns = ocp_qp->dim->ns+N_tmp;
 
 		// alias ocp_qp
@@ -391,6 +402,7 @@ void PART_COND_QP_COND(struct OCP_QP *ocp_qp, struct OCP_QP *part_dense_qp, stru
 		tmp_ocp_qp.d = ocp_qp->d+N_tmp;
 		tmp_ocp_qp.Z = ocp_qp->Z+N_tmp;
 		tmp_ocp_qp.idxs = ocp_qp->idxs+N_tmp;
+		// TODO d_mask
 
 		COND_BABT(&tmp_ocp_qp, part_dense_qp->BAbt+ii, part_dense_qp->b+ii, part_cond_arg->cond_arg+ii, part_cond_ws->cond_workspace+ii);
 
@@ -452,6 +464,9 @@ void PART_COND_QP_COND_RHS(struct OCP_QP *ocp_qp, struct OCP_QP *part_dense_qp, 
 		tmp_ocp_dim.nbu = ocp_qp->dim->nbu+N_tmp;
 		tmp_ocp_dim.nb = ocp_qp->dim->nb+N_tmp;
 		tmp_ocp_dim.ng = ocp_qp->dim->ng+N_tmp;
+		tmp_ocp_dim.nsbx = ocp_qp->dim->nsbx+N_tmp;
+		tmp_ocp_dim.nsbu = ocp_qp->dim->nsbu+N_tmp;
+		tmp_ocp_dim.nsg = ocp_qp->dim->nsg+N_tmp;
 		tmp_ocp_dim.ns = ocp_qp->dim->ns+N_tmp;
 
 		// alias ocp_qp
@@ -465,6 +480,7 @@ void PART_COND_QP_COND_RHS(struct OCP_QP *ocp_qp, struct OCP_QP *part_dense_qp, 
 		tmp_ocp_qp.d = ocp_qp->d+N_tmp;
 		tmp_ocp_qp.Z = ocp_qp->Z+N_tmp;
 		tmp_ocp_qp.idxs = ocp_qp->idxs+N_tmp;
+		// TODO d_mask
 
 		COND_B(&tmp_ocp_qp, part_dense_qp->b+ii, part_cond_arg->cond_arg+ii, part_cond_ws->cond_workspace+ii);
 
@@ -529,6 +545,9 @@ void PART_COND_QP_EXPAND_SOL(struct OCP_QP *ocp_qp, struct OCP_QP *part_dense_qp
 		tmp_ocp_dim.nbu = ocp_qp->dim->nbu+N_tmp;
 		tmp_ocp_dim.nb = ocp_qp->dim->nb+N_tmp;
 		tmp_ocp_dim.ng = ocp_qp->dim->ng+N_tmp;
+		tmp_ocp_dim.nsbx = ocp_qp->dim->nsbx+N_tmp;
+		tmp_ocp_dim.nsbu = ocp_qp->dim->nsbu+N_tmp;
+		tmp_ocp_dim.nsg = ocp_qp->dim->nsg+N_tmp;
 		tmp_ocp_dim.ns = ocp_qp->dim->ns+N_tmp;
 
 		// alias ocp_qp
@@ -542,6 +561,7 @@ void PART_COND_QP_EXPAND_SOL(struct OCP_QP *ocp_qp, struct OCP_QP *part_dense_qp
 		tmp_ocp_qp.d = ocp_qp->d+N_tmp;
 		tmp_ocp_qp.Z = ocp_qp->Z+N_tmp;
 		tmp_ocp_qp.idxs = ocp_qp->idxs+N_tmp;
+		// TODO d_mask
 
 		// alias ocp qp sol
 		tmp_ocp_qp_sol.ux = ocp_qp_sol->ux+N_tmp;
@@ -602,6 +622,9 @@ void PART_COND_QP_UPDATE(int *idxc, struct OCP_QP *ocp_qp, struct OCP_QP *part_d
 		tmp_ocp_dim.nbu = ocp_qp->dim->nbu+N_tmp;
 		tmp_ocp_dim.nb = ocp_qp->dim->nb+N_tmp;
 		tmp_ocp_dim.ng = ocp_qp->dim->ng+N_tmp;
+		tmp_ocp_dim.nsbx = ocp_qp->dim->nsbx+N_tmp;
+		tmp_ocp_dim.nsbu = ocp_qp->dim->nsbu+N_tmp;
+		tmp_ocp_dim.nsg = ocp_qp->dim->nsg+N_tmp;
 		tmp_ocp_dim.ns = ocp_qp->dim->ns+N_tmp;
 
 		// alias ocp_qp
@@ -615,6 +638,7 @@ void PART_COND_QP_UPDATE(int *idxc, struct OCP_QP *ocp_qp, struct OCP_QP *part_d
 		tmp_ocp_qp.d = ocp_qp->d+N_tmp;
 		tmp_ocp_qp.Z = ocp_qp->Z+N_tmp;
 		tmp_ocp_qp.idxs = ocp_qp->idxs+N_tmp;
+		// TODO d_mask
 
 		UPDATE_COND_BABT(idxc+N_tmp, &tmp_ocp_qp, part_dense_qp->BAbt+ii, part_dense_qp->b+ii, part_cond_arg->cond_arg+ii, part_cond_ws->cond_workspace+ii);
 
