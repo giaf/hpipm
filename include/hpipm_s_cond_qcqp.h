@@ -105,6 +105,8 @@ void s_cond_qcqp_ws_create(struct s_ocp_qcqp_dim *ocp_dim, struct s_cond_qcqp_ar
 //
 void s_cond_qcqp_qc(struct s_ocp_qcqp *ocp_qp, struct blasfeo_smat *Hq2, struct blasfeo_smat *Ct2, struct blasfeo_svec *d2, struct s_cond_qcqp_arg *cond_arg, struct s_cond_qcqp_ws *cond_ws);
 //
+void s_cond_qcqp_qc_rhs(struct s_ocp_qcqp *ocp_qp, struct blasfeo_svec *d2, struct s_cond_qcqp_arg *cond_arg, struct s_cond_qcqp_ws *cond_ws);
+//
 void s_cond_qcqp_cond(struct s_ocp_qcqp *ocp_qp, struct s_dense_qcqp *dense_qp, struct s_cond_qcqp_arg *cond_arg, struct s_cond_qcqp_ws *cond_ws);
 //
 void s_cond_qcqp_cond_rhs(struct s_ocp_qcqp *ocp_qp, struct s_dense_qcqp *dense_qp, struct s_cond_qcqp_arg *cond_arg, struct s_cond_qcqp_ws *cond_ws);

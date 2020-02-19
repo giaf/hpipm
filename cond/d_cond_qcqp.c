@@ -123,6 +123,7 @@
 #define COND_QCQP_WS_MEMSIZE d_cond_qcqp_ws_memsize
 #define COND_QCQP_WS_CREATE d_cond_qcqp_ws_create
 #define COND_QCQP_QC d_cond_qcqp_qc
+#define COND_QCQP_QC_RHS d_cond_qcqp_qc_rhs
 #define COND_QCQP_COND d_cond_qcqp_cond
 #define COND_QCQP_COND_RHS d_cond_qcqp_cond_rhs
 #define COND_QCQP_EXPAND_SOL d_cond_qcqp_expand_sol

@@ -452,11 +452,13 @@ void PART_COND_QCQP_COND(struct OCP_QCQP *ocp_qp, struct OCP_QCQP *part_dense_qp
 		tmp_ocp_qp.idxs = ocp_qp->idxs+N_tmp;
 		// TODO d_mask
 
-		COND_BABT(&tmp_ocp_qp, part_dense_qp->BAbt+ii, part_dense_qp->b+ii, part_cond_arg->cond_arg+ii, part_cond_ws->cond_workspace+ii);
+		COND_BABT(&tmp_ocp_qp, part_dense_qp->BAbt+ii, part_dense_qp->b+ii, part_cond_arg->cond_arg[ii].qp_arg, part_cond_ws->cond_workspace[ii].qp_ws);
 
-		COND_RSQRQ_N2NX3(&tmp_ocp_qp, part_dense_qp->RSQrq+ii, part_dense_qp->rqz+ii, part_cond_arg->cond_arg+ii, part_cond_ws->cond_workspace+ii);
+		COND_RSQRQ_N2NX3(&tmp_ocp_qp, part_dense_qp->RSQrq+ii, part_dense_qp->rqz+ii, part_cond_arg->cond_arg[ii].qp_arg, part_cond_ws->cond_workspace[ii].qp_ws);
 
-		COND_DCTD(&tmp_ocp_qp, part_dense_qp->idxb[ii], part_dense_qp->DCt+ii, part_dense_qp->d+ii, part_dense_qp->idxs[ii], part_dense_qp->Z+ii, part_dense_qp->rqz+ii, part_cond_arg->cond_arg+ii, part_cond_ws->cond_workspace+ii);
+		COND_DCTD(&tmp_ocp_qp, part_dense_qp->idxb[ii], part_dense_qp->DCt+ii, part_dense_qp->d+ii, part_dense_qp->idxs[ii], part_dense_qp->Z+ii, part_dense_qp->rqz+ii, part_cond_arg->cond_arg[ii].qp_arg, part_cond_ws->cond_workspace[ii].qp_ws);
+
+		COND_QCQP_QC(ocp_qp, part_dense_qp->Hq+ii, part_dense_qp->DCt+ii, part_dense_qp->d+ii, part_cond_arg->cond_arg+ii, part_cond_ws->cond_ws+ii);
 
 		N_tmp += bs;
 
@@ -532,11 +534,13 @@ void PART_COND_QP_COND_RHS(struct OCP_QP *ocp_qp, struct OCP_QP *part_dense_qp, 
 		tmp_ocp_qp.idxs = ocp_qp->idxs+N_tmp;
 		// TODO d_mask
 
-		COND_B(&tmp_ocp_qp, part_dense_qp->b+ii, part_cond_arg->cond_arg+ii, part_cond_ws->cond_workspace+ii);
+		COND_B(&tmp_ocp_qp, part_dense_qp->b+ii, part_cond_arg->cond_arg[ii].qp_arg, part_cond_ws->cond_workspace[ii].qp_ws);
 
-		COND_RQ_N2NX3(&tmp_ocp_qp, part_dense_qp->rqz+ii, part_cond_arg->cond_arg+ii, part_cond_ws->cond_workspace+ii);
+		COND_RQ_N2NX3(&tmp_ocp_qp, part_dense_qp->rqz+ii, part_cond_arg->cond_arg[ii].qp_arg, part_cond_ws->cond_workspace[ii].qp_ws);
 
-		COND_D(&tmp_ocp_qp, part_dense_qp->d+ii, part_dense_qp->rqz+ii, part_cond_arg->cond_arg+ii, part_cond_ws->cond_workspace+ii);
+		COND_D(&tmp_ocp_qp, part_dense_qp->d+ii, part_dense_qp->rqz+ii, part_cond_arg->cond_arg[ii].qp_arg, part_cond_ws->cond_workspace[ii].qp_ws);
+
+		COND_QCQP_QC_RHS(ocp_qp, part_dense_qp->d+ii, part_cond_arg->cond_arg+ii, part_cond_ws->cond_ws+ii);
 
 		N_tmp += bs;
 
@@ -629,10 +633,12 @@ void PART_COND_QP_EXPAND_SOL(struct OCP_QP *ocp_qp, struct OCP_QP *part_dense_qp
 
 		EXPAND_SOL(&tmp_ocp_qp, &dense_qp_sol, &tmp_ocp_qp_sol, part_cond_arg->cond_arg+ii, part_cond_ws->cond_workspace+ii);
 
+		// TODO
+
 		N_tmp += bs;
 
 		}
-
+	
 #if 0
 	// copy last stage
 	VECCP_LIBSTR(nu[N]+nx[N]+2*ns[N], part_dense_qp_sol->ux+N2, 0, ocp_qp_sol->ux+N, 0);
