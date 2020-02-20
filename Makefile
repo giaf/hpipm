@@ -61,12 +61,14 @@ OBJS += cond/d_cond.o
 OBJS += cond/d_part_cond.o
 OBJS += cond/d_cond_qcqp.o
 OBJS += cond/d_cast_qcqp.o
+OBJS += cond/d_part_cond_qcqp.o
 # single
 OBJS += cond/s_cond_aux.o
 OBJS += cond/s_cond.o
 OBJS += cond/s_part_cond.o
 OBJS += cond/s_cond_qcqp.o
 OBJS += cond/s_cast_qcqp.o
+OBJS += cond/s_part_cond_qcqp.o
 
 # dense qp
 # double

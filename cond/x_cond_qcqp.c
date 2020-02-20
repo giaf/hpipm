@@ -421,12 +421,29 @@ void COND_QCQP_QC(struct OCP_QCQP *ocp_qp, struct STRMAT *Hq2, struct STRMAT *Ct
 	int ii, jj, kk;
 
 	int N = ocp_qp->dim->N;
+	if(cond_arg->cond_last_stage==0)
+		N -= 1;
+
+	// early return
+	if(N<0)
+		return;
+
 	int *nu = ocp_qp->dim->nu;
 	int *nx = ocp_qp->dim->nx;
 	int *nbu = ocp_qp->dim->nbu;
 	int *nbx = ocp_qp->dim->nbx;
 	int *ng = ocp_qp->dim->ng;
 	int *nq = ocp_qp->dim->nq;
+
+	// early return
+	if(N==0)
+		{
+		for(jj=0; jj<nq[0]; jj++)
+			{
+			GECP(nu[0]+nx[0], nu[0]+nx[0], ocp_qp->Hq[0]+jj, 0, 0, Hq2+jj, 0, 0);
+			}
+		return;
+		}
 
 	int nvc = nu[0]+nx[0];
 	int nbc = nbu[0]+nbx[0];
@@ -513,6 +530,13 @@ void COND_QCQP_QC_RHS(struct OCP_QCQP *ocp_qp, struct STRVEC *d2, struct COND_QC
 	int ii, jj, kk;
 
 	int N = ocp_qp->dim->N;
+	if(cond_arg->cond_last_stage==0)
+		N -= 1;
+
+	// early return
+	if(N<=0)
+		return;
+
 	int *nu = ocp_qp->dim->nu;
 	int *nx = ocp_qp->dim->nx;
 	int *nbu = ocp_qp->dim->nbu;
@@ -737,6 +761,10 @@ void COND_QCQP_EXPAND_SOL(struct OCP_QCQP *ocp_qp, struct DENSE_QCQP_SOL *dense_
 	cond_arg->qp_arg->comp_dual_sol_ineq = 0;
 
 	EXPAND_SOL(&tmp_ocp_qp, &tmp_dense_qp_sol, &tmp_ocp_qp_sol, cond_arg->qp_arg, cond_ws->qp_ws);
+
+	cond_arg->qp_arg->comp_prim_sol = bkp_comp_prim_sol;
+	cond_arg->qp_arg->comp_dual_sol_eq = bkp_comp_dual_sol_eq;
+	cond_arg->qp_arg->comp_dual_sol_ineq = bkp_comp_dual_sol_ineq;
 
 	return;
 

@@ -750,7 +750,7 @@ int main()
 
 	struct d_ocp_qp_dim dim2;
 	d_ocp_qp_dim_create(N2, &dim2, dim_mem2);
-	d_ocp_qp_dim_set_all(nx2, nu2, nbx2, nbu2, ng2, nsbx2, nsbu2, nsg2, &dim2);
+//	d_ocp_qp_dim_set_all(nx2, nu2, nbx2, nbu2, ng2, nsbx2, nsbu2, nsg2, &dim2);
 
 /************************************************
 * part dense qp
