@@ -61,7 +61,7 @@
 
 
 
-#define KEEP_X0 0
+#define KEEP_X0 1
 
 #define PRINT 1
 
@@ -201,7 +201,7 @@ int main()
 
 	int nbx[N+1];
 #if KEEP_X0
-	nbx[0] = nx[0]/2;
+	nbx[0] = nx[0];///2;
 #else
 	nbx[0] = 0;
 #endif
@@ -659,8 +659,14 @@ int main()
 
 	// dynamics
 	ii = 0;
+#if KEEP_X0
+	d_ocp_qcqp_set_A(ii, A, &ocp_qp);
+	d_ocp_qcqp_set_B(ii, B, &ocp_qp);
+	d_ocp_qcqp_set_b(ii, b, &ocp_qp);
+#else
 	d_ocp_qcqp_set_B(ii, B, &ocp_qp);
 	d_ocp_qcqp_set_b(ii, b0, &ocp_qp);
+#endif
 	for(ii=1; ii<N; ii++)
 		{
 		d_ocp_qcqp_set_A(ii, A, &ocp_qp);
@@ -670,8 +676,16 @@ int main()
 	
 	// cost
 	ii = 0;
+#if KEEP_X0
+	d_ocp_qcqp_set_Q(ii, Q, &ocp_qp);
+	d_ocp_qcqp_set_S(ii, S, &ocp_qp);
+	d_ocp_qcqp_set_R(ii, R, &ocp_qp);
+	d_ocp_qcqp_set_q(ii, q, &ocp_qp);
+	d_ocp_qcqp_set_r(ii, r, &ocp_qp);
+#else
 	d_ocp_qcqp_set_R(ii, R, &ocp_qp);
 	d_ocp_qcqp_set_r(ii, r0, &ocp_qp);
+#endif
 	for(ii=1; ii<N; ii++)
 		{
 		d_ocp_qcqp_set_Q(ii, Q, &ocp_qp);
@@ -687,11 +701,16 @@ int main()
 	// constraints
 	ii = 0;
 	d_ocp_qcqp_set_idxbx(ii, idxbx0, &ocp_qp);
+#if KEEP_X0
+	d_ocp_qcqp_set_lbx(ii, x0, &ocp_qp);
+	d_ocp_qcqp_set_ubx(ii, x0, &ocp_qp);
+#else
 	d_ocp_qcqp_set_lbx(ii, lbx0, &ocp_qp);
 	d_ocp_qcqp_set_ubx(ii, ubx0, &ocp_qp);
-//	d_ocp_qcqp_set_idxbu(ii, idxbu0, &ocp_qp);
-//	d_ocp_qcqp_set_lbu(ii, lbu0, &ocp_qp);
-//	d_ocp_qcqp_set_ubu(ii, ubu0, &ocp_qp);
+#endif
+	d_ocp_qcqp_set_idxbu(ii, idxbu0, &ocp_qp);
+	d_ocp_qcqp_set_lbu(ii, lbu0, &ocp_qp);
+	d_ocp_qcqp_set_ubu(ii, ubu0, &ocp_qp);
 	d_ocp_qcqp_set_C(ii, C0, &ocp_qp);
 	d_ocp_qcqp_set_D(ii, D0, &ocp_qp);
 	d_ocp_qcqp_set_lg(ii, lg0, &ocp_qp);
@@ -703,9 +722,9 @@ int main()
 		d_ocp_qcqp_set_idxbx(ii, idxbx1, &ocp_qp);
 		d_ocp_qcqp_set_lbx(ii, lbx1, &ocp_qp);
 		d_ocp_qcqp_set_ubx(ii, ubx1, &ocp_qp);
-//		d_ocp_qcqp_set_idxbu(ii, idxbu1, &ocp_qp);
-//		d_ocp_qcqp_set_lbu(ii, lbu1, &ocp_qp);
-//		d_ocp_qcqp_set_ubu(ii, ubu1, &ocp_qp);
+		d_ocp_qcqp_set_idxbu(ii, idxbu1, &ocp_qp);
+		d_ocp_qcqp_set_lbu(ii, lbu1, &ocp_qp);
+		d_ocp_qcqp_set_ubu(ii, ubu1, &ocp_qp);
 		d_ocp_qcqp_set_C(ii, C1, &ocp_qp);
 		d_ocp_qcqp_set_D(ii, D1, &ocp_qp);
 		d_ocp_qcqp_set_lg(ii, lg1, &ocp_qp);
