@@ -360,10 +360,9 @@ void OCP_QCQP_RES_WS_CREATE(struct OCP_QCQP_DIM *dim, struct OCP_QCQP_RES_WS *ws
 	CREATE_STRVEC(nuM+nxM, ws->tmp_nuxM+1, c_ptr);
 	c_ptr += (ws->tmp_nuxM+1)->memsize;
 
-	CREATE_STRVEC(nbM+ngM, ws->tmp_nbgqM+0, c_ptr);
+	CREATE_STRVEC(nbM+ngM+nqM, ws->tmp_nbgqM+0, c_ptr);
 	c_ptr += (ws->tmp_nbgqM+0)->memsize;
-
-	CREATE_STRVEC(nbM+ngM, ws->tmp_nbgqM+1, c_ptr);
+	CREATE_STRVEC(nbM+ngM+nqM, ws->tmp_nbgqM+1, c_ptr);
 	c_ptr += (ws->tmp_nbgqM+1)->memsize;
 
 	CREATE_STRVEC(nsM, ws->tmp_nsM, c_ptr);

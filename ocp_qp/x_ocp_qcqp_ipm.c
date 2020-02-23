@@ -1491,6 +1491,7 @@ void OCP_QCQP_IPM_SOLVE(struct OCP_QCQP *qcqp, struct OCP_QCQP_SOL *qcqp_sol, st
 	qp_ws->qp_step->b = qp_ws->res->res_b;
 	qp_ws->qp_step->d = qp_ws->res->res_d;
 	qp_ws->qp_step->m = qp_ws->res->res_m;
+	qp_ws->qp_step->d_mask = qp->d_mask;
 
 	// alias members of qp_itref
 	qp_ws->qp_itref->dim = qp->dim;
@@ -1504,6 +1505,7 @@ void OCP_QCQP_IPM_SOLVE(struct OCP_QCQP *qcqp, struct OCP_QCQP_SOL *qcqp_sol, st
 	qp_ws->qp_itref->b = qp_ws->res_itref->res_b;
 	qp_ws->qp_itref->d = qp_ws->res_itref->res_d;
 	qp_ws->qp_itref->m = qp_ws->res_itref->res_m;
+	qp_ws->qp_itref->d_mask = qp->d_mask;
 
 	REAL *qcqp_res_max = qcqp_res->res_max;
 

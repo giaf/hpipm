@@ -273,13 +273,19 @@ void OCP_QCQP_PRINT(struct OCP_QCQP_DIM *dim, struct OCP_QCQP *qp)
 
 	printf("Hq =\n");
 	for (ii = 0; ii <= N; ii++)
-		for(jj=0; jj<nq[ii]; jj++)
-			BLASFEO_PRINT_MAT(nu[ii]+nx[ii], nu[ii]+nx[ii], &qp->Hq[ii][jj], 0, 0);
+		if(nq[ii]==0)
+			printf("\n\n");
+		else
+			for(jj=0; jj<nq[ii]; jj++)
+				BLASFEO_PRINT_MAT(nu[ii]+nx[ii], nu[ii]+nx[ii], &qp->Hq[ii][jj], 0, 0);
 
 	printf("gq =\n");
 	for (ii = 0; ii <= N; ii++)
-		for(jj=0; jj<nq[ii]; jj++)
-			BLASFEO_PRINT_TRAN_MAT(nu[ii]+nx[ii], 1, qp->DCt+ii, 0, ng[ii]+jj);
+		if(nq[ii]==0)
+			printf("\n\n");
+		else
+			for(jj=0; jj<nq[ii]; jj++)
+				BLASFEO_PRINT_TRAN_MAT(nu[ii]+nx[ii], 1, qp->DCt+ii, 0, ng[ii]+jj);
 
 	printf("idxs = \n");
 	for (ii = 0; ii <= N; ii++)
