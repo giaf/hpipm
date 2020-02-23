@@ -936,6 +936,10 @@ void OCP_QCQP_INIT_VAR(struct OCP_QCQP *qp, struct OCP_QCQP_SOL *qp_sol, struct 
 		}
 
 	//  quadratic constraints
+	REAL sqrt_mu0 = sqrt(mu0);
+	sqrt_mu0 = thr0>sqrt_mu0 ? thr0 : sqrt_mu0;
+	REAL mu0_div_sqrt_mu0 = mu0 / sqrt_mu0;
+
 	for(ii=0; ii<=N; ii++)
 		{
 		lam_lq = qp_sol->lam[ii].pa+nb[ii]+ng[ii];
@@ -949,6 +953,10 @@ void OCP_QCQP_INIT_VAR(struct OCP_QCQP *qp, struct OCP_QCQP_SOL *qp_sol, struct 
 			lam_lq[jj] = 0.0;
 			t_lq[jj]   = 1.0;
 			// upper
+#if 1
+			t_uq[jj]   = sqrt_mu0;
+			lam_uq[jj] = mu0_div_sqrt_mu0;
+#else
 	//		t[2*nb+2*ng+nq+jj] = 1.0; // thr0;
 			COLEX(nu[ii]+nx[ii], qp->DCt+ii, 0, ng[ii]+jj, ws->tmp_nuxM, 0);
 			SYMV_L(nu[ii]+nx[ii], nu[ii]+nx[ii], 0.5, &qp->Hq[ii][jj], 0, 0, qp_sol->ux+ii, 0, 1.0, ws->tmp_nuxM, 0, ws->tmp_nuxM, 0);
@@ -956,6 +964,7 @@ void OCP_QCQP_INIT_VAR(struct OCP_QCQP *qp, struct OCP_QCQP_SOL *qp_sol, struct 
 			tmp = - d_uq[jj] - tmp;
 			t_uq[jj] = thr0>tmp ? thr0 : tmp;
 			lam_uq[jj]  = mu0/t_uq[jj];
+#endif
 			}
 		}
 

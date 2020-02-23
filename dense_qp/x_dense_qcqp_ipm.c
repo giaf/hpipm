@@ -840,12 +840,20 @@ void DENSE_QCQP_INIT_VAR(struct DENSE_QCQP *qcqp, struct DENSE_QCQP_SOL *qcqp_so
 		}
 
 	//  quadratic constraints
+	REAL sqrt_mu0 = sqrt(mu0);
+	sqrt_mu0 = thr0>sqrt_mu0 ? thr0 : sqrt_mu0;
+	REAL mu0_div_sqrt_mu0 = mu0 / sqrt_mu0;
+
 	for(ii=0; ii<nq; ii++)
 		{
 		// disregard lower
 		lam[nb+ng+ii] = 0.0;
 		t[nb+ng+ii]   = 1.0;
 		// upper
+#if 1
+		t[2*nb+2*ng+nq+ii]   = sqrt_mu0;
+		lam[2*nb+2*ng+nq+ii] = mu0_div_sqrt_mu0;
+#else
 //		t[2*nb+2*ng+nq+ii] = 1.0; // thr0;
 		COLEX(nv, qcqp->Ct, 0, ng+ii, ws->tmp_nv, 0);
 		SYMV_L(nv, nv, 0.5, qcqp->Hq+ii, 0, 0, qcqp_sol->v, 0, 1.0, ws->tmp_nv, 0, ws->tmp_nv, 0);
@@ -853,6 +861,7 @@ void DENSE_QCQP_INIT_VAR(struct DENSE_QCQP *qcqp, struct DENSE_QCQP_SOL *qcqp_so
 		tmp = - d[2*nb+2*ng+nq+ii] - tmp;
 		t[2*nb+2*ng+nq+ii] = thr0>tmp ? thr0 : tmp;
 		lam[2*nb+2*ng+nq+ii]  = mu0/t[2*nb+2*ng+nq+ii];
+#endif
 		}
 
 	// TODO rewrite all the above taking some pointers to key parts, e.g. lam_lb, lam_ub, and make relative to them
