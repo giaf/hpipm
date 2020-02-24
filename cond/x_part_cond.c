@@ -225,11 +225,11 @@ void PART_COND_QP_ARG_SET_DEFAULT(int N2, struct PART_COND_QP_ARG *part_cond_arg
 		{
 
 		COND_QP_ARG_SET_DEFAULT(part_cond_arg->cond_arg+ii);
-		(part_cond_arg->cond_arg+ii)->cond_last_stage = 0;
+		COND_QP_ARG_SET_COND_LAST_STAGE(0, part_cond_arg->cond_arg+ii);
 
 		}
 	// cond_last_stage at last stage
-	part_cond_arg->cond_arg[N2].cond_last_stage = 1;
+	COND_QP_ARG_SET_COND_LAST_STAGE(1, part_cond_arg->cond_arg+N2);
 
 	return;
 

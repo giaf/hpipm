@@ -95,6 +95,8 @@ void s_cond_qp_arg_create(struct s_cond_qp_arg *cond_arg, void *mem);
 void s_cond_qp_arg_set_default(struct s_cond_qp_arg *cond_arg);
 // set riccati-like algorithm: 0 classical, 1 square-root
 void s_cond_qp_arg_set_ric_alg(int ric_alg, struct s_cond_qp_arg *cond_arg);
+// condense last stage: 0 last stage disregarded, 1 last stage condensed too
+void s_cond_qp_arg_set_cond_last_stage(int cond_last_stage, struct s_cond_qp_arg *cond_arg);
 
 //
 void s_cond_qp_compute_dim(struct s_ocp_qp_dim *ocp_dim, struct s_dense_qp_dim *dense_dim);

@@ -263,15 +263,11 @@ void PART_COND_QCQP_ARG_SET_DEFAULT(int N2, struct PART_COND_QCQP_ARG *part_cond
 		{
 
 		COND_QCQP_ARG_SET_DEFAULT(part_cond_arg->cond_arg+ii);
-		// TODO setter for cond_last_stage
-		part_cond_arg->cond_arg[ii].cond_last_stage = 0;
-		part_cond_arg->cond_arg[ii].qp_arg->cond_last_stage = 0;
+		COND_QCQP_ARG_SET_COND_LAST_STAGE(0, part_cond_arg->cond_arg+ii);
 
 		}
 	// cond_last_stage at last stage
-	// TODO setter for cond_last_stage
-	part_cond_arg->cond_arg[N2].cond_last_stage = 1;
-	part_cond_arg->cond_arg[N2].qp_arg->cond_last_stage = 1;
+	COND_QCQP_ARG_SET_COND_LAST_STAGE(1, part_cond_arg->cond_arg+N2);
 
 	return;
 

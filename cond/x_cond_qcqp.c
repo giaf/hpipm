@@ -195,6 +195,20 @@ void COND_QCQP_ARG_SET_RIC_ALG(int ric_alg, struct COND_QCQP_ARG *cond_arg)
 
 
 
+void COND_QCQP_ARG_SET_COND_LAST_STAGE(int cond_last_stage, struct COND_QCQP_ARG *cond_arg)
+	{
+
+	cond_arg->cond_last_stage = cond_last_stage;
+
+	// set arg of qp struct
+	cond_arg->qp_arg->cond_last_stage = cond_arg->cond_last_stage;
+
+	return;
+
+	}
+
+
+
 int COND_QCQP_WS_MEMSIZE(struct OCP_QCQP_DIM *ocp_dim, struct COND_QCQP_ARG *cond_arg)
 	{
 

@@ -121,6 +121,7 @@
 #define COND_QCQP_ARG_CREATE s_cond_qcqp_arg_create
 #define COND_QCQP_ARG_SET_DEFAULT s_cond_qcqp_arg_set_default
 #define COND_QCQP_ARG_SET_RIC_ALG s_cond_qcqp_arg_set_ric_alg
+#define COND_QCQP_ARG_SET_COND_LAST_STAGE s_cond_qcqp_arg_set_cond_last_stage
 #define COND_QCQP_WS_MEMSIZE s_cond_qcqp_ws_memsize
 #define COND_QCQP_WS_CREATE s_cond_qcqp_ws_create
 #define COND_QCQP_QC s_cond_qcqp_qc
