@@ -629,15 +629,15 @@ void COND_QCQP_COND(struct OCP_QCQP *ocp_qp, struct DENSE_QCQP *dense_qp, struct
 	tmp_ocp_qp.rqz = ocp_qp->rqz;
 	tmp_ocp_qp.DCt = ocp_qp->DCt;
 	tmp_ocp_qp.d = ocp_qp->d;
+	tmp_ocp_qp.d_mask = ocp_qp->d_mask;
 	tmp_ocp_qp.Z = ocp_qp->Z;
 	tmp_ocp_qp.idxs = ocp_qp->idxs;
-	// TODO d_mask
 
 	COND_BABT(&tmp_ocp_qp, NULL, NULL, cond_arg->qp_arg, cond_ws->qp_ws);
 
 	COND_RSQRQ_N2NX3(&tmp_ocp_qp, dense_qp->Hv, dense_qp->gz, cond_arg->qp_arg, cond_ws->qp_ws);
 
-	COND_DCTD(&tmp_ocp_qp, dense_qp->idxb, dense_qp->Ct, dense_qp->d, dense_qp->idxs, dense_qp->Z, dense_qp->gz, cond_arg->qp_arg, cond_ws->qp_ws);
+	COND_DCTD(&tmp_ocp_qp, dense_qp->idxb, dense_qp->Ct, dense_qp->d, dense_qp->d_mask, dense_qp->idxs, dense_qp->Z, dense_qp->gz, cond_arg->qp_arg, cond_ws->qp_ws);
 
 	COND_QCQP_QC(ocp_qp, dense_qp->Hq, dense_qp->Ct, dense_qp->d, cond_arg, cond_ws);
 
@@ -662,15 +662,15 @@ void COND_QCQP_COND_RHS(struct OCP_QCQP *ocp_qp, struct DENSE_QCQP *dense_qp, st
 	tmp_ocp_qp.rqz = ocp_qp->rqz;
 	tmp_ocp_qp.DCt = ocp_qp->DCt;
 	tmp_ocp_qp.d = ocp_qp->d;
+	tmp_ocp_qp.d_mask = ocp_qp->d_mask;
 	tmp_ocp_qp.Z = ocp_qp->Z;
 	tmp_ocp_qp.idxs = ocp_qp->idxs;
-	// TODO d_mask
 
 	COND_B(&tmp_ocp_qp, NULL, cond_arg->qp_arg, cond_ws->qp_ws);
 
 	COND_RQ_N2NX3(&tmp_ocp_qp, dense_qp->gz, cond_arg->qp_arg, cond_ws->qp_ws);
 
-	COND_D(&tmp_ocp_qp, dense_qp->d, dense_qp->gz, cond_arg->qp_arg, cond_ws->qp_ws);
+	COND_D(&tmp_ocp_qp, dense_qp->d, dense_qp->d_mask, dense_qp->gz, cond_arg->qp_arg, cond_ws->qp_ws);
 
 	COND_QCQP_QC_RHS(ocp_qp, dense_qp->d, cond_arg, cond_ws);
 
@@ -734,9 +734,9 @@ void COND_QCQP_EXPAND_SOL(struct OCP_QCQP *ocp_qp, struct DENSE_QCQP_SOL *dense_
 	int bkp_comp_dual_sol_eq = cond_arg->qp_arg->comp_dual_sol_eq;
 	int bkp_comp_dual_sol_ineq = cond_arg->qp_arg->comp_dual_sol_ineq;
 
-	cond_arg->qp_arg->comp_prim_sol = 1;
-	cond_arg->qp_arg->comp_dual_sol_eq = 0;
-	cond_arg->qp_arg->comp_dual_sol_ineq = 1;
+	cond_arg->qp_arg->comp_prim_sol = 1 & bkp_comp_prim_sol;
+	cond_arg->qp_arg->comp_dual_sol_eq = 0 & bkp_comp_dual_sol_eq;
+	cond_arg->qp_arg->comp_dual_sol_ineq = 1 & bkp_comp_dual_sol_ineq;
 
 //	cond_arg->comp_dual_sol = 0; // compute dual solution
 //	cond_arg->qp_arg->comp_dual_sol = 0; // compute dual solution
@@ -756,9 +756,9 @@ void COND_QCQP_EXPAND_SOL(struct OCP_QCQP *ocp_qp, struct DENSE_QCQP_SOL *dense_
 
 	tmp_ocp_qp.DCt = cond_ws->tmp_DCt;
 
-	cond_arg->qp_arg->comp_prim_sol = 0;
-	cond_arg->qp_arg->comp_dual_sol_eq = 1;
-	cond_arg->qp_arg->comp_dual_sol_ineq = 0;
+	cond_arg->qp_arg->comp_prim_sol = 0 & bkp_comp_prim_sol;;
+	cond_arg->qp_arg->comp_dual_sol_eq = 1 & bkp_comp_dual_sol_eq;
+	cond_arg->qp_arg->comp_dual_sol_ineq = 0 & bkp_comp_dual_sol_ineq;
 
 	EXPAND_SOL(&tmp_ocp_qp, &tmp_dense_qp_sol, &tmp_ocp_qp_sol, cond_arg->qp_arg, cond_ws->qp_ws);
 

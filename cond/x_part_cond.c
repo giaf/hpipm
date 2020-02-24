@@ -400,15 +400,15 @@ void PART_COND_QP_COND(struct OCP_QP *ocp_qp, struct OCP_QP *part_dense_qp, stru
 		tmp_ocp_qp.rqz = ocp_qp->rqz+N_tmp;
 		tmp_ocp_qp.DCt = ocp_qp->DCt+N_tmp;
 		tmp_ocp_qp.d = ocp_qp->d+N_tmp;
+		tmp_ocp_qp.d_mask = ocp_qp->d_mask+N_tmp;
 		tmp_ocp_qp.Z = ocp_qp->Z+N_tmp;
 		tmp_ocp_qp.idxs = ocp_qp->idxs+N_tmp;
-		// TODO d_mask
 
 		COND_BABT(&tmp_ocp_qp, part_dense_qp->BAbt+ii, part_dense_qp->b+ii, part_cond_arg->cond_arg+ii, part_cond_ws->cond_workspace+ii);
 
 		COND_RSQRQ_N2NX3(&tmp_ocp_qp, part_dense_qp->RSQrq+ii, part_dense_qp->rqz+ii, part_cond_arg->cond_arg+ii, part_cond_ws->cond_workspace+ii);
 
-		COND_DCTD(&tmp_ocp_qp, part_dense_qp->idxb[ii], part_dense_qp->DCt+ii, part_dense_qp->d+ii, part_dense_qp->idxs[ii], part_dense_qp->Z+ii, part_dense_qp->rqz+ii, part_cond_arg->cond_arg+ii, part_cond_ws->cond_workspace+ii);
+		COND_DCTD(&tmp_ocp_qp, part_dense_qp->idxb[ii], part_dense_qp->DCt+ii, part_dense_qp->d+ii, part_dense_qp->d_mask+ii, part_dense_qp->idxs[ii], part_dense_qp->Z+ii, part_dense_qp->rqz+ii, part_cond_arg->cond_arg+ii, part_cond_ws->cond_workspace+ii);
 
 		N_tmp += bs;
 
@@ -478,15 +478,15 @@ void PART_COND_QP_COND_RHS(struct OCP_QP *ocp_qp, struct OCP_QP *part_dense_qp, 
 		tmp_ocp_qp.rqz = ocp_qp->rqz+N_tmp;
 		tmp_ocp_qp.DCt = ocp_qp->DCt+N_tmp;
 		tmp_ocp_qp.d = ocp_qp->d+N_tmp;
+		tmp_ocp_qp.d_mask = ocp_qp->d_mask+N_tmp;
 		tmp_ocp_qp.Z = ocp_qp->Z+N_tmp;
 		tmp_ocp_qp.idxs = ocp_qp->idxs+N_tmp;
-		// TODO d_mask
 
 		COND_B(&tmp_ocp_qp, part_dense_qp->b+ii, part_cond_arg->cond_arg+ii, part_cond_ws->cond_workspace+ii);
 
 		COND_RQ_N2NX3(&tmp_ocp_qp, part_dense_qp->rqz+ii, part_cond_arg->cond_arg+ii, part_cond_ws->cond_workspace+ii);
 
-		COND_D(&tmp_ocp_qp, part_dense_qp->d+ii, part_dense_qp->rqz+ii, part_cond_arg->cond_arg+ii, part_cond_ws->cond_workspace+ii);
+		COND_D(&tmp_ocp_qp, part_dense_qp->d+ii, part_dense_qp->d_mask+ii, part_dense_qp->rqz+ii, part_cond_arg->cond_arg+ii, part_cond_ws->cond_workspace+ii);
 
 		N_tmp += bs;
 

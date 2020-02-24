@@ -60,9 +60,9 @@ void s_cond_RSQrq_N2nx3(struct s_ocp_qp *ocp_qp, struct blasfeo_smat *RSQrq2, st
 //
 void s_cond_rq_N2nx3(struct s_ocp_qp *ocp_qp, struct blasfeo_svec *rq2, struct s_cond_qp_arg *cond_arg, struct s_cond_qp_ws *cond_ws);
 //
-void s_cond_DCtd(struct s_ocp_qp *ocp_qp, int *idxb2, struct blasfeo_smat *DCt2, struct blasfeo_svec *d2, int *idxs2, struct blasfeo_svec *Z2, struct blasfeo_svec *z2, struct s_cond_qp_arg *cond_arg, struct s_cond_qp_ws *cond_ws);
+void s_cond_DCtd(struct s_ocp_qp *ocp_qp, int *idxb2, struct blasfeo_smat *DCt2, struct blasfeo_svec *d2, struct blasfeo_svec *d_mask2, int *idxs2, struct blasfeo_svec *Z2, struct blasfeo_svec *z2, struct s_cond_qp_arg *cond_arg, struct s_cond_qp_ws *cond_ws);
 //
-void s_cond_d(struct s_ocp_qp *ocp_qp, struct blasfeo_svec *d2, struct blasfeo_svec *z2, struct s_cond_qp_arg *cond_arg, struct s_cond_qp_ws *cond_ws);
+void s_cond_d(struct s_ocp_qp *ocp_qp, struct blasfeo_svec *d2, struct blasfeo_svec *d_mask2, struct blasfeo_svec *z2, struct s_cond_qp_arg *cond_arg, struct s_cond_qp_ws *cond_ws);
 //
 void s_expand_sol(struct s_ocp_qp *ocp_qp, struct s_dense_qp_sol *dense_qp_sol, struct s_ocp_qp_sol *ocp_qp_sol, struct s_cond_qp_arg *cond_arg, struct s_cond_qp_ws *cond_ws);
 //

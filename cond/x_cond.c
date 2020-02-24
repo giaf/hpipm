@@ -360,7 +360,7 @@ void COND_QP_COND(struct OCP_QP *ocp_qp, struct DENSE_QP *dense_qp, struct COND_
 
 	COND_RSQRQ_N2NX3(ocp_qp, dense_qp->Hv, dense_qp->gz, cond_arg, cond_ws);
 
-	COND_DCTD(ocp_qp, dense_qp->idxb, dense_qp->Ct, dense_qp->d, dense_qp->idxs, dense_qp->Z, dense_qp->gz, cond_arg, cond_ws);
+	COND_DCTD(ocp_qp, dense_qp->idxb, dense_qp->Ct, dense_qp->d, dense_qp->d_mask, dense_qp->idxs, dense_qp->Z, dense_qp->gz, cond_arg, cond_ws);
 
 	return;
 
@@ -375,7 +375,7 @@ void COND_QP_COND_RHS(struct OCP_QP *ocp_qp, struct DENSE_QP *dense_qp, struct C
 
 	COND_RQ_N2NX3(ocp_qp, dense_qp->gz, cond_arg, cond_ws);
 
-	COND_D(ocp_qp, dense_qp->d, dense_qp->gz, cond_arg, cond_ws);
+	COND_D(ocp_qp, dense_qp->d, dense_qp->d_mask, dense_qp->gz, cond_arg, cond_ws);
 
 	return;
 
