@@ -686,16 +686,16 @@ void PART_COND_QCQP_EXPAND_SOL(struct OCP_QCQP *ocp_qp, struct OCP_QCQP *part_de
 
 		// alias ocp_dim
 		tmp_ocp_dim.N = bs;
-		tmp_ocp_dim.nx = ocp_qp->dim->nx+N_tmp;
-		tmp_ocp_dim.nu = ocp_qp->dim->nu+N_tmp;
-		tmp_ocp_dim.nbx = ocp_qp->dim->nbx+N_tmp;
-		tmp_ocp_dim.nbu = ocp_qp->dim->nbu+N_tmp;
-		tmp_ocp_dim.nb = ocp_qp->dim->nb+N_tmp;
-		tmp_ocp_dim.ng = ocp_qp->dim->ng+N_tmp;
-		tmp_ocp_dim.nsbx = ocp_qp->dim->nsbx+N_tmp;
-		tmp_ocp_dim.nsbu = ocp_qp->dim->nsbu+N_tmp;
-		tmp_ocp_dim.nsg = ocp_qp->dim->nsg+N_tmp;
-		tmp_ocp_dim.ns = ocp_qp->dim->ns+N_tmp;
+		tmp_ocp_dim.nx = ocp_qp->dim->qp_dim->nx+N_tmp;
+		tmp_ocp_dim.nu = ocp_qp->dim->qp_dim->nu+N_tmp;
+		tmp_ocp_dim.nbx = ocp_qp->dim->qp_dim->nbx+N_tmp;
+		tmp_ocp_dim.nbu = ocp_qp->dim->qp_dim->nbu+N_tmp;
+		tmp_ocp_dim.nb = ocp_qp->dim->qp_dim->nb+N_tmp;
+		tmp_ocp_dim.ng = ocp_qp->dim->qp_dim->ng+N_tmp;
+		tmp_ocp_dim.nsbx = ocp_qp->dim->qp_dim->nsbx+N_tmp;
+		tmp_ocp_dim.nsbu = ocp_qp->dim->qp_dim->nsbu+N_tmp;
+		tmp_ocp_dim.nsg = ocp_qp->dim->qp_dim->nsg+N_tmp;
+		tmp_ocp_dim.ns = ocp_qp->dim->qp_dim->ns+N_tmp;
 
 		// alias ocp_qp
 		tmp_ocp_qp.dim = &tmp_ocp_dim;
@@ -706,11 +706,12 @@ void PART_COND_QCQP_EXPAND_SOL(struct OCP_QCQP *ocp_qp, struct OCP_QCQP *part_de
 		tmp_ocp_qp.rqz = ocp_qp->rqz+N_tmp;
 		tmp_ocp_qp.DCt = ocp_qp->DCt+N_tmp;
 		tmp_ocp_qp.d = ocp_qp->d+N_tmp;
+		tmp_ocp_qp.d_mask = ocp_qp->d_mask+N_tmp;
 		tmp_ocp_qp.Z = ocp_qp->Z+N_tmp;
 		tmp_ocp_qp.idxs = ocp_qp->idxs+N_tmp;
-		// TODO d_mask
 
 		// alias ocp qp sol
+		tmp_ocp_qp_sol.dim = &tmp_ocp_dim;
 		tmp_ocp_qp_sol.ux = ocp_qp_sol->ux+N_tmp;
 		tmp_ocp_qp_sol.pi = ocp_qp_sol->pi+N_tmp;
 		tmp_ocp_qp_sol.lam = ocp_qp_sol->lam+N_tmp;
