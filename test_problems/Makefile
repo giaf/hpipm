@@ -36,6 +36,9 @@
 
 include ../Makefile.rule
 
+PRINT = 1
+CFLAGS += -DPRINT=$(PRINT)
+
 LIBS =
 
 LIBS += $(BLASFEO_PATH)/lib/libblasfeo.a

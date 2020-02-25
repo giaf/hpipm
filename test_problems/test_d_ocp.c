@@ -57,7 +57,9 @@
 #define KEEP_X0 0
 
 // printing
+#ifndef PRINT
 #define PRINT 1
+#endif
 
 
 
@@ -660,7 +662,7 @@ int main()
 	for(ii=0; ii<ns[N]; ii++)
 		d_usN[ii] = 0.0;
 
-#if 1
+#if PRINT
 	// soft constraints
 	int_print_mat(1, ns[0], idxs0, 1);
 	d_print_mat(1, ns[0], Zl0, 1);
@@ -793,7 +795,9 @@ int main()
 ************************************************/
 
 	int dim_size = d_ocp_qp_dim_memsize(N);
+#if PRINT
 	printf("\ndim size = %d\n", dim_size);
+#endif
 	void *dim_mem = malloc(dim_size);
 
 	struct d_ocp_qp_dim dim;
@@ -805,7 +809,9 @@ int main()
 ************************************************/
 
 	int qp_size = d_ocp_qp_memsize(&dim);
+#if PRINT
 	printf("\nqp size = %d\n", qp_size);
+#endif
 	void *qp_mem = malloc(qp_size);
 
 	struct d_ocp_qp qp;
@@ -855,7 +861,9 @@ int main()
 ************************************************/
 
 	int qp_sol_size = d_ocp_qp_sol_memsize(&dim);
+#if PRINT
 	printf("\nqp sol size = %d\n", qp_sol_size);
+#endif
 	void *qp_sol_mem = malloc(qp_sol_size);
 
 	struct d_ocp_qp_sol qp_sol;
@@ -909,7 +917,9 @@ int main()
 ************************************************/
 
 	int ipm_size = d_ocp_qp_ipm_ws_memsize(&dim, &arg);
+#if PRINT
 	printf("\nipm size = %d\n", ipm_size);
+#endif
 	void *ipm_mem = malloc(ipm_size);
 
 	struct d_ocp_qp_ipm_ws workspace;
@@ -951,7 +961,7 @@ int main()
 
 	d_ocp_qp_sol_get_all(&qp_sol, u, x, ls, us, pi, lam_lb, lam_ub, lam_lg, lam_ug, lam_ls, lam_us);
 
-#if 1
+#if PRINT
 	printf("\nsolution\n\n");
 	printf("\nu\n");
 	for(ii=0; ii<=N; ii++)
@@ -1031,7 +1041,7 @@ int main()
 
 	d_ocp_qp_res_get_all(workspace.res, res_r, res_q, res_ls, res_us, res_b, res_d_lb, res_d_ub, res_d_lg, res_d_ug, res_d_ls, res_d_us, res_m_lb, res_m_ub, res_m_lg, res_m_ug, res_m_ls, res_m_us);
 
-#if 1
+#if PRINT
 	printf("\nresiduals\n\n");
 	printf("\nres_r\n");
 	for(ii=0; ii<=N; ii++)
@@ -1098,6 +1108,7 @@ int main()
 	double *stat; d_ocp_qp_ipm_get_stat(&workspace, &stat);
 	int stat_m; d_ocp_qp_ipm_get_stat_m(&workspace, &stat_m);
 
+#if PRINT
 	printf("\nipm return = %d\n", hpipm_status);
 	printf("\nipm residuals max: res_g = %e, res_b = %e, res_d = %e, res_m = %e\n", res_stat, res_eq, res_ineq, res_comp);
 
@@ -1106,6 +1117,7 @@ int main()
 	d_print_exp_tran_mat(stat_m, iter+1, stat, stat_m);
 
 	printf("\nocp ipm time = %e [s]\n\n", time_ocp_ipm);
+#endif
 
 /************************************************
 * free memory
