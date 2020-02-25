@@ -16,6 +16,6 @@ jobs:
         - make static_library TARGET=X64_INTEL_HASWELL LA=HIGH_PERFORMANCE -j 4
         - cd ..
         - make static_library BLASFEO_PATH="${TRAVIS_BUILD_DIR}"/blasfeo
-        - make test_problems
+        - make test_problems BLASFEO_PATH="${TRAVIS_BUILD_DIR}"/blasfeo
         - make run_test_problems
 
