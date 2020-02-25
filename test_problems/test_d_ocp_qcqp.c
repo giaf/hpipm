@@ -58,7 +58,9 @@
 #define KEEP_X0 0
 
 // printing
+#ifndef PRINT
 #define PRINT 0
+#endif
 
 
 
@@ -694,7 +696,7 @@ int main()
 		d_usN[ii] = 0.0;
 #endif
 
-#if PRINT
+#if 0
 	// soft constraints
 	int_print_mat(1, ns[0], idxs0, 1);
 	d_print_mat(1, ns[0], Zl0, 1);
@@ -724,7 +726,9 @@ int main()
 ************************************************/
 
 	int dim_size = d_ocp_qcqp_dim_memsize(N);
+#if PRINT
 	printf("\ndim size = %d\n", dim_size);
+#endif
 	void *dim_mem = malloc(dim_size);
 
 	struct d_ocp_qcqp_dim dim;
@@ -740,14 +744,18 @@ int main()
 		d_ocp_qcqp_dim_set_nq(ii, nq[ii], &dim);
 		}
 	
+#if PRINT
 	d_ocp_qcqp_dim_print(&dim);
+#endif
 
 /************************************************
 * ocp qp
 ************************************************/
 
 	int qcqp_size = d_ocp_qcqp_memsize(&dim);
+#if PRINT
 	printf("\nqp size = %d\n", qcqp_size);
+#endif
 	void *qcqp_mem = malloc(qcqp_size);
 
 	struct d_ocp_qcqp qcqp;
@@ -856,14 +864,18 @@ int main()
 //	d_ocp_qp_set("lbx_mask", N, lbx_mask, &qp);
 //	d_ocp_qp_set("ubx_mask", N, ubx_mask, &qp);
 
+#if PRINT
 	d_ocp_qcqp_print(&dim, &qcqp);
+#endif
 
 /************************************************
 * ocp qp sol
 ************************************************/
 
 	int qcqp_sol_size = d_ocp_qcqp_sol_memsize(&dim);
+#if PRINT
 	printf("\nqcqp sol size = %d\n", qcqp_sol_size);
+#endif
 	void *qcqp_sol_mem = malloc(qcqp_sol_size);
 
 	struct d_ocp_qcqp_sol qcqp_sol;
@@ -916,7 +928,9 @@ int main()
 ************************************************/
 
 	int ipm_size = d_ocp_qcqp_ipm_ws_memsize(&dim, &arg);
+#if PRINT
 	printf("\nipm size = %d\n", ipm_size);
+#endif
 	void *ipm_mem = malloc(ipm_size);
 
 	struct d_ocp_qcqp_ipm_ws workspace;
@@ -944,7 +958,9 @@ int main()
 * print solution
 ************************************************/
 	
+#if PRINT
 	d_ocp_qcqp_sol_print(&dim, &qcqp_sol);
+#endif
 
 	double *tmp_nx; d_zeros(&tmp_nx, nx_, 1);
 	d_ocp_qcqp_sol_get_x(N, &qcqp_sol, tmp_nx);
@@ -975,7 +991,9 @@ int main()
 				{
 				tmp_qc += tmp_nux[kk]*tmp_nx[kk];
 				}
+#if PRINT
 			printf("\nquadr constr %f\n\n", tmp_qc);
+#endif
 			}
 		}
 #endif
@@ -988,7 +1006,9 @@ int main()
 * print residuals
 ************************************************/
 	
+#if PRINT
 	d_ocp_qcqp_res_print(&dim, workspace.qcqp_res);
+#endif
 
 /************************************************
 * print ipm statistics
@@ -1002,6 +1022,7 @@ int main()
 	double *stat; d_ocp_qcqp_ipm_get_stat(&workspace, &stat);
 	int stat_m; d_ocp_qcqp_ipm_get_stat_m(&workspace, &stat_m);
 
+#if PRINT
 	printf("\nipm return = %d\n", hpipm_status);
 	printf("\nipm residuals max: res_g = %e, res_b = %e, res_d = %e, res_m = %e\n", res_stat, res_eq, res_ineq, res_comp);
 
@@ -1010,6 +1031,7 @@ int main()
 	d_print_exp_tran_mat(stat_m, iter+1, stat, stat_m);
 
 	printf("\nocp ipm time = %e [s]\n\n", time_ocp_ipm);
+#endif
 
 /************************************************
 * free memory
