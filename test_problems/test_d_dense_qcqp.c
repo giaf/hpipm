@@ -55,6 +55,13 @@
 
 
 
+// printing
+#ifndef PRINT
+#define PRINT 1
+#endif
+
+
+
 int main()
 	{
 
@@ -96,7 +103,9 @@ int main()
 ************************************************/
 
 	int dense_qcqp_dim_size = d_dense_qcqp_dim_memsize();
+#if PRINT
 	printf("\nqp dim size = %d\n", dense_qcqp_dim_size);
+#endif
 	void *qp_dim_mem = malloc(dense_qcqp_dim_size);
 
 	struct d_dense_qcqp_dim qcqp_dim;
@@ -108,17 +117,21 @@ int main()
 	d_dense_qcqp_dim_set_nq(nq, &qcqp_dim);
 	d_dense_qcqp_dim_set_nsq(nsq, &qcqp_dim);
 
+#if PRINT
 	printf("\nqcqp dim\n");
 	d_dense_qcqp_dim_print(&qcqp_dim);
 	printf("\nqp dim\n");
 	d_dense_qp_dim_print(qcqp_dim.qp_dim);
+#endif
 
 /************************************************
 * dense qp
 ************************************************/
 
 	int qp_size = d_dense_qcqp_memsize(&qcqp_dim);
+#if PRINT
 	printf("\nqp size = %d\n", qp_size);
+#endif
 	void *qp_mem = malloc(qp_size);
 
 	struct d_dense_qcqp qcqp;
@@ -143,30 +156,38 @@ int main()
 	d_dense_qcqp_set_zu(zu, &qcqp);
 	d_dense_qcqp_set_idxs(idxs, &qcqp);
 
+#if PRINT
 	printf("\nqcqp\n");
 	d_dense_qcqp_print(&qcqp_dim, &qcqp);
 //	exit(1);
+#endif
 
 /************************************************
 * dense qp sol
 ************************************************/
 
 	int qp_sol_size = d_dense_qcqp_sol_memsize(&qcqp_dim);
+#if PRINT
 	printf("\nqp sol size = %d\n", qp_sol_size);
+#endif
 	void *qp_sol_mem = malloc(qp_sol_size);
 
 	struct d_dense_qcqp_sol qcqp_sol;
 	d_dense_qcqp_sol_create(&qcqp_dim, &qcqp_sol, qp_sol_mem);
 
+#if PRINT
 	printf("\nqcqp_sol\n");
 	d_dense_qcqp_sol_print(&qcqp_dim, &qcqp_sol);
+#endif
 
 /************************************************
 * ipm arg
 ************************************************/
 
 	int ipm_arg_size = d_dense_qcqp_ipm_arg_memsize(&qcqp_dim);
+#if PRINT
 	printf("\nipm arg size = %d\n", ipm_arg_size);
+#endif
 	void *ipm_arg_mem = malloc(ipm_arg_size);
 
 	struct d_dense_qcqp_ipm_arg arg;
@@ -209,7 +230,9 @@ int main()
 ************************************************/
 
 	int ipm_size = d_dense_qcqp_ipm_ws_memsize(&qcqp_dim, &arg);
+#if PRINT
 	printf("\nipm size = %d\n", ipm_size);
+#endif
 	void *ipm_mem = malloc(ipm_size);
 
 	struct d_dense_qcqp_ipm_ws workspace;
@@ -219,7 +242,9 @@ int main()
 
 	int rep, nrep=1000;
 
+#if PRINT
 	printf("\nsolving ...\n");
+#endif
 	struct timeval tv0, tv1;
 
 	gettimeofday(&tv0, NULL); // start
@@ -234,6 +259,7 @@ int main()
 
 	double time_dense_ipm = (tv1.tv_sec-tv0.tv_sec)/(nrep+0.0)+(tv1.tv_usec-tv0.tv_usec)/(nrep*1e6);
 
+#if PRINT
 	printf("\ndone!\n");
 
 
@@ -242,28 +268,30 @@ int main()
 
 	printf("\nqcqp sol\n");
 	d_dense_qcqp_sol_print(&qcqp_dim, &qcqp_sol);
+#endif
 
 /************************************************
 * print ipm statistics
 ************************************************/
 
-	printf("\nipm return = %d\n", hpipm_return);
-
 	int iter; d_dense_qcqp_ipm_get_iter(&workspace, &iter);
-	printf("\nipm iter = %d\n", iter);
-
 	double max_res_stat; d_dense_qcqp_ipm_get_max_res_stat(&workspace, &max_res_stat);
 	double max_res_eq  ; d_dense_qcqp_ipm_get_max_res_eq(&workspace, &max_res_eq);
 	double max_res_ineq; d_dense_qcqp_ipm_get_max_res_ineq(&workspace, &max_res_ineq);
 	double max_res_comp; d_dense_qcqp_ipm_get_max_res_comp(&workspace, &max_res_comp);
+	double *stat; d_dense_qcqp_ipm_get_stat(&workspace, &stat);
+	int stat_m;  d_dense_qcqp_ipm_get_stat_m(&workspace, &stat_m);
+
+#if PRINT
+	printf("\nipm return = %d\n", hpipm_return);
+	printf("\nipm iter = %d\n", iter);
 	printf("\nipm max res: stat = %e, eq =  %e, ineq =  %e, comp = %e\n", max_res_stat, max_res_eq, max_res_ineq, max_res_comp);
 
 	printf("\nalpha_aff\tmu_aff\t\tsigma\t\talpha_p\t\talpha_d\t\tmu\t\tres_stat\tres_eq\t\tres_ineq\tres_comp\tlq fact\t\titref pred\titref corr\tlin res stat\tlin res eq\tlin res ineq\tlin res comp\n");
-	double *stat; d_dense_qcqp_ipm_get_stat(&workspace, &stat);
-	int stat_m;  d_dense_qcqp_ipm_get_stat_m(&workspace, &stat_m);
 	d_print_exp_tran_mat(stat_m, iter+1, stat, stat_m);
 
 	printf("\ndense ipm time = %e [s]\n\n", time_dense_ipm);
+#endif
 
 /************************************************
 * free memory

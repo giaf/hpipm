@@ -12,10 +12,15 @@ jobs:
       group: travis_latest
       script:
         - git clone https://github.com/giaf/blasfeo
-        - cd "${TRAVIS_BUILD_DIR}"/blasfeo
-        - make static_library TARGET=X64_INTEL_HASWELL LA=HIGH_PERFORMANCE -j 4
-        - cd ..
-        - make static_library BLASFEO_PATH="${TRAVIS_BUILD_DIR}"/blasfeo
-        - make test_problems BLASFEO_PATH="${TRAVIS_BUILD_DIR}"/blasfeo PRINT=0
-        - make run_test_problems
+        - make -C "${TRAVIS_BUILD_DIR}"/blasfeo static_library TARGET=X64_INTEL_HASWELL LA=HIGH_PERFORMANCE -j 4
+        - make static_library BLASFEO_PATH="${TRAVIS_BUILD_DIR}"/blasfeo -j 4
+        - make -C test_problems test_d_dense BLASFEO_PATH="${TRAVIS_BUILD_DIR}"/blasfeo PRINT=0
+        - make -C test_problems test_d_dense_qcqp BLASFEO_PATH="${TRAVIS_BUILD_DIR}"/blasfeo PRINT=0
+        - make -C test_problems test_d_ocp BLASFEO_PATH="${TRAVIS_BUILD_DIR}"/blasfeo PRINT=0
+        - make -C test_problems test_d_ocp_qcqp BLASFEO_PATH="${TRAVIS_BUILD_DIR}"/blasfeo PRINT=0
+        - make -C test_problems test_d_cond BLASFEO_PATH="${TRAVIS_BUILD_DIR}"/blasfeo PRINT=0
+        - make -C test_problems test_d_cond_qcqp BLASFEO_PATH="${TRAVIS_BUILD_DIR}"/blasfeo PRINT=0
+        - make -C test_problems test_d_part_cond BLASFEO_PATH="${TRAVIS_BUILD_DIR}"/blasfeo PRINT=0
+        - make -C test_problems test_d_part_cond_qcqp BLASFEO_PATH="${TRAVIS_BUILD_DIR}"/blasfeo PRINT=0
+        - make -C test_problems test_d_tree_ocp BLASFEO_PATH="${TRAVIS_BUILD_DIR}"/blasfeo PRINT=0
 

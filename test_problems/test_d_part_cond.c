@@ -58,7 +58,10 @@
 
 #define KEEP_X0 0
 
+// printing
+#ifndef PRINT
 #define PRINT 1
+#endif
 
 
 
@@ -551,7 +554,7 @@ int main()
 	for(ii=0; ii<ns[N]; ii++)
 		d_usN[ii] = -1.0; //0.0;
 
-#if 1
+#if PRINT
 	// soft constraints
 	int_print_mat(1, ns[0], idxs0, 1);
 	d_print_mat(1, ns[0], Zl0, 1);
@@ -684,7 +687,9 @@ int main()
 ************************************************/
 
 	int dim_size = d_ocp_qp_dim_memsize(N);
+#if PRINT
 	printf("\ndim size = %d\n", dim_size);
+#endif
 	void *dim_mem = malloc(dim_size);
 
 	struct d_ocp_qp_dim dim;
@@ -696,7 +701,9 @@ int main()
 ************************************************/
 
 	int ocp_qp_size = d_ocp_qp_memsize(&dim);
+#if PRINT
 	printf("\nocp qp size = %d\n", ocp_qp_size);
+#endif
 	void *ocp_qp_mem = malloc(ocp_qp_size);
 
 	struct d_ocp_qp ocp_qp;
@@ -745,7 +752,9 @@ int main()
 	int nsg2[N2+1];
 
 	int dim_size2 = d_ocp_qp_dim_memsize(N2);
+#if PRINT
 	printf("\ndim size2 = %d\n", dim_size2);
+#endif
 	void *dim_mem2 = malloc(dim_size2);
 
 	struct d_ocp_qp_dim dim2;
@@ -764,8 +773,10 @@ int main()
 	block_size[1] = 1;
 	block_size[2] = 3;
 #endif
+#if PRINT
 	printf("\nblock_size\n");
 	int_print_mat(1, N2+1, block_size, 1);
+#endif
 
 	d_part_cond_qp_compute_dim(&dim, block_size, &dim2);
 	for(ii=0; ii<=N2; ii++)
@@ -788,12 +799,16 @@ int main()
 		nsbu2[ii] = dim2.nsbu[ii];
 	for(ii=0; ii<=N2; ii++)
 		nsg2[ii] = dim2.nsg[ii];
+#if PRINT
 	for(ii=0; ii<=N2; ii++)
 		printf("\n%d %d %d %d\n", nx2[ii], nu2[ii], nb2[ii], ng2[ii]);
+#endif
 
 	// qp
 	int part_dense_qp_size = d_ocp_qp_memsize(&dim2);
+#if PRINT
 	printf("\npart dense qp size = %d\n", part_dense_qp_size);
+#endif
 	void *part_dense_qp_mem = malloc(part_dense_qp_size);
 
 	struct d_ocp_qp part_dense_qp;
@@ -801,7 +816,9 @@ int main()
 
 	// arg
 	int part_cond_arg_size = d_part_cond_qp_arg_memsize(dim2.N);
+#if PRINT
 	printf("\npart cond_arg size = %d\n", part_cond_arg_size);
+#endif
 	void *part_cond_arg_mem = malloc(part_cond_arg_size);
 
 	struct d_part_cond_qp_arg part_cond_arg;
@@ -813,7 +830,9 @@ int main()
 
 	// ws
 	int part_cond_size = d_part_cond_qp_ws_memsize(&dim, block_size, &dim2, &part_cond_arg);
+#if PRINT
 	printf("\npart cond size = %d\n", part_cond_size);
+#endif
 	void *part_cond_mem = malloc(part_cond_size);
 
 	struct d_part_cond_qp_ws part_cond_ws;
@@ -832,7 +851,7 @@ int main()
 
 	double time_cond = (tv1.tv_sec-tv0.tv_sec)/(nrep+0.0)+(tv1.tv_usec-tv0.tv_usec)/(nrep*1e6);
 
-#if 1
+#if PRINT
 	printf("\npart cond data\n\n");
 	for(ii=0; ii<N2; ii++)
 		blasfeo_print_dmat(nu2[ii]+nx2[ii]+1, nx2[ii+1], part_dense_qp.BAbt+ii, 0, 0);
@@ -887,7 +906,7 @@ int main()
 
 	double time_update_cond = (tv1.tv_sec-tv0.tv_sec)/(nrep+0.0)+(tv1.tv_usec-tv0.tv_usec)/(nrep*1e6);
 
-#if 1
+#if PRINT
 	printf("\nupdate part cond data\n\n");
 	for(ii=0; ii<N2; ii++)
 		blasfeo_print_dmat(nu2[ii]+nx2[ii]+1, nx2[ii+1], part_dense_qp.BAbt+ii, 0, 0);
@@ -932,7 +951,7 @@ int main()
 
 	double time_cond_rhs = (tv1.tv_sec-tv0.tv_sec)/(nrep+0.0)+(tv1.tv_usec-tv0.tv_usec)/(nrep*1e6);
 
-#if 1
+#if PRINT
 	printf("\npart cond rhs data\n\n");
 	for(ii=0; ii<N2; ii++)
 		blasfeo_print_tran_dvec(nx2[ii+1], part_dense_qp.b+ii, 0);
@@ -970,7 +989,9 @@ int main()
 ************************************************/
 
 	int part_dense_qp_sol_size = d_ocp_qp_sol_memsize(&dim2);
+#if PRINT
 	printf("\npart dense qp sol size = %d\n", part_dense_qp_sol_size);
+#endif
 	void *part_dense_qp_sol_mem = malloc(part_dense_qp_sol_size);
 
 	struct d_ocp_qp_sol part_dense_qp_sol;
@@ -1020,7 +1041,9 @@ int main()
 ************************************************/
 
 	int ipm_size = d_ocp_qp_ipm_ws_memsize(&dim2, &arg);
+#if PRINT
 	printf("\nipm size = %d\n", ipm_size);
+#endif
 	void *ipm_mem = malloc(ipm_size);
 
 	struct d_ocp_qp_ipm_ws workspace;
@@ -1058,7 +1081,7 @@ int main()
 
 	d_ocp_qp_sol_get_all(&part_dense_qp_sol, u2, x2, ls2, us2, pi2, lam_lb2, lam_ub2, lam_lg2, lam_ug2, lam_ls2, lam_us2);
 
-#if 1
+#if PRINT
 	printf("\nsolution\n\n");
 	printf("\nu2\n");
 	for(ii=0; ii<=N2; ii++)
@@ -1138,7 +1161,7 @@ int main()
 
 	d_ocp_qp_res_get_all(workspace.res, res_r2, res_q2, res_ls2, res_us2, res_b2, res_d_lb2, res_d_ub2, res_d_lg2, res_d_ug2, res_d_ls2, res_d_us2, res_m_lb2, res_m_ub2, res_m_lg2, res_m_ug2, res_m_ls2, res_m_us2);
 
-#if 1
+#if PRINT
 	printf("\npart cond residuals\n\n");
 	printf("\nres_r\n");
 	for(ii=0; ii<=N2; ii++)
@@ -1205,6 +1228,7 @@ int main()
 	double *stat; d_ocp_qp_ipm_get_stat(&workspace, &stat);
 	int stat_m; d_ocp_qp_ipm_get_stat_m(&workspace, &stat_m);
 
+#if PRINT
 	printf("\nipm return = %d\n", hpipm_status);
 	printf("\nipm residuals max: res_g = %e, res_b = %e, res_d = %e, res_m = %e\n", res_stat, res_eq, res_ineq, res_comp);
 
@@ -1216,13 +1240,16 @@ int main()
 	printf("\nupdate part cond time  = %e [s]\n", time_update_cond);
 	printf("\npart cond rhs time     = %e [s]\n", time_cond_rhs);
 	printf("\npart cond ocp ipm time = %e [s]\n\n", time_ocp_ipm);
+#endif
 
 /************************************************
 * full space ocp qp sol
 ************************************************/
 
 	int ocp_qp_sol_size = d_ocp_qp_sol_memsize(&dim);
+#if PRINT
 	printf("\nocp qp sol size = %d\n", ocp_qp_sol_size);
+#endif
 	void *ocp_qp_sol_mem = malloc(ocp_qp_sol_size);
 
 	struct d_ocp_qp_sol ocp_qp_sol;
@@ -1249,7 +1276,7 @@ int main()
 	d_ocp_qp_sol_get_all(&ocp_qp_sol, u, x, ls, us, pi, lam_lb, lam_ub, lam_lg, lam_ug, lam_ls, lam_us);
 
 
-#if 1
+#if PRINT
 	printf("\nfull space solution\n\n");
 	printf("\nu\n");
 	for(ii=0; ii<=N; ii++)

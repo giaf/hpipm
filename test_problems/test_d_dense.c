@@ -53,7 +53,10 @@
 
 
 
+// printing
+#ifndef PRINT
 #define PRINT 1
+#endif
 
 
 
@@ -273,7 +276,9 @@ int main()
 ************************************************/
 
 	int dense_qp_dim_size = d_dense_qp_dim_memsize();
+#if PRINT
 	printf("\nqp dim size = %d\n", dense_qp_dim_size);
+#endif
 	void *qp_dim_mem = malloc(dense_qp_dim_size);
 
 	struct d_dense_qp_dim qp_dim;
@@ -286,7 +291,9 @@ int main()
 ************************************************/
 
 	int qp_size = d_dense_qp_memsize(&qp_dim);
+#if PRINT
 	printf("\nqp size = %d\n", qp_size);
+#endif
 	void *qp_mem = malloc(qp_size);
 
 	struct d_dense_qp qp;
@@ -316,7 +323,7 @@ int main()
 	d_dense_qp_set_all(H, g, A, b, idxb, d_lb, d_ub, C, d_lg, d_ug, Zl, Zu, zl, zu, idxs, d_ls, d_us, &qp);
 #endif
 
-#if 1
+#if PRINT
 	printf("\nH = \n");
 	blasfeo_print_dmat(nv, nv, qp.Hv, 0, 0);
 	printf("\nA = \n");
@@ -345,7 +352,9 @@ int main()
 ************************************************/
 
 	int qp_sol_size = d_dense_qp_sol_memsize(&qp_dim);
+#if PRINT
 	printf("\nqp sol size = %d\n", qp_sol_size);
+#endif
 	void *qp_sol_mem = malloc(qp_sol_size);
 
 	struct d_dense_qp_sol qp_sol;
@@ -356,7 +365,9 @@ int main()
 ************************************************/
 
 	int ipm_arg_size = d_dense_qp_ipm_arg_memsize(&qp_dim);
+#if PRINT
 	printf("\nipm arg size = %d\n", ipm_arg_size);
+#endif
 	void *ipm_arg_mem = malloc(ipm_arg_size);
 
 	struct d_dense_qp_ipm_arg arg;
@@ -405,7 +416,9 @@ int main()
 ************************************************/
 
 	int ipm_size = d_dense_qp_ipm_ws_memsize(&qp_dim, &arg);
+#if PRINT
 	printf("\nipm size = %d\n", ipm_size);
+#endif
 	void *ipm_mem = malloc(ipm_size);
 
 	struct d_dense_qp_ipm_ws workspace;
@@ -413,8 +426,10 @@ int main()
 
 	// check for linearly dependent equality constraints
 	d_dense_qp_remove_lin_dep_eq(&qp, &arg, &workspace);
+#if PRINT
 	blasfeo_print_dmat(qp_dim.ne, qp_dim.nv, qp.A, 0, 0);
 	blasfeo_print_tran_dvec(qp_dim.ne, qp.b, 0);
+#endif
 	d_dense_qp_restore_lin_dep_eq(&qp, &arg, &workspace);
 //	exit(1);
 
@@ -436,6 +451,7 @@ int main()
 
 	double time_dense_ipm = (tv1.tv_sec-tv0.tv_sec)/(nrep+0.0)+(tv1.tv_usec-tv0.tv_usec)/(nrep*1e6);
 
+#if PRINT
 	printf("\nsolution\n\n");
 	printf("\nv\n");
 	d_print_mat(1, nv, qp_sol.v->pa, 1);
@@ -481,28 +497,30 @@ int main()
 	d_print_exp_mat(1, 2*nb+2*ng+2*ns, workspace.res->res_m->pa, 1);
 	printf("\nres_mu\n");
 	printf("\n%e\n\n", workspace.res->res_mu);
+#endif
 
 /************************************************
 * print ipm statistics
 ************************************************/
 
-	printf("\nipm return = %d\n", hpipm_return);
-
 	int iter; d_dense_qp_ipm_get_iter(&workspace, &iter);
-	printf("\nipm iter = %d\n", iter);
-
 	double max_res_stat; d_dense_qp_ipm_get_max_res_stat(&workspace, &max_res_stat);
 	double max_res_eq  ; d_dense_qp_ipm_get_max_res_eq(&workspace, &max_res_eq);
 	double max_res_ineq; d_dense_qp_ipm_get_max_res_ineq(&workspace, &max_res_ineq);
 	double max_res_comp; d_dense_qp_ipm_get_max_res_comp(&workspace, &max_res_comp);
+	double *stat; d_dense_qp_ipm_get_stat(&workspace, &stat);
+	int stat_m;  d_dense_qp_ipm_get_stat_m(&workspace, &stat_m);
+
+#if PRINT
+	printf("\nipm return = %d\n", hpipm_return);
+	printf("\nipm iter = %d\n", iter);
 	printf("\nipm max res: stat = %e, eq =  %e, ineq =  %e, comp = %e\n", max_res_stat, max_res_eq, max_res_ineq, max_res_comp);
 
 	printf("\nalpha_aff\tmu_aff\t\tsigma\t\talpha_p\t\talpha_d\t\tmu\t\tres_stat\tres_eq\t\tres_ineq\tres_comp\tlq fact\t\titref pred\titref corr\tlin res stat\tlin res eq\tlin res ineq\tlin res comp\n");
-	double *stat; d_dense_qp_ipm_get_stat(&workspace, &stat);
-	int stat_m;  d_dense_qp_ipm_get_stat_m(&workspace, &stat_m);
 	d_print_exp_tran_mat(stat_m, iter+1, stat, stat_m);
 
 	printf("\ndense ipm time = %e [s]\n\n", time_dense_ipm);
+#endif
 
 /************************************************
 * free memory

@@ -61,7 +61,10 @@
 
 #define KEEP_X0 0
 
+// printing
+#ifndef PRINT
 #define PRINT 1
+#endif
 
 
 
@@ -554,7 +557,7 @@ int main()
 	for(ii=0; ii<ns[N]; ii++)
 		d_usN[ii] = 0.0;
 
-#if 1
+#if PRINT
 	// soft constraints
 	int_print_mat(1, ns[0], idxs0, 1);
 	d_print_mat(1, ns[0], Zl0, 1);
@@ -687,7 +690,9 @@ int main()
 ************************************************/
 
 	int dim_size = d_ocp_qp_dim_memsize(N);
+#if PRINT
 	printf("\ndim size = %d\n", dim_size);
+#endif
 	void *dim_mem = malloc(dim_size);
 
 	struct d_ocp_qp_dim dim;
@@ -699,7 +704,9 @@ int main()
 ************************************************/
 
 	int ocp_qp_size = d_ocp_qp_memsize(&dim);
+#if PRINT
 	printf("\nqp size = %d\n", ocp_qp_size);
+#endif
 	void *ocp_qp_mem = malloc(ocp_qp_size);
 
 	struct d_ocp_qp ocp_qp;
@@ -735,7 +742,9 @@ int main()
 ************************************************/
 
 	int dense_qp_dim_size = d_dense_qp_dim_memsize();
+#if PRINT
 	printf("\nqp dim size = %d\n", dense_qp_dim_size);
+#endif
 	void *dense_qp_dim_mem = malloc(dense_qp_dim_size);
 
 	struct d_dense_qp_dim qp_dim;
@@ -749,7 +758,9 @@ int main()
 	int ngc = qp_dim.ng;
 	int nsc = qp_dim.ns;
 
+#if PRINT
 	printf("\nnv = %d, ne = %d, nb = %d, ng = %d, ns = %d\n\n", nvc, nec, nbc, ngc, nsc);
+#endif
 
 /************************************************
 * dense qp
@@ -757,7 +768,9 @@ int main()
 
 	// qp
 	int dense_qp_size = d_dense_qp_memsize(&qp_dim);
+#if PRINT
 	printf("\nqp size = %d\n", dense_qp_size);
+#endif
 	void *dense_qp_mem = malloc(dense_qp_size);
 
 	struct d_dense_qp dense_qp;
@@ -765,7 +778,9 @@ int main()
 
 	// arg
 	int cond_arg_size = d_cond_qp_arg_memsize();
+#if PRINT
 	printf("\ncond_arg size = %d\n", cond_arg_size);
+#endif
 	void *cond_arg_mem = malloc(cond_arg_size);
 
 	struct d_cond_qp_arg cond_arg;
@@ -774,7 +789,9 @@ int main()
 
 	// ws
 	int cond_size = d_cond_qp_ws_memsize(&dim, &cond_arg);
+#if PRINT
 	printf("\ncond size = %d\n", cond_size);
+#endif
 	void *cond_mem = malloc(cond_size);
 
 	struct d_cond_qp_ws cond_ws;
@@ -793,7 +810,7 @@ int main()
 
 	double time_cond = (tv1.tv_sec-tv0.tv_sec)/(nrep+0.0)+(tv1.tv_usec-tv0.tv_usec)/(nrep*1e6);
 
-#if 1
+#if PRINT
 	printf("\ncond data\n\n");
 	blasfeo_print_dmat(nvc, nvc, dense_qp.Hv, 0, 0);
 	blasfeo_print_dmat(nec, nvc, dense_qp.A, 0, 0);
@@ -834,7 +851,7 @@ int main()
 
 	double time_update_cond = (tv1.tv_sec-tv0.tv_sec)/(nrep+0.0)+(tv1.tv_usec-tv0.tv_usec)/(nrep*1e6);
 
-#if 1
+#if PRINT
 	printf("\nupdate cond data\n\n");
 	blasfeo_print_dmat(nvc, nvc, dense_qp.Hv, 0, 0);
 	blasfeo_print_dmat(nec, nvc, dense_qp.A, 0, 0);
@@ -868,7 +885,7 @@ int main()
 
 	double time_cond_rhs = (tv1.tv_sec-tv0.tv_sec)/(nrep+0.0)+(tv1.tv_usec-tv0.tv_usec)/(nrep*1e6);
 
-#if 1
+#if PRINT
 	printf("\ncond rhs data\n\n");
 	blasfeo_print_tran_dvec(nvc, dense_qp.gz, 0);
 	blasfeo_print_tran_dvec(nec, dense_qp.b, 0);
@@ -899,7 +916,9 @@ int main()
 ************************************************/
 
 	int dense_qp_sol_size = d_dense_qp_sol_memsize(&qp_dim);
+#if PRINT
 	printf("\ndense qp sol size = %d\n", dense_qp_sol_size);
+#endif
 	void *dense_qp_sol_mem = malloc(dense_qp_sol_size);
 
 	struct d_dense_qp_sol dense_qp_sol;
@@ -910,7 +929,9 @@ int main()
 ************************************************/
 
 	int ipm_arg_size = d_dense_qp_ipm_arg_memsize(&qp_dim);
+#if PRINT
 	printf("\nipm arg size = %d\n", ipm_arg_size);
+#endif
 	void *ipm_arg_mem = malloc(ipm_arg_size);
 
 	struct d_dense_qp_ipm_arg dense_arg;
@@ -936,7 +957,9 @@ int main()
 ************************************************/
 
 	int dense_ipm_size = d_dense_qp_ipm_ws_memsize(&qp_dim, &dense_arg);
+#if PRINT
 	printf("\ndense ipm size = %d\n", dense_ipm_size);
+#endif
 	void *dense_ipm_mem = malloc(dense_ipm_size);
 
 	struct d_dense_qp_ipm_ws dense_workspace;
@@ -957,6 +980,7 @@ int main()
 	double time_dense_ipm = (tv1.tv_sec-tv0.tv_sec)/(nrep+0.0)+(tv1.tv_usec-tv0.tv_usec)/(nrep*1e6);
 
 
+#if PRINT
 	printf("\nsolution\n\n");
 	printf("\nv\n");
 	blasfeo_print_tran_dvec(nvc, dense_qp_sol.v, 0);
@@ -1002,38 +1026,41 @@ int main()
 	blasfeo_print_exp_tran_dvec(2*nbc+2*ngc+2*nsc, dense_workspace.res->res_m, 0);
 	printf("\nres_mu\n");
 	printf("\n%e\n\n", dense_workspace.res->res_mu);
+#endif
 
 /************************************************
 * print ipm statistics
 ************************************************/
 
-	printf("\nipm return = %d\n", hpipm_return);
-
 	int iter; d_dense_qp_ipm_get_iter(&dense_workspace, &iter);
-	printf("\nipm iter = %d\n", iter);
-
 	double max_res_stat; d_dense_qp_ipm_get_max_res_stat(&dense_workspace, &max_res_stat);
 	double max_res_eq  ; d_dense_qp_ipm_get_max_res_eq(&dense_workspace, &max_res_eq);
 	double max_res_ineq; d_dense_qp_ipm_get_max_res_ineq(&dense_workspace, &max_res_ineq);
 	double max_res_comp; d_dense_qp_ipm_get_max_res_comp(&dense_workspace, &max_res_comp);
+	double *stat; d_dense_qp_ipm_get_stat(&dense_workspace, &stat);
+	int stat_m;  d_dense_qp_ipm_get_stat_m(&dense_workspace, &stat_m);
+#if PRINT
+	printf("\nipm return = %d\n", hpipm_return);
+	printf("\nipm iter = %d\n", iter);
 	printf("\nipm max res: stat = %e, eq =  %e, ineq =  %e, comp = %e\n", max_res_stat, max_res_eq, max_res_ineq, max_res_comp);
 
 	printf("\nalpha_aff\tmu_aff\t\tsigma\t\talpha_prim\talpha_dual\tmu\t\tres_stat\tres_eq\t\tres_ineq\tres_comp\tlq fact\t\titref pred\titref corr\tlin res stat\tlin res eq\tlin res ineq\tlin res comp\n");
-	double *stat; d_dense_qp_ipm_get_stat(&dense_workspace, &stat);
-	int stat_m;  d_dense_qp_ipm_get_stat_m(&dense_workspace, &stat_m);
 	d_print_exp_tran_mat(stat_m, iter+1, stat, stat_m);
 
 	printf("\ncond time           = %e [s]\n", time_cond);
 	printf("\nupdate cond time    = %e [s]\n", time_update_cond);
 	printf("\ncond rhs time       = %e [s]\n", time_cond_rhs);
 	printf("\ncond dense ipm time = %e [s]\n\n", time_dense_ipm);
+#endif
 
 /************************************************
 * ocp qp sol
 ************************************************/
 
 	int ocp_qp_sol_size = d_ocp_qp_sol_memsize(&dim);
+#if PRINT
 	printf("\nocp qp sol size = %d\n", ocp_qp_sol_size);
+#endif
 	void *ocp_qp_sol_mem = malloc(ocp_qp_sol_size);
 
 	struct d_ocp_qp_sol ocp_qp_sol;
@@ -1059,7 +1086,7 @@ int main()
 
 	d_ocp_qp_sol_get_all(&ocp_qp_sol, u, x, ls, us, pi, lam_lb, lam_ub, lam_lg, lam_ug, lam_ls, lam_us);
 
-#if 1
+#if PRINT
 	printf("\nfull space solution\n\n");
 	printf("\nu\n");
 	for(ii=0; ii<=N; ii++)

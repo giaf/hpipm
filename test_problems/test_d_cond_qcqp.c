@@ -63,7 +63,10 @@
 
 #define KEEP_X0 0
 
+// printing
+#ifndef PRINT
 #define PRINT 1
+#endif
 
 
 
@@ -623,7 +626,9 @@ int main()
 ************************************************/
 
 	int ocp_dim_size = d_ocp_qcqp_dim_memsize(N);
+#if PRINT
 	printf("\ndim size = %d\n", ocp_dim_size);
+#endif
 	void *ocp_dim_mem = malloc(ocp_dim_size);
 
 	struct d_ocp_qcqp_dim ocp_dim;
@@ -644,14 +649,18 @@ int main()
 		d_ocp_qcqp_dim_set_nsq(ii, nsq[ii], &ocp_dim);
 		}
 	
+#if PRINT
 	d_ocp_qcqp_dim_print(&ocp_dim);
+#endif
 
 /************************************************
 * ocp qp
 ************************************************/
 
 	int ocp_qp_size = d_ocp_qcqp_memsize(&ocp_dim);
+#if PRINT
 	printf("\nqp size = %d\n", ocp_qp_size);
+#endif
 	void *ocp_qp_mem = malloc(ocp_qp_size);
 
 	struct d_ocp_qcqp ocp_qp;
@@ -759,14 +768,18 @@ int main()
 //	d_ocp_qp_set("lbx_mask", N, lbx_mask, &qp);
 //	d_ocp_qp_set("ubx_mask", N, ubx_mask, &qp);
 
+#if PRINT
 	d_ocp_qcqp_print(&ocp_dim, &ocp_qp);
+#endif
 
 /************************************************
 * dense qp dim
 ************************************************/
 
 	int dense_dim_size = d_dense_qcqp_dim_memsize();
+#if PRINT
 	printf("\ndense dim size = %d\n", dense_dim_size);
+#endif
 	void *dense_dim_mem = malloc(dense_dim_size);
 
 	struct d_dense_qcqp_dim dense_dim;
@@ -774,7 +787,9 @@ int main()
 
 	d_cond_qcqp_compute_dim(&ocp_dim, &dense_dim);
 
+#if PRINT
 	d_dense_qcqp_dim_print(&dense_dim);
+#endif
 
 /************************************************
 * dense qp
@@ -782,7 +797,9 @@ int main()
 
 	// qp
 	int dense_qp_size = d_dense_qcqp_memsize(&dense_dim);
+#if PRINT
 	printf("\nqp size = %d\n", dense_qp_size);
+#endif
 	void *dense_qp_mem = malloc(dense_qp_size);
 
 	struct d_dense_qcqp dense_qp;
@@ -790,7 +807,9 @@ int main()
 
 	// arg
 	int cond_arg_size = d_cond_qcqp_arg_memsize();
+#if PRINT
 	printf("\ncond_arg size = %d\n", cond_arg_size);
+#endif
 	void *cond_arg_mem = malloc(cond_arg_size);
 
 	struct d_cond_qcqp_arg cond_arg;
@@ -799,7 +818,9 @@ int main()
 
 	// ws
 	int cond_size = d_cond_qcqp_ws_memsize(&ocp_dim, &cond_arg);
+#if PRINT
 	printf("\ncond size = %d\n", cond_size);
+#endif
 	void *cond_mem = malloc(cond_size);
 
 	struct d_cond_qcqp_ws cond_ws;
@@ -834,14 +855,18 @@ int main()
 
 	double time_cond_rhs = (tv1.tv_sec-tv0.tv_sec)/(nrep+0.0)+(tv1.tv_usec-tv0.tv_usec)/(nrep*1e6);
 
+#if PRINT
 	d_dense_qcqp_print(&dense_dim, &dense_qp);
+#endif
 
 /************************************************
 * dense qp sol
 ************************************************/
 
 	int dense_qp_sol_size = d_dense_qcqp_sol_memsize(&dense_dim);
+#if PRINT
 	printf("\ndense qp sol size = %d\n", dense_qp_sol_size);
+#endif
 	void *dense_qp_sol_mem = malloc(dense_qp_sol_size);
 
 	struct d_dense_qcqp_sol dense_qp_sol;
@@ -852,7 +877,9 @@ int main()
 ************************************************/
 
 	int ipm_arg_size = d_dense_qcqp_ipm_arg_memsize(&dense_dim);
+#if PRINT
 	printf("\nipm arg size = %d\n", ipm_arg_size);
+#endif
 	void *ipm_arg_mem = malloc(ipm_arg_size);
 
 	struct d_dense_qcqp_ipm_arg dense_arg;
@@ -878,7 +905,9 @@ int main()
 ************************************************/
 
 	int dense_ipm_size = d_dense_qcqp_ipm_ws_memsize(&dense_dim, &dense_arg);
+#if PRINT
 	printf("\ndense ipm size = %d\n", dense_ipm_size);
+#endif
 	void *dense_ipm_mem = malloc(dense_ipm_size);
 
 	struct d_dense_qcqp_ipm_ws dense_workspace;
@@ -898,38 +927,44 @@ int main()
 
 	double time_dense_ipm = (tv1.tv_sec-tv0.tv_sec)/(nrep+0.0)+(tv1.tv_usec-tv0.tv_usec)/(nrep*1e6);
 
+#if PRINT
 	d_dense_qcqp_sol_print(&dense_dim, &dense_qp_sol);
+#endif
 
 /************************************************
 * print ipm statistics
 ************************************************/
 
-	printf("\nipm return = %d\n", hpipm_return);
-
 	int iter; d_dense_qcqp_ipm_get_iter(&dense_workspace, &iter);
-	printf("\nipm iter = %d\n", iter);
 
 	double max_res_stat; d_dense_qcqp_ipm_get_max_res_stat(&dense_workspace, &max_res_stat);
 	double max_res_eq  ; d_dense_qcqp_ipm_get_max_res_eq(&dense_workspace, &max_res_eq);
 	double max_res_ineq; d_dense_qcqp_ipm_get_max_res_ineq(&dense_workspace, &max_res_ineq);
 	double max_res_comp; d_dense_qcqp_ipm_get_max_res_comp(&dense_workspace, &max_res_comp);
+	double *stat; d_dense_qcqp_ipm_get_stat(&dense_workspace, &stat);
+	int stat_m;  d_dense_qcqp_ipm_get_stat_m(&dense_workspace, &stat_m);
+
+#if PRINT
+	printf("\nipm return = %d\n", hpipm_return);
+	printf("\nipm iter = %d\n", iter);
 	printf("\nipm max res: stat = %e, eq =  %e, ineq =  %e, comp = %e\n", max_res_stat, max_res_eq, max_res_ineq, max_res_comp);
 
 	printf("\nalpha_aff\tmu_aff\t\tsigma\t\talpha_prim\talpha_dual\tmu\t\tres_stat\tres_eq\t\tres_ineq\tres_comp\tlq fact\t\titref pred\titref corr\tlin res stat\tlin res eq\tlin res ineq\tlin res comp\n");
-	double *stat; d_dense_qcqp_ipm_get_stat(&dense_workspace, &stat);
-	int stat_m;  d_dense_qcqp_ipm_get_stat_m(&dense_workspace, &stat_m);
 	d_print_exp_tran_mat(stat_m, iter+1, stat, stat_m);
 
 	printf("\ncond time           = %e [s]\n", time_cond);
 	printf("\ncond rhs time       = %e [s]\n", time_cond_rhs);
 	printf("\ncond dense ipm time = %e [s]\n\n", time_dense_ipm);
+#endif
 
 /************************************************
 * ocp qp sol
 ************************************************/
 
 	int ocp_qp_sol_size = d_ocp_qcqp_sol_memsize(&ocp_dim);
+#if PRINT
 	printf("\nocp qp sol size = %d\n", ocp_qp_sol_size);
+#endif
 	void *ocp_qp_sol_mem = malloc(ocp_qp_sol_size);
 
 	struct d_ocp_qcqp_sol ocp_qp_sol;
@@ -941,7 +976,9 @@ int main()
 
 	d_cond_qcqp_expand_sol(&ocp_qp, &dense_qp_sol, &ocp_qp_sol, &cond_arg, &cond_ws);
 
+#if PRINT
 	d_ocp_qcqp_sol_print(&ocp_dim, &ocp_qp_sol);
+#endif
 
 /************************************************
 * free memory
