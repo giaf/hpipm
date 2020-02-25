@@ -47,12 +47,12 @@
 #include <blasfeo_d_aux.h>
 #include <blasfeo_d_blas.h>
 
-#include "../include/hpipm_d_ocp_qp.h"
-#include "../include/hpipm_s_ocp_qp.h"
-#include "../include/hpipm_m_ocp_qp.h"
-#include "../include/hpipm_d_ocp_qp_sol.h"
-#include "../include/hpipm_d_ocp_qp_ipm_hard.h"
-#include "../include/hpipm_m_ocp_qp_ipm_hard.h"
+#include <hpipm_d_ocp_qp.h>
+#include <hpipm_s_ocp_qp.h>
+#include <hpipm_m_ocp_qp.h>
+#include <hpipm_d_ocp_qp_sol.h>
+#include <hpipm_d_ocp_qp_ipm_hard.h>
+#include <hpipm_m_ocp_qp_ipm_hard.h>
 
 #include "d_tools.h"
 

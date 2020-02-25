@@ -46,23 +46,23 @@
 #include <blasfeo_d_aux.h>
 #include <blasfeo_d_blas.h>
 
-#include "../include/hpipm_d_ocp_qcqp_dim.h"
-#include "../include/hpipm_d_ocp_qcqp.h"
-#include "../include/hpipm_d_ocp_qcqp_sol.h"
-#include "../include/hpipm_d_ocp_qcqp_utils.h"
-#include "../include/hpipm_d_dense_qcqp.h"
-#include "../include/hpipm_d_dense_qcqp_sol.h"
-#include "../include/hpipm_d_dense_qcqp_res.h"
-#include "../include/hpipm_d_dense_qcqp_ipm.h"
-#include "../include/hpipm_d_dense_qcqp_utils.h"
-#include "../include/hpipm_d_cond_qcqp.h"
-#include "../include/hpipm_d_part_cond_qcqp.h"
+#include <hpipm_d_ocp_qcqp_dim.h>
+#include <hpipm_d_ocp_qcqp.h>
+#include <hpipm_d_ocp_qcqp_sol.h>
+#include <hpipm_d_ocp_qcqp_utils.h>
+#include <hpipm_d_dense_qcqp.h>
+#include <hpipm_d_dense_qcqp_sol.h>
+#include <hpipm_d_dense_qcqp_res.h>
+#include <hpipm_d_dense_qcqp_ipm.h>
+#include <hpipm_d_dense_qcqp_utils.h>
+#include <hpipm_d_cond_qcqp.h>
+#include <hpipm_d_part_cond_qcqp.h>
 
 #include "d_tools.h"
 
 
 
-#define KEEP_X0 1
+#define KEEP_X0 0
 
 #define PRINT 1
 
@@ -766,7 +766,7 @@ int main()
 * part dense qp dim
 ************************************************/
 
-	int N2 = 2;//2; // horizon of partially condensed problem
+	int N2 = 2; // horizon of partially condensed problem
 
 	int ocp_dim_size2 = d_ocp_qcqp_dim_memsize(N2);
 	printf("\ndim size2 = %d\n", ocp_dim_size2);
@@ -864,7 +864,8 @@ int main()
 //	enum hpipm_mode mode = ROBUST;
 	d_ocp_qcqp_ipm_arg_set_default(mode, &arg);
 
-	int iter_max = 20;
+	mu0 = 10;
+	int iter_max = 30;
 	double alpha_min = 1e-8;
 	double tol_stat = 1e-8;
 	double tol_eq = 1e-12;
@@ -1050,6 +1051,6 @@ int main()
 * return
 ************************************************/
 
-	return 0;
+	return hpipm_status;
 
 	}

@@ -46,11 +46,11 @@
 #include <blasfeo_d_aux.h>
 #include <blasfeo_d_blas.h>
 
-#include "../include/hpipm_d_ocp_qp_dim.h"
-#include "../include/hpipm_d_ocp_qp.h"
-#include "../include/hpipm_d_ocp_qp_sol.h"
-#include "../include/hpipm_d_ocp_qp_ipm.h"
-#include "../include/hpipm_d_part_cond.h"
+#include <hpipm_d_ocp_qp_dim.h>
+#include <hpipm_d_ocp_qp.h>
+#include <hpipm_d_ocp_qp_sol.h>
+#include <hpipm_d_ocp_qp_ipm.h>
+#include <hpipm_d_part_cond.h>
 
 #include "d_tools.h"
 
@@ -1466,6 +1466,6 @@ int main()
 * return
 ************************************************/
 
-	return 0;
+	return hpipm_status;
 
 	}

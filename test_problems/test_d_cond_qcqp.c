@@ -46,22 +46,22 @@
 #include <blasfeo_d_aux.h>
 #include <blasfeo_d_blas.h>
 
-#include "../include/hpipm_d_ocp_qcqp_dim.h"
-#include "../include/hpipm_d_ocp_qcqp.h"
-#include "../include/hpipm_d_ocp_qcqp_sol.h"
-#include "../include/hpipm_d_ocp_qcqp_utils.h"
-#include "../include/hpipm_d_dense_qcqp.h"
-#include "../include/hpipm_d_dense_qcqp_sol.h"
-#include "../include/hpipm_d_dense_qcqp_res.h"
-#include "../include/hpipm_d_dense_qcqp_ipm.h"
-#include "../include/hpipm_d_dense_qcqp_utils.h"
-#include "../include/hpipm_d_cond_qcqp.h"
+#include <hpipm_d_ocp_qcqp_dim.h>
+#include <hpipm_d_ocp_qcqp.h>
+#include <hpipm_d_ocp_qcqp_sol.h>
+#include <hpipm_d_ocp_qcqp_utils.h>
+#include <hpipm_d_dense_qcqp.h>
+#include <hpipm_d_dense_qcqp_sol.h>
+#include <hpipm_d_dense_qcqp_res.h>
+#include <hpipm_d_dense_qcqp_ipm.h>
+#include <hpipm_d_dense_qcqp_utils.h>
+#include <hpipm_d_cond_qcqp.h>
 
 #include "d_tools.h"
 
 
 
-#define KEEP_X0 1
+#define KEEP_X0 0
 
 #define PRINT 1
 
@@ -1035,6 +1035,6 @@ int main()
 * return
 ************************************************/
 
-	return 0;
+	return hpipm_return;
 
 	}

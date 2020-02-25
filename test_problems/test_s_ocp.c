@@ -46,9 +46,9 @@
 #include <blasfeo_s_aux.h>
 #include <blasfeo_s_blas.h>
 
-#include "../include/hpipm_s_ocp_qp.h"
-#include "../include/hpipm_s_ocp_qp_sol.h"
-#include "../include/hpipm_s_ocp_qp_ipm_hard.h"
+#include <hpipm_s_ocp_qp.h>
+#include <hpipm_s_ocp_qp_sol.h>
+#include <hpipm_s_ocp_qp_ipm_hard.h>
 
 #include "s_tools.h"
 

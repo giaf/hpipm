@@ -45,17 +45,17 @@
 #include <blasfeo_i_aux_ext_dep.h>
 #include <blasfeo_d_aux.h>
 
-#include "../include/hpipm_d_ocp_qcqp_dim.h"
-#include "../include/hpipm_d_ocp_qcqp.h"
-#include "../include/hpipm_d_ocp_qcqp_sol.h"
-#include "../include/hpipm_d_ocp_qcqp_ipm.h"
-#include "../include/hpipm_d_ocp_qcqp_utils.h"
-#include "../include/hpipm_d_dense_qcqp.h"
-#include "../include/hpipm_d_dense_qcqp_sol.h"
-#include "../include/hpipm_d_dense_qcqp_res.h"
-#include "../include/hpipm_d_dense_qcqp_ipm.h"
-#include "../include/hpipm_d_dense_qcqp_utils.h"
-#include "../include/hpipm_d_cast_qcqp.h"
+#include <hpipm_d_ocp_qcqp_dim.h>
+#include <hpipm_d_ocp_qcqp.h>
+#include <hpipm_d_ocp_qcqp_sol.h>
+#include <hpipm_d_ocp_qcqp_ipm.h>
+#include <hpipm_d_ocp_qcqp_utils.h>
+#include <hpipm_d_dense_qcqp.h>
+#include <hpipm_d_dense_qcqp_sol.h>
+#include <hpipm_d_dense_qcqp_res.h>
+#include <hpipm_d_dense_qcqp_ipm.h>
+#include <hpipm_d_dense_qcqp_utils.h>
+#include <hpipm_d_cast_qcqp.h>
 
 #include "d_tools.h"
 

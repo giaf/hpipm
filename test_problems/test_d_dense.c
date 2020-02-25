@@ -46,10 +46,10 @@
 #include <blasfeo_d_aux.h>
 #include <blasfeo_d_blas.h>
 
-#include "../include/hpipm_d_dense_qp.h"
-#include "../include/hpipm_d_dense_qp_sol.h"
-#include "../include/hpipm_d_dense_qp_res.h"
-#include "../include/hpipm_d_dense_qp_ipm.h"
+#include <hpipm_d_dense_qp.h>
+#include <hpipm_d_dense_qp_sol.h>
+#include <hpipm_d_dense_qp_res.h>
+#include <hpipm_d_dense_qp_ipm.h>
 
 
 
@@ -518,7 +518,7 @@ int main()
 * return
 ************************************************/
 
-	return 0;
+	return hpipm_return;
 
 	}
 

@@ -32,12 +32,12 @@
 #include <blasfeo_common.h>
 #include <blasfeo_d_aux_ext_dep.h>
 
-#include "../../include/hpipm_d_ocp_qp_ipm.h"
-#include "../../include/hpipm_d_ocp_qp_dim.h"
-#include "../../include/hpipm_d_ocp_qp.h"
-#include "../../include/hpipm_d_ocp_qp_sol.h"
-#include "../../include/hpipm_d_ocp_qp_utils.h"
-#include "../../include/hpipm_timing.h"
+#include <include/hpipm_d_ocp_qp_ipm.h>
+#include <include/hpipm_d_ocp_qp_dim.h>
+#include <include/hpipm_d_ocp_qp.h>
+#include <include/hpipm_d_ocp_qp_sol.h>
+#include <include/hpipm_d_ocp_qp_utils.h>
+#include <include/hpipm_timing.h>
 
 
 

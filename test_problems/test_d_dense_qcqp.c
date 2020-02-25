@@ -46,12 +46,12 @@
 #include <blasfeo_d_aux.h>
 #include <blasfeo_d_blas.h>
 
-#include "../include/hpipm_d_dense_qp_utils.h"
-#include "../include/hpipm_d_dense_qcqp.h"
-#include "../include/hpipm_d_dense_qcqp_sol.h"
-#include "../include/hpipm_d_dense_qcqp_res.h"
-#include "../include/hpipm_d_dense_qcqp_ipm.h"
-#include "../include/hpipm_d_dense_qcqp_utils.h"
+#include <hpipm_d_dense_qp_utils.h>
+#include <hpipm_d_dense_qcqp.h>
+#include <hpipm_d_dense_qcqp_sol.h>
+#include <hpipm_d_dense_qcqp_res.h>
+#include <hpipm_d_dense_qcqp_ipm.h>
+#include <hpipm_d_dense_qcqp_utils.h>
 
 
 
@@ -178,7 +178,7 @@ int main()
 	d_dense_qcqp_ipm_arg_set_default(mode, &arg);
 
 	int iter_max = 20; //25;
-	double mu0 = 1e2;
+	double mu0 = 1e1;
 	int comp_res_exit = 1;
 	double tol_stat = 1e-12;
 	double tol_eq = 1e-12;
@@ -279,6 +279,6 @@ int main()
 * return
 ************************************************/
 
-	return 0;
+	return hpipm_return;
 
 	}
