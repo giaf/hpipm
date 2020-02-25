@@ -1,9 +1,7 @@
-
 sudo: required
 
 cache:
   ccache: true
-
 
 jobs:
   include:
@@ -20,6 +18,4 @@ jobs:
         - make static_library BLASFEO_PATH="${TRAVIS_BUILD_DIR}"/blasfeo
         - make test_problems
         - make run_test_problems
-
-
 
