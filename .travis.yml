@@ -1,0 +1,25 @@
+
+sudo: required
+
+cache:
+  ccache: true
+
+
+jobs:
+  include:
+    - name: "Linux AMD64 Build"
+      arch: amd64
+      os: linux
+      dist: bionic
+      group: travis_latest
+      script:
+        - git clone https://github.com/giaf/blasfeo
+        - cd "${TRAVIS_BUILD_DIR}"/blasfeo
+        - make static_library TARGET=X64_INTEL_HASWELL LA=HIGH_PERFORMANCE -j 4
+        - cd ..
+        - make static_library BLASFEO_PATH="${TRAVIS_BUILD_DIR}"/blasfeo
+        - make test_problems
+        - make run_test_problems
+
+
+
