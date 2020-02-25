@@ -1,5 +1,3 @@
-language: c
-
 sudo: required
 
 cache:
