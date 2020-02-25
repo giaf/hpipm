@@ -225,7 +225,6 @@ install_shared:
 	cp -f ./include/*.h $(PREFIX)/hpipm/include/
 
 test_problems:
-	cp libhpipm.a ./test_problems/libhpipm.a
 	make -C test_problems obj TOP=$(TOP)
 	@echo
 	@echo " Test problem build complete."

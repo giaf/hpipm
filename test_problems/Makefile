@@ -36,12 +36,12 @@
 
 include ../Makefile.rule
 
-PRINT = 0
+PRINT = 1
 CFLAGS += -DPRINT=$(PRINT)
 
 LIBS =
 
-LIBS += $(BLASFEO_PATH)/lib/libblasfeo.a
+LIBS += $(TOP)/lib/libhpipm.a $(BLASFEO_PATH)/lib/libblasfeo.a
 
 ifeq ($(REF_BLAS), 0)
 LIBS += -lm
@@ -78,19 +78,19 @@ OBJS_TEST = d_tools.o test_d_ocp.o
 #OBJS_TEST = d_tools.o test_d_tree_ocp.o
 
 obj: $(OBJS_TEST)
-	$(CC) -o test.out $(OBJS_TEST) -L. libhpipm.a $(LIBS) #-pg
+	$(CC) -o test.out $(OBJS_TEST) $(LIBS) #-pg
 
 
 ### all individual tests ###
 
 # mass spring system
 test_d_ocp test_d_ocp_qcqp test_d_cond test_d_cond_qcqp test_d_part_cond test_d_part_cond_qcqp test_d_tree_ocp: %: d_tools.o %.o
-	$(CC) -o $@.out $^ -L. libhpipm.a $(LIBS)
+	$(CC) -o $@.out $^ $(LIBS)
 	./$@.out
 
 # stand-alone
 test_d_dense test_d_dense_qcqp: %: %.o
-	$(CC) -o $@.out $< -L. libhpipm.a $(LIBS)
+	$(CC) -o $@.out $< $(LIBS)
 	./$@.out
 
 
