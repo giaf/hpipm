@@ -253,7 +253,7 @@ end
 
 
 
-if status!=0
+if status==0
 	fprintf('\nsuccess!\n\n');
 else
 	fprintf('\nSolution failed, solver returned status %d\n', status);
