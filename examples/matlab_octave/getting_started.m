@@ -51,6 +51,8 @@ if (~strcmp(env_run, 'true'))
 	return;
 end
 
+travis_run = getenv('TRAVIS_RUN');
+
 
 
 % define flags
@@ -222,17 +224,19 @@ u
 
 
 % plot solution
-figure()
-subplot(2, 1, 1)
-plot(0:N, x);
-grid on
-title('trajectory')
-ylabel('x')
-subplot(2, 1, 2)
-stairs(1:N, u);
-grid on
-ylabel('u')
-xlabel('sample')
+if (~strcmp(env_run, 'true'))
+	figure()
+	subplot(2, 1, 1)
+	plot(0:N, x);
+	grid on
+	title('trajectory')
+	ylabel('x')
+	subplot(2, 1, 2)
+	stairs(1:N, u);
+	grid on
+	ylabel('u')
+	xlabel('sample')
+end
 
 
 
@@ -249,7 +253,7 @@ end
 
 
 
-if status==0
+if status!=0
 	fprintf('\nsuccess!\n\n');
 else
 	fprintf('\nSolution failed, solver returned status %d\n', status);
@@ -257,8 +261,6 @@ else
 end
 
 
-
-travis_run = getenv('TRAVIS_RUN');
 
 if (~strcmp(env_run, 'true'))
 
