@@ -167,7 +167,7 @@ int main()
 
 	int ii, jj;
 
-	int rep, nrep=1;//000;
+	int rep, nrep=1000;
 
 	struct timeval tv0, tv1;
 
@@ -477,6 +477,16 @@ int main()
 		for(ii=0; ii<nu[1]; ii++)
 			Rq1[ii*(nu[1]+1)] = 2*1.0;
 
+	double *Rq2; d_zeros(&Rq2, nu[2], nu[2]*nq[2]);
+	if(nq[2]>0)
+		for(ii=0; ii<nu[2]; ii++)
+			Rq2[ii*(nu[2]+1)] = 2*1.0/2;
+
+	double *Rq3; d_zeros(&Rq3, nu[3], nu[3]*nq[3]);
+	if(nq[3]>0)
+		for(ii=0; ii<nu[3]; ii++)
+			Rq3[ii*(nu[3]+1)] = 2*1.0/3;
+
 	double *Qq1; d_zeros(&Qq1, nx[1], nx[1]*nq[1]);
 //	for(ii=0; ii<nx[1]/2; ii++)
 //		Qq1[(nx[1]/2+ii)*(nx[1]+1)] = 0.0;
@@ -745,6 +755,10 @@ int main()
 		d_ocp_qcqp_set_uq(ii, uq1, &ocp_qp);
 //		d_ocp_qcqp_set_uq_mask(ii, uq1_mask, &ocp_qp);
 		}
+//if(2<N)
+//	d_ocp_qcqp_set_Rq(2, Rq2, &ocp_qp);
+//if(3<N)
+//	d_ocp_qcqp_set_Rq(3, Rq3, &ocp_qp);
 //d_ocp_qcqp_set_Qq(N-1, QqNm1, &ocp_qp);
 //d_ocp_qcqp_set_uq(N-1, uqNm1, &ocp_qp);
 	ii = N;
@@ -862,6 +876,19 @@ int main()
 	d_ocp_qcqp_print(&ocp_dim2, &ocp_qp2);
 #endif
 
+	/* part cond rhs */
+
+	gettimeofday(&tv0, NULL); // start
+
+	for(rep=0; rep<nrep; rep++)
+		{
+		d_part_cond_qcqp_cond_rhs(&ocp_qp, &ocp_qp2, &part_cond_arg, &part_cond_ws);
+		}
+
+	gettimeofday(&tv1, NULL); // stop
+
+	double time_cond_rhs = (tv1.tv_sec-tv0.tv_sec)/(nrep+0.0)+(tv1.tv_usec-tv0.tv_usec)/(nrep*1e6);
+
 /************************************************
 * part dense qp sol
 ************************************************/
@@ -968,7 +995,7 @@ int main()
 
 	printf("\npart cond time         = %e [s]\n", time_cond);
 //	printf("\nupdate part cond time  = %e [s]\n", time_update_cond);
-//	printf("\npart cond rhs time     = %e [s]\n", time_cond_rhs);
+	printf("\npart cond rhs time     = %e [s]\n", time_cond_rhs);
 	printf("\npart cond ocp ipm time = %e [s]\n\n", time_ocp_ipm);
 #endif
 
@@ -1039,6 +1066,8 @@ int main()
 	d_free(lgN);
 	d_free(ugN);
 	d_free(Rq1);
+	d_free(Rq2);
+	d_free(Rq3);
 	d_free(Qq1);
 	d_free(QqN);
 	d_free(qqN);

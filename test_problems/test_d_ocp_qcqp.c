@@ -573,6 +573,16 @@ int main()
 		for(ii=0; ii<nu[1]; ii++)
 			Rq1[ii*(nu[1]+1)] = 2*1.0;
 
+	double *Rq2; d_zeros(&Rq2, nu[2], nu[2]*nq[2]);
+	if(nq[2]>0)
+		for(ii=0; ii<nu[2]; ii++)
+			Rq2[ii*(nu[2]+1)] = 2*1.0/2;
+
+	double *Rq3; d_zeros(&Rq3, nu[3], nu[3]*nq[3]);
+	if(nq[3]>0)
+		for(ii=0; ii<nu[3]; ii++)
+			Rq3[ii*(nu[3]+1)] = 2*1.0/3;
+
 	double *Qq1; d_zeros(&Qq1, nx[1], nx[1]*nq[1]);
 //	for(ii=0; ii<nx[1]/2; ii++)
 //		Qq1[(nx[1]/2+ii)*(nx[1]+1)] = 0.0;
@@ -840,6 +850,10 @@ int main()
 		d_ocp_qcqp_set_uq(ii, uq1, &qcqp);
 		d_ocp_qcqp_set_uq_mask(ii, uq1_mask, &qcqp);
 		}
+//if(2<N)
+//	d_ocp_qcqp_set_Rq(2, Rq2, &qcqp);
+//if(3<N)
+//	d_ocp_qcqp_set_Rq(3, Rq3, &qcqp);
 //d_ocp_qcqp_set_Qq(N-1, QqNm1, &qcqp);
 //d_ocp_qcqp_set_uq(N-1, uqNm1, &qcqp);
 	ii = N;
@@ -1076,6 +1090,9 @@ int main()
 	d_free(DN);
 	d_free(lgN);
 	d_free(ugN);
+	d_free(Rq1);
+	d_free(Rq2);
+	d_free(Rq3);
 	d_free(Qq1);
 	d_free(QqN);
 	d_free(qqN);

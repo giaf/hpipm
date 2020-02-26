@@ -637,10 +637,11 @@ void COND_QCQP_QC_RHS(struct OCP_QCQP *ocp_qp, struct STRVEC *d2, struct COND_QC
 //					GEMV_N(nu_tmp+nx[0], nx[kk], 1.0, cond_ws->qp_ws->Gamma+kk-1, 0, 0, cond_ws->tmp_nuxM, 0, 0.0, cond_ws->tmp_nvc, 0, cond_ws->tmp_nvc, 0);
 					}
 
-				if((ocp_qp->Hq_nzero[kk][jj]>>1)%2==1)
-					{
-					// TODO S
-					}
+				// XXX this does not affect rho (i.e. the RHS)
+//				if((ocp_qp->Hq_nzero[kk][jj]>>1)%2==1)
+//					{
+//					// TODO S
+//					}
 
 //				COLAD(nu_tmp+nx[0], 1.0, cond_ws->tmp_nvc, 0, Ct2, nu_tot_tmp+nu[kk], ngc+nq_tmp);
 				}
