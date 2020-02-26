@@ -428,7 +428,7 @@ void COND_QCQP_WS_CREATE(struct OCP_QCQP_DIM *ocp_dim, struct COND_QCQP_ARG *con
 
 
 
-void COND_QCQP_QC(struct OCP_QCQP *ocp_qp, struct STRMAT *Hq2, struct STRMAT *Ct2, struct STRVEC *d2, struct COND_QCQP_ARG *cond_arg, struct COND_QCQP_WS *cond_ws)
+void COND_QCQP_QC(struct OCP_QCQP *ocp_qp, struct STRMAT *Hq2, int *Hq_nzero2, struct STRMAT *Ct2, struct STRVEC *d2, struct COND_QCQP_ARG *cond_arg, struct COND_QCQP_WS *cond_ws)
 	{
 
 	// cond quadr constr
@@ -493,11 +493,21 @@ void COND_QCQP_QC(struct OCP_QCQP *ocp_qp, struct STRMAT *Hq2, struct STRMAT *Ct
 			{
 
 			GESE(nvc+1, nvc, 0.0, Hq2+nq_tmp, 0, 0);
+			Hq_nzero2[nq_tmp] = 0;
 			rho = 0.0;
 
 			if(kk==0)
 				{
 				TRCP_L(nu[0]+nx[0], ocp_qp->Hq[kk]+nq[jj], 0, 0, Hq2+nq_tmp, nu_tot_tmp, nu_tot_tmp);
+				if(nx[0]>0)
+					{
+					if(ocp_qp->Hq_nzero[kk][jj]%2==1) // Q nzero
+						Hq_nzero2[nq_tmp] |= 1;
+					if((ocp_qp->Hq_nzero[kk][jj]>>1)%2==1) // S nzero
+						Hq_nzero2[nq_tmp] |= 2;
+					}
+				if((ocp_qp->Hq_nzero[kk][jj]>>2)%2==1) // R nzero
+					Hq_nzero2[nq_tmp] |= 4;
 				}
 			else
 				{
@@ -512,14 +522,23 @@ void COND_QCQP_QC(struct OCP_QCQP *ocp_qp, struct STRMAT *Hq2, struct STRMAT *Ct
 //					SYMV_L(nx[kk], nx[kk], 1.0, ocp_qp->Hq[kk]+jj, nu[kk], nu[kk], cond_ws->qp_ws->Gammab+kk-1, 0, 0.0, cond_ws->tmp_nuxM, 0, cond_ws->tmp_nuxM, 0);
 					rho = 0.5*DOT(nx[kk], cond_ws->tmp_nuxM, 0, cond_ws->qp_ws->Gammab+kk-1, 0);
 					SYRK_LN_MN(nu_tmp+nx[0]+1, nu_tmp+nx[0], nx[kk], 1.0, cond_ws->qp_ws->Gamma+kk-1, 0, 0, cond_ws->GammaQ+kk-1, 0, 0, 0.0, Hq2+nq_tmp, nu_tot_tmp+nu[kk], nu_tot_tmp+nu[kk], Hq2+nq_tmp, nu_tot_tmp+nu[kk], nu_tot_tmp+nu[kk]);
+					if(nx[0]>0)
+						Hq_nzero2[nq_tmp] |= 7;
+					else
+						Hq_nzero2[nq_tmp] |= 4;
 					}
 				if((ocp_qp->Hq_nzero[kk][jj]>>2)%2==1)
 					{
 					GEAD(nu[kk], nu[kk], 1.0, ocp_qp->Hq[kk]+jj, 0, 0, Hq2+nq_tmp, nu_tot_tmp, nu_tot_tmp);
+					Hq_nzero2[nq_tmp] |= 4;
 					}
 				if((ocp_qp->Hq_nzero[kk][jj]>>1)%2==1)
 					{
 					GEMM_NN(nu_tmp+nx[0]+1, nu[kk], nx[kk], 1.0, cond_ws->qp_ws->Gamma+kk-1, 0, 0, ocp_qp->Hq[kk]+jj, nu[kk], 0, 1.0, Hq2+nq_tmp, nu_tot_tmp+nu[kk], nu_tot_tmp, Hq2+nq_tmp, nu_tot_tmp+nu[kk], nu_tot_tmp);
+					if(nx[0]>0)
+						Hq_nzero2[nq_tmp] |= 6;
+					else
+						Hq_nzero2[nq_tmp] |= 4;
 					}
 				// gradient
 				ROWEX(nu_tmp+nx[0], 1.0, Hq2+nq_tmp, nvc, nu_tot_tmp+nu[kk], cond_ws->tmp_nvc, 0);
@@ -673,7 +692,7 @@ void COND_QCQP_COND(struct OCP_QCQP *ocp_qp, struct DENSE_QCQP *dense_qp, struct
 
 	COND_DCTD(&tmp_ocp_qp, dense_qp->idxb, dense_qp->Ct, dense_qp->d, dense_qp->d_mask, dense_qp->idxs, dense_qp->Z, dense_qp->gz, cond_arg->qp_arg, cond_ws->qp_ws);
 
-	COND_QCQP_QC(ocp_qp, dense_qp->Hq, dense_qp->Ct, dense_qp->d, cond_arg, cond_ws);
+	COND_QCQP_QC(ocp_qp, dense_qp->Hq, dense_qp->Hq_nzero, dense_qp->Ct, dense_qp->d, cond_arg, cond_ws);
 
 	return;
 

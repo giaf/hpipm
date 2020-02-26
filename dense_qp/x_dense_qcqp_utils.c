@@ -88,6 +88,9 @@ void DENSE_QCQP_PRINT(struct DENSE_QCQP_DIM *qp_dim, struct DENSE_QCQP *qp)
 	for(ii=0; ii<nq; ii++)
 		BLASFEO_PRINT_MAT(nv, nv, qp->Hq+ii, 0, 0);
 
+	printf("Hq_nzero = \n");
+	int_print_mat(1, nq, qp->Hq_nzero, 1);
+
 	printf("idxb = \n");
 	int_print_mat(1, nb, qp->idxb, 1);
 

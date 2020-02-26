@@ -55,7 +55,8 @@ int DENSE_QCQP_MEMSIZE(struct DENSE_QCQP_DIM *dim)
 	size += 3*SIZE_STRVEC(2*nb+2*ng+2*nq+2*ns); // d m d_mask
 	size += 1*SIZE_STRVEC(2*ns); // Z
 	size += 1*nb*sizeof(int); // idxb
-	size += 1*ns*sizeof(int); // idxb
+	size += 1*ns*sizeof(int); // idxs
+	size += 1*nq*sizeof(int); // Hq_nzero
 
 	size += 1*SIZE_STRMAT(nv+1, nv); // Hv
 	size += nq*SIZE_STRMAT(nv+1, nv); // Hq
@@ -134,10 +135,12 @@ void DENSE_QCQP_CREATE(struct DENSE_QCQP_DIM *dim, struct DENSE_QCQP *qp, void *
 	// idxb
 	qp->idxb = i_ptr;
 	i_ptr += nb;
-
 	// idxs
 	qp->idxs = i_ptr;
 	i_ptr += ns;
+	// Hq_nzero
+	qp->Hq_nzero = i_ptr;
+	i_ptr += nq;
 
 
 	// align to typical cache line size
@@ -187,6 +190,9 @@ void DENSE_QCQP_CREATE(struct DENSE_QCQP_DIM *dim, struct DENSE_QCQP *qp, void *
 	VECSE(2*nb+2*ng+2*nq+2*ns, 1.0, qp->d_mask, 0);
 	// disregard lower quadr constr
 	VECSE(nq, 0.0, qp->d_mask, nb+ng);
+	//
+	for(ii=0; ii<nq; ii++)
+		qp->Hq_nzero[ii] = 0;
 
 
 	qp->dim = dim;
@@ -587,13 +593,29 @@ void DENSE_QCQP_SET_UG_MASK(REAL *ug_mask, struct DENSE_QCQP *qp)
 void DENSE_QCQP_SET_HQ(REAL *HQ, struct DENSE_QCQP *qp)
 	{
 
-	int ii;
+	int ii, jj;
 
 	int nv = qp->dim->nv;
 	int nq = qp->dim->nq;
 
+	int nzero = 0;
+
 	for(ii=0; ii<nq; ii++)
+		{
+		for(jj=0; jj<nv*nv; jj++)
+			{
+			if(HQ[ii*nv*nv+jj]!=0.0)
+				{
+				nzero = 1;
+				break;
+				}
+			}
 		CVT_MAT2STRMAT(nv, nv, HQ+ii*nv*nv, nv, qp->Hq+ii, 0, 0);
+		if(nzero)
+			{
+			qp->Hq_nzero[ii] = 1;
+			}
+		}
 
 	return;
 

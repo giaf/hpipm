@@ -105,7 +105,7 @@ int d_cond_qcqp_ws_memsize(struct d_ocp_qcqp_dim *ocp_dim, struct d_cond_qcqp_ar
 //
 void d_cond_qcqp_ws_create(struct d_ocp_qcqp_dim *ocp_dim, struct d_cond_qcqp_arg *cond_arg, struct d_cond_qcqp_ws *cond_ws, void *mem);
 //
-void d_cond_qcqp_qc(struct d_ocp_qcqp *ocp_qp, struct blasfeo_dmat *Hq2, struct blasfeo_dmat *Ct2, struct blasfeo_dvec *d2, struct d_cond_qcqp_arg *cond_arg, struct d_cond_qcqp_ws *cond_ws);
+void d_cond_qcqp_qc(struct d_ocp_qcqp *ocp_qp, struct blasfeo_dmat *Hq2, int *Hq_nzero2, struct blasfeo_dmat *Ct2, struct blasfeo_dvec *d2, struct d_cond_qcqp_arg *cond_arg, struct d_cond_qcqp_ws *cond_ws);
 //
 void d_cond_qcqp_qc_rhs(struct d_ocp_qcqp *ocp_qp, struct blasfeo_dvec *d2, struct d_cond_qcqp_arg *cond_arg, struct d_cond_qcqp_ws *cond_ws);
 //
