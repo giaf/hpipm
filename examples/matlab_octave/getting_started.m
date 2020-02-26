@@ -236,14 +236,6 @@ xlabel('sample')
 
 
 
-if status==0
-	fprintf('\nsuccess!\n\n');
-else
-	fprintf('\nsolution failed!\n\n');
-end
-
-
-
 if is_octave()
 	% directly call destructor for octave 4.2.2 (ubuntu 18.04) + others ???
 	if strcmp(version(), '4.2.2')
@@ -257,8 +249,22 @@ end
 
 
 
-waitforbuttonpress;
+if status==0
+	fprintf('\nsuccess!\n\n');
+else
+	fprintf('\nSolution failed, solver returned status %d\n', status);
+	exit(1);
+end
 
+
+
+travis_run = getenv('TRAVIS_RUN');
+
+if (~strcmp(env_run, 'true'))
+
+	waitforbuttonpress;
+
+end
 
 
 return

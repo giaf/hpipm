@@ -63,6 +63,7 @@ jobs:
         - OCTAVE_PATH=$OCTAVE_PATH:$HPIPM_MAIN_FOLDER/interfaces/matlab_octave/
         - LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$HPIPM_MAIN_FOLDER/lib:$BLASFEO_MAIN_FOLDER/lib
         - ENV_RUN=true
+        - TRAVIS_RUN=true
       install:
         - git clone https://github.com/giaf/blasfeo
         - make -C "${TRAVIS_BUILD_DIR}"/blasfeo static_library TARGET=X64_INTEL_HASWELL LA=HIGH_PERFORMANCE -j 4
@@ -74,4 +75,5 @@ jobs:
         - echo "LD_LIBRARY_PATH=$LD_LIBRARY_PATH"
         - echo "ENV_RUN=$ENV_RUN"
         - make -C interfaces/matlab_octave/ all -j 4
+        - make -C examples/matlab_octave/ all
 
