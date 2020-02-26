@@ -58,8 +58,8 @@ jobs:
           - octave
           - liboctave-dev
       env:
-        - HPIPM_MAIN_FOLDER="${TRAVIS_BUILD_DIR}"
-        - BLASFEO_MAIN_FOLDER="${TRAVIS_BUILD_DIR}"/blasfeo
+        - HPIPM_MAIN_FOLDER=${TRAVIS_BUILD_DIR}
+        - BLASFEO_MAIN_FOLDER=${TRAVIS_BUILD_DIR}/blasfeo
         - OCTAVE_PATH=$OCTAVE_PATH:$HPIPM_MAIN_FOLDER/interfaces/matlab_octave/
         - LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$HPIPM_MAIN_FOLDER/lib:$BLASFEO_MAIN_FOLDER/lib
         - ENV_RUN=true
