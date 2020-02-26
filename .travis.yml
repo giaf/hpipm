@@ -12,10 +12,31 @@ jobs:
       os: linux
       dist: bionic
       group: travis_latest
-      script:
+      install:
         - git clone https://github.com/giaf/blasfeo
         - make -C "${TRAVIS_BUILD_DIR}"/blasfeo static_library TARGET=X64_INTEL_HASWELL LA=HIGH_PERFORMANCE -j 4
-        - make static_library BLASFEO_PATH="${TRAVIS_BUILD_DIR}"/blasfeo -j 4
+      script:
+        - make static_library TARGET=AVX BLASFEO_PATH="${TRAVIS_BUILD_DIR}"/blasfeo -j 4
+        - make -C test_problems test_d_dense BLASFEO_PATH="${TRAVIS_BUILD_DIR}"/blasfeo PRINT=0
+        - make -C test_problems test_d_dense_qcqp BLASFEO_PATH="${TRAVIS_BUILD_DIR}"/blasfeo PRINT=0
+        - make -C test_problems test_d_ocp BLASFEO_PATH="${TRAVIS_BUILD_DIR}"/blasfeo PRINT=0
+        - make -C test_problems test_d_ocp_qcqp BLASFEO_PATH="${TRAVIS_BUILD_DIR}"/blasfeo PRINT=0
+        - make -C test_problems test_d_cond BLASFEO_PATH="${TRAVIS_BUILD_DIR}"/blasfeo PRINT=0
+        - make -C test_problems test_d_cond_qcqp BLASFEO_PATH="${TRAVIS_BUILD_DIR}"/blasfeo PRINT=0
+        - make -C test_problems test_d_part_cond BLASFEO_PATH="${TRAVIS_BUILD_DIR}"/blasfeo PRINT=0
+        - make -C test_problems test_d_part_cond_qcqp BLASFEO_PATH="${TRAVIS_BUILD_DIR}"/blasfeo PRINT=0
+        - make -C test_problems test_d_tree_ocp BLASFEO_PATH="${TRAVIS_BUILD_DIR}"/blasfeo PRINT=0
+
+    - name: "Linux ARM64 Build"
+      arch: arm64
+      os: linux
+      dist: bionic
+      group: travis_latest
+      install:
+        - git clone https://github.com/giaf/blasfeo
+        - make -C "${TRAVIS_BUILD_DIR}"/blasfeo static_library TARGET=ARMV8A_ARM_CORTEX_A57 LA=HIGH_PERFORMANCE -j 4
+      script:
+        - make static_library TARGET=GENERIC BLASFEO_PATH="${TRAVIS_BUILD_DIR}"/blasfeo -j 4
         - make -C test_problems test_d_dense BLASFEO_PATH="${TRAVIS_BUILD_DIR}"/blasfeo PRINT=0
         - make -C test_problems test_d_dense_qcqp BLASFEO_PATH="${TRAVIS_BUILD_DIR}"/blasfeo PRINT=0
         - make -C test_problems test_d_ocp BLASFEO_PATH="${TRAVIS_BUILD_DIR}"/blasfeo PRINT=0
