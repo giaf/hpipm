@@ -515,6 +515,7 @@ void PART_COND_QCQP_COND(struct OCP_QCQP *ocp_qp, struct OCP_QCQP *part_dense_qp
 		tmp_ocp_qcqp.Z = ocp_qp->Z+N_tmp;
 		tmp_ocp_qcqp.idxs = ocp_qp->idxs+N_tmp;
 		tmp_ocp_qcqp.Hq = ocp_qp->Hq+N_tmp;
+		tmp_ocp_qcqp.Hq_nzero = ocp_qp->Hq_nzero+N_tmp;
 
 		COND_QCQP_QC(&tmp_ocp_qcqp, part_dense_qp->Hq[ii], part_dense_qp->DCt+ii, part_dense_qp->d+ii, part_cond_arg->cond_arg+ii, part_cond_ws->cond_ws+ii);
 
@@ -627,6 +628,7 @@ void PART_COND_QCQP_COND_RHS(struct OCP_QCQP *ocp_qp, struct OCP_QCQP *part_dens
 		tmp_ocp_qcqp.Z = ocp_qp->Z+N_tmp;
 		tmp_ocp_qcqp.idxs = ocp_qp->idxs+N_tmp;
 		tmp_ocp_qcqp.Hq = ocp_qp->Hq+N_tmp;
+		tmp_ocp_qcqp.Hq_nzero = ocp_qp->Hq_nzero+N_tmp;
 
 		COND_QCQP_QC_RHS(&tmp_ocp_qcqp, part_dense_qp->d+ii, part_cond_arg->cond_arg+ii, part_cond_ws->cond_ws+ii);
 

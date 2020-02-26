@@ -513,7 +513,10 @@ void COND_QCQP_QC(struct OCP_QCQP *ocp_qp, struct STRMAT *Hq2, struct STRMAT *Ct
 					rho = 0.5*DOT(nx[kk], cond_ws->tmp_nuxM, 0, cond_ws->qp_ws->Gammab+kk-1, 0);
 					SYRK_LN_MN(nu_tmp+nx[0]+1, nu_tmp+nx[0], nx[kk], 1.0, cond_ws->qp_ws->Gamma+kk-1, 0, 0, cond_ws->GammaQ+kk-1, 0, 0, 0.0, Hq2+nq_tmp, nu_tot_tmp+nu[kk], nu_tot_tmp+nu[kk], Hq2+nq_tmp, nu_tot_tmp+nu[kk], nu_tot_tmp+nu[kk]);
 					}
-				GEAD(nu[kk], nu[kk], 1.0, ocp_qp->Hq[kk]+jj, 0, 0, Hq2+nq_tmp, nu_tot_tmp, nu_tot_tmp);
+				if((ocp_qp->Hq_nzero[kk][jj]>>2)%2==1)
+					{
+					GEAD(nu[kk], nu[kk], 1.0, ocp_qp->Hq[kk]+jj, 0, 0, Hq2+nq_tmp, nu_tot_tmp, nu_tot_tmp);
+					}
 				if((ocp_qp->Hq_nzero[kk][jj]>>1)%2==1)
 					{
 					GEMM_NN(nu_tmp+nx[0]+1, nu[kk], nx[kk], 1.0, cond_ws->qp_ws->Gamma+kk-1, 0, 0, ocp_qp->Hq[kk]+jj, nu[kk], 0, 1.0, Hq2+nq_tmp, nu_tot_tmp+nu[kk], nu_tot_tmp, Hq2+nq_tmp, nu_tot_tmp+nu[kk], nu_tot_tmp);
