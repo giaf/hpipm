@@ -59,10 +59,19 @@ jobs:
           - liboctave-dev
       env:
         - HPIPM_MAIN_FOLDER="${TRAVIS_BUILD_DIR}"
+        - BLASFEO_MAIN_FOLDER="${TRAVIS_BUILD_DIR}"/blasfeo
+        - OCTAVE_PATH=$OCTAVE_PATH:$HPIPM_MAIN_FOLDER/interfaces/matlab_octave/
+        - LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$HPIPM_MAIN_FOLDER/lib:$BLASFEO_MAIN_FOLDER/lib
+        - ENV_RUN=true
       install:
         - git clone https://github.com/giaf/blasfeo
         - make -C "${TRAVIS_BUILD_DIR}"/blasfeo static_library TARGET=X64_INTEL_HASWELL LA=HIGH_PERFORMANCE -j 4
       script:
         - make static_library TARGET=AVX BLASFEO_PATH="${TRAVIS_BUILD_DIR}"/blasfeo -j 4
         - echo "HPIPM_MAIN_FOLDER=$HPIPM_MAIN_FOLDER"
+        - echo "BLASFEO_MAIN_FOLDER=$BLASFEO_MAIN_FOLDER"
+        - echo "OCTAVE_PATH=$OCTAVE_PATH"
+        - echo "LD_LIBRARY_PATH=$LD_LIBRARY_PATH"
+        - echo "ENV_RUN=$ENV_RUN"
+        - make -C interfaces/matlab_octave/ all -j 4
 
