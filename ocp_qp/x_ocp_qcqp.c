@@ -78,7 +78,7 @@ int OCP_QCQP_MEMSIZE(struct OCP_QCQP_DIM *dim)
 	size += (N+1)*sizeof(struct STRMAT *); // Hq
 
 //	size += 5*(N+1)*sizeof(int); // nx nu nb ng ns
-	size += 3*(N+1)*sizeof(int *); // idxb idxs idxs_rev
+	size += 4*(N+1)*sizeof(int *); // idxb idxs idxs_rev Hq_nzero
 	size += (2*(N+1)+nqt)*sizeof(struct STRMAT); // RSqrq DCt Hq
 	size += 1*N*sizeof(struct STRMAT); // BAbt
 	size += 5*(N+1)*sizeof(struct STRVEC); // rqz d m Z d_mask
@@ -89,6 +89,7 @@ int OCP_QCQP_MEMSIZE(struct OCP_QCQP_DIM *dim)
 		size += nb[ii]*sizeof(int); // idxb
 		size += ns[ii]*sizeof(int); // idxs
 		size += (nb[ii]+ng[ii]+nq[ii])*sizeof(int); // idxs_rev
+		size += nq[ii]*sizeof(int); // Hq_nzero
 		size += SIZE_STRMAT(nu[ii]+nx[ii]+1, nx[ii+1]); // BAbt
 		size += SIZE_STRMAT(nu[ii]+nx[ii]+1, nu[ii]+nx[ii]); // RSQrq
 		size += SIZE_STRMAT(nu[ii]+nx[ii], ng[ii]+nq[ii]); // DCt
@@ -98,6 +99,7 @@ int OCP_QCQP_MEMSIZE(struct OCP_QCQP_DIM *dim)
 	ii = N;
 	size += nb[ii]*sizeof(int); // idxb
 	size += ns[ii]*sizeof(int); // idxs
+	size += nq[ii]*sizeof(int); // Hq_nzero
 	size += (nb[ii]+ng[ii]+nq[ii])*sizeof(int); // idxs_rev
 	size += SIZE_STRMAT(nu[ii]+nx[ii]+1, nu[ii]+nx[ii]); // RSQrq
 	size += SIZE_STRMAT(nu[ii]+nx[ii], ng[ii]+nq[ii]); // DCt
@@ -158,13 +160,14 @@ void OCP_QCQP_CREATE(struct OCP_QCQP_DIM *dim, struct OCP_QCQP *qp, void *mem)
 	// idxb
 	qp->idxb = ip_ptr;
 	ip_ptr += N+1;
-
 	// idxs
 	qp->idxs = ip_ptr;
 	ip_ptr += N+1;
-
 	// idxs_rev
 	qp->idxs_rev = ip_ptr;
+	ip_ptr += N+1;
+	// Hq_nzero
+	qp->Hq_nzero = ip_ptr;
 	ip_ptr += N+1;
 
 
@@ -182,15 +185,12 @@ void OCP_QCQP_CREATE(struct OCP_QCQP_DIM *dim, struct OCP_QCQP *qp, void *mem)
 	// BAbt
 	qp->BAbt = sm_ptr;
 	sm_ptr += N;
-
 	// RSQrq
 	qp->RSQrq = sm_ptr;
 	sm_ptr += N+1;
-
 	// DCt
 	qp->DCt = sm_ptr;
 	sm_ptr += N+1;
-
 	// Hq
 	for(ii=0; ii<=N; ii++)
 		{
@@ -205,23 +205,18 @@ void OCP_QCQP_CREATE(struct OCP_QCQP_DIM *dim, struct OCP_QCQP *qp, void *mem)
 	// b
 	qp->b = sv_ptr;
 	sv_ptr += N;
-
 	// rqz
 	qp->rqz = sv_ptr;
 	sv_ptr += N+1;
-
 	// d
 	qp->d = sv_ptr;
 	sv_ptr += N+1;
-
 	// d_mask
 	qp->d_mask = sv_ptr;
 	sv_ptr += N+1;
-
 	// m
 	qp->m = sv_ptr;
 	sv_ptr += N+1;
-
 	// Z
 	qp->Z = sv_ptr;
 	sv_ptr += N+1;
@@ -239,7 +234,6 @@ void OCP_QCQP_CREATE(struct OCP_QCQP_DIM *dim, struct OCP_QCQP *qp, void *mem)
 		for(jj=0; jj<nb[ii]; jj++)
 			qp->idxb[ii][jj] = 0;
 		}
-
 	// idxs
 	for(ii=0; ii<=N; ii++)
 		{
@@ -248,7 +242,6 @@ void OCP_QCQP_CREATE(struct OCP_QCQP_DIM *dim, struct OCP_QCQP *qp, void *mem)
 		for(jj=0; jj<ns[ii]; jj++)
 			qp->idxs[ii][jj] = 0;
 		}
-
 	// idxs_rev
 	for(ii=0; ii<=N; ii++)
 		{
@@ -256,6 +249,14 @@ void OCP_QCQP_CREATE(struct OCP_QCQP_DIM *dim, struct OCP_QCQP *qp, void *mem)
 		i_ptr += nb[ii]+ng[ii]+nq[ii];
 		for(jj=0; jj<nb[ii]+ng[ii]+nq[ii]; jj++)
 			qp->idxs_rev[ii][jj] = -1;
+		}
+	// Hq_nzero
+	for(ii=0; ii<=N; ii++)
+		{
+		(qp->Hq_nzero)[ii] = i_ptr;
+		i_ptr += nq[ii];
+		for(jj=0; jj<nq[ii]; jj++)
+			qp->Hq_nzero[ii][jj] = 0;
 		}
 
 
@@ -277,7 +278,6 @@ void OCP_QCQP_CREATE(struct OCP_QCQP_DIM *dim, struct OCP_QCQP *qp, void *mem)
 		c_ptr += (qp->BAbt+ii)->memsize;
 //		GESE(nu[ii]+nx[ii]+1, nx[ii+1], 0.0, qp->BAbt+ii, 0, 0);
 		}
-
 	// RSQrq
 	for(ii=0; ii<=N; ii++)
 		{
@@ -285,7 +285,6 @@ void OCP_QCQP_CREATE(struct OCP_QCQP_DIM *dim, struct OCP_QCQP *qp, void *mem)
 		c_ptr += (qp->RSQrq+ii)->memsize;
 //		GESE(nu[ii]+nx[ii]+1, nu[ii]+nx[ii], 0.0, qp->RSQrq+ii, 0, 0);
 		}
-
 	// DCt
 	for(ii=0; ii<=N; ii++)
 		{
@@ -293,7 +292,6 @@ void OCP_QCQP_CREATE(struct OCP_QCQP_DIM *dim, struct OCP_QCQP *qp, void *mem)
 		c_ptr += (qp->DCt+ii)->memsize;
 //		GESE(nu[ii]+nx[ii], ng[ii], 0.0, qp->DCt+ii, 0, 0);
 		}
-
 	// Hq
 	for(ii=0; ii<=N; ii++)
 		{
@@ -304,7 +302,6 @@ void OCP_QCQP_CREATE(struct OCP_QCQP_DIM *dim, struct OCP_QCQP *qp, void *mem)
 //			GESE(nu[ii]+nx[ii], ng[ii], 0.0, qp->DCt+ii, 0, 0);
 			}
 		}
-
 	// Z
 	for(ii=0; ii<=N; ii++)
 		{
@@ -312,7 +309,6 @@ void OCP_QCQP_CREATE(struct OCP_QCQP_DIM *dim, struct OCP_QCQP *qp, void *mem)
 		c_ptr += (qp->Z+ii)->memsize;
 //		VECSE(2*ns[ii], 0.0, qp->Z+ii, 0);
 		}
-
 	// g
 	tmp_ptr = c_ptr;
 	c_ptr += SIZE_STRVEC(nvt);
@@ -325,7 +321,6 @@ void OCP_QCQP_CREATE(struct OCP_QCQP_DIM *dim, struct OCP_QCQP *qp, void *mem)
 		tmp_ptr += ns[ii]*sizeof(REAL);
 //		VECSE(nu[ii]+nx[ii]+2*ns[ii], 0.0, qp->rqz+ii, 0);
 		}
-
 	// b
 	tmp_ptr = c_ptr;
 	c_ptr += SIZE_STRVEC(net);
@@ -335,7 +330,6 @@ void OCP_QCQP_CREATE(struct OCP_QCQP_DIM *dim, struct OCP_QCQP *qp, void *mem)
 		tmp_ptr += nx[ii+1]*sizeof(REAL);
 //		VECSE(nx[ii+1], 0.0, qp->b+ii, 0);
 		}
-
 	// d
 	tmp_ptr = c_ptr;
 	c_ptr += SIZE_STRVEC(nct);
@@ -352,7 +346,6 @@ void OCP_QCQP_CREATE(struct OCP_QCQP_DIM *dim, struct OCP_QCQP *qp, void *mem)
 		tmp_ptr += ns[ii]*sizeof(REAL); // us
 //		VECSE(2*nb[ii]+2*ng[ii]+2*nq[ii]+2*ns[ii], 0.0, qp->d+ii, 0);
 		}
-
 	// d_mask
 	tmp_ptr = c_ptr;
 	c_ptr += SIZE_STRVEC(nct);
@@ -369,7 +362,6 @@ void OCP_QCQP_CREATE(struct OCP_QCQP_DIM *dim, struct OCP_QCQP *qp, void *mem)
 		tmp_ptr += ns[ii]*sizeof(REAL); // us
 		VECSE(2*nb[ii]+2*ng[ii]+2*nq[ii]+2*ns[ii], 1.0, qp->d_mask+ii, 0);
 		}
-
 	// m
 	tmp_ptr = c_ptr;
 	c_ptr += SIZE_STRVEC(nct);
@@ -449,6 +441,8 @@ void OCP_QCQP_COPY_ALL(struct OCP_QCQP *qp_orig, struct OCP_QCQP *qp_dest)
 			qp_dest->idxs[ii][jj] = qp_orig->idxs[ii][jj];
 		for(jj=0; jj<nb[ii]+ng[ii]+nq[ii]; jj++)
 			qp_dest->idxs_rev[ii][jj] = qp_orig->idxs_rev[ii][jj];
+		for(jj=0; jj<nq[ii]; jj++)
+			qp_dest->Hq_nzero[ii][jj] = qp_orig->Hq_nzero[ii][jj];
 		}
 
 	return;
@@ -496,6 +490,8 @@ void OCP_QCQP_SET_ALL_ZERO(struct OCP_QCQP *qp)
 			qp->idxs[ii][jj] = 0;
 		for(jj=0; jj<nb[ii]+ng[ii]+nq[ii]; jj++)
 			qp->idxs_rev[ii][jj] = -1;
+		for(jj=0; jj<nq[ii]; jj++)
+			qp->Hq_nzero[ii][jj] = 0;
 		}
 
 	return;
@@ -1279,10 +1275,26 @@ void OCP_QCQP_SET_QQ(int stage, REAL *Qq, struct OCP_QCQP *qp)
 	int *nu = qp->dim->nu;
 	int *nq = qp->dim->nq;
 
-	int ii;
+	int ii, jj;
+
+	int nzero = 0;
 
 	for(ii=0; ii<nq[stage]; ii++)
+		{
+		for(jj=0; jj<nx[stage]*nx[stage]; jj++)
+			{
+			if(Qq[ii*nx[stage]*nx[stage]+jj]!=0.0)
+				{
+				nzero = 1;
+				break;
+				}
+			}
 		CVT_MAT2STRMAT(nx[stage], nx[stage], Qq+ii*nx[stage]*nx[stage], nx[stage], &qp->Hq[stage][ii], nu[stage], nu[stage]);
+		if(nzero)
+			{
+			qp->Hq_nzero[stage][ii] |= 1;
+			}
+		}
 
 	return;
 	}
@@ -1296,10 +1308,26 @@ void OCP_QCQP_SET_SQ(int stage, REAL *Sq, struct OCP_QCQP *qp)
 	int *nu = qp->dim->nu;
 	int *nq = qp->dim->nq;
 
-	int ii;
+	int ii, jj;
+
+	int nzero = 0;
 
 	for(ii=0; ii<nq[stage]; ii++)
+		{
+		for(jj=0; jj<nu[stage]*nx[stage]; jj++)
+			{
+			if(Sq[ii*nu[stage]*nx[stage]+jj]!=0.0)
+				{
+				nzero = 1;
+				break;
+				}
+			}
 		CVT_TRAN_MAT2STRMAT(nu[stage], nx[stage], Sq+ii*nu[stage]*nx[stage], nu[stage], &qp->Hq[stage][ii], nu[stage], 0);
+		if(nzero)
+			{
+			qp->Hq_nzero[stage][ii] |= 2;
+			}
+		}
 
 	return;
 	}
@@ -1313,10 +1341,26 @@ void OCP_QCQP_SET_RQ(int stage, REAL *Rq, struct OCP_QCQP *qp)
 	int *nu = qp->dim->nu;
 	int *nq = qp->dim->nq;
 
-	int ii;
+	int ii, jj;
+
+	int nzero = 0;
 
 	for(ii=0; ii<nq[stage]; ii++)
+		{
+		for(jj=0; jj<nu[stage]*nu[stage]; jj++)
+			{
+			if(Rq[ii*nu[stage]*nu[stage]+jj]!=0.0)
+				{
+				nzero = 1;
+				break;
+				}
+			}
 		CVT_MAT2STRMAT(nu[stage], nu[stage], Rq+ii*nu[stage]*nu[stage], nu[stage], &qp->Hq[stage][ii], 0, 0);
+		if(nzero)
+			{
+			qp->Hq_nzero[stage][ii] |= 4;
+			}
+		}
 
 	return;
 	}

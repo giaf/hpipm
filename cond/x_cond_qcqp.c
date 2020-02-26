@@ -493,27 +493,36 @@ void COND_QCQP_QC(struct OCP_QCQP *ocp_qp, struct STRMAT *Hq2, struct STRMAT *Ct
 			{
 
 			GESE(nvc+1, nvc, 0.0, Hq2+nq_tmp, 0, 0);
+			rho = 0.0;
+
 			if(kk==0)
 				{
 				TRCP_L(nu[0]+nx[0], ocp_qp->Hq[kk]+nq[jj], 0, 0, Hq2+nq_tmp, nu_tot_tmp, nu_tot_tmp);
-				rho = 0.0;
 				}
 			else
 				{
 				// XXX make Q full or use SYMM
 				// hessian
-				TRTR_L(nx[kk], ocp_qp->Hq[kk]+jj, nu[kk], nu[kk], ocp_qp->Hq[kk]+jj, nu[kk], nu[kk]);
-				GEMM_NN(nu_tmp+nx[0]+1, nx[kk], nx[kk], 1.0, cond_ws->qp_ws->Gamma+kk-1, 0, 0, ocp_qp->Hq[kk]+jj, nu[kk], nu[kk], 0.0, cond_ws->GammaQ+kk-1, 0, 0, cond_ws->GammaQ+kk-1, 0, 0);
-				ROWEX(nx[kk], 1.0, cond_ws->GammaQ+kk-1, nu_tmp+nx[0], 0, cond_ws->tmp_nuxM, 0);
-//				SYMV_L(nx[kk], nx[kk], 1.0, ocp_qp->Hq[kk]+jj, nu[kk], nu[kk], cond_ws->qp_ws->Gammab+kk-1, 0, 0.0, cond_ws->tmp_nuxM, 0, cond_ws->tmp_nuxM, 0);
-				rho = 0.5*DOT(nx[kk], cond_ws->tmp_nuxM, 0, cond_ws->qp_ws->Gammab+kk-1, 0);
-				SYRK_LN_MN(nu_tmp+nx[0]+1, nu_tmp+nx[0], nx[kk], 1.0, cond_ws->qp_ws->Gamma+kk-1, 0, 0, cond_ws->GammaQ+kk-1, 0, 0, 0.0, Hq2+nq_tmp, nu_tot_tmp+nu[kk], nu_tot_tmp+nu[kk], Hq2+nq_tmp, nu_tot_tmp+nu[kk], nu_tot_tmp+nu[kk]);
+				if(ocp_qp->Hq_nzero[kk][jj]%2==1)
+					{
+//					TRTR_L(nx[kk], ocp_qp->Hq[kk]+jj, nu[kk], nu[kk], ocp_qp->Hq[kk]+jj, nu[kk], nu[kk]); // buggy ???
+					TRTR_L(nu[kk]+nx[kk], ocp_qp->Hq[kk]+jj, 0, 0, ocp_qp->Hq[kk]+jj, 0, 0);
+					GEMM_NN(nu_tmp+nx[0]+1, nx[kk], nx[kk], 1.0, cond_ws->qp_ws->Gamma+kk-1, 0, 0, ocp_qp->Hq[kk]+jj, nu[kk], nu[kk], 0.0, cond_ws->GammaQ+kk-1, 0, 0, cond_ws->GammaQ+kk-1, 0, 0);
+					ROWEX(nx[kk], 1.0, cond_ws->GammaQ+kk-1, nu_tmp+nx[0], 0, cond_ws->tmp_nuxM, 0);
+//					SYMV_L(nx[kk], nx[kk], 1.0, ocp_qp->Hq[kk]+jj, nu[kk], nu[kk], cond_ws->qp_ws->Gammab+kk-1, 0, 0.0, cond_ws->tmp_nuxM, 0, cond_ws->tmp_nuxM, 0);
+					rho = 0.5*DOT(nx[kk], cond_ws->tmp_nuxM, 0, cond_ws->qp_ws->Gammab+kk-1, 0);
+					SYRK_LN_MN(nu_tmp+nx[0]+1, nu_tmp+nx[0], nx[kk], 1.0, cond_ws->qp_ws->Gamma+kk-1, 0, 0, cond_ws->GammaQ+kk-1, 0, 0, 0.0, Hq2+nq_tmp, nu_tot_tmp+nu[kk], nu_tot_tmp+nu[kk], Hq2+nq_tmp, nu_tot_tmp+nu[kk], nu_tot_tmp+nu[kk]);
+					}
 				GEAD(nu[kk], nu[kk], 1.0, ocp_qp->Hq[kk]+jj, 0, 0, Hq2+nq_tmp, nu_tot_tmp, nu_tot_tmp);
-				GEMM_NN(nu_tmp+nx[0]+1, nu[kk], nx[kk], 1.0, cond_ws->qp_ws->Gamma+kk-1, 0, 0, ocp_qp->Hq[kk]+jj, nu[kk], 0, 1.0, Hq2+nq_tmp, nu_tot_tmp+nu[kk], nu_tot_tmp, Hq2+nq_tmp, nu_tot_tmp+nu[kk], nu_tot_tmp);
+				if((ocp_qp->Hq_nzero[kk][jj]>>1)%2==1)
+					{
+					GEMM_NN(nu_tmp+nx[0]+1, nu[kk], nx[kk], 1.0, cond_ws->qp_ws->Gamma+kk-1, 0, 0, ocp_qp->Hq[kk]+jj, nu[kk], 0, 1.0, Hq2+nq_tmp, nu_tot_tmp+nu[kk], nu_tot_tmp, Hq2+nq_tmp, nu_tot_tmp+nu[kk], nu_tot_tmp);
+					}
 				// gradient
 				ROWEX(nu_tmp+nx[0], 1.0, Hq2+nq_tmp, nvc, nu_tot_tmp+nu[kk], cond_ws->tmp_nvc, 0);
 				COLAD(nu_tmp+nx[0], 1.0, cond_ws->tmp_nvc, 0, Ct2, nu_tot_tmp+nu[kk], ngc+nq_tmp);
 				}
+
 //			printf("\nrho %d %f\n", kk, rho);
 #if defined(DOUBLE_PRECISION)
 			BLASFEO_DVECEL(d2, nbc+ngc+nq_tmp) -= rho;
@@ -589,19 +598,27 @@ void COND_QCQP_QC_RHS(struct OCP_QCQP *ocp_qp, struct STRVEC *d2, struct COND_QC
 		for(jj=0; jj<nq[kk]; jj++)
 			{
 
+			rho = 0.0;
+
 			if(kk==0)
 				{
-				rho = 0.0;
+				// nothing to do
 				}
 			else
 				{
-//				SYMV_L(nx[kk], nx[kk], 1.0, ocp_qp->Hq[kk]+jj, nu[kk], nu[kk], cond_ws->qp_ws->Gammab+kk-1, 0, 0.0, cond_ws->tmp_nuxM, 0, cond_ws->tmp_nuxM, 0); // XXX buggy !!!
-				TRTR_L(nu[kk]+nx[kk], ocp_qp->Hq[kk]+jj, 0, 0, ocp_qp->Hq[kk]+jj, 0, 0);
-				GEMV_N(nx[kk], nx[kk], 1.0, ocp_qp->Hq[kk]+jj, nu[kk], nu[kk], cond_ws->qp_ws->Gammab+kk-1, 0, 0.0, cond_ws->tmp_nuxM, 0, cond_ws->tmp_nuxM, 0);
-				rho = 0.5*DOT(nx[kk], cond_ws->tmp_nuxM, 0, cond_ws->qp_ws->Gammab+kk-1, 0);
-//				GEMV_N(nu_tmp+nx[0], nx[kk], 1.0, cond_ws->qp_ws->Gamma+kk-1, 0, 0, cond_ws->tmp_nuxM, 0, 0.0, cond_ws->tmp_nvc, 0, cond_ws->tmp_nvc, 0);
+				if(ocp_qp->Hq_nzero[kk][jj]%2==1)
+					{
+//					SYMV_L(nx[kk], nx[kk], 1.0, ocp_qp->Hq[kk]+jj, nu[kk], nu[kk], cond_ws->qp_ws->Gammab+kk-1, 0, 0.0, cond_ws->tmp_nuxM, 0, cond_ws->tmp_nuxM, 0); // XXX buggy !!!
+					TRTR_L(nu[kk]+nx[kk], ocp_qp->Hq[kk]+jj, 0, 0, ocp_qp->Hq[kk]+jj, 0, 0);
+					GEMV_N(nx[kk], nx[kk], 1.0, ocp_qp->Hq[kk]+jj, nu[kk], nu[kk], cond_ws->qp_ws->Gammab+kk-1, 0, 0.0, cond_ws->tmp_nuxM, 0, cond_ws->tmp_nuxM, 0);
+					rho = 0.5*DOT(nx[kk], cond_ws->tmp_nuxM, 0, cond_ws->qp_ws->Gammab+kk-1, 0);
+//					GEMV_N(nu_tmp+nx[0], nx[kk], 1.0, cond_ws->qp_ws->Gamma+kk-1, 0, 0, cond_ws->tmp_nuxM, 0, 0.0, cond_ws->tmp_nvc, 0, cond_ws->tmp_nvc, 0);
+					}
 
-				// TODO S
+				if((ocp_qp->Hq_nzero[kk][jj]>>1)%2==1)
+					{
+					// TODO S
+					}
 
 //				COLAD(nu_tmp+nx[0], 1.0, cond_ws->tmp_nvc, 0, Ct2, nu_tot_tmp+nu[kk], ngc+nq_tmp);
 				}

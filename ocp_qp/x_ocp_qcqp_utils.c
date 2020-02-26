@@ -279,6 +279,10 @@ void OCP_QCQP_PRINT(struct OCP_QCQP_DIM *dim, struct OCP_QCQP *qp)
 			for(jj=0; jj<nq[ii]; jj++)
 				BLASFEO_PRINT_MAT(nu[ii]+nx[ii], nu[ii]+nx[ii], &qp->Hq[ii][jj], 0, 0);
 
+	printf("Hq_nzero = \n");
+	for (ii = 0; ii <= N; ii++)
+		int_print_mat(1, nq[ii], qp->Hq_nzero[ii], 1);
+
 	printf("gq =\n");
 	for (ii = 0; ii <= N; ii++)
 		if(nq[ii]==0)
