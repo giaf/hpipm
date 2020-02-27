@@ -84,12 +84,21 @@ obj: $(OBJS_TEST)
 ### all individual tests ###
 
 # mass spring system
-test_d_ocp test_d_ocp_qcqp test_d_cond test_d_cond_qcqp test_d_part_cond test_d_part_cond_qcqp test_d_tree_ocp: %: d_tools.o %.o
+test_d_ocp \
+test_d_ocp_qcqp \
+test_d_cond \
+test_d_cond_qcqp \
+test_d_part_cond \
+test_d_part_cond_qcqp \
+test_d_tree_ocp \
+: %: d_tools.o %.o
 	$(CC) -o $@.out $^ $(LIBS)
 	./$@.out
 
 # stand-alone
-test_d_dense test_d_dense_qcqp: %: %.o
+test_d_dense \
+test_d_dense_qcqp \
+: %: %.o
 	$(CC) -o $@.out $< $(LIBS)
 	./$@.out
 
