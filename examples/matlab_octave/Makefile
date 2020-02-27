@@ -35,7 +35,19 @@
 
 
 all:
-	octave-cli getting_started.m
+	octave-cli example_getting_started.m
+	octave-cli example_from_qp_data_c.m
+	octave-cli example_mass_spring.m
+	octave-cli example_mass_spring_qcqp.m
+
+### all individual tests ###
+
+example_getting_started \
+example_from_qp_data_c \
+example_mass_spring \
+example_mass_spring_qcqp \
+: %:
+	octave-cli $@.m
 
 clean:
 	rm -f *.c

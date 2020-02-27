@@ -32,13 +32,11 @@
 % Author: Gianluca Frison, gianluca.frison (at) imtek.uni-freiburg.de                             %
 %                                                                                                 %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
 clear all
 close all
 clc
-
-
-
-fprintf('\nHPIPM matlab interface: mass spring example\n');
 
 
 
@@ -50,47 +48,40 @@ if (~strcmp(env_run, 'true'))
 	return;
 end
 
+travis_run = getenv('TRAVIS_RUN');
+%travis_run = 'true';
+
+
+
+if (~strcmp(travis_run, 'true'))
+	fprintf('\nHPIPM matlab interface: getting started example\n');
+end
+
 
 
 % define flags
 codegen_data = 1; % export qp data in the file qp_data.c for use from C examples
+constr_type = 0; % 0 box, 1 general
 
 
 
 %%% data %%%
-nx = 8;				% number of states
-nu = 3;				% number of inputs (controls)
-N = 30;				% horizon length
+N = 20;
+nx = 2;
+nu = 1;
 
-% mass sprint system
-Ts = 0.5; % sampling time
+A = [0.9, -0.01; -0.2, 0.3];
+B = [0.2; 0.1];
+%b = [0; 0]
 
-Ac = [zeros(nx/2), eye(nx/2); diag(-2*ones(nx/2,1))+diag(ones(nx/2-1,1),-1)+diag(ones(nx/2-1,1),1), zeros(nx/2) ];
-Bc = [zeros(nx/2,nu); eye(nu); zeros(nx/2-nu, nu)];
+Q = 100*[1, 0; 0, 1];
+S = [0, 0];
+R = 1e-3*[1];
+q = [1; 1];
+%r = [0];
 
-M = expm([Ts*Ac, Ts*Bc; zeros(nu, 2*nx/2+nu)]);
-
-% dynamical system
-A = M(1:nx,1:nx);
-B = M(1:nx,nx+1:end);
-
-% cost function
-Q = eye(nx);
-R = 2*eye(nu);
-S = zeros(nx, nu);
-q = zeros(nx, 1);
-r = zeros(nu, 1);
-
-% initial state
-Jx0 = eye(nx);
-x0 = zeros(nx, 1);
-x0(1) = 3.5;
-x0(2) = 3.5;
-
-% input bounds
-Jbu = eye(nu);
-lbu = -0.5*ones(nu,1);
-ubu =  0.5*ones(nu,1);
+Jx = [1, 0; 0, 1];
+x0 = [-1; 3];
 
 
 
@@ -102,16 +93,16 @@ dim = hpipm_ocp_qp_dim(N);
 % obj.set('field', value, stage_index);
 % or to set values for multiple consecutive stages:
 % obj.set('field', value, first_stage_index, last_stage);
-nbx = nx;
-nbu = nu;
-%ns = 0;
-%ng = 0;
+
 dim.set('nx', nx, 0, N);
-dim.set('nu', nu, 0, N-1); % controls
-dim.set('nbx', nbx, 0); % state bounds
-dim.set('nbu', nbu, 0, N-1); % control bounds
-%dim.set('ng', ng, 0, N); % general linear constraints
-%dim.set('ns', ns, 0, N); % slacks
+dim.set('nu', nu, 0, N-1);
+if(constr_type==0)
+	dim.set('nbx', nx, 0);
+	dim.set('nbx', nx, 5);
+else
+	dim.set('ng', nx, 0);
+	dim.set('ng', nx, 5);
+end
 
 % print to shell
 %dim.print_C_struct();
@@ -125,42 +116,25 @@ end
 %%% qp %%%
 qp = hpipm_ocp_qp(dim);
 
-% dynamics
 qp.set('A', A, 0, N-1);
 qp.set('B', B, 0, N-1);
-
-% cost
-qp.set('Q', Q, 0, N);
+qp.set('Q', Q, 0, N-1);
+qp.set('Q', Q, N);
 qp.set('S', S, 0, N-1);
 qp.set('R', R, 0, N-1);
 qp.set('q', q, 0, N);
-qp.set('r', r, 0, N-1);
-
-%slack_L2 = 0;
-%slack_L1 = 0;
-%Z = slack_L2 * eye(ns);
-%z = slack_L1 * ones(ns, 1);
-%qp.set('Zl', Z, 0, N-1);
-%qp.set('Zu', Z, 0, N-1);
-%qp.set('zl', z, 0, N-1);
-%qp.set('zu', z, 0, N-1);
-
-% constraints
-qp.set('Jbx', Jx0, 0);
-qp.set('lbx', x0, 0);
-qp.set('ubx', x0, 0);
-qp.set('Jbu', Jbu, 0, N-1);
-qp.set('lbu', lbu, 0, N-1);
-qp.set('ubu', ubu, 0, N-1);
-
-%Jsx = eye(nbx, ns);
-%qp.set('Jsx', Jsx, 0, N);
-%Jsu = zeros(nbu, ns);
-%qp.set('Jsu', Jsu, 0, N-1);
-
-%slack_bounds = zeros(ns,1);
-%qp.set('lus', slack_bounds, 0, N);
-%qp.set('lls', slack_bounds, 0, N);
+%qp.set('r', r, 0, N-1);
+if(constr_type==0)
+	qp.set('Jbx', Jx, 0);
+	qp.set('lbx', x0, 0);
+	qp.set('ubx', x0, 0);
+	qp.set('Jbx', Jx, N);
+else
+	qp.set('C', Jx, 0);
+	qp.set('lg', x0, 0);
+	qp.set('ug', x0, 0);
+	qp.set('C', Jx, N);
+end
 
 % print to shell
 %qp.print_C_struct();
@@ -192,7 +166,6 @@ arg.set('tol_eq', 1e-5);
 arg.set('tol_ineq', 1e-5);
 arg.set('tol_comp', 1e-5);
 arg.set('reg_prim', 1e-12);
-%arg.set('warm_start', 1);
 
 % codegen
 if codegen_data
@@ -211,12 +184,6 @@ arg.set('tol_eq', 1e-8);
 arg.set('tol_ineq', 1e-8);
 arg.set('tol_comp', 1e-8);
 
-% set solution guess
-%sol.set('x', zeros(nx,1), 0, N);
-%sol.set('u', zeros(nu,1), 0, N-1);
-%sol.set('sl', zeros((N+1)*ns,1), 0, N-1);
-%sol.set('su', zeros((N+1)*ns,1), 0, N-1);
-
 % solve qp
 nrep = 100;
 tic
@@ -226,34 +193,44 @@ end
 solve_time = toc;
 
 % get solution statistics
-fprintf('\nprint solver statistics\n');
-status = solver.get('status')
-fprintf('average solve time over %d runs: %e [s]\n', nrep, solve_time/nrep);
+status = solver.get('status');
 time_ext = solver.get('time_ext');
-fprintf('solve time of last run (measured in mex interface): %e [s]\n', time_ext);
-iter = solver.get('iter')
-res_stat = solver.get('max_res_stat')
-res_eq = solver.get('max_res_eq')
-res_ineq = solver.get('max_res_ineq')
-res_comp = solver.get('max_res_comp')
+iter = solver.get('iter');
+res_stat = solver.get('max_res_stat');
+res_eq = solver.get('max_res_eq');
+res_ineq = solver.get('max_res_ineq');
+res_comp = solver.get('max_res_comp');
 stat = solver.get('stat');
-fprintf('iter\talpha_aff\tmu_aff\t\tsigma\t\talpha_prim\talpha_dual\tmu\t\tres_stat\tres_eq\t\tres_ineq\tres_comp\n');
-for ii=1:iter+1
-	fprintf('%d\t%e\t%e\t%e\t%e\t%e\t%e\t%e\t%e\t%e\t%e\n', stat(ii,1), stat(ii,2), stat(ii,3), stat(ii,4), stat(ii,5), stat(ii,6), stat(ii,7), stat(ii,8), stat(ii,9), stat(ii,10), stat(ii,11));
+if (~strcmp(travis_run, 'true'))
+	status
+	iter
+	res_stat
+	res_eq
+	res_ineq
+	res_comp
+	fprintf('\nprint solver statistics\n');
+	fprintf('average solve time over %d runs: %e [s]\n', nrep, solve_time/nrep);
+	fprintf('solve time of last run (measured in mex interface): %e [s]\n', time_ext);
+	fprintf('iter\talpha_aff\tmu_aff\t\tsigma\t\talpha_prim\talpha_dual\tmu\t\tres_stat\tres_eq\t\tres_ineq\tres_comp\n');
+	for ii=1:iter+1
+		fprintf('%d\t%e\t%e\t%e\t%e\t%e\t%e\t%e\t%e\t%e\t%e\n', stat(ii,1), stat(ii,2), stat(ii,3), stat(ii,4), stat(ii,5), stat(ii,6), stat(ii,7), stat(ii,8), stat(ii,9), stat(ii,10), stat(ii,11));
+	end
 end
 
 
 
-% get solution
+% get / print solution
 % x
 x = sol.get('x', 0, N);
 x = reshape(x, nx, N+1);
 % u
 u = sol.get('u', 0, N-1);
 u = reshape(u, nu, N);
-% slack values
-su = sol.get('su', 0, N);
-sl = sol.get('sl', 0, N);
+
+if (~strcmp(travis_run, 'true'))
+	x
+	u
+end
 
 % print to shell
 %sol.print_C_struct();
@@ -261,22 +238,18 @@ sl = sol.get('sl', 0, N);
 
 
 % plot solution
-figure()
-subplot(2, 1, 1)
-plot(0:N, x);
-title('trajectory')
-ylabel('x')
-subplot(2, 1, 2)
-stairs(1:N, u);
-ylabel('u')
-xlabel('sample')
-
-
-
-if status==0
-	fprintf('\nsuccess!\n\n');
-else
-	fprintf('\nsolution failed!\n\n');
+if (~strcmp(travis_run, 'true'))
+	figure()
+	subplot(2, 1, 1)
+	plot(0:N, x);
+	grid on
+	title('trajectory')
+	ylabel('x')
+	subplot(2, 1, 2)
+	stairs(1:N, u');
+	grid on
+	ylabel('u')
+	xlabel('sample')
 end
 
 
@@ -294,10 +267,21 @@ end
 
 
 
-waitforbuttonpress;
+if status==0
+	fprintf('\nsuccess!\n\n');
+else
+	fprintf('\nSolution failed, solver returned status %d\n', status);
+	exit(1);
+end
 
+
+
+if (~strcmp(travis_run, 'true'))
+
+	waitforbuttonpress;
+
+end
 
 
 return
-
 

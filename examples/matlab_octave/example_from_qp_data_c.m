@@ -39,16 +39,21 @@ clc
 
 
 
-fprintf('\nHPIPM matlab interface: example from qp_data.c\n');
-
-
-
 % check that env.sh has been run
 env_run = getenv('ENV_RUN');
 if (~strcmp(env_run, 'true'))
 	disp('ERROR: env.sh has not been sourced! Before executing this example, run:');
 	disp('source env.sh');
 	return;
+end
+
+travis_run = getenv('TRAVIS_RUN');
+%travis_run = 'true';
+
+
+
+if (~strcmp(travis_run, 'true'))
+	fprintf('\nHPIPM matlab interface: example from qp_data.c\n');
 end
 
 
@@ -109,20 +114,28 @@ end
 solve_time = toc;
 
 % get solution statistics
-fprintf('\nprint solver statistics\n');
-status = solver.get('status')
-fprintf('average solve time over %d runs: %e [s]\n', nrep, solve_time/nrep);
+status = solver.get('status');
 time_ext = solver.get('time_ext');
-fprintf('solve time of last run (measured in mex interface): %e [s]\n', time_ext);
-iter = solver.get('iter')
-res_stat = solver.get('max_res_stat')
-res_eq = solver.get('max_res_eq')
-res_ineq = solver.get('max_res_ineq')
-res_comp = solver.get('max_res_comp')
+iter = solver.get('iter');
+res_stat = solver.get('max_res_stat');
+res_eq = solver.get('max_res_eq');
+res_ineq = solver.get('max_res_ineq');
+res_comp = solver.get('max_res_comp');
 stat = solver.get('stat');
-fprintf('iter\talpha_aff\tmu_aff\t\tsigma\t\talpha_prim\talpha_dual\tmu\t\tres_stat\tres_eq\t\tres_ineq\tres_comp\n');
-for ii=1:iter+1
-	fprintf('%d\t%e\t%e\t%e\t%e\t%e\t%e\t%e\t%e\t%e\t%e\n', stat(ii,1), stat(ii,2), stat(ii,3), stat(ii,4), stat(ii,5), stat(ii,6), stat(ii,7), stat(ii,8), stat(ii,9), stat(ii,10), stat(ii,11));
+if (~strcmp(travis_run, 'true'))
+	status
+	iter
+	res_stat
+	res_eq
+	res_ineq
+	res_comp
+	fprintf('\nprint solver statistics\n');
+	fprintf('average solve time over %d runs: %e [s]\n', nrep, solve_time/nrep);
+	fprintf('solve time of last run (measured in mex interface): %e [s]\n', time_ext);
+	fprintf('iter\talpha_aff\tmu_aff\t\tsigma\t\talpha_prim\talpha_dual\tmu\t\tres_stat\tres_eq\t\tres_ineq\tres_comp\n');
+	for ii=1:iter+1
+		fprintf('%d\t%e\t%e\t%e\t%e\t%e\t%e\t%e\t%e\t%e\t%e\n', stat(ii,1), stat(ii,2), stat(ii,3), stat(ii,4), stat(ii,5), stat(ii,6), stat(ii,7), stat(ii,8), stat(ii,9), stat(ii,10), stat(ii,11));
+	end
 end
 
 
@@ -144,22 +157,18 @@ u = reshape(u, nu, N);
 
 
 % plot solution
-figure()
-subplot(2, 1, 1)
-plot(0:N, x);
-title('trajectory')
-ylabel('x')
-subplot(2, 1, 2)
-stairs(1:N, u);
-ylabel('u')
-xlabel('sample')
-
-
-
-if status==0
-	fprintf('\nsuccess!\n\n');
-else
-	fprintf('\nsolution failed!\n\n');
+if (~strcmp(travis_run, 'true'))
+	figure()
+	subplot(2, 1, 1)
+	plot(0:N, x);
+	grid on
+	title('trajectory')
+	ylabel('x')
+	subplot(2, 1, 2)
+	stairs(1:N, u');
+	grid on
+	ylabel('u')
+	xlabel('sample')
 end
 
 
@@ -177,8 +186,20 @@ end
 
 
 
-waitforbuttonpress;
+if status==0
+	fprintf('\nsuccess!\n\n');
+else
+	fprintf('\nSolution failed, solver returned status %d\n', status);
+	exit(1);
+end
 
+
+
+if (~strcmp(travis_run, 'true'))
+
+	waitforbuttonpress;
+
+end
 
 
 return

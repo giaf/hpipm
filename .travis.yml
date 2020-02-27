@@ -75,5 +75,8 @@ jobs:
         - echo "LD_LIBRARY_PATH=$LD_LIBRARY_PATH"
         - echo "ENV_RUN=$ENV_RUN"
         - make -C interfaces/matlab_octave/ all -j 4
-        - make -C examples/matlab_octave/ all
+        - make -C examples/matlab_octave/ example_getting_started
+        - make -C examples/matlab_octave/ example_from_qp_data
+        - make -C examples/matlab_octave/ example_mass_spring
+        - make -C examples/matlab_octave/ example_mass_spring_qcqp
 
