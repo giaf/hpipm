@@ -43,7 +43,7 @@ class hpipm_ocp_qp_dim:
 
 	def __init__(self, N):
 
-		# memory for python class
+		# memory for python class TODO remove ???
 		self.N	= N
 		self.nx   = np.zeros(N+1, dtype=np.int32)
 		self.nu   = np.zeros(N+1, dtype=np.int32)
@@ -79,19 +79,19 @@ class hpipm_ocp_qp_dim:
 #			self.dim_struct)
 
 
-	def set(self, field, value, idx=None):
+	def set(self, field, value, idx_start, idx_end=None):
 		self.__hpipm.d_ocp_qp_dim_set.argtypes = [c_char_p, c_int, c_int, c_void_p]
-		if idx==None:
-			for i in range(value.size):
-				field_ = getattr(self, field)
-				field_[i] = value[i]
-				field_name_b = field.encode('utf-8')
-				self.__hpipm.d_ocp_qp_dim_set(c_char_p(field_name_b), i, value[i], self.dim_struct)
-		else:
+		if idx_end==None:
 			field_ = getattr(self, field)
-			field_[idx] = value
+			field_[idx_start] = value
 			field_name_b = field.encode('utf-8')
-			self.__hpipm.d_ocp_qp_dim_set(c_char_p(field_name_b), idx, value, self.dim_struct)
+			self.__hpipm.d_ocp_qp_dim_set(c_char_p(field_name_b), idx_start, value, self.dim_struct)
+		else:
+			for i in range(idx_start, idx_end+1):
+				field_ = getattr(self, field)
+				field_[i] = value
+				field_name_b = field.encode('utf-8')
+				self.__hpipm.d_ocp_qp_dim_set(c_char_p(field_name_b), i, value, self.dim_struct)
 		return
 
 	def print_C_struct(self):

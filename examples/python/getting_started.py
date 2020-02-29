@@ -44,29 +44,31 @@ codegen_data = 1; # export qp data in the file qp_data.c for use from C examples
 
 
 
-# dims
+# dim
 N = 5
+nx = 2
+nu = 1
 
-start_time = time.time()
-dims = hpipm_ocp_qp_dim(N)
-end_time = time.time()
-print('create dim time {:e}'.format(end_time-start_time))
+#start_time = time.time()
+dim = hpipm_ocp_qp_dim(N)
+#end_time = time.time()
+#print('create dim time {:e}'.format(end_time-start_time))
 
-start_time = time.time()
-dims.set('nx', np.array([2, 2, 2, 2, 2, 2])) # number of states
-end_time = time.time()
-print('set nx time {:e}'.format(end_time-start_time))
-dims.set('nu', np.array([1, 1, 1, 1, 1])) # number of inputs
-dims.set('nbx', 2, 0) # number of state bounds
-#dims.set('ng', 2, 0)
-dims.set('nbx', 2, 5)
-#dims.set('ns', 2, 5)
+#start_time = time.time()
+dim.set('nx', nx, 0, N) # number of states
+#end_time = time.time()
+#print('set nx time {:e}'.format(end_time-start_time))
+dim.set('nu', nu, 0, N-1) # number of inputs
+dim.set('nbx', nx, 0) # number of state bounds
+#dim.set('ng', nx, 0)
+dim.set('nbx', nx, 5)
+#dim.set('ns', nx, 5)
 
 # print to shell
-#dims.print_C_struct()
+#dim.print_C_struct()
 # codegen
 if codegen_data:
-	dims.codegen('qp_data.c', 'w')
+	dim.codegen('qp_data.c', 'w')
 
 
 
@@ -101,7 +103,7 @@ zu = np.array([1e5, 1e5])
 
 # qp
 start_time = time.time()
-qp = hpipm_ocp_qp(dims)
+qp = hpipm_ocp_qp(dim)
 end_time = time.time()
 print('create qp time {:e}'.format(end_time-start_time))
 
@@ -138,14 +140,14 @@ if codegen_data:
 
 # qp sol
 start_time = time.time()
-qp_sol = hpipm_ocp_qp_sol(dims)
+qp_sol = hpipm_ocp_qp_sol(dim)
 end_time = time.time()
 print('create qp_sol time {:e}'.format(end_time-start_time))
 
 
 # set up solver arg
 start_time = time.time()
-arg = hpipm_ocp_qp_solver_arg(dims)
+arg = hpipm_ocp_qp_solver_arg(dim)
 end_time = time.time()
 print('create solver arguments time {:e}'.format(end_time-start_time))
 
@@ -163,7 +165,7 @@ if codegen_data:
 
 # set up solver
 start_time = time.time()
-solver = hpipm_ocp_qp_solver(dims, arg)
+solver = hpipm_ocp_qp_solver(dim, arg)
 end_time = time.time()
 print('create solver time {:e}'.format(end_time-start_time))
 
@@ -210,7 +212,7 @@ iters = solver.get_iter()
 print('ipm iter = {0:1d}\n'.format(iters))
 stat = solver.get_stat()
 print('stat =')
-print('\titer\talpha_aff\tmu_aff\t\tsigma\t\talpha\t\tmu\t\tres_stat\tres_eq\t\tres_ineq\tres_comp')
+print('\titer\talpha_aff\tmu_aff\t\tsigma\t\talpha_prim\talpha_dual\tmu\t\tres_stat\tres_eq\t\tres_ineq\tres_comp')
 for ii in range(iters+1):
-	print('\t{:d}\t{:e}\t{:e}\t{:e}\t{:e}\t{:e}\t{:e}\t{:e}\t{:e}\t{:e}'.format(ii, stat[ii][0], stat[ii][1], stat[ii][2], stat[ii][3], stat[ii][4], stat[ii][5], stat[ii][6], stat[ii][7], stat[ii][8]))
+	print('\t{:d}\t{:e}\t{:e}\t{:e}\t{:e}\t{:e}\t{:e}\t{:e}\t{:e}\t{:e}\t{:e}'.format(ii, stat[ii][0], stat[ii][1], stat[ii][2], stat[ii][3], stat[ii][4], stat[ii][5], stat[ii][6], stat[ii][7], stat[ii][8], stat[ii][9]))
 print('')

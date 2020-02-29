@@ -12,15 +12,15 @@ The QP notation used in HPIPM can be found in the `doc` folder.
 ### C
 In order to run the C examples in `/hpipm/examples/C/` follow the steps below:
 1) clone BLASFEO on your machine: `git clone https://github.com/giaf/blasfeo.git` 
-2) from the BLASFEO root folder, run `make static_library & sudo make install_static`
-3) from the HPIPM root folder, run `make static_library & make examples`
+2) from the BLASFEO root folder, run `make static_library && sudo make install_static`
+3) from the HPIPM root folder, run `make static_library && make examples`
 4) cd to /hpipm/examples/c/ and run getting_started.out to solve a simple OCP-structured QP.
 
 ### Python
 If you would like to try out the Python interface, check out the examples in `/hpipm/examples/python/` after going through the following steps:
 1) clone BLASFEO on your machine: `git clone https://github.com/giaf/blasfeo.git`
-2) from the BLASFEO root folder, run `make shared_library -j4 & sudo make install_shared`
-3) from the HPIPM root folder, run `make shared_library -j4 & sudo make install_shared`
+2) from the BLASFEO root folder, run `make shared_library -j4 && sudo make install_shared`
+3) from the HPIPM root folder, run `make shared_library -j4 && sudo make install_shared`
 4) make sure that the location of the installed shared libraries is known to the system by running `export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/opt/blasfeo/lib:/opt/hpipm/lib`.
 If you would like to avoid running this command whenever opening a new shell, you can add the commands above to your .bashrc.
 5) cd to `/hpipm/interfaces/python/hpipm_python` and run `pip3 install .`
