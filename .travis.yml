@@ -102,7 +102,7 @@ jobs:
         - echo "BLASFEO_MAIN_FOLDER=$BLASFEO_MAIN_FOLDER"
         - echo "LD_LIBRARY_PATH=$LD_LIBRARY_PATH"
         - echo "ENV_RUN=$ENV_RUN"
-		- python --version
+        - python --version
         - make -C interfaces/python/ all
         - make -C examples/python/ example_getting_started
 
