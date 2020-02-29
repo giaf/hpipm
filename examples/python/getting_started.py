@@ -135,8 +135,10 @@ qp_sol = hpipm_ocp_qp_sol(dim)
 mode = 'speed'
 #mode = 'balance'
 #mode = 'robust'
+# create and set default arg based on mode
 arg = hpipm_ocp_qp_solver_arg(dim, mode)
 
+# create and set default arg based on mode
 arg.set('mu0', 1e4)
 arg.set('iter_max', 30)
 arg.set('tol_stat', 1e-4)
@@ -155,10 +157,11 @@ solver = hpipm_ocp_qp_solver(dim, arg)
 
 # solve qp
 start_time = time.time()
-return_flag = solver.solve(qp, qp_sol)
+solver.solve(qp, qp_sol)
 end_time = time.time()
 print('solve time {:e}'.format(end_time-start_time))
 
+return_flag = solver.get('status')
 print('HPIPM returned with flag {0:1d}.'.format(return_flag))
 
 if return_flag == 0:
@@ -184,17 +187,17 @@ for i in range(N+1):
 # print solver statistics
 print('\nsolver statistics:\n')
 print('ipm return = {0:1d}\n'.format(return_flag))
-res_stat = solver.get_max_res_stat()
+res_stat = solver.get('max_res_stat')
 print('ipm max res stat = {:e}\n'.format(res_stat))
-res_eq = solver.get_max_res_eq()
+res_eq = solver.get('max_res_eq')
 print('ipm max res eq   = {:e}\n'.format(res_eq))
-res_ineq = solver.get_max_res_ineq()
+res_ineq = solver.get('max_res_ineq')
 print('ipm max res ineq = {:e}\n'.format(res_ineq))
-res_comp = solver.get_max_res_comp()
+res_comp = solver.get('max_res_comp')
 print('ipm max res comp = {:e}\n'.format(res_comp))
-iters = solver.get_iter()
+iters = solver.get('iter')
 print('ipm iter = {0:1d}\n'.format(iters))
-stat = solver.get_stat()
+stat = solver.get('stat')
 print('stat =')
 print('\titer\talpha_aff\tmu_aff\t\tsigma\t\talpha_prim\talpha_dual\tmu\t\tres_stat\tres_eq\t\tres_ineq\tres_comp')
 for ii in range(iters+1):

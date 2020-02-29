@@ -65,64 +65,44 @@ class hpipm_ocp_qp_solver:
 		self.dim_struct = qp_dims.dim_struct
 		
 
+
 	def solve(self, qp, qp_sol):
-		hpipm_return = self.__hpipm.d_ocp_qp_ipm_solve(qp.qp_struct, qp_sol.qp_sol_struct, self.arg.arg_struct, self.ipm_ws_struct)
-		return hpipm_return
+		self.__hpipm.d_ocp_qp_ipm_solve(qp.qp_struct, qp_sol.qp_sol_struct, self.arg.arg_struct, self.ipm_ws_struct)
+
 
 	# TODO single getter !!!!!!!!!!!!!!!!!!!!!!!!!!
 
-	def get_max_res_stat(self):
-		res = np.zeros((1,1));
-		tmp = cast(res.ctypes.data, POINTER(c_double))
-		self.__hpipm.d_ocp_qp_ipm_get_max_res_stat(self.ipm_ws_struct, tmp)
+	def get(self, field):
+		if((field=='stat')):
+			# get iters
+			iters = np.zeros((1,1), dtype=int);
+			tmp = cast(iters.ctypes.data, POINTER(c_int))
+			self.__hpipm.d_ocp_qp_ipm_get_iter(self.ipm_ws_struct, tmp)
+			# get stat_m
+			stat_m = np.zeros((1,1), dtype=int);
+			tmp = cast(stat_m.ctypes.data, POINTER(c_int))
+			self.__hpipm.d_ocp_qp_ipm_get_stat_m(self.ipm_ws_struct, tmp)
+			# get stat pointer
+			res = np.zeros((iters[0][0]+1, stat_m[0][0]));
+			ptr = c_void_p()
+			self.__hpipm.d_ocp_qp_ipm_get_stat(self.ipm_ws_struct, byref(ptr))
+			tmp = cast(ptr, POINTER(c_double))
+			for ii in range(iters[0][0]+1):
+				for jj in range(stat_m[0][0]):
+					res[ii][jj] = tmp[jj+ii*stat_m[0][0]]
+					res[ii][jj] = tmp[jj+ii*stat_m[0][0]]
+			return res
+		elif((field=='status') | (field=='iter')):
+			res = np.zeros((1,1), dtype=int);
+			tmp = cast(res.ctypes.data, POINTER(c_int))
+		elif((field=='max_res_stat') | (field=='max_res_eq') | (field=='max_res_ineq') | (field=='max_res_comp')):
+			res = np.zeros((1,1));
+			tmp = cast(res.ctypes.data, POINTER(c_double))
+		else:
+			raise NameError('hpipm_ocp_qp_solver.get: wrong field')
+		field_name_b = field.encode('utf-8')
+		self.__hpipm.d_ocp_qp_ipm_get(c_char_p(field_name_b), self.ipm_ws_struct, tmp)
 		return res[0][0]
 
 
-	def get_max_res_eq(self):
-		res = np.zeros((1,1));
-		tmp = cast(res.ctypes.data, POINTER(c_double))
-		self.__hpipm.d_ocp_qp_ipm_get_max_res_eq(self.ipm_ws_struct, tmp)
-		return res[0][0]
-
-
-	def get_max_res_ineq(self):
-		res = np.zeros((1,1));
-		tmp = cast(res.ctypes.data, POINTER(c_double))
-		self.__hpipm.d_ocp_qp_ipm_get_max_res_ineq(self.ipm_ws_struct, tmp)
-		return res[0][0]
-
-
-	def get_max_res_comp(self):
-		res = np.zeros((1,1));
-		tmp = cast(res.ctypes.data, POINTER(c_double))
-		self.__hpipm.d_ocp_qp_ipm_get_max_res_comp(self.ipm_ws_struct, tmp)
-		return res[0][0]
-
-
-	def get_iter(self):
-		res = np.zeros((1,1), dtype=int);
-		tmp = cast(res.ctypes.data, POINTER(c_int))
-		self.__hpipm.d_ocp_qp_ipm_get_iter(self.ipm_ws_struct, tmp)
-		return res[0][0]
-
-
-	def get_stat(self):
-		# get iters
-		iters = np.zeros((1,1), dtype=int);
-		tmp = cast(iters.ctypes.data, POINTER(c_int))
-		self.__hpipm.d_ocp_qp_ipm_get_iter(self.ipm_ws_struct, tmp)
-		# get stat_m
-		stat_m = np.zeros((1,1), dtype=int);
-		tmp = cast(stat_m.ctypes.data, POINTER(c_int))
-		self.__hpipm.d_ocp_qp_ipm_get_stat_m(self.ipm_ws_struct, tmp)
-		# get stat pointer
-		res = np.zeros((iters[0][0]+1, stat_m[0][0]));
-		ptr = c_void_p()
-		self.__hpipm.d_ocp_qp_ipm_get_stat(self.ipm_ws_struct, byref(ptr))
-		tmp = cast(ptr, POINTER(c_double))
-		for ii in range(iters[0][0]+1):
-			for jj in range(stat_m[0][0]):
-				res[ii][jj] = tmp[jj+ii*stat_m[0][0]]
-				res[ii][jj] = tmp[jj+ii*stat_m[0][0]]
-		return res
 
