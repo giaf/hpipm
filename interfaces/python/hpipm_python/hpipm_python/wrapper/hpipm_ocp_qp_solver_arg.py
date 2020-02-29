@@ -42,7 +42,19 @@ import numpy as np
 
 
 class hpipm_ocp_qp_solver_arg:
-	def __init__(self, dim):
+	def __init__(self, dim, mode):
+
+		c_mode = 0
+		if(mode=='speed_abs'):
+			c_mode = 0
+		elif(mode=='speed'):
+			c_mode = 1
+		elif(mode=='balance'):
+			c_mode = 2
+		elif(mode=='robust'):
+			c_mode = 3
+		else:
+			raise NameError('hpipm_ocp_qp_solver_arg: wrong mode')
 
 		# save dim internally
 		self.dim = dim
@@ -65,71 +77,27 @@ class hpipm_ocp_qp_solver_arg:
 		__hpipm.d_ocp_qp_ipm_arg_create(dim.dim_struct, arg_struct, arg_mem)
 
 		# initialize default arguments
-		__hpipm.d_ocp_qp_ipm_arg_set_default(1, arg_struct) # mode==SPEED
+		__hpipm.d_ocp_qp_ipm_arg_set_default(c_mode, arg_struct) # mode==SPEED
 	
 
-	# TODO single setter !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
-	def set_mu0(self, mu0):
-		tmp_in = np.zeros((1,1))
-		tmp_in[0][0] = mu0
-		tmp = cast(tmp_in.ctypes.data, POINTER(c_double))
-		self.__hpipm.d_ocp_qp_ipm_arg_set_mu0.argtypes = [POINTER(c_double), c_void_p]
-		self.__hpipm.d_ocp_qp_ipm_arg_set_mu0(tmp, self.arg_struct)
+	def set(self, field, value):
+		if((field=='mu0') | (field=='tol_stat') | (field=='tol_eq') | (field=='tol_ineq') | (field=='tol_comp') | (field=='reg_prim')):
+			tmp_in = np.zeros((1,1))
+			tmp_in[0][0] = value
+			tmp = cast(tmp_in.ctypes.data, POINTER(c_double))
+		elif(field=='iter_max'):
+			tmp_in = np.zeros((1,1), dtype=int)
+			tmp_in[0][0] = value
+			tmp = cast(tmp_in.ctypes.data, POINTER(c_int))
+		else:
+			raise NameError('hpipm_ocp_qp_solver_arg.set: wrong field')
+#		self.__hpipm.d_ocp_qp_ipm_arg_set_mu0.argtypes = [POINTER(c_double), c_void_p]
+		field_name_b = field.encode('utf-8')
+		self.__hpipm.d_ocp_qp_ipm_arg_set(c_char_p(field_name_b), tmp, self.arg_struct)
 		return
 
 
-	def set_iter_max(self, iter_max):
-		tmp_in = np.zeros((1,1), dtype=int)
-		tmp_in[0][0] = iter_max
-		tmp = cast(tmp_in.ctypes.data, POINTER(c_int))
-		self.__hpipm.d_ocp_qp_ipm_arg_set_iter_max.argtypes = [POINTER(c_int), c_void_p]
-		self.__hpipm.d_ocp_qp_ipm_arg_set_iter_max(tmp, self.arg_struct)
-		return
-
-
-	def set_tol_stat(self, tol_stat):
-		tmp_in = np.zeros((1,1))
-		tmp_in[0][0] = tol_stat
-		tmp = cast(tmp_in.ctypes.data, POINTER(c_double))
-		self.__hpipm.d_ocp_qp_ipm_arg_set_tol_stat.argtypes = [POINTER(c_double), c_void_p]
-		self.__hpipm.d_ocp_qp_ipm_arg_set_tol_stat(tmp, self.arg_struct)
-		return
-
-
-	def set_tol_eq(self, tol_eq):
-		tmp_in = np.zeros((1,1))
-		tmp_in[0][0] = tol_eq
-		tmp = cast(tmp_in.ctypes.data, POINTER(c_double))
-		self.__hpipm.d_ocp_qp_ipm_arg_set_tol_eq.argtypes = [POINTER(c_double), c_void_p]
-		self.__hpipm.d_ocp_qp_ipm_arg_set_tol_eq(tmp, self.arg_struct)
-		return
-
-
-	def set_tol_ineq(self, tol_ineq):
-		tmp_in = np.zeros((1,1))
-		tmp_in[0][0] = tol_ineq
-		tmp = cast(tmp_in.ctypes.data, POINTER(c_double))
-		self.__hpipm.d_ocp_qp_ipm_arg_set_tol_ineq.argtypes = [POINTER(c_double), c_void_p]
-		self.__hpipm.d_ocp_qp_ipm_arg_set_tol_ineq(tmp, self.arg_struct)
-		return
-
-
-	def set_tol_comp(self, tol_comp):
-		tmp_in = np.zeros((1,1))
-		tmp_in[0][0] = tol_comp
-		tmp = cast(tmp_in.ctypes.data, POINTER(c_double))
-		self.__hpipm.d_ocp_qp_ipm_arg_set_tol_comp.argtypes = [POINTER(c_double), c_void_p]
-		self.__hpipm.d_ocp_qp_ipm_arg_set_tol_comp(tmp, self.arg_struct)
-		return
-
-	def set_reg_prim(self, reg_prim):
-		tmp_in = np.zeros((1,1))
-		tmp_in[0][0] = reg_prim
-		tmp = cast(tmp_in.ctypes.data, POINTER(c_double))
-		self.__hpipm.d_ocp_qp_ipm_arg_set_reg_prim.argtypes = [POINTER(c_double), c_void_p]
-		self.__hpipm.d_ocp_qp_ipm_arg_set_reg_prim(tmp, self.arg_struct)
-		return
 
 	def codegen(self, file_name, mode):
 		file_name_b = file_name.encode('utf-8')

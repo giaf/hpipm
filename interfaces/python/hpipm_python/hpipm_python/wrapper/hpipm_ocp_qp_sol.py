@@ -86,15 +86,13 @@ class hpipm_ocp_qp_sol:
 
 
 
-	# TODO single getter !!!!!!!!!!!!!!!!!!!!!!!!!!!!
-
 	def get(self, field, idx_start, idx_end=None):
 		if(field=='u'):
 			vec = self.__get_u(idx_start, idx_end)
 		elif(field=='x'):
 			vec = self.__get_x(idx_start, idx_end)
 		else:
-			raise NameError('wrong field')
+			raise NameError('hpipm_ocp_qp_sol.get: wrong field')
 		return vec
 
 

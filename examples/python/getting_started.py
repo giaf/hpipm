@@ -49,15 +49,9 @@ N = 5
 nx = 2
 nu = 1
 
-#start_time = time.time()
 dim = hpipm_ocp_qp_dim(N)
-#end_time = time.time()
-#print('create dim time {:e}'.format(end_time-start_time))
 
-#start_time = time.time()
 dim.set('nx', nx, 0, N) # number of states
-#end_time = time.time()
-#print('set nx time {:e}'.format(end_time-start_time))
 dim.set('nu', nu, 0, N-1) # number of inputs
 dim.set('nbx', nx, 0) # number of state bounds
 #dim.set('ng', nx, 0)
@@ -102,15 +96,9 @@ zu = np.array([1e5, 1e5])
 
 
 # qp
-start_time = time.time()
 qp = hpipm_ocp_qp(dim)
-end_time = time.time()
-print('create qp time {:e}'.format(end_time-start_time))
 
-start_time = time.time()
 qp.set('A', A, 0, N-1)
-end_time = time.time()
-print('set A time {:e}'.format(end_time-start_time))
 qp.set('B', B, 0, N-1)
 #qp.set('b', [b, b, b, b, b])
 qp.set('Q', Q, 0, N)
@@ -139,35 +127,30 @@ if codegen_data:
 
 
 # qp sol
-start_time = time.time()
 qp_sol = hpipm_ocp_qp_sol(dim)
-end_time = time.time()
-print('create qp_sol time {:e}'.format(end_time-start_time))
 
 
 # set up solver arg
-start_time = time.time()
-arg = hpipm_ocp_qp_solver_arg(dim)
-end_time = time.time()
-print('create solver arguments time {:e}'.format(end_time-start_time))
+#mode = 'speed_abs'
+mode = 'speed'
+#mode = 'balance'
+#mode = 'robust'
+arg = hpipm_ocp_qp_solver_arg(dim, mode)
 
-arg.set_mu0(1e4)
-arg.set_iter_max(30)
-arg.set_tol_stat(1e-4)
-arg.set_tol_eq(1e-5)
-arg.set_tol_ineq(1e-5)
-arg.set_tol_comp(1e-5)
-arg.set_reg_prim(1e-12)
+arg.set('mu0', 1e4)
+arg.set('iter_max', 30)
+arg.set('tol_stat', 1e-4)
+arg.set('tol_eq', 1e-5)
+arg.set('tol_ineq', 1e-5)
+arg.set('tol_comp', 1e-5)
+arg.set('reg_prim', 1e-12)
 
 # codegen
 if codegen_data:
 	arg.codegen('qp_data.c', 'a')
 
 # set up solver
-start_time = time.time()
 solver = hpipm_ocp_qp_solver(dim, arg)
-end_time = time.time()
-print('create solver time {:e}'.format(end_time-start_time))
 
 
 # solve qp
