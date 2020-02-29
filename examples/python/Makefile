@@ -34,5 +34,5 @@
 ###################################################################################################
 
 
-all:
-	python example_getting_started.py
+example_getting_started:
+	python $@.py
