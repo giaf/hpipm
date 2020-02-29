@@ -258,7 +258,6 @@ class hpipm_ocp_qp:
 				reshape_dim = (reshape_tuple[0][idx_start + reshape_tuple[1]], reshape_tuple[2][idx_start + reshape_tuple[3]])
 			else:
 				reshape_dim = (reshape_tuple[0][idx_start + reshape_tuple[1]], reshape_tuple[2])
-			field_ = getattr(self, field)
 			field_[idx_start] = value
 			field_[idx_start] = field_[idx_start].reshape(reshape_dim)
 			field_[idx_start] = field_[idx_start].transpose()
@@ -272,7 +271,6 @@ class hpipm_ocp_qp:
 					reshape_dim = (reshape_tuple[0][i + reshape_tuple[1]], reshape_tuple[2][i + reshape_tuple[3]])
 				else:
 					reshape_dim = (reshape_tuple[0][i + reshape_tuple[1]], reshape_tuple[2])
-				field_[i] = getattr(self, field)
 				field_[i] = value
 				field_[i] = field_[i].reshape(reshape_dim)
 				field_[i] = field_[i].transpose()

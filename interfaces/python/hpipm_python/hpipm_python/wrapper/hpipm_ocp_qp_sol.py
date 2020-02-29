@@ -88,38 +88,49 @@ class hpipm_ocp_qp_sol:
 
 	# TODO single getter !!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
-	def get_u(self, idx=None):
+	def get(self, field, idx_start, idx_end=None):
+		if(field=='u'):
+			vec = self.__get_u(idx_start, idx_end)
+		elif(field=='x'):
+			vec = self.__get_x(idx_start, idx_end)
+		else:
+			raise NameError('wrong field')
+		return vec
+
+
+
+	def __get_u(self, idx_start, idx_end=None):
 		# extract dims
 		N = self.dim.N
 		nu = self.dim.nu
-		if idx==None:
+		if idx_end==None:
+			u = np.zeros((nu[idx_start], 1))
+			tmp = cast(u.ctypes.data, POINTER(c_double))
+			self.__hpipm.d_ocp_qp_sol_get_u(idx_start, self.qp_sol_struct, tmp)
+		else:
 			u = []
-			for i in range(N+1):
+			for i in range(idx_start, idx_end+1):
 				u.append(np.zeros((nu[i], 1)))
 				tmp = cast(u[i].ctypes.data, POINTER(c_double))
 				self.__hpipm.d_ocp_qp_sol_get_u(i, self.qp_sol_struct, tmp)
-		else:
-			u = np.zeros((nu[idx], 1))
-			tmp = cast(u.ctypes.data, POINTER(c_double))
-			self.__hpipm.d_ocp_qp_sol_get_u(idx, self.qp_sol_struct, tmp)
 		return u
 
 
 
-	def get_x(self, idx=None):
+	def __get_x(self, idx_start, idx_end=None):
 		# extract dims
 		N = self.dim.N
 		nx = self.dim.nx
-		if idx==None:
+		if idx_end==None:
+			x = np.zeros((nx[idx_start], 1))
+			tmp = cast(x.ctypes.data, POINTER(c_double))
+			self.__hpipm.d_ocp_qp_sol_get_x(idx_start, self.qp_sol_struct, tmp)
+		else:
 			x = []
-			for i in range(N+1):
+			for i in range(idx_start, idx_end+1):
 				x.append(np.zeros((nx[i], 1)))
 				tmp = cast(x[i].ctypes.data, POINTER(c_double))
 				self.__hpipm.d_ocp_qp_sol_get_x(i, self.qp_sol_struct, tmp)
-		else:
-			x = np.zeros((nx[idx], 1))
-			tmp = cast(x.ctypes.data, POINTER(c_double))
-			self.__hpipm.d_ocp_qp_sol_get_x(idx, self.qp_sol_struct, tmp)
 		return x
 
 

@@ -187,13 +187,14 @@ else:
 
 # extract and print sol
 print('u =')
-u = qp_sol.get_u()
+#u = qp_sol.get_u()
+u = qp_sol.get('u', 0, N)
 for i in range(N+1):
 	print(u[i])
 
 print('x =')
 for i in range(N+1):
-	tmp = qp_sol.get_x(i)
+	tmp = qp_sol.get('x', i)
 	print(tmp)
 
 
