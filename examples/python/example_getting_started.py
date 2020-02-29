@@ -36,6 +36,20 @@ from hpipm_python import *
 from hpipm_python.common import *
 import numpy as np
 import time
+import sys
+import os
+
+
+
+# check that env.sh has been run
+env_run = os.getenv('ENV_RUN')
+if env_run!='true':
+	print('ERROR: env.sh has not been sourced! Before executing this example, run:')
+	print('source env.sh')
+	sys.exit(1)
+
+travis_run = os.getenv('TRAVIS_RUN')
+#travis_run = 'true'
 
 
 
@@ -159,47 +173,59 @@ solver = hpipm_ocp_qp_solver(dim, arg)
 start_time = time.time()
 solver.solve(qp, qp_sol)
 end_time = time.time()
-print('solve time {:e}'.format(end_time-start_time))
+if(travis_run!='true'):
+	print('solve time {:e}'.format(end_time-start_time))
 
-return_flag = solver.get('status')
-print('HPIPM returned with flag {0:1d}.'.format(return_flag))
 
-if return_flag == 0:
-    print('-> QP solved! Solution:\n')
-    qp_sol.print_C_struct()
-else:
-    print('-> Solver failed!')
-
+if(travis_run!='true'):
+	qp_sol.print_C_struct()
 
 # extract and print sol
-print('u =')
+if(travis_run!='true'):
+	print('u =')
 #u = qp_sol.get_u()
 u = qp_sol.get('u', 0, N)
 for i in range(N+1):
-	print(u[i])
+	if(travis_run!='true'):
+		print(u[i])
 
-print('x =')
+if(travis_run!='true'):
+	print('x =')
 for i in range(N+1):
 	tmp = qp_sol.get('x', i)
-	print(tmp)
+	if(travis_run!='true'):
+		print(tmp)
 
 
-# print solver statistics
-print('\nsolver statistics:\n')
-print('ipm return = {0:1d}\n'.format(return_flag))
+# get solver statistics
+status = solver.get('status')
 res_stat = solver.get('max_res_stat')
-print('ipm max res stat = {:e}\n'.format(res_stat))
 res_eq = solver.get('max_res_eq')
-print('ipm max res eq   = {:e}\n'.format(res_eq))
 res_ineq = solver.get('max_res_ineq')
-print('ipm max res ineq = {:e}\n'.format(res_ineq))
 res_comp = solver.get('max_res_comp')
-print('ipm max res comp = {:e}\n'.format(res_comp))
 iters = solver.get('iter')
-print('ipm iter = {0:1d}\n'.format(iters))
 stat = solver.get('stat')
-print('stat =')
-print('\titer\talpha_aff\tmu_aff\t\tsigma\t\talpha_prim\talpha_dual\tmu\t\tres_stat\tres_eq\t\tres_ineq\tres_comp')
-for ii in range(iters+1):
-	print('\t{:d}\t{:e}\t{:e}\t{:e}\t{:e}\t{:e}\t{:e}\t{:e}\t{:e}\t{:e}\t{:e}'.format(ii, stat[ii][0], stat[ii][1], stat[ii][2], stat[ii][3], stat[ii][4], stat[ii][5], stat[ii][6], stat[ii][7], stat[ii][8], stat[ii][9]))
-print('')
+if(travis_run!='true'):
+	print('\nsolver statistics:\n')
+	print('ipm return = {0:1d}\n'.format(status))
+	print('ipm max res stat = {:e}\n'.format(res_stat))
+	print('ipm max res eq   = {:e}\n'.format(res_eq))
+	print('ipm max res ineq = {:e}\n'.format(res_ineq))
+	print('ipm max res comp = {:e}\n'.format(res_comp))
+	print('ipm iter = {0:1d}\n'.format(iters))
+	print('stat =')
+	print('\titer\talpha_aff\tmu_aff\t\tsigma\t\talpha_prim\talpha_dual\tmu\t\tres_stat\tres_eq\t\tres_ineq\tres_comp')
+	for ii in range(iters+1):
+		print('\t{:d}\t{:e}\t{:e}\t{:e}\t{:e}\t{:e}\t{:e}\t{:e}\t{:e}\t{:e}\t{:e}'.format(ii, stat[ii][0], stat[ii][1], stat[ii][2], stat[ii][3], stat[ii][4], stat[ii][5], stat[ii][6], stat[ii][7], stat[ii][8], stat[ii][9]))
+	print('')
+
+
+
+if status==0:
+	print('\nsuccess!\n')
+else:
+	print('\nSolution failed, solver returned status {0:1d}\n'.format(status))
+
+
+
+sys.exit(int(status))
