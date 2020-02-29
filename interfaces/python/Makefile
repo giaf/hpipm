@@ -33,6 +33,5 @@
 #                                                                                                 #
 ###################################################################################################
 
-
 all:
-	python example_getting_started.py
+	cd hpipm_python ; pip install . ; cd ..
