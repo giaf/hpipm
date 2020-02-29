@@ -100,9 +100,9 @@ jobs:
         - make static_library TARGET=AVX BLASFEO_PATH="${TRAVIS_BUILD_DIR}"/blasfeo -j 4
         - echo "HPIPM_MAIN_FOLDER=$HPIPM_MAIN_FOLDER"
         - echo "BLASFEO_MAIN_FOLDER=$BLASFEO_MAIN_FOLDER"
-        - echo "OCTAVE_PATH=$OCTAVE_PATH"
         - echo "LD_LIBRARY_PATH=$LD_LIBRARY_PATH"
         - echo "ENV_RUN=$ENV_RUN"
+		- python --version
         - make -C interfaces/python/ all
         - make -C examples/python/ example_getting_started
 
