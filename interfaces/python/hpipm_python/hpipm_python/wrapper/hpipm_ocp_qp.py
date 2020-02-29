@@ -200,7 +200,7 @@ class hpipm_ocp_qp:
 
 
 	
-	def set(self, field, value, idx=None):
+	def set(self, field, value, idx_start, idx_end=None):
 		# cast to np array
 		if type(value) is not np.ndarray:
 			if (type(value) is int) or (type(value) is float):
@@ -214,22 +214,6 @@ class hpipm_ocp_qp:
 			value = np.array((1,))
 			value[0] = value_
 
-		# non-native setters (not implemented as C APIs)
-		setter_map = {
-			"Jsu": self.set_Jsu,
-			"Jsx": self.set_Jsx,
-			"Jsg": self.set_Jsg,
-		}
-		setter = setter_map.get(field)
-		if  setter is not None:
-			# if field is associated with non native setter 
-			setter(value, idx)
-		else:
-			# else call generic setter
-			self.set_gf(field, value, idx)	
-	
-	# generic setter	
-	def set_gf(self, field, value, idx=None):
 		nx  = self.dim.nx
 		nu  = self.dim.nu
 		nbx = self.dim.nbx
@@ -262,201 +246,42 @@ class hpipm_ocp_qp:
 			'Ju':  [nbu, 0, nu, 0], 
 			'lu':  [nbu, 0, 1,  0], 
 			'uu':  [nbu, 0, 1,  0], 
+			'Jsu': [nbu, 0, ns, 0], 
+			'Jsx': [nbx, 0, ns, 0], 
+			'Jsg': [ng,  0, ns, 0], 
 			}
 
 		field_ = getattr(self, field)
 		reshape_tuple = dim_dict[field]
-		if idx==None:
-			for i in range(len(value)):
+		if idx_end==None:
+			if hasattr(reshape_tuple[2], '__getitem__'):
+				reshape_dim = (reshape_tuple[0][idx_start + reshape_tuple[1]], reshape_tuple[2][idx_start + reshape_tuple[3]])
+			else:
+				reshape_dim = (reshape_tuple[0][idx_start + reshape_tuple[1]], reshape_tuple[2])
+			field_ = getattr(self, field)
+			field_[idx_start] = value
+			field_[idx_start] = field_[idx_start].reshape(reshape_dim)
+			field_[idx_start] = field_[idx_start].transpose()
+			field_[idx_start] = np.ascontiguousarray(field_[idx_start], dtype=np.float64)
+			tmp = cast(field_[idx_start].ctypes.data, POINTER(c_double))
+			field_name_b = field.encode('utf-8')
+			self.__hpipm.d_ocp_qp_set(c_char_p(field_name_b), idx_start, tmp, self.qp_struct)
+		else:
+			for i in range(idx_start, idx_end+1):
 				if hasattr(reshape_tuple[2], '__getitem__'):
 					reshape_dim = (reshape_tuple[0][i + reshape_tuple[1]], reshape_tuple[2][i + reshape_tuple[3]])
 				else:
 					reshape_dim = (reshape_tuple[0][i + reshape_tuple[1]], reshape_tuple[2])
-
-				field_[i] = value[i]
+				field_[i] = getattr(self, field)
+				field_[i] = value
 				field_[i] = field_[i].reshape(reshape_dim)
 				field_[i] = field_[i].transpose()
 				field_[i] = np.ascontiguousarray(field_[i], dtype=np.float64)
 				tmp = cast(field_[i].ctypes.data, POINTER(c_double))
 				field_name_b = field.encode('utf-8')
 				self.__hpipm.d_ocp_qp_set(c_char_p(field_name_b), i, tmp, self.qp_struct)
-		else:
-			if hasattr(reshape_tuple[2], '__getitem__'):
-				reshape_dim = (reshape_tuple[0][idx + reshape_tuple[1]], reshape_tuple[2][idx + reshape_tuple[3]])
-			else:
-				reshape_dim = (reshape_tuple[0][idx + reshape_tuple[1]], reshape_tuple[2])
-			field_ = getattr(self, field)
-			field_[idx] = value
-			field_[idx] = field_[idx].reshape(reshape_dim)
-			field_[idx] = field_[idx].transpose()
-			field_[idx] = np.ascontiguousarray(field_[idx], dtype=np.float64)
-			tmp = cast(field_[idx].ctypes.data, POINTER(c_double))
-			field_name_b = field.encode('utf-8')
-			self.__hpipm.d_ocp_qp_set(c_char_p(field_name_b), idx, tmp, self.qp_struct)
 		return
 
-
-	def set_Jsu(self, Jsu, idx=None):
-		self.__hpipm.d_cvt_colmaj_to_ocp_qp_idxs.argtypes = [c_int, POINTER(c_int), c_void_p]
-		nbx = self.dim.nbx
-		nbu = self.dim.nbu
-		ng = self.dim.ng
-		ns = self.dim.ns
-		if idx==None:
-			for i in range(len(Jsu)):
-				self.Jsu[i] = Jsu[i]
-				self.Jsu[i] = self.Jsu[i].reshape((nbu[i], ns[i]))
-#				self.Jsu[i] = self.Jsu[i].transpose()
-				self.Jsu[i] = np.ascontiguousarray(self.Jsu[i], dtype=np.float64)
-				for j in range(ns[i]):
-					k0 = -1
-					for k in range(nbu[i]):
-						if (k0==-1) & (self.Jsu[i][k][j]!=0):
-							k0 = k
-							self.idxs[i][j] = k
-					for k in range(nbx[i]):
-						if (k0==-1) & (self.Jsx[i][k][j]!=0):
-							k0 = k
-							self.idxs[i][j] = nbu[i]+k
-					for k in range(ng[i]):
-						if (k0==-1) & (self.Jsg[i][k][j]!=0):
-							k0 = k
-							self.idxs[i][j] = nbu[i]+ng[i]+k
-				self.idxs[i] = np.ascontiguousarray(self.idxs[i], dtype=np.int32)
-				tmp = cast(self.idxs[i].ctypes.data, POINTER(c_int))
-				self.__hpipm.d_cvt_colmaj_to_ocp_qp_idxs(i, tmp, self.qp_struct)
-		else:
-			self.Jsu[idx] = Jsu
-			self.Jsu[idx] = self.Jsu[idx].reshape((nbu[idx], ns[idx]))
-#			self.Jsu[idx] = self.Jsu[idx].transpose()
-			self.Jsu[idx] = np.ascontiguousarray(self.Jsu[idx], dtype=np.float64)
-			for j in range(ns[idx]):
-				k0 = -1
-				for k in range(nbu[idx]):
-					if (k0==-1) & (self.Jsu[idx][k][j]!=0):
-						k0 = k
-						self.idxs[idx][j] = k
-				for k in range(nbx[idx]):
-					if (k0==-1) & (self.Jsx[idx][k][j]!=0):
-						k0 = k
-						self.idxs[idx][j] = nbu[idx]+k
-				for k in range(ng[idx]):
-					if (k0==-1) & (self.Jsg[idx][k][j]!=0):
-						k0 = k
-						self.idxs[idx][j] = nbu[idx]+ng[idx]+k
-			self.idxs[idx] = np.ascontiguousarray(self.idxs[idx], dtype=np.int32)
-			tmp = cast(self.idxs[idx].ctypes.data, POINTER(c_int))
-			self.__hpipm.d_cvt_colmaj_to_ocp_qp_idxs(idx, tmp, self.qp_struct)
-		return
-
-
-	def set_Jsx(self, Jsx, idx=None):
-		self.__hpipm.d_cvt_colmaj_to_ocp_qp_idxs.argtypes = [c_int, POINTER(c_int), c_void_p]
-		nbx = self.dim.nbx
-		nbu = self.dim.nbu
-		ng = self.dim.ng
-		ns = self.dim.ns
-		if idx==None:
-			for i in range(len(Jsx)):
-				self.Jsx[i] = Jsx[i]
-				self.Jsx[i] = self.Jsx[i].reshape((nbx[i], ns[i]))
-#				self.Jsx[i] = self.Jsx[i].transpose()
-				self.Jsx[i] = np.ascontiguousarray(self.Jsx[i], dtype=np.float64)
-				for j in range(ns[i]):
-					k0 = -1
-					for k in range(nbu[i]):
-						if (k0==-1) & (self.Jsu[i][k][j]!=0):
-							k0 = k
-							self.idxs[i][j] = k
-					for k in range(nbx[i]):
-						if (k0==-1) & (self.Jsx[i][k][j]!=0):
-							k0 = k
-							self.idxs[i][j] = nbu[i]+k
-					for k in range(ng[i]):
-						if (k0==-1) & (self.Jsg[i][k][j]!=0):
-							k0 = k
-							self.idxs[i][j] = nbu[i]+ng[i]+k
-				self.idxs[i] = np.ascontiguousarray(self.idxs[i], dtype=np.int32)
-				tmp = cast(self.idxs[i].ctypes.data, POINTER(c_int))
-				self.__hpipm.d_cvt_colmaj_to_ocp_qp_idxs(i, tmp, self.qp_struct)
-		else:
-			self.Jsx[idx] = Jsx
-			self.Jsx[idx] = self.Jsx[idx].reshape((nbx[idx], ns[idx]))
-#			self.Jsx[idx] = self.Jsx[idx].transpose()
-			self.Jsx[idx] = np.ascontiguousarray(self.Jsx[idx], dtype=np.float64)
-			for j in range(ns[idx]):
-				k0 = -1
-				for k in range(nbu[idx]):
-					if (k0==-1) & (self.Jsu[idx][k][j]!=0):
-						k0 = k
-						self.idxs[idx][j] = k
-				for k in range(nbx[idx]):
-					if (k0==-1) & (self.Jsx[idx][k][j]!=0):
-						k0 = k
-						self.idxs[idx][j] = nbu[idx]+k
-				for k in range(ng[idx]):
-					if (k0==-1) & (self.Jsg[idx][k][j]!=0):
-						k0 = k
-						self.idxs[idx][j] = nbu[idx]+ng[idx]+k
-			self.idxs[idx] = np.ascontiguousarray(self.idxs[idx], dtype=np.int32)
-			tmp = cast(self.idxs[idx].ctypes.data, POINTER(c_int))
-			self.__hpipm.d_cvt_colmaj_to_ocp_qp_idxs(idx, tmp, self.qp_struct)
-		return
-
-
-	def set_Jsg(self, Jsg, idx=None):
-		self.__hpipm.d_cvt_colmaj_to_ocp_qp_idxs.argtypes = [c_int, POINTER(c_int), c_void_p]
-		nbx = self.dim.nbx
-		nbu = self.dim.nbu
-		ng = self.dim.ng
-		ns = self.dim.ns
-		if idx==None:
-			for i in range(len(Jsg)):
-				self.Jsg[i] = Jsg[i]
-				self.Jsg[i] = self.Jsg[i].reshape((ng[i], ns[i]))
-#				self.Jsg[i] = self.Jsg[i].transpose()
-				self.Jsg[i] = np.ascontiguousarray(self.Jsg[i], dtype=np.float64)
-				for j in range(ns[i]):
-					k0 = -1
-					for k in range(nbu[i]):
-						if (k0==-1) & (self.Jsu[i][k][j]!=0):
-							k0 = k
-							self.idxs[i][j] = k
-					for k in range(nbx[i]):
-						if (k0==-1) & (self.Jsx[i][k][j]!=0):
-							k0 = k
-							self.idxs[i][j] = nbu[i]+k
-					for k in range(ng[i]):
-						if (k0==-1) & (self.Jsg[i][k][j]!=0):
-							k0 = k
-							self.idxs[i][j] = nbu[i]+ng[i]+k
-				self.idxs[i] = np.ascontiguousarray(self.idxs[i], dtype=np.int32)
-				tmp = cast(self.idxs[i].ctypes.data, POINTER(c_int))
-				self.__hpipm.d_cvt_colmaj_to_ocp_qp_idxs(i, tmp, self.qp_struct)
-		else:
-			self.Jsg[idx] = Jsg
-			self.Jsg[idx] = self.Jsg[idx].reshape((ng[idx], ns[idx]))
-#			self.Jsg[idx] = self.Jsg[idx].transpose()
-			self.Jsg[idx] = np.ascontiguousarray(self.Jsg[idx], dtype=np.float64)
-			for j in range(ns[idx]):
-				k0 = -1
-				for k in range(nbu[idx]):
-					if (k0==-1) & (self.Jsu[idx][k][j]!=0):
-						k0 = k
-						self.idxs[idx][j] = k
-				for k in range(nbx[idx]):
-					if (k0==-1) & (self.Jsx[idx][k][j]!=0):
-						k0 = k
-						self.idxs[idx][j] = nbu[idx]+k
-				for k in range(ng[idx]):
-					if (k0==-1) & (self.Jsg[idx][k][j]!=0):
-						k0 = k
-						self.idxs[idx][j] = nbu[idx]+ng[idx]+k
-			self.idxs[idx] = np.ascontiguousarray(self.idxs[idx], dtype=np.int32)
-			tmp = cast(self.idxs[idx].ctypes.data, POINTER(c_int))
-			self.__hpipm.d_cvt_colmaj_to_ocp_qp_idxs(idx, tmp, self.qp_struct)
-		return
-	
 
 	def print_C_struct(self):
 		self.__hpipm.d_ocp_qp_print(self.dim.dim_struct, self.qp_struct)
