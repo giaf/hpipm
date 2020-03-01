@@ -7,7 +7,7 @@ cache:
 
 jobs:
   include:
-    - name: "Linux AMD64 C Build"
+    - name: "Linux AMD64 C build"
       arch: amd64
       os: linux
       dist: bionic
@@ -27,7 +27,7 @@ jobs:
         - make -C test_problems test_d_part_cond_qcqp TARGET=AVX BLASFEO_PATH="${TRAVIS_BUILD_DIR}"/blasfeo PRINT=0
         - make -C test_problems test_d_tree_ocp TARGET=AVX BLASFEO_PATH="${TRAVIS_BUILD_DIR}"/blasfeo PRINT=0
 
-    - name: "Linux ARM64 C Build"
+    - name: "Linux ARM64 C build"
       arch: arm64
       os: linux
       dist: bionic
@@ -47,7 +47,7 @@ jobs:
         - make -C test_problems test_d_part_cond_qcqp TARGET=GENERIC BLASFEO_PATH="${TRAVIS_BUILD_DIR}"/blasfeo PRINT=0
         - make -C test_problems test_d_tree_ocp TARGET=GENERIC BLASFEO_PATH="${TRAVIS_BUILD_DIR}"/blasfeo PRINT=0
 
-    - name: "Linux AMD64 octave Build"
+    - name: "Linux AMD64 octave build"
       arch: amd64
       os: linux
       dist: bionic
@@ -66,9 +66,9 @@ jobs:
         - TRAVIS_RUN=true
       install:
         - git clone https://github.com/giaf/blasfeo
-        - make -C "${TRAVIS_BUILD_DIR}"/blasfeo static_library TARGET=X64_INTEL_HASWELL LA=HIGH_PERFORMANCE -j 4
+        - make -C "${TRAVIS_BUILD_DIR}"/blasfeo shared_library TARGET=X64_INTEL_HASWELL LA=HIGH_PERFORMANCE -j 4
       script:
-        - make static_library TARGET=AVX BLASFEO_PATH="${TRAVIS_BUILD_DIR}"/blasfeo -j 4
+        - make shared_library TARGET=AVX BLASFEO_PATH="${TRAVIS_BUILD_DIR}"/blasfeo -j 4
         - echo "HPIPM_MAIN_FOLDER=$HPIPM_MAIN_FOLDER"
         - echo "BLASFEO_MAIN_FOLDER=$BLASFEO_MAIN_FOLDER"
         - echo "OCTAVE_PATH=$OCTAVE_PATH"
@@ -80,7 +80,7 @@ jobs:
         - make -C examples/matlab_octave/ example_mass_spring
         - make -C examples/matlab_octave/ example_mass_spring_qcqp
 
-    - name: "Linux AMD64 python Build"
+    - name: "Linux AMD64 python build"
       arch: amd64
       os: linux
       dist: bionic
@@ -102,7 +102,6 @@ jobs:
         - echo "BLASFEO_MAIN_FOLDER=$BLASFEO_MAIN_FOLDER"
         - echo "LD_LIBRARY_PATH=$LD_LIBRARY_PATH"
         - echo "ENV_RUN=$ENV_RUN"
-        - python --version
         - make -C interfaces/python/ all
         - make -C examples/python/ example_getting_started
 
