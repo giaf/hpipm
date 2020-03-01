@@ -1,6 +1,11 @@
 This is HPIPM, a high-performance interior-point method solver for dense, optimal control- and tree-structured convex quadratic programs.
 It provides efficient implementations of dense and structure-exploiting algorithms to solve small to medium scale problems arising in model predictive control and embedded optimization in general and it relies on the high-performance linear algebra package BLASFEO.
 
+HPIPM (and BLASFEO, which is a dependency), comes with both `make` and `cmake` build systems.
+The preferred one is `make`, which can be used to compile and run any library, interface and example in any language.
+`make` is also used in the continuous integration `travis` scripts.
+`cmake` can only be used to compile the libraries, while the interested user should compile interfaces and run examples by him/herself by taking inspiration form the commands in the various `Makefile`s.
+
 --------------------------------------------------
 
 ## Getting Started:
@@ -32,7 +37,7 @@ If you would like to try out the Python interface, check out the examples in `/h
 1) clone BLASFEO on your machine: `git clone https://github.com/giaf/blasfeo.git`
 2) from the BLASFEO root folder, run `make shared_library -j4 && sudo make install_shared`
 3) from the HPIPM root folder, run `make shared_library -j4 && sudo make install_shared`
-4) In a terminal, navigate to `/hpipm/interfaces/python/hpipm_python` and run `pip install` or  `pip3 install  (depending on your python version).
+4) In a terminal, navigate to `/hpipm/interfaces/python/hpipm_python` and run `pip install` or  `pip3 install` (depending on your python version).
 5) In a terminal, navigate to `/hpipm/examples/python`.
 Set the needed environment flags by running `source env.sh` (you may need to change the `BLASFEO_MAIN_FOLDER`, or to make it equal to the `BLASFEO_PATH`) in that folder.
 Alternatively you can make sure yourself that the location of the installed shared libraries is known to the system e.g. by running `export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/opt/blasfeo/lib:/opt/hpipm/lib` (possibly after updating it to the chosen installation directories).
