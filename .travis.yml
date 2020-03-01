@@ -95,9 +95,9 @@ jobs:
         - TRAVIS_RUN=true
       install:
         - git clone https://github.com/giaf/blasfeo
-        - make -C "${TRAVIS_BUILD_DIR}"/blasfeo static_library TARGET=X64_INTEL_HASWELL LA=HIGH_PERFORMANCE -j 4
+        - make -C "${TRAVIS_BUILD_DIR}"/blasfeo shared_library TARGET=X64_INTEL_HASWELL LA=HIGH_PERFORMANCE -j 4
       script:
-        - make static_library TARGET=AVX BLASFEO_PATH="${TRAVIS_BUILD_DIR}"/blasfeo -j 4
+        - make shared_library TARGET=AVX BLASFEO_PATH="${TRAVIS_BUILD_DIR}"/blasfeo -j 4
         - echo "HPIPM_MAIN_FOLDER=$HPIPM_MAIN_FOLDER"
         - echo "BLASFEO_MAIN_FOLDER=$BLASFEO_MAIN_FOLDER"
         - echo "LD_LIBRARY_PATH=$LD_LIBRARY_PATH"
