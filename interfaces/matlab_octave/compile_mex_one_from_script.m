@@ -51,6 +51,19 @@ blasfeo_folder = getenv('BLASFEO_MAIN_FOLDER');
 mex_flags = getenv('HPIPM_MEX_FLAGS');
 data_folder = getenv('DATA_FOLDER');
 
+if(length(hpipm_folder)==0)
+	disp('ERROR: the environment variable HPIPM_MAIN_FOLDER has not been specified.');
+	return;
+end
+if(length(blasfeo_folder)==0)
+	disp('ERROR: the environment variable BLASFEO_MAIN_FOLDER has not been specified.');
+	return;
+end
+if(length(data_folder)==0)
+	disp('ERROR: the environment variable DATA_FOLDER has not been specified.');
+	return;
+end
+
 % set paths
 hpipm_mex_folder = [hpipm_folder, '/interfaces/matlab_octave/'];
 hpipm_include = ['-I', hpipm_folder, '/include'];

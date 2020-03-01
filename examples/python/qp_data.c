@@ -117,6 +117,15 @@ static double lbu4[] = {};
 static double lbu5[] = {};
 static double *llbu[] = {lbu0, lbu1, lbu2, lbu3, lbu4, lbu5, };
 double **hlbu = llbu;
+/* lbu_mask */
+static double lbu_mask0[] = {};
+static double lbu_mask1[] = {};
+static double lbu_mask2[] = {};
+static double lbu_mask3[] = {};
+static double lbu_mask4[] = {};
+static double lbu_mask5[] = {};
+static double *llbu_mask[] = {lbu_mask0, lbu_mask1, lbu_mask2, lbu_mask3, lbu_mask4, lbu_mask5, };
+double **hlbu_mask = llbu_mask;
 /* ubu */
 static double ubu0[] = {};
 static double ubu1[] = {};
@@ -126,6 +135,15 @@ static double ubu4[] = {};
 static double ubu5[] = {};
 static double *uubu[] = {ubu0, ubu1, ubu2, ubu3, ubu4, ubu5, };
 double **hubu = uubu;
+/* ubu_mask */
+static double ubu_mask0[] = {};
+static double ubu_mask1[] = {};
+static double ubu_mask2[] = {};
+static double ubu_mask3[] = {};
+static double ubu_mask4[] = {};
+static double ubu_mask5[] = {};
+static double *uubu_mask[] = {ubu_mask0, ubu_mask1, ubu_mask2, ubu_mask3, ubu_mask4, ubu_mask5, };
+double **hubu_mask = uubu_mask;
 /* idxbx */
 static int idxbx0[] = {0, 1, };
 static int idxbx1[] = {};
@@ -144,6 +162,15 @@ static double lbx4[] = {};
 static double lbx5[] = {0.000000000000000e+00, 0.000000000000000e+00, };
 static double *llbx[] = {lbx0, lbx1, lbx2, lbx3, lbx4, lbx5, };
 double **hlbx = llbx;
+/* lbx_mask */
+static double lbx_mask0[] = {1.000000000000000e+00, 1.000000000000000e+00, };
+static double lbx_mask1[] = {};
+static double lbx_mask2[] = {};
+static double lbx_mask3[] = {};
+static double lbx_mask4[] = {};
+static double lbx_mask5[] = {0.000000000000000e+00, 0.000000000000000e+00, };
+static double *llbx_mask[] = {lbx_mask0, lbx_mask1, lbx_mask2, lbx_mask3, lbx_mask4, lbx_mask5, };
+double **hlbx_mask = llbx_mask;
 /* ubx */
 static double ubx0[] = {1.000000000000000e+00, 1.000000000000000e+00, };
 static double ubx1[] = {};
@@ -153,6 +180,15 @@ static double ubx4[] = {};
 static double ubx5[] = {-0.000000000000000e+00, -0.000000000000000e+00, };
 static double *uubx[] = {ubx0, ubx1, ubx2, ubx3, ubx4, ubx5, };
 double **hubx = uubx;
+/* ubx_mask */
+static double ubx_mask0[] = {1.000000000000000e+00, 1.000000000000000e+00, };
+static double ubx_mask1[] = {};
+static double ubx_mask2[] = {};
+static double ubx_mask3[] = {};
+static double ubx_mask4[] = {};
+static double ubx_mask5[] = {-0.000000000000000e+00, -0.000000000000000e+00, };
+static double *uubx_mask[] = {ubx_mask0, ubx_mask1, ubx_mask2, ubx_mask3, ubx_mask4, ubx_mask5, };
+double **hubx_mask = uubx_mask;
 /* C */
 static double C0[] = {};
 static double C1[] = {};
@@ -180,6 +216,15 @@ static double lg4[] = {};
 static double lg5[] = {};
 static double *llg[] = {lg0, lg1, lg2, lg3, lg4, lg5, };
 double **hlg = llg;
+/* lg_mask */
+static double lg_mask0[] = {};
+static double lg_mask1[] = {};
+static double lg_mask2[] = {};
+static double lg_mask3[] = {};
+static double lg_mask4[] = {};
+static double lg_mask5[] = {};
+static double *llg_mask[] = {lg_mask0, lg_mask1, lg_mask2, lg_mask3, lg_mask4, lg_mask5, };
+double **hlg_mask = llg_mask;
 /* ug */
 static double ug0[] = {};
 static double ug1[] = {};
@@ -189,6 +234,15 @@ static double ug4[] = {};
 static double ug5[] = {};
 static double *uug[] = {ug0, ug1, ug2, ug3, ug4, ug5, };
 double **hug = uug;
+/* ug_mask */
+static double ug_mask0[] = {};
+static double ug_mask1[] = {};
+static double ug_mask2[] = {};
+static double ug_mask3[] = {};
+static double ug_mask4[] = {};
+static double ug_mask5[] = {};
+static double *uug_mask[] = {ug_mask0, ug_mask1, ug_mask2, ug_mask3, ug_mask4, ug_mask5, };
+double **hug_mask = uug_mask;
 /* Zl */
 double **hZl;
 /* Zu */
@@ -197,8 +251,10 @@ double **hZu;
 double **hzl;
 /* zu */
 double **hzu;
+/* idxs_rev */
+int **hidxs_rev;
 /* idxs */
-double **hidxs;
+int **hidxs;
 /* lls */
 double **hlls;
 /* lus */

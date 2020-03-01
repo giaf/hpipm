@@ -16,27 +16,36 @@ The QP notation used in HPIPM can be found in the `doc` folder.
 
 ### C
 In order to run the C examples in `/hpipm/examples/C/` follow the steps below:
-1) clone BLASFEO on your machine: `git clone https://github.com/giaf/blasfeo.git` 
-2) from the BLASFEO root folder, run `make static_library && sudo make install_static` (default installation folder: `/opt/blasfeo`; a different one is chose, `BLASFEO_PATH` in HPIPM's `Makefile.rule` should be updated accordingly)
-3) from the HPIPM root folder, run `make static_library && make examples`
-4) cd to /hpipm/examples/c/ and run getting_started.out to solve a simple OCP-structured QP.
+1) Clone BLASFEO on your machine: `git clone https://github.com/giaf/blasfeo.git` 
+2) From the BLASFEO root folder, run `make static_library && sudo make install_static` (default installation folder: `/opt/blasfeo`; a different one is chose, `BLASFEO_PATH` in HPIPM's `Makefile.rule` should be updated accordingly)
+3) From the HPIPM root folder, run `make static_library && make examples`
+4) In a terminal, navigate to /hpipm/examples/c/ and run getting_started.out to solve a simple OCP-structured QP.
 
 ### MATLAB and Octave
 The interface for Matlab and Octave is based on mex files.
-1) Compile and install BLASFEO and HPIPM BLASFEO and HPIPM (see instruction for C 1)-3)):
-2) In a terminal, navigate to the folder `hpipm/interfaces/matlab_octave`.
+1) Clone BLASFEO on your machine: `git clone https://github.com/giaf/blasfeo.git`
+2) From the BLASFEO root folder, run `make shared_library -j4 && sudo make install_shared`
+3) From the HPIPM root folder, run `make shared_library -j4 && sudo make install_shared`
+4) In a terminal, navigate to the folder `hpipm/interfaces/matlab_octave`.
 Set the needed environment flags by running `source env.sh` (you may need to change the `BLASFEO_MAIN_FOLDER`, or to make it equal to the `BLASFEO_PATH`) in that folder.
 Compile the interface by running `make all -j 4` (for Octave), or `make compile_mex_with_matlab` (for Matlab).
-3) In a terminal, navigate to the folder `hpipm/examples/matlab_octave`.
+5) In a terminal, navigate to the folder `hpipm/examples/matlab_octave`.
 Set the needed environment flags by running `source env.sh` (you may need to change the `BLASFEO_MAIN_FOLDER`, or to make it equal to the `BLASFEO_PATH`) in that folder.
 Run an instance of Matlab or Octave from the same terminal.
 Get started by running the examples in that folder.
 
+### Simulink
+The QP model is read from the file `qp_data.c`, which can be generated using the C, matlab/octave or python interfaces.
+1) Follow the steps 1)-4) for the MATLAB interface.
+2) In a terminal, navigate to the folder `hpipm/examples/simulink`.
+Run `make_sfun.m` to compile the S-function, and `load_paramaters.m` to load some parameters used in the simulink model (e.g. horizon length, number of inputs and states) form `qp_data.c`.
+3) Open the simulink model `hpipm_simulink_getting_started.slx` and start the simulation. 
+
 ### Python
 If you would like to try out the Python interface, check out the examples in `/hpipm/examples/python/` after going through the following steps:
-1) clone BLASFEO on your machine: `git clone https://github.com/giaf/blasfeo.git`
-2) from the BLASFEO root folder, run `make shared_library -j4 && sudo make install_shared`
-3) from the HPIPM root folder, run `make shared_library -j4 && sudo make install_shared`
+1) Clone BLASFEO on your machine: `git clone https://github.com/giaf/blasfeo.git`
+2) From the BLASFEO root folder, run `make shared_library -j4 && sudo make install_shared`
+3) From the HPIPM root folder, run `make shared_library -j4 && sudo make install_shared`
 4) In a terminal, navigate to `/hpipm/interfaces/python/hpipm_python` and run `pip install` or  `pip3 install` (depending on your python version).
 5) In a terminal, navigate to `/hpipm/examples/python`.
 Set the needed environment flags by running `source env.sh` (you may need to change the `BLASFEO_MAIN_FOLDER`, or to make it equal to the `BLASFEO_PATH`) in that folder.

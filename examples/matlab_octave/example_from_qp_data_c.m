@@ -67,7 +67,7 @@ dim = hpipm_ocp_qp_dim('qp_data.c');
 
 % extract dims
 N = dim.get('N');
-nx = dim.get('nx', 0);
+nx = dim.get('nx', 1);
 nu = dim.get('nu', 0);
 
 

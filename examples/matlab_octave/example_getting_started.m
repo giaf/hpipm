@@ -98,10 +98,8 @@ dim.set('nx', nx, 0, N);
 dim.set('nu', nu, 0, N-1);
 if(constr_type==0)
 	dim.set('nbx', nx, 0);
-	dim.set('nbx', nx, 5);
 else
 	dim.set('ng', nx, 0);
-	dim.set('ng', nx, 5);
 end
 
 % print to shell

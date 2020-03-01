@@ -41,3 +41,10 @@ echo "OCTAVE_PATH=$OCTAVE_PATH"
 export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$HPIPM_MAIN_FOLDER/lib:$BLASFEO_MAIN_FOLDER/lib
 echo
 echo "LD_LIBRARY_PATH=$LD_LIBRARY_PATH"
+
+# folder containig the data file
+DATA_FOLDER=${DATA_FOLDER:-"$(pwd)"}
+export DATA_FOLDER
+echo
+echo "DATA_FOLDER=$DATA_FOLDER"
+

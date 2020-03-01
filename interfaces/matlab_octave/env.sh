@@ -21,6 +21,7 @@ echo "HPIPM_MAIN_FOLDER=$HPIPM_MAIN_FOLDER"
 
 # if blasfeo folder not specified assume alongside the parent of this folder
 BLASFEO_MAIN_FOLDER=${BLASFEO_MAIN_FOLDER:-"$(pwd)/../../../blasfeo"}
+#BLASFEO_MAIN_FOLDER=${BLASFEO_MAIN_FOLDER:-"/opt/blasfeo"}
 export BLASFEO_MAIN_FOLDER
 echo
 echo "BLASFEO_MAIN_FOLDER=$BLASFEO_MAIN_FOLDER"
