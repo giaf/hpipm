@@ -12,28 +12,31 @@ The QP notation used in HPIPM can be found in the `doc` folder.
 ### C
 In order to run the C examples in `/hpipm/examples/C/` follow the steps below:
 1) clone BLASFEO on your machine: `git clone https://github.com/giaf/blasfeo.git` 
-2) from the BLASFEO root folder, run `make static_library && sudo make install_static`
+2) from the BLASFEO root folder, run `make static_library && sudo make install_static` (default installation folder: `/opt/blasfeo`; a different one is chose, `BLASFEO_PATH` in HPIPM's `Makefile.rule` should be updated accordingly)
 3) from the HPIPM root folder, run `make static_library && make examples`
 4) cd to /hpipm/examples/c/ and run getting_started.out to solve a simple OCP-structured QP.
+
+### MATLAB and Octave
+The interface for Matlab and Octave is based on mex files.
+1) Compile and install BLASFEO and HPIPM BLASFEO and HPIPM (see instruction for C 1)-3)):
+2) In a terminal, navigate to the folder `hpipm/interfaces/matlab_octave`.
+Set the needed environment flags by running `source env.sh` (you may need to change the `BLASFEO_MAIN_FOLDER`, or to make it equal to the `BLASFEO_PATH`) in that folder.
+Compile the interface by running `make all -j 4` (for Octave), or `make compile_mex_with_matlab` (for Matlab).
+3) In a terminal, navigate to the folder `hpipm/examples/matlab_octave`.
+Set the needed environment flags by running `source env.sh` (you may need to change the `BLASFEO_MAIN_FOLDER`, or to make it equal to the `BLASFEO_PATH`) in that folder.
+Run an instance of Matlab or Octave from the same terminal.
+Get started by running the examples in that folder.
 
 ### Python
 If you would like to try out the Python interface, check out the examples in `/hpipm/examples/python/` after going through the following steps:
 1) clone BLASFEO on your machine: `git clone https://github.com/giaf/blasfeo.git`
 2) from the BLASFEO root folder, run `make shared_library -j4 && sudo make install_shared`
 3) from the HPIPM root folder, run `make shared_library -j4 && sudo make install_shared`
-4) make sure that the location of the installed shared libraries is known to the system by running `export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/opt/blasfeo/lib:/opt/hpipm/lib`.
-If you would like to avoid running this command whenever opening a new shell, you can add the commands above to your .bashrc.
-5) cd to `/hpipm/interfaces/python/hpipm_python` and run `pip3 install .`
-6) cd to `/hpipm/examples/python` and run `python3 getting_started.py` to solve a simple OCP-structured QP.
-
-### MATLAB and Octave
-The interface for Matlab and Octave is based on mex files.
-1) Compile and install BLASFEO and HPIPM BLASFEO and HPIPM (see instruction for Python 1)-3)):
-2) In a terminal, navigate to the folder `hpipm/interfaces/matlab_octave`, set the needed environment flags by running `source env.sh` in that folder and finally compile the interface by running the function `compile_mex_ocp_qp` in a Matlab or Octave instance started from the same terminal.
-3) In a terminal, navigate to the folder `hpipm/examples/matlab_octave`.
-Set the needed environment flags by running `source env.sh` in that folder.
-Run an instance of Matlab or Octave from the same terminal.
-Get started by running the examples in that folder.
+4) In a terminal, navigate to `/hpipm/interfaces/python/hpipm_python` and run `pip install` or  `pip3 install  (depending on your python version).
+5) In a terminal, navigate to `/hpipm/examples/python`.
+Set the needed environment flags by running `source env.sh` (you may need to change the `BLASFEO_MAIN_FOLDER`, or to make it equal to the `BLASFEO_PATH`) in that folder.
+Alternatively you can make sure yourself that the location of the installed shared libraries is known to the system e.g. by running `export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/opt/blasfeo/lib:/opt/hpipm/lib` (possibly after updating it to the chosen installation directories).
+Finally, run `python getting_started.py` or `python3 getting_started.py` (depending on your python version) to solve a simple OCP-structured QP.
 
 --------------------------------------------------
 
