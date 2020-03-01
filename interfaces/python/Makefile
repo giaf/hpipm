@@ -33,5 +33,8 @@
 #                                                                                                 #
 ###################################################################################################
 
+PIP = pip
+#PIP = pip3
+
 all:
-	cd hpipm_python ; pip install . ; cd ..
+	cd hpipm_python ; $(PIP) install . ; cd ..

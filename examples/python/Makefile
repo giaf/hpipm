@@ -33,6 +33,14 @@
 #                                                                                                 #
 ###################################################################################################
 
+PYTHON = python
+#PYTHON = python3
 
-example_getting_started:
-	python $@.py
+all:
+	$(PYTHON) example_getting_started.py
+
+### all individual tests ###
+
+example_getting_started \
+: %:
+	$(PYTHON) $@.py

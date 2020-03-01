@@ -32,6 +32,7 @@
 # Author: Gianluca Frison, gianluca.frison (at) imtek.uni-freiburg.de                             #
 #                                                                                                 #
 ###################################################################################################
+
 from .wrapper.hpipm_ocp_qp import *
 from .wrapper.hpipm_ocp_qp_sol import *
 from .wrapper.hpipm_ocp_qp_dim import *
