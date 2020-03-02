@@ -103,5 +103,6 @@ jobs:
         - echo "LD_LIBRARY_PATH=$LD_LIBRARY_PATH"
         - echo "ENV_RUN=$ENV_RUN"
         - make -C interfaces/python/ all
-        - make -C examples/python/ example_getting_started
+        - make -C examples/python/ example_qp_getting_started
+        - make -C examples/python/ example_qcqp_getting_started
 

@@ -73,8 +73,8 @@ dim.set('nx', nx, 0, N) # number of states
 dim.set('nu', nu, 0, N-1) # number of inputs
 dim.set('nbx', nbx, 0) # number of state bounds
 #dim.set('ng', nx, 0)
-dim.set('nbx', nbx, 5)
-#dim.set('ns', nx, 5)
+dim.set('nbx', nbx, N)
+#dim.set('ns', nx, N)
 
 # print to shell
 #dim.print_C_struct()

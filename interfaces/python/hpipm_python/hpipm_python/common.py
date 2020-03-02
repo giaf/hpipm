@@ -33,8 +33,15 @@
 #                                                                                                 #
 ###################################################################################################
 
+# ocp qp
 from .wrapper.hpipm_ocp_qp import *
 from .wrapper.hpipm_ocp_qp_sol import *
 from .wrapper.hpipm_ocp_qp_dim import *
 from .wrapper.hpipm_ocp_qp_solver import *
 from .wrapper.hpipm_ocp_qp_solver_arg import *
+# ocp qcqp
+from .wrapper.hpipm_ocp_qcqp import *
+from .wrapper.hpipm_ocp_qcqp_sol import *
+from .wrapper.hpipm_ocp_qcqp_dim import *
+from .wrapper.hpipm_ocp_qcqp_solver import *
+from .wrapper.hpipm_ocp_qcqp_solver_arg import *
