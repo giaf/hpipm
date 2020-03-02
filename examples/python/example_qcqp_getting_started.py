@@ -74,7 +74,7 @@ dim.set('nbx', nbx, 0) # number of state bounds
 dim.set('nq', nq, N)
 
 # print to shell
-dim.print_C_struct()
+#dim.print_C_struct()
 # codegen
 if codegen_data:
 	dim.codegen('qcqp_data.c', 'w')
@@ -112,7 +112,7 @@ qp.set('Qq', Qq, N)
 qp.set('uq', uq, N)
 
 # print to shell
-qp.print_C_struct()
+#qp.print_C_struct()
 # codegen
 if codegen_data:
 	qp.codegen('qcqp_data.c', 'a')
