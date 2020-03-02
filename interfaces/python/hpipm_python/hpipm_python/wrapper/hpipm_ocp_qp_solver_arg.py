@@ -35,13 +35,12 @@
 from ctypes import *
 import ctypes.util 
 import numpy as np
-#import faulthandler
-
-#faulthandler.enable()
 
 
 
 class hpipm_ocp_qp_solver_arg:
+
+
 	def __init__(self, dim, mode):
 
 		c_mode = 0
@@ -80,7 +79,6 @@ class hpipm_ocp_qp_solver_arg:
 		__hpipm.d_ocp_qp_ipm_arg_set_default(c_mode, arg_struct) # mode==SPEED
 	
 
-
 	def set(self, field, value):
 		if((field=='mu0') | (field=='tol_stat') | (field=='tol_eq') | (field=='tol_ineq') | (field=='tol_comp') | (field=='reg_prim')):
 			tmp_in = np.zeros((1,1))
@@ -96,7 +94,6 @@ class hpipm_ocp_qp_solver_arg:
 		field_name_b = field.encode('utf-8')
 		self.__hpipm.d_ocp_qp_ipm_arg_set(c_char_p(field_name_b), tmp, self.arg_struct)
 		return
-
 
 
 	def codegen(self, file_name, mode):

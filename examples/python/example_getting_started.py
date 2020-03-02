@@ -63,13 +63,17 @@ N = 5
 nx = 2
 nu = 1
 
+nbx = nx
+#ng = nx
+#ns = nx
+
 dim = hpipm_ocp_qp_dim(N)
 
 dim.set('nx', nx, 0, N) # number of states
 dim.set('nu', nu, 0, N-1) # number of inputs
-dim.set('nbx', nx, 0) # number of state bounds
+dim.set('nbx', nbx, 0) # number of state bounds
 #dim.set('ng', nx, 0)
-dim.set('nbx', nx, 5)
+dim.set('nbx', nbx, 5)
 #dim.set('ns', nx, 5)
 
 # print to shell
@@ -83,29 +87,29 @@ if codegen_data:
 # data
 if 0:
 	# data as a contiguous array (interpreted as row-major)
-	A = np.array([1, 1, 0, 1])
+	A = np.array([1, 1, 0, 1]).reshape(nx,nx)
 else:
 	# data as a matrix
 	A = np.zeros((2,2))
 	A[0][0] = 1.0
 	A[0][1] = 1.0
 	A[1][1] = 1.0
-B = np.array([0, 1])
-#b = np.array([0, 0])
+B = np.array([0, 1]).reshape(nx,nu)
+#b = np.array([0, 0]).reshape(nx,1)
 
-Q = np.array([1, 0, 0, 1])
-S = np.array([0, 0])
-R = np.array([1])
-q = np.array([1, 1])
-#r = np.array([0])
+Q = np.array([1, 0, 0, 1]).reshape(nx,nx)
+S = np.array([0, 0]).reshape(nu,nx)
+R = np.array([1]).reshape(nu,nu)
+q = np.array([1, 1]).reshape(nx,1)
+#r = np.array([0]).reshape(nu,1)
 
-Jx = np.array([1, 0, 0, 1])
-x0 = np.array([1, 1])
-Jsx = np.array([1, 0, 0, 1])
-Zl = np.array([1e5, 0, 0, 1e5])
-Zu = np.array([1e5, 0, 0, 1e5])
-zl = np.array([1e5, 1e5])
-zu = np.array([1e5, 1e5])
+Jx = np.array([1, 0, 0, 1]).reshape(nbx,nx)
+x0 = np.array([1, 1]).reshape(nx,1)
+#Jsx = np.array([1, 0, 0, 1]).reshape(nbx,ns)
+#Zl = np.array([1e5, 0, 0, 1e5]).reshape(ns,ns)
+#Zu = np.array([1e5, 0, 0, 1e5]).reshape(ns,ns)
+#zl = np.array([1e5, 1e5]).reshape(ns,1)
+#zu = np.array([1e5, 1e5]).reshape(ns,1)
 
 
 

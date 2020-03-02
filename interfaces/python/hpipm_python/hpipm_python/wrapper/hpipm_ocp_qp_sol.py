@@ -35,37 +35,16 @@
 from ctypes import *
 import ctypes.util 
 import numpy as np
-#import faulthandler
-
-#faulthandler.enable()
 
 
 
 class hpipm_ocp_qp_sol:
+
+
 	def __init__(self, dim):
 
 		# save dim internally
 		self.dim = dim
-
-		# extract dim
-		N = dim.N
-		nx = dim.nx
-		nu = dim.nu
-		nbx = dim.nbx
-		nbu = dim.nbu
-		ng = dim.ng
-		ns = dim.ns
-
-		# local qp_sol memory
-		self.u = []
-		for i in range(N+1):
-			self.u.append(np.zeros((nu[i], 1)))
-
-		self.x = []
-		for i in range(N+1):
-			self.x.append(np.zeros((nx[i], 1)))
-
-		# TODO pi lam t
 
 		# load hpipm shared library
 		__hpipm   = CDLL('libhpipm.so')
@@ -85,7 +64,6 @@ class hpipm_ocp_qp_sol:
 		__hpipm.d_ocp_qp_sol_create(dim.dim_struct, qp_sol_struct, qp_sol_mem)
 
 
-
 	def get(self, field, idx_start, idx_end=None):
 		if(field=='u'):
 			vec = self.__get_u(idx_start, idx_end)
@@ -96,41 +74,48 @@ class hpipm_ocp_qp_sol:
 		return vec
 
 
-
 	def __get_u(self, idx_start, idx_end=None):
-		# extract dims
-		N = self.dim.N
-		nu = self.dim.nu
+		# nu
+		nu = np.zeros((1,1), dtype=int);
 		if idx_end==None:
-			u = np.zeros((nu[idx_start], 1))
-			tmp = cast(u.ctypes.data, POINTER(c_double))
-			self.__hpipm.d_ocp_qp_sol_get_u(idx_start, self.qp_sol_struct, tmp)
+			# get nu at stage
+			tmp_ptr = cast(nu.ctypes.data, POINTER(c_int))
+			self.__hpipm.d_ocp_qp_dim_get_nu(self.dim.dim_struct, idx_start, tmp_ptr)
+			u = np.zeros((nu[0,0], 1))
+			tmp_ptr = cast(u.ctypes.data, POINTER(c_double))
+			self.__hpipm.d_ocp_qp_sol_get_u(idx_start, self.qp_sol_struct, tmp_ptr)
 		else:
 			u = []
 			for i in range(idx_start, idx_end+1):
-				u.append(np.zeros((nu[i], 1)))
-				tmp = cast(u[i].ctypes.data, POINTER(c_double))
-				self.__hpipm.d_ocp_qp_sol_get_u(i, self.qp_sol_struct, tmp)
+				# get nu at stage
+				tmp_ptr = cast(nu.ctypes.data, POINTER(c_int))
+				self.__hpipm.d_ocp_qp_dim_get_nu(self.dim.dim_struct, i, tmp_ptr)
+				u.append(np.zeros((nu[0,0], 1)))
+				tmp_ptr = cast(u[i].ctypes.data, POINTER(c_double))
+				self.__hpipm.d_ocp_qp_sol_get_u(i, self.qp_sol_struct, tmp_ptr)
 		return u
 
 
-
 	def __get_x(self, idx_start, idx_end=None):
-		# extract dims
-		N = self.dim.N
-		nx = self.dim.nx
+		# nx
+		nx = np.zeros((1,1), dtype=int);
 		if idx_end==None:
-			x = np.zeros((nx[idx_start], 1))
-			tmp = cast(x.ctypes.data, POINTER(c_double))
-			self.__hpipm.d_ocp_qp_sol_get_x(idx_start, self.qp_sol_struct, tmp)
+			# get nx at stage
+			tmp_ptr = cast(nx.ctypes.data, POINTER(c_int))
+			self.__hpipm.d_ocp_qp_dim_get_nx(self.dim.dim_struct, idx_start, tmp_ptr)
+			x = np.zeros((nx[0,0], 1))
+			tmp_ptr = cast(x.ctypes.data, POINTER(c_double))
+			self.__hpipm.d_ocp_qp_sol_get_x(idx_start, self.qp_sol_struct, tmp_ptr)
 		else:
 			x = []
 			for i in range(idx_start, idx_end+1):
-				x.append(np.zeros((nx[i], 1)))
-				tmp = cast(x[i].ctypes.data, POINTER(c_double))
-				self.__hpipm.d_ocp_qp_sol_get_x(i, self.qp_sol_struct, tmp)
+				# get nx at stage
+				tmp_ptr = cast(nx.ctypes.data, POINTER(c_int))
+				self.__hpipm.d_ocp_qp_dim_get_nx(self.dim.dim_struct, i, tmp_ptr)
+				x.append(np.zeros((nx[0,0], 1)))
+				tmp_ptr = cast(x[i].ctypes.data, POINTER(c_double))
+				self.__hpipm.d_ocp_qp_sol_get_x(i, self.qp_sol_struct, tmp_ptr)
 		return x
-
 
 
 	def print_C_struct(self):

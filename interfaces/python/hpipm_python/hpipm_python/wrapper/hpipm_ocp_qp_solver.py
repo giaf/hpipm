@@ -35,13 +35,12 @@
 from ctypes import *
 import ctypes.util 
 import numpy as np
-#import faulthandler
-
-#faulthandler.enable()
 
 
 
 class hpipm_ocp_qp_solver:
+
+
 	def __init__(self, qp_dims, arg):
 
 		# load hpipm shared library
@@ -65,12 +64,9 @@ class hpipm_ocp_qp_solver:
 		self.dim_struct = qp_dims.dim_struct
 		
 
-
 	def solve(self, qp, qp_sol):
 		self.__hpipm.d_ocp_qp_ipm_solve(qp.qp_struct, qp_sol.qp_sol_struct, self.arg.arg_struct, self.ipm_ws_struct)
 
-
-	# TODO single getter !!!!!!!!!!!!!!!!!!!!!!!!!!
 
 	def get(self, field):
 		if((field=='stat')):
