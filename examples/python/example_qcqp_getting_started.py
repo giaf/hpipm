@@ -32,6 +32,7 @@
 # Author: Gianluca Frison, gianluca.frison (at) imtek.uni-freiburg.de                             #
 #                                                                                                 #
 ###################################################################################################
+
 from hpipm_python import *
 from hpipm_python.common import *
 import numpy as np
