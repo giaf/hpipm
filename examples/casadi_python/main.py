@@ -39,7 +39,7 @@ for i in range(N):
     A_hat[i*nx:(i+1)*nx,:] = np.eye(nx)
     for j in range(i):
         A_hat[i*nx:(i+1)*nx,:] =  A_hat[i*nx:(i+1)*nx,:] + \
-            np.linalg.matrix_power(Ad, j)
+            np.linalg.matrix_power(Ad, j+1)
 
 for i in range(N):
     for j in range(N-i):
