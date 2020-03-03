@@ -6,7 +6,7 @@ from PMSM_model import *
 from reference_solver import *
 import datetime
 
-N  = 10
+N  = 20
 nx = 2
 nu = 2
 nv = N*nu
@@ -60,6 +60,8 @@ uss = ssf[2:4]
 uss_lin = np.linalg.solve(Bd, xss - np.dot(Ad, xss))
 x_ref = np.kron(np.ones((N,1)), xss)
 u_ref = np.kron(np.ones((N,1)), uss)
+print(uss)
+print(xss)
 
 # check steady state
 err = np.linalg.norm(xss - np.dot(Ad, xss) - np.dot(Bd, uss) - cd)
@@ -182,10 +184,10 @@ arg = hpipm_ocp_qcqp_solver_arg(dim, mode)
 # create and set default arg based on mode
 arg.set('mu0', 1e1)
 arg.set('iter_max', 30)
-arg.set('tol_stat', 1e-4)
-arg.set('tol_eq', 1e-5)
-arg.set('tol_ineq', 1e-5)
-arg.set('tol_comp', 1e-5)
+arg.set('tol_stat', 1e-8)
+arg.set('tol_eq', 1e-8)
+arg.set('tol_ineq', 1e-8)
+arg.set('tol_comp', 1e-8)
 arg.set('reg_prim', 1e-12)
 
 # set up solver
