@@ -58,15 +58,13 @@ CASADI_URL = $(CASADI_GITHUB_RELEASES)/$(CASADI_SOURCE)
 #my_cmd := ${my_cmd.python.${PYTHON_VERSION_MAJOR}}
 
 all:
-	@echo ${PYTHON_VERSION}
-	@echo ${CASADI_VERSION}
-	@echo ${CASADI_GITHUB_RELEASES}
-	@echo ${CASADI_SOURCE}
-	@echo ${CASADI_URL}
-#	@echo ${my_cmd}
+	$(PYTHON) example_PMSM.py
 
-run:
-	$(PYTHON) main.py
+### all individual tests ###
+
+example_PMSM \
+: %:
+	$(PYTHON) $@.py
 
 get_casadi: | $(CASADI_SOURCE)
 	mkdir -p casadi
