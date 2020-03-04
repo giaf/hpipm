@@ -99,7 +99,7 @@ jobs:
           packages:
           - bc
       language: python
-      python: "3.6"
+      python: "3.5"
       env:
         - HPIPM_MAIN_FOLDER=${TRAVIS_BUILD_DIR}
         - BLASFEO_MAIN_FOLDER=${TRAVIS_BUILD_DIR}/blasfeo
