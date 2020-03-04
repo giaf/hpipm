@@ -305,4 +305,13 @@ if(travis_run!='true'):
 
 ### return HPIPM status ###
 
-exit(status)
+if status==0:
+	print('\nsuccess!\n')
+else:
+	print('\nSolution failed, solver returned status {0:1d}\n'.format(status))
+
+
+
+sys.exit(int(status))
+
+
