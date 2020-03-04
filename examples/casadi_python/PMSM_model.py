@@ -80,8 +80,8 @@ class ss_calculator():
         w0 = np.ones(4)
         lbw = []
         ubw = []
-        J = 1/2*(i_d**2 + i_q**2)
-        g = ca.vertcat(xdot, 3/2*p*ca.mtimes(ca.mtimes(ca.horzcat(i_d, i_q), \
+        J = 1.0/2.0*(i_d**2 + i_q**2)
+        g = ca.vertcat(xdot, 3.0/2.0*p*ca.mtimes(ca.mtimes(ca.horzcat(i_d, i_q), \
             J_par), ca.vertcat(psi_pm, psi_pm)))
         
         prob = {'f': J, 'x': w, 'g': g}

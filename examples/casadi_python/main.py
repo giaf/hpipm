@@ -6,7 +6,7 @@ from PMSM_model import *
 from reference_solver import *
 import datetime
 
-N  = 20
+N  = 12
 nx = 2
 nu = 2
 nv = N*nu
@@ -23,11 +23,13 @@ torque_ref = 10.0
 rho = 0.0000002
 # alpha parameter
 alpha = 1.0
+print(alpha)
 
 par = PMSM_par()
 u_max = par.u_max
 w_ref = par.w_ref
 Ad, Bd, cd, xplus = get_PMSM_dynamics(w_ref, Ts, par)
+print(Ad)
 
 # build A and B matrices
 A = np.zeros((nx*N, nx)) 
@@ -60,8 +62,6 @@ uss = ssf[2:4]
 uss_lin = np.linalg.solve(Bd, xss - np.dot(Ad, xss))
 x_ref = np.kron(np.ones((N,1)), xss)
 u_ref = np.kron(np.ones((N,1)), uss)
-print(uss)
-print(xss)
 
 # check steady state
 err = np.linalg.norm(xss - np.dot(Ad, xss) - np.dot(Bd, uss) - cd)
@@ -84,7 +84,7 @@ h = (+ np.dot(a_tilde.transpose(), np.dot(Q, B)) \
     - np.dot(x_ref.transpose(), np.dot(Q, B)) \
     - np.dot(u_ref.transpose(), R)).transpose()
 
-f = 1/2*ca.mtimes(ca.mtimes(ca.transpose(x), H), x) + ca.mtimes(ca.transpose(h), x)
+f = 1.0/2.0*ca.mtimes(ca.mtimes(ca.transpose(x), H), x) + ca.mtimes(ca.transpose(h), x)
 
 g = []
 for i in range(N):
@@ -183,7 +183,7 @@ arg = hpipm_ocp_qcqp_solver_arg(dim, mode)
 
 # create and set default arg based on mode
 arg.set('mu0', 1e1)
-arg.set('iter_max', 30)
+arg.set('iter_max', 40)
 arg.set('tol_stat', 1e-8)
 arg.set('tol_eq', 1e-8)
 arg.set('tol_ineq', 1e-8)

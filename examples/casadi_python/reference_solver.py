@@ -6,7 +6,7 @@ class reference_solver:
         self.x = np.zeros((nv,1))
 
         hp = ca.MX.sym('hp', nv, 1)
-        f_exp = 1/2*ca.mtimes(ca.mtimes(ca.transpose(x), H), x) \
+        f_exp = 1.0/2.0*ca.mtimes(ca.mtimes(ca.transpose(x), H), x) \
             + ca.mtimes(ca.transpose(hp), x)
         self.h = h 
 

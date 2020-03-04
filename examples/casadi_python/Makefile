@@ -65,6 +65,9 @@ all:
 	@echo ${CASADI_URL}
 #	@echo ${my_cmd}
 
+run:
+	$(PYTHON) main.py
+
 get_casadi: | $(CASADI_SOURCE)
 	mkdir -p casadi
 	tar -xf $(CASADI_SOURCE) -C casadi
@@ -75,6 +78,7 @@ $(CASADI_SOURCE):
 clean:
 	rm -rf casadi
 	rm -f dummy.txt
+	rm -f *.pyc
 
 .PHONY : all
 
