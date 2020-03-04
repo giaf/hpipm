@@ -35,8 +35,8 @@
 
 import casadi as ca
 import numpy as np
-import scipy as sp
-from scipy import signal
+#import scipy as sp
+#from scipy import signal
 
 # model of a permanent magnet synchronous motor (PMSM)
 

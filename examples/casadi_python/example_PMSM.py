@@ -35,7 +35,7 @@
 
 import casadi as ca
 import numpy as np
-import scipy as sp
+#import scipy as sp
 #import matplotlib.pyplot as plt
 from PMSM_model import *
 from reference_solver import *

@@ -104,7 +104,7 @@ jobs:
         - HPIPM_MAIN_FOLDER=${TRAVIS_BUILD_DIR}
         - BLASFEO_MAIN_FOLDER=${TRAVIS_BUILD_DIR}/blasfeo
         - LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$HPIPM_MAIN_FOLDER/lib:$BLASFEO_MAIN_FOLDER/lib
-        - PYTHON_PATH=$PYTHON_PATH:$HPIPM_MAIN_FOLDER/examples/casadi_python/python
+        - PYTHON_PATH=$PYTHON_PATH:$HPIPM_MAIN_FOLDER/examples/casadi_python/casadi
         - ENV_RUN=true
         - TRAVIS_RUN=true
       install:
