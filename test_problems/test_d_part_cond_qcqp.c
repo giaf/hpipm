@@ -659,7 +659,7 @@ int main()
 		d_ocp_qcqp_dim_set_nsg(ii, nsg[ii], &ocp_dim);
 		d_ocp_qcqp_dim_set_nsq(ii, nsq[ii], &ocp_dim);
 		}
-	
+
 #if PRINT
 	d_ocp_qcqp_dim_print(&ocp_dim);
 #endif
@@ -693,7 +693,7 @@ int main()
 		d_ocp_qcqp_set_B(ii, B, &ocp_qp);
 		d_ocp_qcqp_set_b(ii, b, &ocp_qp);
 		}
-	
+
 	// cost
 	ii = 0;
 #if KEEP_X0

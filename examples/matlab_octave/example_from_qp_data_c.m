@@ -53,14 +53,14 @@ travis_run = getenv('TRAVIS_RUN');
 
 
 if (~strcmp(travis_run, 'true'))
-	fprintf('\nHPIPM matlab interface: example from qp_data.c\n');
+	fprintf('\nHPIPM matlab interface: example from ocp_qp_data.c\n');
 end
 
 
 
 %%% dim %%%
 %dim = hpipm_ocp_qp_dim(5);
-dim = hpipm_ocp_qp_dim('qp_data.c');
+dim = hpipm_ocp_qp_dim('ocp_qp_data.c');
 
 % print to shell
 %dim.print_C_struct();
@@ -73,7 +73,7 @@ nu = dim.get('nu', 0);
 
 
 %%% qp %%%
-qp = hpipm_ocp_qp(dim, 'qp_data.c');
+qp = hpipm_ocp_qp(dim, 'ocp_qp_data.c');
 
 % print to shell
 %qp.print_C_struct();
@@ -91,7 +91,7 @@ sol = hpipm_ocp_qp_sol(dim);
 
 
 %%% solver arg %%%
-arg = hpipm_ocp_qp_solver_arg(dim, 'qp_data.c');
+arg = hpipm_ocp_qp_solver_arg(dim, 'ocp_qp_data.c');
 
 
 

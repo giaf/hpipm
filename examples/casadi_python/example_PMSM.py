@@ -64,7 +64,7 @@ w_ref = par.w_ref # speed reference
 Ts = 5e-5
 
 # dim
-N  = 12
+N  = 3
 nx = 2
 nu = 2
 nq = 1
@@ -190,6 +190,8 @@ from hpipm_python.common import *
 if(travis_run!='true'):
 	print('\n\nHPIPM solver')
 
+codegen_data = 1; # export qp data in the file ocp_qcqp_data.c for use from C examples
+
 # dim
 dim = hpipm_ocp_qcqp_dim(N)
 
@@ -200,6 +202,9 @@ dim.set('nq', nq, 0, N-1)
 
 # print to shell
 #dim.print_C_struct()
+# codegen
+if codegen_data:
+	dim.codegen('ocp_qcqp_data.c', 'w')
 
 
 # qp
@@ -231,6 +236,9 @@ qp.set('uq', uq, 0, N-1)
 
 # print to shell
 #qp.print_C_struct()
+# codegen
+if codegen_data:
+	qp.codegen('ocp_qcqp_data.c', 'a')
 
 
 
@@ -254,6 +262,10 @@ arg.set('tol_eq', 1e-8)
 arg.set('tol_ineq', 1e-8)
 arg.set('tol_comp', 1e-8)
 arg.set('reg_prim', 1e-12)
+
+# codegen
+if codegen_data:
+	arg.codegen('ocp_qcqp_data.c', 'a')
 
 # set up solver
 solver = hpipm_ocp_qcqp_solver(dim, arg)

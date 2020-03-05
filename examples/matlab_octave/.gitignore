@@ -1,3 +1,3 @@
 cflags_octave.txt
-qp_data.c
-qcqp_data.c
+ocp_qp_data.c
+ocp_qcqp_data.c

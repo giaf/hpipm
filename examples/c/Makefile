@@ -33,50 +33,59 @@
 #                                                                                                 #
 ###################################################################################################
 
-
 include ../../Makefile.rule
+include ../../Makefile.external_blas
 
-LIBS =
+LIBS = $(TOP)/lib/libhpipm.a $(BLASFEO_PATH)/lib/libblasfeo.a $(LIBS_EXTERNAL_BLAS)
 
-LIBS += $(BLASFEO_PATH)/lib/libblasfeo.a
 
-ifeq ($(REF_BLAS), 0)
-LIBS += -lm 
-endif
-ifeq ($(REF_BLAS), OPENBLAS)
-LIBS += /opt/openblas/lib/libopenblas.a -pthread -lgfortran -lm
-endif
-ifeq ($(REF_BLAS), BLIS)
-LIBS += /opt/netlib/liblapack.a /opt/blis/lib/libblis.a -lgfortran -lm -fopenmp
-endif
-ifeq ($(REF_BLAS), NETLIB)
-LIBS += /opt/netlib/liblapack.a /opt/netlib/libblas.a -lgfortran -lm
-endif
-ifeq ($(REF_BLAS), MKL)
-LIBS += -Wl,--start-group /opt/intel/mkl/lib/intel64/libmkl_gf_lp64.a /opt/intel/mkl/lib/intel64/libmkl_core.a /opt/intel/mkl/lib/intel64/libmkl_sequential.a -Wl,--end-group -ldl -lpthread -lm
-endif
-ifeq ($(REF_BLAS), ATLAS)
-LIBS += /opt/atlas/lib/liblapack.a /opt/atlas/lib/libcblas.a /opt/atlas/lib/libf77blas.a /opt/atlas/lib/libatlas.a -lgfortran -lm
-endif
+### select data file ###
 
-OBJS_DATA = data/getting_started_data.o 
-#OBJS_DATA = data/ocp_qp_data.o 
-#OBJS_DATA = ../matlab_octave/qp_data.o
-#OBJS_DATA = ../python/qp_data.o
+OCP_QP_DATA = data/getting_started_data.o 
+#OCP_QP_DATA = data/ocp_qp_data.o 
+#OCP_QP_DATA = ../matlab_octave/ocp_qp_data.o
+#OCP_QP_DATA = ../python/ocp_qp_data.o
+OCP_QCQP_DATA = data/pmsm_ocp_qcqp_data.o 
+#OCP_QCQP_DATA = data/ocp_qcqp_data.o 
 
-#OBJS_EXMP = $(OBJS_DATA) example_d_ocp_qp_unconstr.o
-#OBJS_EXMP = $(OBJS_DATA) example_d_ocp_qp.o
-OBJS_EXMP = $(OBJS_DATA) example_d_ocp_qp_part_cond.o
-#OBJS_EXMP = $(OBJS_DATA) example_d_ocp_qp_sens.o
-#OBJS_EXMP = $(OBJS_DATA) example_d_ocp_qp_part_cond_sens.o
+
+### select one single example ###
+
+#OBJS_EXMP = $(OCP_QP_DATA) example_d_ocp_qp_unconstr.o
+#OBJS_EXMP = $(OCP_QP_DATA) example_d_ocp_qp.o
+OBJS_EXMP = $(OCP_QP_DATA) example_d_ocp_qp_part_cond.o
+#OBJS_EXMP = $(OCP_QCQP_DATA) example_d_ocp_qcqp_part_cond.o
+#OBJS_EXMP = $(OCP_QP_DATA) example_d_ocp_qp_sens.o
+#OBJS_EXMP = $(OCP_QP_DATA) example_d_ocp_qp_part_cond_sens.o
 
 obj: $(OBJS_EXMP)
-	$(CC) -o  example.out $(OBJS_EXMP) -L. libhpipm.a $(LIBS) -I../../include #-pg
+	$(CC) -o  example.out $(OBJS_EXMP) $(LIBS)
 
+
+### all individual tests ###
+
+# ocp qp data
+example_d_ocp_qp_unconstr \
+example_d_ocp_qp \
+example_d_ocp_qp_part_cond \
+example_d_ocp_qp_sens \
+example_d_ocp_qp_part_cond_sens \
+: %: $(OCP_QP_DATA) %.o
+	$(CC) -o $@.out $^ $(LIBS)
+	./$@.out
+
+# ocp qcqp data
+example_d_ocp_qcqp_part_cond \
+: %: $(OCP_QCQP_DATA) %.o
+	$(CC) -o $@.out $^ $(LIBS)
+	./$@.out
+
+
+### clean ###
 clean:
 	rm -f *.o
 	rm -f data/*.o
-	rm -f example.out
+	rm -f *.out
 	rm -f libhpipm.a
 
 

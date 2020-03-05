@@ -60,7 +60,7 @@ end
 
 
 % define flags
-codegen_data = 1; % export qp data in the file qp_data.c for use from C examples
+codegen_data = 1; % export qp data in the file ocp_qp_data.c for use from C examples
 constr_type = 0; % 0 box, 1 general
 
 
@@ -106,7 +106,7 @@ end
 %dim.print_C_struct();
 % codegen
 if codegen_data
-	dim.codegen('qp_data.c', 'w');
+	dim.codegen('ocp_qp_data.c', 'w');
 end
 
 
@@ -138,7 +138,7 @@ end
 %qp.print_C_struct();
 % codegen
 if codegen_data
-	qp.codegen('qp_data.c', 'a');
+	qp.codegen('ocp_qp_data.c', 'a');
 end
 
 
@@ -167,7 +167,7 @@ arg.set('reg_prim', 1e-12);
 
 % codegen
 if codegen_data
-	arg.codegen('qp_data.c', 'a');
+	arg.codegen('ocp_qp_data.c', 'a');
 end
 
 

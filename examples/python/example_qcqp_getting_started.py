@@ -55,7 +55,7 @@ travis_run = os.getenv('TRAVIS_RUN')
 
 
 # define flags
-codegen_data = 1; # export qp data in the file qcqp_data.c for use from C examples
+codegen_data = 1; # export qp data in the file ocp_qcqp_data.c for use from C examples
 
 
 
@@ -78,7 +78,7 @@ dim.set('nq', nq, N)
 #dim.print_C_struct()
 # codegen
 if codegen_data:
-	dim.codegen('qcqp_data.c', 'w')
+	dim.codegen('ocp_qcqp_data.c', 'w')
 
 
 
@@ -116,7 +116,7 @@ qp.set('uq', uq, N)
 #qp.print_C_struct()
 # codegen
 if codegen_data:
-	qp.codegen('qcqp_data.c', 'a')
+	qp.codegen('ocp_qcqp_data.c', 'a')
 
 
 # qp sol
@@ -142,7 +142,7 @@ arg.set('reg_prim', 1e-12)
 
 # codegen
 if codegen_data:
-	arg.codegen('qcqp_data.c', 'a')
+	arg.codegen('ocp_qcqp_data.c', 'a')
 
 # set up solver
 solver = hpipm_ocp_qcqp_solver(dim, arg)
