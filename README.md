@@ -54,7 +54,7 @@ Finally, run `python getting_started.py` or `python3 getting_started.py` (depend
 
 --------------------------------------------------
 
-References:
+## References:
 
 - G. Frison, M. Diehl.
 *HPIPM: a high-performance quadratic programming framework for model predictive control*.
@@ -74,7 +74,7 @@ ACM Transactions on Mathematical Software (TOMS) (2018)
 
 --------------------------------------------------
 
-Notes:
+## Notes:
 
 - HPIPM relies on the high-performance linear algebra library BLASFEO.
 BLASFEO provides several implementations optimized for different computer architectures, and it makes heavy use of assembly code.
