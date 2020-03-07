@@ -56,13 +56,19 @@ Finally, run `python getting_started.py` or `python3 getting_started.py` (depend
 
 References:
 
-- G. Frison, H.H. B. Sørensen, B. Dammann, and J.B. Jørgensen. High-performance
-small-scale solvers for linear model predictive control. In
-IEEE European Control Conference, pages 128–133. IEEE, 2014 - <https://ieeexplore.ieee.org/document/6981589/>
+- G. Frison, M. Diehl.
+HPIPM: a high-performance quadratic programming framework for model predictive control.
+(2020)
+(arXiv preprint <https://arxiv.org/abs/2003.02547>)
 
-- BLASFEO: Basic Linear Algebra Subroutines For Embedded Optimization
-G. Frison, D. Kouzoupis, T. Sartor, A. Zanelli, M. Diehl
-ACM Transactions on Mathematical Software (TOMS) (2018) - <https://arxiv.org/abs/1704.02457>
+- G. Frison, H.H. B. Sørensen, B. Dammann, and J.B. Jørgensen.
+*High-performance small-scale solvers for linear model predictive control*.
+In IEEE European Control Conference, pages 128–133. IEEE, 2014 - <https://ieeexplore.ieee.org/document/6981589/>
+
+- G. Frison, D. Kouzoupis, T. Sartor, A. Zanelli, M. Diehl.
+*BLASFEO: Basic Linear Algebra Subroutines For Embedded Optimization*.
+ACM Transactions on Mathematical Software (TOMS) (2018)
+(arXiv preprint <https://arxiv.org/abs/1704.02457>)
 
 - <https://github.com/giaf/blasfeo>
 
