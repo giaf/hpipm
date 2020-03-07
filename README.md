@@ -57,7 +57,7 @@ Finally, run `python getting_started.py` or `python3 getting_started.py` (depend
 References:
 
 - G. Frison, M. Diehl.
-HPIPM: a high-performance quadratic programming framework for model predictive control.
+*HPIPM: a high-performance quadratic programming framework for model predictive control*.
 (2020)
 (arXiv preprint <https://arxiv.org/abs/2003.02547>)
 
