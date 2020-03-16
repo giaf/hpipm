@@ -436,3 +436,45 @@ void OCP_QP_DIM_GET_NU(struct OCP_QP_DIM *dim, int stage, int *value)
 	*value = dim->nu[stage];
 	return;
 	}
+
+
+
+void OCP_QP_DIM_REDUCE_EQ_DOF(struct OCP_QP_DIM *dim, struct OCP_QP_DIM *dim_red)
+	{
+	int ii;
+
+	// first stage: DOF: inputs and states
+	dim_red->nu[0] = dim->nu[0] - dim->nbue[0];
+	dim_red->nx[0] = dim->nx[0] - dim->nbxe[0];
+	dim_red->nbu[0] = dim->nbu[0] - dim->nbue[0];
+	dim_red->nbx[0] = dim->nbx[0] - dim->nbxe[0];
+	dim_red->nb[0] = dim_red->nbu[0] + dim_red->nbx[0];
+	dim_red->ng[0] = dim->ng[0];
+	dim_red->ns[0] = dim->ns[0];
+	dim_red->nsbu[0] = dim->nsbu[0];
+	dim_red->nsbx[0] = dim->nsbx[0];
+	dim_red->nsg[0] = dim->nsg[0];
+	dim_red->nbue[0] = 0;
+	dim_red->nbxe[0] = 0;
+	dim_red->nge[0] = dim->nge[0];
+	// other stages: DOF: inputs
+	for(ii=1; ii<=dim->N; ii++)
+		{
+		dim_red->nu[ii] = dim->nu[ii] - dim->nbue[ii];
+		dim_red->nx[ii] = dim->nx[ii];
+		dim_red->nbu[ii] = dim->nbu[ii] - dim->nbue[ii];
+		dim_red->nbx[ii] = dim->nbx[ii];
+		dim_red->nb[ii] = dim_red->nbu[ii] + dim_red->nbx[ii];
+		dim_red->ng[ii] = dim->ng[ii];
+		dim_red->ns[ii] = dim->ns[ii];
+		dim_red->nsbu[ii] = dim->nsbu[ii];
+		dim_red->nsbx[ii] = dim->nsbx[ii];
+		dim_red->nsg[ii] = dim->nsg[ii];
+		dim_red->nbue[ii] = 0;
+		dim_red->nbxe[ii] = dim->nbxe[ii];
+		dim_red->nge[ii] = dim->nge[ii];
+		}
+	
+	return;
+	}
+

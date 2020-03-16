@@ -109,6 +109,8 @@ void d_ocp_qp_dim_get_N(struct d_ocp_qp_dim *dim, int *value);
 void d_ocp_qp_dim_get_nx(struct d_ocp_qp_dim *dim, int stage, int *value);
 //
 void d_ocp_qp_dim_get_nu(struct d_ocp_qp_dim *dim, int stage, int *value);
+//
+void d_ocp_qp_dim_reduce_eq_dof(struct d_ocp_qp_dim *dim, struct d_ocp_qp_dim *dim_red);
 
 
 
