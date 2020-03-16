@@ -66,6 +66,7 @@ struct d_ocp_qp
 	int **idxb; // index of box constraints
 	int **idxs; // index of soft constraints
 	int **idxs_rev; // index of soft constraints (reverse storage)
+	int **idxe; // index of equality constraints
 	int memsize; // memory size in bytes
 	};
 
@@ -183,6 +184,20 @@ void d_ocp_qp_set_Jsbu(int stage, double *vec, struct d_ocp_qp *qp);
 void d_ocp_qp_set_Jsbx(int stage, double *vec, struct d_ocp_qp *qp);
 //
 void d_ocp_qp_set_Jsg(int stage, double *vec, struct d_ocp_qp *qp);
+//
+void d_ocp_qp_set_idxe(int stage, int *vec, struct d_ocp_qp *qp);
+//
+void d_ocp_qp_set_idxbxe(int stage, int *vec, struct d_ocp_qp *qp);
+//
+void d_ocp_qp_set_idxbue(int stage, int *vec, struct d_ocp_qp *qp);
+//
+void d_ocp_qp_set_idxge(int stage, int *vec, struct d_ocp_qp *qp);
+//
+void d_ocp_qp_set_Jbxe(int stage, double *vec, struct d_ocp_qp *qp);
+//
+void d_ocp_qp_set_Jbue(int stage, double *vec, struct d_ocp_qp *qp);
+//
+void d_ocp_qp_set_Jge(int stage, double *vec, struct d_ocp_qp *qp);
 
 // getters
 //

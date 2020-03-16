@@ -72,7 +72,7 @@ int OCP_QP_MEMSIZE(struct OCP_QP_DIM *dim)
 	int size = 0;
 
 	size += 5*(N+1)*sizeof(int); // nx nu nb ng ns
-	size += 3*(N+1)*sizeof(int *); // idxb idxs idxs_rev
+	size += 4*(N+1)*sizeof(int *); // idxb idxs idxs_rev idxe
 	size += 2*(N+1)*sizeof(struct STRMAT); // RSqrq DCt
 	size += 1*N*sizeof(struct STRMAT); // BAbt
 	size += 5*(N+1)*sizeof(struct STRVEC); // rqz d m Z d_mask
@@ -82,7 +82,7 @@ int OCP_QP_MEMSIZE(struct OCP_QP_DIM *dim)
 		{
 		size += nb[ii]*sizeof(int); // idxb
 		size += ns[ii]*sizeof(int); // idxs
-		size += (nb[ii]+ng[ii])*sizeof(int); // idxs_rev
+		size += 2*(nb[ii]+ng[ii])*sizeof(int); // idxs_rev idxe
 		size += SIZE_STRMAT(nu[ii]+nx[ii]+1, nx[ii+1]); // BAbt
 		size += SIZE_STRMAT(nu[ii]+nx[ii]+1, nu[ii]+nx[ii]); // RSQrq
 		size += SIZE_STRMAT(nu[ii]+nx[ii], ng[ii]); // DCt
@@ -92,6 +92,7 @@ int OCP_QP_MEMSIZE(struct OCP_QP_DIM *dim)
 	size += nb[ii]*sizeof(int); // idxb
 	size += ns[ii]*sizeof(int); // idxs
 	size += (nb[ii]+ng[ii])*sizeof(int); // idxs_rev
+	size += 2*(nb[ii]+ng[ii])*sizeof(int); // idxs_rev idxe
 	size += SIZE_STRMAT(nu[ii]+nx[ii]+1, nu[ii]+nx[ii]); // RSQrq
 	size += SIZE_STRMAT(nu[ii]+nx[ii], ng[ii]); // DCt
 	size += SIZE_STRVEC(2*ns[ii]); // Z
@@ -156,6 +157,10 @@ void OCP_QP_CREATE(struct OCP_QP_DIM *dim, struct OCP_QP *qp, void *mem)
 
 	// idxs_rev
 	qp->idxs_rev = ip_ptr;
+	ip_ptr += N+1;
+
+	// idxe
+	qp->idxe = ip_ptr;
 	ip_ptr += N+1;
 
 
@@ -232,6 +237,15 @@ void OCP_QP_CREATE(struct OCP_QP_DIM *dim, struct OCP_QP *qp, void *mem)
 		i_ptr += nb[ii]+ng[ii];
 		for(jj=0; jj<nb[ii]+ng[ii]; jj++)
 			qp->idxs_rev[ii][jj] = -1;
+		}
+
+	// idxe
+	for(ii=0; ii<=N; ii++)
+		{
+		(qp->idxe)[ii] = i_ptr;
+		i_ptr += nb[ii]+ng[ii];
+		for(jj=0; jj<nb[ii]+ng[ii]; jj++)
+			qp->idxs_rev[ii][jj] = 0;
 		}
 
 
@@ -405,6 +419,8 @@ void OCP_QP_COPY_ALL(struct OCP_QP *qp_orig, struct OCP_QP *qp_dest)
 			qp_dest->idxs[ii][jj] = qp_orig->idxs[ii][jj];
 		for(jj=0; jj<nb[ii]+ng[ii]; jj++)
 			qp_dest->idxs_rev[ii][jj] = qp_orig->idxs_rev[ii][jj];
+		for(jj=0; jj<nb[ii]+ng[ii]; jj++)
+			qp_dest->idxe[ii][jj] = qp_orig->idxe[ii][jj];
 		}
 
 	return;
@@ -449,6 +465,8 @@ void OCP_QP_SET_ALL_ZERO(struct OCP_QP *qp)
 			qp->idxs[ii][jj] = 0;
 		for(jj=0; jj<nb[ii]+ng[ii]; jj++)
 			qp->idxs_rev[ii][jj] = -1;
+		for(jj=0; jj<nb[ii]+ng[ii]; jj++)
+			qp->idxe[ii][jj] = 0;
 		}
 
 	return;
@@ -492,6 +510,7 @@ void OCP_QP_SET_RHS_ZERO(struct OCP_QP *qp)
 
 
 
+// TODO deprecate and remove ???
 void OCP_QP_SET_ALL(REAL **A, REAL **B, REAL **b, REAL **Q, REAL **S, REAL **R, REAL **q, REAL **r, int **idxbx, REAL **d_lbx, REAL **d_ubx, int **idxbu, REAL **d_lbu, REAL **d_ubu, REAL **C, REAL **D, REAL **d_lg, REAL **d_ug, REAL **Zl, REAL **Zu, REAL **zl, REAL **zu, int **idxs, REAL **d_ls, REAL **d_us, struct OCP_QP *qp)
 	{
 
@@ -768,6 +787,34 @@ void OCP_QP_SET(char *field, int stage, void *value, struct OCP_QP *qp)
 	else if(hpipm_strcmp(field, "Jsg"))
 		{
 		OCP_QP_SET_JSG(stage, value, qp);
+		}
+	else if(hpipm_strcmp(field, "idxe"))
+		{
+		OCP_QP_SET_IDXE(stage, value, qp);
+		}
+	else if(hpipm_strcmp(field, "idxbue"))
+		{
+		OCP_QP_SET_IDXBUE(stage, value, qp);
+		}
+	else if(hpipm_strcmp(field, "idxbxe"))
+		{
+		OCP_QP_SET_IDXBXE(stage, value, qp);
+		}
+	else if(hpipm_strcmp(field, "idxge"))
+		{
+		OCP_QP_SET_IDXGE(stage, value, qp);
+		}
+	else if(hpipm_strcmp(field, "Jbue"))
+		{
+		OCP_QP_SET_JBUE(stage, value, qp);
+		}
+	else if(hpipm_strcmp(field, "Jbxe"))
+		{
+		OCP_QP_SET_JBXE(stage, value, qp);
+		}
+	else if(hpipm_strcmp(field, "Jge"))
+		{
+		OCP_QP_SET_JGE(stage, value, qp);
 		}
 	else
 		{
@@ -1517,6 +1564,142 @@ void OCP_QP_SET_LUS_MASK(int stage, REAL *lus_mask, struct OCP_QP *qp)
 
 	CVT_VEC2STRVEC(ns[stage], lus_mask, qp->d_mask+stage, 2*nb[stage]+2*ng[stage]+ns[stage]);
 
+	return;
+	}
+
+
+
+void OCP_QP_SET_IDXE(int stage, int *idxe, struct OCP_QP *qp)
+	{
+	// extract dim
+	int *nbxe = qp->dim->nbxe;
+	int *nbue = qp->dim->nbue;
+	int *nge = qp->dim->nge;
+
+	int ii;
+	for(ii=0; ii<nbxe[stage]+nbue[stage]+nge[stage]; ii++)
+		qp->idxe[stage][ii] = idxe[ii];
+
+	return;
+	}
+
+
+
+void OCP_QP_SET_IDXBUE(int stage, int *idxbue, struct OCP_QP *qp)
+	{
+	// extract dim
+	int *nbxe = qp->dim->nbxe;
+	int *nbue = qp->dim->nbue;
+	int *nge = qp->dim->nge;
+
+	int ii;
+	for(ii=0; ii<nbue[stage]; ii++)
+		qp->idxe[stage][ii] = idxbue[ii];
+
+	return;
+	}
+
+
+
+void OCP_QP_SET_IDXBXE(int stage, int *idxbxe, struct OCP_QP *qp)
+	{
+	// extract dim
+	int *nbu = qp->dim->nbu;
+	int *nbxe = qp->dim->nbxe;
+	int *nbue = qp->dim->nbue;
+	int *nge = qp->dim->nge;
+
+	int ii;
+	for(ii=0; ii<nbxe[stage]; ii++)
+		qp->idxe[stage][nbue[stage]+ii] = nbu[stage] + idxbxe[ii];
+
+	return;
+	}
+
+
+
+void OCP_QP_SET_IDXGE(int stage, int *idxge, struct OCP_QP *qp)
+	{
+	// extract dim
+	int *nbu = qp->dim->nbu;
+	int *nbx = qp->dim->nbx;
+	int *nbxe = qp->dim->nbxe;
+	int *nbue = qp->dim->nbue;
+	int *nge = qp->dim->nge;
+
+	int ii;
+	for(ii=0; ii<nge[stage]; ii++)
+		qp->idxe[stage][nbue[stage]+nbxe[stage]+ii] = nbu[stage] + nbx[stage] + idxge[ii];
+
+	return;
+	}
+
+
+
+void OCP_QP_SET_JBUE(int stage, REAL *Jbue, struct OCP_QP *qp)
+	{
+	// extract dim
+	int *nbu = qp->dim->nbu;
+	int *nbue = qp->dim->nbue;
+
+	int ii, idx;
+	idx = 0;
+	for(ii=0; ii<nbu[stage]; ii++)
+		{
+		if(idx<nbue[stage] | Jbue[ii]!=0.0)
+			{
+			qp->idxe[stage][idx] = ii;
+			idx++;
+			}
+		}
+	return;
+	}
+
+
+
+void OCP_QP_SET_JBXE(int stage, REAL *Jbxe, struct OCP_QP *qp)
+	{
+	// extract dim
+	int *nbu = qp->dim->nbu;
+	int *nbx = qp->dim->nbx;
+	int *nbue = qp->dim->nbue;
+	int *nbxe = qp->dim->nbxe;
+
+	int ii, idx;
+	idx = 0;
+	for(ii=0; ii<nbx[stage]; ii++)
+		{
+		if(idx<nbxe[stage] | Jbxe[ii]!=0.0)
+			{
+			qp->idxe[stage][nbue[stage]+idx] = nbu[stage] + ii;
+			idx++;
+			}
+		}
+	return;
+	}
+
+
+
+void OCP_QP_SET_JGE(int stage, REAL *Jge, struct OCP_QP *qp)
+	{
+	// extract dim
+	int *nbu = qp->dim->nbu;
+	int *nbx = qp->dim->nbx;
+	int *ng = qp->dim->ng;
+	int *nbue = qp->dim->nbue;
+	int *nbxe = qp->dim->nbxe;
+	int *nge = qp->dim->nge;
+
+	int ii, idx;
+	idx = 0;
+	for(ii=0; ii<ng[stage]; ii++)
+		{
+		if(idx<nge[stage] | Jge[ii]!=0.0)
+			{
+			qp->idxe[stage][nbue[stage]+nbxe[stage]+idx] = nbu[stage] + nbx[stage] + ii;
+			idx++;
+			}
+		}
 	return;
 	}
 

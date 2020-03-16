@@ -56,6 +56,9 @@ struct d_ocp_qp_dim
 	int *nsbx; // number of soft state box constraints
 	int *nsbu; // number of soft input box constraints
 	int *nsg; // number of soft general constraints
+	int *nbxe; // number of state box constraints which are equality
+	int *nbue; // number of input box constraints which are equality
+	int *nge; // number of general constraints which are equality
 	int N; // horizon length
 	int memsize;
 	};
@@ -92,6 +95,12 @@ void d_ocp_qp_dim_set_nsbx(int stage, int value, struct d_ocp_qp_dim *dim);
 void d_ocp_qp_dim_set_nsbu(int stage, int value, struct d_ocp_qp_dim *dim);
 //
 void d_ocp_qp_dim_set_nsg(int stage, int value, struct d_ocp_qp_dim *dim);
+//
+void d_ocp_qp_dim_set_nbxe(int stage, int value, struct d_ocp_qp_dim *dim);
+//
+void d_ocp_qp_dim_set_nbue(int stage, int value, struct d_ocp_qp_dim *dim);
+//
+void d_ocp_qp_dim_set_nge(int stage, int value, struct d_ocp_qp_dim *dim);
 //
 void d_ocp_qp_dim_get(struct d_ocp_qp_dim *dim, char *field, int stage, int *value);
 //

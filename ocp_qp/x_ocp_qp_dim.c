@@ -47,7 +47,7 @@ int OCP_QP_DIM_MEMSIZE(int N)
 
 	int size = 0;
 
-	size += 10*(N+1)*sizeof(int);
+	size += 13*(N+1)*sizeof(int);
 
 	size = (size+8-1)/8*8; // make multiple of 8 bytes
 
@@ -119,6 +119,21 @@ void OCP_QP_DIM_CREATE(int N, struct OCP_QP_DIM *dim, void *mem)
 	c_ptr += (N+1)*sizeof(int);
 	for(ii=0; ii<=N; ii++)
 		dim->nsg[ii] = 0;
+	// nbxe
+	dim->nbxe = (int *) c_ptr;
+	c_ptr += (N+1)*sizeof(int);
+	for(ii=0; ii<=N; ii++)
+		dim->nbxe[ii] = 0;
+	// nbue
+	dim->nbue = (int *) c_ptr;
+	c_ptr += (N+1)*sizeof(int);
+	for(ii=0; ii<=N; ii++)
+		dim->nbue[ii] = 0;
+	// nge
+	dim->nge = (int *) c_ptr;
+	c_ptr += (N+1)*sizeof(int);
+	for(ii=0; ii<=N; ii++)
+		dim->nge[ii] = 0;
 
 	// N
 	dim->N = N;
@@ -168,6 +183,12 @@ void OCP_QP_DIM_COPY_ALL(struct OCP_QP_DIM *dim_orig, struct OCP_QP_DIM *dim_des
 		dim_dest->nsbu[ii] = dim_orig->nsbu[ii];
 	for(ii=0; ii<=N; ii++)
 		dim_dest->nsg[ii] = dim_orig->nsg[ii];
+	for(ii=0; ii<=N; ii++)
+		dim_dest->nbxe[ii] = dim_orig->nbxe[ii];
+	for(ii=0; ii<=N; ii++)
+		dim_dest->nbue[ii] = dim_orig->nbue[ii];
+	for(ii=0; ii<=N; ii++)
+		dim_dest->nge[ii] = dim_orig->nge[ii];
 
 	return;
 
@@ -175,6 +196,7 @@ void OCP_QP_DIM_COPY_ALL(struct OCP_QP_DIM *dim_orig, struct OCP_QP_DIM *dim_des
 
 
 
+// TODO deprecated and remove ???
 void OCP_QP_DIM_SET_ALL(int *nx, int *nu, int *nbx, int *nbu, int *ng, int *nsbx, int *nsbu, int *nsg, struct OCP_QP_DIM *dim)
 	{
 
@@ -249,6 +271,18 @@ void OCP_QP_DIM_SET(char *field_name, int stage, int value, struct OCP_QP_DIM *d
 	else if(hpipm_strcmp(field_name, "nsg"))
 		{
 		OCP_QP_DIM_SET_NSG(stage, value, dim);
+		}
+	else if(hpipm_strcmp(field_name, "nbxe"))
+		{
+		OCP_QP_DIM_SET_NBXE(stage, value, dim);
+		}
+	else if(hpipm_strcmp(field_name, "nbue"))
+		{
+		OCP_QP_DIM_SET_NBUE(stage, value, dim);
+		}
+	else if(hpipm_strcmp(field_name, "nge"))
+		{
+		OCP_QP_DIM_SET_NGE(stage, value, dim);
 		}
 	else 
 		{
@@ -332,6 +366,30 @@ void OCP_QP_DIM_SET_NSG(int stage, int value, struct OCP_QP_DIM *dim)
 	{
 	dim->nsg[stage] = value;
 	dim->ns[stage] = dim->nsbx[stage] + dim->nsbu[stage] + dim->nsg[stage];
+	return;
+	}
+
+
+
+void OCP_QP_DIM_SET_NBXE(int stage, int value, struct OCP_QP_DIM *dim)
+	{
+	dim->nbxe[stage] = value;
+	return;
+	}
+
+
+
+void OCP_QP_DIM_SET_NBUE(int stage, int value, struct OCP_QP_DIM *dim)
+	{
+	dim->nbue[stage] = value;
+	return;
+	}
+
+
+
+void OCP_QP_DIM_SET_NGE(int stage, int value, struct OCP_QP_DIM *dim)
+	{
+	dim->nge[stage] = value;
 	return;
 	}
 
