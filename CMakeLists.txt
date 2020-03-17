@@ -239,6 +239,7 @@ file(GLOB OCP_QP_SRC
 	${PROJECT_SOURCE_DIR}/ocp_qp/d_ocp_qp_ipm.c
 	${PROJECT_SOURCE_DIR}/ocp_qp/d_ocp_qp_res.c
 	${PROJECT_SOURCE_DIR}/ocp_qp/d_ocp_qp_utils.c
+	${PROJECT_SOURCE_DIR}/ocp_qp/d_ocp_qp_red.c
 	${PROJECT_SOURCE_DIR}/ocp_qp/d_ocp_qcqp.c
 	${PROJECT_SOURCE_DIR}/ocp_qp/d_ocp_qcqp_dim.c
 	${PROJECT_SOURCE_DIR}/ocp_qp/d_ocp_qcqp_sol.c
@@ -253,6 +254,7 @@ file(GLOB OCP_QP_SRC
 	${PROJECT_SOURCE_DIR}/ocp_qp/s_ocp_qp_ipm.c
 	${PROJECT_SOURCE_DIR}/ocp_qp/s_ocp_qp_res.c
 	${PROJECT_SOURCE_DIR}/ocp_qp/s_ocp_qp_utils.c
+	${PROJECT_SOURCE_DIR}/ocp_qp/s_ocp_qp_red.c
 	${PROJECT_SOURCE_DIR}/ocp_qp/s_ocp_qcqp.c
 	${PROJECT_SOURCE_DIR}/ocp_qp/s_ocp_qcqp_dim.c
 	${PROJECT_SOURCE_DIR}/ocp_qp/s_ocp_qcqp_sol.c

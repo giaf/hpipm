@@ -49,12 +49,14 @@
 #include <hpipm_d_ocp_qp.h>
 #include <hpipm_d_ocp_qp_sol.h>
 #include <hpipm_d_ocp_qp_ipm.h>
+#include <hpipm_d_ocp_qp_utils.h>
+#include <hpipm_d_ocp_qp_red.h>
 
 #include "d_tools.h"
 
 
 
-#define KEEP_X0 0
+#define KEEP_X0 1
 
 // printing
 #ifndef PRINT
@@ -295,7 +297,7 @@ int main()
 #if 1
 	int nbx[N+1];
 #if KEEP_X0
-	nbx[0] = nx[0]/2;
+	nbx[0] = nx[0];
 #else
 	nbx[0] = 0;
 #endif
@@ -329,6 +331,11 @@ int main()
 	int ns[N+1];
 	for(ii=0; ii<=N; ii++)
 		ns[ii] = nsbx[ii] + nsbu[ii] + nsg[ii];
+
+	int nbxe[N+1];
+	nbxe[0] = nx_;
+	for(ii=1; ii<=N; ii++)
+		nbxe[ii] = 0;
 
 #elif 0
 	int nb[N+1];
@@ -469,8 +476,8 @@ int main()
 		}
 	for(ii=0; ii<nbx[0]; ii++)
 		{
-		d_lbx0[ii] = - 4.0; // xmin
-		d_ubx0[ii] =   4.0; // xmax
+		d_lbx0[ii] = x0[ii]; //- 4.0; // xmin
+		d_ubx0[ii] = x0[ii]; //  4.0; // xmax
 		idxbx0[ii] = ii;
 		}
 	for(ii=0; ii<ng[0]; ii++)
@@ -719,12 +726,12 @@ int main()
 
 	hA[0] = A;
 	hB[0] = B;
-	hb[0] = b0;
+	hb[0] = b; //b0;
 	hQ[0] = Q;
 	hS[0] = S;
 	hR[0] = R;
 	hq[0] = q;
-	hr[0] = r0;
+	hr[0] = r; //r0;
 	hidxbx[0] = idxbx0;
 	hd_lbx[0] = d_lbx0;
 	hd_ubx[0] = d_ubx0;
@@ -804,6 +811,11 @@ int main()
 	d_ocp_qp_dim_create(N, &dim, dim_mem);
 	d_ocp_qp_dim_set_all(nx, nu, nbx, nbu, ng, nsbx, nsbu, nsg, &dim);
 
+	for(ii=0; ii<=N; ii++)
+		d_ocp_qp_dim_set_nbxe(ii, nbxe[ii], &dim);
+
+	d_ocp_qp_dim_print(&dim);
+
 /************************************************
 * ocp qp
 ************************************************/
@@ -827,8 +839,14 @@ int main()
 //	d_ocp_qp_set("ubu_mask", 0, d_ubu_mask, &qp);
 //	d_ocp_qp_set("lbx_mask", N, d_lbx_mask, &qp);
 //	d_ocp_qp_set("ubx_mask", N, d_ubx_mask, &qp);
+	
+	int idxbxe0[nx_];
+	for(ii=0; ii<=nx_; ii++)
+		idxbxe0[ii] = ii;
+	
+	d_ocp_qp_set_idxbxe(0, idxbxe0, &qp);
 
-//	d_ocp_qp_print(qp.dim, &qp);
+	d_ocp_qp_print(qp.dim, &qp);
 //	exit(1);
 
 #if 0
@@ -855,6 +873,52 @@ int main()
 		blasfeo_print_tran_dvec(qp.ng[ii], qp.d_ug+ii, 0);
 	return;
 #endif
+
+/************************************************
+* ocp qp red
+************************************************/
+
+	int dim_size2 = d_ocp_qp_dim_memsize(N);
+#if PRINT
+	printf("\ndim size = %d\n", dim_size2);
+#endif
+	void *dim_mem2 = malloc(dim_size2);
+
+	struct d_ocp_qp_dim dim2;
+	d_ocp_qp_dim_create(N, &dim2, dim_mem2);
+
+	d_ocp_qp_dim_reduce_eq_dof(&dim, &dim2);
+
+	d_ocp_qp_dim_print(&dim2);
+
+
+	int qp_size2 = d_ocp_qp_memsize(&dim2);
+#if PRINT
+	printf("\nqp size = %d\n", qp_size2);
+#endif
+	void *qp_mem2 = malloc(qp_size2);
+
+	struct d_ocp_qp qp2;
+	d_ocp_qp_create(&dim2, &qp2, qp_mem2);
+
+	d_ocp_qp_print(qp2.dim, &qp2);
+
+
+	int qp_red_size = d_ocp_qp_reduce_eq_dof_work_memsize(&dim2);
+#if PRINT
+	printf("\nqp red size = %d\n", qp_red_size);
+#endif
+	void *qp_red_mem = malloc(qp_red_size);
+
+	struct d_ocp_qp_reduce_eq_dof_work qp_red_work;
+	d_ocp_qp_reduce_eq_dof_work_create(&dim2, &qp_red_work, qp_red_mem);
+
+	d_ocp_qp_reduce_eq_dof(&qp, &qp2, &qp_red_work);
+
+	d_ocp_qp_print(qp2.dim, &qp2);
+
+
+	exit(1);
 
 /************************************************
 * ocp qp sol
