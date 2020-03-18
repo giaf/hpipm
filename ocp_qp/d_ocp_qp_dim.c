@@ -70,7 +70,6 @@
 #define OCP_QP_DIM_GET_N d_ocp_qp_dim_get_N
 #define OCP_QP_DIM_GET_NX d_ocp_qp_dim_get_nx
 #define OCP_QP_DIM_GET_NU d_ocp_qp_dim_get_nu
-#define OCP_QP_DIM_REDUCE_EQ_DOF d_ocp_qp_dim_reduce_eq_dof
 
 
 

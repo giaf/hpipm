@@ -45,6 +45,7 @@
 
 #include <hpipm_d_ocp_qp_dim.h>
 #include <hpipm_d_ocp_qp.h>
+#include <hpipm_d_ocp_qp_sol.h>
 #include <hpipm_d_ocp_qp_red.h>
 #include <hpipm_aux_string.h>
 #include <hpipm_aux_mem.h>
@@ -55,20 +56,25 @@
 
 
 
+#define AXPY blasfeo_daxpy
 #define CREATE_STRVEC blasfeo_create_dvec
 #define GECP blasfeo_dgecp
 #define GEMV_T blasfeo_dgemv_t
 #define OCP_QP d_ocp_qp
 #define OCP_QP_DIM d_ocp_qp_dim
 #define OCP_QP_REDUCE_EQ_DOF_WORK d_ocp_qp_reduce_eq_dof_work
+#define OCP_QP_SOL d_ocp_qp_sol
 #define SIZE_STRVEC blasfeo_memsize_dvec
 #define STRVEC blasfeo_dvec
+#define SYMV_L blasfeo_dsymv_l
 #define VECCP blasfeo_dveccp
 #define VECSE blasfeo_dvecse
 
+#define OCP_QP_DIM_REDUCE_EQ_DOF d_ocp_qp_dim_reduce_eq_dof
 #define OCP_QP_REDUCE_EQ_DOF_WORK_MEMSIZE d_ocp_qp_reduce_eq_dof_work_memsize
 #define OCP_QP_REDUCE_EQ_DOF_WORK_CREATE d_ocp_qp_reduce_eq_dof_work_create
 #define OCP_QP_REDUCE_EQ_DOF d_ocp_qp_reduce_eq_dof
+#define OCP_QP_RESTORE_EQ_DOF d_ocp_qp_restore_eq_dof
 
 
 

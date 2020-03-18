@@ -917,27 +917,24 @@ int main()
 
 	d_ocp_qp_print(qp2.dim, &qp2);
 
-
-	exit(1);
-
 /************************************************
 * ocp qp sol
 ************************************************/
 
-	int qp_sol_size = d_ocp_qp_sol_memsize(&dim);
+	int qp_sol_size2 = d_ocp_qp_sol_memsize(&dim2);
 #if PRINT
-	printf("\nqp sol size = %d\n", qp_sol_size);
+	printf("\nqp sol size = %d\n", qp_sol_size2);
 #endif
-	void *qp_sol_mem = malloc(qp_sol_size);
+	void *qp_sol_mem2 = malloc(qp_sol_size2);
 
-	struct d_ocp_qp_sol qp_sol;
-	d_ocp_qp_sol_create(&dim, &qp_sol, qp_sol_mem);
+	struct d_ocp_qp_sol qp_sol2;
+	d_ocp_qp_sol_create(&dim2, &qp_sol2, qp_sol_mem2);
 
 /************************************************
 * ipm arg
 ************************************************/
 
-	int ipm_arg_size = d_ocp_qp_ipm_arg_memsize(&dim);
+	int ipm_arg_size = d_ocp_qp_ipm_arg_memsize(&dim2);
 	void *ipm_arg_mem = malloc(ipm_arg_size);
 
 	struct d_ocp_qp_ipm_arg arg;
@@ -980,14 +977,14 @@ int main()
 * ipm
 ************************************************/
 
-	int ipm_size = d_ocp_qp_ipm_ws_memsize(&dim, &arg);
+	int ipm_size = d_ocp_qp_ipm_ws_memsize(&dim2, &arg);
 #if PRINT
 	printf("\nipm size = %d\n", ipm_size);
 #endif
 	void *ipm_mem = malloc(ipm_size);
 
 	struct d_ocp_qp_ipm_ws workspace;
-	d_ocp_qp_ipm_ws_create(&dim, &arg, &workspace, ipm_mem);
+	d_ocp_qp_ipm_ws_create(&dim2, &arg, &workspace, ipm_mem);
 
 	int hpipm_status; // 0 normal; 1 max iter
 
@@ -999,13 +996,34 @@ int main()
 
 	for(rep=0; rep<nrep; rep++)
 		{
-		d_ocp_qp_ipm_solve(&qp, &qp_sol, &arg, &workspace);
+		d_ocp_qp_ipm_solve(&qp2, &qp_sol2, &arg, &workspace);
 		d_ocp_qp_ipm_get_status(&workspace, &hpipm_status);
 		}
 
 	gettimeofday(&tv1, NULL); // stop
 
 	double time_ocp_ipm = (tv1.tv_sec-tv0.tv_sec)/(nrep+0.0)+(tv1.tv_usec-tv0.tv_usec)/(nrep*1e6);
+
+	d_ocp_qp_sol_print(&dim2, &qp_sol2);
+
+/************************************************
+* ocp qp sol
+************************************************/
+
+	int qp_sol_size = d_ocp_qp_sol_memsize(&dim);
+#if PRINT
+	printf("\nqp sol size = %d\n", qp_sol_size);
+#endif
+	void *qp_sol_mem = malloc(qp_sol_size);
+
+	struct d_ocp_qp_sol qp_sol;
+	d_ocp_qp_sol_create(&dim, &qp_sol, qp_sol_mem);
+
+	d_ocp_qp_restore_eq_dof(&qp, &qp_sol2, &qp_sol, &qp_red_work);
+
+	d_ocp_qp_sol_print(&dim, &qp_sol);
+
+	exit(1);
 
 /************************************************
 * extract and print solution
