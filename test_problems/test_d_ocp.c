@@ -56,7 +56,7 @@
 
 
 
-#define KEEP_X0 1
+#define KEEP_X0 0
 
 // printing
 #ifndef PRINT
@@ -258,6 +258,10 @@ void mass_spring_system(double Ts, int nx, int nu, double *A, double *B, double 
 int main()
 	{
 
+	int rep, nrep=1000; //000;
+
+	struct timeval tv0, tv1;
+
 
 	// local variables
 
@@ -276,11 +280,7 @@ int main()
 	// stage-wise variant size
 
 	int nx[N+1];
-#if KEEP_X0
 	nx[0] = nx_;
-#else
-	nx[0] = 0;
-#endif
 	for(ii=1; ii<=N; ii++)
 		nx[ii] = nx_;
 //	nx[N] = 0;
@@ -296,11 +296,7 @@ int main()
 	nbu[N] = 0;
 #if 1
 	int nbx[N+1];
-#if KEEP_X0
 	nbx[0] = nx[0];
-#else
-	nbx[0] = 0;
-#endif
 	for(ii=1; ii<=N; ii++)
 		nbx[ii] = nx[ii]/2;
 
@@ -393,16 +389,11 @@ int main()
 	x0[0] = 2.5;
 	x0[1] = 2.5;
 
-	double *b0; d_zeros(&b0, nx_, 1);
-	dgemv_n_3l(nx_, nx_, A, nx_, x0, b0);
-	daxpy_3l(nx_, 1.0, b, b0);
-
 #if PRINT
 	d_print_mat(nx_, nx_, A, nx_);
 	d_print_mat(nx_, nu_, B, nu_);
 	d_print_mat(1, nx_, b, 1);
 	d_print_mat(1, nx_, x0, 1);
-	d_print_mat(1, nx_, b0, 1);
 #endif
 
 /************************************************
@@ -423,10 +414,6 @@ int main()
 	double *r; d_zeros(&r, nu_, 1);
 	for(ii=0; ii<nu_; ii++) r[ii] = 0.0;
 
-	double *r0; d_zeros(&r0, nu_, 1);
-	dgemv_n_3l(nu_, nx_, S, nu_, x0, r0);
-	daxpy_3l(nu_, 1.0, r, r0);
-
 #if 0
 	double *QN; d_zeros(&QN, nx_, nx_);
 	for(ii=0; ii<2; ii++) QN[ii*(nx_+1)] = 1e15;
@@ -444,7 +431,6 @@ int main()
 	d_print_mat(nu_, nx_, S, nu_);
 	d_print_mat(1, nx_, q, 1);
 	d_print_mat(1, nu_, r, 1);
-	d_print_mat(1, nu_, r0, 1);
 //	d_print_mat(nx_, nx_, QN, nx_);
 //	d_print_mat(1, nx_, qN, 1);
 #endif
@@ -726,12 +712,12 @@ int main()
 
 	hA[0] = A;
 	hB[0] = B;
-	hb[0] = b; //b0;
+	hb[0] = b;
 	hQ[0] = Q;
 	hS[0] = S;
 	hR[0] = R;
 	hq[0] = q;
-	hr[0] = r; //r0;
+	hr[0] = r;
 	hidxbx[0] = idxbx0;
 	hd_lbx[0] = d_lbx0;
 	hd_ubx[0] = d_ubx0;
@@ -846,8 +832,10 @@ int main()
 	
 	d_ocp_qp_set_idxbxe(0, idxbxe0, &qp);
 
+#if PRINT
 	d_ocp_qp_print(qp.dim, &qp);
 //	exit(1);
+#endif
 
 #if 0
 	printf("\nN = %d\n", qp.dim->N);
@@ -875,8 +863,15 @@ int main()
 #endif
 
 /************************************************
-* ocp qp red
+* ocp qp reduce equation dof
 ************************************************/
+
+#if KEEP_X0
+
+	struct d_ocp_qp_dim dim2 = dim;
+	struct d_ocp_qp qp2 = qp;
+
+#else // keep x0
 
 	int dim_size2 = d_ocp_qp_dim_memsize(N);
 #if PRINT
@@ -889,7 +884,9 @@ int main()
 
 	d_ocp_qp_dim_reduce_eq_dof(&dim, &dim2);
 
+#if PRINT
 	d_ocp_qp_dim_print(&dim2);
+#endif
 
 
 	int qp_size2 = d_ocp_qp_memsize(&dim2);
@@ -901,7 +898,7 @@ int main()
 	struct d_ocp_qp qp2;
 	d_ocp_qp_create(&dim2, &qp2, qp_mem2);
 
-	d_ocp_qp_print(qp2.dim, &qp2);
+//	d_ocp_qp_print(qp2.dim, &qp2);
 
 
 	int qp_red_size = d_ocp_qp_reduce_eq_dof_work_memsize(&dim2);
@@ -913,13 +910,41 @@ int main()
 	struct d_ocp_qp_reduce_eq_dof_work qp_red_work;
 	d_ocp_qp_reduce_eq_dof_work_create(&dim2, &qp_red_work, qp_red_mem);
 
-	d_ocp_qp_reduce_eq_dof(&qp, &qp2, &qp_red_work);
+	gettimeofday(&tv0, NULL); // start
 
+	for(rep=0; rep<nrep; rep++)
+		{
+		d_ocp_qp_reduce_eq_dof(&qp, &qp2, &qp_red_work);
+		}
+
+	gettimeofday(&tv1, NULL); // stop
+
+	double time_red_eq_dof = (tv1.tv_sec-tv0.tv_sec)/(nrep+0.0)+(tv1.tv_usec-tv0.tv_usec)/(nrep*1e6);
+
+#if PRINT
 	d_ocp_qp_print(qp2.dim, &qp2);
+#endif
+
+#endif // keep x0
 
 /************************************************
 * ocp qp sol
 ************************************************/
+
+	int qp_sol_size = d_ocp_qp_sol_memsize(&dim);
+#if PRINT
+	printf("\nqp sol size = %d\n", qp_sol_size);
+#endif
+	void *qp_sol_mem = malloc(qp_sol_size);
+
+	struct d_ocp_qp_sol qp_sol;
+	d_ocp_qp_sol_create(&dim, &qp_sol, qp_sol_mem);
+
+#if KEEP_X0
+	
+	struct d_ocp_qp_sol qp_sol2 = qp_sol;
+
+#else // keep x0
 
 	int qp_sol_size2 = d_ocp_qp_sol_memsize(&dim2);
 #if PRINT
@@ -929,6 +954,8 @@ int main()
 
 	struct d_ocp_qp_sol qp_sol2;
 	d_ocp_qp_sol_create(&dim2, &qp_sol2, qp_sol_mem2);
+
+#endif // keep x0
 
 /************************************************
 * ipm arg
@@ -988,10 +1015,6 @@ int main()
 
 	int hpipm_status; // 0 normal; 1 max iter
 
-	int rep, nrep=1; //000;
-
-	struct timeval tv0, tv1;
-
 	gettimeofday(&tv0, NULL); // start
 
 	for(rep=0; rep<nrep; rep++)
@@ -1004,26 +1027,36 @@ int main()
 
 	double time_ocp_ipm = (tv1.tv_sec-tv0.tv_sec)/(nrep+0.0)+(tv1.tv_usec-tv0.tv_usec)/(nrep*1e6);
 
+#if PRINT
 	d_ocp_qp_sol_print(&dim2, &qp_sol2);
+#endif
 
 /************************************************
-* ocp qp sol
+* ocp qp restore equation dof
 ************************************************/
 
-	int qp_sol_size = d_ocp_qp_sol_memsize(&dim);
+#if KEEP_X0
+
+#else // keep x0
+
+	gettimeofday(&tv0, NULL); // start
+
+	for(rep=0; rep<nrep; rep++)
+		{
+		d_ocp_qp_restore_eq_dof(&qp, &qp_sol2, &qp_sol, &qp_red_work);
+		}
+
+	gettimeofday(&tv1, NULL); // stop
+
+	double time_res_eq_dof = (tv1.tv_sec-tv0.tv_sec)/(nrep+0.0)+(tv1.tv_usec-tv0.tv_usec)/(nrep*1e6);
+
 #if PRINT
-	printf("\nqp sol size = %d\n", qp_sol_size);
-#endif
-	void *qp_sol_mem = malloc(qp_sol_size);
-
-	struct d_ocp_qp_sol qp_sol;
-	d_ocp_qp_sol_create(&dim, &qp_sol, qp_sol_mem);
-
-	d_ocp_qp_restore_eq_dof(&qp, &qp_sol2, &qp_sol, &qp_red_work);
-
 	d_ocp_qp_sol_print(&dim, &qp_sol);
+#endif
 
-	exit(1);
+//	exit(1);
+
+#endif // keep x0
 
 /************************************************
 * extract and print solution
@@ -1199,6 +1232,11 @@ int main()
 	d_print_exp_tran_mat(stat_m, iter+1, stat, stat_m);
 
 	printf("\nocp ipm time = %e [s]\n\n", time_ocp_ipm);
+#if KEEP_X0
+#else // keep x0
+	printf("\nreduce eq dof time = %e [s]\n\n", time_red_eq_dof);
+	printf("\nrestore eq dof time = %e [s]\n\n", time_res_eq_dof);
+#endif // keep x0
 #endif
 
 /************************************************
@@ -1216,7 +1254,6 @@ int main()
 	d_free(q);
 //	d_free(qN);
 	d_free(r);
-	d_free(r0);
 	int_free(idxbx0);
 	d_free(d_lbx0);
 	d_free(d_ubx0);
@@ -1329,10 +1366,18 @@ int main()
 	d_free(res_m_ls[ii]);
 	d_free(res_m_us[ii]);
 
+	free(dim_mem);
 	free(qp_mem);
 	free(qp_sol_mem);
 	free(ipm_arg_mem);
 	free(ipm_mem);
+#if KEEP_X0
+#else // keep x0
+	free(dim_mem2);
+	free(qp_mem2);
+	free(qp_sol_mem2);
+	free(qp_red_mem);
+#endif // keep x0
 
 /************************************************
 * return

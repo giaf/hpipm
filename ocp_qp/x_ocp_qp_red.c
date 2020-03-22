@@ -263,9 +263,9 @@ void OCP_QP_REDUCE_EQ_DOF(struct OCP_QP *qp, struct OCP_QP *qp_red, struct OCP_Q
 						if(work->e_imask_ux[kk]==0)
 							{
 #ifdef DOUBLE_PRECISION
-							BLASFEO_DMATEL(qp_red->RSQrq+ii, idx1, idx0) += BLASFEO_DMATEL(qp->RSQrq+ii, kk, jj);
+							BLASFEO_DMATEL(qp_red->RSQrq+ii, idx1, idx0) = BLASFEO_DMATEL(qp->RSQrq+ii, kk, jj);
 #else
-							BLASFEO_SMATEL(qp_red->RSQrq+ii, idx1, idx0) += BLASFEO_SMATEL(qp->RSQrq+ii, kk, jj);
+							BLASFEO_SMATEL(qp_red->RSQrq+ii, idx1, idx0) = BLASFEO_SMATEL(qp->RSQrq+ii, kk, jj);
 #endif
 							idx1++;
 							}
@@ -281,9 +281,9 @@ void OCP_QP_REDUCE_EQ_DOF(struct OCP_QP *qp, struct OCP_QP *qp_red, struct OCP_Q
 				if(work->e_imask_ux[jj]==0)
 					{
 #ifdef DOUBLE_PRECISION
-					BLASFEO_DVECEL(qp_red->rqz+ii, idx0) += BLASFEO_DVECEL(work->tmp_nuxM+1, jj);
+					BLASFEO_DVECEL(qp_red->rqz+ii, idx0) = BLASFEO_DVECEL(work->tmp_nuxM+1, jj);
 #else
-					BLASFEO_SVECEL(qp_red->rqz+ii, idx0) += BLASFEO_SVECEL(work->tmp_nuxM+1, jj);
+					BLASFEO_SVECEL(qp_red->rqz+ii, idx0) = BLASFEO_SVECEL(work->tmp_nuxM+1, jj);
 #endif
 					idx0++;
 					}
