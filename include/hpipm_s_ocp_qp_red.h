@@ -55,7 +55,7 @@ extern "C" {
 struct s_ocp_qp_reduce_eq_dof_work
 	{
 	struct blasfeo_svec *tmp_nuxM;
-	struct blasfeo_svec *tmp_ngM;
+	struct blasfeo_svec *tmp_nbgM;
 	int *e_imask_ux;
 	int *e_imask_d;
 	int memsize; // memory size in bytes

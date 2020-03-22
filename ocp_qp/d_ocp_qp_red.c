@@ -59,14 +59,17 @@
 #define AXPY blasfeo_daxpy
 #define CREATE_STRVEC blasfeo_create_dvec
 #define GECP blasfeo_dgecp
+#define GEMV_N blasfeo_dgemv_n
 #define GEMV_T blasfeo_dgemv_t
 #define OCP_QP d_ocp_qp
 #define OCP_QP_DIM d_ocp_qp_dim
 #define OCP_QP_REDUCE_EQ_DOF_WORK d_ocp_qp_reduce_eq_dof_work
 #define OCP_QP_SOL d_ocp_qp_sol
+#define REAL double
 #define SIZE_STRVEC blasfeo_memsize_dvec
 #define STRVEC blasfeo_dvec
 #define SYMV_L blasfeo_dsymv_l
+#define VECAD_SP blasfeo_dvecad_sp
 #define VECCP blasfeo_dveccp
 #define VECSE blasfeo_dvecse
 

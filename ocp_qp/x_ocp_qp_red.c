@@ -90,12 +90,10 @@ int OCP_QP_REDUCE_EQ_DOF_WORK_MEMSIZE(struct OCP_QP_DIM *dim)
 
 	int nuxM = nu[0]+nx[0];
 	int nbgM = nb[0]+ng[0];
-	int ngM = ng[0];
 	for(ii=1; ii<=N; ii++)
 		{
 		nuxM = nu[ii]+nx[ii]>nuxM ? nu[ii]+nx[ii] : nuxM;
 		nbgM = nb[ii]+ng[ii]>nbgM ? nb[ii]+ng[ii] : nbgM;
-		ngM = ng[ii]>ngM ? ng[ii] : ngM;
 		}
 
 	int size = 0;
@@ -103,10 +101,10 @@ int OCP_QP_REDUCE_EQ_DOF_WORK_MEMSIZE(struct OCP_QP_DIM *dim)
 	size += nuxM*sizeof(int); // e_imask_ux
 	size += nbgM*sizeof(int); // e_imask_d
 
-	size += 3*sizeof(struct STRVEC); // tmp_nuxM(0,1) tmp_ngM
+	size += 3*sizeof(struct STRVEC); // tmp_nuxM(0,1) tmp_nbgM
 
 	size += 2*SIZE_STRVEC(nuxM); // tmp_nuxM(0,1)
-	size += 1*SIZE_STRVEC(ngM); // tmp_ngM
+	size += 1*SIZE_STRVEC(nbgM); // tmp_nbgM
 
 	size = (size+63)/64*64; // make multiple of typical cache line size
 	size += 64; // align to typical cache line size
@@ -135,12 +133,10 @@ void OCP_QP_REDUCE_EQ_DOF_WORK_CREATE(struct OCP_QP_DIM *dim, struct OCP_QP_REDU
 
 	int nuxM = nu[0]+nx[0];
 	int nbgM = nb[0]+ng[0];
-	int ngM = ng[0];
 	for(ii=1; ii<=N; ii++)
 		{
 		nuxM = nu[ii]+nx[ii]>nuxM ? nu[ii]+nx[ii] : nuxM;
 		nbgM = nb[ii]+ng[ii]>nbgM ? nb[ii]+ng[ii] : nbgM;
-		ngM = ng[ii]>ngM ? ng[ii] : ngM;
 		}
 
 	// vector struct stuff
@@ -149,8 +145,8 @@ void OCP_QP_REDUCE_EQ_DOF_WORK_CREATE(struct OCP_QP_DIM *dim, struct OCP_QP_REDU
 	// tmp_nuxM
 	work->tmp_nuxM = sv_ptr;
 	sv_ptr += 2;
-	// tmp_ngM
-	work->tmp_ngM = sv_ptr;
+	// tmp_nbgM
+	work->tmp_nbgM = sv_ptr;
 	sv_ptr += 1;
 
 	// integer stuff
@@ -177,9 +173,9 @@ void OCP_QP_REDUCE_EQ_DOF_WORK_CREATE(struct OCP_QP_DIM *dim, struct OCP_QP_REDU
 	c_ptr += (work->tmp_nuxM+0)->memsize;
 	CREATE_STRVEC(nuxM, work->tmp_nuxM+1, c_ptr);
 	c_ptr += (work->tmp_nuxM+1)->memsize;
-	// tmp_ngM
-	CREATE_STRVEC(ngM, work->tmp_ngM, c_ptr);
-	c_ptr += (work->tmp_ngM)->memsize;
+	// tmp_nbgM
+	CREATE_STRVEC(nbgM, work->tmp_nbgM, c_ptr);
+	c_ptr += (work->tmp_nbgM)->memsize;
 
 	return;
 
@@ -323,9 +319,9 @@ void OCP_QP_REDUCE_EQ_DOF(struct OCP_QP *qp, struct OCP_QP *qp_red, struct OCP_Q
 			VECCP(ng[ii]+2*ns[ii], qp->d_mask+ii, 2*nb[ii]+ng[ii], qp_red->d_mask+ii, 2*nb_red[ii]+2*ng_red[ii]);
 			VECCP(ng[ii], qp->m+ii, nb[ii], qp_red->m+ii, nb_red[ii]);
 			VECCP(ng[ii]+2*ns[ii], qp->m+ii, 2*nb[ii]+ng[ii], qp_red->m+ii, 2*nb_red[ii]+2*ng_red[ii]);
-			GEMV_T(nu[ii]+nx[ii], ng[ii], 1.0, qp->DCt+ii, 0, 0, work->tmp_nuxM+0, 0, 0.0, work->tmp_ngM, 0, work->tmp_ngM, 0);
-			AXPY(ng[ii], -1.0, work->tmp_ngM, 0, qp->d+ii, nb[ii], qp_red->d+ii, nb_red[ii]);
-			AXPY(ng[ii], 1.0, work->tmp_ngM, 0, qp->d+ii, 2*nb[ii]+ng[ii], qp_red->d+ii, 2*nb_red[ii]+ng_red[ii]);
+			GEMV_T(nu[ii]+nx[ii], ng[ii], 1.0, qp->DCt+ii, 0, 0, work->tmp_nuxM+0, 0, 0.0, work->tmp_nbgM, 0, work->tmp_nbgM, 0);
+			AXPY(ng[ii], -1.0, work->tmp_nbgM, 0, qp->d+ii, nb[ii], qp_red->d+ii, nb_red[ii]);
+			AXPY(ng[ii], 1.0, work->tmp_nbgM, 0, qp->d+ii, 2*nb[ii]+ng[ii], qp_red->d+ii, 2*nb_red[ii]+ng_red[ii]);
 			// DCt
 			idx0 = 0;
 			for(jj=0; jj<nu[ii]+nx[ii]; jj++)
@@ -394,6 +390,8 @@ void OCP_QP_RESTORE_EQ_DOF(struct OCP_QP *qp, struct OCP_QP_SOL *qp_sol_red, str
 	int *ng_red = dim_red->ng;
 
 	int ne_thr;
+	
+	REAL tmp;
 
 	for(ii=0; ii<=N; ii++)
 		{
@@ -462,32 +460,50 @@ void OCP_QP_RESTORE_EQ_DOF(struct OCP_QP *qp, struct OCP_QP_SOL *qp_sol_red, str
 				else
 					{
 					// lam
-					// TODO
-					/*
-					VECCP(nx[Np-1-ii], rqz+(Np-1-ii), nu[Np-1-ii], tmp_nuxM, nu[Np-1-ii]);
-					AXPY(nb[Np-1-ii]+ng[Np-1-ii], -1.0, lam+Np-1-ii, 0, lam+Np-1-ii, nb[Np-1-ii]+ng[Np-1-ii], tmp_nbgM, 0);
-					VECAD_SP(nb[Np-1-ii], 1.0, tmp_nbgM, 0, idxb[Np-1-ii], tmp_nuxM, 0);
-					// TODO avoid to multiply by R ???
-					SYMV_L(nu[Np-1-ii]+nx[Np-1-ii], nu[Np-1-ii]+nx[Np-1-ii], 1.0, RSQrq+(Np-1-ii), 0, 0, ux+(Np-1-ii), 0, 1.0, tmp_nuxM, 0, tmp_nuxM, 0);
-					GEMV_N(nx[Np-1-ii], nx[Np-ii], 1.0, BAbt+(Np-1-ii), nu[Np-1-ii], 0, pi+(Np-1-ii), 0, 1.0, tmp_nuxM, nu[Np-1-ii], tmp_nuxM, nu[Np-1-ii]);
-					GEMV_N(nx[Np-1-ii], ng[Np-1-ii], 1.0, DCt+(Np-1-ii), nu[Np-1-ii], 0, tmp_nbgM, nb[Np-1-ii], 1.0, tmp_nuxM, nu[Np-1-ii], tmp_nuxM, nu[Np-1-ii]);
-
-					VECCP(nx[Np-1-ii], tmp_nuxM, nu[Np-1-ii], pi+(Np-2-ii), 0);
-					*/
 					// t
 #ifdef DOUBLE_PRECISION
+					BLASFEO_DVECEL(qp_sol->lam+ii, jj) = 0.0;
+					BLASFEO_DVECEL(qp_sol->lam+ii, nb[ii]+ng[ii]+jj) = 0.0;
 					BLASFEO_DVECEL(qp_sol->t+ii, jj) = 0.0;
 					BLASFEO_DVECEL(qp_sol->t+ii, nb[ii]+ng[ii]+jj) = 0.0;
 #else
+					BLASFEO_SVECEL(qp_sol->lam+ii, jj) = 0.0;
+					BLASFEO_SVECEL(qp_sol->lam+ii, nb[ii]+ng[ii]+jj) = 0.0;
 					BLASFEO_SVECEL(qp_sol->t+ii, jj) = 0.0;
 					BLASFEO_SVECEL(qp_sol->t+ii, nb[ii]+ng[ii]+jj) = 0.0;
 #endif
 					}
-				// TODO update based on choices on reduce !!!!!!!!!!!!!
-				VECCP(ng[ii]+2*ns[ii], qp_sol_red->lam+ii, nb_red[ii], qp_sol->lam+ii, nb[ii]);
-				VECCP(ng[ii]+2*ns[ii], qp_sol_red->lam+ii, 2*nb_red[ii]+ng_red[ii], qp_sol->lam+ii, 2*nb[ii]+ng[ii]);
-				VECCP(ng[ii]+2*ns[ii], qp_sol_red->t+ii, nb_red[ii], qp_sol->t+ii, nb[ii]);
-				VECCP(ng[ii]+2*ns[ii], qp_sol_red->t+ii, 2*nb_red[ii]+ng_red[ii], qp_sol->t+ii, 2*nb[ii]+ng[ii]);
+				}
+			// TODO update based on choices on reduce !!!!!!!!!!!!!
+			VECCP(ng[ii]+2*ns[ii], qp_sol_red->lam+ii, nb_red[ii], qp_sol->lam+ii, nb[ii]);
+			VECCP(ng[ii]+2*ns[ii], qp_sol_red->lam+ii, 2*nb_red[ii]+ng_red[ii], qp_sol->lam+ii, 2*nb[ii]+ng[ii]);
+			VECCP(ng[ii]+2*ns[ii], qp_sol_red->t+ii, nb_red[ii], qp_sol->t+ii, nb[ii]);
+			VECCP(ng[ii]+2*ns[ii], qp_sol_red->t+ii, 2*nb_red[ii]+ng_red[ii], qp_sol->t+ii, 2*nb[ii]+ng[ii]);
+			// update lam_lb for removed eq, keep lam_ub to zero
+			VECCP(nu[ii]+nx[ii], qp->rqz+ii, 0, work->tmp_nuxM, 0);
+			AXPY(nb[ii]+ng[ii], -1.0, qp_sol->lam+ii, 0, qp_sol->lam+ii, nb[ii]+ng[ii], work->tmp_nbgM, 0);
+			VECAD_SP(nb[ii], 1.0, work->tmp_nbgM, 0, qp->idxb[ii], work->tmp_nuxM, 0);
+			SYMV_L(nu[ii]+nx[ii], nu[ii]+nx[ii], 1.0, qp->RSQrq+ii, 0, 0, qp_sol->ux+ii, 0, 1.0, work->tmp_nuxM, 0, work->tmp_nuxM, 0);
+			GEMV_N(nu[ii]+nx[ii], nx[ii+1], 1.0, qp->BAbt+ii, 0, 0, qp_sol->pi+ii, 0, 1.0, work->tmp_nuxM, 0, work->tmp_nuxM, 0);
+			GEMV_N(nu[ii]+nx[ii], ng[ii], 1.0, qp->DCt+ii, 0, 0, work->tmp_nbgM, nb[ii], 1.0, work->tmp_nuxM, 0, work->tmp_nuxM, 0);
+			for(jj=0; jj<nb[ii]; jj++)
+				{
+				if(work->e_imask_d[jj]!=0)
+					{
+#ifdef DOUBLE_PRECISION
+					tmp = BLASFEO_DVECEL(work->tmp_nuxM, qp->idxb[ii][jj]);
+					if(tmp>=0)
+						BLASFEO_DVECEL(qp_sol->lam+ii, jj) = tmp;
+					else
+						BLASFEO_DVECEL(qp_sol->lam+ii, nb[ii]+ng[ii]+jj) = - tmp;
+#else
+					tmp = BLASFEO_SVECEL(work->tmp_nuxM, qp->idxb[ii][jj]);
+					if(tmp>=0)
+						BLASFEO_SVECEL(qp_sol->lam+ii, jj) = tmp;
+					else
+						BLASFEO_SVECEL(qp_sol->lam+ii, nb[ii]+ng[ii]+jj) = - tmp;
+#endif
+					}
 				}
 			}
 		else // copy
