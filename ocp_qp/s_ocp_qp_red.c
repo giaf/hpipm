@@ -64,6 +64,7 @@
 #define OCP_QP s_ocp_qp
 #define OCP_QP_SOL s_ocp_qp_sol
 #define OCP_QP_DIM s_ocp_qp_dim
+#define OCP_QP_REDUCE_EQ_DOF_ARG s_ocp_qp_reduce_eq_dof_arg
 #define OCP_QP_REDUCE_EQ_DOF_WORK s_ocp_qp_reduce_eq_dof_work
 #define REAL float
 #define SIZE_STRVEC blasfeo_memsize_svec
@@ -74,6 +75,10 @@
 #define VECSE blasfeo_svecse
 
 #define OCP_QP_DIM_REDUCE_EQ_DOF s_ocp_qp_dim_reduce_eq_dof
+#define OCP_QP_REDUCE_EQ_DOF_ARG_MEMSIZE s_ocp_qp_reduce_eq_dof_arg_memsize
+#define OCP_QP_REDUCE_EQ_DOF_ARG_CREATE s_ocp_qp_reduce_eq_dof_arg_create
+#define OCP_QP_REDUCE_EQ_DOF_ARG_SET_DEFAULT s_ocp_qp_reduce_eq_dof_arg_set_default
+#define OCP_QP_REDUCE_EQ_DOF_ARG_SET_ALIAS_UNCHANGED s_ocp_qp_reduce_eq_dof_arg_set_alias_unchanged
 #define OCP_QP_REDUCE_EQ_DOF_WORK_MEMSIZE s_ocp_qp_reduce_eq_dof_work_memsize
 #define OCP_QP_REDUCE_EQ_DOF_WORK_CREATE s_ocp_qp_reduce_eq_dof_work_create
 #define OCP_QP_REDUCE_EQ_DOF s_ocp_qp_reduce_eq_dof

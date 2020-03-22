@@ -63,6 +63,7 @@
 #define GEMV_T blasfeo_dgemv_t
 #define OCP_QP d_ocp_qp
 #define OCP_QP_DIM d_ocp_qp_dim
+#define OCP_QP_REDUCE_EQ_DOF_ARG d_ocp_qp_reduce_eq_dof_arg
 #define OCP_QP_REDUCE_EQ_DOF_WORK d_ocp_qp_reduce_eq_dof_work
 #define OCP_QP_SOL d_ocp_qp_sol
 #define REAL double
@@ -74,6 +75,10 @@
 #define VECSE blasfeo_dvecse
 
 #define OCP_QP_DIM_REDUCE_EQ_DOF d_ocp_qp_dim_reduce_eq_dof
+#define OCP_QP_REDUCE_EQ_DOF_ARG_MEMSIZE d_ocp_qp_reduce_eq_dof_arg_memsize
+#define OCP_QP_REDUCE_EQ_DOF_ARG_CREATE d_ocp_qp_reduce_eq_dof_arg_create
+#define OCP_QP_REDUCE_EQ_DOF_ARG_SET_DEFAULT d_ocp_qp_reduce_eq_dof_arg_set_default
+#define OCP_QP_REDUCE_EQ_DOF_ARG_SET_ALIAS_UNCHANGED d_ocp_qp_reduce_eq_dof_arg_set_alias_unchanged
 #define OCP_QP_REDUCE_EQ_DOF_WORK_MEMSIZE d_ocp_qp_reduce_eq_dof_work_memsize
 #define OCP_QP_REDUCE_EQ_DOF_WORK_CREATE d_ocp_qp_reduce_eq_dof_work_create
 #define OCP_QP_REDUCE_EQ_DOF d_ocp_qp_reduce_eq_dof

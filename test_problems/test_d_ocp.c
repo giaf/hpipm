@@ -901,20 +901,34 @@ int main()
 //	d_ocp_qp_print(qp2.dim, &qp2);
 
 
-	int qp_red_size = d_ocp_qp_reduce_eq_dof_work_memsize(&dim2);
+	int qp_red_arg_size = d_ocp_qp_reduce_eq_dof_arg_memsize();
 #if PRINT
-	printf("\nqp red size = %d\n", qp_red_size);
+	printf("\nqp red arg size = %d\n", qp_red_arg_size);
 #endif
-	void *qp_red_mem = malloc(qp_red_size);
+	void *qp_red_arg_mem = malloc(qp_red_arg_size);
+
+	struct d_ocp_qp_reduce_eq_dof_arg qp_red_arg;
+	d_ocp_qp_reduce_eq_dof_arg_create(&qp_red_arg, qp_red_arg_mem);
+
+	d_ocp_qp_reduce_eq_dof_arg_set_default(&qp_red_arg);
+	d_ocp_qp_reduce_eq_dof_arg_set_alias_unchanged(&qp_red_arg, 1);
+
+
+	int qp_red_work_size = d_ocp_qp_reduce_eq_dof_work_memsize(&dim2);
+#if PRINT
+	printf("\nqp red work size = %d\n", qp_red_work_size);
+#endif
+	void *qp_red_work_mem = malloc(qp_red_work_size);
 
 	struct d_ocp_qp_reduce_eq_dof_work qp_red_work;
-	d_ocp_qp_reduce_eq_dof_work_create(&dim2, &qp_red_work, qp_red_mem);
+	d_ocp_qp_reduce_eq_dof_work_create(&dim2, &qp_red_work, qp_red_work_mem);
+
 
 	gettimeofday(&tv0, NULL); // start
 
 	for(rep=0; rep<nrep; rep++)
 		{
-		d_ocp_qp_reduce_eq_dof(&qp, &qp2, &qp_red_work);
+		d_ocp_qp_reduce_eq_dof(&qp, &qp2, &qp_red_arg, &qp_red_work);
 		}
 
 	gettimeofday(&tv1, NULL); // stop
@@ -1376,7 +1390,8 @@ int main()
 	free(dim_mem2);
 	free(qp_mem2);
 	free(qp_sol_mem2);
-	free(qp_red_mem);
+	free(qp_red_arg_mem);
+	free(qp_red_work_mem);
 #endif // keep x0
 
 /************************************************

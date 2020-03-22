@@ -52,6 +52,14 @@ extern "C" {
 
 
 
+struct s_ocp_qp_reduce_eq_dof_arg
+	{
+	int alias_unchanged; // do not keep copy unchanged stage
+	int memsize; // memory size in bytes
+	};
+
+
+
 struct s_ocp_qp_reduce_eq_dof_work
 	{
 	struct blasfeo_svec *tmp_nuxM;
@@ -66,11 +74,19 @@ struct s_ocp_qp_reduce_eq_dof_work
 //
 void s_ocp_qp_dim_reduce_eq_dof(struct s_ocp_qp_dim *dim, struct s_ocp_qp_dim *dim_red);
 //
+int s_ocp_qp_reduce_eq_dof_arg_memsize();
+//
+void s_ocp_qp_reduce_eq_dof_arg_create(struct s_ocp_qp_reduce_eq_dof_arg *arg, void *mem);
+//
+void s_ocp_qp_reduce_eq_dof_arg_set_default(struct s_ocp_qp_reduce_eq_dof_arg *arg);
+//
+void s_ocp_qp_reduce_eq_dof_arg_set_alias_unchanged(struct s_ocp_qp_reduce_eq_dof_arg *arg, int value);
+//
 int s_ocp_qp_reduce_eq_dof_work_memsize(struct s_ocp_qp_dim *dim);
 //
 void s_ocp_qp_reduce_eq_dof_work_create(struct s_ocp_qp_dim *dim, struct s_ocp_qp_reduce_eq_dof_work *work, void *mem);
 //
-void s_ocp_qp_reduce_eq_dof(struct s_ocp_qp *qp, struct s_ocp_qp *qp_red, struct s_ocp_qp_reduce_eq_dof_work *work);
+void s_ocp_qp_reduce_eq_dof(struct s_ocp_qp *qp, struct s_ocp_qp *qp_red, struct s_ocp_qp_reduce_eq_dof_arg *arg, struct s_ocp_qp_reduce_eq_dof_work *work);
 //
 void s_ocp_qp_restore_eq_dof(struct s_ocp_qp *qp, struct s_ocp_qp_sol *qp_sol_red, struct s_ocp_qp_sol *qp_sol, struct s_ocp_qp_reduce_eq_dof_work *work);
 
