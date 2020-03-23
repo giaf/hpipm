@@ -728,10 +728,13 @@ void OCP_QCQP_SET(char *field, int stage, void *value, struct OCP_QCQP *qp)
 		{
 		OCP_QCQP_SET_JBU(stage, value, qp);
 		}
-	// TODO idxs rev !!!!!!!!!!!!!!!!!!
 	else if(hpipm_strcmp(field, "idxs"))
 		{
 		OCP_QCQP_SET_IDXS(stage, value, qp);
+		}
+	else if(hpipm_strcmp(field, "idxs_rev"))
+		{
+		OCP_QCQP_SET_IDXS_REV(stage, value, qp);
 		}
 	else if(hpipm_strcmp(field, "Jsbu") | hpipm_strcmp(field, "Jsu"))
 		{
@@ -1489,7 +1492,28 @@ void OCP_QCQP_SET_IDXS(int stage, int *idxs, struct OCP_QCQP *qp)
 
 	int ii;
 	for(ii=0; ii<ns[stage]; ii++)
+		{
 		qp->idxs[stage][ii] = idxs[ii];
+		qp->idxs_rev[stage][qp->idxs[stage][ii]] = ii;
+		}
+
+	return;
+	}
+
+
+
+void OCP_QCQP_SET_IDXS_REV(int stage, int *idxs_rev, struct OCP_QCQP *qp)
+	{
+	// extract dim
+	int *nb = qp->dim->nb;
+	int *ng = qp->dim->ng;
+	int *nq = qp->dim->nq;
+
+	int ii;
+	for(ii=0; ii<nb[stage]+ng[stage]+nq[stage]; ii++)
+		{
+		qp->idxs_rev[stage][ii] = idxs_rev[ii];
+		}
 
 	return;
 	}
@@ -2110,6 +2134,22 @@ void OCP_QCQP_GET_IDXS(int stage, struct OCP_QCQP *qp, int *idxs)
 	int ii;
 	for(ii=0; ii<ns[stage]; ii++)
 		idxs[ii] = qp->idxs[stage][ii];
+
+	return;
+	}
+
+
+
+void OCP_QCQP_GET_IDXS_REV(int stage, struct OCP_QCQP *qp, int *idxs_rev)
+	{
+	// extract dim
+	int *nb = qp->dim->nb;
+	int *ng = qp->dim->ng;
+	int *nq = qp->dim->nq;
+
+	int ii;
+	for(ii=0; ii<nb[stage]+ng[stage]+nq[stage]; ii++)
+		idxs_rev[ii] = qp->idxs_rev[stage][ii];
 
 	return;
 	}

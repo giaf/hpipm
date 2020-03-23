@@ -167,8 +167,6 @@ void s_ocp_qp_set_zl(int stage, float *vec, struct s_ocp_qp *qp);
 //
 void s_ocp_qp_set_zu(int stage, float *vec, struct s_ocp_qp *qp);
 //
-void s_ocp_qp_set_idxs(int stage, int *vec, struct s_ocp_qp *qp);
-//
 void s_ocp_qp_set_lls(int stage, float *vec, struct s_ocp_qp *qp);
 //
 void s_ocp_qp_set_lls_mask(int stage, float *vec, struct s_ocp_qp *qp);
@@ -178,6 +176,8 @@ void s_ocp_qp_set_lus(int stage, float *vec, struct s_ocp_qp *qp);
 void s_ocp_qp_set_lus_mask(int stage, float *vec, struct s_ocp_qp *qp);
 //
 void s_ocp_qp_set_idxs(int stage, int *vec, struct s_ocp_qp *qp);
+//
+void s_ocp_qp_set_idxs_rev(int stage, int *vec, struct s_ocp_qp *qp);
 //
 void s_ocp_qp_set_Jsbu(int stage, float *vec, struct s_ocp_qp *qp);
 //
@@ -257,13 +257,13 @@ void s_ocp_qp_get_zl(int stage, struct s_ocp_qp *qp, float *vec);
 //
 void s_ocp_qp_get_zu(int stage, struct s_ocp_qp *qp, float *vec);
 //
-void s_ocp_qp_get_idxs(int stage, struct s_ocp_qp *qp, int *vec);
-//
 void s_ocp_qp_get_lls(int stage, struct s_ocp_qp *qp, float *vec);
 //
 void s_ocp_qp_get_lus(int stage, struct s_ocp_qp *qp, float *vec);
 //
-//void s_ocp_qp_get_idxs(int stage, struct s_ocp_qp *qp, int *vec);
+void s_ocp_qp_get_idxs(int stage, struct s_ocp_qp *qp, int *vec);
+//
+void s_ocp_qp_get_idxs_rev(int stage, struct s_ocp_qp *qp, int *vec);
 //
 //void s_ocp_qp_get_Jsbu(int stage, struct s_ocp_qp *qp, float *vec);
 //

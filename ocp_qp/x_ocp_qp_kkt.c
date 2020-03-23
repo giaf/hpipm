@@ -391,7 +391,7 @@ void FACT_SOLVE_KKT_STEP_OCP_QP(struct OCP_QP *qp, struct OCP_QP_SOL *qp_sol, st
 	struct STRVEC *res_d = qp->d;
 	struct STRVEC *res_m = qp->m;
 	int **idxb = qp->idxb;
-	int **idxs = qp->idxs;
+//	int **idxs = qp->idxs;
 
 	struct STRVEC *dux = qp_sol->ux;
 	struct STRVEC *dpi = qp_sol->pi;
@@ -748,7 +748,7 @@ void FACT_LQ_SOLVE_KKT_STEP_OCP_QP(struct OCP_QP *qp, struct OCP_QP_SOL *qp_sol,
 	struct STRVEC *res_d = qp->d;
 	struct STRVEC *res_m = qp->m;
 	int **idxb = qp->idxb;
-	int **idxs = qp->idxs;
+//	int **idxs = qp->idxs;
 
 	struct STRVEC *dux = qp_sol->ux;
 	struct STRVEC *dpi = qp_sol->pi;

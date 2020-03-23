@@ -123,6 +123,7 @@
 #define OCP_QCQP_SET_ZLVEC s_ocp_qcqp_set_zl
 #define OCP_QCQP_SET_ZUVEC s_ocp_qcqp_set_zu
 #define OCP_QCQP_SET_IDXS s_ocp_qcqp_set_idxs
+#define OCP_QCQP_SET_IDXS_REV s_ocp_qcqp_set_idxs_rev
 #define OCP_QCQP_SET_JSBU s_ocp_qcqp_set_Jsbu
 #define OCP_QCQP_SET_JSBX s_ocp_qcqp_set_Jsbx
 #define OCP_QCQP_SET_JSG s_ocp_qcqp_set_Jsg
@@ -161,6 +162,7 @@
 #define OCP_QCQP_GET_ZLVEC s_cvt_ocp_qcqp_zl
 #define OCP_QCQP_GET_ZUVEC s_cvt_ocp_qcqp_zu
 #define OCP_QCQP_GET_IDXS s_cvt_ocp_qcqp_idxs
+#define OCP_QCQP_GET_IDXS_REV s_cvt_ocp_qcqp_idxs_rev
 #define OCP_QCQP_GET_JSBU s_ocp_qcqp_get_Jsbu
 #define OCP_QCQP_GET_JSBX s_ocp_qcqp_get_Jsbx
 #define OCP_QCQP_GET_JSG s_ocp_qcqp_get_Jsg
