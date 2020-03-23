@@ -100,6 +100,9 @@ void OCP_QP_REDUCE_EQ_DOF_ARG_SET_DEFAULT(struct OCP_QP_REDUCE_EQ_DOF_ARG *arg)
 	{
 
 	arg->alias_unchanged = 0;
+	arg->comp_prim_sol = 1;
+	arg->comp_dual_sol_eq = 1;
+	arg->comp_dual_sol_ineq = 1;
 
 	return;
 
@@ -111,6 +114,39 @@ void OCP_QP_REDUCE_EQ_DOF_ARG_SET_ALIAS_UNCHANGED(struct OCP_QP_REDUCE_EQ_DOF_AR
 	{
 
 	arg->alias_unchanged = value;
+
+	return;
+
+	}
+
+
+
+void OCP_QP_REDUCE_EQ_DOF_ARG_SET_COMP_PRIM_SOL(struct OCP_QP_REDUCE_EQ_DOF_ARG *arg, int value)
+	{
+
+	arg->comp_prim_sol = value;
+
+	return;
+
+	}
+
+
+
+void OCP_QP_REDUCE_EQ_DOF_ARG_SET_COMP_DUAL_SOL_EQ(struct OCP_QP_REDUCE_EQ_DOF_ARG *arg, int value)
+	{
+
+	arg->comp_dual_sol_eq = value;
+
+	return;
+
+	}
+
+
+
+void OCP_QP_REDUCE_EQ_DOF_ARG_SET_COMP_DUAL_SOL_INEQ(struct OCP_QP_REDUCE_EQ_DOF_ARG *arg, int value)
+	{
+
+	arg->comp_dual_sol_ineq = value;
 
 	return;
 
@@ -432,7 +468,7 @@ void OCP_QP_REDUCE_EQ_DOF(struct OCP_QP *qp, struct OCP_QP *qp_red, struct OCP_Q
 
 
 
-void OCP_QP_RESTORE_EQ_DOF(struct OCP_QP *qp, struct OCP_QP_SOL *qp_sol_red, struct OCP_QP_SOL *qp_sol, struct OCP_QP_REDUCE_EQ_DOF_WORK *work)
+void OCP_QP_RESTORE_EQ_DOF(struct OCP_QP *qp, struct OCP_QP_SOL *qp_sol_red, struct OCP_QP_SOL *qp_sol, struct OCP_QP_REDUCE_EQ_DOF_ARG *arg, struct OCP_QP_REDUCE_EQ_DOF_WORK *work)
 	{
 
 	int ii, jj, idx0;
@@ -479,111 +515,129 @@ void OCP_QP_RESTORE_EQ_DOF(struct OCP_QP *qp, struct OCP_QP_SOL *qp_sol_red, str
 				work->e_imask_d[qp->idxe[ii][jj]] = 1;
 				}
 			// ux
-			idx0 = 0;
-			for(jj=0; jj<nu[ii]+nx[ii]; jj++)
+			if(arg->comp_prim_sol)
 				{
-				if(work->e_imask_ux[jj]==0)
+				idx0 = 0;
+				for(jj=0; jj<nu[ii]+nx[ii]; jj++)
 					{
+					if(work->e_imask_ux[jj]==0)
+						{
 #ifdef DOUBLE_PRECISION
-					BLASFEO_DVECEL(qp_sol->ux+ii, jj) = BLASFEO_DVECEL(qp_sol_red->ux+ii, idx0);
+						BLASFEO_DVECEL(qp_sol->ux+ii, jj) = BLASFEO_DVECEL(qp_sol_red->ux+ii, idx0);
 #else
-					BLASFEO_SVECEL(qp_sol->ux+ii, jj) = BLASFEO_SVECEL(qp_sol_red->ux+ii, idx0);
+						BLASFEO_SVECEL(qp_sol->ux+ii, jj) = BLASFEO_SVECEL(qp_sol_red->ux+ii, idx0);
 #endif
-					idx0++;
+						idx0++;
+						}
 					}
-				}
-			for(jj=0; jj<ne_thr; jj++)
-				{
-#ifdef DOUBLE_PRECISION
-				BLASFEO_DVECEL(qp_sol->ux+ii, qp->idxb[ii][qp->idxe[ii][jj]]) = BLASFEO_DVECEL(qp->d+ii, qp->idxe[ii][jj]);
-#else
-				BLASFEO_SVECEL(qp_sol->ux+ii, qp->idxb[ii][qp->idxe[ii][jj]]) = BLASFEO_DVECEL(qp->d+ii, qp->idxe[ii][jj]);
-#endif
-				}
-			// TODO update based on choices on reduce !!!!!!!!!!!!!
-			VECCP(2*ns[ii], qp_sol_red->ux+ii, nu_red[ii]+nx_red[ii], qp_sol->ux+ii, nu[ii]+nx[ii]);
-			// pi
-			if(ii<N)
-				VECCP(nx[ii+1], qp_sol_red->pi+ii, 0, qp_sol->pi+ii, 0);
-			// lam t
-			idx0 = 0;
-			for(jj=0; jj<nb[ii]; jj++)
-				{
-				if(work->e_imask_d[jj]==0)
+				for(jj=0; jj<ne_thr; jj++)
 					{
 #ifdef DOUBLE_PRECISION
-					BLASFEO_DVECEL(qp_sol->lam+ii, jj) = BLASFEO_DVECEL(qp_sol_red->lam+ii, idx0);
-					BLASFEO_DVECEL(qp_sol->lam+ii, nb[ii]+ng[ii]+jj) = BLASFEO_DVECEL(qp_sol_red->lam+ii, nb_red[ii]+ng_red[ii]+idx0);
-					BLASFEO_DVECEL(qp_sol->t+ii, jj) = BLASFEO_DVECEL(qp_sol_red->t+ii, idx0);
-					BLASFEO_DVECEL(qp_sol->t+ii, nb[ii]+ng[ii]+jj) = BLASFEO_DVECEL(qp_sol_red->t+ii, nb_red[ii]+ng_red[ii]+idx0);
+					BLASFEO_DVECEL(qp_sol->ux+ii, qp->idxb[ii][qp->idxe[ii][jj]]) = BLASFEO_DVECEL(qp->d+ii, qp->idxe[ii][jj]);
 #else
-					BLASFEO_SVECEL(qp_sol->lam+ii, jj) = BLASFEO_SVECEL(qp_sol_red->lam+ii, idx0);
-					BLASFEO_SVECEL(qp_sol->lam+ii, nb[ii]+ng[ii]+jj) = BLASFEO_SVECEL(qp_sol_red->lam+ii, nb_red[ii]+ng_red[ii]+idx0);
-					BLASFEO_SVECEL(qp_sol->t+ii, jj) = BLASFEO_SVECEL(qp_sol_red->t+ii, idx0);
-					BLASFEO_SVECEL(qp_sol->t+ii, nb[ii]+ng[ii]+jj) = BLASFEO_SVECEL(qp_sol_red->t+ii, nb_red[ii]+ng_red[ii]+idx0);
-#endif
-					idx0++;
-					}
-				else
-					{
-					// lam
-					// t
-#ifdef DOUBLE_PRECISION
-					BLASFEO_DVECEL(qp_sol->lam+ii, jj) = 0.0;
-					BLASFEO_DVECEL(qp_sol->lam+ii, nb[ii]+ng[ii]+jj) = 0.0;
-					BLASFEO_DVECEL(qp_sol->t+ii, jj) = 0.0;
-					BLASFEO_DVECEL(qp_sol->t+ii, nb[ii]+ng[ii]+jj) = 0.0;
-#else
-					BLASFEO_SVECEL(qp_sol->lam+ii, jj) = 0.0;
-					BLASFEO_SVECEL(qp_sol->lam+ii, nb[ii]+ng[ii]+jj) = 0.0;
-					BLASFEO_SVECEL(qp_sol->t+ii, jj) = 0.0;
-					BLASFEO_SVECEL(qp_sol->t+ii, nb[ii]+ng[ii]+jj) = 0.0;
+					BLASFEO_SVECEL(qp_sol->ux+ii, qp->idxb[ii][qp->idxe[ii][jj]]) = BLASFEO_DVECEL(qp->d+ii, qp->idxe[ii][jj]);
 #endif
 					}
+				// TODO update based on choices on reduce !!!!!!!!!!!!!
+				VECCP(2*ns[ii], qp_sol_red->ux+ii, nu_red[ii]+nx_red[ii], qp_sol->ux+ii, nu[ii]+nx[ii]);
 				}
-			// TODO update based on choices on reduce !!!!!!!!!!!!!
-			VECCP(ng[ii]+2*ns[ii], qp_sol_red->lam+ii, nb_red[ii], qp_sol->lam+ii, nb[ii]);
-			VECCP(ng[ii]+2*ns[ii], qp_sol_red->lam+ii, 2*nb_red[ii]+ng_red[ii], qp_sol->lam+ii, 2*nb[ii]+ng[ii]);
-			VECCP(ng[ii]+2*ns[ii], qp_sol_red->t+ii, nb_red[ii], qp_sol->t+ii, nb[ii]);
-			VECCP(ng[ii]+2*ns[ii], qp_sol_red->t+ii, 2*nb_red[ii]+ng_red[ii], qp_sol->t+ii, 2*nb[ii]+ng[ii]);
-			// update lam_lb for removed eq, keep lam_ub to zero
-			VECCP(nu[ii]+nx[ii], qp->rqz+ii, 0, work->tmp_nuxM, 0);
-			AXPY(nb[ii]+ng[ii], -1.0, qp_sol->lam+ii, 0, qp_sol->lam+ii, nb[ii]+ng[ii], work->tmp_nbgM, 0);
-			VECAD_SP(nb[ii], 1.0, work->tmp_nbgM, 0, qp->idxb[ii], work->tmp_nuxM, 0);
-			SYMV_L(nu[ii]+nx[ii], nu[ii]+nx[ii], 1.0, qp->RSQrq+ii, 0, 0, qp_sol->ux+ii, 0, 1.0, work->tmp_nuxM, 0, work->tmp_nuxM, 0);
-			GEMV_N(nu[ii]+nx[ii], nx[ii+1], 1.0, qp->BAbt+ii, 0, 0, qp_sol->pi+ii, 0, 1.0, work->tmp_nuxM, 0, work->tmp_nuxM, 0);
-			GEMV_N(nu[ii]+nx[ii], ng[ii], 1.0, qp->DCt+ii, 0, 0, work->tmp_nbgM, nb[ii], 1.0, work->tmp_nuxM, 0, work->tmp_nuxM, 0);
-			for(jj=0; jj<nb[ii]; jj++)
+			if(arg->comp_dual_sol_eq)
 				{
-				if(work->e_imask_d[jj]!=0)
+				// pi
+				if(ii<N)
+					VECCP(nx[ii+1], qp_sol_red->pi+ii, 0, qp_sol->pi+ii, 0);
+				}
+			if(arg->comp_dual_sol_ineq)
+				{
+				// lam t
+				idx0 = 0;
+				for(jj=0; jj<nb[ii]; jj++)
 					{
+					if(work->e_imask_d[jj]==0)
+						{
 #ifdef DOUBLE_PRECISION
-					tmp = BLASFEO_DVECEL(work->tmp_nuxM, qp->idxb[ii][jj]);
-					if(tmp>=0)
-						BLASFEO_DVECEL(qp_sol->lam+ii, jj) = tmp;
+						BLASFEO_DVECEL(qp_sol->lam+ii, jj) = BLASFEO_DVECEL(qp_sol_red->lam+ii, idx0);
+						BLASFEO_DVECEL(qp_sol->lam+ii, nb[ii]+ng[ii]+jj) = BLASFEO_DVECEL(qp_sol_red->lam+ii, nb_red[ii]+ng_red[ii]+idx0);
+						BLASFEO_DVECEL(qp_sol->t+ii, jj) = BLASFEO_DVECEL(qp_sol_red->t+ii, idx0);
+						BLASFEO_DVECEL(qp_sol->t+ii, nb[ii]+ng[ii]+jj) = BLASFEO_DVECEL(qp_sol_red->t+ii, nb_red[ii]+ng_red[ii]+idx0);
+#else
+						BLASFEO_SVECEL(qp_sol->lam+ii, jj) = BLASFEO_SVECEL(qp_sol_red->lam+ii, idx0);
+						BLASFEO_SVECEL(qp_sol->lam+ii, nb[ii]+ng[ii]+jj) = BLASFEO_SVECEL(qp_sol_red->lam+ii, nb_red[ii]+ng_red[ii]+idx0);
+						BLASFEO_SVECEL(qp_sol->t+ii, jj) = BLASFEO_SVECEL(qp_sol_red->t+ii, idx0);
+						BLASFEO_SVECEL(qp_sol->t+ii, nb[ii]+ng[ii]+jj) = BLASFEO_SVECEL(qp_sol_red->t+ii, nb_red[ii]+ng_red[ii]+idx0);
+#endif
+						idx0++;
+						}
 					else
-						BLASFEO_DVECEL(qp_sol->lam+ii, nb[ii]+ng[ii]+jj) = - tmp;
+						{
+						// lam
+						// t
+#ifdef DOUBLE_PRECISION
+						BLASFEO_DVECEL(qp_sol->lam+ii, jj) = 0.0;
+						BLASFEO_DVECEL(qp_sol->lam+ii, nb[ii]+ng[ii]+jj) = 0.0;
+						BLASFEO_DVECEL(qp_sol->t+ii, jj) = 0.0;
+						BLASFEO_DVECEL(qp_sol->t+ii, nb[ii]+ng[ii]+jj) = 0.0;
 #else
-					tmp = BLASFEO_SVECEL(work->tmp_nuxM, qp->idxb[ii][jj]);
-					if(tmp>=0)
-						BLASFEO_SVECEL(qp_sol->lam+ii, jj) = tmp;
-					else
-						BLASFEO_SVECEL(qp_sol->lam+ii, nb[ii]+ng[ii]+jj) = - tmp;
+						BLASFEO_SVECEL(qp_sol->lam+ii, jj) = 0.0;
+						BLASFEO_SVECEL(qp_sol->lam+ii, nb[ii]+ng[ii]+jj) = 0.0;
+						BLASFEO_SVECEL(qp_sol->t+ii, jj) = 0.0;
+						BLASFEO_SVECEL(qp_sol->t+ii, nb[ii]+ng[ii]+jj) = 0.0;
 #endif
+						}
+					}
+				// TODO update based on choices on reduce !!!!!!!!!!!!!
+				VECCP(ng[ii]+2*ns[ii], qp_sol_red->lam+ii, nb_red[ii], qp_sol->lam+ii, nb[ii]);
+				VECCP(ng[ii]+2*ns[ii], qp_sol_red->lam+ii, 2*nb_red[ii]+ng_red[ii], qp_sol->lam+ii, 2*nb[ii]+ng[ii]);
+				VECCP(ng[ii]+2*ns[ii], qp_sol_red->t+ii, nb_red[ii], qp_sol->t+ii, nb[ii]);
+				VECCP(ng[ii]+2*ns[ii], qp_sol_red->t+ii, 2*nb_red[ii]+ng_red[ii], qp_sol->t+ii, 2*nb[ii]+ng[ii]);
+				// update lam_lb for removed eq, keep lam_ub to zero
+				VECCP(nu[ii]+nx[ii], qp->rqz+ii, 0, work->tmp_nuxM, 0);
+				AXPY(nb[ii]+ng[ii], -1.0, qp_sol->lam+ii, 0, qp_sol->lam+ii, nb[ii]+ng[ii], work->tmp_nbgM, 0);
+				VECAD_SP(nb[ii], 1.0, work->tmp_nbgM, 0, qp->idxb[ii], work->tmp_nuxM, 0);
+				SYMV_L(nu[ii]+nx[ii], nu[ii]+nx[ii], 1.0, qp->RSQrq+ii, 0, 0, qp_sol->ux+ii, 0, 1.0, work->tmp_nuxM, 0, work->tmp_nuxM, 0);
+				GEMV_N(nu[ii]+nx[ii], nx[ii+1], 1.0, qp->BAbt+ii, 0, 0, qp_sol->pi+ii, 0, 1.0, work->tmp_nuxM, 0, work->tmp_nuxM, 0);
+				GEMV_N(nu[ii]+nx[ii], ng[ii], 1.0, qp->DCt+ii, 0, 0, work->tmp_nbgM, nb[ii], 1.0, work->tmp_nuxM, 0, work->tmp_nuxM, 0);
+				for(jj=0; jj<nb[ii]; jj++)
+					{
+					if(work->e_imask_d[jj]!=0)
+						{
+#ifdef DOUBLE_PRECISION
+						tmp = BLASFEO_DVECEL(work->tmp_nuxM, qp->idxb[ii][jj]);
+						if(tmp>=0)
+							BLASFEO_DVECEL(qp_sol->lam+ii, jj) = tmp;
+						else
+							BLASFEO_DVECEL(qp_sol->lam+ii, nb[ii]+ng[ii]+jj) = - tmp;
+#else
+						tmp = BLASFEO_SVECEL(work->tmp_nuxM, qp->idxb[ii][jj]);
+						if(tmp>=0)
+							BLASFEO_SVECEL(qp_sol->lam+ii, jj) = tmp;
+						else
+							BLASFEO_SVECEL(qp_sol->lam+ii, nb[ii]+ng[ii]+jj) = - tmp;
+#endif
+						}
 					}
 				}
 			}
 		else // copy
 			{
-			// ux
-			VECCP(nu[ii]+nx[ii]+2*ns[ii], qp_sol_red->ux+ii, 0, qp_sol->ux+ii, 0);
-			// pi
-			if(ii<N)
-				VECCP(nx[ii+1], qp_sol_red->pi+ii, 0, qp_sol->pi+ii, 0);
-			// lam
-			VECCP(2*nb[ii]+2*ng[ii]+2*ns[ii], qp_sol_red->lam+ii, 0, qp_sol->lam+ii, 0);
-			// t
-			VECCP(2*nb[ii]+2*ng[ii]+2*ns[ii], qp_sol_red->t+ii, 0, qp_sol->t+ii, 0);
+			if(arg->comp_prim_sol)
+				{
+				// ux
+				VECCP(nu[ii]+nx[ii]+2*ns[ii], qp_sol_red->ux+ii, 0, qp_sol->ux+ii, 0);
+				}
+			if(arg->comp_dual_sol_eq)
+				{
+				// pi
+				if(ii<N)
+					VECCP(nx[ii+1], qp_sol_red->pi+ii, 0, qp_sol->pi+ii, 0);
+				}
+			if(arg->comp_dual_sol_ineq)
+				{
+				// lam
+				VECCP(2*nb[ii]+2*ng[ii]+2*ns[ii], qp_sol_red->lam+ii, 0, qp_sol->lam+ii, 0);
+				// t
+				VECCP(2*nb[ii]+2*ng[ii]+2*ns[ii], qp_sol_red->t+ii, 0, qp_sol->t+ii, 0);
+				}
 			}
 		}
 

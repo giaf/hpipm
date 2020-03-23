@@ -912,6 +912,8 @@ int main()
 
 	d_ocp_qp_reduce_eq_dof_arg_set_default(&qp_red_arg);
 	d_ocp_qp_reduce_eq_dof_arg_set_alias_unchanged(&qp_red_arg, 1);
+	d_ocp_qp_reduce_eq_dof_arg_set_comp_dual_sol_eq(&qp_red_arg, 1);
+	d_ocp_qp_reduce_eq_dof_arg_set_comp_dual_sol_ineq(&qp_red_arg, 1);
 
 
 	int qp_red_work_size = d_ocp_qp_reduce_eq_dof_work_memsize(&dim2);
@@ -1057,7 +1059,7 @@ int main()
 
 	for(rep=0; rep<nrep; rep++)
 		{
-		d_ocp_qp_restore_eq_dof(&qp, &qp_sol2, &qp_sol, &qp_red_work);
+		d_ocp_qp_restore_eq_dof(&qp, &qp_sol2, &qp_sol, &qp_red_arg, &qp_red_work);
 		}
 
 	gettimeofday(&tv1, NULL); // stop

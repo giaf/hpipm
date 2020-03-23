@@ -55,6 +55,9 @@ extern "C" {
 struct s_ocp_qp_reduce_eq_dof_arg
 	{
 	int alias_unchanged; // do not keep copy unchanged stage
+	int comp_prim_sol; // primal solution (v)
+	int comp_dual_sol_eq; // dual solution equality constr (pi)
+	int comp_dual_sol_ineq; // dual solution inequality constr (lam t)
 	int memsize; // memory size in bytes
 	};
 
@@ -88,7 +91,7 @@ void s_ocp_qp_reduce_eq_dof_work_create(struct s_ocp_qp_dim *dim, struct s_ocp_q
 //
 void s_ocp_qp_reduce_eq_dof(struct s_ocp_qp *qp, struct s_ocp_qp *qp_red, struct s_ocp_qp_reduce_eq_dof_arg *arg, struct s_ocp_qp_reduce_eq_dof_work *work);
 //
-void s_ocp_qp_restore_eq_dof(struct s_ocp_qp *qp, struct s_ocp_qp_sol *qp_sol_red, struct s_ocp_qp_sol *qp_sol, struct s_ocp_qp_reduce_eq_dof_work *work);
+void s_ocp_qp_restore_eq_dof(struct s_ocp_qp *qp, struct s_ocp_qp_sol *qp_sol_red, struct s_ocp_qp_sol *qp_sol, struct s_ocp_qp_reduce_eq_dof_arg *arg, struct s_ocp_qp_reduce_eq_dof_work *work);
 
 
 
