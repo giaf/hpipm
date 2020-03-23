@@ -119,6 +119,9 @@ void DENSE_QCQP_PRINT(struct DENSE_QCQP_DIM *qp_dim, struct DENSE_QCQP *qp)
 	printf("idxs = \n");
 	int_print_mat(1, ns, qp->idxs, 1);
 
+	printf("idxs_rev = \n");
+	int_print_mat(1, nb+ng+nq, qp->idxs_rev, 1);
+
 	return;
 	}
 

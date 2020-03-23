@@ -224,8 +224,6 @@ void OCP_QP_CREATE(struct OCP_QP_DIM *dim, struct OCP_QP *qp, void *mem)
 		{
 		(qp->idxb)[ii] = i_ptr;
 		i_ptr += nb[ii];
-		for(jj=0; jj<nb[ii]; jj++)
-			qp->idxb[ii][jj] = 0;
 		}
 
 	// idxs
@@ -233,8 +231,6 @@ void OCP_QP_CREATE(struct OCP_QP_DIM *dim, struct OCP_QP *qp, void *mem)
 		{
 		(qp->idxs)[ii] = i_ptr;
 		i_ptr += ns[ii];
-		for(jj=0; jj<ns[ii]; jj++)
-			qp->idxs[ii][jj] = 0;
 		}
 
 	// idxs_rev
@@ -242,6 +238,7 @@ void OCP_QP_CREATE(struct OCP_QP_DIM *dim, struct OCP_QP *qp, void *mem)
 		{
 		(qp->idxs_rev)[ii] = i_ptr;
 		i_ptr += nb[ii]+ng[ii];
+		// default value: -1
 		for(jj=0; jj<nb[ii]+ng[ii]; jj++)
 			qp->idxs_rev[ii][jj] = -1;
 		}
@@ -251,8 +248,6 @@ void OCP_QP_CREATE(struct OCP_QP_DIM *dim, struct OCP_QP *qp, void *mem)
 		{
 		(qp->idxe)[ii] = i_ptr;
 		i_ptr += nbue[ii]+nbxe[ii]+nge[ii];
-		for(jj=0; jj<nbue[ii]+nbxe[ii]+nge[ii]; jj++)
-			qp->idxe[ii][jj] = 0;
 		}
 
 

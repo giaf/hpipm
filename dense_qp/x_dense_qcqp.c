@@ -56,6 +56,7 @@ int DENSE_QCQP_MEMSIZE(struct DENSE_QCQP_DIM *dim)
 	size += 1*SIZE_STRVEC(2*ns); // Z
 	size += 1*nb*sizeof(int); // idxb
 	size += 1*ns*sizeof(int); // idxs
+	size += 1*(nb+ng+nq)*sizeof(int); // idxs_rev
 	size += 1*nq*sizeof(int); // Hq_nzero
 
 	size += 1*SIZE_STRMAT(nv+1, nv); // Hv
@@ -135,9 +136,17 @@ void DENSE_QCQP_CREATE(struct DENSE_QCQP_DIM *dim, struct DENSE_QCQP *qp, void *
 	// idxb
 	qp->idxb = i_ptr;
 	i_ptr += nb;
+
 	// idxs
 	qp->idxs = i_ptr;
 	i_ptr += ns;
+
+	// idxs_rev
+	qp->idxs_rev = i_ptr;
+	i_ptr += nb+ng+nq;
+	for(ii=0; ii<nb+ng+nq; ii++)
+		qp->idxs_rev[ii] = -1;
+
 	// Hq_nzero
 	qp->Hq_nzero = i_ptr;
 	i_ptr += nq;
@@ -330,6 +339,10 @@ void DENSE_QCQP_SET(char *field, void *value, struct DENSE_QCQP *qp)
 	else if(hpipm_strcmp(field, "idxs"))
 		{
 		DENSE_QCQP_SET_IDXS(value, qp);
+		}
+	else if(hpipm_strcmp(field, "idxs_rev"))
+		{
+		DENSE_QCQP_SET_IDXS_REV(value, qp);
 		}
 	else
 		{
@@ -693,7 +706,30 @@ void DENSE_QCQP_SET_IDXS(int *idxs, struct DENSE_QCQP *qp)
 	int ii;
 	int ns = qp->dim->ns;
 
-	for(ii=0; ii<ns; ii++) qp->idxs[ii] = idxs[ii];
+	for(ii=0; ii<ns; ii++)
+		{
+		qp->idxs[ii] = idxs[ii];
+		qp->idxs_rev[qp->idxs[ii]] = ii;
+		}
+
+	return;
+
+	}
+
+
+
+void DENSE_QCQP_SET_IDXS_REV(int *idxs_rev, struct DENSE_QCQP *qp)
+	{
+
+	int ii;
+	int nb = qp->dim->nb;
+	int ng = qp->dim->ng;
+	int nq = qp->dim->nq;
+
+	for(ii=0; ii<nb+ng+nq; ii++)
+		{
+		qp->idxs_rev[ii] = idxs_rev[ii];
+		}
 
 	return;
 
@@ -993,7 +1029,29 @@ void DENSE_QCQP_GET_IDXS(struct DENSE_QCQP *qp, int *idxs)
 	int ii;
 	int ns = qp->dim->ns;
 
-	for(ii=0; ii<ns; ii++) idxs[ii] = qp->idxs[ii];
+	for(ii=0; ii<ns; ii++)
+		{
+		idxs[ii] = qp->idxs[ii];
+		}
+
+	return;
+
+	}
+
+
+
+void DENSE_QCQP_GET_IDXS_REV(struct DENSE_QCQP *qp, int *idxs_rev)
+	{
+
+	int ii;
+	int nb = qp->dim->nb;
+	int ng = qp->dim->ng;
+	int nq = qp->dim->nq;
+
+	for(ii=0; ii<nb+ng+nq; ii++)
+		{
+		idxs_rev[ii] = qp->idxs_rev[ii];
+		}
 
 	return;
 

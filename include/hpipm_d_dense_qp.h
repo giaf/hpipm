@@ -67,6 +67,7 @@ struct d_dense_qp
 	struct blasfeo_dvec *Z; // (diagonal) hessian of slacks
 	int *idxb; // index of box constraints
 	int *idxs; // index of soft constraints
+	int *idxs_rev; // index of soft constraints (reverse storage)
 	int memsize; // memory size in bytes
 	};
 
@@ -115,6 +116,8 @@ void d_dense_qp_set_ug_mask(double *ug, struct d_dense_qp *qp);
 //
 void d_dense_qp_set_idxs(int *idxs, struct d_dense_qp *qp);
 //
+void d_dense_qp_set_idxs_rev(int *idxs_rev, struct d_dense_qp *qp);
+//
 void d_dense_qp_set_Zl(double *Zl, struct d_dense_qp *qp);
 //
 void d_dense_qp_set_Zu(double *Zu, struct d_dense_qp *qp);
@@ -154,6 +157,8 @@ void d_dense_qp_get_lg(struct d_dense_qp *qp, double *lg);
 void d_dense_qp_get_ug(struct d_dense_qp *qp, double *ug);
 //
 void d_dense_qp_get_idxs(struct d_dense_qp *qp, int *idxs);
+//
+void d_dense_qp_get_idxs_rev(struct d_dense_qp *qp, int *idxs_rev);
 //
 void d_dense_qp_get_Zl(struct d_dense_qp *qp, double *Zl);
 //

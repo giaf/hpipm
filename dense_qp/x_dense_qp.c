@@ -54,7 +54,8 @@ int DENSE_QP_MEMSIZE(struct DENSE_QP_DIM *dim)
 	size += 3*SIZE_STRVEC(2*nb+2*ng+2*ns); // d m d_mask
 	size += 1*SIZE_STRVEC(2*ns); // Z
 	size += 1*nb*sizeof(int); // idxb
-	size += 1*ns*sizeof(int); // idxb
+	size += 1*ns*sizeof(int); // idxs
+	size += 1*(nb+ng)*sizeof(int); // idxs_rev
 
 	size += 1*SIZE_STRMAT(nv+1, nv); // Hv
 	size += 1*SIZE_STRMAT(ne, nv); // A
@@ -132,6 +133,12 @@ void DENSE_QP_CREATE(struct DENSE_QP_DIM *dim, struct DENSE_QP *qp, void *mem)
 	// idxs
 	qp->idxs = i_ptr;
 	i_ptr += ns;
+
+	// idxs_rev
+	qp->idxs_rev = i_ptr;
+	i_ptr += nb+ng;
+	for(ii=0; ii<nb+ng; ii++)
+		qp->idxs_rev[ii] = -1;
 
 
 	// align to typical cache line size
@@ -233,7 +240,11 @@ void DENSE_QP_SET_ALL(REAL *H, REAL *g, REAL *A, REAL *b, int *idxb, REAL *d_lb,
 		}
 	if(ns>0)
 		{
-		for(ii=0; ii<ns; ii++) qp->idxs[ii] = idxs[ii];
+		for(ii=0; ii<ns; ii++)
+			{
+			qp->idxs[ii] = idxs[ii];
+			qp->idxs_rev[qp->idxs[ii]] = ii;
+			}
 		CVT_VEC2STRVEC(ns, Zl, qp->Z, 0);
 		CVT_VEC2STRVEC(ns, Zu, qp->Z, ns);
 		CVT_VEC2STRVEC(ns, zl, qp->gz, nv);
@@ -398,6 +409,10 @@ void DENSE_QP_SET(char *field, void *value, struct DENSE_QP *qp)
 	else if(hpipm_strcmp(field, "idxs"))
 		{
 		DENSE_QP_SET_IDXS(value, qp);
+		}
+	else if(hpipm_strcmp(field, "idxs_rev"))
+		{
+		DENSE_QP_SET_IDXS_REV(value, qp);
 		}
 	else
 		{
@@ -660,7 +675,29 @@ void DENSE_QP_SET_IDXS(int *idxs, struct DENSE_QP *qp)
 	int ii;
 	int ns = qp->dim->ns;
 
-	for(ii=0; ii<ns; ii++) qp->idxs[ii] = idxs[ii];
+	for(ii=0; ii<ns; ii++)
+		{
+		qp->idxs[ii] = idxs[ii];
+		qp->idxs_rev[qp->idxs[ii]] = ii;
+		}
+
+	return;
+
+	}
+
+
+
+void DENSE_QP_SET_IDXS_REV(int *idxs_rev, struct DENSE_QP *qp)
+	{
+
+	int ii;
+	int nb = qp->dim->nb;
+	int ng = qp->dim->ng;
+
+	for(ii=0; ii<nb+ng; ii++)
+		{
+		qp->idxs_rev[ii] = idxs_rev[ii];
+		}
 
 	return;
 
@@ -954,7 +991,28 @@ void DENSE_QP_GET_IDXS(struct DENSE_QP *qp, int *idxs)
 	int ii;
 	int ns = qp->dim->ns;
 
-	for(ii=0; ii<ns; ii++) idxs[ii] = qp->idxs[ii];
+	for(ii=0; ii<ns; ii++)
+		{
+		idxs[ii] = qp->idxs[ii];
+		}
+
+	return;
+
+	}
+
+
+
+void DENSE_QP_GET_IDXS_REV(struct DENSE_QP *qp, int *idxs_rev)
+	{
+
+	int ii;
+	int nb = qp->dim->nb;
+	int ng = qp->dim->ng;
+
+	for(ii=0; ii<nb+ng; ii++)
+		{
+		idxs_rev[ii] = qp->idxs_rev[ii];
+		}
 
 	return;
 
@@ -1084,7 +1142,11 @@ void DENSE_QP_SET_ALL_ROWMAJ(REAL *H, REAL *g, REAL *A, REAL *b, int *idxb, REAL
 		}
 	if(ns>0)
 		{
-		for(ii=0; ii<ns; ii++) qp->idxs[ii] = idxs[ii];
+		for(ii=0; ii<ns; ii++)
+			{
+			qp->idxs[ii] = idxs[ii];
+			qp->idxs_rev[qp->idxs[ii]] = ii;
+			}
 		CVT_VEC2STRVEC(ns, Zl, qp->Z, 0);
 		CVT_VEC2STRVEC(ns, Zu, qp->Z, ns);
 		CVT_VEC2STRVEC(ns, zl, qp->gz, nv);
