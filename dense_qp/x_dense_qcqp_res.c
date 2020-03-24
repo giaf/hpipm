@@ -258,6 +258,8 @@ void DENSE_QCQP_RES_WS_CREATE(struct DENSE_QCQP_DIM *dim, struct DENSE_QCQP_RES_
 void DENSE_QCQP_RES_COMPUTE(struct DENSE_QCQP *qp, struct DENSE_QCQP_SOL *qp_sol, struct DENSE_QCQP_RES *res, struct DENSE_QCQP_RES_WS *ws)
 	{
 
+	int ii, idx;
+
 	int nv = qp->dim->nv;
 	int ne = qp->dim->ne;
 	int nb = qp->dim->nb;
@@ -283,6 +285,7 @@ void DENSE_QCQP_RES_COMPUTE(struct DENSE_QCQP *qp, struct DENSE_QCQP_SOL *qp_sol
 	int *idxb = qp->idxb;
 	struct STRVEC *Z = qp->Z;
 	int *idxs = qp->idxs;
+	int *idxs_rev = qp->idxs_rev;
 
 	struct STRVEC *v = qp_sol->v;
 	struct STRVEC *pi = qp_sol->pi;
@@ -299,8 +302,6 @@ void DENSE_QCQP_RES_COMPUTE(struct DENSE_QCQP *qp, struct DENSE_QCQP_SOL *qp_sol
 	struct STRVEC *tmp_ns = ws->tmp_ns;
 
 	REAL mu, tmp;
-
-	int ii;
 
 	// res g
 	SYMV_L(nv, nv, 1.0, Hg, 0, 0, v, 0, 1.0, gz, 0, res_g, 0);
@@ -362,13 +363,33 @@ void DENSE_QCQP_RES_COMPUTE(struct DENSE_QCQP *qp, struct DENSE_QCQP_SOL *qp_sol
 		// res_g
 		GEMV_DIAG(2*ns, 1.0, Z, 0, v, nv, 1.0, gz, nv, res_g, nv);
 		AXPY(2*ns, -1.0, lam, 2*nb+2*ng+2*nq, res_g, nv, res_g, nv);
-		VECEX_SP(ns, 1.0, idxs, lam, 0, tmp_ns, 0);
-		AXPY(ns, -1.0, tmp_ns, 0, res_g, nv, res_g, nv);
-		VECEX_SP(ns, 1.0, idxs, lam, nb+ng+nq, tmp_ns, 0);
-		AXPY(ns, -1.0, tmp_ns, 0, res_g, nv+ns, res_g, nv+ns);
+//		VECEX_SP(ns, 1.0, idxs, lam, 0, tmp_ns, 0);
+//		AXPY(ns, -1.0, tmp_ns, 0, res_g, nv, res_g, nv);
+//		VECEX_SP(ns, 1.0, idxs, lam, nb+ng+nq, tmp_ns, 0);
+//		AXPY(ns, -1.0, tmp_ns, 0, res_g, nv+ns, res_g, nv+ns);
+		for(ii=0; ii<nb+ng+nq; ii++)
+			{
+			idx = idxs_rev[ii];
+			if(idx!=-1)
+				{
+#ifdef DOUBLE_PRECISION
+				BLASFEO_DVECEL(res_g, nv+idx) -= BLASFEO_DVECEL(lam, ii);
+				BLASFEO_DVECEL(res_g, nv+ns+idx) -= BLASFEO_DVECEL(lam, nb+ng+nq+ii);
+				// res_d
+				BLASFEO_DVECEL(res_d, ii) -= BLASFEO_DVECEL(v+ii, nv+idx);
+				BLASFEO_DVECEL(res_d, nb+ng+nq+ii) -= BLASFEO_DVECEL(v+ii, nv+ns+idx);
+#else
+				BLASFEO_SVECEL(res_g, nv+idx) -= BLASFEO_SVECEL(lam, ii);
+				BLASFEO_SVECEL(res_g, nv+ns+idx) -= BLASFEO_SVECEL(lam, nb+ng+nq+ii);
+				// res_d
+				BLASFEO_SVECEL(res_d, ii) -= BLASFEO_SVECEL(v+ii, nv+idx);
+				BLASFEO_SVECEL(res_d, nb+ng+nq+ii) -= BLASFEO_SVECEL(v+ii, nv+ns+idx);
+#endif
+				}
+			}
 		// res_d
-		VECAD_SP(ns, -1.0, v, nv, idxs, res_d, 0);
-		VECAD_SP(ns, -1.0, v, nv+ns, idxs, res_d, nb+ng+nq);
+//		VECAD_SP(ns, -1.0, v, nv, idxs, res_d, 0);
+//		VECAD_SP(ns, -1.0, v, nv+ns, idxs, res_d, nb+ng+nq);
 		AXPY(2*ns, -1.0, v, nv, t, 2*nb+2*ng+2*nq, res_d, 2*nb+2*ng+2*nq);
 		AXPY(2*ns, 1.0, d, 2*nb+2*ng+2*nq, res_d, 2*nb+2*ng+2*nq, res_d, 2*nb+2*ng+2*nq);
 		}
