@@ -85,6 +85,12 @@ void s_ocp_qp_reduce_eq_dof_arg_set_default(struct s_ocp_qp_reduce_eq_dof_arg *a
 //
 void s_ocp_qp_reduce_eq_dof_arg_set_alias_unchanged(struct s_ocp_qp_reduce_eq_dof_arg *arg, int value);
 //
+void s_ocp_qp_reduce_eq_dof_arg_set_comp_prim_sol(struct s_ocp_qp_reduce_eq_dof_arg *arg, int value);
+//
+void s_ocp_qp_reduce_eq_dof_arg_set_comp_dual_sol_eq(struct s_ocp_qp_reduce_eq_dof_arg *arg, int value);
+//
+void s_ocp_qp_reduce_eq_dof_arg_set_comp_dual_sol_ineq(struct s_ocp_qp_reduce_eq_dof_arg *arg, int value);
+//
 int s_ocp_qp_reduce_eq_dof_work_memsize(struct s_ocp_qp_dim *dim);
 //
 void s_ocp_qp_reduce_eq_dof_work_create(struct s_ocp_qp_dim *dim, struct s_ocp_qp_reduce_eq_dof_work *work, void *mem);

@@ -800,7 +800,9 @@ int main()
 	for(ii=0; ii<=N; ii++)
 		d_ocp_qp_dim_set_nbxe(ii, nbxe[ii], &dim);
 
+#if PRINT
 	d_ocp_qp_dim_print(&dim);
+#endif
 
 /************************************************
 * ocp qp
