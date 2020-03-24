@@ -49,6 +49,10 @@
 
 
 
+#define SINGLE_PRECISION
+
+
+
 #define AXPY blasfeo_saxpy
 #define CREATE_STRVEC blasfeo_create_svec
 #define CVT_STRVEC2VEC blasfeo_unpack_svec

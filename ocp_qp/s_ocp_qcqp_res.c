@@ -49,6 +49,10 @@
 
 
 
+#define SINGLE_PRECISION
+
+
+
 #define AXPY blasfeo_saxpy
 #define COLEX blasfeo_scolex
 #define CREATE_STRVEC blasfeo_create_svec

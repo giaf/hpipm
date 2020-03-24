@@ -49,6 +49,10 @@
 
 
 
+#define DOUBLE_PRECISION
+
+
+
 #define AXPY blasfeo_daxpy
 #define COLEX blasfeo_dcolex
 #define CREATE_STRVEC blasfeo_create_dvec
