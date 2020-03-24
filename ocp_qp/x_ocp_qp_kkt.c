@@ -351,8 +351,8 @@ static void COND_SLACKS_SOLVE(int ss, struct OCP_QP *qp, struct OCP_QP_SOL *qp_s
 			ptr_dux[nu0+nx0+ns0+idx_rev]  = ptr_res_g[nu0+nx0+ns0+idx_rev] + ptr_gamma[nb0+ng0+ii] + ptr_gamma[2*nb0+2*ng0+ns0+idx_rev];
 			tmp0 = ptr_dux[nu0+nx0+idx_rev]*ptr_Zs_inv[0+idx_rev];
 			tmp1 = ptr_dux[nu0+nx0+ns0+idx_rev]*ptr_Zs_inv[ns0+idx_rev];
-		ptr_tmp2[ii] = ptr_tmp2[ii] - ptr_Gamma[0+ii]*tmp0;
-		ptr_tmp3[ii] = ptr_tmp3[ii] - ptr_Gamma[nb0+ng0+ii]*tmp1;
+			ptr_tmp2[ii] = ptr_tmp2[ii] - ptr_Gamma[0+ii]*tmp0;
+			ptr_tmp3[ii] = ptr_tmp3[ii] - ptr_Gamma[nb0+ng0+ii]*tmp1;
 			}
 		}
 #else

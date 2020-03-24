@@ -226,7 +226,7 @@ printf("\nA_LQ * A_Q - A max err %e\n", max_err);
 static void COND_SLACKS_FACT_SOLVE(struct DENSE_QP *qp, struct DENSE_QP_SOL *qp_sol, struct DENSE_QP_IPM_ARG *arg, struct DENSE_QP_IPM_WS *ws)
 	{
 
-	int ii, idx;
+	int ii, idx, idx_rev;
 
 	int nv = qp->dim->nv;
 	int nb = qp->dim->nb;
@@ -235,6 +235,7 @@ static void COND_SLACKS_FACT_SOLVE(struct DENSE_QP *qp, struct DENSE_QP_SOL *qp_
 
 	struct STRVEC *Z = qp->Z;
 	int *idxs = qp->idxs;
+	int *idxs_rev = qp->idxs_rev;
 
 //	struct STRVEC *dv = ws->sol_step->v;
 	struct STRVEC *dv = qp_sol->v;
@@ -265,6 +266,31 @@ static void COND_SLACKS_FACT_SOLVE(struct DENSE_QP *qp, struct DENSE_QP_SOL *qp_
 	VECCP(nb+ng, gamma, 0, tmp_nbg+2, 0);
 	VECCP(nb+ng, gamma, nb+ng, tmp_nbg+3, 0);
 
+#if 1
+	// idxs_rev
+	for(ii=0; ii<nb+ng; ii++)
+		{
+		idx_rev = idxs_rev[ii];
+		if(idx_rev!=-1)
+			{
+			// ii      <= constr index
+			// idx_rev <= slack index
+			ptr_Zs_inv[0+idx_rev]  = ptr_Z[0+idx_rev]  + arg->reg_prim + ptr_Gamma[0+ii]     + ptr_Gamma[2*nb+2*ng+idx_rev];
+			ptr_Zs_inv[ns+idx_rev] = ptr_Z[ns+idx_rev] + arg->reg_prim + ptr_Gamma[nb+ng+ii] + ptr_Gamma[2*nb+2*ng+ns+idx_rev];
+			ptr_dv[nv+idx_rev]     = ptr_res_g[nv+idx_rev]    + ptr_gamma[0+ii]     + ptr_gamma[2*nb+2*ng+idx_rev];
+			ptr_dv[nv+ns+idx_rev]  = ptr_res_g[nv+ns+idx_rev] + ptr_gamma[nb+ng+ii] + ptr_gamma[2*nb+2*ng+ns+idx_rev];
+			ptr_Zs_inv[0+idx_rev]  = 1.0/ptr_Zs_inv[0+idx_rev];
+			ptr_Zs_inv[ns+idx_rev] = 1.0/ptr_Zs_inv[ns+idx_rev];
+			tmp0 = ptr_dv[nv+idx_rev]*ptr_Zs_inv[0+idx_rev];
+			tmp1 = ptr_dv[nv+ns+idx_rev]*ptr_Zs_inv[ns+idx_rev];
+			ptr_tmp0[ii] = ptr_tmp0[ii] - ptr_tmp0[ii]*ptr_Zs_inv[0+idx_rev]*ptr_tmp0[ii];
+			ptr_tmp1[ii] = ptr_tmp1[ii] - ptr_tmp1[ii]*ptr_Zs_inv[ns+idx_rev]*ptr_tmp1[ii];
+			ptr_tmp2[ii] = ptr_tmp2[ii] - ptr_Gamma[0+ii]*tmp0;
+			ptr_tmp3[ii] = ptr_tmp3[ii] - ptr_Gamma[nb+ng+ii]*tmp1;
+			}
+		}
+#else
+	// idxs TODO remove !!!!!
 	for(ii=0; ii<ns; ii++)
 		{
 		idx = idxs[ii];
@@ -281,7 +307,8 @@ static void COND_SLACKS_FACT_SOLVE(struct DENSE_QP *qp, struct DENSE_QP_SOL *qp_
 		ptr_tmp2[idx] = ptr_tmp2[idx] - ptr_Gamma[0+idx]*tmp0;
 		ptr_tmp3[idx] = ptr_tmp3[idx] - ptr_Gamma[nb+ng+idx]*tmp1;
 		}
-	
+#endif
+
 	AXPY(nb+ng,  1.0, tmp_nbg+1, 0, tmp_nbg+0, 0, tmp_nbg+0, 0);
 	AXPY(nb+ng, -1.0, tmp_nbg+3, 0, tmp_nbg+2, 0, tmp_nbg+1, 0);
 
@@ -294,7 +321,7 @@ static void COND_SLACKS_FACT_SOLVE(struct DENSE_QP *qp, struct DENSE_QP_SOL *qp_
 static void COND_SLACKS_SOLVE(struct DENSE_QP *qp, struct DENSE_QP_SOL *qp_sol, struct DENSE_QP_IPM_WS *ws)
 	{
 
-	int ii, idx;
+	int ii, idx, idx_rev;
 
 	int nv = qp->dim->nv;
 	int nb = qp->dim->nb;
@@ -302,6 +329,7 @@ static void COND_SLACKS_SOLVE(struct DENSE_QP *qp, struct DENSE_QP_SOL *qp_sol, 
 	int ns = qp->dim->ns;
 
 	int *idxs = qp->idxs;
+	int *idxs_rev = qp->idxs_rev;
 
 //	struct STRVEC *dv = ws->sol_step->v;
 	struct STRVEC *dv = qp_sol->v;
@@ -327,6 +355,25 @@ static void COND_SLACKS_SOLVE(struct DENSE_QP *qp, struct DENSE_QP_SOL *qp_sol, 
 	VECCP(nb+ng, gamma, 0, tmp_nbg+2, 0);
 	VECCP(nb+ng, gamma, nb+ng, tmp_nbg+3, 0);
 
+#if 1
+	// idxs_rev
+	for(ii=0; ii<nb+ng; ii++)
+		{
+		idx_rev = idxs_rev[ii];
+		if(idx_rev!=-1)
+			{
+			// ii      <= constr index
+			// idx_rev <= slack index
+			ptr_dv[nv+idx_rev]     = ptr_res_g[nv+idx_rev]    + ptr_gamma[0+ii]     + ptr_gamma[2*nb+2*ng+idx_rev];
+			ptr_dv[nv+ns+idx_rev]  = ptr_res_g[nv+ns+idx_rev] + ptr_gamma[nb+ng+ii] + ptr_gamma[2*nb+2*ng+ns+idx_rev];
+			tmp0 = ptr_dv[nv+idx_rev]*ptr_Zs_inv[0+idx_rev];
+			tmp1 = ptr_dv[nv+ns+idx_rev]*ptr_Zs_inv[ns+idx_rev];
+			ptr_tmp2[ii] = ptr_tmp2[ii] - ptr_Gamma[0+ii]*tmp0;
+			ptr_tmp3[ii] = ptr_tmp3[ii] - ptr_Gamma[nb+ng+ii]*tmp1;
+			}
+		}
+#else
+	// idxs TODO remove !!!!!
 	for(ii=0; ii<ns; ii++)
 		{
 		idx = idxs[ii];
@@ -337,7 +384,8 @@ static void COND_SLACKS_SOLVE(struct DENSE_QP *qp, struct DENSE_QP_SOL *qp_sol, 
 		ptr_tmp2[idx] = ptr_tmp2[idx] - ptr_Gamma[0+idx]*tmp0;
 		ptr_tmp3[idx] = ptr_tmp3[idx] - ptr_Gamma[nb+ng+idx]*tmp1;
 		}
-	
+#endif
+
 	AXPY(nb+ng, -1.0, tmp_nbg+3, 0, tmp_nbg+2, 0, tmp_nbg+1, 0);
 
 	return;
@@ -349,7 +397,7 @@ static void COND_SLACKS_SOLVE(struct DENSE_QP *qp, struct DENSE_QP_SOL *qp_sol, 
 static void EXPAND_SLACKS(struct DENSE_QP *qp, struct DENSE_QP_SOL *qp_sol, struct DENSE_QP_IPM_WS *ws)
 	{
 
-	int ii, idx;
+	int ii, idx, idx_rev;
 
 	int nv = qp->dim->nv;
 	int nb = qp->dim->nb;
@@ -357,6 +405,7 @@ static void EXPAND_SLACKS(struct DENSE_QP *qp, struct DENSE_QP_SOL *qp_sol, stru
 	int ns = qp->dim->ns;
 
 	int *idxs = qp->idxs;
+	int *idxs_rev = qp->idxs_rev;
 
 	struct STRVEC *dv = qp_sol->v;
 	struct STRVEC *dt = qp_sol->t;
@@ -369,6 +418,25 @@ static void EXPAND_SLACKS(struct DENSE_QP *qp, struct DENSE_QP_SOL *qp_sol, stru
 	REAL *ptr_dt = dt->pa;
 	REAL *ptr_Zs_inv = Zs_inv->pa;
 
+#if 1
+	// idxs_rev
+	for(ii=0; ii<nb+ng; ii++)
+		{
+		idx_rev = idxs_rev[ii];
+		if(idx_rev!=-1)
+			{
+			// ii      <= constr index
+			// idx_rev <= slack index
+			ptr_dv[nv+idx_rev]    = - ptr_Zs_inv[0+idx_rev]  * (ptr_dv[nv+idx_rev]    + ptr_dt[ii]*ptr_Gamma[ii]);
+			ptr_dv[nv+ns+idx_rev] = - ptr_Zs_inv[ns+idx_rev] * (ptr_dv[nv+ns+idx_rev] + ptr_dt[nb+ng+ii]*ptr_Gamma[nb+ng+ii]);
+			ptr_dt[2*nb+2*ng+idx_rev]    = ptr_dv[nv+idx_rev];
+			ptr_dt[2*nb+2*ng+ns+idx_rev] = ptr_dv[nv+ns+idx_rev];
+			ptr_dt[0+ii]     = ptr_dt[0+ii]     + ptr_dv[nv+idx_rev];
+			ptr_dt[nb+ng+ii] = ptr_dt[nb+ng+ii] + ptr_dv[nv+ns+idx_rev];
+			}
+		}
+#else
+	// idxs TODO remove !!!!!
 	for(ii=0; ii<ns; ii++)
 		{
 		idx = idxs[ii];
@@ -379,6 +447,7 @@ static void EXPAND_SLACKS(struct DENSE_QP *qp, struct DENSE_QP_SOL *qp_sol, stru
 		ptr_dt[0+idx]     = ptr_dt[0+idx]     + ptr_dv[nv+ii];
 		ptr_dt[nb+ng+idx] = ptr_dt[nb+ng+idx] + ptr_dv[nv+ns+ii];
 		}
+#endif
 
 	return;
 

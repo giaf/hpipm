@@ -1511,7 +1511,7 @@ void OCP_QP_INIT_VAR(struct OCP_QP *qp, struct OCP_QP_SOL *qp_sol, struct OCP_QP
 			idx = idxs_rev[nb[ii]+jj];
 			if(idx!=-1)
 				{
-				// softed bound
+				// softed general constraint
 				t_lb[nb[ii]+jj] += s[idx];
 				t_ub[nb[ii]+jj] += s[ns[ii]+idx];
 				}

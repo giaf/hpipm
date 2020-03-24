@@ -943,7 +943,8 @@ void DENSE_QCQP_APPROX_QP(struct DENSE_QCQP *qcqp, struct DENSE_QCQP_SOL *qcqp_s
 	for(ii=0; ii<ns; ii++)
 		qp->idxs[ii] = qcqp->idxs[ii];
 
-	// TODO what about idxs_rev ???
+	for(ii=0; ii<ns; ii++)
+		qp->idxs_rev[ii] = qcqp->idxs_rev[ii];
 
 	return;
 
@@ -1066,8 +1067,6 @@ void DENSE_QCQP_UPDATE_QP_ABS_STEP(struct DENSE_QCQP *qcqp, struct DENSE_QCQP_SO
 		}
 
 	VECCP(2*nb+2*ng+2*nq+2*ns, qcqp->m, 0, qp->m, 0);
-
-	// TODO what about idxs_rev ???
 
 	return;
 
@@ -1203,6 +1202,7 @@ void DENSE_QCQP_IPM_SOLVE(struct DENSE_QCQP *qcqp, struct DENSE_QCQP_SOL *qcqp_s
 	qp_ws->qp_step->Z = qp->Z;
 	qp_ws->qp_step->idxb = qp->idxb;
 	qp_ws->qp_step->idxs = qp->idxs;
+	qp_ws->qp_step->idxs_rev = qp->idxs_rev;
 	qp_ws->qp_step->gz = qp_ws->res->res_g;
 	qp_ws->qp_step->b = qp_ws->res->res_b;
 	qp_ws->qp_step->d = qp_ws->res->res_d;
@@ -1217,6 +1217,7 @@ void DENSE_QCQP_IPM_SOLVE(struct DENSE_QCQP *qcqp, struct DENSE_QCQP_SOL *qcqp_s
 	qp_ws->qp_itref->Z = qp->Z;
 	qp_ws->qp_itref->idxb = qp->idxb;
 	qp_ws->qp_itref->idxs = qp->idxs;
+	qp_ws->qp_itref->idxs_rev = qp->idxs_rev;
 	qp_ws->qp_itref->gz = qp_ws->res_itref->res_g;
 	qp_ws->qp_itref->b = qp_ws->res_itref->res_b;
 	qp_ws->qp_itref->d = qp_ws->res_itref->res_d;
@@ -1234,12 +1235,32 @@ void DENSE_QCQP_IPM_SOLVE(struct DENSE_QCQP *qcqp, struct DENSE_QCQP_SOL *qcqp_s
 
 	// disregard soft constr on (disregarded) lower quard constr
 	VECSE(nq, 0.0, qcqp->d_mask, nb+ng); // TODO needed ???
+#if 1
+	// TODO probably remove when using only idxs_rev, as the same slack may be associated with other constraints !!!!!
+	for(ii=0; ii<nq; ii++)
+		{
+		idx = qcqp->idxs_rev[nb+ng+ii];
+		if(idx!=-1)
+			{
+#ifdef DOUBLE_PRECISION
+			BLASFEO_DVECEL(qcqp->d_mask, 2*nb+2*ng+2*nq+idx) = 0.0;
+#else
+			BLASFEO_DVECEL(qcqp->d_mask, 2*nb+2*ng+2*nq+idx) = 0.0;
+#endif
+			}
+		}
+#else
 	for(ii=0; ii<ns; ii++)
 		{
 		idx = qcqp->idxs[ii];
 		if(idx>=nb+ng) // quadr constr
-			VECSE(1, 0.0, qcqp->d_mask, 2*nb+2*ng+2*nq+ii);
+#ifdef DOUBLE_PRECISION
+			BLASFEO_DVECEL(qcqp->d_mask, 2*nb+2*ng+2*nq+ii) = 0.0;
+#else
+			BLASFEO_SVECEL(qcqp->d_mask, 2*nb+2*ng+2*nq+ii) = 0.0;
+#endif
 		}
+#endif
 
 
 	// initialize qcqp & qp
@@ -1317,6 +1338,7 @@ void DENSE_QCQP_IPM_SOLVE(struct DENSE_QCQP *qcqp, struct DENSE_QCQP_SOL *qcqp_s
 		qp_ws->qp_step->Z = qp->Z;
 		qp_ws->qp_step->idxb = qp->idxb;
 		qp_ws->qp_step->idxs = qp->idxs;
+		qp_ws->qp_step->idxs_rev = qp->idxs_rev;
 		qp_ws->qp_step->gz = qp->gz;
 		qp_ws->qp_step->b = qp->b;
 		qp_ws->qp_step->d = qp->d;
