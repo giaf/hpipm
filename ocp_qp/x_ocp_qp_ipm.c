@@ -1214,7 +1214,7 @@ void OCP_QP_INIT_VAR(struct OCP_QP *qp, struct OCP_QP_SOL *qp_sol, struct OCP_QP
 
 	//
 	REAL *ux, *s, *pi, *d_lb, *d_ub, *d_lg, *d_ug, *d_ls, *lam_lb, *lam_ub, *lam_lg, *lam_ug, *lam_ls, *t_lb, *t_ub, *t_lg, *t_ug, *t_ls;
-	int *idxb, *idxs, *idxs_rev;
+	int *idxb, **idxs_rev;
 	int idx;
 
 	REAL thr0 = 1e-1;
@@ -1417,7 +1417,6 @@ void OCP_QP_INIT_VAR(struct OCP_QP *qp, struct OCP_QP_SOL *qp_sol, struct OCP_QP
 		t_ug = qp_sol->t[ii].pa+2*nb[ii]+ng[ii];
 		t_ls = qp_sol->t[ii].pa+2*nb[ii]+2*ng[ii];
 		idxb = qp->idxb[ii];
-		idxs = qp->idxs[ii];
 		idxs_rev = qp->idxs_rev[ii];
 
 		// lower bound on slacks
@@ -1441,7 +1440,6 @@ void OCP_QP_INIT_VAR(struct OCP_QP *qp, struct OCP_QP_SOL *qp_sol, struct OCP_QP
 		// upper and lower bounds on inputs and states
 		VECEX_SP(nb[ii], 1.0, qp->idxb[ii], qp_sol->ux+ii, 0, qp_sol->t+ii, 0);
 		VECCPSC(nb[ii], -1.0, qp_sol->t+ii, 0, qp_sol->t+ii, nb[ii]+ng[ii]);
-#if 1
 		for(jj=0; jj<nb[ii]; jj++)
 			{
 			idx = idxs_rev[jj];
@@ -1452,18 +1450,6 @@ void OCP_QP_INIT_VAR(struct OCP_QP *qp, struct OCP_QP_SOL *qp_sol, struct OCP_QP
 				t_ub[jj] += s[ns[ii]+idx];
 				}
 			}
-#else
-		for(jj=0; jj<ns[ii]; jj++)
-			{
-			idx = idxs[jj];
-			if(idx<nb[ii])
-				{
-				// softed bound
-				t_lb[idx] += s[jj];
-				t_ub[idx] += s[ns[ii]+jj];
-				}
-			}
-#endif
 		AXPY(nb[ii], -1.0, qp->d+ii, 0, qp_sol->t+ii, 0, qp_sol->t+ii, 0);
 		AXPY(nb[ii], -1.0, qp->d+ii, nb[ii]+ng[ii], qp_sol->t+ii, nb[ii]+ng[ii], qp_sol->t+ii, nb[ii]+ng[ii]);
 //		blasfeo_print_tran_dvec(nb[ii], qp_sol->t+ii, 0);
@@ -1505,7 +1491,6 @@ void OCP_QP_INIT_VAR(struct OCP_QP *qp, struct OCP_QP_SOL *qp_sol, struct OCP_QP
 		VECCPSC(ng[ii], -1.0, qp_sol->t+ii, nb[ii], qp_sol->t+ii, 2*nb[ii]+ng[ii]);
 //		blasfeo_print_tran_dvec(ng[ii], qp_sol->t+ii, nb[ii]);
 //		blasfeo_print_tran_dvec(ng[ii], qp_sol->t+ii, 2*nb[ii]+ng[ii]);
-#if 1
 		for(jj=0; jj<ng[ii]; jj++)
 			{
 			idx = idxs_rev[nb[ii]+jj];
@@ -1516,19 +1501,6 @@ void OCP_QP_INIT_VAR(struct OCP_QP *qp, struct OCP_QP_SOL *qp_sol, struct OCP_QP
 				t_ub[nb[ii]+jj] += s[ns[ii]+idx];
 				}
 			}
-#else
-		for(jj=0; jj<ns[ii]; jj++)
-			{
-			idx = idxs[jj];
-			if(idx>=nb[ii])
-				{
-				// softed general constraint
-				idx -= nb[ii];
-				t_lg[idx] += s[jj];
-				t_ug[idx] += s[ns[ii]+jj];
-				}
-			}
-#endif
 //		blasfeo_print_tran_dvec(ng[ii], qp_sol->t+ii, nb[ii]);
 //		blasfeo_print_tran_dvec(ng[ii], qp_sol->t+ii, 2*nb[ii]+ng[ii]);
 		AXPY(ng[ii], -1.0, qp->d+ii, nb[ii], qp_sol->t+ii, nb[ii], qp_sol->t+ii, nb[ii]);
@@ -2237,7 +2209,6 @@ void OCP_QP_IPM_SOLVE(struct OCP_QP *qp, struct OCP_QP_SOL *qp_sol, struct OCP_Q
 	ws->qp_step->DCt = qp->DCt;
 	ws->qp_step->Z = qp->Z;
 	ws->qp_step->idxb = qp->idxb;
-	ws->qp_step->idxs = qp->idxs;
 	ws->qp_step->idxs_rev = qp->idxs_rev;
 	ws->qp_step->rqz = ws->res->res_g;
 	ws->qp_step->b = ws->res->res_b;
@@ -2251,7 +2222,6 @@ void OCP_QP_IPM_SOLVE(struct OCP_QP *qp, struct OCP_QP_SOL *qp_sol, struct OCP_Q
 	ws->qp_itref->DCt = qp->DCt;
 	ws->qp_itref->Z = qp->Z;
 	ws->qp_itref->idxb = qp->idxb;
-	ws->qp_itref->idxs = qp->idxs;
 	ws->qp_itref->idxs_rev = qp->idxs_rev;
 	ws->qp_itref->rqz = ws->res_itref->res_g;
 	ws->qp_itref->b = ws->res_itref->res_b;
@@ -2343,7 +2313,6 @@ void OCP_QP_IPM_SOLVE(struct OCP_QP *qp, struct OCP_QP_SOL *qp_sol, struct OCP_Q
 		ws->qp_step->DCt = qp->DCt;
 		ws->qp_step->Z = qp->Z;
 		ws->qp_step->idxb = qp->idxb;
-		ws->qp_step->idxs = qp->idxs;
 		ws->qp_step->idxs_rev = qp->idxs_rev;
 		ws->qp_step->rqz = qp->rqz;
 		ws->qp_step->b = qp->b;
@@ -2545,7 +2514,6 @@ void OCP_QP_IPM_PREDICT(struct OCP_QP *qp, struct OCP_QP_SOL *qp_sol, struct OCP
 	ws->qp_step->DCt = qp->DCt;
 	ws->qp_step->Z = qp->Z;
 	ws->qp_step->idxb = qp->idxb;
-	ws->qp_step->idxs = qp->idxs;
 	ws->qp_step->idxs_rev = qp->idxs_rev;
 	ws->qp_step->rqz = ws->res->res_g;
 	ws->qp_step->b = ws->res->res_b;
@@ -2664,7 +2632,6 @@ void OCP_QP_IPM_SENS(struct OCP_QP *qp, struct OCP_QP_SOL *qp_sol, struct OCP_QP
 	ws->qp_step->DCt = qp->DCt;
 	ws->qp_step->Z = qp->Z;
 	ws->qp_step->idxb = qp->idxb;
-	ws->qp_step->idxs = qp->idxs;
 	ws->qp_step->idxs_rev = qp->idxs_rev;
 	ws->qp_step->rqz = res->res_g;
 	ws->qp_step->b = res->res_b;

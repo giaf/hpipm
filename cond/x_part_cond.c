@@ -402,7 +402,6 @@ void PART_COND_QP_COND(struct OCP_QP *ocp_qp, struct OCP_QP *part_dense_qp, stru
 		tmp_ocp_qp.d = ocp_qp->d+N_tmp;
 		tmp_ocp_qp.d_mask = ocp_qp->d_mask+N_tmp;
 		tmp_ocp_qp.Z = ocp_qp->Z+N_tmp;
-//		tmp_ocp_qp.idxs = ocp_qp->idxs+N_tmp;
 		tmp_ocp_qp.idxs_rev = ocp_qp->idxs_rev+N_tmp;
 
 		COND_BABT(&tmp_ocp_qp, part_dense_qp->BAbt+ii, part_dense_qp->b+ii, part_cond_arg->cond_arg+ii, part_cond_ws->cond_workspace+ii);

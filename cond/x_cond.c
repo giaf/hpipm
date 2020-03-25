@@ -213,8 +213,6 @@ int COND_QP_WS_MEMSIZE(struct OCP_QP_DIM *ocp_dim, struct COND_QP_ARG *cond_arg)
 	size += 1*SIZE_STRVEC(nbM+ngM); // tmp_nbgM
 	size += 1*SIZE_STRVEC(nuM+nxM); // tmp_nuxM
 
-	size += 1*(nbM+ngM)*sizeof(int); // idxs_rev TODO remove !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-
 	size = (size+63)/64*64; // make multiple of typical cache line size
 	size += 1*64; // align once to typical cache line size
 
@@ -296,17 +294,8 @@ void COND_QP_WS_CREATE(struct OCP_QP_DIM *ocp_dim, struct COND_QP_ARG *cond_arg,
 	sv_ptr += 1;
 
 
-	// int stuff
-	int *i_ptr;
-	i_ptr = (int *) sv_ptr;
-
-	// idxs_rev
-	cond_ws->idxs_rev = i_ptr;
-	i_ptr += nbM+ngM;
-
-
 	// align to typicl cache line size
-	size_t s_ptr = (size_t) i_ptr;
+	size_t s_ptr = (size_t) sv_ptr;
 	s_ptr = (s_ptr+63)/64*64;
 
 

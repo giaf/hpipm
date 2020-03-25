@@ -78,7 +78,6 @@ struct d_cond_qp_ws
 	struct blasfeo_dvec *l;
 	struct blasfeo_dvec *tmp_nbgM;
 	struct blasfeo_dvec *tmp_nuxM;
-	int *idxs_rev;
 	int bs; // block size
 	int memsize;
 	};

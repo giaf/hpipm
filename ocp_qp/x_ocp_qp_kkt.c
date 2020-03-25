@@ -207,7 +207,7 @@ void FACT_SOLVE_KKT_UNCONSTR_OCP_QP(struct OCP_QP *qp, struct OCP_QP_SOL *qp_sol
 static void COND_SLACKS_FACT_SOLVE(int ss, struct OCP_QP *qp, struct OCP_QP_SOL *qp_sol, struct OCP_QP_IPM_ARG *arg, struct OCP_QP_IPM_WS *ws)
 	{
 
-	int ii, idx, idx_rev;
+	int ii, idx;
 
 	int nx0 = qp->dim->nx[ss];
 	int nu0 = qp->dim->nu[ss];
@@ -216,7 +216,6 @@ static void COND_SLACKS_FACT_SOLVE(int ss, struct OCP_QP *qp, struct OCP_QP_SOL 
 	int ns0 = qp->dim->ns[ss];
 
 	struct STRVEC *Z = qp->Z+ss;
-	int *idxs0 = qp->idxs[ss];
 	int *idxs_rev0 = qp->idxs_rev[ss];
 
 //	struct STRVEC *res_g = ws->res->res_g+ss; // TODO !!!
@@ -248,48 +247,28 @@ static void COND_SLACKS_FACT_SOLVE(int ss, struct OCP_QP *qp, struct OCP_QP_SOL 
 	VECCP(nb0+ng0, gamma, 0, tmp_nbgM+2, 0);
 	VECCP(nb0+ng0, gamma, nb0+ng0, tmp_nbgM+3, 0);
 
-#if 1
 	// idxs_rev
 	for(ii=0; ii<nb0+ng0; ii++)
 		{
-		idx_rev = idxs_rev0[ii];
-		if(idx_rev!=-1)
+		idx = idxs_rev0[ii];
+		if(idx!=-1)
 			{
-			// ii      <= constr index
-			// idx_rev <= slack index
-			ptr_Zs_inv[0+idx_rev]   = ptr_Z[0+idx_rev]   + arg->reg_prim + ptr_Gamma[0+ii]       + ptr_Gamma[2*nb0+2*ng0+idx_rev];
-			ptr_Zs_inv[ns0+idx_rev] = ptr_Z[ns0+idx_rev] + arg->reg_prim + ptr_Gamma[nb0+ng0+ii] + ptr_Gamma[2*nb0+2*ng0+ns0+idx_rev];
-			ptr_dux[nu0+nx0+idx_rev]      = ptr_res_g[nu0+nx0+idx_rev]     + ptr_gamma[0+ii]       + ptr_gamma[2*nb0+2*ng0+idx_rev];
-			ptr_dux[nu0+nx0+ns0+idx_rev]  = ptr_res_g[nu0+nx0+ns0+idx_rev] + ptr_gamma[nb0+ng0+ii] + ptr_gamma[2*nb0+2*ng0+ns0+idx_rev];
-			ptr_Zs_inv[0+idx_rev]   = 1.0/ptr_Zs_inv[0+idx_rev];
-			ptr_Zs_inv[ns0+idx_rev] = 1.0/ptr_Zs_inv[ns0+idx_rev];
-			tmp0 = ptr_dux[nu0+nx0+idx_rev]*ptr_Zs_inv[0+idx_rev];
-			tmp1 = ptr_dux[nu0+nx0+ns0+idx_rev]*ptr_Zs_inv[ns0+idx_rev];
-			ptr_tmp0[ii] = ptr_tmp0[ii] - ptr_tmp0[ii]*ptr_Zs_inv[0+idx_rev]*ptr_tmp0[ii];
-			ptr_tmp1[ii] = ptr_tmp1[ii] - ptr_tmp1[ii]*ptr_Zs_inv[ns0+idx_rev]*ptr_tmp1[ii];
+			// ii   constr index
+			// idx <= slack index
+			ptr_Zs_inv[0+idx]   = ptr_Z[0+idx]   + arg->reg_prim + ptr_Gamma[0+ii]       + ptr_Gamma[2*nb0+2*ng0+idx];
+			ptr_Zs_inv[ns0+idx] = ptr_Z[ns0+idx] + arg->reg_prim + ptr_Gamma[nb0+ng0+ii] + ptr_Gamma[2*nb0+2*ng0+ns0+idx];
+			ptr_dux[nu0+nx0+idx]      = ptr_res_g[nu0+nx0+idx]     + ptr_gamma[0+ii]       + ptr_gamma[2*nb0+2*ng0+idx];
+			ptr_dux[nu0+nx0+ns0+idx]  = ptr_res_g[nu0+nx0+ns0+idx] + ptr_gamma[nb0+ng0+ii] + ptr_gamma[2*nb0+2*ng0+ns0+idx];
+			ptr_Zs_inv[0+idx]   = 1.0/ptr_Zs_inv[0+idx];
+			ptr_Zs_inv[ns0+idx] = 1.0/ptr_Zs_inv[ns0+idx];
+			tmp0 = ptr_dux[nu0+nx0+idx]*ptr_Zs_inv[0+idx];
+			tmp1 = ptr_dux[nu0+nx0+ns0+idx]*ptr_Zs_inv[ns0+idx];
+			ptr_tmp0[ii] = ptr_tmp0[ii] - ptr_tmp0[ii]*ptr_Zs_inv[0+idx]*ptr_tmp0[ii];
+			ptr_tmp1[ii] = ptr_tmp1[ii] - ptr_tmp1[ii]*ptr_Zs_inv[ns0+idx]*ptr_tmp1[ii];
 			ptr_tmp2[ii] = ptr_tmp2[ii] - ptr_Gamma[0+ii]*tmp0;
 			ptr_tmp3[ii] = ptr_tmp3[ii] - ptr_Gamma[nb0+ng0+ii]*tmp1;
 			}
 		}
-#else
-	// idxs TODO remove !!!!!
-	for(ii=0; ii<ns0; ii++)
-		{
-		idx = idxs0[ii];
-		ptr_Zs_inv[0+ii]   = ptr_Z[0+ii]   + arg->reg_prim + ptr_Gamma[0+idx]       + ptr_Gamma[2*nb0+2*ng0+ii];
-		ptr_Zs_inv[ns0+ii] = ptr_Z[ns0+ii] + arg->reg_prim + ptr_Gamma[nb0+ng0+idx] + ptr_Gamma[2*nb0+2*ng0+ns0+ii];
-		ptr_dux[nu0+nx0+ii]      = ptr_res_g[nu0+nx0+ii]     + ptr_gamma[0+idx]   + ptr_gamma[2*nb0+2*ng0+ii];
-		ptr_dux[nu0+nx0+ns0+ii]  = ptr_res_g[nu0+nx0+ns0+ii] + ptr_gamma[nb0+ng0+idx] + ptr_gamma[2*nb0+2*ng0+ns0+ii];
-		ptr_Zs_inv[0+ii]   = 1.0/ptr_Zs_inv[0+ii];
-		ptr_Zs_inv[ns0+ii] = 1.0/ptr_Zs_inv[ns0+ii];
-		tmp0 = ptr_dux[nu0+nx0+ii]*ptr_Zs_inv[0+ii];
-		tmp1 = ptr_dux[nu0+nx0+ns0+ii]*ptr_Zs_inv[ns0+ii];
-		ptr_tmp0[idx] = ptr_tmp0[idx] - ptr_tmp0[idx]*ptr_Zs_inv[0+ii]*ptr_tmp0[idx];
-		ptr_tmp1[idx] = ptr_tmp1[idx] - ptr_tmp1[idx]*ptr_Zs_inv[ns0+ii]*ptr_tmp1[idx];
-		ptr_tmp2[idx] = ptr_tmp2[idx] - ptr_Gamma[0+idx]*tmp0;
-		ptr_tmp3[idx] = ptr_tmp3[idx] - ptr_Gamma[nb0+ng0+idx]*tmp1;
-		}
-#endif
 
 	AXPY(nb0+ng0,  1.0, tmp_nbgM+1, 0, tmp_nbgM+0, 0, tmp_nbgM+0, 0);
 	AXPY(nb0+ng0, -1.0, tmp_nbgM+3, 0, tmp_nbgM+2, 0, tmp_nbgM+1, 0);
@@ -303,7 +282,7 @@ static void COND_SLACKS_FACT_SOLVE(int ss, struct OCP_QP *qp, struct OCP_QP_SOL 
 static void COND_SLACKS_SOLVE(int ss, struct OCP_QP *qp, struct OCP_QP_SOL *qp_sol, struct OCP_QP_IPM_WS *ws)
 	{
 
-	int ii, idx, idx_rev;
+	int ii, idx;
 
 	int nx0 = qp->dim->nx[ss];
 	int nu0 = qp->dim->nu[ss];
@@ -311,7 +290,6 @@ static void COND_SLACKS_SOLVE(int ss, struct OCP_QP *qp, struct OCP_QP_SOL *qp_s
 	int ng0 = qp->dim->ng[ss];
 	int ns0 = qp->dim->ns[ss];
 
-	int *idxs0 = qp->idxs[ss];
 	int *idxs_rev0 = qp->idxs_rev[ss];
 
 //	struct STRVEC *res_g = ws->res->res_g+ss; // TODO !!!
@@ -338,36 +316,22 @@ static void COND_SLACKS_SOLVE(int ss, struct OCP_QP *qp, struct OCP_QP_SOL *qp_s
 	VECCP(nb0+ng0, gamma, 0, tmp_nbgM+2, 0);
 	VECCP(nb0+ng0, gamma, nb0+ng0, tmp_nbgM+3, 0);
 
-#if 1
 	// idxs_rev
 	for(ii=0; ii<nb0+ng0; ii++)
 		{
-		idx_rev = idxs_rev0[ii];
-		if(idx_rev!=-1)
+		idx = idxs_rev0[ii];
+		if(idx!=-1)
 			{
-			// ii      <= constr index
-			// idx_rev <= slack index
-			ptr_dux[nu0+nx0+idx_rev]      = ptr_res_g[nu0+nx0+idx_rev]     + ptr_gamma[0+ii]       + ptr_gamma[2*nb0+2*ng0+idx_rev];
-			ptr_dux[nu0+nx0+ns0+idx_rev]  = ptr_res_g[nu0+nx0+ns0+idx_rev] + ptr_gamma[nb0+ng0+ii] + ptr_gamma[2*nb0+2*ng0+ns0+idx_rev];
-			tmp0 = ptr_dux[nu0+nx0+idx_rev]*ptr_Zs_inv[0+idx_rev];
-			tmp1 = ptr_dux[nu0+nx0+ns0+idx_rev]*ptr_Zs_inv[ns0+idx_rev];
+			// ii  <= constr index
+			// idx <= slack index
+			ptr_dux[nu0+nx0+idx]      = ptr_res_g[nu0+nx0+idx]     + ptr_gamma[0+ii]       + ptr_gamma[2*nb0+2*ng0+idx];
+			ptr_dux[nu0+nx0+ns0+idx]  = ptr_res_g[nu0+nx0+ns0+idx] + ptr_gamma[nb0+ng0+ii] + ptr_gamma[2*nb0+2*ng0+ns0+idx];
+			tmp0 = ptr_dux[nu0+nx0+idx]*ptr_Zs_inv[0+idx];
+			tmp1 = ptr_dux[nu0+nx0+ns0+idx]*ptr_Zs_inv[ns0+idx];
 			ptr_tmp2[ii] = ptr_tmp2[ii] - ptr_Gamma[0+ii]*tmp0;
 			ptr_tmp3[ii] = ptr_tmp3[ii] - ptr_Gamma[nb0+ng0+ii]*tmp1;
 			}
 		}
-#else
-	// idxs TODO remove !!!!!
-	for(ii=0; ii<ns0; ii++)
-		{
-		idx = idxs0[ii];
-		ptr_dux[nu0+nx0+ii]      = ptr_res_g[nu0+nx0+ii]     + ptr_gamma[0+idx]       + ptr_gamma[2*nb0+2*ng0+ii];
-		ptr_dux[nu0+nx0+ns0+ii]  = ptr_res_g[nu0+nx0+ns0+ii] + ptr_gamma[nb0+ng0+idx] + ptr_gamma[2*nb0+2*ng0+ns0+ii];
-		tmp0 = ptr_dux[nu0+nx0+ii]*ptr_Zs_inv[0+ii];
-		tmp1 = ptr_dux[nu0+nx0+ns0+ii]*ptr_Zs_inv[ns0+ii];
-		ptr_tmp2[idx] = ptr_tmp2[idx] - ptr_Gamma[0+idx]*tmp0;
-		ptr_tmp3[idx] = ptr_tmp3[idx] - ptr_Gamma[nb0+ng0+idx]*tmp1;
-		}
-#endif
 
 	AXPY(nb0+ng0, -1.0, tmp_nbgM+3, 0, tmp_nbgM+2, 0, tmp_nbgM+1, 0);
 
@@ -380,7 +344,7 @@ static void COND_SLACKS_SOLVE(int ss, struct OCP_QP *qp, struct OCP_QP_SOL *qp_s
 static void EXPAND_SLACKS(int ss, struct OCP_QP *qp, struct OCP_QP_SOL *qp_sol, struct OCP_QP_IPM_WS *ws)
 	{
 
-	int ii, idx, idx_rev;
+	int ii, idx;
 
 	int nx0 = qp->dim->nx[ss];
 	int nu0 = qp->dim->nu[ss];
@@ -388,7 +352,6 @@ static void EXPAND_SLACKS(int ss, struct OCP_QP *qp, struct OCP_QP_SOL *qp_sol, 
 	int ng0 = qp->dim->ng[ss];
 	int ns0 = qp->dim->ns[ss];
 
-	int *idxs0 = qp->idxs[ss];
 	int *idxs_rev0 = qp->idxs_rev[ss];
 
 	struct STRVEC *dux = qp_sol->ux+ss;
@@ -402,36 +365,22 @@ static void EXPAND_SLACKS(int ss, struct OCP_QP *qp, struct OCP_QP_SOL *qp_sol, 
 	REAL *ptr_dt = dt->pa;
 	REAL *ptr_Zs_inv = Zs_inv->pa;
 
-#if 1
 	// idxs_rev
 	for(ii=0; ii<nb0+ng0; ii++)
 		{
-		idx_rev = idxs_rev0[ii];
-		if(idx_rev!=-1)
+		idx = idxs_rev0[ii];
+		if(idx!=-1)
 			{
-			// ii      <= constr index
-			// idx_rev <= slack index
-			ptr_dux[nu0+nx0+idx_rev]     = - ptr_Zs_inv[0+idx_rev]   * (ptr_dux[nu0+nx0+idx_rev]     + ptr_dt[ii]*ptr_Gamma[ii]);
-			ptr_dux[nu0+nx0+ns0+idx_rev] = - ptr_Zs_inv[ns0+idx_rev] * (ptr_dux[nu0+nx0+ns0+idx_rev] + ptr_dt[nb0+ng0+ii]*ptr_Gamma[nb0+ng0+ii]);
-			ptr_dt[2*nb0+2*ng0+idx_rev]     = ptr_dux[nu0+nx0+idx_rev];
-			ptr_dt[2*nb0+2*ng0+ns0+idx_rev] = ptr_dux[nu0+nx0+ns0+idx_rev];
-			ptr_dt[0+ii]       = ptr_dt[0+ii]   + ptr_dux[nu0+nx0+idx_rev];
-			ptr_dt[nb0+ng0+ii] = ptr_dt[nb0+ng0+ii] + ptr_dux[nu0+nx0+ns0+idx_rev];
+			// ii  <= constr index
+			// idx <= slack index
+			ptr_dux[nu0+nx0+idx]     = - ptr_Zs_inv[0+idx]   * (ptr_dux[nu0+nx0+idx]     + ptr_dt[ii]*ptr_Gamma[ii]);
+			ptr_dux[nu0+nx0+ns0+idx] = - ptr_Zs_inv[ns0+idx] * (ptr_dux[nu0+nx0+ns0+idx] + ptr_dt[nb0+ng0+ii]*ptr_Gamma[nb0+ng0+ii]);
+			ptr_dt[2*nb0+2*ng0+idx]     = ptr_dux[nu0+nx0+idx];
+			ptr_dt[2*nb0+2*ng0+ns0+idx] = ptr_dux[nu0+nx0+ns0+idx];
+			ptr_dt[0+ii]       = ptr_dt[0+ii]   + ptr_dux[nu0+nx0+idx];
+			ptr_dt[nb0+ng0+ii] = ptr_dt[nb0+ng0+ii] + ptr_dux[nu0+nx0+ns0+idx];
 			}
 		}
-#else
-	// idxs TODO remove !!!!!
-	for(ii=0; ii<ns0; ii++)
-		{
-		idx = idxs0[ii];
-		ptr_dux[nu0+nx0+ii]     = - ptr_Zs_inv[0+ii]   * (ptr_dux[nu0+nx0+ii]     + ptr_dt[idx]*ptr_Gamma[idx]);
-		ptr_dux[nu0+nx0+ns0+ii] = - ptr_Zs_inv[ns0+ii] * (ptr_dux[nu0+nx0+ns0+ii] + ptr_dt[nb0+ng0+idx]*ptr_Gamma[nb0+ng0+idx]);
-		ptr_dt[2*nb0+2*ng0+ii]     = ptr_dux[nu0+nx0+ii];
-		ptr_dt[2*nb0+2*ng0+ns0+ii] = ptr_dux[nu0+nx0+ns0+ii];
-		ptr_dt[0+idx]       = ptr_dt[0+idx]   + ptr_dux[nu0+nx0+ii];
-		ptr_dt[nb0+ng0+idx] = ptr_dt[nb0+ng0+idx] + ptr_dux[nu0+nx0+ns0+ii];
-		}
-#endif
 
 	return;
 
@@ -459,7 +408,6 @@ void FACT_SOLVE_KKT_STEP_OCP_QP(struct OCP_QP *qp, struct OCP_QP_SOL *qp_sol, st
 	struct STRVEC *res_d = qp->d;
 	struct STRVEC *res_m = qp->m;
 	int **idxb = qp->idxb;
-//	int **idxs = qp->idxs;
 
 	struct STRVEC *dux = qp_sol->ux;
 	struct STRVEC *dpi = qp_sol->pi;
@@ -816,7 +764,6 @@ void FACT_LQ_SOLVE_KKT_STEP_OCP_QP(struct OCP_QP *qp, struct OCP_QP_SOL *qp_sol,
 	struct STRVEC *res_d = qp->d;
 	struct STRVEC *res_m = qp->m;
 	int **idxb = qp->idxb;
-//	int **idxs = qp->idxs;
 
 	struct STRVEC *dux = qp_sol->ux;
 	struct STRVEC *dpi = qp_sol->pi;
@@ -1127,7 +1074,6 @@ void SOLVE_KKT_STEP_OCP_QP(struct OCP_QP *qp, struct OCP_QP_SOL *qp_sol, struct 
 	struct STRVEC *res_d = qp->d;
 	struct STRVEC *res_m = qp->m;
 	int **idxb = qp->idxb;
-//	int **idxs = qp->idxs;
 
 	struct STRVEC *dux = qp_sol->ux;
 	struct STRVEC *dpi = qp_sol->pi;

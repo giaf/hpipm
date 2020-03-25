@@ -284,7 +284,6 @@ void DENSE_QCQP_RES_COMPUTE(struct DENSE_QCQP *qp, struct DENSE_QCQP_SOL *qp_sol
 	struct STRVEC *m = qp->m;
 	int *idxb = qp->idxb;
 	struct STRVEC *Z = qp->Z;
-	int *idxs = qp->idxs;
 	int *idxs_rev = qp->idxs_rev;
 
 	struct STRVEC *v = qp_sol->v;
@@ -363,10 +362,6 @@ void DENSE_QCQP_RES_COMPUTE(struct DENSE_QCQP *qp, struct DENSE_QCQP_SOL *qp_sol
 		// res_g
 		GEMV_DIAG(2*ns, 1.0, Z, 0, v, nv, 1.0, gz, nv, res_g, nv);
 		AXPY(2*ns, -1.0, lam, 2*nb+2*ng+2*nq, res_g, nv, res_g, nv);
-//		VECEX_SP(ns, 1.0, idxs, lam, 0, tmp_ns, 0);
-//		AXPY(ns, -1.0, tmp_ns, 0, res_g, nv, res_g, nv);
-//		VECEX_SP(ns, 1.0, idxs, lam, nb+ng+nq, tmp_ns, 0);
-//		AXPY(ns, -1.0, tmp_ns, 0, res_g, nv+ns, res_g, nv+ns);
 		for(ii=0; ii<nb+ng+nq; ii++)
 			{
 			idx = idxs_rev[ii];
@@ -388,8 +383,6 @@ void DENSE_QCQP_RES_COMPUTE(struct DENSE_QCQP *qp, struct DENSE_QCQP_SOL *qp_sol
 				}
 			}
 		// res_d
-//		VECAD_SP(ns, -1.0, v, nv, idxs, res_d, 0);
-//		VECAD_SP(ns, -1.0, v, nv+ns, idxs, res_d, nb+ng+nq);
 		AXPY(2*ns, -1.0, v, nv, t, 2*nb+2*ng+2*nq, res_d, 2*nb+2*ng+2*nq);
 		AXPY(2*ns, 1.0, d, 2*nb+2*ng+2*nq, res_d, 2*nb+2*ng+2*nq, res_d, 2*nb+2*ng+2*nq);
 		}

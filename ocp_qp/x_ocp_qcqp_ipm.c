@@ -767,7 +767,7 @@ void OCP_QCQP_INIT_VAR(struct OCP_QCQP *qp, struct OCP_QCQP_SOL *qp_sol, struct 
 
 	//
 	REAL *ux, *s, *pi, *d_lb, *d_ub, *d_lg, *d_ug, *d_ls, *d_uq, *lam_lb, *lam_ub, *lam_lg, *lam_ug, *lam_ls, *lam_lq, *lam_uq, *t_lb, *t_ub, *t_lg, *t_ug, *t_ls, *t_lq, *t_uq;
-	int *idxb, *idxs, *idxs_rev;
+	int *idxb, *idxs_rev;
 	int idx;
 
 	REAL thr0 = 1e-1;
@@ -997,7 +997,6 @@ void OCP_QCQP_INIT_VAR(struct OCP_QCQP *qp, struct OCP_QCQP_SOL *qp_sol, struct 
 		t_ug = qp_sol->t[ii].pa+2*nb[ii]+ng[ii]+nq[ii];
 		t_ls = qp_sol->t[ii].pa+2*nb[ii]+2*ng[ii]+2*nq[ii];
 		idxb = qp->idxb[ii];
-		idxs = qp->idxs[ii];
 		idxs_rev = qp->idxs_rev[ii];
 
 		// lower bound on slacks
@@ -1021,7 +1020,6 @@ void OCP_QCQP_INIT_VAR(struct OCP_QCQP *qp, struct OCP_QCQP_SOL *qp_sol, struct 
 		// upper and lower bounds on inputs and states
 		VECEX_SP(nb[ii], 1.0, qp->idxb[ii], qp_sol->ux+ii, 0, qp_sol->t+ii, 0);
 		VECCPSC(nb[ii], -1.0, qp_sol->t+ii, 0, qp_sol->t+ii, nb[ii]+ng[ii]+nq[ii]);
-#if 1
 		for(jj=0; jj<nb[ii]; jj++)
 			{
 			idx = idxs_rev[jj];
@@ -1032,18 +1030,6 @@ void OCP_QCQP_INIT_VAR(struct OCP_QCQP *qp, struct OCP_QCQP_SOL *qp_sol, struct 
 				t_ub[jj] += s[ns[ii]+idx];
 				}
 			}
-#else
-		for(jj=0; jj<ns[ii]; jj++)
-			{
-			idx = idxs[jj];
-			if(idx<nb[ii])
-				{
-				// softed bound
-				t_lb[idx] += s[jj];
-				t_ub[idx] += s[ns[ii]+jj];
-				}
-			}
-#endif
 		AXPY(nb[ii], -1.0, qp->d+ii, 0, qp_sol->t+ii, 0, qp_sol->t+ii, 0);
 		AXPY(nb[ii], -1.0, qp->d+ii, nb[ii]+ng[ii]+nq[ii], qp_sol->t+ii, nb[ii]+ng[ii]+nq[ii], qp_sol->t+ii, nb[ii]+ng[ii]+nq[ii]);
 //		blasfeo_print_tran_dvec(nb[ii], qp_sol->t+ii, 0);
@@ -1085,7 +1071,6 @@ void OCP_QCQP_INIT_VAR(struct OCP_QCQP *qp, struct OCP_QCQP_SOL *qp_sol, struct 
 		VECCPSC(ng[ii], -1.0, qp_sol->t+ii, nb[ii], qp_sol->t+ii, 2*nb[ii]+ng[ii]+nq[ii]);
 //		blasfeo_print_tran_dvec(ng[ii], qp_sol->t+ii, nb[ii]);
 //		blasfeo_print_tran_dvec(ng[ii], qp_sol->t+ii, 2*nb[ii]+ng[ii]+nq[ii]);
-#if 1
 		for(jj=0; jj<ng[ii]; jj++)
 			{
 			idx = idxs_rev[nb[ii]+jj];
@@ -1096,19 +1081,6 @@ void OCP_QCQP_INIT_VAR(struct OCP_QCQP *qp, struct OCP_QCQP_SOL *qp_sol, struct 
 				t_ub[nb[ii]+jj] += s[ns[ii]+idx];
 				}
 			}
-#else
-		for(jj=0; jj<ns[ii]; jj++)
-			{
-			idx = idxs[jj];
-			if(idx>=nb[ii])
-				{
-				// softed general constraint
-				idx -= nb[ii];
-				t_lg[idx] += s[jj];
-				t_ug[idx] += s[ns[ii]+jj];
-				}
-			}
-#endif
 //		blasfeo_print_tran_dvec(ng[ii], qp_sol->t+ii, nb[ii]);
 //		blasfeo_print_tran_dvec(ng[ii], qp_sol->t+ii, 2*nb[ii]+ng[ii]+nq[ii]);
 		AXPY(ng[ii], -1.0, qp->d+ii, nb[ii], qp_sol->t+ii, nb[ii], qp_sol->t+ii, nb[ii]);
@@ -1212,9 +1184,6 @@ void OCP_QCQP_APPROX_QP(struct OCP_QCQP *qcqp, struct OCP_QCQP_SOL *qcqp_sol, st
 
 		for(jj=0; jj<nb[ii]; jj++)
 			qp->idxb[ii][jj] = qcqp->idxb[ii][jj];
-
-		for(jj=0; jj<ns[ii]; jj++)
-			qp->idxs[ii][jj] = qcqp->idxs[ii][jj];
 
 		for(jj=0; jj<nb[ii]+ng[ii]+nq[ii]; jj++)
 			qp->idxs_rev[ii][jj] = qcqp->idxs_rev[ii][jj];
@@ -1522,7 +1491,6 @@ void OCP_QCQP_IPM_SOLVE(struct OCP_QCQP *qcqp, struct OCP_QCQP_SOL *qcqp_sol, st
 	qp_ws->qp_step->DCt = qp->DCt;
 	qp_ws->qp_step->Z = qp->Z;
 	qp_ws->qp_step->idxb = qp->idxb;
-	qp_ws->qp_step->idxs = qp->idxs;
 	qp_ws->qp_step->idxs_rev = qp->idxs_rev;
 	qp_ws->qp_step->rqz = qp_ws->res->res_g;
 	qp_ws->qp_step->b = qp_ws->res->res_b;
@@ -1537,7 +1505,6 @@ void OCP_QCQP_IPM_SOLVE(struct OCP_QCQP *qcqp, struct OCP_QCQP_SOL *qcqp_sol, st
 	qp_ws->qp_itref->DCt = qp->DCt;
 	qp_ws->qp_itref->Z = qp->Z;
 	qp_ws->qp_itref->idxb = qp->idxb;
-	qp_ws->qp_itref->idxs = qp->idxs;
 	qp_ws->qp_itref->idxs_rev = qp->idxs_rev;
 	qp_ws->qp_itref->rqz = qp_ws->res_itref->res_g;
 	qp_ws->qp_itref->b = qp_ws->res_itref->res_b;
@@ -1557,7 +1524,6 @@ void OCP_QCQP_IPM_SOLVE(struct OCP_QCQP *qcqp, struct OCP_QCQP_SOL *qcqp_sol, st
 	for(ii=0; ii<=N; ii++)
 		{
 		VECSE(nq[ii], 0.0, qcqp->d_mask+ii, nb[ii]+ng[ii]); // TODO needed ???
-#if 1
 		// TODO probably remove when using only idxs_rev, as the same slack may be associated with other constraints !!!!!
 		for(jj=0; jj<nq[ii]; jj++)
 			{
@@ -1571,20 +1537,6 @@ void OCP_QCQP_IPM_SOLVE(struct OCP_QCQP *qcqp, struct OCP_QCQP_SOL *qcqp_sol, st
 #endif
 				}
 			}
-#else
-		for(jj=0; jj<ns[ii]; jj++)
-			{
-			idx = qcqp->idxs[ii][jj];
-			if(idx>=nb[ii]+ng[ii]) // quadr constr
-				{
-#ifdef DOUBLE_PRECISION
-				BLASFEO_DVECEL(qcqp->d_mask+ii, 2*nb[ii]+2*ng[ii]+2*nq[ii]+jj) = 0.0;
-#else
-				BLASFEO_SVECEL(qcqp->d_mask+ii, 2*nb[ii]+2*ng[ii]+2*nq[ii]+jj) = 0.0;
-#endif
-				}
-			}
-#endif
 		}
 
 
@@ -1664,7 +1616,6 @@ void OCP_QCQP_IPM_SOLVE(struct OCP_QCQP *qcqp, struct OCP_QCQP_SOL *qcqp_sol, st
 		qp_ws->qp_step->DCt = qp->DCt;
 		qp_ws->qp_step->Z = qp->Z;
 		qp_ws->qp_step->idxb = qp->idxb;
-		qp_ws->qp_step->idxs = qp->idxs;
 		qp_ws->qp_step->idxs_rev = qp->idxs_rev;
 		qp_ws->qp_step->rqz = qp->rqz;
 		qp_ws->qp_step->b = qp->b;

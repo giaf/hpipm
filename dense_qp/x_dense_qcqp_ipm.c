@@ -940,9 +940,6 @@ void DENSE_QCQP_APPROX_QP(struct DENSE_QCQP *qcqp, struct DENSE_QCQP_SOL *qcqp_s
 	for(ii=0; ii<nb; ii++)
 		qp->idxb[ii] = qcqp->idxb[ii];
 
-	for(ii=0; ii<ns; ii++)
-		qp->idxs[ii] = qcqp->idxs[ii];
-
 	for(ii=0; ii<nb+ng+nq; ii++)
 		qp->idxs_rev[ii] = qcqp->idxs_rev[ii];
 
@@ -1201,7 +1198,6 @@ void DENSE_QCQP_IPM_SOLVE(struct DENSE_QCQP *qcqp, struct DENSE_QCQP_SOL *qcqp_s
 	qp_ws->qp_step->Ct = qp->Ct;
 	qp_ws->qp_step->Z = qp->Z;
 	qp_ws->qp_step->idxb = qp->idxb;
-	qp_ws->qp_step->idxs = qp->idxs;
 	qp_ws->qp_step->idxs_rev = qp->idxs_rev;
 	qp_ws->qp_step->gz = qp_ws->res->res_g;
 	qp_ws->qp_step->b = qp_ws->res->res_b;
@@ -1216,7 +1212,6 @@ void DENSE_QCQP_IPM_SOLVE(struct DENSE_QCQP *qcqp, struct DENSE_QCQP_SOL *qcqp_s
 	qp_ws->qp_itref->Ct = qp->Ct;
 	qp_ws->qp_itref->Z = qp->Z;
 	qp_ws->qp_itref->idxb = qp->idxb;
-	qp_ws->qp_itref->idxs = qp->idxs;
 	qp_ws->qp_itref->idxs_rev = qp->idxs_rev;
 	qp_ws->qp_itref->gz = qp_ws->res_itref->res_g;
 	qp_ws->qp_itref->b = qp_ws->res_itref->res_b;
@@ -1235,7 +1230,6 @@ void DENSE_QCQP_IPM_SOLVE(struct DENSE_QCQP *qcqp, struct DENSE_QCQP_SOL *qcqp_s
 
 	// disregard soft constr on (disregarded) lower quard constr
 	VECSE(nq, 0.0, qcqp->d_mask, nb+ng); // TODO needed ???
-#if 1
 	// TODO probably remove when using only idxs_rev, as the same slack may be associated with other constraints !!!!!
 	for(ii=0; ii<nq; ii++)
 		{
@@ -1249,18 +1243,6 @@ void DENSE_QCQP_IPM_SOLVE(struct DENSE_QCQP *qcqp, struct DENSE_QCQP_SOL *qcqp_s
 #endif
 			}
 		}
-#else
-	for(ii=0; ii<ns; ii++)
-		{
-		idx = qcqp->idxs[ii];
-		if(idx>=nb+ng) // quadr constr
-#ifdef DOUBLE_PRECISION
-			BLASFEO_DVECEL(qcqp->d_mask, 2*nb+2*ng+2*nq+ii) = 0.0;
-#else
-			BLASFEO_SVECEL(qcqp->d_mask, 2*nb+2*ng+2*nq+ii) = 0.0;
-#endif
-		}
-#endif
 
 
 	// initialize qcqp & qp
@@ -1337,7 +1319,6 @@ void DENSE_QCQP_IPM_SOLVE(struct DENSE_QCQP *qcqp, struct DENSE_QCQP_SOL *qcqp_s
 		qp_ws->qp_step->Ct = qp->Ct;
 		qp_ws->qp_step->Z = qp->Z;
 		qp_ws->qp_step->idxb = qp->idxb;
-		qp_ws->qp_step->idxs = qp->idxs;
 		qp_ws->qp_step->idxs_rev = qp->idxs_rev;
 		qp_ws->qp_step->gz = qp->gz;
 		qp_ws->qp_step->b = qp->b;

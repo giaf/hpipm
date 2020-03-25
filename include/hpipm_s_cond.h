@@ -80,7 +80,6 @@ struct s_cond_qp_ws
 	struct blasfeo_svec *l;
 	struct blasfeo_svec *tmp_nbgM;
 	struct blasfeo_svec *tmp_nuxM;
-	int *idxs_rev;
 	int bs; // block size
 	int memsize;
 	};

@@ -226,7 +226,7 @@ printf("\nA_LQ * A_Q - A max err %e\n", max_err);
 static void COND_SLACKS_FACT_SOLVE(struct DENSE_QP *qp, struct DENSE_QP_SOL *qp_sol, struct DENSE_QP_IPM_ARG *arg, struct DENSE_QP_IPM_WS *ws)
 	{
 
-	int ii, idx, idx_rev;
+	int ii, idx;
 
 	int nv = qp->dim->nv;
 	int nb = qp->dim->nb;
@@ -234,7 +234,6 @@ static void COND_SLACKS_FACT_SOLVE(struct DENSE_QP *qp, struct DENSE_QP_SOL *qp_
 	int ns = qp->dim->ns;
 
 	struct STRVEC *Z = qp->Z;
-	int *idxs = qp->idxs;
 	int *idxs_rev = qp->idxs_rev;
 
 //	struct STRVEC *dv = ws->sol_step->v;
@@ -266,48 +265,28 @@ static void COND_SLACKS_FACT_SOLVE(struct DENSE_QP *qp, struct DENSE_QP_SOL *qp_
 	VECCP(nb+ng, gamma, 0, tmp_nbg+2, 0);
 	VECCP(nb+ng, gamma, nb+ng, tmp_nbg+3, 0);
 
-#if 1
 	// idxs_rev
 	for(ii=0; ii<nb+ng; ii++)
 		{
-		idx_rev = idxs_rev[ii];
-		if(idx_rev!=-1)
+		idx = idxs_rev[ii];
+		if(idx!=-1)
 			{
-			// ii      <= constr index
-			// idx_rev <= slack index
-			ptr_Zs_inv[0+idx_rev]  = ptr_Z[0+idx_rev]  + arg->reg_prim + ptr_Gamma[0+ii]     + ptr_Gamma[2*nb+2*ng+idx_rev];
-			ptr_Zs_inv[ns+idx_rev] = ptr_Z[ns+idx_rev] + arg->reg_prim + ptr_Gamma[nb+ng+ii] + ptr_Gamma[2*nb+2*ng+ns+idx_rev];
-			ptr_dv[nv+idx_rev]     = ptr_res_g[nv+idx_rev]    + ptr_gamma[0+ii]     + ptr_gamma[2*nb+2*ng+idx_rev];
-			ptr_dv[nv+ns+idx_rev]  = ptr_res_g[nv+ns+idx_rev] + ptr_gamma[nb+ng+ii] + ptr_gamma[2*nb+2*ng+ns+idx_rev];
-			ptr_Zs_inv[0+idx_rev]  = 1.0/ptr_Zs_inv[0+idx_rev];
-			ptr_Zs_inv[ns+idx_rev] = 1.0/ptr_Zs_inv[ns+idx_rev];
-			tmp0 = ptr_dv[nv+idx_rev]*ptr_Zs_inv[0+idx_rev];
-			tmp1 = ptr_dv[nv+ns+idx_rev]*ptr_Zs_inv[ns+idx_rev];
-			ptr_tmp0[ii] = ptr_tmp0[ii] - ptr_tmp0[ii]*ptr_Zs_inv[0+idx_rev]*ptr_tmp0[ii];
-			ptr_tmp1[ii] = ptr_tmp1[ii] - ptr_tmp1[ii]*ptr_Zs_inv[ns+idx_rev]*ptr_tmp1[ii];
+			// ii  <= constr index
+			// idx <= slack index
+			ptr_Zs_inv[0+idx]  = ptr_Z[0+idx]  + arg->reg_prim + ptr_Gamma[0+ii]     + ptr_Gamma[2*nb+2*ng+idx];
+			ptr_Zs_inv[ns+idx] = ptr_Z[ns+idx] + arg->reg_prim + ptr_Gamma[nb+ng+ii] + ptr_Gamma[2*nb+2*ng+ns+idx];
+			ptr_dv[nv+idx]     = ptr_res_g[nv+idx]    + ptr_gamma[0+ii]     + ptr_gamma[2*nb+2*ng+idx];
+			ptr_dv[nv+ns+idx]  = ptr_res_g[nv+ns+idx] + ptr_gamma[nb+ng+ii] + ptr_gamma[2*nb+2*ng+ns+idx];
+			ptr_Zs_inv[0+idx]  = 1.0/ptr_Zs_inv[0+idx];
+			ptr_Zs_inv[ns+idx] = 1.0/ptr_Zs_inv[ns+idx];
+			tmp0 = ptr_dv[nv+idx]*ptr_Zs_inv[0+idx];
+			tmp1 = ptr_dv[nv+ns+idx]*ptr_Zs_inv[ns+idx];
+			ptr_tmp0[ii] = ptr_tmp0[ii] - ptr_tmp0[ii]*ptr_Zs_inv[0+idx]*ptr_tmp0[ii];
+			ptr_tmp1[ii] = ptr_tmp1[ii] - ptr_tmp1[ii]*ptr_Zs_inv[ns+idx]*ptr_tmp1[ii];
 			ptr_tmp2[ii] = ptr_tmp2[ii] - ptr_Gamma[0+ii]*tmp0;
 			ptr_tmp3[ii] = ptr_tmp3[ii] - ptr_Gamma[nb+ng+ii]*tmp1;
 			}
 		}
-#else
-	// idxs TODO remove !!!!!
-	for(ii=0; ii<ns; ii++)
-		{
-		idx = idxs[ii];
-		ptr_Zs_inv[0+ii]  = ptr_Z[0+ii]  + arg->reg_prim + ptr_Gamma[0+idx]     + ptr_Gamma[2*nb+2*ng+ii];
-		ptr_Zs_inv[ns+ii] = ptr_Z[ns+ii] + arg->reg_prim + ptr_Gamma[nb+ng+idx] + ptr_Gamma[2*nb+2*ng+ns+ii];
-		ptr_dv[nv+ii]     = ptr_res_g[nv+ii]    + ptr_gamma[0+idx]     + ptr_gamma[2*nb+2*ng+ii];
-		ptr_dv[nv+ns+ii]  = ptr_res_g[nv+ns+ii] + ptr_gamma[nb+ng+idx] + ptr_gamma[2*nb+2*ng+ns+ii];
-		ptr_Zs_inv[0+ii]  = 1.0/ptr_Zs_inv[0+ii];
-		ptr_Zs_inv[ns+ii] = 1.0/ptr_Zs_inv[ns+ii];
-		tmp0 = ptr_dv[nv+ii]*ptr_Zs_inv[0+ii];
-		tmp1 = ptr_dv[nv+ns+ii]*ptr_Zs_inv[ns+ii];
-		ptr_tmp0[idx] = ptr_tmp0[idx] - ptr_tmp0[idx]*ptr_Zs_inv[0+ii]*ptr_tmp0[idx];
-		ptr_tmp1[idx] = ptr_tmp1[idx] - ptr_tmp1[idx]*ptr_Zs_inv[ns+ii]*ptr_tmp1[idx];
-		ptr_tmp2[idx] = ptr_tmp2[idx] - ptr_Gamma[0+idx]*tmp0;
-		ptr_tmp3[idx] = ptr_tmp3[idx] - ptr_Gamma[nb+ng+idx]*tmp1;
-		}
-#endif
 
 	AXPY(nb+ng,  1.0, tmp_nbg+1, 0, tmp_nbg+0, 0, tmp_nbg+0, 0);
 	AXPY(nb+ng, -1.0, tmp_nbg+3, 0, tmp_nbg+2, 0, tmp_nbg+1, 0);
@@ -321,14 +300,13 @@ static void COND_SLACKS_FACT_SOLVE(struct DENSE_QP *qp, struct DENSE_QP_SOL *qp_
 static void COND_SLACKS_SOLVE(struct DENSE_QP *qp, struct DENSE_QP_SOL *qp_sol, struct DENSE_QP_IPM_WS *ws)
 	{
 
-	int ii, idx, idx_rev;
+	int ii, idx;
 
 	int nv = qp->dim->nv;
 	int nb = qp->dim->nb;
 	int ng = qp->dim->ng;
 	int ns = qp->dim->ns;
 
-	int *idxs = qp->idxs;
 	int *idxs_rev = qp->idxs_rev;
 
 //	struct STRVEC *dv = ws->sol_step->v;
@@ -355,36 +333,22 @@ static void COND_SLACKS_SOLVE(struct DENSE_QP *qp, struct DENSE_QP_SOL *qp_sol, 
 	VECCP(nb+ng, gamma, 0, tmp_nbg+2, 0);
 	VECCP(nb+ng, gamma, nb+ng, tmp_nbg+3, 0);
 
-#if 1
 	// idxs_rev
 	for(ii=0; ii<nb+ng; ii++)
 		{
-		idx_rev = idxs_rev[ii];
-		if(idx_rev!=-1)
+		idx = idxs_rev[ii];
+		if(idx!=-1)
 			{
-			// ii      <= constr index
-			// idx_rev <= slack index
-			ptr_dv[nv+idx_rev]     = ptr_res_g[nv+idx_rev]    + ptr_gamma[0+ii]     + ptr_gamma[2*nb+2*ng+idx_rev];
-			ptr_dv[nv+ns+idx_rev]  = ptr_res_g[nv+ns+idx_rev] + ptr_gamma[nb+ng+ii] + ptr_gamma[2*nb+2*ng+ns+idx_rev];
-			tmp0 = ptr_dv[nv+idx_rev]*ptr_Zs_inv[0+idx_rev];
-			tmp1 = ptr_dv[nv+ns+idx_rev]*ptr_Zs_inv[ns+idx_rev];
+			// ii  <= constr index
+			// idx <= slack index
+			ptr_dv[nv+idx]     = ptr_res_g[nv+idx]    + ptr_gamma[0+ii]     + ptr_gamma[2*nb+2*ng+idx];
+			ptr_dv[nv+ns+idx]  = ptr_res_g[nv+ns+idx] + ptr_gamma[nb+ng+ii] + ptr_gamma[2*nb+2*ng+ns+idx];
+			tmp0 = ptr_dv[nv+idx]*ptr_Zs_inv[0+idx];
+			tmp1 = ptr_dv[nv+ns+idx]*ptr_Zs_inv[ns+idx];
 			ptr_tmp2[ii] = ptr_tmp2[ii] - ptr_Gamma[0+ii]*tmp0;
 			ptr_tmp3[ii] = ptr_tmp3[ii] - ptr_Gamma[nb+ng+ii]*tmp1;
 			}
 		}
-#else
-	// idxs TODO remove !!!!!
-	for(ii=0; ii<ns; ii++)
-		{
-		idx = idxs[ii];
-		ptr_dv[nv+ii]     = ptr_res_g[nv+ii]    + ptr_gamma[0+idx]     + ptr_gamma[2*nb+2*ng+ii];
-		ptr_dv[nv+ns+ii]  = ptr_res_g[nv+ns+ii] + ptr_gamma[nb+ng+idx] + ptr_gamma[2*nb+2*ng+ns+ii];
-		tmp0 = ptr_dv[nv+ii]*ptr_Zs_inv[0+ii];
-		tmp1 = ptr_dv[nv+ns+ii]*ptr_Zs_inv[ns+ii];
-		ptr_tmp2[idx] = ptr_tmp2[idx] - ptr_Gamma[0+idx]*tmp0;
-		ptr_tmp3[idx] = ptr_tmp3[idx] - ptr_Gamma[nb+ng+idx]*tmp1;
-		}
-#endif
 
 	AXPY(nb+ng, -1.0, tmp_nbg+3, 0, tmp_nbg+2, 0, tmp_nbg+1, 0);
 
@@ -397,14 +361,13 @@ static void COND_SLACKS_SOLVE(struct DENSE_QP *qp, struct DENSE_QP_SOL *qp_sol, 
 static void EXPAND_SLACKS(struct DENSE_QP *qp, struct DENSE_QP_SOL *qp_sol, struct DENSE_QP_IPM_WS *ws)
 	{
 
-	int ii, idx, idx_rev;
+	int ii, idx;
 
 	int nv = qp->dim->nv;
 	int nb = qp->dim->nb;
 	int ng = qp->dim->ng;
 	int ns = qp->dim->ns;
 
-	int *idxs = qp->idxs;
 	int *idxs_rev = qp->idxs_rev;
 
 	struct STRVEC *dv = qp_sol->v;
@@ -418,36 +381,22 @@ static void EXPAND_SLACKS(struct DENSE_QP *qp, struct DENSE_QP_SOL *qp_sol, stru
 	REAL *ptr_dt = dt->pa;
 	REAL *ptr_Zs_inv = Zs_inv->pa;
 
-#if 1
 	// idxs_rev
 	for(ii=0; ii<nb+ng; ii++)
 		{
-		idx_rev = idxs_rev[ii];
-		if(idx_rev!=-1)
+		idx = idxs_rev[ii];
+		if(idx!=-1)
 			{
-			// ii      <= constr index
-			// idx_rev <= slack index
-			ptr_dv[nv+idx_rev]    = - ptr_Zs_inv[0+idx_rev]  * (ptr_dv[nv+idx_rev]    + ptr_dt[ii]*ptr_Gamma[ii]);
-			ptr_dv[nv+ns+idx_rev] = - ptr_Zs_inv[ns+idx_rev] * (ptr_dv[nv+ns+idx_rev] + ptr_dt[nb+ng+ii]*ptr_Gamma[nb+ng+ii]);
-			ptr_dt[2*nb+2*ng+idx_rev]    = ptr_dv[nv+idx_rev];
-			ptr_dt[2*nb+2*ng+ns+idx_rev] = ptr_dv[nv+ns+idx_rev];
-			ptr_dt[0+ii]     = ptr_dt[0+ii]     + ptr_dv[nv+idx_rev];
-			ptr_dt[nb+ng+ii] = ptr_dt[nb+ng+ii] + ptr_dv[nv+ns+idx_rev];
+			// ii  <= constr index
+			// idx <= slack index
+			ptr_dv[nv+idx]    = - ptr_Zs_inv[0+idx]  * (ptr_dv[nv+idx]    + ptr_dt[ii]*ptr_Gamma[ii]);
+			ptr_dv[nv+ns+idx] = - ptr_Zs_inv[ns+idx] * (ptr_dv[nv+ns+idx] + ptr_dt[nb+ng+ii]*ptr_Gamma[nb+ng+ii]);
+			ptr_dt[2*nb+2*ng+idx]    = ptr_dv[nv+idx];
+			ptr_dt[2*nb+2*ng+ns+idx] = ptr_dv[nv+ns+idx];
+			ptr_dt[0+ii]     = ptr_dt[0+ii]     + ptr_dv[nv+idx];
+			ptr_dt[nb+ng+ii] = ptr_dt[nb+ng+ii] + ptr_dv[nv+ns+idx];
 			}
 		}
-#else
-	// idxs TODO remove !!!!!
-	for(ii=0; ii<ns; ii++)
-		{
-		idx = idxs[ii];
-		ptr_dv[nv+ii]    = - ptr_Zs_inv[0+ii]  * (ptr_dv[nv+ii]    + ptr_dt[idx]*ptr_Gamma[idx]);
-		ptr_dv[nv+ns+ii] = - ptr_Zs_inv[ns+ii] * (ptr_dv[nv+ns+ii] + ptr_dt[nb+ng+idx]*ptr_Gamma[nb+ng+idx]);
-		ptr_dt[2*nb+2*ng+ii]    = ptr_dv[nv+ii];
-		ptr_dt[2*nb+2*ng+ns+ii] = ptr_dv[nv+ns+ii];
-		ptr_dt[0+idx]     = ptr_dt[0+idx]     + ptr_dv[nv+ii];
-		ptr_dt[nb+ng+idx] = ptr_dt[nb+ng+idx] + ptr_dv[nv+ns+ii];
-		}
-#endif
 
 	return;
 
