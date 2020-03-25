@@ -66,7 +66,6 @@ struct d_dense_qp
 	struct blasfeo_dvec *m; // rhs of complementarity condition
 	struct blasfeo_dvec *Z; // (diagonal) hessian of slacks
 	int *idxb; // index of box constraints
-	int *idxs; // index of soft constraints
 	int *idxs_rev; // index of soft constraints (reverse storage)
 	int memsize; // memory size in bytes
 	};

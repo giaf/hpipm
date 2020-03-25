@@ -64,7 +64,6 @@ struct d_ocp_qp
 	struct blasfeo_dvec *m; // rhs of complementarity condition
 	struct blasfeo_dvec *Z; // (diagonal) hessian of slacks
 	int **idxb; // index of box constraints
-	int **idxs; // index of soft constraints
 	int **idxs_rev; // index of soft constraints (reverse storage)
 	int **idxe; // index of equality constraints
 	int memsize; // memory size in bytes
@@ -260,7 +259,7 @@ void d_ocp_qp_get_zu(int stage, struct d_ocp_qp *qp, double *vec);
 void d_ocp_qp_get_lls(int stage, struct d_ocp_qp *qp, double *vec);
 //
 void d_ocp_qp_get_lus(int stage, struct d_ocp_qp *qp, double *vec);
-//
+// XXX only valid if there is one slack per softed constraint !!!
 void d_ocp_qp_get_idxs(int stage, struct d_ocp_qp *qp, int *vec);
 //
 void d_ocp_qp_get_idxs_rev(int stage, struct d_ocp_qp *qp, int *vec);

@@ -67,7 +67,6 @@ struct s_dense_qcqp
 	struct blasfeo_svec *m; // rhs of complementarity condition
 	struct blasfeo_svec *Z; // (diagonal) hessian of slacks
 	int *idxb; // index of box constraints
-	int *idxs; // index of soft constraints
 	int *idxs_rev; // index of soft constraints (reverse storage)
 	int *Hq_nzero; // for each int, the last 3 bits ...abc, {a,b,c}=0 => {R,S,Q}=0
 	int memsize; // memory size in bytes

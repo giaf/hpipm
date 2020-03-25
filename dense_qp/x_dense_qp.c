@@ -54,7 +54,6 @@ int DENSE_QP_MEMSIZE(struct DENSE_QP_DIM *dim)
 	size += 3*SIZE_STRVEC(2*nb+2*ng+2*ns); // d m d_mask
 	size += 1*SIZE_STRVEC(2*ns); // Z
 	size += 1*nb*sizeof(int); // idxb
-	size += 1*ns*sizeof(int); // idxs
 	size += 1*(nb+ng)*sizeof(int); // idxs_rev
 
 	size += 1*SIZE_STRMAT(nv+1, nv); // Hv
@@ -129,10 +128,6 @@ void DENSE_QP_CREATE(struct DENSE_QP_DIM *dim, struct DENSE_QP *qp, void *mem)
 	// idxb
 	qp->idxb = i_ptr;
 	i_ptr += nb;
-
-	// idxs
-	qp->idxs = i_ptr;
-	i_ptr += ns;
 
 	// idxs_rev
 	qp->idxs_rev = i_ptr;
@@ -242,8 +237,7 @@ void DENSE_QP_SET_ALL(REAL *H, REAL *g, REAL *A, REAL *b, int *idxb, REAL *d_lb,
 		{
 		for(ii=0; ii<ns; ii++)
 			{
-			qp->idxs[ii] = idxs[ii];
-			qp->idxs_rev[qp->idxs[ii]] = ii;
+			qp->idxs_rev[idxs[ii]] = ii;
 			}
 		CVT_VEC2STRVEC(ns, Zl, qp->Z, 0);
 		CVT_VEC2STRVEC(ns, Zu, qp->Z, ns);
@@ -264,7 +258,7 @@ void DENSE_QP_SET_ALL(REAL *H, REAL *g, REAL *A, REAL *b, int *idxb, REAL *d_lb,
 void DENSE_QP_GET_ALL(struct DENSE_QP *qp, REAL *H, REAL *g, REAL *A, REAL *b, int *idxb, REAL *d_lb, REAL *d_ub, REAL *C, REAL *d_lg, REAL *d_ug, REAL *Zl, REAL *Zu, REAL *zl, REAL *zu, int *idxs, REAL *d_ls, REAL *d_us)
 	{
 
-	int ii;
+	int ii, idx_tmp;
 
 	int nv = qp->dim->nv;
 	int ne = qp->dim->ne;
@@ -295,7 +289,15 @@ void DENSE_QP_GET_ALL(struct DENSE_QP *qp, REAL *H, REAL *g, REAL *A, REAL *b, i
 		}
 	if(ns>0)
 		{
-		for(ii=0; ii<ns; ii++) idxs[ii] = qp->idxs[ii];
+		// TODO only valid if there is one slack variable per soft constraint !!!
+		for(ii=0; ii<nb+ng; ii++)
+			{
+			idx_tmp = qp->idxs_rev[ii];
+			if(idx_tmp!=-1)
+				{
+				idxs[idx_tmp] = ii;
+				}
+			}
 		CVT_STRVEC2VEC(ns, qp->Z, 0, Zl);
 		CVT_STRVEC2VEC(ns, qp->Z, ns, Zu);
 		CVT_STRVEC2VEC(ns, qp->gz, nv, zl);
@@ -677,8 +679,7 @@ void DENSE_QP_SET_IDXS(int *idxs, struct DENSE_QP *qp)
 
 	for(ii=0; ii<ns; ii++)
 		{
-		qp->idxs[ii] = idxs[ii];
-		qp->idxs_rev[qp->idxs[ii]] = ii;
+		qp->idxs_rev[idxs[ii]] = ii;
 		}
 
 	return;
@@ -988,12 +989,18 @@ void DENSE_QP_GET_UG(struct DENSE_QP *qp, REAL *ug)
 void DENSE_QP_GET_IDXS(struct DENSE_QP *qp, int *idxs)
 	{
 
-	int ii;
+	int ii, idx_tmp;
+	int nb = qp->dim->nb;
+	int ng = qp->dim->ng;
 	int ns = qp->dim->ns;
 
-	for(ii=0; ii<ns; ii++)
+	for(ii=0; ii<nb+ng; ii++)
 		{
-		idxs[ii] = qp->idxs[ii];
+		idx_tmp = qp->idxs_rev[ii];
+		if(idx_tmp!=-1)
+			{
+			idxs[idx_tmp] = ii;
+			}
 		}
 
 	return;
@@ -1144,8 +1151,7 @@ void DENSE_QP_SET_ALL_ROWMAJ(REAL *H, REAL *g, REAL *A, REAL *b, int *idxb, REAL
 		{
 		for(ii=0; ii<ns; ii++)
 			{
-			qp->idxs[ii] = idxs[ii];
-			qp->idxs_rev[qp->idxs[ii]] = ii;
+			qp->idxs_rev[idxs[ii]] = ii;
 			}
 		CVT_VEC2STRVEC(ns, Zl, qp->Z, 0);
 		CVT_VEC2STRVEC(ns, Zu, qp->Z, ns);
@@ -1166,7 +1172,7 @@ void DENSE_QP_SET_ALL_ROWMAJ(REAL *H, REAL *g, REAL *A, REAL *b, int *idxb, REAL
 void DENSE_QP_GET_ALL_ROWMAJ(struct DENSE_QP *qp, REAL *H, REAL *g, REAL *A, REAL *b, int *idxb, REAL *d_lb, REAL *d_ub, REAL *C, REAL *d_lg, REAL *d_ug, REAL *Zl, REAL *Zu, REAL *zl, REAL *zu, int *idxs, REAL *d_ls, REAL *d_us)
 	{
 
-	int ii;
+	int ii, idx_tmp;
 
 	int nv = qp->dim->nv;
 	int ne = qp->dim->ne;
@@ -1197,7 +1203,15 @@ void DENSE_QP_GET_ALL_ROWMAJ(struct DENSE_QP *qp, REAL *H, REAL *g, REAL *A, REA
 		}
 	if(ns>0)
 		{
-		for(ii=0; ii<ns; ii++) idxs[ii] = qp->idxs[ii];
+		// TODO only valid if there is one slack variable per soft constraint !!!
+		for(ii=0; ii<nb+ng; ii++)
+			{
+			idx_tmp = qp->idxs_rev[ii];
+			if(idx_tmp!=-1)
+				{
+				idxs[idx_tmp] = ii;
+				}
+			}
 		CVT_STRVEC2VEC(ns, qp->Z, 0, Zl);
 		CVT_STRVEC2VEC(ns, qp->Z, ns, Zu);
 		CVT_STRVEC2VEC(ns, qp->gz, nv, zl);

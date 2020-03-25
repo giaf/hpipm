@@ -75,7 +75,7 @@ int OCP_QP_MEMSIZE(struct OCP_QP_DIM *dim)
 	int size = 0;
 
 	size += 5*(N+1)*sizeof(int); // nx nu nb ng ns
-	size += 4*(N+1)*sizeof(int *); // idxb idxs idxs_rev idxe
+	size += 3*(N+1)*sizeof(int *); // idxb idxs_rev idxe
 	size += 2*(N+1)*sizeof(struct STRMAT); // RSqrq DCt
 	size += 1*N*sizeof(struct STRMAT); // BAbt
 	size += 5*(N+1)*sizeof(struct STRVEC); // rqz d m Z d_mask
@@ -84,7 +84,6 @@ int OCP_QP_MEMSIZE(struct OCP_QP_DIM *dim)
 	for(ii=0; ii<N; ii++)
 		{
 		size += nb[ii]*sizeof(int); // idxb
-		size += ns[ii]*sizeof(int); // idxs
 		size += (nb[ii]+ng[ii])*sizeof(int); // idxs_rev
 		size += (nbue[ii]+nbxe[ii]+nge[ii])*sizeof(int); // idxe
 		size += SIZE_STRMAT(nu[ii]+nx[ii]+1, nx[ii+1]); // BAbt
@@ -94,7 +93,6 @@ int OCP_QP_MEMSIZE(struct OCP_QP_DIM *dim)
 		}
 	ii = N;
 	size += nb[ii]*sizeof(int); // idxb
-	size += ns[ii]*sizeof(int); // idxs
 	size += (nb[ii]+ng[ii])*sizeof(int); // idxs_rev
 	size += (nbue[ii]+nbxe[ii]+nge[ii])*sizeof(int); // idxe
 	size += SIZE_STRMAT(nu[ii]+nx[ii]+1, nu[ii]+nx[ii]); // RSQrq
@@ -156,10 +154,6 @@ void OCP_QP_CREATE(struct OCP_QP_DIM *dim, struct OCP_QP *qp, void *mem)
 
 	// idxb
 	qp->idxb = ip_ptr;
-	ip_ptr += N+1;
-
-	// idxs
-	qp->idxs = ip_ptr;
 	ip_ptr += N+1;
 
 	// idxs_rev
@@ -224,13 +218,6 @@ void OCP_QP_CREATE(struct OCP_QP_DIM *dim, struct OCP_QP *qp, void *mem)
 		{
 		(qp->idxb)[ii] = i_ptr;
 		i_ptr += nb[ii];
-		}
-
-	// idxs
-	for(ii=0; ii<=N; ii++)
-		{
-		(qp->idxs)[ii] = i_ptr;
-		i_ptr += ns[ii];
 		}
 
 	// idxs_rev
@@ -420,8 +407,6 @@ void OCP_QP_COPY_ALL(struct OCP_QP *qp_orig, struct OCP_QP *qp_dest)
 		VECCP(2*nb[ii]+2*ng[ii]+2*ns[ii], qp_orig->d+ii, 0, qp_dest->d+ii, 0);
 		VECCP(2*nb[ii]+2*ng[ii]+2*ns[ii], qp_orig->d_mask+ii, 0, qp_dest->d_mask+ii, 0);
 		VECCP(2*nb[ii]+2*ng[ii]+2*ns[ii], qp_orig->m+ii, 0, qp_dest->m+ii, 0);
-		for(jj=0; jj<ns[ii]; jj++)
-			qp_dest->idxs[ii][jj] = qp_orig->idxs[ii][jj];
 		for(jj=0; jj<nb[ii]+ng[ii]; jj++)
 			qp_dest->idxs_rev[ii][jj] = qp_orig->idxs_rev[ii][jj];
 		for(jj=0; jj<nbue[ii]+nbxe[ii]+nge[ii]; jj++)
@@ -470,8 +455,6 @@ void OCP_QP_SET_ALL_ZERO(struct OCP_QP *qp)
 		VECSE(2*nb[ii]+2*ng[ii]+2*ns[ii], 1.0, qp->d_mask+ii, 0);
 		VECSE(2*nb[ii]+2*ng[ii]+2*ns[ii], 0.0, qp->m+ii, 0);
 		for(jj=0; jj<ns[ii]; jj++)
-			qp->idxs[ii][jj] = 0;
-		for(jj=0; jj<nb[ii]+ng[ii]; jj++)
 			qp->idxs_rev[ii][jj] = -1;
 		for(jj=0; jj<nbue[ii]+nbxe[ii]+nge[ii]; jj++)
 			qp->idxe[ii][jj] = 0;
@@ -597,8 +580,7 @@ void OCP_QP_SET_ALL(REAL **A, REAL **B, REAL **b, REAL **Q, REAL **S, REAL **R, 
 			{
 			for(jj=0; jj<ns[ii]; jj++)
 				{
-				qp->idxs[ii][jj] = idxs[ii][jj];
-				qp->idxs_rev[ii][qp->idxs[ii][jj]] = jj;
+				qp->idxs_rev[ii][idxs[ii][jj]] = jj;
 				}
 			CVT_VEC2STRVEC(ns[ii], Zl[ii], qp->Z+ii, 0);
 			CVT_VEC2STRVEC(ns[ii], Zu[ii], qp->Z+ii, ns[ii]);
@@ -1403,8 +1385,7 @@ void OCP_QP_SET_IDXS(int stage, int *idxs, struct OCP_QP *qp)
 	int ii;
 	for(ii=0; ii<ns[stage]; ii++)
 		{
-		qp->idxs[stage][ii] = idxs[ii];
-		qp->idxs_rev[stage][qp->idxs[stage][ii]] = ii;
+		qp->idxs_rev[stage][idxs[ii]] = ii;
 		}
 
 	return;
@@ -1454,15 +1435,6 @@ void OCP_QP_SET_JSBU(int stage, REAL *Jsbu, struct OCP_QP *qp)
 				}
 			}
 		}
-	// update idxs
-	for(ii=0; ii<nb[stage]+ng[stage]; ii++)
-		{
-		idx_tmp = qp->idxs_rev[stage][ii];
-		if(idx_tmp!=-1)
-			{
-			qp->idxs[stage][idx_tmp] = ii;
-			}
-		}
 	return;
 	}
 
@@ -1493,15 +1465,6 @@ void OCP_QP_SET_JSBX(int stage, REAL *Jsbx, struct OCP_QP *qp)
 				}
 			}
 		}
-	// update idxs
-	for(ii=0; ii<nb[stage]+ng[stage]; ii++)
-		{
-		idx_tmp = qp->idxs_rev[stage][ii];
-		if(idx_tmp!=-1)
-			{
-			qp->idxs[stage][idx_tmp] = ii;
-			}
-		}
 	return;
 	}
 
@@ -1530,15 +1493,6 @@ void OCP_QP_SET_JSG(int stage, REAL *Jsg, struct OCP_QP *qp)
 				jj0 = jj;
 				qp->idxs_rev[stage][nb[stage]+ii] = jj;
 				}
-			}
-		}
-	// update idxs
-	for(ii=0; ii<nb[stage]+ng[stage]; ii++)
-		{
-		idx_tmp = qp->idxs_rev[stage][ii];
-		if(idx_tmp!=-1)
-			{
-			qp->idxs[stage][idx_tmp] = ii;
 			}
 		}
 	return;
@@ -2123,14 +2077,24 @@ void OCP_QP_GET_ZUVEC(int stage, struct OCP_QP *qp, REAL *zu)
 
 
 
+// XXX only valid if there is one slack per softed constraint !!!
 void OCP_QP_GET_IDXS(int stage, struct OCP_QP *qp, int *idxs)
 	{
 	// extract dim
+	int *nb = qp->dim->nb;
+	int *ng = qp->dim->ng;
 	int *ns = qp->dim->ns;
 
-	int ii;
-	for(ii=0; ii<ns[stage]; ii++)
-		idxs[ii] = qp->idxs[stage][ii];
+	int ii, idx_tmp;
+
+	for(ii=0; ii<nb[stage]+ng[stage]; ii++)
+		{
+		idx_tmp = qp->idxs_rev[stage][ii];
+		if(idx_tmp!=-1)
+			{
+			idxs[idx_tmp] = ii;
+			}
+		}
 
 	return;
 	}

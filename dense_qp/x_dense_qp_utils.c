@@ -100,9 +100,6 @@ void DENSE_QP_PRINT(struct DENSE_QP_DIM *qp_dim, struct DENSE_QP *qp)
 	printf("Z = \n");
 	BLASFEO_PRINT_TRAN_VEC(2*ns, qp->Z, 0);
 
-	printf("idxs = \n");
-	int_print_mat(1, ns, qp->idxs, 1);
-
 	printf("idxs_rev = \n");
 	int_print_mat(1, nb+ng, qp->idxs_rev, 1);
 

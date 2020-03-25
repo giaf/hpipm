@@ -69,7 +69,7 @@ void cvt_d2s_dense_qp(struct d_dense_qp *qpd, struct s_dense_qp *qps)
 	blasfeo_cvt_d2s_vec(2*nb+2*ng+2*ns, qpd->d, 0, qps->d, 0);
 	blasfeo_cvt_d2s_vec(2*nb+2*ng+2*ns, qpd->m, 0, qps->m, 0);
 	for(ii=0; ii<nb; ii++) qps->idxb[ii] = qpd->idxb[ii];
-	for(ii=0; ii<nb; ii++) qps->idxs[ii] = qpd->idxs[ii];
+	for(ii=0; ii<nb+ng; ii++) qps->idxs_rev[ii] = qpd->idxs_rev[ii];
 
 	return;
 

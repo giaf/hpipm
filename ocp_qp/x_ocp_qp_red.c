@@ -432,7 +432,6 @@ void OCP_QP_REDUCE_EQ_DOF(struct OCP_QP *qp, struct OCP_QP *qp_red, struct OCP_Q
 				qp_red->d[ii] = qp->d[ii];
 				qp_red->d_mask[ii] = qp->d_mask[ii];
 				qp_red->m[ii] = qp->m[ii];
-				qp_red->idxs[ii] = qp->idxs[ii];
 				qp_red->idxs_rev[ii] = qp->idxs_rev[ii];
 				qp_red->idxe[ii] = qp->idxe[ii];
 				}
@@ -452,8 +451,6 @@ void OCP_QP_REDUCE_EQ_DOF(struct OCP_QP *qp, struct OCP_QP *qp_red, struct OCP_Q
 				VECCP(2*nb[ii]+2*ng[ii]+2*ns[ii], qp->d+ii, 0, qp_red->d+ii, 0);
 				VECCP(2*nb[ii]+2*ng[ii]+2*ns[ii], qp->d_mask+ii, 0, qp_red->d_mask+ii, 0);
 				VECCP(2*nb[ii]+2*ng[ii]+2*ns[ii], qp->m+ii, 0, qp_red->m+ii, 0);
-				for(jj=0; jj<ns[ii]; jj++)
-					qp_red->idxs[ii][jj] = qp->idxs[ii][jj];
 				for(jj=0; jj<nb[ii]+ng[ii]; jj++)
 					qp_red->idxs_rev[ii][jj] = qp->idxs_rev[ii][jj];
 				for(jj=0; jj<nbue[ii]+nbxe[ii]+nge[ii]; jj++)
