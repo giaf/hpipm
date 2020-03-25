@@ -943,7 +943,7 @@ void DENSE_QCQP_APPROX_QP(struct DENSE_QCQP *qcqp, struct DENSE_QCQP_SOL *qcqp_s
 	for(ii=0; ii<ns; ii++)
 		qp->idxs[ii] = qcqp->idxs[ii];
 
-	for(ii=0; ii<ns; ii++)
+	for(ii=0; ii<nb+ng+nq; ii++)
 		qp->idxs_rev[ii] = qcqp->idxs_rev[ii];
 
 	return;
