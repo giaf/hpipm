@@ -685,13 +685,13 @@ void COND_QCQP_COND(struct OCP_QCQP *ocp_qp, struct DENSE_QCQP *dense_qp, struct
 	tmp_ocp_qp.d = ocp_qp->d;
 	tmp_ocp_qp.d_mask = ocp_qp->d_mask;
 	tmp_ocp_qp.Z = ocp_qp->Z;
-	tmp_ocp_qp.idxs = ocp_qp->idxs;
+	tmp_ocp_qp.idxs_rev = ocp_qp->idxs_rev;
 
 	COND_BABT(&tmp_ocp_qp, NULL, NULL, cond_arg->qp_arg, cond_ws->qp_ws);
 
 	COND_RSQRQ_N2NX3(&tmp_ocp_qp, dense_qp->Hv, dense_qp->gz, cond_arg->qp_arg, cond_ws->qp_ws);
 
-	COND_DCTD(&tmp_ocp_qp, dense_qp->idxb, dense_qp->Ct, dense_qp->d, dense_qp->d_mask, dense_qp->idxs, dense_qp->Z, dense_qp->gz, cond_arg->qp_arg, cond_ws->qp_ws);
+	COND_DCTD(&tmp_ocp_qp, dense_qp->idxb, dense_qp->Ct, dense_qp->d, dense_qp->d_mask, dense_qp->idxs_rev, dense_qp->Z, dense_qp->gz, cond_arg->qp_arg, cond_ws->qp_ws);
 
 	COND_QCQP_QC(ocp_qp, dense_qp->Hq, dense_qp->Hq_nzero, dense_qp->Ct, dense_qp->d, cond_arg, cond_ws);
 
@@ -718,7 +718,7 @@ void COND_QCQP_COND_RHS(struct OCP_QCQP *ocp_qp, struct DENSE_QCQP *dense_qp, st
 	tmp_ocp_qp.d = ocp_qp->d;
 	tmp_ocp_qp.d_mask = ocp_qp->d_mask;
 	tmp_ocp_qp.Z = ocp_qp->Z;
-	tmp_ocp_qp.idxs = ocp_qp->idxs;
+	tmp_ocp_qp.idxs_rev = ocp_qp->idxs_rev;
 
 	COND_B(&tmp_ocp_qp, NULL, cond_arg->qp_arg, cond_ws->qp_ws);
 
@@ -758,9 +758,10 @@ void COND_QCQP_EXPAND_SOL(struct OCP_QCQP *ocp_qp, struct DENSE_QCQP_SOL *dense_
 	tmp_ocp_qp.rqz = ocp_qp->rqz;
 	tmp_ocp_qp.DCt = ocp_qp->DCt;
 	tmp_ocp_qp.d = ocp_qp->d;
+	tmp_ocp_qp.d_mask = ocp_qp->d_mask;
 	tmp_ocp_qp.Z = ocp_qp->Z;
-	tmp_ocp_qp.idxs = ocp_qp->idxs;
-	// TODO d_mask
+	tmp_ocp_qp.idxs_rev = ocp_qp->idxs_rev;
+	// TODO d_mask ????????
 
 
 	// create tmp QP

@@ -213,7 +213,7 @@ int COND_QP_WS_MEMSIZE(struct OCP_QP_DIM *ocp_dim, struct COND_QP_ARG *cond_arg)
 	size += 1*SIZE_STRVEC(nbM+ngM); // tmp_nbgM
 	size += 1*SIZE_STRVEC(nuM+nxM); // tmp_nuxM
 
-	size += 1*(nbM+ngM)*sizeof(int); // idxs_rev
+	size += 1*(nbM+ngM)*sizeof(int); // idxs_rev TODO remove !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
 	size = (size+63)/64*64; // make multiple of typical cache line size
 	size += 1*64; // align once to typical cache line size
@@ -371,7 +371,7 @@ void COND_QP_COND(struct OCP_QP *ocp_qp, struct DENSE_QP *dense_qp, struct COND_
 
 	COND_RSQRQ_N2NX3(ocp_qp, dense_qp->Hv, dense_qp->gz, cond_arg, cond_ws);
 
-	COND_DCTD(ocp_qp, dense_qp->idxb, dense_qp->Ct, dense_qp->d, dense_qp->d_mask, dense_qp->idxs, dense_qp->Z, dense_qp->gz, cond_arg, cond_ws);
+	COND_DCTD(ocp_qp, dense_qp->idxb, dense_qp->Ct, dense_qp->d, dense_qp->d_mask, dense_qp->idxs_rev, dense_qp->Z, dense_qp->gz, cond_arg, cond_ws);
 
 	return;
 
@@ -428,7 +428,7 @@ void COND_QP_UPDATE(int *idxc, struct OCP_QP *ocp_qp, struct DENSE_QP *dense_qp,
 
 	UPDATE_COND_RSQRQ_N2NX3(idxc, ocp_qp, dense_qp->Hv, dense_qp->gz, cond_arg, cond_ws);
 
-	UPDATE_COND_DCTD(idxc, ocp_qp, dense_qp->idxb, dense_qp->Ct, dense_qp->d, dense_qp->idxs, dense_qp->Z, dense_qp->gz, cond_arg, cond_ws);
+	UPDATE_COND_DCTD(idxc, ocp_qp, dense_qp->idxb, dense_qp->Ct, dense_qp->d, dense_qp->idxs_rev, dense_qp->Z, dense_qp->gz, cond_arg, cond_ws);
 
 	return;
 

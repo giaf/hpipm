@@ -60,7 +60,7 @@ void d_cond_RSQrq_N2nx3(struct d_ocp_qp *ocp_qp, struct blasfeo_dmat *RSQrq2, st
 //
 void d_cond_rq_N2nx3(struct d_ocp_qp *ocp_qp, struct blasfeo_dvec *rq, struct d_cond_qp_arg *cond_arg, struct d_cond_qp_ws *cond_ws);
 //
-void d_cond_DCtd(struct d_ocp_qp *ocp_qp, int *idxb2, struct blasfeo_dmat *DCt2, struct blasfeo_dvec *d2, struct blasfeo_dvec *d_mask2, int *idxs2, struct blasfeo_dvec *Z2, struct blasfeo_dvec *z, struct d_cond_qp_arg *cond_arg, struct d_cond_qp_ws *cond_ws);
+void d_cond_DCtd(struct d_ocp_qp *ocp_qp, int *idxb2, struct blasfeo_dmat *DCt2, struct blasfeo_dvec *d2, struct blasfeo_dvec *d_mask2, int *idxs_rev2, struct blasfeo_dvec *Z2, struct blasfeo_dvec *z, struct d_cond_qp_arg *cond_arg, struct d_cond_qp_ws *cond_ws);
 //
 void d_cond_d(struct d_ocp_qp *ocp_qp, struct blasfeo_dvec *d2, struct blasfeo_dvec *d_mask2, struct blasfeo_dvec *z, struct d_cond_qp_arg *cond_arg, struct d_cond_qp_ws *cond_ws);
 //
