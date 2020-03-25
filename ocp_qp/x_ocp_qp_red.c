@@ -390,6 +390,7 @@ void OCP_QP_REDUCE_EQ_DOF(struct OCP_QP *qp, struct OCP_QP *qp_red, struct OCP_Q
 					BLASFEO_SVECEL(qp_red->m+ii, nb_red[ii]+ng_red[ii]+idx0) = BLASFEO_SVECEL(qp->m+ii, nb[ii]+ng[ii]+jj);
 #endif
 					qp_red->idxb[ii][idx0] = qp->idxb[ii][jj];
+					qp_red->idxs_rev[ii][idx0] = qp->idxs_rev[ii][jj]; // keep softed inequality constr with same slack
 					idx0++;
 					}
 				}
@@ -413,6 +414,8 @@ void OCP_QP_REDUCE_EQ_DOF(struct OCP_QP *qp, struct OCP_QP *qp_red, struct OCP_Q
 					}
 				}
 			// TODO soft constraints
+			for(jj=0; jj<ng[ii]; jj++)
+				qp_red->idxs_rev[ii][nb_red[ii]+jj] = qp->idxs_rev[ii][nb[ii]+jj]; // keep softed inequality constr with same slack
 			}
 		else // copy everything
 			{
