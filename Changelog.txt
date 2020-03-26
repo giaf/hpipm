@@ -4,19 +4,24 @@ HPIPM ChangeLog
 
 ====================================================================
 Version 0.1.2-master
-23-Feb-2020
+26-Mar-2020
 
 dense_qp:
 	* add mask to disregard constraints (e.g. for one sided constr, or dynamic constr removal)
+	* replace idxs with idxs_rev
 
 dense_qcqp:
 	* add dense qcqp ipm solver built on top of dense qp ipm solver
+	* replace idxs with idxs_rev
 
 ocp_qp:
 	* add mask to disregard constraints (e.g. for one sided constr, or dynamic constr removal)
+	* replace idxs with idxs_rev
+	* add routines to reduce/restore equality-constrained degrees-of-freedom
 
 ocp_qcqp:
 	* add ocp qcqp ipm solver built on top of ocp qp ipm solver
+	* replace idxs with idxs_rev
 
 cond_qcqp:
 	* add condensing for qcqp
