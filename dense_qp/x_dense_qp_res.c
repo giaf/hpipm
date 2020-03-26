@@ -446,13 +446,13 @@ void DENSE_QP_RES_COMPUTE_LIN(struct DENSE_QP *qp, struct DENSE_QP_SOL *qp_sol, 
 				BLASFEO_DVECEL(res_g, nv+idx) -= BLASFEO_DVECEL(lam, ii);
 				BLASFEO_DVECEL(res_g, nv+ns+idx) -= BLASFEO_DVECEL(lam, nb+ng+ii);
 				// res_d
-				BLASFEO_DVECEL(res_d, ii) -= BLASFEO_DVECEL(v+ii, nv+idx);
+				BLASFEO_DVECEL(res_d, ii) -= BLASFEO_DVECEL(v, nv+idx);
 				BLASFEO_DVECEL(res_d, nb+ng+ii) -= BLASFEO_DVECEL(v, nv+ns+idx);
 #else
 				BLASFEO_SVECEL(res_g, nv+idx) -= BLASFEO_SVECEL(lam, ii);
 				BLASFEO_SVECEL(res_g, nv+ns+idx) -= BLASFEO_SVECEL(lam, nb+ng+ii);
 				// res_d
-				BLASFEO_SVECEL(res_d, ii) -= BLASFEO_SVECEL(v+ii, nv+idx);
+				BLASFEO_SVECEL(res_d, ii) -= BLASFEO_SVECEL(v, nv+idx);
 				BLASFEO_SVECEL(res_d, nb+ng+ii) -= BLASFEO_SVECEL(v, nv+ns+idx);
 #endif
 				}
