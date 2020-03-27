@@ -70,7 +70,7 @@ void OCP_QP_IPM_ARG_SET_DEFAULT(enum HPIPM_MODE mode, struct OCP_QP_IPM_ARG *arg
 	{
 
 	REAL mu0, alpha_min, res_g_max, res_b_max, res_d_max, res_m_max, reg_prim, lam_min, t_min, tau_min;
-	int iter_max, stat_max, pred_corr, cond_pred_corr, itref_pred_max, itref_corr_max, lq_fact, warm_start, abs_form, comp_res_exit, comp_res_pred, square_root_alg, comp_dual_sol, split_step;
+	int iter_max, stat_max, pred_corr, cond_pred_corr, itref_pred_max, itref_corr_max, lq_fact, warm_start, abs_form, comp_res_exit, comp_res_pred, square_root_alg, comp_dual_sol, split_step, var_init_scheme;
 
 	if(mode==SPEED_ABS)
 		{
@@ -98,6 +98,7 @@ void OCP_QP_IPM_ARG_SET_DEFAULT(enum HPIPM_MODE mode, struct OCP_QP_IPM_ARG *arg
 		comp_res_exit = 0;
 		comp_res_pred = 0;
 		split_step = 1;
+		var_init_scheme = 0;
 		}
 	else if(mode==SPEED)
 		{
@@ -125,6 +126,7 @@ void OCP_QP_IPM_ARG_SET_DEFAULT(enum HPIPM_MODE mode, struct OCP_QP_IPM_ARG *arg
 		comp_res_exit = 1;
 		comp_res_pred = 1;
 		split_step = 1;
+		var_init_scheme = 0;
 		}
 	else if(mode==BALANCE)
 		{
@@ -152,6 +154,7 @@ void OCP_QP_IPM_ARG_SET_DEFAULT(enum HPIPM_MODE mode, struct OCP_QP_IPM_ARG *arg
 		comp_res_exit = 1;
 		comp_res_pred = 1;
 		split_step = 0;
+		var_init_scheme = 0;
 		}
 	else if(mode==ROBUST)
 		{
@@ -179,6 +182,7 @@ void OCP_QP_IPM_ARG_SET_DEFAULT(enum HPIPM_MODE mode, struct OCP_QP_IPM_ARG *arg
 		comp_res_exit = 1;
 		comp_res_pred = 1;
 		split_step = 0;
+		var_init_scheme = 0;
 		}
 	else
 		{
@@ -210,6 +214,7 @@ void OCP_QP_IPM_ARG_SET_DEFAULT(enum HPIPM_MODE mode, struct OCP_QP_IPM_ARG *arg
 	OCP_QP_IPM_ARG_SET_COMP_RES_PRED(&comp_res_pred, arg);
 	OCP_QP_IPM_ARG_SET_COMP_RES_EXIT(&comp_res_pred, arg);
 	OCP_QP_IPM_ARG_SET_SPLIT_STEP(&split_step, arg);
+	OCP_QP_IPM_ARG_SET_VAR_INIT_SCHEME(&var_init_scheme, arg);
 	arg->mode = mode;
 
 	return;
@@ -291,6 +296,10 @@ void OCP_QP_IPM_ARG_SET(char *field, void *value, struct OCP_QP_IPM_ARG *arg)
 	else if(hpipm_strcmp(field, "split_step")) 
 		{
 		OCP_QP_IPM_ARG_SET_SPLIT_STEP(value, arg);
+		}
+	else if(hpipm_strcmp(field, "var_init_scheme")) 
+		{
+		OCP_QP_IPM_ARG_SET_VAR_INIT_SCHEME(value, arg);
 		}
 	else
 		{
@@ -443,6 +452,14 @@ void OCP_QP_IPM_ARG_SET_TAU_MIN(REAL *value, struct OCP_QP_IPM_ARG *arg)
 void OCP_QP_IPM_ARG_SET_SPLIT_STEP(int *value, struct OCP_QP_IPM_ARG *arg)
 	{
 	arg->split_step = *value;
+	return;
+	}
+
+
+
+void OCP_QP_IPM_ARG_SET_VAR_INIT_SCHEME(int *value, struct OCP_QP_IPM_ARG *arg)
+	{
+	arg->var_init_scheme = *value;
 	return;
 	}
 
@@ -1214,7 +1231,7 @@ void OCP_QP_INIT_VAR(struct OCP_QP *qp, struct OCP_QP_SOL *qp_sol, struct OCP_QP
 
 	//
 	REAL *ux, *s, *pi, *d_lb, *d_ub, *d_lg, *d_ug, *d_ls, *lam_lb, *lam_ub, *lam_lg, *lam_ug, *lam_ls, *t_lb, *t_ub, *t_lg, *t_ug, *t_ls;
-	int *idxb, **idxs_rev;
+	int *idxb, *idxs_rev;
 	int idx;
 
 	REAL thr0 = 1e-1;
@@ -1284,252 +1301,244 @@ void OCP_QP_INIT_VAR(struct OCP_QP *qp, struct OCP_QP_SOL *qp_sol, struct OCP_QP
 			}
 		}
 
-#if 1 // old version
-
-
-
-	// box constraints
-	for(ii=0; ii<=N; ii++)
+	if(arg->var_init_scheme==0) // safest scheme, no tailored init for soft constr
 		{
-		ux = qp_sol->ux[ii].pa;
-		d_lb = qp->d[ii].pa+0;
-		d_ub = qp->d[ii].pa+nb[ii]+ng[ii];
-		lam_lb = qp_sol->lam[ii].pa+0;
-		lam_ub = qp_sol->lam[ii].pa+nb[ii]+ng[ii];
-		t_lb = qp_sol->t[ii].pa+0;
-		t_ub = qp_sol->t[ii].pa+nb[ii]+ng[ii];
-		idxb = qp->idxb[ii];
-		for(jj=0; jj<nb[ii]; jj++)
+
+		// box constraints
+		for(ii=0; ii<=N; ii++)
 			{
+			ux = qp_sol->ux[ii].pa;
+			d_lb = qp->d[ii].pa+0;
+			d_ub = qp->d[ii].pa+nb[ii]+ng[ii];
+			lam_lb = qp_sol->lam[ii].pa+0;
+			lam_ub = qp_sol->lam[ii].pa+nb[ii]+ng[ii];
+			t_lb = qp_sol->t[ii].pa+0;
+			t_ub = qp_sol->t[ii].pa+nb[ii]+ng[ii];
+			idxb = qp->idxb[ii];
+			for(jj=0; jj<nb[ii]; jj++)
+				{
 #if 1
-			t_lb[jj] = - d_lb[jj] + ux[idxb[jj]];
-			t_ub[jj] = - d_ub[jj] - ux[idxb[jj]];
-//			printf("\n%d %f %f\n", jj, t_lb[jj], t_ub[jj]);
-			if(t_lb[jj]<thr0)
-				{
-				if(t_ub[jj]<thr0)
+				t_lb[jj] = - d_lb[jj] + ux[idxb[jj]];
+				t_ub[jj] = - d_ub[jj] - ux[idxb[jj]];
+	//			printf("\n%d %f %f\n", jj, t_lb[jj], t_ub[jj]);
+				if(t_lb[jj]<thr0)
 					{
-//					ux[idxb[jj]] = 0.5*(d_lb[jj] + d_ub[jj]);
-					ux[idxb[jj]] = 0.5*(d_lb[jj] - d_ub[jj]);
-					t_lb[jj] = thr0;
+					if(t_ub[jj]<thr0)
+						{
+	//					ux[idxb[jj]] = 0.5*(d_lb[jj] + d_ub[jj]);
+						ux[idxb[jj]] = 0.5*(d_lb[jj] - d_ub[jj]);
+						t_lb[jj] = thr0;
+						t_ub[jj] = thr0;
+						}
+					else
+						{
+						t_lb[jj] = thr0;
+						ux[idxb[jj]] = d_lb[jj] + thr0;
+						}
+					}
+				else if(t_ub[jj]<thr0)
+					{
 					t_ub[jj] = thr0;
+					ux[idxb[jj]] = - d_ub[jj] - thr0;
 					}
-				else
-					{
-					t_lb[jj] = thr0;
-					ux[idxb[jj]] = d_lb[jj] + thr0;
-					}
-				}
-			else if(t_ub[jj]<thr0)
-				{
-				t_ub[jj] = thr0;
-				ux[idxb[jj]] = - d_ub[jj] - thr0;
-				}
 #else
-			t_lb[jj] = 1.0;
-			t_ub[jj] = 1.0;
+				t_lb[jj] = 1.0;
+				t_ub[jj] = 1.0;
 #endif
-			lam_lb[jj] = mu0/t_lb[jj];
-			lam_ub[jj] = mu0/t_ub[jj];
+				lam_lb[jj] = mu0/t_lb[jj];
+				lam_ub[jj] = mu0/t_ub[jj];
+				}
+	//		blasfeo_print_tran_dvec(nb[ii], qp->d+ii, 0);
+	//		blasfeo_print_tran_dvec(nb[ii], qp->d+ii, nb[ii]+ng[ii]);
+	//		blasfeo_print_tran_dvec(nu[ii]+nx[ii], qp_sol->ux+ii, 0);
+	//		blasfeo_print_tran_dvec(nb[ii], qp_sol->t+ii, 0);
+	//		blasfeo_print_tran_dvec(nb[ii], qp_sol->t+ii, nb[ii]+ng[ii]);
+	//		exit(1);
 			}
-//		blasfeo_print_tran_dvec(nb[ii], qp->d+ii, 0);
-//		blasfeo_print_tran_dvec(nb[ii], qp->d+ii, nb[ii]+ng[ii]);
-//		blasfeo_print_tran_dvec(nu[ii]+nx[ii], qp_sol->ux+ii, 0);
-//		blasfeo_print_tran_dvec(nb[ii], qp_sol->t+ii, 0);
-//		blasfeo_print_tran_dvec(nb[ii], qp_sol->t+ii, nb[ii]+ng[ii]);
-//		exit(1);
-		}
+		
+		// general constraints
+		for(ii=0; ii<=N; ii++)
+			{
+			t_lg = qp_sol->t[ii].pa+nb[ii];
+			t_ug = qp_sol->t[ii].pa+2*nb[ii]+ng[ii];
+			lam_lg = qp_sol->lam[ii].pa+nb[ii];
+			lam_ug = qp_sol->lam[ii].pa+2*nb[ii]+ng[ii];
+			d_lg = qp->d[ii].pa+nb[ii];
+			d_ug = qp->d[ii].pa+2*nb[ii]+ng[ii];
+			ux = qp_sol->ux[ii].pa;
+			GEMV_T(nu[ii]+nx[ii], ng[ii], 1.0, qp->DCt+ii, 0, 0, qp_sol->ux+ii, 0, 0.0, qp_sol->t+ii, nb[ii], qp_sol->t+ii, nb[ii]);
+			for(jj=0; jj<ng[ii]; jj++)
+				{
+#if 1
+				t_ug[jj] = - t_lg[jj];
+				t_lg[jj] -= d_lg[jj];
+				t_ug[jj] -= d_ug[jj];
+	//			t_lg[jj] = fmax(thr0, t_lg[jj]);
+	//			t_ug[jj] = fmax(thr0, t_ug[jj]);
+				t_lg[jj] = thr0>t_lg[jj] ? thr0 : t_lg[jj];
+				t_ug[jj] = thr0>t_ug[jj] ? thr0 : t_ug[jj];
+#else
+				t_lg[jj] = 1.0;
+				t_ug[jj] = 1.0;
+#endif
+				lam_lg[jj] = mu0/t_lg[jj];
+				lam_ug[jj] = mu0/t_ug[jj];
+				}
+			}
+
+		// soft constraints
+		for(ii=0; ii<=N; ii++)
+			{
+			lam_lb = qp_sol->lam[ii].pa+2*nb[ii]+2*ng[ii];
+			lam_ub = qp_sol->lam[ii].pa+2*nb[ii]+2*ng[ii]+ns[ii];
+			t_lb = qp_sol->t[ii].pa+2*nb[ii]+2*ng[ii];
+			t_ub = qp_sol->t[ii].pa+2*nb[ii]+2*ng[ii]+ns[ii];
+			for(jj=0; jj<ns[ii]; jj++)
+				{
+				t_lb[jj] = 1.0; // thr0;
+				t_ub[jj] = 1.0; // thr0;
+	//			t_lb[jj] = sqrt(mu0); // thr0;
+	//			t_ub[jj] = sqrt(mu0); // thr0;
+				lam_lb[jj] = mu0/t_lb[jj];
+				lam_ub[jj] = mu0/t_ub[jj];
+				}
+			}
 	
-	// general constraints
-	for(ii=0; ii<=N; ii++)
-		{
-		t_lg = qp_sol->t[ii].pa+nb[ii];
-		t_ug = qp_sol->t[ii].pa+2*nb[ii]+ng[ii];
-		lam_lg = qp_sol->lam[ii].pa+nb[ii];
-		lam_ug = qp_sol->lam[ii].pa+2*nb[ii]+ng[ii];
-		d_lg = qp->d[ii].pa+nb[ii];
-		d_ug = qp->d[ii].pa+2*nb[ii]+ng[ii];
-		ux = qp_sol->ux[ii].pa;
-		GEMV_T(nu[ii]+nx[ii], ng[ii], 1.0, qp->DCt+ii, 0, 0, qp_sol->ux+ii, 0, 0.0, qp_sol->t+ii, nb[ii], qp_sol->t+ii, nb[ii]);
-		for(jj=0; jj<ng[ii]; jj++)
-			{
-#if 1
-			t_ug[jj] = - t_lg[jj];
-			t_lg[jj] -= d_lg[jj];
-			t_ug[jj] -= d_ug[jj];
-//			t_lg[jj] = fmax(thr0, t_lg[jj]);
-//			t_ug[jj] = fmax(thr0, t_ug[jj]);
-			t_lg[jj] = thr0>t_lg[jj] ? thr0 : t_lg[jj];
-			t_ug[jj] = thr0>t_ug[jj] ? thr0 : t_ug[jj];
-#else
-			t_lg[jj] = 1.0;
-			t_ug[jj] = 1.0;
-#endif
-			lam_lg[jj] = mu0/t_lg[jj];
-			lam_ug[jj] = mu0/t_ug[jj];
-			}
 		}
-
-	// soft constraints
-	for(ii=0; ii<=N; ii++)
-		{
-		lam_lb = qp_sol->lam[ii].pa+2*nb[ii]+2*ng[ii];
-		lam_ub = qp_sol->lam[ii].pa+2*nb[ii]+2*ng[ii]+ns[ii];
-		t_lb = qp_sol->t[ii].pa+2*nb[ii]+2*ng[ii];
-		t_ub = qp_sol->t[ii].pa+2*nb[ii]+2*ng[ii]+ns[ii];
-		for(jj=0; jj<ns[ii]; jj++)
-			{
-			t_lb[jj] = 1.0; // thr0;
-			t_ub[jj] = 1.0; // thr0;
-//			t_lb[jj] = sqrt(mu0); // thr0;
-//			t_ub[jj] = sqrt(mu0); // thr0;
-			lam_lb[jj] = mu0/t_lb[jj];
-			lam_ub[jj] = mu0/t_ub[jj];
-			}
-		}
-
-
-
-#else // new version
-
-
-
-	for(ii=0; ii<=N; ii++)
+	else // alternative scheme for soft constr
 		{
 
-//		printf("\nii = %d\n", ii);
-
-		ux = qp_sol->ux[ii].pa;
-		s = qp_sol->ux[ii].pa+nu[ii]+nx[ii];
-		d_lb = qp->d[ii].pa+0;
-		d_ub = qp->d[ii].pa+nb[ii]+ng[ii];
-		d_lg = qp->d[ii].pa+nb[ii];
-		d_ug = qp->d[ii].pa+2*nb[ii]+ng[ii];
-		d_ls = qp->d[ii].pa+2*nb[ii]+2*ng[ii];
-		lam_lb = qp_sol->lam[ii].pa+0;
-		lam_ub = qp_sol->lam[ii].pa+nb[ii]+ng[ii];
-		lam_lg = qp_sol->lam[ii].pa+nb[ii];
-		lam_ug = qp_sol->lam[ii].pa+2*nb[ii]+ng[ii];
-		lam_ls = qp_sol->lam[ii].pa+2*nb[ii]+2*ng[ii];
-		t_lb = qp_sol->t[ii].pa+0;
-		t_ub = qp_sol->t[ii].pa+nb[ii]+ng[ii];
-		t_lg = qp_sol->t[ii].pa+nb[ii];
-		t_ug = qp_sol->t[ii].pa+2*nb[ii]+ng[ii];
-		t_ls = qp_sol->t[ii].pa+2*nb[ii]+2*ng[ii];
-		idxb = qp->idxb[ii];
-		idxs_rev = qp->idxs_rev[ii];
-
-		// lower bound on slacks
-		AXPY(2*ns[ii], -1.0, qp->d+ii, 2*nb[ii]+2*ng[ii], qp_sol->ux+ii, nu[ii]+nx[ii], qp_sol->t+ii, 2*nb[ii]+2*ng[ii]);
-		for(jj=0; jj<2*ns[ii]; jj++)
+		for(ii=0; ii<=N; ii++)
 			{
+
+	//		printf("\nii = %d\n", ii);
+
+			ux = qp_sol->ux[ii].pa;
+			s = qp_sol->ux[ii].pa+nu[ii]+nx[ii];
+			d_lb = qp->d[ii].pa+0;
+			d_ub = qp->d[ii].pa+nb[ii]+ng[ii];
+			d_lg = qp->d[ii].pa+nb[ii];
+			d_ug = qp->d[ii].pa+2*nb[ii]+ng[ii];
+			d_ls = qp->d[ii].pa+2*nb[ii]+2*ng[ii];
+			lam_lb = qp_sol->lam[ii].pa+0;
+			lam_ub = qp_sol->lam[ii].pa+nb[ii]+ng[ii];
+			lam_lg = qp_sol->lam[ii].pa+nb[ii];
+			lam_ug = qp_sol->lam[ii].pa+2*nb[ii]+ng[ii];
+			lam_ls = qp_sol->lam[ii].pa+2*nb[ii]+2*ng[ii];
+			t_lb = qp_sol->t[ii].pa+0;
+			t_ub = qp_sol->t[ii].pa+nb[ii]+ng[ii];
+			t_lg = qp_sol->t[ii].pa+nb[ii];
+			t_ug = qp_sol->t[ii].pa+2*nb[ii]+ng[ii];
+			t_ls = qp_sol->t[ii].pa+2*nb[ii]+2*ng[ii];
+			idxb = qp->idxb[ii];
+			idxs_rev = qp->idxs_rev[ii];
+
+			// lower bound on slacks
+			AXPY(2*ns[ii], -1.0, qp->d+ii, 2*nb[ii]+2*ng[ii], qp_sol->ux+ii, nu[ii]+nx[ii], qp_sol->t+ii, 2*nb[ii]+2*ng[ii]);
+			for(jj=0; jj<2*ns[ii]; jj++)
+				{
 #if 1
-			if(t_ls[jj]<thr0)
-				{
-				t_ls[jj] = thr0; //1.0;
-				s[jj] = d_ls[jj] + t_ls[jj];
-				}
-#else
-			t_ls[jj] = 1.0;
-//			t_ls[jj] = sqrt(mu0);
-#endif
-			}
-//		blasfeo_print_tran_dvec(2*ns[ii], qp_sol->ux+ii, nu[ii]+nx[ii]);
-//		blasfeo_print_tran_dvec(2*ns[ii], qp_sol->t+ii, 2*nb[ii]+2*ng[ii]);
-
-		// upper and lower bounds on inputs and states
-		VECEX_SP(nb[ii], 1.0, qp->idxb[ii], qp_sol->ux+ii, 0, qp_sol->t+ii, 0);
-		VECCPSC(nb[ii], -1.0, qp_sol->t+ii, 0, qp_sol->t+ii, nb[ii]+ng[ii]);
-		for(jj=0; jj<nb[ii]; jj++)
-			{
-			idx = idxs_rev[jj];
-			if(idx!=-1)
-				{
-				// softed bound
-				t_lb[jj] += s[idx];
-				t_ub[jj] += s[ns[ii]+idx];
-				}
-			}
-		AXPY(nb[ii], -1.0, qp->d+ii, 0, qp_sol->t+ii, 0, qp_sol->t+ii, 0);
-		AXPY(nb[ii], -1.0, qp->d+ii, nb[ii]+ng[ii], qp_sol->t+ii, nb[ii]+ng[ii], qp_sol->t+ii, nb[ii]+ng[ii]);
-//		blasfeo_print_tran_dvec(nb[ii], qp_sol->t+ii, 0);
-//		blasfeo_print_tran_dvec(nb[ii], qp_sol->t+ii, nb[ii]+ng[ii]);
-		for(jj=0; jj<nb[ii]; jj++)
-			{
-#if 1
-			if(t_lb[jj]<thr0)
-				{
-				if(t_ub[jj]<thr0)
+				if(t_ls[jj]<thr0)
 					{
-//					ux[idxb[jj]] = 0.5*(d_lb[jj] + d_ub[jj]);
-					ux[idxb[jj]] = 0.5*(d_lb[jj] - d_ub[jj]);
-					t_lb[jj] = thr0;
+					t_ls[jj] = thr0; //1.0;
+					s[jj] = d_ls[jj] + t_ls[jj];
+					}
+#else
+				t_ls[jj] = 1.0;
+	//			t_ls[jj] = sqrt(mu0);
+#endif
+				}
+	//		blasfeo_print_tran_dvec(2*ns[ii], qp_sol->ux+ii, nu[ii]+nx[ii]);
+	//		blasfeo_print_tran_dvec(2*ns[ii], qp_sol->t+ii, 2*nb[ii]+2*ng[ii]);
+
+			// upper and lower bounds on inputs and states
+			VECEX_SP(nb[ii], 1.0, qp->idxb[ii], qp_sol->ux+ii, 0, qp_sol->t+ii, 0);
+			VECCPSC(nb[ii], -1.0, qp_sol->t+ii, 0, qp_sol->t+ii, nb[ii]+ng[ii]);
+			for(jj=0; jj<nb[ii]; jj++)
+				{
+				idx = idxs_rev[jj];
+				if(idx!=-1)
+					{
+					// softed bound
+					t_lb[jj] += s[idx];
+					t_ub[jj] += s[ns[ii]+idx];
+					}
+				}
+			AXPY(nb[ii], -1.0, qp->d+ii, 0, qp_sol->t+ii, 0, qp_sol->t+ii, 0);
+			AXPY(nb[ii], -1.0, qp->d+ii, nb[ii]+ng[ii], qp_sol->t+ii, nb[ii]+ng[ii], qp_sol->t+ii, nb[ii]+ng[ii]);
+	//		blasfeo_print_tran_dvec(nb[ii], qp_sol->t+ii, 0);
+	//		blasfeo_print_tran_dvec(nb[ii], qp_sol->t+ii, nb[ii]+ng[ii]);
+			for(jj=0; jj<nb[ii]; jj++)
+				{
+#if 1
+				if(t_lb[jj]<thr0)
+					{
+					if(t_ub[jj]<thr0)
+						{
+	//					ux[idxb[jj]] = 0.5*(d_lb[jj] + d_ub[jj]);
+						ux[idxb[jj]] = 0.5*(d_lb[jj] - d_ub[jj]);
+						t_lb[jj] = thr0;
+						t_ub[jj] = thr0;
+						}
+					else
+						{
+						t_lb[jj] = thr0;
+						ux[idxb[jj]] = d_lb[jj] + thr0;
+						}
+					}
+				else if(t_ub[jj]<thr0)
+					{
 					t_ub[jj] = thr0;
+					ux[idxb[jj]] = - d_ub[jj] - thr0;
 					}
-				else
+#else
+				t_lb[jj] = 1.0;
+				t_ub[jj] = 1.0;
+#endif
+				}
+	//		blasfeo_print_tran_dvec(nu[ii]+nx[ii], qp_sol->ux+ii, 0);
+	//		blasfeo_print_tran_dvec(nb[ii], qp_sol->t+ii, 0);
+	//		blasfeo_print_tran_dvec(nb[ii], qp_sol->t+ii, nb[ii]+ng[ii]);
+
+			// upper and lower general constaints
+			GEMV_T(nu[ii]+nx[ii], ng[ii], 1.0, qp->DCt+ii, 0, 0, qp_sol->ux+ii, 0, 0.0, qp_sol->t+ii, nb[ii], qp_sol->t+ii, nb[ii]);
+			VECCPSC(ng[ii], -1.0, qp_sol->t+ii, nb[ii], qp_sol->t+ii, 2*nb[ii]+ng[ii]);
+	//		blasfeo_print_tran_dvec(ng[ii], qp_sol->t+ii, nb[ii]);
+	//		blasfeo_print_tran_dvec(ng[ii], qp_sol->t+ii, 2*nb[ii]+ng[ii]);
+			for(jj=0; jj<ng[ii]; jj++)
+				{
+				idx = idxs_rev[nb[ii]+jj];
+				if(idx!=-1)
 					{
-					t_lb[jj] = thr0;
-					ux[idxb[jj]] = d_lb[jj] + thr0;
+					// softed general constraint
+					t_lb[nb[ii]+jj] += s[idx];
+					t_ub[nb[ii]+jj] += s[ns[ii]+idx];
 					}
 				}
-			else if(t_ub[jj]<thr0)
+	//		blasfeo_print_tran_dvec(ng[ii], qp_sol->t+ii, nb[ii]);
+	//		blasfeo_print_tran_dvec(ng[ii], qp_sol->t+ii, 2*nb[ii]+ng[ii]);
+			AXPY(ng[ii], -1.0, qp->d+ii, nb[ii], qp_sol->t+ii, nb[ii], qp_sol->t+ii, nb[ii]);
+			AXPY(ng[ii], -1.0, qp->d+ii, 2*nb[ii]+ng[ii], qp_sol->t+ii, 2*nb[ii]+ng[ii], qp_sol->t+ii, 2*nb[ii]+ng[ii]);
+			for(jj=0; jj<ng[ii]; jj++)
 				{
-				t_ub[jj] = thr0;
-				ux[idxb[jj]] = - d_ub[jj] - thr0;
-				}
-#else
-			t_lb[jj] = 1.0;
-			t_ub[jj] = 1.0;
-#endif
-			}
-//		blasfeo_print_tran_dvec(nu[ii]+nx[ii], qp_sol->ux+ii, 0);
-//		blasfeo_print_tran_dvec(nb[ii], qp_sol->t+ii, 0);
-//		blasfeo_print_tran_dvec(nb[ii], qp_sol->t+ii, nb[ii]+ng[ii]);
-
-		// upper and lower general constaints
-		GEMV_T(nu[ii]+nx[ii], ng[ii], 1.0, qp->DCt+ii, 0, 0, qp_sol->ux+ii, 0, 0.0, qp_sol->t+ii, nb[ii], qp_sol->t+ii, nb[ii]);
-		VECCPSC(ng[ii], -1.0, qp_sol->t+ii, nb[ii], qp_sol->t+ii, 2*nb[ii]+ng[ii]);
-//		blasfeo_print_tran_dvec(ng[ii], qp_sol->t+ii, nb[ii]);
-//		blasfeo_print_tran_dvec(ng[ii], qp_sol->t+ii, 2*nb[ii]+ng[ii]);
-		for(jj=0; jj<ng[ii]; jj++)
-			{
-			idx = idxs_rev[nb[ii]+jj];
-			if(idx!=-1)
-				{
-				// softed general constraint
-				t_lb[nb[ii]+jj] += s[idx];
-				t_ub[nb[ii]+jj] += s[ns[ii]+idx];
-				}
-			}
-//		blasfeo_print_tran_dvec(ng[ii], qp_sol->t+ii, nb[ii]);
-//		blasfeo_print_tran_dvec(ng[ii], qp_sol->t+ii, 2*nb[ii]+ng[ii]);
-		AXPY(ng[ii], -1.0, qp->d+ii, nb[ii], qp_sol->t+ii, nb[ii], qp_sol->t+ii, nb[ii]);
-		AXPY(ng[ii], -1.0, qp->d+ii, 2*nb[ii]+ng[ii], qp_sol->t+ii, 2*nb[ii]+ng[ii], qp_sol->t+ii, 2*nb[ii]+ng[ii]);
-		for(jj=0; jj<ng[ii]; jj++)
-			{
 #if 1
-			t_lg[jj] = thr0>t_lg[jj] ? thr0 : t_lg[jj];
-			t_ug[jj] = thr0>t_ug[jj] ? thr0 : t_ug[jj];
+				t_lg[jj] = thr0>t_lg[jj] ? thr0 : t_lg[jj];
+				t_ug[jj] = thr0>t_ug[jj] ? thr0 : t_ug[jj];
 #else
-			t_lg[jj] = 1.0;
-			t_ug[jj] = 1.0;
+				t_lg[jj] = 1.0;
+				t_ug[jj] = 1.0;
 #endif
-			}
-//		blasfeo_print_tran_dvec(ng[ii], qp_sol->t+ii, nb[ii]);
-//		blasfeo_print_tran_dvec(ng[ii], qp_sol->t+ii, 2*nb[ii]+ng[ii]);
+				}
+	//		blasfeo_print_tran_dvec(ng[ii], qp_sol->t+ii, nb[ii]);
+	//		blasfeo_print_tran_dvec(ng[ii], qp_sol->t+ii, 2*nb[ii]+ng[ii]);
 
-		// multipliers
-		for(jj=0; jj<2*nb[ii]+2*ng[ii]+2*ns[ii]; jj++)
-			lam_lb[jj] = mu0/t_lb[jj];
+			// multipliers
+			for(jj=0; jj<2*nb[ii]+2*ng[ii]+2*ns[ii]; jj++)
+				lam_lb[jj] = mu0/t_lb[jj];
+
+			}
 
 		}
-
-//	exit(1);
-
-
-
-#endif // new version
-
 
 
 	return;
