@@ -68,6 +68,7 @@
 #define OCP_QP_PRINT s_ocp_qp_print
 #define OCP_QP_CODEGEN s_ocp_qp_codegen
 #define OCP_QP_SOL_PRINT s_ocp_qp_sol_print
+#define OCP_QP_IPM_ARG_PRINT s_ocp_qp_ipm_arg_print
 #define OCP_QP_IPM_ARG_CODEGEN s_ocp_qp_ipm_arg_codegen
 #define OCP_QP_RES_PRINT s_ocp_qp_res_print
 

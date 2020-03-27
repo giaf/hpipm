@@ -65,6 +65,8 @@ void s_ocp_qp_codegen(char *file_name, char *mode, struct s_ocp_qp_dim *qp_dim, 
 //
 void s_ocp_qp_sol_print(struct s_ocp_qp_dim *qp_dim, struct s_ocp_qp_sol *ocp_qp_sol);
 //
+void s_ocp_qp_ipm_arg_print(struct s_ocp_qp_dim *qp_dim, struct s_ocp_qp_ipm_arg *arg);
+//
 void s_ocp_qp_ipm_arg_codegen(char *file_name, char *mode, struct s_ocp_qp_dim *qp_dim, struct s_ocp_qp_ipm_arg *arg);
 //
 void s_ocp_qp_res_print(struct s_ocp_qp_dim *qp_dim, struct s_ocp_qp_res *ocp_qp_res);
