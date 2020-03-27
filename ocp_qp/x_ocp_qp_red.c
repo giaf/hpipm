@@ -255,7 +255,7 @@ void OCP_QP_REDUCE_EQ_DOF_WORK_CREATE(struct OCP_QP_DIM *dim, struct OCP_QP_REDU
 	CREATE_STRVEC(nbgM, work->tmp_nbgM, c_ptr);
 	c_ptr += (work->tmp_nbgM)->memsize;
 
-	work->memsize = OCP_QP_REDUCE_EQ_DOF_WORK_MEMSIZE(dim);
+	work->memsize = memsize;
 
 	return;
 
