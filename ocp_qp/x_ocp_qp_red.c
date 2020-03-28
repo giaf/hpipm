@@ -282,6 +282,8 @@ void OCP_QP_REDUCE_EQ_DOF(struct OCP_QP *qp, struct OCP_QP *qp_red, struct OCP_Q
 	int *nge = dim->nge;
 
 	struct OCP_QP_DIM *dim_red = qp_red->dim;
+	int *nx_red = dim_red->nx;
+	int *nu_red = dim_red->nu;
 	int *nb_red = dim_red->nb;
 	int *ng_red = dim_red->ng;
 	int *ns_red = dim_red->ns;
@@ -395,11 +397,11 @@ void OCP_QP_REDUCE_EQ_DOF(struct OCP_QP *qp, struct OCP_QP *qp_red, struct OCP_Q
 					}
 				}
 			VECCP(ng[ii], qp->d+ii, nb[ii], qp_red->d+ii, nb_red[ii]);
-			VECCP(ng[ii]+2*ns[ii], qp->d+ii, 2*nb[ii]+ng[ii], qp_red->d+ii, 2*nb_red[ii]+2*ng_red[ii]);
+			VECCP(ng[ii]+2*ns[ii], qp->d+ii, 2*nb[ii]+ng[ii], qp_red->d+ii, 2*nb_red[ii]+ng_red[ii]);
 			VECCP(ng[ii], qp->d_mask+ii, nb[ii], qp_red->d_mask+ii, nb_red[ii]);
-			VECCP(ng[ii]+2*ns[ii], qp->d_mask+ii, 2*nb[ii]+ng[ii], qp_red->d_mask+ii, 2*nb_red[ii]+2*ng_red[ii]);
+			VECCP(ng[ii]+2*ns[ii], qp->d_mask+ii, 2*nb[ii]+ng[ii], qp_red->d_mask+ii, 2*nb_red[ii]+ng_red[ii]);
 			VECCP(ng[ii], qp->m+ii, nb[ii], qp_red->m+ii, nb_red[ii]);
-			VECCP(ng[ii]+2*ns[ii], qp->m+ii, 2*nb[ii]+ng[ii], qp_red->m+ii, 2*nb_red[ii]+2*ng_red[ii]);
+			VECCP(ng[ii]+2*ns[ii], qp->m+ii, 2*nb[ii]+ng[ii], qp_red->m+ii, 2*nb_red[ii]+ng_red[ii]);
 			GEMV_T(nu[ii]+nx[ii], ng[ii], 1.0, qp->DCt+ii, 0, 0, work->tmp_nuxM+0, 0, 0.0, work->tmp_nbgM, 0, work->tmp_nbgM, 0);
 			AXPY(ng[ii], -1.0, work->tmp_nbgM, 0, qp->d+ii, nb[ii], qp_red->d+ii, nb_red[ii]);
 			AXPY(ng[ii], 1.0, work->tmp_nbgM, 0, qp->d+ii, 2*nb[ii]+ng[ii], qp_red->d+ii, 2*nb_red[ii]+ng_red[ii]);
@@ -413,9 +415,12 @@ void OCP_QP_REDUCE_EQ_DOF(struct OCP_QP *qp, struct OCP_QP *qp_red, struct OCP_Q
 					idx0++;
 					}
 				}
-			// TODO soft constraints
+			// soft constraints
 			for(jj=0; jj<ng[ii]; jj++)
 				qp_red->idxs_rev[ii][nb_red[ii]+jj] = qp->idxs_rev[ii][nb[ii]+jj]; // keep softed inequality constr with same slack
+			VECCP(2*ns[ii], qp->Z+ii, 0, qp_red->Z+ii, 0);
+			VECCP(2*ns[ii], qp->rqz+ii, nu[ii]+nx[ii], qp_red->rqz+ii, nu_red[ii]+nx_red[ii]);
+			// TODO idxe !!!!!!!!!!!!!!!
 			}
 		else // copy everything
 			{
