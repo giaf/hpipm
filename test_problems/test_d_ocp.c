@@ -918,14 +918,14 @@ int main()
 	d_ocp_qp_reduce_eq_dof_arg_set_comp_dual_sol_ineq(&qp_red_arg, 1);
 
 
-	int qp_red_work_size = d_ocp_qp_reduce_eq_dof_work_memsize(&dim2);
+	int qp_red_work_size = d_ocp_qp_reduce_eq_dof_work_memsize(&dim);
 #if PRINT
 	printf("\nqp red work size = %d\n", qp_red_work_size);
 #endif
 	void *qp_red_work_mem = malloc(qp_red_work_size);
 
 	struct d_ocp_qp_reduce_eq_dof_work qp_red_work;
-	d_ocp_qp_reduce_eq_dof_work_create(&dim2, &qp_red_work, qp_red_work_mem);
+	d_ocp_qp_reduce_eq_dof_work_create(&dim, &qp_red_work, qp_red_work_mem);
 
 
 	gettimeofday(&tv0, NULL); // start
