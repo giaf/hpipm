@@ -58,7 +58,7 @@ void FACT_SOLVE_KKT_UNCONSTR_OCP_QP(struct OCP_QP *qp, struct OCP_QP_SOL *qp_sol
 	struct STRMAT *L = ws->L;
 	struct STRMAT *AL = ws->AL;
 
-	struct STRVEC *tmp_nxM = ws->tmp_nxM;
+	struct STRVEC *tmp_nuxM = ws->tmp_nuxM;
 
 	if(ws->square_root_alg)
 		{
@@ -93,9 +93,9 @@ void FACT_SOLVE_KKT_UNCONSTR_OCP_QP(struct OCP_QP *qp, struct OCP_QP_SOL *qp_sol
 		GEMV_T(nu[ii]+nx[ii], nx[ii+1], 1.0, BAbt+ii, 0, 0, ux+ii, 0, 1.0, b+ii, 0, ux+ii+1, nu[ii+1]);
 		if(arg->comp_dual_sol)
 			{
-			ROWEX(nx[ii+1], 1.0, L+ii+1, nu[ii+1]+nx[ii+1], nu[ii+1], tmp_nxM, 0);
+			ROWEX(nx[ii+1], 1.0, L+ii+1, nu[ii+1]+nx[ii+1], nu[ii+1], tmp_nuxM, 0);
 			TRMV_LTN(nx[ii+1], nx[ii+1], L+(ii+1), nu[ii+1], nu[ii+1], ux+(ii+1), nu[ii+1], pi+ii, 0);
-			AXPY(nx[ii+1], 1.0, tmp_nxM, 0, pi+ii, 0, pi+ii, 0);
+			AXPY(nx[ii+1], 1.0, tmp_nuxM, 0, pi+ii, 0, pi+ii, 0);
 			TRMV_LNN(nx[ii+1], nx[ii+1], L+(ii+1), nu[ii+1], nu[ii+1], pi+ii, 0, pi+ii, 0);
 			}
 
@@ -107,9 +107,9 @@ void FACT_SOLVE_KKT_UNCONSTR_OCP_QP(struct OCP_QP *qp, struct OCP_QP_SOL *qp_sol
 			GEMV_T(nu[ii]+nx[ii], nx[ii+1], 1.0, BAbt+ii, 0, 0, ux+ii, 0, 1.0, b+ii, 0, ux+(ii+1), nu[ii+1]);
 			if(arg->comp_dual_sol)
 				{
-				ROWEX(nx[ii+1], 1.0, L+(ii+1), nu[ii+1]+nx[ii+1], nu[ii+1], tmp_nxM, 0);
+				ROWEX(nx[ii+1], 1.0, L+(ii+1), nu[ii+1]+nx[ii+1], nu[ii+1], tmp_nuxM, 0);
 				TRMV_LTN(nx[ii+1], nx[ii+1], L+(ii+1), nu[ii+1], nu[ii+1], ux+(ii+1), nu[ii+1], pi+ii, 0);
-				AXPY(nx[ii+1], 1.0, tmp_nxM, 0, pi+ii, 0, pi+ii, 0);
+				AXPY(nx[ii+1], 1.0, tmp_nuxM, 0, pi+ii, 0, pi+ii, 0);
 				TRMV_LNN(nx[ii+1], nx[ii+1], L+(ii+1), nu[ii+1], nu[ii+1], pi+ii, 0, pi+ii, 0);
 				}
 			}
@@ -174,8 +174,8 @@ void FACT_SOLVE_KKT_UNCONSTR_OCP_QP(struct OCP_QP *qp, struct OCP_QP_SOL *qp_sol
 		GEMV_T(nu[ii]+nx[ii], nx[ii+1], 1.0, BAbt+ii, 0, 0, ux+ii, 0, 1.0, b+ii, 0, ux+ii+1, nu[ii+1]);
 		if(arg->comp_dual_sol)
 			{
-			ROWEX(nx[ii+1], 1.0, P+ii+1, nx[ii+1], 0, tmp_nxM, 0);
-			GEMV_N(nx[ii+1], nx[ii+1], 1.0, P+ii+1, 0, 0, ux+ii+1, nu[ii+1], 1.0, tmp_nxM, 0, pi+ii, 0);
+			ROWEX(nx[ii+1], 1.0, P+ii+1, nx[ii+1], 0, tmp_nuxM, 0);
+			GEMV_N(nx[ii+1], nx[ii+1], 1.0, P+ii+1, 0, 0, ux+ii+1, nu[ii+1], 1.0, tmp_nuxM, 0, pi+ii, 0);
 			}
 
 		// middle stages
@@ -186,8 +186,8 @@ void FACT_SOLVE_KKT_UNCONSTR_OCP_QP(struct OCP_QP *qp, struct OCP_QP_SOL *qp_sol
 			GEMV_T(nu[ii]+nx[ii], nx[ii+1], 1.0, BAbt+ii, 0, 0, ux+ii, 0, 1.0, b+ii, 0, ux+(ii+1), nu[ii+1]);
 			if(arg->comp_dual_sol)
 				{
-				ROWEX(nx[ii+1], 1.0, P+ii+1, nx[ii+1], 0, tmp_nxM, 0);
-				GEMV_N(nx[ii+1], nx[ii+1], 1.0, P+ii+1, 0, 0, ux+ii+1, nu[ii+1], 1.0, tmp_nxM, 0, pi+ii, 0);
+				ROWEX(nx[ii+1], 1.0, P+ii+1, nx[ii+1], 0, tmp_nuxM, 0);
+				GEMV_N(nx[ii+1], nx[ii+1], 1.0, P+ii+1, 0, 0, ux+ii+1, nu[ii+1], 1.0, tmp_nuxM, 0, pi+ii, 0);
 				}
 			}
 
@@ -420,7 +420,7 @@ void FACT_SOLVE_KKT_STEP_OCP_QP(struct OCP_QP *qp, struct OCP_QP_SOL *qp_sol, st
 	struct STRVEC *gamma = ws->gamma;
 	struct STRVEC *Pb = ws->Pb;
 	struct STRVEC *Zs_inv = ws->Zs_inv;
-	struct STRVEC *tmp_nxM = ws->tmp_nxM;
+	struct STRVEC *tmp_nuxM = ws->tmp_nuxM;
 	struct STRVEC *tmp_nbgM = ws->tmp_nbgM;
 
 	REAL *ptr0, *ptr1, *ptr2, *ptr3;
@@ -478,8 +478,8 @@ void FACT_SOLVE_KKT_STEP_OCP_QP(struct OCP_QP *qp, struct OCP_QP_SOL *qp_sol, st
 			ss = N-nn-1;
 			ROWIN(nx[ss+1], 1.0, res_b+ss, 0, BAbt+ss, nu[ss]+nx[ss], 0);
 			TRMM_RLNN(nu[ss]+nx[ss]+1, nx[ss+1], 1.0, L+ss+1, nu[ss+1], nu[ss+1], BAbt+ss, 0, 0, AL, 0, 0);
-			ROWEX(nx[ss+1], 1.0, AL, nu[ss]+nx[ss], 0, tmp_nxM, 0);
-			TRMV_LNN(nx[ss+1], nx[ss+1], L+ss+1, nu[ss+1], nu[ss+1], tmp_nxM, 0, Pb+ss, 0);
+			ROWEX(nx[ss+1], 1.0, AL, nu[ss]+nx[ss], 0, tmp_nuxM, 0);
+			TRMV_LNN(nx[ss+1], nx[ss+1], L+ss+1, nu[ss+1], nu[ss+1], tmp_nuxM, 0, Pb+ss, 0);
 			GEAD(1, nx[ss+1], 1.0, L+ss+1, nu[ss+1]+nx[ss+1], nu[ss+1], AL, nu[ss]+nx[ss], 0);
 
 #if defined(DOUBLE_PRECISION)
@@ -528,9 +528,9 @@ void FACT_SOLVE_KKT_STEP_OCP_QP(struct OCP_QP *qp, struct OCP_QP_SOL *qp_sol, st
 		GEMV_T(nu[ss]+nx[ss], nx[ss+1], 1.0, BAbt+ss, 0, 0, dux+ss, 0, 1.0, res_b+ss, 0, dux+ss+1, nu[ss+1]);
 		if(arg->comp_dual_sol)
 			{
-			ROWEX(nx[ss+1], 1.0, L+ss+1, nu[ss+1]+nx[ss+1], nu[ss+1], tmp_nxM, 0);
+			ROWEX(nx[ss+1], 1.0, L+ss+1, nu[ss+1]+nx[ss+1], nu[ss+1], tmp_nuxM, 0);
 			TRMV_LTN(nx[ss+1], nx[ss+1], L+ss+1, nu[ss+1], nu[ss+1], dux+ss+1, nu[ss+1], dpi+ss, 0);
-			AXPY(nx[ss+1], 1.0, tmp_nxM, 0, dpi+ss, 0, dpi+ss, 0);
+			AXPY(nx[ss+1], 1.0, tmp_nuxM, 0, dpi+ss, 0, dpi+ss, 0);
 			TRMV_LNN(nx[ss+1], nx[ss+1], L+ss+1, nu[ss+1], nu[ss+1], dpi+ss, 0, dpi+ss, 0);
 			}
 
@@ -542,9 +542,9 @@ void FACT_SOLVE_KKT_STEP_OCP_QP(struct OCP_QP *qp, struct OCP_QP_SOL *qp_sol, st
 			GEMV_T(nu[ss]+nx[ss], nx[ss+1], 1.0, BAbt+ss, 0, 0, dux+ss, 0, 1.0, res_b+ss, 0, dux+(ss+1), nu[ss+1]);
 			if(arg->comp_dual_sol)
 				{
-				ROWEX(nx[ss+1], 1.0, L+ss+1, nu[ss+1]+nx[ss+1], nu[ss+1], tmp_nxM, 0);
+				ROWEX(nx[ss+1], 1.0, L+ss+1, nu[ss+1]+nx[ss+1], nu[ss+1], tmp_nuxM, 0);
 				TRMV_LTN(nx[ss+1], nx[ss+1], L+ss+1, nu[ss+1], nu[ss+1], dux+ss+1, nu[ss+1], dpi+ss, 0);
-				AXPY(nx[ss+1], 1.0, tmp_nxM, 0, dpi+ss, 0, dpi+ss, 0);
+				AXPY(nx[ss+1], 1.0, tmp_nuxM, 0, dpi+ss, 0, dpi+ss, 0);
 				TRMV_LNN(nx[ss+1], nx[ss+1], L+ss+1, nu[ss+1], nu[ss+1], dpi+ss, 0, dpi+ss, 0);
 				}
 			}
@@ -690,8 +690,8 @@ void FACT_SOLVE_KKT_STEP_OCP_QP(struct OCP_QP *qp, struct OCP_QP_SOL *qp_sol, st
 		GEMV_T(nu[ss]+nx[ss], nx[ss+1], 1.0, BAbt+ss, 0, 0, dux+ss, 0, 1.0, res_b+ss, 0, dux+ss+1, nu[ss+1]);
 		if(arg->comp_dual_sol)
 			{
-			ROWEX(nx[ss+1], 1.0, P+ss+1, nx[ss+1], 0, tmp_nxM, 0);
-			GEMV_N(nx[ss+1], nx[ss+1], 1.0, P+ss+1, 0, 0, dux+ss+1, nu[ss+1], 1.0, tmp_nxM, 0, dpi+ss, 0);
+			ROWEX(nx[ss+1], 1.0, P+ss+1, nx[ss+1], 0, tmp_nuxM, 0);
+			GEMV_N(nx[ss+1], nx[ss+1], 1.0, P+ss+1, 0, 0, dux+ss+1, nu[ss+1], 1.0, tmp_nuxM, 0, dpi+ss, 0);
 			}
 
 		// middle stages
@@ -702,8 +702,8 @@ void FACT_SOLVE_KKT_STEP_OCP_QP(struct OCP_QP *qp, struct OCP_QP_SOL *qp_sol, st
 			GEMV_T(nu[ss]+nx[ss], nx[ss+1], 1.0, BAbt+ss, 0, 0, dux+ss, 0, 1.0, res_b+ss, 0, dux+(ss+1), nu[ss+1]);
 			if(arg->comp_dual_sol)
 				{
-				ROWEX(nx[ss+1], 1.0, P+ss+1, nx[ss+1], 0, tmp_nxM, 0);
-				GEMV_N(nx[ss+1], nx[ss+1], 1.0, P+ss+1, 0, 0, dux+ss+1, nu[ss+1], 1.0, tmp_nxM, 0, dpi+ss, 0);
+				ROWEX(nx[ss+1], 1.0, P+ss+1, nx[ss+1], 0, tmp_nuxM, 0);
+				GEMV_N(nx[ss+1], nx[ss+1], 1.0, P+ss+1, 0, 0, dux+ss+1, nu[ss+1], 1.0, tmp_nuxM, 0, dpi+ss, 0);
 				}
 			}
 
@@ -777,7 +777,7 @@ void FACT_LQ_SOLVE_KKT_STEP_OCP_QP(struct OCP_QP *qp, struct OCP_QP_SOL *qp_sol,
 	struct STRVEC *gamma = ws->gamma;
 	struct STRVEC *Pb = ws->Pb;
 	struct STRVEC *Zs_inv = ws->Zs_inv;
-	struct STRVEC *tmp_nxM = ws->tmp_nxM;
+	struct STRVEC *tmp_nuxM = ws->tmp_nuxM;
 	struct STRVEC *tmp_nbgM = ws->tmp_nbgM;
 	struct STRMAT *lq0 = ws->lq0;
 	void *lq_work0 = ws->lq_work0;
@@ -871,8 +871,8 @@ void FACT_LQ_SOLVE_KKT_STEP_OCP_QP(struct OCP_QP *qp, struct OCP_QP_SOL *qp_sol,
 		TRMV_LNN(nx[ss+1], nx[ss+1], L+ss+1, nu[ss+1], nu[ss+1], Pb+ss, 0, Pb+ss, 0);
 
 		VECCP(nu[ss]+nx[ss], res_g+ss, 0, dux+ss, 0);
-		AXPY(nx[ss+1], 1.0, dux+ss+1, nu[ss+1], Pb+ss, 0, tmp_nxM, 0);
-		GEMV_N(nu[ss]+nx[ss], nx[ss+1], 1.0, BAbt+ss, 0, 0, tmp_nxM, 0, 1.0, dux+ss, 0, dux+ss, 0);
+		AXPY(nx[ss+1], 1.0, dux+ss+1, nu[ss+1], Pb+ss, 0, tmp_nuxM, 0);
+		GEMV_N(nu[ss]+nx[ss], nx[ss+1], 1.0, BAbt+ss, 0, 0, tmp_nuxM, 0, 1.0, dux+ss, 0, dux+ss, 0);
 
 		if(ns[ss]>0)
 			{
@@ -942,8 +942,8 @@ void FACT_LQ_SOLVE_KKT_STEP_OCP_QP(struct OCP_QP *qp, struct OCP_QP_SOL *qp_sol,
 	TRMV_LNN(nx[ss+1], nx[ss+1], L+ss+1, nu[ss+1], nu[ss+1], Pb+ss, 0, Pb+ss, 0);
 
 	VECCP(nu[ss]+nx[ss], res_g+ss, 0, dux+ss, 0);
-	AXPY(nx[ss+1], 1.0, dux+ss+1, nu[ss+1], Pb+ss, 0, tmp_nxM, 0);
-	GEMV_N(nu[ss]+nx[ss], nx[ss+1], 1.0, BAbt+ss, 0, 0, tmp_nxM, 0, 1.0, dux+ss, 0, dux+ss, 0);
+	AXPY(nx[ss+1], 1.0, dux+ss+1, nu[ss+1], Pb+ss, 0, tmp_nuxM, 0);
+	GEMV_N(nu[ss]+nx[ss], nx[ss+1], 1.0, BAbt+ss, 0, 0, tmp_nuxM, 0, 1.0, dux+ss, 0, dux+ss, 0);
 
 	if(ns[ss]>0)
 		{
@@ -1007,10 +1007,10 @@ void FACT_LQ_SOLVE_KKT_STEP_OCP_QP(struct OCP_QP *qp, struct OCP_QP_SOL *qp_sol,
 	VECSC(nu[ss]+nx[ss], -1.0, dux+ss, 0);
 	TRSV_LTN(nu[ss]+nx[ss], L+ss, 0, 0, dux+ss, 0, dux+ss, 0);
 	GEMV_T(nu[ss]+nx[ss], nx[ss+1], 1.0, BAbt+ss, 0, 0, dux+ss, 0, 1.0, res_b+ss, 0, dux+ss+1, nu[ss+1]);
-	VECCP(nx[ss+1], dux+ss+1, nu[ss+1], tmp_nxM, 0);
-	TRMV_LTN(nx[ss+1], nx[ss+1], L+ss+1, nu[ss+1], nu[ss+1], tmp_nxM, 0, tmp_nxM, 0);
-	TRMV_LNN(nx[ss+1], nx[ss+1], L+ss+1, nu[ss+1], nu[ss+1], tmp_nxM, 0, tmp_nxM, 0);
-	AXPY(nx[ss+1], 1.0, tmp_nxM, 0, dpi+ss, 0, dpi+ss, 0);
+	VECCP(nx[ss+1], dux+ss+1, nu[ss+1], tmp_nuxM, 0);
+	TRMV_LTN(nx[ss+1], nx[ss+1], L+ss+1, nu[ss+1], nu[ss+1], tmp_nuxM, 0, tmp_nuxM, 0);
+	TRMV_LNN(nx[ss+1], nx[ss+1], L+ss+1, nu[ss+1], nu[ss+1], tmp_nuxM, 0, tmp_nuxM, 0);
+	AXPY(nx[ss+1], 1.0, tmp_nuxM, 0, dpi+ss, 0, dpi+ss, 0);
 
 	// middle stages
 	for(ss=1; ss<N; ss++)
@@ -1019,10 +1019,10 @@ void FACT_LQ_SOLVE_KKT_STEP_OCP_QP(struct OCP_QP *qp, struct OCP_QP_SOL *qp_sol,
 		VECSC(nu[ss], -1.0, dux+ss, 0);
 		TRSV_LTN_MN(nu[ss]+nx[ss], nu[ss], L+ss, 0, 0, dux+ss, 0, dux+ss, 0);
 		GEMV_T(nu[ss]+nx[ss], nx[ss+1], 1.0, BAbt+ss, 0, 0, dux+ss, 0, 1.0, res_b+ss, 0, dux+ss+1, nu[ss+1]);
-		VECCP(nx[ss+1], dux+ss+1, nu[ss+1], tmp_nxM, 0);
-		TRMV_LTN(nx[ss+1], nx[ss+1], L+ss+1, nu[ss+1], nu[ss+1], tmp_nxM, 0, tmp_nxM, 0);
-		TRMV_LNN(nx[ss+1], nx[ss+1], L+ss+1, nu[ss+1], nu[ss+1], tmp_nxM, 0, tmp_nxM, 0);
-		AXPY(nx[ss+1], 1.0, tmp_nxM, 0, dpi+ss, 0, dpi+ss, 0);
+		VECCP(nx[ss+1], dux+ss+1, nu[ss+1], tmp_nuxM, 0);
+		TRMV_LTN(nx[ss+1], nx[ss+1], L+ss+1, nu[ss+1], nu[ss+1], tmp_nuxM, 0, tmp_nuxM, 0);
+		TRMV_LNN(nx[ss+1], nx[ss+1], L+ss+1, nu[ss+1], nu[ss+1], tmp_nuxM, 0, tmp_nuxM, 0);
+		AXPY(nx[ss+1], 1.0, tmp_nuxM, 0, dpi+ss, 0, dpi+ss, 0);
 		}
 
 	ss = N;
@@ -1083,7 +1083,7 @@ void SOLVE_KKT_STEP_OCP_QP(struct OCP_QP *qp, struct OCP_QP_SOL *qp_sol, struct 
 	struct STRMAT *L = ws->L;
 	struct STRVEC *gamma = ws->gamma;
 	struct STRVEC *Pb = ws->Pb;
-	struct STRVEC *tmp_nxM = ws->tmp_nxM;
+	struct STRVEC *tmp_nuxM = ws->tmp_nuxM;
 	struct STRVEC *tmp_nbgM = ws->tmp_nbgM;
 
 	//
@@ -1148,15 +1148,15 @@ void SOLVE_KKT_STEP_OCP_QP(struct OCP_QP *qp, struct OCP_QP_SOL *qp_sol, struct 
 				}
 			if(ws->use_Pb)
 				{
-				AXPY(nx[ss+1], 1.0, dux+ss+1, nu[ss+1], Pb+ss, 0, tmp_nxM, 0);
+				AXPY(nx[ss+1], 1.0, dux+ss+1, nu[ss+1], Pb+ss, 0, tmp_nuxM, 0);
 				}
 			else
 				{
-				TRMV_LTN(nx[ss+1], nx[ss+1], L+ss+1, nu[ss+1], nu[ss+1], res_b+ss, 0, tmp_nxM, 0);
-				TRMV_LNN(nx[ss+1], nx[ss+1], L+ss+1, nu[ss+1], nu[ss+1], tmp_nxM, 0, tmp_nxM, 0);
-				AXPY(nx[ss+1], 1.0, dux+ss+1, nu[ss+1], tmp_nxM, 0, tmp_nxM, 0);
+				TRMV_LTN(nx[ss+1], nx[ss+1], L+ss+1, nu[ss+1], nu[ss+1], res_b+ss, 0, tmp_nuxM, 0);
+				TRMV_LNN(nx[ss+1], nx[ss+1], L+ss+1, nu[ss+1], nu[ss+1], tmp_nuxM, 0, tmp_nuxM, 0);
+				AXPY(nx[ss+1], 1.0, dux+ss+1, nu[ss+1], tmp_nuxM, 0, tmp_nuxM, 0);
 				}
-			GEMV_N(nu[ss]+nx[ss], nx[ss+1], 1.0, BAbt+ss, 0, 0, tmp_nxM, 0, 1.0, dux+ss, 0, dux+ss, 0);
+			GEMV_N(nu[ss]+nx[ss], nx[ss+1], 1.0, BAbt+ss, 0, 0, tmp_nuxM, 0, 1.0, dux+ss, 0, dux+ss, 0);
 			TRSV_LNN_MN(nu[ss]+nx[ss], nu[ss], L+ss, 0, 0, dux+ss, 0, dux+ss, 0);
 			}
 
@@ -1182,15 +1182,15 @@ void SOLVE_KKT_STEP_OCP_QP(struct OCP_QP *qp, struct OCP_QP_SOL *qp_sol, struct 
 			}
 		if(ws->use_Pb)
 			{
-			AXPY(nx[ss+1], 1.0, dux+ss+1, nu[ss+1], Pb+ss, 0, tmp_nxM, 0);
+			AXPY(nx[ss+1], 1.0, dux+ss+1, nu[ss+1], Pb+ss, 0, tmp_nuxM, 0);
 			}
 		else
 			{
-			TRMV_LTN(nx[ss+1], nx[ss+1], L+ss+1, nu[ss+1], nu[ss+1], res_b+ss, 0, tmp_nxM, 0);
-			TRMV_LNN(nx[ss+1], nx[ss+1], L+ss+1, nu[ss+1], nu[ss+1], tmp_nxM, 0, tmp_nxM, 0);
-			AXPY(nx[ss+1], 1.0, dux+ss+1, nu[ss+1], tmp_nxM, 0, tmp_nxM, 0);
+			TRMV_LTN(nx[ss+1], nx[ss+1], L+ss+1, nu[ss+1], nu[ss+1], res_b+ss, 0, tmp_nuxM, 0);
+			TRMV_LNN(nx[ss+1], nx[ss+1], L+ss+1, nu[ss+1], nu[ss+1], tmp_nuxM, 0, tmp_nuxM, 0);
+			AXPY(nx[ss+1], 1.0, dux+ss+1, nu[ss+1], tmp_nuxM, 0, tmp_nuxM, 0);
 			}
-		GEMV_N(nu[ss]+nx[ss], nx[ss+1], 1.0, BAbt+ss, 0, 0, tmp_nxM, 0, 1.0, dux+ss, 0, dux+ss, 0);
+		GEMV_N(nu[ss]+nx[ss], nx[ss+1], 1.0, BAbt+ss, 0, 0, tmp_nuxM, 0, 1.0, dux+ss, 0, dux+ss, 0);
 		TRSV_LNN(nu[ss]+nx[ss], L+ss, 0, 0, dux+ss, 0, dux+ss, 0);
 
 		// forward substitution
@@ -1206,9 +1206,9 @@ void SOLVE_KKT_STEP_OCP_QP(struct OCP_QP *qp, struct OCP_QP_SOL *qp_sol, struct 
 		GEMV_T(nu[ss]+nx[ss], nx[ss+1], 1.0, BAbt+ss, 0, 0, dux+ss, 0, 1.0, res_b+ss, 0, dux+ss+1, nu[ss+1]);
 		if(arg->comp_dual_sol)
 			{
-			TRMV_LTN(nx[ss+1], nx[ss+1], L+ss+1, nu[ss+1], nu[ss+1], dux+ss+1, nu[ss+1], tmp_nxM, 0);
-			TRMV_LNN(nx[ss+1], nx[ss+1], L+ss+1, nu[ss+1], nu[ss+1], tmp_nxM, 0, tmp_nxM, 0);
-			AXPY(nx[ss+1], 1.0, tmp_nxM, 0, dpi+ss, 0, dpi+ss, 0);
+			TRMV_LTN(nx[ss+1], nx[ss+1], L+ss+1, nu[ss+1], nu[ss+1], dux+ss+1, nu[ss+1], tmp_nuxM, 0);
+			TRMV_LNN(nx[ss+1], nx[ss+1], L+ss+1, nu[ss+1], nu[ss+1], tmp_nuxM, 0, tmp_nuxM, 0);
+			AXPY(nx[ss+1], 1.0, tmp_nuxM, 0, dpi+ss, 0, dpi+ss, 0);
 			}
 
 		// middle stages
@@ -1223,9 +1223,9 @@ void SOLVE_KKT_STEP_OCP_QP(struct OCP_QP *qp, struct OCP_QP_SOL *qp_sol, struct 
 			GEMV_T(nu[ss]+nx[ss], nx[ss+1], 1.0, BAbt+ss, 0, 0, dux+ss, 0, 1.0, res_b+ss, 0, dux+ss+1, nu[ss+1]);
 			if(arg->comp_dual_sol)
 				{
-				TRMV_LTN(nx[ss+1], nx[ss+1], L+ss+1, nu[ss+1], nu[ss+1], dux+ss+1, nu[ss+1], tmp_nxM, 0);
-				TRMV_LNN(nx[ss+1], nx[ss+1], L+ss+1, nu[ss+1], nu[ss+1], tmp_nxM, 0, tmp_nxM, 0);
-				AXPY(nx[ss+1], 1.0, tmp_nxM, 0, dpi+ss, 0, dpi+ss, 0);
+				TRMV_LTN(nx[ss+1], nx[ss+1], L+ss+1, nu[ss+1], nu[ss+1], dux+ss+1, nu[ss+1], tmp_nuxM, 0);
+				TRMV_LNN(nx[ss+1], nx[ss+1], L+ss+1, nu[ss+1], nu[ss+1], tmp_nuxM, 0, tmp_nuxM, 0);
+				AXPY(nx[ss+1], 1.0, tmp_nuxM, 0, dpi+ss, 0, dpi+ss, 0);
 				}
 			}
 
@@ -1290,13 +1290,13 @@ void SOLVE_KKT_STEP_OCP_QP(struct OCP_QP *qp, struct OCP_QP_SOL *qp_sol, struct 
 				}
 			if(ws->use_Pb)
 				{
-				AXPY(nx[ss+1], 1.0, dux+ss+1, nu[ss+1], Pb+ss, 0, tmp_nxM, 0);
+				AXPY(nx[ss+1], 1.0, dux+ss+1, nu[ss+1], Pb+ss, 0, tmp_nuxM, 0);
 				}
 			else
 				{
-				GEMV_N(nx[ss+1], nx[ss+1], 1.0, P+ss+1, 0, 0, res_b+ss, 0, 1.0, dux+ss+1, nu[ss+1], tmp_nxM, 0);
+				GEMV_N(nx[ss+1], nx[ss+1], 1.0, P+ss+1, 0, 0, res_b+ss, 0, 1.0, dux+ss+1, nu[ss+1], tmp_nuxM, 0);
 				}
-			GEMV_N(nu[ss]+nx[ss], nx[ss+1], 1.0, BAbt+ss, 0, 0, tmp_nxM, 0, 1.0, dux+ss, 0, dux+ss, 0);
+			GEMV_N(nu[ss]+nx[ss], nx[ss+1], 1.0, BAbt+ss, 0, 0, tmp_nuxM, 0, 1.0, dux+ss, 0, dux+ss, 0);
 			TRSV_LNN_MN(nu[ss]+nx[ss], nu[ss], L+ss, 0, 0, dux+ss, 0, dux+ss, 0);
 			}
 
@@ -1322,13 +1322,13 @@ void SOLVE_KKT_STEP_OCP_QP(struct OCP_QP *qp, struct OCP_QP_SOL *qp_sol, struct 
 			}
 		if(ws->use_Pb)
 			{
-			AXPY(nx[ss+1], 1.0, dux+ss+1, nu[ss+1], Pb+ss, 0, tmp_nxM, 0);
+			AXPY(nx[ss+1], 1.0, dux+ss+1, nu[ss+1], Pb+ss, 0, tmp_nuxM, 0);
 			}
 		else
 			{
-			GEMV_N(nx[ss+1], nx[ss+1], 1.0, P+ss+1, 0, 0, res_b+ss, 0, 1.0, dux+ss+1, nu[ss+1], tmp_nxM, 0);
+			GEMV_N(nx[ss+1], nx[ss+1], 1.0, P+ss+1, 0, 0, res_b+ss, 0, 1.0, dux+ss+1, nu[ss+1], tmp_nuxM, 0);
 			}
-		GEMV_N(nu[ss]+nx[ss], nx[ss+1], 1.0, BAbt+ss, 0, 0, tmp_nxM, 0, 1.0, dux+ss, 0, dux+ss, 0);
+		GEMV_N(nu[ss]+nx[ss], nx[ss+1], 1.0, BAbt+ss, 0, 0, tmp_nuxM, 0, 1.0, dux+ss, 0, dux+ss, 0);
 		TRSV_LNN(nu[ss]+nx[ss], L+ss, 0, 0, dux+ss, 0, dux+ss, 0);
 
 		// forward substitution
