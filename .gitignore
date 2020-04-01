@@ -7,6 +7,7 @@ hpipm_target.h
 *.swp
 *.swo
 *.mex
+*.mexa64
 *.eps
 build/
 octave-workspace

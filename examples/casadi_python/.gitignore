@@ -1,0 +1,5 @@
+*.tar.gz
+casadi
+*.pyc
+ocp_qp_data.c
+ocp_qcqp_data.c

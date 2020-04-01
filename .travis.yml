@@ -1,0 +1,125 @@
+language: c
+
+sudo: required
+
+cache:
+  ccache: true
+
+jobs:
+  include:
+    - name: "Linux AMD64 C build"
+      arch: amd64
+      os: linux
+      dist: bionic
+      group: travis_latest
+      addons:
+        apt:
+          packages:
+          - bc
+      install:
+        - git clone https://github.com/giaf/blasfeo
+        - make -C "${TRAVIS_BUILD_DIR}"/blasfeo static_library TARGET=X64_INTEL_HASWELL LA=HIGH_PERFORMANCE -j 4
+      script:
+        - make static_library TARGET=AVX BLASFEO_PATH="${TRAVIS_BUILD_DIR}"/blasfeo -j 4
+        - make -C test_problems test_d_dense TARGET=AVX BLASFEO_PATH="${TRAVIS_BUILD_DIR}"/blasfeo PRINT=0
+        - make -C test_problems test_d_dense_qcqp TARGET=AVX BLASFEO_PATH="${TRAVIS_BUILD_DIR}"/blasfeo PRINT=0
+        - make -C test_problems test_d_ocp TARGET=AVX BLASFEO_PATH="${TRAVIS_BUILD_DIR}"/blasfeo PRINT=0
+        - make -C test_problems test_d_ocp_qcqp TARGET=AVX BLASFEO_PATH="${TRAVIS_BUILD_DIR}"/blasfeo PRINT=0
+        - make -C test_problems test_d_cond TARGET=AVX BLASFEO_PATH="${TRAVIS_BUILD_DIR}"/blasfeo PRINT=0
+        - make -C test_problems test_d_cond_qcqp TARGET=AVX BLASFEO_PATH="${TRAVIS_BUILD_DIR}"/blasfeo PRINT=0
+        - make -C test_problems test_d_part_cond TARGET=AVX BLASFEO_PATH="${TRAVIS_BUILD_DIR}"/blasfeo PRINT=0
+        - make -C test_problems test_d_part_cond_qcqp TARGET=AVX BLASFEO_PATH="${TRAVIS_BUILD_DIR}"/blasfeo PRINT=0
+        - make -C test_problems test_d_tree_ocp TARGET=AVX BLASFEO_PATH="${TRAVIS_BUILD_DIR}"/blasfeo PRINT=0
+
+    - name: "Linux ARM64 C build"
+      arch: arm64
+      os: linux
+      dist: bionic
+      group: travis_latest
+      addons:
+        apt:
+          packages:
+          - bc
+      install:
+        - git clone https://github.com/giaf/blasfeo
+        - make -C "${TRAVIS_BUILD_DIR}"/blasfeo static_library TARGET=ARMV8A_ARM_CORTEX_A57 LA=HIGH_PERFORMANCE -j 4
+      script:
+        - make static_library TARGET=GENERIC BLASFEO_PATH="${TRAVIS_BUILD_DIR}"/blasfeo -j 4
+        - make -C test_problems test_d_dense TARGET=GENERIC BLASFEO_PATH="${TRAVIS_BUILD_DIR}"/blasfeo PRINT=0
+        - make -C test_problems test_d_dense_qcqp TARGET=GENERIC BLASFEO_PATH="${TRAVIS_BUILD_DIR}"/blasfeo PRINT=0
+        - make -C test_problems test_d_ocp TARGET=GENERIC BLASFEO_PATH="${TRAVIS_BUILD_DIR}"/blasfeo PRINT=0
+        - make -C test_problems test_d_ocp_qcqp TARGET=GENERIC BLASFEO_PATH="${TRAVIS_BUILD_DIR}"/blasfeo PRINT=0
+        - make -C test_problems test_d_cond TARGET=GENERIC BLASFEO_PATH="${TRAVIS_BUILD_DIR}"/blasfeo PRINT=0
+        - make -C test_problems test_d_cond_qcqp TARGET=GENERIC BLASFEO_PATH="${TRAVIS_BUILD_DIR}"/blasfeo PRINT=0
+        - make -C test_problems test_d_part_cond TARGET=GENERIC BLASFEO_PATH="${TRAVIS_BUILD_DIR}"/blasfeo PRINT=0
+        - make -C test_problems test_d_part_cond_qcqp TARGET=GENERIC BLASFEO_PATH="${TRAVIS_BUILD_DIR}"/blasfeo PRINT=0
+        - make -C test_problems test_d_tree_ocp TARGET=GENERIC BLASFEO_PATH="${TRAVIS_BUILD_DIR}"/blasfeo PRINT=0
+
+    - name: "Linux AMD64 octave build"
+      arch: amd64
+      os: linux
+      dist: bionic
+      group: travis_latest
+      addons:
+        apt:
+          packages:
+          - octave
+          - liboctave-dev
+          - bc
+      env:
+        - HPIPM_MAIN_FOLDER=${TRAVIS_BUILD_DIR}
+        - BLASFEO_MAIN_FOLDER=${TRAVIS_BUILD_DIR}/blasfeo
+        - OCTAVE_PATH=$OCTAVE_PATH:$HPIPM_MAIN_FOLDER/interfaces/matlab_octave/
+        - LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$HPIPM_MAIN_FOLDER/lib:$BLASFEO_MAIN_FOLDER/lib
+        - ENV_RUN=true
+        - TRAVIS_RUN=true
+      install:
+        - git clone https://github.com/giaf/blasfeo
+        - make -C "${TRAVIS_BUILD_DIR}"/blasfeo shared_library TARGET=X64_INTEL_HASWELL LA=HIGH_PERFORMANCE -j 4
+      script:
+        - make shared_library TARGET=AVX BLASFEO_PATH="${TRAVIS_BUILD_DIR}"/blasfeo -j 4
+        - echo "HPIPM_MAIN_FOLDER=$HPIPM_MAIN_FOLDER"
+        - echo "BLASFEO_MAIN_FOLDER=$BLASFEO_MAIN_FOLDER"
+        - echo "OCTAVE_PATH=$OCTAVE_PATH"
+        - echo "LD_LIBRARY_PATH=$LD_LIBRARY_PATH"
+        - echo "ENV_RUN=$ENV_RUN"
+        - make -C interfaces/matlab_octave/ all -j 4
+        - make -C examples/matlab_octave/ example_getting_started
+        - make -C examples/matlab_octave/ example_from_qp_data_c
+        - make -C examples/matlab_octave/ example_mass_spring
+        - make -C examples/matlab_octave/ example_mass_spring_qcqp
+
+    - name: "Linux AMD64 python build"
+      arch: amd64
+      os: linux
+      dist: bionic
+      group: travis_latest
+      addons:
+        apt:
+          packages:
+          - bc
+      language: python
+      python: "3.6"
+      env:
+        - HPIPM_MAIN_FOLDER=${TRAVIS_BUILD_DIR}
+        - BLASFEO_MAIN_FOLDER=${TRAVIS_BUILD_DIR}/blasfeo
+        - LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$HPIPM_MAIN_FOLDER/lib:$BLASFEO_MAIN_FOLDER/lib
+        - PYTHONPATH=$PYTHONPATH:$HPIPM_MAIN_FOLDER/examples/casadi_python/casadi
+        - ENV_RUN=true
+        - TRAVIS_RUN=true
+      install:
+        - git clone https://github.com/giaf/blasfeo
+        - make -C "${TRAVIS_BUILD_DIR}"/blasfeo shared_library TARGET=X64_INTEL_HASWELL LA=HIGH_PERFORMANCE -j 4
+      script:
+        - make shared_library TARGET=AVX BLASFEO_PATH="${TRAVIS_BUILD_DIR}"/blasfeo -j 4
+        - echo "HPIPM_MAIN_FOLDER=$HPIPM_MAIN_FOLDER"
+        - echo "BLASFEO_MAIN_FOLDER=$BLASFEO_MAIN_FOLDER"
+        - echo "LD_LIBRARY_PATH=$LD_LIBRARY_PATH"
+        - echo "PYTHONPATH=$PYTHONPATH"
+        - echo "ENV_RUN=$ENV_RUN"
+        - make -C interfaces/python/ all
+        - make -C examples/python/ example_qp_getting_started
+        - make -C examples/python/ example_qcqp_getting_started
+        - make -C examples/casadi_python/ get_casadi
+        - make -C examples/casadi_python/ example_PMSM
+

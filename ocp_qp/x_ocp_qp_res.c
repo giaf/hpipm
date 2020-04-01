@@ -3,25 +3,31 @@
 * This file is part of HPIPM.                                                                     *
 *                                                                                                 *
 * HPIPM -- High-Performance Interior Point Method.                                                *
-* Copyright (C) 2017-2018 by Gianluca Frison.                                                     *
+* Copyright (C) 2019 by Gianluca Frison.                                                          *
 * Developed at IMTEK (University of Freiburg) under the supervision of Moritz Diehl.              *
 * All rights reserved.                                                                            *
 *                                                                                                 *
-* This program is free software: you can redistribute it and/or modify                            *
-* it under the terms of the GNU General Public License as published by                            *
-* the Free Software Foundation, either version 3 of the License, or                               *
-* (at your option) any later version                                                              *.
+* The 2-Clause BSD License                                                                        *
 *                                                                                                 *
-* This program is distributed in the hope that it will be useful,                                 *
-* but WITHOUT ANY WARRANTY; without even the implied warranty of                                  *
-* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the                                   *
-* GNU General Public License for more details.                                                    *
+* Redistribution and use in source and binary forms, with or without                              *
+* modification, are permitted provided that the following conditions are met:                     *
 *                                                                                                 *
-* You should have received a copy of the GNU General Public License                               *
-* along with this program.  If not, see <https://www.gnu.org/licenses/>.                          *
+* 1. Redistributions of source code must retain the above copyright notice, this                  *
+*    list of conditions and the following disclaimer.                                             *
+* 2. Redistributions in binary form must reproduce the above copyright notice,                    *
+*    this list of conditions and the following disclaimer in the documentation                    *
+*    and/or other materials provided with the distribution.                                       *
 *                                                                                                 *
-* The authors designate this particular file as subject to the "Classpath" exception              *
-* as provided by the authors in the LICENSE file that accompained this code.                      *
+* THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND                 *
+* ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED                   *
+* WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE                          *
+* DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR                 *
+* ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES                  *
+* (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;                    *
+* LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND                     *
+* ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT                      *
+* (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS                   *
+* SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.                                    *
 *                                                                                                 *
 * Author: Gianluca Frison, gianluca.frison (at) imtek.uni-freiburg.de                             *
 *                                                                                                 *
@@ -29,7 +35,7 @@
 
 
 
-int MEMSIZE_OCP_QP_RES(struct OCP_QP_DIM *dim)
+int OCP_QP_RES_MEMSIZE(struct OCP_QP_DIM *dim)
 	{
 
 	// loop index
@@ -74,11 +80,15 @@ int MEMSIZE_OCP_QP_RES(struct OCP_QP_DIM *dim)
 
 
 
-void CREATE_OCP_QP_RES(struct OCP_QP_DIM *dim, struct OCP_QP_RES *res, void *mem)
+void OCP_QP_RES_CREATE(struct OCP_QP_DIM *dim, struct OCP_QP_RES *res, void *mem)
 	{
 
 	// loop index
 	int ii;
+
+	// zero memory (to avoid corrupted memory like e.g. NaN)
+	int memsize = OCP_QP_RES_MEMSIZE(dim);
+	hpipm_zero_memset(memsize, mem);
 
 	// extract ocp qp size
 	int N = dim->N;
@@ -182,7 +192,7 @@ void CREATE_OCP_QP_RES(struct OCP_QP_DIM *dim, struct OCP_QP_RES *res, void *mem
 
 	res->dim = dim;
 
-	res->memsize = MEMSIZE_OCP_QP_RES(dim);
+	res->memsize = OCP_QP_RES_MEMSIZE(dim);
 
 
 #if defined(RUNTIME_CHECKS)
@@ -200,7 +210,7 @@ void CREATE_OCP_QP_RES(struct OCP_QP_DIM *dim, struct OCP_QP_RES *res, void *mem
 
 
 
-int MEMSIZE_OCP_QP_RES_WORKSPACE(struct OCP_QP_DIM *dim)
+int OCP_QP_RES_WS_MEMSIZE(struct OCP_QP_DIM *dim)
 	{
 
 	// loop index
@@ -244,11 +254,38 @@ int MEMSIZE_OCP_QP_RES_WORKSPACE(struct OCP_QP_DIM *dim)
 
 
 
-void CREATE_OCP_QP_RES_WORKSPACE(struct OCP_QP_DIM *dim, struct OCP_QP_RES_WORKSPACE *ws, void *mem)
+void OCP_QP_RES_WS_CREATE(struct OCP_QP_DIM *dim, struct OCP_QP_RES_WS *ws, void *mem)
 	{
 
 	// loop index
 	int ii;
+
+	// zero memory (to avoid corrupted memory like e.g. NaN)
+	int memsize = OCP_QP_RES_WS_MEMSIZE(dim);
+	int memsize_m8 = memsize/8; // sizeof(double) is 8
+//	int memsize_r8 = memsize - 8*memsize_m8;
+	double *double_ptr = mem;
+	// XXX exploit that it is multiple of 64 bytes !!!!!
+	for(ii=0; ii<memsize_m8-7; ii+=8)
+		{
+		double_ptr[ii+0] = 0.0;
+		double_ptr[ii+1] = 0.0;
+		double_ptr[ii+2] = 0.0;
+		double_ptr[ii+3] = 0.0;
+		double_ptr[ii+4] = 0.0;
+		double_ptr[ii+5] = 0.0;
+		double_ptr[ii+6] = 0.0;
+		double_ptr[ii+7] = 0.0;
+		}
+//	for(; ii<memsize_m8; ii++)
+//		{
+//		double_ptr[ii] = 0.0;
+//		}
+//	char *char_ptr = (char *) (&double_ptr[ii]);
+//	for(ii=0; ii<memsize_r8; ii++)
+//		{
+//		char_ptr[ii] = 0;
+//		}
 
 	// extract ocp qp size
 	int N = dim->N;
@@ -301,7 +338,7 @@ void CREATE_OCP_QP_RES_WORKSPACE(struct OCP_QP_DIM *dim, struct OCP_QP_RES_WORKS
 	CREATE_STRVEC(nsM, ws->tmp_nsM+0, c_ptr);
 	c_ptr += (ws->tmp_nsM+0)->memsize;
 
-	ws->memsize = MEMSIZE_OCP_QP_RES(dim);
+	ws->memsize = OCP_QP_RES_WS_MEMSIZE(dim);
 
 
 #if defined(RUNTIME_CHECKS)
@@ -319,7 +356,322 @@ void CREATE_OCP_QP_RES_WORKSPACE(struct OCP_QP_DIM *dim, struct OCP_QP_RES_WORKS
 
 
 
-void CVT_OCP_QP_RES_TO_COLMAJ(struct OCP_QP_RES *res, REAL **res_r, REAL **res_q, REAL **res_ls, REAL **res_us, REAL **res_b, REAL **res_d_lb, REAL **res_d_ub, REAL **res_d_lg, REAL **res_d_ug, REAL **res_d_ls, REAL **res_d_us, REAL **res_m_lb, REAL **res_m_ub, REAL **res_m_lg, REAL **res_m_ug, REAL **res_m_ls, REAL **res_m_us)
+void OCP_QP_RES_COMPUTE(struct OCP_QP *qp, struct OCP_QP_SOL *qp_sol, struct OCP_QP_RES *res, struct OCP_QP_RES_WS *ws)
+	{
+
+	// loop index
+	int ii, jj, idx;
+
+	//
+	int N = qp->dim->N;
+	int *nx = qp->dim->nx;
+	int *nu = qp->dim->nu;
+	int *nb = qp->dim->nb;
+	int *ng = qp->dim->ng;
+	int *ns = qp->dim->ns;
+
+	int nct = 0;
+	for(ii=0; ii<=N; ii++)
+		nct += 2*nb[ii]+2*ng[ii]+2*ns[ii];
+
+	REAL nct_inv = 1.0/nct;
+
+	struct STRMAT *BAbt = qp->BAbt;
+	struct STRMAT *RSQrq = qp->RSQrq;
+	struct STRMAT *DCt = qp->DCt;
+	struct STRVEC *b = qp->b;
+	struct STRVEC *rqz = qp->rqz;
+	struct STRVEC *d = qp->d;
+	struct STRVEC *m = qp->m;
+	int **idxb = qp->idxb;
+	struct STRVEC *Z = qp->Z;
+	int **idxs_rev = qp->idxs_rev;
+
+	struct STRVEC *ux = qp_sol->ux;
+	struct STRVEC *pi = qp_sol->pi;
+	struct STRVEC *lam = qp_sol->lam;
+	struct STRVEC *t = qp_sol->t;
+
+	struct STRVEC *res_g = res->res_g;
+	struct STRVEC *res_b = res->res_b;
+	struct STRVEC *res_d = res->res_d;
+	struct STRVEC *res_m = res->res_m;
+
+	struct STRVEC *tmp_nbgM = ws->tmp_nbgM;
+	struct STRVEC *tmp_nsM = ws->tmp_nsM;
+
+	int nx0, nx1, nu0, nu1, nb0, ng0, ns0;
+
+	//
+	REAL mu = 0.0;
+
+	// loop over stages
+	for(ii=0; ii<=N; ii++)
+		{
+
+		nx0 = nx[ii];
+		nu0 = nu[ii];
+		nb0 = nb[ii];
+		ng0 = ng[ii];
+		ns0 = ns[ii];
+
+		SYMV_L(nu0+nx0, nu0+nx0, 1.0, RSQrq+ii, 0, 0, ux+ii, 0, 1.0, rqz+ii, 0, res_g+ii, 0);
+
+		if(ii>0)
+			AXPY(nx0, -1.0, pi+(ii-1), 0, res_g+ii, nu0, res_g+ii, nu0);
+
+		if(nb0+ng0>0)
+			{
+			AXPY(nb0+ng0, -1.0, lam+ii, 0, lam+ii, nb0+ng0, tmp_nbgM+0, 0);
+//			AXPY(nb0+ng0,  1.0, d+ii, 0, t+ii, 0, res_d+ii, 0);
+//			AXPY(nb0+ng0,  1.0, d+ii, nb0+ng0, t+ii, nb0+ng0, res_d+ii, nb0+ng0);
+			AXPY(2*nb0+2*ng0,  1.0, d+ii, 0, t+ii, 0, res_d+ii, 0);
+			// box
+			if(nb0>0)
+				{
+				VECAD_SP(nb0, 1.0, tmp_nbgM+0, 0, idxb[ii], res_g+ii, 0);
+				VECEX_SP(nb0, 1.0, idxb[ii], ux+ii, 0, tmp_nbgM+1, 0);
+				}
+			// general
+			if(ng0>0)
+				{
+				GEMV_NT(nu0+nx0, ng0, 1.0, 1.0, DCt+ii, 0, 0, tmp_nbgM+0, nb[ii], ux+ii, 0, 1.0, 0.0, res_g+ii, 0, tmp_nbgM+1, nb0, res_g+ii, 0, tmp_nbgM+1, nb0);
+				}
+
+			AXPY(nb0+ng0, -1.0, tmp_nbgM+1, 0, res_d+ii, 0, res_d+ii, 0);
+			AXPY(nb0+ng0,  1.0, tmp_nbgM+1, 0, res_d+ii, nb0+ng0, res_d+ii, nb0+ng0);
+			}
+		if(ns0>0)
+			{
+			// res_g
+			GEMV_DIAG(2*ns0, 1.0, Z+ii, 0, ux+ii, nu0+nx0, 1.0, rqz+ii, nu0+nx0, res_g+ii, nu0+nx0);
+			AXPY(2*ns0, -1.0, lam+ii, 2*nb0+2*ng0, res_g+ii, nu0+nx0, res_g+ii, nu0+nx0);
+			for(jj=0; jj<nb0+ng0; jj++)
+				{
+				idx = idxs_rev[ii][jj];
+				if(idx!=-1)
+					{
+#ifdef DOUBLE_PRECISION
+					BLASFEO_DVECEL(res_g+ii, nu0+nx0+idx) -= BLASFEO_DVECEL(lam+ii, jj);
+					BLASFEO_DVECEL(res_g+ii, nu0+nx0+ns0+idx) -= BLASFEO_DVECEL(lam+ii, nb0+ng0+jj);
+					// res_d
+					BLASFEO_DVECEL(res_d+ii, jj) -= BLASFEO_DVECEL(ux+ii, nu0+nx0+idx);
+					BLASFEO_DVECEL(res_d+ii, nb0+ng0+jj) -= BLASFEO_DVECEL(ux+ii, nu0+nx0+ns0+idx);
+#else
+					BLASFEO_SVECEL(res_g+ii, nu0+nx0+idx) -= BLASFEO_SVECEL(lam+ii, jj);
+					BLASFEO_SVECEL(res_g+ii, nu0+nx0+ns0+idx) -= BLASFEO_SVECEL(lam+ii, nb0+ng0+jj);
+					// res_d
+					BLASFEO_SVECEL(res_d+ii, jj) -= BLASFEO_SVECEL(ux+ii, nu0+nx0+idx);
+					BLASFEO_SVECEL(res_d+ii, nb0+ng0+jj) -= BLASFEO_SVECEL(ux+ii, nu0+nx0+ns0+idx);
+#endif
+					}
+				}
+			// res_d
+			AXPY(2*ns0, -1.0, ux+ii, nu0+nx0, t+ii, 2*nb0+2*ng0, res_d+ii, 2*nb0+2*ng0);
+			AXPY(2*ns0, 1.0, d+ii, 2*nb0+2*ng0, res_d+ii, 2*nb0+2*ng0, res_d+ii, 2*nb0+2*ng0);
+			}
+
+		if(ii<N)
+			{
+
+			nu1 = nu[ii+1];
+			nx1 = nx[ii+1];
+
+			AXPY(nx1, -1.0, ux+(ii+1), nu1, b+ii, 0, res_b+ii, 0);
+
+			GEMV_NT(nu0+nx0, nx1, 1.0, 1.0, BAbt+ii, 0, 0, pi+ii, 0, ux+ii, 0, 1.0, 1.0, res_g+ii, 0, res_b+ii, 0, res_g+ii, 0, res_b+ii, 0);
+
+			}
+
+		mu += VECMULDOT(2*nb0+2*ng0+2*ns0, lam+ii, 0, t+ii, 0, res_m+ii, 0);
+		AXPY(2*nb0+2*ng0+2*ns0, -1.0, m+ii, 0, res_m+ii, 0, res_m+ii, 0);
+
+		}
+
+	res->res_mu = mu*nct_inv;
+
+	return;
+
+	}
+
+
+
+void OCP_QP_RES_COMPUTE_LIN (struct OCP_QP *qp, struct OCP_QP_SOL *qp_sol, struct OCP_QP_SOL *qp_step, struct OCP_QP_RES *res, struct OCP_QP_RES_WS *ws)
+	{
+
+	// loop index
+	int ii, jj, idx;
+
+	//
+	int N = qp->dim->N;
+	int *nx = qp->dim->nx;
+	int *nu = qp->dim->nu;
+	int *nb = qp->dim->nb;
+	int *ng = qp->dim->ng;
+	int *ns = qp->dim->ns;
+
+	struct STRMAT *BAbt = qp->BAbt;
+	struct STRMAT *RSQrq = qp->RSQrq;
+	struct STRMAT *DCt = qp->DCt;
+	struct STRVEC *b = qp->b;
+	struct STRVEC *rqz = qp->rqz;
+	struct STRVEC *d = qp->d;
+	struct STRVEC *m = qp->m;
+	int **idxb = qp->idxb;
+	struct STRVEC *Z = qp->Z;
+	int **idxs_rev = qp->idxs_rev;
+
+	struct STRVEC *ux = qp_step->ux;
+	struct STRVEC *pi = qp_step->pi;
+	struct STRVEC *lam = qp_step->lam;
+	struct STRVEC *t = qp_step->t;
+
+	struct STRVEC *Lam = qp_sol->lam;
+	struct STRVEC *T = qp_sol->t;
+
+	struct STRVEC *res_g = res->res_g;
+	struct STRVEC *res_b = res->res_b;
+	struct STRVEC *res_d = res->res_d;
+	struct STRVEC *res_m = res->res_m;
+
+	struct STRVEC *tmp_nbgM = ws->tmp_nbgM;
+	struct STRVEC *tmp_nsM = ws->tmp_nsM;
+
+	int nx0, nx1, nu0, nu1, nb0, ng0, ns0;
+
+	//
+	REAL mu = 0.0;
+
+	// loop over stages
+	for(ii=0; ii<=N; ii++)
+		{
+
+		nx0 = nx[ii];
+		nu0 = nu[ii];
+		nb0 = nb[ii];
+		ng0 = ng[ii];
+		ns0 = ns[ii];
+
+		SYMV_L(nu0+nx0, nu0+nx0, 1.0, RSQrq+ii, 0, 0, ux+ii, 0, 1.0, rqz+ii, 0, res_g+ii, 0);
+
+		if(ii>0)
+			AXPY(nx0, -1.0, pi+(ii-1), 0, res_g+ii, nu0, res_g+ii, nu0);
+
+		if(nb0+ng0>0)
+			{
+			AXPY(nb0+ng0, -1.0, lam+ii, 0, lam+ii, nb[ii]+ng[ii], tmp_nbgM+0, 0);
+//			AXPY(nb0+ng0,  1.0, d+ii, 0, t+ii, 0, res_d+ii, 0);
+//			AXPY(nb0+ng0,  1.0, d+ii, nb0+ng0, t+ii, nb0+ng0, res_d+ii, nb0+ng0);
+			AXPY(2*nb0+2*ng0,  1.0, d+ii, 0, t+ii, 0, res_d+ii, 0);
+			// box
+			if(nb0>0)
+				{
+				VECAD_SP(nb0, 1.0, tmp_nbgM+0, 0, idxb[ii], res_g+ii, 0);
+				VECEX_SP(nb0, 1.0, idxb[ii], ux+ii, 0, tmp_nbgM+1, 0);
+				}
+			// general
+			if(ng0>0)
+				{
+				GEMV_NT(nu0+nx0, ng0, 1.0, 1.0, DCt+ii, 0, 0, tmp_nbgM+0, nb[ii], ux+ii, 0, 1.0, 0.0, res_g+ii, 0, tmp_nbgM+1, nb0, res_g+ii, 0, tmp_nbgM+1, nb0);
+				}
+
+			AXPY(nb0+ng0, -1.0, tmp_nbgM+1, 0, res_d+ii, 0, res_d+ii, 0);
+			AXPY(nb0+ng0,  1.0, tmp_nbgM+1, 0, res_d+ii, nb0+ng0, res_d+ii, nb0+ng0);
+			}
+		if(ns0>0)
+			{
+			// res_g
+			GEMV_DIAG(2*ns0, 1.0, Z+ii, 0, ux+ii, nu0+nx0, 1.0, rqz+ii, nu0+nx0, res_g+ii, nu0+nx0);
+			AXPY(2*ns0, -1.0, lam+ii, 2*nb0+2*ng0, res_g+ii, nu0+nx0, res_g+ii, nu0+nx0);
+			for(jj=0; jj<nb0+ng0; jj++)
+				{
+				idx = idxs_rev[ii][jj];
+				if(idx!=-1)
+					{
+#ifdef DOUBLE_PRECISION
+					BLASFEO_DVECEL(res_g+ii, nu0+nx0+idx) -= BLASFEO_DVECEL(lam+ii, jj);
+					BLASFEO_DVECEL(res_g+ii, nu0+nx0+ns0+idx) -= BLASFEO_DVECEL(lam+ii, nb0+ng0+jj);
+					// res_d
+					BLASFEO_DVECEL(res_d+ii, jj) -= BLASFEO_DVECEL(ux+ii, nu0+nx0+idx);
+					BLASFEO_DVECEL(res_d+ii, nb0+ng0+jj) -= BLASFEO_DVECEL(ux+ii, nu0+nx0+ns0+idx);
+#else
+					BLASFEO_SVECEL(res_g+ii, nu0+nx0+idx) -= BLASFEO_SVECEL(lam+ii, jj);
+					BLASFEO_SVECEL(res_g+ii, nu0+nx0+ns0+idx) -= BLASFEO_SVECEL(lam+ii, nb0+ng0+jj);
+					// res_d
+					BLASFEO_SVECEL(res_d+ii, jj) -= BLASFEO_SVECEL(ux+ii, nu0+nx0+idx);
+					BLASFEO_SVECEL(res_d+ii, nb0+ng0+jj) -= BLASFEO_SVECEL(ux+ii, nu0+nx0+ns0+idx);
+#endif
+					}
+				}
+			// res_d
+			AXPY(2*ns0, -1.0, ux+ii, nu0+nx0, t+ii, 2*nb0+2*ng0, res_d+ii, 2*nb0+2*ng0);
+			AXPY(2*ns0, 1.0, d+ii, 2*nb0+2*ng0, res_d+ii, 2*nb0+2*ng0, res_d+ii, 2*nb0+2*ng0);
+			}
+
+		if(ii<N)
+			{
+
+			nu1 = nu[ii+1];
+			nx1 = nx[ii+1];
+
+			AXPY(nx1, -1.0, ux+(ii+1), nu1, b+ii, 0, res_b+ii, 0);
+
+			GEMV_NT(nu0+nx0, nx1, 1.0, 1.0, BAbt+ii, 0, 0, pi+ii, 0, ux+ii, 0, 1.0, 1.0, res_g+ii, 0, res_b+ii, 0, res_g+ii, 0, res_b+ii, 0);
+
+			}
+
+		VECCP(2*nb0+2*ng0+2*ns0, m+ii, 0, res_m+ii, 0);
+		VECMULACC(2*nb0+2*ng0+2*ns0, Lam+ii, 0, t+ii, 0, res_m+ii, 0);
+		VECMULACC(2*nb0+2*ng0+2*ns0, lam+ii, 0, T+ii, 0, res_m+ii, 0);
+
+		}
+
+	return;
+
+	}
+
+
+
+void OCP_QP_RES_COMPUTE_INF_NORM(struct OCP_QP_RES *res)
+	{
+
+	struct OCP_QP_DIM *dim = res->dim;
+	int N = dim->N;
+	int *nx = dim->nx;
+	int *nu = dim->nu;
+	int *nb = dim->nb;
+	int *ng = dim->ng;
+	int *ns = dim->ns;
+
+	int ii;
+
+	int nv = 0;
+	int ne = 0;
+	int nc = 0;
+
+	for(ii=0; ii<N; ii++)
+		{
+		nv += nu[ii]+nx[ii]+2*ns[ii];
+		ne += nx[ii+1];
+		nc += 2*nb[ii]+2*ng[ii]+2*ns[ii];
+		}
+	ii = N;
+	nv += nu[ii]+nx[ii]+2*ns[ii];
+	nc += 2*nb[ii]+2*ng[ii]+2*ns[ii];
+
+	// compute infinity norm
+	VECNRM_INF(nv, res->res_g, 0, res->res_max+0);
+	VECNRM_INF(ne, res->res_b, 0, res->res_max+1);
+	VECNRM_INF(nc, res->res_d, 0, res->res_max+2);
+	VECNRM_INF(nc, res->res_m, 0, res->res_max+3);
+
+	return;
+
+	}
+
+
+
+void OCP_QP_RES_GET_ALL(struct OCP_QP_RES *res, REAL **res_r, REAL **res_q, REAL **res_ls, REAL **res_us, REAL **res_b, REAL **res_d_lb, REAL **res_d_ub, REAL **res_d_lg, REAL **res_d_ug, REAL **res_d_ls, REAL **res_d_us, REAL **res_m_lb, REAL **res_m_ub, REAL **res_m_lg, REAL **res_m_ug, REAL **res_m_ls, REAL **res_m_us)
 	{
 
 	int N = res->dim->N;
@@ -409,89 +761,10 @@ void CVT_OCP_QP_RES_TO_COLMAJ(struct OCP_QP_RES *res, REAL **res_r, REAL **res_q
 
 
 
-void CVT_OCP_QP_RES_TO_ROWMAJ(struct OCP_QP_RES *res, REAL **res_r, REAL **res_q, REAL **res_ls, REAL **res_us, REAL **res_b, REAL **res_d_lb, REAL **res_d_ub, REAL **res_d_lg, REAL **res_d_ug, REAL **res_d_ls, REAL **res_d_us, REAL **res_m_lb, REAL **res_m_ub, REAL **res_m_lg, REAL **res_m_ug, REAL **res_m_ls, REAL **res_m_us)
+void OCP_QP_RES_GET_MAX_RES_STAT(struct OCP_QP_RES *res, REAL *value)
 	{
 
-	int N = res->dim->N;
-	int *nx = res->dim->nx;
-	int *nu = res->dim->nu;
-	int *nb = res->dim->nb;
-	int *ng = res->dim->ng;
-	int *ns = res->dim->ns;
-
-	int ii;
-
-	for(ii=0; ii<N; ii++)
-		{
-		// cost
-		CVT_STRVEC2VEC(nu[ii], res->res_g+ii, 0, res_r[ii]);
-		CVT_STRVEC2VEC(nx[ii], res->res_g+ii, nu[ii], res_q[ii]);
-
-		// dynamics
-		CVT_STRVEC2VEC(nx[ii+1], res->res_b+ii, 0, res_b[ii]);
-
-		// box constraints
-		if(nb[ii]>0)
-			{
-			CVT_STRVEC2VEC(nb[ii], res->res_d+ii, 0, res_d_lb[ii]);
-			CVT_STRVEC2VEC(nb[ii], res->res_d+ii, nb[ii]+ng[ii], res_d_ub[ii]);
-			CVT_STRVEC2VEC(nb[ii], res->res_m+ii, 0, res_m_lb[ii]);
-			CVT_STRVEC2VEC(nb[ii], res->res_m+ii, nb[ii]+ng[ii], res_m_ub[ii]);
-			}
-
-		// general constraints
-		if(ng[ii]>0)
-			{
-			CVT_STRVEC2VEC(ng[ii], res->res_d+ii, nb[ii], res_d_lg[ii]);
-			CVT_STRVEC2VEC(ng[ii], res->res_d+ii, 2*nb[ii]+ng[ii], res_d_ug[ii]);
-			CVT_STRVEC2VEC(ng[ii], res->res_m+ii, nb[ii], res_m_lg[ii]);
-			CVT_STRVEC2VEC(ng[ii], res->res_m+ii, 2*nb[ii]+ng[ii], res_m_ug[ii]);
-			}
-
-		// soft constraints
-		if(ns[ii]>0)
-			{
-			CVT_STRVEC2VEC(ns[ii], res->res_g+ii, nu[ii]+nx[ii], res_ls[ii]);
-			CVT_STRVEC2VEC(ns[ii], res->res_g+ii, nu[ii]+nx[ii]+ns[ii], res_us[ii]);
-			CVT_STRVEC2VEC(ns[ii], res->res_d+ii, 2*nb[ii]+2*ng[ii], res_d_ls[ii]);
-			CVT_STRVEC2VEC(ns[ii], res->res_d+ii, 2*nb[ii]+2*ng[ii]+ns[ii], res_d_us[ii]);
-			CVT_STRVEC2VEC(ns[ii], res->res_m+ii, 2*nb[ii]+2*ng[ii], res_m_ls[ii]);
-			CVT_STRVEC2VEC(ns[ii], res->res_m+ii, 2*nb[ii]+2*ng[ii]+ns[ii], res_m_us[ii]);
-			}
-		}
-
-	// cost
-	CVT_STRVEC2VEC(nu[ii], res->res_g+ii, 0, res_r[ii]);
-	CVT_STRVEC2VEC(nx[ii], res->res_g+ii, nu[ii], res_q[ii]);
-
-	// box constraints
-	if(nb[ii]>0)
-		{
-		CVT_STRVEC2VEC(nb[ii], res->res_d+ii, 0, res_d_lb[ii]);
-		CVT_STRVEC2VEC(nb[ii], res->res_d+ii, nb[ii]+ng[ii], res_d_ub[ii]);
-		CVT_STRVEC2VEC(nb[ii], res->res_m+ii, 0, res_m_lb[ii]);
-		CVT_STRVEC2VEC(nb[ii], res->res_m+ii, nb[ii]+ng[ii], res_m_ub[ii]);
-		}
-
-	// general constraints
-	if(ng[ii]>0)
-		{
-		CVT_STRVEC2VEC(ng[ii], res->res_d+ii, nb[ii], res_d_lg[ii]);
-		CVT_STRVEC2VEC(ng[ii], res->res_d+ii, 2*nb[ii]+ng[ii], res_d_ug[ii]);
-		CVT_STRVEC2VEC(ng[ii], res->res_m+ii, nb[ii], res_m_lg[ii]);
-		CVT_STRVEC2VEC(ng[ii], res->res_m+ii, 2*nb[ii]+ng[ii], res_m_ug[ii]);
-		}
-
-	// soft constraints
-	if(ns[ii]>0)
-		{
-		CVT_STRVEC2VEC(ns[ii], res->res_g+ii, nu[ii]+nx[ii], res_ls[ii]);
-		CVT_STRVEC2VEC(ns[ii], res->res_g+ii, nu[ii]+nx[ii]+ns[ii], res_us[ii]);
-		CVT_STRVEC2VEC(ns[ii], res->res_d+ii, 2*nb[ii]+2*ng[ii], res_d_ls[ii]);
-		CVT_STRVEC2VEC(ns[ii], res->res_d+ii, 2*nb[ii]+2*ng[ii]+ns[ii], res_d_us[ii]);
-		CVT_STRVEC2VEC(ns[ii], res->res_m+ii, 2*nb[ii]+2*ng[ii], res_m_ls[ii]);
-		CVT_STRVEC2VEC(ns[ii], res->res_m+ii, 2*nb[ii]+2*ng[ii]+ns[ii], res_m_us[ii]);
-		}
+	*value = res->res_max[0];
 
 	return;
 
@@ -499,5 +772,33 @@ void CVT_OCP_QP_RES_TO_ROWMAJ(struct OCP_QP_RES *res, REAL **res_r, REAL **res_q
 
 
 
+void OCP_QP_RES_GET_MAX_RES_EQ(struct OCP_QP_RES *res, REAL *value)
+	{
+
+	*value = res->res_max[1];
+
+	return;
+
+	}
 
 
+
+void OCP_QP_RES_GET_MAX_RES_INEQ(struct OCP_QP_RES *res, REAL *value)
+	{
+
+	*value = res->res_max[2];
+
+	return;
+
+	}
+
+
+
+void OCP_QP_RES_GET_MAX_RES_COMP(struct OCP_QP_RES *res, REAL *value)
+	{
+
+	*value = res->res_max[3];
+
+	return;
+
+	}

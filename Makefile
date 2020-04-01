@@ -3,29 +3,36 @@
 # This file is part of HPIPM.                                                                     #
 #                                                                                                 #
 # HPIPM -- High-Performance Interior Point Method.                                                #
-# Copyright (C) 2017-2018 by Gianluca Frison.                                                     #
+# Copyright (C) 2019 by Gianluca Frison.                                                          #
 # Developed at IMTEK (University of Freiburg) under the supervision of Moritz Diehl.              #
 # All rights reserved.                                                                            #
 #                                                                                                 #
-# This program is free software: you can redistribute it and/or modify                            #
-# it under the terms of the GNU General Public License as published by                            #
-# the Free Software Foundation, either version 3 of the License, or                               #
-# (at your option) any later version                                                              #.
+# The 2-Clause BSD License                                                                        #
 #                                                                                                 #
-# This program is distributed in the hope that it will be useful,                                 #
-# but WITHOUT ANY WARRANTY; without even the implied warranty of                                  #
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the                                   #
-# GNU General Public License for more details.                                                    #
+# Redistribution and use in source and binary forms, with or without                              #
+# modification, are permitted provided that the following conditions are met:                     #
 #                                                                                                 #
-# You should have received a copy of the GNU General Public License                               #
-# along with this program.  If not, see <https://www.gnu.org/licenses/>.                          #
+# 1. Redistributions of source code must retain the above copyright notice, this                  #
+#    list of conditions and the following disclaimer.                                             #
+# 2. Redistributions in binary form must reproduce the above copyright notice,                    #
+#    this list of conditions and the following disclaimer in the documentation                    #
+#    and/or other materials provided with the distribution.                                       #
 #                                                                                                 #
-# The authors designate this particular file as subject to the "Classpath" exception              #
-# as provided by the authors in the LICENSE file that accompained this code.                      #
+# THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND                 #
+# ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED                   #
+# WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE                          #
+# DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR                 #
+# ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES                  #
+# (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;                    #
+# LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND                     #
+# ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT                      #
+# (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS                   #
+# SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.                                    #
 #                                                                                                 #
 # Author: Gianluca Frison, gianluca.frison (at) imtek.uni-freiburg.de                             #
 #                                                                                                 #
 ###################################################################################################
+
 
 include ./Makefile.rule
 
@@ -48,8 +55,20 @@ OBJS += ipm_core/s_core_qp_ipm_aux_avx.o
 endif
 
 # cond
-OBJS += cond/d_cond_aux.o cond/d_cond.o cond/d_part_cond.o
-OBJS += cond/s_cond_aux.o cond/s_cond.o cond/s_part_cond.o
+# double
+OBJS += cond/d_cond_aux.o
+OBJS += cond/d_cond.o
+OBJS += cond/d_part_cond.o
+OBJS += cond/d_cond_qcqp.o
+OBJS += cond/d_cast_qcqp.o
+OBJS += cond/d_part_cond_qcqp.o
+# single
+OBJS += cond/s_cond_aux.o
+OBJS += cond/s_cond.o
+OBJS += cond/s_part_cond.o
+OBJS += cond/s_cond_qcqp.o
+OBJS += cond/s_cast_qcqp.o
+OBJS += cond/s_part_cond_qcqp.o
 
 # dense qp
 # double
@@ -59,6 +78,13 @@ OBJS += dense_qp/d_dense_qp_sol.o
 OBJS += dense_qp/d_dense_qp_res.o 
 OBJS += dense_qp/d_dense_qp_kkt.o 
 OBJS += dense_qp/d_dense_qp_ipm.o
+OBJS += dense_qp/d_dense_qp_utils.o
+OBJS += dense_qp/d_dense_qcqp_dim.o 
+OBJS += dense_qp/d_dense_qcqp.o 
+OBJS += dense_qp/d_dense_qcqp_sol.o 
+OBJS += dense_qp/d_dense_qcqp_res.o 
+OBJS += dense_qp/d_dense_qcqp_ipm.o 
+OBJS += dense_qp/d_dense_qcqp_utils.o 
 # single
 OBJS += dense_qp/s_dense_qp_dim.o 
 OBJS += dense_qp/s_dense_qp.o 
@@ -66,6 +92,13 @@ OBJS += dense_qp/s_dense_qp_sol.o
 OBJS += dense_qp/s_dense_qp_res.o 
 OBJS += dense_qp/s_dense_qp_kkt.o 
 OBJS += dense_qp/s_dense_qp_ipm.o
+OBJS += dense_qp/s_dense_qp_utils.o
+OBJS += dense_qp/s_dense_qcqp_dim.o 
+OBJS += dense_qp/s_dense_qcqp.o 
+OBJS += dense_qp/s_dense_qcqp_sol.o 
+OBJS += dense_qp/s_dense_qcqp_res.o 
+OBJS += dense_qp/s_dense_qcqp_ipm.o 
+OBJS += dense_qp/s_dense_qcqp_utils.o 
 #mixed
 OBJS += dense_qp/m_dense_qp_dim.o 
 OBJS += dense_qp/m_dense_qp.o 
@@ -91,6 +124,13 @@ OBJS += ocp_qp/d_ocp_qp_res.o
 OBJS += ocp_qp/d_ocp_qp_kkt.o
 OBJS += ocp_qp/d_ocp_qp_ipm.o
 OBJS += ocp_qp/d_ocp_qp_utils.o
+OBJS += ocp_qp/d_ocp_qp_red.o
+OBJS += ocp_qp/d_ocp_qcqp_dim.o
+OBJS += ocp_qp/d_ocp_qcqp.o
+OBJS += ocp_qp/d_ocp_qcqp_sol.o
+OBJS += ocp_qp/d_ocp_qcqp_res.o
+OBJS += ocp_qp/d_ocp_qcqp_ipm.o
+OBJS += ocp_qp/d_ocp_qcqp_utils.o
 # single
 OBJS += ocp_qp/s_ocp_qp_dim.o
 OBJS += ocp_qp/s_ocp_qp.o
@@ -99,6 +139,13 @@ OBJS += ocp_qp/s_ocp_qp_res.o
 OBJS += ocp_qp/s_ocp_qp_kkt.o
 OBJS += ocp_qp/s_ocp_qp_ipm.o
 OBJS += ocp_qp/s_ocp_qp_utils.o
+OBJS += ocp_qp/s_ocp_qp_red.o
+OBJS += ocp_qp/s_ocp_qcqp_dim.o
+OBJS += ocp_qp/s_ocp_qcqp.o
+OBJS += ocp_qp/s_ocp_qcqp_sol.o
+OBJS += ocp_qp/s_ocp_qcqp_res.o
+OBJS += ocp_qp/s_ocp_qcqp_ipm.o
+OBJS += ocp_qp/s_ocp_qcqp_utils.o
 # mixed
 #OBJS += ocp_qp/m_ocp_qp.o                       ocp_qp/m_ocp_qp_kkt.o ocp_qp/m_ocp_qp_ipm.o
 
@@ -126,6 +173,7 @@ OBJS += tree_ocp_qp/s_tree_ocp_qp_ipm.o
 
 # aux
 OBJS += auxiliary/aux_string.o
+OBJS += auxiliary/aux_mem.o
 OBJS += auxiliary/timing.o
 
 all: clean static_library
@@ -178,8 +226,7 @@ install_shared:
 	mkdir -p $(PREFIX)/hpipm/include
 	cp -f ./include/*.h $(PREFIX)/hpipm/include/
 
-test_problem:
-	cp libhpipm.a ./test_problems/libhpipm.a
+test_problems:
 	make -C test_problems obj TOP=$(TOP)
 	@echo
 	@echo " Test problem build complete."
@@ -198,8 +245,17 @@ examples:
 run_examples:
 	./examples/c/example.out
 
+benchmarks:
+	( cd benchmark; $(MAKE) )
+	@echo
+	@echo " Benchmarks build complete."
+	@echo
 
-.PHONY: examples
+run_benchmarks:
+	( cd benchmark; $(MAKE) run )
+
+.PHONY: test_problems examples benchmarks
+
 clean:
 	rm -f libhpipm.a
 	rm -f libhpipm.so
@@ -213,4 +269,5 @@ clean:
 	make -C tree_ocp_qp clean
 	make -C test_problems clean
 	make -C examples/c clean
+	make -C benchmark clean
 

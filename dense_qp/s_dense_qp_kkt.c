@@ -3,25 +3,31 @@
 * This file is part of HPIPM.                                                                     *
 *                                                                                                 *
 * HPIPM -- High-Performance Interior Point Method.                                                *
-* Copyright (C) 2017-2018 by Gianluca Frison.                                                     *
+* Copyright (C) 2019 by Gianluca Frison.                                                          *
 * Developed at IMTEK (University of Freiburg) under the supervision of Moritz Diehl.              *
 * All rights reserved.                                                                            *
 *                                                                                                 *
-* This program is free software: you can redistribute it and/or modify                            *
-* it under the terms of the GNU General Public License as published by                            *
-* the Free Software Foundation, either version 3 of the License, or                               *
-* (at your option) any later version                                                              *.
+* The 2-Clause BSD License                                                                        *
 *                                                                                                 *
-* This program is distributed in the hope that it will be useful,                                 *
-* but WITHOUT ANY WARRANTY; without even the implied warranty of                                  *
-* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the                                   *
-* GNU General Public License for more details.                                                    *
+* Redistribution and use in source and binary forms, with or without                              *
+* modification, are permitted provided that the following conditions are met:                     *
 *                                                                                                 *
-* You should have received a copy of the GNU General Public License                               *
-* along with this program.  If not, see <https://www.gnu.org/licenses/>.                          *
+* 1. Redistributions of source code must retain the above copyright notice, this                  *
+*    list of conditions and the following disclaimer.                                             *
+* 2. Redistributions in binary form must reproduce the above copyright notice,                    *
+*    this list of conditions and the following disclaimer in the documentation                    *
+*    and/or other materials provided with the distribution.                                       *
 *                                                                                                 *
-* The authors designate this particular file as subject to the "Classpath" exception              *
-* as provided by the authors in the LICENSE file that accompained this code.                      *
+* THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND                 *
+* ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED                   *
+* WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE                          *
+* DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR                 *
+* ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES                  *
+* (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;                    *
+* LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND                     *
+* ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT                      *
+* (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS                   *
+* SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.                                    *
 *                                                                                                 *
 * Author: Gianluca Frison, gianluca.frison (at) imtek.uni-freiburg.de                             *
 *                                                                                                 *
@@ -36,6 +42,8 @@
 #include <blasfeo_s_aux.h>
 #include <blasfeo_s_blas.h>
 
+#include <blasfeo_s_aux_ext_dep.h>
+
 #include <hpipm_s_dense_qp_dim.h>
 #include <hpipm_s_dense_qp.h>
 #include <hpipm_s_dense_qp_sol.h>
@@ -47,6 +55,7 @@
 
 
 #define AXPY blasfeo_saxpy
+#define COLIN blasfeo_scolin
 #define COLPE blasfeo_scolpe
 #define COLPEI blasfeo_scolpei
 #define COLSC blasfeo_scolsc
@@ -58,11 +67,13 @@
 #define DENSE_QP_RES_WORKSPACE s_dense_qp_res_workspace
 #define DENSE_QP s_dense_qp
 #define DENSE_QP_IPM_ARG s_dense_qp_ipm_arg
-#define DENSE_QP_IPM_WORKSPACE s_dense_qp_ipm_workspace
+#define DENSE_QP_IPM_WS s_dense_qp_ipm_ws
 #define DENSE_QP_SOL s_dense_qp_sol
 #define DIAAD_SP blasfeo_sdiaad_sp
 #define DIAEX blasfeo_sdiaex
 #define DIARE blasfeo_sdiare
+#define DOT blasfeo_sdot
+#define GEAD blasfeo_sgead
 #define GECP blasfeo_sgecp
 #define GELQF blasfeo_sgelqf
 #define GELQF_PD_LA blasfeo_sgelqf_pd_la
@@ -70,13 +81,15 @@
 #define GELQF_PD blasfeo_sgelqf_pd
 #define GELQF_WORKSIZE blasfeo_sgelqf_worksize
 #define GEMM_L_DIAG blasfeo_sgemm_dn
+#define GEMM_NT blasfeo_sgemm_nt
 #define GEMM_R_DIAG blasfeo_sgemm_nd
 #define GEMV_DIAG blasfeo_sgemv_d
 #define GEMV_N blasfeo_sgemv_n
-#define GEMV_NT blasfeo_sgemv_nt
 #define GEMV_T blasfeo_sgemv_t
 #define GESE blasfeo_sgese
-//#define GETRF blasfeo_sgetrf_rowpivot
+#define GETR blasfeo_sgetr
+#define GETRF_RP blasfeo_sgetrf_rp
+#define ORGLQ blasfeo_sorglq
 #define POTRF_L blasfeo_spotrf_l
 #define POTRF_L_MN blasfeo_spotrf_l_mn
 #define PSTRF_L spstrf_l_libstr
@@ -86,6 +99,7 @@
 #define ROWIN blasfeo_srowin
 #define ROWPE blasfeo_srowpe
 #define ROWPEI blasfeo_srowpei
+#define ROWSW blasfeo_srowsw
 #define STRMAT blasfeo_smat
 #define STRVEC blasfeo_svec
 #define SYMV_L blasfeo_ssymv_l
@@ -106,22 +120,20 @@
 #define VECAD_SP blasfeo_svecad_sp
 #define VECCP blasfeo_sveccp
 #define VECEX_SP blasfeo_svecex_sp
-#define VECMULACC blasfeo_svecmulacc
-#define VECMULDOT blasfeo_svecmuldot
+#define VECMUL blasfeo_svecmul
 #define VECSC blasfeo_svecsc
 #define VECSE blasfeo_svecse
 #define VECCPSC blasfeo_sveccpsc
 #define VECPE blasfeo_svecpe
 #define VECPEI blasfeo_svecpei
 
-#define INIT_VAR_DENSE_QP s_init_var_dense_qp
-#define COMPUTE_RES_DENSE_QP s_compute_res_dense_qp
-#define COMPUTE_LIN_RES_DENSE_QP s_compute_lin_res_dense_qp
 #define FACT_SOLVE_KKT_UNCONSTR_DENSE_QP s_fact_solve_kkt_unconstr_dense_qp
 #define FACT_LQ_SOLVE_KKT_STEP_DENSE_QP s_fact_lq_solve_kkt_step_dense_qp
-//#define FACT_SOLVE_LU_KKT_STEP_DENSE_QP s_fact_solve_lu_kkt_step_dense_qp
 #define FACT_SOLVE_KKT_STEP_DENSE_QP s_fact_solve_kkt_step_dense_qp
 #define SOLVE_KKT_STEP_DENSE_QP s_solve_kkt_step_dense_qp
+#define DENSE_QP_REMOVE_LIN_DEP_EQ s_dense_qp_remove_lin_dep_eq
+#define DENSE_QP_RESTORE_LIN_DEP_EQ s_dense_qp_restore_lin_dep_eq
+#define DENSE_QP_COMPUTE_OBJ s_dense_qp_compute_obj
 
 
 

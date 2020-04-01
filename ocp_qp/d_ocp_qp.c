@@ -3,25 +3,31 @@
 * This file is part of HPIPM.                                                                     *
 *                                                                                                 *
 * HPIPM -- High-Performance Interior Point Method.                                                *
-* Copyright (C) 2017-2018 by Gianluca Frison.                                                     *
+* Copyright (C) 2019 by Gianluca Frison.                                                          *
 * Developed at IMTEK (University of Freiburg) under the supervision of Moritz Diehl.              *
 * All rights reserved.                                                                            *
 *                                                                                                 *
-* This program is free software: you can redistribute it and/or modify                            *
-* it under the terms of the GNU General Public License as published by                            *
-* the Free Software Foundation, either version 3 of the License, or                               *
-* (at your option) any later version                                                              *.
+* The 2-Clause BSD License                                                                        *
 *                                                                                                 *
-* This program is distributed in the hope that it will be useful,                                 *
-* but WITHOUT ANY WARRANTY; without even the implied warranty of                                  *
-* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the                                   *
-* GNU General Public License for more details.                                                    *
+* Redistribution and use in source and binary forms, with or without                              *
+* modification, are permitted provided that the following conditions are met:                     *
 *                                                                                                 *
-* You should have received a copy of the GNU General Public License                               *
-* along with this program.  If not, see <https://www.gnu.org/licenses/>.                          *
+* 1. Redistributions of source code must retain the above copyright notice, this                  *
+*    list of conditions and the following disclaimer.                                             *
+* 2. Redistributions in binary form must reproduce the above copyright notice,                    *
+*    this list of conditions and the following disclaimer in the documentation                    *
+*    and/or other materials provided with the distribution.                                       *
 *                                                                                                 *
-* The authors designate this particular file as subject to the "Classpath" exception              *
-* as provided by the authors in the LICENSE file that accompained this code.                      *
+* THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND                 *
+* ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED                   *
+* WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE                          *
+* DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR                 *
+* ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES                  *
+* (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;                    *
+* LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND                     *
+* ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT                      *
+* (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS                   *
+* SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.                                    *
 *                                                                                                 *
 * Author: Gianluca Frison, gianluca.frison (at) imtek.uni-freiburg.de                             *
 *                                                                                                 *
@@ -39,6 +45,11 @@
 #include <hpipm_d_ocp_qp_dim.h>
 #include <hpipm_d_ocp_qp.h>
 #include <hpipm_aux_string.h>
+#include <hpipm_aux_mem.h>
+
+
+
+#define DOUBLE_PRECISION
 
 
 
@@ -50,6 +61,7 @@
 #define CVT_TRAN_STRMAT2MAT blasfeo_unpack_tran_dmat
 #define CVT_VEC2STRVEC blasfeo_pack_dvec
 #define CVT_STRVEC2VEC blasfeo_unpack_dvec
+#define GECP blasfeo_dgecp
 #define GESE blasfeo_dgese
 #define OCP_QP d_ocp_qp
 #define OCP_QP_DIM d_ocp_qp_dim
@@ -58,78 +70,108 @@
 #define STRVEC blasfeo_dvec
 #define SIZE_STRMAT blasfeo_memsize_dmat
 #define SIZE_STRVEC blasfeo_memsize_dvec
-#define VECCP_LIBSTR blasfeo_dveccp
-#define VECSC_LIBSTR blasfeo_dvecsc
+#define VECCP blasfeo_dveccp
+#define VECSC blasfeo_dvecsc
 #define VECSE blasfeo_dvecse
 
 #define OCP_QP_STRSIZE d_ocp_qp_strsize
 #define OCP_QP_MEMSIZE d_ocp_qp_memsize
 #define OCP_QP_CREATE d_ocp_qp_create
+#define OCP_QP_COPY_ALL d_ocp_qp_copy_all
+#define OCP_QP_SET_ALL_ZERO d_ocp_qp_set_all_zero
+#define OCP_QP_SET_RHS_ZERO d_ocp_qp_set_rhs_zero
 #define OCP_QP_SET_ALL d_ocp_qp_set_all
 #define OCP_QP_SET d_ocp_qp_set
-#define OCP_QP d_ocp_qp
+#define OCP_QP_SET_EL d_ocp_qp_set_el
 #define OCP_QP_SET_A d_ocp_qp_set_A
-#define OCP_QP_GET_A d_cvt_ocp_qp_A
 #define OCP_QP_SET_B d_ocp_qp_set_B
-#define OCP_QP_GET_B d_cvt_ocp_qp_B
 #define OCP_QP_SET_BVEC d_ocp_qp_set_b
-#define OCP_QP_GET_BVEC d_cvt_ocp_qp_b
 #define OCP_QP_SET_Q d_ocp_qp_set_Q
-#define OCP_QP_GET_Q d_cvt_ocp_qp_Q
 #define OCP_QP_SET_S d_ocp_qp_set_S
-#define OCP_QP_GET_S d_cvt_ocp_qp_S
 #define OCP_QP_SET_R d_ocp_qp_set_R
-#define OCP_QP_GET_R d_cvt_ocp_qp_R
 #define OCP_QP_SET_QVEC d_ocp_qp_set_q
-#define OCP_QP_GET_QVEC d_cvt_ocp_qp_q
 #define OCP_QP_SET_RVEC d_ocp_qp_set_r
-#define OCP_QP_GET_RVEC d_cvt_ocp_qp_r
-#define OCP_QP_SET_LBX d_ocp_qp_set_lbx
-#define OCP_QP_GET_LBX d_cvt_ocp_qp_lbx
-#define OCP_QP_SET_UBX d_ocp_qp_set_ubx
-#define OCP_QP_GET_UBX d_cvt_ocp_qp_ubx
-#define OCP_QP_SET_LBU d_ocp_qp_set_lbu
-#define OCP_QP_GET_LBU d_cvt_ocp_qp_lbu
-#define OCP_QP_SET_UBU d_ocp_qp_set_ubu
-#define OCP_QP_GET_UBU d_cvt_ocp_qp_ubu
-#define OCP_QP_SET_IDXB d_ocp_qp_set_idxb
-#define OCP_QP_GET_IDXB d_cvt_ocp_qp_idxb
-#define OCP_QP_SET_IDXBX d_ocp_qp_set_idxbx
-#define OCP_QP_GET_IDXBX d_cvt_ocp_qp_idxbx
-#define OCP_QP_SET_JBX d_ocp_qp_set_Jbx
-#define OCP_QP_GET_JBX d_ocp_qp_get_Jbx
-#define OCP_QP_SET_IDXBU d_ocp_qp_set_idxbu
-#define OCP_QP_GET_IDXBU d_cvt_ocp_qp_idxbu
-#define OCP_QP_SET_JBU d_ocp_qp_set_Jbu
-#define OCP_QP_GET_JBU d_ocp_qp_get_Jbu
 #define OCP_QP_SET_LB d_ocp_qp_set_lb
-#define OCP_QP_GET_LB d_cvt_ocp_qp_lb
+#define OCP_QP_SET_LB_MASK d_ocp_qp_set_lb_mask
 #define OCP_QP_SET_UB d_ocp_qp_set_ub
-#define OCP_QP_GET_UB d_cvt_ocp_qp_ub
+#define OCP_QP_SET_UB_MASK d_ocp_qp_set_ub_mask
+#define OCP_QP_SET_LBX d_ocp_qp_set_lbx
+#define OCP_QP_SET_LBX_MASK d_ocp_qp_set_lbx_mask
+#define OCP_QP_SET_EL_LBX d_ocp_qp_set_el_lbx
+#define OCP_QP_SET_UBX d_ocp_qp_set_ubx
+#define OCP_QP_SET_UBX_MASK d_ocp_qp_set_ubx_mask
+#define OCP_QP_SET_EL_UBX d_ocp_qp_set_el_ubx
+#define OCP_QP_SET_LBU d_ocp_qp_set_lbu
+#define OCP_QP_SET_LBU_MASK d_ocp_qp_set_lbu_mask
+#define OCP_QP_SET_UBU d_ocp_qp_set_ubu
+#define OCP_QP_SET_UBU_MASK d_ocp_qp_set_ubu_mask
+#define OCP_QP_SET_IDXB d_ocp_qp_set_idxb
+#define OCP_QP_SET_IDXBX d_ocp_qp_set_idxbx
+#define OCP_QP_SET_JBX d_ocp_qp_set_Jbx
+#define OCP_QP_SET_IDXBU d_ocp_qp_set_idxbu
+#define OCP_QP_SET_JBU d_ocp_qp_set_Jbu
 #define OCP_QP_SET_C d_ocp_qp_set_C
-#define OCP_QP_GET_C d_cvt_ocp_qp_C
 #define OCP_QP_SET_D d_ocp_qp_set_D
-#define OCP_QP_GET_D d_cvt_ocp_qp_D
 #define OCP_QP_SET_LG d_ocp_qp_set_lg
-#define OCP_QP_GET_LG d_cvt_ocp_qp_lg
+#define OCP_QP_SET_LG_MASK d_ocp_qp_set_lg_mask
 #define OCP_QP_SET_UG d_ocp_qp_set_ug
-#define OCP_QP_GET_UG d_cvt_ocp_qp_ug
+#define OCP_QP_SET_UG_MASK d_ocp_qp_set_ug_mask
 #define OCP_QP_SET_ZL d_ocp_qp_set_Zl
-#define OCP_QP_GET_ZL d_cvt_ocp_qp_Zl
 #define OCP_QP_SET_ZU d_ocp_qp_set_Zu
-#define OCP_QP_GET_ZU d_cvt_ocp_qp_Zu
 #define OCP_QP_SET_ZLVEC d_ocp_qp_set_zl
-#define OCP_QP_GET_ZLVEC d_cvt_ocp_qp_zl
 #define OCP_QP_SET_ZUVEC d_ocp_qp_set_zu
-#define OCP_QP_GET_ZUVEC d_cvt_ocp_qp_zu
 #define OCP_QP_SET_IDXS d_ocp_qp_set_idxs
-#define OCP_QP_GET_IDXS d_cvt_ocp_qp_idxs
+#define OCP_QP_SET_IDXS_REV d_ocp_qp_set_idxs_rev
+#define OCP_QP_SET_JSBU d_ocp_qp_set_Jsbu
+#define OCP_QP_SET_JSBX d_ocp_qp_set_Jsbx
+#define OCP_QP_SET_JSG d_ocp_qp_set_Jsg
 #define OCP_QP_SET_LLS d_ocp_qp_set_lls
-#define OCP_QP_GET_LLS d_cvt_ocp_qp_lls
+#define OCP_QP_SET_LLS_MASK d_ocp_qp_set_lls_mask
 #define OCP_QP_SET_LUS d_ocp_qp_set_lus
+#define OCP_QP_SET_LUS_MASK d_ocp_qp_set_lus_mask
+#define OCP_QP_SET_IDXE d_ocp_qp_set_idxe
+#define OCP_QP_SET_IDXBXE d_ocp_qp_set_idxbxe
+#define OCP_QP_SET_IDXBUE d_ocp_qp_set_idxbue
+#define OCP_QP_SET_IDXGE d_ocp_qp_set_idxge
+#define OCP_QP_SET_JBXE d_ocp_qp_set_Jbue
+#define OCP_QP_SET_JBUE d_ocp_qp_set_Jbxe
+#define OCP_QP_SET_JGE d_ocp_qp_set_Jge
+// getters
+#define OCP_QP_GET d_ocp_qp_get
+#define OCP_QP_GET_A d_ocp_qp_get_A
+#define OCP_QP_GET_B d_cvt_ocp_qp_B
+#define OCP_QP_GET_BVEC d_cvt_ocp_qp_b
+#define OCP_QP_GET_Q d_cvt_ocp_qp_Q
+#define OCP_QP_GET_S d_cvt_ocp_qp_S
+#define OCP_QP_GET_R d_cvt_ocp_qp_R
+#define OCP_QP_GET_QVEC d_cvt_ocp_qp_q
+#define OCP_QP_GET_RVEC d_cvt_ocp_qp_r
+#define OCP_QP_GET_LBX d_ocp_qp_get_lbx
+#define OCP_QP_GET_UBX d_ocp_qp_get_ubx
+#define OCP_QP_GET_LBU d_cvt_ocp_qp_lbu
+#define OCP_QP_GET_UBU d_cvt_ocp_qp_ubu
+#define OCP_QP_GET_IDXB d_cvt_ocp_qp_idxb
+#define OCP_QP_GET_IDXBX d_cvt_ocp_qp_idxbx
+#define OCP_QP_GET_JBX d_ocp_qp_get_Jbx
+#define OCP_QP_GET_IDXBU d_cvt_ocp_qp_idxbu
+#define OCP_QP_GET_JBU d_ocp_qp_get_Jbu
+#define OCP_QP_GET_LB d_cvt_ocp_qp_lb
+#define OCP_QP_GET_UB d_cvt_ocp_qp_ub
+#define OCP_QP_GET_C d_cvt_ocp_qp_C
+#define OCP_QP_GET_D d_cvt_ocp_qp_D
+#define OCP_QP_GET_LG d_cvt_ocp_qp_lg
+#define OCP_QP_GET_UG d_cvt_ocp_qp_ug
+#define OCP_QP_GET_ZL d_cvt_ocp_qp_Zl
+#define OCP_QP_GET_ZU d_cvt_ocp_qp_Zu
+#define OCP_QP_GET_ZLVEC d_cvt_ocp_qp_zl
+#define OCP_QP_GET_ZUVEC d_cvt_ocp_qp_zu
+#define OCP_QP_GET_IDXS d_cvt_ocp_qp_idxs
+#define OCP_QP_GET_IDXS_REV d_cvt_ocp_qp_idxs_rev
+#define OCP_QP_GET_JSBU d_ocp_qp_get_Jsbu
+#define OCP_QP_GET_JSBX d_ocp_qp_get_Jsbx
+#define OCP_QP_GET_JSG d_ocp_qp_get_Jsg
+#define OCP_QP_GET_LLS d_cvt_ocp_qp_lls
 #define OCP_QP_GET_LUS d_cvt_ocp_qp_lus
-// TODO remove ???
-#define CHANGE_BOUNDS_DIMENSIONS_OCP_QP d_change_bounds_dimensions_ocp_qp
 
 
 

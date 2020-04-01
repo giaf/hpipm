@@ -3,25 +3,31 @@
 * This file is part of HPIPM.                                                                     *
 *                                                                                                 *
 * HPIPM -- High-Performance Interior Point Method.                                                *
-* Copyright (C) 2017-2018 by Gianluca Frison.                                                     *
+* Copyright (C) 2019 by Gianluca Frison.                                                          *
 * Developed at IMTEK (University of Freiburg) under the supervision of Moritz Diehl.              *
 * All rights reserved.                                                                            *
 *                                                                                                 *
-* This program is free software: you can redistribute it and/or modify                            *
-* it under the terms of the GNU General Public License as published by                            *
-* the Free Software Foundation, either version 3 of the License, or                               *
-* (at your option) any later version                                                              *.
+* The 2-Clause BSD License                                                                        *
 *                                                                                                 *
-* This program is distributed in the hope that it will be useful,                                 *
-* but WITHOUT ANY WARRANTY; without even the implied warranty of                                  *
-* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the                                   *
-* GNU General Public License for more details.                                                    *
+* Redistribution and use in source and binary forms, with or without                              *
+* modification, are permitted provided that the following conditions are met:                     *
 *                                                                                                 *
-* You should have received a copy of the GNU General Public License                               *
-* along with this program.  If not, see <https://www.gnu.org/licenses/>.                          *
+* 1. Redistributions of source code must retain the above copyright notice, this                  *
+*    list of conditions and the following disclaimer.                                             *
+* 2. Redistributions in binary form must reproduce the above copyright notice,                    *
+*    this list of conditions and the following disclaimer in the documentation                    *
+*    and/or other materials provided with the distribution.                                       *
 *                                                                                                 *
-* The authors designate this particular file as subject to the "Classpath" exception              *
-* as provided by the authors in the LICENSE file that accompained this code.                      *
+* THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND                 *
+* ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED                   *
+* WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE                          *
+* DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR                 *
+* ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES                  *
+* (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;                    *
+* LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND                     *
+* ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT                      *
+* (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS                   *
+* SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.                                    *
 *                                                                                                 *
 * Author: Gianluca Frison, gianluca.frison (at) imtek.uni-freiburg.de                             *
 *                                                                                                 *
@@ -38,6 +44,13 @@
 
 #include <hpipm_d_dense_qp_dim.h>
 #include <hpipm_d_dense_qp.h>
+#include <hpipm_aux_string.h>
+#include <hpipm_aux_mem.h>
+
+
+
+#define DOUBLE_PRECISION
+
 
 
 #define CREATE_STRMAT blasfeo_create_dmat
@@ -60,36 +73,37 @@
 #define STRVEC blasfeo_dvec
 #define VECCP_LIBSTR blasfeo_dveccp
 #define VECSC_LIBSTR blasfeo_dvecsc
-#define VECSE_LIBSTR blasfeo_dvecse
+#define VECSE blasfeo_dvecse
 
-#define MEMSIZE_DENSE_QP d_memsize_dense_qp
-#define CREATE_DENSE_QP d_create_dense_qp
-#define CVT_COLMAJ_TO_DENSE_QP d_cvt_colmaj_to_dense_qp
-#define CVT_DENSE_QP_TO_COLMAJ d_cvt_dense_qp_to_colmaj
-#define CVT_ROWMAJ_TO_DENSE_QP d_cvt_rowmaj_to_dense_qp
-#define CVT_DENSE_QP_TO_ROWMAJ d_cvt_dense_qp_to_rowmaj
-#define CVT_LIBSTR_TO_DENSE_QP d_cvt_libstr_to_dense_qp
-#define CVT_DENSE_QP_TO_LIBSTR d_cvt_dense_qp_to_libstr
-#define CAST_DENSE_QP_DIM d_cast_dense_qp_dim
-
+#define DENSE_QP_MEMSIZE d_dense_qp_memsize
+#define DENSE_QP_CREATE d_dense_qp_create
+#define DENSE_QP_SET_ALL d_dense_qp_set_all
+#define DENSE_QP_GET_ALL d_dense_qp_get_all
+#define DENSE_QP_SET d_dense_qp_set
 #define DENSE_QP_SET_H d_dense_qp_set_H
 #define DENSE_QP_SET_G d_dense_qp_set_g
 #define DENSE_QP_SET_A d_dense_qp_set_A
 #define DENSE_QP_SET_B d_dense_qp_set_b
 #define DENSE_QP_SET_IDXB d_dense_qp_set_idxb
 #define DENSE_QP_SET_LB d_dense_qp_set_lb
+#define DENSE_QP_SET_LB_MASK d_dense_qp_set_lb_mask
 #define DENSE_QP_SET_UB d_dense_qp_set_ub
+#define DENSE_QP_SET_UB_MASK d_dense_qp_set_ub_mask
 #define DENSE_QP_SET_C d_dense_qp_set_C
 #define DENSE_QP_SET_LG d_dense_qp_set_lg
+#define DENSE_QP_SET_LG_MASK d_dense_qp_set_lg_mask
 #define DENSE_QP_SET_UG d_dense_qp_set_ug
+#define DENSE_QP_SET_UG_MASK d_dense_qp_set_ug_mask
 #define DENSE_QP_SET_IDXS d_dense_qp_set_idxs
+#define DENSE_QP_SET_IDXS_REV d_dense_qp_set_idxs_rev
 #define DENSE_QP_SET_ZZL d_dense_qp_set_Zl
 #define DENSE_QP_SET_ZZU d_dense_qp_set_Zu
 #define DENSE_QP_SET_ZL d_dense_qp_set_zl
 #define DENSE_QP_SET_ZU d_dense_qp_set_zu
 #define DENSE_QP_SET_LS d_dense_qp_set_ls
+#define DENSE_QP_SET_LS_MASK d_dense_qp_set_ls_mask
 #define DENSE_QP_SET_US d_dense_qp_set_us
-
+#define DENSE_QP_SET_US_MASK d_dense_qp_set_us_mask
 #define DENSE_QP_GET_H d_dense_qp_get_H
 #define DENSE_QP_GET_G d_dense_qp_get_g
 #define DENSE_QP_GET_A d_dense_qp_get_A
@@ -101,12 +115,16 @@
 #define DENSE_QP_GET_LG d_dense_qp_get_lg
 #define DENSE_QP_GET_UG d_dense_qp_get_ug
 #define DENSE_QP_GET_IDXS d_dense_qp_get_idxs
+#define DENSE_QP_GET_IDXS_REV d_dense_qp_get_idxs_rev
 #define DENSE_QP_GET_ZZL d_dense_qp_get_Zl
 #define DENSE_QP_GET_ZZU d_dense_qp_get_Zu
 #define DENSE_QP_GET_ZL d_dense_qp_get_zl
 #define DENSE_QP_GET_ZU d_dense_qp_get_zu
 #define DENSE_QP_GET_LS d_dense_qp_get_ls
 #define DENSE_QP_GET_US d_dense_qp_get_us
+#define DENSE_QP_SET_ALL_ROWMAJ d_dense_qp_set_all_rowmaj
+#define DENSE_QP_GET_ALL_ROWMAJ d_dense_qp_get_all_rowmaj
+
 
 
 #include "x_dense_qp.c"

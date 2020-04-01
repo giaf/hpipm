@@ -3,25 +3,31 @@
 * This file is part of HPIPM.                                                                     *
 *                                                                                                 *
 * HPIPM -- High-Performance Interior Point Method.                                                *
-* Copyright (C) 2017-2018 by Gianluca Frison.                                                     *
+* Copyright (C) 2019 by Gianluca Frison.                                                          *
 * Developed at IMTEK (University of Freiburg) under the supervision of Moritz Diehl.              *
 * All rights reserved.                                                                            *
 *                                                                                                 *
-* This program is free software: you can redistribute it and/or modify                            *
-* it under the terms of the GNU General Public License as published by                            *
-* the Free Software Foundation, either version 3 of the License, or                               *
-* (at your option) any later version                                                              *.
+* The 2-Clause BSD License                                                                        *
 *                                                                                                 *
-* This program is distributed in the hope that it will be useful,                                 *
-* but WITHOUT ANY WARRANTY; without even the implied warranty of                                  *
-* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the                                   *
-* GNU General Public License for more details.                                                    *
+* Redistribution and use in source and binary forms, with or without                              *
+* modification, are permitted provided that the following conditions are met:                     *
 *                                                                                                 *
-* You should have received a copy of the GNU General Public License                               *
-* along with this program.  If not, see <https://www.gnu.org/licenses/>.                          *
+* 1. Redistributions of source code must retain the above copyright notice, this                  *
+*    list of conditions and the following disclaimer.                                             *
+* 2. Redistributions in binary form must reproduce the above copyright notice,                    *
+*    this list of conditions and the following disclaimer in the documentation                    *
+*    and/or other materials provided with the distribution.                                       *
 *                                                                                                 *
-* The authors designate this particular file as subject to the "Classpath" exception              *
-* as provided by the authors in the LICENSE file that accompained this code.                      *
+* THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND                 *
+* ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED                   *
+* WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE                          *
+* DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR                 *
+* ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES                  *
+* (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;                    *
+* LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND                     *
+* ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT                      *
+* (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS                   *
+* SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.                                    *
 *                                                                                                 *
 * Author: Gianluca Frison, gianluca.frison (at) imtek.uni-freiburg.de                             *
 *                                                                                                 *
@@ -34,6 +40,7 @@
 
 #include <hpipm_s_ocp_qp_dim.h>
 #include <hpipm_aux_string.h>
+#include <hpipm_aux_mem.h>
 
 
 
@@ -44,6 +51,7 @@
 #define OCP_QP_DIM_STRSIZE s_ocp_qp_dim_strsize
 #define OCP_QP_DIM_MEMSIZE s_ocp_qp_dim_memsize
 #define OCP_QP_DIM_CREATE s_ocp_qp_dim_create
+#define OCP_QP_DIM_COPY_ALL s_ocp_qp_dim_copy_all
 #define OCP_QP_DIM_SET_ALL s_ocp_qp_dim_set_all
 #define OCP_QP_DIM_SET s_ocp_qp_dim_set
 #define OCP_QP_DIM_SET_NX s_ocp_qp_dim_set_nx
@@ -51,9 +59,17 @@
 #define OCP_QP_DIM_SET_NBX s_ocp_qp_dim_set_nbx
 #define OCP_QP_DIM_SET_NBU s_ocp_qp_dim_set_nbu
 #define OCP_QP_DIM_SET_NG s_ocp_qp_dim_set_ng
+#define OCP_QP_DIM_SET_NS s_ocp_qp_dim_set_ns
 #define OCP_QP_DIM_SET_NSBX s_ocp_qp_dim_set_nsbx
 #define OCP_QP_DIM_SET_NSBU s_ocp_qp_dim_set_nsbu
 #define OCP_QP_DIM_SET_NSG s_ocp_qp_dim_set_nsg
+#define OCP_QP_DIM_SET_NBXE s_ocp_qp_dim_set_nbxe
+#define OCP_QP_DIM_SET_NBUE s_ocp_qp_dim_set_nbue
+#define OCP_QP_DIM_SET_NGE s_ocp_qp_dim_set_nge
+#define OCP_QP_DIM_GET s_ocp_qp_dim_get
+#define OCP_QP_DIM_GET_N s_ocp_qp_dim_get_N
+#define OCP_QP_DIM_GET_NX s_ocp_qp_dim_get_nx
+#define OCP_QP_DIM_GET_NU s_ocp_qp_dim_get_nu
 
 
 

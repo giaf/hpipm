@@ -3,25 +3,31 @@
 * This file is part of HPIPM.                                                                     *
 *                                                                                                 *
 * HPIPM -- High-Performance Interior Point Method.                                                *
-* Copyright (C) 2017-2018 by Gianluca Frison.                                                     *
+* Copyright (C) 2019 by Gianluca Frison.                                                          *
 * Developed at IMTEK (University of Freiburg) under the supervision of Moritz Diehl.              *
 * All rights reserved.                                                                            *
 *                                                                                                 *
-* This program is free software: you can redistribute it and/or modify                            *
-* it under the terms of the GNU General Public License as published by                            *
-* the Free Software Foundation, either version 3 of the License, or                               *
-* (at your option) any later version                                                              *.
+* The 2-Clause BSD License                                                                        *
 *                                                                                                 *
-* This program is distributed in the hope that it will be useful,                                 *
-* but WITHOUT ANY WARRANTY; without even the implied warranty of                                  *
-* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the                                   *
-* GNU General Public License for more details.                                                    *
+* Redistribution and use in source and binary forms, with or without                              *
+* modification, are permitted provided that the following conditions are met:                     *
 *                                                                                                 *
-* You should have received a copy of the GNU General Public License                               *
-* along with this program.  If not, see <https://www.gnu.org/licenses/>.                          *
+* 1. Redistributions of source code must retain the above copyright notice, this                  *
+*    list of conditions and the following disclaimer.                                             *
+* 2. Redistributions in binary form must reproduce the above copyright notice,                    *
+*    this list of conditions and the following disclaimer in the documentation                    *
+*    and/or other materials provided with the distribution.                                       *
 *                                                                                                 *
-* The authors designate this particular file as subject to the "Classpath" exception              *
-* as provided by the authors in the LICENSE file that accompained this code.                      *
+* THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND                 *
+* ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED                   *
+* WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE                          *
+* DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR                 *
+* ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES                  *
+* (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;                    *
+* LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND                     *
+* ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT                      *
+* (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS                   *
+* SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.                                    *
 *                                                                                                 *
 * Author: Gianluca Frison, gianluca.frison (at) imtek.uni-freiburg.de                             *
 *                                                                                                 *
@@ -42,6 +48,9 @@ void OCP_QP_DIM_PRINT(struct OCP_QP_DIM *qp_dim)
 	int *nsbx = qp_dim->nsbx;
 	int *nsbu = qp_dim->nsbu;
 	int *nsg = qp_dim->nsg;
+	int *nbxe = qp_dim->nbxe;
+	int *nbue = qp_dim->nbue;
+	int *nge = qp_dim->nge;
 
 	printf("N = %d\n\n", N);
 
@@ -85,6 +94,21 @@ void OCP_QP_DIM_PRINT(struct OCP_QP_DIM *qp_dim)
 		printf("\t%d", nsg[ii]);
 	printf("\n\n");
 
+	printf("nbxe =\n");
+	for (ii = 0; ii <= N; ii++)
+		printf("\t%d", nbxe[ii]);
+	printf("\n\n");
+
+	printf("nbue =\n");
+	for (ii = 0; ii <= N; ii++)
+		printf("\t%d", nbue[ii]);
+	printf("\n\n");
+
+	printf("nge =\n");
+	for (ii = 0; ii <= N; ii++)
+		printf("\t%d", nge[ii]);
+	printf("\n\n");
+
 	return;
 	}
 
@@ -105,6 +129,9 @@ void OCP_QP_DIM_CODEGEN(char *file_name, char *mode, struct OCP_QP_DIM *qp_dim)
 	int *nsbx = qp_dim->nsbx;
 	int *nsbu = qp_dim->nsbu;
 	int *nsg = qp_dim->nsg;
+	int *nbxe = qp_dim->nbxe;
+	int *nbue = qp_dim->nbue;
+	int *nge = qp_dim->nge;
 
 	fprintf(file, "/***************\n* dim\n***************/\n");
 
@@ -167,6 +194,27 @@ void OCP_QP_DIM_CODEGEN(char *file_name, char *mode, struct OCP_QP_DIM *qp_dim)
 		fprintf(file, "%d, ", nsg[ii]);
 	fprintf(file, "};\n");
 	fprintf(file, "int *nsg = nnsg;\n");
+	// nbxe
+	fprintf(file, "/* nbxe */\n");
+	fprintf(file, "static int nnbxe[] = {");
+	for(ii=0; ii<=N; ii++)
+		fprintf(file, "%d, ", nbxe[ii]);
+	fprintf(file, "};\n");
+	fprintf(file, "int *nbxe = nnbxe;\n");
+	// nbue
+	fprintf(file, "/* nbue */\n");
+	fprintf(file, "static int nnbue[] = {");
+	for(ii=0; ii<=N; ii++)
+		fprintf(file, "%d, ", nbue[ii]);
+	fprintf(file, "};\n");
+	fprintf(file, "int *nbue = nnbue;\n");
+	// nge
+	fprintf(file, "/* nge */\n");
+	fprintf(file, "static int nnge[] = {");
+	for(ii=0; ii<=N; ii++)
+		fprintf(file, "%d, ", nge[ii]);
+	fprintf(file, "};\n");
+	fprintf(file, "int *nge = nnge;\n");
 
 	fclose(file);
 
@@ -185,6 +233,9 @@ void OCP_QP_PRINT(struct OCP_QP_DIM *dim, struct OCP_QP *qp)
 	int *nb = dim->nb;
 	int *ng = dim->ng;
 	int *ns = dim->ns;
+	int *nbxe = dim->nbxe;
+	int *nbue = dim->nbue;
+	int *nge = dim->nge;
 
 	printf("BAt =\n");
 	for (ii = 0; ii < N; ii++)
@@ -204,7 +255,7 @@ void OCP_QP_PRINT(struct OCP_QP_DIM *dim, struct OCP_QP *qp)
 
 	printf("rqz =\n");
 	for (ii = 0; ii <= N; ii++)
-		BLASFEO_PRINT_TRAN_VEC(nu[ii]+nx[ii]+ns[ii], qp->rqz+ii, 0);
+		BLASFEO_PRINT_TRAN_VEC(nu[ii]+nx[ii]+2*ns[ii], qp->rqz+ii, 0);
 
 	printf("idxb = \n");
 	for (ii = 0; ii <= N; ii++)
@@ -214,13 +265,25 @@ void OCP_QP_PRINT(struct OCP_QP_DIM *dim, struct OCP_QP *qp)
 	for (ii = 0; ii <= N; ii++)
 		BLASFEO_PRINT_TRAN_VEC(2*nb[ii]+2*ng[ii]+2*ns[ii], qp->d+ii, 0);
 
+	printf("d_mask =\n");
+	for (ii = 0; ii <= N; ii++)
+		BLASFEO_PRINT_TRAN_VEC(2*nb[ii]+2*ng[ii]+2*ns[ii], qp->d_mask+ii, 0);
+
 	printf("DCt =\n");
 	for (ii = 0; ii <= N; ii++)
 		BLASFEO_PRINT_MAT(nu[ii]+nx[ii], ng[ii], qp->DCt+ii, 0, 0);
 
+	printf("idxs_rev = \n");
+	for (ii = 0; ii <= N; ii++)
+		int_print_mat(1, nb[ii]+ng[ii], qp->idxs_rev[ii], 1);
+
 	printf("m =\n");
 	for (ii = 0; ii <= N; ii++)
 		BLASFEO_PRINT_TRAN_VEC(2*nb[ii]+2*ng[ii]+2*ns[ii], qp->m+ii, 0);
+
+	printf("idxe = \n");
+	for (ii = 0; ii <= N; ii++)
+		int_print_mat(1, nbue[ii]+nbxe[ii]+nge[ii], qp->idxe[ii], 1);
 
 	return;
 	}
@@ -239,6 +302,9 @@ void OCP_QP_CODEGEN(char *file_name, char *mode, struct OCP_QP_DIM *dim, struct 
 	int *nb = dim->nb;
 	int *ng = dim->ng;
 	int *ns = dim->ns;
+	int *nbxe = dim->nbxe;
+	int *nbue = dim->nbue;
+	int *nge = dim->nge;
 
 	fprintf(file, "/***************\n* qp\n***************/\n");
 
@@ -573,6 +639,38 @@ void OCP_QP_CODEGEN(char *file_name, char *mode, struct OCP_QP_DIM *dim, struct 
 	fprintf(file, "float **hlbu = llbu;\n");
 #endif
 
+	// lbu_mask
+	fprintf(file, "/* lbu_mask */\n");
+	for(nn=0; nn<=N; nn++)
+		{
+#ifdef DOUBLE_PRECISION
+		fprintf(file, "static double lbu_mask%d[] = {", nn);
+#else
+		fprintf(file, "static float lbu_mask%d[] = {", nn);
+#endif
+		for(jj=0; jj<nb[nn]; jj++)
+			{
+			if(qp->idxb[nn][jj]<nu[nn])
+				{
+				fprintf(file, "%18.15e, ", BLASFEO_DVECEL(qp->d+nn, jj));
+				}
+			}
+		fprintf(file, "};\n");
+		}
+#ifdef DOUBLE_PRECISION
+	fprintf(file, "static double *llbu_mask[] = {");
+#else
+	fprintf(file, "static float *llbu_mask[] = {");
+#endif
+	for(nn=0; nn<=N; nn++)
+		fprintf(file, "lbu_mask%d, ", nn);
+	fprintf(file, "};\n");
+#ifdef DOUBLE_PRECISION
+	fprintf(file, "double **hlbu_mask = llbu_mask;\n");
+#else
+	fprintf(file, "float **hlbu_mask = llbu_mask;\n");
+#endif
+
 	// ubu
 	fprintf(file, "/* ubu */\n");
 	for(nn=0; nn<=N; nn++)
@@ -603,6 +701,38 @@ void OCP_QP_CODEGEN(char *file_name, char *mode, struct OCP_QP_DIM *dim, struct 
 	fprintf(file, "double **hubu = uubu;\n");
 #else
 	fprintf(file, "float **hubu = uubu;\n");
+#endif
+
+	// ubu_mask
+	fprintf(file, "/* ubu_mask */\n");
+	for(nn=0; nn<=N; nn++)
+		{
+#ifdef DOUBLE_PRECISION
+		fprintf(file, "static double ubu_mask%d[] = {", nn);
+#else
+		fprintf(file, "static float ubu_mask%d[] = {", nn);
+#endif
+		for(jj=0; jj<nb[nn]; jj++)
+			{
+			if(qp->idxb[nn][jj]<nu[nn])
+				{
+				fprintf(file, "%18.15e, ", -BLASFEO_DVECEL(qp->d+nn, nb[nn]+ng[nn]+jj));
+				}
+			}
+		fprintf(file, "};\n");
+		}
+#ifdef DOUBLE_PRECISION
+	fprintf(file, "static double *uubu_mask[] = {");
+#else
+	fprintf(file, "static float *uubu_mask[] = {");
+#endif
+	for(nn=0; nn<=N; nn++)
+		fprintf(file, "ubu_mask%d, ", nn);
+	fprintf(file, "};\n");
+#ifdef DOUBLE_PRECISION
+	fprintf(file, "double **hubu_mask = uubu_mask;\n");
+#else
+	fprintf(file, "float **hubu_mask = uubu_mask;\n");
 #endif
 
 	// idxbx
@@ -657,6 +787,38 @@ void OCP_QP_CODEGEN(char *file_name, char *mode, struct OCP_QP_DIM *dim, struct 
 	fprintf(file, "float **hlbx = llbx;\n");
 #endif
 
+	// lbx_mask
+	fprintf(file, "/* lbx_mask */\n");
+	for(nn=0; nn<=N; nn++)
+		{
+#ifdef DOUBLE_PRECISION
+		fprintf(file, "static double lbx_mask%d[] = {", nn);
+#else
+		fprintf(file, "static float lbx_mask%d[] = {", nn);
+#endif
+		for(jj=0; jj<nb[nn]; jj++)
+			{
+			if(qp->idxb[nn][jj]>=nu[nn])
+				{
+				fprintf(file, "%18.15e, ", BLASFEO_DVECEL(qp->d+nn, jj));
+				}
+			}
+		fprintf(file, "};\n");
+		}
+#ifdef DOUBLE_PRECISION
+	fprintf(file, "static double *llbx_mask[] = {");
+#else
+	fprintf(file, "static float *llbx_mask[] = {");
+#endif
+	for(nn=0; nn<=N; nn++)
+		fprintf(file, "lbx_mask%d, ", nn);
+	fprintf(file, "};\n");
+#ifdef DOUBLE_PRECISION
+	fprintf(file, "double **hlbx_mask = llbx_mask;\n");
+#else
+	fprintf(file, "float **hlbx_mask = llbx_mask;\n");
+#endif
+
 	// ubx
 	fprintf(file, "/* ubx */\n");
 	for(nn=0; nn<=N; nn++)
@@ -687,6 +849,38 @@ void OCP_QP_CODEGEN(char *file_name, char *mode, struct OCP_QP_DIM *dim, struct 
 	fprintf(file, "double **hubx = uubx;\n");
 #else
 	fprintf(file, "float **hubx = uubx;\n");
+#endif
+
+	// ubx_mask
+	fprintf(file, "/* ubx_mask */\n");
+	for(nn=0; nn<=N; nn++)
+		{
+#ifdef DOUBLE_PRECISION
+		fprintf(file, "static double ubx_mask%d[] = {", nn);
+#else
+		fprintf(file, "static float ubx_mask%d[] = {", nn);
+#endif
+		for(jj=0; jj<nb[nn]; jj++)
+			{
+			if(qp->idxb[nn][jj]>=nu[nn])
+				{
+				fprintf(file, "%18.15e, ", -BLASFEO_DVECEL(qp->d+nn, nb[nn]+ng[nn]+jj));
+				}
+			}
+		fprintf(file, "};\n");
+		}
+#ifdef DOUBLE_PRECISION
+	fprintf(file, "static double *uubx_mask[] = {");
+#else
+	fprintf(file, "static float *uubx_mask[] = {");
+#endif
+	for(nn=0; nn<=N; nn++)
+		fprintf(file, "ubx_mask%d, ", nn);
+	fprintf(file, "};\n");
+#ifdef DOUBLE_PRECISION
+	fprintf(file, "double **hubx_mask = uubx_mask;\n");
+#else
+	fprintf(file, "float **hubx_mask = uubx_mask;\n");
 #endif
 
 	// C
@@ -790,6 +984,35 @@ void OCP_QP_CODEGEN(char *file_name, char *mode, struct OCP_QP_DIM *dim, struct 
 	fprintf(file, "float **hlg = llg;\n");
 #endif
 
+	// lg_mask
+	fprintf(file, "/* lg_mask */\n");
+	for(nn=0; nn<=N; nn++)
+		{
+#ifdef DOUBLE_PRECISION
+		fprintf(file, "static double lg_mask%d[] = {", nn);
+#else
+		fprintf(file, "static float lg_mask%d[] = {", nn);
+#endif
+		for(jj=0; jj<ng[nn]; jj++)
+			{
+			fprintf(file, "%18.15e, ", BLASFEO_DVECEL(qp->d+nn, nb[nn]+jj));
+			}
+		fprintf(file, "};\n");
+		}
+#ifdef DOUBLE_PRECISION
+	fprintf(file, "static double *llg_mask[] = {");
+#else
+	fprintf(file, "static float *llg_mask[] = {");
+#endif
+	for(nn=0; nn<=N; nn++)
+		fprintf(file, "lg_mask%d, ", nn);
+	fprintf(file, "};\n");
+#ifdef DOUBLE_PRECISION
+	fprintf(file, "double **hlg_mask = llg_mask;\n");
+#else
+	fprintf(file, "float **hlg_mask = llg_mask;\n");
+#endif
+
 	// ug
 	fprintf(file, "/* ug */\n");
 	for(nn=0; nn<=N; nn++)
@@ -817,6 +1040,35 @@ void OCP_QP_CODEGEN(char *file_name, char *mode, struct OCP_QP_DIM *dim, struct 
 	fprintf(file, "double **hug = uug;\n");
 #else
 	fprintf(file, "float **hug = uug;\n");
+#endif
+
+	// ug_mask
+	fprintf(file, "/* ug_mask */\n");
+	for(nn=0; nn<=N; nn++)
+		{
+#ifdef DOUBLE_PRECISION
+		fprintf(file, "static double ug_mask%d[] = {", nn);
+#else
+		fprintf(file, "static float ug_mask%d[] = {", nn);
+#endif
+		for(jj=0; jj<ng[nn]; jj++)
+			{
+			fprintf(file, "%18.15e, ", -BLASFEO_DVECEL(qp->d+nn, 2*nb[nn]+ng[nn]+jj));
+			}
+		fprintf(file, "};\n");
+		}
+#ifdef DOUBLE_PRECISION
+	fprintf(file, "static double *uug_mask[] = {");
+#else
+	fprintf(file, "static float *uug_mask[] = {");
+#endif
+	for(nn=0; nn<=N; nn++)
+		fprintf(file, "ug_mask%d, ", nn);
+	fprintf(file, "};\n");
+#ifdef DOUBLE_PRECISION
+	fprintf(file, "double **hug_mask = uug_mask;\n");
+#else
+	fprintf(file, "float **hug_mask = uug_mask;\n");
 #endif
 
 	// Zl
@@ -851,13 +1103,13 @@ void OCP_QP_CODEGEN(char *file_name, char *mode, struct OCP_QP_DIM *dim, struct 
 	fprintf(file, "float **hzu;\n");
 #endif
 
-	// idxs
+	// idxs_rev
+	fprintf(file, "/* idxs_rev */\n");
+	fprintf(file, "int **hidxs_rev;\n");
+
+	// idxs // TODO remove !!!
 	fprintf(file, "/* idxs */\n");
-#ifdef DOUBLE_PRECISION
-	fprintf(file, "double **hidxs;\n");
-#else
-	fprintf(file, "float **hidxs;\n");
-#endif
+	fprintf(file, "int **hidxs;\n");
 
 	// lls
 	fprintf(file, "/* lls */\n");
@@ -874,6 +1126,23 @@ void OCP_QP_CODEGEN(char *file_name, char *mode, struct OCP_QP_DIM *dim, struct 
 #else
 	fprintf(file, "float **hlus;\n");
 #endif
+
+	// idxe
+	fprintf(file, "/* idxe */\n");
+	for(nn=0; nn<=N; nn++)
+		{
+		fprintf(file, "static int idxe%d[] = {", nn);
+		for(jj=0; jj<nbue[nn]+nbxe[nn]+nge[nn]; jj++)
+			{
+			fprintf(file, "%d, ", qp->idxe[nn][jj]);
+			}
+		fprintf(file, "};\n");
+		}
+	fprintf(file, "static int *iidxe[] = {");
+	for(nn=0; nn<=N; nn++)
+		fprintf(file, "idxe%d, ", nn);
+	fprintf(file, "};\n");
+	fprintf(file, "int **hidxe = iidxe;\n");
 
 	// XXX what follows is not part of the QP !!!
 
@@ -913,19 +1182,65 @@ void OCP_QP_SOL_PRINT(struct OCP_QP_DIM *qp_dim, struct OCP_QP_SOL *qp_sol)
 
 	printf("uxs =\n");
 	for (ii = 0; ii <= N; ii++)
-		BLASFEO_PRINT_TRAN_VEC(nu[ii] + nx[ii] + 2 * ns[ii], &qp_sol->ux[ii], 0);
+		BLASFEO_PRINT_TRAN_VEC(nu[ii]+nx[ii]+2*ns[ii], &qp_sol->ux[ii], 0);
 
 	printf("pi =\n");
 	for (ii = 0; ii < N; ii++)
-		BLASFEO_PRINT_TRAN_VEC(nx[ii + 1], &qp_sol->pi[ii], 0);
+		BLASFEO_PRINT_TRAN_VEC(nx[ii+1], &qp_sol->pi[ii], 0);
 
 	printf("lam =\n");
 	for (ii = 0; ii <= N; ii++)
-		BLASFEO_PRINT_TRAN_VEC(2 * nb[ii] + 2 * ng[ii] + 2 * ns[ii], &qp_sol->lam[ii], 0);
+		BLASFEO_PRINT_TRAN_VEC(2*nb[ii]+2*ng[ii]+2*ns[ii], &qp_sol->lam[ii], 0);
 
 	printf("t =\n");
 	for (ii = 0; ii <= N; ii++)
-		BLASFEO_PRINT_TRAN_VEC(2 * nb[ii] + 2 * ng[ii] + 2 * ns[ii], &qp_sol->t[ii], 0);
+		BLASFEO_PRINT_TRAN_VEC(2*nb[ii]+2*ng[ii]+2*ns[ii], &qp_sol->t[ii], 0);
+
+	return;
+	}
+
+
+
+void OCP_QP_IPM_ARG_PRINT(struct OCP_QP_DIM *qp_dim, struct OCP_QP_IPM_ARG *arg)
+	{
+	int ii;
+
+	// iter_max
+	printf("/* mode */\n");
+	printf("int mode = %d;\n", arg->mode);
+	// iter_max
+	printf("/* iter_max */\n");
+	printf("int iter_max = %d;\n", arg->iter_max);
+	// alpha_min
+	printf("/* alpha_min */\n");
+	printf("double alpha_min = %18.15e;\n", arg->alpha_min);
+	// mu0
+	printf("/* mu0 */\n");
+	printf("double mu0 = %18.15e;\n", arg->mu0);
+	// tol_stat
+	printf("/* tol_stat */\n");
+	printf("double tol_stat = %18.15e;\n", arg->res_g_max);
+	// tol_eq
+	printf("/* tol_eq */\n");
+	printf("double tol_eq = %18.15e;\n", arg->res_b_max);
+	// tol_ineq
+	printf("/* tol_ineq */\n");
+	printf("double tol_ineq = %18.15e;\n", arg->res_d_max);
+	// tol_comp
+	printf("/* tol_comp */\n");
+	printf("double tol_comp = %18.15e;\n", arg->res_m_max);
+	// reg_prim
+	printf("/* reg_prim */\n");
+	printf("double reg_prim = %18.15e;\n", arg->reg_prim);
+	// warm_start
+	printf("/* warm_start */\n");
+	printf("int warm_start = %d;\n", arg->warm_start);
+	// pred_corr
+	printf("/* pred_corr */\n");
+	printf("int pred_corr = %d;\n", arg->pred_corr);
+	// ric_alg
+	printf("/* ric_alg */\n");
+	printf("int ric_alg = %d;\n", arg->square_root_alg);
 
 	return;
 	}
@@ -981,4 +1296,39 @@ void OCP_QP_IPM_ARG_CODEGEN(char *file_name, char *mode, struct OCP_QP_DIM *qp_d
 
 	return;
 	}
+
+
+
+void OCP_QP_RES_PRINT(struct OCP_QP_DIM *qp_dim, struct OCP_QP_RES *qp_res)
+	{
+	int ii;
+
+	int N   = qp_dim->N;
+	int *nx = qp_dim->nx;
+	int *nu = qp_dim->nu;
+	int *nb = qp_dim->nb;
+	int *ng = qp_dim->ng;
+	int *ns = qp_dim->ns;
+
+	printf("res_g =\n");
+	for (ii = 0; ii <= N; ii++)
+		BLASFEO_PRINT_TRAN_VEC(nu[ii]+nx[ii]+2*ns[ii], &qp_res->res_g[ii], 0);
+
+	printf("res_b =\n");
+	for (ii = 0; ii < N; ii++)
+		BLASFEO_PRINT_TRAN_VEC(nx[ii+1], &qp_res->res_b[ii], 0);
+
+	printf("res_d =\n");
+	for (ii = 0; ii <= N; ii++)
+		BLASFEO_PRINT_TRAN_VEC(2*nb[ii]+2*ng[ii]+2*ns[ii], &qp_res->res_d[ii], 0);
+
+	printf("res_m =\n");
+	for (ii = 0; ii <= N; ii++)
+		BLASFEO_PRINT_TRAN_VEC(2*nb[ii]+2*ng[ii]+2*ns[ii], &qp_res->res_m[ii], 0);
+
+	return;
+	}
+
+
+
 

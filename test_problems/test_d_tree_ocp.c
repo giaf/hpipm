@@ -3,25 +3,31 @@
 * This file is part of HPIPM.                                                                     *
 *                                                                                                 *
 * HPIPM -- High-Performance Interior Point Method.                                                *
-* Copyright (C) 2017-2018 by Gianluca Frison.                                                     *
+* Copyright (C) 2019 by Gianluca Frison.                                                          *
 * Developed at IMTEK (University of Freiburg) under the supervision of Moritz Diehl.              *
 * All rights reserved.                                                                            *
 *                                                                                                 *
-* This program is free software: you can redistribute it and/or modify                            *
-* it under the terms of the GNU General Public License as published by                            *
-* the Free Software Foundation, either version 3 of the License, or                               *
-* (at your option) any later version                                                              *.
+* The 2-Clause BSD License                                                                        *
 *                                                                                                 *
-* This program is distributed in the hope that it will be useful,                                 *
-* but WITHOUT ANY WARRANTY; without even the implied warranty of                                  *
-* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the                                   *
-* GNU General Public License for more details.                                                    *
+* Redistribution and use in source and binary forms, with or without                              *
+* modification, are permitted provided that the following conditions are met:                     *
 *                                                                                                 *
-* You should have received a copy of the GNU General Public License                               *
-* along with this program.  If not, see <https://www.gnu.org/licenses/>.                          *
+* 1. Redistributions of source code must retain the above copyright notice, this                  *
+*    list of conditions and the following disclaimer.                                             *
+* 2. Redistributions in binary form must reproduce the above copyright notice,                    *
+*    this list of conditions and the following disclaimer in the documentation                    *
+*    and/or other materials provided with the distribution.                                       *
 *                                                                                                 *
-* The authors designate this particular file as subject to the "Classpath" exception              *
-* as provided by the authors in the LICENSE file that accompained this code.                      *
+* THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND                 *
+* ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED                   *
+* WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE                          *
+* DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR                 *
+* ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES                  *
+* (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;                    *
+* LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND                     *
+* ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT                      *
+* (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS                   *
+* SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.                                    *
 *                                                                                                 *
 * Author: Gianluca Frison, gianluca.frison (at) imtek.uni-freiburg.de                             *
 *                                                                                                 *
@@ -39,13 +45,13 @@
 #include <blasfeo_i_aux_ext_dep.h>
 #include <blasfeo_d_aux.h>
 
-#include "../include/hpipm_tree.h"
-#include "../include/hpipm_scenario_tree.h"
-#include "../include/hpipm_d_tree_ocp_qp_dim.h"
-#include "../include/hpipm_d_tree_ocp_qp.h"
-#include "../include/hpipm_d_tree_ocp_qp_sol.h"
-#include "../include/hpipm_d_tree_ocp_qp_res.h"
-#include "../include/hpipm_d_tree_ocp_qp_ipm.h"
+#include <hpipm_tree.h>
+#include <hpipm_scenario_tree.h>
+#include <hpipm_d_tree_ocp_qp_dim.h>
+#include <hpipm_d_tree_ocp_qp.h>
+#include <hpipm_d_tree_ocp_qp_sol.h>
+#include <hpipm_d_tree_ocp_qp_res.h>
+#include <hpipm_d_tree_ocp_qp_ipm.h>
 
 #include "d_tools.h"
 
@@ -54,7 +60,9 @@
 #define KEEP_X0 0
 
 // printing
-#define PRINT 0
+#ifndef PRINT
+#define PRINT 1
+#endif
 
 
 
@@ -333,7 +341,7 @@ int main()
 	dgemv_n_3l(nx_, nx_, A, nx_, x0, b0);
 	daxpy_3l(nx_, 1.0, b, b0);
 
-#if 0
+#if PRINT
 	d_print_mat(nx_, nx_, A, nx_);
 	d_print_mat(nx_, nu_, B, nu_);
 	d_print_mat(1, nx_, b, 1);
@@ -363,7 +371,7 @@ int main()
 	dgemv_n_3l(nu_, nx_, S, nu_, x0, r0);
 	daxpy_3l(nu_, 1.0, r, r0);
 
-#if 0
+#if PRINT
 	d_print_mat(nx_, nx_, Q, nx_);
 	d_print_mat(nu_, nu_, R, nu_);
 	d_print_mat(nu_, nx_, S, nu_);
@@ -484,7 +492,7 @@ int main()
 	for(; ii<ng[Nh]; ii++)
 		CN[ii+(nb[Nh]+ii-nu[Nh])*ng[Nh]] = 1.0;
 
-#if 0
+#if PRINT
 	// box constraints
 	int_print_mat(1, nb[0], idxb0, 1);
 	d_print_mat(1, nb[0], d_lb0, 1);
@@ -580,7 +588,7 @@ int main()
 	for(ii=0; ii<ns[Nh]; ii++)
 		d_usN[ii] = 0.0;
 
-#if 1
+#if PRINT
 	// soft constraints
 	int_print_mat(1, ns[0], idxs0, 1);
 	d_print_mat(1, ns[0], Zl0, 1);
@@ -610,7 +618,9 @@ int main()
 ************************************************/
 
 	int tree_memsize = memsize_sctree(md, Nr, Nh);
+#if PRINT
 	printf("\ntree memsize = %d\n", tree_memsize);
+#endif
 	void *tree_memory = malloc(tree_memsize);
 
 	struct sctree st;
@@ -859,7 +869,9 @@ int main()
 ************************************************/
 
 	int dim_size = d_memsize_tree_ocp_qp_dim(Nn);
+#if PRINT
 	printf("\ndim size = %d\n", dim_size);
+#endif
 	void *dim_mem = malloc(dim_size);
 
 	struct d_tree_ocp_qp_dim dim;
@@ -871,7 +883,9 @@ int main()
 ************************************************/
 
 	int tree_ocp_qp_memsize = d_memsize_tree_ocp_qp(&dim);
+#if PRINT
 	printf("\ntree ocp qp memsize = %d\n", tree_ocp_qp_memsize);
+#endif
 	void *tree_ocp_qp_memory = malloc(tree_ocp_qp_memsize);
 
 	struct d_tree_ocp_qp qp;
@@ -918,7 +932,9 @@ exit(1);
 ************************************************/
 
 	int tree_ocp_qp_sol_size = d_memsize_tree_ocp_qp_sol(&dim);
+#if PRINT
 	printf("\ntree ocp qp sol memsize = %d\n", tree_ocp_qp_sol_size);
+#endif
 	void *tree_ocp_qp_sol_memory = malloc(tree_ocp_qp_sol_size);
 
 	struct d_tree_ocp_qp_sol qp_sol;
@@ -929,7 +945,9 @@ exit(1);
 ************************************************/
 
 	int ipm_arg_size = d_memsize_tree_ocp_qp_ipm_arg(&dim);
+#if PRINT
 	printf("\nipm arg size = %d\n", ipm_arg_size);
+#endif
 	void *ipm_arg_mem = malloc(ipm_arg_size);
 
 	struct d_tree_ocp_qp_ipm_arg arg;
@@ -955,7 +973,9 @@ exit(1);
 ************************************************/
 
 	int ipm_size = d_memsize_tree_ocp_qp_ipm(&dim, &arg);
+#if PRINT
 	printf("\nipm size = %d\n", ipm_size);
+#endif
 	void *ipm_memory = malloc(ipm_size);
 
 	struct d_tree_ocp_qp_ipm_workspace workspace;
@@ -996,7 +1016,7 @@ exit(1);
 
 	d_cvt_tree_ocp_qp_sol_to_colmaj(&qp, &qp_sol, u, x, ls, us, pi, lam_lb, lam_ub, lam_lg, lam_ug, lam_ls, lam_us);
 
-#if 1
+#if PRINT
 	printf("\nsolution\n\n");
 	printf("\nu\n");
 	for(ii=0; ii<Nn; ii++)
@@ -1072,6 +1092,7 @@ exit(1);
 * print ipm statistics
 ************************************************/
 
+#ifndef PRINT
 	printf("\nipm return = %d\n", hpipm_return);
 	printf("\nipm residuals max: res_g = %e, res_b = %e, res_d = %e, res_m = %e\n", workspace.qp_res[0], workspace.qp_res[1], workspace.qp_res[2], workspace.qp_res[3]);
 
@@ -1080,6 +1101,7 @@ exit(1);
 	d_print_exp_tran_mat(5, workspace.iter, workspace.stat, 5);
 
 	printf("\nocp ipm time = %e [s]\n\n", time_ocp_ipm);
+#endif
 
 /************************************************
 * free memory
@@ -1164,6 +1186,6 @@ exit(1);
 	free(tree_ocp_qp_sol_memory);
 	free(ipm_memory);
 
-	return 0;
+	return hpipm_return;
 
 	}

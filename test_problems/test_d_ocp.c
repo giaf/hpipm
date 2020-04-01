@@ -3,25 +3,31 @@
 * This file is part of HPIPM.                                                                     *
 *                                                                                                 *
 * HPIPM -- High-Performance Interior Point Method.                                                *
-* Copyright (C) 2017-2018 by Gianluca Frison.                                                     *
+* Copyright (C) 2019 by Gianluca Frison.                                                          *
 * Developed at IMTEK (University of Freiburg) under the supervision of Moritz Diehl.              *
 * All rights reserved.                                                                            *
 *                                                                                                 *
-* This program is free software: you can redistribute it and/or modify                            *
-* it under the terms of the GNU General Public License as published by                            *
-* the Free Software Foundation, either version 3 of the License, or                               *
-* (at your option) any later version                                                              *.
+* The 2-Clause BSD License                                                                        *
 *                                                                                                 *
-* This program is distributed in the hope that it will be useful,                                 *
-* but WITHOUT ANY WARRANTY; without even the implied warranty of                                  *
-* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the                                   *
-* GNU General Public License for more details.                                                    *
+* Redistribution and use in source and binary forms, with or without                              *
+* modification, are permitted provided that the following conditions are met:                     *
 *                                                                                                 *
-* You should have received a copy of the GNU General Public License                               *
-* along with this program.  If not, see <https://www.gnu.org/licenses/>.                          *
+* 1. Redistributions of source code must retain the above copyright notice, this                  *
+*    list of conditions and the following disclaimer.                                             *
+* 2. Redistributions in binary form must reproduce the above copyright notice,                    *
+*    this list of conditions and the following disclaimer in the documentation                    *
+*    and/or other materials provided with the distribution.                                       *
 *                                                                                                 *
-* The authors designate this particular file as subject to the "Classpath" exception              *
-* as provided by the authors in the LICENSE file that accompained this code.                      *
+* THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND                 *
+* ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED                   *
+* WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE                          *
+* DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR                 *
+* ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES                  *
+* (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;                    *
+* LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND                     *
+* ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT                      *
+* (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS                   *
+* SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.                                    *
 *                                                                                                 *
 * Author: Gianluca Frison, gianluca.frison (at) imtek.uni-freiburg.de                             *
 *                                                                                                 *
@@ -39,10 +45,12 @@
 #include <blasfeo_i_aux_ext_dep.h>
 #include <blasfeo_d_aux.h>
 
-#include "../include/hpipm_d_ocp_qp_dim.h"
-#include "../include/hpipm_d_ocp_qp.h"
-#include "../include/hpipm_d_ocp_qp_sol.h"
-#include "../include/hpipm_d_ocp_qp_ipm.h"
+#include <hpipm_d_ocp_qp_dim.h>
+#include <hpipm_d_ocp_qp.h>
+#include <hpipm_d_ocp_qp_sol.h>
+#include <hpipm_d_ocp_qp_ipm.h>
+#include <hpipm_d_ocp_qp_utils.h>
+#include <hpipm_d_ocp_qp_red.h>
 
 #include "d_tools.h"
 
@@ -51,7 +59,9 @@
 #define KEEP_X0 0
 
 // printing
+#ifndef PRINT
 #define PRINT 1
+#endif
 
 
 
@@ -248,6 +258,10 @@ void mass_spring_system(double Ts, int nx, int nu, double *A, double *B, double 
 int main()
 	{
 
+	int rep, nrep=1000; //000;
+
+	struct timeval tv0, tv1;
+
 
 	// local variables
 
@@ -266,11 +280,7 @@ int main()
 	// stage-wise variant size
 
 	int nx[N+1];
-#if KEEP_X0
 	nx[0] = nx_;
-#else
-	nx[0] = 0;
-#endif
 	for(ii=1; ii<=N; ii++)
 		nx[ii] = nx_;
 //	nx[N] = 0;
@@ -286,11 +296,7 @@ int main()
 	nbu[N] = 0;
 #if 1
 	int nbx[N+1];
-#if KEEP_X0
-	nbx[0] = nx[0]/2;
-#else
-	nbx[0] = 0;
-#endif
+	nbx[0] = nx[0];
 	for(ii=1; ii<=N; ii++)
 		nbx[ii] = nx[ii]/2;
 
@@ -321,6 +327,11 @@ int main()
 	int ns[N+1];
 	for(ii=0; ii<=N; ii++)
 		ns[ii] = nsbx[ii] + nsbu[ii] + nsg[ii];
+
+	int nbxe[N+1];
+	nbxe[0] = nx_;
+	for(ii=1; ii<=N; ii++)
+		nbxe[ii] = 0;
 
 #elif 0
 	int nb[N+1];
@@ -378,16 +389,11 @@ int main()
 	x0[0] = 2.5;
 	x0[1] = 2.5;
 
-	double *b0; d_zeros(&b0, nx_, 1);
-	dgemv_n_3l(nx_, nx_, A, nx_, x0, b0);
-	daxpy_3l(nx_, 1.0, b, b0);
-
 #if PRINT
 	d_print_mat(nx_, nx_, A, nx_);
 	d_print_mat(nx_, nu_, B, nu_);
 	d_print_mat(1, nx_, b, 1);
 	d_print_mat(1, nx_, x0, 1);
-	d_print_mat(1, nx_, b0, 1);
 #endif
 
 /************************************************
@@ -408,10 +414,6 @@ int main()
 	double *r; d_zeros(&r, nu_, 1);
 	for(ii=0; ii<nu_; ii++) r[ii] = 0.0;
 
-	double *r0; d_zeros(&r0, nu_, 1);
-	dgemv_n_3l(nu_, nx_, S, nu_, x0, r0);
-	daxpy_3l(nu_, 1.0, r, r0);
-
 #if 0
 	double *QN; d_zeros(&QN, nx_, nx_);
 	for(ii=0; ii<2; ii++) QN[ii*(nx_+1)] = 1e15;
@@ -429,7 +431,6 @@ int main()
 	d_print_mat(nu_, nx_, S, nu_);
 	d_print_mat(1, nx_, q, 1);
 	d_print_mat(1, nu_, r, 1);
-	d_print_mat(1, nu_, r0, 1);
 //	d_print_mat(nx_, nx_, QN, nx_);
 //	d_print_mat(1, nx_, qN, 1);
 #endif
@@ -461,8 +462,8 @@ int main()
 		}
 	for(ii=0; ii<nbx[0]; ii++)
 		{
-		d_lbx0[ii] = - 4.0; // xmin
-		d_ubx0[ii] =   4.0; // xmax
+		d_lbx0[ii] = x0[ii]; //- 4.0; // xmin
+		d_ubx0[ii] = x0[ii]; //  4.0; // xmax
 		idxbx0[ii] = ii;
 		}
 	for(ii=0; ii<ng[0]; ii++)
@@ -590,13 +591,13 @@ int main()
 
 	double *Zl0; d_zeros(&Zl0, ns[0], 1);
 	for(ii=0; ii<ns[0]; ii++)
-		Zl0[ii] = 1e3;
+		Zl0[ii] = 0e3;
 	double *Zu0; d_zeros(&Zu0, ns[0], 1);
 	for(ii=0; ii<ns[0]; ii++)
-		Zu0[ii] = 1e3;
+		Zu0[ii] = 0e3;
 	double *zl0; d_zeros(&zl0, ns[0], 1);
 	for(ii=0; ii<ns[0]; ii++)
-		zl0[ii] = 0e2;
+		zl0[ii] = 1e2;
 	double *zu0; d_zeros(&zu0, ns[0], 1);
 	for(ii=0; ii<ns[0]; ii++)
 		zu0[ii] = 1e2;
@@ -605,20 +606,20 @@ int main()
 		idxs0[ii] = nu[0]+ii;
 	double *d_ls0; d_zeros(&d_ls0, ns[0], 1);
 	for(ii=0; ii<ns[0]; ii++)
-		d_ls0[ii] = -1.0;
+		d_ls0[ii] = 0.0; //-1.0;
 	double *d_us0; d_zeros(&d_us0, ns[0], 1);
 	for(ii=0; ii<ns[0]; ii++)
 		d_us0[ii] = 0.0;
 
 	double *Zl1; d_zeros(&Zl1, ns[1], 1);
 	for(ii=0; ii<ns[1]; ii++)
-		Zl1[ii] = 1e3;
+		Zl1[ii] = 0e3;
 	double *Zu1; d_zeros(&Zu1, ns[1], 1);
 	for(ii=0; ii<ns[1]; ii++)
-		Zu1[ii] = 1e3;
+		Zu1[ii] = 0e3;
 	double *zl1; d_zeros(&zl1, ns[1], 1);
 	for(ii=0; ii<ns[1]; ii++)
-		zl1[ii] = 0e2;
+		zl1[ii] = 1e2;
 	double *zu1; d_zeros(&zu1, ns[1], 1);
 	for(ii=0; ii<ns[1]; ii++)
 		zu1[ii] = 1e2;
@@ -627,20 +628,20 @@ int main()
 		idxs1[ii] = nu[1]+ii;
 	double *d_ls1; d_zeros(&d_ls1, ns[1], 1);
 	for(ii=0; ii<ns[1]; ii++)
-		d_ls1[ii] = -1.0;
+		d_ls1[ii] = 0.0; //-1.0;
 	double *d_us1; d_zeros(&d_us1, ns[1], 1);
 	for(ii=0; ii<ns[1]; ii++)
 		d_us1[ii] = 0.0;
 
 	double *ZlN; d_zeros(&ZlN, ns[N], 1);
 	for(ii=0; ii<ns[N]; ii++)
-		ZlN[ii] = 1e3;
+		ZlN[ii] = 0e3;
 	double *ZuN; d_zeros(&ZuN, ns[N], 1);
 	for(ii=0; ii<ns[N]; ii++)
-		ZuN[ii] = 1e3;
+		ZuN[ii] = 0e3;
 	double *zlN; d_zeros(&zlN, ns[N], 1);
 	for(ii=0; ii<ns[N]; ii++)
-		zlN[ii] = 0e2;
+		zlN[ii] = 1e2;
 	double *zuN; d_zeros(&zuN, ns[N], 1);
 	for(ii=0; ii<ns[N]; ii++)
 		zuN[ii] = 1e2;
@@ -649,12 +650,12 @@ int main()
 		idxsN[ii] = nu[N]+ii;
 	double *d_lsN; d_zeros(&d_lsN, ns[N], 1);
 	for(ii=0; ii<ns[N]; ii++)
-		d_lsN[ii] = -1.0;
+		d_lsN[ii] = 0.0; //-1.0;
 	double *d_usN; d_zeros(&d_usN, ns[N], 1);
 	for(ii=0; ii<ns[N]; ii++)
 		d_usN[ii] = 0.0;
 
-#if 1
+#if PRINT
 	// soft constraints
 	int_print_mat(1, ns[0], idxs0, 1);
 	d_print_mat(1, ns[0], Zl0, 1);
@@ -711,12 +712,12 @@ int main()
 
 	hA[0] = A;
 	hB[0] = B;
-	hb[0] = b0;
+	hb[0] = b;
 	hQ[0] = Q;
 	hS[0] = S;
 	hR[0] = R;
 	hq[0] = q;
-	hr[0] = r0;
+	hr[0] = r;
 	hidxbx[0] = idxbx0;
 	hd_lbx[0] = d_lbx0;
 	hd_ubx[0] = d_ubx0;
@@ -787,24 +788,56 @@ int main()
 ************************************************/
 
 	int dim_size = d_ocp_qp_dim_memsize(N);
+#if PRINT
 	printf("\ndim size = %d\n", dim_size);
+#endif
 	void *dim_mem = malloc(dim_size);
 
 	struct d_ocp_qp_dim dim;
 	d_ocp_qp_dim_create(N, &dim, dim_mem);
 	d_ocp_qp_dim_set_all(nx, nu, nbx, nbu, ng, nsbx, nsbu, nsg, &dim);
 
+	for(ii=0; ii<=N; ii++)
+		d_ocp_qp_dim_set_nbxe(ii, nbxe[ii], &dim);
+
+#if PRINT
+	d_ocp_qp_dim_print(&dim);
+#endif
+
 /************************************************
 * ocp qp
 ************************************************/
 
 	int qp_size = d_ocp_qp_memsize(&dim);
+#if PRINT
 	printf("\nqp size = %d\n", qp_size);
+#endif
 	void *qp_mem = malloc(qp_size);
 
 	struct d_ocp_qp qp;
 	d_ocp_qp_create(&dim, &qp, qp_mem);
 	d_ocp_qp_set_all(hA, hB, hb, hQ, hS, hR, hq, hr, hidxbx, hd_lbx, hd_ubx, hidxbu, hd_lbu, hd_ubu, hC, hD, hd_lg, hd_ug, hZl, hZu, hzl, hzu, hidxs, hd_ls, hd_us, &qp);
+
+	// dynamic constraints removal
+	double *d_lbu_mask; d_zeros(&d_lbu_mask, nbu[0], 1);
+	double *d_ubu_mask; d_zeros(&d_ubu_mask, nbu[0], 1);
+	double *d_lbx_mask; d_zeros(&d_lbx_mask, nbx[0], 1);
+	double *d_ubx_mask; d_zeros(&d_ubx_mask, nbx[0], 1);
+//	d_ocp_qp_set("lbu_mask", 0, d_lbu_mask, &qp);
+//	d_ocp_qp_set("ubu_mask", 0, d_ubu_mask, &qp);
+//	d_ocp_qp_set("lbx_mask", N, d_lbx_mask, &qp);
+//	d_ocp_qp_set("ubx_mask", N, d_ubx_mask, &qp);
+	
+	int idxbxe0[nx_];
+	for(ii=0; ii<=nx_; ii++)
+		idxbxe0[ii] = ii;
+	
+	d_ocp_qp_set_idxbxe(0, idxbxe0, &qp);
+
+#if PRINT
+	d_ocp_qp_print(qp.dim, &qp);
+//	exit(1);
+#endif
 
 #if 0
 	printf("\nN = %d\n", qp.dim->N);
@@ -832,21 +865,121 @@ int main()
 #endif
 
 /************************************************
+* ocp qp reduce equation dof
+************************************************/
+
+#if KEEP_X0
+
+	struct d_ocp_qp_dim dim2 = dim;
+	struct d_ocp_qp qp2 = qp;
+
+#else // keep x0
+
+	int dim_size2 = d_ocp_qp_dim_memsize(N);
+#if PRINT
+	printf("\ndim size = %d\n", dim_size2);
+#endif
+	void *dim_mem2 = malloc(dim_size2);
+
+	struct d_ocp_qp_dim dim2;
+	d_ocp_qp_dim_create(N, &dim2, dim_mem2);
+
+	d_ocp_qp_dim_reduce_eq_dof(&dim, &dim2);
+
+#if PRINT
+	d_ocp_qp_dim_print(&dim2);
+#endif
+
+
+	int qp_size2 = d_ocp_qp_memsize(&dim2);
+#if PRINT
+	printf("\nqp size = %d\n", qp_size2);
+#endif
+	void *qp_mem2 = malloc(qp_size2);
+
+	struct d_ocp_qp qp2;
+	d_ocp_qp_create(&dim2, &qp2, qp_mem2);
+
+//	d_ocp_qp_print(qp2.dim, &qp2);
+
+
+	int qp_red_arg_size = d_ocp_qp_reduce_eq_dof_arg_memsize();
+#if PRINT
+	printf("\nqp red arg size = %d\n", qp_red_arg_size);
+#endif
+	void *qp_red_arg_mem = malloc(qp_red_arg_size);
+
+	struct d_ocp_qp_reduce_eq_dof_arg qp_red_arg;
+	d_ocp_qp_reduce_eq_dof_arg_create(&qp_red_arg, qp_red_arg_mem);
+
+	d_ocp_qp_reduce_eq_dof_arg_set_default(&qp_red_arg);
+	d_ocp_qp_reduce_eq_dof_arg_set_alias_unchanged(&qp_red_arg, 1);
+	d_ocp_qp_reduce_eq_dof_arg_set_comp_dual_sol_eq(&qp_red_arg, 1);
+	d_ocp_qp_reduce_eq_dof_arg_set_comp_dual_sol_ineq(&qp_red_arg, 1);
+
+
+	int qp_red_work_size = d_ocp_qp_reduce_eq_dof_work_memsize(&dim);
+#if PRINT
+	printf("\nqp red work size = %d\n", qp_red_work_size);
+#endif
+	void *qp_red_work_mem = malloc(qp_red_work_size);
+
+	struct d_ocp_qp_reduce_eq_dof_work qp_red_work;
+	d_ocp_qp_reduce_eq_dof_work_create(&dim, &qp_red_work, qp_red_work_mem);
+
+
+	gettimeofday(&tv0, NULL); // start
+
+	for(rep=0; rep<nrep; rep++)
+		{
+		d_ocp_qp_reduce_eq_dof(&qp, &qp2, &qp_red_arg, &qp_red_work);
+		}
+
+	gettimeofday(&tv1, NULL); // stop
+
+	double time_red_eq_dof = (tv1.tv_sec-tv0.tv_sec)/(nrep+0.0)+(tv1.tv_usec-tv0.tv_usec)/(nrep*1e6);
+
+#if PRINT
+	d_ocp_qp_print(qp2.dim, &qp2);
+#endif
+
+#endif // keep x0
+
+/************************************************
 * ocp qp sol
 ************************************************/
 
 	int qp_sol_size = d_ocp_qp_sol_memsize(&dim);
+#if PRINT
 	printf("\nqp sol size = %d\n", qp_sol_size);
+#endif
 	void *qp_sol_mem = malloc(qp_sol_size);
 
 	struct d_ocp_qp_sol qp_sol;
 	d_ocp_qp_sol_create(&dim, &qp_sol, qp_sol_mem);
 
+#if KEEP_X0
+	
+	struct d_ocp_qp_sol qp_sol2 = qp_sol;
+
+#else // keep x0
+
+	int qp_sol_size2 = d_ocp_qp_sol_memsize(&dim2);
+#if PRINT
+	printf("\nqp sol size = %d\n", qp_sol_size2);
+#endif
+	void *qp_sol_mem2 = malloc(qp_sol_size2);
+
+	struct d_ocp_qp_sol qp_sol2;
+	d_ocp_qp_sol_create(&dim2, &qp_sol2, qp_sol_mem2);
+
+#endif // keep x0
+
 /************************************************
 * ipm arg
 ************************************************/
 
-	int ipm_arg_size = d_ocp_qp_ipm_arg_memsize(&dim);
+	int ipm_arg_size = d_ocp_qp_ipm_arg_memsize(&dim2);
 	void *ipm_arg_mem = malloc(ipm_arg_size);
 
 	struct d_ocp_qp_ipm_arg arg;
@@ -858,16 +991,18 @@ int main()
 //	enum hpipm_mode mode = ROBUST;
 	d_ocp_qp_ipm_arg_set_default(mode, &arg);
 
-	int iter_max = 20;
+	int iter_max = 30;
 	double alpha_min = 1e-8;
-	double tol_stat = 1e-8;
-	double tol_eq = 1e-12;
-	double tol_ineq = 1e-12;
-	double tol_comp = 1e-12;
+	double tol_stat = 1e-6;
+	double tol_eq = 1e-8;
+	double tol_ineq = 1e-8;
+	double tol_comp = 1e-8;
 	double reg_prim = 1e-12;
 	int warm_start = 0;
 	int pred_corr = 1;
-	int ric_alg = 1;
+	int ric_alg = 0;
+	int comp_res_exit = 1;
+//	double tau_min = 1e-12;
 
 	d_ocp_qp_ipm_arg_set_mu0(&mu0, &arg);
 	d_ocp_qp_ipm_arg_set_iter_max(&iter_max, &arg);
@@ -880,35 +1015,66 @@ int main()
 	d_ocp_qp_ipm_arg_set_warm_start(&warm_start, &arg);
 	d_ocp_qp_ipm_arg_set_pred_corr(&pred_corr, &arg);
 	d_ocp_qp_ipm_arg_set_ric_alg(&ric_alg, &arg);
+	d_ocp_qp_ipm_arg_set_comp_res_exit(&comp_res_exit, &arg);
+//	d_ocp_qp_ipm_arg_set_tau_min(&tau_min, &arg);
 
 /************************************************
 * ipm
 ************************************************/
 
-	int ipm_size = d_ocp_qp_ipm_ws_memsize(&dim, &arg);
+	int ipm_size = d_ocp_qp_ipm_ws_memsize(&dim2, &arg);
+#if PRINT
 	printf("\nipm size = %d\n", ipm_size);
+#endif
 	void *ipm_mem = malloc(ipm_size);
 
 	struct d_ocp_qp_ipm_ws workspace;
-	d_ocp_qp_ipm_ws_create(&dim, &arg, &workspace, ipm_mem);
+	d_ocp_qp_ipm_ws_create(&dim2, &arg, &workspace, ipm_mem);
 
 	int hpipm_status; // 0 normal; 1 max iter
-
-	int rep, nrep=1000;
-
-	struct timeval tv0, tv1;
 
 	gettimeofday(&tv0, NULL); // start
 
 	for(rep=0; rep<nrep; rep++)
 		{
-		d_ocp_qp_ipm_solve(&qp, &qp_sol, &arg, &workspace);
+		d_ocp_qp_ipm_solve(&qp2, &qp_sol2, &arg, &workspace);
 		d_ocp_qp_ipm_get_status(&workspace, &hpipm_status);
 		}
 
 	gettimeofday(&tv1, NULL); // stop
 
 	double time_ocp_ipm = (tv1.tv_sec-tv0.tv_sec)/(nrep+0.0)+(tv1.tv_usec-tv0.tv_usec)/(nrep*1e6);
+
+#if PRINT
+	d_ocp_qp_sol_print(&dim2, &qp_sol2);
+#endif
+
+/************************************************
+* ocp qp restore equation dof
+************************************************/
+
+#if KEEP_X0
+
+#else // keep x0
+
+	gettimeofday(&tv0, NULL); // start
+
+	for(rep=0; rep<nrep; rep++)
+		{
+		d_ocp_qp_restore_eq_dof(&qp, &qp_sol2, &qp_sol, &qp_red_arg, &qp_red_work);
+		}
+
+	gettimeofday(&tv1, NULL); // stop
+
+	double time_res_eq_dof = (tv1.tv_sec-tv0.tv_sec)/(nrep+0.0)+(tv1.tv_usec-tv0.tv_usec)/(nrep*1e6);
+
+#if PRINT
+	d_ocp_qp_sol_print(&dim, &qp_sol);
+#endif
+
+//	exit(1);
+
+#endif // keep x0
 
 /************************************************
 * extract and print solution
@@ -928,7 +1094,7 @@ int main()
 
 	d_ocp_qp_sol_get_all(&qp_sol, u, x, ls, us, pi, lam_lb, lam_ub, lam_lg, lam_ug, lam_ls, lam_us);
 
-#if 1
+#if PRINT
 	printf("\nsolution\n\n");
 	printf("\nu\n");
 	for(ii=0; ii<=N; ii++)
@@ -1006,9 +1172,9 @@ int main()
 	double *res_m_ls[N+1]; for(ii=0; ii<=N; ii++) d_zeros(res_m_ls+ii, ns[ii], 1);
 	double *res_m_us[N+1]; for(ii=0; ii<=N; ii++) d_zeros(res_m_us+ii, ns[ii], 1);
 
-	d_cvt_ocp_qp_res_to_colmaj(workspace.res, res_r, res_q, res_ls, res_us, res_b, res_d_lb, res_d_ub, res_d_lg, res_d_ug, res_d_ls, res_d_us, res_m_lb, res_m_ub, res_m_lg, res_m_ug, res_m_ls, res_m_us);
+	d_ocp_qp_res_get_all(workspace.res, res_r, res_q, res_ls, res_us, res_b, res_d_lb, res_d_ub, res_d_lg, res_d_ug, res_d_ls, res_d_us, res_m_lb, res_m_ub, res_m_lg, res_m_ug, res_m_ls, res_m_us);
 
-#if 1
+#if PRINT
 	printf("\nresiduals\n\n");
 	printf("\nres_r\n");
 	for(ii=0; ii<=N; ii++)
@@ -1068,21 +1234,28 @@ int main()
 ************************************************/
 
 	int iter; d_ocp_qp_ipm_get_iter(&workspace, &iter);
-	double res_stat; d_ocp_qp_ipm_get_res_stat(&workspace, &res_stat);
-	double res_eq; d_ocp_qp_ipm_get_res_eq(&workspace, &res_eq);
-	double res_ineq; d_ocp_qp_ipm_get_res_ineq(&workspace, &res_ineq);
-	double res_comp; d_ocp_qp_ipm_get_res_comp(&workspace, &res_comp);
+	double res_stat; d_ocp_qp_ipm_get_max_res_stat(&workspace, &res_stat);
+	double res_eq; d_ocp_qp_ipm_get_max_res_eq(&workspace, &res_eq);
+	double res_ineq; d_ocp_qp_ipm_get_max_res_ineq(&workspace, &res_ineq);
+	double res_comp; d_ocp_qp_ipm_get_max_res_comp(&workspace, &res_comp);
 	double *stat; d_ocp_qp_ipm_get_stat(&workspace, &stat);
 	int stat_m; d_ocp_qp_ipm_get_stat_m(&workspace, &stat_m);
 
+#if PRINT
 	printf("\nipm return = %d\n", hpipm_status);
 	printf("\nipm residuals max: res_g = %e, res_b = %e, res_d = %e, res_m = %e\n", res_stat, res_eq, res_ineq, res_comp);
 
 	printf("\nipm iter = %d\n", iter);
-	printf("\nalpha_aff\tmu_aff\t\tsigma\t\talpha\t\tmu\t\tres_stat\tres_eq\t\tres_ineq\tres_comp\n");
+	printf("\nalpha_aff\tmu_aff\t\tsigma\t\talpha_prim\talpha_dual\tmu\t\tres_stat\tres_eq\t\tres_ineq\tres_comp\tlq fact\t\titref pred\titref corr\tlin res stat\tlin res eq\tlin res ineq\tlin res comp\n");
 	d_print_exp_tran_mat(stat_m, iter+1, stat, stat_m);
 
 	printf("\nocp ipm time = %e [s]\n\n", time_ocp_ipm);
+#if KEEP_X0
+#else // keep x0
+	printf("\nreduce eq dof time = %e [s]\n\n", time_red_eq_dof);
+	printf("\nrestore eq dof time = %e [s]\n\n", time_res_eq_dof);
+#endif // keep x0
+#endif
 
 /************************************************
 * free memory
@@ -1099,7 +1272,6 @@ int main()
 	d_free(q);
 //	d_free(qN);
 	d_free(r);
-	d_free(r0);
 	int_free(idxbx0);
 	d_free(d_lbx0);
 	d_free(d_ubx0);
@@ -1127,6 +1299,10 @@ int main()
 	d_free(DN);
 	d_free(d_lgN);
 	d_free(d_ugN);
+	d_free(d_lbu_mask);
+	d_free(d_ubu_mask);
+	d_free(d_lbx_mask);
+	d_free(d_ubx_mask);
 
 	d_free(Zl0);
 	d_free(Zu0);
@@ -1208,15 +1384,24 @@ int main()
 	d_free(res_m_ls[ii]);
 	d_free(res_m_us[ii]);
 
+	free(dim_mem);
 	free(qp_mem);
 	free(qp_sol_mem);
 	free(ipm_arg_mem);
 	free(ipm_mem);
+#if KEEP_X0
+#else // keep x0
+	free(dim_mem2);
+	free(qp_mem2);
+	free(qp_sol_mem2);
+	free(qp_red_arg_mem);
+	free(qp_red_work_mem);
+#endif // keep x0
 
 /************************************************
 * return
 ************************************************/
 
-	return 0;
+	return hpipm_status;
 
 	}

@@ -3,25 +3,31 @@
 * This file is part of HPIPM.                                                                     *
 *                                                                                                 *
 * HPIPM -- High-Performance Interior Point Method.                                                *
-* Copyright (C) 2017-2018 by Gianluca Frison.                                                     *
+* Copyright (C) 2019 by Gianluca Frison.                                                          *
 * Developed at IMTEK (University of Freiburg) under the supervision of Moritz Diehl.              *
 * All rights reserved.                                                                            *
 *                                                                                                 *
-* This program is free software: you can redistribute it and/or modify                            *
-* it under the terms of the GNU General Public License as published by                            *
-* the Free Software Foundation, either version 3 of the License, or                               *
-* (at your option) any later version                                                              *.
+* The 2-Clause BSD License                                                                        *
 *                                                                                                 *
-* This program is distributed in the hope that it will be useful,                                 *
-* but WITHOUT ANY WARRANTY; without even the implied warranty of                                  *
-* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the                                   *
-* GNU General Public License for more details.                                                    *
+* Redistribution and use in source and binary forms, with or without                              *
+* modification, are permitted provided that the following conditions are met:                     *
 *                                                                                                 *
-* You should have received a copy of the GNU General Public License                               *
-* along with this program.  If not, see <https://www.gnu.org/licenses/>.                          *
+* 1. Redistributions of source code must retain the above copyright notice, this                  *
+*    list of conditions and the following disclaimer.                                             *
+* 2. Redistributions in binary form must reproduce the above copyright notice,                    *
+*    this list of conditions and the following disclaimer in the documentation                    *
+*    and/or other materials provided with the distribution.                                       *
 *                                                                                                 *
-* The authors designate this particular file as subject to the "Classpath" exception              *
-* as provided by the authors in the LICENSE file that accompained this code.                      *
+* THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND                 *
+* ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED                   *
+* WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE                          *
+* DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR                 *
+* ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES                  *
+* (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;                    *
+* LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND                     *
+* ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT                      *
+* (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS                   *
+* SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.                                    *
 *                                                                                                 *
 * Author: Gianluca Frison, gianluca.frison (at) imtek.uni-freiburg.de                             *
 *                                                                                                 *
@@ -56,31 +62,29 @@ struct s_dense_qp
 	struct blasfeo_svec *gz; // gradient & gradient of slacks
 	struct blasfeo_svec *b; // dynamics vector
 	struct blasfeo_svec *d; // constraints vector
+	struct blasfeo_svec *d_mask; // inequality constraints mask vector
 	struct blasfeo_svec *m; // rhs of complementarity condition
 	struct blasfeo_svec *Z; // (diagonal) hessian of slacks
 	int *idxb; // index of box constraints
-	int *idxs; // index of soft constraints
+	int *idxs_rev; // index of soft constraints (reverse storage)
 	int memsize; // memory size in bytes
 	};
 
 
 
 //
-int s_memsize_dense_qp(struct s_dense_qp_dim *dim);
+int s_dense_qp_memsize(struct s_dense_qp_dim *dim);
 //
-void s_create_dense_qp(struct s_dense_qp_dim *dim, struct s_dense_qp *qp, void *memory);
-//
-void s_cvt_colmaj_to_dense_qp(float *H, float *g, float *A, float *b, int *idxb, float *d_lb, float *d_ub, float *C, float *d_lg, float *d_ug, float *Zl, float *Zu, float *zl, float *zu, int *idxs, float *d_ls, float *d_us, struct s_dense_qp *qp);
-//
-void s_cvt_dense_qp_to_colmaj(struct s_dense_qp *qp, float *H, float *g, float *A, float *b, int *idxb, float *d_lb, float *d_ub, float *C, float *d_lg, float *d_ug, float *Zl, float *Zu, float *zl, float *zu, int *idxs, float *d_ls, float *d_us);
-//
-void s_cvt_rowmaj_to_dense_qp(float *H, float *g, float *A, float *b, int *idxb, float *d_lb, float *d_ub, float *C, float *d_lg, float *d_ug, float *Zl, float *Zu, float *zl, float *zu, int *idxs, float *d_ls, float *d_us, struct s_dense_qp *qp);
-//
-void s_cvt_dense_qp_to_rowmaj(struct s_dense_qp *qp, float *H, float *g, float *A, float *b, int *idxb, float *d_lb, float *d_ub, float *C, float *d_lg, float *d_ug, float *Zl, float *Zu, float *zl, float *zu, int *idxs, float *d_ls, float *d_us);
+void s_dense_qp_create(struct s_dense_qp_dim *dim, struct s_dense_qp *qp, void *memory);
 
-
-// setters (COLMAJ)
-
+// setters - colmaj
+//
+void s_dense_qp_set_all(float *H, float *g, float *A, float *b, int *idxb, float *d_lb, float *d_ub, float *C, float *d_lg, float *d_ug, float *Zl, float *Zu, float *zl, float *zu, int *idxs, float *d_ls, float *d_us, struct s_dense_qp *qp);
+//
+void s_dense_qp_get_all(struct s_dense_qp *qp, float *H, float *g, float *A, float *b, int *idxb, float *d_lb, float *d_ub, float *C, float *d_lg, float *d_ug, float *Zl, float *Zu, float *zl, float *zu, int *idxs, float *d_ls, float *d_us);
+//
+void s_dense_qp_set(char *field, void *value, struct s_dense_qp *qp);
+//
 void s_dense_qp_set_H(float *H, struct s_dense_qp *qp);
 //
 void s_dense_qp_set_g(float *g, struct s_dense_qp *qp);
@@ -93,15 +97,25 @@ void s_dense_qp_set_idxb(int *idxb, struct s_dense_qp *qp);
 //
 void s_dense_qp_set_lb(float *lb, struct s_dense_qp *qp);
 //
+void s_dense_qp_set_lb_mask(float *lb, struct s_dense_qp *qp);
+//
 void s_dense_qp_set_ub(float *ub, struct s_dense_qp *qp);
+//
+void s_dense_qp_set_ub_mask(float *ub, struct s_dense_qp *qp);
 //
 void s_dense_qp_set_C(float *C, struct s_dense_qp *qp);
 //
 void s_dense_qp_set_lg(float *lg, struct s_dense_qp *qp);
 //
+void s_dense_qp_set_lg_mask(float *lg, struct s_dense_qp *qp);
+//
 void s_dense_qp_set_ug(float *ug, struct s_dense_qp *qp);
 //
+void s_dense_qp_set_ug_mask(float *ug, struct s_dense_qp *qp);
+//
 void s_dense_qp_set_idxs(int *idxs, struct s_dense_qp *qp);
+//
+void s_dense_qp_set_idxs_rev(int *idxs_rev, struct s_dense_qp *qp);
 //
 void s_dense_qp_set_Zl(float *Zl, struct s_dense_qp *qp);
 //
@@ -113,10 +127,14 @@ void s_dense_qp_set_zu(float *zu, struct s_dense_qp *qp);
 //
 void s_dense_qp_set_ls(float *ls, struct s_dense_qp *qp);
 //
+void s_dense_qp_set_ls_mask(float *ls, struct s_dense_qp *qp);
+//
 void s_dense_qp_set_us(float *us, struct s_dense_qp *qp);
+//
+void s_dense_qp_set_us_mask(float *us, struct s_dense_qp *qp);
 
-// getters (COLMAJ)
-
+// getters - colmaj
+//
 void s_dense_qp_get_H(struct s_dense_qp *qp, float *H);
 //
 void s_dense_qp_get_g(struct s_dense_qp *qp, float *g);
@@ -139,6 +157,8 @@ void s_dense_qp_get_ug(struct s_dense_qp *qp, float *ug);
 //
 void s_dense_qp_get_idxs(struct s_dense_qp *qp, int *idxs);
 //
+void s_dense_qp_get_idxs_rev(struct s_dense_qp *qp, int *idxs_rev);
+//
 void s_dense_qp_get_Zl(struct s_dense_qp *qp, float *Zl);
 //
 void s_dense_qp_get_Zu(struct s_dense_qp *qp, float *Zu);
@@ -150,6 +170,14 @@ void s_dense_qp_get_zu(struct s_dense_qp *qp, float *zu);
 void s_dense_qp_get_ls(struct s_dense_qp *qp, float *ls);
 //
 void s_dense_qp_get_us(struct s_dense_qp *qp, float *us);
+
+// setters - rowmaj
+//
+void s_dense_qp_set_all_rowmaj(float *H, float *g, float *A, float *b, int *idxb, float *d_lb, float *d_ub, float *C, float *d_lg, float *d_ug, float *Zl, float *Zu, float *zl, float *zu, int *idxs, float *d_ls, float *d_us, struct s_dense_qp *qp);
+
+// getters - rowmaj
+//
+void s_dense_qp_get_all_rowmaj(struct s_dense_qp *qp, float *H, float *g, float *A, float *b, int *idxb, float *d_lb, float *d_ub, float *C, float *d_lg, float *d_ug, float *Zl, float *Zu, float *zl, float *zu, int *idxs, float *d_ls, float *d_us);
 
 
 #ifdef __cplusplus

@@ -3,25 +3,31 @@
 * This file is part of HPIPM.                                                                     *
 *                                                                                                 *
 * HPIPM -- High-Performance Interior Point Method.                                                *
-* Copyright (C) 2017-2018 by Gianluca Frison.                                                     *
+* Copyright (C) 2019 by Gianluca Frison.                                                          *
 * Developed at IMTEK (University of Freiburg) under the supervision of Moritz Diehl.              *
 * All rights reserved.                                                                            *
 *                                                                                                 *
-* This program is free software: you can redistribute it and/or modify                            *
-* it under the terms of the GNU General Public License as published by                            *
-* the Free Software Foundation, either version 3 of the License, or                               *
-* (at your option) any later version                                                              *.
+* The 2-Clause BSD License                                                                        *
 *                                                                                                 *
-* This program is distributed in the hope that it will be useful,                                 *
-* but WITHOUT ANY WARRANTY; without even the implied warranty of                                  *
-* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the                                   *
-* GNU General Public License for more details.                                                    *
+* Redistribution and use in source and binary forms, with or without                              *
+* modification, are permitted provided that the following conditions are met:                     *
 *                                                                                                 *
-* You should have received a copy of the GNU General Public License                               *
-* along with this program.  If not, see <https://www.gnu.org/licenses/>.                          *
+* 1. Redistributions of source code must retain the above copyright notice, this                  *
+*    list of conditions and the following disclaimer.                                             *
+* 2. Redistributions in binary form must reproduce the above copyright notice,                    *
+*    this list of conditions and the following disclaimer in the documentation                    *
+*    and/or other materials provided with the distribution.                                       *
 *                                                                                                 *
-* The authors designate this particular file as subject to the "Classpath" exception              *
-* as provided by the authors in the LICENSE file that accompained this code.                      *
+* THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND                 *
+* ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED                   *
+* WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE                          *
+* DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR                 *
+* ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES                  *
+* (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;                    *
+* LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND                     *
+* ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT                      *
+* (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS                   *
+* SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.                                    *
 *                                                                                                 *
 * Author: Gianluca Frison, gianluca.frison (at) imtek.uni-freiburg.de                             *
 *                                                                                                 *
@@ -83,6 +89,13 @@ int OCP_QP_SOL_MEMSIZE(struct OCP_QP_DIM *dim)
 void OCP_QP_SOL_CREATE(struct OCP_QP_DIM *dim, struct OCP_QP_SOL *qp_sol, void *mem)
 	{
 
+	// loop index
+	int ii;
+
+	// zero memory (to avoid corrupted memory like e.g. NaN)
+	int memsize = OCP_QP_SOL_MEMSIZE(dim);
+	hpipm_zero_memset(memsize, mem);
+
 	// extract dim
 	int N = dim->N;
 	int *nx = dim->nx;
@@ -90,9 +103,6 @@ void OCP_QP_SOL_CREATE(struct OCP_QP_DIM *dim, struct OCP_QP_SOL *qp_sol, void *
 	int *nb = dim->nb;
 	int *ng = dim->ng;
 	int *ns = dim->ns;
-
-	// loop index
-	int ii;
 
 	int nvt = 0;
 	int net = 0;
@@ -194,6 +204,39 @@ void OCP_QP_SOL_CREATE(struct OCP_QP_DIM *dim, struct OCP_QP_SOL *qp_sol, void *
 		}
 #endif
 
+
+	return;
+
+	}
+
+
+
+void OCP_QP_SOL_COPY_ALL(struct OCP_QP_SOL *qp_sol_orig, struct OCP_QP_SOL *qp_sol_dest)
+	{
+
+	int N = qp_sol_orig->dim->N;
+	int *nx = qp_sol_orig->dim->nx;
+	int *nu = qp_sol_orig->dim->nu;
+	int *nb = qp_sol_orig->dim->nb;
+	int *ng = qp_sol_orig->dim->ng;
+	int *ns = qp_sol_orig->dim->ns;
+
+	int ii;
+
+	// copy dim pointer
+//	qp_sol_dest->dim = qp_sol_orig->dim;
+
+	for(ii=0; ii<N; ii++)
+		{
+		VECCP(nu[ii]+nx[ii]+2*ns[ii], qp_sol_orig->ux+ii, 0, qp_sol_dest->ux+ii, 0);
+		VECCP(nx[ii+1], qp_sol_orig->pi+ii, 0, qp_sol_dest->pi+ii, 0);
+		VECCP(2*nb[ii]+2*ng[ii]+2*ns[ii], qp_sol_orig->lam+ii, 0, qp_sol_dest->lam+ii, 0);
+		VECCP(2*nb[ii]+2*ng[ii]+2*ns[ii], qp_sol_orig->t+ii, 0, qp_sol_dest->t+ii, 0);
+		}
+	ii = N;
+	VECCP(nu[ii]+nx[ii]+2*ns[ii], qp_sol_orig->ux+ii, 0, qp_sol_dest->ux+ii, 0);
+	VECCP(2*nb[ii]+2*ng[ii]+2*ns[ii], qp_sol_orig->lam+ii, 0, qp_sol_dest->lam+ii, 0);
+	VECCP(2*nb[ii]+2*ng[ii]+2*ns[ii], qp_sol_orig->t+ii, 0, qp_sol_dest->t+ii, 0);
 
 	return;
 
@@ -303,6 +346,14 @@ void OCP_QP_SOL_GET(char *field, int stage, struct OCP_QP_SOL *qp_sol, REAL *vec
 		{ 
 		OCP_QP_SOL_GET_X(stage, qp_sol, vec);
 		}
+	else if(hpipm_strcmp(field, "sl"))
+		{ 
+		OCP_QP_SOL_GET_SL(stage, qp_sol, vec);
+		}
+	else if(hpipm_strcmp(field, "su"))
+		{ 
+		OCP_QP_SOL_GET_SU(stage, qp_sol, vec);
+		}
 	else if(hpipm_strcmp(field, "pi"))
 		{ 
 		OCP_QP_SOL_GET_PI(stage, qp_sol, vec);
@@ -348,6 +399,27 @@ void OCP_QP_SOL_GET_X(int stage, struct OCP_QP_SOL *qp_sol, REAL *vec)
 	CVT_STRVEC2VEC(nx[stage], qp_sol->ux+stage, nu[stage], vec);
 	}
 
+
+
+void OCP_QP_SOL_GET_SL(int stage, struct OCP_QP_SOL *qp_sol, REAL *vec)
+	{
+	int *nu = qp_sol->dim->nu;
+	int *nx = qp_sol->dim->nx;
+	int *ns = qp_sol->dim->ns;
+	CVT_STRVEC2VEC(ns[stage], qp_sol->ux+stage, nu[stage]+nx[stage], vec);
+	return;
+	}
+
+
+
+void OCP_QP_SOL_GET_SU(int stage, struct OCP_QP_SOL *qp_sol, REAL *vec)
+	{
+	int *nu = qp_sol->dim->nu;
+	int *nx = qp_sol->dim->nx;
+	int *ns = qp_sol->dim->ns;
+	CVT_STRVEC2VEC(ns[stage], qp_sol->ux+stage, nu[stage]+nx[stage]+ns[stage], vec);
+	return;
+	}
 
 
 void OCP_QP_SOL_GET_PI(int stage, struct OCP_QP_SOL *qp_sol, REAL *vec)

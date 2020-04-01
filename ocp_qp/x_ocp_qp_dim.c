@@ -3,25 +3,31 @@
 * This file is part of HPIPM.                                                                     *
 *                                                                                                 *
 * HPIPM -- High-Performance Interior Point Method.                                                *
-* Copyright (C) 2017-2018 by Gianluca Frison.                                                     *
+* Copyright (C) 2019 by Gianluca Frison.                                                          *
 * Developed at IMTEK (University of Freiburg) under the supervision of Moritz Diehl.              *
 * All rights reserved.                                                                            *
 *                                                                                                 *
-* This program is free software: you can redistribute it and/or modify                            *
-* it under the terms of the GNU General Public License as published by                            *
-* the Free Software Foundation, either version 3 of the License, or                               *
-* (at your option) any later version                                                              *.
+* The 2-Clause BSD License                                                                        *
 *                                                                                                 *
-* This program is distributed in the hope that it will be useful,                                 *
-* but WITHOUT ANY WARRANTY; without even the implied warranty of                                  *
-* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the                                   *
-* GNU General Public License for more details.                                                    *
+* Redistribution and use in source and binary forms, with or without                              *
+* modification, are permitted provided that the following conditions are met:                     *
 *                                                                                                 *
-* You should have received a copy of the GNU General Public License                               *
-* along with this program.  If not, see <https://www.gnu.org/licenses/>.                          *
+* 1. Redistributions of source code must retain the above copyright notice, this                  *
+*    list of conditions and the following disclaimer.                                             *
+* 2. Redistributions in binary form must reproduce the above copyright notice,                    *
+*    this list of conditions and the following disclaimer in the documentation                    *
+*    and/or other materials provided with the distribution.                                       *
 *                                                                                                 *
-* The authors designate this particular file as subject to the "Classpath" exception              *
-* as provided by the authors in the LICENSE file that accompained this code.                      *
+* THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND                 *
+* ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED                   *
+* WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE                          *
+* DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR                 *
+* ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES                  *
+* (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;                    *
+* LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND                     *
+* ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT                      *
+* (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS                   *
+* SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.                                    *
 *                                                                                                 *
 * Author: Gianluca Frison, gianluca.frison (at) imtek.uni-freiburg.de                             *
 *                                                                                                 *
@@ -41,9 +47,9 @@ int OCP_QP_DIM_MEMSIZE(int N)
 
 	int size = 0;
 
-	size += 10*(N+1)*sizeof(int);
+	size += 13*(N+1)*sizeof(int);
 
-	size = (size+8-1)/8*8;
+	size = (size+8-1)/8*8; // make multiple of 8 bytes
 
 	return size;
 
@@ -51,13 +57,17 @@ int OCP_QP_DIM_MEMSIZE(int N)
 
 
 
-void OCP_QP_DIM_CREATE(int N, struct OCP_QP_DIM *dim, void *memory)
+void OCP_QP_DIM_CREATE(int N, struct OCP_QP_DIM *dim, void *mem)
 	{
 
 	// loop index
 	int ii;
 
-	char *c_ptr = memory;
+	// zero memory (to avoid corrupted memory like e.g. NaN)
+	int memsize = OCP_QP_DIM_MEMSIZE(N);
+	hpipm_zero_memset(memsize, mem);
+
+	char *c_ptr = mem;
 
 	// nx
 	dim->nx = (int *) c_ptr;
@@ -109,6 +119,21 @@ void OCP_QP_DIM_CREATE(int N, struct OCP_QP_DIM *dim, void *memory)
 	c_ptr += (N+1)*sizeof(int);
 	for(ii=0; ii<=N; ii++)
 		dim->nsg[ii] = 0;
+	// nbxe
+	dim->nbxe = (int *) c_ptr;
+	c_ptr += (N+1)*sizeof(int);
+	for(ii=0; ii<=N; ii++)
+		dim->nbxe[ii] = 0;
+	// nbue
+	dim->nbue = (int *) c_ptr;
+	c_ptr += (N+1)*sizeof(int);
+	for(ii=0; ii<=N; ii++)
+		dim->nbue[ii] = 0;
+	// nge
+	dim->nge = (int *) c_ptr;
+	c_ptr += (N+1)*sizeof(int);
+	for(ii=0; ii<=N; ii++)
+		dim->nge[ii] = 0;
 
 	// N
 	dim->N = N;
@@ -120,6 +145,58 @@ void OCP_QP_DIM_CREATE(int N, struct OCP_QP_DIM *dim, void *memory)
 	}
 
 
+void OCP_QP_DIM_COPY_ALL(struct OCP_QP_DIM *dim_orig, struct OCP_QP_DIM *dim_dest)
+	{
+
+#if defined(RUNTIME_CHECKS)
+	if(dim_orig->N!=dim_dest->N)
+		{
+		printf("\nerror: OCP_QP_DIM_COPY_ALL: dim_orig->N != dim_dest->N\n");
+		exit(1);
+		}
+#endif
+
+	// loop index
+	int ii;
+
+	// N
+	int N = dim_orig->N;
+
+	// copy qp dim
+	for(ii=0; ii<=N; ii++)
+		dim_dest->nx[ii] = dim_orig->nx[ii];
+	for(ii=0; ii<=N; ii++)
+		dim_dest->nu[ii] = dim_orig->nu[ii];
+	for(ii=0; ii<=N; ii++)
+		dim_dest->nb[ii] = dim_orig->nb[ii];
+	for(ii=0; ii<=N; ii++)
+		dim_dest->nbx[ii] = dim_orig->nbx[ii];
+	for(ii=0; ii<=N; ii++)
+		dim_dest->nbu[ii] = dim_orig->nbu[ii];
+	for(ii=0; ii<=N; ii++)
+		dim_dest->ng[ii] = dim_orig->ng[ii];
+	for(ii=0; ii<=N; ii++)
+		dim_dest->ns[ii] = dim_orig->ns[ii];
+	for(ii=0; ii<=N; ii++)
+		dim_dest->nsbx[ii] = dim_orig->nsbx[ii];
+	for(ii=0; ii<=N; ii++)
+		dim_dest->nsbu[ii] = dim_orig->nsbu[ii];
+	for(ii=0; ii<=N; ii++)
+		dim_dest->nsg[ii] = dim_orig->nsg[ii];
+	for(ii=0; ii<=N; ii++)
+		dim_dest->nbxe[ii] = dim_orig->nbxe[ii];
+	for(ii=0; ii<=N; ii++)
+		dim_dest->nbue[ii] = dim_orig->nbue[ii];
+	for(ii=0; ii<=N; ii++)
+		dim_dest->nge[ii] = dim_orig->nge[ii];
+
+	return;
+
+	}
+
+
+
+// TODO deprecated and remove ???
 void OCP_QP_DIM_SET_ALL(int *nx, int *nu, int *nbx, int *nbu, int *ng, int *nsbx, int *nsbu, int *nsg, struct OCP_QP_DIM *dim)
 	{
 
@@ -179,6 +256,10 @@ void OCP_QP_DIM_SET(char *field_name, int stage, int value, struct OCP_QP_DIM *d
 		{
 		OCP_QP_DIM_SET_NG(stage, value, dim);
 		}
+	else if(hpipm_strcmp(field_name, "ns"))
+		{
+		OCP_QP_DIM_SET_NS(stage, value, dim);
+		}
 	else if(hpipm_strcmp(field_name, "nsbx"))
 		{
 		OCP_QP_DIM_SET_NSBX(stage, value, dim);
@@ -191,9 +272,21 @@ void OCP_QP_DIM_SET(char *field_name, int stage, int value, struct OCP_QP_DIM *d
 		{
 		OCP_QP_DIM_SET_NSG(stage, value, dim);
 		}
+	else if(hpipm_strcmp(field_name, "nbxe"))
+		{
+		OCP_QP_DIM_SET_NBXE(stage, value, dim);
+		}
+	else if(hpipm_strcmp(field_name, "nbue"))
+		{
+		OCP_QP_DIM_SET_NBUE(stage, value, dim);
+		}
+	else if(hpipm_strcmp(field_name, "nge"))
+		{
+		OCP_QP_DIM_SET_NGE(stage, value, dim);
+		}
 	else 
 		{
-		printf("error [OCP_QP_DIM_SET]: unknown field name '%s'. Exiting.\n", field_name);
+		printf("error: OCP_QP_DIM_SET: wrong field %s\n", field_name);
 		exit(1);
 		}
 	return;
@@ -243,6 +336,14 @@ void OCP_QP_DIM_SET_NG(int stage, int value, struct OCP_QP_DIM *dim)
 
 
 
+void OCP_QP_DIM_SET_NS(int stage, int value, struct OCP_QP_DIM *dim)
+	{
+	dim->ns[stage] = value;
+	return;
+	}
+
+
+
 void OCP_QP_DIM_SET_NSBX(int stage, int value, struct OCP_QP_DIM *dim)
 	{
 	dim->nsbx[stage] = value;
@@ -267,3 +368,74 @@ void OCP_QP_DIM_SET_NSG(int stage, int value, struct OCP_QP_DIM *dim)
 	dim->ns[stage] = dim->nsbx[stage] + dim->nsbu[stage] + dim->nsg[stage];
 	return;
 	}
+
+
+
+void OCP_QP_DIM_SET_NBXE(int stage, int value, struct OCP_QP_DIM *dim)
+	{
+	dim->nbxe[stage] = value;
+	return;
+	}
+
+
+
+void OCP_QP_DIM_SET_NBUE(int stage, int value, struct OCP_QP_DIM *dim)
+	{
+	dim->nbue[stage] = value;
+	return;
+	}
+
+
+
+void OCP_QP_DIM_SET_NGE(int stage, int value, struct OCP_QP_DIM *dim)
+	{
+	dim->nge[stage] = value;
+	return;
+	}
+
+
+
+void OCP_QP_DIM_GET(struct OCP_QP_DIM *dim, char *field_name, int stage, int *value)
+	{
+	if(hpipm_strcmp(field_name, "nx"))
+		{
+		OCP_QP_DIM_GET_NX(dim, stage, value);
+		}
+	else if(hpipm_strcmp(field_name, "nu"))
+		{
+		OCP_QP_DIM_GET_NU(dim, stage, value);
+		}
+	else
+		{
+		printf("error: OCP_QP_DIM_GET: wrong field %s\n", field_name);
+		exit(1);
+		}
+	return;
+	}
+
+
+
+void OCP_QP_DIM_GET_N(struct OCP_QP_DIM *dim, int *value)
+	{
+	*value = dim->N;
+	return;
+	}
+
+
+
+void OCP_QP_DIM_GET_NX(struct OCP_QP_DIM *dim, int stage, int *value)
+	{
+	*value = dim->nx[stage];
+	return;
+	}
+
+
+
+void OCP_QP_DIM_GET_NU(struct OCP_QP_DIM *dim, int stage, int *value)
+	{
+	*value = dim->nu[stage];
+	return;
+	}
+
+
+

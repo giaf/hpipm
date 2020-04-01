@@ -3,25 +3,31 @@
 * This file is part of HPIPM.                                                                     *
 *                                                                                                 *
 * HPIPM -- High-Performance Interior Point Method.                                                *
-* Copyright (C) 2017-2018 by Gianluca Frison.                                                     *
+* Copyright (C) 2019 by Gianluca Frison.                                                          *
 * Developed at IMTEK (University of Freiburg) under the supervision of Moritz Diehl.              *
 * All rights reserved.                                                                            *
 *                                                                                                 *
-* This program is free software: you can redistribute it and/or modify                            *
-* it under the terms of the GNU General Public License as published by                            *
-* the Free Software Foundation, either version 3 of the License, or                               *
-* (at your option) any later version                                                              *.
+* The 2-Clause BSD License                                                                        *
 *                                                                                                 *
-* This program is distributed in the hope that it will be useful,                                 *
-* but WITHOUT ANY WARRANTY; without even the implied warranty of                                  *
-* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the                                   *
-* GNU General Public License for more details.                                                    *
+* Redistribution and use in source and binary forms, with or without                              *
+* modification, are permitted provided that the following conditions are met:                     *
 *                                                                                                 *
-* You should have received a copy of the GNU General Public License                               *
-* along with this program.  If not, see <https://www.gnu.org/licenses/>.                          *
+* 1. Redistributions of source code must retain the above copyright notice, this                  *
+*    list of conditions and the following disclaimer.                                             *
+* 2. Redistributions in binary form must reproduce the above copyright notice,                    *
+*    this list of conditions and the following disclaimer in the documentation                    *
+*    and/or other materials provided with the distribution.                                       *
 *                                                                                                 *
-* The authors designate this particular file as subject to the "Classpath" exception              *
-* as provided by the authors in the LICENSE file that accompained this code.                      *
+* THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND                 *
+* ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED                   *
+* WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE                          *
+* DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR                 *
+* ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES                  *
+* (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;                    *
+* LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND                     *
+* ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT                      *
+* (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS                   *
+* SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.                                    *
 *                                                                                                 *
 * Author: Gianluca Frison, gianluca.frison (at) imtek.uni-freiburg.de                             *
 *                                                                                                 *
@@ -29,604 +35,8 @@
 
 
 
-// TODO with warm_start==2 also init dual variables !!!
-void INIT_VAR_OCP_QP(struct OCP_QP *qp, struct OCP_QP_SOL *qp_sol, struct OCP_QP_IPM_ARG *arg, struct OCP_QP_IPM_WORKSPACE *ws)
-	{
-
-//	struct CORE_QP_IPM_WORKSPACE *cws = ws->core_workspace;
-	
-	// loop index
-	int ii, jj;
-
-	//
-	int N = qp->dim->N;
-	int *nx = qp->dim->nx;
-	int *nu = qp->dim->nu;
-	int *nb = qp->dim->nb;
-	int *ng = qp->dim->ng;
-	int *ns = qp->dim->ns;
-
-	REAL mu0 = arg->mu0;
-
-	//
-	REAL *ux, *s, *pi, *d_lb, *d_ub, *d_lg, *d_ug, *d_ls, *lam_lb, *lam_ub, *lam_lg, *lam_ug, *lam_ls, *t_lb, *t_ub, *t_lg, *t_ug, *t_ls;
-	int *idxb, *idxs;
-	int idx;
-
-	REAL thr0 = 1e-1;
-
-
-
-	// primal and dual variables
-	if(arg->warm_start==2)
-		{
-
-		thr0 = 1e-1;
-
-		for(ii=0; ii<=N; ii++)
-			{
-			lam_lb = qp_sol->lam[ii].pa+0;
-			t_lb = qp_sol->t[ii].pa+0;
-
-			for(jj=0; jj<2*nb[ii]+2*ng[ii]+2*ns[ii]; jj++)
-				{
-				if(lam_lb[jj]<thr0)
-					lam_lb[jj] = thr0;
-				if(t_lb[jj]<thr0)
-					t_lb[jj] = thr0;
-				}
-			}
-
-		return;
-		}
-
-
-
-	// ux
-	if(arg->warm_start==0)
-		{
-
-		// cold start
-		for(ii=0; ii<=N; ii++)
-			{
-			ux = qp_sol->ux[ii].pa;
-			for(jj=0; jj<nu[ii]+nx[ii]+2*ns[ii]; jj++)
-				{
-				ux[jj] = 0.0;
-				}
-			}
-
-		}
-//	else
-//		{
-//
-//		// warm start (keep u and x in solution)
-//		for(ii=0; ii<=N; ii++)
-//			{
-//			ux = qp_sol->ux[ii].pa;
-//			for(jj=nu[ii]+nx[ii]; jj<nu[ii]+nx[ii]+2*ns[ii]; jj++)
-//				{
-//				ux[jj] = 0.0;
-//				}
-//			}
-//
-//		}
-	
-	// pi
-	for(ii=0; ii<N; ii++)
-		{
-		pi = qp_sol->pi[ii].pa;
-		for(jj=0; jj<nx[ii+1]; jj++)
-			{
-			pi[jj] = 0.0;
-			}
-		}
-
-#if 0 // old version
-
-
-
-	// box constraints
-	for(ii=0; ii<=N; ii++)
-		{
-		ux = qp_sol->ux[ii].pa;
-		d_lb = qp->d[ii].pa+0;
-		d_ub = qp->d[ii].pa+nb[ii]+ng[ii];
-		lam_lb = qp_sol->lam[ii].pa+0;
-		lam_ub = qp_sol->lam[ii].pa+nb[ii]+ng[ii];
-		t_lb = qp_sol->t[ii].pa+0;
-		t_ub = qp_sol->t[ii].pa+nb[ii]+ng[ii];
-		idxb = qp->idxb[ii];
-		for(jj=0; jj<nb[ii]; jj++)
-			{
-#if 1
-			t_lb[jj] = - d_lb[jj] + ux[idxb[jj]];
-			t_ub[jj] = - d_ub[jj] - ux[idxb[jj]];
-//			printf("\n%d %f %f\n", jj, t_lb[jj], t_ub[jj]);
-			if(t_lb[jj]<thr0)
-				{
-				if(t_ub[jj]<thr0)
-					{
-//					ux[idxb[jj]] = 0.5*(d_lb[jj] + d_ub[jj]);
-					ux[idxb[jj]] = 0.5*(d_lb[jj] - d_ub[jj]);
-					t_lb[jj] = thr0;
-					t_ub[jj] = thr0;
-					}
-				else
-					{
-					t_lb[jj] = thr0;
-					ux[idxb[jj]] = d_lb[jj] + thr0;
-					}
-				}
-			else if(t_ub[jj]<thr0)
-				{
-				t_ub[jj] = thr0;
-				ux[idxb[jj]] = - d_ub[jj] - thr0;
-				}
-#else
-			t_lb[jj] = 1.0;
-			t_ub[jj] = 1.0;
-#endif
-			lam_lb[jj] = mu0/t_lb[jj];
-			lam_ub[jj] = mu0/t_ub[jj];
-			}
-//		blasfeo_print_tran_dvec(nb[ii], qp->d+ii, 0);
-//		blasfeo_print_tran_dvec(nb[ii], qp->d+ii, nb[ii]+ng[ii]);
-//		blasfeo_print_tran_dvec(nu[ii]+nx[ii], qp_sol->ux+ii, 0);
-//		blasfeo_print_tran_dvec(nb[ii], qp_sol->t+ii, 0);
-//		blasfeo_print_tran_dvec(nb[ii], qp_sol->t+ii, nb[ii]+ng[ii]);
-//		exit(1);
-		}
-	
-	// general constraints
-	for(ii=0; ii<=N; ii++)
-		{
-		t_lg = qp_sol->t[ii].pa+nb[ii];
-		t_ug = qp_sol->t[ii].pa+2*nb[ii]+ng[ii];
-		lam_lg = qp_sol->lam[ii].pa+nb[ii];
-		lam_ug = qp_sol->lam[ii].pa+2*nb[ii]+ng[ii];
-		d_lg = qp->d[ii].pa+nb[ii];
-		d_ug = qp->d[ii].pa+2*nb[ii]+ng[ii];
-		ux = qp_sol->ux[ii].pa;
-		GEMV_T(nu[ii]+nx[ii], ng[ii], 1.0, qp->DCt+ii, 0, 0, qp_sol->ux+ii, 0, 0.0, qp_sol->t+ii, nb[ii], qp_sol->t+ii, nb[ii]);
-		for(jj=0; jj<ng[ii]; jj++)
-			{
-#if 1
-			t_ug[jj] = - t_lg[jj];
-			t_lg[jj] -= d_lg[jj];
-			t_ug[jj] -= d_ug[jj];
-//			t_lg[jj] = fmax(thr0, t_lg[jj]);
-//			t_ug[jj] = fmax(thr0, t_ug[jj]);
-			t_lg[jj] = thr0>t_lg[jj] ? thr0 : t_lg[jj];
-			t_ug[jj] = thr0>t_ug[jj] ? thr0 : t_ug[jj];
-#else
-			t_lg[jj] = 1.0;
-			t_ug[jj] = 1.0;
-#endif
-			lam_lg[jj] = mu0/t_lg[jj];
-			lam_ug[jj] = mu0/t_ug[jj];
-			}
-		}
-
-	// soft constraints
-	for(ii=0; ii<=N; ii++)
-		{
-		lam_lb = qp_sol->lam[ii].pa+2*nb[ii]+2*ng[ii];
-		lam_ub = qp_sol->lam[ii].pa+2*nb[ii]+2*ng[ii]+ns[ii];
-		t_lb = qp_sol->t[ii].pa+2*nb[ii]+2*ng[ii];
-		t_ub = qp_sol->t[ii].pa+2*nb[ii]+2*ng[ii]+ns[ii];
-		for(jj=0; jj<ns[ii]; jj++)
-			{
-			t_lb[jj] = 1.0; // thr0;
-			t_ub[jj] = 1.0; // thr0;
-//			t_lb[jj] = sqrt(mu0); // thr0;
-//			t_ub[jj] = sqrt(mu0); // thr0;
-			lam_lb[jj] = mu0/t_lb[jj];
-			lam_ub[jj] = mu0/t_ub[jj];
-			}
-		}
-
-
-
-#else // new version
-
-
-
-	for(ii=0; ii<=N; ii++)
-		{
-
-//		printf("\nii = %d\n", ii);
-
-		ux = qp_sol->ux[ii].pa;
-		s = qp_sol->ux[ii].pa+nu[ii]+nx[ii];
-		d_lb = qp->d[ii].pa+0;
-		d_ub = qp->d[ii].pa+nb[ii]+ng[ii];
-		d_lg = qp->d[ii].pa+nb[ii];
-		d_ug = qp->d[ii].pa+2*nb[ii]+ng[ii];
-		d_ls = qp->d[ii].pa+2*nb[ii]+2*ng[ii];
-		lam_lb = qp_sol->lam[ii].pa+0;
-		lam_ub = qp_sol->lam[ii].pa+nb[ii]+ng[ii];
-		lam_lg = qp_sol->lam[ii].pa+nb[ii];
-		lam_ug = qp_sol->lam[ii].pa+2*nb[ii]+ng[ii];
-		lam_ls = qp_sol->lam[ii].pa+2*nb[ii]+2*ng[ii];
-		t_lb = qp_sol->t[ii].pa+0;
-		t_ub = qp_sol->t[ii].pa+nb[ii]+ng[ii];
-		t_lg = qp_sol->t[ii].pa+nb[ii];
-		t_ug = qp_sol->t[ii].pa+2*nb[ii]+ng[ii];
-		t_ls = qp_sol->t[ii].pa+2*nb[ii]+2*ng[ii];
-		idxb = qp->idxb[ii];
-		idxs = qp->idxs[ii];
-
-		// lower bound on slacks
-		AXPY(2*ns[ii], -1.0, qp->d+ii, 2*nb[ii]+2*ng[ii], qp_sol->ux+ii, nu[ii]+nx[ii], qp_sol->t+ii, 2*nb[ii]+2*ng[ii]);
-		for(jj=0; jj<2*ns[ii]; jj++)
-			{
-#if 1
-			if(t_ls[jj]<thr0)
-				{
-				t_ls[jj] = thr0; //1.0;
-				s[jj] = d_ls[jj] + t_ls[jj];
-				}
-#else
-			t_ls[jj] = 1.0;
-//			t_ls[jj] = sqrt(mu0);
-#endif
-			}
-//		blasfeo_print_tran_dvec(2*ns[ii], qp_sol->ux+ii, nu[ii]+nx[ii]);
-//		blasfeo_print_tran_dvec(2*ns[ii], qp_sol->t+ii, 2*nb[ii]+2*ng[ii]);
-
-		// upper and lower bounds on inputs and states
-		VECEX_SP(nb[ii], 1.0, qp->idxb[ii], qp_sol->ux+ii, 0, qp_sol->t+ii, 0);
-		VECCPSC(nb[ii], -1.0, qp_sol->t+ii, 0, qp_sol->t+ii, nb[ii]+ng[ii]);
-		for(jj=0; jj<ns[ii]; jj++)
-			{
-			idx = idxs[jj];
-			if(idx<nb[ii])
-				{
-				// softed bound
-				t_lb[idx] += s[jj];
-				t_ub[idx] += s[ns[ii]+jj];
-				}
-			}
-		AXPY(nb[ii], -1.0, qp->d+ii, 0, qp_sol->t+ii, 0, qp_sol->t+ii, 0);
-		AXPY(nb[ii], -1.0, qp->d+ii, nb[ii]+ng[ii], qp_sol->t+ii, nb[ii]+ng[ii], qp_sol->t+ii, nb[ii]+ng[ii]);
-//		blasfeo_print_tran_dvec(nb[ii], qp_sol->t+ii, 0);
-//		blasfeo_print_tran_dvec(nb[ii], qp_sol->t+ii, nb[ii]+ng[ii]);
-		for(jj=0; jj<nb[ii]; jj++)
-			{
-#if 1
-			if(t_lb[jj]<thr0)
-				{
-				if(t_ub[jj]<thr0)
-					{
-//					ux[idxb[jj]] = 0.5*(d_lb[jj] + d_ub[jj]);
-					ux[idxb[jj]] = 0.5*(d_lb[jj] - d_ub[jj]);
-					t_lb[jj] = thr0;
-					t_ub[jj] = thr0;
-					}
-				else
-					{
-					t_lb[jj] = thr0;
-					ux[idxb[jj]] = d_lb[jj] + thr0;
-					}
-				}
-			else if(t_ub[jj]<thr0)
-				{
-				t_ub[jj] = thr0;
-				ux[idxb[jj]] = - d_ub[jj] - thr0;
-				}
-#else
-			t_lb[jj] = 1.0;
-			t_ub[jj] = 1.0;
-#endif
-			}
-//		blasfeo_print_tran_dvec(nu[ii]+nx[ii], qp_sol->ux+ii, 0);
-//		blasfeo_print_tran_dvec(nb[ii], qp_sol->t+ii, 0);
-//		blasfeo_print_tran_dvec(nb[ii], qp_sol->t+ii, nb[ii]+ng[ii]);
-
-		// upper and lower general constaints
-		GEMV_T(nu[ii]+nx[ii], ng[ii], 1.0, qp->DCt+ii, 0, 0, qp_sol->ux+ii, 0, 0.0, qp_sol->t+ii, nb[ii], qp_sol->t+ii, nb[ii]);
-		VECCPSC(ng[ii], -1.0, qp_sol->t+ii, nb[ii], qp_sol->t+ii, 2*nb[ii]+ng[ii]);
-//		blasfeo_print_tran_dvec(ng[ii], qp_sol->t+ii, nb[ii]);
-//		blasfeo_print_tran_dvec(ng[ii], qp_sol->t+ii, 2*nb[ii]+ng[ii]);
-		for(jj=0; jj<ns[ii]; jj++)
-			{
-			idx = idxs[jj];
-			if(idx>=nb[ii])
-				{
-				// softed general constraint
-				idx -= nb[ii];
-				t_lg[idx] += s[jj];
-				t_ug[idx] += s[ns[ii]+jj];
-				}
-			}
-//		blasfeo_print_tran_dvec(ng[ii], qp_sol->t+ii, nb[ii]);
-//		blasfeo_print_tran_dvec(ng[ii], qp_sol->t+ii, 2*nb[ii]+ng[ii]);
-		AXPY(ng[ii], -1.0, qp->d+ii, nb[ii], qp_sol->t+ii, nb[ii], qp_sol->t+ii, nb[ii]);
-		AXPY(ng[ii], -1.0, qp->d+ii, 2*nb[ii]+ng[ii], qp_sol->t+ii, 2*nb[ii]+ng[ii], qp_sol->t+ii, 2*nb[ii]+ng[ii]);
-		for(jj=0; jj<ng[ii]; jj++)
-			{
-#if 1
-			t_lg[jj] = thr0>t_lg[jj] ? thr0 : t_lg[jj];
-			t_ug[jj] = thr0>t_ug[jj] ? thr0 : t_ug[jj];
-#else
-			t_lg[jj] = 1.0;
-			t_ug[jj] = 1.0;
-#endif
-			}
-//		blasfeo_print_tran_dvec(ng[ii], qp_sol->t+ii, nb[ii]);
-//		blasfeo_print_tran_dvec(ng[ii], qp_sol->t+ii, 2*nb[ii]+ng[ii]);
-
-		// multipliers
-		for(jj=0; jj<2*nb[ii]+2*ng[ii]+2*ns[ii]; jj++)
-			lam_lb[jj] = mu0/t_lb[jj];
-
-		}
-
-//	exit(1);
-
-
-
-#endif // new version
-
-
-
-	return;
-
-	}
-
-
-
-void COMPUTE_RES_OCP_QP(struct OCP_QP *qp, struct OCP_QP_SOL *qp_sol, struct OCP_QP_RES *res, struct OCP_QP_RES_WORKSPACE *ws)
-	{
-
-	// loop index
-	int ii;
-
-	//
-	int N = qp->dim->N;
-	int *nx = qp->dim->nx;
-	int *nu = qp->dim->nu;
-	int *nb = qp->dim->nb;
-	int *ng = qp->dim->ng;
-	int *ns = qp->dim->ns;
-
-	int nct = 0;
-	for(ii=0; ii<=N; ii++)
-		nct += 2*nb[ii]+2*ng[ii]+2*ns[ii];
-
-	REAL nct_inv = 1.0/nct;
-
-	struct STRMAT *BAbt = qp->BAbt;
-	struct STRMAT *RSQrq = qp->RSQrq;
-	struct STRMAT *DCt = qp->DCt;
-	struct STRVEC *b = qp->b;
-	struct STRVEC *rqz = qp->rqz;
-	struct STRVEC *d = qp->d;
-	struct STRVEC *m = qp->m;
-	int **idxb = qp->idxb;
-	struct STRVEC *Z = qp->Z;
-	int **idxs = qp->idxs;
-
-	struct STRVEC *ux = qp_sol->ux;
-	struct STRVEC *pi = qp_sol->pi;
-	struct STRVEC *lam = qp_sol->lam;
-	struct STRVEC *t = qp_sol->t;
-
-	struct STRVEC *res_g = res->res_g;
-	struct STRVEC *res_b = res->res_b;
-	struct STRVEC *res_d = res->res_d;
-	struct STRVEC *res_m = res->res_m;
-
-	struct STRVEC *tmp_nbgM = ws->tmp_nbgM;
-	struct STRVEC *tmp_nsM = ws->tmp_nsM;
-
-	int nx0, nx1, nu0, nu1, nb0, ng0, ns0;
-
-	//
-	REAL mu = 0.0;
-
-	// loop over stages
-	for(ii=0; ii<=N; ii++)
-		{
-
-		nx0 = nx[ii];
-		nu0 = nu[ii];
-		nb0 = nb[ii];
-		ng0 = ng[ii];
-		ns0 = ns[ii];
-
-		SYMV_L(nu0+nx0, nu0+nx0, 1.0, RSQrq+ii, 0, 0, ux+ii, 0, 1.0, rqz+ii, 0, res_g+ii, 0);
-
-		if(ii>0)
-			AXPY(nx0, -1.0, pi+(ii-1), 0, res_g+ii, nu0, res_g+ii, nu0);
-
-		if(nb0+ng0>0)
-			{
-			AXPY(nb0+ng0, -1.0, lam+ii, 0, lam+ii, nb[ii]+ng[ii], tmp_nbgM+0, 0);
-//			AXPY(nb0+ng0,  1.0, d+ii, 0, t+ii, 0, res_d+ii, 0);
-//			AXPY(nb0+ng0,  1.0, d+ii, nb0+ng0, t+ii, nb0+ng0, res_d+ii, nb0+ng0);
-			AXPY(2*nb0+2*ng0,  1.0, d+ii, 0, t+ii, 0, res_d+ii, 0);
-			// box
-			if(nb0>0)
-				{
-				VECAD_SP(nb0, 1.0, tmp_nbgM+0, 0, idxb[ii], res_g+ii, 0);
-				VECEX_SP(nb0, 1.0, idxb[ii], ux+ii, 0, tmp_nbgM+1, 0);
-				}
-			// general
-			if(ng0>0)
-				{
-				GEMV_NT(nu0+nx0, ng0, 1.0, 1.0, DCt+ii, 0, 0, tmp_nbgM+0, nb[ii], ux+ii, 0, 1.0, 0.0, res_g+ii, 0, tmp_nbgM+1, nb0, res_g+ii, 0, tmp_nbgM+1, nb0);
-				}
-
-			AXPY(nb0+ng0, -1.0, tmp_nbgM+1, 0, res_d+ii, 0, res_d+ii, 0);
-			AXPY(nb0+ng0,  1.0, tmp_nbgM+1, 0, res_d+ii, nb0+ng0, res_d+ii, nb0+ng0);
-			}
-		if(ns0>0)
-			{
-			// res_g
-			GEMV_DIAG(2*ns0, 1.0, Z+ii, 0, ux+ii, nu0+nx0, 1.0, rqz+ii, nu0+nx0, res_g+ii, nu0+nx0);
-			AXPY(2*ns0, -1.0, lam+ii, 2*nb0+2*ng0, res_g+ii, nu0+nx0, res_g+ii, nu0+nx0);
-			VECEX_SP(ns0, 1.0, idxs[ii], lam+ii, 0, tmp_nsM, 0);
-			AXPY(ns0, -1.0, tmp_nsM, 0, res_g+ii, nu0+nx0, res_g+ii, nu0+nx0);
-			VECEX_SP(ns0, 1.0, idxs[ii], lam+ii, nb0+ng0, tmp_nsM, 0);
-			AXPY(ns0, -1.0, tmp_nsM, 0, res_g+ii, nu0+nx0+ns0, res_g+ii, nu0+nx0+ns0);
-			// res_d
-			VECAD_SP(ns0, -1.0, ux+ii, nu0+nx0, idxs[ii], res_d+ii, 0);
-			VECAD_SP(ns0, -1.0, ux+ii, nu0+nx0+ns0, idxs[ii], res_d+ii, nb0+ng0);
-			AXPY(2*ns0, -1.0, ux+ii, nu0+nx0, t+ii, 2*nb0+2*ng0, res_d+ii, 2*nb0+2*ng0);
-			AXPY(2*ns0, 1.0, d+ii, 2*nb0+2*ng0, res_d+ii, 2*nb0+2*ng0, res_d+ii, 2*nb0+2*ng0);
-			}
-
-		if(ii<N)
-			{
-
-			nu1 = nu[ii+1];
-			nx1 = nx[ii+1];
-
-			AXPY(nx1, -1.0, ux+(ii+1), nu1, b+ii, 0, res_b+ii, 0);
-
-			GEMV_NT(nu0+nx0, nx1, 1.0, 1.0, BAbt+ii, 0, 0, pi+ii, 0, ux+ii, 0, 1.0, 1.0, res_g+ii, 0, res_b+ii, 0, res_g+ii, 0, res_b+ii, 0);
-
-			}
-
-		mu += VECMULDOT(2*nb0+2*ng0+2*ns0, lam+ii, 0, t+ii, 0, res_m+ii, 0);
-		AXPY(2*nb0+2*ng0+2*ns0, -1.0, m+ii, 0, res_m+ii, 0, res_m+ii, 0);
-
-		}
-
-	res->res_mu = mu*nct_inv;
-
-	return;
-
-	}
-
-
-
-void COMPUTE_LIN_RES_OCP_QP(struct OCP_QP *qp, struct OCP_QP_SOL *qp_sol, struct OCP_QP_SOL *qp_step, struct OCP_QP_RES *res, struct OCP_QP_RES_WORKSPACE *ws)
-	{
-
-	// loop index
-	int ii;
-
-	//
-	int N = qp->dim->N;
-	int *nx = qp->dim->nx;
-	int *nu = qp->dim->nu;
-	int *nb = qp->dim->nb;
-	int *ng = qp->dim->ng;
-	int *ns = qp->dim->ns;
-
-	struct STRMAT *BAbt = qp->BAbt;
-	struct STRMAT *RSQrq = qp->RSQrq;
-	struct STRMAT *DCt = qp->DCt;
-	struct STRVEC *b = qp->b;
-	struct STRVEC *rqz = qp->rqz;
-	struct STRVEC *d = qp->d;
-	struct STRVEC *m = qp->m;
-	int **idxb = qp->idxb;
-	struct STRVEC *Z = qp->Z;
-	int **idxs = qp->idxs;
-
-	struct STRVEC *ux = qp_step->ux;
-	struct STRVEC *pi = qp_step->pi;
-	struct STRVEC *lam = qp_step->lam;
-	struct STRVEC *t = qp_step->t;
-
-	struct STRVEC *Lam = qp_sol->lam;
-	struct STRVEC *T = qp_sol->t;
-
-	struct STRVEC *res_g = res->res_g;
-	struct STRVEC *res_b = res->res_b;
-	struct STRVEC *res_d = res->res_d;
-	struct STRVEC *res_m = res->res_m;
-
-	struct STRVEC *tmp_nbgM = ws->tmp_nbgM;
-	struct STRVEC *tmp_nsM = ws->tmp_nsM;
-
-	int nx0, nx1, nu0, nu1, nb0, ng0, ns0;
-
-	//
-	REAL mu = 0.0;
-
-	// loop over stages
-	for(ii=0; ii<=N; ii++)
-		{
-
-		nx0 = nx[ii];
-		nu0 = nu[ii];
-		nb0 = nb[ii];
-		ng0 = ng[ii];
-		ns0 = ns[ii];
-
-		SYMV_L(nu0+nx0, nu0+nx0, 1.0, RSQrq+ii, 0, 0, ux+ii, 0, 1.0, rqz+ii, 0, res_g+ii, 0);
-
-		if(ii>0)
-			AXPY(nx0, -1.0, pi+(ii-1), 0, res_g+ii, nu0, res_g+ii, nu0);
-
-		if(nb0+ng0>0)
-			{
-			AXPY(nb0+ng0, -1.0, lam+ii, 0, lam+ii, nb[ii]+ng[ii], tmp_nbgM+0, 0);
-//			AXPY(nb0+ng0,  1.0, d+ii, 0, t+ii, 0, res_d+ii, 0);
-//			AXPY(nb0+ng0,  1.0, d+ii, nb0+ng0, t+ii, nb0+ng0, res_d+ii, nb0+ng0);
-			AXPY(2*nb0+2*ng0,  1.0, d+ii, 0, t+ii, 0, res_d+ii, 0);
-			// box
-			if(nb0>0)
-				{
-				VECAD_SP(nb0, 1.0, tmp_nbgM+0, 0, idxb[ii], res_g+ii, 0);
-				VECEX_SP(nb0, 1.0, idxb[ii], ux+ii, 0, tmp_nbgM+1, 0);
-				}
-			// general
-			if(ng0>0)
-				{
-				GEMV_NT(nu0+nx0, ng0, 1.0, 1.0, DCt+ii, 0, 0, tmp_nbgM+0, nb[ii], ux+ii, 0, 1.0, 0.0, res_g+ii, 0, tmp_nbgM+1, nb0, res_g+ii, 0, tmp_nbgM+1, nb0);
-				}
-
-			AXPY(nb0+ng0, -1.0, tmp_nbgM+1, 0, res_d+ii, 0, res_d+ii, 0);
-			AXPY(nb0+ng0,  1.0, tmp_nbgM+1, 0, res_d+ii, nb0+ng0, res_d+ii, nb0+ng0);
-			}
-		if(ns0>0)
-			{
-			// res_g
-			GEMV_DIAG(2*ns0, 1.0, Z+ii, 0, ux+ii, nu0+nx0, 1.0, rqz+ii, nu0+nx0, res_g+ii, nu0+nx0);
-			AXPY(2*ns0, -1.0, lam+ii, 2*nb0+2*ng0, res_g+ii, nu0+nx0, res_g+ii, nu0+nx0);
-			VECEX_SP(ns0, 1.0, idxs[ii], lam+ii, 0, tmp_nsM, 0);
-			AXPY(ns0, -1.0, tmp_nsM, 0, res_g+ii, nu0+nx0, res_g+ii, nu0+nx0);
-			VECEX_SP(ns0, 1.0, idxs[ii], lam+ii, nb0+ng0, tmp_nsM, 0);
-			AXPY(ns0, -1.0, tmp_nsM, 0, res_g+ii, nu0+nx0+ns0, res_g+ii, nu0+nx0+ns0);
-			// res_d
-			VECAD_SP(ns0, -1.0, ux+ii, nu0+nx0, idxs[ii], res_d+ii, 0);
-			VECAD_SP(ns0, -1.0, ux+ii, nu0+nx0+ns0, idxs[ii], res_d+ii, nb0+ng0);
-			AXPY(2*ns0, -1.0, ux+ii, nu0+nx0, t+ii, 2*nb0+2*ng0, res_d+ii, 2*nb0+2*ng0);
-			AXPY(2*ns0, 1.0, d+ii, 2*nb0+2*ng0, res_d+ii, 2*nb0+2*ng0, res_d+ii, 2*nb0+2*ng0);
-			}
-
-		if(ii<N)
-			{
-
-			nu1 = nu[ii+1];
-			nx1 = nx[ii+1];
-
-			AXPY(nx1, -1.0, ux+(ii+1), nu1, b+ii, 0, res_b+ii, 0);
-
-			GEMV_NT(nu0+nx0, nx1, 1.0, 1.0, BAbt+ii, 0, 0, pi+ii, 0, ux+ii, 0, 1.0, 1.0, res_g+ii, 0, res_b+ii, 0, res_g+ii, 0, res_b+ii, 0);
-
-			}
-
-		VECCP(2*nb0+2*ng0+2*ns0, m+ii, 0, res_m+ii, 0);
-		VECMULACC(2*nb0+2*ng0+2*ns0, Lam+ii, 0, t+ii, 0, res_m+ii, 0);
-		VECMULACC(2*nb0+2*ng0+2*ns0, lam+ii, 0, T+ii, 0, res_m+ii, 0);
-
-		}
-
-	return;
-
-	}
-
-
-
 // backward Riccati recursion
-void FACT_SOLVE_KKT_UNCONSTR_OCP_QP(struct OCP_QP *qp, struct OCP_QP_SOL *qp_sol, struct OCP_QP_IPM_ARG *arg, struct OCP_QP_IPM_WORKSPACE *ws)
+void FACT_SOLVE_KKT_UNCONSTR_OCP_QP(struct OCP_QP *qp, struct OCP_QP_SOL *qp_sol, struct OCP_QP_IPM_ARG *arg, struct OCP_QP_IPM_WS *ws)
 	{
 
 	int ii;
@@ -650,7 +60,7 @@ void FACT_SOLVE_KKT_UNCONSTR_OCP_QP(struct OCP_QP *qp, struct OCP_QP_SOL *qp_sol
 
 	struct STRVEC *tmp_nxM = ws->tmp_nxM;
 
-	if(arg->square_root_alg)
+	if(ws->square_root_alg)
 		{
 
 		// factorization and backward substitution
@@ -794,7 +204,7 @@ void FACT_SOLVE_KKT_UNCONSTR_OCP_QP(struct OCP_QP *qp, struct OCP_QP_SOL *qp_sol
 
 
 
-static void COND_SLACKS_FACT_SOLVE(int ss, struct OCP_QP *qp, struct OCP_QP_SOL *qp_sol, struct OCP_QP_IPM_WORKSPACE *ws)
+static void COND_SLACKS_FACT_SOLVE(int ss, struct OCP_QP *qp, struct OCP_QP_SOL *qp_sol, struct OCP_QP_IPM_ARG *arg, struct OCP_QP_IPM_WS *ws)
 	{
 
 	int ii, idx;
@@ -806,7 +216,7 @@ static void COND_SLACKS_FACT_SOLVE(int ss, struct OCP_QP *qp, struct OCP_QP_SOL 
 	int ns0 = qp->dim->ns[ss];
 
 	struct STRVEC *Z = qp->Z+ss;
-	int *idxs0 = qp->idxs[ss];
+	int *idxs_rev0 = qp->idxs_rev[ss];
 
 //	struct STRVEC *res_g = ws->res->res_g+ss; // TODO !!!
 	struct STRVEC *res_g = qp->rqz+ss;
@@ -837,23 +247,29 @@ static void COND_SLACKS_FACT_SOLVE(int ss, struct OCP_QP *qp, struct OCP_QP_SOL 
 	VECCP(nb0+ng0, gamma, 0, tmp_nbgM+2, 0);
 	VECCP(nb0+ng0, gamma, nb0+ng0, tmp_nbgM+3, 0);
 
-	for(ii=0; ii<ns0; ii++)
+	// idxs_rev
+	for(ii=0; ii<nb0+ng0; ii++)
 		{
-		idx = idxs0[ii];
-		ptr_Zs_inv[0+ii]   = ptr_Z[0+ii]   + ptr_Gamma[0+idx]       + ptr_Gamma[2*nb0+2*ng0+ii];
-		ptr_Zs_inv[ns0+ii] = ptr_Z[ns0+ii] + ptr_Gamma[nb0+ng0+idx] + ptr_Gamma[2*nb0+2*ng0+ns0+ii];
-		ptr_dux[nu0+nx0+ii]      = ptr_res_g[nu0+nx0+ii]     + ptr_gamma[0+idx]   + ptr_gamma[2*nb0+2*ng0+ii];
-		ptr_dux[nu0+nx0+ns0+ii]  = ptr_res_g[nu0+nx0+ns0+ii] + ptr_gamma[nb0+ng0+idx] + ptr_gamma[2*nb0+2*ng0+ns0+ii];
-		ptr_Zs_inv[0+ii]   = 1.0/ptr_Zs_inv[0+ii];
-		ptr_Zs_inv[ns0+ii] = 1.0/ptr_Zs_inv[ns0+ii];
-		tmp0 = ptr_dux[nu0+nx0+ii]*ptr_Zs_inv[0+ii];
-		tmp1 = ptr_dux[nu0+nx0+ns0+ii]*ptr_Zs_inv[ns0+ii];
-		ptr_tmp0[idx] = ptr_tmp0[idx] - ptr_tmp0[idx]*ptr_Zs_inv[0+ii]*ptr_tmp0[idx];
-		ptr_tmp1[idx] = ptr_tmp1[idx] - ptr_tmp1[idx]*ptr_Zs_inv[ns0+ii]*ptr_tmp1[idx];
-		ptr_tmp2[idx] = ptr_tmp2[idx] - ptr_Gamma[0+idx]*tmp0;
-		ptr_tmp3[idx] = ptr_tmp3[idx] - ptr_Gamma[nb0+ng0+idx]*tmp1;
+		idx = idxs_rev0[ii];
+		if(idx!=-1)
+			{
+			// ii   constr index
+			// idx <= slack index
+			ptr_Zs_inv[0+idx]   = ptr_Z[0+idx]   + arg->reg_prim + ptr_Gamma[0+ii]       + ptr_Gamma[2*nb0+2*ng0+idx];
+			ptr_Zs_inv[ns0+idx] = ptr_Z[ns0+idx] + arg->reg_prim + ptr_Gamma[nb0+ng0+ii] + ptr_Gamma[2*nb0+2*ng0+ns0+idx];
+			ptr_dux[nu0+nx0+idx]      = ptr_res_g[nu0+nx0+idx]     + ptr_gamma[0+ii]       + ptr_gamma[2*nb0+2*ng0+idx];
+			ptr_dux[nu0+nx0+ns0+idx]  = ptr_res_g[nu0+nx0+ns0+idx] + ptr_gamma[nb0+ng0+ii] + ptr_gamma[2*nb0+2*ng0+ns0+idx];
+			ptr_Zs_inv[0+idx]   = 1.0/ptr_Zs_inv[0+idx];
+			ptr_Zs_inv[ns0+idx] = 1.0/ptr_Zs_inv[ns0+idx];
+			tmp0 = ptr_dux[nu0+nx0+idx]*ptr_Zs_inv[0+idx];
+			tmp1 = ptr_dux[nu0+nx0+ns0+idx]*ptr_Zs_inv[ns0+idx];
+			ptr_tmp0[ii] = ptr_tmp0[ii] - ptr_tmp0[ii]*ptr_Zs_inv[0+idx]*ptr_tmp0[ii];
+			ptr_tmp1[ii] = ptr_tmp1[ii] - ptr_tmp1[ii]*ptr_Zs_inv[ns0+idx]*ptr_tmp1[ii];
+			ptr_tmp2[ii] = ptr_tmp2[ii] - ptr_Gamma[0+ii]*tmp0;
+			ptr_tmp3[ii] = ptr_tmp3[ii] - ptr_Gamma[nb0+ng0+ii]*tmp1;
+			}
 		}
-	
+
 	AXPY(nb0+ng0,  1.0, tmp_nbgM+1, 0, tmp_nbgM+0, 0, tmp_nbgM+0, 0);
 	AXPY(nb0+ng0, -1.0, tmp_nbgM+3, 0, tmp_nbgM+2, 0, tmp_nbgM+1, 0);
 
@@ -863,7 +279,7 @@ static void COND_SLACKS_FACT_SOLVE(int ss, struct OCP_QP *qp, struct OCP_QP_SOL 
 
 
 
-static void COND_SLACKS_SOLVE(int ss, struct OCP_QP *qp, struct OCP_QP_SOL *qp_sol, struct OCP_QP_IPM_WORKSPACE *ws)
+static void COND_SLACKS_SOLVE(int ss, struct OCP_QP *qp, struct OCP_QP_SOL *qp_sol, struct OCP_QP_IPM_WS *ws)
 	{
 
 	int ii, idx;
@@ -874,7 +290,7 @@ static void COND_SLACKS_SOLVE(int ss, struct OCP_QP *qp, struct OCP_QP_SOL *qp_s
 	int ng0 = qp->dim->ng[ss];
 	int ns0 = qp->dim->ns[ss];
 
-	int *idxs0 = qp->idxs[ss];
+	int *idxs_rev0 = qp->idxs_rev[ss];
 
 //	struct STRVEC *res_g = ws->res->res_g+ss; // TODO !!!
 	struct STRVEC *res_g = qp->rqz+ss;
@@ -900,17 +316,23 @@ static void COND_SLACKS_SOLVE(int ss, struct OCP_QP *qp, struct OCP_QP_SOL *qp_s
 	VECCP(nb0+ng0, gamma, 0, tmp_nbgM+2, 0);
 	VECCP(nb0+ng0, gamma, nb0+ng0, tmp_nbgM+3, 0);
 
-	for(ii=0; ii<ns0; ii++)
+	// idxs_rev
+	for(ii=0; ii<nb0+ng0; ii++)
 		{
-		idx = idxs0[ii];
-		ptr_dux[nu0+nx0+ii]      = ptr_res_g[nu0+nx0+ii]     + ptr_gamma[0+idx]       + ptr_gamma[2*nb0+2*ng0+ii];
-		ptr_dux[nu0+nx0+ns0+ii]  = ptr_res_g[nu0+nx0+ns0+ii] + ptr_gamma[nb0+ng0+idx] + ptr_gamma[2*nb0+2*ng0+ns0+ii];
-		tmp0 = ptr_dux[nu0+nx0+ii]*ptr_Zs_inv[0+ii];
-		tmp1 = ptr_dux[nu0+nx0+ns0+ii]*ptr_Zs_inv[ns0+ii];
-		ptr_tmp2[idx] = ptr_tmp2[idx] - ptr_Gamma[0+idx]*tmp0;
-		ptr_tmp3[idx] = ptr_tmp3[idx] - ptr_Gamma[nb0+ng0+idx]*tmp1;
+		idx = idxs_rev0[ii];
+		if(idx!=-1)
+			{
+			// ii  <= constr index
+			// idx <= slack index
+			ptr_dux[nu0+nx0+idx]      = ptr_res_g[nu0+nx0+idx]     + ptr_gamma[0+ii]       + ptr_gamma[2*nb0+2*ng0+idx];
+			ptr_dux[nu0+nx0+ns0+idx]  = ptr_res_g[nu0+nx0+ns0+idx] + ptr_gamma[nb0+ng0+ii] + ptr_gamma[2*nb0+2*ng0+ns0+idx];
+			tmp0 = ptr_dux[nu0+nx0+idx]*ptr_Zs_inv[0+idx];
+			tmp1 = ptr_dux[nu0+nx0+ns0+idx]*ptr_Zs_inv[ns0+idx];
+			ptr_tmp2[ii] = ptr_tmp2[ii] - ptr_Gamma[0+ii]*tmp0;
+			ptr_tmp3[ii] = ptr_tmp3[ii] - ptr_Gamma[nb0+ng0+ii]*tmp1;
+			}
 		}
-	
+
 	AXPY(nb0+ng0, -1.0, tmp_nbgM+3, 0, tmp_nbgM+2, 0, tmp_nbgM+1, 0);
 
 	return;
@@ -919,7 +341,7 @@ static void COND_SLACKS_SOLVE(int ss, struct OCP_QP *qp, struct OCP_QP_SOL *qp_s
 
 
 
-static void EXPAND_SLACKS(int ss, struct OCP_QP *qp, struct OCP_QP_SOL *qp_sol, struct OCP_QP_IPM_WORKSPACE *ws)
+static void EXPAND_SLACKS(int ss, struct OCP_QP *qp, struct OCP_QP_SOL *qp_sol, struct OCP_QP_IPM_WS *ws)
 	{
 
 	int ii, idx;
@@ -930,7 +352,7 @@ static void EXPAND_SLACKS(int ss, struct OCP_QP *qp, struct OCP_QP_SOL *qp_sol, 
 	int ng0 = qp->dim->ng[ss];
 	int ns0 = qp->dim->ns[ss];
 
-	int *idxs0 = qp->idxs[ss];
+	int *idxs_rev0 = qp->idxs_rev[ss];
 
 	struct STRVEC *dux = qp_sol->ux+ss;
 	struct STRVEC *dt = qp_sol->t+ss;
@@ -943,16 +365,21 @@ static void EXPAND_SLACKS(int ss, struct OCP_QP *qp, struct OCP_QP_SOL *qp_sol, 
 	REAL *ptr_dt = dt->pa;
 	REAL *ptr_Zs_inv = Zs_inv->pa;
 
-	for(ii=0; ii<ns0; ii++)
+	// idxs_rev
+	for(ii=0; ii<nb0+ng0; ii++)
 		{
-		idx = idxs0[ii];
-		ptr_dux[nu0+nx0+ii]     = - ptr_Zs_inv[0+ii]   * (ptr_dux[nu0+nx0+ii]     + ptr_dt[idx]*ptr_Gamma[idx]);
-		ptr_dux[nu0+nx0+ns0+ii] = - ptr_Zs_inv[ns0+ii] * (ptr_dux[nu0+nx0+ns0+ii] + ptr_dt[nb0+ng0+idx]*ptr_Gamma[nb0+ng0+idx]);
-		ptr_dt[2*nb0+2*ng0+ii]     = ptr_dux[nu0+nx0+ii];
-		ptr_dt[2*nb0+2*ng0+ns0+ii] = ptr_dux[nu0+nx0+ns0+ii];
-		ptr_dt[0+idx]       = ptr_dt[0+idx]   + ptr_dux[nu0+nx0+ii];
-		ptr_dt[nb0+ng0+idx] = ptr_dt[nb0+ng0+idx] + ptr_dux[nu0+nx0+ns0+ii];
-
+		idx = idxs_rev0[ii];
+		if(idx!=-1)
+			{
+			// ii  <= constr index
+			// idx <= slack index
+			ptr_dux[nu0+nx0+idx]     = - ptr_Zs_inv[0+idx]   * (ptr_dux[nu0+nx0+idx]     + ptr_dt[ii]*ptr_Gamma[ii]);
+			ptr_dux[nu0+nx0+ns0+idx] = - ptr_Zs_inv[ns0+idx] * (ptr_dux[nu0+nx0+ns0+idx] + ptr_dt[nb0+ng0+ii]*ptr_Gamma[nb0+ng0+ii]);
+			ptr_dt[2*nb0+2*ng0+idx]     = ptr_dux[nu0+nx0+idx];
+			ptr_dt[2*nb0+2*ng0+ns0+idx] = ptr_dux[nu0+nx0+ns0+idx];
+			ptr_dt[0+ii]       = ptr_dt[0+ii]   + ptr_dux[nu0+nx0+idx];
+			ptr_dt[nb0+ng0+ii] = ptr_dt[nb0+ng0+ii] + ptr_dux[nu0+nx0+ns0+idx];
+			}
 		}
 
 	return;
@@ -962,7 +389,7 @@ static void EXPAND_SLACKS(int ss, struct OCP_QP *qp, struct OCP_QP_SOL *qp_sol, 
 
 
 // backward Riccati recursion
-void FACT_SOLVE_KKT_STEP_OCP_QP(struct OCP_QP *qp, struct OCP_QP_SOL *qp_sol, struct OCP_QP_IPM_ARG *arg, struct OCP_QP_IPM_WORKSPACE *ws)
+void FACT_SOLVE_KKT_STEP_OCP_QP(struct OCP_QP *qp, struct OCP_QP_SOL *qp_sol, struct OCP_QP_IPM_ARG *arg, struct OCP_QP_IPM_WS *ws)
 	{
 
 	int N = qp->dim->N;
@@ -981,7 +408,6 @@ void FACT_SOLVE_KKT_STEP_OCP_QP(struct OCP_QP *qp, struct OCP_QP_SOL *qp_sol, st
 	struct STRVEC *res_d = qp->d;
 	struct STRVEC *res_m = qp->m;
 	int **idxb = qp->idxb;
-	int **idxs = qp->idxs;
 
 	struct STRVEC *dux = qp_sol->ux;
 	struct STRVEC *dpi = qp_sol->pi;
@@ -1006,7 +432,7 @@ void FACT_SOLVE_KKT_STEP_OCP_QP(struct OCP_QP *qp, struct OCP_QP_SOL *qp_sol, st
 
 	COMPUTE_GAMMA_GAMMA_QP(res_d[0].pa, res_m[0].pa, cws);
 
-	if(arg->square_root_alg)
+	if(ws->square_root_alg)
 		{
 
 		// factorization and backward substitution
@@ -1023,7 +449,7 @@ void FACT_SOLVE_KKT_STEP_OCP_QP(struct OCP_QP *qp, struct OCP_QP_SOL *qp_sol, st
 
 		if(ns[ss]>0)
 			{
-			COND_SLACKS_FACT_SOLVE(ss, qp, qp_sol, ws);
+			COND_SLACKS_FACT_SOLVE(ss, qp, qp_sol, arg, ws);
 			}
 		else if(nb[ss]+ng[ss]>0)
 			{
@@ -1066,7 +492,7 @@ void FACT_SOLVE_KKT_STEP_OCP_QP(struct OCP_QP *qp, struct OCP_QP_SOL *qp_sol, st
 
 			if(ns[ss]>0)
 				{
-				COND_SLACKS_FACT_SOLVE(ss, qp, qp_sol, ws);
+				COND_SLACKS_FACT_SOLVE(ss, qp, qp_sol, arg, ws);
 				}
 			else if(nb[ss]+ng[ss]>0)
 				{
@@ -1148,7 +574,7 @@ void FACT_SOLVE_KKT_STEP_OCP_QP(struct OCP_QP *qp, struct OCP_QP_SOL *qp_sol, st
 
 		if(ns[ss]>0)
 			{
-			COND_SLACKS_FACT_SOLVE(ss, qp, qp_sol, ws);
+			COND_SLACKS_FACT_SOLVE(ss, qp, qp_sol, arg, ws);
 			}
 		else if(nb[ss]+ng[ss]>0)
 			{
@@ -1190,7 +616,7 @@ void FACT_SOLVE_KKT_STEP_OCP_QP(struct OCP_QP *qp, struct OCP_QP_SOL *qp_sol, st
 
 			if(ns[ss]>0)
 				{
-				COND_SLACKS_FACT_SOLVE(ss, qp, qp_sol, ws);
+				COND_SLACKS_FACT_SOLVE(ss, qp, qp_sol, arg, ws);
 				}
 			else if(nb[ss]+ng[ss]>0)
 				{
@@ -1234,7 +660,7 @@ void FACT_SOLVE_KKT_STEP_OCP_QP(struct OCP_QP *qp, struct OCP_QP_SOL *qp_sol, st
 
 			if(ns[ss]>0)
 				{
-				COND_SLACKS_FACT_SOLVE(ss, qp, qp_sol, ws);
+				COND_SLACKS_FACT_SOLVE(ss, qp, qp_sol, arg, ws);
 				}
 			else if(nb[ss]+ng[ss]>0)
 				{
@@ -1312,11 +738,11 @@ void FACT_SOLVE_KKT_STEP_OCP_QP(struct OCP_QP *qp, struct OCP_QP_SOL *qp_sol, st
 
 
 
-void FACT_LQ_SOLVE_KKT_STEP_OCP_QP(struct OCP_QP *qp, struct OCP_QP_SOL *qp_sol, struct OCP_QP_IPM_ARG *arg, struct OCP_QP_IPM_WORKSPACE *ws)
+void FACT_LQ_SOLVE_KKT_STEP_OCP_QP(struct OCP_QP *qp, struct OCP_QP_SOL *qp_sol, struct OCP_QP_IPM_ARG *arg, struct OCP_QP_IPM_WS *ws)
 	{
 
 	// TODO find something better ???
-	if(!arg->square_root_alg)
+	if(!ws->square_root_alg)
 		{
 		FACT_SOLVE_KKT_STEP_OCP_QP(qp, qp_sol, arg, ws);
 		return;
@@ -1338,7 +764,6 @@ void FACT_LQ_SOLVE_KKT_STEP_OCP_QP(struct OCP_QP *qp, struct OCP_QP_SOL *qp_sol,
 	struct STRVEC *res_d = qp->d;
 	struct STRVEC *res_m = qp->m;
 	int **idxb = qp->idxb;
-	int **idxs = qp->idxs;
 
 	struct STRVEC *dux = qp_sol->ux;
 	struct STRVEC *dpi = qp_sol->pi;
@@ -1380,7 +805,7 @@ void FACT_LQ_SOLVE_KKT_STEP_OCP_QP(struct OCP_QP *qp, struct OCP_QP_SOL *qp_sol,
 
 	if(ns[ss]>0)
 		{
-		COND_SLACKS_FACT_SOLVE(ss, qp, qp_sol, ws);
+		COND_SLACKS_FACT_SOLVE(ss, qp, qp_sol, arg, ws);
 		}
 	else if(nb[ss]+ng[ss]>0)
 		{
@@ -1414,7 +839,7 @@ void FACT_LQ_SOLVE_KKT_STEP_OCP_QP(struct OCP_QP *qp, struct OCP_QP_SOL *qp_sol,
 	if(ws->use_hess_fact[ss]==0)
 		{
 		POTRF_L(nu[ss]+nx[ss], RSQrq+ss, 0, 0, Lh+ss, 0, 0);
-		ws->use_hess_fact[ss]==1;
+		ws->use_hess_fact[ss]=1;
 		}
 
 	DIARE(nu[ss]+nx[ss], arg->reg_prim, lq0, 0, nu[ss]+nx[ss]);
@@ -1451,7 +876,7 @@ void FACT_LQ_SOLVE_KKT_STEP_OCP_QP(struct OCP_QP *qp, struct OCP_QP_SOL *qp_sol,
 
 		if(ns[ss]>0)
 			{
-			COND_SLACKS_FACT_SOLVE(ss, qp, qp_sol, ws);
+			COND_SLACKS_FACT_SOLVE(ss, qp, qp_sol, arg, ws);
 			}
 		else if(nb[ss]+ng[ss]>0)
 			{
@@ -1485,7 +910,7 @@ void FACT_LQ_SOLVE_KKT_STEP_OCP_QP(struct OCP_QP *qp, struct OCP_QP_SOL *qp_sol,
 		if(ws->use_hess_fact[ss]==0)
 			{
 			POTRF_L(nu[ss]+nx[ss], RSQrq+ss, 0, 0, Lh+ss, 0, 0);
-			ws->use_hess_fact[ss]==1;
+			ws->use_hess_fact[ss]=1;
 			}
 
 		DIARE(nu[ss]+nx[ss], arg->reg_prim, lq0, 0, nu[ss]+nx[ss]);
@@ -1522,7 +947,7 @@ void FACT_LQ_SOLVE_KKT_STEP_OCP_QP(struct OCP_QP *qp, struct OCP_QP_SOL *qp_sol,
 
 	if(ns[ss]>0)
 		{
-		COND_SLACKS_FACT_SOLVE(ss, qp, qp_sol, ws);
+		COND_SLACKS_FACT_SOLVE(ss, qp, qp_sol, arg, ws);
 		}
 	else if(nb[ss]+ng[ss]>0)
 		{
@@ -1556,7 +981,7 @@ void FACT_LQ_SOLVE_KKT_STEP_OCP_QP(struct OCP_QP *qp, struct OCP_QP_SOL *qp_sol,
 	if(ws->use_hess_fact[ss]==0)
 		{
 		POTRF_L(nu[ss]+nx[ss], RSQrq+ss, 0, 0, Lh+ss, 0, 0);
-		ws->use_hess_fact[ss]==1;
+		ws->use_hess_fact[ss]=1;
 		}
 
 	DIARE(nu[ss]+nx[ss], arg->reg_prim, lq0, 0, nu[ss]+nx[ss]);
@@ -1631,7 +1056,7 @@ void FACT_LQ_SOLVE_KKT_STEP_OCP_QP(struct OCP_QP *qp, struct OCP_QP_SOL *qp_sol,
 
 
 // backward Riccati recursion
-void SOLVE_KKT_STEP_OCP_QP(struct OCP_QP *qp, struct OCP_QP_SOL *qp_sol, struct OCP_QP_IPM_ARG *arg, struct OCP_QP_IPM_WORKSPACE *ws)
+void SOLVE_KKT_STEP_OCP_QP(struct OCP_QP *qp, struct OCP_QP_SOL *qp_sol, struct OCP_QP_IPM_ARG *arg, struct OCP_QP_IPM_WS *ws)
 	{
 
 	int N = qp->dim->N;
@@ -1649,7 +1074,6 @@ void SOLVE_KKT_STEP_OCP_QP(struct OCP_QP *qp, struct OCP_QP_SOL *qp_sol, struct 
 	struct STRVEC *res_d = qp->d;
 	struct STRVEC *res_m = qp->m;
 	int **idxb = qp->idxb;
-//	int **idxs = qp->idxs;
 
 	struct STRVEC *dux = qp_sol->ux;
 	struct STRVEC *dpi = qp_sol->pi;
@@ -1670,7 +1094,7 @@ void SOLVE_KKT_STEP_OCP_QP(struct OCP_QP *qp, struct OCP_QP_SOL *qp_sol, struct 
 //printf("\nin solve\n");
 	COMPUTE_GAMMA_QP(res_d[0].pa, res_m[0].pa, cws);
 
-	if(arg->square_root_alg)
+	if(ws->square_root_alg)
 		{
 
 		// backward substitution

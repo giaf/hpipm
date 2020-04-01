@@ -3,25 +3,31 @@
 * This file is part of HPIPM.                                                                     *
 *                                                                                                 *
 * HPIPM -- High-Performance Interior Point Method.                                                *
-* Copyright (C) 2017-2018 by Gianluca Frison.                                                     *
+* Copyright (C) 2019 by Gianluca Frison.                                                          *
 * Developed at IMTEK (University of Freiburg) under the supervision of Moritz Diehl.              *
 * All rights reserved.                                                                            *
 *                                                                                                 *
-* This program is free software: you can redistribute it and/or modify                            *
-* it under the terms of the GNU General Public License as published by                            *
-* the Free Software Foundation, either version 3 of the License, or                               *
-* (at your option) any later version                                                              *.
+* The 2-Clause BSD License                                                                        *
 *                                                                                                 *
-* This program is distributed in the hope that it will be useful,                                 *
-* but WITHOUT ANY WARRANTY; without even the implied warranty of                                  *
-* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the                                   *
-* GNU General Public License for more details.                                                    *
+* Redistribution and use in source and binary forms, with or without                              *
+* modification, are permitted provided that the following conditions are met:                     *
 *                                                                                                 *
-* You should have received a copy of the GNU General Public License                               *
-* along with this program.  If not, see <https://www.gnu.org/licenses/>.                          *
+* 1. Redistributions of source code must retain the above copyright notice, this                  *
+*    list of conditions and the following disclaimer.                                             *
+* 2. Redistributions in binary form must reproduce the above copyright notice,                    *
+*    this list of conditions and the following disclaimer in the documentation                    *
+*    and/or other materials provided with the distribution.                                       *
 *                                                                                                 *
-* The authors designate this particular file as subject to the "Classpath" exception              *
-* as provided by the authors in the LICENSE file that accompained this code.                      *
+* THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND                 *
+* ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED                   *
+* WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE                          *
+* DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR                 *
+* ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES                  *
+* (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;                    *
+* LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND                     *
+* ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT                      *
+* (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS                   *
+* SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.                                    *
 *                                                                                                 *
 * Author: Gianluca Frison, gianluca.frison (at) imtek.uni-freiburg.de                             *
 *                                                                                                 *
@@ -50,7 +56,7 @@ int d_memsize_benchmark_qp(int nv, int ne, int nc)
 	int size = 0;
 
 	// size of double, int
-	size += nv * nv * sizeof(double);         // H
+	size += nv * nv * sizeof(double);		 // H
 	size += (nv + 2 * nv) * sizeof(double);  // g, lbx, ubx
 	size += (ne + nc) * nv * sizeof(double); // C
 	size += 2 * (ne + nc) * sizeof(double);  // lbC, ubC
@@ -223,8 +229,7 @@ int cvt_benchmark_to_hpipm(struct benchmark_qp *qp_bench, struct d_dense_qp *qpd
 	}
 	*/
 
-	d_cvt_rowmaj_to_dense_qp(H, g, C_eq, b, idxb, d_lb, d_ub, C_ieq, d_lg0, d_ug0,
-						  NULL, NULL, NULL, NULL, NULL, NULL, NULL, qpd);
+	d_dense_qp_set_all_rowmaj(H, g, C_eq, b, idxb, d_lb, d_ub, C_ieq, d_lg0, d_ug0, NULL, NULL, NULL, NULL, NULL, NULL, NULL, qpd);
 
 	return 0;
 
@@ -266,8 +271,8 @@ int readFromFileI(int* data, int n, const char* datafilename)
 }
 
 int readOQPdimensions(const char* path,
-	     	              int* nQP, int* nV,
-                      int* nC, int* nEC)
+		 				  int* nQP, int* nV,
+					  int* nC, int* nEC)
 {
 
 	int dims[4];
@@ -284,7 +289,7 @@ int readOQPdimensions(const char* path,
 	*nC  = dims[2];
 	*nEC = dims[3];
 
-//  printf( "nQP = %d,  nV = %d,  nC = %d,  nEC = %d\n", *nQP, *nV, *nC, *nEC );
+//	printf( "nQP = %d,  nV = %d,  nC = %d,  nEC = %d\n", *nQP, *nV, *nC, *nEC );
 
 	return 0;
 
@@ -329,15 +334,15 @@ int readFromFileM(double* data, int nrow, int ncol, const char* datafilename)
 }
 
 int readOQPdata(const char* path,
-					      int* nQP, int* nV,
-                int* nC, int* nEC,
-						    double* H, double* g,
-                double* A,
-                double* lb, double* ub,
-                double* lbA,
-                double* ubA,
-							  double* xOpt, double* yOpt,
-                double* objOpt)
+				int* nQP, int* nV,
+				int* nC, int* nEC,
+				double* H, double* g,
+				double* A,
+				double* lb, double* ub,
+				double* lbA,
+				double* ubA,
+				double* xOpt, double* yOpt,
+				double* objOpt)
 {
 	char filename[MAX_STRING_LENGTH];
 
@@ -347,7 +352,7 @@ int readOQPdata(const char* path,
 	/* 2) Allocate memory and load OQP data: */
 	/* Hessian matrix */
 	snprintf( filename,MAX_STRING_LENGTH,"%sH.oqp",path );
-  readFromFileM( H,(*nV),(*nV),filename );
+	readFromFileM( H,(*nV),(*nV),filename );
 
 	/* gradient vector sequence */
 	snprintf( filename,MAX_STRING_LENGTH,"%sg.oqp",path );
@@ -355,11 +360,11 @@ int readOQPdata(const char* path,
 
 	/* lower bound vector sequence */
 	snprintf( filename,MAX_STRING_LENGTH,"%slb.oqp",path );
-  readFromFileM( lb,(*nQP),(*nV),filename );
+	readFromFileM( lb,(*nQP),(*nV),filename );
 
 	/* upper bound vector sequence */
 	snprintf( filename,MAX_STRING_LENGTH,"%sub.oqp",path );
-  readFromFileM( ub,(*nQP),(*nV),filename );
+	readFromFileM( ub,(*nQP),(*nV),filename );
 
 	if ( (*nC) > 0 )
 	{
@@ -376,21 +381,21 @@ int readOQPdata(const char* path,
 		readFromFileM( ubA,(*nQP),(*nC),filename );
 	}
 
-	if ( xOpt != 0 )
+	if ( xOpt != NULL )
 	{
 		/* primal solution vector sequence */
 		snprintf( filename,MAX_STRING_LENGTH,"%sx_opt.oqp",path );
 		readFromFileM( xOpt,(*nQP),(*nV),filename );
 	}
 
-	if ( yOpt != 0 )
+	if ( yOpt != NULL )
 	{
 		/* dual solution vector sequence */
 		snprintf( filename,MAX_STRING_LENGTH,"%sy_opt.oqp",path );
 		readFromFileM( yOpt,(*nQP),(*nV)+(*nC),filename );
 	}
 
-	if ( objOpt != 0 )
+	if ( objOpt != NULL )
 	{
 		/* dual solution vector sequence */
 		snprintf( filename,MAX_STRING_LENGTH,"%sobj_opt.oqp",path );
@@ -403,32 +408,34 @@ int readOQPdata(const char* path,
 
 
 /************************************************
-        test benchmark problem
+		test benchmark problem
 ************************************************/
 int main()
 	{
 
-    printf("\n");
-    printf("\n");
-    printf("\n");
-    printf(" HPIPM -- High-Performance Interior Point Method.\n");
-    printf("\n");
-    printf("\n");
-    printf("\n");
+	printf("\n");
+	printf("\n");
+	printf("\n");
+	printf(" HPIPM -- High-Performance Interior Point Method.\n");
+	printf("\n");
+	printf(" Benchmark dense QP solver on the 44 smallest problems from Maros and Meszaros in CUTEr\n");
+	printf("\n");
+	printf("\n");
+	printf("\n");
 
-    int nQP, nv, ne, ng;
-    int nproblems, i, j;
-    struct dirent **namelist;
-    char resstr[200], OQPproblem[200];
-    char *problem;
-    nproblems = scandir("./projects.coin-or.org/svn/qpOASES/misc/testingdata/cpp/problems", &namelist, NULL, alphasort);
-    /*
-    int ii,jj;
-    char filename[1024];
-    FILE * pFile;
-    */
+	int nQP, nv, ne, ng;
+	int nproblems, i, j;
+	struct dirent **namelist;
+	char resstr[200], OQPproblem[200];
+	char *problem;
+	nproblems = scandir("./projects.coin-or.org/svn/qpOASES/misc/testingdata/cpp/problems", &namelist, NULL, alphasort);
+	/*
+	int ii,jj;
+	char filename[1024];
+	FILE * pFile;
+	*/
 
-	printf("probl\tnv\tne\tnc\tdp\treturn\titer\tres_g\t\tres_b\t\tres_d\t\tres_m\t\tmu\t\ttime\t\ttime[ms]\n");
+	printf("probl\tnv\tne\tnc\tdp\treturn\titer\tres_g\t\tres_b\t\tres_d\t\tres_m\t\tmu\t\ttime\t\ttime[ms]\tobj\t\tabs obj err\trel obj err\t\n");
 
 	int npass = 0;
 	int nfail = 0;
@@ -438,107 +445,111 @@ int main()
 
 	int ii;
 
-    /************** benchmark loop *********************/
+	/************** benchmark loop *********************/
 
-//    for (i = 0; i < nproblems; i++)
-    for (i = 0; i < nproblems-1; i++)
-//    for (i = 44; i < 45; i++)
+//	for (i = 0; i < nproblems; i++)
+	for (i = 0; i < nproblems-1; i++)
+//	for (i = 35; i < 36; i++)
 		{
 
-        /************************************************
-        * bechmark data setting
-        ************************************************/
+		/************************************************
+		* bechmark data setting
+		************************************************/
 
-        /* skip special directories and zip file cuter.*bz2 */
-        if (namelist[i]->d_name[0] == '.' || namelist[i]->d_name[0] == 'c')
+		/* skip special directories and zip file cuter.*bz2 */
+		if (namelist[i]->d_name[0] == '.' || namelist[i]->d_name[0] == 'c')
 			{
-            free(namelist[i]);
-            continue;
+			free(namelist[i]);
+			continue;
 			}
-        problem = namelist[i]->d_name;
-        snprintf(OQPproblem, 199, "./projects.coin-or.org/svn/qpOASES/misc/testingdata/cpp/problems/%s/", problem);
+		problem = namelist[i]->d_name;
+		snprintf(OQPproblem, 199, "./projects.coin-or.org/svn/qpOASES/misc/testingdata/cpp/problems/%s/", problem);
 
-        /* read dimensions */
-        readOQPdimensions( OQPproblem, &nQP, &nv, &ng, &ne );
+		/* read dimensions */
+		readOQPdimensions( OQPproblem, &nQP, &nv, &ng, &ne );
 
-        /************************************************
-        * dense qp benchmark
-        ************************************************/
+		/************************************************
+		* dense qp benchmark
+		************************************************/
 
-        int nc = ng-ne; // inequality constraint
-        int benchmark_size = d_memsize_benchmark_qp(nv, ne, nc);
-        void *benchmark_mem = calloc(benchmark_size,1);
+		int nc = ng-ne; // inequality constraint
+		int benchmark_size = d_memsize_benchmark_qp(nv, ne, nc);
+		void *benchmark_mem = calloc(benchmark_size,1);
 
-        struct benchmark_qp qp_bench;
-        d_create_benchmark_qp(nv, ne, nc, &qp_bench, benchmark_mem);
+		struct benchmark_qp qp_bench;
+		d_create_benchmark_qp(nv, ne, nc, &qp_bench, benchmark_mem);
 
-        /* read data */
-        readOQPdata(OQPproblem, &nQP, &nv, &ng, &ne, qp_bench.H, qp_bench.g, qp_bench.C, qp_bench.lbx, qp_bench.ubx, qp_bench.lbC, qp_bench.ubC, NULL, NULL, NULL);
+		double objOpt;
 
-        // print data to text files
-        /*
-        snprintf(filename, sizeof(filename), "matrixH%d.txt", i);
-        pFile = fopen(filename,"w");
-        for (ii = 0; ii < nv; ii++){
-           for (jj = 0; jj < nv; jj++)
-           {
-               fprintf(pFile, "%e ", H[ii*nv+jj]);
-           }
-           fputc('\n', pFile);
-        }
-        fclose(pFile);
-        */
+		/* read data */
+		readOQPdata(OQPproblem, &nQP, &nv, &ng, &ne, qp_bench.H, qp_bench.g, qp_bench.C, qp_bench.lbx, qp_bench.ubx, qp_bench.lbC, qp_bench.ubC, NULL, NULL, &objOpt);
 
-        /************************************************
-        * benchmark to hpipm workspace
-        ************************************************/
+		// print data to text files
+		/*
+		snprintf(filename, sizeof(filename), "matrixH%d.txt", i);
+		pFile = fopen(filename,"w");
+		for (ii = 0; ii < nv; ii++){
+			for (jj = 0; jj < nv; jj++)
+			{
+				fprintf(pFile, "%e ", H[ii*nv+jj]);
+			}
+			fputc('\n', pFile);
+		}
+		fclose(pFile);
+		*/
 
-        int tran_size = d_memsize_benchmark_to_hpipm(nv, ne, nc);
-        void *tran_mem = calloc(tran_size,1);
+		/************************************************
+		* benchmark to hpipm workspace
+		************************************************/
 
-        struct benchmark_to_hpipm tran_space;
-        d_create_benchmark_to_hpipm(nv, ne, nc, &tran_space, tran_mem);
+		int tran_size = d_memsize_benchmark_to_hpipm(nv, ne, nc);
+		void *tran_mem = calloc(tran_size,1);
 
-        /************************************************
-        * dense qp dim
-        ************************************************/
+		struct benchmark_to_hpipm tran_space;
+		d_create_benchmark_to_hpipm(nv, ne, nc, &tran_space, tran_mem);
+
+		/************************************************
+		* dense qp dim
+		************************************************/
 
 		// double
 
-		int qp_dim_size = d_memsize_dense_qp_dim();
+		int qp_dim_size = d_dense_qp_dim_memsize();
 		void *qp_dim_mem = calloc(qp_dim_size, 1);
 
 		struct d_dense_qp_dim dim;
-		d_create_dense_qp_dim(&dim, qp_dim_mem);
+		d_dense_qp_dim_create(&dim, qp_dim_mem);
 
-		d_cvt_int_to_dense_qp_dim(nv, ne, nv, nc, 0, 0, &dim);
+		d_dense_qp_dim_set_all(nv, ne, nv, nc, 0, 0, &dim);
+//		d_dense_qp_dim_print(&dim);
 
 		// single
 
-		int s_qp_dim_size = s_memsize_dense_qp_dim();
+		int s_qp_dim_size = s_dense_qp_dim_memsize();
 		void *s_qp_dim_mem = calloc(s_qp_dim_size, 1);
 
 		struct s_dense_qp_dim s_dim;
-		s_create_dense_qp_dim(&s_dim, s_qp_dim_mem);
+		s_dense_qp_dim_create(&s_dim, s_qp_dim_mem);
 
 		cvt_d2s_dense_qp_dim(&dim, &s_dim);
 
-        /************************************************
-        * dense qp
-        ************************************************/
+		/************************************************
+		* dense qp
+		************************************************/
 
 		// double
 
-        int qp_size = d_memsize_dense_qp(&dim);
-        void *qp_mem = calloc(qp_size, 1);
+		int qp_size = d_dense_qp_memsize(&dim);
+		void *qp_mem = calloc(qp_size, 1);
 
-        struct d_dense_qp qpd_hpipm;
-        d_create_dense_qp(&dim, &qpd_hpipm, qp_mem);
+		struct d_dense_qp d_qp;
+		d_dense_qp_create(&dim, &d_qp, qp_mem);
 
-        cvt_benchmark_to_hpipm(&qp_bench, &qpd_hpipm, &tran_space);
+		cvt_benchmark_to_hpipm(&qp_bench, &d_qp, &tran_space);
+//		d_dense_qp_print(&dim, &d_qp);
 
 		double reg = 0e-8;
-		blasfeo_ddiare(nv, reg, qpd_hpipm.Hv, 0, 0);
+		blasfeo_ddiare(nv, reg, d_qp.Hv, 0, 0);
 
 		int H_fact_size = blasfeo_memsize_dmat(nv, nv);
 		void *H_fact_mem; v_zeros_align(&H_fact_mem, H_fact_size);
@@ -546,7 +557,7 @@ int main()
 		struct blasfeo_dmat H_fact;
 		blasfeo_create_dmat(nv, nv, &H_fact, H_fact_mem);
 
-		blasfeo_dpotrf_l(nv, qpd_hpipm.Hv, 0, 0, &H_fact, 0, 0);
+		blasfeo_dpotrf_l(nv, d_qp.Hv, 0, 0, &H_fact, 0, 0);
 
 		dp = 1;
 		for(ii=0; ii<nv; ii++)
@@ -555,86 +566,108 @@ int main()
 
 		// single
 
-        int s_qp_size = s_memsize_dense_qp(&s_dim);
-        void *s_qp_mem = calloc(s_qp_size, 1);
+		int s_qp_size = s_dense_qp_memsize(&s_dim);
+		void *s_qp_mem = calloc(s_qp_size, 1);
 
-        struct s_dense_qp s_qpd_hpipm;
-        s_create_dense_qp(&s_dim, &s_qpd_hpipm, s_qp_mem);
+		struct s_dense_qp s_qpd_hpipm;
+		s_dense_qp_create(&s_dim, &s_qpd_hpipm, s_qp_mem);
 
-		cvt_d2s_dense_qp(&qpd_hpipm, &s_qpd_hpipm);
+		cvt_d2s_dense_qp(&d_qp, &s_qpd_hpipm);
 
-        /************************************************
-        * dense sol
-        ************************************************/
-
-		// double
-
-        int qp_sol_size = d_memsize_dense_qp_sol(&dim);
-        void *qp_sol_mem = calloc(qp_sol_size,1);
-
-        struct d_dense_qp_sol qpd_sol;
-        d_create_dense_qp_sol(&dim, &qpd_sol, qp_sol_mem);
-
-		// single
-
-        int s_qp_sol_size = s_memsize_dense_qp_sol(&s_dim);
-        void *s_qp_sol_mem = calloc(s_qp_sol_size,1);
-
-        struct s_dense_qp_sol s_qpd_sol;
-        s_create_dense_qp_sol(&s_dim, &s_qpd_sol, s_qp_sol_mem);
-
-        /************************************************
-        * ipm arg
-        ************************************************/
-
-//		enum dense_qp_ipm_mode mode = SPEED_ABS;
-//		enum dense_qp_ipm_mode mode = SPEED;
-		enum dense_qp_ipm_mode mode = BALANCE;
-//		enum dense_qp_ipm_mode mode = ROBUST;
+		/************************************************
+		* dense sol
+		************************************************/
 
 		// double
 
-        int ipm_arg_size = d_memsize_dense_qp_ipm_arg(&dim);
-        void *ipm_arg_mem = calloc(ipm_arg_size,1);
+		int qp_sol_size = d_dense_qp_sol_memsize(&dim);
+		void *qp_sol_mem = calloc(qp_sol_size,1);
 
-        struct d_dense_qp_ipm_arg argd;
-        d_create_dense_qp_ipm_arg(&dim, &argd, ipm_arg_mem);
-        d_set_default_dense_qp_ipm_arg(mode, &argd);
-		// overwirte default
-        argd.res_g_max = 1e-6;
-        argd.res_b_max = 1e-6;
-        argd.res_d_max = 1e-6;
-        argd.res_m_max = 1e-6;
-        argd.iter_max = 200;
-        argd.stat_max = 200;
-//        argd.alpha_min = 1e-12;
-        argd.mu0 = 1e1;
-//		argd.pred_corr = 1;
-//		argd.cond_pred_corr = 1;
-//		argd.scale = 1;
-//		argd.itref_pred_max = 0;
-//		argd.itref_corr_max = 4;
-//		argd.reg_prim = 1e-15;
-//		argd.reg_dual = 1e-15;
-//		argd.lq_fact = 1;
+		struct d_dense_qp_sol qpd_sol;
+		d_dense_qp_sol_create(&dim, &qpd_sol, qp_sol_mem);
 
 		// single
 
-        int s_ipm_arg_size = s_memsize_dense_qp_ipm_arg(&s_dim);
-        void *s_ipm_arg_mem = calloc(s_ipm_arg_size,1);
+		int s_qp_sol_size = s_dense_qp_sol_memsize(&s_dim);
+		void *s_qp_sol_mem = calloc(s_qp_sol_size,1);
 
-        struct s_dense_qp_ipm_arg s_argd;
-        s_create_dense_qp_ipm_arg(&s_dim, &s_argd, s_ipm_arg_mem);
-        s_set_default_dense_qp_ipm_arg(mode, &s_argd);
+		struct s_dense_qp_sol s_qpd_sol;
+		s_dense_qp_sol_create(&s_dim, &s_qpd_sol, s_qp_sol_mem);
+
+		/************************************************
+		* ipm arg
+		************************************************/
+
+//		enum hpipm_mode mode = SPEED_ABS;
+//		enum hpipm_mode mode = SPEED;
+		enum hpipm_mode mode = BALANCE;
+//		enum hpipm_mode mode = ROBUST;
+
+		// double
+
+		int ipm_arg_size = d_dense_qp_ipm_arg_memsize(&dim);
+		void *ipm_arg_mem = calloc(ipm_arg_size,1);
+
+		struct d_dense_qp_ipm_arg d_arg;
+		d_dense_qp_ipm_arg_create(&dim, &d_arg, ipm_arg_mem);
+		d_dense_qp_ipm_arg_set_default(mode, &d_arg);
+
 		// overwirte default
-        s_argd.res_g_max = 1e-3;
-        s_argd.res_b_max = 1e-3;
-        s_argd.res_d_max = 1e-3;
-        s_argd.res_m_max = 1e-3;
-        s_argd.iter_max = 200;
-        s_argd.stat_max = 200;
+		double d_tol_stat = 1e-6;
+		double d_tol_eq = 1e-6;
+		double d_tol_ineq = 1e-6;
+		double d_tol_comp = 1e-6;
+		int d_iter_max = 200;
+		double d_mu0 = 1e1;
+		int d_comp_res_exit = 1;
+		int kkt_fact_alg = 1;
+		int remove_lin_dep_eq = 0;
+		double lam_min = 1e-16;
+		double t_min = 1e-16;
+		double tau_min = 1e-16;
+		int compute_obj = 1;
+
+		d_dense_qp_ipm_arg_set_tol_stat(&d_tol_stat, &d_arg);
+		d_dense_qp_ipm_arg_set_tol_eq(&d_tol_eq, &d_arg);
+		d_dense_qp_ipm_arg_set_tol_ineq(&d_tol_ineq, &d_arg);
+		d_dense_qp_ipm_arg_set_tol_comp(&d_tol_comp, &d_arg);
+		d_dense_qp_ipm_arg_set_iter_max(&d_iter_max, &d_arg);
+		d_dense_qp_ipm_arg_set_mu0(&d_mu0, &d_arg);
+		d_dense_qp_ipm_arg_set_comp_res_exit(&d_comp_res_exit, &d_arg);
+		d_dense_qp_ipm_arg_set_kkt_fact_alg(&kkt_fact_alg, &d_arg);
+		d_dense_qp_ipm_arg_set_remove_lin_dep_eq(&remove_lin_dep_eq, &d_arg);
+//		d_dense_qp_ipm_arg_set_lam_min(&lam_min, &d_arg);
+//		d_dense_qp_ipm_arg_set_t_min(&t_min, &d_arg);
+//		d_dense_qp_ipm_arg_set_tau_min(&tau_min, &d_arg);
+		d_dense_qp_ipm_arg_set_compute_obj(&compute_obj, &d_arg);
+
+//		d_arg.alpha_min = 1e-12;
+//		d_arg.pred_corr = 1;
+//		d_arg.cond_pred_corr = 1;
+//		d_arg.scale = 1;
+//		d_arg.itref_pred_max = 0;
+//		d_arg.itref_corr_max = 4;
+//		d_arg.reg_prim = 1e-15;
+//		d_arg.reg_dual = 1e-15;
+//		d_arg.lq_fact = 1;
+
+		// single
+
+		int s_ipm_arg_size = s_dense_qp_ipm_arg_memsize(&s_dim);
+		void *s_ipm_arg_mem = calloc(s_ipm_arg_size,1);
+
+		struct s_dense_qp_ipm_arg s_argd;
+		s_dense_qp_ipm_arg_create(&s_dim, &s_argd, s_ipm_arg_mem);
+		s_dense_qp_ipm_arg_set_default(mode, &s_argd);
+		// overwirte default
+		s_argd.res_g_max = 1e-3;
+		s_argd.res_b_max = 1e-3;
+		s_argd.res_d_max = 1e-3;
+		s_argd.res_m_max = 1e-3;
+		s_argd.iter_max = 200;
+		s_argd.stat_max = 200;
 //		s_argd.alpha_min = 1e-12;
-        s_argd.mu0 = 1e1;
+		s_argd.mu0 = 1e1;
 //		s_argd.pred_corr = 1;
 //		s_argd.cond_pred_corr = 1;
 //		s_argd.scale = 1;
@@ -644,9 +677,9 @@ int main()
 		s_argd.reg_dual = 1e-7;
 //		s_argd.lq_fact = 1;
 
-        /************************************************
-        * dense ipm
-        ************************************************/
+		/************************************************
+		* dense ipm
+		************************************************/
 
 		struct timeval tv0, tv1;
 
@@ -654,13 +687,18 @@ int main()
 
 		// double
 
-        int ipm_size = d_memsize_dense_qp_ipm(&dim, &argd);
+		int ipm_size = d_dense_qp_ipm_ws_memsize(&dim, &d_arg);
 
-        void *ipm_mem = calloc(ipm_size,1);
-        struct d_dense_qp_ipm_workspace workspace;
-        d_create_dense_qp_ipm(&dim, &argd, &workspace, ipm_mem);
+		void *ipm_mem = calloc(ipm_size,1);
+		struct d_dense_qp_ipm_ws d_ws;
+		d_dense_qp_ipm_ws_create(&dim, &d_arg, &d_ws, ipm_mem);
 
-        int hpipm_return; // 0 normal; 1 max iter; 2 alpha_minl; 3 NaN
+		// check for linearly dependent equality constraints
+//		printf("\nproblem %d\n", i-1);
+//		d_dense_qp_remove_lin_dep_eq_constr(&d_qp, &d_qp, &d_arg, &d_ws);
+
+
+		int hpipm_return; // 0 normal; 1 max iter; 2 alpha_minl; 3 NaN
 
 		double sol_time;
 
@@ -669,7 +707,8 @@ int main()
 		for(rep=0; rep<nrep; rep++)
 			{
 #ifdef DOUBLE
-			hpipm_return = d_solve_dense_qp_ipm(&qpd_hpipm, &qpd_sol, &argd, &workspace);
+			d_dense_qp_ipm_solve(&d_qp, &qpd_sol, &d_arg, &d_ws);
+			d_dense_qp_ipm_get_status(&d_ws, &hpipm_return);
 #endif
 			}
 
@@ -677,15 +716,23 @@ int main()
 
 		sol_time = (tv1.tv_sec-tv0.tv_sec)/(nrep+0.0)+(tv1.tv_usec-tv0.tv_usec)/(nrep*1e6);
 
+		int d_valid_obj;
+		double d_obj = 0;
+		d_dense_qp_sol_get_valid_obj(&qpd_sol, &d_valid_obj);
+		if(d_valid_obj)
+			{
+			d_dense_qp_sol_get_obj(&qpd_sol, &d_obj);
+			}
+
 		// single
 
-        int s_ipm_size = s_memsize_dense_qp_ipm(&s_dim, &s_argd);
+		int s_ipm_size = s_dense_qp_ipm_ws_memsize(&s_dim, &s_argd);
 
-        void *s_ipm_mem = calloc(s_ipm_size,1);
-        struct s_dense_qp_ipm_workspace s_workspace;
-        s_create_dense_qp_ipm(&s_dim, &s_argd, &s_workspace, s_ipm_mem);
+		void *s_ipm_mem = calloc(s_ipm_size,1);
+		struct s_dense_qp_ipm_ws s_workspace;
+		s_dense_qp_ipm_ws_create(&s_dim, &s_argd, &s_workspace, s_ipm_mem);
 
-        int s_hpipm_return; // 0 normal; 1 max iter; 2 alpha_minl; 3 NaN
+		int s_hpipm_return; // 0 normal; 1 max iter; 2 alpha_minl; 3 NaN
 
 		double s_sol_time;
 
@@ -694,7 +741,8 @@ int main()
 		for(rep=0; rep<nrep; rep++)
 			{
 #ifdef SINGLE
-			s_hpipm_return = s_solve_dense_qp_ipm(&s_qpd_hpipm, &s_qpd_sol, &s_argd, &s_workspace);
+			s_dense_qp_ipm_solve(&s_qpd_hpipm, &s_qpd_sol, &s_argd, &s_workspace);
+			s_dense_qp_ipm_get_status(&d_ws, &s_hpipm_return);
 #endif
 			}
 
@@ -702,20 +750,9 @@ int main()
 
 		s_sol_time = (tv1.tv_sec-tv0.tv_sec)/(nrep+0.0)+(tv1.tv_usec-tv0.tv_usec)/(nrep*1e6);
 
-        /************************************************
-        * print ipm statistics
-        ************************************************/
-#if 0
-//		if(i==17)
-		if(1)
-			{
-			printf("\nipm iter = %d\n", workspace.iter);
-			printf("\nalpha_aff\tmu_aff\t\tsigma\t\talpha\t\tmu\n");
-			d_print_exp_tran_mat(5, workspace.iter, workspace.stat, 5);
-			printf("\n\n\n\n");
-			}
-#endif
-
+		/************************************************
+		* print ipm statistics
+		************************************************/
 		// number of passed and failed problems
 		if(hpipm_return==0)
 			npass++;
@@ -723,7 +760,14 @@ int main()
 			nfail++;
 
 #ifdef DOUBLE
-		printf("%d\t%d\t%d\t%d\t%d\t%d\t%d\t%e\t%e\t%e\t%e\t%e\t%e%12.4f\n", i-1, nv, ne, nc, dp, hpipm_return, workspace.iter, workspace.qp_res[0], workspace.qp_res[1], workspace.qp_res[2], workspace.qp_res[3], workspace.res->res_mu, sol_time, sol_time*1000);
+		int d_iter;
+		d_dense_qp_ipm_get_iter(&d_ws, &d_iter);
+		double d_res[4];
+		d_dense_qp_ipm_get_max_res_stat(&d_ws, d_res+0);
+		d_dense_qp_ipm_get_max_res_eq(&d_ws, d_res+1);
+		d_dense_qp_ipm_get_max_res_ineq(&d_ws, d_res+2);
+		d_dense_qp_ipm_get_max_res_comp(&d_ws, d_res+3);
+		printf("%d\t%d\t%d\t%d\t%d\t%d\t%d\t%e\t%e\t%e\t%e\t%e\t%e%12.4f\t%e\t%e\t%e\n", i-1, nv, ne, nc, dp, hpipm_return, d_iter, d_res[0], d_res[1], d_res[2], d_res[3], d_ws.res->res_mu, sol_time, sol_time*1000, d_obj, d_obj-objOpt, (d_obj-objOpt)/objOpt);
 #endif
 
 		// number of passed and failed problems
@@ -733,32 +777,58 @@ int main()
 			s_nfail++;
 
 #ifdef SINGLE
-		printf("%d\t%d\t%d\t%d\t%d\t%d\t%d\t%e\t%e\t%e\t%e\t%e\t%e%12.4f\n", i-1, nv, ne, nc, dp, s_hpipm_return, s_workspace.iter, s_workspace.qp_res[0], s_workspace.qp_res[1], s_workspace.qp_res[2], s_workspace.qp_res[3], s_workspace.res->res_mu, s_sol_time, s_sol_time*1000);
+		int s_iter;
+		s_dense_qp_ipm_get_iter(&d_ws, &s_iter);
+		float s_res[4];
+		s_dense_qp_ipm_get_max_res_stat(&d_ws, s_res+0);
+		s_dense_qp_ipm_get_max_res_eq(&d_ws, s_res+1);
+		s_dense_qp_ipm_get_max_res_ineq(&d_ws, s_res+2);
+		s_dense_qp_ipm_get_max_res_comp(&d_ws, s_res+3);
+		printf("%d\t%d\t%d\t%d\t%d\t%d\t%d\t%e\t%e\t%e\t%e\t%e\t%e%12.4f\n", i-1, nv, ne, nc, dp, s_hpipm_return, s_iter, s_res[0], s_res[1], s_res[2], s_res[3], s_workspace.res->res_mu, s_sol_time, s_sol_time*1000);
 #endif
 
-        /************************************************
-        * free memory
-        ************************************************/
+#if 1
+//		if(i==17)
+//			{
+//			printf("\nipm iter = %d\n", d_ws.iter);
+//			printf("\nalpha_aff\tmu_aff\t\tsigma\t\talpha\t\tmu\n");
+//			d_print_exp_tran_mat(5, d_ws.iter, d_ws.stat, 5);
+//			printf("\n\n\n\n");
+//			}
+//		if(i-1==34 | i-1==4)
+		if(0)
+			{
+			printf("\nalpha_aff\tmu_aff\t\tsigma\t\talpha\t\tmu\t\tres_stat\tres_eq\t\tres_ineq\tres_comp\tlq fact\t\titref pred\titref corr\tlin res_stat\tlin res_eq\tlin res_ineq\trlin es_comp\n");
+			double *stat; d_dense_qp_ipm_get_stat(&d_ws, &stat);
+			int stat_m;  d_dense_qp_ipm_get_stat_m(&d_ws, &stat_m);
+			d_print_exp_tran_mat(stat_m, d_iter+1, stat, stat_m);
+			}
+
+#endif
+
+		/************************************************
+		* free memory
+		************************************************/
 
 		// double
-        free(benchmark_mem);
-        free(tran_mem);
-        free(qp_mem);
+		free(benchmark_mem);
+		free(tran_mem);
+		free(qp_mem);
 		free(H_fact_mem);
-      	free(qp_sol_mem);
-      	free(ipm_mem);
-        free(ipm_arg_mem);
+		free(qp_sol_mem);
+		free(ipm_mem);
+		free(ipm_arg_mem);
 		// single
-        free(s_qp_mem);
-      	free(s_qp_sol_mem);
-      	free(s_ipm_mem);
-        free(s_ipm_arg_mem);
+		free(s_qp_mem);
+		free(s_qp_sol_mem);
+		free(s_ipm_mem);
+		free(s_ipm_arg_mem);
 
 		}
 
-    /************************************************
-    * overall statistics
-    ************************************************/
+	/************************************************
+	* overall statistics
+	************************************************/
 
 #ifdef DOUBLE
 	printf("\n\nTestbench results (double precision):\n");
@@ -780,10 +850,10 @@ int main()
 	printf("\n\n");
 #endif
 
-    /************************************************
-    * return
-    ************************************************/
+	/************************************************
+	* return
+	************************************************/
 
-  	return 0;
+	return 0;
 
 	}
