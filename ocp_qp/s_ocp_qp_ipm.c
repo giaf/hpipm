@@ -62,6 +62,7 @@
 
 #define AXPY blasfeo_saxpy
 #define BACKUP_RES_M s_backup_res_m
+#define BLAS_TRSM blasfeo_strsm
 #define COMPUTE_ALPHA_QP s_compute_alpha_qp
 #define COMPUTE_CENTERING_CORRECTION_QP s_compute_centering_correction_qp
 #define COMPUTE_CENTERING_QP s_compute_centering_qp
@@ -113,8 +114,10 @@
 #define TRCP_L blasfeo_strcp_l
 #define TRMV_LNN blasfeo_strmv_lnn
 #define TRMV_LTN blasfeo_strmv_ltn
+#define TRSV_LTN blasfeo_strsv_ltn
 #define TRTR_L blasfeo_strtr_l
 #define UNPACK_MAT blasfeo_unpack_smat
+#define UNPACK_TRAN_MAT blasfeo_unpack_tran_smat
 #define UNPACK_VEC blasfeo_unpack_svec
 #define UPDATE_VAR_QP s_update_var_qp
 #define VECCPSC blasfeo_sveccpsc
@@ -168,7 +171,8 @@
 #define OCP_QP_IPM_GET_RIC_LS s_ocp_qp_ipm_get_ric_Ls
 #define OCP_QP_IPM_GET_RIC_P s_ocp_qp_ipm_get_ric_P
 #define OCP_QP_IPM_GET_RIC_LR_VEC s_ocp_qp_ipm_get_ric_lr
-#define OCP_QP_IPM_GET_RIC_P_VEC s_ocp_qp_ipm_get_ric_p
+#define OCP_QP_IPM_GET_RIC_K s_ocp_qp_ipm_get_ric_K
+#define OCP_QP_IPM_GET_RIC_K_VEC s_ocp_qp_ipm_get_ric_k
 #define OCP_QP_INIT_VAR s_ocp_qp_init_var
 #define OCP_QP_IPM_ABS_STEP s_ocp_qp_ipm_abs_step
 #define OCP_QP_IPM_DELTA_STEP s_ocp_qp_ipm_delta_step

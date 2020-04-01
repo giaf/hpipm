@@ -103,7 +103,7 @@ struct s_ocp_qp_ipm_ws
 	struct s_ocp_qp_res *res_itref;
 	struct blasfeo_svec *Gamma; // hessian update
 	struct blasfeo_svec *gamma; // hessian update
-	struct blasfeo_svec *tmp_nxM; // work space of size nxM
+	struct blasfeo_svec *tmp_nuxM; // work space of size nxM
 	struct blasfeo_svec *tmp_nbgM; // work space of size nbM+ngM
 	struct blasfeo_svec *tmp_nsM; // work space of size nsM
 	struct blasfeo_svec *Pb; // Pb
@@ -116,6 +116,7 @@ struct s_ocp_qp_ipm_ws
 	struct blasfeo_smat *lq0;
 	struct blasfeo_svec *tmp_m;
 	float *stat; // convergence statistics
+	float *Lr_cm;
 	int *use_hess_fact;
 	void *lq_work0;
 	float qp_res[4]; // infinity norm of residuals
@@ -215,6 +216,10 @@ void s_ocp_qp_ipm_get_ric_P(int stage, struct s_ocp_qp_ipm_ws *ws, float *P);
 void s_ocp_qp_ipm_get_ric_lr(int stage, struct s_ocp_qp_ipm_ws *ws, float *lr);
 // valid only in the unconstrained case
 void s_ocp_qp_ipm_get_ric_p(int stage, struct s_ocp_qp_ipm_ws *ws, float *p);
+//
+void s_ocp_qp_ipm_get_ric_K(int stage, struct s_ocp_qp_ipm_ws *ws, float *K);
+// valid only in the unconstrained case
+void s_ocp_qp_ipm_get_ric_k(int stage, struct s_ocp_qp_ipm_ws *ws, float *k);
 //
 void s_ocp_qp_init_var(struct s_ocp_qp *qp, struct s_ocp_qp_sol *qp_sol, struct s_ocp_qp_ipm_arg *arg, struct s_ocp_qp_ipm_ws *ws);
 //

@@ -535,7 +535,7 @@ int OCP_QP_IPM_WS_MEMSIZE(struct OCP_QP_DIM *dim, struct OCP_QP_IPM_ARG *arg)
 
 	size += 9*(N+1)*sizeof(struct STRVEC); // res_g res_d res_m Gamma gamma Zs_inv sol_step(v,lam,t)
 	size += 3*N*sizeof(struct STRVEC); // res_b Pb sol_step(pi) 
-	size += 10*sizeof(struct STRVEC); // tmp_nxM (4+2)*tmp_nbgM (1+1)*tmp_nsM tmp_m
+	size += 10*sizeof(struct STRVEC); // tmp_nuxM (4+2)*tmp_nbgM (1+1)*tmp_nsM tmp_m
 
 	size += 1*(N+1)*sizeof(struct STRMAT); // L
 	if(!arg->square_root_alg)
@@ -557,7 +557,7 @@ int OCP_QP_IPM_WS_MEMSIZE(struct OCP_QP_DIM *dim, struct OCP_QP_IPM_ARG *arg)
 		size += 1*sizeof(struct STRMAT); // lq0
 		}
 
-	size += 1*SIZE_STRVEC(nxM); // tmp_nxM
+	size += 1*SIZE_STRVEC(nuM+nxM); // tmp_nuxM
 	size += 4*SIZE_STRVEC(nbM+ngM); // tmp_nbgM
 	size += 1*SIZE_STRVEC(nsM); // tmp_nsM
 	for(ii=0; ii<N; ii++) size += 1*SIZE_STRVEC(nx[ii+1]); // Pb
@@ -591,6 +591,8 @@ int OCP_QP_IPM_WS_MEMSIZE(struct OCP_QP_DIM *dim, struct OCP_QP_IPM_ARG *arg)
 
 	int stat_m = 17;
 	size += stat_m*(1+arg->stat_max)*sizeof(REAL); // stat
+
+	size += nuM*nuM*sizeof(REAL); // Lr_cm
 
 	size += (N+1)*sizeof(int); // use_hess_fact
 
@@ -750,7 +752,7 @@ void OCP_QP_IPM_WS_CREATE(struct OCP_QP_DIM *dim, struct OCP_QP_IPM_ARG *arg, st
 	sv_ptr += N;
 	workspace->Zs_inv = sv_ptr;
 	sv_ptr += N+1;
-	workspace->tmp_nxM = sv_ptr;
+	workspace->tmp_nuxM = sv_ptr;
 	sv_ptr += 1;
 	workspace->tmp_nbgM = sv_ptr;
 	sv_ptr += 4;
@@ -770,6 +772,9 @@ void OCP_QP_IPM_WS_CREATE(struct OCP_QP_DIM *dim, struct OCP_QP_IPM_ARG *arg, st
 	workspace->stat = d_ptr;
 	int stat_m = 17;
 	d_ptr += stat_m*(1+arg->stat_max);
+
+	workspace->Lr_cm = d_ptr;
+	d_ptr += nuM*nuM;
 
 	// int stuff
 	int *i_ptr = (int *) d_ptr;
@@ -847,8 +852,8 @@ void OCP_QP_IPM_WS_CREATE(struct OCP_QP_DIM *dim, struct OCP_QP_IPM_ARG *arg, st
 		c_ptr += (workspace->Zs_inv+ii)->memsize;
 		}
 
-	CREATE_STRVEC(nxM, workspace->tmp_nxM, c_ptr);
-	c_ptr += workspace->tmp_nxM->memsize;
+	CREATE_STRVEC(nuM+nxM, workspace->tmp_nuxM, c_ptr);
+	c_ptr += workspace->tmp_nuxM->memsize;
 
 	CREATE_STRVEC(nbM+ngM, workspace->tmp_nbgM+0, c_ptr);
 	CREATE_STRVEC(nbM+ngM, workspace->res_workspace->tmp_nbgM+0, c_ptr);
@@ -1198,14 +1203,53 @@ void OCP_QP_IPM_GET_RIC_P_VEC(int stage, struct OCP_QP_IPM_WS *ws, REAL *p)
 
 	if(ws->square_root_alg)
 		{
-		ROWEX(nx0, 1.0, ws->L+stage, nu0+nx0, nu0, ws->tmp_nxM, 0);
-		TRMV_LNN(nx0, nx0, ws->L+stage, nu0, nu0, ws->tmp_nxM, 0, ws->tmp_nxM, 0);
-		UNPACK_VEC(nx0, ws->tmp_nxM, 0, p);
+		ROWEX(nx0, 1.0, ws->L+stage, nu0+nx0, nu0, ws->tmp_nuxM, 0);
+		TRMV_LNN(nx0, nx0, ws->L+stage, nu0, nu0, ws->tmp_nuxM, 0, ws->tmp_nuxM, 0);
+		UNPACK_VEC(nx0, ws->tmp_nuxM, 0, p);
 		}
 	else
 		{
 		UNPACK_MAT(1, nx0, ws->P+stage, nx0, 0, p, 1);
 		}
+	}
+
+
+
+void OCP_QP_IPM_GET_RIC_K(int stage, struct OCP_QP_IPM_WS *ws, REAL *K)
+	{
+	int *nu = ws->dim->nu;
+	int *nx = ws->dim->nx;
+
+	int nu0 = nu[stage];
+	int nx0 = nx[stage];
+
+	UNPACK_MAT(nu0, nu0, ws->L+stage, 0, 0, ws->Lr_cm, nu0);
+	UNPACK_TRAN_MAT(nx0, nu0, ws->L+stage, nu0, 0, K, nu0);
+
+	char c_l = 'l';
+	char c_n = 'n';
+	char c_t = 't';
+	REAL d_1 = 1.0;
+	BLAS_TRSM(&c_l, &c_l, &c_t, &c_n, &nu0, &nx0, &d_1, ws->Lr_cm, &nu0, K, &nu0);
+
+	return;
+	}
+
+
+
+void OCP_QP_IPM_GET_RIC_K_VEC(int stage, struct OCP_QP_IPM_WS *ws, REAL *k)
+	{
+	int *nu = ws->dim->nu;
+	int *nx = ws->dim->nx;
+
+	int nu0 = nu[stage];
+	int nx0 = nx[stage];
+
+	ROWEX(nu0, 1.0, ws->L+stage, nu0+nx0, 0, ws->tmp_nuxM, 0);
+	TRSV_LTN(nu0, ws->L+stage, 0, 0, ws->tmp_nuxM, 0, ws->tmp_nuxM, 0);
+	UNPACK_VEC(nu0, ws->tmp_nuxM, 0, k);
+
+	return;
 	}
 
 
