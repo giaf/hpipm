@@ -107,6 +107,7 @@ struct d_ocp_qp_ipm_ws
 	struct blasfeo_dvec *tmp_nsM; // work space of size nsM
 	struct blasfeo_dvec *Pb; // Pb
 	struct blasfeo_dvec *Zs_inv;
+	struct blasfeo_dvec *l;
 	struct blasfeo_dmat *L;
 	struct blasfeo_dmat *Ls;
 	struct blasfeo_dmat *P;
@@ -126,6 +127,7 @@ struct d_ocp_qp_ipm_ws
 	int square_root_alg; // cache from arg
 	int lq_fact; // cache from arg
 	int mask_constr; // use constr mask
+	int valid_ric_vec; // meaningful riccati vectors
 	int memsize;
 	};
 
@@ -216,8 +218,8 @@ void d_ocp_qp_ipm_get_ric_lr(int stage, struct d_ocp_qp_ipm_ws *ws, double *lr);
 void d_ocp_qp_ipm_get_ric_p(int stage, struct d_ocp_qp_ipm_ws *ws, double *p);
 //
 void d_ocp_qp_ipm_get_ric_K(int stage, struct d_ocp_qp_ipm_ws *ws, double *K);
-// valid only in the unconstrained case
-void d_ocp_qp_ipm_get_ric_k(int stage, struct d_ocp_qp_ipm_ws *ws, double *k);
+//
+void d_ocp_qp_ipm_get_ric_k(struct d_ocp_qp *qp, struct d_ocp_qp_ipm_arg *arg, struct d_ocp_qp_ipm_ws *ws, int stage, double *k);
 //
 void d_ocp_qp_init_var(struct d_ocp_qp *qp, struct d_ocp_qp_sol *qp_sol, struct d_ocp_qp_ipm_arg *arg, struct d_ocp_qp_ipm_ws *ws);
 //

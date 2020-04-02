@@ -536,6 +536,7 @@ int OCP_QP_IPM_WS_MEMSIZE(struct OCP_QP_DIM *dim, struct OCP_QP_IPM_ARG *arg)
 	size += 9*(N+1)*sizeof(struct STRVEC); // res_g res_d res_m Gamma gamma Zs_inv sol_step(v,lam,t)
 	size += 3*N*sizeof(struct STRVEC); // res_b Pb sol_step(pi) 
 	size += 10*sizeof(struct STRVEC); // tmp_nuxM (4+2)*tmp_nbgM (1+1)*tmp_nsM tmp_m
+	size += 1*(N+1)*sizeof(struct STRVEC); // l
 
 	size += 1*(N+1)*sizeof(struct STRMAT); // L
 	if(!arg->square_root_alg)
@@ -562,6 +563,7 @@ int OCP_QP_IPM_WS_MEMSIZE(struct OCP_QP_DIM *dim, struct OCP_QP_IPM_ARG *arg)
 	size += 1*SIZE_STRVEC(nsM); // tmp_nsM
 	for(ii=0; ii<N; ii++) size += 1*SIZE_STRVEC(nx[ii+1]); // Pb
 	for(ii=0; ii<=N; ii++) size += 1*SIZE_STRVEC(2*ns[ii]); // Zs_inv
+	for(ii=0; ii<=N; ii++) size += 1*SIZE_STRVEC(nu[ii]+nx[ii]); // l
 
 	for(ii=0; ii<=N; ii++) size += 1*SIZE_STRMAT(nu[ii]+nx[ii]+1, nu[ii]+nx[ii]); // L
 	if(!arg->square_root_alg)
@@ -728,6 +730,8 @@ void OCP_QP_IPM_WS_CREATE(struct OCP_QP_DIM *dim, struct OCP_QP_IPM_ARG *arg, st
 	// vector struct
 	struct STRVEC *sv_ptr = (struct STRVEC *) sm_ptr;
 
+	workspace->l = sv_ptr;
+	sv_ptr += N+1;
 	workspace->sol_step->ux = sv_ptr;
 	sv_ptr += N+1;
 	workspace->sol_step->pi = sv_ptr;
@@ -838,6 +842,12 @@ void OCP_QP_IPM_WS_CREATE(struct OCP_QP_DIM *dim, struct OCP_QP_IPM_ARG *arg, st
 		{
 		CREATE_STRMAT(nuM+nxM, 2*nuM+3*nxM+ngM, workspace->lq0, c_ptr);
 		c_ptr += (workspace->lq0)->memsize;
+		}
+
+	for(ii=0; ii<=N; ii++)
+		{
+		CREATE_STRVEC(nu[ii]+nx[ii], workspace->l+ii, c_ptr);
+		c_ptr += (workspace->l+ii)->memsize;
 		}
 
 	for(ii=0; ii<N; ii++)
@@ -1002,6 +1012,8 @@ void OCP_QP_IPM_WS_CREATE(struct OCP_QP_DIM *dim, struct OCP_QP_IPM_ARG *arg, st
 		workspace->use_hess_fact[ii] = 0;
 	
 	workspace->use_Pb = 0;
+
+	workspace->valid_ric_vec = 0;
 
 	// cache stuff
 	workspace->dim = dim;
@@ -1237,7 +1249,7 @@ void OCP_QP_IPM_GET_RIC_K(int stage, struct OCP_QP_IPM_WS *ws, REAL *K)
 
 
 
-void OCP_QP_IPM_GET_RIC_K_VEC(int stage, struct OCP_QP_IPM_WS *ws, REAL *k)
+void OCP_QP_IPM_GET_RIC_K_VEC(struct OCP_QP *qp, struct OCP_QP_IPM_ARG *arg, struct OCP_QP_IPM_WS *ws, int stage, REAL *k)
 	{
 	int *nu = ws->dim->nu;
 	int *nx = ws->dim->nx;
@@ -1245,8 +1257,52 @@ void OCP_QP_IPM_GET_RIC_K_VEC(int stage, struct OCP_QP_IPM_WS *ws, REAL *k)
 	int nu0 = nu[stage];
 	int nx0 = nx[stage];
 
-	ROWEX(nu0, 1.0, ws->L+stage, nu0+nx0, 0, ws->tmp_nuxM, 0);
-	TRSV_LTN(nu0, ws->L+stage, 0, 0, ws->tmp_nuxM, 0, ws->tmp_nuxM, 0);
+	if(ws->valid_ric_vec==0)
+		{
+		int ii;
+
+		struct CORE_QP_IPM_WORKSPACE *cws = ws->core_workspace;
+
+		// arg to core workspace
+		cws->lam_min = arg->lam_min;
+		cws->t_min = arg->t_min;
+
+		// alias qp vectors into qp_sol
+		cws->v = ws->sol_itref->ux->pa;
+		cws->pi = ws->sol_itref->pi->pa;
+		cws->lam = ws->sol_itref->lam->pa;
+		cws->t = ws->sol_itref->t->pa;
+
+		// alias members of qp_step
+//		ws->qp_step->dim = qp->dim;
+//		ws->qp_step->RSQrq = qp->RSQrq;
+//		ws->qp_step->BAbt = qp->BAbt;
+//		ws->qp_step->DCt = qp->DCt;
+//		ws->qp_step->Z = qp->Z;
+//		ws->qp_step->idxb = qp->idxb;
+//		ws->qp_step->idxs_rev = qp->idxs_rev;
+//		ws->qp_step->rqz = qp->rqz;
+//		ws->qp_step->b = qp->b;
+//		ws->qp_step->d = qp->d;
+//		ws->qp_step->m = ws->tmp_m;
+
+		// load sol from bkp
+		for(ii=0; ii<cws->nv; ii++)
+			cws->v[ii] = cws->v_bkp[ii];
+		for(ii=0; ii<cws->ne; ii++)
+			cws->pi[ii] = cws->pi_bkp[ii];
+		for(ii=0; ii<cws->nc; ii++)
+			cws->lam[ii] = cws->lam_bkp[ii];
+		for(ii=0; ii<cws->nc; ii++)
+			cws->t[ii] = cws->t_bkp[ii];
+
+		ws->use_Pb = 0;
+		SOLVE_KKT_STEP_OCP_QP(qp, ws->sol_itref, arg, ws);
+
+		ws->valid_ric_vec = 1;
+		}
+
+	TRSV_LTN(nu0, ws->L+stage, 0, 0, ws->l+stage, 0, ws->tmp_nuxM, 0);
 	UNPACK_VEC(nu0, ws->tmp_nuxM, 0, k);
 
 	return;
@@ -2287,6 +2343,8 @@ void OCP_QP_IPM_SOLVE(struct OCP_QP *qp, struct OCP_QP_SOL *qp_sol, struct OCP_Q
 	qp_res_max[2] = 0;
 	qp_res_max[3] = 0;
 
+	ws->valid_ric_vec = 0;
+
 
 	// detect constr mask
 	int mask_unconstr;
@@ -2375,6 +2433,9 @@ void OCP_QP_IPM_SOLVE(struct OCP_QP *qp, struct OCP_QP_SOL *qp_sol, struct OCP_Q
 		// alias core workspace
 		cws->res_m = ws->qp_step->m->pa;
 		cws->res_m_bkp = ws->qp_step->m->pa; // TODO remove (as in dense qp) ???
+
+		ws->valid_ric_vec = 1;
+
 
 		mu = VECMULDOT(cws->nc, qp_sol->lam, 0, qp_sol->t, 0, ws->tmp_m, 0);
 		mu /= cws->nc;
