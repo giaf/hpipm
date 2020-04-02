@@ -107,6 +107,7 @@ struct d_ocp_qp_ipm_ws
 	struct blasfeo_dvec *tmp_nsM; // work space of size nsM
 	struct blasfeo_dvec *Pb; // Pb
 	struct blasfeo_dvec *Zs_inv;
+	struct blasfeo_dvec *tmp_m;
 	struct blasfeo_dvec *l;
 	struct blasfeo_dmat *L;
 	struct blasfeo_dmat *Ls;
@@ -114,7 +115,7 @@ struct d_ocp_qp_ipm_ws
 	struct blasfeo_dmat *Lh;
 	struct blasfeo_dmat *AL;
 	struct blasfeo_dmat *lq0;
-	struct blasfeo_dvec *tmp_m;
+	struct blasfeo_dmat *tmp_nxM_nxM;
 	double *stat; // convergence statistics
 	double *Lr_cm;
 	int *use_hess_fact;
@@ -128,6 +129,7 @@ struct d_ocp_qp_ipm_ws
 	int lq_fact; // cache from arg
 	int mask_constr; // use constr mask
 	int valid_ric_vec; // meaningful riccati vectors
+	int valid_ric_p; // form of riccati p: 0 p*inv(L), 1 p
 	int memsize;
 	};
 
@@ -207,17 +209,17 @@ void d_ocp_qp_ipm_get_stat(struct d_ocp_qp_ipm_ws *ws, double **stat);
 //
 void d_ocp_qp_ipm_get_stat_m(struct d_ocp_qp_ipm_ws *ws, int *stat_m);
 //
-void d_ocp_qp_ipm_get_ric_Lr(int stage, struct d_ocp_qp_ipm_ws *ws, double *Lr);
+void d_ocp_qp_ipm_get_ric_Lr(struct d_ocp_qp *qp, struct d_ocp_qp_ipm_arg *arg, struct d_ocp_qp_ipm_ws *ws, int stage, double *Lr);
 //
-void d_ocp_qp_ipm_get_ric_Ls(int stage, struct d_ocp_qp_ipm_ws *ws, double *Ls);
+void d_ocp_qp_ipm_get_ric_Ls(struct d_ocp_qp *qp, struct d_ocp_qp_ipm_arg *arg, struct d_ocp_qp_ipm_ws *ws, int stage, double *Ls);
 //
-void d_ocp_qp_ipm_get_ric_P(int stage, struct d_ocp_qp_ipm_ws *ws, double *P);
-// valid only in the unconstrained case
-void d_ocp_qp_ipm_get_ric_lr(int stage, struct d_ocp_qp_ipm_ws *ws, double *lr);
-// valid only in the unconstrained case
-void d_ocp_qp_ipm_get_ric_p(int stage, struct d_ocp_qp_ipm_ws *ws, double *p);
+void d_ocp_qp_ipm_get_ric_P(struct d_ocp_qp *qp, struct d_ocp_qp_ipm_arg *arg, struct d_ocp_qp_ipm_ws *ws, int stage, double *P);
 //
-void d_ocp_qp_ipm_get_ric_K(int stage, struct d_ocp_qp_ipm_ws *ws, double *K);
+void d_ocp_qp_ipm_get_ric_lr(struct d_ocp_qp *qp, struct d_ocp_qp_ipm_arg *arg, struct d_ocp_qp_ipm_ws *ws, int stage, double *lr);
+//
+void d_ocp_qp_ipm_get_ric_p(struct d_ocp_qp *qp, struct d_ocp_qp_ipm_arg *arg, struct d_ocp_qp_ipm_ws *ws, int stage, double *p);
+//
+void d_ocp_qp_ipm_get_ric_K(struct d_ocp_qp *qp, struct d_ocp_qp_ipm_arg *arg, struct d_ocp_qp_ipm_ws *ws, int stage, double *K);
 //
 void d_ocp_qp_ipm_get_ric_k(struct d_ocp_qp *qp, struct d_ocp_qp_ipm_arg *arg, struct d_ocp_qp_ipm_ws *ws, int stage, double *k);
 //

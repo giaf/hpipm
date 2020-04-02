@@ -63,6 +63,7 @@ void FACT_SOLVE_KKT_UNCONSTR_OCP_QP(struct OCP_QP *qp, struct OCP_QP_SOL *qp_sol
 
 	if(ws->square_root_alg)
 		{
+		ws->valid_ric_p = 0;
 
 		// factorization and backward substitution
 
@@ -126,6 +127,7 @@ void FACT_SOLVE_KKT_UNCONSTR_OCP_QP(struct OCP_QP *qp, struct OCP_QP_SOL *qp_sol
 		}
 	else
 		{
+		ws->valid_ric_p = 1;
 
 		struct STRMAT *P = ws->P;
 		struct STRMAT *Ls = ws->Ls;
@@ -442,6 +444,7 @@ void FACT_SOLVE_KKT_STEP_OCP_QP(struct OCP_QP *qp, struct OCP_QP_SOL *qp_sol, st
 
 	if(ws->square_root_alg)
 		{
+		ws->valid_ric_p = 0;
 
 		// factorization and backward substitution
 
@@ -567,6 +570,7 @@ void FACT_SOLVE_KKT_STEP_OCP_QP(struct OCP_QP *qp, struct OCP_QP_SOL *qp_sol, st
 		}
 	else // classical algorithm
 		{
+		ws->valid_ric_p = 1;
 
 		struct STRMAT *P = ws->P;
 		struct STRMAT *Ls = ws->Ls;
@@ -808,6 +812,8 @@ void FACT_LQ_SOLVE_KKT_STEP_OCP_QP(struct OCP_QP *qp, struct OCP_QP_SOL *qp_sol,
 	int ii, nn, ss, idx;
 
 	struct CORE_QP_IPM_WORKSPACE *cws = ws->core_workspace;
+
+	ws->valid_ric_p = 1;
 
 	COMPUTE_GAMMA_GAMMA_QP(res_d[0].pa, res_m[0].pa, cws);
 
@@ -1118,6 +1124,7 @@ void SOLVE_KKT_STEP_OCP_QP(struct OCP_QP *qp, struct OCP_QP_SOL *qp_sol, struct 
 
 	if(ws->square_root_alg)
 		{
+		ws->valid_ric_p = 1;
 
 		// backward substitution
 
@@ -1261,6 +1268,7 @@ void SOLVE_KKT_STEP_OCP_QP(struct OCP_QP *qp, struct OCP_QP_SOL *qp_sol, struct 
 		}
 	else // classical algirthm
 		{
+		ws->valid_ric_p = 1;
 
 		struct STRMAT *P = ws->P;
 

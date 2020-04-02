@@ -544,10 +544,7 @@ int OCP_QP_IPM_WS_MEMSIZE(struct OCP_QP_DIM *dim, struct OCP_QP_IPM_ARG *arg)
 		size += 1*(N+1)*sizeof(struct STRMAT); // P
 		size += 1*sizeof(struct STRMAT); // Ls
 		}
-	else
-		{
-		size += 2*sizeof(struct STRMAT); // P
-		}
+	size += 2*sizeof(struct STRMAT); // tmp_nxM_nxM
 	if(arg->lq_fact>0)
 		{
 		size += 1*(N+1)*sizeof(struct STRMAT); // Lh
@@ -571,10 +568,7 @@ int OCP_QP_IPM_WS_MEMSIZE(struct OCP_QP_DIM *dim, struct OCP_QP_IPM_ARG *arg)
 		for(ii=0; ii<=N; ii++) size += 1*SIZE_STRMAT(nx[ii]+1, nx[ii]); // P
 		size += 1*SIZE_STRMAT(nxM+1, nuM); // Ls
 		}
-	else
-		{
-		size += 2*SIZE_STRMAT(nxM, nxM); // P
-		}
+	size += 2*SIZE_STRMAT(nxM, nxM); // tmp_nxM_nxM
 	if(arg->lq_fact>0)
 		{
 		for(ii=0; ii<=N; ii++) size += 1*SIZE_STRMAT(nu[ii]+nx[ii]+1, nu[ii]+nx[ii]); // Lh
@@ -708,11 +702,8 @@ void OCP_QP_IPM_WS_CREATE(struct OCP_QP_DIM *dim, struct OCP_QP_IPM_ARG *arg, st
 		workspace->Ls = sm_ptr;
 		sm_ptr += 1;
 		}
-	else
-		{
-		workspace->P = sm_ptr;
-		sm_ptr += 2;
-		}
+	workspace->tmp_nxM_nxM = sm_ptr;
+	sm_ptr += 2;
 	if(arg->lq_fact>0)
 		{
 		workspace->Lh = sm_ptr;
@@ -815,13 +806,10 @@ void OCP_QP_IPM_WS_CREATE(struct OCP_QP_DIM *dim, struct OCP_QP_IPM_ARG *arg, st
 		CREATE_STRMAT(nxM+1, nuM, workspace->Ls, c_ptr);
 		c_ptr += (workspace->Ls)->memsize;
 		}
-	else
-		{
-		CREATE_STRMAT(nxM, nxM, workspace->P+0, c_ptr);
-		c_ptr += (workspace->P+0)->memsize;
-		CREATE_STRMAT(nxM, nxM, workspace->P+1, c_ptr);
-		c_ptr += (workspace->P+1)->memsize;
-		}
+	CREATE_STRMAT(nxM, nxM, workspace->tmp_nxM_nxM+0, c_ptr);
+	c_ptr += (workspace->tmp_nxM_nxM+0)->memsize;
+	CREATE_STRMAT(nxM, nxM, workspace->tmp_nxM_nxM+1, c_ptr);
+	c_ptr += (workspace->tmp_nxM_nxM+1)->memsize;
 
 	if(arg->lq_fact>0)
 		{
@@ -1142,7 +1130,7 @@ void OCP_QP_IPM_GET_STAT_M(struct OCP_QP_IPM_WS *ws, int *stat_m)
 
 
 
-void OCP_QP_IPM_GET_RIC_LR(int stage, struct OCP_QP_IPM_WS *ws, REAL *Lr)
+void OCP_QP_IPM_GET_RIC_LR(struct OCP_QP *qp, struct OCP_QP_IPM_ARG *arg, struct OCP_QP_IPM_WS *ws, int stage, REAL *Lr)
 	{
 	int *nu = ws->dim->nu;
 
@@ -1153,7 +1141,7 @@ void OCP_QP_IPM_GET_RIC_LR(int stage, struct OCP_QP_IPM_WS *ws, REAL *Lr)
 
 
 
-void OCP_QP_IPM_GET_RIC_LS(int stage, struct OCP_QP_IPM_WS *ws, REAL *Ls)
+void OCP_QP_IPM_GET_RIC_LS(struct OCP_QP *qp, struct OCP_QP_IPM_ARG *arg, struct OCP_QP_IPM_WS *ws, int stage, REAL *Ls)
 	{
 	int *nu = ws->dim->nu;
 	int *nx = ws->dim->nx;
@@ -1166,7 +1154,7 @@ void OCP_QP_IPM_GET_RIC_LS(int stage, struct OCP_QP_IPM_WS *ws, REAL *Ls)
 
 
 
-void OCP_QP_IPM_GET_RIC_P(int stage, struct OCP_QP_IPM_WS *ws, REAL *P)
+void OCP_QP_IPM_GET_RIC_P(struct OCP_QP *qp, struct OCP_QP_IPM_ARG *arg, struct OCP_QP_IPM_WS *ws, int stage, REAL *P)
 	{
 	int *nu = ws->dim->nu;
 	int *nx = ws->dim->nx;
@@ -1174,13 +1162,13 @@ void OCP_QP_IPM_GET_RIC_P(int stage, struct OCP_QP_IPM_WS *ws, REAL *P)
 	int nu0 = nu[stage];
 	int nx0 = nx[stage];
 
-	if(ws->square_root_alg)
+	if(ws->square_root_alg==1 | stage==0)
 		{
-		GESE(nx0, nx0, 0.0, ws->P+0, 0, 0);
-		TRCP_L(nx0, ws->L+stage, nu0, nu0, ws->P+0, 0, 0);
-		SYRK_LN(nx0, nx0, 1.0, ws->P+0, 0, 0, ws->P+0, 0, 0, 0.0, ws->P+1, 0, 0, ws->P+1, 0, 0); // TODO lauum
-		TRTR_L(nx0, ws->P+1, 0, 0, ws->P+1, 0, 0);
-		UNPACK_MAT(nx0, nx0, ws->P+1, 0, 0, P, nx0);
+		GESE(nx0, nx0, 0.0, ws->tmp_nxM_nxM+0, 0, 0);
+		TRCP_L(nx0, ws->L+stage, nu0, nu0, ws->tmp_nxM_nxM+0, 0, 0);
+		SYRK_LN(nx0, nx0, 1.0, ws->tmp_nxM_nxM+0, 0, 0, ws->tmp_nxM_nxM+0, 0, 0, 0.0, ws->tmp_nxM_nxM+1, 0, 0, ws->tmp_nxM_nxM+1, 0, 0); // TODO lauum
+		TRTR_L(nx0, ws->tmp_nxM_nxM+1, 0, 0, ws->tmp_nxM_nxM+1, 0, 0);
+		UNPACK_MAT(nx0, nx0, ws->tmp_nxM_nxM+1, 0, 0, P, nx0);
 		}
 	else
 		{
@@ -1190,8 +1178,8 @@ void OCP_QP_IPM_GET_RIC_P(int stage, struct OCP_QP_IPM_WS *ws, REAL *P)
 
 
 
-// XXX valid only in the unconstrained case !!!
-void OCP_QP_IPM_GET_RIC_LR_VEC(int stage, struct OCP_QP_IPM_WS *ws, REAL *lr)
+//
+void OCP_QP_IPM_GET_RIC_LR_VEC(struct OCP_QP *qp, struct OCP_QP_IPM_ARG *arg, struct OCP_QP_IPM_WS *ws, int stage, REAL *lr)
 	{
 	int *nu = ws->dim->nu;
 	int *nx = ws->dim->nx;
@@ -1199,13 +1187,46 @@ void OCP_QP_IPM_GET_RIC_LR_VEC(int stage, struct OCP_QP_IPM_WS *ws, REAL *lr)
 	int nu0 = nu[stage];
 	int nx0 = nx[stage];
 
-	UNPACK_MAT(1, nu0, ws->L+stage, nu0+nx0, 0, lr, 1);
+	if(ws->valid_ric_vec==0)
+		{
+		int ii;
+
+		struct CORE_QP_IPM_WORKSPACE *cws = ws->core_workspace;
+
+		// arg to core workspace
+		cws->lam_min = arg->lam_min;
+		cws->t_min = arg->t_min;
+
+		// alias qp vectors into qp_sol
+		cws->v = ws->sol_itref->ux->pa;
+		cws->pi = ws->sol_itref->pi->pa;
+		cws->lam = ws->sol_itref->lam->pa;
+		cws->t = ws->sol_itref->t->pa;
+
+		// load sol from bkp
+		for(ii=0; ii<cws->nv; ii++)
+			cws->v[ii] = cws->v_bkp[ii];
+		for(ii=0; ii<cws->ne; ii++)
+			cws->pi[ii] = cws->pi_bkp[ii];
+		for(ii=0; ii<cws->nc; ii++)
+			cws->lam[ii] = cws->lam_bkp[ii];
+		for(ii=0; ii<cws->nc; ii++)
+			cws->t[ii] = cws->t_bkp[ii];
+
+		ws->use_Pb = 0;
+		SOLVE_KKT_STEP_OCP_QP(qp, ws->sol_itref, arg, ws);
+
+		ws->valid_ric_vec = 1;
+		}
+
+//	UNPACK_MAT(1, nu0, ws->L+stage, nu0+nx0, 0, lr, 1);
+	UNPACK_VEC(nu0, ws->l+stage, 0, lr);
 	}
 
 
 
-// XXX valid only in the unconstrained case !!!
-void OCP_QP_IPM_GET_RIC_P_VEC(int stage, struct OCP_QP_IPM_WS *ws, REAL *p)
+//
+void OCP_QP_IPM_GET_RIC_P_VEC(struct OCP_QP *qp, struct OCP_QP_IPM_ARG *arg, struct OCP_QP_IPM_WS *ws, int stage, REAL *p)
 	{
 	int *nu = ws->dim->nu;
 	int *nx = ws->dim->nx;
@@ -1213,21 +1234,56 @@ void OCP_QP_IPM_GET_RIC_P_VEC(int stage, struct OCP_QP_IPM_WS *ws, REAL *p)
 	int nu0 = nu[stage];
 	int nx0 = nx[stage];
 
-	if(ws->square_root_alg)
+	if(ws->valid_ric_vec==0)
 		{
-		ROWEX(nx0, 1.0, ws->L+stage, nu0+nx0, nu0, ws->tmp_nuxM, 0);
-		TRMV_LNN(nx0, nx0, ws->L+stage, nu0, nu0, ws->tmp_nuxM, 0, ws->tmp_nuxM, 0);
+		int ii;
+
+		struct CORE_QP_IPM_WORKSPACE *cws = ws->core_workspace;
+
+		// arg to core workspace
+		cws->lam_min = arg->lam_min;
+		cws->t_min = arg->t_min;
+
+		// alias qp vectors into qp_sol
+		cws->v = ws->sol_itref->ux->pa;
+		cws->pi = ws->sol_itref->pi->pa;
+		cws->lam = ws->sol_itref->lam->pa;
+		cws->t = ws->sol_itref->t->pa;
+
+		// load sol from bkp
+		for(ii=0; ii<cws->nv; ii++)
+			cws->v[ii] = cws->v_bkp[ii];
+		for(ii=0; ii<cws->ne; ii++)
+			cws->pi[ii] = cws->pi_bkp[ii];
+		for(ii=0; ii<cws->nc; ii++)
+			cws->lam[ii] = cws->lam_bkp[ii];
+		for(ii=0; ii<cws->nc; ii++)
+			cws->t[ii] = cws->t_bkp[ii];
+
+		ws->use_Pb = 0;
+		SOLVE_KKT_STEP_OCP_QP(qp, ws->sol_itref, arg, ws);
+
+		ws->valid_ric_vec = 1;
+		}
+
+//	if(ws->square_root_alg)
+	if(ws->valid_ric_p==0)
+		{
+//		ROWEX(nx0, 1.0, ws->L+stage, nu0+nx0, nu0, ws->tmp_nuxM, 0);
+//		TRMV_LNN(nx0, nx0, ws->L+stage, nu0, nu0, ws->tmp_nuxM, 0, ws->tmp_nuxM, 0);
+		TRMV_LNN(nx0, nx0, ws->L+stage, nu0, nu0, ws->l+stage, nu0, ws->tmp_nuxM, 0);
 		UNPACK_VEC(nx0, ws->tmp_nuxM, 0, p);
 		}
 	else
 		{
-		UNPACK_MAT(1, nx0, ws->P+stage, nx0, 0, p, 1);
+//		UNPACK_MAT(1, nx0, ws->P+stage, nx0, 0, p, 1);
+		UNPACK_VEC(nx0, ws->l+stage, nu0, p);
 		}
 	}
 
 
 
-void OCP_QP_IPM_GET_RIC_K(int stage, struct OCP_QP_IPM_WS *ws, REAL *K)
+void OCP_QP_IPM_GET_RIC_K(struct OCP_QP *qp, struct OCP_QP_IPM_ARG *arg, struct OCP_QP_IPM_WS *ws, int stage, REAL *K)
 	{
 	int *nu = ws->dim->nu;
 	int *nx = ws->dim->nx;
@@ -1272,19 +1328,6 @@ void OCP_QP_IPM_GET_RIC_K_VEC(struct OCP_QP *qp, struct OCP_QP_IPM_ARG *arg, str
 		cws->pi = ws->sol_itref->pi->pa;
 		cws->lam = ws->sol_itref->lam->pa;
 		cws->t = ws->sol_itref->t->pa;
-
-		// alias members of qp_step
-//		ws->qp_step->dim = qp->dim;
-//		ws->qp_step->RSQrq = qp->RSQrq;
-//		ws->qp_step->BAbt = qp->BAbt;
-//		ws->qp_step->DCt = qp->DCt;
-//		ws->qp_step->Z = qp->Z;
-//		ws->qp_step->idxb = qp->idxb;
-//		ws->qp_step->idxs_rev = qp->idxs_rev;
-//		ws->qp_step->rqz = qp->rqz;
-//		ws->qp_step->b = qp->b;
-//		ws->qp_step->d = qp->d;
-//		ws->qp_step->m = ws->tmp_m;
 
 		// load sol from bkp
 		for(ii=0; ii<cws->nv; ii++)
@@ -2379,6 +2422,7 @@ void OCP_QP_IPM_SOLVE(struct OCP_QP *qp, struct OCP_QP_SOL *qp_sol, struct OCP_Q
 	// no constraints
 	if(cws->nc==0 | mask_unconstr==1)
 		{
+		ws->valid_ric_vec = 1;
 		FACT_SOLVE_KKT_UNCONSTR_OCP_QP(qp, qp_sol, arg, ws);
 		if(arg->comp_res_exit)
 			{

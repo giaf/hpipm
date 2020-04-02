@@ -334,27 +334,27 @@ int main()
 	double *k1 = malloc(nu[1]*sizeof(double));
 
 	//
-	d_ocp_qp_ipm_get_ric_Lr(0, &workspace, Lr0);
+	d_ocp_qp_ipm_get_ric_Lr(&qp, &arg, &workspace, 0, Lr0);
 	printf("\nLr0\n");
 	d_print_exp_mat(nu[0], nu[0], Lr0, nu[0]);
 	//
-	d_ocp_qp_ipm_get_ric_Ls(0, &workspace, Ls0);
+	d_ocp_qp_ipm_get_ric_Ls(&qp, &arg, &workspace, 0, Ls0);
 	printf("\nLs0\n");
 	d_print_exp_mat(nx[0], nu[0], Ls0, nx[0]);
 	//
-	d_ocp_qp_ipm_get_ric_P(0, &workspace, P0);
+	d_ocp_qp_ipm_get_ric_P(&qp, &arg, &workspace, 0, P0);
 	printf("\nP0\n");
 	d_print_exp_mat(nx[0], nx[0], P0, nx[0]);
 	//
-	d_ocp_qp_ipm_get_ric_lr(0, &workspace, lr0);
-	printf("\nlr0 (valid only in the unconstrained case)\n");
+	d_ocp_qp_ipm_get_ric_lr(&qp, &arg, &workspace, 0, lr0);
+	printf("\nlr0\n");
 	d_print_exp_mat(1, nu[0], lr0, 1);
 	//
-	d_ocp_qp_ipm_get_ric_p(0, &workspace, p0);
-	printf("\np0 (valid only in the unconstrained case)\n");
+	d_ocp_qp_ipm_get_ric_p(&qp, &arg, &workspace, 0, p0);
+	printf("\np0\n");
 	d_print_exp_mat(1, nx[0], p0, 1);
 	//
-	d_ocp_qp_ipm_get_ric_K(0, &workspace, K0);
+	d_ocp_qp_ipm_get_ric_K(&qp, &arg, &workspace, 0, K0);
 	printf("\nK0\n");
 	d_print_exp_mat(nu[0], nx[0], K0, nu[0]);
 	//
@@ -363,27 +363,27 @@ int main()
 	d_print_exp_mat(1, nu[0], k0, 1);
 
 	//
-	d_ocp_qp_ipm_get_ric_Lr(1, &workspace, Lr1);
+	d_ocp_qp_ipm_get_ric_Lr(&qp, &arg, &workspace, 1, Lr1);
 	printf("\nLr1\n");
 	d_print_exp_mat(nu[1], nu[1], Lr1, nu[1]);
 	//
-	d_ocp_qp_ipm_get_ric_Ls(1, &workspace, Ls1);
+	d_ocp_qp_ipm_get_ric_Ls(&qp, &arg, &workspace, 1, Ls1);
 	printf("\nLs1\n");
 	d_print_exp_mat(nx[1], nu[1], Ls1, nx[1]);
 	//
-	d_ocp_qp_ipm_get_ric_P(1, &workspace, P1);
+	d_ocp_qp_ipm_get_ric_P(&qp, &arg, &workspace, 1, P1);
 	printf("\nP1\n");
 	d_print_exp_mat(nx[1], nx[1], P1, nx[1]);
 	//
-	d_ocp_qp_ipm_get_ric_lr(1, &workspace, lr1);
-	printf("\nlr1 (valid only in the unconstrained case)\n");
+	d_ocp_qp_ipm_get_ric_lr(&qp, &arg, &workspace, 1, lr1);
+	printf("\nlr1\n");
 	d_print_exp_mat(1, nu[1], lr1, 1);
 	//
-	d_ocp_qp_ipm_get_ric_p(1, &workspace, p1);
-	printf("\np1 (valid only in the unconstrained case)\n");
+	d_ocp_qp_ipm_get_ric_p(&qp, &arg, &workspace, 1, p1);
+	printf("\np1\n");
 	d_print_exp_mat(1, nx[1], p1, 1);
 	//
-	d_ocp_qp_ipm_get_ric_K(1, &workspace, K1);
+	d_ocp_qp_ipm_get_ric_K(&qp, &arg, &workspace, 1, K1);
 	printf("\nK1\n");
 	d_print_exp_mat(nu[1], nx[1], K1, nu[1]);
 	//
