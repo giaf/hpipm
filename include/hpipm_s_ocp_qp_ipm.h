@@ -33,8 +33,6 @@
 *                                                                                                 *
 **************************************************************************************************/
 
-
-
 #ifndef HPIPM_S_OCP_QP_IPM_H_
 #define HPIPM_S_OCP_QP_IPM_H_
 
@@ -109,7 +107,7 @@ struct s_ocp_qp_ipm_ws
 	struct blasfeo_svec *Pb; // Pb
 	struct blasfeo_svec *Zs_inv;
 	struct blasfeo_svec *tmp_m;
-	struct blasfeo_svec *l;
+	struct blasfeo_svec *l; // cache linear part for _get_ric_xxx
 	struct blasfeo_smat *L;
 	struct blasfeo_smat *Ls;
 	struct blasfeo_smat *P;

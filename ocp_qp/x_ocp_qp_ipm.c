@@ -1267,7 +1267,7 @@ void OCP_QP_IPM_GET_RIC_P_VEC(struct OCP_QP *qp, struct OCP_QP_IPM_ARG *arg, str
 		}
 
 //	if(ws->square_root_alg)
-	if(ws->valid_ric_p==0)
+	if(ws->valid_ric_p==0 | stage==0)
 		{
 //		ROWEX(nx0, 1.0, ws->L+stage, nu0+nx0, nu0, ws->tmp_nuxM, 0);
 //		TRMV_LNN(nx0, nx0, ws->L+stage, nu0, nu0, ws->tmp_nuxM, 0, ws->tmp_nuxM, 0);

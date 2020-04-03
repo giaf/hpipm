@@ -701,8 +701,10 @@ void FACT_SOLVE_KKT_STEP_OCP_QP(struct OCP_QP *qp, struct OCP_QP_SOL *qp_sol, st
 		// first stage
 		ss = 0;
 		ROWEX(nu[ss]+nx[ss], -1.0, L+ss, nu[ss]+nx[ss], 0, dux+ss, 0);
-		VECCPSC(nu[ss], -1.0, dux+ss, 0, l+ss, 0);
-		ROWEX(nx[ss], 1.0, P+ss, nx[ss], 0, l+ss, nu[ss]);
+		// XXX P+0 is empty !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+//		VECCPSC(nu[ss], -1.0, dux+ss, 0, l+ss, 0);
+//		ROWEX(nx[ss], 1.0, P+ss, nx[ss], 0, l+ss, nu[ss]);
+		VECCPSC(nu[ss]+nx[ss], -1.0, dux+ss, 0, l+ss, 0);
 		TRSV_LTN(nu[ss]+nx[ss], L+ss, 0, 0, dux+ss, 0, dux+ss, 0);
 		GEMV_T(nu[ss]+nx[ss], nx[ss+1], 1.0, BAbt+ss, 0, 0, dux+ss, 0, 1.0, res_b+ss, 0, dux+ss+1, nu[ss+1]);
 		if(arg->comp_dual_sol)

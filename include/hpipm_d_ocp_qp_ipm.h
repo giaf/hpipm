@@ -108,7 +108,7 @@ struct d_ocp_qp_ipm_ws
 	struct blasfeo_dvec *Pb; // Pb
 	struct blasfeo_dvec *Zs_inv;
 	struct blasfeo_dvec *tmp_m;
-	struct blasfeo_dvec *l;
+	struct blasfeo_dvec *l; // cache linear part for _get_ric_xxx
 	struct blasfeo_dmat *L;
 	struct blasfeo_dmat *Ls;
 	struct blasfeo_dmat *P;
