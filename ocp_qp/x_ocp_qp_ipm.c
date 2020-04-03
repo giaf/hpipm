@@ -2665,6 +2665,59 @@ void OCP_QP_IPM_PREDICT(struct OCP_QP *qp, struct OCP_QP_SOL *qp_sol, struct OCP
 	cws->lam = qp_sol->lam->pa;
 	cws->t = qp_sol->t->pa;
 
+	// load sol from bkp
+	for(ii=0; ii<cws->nv; ii++)
+		cws->v[ii] = cws->v_bkp[ii];
+	for(ii=0; ii<cws->ne; ii++)
+		cws->pi[ii] = cws->pi_bkp[ii];
+	for(ii=0; ii<cws->nc; ii++)
+		cws->lam[ii] = cws->lam_bkp[ii];
+	for(ii=0; ii<cws->nc; ii++)
+		cws->t[ii] = cws->t_bkp[ii];
+
+	if(arg->abs_form)
+		{
+		// solve kkt
+		ws->use_Pb = 0;
+		SOLVE_KKT_STEP_OCP_QP(qp, qp_sol, arg, ws);
+
+		if(arg->comp_res_exit & arg->comp_dual_sol)
+			{
+			// blasfeo alias for residuals
+			struct STRVEC str_res_g;
+			struct STRVEC str_res_b;
+			struct STRVEC str_res_d;
+			struct STRVEC str_res_m;
+			str_res_g.m = cws->nv;
+			str_res_b.m = cws->ne;
+			str_res_d.m = cws->nc;
+			str_res_m.m = cws->nc;
+			str_res_g.pa = cws->res_g;
+			str_res_b.pa = cws->res_b;
+			str_res_d.pa = cws->res_d;
+			str_res_m.pa = cws->res_m;
+
+			REAL *qp_res_max = ws->res->res_max;
+			qp_res_max[0] = 0;
+			qp_res_max[1] = 0;
+			qp_res_max[2] = 0;
+			qp_res_max[3] = 0;
+
+			// compute residuals
+			OCP_QP_RES_COMPUTE(qp, qp_sol, ws->res, ws->res_workspace);
+
+			// TODO mask out disregarded constraints ???
+
+			// compute infinity norm of residuals
+			VECNRM_INF(cws->nv, &str_res_g, 0, &qp_res_max[0]);
+			VECNRM_INF(cws->ne, &str_res_b, 0, &qp_res_max[1]);
+			VECNRM_INF(cws->nc, &str_res_d, 0, &qp_res_max[2]);
+			VECNRM_INF(cws->nc, &str_res_m, 0, &qp_res_max[3]);
+			}
+
+		return;
+		}
+
 	// alias members of qp_step
 	ws->qp_step->dim = qp->dim;
 	ws->qp_step->RSQrq = qp->RSQrq;
@@ -2700,18 +2753,6 @@ void OCP_QP_IPM_PREDICT(struct OCP_QP *qp, struct OCP_QP_SOL *qp_sol, struct OCP
 	qp_res_max[2] = 0;
 	qp_res_max[3] = 0;
 
-	// load sol from bkp
-	for(ii=0; ii<cws->nv; ii++)
-		cws->v[ii] = cws->v_bkp[ii];
-	for(ii=0; ii<cws->ne; ii++)
-		cws->pi[ii] = cws->pi_bkp[ii];
-	for(ii=0; ii<cws->nc; ii++)
-		cws->lam[ii] = cws->lam_bkp[ii];
-	for(ii=0; ii<cws->nc; ii++)
-		cws->t[ii] = cws->t_bkp[ii];
-
-	// TODO absolute formulation !!!!!
-
 	// TODO robust formulation !!!!!
 
 	// compute residuals
@@ -2740,6 +2781,8 @@ void OCP_QP_IPM_PREDICT(struct OCP_QP *qp, struct OCP_QP_SOL *qp_sol, struct OCP
 		{
 		// compute residuals in exit
 		OCP_QP_RES_COMPUTE(qp, qp_sol, ws->res, ws->res_workspace);
+
+		// TODO mask out disregarded constraints ???
 
 		// compute infinity norm of residuals
 		VECNRM_INF(cws->nv, &str_res_g, 0, &qp_res_max[0]);
