@@ -218,9 +218,9 @@ void s_ocp_qp_ipm_get_ric_P(struct s_ocp_qp *qp, struct s_ocp_qp_ipm_arg *arg, s
 void s_ocp_qp_ipm_get_ric_lr(struct s_ocp_qp *qp, struct s_ocp_qp_ipm_arg *arg, struct s_ocp_qp_ipm_ws *ws, int stage, float *lr);
 //
 void s_ocp_qp_ipm_get_ric_p(struct s_ocp_qp *qp, struct s_ocp_qp_ipm_arg *arg, struct s_ocp_qp_ipm_ws *ws, int stage, float *p);
-//
+// feedback control gain in the form u = K x + k
 void s_ocp_qp_ipm_get_ric_K(struct s_ocp_qp *qp, struct s_ocp_qp_ipm_arg *arg, struct s_ocp_qp_ipm_ws *ws, int stage, float *K);
-//
+// feedback control gain in the form u = K x + k
 void s_ocp_qp_ipm_get_ric_k(struct s_ocp_qp *qp, struct s_ocp_qp_ipm_arg *arg, struct s_ocp_qp_ipm_ws *ws, int stage, float *k);
 //
 void s_ocp_qp_init_var(struct s_ocp_qp *qp, struct s_ocp_qp_sol *qp_sol, struct s_ocp_qp_ipm_arg *arg, struct s_ocp_qp_ipm_ws *ws);
