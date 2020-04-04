@@ -1297,8 +1297,8 @@ void OCP_QP_IPM_GET_RIC_K(struct OCP_QP *qp, struct OCP_QP_IPM_ARG *arg, struct 
 	char c_l = 'l';
 	char c_n = 'n';
 	char c_t = 't';
-	REAL d_1 = 1.0;
-	BLAS_TRSM(&c_l, &c_l, &c_t, &c_n, &nu0, &nx0, &d_1, ws->Lr_cm, &nu0, K, &nu0);
+	REAL d_m1 = -1.0;
+	BLAS_TRSM(&c_l, &c_l, &c_t, &c_n, &nu0, &nx0, &d_m1, ws->Lr_cm, &nu0, K, &nu0);
 
 	return;
 	}
@@ -1346,6 +1346,7 @@ void OCP_QP_IPM_GET_RIC_K_VEC(struct OCP_QP *qp, struct OCP_QP_IPM_ARG *arg, str
 		}
 
 	TRSV_LTN(nu0, ws->L+stage, 0, 0, ws->l+stage, 0, ws->tmp_nuxM, 0);
+	VECSC(nu0, -1.0, ws->tmp_nuxM, 0);
 	UNPACK_VEC(nu0, ws->tmp_nuxM, 0, k);
 
 	return;
