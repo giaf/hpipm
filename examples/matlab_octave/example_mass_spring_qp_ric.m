@@ -197,6 +197,7 @@ arg.set('tol_eq', 1e-5);
 arg.set('tol_ineq', 1e-5);
 arg.set('tol_comp', 1e-5);
 arg.set('reg_prim', 1e-12);
+%arg.set('ric_alg', 0);
 %arg.set('warm_start', 1);
 
 % codegen
@@ -211,10 +212,10 @@ solver = hpipm_ocp_qp_solver(dim, arg);
 
 % arg which are allowed to be changed
 solver.set('iter_max', 30);
-solver.set('tol_stat', 1e-8);
-solver.set('tol_eq', 1e-8);
-solver.set('tol_ineq', 1e-8);
-solver.set('tol_comp', 1e-8);
+%solver.set('tol_stat', 1e-8);
+%solver.set('tol_eq', 1e-8);
+%solver.set('tol_ineq', 1e-8);
+%solver.set('tol_comp', 1e-8);
 
 % set solution guess
 %sol.set('x', zeros(nx,1), 0, N);
@@ -290,6 +291,95 @@ end
 
 
 
+% shorter horizon
+N2 = 4;
+
+% ger Riccati matrices and vectors
+disp(['P', num2str(N2)])
+ric_P_N2 = solver.get('ric_P', qp, N2)
+disp(['p', num2str(N2)])
+ric_p_N2 = solver.get('ric_p', qp, N2)
+
+% create and solve shorter horizon qp
+dim2 = hpipm_ocp_qp_dim(N2);
+dim2.set('nx', nx, 0, N2);
+dim2.set('nu', nu, 0, N2-1); % controls
+dim2.set('nbx', nbx, 0); % state bounds
+dim2.set('nbu', nbu, 0, N2-1); % control bounds
+
+qp2 = hpipm_ocp_qp(dim2);
+qp2.set('A', A, 0, N2-1);
+qp2.set('B', B, 0, N2-1);
+qp2.set('Q', Q, 0, N2-1);
+qp2.set('S', S, 0, N2-1);
+qp2.set('R', R, 0, N2-1);
+qp2.set('q', q, 0, N2-1);
+qp2.set('r', r, 0, N2-1);
+qp2.set('Q', ric_P_N2, N2);
+qp2.set('q', ric_p_N2, N2);
+qp2.set('Jbx', Jx0, 0);
+qp2.set('lbx', x0, 0);
+qp2.set('ubx', x0, 0);
+qp2.set('Jbu', Jbu, 0, N2-1);
+qp2.set('lbu', lbu, 0, N2-1);
+qp2.set('ubu', ubu, 0, N2-1);
+qp2.print_C_struct();
+
+sol2 = hpipm_ocp_qp_sol(dim2);
+
+arg2 = hpipm_ocp_qp_solver_arg(dim2, mode);
+arg2.set('mu0', 1e4);
+arg2.set('iter_max', 20);
+arg2.set('tol_stat', 1e-4);
+arg2.set('tol_eq', 1e-5);
+arg2.set('tol_ineq', 1e-5);
+arg2.set('tol_comp', 1e-5);
+arg2.set('reg_prim', 1e-12);
+%arg2.set('warm_start', 1);
+
+solver2 = hpipm_ocp_qp_solver(dim2, arg2);
+solver2.set('iter_max', 30);
+%solver2.set('tol_stat', 1e-8);
+%solver2.set('tol_eq', 1e-8);
+%solver2.set('tol_ineq', 1e-8);
+%solver2.set('tol_comp', 1e-8);
+
+nrep = 100;
+tic
+for rep=1:nrep
+	solver2.solve(qp2, sol2);
+end
+solve_time = toc;
+
+status = solver2.get('status');
+time_ext = solver2.get('time_ext');
+iter = solver2.get('iter');
+res_stat = solver2.get('max_res_stat');
+res_eq = solver2.get('max_res_eq');
+res_ineq = solver2.get('max_res_ineq');
+res_comp = solver2.get('max_res_comp');
+stat = solver2.get('stat');
+if (~strcmp(travis_run, 'true'))
+	status
+	iter
+	res_stat
+	res_eq
+	res_ineq
+	res_comp
+	fprintf('\nprint solver statistics\n');
+	fprintf('average solve time over %d runs: %e [s]\n', nrep, solve_time/nrep);
+	fprintf('solve time of last run (measured in mex interface): %e [s]\n', time_ext);
+	fprintf('iter\talpha_aff\tmu_aff\t\tsigma\t\talpha_prim\talpha_dual\tmu\t\tres_stat\tres_eq\t\tres_ineq\tres_comp\n');
+	for ii=1:iter+1
+		fprintf('%d\t%e\t%e\t%e\t%e\t%e\t%e\t%e\t%e\t%e\t%e\n', stat(ii,1), stat(ii,2), stat(ii,3), stat(ii,4), stat(ii,5), stat(ii,6), stat(ii,7), stat(ii,8), stat(ii,9), stat(ii,10), stat(ii,11));
+	end
+end
+
+
+sol2.print_C_struct();
+
+
+
 if is_octave()
 	% directly call destructor for octave 4.2.2 (ubuntu 18.04) + others ???
 	if strcmp(version(), '4.2.2')
@@ -298,6 +388,11 @@ if is_octave()
 		delete(sol);
 		delete(arg);
 		delete(solver);
+		delete(dim2);
+		delete(qp2);
+		delete(sol2);
+		delete(arg2);
+		delete(solver2);
 	end
 end
 
@@ -320,5 +415,6 @@ end
 
 
 return
+
 
 

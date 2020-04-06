@@ -63,9 +63,16 @@ classdef hpipm_ocp_qp_solver < handle
 			end
 		end
 
-		function value = get(obj, field)
+		function value = get(varargin)
+			obj = varargin{1};
+			field = varargin{2};
+            tokens = strsplit(field, '_');
 			if(strcmp(field, 'time_ext'))
 				value = obj.time_ext;
+            elseif (strcmp(tokens{1}, 'ric'))
+				qp = varargin{3};
+				stage = varargin{4};
+				value = ocp_qp_solver_get_ric(qp.C_qp, obj.C_arg, obj.C_ws, field, stage);
 			else
 				value = ocp_qp_solver_get(obj.C_ws, field);
 			end

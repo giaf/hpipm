@@ -59,6 +59,7 @@ OBJS = \
 	ocp_qp_solver_destroy.mex \
 	ocp_qp_solver_solve.mex \
 	ocp_qp_solver_get.mex \
+	ocp_qp_solver_get_ric.mex \
 	ocp_qcqp_dim_create.mex \
 	ocp_qcqp_dim_destroy.mex \
 	ocp_qcqp_dim_set.mex \
