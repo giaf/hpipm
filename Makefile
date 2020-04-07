@@ -150,7 +150,8 @@ OBJS += ocp_qp/s_ocp_qcqp_utils.o
 #OBJS += ocp_qp/m_ocp_qp.o                       ocp_qp/m_ocp_qp_kkt.o ocp_qp/m_ocp_qp_ipm.o
 
 # sim core
-#OBJS += sim_core/d_rk_int.o sim_core/d_erk_int.o sim_core/d_irk_int.o
+OBJS += sim/d_sim_rk.o
+OBJS += sim/d_sim_erk.o
 #OBJS +=
 
 # tree ocp qp
@@ -185,6 +186,7 @@ static_library: target
 	( cd ocp_qp; $(MAKE) obj TOP=$(TOP) )
 	( cd tree_ocp_qp; $(MAKE) obj TOP=$(TOP) )
 	( cd auxiliary; $(MAKE) obj TOP=$(TOP) )
+	( cd sim; $(MAKE) obj TOP=$(TOP) )
 	ar rcs libhpipm.a $(OBJS) 
 	cp libhpipm.a ./lib/
 	@echo
@@ -198,6 +200,7 @@ shared_library: target
 	( cd ocp_qp; $(MAKE) obj TOP=$(TOP) )
 	( cd tree_ocp_qp; $(MAKE) obj TOP=$(TOP) )
 	( cd auxiliary; $(MAKE) obj TOP=$(TOP) )
+	( cd sim; $(MAKE) obj TOP=$(TOP) )
 	$(CC) -L$(BLASFEO_PATH)/lib -shared -o libhpipm.so $(OBJS) -lblasfeo -lm
 	cp libhpipm.so ./lib/
 	@echo
