@@ -380,6 +380,19 @@ sol2.print_C_struct();
 
 
 
+% feedback gains
+disp('K0')
+ric_K0 = solver2.get('ric_K', qp2, 0)
+disp('k0')
+ric_k0 = solver2.get('ric_k', qp2, 0)
+u0 = ric_K0*x0 + ric_k0
+disp('K1')
+ric_K1 = solver2.get('ric_K', qp2, 1)
+disp('k1')
+ric_k1 = solver2.get('ric_k', qp2, 1)
+
+
+
 if is_octave()
 	% directly call destructor for octave 4.2.2 (ubuntu 18.04) + others ???
 	if strcmp(version(), '4.2.2')

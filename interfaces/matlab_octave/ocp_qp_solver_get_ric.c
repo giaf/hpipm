@@ -92,6 +92,18 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
 		double *mat = mxGetPr( plhs[0] );
 		d_ocp_qp_ipm_get_ric_p(qp, arg, ws, stage0, mat);
 		}
+	else if(!strcmp(field, "ric_K"))
+		{
+		plhs[0] = mxCreateNumericMatrix(nu[stage0], nx[stage0], mxDOUBLE_CLASS, mxREAL);
+		double *mat = mxGetPr( plhs[0] );
+		d_ocp_qp_ipm_get_ric_K(qp, arg, ws, stage0, mat);
+		}
+	else if(!strcmp(field, "ric_k"))
+		{
+		plhs[0] = mxCreateNumericMatrix(nu[stage0], 1, mxDOUBLE_CLASS, mxREAL);
+		double *mat = mxGetPr( plhs[0] );
+		d_ocp_qp_ipm_get_ric_k(qp, arg, ws, stage0, mat);
+		}
 	else
 		{
 		mexPrintf("\nocp_qp_solver_get_ric: field not supported: %s\n", field);
