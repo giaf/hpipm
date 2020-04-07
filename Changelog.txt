@@ -3,8 +3,8 @@ HPIPM ChangeLog
 
 
 ====================================================================
-Version 0.1.2-master
-04-Apr-2020
+Version 0.1.2
+07-Apr-2020
 
 dense_qp:
 	* add mask to disregard constraints (e.g. for one sided constr, or dynamic constr removal)
