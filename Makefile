@@ -150,8 +150,8 @@ OBJS += ocp_qp/s_ocp_qcqp_utils.o
 #OBJS += ocp_qp/m_ocp_qp.o                       ocp_qp/m_ocp_qp_kkt.o ocp_qp/m_ocp_qp_ipm.o
 
 # sim core
-OBJS += sim/d_sim_rk.o
-OBJS += sim/d_sim_erk.o
+OBJS += sim_core/d_sim_rk.o
+OBJS += sim_core/d_sim_erk.o
 #OBJS +=
 
 # tree ocp qp
@@ -186,7 +186,7 @@ static_library: target
 	( cd ocp_qp; $(MAKE) obj TOP=$(TOP) )
 	( cd tree_ocp_qp; $(MAKE) obj TOP=$(TOP) )
 	( cd auxiliary; $(MAKE) obj TOP=$(TOP) )
-	( cd sim; $(MAKE) obj TOP=$(TOP) )
+	( cd sim_core; $(MAKE) obj TOP=$(TOP) )
 	ar rcs libhpipm.a $(OBJS) 
 	cp libhpipm.a ./lib/
 	@echo
@@ -200,7 +200,7 @@ shared_library: target
 	( cd ocp_qp; $(MAKE) obj TOP=$(TOP) )
 	( cd tree_ocp_qp; $(MAKE) obj TOP=$(TOP) )
 	( cd auxiliary; $(MAKE) obj TOP=$(TOP) )
-	( cd sim; $(MAKE) obj TOP=$(TOP) )
+	( cd sim_core; $(MAKE) obj TOP=$(TOP) )
 	$(CC) -L$(BLASFEO_PATH)/lib -shared -o libhpipm.so $(OBJS) -lblasfeo -lm
 	cp libhpipm.so ./lib/
 	@echo
@@ -269,6 +269,7 @@ clean:
 	make -C dense_qp clean
 	make -C ipm_core clean
 	make -C ocp_qp clean
+	make -C sim_core clean
 	make -C tree_ocp_qp clean
 	make -C test_problems clean
 	make -C examples/c clean
