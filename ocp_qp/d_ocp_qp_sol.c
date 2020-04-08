@@ -67,6 +67,7 @@
 #define OCP_QP_SOL_CREATE d_ocp_qp_sol_create
 #define OCP_QP_SOL_COPY_ALL d_ocp_qp_sol_copy_all
 #define OCP_QP_SOL_GET_ALL d_ocp_qp_sol_get_all
+#define OCP_QP_SOL_GET_ALL_ROWMAJ d_ocp_qp_sol_get_all_rowmaj
 #define OCP_QP_SOL_SET_ALL d_ocp_qp_sol_set_all
 #define OCP_QP_SOL_GET d_ocp_qp_sol_get
 #define OCP_QP_SOL_GET_U d_ocp_qp_sol_get_u

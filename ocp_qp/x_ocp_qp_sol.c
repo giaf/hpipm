@@ -290,6 +290,14 @@ void OCP_QP_SOL_GET_ALL(struct OCP_QP_SOL *qp_sol, REAL **u, REAL **x, REAL **ls
 
 
 
+void OCP_QP_SOL_GET_ALL_ROWMAJ(struct OCP_QP_SOL *qp_sol, REAL **u, REAL **x, REAL **ls, REAL **us, REAL **pi, REAL **lam_lb, REAL **lam_ub, REAL **lam_lg, REAL **lam_ug, REAL **lam_ls, REAL **lam_us)
+	{
+	OCP_QP_SOL_GET_ALL(qp_sol, u, x, ls, us, pi, lam_lb, lam_ub, lam_lg, lam_ug, lam_ls, lam_us);
+	return;
+	}
+
+
+
 void OCP_QP_SOL_SET_ALL(REAL **u, REAL **x, REAL **ls, REAL **us, REAL **pi, REAL **lam_lb, REAL **lam_ub, REAL **lam_lg, REAL **lam_ug, REAL **lam_ls, REAL **lam_us, struct OCP_QP_SOL *qp_sol)
 	{
 
