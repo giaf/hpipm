@@ -529,18 +529,18 @@ int main()
 	d_print_mat(nx, nu, fs0, nx);
 	d_print_mat(nx, nx, fs0+nu*nx, nx);
 
-	d_sim_erk_ws_set_all(nf, na, x0, u, fs0, NULL, &d_expl_linear_ode, &d_expl_linear_vde, NULL, &ls, &erk_ws);
+	d_sim_erk_ws_set_all(nf, na, x0, fs0, NULL, u, &d_expl_linear_ode, &d_expl_linear_vde, NULL, &ls, &erk_ws);
 
 	d_sim_erk_solve(&erk_arg, &erk_ws);
 
+	double *x_end; d_zeros(&x_end, nx, 1);
+
+	d_sim_erk_ws_get_x(&erk_ws, x_end);
+
 	printf("\nx erk %s\n", rk_method);
-	if(nf==0)
+	d_print_mat(1, nx, x_end, 1);
+	if(nf!=0)
 		{
-		d_print_mat(1, nx, erk_ws.x_for, 1);
-		}
-	else
-		{
-		d_print_mat(1, nx, erk_ws.x_for, 1);
 		d_print_mat(nx, nu, erk_ws.x_for+nx, nx);
 		d_print_mat(nx, nx, erk_ws.x_for+nx+nu*nx, nx);
 
@@ -687,6 +687,7 @@ int main()
 	free(mem_erk_arg);
 	free(mem_erk_ws);
 	free(fs0);
+	free(x_end);
 //	free(memory_erk);
 //	free(ex_erk);
 //	free(memory_irk);

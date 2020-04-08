@@ -193,7 +193,7 @@ void d_sim_erk_ws_create(struct d_sim_erk_arg *erk_arg, int nx, int np, int nf_m
 
 
 
-void d_sim_erk_ws_set_all(int nf, int na, double *x0, double *p0, double *fs0, double *bs0, void (*ode)(int t, double *x, double *p, void *ode_args, double *xdot), void (*vde_for)(int t, double *x, double *p, void *ode_args, double *xdot), void (*vde_adj)(int t, double *adj_in, void *ode_args, double *adj_out), void *ode_args, struct d_sim_erk_ws *work)
+void d_sim_erk_ws_set_all(int nf, int na, double *x, double *fs, double *bs, double *p, void (*ode)(int t, double *x, double *p, void *ode_args, double *xdot), void (*vde_for)(int t, double *x, double *p, void *ode_args, double *xdot), void (*vde_adj)(int t, double *adj_in, void *ode_args, double *adj_out), void *ode_args, struct d_sim_erk_ws *work)
 	{
 
 	int ii;
@@ -222,24 +222,24 @@ void d_sim_erk_ws_set_all(int nf, int na, double *x0, double *p0, double *fs0, d
 	int steps = work->erk_arg->steps;
 
 	double *x_for = work->x_for;
-	double *p = work->p;
+	double *p_ws = work->p;
 	double *l = work->l;
 
 	for(ii=0; ii<nx; ii++)
-		x_for[ii] = x0[ii];
+		x_for[ii] = x[ii];
 
 	for(ii=0; ii<nx*nf; ii++)
-		x_for[nx+ii] = fs0[ii];
+		x_for[nx+ii] = fs[ii];
 
 	for(ii=0; ii<np; ii++)
-		p[ii] = p0[ii];
+		p_ws[ii] = p[ii];
 	
 	if(na>0) // TODO what if na>1 !!!
 		{
 		for(ii=0; ii<np; ii++)
 			l[nA*steps+ii] = 0.0;
 		for(ii=0; ii<nx; ii++)
-			l[nA*steps+np+ii] = bs0[ii];
+			l[nA*steps+np+ii] = bs[ii];
 		}
 	
 	work->ode = ode;
@@ -258,23 +258,78 @@ void d_sim_erk_ws_set_all(int nf, int na, double *x0, double *p0, double *fs0, d
 
 
 
-#if 0
-void d_sim_erk_set_p(double *p0, struct d_erk_ws *work)
+void d_sim_erk_ws_set_p(double *p, struct d_sim_erk_ws *work)
 	{
 
 	int ii;
 
 	int np = work->np;
 
-	double *p = work->p;
+	double *p_ws = work->p;
 
 	for(ii=0; ii<np; ii++)
-		p[ii] = p0[ii];
+		p_ws[ii] = p[ii];
 	
 	return;
 
 	}
-#endif
+
+
+
+// state
+void d_sim_erk_ws_set_x(double *x, struct d_sim_erk_ws *work)
+	{
+
+	int ii;
+
+	int nx = work->nx;
+
+	double *x_ws = work->x_for;
+
+	for(ii=0; ii<nx; ii++)
+		x_ws[ii] = x[ii];
+	
+	return;
+
+	}
+
+
+
+// forward sensitivities
+void d_sim_erk_ws_set_fs(double *fs, struct d_sim_erk_ws *work)
+	{
+
+	int ii;
+
+	int nx = work->nx;
+	int nf = work->nf;
+
+	double *fs_ws = work->x_for+nx;
+
+	for(ii=0; ii<nx*nf; ii++)
+		fs_ws[ii] = fs[ii];
+	
+	return;
+
+	}
+
+
+
+void d_sim_erk_ws_get_x(struct d_sim_erk_ws *work, double *x)
+	{
+
+	int ii;
+
+	int nx = work->nx;
+
+	double *x_ws = work->x_for;
+
+	for(ii=0; ii<nx; ii++)
+		x[ii] = x_ws[ii];
+	
+	return;
+
+	}
 
 
 
@@ -451,7 +506,3 @@ void d_sim_erk_solve(struct d_sim_erk_arg *erk_arg, struct d_sim_erk_ws *work)
 	return;
 
 	}
-
-
-
-

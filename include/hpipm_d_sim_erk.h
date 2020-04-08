@@ -90,9 +90,15 @@ int d_sim_erk_ws_memsize(struct d_sim_erk_arg *erk_arg, int nx, int np, int nf_m
 //
 void d_sim_erk_ws_create(struct d_sim_erk_arg *erk_arg, int nx, int np, int nf_max, int na_max, struct d_sim_erk_ws *work, void *memory);
 //
-void d_sim_erk_ws_set_all(int nf, int na, double *x0, double *p0, double *fs0, double *bs0, void (*ode)(int t, double *x, double *p, void *ode_args, double *xdot), void (*vde_for)(int t, double *x, double *p, void *ode_args, double *xdot), void (*vde_adj)(int t, double *adj_in, void *ode_args, double *adj_out), void *ode_args, struct d_sim_erk_ws *work);
-//
-//void d_sim_erk_set_p(double *p0, struct d_sim_erk_ws *work);
+void d_sim_erk_ws_set_all(int nf, int na, double *x, double *fs, double *bs, double *p, void (*ode)(int t, double *x, double *p, void *ode_args, double *xdot), void (*vde_for)(int t, double *x, double *p, void *ode_args, double *xdot), void (*vde_adj)(int t, double *adj_in, void *ode_args, double *adj_out), void *ode_args, struct d_sim_erk_ws *work);
+// parameters (e.g. inputs)
+void d_sim_erk_ws_set_p(double *p, struct d_sim_erk_ws *work);
+// state
+void d_sim_erk_ws_set_x(double *x, struct d_sim_erk_ws *work);
+// forward sensitivities
+void d_sim_erk_ws_set_fs(double *fs, struct d_sim_erk_ws *work);
+// state
+void d_sim_erk_ws_get_x(struct d_sim_erk_ws *work, double *x);
 //
 void d_sim_erk_solve(struct d_sim_erk_arg *arg, struct d_sim_erk_ws *work);
 
