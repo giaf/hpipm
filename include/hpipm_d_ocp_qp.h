@@ -88,6 +88,8 @@ void d_ocp_qp_set_rhs_zero(struct d_ocp_qp *qp);
 //
 void d_ocp_qp_set_all(double **A, double **B, double **b, double **Q, double **S, double **R, double **q, double **r, int **idxbx, double **lbx, double **ubx, int **idxbu, double **lbu, double **ubu, double **C, double **D, double **lg, double **ug, double **Zl, double **Zu, double **zl, double **zu, int **idxs, double **ls, double **us, struct d_ocp_qp *qp);
 //
+void d_ocp_qp_set_all_rowmaj(double **A, double **B, double **b, double **Q, double **S, double **R, double **q, double **r, int **idxbx, double **lbx, double **ubx, int **idxbu, double **lbu, double **ubu, double **C, double **D, double **lg, double **ug, double **Zl, double **Zu, double **zl, double **zu, int **idxs, double **ls, double **us, struct d_ocp_qp *qp);
+//
 void d_ocp_qp_set(char *field_name, int stage, void *value, struct d_ocp_qp *qp);
 //
 void d_ocp_qp_set_el(char *field_name, int stage, int index, void *value, struct d_ocp_qp *qp);

@@ -599,6 +599,103 @@ void OCP_QP_SET_ALL(REAL **A, REAL **B, REAL **b, REAL **Q, REAL **S, REAL **R, 
 
 
 
+void OCP_QP_SET_ALL_ROWMAJ(REAL **A, REAL **B, REAL **b, REAL **Q, REAL **S, REAL **R, REAL **q, REAL **r, int **idxbx, REAL **d_lbx, REAL **d_ubx, int **idxbu, REAL **d_lbu, REAL **d_ubu, REAL **C, REAL **D, REAL **d_lg, REAL **d_ug, REAL **Zl, REAL **Zu, REAL **zl, REAL **zu, int **idxs, REAL **d_ls, REAL **d_us, struct OCP_QP *qp)
+	{
+
+	// extract dim
+	int N = qp->dim->N;
+	int *nx = qp->dim->nx;
+	int *nu = qp->dim->nu;
+	int *nb = qp->dim->nb;
+	int *nbx = qp->dim->nbx;
+	int *nbu = qp->dim->nbu;
+	int *ng = qp->dim->ng;
+	int *ns = qp->dim->ns;
+
+	int ii, jj;
+
+	for(ii=0; ii<N; ii++)
+		{
+		CVT_MAT2STRMAT(nu[ii], nx[ii+1], B[ii], nu[ii], qp->BAbt+ii, 0, 0);
+		CVT_MAT2STRMAT(nx[ii], nx[ii+1], A[ii], nx[ii], qp->BAbt+ii, nu[ii], 0);
+		CVT_TRAN_MAT2STRMAT(nx[ii+1], 1, b[ii], nx[ii+1], qp->BAbt+ii, nu[ii]+nx[ii], 0); // XXX remove ???
+		CVT_VEC2STRVEC(nx[ii+1], b[ii], qp->b+ii, 0);
+		}
+
+	for(ii=0; ii<=N; ii++)
+		{
+		CVT_MAT2STRMAT(nu[ii], nu[ii], R[ii], nu[ii], qp->RSQrq+ii, 0, 0);
+		CVT_MAT2STRMAT(nx[ii], nu[ii], S[ii], nx[ii], qp->RSQrq+ii, nu[ii], 0);
+		CVT_MAT2STRMAT(nx[ii], nx[ii], Q[ii], nx[ii], qp->RSQrq+ii, nu[ii], nu[ii]);
+		CVT_TRAN_MAT2STRMAT(nu[ii], 1, r[ii], nu[ii], qp->RSQrq+ii, nu[ii]+nx[ii], 0); // XXX remove ???
+		CVT_TRAN_MAT2STRMAT(nx[ii], 1, q[ii], nx[ii], qp->RSQrq+ii, nu[ii]+nx[ii], nu[ii]); // XXX remove ???
+		CVT_VEC2STRVEC(nu[ii], r[ii], qp->rqz+ii, 0);
+		CVT_VEC2STRVEC(nx[ii], q[ii], qp->rqz+ii, nu[ii]);
+		}
+
+	for(ii=0; ii<=N; ii++)
+		{
+		if(nbu[ii]>0)
+			{
+			for(jj=0; jj<nbu[ii]; jj++)
+				qp->idxb[ii][jj] = idxbu[ii][jj];
+			CVT_VEC2STRVEC(nbu[ii], d_lbu[ii], qp->d+ii, 0);
+			CVT_VEC2STRVEC(nbu[ii], d_ubu[ii], qp->d+ii, nb[ii]+ng[ii]);
+			}
+		if(nbx[ii>0])
+			{
+			for(jj=0; jj<nbx[ii]; jj++)
+				qp->idxb[ii][nbu[ii]+jj] = nu[ii]+idxbx[ii][jj];
+			CVT_VEC2STRVEC(nbx[ii], d_lbx[ii], qp->d+ii, nbu[ii]);
+			CVT_VEC2STRVEC(nbx[ii], d_ubx[ii], qp->d+ii, nb[ii]+ng[ii]+nbu[ii]);
+			}
+		if(nb[ii>0])
+			{
+			VECSC(nb[ii], -1.0, qp->d+ii, nb[ii]+ng[ii]);
+			VECSE(nb[ii], 0.0, qp->m+ii, 0);
+			VECSE(nb[ii], 0.0, qp->m+ii, nb[ii]+ng[ii]);
+			}
+		}
+
+	for(ii=0; ii<=N; ii++)
+		{
+		if(ng[ii]>0)
+			{
+			CVT_MAT2STRMAT(nu[ii], ng[ii], D[ii], nu[ii], qp->DCt+ii, 0, 0);
+			CVT_MAT2STRMAT(nx[ii], ng[ii], C[ii], nx[ii], qp->DCt+ii, nu[ii], 0);
+			CVT_VEC2STRVEC(ng[ii], d_lg[ii], qp->d+ii, nb[ii]);
+			CVT_VEC2STRVEC(ng[ii], d_ug[ii], qp->d+ii, 2*nb[ii]+ng[ii]);
+			VECSC(ng[ii], -1.0, qp->d+ii, 2*nb[ii]+ng[ii]);
+			VECSE(ng[ii], 0.0, qp->m+ii, nb[ii]);
+			VECSE(ng[ii], 0.0, qp->m+ii, 2*nb[ii]+ng[ii]);
+			}
+		}
+
+	for(ii=0; ii<=N; ii++)
+		{
+		if(ns[ii]>0)
+			{
+			for(jj=0; jj<ns[ii]; jj++)
+				{
+				qp->idxs_rev[ii][idxs[ii][jj]] = jj;
+				}
+			CVT_VEC2STRVEC(ns[ii], Zl[ii], qp->Z+ii, 0);
+			CVT_VEC2STRVEC(ns[ii], Zu[ii], qp->Z+ii, ns[ii]);
+			CVT_VEC2STRVEC(ns[ii], zl[ii], qp->rqz+ii, nu[ii]+nx[ii]);
+			CVT_VEC2STRVEC(ns[ii], zu[ii], qp->rqz+ii, nu[ii]+nx[ii]+ns[ii]);
+			CVT_VEC2STRVEC(ns[ii], d_ls[ii], qp->d+ii, 2*nb[ii]+2*ng[ii]);
+			CVT_VEC2STRVEC(ns[ii], d_us[ii], qp->d+ii, 2*nb[ii]+2*ng[ii]+ns[ii]);
+			VECSE(ns[ii], 0.0, qp->m+ii, 2*nb[ii]+2*ng[ii]);
+			VECSE(ns[ii], 0.0, qp->m+ii, 2*nb[ii]+2*ng[ii]+ns[ii]);
+			}
+		}
+
+	return;
+
+	}
+
+
+
 void OCP_QP_SET(char *field, int stage, void *value, struct OCP_QP *qp)
 	{
 	REAL *r_ptr;

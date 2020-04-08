@@ -75,6 +75,8 @@ void s_ocp_qp_sol_copy_all(struct s_ocp_qp_sol *qp_sol_orig, struct s_ocp_qp_sol
 //
 void s_qp_sol_get_all(struct s_ocp_qp_sol *qp_sol, float **u, float **x, float **ls, float **us, float **pi, float **lam_lb, float **lam_ub, float **lam_lg, float **lam_ug, float **lam_ls, float **lam_us);
 //
+void s_qp_sol_get_all_rowmaj(struct s_ocp_qp_sol *qp_sol, float **u, float **x, float **ls, float **us, float **pi, float **lam_lb, float **lam_ub, float **lam_lg, float **lam_ug, float **lam_ls, float **lam_us);
+//
 void s_ocp_qp_sol_set_all(float **u, float **x, float **ls, float **us, float **pi, float **lam_lb, float **lam_ub, float **lam_lg, float **lam_ug, float **lam_ls, float **lam_us, struct s_ocp_qp_sol *qp_sol);
 //
 void s_ocp_qp_sol_get(char *field, int stage, struct s_ocp_qp_sol *qp_sol, float *vec);

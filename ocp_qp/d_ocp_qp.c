@@ -81,6 +81,7 @@
 #define OCP_QP_SET_ALL_ZERO d_ocp_qp_set_all_zero
 #define OCP_QP_SET_RHS_ZERO d_ocp_qp_set_rhs_zero
 #define OCP_QP_SET_ALL d_ocp_qp_set_all
+#define OCP_QP_SET_ALL_ROWMAJ d_ocp_qp_set_all_rowmaj
 #define OCP_QP_SET d_ocp_qp_set
 #define OCP_QP_SET_EL d_ocp_qp_set_el
 #define OCP_QP_SET_A d_ocp_qp_set_A
