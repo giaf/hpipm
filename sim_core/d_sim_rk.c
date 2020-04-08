@@ -29,12 +29,11 @@
 
 
 
-#if defined(RUNTIME_CHECKS)
 #include <stdlib.h>
 #include <stdio.h>
-#endif
 
 #include <hpipm_d_sim_rk.h>
+#include <hpipm_aux_string.h>
 
 
 
@@ -87,6 +86,61 @@ void d_sim_rk_data_create(int ns, struct d_sim_rk_data *rk_data, void *mem)
 
 	return;
 
+	}
+
+
+
+void d_sim_rk_data_init_default(char *field, struct d_sim_rk_data *rk_data)
+	{
+	if(hpipm_strcmp(field, "ERK4")) 
+		{
+		if(rk_data->ns == 4)
+			{
+			int ns = 4;
+			double *A = rk_data->A_rk;
+			double *B = rk_data->B_rk;
+			double *C = rk_data->C_rk;
+			rk_data->expl = 1;
+            // A
+            A[0+ns*0] = 0.0;
+            A[0+ns*1] = 0.0;
+            A[0+ns*2] = 0.0;
+            A[0+ns*3] = 0.0;
+            A[1+ns*0] = 0.5;
+            A[1+ns*1] = 0.0;
+            A[1+ns*2] = 0.0;
+            A[1+ns*3] = 0.0;
+            A[2+ns*0] = 0.0;
+            A[2+ns*1] = 0.5;
+            A[2+ns*2] = 0.0;
+            A[2+ns*3] = 0.0;
+            A[3+ns*0] = 0.0;
+            A[3+ns*1] = 0.0;
+            A[3+ns*2] = 1.0;
+            A[3+ns*3] = 0.0;
+            // b
+            B[0] = 1.0/6.0;
+            B[1] = 1.0/3.0;
+            B[2] = 1.0/3.0;
+            B[3] = 1.0/6.0;
+            // c
+            C[0] = 0.0;
+            C[1] = 0.5;
+            C[2] = 0.5;
+            C[3] = 1.0;
+			}
+		else
+			{
+			printf("error: SIM_RK_DATA_INIT_DEFAULT: rk_data->ns=%d != 4. Exiting.\n", rk_data->ns);
+			exit(1);	
+			}
+		}
+	else
+		{
+		printf("error: SIM_RK_DATA_INIT_DEFAULT: wrong field name '%s'. Exiting.\n", field);
+		exit(1);	
+		}
+	return;
 	}
 
 

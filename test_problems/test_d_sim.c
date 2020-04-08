@@ -39,11 +39,11 @@
 #include <blasfeo_i_aux_ext_dep.h>
 #include <blasfeo_d_aux.h>
 
-#include "../include/hpipm_d_rk_int.h"
-#include "../include/hpipm_d_erk_int.h"
-#include "../include/hpipm_d_irk_int.h"
-#include "../include/hpipm_d_ocp_qp.h"
-#include "../include/hpipm_d_ocp_qp_sim.h"
+#include <hpipm_d_sim_rk.h>
+#include <hpipm_d_sim_erk.h>
+//#include <hpipm_d_sim_irk.h>
+#include <hpipm_d_ocp_qp.h>
+//#include <hpipm_d_ocp_qp_sim.h>
 
 #include "d_tools.h"
 
@@ -198,7 +198,7 @@ struct d_linear_system
 
 
 
-int d_memsize_linear_system(int nx, int nu)
+int d_linear_system_memsize(int nx, int nu)
 	{
 	int size = 0;
 	size += (nx*nx+nx*nu)*sizeof(double);
@@ -207,7 +207,7 @@ int d_memsize_linear_system(int nx, int nu)
 
 
 
-void d_create_linear_system(int nx, int nu, struct d_linear_system *ls, void *memory)
+void d_linear_system_create(int nx, int nu, struct d_linear_system *ls, void *memory)
 	{
 	ls->nx = nx;
 	ls->nu = nu;
@@ -221,7 +221,7 @@ void d_create_linear_system(int nx, int nu, struct d_linear_system *ls, void *me
 
 
 
-void d_cvt_colmaj_to_linear_system(double *A,  double *B, struct d_linear_system *ls)
+void d_linear_system_set_all(double *A,  double *B, struct d_linear_system *ls)
 	{
 	int ii;
 	int nx = ls->nx;
@@ -267,17 +267,20 @@ void d_expl_linear_vde(int t, double *x, double *u, void *ode_args, double *xdot
 	double *Ac = ls->Ac;
 	double *Bc = ls->Bc;
 	double *tmp;
-	for(ii=0; ii<nx*(1+nx+nu); ii++)
+//	for(ii=0; ii<nx*(1+nx+nu); ii++)
+	for(ii=0; ii<nx*(1+nu+nx); ii++)
 		xdot[ii] = 0.0;
 	for(kk=0; kk<1+nx+nu; kk++)
 		for(jj=0; jj<nx; jj++)
 			for(ii=0; ii<nx; ii++)
 				xdot[ii+nx*kk] += Ac[ii+nx*jj] * x[jj+nx*kk];
-	tmp = xdot+nx*(nx+nu);
+//	tmp = xdot+nx*(nx+nu);
+	tmp = xdot;
 	for(jj=0; jj<nu; jj++)
 		for(ii=0; ii<nx; ii++)
 			tmp[ii] += Bc[ii+nx*jj] * u[jj];
-	tmp = xdot;
+//	tmp = xdot;
+	tmp = xdot+nx;
 	for(jj=0; jj<nu; jj++)
 		for(ii=0; ii<nx; ii++)
 			tmp[ii+nx*jj] += Bc[ii+nx*jj];
@@ -286,6 +289,7 @@ void d_expl_linear_vde(int t, double *x, double *u, void *ode_args, double *xdot
 
 
 
+#if 0
 void d_res_impl_linear_ode(int t, double *xdot, double *x, double *u, void *ode_args, double *res)
 	{
 	struct d_linear_system *ls = ode_args;
@@ -304,9 +308,11 @@ void d_res_impl_linear_ode(int t, double *xdot, double *x, double *u, void *ode_
 			res[ii] += Bc[ii+nx*jj] * u[jj];
 	return;
 	}
+#endif
 
 
 
+#if 0
 void d_res_impl_linear_vde(int t, double *xdot, double *x, double *u, void *ode_args, double *res)
 	{
 	struct d_linear_system *ls = ode_args;
@@ -332,9 +338,11 @@ void d_res_impl_linear_vde(int t, double *xdot, double *x, double *u, void *ode_
 			tmp[ii+nx*jj] += Bc[ii+nx*jj];
 	return;
 	}
+#endif
 
 
 
+#if 0
 void d_jac_impl_linear_ode(int t, double *xdot, double *x, double *u, void *ode_args, double *jac)
 	{
 	struct d_linear_system *ls = ode_args;
@@ -346,6 +354,7 @@ void d_jac_impl_linear_ode(int t, double *xdot, double *x, double *u, void *ode_
 			jac[ii+nx*jj] = Ac[ii+nx*jj];
 	return;
 	}
+#endif
 
 
 
@@ -373,14 +382,14 @@ int main()
 	d_print_mat(nx, nx, Ac, nx);
 	d_print_mat(nx, nu, Bc, nx);
 
-	int ls_memsize = d_memsize_linear_system(nx, nu);
+	int ls_memsize = d_linear_system_memsize(nx, nu);
 	printf("\nls memsize = %d\n", ls_memsize);
 	void *ls_memory = malloc(ls_memsize);
 
 	struct d_linear_system ls;
-	d_create_linear_system(nx, nu, &ls, ls_memory);
+	d_linear_system_create(nx, nu, &ls, ls_memory);
 
-	d_cvt_colmaj_to_linear_system(Ac, Bc, &ls);
+	d_linear_system_set_all(Ac, Bc, &ls);
 
 	d_print_mat(nx, nx, ls.Ac, nx);
 	d_print_mat(nx, nu, ls.Bc, nx);
@@ -444,19 +453,22 @@ int main()
 /************************************************
 * explicit rk4 integrator
 ************************************************/	
-	
+
 	int steps = 30;
 	double h = Ts/steps;
-	
+
+	printf("\nTs=%e, steps=%d, h=%e\n", Ts, steps, h);
+
 #if 1
 	// rk4
 	int ns = 4; // number of stages
-	double A_rk[] = {0.0, 0.0, 0.0, 0.0,
-	                 0.5, 0.0, 0.0, 0.0,
-	                 0.0, 0.5, 0.0, 0.0,
-	                 0.0, 0.0, 1.0, 0.0};
-	double B_rk[] = {1.0/6.0, 1.0/3.0, 1.0/3.0, 1.0/6.0};
-	double C_rk[] = {0.0, 0.5, 0.5, 0.0};
+	char rk_method[] = "ERK4";
+//	double A_rk[] = {0.0, 0.0, 0.0, 0.0,
+//	                 0.5, 0.0, 0.0, 0.0,
+//	                 0.0, 0.5, 0.0, 0.0,
+//	                 0.0, 0.0, 1.0, 0.0};
+//	double B_rk[] = {1.0/6.0, 1.0/3.0, 1.0/3.0, 1.0/6.0};
+//	double C_rk[] = {0.0, 0.5, 0.5, 0.0};
 #elif 0
 	// midpoint rule
 	int ns = 2; // number of stages
@@ -471,37 +483,75 @@ int main()
 	double B_rk[] = {1.0};
 	double C_rk[] = {0.0};
 #endif
+//	printf("\n%d %s\n", ns, rk_method);
 
-	int memsize_rk_data = d_memsize_rk_data(ns);
-	printf("\nmemsize rk data %d\n", memsize_rk_data);
-	void *memory_rk_data = malloc(memsize_rk_data);
+	int size_rk_data = d_sim_rk_data_memsize(ns);
+	printf("\nmemsize rk data %d\n", size_rk_data);
+	void *mem_rk_data = malloc(size_rk_data);
 
-	struct d_rk_data rk_data;
-	d_create_rk_data(ns, &rk_data, memory_rk_data);
+	struct d_sim_rk_data rk_data;
+	d_sim_rk_data_create(ns, &rk_data, mem_rk_data);
 
-	d_cvt_rowmaj_to_rk_data(A_rk, B_rk, C_rk, &rk_data);
+	d_sim_rk_data_init_default(rk_method, &rk_data);
+
+//	d_print_mat(ns, ns, rk_data.A_rk, ns);
+
+	
+	int size_erk_arg = d_sim_erk_arg_memsize();
+	printf("\nmemsize erk arg %d\n", size_erk_arg);
+	void *mem_erk_arg = malloc(size_erk_arg);
+
+	struct d_sim_erk_arg erk_arg;
+	d_sim_erk_arg_create(&erk_arg, mem_erk_arg);
+
+	d_sim_erk_arg_set_all(&rk_data, h, steps, &erk_arg);
+
+
+	int nf_max = nu+nx;
+	int na_max = 0;
+	int size_erk_ws = d_sim_erk_ws_memsize(&erk_arg, nx, nu, nf_max, na_max);
+	printf("\nmemsize erk ws %d\n", size_erk_ws);
+	void *mem_erk_ws = malloc(size_erk_ws);
+
+	struct d_sim_erk_ws erk_ws;
+	d_sim_erk_ws_create(&erk_arg, nx, nu, nf_max, na_max, &erk_ws, mem_erk_ws);
+
+	int nf = nu+nx;
+	int na = 0;
+
+	double *fs0; d_zeros(&fs0, nx*nf, 1);
+	for(ii=0; ii<nx*nf; ii++)
+		fs0[ii] = 0.0;
+	for(ii=0; ii<nx; ii++)
+		fs0[nu*nx+ii*(nx+1)] = 1.0;
+
+	printf("\nforward seeds\n");
+	d_print_mat(nx, nu, fs0, nx);
+	d_print_mat(nx, nx, fs0+nu*nx, nx);
+
+	d_sim_erk_ws_set_all(nf, na, x0, u, fs0, NULL, &d_expl_linear_ode, &d_expl_linear_vde, NULL, &ls, &erk_ws);
+
+	d_sim_erk_solve(&erk_arg, &erk_ws);
+
+	printf("\nx erk %s\n", rk_method);
+	if(nf==0)
+		{
+		d_print_mat(1, nx, erk_ws.x_for, 1);
+		}
+	else
+		{
+		d_print_mat(1, nx, erk_ws.x_for, 1);
+		d_print_mat(nx, nu, erk_ws.x_for+nx, nx);
+		d_print_mat(nx, nx, erk_ws.x_for+nx+nu*nx, nx);
+
+		}
 
 #if 0
-	double *memory_erk = malloc((nx+nx*ns)*sizeof(double));
-	
-	double *x_erk; d_zeros(&x_erk, nx, 1);
-	double *ex_erk; d_zeros(&ex_erk, nx, 1);
-
-	d_erk_int(&rk_data, steps, h, nx, x0, x_erk, &d_expl_linear_ode, &ls, memory_erk);
-
-	for(ii=0; ii<nx; ii++)
-		ex_erk[ii] = x_erk[ii] - xref[ii];
-
-	printf("\nx erk\n");
-	d_print_mat(1, nx, x_erk, 1);
-	printf("\nerror erk\n");
-	d_print_exp_mat(1, nx, ex_erk, 1);
-#else
-
 /************************************************
 * explicit integrator
 ************************************************/	
-	
+
+#if 0
 	int nf = nx+nu;
 	int np = nu;
 
@@ -616,6 +666,7 @@ int main()
 //	blasfeo_dgese(nu+nx+1, nx, 0.0, &sBAbt, 0, 0);
 //	d_cvt_irk_int_to_ocp_qp(0, &irk_workspace, xref, &qp);
 //	d_print_strmat(nx+nu+1, nx, &sBAbt, 0, 0);
+#endif
 
 /************************************************
 * free memory
@@ -632,15 +683,17 @@ int main()
 	free(T);
 	free(ipiv);
 	free(xref);
-	free(memory_rk_data);
+	free(mem_rk_data);
+	free(mem_erk_arg);
+	free(mem_erk_ws);
 	free(fs0);
-	free(memory_erk);
-	free(ex_erk);
-	free(memory_irk);
-	free(ex_irk);
+//	free(memory_erk);
+//	free(ex_erk);
+//	free(memory_irk);
+//	free(ex_irk);
 
-	blasfeo_free_dmat(&sBAbt);
-	blasfeo_free_dvec(&sb);
+//	blasfeo_free_dmat(&sBAbt);
+//	blasfeo_free_dvec(&sb);
 
 	return 0;
 

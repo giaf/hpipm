@@ -57,6 +57,8 @@ int d_sim_rk_data_memsize(int ns);
 //
 void d_sim_rk_data_create(int ns, struct d_sim_rk_data *rk_data, void *memory);
 //
+void d_sim_rk_data_init_default(char *field, struct d_sim_rk_data *rk_data);
+//
 void d_sim_rk_data_set_all(int expl, double *A_rk, double *B_rk, double *C_rk, struct d_sim_rk_data *rk_data);
 
 #ifdef __cplusplus

@@ -29,10 +29,8 @@
 
 
 
-#if defined(RUNTIME_CHECKS)
 #include <stdlib.h>
 #include <stdio.h>
-#endif
 
 #include <blasfeo_target.h>
 #include <blasfeo_common.h>
@@ -41,6 +39,44 @@
 
 #include <hpipm_d_sim_rk.h>
 #include <hpipm_d_sim_erk.h>
+#include <hpipm_aux_mem.h>
+
+
+
+int d_sim_erk_arg_memsize()
+	{
+	return 0;
+	}
+
+
+
+void d_sim_erk_arg_create(struct d_sim_erk_arg *erk_arg, void *mem)
+	{
+
+	// zero memory (to avoid corrupted memory like e.g. NaN)
+	int memsize = d_sim_erk_arg_memsize();
+	hpipm_zero_memset(memsize, mem);
+
+	erk_arg->memsize = memsize;
+
+	return;
+
+	}
+
+
+
+void d_sim_erk_arg_set_all(struct d_sim_rk_data *rk_data, double h, int steps, struct d_sim_erk_arg *erk_arg)
+	{
+
+	erk_arg->rk_data = rk_data;
+	erk_arg->h = h;
+	erk_arg->steps = steps;
+//	erk_arg->for_sens = for_sens;
+//	erk_arg->adj_sens = adj_sens;
+
+	return;
+
+	}
 
 
 
@@ -78,6 +114,10 @@ int d_sim_erk_ws_memsize(struct d_sim_erk_arg *erk_arg, int nx, int np, int nf_m
 
 void d_sim_erk_ws_create(struct d_sim_erk_arg *erk_arg, int nx, int np, int nf_max, int na_max, struct d_sim_erk_ws *work, void *mem)
 	{
+
+	// zero memory (to avoid corrupted memory like e.g. NaN)
+	int memsize = d_sim_erk_ws_memsize(erk_arg, nx, np, nf_max, na_max);
+	hpipm_zero_memset(memsize, mem);
 
 	work->erk_arg = erk_arg;
 	work->nx = nx;
@@ -132,7 +172,7 @@ void d_sim_erk_ws_create(struct d_sim_erk_arg *erk_arg, int nx, int np, int nf_m
 		}
 
 
-	work->memsize = d_sim_erk_ws_memsize(erk_arg, nx, np, nf_max, na_max);
+	work->memsize = memsize;
 
 
 	char *c_ptr = (char *) d_ptr;
@@ -153,10 +193,22 @@ void d_sim_erk_ws_create(struct d_sim_erk_arg *erk_arg, int nx, int np, int nf_m
 
 
 
-void d_sim_erk_ws_set_all(int nf, int na, double *x0, double *p0, double *fs0, double *bs0, void (*vde_for)(int t, double *x, double *p, void *ode_args, double *xdot), void (*vde_adj)(int t, double *adj_in, void *ode_args, double *adj_out), void *ode_args, struct d_sim_erk_ws *work)
+void d_sim_erk_ws_set_all(int nf, int na, double *x0, double *p0, double *fs0, double *bs0, void (*ode)(int t, double *x, double *p, void *ode_args, double *xdot), void (*vde_for)(int t, double *x, double *p, void *ode_args, double *xdot), void (*vde_adj)(int t, double *adj_in, void *ode_args, double *adj_out), void *ode_args, struct d_sim_erk_ws *work)
 	{
 
 	int ii;
+
+	// TODO check against nf_max and na_max
+	if(nf>work->nf_max)
+		{
+		printf("\nerror: SIM_ERK_WS_SET_ALL: nf>nf_max: %d > %d\n", nf, work->nf_max);
+		exit(1);
+		}
+	if(nf>work->nf_max | na>work->na_max)
+		{
+		printf("\nerror: SIM_ERK_WS_SET_ALL: na>na_max: %d > %d\n", na, work->na_max);
+		exit(1);
+		}
 
 	work->nf = nf;
 	work->na = na;
@@ -190,9 +242,10 @@ void d_sim_erk_ws_set_all(int nf, int na, double *x0, double *p0, double *fs0, d
 			l[nA*steps+np+ii] = bs0[ii];
 		}
 	
-//	work->ode = ode;
+	work->ode = ode;
 	work->vde_for = vde_for;
 	work->vde_adj = vde_adj;
+
 	work->ode_args = ode_args;
 
 //	d_print_mat(1, nx*nf, x, 1);
@@ -225,13 +278,13 @@ void d_sim_erk_set_p(double *p0, struct d_erk_ws *work)
 
 
 
-void d_sim_erk_solve(struct d_sim_erk_ws *work)
+void d_sim_erk_solve(struct d_sim_erk_arg *erk_arg, struct d_sim_erk_ws *work)
 	{
 
 	int steps = work->erk_arg->steps;
 	double h = work->erk_arg->h;
 
-	struct d_sim_rk_data *rk_data = work->erk_arg->rk_data;
+	struct d_sim_rk_data *rk_data = erk_arg->rk_data;
 	int nx = work->nx;
 	int np = work->np;
 	int nf = work->nf;
@@ -261,6 +314,12 @@ void d_sim_erk_solve(struct d_sim_erk_ws *work)
 
 	int nX = nx*(1+nf);
 	int nA = nx+np; // XXX
+
+	if(na>0)
+		{
+		printf("\nSIM_ERK_SOLVE: na>0 not implemented yet!\n");
+		exit(1);
+		}
 
 //printf("\nnf %d na %d nX %d nA %d\n", nf, na, nX, nA);
 	// forward sweep
@@ -310,7 +369,14 @@ void d_sim_erk_solve(struct d_sim_erk_ws *work)
 					x_traj[ii] = x_tmp[ii];
 				x_traj += nx;
 				}
-			work->vde_for(t+h*C_rk[ss], x_tmp, p, work->ode_args, K0+ss*(nX));
+			if(nf>0)
+				{
+				work->vde_for(t+h*C_rk[ss], x_tmp, p, work->ode_args, K0+ss*(nX));
+				}
+			else
+				{
+				work->ode(t+h*C_rk[ss], x_tmp, p, work->ode_args, K0+ss*(nX));
+				}
 			}
 		for(ss=0; ss<ns; ss++)
 			{
