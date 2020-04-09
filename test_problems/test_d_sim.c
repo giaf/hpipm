@@ -454,7 +454,7 @@ int main()
 * explicit rk4 integrator
 ************************************************/	
 
-	int steps = 30;
+	int steps = 10;
 	double h = Ts/steps;
 
 	printf("\nTs=%e, steps=%d, h=%e\n", Ts, steps, h);
@@ -529,22 +529,41 @@ int main()
 	d_print_mat(nx, nu, fs0, nx);
 	d_print_mat(nx, nx, fs0+nu*nx, nx);
 
-	d_sim_erk_ws_set_all(nf, na, x0, fs0, NULL, u, &d_expl_linear_ode, &d_expl_linear_vde, NULL, &ls, &erk_ws);
+//	d_sim_erk_ws_set_all(nf, na, x0, fs0, NULL, u, &d_expl_linear_ode, &d_expl_linear_vde, NULL, &ls, &erk_ws);
+	d_sim_erk_ws_set_nf(&nf, &erk_ws);
+	d_sim_erk_ws_set_x(x0, &erk_ws);
+	d_sim_erk_ws_set_fs(fs0, &erk_ws);
+	d_sim_erk_ws_set_p(u, &erk_ws);
+	d_sim_erk_ws_set_ode(&d_expl_linear_ode, &erk_ws);
+	d_sim_erk_ws_set_vde_for(&d_expl_linear_vde, &erk_ws);
+	d_sim_erk_ws_set_ode_args(&ls, &erk_ws);
 
 	d_sim_erk_solve(&erk_arg, &erk_ws);
 
 	double *x_end; d_zeros(&x_end, nx, 1);
+	double *fs_end; d_zeros(&fs_end, nx, nu+nx);
 
 	d_sim_erk_ws_get_x(&erk_ws, x_end);
+	d_sim_erk_ws_get_fs(&erk_ws, fs_end);
 
 	printf("\nx erk %s\n", rk_method);
 	d_print_mat(1, nx, x_end, 1);
 	if(nf!=0)
 		{
-		d_print_mat(nx, nu, erk_ws.x_for+nx, nx);
-		d_print_mat(nx, nx, erk_ws.x_for+nx+nu*nx, nx);
-
+		d_print_mat(nx, nu, fs_end, nx);
+		d_print_mat(nx, nx, fs_end+nu*nx, nx);
 		}
+	
+	double *err_erk; d_zeros(&err_erk, nx, nf+1);
+	for(ii=0; ii<nx; ii++)
+		err_erk[ii] = xref[ii] - x_end[ii];
+	for(ii=0; ii<nu*nx; ii++)
+		err_erk[nx+ii] = fs_end[ii] - B[ii];
+	for(ii=0; ii<nx*nx; ii++)
+		err_erk[nx+nu*nx+ii] = fs_end[nu*nx+ii] - A[ii];
+	
+	printf("\nerror\n");
+	d_print_exp_mat(nx, nf+1, err_erk, nx);
 
 #if 0
 /************************************************
@@ -688,8 +707,7 @@ int main()
 	free(mem_erk_ws);
 	free(fs0);
 	free(x_end);
-//	free(memory_erk);
-//	free(ex_erk);
+	free(err_erk);
 //	free(memory_irk);
 //	free(ex_irk);
 

@@ -170,6 +170,10 @@ void d_sim_erk_ws_create(struct d_sim_erk_arg *erk_arg, int nx, int np, int nf_m
 		work->adj_tmp = d_ptr;
 		d_ptr += nf_max*ns;
 		}
+	
+	// default init
+	work->nf = 0;
+	work->na = 0;
 
 
 	work->memsize = memsize;
@@ -258,17 +262,10 @@ void d_sim_erk_ws_set_all(int nf, int na, double *x, double *fs, double *bs, dou
 
 
 
-void d_sim_erk_ws_set_p(double *p, struct d_sim_erk_ws *work)
+void d_sim_erk_ws_set_nf(int *nf, struct d_sim_erk_ws *work)
 	{
 
-	int ii;
-
-	int np = work->np;
-
-	double *p_ws = work->p;
-
-	for(ii=0; ii<np; ii++)
-		p_ws[ii] = p[ii];
+	work->nf = *nf;
 	
 	return;
 
@@ -315,6 +312,7 @@ void d_sim_erk_ws_set_fs(double *fs, struct d_sim_erk_ws *work)
 
 
 
+// state
 void d_sim_erk_ws_get_x(struct d_sim_erk_ws *work, double *x)
 	{
 
@@ -326,6 +324,77 @@ void d_sim_erk_ws_get_x(struct d_sim_erk_ws *work, double *x)
 
 	for(ii=0; ii<nx; ii++)
 		x[ii] = x_ws[ii];
+	
+	return;
+
+	}
+
+
+
+void d_sim_erk_ws_set_p(double *p, struct d_sim_erk_ws *work)
+	{
+
+	int ii;
+
+	int np = work->np;
+
+	double *p_ws = work->p;
+
+	for(ii=0; ii<np; ii++)
+		p_ws[ii] = p[ii];
+	
+	return;
+
+	}
+
+
+
+void d_sim_erk_ws_set_ode(void (*ode)(int t, double *x, double *p, void *ode_args, double *xdot), struct d_sim_erk_ws *work)
+	{
+
+	work->ode = ode;
+	
+	return;
+
+	}
+
+
+
+void d_sim_erk_ws_set_vde_for(void (*vde_for)(int t, double *x, double *p, void *ode_args, double *xdot), struct d_sim_erk_ws *work)
+	{
+
+	work->vde_for = vde_for;
+	
+	return;
+
+	}
+
+
+
+void d_sim_erk_ws_set_ode_args(void *ode_args, struct d_sim_erk_ws *work)
+	{
+
+	work->ode_args = ode_args;
+
+	return;
+
+	}
+
+
+
+// forward sensitivities
+void d_sim_erk_ws_get_fs(struct d_sim_erk_ws *work, double *fs)
+	{
+
+	int ii;
+
+	int nx = work->nx;
+	int nf = work->nf;
+
+	double *fs_ws = work->x_for+nx;
+
+	for(ii=0; ii<nx*nf; ii++)
+		fs[ii] = fs_ws[ii];
 	
 	return;
 
