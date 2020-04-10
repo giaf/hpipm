@@ -1616,10 +1616,12 @@ void OCP_QCQP_IPM_SOLVE(struct OCP_QCQP *qcqp, struct OCP_QCQP_SOL *qcqp_sol, st
 		qp_ws->qp_step->DCt = qp->DCt;
 		qp_ws->qp_step->Z = qp->Z;
 		qp_ws->qp_step->idxb = qp->idxb;
+		qp_ws->qp_step->idxe = qp->idxe;
 		qp_ws->qp_step->idxs_rev = qp->idxs_rev;
 		qp_ws->qp_step->rqz = qp->rqz;
 		qp_ws->qp_step->b = qp->b;
 		qp_ws->qp_step->d = qp->d;
+		qp_ws->qp_step->d_mask = qp->d_mask;
 		qp_ws->qp_step->m = qp_ws->tmp_m;
 
 		// alias core workspace

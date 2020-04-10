@@ -424,22 +424,25 @@ void OCP_QP_REDUCE_EQ_DOF(struct OCP_QP *qp, struct OCP_QP *qp_red, struct OCP_Q
 			}
 		else // copy everything
 			{
+			// copy vectors which are contiguous in the QP (e.g. to alias to res)
+			if(ii<N)
+				{
+				VECCP(nx[ii+1], qp->b+ii, 0, qp_red->b+ii, 0);
+				}
+			VECCP(nu[ii]+nx[ii]+2*ns[ii], qp->rqz+ii, 0, qp_red->rqz+ii, 0);
+			VECCP(2*nb[ii]+2*ng[ii]+2*ns[ii], qp->d+ii, 0, qp_red->d+ii, 0);
+			VECCP(2*nb[ii]+2*ng[ii]+2*ns[ii], qp->d_mask+ii, 0, qp_red->d_mask+ii, 0);
+			VECCP(2*nb[ii]+2*ng[ii]+2*ns[ii], qp->m+ii, 0, qp_red->m+ii, 0);
 			if(arg->alias_unchanged)
 				{
-				// TODO
 				if(ii<N)
 					{
 					qp_red->BAbt[ii] = qp->BAbt[ii];
-					qp_red->b[ii] = qp->b[ii];
 					}
 				qp_red->RSQrq[ii] = qp->RSQrq[ii];
 				qp_red->Z[ii] = qp->Z[ii];
-				qp_red->rqz[ii] = qp->rqz[ii];
 				qp_red->idxb[ii] = qp->idxb[ii];
 				qp_red->DCt[ii] = qp->DCt[ii];
-				qp_red->d[ii] = qp->d[ii];
-				qp_red->d_mask[ii] = qp->d_mask[ii];
-				qp_red->m[ii] = qp->m[ii];
 				qp_red->idxs_rev[ii] = qp->idxs_rev[ii];
 				qp_red->idxe[ii] = qp->idxe[ii];
 				}
@@ -448,17 +451,12 @@ void OCP_QP_REDUCE_EQ_DOF(struct OCP_QP *qp, struct OCP_QP *qp_red, struct OCP_Q
 				if(ii<N)
 					{
 					GECP(nu[ii]+nx[ii]+1, nx[ii+1], qp->BAbt+ii, 0, 0, qp_red->BAbt+ii, 0, 0);
-					VECCP(nx[ii+1], qp->b+ii, 0, qp_red->b+ii, 0);
 					}
 				GECP(nu[ii]+nx[ii]+1, nu[ii]+nx[ii], qp->RSQrq+ii, 0, 0, qp_red->RSQrq+ii, 0, 0);
 				VECCP(2*ns[ii], qp->Z+ii, 0, qp_red->Z+ii, 0);
-				VECCP(nu[ii]+nx[ii]+2*ns[ii], qp->rqz+ii, 0, qp_red->rqz+ii, 0);
 				for(jj=0; jj<nb[ii]; jj++)
 					qp_red->idxb[ii][jj] = qp->idxb[ii][jj];
 				GECP(nu[ii]+nx[ii], ng[ii], qp->DCt+ii, 0, 0, qp_red->DCt+ii, 0, 0);
-				VECCP(2*nb[ii]+2*ng[ii]+2*ns[ii], qp->d+ii, 0, qp_red->d+ii, 0);
-				VECCP(2*nb[ii]+2*ng[ii]+2*ns[ii], qp->d_mask+ii, 0, qp_red->d_mask+ii, 0);
-				VECCP(2*nb[ii]+2*ng[ii]+2*ns[ii], qp->m+ii, 0, qp_red->m+ii, 0);
 				for(jj=0; jj<nb[ii]+ng[ii]; jj++)
 					qp_red->idxs_rev[ii][jj] = qp->idxs_rev[ii][jj];
 				for(jj=0; jj<nbue[ii]+nbxe[ii]+nge[ii]; jj++)

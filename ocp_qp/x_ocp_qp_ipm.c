@@ -533,9 +533,9 @@ int OCP_QP_IPM_WS_MEMSIZE(struct OCP_QP_DIM *dim, struct OCP_QP_IPM_ARG *arg)
 	size += 2*sizeof(struct OCP_QP_RES); // res res_itref
 	size += 1*OCP_QP_RES_MEMSIZE(dim); // res_itref
 
-	size += 9*(N+1)*sizeof(struct STRVEC); // res_g res_d res_m Gamma gamma Zs_inv sol_step(v,lam,t)
-	size += 3*N*sizeof(struct STRVEC); // res_b Pb sol_step(pi) 
-	size += 10*sizeof(struct STRVEC); // tmp_nuxM (4+2)*tmp_nbgM (1+1)*tmp_nsM tmp_m
+	size += 10*(N+1)*sizeof(struct STRVEC); // res_g res_d res_m Gamma gamma Zs_inv sol_step(v,lam,t)  tmp_m
+	size += 3*N*sizeof(struct STRVEC); // res_b Pb sol_step(pi)
+	size += 9*sizeof(struct STRVEC); // tmp_nuxM (4+2)*tmp_nbgM (1+1)*tmp_nsM
 	size += 1*(N+1)*sizeof(struct STRVEC); // l
 
 	size += 1*(N+1)*sizeof(struct STRMAT); // L
@@ -758,7 +758,7 @@ void OCP_QP_IPM_WS_CREATE(struct OCP_QP_DIM *dim, struct OCP_QP_IPM_ARG *arg, st
 	workspace->res_workspace->tmp_nsM = sv_ptr;
 	sv_ptr += 1;
 	workspace->tmp_m = sv_ptr;
-	sv_ptr += 1;
+	sv_ptr += N+1;
 
 
 	// double/float stuff
@@ -871,8 +871,11 @@ void OCP_QP_IPM_WS_CREATE(struct OCP_QP_DIM *dim, struct OCP_QP_IPM_ARG *arg, st
 	CREATE_STRVEC(nsM, workspace->res_workspace->tmp_nsM+0, c_ptr);
 	c_ptr += (workspace->tmp_nsM+0)->memsize;
 
-	CREATE_STRVEC(nct, workspace->tmp_m, c_ptr);
-	c_ptr += SIZE_STRVEC(nct);
+	for(ii=0; ii<=N; ii++)
+		{
+		CREATE_STRVEC(2*nb[ii]+2*ng[ii]+2*ns[ii], workspace->tmp_m+ii, c_ptr);
+		c_ptr += (2*nb[ii]+2*ng[ii]+2*ns[ii])*sizeof(REAL);
+		}
 
 	CREATE_CORE_QP_IPM(nvt, net, nct, cws, c_ptr);
 	c_ptr += workspace->core_workspace->memsize;
@@ -1719,8 +1722,12 @@ void OCP_QP_IPM_ABS_STEP(int kk, struct OCP_QP *qp, struct OCP_QP_SOL *qp_sol, s
 	COMPUTE_TAU_MIN_QP(cws);
 
 	// fact solve
+//d_ocp_qp_print(ws->qp_step->dim, ws->qp_step);
+//exit(1);
 	FACT_SOLVE_KKT_STEP_OCP_QP(ws->qp_step, ws->sol_step, arg, ws);
 //blasfeo_print_tran_dvec(cws->nv, ws->sol_step->ux, 0);
+//d_ocp_qp_sol_print(ws->qp_step->dim, ws->sol_step);
+//exit(1);
 
 	// compute step
 	AXPY(cws->nv, -1.0, qp_sol->ux, 0, ws->sol_step->ux, 0, ws->sol_step->ux, 0);
@@ -2469,12 +2476,17 @@ void OCP_QP_IPM_SOLVE(struct OCP_QP *qp, struct OCP_QP_SOL *qp_sol, struct OCP_Q
 		ws->qp_step->DCt = qp->DCt;
 		ws->qp_step->Z = qp->Z;
 		ws->qp_step->idxb = qp->idxb;
+		ws->qp_step->idxe = qp->idxe;
 		ws->qp_step->idxs_rev = qp->idxs_rev;
 		ws->qp_step->rqz = qp->rqz;
 		ws->qp_step->b = qp->b;
 		ws->qp_step->d = qp->d;
+		ws->qp_step->d_mask = qp->d_mask;
 		ws->qp_step->m = ws->tmp_m;
 
+//d_ocp_qp_dim_print(ws->qp_step->dim);
+//d_ocp_qp_print(ws->qp_step->dim, ws->qp_step);
+//exit(1);
 		// alias core workspace
 		cws->res_m = ws->qp_step->m->pa;
 		cws->res_m_bkp = ws->qp_step->m->pa; // TODO remove (as in dense qp) ???
