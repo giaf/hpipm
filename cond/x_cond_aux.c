@@ -192,8 +192,7 @@ void COND_RSQRQ_N2NX3(struct OCP_QP *ocp_qp, struct STRMAT *RSQrq2, struct STRVE
 	int nub = nu2; // backward partial sum
 	int nuf = 0; // forward partial sum
 
-//	if(cond_arg->square_root_alg)
-	if(0)
+	if(cond_arg->square_root_alg)
 		{
 
 		// final stage 
