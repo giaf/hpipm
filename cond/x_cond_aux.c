@@ -194,9 +194,7 @@ void COND_RSQRQ_N2NX3(struct OCP_QP *ocp_qp, struct STRMAT *RSQrq2, struct STRVE
 	int nub = nu2; // backward partial sum
 	int nuf = 0; // forward partial sum
 
-	int nu_tmp, nu_tot_tmp;
-
-	if(cond_arg->cond_alg==0)
+	if(cond_arg->cond_alg==0) // N2 nx3
 		{
 		if(cond_arg->square_root_alg)
 			{
@@ -223,13 +221,13 @@ void COND_RSQRQ_N2NX3(struct OCP_QP *ocp_qp, struct STRMAT *RSQrq2, struct STRVE
 				{
 				nub -= nu[N-nn-1];
 
-	#if defined(LA_HIGH_PERFORMANCE)
+#if defined(LA_HIGH_PERFORMANCE)
 				GECP(nx[N-nn]+1, nx[N-nn], &L[N-nn], nu[N-nn], nu[N-nn], Lx, 0, 0);
 
 				POTRF_L_MN(nx[N-nn]+1, nx[N-nn], Lx, 0, 0, Lx, 0, 0);
-	#else
+#else
 				POTRF_L_MN(nx[N-nn]+1, nx[N-nn], &L[N-nn], nu[N-nn], nu[N-nn], Lx, 0, 0);
-	#endif
+#endif
 				ROWIN(nx[N-nn], 1.0, &b[N-nn-1], 0, &BAbt[N-nn-1], nu[N-nn-1]+nx[N-nn-1], 0);
 				TRMM_RLNN(nu[N-nn-1]+nx[N-nn-1]+1, nx[N-nn], 1.0, Lx, 0, 0, &BAbt[N-nn-1], 0, 0, AL, 0, 0);
 				GEAD(1, nx[N-nn], 1.0, Lx, nx[N-nn], 0, AL, nu[N-nn-1]+nx[N-nn-1], 0);
@@ -252,13 +250,13 @@ void COND_RSQRQ_N2NX3(struct OCP_QP *ocp_qp, struct STRMAT *RSQrq2, struct STRVE
 			// first stage
 			nn = N-1;
 
-	#if defined(LA_HIGH_PERFORMANCE)
+#if defined(LA_HIGH_PERFORMANCE)
 			GECP(nx[N-nn]+1, nx[N-nn], &L[N-nn], nu[N-nn], nu[N-nn], Lx, 0, 0);
 
 			POTRF_L_MN(nx[N-nn]+1, nx[N-nn], Lx, 0, 0, Lx, 0, 0);
-	#else
+#else
 			POTRF_L_MN(nx[N-nn]+1, nx[N-nn], &L[N-nn], nu[N-nn], nu[N-nn], Lx, 0, 0);
-	#endif
+#endif
 			ROWIN(nx[N-nn], 1.0, &b[N-nn-1], 0, &BAbt[N-nn-1], nu[N-nn-1]+nx[N-nn-1], 0);
 			TRMM_RLNN(nu[N-nn-1]+nx[N-nn-1]+1, nx[N-nn], 1.0, Lx, 0, 0, &BAbt[N-nn-1], 0, 0, AL, 0, 0);
 			GEAD(1, nx[N-nn], 1.0, Lx, nx[N-nn], 0, AL, nu[N-nn-1]+nx[N-nn-1], 0);
@@ -341,60 +339,63 @@ void COND_RSQRQ_N2NX3(struct OCP_QP *ocp_qp, struct STRMAT *RSQrq2, struct STRVE
 
 			}
 		}
-	else // cond_alg==1
+	else // cond_alg==1, N3 nx2
 		{
 
-		// merge with first stage
-		GESE(nu2+nx[0]+1, nu2+nx[0], 0.0, RSQrq2, 0, 0);
+		// TODO create a single matrix for GammaQ with max sizes
 
-		nu_tmp = 0;
-		nu_tot_tmp = nu2;
+//		nuf = 0;
+//		nub = nu2;
+
+		// TODO merge with first stage
+		GESE(nu2+nx[0]+1, nu2+nx[0], 0.0, RSQrq2, 0, 0);
 
 		for(nn=0; nn<=N; nn++)
 			{
 
-			nu_tot_tmp -= nu[nn];
+			nub -= nu[nn];
 
 			if(nn==0)
 				{
-				TRCP_L(nu[0]+nx[0], RSQrq+0, 0, 0, RSQrq2, nu_tot_tmp, nu_tot_tmp);
-				ROWAD(nu[0]+nx[0], 1.0, rqz+0, 0, RSQrq2, nu2+nx[0], nu_tot_tmp);
+				TRCP_L(nu[0]+nx[0], RSQrq+0, 0, 0, RSQrq2, nub, nub);
+				ROWAD(nu[0]+nx[0], 1.0, rqz+0, 0, RSQrq2, nu2+nx[0], nub);
 				}
 			else
 				{
 
 				// if Q is not zero
+				// if Q is not diagonal
 				if(1)
 					{
 					// XXX make Q full or use SYMM
 					TRTR_L(nu[nn]+nx[nn], RSQrq+nn, 0, 0, RSQrq+nn, 0, 0);
-					GEMM_NN(nu_tmp+nx[0]+1, nx[nn], nx[nn], 1.0, Gamma+nn-1, 0, 0, RSQrq+nn, nu[nn], nu[nn], 0.0, GammaQ+nn-1, 0, 0, GammaQ+nn-1, 0, 0);
-					ROWAD(nx[nn], 1.0, rqz+nn, nu[nn], GammaQ+nn-1, nu_tmp+nx[0], 0);
-					SYRK_LN_MN(nu_tmp+nx[0]+1, nu_tmp+nx[0], nx[nn], 1.0, GammaQ+nn-1, 0, 0, Gamma+nn-1, 0, 0, 1.0, RSQrq2, nu_tot_tmp+nu[nn], nu_tot_tmp+nu[nn], RSQrq2, nu_tot_tmp+nu[nn], nu_tot_tmp+nu[nn]);
+					GEMM_NN(nuf+nx[0]+1, nx[nn], nx[nn], 1.0, Gamma+nn-1, 0, 0, RSQrq+nn, nu[nn], nu[nn], 0.0, GammaQ+nn-1, 0, 0, GammaQ+nn-1, 0, 0);
+					ROWAD(nx[nn], 1.0, rqz+nn, nu[nn], GammaQ+nn-1, nuf+nx[0], 0);
+					SYRK_LN_MN(nuf+nx[0]+1, nuf+nx[0], nx[nn], 1.0, GammaQ+nn-1, 0, 0, Gamma+nn-1, 0, 0, 1.0, RSQrq2, nub+nu[nn], nub+nu[nn], RSQrq2, nub+nu[nn], nub+nu[nn]);
 					}
 				else
 					{
-					// TODO case Q=0 and q!=0}
+					GEMV_N(nuf+nx[0], nx[nn], 1.0, Gamma+nn-1, 0, 0, rqz+nn, nu[nn], 1.0, rqz2, nub+nu[nn], rqz2, nub+nu[nn]);
 					}
 
 				// if R is not zero
 				if(1)
 					{
-					GEAD(nu[nn], nu[nn], 1.0, RSQrq+nn, 0, 0, RSQrq2, nu_tot_tmp, nu_tot_tmp);
+					GEAD(nu[nn], nu[nn], 1.0, RSQrq+nn, 0, 0, RSQrq2, nub, nub);
 					}
 
 				// if S is not zero
 				if(1)
 					{
-					GEMM_NN(nu_tmp+nx[0]+1, nu[nn], nx[nn], 1.0, Gamma+nn-1, 0, 0, RSQrq+nn, nu[nn], 0, 1.0, RSQrq2, nu_tot_tmp+nu[nn], nu_tot_tmp, RSQrq2, nu_tot_tmp+nu[nn], nu_tot_tmp);
+					GEMM_NN(nuf+nx[0]+1, nu[nn], nx[nn], 1.0, Gamma+nn-1, 0, 0, RSQrq+nn, nu[nn], 0, 1.0, RSQrq2, nub+nu[nn], nub, RSQrq2, nub+nu[nn], nub);
 					}
 
-				ROWAD(nu[nn], 1.0, rqz+nn, 0, RSQrq2, nu2+nx[0], nu_tot_tmp);
-				ROWEX(nu_tmp+nx[0], 1.0, RSQrq2, nu2+nx[0], nu_tot_tmp+nu[nn], rqz2, 0);
+				ROWAD(nu[nn], 1.0, rqz+nn, 0, RSQrq2, nu2+nx[0], nub);
+				ROWEX(nuf+nx[0], 1.0, RSQrq2, nu2+nx[0], nub+nu[nn], rqz2, 0);
 
 				}
 
-			nu_tmp += nu[nn];
+			nuf += nu[nn];
 
 			}
 
@@ -423,6 +424,7 @@ void COND_RQ_N2NX3(struct OCP_QP *ocp_qp, struct STRVEC *rqz2, struct COND_QP_AR
 
 	struct STRMAT *BAbt = ocp_qp->BAbt;
 	struct STRVEC *b = ocp_qp->b;
+	struct STRMAT *RSQrq = ocp_qp->RSQrq;
 	struct STRVEC *rqz = ocp_qp->rqz;
 
 	// early return
@@ -433,6 +435,7 @@ void COND_RQ_N2NX3(struct OCP_QP *ocp_qp, struct STRVEC *rqz2, struct COND_QP_AR
 		}
 
 	// extract memory members
+	struct STRMAT *Gamma = cond_ws->Gamma;
 	struct STRMAT *L = cond_ws->L;
 	struct STRVEC *Gammab = cond_ws->Gammab;
 	struct STRVEC *l = cond_ws->l;
@@ -447,45 +450,96 @@ void COND_RQ_N2NX3(struct OCP_QP *ocp_qp, struct STRVEC *rqz2, struct COND_QP_AR
 	int nub = nu2; // backward partial sum
 	int nuf = 0; // forward partial sum
 
-	// final stage 
-	nub -= nu[N];
+	if(cond_arg->cond_alg==0) // N2 nx3
+		{
+		// final stage 
+		nub -= nu[N];
 
-	VECCP(nu[N]+nx[N], rqz+N, 0, l+N, 0);
+		VECCP(nu[N]+nx[N], rqz+N, 0, l+N, 0);
 
-	GEMV_T(nx[N], nu[N], 1.0, L+N, nu[N], 0, Gammab+(N-1), 0, 1.0, l+N, 0, rqz2+0, nuf);
+		GEMV_T(nx[N], nu[N], 1.0, L+N, nu[N], 0, Gammab+(N-1), 0, 1.0, l+N, 0, rqz2+0, nuf);
 
-	nuf += nu[N];
+		nuf += nu[N];
 
 
+		// middle stages 
+		for(nn=0; nn<N-1; nn++)
+			{	
+			nub -= nu[N-nn-1];
 
-	// middle stages 
-	for(nn=0; nn<N-1; nn++)
-		{	
-		nub -= nu[N-nn-1];
+	//		SYMV_L(nx[N-nn], nx[N-nn], 1.0, L+(N-nn), nu[N-nn], nu[N-nn], b+(N-nn-1), 0, 1.0, l+(N-nn), nu[N-nn], tmp_nuxM, 0); // XXX buggy !!!
+			TRTR_L(nx[N-nn]+nu[N-nn], L+N-nn, 0, 0, L+N-nn, 0, 0);
+			GEMV_N(nx[N-nn], nx[N-nn], 1.0, L+(N-nn), nu[N-nn], nu[N-nn], b+(N-nn-1), 0, 1.0, l+(N-nn), nu[N-nn], tmp_nuxM, 0);
 
-//		SYMV_L(nx[N-nn], nx[N-nn], 1.0, L+(N-nn), nu[N-nn], nu[N-nn], b+(N-nn-1), 0, 1.0, l+(N-nn), nu[N-nn], tmp_nuxM, 0); // XXX buggy !!!
+			GEMV_N(nu[N-nn-1]+nx[N-nn-1], nx[N-nn], 1.0, BAbt+(N-nn-1), 0, 0, tmp_nuxM, 0, 1.0, rqz+(N-nn-1), 0, l+(N-nn-1), 0);
+
+			GEMV_T(nx[N-nn-1], nu[N-nn-1], 1.0, L+(N-nn-1), nu[N-nn-1], 0, Gammab+(N-nn-2), 0, 1.0, l+(N-nn-1), 0, rqz2+0, nuf);
+
+			nuf += nu[N-nn-1];
+
+			}
+
+		// first stage
+		nn = N-1;
+
+	//	SYMV_L(nx[N-nn], nx[N-nn], 1.0, L+(N-nn), nu[N-nn], nu[N-nn], b+(N-nn-1), 0, 1.0, l+(N-nn), nu[N-nn], tmp_nuxM, 0);
 		TRTR_L(nx[N-nn]+nu[N-nn], L+N-nn, 0, 0, L+N-nn, 0, 0);
 		GEMV_N(nx[N-nn], nx[N-nn], 1.0, L+(N-nn), nu[N-nn], nu[N-nn], b+(N-nn-1), 0, 1.0, l+(N-nn), nu[N-nn], tmp_nuxM, 0);
 
 		GEMV_N(nu[N-nn-1]+nx[N-nn-1], nx[N-nn], 1.0, BAbt+(N-nn-1), 0, 0, tmp_nuxM, 0, 1.0, rqz+(N-nn-1), 0, l+(N-nn-1), 0);
 
-		GEMV_T(nx[N-nn-1], nu[N-nn-1], 1.0, L+(N-nn-1), nu[N-nn-1], 0, Gammab+(N-nn-2), 0, 1.0, l+(N-nn-1), 0, rqz2+0, nuf);
+		// m p
+		VECCP(nu[0]+nx[0], l+(N-nn-1), 0, rqz2+0, nuf);
+		}
+	else // cond_alg==1, N3 nx2
+		{
 
-		nuf += nu[N-nn-1];
+//		nuf = 0;
+//		nub = nu2;
+
+		VECSE(nu2+nx[0], 0.0, rqz2, 0);
+
+		for(nn=0; nn<=N; nn++)
+			{
+
+			nub -= nu[nn];
+
+			if(nn==0)
+				{
+				VECCP(nu[0]+nx[0], rqz+0, 0, rqz2, nub);
+				}
+			else
+				{
+
+				// if Q is not zero
+				// if Q is not diagonal
+				if(1)
+					{
+					SYMV_L(nx[nn], nx[nn], 1.0, RSQrq+nn, nu[nn], nu[nn], Gammab+nn-1, 0, 1.0, rqz+nn, nu[nn], tmp_nuxM, 0);
+					GEMV_N(nuf+nx[0], nx[nn], 1.0, Gamma+nn-1, 0, 0, tmp_nuxM, 0, 1.0, rqz2, nub+nu[nn], rqz2, nub+nu[nn]);
+					}
+				else
+					{
+					GEMV_N(nuf+nx[0], nx[nn], 1.0, Gamma+nn-1, 0, 0, rqz+nn, nu[nn], 1.0, rqz2, nub+nu[nn], rqz2, nub+nu[nn]);
+					}
+
+				// if S is not zero
+				if(1)
+					{
+					GEMV_T(nx[nn], nu[nn], 1.0, RSQrq+nn, nu[nn], 0, Gammab+nn-1, 0, 1.0, rqz+nn, 0, rqz2, nub);
+					}
+				else
+					{
+					AXPY(nu[nn], 1.0, rqz+nn, 0, rqz2, nub, rqz2, nub);
+					}
+
+				}
+
+			nuf += nu[nn];
+
+			}
 
 		}
-
-	// first stage
-	nn = N-1;
-
-//	SYMV_L(nx[N-nn], nx[N-nn], 1.0, L+(N-nn), nu[N-nn], nu[N-nn], b+(N-nn-1), 0, 1.0, l+(N-nn), nu[N-nn], tmp_nuxM, 0);
-	TRTR_L(nx[N-nn]+nu[N-nn], L+N-nn, 0, 0, L+N-nn, 0, 0);
-	GEMV_N(nx[N-nn], nx[N-nn], 1.0, L+(N-nn), nu[N-nn], nu[N-nn], b+(N-nn-1), 0, 1.0, l+(N-nn), nu[N-nn], tmp_nuxM, 0);
-
-	GEMV_N(nu[N-nn-1]+nx[N-nn-1], nx[N-nn], 1.0, BAbt+(N-nn-1), 0, 0, tmp_nuxM, 0, 1.0, rqz+(N-nn-1), 0, l+(N-nn-1), 0);
-
-	// m p
-	VECCP(nu[0]+nx[0], l+(N-nn-1), 0, rqz2+0, nuf);
 
 	return;
 
