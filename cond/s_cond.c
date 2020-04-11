@@ -82,6 +82,7 @@
 #define COND_QP_ARG_MEMSIZE s_cond_qp_arg_memsize
 #define COND_QP_ARG_CREATE s_cond_qp_arg_create
 #define COND_QP_ARG_SET_DEFAULT s_cond_qp_arg_set_default
+#define COND_QP_ARG_SET_COND_ALG s_cond_qp_arg_set_cond_alg
 #define COND_QP_ARG_SET_RIC_ALG s_cond_qp_arg_set_ric_alg
 #define COND_QP_ARG_SET_COND_LAST_STAGE s_cond_qp_arg_set_cond_last_stage
 #define COND_QP_ARG_SET_COMP_DUAL_SOL_EQ s_cond_qp_arg_set_comp_dual_sol_eq

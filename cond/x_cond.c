@@ -114,11 +114,23 @@ void COND_QP_ARG_CREATE(struct COND_QP_ARG *cond_arg, void *mem)
 void COND_QP_ARG_SET_DEFAULT(struct COND_QP_ARG *cond_arg)
 	{
 
+	cond_arg->cond_alg = 0; // condensing algorithm
 	cond_arg->cond_last_stage = 1; // condense last stage
 	cond_arg->comp_prim_sol = 1; // compute primal solution (v)
 	cond_arg->comp_dual_sol_eq = 1; // compute dual solution equality constr (pi)
 	cond_arg->comp_dual_sol_ineq = 1; // compute dual solution inequality constr (lam t)
 	cond_arg->square_root_alg = 1; // square root algorithm (faster but requires RSQ>0)
+
+	return;
+
+	}
+
+
+
+void COND_QP_ARG_SET_COND_ALG(int cond_alg, struct COND_QP_ARG *cond_arg)
+	{
+
+	cond_arg->cond_alg = cond_alg;
 
 	return;
 
@@ -174,6 +186,7 @@ int COND_QP_WS_MEMSIZE(struct OCP_QP_DIM *ocp_dim, struct COND_QP_ARG *cond_arg)
 	{
 
 	int ii;
+	int nu_tmp;
 
 	int N = ocp_dim->N;
 	int *nx = ocp_dim->nx;
@@ -217,8 +230,12 @@ int COND_QP_WS_MEMSIZE(struct OCP_QP_DIM *ocp_dim, struct COND_QP_ARG *cond_arg)
 	size += 2*sizeof(struct STRMAT); // Lx AL
 	size += 2*(N+1)*sizeof(struct STRVEC); // Gammab l
 	size += 2*sizeof(struct STRVEC); // tmp_nbgM tmp_nuxM
+	if(cond_arg->cond_alg==1) // TODO else !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+		{
+		size += 1*(N+1)*sizeof(struct STRMAT); // GammaQ
+		}
 
-	int nu_tmp = 0;
+	nu_tmp = 0;
 	for(ii=0; ii<N; ii++)
 		{
 		nu_tmp += nu[ii];
@@ -234,6 +251,15 @@ int COND_QP_WS_MEMSIZE(struct OCP_QP_DIM *ocp_dim, struct COND_QP_ARG *cond_arg)
 		size += SIZE_STRVEC(nu[ii]+nx[ii]); // l
 	size += 1*SIZE_STRVEC(nbM+ngM); // tmp_nbgM
 	size += 1*SIZE_STRVEC(nuM+nxM); // tmp_nuxM
+	if(cond_arg->cond_alg==1) // TODO else !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+		{
+		nu_tmp = 0;
+		for(ii=0; ii<N; ii++)
+			{
+			nu_tmp += nu[ii];
+			size += SIZE_STRMAT(nu_tmp+nx[0]+1, nx[ii+1]); // GammaQ
+			}
+		}
 
 	size = (size+63)/64*64; // make multiple of typical cache line size
 	size += 1*64; // align once to typical cache line size
@@ -248,6 +274,7 @@ void COND_QP_WS_CREATE(struct OCP_QP_DIM *ocp_dim, struct COND_QP_ARG *cond_arg,
 	{
 
 	int ii;
+	int nu_tmp;
 
 	// zero memory (to avoid corrupted memory like e.g. NaN)
 	int memsize = COND_QP_WS_MEMSIZE(ocp_dim, cond_arg);
@@ -301,6 +328,11 @@ void COND_QP_WS_CREATE(struct OCP_QP_DIM *ocp_dim, struct COND_QP_ARG *cond_arg,
 	sm_ptr += 1;
 	cond_ws->AL = sm_ptr;
 	sm_ptr += 1;
+	if(cond_arg->cond_alg==1) // TODO else !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+		{
+		cond_ws->GammaQ = sm_ptr;
+		sm_ptr += N+1;
+		}
 
 
 	// vector struct
@@ -325,7 +357,7 @@ void COND_QP_WS_CREATE(struct OCP_QP_DIM *ocp_dim, struct COND_QP_ARG *cond_arg,
 	char *c_ptr = (char *) s_ptr;
 	char *c_tmp;
 
-	int nu_tmp = 0;
+	nu_tmp = 0;
 	for(ii=0; ii<N; ii++)
 		{
 		nu_tmp += nu[ii];
@@ -341,6 +373,16 @@ void COND_QP_WS_CREATE(struct OCP_QP_DIM *ocp_dim, struct COND_QP_ARG *cond_arg,
 	c_ptr += cond_ws->Lx->memsize;
 	CREATE_STRMAT(nuM+nxM+1, nxM, cond_ws->AL, c_ptr);
 	c_ptr += cond_ws->AL->memsize;
+	if(cond_arg->cond_alg==1) // TODO else !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+		{
+		nu_tmp = 0;
+		for(ii=0; ii<N; ii++)
+			{
+			nu_tmp += nu[ii];
+			CREATE_STRMAT(nu_tmp+nx[0]+1, nx[ii+1], cond_ws->GammaQ+ii, c_ptr);
+			c_ptr += (cond_ws->GammaQ+ii)->memsize;
+			}
+		}
 	for(ii=0; ii<N; ii++)
 		{
 		CREATE_STRVEC(nx[ii+1], cond_ws->Gammab+ii, c_ptr);
