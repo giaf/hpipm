@@ -226,13 +226,18 @@ int COND_QP_WS_MEMSIZE(struct OCP_QP_DIM *ocp_dim, struct COND_QP_ARG *cond_arg)
 
 	int size = 0;
 
-	size += 2*(N+1)*sizeof(struct STRMAT); // Gamma L
-	size += 2*sizeof(struct STRMAT); // Lx AL
-	size += 2*(N+1)*sizeof(struct STRVEC); // Gammab l
+	size += 1*(N+1)*sizeof(struct STRMAT); // Gamma
+	size += 1*(N+1)*sizeof(struct STRVEC); // Gammab
 	size += 2*sizeof(struct STRVEC); // tmp_nbgM tmp_nuxM
-	if(cond_arg->cond_alg==1) // TODO else !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+	if(cond_arg->cond_alg==0)
 		{
-		size += 1*(N+1)*sizeof(struct STRMAT); // GammaQ
+		size += 1*(N+1)*sizeof(struct STRMAT); // L
+		size += 2*sizeof(struct STRMAT); // Lx AL
+		size += 1*(N+1)*sizeof(struct STRVEC); // l
+		}
+	else
+		{
+		size += 1*sizeof(struct STRMAT); // GammaQ
 		}
 
 	nu_tmp = 0;
@@ -241,25 +246,27 @@ int COND_QP_WS_MEMSIZE(struct OCP_QP_DIM *ocp_dim, struct COND_QP_ARG *cond_arg)
 		nu_tmp += nu[ii];
 		size += SIZE_STRMAT(nu_tmp+nx[0]+1, nx[ii+1]); // Gamma
 		}
-	for(ii=0; ii<=N; ii++)
-		size += SIZE_STRMAT(nu[ii]+nx[ii]+1, nu[ii]+nx[ii]); // L
-	size += SIZE_STRMAT(nxM+1, nxM); // Lx
-	size += SIZE_STRMAT(nuM+nxM+1, nxM); // AL
-	for(ii=0; ii<N; ii++)
-		size += 1*SIZE_STRVEC(nx[ii+1]); // Gammab
-	for(ii=0; ii<=N; ii++)
-		size += SIZE_STRVEC(nu[ii]+nx[ii]); // l
-	size += 1*SIZE_STRVEC(nbM+ngM); // tmp_nbgM
-	size += 1*SIZE_STRVEC(nuM+nxM); // tmp_nuxM
-	if(cond_arg->cond_alg==1) // TODO else !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+	if(cond_arg->cond_alg==0)
+		{
+		for(ii=0; ii<=N; ii++)
+			size += SIZE_STRMAT(nu[ii]+nx[ii]+1, nu[ii]+nx[ii]); // L
+		size += SIZE_STRMAT(nxM+1, nxM); // Lx
+		size += SIZE_STRMAT(nuM+nxM+1, nxM); // AL
+		for(ii=0; ii<=N; ii++)
+			size += SIZE_STRVEC(nu[ii]+nx[ii]); // l
+		}
+	else
 		{
 		nu_tmp = 0;
 		for(ii=0; ii<N; ii++)
-			{
 			nu_tmp += nu[ii];
-			size += SIZE_STRMAT(nu_tmp+nx[0]+1, nx[ii+1]); // GammaQ
-			}
+		size += SIZE_STRMAT(nu_tmp+nxM+1, nxM); // GammaQ
 		}
+
+	for(ii=0; ii<N; ii++)
+		size += 1*SIZE_STRVEC(nx[ii+1]); // Gammab
+	size += 1*SIZE_STRVEC(nbM+ngM); // tmp_nbgM
+	size += 1*SIZE_STRVEC(nuM+nxM); // tmp_nuxM
 
 	size = (size+63)/64*64; // make multiple of typical cache line size
 	size += 1*64; // align once to typical cache line size
@@ -322,16 +329,19 @@ void COND_QP_WS_CREATE(struct OCP_QP_DIM *ocp_dim, struct COND_QP_ARG *cond_arg,
 
 	cond_ws->Gamma = sm_ptr;
 	sm_ptr += N+1;
-	cond_ws->L = sm_ptr;
-	sm_ptr += N+1;
-	cond_ws->Lx = sm_ptr;
-	sm_ptr += 1;
-	cond_ws->AL = sm_ptr;
-	sm_ptr += 1;
-	if(cond_arg->cond_alg==1) // TODO else !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+	if(cond_arg->cond_alg==0)
+		{
+		cond_ws->L = sm_ptr;
+		sm_ptr += N+1;
+		cond_ws->Lx = sm_ptr;
+		sm_ptr += 1;
+		cond_ws->AL = sm_ptr;
+		sm_ptr += 1;
+		}
+	else
 		{
 		cond_ws->GammaQ = sm_ptr;
-		sm_ptr += N+1;
+		sm_ptr += 1;
 		}
 
 
@@ -340,12 +350,15 @@ void COND_QP_WS_CREATE(struct OCP_QP_DIM *ocp_dim, struct COND_QP_ARG *cond_arg,
 
 	cond_ws->Gammab = sv_ptr;
 	sv_ptr += N+1;
-	cond_ws->l = sv_ptr;
-	sv_ptr += N+1;
 	cond_ws->tmp_nbgM = sv_ptr;
 	sv_ptr += 1;
 	cond_ws->tmp_nuxM = sv_ptr;
 	sv_ptr += 1;
+	if(cond_arg->cond_alg==0)
+		{
+		cond_ws->l = sv_ptr;
+		sv_ptr += N+1;
+		}
 
 
 	// align to typicl cache line size
@@ -364,34 +377,35 @@ void COND_QP_WS_CREATE(struct OCP_QP_DIM *ocp_dim, struct COND_QP_ARG *cond_arg,
 		CREATE_STRMAT(nu_tmp+nx[0]+1, nx[ii+1], cond_ws->Gamma+ii, c_ptr);
 		c_ptr += (cond_ws->Gamma+ii)->memsize;
 		}
-	for(ii=0; ii<=N; ii++)
+	if(cond_arg->cond_alg==0)
 		{
-		CREATE_STRMAT(nu[ii]+nx[ii]+1, nu[ii]+nx[ii], cond_ws->L+ii, c_ptr);
-		c_ptr += (cond_ws->L+ii)->memsize;
+		for(ii=0; ii<=N; ii++)
+			{
+			CREATE_STRMAT(nu[ii]+nx[ii]+1, nu[ii]+nx[ii], cond_ws->L+ii, c_ptr);
+			c_ptr += (cond_ws->L+ii)->memsize;
+			}
+		CREATE_STRMAT(nxM+1, nxM, cond_ws->Lx, c_ptr);
+		c_ptr += cond_ws->Lx->memsize;
+		CREATE_STRMAT(nuM+nxM+1, nxM, cond_ws->AL, c_ptr);
+		c_ptr += cond_ws->AL->memsize;
+		for(ii=0; ii<=N; ii++)
+			{
+			CREATE_STRVEC(nu[ii]+nx[ii], cond_ws->l+ii, c_ptr);
+			c_ptr += (cond_ws->l+ii)->memsize;
+			}
 		}
-	CREATE_STRMAT(nxM+1, nxM, cond_ws->Lx, c_ptr);
-	c_ptr += cond_ws->Lx->memsize;
-	CREATE_STRMAT(nuM+nxM+1, nxM, cond_ws->AL, c_ptr);
-	c_ptr += cond_ws->AL->memsize;
-	if(cond_arg->cond_alg==1) // TODO else !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+	else
 		{
 		nu_tmp = 0;
 		for(ii=0; ii<N; ii++)
-			{
 			nu_tmp += nu[ii];
-			CREATE_STRMAT(nu_tmp+nx[0]+1, nx[ii+1], cond_ws->GammaQ+ii, c_ptr);
-			c_ptr += (cond_ws->GammaQ+ii)->memsize;
-			}
+		CREATE_STRMAT(nu_tmp+nxM+1, nxM, cond_ws->GammaQ, c_ptr);
+		c_ptr += cond_ws->GammaQ->memsize;
 		}
 	for(ii=0; ii<N; ii++)
 		{
 		CREATE_STRVEC(nx[ii+1], cond_ws->Gammab+ii, c_ptr);
 		c_ptr += (cond_ws->Gammab+ii)->memsize;
-		}
-	for(ii=0; ii<=N; ii++)
-		{
-		CREATE_STRVEC(nu[ii]+nx[ii], cond_ws->l+ii, c_ptr);
-		c_ptr += (cond_ws->l+ii)->memsize;
 		}
 	CREATE_STRVEC(nbM+ngM, cond_ws->tmp_nbgM, c_ptr);
 	c_ptr += cond_ws->tmp_nbgM->memsize;

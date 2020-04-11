@@ -342,8 +342,6 @@ void COND_RSQRQ_N2NX3(struct OCP_QP *ocp_qp, struct STRMAT *RSQrq2, struct STRVE
 	else // cond_alg==1, N3 nx2
 		{
 
-		// TODO create a single matrix for GammaQ with max sizes
-
 //		nuf = 0;
 //		nub = nu2;
 
@@ -369,9 +367,9 @@ void COND_RSQRQ_N2NX3(struct OCP_QP *ocp_qp, struct STRMAT *RSQrq2, struct STRVE
 					{
 					// XXX make Q full or use SYMM
 					TRTR_L(nu[nn]+nx[nn], RSQrq+nn, 0, 0, RSQrq+nn, 0, 0);
-					GEMM_NN(nuf+nx[0]+1, nx[nn], nx[nn], 1.0, Gamma+nn-1, 0, 0, RSQrq+nn, nu[nn], nu[nn], 0.0, GammaQ+nn-1, 0, 0, GammaQ+nn-1, 0, 0);
-					ROWAD(nx[nn], 1.0, rqz+nn, nu[nn], GammaQ+nn-1, nuf+nx[0], 0);
-					SYRK_LN_MN(nuf+nx[0]+1, nuf+nx[0], nx[nn], 1.0, GammaQ+nn-1, 0, 0, Gamma+nn-1, 0, 0, 1.0, RSQrq2, nub+nu[nn], nub+nu[nn], RSQrq2, nub+nu[nn], nub+nu[nn]);
+					GEMM_NN(nuf+nx[0]+1, nx[nn], nx[nn], 1.0, Gamma+nn-1, 0, 0, RSQrq+nn, nu[nn], nu[nn], 0.0, GammaQ, 0, 0, GammaQ, 0, 0);
+					ROWAD(nx[nn], 1.0, rqz+nn, nu[nn], GammaQ, nuf+nx[0], 0);
+					SYRK_LN_MN(nuf+nx[0]+1, nuf+nx[0], nx[nn], 1.0, GammaQ, 0, 0, Gamma+nn-1, 0, 0, 1.0, RSQrq2, nub+nu[nn], nub+nu[nn], RSQrq2, nub+nu[nn], nub+nu[nn]);
 					}
 				else
 					{
