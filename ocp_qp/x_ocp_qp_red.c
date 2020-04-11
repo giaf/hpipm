@@ -420,6 +420,7 @@ void OCP_QP_REDUCE_EQ_DOF(struct OCP_QP *qp, struct OCP_QP *qp_red, struct OCP_Q
 				qp_red->idxs_rev[ii][nb_red[ii]+jj] = qp->idxs_rev[ii][nb[ii]+jj]; // keep softed inequality constr with same slack
 			VECCP(2*ns[ii], qp->Z+ii, 0, qp_red->Z+ii, 0);
 			VECCP(2*ns[ii], qp->rqz+ii, nu[ii]+nx[ii], qp_red->rqz+ii, nu_red[ii]+nx_red[ii]);
+			qp_red->diag_H_flag[ii] = qp->diag_H_flag[ii];
 			// TODO idxe !!!!!!!!!!!!!!!
 			}
 		else // copy everything
@@ -433,6 +434,7 @@ void OCP_QP_REDUCE_EQ_DOF(struct OCP_QP *qp, struct OCP_QP *qp_red, struct OCP_Q
 			VECCP(2*nb[ii]+2*ng[ii]+2*ns[ii], qp->d+ii, 0, qp_red->d+ii, 0);
 			VECCP(2*nb[ii]+2*ng[ii]+2*ns[ii], qp->d_mask+ii, 0, qp_red->d_mask+ii, 0);
 			VECCP(2*nb[ii]+2*ng[ii]+2*ns[ii], qp->m+ii, 0, qp_red->m+ii, 0);
+			qp_red->diag_H_flag[ii] = qp->diag_H_flag[ii];
 			if(arg->alias_unchanged)
 				{
 				if(ii<N)

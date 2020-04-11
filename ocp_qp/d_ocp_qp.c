@@ -137,6 +137,7 @@
 #define OCP_QP_SET_JBXE d_ocp_qp_set_Jbue
 #define OCP_QP_SET_JBUE d_ocp_qp_set_Jbxe
 #define OCP_QP_SET_JGE d_ocp_qp_set_Jge
+#define OCP_QP_SET_DIAG_H_FLAG d_ocp_qp_set_diag_H_flag
 // getters
 #define OCP_QP_GET d_ocp_qp_get
 #define OCP_QP_GET_A d_ocp_qp_get_A

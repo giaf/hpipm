@@ -66,6 +66,7 @@ struct d_ocp_qp
 	int **idxb; // index of box constraints
 	int **idxs_rev; // index of soft constraints (reverse storage)
 	int **idxe; // index of equality constraints
+	int *diag_H_flag; // flag the fact that Hessian is diagonal
 	int memsize; // memory size in bytes
 	};
 
@@ -199,6 +200,8 @@ void d_ocp_qp_set_Jbxe(int stage, double *vec, struct d_ocp_qp *qp);
 void d_ocp_qp_set_Jbue(int stage, double *vec, struct d_ocp_qp *qp);
 //
 void d_ocp_qp_set_Jge(int stage, double *vec, struct d_ocp_qp *qp);
+//
+void d_ocp_qp_set_diag_H_flag(int stage, int *value, struct d_ocp_qp *qp);
 
 // getters
 //

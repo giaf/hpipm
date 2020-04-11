@@ -168,6 +168,7 @@ void COND_RSQRQ_N2NX3(struct OCP_QP *ocp_qp, struct STRMAT *RSQrq2, struct STRVE
 	struct STRVEC *b = ocp_qp->b;
 	struct STRMAT *RSQrq = ocp_qp->RSQrq;
 	struct STRVEC *rqz = ocp_qp->rqz;
+	int *diag_H_flag = ocp_qp->diag_H_flag;
 
 	// early return
 	if(N==0)
@@ -182,8 +183,8 @@ void COND_RSQRQ_N2NX3(struct OCP_QP *ocp_qp, struct STRMAT *RSQrq2, struct STRVE
 	struct STRMAT *L = cond_ws->L;
 	struct STRMAT *Lx = cond_ws->Lx;
 	struct STRMAT *AL = cond_ws->AL;
-
 	struct STRMAT *GammaQ = cond_ws->GammaQ;
+	struct STRVEC *tmp_nuxM = cond_ws->tmp_nuxM;
 
 	int nn;
 
@@ -362,12 +363,20 @@ void COND_RSQRQ_N2NX3(struct OCP_QP *ocp_qp, struct STRMAT *RSQrq2, struct STRVE
 				{
 
 				// if Q is not zero
-				// if Q is not diagonal
 				if(1)
 					{
-					// XXX make Q full or use SYMM
-					TRTR_L(nu[nn]+nx[nn], RSQrq+nn, 0, 0, RSQrq+nn, 0, 0);
-					GEMM_NN(nuf+nx[0]+1, nx[nn], nx[nn], 1.0, Gamma+nn-1, 0, 0, RSQrq+nn, nu[nn], nu[nn], 0.0, GammaQ, 0, 0, GammaQ, 0, 0);
+					// if Q is diagonal
+					if(diag_H_flag[nn]!=0)
+						{
+						DIAEX(nx[nn], 1.0, RSQrq+nn, nu[nn], nu[nn], tmp_nuxM, 0);
+						GEMM_ND(nuf+nx[0]+1, nx[nn], 1.0, Gamma+nn-1, 0, 0, tmp_nuxM, 0, 0.0, GammaQ, 0, 0, GammaQ, 0, 0);
+						}
+					else
+						{
+						// XXX make Q full or use SYMM
+						TRTR_L(nu[nn]+nx[nn], RSQrq+nn, 0, 0, RSQrq+nn, 0, 0);
+						GEMM_NN(nuf+nx[0]+1, nx[nn], nx[nn], 1.0, Gamma+nn-1, 0, 0, RSQrq+nn, nu[nn], nu[nn], 0.0, GammaQ, 0, 0, GammaQ, 0, 0);
+						}
 					ROWAD(nx[nn], 1.0, rqz+nn, nu[nn], GammaQ, nuf+nx[0], 0);
 					SYRK_LN_MN(nuf+nx[0]+1, nuf+nx[0], nx[nn], 1.0, GammaQ, 0, 0, Gamma+nn-1, 0, 0, 1.0, RSQrq2, nub+nu[nn], nub+nu[nn], RSQrq2, nub+nu[nn], nub+nu[nn]);
 					}
@@ -383,7 +392,7 @@ void COND_RSQRQ_N2NX3(struct OCP_QP *ocp_qp, struct STRMAT *RSQrq2, struct STRVE
 					}
 
 				// if S is not zero
-				if(1)
+				if(diag_H_flag[nn]==0)
 					{
 					GEMM_NN(nuf+nx[0]+1, nu[nn], nx[nn], 1.0, Gamma+nn-1, 0, 0, RSQrq+nn, nu[nn], 0, 1.0, RSQrq2, nub+nu[nn], nub, RSQrq2, nub+nu[nn], nub);
 					}
@@ -424,6 +433,7 @@ void COND_RQ_N2NX3(struct OCP_QP *ocp_qp, struct STRVEC *rqz2, struct COND_QP_AR
 	struct STRVEC *b = ocp_qp->b;
 	struct STRMAT *RSQrq = ocp_qp->RSQrq;
 	struct STRVEC *rqz = ocp_qp->rqz;
+	int *diag_H_flag = ocp_qp->diag_H_flag;
 
 	// early return
 	if(N==0)
@@ -510,10 +520,17 @@ void COND_RQ_N2NX3(struct OCP_QP *ocp_qp, struct STRVEC *rqz2, struct COND_QP_AR
 				{
 
 				// if Q is not zero
-				// if Q is not diagonal
 				if(1)
 					{
-					SYMV_L(nx[nn], nx[nn], 1.0, RSQrq+nn, nu[nn], nu[nn], Gammab+nn-1, 0, 1.0, rqz+nn, nu[nn], tmp_nuxM, 0);
+					if(diag_H_flag[nn]!=0)
+						{
+						DIAEX(nx[nn], 1.0, RSQrq+nn, nu[nn], nu[nn], tmp_nuxM, 0);
+						GEMV_D(nx[nn], 1.0, tmp_nuxM, 0, Gammab+nn-1, 0, 1.0, rqz+nn, nu[nn], tmp_nuxM, 0);
+						}
+					else
+						{
+						SYMV_L(nx[nn], nx[nn], 1.0, RSQrq+nn, nu[nn], nu[nn], Gammab+nn-1, 0, 1.0, rqz+nn, nu[nn], tmp_nuxM, 0);
+						}
 					GEMV_N(nuf+nx[0], nx[nn], 1.0, Gamma+nn-1, 0, 0, tmp_nuxM, 0, 1.0, rqz2, nub+nu[nn], rqz2, nub+nu[nn]);
 					}
 				else
@@ -522,7 +539,7 @@ void COND_RQ_N2NX3(struct OCP_QP *ocp_qp, struct STRVEC *rqz2, struct COND_QP_AR
 					}
 
 				// if S is not zero
-				if(1)
+				if(diag_H_flag[nn]==0)
 					{
 					GEMV_T(nx[nn], nu[nn], 1.0, RSQrq+nn, nu[nn], 0, Gammab+nn-1, 0, 1.0, rqz+nn, 0, rqz2, nub);
 					}

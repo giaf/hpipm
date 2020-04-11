@@ -103,6 +103,8 @@ int OCP_QP_MEMSIZE(struct OCP_QP_DIM *dim)
 	size += 1*SIZE_STRVEC(net); // b
 	size += 3*SIZE_STRVEC(nct); // d m d_mask
 
+	size += (N+1)*sizeof(int); // H_diag_flag
+
 	size = (size+63)/64*64; // make multiple of typical cache line size
 	size += 64; // align to typical cache line size
 
@@ -236,6 +238,10 @@ void OCP_QP_CREATE(struct OCP_QP_DIM *dim, struct OCP_QP *qp, void *mem)
 		(qp->idxe)[ii] = i_ptr;
 		i_ptr += nbue[ii]+nbxe[ii]+nge[ii];
 		}
+	
+	// diag_H_flag
+	qp->diag_H_flag = i_ptr;
+	i_ptr += N+1;
 
 
 	// align to typical cache line size
@@ -907,6 +913,10 @@ void OCP_QP_SET(char *field, int stage, void *value, struct OCP_QP *qp)
 	else if(hpipm_strcmp(field, "Jge"))
 		{
 		OCP_QP_SET_JGE(stage, value, qp);
+		}
+	else if(hpipm_strcmp(field, "diag_H_flag"))
+		{
+		OCP_QP_SET_DIAG_H_FLAG(stage, value, qp);
 		}
 	else
 		{
@@ -1784,6 +1794,15 @@ void OCP_QP_SET_JGE(int stage, REAL *Jge, struct OCP_QP *qp)
 			idx++;
 			}
 		}
+	return;
+	}
+
+
+
+void OCP_QP_SET_DIAG_H_FLAG(int stage, int *value, struct OCP_QP *qp)
+	{
+	qp->diag_H_flag[stage] = *value;
+
 	return;
 	}
 
