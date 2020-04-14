@@ -591,9 +591,9 @@ void OCP_QP_RESTORE_EQ_DOF(struct OCP_QP *qp, struct OCP_QP_SOL *qp_sol_red, str
 						}
 					}
 				// TODO update based on choices on reduce !!!!!!!!!!!!!
-				VECCP(ng[ii]+2*ns[ii], qp_sol_red->lam+ii, nb_red[ii], qp_sol->lam+ii, nb[ii]);
+				VECCP(ng[ii], qp_sol_red->lam+ii, nb_red[ii], qp_sol->lam+ii, nb[ii]);
 				VECCP(ng[ii]+2*ns[ii], qp_sol_red->lam+ii, 2*nb_red[ii]+ng_red[ii], qp_sol->lam+ii, 2*nb[ii]+ng[ii]);
-				VECCP(ng[ii]+2*ns[ii], qp_sol_red->t+ii, nb_red[ii], qp_sol->t+ii, nb[ii]);
+				VECCP(ng[ii], qp_sol_red->t+ii, nb_red[ii], qp_sol->t+ii, nb[ii]);
 				VECCP(ng[ii]+2*ns[ii], qp_sol_red->t+ii, 2*nb_red[ii]+ng_red[ii], qp_sol->t+ii, 2*nb[ii]+ng[ii]);
 				// update lam_lb for removed eq, keep lam_ub to zero
 				VECCP(nu[ii]+nx[ii], qp->rqz+ii, 0, work->tmp_nuxM, 0);
