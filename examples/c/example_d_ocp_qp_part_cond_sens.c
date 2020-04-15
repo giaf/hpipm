@@ -196,9 +196,9 @@ int main()
 	struct d_part_cond_qp_arg part_cond_arg;
 	d_part_cond_qp_arg_create(dim2.N, &part_cond_arg, part_cond_arg_mem);
 
-	d_part_cond_qp_arg_set_default(dim2.N, &part_cond_arg);
+	d_part_cond_qp_arg_set_default(&part_cond_arg);
 
-//	d_part_cond_qp_set_ric_alg(0, dim2.N, &part_cond_arg);
+//	d_part_cond_qp_set_ric_alg(0, &part_cond_arg);
 
 /************************************************
 * ipm arg

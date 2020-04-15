@@ -238,6 +238,8 @@ void PART_COND_QCQP_ARG_CREATE(int N2, struct PART_COND_QCQP_ARG *part_cond_arg,
 
 		}
 
+	part_cond_arg->N2 = N2;
+
 	part_cond_arg->memsize = PART_COND_QCQP_ARG_MEMSIZE(N2);
 
 #if defined(RUNTIME_CHECKS)
@@ -254,10 +256,12 @@ void PART_COND_QCQP_ARG_CREATE(int N2, struct PART_COND_QCQP_ARG *part_cond_arg,
 
 
 
-void PART_COND_QCQP_ARG_SET_DEFAULT(int N2, struct PART_COND_QCQP_ARG *part_cond_arg)
+void PART_COND_QCQP_ARG_SET_DEFAULT(struct PART_COND_QCQP_ARG *part_cond_arg)
 	{
 
 	int ii;
+
+	int N2 = part_cond_arg->N2;
 
 	for(ii=0; ii<=N2; ii++)
 		{
@@ -275,10 +279,12 @@ void PART_COND_QCQP_ARG_SET_DEFAULT(int N2, struct PART_COND_QCQP_ARG *part_cond
 
 
 
-void PART_COND_QCQP_ARG_SET_RIC_ALG(int ric_alg, int N2, struct PART_COND_QCQP_ARG *part_cond_arg)
+void PART_COND_QCQP_ARG_SET_RIC_ALG(int ric_alg, struct PART_COND_QCQP_ARG *part_cond_arg)
 	{
 
 	int ii;
+
+	int N2 = part_cond_arg->N2;
 
 	for(ii=0; ii<=N2; ii++)
 		{

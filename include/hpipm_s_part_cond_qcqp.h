@@ -55,6 +55,7 @@ extern "C" {
 struct s_part_cond_qcqp_arg
 	{
 	struct s_cond_qcqp_arg *cond_arg;
+	int N2;
 	int memsize;
 	};
 
@@ -73,9 +74,9 @@ int s_part_cond_qcqp_arg_memsize(int N2);
 //
 void s_part_cond_qcqp_arg_create(int N2, struct s_part_cond_qcqp_arg *cond_arg, void *mem);
 //
-void s_part_cond_qcqp_arg_set_default(int N2, struct s_part_cond_qcqp_arg *cond_arg);
+void s_part_cond_qcqp_arg_set_default(struct s_part_cond_qcqp_arg *cond_arg);
 // set riccati-like algorithm: 0 classical, 1 squre-root
-void s_part_cond_qcqp_arg_set_ric_alg(int ric_alg, int N2, struct s_part_cond_qcqp_arg *cond_arg);
+void s_part_cond_qcqp_arg_set_ric_alg(int ric_alg, struct s_part_cond_qcqp_arg *cond_arg);
 
 //
 void s_part_cond_qcqp_compute_block_size(int N, int N2, int *block_size);

@@ -199,6 +199,8 @@ void PART_COND_QP_ARG_CREATE(int N2, struct PART_COND_QP_ARG *part_cond_arg, voi
 		c_ptr += (part_cond_arg->cond_arg+ii)->memsize;
 
 		}
+	
+	part_cond_arg->N2 = N2;
 
 	part_cond_arg->memsize = PART_COND_QP_ARG_MEMSIZE(N2);
 
@@ -216,10 +218,12 @@ void PART_COND_QP_ARG_CREATE(int N2, struct PART_COND_QP_ARG *part_cond_arg, voi
 
 
 
-void PART_COND_QP_ARG_SET_DEFAULT(int N2, struct PART_COND_QP_ARG *part_cond_arg)
+void PART_COND_QP_ARG_SET_DEFAULT(struct PART_COND_QP_ARG *part_cond_arg)
 	{
 
 	int ii;
+
+	int N2 = part_cond_arg->N2;
 
 	for(ii=0; ii<=N2; ii++)
 		{
@@ -237,10 +241,12 @@ void PART_COND_QP_ARG_SET_DEFAULT(int N2, struct PART_COND_QP_ARG *part_cond_arg
 
 
 
-void PART_COND_QP_ARG_SET_RIC_ALG(int ric_alg, int N2, struct PART_COND_QP_ARG *part_cond_arg)
+void PART_COND_QP_ARG_SET_RIC_ALG(int ric_alg, struct PART_COND_QP_ARG *part_cond_arg)
 	{
 
 	int ii;
+
+	int N2 = part_cond_arg->N2;
 
 	for(ii=0; ii<=N2; ii++)
 		{

@@ -43,6 +43,7 @@
 #include <hpipm_d_ocp_qcqp_dim.h>
 #include <hpipm_d_ocp_qcqp.h>
 #include <hpipm_d_ocp_qcqp_sol.h>
+#include <hpipm_d_ocp_qcqp_utils.h>
 #include <hpipm_d_part_cond_qcqp.h>
 
 
@@ -267,9 +268,9 @@ int main()
 	struct d_part_cond_qcqp_arg part_cond_arg;
 	d_part_cond_qcqp_arg_create(dim2.N, &part_cond_arg, part_cond_arg_mem);
 
-	d_part_cond_qcqp_arg_set_default(dim2.N, &part_cond_arg);
+	d_part_cond_qcqp_arg_set_default(&part_cond_arg);
 
-//	d_set_cond_qcqp_ocp2ocp_arg_ric_alg(0, dim2.N, &part_cond_arg);
+//	d_part_cond_qcqp_arg_set_ric_alg(0, &part_cond_arg);
 
 /************************************************
 * ipm arg

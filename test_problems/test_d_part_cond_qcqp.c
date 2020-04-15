@@ -844,7 +844,7 @@ int main()
 
 	struct d_part_cond_qcqp_arg part_cond_arg;
 	d_part_cond_qcqp_arg_create(ocp_dim2.N, &part_cond_arg, part_cond_arg_mem);
-	d_part_cond_qcqp_arg_set_default(ocp_dim2.N, &part_cond_arg);
+	d_part_cond_qcqp_arg_set_default(&part_cond_arg);
 
 //	for(ii=0; ii<=N2; ii++)
 //		part_cond_arg.cond_arg[ii].square_root_alg = 0;
