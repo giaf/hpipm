@@ -259,6 +259,42 @@ void PART_COND_QP_ARG_SET_RIC_ALG(int ric_alg, struct PART_COND_QP_ARG *part_con
 
 
 
+void PART_COND_QP_ARG_SET_COMP_DUAL_SOL_EQ(int value, struct PART_COND_QP_ARG *part_cond_arg)
+	{
+
+	int ii;
+
+	int N2 = part_cond_arg->N2;
+
+	for(ii=0; ii<=N2; ii++)
+		{
+		COND_QP_ARG_SET_COMP_DUAL_SOL_EQ(value, part_cond_arg->cond_arg+ii);
+		}
+
+	return;
+
+	}
+
+
+
+void PART_COND_QP_ARG_SET_COMP_DUAL_SOL_INEQ(int value, struct PART_COND_QP_ARG *part_cond_arg)
+	{
+
+	int ii;
+
+	int N2 = part_cond_arg->N2;
+
+	for(ii=0; ii<=N2; ii++)
+		{
+		COND_QP_ARG_SET_COMP_DUAL_SOL_INEQ(value, part_cond_arg->cond_arg+ii);
+		}
+
+	return;
+
+	}
+
+
+
 int PART_COND_QP_WS_MEMSIZE(struct OCP_QP_DIM *ocp_dim, int *block_size, struct OCP_QP_DIM *part_dense_dim, struct PART_COND_QP_ARG *part_cond_arg)
 	{
 

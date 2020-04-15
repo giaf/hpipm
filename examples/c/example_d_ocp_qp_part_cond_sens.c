@@ -198,7 +198,8 @@ int main()
 
 	d_part_cond_qp_arg_set_default(&part_cond_arg);
 
-//	d_part_cond_qp_set_ric_alg(0, &part_cond_arg);
+//	d_part_cond_qp_arg_set_ric_alg(0, &part_cond_arg);
+//	d_part_cond_qp_arg_set_comp_dual_sol_eq(0, &part_cond_arg);
 
 /************************************************
 * ipm arg
