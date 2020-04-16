@@ -652,7 +652,7 @@ void OCP_QP_CODEGEN(char *file_name, char *mode, struct OCP_QP_DIM *dim, struct 
 			{
 			if(qp->idxb[nn][jj]<nu[nn])
 				{
-				fprintf(file, "%18.15e, ", BLASFEO_DVECEL(qp->d+nn, jj));
+				fprintf(file, "%18.15e, ", BLASFEO_DVECEL(qp->d_mask+nn, jj));
 				}
 			}
 		fprintf(file, "};\n");
@@ -716,7 +716,7 @@ void OCP_QP_CODEGEN(char *file_name, char *mode, struct OCP_QP_DIM *dim, struct 
 			{
 			if(qp->idxb[nn][jj]<nu[nn])
 				{
-				fprintf(file, "%18.15e, ", -BLASFEO_DVECEL(qp->d+nn, nb[nn]+ng[nn]+jj));
+				fprintf(file, "%18.15e, ", BLASFEO_DVECEL(qp->d_mask+nn, nb[nn]+ng[nn]+jj));
 				}
 			}
 		fprintf(file, "};\n");
@@ -800,7 +800,7 @@ void OCP_QP_CODEGEN(char *file_name, char *mode, struct OCP_QP_DIM *dim, struct 
 			{
 			if(qp->idxb[nn][jj]>=nu[nn])
 				{
-				fprintf(file, "%18.15e, ", BLASFEO_DVECEL(qp->d+nn, jj));
+				fprintf(file, "%18.15e, ", BLASFEO_DVECEL(qp->d_mask+nn, jj));
 				}
 			}
 		fprintf(file, "};\n");
@@ -864,7 +864,7 @@ void OCP_QP_CODEGEN(char *file_name, char *mode, struct OCP_QP_DIM *dim, struct 
 			{
 			if(qp->idxb[nn][jj]>=nu[nn])
 				{
-				fprintf(file, "%18.15e, ", -BLASFEO_DVECEL(qp->d+nn, nb[nn]+ng[nn]+jj));
+				fprintf(file, "%18.15e, ", BLASFEO_DVECEL(qp->d_mask+nn, nb[nn]+ng[nn]+jj));
 				}
 			}
 		fprintf(file, "};\n");
@@ -995,7 +995,7 @@ void OCP_QP_CODEGEN(char *file_name, char *mode, struct OCP_QP_DIM *dim, struct 
 #endif
 		for(jj=0; jj<ng[nn]; jj++)
 			{
-			fprintf(file, "%18.15e, ", BLASFEO_DVECEL(qp->d+nn, nb[nn]+jj));
+			fprintf(file, "%18.15e, ", BLASFEO_DVECEL(qp->d_mask+nn, nb[nn]+jj));
 			}
 		fprintf(file, "};\n");
 		}
@@ -1053,7 +1053,7 @@ void OCP_QP_CODEGEN(char *file_name, char *mode, struct OCP_QP_DIM *dim, struct 
 #endif
 		for(jj=0; jj<ng[nn]; jj++)
 			{
-			fprintf(file, "%18.15e, ", -BLASFEO_DVECEL(qp->d+nn, 2*nb[nn]+ng[nn]+jj));
+			fprintf(file, "%18.15e, ", BLASFEO_DVECEL(qp->d_mask+nn, 2*nb[nn]+ng[nn]+jj));
 			}
 		fprintf(file, "};\n");
 		}
