@@ -160,6 +160,17 @@ void COND_QP_ARG_SET_COND_LAST_STAGE(int cond_last_stage, struct COND_QP_ARG *co
 
 
 
+void COND_QP_ARG_SET_COMP_PRIM_SOL(int value, struct COND_QP_ARG *cond_arg)
+	{
+
+	cond_arg->comp_prim_sol = value;
+
+	return;
+
+	}
+
+
+
 void COND_QP_ARG_SET_COMP_DUAL_SOL_EQ(int value, struct COND_QP_ARG *cond_arg)
 	{
 

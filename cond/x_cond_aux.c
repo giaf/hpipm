@@ -1355,6 +1355,12 @@ void EXPAND_SOL(struct OCP_QP *ocp_qp, struct DENSE_QP_SOL *dense_qp_sol, struct
 	int nb2 = nbb;
 	int nt2 = nb2 + ng2;
 
+	REAL *ptr_ux;
+	REAL *ptr_vc = vc->pa;
+	int is = 0;
+	int nx0, nu0, nb0, ng0, ns0;
+	int idxb0;
+
 	// primal solution
 prim_sol:
 
@@ -1380,23 +1386,22 @@ prim_sol:
 		GEMV_T(nu[ii]+nx[ii], nx[ii+1], 1.0, BAbt+ii, 0, 0, ux+ii, 0, 1.0, b+ii, 0, ux+(ii+1), nu[ii+1]);
 		}
 	
-	if(cond_arg->comp_dual_sol_ineq==0)
+//	if(cond_arg->comp_dual_sol_ineq==0)
+//		{
+	// slack variables
+	is = 0;
+	// all box first XXX this keeps the same order as in cond !!!
+	for(ii=0; ii<=N; ii++)
 		{
-		REAL *ptr_ux;
-		REAL *ptr_vc = vc->pa;
-		int is = 0;
-		int nx0, nu0, nb0, ng0, ns0;
-
-		// slack variables
-		for(ii=0; ii<=N; ii++)
+		ns0 = ns[N-ii];
+		if(ns0>0)
 			{
 			nx0 = nx[N-ii];
 			nu0 = nu[N-ii];
 			nb0 = nb[N-ii];
 			ng0 = ng[N-ii];
-			ns0 = ns[N-ii];
 			ptr_ux = (ux+N-ii)->pa;
-			for(jj=0; jj<nb0+ng0; jj++)
+			for(jj=0; jj<nb0; jj++)
 				{
 				idx = idxs_rev[N-ii][jj];
 				if(idx>=0)
@@ -1407,10 +1412,35 @@ prim_sol:
 					}
 				}
 			}
-
-		goto dual_sol_eq;
 		}
-	
+	// all general after XXX this keeps the same order as in cond !!!
+	for(ii=0; ii<=N; ii++)
+		{
+		ns0 = ns[N-ii];
+		if(ns0>0)
+			{
+			nx0 = nx[N-ii];
+			nu0 = nu[N-ii];
+			nb0 = nb[N-ii];
+			ng0 = ng[N-ii];
+			ptr_ux = (ux+N-ii)->pa;
+			for(jj=nb0; jj<nb0+ng0; jj++)
+				{
+				idx = idxs_rev[N-ii][jj];
+				if(idx>=0)
+					{
+					ptr_ux[nu0+nx0+idx] = ptr_vc[nu2+nx2+is];
+					ptr_ux[nu0+nx0+ns0+idx] = ptr_vc[nu2+nx2+ns2+is];
+					is++;
+					}
+				}
+			}
+		}
+
+//		goto dual_sol_eq;
+//		}
+
+
 	// dual variables + slacks
 dual_sol_ineq:
 
@@ -1443,11 +1473,6 @@ dual_sol_ineq:
 	REAL *ptr_t_ubc = tc->pa+nb2+ng2;
 	REAL *ptr_t_lgc = tc->pa+nb2;
 	REAL *ptr_t_ugc = tc->pa+2*nb2+ng2;
-	REAL *ptr_ux;
-	REAL *ptr_vc = vc->pa;
-	int is = 0;
-	int nx0, nu0, nb0, ng0, ns0;
-	int idxb0, idxg0;
 
 	// box constraints
 	// final stages
@@ -1532,55 +1557,62 @@ dual_sol_ineq:
 	ngg += ng0;
 	
 	// soft constraints
+	is = 0;
 	// all box first XXX this keeps the same order as in cond !!!
 	for(ii=0; ii<=N; ii++)
 		{
-		nx0 = nx[N-ii];
-		nu0 = nu[N-ii];
-		nb0 = nb[N-ii];
-		ng0 = ng[N-ii];
 		ns0 = ns[N-ii];
-		ptr_ux = (ux+N-ii)->pa;
-		ptr_lam = (lam+N-ii)->pa;
-		ptr_t = (t+N-ii)->pa;
-		for(jj=0; jj<nb0; jj++)
+		if(ns0>0)
 			{
-			idx = idxs_rev[N-ii][jj];
-			if(idx>=0)
+	//		nx0 = nx[N-ii];
+	//		nu0 = nu[N-ii];
+			nb0 = nb[N-ii];
+			ng0 = ng[N-ii];
+			ptr_ux = (ux+N-ii)->pa;
+			ptr_lam = (lam+N-ii)->pa;
+			ptr_t = (t+N-ii)->pa;
+			for(jj=0; jj<nb0; jj++)
 				{
-				ptr_lam[2*nb0+2*ng0+idx]     = ptr_lamc[2*nb2+2*ng2+is];
-				ptr_lam[2*nb0+2*ng0+ns0+idx] = ptr_lamc[2*nb2+2*ng2+ns2+is];
-				ptr_t[2*nb0+2*ng0+idx]     = ptr_tc[2*nb2+2*ng2+is];
-				ptr_t[2*nb0+2*ng0+ns0+idx] = ptr_tc[2*nb2+2*ng2+ns2+is];
-				ptr_ux[nu0+nx0+idx] = ptr_vc[nu2+nx2+is];
-				ptr_ux[nu0+nx0+ns0+idx] = ptr_vc[nu2+nx2+ns2+is];
-				is++;
+				idx = idxs_rev[N-ii][jj];
+				if(idx>=0)
+					{
+					ptr_lam[2*nb0+2*ng0+idx]     = ptr_lamc[2*nb2+2*ng2+is];
+					ptr_lam[2*nb0+2*ng0+ns0+idx] = ptr_lamc[2*nb2+2*ng2+ns2+is];
+					ptr_t[2*nb0+2*ng0+idx]     = ptr_tc[2*nb2+2*ng2+is];
+					ptr_t[2*nb0+2*ng0+ns0+idx] = ptr_tc[2*nb2+2*ng2+ns2+is];
+	//				ptr_ux[nu0+nx0+idx] = ptr_vc[nu2+nx2+is];
+	//				ptr_ux[nu0+nx0+ns0+idx] = ptr_vc[nu2+nx2+ns2+is];
+					is++;
+					}
 				}
 			}
 		}
 	// all general after XXX this keeps the same order as in cond !!!
 	for(ii=0; ii<=N; ii++)
 		{
-		nx0 = nx[N-ii];
-		nu0 = nu[N-ii];
-		nb0 = nb[N-ii];
-		ng0 = ng[N-ii];
 		ns0 = ns[N-ii];
-		ptr_ux = (ux+N-ii)->pa;
-		ptr_lam = (lam+N-ii)->pa;
-		ptr_t = (t+N-ii)->pa;
-		for(jj=nb0; jj<nb0+ng0; jj++)
+		if(ns0>0)
 			{
-			idx = idxs_rev[N-ii][jj];
-			if(idx>=0)
+	//		nx0 = nx[N-ii];
+	//		nu0 = nu[N-ii];
+			nb0 = nb[N-ii];
+			ng0 = ng[N-ii];
+			ptr_ux = (ux+N-ii)->pa;
+			ptr_lam = (lam+N-ii)->pa;
+			ptr_t = (t+N-ii)->pa;
+			for(jj=nb0; jj<nb0+ng0; jj++)
 				{
-				ptr_lam[2*nb0+2*ng0+idx]     = ptr_lamc[2*nb2+2*ng2+is];
-				ptr_lam[2*nb0+2*ng0+ns0+idx] = ptr_lamc[2*nb2+2*ng2+ns2+is];
-				ptr_t[2*nb0+2*ng0+idx]     = ptr_tc[2*nb2+2*ng2+is];
-				ptr_t[2*nb0+2*ng0+ns0+idx] = ptr_tc[2*nb2+2*ng2+ns2+is];
-				ptr_ux[nu0+nx0+idx] = ptr_vc[nu2+nx2+is];
-				ptr_ux[nu0+nx0+ns0+idx] = ptr_vc[nu2+nx2+ns2+is];
-				is++;
+				idx = idxs_rev[N-ii][jj];
+				if(idx>=0)
+					{
+					ptr_lam[2*nb0+2*ng0+idx]     = ptr_lamc[2*nb2+2*ng2+is];
+					ptr_lam[2*nb0+2*ng0+ns0+idx] = ptr_lamc[2*nb2+2*ng2+ns2+is];
+					ptr_t[2*nb0+2*ng0+idx]     = ptr_tc[2*nb2+2*ng2+is];
+					ptr_t[2*nb0+2*ng0+ns0+idx] = ptr_tc[2*nb2+2*ng2+ns2+is];
+	//				ptr_ux[nu0+nx0+idx] = ptr_vc[nu2+nx2+is];
+	//				ptr_ux[nu0+nx0+ns0+idx] = ptr_vc[nu2+nx2+ns2+is];
+					is++;
+					}
 				}
 			}
 		}

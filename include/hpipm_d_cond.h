@@ -98,6 +98,8 @@ void d_cond_qp_arg_set_ric_alg(int ric_alg, struct d_cond_qp_arg *cond_arg);
 // condense last stage: 0 last stage disregarded, 1 last stage condensed too
 void d_cond_qp_arg_set_cond_last_stage(int cond_last_stage, struct d_cond_qp_arg *cond_arg);
 //
+void d_cond_qp_arg_set_comp_prim_sol(int value, struct d_cond_qp_arg *cond_arg);
+//
 void d_cond_qp_arg_set_comp_dual_sol_eq(int value, struct d_cond_qp_arg *cond_arg);
 //
 void d_cond_qp_arg_set_comp_dual_sol_ineq(int value, struct d_cond_qp_arg *cond_arg);

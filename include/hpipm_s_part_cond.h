@@ -79,6 +79,8 @@ void s_part_cond_qp_arg_set_default(struct s_part_cond_qp_arg *cond_arg);
 // set riccati-like algorithm: 0 classical, 1 squre-root
 void s_part_cond_qp_arg_set_ric_alg(int ric_alg, struct s_part_cond_qp_arg *cond_arg);
 //
+void s_part_cond_qp_arg_set_comp_prim_sol(int value, struct s_part_cond_qp_arg *cond_arg);
+//
 void s_part_cond_qp_arg_set_comp_dual_sol_eq(int value, struct s_part_cond_qp_arg *cond_arg);
 //
 void s_part_cond_qp_arg_set_comp_dual_sol_ineq(int value, struct s_part_cond_qp_arg *cond_arg);
