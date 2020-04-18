@@ -70,7 +70,7 @@ void OCP_QP_IPM_ARG_SET_DEFAULT(enum HPIPM_MODE mode, struct OCP_QP_IPM_ARG *arg
 	{
 
 	REAL mu0, alpha_min, res_g_max, res_b_max, res_d_max, res_m_max, reg_prim, lam_min, t_min, tau_min;
-	int iter_max, stat_max, pred_corr, cond_pred_corr, itref_pred_max, itref_corr_max, lq_fact, warm_start, abs_form, comp_res_exit, comp_res_pred, square_root_alg, comp_dual_sol, split_step, var_init_scheme;
+	int iter_max, stat_max, pred_corr, cond_pred_corr, itref_pred_max, itref_corr_max, lq_fact, warm_start, abs_form, comp_res_exit, comp_res_pred, square_root_alg, comp_dual_sol_eq, split_step, var_init_scheme;
 
 	if(mode==SPEED_ABS)
 		{
@@ -94,7 +94,7 @@ void OCP_QP_IPM_ARG_SET_DEFAULT(enum HPIPM_MODE mode, struct OCP_QP_IPM_ARG *arg
 		tau_min = 1e-16;
 		warm_start = 0;
 		abs_form = 1;
-		comp_dual_sol = 0;
+		comp_dual_sol_eq = 0;
 		comp_res_exit = 0;
 		comp_res_pred = 0;
 		split_step = 1;
@@ -122,7 +122,7 @@ void OCP_QP_IPM_ARG_SET_DEFAULT(enum HPIPM_MODE mode, struct OCP_QP_IPM_ARG *arg
 		tau_min = 1e-16;
 		warm_start = 0;
 		abs_form = 0;
-		comp_dual_sol = 1;
+		comp_dual_sol_eq = 1;
 		comp_res_exit = 1;
 		comp_res_pred = 1;
 		split_step = 1;
@@ -150,7 +150,7 @@ void OCP_QP_IPM_ARG_SET_DEFAULT(enum HPIPM_MODE mode, struct OCP_QP_IPM_ARG *arg
 		tau_min = 1e-16;
 		warm_start = 0;
 		abs_form = 0;
-		comp_dual_sol = 1;
+		comp_dual_sol_eq = 1;
 		comp_res_exit = 1;
 		comp_res_pred = 1;
 		split_step = 0;
@@ -178,7 +178,7 @@ void OCP_QP_IPM_ARG_SET_DEFAULT(enum HPIPM_MODE mode, struct OCP_QP_IPM_ARG *arg
 		tau_min = 1e-16;
 		warm_start = 0;
 		abs_form = 0;
-		comp_dual_sol = 1;
+		comp_dual_sol_eq = 1;
 		comp_res_exit = 1;
 		comp_res_pred = 1;
 		split_step = 0;
@@ -211,6 +211,7 @@ void OCP_QP_IPM_ARG_SET_DEFAULT(enum HPIPM_MODE mode, struct OCP_QP_IPM_ARG *arg
 	OCP_QP_IPM_ARG_SET_TAU_MIN(&tau_min, arg);
 	OCP_QP_IPM_ARG_SET_WARM_START(&warm_start, arg);
 	arg->abs_form = abs_form;
+	OCP_QP_IPM_ARG_SET_COMP_DUAL_SOL_EQ(&comp_dual_sol_eq, arg);
 	OCP_QP_IPM_ARG_SET_COMP_RES_PRED(&comp_res_pred, arg);
 	OCP_QP_IPM_ARG_SET_COMP_RES_EXIT(&comp_res_pred, arg);
 	OCP_QP_IPM_ARG_SET_SPLIT_STEP(&split_step, arg);
@@ -272,6 +273,10 @@ void OCP_QP_IPM_ARG_SET(char *field, void *value, struct OCP_QP_IPM_ARG *arg)
 	else if(hpipm_strcmp(field, "ric_alg")) 
 		{
 		OCP_QP_IPM_ARG_SET_RIC_ALG(value, arg);
+		}
+	else if(hpipm_strcmp(field, "comp_dual_sol_eq")) 
+		{
+		OCP_QP_IPM_ARG_SET_COMP_DUAL_SOL_EQ(value, arg);
 		}
 	else if(hpipm_strcmp(field, "comp_res_exit")) 
 		{
@@ -407,11 +412,19 @@ void OCP_QP_IPM_ARG_SET_RIC_ALG(int *ric_alg, struct OCP_QP_IPM_ARG *arg)
 
 
 
+void OCP_QP_IPM_ARG_SET_COMP_DUAL_SOL_EQ(int *value, struct OCP_QP_IPM_ARG *arg)
+	{
+	arg->comp_dual_sol_eq = *value;
+	return;
+	}
+
+
+
 void OCP_QP_IPM_ARG_SET_COMP_RES_EXIT(int *comp_res_exit, struct OCP_QP_IPM_ARG *arg)
 	{
 	arg->comp_res_exit = *comp_res_exit;
 	if(*comp_res_exit!=0)
-		arg->comp_dual_sol = 1;
+		arg->comp_dual_sol_eq = 1;
 	return;
 	}
 
@@ -2518,7 +2531,7 @@ void OCP_QP_IPM_SOLVE(struct OCP_QP *qp, struct OCP_QP_SOL *qp_sol, struct OCP_Q
 
 			}
 
-		if(arg->comp_res_exit & arg->comp_dual_sol)
+		if(arg->comp_res_exit & arg->comp_dual_sol_eq)
 			{
 			// compute residuals
 			OCP_QP_RES_COMPUTE(qp, qp_sol, ws->res, ws->res_workspace);
@@ -2694,7 +2707,7 @@ void OCP_QP_IPM_PREDICT(struct OCP_QP *qp, struct OCP_QP_SOL *qp_sol, struct OCP
 		ws->use_Pb = 0;
 		SOLVE_KKT_STEP_OCP_QP(qp, qp_sol, arg, ws);
 
-		if(arg->comp_res_exit & arg->comp_dual_sol)
+		if(arg->comp_res_exit & arg->comp_dual_sol_eq)
 			{
 			// blasfeo alias for residuals
 			struct STRVEC str_res_g;

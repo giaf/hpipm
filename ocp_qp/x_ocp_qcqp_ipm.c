@@ -109,7 +109,7 @@ void OCP_QCQP_IPM_ARG_SET_DEFAULT(enum HPIPM_MODE mode, struct OCP_QCQP_IPM_ARG 
 	OCP_QP_IPM_ARG_SET_DEFAULT(mode, arg->qp_arg);
 
 	REAL mu0, alpha_min, res_g_max, res_b_max, res_d_max, res_m_max, reg_prim, lam_min, t_min;
-	int iter_max, stat_max, pred_corr, cond_pred_corr, itref_pred_max, itref_corr_max, lq_fact, warm_start, abs_form, comp_res_exit, comp_res_pred, square_root_alg, comp_dual_sol, split_step;
+	int iter_max, stat_max, pred_corr, cond_pred_corr, itref_pred_max, itref_corr_max, lq_fact, warm_start, abs_form, comp_res_exit, comp_res_pred, square_root_alg, comp_dual_sol_eq, split_step;
 
 	if(mode==SPEED_ABS)
 		{
@@ -132,7 +132,7 @@ void OCP_QCQP_IPM_ARG_SET_DEFAULT(enum HPIPM_MODE mode, struct OCP_QCQP_IPM_ARG 
 		t_min = 1e-16;
 		warm_start = 0;
 		abs_form = 1;
-		comp_dual_sol = 0;
+		comp_dual_sol_eq = 0;
 		comp_res_exit = 0;
 		comp_res_pred = 0;
 		split_step = 1;
@@ -158,7 +158,7 @@ void OCP_QCQP_IPM_ARG_SET_DEFAULT(enum HPIPM_MODE mode, struct OCP_QCQP_IPM_ARG 
 		t_min = 1e-16;
 		warm_start = 0;
 		abs_form = 0;
-		comp_dual_sol = 1;
+		comp_dual_sol_eq = 1;
 		comp_res_exit = 1;
 		comp_res_pred = 1;
 		split_step = 1;
@@ -184,7 +184,7 @@ void OCP_QCQP_IPM_ARG_SET_DEFAULT(enum HPIPM_MODE mode, struct OCP_QCQP_IPM_ARG 
 		t_min = 1e-16;
 		warm_start = 0;
 		abs_form = 0;
-		comp_dual_sol = 1;
+		comp_dual_sol_eq = 1;
 		comp_res_exit = 1;
 		comp_res_pred = 1;
 		split_step = 0;
@@ -210,7 +210,7 @@ void OCP_QCQP_IPM_ARG_SET_DEFAULT(enum HPIPM_MODE mode, struct OCP_QCQP_IPM_ARG 
 		t_min = 1e-16;
 		warm_start = 0;
 		abs_form = 0;
-		comp_dual_sol = 1;
+		comp_dual_sol_eq = 1;
 		comp_res_exit = 1;
 		comp_res_pred = 1;
 		split_step = 0;
@@ -444,7 +444,7 @@ void OCP_QCQP_IPM_ARG_SET_COMP_RES_EXIT(int *value, struct OCP_QCQP_IPM_ARG *arg
 	{
 	arg->comp_res_exit = *value;
 	if(*value!=0)
-		arg->comp_dual_sol = 1;
+		arg->comp_dual_sol_eq = 1;
 	OCP_QP_IPM_ARG_SET_COMP_RES_EXIT(value, arg->qp_arg);
 	return;
 	}
@@ -1659,7 +1659,7 @@ void OCP_QCQP_IPM_SOLVE(struct OCP_QCQP *qcqp, struct OCP_QCQP_SOL *qcqp_sol, st
 
 			}
 
-		if(qp_arg->comp_res_exit & qp_arg->comp_dual_sol)
+		if(qp_arg->comp_res_exit & qp_arg->comp_dual_sol_eq)
 			{
 			// compute residuals
 			OCP_QCQP_RES_COMPUTE(qcqp, qcqp_sol, qcqp_res, qcqp_res_ws);

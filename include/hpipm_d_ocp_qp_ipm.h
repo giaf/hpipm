@@ -77,8 +77,8 @@ struct d_ocp_qp_ipm_arg
 	int square_root_alg; // 0 classical Riccati, 1 square-root Riccati
 	int lq_fact; // 0 syrk+potrf, 1 mix, 2 lq (for square_root_alg==1)
 	int abs_form; // absolute IPM formulation
-	int comp_dual_sol; // dual solution (only for abs_form==1)
-	int comp_res_exit; // compute residuals on exit (only for abs_form==1 and comp_dual_sol==1)
+	int comp_dual_sol_eq; // dual solution of equality constraints (only for abs_form==1)
+	int comp_res_exit; // compute residuals on exit (only for abs_form==1 and comp_dual_sol_eq==1)
 	int comp_res_pred; // compute residuals of prediction
 	int split_step; // use different steps for primal and dual variables
 	int var_init_scheme; // variables initialization scheme
@@ -169,6 +169,8 @@ void d_ocp_qp_ipm_arg_set_pred_corr(int *pred_corr, struct d_ocp_qp_ipm_arg *arg
 void d_ocp_qp_ipm_arg_set_cond_pred_corr(int *value, struct d_ocp_qp_ipm_arg *arg);
 // set riccati algorithm: 0 classic, 1 square-root
 void d_ocp_qp_ipm_arg_set_ric_alg(int *value, struct d_ocp_qp_ipm_arg *arg);
+// dual solution of equality constraints (only for abs_form==1)
+void d_ocp_qp_ipm_arg_set_comp_dual_sol_eq(int *value, struct d_ocp_qp_ipm_arg *arg);
 // compute residuals after solution
 void d_ocp_qp_ipm_arg_set_comp_res_exit(int *value, struct d_ocp_qp_ipm_arg *arg);
 // compute residuals of prediction

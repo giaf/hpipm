@@ -96,7 +96,7 @@ void FACT_SOLVE_KKT_UNCONSTR_OCP_QP(struct OCP_QP *qp, struct OCP_QP_SOL *qp_sol
 		VECCP(nx[ii+1], tmp_nuxM, 0, l+ii+1, nu[ii+1]); // TODO remove tmp_nuxM and use l instead !!!!!
 		TRSV_LTN(nu[ii]+nx[ii], L+ii, 0, 0, ux+ii, 0, ux+ii, 0);
 		GEMV_T(nu[ii]+nx[ii], nx[ii+1], 1.0, BAbt+ii, 0, 0, ux+ii, 0, 1.0, b+ii, 0, ux+ii+1, nu[ii+1]);
-		if(arg->comp_dual_sol)
+		if(arg->comp_dual_sol_eq)
 			{
 			TRMV_LTN(nx[ii+1], nx[ii+1], L+(ii+1), nu[ii+1], nu[ii+1], ux+(ii+1), nu[ii+1], pi+ii, 0);
 			AXPY(nx[ii+1], 1.0, tmp_nuxM, 0, pi+ii, 0, pi+ii, 0);
@@ -112,7 +112,7 @@ void FACT_SOLVE_KKT_UNCONSTR_OCP_QP(struct OCP_QP *qp, struct OCP_QP_SOL *qp_sol
 			VECCP(nx[ii+1], tmp_nuxM, 0, l+ii+1, nu[ii+1]); // TODO remove tmp_nuxM and use l instead !!!!!
 			TRSV_LTN_MN(nu[ii]+nx[ii], nu[ii], L+ii, 0, 0, ux+ii, 0, ux+ii, 0);
 			GEMV_T(nu[ii]+nx[ii], nx[ii+1], 1.0, BAbt+ii, 0, 0, ux+ii, 0, 1.0, b+ii, 0, ux+(ii+1), nu[ii+1]);
-			if(arg->comp_dual_sol)
+			if(arg->comp_dual_sol_eq)
 				{
 				TRMV_LTN(nx[ii+1], nx[ii+1], L+(ii+1), nu[ii+1], nu[ii+1], ux+(ii+1), nu[ii+1], pi+ii, 0);
 				AXPY(nx[ii+1], 1.0, tmp_nuxM, 0, pi+ii, 0, pi+ii, 0);
@@ -183,7 +183,7 @@ void FACT_SOLVE_KKT_UNCONSTR_OCP_QP(struct OCP_QP *qp, struct OCP_QP_SOL *qp_sol
 		VECCP(nx[ii+1], tmp_nuxM, 0, l+ii+1, nu[ii+1]); // TODO remove tmp_nuxM and use l instead !!!!!
 		TRSV_LTN(nu[ii]+nx[ii], L+ii, 0, 0, ux+ii, 0, ux+ii, 0);
 		GEMV_T(nu[ii]+nx[ii], nx[ii+1], 1.0, BAbt+ii, 0, 0, ux+ii, 0, 1.0, b+ii, 0, ux+ii+1, nu[ii+1]);
-		if(arg->comp_dual_sol)
+		if(arg->comp_dual_sol_eq)
 			{
 			GEMV_N(nx[ii+1], nx[ii+1], 1.0, P+ii+1, 0, 0, ux+ii+1, nu[ii+1], 1.0, tmp_nuxM, 0, pi+ii, 0);
 			}
@@ -197,7 +197,7 @@ void FACT_SOLVE_KKT_UNCONSTR_OCP_QP(struct OCP_QP *qp, struct OCP_QP_SOL *qp_sol
 			VECCP(nx[ii+1], tmp_nuxM, 0, l+ii+1, nu[ii+1]); // TODO remove tmp_nuxM and use l instead !!!!!
 			TRSV_LTN_MN(nu[ii]+nx[ii], nu[ii], L+ii, 0, 0, ux+ii, 0, ux+ii, 0);
 			GEMV_T(nu[ii]+nx[ii], nx[ii+1], 1.0, BAbt+ii, 0, 0, ux+ii, 0, 1.0, b+ii, 0, ux+(ii+1), nu[ii+1]);
-			if(arg->comp_dual_sol)
+			if(arg->comp_dual_sol_eq)
 				{
 				GEMV_N(nx[ii+1], nx[ii+1], 1.0, P+ii+1, 0, 0, ux+ii+1, nu[ii+1], 1.0, tmp_nuxM, 0, pi+ii, 0);
 				}
@@ -544,7 +544,7 @@ void FACT_SOLVE_KKT_STEP_OCP_QP(struct OCP_QP *qp, struct OCP_QP_SOL *qp_sol, st
 		VECCP(nx[ss+1], tmp_nuxM, 0, l+ss+1, nu[ss+1]); // TODO remove tmp_nuxM and use l instead !!!!!
 		TRSV_LTN(nu[ss]+nx[ss], L+ss, 0, 0, dux+ss, 0, dux+ss, 0);
 		GEMV_T(nu[ss]+nx[ss], nx[ss+1], 1.0, BAbt+ss, 0, 0, dux+ss, 0, 1.0, res_b+ss, 0, dux+ss+1, nu[ss+1]);
-		if(arg->comp_dual_sol)
+		if(arg->comp_dual_sol_eq)
 			{
 			TRMV_LTN(nx[ss+1], nx[ss+1], L+ss+1, nu[ss+1], nu[ss+1], dux+ss+1, nu[ss+1], dpi+ss, 0);
 			AXPY(nx[ss+1], 1.0, tmp_nuxM, 0, dpi+ss, 0, dpi+ss, 0);
@@ -560,7 +560,7 @@ void FACT_SOLVE_KKT_STEP_OCP_QP(struct OCP_QP *qp, struct OCP_QP_SOL *qp_sol, st
 			VECCP(nx[ss+1], tmp_nuxM, 0, l+ss+1, nu[ss+1]); // TODO remove tmp_nuxM and use l instead !!!!!
 			TRSV_LTN_MN(nu[ss]+nx[ss], nu[ss], L+ss, 0, 0, dux+ss, 0, dux+ss, 0);
 			GEMV_T(nu[ss]+nx[ss], nx[ss+1], 1.0, BAbt+ss, 0, 0, dux+ss, 0, 1.0, res_b+ss, 0, dux+(ss+1), nu[ss+1]);
-			if(arg->comp_dual_sol)
+			if(arg->comp_dual_sol_eq)
 				{
 				TRMV_LTN(nx[ss+1], nx[ss+1], L+ss+1, nu[ss+1], nu[ss+1], dux+ss+1, nu[ss+1], dpi+ss, 0);
 				AXPY(nx[ss+1], 1.0, tmp_nuxM, 0, dpi+ss, 0, dpi+ss, 0);
@@ -715,7 +715,7 @@ void FACT_SOLVE_KKT_STEP_OCP_QP(struct OCP_QP *qp, struct OCP_QP_SOL *qp_sol, st
 		VECCP(nx[ss+1], tmp_nuxM, 0, l+ss+1, nu[ss+1]); // TODO remove tmp_nuxM and use l instead !!!!!
 		TRSV_LTN(nu[ss]+nx[ss], L+ss, 0, 0, dux+ss, 0, dux+ss, 0);
 		GEMV_T(nu[ss]+nx[ss], nx[ss+1], 1.0, BAbt+ss, 0, 0, dux+ss, 0, 1.0, res_b+ss, 0, dux+ss+1, nu[ss+1]);
-		if(arg->comp_dual_sol)
+		if(arg->comp_dual_sol_eq)
 			{
 			GEMV_N(nx[ss+1], nx[ss+1], 1.0, P+ss+1, 0, 0, dux+ss+1, nu[ss+1], 1.0, tmp_nuxM, 0, dpi+ss, 0);
 			}
@@ -729,7 +729,7 @@ void FACT_SOLVE_KKT_STEP_OCP_QP(struct OCP_QP *qp, struct OCP_QP_SOL *qp_sol, st
 			VECCP(nx[ss+1], tmp_nuxM, 0, l+ss+1, nu[ss+1]); // TODO remove tmp_nuxM and use l instead !!!!!
 			TRSV_LTN_MN(nu[ss]+nx[ss], nu[ss], L+ss, 0, 0, dux+ss, 0, dux+ss, 0);
 			GEMV_T(nu[ss]+nx[ss], nx[ss+1], 1.0, BAbt+ss, 0, 0, dux+ss, 0, 1.0, res_b+ss, 0, dux+(ss+1), nu[ss+1]);
-			if(arg->comp_dual_sol)
+			if(arg->comp_dual_sol_eq)
 				{
 				GEMV_N(nx[ss+1], nx[ss+1], 1.0, P+ss+1, 0, 0, dux+ss+1, nu[ss+1], 1.0, tmp_nuxM, 0, dpi+ss, 0);
 				}
@@ -1236,7 +1236,7 @@ void SOLVE_KKT_STEP_OCP_QP(struct OCP_QP *qp, struct OCP_QP_SOL *qp_sol, struct 
 
 		// first stage
 		ss = 0;
-		if(arg->comp_dual_sol)
+		if(arg->comp_dual_sol_eq)
 			{
 			VECCP(nx[ss+1], dux+ss+1, nu[ss+1], dpi+ss, 0);
 			}
@@ -1245,7 +1245,7 @@ void SOLVE_KKT_STEP_OCP_QP(struct OCP_QP *qp, struct OCP_QP_SOL *qp_sol, struct 
 		VECSC(nu[ss]+nx[ss], -1.0, dux+ss, 0);
 		TRSV_LTN(nu[ss]+nx[ss], L+ss, 0, 0, dux+ss, 0, dux+ss, 0);
 		GEMV_T(nu[ss]+nx[ss], nx[ss+1], 1.0, BAbt+ss, 0, 0, dux+ss, 0, 1.0, res_b+ss, 0, dux+ss+1, nu[ss+1]);
-		if(arg->comp_dual_sol)
+		if(arg->comp_dual_sol_eq)
 			{
 			TRMV_LTN(nx[ss+1], nx[ss+1], L+ss+1, nu[ss+1], nu[ss+1], dux+ss+1, nu[ss+1], tmp_nuxM, 0);
 			TRMV_LNN(nx[ss+1], nx[ss+1], L+ss+1, nu[ss+1], nu[ss+1], tmp_nuxM, 0, tmp_nuxM, 0);
@@ -1255,7 +1255,7 @@ void SOLVE_KKT_STEP_OCP_QP(struct OCP_QP *qp, struct OCP_QP_SOL *qp_sol, struct 
 		// middle stages
 		for(ss=1; ss<N; ss++)
 			{
-			if(arg->comp_dual_sol)
+			if(arg->comp_dual_sol_eq)
 				{
 				VECCP(nx[ss+1], dux+ss+1, nu[ss+1], dpi+ss, 0);
 				}
@@ -1264,7 +1264,7 @@ void SOLVE_KKT_STEP_OCP_QP(struct OCP_QP *qp, struct OCP_QP_SOL *qp_sol, struct 
 			VECSC(nu[ss], -1.0, dux+ss, 0);
 			TRSV_LTN_MN(nu[ss]+nx[ss], nu[ss], L+ss, 0, 0, dux+ss, 0, dux+ss, 0);
 			GEMV_T(nu[ss]+nx[ss], nx[ss+1], 1.0, BAbt+ss, 0, 0, dux+ss, 0, 1.0, res_b+ss, 0, dux+ss+1, nu[ss+1]);
-			if(arg->comp_dual_sol)
+			if(arg->comp_dual_sol_eq)
 				{
 				TRMV_LTN(nx[ss+1], nx[ss+1], L+ss+1, nu[ss+1], nu[ss+1], dux+ss+1, nu[ss+1], tmp_nuxM, 0);
 				TRMV_LNN(nx[ss+1], nx[ss+1], L+ss+1, nu[ss+1], nu[ss+1], tmp_nuxM, 0, tmp_nuxM, 0);
@@ -1380,7 +1380,7 @@ void SOLVE_KKT_STEP_OCP_QP(struct OCP_QP *qp, struct OCP_QP_SOL *qp_sol, struct 
 
 		// first stage
 		ss = 0;
-		if(arg->comp_dual_sol)
+		if(arg->comp_dual_sol_eq)
 			{
 			VECCP(nx[ss+1], dux+ss+1, nu[ss+1], dpi+ss, 0);
 			}
@@ -1389,7 +1389,7 @@ void SOLVE_KKT_STEP_OCP_QP(struct OCP_QP *qp, struct OCP_QP_SOL *qp_sol, struct 
 		VECSC(nu[ss]+nx[ss], -1.0, dux+ss, 0);
 		TRSV_LTN(nu[ss]+nx[ss], L+ss, 0, 0, dux+ss, 0, dux+ss, 0);
 		GEMV_T(nu[ss]+nx[ss], nx[ss+1], 1.0, BAbt+ss, 0, 0, dux+ss, 0, 1.0, res_b+ss, 0, dux+ss+1, nu[ss+1]);
-		if(arg->comp_dual_sol)
+		if(arg->comp_dual_sol_eq)
 			{
 			GEMV_N(nx[ss+1], nx[ss+1], 1.0, P+ss+1, 0, 0, dux+ss+1, nu[ss+1], 1.0, dpi+ss, 0, dpi+ss, 0);
 			}
@@ -1397,7 +1397,7 @@ void SOLVE_KKT_STEP_OCP_QP(struct OCP_QP *qp, struct OCP_QP_SOL *qp_sol, struct 
 		// middle stages
 		for(ss=1; ss<N; ss++)
 			{
-			if(arg->comp_dual_sol)
+			if(arg->comp_dual_sol_eq)
 				{
 				VECCP(nx[ss+1], dux+ss+1, nu[ss+1], dpi+ss, 0);
 				}
@@ -1406,7 +1406,7 @@ void SOLVE_KKT_STEP_OCP_QP(struct OCP_QP *qp, struct OCP_QP_SOL *qp_sol, struct 
 			VECSC(nu[ss], -1.0, dux+ss, 0);
 			TRSV_LTN_MN(nu[ss]+nx[ss], nu[ss], L+ss, 0, 0, dux+ss, 0, dux+ss, 0);
 			GEMV_T(nu[ss]+nx[ss], nx[ss+1], 1.0, BAbt+ss, 0, 0, dux+ss, 0, 1.0, res_b+ss, 0, dux+ss+1, nu[ss+1]);
-			if(arg->comp_dual_sol)
+			if(arg->comp_dual_sol_eq)
 				{
 				GEMV_N(nx[ss+1], nx[ss+1], 1.0, P+ss+1, 0, 0, dux+ss+1, nu[ss+1], 1.0, dpi+ss, 0, dpi+ss, 0);
 				}
