@@ -55,6 +55,8 @@ extern "C" {
 
 struct d_ocp_qp_reduce_eq_dof_arg
 	{
+	double lam_min;
+	double t_min;
 	int alias_unchanged; // do not keep copy unchanged stage
 	int comp_prim_sol; // primal solution (v)
 	int comp_dual_sol_eq; // dual solution equality constr (pi)

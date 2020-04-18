@@ -99,6 +99,8 @@ void OCP_QP_REDUCE_EQ_DOF_ARG_CREATE(struct OCP_QP_REDUCE_EQ_DOF_ARG *arg, void 
 void OCP_QP_REDUCE_EQ_DOF_ARG_SET_DEFAULT(struct OCP_QP_REDUCE_EQ_DOF_ARG *arg)
 	{
 
+	arg->lam_min = 1e-16;
+	arg->t_min = 1e-16;
 	arg->alias_unchanged = 0;
 	arg->comp_prim_sol = 1;
 	arg->comp_dual_sol_eq = 1;
@@ -578,15 +580,15 @@ void OCP_QP_RESTORE_EQ_DOF(struct OCP_QP *qp, struct OCP_QP_SOL *qp_sol_red, str
 						// lam
 						// t
 #ifdef DOUBLE_PRECISION
-						BLASFEO_DVECEL(qp_sol->lam+ii, jj) = 0.0;
-						BLASFEO_DVECEL(qp_sol->lam+ii, nb[ii]+ng[ii]+jj) = 0.0;
-						BLASFEO_DVECEL(qp_sol->t+ii, jj) = 0.0;
-						BLASFEO_DVECEL(qp_sol->t+ii, nb[ii]+ng[ii]+jj) = 0.0;
+						BLASFEO_DVECEL(qp_sol->lam+ii, jj) = arg->lam_min;
+						BLASFEO_DVECEL(qp_sol->lam+ii, nb[ii]+ng[ii]+jj) = arg->lam_min;
+						BLASFEO_DVECEL(qp_sol->t+ii, jj) = arg->t_min;
+						BLASFEO_DVECEL(qp_sol->t+ii, nb[ii]+ng[ii]+jj) = arg->t_min;
 #else
-						BLASFEO_SVECEL(qp_sol->lam+ii, jj) = 0.0;
-						BLASFEO_SVECEL(qp_sol->lam+ii, nb[ii]+ng[ii]+jj) = 0.0;
-						BLASFEO_SVECEL(qp_sol->t+ii, jj) = 0.0;
-						BLASFEO_SVECEL(qp_sol->t+ii, nb[ii]+ng[ii]+jj) = 0.0;
+						BLASFEO_SVECEL(qp_sol->lam+ii, jj) = arg->lam_min;
+						BLASFEO_SVECEL(qp_sol->lam+ii, nb[ii]+ng[ii]+jj) = arg->lam_min;
+						BLASFEO_SVECEL(qp_sol->t+ii, jj) = arg->t_min;
+						BLASFEO_SVECEL(qp_sol->t+ii, nb[ii]+ng[ii]+jj) = arg->t_min;
 #endif
 						}
 					}
