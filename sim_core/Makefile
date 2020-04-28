@@ -42,8 +42,12 @@ ifeq ($(TARGET), GENERIC)
 OBJS +=
 endif
 
+# double
 OBJS += d_sim_rk.o
 OBJS += d_sim_erk.o
+#single
+OBJS += s_sim_rk.o
+OBJS += s_sim_erk.o
 
 obj: $(OBJS)
 

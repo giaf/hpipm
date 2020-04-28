@@ -32,21 +32,23 @@
 #include <stdlib.h>
 #include <stdio.h>
 
-#include <hpipm_d_sim_rk.h>
+#include <hpipm_s_sim_rk.h>
 #include <hpipm_aux_string.h>
 
 
 
-#define REAL double
-#define SIM_RK_DATA d_sim_rk_data
+#define REAL float
+#define SIM_RK_DATA s_sim_rk_data
 
 
 
-#define SIM_RK_DATA_MEMSIZE d_sim_rk_data_memsize
-#define SIM_RK_DATA_CREATE d_sim_rk_data_create
-#define SIM_RK_DATA_INIT_DEFAULT d_sim_rk_data_init_default
-#define SIM_RK_DATA_SET_ALL d_sim_rk_data_set_all
+#define SIM_RK_DATA_MEMSIZE s_sim_rk_data_memsize
+#define SIM_RK_DATA_CREATE s_sim_rk_data_create
+#define SIM_RK_DATA_INIT_DEFAULT s_sim_rk_data_init_default
+#define SIM_RK_DATA_SET_ALL s_sim_rk_data_set_all
 
 
 
 #include "x_sim_rk.c"
+
+

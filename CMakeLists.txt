@@ -267,6 +267,7 @@ file(GLOB OCP_QP_SRC
 	)
 # tree qp
 file(GLOB TREE_OCP_QP_SRC
+	# double
 	${PROJECT_SOURCE_DIR}/tree_ocp_qp/scenario_tree.c
 	${PROJECT_SOURCE_DIR}/tree_ocp_qp/d_tree_ocp_qp.c
 	${PROJECT_SOURCE_DIR}/tree_ocp_qp/d_tree_ocp_qp_dim.c
@@ -274,6 +275,7 @@ file(GLOB TREE_OCP_QP_SRC
 	${PROJECT_SOURCE_DIR}/tree_ocp_qp/d_tree_ocp_qp_kkt.c
 	${PROJECT_SOURCE_DIR}/tree_ocp_qp/d_tree_ocp_qp_ipm.c
 	${PROJECT_SOURCE_DIR}/tree_ocp_qp/d_tree_ocp_qp_res.c
+	# single
 	${PROJECT_SOURCE_DIR}/tree_ocp_qp/s_tree_ocp_qp.c
 	${PROJECT_SOURCE_DIR}/tree_ocp_qp/s_tree_ocp_qp_dim.c
 	${PROJECT_SOURCE_DIR}/tree_ocp_qp/s_tree_ocp_qp_sol.c
@@ -286,6 +288,15 @@ file(GLOB AUXILIARY_SRC
 	${PROJECT_SOURCE_DIR}/auxiliary/aux_string.c
 	${PROJECT_SOURCE_DIR}/auxiliary/aux_mem.c
 	${PROJECT_SOURCE_DIR}/auxiliary/timing.c
+	)
+# auxiliary
+file(GLOB SIM_SRC
+	# double
+	${PROJECT_SOURCE_DIR}/sim_core/d_sim_rk.c
+	${PROJECT_SOURCE_DIR}/sim_core/d_sim_erk.c
+	# single
+	${PROJECT_SOURCE_DIR}/sim_core/s_sim_rk.c
+	${PROJECT_SOURCE_DIR}/sim_core/s_sim_erk.c
 	)
 
 set(HPIPM_SRC ${COND_SRC} ${DENSE_QP_SRC} ${IPM_CORE_SRC} ${OCP_QP_SRC} ${TREE_OCP_QP_SRC} ${AUXILIARY_SRC})

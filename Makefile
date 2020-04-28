@@ -150,8 +150,12 @@ OBJS += ocp_qp/s_ocp_qcqp_utils.o
 #OBJS += ocp_qp/m_ocp_qp.o                       ocp_qp/m_ocp_qp_kkt.o ocp_qp/m_ocp_qp_ipm.o
 
 # sim core
+# double
 OBJS += sim_core/d_sim_rk.o
 OBJS += sim_core/d_sim_erk.o
+# single
+OBJS += sim_core/s_sim_rk.o
+OBJS += sim_core/s_sim_erk.o
 #OBJS +=
 
 # tree ocp qp
