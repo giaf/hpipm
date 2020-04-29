@@ -156,7 +156,7 @@ void OCP_QP_REDUCE_EQ_DOF_ARG_SET_COMP_DUAL_SOL_INEQ(struct OCP_QP_REDUCE_EQ_DOF
 
 
 
-int OCP_QP_REDUCE_EQ_DOF_WORK_MEMSIZE(struct OCP_QP_DIM *dim)
+int OCP_QP_REDUCE_EQ_DOF_WS_MEMSIZE(struct OCP_QP_DIM *dim)
 	{
 
 	int ii;
@@ -195,13 +195,13 @@ int OCP_QP_REDUCE_EQ_DOF_WORK_MEMSIZE(struct OCP_QP_DIM *dim)
 
 
 
-void OCP_QP_REDUCE_EQ_DOF_WORK_CREATE(struct OCP_QP_DIM *dim, struct OCP_QP_REDUCE_EQ_DOF_WORK *work, void *mem)
+void OCP_QP_REDUCE_EQ_DOF_WS_CREATE(struct OCP_QP_DIM *dim, struct OCP_QP_REDUCE_EQ_DOF_WS *work, void *mem)
 	{
 
 	int ii;
 
 	// zero memory (to avoid corrupted memory like e.g. NaN)
-	int memsize = OCP_QP_REDUCE_EQ_DOF_WORK_MEMSIZE(dim);
+	int memsize = OCP_QP_REDUCE_EQ_DOF_WS_MEMSIZE(dim);
 	hpipm_zero_memset(memsize, mem);
 
 	// extract dim
@@ -265,7 +265,7 @@ void OCP_QP_REDUCE_EQ_DOF_WORK_CREATE(struct OCP_QP_DIM *dim, struct OCP_QP_REDU
 
 
 
-void OCP_QP_REDUCE_EQ_DOF(struct OCP_QP *qp, struct OCP_QP *qp_red, struct OCP_QP_REDUCE_EQ_DOF_ARG *arg, struct OCP_QP_REDUCE_EQ_DOF_WORK *work)
+void OCP_QP_REDUCE_EQ_DOF(struct OCP_QP *qp, struct OCP_QP *qp_red, struct OCP_QP_REDUCE_EQ_DOF_ARG *arg, struct OCP_QP_REDUCE_EQ_DOF_WS *work)
 	{
 
 	int ii, jj, kk, idx0, idx1;
@@ -475,7 +475,7 @@ void OCP_QP_REDUCE_EQ_DOF(struct OCP_QP *qp, struct OCP_QP *qp_red, struct OCP_Q
 
 
 
-void OCP_QP_RESTORE_EQ_DOF(struct OCP_QP *qp, struct OCP_QP_SOL *qp_sol_red, struct OCP_QP_SOL *qp_sol, struct OCP_QP_REDUCE_EQ_DOF_ARG *arg, struct OCP_QP_REDUCE_EQ_DOF_WORK *work)
+void OCP_QP_RESTORE_EQ_DOF(struct OCP_QP *qp, struct OCP_QP_SOL *qp_sol_red, struct OCP_QP_SOL *qp_sol, struct OCP_QP_REDUCE_EQ_DOF_ARG *arg, struct OCP_QP_REDUCE_EQ_DOF_WS *work)
 	{
 
 	int ii, jj, idx0;

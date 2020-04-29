@@ -64,7 +64,7 @@
 #define OCP_QP d_ocp_qp
 #define OCP_QP_DIM d_ocp_qp_dim
 #define OCP_QP_REDUCE_EQ_DOF_ARG d_ocp_qp_reduce_eq_dof_arg
-#define OCP_QP_REDUCE_EQ_DOF_WORK d_ocp_qp_reduce_eq_dof_work
+#define OCP_QP_REDUCE_EQ_DOF_WS d_ocp_qp_reduce_eq_dof_ws
 #define OCP_QP_SOL d_ocp_qp_sol
 #define REAL double
 #define SIZE_STRVEC blasfeo_memsize_dvec
@@ -82,8 +82,8 @@
 #define OCP_QP_REDUCE_EQ_DOF_ARG_SET_COMP_PRIM_SOL d_ocp_qp_reduce_eq_dof_arg_set_comp_prim_sol
 #define OCP_QP_REDUCE_EQ_DOF_ARG_SET_COMP_DUAL_SOL_EQ d_ocp_qp_reduce_eq_dof_arg_set_comp_dual_sol_eq
 #define OCP_QP_REDUCE_EQ_DOF_ARG_SET_COMP_DUAL_SOL_INEQ d_ocp_qp_reduce_eq_dof_arg_set_comp_dual_sol_ineq
-#define OCP_QP_REDUCE_EQ_DOF_WORK_MEMSIZE d_ocp_qp_reduce_eq_dof_work_memsize
-#define OCP_QP_REDUCE_EQ_DOF_WORK_CREATE d_ocp_qp_reduce_eq_dof_work_create
+#define OCP_QP_REDUCE_EQ_DOF_WS_MEMSIZE d_ocp_qp_reduce_eq_dof_ws_memsize
+#define OCP_QP_REDUCE_EQ_DOF_WS_CREATE d_ocp_qp_reduce_eq_dof_ws_create
 #define OCP_QP_REDUCE_EQ_DOF d_ocp_qp_reduce_eq_dof
 #define OCP_QP_RESTORE_EQ_DOF d_ocp_qp_restore_eq_dof
 
