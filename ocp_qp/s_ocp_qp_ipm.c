@@ -172,6 +172,7 @@
 #define OCP_QP_IPM_GET_RIC_LS s_ocp_qp_ipm_get_ric_Ls
 #define OCP_QP_IPM_GET_RIC_P s_ocp_qp_ipm_get_ric_P
 #define OCP_QP_IPM_GET_RIC_LR_VEC s_ocp_qp_ipm_get_ric_lr
+#define OCP_QP_IPM_GET_RIC_P_VEC s_ocp_qp_ipm_get_ric_p
 #define OCP_QP_IPM_GET_RIC_K s_ocp_qp_ipm_get_ric_K
 #define OCP_QP_IPM_GET_RIC_K_VEC s_ocp_qp_ipm_get_ric_k
 #define OCP_QP_INIT_VAR s_ocp_qp_init_var
