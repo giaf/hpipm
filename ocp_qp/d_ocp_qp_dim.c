@@ -70,7 +70,16 @@
 #define OCP_QP_DIM_GET_N d_ocp_qp_dim_get_N
 #define OCP_QP_DIM_GET_NX d_ocp_qp_dim_get_nx
 #define OCP_QP_DIM_GET_NU d_ocp_qp_dim_get_nu
-
+#define OCP_QP_DIM_GET_NBX d_ocp_qp_dim_get_nbx
+#define OCP_QP_DIM_GET_NBU d_ocp_qp_dim_get_nbu
+#define OCP_QP_DIM_GET_NG d_ocp_qp_dim_get_ng
+#define OCP_QP_DIM_GET_NS d_ocp_qp_dim_get_ns
+#define OCP_QP_DIM_GET_NSBX d_ocp_qp_dim_get_nsbx
+#define OCP_QP_DIM_GET_NSBU d_ocp_qp_dim_get_nsbu
+#define OCP_QP_DIM_GET_NSG d_ocp_qp_dim_get_nsg
+#define OCP_QP_DIM_GET_NBXE d_ocp_qp_dim_get_nbxe
+#define OCP_QP_DIM_GET_NBUE d_ocp_qp_dim_get_nbue
+#define OCP_QP_DIM_GET_NGE d_ocp_qp_dim_get_nge
 
 
 #include "x_ocp_qp_dim.c"
