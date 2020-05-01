@@ -417,6 +417,7 @@ void OCP_QP_COPY_ALL(struct OCP_QP *qp_orig, struct OCP_QP *qp_dest)
 			qp_dest->idxs_rev[ii][jj] = qp_orig->idxs_rev[ii][jj];
 		for(jj=0; jj<nbue[ii]+nbxe[ii]+nge[ii]; jj++)
 			qp_dest->idxe[ii][jj] = qp_orig->idxe[ii][jj];
+		qp_dest->diag_H_flag[ii] = qp_orig->diag_H_flag[ii];
 		}
 
 	return;
@@ -464,6 +465,7 @@ void OCP_QP_SET_ALL_ZERO(struct OCP_QP *qp)
 			qp->idxs_rev[ii][jj] = -1;
 		for(jj=0; jj<nbue[ii]+nbxe[ii]+nge[ii]; jj++)
 			qp->idxe[ii][jj] = 0;
+		qp->diag_H_flag[ii] = 0;
 		}
 
 	return;
