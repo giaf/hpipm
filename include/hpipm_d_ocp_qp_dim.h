@@ -109,6 +109,27 @@ void d_ocp_qp_dim_get_N(struct d_ocp_qp_dim *dim, int *value);
 void d_ocp_qp_dim_get_nx(struct d_ocp_qp_dim *dim, int stage, int *value);
 //
 void d_ocp_qp_dim_get_nu(struct d_ocp_qp_dim *dim, int stage, int *value);
+//
+void d_ocp_qp_dim_get_nbx(struct d_ocp_qp_dim *dim, int stage, int *value);
+//
+void d_ocp_qp_dim_get_nbu(struct d_ocp_qp_dim *dim, int stage, int *value);
+//
+void d_ocp_qp_dim_get_ng(struct d_ocp_qp_dim *dim, int stage, int *value);
+//
+void d_ocp_qp_dim_get_ns(struct d_ocp_qp_dim *dim, int stage, int *value);
+//
+void d_ocp_qp_dim_get_nsbx(struct d_ocp_qp_dim *dim, int stage, int *value);
+//
+void d_ocp_qp_dim_get_nsbu(struct d_ocp_qp_dim *dim, int stage, int *value);
+//
+void d_ocp_qp_dim_get_nsg(struct d_ocp_qp_dim *dim, int stage, int *value);
+//
+void d_ocp_qp_dim_get_nbxe(struct d_ocp_qp_dim *dim, int stage, int *value);
+//
+void d_ocp_qp_dim_get_nbue(struct d_ocp_qp_dim *dim, int stage, int *value);
+//
+void d_ocp_qp_dim_get_nge(struct d_ocp_qp_dim *dim, int stage, int *value);
+
 
 
 
