@@ -106,7 +106,7 @@ if(NOT TARGET blasfeo)
 endif()
 
 # Needed to compile examples
-set(BLASFEO_INCLUDE_DIR "${BLASFEO_PATH}/include")
+set(BLASFEO_INCLUDE_DIR "${BLASFEO_PATH}/include" CACHE STRING "BLASFEO headers directory")
 set(HPIPM_INCLUDE_DIR "${PROJECT_SOURCE_DIR}/include")
 
 # headers installation directory
