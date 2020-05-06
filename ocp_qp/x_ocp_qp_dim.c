@@ -405,6 +405,46 @@ void OCP_QP_DIM_GET(struct OCP_QP_DIM *dim, char *field_name, int stage, int *va
 		{
 		OCP_QP_DIM_GET_NU(dim, stage, value);
 		}
+	else if(hpipm_strcmp(field_name, "nbx"))
+		{
+		OCP_QP_DIM_GET_NBX(dim, stage, value);
+		}
+	else if(hpipm_strcmp(field_name, "nbu"))
+		{
+		OCP_QP_DIM_GET_NBU(dim, stage, value);
+		}
+	else if(hpipm_strcmp(field_name, "ng"))
+		{
+		OCP_QP_DIM_GET_NG(dim, stage, value);
+		}
+	else if(hpipm_strcmp(field_name, "ns"))
+		{
+		OCP_QP_DIM_GET_NS(dim, stage, value);
+		}
+	else if(hpipm_strcmp(field_name, "nsbx"))
+		{
+		OCP_QP_DIM_GET_NSBX(dim, stage, value);
+		}
+	else if(hpipm_strcmp(field_name, "nsbu"))
+		{
+		OCP_QP_DIM_GET_NSBU(dim, stage, value);
+		}
+	else if(hpipm_strcmp(field_name, "nsg"))
+		{
+		OCP_QP_DIM_GET_NSG(dim, stage, value);
+		}
+	else if(hpipm_strcmp(field_name, "nbxe"))
+		{
+		OCP_QP_DIM_GET_NBXE(dim, stage, value);
+		}
+	else if(hpipm_strcmp(field_name, "nbue"))
+		{
+		OCP_QP_DIM_GET_NBUE(dim, stage, value);
+		}
+	else if(hpipm_strcmp(field_name, "nge"))
+		{
+		OCP_QP_DIM_GET_NGE(dim, stage, value);
+		}
 	else
 		{
 		printf("error: OCP_QP_DIM_GET: wrong field %s\n", field_name);
@@ -439,3 +479,79 @@ void OCP_QP_DIM_GET_NU(struct OCP_QP_DIM *dim, int stage, int *value)
 
 
 
+void OCP_QP_DIM_GET_NBX(struct OCP_QP_DIM *dim, int stage, int *value)
+	{
+	*value = dim->nbx[stage];
+	return;
+	}
+
+
+
+void OCP_QP_DIM_GET_NBU(struct OCP_QP_DIM *dim, int stage, int *value)
+	{
+	*value = dim->nbu[stage];
+	return;
+	}
+
+
+
+void OCP_QP_DIM_GET_NG(struct OCP_QP_DIM *dim, int stage, int *value)
+	{
+	*value = dim->ng[stage];
+	return;
+	}
+
+
+void OCP_QP_DIM_GET_NS(struct OCP_QP_DIM *dim, int stage, int *value)
+	{
+	*value = dim->ns[stage];
+	return;
+	}
+
+
+
+void OCP_QP_DIM_GET_NSBX(struct OCP_QP_DIM *dim, int stage, int *value)
+	{
+	*value = dim->nsbx[stage];
+	return;
+	}
+
+
+
+void OCP_QP_DIM_GET_NSBU(struct OCP_QP_DIM *dim, int stage, int *value)
+	{
+	*value = dim->nsbu[stage];
+	return;
+	}
+
+
+
+void OCP_QP_DIM_GET_NSG(struct OCP_QP_DIM *dim, int stage, int *value)
+	{
+	*value = dim->nsg[stage];
+	return;
+	}
+
+
+
+void OCP_QP_DIM_GET_NBXE(struct OCP_QP_DIM *dim, int stage, int *value)
+	{
+	*value = dim->nbxe[stage];
+	return;
+	}
+
+
+
+void OCP_QP_DIM_GET_NBUE(struct OCP_QP_DIM *dim, int stage, int *value)
+	{
+	*value = dim->nbue[stage];
+	return;
+	}
+
+
+
+void OCP_QP_DIM_GET_NGE(struct OCP_QP_DIM *dim, int stage, int *value)
+	{
+	*value = dim->nge[stage];
+	return;
+	}
