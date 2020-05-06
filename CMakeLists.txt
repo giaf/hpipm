@@ -35,6 +35,9 @@
 
 cmake_minimum_required(VERSION 2.8.11)
 
+# Installation ( has to be before `project()` )
+set(CMAKE_INSTALL_PREFIX "/opt/hpipm" CACHE STRING "Installation path")
+
 project(hpipm C)
 
 set(CMAKE_VERBOSE_MAKEFILE ON)
@@ -83,9 +86,6 @@ if(NOT ${CMAKE_PROJECT_NAME} STREQUAL hpipm)
 	set(HPIPM_ALLOWED_TARGETS ${ALLOWED_TARGETS} PARENT_SCOPE)
 	set(HPIPM_ALLOWED_REF_BLAS ${ALLOWED_REF_BLAS} PARENT_SCOPE)
 endif()
-
-# Installation
-set(CMAKE_INSTALL_PREFIX "/opt/hpipm" CACHE STRING "Installation path")
 
 # BLASFEO Option
 if(NOT TARGET blasfeo)
