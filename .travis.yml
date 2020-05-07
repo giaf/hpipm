@@ -162,10 +162,14 @@ jobs:
         - MSBuild.exe blasfeo.vcxproj
         - ls
         - MSBuild.exe INSTALL.vcxproj
+        - ls
       script:
         - export PATH="/C/Program Files (x86)/Microsoft Visual Studio/2017/BuildTools/MSBuild/15.0/Bin":$PATH
         - mkdir "${TRAVIS_BUILD_DIR}"/build
         - cd "${TRAVIS_BUILD_DIR}"/build
         - cmake -DTARGET=GENERIC -DBLASFEO_PATH="${TRAVIS_BUILD_DIR}"/blasfeo ..
         - MSBuild.exe hpipm.vcxproj
+        - cd test_problems
+        - MSBuild.exe d_ocp_qp.vcxproj
+        - ./d_ocp_qp.exe
 
