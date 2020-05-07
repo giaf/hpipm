@@ -36,7 +36,6 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <math.h>
-#include <sys/time.h>
 
 #include <blasfeo_target.h>
 #include <blasfeo_common.h>
@@ -51,6 +50,7 @@
 #include <hpipm_d_ocp_qp_ipm.h>
 #include <hpipm_d_ocp_qp_utils.h>
 #include <hpipm_d_ocp_qp_red.h>
+#include <hpipm_timing.h>
 
 #include "d_tools.h"
 
@@ -260,7 +260,7 @@ int main()
 
 	int rep, nrep=1000; //000;
 
-	struct timeval tv0, tv1;
+	hpipm_timer timer0;
 
 
 	// local variables
@@ -928,16 +928,14 @@ int main()
 	d_ocp_qp_reduce_eq_dof_ws_create(&dim, &qp_red_work, qp_red_work_mem);
 
 
-	gettimeofday(&tv0, NULL); // start
+	hpipm_tic(&timer0);
 
 	for(rep=0; rep<nrep; rep++)
 		{
 		d_ocp_qp_reduce_eq_dof(&qp, &qp2, &qp_red_arg, &qp_red_work);
 		}
 
-	gettimeofday(&tv1, NULL); // stop
-
-	double time_red_eq_dof = (tv1.tv_sec-tv0.tv_sec)/(nrep+0.0)+(tv1.tv_usec-tv0.tv_usec)/(nrep*1e6);
+	double time_red_eq_dof = hpipm_toc(&timer0);
 
 #if PRINT
 	d_ocp_qp_print(qp2.dim, &qp2);
@@ -1033,7 +1031,7 @@ int main()
 
 	int hpipm_status; // 0 normal; 1 max iter
 
-	gettimeofday(&tv0, NULL); // start
+	hpipm_tic(&timer0);
 
 	for(rep=0; rep<nrep; rep++)
 		{
@@ -1041,9 +1039,7 @@ int main()
 		d_ocp_qp_ipm_get_status(&workspace, &hpipm_status);
 		}
 
-	gettimeofday(&tv1, NULL); // stop
-
-	double time_ocp_ipm = (tv1.tv_sec-tv0.tv_sec)/(nrep+0.0)+(tv1.tv_usec-tv0.tv_usec)/(nrep*1e6);
+	double time_ocp_ipm = hpipm_toc(&timer0);
 
 #if PRINT
 	d_ocp_qp_sol_print(&dim2, &qp_sol2);
@@ -1057,16 +1053,14 @@ int main()
 
 #else // keep x0
 
-	gettimeofday(&tv0, NULL); // start
+	hpipm_tic(&timer0);
 
 	for(rep=0; rep<nrep; rep++)
 		{
 		d_ocp_qp_restore_eq_dof(&qp, &qp_sol2, &qp_sol, &qp_red_arg, &qp_red_work);
 		}
 
-	gettimeofday(&tv1, NULL); // stop
-
-	double time_res_eq_dof = (tv1.tv_sec-tv0.tv_sec)/(nrep+0.0)+(tv1.tv_usec-tv0.tv_usec)/(nrep*1e6);
+	double time_res_eq_dof = hpipm_toc(&timer0);
 
 #if PRINT
 	d_ocp_qp_sol_print(&dim, &qp_sol);
