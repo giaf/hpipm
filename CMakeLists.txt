@@ -44,6 +44,20 @@ set(CMAKE_VERBOSE_MAKEFILE ON)
 
 # Options
 
+# Target architecture
+set(TARGET AVX CACHE STRING "Set CPU architecture target")
+#set(TARGET GENERIC CACHE STRING "Set CPU architecture target")
+
+# Populate a list of allowable targets and link it to the option
+set(ALLOWED_TARGETS
+		AVX
+		GENERIC
+		)
+set_property(CACHE TARGET PROPERTY STRINGS ${ALLOWED_TARGETS})
+
+# Use C99 extension to math library
+set(USE_C99_MATH ON CACHE STRING "Use C99 extension to math library")
+
 # BLAS and LAPACK version (for LA=BLAS in BLASFEO)
 set(REF_BLAS 0 CACHE STRING "Set CPU architecture target")
 # set(REF_BLAS OPENBLAS CACHE STRING "Set CPU architecture target")
@@ -65,17 +79,6 @@ set_property(CACHE REF_BLAS PROPERTY STRINGS ${ALLOWED_REF_BLAS})
 
 set(HPIPM_TESTING ON CACHE BOOL "Tests enabled")
 # set(HPIPM_TESTING OFF CACHE BOOL "Tests disabled")
-
-# Target architecture
-set(TARGET AVX CACHE STRING "Set CPU architecture target")
-#set(TARGET GENERIC CACHE STRING "Set CPU architecture target")
-
-# Populate a list of allowable targets and link it to the option
-set(ALLOWED_TARGETS
-		AVX
-		GENERIC
-		)
-set_property(CACHE TARGET PROPERTY STRINGS ${ALLOWED_TARGETS})
 
 # build shared library
 set(BUILD_SHARED_LIBS OFF CACHE STRING "Build shared libraries")
@@ -121,8 +124,8 @@ set(HPIPM_INCLUDE_DIR "${PROJECT_SOURCE_DIR}/include")
 set(HPIPM_HEADERS_INSTALLATION_DIRECTORY "include" CACHE STRING "Headers local installation directory")
 
 # enable runtine checks
-set(RUNTIME_CHECKS 0)
-#set(RUNTIME_CHECKS 1)
+set(RUNTIME_CHECKS ON)
+#set(RUNTIME_CHECKS OFF)
 
 ## compiler flags
 #set(CMAKE_C_FLAGS "")
@@ -132,13 +135,14 @@ set(RUNTIME_CHECKS 0)
 if(CMAKE_C_COMPILER_ID MATCHES "GNU" OR CMAKE_C_COMPILER_ID MATCHES "Clang")
 	set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -O2 -fPIC")
 endif()
+
 # target-specific flags
 if(${TARGET} MATCHES AVX)
 	set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -DTARGET_AVX")
 	if(CMAKE_C_COMPILER_ID MATCHES "GNU" OR CMAKE_C_COMPILER_ID MATCHES "Clang")
 		set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -m64 -mavx")
 	endif()
-else()
+elseif(${TARGET} MATCHES GENERIC)
 	set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -DTARGET_GENERIC")
 endif()
 
@@ -163,14 +167,14 @@ if(${REF_BLAS} MATCHES ATLAS)
 endif(${REF_BLAS} MATCHES ATLAS)
 
 #
-if(${RUNTIME_CHECKS} MATCHES 1)
-	set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -DRUNTIME_CHECKS")
-endif(${RUNTIME_CHECKS} MATCHES 1)
+if(${USE_C99_MATH} MATCHES ON)
+	set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -DUSE_C99_MATH")
+endif()
 
-# architecture-specific flags
-if(${TARGET} MATCHES GENERIC)
-	set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -DTARGET_GENERIC")
-endif(${TARGET} MATCHES GENERIC)
+#
+if(${RUNTIME_CHECKS} MATCHES ON)
+	set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -DRUNTIME_CHECKS")
+endif()
 
 # source files
 # cond
