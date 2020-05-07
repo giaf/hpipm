@@ -935,7 +935,7 @@ int main()
 		d_ocp_qp_reduce_eq_dof(&qp, &qp2, &qp_red_arg, &qp_red_work);
 		}
 
-	double time_red_eq_dof = hpipm_toc(&timer0);
+	double time_red_eq_dof = hpipm_toc(&timer0) / nrep;
 
 #if PRINT
 	d_ocp_qp_print(qp2.dim, &qp2);
@@ -981,7 +981,7 @@ int main()
 	void *ipm_arg_mem = malloc(ipm_arg_size);
 
 	struct d_ocp_qp_ipm_arg arg;
-	d_ocp_qp_ipm_arg_create(&dim, &arg, ipm_arg_mem);
+	d_ocp_qp_ipm_arg_create(&dim2, &arg, ipm_arg_mem);
 
 //	enum hpipm_mode mode = SPEED_ABS;
 	enum hpipm_mode mode = SPEED;
@@ -1016,6 +1016,10 @@ int main()
 	d_ocp_qp_ipm_arg_set_comp_res_exit(&comp_res_exit, &arg);
 //	d_ocp_qp_ipm_arg_set_tau_min(&tau_min, &arg);
 
+#if PRINT
+	d_ocp_qp_ipm_arg_print(&dim2, &arg);
+#endif
+
 /************************************************
 * ipm
 ************************************************/
@@ -1039,7 +1043,7 @@ int main()
 		d_ocp_qp_ipm_get_status(&workspace, &hpipm_status);
 		}
 
-	double time_ocp_ipm = hpipm_toc(&timer0);
+	double time_ocp_ipm = hpipm_toc(&timer0) / nrep;
 
 #if PRINT
 	d_ocp_qp_sol_print(&dim2, &qp_sol2);
@@ -1060,7 +1064,7 @@ int main()
 		d_ocp_qp_restore_eq_dof(&qp, &qp_sol2, &qp_sol, &qp_red_arg, &qp_red_work);
 		}
 
-	double time_res_eq_dof = hpipm_toc(&timer0);
+	double time_res_eq_dof = hpipm_toc(&timer0) / nrep;
 
 #if PRINT
 	d_ocp_qp_sol_print(&dim, &qp_sol);

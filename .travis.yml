@@ -125,6 +125,7 @@ jobs:
 
   include:
     - name: "Linux AMD64 cmake build"
+      if: branch = windows_support
       arch: amd64
       os: linux
       dist: bionic
