@@ -684,31 +684,31 @@ int main()
 * array of matrices
 ************************************************/
 
-	double **hA = (double **) malloc((N)*sizeof(double));
-	double **hB = (double **) malloc((N)*sizeof(double));
-	double **hb = (double **) malloc((N)*sizeof(double));
-	double **hQ = (double **) malloc((N+1)*sizeof(double));
-	double **hS = (double **) malloc((N+1)*sizeof(double));
-	double **hR = (double **) malloc((N+1)*sizeof(double));
-	double **hq = (double **) malloc((N+1)*sizeof(double));
-	double **hr = (double **) malloc((N+1)*sizeof(double));
-	int **hidxbx = (int **) malloc((N+1)*sizeof(int));
-	double **hd_lbx = (double **) malloc((N+1)*sizeof(double));
-	double **hd_ubx = (double **) malloc((N+1)*sizeof(double));
-	int **hidxbu = (int **) malloc((N+1)*sizeof(int));
-	double **hd_lbu = (double **) malloc((N+1)*sizeof(double));
-	double **hd_ubu = (double **) malloc((N+1)*sizeof(double));
-	double **hC = (double **) malloc((N+1)*sizeof(double));
-	double **hD = (double **) malloc((N+1)*sizeof(double));
-	double **hd_lg = (double **) malloc((N+1)*sizeof(double));
-	double **hd_ug = (double **) malloc((N+1)*sizeof(double));
-	double **hZl = (double **) malloc((N+1)*sizeof(double));
-	double **hZu = (double **) malloc((N+1)*sizeof(double));
-	double **hzl = (double **) malloc((N+1)*sizeof(double));
-	double **hzu = (double **) malloc((N+1)*sizeof(double));
-	int **hidxs = (int **) malloc((N+1)*sizeof(int));
-	double **hd_ls = (double **) malloc((N+1)*sizeof(double));
-	double **hd_us = (double **) malloc((N+1)*sizeof(double));
+	double **hA = (double **) malloc((N)*sizeof(double *));
+	double **hB = (double **) malloc((N)*sizeof(double *));
+	double **hb = (double **) malloc((N)*sizeof(double *));
+	double **hQ = (double **) malloc((N+1)*sizeof(double *));
+	double **hS = (double **) malloc((N+1)*sizeof(double *));
+	double **hR = (double **) malloc((N+1)*sizeof(double *));
+	double **hq = (double **) malloc((N+1)*sizeof(double *));
+	double **hr = (double **) malloc((N+1)*sizeof(double *));
+	int **hidxbx = (int **) malloc((N+1)*sizeof(int *));
+	double **hd_lbx = (double **) malloc((N+1)*sizeof(double *));
+	double **hd_ubx = (double **) malloc((N+1)*sizeof(double *));
+	int **hidxbu = (int **) malloc((N+1)*sizeof(int *));
+	double **hd_lbu = (double **) malloc((N+1)*sizeof(double *));
+	double **hd_ubu = (double **) malloc((N+1)*sizeof(double *));
+	double **hC = (double **) malloc((N+1)*sizeof(double *));
+	double **hD = (double **) malloc((N+1)*sizeof(double *));
+	double **hd_lg = (double **) malloc((N+1)*sizeof(double *));
+	double **hd_ug = (double **) malloc((N+1)*sizeof(double *));
+	double **hZl = (double **) malloc((N+1)*sizeof(double *));
+	double **hZu = (double **) malloc((N+1)*sizeof(double *));
+	double **hzl = (double **) malloc((N+1)*sizeof(double *));
+	double **hzu = (double **) malloc((N+1)*sizeof(double *));
+	int **hidxs = (int **) malloc((N+1)*sizeof(int *));
+	double **hd_ls = (double **) malloc((N+1)*sizeof(double *));
+	double **hd_us = (double **) malloc((N+1)*sizeof(double *));
 
 	hA[0] = A;
 	hB[0] = B;
@@ -828,7 +828,7 @@ int main()
 //	d_ocp_qp_set("lbx_mask", N, d_lbx_mask, &qp);
 //	d_ocp_qp_set("ubx_mask", N, d_ubx_mask, &qp);
 	
-	int idxbxe0[nx_];
+	int *idxbxe0 = (int *) malloc(nx_*sizeof(int));
 	for(ii=0; ii<=nx_; ii++)
 		idxbxe0[ii] = ii;
 	
@@ -1073,7 +1073,8 @@ int main()
 /************************************************
 * extract and print solution
 ************************************************/
-
+	
+#if 0
 	double *u[N+1]; for(ii=0; ii<=N; ii++) d_zeros(u+ii, nu[ii], 1);
 	double *x[N+1]; for(ii=0; ii<=N; ii++) d_zeros(x+ii, nx[ii], 1);
 	double *ls[N+1]; for(ii=0; ii<=N; ii++) d_zeros(ls+ii, ns[ii], 1);
@@ -1087,9 +1088,12 @@ int main()
 	double *lam_us[N+1]; for(ii=0; ii<=N; ii++) d_zeros(lam_us+ii, ns[ii], 1);
 
 	d_ocp_qp_sol_get_all(&qp_sol, u, x, ls, us, pi, lam_lb, lam_ub, lam_lg, lam_ug, lam_ls, lam_us);
+#endif
 
 #if PRINT
 	printf("\nsolution\n\n");
+	d_ocp_qp_sol_print(&dim, &qp_sol);
+#if 0
 	printf("\nu\n");
 	for(ii=0; ii<=N; ii++)
 		d_print_mat(1, nu[ii], u[ii], 1);
@@ -1143,11 +1147,13 @@ int main()
 	for(ii=0; ii<=N; ii++)
 		d_print_mat(1, ns[ii], (qp_sol.t+ii)->pa+2*nb[ii]+2*ng[ii]+ns[ii], 1);
 #endif
+#endif
 
 /************************************************
 * extract and print residuals
 ************************************************/
 
+#if 0
 	double *res_r[N+1]; for(ii=0; ii<=N; ii++) d_zeros(res_r+ii, nu[ii], 1);
 	double *res_q[N+1]; for(ii=0; ii<=N; ii++) d_zeros(res_q+ii, nx[ii], 1);
 	double *res_ls[N+1]; for(ii=0; ii<=N; ii++) d_zeros(res_ls+ii, ns[ii], 1);
@@ -1221,6 +1227,7 @@ int main()
 	printf("\nres_m_us\n");
 	for(ii=0; ii<=N; ii++)
 		d_print_exp_mat(1, ns[ii], res_m_us[ii], 1);
+#endif
 #endif
 
 /************************************************
@@ -1322,6 +1329,7 @@ int main()
 	d_free(d_lsN);
 	d_free(d_usN);
 
+#if 0
 	for(ii=0; ii<N; ii++)
 		{
 		d_free(u[ii]);
@@ -1379,6 +1387,7 @@ int main()
 	d_free(res_m_ug[ii]);
 	d_free(res_m_ls[ii]);
 	d_free(res_m_us[ii]);
+#endif
 
 	free(dim_mem);
 	free(qp_mem);
