@@ -125,7 +125,6 @@ jobs:
 
   include:
     - name: "Linux AMD64 cmake build"
-      if: branch = windows_support
       arch: amd64
       os: linux
       dist: bionic
@@ -150,7 +149,6 @@ jobs:
 
   include:
     - name: "Windows AMD64 cmake build"
-      if: branch = windows_support
       os: windows
       language: bash
       group: travis_latest
@@ -161,9 +159,7 @@ jobs:
         - cd "${TRAVIS_BUILD_DIR}"/blasfeo/build
         - cmake -DTARGET=GENERIC -DCMAKE_INSTALL_PREFIX="${TRAVIS_BUILD_DIR}"/blasfeo ..
         - MSBuild.exe blasfeo.vcxproj
-        - ls
         - MSBuild.exe INSTALL.vcxproj
-        - ls
       script:
         - export PATH="/C/Program Files (x86)/Microsoft Visual Studio/2017/BuildTools/MSBuild/15.0/Bin":$PATH
         - mkdir "${TRAVIS_BUILD_DIR}"/build
