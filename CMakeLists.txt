@@ -35,7 +35,7 @@
 
 cmake_minimum_required(VERSION 2.8.11)
 
-# Installation ( has to be before `project()` )
+# installation directory ( has to be before `project()` )
 set(CMAKE_INSTALL_PREFIX "/opt/hpipm" CACHE STRING "Installation path")
 
 project(hpipm C)
@@ -63,8 +63,8 @@ set(ALLOWED_REF_BLAS
 		)
 set_property(CACHE REF_BLAS PROPERTY STRINGS ${ALLOWED_REF_BLAS})
 
-# set(HPIPM_TESTING ON CACHE BOOL "Tests enabled")
-set(HPIPM_TESTING OFF CACHE BOOL "Tests disabled")
+set(HPIPM_TESTING ON CACHE BOOL "Tests enabled")
+# set(HPIPM_TESTING OFF CACHE BOOL "Tests disabled")
 
 # Target architecture
 set(TARGET AVX CACHE STRING "Set CPU architecture target")
