@@ -171,5 +171,6 @@ jobs:
         - MSBuild.exe hpipm.vcxproj
         - cd test_problems
         - MSBuild.exe d_ocp_qp.vcxproj
+        - cd Debug
         - ./d_ocp_qp.exe
 
