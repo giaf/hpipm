@@ -123,7 +123,6 @@ jobs:
         - make -C examples/casadi_python/ get_casadi
         - make -C examples/casadi_python/ example_PMSM
 
-  include:
     - name: "Linux AMD64 cmake build"
       arch: amd64
       os: linux
@@ -147,7 +146,6 @@ jobs:
         - cd test_problems
         - ./d_ocp_qp
 
-  include:
     - name: "Windows AMD64 cmake build"
       os: windows
       language: bash
