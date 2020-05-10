@@ -8,6 +8,7 @@ cache:
 jobs:
   include:
     - name: "Linux AMD64 C build"
+      if: branch = dev
       arch: amd64
       os: linux
       dist: bionic
@@ -17,7 +18,7 @@ jobs:
           packages:
           - bc
       install:
-        - git clone https://github.com/giaf/blasfeo
+        - git clone https://github.com/giaf/blasfeo -b dev
         - make -C "${TRAVIS_BUILD_DIR}"/blasfeo static_library TARGET=X64_INTEL_HASWELL LA=HIGH_PERFORMANCE -j 4
       script:
         - make static_library TARGET=AVX BLASFEO_PATH="${TRAVIS_BUILD_DIR}"/blasfeo -j 4
@@ -32,6 +33,7 @@ jobs:
         - make -C test_problems test_d_tree_ocp TARGET=AVX BLASFEO_PATH="${TRAVIS_BUILD_DIR}"/blasfeo PRINT=0
 
     - name: "Linux ARM64 C build"
+      if: branch = dev
       arch: arm64
       os: linux
       dist: bionic
@@ -41,7 +43,7 @@ jobs:
           packages:
           - bc
       install:
-        - git clone https://github.com/giaf/blasfeo
+        - git clone https://github.com/giaf/blasfeo -b dev
         - make -C "${TRAVIS_BUILD_DIR}"/blasfeo static_library TARGET=ARMV8A_ARM_CORTEX_A57 LA=HIGH_PERFORMANCE -j 4
       script:
         - make static_library TARGET=GENERIC BLASFEO_PATH="${TRAVIS_BUILD_DIR}"/blasfeo -j 4
@@ -56,6 +58,7 @@ jobs:
         - make -C test_problems test_d_tree_ocp TARGET=GENERIC BLASFEO_PATH="${TRAVIS_BUILD_DIR}"/blasfeo PRINT=0
 
     - name: "Linux AMD64 octave build"
+      if: branch = dev
       arch: amd64
       os: linux
       dist: bionic
@@ -74,7 +77,7 @@ jobs:
         - ENV_RUN=true
         - TRAVIS_RUN=true
       install:
-        - git clone https://github.com/giaf/blasfeo
+        - git clone https://github.com/giaf/blasfeo -b dev
         - make -C "${TRAVIS_BUILD_DIR}"/blasfeo shared_library TARGET=X64_INTEL_HASWELL LA=HIGH_PERFORMANCE -j 4
       script:
         - make shared_library TARGET=AVX BLASFEO_PATH="${TRAVIS_BUILD_DIR}"/blasfeo -j 4
@@ -90,6 +93,7 @@ jobs:
         - make -C examples/matlab_octave/ example_mass_spring_qcqp
 
     - name: "Linux AMD64 python build"
+      if: branch = dev
       arch: amd64
       os: linux
       dist: bionic
@@ -108,7 +112,7 @@ jobs:
         - ENV_RUN=true
         - TRAVIS_RUN=true
       install:
-        - git clone https://github.com/giaf/blasfeo
+        - git clone https://github.com/giaf/blasfeo -b dev
         - make -C "${TRAVIS_BUILD_DIR}"/blasfeo shared_library TARGET=X64_INTEL_HASWELL LA=HIGH_PERFORMANCE -j 4
       script:
         - make shared_library TARGET=AVX BLASFEO_PATH="${TRAVIS_BUILD_DIR}"/blasfeo -j 4
@@ -124,6 +128,7 @@ jobs:
         - make -C examples/casadi_python/ example_PMSM
 
     - name: "Linux AMD64 cmake build"
+      if: branch = dev
       arch: amd64
       os: linux
       dist: bionic
@@ -133,7 +138,7 @@ jobs:
           packages:
           - bc
       install:
-        - git clone https://github.com/giaf/blasfeo
+        - git clone https://github.com/giaf/blasfeo -b dev
         - mkdir "${TRAVIS_BUILD_DIR}"/blasfeo/build
         - cd "${TRAVIS_BUILD_DIR}"/blasfeo/build
         - cmake -DCMAKE_INSTALL_PREFIX="${TRAVIS_BUILD_DIR}"/blasfeo ..
@@ -148,12 +153,13 @@ jobs:
         - ./d_ocp_qp
 
     - name: "Windows AMD64 cmake build"
+      if: branch = dev
       os: windows
       language: bash
       group: travis_latest
       install:
         - export PATH="/C/Program Files (x86)/Microsoft Visual Studio/2017/BuildTools/MSBuild/15.0/Bin":$PATH
-        - git clone https://github.com/giaf/blasfeo
+        - git clone https://github.com/giaf/blasfeo -b dev
         - mkdir "${TRAVIS_BUILD_DIR}"/blasfeo/build
         - cd "${TRAVIS_BUILD_DIR}"/blasfeo/build
         - cmake -DTARGET=GENERIC -DCMAKE_INSTALL_PREFIX="${TRAVIS_BUILD_DIR}"/blasfeo ..
