@@ -51,8 +51,8 @@
 
 
 #define CREATE_STRVEC blasfeo_create_dvec
-#define CVT_STRVEC2VEC blasfeo_unpack_dvec
-#define CVT_VEC2STRVEC blasfeo_pack_dvec
+#define UNPACK_VEC blasfeo_unpack_dvec
+#define PACK_VEC blasfeo_pack_dvec
 #define OCP_QP d_ocp_qp
 #define OCP_QCQP_DIM d_ocp_qcqp_dim
 #define OCP_QCQP_SOL d_ocp_qcqp_sol

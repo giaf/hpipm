@@ -1236,7 +1236,7 @@ void OCP_QP_IPM_GET_RIC_LR_VEC(struct OCP_QP *qp, struct OCP_QP_IPM_ARG *arg, st
 		}
 
 //	UNPACK_MAT(1, nu0, ws->L+stage, nu0+nx0, 0, lr, 1);
-	UNPACK_VEC(nu0, ws->l+stage, 0, lr);
+	UNPACK_VEC(nu0, ws->l+stage, 0, lr, 1);
 	}
 
 
@@ -1288,12 +1288,12 @@ void OCP_QP_IPM_GET_RIC_P_VEC(struct OCP_QP *qp, struct OCP_QP_IPM_ARG *arg, str
 //		ROWEX(nx0, 1.0, ws->L+stage, nu0+nx0, nu0, ws->tmp_nuxM, 0);
 //		TRMV_LNN(nx0, nx0, ws->L+stage, nu0, nu0, ws->tmp_nuxM, 0, ws->tmp_nuxM, 0);
 		TRMV_LNN(nx0, nx0, ws->L+stage, nu0, nu0, ws->l+stage, nu0, ws->tmp_nuxM, 0);
-		UNPACK_VEC(nx0, ws->tmp_nuxM, 0, p);
+		UNPACK_VEC(nx0, ws->tmp_nuxM, 0, p, 1);
 		}
 	else
 		{
 //		UNPACK_MAT(1, nx0, ws->P+stage, nx0, 0, p, 1);
-		UNPACK_VEC(nx0, ws->l+stage, nu0, p);
+		UNPACK_VEC(nx0, ws->l+stage, nu0, p, 1);
 		}
 	}
 
@@ -1363,7 +1363,7 @@ void OCP_QP_IPM_GET_RIC_K_VEC(struct OCP_QP *qp, struct OCP_QP_IPM_ARG *arg, str
 
 	TRSV_LTN(nu0, ws->L+stage, 0, 0, ws->l+stage, 0, ws->tmp_nuxM, 0);
 	VECSC(nu0, -1.0, ws->tmp_nuxM, 0);
-	UNPACK_VEC(nu0, ws->tmp_nuxM, 0, k);
+	UNPACK_VEC(nu0, ws->tmp_nuxM, 0, k, 1);
 
 	return;
 	}

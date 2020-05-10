@@ -50,6 +50,10 @@
 
 
 
+#define DOUBLE_PRECISION
+
+
+
 #define AXPY blasfeo_daxpy
 #define COND_QP_ARG d_cond_qp_arg
 #define COND_QP_ARG_WS d_cond_qp_ws
@@ -59,6 +63,7 @@
 #define GECP blasfeo_dgecp
 #define GEEX1 blasfeo_dgeex1
 #define GESE blasfeo_dgese
+#define GEMM blasfeo_dgemm
 #define GEMM_ND blasfeo_dgemm_nd
 #define GEMM_NN blasfeo_dgemm_nn
 #define GEMM_NT blasfeo_dgemm_nt
@@ -67,6 +72,8 @@
 #define GEMV_T blasfeo_dgemv_t
 #define OCP_QP d_ocp_qp
 #define OCP_QP_SOL d_ocp_qp_sol
+#define PACK_MAT blasfeo_pack_dmat
+#define PACK_VEC blasfeo_pack_dvec
 #define POTRF_L_MN blasfeo_dpotrf_l_mn
 #define REAL double
 #define ROWAD blasfeo_drowad
@@ -79,6 +86,8 @@
 #define TRCP_L blasfeo_dtrcp_l
 #define TRTR_L blasfeo_dtrtr_l
 #define TRMM_RLNN blasfeo_dtrmm_rlnn
+#define UNPACK_MAT blasfeo_unpack_dmat
+#define UNPACK_VEC blasfeo_unpack_dvec
 #define VECAD_SP blasfeo_dvecad_sp
 #define VECCP blasfeo_dveccp
 #define VECSE blasfeo_dvecse

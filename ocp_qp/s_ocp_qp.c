@@ -55,8 +55,8 @@
 #define CVT_STRMAT2MAT blasfeo_unpack_smat
 #define CVT_TRAN_MAT2STRMAT blasfeo_pack_tran_smat
 #define CVT_TRAN_STRMAT2MAT blasfeo_unpack_tran_smat
-#define CVT_VEC2STRVEC blasfeo_pack_svec
-#define CVT_STRVEC2VEC blasfeo_unpack_svec
+#define PACK_VEC blasfeo_pack_svec
+#define UNPACK_VEC blasfeo_unpack_svec
 #define GECP blasfeo_sgecp
 #define GESE blasfeo_sgese
 #define OCP_QP s_ocp_qp

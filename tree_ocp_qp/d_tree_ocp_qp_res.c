@@ -48,7 +48,7 @@
 
 
 #define CREATE_STRVEC blasfeo_create_dvec
-#define CVT_STRVEC2VEC blasfeo_unpack_dvec
+#define UNPACK_VEC blasfeo_unpack_dvec
 #define TREE_OCP_QP_DIM d_tree_ocp_qp_dim
 #define TREE_OCP_QP_RES d_tree_ocp_qp_res
 #define TREE_OCP_QP_RES_WORKSPACE d_tree_ocp_qp_res_workspace

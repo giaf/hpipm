@@ -336,7 +336,7 @@ void CVT_COLMAJ_TO_TREE_OCP_QP(REAL **A, REAL **B, REAL **b, REAL **Q, REAL **S,
 		CVT_TRAN_MAT2STRMAT(nx[idx], nu[idxdad], B[ii], nx[idx], qp->BAbt+ii, 0, 0);
 		CVT_TRAN_MAT2STRMAT(nx[idx], nx[idxdad], A[ii], nx[idx], qp->BAbt+ii, nu[idxdad], 0);
 		CVT_TRAN_MAT2STRMAT(nx[idx], 1, b[ii], nx[idx], qp->BAbt+ii, nu[idxdad]+nx[idxdad], 0);
-		CVT_VEC2STRVEC(nx[idx], b[ii], qp->b+ii, 0);
+		PACK_VEC(nx[idx], b[ii], 1, qp->b+ii, 0);
 		}
 
 	for(ii=0; ii<Nn; ii++)
@@ -346,8 +346,8 @@ void CVT_COLMAJ_TO_TREE_OCP_QP(REAL **A, REAL **B, REAL **b, REAL **Q, REAL **S,
 		CVT_MAT2STRMAT(nx[ii], nx[ii], Q[ii], nx[ii], qp->RSQrq+ii, nu[ii], nu[ii]);
 		CVT_TRAN_MAT2STRMAT(nu[ii], 1, r[ii], nu[ii], qp->RSQrq+ii, nu[ii]+nx[ii], 0);
 		CVT_TRAN_MAT2STRMAT(nx[ii], 1, q[ii], nx[ii], qp->RSQrq+ii, nu[ii]+nx[ii], nu[ii]);
-		CVT_VEC2STRVEC(nu[ii], r[ii], qp->rqz+ii, 0);
-		CVT_VEC2STRVEC(nx[ii], q[ii], qp->rqz+ii, nu[ii]);
+		PACK_VEC(nu[ii], r[ii], 1, qp->rqz+ii, 0);
+		PACK_VEC(nx[ii], q[ii], 1, qp->rqz+ii, nu[ii]);
 		}
 
 	for(ii=0; ii<Nn; ii++)
@@ -356,8 +356,8 @@ void CVT_COLMAJ_TO_TREE_OCP_QP(REAL **A, REAL **B, REAL **b, REAL **Q, REAL **S,
 			{
 			for(jj=0; jj<nb[ii]; jj++)
 				qp->idxb[ii][jj] = idxb[ii][jj];
-			CVT_VEC2STRVEC(nb[ii], d_lb[ii], qp->d+ii, 0);
-			CVT_VEC2STRVEC(nb[ii], d_ub[ii], qp->d+ii, nb[ii]+ng[ii]);
+			PACK_VEC(nb[ii], d_lb[ii], 1, qp->d+ii, 0);
+			PACK_VEC(nb[ii], d_ub[ii], 1, qp->d+ii, nb[ii]+ng[ii]);
 			VECSC_LIBSTR(nb[ii], -1.0, qp->d+ii, nb[ii]+ng[ii]);
 			VECSE_LIBSTR(nb[ii], 0.0, qp->m+ii, 0);
 			VECSE_LIBSTR(nb[ii], 0.0, qp->m+ii, nb[ii]+ng[ii]);
@@ -370,8 +370,8 @@ void CVT_COLMAJ_TO_TREE_OCP_QP(REAL **A, REAL **B, REAL **b, REAL **Q, REAL **S,
 			{
 			CVT_TRAN_MAT2STRMAT(ng[ii], nu[ii], D[ii], ng[ii], qp->DCt+ii, 0, 0);
 			CVT_TRAN_MAT2STRMAT(ng[ii], nx[ii], C[ii], ng[ii], qp->DCt+ii, nu[ii], 0);
-			CVT_VEC2STRVEC(ng[ii], d_lg[ii], qp->d+ii, nb[ii]);
-			CVT_VEC2STRVEC(ng[ii], d_ug[ii], qp->d+ii, 2*nb[ii]+ng[ii]);
+			PACK_VEC(ng[ii], d_lg[ii], 1, qp->d+ii, nb[ii]);
+			PACK_VEC(ng[ii], d_ug[ii], 1, qp->d+ii, 2*nb[ii]+ng[ii]);
 			VECSC_LIBSTR(ng[ii], -1.0, qp->d+ii, 2*nb[ii]+ng[ii]);
 			VECSE_LIBSTR(ng[ii], 0.0, qp->m+ii, nb[ii]);
 			VECSE_LIBSTR(ng[ii], 0.0, qp->m+ii, 2*nb[ii]+ng[ii]);
@@ -384,12 +384,12 @@ void CVT_COLMAJ_TO_TREE_OCP_QP(REAL **A, REAL **B, REAL **b, REAL **Q, REAL **S,
 			{
 			for(jj=0; jj<ns[ii]; jj++)
 				qp->idxs[ii][jj] = idxs[ii][jj];
-			CVT_VEC2STRVEC(ns[ii], Zl[ii], qp->Z+ii, 0);
-			CVT_VEC2STRVEC(ns[ii], Zu[ii], qp->Z+ii, ns[ii]);
-			CVT_VEC2STRVEC(ns[ii], zl[ii], qp->rqz+ii, nu[ii]+nx[ii]);
-			CVT_VEC2STRVEC(ns[ii], zu[ii], qp->rqz+ii, nu[ii]+nx[ii]+ns[ii]);
-			CVT_VEC2STRVEC(ns[ii], d_ls[ii], qp->d+ii, 2*nb[ii]+2*ng[ii]);
-			CVT_VEC2STRVEC(ns[ii], d_us[ii], qp->d+ii, 2*nb[ii]+2*ng[ii]+ns[ii]);
+			PACK_VEC(ns[ii], Zl[ii], 1, qp->Z+ii, 0);
+			PACK_VEC(ns[ii], Zu[ii], 1, qp->Z+ii, ns[ii]);
+			PACK_VEC(ns[ii], zl[ii], 1, qp->rqz+ii, nu[ii]+nx[ii]);
+			PACK_VEC(ns[ii], zu[ii], 1, qp->rqz+ii, nu[ii]+nx[ii]+ns[ii]);
+			PACK_VEC(ns[ii], d_ls[ii], 1, qp->d+ii, 2*nb[ii]+2*ng[ii]);
+			PACK_VEC(ns[ii], d_us[ii], 1, qp->d+ii, 2*nb[ii]+2*ng[ii]+ns[ii]);
 			VECSE_LIBSTR(ns[ii], 0.0, qp->m+ii, 2*nb[ii]+2*ng[ii]);
 			VECSE_LIBSTR(ns[ii], 0.0, qp->m+ii, 2*nb[ii]+2*ng[ii]+ns[ii]);
 			}

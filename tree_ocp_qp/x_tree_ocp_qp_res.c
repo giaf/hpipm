@@ -339,36 +339,36 @@ void CVT_TREE_OCP_QP_RES_TO_COLMAJ(struct TREE_OCP_QP_RES *res, REAL **res_r, RE
 	for(ii=0; ii<Nn; ii++)
 		{
 		// cost
-		CVT_STRVEC2VEC(nu[ii], res->res_g+ii, 0, res_r[ii]);
-		CVT_STRVEC2VEC(nx[ii], res->res_g+ii, nu[ii], res_q[ii]);
+		UNPACK_VEC(nu[ii], res->res_g+ii, 0, res_r[ii], 1);
+		UNPACK_VEC(nx[ii], res->res_g+ii, nu[ii], res_q[ii], 1);
 
 		// box constraints
 		if(nb[ii]>0)
 			{
-			CVT_STRVEC2VEC(nb[ii], res->res_d+ii, 0, res_d_lb[ii]);
-			CVT_STRVEC2VEC(nb[ii], res->res_d+ii, nb[ii]+ng[ii], res_d_ub[ii]);
-			CVT_STRVEC2VEC(nb[ii], res->res_m+ii, 0, res_m_lb[ii]);
-			CVT_STRVEC2VEC(nb[ii], res->res_m+ii, nb[ii]+ng[ii], res_m_ub[ii]);
+			UNPACK_VEC(nb[ii], res->res_d+ii, 0, res_d_lb[ii], 1);
+			UNPACK_VEC(nb[ii], res->res_d+ii, nb[ii]+ng[ii], res_d_ub[ii], 1);
+			UNPACK_VEC(nb[ii], res->res_m+ii, 0, res_m_lb[ii], 1);
+			UNPACK_VEC(nb[ii], res->res_m+ii, nb[ii]+ng[ii], res_m_ub[ii], 1);
 			}
 
 		// general constraints
 		if(ng[ii]>0)
 			{
-			CVT_STRVEC2VEC(ng[ii], res->res_d+ii, nb[ii], res_d_lg[ii]);
-			CVT_STRVEC2VEC(ng[ii], res->res_d+ii, 2*nb[ii]+ng[ii], res_d_ug[ii]);
-			CVT_STRVEC2VEC(ng[ii], res->res_m+ii, nb[ii], res_m_lg[ii]);
-			CVT_STRVEC2VEC(ng[ii], res->res_m+ii, 2*nb[ii]+ng[ii], res_m_ug[ii]);
+			UNPACK_VEC(ng[ii], res->res_d+ii, nb[ii], res_d_lg[ii], 1);
+			UNPACK_VEC(ng[ii], res->res_d+ii, 2*nb[ii]+ng[ii], res_d_ug[ii], 1);
+			UNPACK_VEC(ng[ii], res->res_m+ii, nb[ii], res_m_lg[ii], 1);
+			UNPACK_VEC(ng[ii], res->res_m+ii, 2*nb[ii]+ng[ii], res_m_ug[ii], 1);
 			}
 
 		// soft constraints
 		if(ns[ii]>0)
 			{
-			CVT_STRVEC2VEC(ns[ii], res->res_g+ii, nu[ii]+nx[ii], res_ls[ii]);
-			CVT_STRVEC2VEC(ns[ii], res->res_g+ii, nu[ii]+nx[ii]+ns[ii], res_us[ii]);
-			CVT_STRVEC2VEC(ns[ii], res->res_d+ii, 2*nb[ii]+2*ng[ii], res_d_ls[ii]);
-			CVT_STRVEC2VEC(ns[ii], res->res_d+ii, 2*nb[ii]+2*ng[ii]+ns[ii], res_d_us[ii]);
-			CVT_STRVEC2VEC(ns[ii], res->res_m+ii, 2*nb[ii]+2*ng[ii], res_m_ls[ii]);
-			CVT_STRVEC2VEC(ns[ii], res->res_m+ii, 2*nb[ii]+2*ng[ii]+ns[ii], res_m_us[ii]);
+			UNPACK_VEC(ns[ii], res->res_g+ii, nu[ii]+nx[ii], res_ls[ii], 1);
+			UNPACK_VEC(ns[ii], res->res_g+ii, nu[ii]+nx[ii]+ns[ii], res_us[ii], 1);
+			UNPACK_VEC(ns[ii], res->res_d+ii, 2*nb[ii]+2*ng[ii], res_d_ls[ii], 1);
+			UNPACK_VEC(ns[ii], res->res_d+ii, 2*nb[ii]+2*ng[ii]+ns[ii], res_d_us[ii], 1);
+			UNPACK_VEC(ns[ii], res->res_m+ii, 2*nb[ii]+2*ng[ii], res_m_ls[ii], 1);
+			UNPACK_VEC(ns[ii], res->res_m+ii, 2*nb[ii]+2*ng[ii]+ns[ii], res_m_us[ii], 1);
 			}
 		}
 	
@@ -376,7 +376,7 @@ void CVT_TREE_OCP_QP_RES_TO_COLMAJ(struct TREE_OCP_QP_RES *res, REAL **res_r, RE
 		{
 		// dynamics
 		idx = ii+1;
-		CVT_STRVEC2VEC(nx[idx], res->res_b+ii, 0, res_b[ii]);
+		UNPACK_VEC(nx[idx], res->res_b+ii, 0, res_b[ii], 1);
 		}
 
 	return;
@@ -400,36 +400,36 @@ void CVT_TREE_OCP_QP_RES_TO_ROWMAJ(struct TREE_OCP_QP_RES *res, REAL **res_r, RE
 	for(ii=0; ii<Nn; ii++)
 		{
 		// cost
-		CVT_STRVEC2VEC(nu[ii], res->res_g+ii, 0, res_r[ii]);
-		CVT_STRVEC2VEC(nx[ii], res->res_g+ii, nu[ii], res_q[ii]);
+		UNPACK_VEC(nu[ii], res->res_g+ii, 0, res_r[ii], 1);
+		UNPACK_VEC(nx[ii], res->res_g+ii, nu[ii], res_q[ii], 1);
 
 		// box constraints
 		if(nb[ii]>0)
 			{
-			CVT_STRVEC2VEC(nb[ii], res->res_d+ii, 0, res_d_lb[ii]);
-			CVT_STRVEC2VEC(nb[ii], res->res_d+ii, nb[ii]+ng[ii], res_d_ub[ii]);
-			CVT_STRVEC2VEC(nb[ii], res->res_m+ii, 0, res_m_lb[ii]);
-			CVT_STRVEC2VEC(nb[ii], res->res_m+ii, nb[ii]+ng[ii], res_m_ub[ii]);
+			UNPACK_VEC(nb[ii], res->res_d+ii, 0, res_d_lb[ii], 1);
+			UNPACK_VEC(nb[ii], res->res_d+ii, nb[ii]+ng[ii], res_d_ub[ii], 1);
+			UNPACK_VEC(nb[ii], res->res_m+ii, 0, res_m_lb[ii], 1);
+			UNPACK_VEC(nb[ii], res->res_m+ii, nb[ii]+ng[ii], res_m_ub[ii], 1);
 			}
 
 		// general constraints
 		if(ng[ii]>0)
 			{
-			CVT_STRVEC2VEC(ng[ii], res->res_d+ii, nb[ii], res_d_lg[ii]);
-			CVT_STRVEC2VEC(ng[ii], res->res_d+ii, 2*nb[ii]+ng[ii], res_d_ug[ii]);
-			CVT_STRVEC2VEC(ng[ii], res->res_m+ii, nb[ii], res_m_lg[ii]);
-			CVT_STRVEC2VEC(ng[ii], res->res_m+ii, 2*nb[ii]+ng[ii], res_m_ug[ii]);
+			UNPACK_VEC(ng[ii], res->res_d+ii, nb[ii], res_d_lg[ii], 1);
+			UNPACK_VEC(ng[ii], res->res_d+ii, 2*nb[ii]+ng[ii], res_d_ug[ii], 1);
+			UNPACK_VEC(ng[ii], res->res_m+ii, nb[ii], res_m_lg[ii], 1);
+			UNPACK_VEC(ng[ii], res->res_m+ii, 2*nb[ii]+ng[ii], res_m_ug[ii], 1);
 			}
 
 		// soft constraints
 		if(ns[ii]>0)
 			{
-			CVT_STRVEC2VEC(ns[ii], res->res_g+ii, nu[ii]+nx[ii], res_ls[ii]);
-			CVT_STRVEC2VEC(ns[ii], res->res_g+ii, nu[ii]+nx[ii]+ns[ii], res_us[ii]);
-			CVT_STRVEC2VEC(ns[ii], res->res_d+ii, 2*nb[ii]+2*ng[ii], res_d_ls[ii]);
-			CVT_STRVEC2VEC(ns[ii], res->res_d+ii, 2*nb[ii]+2*ng[ii]+ns[ii], res_d_us[ii]);
-			CVT_STRVEC2VEC(ns[ii], res->res_m+ii, 2*nb[ii]+2*ng[ii], res_m_ls[ii]);
-			CVT_STRVEC2VEC(ns[ii], res->res_m+ii, 2*nb[ii]+2*ng[ii]+ns[ii], res_m_us[ii]);
+			UNPACK_VEC(ns[ii], res->res_g+ii, nu[ii]+nx[ii], res_ls[ii], 1);
+			UNPACK_VEC(ns[ii], res->res_g+ii, nu[ii]+nx[ii]+ns[ii], res_us[ii], 1);
+			UNPACK_VEC(ns[ii], res->res_d+ii, 2*nb[ii]+2*ng[ii], res_d_ls[ii], 1);
+			UNPACK_VEC(ns[ii], res->res_d+ii, 2*nb[ii]+2*ng[ii]+ns[ii], res_d_us[ii], 1);
+			UNPACK_VEC(ns[ii], res->res_m+ii, 2*nb[ii]+2*ng[ii], res_m_ls[ii], 1);
+			UNPACK_VEC(ns[ii], res->res_m+ii, 2*nb[ii]+2*ng[ii]+ns[ii], res_m_us[ii], 1);
 			}
 		}
 	
@@ -437,7 +437,7 @@ void CVT_TREE_OCP_QP_RES_TO_ROWMAJ(struct TREE_OCP_QP_RES *res, REAL **res_r, RE
 		{
 		// dynamics
 		idx = ii+1;
-		CVT_STRVEC2VEC(nx[idx], res->res_b+ii, 0, res_b[ii]);
+		UNPACK_VEC(nx[idx], res->res_b+ii, 0, res_b[ii], 1);
 		}
 
 	return;

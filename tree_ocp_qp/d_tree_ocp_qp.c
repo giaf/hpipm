@@ -55,7 +55,7 @@
 #define CREATE_STRVEC blasfeo_create_dvec
 #define CVT_MAT2STRMAT blasfeo_pack_dmat
 #define CVT_TRAN_MAT2STRMAT blasfeo_pack_tran_dmat
-#define CVT_VEC2STRVEC blasfeo_pack_dvec
+#define PACK_VEC blasfeo_pack_dvec
 #define REAL double
 #define SIZE_STRMAT blasfeo_memsize_dmat
 #define SIZE_STRVEC blasfeo_memsize_dvec

@@ -50,7 +50,7 @@
 
 
 #define CREATE_STRVEC blasfeo_create_svec
-#define CVT_STRVEC2VEC blasfeo_unpack_svec
+#define UNPACK_VEC blasfeo_unpack_svec
 #define REAL float
 #define SIZE_STRVEC blasfeo_memsize_svec
 #define STRVEC blasfeo_svec

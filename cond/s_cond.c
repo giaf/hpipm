@@ -70,6 +70,7 @@
 #define OCP_QP s_ocp_qp
 #define OCP_QP_DIM s_ocp_qp_dim
 #define OCP_QP_SOL s_ocp_qp_sol
+#define REAL float
 #define SIZE_STRMAT blasfeo_memsize_smat
 #define SIZE_STRVEC blasfeo_memsize_svec
 #define STRMAT blasfeo_smat

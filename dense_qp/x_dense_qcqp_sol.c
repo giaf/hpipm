@@ -142,7 +142,7 @@ void DENSE_QCQP_SOL_CREATE(struct DENSE_QCQP_DIM *dim, struct DENSE_QCQP_SOL *qp
 void DENSE_QCQP_SOL_GET_V(struct DENSE_QCQP_SOL *qp_sol, REAL *v)
 	{
 	int nv = qp_sol->dim->nv;
-	CVT_STRVEC2VEC(nv, qp_sol->v, 0, v);
+	UNPACK_VEC(nv, qp_sol->v, 0, v, 1);
 	}
 
 

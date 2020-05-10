@@ -258,29 +258,29 @@ void OCP_QP_SOL_GET_ALL(struct OCP_QP_SOL *qp_sol, REAL **u, REAL **x, REAL **ls
 
 	for(ii=0; ii<N; ii++)
 		{
-		CVT_STRVEC2VEC(nx[ii+1], qp_sol->pi+ii, 0, pi[ii]);
+		UNPACK_VEC(nx[ii+1], qp_sol->pi+ii, 0, pi[ii], 1);
 		}
 
 	for(ii=0; ii<=N; ii++)
 		{
-		CVT_STRVEC2VEC(nu[ii], qp_sol->ux+ii, 0, u[ii]);
-		CVT_STRVEC2VEC(nx[ii], qp_sol->ux+ii, nu[ii], x[ii]);
+		UNPACK_VEC(nu[ii], qp_sol->ux+ii, 0, u[ii], 1);
+		UNPACK_VEC(nx[ii], qp_sol->ux+ii, nu[ii], x[ii], 1);
 		if(nb[ii]>0)
 			{
-			CVT_STRVEC2VEC(nb[ii], qp_sol->lam+ii, 0, lam_lb[ii]);
-			CVT_STRVEC2VEC(nb[ii], qp_sol->lam+ii, nb[ii]+ng[ii], lam_ub[ii]);
+			UNPACK_VEC(nb[ii], qp_sol->lam+ii, 0, lam_lb[ii], 1);
+			UNPACK_VEC(nb[ii], qp_sol->lam+ii, nb[ii]+ng[ii], lam_ub[ii], 1);
 			}
 		if(ng[ii]>0)
 			{
-			CVT_STRVEC2VEC(ng[ii], qp_sol->lam+ii, nb[ii], lam_lg[ii]);
-			CVT_STRVEC2VEC(ng[ii], qp_sol->lam+ii, 2*nb[ii]+ng[ii], lam_ug[ii]);
+			UNPACK_VEC(ng[ii], qp_sol->lam+ii, nb[ii], lam_lg[ii], 1);
+			UNPACK_VEC(ng[ii], qp_sol->lam+ii, 2*nb[ii]+ng[ii], lam_ug[ii], 1);
 			}
 		if(ns[ii]>0)
 			{
-			CVT_STRVEC2VEC(ns[ii], qp_sol->ux+ii, nu[ii]+nx[ii], ls[ii]);
-			CVT_STRVEC2VEC(ns[ii], qp_sol->ux+ii, nu[ii]+nx[ii]+ns[ii], us[ii]);
-			CVT_STRVEC2VEC(ns[ii], qp_sol->lam+ii, 2*nb[ii]+2*ng[ii], lam_ls[ii]);
-			CVT_STRVEC2VEC(ns[ii], qp_sol->lam+ii, 2*nb[ii]+2*ng[ii]+ns[ii], lam_us[ii]);
+			UNPACK_VEC(ns[ii], qp_sol->ux+ii, nu[ii]+nx[ii], ls[ii], 1);
+			UNPACK_VEC(ns[ii], qp_sol->ux+ii, nu[ii]+nx[ii]+ns[ii], us[ii], 1);
+			UNPACK_VEC(ns[ii], qp_sol->lam+ii, 2*nb[ii]+2*ng[ii], lam_ls[ii], 1);
+			UNPACK_VEC(ns[ii], qp_sol->lam+ii, 2*nb[ii]+2*ng[ii]+ns[ii], lam_us[ii], 1);
 			}
 		}
 
@@ -312,29 +312,29 @@ void OCP_QP_SOL_SET_ALL(REAL **u, REAL **x, REAL **ls, REAL **us, REAL **pi, REA
 
 	for(ii=0; ii<N; ii++)
 		{
-		CVT_VEC2STRVEC(nx[ii+1], pi[ii], qp_sol->pi+ii, 0);
+		PACK_VEC(nx[ii+1], pi[ii], 1, qp_sol->pi+ii, 0);
 		}
 
 	for(ii=0; ii<=N; ii++)
 		{
-		CVT_VEC2STRVEC(nu[ii], u[ii], qp_sol->ux+ii, 0);
-		CVT_VEC2STRVEC(nx[ii], x[ii], qp_sol->ux+ii, nu[ii]);
+		PACK_VEC(nu[ii], u[ii], 1, qp_sol->ux+ii, 0);
+		PACK_VEC(nx[ii], x[ii], 1, qp_sol->ux+ii, nu[ii]);
 		if(nb[ii]>0)
 			{
-			CVT_VEC2STRVEC(nb[ii], lam_lb[ii], qp_sol->lam+ii, 0);
-			CVT_VEC2STRVEC(nb[ii], lam_ub[ii], qp_sol->lam+ii, nb[ii]+ng[ii]);
+			PACK_VEC(nb[ii], lam_lb[ii], 1, qp_sol->lam+ii, 0);
+			PACK_VEC(nb[ii], lam_ub[ii], 1, qp_sol->lam+ii, nb[ii]+ng[ii]);
 			}
 		if(ng[ii]>0)
 			{
-			CVT_VEC2STRVEC(ng[ii], lam_lg[ii], qp_sol->lam+ii, nb[ii]);
-			CVT_VEC2STRVEC(ng[ii], lam_ug[ii], qp_sol->lam+ii, 2*nb[ii]+ng[ii]);
+			PACK_VEC(ng[ii], lam_lg[ii], 1, qp_sol->lam+ii, nb[ii]);
+			PACK_VEC(ng[ii], lam_ug[ii], 1, qp_sol->lam+ii, 2*nb[ii]+ng[ii]);
 			}
 		if(ns[ii]>0)
 			{
-			CVT_VEC2STRVEC(ns[ii], ls[ii], qp_sol->ux+ii, nu[ii]+nx[ii]);
-			CVT_VEC2STRVEC(ns[ii], us[ii], qp_sol->ux+ii, nu[ii]+nx[ii]+ns[ii]);
-			CVT_VEC2STRVEC(ns[ii], lam_ls[ii], qp_sol->lam+ii, 2*nb[ii]+2*ng[ii]);
-			CVT_VEC2STRVEC(ns[ii], lam_us[ii], qp_sol->lam+ii, 2*nb[ii]+2*ng[ii]+ns[ii]);
+			PACK_VEC(ns[ii], ls[ii], 1, qp_sol->ux+ii, nu[ii]+nx[ii]);
+			PACK_VEC(ns[ii], us[ii], 1, qp_sol->ux+ii, nu[ii]+nx[ii]+ns[ii]);
+			PACK_VEC(ns[ii], lam_ls[ii], 1, qp_sol->lam+ii, 2*nb[ii]+2*ng[ii]);
+			PACK_VEC(ns[ii], lam_us[ii], 1, qp_sol->lam+ii, 2*nb[ii]+2*ng[ii]+ns[ii]);
 			}
 		}
 
@@ -395,7 +395,7 @@ void OCP_QP_SOL_GET(char *field, int stage, struct OCP_QP_SOL *qp_sol, REAL *vec
 void OCP_QP_SOL_GET_U(int stage, struct OCP_QP_SOL *qp_sol, REAL *vec)
 	{
 	int *nu = qp_sol->dim->nu;
-	CVT_STRVEC2VEC(nu[stage], qp_sol->ux+stage, 0, vec);
+	UNPACK_VEC(nu[stage], qp_sol->ux+stage, 0, vec, 1);
 	}
 
 
@@ -404,7 +404,7 @@ void OCP_QP_SOL_GET_X(int stage, struct OCP_QP_SOL *qp_sol, REAL *vec)
 	{
 	int *nx = qp_sol->dim->nx;
 	int *nu = qp_sol->dim->nu;
-	CVT_STRVEC2VEC(nx[stage], qp_sol->ux+stage, nu[stage], vec);
+	UNPACK_VEC(nx[stage], qp_sol->ux+stage, nu[stage], vec, 1);
 	}
 
 
@@ -414,7 +414,7 @@ void OCP_QP_SOL_GET_SL(int stage, struct OCP_QP_SOL *qp_sol, REAL *vec)
 	int *nu = qp_sol->dim->nu;
 	int *nx = qp_sol->dim->nx;
 	int *ns = qp_sol->dim->ns;
-	CVT_STRVEC2VEC(ns[stage], qp_sol->ux+stage, nu[stage]+nx[stage], vec);
+	UNPACK_VEC(ns[stage], qp_sol->ux+stage, nu[stage]+nx[stage], vec, 1);
 	return;
 	}
 
@@ -425,7 +425,7 @@ void OCP_QP_SOL_GET_SU(int stage, struct OCP_QP_SOL *qp_sol, REAL *vec)
 	int *nu = qp_sol->dim->nu;
 	int *nx = qp_sol->dim->nx;
 	int *ns = qp_sol->dim->ns;
-	CVT_STRVEC2VEC(ns[stage], qp_sol->ux+stage, nu[stage]+nx[stage]+ns[stage], vec);
+	UNPACK_VEC(ns[stage], qp_sol->ux+stage, nu[stage]+nx[stage]+ns[stage], vec, 1);
 	return;
 	}
 
@@ -433,7 +433,7 @@ void OCP_QP_SOL_GET_SU(int stage, struct OCP_QP_SOL *qp_sol, REAL *vec)
 void OCP_QP_SOL_GET_PI(int stage, struct OCP_QP_SOL *qp_sol, REAL *vec)
 	{
 	int *nx = qp_sol->dim->nx;
-	CVT_STRVEC2VEC(nx[stage+1], qp_sol->pi+stage, 0, vec);
+	UNPACK_VEC(nx[stage+1], qp_sol->pi+stage, 0, vec, 1);
 	}
 
 
@@ -441,7 +441,7 @@ void OCP_QP_SOL_GET_PI(int stage, struct OCP_QP_SOL *qp_sol, REAL *vec)
 void OCP_QP_SOL_GET_LAM_LB(int stage, struct OCP_QP_SOL *qp_sol, REAL *vec)
 	{
 	int *nb = qp_sol->dim->nb;
-	CVT_STRVEC2VEC(nb[stage], qp_sol->lam+stage, 0, vec);
+	UNPACK_VEC(nb[stage], qp_sol->lam+stage, 0, vec, 1);
 	}
 
 
@@ -450,7 +450,7 @@ void OCP_QP_SOL_GET_LAM_UB(int stage, struct OCP_QP_SOL *qp_sol, REAL *vec)
 	{
 	int *nb = qp_sol->dim->nb;
 	int *ng = qp_sol->dim->ng;
-	CVT_STRVEC2VEC(nb[stage], qp_sol->lam+stage, nb[stage]+ng[stage], vec);
+	UNPACK_VEC(nb[stage], qp_sol->lam+stage, nb[stage]+ng[stage], vec, 1);
 	}
 
 
@@ -459,7 +459,7 @@ void OCP_QP_SOL_GET_LAM_LG(int stage, struct OCP_QP_SOL *qp_sol, REAL *vec)
 	{
 	int *nb = qp_sol->dim->nb;
 	int *ng = qp_sol->dim->ng;
-	CVT_STRVEC2VEC(ng[stage], qp_sol->lam+stage, nb[stage], vec);
+	UNPACK_VEC(ng[stage], qp_sol->lam+stage, nb[stage], vec, 1);
 	}
 
 
@@ -468,7 +468,7 @@ void OCP_QP_SOL_GET_LAM_UG(int stage, struct OCP_QP_SOL *qp_sol, REAL *vec)
 	{
 	int *nb = qp_sol->dim->nb;
 	int *ng = qp_sol->dim->ng;
-	CVT_STRVEC2VEC(ng[stage], qp_sol->lam+stage, 2*nb[stage]+ng[stage], vec);
+	UNPACK_VEC(ng[stage], qp_sol->lam+stage, 2*nb[stage]+ng[stage], vec, 1);
 	}
 
 
@@ -504,7 +504,7 @@ void OCP_QP_SOL_SET(char *field, int stage, REAL *vec, struct OCP_QP_SOL *qp_sol
 void OCP_QP_SOL_SET_U(int stage, REAL *vec, struct OCP_QP_SOL *qp_sol)
 	{
 	int *nu = qp_sol->dim->nu;
-	CVT_VEC2STRVEC(nu[stage], vec, qp_sol->ux+stage, 0);
+	PACK_VEC(nu[stage], vec, 1, qp_sol->ux+stage, 0);
 	return;
 	}
 
@@ -514,7 +514,7 @@ void OCP_QP_SOL_SET_X(int stage, REAL *vec, struct OCP_QP_SOL *qp_sol)
 	{
 	int *nu = qp_sol->dim->nu;
 	int *nx = qp_sol->dim->nx;
-	CVT_VEC2STRVEC(nx[stage], vec, qp_sol->ux+stage, nu[stage]);
+	PACK_VEC(nx[stage], vec, 1, qp_sol->ux+stage, nu[stage]);
 	return;
 	}
 
@@ -525,7 +525,7 @@ void OCP_QP_SOL_SET_SL(int stage, REAL *vec, struct OCP_QP_SOL *qp_sol)
 	int *nu = qp_sol->dim->nu;
 	int *nx = qp_sol->dim->nx;
 	int *ns = qp_sol->dim->ns;
-	CVT_VEC2STRVEC(ns[stage], vec, qp_sol->ux+stage, nu[stage]+nx[stage]);
+	PACK_VEC(ns[stage], vec, 1, qp_sol->ux+stage, nu[stage]+nx[stage]);
 	return;
 	}
 
@@ -536,6 +536,6 @@ void OCP_QP_SOL_SET_SU(int stage, REAL *vec, struct OCP_QP_SOL *qp_sol)
 	int *nu = qp_sol->dim->nu;
 	int *nx = qp_sol->dim->nx;
 	int *ns = qp_sol->dim->ns;
-	CVT_VEC2STRVEC(ns[stage], vec, qp_sol->ux+stage, nu[stage]+nx[stage]+ns[stage]);
+	PACK_VEC(ns[stage], vec, 1, qp_sol->ux+stage, nu[stage]+nx[stage]+ns[stage]);
 	return;
 	}

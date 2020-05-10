@@ -52,7 +52,7 @@
 
 
 #define CREATE_STRVEC blasfeo_create_dvec
-#define CVT_STRVEC2VEC blasfeo_unpack_dvec
+#define UNPACK_VEC blasfeo_unpack_dvec
 #define DENSE_QCQP d_dense_qcqp
 #define DENSE_QCQP_DIM d_dense_qcqp_dim
 #define DENSE_QCQP_SOL d_dense_qcqp_sol

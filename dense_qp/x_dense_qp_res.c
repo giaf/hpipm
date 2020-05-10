@@ -522,23 +522,23 @@ void DENSE_QP_RES_GET_ALL(struct DENSE_QP_RES *res, REAL *res_g, REAL *res_ls, R
 	int ng = res->dim->ng;
 	int ns = res->dim->ns;
 
-	CVT_STRVEC2VEC(nv, res->res_g, 0, res_g);
-	CVT_STRVEC2VEC(ns, res->res_g, nv, res_ls);
-	CVT_STRVEC2VEC(ns, res->res_g, nv+ns, res_us);
+	UNPACK_VEC(nv, res->res_g, 0, res_g, 1);
+	UNPACK_VEC(ns, res->res_g, nv, res_ls, 1);
+	UNPACK_VEC(ns, res->res_g, nv+ns, res_us, 1);
 
-	CVT_STRVEC2VEC(ne, res->res_b, 0, res_b);
-	CVT_STRVEC2VEC(nb, res->res_d, 0, res_d_lb);
-	CVT_STRVEC2VEC(ng, res->res_d, nb, res_d_lg);
-	CVT_STRVEC2VEC(nb, res->res_d, nb+ng, res_d_ub);
-	CVT_STRVEC2VEC(ng, res->res_d, 2*nb+ng, res_d_ug);
-	CVT_STRVEC2VEC(ns, res->res_d, 2*nb+2*ng, res_d_ls);
-	CVT_STRVEC2VEC(ns, res->res_d, 2*nb+2*ng+ns, res_d_us);
-	CVT_STRVEC2VEC(nb, res->res_m, 0, res_m_lb);
-	CVT_STRVEC2VEC(ng, res->res_m, nb, res_m_lg);
-	CVT_STRVEC2VEC(nb, res->res_m, nb+ng, res_m_ub);
-	CVT_STRVEC2VEC(ng, res->res_m, 2*nb+ng, res_m_ug);
-	CVT_STRVEC2VEC(ns, res->res_m, 2*nb+2*ng, res_m_ls);
-	CVT_STRVEC2VEC(ns, res->res_m, 2*nb+2*ng+ns, res_m_us);
+	UNPACK_VEC(ne, res->res_b, 0, res_b, 1);
+	UNPACK_VEC(nb, res->res_d, 0, res_d_lb, 1);
+	UNPACK_VEC(ng, res->res_d, nb, res_d_lg, 1);
+	UNPACK_VEC(nb, res->res_d, nb+ng, res_d_ub, 1);
+	UNPACK_VEC(ng, res->res_d, 2*nb+ng, res_d_ug, 1);
+	UNPACK_VEC(ns, res->res_d, 2*nb+2*ng, res_d_ls, 1);
+	UNPACK_VEC(ns, res->res_d, 2*nb+2*ng+ns, res_d_us, 1);
+	UNPACK_VEC(nb, res->res_m, 0, res_m_lb, 1);
+	UNPACK_VEC(ng, res->res_m, nb, res_m_lg, 1);
+	UNPACK_VEC(nb, res->res_m, nb+ng, res_m_ub, 1);
+	UNPACK_VEC(ng, res->res_m, 2*nb+ng, res_m_ug, 1);
+	UNPACK_VEC(ns, res->res_m, 2*nb+2*ng, res_m_ls, 1);
+	UNPACK_VEC(ns, res->res_m, 2*nb+2*ng+ns, res_m_us, 1);
 
 	return;
 
