@@ -59,12 +59,15 @@
 
 
 #define COLAD blasfeo_dcolad
+#define COND_DCT d_cond_DCt
 #define COND_DCTD d_cond_DCtd
 #define COND_D d_cond_d
 #define COND_B d_cond_b
 #define COND_BABT d_cond_BAbt
+#define COND_BAT d_cond_BAt
 #define COND_RQ d_cond_rq
 #define COND_RSQRQ d_cond_RSQrq
+#define COND_RSQ d_cond_RSQ
 #define COND_QCQP_ARG d_cond_qcqp_arg
 #define COND_QCQP_WS d_cond_qcqp_ws
 #define COND_QP_ARG d_cond_qp_arg
@@ -124,8 +127,10 @@
 #define COND_QCQP_WS_MEMSIZE d_cond_qcqp_ws_memsize
 #define COND_QCQP_WS_CREATE d_cond_qcqp_ws_create
 #define COND_QCQP_QC d_cond_qcqp_qc
+#define COND_QCQP_QC_LHS d_cond_qcqp_qc_lhs
 #define COND_QCQP_QC_RHS d_cond_qcqp_qc_rhs
 #define COND_QCQP_COND d_cond_qcqp_cond
+#define COND_QCQP_COND_LHS d_cond_qcqp_cond_lhs
 #define COND_QCQP_COND_RHS d_cond_qcqp_cond_rhs
 #define COND_QCQP_EXPAND_SOL d_cond_qcqp_expand_sol
 

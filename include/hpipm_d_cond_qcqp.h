@@ -107,11 +107,15 @@ void d_cond_qcqp_ws_create(struct d_ocp_qcqp_dim *ocp_dim, struct d_cond_qcqp_ar
 //
 void d_cond_qcqp_qc(struct d_ocp_qcqp *ocp_qp, struct blasfeo_dmat *Hq2, int *Hq_nzero2, struct blasfeo_dmat *Ct2, struct blasfeo_dvec *d2, struct d_cond_qcqp_arg *cond_arg, struct d_cond_qcqp_ws *cond_ws);
 //
+void d_cond_qcqp_qc_lhs(struct d_ocp_qcqp *ocp_qp, struct blasfeo_dmat *Hq2, int *Hq_nzero2, struct blasfeo_dmat *Ct2, struct d_cond_qcqp_arg *cond_arg, struct d_cond_qcqp_ws *cond_ws);
+//
 void d_cond_qcqp_qc_rhs(struct d_ocp_qcqp *ocp_qp, struct blasfeo_dvec *d2, struct d_cond_qcqp_arg *cond_arg, struct d_cond_qcqp_ws *cond_ws);
 //
 void d_cond_qcqp_cond(struct d_ocp_qcqp *ocp_qp, struct d_dense_qcqp *dense_qp, struct d_cond_qcqp_arg *cond_arg, struct d_cond_qcqp_ws *cond_ws);
 //
 void d_cond_qcqp_cond_rhs(struct d_ocp_qcqp *ocp_qp, struct d_dense_qcqp *dense_qp, struct d_cond_qcqp_arg *cond_arg, struct d_cond_qcqp_ws *cond_ws);
+//
+void d_cond_qcqp_cond_lhs(struct d_ocp_qcqp *ocp_qp, struct d_dense_qcqp *dense_qp, struct d_cond_qcqp_arg *cond_arg, struct d_cond_qcqp_ws *cond_ws);
 //
 void d_cond_qcqp_expand_sol(struct d_ocp_qcqp *ocp_qp, struct d_dense_qcqp_sol *dense_qp_sol, struct d_ocp_qcqp_sol *ocp_qp_sol, struct d_cond_qcqp_arg *cond_arg, struct d_cond_qcqp_ws *cond_ws);
 
