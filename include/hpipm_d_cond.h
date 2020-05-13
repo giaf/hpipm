@@ -63,7 +63,6 @@ struct d_cond_qp_arg
 	int comp_dual_sol_eq; // dual solution equality constr (pi)
 	int comp_dual_sol_ineq; // dual solution inequality constr (lam t)
 	int square_root_alg; // square root algorithm (faster but requires RSQ>0)
-	int allow_colmaj_format; // allow use of blasfeo routines operating on column-major format
 	int memsize;
 	};
 
@@ -80,10 +79,6 @@ struct d_cond_qp_ws
 	struct blasfeo_dvec *l;
 	struct blasfeo_dvec *tmp_nbgM;
 	struct blasfeo_dvec *tmp_nuxM;
-	double **Gamma_colmaj; // XXX colmaj
-	double *tmp_nxM_nxM_colmaj; // XXX colmaj
-	int *Gamma_colmaj_lda; // XXX colmaj
-	int tmp_nxM_nxM_colmaj_lda; // XXX colmaj
 	int bs; // block size
 	int memsize;
 	};

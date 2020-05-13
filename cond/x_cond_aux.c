@@ -55,127 +55,45 @@ void COND_BABT(struct OCP_QP *ocp_qp, struct STRMAT *BAbt2, struct STRVEC *b2, s
 	struct STRMAT *Gamma = cond_ws->Gamma;
 	struct STRVEC *Gammab = cond_ws->Gammab;
 
-	REAL **Gamma_colmaj = cond_ws->Gamma_colmaj;
-	int *Gamma_colmaj_lda = cond_ws->Gamma_colmaj_lda;
-	REAL *tmp_nxM_nxM_colmaj = cond_ws->tmp_nxM_nxM_colmaj;
-	int tmp_nxM_nxM_colmaj_lda = cond_ws->tmp_nxM_nxM_colmaj_lda;
-
 	int ii, jj;
 
 	int nu_tmp;
 
-	if(cond_arg->allow_colmaj_format==0)
+	nu_tmp = 0;
+	ii = 0;
+	// B & A & b
+	GECP(nu[0]+nx[0], nx[1], &BAbt[0], 0, 0, &Gamma[0], 0, 0);
+	ROWIN(nx[1], 1.0, &b[0], 0, &Gamma[0], nu[0]+nx[0], 0);
+	// b
+	VECCP(nx[1], &b[0], 0, &Gammab[0], 0);
+
+	nu_tmp += nu[0];
+	ii++;
+
+	for(ii=1; ii<N; ii++)
 		{
-		nu_tmp = 0;
-		ii = 0;
-		// B & A & b
-		GECP(nu[0]+nx[0], nx[1], &BAbt[0], 0, 0, &Gamma[0], 0, 0);
-		ROWIN(nx[1], 1.0, &b[0], 0, &Gamma[0], nu[0]+nx[0], 0);
-		// b
-		VECCP(nx[1], &b[0], 0, &Gammab[0], 0);
+		// TODO check for equal pointers and avoid copy
 
-		nu_tmp += nu[0];
-		ii++;
+		// Gamma * A^T
+		GEMM_NN(nu_tmp+nx[0]+1, nx[ii+1], nx[ii], 1.0, &Gamma[ii-1], 0, 0, &BAbt[ii], nu[ii], 0, 0.0, &Gamma[ii], nu[ii], 0, &Gamma[ii], nu[ii], 0); // Gamma * A^T
 
-		for(ii=1; ii<N; ii++)
-			{
-			// TODO check for equal pointers and avoid copy
+		GECP(nu[ii], nx[ii+1], &BAbt[ii], 0, 0, &Gamma[ii], 0, 0);
 
-			// Gamma * A^T
-			GEMM_NN(nu_tmp+nx[0]+1, nx[ii+1], nx[ii], 1.0, &Gamma[ii-1], 0, 0, &BAbt[ii], nu[ii], 0, 0.0, &Gamma[ii], nu[ii], 0, &Gamma[ii], nu[ii], 0); // Gamma * A^T
+		nu_tmp += nu[ii];
 
-			GECP(nu[ii], nx[ii+1], &BAbt[ii], 0, 0, &Gamma[ii], 0, 0);
+		ROWAD(nx[ii+1], 1.0, &b[ii], 0, &Gamma[ii], nu_tmp+nx[0], 0);
 
-			nu_tmp += nu[ii];
-
-			ROWAD(nx[ii+1], 1.0, &b[ii], 0, &Gamma[ii], nu_tmp+nx[0], 0);
-
-			ROWEX(nx[ii+1], 1.0, &Gamma[ii], nu_tmp+nx[0], 0, &Gammab[ii], 0);
-			}
-		
-		if(cond_arg->cond_last_stage==0)
-			{
-			// B & A
-			GECP(nu_tmp+nx[0], nx[N], &Gamma[N-1], 0, 0, &BAbt2[0], 0, 0);
-			// b
-			ROWEX(nx[N], 1.0, &Gamma[N-1], nu_tmp+nx[0], 0, &b2[0], 0);
-			}
+		ROWEX(nx[ii+1], 1.0, &Gamma[ii], nu_tmp+nx[0], 0, &Gammab[ii], 0);
 		}
-	else
+	
+	if(cond_arg->cond_last_stage==0)
 		{
-		nu_tmp = 0;
-		ii = 0;
-		// B & A & b
-//		GECP(nu[0]+nx[0], nx[1], &BAbt[0], 0, 0, &Gamma[0], 0, 0);
-		UNPACK_MAT(nu[0]+nx[0], nx[1], &BAbt[0], 0, 0, Gamma_colmaj[0], Gamma_colmaj_lda[0]);
-//		ROWIN(nx[1], 1.0, &b[0], 0, &Gamma[0], nu[0]+nx[0], 0);
-		UNPACK_VEC(nx[1], &b[0], 0, Gamma_colmaj[0]+(nu[0]+nx[0]), Gamma_colmaj_lda[0]);
+		// B & A
+		GECP(nu_tmp+nx[0], nx[N], &Gamma[N-1], 0, 0, &BAbt2[0], 0, 0);
 		// b
-		VECCP(nx[1], &b[0], 0, &Gammab[0], 0);
-
-		nu_tmp += nu[0];
-		ii++;
-
-		for(ii=1; ii<N; ii++)
-			{
-			// TODO check for equal pointers and avoid copy
-
-			// Gamma * A^T
-//			GEMM_NN(nu_tmp+nx[0]+1, nx[ii+1], nx[ii], 1.0, &Gamma[ii-1], 0, 0, &BAbt[ii], nu[ii], 0, 0.0, &Gamma[ii], nu[ii], 0, &Gamma[ii], nu[ii], 0); // Gamma * A^T
-			UNPACK_MAT(nx[ii], nx[ii+1], &BAbt[ii], nu[ii], 0, tmp_nxM_nxM_colmaj, tmp_nxM_nxM_colmaj_lda);
-			GEMM('n', 'n', nu_tmp+nx[0]+1, nx[ii+1], nx[ii], 1.0, Gamma_colmaj[ii-1], Gamma_colmaj_lda[ii-1], tmp_nxM_nxM_colmaj, tmp_nxM_nxM_colmaj_lda, 0.0, Gamma_colmaj[ii]+nu[ii], Gamma_colmaj_lda[ii], Gamma_colmaj[ii]+nu[ii], Gamma_colmaj_lda[ii]); // Gamma * A^T
-
-//			GECP(nu[ii], nx[ii+1], &BAbt[ii], 0, 0, &Gamma[ii], 0, 0);
-			UNPACK_MAT(nu[ii], nx[ii+1], &BAbt[ii], 0, 0, Gamma_colmaj[ii], Gamma_colmaj_lda[ii]);
-
-			nu_tmp += nu[ii];
-
-//			ROWAD(nx[ii+1], 1.0, &b[ii], 0, &Gamma[ii], nu_tmp+nx[0], 0);
-//			ROWEX(nx[ii+1], 1.0, &Gamma[ii], nu_tmp+nx[0], 0, &Gammab[ii], 0);
-			for(jj=0; jj<nx[ii+1]; jj++)
-#ifdef DOUBLE_PRECISION
-				Gamma_colmaj[ii][nu_tmp+nx[0]+jj*Gamma_colmaj_lda[ii]] += BLASFEO_DVECEL(b+ii, jj);
-				BLASFEO_DVECEL(Gammab+ii, jj) = Gamma_colmaj[ii][nu_tmp+nx[0]+jj*Gamma_colmaj_lda[ii]];
-#else
-				Gamma_colmaj[ii][nu_tmp+nx[0]+jj*Gamma_colmaj_lda[ii]] += BLASFEO_SVECEL(b+ii, jj);
-				BLASFEO_SVECEL(Gammab+ii, jj) = Gamma_colmaj[ii][nu_tmp+nx[0]+jj*Gamma_colmaj_lda[ii]];
-#endif
-			}
-		
-		if(cond_arg->cond_last_stage==0)
-			{
-			// B & A
-//			GECP(nu_tmp+nx[0], nx[N], &Gamma[N-1], 0, 0, &BAbt2[0], 0, 0);
-			PACK_MAT(nu_tmp+nx[0], nx[N], Gamma_colmaj[N-1], Gamma_colmaj_lda[N-1], &BAbt2[0], 0, 0);
-			// b
-//			ROWEX(nx[N], 1.0, &Gamma[N-1], nu_tmp+nx[0], 0, &b2[0], 0);
-			PACK_VEC(nx[N], Gamma_colmaj[N-1]+nu_tmp+nx[0], Gamma_colmaj_lda[N-1], &b2[0], 0);
-			}
-
-		// pack Gamma XXX for now !!!!!!!!!!!!!!!!!!!
-		nu_tmp = 0;
-		for(ii=0; ii<N; ii++)
-			{
-			nu_tmp += nu[ii];
-			PACK_MAT(nu_tmp+nx[0]+1, nx[ii+1], Gamma_colmaj[ii], nu_tmp+nx[0]+1, Gamma+ii, 0, 0);
-			}
+		ROWEX(nx[N], 1.0, &Gamma[N-1], nu_tmp+nx[0], 0, &b2[0], 0);
 		}
 
-#if 0
-nu_tmp = 0;
-for(ii=0; ii<N; ii++)
-	{
-	nu_tmp += nu[ii];
-	blasfeo_print_dmat(nu_tmp+nx[0]+1, nx[ii+1], Gamma+ii, 0, 0);
-	}
-nu_tmp = 0;
-for(ii=0; ii<N; ii++)
-	{
-	nu_tmp += nu[ii];
-	d_print_mat(nu_tmp+nx[0]+1, nx[ii+1], Gamma_colmaj[ii], nu_tmp+nx[0]+1);
-	}
-exit(1);
-#endif
 	return;
 
 	}

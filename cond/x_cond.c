@@ -121,8 +121,6 @@ void COND_QP_ARG_SET_DEFAULT(struct COND_QP_ARG *cond_arg)
 	cond_arg->comp_dual_sol_ineq = 1; // compute dual solution inequality constr (lam t)
 	cond_arg->square_root_alg = 1; // square root algorithm (faster but requires RSQ>0)
 
-	cond_arg->allow_colmaj_format = 0; // allow use of blasfeo routines operating on column-major format TODO change if necessary !!!!!!!!!!!!!!!!!
-
 	return;
 
 	}
@@ -252,10 +250,6 @@ int COND_QP_WS_MEMSIZE(struct OCP_QP_DIM *ocp_dim, struct COND_QP_ARG *cond_arg)
 		{
 		size += 1*sizeof(struct STRMAT); // GammaQ
 		}
-	if(cond_arg->allow_colmaj_format!=0)
-		{
-		size += N*sizeof(double *); // Gamma_colmaj
-		}
 
 	nu_tmp = 0;
 	for(ii=0; ii<N; ii++)
@@ -279,17 +273,6 @@ int COND_QP_WS_MEMSIZE(struct OCP_QP_DIM *ocp_dim, struct COND_QP_ARG *cond_arg)
 			nu_tmp += nu[ii];
 		size += SIZE_STRMAT(nu_tmp+nxM+1, nxM); // GammaQ
 		}
-	if(cond_arg->allow_colmaj_format!=0)
-		{
-		nu_tmp = 0;
-		for(ii=0; ii<N; ii++)
-			{
-			nu_tmp += nu[ii];
-			size += (nu_tmp+nx[0]+1)*(nx[ii+1])*sizeof(REAL); // Gamma_colmaj // TODO align to SIMD !!!
-			}
-		size += nxM*nxM*sizeof(REAL); // tmp_nxM_nxM_colmaj // TODO align to SIMD !!!!!
-		size += N*sizeof(int); // Gamma_colmaj_lda
-		}
 
 	for(ii=0; ii<N; ii++)
 		size += 1*SIZE_STRVEC(nx[ii+1]); // Gammab
@@ -297,8 +280,7 @@ int COND_QP_WS_MEMSIZE(struct OCP_QP_DIM *ocp_dim, struct COND_QP_ARG *cond_arg)
 	size += 1*SIZE_STRVEC(nuM+nxM); // tmp_nuxM
 
 	size += 1*64; // align to typical cache line size
-	size += 1*32; // align to max simd width
-	size += 2*8; // align to 64 bits
+	size += 1*8; // align to 64 bits
 
 	size = (size+63)/64*64; // make multiple of typical cache line size
 
@@ -357,8 +339,13 @@ void COND_QP_WS_CREATE(struct OCP_QP_DIM *ocp_dim, struct COND_QP_ARG *cond_arg,
 	ngM = ng[ii]>ngM ? ng[ii] : ngM;
 
 
+	// align to typicl cache line size
+	s_ptr = (size_t) mem;
+	s_ptr = (s_ptr+7)/8*8;
+
+
 	// matrix struct
-	struct STRMAT *sm_ptr = (struct STRMAT *) mem;
+	struct STRMAT *sm_ptr = (struct STRMAT *) s_ptr;
 
 	cond_ws->Gamma = sm_ptr;
 	sm_ptr += N;
@@ -394,68 +381,8 @@ void COND_QP_WS_CREATE(struct OCP_QP_DIM *ocp_dim, struct COND_QP_ARG *cond_arg,
 		}
 
 
-	// align to 64 bits
-	s_ptr = (size_t) sv_ptr;
-	s_ptr = (s_ptr+7)/8*8;
-
-
-	// REAL pointer
-	REAL **rp_ptr = (REAL **) s_ptr;
-
-	if(cond_arg->allow_colmaj_format!=0)
-		{
-		cond_ws->Gamma_colmaj = rp_ptr;
-		rp_ptr += N;
-		}
-
-
-	// align to 64 bits
-	s_ptr = (size_t) rp_ptr;
-	s_ptr = (s_ptr+7)/8*8;
-
-	int *i_ptr = (int *) s_ptr;
-
-
-	if(cond_arg->allow_colmaj_format!=0)
-		{
-		//
-		cond_ws->Gamma_colmaj_lda = i_ptr;
-		i_ptr += N;
-		nu_tmp = 0;
-		for(ii=0; ii<N; ii++)
-			{
-			nu_tmp += nu[ii];
-			cond_ws->Gamma_colmaj_lda[ii] = nu_tmp+nx[0]+1; // TODO SIMD
-			}
-		//
-		cond_ws->tmp_nxM_nxM_colmaj_lda = nxM;
-		}
-
-	// align to typical cache line size
-	s_ptr = (size_t) i_ptr;
-	s_ptr = (s_ptr+31)/32*32;
-
-
-	REAL *r_ptr = (REAL *) s_ptr;
-
-	if(cond_arg->allow_colmaj_format!=0)
-		{
-		//
-		nu_tmp = 0;
-		for(ii=0; ii<N; ii++)
-			{
-			nu_tmp += nu[ii];
-			cond_ws->Gamma_colmaj[ii] = r_ptr;
-			r_ptr += cond_ws->Gamma_colmaj_lda[ii]*nx[ii+1]; // TODO SIMD
-			}
-		//
-		cond_ws->tmp_nxM_nxM_colmaj = r_ptr;
-		r_ptr += cond_ws->tmp_nxM_nxM_colmaj_lda*nxM;
-		}
-
-
 	// align to typicl cache line size
-	s_ptr = (size_t) r_ptr;
+	s_ptr = (size_t) sv_ptr;
 	s_ptr = (s_ptr+63)/64*64;
 
 

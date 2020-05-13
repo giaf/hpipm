@@ -63,7 +63,6 @@
 #define GECP blasfeo_sgecp
 #define GEEX1 blasfeo_sgeex1
 #define GESE blasfeo_sgese
-#define GEMM blasfeo_sgemm
 #define GEMM_ND blasfeo_sgemm_nd
 #define GEMM_NN blasfeo_sgemm_nn
 #define GEMM_NT blasfeo_sgemm_nt
@@ -72,8 +71,6 @@
 #define GEMV_T blasfeo_sgemv_t
 #define OCP_QP s_ocp_qp
 #define OCP_QP_SOL s_ocp_qp_sol
-#define PACK_MAT blasfeo_pack_smat
-#define PACK_VEC blasfeo_pack_svec
 #define POTRF_L_MN blasfeo_spotrf_l_mn
 #define REAL float
 #define ROWAD blasfeo_srowad
@@ -86,8 +83,6 @@
 #define TRCP_L blasfeo_strcp_l
 #define TRTR_L blasfeo_strtr_l
 #define TRMM_RLNN blasfeo_strmm_rlnn
-#define UNPACK_MAT blasfeo_unpack_smat
-#define UNPACK_VEC blasfeo_unpack_svec
 #define VECAD_SP blasfeo_svecad_sp
 #define VECCP blasfeo_sveccp
 #define VECSE blasfeo_svecse
