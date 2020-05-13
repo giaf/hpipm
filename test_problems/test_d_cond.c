@@ -845,6 +845,24 @@ int main()
 #endif
 //return 0;
 
+	/* cond lhs */
+
+	gettimeofday(&tv0, NULL); // start
+
+	for(rep=0; rep<nrep; rep++)
+		{
+		d_cond_qp_cond_lhs(&ocp_qp, &dense_qp, &cond_arg, &cond_ws);
+		}
+
+	gettimeofday(&tv1, NULL); // stop
+
+	double time_cond_lhs = (tv1.tv_sec-tv0.tv_sec)/(nrep+0.0)+(tv1.tv_usec-tv0.tv_usec)/(nrep*1e6);
+
+#if PRINT
+	printf("\ncond lhs data\n\n");
+	d_dense_qp_print(&qp_dim, &dense_qp);
+#endif
+
 	/* cond rhs */
 
 	gettimeofday(&tv0, NULL); // start
@@ -1010,6 +1028,7 @@ int main()
 
 	printf("\ncond time           = %e [s]\n", time_cond);
 	printf("\nupdate cond time    = %e [s]\n", time_update_cond);
+	printf("\ncond lhs time       = %e [s]\n", time_cond_lhs);
 	printf("\ncond rhs time       = %e [s]\n", time_cond_rhs);
 	printf("\ncond dense ipm time = %e [s]\n\n", time_dense_ipm);
 #endif

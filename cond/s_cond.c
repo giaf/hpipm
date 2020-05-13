@@ -52,11 +52,14 @@
 
 
 
+#define COND_DCT s_cond_DCt
 #define COND_DCTD s_cond_DCtd
 #define COND_D s_cond_d
 #define COND_B s_cond_b
 #define COND_BABT s_cond_BAbt
+#define COND_BAT s_cond_BAt
 #define COND_RQ s_cond_rq
+#define COND_RSQ s_cond_RSQ
 #define COND_RSQRQ s_cond_RSQrq
 #define COND_QP_ARG s_cond_qp_arg
 #define COND_QP_WS s_cond_qp_ws
@@ -92,6 +95,7 @@
 #define COND_QP_WS_MEMSIZE s_cond_qp_ws_memsize
 #define COND_QP_WS_CREATE s_cond_qp_ws_create
 #define COND_QP_COND s_cond_qp_cond
+#define COND_QP_COND_LHS s_cond_qp_cond_lhs
 #define COND_QP_COND_RHS s_cond_qp_cond_rhs
 #define COND_QP_EXPAND_SOL s_cond_qp_expand_sol
 #define COND_QP_EXPAND_PRIMAL_SOL s_cond_qp_expand_primal_sol

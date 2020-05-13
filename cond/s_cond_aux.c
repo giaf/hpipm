@@ -88,10 +88,13 @@
 #define VECSE blasfeo_svecse
 
 #define COND_BABT s_cond_BAbt
+#define COND_BAT s_cond_BAt
 #define COND_B s_cond_b
 #define COND_RSQRQ s_cond_RSQrq
+#define COND_RSQ s_cond_RSQ
 #define COND_RQ s_cond_rq
 #define COND_DCTD s_cond_DCtd
+#define COND_DCT s_cond_DCt
 #define COND_D s_cond_d
 #define EXPAND_SOL s_expand_sol
 #define EXPAND_PRIMAL_SOL s_expand_primal_sol

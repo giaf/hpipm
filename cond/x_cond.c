@@ -466,6 +466,21 @@ void COND_QP_COND(struct OCP_QP *ocp_qp, struct DENSE_QP *dense_qp, struct COND_
 
 
 
+void COND_QP_COND_LHS(struct OCP_QP *ocp_qp, struct DENSE_QP *dense_qp, struct COND_QP_ARG *cond_arg, struct COND_QP_WS *cond_ws)
+	{
+
+	COND_BAT(ocp_qp, NULL, cond_arg, cond_ws);
+
+	COND_RSQ(ocp_qp, dense_qp->Hv, cond_arg, cond_ws);
+
+	COND_DCT(ocp_qp, dense_qp->idxb, dense_qp->Ct, dense_qp->idxs_rev, dense_qp->Z, cond_arg, cond_ws);
+
+	return;
+
+	}
+
+
+
 void COND_QP_COND_RHS(struct OCP_QP *ocp_qp, struct DENSE_QP *dense_qp, struct COND_QP_ARG *cond_arg, struct COND_QP_WS *cond_ws)
 	{
 

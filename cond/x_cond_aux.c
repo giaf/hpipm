@@ -100,6 +100,62 @@ void COND_BABT(struct OCP_QP *ocp_qp, struct STRMAT *BAbt2, struct STRVEC *b2, s
 
 
 
+void COND_BAT(struct OCP_QP *ocp_qp, struct STRMAT *BAbt2, struct COND_QP_ARG *cond_arg, struct COND_QP_ARG_WS *cond_ws)
+	{
+
+	int N = ocp_qp->dim->N;
+
+	// early return
+	if(N<0)
+		return;
+	
+	if(N==0 & cond_arg->cond_last_stage==1)
+		return;
+
+	// extract input members
+	int *nx = ocp_qp->dim->nx;
+	int *nu = ocp_qp->dim->nu;
+	struct STRMAT *BAbt = ocp_qp->BAbt;
+
+	// extract memory members
+	struct STRMAT *Gamma = cond_ws->Gamma;
+
+	int ii, jj;
+
+	int nu_tmp;
+
+	nu_tmp = 0;
+	ii = 0;
+	// B & A
+	GECP(nu[0]+nx[0], nx[1], &BAbt[0], 0, 0, &Gamma[0], 0, 0);
+
+	nu_tmp += nu[0];
+	ii++;
+
+	for(ii=1; ii<N; ii++)
+		{
+		// TODO check for equal pointers and avoid copy
+
+		// Gamma * A^T
+		GEMM_NN(nu_tmp+nx[0], nx[ii+1], nx[ii], 1.0, &Gamma[ii-1], 0, 0, &BAbt[ii], nu[ii], 0, 0.0, &Gamma[ii], nu[ii], 0, &Gamma[ii], nu[ii], 0); // Gamma * A^T
+
+		GECP(nu[ii], nx[ii+1], &BAbt[ii], 0, 0, &Gamma[ii], 0, 0);
+
+		nu_tmp += nu[ii];
+		}
+	
+	if(cond_arg->cond_last_stage==0)
+		{
+		// B & A
+		GECP(nu_tmp+nx[0], nx[N], &Gamma[N-1], 0, 0, &BAbt2[0], 0, 0);
+		}
+
+	return;
+
+	}
+
+
+
 void COND_B(struct OCP_QP *ocp_qp, struct STRVEC *b2, struct COND_QP_ARG *cond_arg, struct COND_QP_ARG_WS *cond_ws)
 	{
 
@@ -399,6 +455,225 @@ void COND_RSQRQ(struct OCP_QP *ocp_qp, struct STRMAT *RSQrq2, struct STRVEC *rqz
 
 				ROWAD(nu[nn], 1.0, rqz+nn, 0, RSQrq2, nu2+nx[0], nub);
 				ROWEX(nuf+nx[0], 1.0, RSQrq2, nu2+nx[0], nub+nu[nn], rqz2, 0);
+
+				}
+
+			nuf += nu[nn];
+
+			}
+
+		}
+
+	return;
+
+	}
+
+
+
+void COND_RSQ(struct OCP_QP *ocp_qp, struct STRMAT *RSQrq2, struct COND_QP_ARG *cond_arg, struct COND_QP_ARG_WS *cond_ws)
+	{
+
+	int N = ocp_qp->dim->N;
+	if(cond_arg->cond_last_stage==0)
+		N -= 1;
+
+	// early return
+	if(N<0)
+		return;
+
+	// extract input members
+	int *nx = ocp_qp->dim->nx;
+	int *nu = ocp_qp->dim->nu;
+
+	struct STRMAT *BAbt = ocp_qp->BAbt;
+	struct STRMAT *RSQrq = ocp_qp->RSQrq;
+	int *diag_H_flag = ocp_qp->diag_H_flag;
+
+	// early return
+	if(N==0)
+		{
+		GECP(nu[0]+nx[0], nu[0]+nx[0], &RSQrq[0], 0, 0, &RSQrq2[0], 0, 0);
+		return;
+		}
+
+	// extract memory members
+	struct STRMAT *Gamma = cond_ws->Gamma;
+	struct STRMAT *L = cond_ws->L;
+	struct STRMAT *Lx = cond_ws->Lx;
+	struct STRMAT *AL = cond_ws->AL;
+	struct STRMAT *GammaQ = cond_ws->GammaQ;
+	struct STRVEC *tmp_nuxM = cond_ws->tmp_nuxM;
+
+	int nn;
+
+	int nu2 = 0; // sum of all nu
+	for(nn=0; nn<=N; nn++)
+		nu2 += nu[nn];
+	
+	int nub = nu2; // backward partial sum
+	int nuf = 0; // forward partial sum
+
+	if(cond_arg->cond_alg==0) // N2 nx3
+		{
+		if(cond_arg->square_root_alg)
+			{
+
+			// final stage
+			nub -= nu[N];
+
+			GECP(nu[N]+nx[N], nu[N]+nx[N], &RSQrq[N], 0, 0, &L[N], 0, 0);
+
+			// D
+			TRCP_L(nu[N], &L[N], 0, 0, &RSQrq2[0], nuf, nuf);
+
+			GEMM_NN(nub+nx[0], nu[N], nx[N], 1.0, &Gamma[N-1], 0, 0, &L[N], nu[N], 0, 0.0, &RSQrq2[0], nuf+nu[N], nuf, &RSQrq2[0], nuf+nu[N], nuf);
+
+			nuf += nu[N];
+
+
+			// middle stages
+			for(nn=0; nn<N-1; nn++)
+				{
+				nub -= nu[N-nn-1];
+
+#if defined(LA_HIGH_PERFORMANCE)
+				GECP(nx[N-nn], nx[N-nn], &L[N-nn], nu[N-nn], nu[N-nn], Lx, 0, 0);
+
+				POTRF_L_MN(nx[N-nn], nx[N-nn], Lx, 0, 0, Lx, 0, 0);
+#else
+				POTRF_L_MN(nx[N-nn], nx[N-nn], &L[N-nn], nu[N-nn], nu[N-nn], Lx, 0, 0);
+#endif
+				TRMM_RLNN(nu[N-nn-1]+nx[N-nn-1], nx[N-nn], 1.0, Lx, 0, 0, &BAbt[N-nn-1], 0, 0, AL, 0, 0);
+
+				SYRK_LN_MN(nu[N-nn-1]+nx[N-nn-1], nu[N-nn-1]+nx[N-nn-1], nx[N-nn], 1.0, AL, 0, 0, AL, 0, 0, 1.0, &RSQrq[N-nn-1], 0, 0, &L[N-nn-1], 0, 0);
+
+				// D
+				TRCP_L(nu[N-nn-1], &L[N-nn-1], 0, 0, &RSQrq2[0], nuf, nuf);
+
+				GEMM_NN(nub+nx[0]+1, nu[N-nn-1], nx[N-nn-1], 1.0, &Gamma[N-nn-2], 0, 0, &L[N-nn-1], nu[N-nn-1], 0, 0.0, &RSQrq2[0], nuf+nu[N-nn-1], nuf, &RSQrq2[0], nuf+nu[N-nn-1], nuf);
+
+				nuf += nu[N-nn-1];
+
+				}
+
+			// first stage
+			nn = N-1;
+
+#if defined(LA_HIGH_PERFORMANCE)
+			GECP(nx[N-nn], nx[N-nn], &L[N-nn], nu[N-nn], nu[N-nn], Lx, 0, 0);
+
+			POTRF_L_MN(nx[N-nn], nx[N-nn], Lx, 0, 0, Lx, 0, 0);
+#else
+			POTRF_L_MN(nx[N-nn], nx[N-nn], &L[N-nn], nu[N-nn], nu[N-nn], Lx, 0, 0);
+#endif
+			TRMM_RLNN(nu[N-nn-1]+nx[N-nn-1]+1, nx[N-nn], 1.0, Lx, 0, 0, &BAbt[N-nn-1], 0, 0, AL, 0, 0);
+
+			SYRK_LN_MN(nu[N-nn-1]+nx[N-nn-1], nu[N-nn-1]+nx[N-nn-1], nx[N-nn], 1.0, AL, 0, 0, AL, 0, 0, 1.0, &RSQrq[N-nn-1], 0, 0, &L[N-nn-1], 0, 0);
+
+			// D, M, m, P, p
+			TRCP_L(nu[0]+nx[0], &L[N-nn-1], 0, 0, &RSQrq2[0], nuf, nuf);
+
+			}
+		else
+			{
+
+			// final stage
+			nub -= nu[N];
+
+			GECP(nu[N]+nx[N], nu[N]+nx[N], &RSQrq[N], 0, 0, &L[N], 0, 0);
+
+			// D
+			TRCP_L(nu[N], &L[N], 0, 0, &RSQrq2[0], nuf, nuf);
+
+			GEMM_NN(nub+nx[0], nu[N], nx[N], 1.0, &Gamma[N-1], 0, 0, &L[N], nu[N], 0, 0.0, &RSQrq2[0], nuf+nu[N], nuf, &RSQrq2[0], nuf+nu[N], nuf);
+
+			nuf += nu[N];
+
+
+			// middle stages
+			for(nn=0; nn<N-1; nn++)
+				{
+				nub -= nu[N-nn-1];
+
+				TRCP_L(nx[N-nn], &L[N-nn], nu[N-nn], nu[N-nn], Lx, 0, 0);
+				TRTR_L(nx[N-nn], Lx, 0, 0, Lx, 0, 0);
+				GEMM_NT(nu[N-nn-1]+nx[N-nn-1], nx[N-nn], nx[N-nn], 1.0, &BAbt[N-nn-1], 0, 0, Lx, 0, 0, 0.0, AL, 0, 0, AL, 0, 0); // TODO symm and reference
+
+				SYRK_LN_MN(nu[N-nn-1]+nx[N-nn-1], nu[N-nn-1]+nx[N-nn-1], nx[N-nn], 1.0, AL, 0, 0, BAbt+N-nn-1, 0, 0, 1.0, &RSQrq[N-nn-1], 0, 0, &L[N-nn-1], 0, 0);
+
+				// D
+				TRCP_L(nu[N-nn-1], &L[N-nn-1], 0, 0, &RSQrq2[0], nuf, nuf);
+
+				GEMM_NN(nub+nx[0], nu[N-nn-1], nx[N-nn-1], 1.0, &Gamma[N-nn-2], 0, 0, &L[N-nn-1], nu[N-nn-1], 0, 0.0, &RSQrq2[0], nuf+nu[N-nn-1], nuf, &RSQrq2[0], nuf+nu[N-nn-1], nuf);
+
+				nuf += nu[N-nn-1];
+
+				}
+
+			// first stage
+			nn = N-1;
+
+			TRCP_L(nx[N-nn], &L[N-nn], nu[N-nn], nu[N-nn], Lx, 0, 0);
+			TRTR_L(nx[N-nn], Lx, 0, 0, Lx, 0, 0);
+			GEMM_NT(nu[N-nn-1]+nx[N-nn-1], nx[N-nn], nx[N-nn], 1.0, &BAbt[N-nn-1], 0, 0, Lx, 0, 0, 0.0, AL, 0, 0, AL, 0, 0); // TODO symm and reference
+
+			SYRK_LN_MN(nu[N-nn-1]+nx[N-nn-1], nu[N-nn-1]+nx[N-nn-1], nx[N-nn], 1.0, AL, 0, 0, BAbt+N-nn-1, 0, 0, 1.0, &RSQrq[N-nn-1], 0, 0, &L[N-nn-1], 0, 0);
+
+			// D, M, m, P, p
+			TRCP_L(nu[0]+nx[0], &L[N-nn-1], 0, 0, &RSQrq2[0], nuf, nuf);
+
+			}
+		}
+	else // cond_alg==1, N3 nx2
+		{
+
+//		nuf = 0;
+//		nub = nu2;
+
+		// TODO merge with first stage
+		GESE(nu2+nx[0], nu2+nx[0], 0.0, RSQrq2, 0, 0);
+
+		for(nn=0; nn<=N; nn++)
+			{
+
+			nub -= nu[nn];
+
+			if(nn==0)
+				{
+				TRCP_L(nu[0]+nx[0], RSQrq+0, 0, 0, RSQrq2, nub, nub);
+				}
+			else
+				{
+
+				// if Q is not zero
+				if(1)
+					{
+					// if Q is diagonal
+					if(diag_H_flag[nn]!=0)
+						{
+						DIAEX(nx[nn], 1.0, RSQrq+nn, nu[nn], nu[nn], tmp_nuxM, 0);
+						GEMM_ND(nuf+nx[0], nx[nn], 1.0, Gamma+nn-1, 0, 0, tmp_nuxM, 0, 0.0, GammaQ, 0, 0, GammaQ, 0, 0);
+						}
+					else
+						{
+						// XXX make Q full or use SYMM and reference
+						TRTR_L(nu[nn]+nx[nn], RSQrq+nn, 0, 0, RSQrq+nn, 0, 0);
+						GEMM_NN(nuf+nx[0], nx[nn], nx[nn], 1.0, Gamma+nn-1, 0, 0, RSQrq+nn, nu[nn], nu[nn], 0.0, GammaQ, 0, 0, GammaQ, 0, 0);
+						}
+					SYRK_LN_MN(nuf+nx[0], nuf+nx[0], nx[nn], 1.0, GammaQ, 0, 0, Gamma+nn-1, 0, 0, 1.0, RSQrq2, nub+nu[nn], nub+nu[nn], RSQrq2, nub+nu[nn], nub+nu[nn]);
+					}
+
+				// if R is not zero
+				if(1)
+					{
+					GEAD(nu[nn], nu[nn], 1.0, RSQrq+nn, 0, 0, RSQrq2, nub, nub);
+					}
+
+				// if S is not zero
+				if(diag_H_flag[nn]==0)
+					{
+					GEMM_NN(nuf+nx[0], nu[nn], nx[nn], 1.0, Gamma+nn-1, 0, 0, RSQrq+nn, nu[nn], 0, 1.0, RSQrq2, nub+nu[nn], nub, RSQrq2, nub+nu[nn], nub);
+					}
 
 				}
 
@@ -927,6 +1202,272 @@ void COND_DCTD(struct OCP_QP *ocp_qp, int *idxb2, struct STRMAT *DCt2, struct ST
 		VECCP(ng0, &d[0], 2*nb0+ng0, d2, 2*nb2+ng2+nbg+ng_tmp);
 		VECCP(ng0, &d_mask[0], nb0, d_mask2, nb2+nbg+ng_tmp);
 		VECCP(ng0, &d_mask[0], 2*nb0+ng0, d_mask2, 2*nb2+ng2+nbg+ng_tmp);
+
+//		ng_tmp += ng[N-ii];
+
+		}
+
+	return;
+
+	}
+
+
+
+void COND_DCT(struct OCP_QP *ocp_qp, int *idxb2, struct STRMAT *DCt2, int *idxs_rev2, struct STRVEC *Z2, struct COND_QP_ARG *cond_arg, struct COND_QP_ARG_WS *cond_ws)
+	{
+
+	int N = ocp_qp->dim->N;
+	if(cond_arg->cond_last_stage==0)
+		N -= 1;
+
+	// early return
+	if(N<0)
+		return;
+	
+	int ii, jj, idx;
+
+	// extract input members
+	int *nx = ocp_qp->dim->nx;
+	int *nu = ocp_qp->dim->nu;
+	int *nb = ocp_qp->dim->nb;
+	int *ng = ocp_qp->dim->ng;
+	int *ns = ocp_qp->dim->ns;
+
+	int **idxb = ocp_qp->idxb;
+	struct STRMAT *DCt = ocp_qp->DCt;
+	int **idxs_rev = ocp_qp->idxs_rev;
+	struct STRVEC *Z = ocp_qp->Z;
+
+	// early return
+	if(N==0 & cond_arg->cond_last_stage==1)
+		{
+		GECP(nu[0]+nx[0], ng[0], ocp_qp->DCt, 0, 0, DCt2, 0, 0);
+		for(ii=0; ii<nb[0]; ii++) idxb2[ii] = ocp_qp->idxb[0][ii];
+		VECCP(2*ns[0], ocp_qp->Z, 0, Z2, 0);
+		for(ii=0; ii<nb[0]+ng[0]; ii++) idxs_rev2[ii] = ocp_qp->idxs_rev[0][ii];
+		return;
+		}
+
+	// extract memory members
+	struct STRMAT *Gamma = cond_ws->Gamma;
+	struct STRVEC *tmp_nbgM = cond_ws->tmp_nbgM;
+
+
+	REAL *ptr_d_lb;
+	REAL *ptr_d_ub;
+	REAL *ptr_d_ls;
+	REAL *ptr_d_us;
+	REAL *ptr_d_mask_lb;
+	REAL *ptr_d_mask_ub;
+	REAL *ptr_d_mask_ls;
+	REAL *ptr_d_mask_us;
+
+	int nu_tmp, ng_tmp;
+
+	int nu0, nx0, nb0, ng0, ns0;
+
+	// problem size
+
+	int nbb = nb[0]; // box that remain box constraints
+	int nbg = 0; // box that becomes general constraints
+	for(ii=1; ii<=N; ii++)
+		for(jj=0; jj<nb[ii]; jj++)
+			if(idxb[ii][jj]<nu[ii])
+				nbb++;
+			else
+				nbg++;
+	
+	int nx2 = nx[0];
+	int nu2 = nu[0];
+	int ns2 = ns[0];
+	int ngg = ng[0];
+	for(ii=1; ii<=N; ii++)
+		{
+		nu2 += nu[ii];
+		ns2 += ns[ii];
+		ngg += ng[ii];
+		}
+	int ng2 = nbg + ngg;
+	int nb2 = nbb;
+	int nt2 = nb2 + ng2;
+
+	// set constraint matrix to zero (it's 2 lower triangular matrices atm)
+	GESE(nu2+nx2, ng2, 0.0, &DCt2[0], 0, 0);
+
+	// box constraints
+
+	int idx_gammab = nx[0];
+	for(ii=0; ii<N; ii++)
+		idx_gammab += nu[ii];
+
+	int ib = 0;
+	int ig = 0;
+	int is = 0; // XXX
+
+	int idxb0, idxg0;
+
+	REAL *ptr_Z;
+	REAL *ptr_Z2 = Z2->pa;
+
+	REAL tmp;
+	int idx_g;
+
+	// middle stages
+	nu_tmp = 0;
+	for(ii=0; ii<N; ii++)
+		{
+		nx0 = nx[N-ii];
+		nu0 = nu[N-ii];
+		nb0 = nb[N-ii];
+		ng0 = ng[N-ii];
+		ns0 = ns[N-ii];
+		if(ns0>0)
+			{
+			ptr_Z = Z[N-ii].pa;
+			}
+		nu_tmp += nu0;
+		for(jj=0; jj<nb0; jj++)
+			{
+			idxb0 = idxb[N-ii][jj];
+			if(idxb0<nu0) // input: box constraint
+				{
+				idxb2[ib] = nu_tmp - nu0 + idxb[N-ii][jj];
+				idx = idxs_rev[N-ii][jj];
+				if(idx>=0)
+					{
+					idxs_rev2[ib] = is;
+					ptr_Z2[0+is]   = ptr_Z[0+idx];
+					ptr_Z2[ns2+is] = ptr_Z[ns0+idx];
+					is++;
+					}
+				ib++;
+				}
+			else // state: general constraint
+				{
+				idx_g = idxb0-nu0;
+				GECP(idx_gammab, 1, &Gamma[N-ii-1], 0, idx_g, &DCt2[0], nu_tmp, ig);
+				idx = idxs_rev[N-ii][jj];
+				if(idx>=0)
+					{
+					idxs_rev2[nb2+ig] = is;
+					ptr_Z2[0+is]   = ptr_Z[0+idx];
+					ptr_Z2[ns2+is] = ptr_Z[ns0+idx];
+					is++;
+					}
+				ig++;
+				}
+			}
+		idx_gammab -= nu[N-1-ii];
+		}
+
+	// initial stage: both inputs and states as box constraints
+	nx0 = nx[0];
+	nu0 = nu[0];
+	nb0 = nb[0];
+	ng0 = ng[0];
+	ns0 = ns[0];
+	if(ns0>0)
+		{
+		ptr_Z = Z[0].pa;
+		}
+	nu_tmp += nu0;
+	for(jj=0; jj<nb0; jj++)
+		{
+		idxb0 = idxb[0][jj];
+		idxb2[ib] = nu_tmp - nu0 + idxb0;
+		idx = idxs_rev[0][jj];
+		if(idx>=0)
+			{
+			idxs_rev2[ib] = is;
+			ptr_Z2[0+is]   = ptr_Z[0+idx];
+			ptr_Z2[ns2+is] = ptr_Z[ns0+idx];
+			is++;
+			}
+		ib++;
+		}
+
+	// XXX for now, just shift after box-to-general constraints
+	// better interleave them, to keep the block lower trianlgular structure !!!
+
+	// general constraints
+
+	char *c_ptr;
+
+	nu_tmp = 0;
+	ng_tmp = 0;
+	for(ii=0; ii<N; ii++)
+		{
+
+		nx0 = nx[N-ii];
+		nu0 = nu[N-ii];
+		nb0 = nb[N-ii];
+		ng0 = ng[N-ii];
+		ns0 = ns[N-ii];
+		if(ns0>0)
+			{
+			ptr_Z = Z[N-ii].pa;
+			}
+
+		if(ng0>0)
+			{
+			for(ig=0; ig<ng0; ig++)
+				{
+				idx = idxs_rev[N-ii][nb0+ig];
+				if(idx>=0)
+					{
+					idxs_rev2[nb2+nbg+ng_tmp+ig] = is;
+					ptr_Z2[0+is]   = ptr_Z[0+idx];
+					ptr_Z2[ns2+is] = ptr_Z[ns0+idx];
+					is++;
+					}
+				}
+
+			GECP(nu0, ng0, &DCt[N-ii], 0, 0, DCt2, nu_tmp, nbg+ng_tmp);
+
+			nu_tmp += nu0;
+
+			GEMM_NN(nu2+nx[0]-nu_tmp, ng0, nx0, 1.0, &Gamma[N-1-ii], 0, 0, &DCt[N-ii], nu0, 0, 0.0, DCt2, nu_tmp, nbg+ng_tmp, DCt2, nu_tmp, nbg+ng_tmp);
+
+			ng_tmp += ng0;
+			
+			}
+		else
+			{
+
+			nu_tmp += nu0;
+
+			}
+
+		}
+
+	ii = N;
+
+	nx0 = nx[0];
+	nu0 = nu[0];
+	nb0 = nb[0];
+	ng0 = ng[0];
+	ns0 = ns[0];
+	if(ns0>0)
+		{
+		ptr_Z = Z[0].pa;
+		}
+
+	if(ng0>0)
+		{
+		for(ig=0; ig<ng0; ig++)
+			{
+			idx = idxs_rev[0][nb0+ig];
+			if(idx>=0)
+				{
+				idxs_rev2[nb2+nbg+ng_tmp+ig] = is;
+				ptr_Z2[0+is]   = ptr_Z[0+idx];
+				ptr_Z2[ns2+is] = ptr_Z[ns0+idx];
+				is++;
+				}
+
+			}
+
+		GECP(nu0+nx0, ng0, &DCt[0], 0, 0, DCt2, nu_tmp, nbg+ng_tmp);
 
 //		ng_tmp += ng[N-ii];
 

@@ -54,13 +54,19 @@ extern "C" {
 //
 void s_cond_BAbt(struct s_ocp_qp *ocp_qp, struct blasfeo_smat *BAbt2, struct blasfeo_svec *b2, struct s_cond_qp_arg *cond_arg, struct s_cond_qp_ws *cond_ws);
 //
+void s_cond_BAt(struct s_ocp_qp *ocp_qp, struct blasfeo_smat *BAbt2, struct s_cond_qp_arg *cond_arg, struct s_cond_qp_ws *cond_ws);
+//
 void s_cond_b(struct s_ocp_qp *ocp_qp, struct blasfeo_svec *b2, struct s_cond_qp_arg *cond_arg, struct s_cond_qp_ws *cond_ws);
 //
 void s_cond_RSQrq(struct s_ocp_qp *ocp_qp, struct blasfeo_smat *RSQrq2, struct blasfeo_svec *rq2, struct s_cond_qp_arg *cond_arg, struct s_cond_qp_ws *cond_ws);
 //
+void s_cond_RSQ(struct s_ocp_qp *ocp_qp, struct blasfeo_smat *RSQrq2, struct s_cond_qp_arg *cond_arg, struct s_cond_qp_ws *cond_ws);
+//
 void s_cond_rq(struct s_ocp_qp *ocp_qp, struct blasfeo_svec *rq2, struct s_cond_qp_arg *cond_arg, struct s_cond_qp_ws *cond_ws);
 //
 void s_cond_DCtd(struct s_ocp_qp *ocp_qp, int *idxb2, struct blasfeo_smat *DCt2, struct blasfeo_svec *d2, struct blasfeo_svec *d_mask2, int *idxs_rev2, struct blasfeo_svec *Z2, struct blasfeo_svec *z2, struct s_cond_qp_arg *cond_arg, struct s_cond_qp_ws *cond_ws);
+//
+void s_cond_DCt(struct s_ocp_qp *ocp_qp, int *idxb2, struct blasfeo_smat *DCt2, int *idxs_rev2, struct blasfeo_svec *Z2, struct s_cond_qp_arg *cond_arg, struct s_cond_qp_ws *cond_ws);
 //
 void s_cond_d(struct s_ocp_qp *ocp_qp, struct blasfeo_svec *d2, struct blasfeo_svec *d_mask2, struct blasfeo_svec *z2, struct s_cond_qp_arg *cond_arg, struct s_cond_qp_ws *cond_ws);
 //

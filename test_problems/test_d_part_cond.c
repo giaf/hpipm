@@ -881,6 +881,24 @@ int main()
 	d_ocp_qp_print(&dim2, &part_dense_qp);
 #endif
 
+	/* cond lhs */
+
+	gettimeofday(&tv0, NULL); // start
+
+	for(rep=0; rep<nrep; rep++)
+		{
+		d_part_cond_qp_cond_lhs(&ocp_qp, &part_dense_qp, &part_cond_arg, &part_cond_ws);
+		}
+
+	gettimeofday(&tv1, NULL); // stop
+
+	double time_cond_lhs = (tv1.tv_sec-tv0.tv_sec)/(nrep+0.0)+(tv1.tv_usec-tv0.tv_usec)/(nrep*1e6);
+
+#if PRINT
+	printf("\npart cond rhs data\n\n");
+	d_ocp_qp_print(&dim2, &part_dense_qp);
+#endif
+
 	/* cond rhs */
 
 	gettimeofday(&tv0, NULL); // start
@@ -1162,6 +1180,7 @@ int main()
 
 	printf("\npart cond time         = %e [s]\n", time_cond);
 	printf("\nupdate part cond time  = %e [s]\n", time_update_cond);
+	printf("\npart cond lhs time     = %e [s]\n", time_cond_lhs);
 	printf("\npart cond rhs time     = %e [s]\n", time_cond_rhs);
 	printf("\npart cond ocp ipm time = %e [s]\n\n", time_ocp_ipm);
 #endif

@@ -96,6 +96,8 @@ void s_part_cond_qp_ws_create(struct s_ocp_qp_dim *ocp_dim, int *block_size, str
 //
 void s_part_cond_qp_cond(struct s_ocp_qp *ocp_qp, struct s_ocp_qp *part_dense_qp, struct s_part_cond_qp_arg *cond_arg, struct s_part_cond_qp_ws *cond_ws);
 //
+void s_part_cond_qp_cond_lhs(struct s_ocp_qp *ocp_qp, struct s_ocp_qp *part_dense_qp, struct s_part_cond_qp_arg *cond_arg, struct s_part_cond_qp_ws *cond_ws);
+//
 void s_part_cond_qp_cond_rhs(struct s_ocp_qp *ocp_qp, struct s_ocp_qp *part_dense_qp, struct s_part_cond_qp_arg *cond_arg, struct s_part_cond_qp_ws *cond_ws);
 //
 void s_part_cond_qp_expand_sol(struct s_ocp_qp *ocp_qp, struct s_ocp_qp *part_dense_qp, struct s_ocp_qp_sol *part_dense_qp_sol, struct s_ocp_qp_sol *ocp_qp_sol, struct s_part_cond_qp_arg *cond_arg, struct s_part_cond_qp_ws *cond_ws);
