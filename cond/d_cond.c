@@ -56,8 +56,8 @@
 #define COND_D d_cond_d
 #define COND_B d_cond_b
 #define COND_BABT d_cond_BAbt
-#define COND_RQ_N2NX3 d_cond_rq_N2nx3
-#define COND_RSQRQ_N2NX3 d_cond_RSQrq_N2nx3
+#define COND_RQ d_cond_rq
+#define COND_RSQRQ d_cond_RSQrq
 #define COND_QP_ARG d_cond_qp_arg
 #define COND_QP_WS d_cond_qp_ws
 #define CREATE_STRMAT blasfeo_create_dmat

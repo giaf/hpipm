@@ -56,8 +56,8 @@
 #define COND_BABT s_cond_BAbt
 #define COND_D s_cond_d
 #define COND_DCTD s_cond_DCtd
-#define COND_RQ_N2NX3 s_cond_rq_N2nx3
-#define COND_RSQRQ_N2NX3 s_cond_RSQrq_N2nx3
+#define COND_RQ s_cond_rq
+#define COND_RSQRQ s_cond_RSQrq
 #define COND_QP_ARG s_cond_qp_arg
 #define COND_QP_ARG_CREATE s_cond_qp_arg_create
 #define COND_QP_ARG_MEMSIZE s_cond_qp_arg_memsize

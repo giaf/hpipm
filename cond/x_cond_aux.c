@@ -149,7 +149,7 @@ void COND_B(struct OCP_QP *ocp_qp, struct STRVEC *b2, struct COND_QP_ARG *cond_a
 
 
 
-void COND_RSQRQ_N2NX3(struct OCP_QP *ocp_qp, struct STRMAT *RSQrq2, struct STRVEC *rqz2, struct COND_QP_ARG *cond_arg, struct COND_QP_ARG_WS *cond_ws)
+void COND_RSQRQ(struct OCP_QP *ocp_qp, struct STRMAT *RSQrq2, struct STRVEC *rqz2, struct COND_QP_ARG *cond_arg, struct COND_QP_ARG_WS *cond_ws)
 	{
 
 	int N = ocp_qp->dim->N;
@@ -414,7 +414,7 @@ void COND_RSQRQ_N2NX3(struct OCP_QP *ocp_qp, struct STRMAT *RSQrq2, struct STRVE
 
 
 
-void COND_RQ_N2NX3(struct OCP_QP *ocp_qp, struct STRVEC *rqz2, struct COND_QP_ARG *cond_arg, struct COND_QP_ARG_WS *cond_ws)
+void COND_RQ(struct OCP_QP *ocp_qp, struct STRVEC *rqz2, struct COND_QP_ARG *cond_arg, struct COND_QP_ARG_WS *cond_ws)
 	{
 
 	int N = ocp_qp->dim->N;

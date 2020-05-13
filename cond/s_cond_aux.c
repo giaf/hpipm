@@ -89,8 +89,8 @@
 
 #define COND_BABT s_cond_BAbt
 #define COND_B s_cond_b
-#define COND_RSQRQ_N2NX3 s_cond_RSQrq_N2nx3
-#define COND_RQ_N2NX3 s_cond_rq_N2nx3
+#define COND_RSQRQ s_cond_RSQrq
+#define COND_RQ s_cond_rq
 #define COND_DCTD s_cond_DCtd
 #define COND_D s_cond_d
 #define EXPAND_SOL s_expand_sol
