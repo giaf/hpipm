@@ -309,11 +309,7 @@ void OCP_QP_REDUCE_EQ_DOF(struct OCP_QP *qp, struct OCP_QP *qp_red, struct OCP_Q
 				work->e_imask_d[jj] = 0;
 			for(jj=0; jj<ne_thr; jj++) // set 1s for both inputs and states
 				{
-#ifdef DOUBLE_PRECISION
-				BLASFEO_DVECEL(work->tmp_nuxM+0, qp->idxb[ii][qp->idxe[ii][jj]]) = BLASFEO_DVECEL(qp->d+ii, qp->idxe[ii][jj]);
-#else
-				BLASFEO_SVECEL(work->tmp_nuxM+0, qp->idxb[ii][qp->idxe[ii][jj]]) = BLASFEO_DVECEL(qp->d+ii, qp->idxe[ii][jj]);
-#endif
+				VECEL(work->tmp_nuxM+0, qp->idxb[ii][qp->idxe[ii][jj]]) = VECEL(qp->d+ii, qp->idxe[ii][jj]);
 				work->e_imask_ux[qp->idxb[ii][qp->idxe[ii][jj]]] = 1;
 				work->e_imask_d[qp->idxe[ii][jj]] = 1;
 				}
@@ -347,10 +343,6 @@ void OCP_QP_REDUCE_EQ_DOF(struct OCP_QP *qp, struct OCP_QP *qp_red, struct OCP_Q
 						if(work->e_imask_ux[kk]==0)
 							{
 							MATEL(qp_red->RSQrq+ii, idx1, idx0) = MATEL(qp->RSQrq+ii, kk, jj);
-//#ifdef DOUBLE_PRECISION
-//							BLASFEO_DMATEL(qp_red->RSQrq+ii, idx1, idx0) = BLASFEO_DMATEL(qp->RSQrq+ii, kk, jj);
-//#else
-//							BLASFEO_SMATEL(qp_red->RSQrq+ii, idx1, idx0) = BLASFEO_SMATEL(qp->RSQrq+ii, kk, jj);
 //#endif
 							idx1++;
 							}
@@ -365,35 +357,22 @@ void OCP_QP_REDUCE_EQ_DOF(struct OCP_QP *qp, struct OCP_QP *qp_red, struct OCP_Q
 				{
 				if(work->e_imask_ux[jj]==0)
 					{
-#ifdef DOUBLE_PRECISION
-					BLASFEO_DVECEL(qp_red->rqz+ii, idx0) = BLASFEO_DVECEL(work->tmp_nuxM+1, jj);
-#else
-					BLASFEO_SVECEL(qp_red->rqz+ii, idx0) = BLASFEO_SVECEL(work->tmp_nuxM+1, jj);
-#endif
+					VECEL(qp_red->rqz+ii, idx0) = VECEL(work->tmp_nuxM+1, jj);
 					idx0++;
 					}
 				}
-			// d d_mask m idxb
+			// d d_mask m idxb idxs_rev
 			idx0 = 0;
 			for(jj=0; jj<nb[ii]; jj++)
 				{
 				if(work->e_imask_d[jj]==0)
 					{
-#ifdef DOUBLE_PRECISION
-					BLASFEO_DVECEL(qp_red->d+ii, idx0) = BLASFEO_DVECEL(qp->d+ii, jj);
-					BLASFEO_DVECEL(qp_red->d+ii, nb_red[ii]+ng_red[ii]+idx0) = BLASFEO_DVECEL(qp->d+ii, nb[ii]+ng[ii]+jj);
-					BLASFEO_DVECEL(qp_red->d_mask+ii, idx0) = BLASFEO_DVECEL(qp->d_mask+ii, jj);
-					BLASFEO_DVECEL(qp_red->d_mask+ii, nb_red[ii]+ng_red[ii]+idx0) = BLASFEO_DVECEL(qp->d_mask+ii, nb[ii]+ng[ii]+jj);
-					BLASFEO_DVECEL(qp_red->m+ii, idx0) = BLASFEO_DVECEL(qp->m+ii, jj);
-					BLASFEO_DVECEL(qp_red->m+ii, nb_red[ii]+ng_red[ii]+idx0) = BLASFEO_DVECEL(qp->m+ii, nb[ii]+ng[ii]+jj);
-#else
-					BLASFEO_SVECEL(qp_red->d+ii, idx0) = BLASFEO_SVECEL(qp->d+ii, jj);
-					BLASFEO_SVECEL(qp_red->d+ii, nb_red[ii]+ng_red[ii]+idx0) = BLASFEO_SVECEL(qp->d+ii, nb[ii]+ng[ii]+jj);
-					BLASFEO_SVECEL(qp_red->d_mask+ii, idx0) = BLASFEO_SVECEL(qp->d_mask+ii, jj);
-					BLASFEO_SVECEL(qp_red->d_mask+ii, nb_red[ii]+ng_red[ii]+idx0) = BLASFEO_SVECEL(qp->d_mask+ii, nb[ii]+ng[ii]+jj);
-					BLASFEO_SVECEL(qp_red->m+ii, idx0) = BLASFEO_SVECEL(qp->m+ii, jj);
-					BLASFEO_SVECEL(qp_red->m+ii, nb_red[ii]+ng_red[ii]+idx0) = BLASFEO_SVECEL(qp->m+ii, nb[ii]+ng[ii]+jj);
-#endif
+					VECEL(qp_red->d+ii, idx0) = VECEL(qp->d+ii, jj);
+					VECEL(qp_red->d+ii, nb_red[ii]+ng_red[ii]+idx0) = VECEL(qp->d+ii, nb[ii]+ng[ii]+jj);
+					VECEL(qp_red->d_mask+ii, idx0) = VECEL(qp->d_mask+ii, jj);
+					VECEL(qp_red->d_mask+ii, nb_red[ii]+ng_red[ii]+idx0) = VECEL(qp->d_mask+ii, nb[ii]+ng[ii]+jj);
+					VECEL(qp_red->m+ii, idx0) = VECEL(qp->m+ii, jj);
+					VECEL(qp_red->m+ii, nb_red[ii]+ng_red[ii]+idx0) = VECEL(qp->m+ii, nb[ii]+ng[ii]+jj);
 					qp_red->idxb[ii][idx0] = qp->idxb[ii][jj];
 					qp_red->idxs_rev[ii][idx0] = qp->idxs_rev[ii][jj]; // keep softed inequality constr with same slack
 					idx0++;
@@ -476,6 +455,271 @@ void OCP_QP_REDUCE_EQ_DOF(struct OCP_QP *qp, struct OCP_QP *qp_red, struct OCP_Q
 
 
 
+void OCP_QP_REDUCE_EQ_DOF_LHS(struct OCP_QP *qp, struct OCP_QP *qp_red, struct OCP_QP_REDUCE_EQ_DOF_ARG *arg, struct OCP_QP_REDUCE_EQ_DOF_WS *work)
+	{
+
+	int ii, jj, kk, idx0, idx1;
+
+	struct OCP_QP_DIM *dim = qp->dim;
+	int N = dim->N;
+	int *nx = dim->nx;
+	int *nu = dim->nu;
+	int *nb = dim->nb;
+	int *nbx = dim->nbx;
+	int *nbu = dim->nbu;
+	int *ng = dim->ng;
+	int *ns = dim->ns;
+	int *nbue = dim->nbue;
+	int *nbxe = dim->nbxe;
+	int *nge = dim->nge;
+
+	struct OCP_QP_DIM *dim_red = qp_red->dim;
+	int *nx_red = dim_red->nx;
+	int *nu_red = dim_red->nu;
+	int *nb_red = dim_red->nb;
+	int *ng_red = dim_red->ng;
+	int *ns_red = dim_red->ns;
+
+	// TODO handle case of softed equalities !!!!!!!!!!!!!!!!
+
+	int ne_thr;
+
+	for(ii=0; ii<=N; ii++)
+		{
+		if(ii==0)
+			ne_thr = nbue[ii]+nbxe[ii];
+		else
+			ne_thr = nbue[ii];
+		if(ne_thr>0) // reduce inputs and/or states
+			{
+			VECSE(nu[ii]+nx[ii], 0.0, work->tmp_nuxM+0, 0);
+			for(jj=0; jj<nu[ii]+nx[ii]; jj++)
+				work->e_imask_ux[jj] = 0;
+			for(jj=0; jj<nbu[ii]+nbx[ii]; jj++)
+				work->e_imask_d[jj] = 0;
+			for(jj=0; jj<ne_thr; jj++) // set 1s for both inputs and states
+				{
+				VECEL(work->tmp_nuxM+0, qp->idxb[ii][qp->idxe[ii][jj]]) = VECEL(qp->d+ii, qp->idxe[ii][jj]);
+				work->e_imask_ux[qp->idxb[ii][qp->idxe[ii][jj]]] = 1;
+				work->e_imask_d[qp->idxe[ii][jj]] = 1;
+				}
+			// TODO check first and last non-zero in e_mask and only multiply between them
+			if(ii<N)
+				{
+				// BAt
+				idx0 = 0;
+				for(jj=0; jj<nu[ii]+nx[ii]; jj++)
+					{
+					if(work->e_imask_ux[jj]==0)
+						{
+						GECP(1, nx[ii+1], qp->BAbt+ii, jj, 0, qp_red->BAbt+ii, idx0, 0);
+						idx0++;
+						}
+					}
+				}
+			// RSQ
+			idx0 = 0;
+			for(jj=0; jj<nu[ii]+nx[ii]; jj++)
+				{
+				if(work->e_imask_ux[jj]==0)
+					{
+//					idx1 = 0;
+					idx1 = idx0;
+//					for(kk=0; kk<nu[ii]+nx[ii]; kk++)
+					for(kk=jj; kk<nu[ii]+nx[ii]; kk++)
+						{
+						if(work->e_imask_ux[kk]==0)
+							{
+							MATEL(qp_red->RSQrq+ii, idx1, idx0) = MATEL(qp->RSQrq+ii, kk, jj);
+//#endif
+							idx1++;
+							}
+						}
+					idx0++;
+					}
+				}
+			// idxb idxs_rev
+			idx0 = 0;
+			for(jj=0; jj<nb[ii]; jj++)
+				{
+				if(work->e_imask_d[jj]==0)
+					{
+					qp_red->idxb[ii][idx0] = qp->idxb[ii][jj];
+					qp_red->idxs_rev[ii][idx0] = qp->idxs_rev[ii][jj]; // keep softed inequality constr with same slack
+					idx0++;
+					}
+				}
+			// DCt
+			idx0 = 0;
+			for(jj=0; jj<nu[ii]+nx[ii]; jj++)
+				{
+				if(work->e_imask_ux[jj]==0)
+					{
+					GECP(1, ng[ii], qp->DCt+ii, jj, 0, qp_red->DCt+ii, idx0, 0);
+					idx0++;
+					}
+				}
+			// soft constraints
+			for(jj=0; jj<ng[ii]; jj++)
+				qp_red->idxs_rev[ii][nb_red[ii]+jj] = qp->idxs_rev[ii][nb[ii]+jj]; // keep softed inequality constr with same slack
+			VECCP(2*ns[ii], qp->Z+ii, 0, qp_red->Z+ii, 0);
+			qp_red->diag_H_flag[ii] = qp->diag_H_flag[ii];
+			// TODO idxe !!!!!!!!!!!!!!!
+			}
+		else // copy everything
+			{
+			qp_red->diag_H_flag[ii] = qp->diag_H_flag[ii];
+			if(arg->alias_unchanged)
+				{
+				if(ii<N)
+					{
+					qp_red->BAbt[ii] = qp->BAbt[ii];
+					}
+				qp_red->RSQrq[ii] = qp->RSQrq[ii];
+				qp_red->Z[ii] = qp->Z[ii];
+				qp_red->idxb[ii] = qp->idxb[ii];
+				qp_red->DCt[ii] = qp->DCt[ii];
+				qp_red->idxs_rev[ii] = qp->idxs_rev[ii];
+				qp_red->idxe[ii] = qp->idxe[ii];
+				}
+			else
+				{
+				if(ii<N)
+					{
+					GECP(nu[ii]+nx[ii]+1, nx[ii+1], qp->BAbt+ii, 0, 0, qp_red->BAbt+ii, 0, 0);
+					}
+				GECP(nu[ii]+nx[ii]+1, nu[ii]+nx[ii], qp->RSQrq+ii, 0, 0, qp_red->RSQrq+ii, 0, 0);
+				VECCP(2*ns[ii], qp->Z+ii, 0, qp_red->Z+ii, 0);
+				for(jj=0; jj<nb[ii]; jj++)
+					qp_red->idxb[ii][jj] = qp->idxb[ii][jj];
+				GECP(nu[ii]+nx[ii], ng[ii], qp->DCt+ii, 0, 0, qp_red->DCt+ii, 0, 0);
+				for(jj=0; jj<nb[ii]+ng[ii]; jj++)
+					qp_red->idxs_rev[ii][jj] = qp->idxs_rev[ii][jj];
+				for(jj=0; jj<nbue[ii]+nbxe[ii]+nge[ii]; jj++)
+					qp_red->idxe[ii][jj] = qp->idxe[ii][jj];
+				}
+			}
+		}
+
+	return;
+
+	}
+
+
+
+void OCP_QP_REDUCE_EQ_DOF_RHS(struct OCP_QP *qp, struct OCP_QP *qp_red, struct OCP_QP_REDUCE_EQ_DOF_ARG *arg, struct OCP_QP_REDUCE_EQ_DOF_WS *work)
+	{
+
+	int ii, jj, kk, idx0, idx1;
+
+	struct OCP_QP_DIM *dim = qp->dim;
+	int N = dim->N;
+	int *nx = dim->nx;
+	int *nu = dim->nu;
+	int *nb = dim->nb;
+	int *nbx = dim->nbx;
+	int *nbu = dim->nbu;
+	int *ng = dim->ng;
+	int *ns = dim->ns;
+	int *nbue = dim->nbue;
+	int *nbxe = dim->nbxe;
+	int *nge = dim->nge;
+
+	struct OCP_QP_DIM *dim_red = qp_red->dim;
+	int *nx_red = dim_red->nx;
+	int *nu_red = dim_red->nu;
+	int *nb_red = dim_red->nb;
+	int *ng_red = dim_red->ng;
+	int *ns_red = dim_red->ns;
+
+	// TODO handle case of softed equalities !!!!!!!!!!!!!!!!
+
+	int ne_thr;
+
+	for(ii=0; ii<=N; ii++)
+		{
+		if(ii==0)
+			ne_thr = nbue[ii]+nbxe[ii];
+		else
+			ne_thr = nbue[ii];
+		if(ne_thr>0) // reduce inputs and/or states
+			{
+			VECSE(nu[ii]+nx[ii], 0.0, work->tmp_nuxM+0, 0);
+			for(jj=0; jj<nu[ii]+nx[ii]; jj++)
+				work->e_imask_ux[jj] = 0;
+			for(jj=0; jj<nbu[ii]+nbx[ii]; jj++)
+				work->e_imask_d[jj] = 0;
+			for(jj=0; jj<ne_thr; jj++) // set 1s for both inputs and states
+				{
+				VECEL(work->tmp_nuxM+0, qp->idxb[ii][qp->idxe[ii][jj]]) = VECEL(qp->d+ii, qp->idxe[ii][jj]);
+				work->e_imask_ux[qp->idxb[ii][qp->idxe[ii][jj]]] = 1;
+				work->e_imask_d[qp->idxe[ii][jj]] = 1;
+				}
+			// TODO check first and last non-zero in e_mask and only multiply between them
+			if(ii<N)
+				{
+				// b
+				GEMV_T(nu[ii]+nx[ii], nx[ii+1], 1.0, qp->BAbt+ii, 0, 0, work->tmp_nuxM+0, 0, 1.0, qp->b+ii, 0, qp_red->b+ii, 0);
+				}
+			// rq
+			SYMV_L(nu[ii]+nx[ii], nu[ii]+nx[ii], 1.0, qp->RSQrq+ii, 0, 0, work->tmp_nuxM+0, 0, 1.0, qp->rqz+ii, 0, work->tmp_nuxM+1, 0);
+			idx0 = 0;
+			for(jj=0; jj<nu[ii]+nx[ii]; jj++)
+				{
+				if(work->e_imask_ux[jj]==0)
+					{
+					VECEL(qp_red->rqz+ii, idx0) = VECEL(work->tmp_nuxM+1, jj);
+					idx0++;
+					}
+				}
+			// d d_mask m idxb idxs_rev
+			idx0 = 0;
+			for(jj=0; jj<nb[ii]; jj++)
+				{
+				if(work->e_imask_d[jj]==0)
+					{
+					VECEL(qp_red->d+ii, idx0) = VECEL(qp->d+ii, jj);
+					VECEL(qp_red->d+ii, nb_red[ii]+ng_red[ii]+idx0) = VECEL(qp->d+ii, nb[ii]+ng[ii]+jj);
+					VECEL(qp_red->d_mask+ii, idx0) = VECEL(qp->d_mask+ii, jj);
+					VECEL(qp_red->d_mask+ii, nb_red[ii]+ng_red[ii]+idx0) = VECEL(qp->d_mask+ii, nb[ii]+ng[ii]+jj);
+					VECEL(qp_red->m+ii, idx0) = VECEL(qp->m+ii, jj);
+					VECEL(qp_red->m+ii, nb_red[ii]+ng_red[ii]+idx0) = VECEL(qp->m+ii, nb[ii]+ng[ii]+jj);
+					idx0++;
+					}
+				}
+			VECCP(ng[ii], qp->d+ii, nb[ii], qp_red->d+ii, nb_red[ii]);
+			VECCP(ng[ii]+2*ns[ii], qp->d+ii, 2*nb[ii]+ng[ii], qp_red->d+ii, 2*nb_red[ii]+ng_red[ii]);
+			VECCP(ng[ii], qp->d_mask+ii, nb[ii], qp_red->d_mask+ii, nb_red[ii]);
+			VECCP(ng[ii]+2*ns[ii], qp->d_mask+ii, 2*nb[ii]+ng[ii], qp_red->d_mask+ii, 2*nb_red[ii]+ng_red[ii]);
+			VECCP(ng[ii], qp->m+ii, nb[ii], qp_red->m+ii, nb_red[ii]);
+			VECCP(ng[ii]+2*ns[ii], qp->m+ii, 2*nb[ii]+ng[ii], qp_red->m+ii, 2*nb_red[ii]+ng_red[ii]);
+			GEMV_T(nu[ii]+nx[ii], ng[ii], 1.0, qp->DCt+ii, 0, 0, work->tmp_nuxM+0, 0, 0.0, work->tmp_nbgM, 0, work->tmp_nbgM, 0);
+			AXPY(ng[ii], -1.0, work->tmp_nbgM, 0, qp->d+ii, nb[ii], qp_red->d+ii, nb_red[ii]);
+			AXPY(ng[ii], 1.0, work->tmp_nbgM, 0, qp->d+ii, 2*nb[ii]+ng[ii], qp_red->d+ii, 2*nb_red[ii]+ng_red[ii]);
+			// soft constraints
+			VECCP(2*ns[ii], qp->rqz+ii, nu[ii]+nx[ii], qp_red->rqz+ii, nu_red[ii]+nx_red[ii]);
+			// TODO idxe !!!!!!!!!!!!!!!
+			}
+		else // copy everything
+			{
+			// copy vectors which are contiguous in the QP (e.g. to alias to res)
+			if(ii<N)
+				{
+				VECCP(nx[ii+1], qp->b+ii, 0, qp_red->b+ii, 0);
+				}
+			VECCP(nu[ii]+nx[ii]+2*ns[ii], qp->rqz+ii, 0, qp_red->rqz+ii, 0);
+			VECCP(2*nb[ii]+2*ng[ii]+2*ns[ii], qp->d+ii, 0, qp_red->d+ii, 0);
+			VECCP(2*nb[ii]+2*ng[ii]+2*ns[ii], qp->d_mask+ii, 0, qp_red->d_mask+ii, 0);
+			VECCP(2*nb[ii]+2*ng[ii]+2*ns[ii], qp->m+ii, 0, qp_red->m+ii, 0);
+			}
+		}
+
+	return;
+
+	}
+
+
+
 void OCP_QP_RESTORE_EQ_DOF(struct OCP_QP *qp, struct OCP_QP_SOL *qp_sol_red, struct OCP_QP_SOL *qp_sol, struct OCP_QP_REDUCE_EQ_DOF_ARG *arg, struct OCP_QP_REDUCE_EQ_DOF_WS *work)
 	{
 
@@ -530,21 +774,13 @@ void OCP_QP_RESTORE_EQ_DOF(struct OCP_QP *qp, struct OCP_QP_SOL *qp_sol_red, str
 					{
 					if(work->e_imask_ux[jj]==0)
 						{
-#ifdef DOUBLE_PRECISION
-						BLASFEO_DVECEL(qp_sol->ux+ii, jj) = BLASFEO_DVECEL(qp_sol_red->ux+ii, idx0);
-#else
-						BLASFEO_SVECEL(qp_sol->ux+ii, jj) = BLASFEO_SVECEL(qp_sol_red->ux+ii, idx0);
-#endif
+						VECEL(qp_sol->ux+ii, jj) = VECEL(qp_sol_red->ux+ii, idx0);
 						idx0++;
 						}
 					}
 				for(jj=0; jj<ne_thr; jj++)
 					{
-#ifdef DOUBLE_PRECISION
-					BLASFEO_DVECEL(qp_sol->ux+ii, qp->idxb[ii][qp->idxe[ii][jj]]) = BLASFEO_DVECEL(qp->d+ii, qp->idxe[ii][jj]);
-#else
-					BLASFEO_SVECEL(qp_sol->ux+ii, qp->idxb[ii][qp->idxe[ii][jj]]) = BLASFEO_DVECEL(qp->d+ii, qp->idxe[ii][jj]);
-#endif
+					VECEL(qp_sol->ux+ii, qp->idxb[ii][qp->idxe[ii][jj]]) = VECEL(qp->d+ii, qp->idxe[ii][jj]);
 					}
 				// TODO update based on choices on reduce !!!!!!!!!!!!!
 				VECCP(2*ns[ii], qp_sol_red->ux+ii, nu_red[ii]+nx_red[ii], qp_sol->ux+ii, nu[ii]+nx[ii]);
@@ -563,34 +799,20 @@ void OCP_QP_RESTORE_EQ_DOF(struct OCP_QP *qp, struct OCP_QP_SOL *qp_sol_red, str
 					{
 					if(work->e_imask_d[jj]==0)
 						{
-#ifdef DOUBLE_PRECISION
-						BLASFEO_DVECEL(qp_sol->lam+ii, jj) = BLASFEO_DVECEL(qp_sol_red->lam+ii, idx0);
-						BLASFEO_DVECEL(qp_sol->lam+ii, nb[ii]+ng[ii]+jj) = BLASFEO_DVECEL(qp_sol_red->lam+ii, nb_red[ii]+ng_red[ii]+idx0);
-						BLASFEO_DVECEL(qp_sol->t+ii, jj) = BLASFEO_DVECEL(qp_sol_red->t+ii, idx0);
-						BLASFEO_DVECEL(qp_sol->t+ii, nb[ii]+ng[ii]+jj) = BLASFEO_DVECEL(qp_sol_red->t+ii, nb_red[ii]+ng_red[ii]+idx0);
-#else
-						BLASFEO_SVECEL(qp_sol->lam+ii, jj) = BLASFEO_SVECEL(qp_sol_red->lam+ii, idx0);
-						BLASFEO_SVECEL(qp_sol->lam+ii, nb[ii]+ng[ii]+jj) = BLASFEO_SVECEL(qp_sol_red->lam+ii, nb_red[ii]+ng_red[ii]+idx0);
-						BLASFEO_SVECEL(qp_sol->t+ii, jj) = BLASFEO_SVECEL(qp_sol_red->t+ii, idx0);
-						BLASFEO_SVECEL(qp_sol->t+ii, nb[ii]+ng[ii]+jj) = BLASFEO_SVECEL(qp_sol_red->t+ii, nb_red[ii]+ng_red[ii]+idx0);
-#endif
+						VECEL(qp_sol->lam+ii, jj) = VECEL(qp_sol_red->lam+ii, idx0);
+						VECEL(qp_sol->lam+ii, nb[ii]+ng[ii]+jj) = VECEL(qp_sol_red->lam+ii, nb_red[ii]+ng_red[ii]+idx0);
+						VECEL(qp_sol->t+ii, jj) = VECEL(qp_sol_red->t+ii, idx0);
+						VECEL(qp_sol->t+ii, nb[ii]+ng[ii]+jj) = VECEL(qp_sol_red->t+ii, nb_red[ii]+ng_red[ii]+idx0);
 						idx0++;
 						}
 					else
 						{
 						// lam
 						// t
-#ifdef DOUBLE_PRECISION
-						BLASFEO_DVECEL(qp_sol->lam+ii, jj) = arg->lam_min;
-						BLASFEO_DVECEL(qp_sol->lam+ii, nb[ii]+ng[ii]+jj) = arg->lam_min;
-						BLASFEO_DVECEL(qp_sol->t+ii, jj) = arg->t_min;
-						BLASFEO_DVECEL(qp_sol->t+ii, nb[ii]+ng[ii]+jj) = arg->t_min;
-#else
-						BLASFEO_SVECEL(qp_sol->lam+ii, jj) = arg->lam_min;
-						BLASFEO_SVECEL(qp_sol->lam+ii, nb[ii]+ng[ii]+jj) = arg->lam_min;
-						BLASFEO_SVECEL(qp_sol->t+ii, jj) = arg->t_min;
-						BLASFEO_SVECEL(qp_sol->t+ii, nb[ii]+ng[ii]+jj) = arg->t_min;
-#endif
+						VECEL(qp_sol->lam+ii, jj) = arg->lam_min;
+						VECEL(qp_sol->lam+ii, nb[ii]+ng[ii]+jj) = arg->lam_min;
+						VECEL(qp_sol->t+ii, jj) = arg->t_min;
+						VECEL(qp_sol->t+ii, nb[ii]+ng[ii]+jj) = arg->t_min;
 						}
 					}
 				// TODO update based on choices on reduce !!!!!!!!!!!!!
@@ -609,19 +831,11 @@ void OCP_QP_RESTORE_EQ_DOF(struct OCP_QP *qp, struct OCP_QP_SOL *qp_sol_red, str
 					{
 					if(work->e_imask_d[jj]!=0)
 						{
-#ifdef DOUBLE_PRECISION
-						tmp = BLASFEO_DVECEL(work->tmp_nuxM, qp->idxb[ii][jj]);
+						tmp = VECEL(work->tmp_nuxM, qp->idxb[ii][jj]);
 						if(tmp>=0)
-							BLASFEO_DVECEL(qp_sol->lam+ii, jj) = tmp;
+							VECEL(qp_sol->lam+ii, jj) = tmp;
 						else
-							BLASFEO_DVECEL(qp_sol->lam+ii, nb[ii]+ng[ii]+jj) = - tmp;
-#else
-						tmp = BLASFEO_SVECEL(work->tmp_nuxM, qp->idxb[ii][jj]);
-						if(tmp>=0)
-							BLASFEO_SVECEL(qp_sol->lam+ii, jj) = tmp;
-						else
-							BLASFEO_SVECEL(qp_sol->lam+ii, nb[ii]+ng[ii]+jj) = - tmp;
-#endif
+							VECEL(qp_sol->lam+ii, nb[ii]+ng[ii]+jj) = - tmp;
 						}
 					}
 				}

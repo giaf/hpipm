@@ -73,6 +73,7 @@
 #define SYMV_L blasfeo_dsymv_l
 #define VECAD_SP blasfeo_dvecad_sp
 #define VECCP blasfeo_dveccp
+#define VECEL BLASFEO_DVECEL
 #define VECSE blasfeo_dvecse
 
 #define OCP_QP_DIM_REDUCE_EQ_DOF d_ocp_qp_dim_reduce_eq_dof
@@ -86,6 +87,8 @@
 #define OCP_QP_REDUCE_EQ_DOF_WS_MEMSIZE d_ocp_qp_reduce_eq_dof_ws_memsize
 #define OCP_QP_REDUCE_EQ_DOF_WS_CREATE d_ocp_qp_reduce_eq_dof_ws_create
 #define OCP_QP_REDUCE_EQ_DOF d_ocp_qp_reduce_eq_dof
+#define OCP_QP_REDUCE_EQ_DOF_LHS d_ocp_qp_reduce_eq_dof_lhs
+#define OCP_QP_REDUCE_EQ_DOF_RHS d_ocp_qp_reduce_eq_dof_rhs
 #define OCP_QP_RESTORE_EQ_DOF d_ocp_qp_restore_eq_dof
 
 
