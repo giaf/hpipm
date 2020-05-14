@@ -66,6 +66,7 @@
 #define OCP_QP_DIM s_ocp_qp_dim
 #define OCP_QP_REDUCE_EQ_DOF_ARG s_ocp_qp_reduce_eq_dof_arg
 #define OCP_QP_REDUCE_EQ_DOF_WS s_ocp_qp_reduce_eq_dof_ws
+#define MATEL BLASFEO_SMATEL
 #define REAL float
 #define SIZE_STRVEC blasfeo_memsize_svec
 #define STRVEC blasfeo_svec

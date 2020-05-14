@@ -346,11 +346,12 @@ void OCP_QP_REDUCE_EQ_DOF(struct OCP_QP *qp, struct OCP_QP *qp_red, struct OCP_Q
 						{
 						if(work->e_imask_ux[kk]==0)
 							{
-#ifdef DOUBLE_PRECISION
-							BLASFEO_DMATEL(qp_red->RSQrq+ii, idx1, idx0) = BLASFEO_DMATEL(qp->RSQrq+ii, kk, jj);
-#else
-							BLASFEO_SMATEL(qp_red->RSQrq+ii, idx1, idx0) = BLASFEO_SMATEL(qp->RSQrq+ii, kk, jj);
-#endif
+							MATEL(qp_red->RSQrq+ii, idx1, idx0) = MATEL(qp->RSQrq+ii, kk, jj);
+//#ifdef DOUBLE_PRECISION
+//							BLASFEO_DMATEL(qp_red->RSQrq+ii, idx1, idx0) = BLASFEO_DMATEL(qp->RSQrq+ii, kk, jj);
+//#else
+//							BLASFEO_SMATEL(qp_red->RSQrq+ii, idx1, idx0) = BLASFEO_SMATEL(qp->RSQrq+ii, kk, jj);
+//#endif
 							idx1++;
 							}
 						}

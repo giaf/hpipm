@@ -66,6 +66,7 @@
 #define OCP_QP_REDUCE_EQ_DOF_ARG d_ocp_qp_reduce_eq_dof_arg
 #define OCP_QP_REDUCE_EQ_DOF_WS d_ocp_qp_reduce_eq_dof_ws
 #define OCP_QP_SOL d_ocp_qp_sol
+#define MATEL BLASFEO_DMATEL
 #define REAL double
 #define SIZE_STRVEC blasfeo_memsize_dvec
 #define STRVEC blasfeo_dvec
