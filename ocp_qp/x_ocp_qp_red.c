@@ -602,7 +602,8 @@ void OCP_QP_RESTORE_EQ_DOF(struct OCP_QP *qp, struct OCP_QP_SOL *qp_sol_red, str
 				AXPY(nb[ii]+ng[ii], -1.0, qp_sol->lam+ii, 0, qp_sol->lam+ii, nb[ii]+ng[ii], work->tmp_nbgM, 0);
 				VECAD_SP(nb[ii], 1.0, work->tmp_nbgM, 0, qp->idxb[ii], work->tmp_nuxM, 0);
 				SYMV_L(nu[ii]+nx[ii], nu[ii]+nx[ii], 1.0, qp->RSQrq+ii, 0, 0, qp_sol->ux+ii, 0, 1.0, work->tmp_nuxM, 0, work->tmp_nuxM, 0);
-				GEMV_N(nu[ii]+nx[ii], nx[ii+1], 1.0, qp->BAbt+ii, 0, 0, qp_sol->pi+ii, 0, 1.0, work->tmp_nuxM, 0, work->tmp_nuxM, 0);
+				if(ii<N)
+					GEMV_N(nu[ii]+nx[ii], nx[ii+1], 1.0, qp->BAbt+ii, 0, 0, qp_sol_red->pi+ii, 0, 1.0, work->tmp_nuxM, 0, work->tmp_nuxM, 0);
 				GEMV_N(nu[ii]+nx[ii], ng[ii], 1.0, qp->DCt+ii, 0, 0, work->tmp_nbgM, nb[ii], 1.0, work->tmp_nuxM, 0, work->tmp_nuxM, 0);
 				for(jj=0; jj<nb[ii]; jj++)
 					{
