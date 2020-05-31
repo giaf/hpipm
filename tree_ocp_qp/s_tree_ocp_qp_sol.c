@@ -33,8 +33,8 @@
 *                                                                                                 *
 **************************************************************************************************/
 
-#if defined(RUNTIME_CHECKS)
 #include <stdlib.h>
+#if defined(RUNTIME_CHECKS)
 #include <stdio.h>
 #endif
 

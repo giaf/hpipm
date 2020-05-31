@@ -35,6 +35,7 @@
 
 
 
+#include <stdlib.h>
 #include <math.h>
 
 #include <blasfeo_target.h>
