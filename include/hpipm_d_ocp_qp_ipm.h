@@ -117,7 +117,7 @@ struct d_ocp_qp_ipm_ws
 	struct blasfeo_dmat *lq0;
 	struct blasfeo_dmat *tmp_nxM_nxM;
 	double *stat; // convergence statistics
-	double *Lr_cm;
+	double *Lr_cm; // TODO remove !!!!!!!!!!!!!!!
 	int *use_hess_fact;
 	void *lq_work0;
 	int iter; // iteration number

@@ -555,9 +555,8 @@ int OCP_QP_IPM_WS_MEMSIZE(struct OCP_QP_DIM *dim, struct OCP_QP_IPM_ARG *arg)
 	if(!arg->square_root_alg)
 		{
 		size += 1*(N+1)*sizeof(struct STRMAT); // P
-		size += 1*sizeof(struct STRMAT); // Ls
 		}
-	size += 2*sizeof(struct STRMAT); // tmp_nxM_nxM
+	size += 3*sizeof(struct STRMAT); // tmp_nxM_nxM Ls
 	if(arg->lq_fact>0)
 		{
 		size += 1*(N+1)*sizeof(struct STRMAT); // Lh
@@ -579,9 +578,9 @@ int OCP_QP_IPM_WS_MEMSIZE(struct OCP_QP_DIM *dim, struct OCP_QP_IPM_ARG *arg)
 	if(!arg->square_root_alg)
 		{
 		for(ii=0; ii<=N; ii++) size += 1*SIZE_STRMAT(nx[ii]+1, nx[ii]); // P
-		size += 1*SIZE_STRMAT(nxM+1, nuM); // Ls
 		}
 	size += 2*SIZE_STRMAT(nxM, nxM); // tmp_nxM_nxM
+	size += 1*SIZE_STRMAT(nxM+1, nuM); // Ls
 	if(arg->lq_fact>0)
 		{
 		for(ii=0; ii<=N; ii++) size += 1*SIZE_STRMAT(nu[ii]+nx[ii]+1, nu[ii]+nx[ii]); // Lh
@@ -712,11 +711,11 @@ void OCP_QP_IPM_WS_CREATE(struct OCP_QP_DIM *dim, struct OCP_QP_IPM_ARG *arg, st
 		{
 		workspace->P = sm_ptr;
 		sm_ptr += N+1;
-		workspace->Ls = sm_ptr;
-		sm_ptr += 1;
 		}
 	workspace->tmp_nxM_nxM = sm_ptr;
 	sm_ptr += 2;
+	workspace->Ls = sm_ptr;
+	sm_ptr += 1;
 	if(arg->lq_fact>0)
 		{
 		workspace->Lh = sm_ptr;
@@ -816,13 +815,13 @@ void OCP_QP_IPM_WS_CREATE(struct OCP_QP_DIM *dim, struct OCP_QP_IPM_ARG *arg, st
 			CREATE_STRMAT(nx[ii]+1, nx[ii], workspace->P+ii, c_ptr);
 			c_ptr += (workspace->P+ii)->memsize;
 			}
-		CREATE_STRMAT(nxM+1, nuM, workspace->Ls, c_ptr);
-		c_ptr += (workspace->Ls)->memsize;
 		}
 	CREATE_STRMAT(nxM, nxM, workspace->tmp_nxM_nxM+0, c_ptr);
 	c_ptr += (workspace->tmp_nxM_nxM+0)->memsize;
 	CREATE_STRMAT(nxM, nxM, workspace->tmp_nxM_nxM+1, c_ptr);
 	c_ptr += (workspace->tmp_nxM_nxM+1)->memsize;
+	CREATE_STRMAT(nxM+1, nuM, workspace->Ls, c_ptr);
+	c_ptr += (workspace->Ls)->memsize;
 
 	if(arg->lq_fact>0)
 		{
@@ -1307,6 +1306,7 @@ void OCP_QP_IPM_GET_RIC_K(struct OCP_QP *qp, struct OCP_QP_IPM_ARG *arg, struct 
 	int nu0 = nu[stage];
 	int nx0 = nx[stage];
 
+#if 0
 	UNPACK_MAT(nu0, nu0, ws->L+stage, 0, 0, ws->Lr_cm, nu0);
 	UNPACK_TRAN_MAT(nx0, nu0, ws->L+stage, nu0, 0, K, nu0);
 
@@ -1315,6 +1315,11 @@ void OCP_QP_IPM_GET_RIC_K(struct OCP_QP *qp, struct OCP_QP_IPM_ARG *arg, struct 
 	char c_t = 't';
 	REAL d_m1 = -1.0;
 	BLAS_TRSM(&c_l, &c_l, &c_t, &c_n, &nu0, &nx0, &d_m1, ws->Lr_cm, &nu0, K, &nu0);
+#else
+	TRSM_RLNN(nx0, nu0, -1.0, ws->L+stage, 0, 0, ws->L+stage, nu0, 0, ws->Ls, 0, 0);
+	
+	UNPACK_TRAN_MAT(nx0, nu0, ws->Ls, 0, 0, K, nu0);
+#endif
 
 	return;
 	}

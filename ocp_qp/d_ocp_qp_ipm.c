@@ -114,6 +114,7 @@
 #define TRCP_L blasfeo_dtrcp_l
 #define TRMV_LNN blasfeo_dtrmv_lnn
 #define TRMV_LTN blasfeo_dtrmv_ltn
+#define TRSM_RLNN blasfeo_dtrsm_rlnn
 #define TRSV_LTN blasfeo_dtrsv_ltn
 #define TRTR_L blasfeo_dtrtr_l
 #define UNPACK_MAT blasfeo_unpack_dmat
