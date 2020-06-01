@@ -600,8 +600,6 @@ int OCP_QP_IPM_WS_MEMSIZE(struct OCP_QP_DIM *dim, struct OCP_QP_IPM_ARG *arg)
 	int stat_m = 17;
 	size += stat_m*(1+arg->stat_max)*sizeof(REAL); // stat
 
-	size += nuM*nuM*sizeof(REAL); // Lr_cm
-
 	size += (N+1)*sizeof(int); // use_hess_fact
 
 	size = (size+63)/64*64; // make multiple of typical cache line size
@@ -779,9 +777,6 @@ void OCP_QP_IPM_WS_CREATE(struct OCP_QP_DIM *dim, struct OCP_QP_IPM_ARG *arg, st
 	workspace->stat = d_ptr;
 	int stat_m = 17;
 	d_ptr += stat_m*(1+arg->stat_max);
-
-	workspace->Lr_cm = d_ptr;
-	d_ptr += nuM*nuM;
 
 	// int stuff
 	int *i_ptr = (int *) d_ptr;
@@ -1306,20 +1301,10 @@ void OCP_QP_IPM_GET_RIC_K(struct OCP_QP *qp, struct OCP_QP_IPM_ARG *arg, struct 
 	int nu0 = nu[stage];
 	int nx0 = nx[stage];
 
-#if 0
-	UNPACK_MAT(nu0, nu0, ws->L+stage, 0, 0, ws->Lr_cm, nu0);
-	UNPACK_TRAN_MAT(nx0, nu0, ws->L+stage, nu0, 0, K, nu0);
-
-	char c_l = 'l';
-	char c_n = 'n';
-	char c_t = 't';
-	REAL d_m1 = -1.0;
-	BLAS_TRSM(&c_l, &c_l, &c_t, &c_n, &nu0, &nx0, &d_m1, ws->Lr_cm, &nu0, K, &nu0);
-#else
+	// XXX when implemented in HP, better copy-to-align first
 	TRSM_RLNN(nx0, nu0, -1.0, ws->L+stage, 0, 0, ws->L+stage, nu0, 0, ws->Ls, 0, 0);
 	
 	UNPACK_TRAN_MAT(nx0, nu0, ws->Ls, 0, 0, K, nu0);
-#endif
 
 	return;
 	}

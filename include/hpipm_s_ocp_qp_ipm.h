@@ -116,7 +116,6 @@ struct s_ocp_qp_ipm_ws
 	struct blasfeo_smat *lq0;
 	struct blasfeo_smat *tmp_nxM_nxM;
 	float *stat; // convergence statistics
-	float *Lr_cm; // TODO remove !!!!!!!!!!!!!!!
 	int *use_hess_fact;
 	void *lq_work0;
 	float qp_res[4]; // infinity norm of residuals
