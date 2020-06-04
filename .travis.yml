@@ -123,3 +123,50 @@ jobs:
         - make -C examples/casadi_python/ get_casadi
         - make -C examples/casadi_python/ example_PMSM
 
+    - name: "Linux AMD64 cmake build"
+      arch: amd64
+      os: linux
+      dist: bionic
+      group: travis_latest
+      addons:
+        apt:
+          packages:
+          - bc
+      install:
+        - git clone https://github.com/giaf/blasfeo
+        - mkdir "${TRAVIS_BUILD_DIR}"/blasfeo/build
+        - cd "${TRAVIS_BUILD_DIR}"/blasfeo/build
+        - cmake -DCMAKE_INSTALL_PREFIX="${TRAVIS_BUILD_DIR}"/blasfeo ..
+        - make -j 4
+        - make install
+      script:
+        - mkdir "${TRAVIS_BUILD_DIR}"/build
+        - cd "${TRAVIS_BUILD_DIR}"/build
+        - cmake -DBLASFEO_PATH="${TRAVIS_BUILD_DIR}"/blasfeo ..
+        - make -j 4
+        - cd test_problems
+        - ./d_ocp_qp
+
+    - name: "Windows AMD64 cmake build"
+      os: windows
+      language: bash
+      group: travis_latest
+      install:
+        - export PATH="/C/Program Files (x86)/Microsoft Visual Studio/2017/BuildTools/MSBuild/15.0/Bin":$PATH
+        - git clone https://github.com/giaf/blasfeo
+        - mkdir "${TRAVIS_BUILD_DIR}"/blasfeo/build
+        - cd "${TRAVIS_BUILD_DIR}"/blasfeo/build
+        - cmake -DTARGET=GENERIC -DCMAKE_INSTALL_PREFIX="${TRAVIS_BUILD_DIR}"/blasfeo ..
+        - MSBuild.exe blasfeo.vcxproj
+        - MSBuild.exe INSTALL.vcxproj
+      script:
+        - export PATH="/C/Program Files (x86)/Microsoft Visual Studio/2017/BuildTools/MSBuild/15.0/Bin":$PATH
+        - mkdir "${TRAVIS_BUILD_DIR}"/build
+        - cd "${TRAVIS_BUILD_DIR}"/build
+        - cmake -DTARGET=GENERIC -DBLASFEO_PATH="${TRAVIS_BUILD_DIR}"/blasfeo ..
+        - MSBuild.exe hpipm.vcxproj
+        - cd test_problems
+        - MSBuild.exe d_ocp_qp.vcxproj
+        - cd Debug
+        - ./d_ocp_qp.exe
+

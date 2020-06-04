@@ -33,35 +33,30 @@
 #                                                                                                 #
 ###################################################################################################
 
+
 add_executable(d_cond test_d_cond.c d_tools.c)
-target_include_directories(d_cond PRIVATE "${HPIPM_INCLUDE_DIR}" "${BLASFEO_INCLUDE_DIR}")
-target_link_libraries(d_cond hpipm blasfeo m)
-
 add_executable(d_part_cond test_d_part_cond.c d_tools.c)
-target_include_directories(d_part_cond PRIVATE "${HPIPM_INCLUDE_DIR}" "${BLASFEO_INCLUDE_DIR}")
-target_link_libraries(d_part_cond hpipm blasfeo m)
-
 add_executable(d_dense_qp test_d_dense.c)
-target_include_directories(d_dense_qp PRIVATE "${HPIPM_INCLUDE_DIR}" "${BLASFEO_INCLUDE_DIR}")
-target_link_libraries(d_dense_qp hpipm blasfeo m)
-
-#add_executable(s_dense_qp test_s_dense.c)
-#target_link_libraries(s_dense_qp hpipm blasfeo m)
-
 add_executable(d_ocp_qp test_d_ocp.c d_tools.c)
-target_include_directories(d_ocp_qp PRIVATE "${HPIPM_INCLUDE_DIR}" "${BLASFEO_INCLUDE_DIR}")
-target_link_libraries(d_ocp_qp hpipm blasfeo m)
-
-#add_executable(s_ocp_qp test_s_ocp.c s_tools.c)
-#target_link_libraries(s_ocp_qp hpipm blasfeo m)
-
-#add_executable(m_ocp_qp test_m_ocp.c d_tools.c)
-#target_link_libraries(m_ocp_qp hpipm blasfeo m)
-
 add_executable(d_tree_ocp_qp test_d_tree_ocp.c d_tools.c)
-target_include_directories(d_tree_ocp_qp PRIVATE "${HPIPM_INCLUDE_DIR}" "${BLASFEO_INCLUDE_DIR}")
-target_link_libraries(d_tree_ocp_qp hpipm blasfeo m)
 
-#add_executable(s_tree_ocp_qp test_s_tree_ocp.c s_tools.c)
-#target_link_libraries(s_tree_ocp_qp hpipm blasfeo m)
+target_include_directories(d_cond PRIVATE "${HPIPM_INCLUDE_DIR}" "${BLASFEO_INCLUDE_DIR}")
+target_include_directories(d_part_cond PRIVATE "${HPIPM_INCLUDE_DIR}" "${BLASFEO_INCLUDE_DIR}")
+target_include_directories(d_dense_qp PRIVATE "${HPIPM_INCLUDE_DIR}" "${BLASFEO_INCLUDE_DIR}")
+target_include_directories(d_ocp_qp PRIVATE "${HPIPM_INCLUDE_DIR}" "${BLASFEO_INCLUDE_DIR}")
+target_include_directories(d_tree_ocp_qp PRIVATE "${HPIPM_INCLUDE_DIR}" "${BLASFEO_INCLUDE_DIR}")
+
+if(CMAKE_C_COMPILER_ID MATCHES MSVC) # no explicit math library
+	target_link_libraries(d_cond hpipm blasfeo)
+	target_link_libraries(d_part_cond hpipm blasfeo)
+	target_link_libraries(d_dense_qp hpipm blasfeo)
+	target_link_libraries(d_ocp_qp hpipm blasfeo)
+	target_link_libraries(d_tree_ocp_qp hpipm blasfeo)
+else() # add explicit math library
+	target_link_libraries(d_cond hpipm blasfeo m)
+	target_link_libraries(d_part_cond hpipm blasfeo m)
+	target_link_libraries(d_dense_qp hpipm blasfeo m)
+	target_link_libraries(d_ocp_qp hpipm blasfeo m)
+	target_link_libraries(d_tree_ocp_qp hpipm blasfeo m)
+endif()
 

@@ -35,11 +35,28 @@
 
 cmake_minimum_required(VERSION 2.8.11)
 
+# installation directory ( has to be before `project()` )
+set(CMAKE_INSTALL_PREFIX "/opt/hpipm" CACHE STRING "Installation path")
+
 project(hpipm C)
 
 set(CMAKE_VERBOSE_MAKEFILE ON)
 
 # Options
+
+# Target architecture
+set(TARGET AVX CACHE STRING "Set CPU architecture target")
+#set(TARGET GENERIC CACHE STRING "Set CPU architecture target")
+
+# Populate a list of allowable targets and link it to the option
+set(ALLOWED_TARGETS
+		AVX
+		GENERIC
+		)
+set_property(CACHE TARGET PROPERTY STRINGS ${ALLOWED_TARGETS})
+
+# Use C99 extension to math library
+set(USE_C99_MATH ON CACHE STRING "Use C99 extension to math library")
 
 # BLAS and LAPACK version (for LA=BLAS in BLASFEO)
 set(REF_BLAS 0 CACHE STRING "Set CPU architecture target")
@@ -60,19 +77,8 @@ set(ALLOWED_REF_BLAS
 		)
 set_property(CACHE REF_BLAS PROPERTY STRINGS ${ALLOWED_REF_BLAS})
 
-# set(HPIPM_TESTING ON CACHE BOOL "Tests enabled")
-set(HPIPM_TESTING OFF CACHE BOOL "Tests disabled")
-
-# Target architecture
-set(TARGET AVX CACHE STRING "Set CPU architecture target")
-#set(TARGET GENERIC CACHE STRING "Set CPU architecture target")
-
-# Populate a list of allowable targets and link it to the option
-set(ALLOWED_TARGETS
-		AVX
-		GENERIC
-		)
-set_property(CACHE TARGET PROPERTY STRINGS ${ALLOWED_TARGETS})
+set(HPIPM_TESTING ON CACHE BOOL "Tests enabled")
+# set(HPIPM_TESTING OFF CACHE BOOL "Tests disabled")
 
 # build shared library
 set(BUILD_SHARED_LIBS OFF CACHE STRING "Build shared libraries")
@@ -83,9 +89,6 @@ if(NOT ${CMAKE_PROJECT_NAME} STREQUAL hpipm)
 	set(HPIPM_ALLOWED_TARGETS ${ALLOWED_TARGETS} PARENT_SCOPE)
 	set(HPIPM_ALLOWED_REF_BLAS ${ALLOWED_REF_BLAS} PARENT_SCOPE)
 endif()
-
-# Installation
-set(CMAKE_INSTALL_PREFIX "/opt/hpipm" CACHE STRING "Installation path")
 
 # BLASFEO Option
 if(NOT TARGET blasfeo)
@@ -98,23 +101,31 @@ if(NOT TARGET blasfeo)
 
 	if(HPIPM_BLASFEO_LIB MATCHES "Static")
 		add_library(blasfeo STATIC IMPORTED)
-		set_target_properties(blasfeo PROPERTIES IMPORTED_LOCATION ${BLASFEO_PATH}/lib/libblasfeo.a)
+		if(CMAKE_C_COMPILER_ID MATCHES MSVC)
+			set_target_properties(blasfeo PROPERTIES IMPORTED_LOCATION ${BLASFEO_PATH}/lib/blasfeo.lib)
+		else()
+			set_target_properties(blasfeo PROPERTIES IMPORTED_LOCATION ${BLASFEO_PATH}/lib/libblasfeo.a)
+		endif()
 	elseif(HPIPM_BLASFEO_LIB MATCHES "Shared")
 		add_library(blasfeo SHARED IMPORTED)
-		set_target_properties(blasfeo PROPERTIES IMPORTED_LOCATION ${BLASFEO_PATH}/lib/libblasfeo.so)
+		if(CMAKE_C_COMPILER_ID MATCHES MSVC)
+			set_target_properties(blasfeo PROPERTIES IMPORTED_LOCATION ${BLASFEO_PATH}/lib/blasfeo.dll)
+		else()
+			set_target_properties(blasfeo PROPERTIES IMPORTED_LOCATION ${BLASFEO_PATH}/lib/libblasfeo.so)
+		endif()
 	endif()
 endif()
 
 # Needed to compile examples
-set(BLASFEO_INCLUDE_DIR "${BLASFEO_PATH}/include" CACHE STRING "BLASFEO headers directory")
+set(BLASFEO_INCLUDE_DIR "${BLASFEO_PATH}/include" CACHE STRING "Path to BLASFEO header files.")
 set(HPIPM_INCLUDE_DIR "${PROJECT_SOURCE_DIR}/include")
 
 # headers installation directory
 set(HPIPM_HEADERS_INSTALLATION_DIRECTORY "include" CACHE STRING "Headers local installation directory")
 
 # enable runtine checks
-set(RUNTIME_CHECKS 0)
-#set(RUNTIME_CHECKS 1)
+set(RUNTIME_CHECKS ON)
+#set(RUNTIME_CHECKS OFF)
 
 ## compiler flags
 #set(CMAKE_C_FLAGS "")
@@ -124,13 +135,14 @@ set(RUNTIME_CHECKS 0)
 if(CMAKE_C_COMPILER_ID MATCHES "GNU" OR CMAKE_C_COMPILER_ID MATCHES "Clang")
 	set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -O2 -fPIC")
 endif()
+
 # target-specific flags
 if(${TARGET} MATCHES AVX)
 	set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -DTARGET_AVX")
 	if(CMAKE_C_COMPILER_ID MATCHES "GNU" OR CMAKE_C_COMPILER_ID MATCHES "Clang")
 		set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -m64 -mavx")
 	endif()
-else()
+elseif(${TARGET} MATCHES GENERIC)
 	set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -DTARGET_GENERIC")
 endif()
 
@@ -155,14 +167,14 @@ if(${REF_BLAS} MATCHES ATLAS)
 endif(${REF_BLAS} MATCHES ATLAS)
 
 #
-if(${RUNTIME_CHECKS} MATCHES 1)
-	set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -DRUNTIME_CHECKS")
-endif(${RUNTIME_CHECKS} MATCHES 1)
+if(${USE_C99_MATH} MATCHES ON)
+	set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -DUSE_C99_MATH")
+endif()
 
-# architecture-specific flags
-if(${TARGET} MATCHES GENERIC)
-	set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -DTARGET_GENERIC")
-endif(${TARGET} MATCHES GENERIC)
+#
+if(${RUNTIME_CHECKS} MATCHES ON)
+	set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -DRUNTIME_CHECKS")
+endif()
 
 # source files
 # cond
@@ -302,11 +314,13 @@ file(GLOB SIM_SRC
 set(HPIPM_SRC ${COND_SRC} ${DENSE_QP_SRC} ${IPM_CORE_SRC} ${OCP_QP_SRC} ${TREE_OCP_QP_SRC} ${AUXILIARY_SRC})
 
 add_library(hpipm ${HPIPM_SRC})
+
 target_include_directories(hpipm
 	PUBLIC
 		$<BUILD_INTERFACE:${HPIPM_INCLUDE_DIR}>
 		$<BUILD_INTERFACE:${BLASFEO_INCLUDE_DIR}>
 		$<INSTALL_INTERFACE:${HPIPM_HEADERS_INSTALLATION_DIRECTORY}>)
+
 target_link_libraries(hpipm blasfeo)
 
 install(TARGETS hpipm EXPORT hpipmConfig
@@ -325,3 +339,4 @@ if(HPIPM_TESTING MATCHES ON)
 endif()
 
 message(STATUS "Using BLASFEO path: ${BLASFEO_PATH}")
+message(STATUS "Installation directory: ${CMAKE_INSTALL_PREFIX}")

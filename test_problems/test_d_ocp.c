@@ -36,7 +36,6 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <math.h>
-#include <sys/time.h>
 
 #include <blasfeo_target.h>
 #include <blasfeo_common.h>
@@ -51,6 +50,7 @@
 #include <hpipm_d_ocp_qp_ipm.h>
 #include <hpipm_d_ocp_qp_utils.h>
 #include <hpipm_d_ocp_qp_red.h>
+#include <hpipm_timing.h>
 
 #include "d_tools.h"
 
@@ -260,7 +260,7 @@ int main()
 
 	int rep, nrep=1000; //000;
 
-	struct timeval tv0, tv1;
+	hpipm_timer timer0;
 
 
 	// local variables
@@ -279,56 +279,56 @@ int main()
 
 	// stage-wise variant size
 
-	int nx[N+1];
+	int *nx = (int *) malloc((N+1)*sizeof(int));
 	nx[0] = nx_;
 	for(ii=1; ii<=N; ii++)
 		nx[ii] = nx_;
 //	nx[N] = 0;
 
-	int nu[N+1];
+	int *nu = (int *) malloc((N+1)*sizeof(int));
 	for(ii=0; ii<N; ii++)
 		nu[ii] = nu_;
 	nu[N] = 0;
 
-	int nbu[N+1];
+	int *nbu = (int *) malloc((N+1)*sizeof(int));
 	for (ii=0; ii<N; ii++)
 		nbu[ii] = nu[ii];
 	nbu[N] = 0;
 #if 1
-	int nbx[N+1];
+	int *nbx = (int *) malloc((N+1)*sizeof(int));
 	nbx[0] = nx[0];
 	for(ii=1; ii<=N; ii++)
 		nbx[ii] = nx[ii]/2;
 
-	int nb[N+1];
+	int *nb = (int *) malloc((N+1)*sizeof(int));
 	for (ii=0; ii<=N; ii++)
 		nb[ii] = nbu[ii]+nbx[ii];
 
-	int ng[N+1];
+	int *ng = (int *) malloc((N+1)*sizeof(int));
 	ng[0] = 0;
 	for(ii=1; ii<N; ii++)
 		ng[ii] = 0;
 	ng[N] = 0;
 
-	int nsbx[N+1];
+	int *nsbx = (int *) malloc((N+1)*sizeof(int));
 	nsbx[0] = 0;
 	for(ii=1; ii<N; ii++)
 		nsbx[ii] = nx[ii]/2;
 	nsbx[N] = nx[N]/2;
 
-	int nsbu[N+1];
+	int *nsbu = (int *) malloc((N+1)*sizeof(int));
 	for(ii=0; ii<=N; ii++)
 		nsbu[ii] = 0;
 
-	int nsg[N+1];
+	int *nsg = (int *) malloc((N+1)*sizeof(int));
 	for(ii=0; ii<=N; ii++)
 		nsg[ii] = 0;
 
-	int ns[N+1];
+	int *ns = (int *) malloc((N+1)*sizeof(int));
 	for(ii=0; ii<=N; ii++)
 		ns[ii] = nsbx[ii] + nsbu[ii] + nsg[ii];
 
-	int nbxe[N+1];
+	int *nbxe = (int *) malloc((N+1)*sizeof(int));
 	nbxe[0] = nx_;
 	for(ii=1; ii<=N; ii++)
 		nbxe[ii] = 0;
@@ -684,31 +684,31 @@ int main()
 * array of matrices
 ************************************************/
 
-	double *hA[N];
-	double *hB[N];
-	double *hb[N];
-	double *hQ[N+1];
-	double *hS[N+1];
-	double *hR[N+1];
-	double *hq[N+1];
-	double *hr[N+1];
-	int *hidxbx[N+1];
-	double *hd_lbx[N+1];
-	double *hd_ubx[N+1];
-	int *hidxbu[N+1];
-	double *hd_lbu[N+1];
-	double *hd_ubu[N+1];
-	double *hC[N+1];
-	double *hD[N+1];
-	double *hd_lg[N+1];
-	double *hd_ug[N+1];
-	double *hZl[N+1];
-	double *hZu[N+1];
-	double *hzl[N+1];
-	double *hzu[N+1];
-	int *hidxs[N+1]; // XXX
-	double *hd_ls[N+1];
-	double *hd_us[N+1];
+	double **hA = (double **) malloc((N)*sizeof(double *));
+	double **hB = (double **) malloc((N)*sizeof(double *));
+	double **hb = (double **) malloc((N)*sizeof(double *));
+	double **hQ = (double **) malloc((N+1)*sizeof(double *));
+	double **hS = (double **) malloc((N+1)*sizeof(double *));
+	double **hR = (double **) malloc((N+1)*sizeof(double *));
+	double **hq = (double **) malloc((N+1)*sizeof(double *));
+	double **hr = (double **) malloc((N+1)*sizeof(double *));
+	int **hidxbx = (int **) malloc((N+1)*sizeof(int *));
+	double **hd_lbx = (double **) malloc((N+1)*sizeof(double *));
+	double **hd_ubx = (double **) malloc((N+1)*sizeof(double *));
+	int **hidxbu = (int **) malloc((N+1)*sizeof(int *));
+	double **hd_lbu = (double **) malloc((N+1)*sizeof(double *));
+	double **hd_ubu = (double **) malloc((N+1)*sizeof(double *));
+	double **hC = (double **) malloc((N+1)*sizeof(double *));
+	double **hD = (double **) malloc((N+1)*sizeof(double *));
+	double **hd_lg = (double **) malloc((N+1)*sizeof(double *));
+	double **hd_ug = (double **) malloc((N+1)*sizeof(double *));
+	double **hZl = (double **) malloc((N+1)*sizeof(double *));
+	double **hZu = (double **) malloc((N+1)*sizeof(double *));
+	double **hzl = (double **) malloc((N+1)*sizeof(double *));
+	double **hzu = (double **) malloc((N+1)*sizeof(double *));
+	int **hidxs = (int **) malloc((N+1)*sizeof(int *));
+	double **hd_ls = (double **) malloc((N+1)*sizeof(double *));
+	double **hd_us = (double **) malloc((N+1)*sizeof(double *));
 
 	hA[0] = A;
 	hB[0] = B;
@@ -828,7 +828,7 @@ int main()
 //	d_ocp_qp_set("lbx_mask", N, d_lbx_mask, &qp);
 //	d_ocp_qp_set("ubx_mask", N, d_ubx_mask, &qp);
 	
-	int idxbxe0[nx_];
+	int *idxbxe0 = (int *) malloc(nx_*sizeof(int));
 	for(ii=0; ii<=nx_; ii++)
 		idxbxe0[ii] = ii;
 	
@@ -928,16 +928,14 @@ int main()
 	d_ocp_qp_reduce_eq_dof_ws_create(&dim, &qp_red_work, qp_red_work_mem);
 
 
-	gettimeofday(&tv0, NULL); // start
+	hpipm_tic(&timer0);
 
 	for(rep=0; rep<nrep; rep++)
 		{
 		d_ocp_qp_reduce_eq_dof(&qp, &qp2, &qp_red_arg, &qp_red_work);
 		}
 
-	gettimeofday(&tv1, NULL); // stop
-
-	double time_red_eq_dof = (tv1.tv_sec-tv0.tv_sec)/(nrep+0.0)+(tv1.tv_usec-tv0.tv_usec)/(nrep*1e6);
+	double time_red_eq_dof = hpipm_toc(&timer0) / nrep;
 
 #if PRINT
 	d_ocp_qp_print(qp2.dim, &qp2);
@@ -983,7 +981,7 @@ int main()
 	void *ipm_arg_mem = malloc(ipm_arg_size);
 
 	struct d_ocp_qp_ipm_arg arg;
-	d_ocp_qp_ipm_arg_create(&dim, &arg, ipm_arg_mem);
+	d_ocp_qp_ipm_arg_create(&dim2, &arg, ipm_arg_mem);
 
 //	enum hpipm_mode mode = SPEED_ABS;
 	enum hpipm_mode mode = SPEED;
@@ -1018,6 +1016,10 @@ int main()
 	d_ocp_qp_ipm_arg_set_comp_res_exit(&comp_res_exit, &arg);
 //	d_ocp_qp_ipm_arg_set_tau_min(&tau_min, &arg);
 
+#if PRINT
+	d_ocp_qp_ipm_arg_print(&dim2, &arg);
+#endif
+
 /************************************************
 * ipm
 ************************************************/
@@ -1033,7 +1035,7 @@ int main()
 
 	int hpipm_status; // 0 normal; 1 max iter
 
-	gettimeofday(&tv0, NULL); // start
+	hpipm_tic(&timer0);
 
 	for(rep=0; rep<nrep; rep++)
 		{
@@ -1041,9 +1043,7 @@ int main()
 		d_ocp_qp_ipm_get_status(&workspace, &hpipm_status);
 		}
 
-	gettimeofday(&tv1, NULL); // stop
-
-	double time_ocp_ipm = (tv1.tv_sec-tv0.tv_sec)/(nrep+0.0)+(tv1.tv_usec-tv0.tv_usec)/(nrep*1e6);
+	double time_ocp_ipm = hpipm_toc(&timer0) / nrep;
 
 #if PRINT
 	d_ocp_qp_sol_print(&dim2, &qp_sol2);
@@ -1057,16 +1057,14 @@ int main()
 
 #else // keep x0
 
-	gettimeofday(&tv0, NULL); // start
+	hpipm_tic(&timer0);
 
 	for(rep=0; rep<nrep; rep++)
 		{
 		d_ocp_qp_restore_eq_dof(&qp, &qp_sol2, &qp_sol, &qp_red_arg, &qp_red_work);
 		}
 
-	gettimeofday(&tv1, NULL); // stop
-
-	double time_res_eq_dof = (tv1.tv_sec-tv0.tv_sec)/(nrep+0.0)+(tv1.tv_usec-tv0.tv_usec)/(nrep*1e6);
+	double time_res_eq_dof = hpipm_toc(&timer0) / nrep;
 
 #if PRINT
 	d_ocp_qp_sol_print(&dim, &qp_sol);
@@ -1079,7 +1077,8 @@ int main()
 /************************************************
 * extract and print solution
 ************************************************/
-
+	
+#if 0
 	double *u[N+1]; for(ii=0; ii<=N; ii++) d_zeros(u+ii, nu[ii], 1);
 	double *x[N+1]; for(ii=0; ii<=N; ii++) d_zeros(x+ii, nx[ii], 1);
 	double *ls[N+1]; for(ii=0; ii<=N; ii++) d_zeros(ls+ii, ns[ii], 1);
@@ -1093,9 +1092,12 @@ int main()
 	double *lam_us[N+1]; for(ii=0; ii<=N; ii++) d_zeros(lam_us+ii, ns[ii], 1);
 
 	d_ocp_qp_sol_get_all(&qp_sol, u, x, ls, us, pi, lam_lb, lam_ub, lam_lg, lam_ug, lam_ls, lam_us);
+#endif
 
 #if PRINT
 	printf("\nsolution\n\n");
+	d_ocp_qp_sol_print(&dim, &qp_sol);
+#if 0
 	printf("\nu\n");
 	for(ii=0; ii<=N; ii++)
 		d_print_mat(1, nu[ii], u[ii], 1);
@@ -1149,11 +1151,13 @@ int main()
 	for(ii=0; ii<=N; ii++)
 		d_print_mat(1, ns[ii], (qp_sol.t+ii)->pa+2*nb[ii]+2*ng[ii]+ns[ii], 1);
 #endif
+#endif
 
 /************************************************
 * extract and print residuals
 ************************************************/
 
+#if 0
 	double *res_r[N+1]; for(ii=0; ii<=N; ii++) d_zeros(res_r+ii, nu[ii], 1);
 	double *res_q[N+1]; for(ii=0; ii<=N; ii++) d_zeros(res_q+ii, nx[ii], 1);
 	double *res_ls[N+1]; for(ii=0; ii<=N; ii++) d_zeros(res_ls+ii, ns[ii], 1);
@@ -1228,6 +1232,7 @@ int main()
 	for(ii=0; ii<=N; ii++)
 		d_print_exp_mat(1, ns[ii], res_m_us[ii], 1);
 #endif
+#endif
 
 /************************************************
 * print ipm statistics
@@ -1260,6 +1265,8 @@ int main()
 /************************************************
 * free memory
 ************************************************/
+
+	// TODO update the frees
 
 	d_free(A);
 	d_free(B);
@@ -1326,6 +1333,7 @@ int main()
 	d_free(d_lsN);
 	d_free(d_usN);
 
+#if 0
 	for(ii=0; ii<N; ii++)
 		{
 		d_free(u[ii]);
@@ -1383,6 +1391,7 @@ int main()
 	d_free(res_m_ug[ii]);
 	d_free(res_m_ls[ii]);
 	d_free(res_m_us[ii]);
+#endif
 
 	free(dim_mem);
 	free(qp_mem);
