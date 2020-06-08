@@ -225,15 +225,27 @@ void s_ocp_qp_get_r(int stage, struct s_ocp_qp *qp, float *vec);
 //
 void s_ocp_qp_get_ub(int stage, struct s_ocp_qp *qp, float *vec);
 //
+void s_ocp_qp_get_ub_mask(int stage, struct s_ocp_qp *qp, float *vec);
+//
 void s_ocp_qp_get_lb(int stage, struct s_ocp_qp *qp, float *vec);
+//
+void s_ocp_qp_get_lb_mask(int stage, struct s_ocp_qp *qp, float *vec);
 //
 void s_ocp_qp_get_lbx(int stage, struct s_ocp_qp *qp, float *vec);
 //
+void s_ocp_qp_get_lbx_mask(int stage, struct s_ocp_qp *qp, float *vec);
+//
 void s_ocp_qp_get_ubx(int stage, struct s_ocp_qp *qp, float *vec);
+//
+void s_ocp_qp_get_ubx_mask(int stage, struct s_ocp_qp *qp, float *vec);
 //
 void s_ocp_qp_get_lbu(int stage, struct s_ocp_qp *qp, float *vec);
 //
+void s_ocp_qp_get_lbu_mask(int stage, struct s_ocp_qp *qp, float *vec);
+//
 void s_ocp_qp_get_ubu(int stage, struct s_ocp_qp *qp, float *vec);
+//
+void s_ocp_qp_get_ubu_mask(int stage, struct s_ocp_qp *qp, float *vec);
 //
 void s_ocp_qp_get_idxb(int stage, struct s_ocp_qp *qp, int *vec);
 //
@@ -251,7 +263,11 @@ void s_ocp_qp_get_D(int stage, struct s_ocp_qp *qp, float *mat);
 //
 void s_ocp_qp_get_lg(int stage, struct s_ocp_qp *qp, float *vec);
 //
+void s_ocp_qp_get_lg_mask(int stage, struct s_ocp_qp *qp, float *vec);
+//
 void s_ocp_qp_get_ug(int stage, struct s_ocp_qp *qp, float *vec);
+//
+void s_ocp_qp_get_ug_mask(int stage, struct s_ocp_qp *qp, float *vec);
 //
 void s_ocp_qp_get_Zl(int stage, struct s_ocp_qp *qp, float *vec);
 //
@@ -263,7 +279,11 @@ void s_ocp_qp_get_zu(int stage, struct s_ocp_qp *qp, float *vec);
 //
 void s_ocp_qp_get_lls(int stage, struct s_ocp_qp *qp, float *vec);
 //
+void s_ocp_qp_get_lls_mask(int stage, struct s_ocp_qp *qp, float *vec);
+//
 void s_ocp_qp_get_lus(int stage, struct s_ocp_qp *qp, float *vec);
+//
+void s_ocp_qp_get_lus_mask(int stage, struct s_ocp_qp *qp, float *vec);
 // XXX only valid if there is one slack per softed constraint !!!
 void s_ocp_qp_get_idxs(int stage, struct s_ocp_qp *qp, int *vec);
 //

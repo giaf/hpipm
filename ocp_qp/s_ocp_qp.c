@@ -145,20 +145,28 @@
 #define OCP_QP_GET_QVEC s_ocp_qp_get_q
 #define OCP_QP_GET_RVEC s_ocp_qp_get_r
 #define OCP_QP_GET_LBX s_ocp_qp_get_lbx
+#define OCP_QP_GET_LBX_MASK s_ocp_qp_get_lbx_mask
 #define OCP_QP_GET_UBX s_ocp_qp_get_ubx
+#define OCP_QP_GET_UBX_MASK s_ocp_qp_get_ubx_mask
 #define OCP_QP_GET_LBU s_ocp_qp_get_lbu
+#define OCP_QP_GET_LBU_MASK s_ocp_qp_get_lbu_mask
 #define OCP_QP_GET_UBU s_ocp_qp_get_ubu
+#define OCP_QP_GET_UBU_MASK s_ocp_qp_get_ubu_mask
 #define OCP_QP_GET_IDXB s_ocp_qp_get_idxb
 #define OCP_QP_GET_IDXBX s_ocp_qp_get_idxbx
 #define OCP_QP_GET_JBX s_ocp_qp_get_Jbx
 #define OCP_QP_GET_IDXBU s_ocp_qp_get_idxbu
 #define OCP_QP_GET_JBU s_ocp_qp_get_Jbu
 #define OCP_QP_GET_LB s_ocp_qp_get_lb
+#define OCP_QP_GET_LB_MASK s_ocp_qp_get_lb_mask
 #define OCP_QP_GET_UB s_ocp_qp_get_ub
+#define OCP_QP_GET_UB_MASK s_ocp_qp_get_ub_mask
 #define OCP_QP_GET_C s_ocp_qp_get_C
 #define OCP_QP_GET_D s_ocp_qp_get_D
 #define OCP_QP_GET_LG s_ocp_qp_get_lg
+#define OCP_QP_GET_LG_MASK s_ocp_qp_get_lg_mask
 #define OCP_QP_GET_UG s_ocp_qp_get_ug
+#define OCP_QP_GET_UG_MASK s_ocp_qp_get_ug_mask
 #define OCP_QP_GET_ZL s_ocp_qp_get_Zl
 #define OCP_QP_GET_ZU s_ocp_qp_get_Zu
 #define OCP_QP_GET_ZLVEC s_ocp_qp_get_zl
@@ -169,7 +177,9 @@
 #define OCP_QP_GET_JSBX s_ocp_qp_get_Jsbx
 #define OCP_QP_GET_JSG s_ocp_qp_get_Jsg
 #define OCP_QP_GET_LLS s_ocp_qp_get_lls
+#define OCP_QP_GET_LLS_MASK s_ocp_qp_get_lls_mask
 #define OCP_QP_GET_LUS s_ocp_qp_get_lus
+#define OCP_QP_GET_LUS_MASK s_ocp_qp_get_lus_mask
 
 #include "x_ocp_qp.c"
 
