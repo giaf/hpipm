@@ -147,13 +147,21 @@ void s_dense_qp_get_idxb(struct s_dense_qp *qp, int *idxb);
 //
 void s_dense_qp_get_lb(struct s_dense_qp *qp, float *lb);
 //
+void s_dense_qp_get_lb_mask(struct s_dense_qp *qp, float *lb);
+//
 void s_dense_qp_get_ub(struct s_dense_qp *qp, float *ub);
+//
+void s_dense_qp_get_ub_mask(struct s_dense_qp *qp, float *ub);
 //
 void s_dense_qp_get_C(struct s_dense_qp *qp, float *C);
 //
 void s_dense_qp_get_lg(struct s_dense_qp *qp, float *lg);
 //
+void s_dense_qp_get_lg_mask(struct s_dense_qp *qp, float *lg);
+//
 void s_dense_qp_get_ug(struct s_dense_qp *qp, float *ug);
+//
+void s_dense_qp_get_ug_mask(struct s_dense_qp *qp, float *ug);
 //
 void s_dense_qp_get_idxs(struct s_dense_qp *qp, int *idxs);
 //
@@ -169,7 +177,11 @@ void s_dense_qp_get_zu(struct s_dense_qp *qp, float *zu);
 //
 void s_dense_qp_get_ls(struct s_dense_qp *qp, float *ls);
 //
+void s_dense_qp_get_ls_mask(struct s_dense_qp *qp, float *ls);
+//
 void s_dense_qp_get_us(struct s_dense_qp *qp, float *us);
+//
+void s_dense_qp_get_us_mask(struct s_dense_qp *qp, float *us);
 
 // setters - rowmaj
 //

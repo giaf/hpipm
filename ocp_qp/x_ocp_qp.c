@@ -1953,6 +1953,20 @@ void OCP_QP_GET_LB(int stage, struct OCP_QP *qp, REAL *lb)
 
 
 
+void OCP_QP_GET_LB_MASK(int stage, struct OCP_QP *qp, REAL *lb_mask)
+	{
+	// extract dim
+	int *nb = qp->dim->nb;
+
+	int i;
+
+	CVT_STRVEC2VEC(nb[stage], qp->d_mask+stage, 0, lb_mask);
+
+	return;
+	}
+
+
+
 void OCP_QP_GET_UB(int stage, struct OCP_QP *qp, REAL *ub)
 	{
 	// extract dim
@@ -1972,6 +1986,21 @@ void OCP_QP_GET_UB(int stage, struct OCP_QP *qp, REAL *ub)
 
 
 
+void OCP_QP_GET_UB_MASK(int stage, struct OCP_QP *qp, REAL *ub_mask)
+	{
+	// extract dim
+	int *nb = qp->dim->nb;
+	int *ng = qp->dim->ng;
+
+	int i;
+
+	CVT_STRVEC2VEC(nb[stage], qp->d_mask+stage, nb[stage]+ng[stage], ub_mask);
+
+	return;
+	}
+
+
+
 void OCP_QP_GET_LBX(int stage, struct OCP_QP *qp, REAL *lbx)
 	{
 	// extract dim
@@ -1979,6 +2008,19 @@ void OCP_QP_GET_LBX(int stage, struct OCP_QP *qp, REAL *lbx)
 	int *nbx = qp->dim->nbx;
 
 	CVT_STRVEC2VEC(nbx[stage], qp->d+stage, nbu[stage], lbx);
+
+	return;
+	}
+
+
+
+void OCP_QP_GET_LBX_MASK(int stage, struct OCP_QP *qp, REAL *lbx_mask)
+	{
+	// extract dim
+	int *nbu = qp->dim->nbu;
+	int *nbx = qp->dim->nbx;
+
+	CVT_STRVEC2VEC(nbx[stage], qp->d_mask+stage, nbu[stage], lbx_mask);
 
 	return;
 	}
@@ -2006,12 +2048,41 @@ void OCP_QP_GET_UBX(int stage, struct OCP_QP *qp, REAL *ubx)
 
 
 
+void OCP_QP_GET_UBX_MASK(int stage, struct OCP_QP *qp, REAL *ubx_mask)
+	{
+	// extract dim
+	int *nb = qp->dim->nb;
+	int *nbx = qp->dim->nbx;
+	int *nbu = qp->dim->nbu;
+	int *ng = qp->dim->ng;
+
+	int i;
+
+	CVT_STRVEC2VEC(nbx[stage], qp->d_mask+stage, nb[stage]+ng[stage]+nbu[stage], ubx_mask);
+
+	return;
+	}
+
+
+
 void OCP_QP_GET_LBU(int stage, struct OCP_QP *qp, REAL *lbu)
 	{
 	// extract dim
 	int *nbu = qp->dim->nbu;
 
 	CVT_STRVEC2VEC(nbu[stage], qp->d+stage, 0, lbu);
+
+	return;
+	}
+
+
+
+void OCP_QP_GET_LBU_MASK(int stage, struct OCP_QP *qp, REAL *lbu_mask)
+	{
+	// extract dim
+	int *nbu = qp->dim->nbu;
+
+	CVT_STRVEC2VEC(nbu[stage], qp->d_mask+stage, 0, lbu_mask);
 
 	return;
 	}
@@ -2032,6 +2103,22 @@ void OCP_QP_GET_UBU(int stage, struct OCP_QP *qp, REAL *ubu)
 		{
 		ubu[i] = -ubu[i];
 		}
+
+	return;
+	}
+
+
+
+void OCP_QP_GET_UBU_MASK(int stage, struct OCP_QP *qp, REAL *ubu_mask)
+	{
+	// extract dim
+	int *nb = qp->dim->nb;
+	int *nbu = qp->dim->nbu;
+	int *ng = qp->dim->ng;
+
+	int i;
+
+	CVT_STRVEC2VEC(nbu[stage], qp->d_mask+stage, nb[stage]+ng[stage], ubu_mask);
 
 	return;
 	}
@@ -2124,6 +2211,19 @@ void OCP_QP_GET_LG(int stage, struct OCP_QP *qp, REAL *lg)
 
 
 
+void OCP_QP_GET_LG_MASK(int stage, struct OCP_QP *qp, REAL *lg_mask)
+	{
+	// extract dim
+	int *nb = qp->dim->nb;
+	int *ng = qp->dim->ng;
+
+	CVT_STRVEC2VEC(ng[stage], qp->d_mask+stage, nb[stage], lg_mask);
+
+	return;
+	}
+
+
+
 void OCP_QP_GET_UG(int stage, struct OCP_QP *qp, REAL *ug)
 	{
 	// extract dim
@@ -2137,6 +2237,21 @@ void OCP_QP_GET_UG(int stage, struct OCP_QP *qp, REAL *ug)
 		{
 		ug[i] = -ug[i];
 		}
+
+	return;
+	}
+
+
+
+void OCP_QP_GET_UG_MASK(int stage, struct OCP_QP *qp, REAL *ug_mask)
+	{
+	// extract dim
+	int *nb = qp->dim->nb;
+	int *ng = qp->dim->ng;
+
+	int i;
+
+	CVT_STRVEC2VEC(ng[stage], qp->d_mask+stage, 2*nb[stage]+ng[stage], ug_mask);
 
 	return;
 	}
@@ -2272,6 +2387,20 @@ void OCP_QP_GET_LLS(int stage, struct OCP_QP *qp, REAL *ls)
 
 
 
+void OCP_QP_GET_LLS_MASK(int stage, struct OCP_QP *qp, REAL *ls_mask)
+	{
+	// extract dim
+	int *nb = qp->dim->nb;
+	int *ng = qp->dim->ng;
+	int *ns = qp->dim->ns;
+
+	CVT_STRVEC2VEC(ns[stage], qp->d_mask+stage, 2*nb[stage]+2*ng[stage], ls_mask);
+
+	return;
+	}
+
+
+
 void OCP_QP_GET_LUS(int stage, struct OCP_QP *qp, REAL *us)
 	{
 	// extract dim
@@ -2282,6 +2411,22 @@ void OCP_QP_GET_LUS(int stage, struct OCP_QP *qp, REAL *us)
 	int i;
 
 	CVT_STRVEC2VEC(ns[stage], qp->d+stage, 2*nb[stage]+2*ng[stage]+ns[stage], us);
+
+	return;
+	}
+
+
+
+void OCP_QP_GET_LUS_MASK(int stage, struct OCP_QP *qp, REAL *us_mask)
+	{
+	// extract dim
+	int *nb = qp->dim->nb;
+	int *ng = qp->dim->ng;
+	int *ns = qp->dim->ns;
+
+	int i;
+
+	CVT_STRVEC2VEC(ns[stage], qp->d_mask+stage, 2*nb[stage]+2*ng[stage]+ns[stage], us_mask);
 
 	return;
 	}
