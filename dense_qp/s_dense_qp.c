@@ -114,10 +114,14 @@
 #define DENSE_QP_GET_B s_dense_qp_get_b
 #define DENSE_QP_GET_IDXB s_dense_qp_get_idxb
 #define DENSE_QP_GET_LB s_dense_qp_get_lb
+#define DENSE_QP_GET_LB_MASK s_dense_qp_get_lb_mask
 #define DENSE_QP_GET_UB s_dense_qp_get_ub
+#define DENSE_QP_GET_UB_MASK s_dense_qp_get_ub_mask
 #define DENSE_QP_GET_C s_dense_qp_get_C
 #define DENSE_QP_GET_LG s_dense_qp_get_lg
+#define DENSE_QP_GET_LG_MASK s_dense_qp_get_lg_mask
 #define DENSE_QP_GET_UG s_dense_qp_get_ug
+#define DENSE_QP_GET_UG_MASK s_dense_qp_get_ug_mask
 #define DENSE_QP_GET_IDXS s_dense_qp_get_idxs
 #define DENSE_QP_GET_IDXS_REV s_dense_qp_get_idxs_rev
 #define DENSE_QP_GET_ZZL s_dense_qp_get_Zl
@@ -125,7 +129,9 @@
 #define DENSE_QP_GET_ZL s_dense_qp_get_zl
 #define DENSE_QP_GET_ZU s_dense_qp_get_zu
 #define DENSE_QP_GET_LS s_dense_qp_get_ls
+#define DENSE_QP_GET_LS_MASK s_dense_qp_get_ls_mask
 #define DENSE_QP_GET_US s_dense_qp_get_us
+#define DENSE_QP_GET_US_MASK s_dense_qp_get_us_mask
 #define DENSE_QP_SET_ALL_ROWMAJ s_dense_qp_set_all_rowmaj
 #define DENSE_QP_GET_ALL_ROWMAJ s_dense_qp_get_all_rowmaj
 

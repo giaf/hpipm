@@ -926,6 +926,19 @@ void DENSE_QP_GET_LB(struct DENSE_QP *qp, REAL *lb)
 
 
 
+void DENSE_QP_GET_LB_MASK(struct DENSE_QP *qp, REAL *lb_mask)
+	{
+
+	int nb = qp->dim->nb;
+
+	CVT_STRVEC2VEC(nb, qp->d_mask, 0, lb_mask);
+
+	return;
+
+	}
+
+
+
 void DENSE_QP_GET_UB(struct DENSE_QP *qp, REAL *ub)
 	{
 
@@ -935,6 +948,21 @@ void DENSE_QP_GET_UB(struct DENSE_QP *qp, REAL *ub)
 
 	UNPACK_VEC(nb, qp->d, nb+ng, ub, 1);
 	for(ii=0; ii<nb; ii++) ub[ii] = - ub[ii];
+
+	return;
+
+	}
+
+
+
+void DENSE_QP_GET_UB_MASK(struct DENSE_QP *qp, REAL *ub_mask)
+	{
+
+	int ii;
+	int nb = qp->dim->nb;
+	int ng = qp->dim->ng;
+
+	CVT_STRVEC2VEC(nb, qp->d_mask, nb+ng, ub_mask);
 
 	return;
 
@@ -970,6 +998,20 @@ void DENSE_QP_GET_LG(struct DENSE_QP *qp, REAL *lg)
 
 
 
+void DENSE_QP_GET_LG_MASK(struct DENSE_QP *qp, REAL *lg_mask)
+	{
+
+	int nb = qp->dim->nb;
+	int ng = qp->dim->ng;
+
+	CVT_STRVEC2VEC(ng, qp->d_mask, nb, lg_mask);
+
+	return;
+
+	}
+
+
+
 void DENSE_QP_GET_UG(struct DENSE_QP *qp, REAL *ug)
 	{
 
@@ -979,6 +1021,21 @@ void DENSE_QP_GET_UG(struct DENSE_QP *qp, REAL *ug)
 
 	UNPACK_VEC(ng, qp->d, 2*nb+ng, ug, 1);
 	for(ii=0; ii<ng; ii++) ug[ii] = - ug[ii];
+
+	return;
+
+	}
+
+
+
+void DENSE_QP_GET_UG_MASK(struct DENSE_QP *qp, REAL *ug_mask)
+	{
+
+	int ii;
+	int nb = qp->dim->nb;
+	int ng = qp->dim->ng;
+
+	CVT_STRVEC2VEC(ng, qp->d_mask, 2*nb+ng, ug_mask);
 
 	return;
 
@@ -1096,6 +1153,21 @@ void DENSE_QP_GET_LS(struct DENSE_QP *qp, REAL *ls)
 
 
 
+void DENSE_QP_GET_LS_MASK(struct DENSE_QP *qp, REAL *ls_mask)
+	{
+
+	int ns = qp->dim->ns;
+	int nb = qp->dim->nb;
+	int ng = qp->dim->ng;
+
+	CVT_STRVEC2VEC(ns, qp->d_mask, 2*nb+2*ng, ls_mask);
+
+	return;
+
+	}
+
+
+
 void DENSE_QP_GET_US(struct DENSE_QP *qp, REAL *us)
 	{
 
@@ -1104,6 +1176,21 @@ void DENSE_QP_GET_US(struct DENSE_QP *qp, REAL *us)
 	int ng = qp->dim->ng;
 
 	UNPACK_VEC(ns, qp->d, 2*nb+2*ng+ns, us, 1);
+
+	return;
+
+	}
+
+
+
+void DENSE_QP_GET_US_MASK(struct DENSE_QP *qp, REAL *us_mask)
+	{
+
+	int ns = qp->dim->ns;
+	int nb = qp->dim->nb;
+	int ng = qp->dim->ng;
+
+	CVT_STRVEC2VEC(ns, qp->d_mask, 2*nb+2*ng+ns, us_mask);
 
 	return;
 
