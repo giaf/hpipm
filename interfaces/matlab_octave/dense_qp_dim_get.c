@@ -38,7 +38,6 @@
 #include <string.h>
 // hpipm
 #include "hpipm_d_dense_qp_dim.h"
-#include "hpipm_d_dense_qp_utils.h"
 // mex
 #include "mex.h"
 
@@ -47,9 +46,11 @@
 void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
 	{
 
-//	mexPrintf("\nin dense_qp_dim_print\n");
+//	mexPrintf("\nin dense_qp_dim_set\n");
 
 	long long *l_ptr;
+
+	int ii;
 
 	/* RHS */
 
@@ -57,7 +58,14 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
 	l_ptr = mxGetData( prhs[0] );
 	struct d_dense_qp_dim *dim = (struct d_dense_qp_dim *) *l_ptr;
 
-	d_dense_qp_dim_print(dim);
+	// field
+	char *field = mxArrayToString( prhs[1] );
+
+	plhs[0] = mxCreateNumericMatrix(1, 1, mxDOUBLE_CLASS, mxREAL);
+	double *mat_ptr = mxGetPr( plhs[0] );
+	int tmp_int;
+	d_dense_qp_dim_get(dim, field, &tmp_int);
+	*mat_ptr = (double) tmp_int;
 
 	return;
 

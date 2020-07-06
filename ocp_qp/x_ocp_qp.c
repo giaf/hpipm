@@ -1591,7 +1591,7 @@ void OCP_QP_SET_JSG(int stage, REAL *Jsg, struct OCP_QP *qp)
 	int *ns = qp->dim->ns;
 
 	int ii, jj, jj0, idx_tmp;
-	// compute nbx part of idxs_rev
+	// compute ng part of idxs_rev
 	for(ii=0; ii<ng[stage]; ii++)
 		{
 		jj0 = -1;

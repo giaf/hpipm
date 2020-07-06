@@ -38,7 +38,7 @@
 #include <string.h>
 // hpipm
 #include "hpipm_d_dense_qp_dim.h"
-#include "hpipm_d_dense_qp_utils.h"
+#include "hpipm_d_dense_qp_ipm.h"
 // mex
 #include "mex.h"
 
@@ -47,9 +47,11 @@
 void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
 	{
 
-//	mexPrintf("\nin dense_qp_dim_print\n");
+//	printf("\nin dense_solver_create\n");
 
+	mxArray *tmp_mat;
 	long long *l_ptr;
+	char *c_ptr;
 
 	/* RHS */
 
@@ -57,11 +59,35 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
 	l_ptr = mxGetData( prhs[0] );
 	struct d_dense_qp_dim *dim = (struct d_dense_qp_dim *) *l_ptr;
 
-	d_dense_qp_dim_print(dim);
+	// arg
+	l_ptr = mxGetData( prhs[1] );
+	struct d_dense_qp_ipm_arg *arg = (struct d_dense_qp_ipm_arg *) *l_ptr;
+
+	/* body */
+
+	int ws_size = sizeof(struct d_dense_qp_ipm_ws) + d_dense_qp_ipm_ws_memsize(dim, arg);
+	void *ws_mem = malloc(ws_size);
+
+	c_ptr = ws_mem;
+
+	struct d_dense_qp_ipm_ws *ws = (struct d_dense_qp_ipm_ws *) c_ptr;
+	c_ptr += sizeof(struct d_dense_qp_ipm_ws);
+
+	d_dense_qp_ipm_ws_create(dim, arg, ws, c_ptr);
+	c_ptr += d_dense_qp_ipm_ws_memsize(dim, arg);
+
+	/* LHS */
+
+	tmp_mat = mxCreateNumericMatrix(1, 1, mxINT64_CLASS, mxREAL);
+	l_ptr = mxGetData(tmp_mat);
+	l_ptr[0] = (long long) ws_mem;
+	plhs[0] = tmp_mat;
 
 	return;
 
 	}
+
+
 
 
 

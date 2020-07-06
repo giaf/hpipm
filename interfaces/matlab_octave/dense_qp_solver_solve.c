@@ -37,8 +37,9 @@
 #include <stdio.h>
 #include <string.h>
 // hpipm
+#include "hpipm_timing.h"
 #include "hpipm_d_dense_qp_dim.h"
-#include "hpipm_d_dense_qp_utils.h"
+#include "hpipm_d_dense_qp_ipm.h"
 // mex
 #include "mex.h"
 
@@ -47,21 +48,52 @@
 void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
 	{
 
-//	mexPrintf("\nin dense_qp_dim_print\n");
+//	printf("\nin dense_solver_create\n");
 
+	mxArray *tmp_mat;
 	long long *l_ptr;
+	char *c_ptr;
 
 	/* RHS */
 
-	// dim
+	// qp
 	l_ptr = mxGetData( prhs[0] );
-	struct d_dense_qp_dim *dim = (struct d_dense_qp_dim *) *l_ptr;
+	struct d_dense_qp *qp = (struct d_dense_qp *) *l_ptr;
 
-	d_dense_qp_dim_print(dim);
+	// qp_sol
+	l_ptr = mxGetData( prhs[1] );
+	struct d_dense_qp_sol *qp_sol = (struct d_dense_qp_sol *) *l_ptr;
+
+	// arg
+	l_ptr = mxGetData( prhs[2] );
+	struct d_dense_qp_ipm_arg *arg = (struct d_dense_qp_ipm_arg *) *l_ptr;
+
+	// ws
+	l_ptr = mxGetData( prhs[3] );
+	struct d_dense_qp_ipm_ws *ws = (struct d_dense_qp_ipm_ws *) *l_ptr;
+
+	/* RHS */
+
+	// time_ext
+	plhs[0] = mxCreateNumericMatrix(1, 1, mxDOUBLE_CLASS, mxREAL);
+	double *mat_ptr = mxGetPr( plhs[0] );
+
+	/* body */
+
+	hpipm_timer timer;
+	hpipm_tic(&timer);
+
+	d_dense_qp_ipm_solve(qp, qp_sol, arg, ws);
+
+	double time_ext = hpipm_toc(&timer);
+	*mat_ptr = time_ext;
 
 	return;
 
 	}
+
+
+
 
 
 

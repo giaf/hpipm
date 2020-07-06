@@ -39,6 +39,7 @@ all:
 	octave-cli example_from_qp_data_c.m
 	octave-cli example_mass_spring.m
 	octave-cli example_mass_spring_qcqp.m
+	octave-cli example_getting_started_dense_qp.m
 
 ### all individual tests ###
 
@@ -46,6 +47,7 @@ example_getting_started \
 example_from_qp_data_c \
 example_mass_spring \
 example_mass_spring_qcqp \
+example_getting_started_dense_qp \
 : %:
 	octave-cli $@.m
 

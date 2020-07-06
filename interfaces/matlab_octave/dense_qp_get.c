@@ -38,7 +38,7 @@
 #include <string.h>
 // hpipm
 #include "hpipm_d_dense_qp_dim.h"
-#include "hpipm_d_dense_qp_utils.h"
+#include "hpipm_d_dense_qp.h"
 // mex
 #include "mex.h"
 
@@ -47,21 +47,45 @@
 void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
 	{
 
-//	mexPrintf("\nin dense_qp_dim_print\n");
+//	mexPrintf("\nin dense_qp_get\n");
 
 	long long *l_ptr;
 
+	int ii;
+
 	/* RHS */
 
-	// dim
+	// qp
 	l_ptr = mxGetData( prhs[0] );
-	struct d_dense_qp_dim *dim = (struct d_dense_qp_dim *) *l_ptr;
+	struct d_dense_qp *qp = (struct d_dense_qp *) *l_ptr;
 
-	d_dense_qp_dim_print(dim);
+	// dim
+	struct d_dense_qp_dim *dim = qp->dim;
+	int nv = dim->nv;
+
+	// field
+	char *field = mxArrayToString( prhs[1] );
+
+	/* body */
+
+	// H
+	if( !strcmp(field, "H") )
+		{
+		plhs[0] = mxCreateNumericMatrix(nv, nv, mxDOUBLE_CLASS, mxREAL);
+		double *mat = mxGetPr( plhs[0] );
+		d_dense_qp_get(field, qp, mat);
+		}
+	else
+		{
+		mexPrintf("\ndense_qp_get: field not supported: %s\n", field);
+		return;
+		}
 
 	return;
 
 	}
+
+
 
 
 
