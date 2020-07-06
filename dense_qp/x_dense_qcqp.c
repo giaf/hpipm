@@ -960,7 +960,7 @@ void DENSE_QCQP_GET_LB_MASK(struct DENSE_QCQP *qp, REAL *lb_mask)
 
 	int nb = qp->dim->nb;
 
-	CVT_STRVEC2VEC(nb, qp->d_mask, 0, lb_mask);
+	UNPACK_VEC(nb, qp->d_mask, 0, lb_mask, 1);
 
 	return;
 
@@ -993,7 +993,7 @@ void DENSE_QCQP_GET_UB_MASK(struct DENSE_QCQP *qp, REAL *ub_mask)
 	int ng = qp->dim->ng;
 	int nq = qp->dim->nq;
 
-	CVT_STRVEC2VEC(nb, qp->d_mask, nb+ng+nq, ub_mask);
+	UNPACK_VEC(nb, qp->d_mask, nb+ng+nq, ub_mask, 1);
 
 	return;
 
@@ -1035,7 +1035,7 @@ void DENSE_QCQP_GET_LG_MASK(struct DENSE_QCQP *qp, REAL *lg_mask)
 	int nb = qp->dim->nb;
 	int ng = qp->dim->ng;
 
-	CVT_STRVEC2VEC(ng, qp->d_mask, nb, lg_mask);
+	UNPACK_VEC(ng, qp->d_mask, nb, lg_mask, 1);
 
 	return;
 
@@ -1068,7 +1068,7 @@ void DENSE_QCQP_GET_UG_MASK(struct DENSE_QCQP *qp, REAL *ug_mask)
 	int ng = qp->dim->ng;
 	int nq = qp->dim->nq;
 
-	CVT_STRVEC2VEC(ng, qp->d_mask, 2*nb+ng+nq, ug_mask);
+	UNPACK_VEC(ng, qp->d_mask, 2*nb+ng+nq, ug_mask, 1);
 
 	return;
 
@@ -1197,7 +1197,7 @@ void DENSE_QCQP_GET_LS_MASK(struct DENSE_QCQP *qp, REAL *ls_mask)
 	int ng = qp->dim->ng;
 	int nq = qp->dim->nq;
 
-	CVT_STRVEC2VEC(ns, qp->d_mask, 2*nb+2*ng+2*nq, ls_mask);
+	UNPACK_VEC(ns, qp->d_mask, 2*nb+2*ng+2*nq, ls_mask, 1);
 
 	return;
 
@@ -1229,7 +1229,7 @@ void DENSE_QCQP_GET_US_MASK(struct DENSE_QCQP *qp, REAL *us_mask)
 	int ng = qp->dim->ng;
 	int nq = qp->dim->nq;
 
-	CVT_STRVEC2VEC(ns, qp->d_mask, 2*nb+2*ng+2*nq+ns, us_mask);
+	UNPACK_VEC(ns, qp->d_mask, 2*nb+2*ng+2*nq+ns, us_mask, 1);
 
 	return;
 
