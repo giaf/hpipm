@@ -75,6 +75,8 @@ void d_dense_qp_sol_create(struct d_dense_qp_dim *dim, struct d_dense_qp_sol *qp
 //
 void d_dense_qp_sol_get_all(struct d_dense_qp_sol *qp_sol, double *v, double *ls, double *us, double *pi, double *lam_lb, double *lam_ub, double *lam_lg, double *lam_ug, double *lam_ls, double *lam_us);
 //
+void d_dense_qp_sol_get(char *field, struct d_dense_qp_sol *sol, void *value);
+//
 void d_dense_qp_sol_get_v(struct d_dense_qp_sol *sol, double *v);
 //
 void d_dense_qp_sol_get_valid_obj(struct d_dense_qp_sol *sol, int *valid_obj);

@@ -176,6 +176,22 @@ void DENSE_QP_SOL_GET_ALL(struct DENSE_QP_SOL *qp_sol, REAL *v, REAL *ls, REAL *
 
 
 
+void DENSE_QP_SOL_GET(char *field, struct DENSE_QP_SOL *qp, void *value)
+	{
+	if(hpipm_strcmp(field, "v")) 
+		{
+		DENSE_QP_SOL_GET_V(qp, value);
+		}
+	else
+		{
+		printf("error: DENSE_QP_SOL_GET: wrong field name '%s'. Exiting.\n", field);
+		exit(1);	
+		}
+	return;
+	}
+
+
+
 void DENSE_QP_SOL_GET_V(struct DENSE_QP_SOL *qp_sol, REAL *v)
 	{
 	int nv = qp_sol->dim->nv;
