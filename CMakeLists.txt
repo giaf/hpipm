@@ -90,6 +90,9 @@ if(NOT ${CMAKE_PROJECT_NAME} STREQUAL hpipm)
 	set(HPIPM_ALLOWED_REF_BLAS ${ALLOWED_REF_BLAS} PARENT_SCOPE)
 endif()
 
+# Try to find blasfeo using CMake (also sets BLASFEO_PATH and BLASFEO_INCLUDE_DIR if found)
+find_package(blasfeo QUIET)
+
 # BLASFEO Option
 if(NOT TARGET blasfeo)
 	set(BLASFEO_PATH "/opt/blasfeo" CACHE STRING "BLASFEO installation path")
