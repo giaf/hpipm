@@ -408,6 +408,10 @@ void DENSE_QP_SET(char *field, void *value, struct DENSE_QP *qp)
 		{
 		DENSE_QP_SET_IDXB(value, qp);
 		}
+	else if(hpipm_strcmp(field, "Jb"))
+		{
+		DENSE_QP_SET_JB(value, qp);
+		}
 	else if(hpipm_strcmp(field, "idxs"))
 		{
 		DENSE_QP_SET_IDXS(value, qp);
@@ -415,6 +419,14 @@ void DENSE_QP_SET(char *field, void *value, struct DENSE_QP *qp)
 	else if(hpipm_strcmp(field, "idxs_rev"))
 		{
 		DENSE_QP_SET_IDXS_REV(value, qp);
+		}
+	else if(hpipm_strcmp(field, "Jsb"))
+		{
+		DENSE_QP_SET_JSB(value, qp);
+		}
+	else if(hpipm_strcmp(field, "Jsg"))
+		{
+		DENSE_QP_SET_JSG(value, qp);
 		}
 	else
 		{
@@ -489,6 +501,30 @@ void DENSE_QP_SET_IDXB(int *idxb, struct DENSE_QP *qp)
 
 	return;
 
+	}
+
+
+
+void DENSE_QP_SET_JB(REAL *Jb, struct DENSE_QP *qp)
+	{
+	// extract dim
+	int nv = qp->dim->nv;
+	int nb = qp->dim->nb;
+
+	int ii, jj, jj0;
+	for(ii=0; ii<nb; ii++)
+		{
+		jj0 = -1;
+		for(jj=0; jj<nv; jj++)
+			{
+			if(jj0==-1 & Jb[ii+jj*nb]!=0.0)
+				{
+				jj0 = jj;
+				qp->idxb[ii] = jj;
+				}
+			}
+		}
+	return;
 	}
 
 
@@ -702,6 +738,60 @@ void DENSE_QP_SET_IDXS_REV(int *idxs_rev, struct DENSE_QP *qp)
 
 	return;
 
+	}
+
+
+
+void DENSE_QP_SET_JSB(REAL *Jsb, struct DENSE_QP *qp)
+	{
+	// extract dim
+	int nv = qp->dim->nv;
+	int nb = qp->dim->nb;
+	int ng = qp->dim->ng;
+	int ns = qp->dim->ns;
+
+	int ii, jj, jj0, idx_tmp;
+	// compute nb part of idxs_rev
+	for(ii=0; ii<nb; ii++)
+		{
+		jj0 = -1;
+		for(jj=0; jj<ns; jj++)
+			{
+			if(jj0==-1 & Jsb[ii+jj*nb]!=0.0)
+				{
+				jj0 = jj;
+				qp->idxs_rev[0+ii] = jj;
+				}
+			}
+		}
+	return;
+	}
+
+
+
+void DENSE_QP_SET_JSG(REAL *Jsg, struct DENSE_QP *qp)
+	{
+	// extract dim
+	int nv = qp->dim->nv;
+	int nb = qp->dim->nb;
+	int ng = qp->dim->ng;
+	int ns = qp->dim->ns;
+
+	int ii, jj, jj0, idx_tmp;
+	// compute ng part of idxs_rev
+	for(ii=0; ii<ng; ii++)
+		{
+		jj0 = -1;
+		for(jj=0; jj<ns; jj++)
+			{
+			if(jj0==-1 & Jsg[ii+jj*ng]!=0.0)
+				{
+				jj0 = jj;
+				qp->idxs_rev[nb+ii] = jj;
+				}
+			}
+		}
+	return;
 	}
 
 
