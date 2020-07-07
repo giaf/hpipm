@@ -60,6 +60,7 @@ OBJS = \
 	ocp_qp_solver_solve.mex \
 	ocp_qp_solver_get.mex \
 	ocp_qp_solver_get_ric.mex \
+	\
 	ocp_qcqp_dim_create.mex \
 	ocp_qcqp_dim_destroy.mex \
 	ocp_qcqp_dim_set.mex \
@@ -85,6 +86,27 @@ OBJS = \
 	ocp_qcqp_solver_destroy.mex \
 	ocp_qcqp_solver_solve.mex \
 	ocp_qcqp_solver_get.mex \
+	\
+	dense_qp_dim_create.mex \
+	dense_qp_dim_destroy.mex \
+	dense_qp_dim_set.mex \
+	dense_qp_dim_print.mex \
+	dense_qp_create.mex \
+	dense_qp_destroy.mex \
+	dense_qp_set.mex \
+	dense_qp_print.mex \
+	dense_qp_sol_create.mex \
+	dense_qp_sol_destroy.mex \
+	dense_qp_sol_get.mex \
+	dense_qp_sol_print.mex \
+	dense_qp_solver_arg_create.mex \
+	dense_qp_solver_arg_destroy.mex \
+	dense_qp_solver_arg_set.mex \
+	dense_qp_solver_create.mex \
+	dense_qp_solver_destroy.mex \
+	dense_qp_solver_solve.mex \
+	dense_qp_solver_get.mex \
+	\
 #	part_cond_arg_create.mex \
 	part_cond_arg_destroy.mex \
 	part_cond_arg_set.mex \

@@ -95,6 +95,8 @@ void d_dense_qp_set_b(double *b, struct d_dense_qp *qp);
 //
 void d_dense_qp_set_idxb(int *idxb, struct d_dense_qp *qp);
 //
+void d_dense_qp_set_Jb(double *Jb, struct d_dense_qp *qp);
+//
 void d_dense_qp_set_lb(double *lb, struct d_dense_qp *qp);
 //
 void d_dense_qp_set_lb_mask(double *lb, struct d_dense_qp *qp);
@@ -116,6 +118,10 @@ void d_dense_qp_set_ug_mask(double *ug, struct d_dense_qp *qp);
 void d_dense_qp_set_idxs(int *idxs, struct d_dense_qp *qp);
 //
 void d_dense_qp_set_idxs_rev(int *idxs_rev, struct d_dense_qp *qp);
+//
+void d_dense_qp_set_Jsb(double *Jsb, struct d_dense_qp *qp);
+//
+void d_dense_qp_set_Jsg(double *Jsg, struct d_dense_qp *qp);
 //
 void d_dense_qp_set_Zl(double *Zl, struct d_dense_qp *qp);
 //

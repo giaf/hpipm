@@ -32,63 +32,44 @@
 * Author: Gianluca Frison, gianluca.frison (at) imtek.uni-freiburg.de                             *
 *                                                                                                 *
 **************************************************************************************************/
+// system
+#include <stdlib.h>
+#include <stdio.h>
+#include <string.h>
+// hpipm
+#include "hpipm_d_dense_qp_dim.h"
+// mex
+#include "mex.h"
 
 
 
-#ifndef HPIPM_S_DENSE_QP_SOL_H_
-#define HPIPM_S_DENSE_QP_SOL_H_
-
-
-
-#include <blasfeo_target.h>
-#include <blasfeo_common.h>
-
-#include "hpipm_s_dense_qp_dim.h"
-
-
-
-#ifdef __cplusplus
-extern "C" {
-#endif
-
-
-
-struct s_dense_qp_sol
+void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
 	{
-	struct s_dense_qp_dim *dim;
-	struct blasfeo_svec *v;
-	struct blasfeo_svec *pi;
-	struct blasfeo_svec *lam;
-	struct blasfeo_svec *t;
-	void *misc;
-	float obj;
-	int valid_obj;
-	int memsize;
-	};
+
+//	mexPrintf("\nin dense_qp_dim_set\n");
+
+	long long *l_ptr;
+
+	int ii;
+
+	/* RHS */
+
+	// dim
+	l_ptr = mxGetData( prhs[0] );
+	struct d_dense_qp_dim *dim = (struct d_dense_qp_dim *) *l_ptr;
+
+	// field
+	char *field = mxArrayToString( prhs[1] );
+
+	plhs[0] = mxCreateNumericMatrix(1, 1, mxDOUBLE_CLASS, mxREAL);
+	double *mat_ptr = mxGetPr( plhs[0] );
+	int tmp_int;
+	d_dense_qp_dim_get(dim, field, &tmp_int);
+	*mat_ptr = (double) tmp_int;
+
+	return;
+
+	}
 
 
 
-//
-int s_dense_qp_sol_memsize(struct s_dense_qp_dim *dim);
-//
-void s_dense_qp_sol_create(struct s_dense_qp_dim *dim, struct s_dense_qp_sol *qp_sol, void *memory);
-//
-void s_dense_qp_sol_get_all(struct s_dense_qp_sol *qp_sol, float *v, float *ls, float *us, float *pi, float *lam_lb, float *lam_ub, float *lam_lg, float *lam_ug, float *lam_ls, float *lam_us);
-//
-void s_dense_qp_sol_get(char *field, struct s_dense_qp_sol *sol, void *value);
-//
-void s_dense_qp_sol_get_v(struct s_dense_qp_sol *sol, float *v);
-//
-void s_dense_qp_sol_get_valid_obj(struct s_dense_qp_sol *sol, int *valid_obj);
-//
-void s_dense_qp_sol_get_obj(struct s_dense_qp_sol *sol, float *obj);
-
-
-
-#ifdef __cplusplus
-} /* extern "C" */
-#endif
-
-
-
-#endif // HPIPM_S_DENSE_QP_SOL_H_

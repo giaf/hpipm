@@ -38,7 +38,6 @@
 #include <stdlib.h>
 #if defined(RUNTIME_CHECKS)
 #include <stdio.h>
-#endif
 
 #include <blasfeo_target.h>
 #include <blasfeo_common.h>
@@ -47,6 +46,7 @@
 #include <hpipm_d_dense_qp_dim.h>
 #include <hpipm_d_dense_qp.h>
 #include <hpipm_d_dense_qp_sol.h>
+#include <hpipm_aux_string.h>
 #include <hpipm_aux_mem.h>
 
 
@@ -64,6 +64,7 @@
 #define DENSE_QP_SOL_MEMSIZE d_dense_qp_sol_memsize
 #define DENSE_QP_SOL_CREATE d_dense_qp_sol_create
 #define DENSE_QP_SOL_GET_ALL d_dense_qp_sol_get_all
+#define DENSE_QP_SOL_GET d_dense_qp_sol_get
 #define DENSE_QP_SOL_GET_V d_dense_qp_sol_get_v
 #define DENSE_QP_SOL_GET_VALID_OBJ d_dense_qp_sol_get_valid_obj
 #define DENSE_QP_SOL_GET_OBJ d_dense_qp_sol_get_obj

@@ -91,6 +91,7 @@ jobs:
         - make -C examples/matlab_octave/ example_from_qp_data_c
         - make -C examples/matlab_octave/ example_mass_spring
         - make -C examples/matlab_octave/ example_mass_spring_qcqp
+        - make -C examples/matlab_octave/ example_getting_started_dense_qp
 
     - name: "Linux AMD64 python build"
       if: branch = dev
