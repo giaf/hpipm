@@ -36,7 +36,6 @@
 
 
 #include <stdlib.h>
-#if defined(RUNTIME_CHECKS)
 #include <stdio.h>
 
 #include <blasfeo_target.h>
