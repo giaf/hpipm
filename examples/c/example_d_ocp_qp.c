@@ -263,6 +263,7 @@ int main()
 		d_print_mat(1, nu[ii], u, 1);
 		}
 
+
 	// x
 
 	int nx_max = nx[0];
@@ -279,7 +280,9 @@ int main()
 		d_print_mat(1, nx[ii], x, 1);
 		}
 
+
 	// pi
+
 	double *pi = malloc(nx_max*sizeof(double));
 
 	printf("\npi = \n");
@@ -288,6 +291,23 @@ int main()
 		d_ocp_qp_sol_get_pi(ii, &qp_sol, pi);
 		d_print_mat(1, nx[ii+1], pi, 1);
 		}
+
+
+	// all solution components at once
+
+	double **u1 = malloc((N+1)*sizeof(double *)); for(ii=0; ii<=N; ii++) d_zeros(u1+ii, nu[ii], 1);
+	double **x1 = malloc((N+1)*sizeof(double *)); for(ii=0; ii<=N; ii++) d_zeros(x1+ii, nx[ii], 1);
+	double **ls1 = malloc((N+1)*sizeof(double *)); for(ii=0; ii<=N; ii++) d_zeros(ls1+ii, nsbu[ii]+nsbx[ii]+nsg[ii], 1);
+	double **us1 = malloc((N+1)*sizeof(double *)); for(ii=0; ii<=N; ii++) d_zeros(us1+ii, nsbu[ii]+nsbx[ii]+nsg[ii], 1);
+	double **pi1 = malloc((N)*sizeof(double *)); for(ii=0; ii<N; ii++) d_zeros(pi1+ii, nx[ii+1], 1);
+	double **lam_lb1 = malloc((N+1)*sizeof(double *)); for(ii=0; ii<=N; ii++) d_zeros(lam_lb1+ii, nbu[ii]+nbx[ii], 1);
+	double **lam_ub1 = malloc((N+1)*sizeof(double *)); for(ii=0; ii<=N; ii++) d_zeros(lam_ub1+ii, nbu[ii]+nbx[ii], 1);
+	double **lam_lg1 = malloc((N+1)*sizeof(double *)); for(ii=0; ii<=N; ii++) d_zeros(lam_lg1+ii, ng[ii], 1);
+	double **lam_ug1 = malloc((N+1)*sizeof(double *)); for(ii=0; ii<=N; ii++) d_zeros(lam_ug1+ii, ng[ii], 1);
+	double **lam_ls1 = malloc((N+1)*sizeof(double *)); for(ii=0; ii<=N; ii++) d_zeros(lam_ls1+ii, nsbu[ii]+nsbx[ii]+nsg[ii], 1);
+	double **lam_us1 = malloc((N+1)*sizeof(double *)); for(ii=0; ii<=N; ii++) d_zeros(lam_us1+ii, nsbu[ii]+nsbx[ii]+nsg[ii], 1);
+
+	d_ocp_qp_sol_get_all(&qp_sol, u1, x1, ls1, us1, pi1, lam_lb1, lam_ub1, lam_lg1, lam_ug1, lam_ls1, lam_us1);
 
 /************************************************
 * print ipm statistics
@@ -421,6 +441,45 @@ int main()
 	free(u);
 	free(x);
 	free(pi);
+
+
+	for(ii=0; ii<N; ii++)
+		{
+		d_free(u1[ii]);
+		d_free(x1[ii]);
+		d_free(ls1[ii]);
+		d_free(us1[ii]);
+		d_free(pi1[ii]);
+		d_free(lam_lb1[ii]);
+		d_free(lam_ub1[ii]);
+		d_free(lam_lg1[ii]);
+		d_free(lam_ug1[ii]);
+		d_free(lam_ls1[ii]);
+		d_free(lam_us1[ii]);
+		}
+	d_free(u1[ii]);
+	d_free(x1[ii]);
+	d_free(ls1[ii]);
+	d_free(us1[ii]);
+	d_free(lam_lb1[ii]);
+	d_free(lam_ub1[ii]);
+	d_free(lam_lg1[ii]);
+	d_free(lam_ug1[ii]);
+	d_free(lam_ls1[ii]);
+	d_free(lam_us1[ii]);
+
+	free(u1);
+	free(x1);
+	free(ls1);
+	free(us1);
+	free(lam_lb1);
+	free(lam_ub1);
+	free(lam_lg1);
+	free(lam_ug1);
+	free(lam_ls1);
+	free(lam_us1);
+
+
 
 	return 0;
 
