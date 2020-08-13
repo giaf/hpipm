@@ -3,10 +3,35 @@ HPIPM ChangeLog
 
 
 ====================================================================
+Version 0.1.4-master
+13-Aug-2020
+
+dense_qp:
+	* update some setters/getters
+
+ocp_qp:
+	* add reduce/restore eq DOF for LHS/RHS alone
+
+cond_qp:
+	* add condensing of LHS
+
+part_cond_qp:
+	* add condensing of LHS
+
+cond_qcqp:
+	* add condensing of LHS
+
+part_cond_qcqp:
+	* add condensing of LHS
+
+Matlab/Octave interface:
+	* add basic interface for dense QP
+
+====================================================================
 Version 0.1.3
 13-Aug-2020
 
-cond:
+cond_qp:
 	* add classic condensing algorithm (with diag hess flag) & optinos to select the cond alg
 
 sim:
@@ -63,7 +88,7 @@ ocp_qp:
 	* add codegen functionality to export dims, qp and ipm_args as global variables in a C source file
 	* add functionality to compute predicted solution for a new RHS and sensitivity of solution
 
-cond:
+cond_qp:
 	* general renaming of routines, e.g. d_create_cond_ocp2ocp => d_part_cond_qp_ws_create
 
 Matlab/Octave interface:
