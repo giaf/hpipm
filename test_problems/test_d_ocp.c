@@ -1263,6 +1263,14 @@ int main()
 #endif
 
 /************************************************
+* codegen QP data
+************************************************/
+
+//	d_ocp_qp_dim_codegen("examples/c/data/test_d_ocp_data.c", "w", &dim);
+//	d_ocp_qp_codegen("examples/c/data/test_d_ocp_data.c", "a", &dim, &qp);
+//	d_ocp_qp_ipm_arg_codegen("examples/c/data/test_d_ocp_data.c", "a", &dim, &arg);
+
+/************************************************
 * free memory
 ************************************************/
 

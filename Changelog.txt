@@ -3,6 +3,16 @@ HPIPM ChangeLog
 
 
 ====================================================================
+Version 0.1.3
+13-Aug-2020
+
+cond:
+	* add classic condensing algorithm (with diag hess flag) & optinos to select the cond alg
+
+sim:
+	* resume basic ERK integrator with forward sensitivities capabilities
+
+====================================================================
 Version 0.1.2
 07-Apr-2020
 

@@ -336,6 +336,7 @@ install(FILES ${HPIPM_HEADERS} DESTINATION ${HPIPM_HEADERS_INSTALLATION_DIRECTOR
 # test problems
 if(HPIPM_TESTING MATCHES ON)
 	add_subdirectory(test_problems)
+	add_subdirectory(examples/c)
 endif()
 
 message(STATUS "Using BLASFEO path: ${BLASFEO_PATH}")
