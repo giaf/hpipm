@@ -626,6 +626,7 @@ int main()
 		double t_min = 1e-16;
 		double tau_min = 1e-16;
 		int compute_obj = 1;
+		int t_lam_min = 1;
 
 		d_dense_qp_ipm_arg_set_tol_stat(&d_tol_stat, &d_arg);
 		d_dense_qp_ipm_arg_set_tol_eq(&d_tol_eq, &d_arg);
@@ -636,10 +637,11 @@ int main()
 		d_dense_qp_ipm_arg_set_comp_res_exit(&d_comp_res_exit, &d_arg);
 		d_dense_qp_ipm_arg_set_kkt_fact_alg(&kkt_fact_alg, &d_arg);
 		d_dense_qp_ipm_arg_set_remove_lin_dep_eq(&remove_lin_dep_eq, &d_arg);
-//		d_dense_qp_ipm_arg_set_lam_min(&lam_min, &d_arg);
-//		d_dense_qp_ipm_arg_set_t_min(&t_min, &d_arg);
+		d_dense_qp_ipm_arg_set_lam_min(&lam_min, &d_arg);
+		d_dense_qp_ipm_arg_set_t_min(&t_min, &d_arg);
 //		d_dense_qp_ipm_arg_set_tau_min(&tau_min, &d_arg);
 		d_dense_qp_ipm_arg_set_compute_obj(&compute_obj, &d_arg);
+		d_dense_qp_ipm_arg_set_t_lam_min(&t_lam_min, &d_arg);
 
 //		d_arg.alpha_min = 1e-12;
 //		d_arg.pred_corr = 1;
@@ -798,7 +800,7 @@ int main()
 //		if(i-1==34 | i-1==4)
 		if(0)
 			{
-			printf("\nalpha_aff\tmu_aff\t\tsigma\t\talpha\t\tmu\t\tres_stat\tres_eq\t\tres_ineq\tres_comp\tlq fact\t\titref pred\titref corr\tlin res_stat\tlin res_eq\tlin res_ineq\trlin es_comp\n");
+			printf("\nalpha_aff\tmu_aff\t\tsigma\t\talpha_prim\talpha_dual\tmu\t\tres_stat\tres_eq\t\tres_ineq\tres_comp\tlq fact\t\titref pred\titref corr\tlin res_stat\tlin res_eq\tlin res_ineq\trlin es_comp\n");
 			double *stat; d_dense_qp_ipm_get_stat(&d_ws, &stat);
 			int stat_m;  d_dense_qp_ipm_get_stat_m(&d_ws, &stat_m);
 			d_print_exp_tran_mat(stat_m, d_iter+1, stat, stat_m);

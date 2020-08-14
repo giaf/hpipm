@@ -81,6 +81,7 @@ struct d_ocp_qcqp_ipm_arg
 	int comp_res_exit; // compute residuals on exit (only for abs_form==1 and comp_dual_sol_eq==1)
 	int comp_res_pred; // compute residuals of prediction
 	int split_step; // use different step for primal and dual variables
+	int t_lam_min; // clip t and lam also in solution, or only in Gamma computation
 	int mode;
 	int memsize;
 	};
@@ -146,6 +147,8 @@ void d_ocp_qcqp_ipm_arg_set_lam_min(double *value, struct d_ocp_qcqp_ipm_arg *ar
 void d_ocp_qcqp_ipm_arg_set_t_min(double *value, struct d_ocp_qcqp_ipm_arg *arg);
 // use different step for primal and dual variables
 void d_ocp_qcqp_ipm_arg_set_split_step(int *value, struct d_ocp_qcqp_ipm_arg *arg);
+// clip t and lam also in solution, or only in Gamma computation
+void d_ocp_qcqp_ipm_arg_set_t_lam_min(int *value, struct d_ocp_qcqp_ipm_arg *arg);
 
 //
 int d_ocp_qcqp_ipm_ws_strsize();

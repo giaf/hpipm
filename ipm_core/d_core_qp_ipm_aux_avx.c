@@ -56,17 +56,22 @@ void d_compute_Gamma_gamma_qp(double *res_d, double *res_m, struct d_core_qp_ipm
 	double *gamma = cws->gamma;
 
 	__m256d
-		y_ones,
-		y_tmp0, y_t_inv0, y_lam0,
-		y_tmp1, y_t_inv1, y_lam1;
+		y_ones, y_lam_min, y_t_min, y_t_min_inv,
+		y_tmp0, y_t0, y_t_inv0, y_lam0, y_mask0,
+		y_tmp1, y_t1, y_t_inv1, y_lam1, y_mask1;
 
 	y_ones = _mm256_set_pd( 1.0, 1.0, 1.0, 1.0 );
 
 	// local variables
 	int ii;
 
+	y_lam_min = _mm256_broadcast_sd( &cws->lam_min );
+	y_t_min = _mm256_broadcast_sd( &cws->t_min );
+	y_t_min_inv = _mm256_broadcast_sd( &cws->t_min_inv );
+
 	ii = 0;
 #if 0
+	// TODO mask with t_min, lam_min !!!!!!!!!
 	for(; ii<nc-7; ii+=8)
 		{
 		y_t_inv0 = _mm256_div_pd( y_ones, _mm256_loadu_pd( &t[ii+0] ) );
@@ -91,9 +96,16 @@ void d_compute_Gamma_gamma_qp(double *res_d, double *res_m, struct d_core_qp_ipm
 #endif
 	for(; ii<nc-3; ii+=4)
 		{
-		y_t_inv0 = _mm256_div_pd( y_ones, _mm256_loadu_pd( &t[ii] ) );
+		y_t0 = _mm256_loadu_pd( &t[ii] );
+		y_t_inv0 = _mm256_div_pd( y_ones, y_t0 );
 		_mm256_storeu_pd( &t_inv[ii], y_t_inv0 );
 		y_lam0 = _mm256_loadu_pd( &lam[ii] );
+
+		y_mask0 = _mm256_cmp_pd( y_lam0, y_lam_min, 2 );
+		y_mask1 = _mm256_cmp_pd( y_t0, y_t_min, 2 );
+		y_lam0 = _mm256_blendv_pd( y_lam0, y_lam_min, y_mask0 );
+		y_t_inv0 = _mm256_blendv_pd( y_t_inv0, y_t_min_inv, y_mask1 );
+
 		y_tmp0 = _mm256_mul_pd( y_t_inv0, y_lam0 );
 		_mm256_storeu_pd( &Gamma[ii], y_tmp0 );
 		y_tmp0 = _mm256_mul_pd( y_lam0, _mm256_loadu_pd( &res_d[ii] ) );
@@ -463,8 +475,8 @@ void d_update_var_qp(struct d_core_qp_ipm_workspace *cws)
 			}
 
 		// update lam and t
-		y_lam_min = _mm256_broadcast_sd( &cws->lam_min );
-		y_t_min = _mm256_broadcast_sd( &cws->t_min );
+//		y_lam_min = _mm256_broadcast_sd( &cws->lam_min );
+//		y_t_min = _mm256_broadcast_sd( &cws->t_min );
 		ii = 0;
 		for(; ii<nc-3; ii+=4)
 			{
@@ -479,10 +491,10 @@ void d_update_var_qp(struct d_core_qp_ipm_workspace *cws)
 			// max does not preserve NaN !!!
 	//		y_tmp0 = _mm256_max_pd( y_tmp0, y_lam_min );
 	//		y_tmp1 = _mm256_max_pd( y_tmp1, y_t_min );
-			y_mask0 = _mm256_cmp_pd( y_tmp0, y_lam_min, 2 );
-			y_mask1 = _mm256_cmp_pd( y_tmp1, y_t_min, 2 );
-			y_tmp0 = _mm256_blendv_pd( y_tmp0, y_lam_min, y_mask0 );
-			y_tmp1 = _mm256_blendv_pd( y_tmp1, y_t_min, y_mask1 );
+//			y_mask0 = _mm256_cmp_pd( y_tmp0, y_lam_min, 2 );
+//			y_mask1 = _mm256_cmp_pd( y_tmp1, y_t_min, 2 );
+//			y_tmp0 = _mm256_blendv_pd( y_tmp0, y_lam_min, y_mask0 );
+//			y_tmp1 = _mm256_blendv_pd( y_tmp1, y_t_min, y_mask1 );
 			_mm256_storeu_pd( &lam[ii], y_tmp0 );
 			_mm256_storeu_pd( &t[ii], y_tmp1 );
 			}
@@ -492,8 +504,8 @@ void d_update_var_qp(struct d_core_qp_ipm_workspace *cws)
 			t_bkp[ii] = t[ii];
 			lam[ii] += alpha * dlam[ii];
 			t[ii] += alpha * dt[ii];
-			lam[ii] = lam[ii]<=cws->lam_min ? cws->lam_min : lam[ii];
-			t[ii] = t[ii]<=cws->t_min ? cws->t_min : t[ii];
+//			lam[ii] = lam[ii]<=cws->lam_min ? cws->lam_min : lam[ii];
+//			t[ii] = t[ii]<=cws->t_min ? cws->t_min : t[ii];
 			}
 
 		}
@@ -536,8 +548,8 @@ void d_update_var_qp(struct d_core_qp_ipm_workspace *cws)
 			}
 
 		// update lam and t
-		y_lam_min = _mm256_broadcast_sd( &cws->lam_min );
-		y_t_min = _mm256_broadcast_sd( &cws->t_min );
+//		y_lam_min = _mm256_broadcast_sd( &cws->lam_min );
+//		y_t_min = _mm256_broadcast_sd( &cws->t_min );
 		ii = 0;
 		for(; ii<nc-3; ii+=4)
 			{
@@ -552,10 +564,10 @@ void d_update_var_qp(struct d_core_qp_ipm_workspace *cws)
 			// max does not preserve NaN !!!
 	//		y_tmp0 = _mm256_max_pd( y_tmp0, y_lam_min );
 	//		y_tmp1 = _mm256_max_pd( y_tmp1, y_t_min );
-			y_mask0 = _mm256_cmp_pd( y_tmp0, y_lam_min, 2 );
-			y_mask1 = _mm256_cmp_pd( y_tmp1, y_t_min, 2 );
-			y_tmp0 = _mm256_blendv_pd( y_tmp0, y_lam_min, y_mask0 );
-			y_tmp1 = _mm256_blendv_pd( y_tmp1, y_t_min, y_mask1 );
+//			y_mask0 = _mm256_cmp_pd( y_tmp0, y_lam_min, 2 );
+//			y_mask1 = _mm256_cmp_pd( y_tmp1, y_t_min, 2 );
+//			y_tmp0 = _mm256_blendv_pd( y_tmp0, y_lam_min, y_mask0 );
+//			y_tmp1 = _mm256_blendv_pd( y_tmp1, y_t_min, y_mask1 );
 			_mm256_storeu_pd( &lam[ii], y_tmp0 );
 			_mm256_storeu_pd( &t[ii], y_tmp1 );
 			}
@@ -565,10 +577,37 @@ void d_update_var_qp(struct d_core_qp_ipm_workspace *cws)
 			t_bkp[ii] = t[ii];
 			lam[ii] += alpha_dual * dlam[ii];
 			t[ii] += alpha_prim * dt[ii];
+//			lam[ii] = lam[ii]<=cws->lam_min ? cws->lam_min : lam[ii];
+//			t[ii] = t[ii]<=cws->t_min ? cws->t_min : t[ii];
+			}
+
+		}
+
+	if(&cws->t_lam_min)
+		{
+		// update lam and t
+		y_lam_min = _mm256_broadcast_sd( &cws->lam_min );
+		y_t_min = _mm256_broadcast_sd( &cws->t_min );
+		ii = 0;
+		for(; ii<nc-3; ii+=4)
+			{
+			y_tmp0 = _mm256_loadu_pd( &lam[ii] );
+			y_tmp1 = _mm256_loadu_pd( &t[ii] );
+			// max does not preserve NaN !!!
+	//		y_tmp0 = _mm256_max_pd( y_tmp0, y_lam_min );
+	//		y_tmp1 = _mm256_max_pd( y_tmp1, y_t_min );
+			y_mask0 = _mm256_cmp_pd( y_tmp0, y_lam_min, 2 );
+			y_mask1 = _mm256_cmp_pd( y_tmp1, y_t_min, 2 );
+			y_tmp0 = _mm256_blendv_pd( y_tmp0, y_lam_min, y_mask0 );
+			y_tmp1 = _mm256_blendv_pd( y_tmp1, y_t_min, y_mask1 );
+			_mm256_storeu_pd( &lam[ii], y_tmp0 );
+			_mm256_storeu_pd( &t[ii], y_tmp1 );
+			}
+		for(; ii<nc; ii++)
+			{
 			lam[ii] = lam[ii]<=cws->lam_min ? cws->lam_min : lam[ii];
 			t[ii] = t[ii]<=cws->t_min ? cws->t_min : t[ii];
 			}
-
 		}
 
 	return;

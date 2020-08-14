@@ -72,12 +72,14 @@ struct d_core_qp_ipm_workspace
 	double nc_mask_inv; // 1.0/nc_mask
 	double lam_min; // min value in lam vector
 	double t_min; // min value in t vector
+	double t_min_inv; // inverse of min value in t vector
 	double tau_min; // min value of barrier parameter
 	int nv; // number of primal variables
 	int ne; // number of equality constraints
 	int nc; // (twice the) number of (two-sided) inequality constraints
 	int nc_mask; // total number of ineq constr after masking
 	int split_step; // use different step for primal and dual variables
+	int t_lam_min; // clip t and lam also in solution, or only in Gamma computation
 	int memsize; // memory size (in bytes) of workspace
 	};
 

@@ -49,15 +49,28 @@ void s_compute_Gamma_gamma_qp(float *res_d, float *res_m, struct s_core_qp_ipm_w
 	float *t_inv = cws->t_inv;
 	float *Gamma = cws->Gamma;
 	float *gamma = cws->gamma;
+	float lam_min = cws->lam_min;
+	float t_min = cws->t_min;
+	float t_min_inv = cws->t_min_inv;
+	float lam0, t0, t_inv_tmp, lam_tmp;
 
 	// local variables
 	int ii;
 
 	for(ii=0; ii<nc; ii++)
 		{
-		t_inv[ii] = 1.0/t[ii];
+		lam0 = lam[ii];
+		t0 = t[ii];
+		t_inv[ii] = 1.0/t0;
+#if 1
+		t_inv_tmp = t0<t_min ? t_min_inv : t_inv[ii];
+		lam_tmp = lam0<lam_min ? lam_min : lam0;
+//		lam_tmp = lam0;
+		Gamma[ii] = t_inv_tmp*lam_tmp;
+#else
 		Gamma[ii] = t_inv[ii]*lam[ii];
-		gamma[ii] = t_inv[ii]*(res_m[ii]-lam[ii]*res_d[ii]);
+#endif
+		gamma[ii] = t_inv[ii]*(res_m[ii]-lam0*res_d[ii]);
 		}
 
 	return;
@@ -89,6 +102,8 @@ void s_compute_gamma_qp(float *res_d, float *res_m, struct s_core_qp_ipm_workspa
 
 	}
 
+
+
 void s_compute_lam_t_qp(float *res_d, float *res_m, float *dlam, float *dt, struct s_core_qp_ipm_workspace *cws)
 	{
 
@@ -106,9 +121,11 @@ void s_compute_lam_t_qp(float *res_d, float *res_m, float *dlam, float *dt, stru
 
 	for(ii=0; ii<nc; ii++)
 		{
-		dt[ii] -= res_d[ii];
+//		dt[ii] -= res_d[ii];
 		// TODO compute lamda alone ???
-		dlam[ii] = - t_inv[ii] * (lam[ii]*dt[ii] + res_m[ii]);
+//		dlam[ii] = - t_inv[ii] * (lam[ii]*dt[ii] + res_m[ii]);
+		dlam[ii] = - t_inv[ii] * (res_m[ii] + (lam[ii]*dt[ii]) - (lam[ii]*res_d[ii]));
+		dt[ii] -= res_d[ii];
 		}
 	
 	return;
@@ -252,7 +269,7 @@ void s_update_var_qp(struct s_core_qp_ipm_workspace *cws)
 			{
 			lam_bkp[ii] = lam[ii];
 			lam[ii] += alpha * dlam[ii];
-			lam[ii] = lam[ii]<=lam_min ? lam_min : lam[ii];
+//			lam[ii] = lam[ii]<=lam_min ? lam_min : lam[ii];
 			}
 
 		// update t
@@ -260,7 +277,7 @@ void s_update_var_qp(struct s_core_qp_ipm_workspace *cws)
 			{
 			t_bkp[ii] = t[ii];
 			t[ii] += alpha * dt[ii];
-			t[ii] = t[ii]<=t_min ? t_min : t[ii];
+//			t[ii] = t[ii]<=t_min ? t_min : t[ii];
 			}
 		}
 	else // split step
@@ -284,7 +301,7 @@ void s_update_var_qp(struct s_core_qp_ipm_workspace *cws)
 			{
 			lam_bkp[ii] = lam[ii];
 			lam[ii] += alpha_dual * dlam[ii];
-			lam[ii] = lam[ii]<=cws->lam_min ? cws->lam_min : lam[ii];
+//			lam[ii] = lam[ii]<=cws->lam_min ? cws->lam_min : lam[ii];
 			}
 
 		// update t
@@ -292,6 +309,15 @@ void s_update_var_qp(struct s_core_qp_ipm_workspace *cws)
 			{
 			t_bkp[ii] = t[ii];
 			t[ii] += alpha_prim * dt[ii];
+//			t[ii] = t[ii]<=cws->t_min ? cws->t_min : t[ii];
+			}
+		}
+
+	if(&cws->t_lam_min)
+		{
+		for(ii=0; ii<nc; ii++)
+			{
+			lam[ii] = lam[ii]<=cws->lam_min ? cws->lam_min : lam[ii];
 			t[ii] = t[ii]<=cws->t_min ? cws->t_min : t[ii];
 			}
 		}

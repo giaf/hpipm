@@ -82,6 +82,7 @@ struct s_ocp_qp_ipm_arg
 	int comp_res_pred; // compute residuals of prediction
 	int split_step; // use different steps for primal and dual variables
 	int var_init_scheme; // variables initialization scheme
+	int t_lam_min; // clip t and lam also in solution, or only in Gamma computation
 	int mode;
 	int memsize;
 	};
@@ -184,6 +185,8 @@ void s_ocp_qp_ipm_arg_set_tau_min(float *value, struct s_ocp_qp_ipm_arg *arg);
 void s_ocp_qp_ipm_arg_set_split_step(int *value, struct s_ocp_qp_ipm_arg *arg);
 // variables initialization scheme
 void s_ocp_qp_ipm_arg_set_var_init_scheme(int *value, struct s_ocp_qp_ipm_arg *arg);
+// clip t and lam also in solution, or only in Gamma computation
+void s_ocp_qp_ipm_arg_set_t_lam_min(int *value, struct s_ocp_qp_ipm_arg *arg);
 
 //
 int s_ocp_qp_ipm_ws_strsize();

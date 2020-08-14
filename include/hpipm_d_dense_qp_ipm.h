@@ -86,6 +86,7 @@ struct d_dense_qp_ipm_arg
 	int remove_lin_dep_eq; // 0 do not, 1 do check and remove linearly dependent equality constraints
 	int compute_obj; // compute obj on exit
 	int split_step; // use different steps for primal and dual variables
+	int t_lam_min; // clip t and lam also in solution, or only in Gamma computatiaon
 	int mode;
 	int memsize;
 	};
@@ -206,6 +207,9 @@ void d_dense_qp_ipm_arg_set_kkt_fact_alg(int *value, struct d_dense_qp_ipm_arg *
 void d_dense_qp_ipm_arg_set_remove_lin_dep_eq(int *value, struct d_dense_qp_ipm_arg *arg);
 //
 void d_dense_qp_ipm_arg_set_compute_obj(int *value, struct d_dense_qp_ipm_arg *arg);
+//
+void d_dense_qp_ipm_arg_set_t_lam_min(int *value, struct d_dense_qp_ipm_arg *arg);
+
 //
 void d_dense_qp_ipm_arg_set_split_step(int *value, struct d_dense_qp_ipm_arg *arg);
 

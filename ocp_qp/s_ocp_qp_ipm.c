@@ -156,6 +156,7 @@
 #define OCP_QP_IPM_ARG_SET_TAU_MIN s_ocp_qp_ipm_arg_set_tau_min
 #define OCP_QP_IPM_ARG_SET_SPLIT_STEP s_ocp_qp_ipm_arg_set_split_step
 #define OCP_QP_IPM_ARG_SET_VAR_INIT_SCHEME s_ocp_qp_ipm_arg_set_var_init_scheme
+#define OCP_QP_IPM_ARG_SET_T_LAM_MIN s_ocp_qp_ipm_arg_set_t_lam_min
 // ipm
 #define OCP_QP_IPM_WS_STRSIZE s_ocp_qp_ipm_ws_strsize
 #define OCP_QP_IPM_WS_MEMSIZE s_ocp_qp_ipm_ws_memsize

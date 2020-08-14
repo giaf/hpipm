@@ -70,14 +70,16 @@ struct s_core_qp_ipm_workspace
 	float mu_aff; // affine duality measuere
 	float nc_inv; // 1.0/nc, where nc is the total number of constraints
 	float nc_mask_inv; // 1.0/nc_mask
-	float lam_min; // min value in t vector
-	float t_min; // min value in lam vector
+	float lam_min; // min value in lam vector
+	float t_min; // min value in t vector
+	float t_min_inv; // inverse of min value in t vector
 	float tau_min; // min value of barrier parameter
 	int nv; // number of primal variables
 	int ne; // number of equality constraints
 	int nc; // (twice the) number of (two-sided) inequality constraints
 	int nc_mask; // total number of ineq constr after masking
 	int split_step; // use different step for primal and dual variables
+	int t_lam_min; // clip t and lam also in solution, or only in Gamma computation
 	int memsize; // memory size (in bytes) of workspace
 	};
 

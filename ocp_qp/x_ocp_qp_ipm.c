@@ -70,7 +70,7 @@ void OCP_QP_IPM_ARG_SET_DEFAULT(enum HPIPM_MODE mode, struct OCP_QP_IPM_ARG *arg
 	{
 
 	REAL mu0, alpha_min, res_g_max, res_b_max, res_d_max, res_m_max, reg_prim, lam_min, t_min, tau_min;
-	int iter_max, stat_max, pred_corr, cond_pred_corr, itref_pred_max, itref_corr_max, lq_fact, warm_start, abs_form, comp_res_exit, comp_res_pred, square_root_alg, comp_dual_sol_eq, split_step, var_init_scheme;
+	int iter_max, stat_max, pred_corr, cond_pred_corr, itref_pred_max, itref_corr_max, lq_fact, warm_start, abs_form, comp_res_exit, comp_res_pred, square_root_alg, comp_dual_sol_eq, split_step, var_init_scheme, t_lam_min;
 
 	if(mode==SPEED_ABS)
 		{
@@ -99,6 +99,7 @@ void OCP_QP_IPM_ARG_SET_DEFAULT(enum HPIPM_MODE mode, struct OCP_QP_IPM_ARG *arg
 		comp_res_pred = 0;
 		split_step = 1;
 		var_init_scheme = 0;
+		t_lam_min = 0;
 		}
 	else if(mode==SPEED)
 		{
@@ -127,6 +128,7 @@ void OCP_QP_IPM_ARG_SET_DEFAULT(enum HPIPM_MODE mode, struct OCP_QP_IPM_ARG *arg
 		comp_res_pred = 1;
 		split_step = 1;
 		var_init_scheme = 0;
+		t_lam_min = 0;
 		}
 	else if(mode==BALANCE)
 		{
@@ -155,6 +157,7 @@ void OCP_QP_IPM_ARG_SET_DEFAULT(enum HPIPM_MODE mode, struct OCP_QP_IPM_ARG *arg
 		comp_res_pred = 1;
 		split_step = 0;
 		var_init_scheme = 0;
+		t_lam_min = 0;
 		}
 	else if(mode==ROBUST)
 		{
@@ -183,6 +186,7 @@ void OCP_QP_IPM_ARG_SET_DEFAULT(enum HPIPM_MODE mode, struct OCP_QP_IPM_ARG *arg
 		comp_res_pred = 1;
 		split_step = 0;
 		var_init_scheme = 0;
+		t_lam_min = 0;
 		}
 	else
 		{
@@ -216,6 +220,7 @@ void OCP_QP_IPM_ARG_SET_DEFAULT(enum HPIPM_MODE mode, struct OCP_QP_IPM_ARG *arg
 	OCP_QP_IPM_ARG_SET_COMP_RES_EXIT(&comp_res_pred, arg);
 	OCP_QP_IPM_ARG_SET_SPLIT_STEP(&split_step, arg);
 	OCP_QP_IPM_ARG_SET_VAR_INIT_SCHEME(&var_init_scheme, arg);
+	OCP_QP_IPM_ARG_SET_T_LAM_MIN(&t_lam_min, arg);
 	arg->mode = mode;
 
 	return;
@@ -305,6 +310,10 @@ void OCP_QP_IPM_ARG_SET(char *field, void *value, struct OCP_QP_IPM_ARG *arg)
 	else if(hpipm_strcmp(field, "var_init_scheme")) 
 		{
 		OCP_QP_IPM_ARG_SET_VAR_INIT_SCHEME(value, arg);
+		}
+	else if(hpipm_strcmp(field, "t_lam_min")) 
+		{
+		OCP_QP_IPM_ARG_SET_T_LAM_MIN(value, arg);
 		}
 	else
 		{
@@ -473,6 +482,14 @@ void OCP_QP_IPM_ARG_SET_SPLIT_STEP(int *value, struct OCP_QP_IPM_ARG *arg)
 void OCP_QP_IPM_ARG_SET_VAR_INIT_SCHEME(int *value, struct OCP_QP_IPM_ARG *arg)
 	{
 	arg->var_init_scheme = *value;
+	return;
+	}
+
+
+
+void OCP_QP_IPM_ARG_SET_T_LAM_MIN(int *value, struct OCP_QP_IPM_ARG *arg)
+	{
+	arg->t_lam_min = *value;
 	return;
 	}
 
@@ -1206,6 +1223,8 @@ void OCP_QP_IPM_GET_RIC_LR_VEC(struct OCP_QP *qp, struct OCP_QP_IPM_ARG *arg, st
 		// arg to core workspace
 		cws->lam_min = arg->lam_min;
 		cws->t_min = arg->t_min;
+		cws->t_min_inv = arg->t_min>0 ? 1.0/arg->t_min : 1e30;
+		cws->t_lam_min = arg->t_lam_min;
 
 		// alias qp vectors into qp_sol
 		cws->v = ws->sol_itref->ux->pa;
@@ -1253,6 +1272,8 @@ void OCP_QP_IPM_GET_RIC_P_VEC(struct OCP_QP *qp, struct OCP_QP_IPM_ARG *arg, str
 		// arg to core workspace
 		cws->lam_min = arg->lam_min;
 		cws->t_min = arg->t_min;
+		cws->t_min_inv = arg->t_min>0 ? 1.0/arg->t_min : 1e30;
+		cws->t_lam_min = arg->t_lam_min;
 
 		// alias qp vectors into qp_sol
 		cws->v = ws->sol_itref->ux->pa;
@@ -1328,6 +1349,8 @@ void OCP_QP_IPM_GET_RIC_K_VEC(struct OCP_QP *qp, struct OCP_QP_IPM_ARG *arg, str
 		// arg to core workspace
 		cws->lam_min = arg->lam_min;
 		cws->t_min = arg->t_min;
+		cws->t_min_inv = arg->t_min>0 ? 1.0/arg->t_min : 1e30;
+		cws->t_lam_min = arg->t_lam_min;
 
 		// alias qp vectors into qp_sol
 		cws->v = ws->sol_itref->ux->pa;
@@ -2356,8 +2379,10 @@ void OCP_QP_IPM_SOLVE(struct OCP_QP *qp, struct OCP_QP_SOL *qp_sol, struct OCP_Q
 	// arg to core workspace
 	cws->lam_min = arg->lam_min;
 	cws->t_min = arg->t_min;
+	cws->t_min_inv = arg->t_min>0 ? 1.0/arg->t_min : 1e30;
 	cws->tau_min = arg->tau_min;
 	cws->split_step = arg->split_step;
+	cws->t_lam_min = arg->t_lam_min;
 
 	// alias qp vectors into qp_sol
 	cws->v = qp_sol->ux->pa;
@@ -2674,6 +2699,8 @@ void OCP_QP_IPM_PREDICT(struct OCP_QP *qp, struct OCP_QP_SOL *qp_sol, struct OCP
 	// arg to core workspace
 	cws->lam_min = arg->lam_min;
 	cws->t_min = arg->t_min;
+	cws->t_min_inv = arg->t_min>0 ? 1.0/arg->t_min : 1e30;
+	cws->t_lam_min = arg->t_lam_min;
 
 	// alias qp vectors into qp_sol
 	cws->v = qp_sol->ux->pa;
@@ -2834,6 +2861,8 @@ void OCP_QP_IPM_SENS(struct OCP_QP *qp, struct OCP_QP_SOL *qp_sol, struct OCP_QP
 	// arg to core workspace
 	cws->lam_min = arg->lam_min;
 	cws->t_min = arg->t_min;
+	cws->t_min_inv = arg->t_min>0 ? 1.0/arg->t_min : 1e30;
+	cws->t_lam_min = arg->t_lam_min;
 
 	// alias qp vectors into qp_sol
 	cws->v = qp_sol->ux->pa;
