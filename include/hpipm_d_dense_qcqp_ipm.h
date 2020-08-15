@@ -82,7 +82,7 @@ struct d_dense_qcqp_ipm_arg
 	int comp_res_exit; // compute residuals on exit (only for abs_form==1)
 	int comp_res_pred; // compute residuals of prediction
 	int split_step; // use different step for primal and dual variables
-	int t_lam_min; // clip t and lam also in solution, or only in Gamma computatiaon
+	int t_lam_min; // clip t and lam: 0 no, 1 in Gamma computation, 2 in solution
 	int mode;
 	int memsize;
 	};

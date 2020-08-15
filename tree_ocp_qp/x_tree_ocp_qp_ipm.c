@@ -82,6 +82,7 @@ void SET_DEFAULT_TREE_OCP_QP_IPM_ARG(enum HPIPM_MODE mode, struct TREE_OCP_QP_IP
 		arg->abs_form = 1;
 		arg->comp_dual_sol = 0;
 		arg->comp_res_exit = 0;
+		arg->t_lam_min = 2;
 		}
 	else if(mode==SPEED)
 		{
@@ -105,6 +106,7 @@ void SET_DEFAULT_TREE_OCP_QP_IPM_ARG(enum HPIPM_MODE mode, struct TREE_OCP_QP_IP
 		arg->abs_form = 0;
 		arg->comp_dual_sol = 1;
 		arg->comp_res_exit = 1;
+		arg->t_lam_min = 2;
 		}
 	else if(mode==BALANCE)
 		{
@@ -128,6 +130,7 @@ void SET_DEFAULT_TREE_OCP_QP_IPM_ARG(enum HPIPM_MODE mode, struct TREE_OCP_QP_IP
 		arg->abs_form = 0;
 		arg->comp_dual_sol = 1;
 		arg->comp_res_exit = 1;
+		arg->t_lam_min = 2;
 		}
 	else if(mode==ROBUST)
 		{
@@ -151,6 +154,7 @@ void SET_DEFAULT_TREE_OCP_QP_IPM_ARG(enum HPIPM_MODE mode, struct TREE_OCP_QP_IP
 		arg->abs_form = 0;
 		arg->comp_dual_sol = 1;
 		arg->comp_res_exit = 1;
+		arg->t_lam_min = 2;
 		}
 	else
 		{
@@ -752,6 +756,7 @@ int SOLVE_TREE_OCP_QP_IPM(struct TREE_OCP_QP *qp, struct TREE_OCP_QP_SOL *qp_sol
 	cws->lam_min = arg->lam_min;
 	cws->t_min = arg->t_min;
 	cws->t_min_inv = arg->t_min>0 ? 1.0/arg->t_min : 1e30;
+	cws->t_lam_min = arg->t_lam_min;
 
 	// alias qp vectors into qp_sol
 	cws->v = qp_sol->ux->pa;

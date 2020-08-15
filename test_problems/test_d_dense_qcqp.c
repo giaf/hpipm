@@ -214,6 +214,9 @@ int main()
 	d_dense_qcqp_ipm_arg_set_tol_ineq(&tol_ineq, &arg);
 	d_dense_qcqp_ipm_arg_set_tol_comp(&tol_comp, &arg);
 
+//	int t_lam_min = 2;
+//	d_dense_qcqp_ipm_arg_set_t_lam_min(&t_lam_min, &arg);
+
 //	arg.alpha_min = 1e-8;
 //	arg.res_g_max = 1e-8;
 //	arg.res_b_max = 1e-8;

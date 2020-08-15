@@ -128,7 +128,7 @@ void DENSE_QCQP_IPM_ARG_SET_DEFAULT(enum HPIPM_MODE mode, struct DENSE_QCQP_IPM_
 		comp_res_exit = 0;
 		comp_res_pred = 0;
 		split_step = 1;
-		t_lam_min = 0;
+		t_lam_min = 2;
 		}
 	else if(mode==SPEED)
 		{
@@ -155,7 +155,7 @@ void DENSE_QCQP_IPM_ARG_SET_DEFAULT(enum HPIPM_MODE mode, struct DENSE_QCQP_IPM_
 		comp_res_exit = 1;
 		comp_res_pred = 0;
 		split_step = 1;
-		t_lam_min = 0;
+		t_lam_min = 2;
 		}
 	else if(mode==BALANCE)
 		{
@@ -182,7 +182,7 @@ void DENSE_QCQP_IPM_ARG_SET_DEFAULT(enum HPIPM_MODE mode, struct DENSE_QCQP_IPM_
 		comp_res_exit = 1;
 		comp_res_pred = 0;
 		split_step = 0;
-		t_lam_min = 0;
+		t_lam_min = 2;
 		}
 	else if(mode==ROBUST)
 		{
@@ -209,7 +209,7 @@ void DENSE_QCQP_IPM_ARG_SET_DEFAULT(enum HPIPM_MODE mode, struct DENSE_QCQP_IPM_
 		comp_res_exit = 1;
 		comp_res_pred = 0;
 		split_step = 0;
-		t_lam_min = 0;
+		t_lam_min = 2;
 		}
 	else
 		{

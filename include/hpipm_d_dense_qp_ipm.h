@@ -86,7 +86,7 @@ struct d_dense_qp_ipm_arg
 	int remove_lin_dep_eq; // 0 do not, 1 do check and remove linearly dependent equality constraints
 	int compute_obj; // compute obj on exit
 	int split_step; // use different steps for primal and dual variables
-	int t_lam_min; // clip t and lam also in solution, or only in Gamma computatiaon
+	int t_lam_min; // clip t and lam: 0 no, 1 in Gamma computation, 2 in solution
 	int mode;
 	int memsize;
 	};
