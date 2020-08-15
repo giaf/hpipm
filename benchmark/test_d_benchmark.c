@@ -626,7 +626,7 @@ int main()
 		double t_min = 1e-16;
 		double tau_min = 1e-16;
 		int compute_obj = 1;
-		int t_lam_min = 1;
+//		int t_lam_min = 2;
 
 		d_dense_qp_ipm_arg_set_tol_stat(&d_tol_stat, &d_arg);
 		d_dense_qp_ipm_arg_set_tol_eq(&d_tol_eq, &d_arg);
@@ -641,7 +641,7 @@ int main()
 		d_dense_qp_ipm_arg_set_t_min(&t_min, &d_arg);
 //		d_dense_qp_ipm_arg_set_tau_min(&tau_min, &d_arg);
 		d_dense_qp_ipm_arg_set_compute_obj(&compute_obj, &d_arg);
-		d_dense_qp_ipm_arg_set_t_lam_min(&t_lam_min, &d_arg);
+//		d_dense_qp_ipm_arg_set_t_lam_min(&t_lam_min, &d_arg);
 
 //		d_arg.alpha_min = 1e-12;
 //		d_arg.pred_corr = 1;
