@@ -8,9 +8,17 @@ Version 0.1.4-master
 
 dense_qp:
 	* update some setters/getters
+	* add t_lam_min flag to control min value of t and lam
+
+dense_qcqp:
+	* add t_lam_min flag to control min value of t and lam
 
 ocp_qp:
 	* add reduce/restore eq DOF for LHS/RHS alone
+	* add t_lam_min flag to control min value of t and lam
+
+ocp_qcqp:
+	* add t_lam_min flag to control min value of t and lam
 
 cond_qp:
 	* add condensing of LHS
