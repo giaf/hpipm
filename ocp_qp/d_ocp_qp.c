@@ -49,15 +49,15 @@
 
 
 
-#define DOUBLE_PRECISION
+#define BLASFEO_VECEL BLASFEO_DVECEL
 
 
 
 #define CREATE_STRMAT blasfeo_create_dmat
 #define CREATE_STRVEC blasfeo_create_dvec
-#define CVT_MAT2STRMAT blasfeo_pack_dmat
+#define PACK_MAT blasfeo_pack_dmat
 #define CVT_STRMAT2MAT blasfeo_unpack_dmat
-#define CVT_TRAN_MAT2STRMAT blasfeo_pack_tran_dmat
+#define PACK_TRAN_MAT blasfeo_pack_tran_dmat
 #define CVT_TRAN_STRMAT2MAT blasfeo_unpack_tran_dmat
 #define PACK_VEC blasfeo_pack_dvec
 #define UNPACK_VEC blasfeo_unpack_dvec

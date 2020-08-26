@@ -124,6 +124,8 @@ void OCP_QP_CREATE(struct OCP_QP_DIM *dim, struct OCP_QP *qp, void *mem)
 	int memsize = OCP_QP_MEMSIZE(dim);
 	hpipm_zero_memset(memsize, mem);
 
+	qp->memsize = memsize;
+
 	// extract dim
 	int N = dim->N;
 	int *nx = dim->nx;
@@ -357,8 +359,6 @@ void OCP_QP_CREATE(struct OCP_QP_DIM *dim, struct OCP_QP *qp, void *mem)
 
 	qp->dim = dim;
 
-	qp->memsize = OCP_QP_MEMSIZE(dim);
-
 
 #if defined(RUNTIME_CHECKS)
 	if(c_ptr > ((char *) mem) + qp->memsize)
@@ -527,19 +527,19 @@ void OCP_QP_SET_ALL(REAL **A, REAL **B, REAL **b, REAL **Q, REAL **S, REAL **R, 
 
 	for(ii=0; ii<N; ii++)
 		{
-		CVT_TRAN_MAT2STRMAT(nx[ii+1], nu[ii], B[ii], nx[ii+1], qp->BAbt+ii, 0, 0);
-		CVT_TRAN_MAT2STRMAT(nx[ii+1], nx[ii], A[ii], nx[ii+1], qp->BAbt+ii, nu[ii], 0);
-		CVT_TRAN_MAT2STRMAT(nx[ii+1], 1, b[ii], nx[ii+1], qp->BAbt+ii, nu[ii]+nx[ii], 0); // XXX remove ???
+		PACK_TRAN_MAT(nx[ii+1], nu[ii], B[ii], nx[ii+1], qp->BAbt+ii, 0, 0);
+		PACK_TRAN_MAT(nx[ii+1], nx[ii], A[ii], nx[ii+1], qp->BAbt+ii, nu[ii], 0);
+		PACK_TRAN_MAT(nx[ii+1], 1, b[ii], nx[ii+1], qp->BAbt+ii, nu[ii]+nx[ii], 0); // XXX remove ???
 		PACK_VEC(nx[ii+1], b[ii], 1, qp->b+ii, 0);
 		}
 
 	for(ii=0; ii<=N; ii++)
 		{
-		CVT_MAT2STRMAT(nu[ii], nu[ii], R[ii], nu[ii], qp->RSQrq+ii, 0, 0);
-		CVT_TRAN_MAT2STRMAT(nu[ii], nx[ii], S[ii], nu[ii], qp->RSQrq+ii, nu[ii], 0);
-		CVT_MAT2STRMAT(nx[ii], nx[ii], Q[ii], nx[ii], qp->RSQrq+ii, nu[ii], nu[ii]);
-		CVT_TRAN_MAT2STRMAT(nu[ii], 1, r[ii], nu[ii], qp->RSQrq+ii, nu[ii]+nx[ii], 0); // XXX remove ???
-		CVT_TRAN_MAT2STRMAT(nx[ii], 1, q[ii], nx[ii], qp->RSQrq+ii, nu[ii]+nx[ii], nu[ii]); // XXX remove ???
+		PACK_MAT(nu[ii], nu[ii], R[ii], nu[ii], qp->RSQrq+ii, 0, 0);
+		PACK_TRAN_MAT(nu[ii], nx[ii], S[ii], nu[ii], qp->RSQrq+ii, nu[ii], 0);
+		PACK_MAT(nx[ii], nx[ii], Q[ii], nx[ii], qp->RSQrq+ii, nu[ii], nu[ii]);
+		PACK_TRAN_MAT(nu[ii], 1, r[ii], nu[ii], qp->RSQrq+ii, nu[ii]+nx[ii], 0); // XXX remove ???
+		PACK_TRAN_MAT(nx[ii], 1, q[ii], nx[ii], qp->RSQrq+ii, nu[ii]+nx[ii], nu[ii]); // XXX remove ???
 		PACK_VEC(nu[ii], r[ii], 1, qp->rqz+ii, 0);
 		PACK_VEC(nx[ii], q[ii], 1, qp->rqz+ii, nu[ii]);
 		}
@@ -572,8 +572,8 @@ void OCP_QP_SET_ALL(REAL **A, REAL **B, REAL **b, REAL **Q, REAL **S, REAL **R, 
 		{
 		if(ng[ii]>0)
 			{
-			CVT_TRAN_MAT2STRMAT(ng[ii], nu[ii], D[ii], ng[ii], qp->DCt+ii, 0, 0);
-			CVT_TRAN_MAT2STRMAT(ng[ii], nx[ii], C[ii], ng[ii], qp->DCt+ii, nu[ii], 0);
+			PACK_TRAN_MAT(ng[ii], nu[ii], D[ii], ng[ii], qp->DCt+ii, 0, 0);
+			PACK_TRAN_MAT(ng[ii], nx[ii], C[ii], ng[ii], qp->DCt+ii, nu[ii], 0);
 			PACK_VEC(ng[ii], d_lg[ii], 1, qp->d+ii, nb[ii]);
 			PACK_VEC(ng[ii], d_ug[ii], 1, qp->d+ii, 2*nb[ii]+ng[ii]);
 			VECSC(ng[ii], -1.0, qp->d+ii, 2*nb[ii]+ng[ii]);
@@ -624,19 +624,19 @@ void OCP_QP_SET_ALL_ROWMAJ(REAL **A, REAL **B, REAL **b, REAL **Q, REAL **S, REA
 
 	for(ii=0; ii<N; ii++)
 		{
-		CVT_MAT2STRMAT(nu[ii], nx[ii+1], B[ii], nu[ii], qp->BAbt+ii, 0, 0);
-		CVT_MAT2STRMAT(nx[ii], nx[ii+1], A[ii], nx[ii], qp->BAbt+ii, nu[ii], 0);
-		CVT_TRAN_MAT2STRMAT(nx[ii+1], 1, b[ii], nx[ii+1], qp->BAbt+ii, nu[ii]+nx[ii], 0); // XXX remove ???
+		PACK_MAT(nu[ii], nx[ii+1], B[ii], nu[ii], qp->BAbt+ii, 0, 0);
+		PACK_MAT(nx[ii], nx[ii+1], A[ii], nx[ii], qp->BAbt+ii, nu[ii], 0);
+		PACK_TRAN_MAT(nx[ii+1], 1, b[ii], nx[ii+1], qp->BAbt+ii, nu[ii]+nx[ii], 0); // XXX remove ???
 		PACK_VEC(nx[ii+1], b[ii], 1, qp->b+ii, 0);
 		}
 
 	for(ii=0; ii<=N; ii++)
 		{
-		CVT_MAT2STRMAT(nu[ii], nu[ii], R[ii], nu[ii], qp->RSQrq+ii, 0, 0);
-		CVT_MAT2STRMAT(nx[ii], nu[ii], S[ii], nx[ii], qp->RSQrq+ii, nu[ii], 0);
-		CVT_MAT2STRMAT(nx[ii], nx[ii], Q[ii], nx[ii], qp->RSQrq+ii, nu[ii], nu[ii]);
-		CVT_TRAN_MAT2STRMAT(nu[ii], 1, r[ii], nu[ii], qp->RSQrq+ii, nu[ii]+nx[ii], 0); // XXX remove ???
-		CVT_TRAN_MAT2STRMAT(nx[ii], 1, q[ii], nx[ii], qp->RSQrq+ii, nu[ii]+nx[ii], nu[ii]); // XXX remove ???
+		PACK_MAT(nu[ii], nu[ii], R[ii], nu[ii], qp->RSQrq+ii, 0, 0);
+		PACK_MAT(nx[ii], nu[ii], S[ii], nx[ii], qp->RSQrq+ii, nu[ii], 0);
+		PACK_MAT(nx[ii], nx[ii], Q[ii], nx[ii], qp->RSQrq+ii, nu[ii], nu[ii]);
+		PACK_TRAN_MAT(nu[ii], 1, r[ii], nu[ii], qp->RSQrq+ii, nu[ii]+nx[ii], 0); // XXX remove ???
+		PACK_TRAN_MAT(nx[ii], 1, q[ii], nx[ii], qp->RSQrq+ii, nu[ii]+nx[ii], nu[ii]); // XXX remove ???
 		PACK_VEC(nu[ii], r[ii], 1, qp->rqz+ii, 0);
 		PACK_VEC(nx[ii], q[ii], 1, qp->rqz+ii, nu[ii]);
 		}
@@ -669,8 +669,8 @@ void OCP_QP_SET_ALL_ROWMAJ(REAL **A, REAL **B, REAL **b, REAL **Q, REAL **S, REA
 		{
 		if(ng[ii]>0)
 			{
-			CVT_MAT2STRMAT(nu[ii], ng[ii], D[ii], nu[ii], qp->DCt+ii, 0, 0);
-			CVT_MAT2STRMAT(nx[ii], ng[ii], C[ii], nx[ii], qp->DCt+ii, nu[ii], 0);
+			PACK_MAT(nu[ii], ng[ii], D[ii], nu[ii], qp->DCt+ii, 0, 0);
+			PACK_MAT(nx[ii], ng[ii], C[ii], nx[ii], qp->DCt+ii, nu[ii], 0);
 			PACK_VEC(ng[ii], d_lg[ii], 1, qp->d+ii, nb[ii]);
 			PACK_VEC(ng[ii], d_ug[ii], 1, qp->d+ii, 2*nb[ii]+ng[ii]);
 			VECSC(ng[ii], -1.0, qp->d+ii, 2*nb[ii]+ng[ii]);
@@ -960,7 +960,7 @@ void OCP_QP_SET_A(int stage, REAL *A, struct OCP_QP *qp)
 	int *nx = qp->dim->nx;
 	int *nu = qp->dim->nu;
 
-	CVT_TRAN_MAT2STRMAT(nx[stage+1], nx[stage], A, nx[stage+1], qp->BAbt+stage, nu[stage], 0);
+	PACK_TRAN_MAT(nx[stage+1], nx[stage], A, nx[stage+1], qp->BAbt+stage, nu[stage], 0);
 
 	return;
 	}
@@ -973,7 +973,7 @@ void OCP_QP_SET_B(int stage, REAL *B, struct OCP_QP *qp)
 	int *nx = qp->dim->nx;
 	int *nu = qp->dim->nu;
 
-	CVT_TRAN_MAT2STRMAT(nx[stage+1], nu[stage], B, nx[stage+1], qp->BAbt+stage, 0, 0);
+	PACK_TRAN_MAT(nx[stage+1], nu[stage], B, nx[stage+1], qp->BAbt+stage, 0, 0);
 
 	return;
 	}
@@ -986,7 +986,7 @@ void OCP_QP_SET_BVEC(int stage, REAL *b, struct OCP_QP *qp)
 	int *nx = qp->dim->nx;
 	int *nu = qp->dim->nu;
 
-	CVT_TRAN_MAT2STRMAT(nx[stage+1], 1, b, nx[stage+1], &(qp->BAbt[stage]), nu[stage]+nx[stage], 0); // TODO remove ???
+	PACK_TRAN_MAT(nx[stage+1], 1, b, nx[stage+1], &(qp->BAbt[stage]), nu[stage]+nx[stage], 0); // TODO remove ???
 	PACK_VEC(nx[stage+1], b, 1, qp->b+stage, 0);
 
 	return;
@@ -1000,7 +1000,7 @@ void OCP_QP_SET_Q(int stage, REAL *Q, struct OCP_QP *qp)
 	int *nx = qp->dim->nx;
 	int *nu = qp->dim->nu;
 
-	CVT_MAT2STRMAT(nx[stage], nx[stage], Q, nx[stage], qp->RSQrq+stage, nu[stage], nu[stage]);
+	PACK_MAT(nx[stage], nx[stage], Q, nx[stage], qp->RSQrq+stage, nu[stage], nu[stage]);
 
 	return;
 	}
@@ -1013,7 +1013,7 @@ void OCP_QP_SET_S(int stage, REAL *S, struct OCP_QP *qp)
 	int *nx = qp->dim->nx;
 	int *nu = qp->dim->nu;
 
-	CVT_TRAN_MAT2STRMAT(nu[stage], nx[stage], S, nu[stage], qp->RSQrq+stage, nu[stage], 0);
+	PACK_TRAN_MAT(nu[stage], nx[stage], S, nu[stage], qp->RSQrq+stage, nu[stage], 0);
 
 	return;
 	}
@@ -1026,7 +1026,7 @@ void OCP_QP_SET_R(int stage, REAL *R, struct OCP_QP *qp)
 	int *nx = qp->dim->nx;
 	int *nu = qp->dim->nu;
 
-	CVT_MAT2STRMAT(nu[stage], nu[stage], R, nu[stage], qp->RSQrq+stage, 0, 0);
+	PACK_MAT(nu[stage], nu[stage], R, nu[stage], qp->RSQrq+stage, 0, 0);
 
 	return;
 	}
@@ -1039,7 +1039,7 @@ void OCP_QP_SET_QVEC(int stage, REAL *q, struct OCP_QP *qp)
 	int *nx = qp->dim->nx;
 	int *nu = qp->dim->nu;
 
- 	CVT_TRAN_MAT2STRMAT(nx[stage], 1, q, nx[stage], &(qp->RSQrq[stage]), nu[stage]+nx[stage], nu[stage]); // TODO remove ???
+ 	PACK_TRAN_MAT(nx[stage], 1, q, nx[stage], &(qp->RSQrq[stage]), nu[stage]+nx[stage], nu[stage]); // TODO remove ???
 	PACK_VEC(nx[stage], q, 1, qp->rqz+stage, nu[stage]);
 
 	return;
@@ -1053,7 +1053,7 @@ void OCP_QP_SET_RVEC(int stage, REAL *r, struct OCP_QP *qp)
 	int *nx = qp->dim->nx;
 	int *nu = qp->dim->nu;
 
-	CVT_TRAN_MAT2STRMAT(nu[stage], 1, r, nu[stage], &(qp->RSQrq[stage]), nu[stage]+nx[stage], 0); // TODO remove ???
+	PACK_TRAN_MAT(nu[stage], 1, r, nu[stage], &(qp->RSQrq[stage]), nu[stage]+nx[stage], 0); // TODO remove ???
 	PACK_VEC(nu[stage], r, 1, qp->rqz+stage, 0);
 
 	return;
@@ -1103,11 +1103,7 @@ void OCP_QP_SET_EL_LBX(int stage, int index, REAL *elem, struct OCP_QP *qp)
 	// extract dim
 	int *nbu = qp->dim->nbu;
 
-#ifdef DOUBLE_PRECISION
-	BLASFEO_DVECEL(qp->d+stage, nbu[stage]+index) = *elem;
-#else
-	BLASFEO_SVECEL(qp->d+stage, nbu[stage]+index) = *elem;
-#endif
+	BLASFEO_VECEL(qp->d+stage, nbu[stage]+index) = *elem;
 
 	return;
 	}
@@ -1201,11 +1197,7 @@ void OCP_QP_SET_EL_UBX(int stage, int index, REAL *elem, struct OCP_QP *qp)
 	int *nbu = qp->dim->nbu;
 	int *ng = qp->dim->ng;
 
-#ifdef DOUBLE_PRECISION
-	BLASFEO_DVECEL(qp->d+stage, nb[stage]+ng[stage]+nbu[stage]+index) = - *elem;
-#else
-	BLASFEO_SVECEL(qp->d+stage, nb[stage]+ng[stage]+nbu[stage]+index) = - *elem;
-#endif
+	BLASFEO_VECEL(qp->d+stage, nb[stage]+ng[stage]+nbu[stage]+index) = - *elem;
 
 	return;
 	}
@@ -1361,7 +1353,7 @@ void OCP_QP_SET_C(int stage, REAL *C, struct OCP_QP *qp)
 	int *nu = qp->dim->nu;
 	int *ng = qp->dim->ng;
 
-	CVT_TRAN_MAT2STRMAT(ng[stage], nx[stage], C, ng[stage], qp->DCt+stage, nu[stage], 0);
+	PACK_TRAN_MAT(ng[stage], nx[stage], C, ng[stage], qp->DCt+stage, nu[stage], 0);
 
 	return;
 	}
@@ -1374,7 +1366,7 @@ void OCP_QP_SET_D(int stage, REAL *D, struct OCP_QP *qp)
 	int *nu = qp->dim->nu;
 	int *ng = qp->dim->ng;
 
-	CVT_TRAN_MAT2STRMAT(ng[stage], nu[stage], D, ng[stage], qp->DCt+stage, 0, 0);
+	PACK_TRAN_MAT(ng[stage], nu[stage], D, ng[stage], qp->DCt+stage, 0, 0);
 
 	return;
 	}

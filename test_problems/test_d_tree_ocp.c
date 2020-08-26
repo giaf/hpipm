@@ -882,15 +882,15 @@ int main()
 * create tree ocp qp
 ************************************************/
 
-	int tree_ocp_qp_memsize = d_memsize_tree_ocp_qp(&dim);
+	int tree_ocp_qp_memsize = d_tree_ocp_qp_memsize(&dim);
 #if PRINT
 	printf("\ntree ocp qp memsize = %d\n", tree_ocp_qp_memsize);
 #endif
 	void *tree_ocp_qp_memory = malloc(tree_ocp_qp_memsize);
 
 	struct d_tree_ocp_qp qp;
-	d_create_tree_ocp_qp(&dim, &qp, tree_ocp_qp_memory);
-	d_cvt_colmaj_to_tree_ocp_qp(hAt, hBt, hbt, hQt, hSt, hRt, hqt, hrt, hidxbt, hd_lbt, hd_ubt, hCt, hDt, hd_lgt, hd_ugt, hZlt, hZut, hzlt, hzut, hidxst, hd_lst, hd_ust, &qp);
+	d_tree_ocp_qp_create(&dim, &qp, tree_ocp_qp_memory);
+	d_tree_ocp_qp_set_all(hAt, hBt, hbt, hQt, hSt, hRt, hqt, hrt, hidxbt, hd_lbt, hd_ubt, hCt, hDt, hd_lgt, hd_ugt, hZlt, hZut, hzlt, hzut, hidxst, hd_lst, hd_ust, &qp);
 
 #if 0
 	struct blasfeo_dmat *tmat;

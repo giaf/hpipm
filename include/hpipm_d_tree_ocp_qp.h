@@ -70,11 +70,117 @@ struct d_tree_ocp_qp
 
 
 //
-int d_memsize_tree_ocp_qp(struct d_tree_ocp_qp_dim *dim);
+int d_tree_ocp_qp_memsize(struct d_tree_ocp_qp_dim *dim);
 //
-void d_create_tree_ocp_qp(struct d_tree_ocp_qp_dim *dim, struct d_tree_ocp_qp *qp, void *memory);
+void d_tree_ocp_qp_create(struct d_tree_ocp_qp_dim *dim, struct d_tree_ocp_qp *qp, void *memory);
 //
-void d_cvt_colmaj_to_tree_ocp_qp(double **A, double **B, double **b, double **Q, double **S, double **R, double **q, double **r, int **idxb, double **d_lb, double **d_ub, double **C, double **D, double **d_lg, double **d_ug, double **Zl, double **Zu, double **zl, double **zu, int **idxs, double **d_ls, double **d_us, struct d_tree_ocp_qp *qp);
+void d_tree_ocp_qp_set_all(double **A, double **B, double **b, double **Q, double **S, double **R, double **q, double **r, int **idxb, double **d_lb, double **d_ub, double **C, double **D, double **d_lg, double **d_ug, double **Zl, double **Zu, double **zl, double **zu, int **idxs, double **d_ls, double **d_us, struct d_tree_ocp_qp *qp);
+//
+void d_tree_ocp_qp_set(char *field_name, int node_edge, void *value, struct d_tree_ocp_qp *qp);
+//
+void d_tree_ocp_qp_set_A(int edge, double *mat, struct d_tree_ocp_qp *qp);
+//
+void d_tree_ocp_qp_set_B(int edge, double *mat, struct d_tree_ocp_qp *qp);
+//
+void d_tree_ocp_qp_set_b(int edge, double *vec, struct d_tree_ocp_qp *qp);
+//
+void d_tree_ocp_qp_set_Q(int node, double *mat, struct d_tree_ocp_qp *qp);
+//
+void d_tree_ocp_qp_set_S(int node, double *mat, struct d_tree_ocp_qp *qp);
+//
+void d_tree_ocp_qp_set_R(int node, double *mat, struct d_tree_ocp_qp *qp);
+//
+void d_tree_ocp_qp_set_q(int node, double *vec, struct d_tree_ocp_qp *qp);
+//
+void d_tree_ocp_qp_set_r(int node, double *vec, struct d_tree_ocp_qp *qp);
+//
+void d_tree_ocp_qp_set_lb(int node, double *vec, struct d_tree_ocp_qp *qp);
+//
+//void d_tree_ocp_qp_set_lb_mask(int node, double *vec, struct d_tree_ocp_qp *qp);
+//
+void d_tree_ocp_qp_set_ub(int node, double *vec, struct d_tree_ocp_qp *qp);
+//
+//void d_tree_ocp_qp_set_ub_mask(int node, double *vec, struct d_tree_ocp_qp *qp);
+//
+void d_tree_ocp_qp_set_lbx(int node, double *vec, struct d_tree_ocp_qp *qp);
+//
+//void d_tree_ocp_qp_set_lbx_mask(int node, double *vec, struct d_tree_ocp_qp *qp);
+//
+void d_tree_ocp_qp_set_ubx(int node, double *vec, struct d_tree_ocp_qp *qp);
+//
+//void d_tree_ocp_qp_set_ubx_mask(int node, double *vec, struct d_tree_ocp_qp *qp);
+//
+void d_tree_ocp_qp_set_lbu(int node, double *vec, struct d_tree_ocp_qp *qp);
+//
+//void d_tree_ocp_qp_set_lbu_mask(int node, double *vec, struct d_tree_ocp_qp *qp);
+//
+void d_tree_ocp_qp_set_ubu(int node, double *vec, struct d_tree_ocp_qp *qp);
+//
+//void d_tree_ocp_qp_set_ubu_mask(int node, double *vec, struct d_tree_ocp_qp *qp);
+//
+void d_tree_ocp_qp_set_idxb(int node, int *vec, struct d_tree_ocp_qp *qp);
+//
+void d_tree_ocp_qp_set_idxbx(int node, int *vec, struct d_tree_ocp_qp *qp);
+//
+void d_tree_ocp_qp_set_Jbx(int node, double *vec, struct d_tree_ocp_qp *qp);
+//
+void d_tree_ocp_qp_set_idxbu(int node, int *vec, struct d_tree_ocp_qp *qp);
+//
+void d_tree_ocp_qp_set_Jbu(int node, double *vec, struct d_tree_ocp_qp *qp);
+//
+void d_tree_ocp_qp_set_C(int node, double *mat, struct d_tree_ocp_qp *qp);
+//
+void d_tree_ocp_qp_set_D(int node, double *mat, struct d_tree_ocp_qp *qp);
+//
+void d_tree_ocp_qp_set_lg(int node, double *vec, struct d_tree_ocp_qp *qp);
+//
+//void d_tree_ocp_qp_set_lg_mask(int node, double *vec, struct d_tree_ocp_qp *qp);
+//
+void d_tree_ocp_qp_set_ug(int node, double *vec, struct d_tree_ocp_qp *qp);
+//
+//void d_tree_ocp_qp_set_ug_mask(int node, double *vec, struct d_tree_ocp_qp *qp);
+//
+void d_tree_ocp_qp_set_Zl(int node, double *vec, struct d_tree_ocp_qp *qp);
+//
+void d_tree_ocp_qp_set_Zu(int node, double *vec, struct d_tree_ocp_qp *qp);
+//
+void d_tree_ocp_qp_set_zl(int node, double *vec, struct d_tree_ocp_qp *qp);
+//
+void d_tree_ocp_qp_set_zu(int node, double *vec, struct d_tree_ocp_qp *qp);
+//
+void d_tree_ocp_qp_set_lls(int node, double *vec, struct d_tree_ocp_qp *qp);
+//
+//void d_tree_ocp_qp_set_lls_mask(int node, double *vec, struct d_tree_ocp_qp *qp);
+//
+void d_tree_ocp_qp_set_lus(int node, double *vec, struct d_tree_ocp_qp *qp);
+//
+//void d_tree_ocp_qp_set_lus_mask(int node, double *vec, struct d_tree_ocp_qp *qp);
+//
+void d_tree_ocp_qp_set_idxs(int node, int *vec, struct d_tree_ocp_qp *qp);
+//
+//void d_tree_ocp_qp_set_idxs_rev(int node, int *vec, struct d_tree_ocp_qp *qp);
+//
+void d_tree_ocp_qp_set_Jsbu(int node, double *vec, struct d_tree_ocp_qp *qp);
+//
+void d_tree_ocp_qp_set_Jsbx(int node, double *vec, struct d_tree_ocp_qp *qp);
+//
+void d_tree_ocp_qp_set_Jsg(int node, double *vec, struct d_tree_ocp_qp *qp);
+//
+//void d_tree_ocp_qp_set_idxe(int node, int *vec, struct d_tree_ocp_qp *qp);
+//
+//void d_tree_ocp_qp_set_idxbxe(int node, int *vec, struct d_tree_ocp_qp *qp);
+//
+//void d_tree_ocp_qp_set_idxbue(int node, int *vec, struct d_tree_ocp_qp *qp);
+//
+//void d_tree_ocp_qp_set_idxge(int node, int *vec, struct d_tree_ocp_qp *qp);
+//
+//void d_tree_ocp_qp_set_Jbxe(int node, double *vec, struct d_tree_ocp_qp *qp);
+//
+//void d_tree_ocp_qp_set_Jbue(int node, double *vec, struct d_tree_ocp_qp *qp);
+//
+//void d_tree_ocp_qp_set_Jge(int node, double *vec, struct d_tree_ocp_qp *qp);
+//
+//void d_tree_ocp_qp_set_diag_H_flag(int node, int *value, struct d_tree_ocp_qp *qp);
 
 
 
