@@ -35,17 +35,38 @@
 
 
 
+#include <stdlib.h>
+#include <stdio.h>
+
 #include <hpipm_tree.h>
 #include <hpipm_scenario_tree.h>
 #include <hpipm_s_tree_ocp_qp_dim.h>
+#include <hpipm_aux_string.h>
+#include <hpipm_aux_mem.h>
 
 
 
 #define TREE_OCP_QP_DIM s_tree_ocp_qp_dim
 
-#define MEMSIZE_TREE_OCP_QP_DIM s_memsize_tree_ocp_qp_dim
-#define CREATE_TREE_OCP_QP_DIM s_create_tree_ocp_qp_dim
-#define CVT_INT_TO_TREE_OCP_QP_DIM s_cvt_int_to_tree_ocp_qp_dim
+
+
+#define TREE_OCP_QP_DIM_STRSIZE s_tree_ocp_qp_dim_strsize
+#define TREE_OCP_QP_DIM_MEMSIZE s_tree_ocp_qp_dim_memsize
+#define TREE_OCP_QP_DIM_CREATE s_tree_ocp_qp_dim_create
+#define TREE_OCP_QP_DIM_SET_ALL s_tree_ocp_qp_dim_set_all
+#define TREE_OCP_QP_DIM_SET s_tree_ocp_qp_dim_set
+#define TREE_OCP_QP_DIM_SET_NX s_tree_ocp_qp_dim_set_nx
+#define TREE_OCP_QP_DIM_SET_NU s_tree_ocp_qp_dim_set_nu
+#define TREE_OCP_QP_DIM_SET_NBX s_tree_ocp_qp_dim_set_nbx
+#define TREE_OCP_QP_DIM_SET_NBU s_tree_ocp_qp_dim_set_nbu
+#define TREE_OCP_QP_DIM_SET_NG s_tree_ocp_qp_dim_set_ng
+#define TREE_OCP_QP_DIM_SET_NS s_tree_ocp_qp_dim_set_ns
+#define TREE_OCP_QP_DIM_SET_NSBX s_tree_ocp_qp_dim_set_nsbx
+#define TREE_OCP_QP_DIM_SET_NSBU s_tree_ocp_qp_dim_set_nsbu
+#define TREE_OCP_QP_DIM_SET_NSG s_tree_ocp_qp_dim_set_nsg
+#define TREE_OCP_QP_DIM_SET_NBXE s_tree_ocp_qp_dim_set_nbxe
+#define TREE_OCP_QP_DIM_SET_NBUE s_tree_ocp_qp_dim_set_nbue
+#define TREE_OCP_TREE_QP_DIM_SET_NGE s_tree_ocp_qp_dim_set_nge
 
 
 #include "x_tree_ocp_qp_dim.c"

@@ -64,11 +64,41 @@ struct s_tree_ocp_qp_dim
 
 
 //
-int s_memsize_tree_ocp_qp_dim(int Nn);
+int s_tree_ocp_qp_dim_strsize();
 //
-void s_create_tree_ocp_qp_dim(int Nn, struct s_tree_ocp_qp_dim *qp_dim, void *memory);
+int s_tree_ocp_qp_dim_memsize(int Nn);
 //
-void s_cvt_int_to_tree_ocp_qp_dim(struct tree *ttree, int *nx, int *nu, int *nbx, int *nbu, int *ng, int *nsbx, int *nsbu, int *nsg, struct s_tree_ocp_qp_dim *dim);
+void s_tree_ocp_qp_dim_create(int Nn, struct s_tree_ocp_qp_dim *qp_dim, void *memory);
+//
+void s_tree_ocp_qp_dim_set_all(struct tree *ttree, int *nx, int *nu, int *nbx, int *nbu, int *ng, int *nsbx, int *nsbu, int *nsg, struct s_tree_ocp_qp_dim *dim);
+//
+void s_tree_ocp_qp_dim_set_tree(struct tree *ttree, struct s_tree_ocp_qp_dim *dim);
+//
+void s_tree_ocp_qp_dim_set(char *field, int stage, int value, struct s_tree_ocp_qp_dim *dim);
+//
+void s_tree_ocp_qp_dim_set_nx(int stage, int value, struct s_tree_ocp_qp_dim *dim);
+//
+void s_tree_ocp_qp_dim_set_nu(int stage, int value, struct s_tree_ocp_qp_dim *dim);
+//
+void s_tree_ocp_qp_dim_set_nbx(int stage, int value, struct s_tree_ocp_qp_dim *dim);
+//
+void s_tree_ocp_qp_dim_set_nbu(int stage, int value, struct s_tree_ocp_qp_dim *dim);
+//
+void s_tree_ocp_qp_dim_set_ng(int stage, int value, struct s_tree_ocp_qp_dim *dim);
+//
+void s_tree_ocp_qp_dim_set_ns(int stage, int value, struct s_tree_ocp_qp_dim *dim);
+//
+void s_tree_ocp_qp_dim_set_nsbx(int stage, int value, struct s_tree_ocp_qp_dim *dim);
+//
+void s_tree_ocp_qp_dim_set_nsbu(int stage, int value, struct s_tree_ocp_qp_dim *dim);
+//
+void s_tree_ocp_qp_dim_set_nsg(int stage, int value, struct s_tree_ocp_qp_dim *dim);
+//
+void s_tree_ocp_qp_dim_set_nbxe(int stage, int value, struct s_tree_ocp_qp_dim *dim);
+//
+void s_tree_ocp_qp_dim_set_nbue(int stage, int value, struct s_tree_ocp_qp_dim *dim);
+//
+void s_tree_ocp_qp_dim_set_nge(int stage, int value, struct s_tree_ocp_qp_dim *dim);
 
 
 

@@ -868,15 +868,15 @@ int main()
 * create tree ocp qp dim
 ************************************************/
 
-	int dim_size = d_memsize_tree_ocp_qp_dim(Nn);
+	int dim_size = d_tree_ocp_qp_dim_memsize(Nn);
 #if PRINT
 	printf("\ndim size = %d\n", dim_size);
 #endif
 	void *dim_mem = malloc(dim_size);
 
 	struct d_tree_ocp_qp_dim dim;
-	d_create_tree_ocp_qp_dim(Nn, &dim, dim_mem);
-	d_cvt_int_to_tree_ocp_qp_dim(&ttree, nxt, nut, nbxt, nbut, ngt, nsbxt, nsbut, nsgt, &dim);
+	d_tree_ocp_qp_dim_create(Nn, &dim, dim_mem);
+	d_tree_ocp_qp_dim_set_all(&ttree, nxt, nut, nbxt, nbut, ngt, nsbxt, nsbut, nsgt, &dim);
 
 /************************************************
 * create tree ocp qp

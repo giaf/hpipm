@@ -35,7 +35,14 @@
 
 
 
-int MEMSIZE_TREE_OCP_QP_DIM(int Nn)
+int TREE_OCP_QP_DIM_STRSIZE()
+	{
+	return sizeof(struct TREE_OCP_QP_DIM);
+	}
+
+
+
+int TREE_OCP_QP_DIM_MEMSIZE(int Nn)
 	{
 
 	int size = 0;
@@ -50,56 +57,80 @@ int MEMSIZE_TREE_OCP_QP_DIM(int Nn)
 
 
 
-void CREATE_TREE_OCP_QP_DIM(int Nn, struct TREE_OCP_QP_DIM *dim, void *memory)
+void TREE_OCP_QP_DIM_CREATE(int Nn, struct TREE_OCP_QP_DIM *dim, void *memory)
 	{
 
 	// loop index
 	int ii;
+
+	// zero memory (to avoid corrupted memory like e.g. NaN)
+	int memsize = TREE_OCP_QP_DIM_MEMSIZE(Nn);
+	hpipm_zero_memset(memsize, memory);
 
 	char *c_ptr = memory;
 
 	// nx
 	dim->nx = (int *) c_ptr;
 	c_ptr += Nn*sizeof(int);
+	for(ii=0; ii<Nn; ii++)
+		dim->nx[ii] = 0;
 	// nu
 	dim->nu = (int *) c_ptr;
 	c_ptr += Nn*sizeof(int);
+	for(ii=0; ii<Nn; ii++)
+		dim->nu[ii] = 0;
 	// nb
 	dim->nb = (int *) c_ptr;
 	c_ptr += Nn*sizeof(int);
+	for(ii=0; ii<Nn; ii++)
+		dim->nb[ii] = 0;
 	// nbx
 	dim->nbx = (int *) c_ptr;
 	c_ptr += Nn*sizeof(int);
+	for(ii=0; ii<Nn; ii++)
+		dim->nbx[ii] = 0;
 	// nbu
 	dim->nbu = (int *) c_ptr;
 	c_ptr += Nn*sizeof(int);
+	for(ii=0; ii<Nn; ii++)
+		dim->nbu[ii] = 0;
 	// ng
 	dim->ng = (int *) c_ptr;
 	c_ptr += Nn*sizeof(int);
+	for(ii=0; ii<Nn; ii++)
+		dim->ng[ii] = 0;
 	// ns
 	dim->ns = (int *) c_ptr;
 	c_ptr += Nn*sizeof(int);
+	for(ii=0; ii<Nn; ii++)
+		dim->ns[ii] = 0;
 	// nsbx
 	dim->nsbx = (int *) c_ptr;
 	c_ptr += Nn*sizeof(int);
+	for(ii=0; ii<Nn; ii++)
+		dim->nsbx[ii] = 0;
 	// nsbu
 	dim->nsbu = (int *) c_ptr;
 	c_ptr += Nn*sizeof(int);
+	for(ii=0; ii<Nn; ii++)
+		dim->nsbu[ii] = 0;
 	// nsg
 	dim->nsg = (int *) c_ptr;
 	c_ptr += Nn*sizeof(int);
+	for(ii=0; ii<Nn; ii++)
+		dim->nsg[ii] = 0;
 
 	// Nn
 	dim->Nn = Nn;
 
-	dim->memsize = MEMSIZE_TREE_OCP_QP_DIM(Nn);
+	dim->memsize = TREE_OCP_QP_DIM_MEMSIZE(Nn);
 
 	return;
 
 	}
 
 
-void CVT_INT_TO_TREE_OCP_QP_DIM(struct tree *ttree, int *nx, int *nu, int *nbx, int *nbu, int *ng, int *nsbx, int *nsbu, int *nsg, struct TREE_OCP_QP_DIM *dim)
+void TREE_OCP_QP_DIM_SET_ALL(struct tree *ttree, int *nx, int *nu, int *nbx, int *nbu, int *ng, int *nsbx, int *nsbu, int *nsg, struct TREE_OCP_QP_DIM *dim)
 	{
 
 	// loop index
@@ -137,4 +168,176 @@ void CVT_INT_TO_TREE_OCP_QP_DIM(struct tree *ttree, int *nx, int *nu, int *nbx, 
 	return;
 
 	}
+
+
+
+void TREE_OCP_QP_DIM_SET_TREE(struct tree *ttree, struct TREE_OCP_QP_DIM *dim)
+	{
+	dim->ttree = ttree;
+	return;
+	}
+
+
+
+void TREE_OCP_QP_DIM_SET(char *field_name, int node, int value, struct TREE_OCP_QP_DIM *dim)
+	{
+	if(hpipm_strcmp(field_name, "nx"))
+		{ 
+		TREE_OCP_QP_DIM_SET_NX(node, value, dim);
+		}
+	else if(hpipm_strcmp(field_name, "nu"))
+		{ 
+		TREE_OCP_QP_DIM_SET_NU(node, value, dim);
+		}
+	else if(hpipm_strcmp(field_name, "nbx"))
+		{
+		TREE_OCP_QP_DIM_SET_NBX(node, value, dim);
+		}
+	else if(hpipm_strcmp(field_name, "nbu"))
+		{
+		TREE_OCP_QP_DIM_SET_NBU(node, value, dim);
+		}
+	else if(hpipm_strcmp(field_name, "ng"))
+		{
+		TREE_OCP_QP_DIM_SET_NG(node, value, dim);
+		}
+	else if(hpipm_strcmp(field_name, "ns"))
+		{
+		TREE_OCP_QP_DIM_SET_NS(node, value, dim);
+		}
+	else if(hpipm_strcmp(field_name, "nsbx"))
+		{
+		TREE_OCP_QP_DIM_SET_NSBX(node, value, dim);
+		}
+	else if(hpipm_strcmp(field_name, "nsbu"))
+		{
+		TREE_OCP_QP_DIM_SET_NSBU(node, value, dim);
+		}
+	else if(hpipm_strcmp(field_name, "nsg"))
+		{
+		TREE_OCP_QP_DIM_SET_NSG(node, value, dim);
+		}
+//	else if(hpipm_strcmp(field_name, "nbxe"))
+//		{
+//		TREE_OCP_QP_DIM_SET_NBXE(node, value, dim);
+//		}
+//	else if(hpipm_strcmp(field_name, "nbue"))
+//		{
+//		TREE_OCP_QP_DIM_SET_NBUE(node, value, dim);
+//		}
+//	else if(hpipm_strcmp(field_name, "nge"))
+//		{
+//		TREE_OCP_QP_DIM_SET_NGE(node, value, dim);
+//		}
+	else 
+		{
+		printf("error: TREE_OCP_QP_DIM_SET: wrong field %s\n", field_name);
+		exit(1);
+		}
+	return;
+	}
+
+
+
+void TREE_OCP_QP_DIM_SET_NX(int node, int value, struct TREE_OCP_QP_DIM *dim)
+	{
+	dim->nx[node] = value;
+	return;
+	}
+
+
+
+void TREE_OCP_QP_DIM_SET_NU(int node, int value, struct TREE_OCP_QP_DIM *dim)
+	{
+	dim->nu[node] = value;
+	return;
+	}
+
+
+
+void TREE_OCP_QP_DIM_SET_NBX(int node, int value, struct TREE_OCP_QP_DIM *dim)
+	{
+	dim->nbx[node] = value;
+	dim->nb[node] = dim->nbx[node] + dim->nbu[node];
+	return;
+	}
+
+
+
+void TREE_OCP_QP_DIM_SET_NBU(int node, int value, struct TREE_OCP_QP_DIM *dim)
+	{
+	dim->nbu[node] = value;
+	dim->nb[node] = dim->nbx[node] + dim->nbu[node];
+	return;
+	}
+
+
+
+void TREE_OCP_QP_DIM_SET_NG(int node, int value, struct TREE_OCP_QP_DIM *dim)
+	{
+	dim->ng[node] = value;
+	return;
+	}
+
+
+
+void TREE_OCP_QP_DIM_SET_NS(int node, int value, struct TREE_OCP_QP_DIM *dim)
+	{
+	dim->ns[node] = value;
+	return;
+	}
+
+
+
+void TREE_OCP_QP_DIM_SET_NSBX(int node, int value, struct TREE_OCP_QP_DIM *dim)
+	{
+	dim->nsbx[node] = value;
+	dim->ns[node] = dim->nsbx[node] + dim->nsbu[node] + dim->nsg[node];
+	return;
+	}
+
+
+
+void TREE_OCP_QP_DIM_SET_NSBU(int node, int value, struct TREE_OCP_QP_DIM *dim)
+	{
+	dim->nsbu[node] = value;
+	dim->ns[node] = dim->nsbx[node] + dim->nsbu[node] + dim->nsg[node];
+	return;
+	}
+
+
+
+void TREE_OCP_QP_DIM_SET_NSG(int node, int value, struct TREE_OCP_QP_DIM *dim)
+	{
+	dim->nsg[node] = value;
+	dim->ns[node] = dim->nsbx[node] + dim->nsbu[node] + dim->nsg[node];
+	return;
+	}
+
+
+
+//void TREE_OCP_QP_DIM_SET_NBXE(int node, int value, struct TREE_OCP_QP_DIM *dim)
+//	{
+//	dim->nbxe[node] = value;
+//	return;
+//	}
+
+
+
+//void TREE_OCP_QP_DIM_SET_NBUE(int node, int value, struct TREE_OCP_QP_DIM *dim)
+//	{
+//	dim->nbue[node] = value;
+//	return;
+//	}
+
+
+
+//void TREE_OCP_QP_DIM_SET_NGE(int node, int value, struct TREE_OCP_QP_DIM *dim)
+//	{
+//	dim->nge[node] = value;
+//	return;
+//	}
+
+
+
 
