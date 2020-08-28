@@ -73,7 +73,8 @@ int TREE_OCP_QP_MEMSIZE(struct TREE_OCP_QP_DIM *dim)
 
 	int size = 0;
 
-	size += 2*Nn*sizeof(int *); // idxb inxbs
+	size += 2*Nn*sizeof(int *); // idxb idxs_rev
+//	size += 1*Nn*sizeof(int *); // idxs
 	size += 2*Nn*sizeof(struct STRMAT); // RSQrq DCt
 	size += 1*(Nn-1)*sizeof(struct STRMAT); // BAbt
 	size += 4*Nn*sizeof(struct STRVEC); // rqz d m Z
@@ -89,7 +90,8 @@ int TREE_OCP_QP_MEMSIZE(struct TREE_OCP_QP_DIM *dim)
 	for(ii=0; ii<Nn; ii++)
 		{
 		size += nb[ii]*sizeof(int); // idxb
-		size += ns[ii]*sizeof(int); // idxs
+		size += (nb[ii]+ng[ii])*sizeof(int); // idxs_rev
+//		size += ns[ii]*sizeof(int); // idxs
 		size += SIZE_STRMAT(nu[ii]+nx[ii]+1, nu[ii]+nx[ii]); // RSQrq
 		size += SIZE_STRMAT(nu[ii]+nx[ii], ng[ii]); // DCt
 		size += SIZE_STRVEC(2*ns[ii]); // Z
@@ -126,7 +128,7 @@ void TREE_OCP_QP_CREATE(struct TREE_OCP_QP_DIM *dim, struct TREE_OCP_QP *qp, voi
 	int *ng = dim->ng;
 	int *ns = dim->ns;
 
-	int ii, idx, idxdad;
+	int ii, jj, idx, idxdad;
 
 
 
@@ -155,9 +157,13 @@ void TREE_OCP_QP_CREATE(struct TREE_OCP_QP_DIM *dim, struct TREE_OCP_QP *qp, voi
 	qp->idxb = ip_ptr;
 	ip_ptr += Nn;
 
-	// idxs
-	qp->idxs = ip_ptr;
+	// idxs_rev
+	qp->idxs_rev = ip_ptr;
 	ip_ptr += Nn;
+
+//	// idxs
+//	qp->idxs = ip_ptr;
+//	ip_ptr += Nn;
 
 
 	// matrix struct stuff
@@ -211,12 +217,22 @@ void TREE_OCP_QP_CREATE(struct TREE_OCP_QP_DIM *dim, struct TREE_OCP_QP *qp, voi
 		i_ptr += nb[ii];
 		}
 
-	// idxs
+	// idxs_rev
 	for(ii=0; ii<Nn; ii++)
 		{
-		(qp->idxs)[ii] = i_ptr;
-		i_ptr += ns[ii];
+		(qp->idxs_rev)[ii] = i_ptr;
+		i_ptr += nb[ii]+ng[ii];
+		// default value: -1
+		for(jj=0; jj<nb[ii]+ng[ii]; jj++)
+			qp->idxs_rev[ii][jj] = -1;
 		}
+
+//	// idxs
+//	for(ii=0; ii<Nn; ii++)
+//		{
+//		(qp->idxs)[ii] = i_ptr;
+//		i_ptr += ns[ii];
+//		}
 
 
 	// align to typical cache line size
@@ -395,7 +411,10 @@ void TREE_OCP_QP_SET_ALL(REAL **A, REAL **B, REAL **b, REAL **Q, REAL **S, REAL 
 			{
 			// TODO idxs_rev
 			for(jj=0; jj<ns[ii]; jj++)
-				qp->idxs[ii][jj] = idxs[ii][jj];
+				{
+//				qp->idxs[ii][jj] = idxs[ii][jj];
+				qp->idxs_rev[ii][idxs[ii][jj]] = jj;
+				}
 			PACK_VEC(ns[ii], Zl[ii], 1, qp->Z+ii, 0);
 			PACK_VEC(ns[ii], Zu[ii], 1, qp->Z+ii, ns[ii]);
 			PACK_VEC(ns[ii], zl[ii], 1, qp->rqz+ii, nu[ii]+nx[ii]);
@@ -581,22 +600,22 @@ void TREE_OCP_QP_SET(char *field, int node_edge, void *value, struct TREE_OCP_QP
 		{
 		TREE_OCP_QP_SET_IDXS(node_edge, value, qp);
 		}
-//	else if(hpipm_strcmp(field, "idxs_rev"))
-//		{
-//		TREE_OCP_QP_SET_IDXS_REV(node_edge, value, qp);
-//		}
-//	else if(hpipm_strcmp(field, "Jsbu") | hpipm_strcmp(field, "Jsu"))
-//		{
-//		TREE_OCP_QP_SET_JSBU(node_edge, value, qp);
-//		}
-//	else if(hpipm_strcmp(field, "Jsbx") | hpipm_strcmp(field, "Jsx"))
-//		{
-//		TREE_OCP_QP_SET_JSBX(node_edge, value, qp);
-//		}
-//	else if(hpipm_strcmp(field, "Jsg"))
-//		{
-//		TREE_OCP_QP_SET_JSG(node_edge, value, qp);
-//		}
+	else if(hpipm_strcmp(field, "idxs_rev"))
+		{
+		TREE_OCP_QP_SET_IDXS_REV(node_edge, value, qp);
+		}
+	else if(hpipm_strcmp(field, "Jsbu") | hpipm_strcmp(field, "Jsu"))
+		{
+		TREE_OCP_QP_SET_JSBU(node_edge, value, qp);
+		}
+	else if(hpipm_strcmp(field, "Jsbx") | hpipm_strcmp(field, "Jsx"))
+		{
+		TREE_OCP_QP_SET_JSBX(node_edge, value, qp);
+		}
+	else if(hpipm_strcmp(field, "Jsg"))
+		{
+		TREE_OCP_QP_SET_JSG(node_edge, value, qp);
+		}
 //	else if(hpipm_strcmp(field, "idxe"))
 //		{
 //		TREE_OCP_QP_SET_IDXE(node_edge, value, qp);
@@ -1158,8 +1177,8 @@ void TREE_OCP_QP_SET_IDXS(int node, int *idxs, struct TREE_OCP_QP *qp)
 	for(ii=0; ii<ns[node]; ii++)
 		{
 		// TODO idxs_rev
-//		qp->idxs_rev[node][idxs[ii]] = ii;
-		qp->idxs[node][ii] = idxs[ii];
+		qp->idxs_rev[node][idxs[ii]] = ii;
+//		qp->idxs[node][ii] = idxs[ii];
 		}
 
 	return;
@@ -1167,24 +1186,23 @@ void TREE_OCP_QP_SET_IDXS(int node, int *idxs, struct TREE_OCP_QP *qp)
 
 
 
-//void TREE_OCP_QP_SET_IDXS_REV(int node, int *idxs_rev, struct TREE_OCP_QP *qp)
-//	{
-//	// extract dim
-//	int *nb = qp->dim->nb;
-//	int *ng = qp->dim->ng;
-//
-//	int ii;
-//	for(ii=0; ii<nb[node]+ng[node]; ii++)
-//		{
-//		qp->idxs_rev[node][ii] = idxs_rev[ii];
-//		}
-//
-//	return;
-//	}
+void TREE_OCP_QP_SET_IDXS_REV(int node, int *idxs_rev, struct TREE_OCP_QP *qp)
+	{
+	// extract dim
+	int *nb = qp->dim->nb;
+	int *ng = qp->dim->ng;
+
+	int ii;
+	for(ii=0; ii<nb[node]+ng[node]; ii++)
+		{
+		qp->idxs_rev[node][ii] = idxs_rev[ii];
+		}
+
+	return;
+	}
 
 
 
-#if 0
 void TREE_OCP_QP_SET_JSBU(int node, REAL *Jsbu, struct TREE_OCP_QP *qp)
 	{
 	// extract dim
@@ -1212,11 +1230,9 @@ void TREE_OCP_QP_SET_JSBU(int node, REAL *Jsbu, struct TREE_OCP_QP *qp)
 		}
 	return;
 	}
-#endif
 
 
 
-#if 0
 void TREE_OCP_QP_SET_JSBX(int node, REAL *Jsbx, struct TREE_OCP_QP *qp)
 	{
 	// extract dim
@@ -1244,11 +1260,9 @@ void TREE_OCP_QP_SET_JSBX(int node, REAL *Jsbx, struct TREE_OCP_QP *qp)
 		}
 	return;
 	}
-#endif
 
 
 
-#if 0
 void TREE_OCP_QP_SET_JSG(int node, REAL *Jsg, struct TREE_OCP_QP *qp)
 	{
 	// extract dim
@@ -1276,7 +1290,6 @@ void TREE_OCP_QP_SET_JSG(int node, REAL *Jsg, struct TREE_OCP_QP *qp)
 		}
 	return;
 	}
-#endif
 
 
 

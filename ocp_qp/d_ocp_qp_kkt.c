@@ -52,6 +52,10 @@
 
 
 #define DOUBLE_PRECISION
+#define BLASFEO_MATEL BLASFEO_DMATEL
+#define BLASFEO_VECEL BLASFEO_DVECEL
+
+
 
 #define AXPY blasfeo_daxpy
 #define COLSC blasfeo_dcolsc

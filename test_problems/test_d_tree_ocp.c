@@ -1092,7 +1092,7 @@ exit(1);
 * print ipm statistics
 ************************************************/
 
-#ifndef PRINT
+#if PRINT
 	printf("\nipm return = %d\n", hpipm_return);
 	printf("\nipm residuals max: res_g = %e, res_b = %e, res_d = %e, res_m = %e\n", workspace.qp_res[0], workspace.qp_res[1], workspace.qp_res[2], workspace.qp_res[3]);
 

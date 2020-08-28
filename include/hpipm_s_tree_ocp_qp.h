@@ -64,6 +64,7 @@ struct s_tree_ocp_qp
 	struct blasfeo_svec *Z; // Nn
 	int **idxb; // index of box constraints // Nn
 	int **idxs; // index of soft constraints
+	int **idxs_rev; // index of soft constraints
 	int memsize; // memory size in bytes
 	};
 
@@ -158,7 +159,7 @@ void s_tree_ocp_qp_set_lus(int node, float *vec, struct s_tree_ocp_qp *qp);
 //
 void s_tree_ocp_qp_set_idxs(int node, int *vec, struct s_tree_ocp_qp *qp);
 //
-//void s_tree_ocp_qp_set_idxs_rev(int node, int *vec, struct s_tree_ocp_qp *qp);
+void s_tree_ocp_qp_set_idxs_rev(int node, int *vec, struct s_tree_ocp_qp *qp);
 //
 void s_tree_ocp_qp_set_Jsbu(int node, float *vec, struct s_tree_ocp_qp *qp);
 //

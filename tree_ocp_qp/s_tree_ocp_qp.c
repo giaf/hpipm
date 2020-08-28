@@ -111,10 +111,10 @@
 #define TREE_OCP_QP_SET_ZLVEC s_tree_ocp_qp_set_zl
 #define TREE_OCP_QP_SET_ZUVEC s_tree_ocp_qp_set_zu
 #define TREE_OCP_QP_SET_IDXS s_tree_ocp_qp_set_idxs
-//#define TREE_OCP_QP_SET_IDXS_REV s_tree_ocp_qp_set_idxs_rev
-//#define TREE_OCP_QP_SET_JSBU s_tree_ocp_qp_set_Jsbu
-//#define TREE_OCP_QP_SET_JSBX s_tree_ocp_qp_set_Jsbx
-//#define TREE_OCP_QP_SET_JSG s_tree_ocp_qp_set_Jsg
+#define TREE_OCP_QP_SET_IDXS_REV s_tree_ocp_qp_set_idxs_rev
+#define TREE_OCP_QP_SET_JSBU s_tree_ocp_qp_set_Jsbu
+#define TREE_OCP_QP_SET_JSBX s_tree_ocp_qp_set_Jsbx
+#define TREE_OCP_QP_SET_JSG s_tree_ocp_qp_set_Jsg
 #define TREE_OCP_QP_SET_LLS s_tree_ocp_qp_set_lls
 //#define TREE_OCP_QP_SET_LLS_MASK s_tree_ocp_qp_set_lls_mask
 #define TREE_OCP_QP_SET_LUS s_tree_ocp_qp_set_lus

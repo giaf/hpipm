@@ -49,7 +49,7 @@
 
 
 
-#define DOUBLE_PRECISION
+#define BLASFEO_VECEL BLASFEO_DVECEL
 
 
 

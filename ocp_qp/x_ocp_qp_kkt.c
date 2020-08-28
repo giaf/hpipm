@@ -848,10 +848,10 @@ void FACT_LQ_SOLVE_KKT_STEP_OCP_QP(struct OCP_QP *qp, struct OCP_QP_SOL *qp_sol,
 		{
 		for(ii=0; ii<nb[ss]; ii++)
 			{
-			tmp = BLASFEO_DVECEL(tmp_nbgM+0, ii);
+			tmp = BLASFEO_VECEL(tmp_nbgM+0, ii);
 			tmp = tmp>=0.0 ? tmp : 0.0;
 			tmp = sqrt( tmp );
-			BLASFEO_DMATEL(lq0, idxb[ss][ii], nu[ss]+nx[ss]+idxb[ss][ii]) = tmp>0.0 ? tmp : 0.0;
+			BLASFEO_MATEL(lq0, idxb[ss][ii], nu[ss]+nx[ss]+idxb[ss][ii]) = tmp>0.0 ? tmp : 0.0;
 			}
 		VECAD_SP(nb[ss], 1.0, tmp_nbgM+1, 0, idxb[ss], dux+ss, 0);
 		}
@@ -859,10 +859,10 @@ void FACT_LQ_SOLVE_KKT_STEP_OCP_QP(struct OCP_QP *qp, struct OCP_QP_SOL *qp_sol,
 		{
 		for(ii=0; ii<ng[ss]; ii++)
 			{
-			tmp = BLASFEO_DVECEL(tmp_nbgM+0, nb[ss]+ii);
+			tmp = BLASFEO_VECEL(tmp_nbgM+0, nb[ss]+ii);
 			tmp = tmp>=0.0 ? tmp : 0.0;
 			tmp = sqrt( tmp );
-			BLASFEO_DVECEL(tmp_nbgM+0, nb[ss]+ii) = tmp;
+			BLASFEO_VECEL(tmp_nbgM+0, nb[ss]+ii) = tmp;
 			}
 		GEMM_R_DIAG(nu[ss]+nx[ss], ng[ss], 1.0, DCt+ss, 0, 0, tmp_nbgM+0, nb[ss], 0.0, lq0, 0, 2*nu[ss]+2*nx[ss], lq0, 0, 2*nu[ss]+2*nx[ss]);
 		GEMV_N(nu[ss]+nx[ss], ng[ss], 1.0, DCt+ss, 0, 0, tmp_nbgM+1, nb[ss], 1.0, dux+ss, 0, dux+ss, 0);
@@ -883,7 +883,7 @@ void FACT_LQ_SOLVE_KKT_STEP_OCP_QP(struct OCP_QP *qp, struct OCP_QP_SOL *qp_sol,
 	GELQF(nu[ss]+nx[ss], 2*nu[ss]+2*nx[ss]+ng[ss], lq0, 0, 0, lq0, 0, 0, lq_work0);
 	TRCP_L(nu[ss]+nx[ss], lq0, 0, 0, L+ss, 0, 0);
 	for(ii=0; ii<nu[ss]+nx[ss]; ii++)
-		if(BLASFEO_DMATEL(L+ss, ii, ii) < 0)
+		if(BLASFEO_MATEL(L+ss, ii, ii) < 0)
 			COLSC(nu[ss]+nx[ss]-ii, -1.0, L+ss, ii, ii);
 #endif
 
@@ -919,10 +919,10 @@ void FACT_LQ_SOLVE_KKT_STEP_OCP_QP(struct OCP_QP *qp, struct OCP_QP_SOL *qp_sol,
 			{
 			for(ii=0; ii<nb[ss]; ii++)
 				{
-				tmp = BLASFEO_DVECEL(tmp_nbgM+0, ii);
+				tmp = BLASFEO_VECEL(tmp_nbgM+0, ii);
 				tmp = tmp>=0.0 ? tmp : 0.0;
 				tmp = sqrt( tmp );
-				BLASFEO_DMATEL(lq0, idxb[ss][ii], nu[ss]+nx[ss]+idxb[ss][ii]) = tmp>0.0 ? tmp : 0.0;
+				BLASFEO_MATEL(lq0, idxb[ss][ii], nu[ss]+nx[ss]+idxb[ss][ii]) = tmp>0.0 ? tmp : 0.0;
 				}
 			VECAD_SP(nb[ss], 1.0, tmp_nbgM+1, 0, idxb[ss], dux+ss, 0);
 			}
@@ -930,10 +930,10 @@ void FACT_LQ_SOLVE_KKT_STEP_OCP_QP(struct OCP_QP *qp, struct OCP_QP_SOL *qp_sol,
 			{
 			for(ii=0; ii<ng[ss]; ii++)
 				{
-				tmp = BLASFEO_DVECEL(tmp_nbgM+0, nb[ss]+ii);
+				tmp = BLASFEO_VECEL(tmp_nbgM+0, nb[ss]+ii);
 				tmp = tmp>=0.0 ? tmp : 0.0;
 				tmp = sqrt( tmp );
-				BLASFEO_DVECEL(tmp_nbgM+0, nb[ss]+ii) = tmp;
+				BLASFEO_VECEL(tmp_nbgM+0, nb[ss]+ii) = tmp;
 				}
 			GEMM_R_DIAG(nu[ss]+nx[ss], ng[ss], 1.0, DCt+ss, 0, 0, tmp_nbgM+0, nb[ss], 0.0, lq0, 0, 2*nu[ss]+2*nx[ss], lq0, 0, 2*nu[ss]+2*nx[ss]);
 			GEMV_N(nu[ss]+nx[ss], ng[ss], 1.0, DCt+ss, 0, 0, tmp_nbgM+1, nb[ss], 1.0, dux+ss, 0, dux+ss, 0);
@@ -954,7 +954,7 @@ void FACT_LQ_SOLVE_KKT_STEP_OCP_QP(struct OCP_QP *qp, struct OCP_QP_SOL *qp_sol,
 		GELQF(nu[ss]+nx[ss], 2*nu[ss]+2*nx[ss]+nx[ss+1]+ng[ss], lq0, 0, 0, lq0, 0, 0, lq_work0);
 		TRCP_L(nu[ss]+nx[ss], lq0, 0, 0, L+ss, 0, 0);
 		for(ii=0; ii<nu[ss]+nx[ss]; ii++)
-			if(BLASFEO_DMATEL(L+ss, ii, ii) < 0)
+			if(BLASFEO_MATEL(L+ss, ii, ii) < 0)
 				COLSC(nu[ss]+nx[ss]-ii, -1.0, L+ss, ii, ii);
 #endif
 
@@ -990,10 +990,10 @@ void FACT_LQ_SOLVE_KKT_STEP_OCP_QP(struct OCP_QP *qp, struct OCP_QP_SOL *qp_sol,
 		{
 		for(ii=0; ii<nb[ss]; ii++)
 			{
-			tmp = BLASFEO_DVECEL(tmp_nbgM+0, ii);
+			tmp = BLASFEO_VECEL(tmp_nbgM+0, ii);
 			tmp = tmp>=0.0 ? tmp : 0.0;
 			tmp = sqrt( tmp );
-			BLASFEO_DMATEL(lq0, idxb[ss][ii], nu[ss]+nx[ss]+idxb[ss][ii]) = tmp>0.0 ? tmp : 0.0;
+			BLASFEO_MATEL(lq0, idxb[ss][ii], nu[ss]+nx[ss]+idxb[ss][ii]) = tmp>0.0 ? tmp : 0.0;
 			}
 		VECAD_SP(nb[ss], 1.0, tmp_nbgM+1, 0, idxb[ss], dux+ss, 0);
 		}
@@ -1001,10 +1001,10 @@ void FACT_LQ_SOLVE_KKT_STEP_OCP_QP(struct OCP_QP *qp, struct OCP_QP_SOL *qp_sol,
 		{
 		for(ii=0; ii<ng[ss]; ii++)
 			{
-			tmp = BLASFEO_DVECEL(tmp_nbgM+0, nb[ss]+ii);
+			tmp = BLASFEO_VECEL(tmp_nbgM+0, nb[ss]+ii);
 			tmp = tmp>=0.0 ? tmp : 0.0;
 			tmp = sqrt( tmp );
-			BLASFEO_DVECEL(tmp_nbgM+0, nb[ss]+ii) = tmp;
+			BLASFEO_VECEL(tmp_nbgM+0, nb[ss]+ii) = tmp;
 			}
 		GEMM_R_DIAG(nu[ss]+nx[ss], ng[ss], 1.0, DCt+ss, 0, 0, tmp_nbgM+0, nb[ss], 0.0, lq0, 0, 2*nu[ss]+2*nx[ss], lq0, 0, 2*nu[ss]+2*nx[ss]);
 		GEMV_N(nu[ss]+nx[ss], ng[ss], 1.0, DCt+ss, 0, 0, tmp_nbgM+1, nb[ss], 1.0, dux+ss, 0, dux+ss, 0);
@@ -1025,7 +1025,7 @@ void FACT_LQ_SOLVE_KKT_STEP_OCP_QP(struct OCP_QP *qp, struct OCP_QP_SOL *qp_sol,
 	GELQF(nu[ss]+nx[ss], 2*nu[ss]+2*nx[ss]+nx[ss+1]+ng[ss], lq0, 0, 0, lq0, 0, 0, lq_work0);
 	TRCP_L(nu[ss]+nx[ss], lq0, 0, 0, L+ss, 0, 0);
 	for(ii=0; ii<nu[ss]+nx[ss]; ii++)
-		if(BLASFEO_DMATEL(L+ss, ii, ii) < 0)
+		if(BLASFEO_MATEL(L+ss, ii, ii) < 0)
 			COLSC(nu[ss]+nx[ss]-ii, -1.0, L+ss, ii, ii);
 #endif
 

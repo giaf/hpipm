@@ -771,7 +771,8 @@ int SOLVE_TREE_OCP_QP_IPM(struct TREE_OCP_QP *qp, struct TREE_OCP_QP_SOL *qp_sol
 	ws->qp_step->DCt = qp->DCt;
 	ws->qp_step->Z = qp->Z;
 	ws->qp_step->idxb = qp->idxb;
-	ws->qp_step->idxs = qp->idxs;
+//	ws->qp_step->idxs = qp->idxs;
+	ws->qp_step->idxs_rev = qp->idxs_rev;
 	ws->qp_step->rqz = ws->res->res_g;
 	ws->qp_step->b = ws->res->res_b;
 	ws->qp_step->d = ws->res->res_d;
@@ -784,7 +785,8 @@ int SOLVE_TREE_OCP_QP_IPM(struct TREE_OCP_QP *qp, struct TREE_OCP_QP_SOL *qp_sol
 	ws->qp_itref->DCt = qp->DCt;
 	ws->qp_itref->Z = qp->Z;
 	ws->qp_itref->idxb = qp->idxb;
-	ws->qp_itref->idxs = qp->idxs;
+//	ws->qp_itref->idxs = qp->idxs;
+	ws->qp_itref->idxs_rev = qp->idxs_rev;
 	ws->qp_itref->rqz = ws->res_itref->res_g;
 	ws->qp_itref->b = ws->res_itref->res_b;
 	ws->qp_itref->d = ws->res_itref->res_d;
@@ -852,7 +854,8 @@ int SOLVE_TREE_OCP_QP_IPM(struct TREE_OCP_QP *qp, struct TREE_OCP_QP_SOL *qp_sol
 		ws->qp_step->DCt = qp->DCt;
 		ws->qp_step->Z = qp->Z;
 		ws->qp_step->idxb = qp->idxb;
-		ws->qp_step->idxs = qp->idxs;
+//		ws->qp_step->idxs = qp->idxs;
+		ws->qp_step->idxs_rev = qp->idxs_rev;
 		ws->qp_step->rqz = qp->rqz;
 		ws->qp_step->b = qp->b;
 		ws->qp_step->d = qp->d;

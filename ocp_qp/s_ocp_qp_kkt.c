@@ -53,6 +53,10 @@
 
 
 #define SINGLE_PRECISION
+#define BLASFEO_MATEL BLASFEO_SMATEL
+#define BLASFEO_VECEL BLASFEO_SVECEL
+
+
 
 #define AXPY blasfeo_saxpy
 #define COLSC blasfeo_scolsc

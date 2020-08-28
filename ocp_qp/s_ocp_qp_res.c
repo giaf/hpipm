@@ -49,7 +49,7 @@
 
 
 
-#define SINGLE_PRECISION
+#define BLASFEO_VECEL BLASFEO_SVECEL
 
 
 

@@ -51,6 +51,11 @@
 
 
 
+#define BLASFEO_MATEL BLASFEO_DMATEL
+#define BLASFEO_VECEL BLASFEO_DVECEL
+
+
+
 #define AXPY blasfeo_daxpy
 #define COMPUTE_LAM_T_QP d_compute_lam_t_qp
 #define COMPUTE_GAMMA_GAMMA_QP d_compute_Gamma_gamma_qp
