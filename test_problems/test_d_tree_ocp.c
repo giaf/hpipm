@@ -944,19 +944,19 @@ exit(1);
 * ipm arg
 ************************************************/
 
-	int ipm_arg_size = d_memsize_tree_ocp_qp_ipm_arg(&dim);
+	int ipm_arg_size = d_tree_ocp_qp_ipm_arg_memsize(&dim);
 #if PRINT
 	printf("\nipm arg size = %d\n", ipm_arg_size);
 #endif
 	void *ipm_arg_mem = malloc(ipm_arg_size);
 
 	struct d_tree_ocp_qp_ipm_arg arg;
-	d_create_tree_ocp_qp_ipm_arg(&dim, &arg, ipm_arg_mem);
+	d_tree_ocp_qp_ipm_arg_create(&dim, &arg, ipm_arg_mem);
 //	enum hpipm_mode mode = SPEED_ABS;
 	enum hpipm_mode mode = SPEED;
 //	enum hpipm_mode mode = BALANCE;
 //	enum hpipm_mode mode = ROBUST;
-	d_set_default_tree_ocp_qp_ipm_arg(mode, &arg);
+	d_tree_ocp_qp_ipm_arg_set_default(mode, &arg);
 
 //	arg.alpha_min = 1e-8;
 //	arg.res_g_max = 1e-8;
