@@ -68,8 +68,10 @@ struct s_tree_ocp_qp_ipm_arg
 	float reg_prim; // reg of primal hessian
 	float lam_min; // min value in lam vector
 	float t_min; // min value in t vector
+	float tau_min; // min value of barrier parameter
 	int iter_max; // exit cond in iter number
 	int stat_max; // iterations saved in stat
+	int stat_m; // number of recorded stat per IPM iter
 	int pred_corr; // use Mehrotra's predictor-corrector IPM algirthm
 	int cond_pred_corr; // conditional Mehrotra's predictor-corrector
 	int itref_pred_max; // max number of iterative refinement steps for predictor step
@@ -77,18 +79,19 @@ struct s_tree_ocp_qp_ipm_arg
 	int warm_start; // 0 no warm start, 1 warm start primal sol, 2 warm start primal and dual sol
 	int lq_fact; // 0 syrk+potrf, 1 mix, 2 lq
 	int abs_form; // absolute IPM formulation
-	int comp_dual_sol; // dual solution (only for abs_form==1)
+	int comp_dual_sol_eq; // dual solution (only for abs_form==1)
 	int comp_res_exit; // compute residuals on exit (only for abs_form==1 and comp_dual_sol==1)
+	int split_step; // use different steps for primal and dual variables
 	int t_lam_min; // clip t and lam: 0 no, 1 in Gamma computation, 2 in solution
 	int memsize;
 	};
 
 
 
-struct s_tree_ocp_qp_ipm_workspace
+struct s_tree_ocp_qp_ipm_ws
 	{
 	struct s_core_qp_ipm_workspace *core_workspace;
-	struct s_tree_ocp_qp_res_workspace *res_workspace;
+	struct s_tree_ocp_qp_res_ws *res_workspace;
 	struct s_tree_ocp_qp_sol *sol_step;
 	struct s_tree_ocp_qp_sol *sol_itref;
 	struct s_tree_ocp_qp *qp_step;
@@ -113,8 +116,11 @@ struct s_tree_ocp_qp_ipm_workspace
 	float qp_res[4]; // infinity norm of residuals
 	int iter; // iteration number
 	int stat_max; // iterations saved in stat
+	int stat_m; // number of recorded stat per IPM iter
 	int use_Pb;
+	int status; // solver status
 	int lq_fact; // cache from arg
+	int mask_constr; // use constr mask
 	int memsize;
 	};
 
@@ -144,21 +150,23 @@ void s_set_tree_ocp_qp_ipm_arg_reg_prim(float reg, struct s_tree_ocp_qp_ipm_arg 
 //
 int s_memsize_tree_ocp_qp_ipm(struct s_tree_ocp_qp_dim *dim, struct s_tree_ocp_qp_ipm_arg *arg);
 //
-void s_create_tree_ocp_qp_ipm(struct s_tree_ocp_qp_dim *dim, struct s_tree_ocp_qp_ipm_arg *arg, struct s_tree_ocp_qp_ipm_workspace *ws, void *mem);
+void s_create_tree_ocp_qp_ipm(struct s_tree_ocp_qp_dim *dim, struct s_tree_ocp_qp_ipm_arg *arg, struct s_tree_ocp_qp_ipm_ws *ws, void *mem);
 //
-int s_get_tree_ocp_qp_ipm_iter(struct s_tree_ocp_qp_ipm_workspace *ws);
+int s_get_tree_ocp_qp_ipm_iter(struct s_tree_ocp_qp_ipm_ws *ws);
 //
-float s_get_tree_ocp_qp_ipm_res_stat(struct s_tree_ocp_qp_ipm_workspace *ws);
+float s_get_tree_ocp_qp_ipm_res_stat(struct s_tree_ocp_qp_ipm_ws *ws);
 //
-float s_get_tree_ocp_qp_ipm_res_eq(struct s_tree_ocp_qp_ipm_workspace *ws);
+float s_get_tree_ocp_qp_ipm_res_eq(struct s_tree_ocp_qp_ipm_ws *ws);
 //
-float s_get_tree_ocp_qp_ipm_res_ineq(struct s_tree_ocp_qp_ipm_workspace *ws);
+float s_get_tree_ocp_qp_ipm_res_ineq(struct s_tree_ocp_qp_ipm_ws *ws);
 //
-float s_get_tree_ocp_qp_ipm_res_comp(struct s_tree_ocp_qp_ipm_workspace *ws);
+float s_get_tree_ocp_qp_ipm_res_comp(struct s_tree_ocp_qp_ipm_ws *ws);
 //
-float *s_get_tree_ocp_qp_ipm_stat(struct s_tree_ocp_qp_ipm_workspace *ws);
+float *s_get_tree_ocp_qp_ipm_stat(struct s_tree_ocp_qp_ipm_ws *ws);
 //
-int s_solve_tree_ocp_qp_ipm(struct s_tree_ocp_qp *qp, struct s_tree_ocp_qp_sol *qp_sol, struct s_tree_ocp_qp_ipm_arg *arg, struct s_tree_ocp_qp_ipm_workspace *ws);
+void s_tree_ocp_qp_init_var(struct s_tree_ocp_qp *qp, struct s_tree_ocp_qp_sol *qp_sol, struct s_tree_ocp_qp_ipm_arg *arg, struct s_tree_ocp_qp_ipm_ws *ws);
+//
+void s_tree_ocp_qp_ipm_solve(struct s_tree_ocp_qp *qp, struct s_tree_ocp_qp_sol *qp_sol, struct s_tree_ocp_qp_ipm_arg *arg, struct s_tree_ocp_qp_ipm_ws *ws);
 
 #ifdef __cplusplus
 } /* extern "C" */

@@ -68,6 +68,8 @@
 
 
 #define DOUBLE_PRECISION
+#define BLASFEO_VECEL BLASFEO_DVECEL
+#define BLASFEO_MATEL BLASFEO_DMATEL
 
 
 
@@ -85,10 +87,10 @@
 #define CREATE_STRMAT blasfeo_create_dmat
 #define CREATE_STRVEC blasfeo_create_dvec
 #define DOT blasfeo_ddot
-#define FACT_LQ_SOLVE_KKT_STEP_OCP_QP d_fact_lq_solve_kkt_step_ocp_qp
-#define FACT_SOLVE_LU_KKT_STEP_OCP_QP d_fact_solve_lu_kkt_step_ocp_qp
-#define FACT_SOLVE_KKT_STEP_OCP_QP d_fact_solve_kkt_step_ocp_qp
-#define FACT_SOLVE_KKT_UNCONSTR_OCP_QP d_fact_solve_kkt_unconstr_ocp_qp
+#define OCP_QP_FACT_LQ_SOLVE_KKT_STEP d_ocp_qp_fact_lq_solve_kkt_step
+#define OCP_QP_FACT_SOLVE_LU_KKT_STEP d_ocp_qp_fact_solve_lu_kkt_step
+#define OCP_QP_FACT_SOLVE_KKT_STEP d_ocp_qp_fact_solve_kkt_step
+#define OCP_QP_FACT_SOLVE_KKT_UNCONSTR d_ocp_qp_fact_solve_kkt_unconstr
 #define GEAD blasfeo_dgead
 #define GECP blasfeo_dgecp
 #define GELQF_WORKSIZE blasfeo_dgelqf_worksize

@@ -72,18 +72,18 @@
 #define CREATE_CORE_QP_IPM d_create_core_qp_ipm
 #define CREATE_STRMAT blasfeo_create_dmat
 #define CREATE_STRVEC blasfeo_create_dvec
-#define FACT_SOLVE_KKT_STEP_OCP_QP d_fact_solve_kkt_step_ocp_qp
-#define FACT_LQ_SOLVE_KKT_STEP_OCP_QP d_fact_lq_solve_kkt_step_ocp_qp
-#define FACT_SOLVE_KKT_UNCONSTR_OCP_QP d_fact_solve_kkt_unconstr_ocp_qp
 #define GELQF_WORKSIZE blasfeo_dgelqf_worksize
 #define GEMV_T blasfeo_dgemv_t
 #define GESE blasfeo_dgese
 #define HPIPM_MODE hpipm_mode
-#define INIT_VAR_OCP_QP d_init_var_ocp_qp
 #define MEMSIZE_CORE_QP_IPM d_memsize_core_qp_ipm
 #define OCP_QP d_ocp_qp
 #define OCP_QP_DIM d_ocp_qp_dim
 #define OCP_QP_DIM_PRINT d_ocp_qp_dim_print
+#define OCP_QP_FACT_SOLVE_KKT_STEP d_ocp_qp_fact_solve_kkt_step
+#define OCP_QP_FACT_LQ_SOLVE_KKT_STEP d_ocp_qp_fact_lq_solve_kkt_step
+#define OCP_QP_FACT_SOLVE_KKT_UNCONSTR d_ocp_qp_fact_solve_kkt_unconstr
+#define OCP_QP_INIT_VAR d_ocp_qp_init_var
 #define OCP_QP_IPM_ARG d_ocp_qp_ipm_arg
 #define OCP_QP_IPM_WS d_ocp_qp_ipm_ws
 #define OCP_QP_PRINT d_ocp_qp_print
@@ -97,6 +97,7 @@
 #define OCP_QP_SOL d_ocp_qp_sol
 #define OCP_QP_SOL_CREATE d_ocp_qp_sol_create
 #define OCP_QP_SOL_MEMSIZE d_ocp_qp_sol_memsize
+#define OCP_QP_SOLVE_KKT_STEP d_ocp_qp_solve_kkt_step
 #define PRINT_E_MAT d_print_exp_mat
 #define PRINT_E_STRVEC blasfeo_print_exp_dvec
 #define PRINT_E_TRAN_STRVEC blasfeo_print_exp_tran_dvec
@@ -107,7 +108,6 @@
 #define ROWEX blasfeo_drowex
 #define SIZE_STRMAT blasfeo_memsize_dmat
 #define SIZE_STRVEC blasfeo_memsize_dvec
-#define SOLVE_KKT_STEP_OCP_QP d_solve_kkt_step_ocp_qp
 #define STRMAT blasfeo_dmat
 #define STRVEC blasfeo_dvec
 #define SYRK_LN blasfeo_dsyrk_ln
@@ -132,7 +132,6 @@
 
 // arg
 #define OCP_QP_IPM_ARG_STRSIZE d_ocp_qp_ipm_arg_strsize
-#define SIZEOF_OCP_QP_IPM_ARG d_sizeof_ocp_qp_ipm_arg
 #define OCP_QP_IPM_ARG_MEMSIZE d_ocp_qp_ipm_arg_memsize
 #define OCP_QP_IPM_ARG_CREATE d_ocp_qp_ipm_arg_create
 #define OCP_QP_IPM_ARG_SET_DEFAULT d_ocp_qp_ipm_arg_set_default

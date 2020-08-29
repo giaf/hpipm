@@ -77,7 +77,7 @@ int TREE_OCP_QP_MEMSIZE(struct TREE_OCP_QP_DIM *dim)
 //	size += 1*Nn*sizeof(int *); // idxs
 	size += 2*Nn*sizeof(struct STRMAT); // RSQrq DCt
 	size += 1*(Nn-1)*sizeof(struct STRMAT); // BAbt
-	size += 4*Nn*sizeof(struct STRVEC); // rqz d m Z
+	size += 5*Nn*sizeof(struct STRVEC); // rqz d m Z d_mask
 	size += 1*(Nn-1)*sizeof(struct STRVEC); // b
 
 	for(ii=0; ii<Nn-1; ii++)
@@ -99,7 +99,7 @@ int TREE_OCP_QP_MEMSIZE(struct TREE_OCP_QP_DIM *dim)
 
 	size += 1*SIZE_STRVEC(nvt); // rqz
 	size += 1*SIZE_STRVEC(net); // b
-	size += 2*SIZE_STRVEC(nct); // d m
+	size += 3*SIZE_STRVEC(nct); // d m d_mask
 
 	size = (size+63)/64*64; // make multiple of typical cache line size
 	size += 64; // align to typical cache line size
@@ -195,6 +195,10 @@ void TREE_OCP_QP_CREATE(struct TREE_OCP_QP_DIM *dim, struct TREE_OCP_QP *qp, voi
 
 	// d
 	qp->d = sv_ptr;
+	sv_ptr += Nn;
+
+	// d_mask
+	qp->d_mask = sv_ptr;
 	sv_ptr += Nn;
 
 	// m
@@ -310,6 +314,21 @@ void TREE_OCP_QP_CREATE(struct TREE_OCP_QP_DIM *dim, struct TREE_OCP_QP *qp, voi
 		tmp_ptr += ns[ii]*sizeof(REAL);
 		}
 
+	// d_mask
+	tmp_ptr = c_ptr;
+	c_ptr += SIZE_STRVEC(nct);
+	for(ii=0; ii<Nn; ii++)
+		{
+		CREATE_STRVEC(2*nb[ii]+2*ng[ii]+2*ns[ii], qp->d_mask+ii, tmp_ptr);
+		tmp_ptr += nb[ii]*sizeof(REAL);
+		tmp_ptr += ng[ii]*sizeof(REAL);
+		tmp_ptr += nb[ii]*sizeof(REAL);
+		tmp_ptr += ng[ii]*sizeof(REAL);
+		tmp_ptr += ns[ii]*sizeof(REAL);
+		tmp_ptr += ns[ii]*sizeof(REAL);
+		VECSE(2*nb[ii]+2*ng[ii]+2*ns[ii], 1.0, qp->d_mask+ii, 0);
+		}
+
 	// m
 	tmp_ptr = c_ptr;
 	c_ptr += SIZE_STRVEC(nct);
@@ -386,8 +405,8 @@ void TREE_OCP_QP_SET_ALL(REAL **A, REAL **B, REAL **b, REAL **Q, REAL **S, REAL 
 			PACK_VEC(nb[ii], d_lb[ii], 1, qp->d+ii, 0);
 			PACK_VEC(nb[ii], d_ub[ii], 1, qp->d+ii, nb[ii]+ng[ii]);
 			VECSC(nb[ii], -1.0, qp->d+ii, nb[ii]+ng[ii]);
-			VECSE_LIBSTR(nb[ii], 0.0, qp->m+ii, 0);
-			VECSE_LIBSTR(nb[ii], 0.0, qp->m+ii, nb[ii]+ng[ii]);
+			VECSE(nb[ii], 0.0, qp->m+ii, 0);
+			VECSE(nb[ii], 0.0, qp->m+ii, nb[ii]+ng[ii]);
 			}
 		}
 
@@ -400,8 +419,8 @@ void TREE_OCP_QP_SET_ALL(REAL **A, REAL **B, REAL **b, REAL **Q, REAL **S, REAL 
 			PACK_VEC(ng[ii], d_lg[ii], 1, qp->d+ii, nb[ii]);
 			PACK_VEC(ng[ii], d_ug[ii], 1, qp->d+ii, 2*nb[ii]+ng[ii]);
 			VECSC(ng[ii], -1.0, qp->d+ii, 2*nb[ii]+ng[ii]);
-			VECSE_LIBSTR(ng[ii], 0.0, qp->m+ii, nb[ii]);
-			VECSE_LIBSTR(ng[ii], 0.0, qp->m+ii, 2*nb[ii]+ng[ii]);
+			VECSE(ng[ii], 0.0, qp->m+ii, nb[ii]);
+			VECSE(ng[ii], 0.0, qp->m+ii, 2*nb[ii]+ng[ii]);
 			}
 		}
 
@@ -421,8 +440,8 @@ void TREE_OCP_QP_SET_ALL(REAL **A, REAL **B, REAL **b, REAL **Q, REAL **S, REAL 
 			PACK_VEC(ns[ii], zu[ii], 1, qp->rqz+ii, nu[ii]+nx[ii]+ns[ii]);
 			PACK_VEC(ns[ii], d_ls[ii], 1, qp->d+ii, 2*nb[ii]+2*ng[ii]);
 			PACK_VEC(ns[ii], d_us[ii], 1, qp->d+ii, 2*nb[ii]+2*ng[ii]+ns[ii]);
-			VECSE_LIBSTR(ns[ii], 0.0, qp->m+ii, 2*nb[ii]+2*ng[ii]);
-			VECSE_LIBSTR(ns[ii], 0.0, qp->m+ii, 2*nb[ii]+2*ng[ii]+ns[ii]);
+			VECSE(ns[ii], 0.0, qp->m+ii, 2*nb[ii]+2*ng[ii]);
+			VECSE(ns[ii], 0.0, qp->m+ii, 2*nb[ii]+2*ng[ii]+ns[ii]);
 			}
 		}
 
@@ -483,66 +502,66 @@ void TREE_OCP_QP_SET(char *field, int node_edge, void *value, struct TREE_OCP_QP
 		{ 
 		TREE_OCP_QP_SET_LB(node_edge, value, qp);
 		}
-//	else if(hpipm_strcmp(field, "lb_mask"))
-//		{ 
-//		TREE_OCP_QP_SET_LB_MASK(node_edge, value, qp);
-//		}
+	else if(hpipm_strcmp(field, "lb_mask"))
+		{ 
+		TREE_OCP_QP_SET_LB_MASK(node_edge, value, qp);
+		}
 	else if(hpipm_strcmp(field, "lbu") | hpipm_strcmp(field, "lu"))
 		{ 
 		TREE_OCP_QP_SET_LBU(node_edge, value, qp);
 		}
-//	else if(hpipm_strcmp(field, "lbu_mask"))
-//		{ 
-//		TREE_OCP_QP_SET_LBU_MASK(node_edge, value, qp);
-//		}
+	else if(hpipm_strcmp(field, "lbu_mask"))
+		{ 
+		TREE_OCP_QP_SET_LBU_MASK(node_edge, value, qp);
+		}
 	else if(hpipm_strcmp(field, "lbx") | hpipm_strcmp(field, "lx"))
 		{ 
 		TREE_OCP_QP_SET_LBX(node_edge, value, qp);
 		}
-//	else if(hpipm_strcmp(field, "lbx_mask"))
-//		{ 
-//		TREE_OCP_QP_SET_LBX_MASK(node_edge, value, qp);
-//		}
+	else if(hpipm_strcmp(field, "lbx_mask"))
+		{ 
+		TREE_OCP_QP_SET_LBX_MASK(node_edge, value, qp);
+		}
 	else if(hpipm_strcmp(field, "ub"))
 		{ 
 		TREE_OCP_QP_SET_UB(node_edge, value, qp);
 		}
-//	else if(hpipm_strcmp(field, "ub_mask"))
-//		{ 
-//		TREE_OCP_QP_SET_UB_MASK(node_edge, value, qp);
-//		}
+	else if(hpipm_strcmp(field, "ub_mask"))
+		{ 
+		TREE_OCP_QP_SET_UB_MASK(node_edge, value, qp);
+		}
 	else if(hpipm_strcmp(field, "ubu") | hpipm_strcmp(field, "uu"))
 		{ 
 		TREE_OCP_QP_SET_UBU(node_edge, value, qp);
 		}
-//	else if(hpipm_strcmp(field, "ubu_mask"))
-//		{ 
-//		TREE_OCP_QP_SET_UBU_MASK(node_edge, value, qp);
-//		}
+	else if(hpipm_strcmp(field, "ubu_mask"))
+		{ 
+		TREE_OCP_QP_SET_UBU_MASK(node_edge, value, qp);
+		}
 	else if(hpipm_strcmp(field, "ubx") | hpipm_strcmp(field, "ux"))
 		{ 
 		TREE_OCP_QP_SET_UBX(node_edge, value, qp);
 		}
-//	else if(hpipm_strcmp(field, "ubx_mask"))
-//		{ 
-//		TREE_OCP_QP_SET_UBX_MASK(node_edge, value, qp);
-//		}
+	else if(hpipm_strcmp(field, "ubx_mask"))
+		{ 
+		TREE_OCP_QP_SET_UBX_MASK(node_edge, value, qp);
+		}
 	else if(hpipm_strcmp(field, "lg"))
 		{ 
 		TREE_OCP_QP_SET_LG(node_edge, value, qp);
 		}
-//	else if(hpipm_strcmp(field, "lg_mask"))
-//		{ 
-//		TREE_OCP_QP_SET_LG_MASK(node_edge, value, qp);
-//		}
+	else if(hpipm_strcmp(field, "lg_mask"))
+		{ 
+		TREE_OCP_QP_SET_LG_MASK(node_edge, value, qp);
+		}
 	else if(hpipm_strcmp(field, "ug"))
 		{ 
 		TREE_OCP_QP_SET_UG(node_edge, value, qp);
 		}
-//	else if(hpipm_strcmp(field, "ug_mask"))
-//		{ 
-//		TREE_OCP_QP_SET_UG_MASK(node_edge, value, qp);
-//		}
+	else if(hpipm_strcmp(field, "ug_mask"))
+		{ 
+		TREE_OCP_QP_SET_UG_MASK(node_edge, value, qp);
+		}
 	else if(hpipm_strcmp(field, "Zl"))
 		{ 
 		TREE_OCP_QP_SET_ZL(node_edge, value, qp);
@@ -563,18 +582,18 @@ void TREE_OCP_QP_SET(char *field, int node_edge, void *value, struct TREE_OCP_QP
 		{ 
 		TREE_OCP_QP_SET_LLS(node_edge, value, qp);
 		}
-//	else if(hpipm_strcmp(field, "lls_mask"))
-//		{ 
-//		TREE_OCP_QP_SET_LLS_MASK(node_edge, value, qp);
-//		}
+	else if(hpipm_strcmp(field, "lls_mask"))
+		{ 
+		TREE_OCP_QP_SET_LLS_MASK(node_edge, value, qp);
+		}
 	else if(hpipm_strcmp(field, "lus"))
 		{ 
 		TREE_OCP_QP_SET_LUS(node_edge, value, qp);
 		}
-//	else if(hpipm_strcmp(field, "lus_mask"))
-//		{ 
-//		TREE_OCP_QP_SET_LUS_MASK(node_edge, value, qp);
-//		}
+	else if(hpipm_strcmp(field, "lus_mask"))
+		{ 
+		TREE_OCP_QP_SET_LUS_MASK(node_edge, value, qp);
+		}
 	// int
 	else if(hpipm_strcmp(field, "idxb"))
 		{
@@ -789,15 +808,15 @@ void TREE_OCP_QP_SET_LB(int node, REAL *lb, struct TREE_OCP_QP *qp)
 
 
 
-//void TREE_OCP_QP_SET_LB_MASK(int node, REAL *lb_mask, struct TREE_OCP_QP *qp)
-//	{
-//	// extract dim
-//	int *nb = qp->dim->nb;
-//
-//	PACK_VEC(nb[node], lb_mask, 1, qp->d_mask+node, 0);
-//
-//	return;
-//	}
+void TREE_OCP_QP_SET_LB_MASK(int node, REAL *lb_mask, struct TREE_OCP_QP *qp)
+	{
+	// extract dim
+	int *nb = qp->dim->nb;
+
+	PACK_VEC(nb[node], lb_mask, 1, qp->d_mask+node, 0);
+
+	return;
+	}
 
 
 
@@ -814,16 +833,16 @@ void TREE_OCP_QP_SET_LBX(int node, REAL *lbx, struct TREE_OCP_QP *qp)
 
 
 
-//void TREE_OCP_QP_SET_LBX_MASK(int node, REAL *lbx_mask, struct TREE_OCP_QP *qp)
-//	{
-//	// extract dim
-//	int *nbu = qp->dim->nbu;
-//	int *nbx = qp->dim->nbx;
-//
-//	PACK_VEC(nbx[node], lbx_mask, 1, qp->d_mask+node, nbu[node]);
-//
-//	return;
-//	}
+void TREE_OCP_QP_SET_LBX_MASK(int node, REAL *lbx_mask, struct TREE_OCP_QP *qp)
+	{
+	// extract dim
+	int *nbu = qp->dim->nbu;
+	int *nbx = qp->dim->nbx;
+
+	PACK_VEC(nbx[node], lbx_mask, 1, qp->d_mask+node, nbu[node]);
+
+	return;
+	}
 
 
 
@@ -839,15 +858,15 @@ void TREE_OCP_QP_SET_LBU(int node, REAL *lbu, struct TREE_OCP_QP *qp)
 
 
 
-//void TREE_OCP_QP_SET_LBU_MASK(int node, REAL *lbu_mask, struct TREE_OCP_QP *qp)
-//	{
-//	// extract dim
-//	int *nbu = qp->dim->nbu;
-//
-//	PACK_VEC(nbu[node], lbu_mask, 1, qp->d_mask+node, 0);
-//
-//	return;
-//	}
+void TREE_OCP_QP_SET_LBU_MASK(int node, REAL *lbu_mask, struct TREE_OCP_QP *qp)
+	{
+	// extract dim
+	int *nbu = qp->dim->nbu;
+
+	PACK_VEC(nbu[node], lbu_mask, 1, qp->d_mask+node, 0);
+
+	return;
+	}
 
 
 
@@ -865,16 +884,16 @@ void TREE_OCP_QP_SET_UB(int node, REAL *ub, struct TREE_OCP_QP *qp)
 
 
 
-//void TREE_OCP_QP_SET_UB_MASK(int node, REAL *ub_mask, struct TREE_OCP_QP *qp)
-//	{
-//	// extract dim
-//	int *nb = qp->dim->nb;
-//	int *ng = qp->dim->ng;
-//
-//	PACK_VEC(nb[node], ub_mask, 1, qp->d_mask+node, nb[node]+ng[node]);
-//
-//	return;
-//	}
+void TREE_OCP_QP_SET_UB_MASK(int node, REAL *ub_mask, struct TREE_OCP_QP *qp)
+	{
+	// extract dim
+	int *nb = qp->dim->nb;
+	int *ng = qp->dim->ng;
+
+	PACK_VEC(nb[node], ub_mask, 1, qp->d_mask+node, nb[node]+ng[node]);
+
+	return;
+	}
 
 
 
@@ -894,18 +913,18 @@ void TREE_OCP_QP_SET_UBX(int node, REAL *ubx, struct TREE_OCP_QP *qp)
 
 
 
-//void TREE_OCP_QP_SET_UBX_MASK(int node, REAL *ubx_mask, struct TREE_OCP_QP *qp)
-//	{
-//	// extract dim
-//	int *nb = qp->dim->nb;
-//	int *nbx = qp->dim->nbx;
-//	int *nbu = qp->dim->nbu;
-//	int *ng = qp->dim->ng;
-//
-//	PACK_VEC(nbx[node], ubx_mask, 1, qp->d_mask+node, nb[node]+ng[node]+nbu[node]);
-//
-//	return;
-//	}
+void TREE_OCP_QP_SET_UBX_MASK(int node, REAL *ubx_mask, struct TREE_OCP_QP *qp)
+	{
+	// extract dim
+	int *nb = qp->dim->nb;
+	int *nbx = qp->dim->nbx;
+	int *nbu = qp->dim->nbu;
+	int *ng = qp->dim->ng;
+
+	PACK_VEC(nbx[node], ubx_mask, 1, qp->d_mask+node, nb[node]+ng[node]+nbu[node]);
+
+	return;
+	}
 
 
 
@@ -924,17 +943,17 @@ void TREE_OCP_QP_SET_UBU(int node, REAL *ubu, struct TREE_OCP_QP *qp)
 
 
 
-//void TREE_OCP_QP_SET_UBU_MASK(int node, REAL *ubu_mask, struct TREE_OCP_QP *qp)
-//	{
-//	// extract dim
-//	int *nb = qp->dim->nb;
-//	int *nbu = qp->dim->nbu;
-//	int *ng = qp->dim->ng;
-//
-//	PACK_VEC(nbu[node], ubu_mask, 1, qp->d_mask+node, nb[node]+ng[node]);
-//
-//	return;
-//	}
+void TREE_OCP_QP_SET_UBU_MASK(int node, REAL *ubu_mask, struct TREE_OCP_QP *qp)
+	{
+	// extract dim
+	int *nb = qp->dim->nb;
+	int *nbu = qp->dim->nbu;
+	int *ng = qp->dim->ng;
+
+	PACK_VEC(nbu[node], ubu_mask, 1, qp->d_mask+node, nb[node]+ng[node]);
+
+	return;
+	}
 
 
 
@@ -1076,16 +1095,16 @@ void TREE_OCP_QP_SET_LG(int node, REAL *lg, struct TREE_OCP_QP *qp)
 
 
 
-//void TREE_OCP_QP_SET_LG_MASK(int node, REAL *lg_mask, struct TREE_OCP_QP *qp)
-//	{
-//	// extract dim
-//	int *nb = qp->dim->nb;
-//	int *ng = qp->dim->ng;
-//
-//	PACK_VEC(ng[node], lg_mask, 1, qp->d_mask+node, nb[node]);
-//
-//	return;
-//	}
+void TREE_OCP_QP_SET_LG_MASK(int node, REAL *lg_mask, struct TREE_OCP_QP *qp)
+	{
+	// extract dim
+	int *nb = qp->dim->nb;
+	int *ng = qp->dim->ng;
+
+	PACK_VEC(ng[node], lg_mask, 1, qp->d_mask+node, nb[node]);
+
+	return;
+	}
 
 
 
@@ -1103,16 +1122,16 @@ void TREE_OCP_QP_SET_UG(int node, REAL *ug, struct TREE_OCP_QP *qp)
 
 
 
-//void TREE_OCP_QP_SET_UG_MASK(int node, REAL *ug_mask, struct TREE_OCP_QP *qp)
-//	{
-//	// extract dim
-//	int *nb = qp->dim->nb;
-//	int *ng = qp->dim->ng;
-//
-//	PACK_VEC(ng[node], ug_mask, 1, qp->d_mask+node, 2*nb[node]+ng[node]);
-//
-//	return;
-//	}
+void TREE_OCP_QP_SET_UG_MASK(int node, REAL *ug_mask, struct TREE_OCP_QP *qp)
+	{
+	// extract dim
+	int *nb = qp->dim->nb;
+	int *ng = qp->dim->ng;
+
+	PACK_VEC(ng[node], ug_mask, 1, qp->d_mask+node, 2*nb[node]+ng[node]);
+
+	return;
+	}
 
 
 
@@ -1307,17 +1326,17 @@ void TREE_OCP_QP_SET_LLS(int node, REAL *ls, struct TREE_OCP_QP *qp)
 
 
 
-//void TREE_OCP_QP_SET_LLS_MASK(int node, REAL *ls_mask, struct TREE_OCP_QP *qp)
-//	{
-//	// extract dim
-//	int *nb = qp->dim->nb;
-//	int *ng = qp->dim->ng;
-//	int *ns = qp->dim->ns;
-//
-//	PACK_VEC(ns[node], ls_mask, 1, qp->d_mask+node, 2*nb[node]+2*ng[node]);
-//
-//	return;
-//	}
+void TREE_OCP_QP_SET_LLS_MASK(int node, REAL *ls_mask, struct TREE_OCP_QP *qp)
+	{
+	// extract dim
+	int *nb = qp->dim->nb;
+	int *ng = qp->dim->ng;
+	int *ns = qp->dim->ns;
+
+	PACK_VEC(ns[node], ls_mask, 1, qp->d_mask+node, 2*nb[node]+2*ng[node]);
+
+	return;
+	}
 
 
 
@@ -1335,17 +1354,17 @@ void TREE_OCP_QP_SET_LUS(int node, REAL *us, struct TREE_OCP_QP *qp)
 
 
 
-//void TREE_OCP_QP_SET_LUS_MASK(int node, REAL *lus_mask, struct TREE_OCP_QP *qp)
-//	{
-//	// extract dim
-//	int *nb = qp->dim->nb;
-//	int *ng = qp->dim->ng;
-//	int *ns = qp->dim->ns;
-//
-//	PACK_VEC(ns[node], lus_mask, 1, qp->d_mask+node, 2*nb[node]+2*ng[node]+ns[node]);
-//
-//	return;
-//	}
+void TREE_OCP_QP_SET_LUS_MASK(int node, REAL *lus_mask, struct TREE_OCP_QP *qp)
+	{
+	// extract dim
+	int *nb = qp->dim->nb;
+	int *ng = qp->dim->ng;
+	int *ns = qp->dim->ns;
+
+	PACK_VEC(ns[node], lus_mask, 1, qp->d_mask+node, 2*nb[node]+2*ng[node]+ns[node]);
+
+	return;
+	}
 
 
 

@@ -41,6 +41,11 @@
 #include <blasfeo_target.h>
 #include <blasfeo_common.h>
 
+#include <hpipm_common.h>
+#include <hpipm_s_tree_ocp_qp_dim.h>
+#include <hpipm_s_tree_ocp_qp.h>
+#include <hpipm_s_tree_ocp_qp_sol.h>
+
 
 
 #ifdef __cplusplus
@@ -56,13 +61,14 @@ struct s_tree_ocp_qp_res
 	struct blasfeo_svec *res_b; // b-residuals
 	struct blasfeo_svec *res_d; // d-residuals
 	struct blasfeo_svec *res_m; // m-residuals
-	double res_mu; // mu-residual
+	float res_max[4]; // max of residuals
+	float res_mu; // mu-residual
 	int memsize;
 	};
 
 
 
-struct s_tree_ocp_qp_res_workspace
+struct s_tree_ocp_qp_res_ws
 	{
 	struct blasfeo_svec *tmp_nbgM; // work space of size nbM+ngM
 	struct blasfeo_svec *tmp_nsM; // work space of size nsM
@@ -76,13 +82,19 @@ int s_memsize_tree_ocp_qp_res(struct s_tree_ocp_qp_dim *ocp_dim);
 //
 void s_create_tree_ocp_qp_res(struct s_tree_ocp_qp_dim *ocp_dim, struct s_tree_ocp_qp_res *res, void *mem);
 //
-int s_memsize_tree_ocp_qp_res_workspace(struct s_tree_ocp_qp_dim *ocp_dim);
+int s_memsize_tree_ocp_qp_res_ws(struct s_tree_ocp_qp_dim *ocp_dim);
 //
-void s_create_tree_ocp_qp_res_workspace(struct s_tree_ocp_qp_dim *ocp_dim, struct s_tree_ocp_qp_res_workspace *workspace, void *mem);
+void s_create_tree_ocp_qp_res_ws(struct s_tree_ocp_qp_dim *ocp_dim, struct s_tree_ocp_qp_res_ws *ws, void *mem);
 //
 void s_cvt_tree_ocp_qp_res_to_colmaj(struct s_tree_ocp_qp_res *res, float **res_r, float **res_q, float **res_ls, float **res_us, float **res_b, float **res_d_lb, float **res_d_ub, float **res_d_lg, float **res_d_ug, float **res_d_ls, float **res_d_us, float **res_m_lb, float **res_m_ub, float **res_m_lg, float **res_m_ug, float **res_m_ls, float **res_m_us);
 //
 void s_cvt_tree_ocp_qp_res_to_rowmaj(struct s_tree_ocp_qp_res *res, float **res_r, float **res_q, float **res_ls, float **res_us, float **res_b, float **res_d_lb, float **res_d_ub, float **res_d_lg, float **res_d_ug, float **res_d_ls, float **res_d_us, float **res_m_lb, float **res_m_ub, float **res_m_lg, float **res_m_ug, float **res_m_ls, float **res_m_us);
+//
+void s_tree_ocp_qp_res_compute(struct s_tree_ocp_qp *qp, struct s_tree_ocp_qp_sol *qp_sol, struct s_tree_ocp_qp_res *res, struct s_tree_ocp_qp_res_ws *ws);
+//
+void s_tree_ocp_qp_res_compute_lin(struct s_tree_ocp_qp *qp, struct s_tree_ocp_qp_sol *qp_sol, struct s_tree_ocp_qp_sol *qp_step, struct s_tree_ocp_qp_res *res, struct s_tree_ocp_qp_res_ws *ws);
+//
+void s_tree_ocp_qp_res_compute_inf_norm(struct s_tree_ocp_qp_res *res);
 
 
 

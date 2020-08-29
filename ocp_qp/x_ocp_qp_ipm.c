@@ -1243,7 +1243,7 @@ void OCP_QP_IPM_GET_RIC_LR_VEC(struct OCP_QP *qp, struct OCP_QP_IPM_ARG *arg, st
 			cws->t[ii] = cws->t_bkp[ii];
 
 		ws->use_Pb = 0;
-		SOLVE_KKT_STEP_OCP_QP(qp, ws->sol_itref, arg, ws);
+		OCP_QP_SOLVE_KKT_STEP(qp, ws->sol_itref, arg, ws);
 
 		ws->valid_ric_vec = 1;
 		}
@@ -1292,7 +1292,7 @@ void OCP_QP_IPM_GET_RIC_P_VEC(struct OCP_QP *qp, struct OCP_QP_IPM_ARG *arg, str
 			cws->t[ii] = cws->t_bkp[ii];
 
 		ws->use_Pb = 0;
-		SOLVE_KKT_STEP_OCP_QP(qp, ws->sol_itref, arg, ws);
+		OCP_QP_SOLVE_KKT_STEP(qp, ws->sol_itref, arg, ws);
 
 		ws->valid_ric_vec = 1;
 		}
@@ -1369,7 +1369,7 @@ void OCP_QP_IPM_GET_RIC_K_VEC(struct OCP_QP *qp, struct OCP_QP_IPM_ARG *arg, str
 			cws->t[ii] = cws->t_bkp[ii];
 
 		ws->use_Pb = 0;
-		SOLVE_KKT_STEP_OCP_QP(qp, ws->sol_itref, arg, ws);
+		OCP_QP_SOLVE_KKT_STEP(qp, ws->sol_itref, arg, ws);
 
 		ws->valid_ric_vec = 1;
 		}
@@ -1750,7 +1750,7 @@ void OCP_QP_IPM_ABS_STEP(int kk, struct OCP_QP *qp, struct OCP_QP_SOL *qp_sol, s
 	// fact solve
 //d_ocp_qp_print(ws->qp_step->dim, ws->qp_step);
 //exit(1);
-	FACT_SOLVE_KKT_STEP_OCP_QP(ws->qp_step, ws->sol_step, arg, ws);
+	OCP_QP_FACT_SOLVE_KKT_STEP(ws->qp_step, ws->sol_step, arg, ws);
 //blasfeo_print_tran_dvec(cws->nv, ws->sol_step->ux, 0);
 //d_ocp_qp_sol_print(ws->qp_step->dim, ws->sol_step);
 //exit(1);
@@ -1796,7 +1796,7 @@ void OCP_QP_IPM_ABS_STEP(int kk, struct OCP_QP *qp, struct OCP_QP_SOL *qp_sol, s
 
 		// fact and solve kkt
 		ws->use_Pb = 1;
-		SOLVE_KKT_STEP_OCP_QP(ws->qp_step, ws->sol_step, arg, ws);
+		OCP_QP_SOLVE_KKT_STEP(ws->qp_step, ws->sol_step, arg, ws);
 
 		// compute step
 		AXPY(cws->nv, -1.0, qp_sol->ux, 0, ws->sol_step->ux, 0, ws->sol_step->ux, 0);
@@ -1843,7 +1843,7 @@ void OCP_QP_IPM_ABS_STEP(int kk, struct OCP_QP *qp, struct OCP_QP_SOL *qp_sol, s
 					}
 
 				// solve kkt
-				SOLVE_KKT_STEP_OCP_QP(ws->qp_step, ws->sol_step, arg, ws);
+				OCP_QP_SOLVE_KKT_STEP(ws->qp_step, ws->sol_step, arg, ws);
 				// compute step
 				AXPY(cws->nv, -1.0, qp_sol->ux, 0, ws->sol_step->ux, 0, ws->sol_step->ux, 0);
 				AXPY(cws->ne, -1.0, qp_sol->pi, 0, ws->sol_step->pi, 0, ws->sol_step->pi, 0);
@@ -1926,7 +1926,7 @@ void OCP_QP_IPM_DELTA_STEP(int kk, struct OCP_QP *qp, struct OCP_QP_SOL *qp_sol,
 		{
 
 		// syrk+cholesky
-		FACT_SOLVE_KKT_STEP_OCP_QP(ws->qp_step, ws->sol_step, arg, ws);
+		OCP_QP_FACT_SOLVE_KKT_STEP(ws->qp_step, ws->sol_step, arg, ws);
 		if(ws->mask_constr)
 			{
 			// mask out disregarded constraints
@@ -1942,7 +1942,7 @@ void OCP_QP_IPM_DELTA_STEP(int kk, struct OCP_QP *qp, struct OCP_QP_SOL *qp_sol,
 		{
 
 		// syrk+chol, switch to lq when needed
-		FACT_SOLVE_KKT_STEP_OCP_QP(ws->qp_step, ws->sol_step, arg, ws);
+		OCP_QP_FACT_SOLVE_KKT_STEP(ws->qp_step, ws->sol_step, arg, ws);
 		if(ws->mask_constr)
 			{
 			// mask out disregarded constraints
@@ -1985,7 +1985,7 @@ void OCP_QP_IPM_DELTA_STEP(int kk, struct OCP_QP *qp, struct OCP_QP_SOL *qp_sol,
 			{
 
 			// refactorize using lq
-			FACT_LQ_SOLVE_KKT_STEP_OCP_QP(ws->qp_step, ws->sol_step, arg, ws);
+			OCP_QP_FACT_LQ_SOLVE_KKT_STEP(ws->qp_step, ws->sol_step, arg, ws);
 			if(ws->mask_constr)
 				{
 				// mask out disregarded constraints
@@ -2007,7 +2007,7 @@ void OCP_QP_IPM_DELTA_STEP(int kk, struct OCP_QP *qp, struct OCP_QP_SOL *qp_sol,
 	else // ws->lq_fact==2
 		{
 
-		FACT_LQ_SOLVE_KKT_STEP_OCP_QP(ws->qp_step, ws->sol_step, arg, ws);
+		OCP_QP_FACT_LQ_SOLVE_KKT_STEP(ws->qp_step, ws->sol_step, arg, ws);
 		if(ws->mask_constr)
 			{
 			// mask out disregarded constraints
@@ -2077,7 +2077,7 @@ void OCP_QP_IPM_DELTA_STEP(int kk, struct OCP_QP *qp, struct OCP_QP_SOL *qp_sol,
 				}
 
 			ws->use_Pb = 0;
-			SOLVE_KKT_STEP_OCP_QP(ws->qp_itref, ws->sol_itref, arg, ws);
+			OCP_QP_SOLVE_KKT_STEP(ws->qp_itref, ws->sol_itref, arg, ws);
 			if(ws->mask_constr)
 				{
 				// mask out disregarded constraints
@@ -2153,7 +2153,7 @@ void OCP_QP_IPM_DELTA_STEP(int kk, struct OCP_QP *qp, struct OCP_QP_SOL *qp_sol,
 
 		// fact and solve kkt
 		ws->use_Pb = 1;
-		SOLVE_KKT_STEP_OCP_QP(ws->qp_step, ws->sol_step, arg, ws);
+		OCP_QP_SOLVE_KKT_STEP(ws->qp_step, ws->sol_step, arg, ws);
 		if(ws->mask_constr)
 			{
 			// mask out disregarded constraints
@@ -2195,7 +2195,7 @@ void OCP_QP_IPM_DELTA_STEP(int kk, struct OCP_QP *qp, struct OCP_QP_SOL *qp_sol,
 
 				// solve kkt
 				ws->use_Pb = 1;
-				SOLVE_KKT_STEP_OCP_QP(ws->qp_step, ws->sol_step, arg, ws);
+				OCP_QP_SOLVE_KKT_STEP(ws->qp_step, ws->sol_step, arg, ws);
 				if(ws->mask_constr)
 					{
 					// mask out disregarded constraints
@@ -2263,7 +2263,7 @@ void OCP_QP_IPM_DELTA_STEP(int kk, struct OCP_QP *qp, struct OCP_QP_SOL *qp_sol,
 					}
 
 				ws->use_Pb = 0;
-				SOLVE_KKT_STEP_OCP_QP(ws->qp_itref, ws->sol_itref, arg, ws);
+				OCP_QP_SOLVE_KKT_STEP(ws->qp_itref, ws->sol_itref, arg, ws);
 				if(ws->mask_constr)
 					{
 					// mask out disregarded constraints
@@ -2459,7 +2459,7 @@ void OCP_QP_IPM_SOLVE(struct OCP_QP *qp, struct OCP_QP_SOL *qp_sol, struct OCP_Q
 	if(cws->nc==0 | mask_unconstr==1)
 		{
 		ws->valid_ric_vec = 1;
-		FACT_SOLVE_KKT_UNCONSTR_OCP_QP(qp, qp_sol, arg, ws);
+		OCP_QP_FACT_SOLVE_KKT_UNCONSTR(qp, qp_sol, arg, ws);
 		if(arg->comp_res_exit)
 			{
 			OCP_QP_RES_COMPUTE(qp, qp_sol, ws->res, ws->res_workspace);
@@ -2722,7 +2722,7 @@ void OCP_QP_IPM_PREDICT(struct OCP_QP *qp, struct OCP_QP_SOL *qp_sol, struct OCP
 		{
 		// solve kkt
 		ws->use_Pb = 0;
-		SOLVE_KKT_STEP_OCP_QP(qp, qp_sol, arg, ws);
+		OCP_QP_SOLVE_KKT_STEP(qp, qp_sol, arg, ws);
 
 		if(arg->comp_res_exit & arg->comp_dual_sol_eq)
 			{
@@ -2811,7 +2811,7 @@ void OCP_QP_IPM_PREDICT(struct OCP_QP *qp, struct OCP_QP_SOL *qp_sol, struct OCP
 
 	// solve kkt
 	ws->use_Pb = 0;
-	SOLVE_KKT_STEP_OCP_QP(ws->qp_step, ws->sol_step, arg, ws);
+	OCP_QP_SOLVE_KKT_STEP(ws->qp_step, ws->sol_step, arg, ws);
 
 	// alpha TODO fix alpha=1 !!!!!
 //	COMPUTE_ALPHA_QP(cws);
@@ -2936,8 +2936,8 @@ printf("\npredict\t%e\t%e\t%e\t%e\n", qp_res_max[0], qp_res_max[1], qp_res_max[2
 
 	// solve kkt
 	ws->use_Pb = 0;
-//	SOLVE_KKT_STEP_OCP_QP(ws->qp_step, ws->sol_step, arg, ws);
-	SOLVE_KKT_STEP_OCP_QP(qp, qp_sol, arg, ws);
+//	OCP_QP_SOLVE_KKT_STEP(ws->qp_step, ws->sol_step, arg, ws);
+	OCP_QP_SOLVE_KKT_STEP(qp, qp_sol, arg, ws);
 
 #if 0
 	// alpha TODO fix alpha=1 !!!!!

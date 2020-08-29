@@ -60,10 +60,11 @@ struct d_tree_ocp_qp
 	struct blasfeo_dvec *b; // Nn-1
 	struct blasfeo_dvec *rqz; // Nn
 	struct blasfeo_dvec *d; // Nn
+	struct blasfeo_dvec *d_mask; // Nn
 	struct blasfeo_dvec *m; // Nn
 	struct blasfeo_dvec *Z; // Nn
 	int **idxb; // index of box constraints // Nn
-	int **idxs; // index of soft constraints
+//	int **idxs; // index of soft constraints
 	int **idxs_rev; // index of soft constraints
 	int memsize; // memory size in bytes
 	};
@@ -97,27 +98,27 @@ void d_tree_ocp_qp_set_r(int node, double *vec, struct d_tree_ocp_qp *qp);
 //
 void d_tree_ocp_qp_set_lb(int node, double *vec, struct d_tree_ocp_qp *qp);
 //
-//void d_tree_ocp_qp_set_lb_mask(int node, double *vec, struct d_tree_ocp_qp *qp);
+void d_tree_ocp_qp_set_lb_mask(int node, double *vec, struct d_tree_ocp_qp *qp);
 //
 void d_tree_ocp_qp_set_ub(int node, double *vec, struct d_tree_ocp_qp *qp);
 //
-//void d_tree_ocp_qp_set_ub_mask(int node, double *vec, struct d_tree_ocp_qp *qp);
+void d_tree_ocp_qp_set_ub_mask(int node, double *vec, struct d_tree_ocp_qp *qp);
 //
 void d_tree_ocp_qp_set_lbx(int node, double *vec, struct d_tree_ocp_qp *qp);
 //
-//void d_tree_ocp_qp_set_lbx_mask(int node, double *vec, struct d_tree_ocp_qp *qp);
+void d_tree_ocp_qp_set_lbx_mask(int node, double *vec, struct d_tree_ocp_qp *qp);
 //
 void d_tree_ocp_qp_set_ubx(int node, double *vec, struct d_tree_ocp_qp *qp);
 //
-//void d_tree_ocp_qp_set_ubx_mask(int node, double *vec, struct d_tree_ocp_qp *qp);
+void d_tree_ocp_qp_set_ubx_mask(int node, double *vec, struct d_tree_ocp_qp *qp);
 //
 void d_tree_ocp_qp_set_lbu(int node, double *vec, struct d_tree_ocp_qp *qp);
 //
-//void d_tree_ocp_qp_set_lbu_mask(int node, double *vec, struct d_tree_ocp_qp *qp);
+void d_tree_ocp_qp_set_lbu_mask(int node, double *vec, struct d_tree_ocp_qp *qp);
 //
 void d_tree_ocp_qp_set_ubu(int node, double *vec, struct d_tree_ocp_qp *qp);
 //
-//void d_tree_ocp_qp_set_ubu_mask(int node, double *vec, struct d_tree_ocp_qp *qp);
+void d_tree_ocp_qp_set_ubu_mask(int node, double *vec, struct d_tree_ocp_qp *qp);
 //
 void d_tree_ocp_qp_set_idxb(int node, int *vec, struct d_tree_ocp_qp *qp);
 //
@@ -135,11 +136,11 @@ void d_tree_ocp_qp_set_D(int node, double *mat, struct d_tree_ocp_qp *qp);
 //
 void d_tree_ocp_qp_set_lg(int node, double *vec, struct d_tree_ocp_qp *qp);
 //
-//void d_tree_ocp_qp_set_lg_mask(int node, double *vec, struct d_tree_ocp_qp *qp);
+void d_tree_ocp_qp_set_lg_mask(int node, double *vec, struct d_tree_ocp_qp *qp);
 //
 void d_tree_ocp_qp_set_ug(int node, double *vec, struct d_tree_ocp_qp *qp);
 //
-//void d_tree_ocp_qp_set_ug_mask(int node, double *vec, struct d_tree_ocp_qp *qp);
+void d_tree_ocp_qp_set_ug_mask(int node, double *vec, struct d_tree_ocp_qp *qp);
 //
 void d_tree_ocp_qp_set_Zl(int node, double *vec, struct d_tree_ocp_qp *qp);
 //
@@ -151,11 +152,11 @@ void d_tree_ocp_qp_set_zu(int node, double *vec, struct d_tree_ocp_qp *qp);
 //
 void d_tree_ocp_qp_set_lls(int node, double *vec, struct d_tree_ocp_qp *qp);
 //
-//void d_tree_ocp_qp_set_lls_mask(int node, double *vec, struct d_tree_ocp_qp *qp);
+void d_tree_ocp_qp_set_lls_mask(int node, double *vec, struct d_tree_ocp_qp *qp);
 //
 void d_tree_ocp_qp_set_lus(int node, double *vec, struct d_tree_ocp_qp *qp);
 //
-//void d_tree_ocp_qp_set_lus_mask(int node, double *vec, struct d_tree_ocp_qp *qp);
+void d_tree_ocp_qp_set_lus_mask(int node, double *vec, struct d_tree_ocp_qp *qp);
 //
 void d_tree_ocp_qp_set_idxs(int node, int *vec, struct d_tree_ocp_qp *qp);
 //

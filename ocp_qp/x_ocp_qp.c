@@ -262,7 +262,7 @@ void OCP_QP_CREATE(struct OCP_QP_DIM *dim, struct OCP_QP *qp, void *mem)
 		{
 		CREATE_STRMAT(nu[ii]+nx[ii]+1, nx[ii+1], qp->BAbt+ii, c_ptr);
 		c_ptr += (qp->BAbt+ii)->memsize;
-		GESE(nu[ii]+nx[ii]+1, nx[ii+1], 0.0, qp->BAbt+ii, 0, 0);
+//		GESE(nu[ii]+nx[ii]+1, nx[ii+1], 0.0, qp->BAbt+ii, 0, 0); // 0.0
 		}
 
 	// RSQrq
@@ -270,7 +270,7 @@ void OCP_QP_CREATE(struct OCP_QP_DIM *dim, struct OCP_QP *qp, void *mem)
 		{
 		CREATE_STRMAT(nu[ii]+nx[ii]+1, nu[ii]+nx[ii], qp->RSQrq+ii, c_ptr);
 		c_ptr += (qp->RSQrq+ii)->memsize;
-		GESE(nu[ii]+nx[ii]+1, nu[ii]+nx[ii], 0.0, qp->RSQrq+ii, 0, 0);
+//		GESE(nu[ii]+nx[ii]+1, nu[ii]+nx[ii], 0.0, qp->RSQrq+ii, 0, 0); // 0.0
 		}
 
 	// DCt
@@ -278,7 +278,7 @@ void OCP_QP_CREATE(struct OCP_QP_DIM *dim, struct OCP_QP *qp, void *mem)
 		{
 		CREATE_STRMAT(nu[ii]+nx[ii], ng[ii], qp->DCt+ii, c_ptr);
 		c_ptr += (qp->DCt+ii)->memsize;
-		GESE(nu[ii]+nx[ii], ng[ii], 0.0, qp->DCt+ii, 0, 0);
+//		GESE(nu[ii]+nx[ii], ng[ii], 0.0, qp->DCt+ii, 0, 0); // 0.0
 		}
 
 	// Z
@@ -286,7 +286,7 @@ void OCP_QP_CREATE(struct OCP_QP_DIM *dim, struct OCP_QP *qp, void *mem)
 		{
 		CREATE_STRVEC(2*ns[ii], qp->Z+ii, c_ptr);
 		c_ptr += (qp->Z+ii)->memsize;
-		VECSE(2*ns[ii], 0.0, qp->Z+ii, 0);
+//		VECSE(2*ns[ii], 0.0, qp->Z+ii, 0); // 0.0
 		}
 
 	// g
@@ -299,7 +299,7 @@ void OCP_QP_CREATE(struct OCP_QP_DIM *dim, struct OCP_QP *qp, void *mem)
 		tmp_ptr += nx[ii]*sizeof(REAL);
 		tmp_ptr += ns[ii]*sizeof(REAL);
 		tmp_ptr += ns[ii]*sizeof(REAL);
-		VECSE(nu[ii]+nx[ii]+2*ns[ii], 0.0, qp->rqz+ii, 0);
+//		VECSE(nu[ii]+nx[ii]+2*ns[ii], 0.0, qp->rqz+ii, 0); // 0.0
 		}
 
 	// b
@@ -309,7 +309,7 @@ void OCP_QP_CREATE(struct OCP_QP_DIM *dim, struct OCP_QP *qp, void *mem)
 		{
 		CREATE_STRVEC(nx[ii+1], qp->b+ii, tmp_ptr);
 		tmp_ptr += nx[ii+1]*sizeof(REAL);
-		VECSE(nx[ii+1], 0.0, qp->b+ii, 0);
+//		VECSE(nx[ii+1], 0.0, qp->b+ii, 0); // 0.0
 		}
 
 	// d
@@ -324,7 +324,7 @@ void OCP_QP_CREATE(struct OCP_QP_DIM *dim, struct OCP_QP *qp, void *mem)
 		tmp_ptr += ng[ii]*sizeof(REAL); // ug
 		tmp_ptr += ns[ii]*sizeof(REAL); // ls
 		tmp_ptr += ns[ii]*sizeof(REAL); // us
-		VECSE(2*nb[ii]+2*ng[ii]+2*ns[ii], 0.0, qp->d+ii, 0);
+//		VECSE(2*nb[ii]+2*ng[ii]+2*ns[ii], 0.0, qp->d+ii, 0); // 0.0
 		}
 
 	// d_mask
@@ -339,7 +339,7 @@ void OCP_QP_CREATE(struct OCP_QP_DIM *dim, struct OCP_QP *qp, void *mem)
 		tmp_ptr += ng[ii]*sizeof(REAL); // ug
 		tmp_ptr += ns[ii]*sizeof(REAL); // ls
 		tmp_ptr += ns[ii]*sizeof(REAL); // us
-		VECSE(2*nb[ii]+2*ng[ii]+2*ns[ii], 1.0, qp->d_mask+ii, 0);
+		VECSE(2*nb[ii]+2*ng[ii]+2*ns[ii], 1.0, qp->d_mask+ii, 0); // 1.0
 		}
 
 	// m
@@ -354,7 +354,7 @@ void OCP_QP_CREATE(struct OCP_QP_DIM *dim, struct OCP_QP *qp, void *mem)
 		tmp_ptr += ng[ii]*sizeof(REAL); // ug
 		tmp_ptr += ns[ii]*sizeof(REAL); // ls
 		tmp_ptr += ns[ii]*sizeof(REAL); // us
-		VECSE(2*nb[ii]+2*ng[ii]+2*ns[ii], 0.0, qp->m+ii, 0);
+//		VECSE(2*nb[ii]+2*ng[ii]+2*ns[ii], 0.0, qp->m+ii, 0); // 0.0
 		}
 
 	qp->dim = dim;

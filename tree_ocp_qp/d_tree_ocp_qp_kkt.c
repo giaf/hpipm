@@ -51,6 +51,7 @@
 
 
 
+#define DOUBLE_PRECISION
 #define BLASFEO_MATEL BLASFEO_DMATEL
 #define BLASFEO_VECEL BLASFEO_DVECEL
 
@@ -91,9 +92,9 @@
 #define TRCP_L blasfeo_dtrcp_l
 #define TREE_OCP_QP d_tree_ocp_qp
 #define TREE_OCP_QP_IPM_ARG d_tree_ocp_qp_ipm_arg
-#define TREE_OCP_QP_IPM_WORKSPACE d_tree_ocp_qp_ipm_workspace
+#define TREE_OCP_QP_IPM_WS d_tree_ocp_qp_ipm_ws
 #define TREE_OCP_QP_RES d_tree_ocp_qp_res
-#define TREE_OCP_QP_RES_WORKSPACE d_tree_ocp_qp_res_workspace
+#define TREE_OCP_QP_RES_WS d_tree_ocp_qp_res_ws
 #define TREE_OCP_QP_SOL d_tree_ocp_qp_sol
 #define TRMM_RLNN blasfeo_dtrmm_rlnn
 #define TRMV_LNN blasfeo_dtrmv_lnn
@@ -109,15 +110,12 @@
 #define VECMULDOT blasfeo_dvecmuldot
 #define VECSC blasfeo_dvecsc
 
-#define INIT_VAR_TREE_OCP_QP d_init_var_tree_ocp_qp
-#define COMPUTE_LIN_RES_TREE_OCP_QP d_compute_lin_res_tree_ocp_qp
-#define COMPUTE_RES_TREE_OCP_QP d_compute_res_tree_ocp_qp
-#define FACT_SOLVE_KKT_UNCONSTR_TREE_OCP_QP d_fact_solve_kkt_unconstr_tree_ocp_qp
-#define FACT_SOLVE_KKT_STEP_TREE_OCP_QP d_fact_solve_kkt_step_tree_ocp_qp
-#define FACT_LQ_SOLVE_KKT_STEP_TREE_OCP_QP d_fact_lq_solve_kkt_step_tree_ocp_qp
-#define SOLVE_KKT_STEP_TREE_OCP_QP d_solve_kkt_step_tree_ocp_qp
-
-#define DOUBLE_PRECISION
+#define TREE_OCP_QP_COMPUTE_LIN_RES d_tree_ocp_qp_compute_lin_res
+#define TREE_OCP_QP_COMPUTE_RES d_tree_ocp_qp_compute_res
+#define TREE_OCP_QP_FACT_SOLVE_KKT_UNCONSTR d_tree_ocp_qp_fact_solve_kkt_unconstr
+#define TREE_OCP_QP_FACT_SOLVE_KKT_STEP d_tree_ocp_qp_fact_solve_kkt_step
+#define TREE_OCP_QP_FACT_LQ_SOLVE_KKT_STEP d_tree_ocp_qp_fact_lq_solve_kkt_step
+#define TREE_OCP_QP_SOLVE_KKT_STEP d_tree_ocp_qp_solve_kkt_step
 
 
 

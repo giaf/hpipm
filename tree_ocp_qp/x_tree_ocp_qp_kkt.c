@@ -33,492 +33,8 @@
 *                                                                                                 *
 **************************************************************************************************/
 
-void INIT_VAR_TREE_OCP_QP(struct TREE_OCP_QP *qp, struct TREE_OCP_QP_SOL *qp_sol, struct TREE_OCP_QP_IPM_ARG *arg, struct TREE_OCP_QP_IPM_WORKSPACE *ws)
-	{
-
-//	struct CORE_QP_IPM_WORKSPACE *cws = ws->core_workspace;
-	
-	// loop index
-	int ii, jj;
-
-	//
-	int Nn = qp->dim->Nn;
-	int *nx = qp->dim->nx;
-	int *nu = qp->dim->nu;
-	int *nb = qp->dim->nb;
-	int *ng = qp->dim->ng;
-	int *ns = qp->dim->ns;
-
-	REAL mu0 = arg->mu0;
-
-	//
-	REAL *ux, *pi, *d_lb, *d_ub, *d_lg, *d_ug, *lam_lb, *lam_ub, *lam_lg, *lam_ug, *t_lb, *t_ub, *t_lg, *t_ug;
-	int *idxb;
-
-	REAL thr0 = 0.1;
-
-
-
-	// primal and dual variables
-	if(arg->warm_start==2)
-		{
-
-		thr0 = 1e-1;
-
-		for(ii=0; ii<Nn; ii++)
-			{
-			lam_lb = qp_sol->lam[ii].pa+0;
-			t_lb = qp_sol->t[ii].pa+0;
-
-			for(jj=0; jj<2*nb[ii]+2*ng[ii]+2*ns[ii]; jj++)
-				{
-				if(lam_lb[jj]<thr0)
-					lam_lb[jj] = thr0;
-				if(t_lb[jj]<thr0)
-					t_lb[jj] = thr0;
-				}
-			}
-
-		return;
-		}
-
-
-
-	// ux
-	if(arg->warm_start==0)
-		{
-		// cold start
-		for(ii=0; ii<Nn; ii++)
-			{
-			ux = qp_sol->ux[ii].pa;
-			for(jj=0; jj<nu[ii]+nx[ii]+2*ns[ii]; jj++)
-				{
-				ux[jj] = 0.0;
-				}
-			}
-		}
-	else
-		{
-		// warm start (keep u and x in solution)
-		for(ii=0; ii<Nn; ii++)
-			{
-			ux = qp_sol->ux[ii].pa;
-			for(jj=nu[ii]+nx[ii]; jj<nu[ii]+nx[ii]+2*ns[ii]; jj++)
-				{
-				ux[jj] = 0.0;
-				}
-			}
-		}
-	
-	// pi
-	for(ii=0; ii<Nn-1; ii++)
-		{
-		pi = qp_sol->pi[ii].pa;
-		for(jj=0; jj<nx[ii+1]; jj++)
-			{
-			pi[jj] = 0.0;
-			}
-		}
-	
-	// box constraints
-	for(ii=0; ii<Nn; ii++)
-		{
-		ux = qp_sol->ux[ii].pa;
-		d_lb = qp->d[ii].pa+0;
-		d_ub = qp->d[ii].pa+nb[ii]+ng[ii];
-		lam_lb = qp_sol->lam[ii].pa+0;
-		lam_ub = qp_sol->lam[ii].pa+nb[ii]+ng[ii];
-		t_lb = qp_sol->t[ii].pa+0;
-		t_ub = qp_sol->t[ii].pa+nb[ii]+ng[ii];
-		idxb = qp->idxb[ii];
-		for(jj=0; jj<nb[ii]; jj++)
-			{
-#if 1
-			t_lb[jj] = - d_lb[jj] + ux[idxb[jj]];
-			t_ub[jj] = - d_ub[jj] - ux[idxb[jj]];
-			if(t_lb[jj]<thr0)
-				{
-				if(t_ub[jj]<thr0)
-					{
-					ux[idxb[jj]] = 0.5*(d_lb[jj] + d_ub[jj]);
-					t_lb[jj] = thr0;
-					t_ub[jj] = thr0;
-					}
-				else
-					{
-					t_lb[jj] = thr0;
-					ux[idxb[jj]] = d_lb[jj] + thr0;
-					}
-				}
-			else if(t_ub[jj]<thr0)
-				{
-				t_ub[jj] = thr0;
-				ux[idxb[jj]] = - d_ub[jj] - thr0;
-				}
-#else
-			t_lb[jj] = 1.0;
-			t_ub[jj] = 1.0;
-#endif
-			lam_lb[jj] = mu0/t_lb[jj];
-			lam_ub[jj] = mu0/t_ub[jj];
-			}
-		}
-	
-	// general constraints
-	for(ii=0; ii<Nn; ii++)
-		{
-		t_lg = qp_sol->t[ii].pa+nb[ii];
-		t_ug = qp_sol->t[ii].pa+2*nb[ii]+ng[ii];
-		lam_lg = qp_sol->lam[ii].pa+nb[ii];
-		lam_ug = qp_sol->lam[ii].pa+2*nb[ii]+ng[ii];
-		d_lg = qp->d[ii].pa+nb[ii];
-		d_ug = qp->d[ii].pa+2*nb[ii]+ng[ii];
-		ux = qp_sol->ux[ii].pa;
-		GEMV_T(nu[ii]+nx[ii], ng[ii], 1.0, qp->DCt+ii, 0, 0, qp_sol->ux+ii, 0, 0.0, qp_sol->t+ii, nb[ii], qp_sol->t+ii, nb[ii]);
-		for(jj=0; jj<ng[ii]; jj++)
-			{
-#if 1
-			t_ug[jj] = - t_lg[jj];
-			t_lg[jj] -= d_lg[jj];
-			t_ug[jj] -= d_ug[jj];
-//			t_lg[jj] = fmax(thr0, t_lg[jj]);
-//			t_ug[jj] = fmax(thr0, t_ug[jj]);
-			t_lg[jj] = thr0>t_lg[jj] ? thr0 : t_lg[jj];
-			t_ug[jj] = thr0>t_ug[jj] ? thr0 : t_ug[jj];
-#else
-			t_lg[jj] = 1.0;
-			t_ug[jj] = 1.0;
-#endif
-			lam_lg[jj] = mu0/t_lg[jj];
-			lam_ug[jj] = mu0/t_ug[jj];
-			}
-		}
-
-	// soft constraints
-	for(ii=0; ii<Nn; ii++)
-		{
-		lam_lb = qp_sol->lam[ii].pa+2*nb[ii]+2*ng[ii];
-		lam_ub = qp_sol->lam[ii].pa+2*nb[ii]+2*ng[ii]+ns[ii];
-		t_lb = qp_sol->t[ii].pa+2*nb[ii]+2*ng[ii];
-		t_ub = qp_sol->t[ii].pa+2*nb[ii]+2*ng[ii]+ns[ii];
-		for(jj=0; jj<ns[ii]; jj++)
-			{
-			t_lb[jj] = 1.0; // thr0;
-			t_ub[jj] = 1.0; // thr0;
-			lam_lb[jj] = mu0/t_lb[jj];
-			lam_ub[jj] = mu0/t_ub[jj];
-			}
-		}
-
-	return;
-
-	}
-
-
-
-void COMPUTE_RES_TREE_OCP_QP(struct TREE_OCP_QP *qp, struct TREE_OCP_QP_SOL *qp_sol, struct TREE_OCP_QP_RES *res, struct TREE_OCP_QP_RES_WORKSPACE *ws)
-	{
-
-	struct tree *ttree = qp->dim->ttree;
-	
-	// loop index
-	int ii, jj;
-
-	int nkids, idxkid;
-
-	//
-	int Nn = qp->dim->Nn;
-	int *nx = qp->dim->nx;
-	int *nu = qp->dim->nu;
-	int *nb = qp->dim->nb;
-	int *ng = qp->dim->ng;
-	int *ns = qp->dim->ns;
-
-	int nct = 0;
-	for(ii=0; ii<Nn; ii++)
-		nct += 2*nb[ii]+2*ng[ii]+2*ns[ii];
-
-	REAL nct_inv = 1.0/nct;
-
-
-	struct STRMAT *BAbt = qp->BAbt;
-	struct STRMAT *RSQrq = qp->RSQrq;
-	struct STRMAT *DCt = qp->DCt;
-	struct STRVEC *b = qp->b;
-	struct STRVEC *rqz = qp->rqz;
-	struct STRVEC *d = qp->d;
-	struct STRVEC *m = qp->m;
-	int **idxb = qp->idxb;
-	struct STRVEC *Z = qp->Z;
-//	int **idxs = qp->idxs;
-	int **idxs_rev = qp->idxs_rev;
-
-	struct STRVEC *ux = qp_sol->ux;
-	struct STRVEC *pi = qp_sol->pi;
-	struct STRVEC *lam = qp_sol->lam;
-	struct STRVEC *t = qp_sol->t;
-
-	struct STRVEC *res_g = res->res_g;
-	struct STRVEC *res_b = res->res_b;
-	struct STRVEC *res_d = res->res_d;
-	struct STRVEC *res_m = res->res_m;
-
-	struct STRVEC *tmp_nbgM = ws->tmp_nbgM;
-	struct STRVEC *tmp_nsM = ws->tmp_nsM;
-
-	int nx0, nx1, nu0, nu1, nb0, ng0, ns0, idx;
-
-	//
-	REAL mu = 0.0;
-
-	// loop over nodes
-	for(ii=0; ii<Nn; ii++)
-		{
-
-		nx0 = nx[ii];
-		nu0 = nu[ii];
-		nb0 = nb[ii];
-		ng0 = ng[ii];
-		ns0 = ns[ii];
-
-		VECCP(nu0+nx0, rqz+ii, 0, res_g+ii, 0);
-
-		// if not root
-		if(ii>0)
-			AXPY(nx0, -1.0, pi+(ii-1), 0, res_g+ii, nu0, res_g+ii, nu0);
-
-		SYMV_L(nu0+nx0, nu0+nx0, 1.0, RSQrq+ii, 0, 0, ux+ii, 0, 1.0, res_g+ii, 0, res_g+ii, 0);
-
-		if(nb0+ng0>0)
-			{
-			AXPY(nb0+ng0, -1.0, lam+ii, 0, lam+ii, nb[ii]+ng[ii], tmp_nbgM+0, 0);
-			AXPY(nb0+ng0,  1.0, d+ii, 0, t+ii, 0, res_d+ii, 0);
-			AXPY(nb0+ng0,  1.0, d+ii, nb0+ng0, t+ii, nb0+ng0, res_d+ii, nb0+ng0);
-			// box
-			if(nb0>0)
-				{
-				VECAD_SP(nb0, 1.0, tmp_nbgM+0, 0, idxb[ii], res_g+ii, 0);
-				VECEX_SP(nb0, 1.0, idxb[ii], ux+ii, 0, tmp_nbgM+1, 0);
-				}
-			// general
-			if(ng0>0)
-				{
-				GEMV_NT(nu0+nx0, ng0, 1.0, 1.0, DCt+ii, 0, 0, tmp_nbgM+0, nb[ii], ux+ii, 0, 1.0, 0.0, res_g+ii, 0, tmp_nbgM+1, nb0, res_g+ii, 0, tmp_nbgM+1, nb0);
-				}
-
-			AXPY(nb0+ng0, -1.0, tmp_nbgM+1, 0, res_d+ii, 0, res_d+ii, 0);
-			AXPY(nb0+ng0,  1.0, tmp_nbgM+1, 0, res_d+ii, nb0+ng0, res_d+ii, nb0+ng0);
-			}
-		if(ns0>0)
-			{
-			// res_g
-			GEMV_DIAG(2*ns0, 1.0, Z+ii, 0, ux+ii, nu0+nx0, 1.0, rqz+ii, nu0+nx0, res_g+ii, nu0+nx0);
-			AXPY(2*ns0, -1.0, lam+ii, 2*nb0+2*ng0, res_g+ii, nu0+nx0, res_g+ii, nu0+nx0);
-#if 1
-			for(jj=0; jj<nb0+ng0; jj++)
-				{
-				idx = idxs_rev[ii][jj];
-				if(idx!=-1)
-					{
-					BLASFEO_VECEL(res_g+ii, nu0+nx0+idx) -= BLASFEO_VECEL(lam+ii, jj);
-					BLASFEO_VECEL(res_g+ii, nu0+nx0+ns0+idx) -= BLASFEO_VECEL(lam+ii, nb0+ng0+jj);
-					// res_d
-					BLASFEO_VECEL(res_d+ii, jj) -= BLASFEO_VECEL(ux+ii, nu0+nx0+idx);
-					BLASFEO_VECEL(res_d+ii, nb0+ng0+jj) -= BLASFEO_VECEL(ux+ii, nu0+nx0+ns0+idx);
-					}
-				}
-#else
-			VECEX_SP(ns0, 1.0, idxs[ii], lam+ii, 0, tmp_nsM, 0);
-			AXPY(ns0, -1.0, tmp_nsM, 0, res_g+ii, nu0+nx0, res_g+ii, nu0+nx0);
-			VECEX_SP(ns0, 1.0, idxs[ii], lam+ii, nb0+ng0, tmp_nsM, 0);
-			AXPY(ns0, -1.0, tmp_nsM, 0, res_g+ii, nu0+nx0+ns0, res_g+ii, nu0+nx0+ns0);
-			// res_d
-			VECAD_SP(ns0, -1.0, ux+ii, nu0+nx0, idxs[ii], res_d+ii, 0);
-			VECAD_SP(ns0, -1.0, ux+ii, nu0+nx0+ns0, idxs[ii], res_d+ii, nb0+ng0);
-#endif
-			AXPY(2*ns0, -1.0, ux+ii, nu0+nx0, t+ii, 2*nb0+2*ng0, res_d+ii, 2*nb0+2*ng0);
-			AXPY(2*ns0, 1.0, d+ii, 2*nb0+2*ng0, res_d+ii, 2*nb0+2*ng0, res_d+ii, 2*nb0+2*ng0);
-			}
-
-		// work on kids
-		nkids = (ttree->root+ii)->nkids;
-		for(jj=0; jj<nkids; jj++)
-			{
-
-			idxkid = (ttree->root+ii)->kids[jj];
-
-			nu1 = nu[idxkid];
-			nx1 = nx[idxkid];
-
-			AXPY(nx1, -1.0, ux+idxkid, nu1, b+idxkid-1, 0, res_b+idxkid-1, 0);
-
-			GEMV_NT(nu0+nx0, nx1, 1.0, 1.0, BAbt+idxkid-1, 0, 0, pi+idxkid-1, 0, ux+ii, 0, 1.0, 1.0, res_g+ii, 0, res_b+idxkid-1, 0, res_g+ii, 0, res_b+idxkid-1, 0);
-
-			}
-
-		mu += VECMULDOT(2*nb0+2*ng0+2*ns0, lam+ii, 0, t+ii, 0, res_m+ii, 0);
-		AXPY(2*nb0+2*ng0+2*ns0, -1.0, m+ii, 0, res_m+ii, 0, res_m+ii, 0);
-
-		}
-
-	res->res_mu = mu*nct_inv;
-
-	return;
-
-	}
-
-
-
-void COMPUTE_LIN_RES_TREE_OCP_QP(struct TREE_OCP_QP *qp, struct TREE_OCP_QP_SOL *qp_sol, struct TREE_OCP_QP_SOL *qp_step, struct TREE_OCP_QP_RES *res, struct TREE_OCP_QP_RES_WORKSPACE *ws)
-	{
-
-	struct tree *ttree = qp->dim->ttree;
-	
-	// loop index
-	int ii, jj;
-
-	int nkids, idxkid;
-
-	//
-	int Nn = qp->dim->Nn;
-	int *nx = qp->dim->nx;
-	int *nu = qp->dim->nu;
-	int *nb = qp->dim->nb;
-	int *ng = qp->dim->ng;
-	int *ns = qp->dim->ns;
-
-	struct STRMAT *BAbt = qp->BAbt;
-	struct STRMAT *RSQrq = qp->RSQrq;
-	struct STRMAT *DCt = qp->DCt;
-	struct STRVEC *b = qp->b;
-	struct STRVEC *rqz = qp->rqz;
-	struct STRVEC *d = qp->d;
-	struct STRVEC *m = qp->m;
-	int **idxb = qp->idxb;
-	struct STRVEC *Z = qp->Z;
-//	int **idxs = qp->idxs;
-	int **idxs_rev = qp->idxs_rev;
-
-	struct STRVEC *ux = qp_step->ux;
-	struct STRVEC *pi = qp_step->pi;
-	struct STRVEC *lam = qp_step->lam;
-	struct STRVEC *t = qp_step->t;
-
-	struct STRVEC *Lam = qp_sol->lam;
-	struct STRVEC *T = qp_sol->t;
-
-	struct STRVEC *res_g = res->res_g;
-	struct STRVEC *res_b = res->res_b;
-	struct STRVEC *res_d = res->res_d;
-	struct STRVEC *res_m = res->res_m;
-
-	struct STRVEC *tmp_nbgM = ws->tmp_nbgM;
-	struct STRVEC *tmp_nsM = ws->tmp_nsM;
-
-	int nx0, nx1, nu0, nu1, nb0, ng0, ns0, idx;
-
-	//
-	REAL mu = 0.0;
-
-	// loop over nodes
-	for(ii=0; ii<Nn; ii++)
-		{
-
-		nx0 = nx[ii];
-		nu0 = nu[ii];
-		nb0 = nb[ii];
-		ng0 = ng[ii];
-		ns0 = ns[ii];
-
-		VECCP(nu0+nx0, rqz+ii, 0, res_g+ii, 0);
-
-		// if not root
-		if(ii>0)
-			AXPY(nx0, -1.0, pi+(ii-1), 0, res_g+ii, nu0, res_g+ii, nu0);
-
-		SYMV_L(nu0+nx0, nu0+nx0, 1.0, RSQrq+ii, 0, 0, ux+ii, 0, 1.0, res_g+ii, 0, res_g+ii, 0);
-
-		if(nb0+ng0>0)
-			{
-			AXPY(nb0+ng0, -1.0, lam+ii, 0, lam+ii, nb[ii]+ng[ii], tmp_nbgM+0, 0);
-			AXPY(nb0+ng0,  1.0, d+ii, 0, t+ii, 0, res_d+ii, 0);
-			AXPY(nb0+ng0,  1.0, d+ii, nb0+ng0, t+ii, nb0+ng0, res_d+ii, nb0+ng0);
-			// box
-			if(nb0>0)
-				{
-				VECAD_SP(nb0, 1.0, tmp_nbgM+0, 0, idxb[ii], res_g+ii, 0);
-				VECEX_SP(nb0, 1.0, idxb[ii], ux+ii, 0, tmp_nbgM+1, 0);
-				}
-			// general
-			if(ng0>0)
-				{
-				GEMV_NT(nu0+nx0, ng0, 1.0, 1.0, DCt+ii, 0, 0, tmp_nbgM+0, nb[ii], ux+ii, 0, 1.0, 0.0, res_g+ii, 0, tmp_nbgM+1, nb0, res_g+ii, 0, tmp_nbgM+1, nb0);
-				}
-
-			AXPY(nb0+ng0, -1.0, tmp_nbgM+1, 0, res_d+ii, 0, res_d+ii, 0);
-			AXPY(nb0+ng0,  1.0, tmp_nbgM+1, 0, res_d+ii, nb0+ng0, res_d+ii, nb0+ng0);
-			}
-		if(ns0>0)
-			{
-			// res_g
-			GEMV_DIAG(2*ns0, 1.0, Z+ii, 0, ux+ii, nu0+nx0, 1.0, rqz+ii, nu0+nx0, res_g+ii, nu0+nx0);
-			AXPY(2*ns0, -1.0, lam+ii, 2*nb0+2*ng0, res_g+ii, nu0+nx0, res_g+ii, nu0+nx0);
-#if 1
-			for(jj=0; jj<nb0+ng0; jj++)
-				{
-				idx = idxs_rev[ii][jj];
-				if(idx!=-1)
-					{
-					BLASFEO_VECEL(res_g+ii, nu0+nx0+idx) -= BLASFEO_VECEL(lam+ii, jj);
-					BLASFEO_VECEL(res_g+ii, nu0+nx0+ns0+idx) -= BLASFEO_VECEL(lam+ii, nb0+ng0+jj);
-					// res_d
-					BLASFEO_VECEL(res_d+ii, jj) -= BLASFEO_VECEL(ux+ii, nu0+nx0+idx);
-					BLASFEO_VECEL(res_d+ii, nb0+ng0+jj) -= BLASFEO_VECEL(ux+ii, nu0+nx0+ns0+idx);
-					}
-				}
-#else
-			VECEX_SP(ns0, 1.0, idxs[ii], lam+ii, 0, tmp_nsM, 0);
-			AXPY(ns0, -1.0, tmp_nsM, 0, res_g+ii, nu0+nx0, res_g+ii, nu0+nx0);
-			VECEX_SP(ns0, 1.0, idxs[ii], lam+ii, nb0+ng0, tmp_nsM, 0);
-			AXPY(ns0, -1.0, tmp_nsM, 0, res_g+ii, nu0+nx0+ns0, res_g+ii, nu0+nx0+ns0);
-			// res_d
-			VECAD_SP(ns0, -1.0, ux+ii, nu0+nx0, idxs[ii], res_d+ii, 0);
-			VECAD_SP(ns0, -1.0, ux+ii, nu0+nx0+ns0, idxs[ii], res_d+ii, nb0+ng0);
-#endif
-			AXPY(2*ns0, -1.0, ux+ii, nu0+nx0, t+ii, 2*nb0+2*ng0, res_d+ii, 2*nb0+2*ng0);
-			AXPY(2*ns0, 1.0, d+ii, 2*nb0+2*ng0, res_d+ii, 2*nb0+2*ng0, res_d+ii, 2*nb0+2*ng0);
-			}
-
-		// work on kids
-		nkids = (ttree->root+ii)->nkids;
-		for(jj=0; jj<nkids; jj++)
-			{
-
-			idxkid = (ttree->root+ii)->kids[jj];
-
-			nu1 = nu[idxkid];
-			nx1 = nx[idxkid];
-
-			AXPY(nx1, -1.0, ux+idxkid, nu1, b+idxkid-1, 0, res_b+idxkid-1, 0);
-
-			GEMV_NT(nu0+nx0, nx1, 1.0, 1.0, BAbt+idxkid-1, 0, 0, pi+idxkid-1, 0, ux+ii, 0, 1.0, 1.0, res_g+ii, 0, res_b+idxkid-1, 0, res_g+ii, 0, res_b+idxkid-1, 0);
-
-			}
-
-		VECCP(2*nb0+2*ng0+2*ns0, m+ii, 0, res_m+ii, 0);
-		VECMULACC(2*nb0+2*ng0+2*ns0, Lam+ii, 0, t+ii, 0, res_m+ii, 0);
-		VECMULACC(2*nb0+2*ng0+2*ns0, lam+ii, 0, T+ii, 0, res_m+ii, 0);
-
-		}
-
-	return;
-
-	}
-
-
-
 // backward Riccati recursion
-void FACT_SOLVE_KKT_UNCONSTR_TREE_OCP_QP(struct TREE_OCP_QP *qp, struct TREE_OCP_QP_SOL *qp_sol, struct TREE_OCP_QP_IPM_ARG *arg, struct TREE_OCP_QP_IPM_WORKSPACE *ws)
+void TREE_OCP_QP_FACT_SOLVE_KKT_UNCONSTR(struct TREE_OCP_QP *qp, struct TREE_OCP_QP_SOL *qp_sol, struct TREE_OCP_QP_IPM_ARG *arg, struct TREE_OCP_QP_IPM_WS *ws)
 	{
 
 	int Nn = qp->dim->Nn;
@@ -641,7 +157,7 @@ void FACT_SOLVE_KKT_UNCONSTR_TREE_OCP_QP(struct TREE_OCP_QP *qp, struct TREE_OCP
 
 
 
-static void COND_SLACKS_FACT_SOLVE(int ss, struct TREE_OCP_QP *qp, struct TREE_OCP_QP_SOL *qp_sol, struct TREE_OCP_QP_IPM_ARG *arg, struct TREE_OCP_QP_IPM_WORKSPACE *ws)
+static void COND_SLACKS_FACT_SOLVE(int ss, struct TREE_OCP_QP *qp, struct TREE_OCP_QP_SOL *qp_sol, struct TREE_OCP_QP_IPM_ARG *arg, struct TREE_OCP_QP_IPM_WS *ws)
 	{
 
 	int ii, idx;
@@ -736,7 +252,7 @@ static void COND_SLACKS_FACT_SOLVE(int ss, struct TREE_OCP_QP *qp, struct TREE_O
 
 
 
-static void COND_SLACKS_SOLVE(int ss, struct TREE_OCP_QP *qp, struct TREE_OCP_QP_SOL *qp_sol, struct TREE_OCP_QP_IPM_WORKSPACE *ws)
+static void COND_SLACKS_SOLVE(int ss, struct TREE_OCP_QP *qp, struct TREE_OCP_QP_SOL *qp_sol, struct TREE_OCP_QP_IPM_WS *ws)
 	{
 
 	int ii, idx;
@@ -812,7 +328,7 @@ static void COND_SLACKS_SOLVE(int ss, struct TREE_OCP_QP *qp, struct TREE_OCP_QP
 
 
 
-static void EXPAND_SLACKS(int ss, struct TREE_OCP_QP *qp, struct TREE_OCP_QP_SOL *qp_sol, struct TREE_OCP_QP_IPM_WORKSPACE *ws)
+static void EXPAND_SLACKS(int ss, struct TREE_OCP_QP *qp, struct TREE_OCP_QP_SOL *qp_sol, struct TREE_OCP_QP_IPM_WS *ws)
 	{
 
 	int ii, idx;
@@ -874,7 +390,7 @@ static void EXPAND_SLACKS(int ss, struct TREE_OCP_QP *qp, struct TREE_OCP_QP_SOL
 
 
 // backward Riccati recursion
-void FACT_SOLVE_KKT_STEP_TREE_OCP_QP(struct TREE_OCP_QP *qp, struct TREE_OCP_QP_SOL *qp_sol, struct TREE_OCP_QP_IPM_ARG *arg, struct TREE_OCP_QP_IPM_WORKSPACE *ws)
+void TREE_OCP_QP_FACT_SOLVE_KKT_STEP(struct TREE_OCP_QP *qp, struct TREE_OCP_QP_SOL *qp_sol, struct TREE_OCP_QP_IPM_ARG *arg, struct TREE_OCP_QP_IPM_WS *ws)
 	{
 
 	int Nn = qp->dim->Nn;
@@ -1009,7 +525,7 @@ void FACT_SOLVE_KKT_STEP_TREE_OCP_QP(struct TREE_OCP_QP *qp, struct TREE_OCP_QP_
 			idxkid = (ttree->root+idx)->kids[jj];
 
 			GEMV_T(nu[idx]+nx[idx], nx[idxkid], 1.0, BAbt+idxkid-1, 0, 0, dux+idx, 0, 1.0, res_b+idxkid-1, 0, dux+idxkid, nu[idxkid]);
-			if(arg->comp_dual_sol)
+			if(arg->comp_dual_sol_eq)
 				{
 				ROWEX(nx[idxkid], 1.0, L+idxkid, nu[idxkid]+nx[idxkid], nu[idxkid], tmp_nxM, 0);
 				TRMV_LTN(nx[idxkid], nx[idxkid], L+idxkid, nu[idxkid], nu[idxkid], dux+idxkid, nu[idxkid], dpi+idxkid-1, 0);
@@ -1049,7 +565,7 @@ void FACT_SOLVE_KKT_STEP_TREE_OCP_QP(struct TREE_OCP_QP *qp, struct TREE_OCP_QP_
 
 
 // backward Riccati recursion
-void FACT_LQ_SOLVE_KKT_STEP_TREE_OCP_QP(struct TREE_OCP_QP *qp, struct TREE_OCP_QP_SOL *qp_sol, struct TREE_OCP_QP_IPM_ARG *arg, struct TREE_OCP_QP_IPM_WORKSPACE *ws)
+void TREE_OCP_QP_FACT_LQ_SOLVE_KKT_STEP(struct TREE_OCP_QP *qp, struct TREE_OCP_QP_SOL *qp_sol, struct TREE_OCP_QP_IPM_ARG *arg, struct TREE_OCP_QP_IPM_WS *ws)
 	{
 
 	int Nn = qp->dim->Nn;
@@ -1274,7 +790,7 @@ void FACT_LQ_SOLVE_KKT_STEP_TREE_OCP_QP(struct TREE_OCP_QP *qp, struct TREE_OCP_
 
 
 // backward Riccati recursion
-void SOLVE_KKT_STEP_TREE_OCP_QP(struct TREE_OCP_QP *qp, struct TREE_OCP_QP_SOL *qp_sol, struct TREE_OCP_QP_IPM_ARG *arg, struct TREE_OCP_QP_IPM_WORKSPACE *ws)
+void TREE_OCP_QP_SOLVE_KKT_STEP(struct TREE_OCP_QP *qp, struct TREE_OCP_QP_SOL *qp_sol, struct TREE_OCP_QP_IPM_ARG *arg, struct TREE_OCP_QP_IPM_WS *ws)
 	{
 
 	int Nn = qp->dim->Nn;
@@ -1401,12 +917,12 @@ void SOLVE_KKT_STEP_TREE_OCP_QP(struct TREE_OCP_QP *qp, struct TREE_OCP_QP_SOL *
 
 			idxkid = (ttree->root+idx)->kids[jj];
 
-			if(arg->comp_dual_sol)
+			if(arg->comp_dual_sol_eq)
 				{
 				VECCP(nx[idxkid], dux+idxkid, nu[idxkid], dpi+idxkid-1, 0);
 				}
 			GEMV_T(nu[idx]+nx[idx], nx[idxkid], 1.0, BAbt+idxkid-1, 0, 0, dux+idx, 0, 1.0, res_b+idxkid-1, 0, dux+idxkid, nu[idxkid]);
-			if(arg->comp_dual_sol)
+			if(arg->comp_dual_sol_eq)
 				{
 				VECCP(nx[idxkid], dux+idxkid, nu[idxkid], tmp_nxM, 0);
 				TRMV_LTN(nx[idxkid], nx[idxkid], L+idxkid, nu[idxkid], nu[idxkid], tmp_nxM, 0, tmp_nxM, 0);

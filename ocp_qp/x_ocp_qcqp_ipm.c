@@ -1162,11 +1162,7 @@ void OCP_QCQP_APPROX_QP(struct OCP_QCQP *qcqp, struct OCP_QCQP_SOL *qcqp_sol, st
 
 		for(jj=0; jj<nq[ii]; jj++)
 			{
-#ifdef DOUBLE_PRECISION
-			tmp = - BLASFEO_DVECEL(qcqp_sol->lam+ii, nb[ii]+ng[ii]+jj) + BLASFEO_DVECEL(qcqp_sol->lam+ii, 2*nb[ii]+2*ng[ii]+nq[ii]+jj);
-#else
-			tmp = - BLASFEO_SVECEL(qcqp_sol->lam+ii, nb[ii]+ng[ii]+jj) + BLASFEO_SVECEL(qcqp_sol->lam+ii, 2*nb[ii]+2*ng[ii]+nq[ii]+jj);
-#endif
+			tmp = - BLASFEO_VECEL(qcqp_sol->lam+ii, nb[ii]+ng[ii]+jj) + BLASFEO_VECEL(qcqp_sol->lam+ii, 2*nb[ii]+2*ng[ii]+nq[ii]+jj);
 			GEAD(nu[ii]+nx[ii], nu[ii]+nx[ii], tmp, &qcqp->Hq[ii][jj], 0, 0, qp->RSQrq+ii, 0, 0);
 
 			SYMV_L(nu[ii]+nx[ii], nu[ii]+nx[ii], 1.0, &qcqp->Hq[ii][jj], 0, 0, qcqp_sol->ux+ii, 0, 0.0, ws->tmp_nuxM+0, 0, ws->tmp_nuxM+0, 0);
@@ -1178,16 +1174,10 @@ void OCP_QCQP_APPROX_QP(struct OCP_QCQP *qcqp, struct OCP_QCQP_SOL *qcqp_sol, st
 			COLEX(nu[ii]+nx[ii], qcqp->DCt+ii, 0, ng[ii]+jj, ws->tmp_nuxM+1, 0);
 			AXPY(nu[ii]+nx[ii], 0.5, ws->tmp_nuxM+0, 0, ws->tmp_nuxM+1, 0, ws->tmp_nuxM+1, 0);
 			tmp = DOT(nu[ii]+nx[ii], ws->tmp_nuxM+1, 0, qcqp_sol->ux+ii, 0);
-#ifdef DOUBLE_PRECISION
 			// TODO maybe swap signs?
-			BLASFEO_DVECEL(qp->d+ii, nb[ii]+ng[ii]+jj) += - tmp;
-			BLASFEO_DVECEL(qp->d+ii, 2*nb[ii]+2*ng[ii]+nq[ii]+jj) += + tmp;
-			BLASFEO_DVECEL(ws->qcqp_res_ws->q_fun+ii, jj) = tmp;
-#else
-			BLASFEO_SVECEL(qp->d+ii, nb[ii]+ng[ii]+jj) += - tmp;
-			BLASFEO_SVECEL(qp->d+ii, 2*nb[ii]+2*ng[ii]+nq[ii]+jj) += + tmp;
-			BLASFEO_SVECEL(ws->qcqp_res_ws->q_fun+ii, jj) = tmp;
-#endif
+			BLASFEO_VECEL(qp->d+ii, nb[ii]+ng[ii]+jj) += - tmp;
+			BLASFEO_VECEL(qp->d+ii, 2*nb[ii]+2*ng[ii]+nq[ii]+jj) += + tmp;
+			BLASFEO_VECEL(ws->qcqp_res_ws->q_fun+ii, jj) = tmp;
 			}
 
 		VECCP(2*nb[ii]+2*ng[ii]+2*nq[ii]+2*ns[ii], qcqp->d_mask+ii, 0, qp->d_mask+ii, 0);
@@ -1249,11 +1239,7 @@ void OCP_QCQP_UPDATE_QP(struct OCP_QCQP *qcqp, struct OCP_QCQP_SOL *qcqp_sol, st
 
 		for(jj=0; jj<nq[ii]; jj++)
 			{
-#ifdef DOUBLE_PRECISION
-			tmp = - BLASFEO_DVECEL(qcqp_sol->lam+ii, nb[ii]+ng[ii]+jj) + BLASFEO_DVECEL(qcqp_sol->lam+ii, 2*nb[ii]+2*ng[ii]+nq[ii]+jj);
-#else
-			tmp = - BLASFEO_SVECEL(qcqp_sol->lam+ii, nb[ii]+ng[ii]+jj) + BLASFEO_SVECEL(qcqp_sol->lam+ii, 2*nb[ii]+2*ng[ii]+nq[ii]+jj);
-#endif
+			tmp = - BLASFEO_VECEL(qcqp_sol->lam+ii, nb[ii]+ng[ii]+jj) + BLASFEO_VECEL(qcqp_sol->lam+ii, 2*nb[ii]+2*ng[ii]+nq[ii]+jj);
 			GEAD(nu[ii]+nx[ii], nu[ii]+nx[ii], tmp, &qcqp->Hq[ii][jj], 0, 0, qp->RSQrq+ii, 0, 0);
 
 			SYMV_L(nu[ii]+nx[ii], nu[ii]+nx[ii], 1.0, &qcqp->Hq[ii][jj], 0, 0, qcqp_sol->ux+ii, 0, 0.0, ws->tmp_nuxM+0, 0, ws->tmp_nuxM+0, 0);
@@ -1265,16 +1251,10 @@ void OCP_QCQP_UPDATE_QP(struct OCP_QCQP *qcqp, struct OCP_QCQP_SOL *qcqp_sol, st
 			COLEX(nu[ii]+nx[ii], qcqp->DCt+ii, 0, ng[ii]+jj, ws->tmp_nuxM+1, 0);
 			AXPY(nu[ii]+nx[ii], 0.5, ws->tmp_nuxM+0, 0, ws->tmp_nuxM+1, 0, ws->tmp_nuxM+1, 0);
 			tmp = DOT(nu[ii]+nx[ii], ws->tmp_nuxM+1, 0, qcqp_sol->ux+ii, 0);
-#ifdef DOUBLE_PRECISION
 			// TODO maybe swap signs?
-			BLASFEO_DVECEL(qp->d+ii, nb[ii]+ng[ii]+jj) += - tmp;
-			BLASFEO_DVECEL(qp->d+ii, 2*nb[ii]+2*ng[ii]+nq[ii]+jj) += + tmp;
-			BLASFEO_DVECEL(ws->qcqp_res_ws->q_fun+ii, jj) = tmp;
-#else
-			BLASFEO_SVECEL(qp->d+ii, nb[ii]+ng[ii]+jj) += - tmp;
-			BLASFEO_SVECEL(qp->d+ii, 2*nb[ii]+2*ng[ii]+nq[ii]+jj) += + tmp;
-			BLASFEO_SVECEL(ws->qcqp_res_ws->q_fun+ii, jj) = tmp;
-#endif
+			BLASFEO_VECEL(qp->d+ii, nb[ii]+ng[ii]+jj) += - tmp;
+			BLASFEO_VECEL(qp->d+ii, 2*nb[ii]+2*ng[ii]+nq[ii]+jj) += + tmp;
+			BLASFEO_VECEL(ws->qcqp_res_ws->q_fun+ii, jj) = tmp;
 			}
 
 		// TODO needed ?????
@@ -1316,11 +1296,7 @@ void OCP_QCQP_UPDATE_QP_ABS_STEP(struct OCP_QCQP *qcqp, struct OCP_QCQP_SOL *qcq
 
 		for(jj=0; jj<nq[ii]; jj++)
 			{
-#ifdef DOUBLE_PRECISION
-			tmp = - BLASFEO_DVECEL(qcqp_sol->lam+ii, nb[ii]+ng[ii]+jj) + BLASFEO_DVECEL(qcqp_sol->lam+ii, 2*nb[ii]+2*ng[ii]+nq[ii]+jj);
-#else
-			tmp = - BLASFEO_SVECEL(qcqp_sol->lam+ii, nb[ii]+ng[ii]+jj) + BLASFEO_SVECEL(qcqp_sol->lam+ii, 2*nb[ii]+2*ng[ii]+nq[ii]+jj);
-#endif
+			tmp = - BLASFEO_VECEL(qcqp_sol->lam+ii, nb[ii]+ng[ii]+jj) + BLASFEO_VECEL(qcqp_sol->lam+ii, 2*nb[ii]+2*ng[ii]+nq[ii]+jj);
 			GEAD(nu[ii]+nx[ii], nu[ii]+nx[ii], tmp, &qcqp->Hq[ii][jj], 0, 0, qp->RSQrq+ii, 0, 0);
 
 			SYMV_L(nu[ii]+nx[ii], nu[ii]+nx[ii], 1.0, &qcqp->Hq[ii][jj], 0, 0, qcqp_sol->ux+ii, 0, 0.0, ws->tmp_nuxM+0, 0, ws->tmp_nuxM+0, 0);
@@ -1336,16 +1312,10 @@ void OCP_QCQP_UPDATE_QP_ABS_STEP(struct OCP_QCQP *qcqp, struct OCP_QCQP_SOL *qcq
 			COLEX(nu[ii]+nx[ii], qcqp->DCt+ii, 0, ng[ii]+jj, ws->tmp_nuxM+0, 0);
 			AXPY(nu[ii]+nx[ii], 1.0, ws->tmp_nuxM+0, 0, ws->tmp_nuxM+1, 0, ws->tmp_nuxM+1, 0);
 			tmp = DOT(nu[ii]+nx[ii], ws->tmp_nuxM+1, 0, qcqp_sol->ux+ii, 0);
-#ifdef DOUBLE_PRECISION
 			// TODO maybe swap signs?
-			BLASFEO_DVECEL(qp->d+ii, nb[ii]+ng[ii]+jj) += - tmp;
-			BLASFEO_DVECEL(qp->d+ii, 2*nb[ii]+2*ng[ii]+nq[ii]+jj) += + tmp;
-			BLASFEO_DVECEL(ws->qcqp_res_ws->q_fun+ii, jj) = tmp;
-#else
-			BLASFEO_SVECEL(qp->d+ii, nb[ii]+ng[ii]+jj) += - tmp;
-			BLASFEO_SVECEL(qp->d+ii, 2*nb[ii]+2*ng[ii]+nq[ii]+jj) += + tmp;
-			BLASFEO_SVECEL(ws->qcqp_res_ws->q_fun+ii, jj) = tmp;
-#endif
+			BLASFEO_VECEL(qp->d+ii, nb[ii]+ng[ii]+jj) += - tmp;
+			BLASFEO_VECEL(qp->d+ii, 2*nb[ii]+2*ng[ii]+nq[ii]+jj) += + tmp;
+			BLASFEO_VECEL(ws->qcqp_res_ws->q_fun+ii, jj) = tmp;
 			}
 
 		// TODO needed ?????
@@ -1550,11 +1520,7 @@ void OCP_QCQP_IPM_SOLVE(struct OCP_QCQP *qcqp, struct OCP_QCQP_SOL *qcqp_sol, st
 			idx = qcqp->idxs_rev[ii][nb[ii]+ng[ii]+jj];
 			if(idx!=-1)
 				{
-#ifdef DOUBLE_PRECISION
-				BLASFEO_DVECEL(qcqp->d_mask+ii, 2*nb[ii]+2*ng[ii]+2*nq[ii]+idx) = 0.0;
-#else
-				BLASFEO_DVECEL(qcqp->d_mask+ii, 2*nb[ii]+2*ng[ii]+2*nq[ii]+idx) = 0.0;
-#endif
+				BLASFEO_VECEL(qcqp->d_mask+ii, 2*nb[ii]+2*ng[ii]+2*nq[ii]+idx) = 0.0;
 				}
 			}
 		}
@@ -1597,7 +1563,7 @@ void OCP_QCQP_IPM_SOLVE(struct OCP_QCQP *qcqp, struct OCP_QCQP_SOL *qcqp_sol, st
 	// no constraints
 	if(cws->nc==0 | mask_unconstr==1)
 		{
-		FACT_SOLVE_KKT_UNCONSTR_OCP_QP(qp, qp_sol, qp_arg, qp_ws);
+		OCP_QP_FACT_SOLVE_KKT_UNCONSTR(qp, qp_sol, qp_arg, qp_ws);
 		OCP_QP_SOL_CONV_QCQP_SOL(qp_sol, qcqp_sol);
 		if(qp_arg->comp_res_exit)
 			{

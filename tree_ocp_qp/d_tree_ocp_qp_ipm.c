@@ -59,19 +59,19 @@
 #define COMPUTE_ALPHA_QP d_compute_alpha_qp
 #define COMPUTE_CENTERING_CORRECTION_QP d_compute_centering_correction_qp
 #define COMPUTE_CENTERING_QP d_compute_centering_qp
-#define COMPUTE_LIN_RES_TREE_OCP_QP d_compute_lin_res_tree_ocp_qp
 #define COMPUTE_MU_AFF_QP d_compute_mu_aff_qp
-#define COMPUTE_RES_TREE_OCP_QP d_compute_res_tree_ocp_qp
+#define COMPUTE_TAU_MIN_QP d_compute_tau_min_qp
 #define CORE_QP_IPM_WORKSPACE d_core_qp_ipm_workspace
 #define CREATE_TREE_OCP_QP_RES d_create_tree_ocp_qp_res
 #define CREATE_TREE_OCP_QP_SOL d_create_tree_ocp_qp_sol
 #define CREATE_STRMAT blasfeo_create_dmat
 #define CREATE_STRVEC blasfeo_create_dvec
 #define CREATE_CORE_QP_IPM d_create_core_qp_ipm
-#define FACT_LQ_SOLVE_KKT_STEP_TREE_OCP_QP d_fact_lq_solve_kkt_step_tree_ocp_qp
-#define FACT_SOLVE_KKT_STEP_TREE_OCP_QP d_fact_solve_kkt_step_tree_ocp_qp
-#define FACT_SOLVE_KKT_UNCONSTR_TREE_OCP_QP d_fact_solve_kkt_unconstr_tree_ocp_qp
+#define TREE_OCP_QP_FACT_LQ_SOLVE_KKT_STEP d_tree_ocp_qp_fact_lq_solve_kkt_step
+#define TREE_OCP_QP_FACT_SOLVE_KKT_STEP d_tree_ocp_qp_fact_solve_kkt_step
+#define TREE_OCP_QP_FACT_SOLVE_KKT_UNCONSTR d_tree_ocp_qp_fact_solve_kkt_unconstr
 #define GELQF_WORKSIZE blasfeo_dgelqf_worksize
+#define GEMV_T blasfeo_dgemv_t
 #define INIT_VAR_TREE_OCP_QP d_init_var_tree_ocp_qp
 #define MEMSIZE_CORE_QP_IPM d_memsize_core_qp_ipm
 #define MEMSIZE_TREE_OCP_QP_RES d_memsize_tree_ocp_qp_res
@@ -79,18 +79,24 @@
 #define REAL double
 #define SIZE_STRMAT blasfeo_memsize_dmat
 #define SIZE_STRVEC blasfeo_memsize_dvec
-#define SOLVE_KKT_STEP_TREE_OCP_QP d_solve_kkt_step_tree_ocp_qp
+#define TREE_OCP_QP_SOLVE_KKT_STEP d_tree_ocp_qp_solve_kkt_step
 #define STRMAT blasfeo_dmat
 #define STRVEC blasfeo_dvec
 #define TREE_OCP_QP d_tree_ocp_qp
 #define TREE_OCP_QP_DIM d_tree_ocp_qp_dim
 #define TREE_OCP_QP_IPM_ARG d_tree_ocp_qp_ipm_arg
 #define HPIPM_MODE hpipm_mode
-#define TREE_OCP_QP_IPM_WORKSPACE d_tree_ocp_qp_ipm_workspace
+#define TREE_OCP_QP_IPM_ABS_STEP d_tree_ocp_qp_ipm_abs_step
+#define TREE_OCP_QP_IPM_DELTA_STEP d_tree_ocp_qp_ipm_delta_step
+#define TREE_OCP_QP_IPM_WS d_tree_ocp_qp_ipm_ws
 #define TREE_OCP_QP_RES d_tree_ocp_qp_res
-#define TREE_OCP_QP_RES_WORKSPACE d_tree_ocp_qp_res_workspace
+#define TREE_OCP_QP_RES_WS d_tree_ocp_qp_res_ws
+#define TREE_OCP_QP_RES_COMPUTE d_tree_ocp_qp_res_compute
+#define TREE_OCP_QP_RES_COMPUTE_INF_NORM d_tree_ocp_qp_res_compute_inf_norm
+#define TREE_OCP_QP_RES_COMPUTE_LIN d_tree_ocp_qp_res_compute_lin
 #define TREE_OCP_QP_SOL d_tree_ocp_qp_sol
 #define UPDATE_VAR_QP d_update_var_qp
+#define VECMUL blasfeo_dvecmul
 #define VECMULDOT blasfeo_dvecmuldot
 #define VECNRM_INF blasfeo_dvecnrm_inf
 #define VECSC blasfeo_dvecsc
@@ -115,8 +121,8 @@
 #define GET_TREE_OCP_QP_IPM_RES_INEQ d_get_tree_ocp_qp_ipm_res_ineq
 #define GET_TREE_OCP_QP_IPM_RES_COMP d_get_tree_ocp_qp_ipm_res_comp
 #define GET_TREE_OCP_QP_IPM_STAT d_get_tree_ocp_qp_ipm_stat
-#define SOLVE_TREE_OCP_QP_IPM d_solve_tree_ocp_qp_ipm
-#define SOLVE_TREE_OCP_QP_IPM2 d_solve_tree_ocp_qp_ipm2
+#define TREE_OCP_QP_INIT_VAR d_tree_ocp_qp_init_var
+#define TREE_OCP_QP_IPM_SOLVE d_tree_ocp_qp_ipm_solve
 
 
 

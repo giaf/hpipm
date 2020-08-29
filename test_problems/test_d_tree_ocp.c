@@ -978,7 +978,7 @@ exit(1);
 #endif
 	void *ipm_memory = malloc(ipm_size);
 
-	struct d_tree_ocp_qp_ipm_workspace workspace;
+	struct d_tree_ocp_qp_ipm_ws workspace;
 	d_create_tree_ocp_qp_ipm(&dim, &arg, &workspace, ipm_memory);
 
 	int hpipm_return; // 0 normal; 1 max iter
@@ -991,7 +991,9 @@ exit(1);
 
 	for(rep=0; rep<nrep; rep++)
 		{
-		hpipm_return = d_solve_tree_ocp_qp_ipm(&qp, &qp_sol, &arg, &workspace);
+//		hpipm_return = d_tree_ocp_qp_ipm_solve(&qp, &qp_sol, &arg, &workspace);
+		d_tree_ocp_qp_ipm_solve(&qp, &qp_sol, &arg, &workspace);
+		hpipm_return = 0; // XXX !!!!!!!!!!!!!!!!!!!!!!!!
 		}
 
 	gettimeofday(&tv1, NULL); // stop

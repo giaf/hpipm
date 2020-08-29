@@ -41,29 +41,51 @@
 #include <blasfeo_target.h>
 #include <blasfeo_common.h>
 #include <blasfeo_s_aux.h>
+#include <blasfeo_s_blas.h>
 
+#include <hpipm_tree.h>
 #include <hpipm_s_tree_ocp_qp_dim.h>
 #include <hpipm_s_tree_ocp_qp_res.h>
 
 
 
+#define BLASFEO_VECEL BLASFEO_SVECEL
+
+
+
+#define AXPY blasfeo_saxpy
 #define CREATE_STRVEC blasfeo_create_svec
+#define GEMV_DIAG blasfeo_sgemv_d
+#define GEMV_NT blasfeo_sgemv_nt
 #define UNPACK_VEC blasfeo_unpack_svec
 #define TREE_OCP_QP_DIM s_tree_ocp_qp_dim
 #define TREE_OCP_QP_RES s_tree_ocp_qp_res
-#define TREE_OCP_QP_RES_WORKSPACE s_tree_ocp_qp_res_workspace
+#define TREE_OCP_QP_RES_WS s_tree_ocp_qp_res_ws
 #define REAL float
 #define SIZE_STRVEC blasfeo_memsize_svec
+#define STRMAT blasfeo_smat
 #define STRVEC blasfeo_svec
+#define SYMV_L blasfeo_ssymv_l
+#define TREE_OCP_QP s_tree_ocp_qp
+#define TREE_OCP_QP_SOL s_tree_ocp_qp_sol
+#define VECAD_SP blasfeo_svecad_sp
+#define VECCP blasfeo_sveccp
+#define VECEX_SP blasfeo_svecex_sp
+#define VECMULACC blasfeo_svecmulacc
+#define VECMULDOT blasfeo_svecmuldot
+#define VECNRM_INF blasfeo_svecnrm_inf
 
 
 
 #define MEMSIZE_TREE_OCP_QP_RES s_memsize_tree_ocp_qp_res
 #define CREATE_TREE_OCP_QP_RES s_create_tree_ocp_qp_res
-#define MEMSIZE_TREE_OCP_QP_RES_WORKSPACE s_memsize_tree_ocp_qp_res_workspace
-#define CREATE_TREE_OCP_QP_RES_WORKSPACE s_create_tree_ocp_qp_res_workspace
+#define MEMSIZE_TREE_OCP_QP_RES_WS s_memsize_tree_ocp_qp_res_ws
+#define CREATE_TREE_OCP_QP_RES_WS s_create_tree_ocp_qp_res_ws
 #define CVT_TREE_OCP_QP_RES_TO_COLMAJ s_cvt_tree_ocp_qp_res_to_colmaj
 #define CVT_TREE_OCP_QP_RES_TO_ROWMAJ s_cvt_tree_ocp_qp_res_to_rowmaj
+#define TREE_OCP_QP_RES_COMPUTE s_tree_ocp_qp_res_compute
+#define TREE_OCP_QP_RES_COMPUTE_INF_NORM s_tree_ocp_qp_res_compute_inf_norm
+#define TREE_OCP_QP_RES_COMPUTE_LIN s_tree_ocp_qp_res_compute_lin
 
 
 
