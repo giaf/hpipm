@@ -972,16 +972,16 @@ exit(1);
 * ipm
 ************************************************/
 
-	int ipm_size = d_memsize_tree_ocp_qp_ipm(&dim, &arg);
+	int ipm_size = d_tree_ocp_qp_ipm_ws_memsize(&dim, &arg);
 #if PRINT
 	printf("\nipm size = %d\n", ipm_size);
 #endif
 	void *ipm_memory = malloc(ipm_size);
 
 	struct d_tree_ocp_qp_ipm_ws workspace;
-	d_create_tree_ocp_qp_ipm(&dim, &arg, &workspace, ipm_memory);
+	d_tree_ocp_qp_ipm_ws_create(&dim, &arg, &workspace, ipm_memory);
 
-	int hpipm_return; // 0 normal; 1 max iter
+	int hpipm_status; // 0 normal; 1 max iter
 
 	int rep, nrep=100;
 
@@ -991,9 +991,8 @@ exit(1);
 
 	for(rep=0; rep<nrep; rep++)
 		{
-//		hpipm_return = d_tree_ocp_qp_ipm_solve(&qp, &qp_sol, &arg, &workspace);
 		d_tree_ocp_qp_ipm_solve(&qp, &qp_sol, &arg, &workspace);
-		hpipm_return = 0; // XXX !!!!!!!!!!!!!!!!!!!!!!!!
+		d_tree_ocp_qp_ipm_get_status(&workspace, &hpipm_status);
 		}
 
 	gettimeofday(&tv1, NULL); // stop
@@ -1094,13 +1093,21 @@ exit(1);
 * print ipm statistics
 ************************************************/
 
-#if PRINT
-	printf("\nipm return = %d\n", hpipm_return);
-	printf("\nipm residuals max: res_g = %e, res_b = %e, res_d = %e, res_m = %e\n", workspace.qp_res[0], workspace.qp_res[1], workspace.qp_res[2], workspace.qp_res[3]);
+	int iter; d_tree_ocp_qp_ipm_get_iter(&workspace, &iter);
+	double res_stat; d_tree_ocp_qp_ipm_get_max_res_stat(&workspace, &res_stat);
+	double res_eq; d_tree_ocp_qp_ipm_get_max_res_eq(&workspace, &res_eq);
+	double res_ineq; d_tree_ocp_qp_ipm_get_max_res_ineq(&workspace, &res_ineq);
+	double res_comp; d_tree_ocp_qp_ipm_get_max_res_comp(&workspace, &res_comp);
+	double *stat; d_tree_ocp_qp_ipm_get_stat(&workspace, &stat);
+	int stat_m; d_tree_ocp_qp_ipm_get_stat_m(&workspace, &stat_m);
 
-	printf("\nipm iter = %d\n", workspace.iter);
-	printf("\nalpha_aff\tmu_aff\t\tsigma\t\talpha\t\tmu\n");
-	d_print_exp_tran_mat(5, workspace.iter, workspace.stat, 5);
+#if PRINT
+	printf("\nipm return = %d\n", hpipm_status);
+	printf("\nipm residuals max: res_g = %e, res_b = %e, res_d = %e, res_m = %e\n", res_stat, res_eq, res_ineq, res_comp);
+
+	printf("\nipm iter = %d\n", iter);
+	printf("\nalpha_aff\tmu_aff\t\tsigma\t\talpha_prim\talpha_dual\tmu\t\tres_stat\tres_eq\t\tres_ineq\tres_comp\tlq fact\t\titref pred\titref corr\tlin res stat\tlin res eq\tlin res ineq\tlin res comp\n");
+	d_print_exp_tran_mat(stat_m, iter+1, stat, stat_m);
 
 	printf("\nocp ipm time = %e [s]\n\n", time_ocp_ipm);
 #endif
@@ -1188,6 +1195,6 @@ exit(1);
 	free(tree_ocp_qp_sol_memory);
 	free(ipm_memory);
 
-	return hpipm_return;
+	return hpipm_status;
 
 	}

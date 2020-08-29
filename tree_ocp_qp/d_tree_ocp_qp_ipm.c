@@ -51,6 +51,7 @@
 #include <hpipm_d_tree_ocp_qp_kkt.h>
 #include <hpipm_d_core_qp_ipm.h>
 #include <hpipm_d_core_qp_ipm_aux.h>
+#include <hpipm_aux_mem.h>
 
 
 
@@ -124,14 +125,16 @@
 #define TREE_OCP_QP_IPM_ARG_SET_SPLIT_STEP d_tree_ocp_qp_ipm_arg_set_split_step
 #define TREE_OCP_QP_IPM_ARG_SET_T_LAM_MIN d_tree_ocp_qp_ipm_arg_set_t_lam_min
 // ipm
-#define MEMSIZE_TREE_OCP_QP_IPM d_memsize_tree_ocp_qp_ipm
-#define CREATE_TREE_OCP_QP_IPM d_create_tree_ocp_qp_ipm
-#define GET_TREE_OCP_QP_IPM_ITER d_get_tree_ocp_qp_ipm_iter
-#define GET_TREE_OCP_QP_IPM_RES_STAT d_get_tree_ocp_qp_ipm_res_stat
-#define GET_TREE_OCP_QP_IPM_RES_EQ d_get_tree_ocp_qp_ipm_res_eq
-#define GET_TREE_OCP_QP_IPM_RES_INEQ d_get_tree_ocp_qp_ipm_res_ineq
-#define GET_TREE_OCP_QP_IPM_RES_COMP d_get_tree_ocp_qp_ipm_res_comp
-#define GET_TREE_OCP_QP_IPM_STAT d_get_tree_ocp_qp_ipm_stat
+#define TREE_OCP_QP_IPM_WS_MEMSIZE d_tree_ocp_qp_ipm_ws_memsize
+#define TREE_OCP_QP_IPM_WS_CREATE d_tree_ocp_qp_ipm_ws_create
+#define TREE_OCP_QP_IPM_GET_STATUS d_tree_ocp_qp_ipm_get_status
+#define TREE_OCP_QP_IPM_GET_ITER d_tree_ocp_qp_ipm_get_iter
+#define TREE_OCP_QP_IPM_GET_MAX_RES_STAT d_tree_ocp_qp_ipm_get_max_res_stat
+#define TREE_OCP_QP_IPM_GET_MAX_RES_EQ d_tree_ocp_qp_ipm_get_max_res_eq
+#define TREE_OCP_QP_IPM_GET_MAX_RES_INEQ d_tree_ocp_qp_ipm_get_max_res_ineq
+#define TREE_OCP_QP_IPM_GET_MAX_RES_COMP d_tree_ocp_qp_ipm_get_max_res_comp
+#define TREE_OCP_QP_IPM_GET_STAT d_tree_ocp_qp_ipm_get_stat
+#define TREE_OCP_QP_IPM_GET_STAT_M d_tree_ocp_qp_ipm_get_stat_m
 #define TREE_OCP_QP_INIT_VAR d_tree_ocp_qp_init_var
 #define TREE_OCP_QP_IPM_SOLVE d_tree_ocp_qp_ipm_solve
 

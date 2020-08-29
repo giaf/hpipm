@@ -170,21 +170,25 @@ void d_tree_ocp_qp_ipm_arg_set_split_step(int *value, struct d_tree_ocp_qp_ipm_a
 void d_tree_ocp_qp_ipm_arg_set_t_lam_min(int *value, struct d_tree_ocp_qp_ipm_arg *arg);
 
 //
-int d_memsize_tree_ocp_qp_ipm(struct d_tree_ocp_qp_dim *dim, struct d_tree_ocp_qp_ipm_arg *arg);
+int d_tree_ocp_qp_ipm_ws_memsize(struct d_tree_ocp_qp_dim *dim, struct d_tree_ocp_qp_ipm_arg *arg);
 //
-void d_create_tree_ocp_qp_ipm(struct d_tree_ocp_qp_dim *dim, struct d_tree_ocp_qp_ipm_arg *arg, struct d_tree_ocp_qp_ipm_ws *ws, void *mem);
+void d_tree_ocp_qp_ipm_ws_create(struct d_tree_ocp_qp_dim *dim, struct d_tree_ocp_qp_ipm_arg *arg, struct d_tree_ocp_qp_ipm_ws *ws, void *mem);
 //
-int d_get_tree_ocp_qp_ipm_iter(struct d_tree_ocp_qp_ipm_ws *ws);
+void d_tree_ocp_qp_ipm_get_status(struct d_tree_ocp_qp_ipm_ws *ws, int *status);
 //
-double d_get_tree_ocp_qp_ipm_res_stat(struct d_tree_ocp_qp_ipm_ws *ws);
+void d_tree_ocp_qp_ipm_get_iter(struct d_tree_ocp_qp_ipm_ws *ws, int *iter);
 //
-double d_get_tree_ocp_qp_ipm_res_eq(struct d_tree_ocp_qp_ipm_ws *ws);
+void d_tree_ocp_qp_ipm_get_max_res_stat(struct d_tree_ocp_qp_ipm_ws *ws, double *res_stat);
 //
-double d_get_tree_ocp_qp_ipm_res_ineq(struct d_tree_ocp_qp_ipm_ws *ws);
+void d_tree_ocp_qp_ipm_get_max_res_eq(struct d_tree_ocp_qp_ipm_ws *ws, double *res_eq);
 //
-double d_get_tree_ocp_qp_ipm_res_comp(struct d_tree_ocp_qp_ipm_ws *ws);
+void d_tree_ocp_qp_ipm_get_max_res_ineq(struct d_tree_ocp_qp_ipm_ws *ws, double *res_ineq);
 //
-double *d_get_tree_ocp_qp_ipm_stat(struct d_tree_ocp_qp_ipm_ws *ws);
+void d_tree_ocp_qp_ipm_get_max_res_comp(struct d_tree_ocp_qp_ipm_ws *ws, double *res_comp);
+//
+void d_tree_ocp_qp_ipm_get_stat(struct d_tree_ocp_qp_ipm_ws *ws, double **stat);
+//
+void d_tree_ocp_qp_ipm_get_stat_m(struct d_tree_ocp_qp_ipm_ws *ws, int *stat_m);
 //
 void d_tree_ocp_qp_init_var(struct d_tree_ocp_qp *qp, struct d_tree_ocp_qp_sol *qp_sol, struct d_tree_ocp_qp_ipm_arg *arg, struct d_tree_ocp_qp_ipm_ws *ws);
 //

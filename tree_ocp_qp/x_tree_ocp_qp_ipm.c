@@ -366,7 +366,7 @@ void TREE_OCP_QP_IPM_ARG_SET_T_LAM_MIN(int *value, struct TREE_OCP_QP_IPM_ARG *a
 
 
 
-int MEMSIZE_TREE_OCP_QP_IPM(struct TREE_OCP_QP_DIM *dim, struct TREE_OCP_QP_IPM_ARG *arg)
+int TREE_OCP_QP_IPM_WS_MEMSIZE(struct TREE_OCP_QP_DIM *dim, struct TREE_OCP_QP_IPM_ARG *arg)
 	{
 
 	// stat_max is at least as big as iter_max
@@ -468,11 +468,15 @@ int MEMSIZE_TREE_OCP_QP_IPM(struct TREE_OCP_QP_DIM *dim, struct TREE_OCP_QP_IPM_
 
 
 
-void CREATE_TREE_OCP_QP_IPM(struct TREE_OCP_QP_DIM *dim, struct TREE_OCP_QP_IPM_ARG *arg, struct TREE_OCP_QP_IPM_WS *workspace, void *mem)
+void TREE_OCP_QP_IPM_WS_CREATE(struct TREE_OCP_QP_DIM *dim, struct TREE_OCP_QP_IPM_ARG *arg, struct TREE_OCP_QP_IPM_WS *workspace, void *mem)
 	{
 
 	// loop index
 	int ii;
+
+	// zero memory (to avoid corrupted memory like e.g. NaN)
+	int memsize = TREE_OCP_QP_IPM_WS_MEMSIZE(dim, arg);
+	hpipm_zero_memset(memsize, mem);
 
 	// extract ocp qp size
 	int Nn = dim->Nn;
@@ -834,7 +838,7 @@ void CREATE_TREE_OCP_QP_IPM(struct TREE_OCP_QP_DIM *dim, struct TREE_OCP_QP_IPM_
 	// cache stuff
 	workspace->lq_fact = arg->lq_fact;
 
-	workspace->memsize = MEMSIZE_TREE_OCP_QP_IPM(dim, arg);
+	workspace->memsize = memsize; //MEMSIZE_TREE_OCP_QP_IPM(dim, arg);
 
 #if defined(RUNTIME_CHECKS)
 	if(c_ptr > ((char *) mem) + workspace->memsize)
@@ -851,47 +855,64 @@ void CREATE_TREE_OCP_QP_IPM(struct TREE_OCP_QP_DIM *dim, struct TREE_OCP_QP_IPM_
 
 
 
-REAL GET_TREE_OCP_QP_IPM_RES_STAT(struct TREE_OCP_QP_IPM_WS *ws)
+void TREE_OCP_QP_IPM_GET_STATUS(struct TREE_OCP_QP_IPM_WS *ws, int *status)
 	{
-
-	return ws->qp_res[0];
-
+	*status = ws->status;
+	return;
 	}
 
 
 
-REAL GET_TREE_OCP_QP_IPM_RES_EQ(struct TREE_OCP_QP_IPM_WS *ws)
+void TREE_OCP_QP_IPM_GET_ITER(struct TREE_OCP_QP_IPM_WS *ws, int *iter)
 	{
-
-	return ws->qp_res[1];
-
+	*iter = ws->iter;
+	return;
 	}
 
 
 
-REAL GET_TREE_OCP_QP_IPM_RES_INEQ(struct TREE_OCP_QP_IPM_WS *ws)
+void TREE_OCP_QP_IPM_GET_MAX_RES_STAT(struct TREE_OCP_QP_IPM_WS *ws, REAL *res_stat)
 	{
-
-	return ws->qp_res[2];
-
+	*res_stat = ws->qp_res[0];
+	return;
 	}
 
 
 
-REAL GET_TREE_OCP_QP_IPM_RES_COMP(struct TREE_OCP_QP_IPM_WS *ws)
+void TREE_OCP_QP_IPM_GET_MAX_RES_EQ(struct TREE_OCP_QP_IPM_WS *ws, REAL *res_eq)
 	{
-
-	return ws->qp_res[3];
-
+	*res_eq = ws->qp_res[1];
+	return;
 	}
 
 
 
-REAL *GET_TREE_OCP_QP_IPM_STAT(struct TREE_OCP_QP_IPM_WS *ws)
+void TREE_OCP_QP_IPM_GET_MAX_RES_INEQ(struct TREE_OCP_QP_IPM_WS *ws, REAL *res_ineq)
 	{
+	*res_ineq = ws->qp_res[2];
+	return;
+	}
 
-	return ws->stat;
 
+
+void TREE_OCP_QP_IPM_GET_MAX_RES_COMP(struct TREE_OCP_QP_IPM_WS *ws, REAL *res_comp)
+	{
+	*res_comp = ws->qp_res[3];
+	return;
+	}
+
+
+
+void TREE_OCP_QP_IPM_GET_STAT(struct TREE_OCP_QP_IPM_WS *ws, REAL **stat)
+	{
+	*stat = ws->stat;
+	}
+
+
+
+void TREE_OCP_QP_IPM_GET_STAT_M(struct TREE_OCP_QP_IPM_WS *ws, int *stat_m)
+	{
+	*stat_m = ws->stat_m;
 	}
 
 
