@@ -931,14 +931,14 @@ exit(1);
 * ocp qp sol
 ************************************************/
 
-	int tree_ocp_qp_sol_size = d_memsize_tree_ocp_qp_sol(&dim);
+	int tree_ocp_qp_sol_size = d_tree_ocp_qp_sol_memsize(&dim);
 #if PRINT
 	printf("\ntree ocp qp sol memsize = %d\n", tree_ocp_qp_sol_size);
 #endif
 	void *tree_ocp_qp_sol_memory = malloc(tree_ocp_qp_sol_size);
 
 	struct d_tree_ocp_qp_sol qp_sol;
-	d_create_tree_ocp_qp_sol(&dim, &qp_sol, tree_ocp_qp_sol_memory);
+	d_tree_ocp_qp_sol_create(&dim, &qp_sol, tree_ocp_qp_sol_memory);
 
 /************************************************
 * ipm arg
@@ -1015,7 +1015,7 @@ exit(1);
 	double *lam_ls[Nn]; for(ii=0; ii<Nn; ii++) d_zeros(lam_ls+ii, nst[ii], 1);
 	double *lam_us[Nn]; for(ii=0; ii<Nn; ii++) d_zeros(lam_us+ii, nst[ii], 1);
 
-	d_cvt_tree_ocp_qp_sol_to_colmaj(&qp, &qp_sol, u, x, ls, us, pi, lam_lb, lam_ub, lam_lg, lam_ug, lam_ls, lam_us);
+	d_tree_ocp_qp_sol_get_all(&qp, &qp_sol, u, x, ls, us, pi, lam_lb, lam_ub, lam_lg, lam_ug, lam_ls, lam_us);
 
 #if PRINT
 	printf("\nsolution\n\n");

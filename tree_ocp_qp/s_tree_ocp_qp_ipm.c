@@ -64,7 +64,6 @@
 #define COMPUTE_TAU_MIN_QP s_compute_tau_min_qp
 #define CORE_QP_IPM_WORKSPACE s_core_qp_ipm_workspace
 #define CREATE_TREE_OCP_QP_RES s_create_tree_ocp_qp_res
-#define CREATE_TREE_OCP_QP_SOL s_create_tree_ocp_qp_sol
 #define CREATE_STRMAT blasfeo_create_smat
 #define CREATE_STRVEC blasfeo_create_svec
 #define CREATE_CORE_QP_IPM s_create_core_qp_ipm
@@ -76,7 +75,6 @@
 #define INIT_VAR_TREE_OCP_QP s_init_var_tree_ocp_qp
 #define MEMSIZE_CORE_QP_IPM s_memsize_core_qp_ipm
 #define MEMSIZE_TREE_OCP_QP_RES s_memsize_tree_ocp_qp_res
-#define MEMSIZE_TREE_OCP_QP_SOL s_memsize_tree_ocp_qp_sol
 #define REAL float
 #define SIZE_STRMAT blasfeo_memsize_smat
 #define SIZE_STRVEC blasfeo_memsize_svec
@@ -96,6 +94,8 @@
 #define TREE_OCP_QP_RES_COMPUTE_INF_NORM s_tree_ocp_qp_res_compute_inf_norm
 #define TREE_OCP_QP_RES_COMPUTE_LIN s_tree_ocp_qp_res_compute_lin
 #define TREE_OCP_QP_SOL s_tree_ocp_qp_sol
+#define TREE_OCP_QP_SOL_CREATE s_tree_ocp_qp_sol_create
+#define TREE_OCP_QP_SOL_MEMSIZE s_tree_ocp_qp_sol_memsize
 #define UPDATE_VAR_QP s_update_var_qp
 #define VECMUL blasfeo_svecmul
 #define VECMULDOT blasfeo_svecmuldot

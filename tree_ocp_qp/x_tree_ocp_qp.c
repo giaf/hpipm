@@ -117,8 +117,6 @@ void TREE_OCP_QP_CREATE(struct TREE_OCP_QP_DIM *dim, struct TREE_OCP_QP *qp, voi
 	int memsize = TREE_OCP_QP_MEMSIZE(dim);
 	hpipm_zero_memset(memsize, mem);
 
-	qp->memsize = memsize;
-
 	// extract dim
 	struct tree *ttree = dim->ttree;
 	int Nn = dim->Nn;
@@ -345,6 +343,7 @@ void TREE_OCP_QP_CREATE(struct TREE_OCP_QP_DIM *dim, struct TREE_OCP_QP *qp, voi
 
 	qp->dim = dim;
 
+	qp->memsize = memsize;
 
 #if defined(RUNTIME_CHECKS)
 	if(c_ptr > ((char *) mem) + qp->memsize)

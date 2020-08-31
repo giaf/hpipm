@@ -63,13 +63,11 @@ struct d_tree_ocp_qp_sol
 
 
 //
-int d_memsize_tree_ocp_qp_sol(struct d_tree_ocp_qp_dim *dim);
+int d_tree_ocp_qp_sol_memsize(struct d_tree_ocp_qp_dim *dim);
 //
-void d_create_tree_ocp_qp_sol(struct d_tree_ocp_qp_dim *dim, struct d_tree_ocp_qp_sol *qp_sol, void *memory);
+void d_tree_ocp_qp_sol_create(struct d_tree_ocp_qp_dim *dim, struct d_tree_ocp_qp_sol *qp_sol, void *memory);
 //
-void d_cvt_tree_ocp_qp_sol_to_colmaj(struct d_tree_ocp_qp *qp, struct d_tree_ocp_qp_sol *qp_sol, double **u, double **x, double **ls, double **us, double **pi, double **lam_lb, double **lam_ub, double **lam_lg, double **lam_ug, double **lam_ls, double **lam_us);
-//
-void d_cvt_tree_ocp_qp_sol_to_rowmaj(struct d_tree_ocp_qp *qp, struct d_tree_ocp_qp_sol *qp_sol, double **u, double **x, double **ls, double **us, double **pi, double **lam_lb, double **lam_ub, double **lam_lg, double **lam_ug, double **lam_ls, double **lam_us);
+void d_tree_ocp_qp_sol_get_all(struct d_tree_ocp_qp *qp, struct d_tree_ocp_qp_sol *qp_sol, double **u, double **x, double **ls, double **us, double **pi, double **lam_lb, double **lam_ub, double **lam_lg, double **lam_ug, double **lam_ls, double **lam_us);
 
 #ifdef __cplusplus
 } /* extern "C" */

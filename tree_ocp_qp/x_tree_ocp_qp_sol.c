@@ -33,7 +33,7 @@
 *                                                                                                 *
 **************************************************************************************************/
 
-int MEMSIZE_TREE_OCP_QP_SOL(struct TREE_OCP_QP_DIM *dim)
+int TREE_OCP_QP_SOL_MEMSIZE(struct TREE_OCP_QP_DIM *dim)
 	{
 
 	// extract dim
@@ -79,8 +79,12 @@ int MEMSIZE_TREE_OCP_QP_SOL(struct TREE_OCP_QP_DIM *dim)
 
 
 
-void CREATE_TREE_OCP_QP_SOL(struct TREE_OCP_QP_DIM *dim, struct TREE_OCP_QP_SOL *qp_sol, void *mem)
+void TREE_OCP_QP_SOL_CREATE(struct TREE_OCP_QP_DIM *dim, struct TREE_OCP_QP_SOL *qp_sol, void *mem)
 	{
+
+	// zero memory (to avoid corrupted memory like e.g. NaN)
+	int memsize = TREE_OCP_QP_SOL_MEMSIZE(dim);
+	hpipm_zero_memset(memsize, mem);
 
 	// extract dim
 	struct tree *ttree = dim->ttree;
@@ -180,7 +184,7 @@ void CREATE_TREE_OCP_QP_SOL(struct TREE_OCP_QP_DIM *dim, struct TREE_OCP_QP_SOL 
 	
 	qp_sol->dim = dim;
 
-	qp_sol->memsize = MEMSIZE_TREE_OCP_QP_SOL(dim);
+	qp_sol->memsize = memsize; //MEMSIZE_TREE_OCP_QP_SOL(dim);
 
 
 #if defined(RUNTIME_CHECKS)
@@ -198,7 +202,7 @@ void CREATE_TREE_OCP_QP_SOL(struct TREE_OCP_QP_DIM *dim, struct TREE_OCP_QP_SOL 
 
 
 
-void CVT_TREE_OCP_QP_SOL_TO_COLMAJ(struct TREE_OCP_QP *qp, struct TREE_OCP_QP_SOL *qp_sol, REAL **u, REAL **x, REAL **ls, REAL **us, REAL **pi, REAL **lam_lb, REAL **lam_ub, REAL **lam_lg, REAL **lam_ug, REAL **lam_ls, REAL **lam_us)
+void TREE_OCP_QP_SOL_GET_ALL(struct TREE_OCP_QP *qp, struct TREE_OCP_QP_SOL *qp_sol, REAL **u, REAL **x, REAL **ls, REAL **us, REAL **pi, REAL **lam_lb, REAL **lam_ub, REAL **lam_lg, REAL **lam_ug, REAL **lam_ls, REAL **lam_us)
 	{
 
 	int Nn = qp->dim->Nn;
@@ -241,51 +245,4 @@ void CVT_TREE_OCP_QP_SOL_TO_COLMAJ(struct TREE_OCP_QP *qp, struct TREE_OCP_QP_SO
 	return;
 
 	}
-
-
-
-void CVT_TREE_OCP_QP_SOL_TO_ROWMAJ(struct TREE_OCP_QP *qp, struct TREE_OCP_QP_SOL *qp_sol, REAL **u, REAL **x, REAL **ls, REAL **us, REAL **pi, REAL **lam_lb, REAL **lam_ub, REAL **lam_lg, REAL **lam_ug, REAL **lam_ls, REAL **lam_us)
-	{
-
-	int Nn = qp->dim->Nn;
-	int *nx = qp->dim->nx;
-	int *nu = qp->dim->nu;
-	int *nb = qp->dim->nb;
-	int *ng = qp->dim->ng;
-	int *ns = qp->dim->ns;
-
-	int ii;
-
-	for(ii=0; ii<Nn-1; ii++)
-		{
-		UNPACK_VEC(nx[ii+1], qp_sol->pi+ii, 0, pi[ii], 1);
-		}
-
-	for(ii=0; ii<Nn-1; ii++)
-		{
-		UNPACK_VEC(nu[ii], qp_sol->ux+ii, 0, u[ii], 1);
-		UNPACK_VEC(nx[ii], qp_sol->ux+ii, nu[ii], x[ii], 1);
-		if(nb[ii]>0)
-			{
-			UNPACK_VEC(nb[ii], qp_sol->lam+ii, 0, lam_lb[ii], 1);
-			UNPACK_VEC(nb[ii], qp_sol->lam+ii, nb[ii]+ng[ii], lam_ub[ii], 1);
-			}
-		if(ng[ii]>0)
-			{
-			UNPACK_VEC(ng[ii], qp_sol->lam+ii, nb[ii], lam_lg[ii], 1);
-			UNPACK_VEC(ng[ii], qp_sol->lam+ii, 2*nb[ii]+ng[ii], lam_ug[ii], 1);
-			}
-		if(ns[ii]>0)
-			{
-			UNPACK_VEC(ns[ii], qp_sol->ux+ii, nu[ii]+nx[ii], ls[ii], 1);
-			UNPACK_VEC(ns[ii], qp_sol->ux+ii, nu[ii]+nx[ii]+ns[ii], us[ii], 1);
-			UNPACK_VEC(ns[ii], qp_sol->lam+ii, 2*nb[ii]+2*ng[ii], lam_ls[ii], 1);
-			UNPACK_VEC(ns[ii], qp_sol->lam+ii, 2*nb[ii]+2*ng[ii]+ns[ii], lam_us[ii], 1);
-			}
-		}
-
-	return;
-
-	}
-
 

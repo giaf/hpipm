@@ -34,9 +34,7 @@
 **************************************************************************************************/
 
 #include <stdlib.h>
-#if defined(RUNTIME_CHECKS)
 #include <stdio.h>
-#endif
 
 #include <blasfeo_target.h>
 #include <blasfeo_common.h>
@@ -46,6 +44,8 @@
 #include <hpipm_scenario_tree.h>
 #include <hpipm_s_tree_ocp_qp.h>
 #include <hpipm_s_tree_ocp_qp_sol.h>
+#include <hpipm_aux_string.h>
+#include <hpipm_aux_mem.h>
 
 
 
@@ -58,10 +58,9 @@
 #define TREE_OCP_QP_DIM s_tree_ocp_qp_dim
 #define TREE_OCP_QP_SOL s_tree_ocp_qp_sol
 
-#define MEMSIZE_TREE_OCP_QP_SOL s_memsize_tree_ocp_qp_sol
-#define CREATE_TREE_OCP_QP_SOL s_create_tree_ocp_qp_sol
-#define CVT_TREE_OCP_QP_SOL_TO_COLMAJ s_cvt_tree_ocp_qp_sol_to_colmaj
-#define CVT_TREE_OCP_QP_SOL_TO_ROWMAJ s_cvt_tree_ocp_qp_sol_to_rowmaj
+#define TREE_OCP_QP_SOL_MEMSIZE s_tree_ocp_qp_sol_memsize
+#define TREE_OCP_QP_SOL_CREATE s_tree_ocp_qp_sol_create
+#define TREE_OCP_QP_SOL_GET_ALL s_tree_ocp_qp_sol_get_all
 
 
 
