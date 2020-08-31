@@ -46,6 +46,7 @@
 #include <hpipm_tree.h>
 #include <hpipm_s_tree_ocp_qp_dim.h>
 #include <hpipm_s_tree_ocp_qp_res.h>
+#include <hpipm_aux_mem.h>
 
 
 
@@ -77,12 +78,11 @@
 
 
 
-#define MEMSIZE_TREE_OCP_QP_RES s_memsize_tree_ocp_qp_res
-#define CREATE_TREE_OCP_QP_RES s_create_tree_ocp_qp_res
-#define MEMSIZE_TREE_OCP_QP_RES_WS s_memsize_tree_ocp_qp_res_ws
-#define CREATE_TREE_OCP_QP_RES_WS s_create_tree_ocp_qp_res_ws
-#define CVT_TREE_OCP_QP_RES_TO_COLMAJ s_cvt_tree_ocp_qp_res_to_colmaj
-#define CVT_TREE_OCP_QP_RES_TO_ROWMAJ s_cvt_tree_ocp_qp_res_to_rowmaj
+#define TREE_OCP_QP_RES_MEMSIZE s_tree_ocp_qp_res_memsize
+#define TREE_OCP_QP_RES_CREATE s_tree_ocp_qp_res_create
+#define TREE_OCP_QP_RES_WS_MEMSIZE s_tree_ocp_qp_res_ws_memsize
+#define TREE_OCP_QP_RES_WS_CREATE s_tree_ocp_qp_res_ws_create
+#define TREE_OCP_QP_RES_GET_ALL s_tree_ocp_qp_res_get_all
 #define TREE_OCP_QP_RES_COMPUTE s_tree_ocp_qp_res_compute
 #define TREE_OCP_QP_RES_COMPUTE_INF_NORM s_tree_ocp_qp_res_compute_inf_norm
 #define TREE_OCP_QP_RES_COMPUTE_LIN s_tree_ocp_qp_res_compute_lin

@@ -192,7 +192,7 @@ void OCP_QP_RES_CREATE(struct OCP_QP_DIM *dim, struct OCP_QP_RES *res, void *mem
 
 	res->dim = dim;
 
-	res->memsize = OCP_QP_RES_MEMSIZE(dim);
+	res->memsize = memsize; //OCP_QP_RES_MEMSIZE(dim);
 
 
 #if defined(RUNTIME_CHECKS)
@@ -262,30 +262,7 @@ void OCP_QP_RES_WS_CREATE(struct OCP_QP_DIM *dim, struct OCP_QP_RES_WS *ws, void
 
 	// zero memory (to avoid corrupted memory like e.g. NaN)
 	int memsize = OCP_QP_RES_WS_MEMSIZE(dim);
-	int memsize_m8 = memsize/8; // sizeof(double) is 8
-//	int memsize_r8 = memsize - 8*memsize_m8;
-	double *double_ptr = mem;
-	// XXX exploit that it is multiple of 64 bytes !!!!!
-	for(ii=0; ii<memsize_m8-7; ii+=8)
-		{
-		double_ptr[ii+0] = 0.0;
-		double_ptr[ii+1] = 0.0;
-		double_ptr[ii+2] = 0.0;
-		double_ptr[ii+3] = 0.0;
-		double_ptr[ii+4] = 0.0;
-		double_ptr[ii+5] = 0.0;
-		double_ptr[ii+6] = 0.0;
-		double_ptr[ii+7] = 0.0;
-		}
-//	for(; ii<memsize_m8; ii++)
-//		{
-//		double_ptr[ii] = 0.0;
-//		}
-//	char *char_ptr = (char *) (&double_ptr[ii]);
-//	for(ii=0; ii<memsize_r8; ii++)
-//		{
-//		char_ptr[ii] = 0;
-//		}
+	hpipm_zero_memset(memsize, mem);
 
 	// extract ocp qp size
 	int N = dim->N;
@@ -338,7 +315,7 @@ void OCP_QP_RES_WS_CREATE(struct OCP_QP_DIM *dim, struct OCP_QP_RES_WS *ws, void
 	CREATE_STRVEC(nsM, ws->tmp_nsM+0, c_ptr);
 	c_ptr += (ws->tmp_nsM+0)->memsize;
 
-	ws->memsize = OCP_QP_RES_WS_MEMSIZE(dim);
+	ws->memsize = memsize; //OCP_QP_RES_WS_MEMSIZE(dim);
 
 
 #if defined(RUNTIME_CHECKS)

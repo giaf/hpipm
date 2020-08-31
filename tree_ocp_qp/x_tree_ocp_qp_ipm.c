@@ -425,7 +425,7 @@ int TREE_OCP_QP_IPM_WS_MEMSIZE(struct TREE_OCP_QP_DIM *dim, struct TREE_OCP_QP_I
 	size += 1*TREE_OCP_QP_SOL_MEMSIZE(dim); // sol_itref
 
 	size += 2*sizeof(struct TREE_OCP_QP_RES); // res res_itref
-	size += 1*MEMSIZE_TREE_OCP_QP_RES(dim); // res_itref
+	size += 1*TREE_OCP_QP_RES_MEMSIZE(dim); // res_itref
 
 	size += 9*Nn*sizeof(struct STRVEC); // res_g res_d res_m Gamma gamma Zs_inv sol_step(v,lam,t) 
 	size += 3*(Nn-1)*sizeof(struct STRVEC); // res_b Pb sol_step(pi) 
@@ -642,7 +642,7 @@ void TREE_OCP_QP_IPM_WS_CREATE(struct TREE_OCP_QP_DIM *dim, struct TREE_OCP_QP_I
 	TREE_OCP_QP_SOL_CREATE(dim, workspace->sol_itref, c_ptr);
 	c_ptr += workspace->sol_itref->memsize;
 
-	CREATE_TREE_OCP_QP_RES(dim, workspace->res_itref, c_ptr);
+	TREE_OCP_QP_RES_CREATE(dim, workspace->res_itref, c_ptr);
 	c_ptr += workspace->res_itref->memsize;
 
 	for(ii=0; ii<Nn; ii++)

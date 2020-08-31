@@ -35,7 +35,7 @@
 
 
 
-int MEMSIZE_TREE_OCP_QP_RES(struct TREE_OCP_QP_DIM *dim)
+int TREE_OCP_QP_RES_MEMSIZE(struct TREE_OCP_QP_DIM *dim)
 	{
 
 	// loop index
@@ -82,11 +82,15 @@ int MEMSIZE_TREE_OCP_QP_RES(struct TREE_OCP_QP_DIM *dim)
 
 
 
-void CREATE_TREE_OCP_QP_RES(struct TREE_OCP_QP_DIM *dim, struct TREE_OCP_QP_RES *res, void *mem)
+void TREE_OCP_QP_RES_CREATE(struct TREE_OCP_QP_DIM *dim, struct TREE_OCP_QP_RES *res, void *mem)
 	{
 
 	// loop index
 	int ii, idx;
+
+	// zero memory (to avoid corrupted memory like e.g. NaN)
+	int memsize = TREE_OCP_QP_RES_MEMSIZE(dim);
+	hpipm_zero_memset(memsize, mem);
 
 	// extract ocp qp size
 	int Nn = dim->Nn;
@@ -193,7 +197,7 @@ void CREATE_TREE_OCP_QP_RES(struct TREE_OCP_QP_DIM *dim, struct TREE_OCP_QP_RES 
 
 	res->dim = dim;
 
-	res->memsize = MEMSIZE_TREE_OCP_QP_RES(dim);
+	res->memsize = memsize; //MEMSIZE_TREE_OCP_QP_RES(dim);
 
 
 #if defined(RUNTIME_CHECKS)
@@ -211,7 +215,7 @@ void CREATE_TREE_OCP_QP_RES(struct TREE_OCP_QP_DIM *dim, struct TREE_OCP_QP_RES 
 
 
 
-int MEMSIZE_TREE_OCP_QP_RES_WS(struct TREE_OCP_QP_DIM *dim)
+int TREE_OCP_QP_RES_WS_MEMSIZE(struct TREE_OCP_QP_DIM *dim)
 	{
 
 	// loop index
@@ -252,11 +256,15 @@ int MEMSIZE_TREE_OCP_QP_RES_WS(struct TREE_OCP_QP_DIM *dim)
 
 
 
-void CREATE_TREE_OCP_QP_RES_WS(struct TREE_OCP_QP_DIM *dim, struct TREE_OCP_QP_RES_WS *ws, void *mem)
+void TREE_OCP_QP_RES_WS_CREATE(struct TREE_OCP_QP_DIM *dim, struct TREE_OCP_QP_RES_WS *ws, void *mem)
 	{
 
 	// loop index
 	int ii, idx;
+
+	// zero memory (to avoid corrupted memory like e.g. NaN)
+	int memsize = TREE_OCP_QP_RES_WS_MEMSIZE(dim);
+	hpipm_zero_memset(memsize, mem);
 
 	// extract ocp qp size
 	int Nn = dim->Nn;
@@ -306,7 +314,7 @@ void CREATE_TREE_OCP_QP_RES_WS(struct TREE_OCP_QP_DIM *dim, struct TREE_OCP_QP_R
 	CREATE_STRVEC(nsM, ws->tmp_nsM+0, c_ptr);
 	c_ptr += (ws->tmp_nsM+0)->memsize;
 
-	ws->memsize = MEMSIZE_TREE_OCP_QP_RES(dim);
+	ws->memsize = memsize; //MEMSIZE_TREE_OCP_QP_RES(dim);
 
 
 #if defined(RUNTIME_CHECKS)
@@ -324,68 +332,7 @@ void CREATE_TREE_OCP_QP_RES_WS(struct TREE_OCP_QP_DIM *dim, struct TREE_OCP_QP_R
 
 
 
-void CVT_TREE_OCP_QP_RES_TO_COLMAJ(struct TREE_OCP_QP_RES *res, REAL **res_r, REAL **res_q, REAL **res_ls, REAL **res_us, REAL **res_b, REAL **res_d_lb, REAL **res_d_ub, REAL **res_d_lg, REAL **res_d_ug, REAL **res_d_ls, REAL **res_d_us, REAL **res_m_lb, REAL **res_m_ub, REAL **res_m_lg, REAL **res_m_ug, REAL **res_m_ls, REAL **res_m_us)
-	{
-
-	int Nn = res->dim->Nn;
-	int *nx = res->dim->nx;
-	int *nu = res->dim->nu;
-	int *nb = res->dim->nb;
-	int *ng = res->dim->ng;
-	int *ns = res->dim->ns;
-
-	int ii, idx;
-
-	for(ii=0; ii<Nn; ii++)
-		{
-		// cost
-		UNPACK_VEC(nu[ii], res->res_g+ii, 0, res_r[ii], 1);
-		UNPACK_VEC(nx[ii], res->res_g+ii, nu[ii], res_q[ii], 1);
-
-		// box constraints
-		if(nb[ii]>0)
-			{
-			UNPACK_VEC(nb[ii], res->res_d+ii, 0, res_d_lb[ii], 1);
-			UNPACK_VEC(nb[ii], res->res_d+ii, nb[ii]+ng[ii], res_d_ub[ii], 1);
-			UNPACK_VEC(nb[ii], res->res_m+ii, 0, res_m_lb[ii], 1);
-			UNPACK_VEC(nb[ii], res->res_m+ii, nb[ii]+ng[ii], res_m_ub[ii], 1);
-			}
-
-		// general constraints
-		if(ng[ii]>0)
-			{
-			UNPACK_VEC(ng[ii], res->res_d+ii, nb[ii], res_d_lg[ii], 1);
-			UNPACK_VEC(ng[ii], res->res_d+ii, 2*nb[ii]+ng[ii], res_d_ug[ii], 1);
-			UNPACK_VEC(ng[ii], res->res_m+ii, nb[ii], res_m_lg[ii], 1);
-			UNPACK_VEC(ng[ii], res->res_m+ii, 2*nb[ii]+ng[ii], res_m_ug[ii], 1);
-			}
-
-		// soft constraints
-		if(ns[ii]>0)
-			{
-			UNPACK_VEC(ns[ii], res->res_g+ii, nu[ii]+nx[ii], res_ls[ii], 1);
-			UNPACK_VEC(ns[ii], res->res_g+ii, nu[ii]+nx[ii]+ns[ii], res_us[ii], 1);
-			UNPACK_VEC(ns[ii], res->res_d+ii, 2*nb[ii]+2*ng[ii], res_d_ls[ii], 1);
-			UNPACK_VEC(ns[ii], res->res_d+ii, 2*nb[ii]+2*ng[ii]+ns[ii], res_d_us[ii], 1);
-			UNPACK_VEC(ns[ii], res->res_m+ii, 2*nb[ii]+2*ng[ii], res_m_ls[ii], 1);
-			UNPACK_VEC(ns[ii], res->res_m+ii, 2*nb[ii]+2*ng[ii]+ns[ii], res_m_us[ii], 1);
-			}
-		}
-	
-	for(ii=0; ii<Nn-1; ii++)
-		{
-		// dynamics
-		idx = ii+1;
-		UNPACK_VEC(nx[idx], res->res_b+ii, 0, res_b[ii], 1);
-		}
-
-	return;
-
-	}
-
-
-
-void CVT_TREE_OCP_QP_RES_TO_ROWMAJ(struct TREE_OCP_QP_RES *res, REAL **res_r, REAL **res_q, REAL **res_ls, REAL **res_us, REAL **res_b, REAL **res_d_lb, REAL **res_d_ub, REAL **res_d_lg, REAL **res_d_ug, REAL **res_d_ls, REAL **res_d_us, REAL **res_m_lb, REAL **res_m_ub, REAL **res_m_lg, REAL **res_m_ug, REAL **res_m_ls, REAL **res_m_us)
+void TREE_OCP_QP_RES_GET_ALL(struct TREE_OCP_QP_RES *res, REAL **res_r, REAL **res_q, REAL **res_ls, REAL **res_us, REAL **res_b, REAL **res_d_lb, REAL **res_d_ub, REAL **res_d_lg, REAL **res_d_ug, REAL **res_d_ls, REAL **res_d_us, REAL **res_m_lb, REAL **res_m_ub, REAL **res_m_lg, REAL **res_m_ug, REAL **res_m_ls, REAL **res_m_us)
 	{
 
 	int Nn = res->dim->Nn;
