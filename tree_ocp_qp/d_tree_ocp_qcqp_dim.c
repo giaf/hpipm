@@ -33,84 +33,43 @@
 *                                                                                                 *
 **************************************************************************************************/
 
-#ifndef HPIPM_D_TREE_OCP_QCQP_DIM_H_
-#define HPIPM_D_TREE_OCP_QCQP_DIM_H_
+
+
+#include <stdlib.h>
+#include <stdio.h>
+
+#include <hpipm_tree.h>
+#include <hpipm_scenario_tree.h>
+#include <hpipm_d_tree_ocp_qcqp_dim.h>
+#include <hpipm_aux_string.h>
+#include <hpipm_aux_mem.h>
 
 
 
-#ifdef __cplusplus
-extern "C" {
-#endif
+#define TREE_OCP_QCQP_DIM d_tree_ocp_qcqp_dim
 
 
 
-struct d_tree_ocp_qcqp_dim
-	{
-	struct tree *ttree; // tree describing node conndection
-	int *nx; // number of states // Nn
-	int *nu; // number of inputs // Nn
-	int *nb; // number of box constraints // Nn
-	int *nbx; // number of state box constraints // Nn
-	int *nbu; // number of input box constraints // Nn
-	int *ng; // number of general constraints // Nn
-	int *nq; // number of (upper) quadratic constraints
-	int *ns; // number of soft constraints // Nn
-	int *nsbx; // number of soft state box constraints
-	int *nsbu; // number of soft input box constraints
-	int *nsg; // number of soft general constraints
-	int *nsq; // number of (upper) soft quadratic constraints
-	int Nn; // number of nodes
-	int memsize;
-	};
+#define TREE_OCP_QCQP_DIM_STRSIZE d_tree_ocp_qcqp_dim_strsize
+#define TREE_OCP_QCQP_DIM_MEMSIZE d_tree_ocp_qcqp_dim_memsize
+#define TREE_OCP_QCQP_DIM_CREATE d_tree_ocp_qcqp_dim_create
+#define TREE_OCP_QCQP_DIM_SET_TREE d_tree_ocp_qcqp_dim_set_tree
+#define TREE_OCP_QCQP_DIM_SET d_tree_ocp_qcqp_dim_set
+#define TREE_OCP_QCQP_DIM_SET_NX d_tree_ocp_qcqp_dim_set_nx
+#define TREE_OCP_QCQP_DIM_SET_NU d_tree_ocp_qcqp_dim_set_nu
+#define TREE_OCP_QCQP_DIM_SET_NBX d_tree_ocp_qcqp_dim_set_nbx
+#define TREE_OCP_QCQP_DIM_SET_NBU d_tree_ocp_qcqp_dim_set_nbu
+#define TREE_OCP_QCQP_DIM_SET_NG d_tree_ocp_qcqp_dim_set_ng
+#define TREE_OCP_QCQP_DIM_SET_NQ d_tree_ocp_qcqp_dim_set_nq
+#define TREE_OCP_QCQP_DIM_SET_NS d_tree_ocp_qcqp_dim_set_ns
+#define TREE_OCP_QCQP_DIM_SET_NSBX d_tree_ocp_qcqp_dim_set_nsbx
+#define TREE_OCP_QCQP_DIM_SET_NSBU d_tree_ocp_qcqp_dim_set_nsbu
+#define TREE_OCP_QCQP_DIM_SET_NSG d_tree_ocp_qcqp_dim_set_nsg
+#define TREE_OCP_QCQP_DIM_SET_NSQ d_tree_ocp_qcqp_dim_set_nsq
+//#define TREE_OCP_QCQP_DIM_SET_NBXE d_tree_ocp_qcqp_dim_set_nbxe
+//#define TREE_OCP_QCQP_DIM_SET_NBUE d_tree_ocp_qcqp_dim_set_nbue
+//#define TREE_OCP_TREE_QP_DIM_SET_NGE d_tree_ocp_qcqp_dim_set_nge
 
 
-
-//
-int d_tree_ocp_qcqp_dim_strsize();
-//
-int d_tree_ocp_qcqp_dim_memsize(int Nn);
-//
-void d_tree_ocp_qcqp_dim_create(int Nn, struct d_tree_ocp_qcqp_dim *qp_dim, void *memory);
-//
-void d_tree_ocp_qcqp_dim_set_tree(struct tree *ttree, struct d_tree_ocp_qcqp_dim *dim);
-//
-void d_tree_ocp_qcqp_dim_set(char *field, int stage, int value, struct d_tree_ocp_qcqp_dim *dim);
-//
-void d_tree_ocp_qcqp_dim_set_nx(int stage, int value, struct d_tree_ocp_qcqp_dim *dim);
-//
-void d_tree_ocp_qcqp_dim_set_nu(int stage, int value, struct d_tree_ocp_qcqp_dim *dim);
-//
-void d_tree_ocp_qcqp_dim_set_nbx(int stage, int value, struct d_tree_ocp_qcqp_dim *dim);
-//
-void d_tree_ocp_qcqp_dim_set_nbu(int stage, int value, struct d_tree_ocp_qcqp_dim *dim);
-//
-void d_tree_ocp_qcqp_dim_set_ng(int stage, int value, struct d_tree_ocp_qcqp_dim *dim);
-//
-void d_tree_ocp_qcqp_dim_set_nq(int stage, int value, struct d_tree_ocp_qcqp_dim *dim);
-//
-void d_tree_ocp_qcqp_dim_set_ns(int stage, int value, struct d_tree_ocp_qcqp_dim *dim);
-//
-void d_tree_ocp_qcqp_dim_set_nsbx(int stage, int value, struct d_tree_ocp_qcqp_dim *dim);
-//
-void d_tree_ocp_qcqp_dim_set_nsbu(int stage, int value, struct d_tree_ocp_qcqp_dim *dim);
-//
-void d_tree_ocp_qcqp_dim_set_nsg(int stage, int value, struct d_tree_ocp_qcqp_dim *dim);
-//
-void d_tree_ocp_qcqp_dim_set_nsq(int stage, int value, struct d_tree_ocp_qcqp_dim *dim);
-//
-//void d_tree_ocp_qcqp_dim_set_nbxe(int stage, int value, struct d_tree_ocp_qcqp_dim *dim);
-//
-//void d_tree_ocp_qcqp_dim_set_nbue(int stage, int value, struct d_tree_ocp_qcqp_dim *dim);
-//
-//void d_tree_ocp_qcqp_dim_set_nge(int stage, int value, struct d_tree_ocp_qcqp_dim *dim);
-
-
-
-#ifdef __cplusplus
-}	// #extern "C"
-#endif
-
-
-
-#endif // HPIPM_D_TREE_OCP_QCQP_DIM_H_
+#include "x_tree_ocp_qcqp_dim.c"
 

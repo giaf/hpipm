@@ -71,7 +71,6 @@
 #define TREE_OCP_QP_FACT_SOLVE_KKT_UNCONSTR s_tree_ocp_qp_fact_solve_kkt_unconstr
 #define GELQF_WORKSIZE blasfeo_sgelqf_worksize
 #define GEMV_T blasfeo_sgemv_t
-#define INIT_VAR_TREE_OCP_QP s_init_var_tree_ocp_qp
 #define MEMSIZE_CORE_QP_IPM s_memsize_core_qp_ipm
 #define REAL float
 #define SIZE_STRMAT blasfeo_memsize_smat
