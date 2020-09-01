@@ -279,6 +279,7 @@ file(GLOB OCP_QP_SRC
 	)
 # tree qp
 file(GLOB TREE_OCP_QP_SRC
+	# common
 	${PROJECT_SOURCE_DIR}/tree_ocp_qp/scenario_tree.c
 	# double
 	${PROJECT_SOURCE_DIR}/tree_ocp_qp/d_tree_ocp_qp_dim.c
@@ -288,6 +289,7 @@ file(GLOB TREE_OCP_QP_SRC
 	${PROJECT_SOURCE_DIR}/tree_ocp_qp/d_tree_ocp_qp_ipm.c
 	${PROJECT_SOURCE_DIR}/tree_ocp_qp/d_tree_ocp_qp_res.c
 	${PROJECT_SOURCE_DIR}/tree_ocp_qp/d_tree_ocp_qcqp_dim.c
+	${PROJECT_SOURCE_DIR}/tree_ocp_qp/d_tree_ocp_qcqp.c
 	# single
 	${PROJECT_SOURCE_DIR}/tree_ocp_qp/s_tree_ocp_qp_dim.c
 	${PROJECT_SOURCE_DIR}/tree_ocp_qp/s_tree_ocp_qp.c
@@ -296,6 +298,7 @@ file(GLOB TREE_OCP_QP_SRC
 	${PROJECT_SOURCE_DIR}/tree_ocp_qp/s_tree_ocp_qp_ipm.c
 	${PROJECT_SOURCE_DIR}/tree_ocp_qp/s_tree_ocp_qp_res.c
 	${PROJECT_SOURCE_DIR}/tree_ocp_qp/s_tree_ocp_qcqp_dim.c
+	${PROJECT_SOURCE_DIR}/tree_ocp_qp/s_tree_ocp_qcqp.c
 	)
 # auxiliary
 file(GLOB AUXILIARY_SRC

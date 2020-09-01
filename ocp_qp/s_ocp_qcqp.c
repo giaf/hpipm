@@ -49,6 +49,11 @@
 
 
 
+#define SINGLE_PRECISION
+#define BLASFEO_VECEL BLASFEO_SVECEL
+
+
+
 #define CREATE_STRMAT blasfeo_create_smat
 #define CREATE_STRVEC blasfeo_create_svec
 #define CVT_MAT2STRMAT blasfeo_pack_smat

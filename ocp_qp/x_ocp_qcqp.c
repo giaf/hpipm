@@ -368,7 +368,7 @@ void OCP_QCQP_CREATE(struct OCP_QCQP_DIM *dim, struct OCP_QCQP *qp, void *mem)
 
 	qp->dim = dim;
 
-	qp->memsize = OCP_QCQP_MEMSIZE(dim);
+	qp->memsize = memsize; //OCP_QCQP_MEMSIZE(dim);
 
 
 #if defined(RUNTIME_CHECKS)
@@ -524,7 +524,6 @@ void OCP_QCQP_SET(char *field, int stage, void *value, struct OCP_QCQP *qp)
 	REAL *r_ptr;
 	int *i_ptr;
     
-	// matrices
 	if(hpipm_strcmp(field, "A")) 
 		{
 		OCP_QCQP_SET_A(stage, value, qp);
@@ -553,7 +552,6 @@ void OCP_QCQP_SET(char *field, int stage, void *value, struct OCP_QCQP *qp)
 		{
 		OCP_QCQP_SET_D(stage, value, qp);
 		}
-	// vectors
 	else if(hpipm_strcmp(field, "b"))
 		{ 
 		OCP_QCQP_SET_BVEC(stage, value, qp);
@@ -730,6 +728,10 @@ void OCP_QCQP_SET(char *field, int stage, void *value, struct OCP_QCQP *qp)
 	else if(hpipm_strcmp(field, "Jsg"))
 		{
 		OCP_QCQP_SET_JSG(stage, value, qp);
+		}
+	else if(hpipm_strcmp(field, "Jsq"))
+		{
+		OCP_QCQP_SET_JSQ(stage, value, qp);
 		}
 	else
 		{
@@ -927,11 +929,7 @@ void OCP_QCQP_SET_EL_LBX(int stage, int index, REAL *elem, struct OCP_QCQP *qp)
 	// extract dim
 	int *nbu = qp->dim->nbu;
 
-#ifdef DOUBLE_PRECISION
-	BLASFEO_DVECEL(qp->d+stage, nbu[stage]+index) = *elem;
-#else
-	BLASFEO_SVECEL(qp->d+stage, nbu[stage]+index) = *elem;
-#endif
+	BLASFEO_VECEL(qp->d+stage, nbu[stage]+index) = *elem;
 
 	return;
 	}
@@ -1032,11 +1030,7 @@ void OCP_QCQP_SET_EL_UBX(int stage, int index, REAL *elem, struct OCP_QCQP *qp)
 	int *ng = qp->dim->ng;
 	int *nq = qp->dim->nq;
 
-#ifdef DOUBLE_PRECISION
-	BLASFEO_DVECEL(qp->d+stage, nb[stage]+ng[stage]+nq[stage]+nbu[stage]+index) = - *elem;
-#else
-	BLASFEO_SVECEL(qp->d+stage, nb[stage]+ng[stage]+nq[stage]+nbu[stage]+index) = - *elem;
-#endif
+	BLASFEO_VECEL(qp->d+stage, nb[stage]+ng[stage]+nq[stage]+nbu[stage]+index) = - *elem;
 
 	return;
 	}
