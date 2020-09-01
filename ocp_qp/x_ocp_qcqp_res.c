@@ -278,30 +278,7 @@ void OCP_QCQP_RES_WS_CREATE(struct OCP_QCQP_DIM *dim, struct OCP_QCQP_RES_WS *ws
 
 	// zero memory (to avoid corrupted memory like e.g. NaN)
 	int memsize = OCP_QCQP_RES_WS_MEMSIZE(dim);
-	int memsize_m8 = memsize/8; // sizeof(double) is 8
-//	int memsize_r8 = memsize - 8*memsize_m8;
-	double *double_ptr = mem;
-	// XXX exploit that it is multiple of 64 bytes !!!!!
-	for(ii=0; ii<memsize_m8-7; ii+=8)
-		{
-		double_ptr[ii+0] = 0.0;
-		double_ptr[ii+1] = 0.0;
-		double_ptr[ii+2] = 0.0;
-		double_ptr[ii+3] = 0.0;
-		double_ptr[ii+4] = 0.0;
-		double_ptr[ii+5] = 0.0;
-		double_ptr[ii+6] = 0.0;
-		double_ptr[ii+7] = 0.0;
-		}
-//	for(; ii<memsize_m8; ii++)
-//		{
-//		double_ptr[ii] = 0.0;
-//		}
-//	char *char_ptr = (char *) (&double_ptr[ii]);
-//	for(ii=0; ii<memsize_r8; ii++)
-//		{
-//		char_ptr[ii] = 0;
-//		}
+	hpipm_zero_memset(memsize, mem);
 
 	// extract ocp qp size
 	int N = dim->N;
@@ -383,7 +360,7 @@ void OCP_QCQP_RES_WS_CREATE(struct OCP_QCQP_DIM *dim, struct OCP_QCQP_RES_WS *ws
 	ws->use_q_fun = 0;
 	ws->use_q_adj = 0;
 
-	ws->memsize = OCP_QCQP_RES_WS_MEMSIZE(dim);
+	ws->memsize = memsize; //OCP_QCQP_RES_WS_MEMSIZE(dim);
 
 
 #if defined(RUNTIME_CHECKS)
@@ -476,8 +453,6 @@ void OCP_QCQP_RES_COMPUTE(struct OCP_QCQP *qp, struct OCP_QCQP_SOL *qp_sol, stru
 		if(nb0+ng0+nq0>0)
 			{
 			AXPY(nb0+ng0+nq0, -1.0, lam+ii, 0, lam+ii, nb0+ng0+nq0, tmp_nbgqM+0, 0);
-//			AXPY(nb0+ng0,  1.0, d+ii, 0, t+ii, 0, res_d+ii, 0);
-//			AXPY(nb0+ng0,  1.0, d+ii, nb0+ng0, t+ii, nb0+ng0, res_d+ii, nb0+ng0);
 			AXPY(2*nb0+2*ng0+2*nq0,  1.0, d+ii, 0, t+ii, 0, res_d+ii, 0);
 			// box
 			if(nb0>0)
@@ -504,21 +479,13 @@ void OCP_QCQP_RES_COMPUTE(struct OCP_QCQP *qp, struct OCP_QCQP_SOL *qp_sol, stru
 					for(jj=0; jj<nq0; jj++)
 						{
 						SYMV_L(nu0+nx0, nu0+nx0, 1.0, &Hq[ii][jj], 0, 0, ux+ii, 0, 0.0, tmp_nuxM, 0, tmp_nuxM, 0);
-#ifdef DOUBLE_PRECISION
-						tmp = BLASFEO_DVECEL(tmp_nbgqM+0, nb0+ng0+jj);
-#else
-						tmp = BLASFEO_SVECEL(tmp_nbgqM+0, nb0+ng0+jj);
-#endif
+						tmp = BLASFEO_VECEL(tmp_nbgqM+0, nb0+ng0+jj);
 						AXPY(nu0+nx0, tmp, tmp_nuxM, 0, res_g+ii, 0, res_g+ii, 0);
 						COLEX(nu0+nx0, DCt+ii, 0, ng0+jj, tmp_nuxM+1, 0);
 						AXPY(nu0+nx0, tmp, tmp_nuxM+1, 0, res_g+ii, 0, res_g+ii, 0);
 						AXPY(nu0+nx0, 0.5, tmp_nuxM, 0, tmp_nuxM+1, 0, tmp_nuxM, 0);
 						tmp = DOT(nu0+nx0, tmp_nuxM, 0, ux+ii, 0);
-#ifdef DOUBLE_PRECISION
-						BLASFEO_DVECEL(tmp_nbgqM+1, nb0+ng0+jj) = tmp;
-#else
-						BLASFEO_SVECEL(tmp_nbgqM+1, nb0+ng0+jj) = tmp;
-#endif
+						BLASFEO_VECEL(tmp_nbgqM+1, nb0+ng0+jj) = tmp;
 						}
 					}
 				}
@@ -535,19 +502,11 @@ void OCP_QCQP_RES_COMPUTE(struct OCP_QCQP *qp, struct OCP_QCQP_SOL *qp_sol, stru
 				idx = idxs_rev[ii][jj];
 				if(idx!=-1)
 					{
-#ifdef DOUBLE_PRECISION
-					BLASFEO_DVECEL(res_g+ii, nu0+nx0+idx) -= BLASFEO_DVECEL(lam+ii, jj);
-					BLASFEO_DVECEL(res_g+ii, nu0+nx0+ns0+idx) -= BLASFEO_DVECEL(lam+ii, nb0+ng0+nq0+jj);
+					BLASFEO_VECEL(res_g+ii, nu0+nx0+idx) -= BLASFEO_VECEL(lam+ii, jj);
+					BLASFEO_VECEL(res_g+ii, nu0+nx0+ns0+idx) -= BLASFEO_VECEL(lam+ii, nb0+ng0+nq0+jj);
 					// res_d
-					BLASFEO_DVECEL(res_d+ii, jj) -= BLASFEO_DVECEL(ux+ii, nu0+nx0+idx);
-					BLASFEO_DVECEL(res_d+ii, nb0+ng0+nq0+jj) -= BLASFEO_DVECEL(ux+ii, nu0+nx0+ns0+idx);
-#else
-					BLASFEO_SVECEL(res_g+ii, nu0+nx0+idx) -= BLASFEO_SVECEL(lam+ii, jj);
-					BLASFEO_SVECEL(res_g+ii, nu0+nx0+ns0+idx) -= BLASFEO_SVECEL(lam+ii, nb0+ng0+nq0+jj);
-					// res_d
-					BLASFEO_SVECEL(res_d+ii, jj) -= BLASFEO_SVECEL(ux+ii, nu0+nx0+idx);
-					BLASFEO_SVECEL(res_d+ii, nb0+ng0+nq0+jj) -= BLASFEO_SVECEL(ux+ii, nu0+nx0+ns0+idx);
-#endif
+					BLASFEO_VECEL(res_d+ii, jj) -= BLASFEO_VECEL(ux+ii, nu0+nx0+idx);
+					BLASFEO_VECEL(res_d+ii, nb0+ng0+nq0+jj) -= BLASFEO_VECEL(ux+ii, nu0+nx0+ns0+idx);
 					}
 				}
 			// res_d

@@ -171,6 +171,7 @@ OBJS += tree_ocp_qp/d_tree_ocp_qp_ipm.o
 OBJS += tree_ocp_qp/d_tree_ocp_qcqp_dim.o
 OBJS += tree_ocp_qp/d_tree_ocp_qcqp.o
 OBJS += tree_ocp_qp/d_tree_ocp_qcqp_sol.o
+OBJS += tree_ocp_qp/d_tree_ocp_qcqp_res.o
 # single
 OBJS += tree_ocp_qp/s_tree_ocp_qp_dim.o
 OBJS += tree_ocp_qp/s_tree_ocp_qp.o
@@ -181,6 +182,7 @@ OBJS += tree_ocp_qp/s_tree_ocp_qp_ipm.o
 OBJS += tree_ocp_qp/s_tree_ocp_qcqp_dim.o
 OBJS += tree_ocp_qp/s_tree_ocp_qcqp.o
 OBJS += tree_ocp_qp/s_tree_ocp_qcqp_sol.o
+OBJS += tree_ocp_qp/s_tree_ocp_qcqp_res.o
 
 # aux
 OBJS += auxiliary/aux_string.o

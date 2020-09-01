@@ -33,68 +33,76 @@
 *                                                                                                 *
 **************************************************************************************************/
 
+#ifndef HPIPM_D_TREE_OCP_QCQP_RES_H_
+#define HPIPM_D_TREE_OCP_QCQP_RES_H_
 
 
-#include <stdlib.h>
-#include <stdio.h>
 
 #include <blasfeo_target.h>
 #include <blasfeo_common.h>
-#include <blasfeo_s_aux.h>
-#include <blasfeo_s_blas.h>
 
-#include <hpipm_s_ocp_qcqp_dim.h>
-#include <hpipm_s_ocp_qcqp_res.h>
-#include <hpipm_aux_mem.h>
-
-
-
-#define SINGLE_PRECISION
-#define BLASFEO_VECEL BLASFEO_SVECEL
+#include <hpipm_common.h>
+#include <hpipm_d_tree_ocp_qcqp_dim.h>
+#include <hpipm_d_tree_ocp_qcqp.h>
+#include <hpipm_d_tree_ocp_qcqp_sol.h>
 
 
 
-#define AXPY blasfeo_saxpy
-#define COLEX blasfeo_scolex
-#define CREATE_STRVEC blasfeo_create_svec
-#define CVT_STRVEC2VEC blasfeo_unpack_svec
-#define DOT blasfeo_sdot
-#define GEMV_DIAG blasfeo_sgemv_d
-#define GEMV_NT blasfeo_sgemv_nt
-#define OCP_QCQP s_ocp_qcqp
-#define OCP_QCQP_DIM s_ocp_qcqp_dim
-#define OCP_QCQP_RES s_ocp_qcqp_res
-#define OCP_QCQP_RES_WS s_ocp_qcqp_res_ws
-#define OCP_QCQP_SOL s_ocp_qcqp_sol
-#define REAL float
-#define SIZE_STRVEC blasfeo_memsize_svec
-#define STRMAT blasfeo_smat
-#define STRVEC blasfeo_svec
-#define SYMV_L blasfeo_ssymv_l
-#define VECAD_SP blasfeo_svecad_sp
-#define VECCP blasfeo_sveccp
-#define VECEX_SP blasfeo_svecex_sp
-#define VECMULACC blasfeo_svecmulacc
-#define VECMULDOT blasfeo_svecmuldot
-#define VECNRM_INF blasfeo_svecnrm_inf
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 
 
-#define OCP_QCQP_RES_MEMSIZE s_ocp_qcqp_res_memsize
-#define OCP_QCQP_RES_CREATE s_ocp_qcqp_res_create
-#define OCP_QCQP_RES_WS_MEMSIZE s_ocp_qcqp_res_ws_memsize
-#define OCP_QCQP_RES_WS_CREATE s_ocp_qcqp_res_ws_create
-#define OCP_QCQP_RES_COMPUTE s_ocp_qcqp_res_compute
-#define OCP_QCQP_RES_COMPUTE_LIN s_ocp_qcqp_res_compute_lin
-#define OCP_QCQP_RES_COMPUTE_INF_NORM s_ocp_qcqp_res_compute_inf_norm
-#define OCP_QCQP_RES_GET_ALL s_ocp_qcqp_res_get_all
-#define OCP_QCQP_RES_GET_MAX_RES_STAT s_ocp_qcqp_res_get_max_res_stat
-#define OCP_QCQP_RES_GET_MAX_RES_EQ s_ocp_qcqp_res_get_max_res_eq
-#define OCP_QCQP_RES_GET_MAX_RES_INEQ s_ocp_qcqp_res_get_max_res_ineq
-#define OCP_QCQP_RES_GET_MAX_RES_COMP s_ocp_qcqp_res_get_max_res_comp
+struct d_tree_ocp_qcqp_res
+	{
+	struct d_tree_ocp_qcqp_dim *dim;
+	struct blasfeo_dvec *res_g; // q-residuals
+	struct blasfeo_dvec *res_b; // b-residuals
+	struct blasfeo_dvec *res_d; // d-residuals
+	struct blasfeo_dvec *res_m; // m-residuals
+	double res_max[4]; // max of residuals
+	double res_mu; // mu-residual
+	int memsize;
+	};
 
 
 
-#include "x_ocp_qcqp_res.c"
+struct d_tree_ocp_qcqp_res_ws
+	{
+	struct blasfeo_dvec *tmp_nuxM; // work space of size nuM+nxM
+	struct blasfeo_dvec *tmp_nbgqM; // work space of size nbM+ngM+nqM
+	struct blasfeo_dvec *tmp_nsM; // work space of size nsM
+	struct blasfeo_dvec *q_fun; // value for evaluation of quadr constr
+	struct blasfeo_dvec *q_adj; // value for adjoint of quadr constr
+	int use_q_fun; // reuse cached value for evaluation of quadr constr
+	int use_q_adj; // reuse cached value for adjoint of quadr constr
+	int memsize;
+	};
+
+
+
+//
+int d_tree_ocp_qcqp_res_memsize(struct d_tree_ocp_qcqp_dim *ocp_dim);
+//
+void d_tree_ocp_qcqp_res_create(struct d_tree_ocp_qcqp_dim *ocp_dim, struct d_tree_ocp_qcqp_res *res, void *mem);
+//
+int d_tree_ocp_qcqp_res_ws_memsize(struct d_tree_ocp_qcqp_dim *ocp_dim);
+//
+void d_tree_ocp_qcqp_res_ws_create(struct d_tree_ocp_qcqp_dim *ocp_dim, struct d_tree_ocp_qcqp_res_ws *ws, void *mem);
+//
+void d_tree_ocp_qcqp_res_compute(struct d_tree_ocp_qcqp *qp, struct d_tree_ocp_qcqp_sol *qp_sol, struct d_tree_ocp_qcqp_res *res, struct d_tree_ocp_qcqp_res_ws *ws);
+//
+void d_tree_ocp_qcqp_res_compute_inf_norm(struct d_tree_ocp_qcqp_res *res);
+
+
+
+#ifdef __cplusplus
+}	// #extern "C"
+#endif
+
+
+#endif // HPIPM_D_TREE_OCP_QCQP_RES_H_
+
 
 

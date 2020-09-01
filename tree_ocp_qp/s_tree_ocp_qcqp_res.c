@@ -43,8 +43,9 @@
 #include <blasfeo_s_aux.h>
 #include <blasfeo_s_blas.h>
 
-#include <hpipm_s_ocp_qcqp_dim.h>
-#include <hpipm_s_ocp_qcqp_res.h>
+#include <hpipm_tree.h>
+#include <hpipm_s_tree_ocp_qcqp_dim.h>
+#include <hpipm_s_tree_ocp_qcqp_res.h>
 #include <hpipm_aux_mem.h>
 
 
@@ -61,11 +62,11 @@
 #define DOT blasfeo_sdot
 #define GEMV_DIAG blasfeo_sgemv_d
 #define GEMV_NT blasfeo_sgemv_nt
-#define OCP_QCQP s_ocp_qcqp
-#define OCP_QCQP_DIM s_ocp_qcqp_dim
-#define OCP_QCQP_RES s_ocp_qcqp_res
-#define OCP_QCQP_RES_WS s_ocp_qcqp_res_ws
-#define OCP_QCQP_SOL s_ocp_qcqp_sol
+#define TREE_OCP_QCQP s_tree_ocp_qcqp
+#define TREE_OCP_QCQP_DIM s_tree_ocp_qcqp_dim
+#define TREE_OCP_QCQP_RES s_tree_ocp_qcqp_res
+#define TREE_OCP_QCQP_RES_WS s_tree_ocp_qcqp_res_ws
+#define TREE_OCP_QCQP_SOL s_tree_ocp_qcqp_sol
 #define REAL float
 #define SIZE_STRVEC blasfeo_memsize_svec
 #define STRMAT blasfeo_smat
@@ -80,21 +81,22 @@
 
 
 
-#define OCP_QCQP_RES_MEMSIZE s_ocp_qcqp_res_memsize
-#define OCP_QCQP_RES_CREATE s_ocp_qcqp_res_create
-#define OCP_QCQP_RES_WS_MEMSIZE s_ocp_qcqp_res_ws_memsize
-#define OCP_QCQP_RES_WS_CREATE s_ocp_qcqp_res_ws_create
-#define OCP_QCQP_RES_COMPUTE s_ocp_qcqp_res_compute
-#define OCP_QCQP_RES_COMPUTE_LIN s_ocp_qcqp_res_compute_lin
-#define OCP_QCQP_RES_COMPUTE_INF_NORM s_ocp_qcqp_res_compute_inf_norm
-#define OCP_QCQP_RES_GET_ALL s_ocp_qcqp_res_get_all
-#define OCP_QCQP_RES_GET_MAX_RES_STAT s_ocp_qcqp_res_get_max_res_stat
-#define OCP_QCQP_RES_GET_MAX_RES_EQ s_ocp_qcqp_res_get_max_res_eq
-#define OCP_QCQP_RES_GET_MAX_RES_INEQ s_ocp_qcqp_res_get_max_res_ineq
-#define OCP_QCQP_RES_GET_MAX_RES_COMP s_ocp_qcqp_res_get_max_res_comp
+#define TREE_OCP_QCQP_RES_MEMSIZE s_tree_ocp_qcqp_res_memsize
+#define TREE_OCP_QCQP_RES_CREATE s_tree_ocp_qcqp_res_create
+#define TREE_OCP_QCQP_RES_WS_MEMSIZE s_tree_ocp_qcqp_res_ws_memsize
+#define TREE_OCP_QCQP_RES_WS_CREATE s_tree_ocp_qcqp_res_ws_create
+#define TREE_OCP_QCQP_RES_COMPUTE s_tree_ocp_qcqp_res_compute
+#define TREE_OCP_QCQP_RES_COMPUTE_LIN s_tree_ocp_qcqp_res_compute_lin
+#define TREE_OCP_QCQP_RES_COMPUTE_INF_NORM s_tree_ocp_qcqp_res_compute_inf_norm
+#define TREE_OCP_QCQP_RES_GET_ALL s_tree_ocp_qcqp_res_get_all
+#define TREE_OCP_QCQP_RES_GET_MAX_RES_STAT s_tree_ocp_qcqp_res_get_max_res_stat
+#define TREE_OCP_QCQP_RES_GET_MAX_RES_EQ s_tree_ocp_qcqp_res_get_max_res_eq
+#define TREE_OCP_QCQP_RES_GET_MAX_RES_INEQ s_tree_ocp_qcqp_res_get_max_res_ineq
+#define TREE_OCP_QCQP_RES_GET_MAX_RES_COMP s_tree_ocp_qcqp_res_get_max_res_comp
 
 
 
-#include "x_ocp_qcqp_res.c"
+#include "x_tree_ocp_qcqp_res.c"
+
 
 
