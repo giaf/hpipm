@@ -199,7 +199,7 @@ void OCP_QCQP_SOL_CREATE(struct OCP_QCQP_DIM *dim, struct OCP_QCQP_SOL *qp_sol, 
 
 	qp_sol->dim = dim;
 
-	qp_sol->memsize = OCP_QCQP_SOL_MEMSIZE(dim);
+	qp_sol->memsize = memsize; //OCP_QCQP_SOL_MEMSIZE(dim);
 
 
 #if defined(RUNTIME_CHECKS)

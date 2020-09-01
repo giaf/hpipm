@@ -325,10 +325,10 @@ void TREE_OCP_QCQP_CREATE(struct TREE_OCP_QCQP_DIM *dim, struct TREE_OCP_QCQP *q
 		CREATE_STRVEC(2*nb[ii]+2*ng[ii]+2*nq[ii]+2*ns[ii], qp->d+ii, tmp_ptr);
 		tmp_ptr += nb[ii]*sizeof(REAL);
 		tmp_ptr += ng[ii]*sizeof(REAL);
+		tmp_ptr += nq[ii]*sizeof(REAL);
 		tmp_ptr += nb[ii]*sizeof(REAL);
 		tmp_ptr += ng[ii]*sizeof(REAL);
-		tmp_ptr += ng[ii]*sizeof(REAL); // ug
-		tmp_ptr += nq[ii]*sizeof(REAL); // uq
+		tmp_ptr += nq[ii]*sizeof(REAL);
 		tmp_ptr += ns[ii]*sizeof(REAL);
 		tmp_ptr += ns[ii]*sizeof(REAL);
 		}
@@ -341,10 +341,10 @@ void TREE_OCP_QCQP_CREATE(struct TREE_OCP_QCQP_DIM *dim, struct TREE_OCP_QCQP *q
 		CREATE_STRVEC(2*nb[ii]+2*ng[ii]+2*nq[ii]+2*ns[ii], qp->d_mask+ii, tmp_ptr);
 		tmp_ptr += nb[ii]*sizeof(REAL);
 		tmp_ptr += ng[ii]*sizeof(REAL);
+		tmp_ptr += nq[ii]*sizeof(REAL);
 		tmp_ptr += nb[ii]*sizeof(REAL);
 		tmp_ptr += ng[ii]*sizeof(REAL);
-		tmp_ptr += ng[ii]*sizeof(REAL); // ug
-		tmp_ptr += nq[ii]*sizeof(REAL); // uq
+		tmp_ptr += nq[ii]*sizeof(REAL);
 		tmp_ptr += ns[ii]*sizeof(REAL);
 		tmp_ptr += ns[ii]*sizeof(REAL);
 		VECSE(2*nb[ii]+2*ng[ii]+2*nq[ii]+2*ns[ii], 1.0, qp->d_mask+ii, 0);
@@ -358,10 +358,10 @@ void TREE_OCP_QCQP_CREATE(struct TREE_OCP_QCQP_DIM *dim, struct TREE_OCP_QCQP *q
 		CREATE_STRVEC(2*nb[ii]+2*ng[ii]+2*nq[ii]+2*ns[ii], qp->m+ii, tmp_ptr);
 		tmp_ptr += nb[ii]*sizeof(REAL);
 		tmp_ptr += ng[ii]*sizeof(REAL);
+		tmp_ptr += nq[ii]*sizeof(REAL);
 		tmp_ptr += nb[ii]*sizeof(REAL);
 		tmp_ptr += ng[ii]*sizeof(REAL);
-		tmp_ptr += ng[ii]*sizeof(REAL); // ug
-		tmp_ptr += nq[ii]*sizeof(REAL); // uq
+		tmp_ptr += nq[ii]*sizeof(REAL);
 		tmp_ptr += ns[ii]*sizeof(REAL);
 		tmp_ptr += ns[ii]*sizeof(REAL);
 		}

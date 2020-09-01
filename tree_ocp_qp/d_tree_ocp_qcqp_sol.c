@@ -33,66 +33,46 @@
 *                                                                                                 *
 **************************************************************************************************/
 
-#ifndef HPIPM_S_TREE_OCP_QP_SOL_H_
-#define HPIPM_S_TREE_OCP_QP_SOL_H_
-
-
+#include <stdlib.h>
+#include <stdio.h>
 
 #include <blasfeo_target.h>
 #include <blasfeo_common.h>
+#include <blasfeo_d_aux.h>
 
-#include "hpipm_s_tree_ocp_qp_dim.h"
-
-
-
-#ifdef __cplusplus
-extern "C" {
-#endif
-
-struct s_tree_ocp_qp_sol
-	{
-	struct s_tree_ocp_qp_dim *dim;
-	struct blasfeo_svec *ux;
-	struct blasfeo_svec *pi;
-	struct blasfeo_svec *lam;
-	struct blasfeo_svec *t;
-	void *misc;
-	int memsize; // memory size in bytes
-	};
+#include <hpipm_tree.h>
+#include <hpipm_scenario_tree.h>
+#include <hpipm_d_tree_ocp_qcqp.h>
+#include <hpipm_d_tree_ocp_qcqp_sol.h>
+#include <hpipm_aux_string.h>
+#include <hpipm_aux_mem.h>
 
 
 
-//
-int s_tree_ocp_qp_sol_memsize(struct s_tree_ocp_qp_dim *dim);
-//
-void s_tree_ocp_qp_sol_create(struct s_tree_ocp_qp_dim *dim, struct s_tree_ocp_qp_sol *qp_sol, void *memory);
-//
-void s_tree_ocp_qp_sol_get_all(struct s_tree_ocp_qp *qp, struct s_tree_ocp_qp_sol *qp_sol, float **u, float **x, float **ls, float **us, float **pi, float **lam_lb, float **lam_ub, float **lam_lg, float **lam_ug, float **lam_ls, float **lam_us);
-//
-void s_tree_ocp_qp_sol_get_u(int node, struct s_tree_ocp_qp_sol *qp_sol, float *vec);
-//
-void s_tree_ocp_qp_sol_get_x(int node, struct s_tree_ocp_qp_sol *qp_sol, float *vec);
-//
-void s_tree_ocp_qp_sol_get_sl(int node, struct s_tree_ocp_qp_sol *qp_sol, float *vec);
-//
-void s_tree_ocp_qp_sol_get_su(int node, struct s_tree_ocp_qp_sol *qp_sol, float *vec);
-//
-void s_tree_ocp_qp_sol_get_pi(int edge, struct s_tree_ocp_qp_sol *qp_sol, float *vec);
-//
-void s_tree_ocp_qp_sol_get_lam_lb(int node, struct s_tree_ocp_qp_sol *qp_sol, float *vec);
-//
-void s_tree_ocp_qp_sol_get_lam_ub(int node, struct s_tree_ocp_qp_sol *qp_sol, float *vec);
-//
-void s_tree_ocp_qp_sol_get_lam_lg(int node, struct s_tree_ocp_qp_sol *qp_sol, float *vec);
-//
-void s_tree_ocp_qp_sol_get_lam_ug(int node, struct s_tree_ocp_qp_sol *qp_sol, float *vec);
+#define CREATE_STRVEC blasfeo_create_dvec
+#define UNPACK_VEC blasfeo_unpack_dvec
+#define REAL double
+#define SIZE_STRVEC blasfeo_memsize_dvec
+#define STRVEC blasfeo_dvec
+#define TREE_OCP_QCQP d_tree_ocp_qcqp
+#define TREE_OCP_QCQP_DIM d_tree_ocp_qcqp_dim
+#define TREE_OCP_QCQP_SOL d_tree_ocp_qcqp_sol
+
+#define TREE_OCP_QCQP_SOL_MEMSIZE d_tree_ocp_qcqp_sol_memsize
+#define TREE_OCP_QCQP_SOL_CREATE d_tree_ocp_qcqp_sol_create
+#define TREE_OCP_QCQP_SOL_GET_ALL d_tree_ocp_qcqp_sol_get_all
+#define TREE_OCP_QCQP_SOL_GET d_tree_ocp_qcqp_sol_get
+#define TREE_OCP_QCQP_SOL_GET_U d_tree_ocp_qcqp_sol_get_u
+#define TREE_OCP_QCQP_SOL_GET_X d_tree_ocp_qcqp_sol_get_x
+#define TREE_OCP_QCQP_SOL_GET_SL d_tree_ocp_qcqp_sol_get_sl
+#define TREE_OCP_QCQP_SOL_GET_SU d_tree_ocp_qcqp_sol_get_su
+#define TREE_OCP_QCQP_SOL_GET_PI d_tree_ocp_qcqp_sol_get_pi
+#define TREE_OCP_QCQP_SOL_GET_LAM_LB d_tree_ocp_qcqp_sol_get_lam_lb
+#define TREE_OCP_QCQP_SOL_GET_LAM_UB d_tree_ocp_qcqp_sol_get_lam_ub
+#define TREE_OCP_QCQP_SOL_GET_LAM_LG d_tree_ocp_qcqp_sol_get_lam_lg
+#define TREE_OCP_QCQP_SOL_GET_LAM_UG d_tree_ocp_qcqp_sol_get_lam_ug
 
 
 
-#ifdef __cplusplus
-} /* extern "C" */
-#endif
+#include "x_tree_ocp_qcqp_sol.c"
 
-
-
-#endif // HPIPM_S_TREE_OCP_QP_SOL_H_

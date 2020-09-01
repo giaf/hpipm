@@ -68,6 +68,28 @@ int d_tree_ocp_qp_sol_memsize(struct d_tree_ocp_qp_dim *dim);
 void d_tree_ocp_qp_sol_create(struct d_tree_ocp_qp_dim *dim, struct d_tree_ocp_qp_sol *qp_sol, void *memory);
 //
 void d_tree_ocp_qp_sol_get_all(struct d_tree_ocp_qp *qp, struct d_tree_ocp_qp_sol *qp_sol, double **u, double **x, double **ls, double **us, double **pi, double **lam_lb, double **lam_ub, double **lam_lg, double **lam_ug, double **lam_ls, double **lam_us);
+//
+void d_tree_ocp_qp_sol_get(char *field, int node_edge, struct d_tree_ocp_qp_sol *qp_sol, double *vec);
+//
+void d_tree_ocp_qp_sol_get_u(int node, struct d_tree_ocp_qp_sol *qp_sol, double *vec);
+//
+void d_tree_ocp_qp_sol_get_x(int node, struct d_tree_ocp_qp_sol *qp_sol, double *vec);
+//
+void d_tree_ocp_qp_sol_get_sl(int node, struct d_tree_ocp_qp_sol *qp_sol, double *vec);
+//
+void d_tree_ocp_qp_sol_get_su(int node, struct d_tree_ocp_qp_sol *qp_sol, double *vec);
+//
+void d_tree_ocp_qp_sol_get_pi(int edge, struct d_tree_ocp_qp_sol *qp_sol, double *vec);
+//
+void d_tree_ocp_qp_sol_get_lam_lb(int node, struct d_tree_ocp_qp_sol *qp_sol, double *vec);
+//
+void d_tree_ocp_qp_sol_get_lam_ub(int node, struct d_tree_ocp_qp_sol *qp_sol, double *vec);
+//
+void d_tree_ocp_qp_sol_get_lam_lg(int node, struct d_tree_ocp_qp_sol *qp_sol, double *vec);
+//
+void d_tree_ocp_qp_sol_get_lam_ug(int node, struct d_tree_ocp_qp_sol *qp_sol, double *vec);
+
+
 
 #ifdef __cplusplus
 } /* extern "C" */

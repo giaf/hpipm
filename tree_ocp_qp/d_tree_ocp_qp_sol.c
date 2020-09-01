@@ -61,6 +61,16 @@
 #define TREE_OCP_QP_SOL_MEMSIZE d_tree_ocp_qp_sol_memsize
 #define TREE_OCP_QP_SOL_CREATE d_tree_ocp_qp_sol_create
 #define TREE_OCP_QP_SOL_GET_ALL d_tree_ocp_qp_sol_get_all
+#define TREE_OCP_QP_SOL_GET d_tree_ocp_qp_sol_get
+#define TREE_OCP_QP_SOL_GET_U d_tree_ocp_qp_sol_get_u
+#define TREE_OCP_QP_SOL_GET_X d_tree_ocp_qp_sol_get_x
+#define TREE_OCP_QP_SOL_GET_SL d_tree_ocp_qp_sol_get_sl
+#define TREE_OCP_QP_SOL_GET_SU d_tree_ocp_qp_sol_get_su
+#define TREE_OCP_QP_SOL_GET_PI d_tree_ocp_qp_sol_get_pi
+#define TREE_OCP_QP_SOL_GET_LAM_LB d_tree_ocp_qp_sol_get_lam_lb
+#define TREE_OCP_QP_SOL_GET_LAM_UB d_tree_ocp_qp_sol_get_lam_ub
+#define TREE_OCP_QP_SOL_GET_LAM_LG d_tree_ocp_qp_sol_get_lam_lg
+#define TREE_OCP_QP_SOL_GET_LAM_UG d_tree_ocp_qp_sol_get_lam_ug
 
 
 
