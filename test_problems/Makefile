@@ -55,6 +55,7 @@ OBJS_TEST = d_tools.o test_d_ocp.o
 #OBJS_TEST = d_tools.o test_d_ocp_qcqp.o
 #OBJS_TEST = d_tools.o test_d_ocp_phase_I.o
 #OBJS_TEST = d_tools.o test_d_tree_ocp.o
+#OBJS_TEST = d_tools.o test_d_tree_ocp_qcqp.o
 #OBJS_TEST = d_tools.o test_d_sim.o
 
 obj: $(OBJS_TEST)
@@ -71,6 +72,7 @@ test_d_cond_qcqp \
 test_d_part_cond \
 test_d_part_cond_qcqp \
 test_d_tree_ocp \
+test_d_tree_ocp_qcqp \
 test_d_sim \
 : %: d_tools.o %.o
 	$(CC) -o $@.out $^ $(LIBS)
