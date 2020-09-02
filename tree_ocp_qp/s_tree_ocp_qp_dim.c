@@ -54,6 +54,7 @@
 #define TREE_OCP_QP_DIM_MEMSIZE s_tree_ocp_qp_dim_memsize
 #define TREE_OCP_QP_DIM_CREATE s_tree_ocp_qp_dim_create
 #define TREE_OCP_QP_DIM_SET_ALL s_tree_ocp_qp_dim_set_all
+#define TREE_OCP_QP_DIM_SET_TREE s_tree_ocp_qp_dim_set_tree
 #define TREE_OCP_QP_DIM_SET s_tree_ocp_qp_dim_set
 #define TREE_OCP_QP_DIM_SET_NX s_tree_ocp_qp_dim_set_nx
 #define TREE_OCP_QP_DIM_SET_NU s_tree_ocp_qp_dim_set_nu
