@@ -255,7 +255,7 @@ int TREE_OCP_QCQP_RES_WS_MEMSIZE(struct TREE_OCP_QCQP_DIM *dim)
 
 	int size = 0;
 
-	size += (5+Nn)*sizeof(struct STRVEC); // 2*tmp_nuxM 2*tmp_nbgqM tmp_nsM q_fun q_adj
+	size += (5+2*Nn)*sizeof(struct STRVEC); // 2*tmp_nuxM 2*tmp_nbgqM tmp_nsM q_fun q_adj
 
 	size += 2*SIZE_STRVEC(nuM+nxM); // 2*tmp_nuxM
 	size += 2*SIZE_STRVEC(nbM+ngM+nqM); // tmp_nbgqM
@@ -461,7 +461,7 @@ void TREE_OCP_QCQP_RES_COMPUTE(struct TREE_OCP_QCQP *qp, struct TREE_OCP_QCQP_SO
 		if(ii>0)
 			AXPY(nx0, -1.0, pi+(ii-1), 0, res_g+ii, nu0, res_g+ii, nu0);
 
-		if(nb0+ng0>0)
+		if(nb0+ng0+nq0>0)
 			{
 			AXPY(nb0+ng0+nq0, -1.0, lam+ii, 0, lam+ii, nb0+ng0+nq0, tmp_nbgqM+0, 0);
 			AXPY(2*nb0+2*ng0+2*nq0,  1.0, d+ii, 0, t+ii, 0, res_d+ii, 0);

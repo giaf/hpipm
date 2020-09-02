@@ -30,6 +30,7 @@ jobs:
         - make -C test_problems test_d_part_cond TARGET=AVX BLASFEO_PATH="${TRAVIS_BUILD_DIR}"/blasfeo PRINT=0
         - make -C test_problems test_d_part_cond_qcqp TARGET=AVX BLASFEO_PATH="${TRAVIS_BUILD_DIR}"/blasfeo PRINT=0
         - make -C test_problems test_d_tree_ocp TARGET=AVX BLASFEO_PATH="${TRAVIS_BUILD_DIR}"/blasfeo PRINT=0
+        - make -C test_problems test_d_tree_ocp_qcqp TARGET=AVX BLASFEO_PATH="${TRAVIS_BUILD_DIR}"/blasfeo PRINT=0
 
     - name: "Linux ARM64 C build"
       arch: arm64
@@ -54,6 +55,7 @@ jobs:
         - make -C test_problems test_d_part_cond TARGET=GENERIC BLASFEO_PATH="${TRAVIS_BUILD_DIR}"/blasfeo PRINT=0
         - make -C test_problems test_d_part_cond_qcqp TARGET=GENERIC BLASFEO_PATH="${TRAVIS_BUILD_DIR}"/blasfeo PRINT=0
         - make -C test_problems test_d_tree_ocp TARGET=GENERIC BLASFEO_PATH="${TRAVIS_BUILD_DIR}"/blasfeo PRINT=0
+        - make -C test_problems test_d_tree_ocp_qcqp TARGET=GENERIC BLASFEO_PATH="${TRAVIS_BUILD_DIR}"/blasfeo PRINT=0
 
     - name: "Linux AMD64 octave build"
       arch: amd64
