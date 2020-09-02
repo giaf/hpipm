@@ -37,7 +37,13 @@
 
 int TREE_OCP_QCQP_DIM_STRSIZE()
 	{
-	return sizeof(struct TREE_OCP_QCQP_DIM);
+
+	int size = 0;
+
+	size += sizeof(struct TREE_OCP_QCQP_DIM);
+
+	return size;
+
 	}
 
 
@@ -49,7 +55,11 @@ int TREE_OCP_QCQP_DIM_MEMSIZE(int Nn)
 
 	size += 12*Nn*sizeof(int);
 
-	size = (size+8-1)/8*8;
+	size += 1*sizeof(struct TREE_OCP_QP_DIM);
+	size += 1*TREE_OCP_QP_DIM_MEMSIZE(Nn);
+
+	size = (size+63)/64*64; // make multiple of typical cache line size
+	size += 1*64; // align once to typical cache line size
 
 	return size;
 
@@ -67,7 +77,21 @@ void TREE_OCP_QCQP_DIM_CREATE(int Nn, struct TREE_OCP_QCQP_DIM *dim, void *memor
 	int memsize = TREE_OCP_QCQP_DIM_MEMSIZE(Nn);
 	hpipm_zero_memset(memsize, memory);
 
-	char *c_ptr = memory;
+	// qp_dim struct
+	struct TREE_OCP_QP_DIM *dim_ptr = memory;
+
+	dim->qp_dim = dim_ptr;
+	dim_ptr += 1;
+
+	// align to typical cache line size
+	size_t s_ptr = (size_t) dim_ptr;
+	s_ptr = (s_ptr+63)/64*64;
+
+	// void
+	char *c_ptr = (char *) s_ptr;
+
+	TREE_OCP_QP_DIM_CREATE(Nn, dim->qp_dim, c_ptr);
+	c_ptr += dim->qp_dim->memsize;
 
 	// nx
 	dim->nx = (int *) c_ptr;
@@ -133,7 +157,7 @@ void TREE_OCP_QCQP_DIM_CREATE(int Nn, struct TREE_OCP_QCQP_DIM *dim, void *memor
 	// Nn
 	dim->Nn = Nn;
 
-	dim->memsize = TREE_OCP_QCQP_DIM_MEMSIZE(Nn);
+	dim->memsize = memsize; //TREE_OCP_QCQP_DIM_MEMSIZE(Nn);
 
 	return;
 
@@ -143,6 +167,7 @@ void TREE_OCP_QCQP_DIM_CREATE(int Nn, struct TREE_OCP_QCQP_DIM *dim, void *memor
 void TREE_OCP_QCQP_DIM_SET_TREE(struct tree *ttree, struct TREE_OCP_QCQP_DIM *dim)
 	{
 	dim->ttree = ttree;
+	TREE_OCP_QP_DIM_SET_TREE(ttree, dim->qp_dim);
 	return;
 	}
 
@@ -219,6 +244,7 @@ void TREE_OCP_QCQP_DIM_SET(char *field_name, int node, int value, struct TREE_OC
 void TREE_OCP_QCQP_DIM_SET_NX(int node, int value, struct TREE_OCP_QCQP_DIM *dim)
 	{
 	dim->nx[node] = value;
+	TREE_OCP_QP_DIM_SET_NX(node, dim->nx[node], dim->qp_dim);
 	return;
 	}
 
@@ -227,6 +253,7 @@ void TREE_OCP_QCQP_DIM_SET_NX(int node, int value, struct TREE_OCP_QCQP_DIM *dim
 void TREE_OCP_QCQP_DIM_SET_NU(int node, int value, struct TREE_OCP_QCQP_DIM *dim)
 	{
 	dim->nu[node] = value;
+	TREE_OCP_QP_DIM_SET_NU(node, dim->nu[node], dim->qp_dim);
 	return;
 	}
 
@@ -236,6 +263,7 @@ void TREE_OCP_QCQP_DIM_SET_NBX(int node, int value, struct TREE_OCP_QCQP_DIM *di
 	{
 	dim->nbx[node] = value;
 	dim->nb[node] = dim->nbx[node] + dim->nbu[node];
+	TREE_OCP_QP_DIM_SET_NBX(node, dim->nbx[node], dim->qp_dim);
 	return;
 	}
 
@@ -245,6 +273,7 @@ void TREE_OCP_QCQP_DIM_SET_NBU(int node, int value, struct TREE_OCP_QCQP_DIM *di
 	{
 	dim->nbu[node] = value;
 	dim->nb[node] = dim->nbx[node] + dim->nbu[node];
+	TREE_OCP_QP_DIM_SET_NBU(node, dim->nbu[node], dim->qp_dim);
 	return;
 	}
 
@@ -253,6 +282,7 @@ void TREE_OCP_QCQP_DIM_SET_NBU(int node, int value, struct TREE_OCP_QCQP_DIM *di
 void TREE_OCP_QCQP_DIM_SET_NG(int node, int value, struct TREE_OCP_QCQP_DIM *dim)
 	{
 	dim->ng[node] = value;
+	TREE_OCP_QP_DIM_SET_NG(node, dim->ng[node]+dim->nq[node], dim->qp_dim);
 	return;
 	}
 
@@ -261,6 +291,7 @@ void TREE_OCP_QCQP_DIM_SET_NG(int node, int value, struct TREE_OCP_QCQP_DIM *dim
 void TREE_OCP_QCQP_DIM_SET_NQ(int node, int value, struct TREE_OCP_QCQP_DIM *dim)
 	{
 	dim->nq[node] = value;
+	TREE_OCP_QP_DIM_SET_NG(node, dim->ng[node]+dim->nq[node], dim->qp_dim);
 	return;
 	}
 
@@ -269,6 +300,7 @@ void TREE_OCP_QCQP_DIM_SET_NQ(int node, int value, struct TREE_OCP_QCQP_DIM *dim
 void TREE_OCP_QCQP_DIM_SET_NS(int node, int value, struct TREE_OCP_QCQP_DIM *dim)
 	{
 	dim->ns[node] = value;
+	TREE_OCP_QP_DIM_SET_NS(node, dim->ns[node], dim->qp_dim);
 	return;
 	}
 
@@ -278,6 +310,7 @@ void TREE_OCP_QCQP_DIM_SET_NSBX(int node, int value, struct TREE_OCP_QCQP_DIM *d
 	{
 	dim->nsbx[node] = value;
 	dim->ns[node] = dim->nsbx[node] + dim->nsbu[node] + dim->nsg[node] + dim->nsq[node];
+	TREE_OCP_QP_DIM_SET_NSBX(node, dim->nsbx[node], dim->qp_dim);
 	return;
 	}
 
@@ -287,6 +320,7 @@ void TREE_OCP_QCQP_DIM_SET_NSBU(int node, int value, struct TREE_OCP_QCQP_DIM *d
 	{
 	dim->nsbu[node] = value;
 	dim->ns[node] = dim->nsbx[node] + dim->nsbu[node] + dim->nsg[node] + dim->nsq[node];
+	TREE_OCP_QP_DIM_SET_NSBU(node, dim->nsbu[node], dim->qp_dim);
 	return;
 	}
 
@@ -296,6 +330,7 @@ void TREE_OCP_QCQP_DIM_SET_NSG(int node, int value, struct TREE_OCP_QCQP_DIM *di
 	{
 	dim->nsg[node] = value;
 	dim->ns[node] = dim->nsbx[node] + dim->nsbu[node] + dim->nsg[node] + dim->nsq[node];
+	TREE_OCP_QP_DIM_SET_NSG(node, dim->nsg[node]+dim->nsq[node], dim->qp_dim);
 	return;
 	}
 
@@ -305,6 +340,7 @@ void TREE_OCP_QCQP_DIM_SET_NSQ(int node, int value, struct TREE_OCP_QCQP_DIM *di
 	{
 	dim->nsq[node] = value;
 	dim->ns[node] = dim->nsbx[node] + dim->nsbu[node] + dim->nsg[node] + dim->nsq[node];
+	TREE_OCP_QP_DIM_SET_NSG(node, dim->nsg[node]+dim->nsq[node], dim->qp_dim);
 	return;
 	}
 

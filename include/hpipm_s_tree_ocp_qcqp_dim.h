@@ -46,6 +46,7 @@ extern "C" {
 
 struct s_tree_ocp_qcqp_dim
 	{
+	struct s_tree_ocp_qp_dim *qp_dim; // dim of qp approximation
 	struct tree *ttree; // tree describing node conndection
 	int *nx; // number of states // Nn
 	int *nu; // number of inputs // Nn

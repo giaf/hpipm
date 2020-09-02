@@ -192,6 +192,10 @@ void d_tree_ocp_qp_ipm_get_stat_m(struct d_tree_ocp_qp_ipm_ws *ws, int *stat_m);
 //
 void d_tree_ocp_qp_init_var(struct d_tree_ocp_qp *qp, struct d_tree_ocp_qp_sol *qp_sol, struct d_tree_ocp_qp_ipm_arg *arg, struct d_tree_ocp_qp_ipm_ws *ws);
 //
+void d_tree_ocp_qp_ipm_abs_step(int kk, struct d_tree_ocp_qp *qp, struct d_tree_ocp_qp_sol *qp_sol, struct d_tree_ocp_qp_ipm_arg *arg, struct d_tree_ocp_qp_ipm_ws *ws);
+//
+void d_tree_ocp_qp_ipm_delta_step(int kk, struct d_tree_ocp_qp *qp, struct d_tree_ocp_qp_sol *qp_sol, struct d_tree_ocp_qp_ipm_arg *arg, struct d_tree_ocp_qp_ipm_ws *ws);
+//
 void d_tree_ocp_qp_ipm_solve(struct d_tree_ocp_qp *qp, struct d_tree_ocp_qp_sol *qp_sol, struct d_tree_ocp_qp_ipm_arg *arg, struct d_tree_ocp_qp_ipm_ws *ws);
 
 

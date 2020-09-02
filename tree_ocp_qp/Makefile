@@ -55,6 +55,7 @@ OBJS += d_tree_ocp_qcqp_dim.o
 OBJS += d_tree_ocp_qcqp.o
 OBJS += d_tree_ocp_qcqp_sol.o
 OBJS += d_tree_ocp_qcqp_res.o
+OBJS += d_tree_ocp_qcqp_ipm.o
 # single
 OBJS += s_tree_ocp_qp_dim.o
 OBJS += s_tree_ocp_qp.o
@@ -66,6 +67,7 @@ OBJS += s_tree_ocp_qcqp_dim.o
 OBJS += s_tree_ocp_qcqp.o
 OBJS += s_tree_ocp_qcqp_sol.o
 OBJS += s_tree_ocp_qcqp_res.o
+OBJS += s_tree_ocp_qcqp_ipm.o
 
 obj: $(OBJS)
 
@@ -93,3 +95,5 @@ d_tree_ocp_qcqp_sol.o: d_tree_ocp_qcqp_sol.c x_tree_ocp_qcqp_sol.c
 s_tree_ocp_qcqp_sol.o: s_tree_ocp_qcqp_sol.c x_tree_ocp_qcqp_sol.c
 d_tree_ocp_qcqp_res.o: d_tree_ocp_qcqp_res.c x_tree_ocp_qcqp_res.c
 s_tree_ocp_qcqp_res.o: s_tree_ocp_qcqp_res.c x_tree_ocp_qcqp_res.c
+d_tree_ocp_qcqp_ipm.o: d_tree_ocp_qcqp_ipm.c x_tree_ocp_qcqp_ipm.c
+s_tree_ocp_qcqp_ipm.o: s_tree_ocp_qcqp_ipm.c x_tree_ocp_qcqp_ipm.c

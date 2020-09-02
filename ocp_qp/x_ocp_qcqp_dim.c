@@ -134,32 +134,33 @@ void OCP_QCQP_DIM_CREATE(int N, struct OCP_QCQP_DIM *dim, void *mem)
 	dim->N = N;
 
 	// initialize dims to zero by default
-	for(ii=0; ii<=N; ii++)
-		dim->nx[ii] = 0;
-	for(ii=0; ii<=N; ii++)
-		dim->nu[ii] = 0;
-	for(ii=0; ii<=N; ii++)
-		dim->nb[ii] = 0;
-	for(ii=0; ii<=N; ii++)
-		dim->nbx[ii] = 0;
-	for(ii=0; ii<=N; ii++)
-		dim->nbu[ii] = 0;
-	for(ii=0; ii<=N; ii++)
-		dim->ng[ii] = 0;
-	for(ii=0; ii<=N; ii++)
-		dim->nq[ii] = 0;
-	for(ii=0; ii<=N; ii++)
-		dim->ns[ii] = 0;
-	for(ii=0; ii<=N; ii++)
-		dim->nsbx[ii] = 0;
-	for(ii=0; ii<=N; ii++)
-		dim->nsbu[ii] = 0;
-	for(ii=0; ii<=N; ii++)
-		dim->nsg[ii] = 0;
-	for(ii=0; ii<=N; ii++)
-		dim->nsq[ii] = 0;
+	// XXX already zero-initialized while zeroing all memory
+//	for(ii=0; ii<=N; ii++)
+//		dim->nx[ii] = 0;
+//	for(ii=0; ii<=N; ii++)
+//		dim->nu[ii] = 0;
+//	for(ii=0; ii<=N; ii++)
+//		dim->nb[ii] = 0;
+//	for(ii=0; ii<=N; ii++)
+//		dim->nbx[ii] = 0;
+//	for(ii=0; ii<=N; ii++)
+//		dim->nbu[ii] = 0;
+//	for(ii=0; ii<=N; ii++)
+//		dim->ng[ii] = 0;
+//	for(ii=0; ii<=N; ii++)
+//		dim->nq[ii] = 0;
+//	for(ii=0; ii<=N; ii++)
+//		dim->ns[ii] = 0;
+//	for(ii=0; ii<=N; ii++)
+//		dim->nsbx[ii] = 0;
+//	for(ii=0; ii<=N; ii++)
+//		dim->nsbu[ii] = 0;
+//	for(ii=0; ii<=N; ii++)
+//		dim->nsg[ii] = 0;
+//	for(ii=0; ii<=N; ii++)
+//		dim->nsq[ii] = 0;
 
-	dim->memsize = OCP_QCQP_DIM_MEMSIZE(N);
+	dim->memsize = memsize; //OCP_QCQP_DIM_MEMSIZE(N);
 
 	return;
 

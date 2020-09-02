@@ -48,7 +48,7 @@ int TREE_OCP_QCQP_SOL_MEMSIZE(struct TREE_OCP_QCQP_DIM *dim)
 	int *nq = dim->nq;
 	int *ns = dim->ns;
 
-	int ii, idx, idxdad;
+	int ii, idx;
 
 	int nvt = 0;
 	int net = 0;
@@ -99,7 +99,7 @@ void TREE_OCP_QCQP_SOL_CREATE(struct TREE_OCP_QCQP_DIM *dim, struct TREE_OCP_QCQ
 	int *nq = dim->nq;
 	int *ns = dim->ns;
 
-	int ii, idx, idxdad;
+	int ii, idx;
 
 
 	int nvt = 0;

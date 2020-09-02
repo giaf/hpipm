@@ -35,20 +35,20 @@
 
 
 
-int OCP_QCQP_IPM_ARG_STRSIZE()
+int TREE_OCP_QCQP_IPM_ARG_STRSIZE()
 	{
-	return sizeof(struct OCP_QCQP_IPM_ARG);
+	return sizeof(struct TREE_OCP_QCQP_IPM_ARG);
 	}
 
 
 
-int OCP_QCQP_IPM_ARG_MEMSIZE(struct OCP_QCQP_DIM *dim)
+int TREE_OCP_QCQP_IPM_ARG_MEMSIZE(struct TREE_OCP_QCQP_DIM *dim)
 	{
 
 	int size = 0;
 
-	size += 1*sizeof(struct OCP_QP_IPM_ARG);
-	size += 1*OCP_QP_IPM_ARG_MEMSIZE(dim->qp_dim);
+	size += 1*sizeof(struct TREE_OCP_QP_IPM_ARG);
+	size += 1*TREE_OCP_QP_IPM_ARG_MEMSIZE(dim->qp_dim);
 
 	size = (size+63)/64*64; // make multiple of typical cache line size
 	size += 1*64; // align once to typical cache line size
@@ -60,18 +60,18 @@ int OCP_QCQP_IPM_ARG_MEMSIZE(struct OCP_QCQP_DIM *dim)
 
 
 
-void OCP_QCQP_IPM_ARG_CREATE(struct OCP_QCQP_DIM *dim, struct OCP_QCQP_IPM_ARG *arg, void *mem)
+void TREE_OCP_QCQP_IPM_ARG_CREATE(struct TREE_OCP_QCQP_DIM *dim, struct TREE_OCP_QCQP_IPM_ARG *arg, void *mem)
 	{
 
 	// loop index
 	int ii;
 
 	// zero memory (to avoid corrupted memory like e.g. NaN)
-	int memsize = OCP_QCQP_IPM_ARG_MEMSIZE(dim);
+	int memsize = TREE_OCP_QCQP_IPM_ARG_MEMSIZE(dim);
 	hpipm_zero_memset(memsize, mem);
 
 	// qp_dim struct
-	struct OCP_QP_IPM_ARG *arg_ptr = mem;
+	struct TREE_OCP_QP_IPM_ARG *arg_ptr = mem;
 
 	arg->qp_arg = arg_ptr;
 	arg_ptr += 1;
@@ -83,16 +83,16 @@ void OCP_QCQP_IPM_ARG_CREATE(struct OCP_QCQP_DIM *dim, struct OCP_QCQP_IPM_ARG *
 	// void
 	char *c_ptr = (char *) s_ptr;
 
-	OCP_QP_IPM_ARG_CREATE(dim->qp_dim, arg->qp_arg, c_ptr);
+	TREE_OCP_QP_IPM_ARG_CREATE(dim->qp_dim, arg->qp_arg, c_ptr);
 	c_ptr += arg->qp_arg->memsize;
 
 
-	arg->memsize = memsize; //OCP_QCQP_IPM_ARG_MEMSIZE(dim);
+	arg->memsize = memsize; //TREE_OCP_QCQP_IPM_ARG_MEMSIZE(dim);
 
 #if defined(RUNTIME_CHECKS)
 	if(c_ptr > ((char *) mem) + arg->memsize)
 		{
-		printf("\nerror: OCP_QCQP_IPM_ARG_CREATE: outside memory bounds!\n\n");
+		printf("\nerror: TREE_OCP_QCQP_IPM_ARG_CREATE: outside memory bounds!\n\n");
 		exit(1);
 		}
 #endif
@@ -103,10 +103,10 @@ void OCP_QCQP_IPM_ARG_CREATE(struct OCP_QCQP_DIM *dim, struct OCP_QCQP_IPM_ARG *
 
 
 
-void OCP_QCQP_IPM_ARG_SET_DEFAULT(enum HPIPM_MODE mode, struct OCP_QCQP_IPM_ARG *arg)
+void TREE_OCP_QCQP_IPM_ARG_SET_DEFAULT(enum HPIPM_MODE mode, struct TREE_OCP_QCQP_IPM_ARG *arg)
 	{
 
-	OCP_QP_IPM_ARG_SET_DEFAULT(mode, arg->qp_arg);
+	TREE_OCP_QP_IPM_ARG_SET_DEFAULT(mode, arg->qp_arg);
 
 	REAL mu0, alpha_min, res_g_max, res_b_max, res_d_max, res_m_max, reg_prim, lam_min, t_min;
 	int iter_max, stat_max, pred_corr, cond_pred_corr, itref_pred_max, itref_corr_max, lq_fact, warm_start, abs_form, comp_res_exit, comp_res_pred, square_root_alg, comp_dual_sol_eq, split_step, t_lam_min;
@@ -126,7 +126,7 @@ void OCP_QCQP_IPM_ARG_SET_DEFAULT(enum HPIPM_MODE mode, struct OCP_QCQP_IPM_ARG 
 		itref_pred_max = 0; // not used
 		itref_corr_max = 0; // not used
 		reg_prim = 1e-15;
-		square_root_alg = 1;
+//		square_root_alg = 1;
 		lq_fact = 0; // not used
 		lam_min = 1e-16;
 		t_min = 1e-16;
@@ -134,7 +134,7 @@ void OCP_QCQP_IPM_ARG_SET_DEFAULT(enum HPIPM_MODE mode, struct OCP_QCQP_IPM_ARG 
 		abs_form = 1;
 		comp_dual_sol_eq = 0;
 		comp_res_exit = 0;
-		comp_res_pred = 0;
+//		comp_res_pred = 0;
 		split_step = 1;
 		t_lam_min = 2;
 		}
@@ -153,7 +153,7 @@ void OCP_QCQP_IPM_ARG_SET_DEFAULT(enum HPIPM_MODE mode, struct OCP_QCQP_IPM_ARG 
 		itref_pred_max = 0;
 		itref_corr_max = 0;
 		reg_prim = 1e-15;
-		square_root_alg = 1;
+//		square_root_alg = 1;
 		lq_fact = 0;
 		lam_min = 1e-16;
 		t_min = 1e-16;
@@ -161,7 +161,7 @@ void OCP_QCQP_IPM_ARG_SET_DEFAULT(enum HPIPM_MODE mode, struct OCP_QCQP_IPM_ARG 
 		abs_form = 0;
 		comp_dual_sol_eq = 1;
 		comp_res_exit = 1;
-		comp_res_pred = 1;
+//		comp_res_pred = 1;
 		split_step = 1;
 		t_lam_min = 2;
 		}
@@ -180,7 +180,7 @@ void OCP_QCQP_IPM_ARG_SET_DEFAULT(enum HPIPM_MODE mode, struct OCP_QCQP_IPM_ARG 
 		itref_pred_max = 0;
 		itref_corr_max = 2;
 		reg_prim = 1e-15;
-		square_root_alg = 1;
+//		square_root_alg = 1;
 		lq_fact = 1;
 		lam_min = 1e-16;
 		t_min = 1e-16;
@@ -188,7 +188,7 @@ void OCP_QCQP_IPM_ARG_SET_DEFAULT(enum HPIPM_MODE mode, struct OCP_QCQP_IPM_ARG 
 		abs_form = 0;
 		comp_dual_sol_eq = 1;
 		comp_res_exit = 1;
-		comp_res_pred = 1;
+//		comp_res_pred = 1;
 		split_step = 0;
 		t_lam_min = 2;
 		}
@@ -207,7 +207,7 @@ void OCP_QCQP_IPM_ARG_SET_DEFAULT(enum HPIPM_MODE mode, struct OCP_QCQP_IPM_ARG 
 		itref_pred_max = 0;
 		itref_corr_max = 4;
 		reg_prim = 1e-15;
-		square_root_alg = 1;
+//		square_root_alg = 1;
 		lq_fact = 2;
 		lam_min = 1e-16;
 		t_min = 1e-16;
@@ -215,40 +215,40 @@ void OCP_QCQP_IPM_ARG_SET_DEFAULT(enum HPIPM_MODE mode, struct OCP_QCQP_IPM_ARG 
 		abs_form = 0;
 		comp_dual_sol_eq = 1;
 		comp_res_exit = 1;
-		comp_res_pred = 1;
+//		comp_res_pred = 1;
 		split_step = 0;
 		t_lam_min = 2;
 		}
 	else
 		{
-		printf("\nerror: OCP_QCQP_IPM_ARG_SET_DEFAULT: wrong set default mode\n");
+		printf("\nerror: TREE_OCP_QCQP_IPM_ARG_SET_DEFAULT: wrong set default mode\n");
 		exit(1);
 		}
 
 	// use individual setters when available
-	OCP_QCQP_IPM_ARG_SET_MU0(&mu0, arg);
-	OCP_QCQP_IPM_ARG_SET_ALPHA_MIN(&alpha_min, arg);
-	OCP_QCQP_IPM_ARG_SET_TOL_STAT(&res_g_max, arg);
-	OCP_QCQP_IPM_ARG_SET_TOL_EQ(&res_b_max, arg);
-	OCP_QCQP_IPM_ARG_SET_TOL_INEQ(&res_d_max, arg);
-	OCP_QCQP_IPM_ARG_SET_TOL_COMP(&res_m_max, arg);
-	OCP_QCQP_IPM_ARG_SET_ITER_MAX(&iter_max, arg);
+	TREE_OCP_QCQP_IPM_ARG_SET_MU0(&mu0, arg);
+	TREE_OCP_QCQP_IPM_ARG_SET_ALPHA_MIN(&alpha_min, arg);
+	TREE_OCP_QCQP_IPM_ARG_SET_TOL_STAT(&res_g_max, arg);
+	TREE_OCP_QCQP_IPM_ARG_SET_TOL_EQ(&res_b_max, arg);
+	TREE_OCP_QCQP_IPM_ARG_SET_TOL_INEQ(&res_d_max, arg);
+	TREE_OCP_QCQP_IPM_ARG_SET_TOL_COMP(&res_m_max, arg);
+	TREE_OCP_QCQP_IPM_ARG_SET_ITER_MAX(&iter_max, arg);
 	arg->stat_max = stat_max;
-	OCP_QCQP_IPM_ARG_SET_PRED_CORR(&pred_corr, arg);
-	OCP_QCQP_IPM_ARG_SET_COND_PRED_CORR(&cond_pred_corr, arg);
-	OCP_QCQP_IPM_ARG_SET_RIC_ALG(&square_root_alg, arg);
+	TREE_OCP_QCQP_IPM_ARG_SET_PRED_CORR(&pred_corr, arg);
+	TREE_OCP_QCQP_IPM_ARG_SET_COND_PRED_CORR(&cond_pred_corr, arg);
+//	TREE_OCP_QCQP_IPM_ARG_SET_RIC_ALG(&square_root_alg, arg);
 	arg->itref_pred_max = itref_pred_max;
 	arg->itref_corr_max = itref_corr_max;
-	OCP_QCQP_IPM_ARG_SET_REG_PRIM(&reg_prim, arg);
+	TREE_OCP_QCQP_IPM_ARG_SET_REG_PRIM(&reg_prim, arg);
 	arg->lq_fact = lq_fact;
-	OCP_QCQP_IPM_ARG_SET_LAM_MIN(&lam_min, arg);
-	OCP_QCQP_IPM_ARG_SET_T_MIN(&t_min, arg);
-	OCP_QCQP_IPM_ARG_SET_WARM_START(&warm_start, arg);
+	TREE_OCP_QCQP_IPM_ARG_SET_LAM_MIN(&lam_min, arg);
+	TREE_OCP_QCQP_IPM_ARG_SET_T_MIN(&t_min, arg);
+	TREE_OCP_QCQP_IPM_ARG_SET_WARM_START(&warm_start, arg);
 	arg->abs_form = abs_form;
-	OCP_QCQP_IPM_ARG_SET_COMP_RES_PRED(&comp_res_pred, arg);
-	OCP_QCQP_IPM_ARG_SET_COMP_RES_EXIT(&comp_res_pred, arg);
-	OCP_QCQP_IPM_ARG_SET_SPLIT_STEP(&split_step, arg);
-	OCP_QCQP_IPM_ARG_SET_T_LAM_MIN(&t_lam_min, arg);
+//	TREE_OCP_QCQP_IPM_ARG_SET_COMP_RES_PRED(&comp_res_pred, arg);
+	TREE_OCP_QCQP_IPM_ARG_SET_COMP_RES_EXIT(&comp_res_pred, arg);
+	TREE_OCP_QCQP_IPM_ARG_SET_SPLIT_STEP(&split_step, arg);
+	TREE_OCP_QCQP_IPM_ARG_SET_T_LAM_MIN(&t_lam_min, arg);
 	arg->mode = mode;
 
 	return;
@@ -257,83 +257,83 @@ void OCP_QCQP_IPM_ARG_SET_DEFAULT(enum HPIPM_MODE mode, struct OCP_QCQP_IPM_ARG 
 
 
 
-void OCP_QCQP_IPM_ARG_SET(char *field, void *value, struct OCP_QCQP_IPM_ARG *arg)
+void TREE_OCP_QCQP_IPM_ARG_SET(char *field, void *value, struct TREE_OCP_QCQP_IPM_ARG *arg)
 	{
 	if(hpipm_strcmp(field, "iter_max")) 
 		{
-		OCP_QCQP_IPM_ARG_SET_ITER_MAX(value, arg);
+		TREE_OCP_QCQP_IPM_ARG_SET_ITER_MAX(value, arg);
 		}
 	else if(hpipm_strcmp(field, "alpha_min")) 
 		{
-		OCP_QCQP_IPM_ARG_SET_ALPHA_MIN(value, arg);
+		TREE_OCP_QCQP_IPM_ARG_SET_ALPHA_MIN(value, arg);
 		}
 	else if(hpipm_strcmp(field, "mu0")) 
 		{
-		OCP_QCQP_IPM_ARG_SET_MU0(value, arg);
+		TREE_OCP_QCQP_IPM_ARG_SET_MU0(value, arg);
 		}
 	else if(hpipm_strcmp(field, "tol_stat")) 
 		{
-		OCP_QCQP_IPM_ARG_SET_TOL_STAT(value, arg);
+		TREE_OCP_QCQP_IPM_ARG_SET_TOL_STAT(value, arg);
 		}
 	else if(hpipm_strcmp(field, "tol_eq")) 
 		{
-		OCP_QCQP_IPM_ARG_SET_TOL_EQ(value, arg);
+		TREE_OCP_QCQP_IPM_ARG_SET_TOL_EQ(value, arg);
 		}
 	else if(hpipm_strcmp(field, "tol_ineq")) 
 		{
-		OCP_QCQP_IPM_ARG_SET_TOL_INEQ(value, arg);
+		TREE_OCP_QCQP_IPM_ARG_SET_TOL_INEQ(value, arg);
 		}
 	else if(hpipm_strcmp(field, "tol_comp")) 
 		{
-		OCP_QCQP_IPM_ARG_SET_TOL_COMP(value, arg);
+		TREE_OCP_QCQP_IPM_ARG_SET_TOL_COMP(value, arg);
 		}
 	else if(hpipm_strcmp(field, "reg_prim")) 
 		{
-		OCP_QCQP_IPM_ARG_SET_REG_PRIM(value, arg);
+		TREE_OCP_QCQP_IPM_ARG_SET_REG_PRIM(value, arg);
 		}
 	else if(hpipm_strcmp(field, "warm_start")) 
 		{
-		OCP_QCQP_IPM_ARG_SET_WARM_START(value, arg);
+		TREE_OCP_QCQP_IPM_ARG_SET_WARM_START(value, arg);
 		}
 	else if(hpipm_strcmp(field, "pred_corr")) 
 		{
-		OCP_QCQP_IPM_ARG_SET_PRED_CORR(value, arg);
+		TREE_OCP_QCQP_IPM_ARG_SET_PRED_CORR(value, arg);
 		}
 	else if(hpipm_strcmp(field, "cond_pred_corr")) 
 		{
-		OCP_QCQP_IPM_ARG_SET_COND_PRED_CORR(value, arg);
+		TREE_OCP_QCQP_IPM_ARG_SET_COND_PRED_CORR(value, arg);
 		}
-	else if(hpipm_strcmp(field, "ric_alg")) 
-		{
-		OCP_QCQP_IPM_ARG_SET_RIC_ALG(value, arg);
-		}
+//	else if(hpipm_strcmp(field, "ric_alg")) 
+//		{
+//		TREE_OCP_QCQP_IPM_ARG_SET_RIC_ALG(value, arg);
+//		}
 	else if(hpipm_strcmp(field, "comp_res_exit")) 
 		{
-		OCP_QCQP_IPM_ARG_SET_COMP_RES_EXIT(value, arg);
+		TREE_OCP_QCQP_IPM_ARG_SET_COMP_RES_EXIT(value, arg);
 		}
-	else if(hpipm_strcmp(field, "comp_res_pred")) 
-		{
-		OCP_QCQP_IPM_ARG_SET_COMP_RES_PRED(value, arg);
-		}
+//	else if(hpipm_strcmp(field, "comp_res_pred")) 
+//		{
+//		TREE_OCP_QCQP_IPM_ARG_SET_COMP_RES_PRED(value, arg);
+//		}
 	else if(hpipm_strcmp(field, "lam_min")) 
 		{
-		OCP_QCQP_IPM_ARG_SET_LAM_MIN(value, arg);
+		TREE_OCP_QCQP_IPM_ARG_SET_LAM_MIN(value, arg);
 		}
 	else if(hpipm_strcmp(field, "t_min")) 
 		{
-		OCP_QCQP_IPM_ARG_SET_T_MIN(value, arg);
+		TREE_OCP_QCQP_IPM_ARG_SET_T_MIN(value, arg);
 		}
 	else if(hpipm_strcmp(field, "split_step")) 
 		{
-		OCP_QCQP_IPM_ARG_SET_SPLIT_STEP(value, arg);
+		TREE_OCP_QCQP_IPM_ARG_SET_SPLIT_STEP(value, arg);
 		}
 	else if(hpipm_strcmp(field, "t_lam_min")) 
 		{
-		OCP_QCQP_IPM_ARG_SET_T_LAM_MIN(value, arg);
+		TREE_OCP_QCQP_IPM_ARG_SET_T_LAM_MIN(value, arg);
 		}
 	else
 		{
-		printf("error: OCP_QCQP_IPM_ARG_SET: wrong field %s\n", field);
+		printf("error: TREE_OCP_QCQP_IPM_ARG_SET: wrong field %s\n", field);
 		exit(1);	
 		}
 	return;
@@ -341,181 +341,181 @@ void OCP_QCQP_IPM_ARG_SET(char *field, void *value, struct OCP_QCQP_IPM_ARG *arg
 
 
 
-void OCP_QCQP_IPM_ARG_SET_ITER_MAX(int *value, struct OCP_QCQP_IPM_ARG *arg)
+void TREE_OCP_QCQP_IPM_ARG_SET_ITER_MAX(int *value, struct TREE_OCP_QCQP_IPM_ARG *arg)
 	{
 	arg->iter_max = *value;
-	OCP_QP_IPM_ARG_SET_ITER_MAX(value, arg->qp_arg);
+	TREE_OCP_QP_IPM_ARG_SET_ITER_MAX(value, arg->qp_arg);
 	return;
 	}
 
 
 
-void OCP_QCQP_IPM_ARG_SET_ALPHA_MIN(REAL *value, struct OCP_QCQP_IPM_ARG *arg)
+void TREE_OCP_QCQP_IPM_ARG_SET_ALPHA_MIN(REAL *value, struct TREE_OCP_QCQP_IPM_ARG *arg)
 	{
 	arg->alpha_min = *value;
-	OCP_QP_IPM_ARG_SET_ALPHA_MIN(value, arg->qp_arg);
+	TREE_OCP_QP_IPM_ARG_SET_ALPHA_MIN(value, arg->qp_arg);
 	return;
 	}
 
 
 
-void OCP_QCQP_IPM_ARG_SET_MU0(REAL *value, struct OCP_QCQP_IPM_ARG *arg)
+void TREE_OCP_QCQP_IPM_ARG_SET_MU0(REAL *value, struct TREE_OCP_QCQP_IPM_ARG *arg)
 	{
 	arg->mu0 = *value;
-	OCP_QP_IPM_ARG_SET_MU0(value, arg->qp_arg);
+	TREE_OCP_QP_IPM_ARG_SET_MU0(value, arg->qp_arg);
 	return;
 	}
 
 
 
-void OCP_QCQP_IPM_ARG_SET_TOL_STAT(REAL *value, struct OCP_QCQP_IPM_ARG *arg)
+void TREE_OCP_QCQP_IPM_ARG_SET_TOL_STAT(REAL *value, struct TREE_OCP_QCQP_IPM_ARG *arg)
 	{
 	arg->res_g_max = *value;
-	OCP_QP_IPM_ARG_SET_TOL_STAT(value, arg->qp_arg);
+	TREE_OCP_QP_IPM_ARG_SET_TOL_STAT(value, arg->qp_arg);
 	return;
 	}
 
 
 
-void OCP_QCQP_IPM_ARG_SET_TOL_EQ(REAL *value, struct OCP_QCQP_IPM_ARG *arg)
+void TREE_OCP_QCQP_IPM_ARG_SET_TOL_EQ(REAL *value, struct TREE_OCP_QCQP_IPM_ARG *arg)
 	{
 	arg->res_b_max = *value;
-	OCP_QP_IPM_ARG_SET_TOL_STAT(value, arg->qp_arg);
+	TREE_OCP_QP_IPM_ARG_SET_TOL_STAT(value, arg->qp_arg);
 	return;
 	}
 
 
 
-void OCP_QCQP_IPM_ARG_SET_TOL_INEQ(REAL *value, struct OCP_QCQP_IPM_ARG *arg)
+void TREE_OCP_QCQP_IPM_ARG_SET_TOL_INEQ(REAL *value, struct TREE_OCP_QCQP_IPM_ARG *arg)
 	{
 	arg->res_d_max = *value;
-	OCP_QP_IPM_ARG_SET_TOL_STAT(value, arg->qp_arg);
+	TREE_OCP_QP_IPM_ARG_SET_TOL_STAT(value, arg->qp_arg);
 	return;
 	}
 
 
 
-void OCP_QCQP_IPM_ARG_SET_TOL_COMP(REAL *value, struct OCP_QCQP_IPM_ARG *arg)
+void TREE_OCP_QCQP_IPM_ARG_SET_TOL_COMP(REAL *value, struct TREE_OCP_QCQP_IPM_ARG *arg)
 	{
 	arg->res_m_max = *value;
-	OCP_QP_IPM_ARG_SET_TOL_COMP(value, arg->qp_arg);
+	TREE_OCP_QP_IPM_ARG_SET_TOL_COMP(value, arg->qp_arg);
 	return;
 	}
 
 
 
-void OCP_QCQP_IPM_ARG_SET_REG_PRIM(REAL *value, struct OCP_QCQP_IPM_ARG *arg)
+void TREE_OCP_QCQP_IPM_ARG_SET_REG_PRIM(REAL *value, struct TREE_OCP_QCQP_IPM_ARG *arg)
 	{
 	arg->reg_prim = *value;
-	OCP_QP_IPM_ARG_SET_REG_PRIM(value, arg->qp_arg);
+	TREE_OCP_QP_IPM_ARG_SET_REG_PRIM(value, arg->qp_arg);
 	return;
 	}
 
 
 
-void OCP_QCQP_IPM_ARG_SET_WARM_START(int *value, struct OCP_QCQP_IPM_ARG *arg)
+void TREE_OCP_QCQP_IPM_ARG_SET_WARM_START(int *value, struct TREE_OCP_QCQP_IPM_ARG *arg)
 	{
 	arg->warm_start = *value;
-	OCP_QP_IPM_ARG_SET_WARM_START(value, arg->qp_arg);
+	TREE_OCP_QP_IPM_ARG_SET_WARM_START(value, arg->qp_arg);
 	return;
 	}
 
 
 
-void OCP_QCQP_IPM_ARG_SET_PRED_CORR(int *value, struct OCP_QCQP_IPM_ARG *arg)
+void TREE_OCP_QCQP_IPM_ARG_SET_PRED_CORR(int *value, struct TREE_OCP_QCQP_IPM_ARG *arg)
 	{
 	arg->pred_corr = *value;
-	OCP_QP_IPM_ARG_SET_PRED_CORR(value, arg->qp_arg);
+	TREE_OCP_QP_IPM_ARG_SET_PRED_CORR(value, arg->qp_arg);
 	return;
 	}
 
 
 
-void OCP_QCQP_IPM_ARG_SET_COND_PRED_CORR(int *value, struct OCP_QCQP_IPM_ARG *arg)
+void TREE_OCP_QCQP_IPM_ARG_SET_COND_PRED_CORR(int *value, struct TREE_OCP_QCQP_IPM_ARG *arg)
 	{
 	arg->cond_pred_corr = *value;
-	OCP_QP_IPM_ARG_SET_COND_PRED_CORR(value, arg->qp_arg);
+	TREE_OCP_QP_IPM_ARG_SET_COND_PRED_CORR(value, arg->qp_arg);
 	return;
 	}
 
 
 
-void OCP_QCQP_IPM_ARG_SET_RIC_ALG(int *value, struct OCP_QCQP_IPM_ARG *arg)
-	{
-	arg->square_root_alg = *value;
-	OCP_QP_IPM_ARG_SET_RIC_ALG(value, arg->qp_arg);
-	return;
-	}
+//void TREE_OCP_QCQP_IPM_ARG_SET_RIC_ALG(int *value, struct TREE_OCP_QCQP_IPM_ARG *arg)
+//	{
+//	arg->square_root_alg = *value;
+//	TREE_OCP_QP_IPM_ARG_SET_RIC_ALG(value, arg->qp_arg);
+//	return;
+//	}
 
 
 
-void OCP_QCQP_IPM_ARG_SET_COMP_RES_EXIT(int *value, struct OCP_QCQP_IPM_ARG *arg)
+void TREE_OCP_QCQP_IPM_ARG_SET_COMP_RES_EXIT(int *value, struct TREE_OCP_QCQP_IPM_ARG *arg)
 	{
 	arg->comp_res_exit = *value;
 	if(*value!=0)
 		arg->comp_dual_sol_eq = 1;
-	OCP_QP_IPM_ARG_SET_COMP_RES_EXIT(value, arg->qp_arg);
+	TREE_OCP_QP_IPM_ARG_SET_COMP_RES_EXIT(value, arg->qp_arg);
 	return;
 	}
 
 
 
-void OCP_QCQP_IPM_ARG_SET_COMP_RES_PRED(int *value, struct OCP_QCQP_IPM_ARG *arg)
-	{
-	arg->comp_res_pred = *value;
-	OCP_QP_IPM_ARG_SET_COMP_RES_PRED(value, arg->qp_arg);
-	return;
-	}
+//void TREE_OCP_QCQP_IPM_ARG_SET_COMP_RES_PRED(int *value, struct TREE_OCP_QCQP_IPM_ARG *arg)
+//	{
+//	arg->comp_res_pred = *value;
+//	TREE_OCP_QP_IPM_ARG_SET_COMP_RES_PRED(value, arg->qp_arg);
+//	return;
+//	}
 
 
 
-void OCP_QCQP_IPM_ARG_SET_LAM_MIN(REAL *value, struct OCP_QCQP_IPM_ARG *arg)
+void TREE_OCP_QCQP_IPM_ARG_SET_LAM_MIN(REAL *value, struct TREE_OCP_QCQP_IPM_ARG *arg)
 	{
 	arg->lam_min = *value;
-	OCP_QP_IPM_ARG_SET_LAM_MIN(value, arg->qp_arg);
+	TREE_OCP_QP_IPM_ARG_SET_LAM_MIN(value, arg->qp_arg);
 	return;
 	}
 
 
 
-void OCP_QCQP_IPM_ARG_SET_T_MIN(REAL *value, struct OCP_QCQP_IPM_ARG *arg)
+void TREE_OCP_QCQP_IPM_ARG_SET_T_MIN(REAL *value, struct TREE_OCP_QCQP_IPM_ARG *arg)
 	{
 	arg->t_min = *value;
-	OCP_QP_IPM_ARG_SET_T_MIN(value, arg->qp_arg);
+	TREE_OCP_QP_IPM_ARG_SET_T_MIN(value, arg->qp_arg);
 	return;
 	}
 
 
 
-void OCP_QCQP_IPM_ARG_SET_SPLIT_STEP(int *value, struct OCP_QCQP_IPM_ARG *arg)
+void TREE_OCP_QCQP_IPM_ARG_SET_SPLIT_STEP(int *value, struct TREE_OCP_QCQP_IPM_ARG *arg)
 	{
 	arg->split_step = *value;
-	OCP_QP_IPM_ARG_SET_SPLIT_STEP(value, arg->qp_arg);
+	TREE_OCP_QP_IPM_ARG_SET_SPLIT_STEP(value, arg->qp_arg);
 	return;
 	}
 
 
 
-void OCP_QCQP_IPM_ARG_SET_T_LAM_MIN(int *value, struct OCP_QCQP_IPM_ARG *arg)
+void TREE_OCP_QCQP_IPM_ARG_SET_T_LAM_MIN(int *value, struct TREE_OCP_QCQP_IPM_ARG *arg)
 	{
 	arg->t_lam_min = *value;
-	OCP_QP_IPM_ARG_SET_T_LAM_MIN(value, arg->qp_arg);
+	TREE_OCP_QP_IPM_ARG_SET_T_LAM_MIN(value, arg->qp_arg);
 	return;
 	}
 
 
 
-int OCP_QCQP_IPM_WS_STRSIZE()
+int TREE_OCP_QCQP_IPM_WS_STRSIZE()
 	{
-	return sizeof(struct OCP_QCQP_IPM_WS);
+	return sizeof(struct TREE_OCP_QCQP_IPM_WS);
 	}
 
 
 
-int OCP_QCQP_IPM_WS_MEMSIZE(struct OCP_QCQP_DIM *dim, struct OCP_QCQP_IPM_ARG *arg)
+int TREE_OCP_QCQP_IPM_WS_MEMSIZE(struct TREE_OCP_QCQP_DIM *dim, struct TREE_OCP_QCQP_IPM_ARG *arg)
 	{
 
-	int N = dim->N;
+	int Nn = dim->Nn;
 	int *nu = dim->nu;
 	int *nx = dim->nx;
 
@@ -523,7 +523,7 @@ int OCP_QCQP_IPM_WS_MEMSIZE(struct OCP_QCQP_DIM *dim, struct OCP_QCQP_IPM_ARG *a
 	
 	int nuM = 0;
 	int nxM = 0;
-	for(ii=0; ii<=N; ii++)
+	for(ii=0; ii<Nn; ii++)
 		{
 		nuM = nu[ii]>nuM ? nu[ii] : nuM;
 		nxM = nx[ii]>nxM ? nx[ii] : nxM;
@@ -531,20 +531,20 @@ int OCP_QCQP_IPM_WS_MEMSIZE(struct OCP_QCQP_DIM *dim, struct OCP_QCQP_IPM_ARG *a
 
 	int size = 0;
 
-	size += 1*sizeof(struct OCP_QP_IPM_WS);
-	size += 1*OCP_QP_IPM_WS_MEMSIZE(dim->qp_dim, arg->qp_arg);
+	size += 1*sizeof(struct TREE_OCP_QP_IPM_WS);
+	size += 1*TREE_OCP_QP_IPM_WS_MEMSIZE(dim->qp_dim, arg->qp_arg);
 
-	size += 1*sizeof(struct OCP_QCQP_RES_WS); // qcqp_res_ws
-	size += 1*OCP_QCQP_RES_WS_MEMSIZE(dim); // qcqp_res_ws
+	size += 1*sizeof(struct TREE_OCP_QCQP_RES_WS); // qcqp_res_ws
+	size += 1*TREE_OCP_QCQP_RES_WS_MEMSIZE(dim); // qcqp_res_ws
 
-	size += 1*sizeof(struct OCP_QCQP_RES); // qcqp_res
-	size += 1*OCP_QCQP_RES_MEMSIZE(dim); // qcqp_res
+	size += 1*sizeof(struct TREE_OCP_QCQP_RES); // qcqp_res
+	size += 1*TREE_OCP_QCQP_RES_MEMSIZE(dim); // qcqp_res
 
-	size += 1*sizeof(struct OCP_QP); // qp
-	size += 1*OCP_QP_MEMSIZE(dim->qp_dim); // qp
+	size += 1*sizeof(struct TREE_OCP_QP); // qp
+	size += 1*TREE_OCP_QP_MEMSIZE(dim->qp_dim); // qp
 
-	size += 1*sizeof(struct OCP_QP_SOL); // qp_sol
-	size += 1*OCP_QP_SOL_MEMSIZE(dim->qp_dim); // qp_sol
+	size += 1*sizeof(struct TREE_OCP_QP_SOL); // qp_sol
+	size += 1*TREE_OCP_QP_SOL_MEMSIZE(dim->qp_dim); // qp_sol
 
 	size += 2*sizeof(struct STRVEC); // tmp_nuxM
 	size += 2*SIZE_STRVEC(nuM+nxM); // tmp_nuxM
@@ -558,23 +558,23 @@ int OCP_QCQP_IPM_WS_MEMSIZE(struct OCP_QCQP_DIM *dim, struct OCP_QCQP_IPM_ARG *a
 
 
 
-void OCP_QCQP_IPM_WS_CREATE(struct OCP_QCQP_DIM *dim, struct OCP_QCQP_IPM_ARG *arg, struct OCP_QCQP_IPM_WS *workspace, void *mem)
+void TREE_OCP_QCQP_IPM_WS_CREATE(struct TREE_OCP_QCQP_DIM *dim, struct TREE_OCP_QCQP_IPM_ARG *arg, struct TREE_OCP_QCQP_IPM_WS *workspace, void *mem)
 	{
 
 	// loop index
 	int ii;
 
 	// zero memory (to avoid corrupted memory like e.g. NaN)
-	int memsize = OCP_QCQP_IPM_WS_MEMSIZE(dim, arg);
+	int memsize = TREE_OCP_QCQP_IPM_WS_MEMSIZE(dim, arg);
 	hpipm_zero_memset(memsize, mem);
 
-	int N = dim->N;
+	int Nn = dim->Nn;
 	int *nu = dim->nu;
 	int *nx = dim->nx;
 
 	int nuM = 0;
 	int nxM = 0;
-	for(ii=0; ii<=N; ii++)
+	for(ii=0; ii<Nn; ii++)
 		{
 		nuM = nu[ii]>nuM ? nu[ii] : nuM;
 		nxM = nx[ii]>nxM ? nx[ii] : nxM;
@@ -585,20 +585,20 @@ void OCP_QCQP_IPM_WS_CREATE(struct OCP_QCQP_DIM *dim, struct OCP_QCQP_IPM_ARG *a
 
 
 	// structures
-	workspace->qp_ws = (struct OCP_QP_IPM_WS *) c_ptr;
-	c_ptr += sizeof(struct OCP_QP_IPM_WS);
+	workspace->qp_ws = (struct TREE_OCP_QP_IPM_WS *) c_ptr;
+	c_ptr += sizeof(struct TREE_OCP_QP_IPM_WS);
 
-	workspace->qp = (struct OCP_QP *) c_ptr;
-	c_ptr += sizeof(struct OCP_QP);
+	workspace->qp = (struct TREE_OCP_QP *) c_ptr;
+	c_ptr += sizeof(struct TREE_OCP_QP);
 
-	workspace->qp_sol = (struct OCP_QP_SOL *) c_ptr;
-	c_ptr += sizeof(struct OCP_QP_SOL);
+	workspace->qp_sol = (struct TREE_OCP_QP_SOL *) c_ptr;
+	c_ptr += sizeof(struct TREE_OCP_QP_SOL);
 
-	workspace->qcqp_res_ws = (struct OCP_QCQP_RES_WS *) c_ptr;
-	c_ptr += sizeof(struct OCP_QCQP_RES_WS);
+	workspace->qcqp_res_ws = (struct TREE_OCP_QCQP_RES_WS *) c_ptr;
+	c_ptr += sizeof(struct TREE_OCP_QCQP_RES_WS);
 
-	workspace->qcqp_res = (struct OCP_QCQP_RES *) c_ptr;
-	c_ptr += sizeof(struct OCP_QCQP_RES);
+	workspace->qcqp_res = (struct TREE_OCP_QCQP_RES *) c_ptr;
+	c_ptr += sizeof(struct TREE_OCP_QCQP_RES);
 
 
 	// vector struct
@@ -616,19 +616,19 @@ void OCP_QCQP_IPM_WS_CREATE(struct OCP_QCQP_DIM *dim, struct OCP_QCQP_IPM_ARG *a
 	// memory of structures
 	c_ptr = (char *) s_ptr;
 
-	OCP_QP_IPM_WS_CREATE(dim->qp_dim, arg->qp_arg, workspace->qp_ws, c_ptr);
+	TREE_OCP_QP_IPM_WS_CREATE(dim->qp_dim, arg->qp_arg, workspace->qp_ws, c_ptr);
 	c_ptr += workspace->qp_ws->memsize;
 
-	OCP_QP_CREATE(dim->qp_dim, workspace->qp, c_ptr);
+	TREE_OCP_QP_CREATE(dim->qp_dim, workspace->qp, c_ptr);
 	c_ptr += workspace->qp->memsize;
 
-	OCP_QP_SOL_CREATE(dim->qp_dim, workspace->qp_sol, c_ptr);
+	TREE_OCP_QP_SOL_CREATE(dim->qp_dim, workspace->qp_sol, c_ptr);
 	c_ptr += workspace->qp_sol->memsize;
 
-	OCP_QCQP_RES_WS_CREATE(dim, workspace->qcqp_res_ws, c_ptr);
+	TREE_OCP_QCQP_RES_WS_CREATE(dim, workspace->qcqp_res_ws, c_ptr);
 	c_ptr += workspace->qcqp_res_ws->memsize;
 
-	OCP_QCQP_RES_CREATE(dim, workspace->qcqp_res, c_ptr);
+	TREE_OCP_QCQP_RES_CREATE(dim, workspace->qcqp_res, c_ptr);
 	c_ptr += workspace->qcqp_res->memsize;
 
 	CREATE_STRVEC(nuM+nxM, workspace->tmp_nuxM+0, c_ptr);
@@ -638,7 +638,7 @@ void OCP_QCQP_IPM_WS_CREATE(struct OCP_QCQP_DIM *dim, struct OCP_QCQP_IPM_ARG *a
 
 
 	//
-	workspace->memsize = memsize; //OCP_QCQP_IPM_WS_MEMSIZE(dim, arg);
+	workspace->memsize = memsize; //TREE_OCP_QCQP_IPM_WS_MEMSIZE(dim, arg);
 
 
 #if defined(RUNTIME_CHECKS)
@@ -656,43 +656,43 @@ void OCP_QCQP_IPM_WS_CREATE(struct OCP_QCQP_DIM *dim, struct OCP_QCQP_IPM_ARG *a
 
 
 // TODO
-void OCP_QCQP_IPM_GET(char *field, struct OCP_QCQP_IPM_WS *ws, void *value)
+void TREE_OCP_QCQP_IPM_GET(char *field, struct TREE_OCP_QCQP_IPM_WS *ws, void *value)
 	{
 	if(hpipm_strcmp(field, "status"))
 		{ 
-		OCP_QCQP_IPM_GET_STATUS(ws, value);
+		TREE_OCP_QCQP_IPM_GET_STATUS(ws, value);
 		}
 	else if(hpipm_strcmp(field, "iter"))
 		{ 
-		OCP_QCQP_IPM_GET_ITER(ws, value);
+		TREE_OCP_QCQP_IPM_GET_ITER(ws, value);
 		}
 	else if(hpipm_strcmp(field, "max_res_stat"))
 		{ 
-		OCP_QCQP_IPM_GET_MAX_RES_STAT(ws, value);
+		TREE_OCP_QCQP_IPM_GET_MAX_RES_STAT(ws, value);
 		}
 	else if(hpipm_strcmp(field, "max_res_eq"))
 		{ 
-		OCP_QCQP_IPM_GET_MAX_RES_EQ(ws, value);
+		TREE_OCP_QCQP_IPM_GET_MAX_RES_EQ(ws, value);
 		}
 	else if(hpipm_strcmp(field, "max_res_ineq"))
 		{ 
-		OCP_QCQP_IPM_GET_MAX_RES_INEQ(ws, value);
+		TREE_OCP_QCQP_IPM_GET_MAX_RES_INEQ(ws, value);
 		}
 	else if(hpipm_strcmp(field, "max_res_comp"))
 		{ 
-		OCP_QCQP_IPM_GET_MAX_RES_COMP(ws, value);
+		TREE_OCP_QCQP_IPM_GET_MAX_RES_COMP(ws, value);
 		}
 	else if(hpipm_strcmp(field, "stat"))
 		{ 
-		OCP_QCQP_IPM_GET_STAT(ws, value);
+		TREE_OCP_QCQP_IPM_GET_STAT(ws, value);
 		}
 	else if(hpipm_strcmp(field, "stat_m"))
 		{ 
-		OCP_QCQP_IPM_GET_STAT_M(ws, value);
+		TREE_OCP_QCQP_IPM_GET_STAT_M(ws, value);
 		}
 	else 
 		{
-		printf("error: OCP_QCQP_IPM_GET: wrong field %s\n", field);
+		printf("error: TREE_OCP_QCQP_IPM_GET: wrong field %s\n", field);
 		exit(1);
 		}
 	return;
@@ -700,7 +700,7 @@ void OCP_QCQP_IPM_GET(char *field, struct OCP_QCQP_IPM_WS *ws, void *value)
 
 
 
-void OCP_QCQP_IPM_GET_STATUS(struct OCP_QCQP_IPM_WS *ws, int *status)
+void TREE_OCP_QCQP_IPM_GET_STATUS(struct TREE_OCP_QCQP_IPM_WS *ws, int *status)
 	{
 	*status = ws->status;
 	return;
@@ -708,7 +708,7 @@ void OCP_QCQP_IPM_GET_STATUS(struct OCP_QCQP_IPM_WS *ws, int *status)
 
 
 
-void OCP_QCQP_IPM_GET_ITER(struct OCP_QCQP_IPM_WS *ws, int *iter)
+void TREE_OCP_QCQP_IPM_GET_ITER(struct TREE_OCP_QCQP_IPM_WS *ws, int *iter)
 	{
 	*iter = ws->iter;
 	return;
@@ -716,7 +716,7 @@ void OCP_QCQP_IPM_GET_ITER(struct OCP_QCQP_IPM_WS *ws, int *iter)
 
 
 
-void OCP_QCQP_IPM_GET_MAX_RES_STAT(struct OCP_QCQP_IPM_WS *ws, REAL *res_stat)
+void TREE_OCP_QCQP_IPM_GET_MAX_RES_STAT(struct TREE_OCP_QCQP_IPM_WS *ws, REAL *res_stat)
 	{
 	*res_stat = ws->qcqp_res->res_max[0];
 	return;
@@ -724,7 +724,7 @@ void OCP_QCQP_IPM_GET_MAX_RES_STAT(struct OCP_QCQP_IPM_WS *ws, REAL *res_stat)
 
 
 
-void OCP_QCQP_IPM_GET_MAX_RES_EQ(struct OCP_QCQP_IPM_WS *ws, REAL *res_eq)
+void TREE_OCP_QCQP_IPM_GET_MAX_RES_EQ(struct TREE_OCP_QCQP_IPM_WS *ws, REAL *res_eq)
 	{
 	*res_eq = ws->qcqp_res->res_max[1];
 	return;
@@ -732,7 +732,7 @@ void OCP_QCQP_IPM_GET_MAX_RES_EQ(struct OCP_QCQP_IPM_WS *ws, REAL *res_eq)
 
 
 
-void OCP_QCQP_IPM_GET_MAX_RES_INEQ(struct OCP_QCQP_IPM_WS *ws, REAL *res_ineq)
+void TREE_OCP_QCQP_IPM_GET_MAX_RES_INEQ(struct TREE_OCP_QCQP_IPM_WS *ws, REAL *res_ineq)
 	{
 	*res_ineq = ws->qcqp_res->res_max[2];
 	return;
@@ -740,7 +740,7 @@ void OCP_QCQP_IPM_GET_MAX_RES_INEQ(struct OCP_QCQP_IPM_WS *ws, REAL *res_ineq)
 
 
 
-void OCP_QCQP_IPM_GET_MAX_RES_COMP(struct OCP_QCQP_IPM_WS *ws, REAL *res_comp)
+void TREE_OCP_QCQP_IPM_GET_MAX_RES_COMP(struct TREE_OCP_QCQP_IPM_WS *ws, REAL *res_comp)
 	{
 	*res_comp = ws->qcqp_res->res_max[3];
 	return;
@@ -748,22 +748,22 @@ void OCP_QCQP_IPM_GET_MAX_RES_COMP(struct OCP_QCQP_IPM_WS *ws, REAL *res_comp)
 
 
 
-void OCP_QCQP_IPM_GET_STAT(struct OCP_QCQP_IPM_WS *ws, REAL **stat)
+void TREE_OCP_QCQP_IPM_GET_STAT(struct TREE_OCP_QCQP_IPM_WS *ws, REAL **stat)
 	{
-	OCP_QP_IPM_GET_STAT(ws->qp_ws, stat);
+	TREE_OCP_QP_IPM_GET_STAT(ws->qp_ws, stat);
 	}
 
 
 
-void OCP_QCQP_IPM_GET_STAT_M(struct OCP_QCQP_IPM_WS *ws, int *stat_m)
+void TREE_OCP_QCQP_IPM_GET_STAT_M(struct TREE_OCP_QCQP_IPM_WS *ws, int *stat_m)
 	{
-	OCP_QP_IPM_GET_STAT_M(ws->qp_ws, stat_m);
+	TREE_OCP_QP_IPM_GET_STAT_M(ws->qp_ws, stat_m);
 	}
 
 
 
 // with warm_start==2 also init dual variables
-void OCP_QCQP_INIT_VAR(struct OCP_QCQP *qp, struct OCP_QCQP_SOL *qp_sol, struct OCP_QCQP_IPM_ARG *arg, struct OCP_QCQP_IPM_WS *ws)
+void TREE_OCP_QCQP_INIT_VAR(struct TREE_OCP_QCQP *qp, struct TREE_OCP_QCQP_SOL *qp_sol, struct TREE_OCP_QCQP_IPM_ARG *arg, struct TREE_OCP_QCQP_IPM_WS *ws)
 	{
 
 //	struct CORE_QCQP_IPM_WORKSPACE *cws = ws->core_workspace;
@@ -772,7 +772,7 @@ void OCP_QCQP_INIT_VAR(struct OCP_QCQP *qp, struct OCP_QCQP_SOL *qp_sol, struct 
 	int ii, jj;
 
 	//
-	int N = qp->dim->N;
+	int Nn = qp->dim->Nn;
 	int *nx = qp->dim->nx;
 	int *nu = qp->dim->nu;
 	int *nb = qp->dim->nb;
@@ -797,7 +797,7 @@ void OCP_QCQP_INIT_VAR(struct OCP_QCQP *qp, struct OCP_QCQP_SOL *qp_sol, struct 
 
 		thr0 = 1e-1;
 
-		for(ii=0; ii<=N; ii++)
+		for(ii=0; ii<Nn; ii++)
 			{
 			lam_lb = qp_sol->lam[ii].pa+0;
 			t_lb = qp_sol->t[ii].pa+0;
@@ -820,7 +820,7 @@ void OCP_QCQP_INIT_VAR(struct OCP_QCQP *qp, struct OCP_QCQP_SOL *qp_sol, struct 
 		{
 
 		// cold start
-		for(ii=0; ii<=N; ii++)
+		for(ii=0; ii<Nn; ii++)
 			{
 			ux = qp_sol->ux[ii].pa;
 			for(jj=0; jj<nu[ii]+nx[ii]+2*ns[ii]; jj++)
@@ -834,7 +834,7 @@ void OCP_QCQP_INIT_VAR(struct OCP_QCQP *qp, struct OCP_QCQP_SOL *qp_sol, struct 
 //		{
 //
 //		// warm start (keep u and x in solution)
-//		for(ii=0; ii<=N; ii++)
+//		for(ii=0; ii<Nn; ii++)
 //			{
 //			ux = qp_sol->ux[ii].pa;
 //			for(jj=nu[ii]+nx[ii]; jj<nu[ii]+nx[ii]+2*ns[ii]; jj++)
@@ -846,10 +846,11 @@ void OCP_QCQP_INIT_VAR(struct OCP_QCQP *qp, struct OCP_QCQP_SOL *qp_sol, struct 
 //		}
 	
 	// pi
-	for(ii=0; ii<N; ii++)
+	for(ii=0; ii<Nn-1; ii++)
 		{
+		idx = ii+1;
 		pi = qp_sol->pi[ii].pa;
-		for(jj=0; jj<nx[ii+1]; jj++)
+		for(jj=0; jj<nx[idx]; jj++)
 			{
 			pi[jj] = 0.0;
 			}
@@ -860,7 +861,7 @@ void OCP_QCQP_INIT_VAR(struct OCP_QCQP *qp, struct OCP_QCQP_SOL *qp_sol, struct 
 
 
 	// box constraints
-	for(ii=0; ii<=N; ii++)
+	for(ii=0; ii<Nn; ii++)
 		{
 		ux = qp_sol->ux[ii].pa;
 		d_lb = qp->d[ii].pa+0;
@@ -911,7 +912,7 @@ void OCP_QCQP_INIT_VAR(struct OCP_QCQP *qp, struct OCP_QCQP_SOL *qp_sol, struct 
 //		exit(1);
 		}
 	// general constraints
-	for(ii=0; ii<=N; ii++)
+	for(ii=0; ii<Nn; ii++)
 		{
 		t_lg = qp_sol->t[ii].pa+nb[ii];
 		t_ug = qp_sol->t[ii].pa+2*nb[ii]+ng[ii]+nq[ii];
@@ -941,7 +942,7 @@ void OCP_QCQP_INIT_VAR(struct OCP_QCQP *qp, struct OCP_QCQP_SOL *qp_sol, struct 
 		}
 
 	// soft constraints
-	for(ii=0; ii<=N; ii++)
+	for(ii=0; ii<Nn; ii++)
 		{
 		lam_ls = qp_sol->lam[ii].pa+2*nb[ii]+2*ng[ii]+2*nq[ii];
 		t_ls = qp_sol->t[ii].pa+2*nb[ii]+2*ng[ii]+2*nq[ii];
@@ -958,7 +959,7 @@ void OCP_QCQP_INIT_VAR(struct OCP_QCQP *qp, struct OCP_QCQP_SOL *qp_sol, struct 
 	sqrt_mu0 = thr0>sqrt_mu0 ? thr0 : sqrt_mu0;
 	REAL mu0_div_sqrt_mu0 = mu0 / sqrt_mu0;
 
-	for(ii=0; ii<=N; ii++)
+	for(ii=0; ii<Nn; ii++)
 		{
 		lam_lq = qp_sol->lam[ii].pa+nb[ii]+ng[ii];
 		t_lq = qp_sol->t[ii].pa+nb[ii]+ng[ii];
@@ -992,7 +993,7 @@ void OCP_QCQP_INIT_VAR(struct OCP_QCQP *qp, struct OCP_QCQP_SOL *qp_sol, struct 
 
 
 
-	for(ii=0; ii<=N; ii++)
+	for(ii=0; ii<Nn; ii++)
 		{
 
 //		printf("\nii = %d\n", ii);
@@ -1135,10 +1136,11 @@ void OCP_QCQP_INIT_VAR(struct OCP_QCQP *qp, struct OCP_QCQP_SOL *qp_sol, struct 
 
 
 
-void OCP_QCQP_APPROX_QP(struct OCP_QCQP *qcqp, struct OCP_QCQP_SOL *qcqp_sol, struct OCP_QP *qp, struct OCP_QCQP_IPM_WS *ws)
+void TREE_OCP_QCQP_APPROX_QP(struct TREE_OCP_QCQP *qcqp, struct TREE_OCP_QCQP_SOL *qcqp_sol, struct TREE_OCP_QP *qp, struct TREE_OCP_QCQP_IPM_WS *ws)
 	{
 
-	int N = qcqp->dim->N;
+	struct tree *ttree = qcqp->dim->ttree;
+	int Nn = qcqp->dim->Nn;
 	int *nu = qcqp->dim->nu;
 	int *nx = qcqp->dim->nx;
 	int *nb = qcqp->dim->nb;
@@ -1148,10 +1150,10 @@ void OCP_QCQP_APPROX_QP(struct OCP_QCQP *qcqp, struct OCP_QCQP_SOL *qcqp_sol, st
 
 	REAL tmp;
 
-	int ii, jj;
+	int ii, jj, idx, idxdad;
 
 
-	for(ii=0; ii<=N; ii++)
+	for(ii=0; ii<Nn; ii++)
 		{
 
 		VECCP(2*nb[ii]+2*ng[ii]+2*nq[ii]+2*ns[ii], qcqp->d+ii, 0, qp->d+ii, 0);
@@ -1198,11 +1200,13 @@ void OCP_QCQP_APPROX_QP(struct OCP_QCQP *qcqp, struct OCP_QCQP_SOL *qcqp_sol, st
 
 		}
 
-	for(ii=0; ii<N; ii++)
+	for(ii=0; ii<Nn-1; ii++)
 		{
-		GECP(nu[ii]+nx[ii]+1, nx[ii+1], qcqp->BAbt+ii, 0, 0, qp->BAbt+ii, 0, 0);
+		idx = ii+1;
+		idxdad = (ttree->root+idx)->dad;
+		GECP(nu[idxdad]+nx[idxdad]+1, nx[idx], qcqp->BAbt+ii, 0, 0, qp->BAbt+ii, 0, 0);
 
-		VECCP(nx[ii+1], qcqp->b+ii, 0, qp->b+ii, 0);
+		VECCP(nx[idxdad], qcqp->b+ii, 0, qp->b+ii, 0);
 		}
 
 	return;
@@ -1211,10 +1215,10 @@ void OCP_QCQP_APPROX_QP(struct OCP_QCQP *qcqp, struct OCP_QCQP_SOL *qcqp_sol, st
 
 
 
-void OCP_QCQP_UPDATE_QP(struct OCP_QCQP *qcqp, struct OCP_QCQP_SOL *qcqp_sol, struct OCP_QP *qp, struct OCP_QCQP_IPM_WS *ws)
+void TREE_OCP_QCQP_UPDATE_QP(struct TREE_OCP_QCQP *qcqp, struct TREE_OCP_QCQP_SOL *qcqp_sol, struct TREE_OCP_QP *qp, struct TREE_OCP_QCQP_IPM_WS *ws)
 	{
 
-	int N = qcqp->dim->N;
+	int Nn = qcqp->dim->Nn;
 	int *nu = qcqp->dim->nu;
 	int *nx = qcqp->dim->nx;
 	int *nb = qcqp->dim->nb;
@@ -1227,7 +1231,7 @@ void OCP_QCQP_UPDATE_QP(struct OCP_QCQP *qcqp, struct OCP_QCQP_SOL *qcqp_sol, st
 	int ii, jj, idx;
 
 
-	for(ii=0; ii<=N; ii++)
+	for(ii=0; ii<Nn; ii++)
 		{
 
 		// TODO only the 2*nq part needed !!!!!
@@ -1268,10 +1272,10 @@ void OCP_QCQP_UPDATE_QP(struct OCP_QCQP *qcqp, struct OCP_QCQP_SOL *qcqp_sol, st
 
 
 
-void OCP_QCQP_UPDATE_QP_ABS_STEP(struct OCP_QCQP *qcqp, struct OCP_QCQP_SOL *qcqp_sol, struct OCP_QP *qp, struct OCP_QCQP_IPM_WS *ws)
+void TREE_OCP_QCQP_UPDATE_QP_ABS_STEP(struct TREE_OCP_QCQP *qcqp, struct TREE_OCP_QCQP_SOL *qcqp_sol, struct TREE_OCP_QP *qp, struct TREE_OCP_QCQP_IPM_WS *ws)
 	{
 
-	int N = qcqp->dim->N;
+	int Nn = qcqp->dim->Nn;
 	int *nu = qcqp->dim->nu;
 	int *nx = qcqp->dim->nx;
 	int *nb = qcqp->dim->nb;
@@ -1284,7 +1288,7 @@ void OCP_QCQP_UPDATE_QP_ABS_STEP(struct OCP_QCQP *qcqp, struct OCP_QCQP_SOL *qcq
 	int ii, jj, idx;
 
 
-	for(ii=0; ii<=N; ii++)
+	for(ii=0; ii<Nn; ii++)
 		{
 
 		// TODO only the 2*nq part needed !!!!!
@@ -1329,10 +1333,10 @@ void OCP_QCQP_UPDATE_QP_ABS_STEP(struct OCP_QCQP *qcqp, struct OCP_QCQP_SOL *qcq
 
 
 
-void OCP_QCQP_SOL_CONV_QP_SOL(struct OCP_QCQP_SOL *qcqp_sol, struct OCP_QP_SOL *qp_sol)
+void TREE_OCP_QCQP_SOL_CONV_QP_SOL(struct TREE_OCP_QCQP_SOL *qcqp_sol, struct TREE_OCP_QP_SOL *qp_sol)
 	{
 
-	int N = qcqp_sol->dim->N;
+	int Nn = qcqp_sol->dim->Nn;
 	int *nu = qcqp_sol->dim->nu;
 	int *nx = qcqp_sol->dim->nx;
 	int *nb = qcqp_sol->dim->nb;
@@ -1342,16 +1346,16 @@ void OCP_QCQP_SOL_CONV_QP_SOL(struct OCP_QCQP_SOL *qcqp_sol, struct OCP_QP_SOL *
 
 	int ii;
 
-	for(ii=0; ii<=N; ii++)
+	for(ii=0; ii<Nn; ii++)
 		VECCP(nu[ii]+nx[ii]+2*ns[ii], qcqp_sol->ux+ii, 0, qp_sol->ux+ii, 0);
 
-	for(ii=0; ii<N; ii++)
+	for(ii=0; ii<Nn-1; ii++)
 		VECCP(nx[ii+1], qcqp_sol->pi+ii, 0, qp_sol->pi+ii, 0);
 
-	for(ii=0; ii<=N; ii++)
+	for(ii=0; ii<Nn; ii++)
 		VECCP(2*nb[ii]+2*ng[ii]+2*nq[ii]+2*ns[ii], qcqp_sol->lam+ii, 0, qp_sol->lam+ii, 0);
 
-	for(ii=0; ii<=N; ii++)
+	for(ii=0; ii<Nn; ii++)
 		VECCP(2*nb[ii]+2*ng[ii]+2*nq[ii]+2*ns[ii], qcqp_sol->t+ii, 0, qp_sol->t+ii, 0);
 
 	return;
@@ -1360,10 +1364,10 @@ void OCP_QCQP_SOL_CONV_QP_SOL(struct OCP_QCQP_SOL *qcqp_sol, struct OCP_QP_SOL *
 
 
 
-void OCP_QP_SOL_CONV_QCQP_SOL(struct OCP_QP_SOL *qp_sol, struct OCP_QCQP_SOL *qcqp_sol)
+void TREE_OCP_QP_SOL_CONV_QCQP_SOL(struct TREE_OCP_QP_SOL *qp_sol, struct TREE_OCP_QCQP_SOL *qcqp_sol)
 	{
 
-	int N = qcqp_sol->dim->N;
+	int Nn = qcqp_sol->dim->Nn;
 	int *nu = qcqp_sol->dim->nu;
 	int *nx = qcqp_sol->dim->nx;
 	int *nb = qcqp_sol->dim->nb;
@@ -1373,16 +1377,16 @@ void OCP_QP_SOL_CONV_QCQP_SOL(struct OCP_QP_SOL *qp_sol, struct OCP_QCQP_SOL *qc
 
 	int ii;
 
-	for(ii=0; ii<=N; ii++)
+	for(ii=0; ii<Nn; ii++)
 		VECCP(nu[ii]+nx[ii]+2*ns[ii], qp_sol->ux+ii, 0, qcqp_sol->ux+ii, 0);
 
-	for(ii=0; ii<N; ii++)
+	for(ii=0; ii<Nn-1; ii++)
 		VECCP(nx[ii+1], qp_sol->pi+ii, 0, qcqp_sol->pi+ii, 0);
 
-	for(ii=0; ii<=N; ii++)
+	for(ii=0; ii<Nn; ii++)
 		VECCP(2*nb[ii]+2*ng[ii]+2*nq[ii]+2*ns[ii], qp_sol->lam+ii, 0, qcqp_sol->lam+ii, 0);
 
-	for(ii=0; ii<=N; ii++)
+	for(ii=0; ii<Nn; ii++)
 		VECCP(2*nb[ii]+2*ng[ii]+2*nq[ii]+2*ns[ii], qp_sol->t+ii, 0, qcqp_sol->t+ii, 0);
 
 	return;
@@ -1391,10 +1395,10 @@ void OCP_QP_SOL_CONV_QCQP_SOL(struct OCP_QP_SOL *qp_sol, struct OCP_QCQP_SOL *qc
 
 
 
-void OCP_QCQP_RES_CONV_QP_RES(struct OCP_QCQP_RES *qcqp_res, struct OCP_QP_RES *qp_res)
+void TREE_OCP_QCQP_RES_CONV_QP_RES(struct TREE_OCP_QCQP_RES *qcqp_res, struct TREE_OCP_QP_RES *qp_res)
 	{
 
-	int N = qcqp_res->dim->N;
+	int Nn = qcqp_res->dim->Nn;
 	int *nu = qcqp_res->dim->nu;
 	int *nx = qcqp_res->dim->nx;
 	int *nb = qcqp_res->dim->nb;
@@ -1404,16 +1408,16 @@ void OCP_QCQP_RES_CONV_QP_RES(struct OCP_QCQP_RES *qcqp_res, struct OCP_QP_RES *
 
 	int ii;
 
-	for(ii=0; ii<=N; ii++)
+	for(ii=0; ii<Nn; ii++)
 		VECCP(nu[ii]+nx[ii]+2*ns[ii], qcqp_res->res_g+ii, 0, qp_res->res_g+ii, 0);
 
-	for(ii=0; ii<N; ii++)
+	for(ii=0; ii<Nn-1; ii++)
 		VECCP(nx[ii+1], qcqp_res->res_b+ii, 0, qp_res->res_b+ii, 0);
 
-	for(ii=0; ii<=N; ii++)
+	for(ii=0; ii<Nn; ii++)
 		VECCP(2*nb[ii]+2*ng[ii]+2*nq[ii]+2*ns[ii], qcqp_res->res_d+ii, 0, qp_res->res_d+ii, 0);
 
-	for(ii=0; ii<=N; ii++)
+	for(ii=0; ii<Nn; ii++)
 		VECCP(2*nb[ii]+2*ng[ii]+2*nq[ii]+2*ns[ii], qcqp_res->res_m+ii, 0, qp_res->res_m+ii, 0);
 
 	qp_res->res_mu = qcqp_res->res_mu;
@@ -1424,11 +1428,11 @@ void OCP_QCQP_RES_CONV_QP_RES(struct OCP_QCQP_RES *qcqp_res, struct OCP_QP_RES *
 
 
 
-void OCP_QCQP_IPM_SOLVE(struct OCP_QCQP *qcqp, struct OCP_QCQP_SOL *qcqp_sol, struct OCP_QCQP_IPM_ARG *qcqp_arg, struct OCP_QCQP_IPM_WS *qcqp_ws)
+void TREE_OCP_QCQP_IPM_SOLVE(struct TREE_OCP_QCQP *qcqp, struct TREE_OCP_QCQP_SOL *qcqp_sol, struct TREE_OCP_QCQP_IPM_ARG *qcqp_arg, struct TREE_OCP_QCQP_IPM_WS *qcqp_ws)
 	{
 
 	// dim
-	int N = qcqp->dim->N;
+	int Nn = qcqp->dim->Nn;
 	int *nx = qcqp->dim->nx;
 	int *nu = qcqp->dim->nu;
 	int *nb = qcqp->dim->nb;
@@ -1438,14 +1442,14 @@ void OCP_QCQP_IPM_SOLVE(struct OCP_QCQP *qcqp, struct OCP_QCQP_SOL *qcqp_sol, st
 
 	// extract stuff
 
-	struct OCP_QP *qp = qcqp_ws->qp;
-	struct OCP_QP_SOL *qp_sol = qcqp_ws->qp_sol;
-	struct OCP_QP_IPM_WS *qp_ws = qcqp_ws->qp_ws;
-	struct OCP_QP_IPM_ARG *qp_arg = qcqp_arg->qp_arg;
+	struct TREE_OCP_QP *qp = qcqp_ws->qp;
+	struct TREE_OCP_QP_SOL *qp_sol = qcqp_ws->qp_sol;
+	struct TREE_OCP_QP_IPM_WS *qp_ws = qcqp_ws->qp_ws;
+	struct TREE_OCP_QP_IPM_ARG *qp_arg = qcqp_arg->qp_arg;
 
-	struct OCP_QCQP_DIM *qcqp_dim = qcqp->dim;
-	struct OCP_QCQP_RES *qcqp_res = qcqp_ws->qcqp_res;
-	struct OCP_QCQP_RES_WS *qcqp_res_ws = qcqp_ws->qcqp_res_ws;
+	struct TREE_OCP_QCQP_DIM *qcqp_dim = qcqp->dim;
+	struct TREE_OCP_QCQP_RES *qcqp_res = qcqp_ws->qcqp_res;
+	struct TREE_OCP_QCQP_RES_WS *qcqp_res_ws = qcqp_ws->qcqp_res_ws;
 
 	struct CORE_QP_IPM_WORKSPACE *cws = qp_ws->core_workspace;
 
@@ -1511,7 +1515,7 @@ void OCP_QCQP_IPM_SOLVE(struct OCP_QCQP *qcqp, struct OCP_QCQP_SOL *qcqp_sol, st
 
 
 	// disregard soft constr on (disregarded) lower quard constr
-	for(ii=0; ii<=N; ii++)
+	for(ii=0; ii<Nn; ii++)
 		{
 		VECSE(nq[ii], 0.0, qcqp->d_mask+ii, nb[ii]+ng[ii]); // TODO needed ???
 		// TODO probably remove when using only idxs_rev, as the same slack may be associated with other constraints !!!!!
@@ -1527,13 +1531,13 @@ void OCP_QCQP_IPM_SOLVE(struct OCP_QCQP *qcqp, struct OCP_QCQP_SOL *qcqp_sol, st
 
 
 	// initialize qcqp & qp
-	OCP_QCQP_INIT_VAR(qcqp, qcqp_sol, qcqp_arg, qcqp_ws);
+	TREE_OCP_QCQP_INIT_VAR(qcqp, qcqp_sol, qcqp_arg, qcqp_ws);
 	// mask out disregarded constraints
 	VECMUL(cws->nc, qcqp->d_mask, 0, qcqp_sol->lam, 0, qcqp_sol->lam, 0);
-	OCP_QCQP_SOL_CONV_QP_SOL(qcqp_sol, qp_sol);
+	TREE_OCP_QCQP_SOL_CONV_QP_SOL(qcqp_sol, qp_sol);
 
 	// approximate qcqp with a qp
-	OCP_QCQP_APPROX_QP(qcqp, qcqp_sol, qp, qcqp_ws);
+	TREE_OCP_QCQP_APPROX_QP(qcqp, qcqp_sol, qp, qcqp_ws);
 
 
 	// detect constr mask
@@ -1563,14 +1567,14 @@ void OCP_QCQP_IPM_SOLVE(struct OCP_QCQP *qcqp, struct OCP_QCQP_SOL *qcqp_sol, st
 	// no constraints
 	if(cws->nc==0 | mask_unconstr==1)
 		{
-		OCP_QP_FACT_SOLVE_KKT_UNCONSTR(qp, qp_sol, qp_arg, qp_ws);
-		OCP_QP_SOL_CONV_QCQP_SOL(qp_sol, qcqp_sol);
+		TREE_OCP_QP_FACT_SOLVE_KKT_UNCONSTR(qp, qp_sol, qp_arg, qp_ws);
+		TREE_OCP_QP_SOL_CONV_QCQP_SOL(qp_sol, qcqp_sol);
 		if(qp_arg->comp_res_exit)
 			{
 			// compute residuals
-			OCP_QCQP_RES_COMPUTE(qcqp, qcqp_sol, qcqp_res, qcqp_res_ws);
+			TREE_OCP_QCQP_RES_COMPUTE(qcqp, qcqp_sol, qcqp_res, qcqp_res_ws);
 			// XXX no constraints, so no mask
-			OCP_QCQP_RES_COMPUTE_INF_NORM(qcqp_res);
+			TREE_OCP_QCQP_RES_COMPUTE_INF_NORM(qcqp_res);
 			// save infinity norm of residuals
 			if(0<stat_max)
 				{
@@ -1602,7 +1606,7 @@ void OCP_QCQP_IPM_SOLVE(struct OCP_QCQP *qcqp, struct OCP_QCQP_SOL *qcqp_sol, st
 		qp_ws->qp_step->DCt = qp->DCt;
 		qp_ws->qp_step->Z = qp->Z;
 		qp_ws->qp_step->idxb = qp->idxb;
-		qp_ws->qp_step->idxe = qp->idxe;
+//		qp_ws->qp_step->idxe = qp->idxe;
 		qp_ws->qp_step->idxs_rev = qp->idxs_rev;
 		qp_ws->qp_step->rqz = qp->rqz;
 		qp_ws->qp_step->b = qp->b;
@@ -1614,7 +1618,7 @@ void OCP_QCQP_IPM_SOLVE(struct OCP_QCQP *qcqp, struct OCP_QCQP_SOL *qcqp_sol, st
 		cws->res_m = qp_ws->qp_step->m->pa;
 
 		// update approximation of qcqp as qp for absolute step
-		OCP_QCQP_UPDATE_QP_ABS_STEP(qcqp, qcqp_sol, qp, qcqp_ws);
+		TREE_OCP_QCQP_UPDATE_QP_ABS_STEP(qcqp, qcqp_sol, qp, qcqp_ws);
 
 		// compute mu
 		mu = VECMULDOT(cws->nc, qp_sol->lam, 0, qp_sol->t, 0, qp_ws->tmp_m, 0);
@@ -1629,12 +1633,12 @@ void OCP_QCQP_IPM_SOLVE(struct OCP_QCQP *qcqp, struct OCP_QCQP_SOL *qcqp_sol, st
 			{
 
 			// compute delta step
-			OCP_QP_IPM_ABS_STEP(kk, qp, qp_sol, qp_arg, qp_ws);
+			TREE_OCP_QP_IPM_ABS_STEP(kk, qp, qp_sol, qp_arg, qp_ws);
 //blasfeo_print_exp_tran_dvec(cws->nc, qp_sol->lam, 0);
-			OCP_QP_SOL_CONV_QCQP_SOL(qp_sol, qcqp_sol);
+			TREE_OCP_QP_SOL_CONV_QCQP_SOL(qp_sol, qcqp_sol);
 
 			// update approximation of qcqp as qp for absolute step
-			OCP_QCQP_UPDATE_QP_ABS_STEP(qcqp, qcqp_sol, qp, qcqp_ws);
+			TREE_OCP_QCQP_UPDATE_QP_ABS_STEP(qcqp, qcqp_sol, qp, qcqp_ws);
 
 			// compute mu
 			mu = VECMULDOT(cws->nc, qcqp_sol->lam, 0, qcqp_sol->t, 0, qp_ws->tmp_m, 0);
@@ -1648,16 +1652,16 @@ void OCP_QCQP_IPM_SOLVE(struct OCP_QCQP *qcqp, struct OCP_QCQP_SOL *qcqp_sol, st
 		if(qp_arg->comp_res_exit & qp_arg->comp_dual_sol_eq)
 			{
 			// compute residuals
-			OCP_QCQP_RES_COMPUTE(qcqp, qcqp_sol, qcqp_res, qcqp_res_ws);
+			TREE_OCP_QCQP_RES_COMPUTE(qcqp, qcqp_sol, qcqp_res, qcqp_res_ws);
 			if(qp_ws->mask_constr)
 				{
 				// mask out disregarded constraints
-				for(ii=0; ii<=N; ii++)
+				for(ii=0; ii<Nn; ii++)
 					VECMUL(2*ns[ii], qp->d_mask+ii, 2*nb[ii]+2*ng[ii]+2*nq[ii], qcqp_res->res_g+ii, nu[ii]+nx[ii], qcqp_res->res_g+ii, nu[ii]+nx[ii]);
 				VECMUL(cws->nc, qp->d_mask, 0, qcqp_res->res_d, 0, qcqp_res->res_d, 0);
 				VECMUL(cws->nc, qp->d_mask, 0, qcqp_res->res_m, 0, qcqp_res->res_m, 0);
 				}
-			OCP_QCQP_RES_COMPUTE_INF_NORM(qcqp_res);
+			TREE_OCP_QCQP_RES_COMPUTE_INF_NORM(qcqp_res);
 			// save infinity norm of residuals
 			// XXX it is already kk+1
 			if(kk<stat_max)
@@ -1675,17 +1679,17 @@ void OCP_QCQP_IPM_SOLVE(struct OCP_QCQP *qcqp, struct OCP_QCQP_SOL *qcqp_sol, st
 
 
 	// compute residuals
-	OCP_QCQP_RES_COMPUTE(qcqp, qcqp_sol, qcqp_res, qcqp_res_ws);
+	TREE_OCP_QCQP_RES_COMPUTE(qcqp, qcqp_sol, qcqp_res, qcqp_res_ws);
 	if(qp_ws->mask_constr)
 		{
 		// mask out disregarded constraints
-		for(ii=0; ii<=N; ii++)
+		for(ii=0; ii<Nn; ii++)
 			VECMUL(2*ns[ii], qp->d_mask+ii, 2*nb[ii]+2*ng[ii]+2*nq[ii], qcqp_res->res_g+ii, nu[ii]+nx[ii], qcqp_res->res_g+ii, nu[ii]+nx[ii]);
 		VECMUL(cws->nc, qp->d_mask, 0, qcqp_res->res_d, 0, qcqp_res->res_d, 0);
 		VECMUL(cws->nc, qp->d_mask, 0, qcqp_res->res_m, 0, qcqp_res->res_m, 0);
 		}
-	OCP_QCQP_RES_COMPUTE_INF_NORM(qcqp_res);
-	OCP_QCQP_RES_CONV_QP_RES(qcqp_res, qp_ws->res);
+	TREE_OCP_QCQP_RES_COMPUTE_INF_NORM(qcqp_res);
+	TREE_OCP_QCQP_RES_CONV_QP_RES(qcqp_res, qp_ws->res);
 	cws->mu = qcqp_res->res_mu;
 	// save infinity norm of residuals
 	if(0<stat_max)
@@ -1709,13 +1713,13 @@ void OCP_QCQP_IPM_SOLVE(struct OCP_QCQP *qcqp, struct OCP_QCQP_SOL *qcqp_sol, st
 
 		// hessian is updated with quad constr: can not reuse hessian factorization !!!
 		// XXX is it in ocp ws ?????
-		for(ii=0; ii<=N; ii++)
+		for(ii=0; ii<Nn; ii++)
 			qp_ws->use_hess_fact[ii] = 0;
 
 		// compute delta step
-		OCP_QP_IPM_DELTA_STEP(kk, qp, qp_sol, qp_arg, qp_ws);
+		TREE_OCP_QP_IPM_DELTA_STEP(kk, qp, qp_sol, qp_arg, qp_ws);
 //blasfeo_print_exp_tran_dvec(cws->nc, qp_sol->lam, 0);
-		OCP_QP_SOL_CONV_QCQP_SOL(qp_sol, qcqp_sol);
+		TREE_OCP_QP_SOL_CONV_QCQP_SOL(qp_sol, qcqp_sol);
 		// XXX maybe not needed
 		if(qp_ws->mask_constr)
 			{
@@ -1724,20 +1728,20 @@ void OCP_QCQP_IPM_SOLVE(struct OCP_QCQP *qcqp, struct OCP_QCQP_SOL *qcqp_sol, st
 			}
 
 		// update approximation of qcqp as qp
-		OCP_QCQP_UPDATE_QP(qcqp, qcqp_sol, qp, qcqp_ws);
+		TREE_OCP_QCQP_UPDATE_QP(qcqp, qcqp_sol, qp, qcqp_ws);
 
 		// compute residuals
-		OCP_QCQP_RES_COMPUTE(qcqp, qcqp_sol, qcqp_res, qcqp_res_ws);
+		TREE_OCP_QCQP_RES_COMPUTE(qcqp, qcqp_sol, qcqp_res, qcqp_res_ws);
 		if(qp_ws->mask_constr)
 			{
 			// mask out disregarded constraints
-			for(ii=0; ii<=N; ii++)
+			for(ii=0; ii<Nn; ii++)
 				VECMUL(2*ns[ii], qp->d_mask+ii, 2*nb[ii]+2*ng[ii]+2*nq[ii], qcqp_res->res_g+ii, nu[ii]+nx[ii], qcqp_res->res_g+ii, nu[ii]+nx[ii]);
 			VECMUL(cws->nc, qp->d_mask, 0, qcqp_res->res_d, 0, qcqp_res->res_d, 0);
 			VECMUL(cws->nc, qp->d_mask, 0, qcqp_res->res_m, 0, qcqp_res->res_m, 0);
 			}
-		OCP_QCQP_RES_COMPUTE_INF_NORM(qcqp_res);
-		OCP_QCQP_RES_CONV_QP_RES(qcqp_res, qp_ws->res);
+		TREE_OCP_QCQP_RES_COMPUTE_INF_NORM(qcqp_res);
+		TREE_OCP_QCQP_RES_CONV_QP_RES(qcqp_res, qp_ws->res);
 		cws->mu = qcqp_res->res_mu;
 		// save infinity norm of residuals
 		if(kk+1<stat_max)
@@ -1788,5 +1792,6 @@ set_status:
 	return;
 
 	}
+
 
 

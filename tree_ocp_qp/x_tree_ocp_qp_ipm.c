@@ -923,7 +923,7 @@ void TREE_OCP_QP_INIT_VAR(struct TREE_OCP_QP *qp, struct TREE_OCP_QP_SOL *qp_sol
 //	struct CORE_QP_IPM_WORKSPACE *cws = ws->core_workspace;
 	
 	// loop index
-	int ii, jj;
+	int ii, jj, idx;
 
 	//
 	int Nn = qp->dim->Nn;
@@ -997,8 +997,9 @@ void TREE_OCP_QP_INIT_VAR(struct TREE_OCP_QP *qp, struct TREE_OCP_QP_SOL *qp_sol
 	// pi
 	for(ii=0; ii<Nn-1; ii++)
 		{
+		idx = ii+1;
 		pi = qp_sol->pi[ii].pa;
-		for(jj=0; jj<nx[ii+1]; jj++)
+		for(jj=0; jj<nx[idx]; jj++)
 			{
 			pi[jj] = 0.0;
 			}
