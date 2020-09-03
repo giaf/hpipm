@@ -4,7 +4,7 @@ HPIPM ChangeLog
 
 ====================================================================
 Version 0.1.4-master
-13-Aug-2020
+3-Sep-2020
 
 dense_qp:
 	* update some setters/getters
@@ -31,6 +31,12 @@ cond_qcqp:
 
 part_cond_qcqp:
 	* add condensing of LHS
+
+tree_ocp_qp:
+	* update to nearly all features of ocp qp
+
+tree_ocp_qcqp:
+	* add tree ocp qcqp solver
 
 Matlab/Octave interface:
 	* add basic interface for dense QP
