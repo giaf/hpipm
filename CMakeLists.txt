@@ -99,14 +99,14 @@ if(NOT TARGET blasfeo)
 		set(HPIPM_BLASFEO_LIB "Shared" CACHE STRING "BLASFEO library link type")
 	endif()
 
-	if(HPIPM_BLASFEO_LIB MATCHES "Static")
+	if(HPIPM_BLASFEO_LIB STREQUAL "Static")
 		add_library(blasfeo STATIC IMPORTED)
 		if(CMAKE_C_COMPILER_ID MATCHES MSVC)
 			set_target_properties(blasfeo PROPERTIES IMPORTED_LOCATION ${BLASFEO_PATH}/lib/blasfeo.lib)
 		else()
 			set_target_properties(blasfeo PROPERTIES IMPORTED_LOCATION ${BLASFEO_PATH}/lib/libblasfeo.a)
 		endif()
-	elseif(HPIPM_BLASFEO_LIB MATCHES "Shared")
+	elseif(HPIPM_BLASFEO_LIB STREQUAL "Shared")
 		add_library(blasfeo SHARED IMPORTED)
 		if(CMAKE_C_COMPILER_ID MATCHES MSVC)
 			set_target_properties(blasfeo PROPERTIES IMPORTED_LOCATION ${BLASFEO_PATH}/lib/blasfeo.dll)
@@ -132,14 +132,14 @@ set(RUNTIME_CHECKS ON)
 #
 ## optimization flags
 # common flags
-if(CMAKE_C_COMPILER_ID MATCHES "GNU" OR CMAKE_C_COMPILER_ID MATCHES "Clang")
+if(CMAKE_C_COMPILER_ID STREQUAL "GNU" OR CMAKE_C_COMPILER_ID STREQUAL "Clang")
 	set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -O2 -fPIC")
 endif()
 
 # target-specific flags
 if(${TARGET} MATCHES AVX)
 	set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -DTARGET_AVX")
-	if(CMAKE_C_COMPILER_ID MATCHES "GNU" OR CMAKE_C_COMPILER_ID MATCHES "Clang")
+	if(CMAKE_C_COMPILER_ID STREQUAL "GNU" OR CMAKE_C_COMPILER_ID STREQUAL "Clang")
 		set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -m64 -mavx")
 	endif()
 elseif(${TARGET} MATCHES GENERIC)
