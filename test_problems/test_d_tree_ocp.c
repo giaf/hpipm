@@ -617,14 +617,14 @@ int main()
 * create scenario tree
 ************************************************/
 
-	int tree_memsize = memsize_sctree(md, Nr, Nh);
+	int tree_memsize = sctree_memsize(md, Nr, Nh);
 #if PRINT
 	printf("\ntree memsize = %d\n", tree_memsize);
 #endif
 	void *tree_memory = malloc(tree_memsize);
 
 	struct sctree st;
-	create_sctree(md, Nr, Nh, &st, tree_memory);
+	sctree_create(md, Nr, Nh, &st, tree_memory);
 
 	int Nn = st.Nn;
 
@@ -652,7 +652,7 @@ int main()
 ************************************************/
 
 	struct tree ttree;
-	cast_sctree2tree(&st, &ttree);
+	sctree_cast_to_tree(&st, &ttree);
 
 #if 0
 	Nn = ttree.Nn;

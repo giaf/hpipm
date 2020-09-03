@@ -274,7 +274,7 @@ void TREE_OCP_QCQP_CREATE(struct TREE_OCP_QCQP_DIM *dim, struct TREE_OCP_QCQP *q
 	// DCt
 	for(ii=0; ii<Nn; ii++)
 		{
-		CREATE_STRMAT(nu[ii]+nx[ii], ng[ii], qp->DCt+ii, c_ptr);
+		CREATE_STRMAT(nu[ii]+nx[ii], ng[ii]+nq[ii], qp->DCt+ii, c_ptr);
 		c_ptr += (qp->DCt+ii)->memsize;
 		}
 

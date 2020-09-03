@@ -33,150 +33,47 @@
 *                                                                                                 *
 **************************************************************************************************/
 
+#include <stdlib.h>
+#include <stdio.h>
 
+#include <blasfeo_target.h>
+#include <blasfeo_common.h>
+#include <blasfeo_d_aux.h>
+#include <blasfeo_d_aux_ext_dep.h>
+#include <blasfeo_i_aux_ext_dep.h>
 
-#include "../include/hpipm_tree.h"
-#include "../include/hpipm_scenario_tree.h"
-
-
-
-static int ipow(int base, int exp)
-	{
-	int result = 1;
-	while(exp)
-		{
-		if(exp & 1)
-			result *= base;
-		exp >>= 1;
-		base *= base;
-		}
-	return result;
-	}
+#include <hpipm_tree.h>
+#include <hpipm_d_tree_ocp_qp_dim.h>
+#include <hpipm_d_tree_ocp_qp.h>
+#include <hpipm_d_tree_ocp_qp_sol.h>
+#include "hpipm_d_tree_ocp_qp_ipm.h"
 
 
 
-static int sctree_node_number(int md, int Nr, int Nh)
-	{
-	int n_nodes;
-	if(md==1) // i.e. standard block-banded structure
-		n_nodes = Nh+1;
-	else
-		n_nodes = (Nh-Nr)*ipow(md,Nr) + (ipow(md,Nr+1)-1)/(md-1);
-	return n_nodes;
-	}
+#define DOUBLE_PRECISION
 
 
 
-int sctree_memsize(int md, int Nr, int Nh)
-	{
-
-	int Nn = sctree_node_number(md, Nr, Nh);
-
-	int size = 0;
-
-	size += Nn*sizeof(struct node); // root
-	size += Nn*sizeof(int); // kids
-
-	return size;
-
-	}
+#define BLASFEO_PRINT_MAT blasfeo_print_dmat
+#define BLASFEO_PRINT_TRAN_VEC blasfeo_print_tran_dvec
+#define TREE_OCP_QP d_tree_ocp_qp
+#define TREE_OCP_QP_DIM d_tree_ocp_qp_dim
+#define TREE_OCP_QP_IPM_ARG d_tree_ocp_qp_ipm_arg
+#define TREE_OCP_QP_RES d_tree_ocp_qp_res
+#define TREE_OCP_QP_SOL d_tree_ocp_qp_sol
 
 
 
-void sctree_create(int md, int Nr, int Nh, struct sctree *st, void *memory)
-	{
-
-	st->memsize = sctree_memsize(md, Nr, Nh);
-
-	int Nn = sctree_node_number(md, Nr, Nh);
-
-	st->md = md;
-	st->Nr = Nr;
-	st->Nh = Nh;
-	st->Nn = Nn;
-
-	struct node *n_ptr = (struct node *) memory;
-	st->root = n_ptr;
-	n_ptr += Nn; // root
-
-	int *i_ptr = (int *) n_ptr;
-	st->kids = i_ptr;
-	i_ptr += Nn; // kids
-
-	int ii;
-	int idx, dad, stage, real, nkids, idxkid;
-	int tkids;
-	struct node *node0, *node1;
-
-	tkids = 0;
-	idxkid = 0;
-
-	// root
-	node0 = st->root+0;
-	node0->idx = 0;
-	node0->stage = 0;
-	node0->dad = -1;
-	node0->real = -1;
-	node0->idxkid = 0;
-
-	// kids
-	for(idx=0; idx<Nn; idx++)
-		{
-		node0 = st->root+idx;
-		stage = node0->stage;
-		if(stage<Nr)
-			nkids = md;
-		else if(stage<Nh)
-			nkids = 1;
-		else 
-			nkids = 0;
-		node0->nkids = nkids;
-		if(nkids>0)
-			{
-			node0->kids = st->kids+tkids;
-			tkids += nkids;
-			if(nkids>1)
-				{
-				for(ii=0; ii<nkids; ii++)
-					{
-					idxkid++;
-					node0->kids[ii] = idxkid;
-					node1 = st->root+idxkid;
-					node1->idx = idxkid;
-					node1->stage = stage+1;
-					node1->dad = idx;
-					node1->real = ii;
-					node1->idxkid = ii;
-					}
-				}
-			else // nkids==1
-				{
-				idxkid++;
-				node0->kids[0] = idxkid;
-				node1 = st->root+idxkid;
-				node1->idx = idxkid;
-				node1->stage = stage+1;
-				node1->dad = idx;
-				node1->real = node0->real;
-				node1->idxkid = 0;
-				}
-			}
-		}
-
-	return;
-
-	}
+#define TREE_OCP_QP_DIM_PRINT d_tree_ocp_qp_dim_print
+#define TREE_OCP_QP_DIM_CODEGEN d_tree_ocp_qp_dim_codegen
+#define TREE_OCP_QP_PRINT d_tree_ocp_qp_print
+#define TREE_OCP_QP_CODEGEN d_tree_ocp_qp_codegen
+#define TREE_OCP_QP_SOL_PRINT d_tree_ocp_qp_sol_print
+#define TREE_OCP_QP_IPM_ARG_PRINT d_tree_ocp_qp_ipm_arg_print
+#define TREE_OCP_QP_IPM_ARG_CODEGEN d_tree_ocp_qp_ipm_arg_codegen
+#define TREE_OCP_QP_RES_PRINT d_tree_ocp_qp_res_print
 
 
 
-void sctree_cast_to_tree(struct sctree *st, struct tree *tt)
-	{
+#include "x_tree_ocp_qp_utils.c"
 
-	tt->root = st->root;
-	tt->kids = st->kids;
-	tt->Nn = st->Nn;
-	tt->memsize = st->memsize;
-
-	return;
-
-	}

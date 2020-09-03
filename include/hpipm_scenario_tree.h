@@ -33,7 +33,8 @@
 *                                                                                                 *
 **************************************************************************************************/
 
-
+#ifndef HPIPM_SCENARIO_TREE_H_
+#define HPIPM_SCENARIO_TREE_H_
 
 #ifdef __cplusplus
 extern "C" {
@@ -55,14 +56,15 @@ struct sctree
 
 
 //
-int memsize_sctree(int md, int Nr, int Nh);
+int sctree_memsize(int md, int Nr, int Nh);
 //
-void create_sctree(int md, int Nr, int Nh, struct sctree *st, void *memory);
+void sctree_create(int md, int Nr, int Nh, struct sctree *st, void *memory);
 //
-void cast_sctree2tree(struct sctree *st, struct tree *tt);
+void sctree_cast_to_tree(struct sctree *st, struct tree *tt);
 
 
 #ifdef __cplusplus
 } /* extern "C" */
 #endif
 
+#endif // HPIPM_SCENARIO_TREE_H_

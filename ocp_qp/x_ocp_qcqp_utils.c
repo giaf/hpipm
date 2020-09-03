@@ -297,7 +297,7 @@ void OCP_QCQP_PRINT(struct OCP_QCQP_DIM *dim, struct OCP_QCQP *qp)
 
 	printf("m =\n");
 	for (ii = 0; ii <= N; ii++)
-		BLASFEO_PRINT_TRAN_VEC(2*nb[ii]+2*ng[ii]+2*ns[ii], qp->m+ii, 0);
+		BLASFEO_PRINT_TRAN_VEC(2*nb[ii]+2*ng[ii]+2*nq[ii]+2*ns[ii], qp->m+ii, 0);
 
 	return;
 	}
