@@ -370,9 +370,25 @@ void OCP_QP_SOL_GET(char *field, int stage, struct OCP_QP_SOL *qp_sol, REAL *vec
 		{ 
 		OCP_QP_SOL_GET_LAM_LB(stage, qp_sol, vec);
 		}
+	else if(hpipm_strcmp(field, "lam_lbu"))
+		{ 
+		OCP_QP_SOL_GET_LAM_LBU(stage, qp_sol, vec);
+		}
+	else if(hpipm_strcmp(field, "lam_lbx"))
+		{ 
+		OCP_QP_SOL_GET_LAM_LBX(stage, qp_sol, vec);
+		}
 	else if(hpipm_strcmp(field, "lam_ub"))
 		{ 
 		OCP_QP_SOL_GET_LAM_UB(stage, qp_sol, vec);
+		}
+	else if(hpipm_strcmp(field, "lam_ubu"))
+		{ 
+		OCP_QP_SOL_GET_LAM_UBU(stage, qp_sol, vec);
+		}
+	else if(hpipm_strcmp(field, "lam_ubx"))
+		{ 
+		OCP_QP_SOL_GET_LAM_UBX(stage, qp_sol, vec);
 		}
 	else if(hpipm_strcmp(field, "lam_lg"))
 		{ 
@@ -446,11 +462,49 @@ void OCP_QP_SOL_GET_LAM_LB(int stage, struct OCP_QP_SOL *qp_sol, REAL *vec)
 
 
 
+void OCP_QP_SOL_GET_LAM_LBU(int stage, struct OCP_QP_SOL *qp_sol, REAL *vec)
+	{
+	int *nbu = qp_sol->dim->nbu;
+	UNPACK_VEC(nbu[stage], qp_sol->lam+stage, 0, vec, 1);
+	}
+
+
+
+void OCP_QP_SOL_GET_LAM_LBX(int stage, struct OCP_QP_SOL *qp_sol, REAL *vec)
+	{
+	int *nbu = qp_sol->dim->nbu;
+	int *nbx = qp_sol->dim->nbx;
+	UNPACK_VEC(nbx[stage], qp_sol->lam+stage, nbu[stage], vec, 1);
+	}
+
+
+
 void OCP_QP_SOL_GET_LAM_UB(int stage, struct OCP_QP_SOL *qp_sol, REAL *vec)
 	{
 	int *nb = qp_sol->dim->nb;
 	int *ng = qp_sol->dim->ng;
 	UNPACK_VEC(nb[stage], qp_sol->lam+stage, nb[stage]+ng[stage], vec, 1);
+	}
+
+
+
+void OCP_QP_SOL_GET_LAM_UBU(int stage, struct OCP_QP_SOL *qp_sol, REAL *vec)
+	{
+	int *nb = qp_sol->dim->nb;
+	int *nbu = qp_sol->dim->nbu;
+	int *ng = qp_sol->dim->ng;
+	UNPACK_VEC(nbu[stage], qp_sol->lam+stage, nb[stage]+ng[stage], vec, 1);
+	}
+
+
+
+void OCP_QP_SOL_GET_LAM_UBX(int stage, struct OCP_QP_SOL *qp_sol, REAL *vec)
+	{
+	int *nb = qp_sol->dim->nb;
+	int *nbu = qp_sol->dim->nbu;
+	int *nbx = qp_sol->dim->nbx;
+	int *ng = qp_sol->dim->ng;
+	UNPACK_VEC(nbx[stage], qp_sol->lam+stage, nb[stage]+ng[stage]+nbu[stage], vec, 1);
 	}
 
 

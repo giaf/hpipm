@@ -76,7 +76,11 @@
 #define OCP_QP_SOL_GET_SU d_ocp_qp_sol_get_su
 #define OCP_QP_SOL_GET_PI d_ocp_qp_sol_get_pi
 #define OCP_QP_SOL_GET_LAM_LB d_ocp_qp_sol_get_lam_lb
+#define OCP_QP_SOL_GET_LAM_LBU d_ocp_qp_sol_get_lam_lbu
+#define OCP_QP_SOL_GET_LAM_LBX d_ocp_qp_sol_get_lam_lbx
 #define OCP_QP_SOL_GET_LAM_UB d_ocp_qp_sol_get_lam_ub
+#define OCP_QP_SOL_GET_LAM_UBU d_ocp_qp_sol_get_lam_ubu
+#define OCP_QP_SOL_GET_LAM_UBX d_ocp_qp_sol_get_lam_ubx
 #define OCP_QP_SOL_GET_LAM_LG d_ocp_qp_sol_get_lam_lg
 #define OCP_QP_SOL_GET_LAM_UG d_ocp_qp_sol_get_lam_ug
 #define OCP_QP_SOL_SET d_ocp_qp_sol_set

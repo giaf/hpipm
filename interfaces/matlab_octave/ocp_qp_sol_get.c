@@ -64,6 +64,9 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
 	int N = dim->N;
 	int *nx = dim->nx;
 	int *nu = dim->nu;
+	int *nbu = dim->nbu;
+	int *nbx = dim->nbx;
+	int *ng = dim->ng;
 	int *ns = dim->ns;
 
 	// field
@@ -154,6 +157,81 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
 			plhs[0] = mxCreateNumericMatrix(ns[stage0], 1, mxDOUBLE_CLASS, mxREAL);
 			double *s = mxGetPr( plhs[0] );
 			d_ocp_qp_sol_get(field, stage0, sol, s);
+			}
+		}
+	else if( (!strcmp(field, "lam_lbu")) | (!strcmp(field, "lam_ubu")) )
+		{
+		if(nrhs==4)
+			{
+			int nbu_sum = 0;
+			for(ii=stage0; ii<=stage1; ii++)
+				{
+				nbu_sum += nbu[ii];
+				}
+			plhs[0] = mxCreateNumericMatrix(nbu_sum, 1, mxDOUBLE_CLASS, mxREAL);
+			double *lam = mxGetPr( plhs[0] );
+			nbu_sum = 0;
+			for(ii=stage0; ii<=stage1; ii++)
+				{
+				d_ocp_qp_sol_get(field, ii, sol, lam+nbu_sum);
+				nbu_sum += nbu[ii];
+				}
+			}
+		else
+			{
+			plhs[0] = mxCreateNumericMatrix(nbu[stage0], 1, mxDOUBLE_CLASS, mxREAL);
+			double *lam = mxGetPr( plhs[0] );
+			d_ocp_qp_sol_get(field, stage0, sol, lam);
+			}
+		}
+	else if( (!strcmp(field, "lam_lbx")) | (!strcmp(field, "lam_ubx")) )
+		{
+		if(nrhs==4)
+			{
+			int nbx_sum = 0;
+			for(ii=stage0; ii<=stage1; ii++)
+				{
+				nbx_sum += nbx[ii];
+				}
+			plhs[0] = mxCreateNumericMatrix(nbx_sum, 1, mxDOUBLE_CLASS, mxREAL);
+			double *lam = mxGetPr( plhs[0] );
+			nbx_sum = 0;
+			for(ii=stage0; ii<=stage1; ii++)
+				{
+				d_ocp_qp_sol_get(field, ii, sol, lam+nbx_sum);
+				nbx_sum += nbx[ii];
+				}
+			}
+		else
+			{
+			plhs[0] = mxCreateNumericMatrix(nbx[stage0], 1, mxDOUBLE_CLASS, mxREAL);
+			double *lam = mxGetPr( plhs[0] );
+			d_ocp_qp_sol_get(field, stage0, sol, lam);
+			}
+		}
+	else if( (!strcmp(field, "lam_lg")) | (!strcmp(field, "lam_ug")) )
+		{
+		if(nrhs==4)
+			{
+			int ng_sum = 0;
+			for(ii=stage0; ii<=stage1; ii++)
+				{
+				ng_sum += ng[ii];
+				}
+			plhs[0] = mxCreateNumericMatrix(ng_sum, 1, mxDOUBLE_CLASS, mxREAL);
+			double *lam = mxGetPr( plhs[0] );
+			ng_sum = 0;
+			for(ii=stage0; ii<=stage1; ii++)
+				{
+				d_ocp_qp_sol_get(field, ii, sol, lam+ng_sum);
+				ng_sum += ng[ii];
+				}
+			}
+		else
+			{
+			plhs[0] = mxCreateNumericMatrix(ng[stage0], 1, mxDOUBLE_CLASS, mxREAL);
+			double *lam = mxGetPr( plhs[0] );
+			d_ocp_qp_sol_get(field, stage0, sol, lam);
 			}
 		}
 	else

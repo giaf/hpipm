@@ -93,7 +93,15 @@ void d_ocp_qp_sol_get_pi(int stage, struct d_ocp_qp_sol *qp_sol, double *vec);
 //
 void d_ocp_qp_sol_get_lam_lb(int stage, struct d_ocp_qp_sol *qp_sol, double *vec);
 //
+void d_ocp_qp_sol_get_lam_lbu(int stage, struct d_ocp_qp_sol *qp_sol, double *vec);
+//
+void d_ocp_qp_sol_get_lam_lbx(int stage, struct d_ocp_qp_sol *qp_sol, double *vec);
+//
 void d_ocp_qp_sol_get_lam_ub(int stage, struct d_ocp_qp_sol *qp_sol, double *vec);
+//
+void d_ocp_qp_sol_get_lam_ubu(int stage, struct d_ocp_qp_sol *qp_sol, double *vec);
+//
+void d_ocp_qp_sol_get_lam_ubx(int stage, struct d_ocp_qp_sol *qp_sol, double *vec);
 //
 void d_ocp_qp_sol_get_lam_lg(int stage, struct d_ocp_qp_sol *qp_sol, double *vec);
 //

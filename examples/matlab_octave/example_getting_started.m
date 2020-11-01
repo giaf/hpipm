@@ -224,10 +224,23 @@ x = reshape(x, nx, N+1);
 % u
 u = sol.get('u', 0, N-1);
 u = reshape(u, nu, N);
+% lam_lbx0
+lam_lbx0 = sol.get('lam_lbx', 0);
+% lam_ubx0
+lam_ubx0 = sol.get('lam_ubx', 0);
+% lam_lg0
+lam_lg0 = sol.get('lam_lg', 0);
+% lam_ug0
+lam_ug0 = sol.get('lam_ug', 0);
 
 if (~strcmp(travis_run, 'true'))
 	x
 	u
+	if(constr_type==0)
+		lam_lbx0 - lam_ubx0
+	else
+		lam_lg0 - lam_ug0
+	end
 end
 
 % print to shell
