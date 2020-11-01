@@ -134,6 +134,32 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
 			d_ocp_qp_sol_get(field, stage0, sol, u);
 			}
 		}
+	else if(!strcmp(field, "pi"))
+		{
+		if(nrhs==4)
+			{
+			stage1 = stage1<=N-1 ? stage1 : N-1; // no last stage
+			int nx_sum = 0;
+			for(ii=stage0; ii<=stage1; ii++)
+				{
+				nx_sum += nx[ii+1];
+				}
+			plhs[0] = mxCreateNumericMatrix(nx_sum, 1, mxDOUBLE_CLASS, mxREAL);
+			double *pi = mxGetPr( plhs[0] );
+			nx_sum = 0;
+			for(ii=stage0; ii<=stage1; ii++)
+				{
+				d_ocp_qp_sol_get(field, ii, sol, pi+nx_sum);
+				nx_sum += nx[ii+1];
+				}
+			}
+		else
+			{
+			plhs[0] = mxCreateNumericMatrix(nx[stage0+1], 1, mxDOUBLE_CLASS, mxREAL);
+			double *pi = mxGetPr( plhs[0] );
+			d_ocp_qp_sol_get(field, stage0, sol, pi);
+			}
+		}
 	else if( (!strcmp(field, "sl")) | (!strcmp(field, "su")) )
 		{
 		if(nrhs==4)
