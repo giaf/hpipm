@@ -553,14 +553,14 @@ void OCP_QP_SET_ALL(REAL **A, REAL **B, REAL **b, REAL **Q, REAL **S, REAL **R, 
 			PACK_VEC(nbu[ii], d_lbu[ii], 1, qp->d+ii, 0);
 			PACK_VEC(nbu[ii], d_ubu[ii], 1, qp->d+ii, nb[ii]+ng[ii]);
 			}
-		if(nbx[ii>0])
+		if(nbx[ii]>0)
 			{
 			for(jj=0; jj<nbx[ii]; jj++)
 				qp->idxb[ii][nbu[ii]+jj] = nu[ii]+idxbx[ii][jj];
 			PACK_VEC(nbx[ii], d_lbx[ii], 1, qp->d+ii, nbu[ii]);
 			PACK_VEC(nbx[ii], d_ubx[ii], 1, qp->d+ii, nb[ii]+ng[ii]+nbu[ii]);
 			}
-		if(nb[ii>0])
+		if(nb[ii]>0)
 			{
 			VECSC(nb[ii], -1.0, qp->d+ii, nb[ii]+ng[ii]);
 			VECSE(nb[ii], 0.0, qp->m+ii, 0);
@@ -650,14 +650,14 @@ void OCP_QP_SET_ALL_ROWMAJ(REAL **A, REAL **B, REAL **b, REAL **Q, REAL **S, REA
 			PACK_VEC(nbu[ii], d_lbu[ii], 1, qp->d+ii, 0);
 			PACK_VEC(nbu[ii], d_ubu[ii], 1, qp->d+ii, nb[ii]+ng[ii]);
 			}
-		if(nbx[ii>0])
+		if(nbx[ii]>0)
 			{
 			for(jj=0; jj<nbx[ii]; jj++)
 				qp->idxb[ii][nbu[ii]+jj] = nu[ii]+idxbx[ii][jj];
 			PACK_VEC(nbx[ii], d_lbx[ii], 1, qp->d+ii, nbu[ii]);
 			PACK_VEC(nbx[ii], d_ubx[ii], 1, qp->d+ii, nb[ii]+ng[ii]+nbu[ii]);
 			}
-		if(nb[ii>0])
+		if(nb[ii]>0)
 			{
 			VECSC(nb[ii], -1.0, qp->d+ii, nb[ii]+ng[ii]);
 			VECSE(nb[ii], 0.0, qp->m+ii, 0);
