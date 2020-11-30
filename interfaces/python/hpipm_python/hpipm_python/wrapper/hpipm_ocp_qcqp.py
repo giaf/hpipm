@@ -74,8 +74,13 @@ class hpipm_ocp_qcqp:
 				value[0] = value_
 		# convert into column-major
 		value_cm = np.ravel(value, 'F')
-		value_cm = np.ascontiguousarray(value_cm, dtype=np.float64)
-		tmp = cast(value_cm.ctypes.data, POINTER(c_double))
+#		if(issubclass(value.dtype.type, np.integer)):
+		if(field=='idxbx' or field=='idxbu' or field=='idxb' or field=='idxs' or field=='idxs_rev'): # or field=='idxe' or field=='idxbue' or field=='idxbxe' or field=='idxge' or field=='idxqe'):
+			value_cm = np.ascontiguousarray(value_cm, dtype=np.int32)
+			tmp = cast(value_cm.ctypes.data, POINTER(c_int))
+		else:
+			value_cm = np.ascontiguousarray(value_cm, dtype=np.float64)
+			tmp = cast(value_cm.ctypes.data, POINTER(c_double))
 		field_name_b = field.encode('utf-8')
 		if idx_end==None:
 			self.__hpipm.d_ocp_qcqp_set(c_char_p(field_name_b), idx_start, tmp, self.qp_struct)
