@@ -90,7 +90,7 @@ void SIM_RK_DATA_CREATE(int ns, struct SIM_RK_DATA *rk_data, void *mem)
 
 void SIM_RK_DATA_INIT_DEFAULT(char *field, struct SIM_RK_DATA *rk_data)
 	{
-	if(hpipm_strcmp(field, "ERK4")) 
+	if(hpipm_strcmp(field, "ERK4"))
 		{
 		if(rk_data->ns == 4)
 			{
@@ -130,7 +130,34 @@ void SIM_RK_DATA_INIT_DEFAULT(char *field, struct SIM_RK_DATA *rk_data)
 		else
 			{
 			printf("error: SIM_RK_DATA_INIT_DEFAULT: rk_data->ns=%d != 4. Exiting.\n", rk_data->ns);
-			exit(1);	
+			exit(1);
+			}
+		}
+	else if(hpipm_strcmp(field, "ERK2"))
+		{
+		if(rk_data->ns == 2)
+			{
+			int ns = 2;
+			REAL *A = rk_data->A_rk;
+			REAL *B = rk_data->B_rk;
+			REAL *C = rk_data->C_rk;
+			rk_data->expl = 1;
+            // A
+            A[0+ns*0] = 0.0;
+            A[0+ns*1] = 0.0;
+            A[1+ns*0] = 0.5;
+            A[1+ns*1] = 0.0;
+            // b
+            B[0] = 0.0;
+            B[1] = 1.0;
+            // c
+            C[0] = 0.0;
+            C[1] = 0.5;
+			}
+		else
+			{
+			printf("error: SIM_RK_DATA_INIT_DEFAULT: rk_data->ns=%d != 4. Exiting.\n", rk_data->ns);
+			exit(1);
 			}
 		}
 	else

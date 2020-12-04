@@ -55,3 +55,7 @@ clean:
 	rm -f *.o
 	rm -f *.s
 
+d_sim_rk.o: d_sim_rk.c x_sim_rk.c
+s_sim_rk.o: s_sim_rk.c x_sim_rk.c
+d_sim_erk.o: d_sim_erk.c x_sim_erk.c
+s_sim_erk.o: s_sim_erk.c x_sim_erk.c
