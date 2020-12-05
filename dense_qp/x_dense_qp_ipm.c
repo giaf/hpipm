@@ -1928,6 +1928,14 @@ void DENSE_QP_IPM_DELTA_STEP(int kk, struct DENSE_QP *qp, struct DENSE_QP_SOL *q
 void DENSE_QP_IPM_SOLVE(struct DENSE_QP *qp, struct DENSE_QP_SOL *qp_sol, struct DENSE_QP_IPM_ARG *arg, struct DENSE_QP_IPM_WS *ws)
 	{
 
+#if 0
+	DENSE_QP_DIM_PRINT(qp->dim);
+	DENSE_QP_IPM_ARG_PRINT(qp->dim, arg);
+	DENSE_QP_PRINT(qp->dim, qp);
+exit(1);
+#endif
+
+
 	// dim
 	int nv = qp->dim->nv;
 	int ne = qp->dim->ne;
@@ -2262,6 +2270,11 @@ call_return:
 		{
 		DENSE_QP_COMPUTE_OBJ(qp, qp_sol, arg, ws);
 		}
+
+#if 0
+	DENSE_QP_SOL_PRINT(qp->dim, qp_sol);
+exit(1);
+#endif
 
 	// return
 	return;

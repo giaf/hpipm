@@ -57,6 +57,7 @@
 #define BLASFEO_PRINT_MAT blasfeo_print_smat
 #define BLASFEO_PRINT_TRAN_VEC blasfeo_print_tran_svec
 #define DENSE_QP s_dense_qp
+#define DENSE_QP_IPM_ARG s_dense_qp_ipm_arg
 #define DENSE_QP_DIM s_dense_qp_dim
 #define DENSE_QP_IPM_ARG s_dense_qp_ipm_arg
 #define DENSE_QP_RES s_dense_qp_res
@@ -68,6 +69,7 @@
 #define DENSE_QP_PRINT s_dense_qp_print
 #define DENSE_QP_SOL_PRINT s_dense_qp_sol_print
 #define DENSE_QP_RES_PRINT s_dense_qp_res_print
+#define DENSE_QP_IPM_ARG_PRINT s_dense_qp_ipm_arg_print
 
 
 

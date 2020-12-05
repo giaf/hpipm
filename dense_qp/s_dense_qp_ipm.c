@@ -52,6 +52,7 @@
 #include <hpipm_s_dense_qp_sol.h>
 #include <hpipm_s_dense_qp_res.h>
 #include <hpipm_s_dense_qp_ipm.h>
+#include <hpipm_s_dense_qp_utils.h>
 #include <hpipm_s_core_qp_ipm.h>
 #include <hpipm_s_core_qp_ipm_aux.h>
 #include <hpipm_s_dense_qp_kkt.h>
@@ -73,8 +74,11 @@
 #define DENSE_QP s_dense_qp
 #define DENSE_QP_COMPUTE_OBJ s_dense_qp_compute_obj
 #define DENSE_QP_DIM s_dense_qp_dim
+#define DENSE_QP_DIM_PRINT s_dense_qp_dim_print
 #define DENSE_QP_IPM_ARG s_dense_qp_ipm_arg
+#define DENSE_QP_IPM_ARG_PRINT s_dense_qp_ipm_arg_print
 #define DENSE_QP_IPM_WS s_dense_qp_ipm_ws
+#define DENSE_QP_PRINT s_dense_qp_print
 #define DENSE_QP_REMOVE_LIN_DEP_EQ s_dense_qp_remove_lin_dep_eq
 #define DENSE_QP_RES s_dense_qp_res
 #define DENSE_QP_RES_COMPUTE s_dense_qp_res_compute
@@ -87,6 +91,7 @@
 #define DENSE_QP_SOL s_dense_qp_sol
 #define DENSE_QP_SOL_CREATE s_dense_qp_sol_create
 #define DENSE_QP_SOL_MEMSIZE s_dense_qp_sol_memsize
+#define DENSE_QP_SOL_PRINT s_dense_qp_sol_print
 #define DOT blasfeo_sdot
 #define FACT_LQ_SOLVE_KKT_STEP_DENSE_QP s_fact_lq_solve_kkt_step_dense_qp
 #define FACT_SOLVE_LU_KKT_STEP_DENSE_QP s_fact_solve_lu_kkt_step_dense_qp

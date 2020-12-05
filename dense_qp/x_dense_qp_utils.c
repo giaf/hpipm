@@ -162,3 +162,47 @@ void DENSE_QP_RES_PRINT(struct DENSE_QP_DIM *qp_dim, struct DENSE_QP_RES *qp_res
 
 
 
+void DENSE_QP_IPM_ARG_PRINT(struct DENSE_QP_DIM *qp_dim, struct DENSE_QP_IPM_ARG *arg)
+	{
+	int ii;
+
+	// iter_max
+	printf("/* mode */\n");
+	printf("int mode = %d;\n", arg->mode);
+	// iter_max
+	printf("/* iter_max */\n");
+	printf("int iter_max = %d;\n", arg->iter_max);
+	// alpha_min
+	printf("/* alpha_min */\n");
+	printf("double alpha_min = %18.15e;\n", arg->alpha_min);
+	// mu0
+	printf("/* mu0 */\n");
+	printf("double mu0 = %18.15e;\n", arg->mu0);
+	// tol_stat
+	printf("/* tol_stat */\n");
+	printf("double tol_stat = %18.15e;\n", arg->res_g_max);
+	// tol_eq
+	printf("/* tol_eq */\n");
+	printf("double tol_eq = %18.15e;\n", arg->res_b_max);
+	// tol_ineq
+	printf("/* tol_ineq */\n");
+	printf("double tol_ineq = %18.15e;\n", arg->res_d_max);
+	// tol_comp
+	printf("/* tol_comp */\n");
+	printf("double tol_comp = %18.15e;\n", arg->res_m_max);
+	// reg_prim
+	printf("/* reg_prim */\n");
+	printf("double reg_prim = %18.15e;\n", arg->reg_prim);
+	// warm_start
+	printf("/* warm_start */\n");
+	printf("int warm_start = %d;\n", arg->warm_start);
+	// pred_corr
+	printf("/* pred_corr */\n");
+	printf("int pred_corr = %d;\n", arg->pred_corr);
+
+	return;
+	}
+
+
+
+
