@@ -127,6 +127,7 @@ void s_cond_qp_expand_primal_sol(struct s_ocp_qp *ocp_qp, struct s_dense_qp_sol 
 void s_cond_qp_update(int *idxc, struct s_ocp_qp *ocp_qp, struct s_dense_qp *dense_qp, struct s_cond_qp_arg *cond_arg, struct s_cond_qp_ws *cond_ws);
 
 
+
 #ifdef __cplusplus
 } /* extern "C" */
 #endif

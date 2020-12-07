@@ -82,6 +82,7 @@ void d_update_cond_RSQrq_N2nx3(int *idxc, struct d_ocp_qp *ocp_qp, struct blasfe
 void d_update_cond_DCtd(int *idxc, struct d_ocp_qp *ocp_qp, int *idxb2, struct blasfeo_dmat *DCt2, struct blasfeo_dvec *d2, int *idxs2, struct blasfeo_dvec *Z2, struct blasfeo_dvec *z, struct d_cond_qp_arg *cond_arg, struct d_cond_qp_ws *cond_ws);
 
 
+
 #ifdef __cplusplus
 } /* extern "C" */
 #endif

@@ -56,7 +56,7 @@
 
 #define AXPY blasfeo_daxpy
 #define COND_QP_ARG d_cond_qp_arg
-#define COND_QP_ARG_WS d_cond_qp_ws
+#define COND_QP_WS d_cond_qp_ws
 #define DENSE_QP_SOL d_dense_qp_sol
 #define DIAEX blasfeo_ddiaex
 #define GEAD blasfeo_dgead
@@ -72,6 +72,7 @@
 #define OCP_QP d_ocp_qp
 #define OCP_QP_SOL d_ocp_qp_sol
 #define POTRF_L_MN blasfeo_dpotrf_l_mn
+#define PRINT_MAT blasfeo_print_dmat
 #define REAL double
 #define ROWAD blasfeo_drowad
 #define ROWEX blasfeo_drowex
