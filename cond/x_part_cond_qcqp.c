@@ -860,7 +860,7 @@ void PART_COND_QCQP_EXPAND_SOL(struct OCP_QCQP *ocp_qp, struct OCP_QCQP *part_de
 			GECP(nu[jj]+nx[jj], ng[jj]+nq[jj], ocp_qp->DCt+jj, 0, 0, part_cond_ws->cond_ws[ii].tmp_DCt+(jj-N_tmp), 0, 0);
 			for(kk=0; kk<nq[jj]; kk++)
 				{
-				SYMV_L(nu[jj]+nx[jj], nu[jj]+nx[jj], 1.0, ocp_qp->Hq[jj]+kk, 0, 0, ocp_qp_sol->ux+jj, 0, 0.0, part_cond_ws->cond_ws[ii].tmp_nuxM, 0, part_cond_ws->cond_ws[ii].tmp_nuxM, 0);
+				SYMV_L(nu[jj]+nx[jj], 1.0, ocp_qp->Hq[jj]+kk, 0, 0, ocp_qp_sol->ux+jj, 0, 0.0, part_cond_ws->cond_ws[ii].tmp_nuxM, 0, part_cond_ws->cond_ws[ii].tmp_nuxM, 0);
 				COLAD(nu[jj]+nx[jj], 1.0, part_cond_ws->cond_ws[ii].tmp_nuxM, 0, part_cond_ws->cond_ws[ii].tmp_DCt+(jj-N_tmp), 0, ng[jj]+kk);
 				}
 			}

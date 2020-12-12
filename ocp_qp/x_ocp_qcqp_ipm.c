@@ -977,7 +977,7 @@ void OCP_QCQP_INIT_VAR(struct OCP_QCQP *qp, struct OCP_QCQP_SOL *qp_sol, struct 
 #else
 	//		t[2*nb+2*ng+nq+jj] = 1.0; // thr0;
 			COLEX(nu[ii]+nx[ii], qp->DCt+ii, 0, ng[ii]+jj, ws->tmp_nuxM, 0);
-			SYMV_L(nu[ii]+nx[ii], nu[ii]+nx[ii], 0.5, &qp->Hq[ii][jj], 0, 0, qp_sol->ux+ii, 0, 1.0, ws->tmp_nuxM, 0, ws->tmp_nuxM, 0);
+			SYMV_L(nu[ii]+nx[ii], 0.5, &qp->Hq[ii][jj], 0, 0, qp_sol->ux+ii, 0, 1.0, ws->tmp_nuxM, 0, ws->tmp_nuxM, 0);
 			tmp = DOT(nu[ii]+nx[ii], ws->tmp_nuxM, 0, qp_sol->ux+ii, 0);
 			tmp = - d_uq[jj] - tmp;
 			t_uq[jj] = thr0>tmp ? thr0 : tmp;
@@ -1165,7 +1165,7 @@ void OCP_QCQP_APPROX_QP(struct OCP_QCQP *qcqp, struct OCP_QCQP_SOL *qcqp_sol, st
 			tmp = - BLASFEO_VECEL(qcqp_sol->lam+ii, nb[ii]+ng[ii]+jj) + BLASFEO_VECEL(qcqp_sol->lam+ii, 2*nb[ii]+2*ng[ii]+nq[ii]+jj);
 			GEAD(nu[ii]+nx[ii], nu[ii]+nx[ii], tmp, &qcqp->Hq[ii][jj], 0, 0, qp->RSQrq+ii, 0, 0);
 
-			SYMV_L(nu[ii]+nx[ii], nu[ii]+nx[ii], 1.0, &qcqp->Hq[ii][jj], 0, 0, qcqp_sol->ux+ii, 0, 0.0, ws->tmp_nuxM+0, 0, ws->tmp_nuxM+0, 0);
+			SYMV_L(nu[ii]+nx[ii], 1.0, &qcqp->Hq[ii][jj], 0, 0, qcqp_sol->ux+ii, 0, 0.0, ws->tmp_nuxM+0, 0, ws->tmp_nuxM+0, 0);
 			COLEX(nu[ii]+nx[ii], qcqp->DCt+ii, 0, ng[ii]+jj, ws->tmp_nuxM+1, 0);
 			AXPY(nu[ii]+nx[ii], 1.0, ws->tmp_nuxM+0, 0, ws->tmp_nuxM+1, 0, ws->tmp_nuxM+1, 0);
 			COLIN(nu[ii]+nx[ii], ws->tmp_nuxM+1, 0, qp->DCt+ii, 0, ng[ii]+jj);
@@ -1242,7 +1242,7 @@ void OCP_QCQP_UPDATE_QP(struct OCP_QCQP *qcqp, struct OCP_QCQP_SOL *qcqp_sol, st
 			tmp = - BLASFEO_VECEL(qcqp_sol->lam+ii, nb[ii]+ng[ii]+jj) + BLASFEO_VECEL(qcqp_sol->lam+ii, 2*nb[ii]+2*ng[ii]+nq[ii]+jj);
 			GEAD(nu[ii]+nx[ii], nu[ii]+nx[ii], tmp, &qcqp->Hq[ii][jj], 0, 0, qp->RSQrq+ii, 0, 0);
 
-			SYMV_L(nu[ii]+nx[ii], nu[ii]+nx[ii], 1.0, &qcqp->Hq[ii][jj], 0, 0, qcqp_sol->ux+ii, 0, 0.0, ws->tmp_nuxM+0, 0, ws->tmp_nuxM+0, 0);
+			SYMV_L(nu[ii]+nx[ii], 1.0, &qcqp->Hq[ii][jj], 0, 0, qcqp_sol->ux+ii, 0, 0.0, ws->tmp_nuxM+0, 0, ws->tmp_nuxM+0, 0);
 			COLEX(nu[ii]+nx[ii], qcqp->DCt+ii, 0, ng[ii]+jj, ws->tmp_nuxM+1, 0);
 			AXPY(nu[ii]+nx[ii], 1.0, ws->tmp_nuxM+0, 0, ws->tmp_nuxM+1, 0, ws->tmp_nuxM+1, 0);
 			COLIN(nu[ii]+nx[ii], ws->tmp_nuxM+1, 0, qp->DCt+ii, 0, ng[ii]+jj);
@@ -1299,7 +1299,7 @@ void OCP_QCQP_UPDATE_QP_ABS_STEP(struct OCP_QCQP *qcqp, struct OCP_QCQP_SOL *qcq
 			tmp = - BLASFEO_VECEL(qcqp_sol->lam+ii, nb[ii]+ng[ii]+jj) + BLASFEO_VECEL(qcqp_sol->lam+ii, 2*nb[ii]+2*ng[ii]+nq[ii]+jj);
 			GEAD(nu[ii]+nx[ii], nu[ii]+nx[ii], tmp, &qcqp->Hq[ii][jj], 0, 0, qp->RSQrq+ii, 0, 0);
 
-			SYMV_L(nu[ii]+nx[ii], nu[ii]+nx[ii], 1.0, &qcqp->Hq[ii][jj], 0, 0, qcqp_sol->ux+ii, 0, 0.0, ws->tmp_nuxM+0, 0, ws->tmp_nuxM+0, 0);
+			SYMV_L(nu[ii]+nx[ii], 1.0, &qcqp->Hq[ii][jj], 0, 0, qcqp_sol->ux+ii, 0, 0.0, ws->tmp_nuxM+0, 0, ws->tmp_nuxM+0, 0);
 			COLEX(nu[ii]+nx[ii], qcqp->DCt+ii, 0, ng[ii]+jj, ws->tmp_nuxM+1, 0);
 			AXPY(nu[ii]+nx[ii], 1.0, ws->tmp_nuxM+0, 0, ws->tmp_nuxM+1, 0, ws->tmp_nuxM+1, 0);
 			COLIN(nu[ii]+nx[ii], ws->tmp_nuxM+1, 0, qp->DCt+ii, 0, ng[ii]+jj);

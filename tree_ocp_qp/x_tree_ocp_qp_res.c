@@ -457,7 +457,7 @@ void TREE_OCP_QP_RES_COMPUTE(struct TREE_OCP_QP *qp, struct TREE_OCP_QP_SOL *qp_
 		ng0 = ng[ii];
 		ns0 = ns[ii];
 
-		SYMV_L(nu0+nx0, nu0+nx0, 1.0, RSQrq+ii, 0, 0, ux+ii, 0, 1.0, rqz+ii, 0, res_g+ii, 0);
+		SYMV_L(nu0+nx0, 1.0, RSQrq+ii, 0, 0, ux+ii, 0, 1.0, rqz+ii, 0, res_g+ii, 0);
 
 		// if not root
 		if(ii>0)
@@ -592,7 +592,7 @@ void TREE_OCP_QP_RES_COMPUTE_LIN(struct TREE_OCP_QP *qp, struct TREE_OCP_QP_SOL 
 		ng0 = ng[ii];
 		ns0 = ns[ii];
 
-		SYMV_L(nu0+nx0, nu0+nx0, 1.0, RSQrq+ii, 0, 0, ux+ii, 0, 1.0, rqz+ii, 0, res_g+ii, 0);
+		SYMV_L(nu0+nx0, 1.0, RSQrq+ii, 0, 0, ux+ii, 0, 1.0, rqz+ii, 0, res_g+ii, 0);
 
 		// if not root
 		if(ii>0)

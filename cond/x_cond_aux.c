@@ -750,7 +750,7 @@ void COND_RQ(struct OCP_QP *ocp_qp, struct STRVEC *rqz2, struct COND_QP_ARG *con
 			{	
 			nub -= nu[N-nn-1];
 
-	//		SYMV_L(nx[N-nn], nx[N-nn], 1.0, L+(N-nn), nu[N-nn], nu[N-nn], b+(N-nn-1), 0, 1.0, l+(N-nn), nu[N-nn], tmp_nuxM, 0); // XXX buggy !!!
+	//		SYMV_L(nx[N-nn], 1.0, L+(N-nn), nu[N-nn], nu[N-nn], b+(N-nn-1), 0, 1.0, l+(N-nn), nu[N-nn], tmp_nuxM, 0); // XXX buggy !!!
 			TRTR_L(nx[N-nn]+nu[N-nn], L+N-nn, 0, 0, L+N-nn, 0, 0);
 			GEMV_N(nx[N-nn], nx[N-nn], 1.0, L+(N-nn), nu[N-nn], nu[N-nn], b+(N-nn-1), 0, 1.0, l+(N-nn), nu[N-nn], tmp_nuxM, 0);
 
@@ -765,7 +765,7 @@ void COND_RQ(struct OCP_QP *ocp_qp, struct STRVEC *rqz2, struct COND_QP_ARG *con
 		// first stage
 		nn = N-1;
 
-	//	SYMV_L(nx[N-nn], nx[N-nn], 1.0, L+(N-nn), nu[N-nn], nu[N-nn], b+(N-nn-1), 0, 1.0, l+(N-nn), nu[N-nn], tmp_nuxM, 0);
+	//	SYMV_L(nx[N-nn], 1.0, L+(N-nn), nu[N-nn], nu[N-nn], b+(N-nn-1), 0, 1.0, l+(N-nn), nu[N-nn], tmp_nuxM, 0);
 		TRTR_L(nx[N-nn]+nu[N-nn], L+N-nn, 0, 0, L+N-nn, 0, 0);
 		GEMV_N(nx[N-nn], nx[N-nn], 1.0, L+(N-nn), nu[N-nn], nu[N-nn], b+(N-nn-1), 0, 1.0, l+(N-nn), nu[N-nn], tmp_nuxM, 0);
 
@@ -804,7 +804,7 @@ void COND_RQ(struct OCP_QP *ocp_qp, struct STRVEC *rqz2, struct COND_QP_ARG *con
 						}
 					else
 						{
-						SYMV_L(nx[nn], nx[nn], 1.0, RSQrq+nn, nu[nn], nu[nn], Gammab+nn-1, 0, 1.0, rqz+nn, nu[nn], tmp_nuxM, 0);
+						SYMV_L(nx[nn], 1.0, RSQrq+nn, nu[nn], nu[nn], Gammab+nn-1, 0, 1.0, rqz+nn, nu[nn], tmp_nuxM, 0);
 						}
 					GEMV_N(nuf+nx[0], nx[nn], 1.0, Gamma+nn-1, 0, 0, tmp_nuxM, 0, 1.0, rqz2, nub+nu[nn], rqz2, nub+nu[nn]);
 					}
@@ -2173,12 +2173,12 @@ dual_sol_eq:
 		}
 	else
 		{
-//		SYMV_L(nx[Np], nx[Np], 1.0, RSQrq+Np, nu[Np], nu[Np], ux+Np, nu[Np], 1.0, rqz+Np, nu[Np], pi+Np-1, 0);
+//		SYMV_L(nx[Np], 1.0, RSQrq+Np, nu[Np], nu[Np], ux+Np, nu[Np], 1.0, rqz+Np, nu[Np], pi+Np-1, 0);
 		VECCP(nx[Np], rqz+(Np), nu[Np], tmp_nuxM, nu[Np]);
 		AXPY(nb[Np]+ng[Np], -1.0, lam+Np, 0, lam+Np, nb[Np]+ng[Np], tmp_nbgM, 0);
 		VECAD_SP(nb[Np], 1.0, tmp_nbgM, 0, idxb[Np], tmp_nuxM, 0);
 		// TODO avoid to multiply by R ???
-		SYMV_L(nu[Np]+nx[Np], nu[Np]+nx[Np], 1.0, RSQrq+(Np), 0, 0, ux+(Np), 0, 1.0, tmp_nuxM, 0, tmp_nuxM, 0);
+		SYMV_L(nu[Np]+nx[Np], 1.0, RSQrq+(Np), 0, 0, ux+(Np), 0, 1.0, tmp_nuxM, 0, tmp_nuxM, 0);
 		GEMV_N(nx[Np], ng[Np], 1.0, DCt+(Np), nu[Np], 0, tmp_nbgM, nb[Np], 1.0, tmp_nuxM, nu[Np], tmp_nuxM, nu[Np]);
 
 		VECCP(nx[Np], tmp_nuxM, nu[Np], pi+(Np-1), 0);
@@ -2190,7 +2190,7 @@ dual_sol_eq:
 		AXPY(nb[Np-1-ii]+ng[Np-1-ii], -1.0, lam+Np-1-ii, 0, lam+Np-1-ii, nb[Np-1-ii]+ng[Np-1-ii], tmp_nbgM, 0);
 		VECAD_SP(nb[Np-1-ii], 1.0, tmp_nbgM, 0, idxb[Np-1-ii], tmp_nuxM, 0);
 		// TODO avoid to multiply by R ???
-		SYMV_L(nu[Np-1-ii]+nx[Np-1-ii], nu[Np-1-ii]+nx[Np-1-ii], 1.0, RSQrq+(Np-1-ii), 0, 0, ux+(Np-1-ii), 0, 1.0, tmp_nuxM, 0, tmp_nuxM, 0);
+		SYMV_L(nu[Np-1-ii]+nx[Np-1-ii], 1.0, RSQrq+(Np-1-ii), 0, 0, ux+(Np-1-ii), 0, 1.0, tmp_nuxM, 0, tmp_nuxM, 0);
 		GEMV_N(nx[Np-1-ii], nx[Np-ii], 1.0, BAbt+(Np-1-ii), nu[Np-1-ii], 0, pi+(Np-1-ii), 0, 1.0, tmp_nuxM, nu[Np-1-ii], tmp_nuxM, nu[Np-1-ii]);
 		GEMV_N(nx[Np-1-ii], ng[Np-1-ii], 1.0, DCt+(Np-1-ii), nu[Np-1-ii], 0, tmp_nbgM, nb[Np-1-ii], 1.0, tmp_nuxM, nu[Np-1-ii], tmp_nuxM, nu[Np-1-ii]);
 

@@ -99,6 +99,7 @@ void SIM_RK_DATA_INIT_DEFAULT(char *field, struct SIM_RK_DATA *rk_data)
 			REAL *B = rk_data->B_rk;
 			REAL *C = rk_data->C_rk;
 			rk_data->expl = 1;
+			// classic ERK4
             // A
             A[0+ns*0] = 0.0;
             A[0+ns*1] = 0.0;
@@ -142,6 +143,7 @@ void SIM_RK_DATA_INIT_DEFAULT(char *field, struct SIM_RK_DATA *rk_data)
 			REAL *B = rk_data->B_rk;
 			REAL *C = rk_data->C_rk;
 			rk_data->expl = 1;
+			// explicit midpoint method
             // A
             A[0+ns*0] = 0.0;
             A[0+ns*1] = 0.0;

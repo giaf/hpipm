@@ -874,7 +874,7 @@ void DENSE_QCQP_INIT_VAR(struct DENSE_QCQP *qcqp, struct DENSE_QCQP_SOL *qcqp_so
 #else
 //		t[2*nb+2*ng+nq+ii] = 1.0; // thr0;
 		COLEX(nv, qcqp->Ct, 0, ng+ii, ws->tmp_nv, 0);
-		SYMV_L(nv, nv, 0.5, qcqp->Hq+ii, 0, 0, qcqp_sol->v, 0, 1.0, ws->tmp_nv, 0, ws->tmp_nv, 0);
+		SYMV_L(nv, 0.5, qcqp->Hq+ii, 0, 0, qcqp_sol->v, 0, 1.0, ws->tmp_nv, 0, ws->tmp_nv, 0);
 		tmp = DOT(nv, ws->tmp_nv, 0, qcqp_sol->v, 0);
 		tmp = - d[2*nb+2*ng+nq+ii] - tmp;
 		t[2*nb+2*ng+nq+ii] = thr0>tmp ? thr0 : tmp;
@@ -920,7 +920,7 @@ void DENSE_QCQP_APPROX_QP(struct DENSE_QCQP *qcqp, struct DENSE_QCQP_SOL *qcqp_s
 #endif
 		GEAD(nv, nv, tmp, qcqp->Hq+ii, 0, 0, qp->Hv, 0, 0);
 
-		SYMV_L(nv, nv, 1.0, qcqp->Hq+ii, 0, 0, qcqp_sol->v, 0, 0.0, ws->tmp_nv+0, 0, ws->tmp_nv+0, 0);
+		SYMV_L(nv, 1.0, qcqp->Hq+ii, 0, 0, qcqp_sol->v, 0, 0.0, ws->tmp_nv+0, 0, ws->tmp_nv+0, 0);
 		COLEX(nv, qcqp->Ct, 0, ng+ii, ws->tmp_nv+1, 0);
 		AXPY(nv, 1.0, ws->tmp_nv+0, 0, ws->tmp_nv+1, 0, ws->tmp_nv+1, 0);
 		COLIN(nv, ws->tmp_nv+1, 0, qp->Ct, 0, ng+ii);
@@ -997,7 +997,7 @@ void DENSE_QCQP_UPDATE_QP(struct DENSE_QCQP *qcqp, struct DENSE_QCQP_SOL *qcqp_s
 #endif
 		GEAD(nv, nv, tmp, qcqp->Hq+ii, 0, 0, qp->Hv, 0, 0);
 
-		SYMV_L(nv, nv, 1.0, qcqp->Hq+ii, 0, 0, qcqp_sol->v, 0, 0.0, ws->tmp_nv+0, 0, ws->tmp_nv+0, 0);
+		SYMV_L(nv, 1.0, qcqp->Hq+ii, 0, 0, qcqp_sol->v, 0, 0.0, ws->tmp_nv+0, 0, ws->tmp_nv+0, 0);
 		COLEX(nv, qcqp->Ct, 0, ng+ii, ws->tmp_nv+1, 0);
 		AXPY(nv, 1.0, ws->tmp_nv+0, 0, ws->tmp_nv+1, 0, ws->tmp_nv+1, 0);
 		COLIN(nv, ws->tmp_nv+1, 0, qp->Ct, 0, ng+ii);
@@ -1056,7 +1056,7 @@ void DENSE_QCQP_UPDATE_QP_ABS_STEP(struct DENSE_QCQP *qcqp, struct DENSE_QCQP_SO
 #endif
 		GEAD(nv, nv, tmp, qcqp->Hq+ii, 0, 0, qp->Hv, 0, 0);
 
-		SYMV_L(nv, nv, 1.0, qcqp->Hq+ii, 0, 0, qcqp_sol->v, 0, 0.0, ws->tmp_nv+0, 0, ws->tmp_nv+0, 0);
+		SYMV_L(nv, 1.0, qcqp->Hq+ii, 0, 0, qcqp_sol->v, 0, 0.0, ws->tmp_nv+0, 0, ws->tmp_nv+0, 0);
 		COLEX(nv, qcqp->Ct, 0, ng+ii, ws->tmp_nv+1, 0);
 		AXPY(nv, 1.0, ws->tmp_nv+0, 0, ws->tmp_nv+1, 0, ws->tmp_nv+1, 0);
 		COLIN(nv, ws->tmp_nv+1, 0, qp->Ct, 0, ng+ii);

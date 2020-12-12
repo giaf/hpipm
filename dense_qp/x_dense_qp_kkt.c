@@ -159,7 +159,7 @@ printf("\nA_LQ * A_Q - A max err %e\n", max_err);
 //			printf("\nv\n");
 //			blasfeo_print_dvec(nv, v, 0);
 
-			SYMV_L(nv, nv, 1.0, Hg, 0, 0, v, 0, 1.0, gz, 0, tmp_nv, 0);
+			SYMV_L(nv, 1.0, Hg, 0, 0, v, 0, 1.0, gz, 0, tmp_nv, 0);
 //			printf("\ntmp_nv\n");
 //			blasfeo_print_dvec(nv, tmp_nv, 0);
 
@@ -553,7 +553,7 @@ printf("\nA_LQ * A_Q - A max err %e\n", max_err);
 
 			GEMV_T(nv-ne, nv, 1.0, Zt, 0, 0, xz, 0, 1.0, Yxy, 0, dv, 0);
 
-			SYMV_L(nv, nv, 1.0, Lv, 0, 0, dv, 0, 1.0, lv, 0, tmp_nv, 0);
+			SYMV_L(nv, 1.0, Lv, 0, 0, dv, 0, 1.0, lv, 0, tmp_nv, 0);
 			GEMV_N(ne, nv, 1.0, A_Q, 0, 0, tmp_nv, 0, 0.0, dpi, 0, dpi, 0);
 			TRSV_LTN(ne, A_LQ, 0, 0, dpi, 0, dpi, 0);
 
@@ -952,7 +952,7 @@ void FACT_LQ_SOLVE_KKT_STEP_DENSE_QP(struct DENSE_QP *qp, struct DENSE_QP_SOL *q
 
 			GEMV_T(nv-ne, nv, 1.0, Zt, 0, 0, xz, 0, 1.0, Yxy, 0, dv, 0);
 
-			SYMV_L(nv, nv, 1.0, Lv, 0, 0, dv, 0, 1.0, lv, 0, tmp_nv, 0);
+			SYMV_L(nv, 1.0, Lv, 0, 0, dv, 0, 1.0, lv, 0, tmp_nv, 0);
 			GEMV_N(ne, nv, 1.0, A_Q, 0, 0, tmp_nv, 0, 0.0, dpi, 0, dpi, 0);
 			TRSV_LTN(ne, A_LQ, 0, 0, dpi, 0, dpi, 0);
 
@@ -1608,7 +1608,7 @@ void SOLVE_KKT_STEP_DENSE_QP(struct DENSE_QP *qp, struct DENSE_QP_SOL *qp_sol, s
 
 			GEMV_T(nv-ne, nv, 1.0, Zt, 0, 0, xz, 0, 1.0, Yxy, 0, dv, 0);
 
-			SYMV_L(nv, nv, 1.0, Lv, 0, 0, dv, 0, 1.0, lv, 0, tmp_nv, 0);
+			SYMV_L(nv, 1.0, Lv, 0, 0, dv, 0, 1.0, lv, 0, tmp_nv, 0);
 			GEMV_N(ne, nv, 1.0, A_Q, 0, 0, tmp_nv, 0, 0.0, dpi, 0, dpi, 0);
 			TRSV_LTN(ne, A_LQ, 0, 0, dpi, 0, dpi, 0);
 
@@ -1922,7 +1922,7 @@ void DENSE_QP_COMPUTE_OBJ(struct DENSE_QP *qp, struct DENSE_QP_SOL *qp_sol, stru
 	struct STRVEC *tmp_nv = ws->tmp_nv;
 	struct STRVEC *tmp_2ns = ws->tmp_2ns;
 
-	SYMV_L(nv, nv, 0.5, Hg, 0, 0, v, 0, 1.0, gz, 0, tmp_nv, 0);
+	SYMV_L(nv, 0.5, Hg, 0, 0, v, 0, 1.0, gz, 0, tmp_nv, 0);
 	qp_sol->obj = DOT(nv, tmp_nv, 0, v, 0);
 
 	GEMV_DIAG(2*ns, 0.5, Z, 0, v, nv, 1.0, gz, nv, tmp_2ns, 0);

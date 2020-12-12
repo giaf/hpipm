@@ -1048,7 +1048,7 @@ void DENSE_QP_IPM_WS_CREATE(struct DENSE_QP_DIM *dim, struct DENSE_QP_IPM_ARG *a
 	workspace->lq_fact = arg->lq_fact;
 
 	//
-	workspace->memsize = DENSE_QP_IPM_WS_MEMSIZE(dim, arg);
+	workspace->memsize = memsize; //DENSE_QP_IPM_WS_MEMSIZE(dim, arg);
 
 
 #if defined(RUNTIME_CHECKS)
@@ -2528,7 +2528,7 @@ void DENSE_QP_COMPUTE_STEP_LENGTH(struct DENSE_QP *qp, struct DENSE_QP_SOL *qp_s
 	// compute (strictly) linear (i.e. no constr) part of res wrt step
 
 	// res g
-	SYMV_L(nv, nv, 1.0, Hg, 0, 0, dv, 0, 0.0, step_res_g_p, 0, step_res_g_p, 0);
+	SYMV_L(nv, 1.0, Hg, 0, 0, dv, 0, 0.0, step_res_g_p, 0, step_res_g_p, 0);
 
 	if(nb+ng>0)
 		{

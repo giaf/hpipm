@@ -445,7 +445,7 @@ void OCP_QCQP_RES_COMPUTE(struct OCP_QCQP *qp, struct OCP_QCQP_SOL *qp_sol, stru
 		nq0 = nq[ii];
 		ns0 = ns[ii];
 
-		SYMV_L(nu0+nx0, nu0+nx0, 1.0, RSQrq+ii, 0, 0, ux+ii, 0, 1.0, rqz+ii, 0, res_g+ii, 0);
+		SYMV_L(nu0+nx0, 1.0, RSQrq+ii, 0, 0, ux+ii, 0, 1.0, rqz+ii, 0, res_g+ii, 0);
 
 		if(ii>0)
 			AXPY(nx0, -1.0, pi+(ii-1), 0, res_g+ii, nu0, res_g+ii, nu0);
@@ -478,7 +478,7 @@ void OCP_QCQP_RES_COMPUTE(struct OCP_QCQP *qp, struct OCP_QCQP_SOL *qp_sol, stru
 					{
 					for(jj=0; jj<nq0; jj++)
 						{
-						SYMV_L(nu0+nx0, nu0+nx0, 1.0, &Hq[ii][jj], 0, 0, ux+ii, 0, 0.0, tmp_nuxM, 0, tmp_nuxM, 0);
+						SYMV_L(nu0+nx0, 1.0, &Hq[ii][jj], 0, 0, ux+ii, 0, 0.0, tmp_nuxM, 0, tmp_nuxM, 0);
 						tmp = BLASFEO_VECEL(tmp_nbgqM+0, nb0+ng0+jj);
 						AXPY(nu0+nx0, tmp, tmp_nuxM, 0, res_g+ii, 0, res_g+ii, 0);
 						COLEX(nu0+nx0, DCt+ii, 0, ng0+jj, tmp_nuxM+1, 0);
