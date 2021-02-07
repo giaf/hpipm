@@ -35,7 +35,7 @@
 
 
 
-int DENSE_QP_SOL_MEMSIZE(struct DENSE_QP_DIM *dim)
+hpipm_size_t DENSE_QP_SOL_MEMSIZE(struct DENSE_QP_DIM *dim)
 	{
 
 	int nv = dim->nv;
@@ -44,7 +44,7 @@ int DENSE_QP_SOL_MEMSIZE(struct DENSE_QP_DIM *dim)
 	int ng = dim->ng;
 	int ns = dim->ns;
 
-	int size = 0;
+	hpipm_size_t size = 0;
 
 	size += 4*sizeof(struct STRVEC); // v pi lam t
 
@@ -68,7 +68,7 @@ void DENSE_QP_SOL_CREATE(struct DENSE_QP_DIM *dim, struct DENSE_QP_SOL *qp_sol, 
 	int ii;
 
 	// zero memory (to avoid corrupted memory like e.g. NaN)
-	int memsize = DENSE_QP_SOL_MEMSIZE(dim);
+	hpipm_size_t memsize = DENSE_QP_SOL_MEMSIZE(dim);
 	hpipm_zero_memset(memsize, mem);
 
 	// extract dim

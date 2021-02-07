@@ -164,7 +164,7 @@ static void mdlStart(SimStruct *S)
 * ocp qp dim
 ************************************************/
 
-	int dim_size = d_ocp_qp_dim_memsize(N);
+	hpipm_size_t dim_size = d_ocp_qp_dim_memsize(N);
 	dim_mem = malloc(dim_size);
 	if(dim_mem == NULL) printf("Error allocating memory for dim_mem. Exiting.\n\n");
 
@@ -178,7 +178,7 @@ static void mdlStart(SimStruct *S)
 * ocp qp
 ************************************************/
 
-	int qp_size = d_ocp_qp_memsize(dim);
+	hpipm_size_t qp_size = d_ocp_qp_memsize(dim);
 	qp_mem = malloc(qp_size);
 	if(qp_mem == NULL) printf("Error allocating memory for qp_mem. Exiting.\n\n");
 
@@ -192,7 +192,7 @@ static void mdlStart(SimStruct *S)
 * ocp qp sol
 ************************************************/
 
-	int qp_sol_size = d_ocp_qp_sol_memsize(dim);
+	hpipm_size_t qp_sol_size = d_ocp_qp_sol_memsize(dim);
 	qp_sol_mem = malloc(qp_sol_size);
 	if(qp_sol_mem == NULL) printf("Error allocating memory for qp_sol_mem. Exiting.\n\n");
 
@@ -204,7 +204,7 @@ static void mdlStart(SimStruct *S)
 * ipm arg
 ************************************************/
 
-	int ipm_arg_size = d_ocp_qp_ipm_arg_memsize(dim);
+	hpipm_size_t ipm_arg_size = d_ocp_qp_ipm_arg_memsize(dim);
 	ipm_arg_mem = malloc(ipm_arg_size);
 	if(ipm_arg_mem == NULL) printf("Error allocating memory for ipm_arg_mem. Exiting.\n\n");
 
@@ -228,7 +228,7 @@ static void mdlStart(SimStruct *S)
 * ipm workspace
 ************************************************/
 
-	int ipm_size = d_ocp_qp_ipm_ws_memsize(dim, arg);
+	hpipm_size_t ipm_size = d_ocp_qp_ipm_ws_memsize(dim, arg);
 	ipm_mem = malloc(ipm_size);
 
 	workspace = malloc(sizeof(struct d_ocp_qp_ipm_ws));

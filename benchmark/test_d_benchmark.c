@@ -50,10 +50,10 @@
 
 
 
-int d_memsize_benchmark_qp(int nv, int ne, int nc)
+hpipm_size_t d_memsize_benchmark_qp(int nv, int ne, int nc)
 	{
 
-	int size = 0;
+	hpipm_size_t size = 0;
 
 	// size of double, int
 	size += nv * nv * sizeof(double);		 // H
@@ -105,10 +105,10 @@ void d_create_benchmark_qp(int nv, int ne, int nc, struct benchmark_qp *qp, void
 
 
 
-int d_memsize_benchmark_to_hpipm(int nv, int ne, int nc)
+hpipm_size_t d_memsize_benchmark_to_hpipm(int nv, int ne, int nc)
 	{
 
-	int size = 0;
+	hpipm_size_t size = 0;
 
 	// size of double, int
 	size += nv * sizeof(int); // idxb
@@ -473,7 +473,7 @@ int main()
 		************************************************/
 
 		int nc = ng-ne; // inequality constraint
-		int benchmark_size = d_memsize_benchmark_qp(nv, ne, nc);
+		hpipm_size_t benchmark_size = d_memsize_benchmark_qp(nv, ne, nc);
 		void *benchmark_mem = calloc(benchmark_size,1);
 
 		struct benchmark_qp qp_bench;
@@ -502,7 +502,7 @@ int main()
 		* benchmark to hpipm workspace
 		************************************************/
 
-		int tran_size = d_memsize_benchmark_to_hpipm(nv, ne, nc);
+		hpipm_size_t tran_size = d_memsize_benchmark_to_hpipm(nv, ne, nc);
 		void *tran_mem = calloc(tran_size,1);
 
 		struct benchmark_to_hpipm tran_space;
@@ -514,7 +514,7 @@ int main()
 
 		// double
 
-		int qp_dim_size = d_dense_qp_dim_memsize();
+		hpipm_size_t qp_dim_size = d_dense_qp_dim_memsize();
 		void *qp_dim_mem = calloc(qp_dim_size, 1);
 
 		struct d_dense_qp_dim dim;
@@ -525,7 +525,7 @@ int main()
 
 		// single
 
-		int s_qp_dim_size = s_dense_qp_dim_memsize();
+		hpipm_size_t s_qp_dim_size = s_dense_qp_dim_memsize();
 		void *s_qp_dim_mem = calloc(s_qp_dim_size, 1);
 
 		struct s_dense_qp_dim s_dim;
@@ -539,7 +539,7 @@ int main()
 
 		// double
 
-		int qp_size = d_dense_qp_memsize(&dim);
+		hpipm_size_t qp_size = d_dense_qp_memsize(&dim);
 		void *qp_mem = calloc(qp_size, 1);
 
 		struct d_dense_qp d_qp;
@@ -551,7 +551,7 @@ int main()
 		double reg = 0e-8;
 		blasfeo_ddiare(nv, reg, d_qp.Hv, 0, 0);
 
-		int H_fact_size = blasfeo_memsize_dmat(nv, nv);
+		hpipm_size_t H_fact_size = blasfeo_memsize_dmat(nv, nv);
 		void *H_fact_mem; v_zeros_align(&H_fact_mem, H_fact_size);
 
 		struct blasfeo_dmat H_fact;
@@ -566,7 +566,7 @@ int main()
 
 		// single
 
-		int s_qp_size = s_dense_qp_memsize(&s_dim);
+		hpipm_size_t s_qp_size = s_dense_qp_memsize(&s_dim);
 		void *s_qp_mem = calloc(s_qp_size, 1);
 
 		struct s_dense_qp s_qpd_hpipm;
@@ -580,7 +580,7 @@ int main()
 
 		// double
 
-		int qp_sol_size = d_dense_qp_sol_memsize(&dim);
+		hpipm_size_t qp_sol_size = d_dense_qp_sol_memsize(&dim);
 		void *qp_sol_mem = calloc(qp_sol_size,1);
 
 		struct d_dense_qp_sol qpd_sol;
@@ -588,7 +588,7 @@ int main()
 
 		// single
 
-		int s_qp_sol_size = s_dense_qp_sol_memsize(&s_dim);
+		hpipm_size_t s_qp_sol_size = s_dense_qp_sol_memsize(&s_dim);
 		void *s_qp_sol_mem = calloc(s_qp_sol_size,1);
 
 		struct s_dense_qp_sol s_qpd_sol;
@@ -605,7 +605,7 @@ int main()
 
 		// double
 
-		int ipm_arg_size = d_dense_qp_ipm_arg_memsize(&dim);
+		hpipm_size_t ipm_arg_size = d_dense_qp_ipm_arg_memsize(&dim);
 		void *ipm_arg_mem = calloc(ipm_arg_size,1);
 
 		struct d_dense_qp_ipm_arg d_arg;
@@ -655,7 +655,7 @@ int main()
 
 		// single
 
-		int s_ipm_arg_size = s_dense_qp_ipm_arg_memsize(&s_dim);
+		hpipm_size_t s_ipm_arg_size = s_dense_qp_ipm_arg_memsize(&s_dim);
 		void *s_ipm_arg_mem = calloc(s_ipm_arg_size,1);
 
 		struct s_dense_qp_ipm_arg s_argd;
@@ -689,7 +689,7 @@ int main()
 
 		// double
 
-		int ipm_size = d_dense_qp_ipm_ws_memsize(&dim, &d_arg);
+		hpipm_size_t ipm_size = d_dense_qp_ipm_ws_memsize(&dim, &d_arg);
 
 		void *ipm_mem = calloc(ipm_size,1);
 		struct d_dense_qp_ipm_ws d_ws;
@@ -728,7 +728,7 @@ int main()
 
 		// single
 
-		int s_ipm_size = s_dense_qp_ipm_ws_memsize(&s_dim, &s_argd);
+		hpipm_size_t s_ipm_size = s_dense_qp_ipm_ws_memsize(&s_dim, &s_argd);
 
 		void *s_ipm_mem = calloc(s_ipm_size,1);
 		struct s_dense_qp_ipm_ws s_workspace;

@@ -56,7 +56,7 @@ struct s_part_cond_qcqp_arg
 	{
 	struct s_cond_qcqp_arg *cond_arg;
 	int N2;
-	int memsize;
+    hpipm_size_t memsize;
 	};
 
 
@@ -64,13 +64,13 @@ struct s_part_cond_qcqp_arg
 struct s_part_cond_qcqp_ws
 	{
 	struct s_cond_qcqp_ws *cond_ws;
-	int memsize;
+    hpipm_size_t memsize;
 	};
 
 
 
 //
-int s_part_cond_qcqp_arg_memsize(int N2);
+hpipm_size_t s_part_cond_qcqp_arg_memsize(int N2);
 //
 void s_part_cond_qcqp_arg_create(int N2, struct s_part_cond_qcqp_arg *cond_arg, void *mem);
 //
@@ -83,7 +83,7 @@ void s_part_cond_qcqp_compute_block_size(int N, int N2, int *block_size);
 //
 void s_part_cond_qcqp_compute_dim(struct s_ocp_qcqp_dim *ocp_dim, int *block_size, struct s_ocp_qcqp_dim *part_dense_dim);
 //
-int s_part_cond_qcqp_ws_memsize(struct s_ocp_qcqp_dim *ocp_dim, int *block_size, struct s_ocp_qcqp_dim *part_dense_dim, struct s_part_cond_qcqp_arg *cond_arg);
+hpipm_size_t s_part_cond_qcqp_ws_memsize(struct s_ocp_qcqp_dim *ocp_dim, int *block_size, struct s_ocp_qcqp_dim *part_dense_dim, struct s_part_cond_qcqp_arg *cond_arg);
 //
 void s_part_cond_qcqp_ws_create(struct s_ocp_qcqp_dim *ocp_dim, int *block_size, struct s_ocp_qcqp_dim *part_dense_dim, struct s_part_cond_qcqp_arg *cond_arg, struct s_part_cond_qcqp_ws *cond_ws, void *mem);
 //

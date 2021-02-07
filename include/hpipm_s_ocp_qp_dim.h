@@ -36,7 +36,7 @@
 #ifndef HPIPM_S_OCP_QP_DIM_H_
 #define HPIPM_S_OCP_QP_DIM_H_
 
-
+#include "hpipm_common.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -60,15 +60,15 @@ struct s_ocp_qp_dim
 	int *nbue; // number of input box constraints which are equality
 	int *nge; // number of general constraints which are equality
 	int N; // horizon length
-	int memsize;
+    hpipm_size_t memsize;
 	};
 
 
 
 //
-int s_ocp_qp_dim_strsize();
+hpipm_size_t s_ocp_qp_dim_strsize();
 //
-int s_ocp_qp_dim_memsize(int N);
+hpipm_size_t s_ocp_qp_dim_memsize(int N);
 //
 void s_ocp_qp_dim_create(int N, struct s_ocp_qp_dim *qp_dim, void *memory);
 //

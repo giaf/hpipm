@@ -37,6 +37,8 @@
 #ifndef HPIPM_TREE_H_
 #define HPIPM_TREE_H_
 
+#include "hpipm_common.h"
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -62,7 +64,7 @@ struct tree
 	struct node *root; // pointer to root
 	int *kids; // pointer to array of kids
 	int Nn; // numer of nodes
-	int memsize;
+    hpipm_size_t memsize;
 	};
 
 

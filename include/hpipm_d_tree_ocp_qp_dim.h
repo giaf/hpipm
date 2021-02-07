@@ -36,7 +36,7 @@
 #ifndef HPIPM_D_TREE_OCP_QP_DIM_H_
 #define HPIPM_D_TREE_OCP_QP_DIM_H_
 
-
+#include "hpipm_common.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -58,15 +58,15 @@ struct d_tree_ocp_qp_dim
 	int *nsbu; // number of soft input box constraints
 	int *nsg; // number of soft general constraints
 	int Nn; // number of nodes
-	int memsize;
+    hpipm_size_t memsize;
 	};
 
 
 
 //
-int d_tree_ocp_qp_dim_strsize();
+hpipm_size_t d_tree_ocp_qp_dim_strsize();
 //
-int d_tree_ocp_qp_dim_memsize(int Nn);
+hpipm_size_t d_tree_ocp_qp_dim_memsize(int Nn);
 //
 void d_tree_ocp_qp_dim_create(int Nn, struct d_tree_ocp_qp_dim *qp_dim, void *memory);
 //

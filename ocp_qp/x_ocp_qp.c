@@ -35,14 +35,14 @@
 
 
 
-int OCP_QP_STRSIZE()
+hpipm_size_t OCP_QP_STRSIZE()
 	{
 	return sizeof(struct OCP_QP);
 	}
 
 
 
-int OCP_QP_MEMSIZE(struct OCP_QP_DIM *dim)
+hpipm_size_t OCP_QP_MEMSIZE(struct OCP_QP_DIM *dim)
 	{
 
 	// extract dim
@@ -72,7 +72,7 @@ int OCP_QP_MEMSIZE(struct OCP_QP_DIM *dim)
 	nvt += nx[ii]+nu[ii]+2*ns[ii];
 	nct += 2*nb[ii]+2*ng[ii]+2*ns[ii];
 
-	int size = 0;
+	hpipm_size_t size = 0;
 
 	size += 5*(N+1)*sizeof(int); // nx nu nb ng ns
 	size += 3*(N+1)*sizeof(int *); // idxb idxs_rev idxe
@@ -121,7 +121,7 @@ void OCP_QP_CREATE(struct OCP_QP_DIM *dim, struct OCP_QP *qp, void *mem)
 	int ii, jj;
 
 	// zero memory (to avoid corrupted memory like e.g. NaN)
-	int memsize = OCP_QP_MEMSIZE(dim);
+	hpipm_size_t memsize = OCP_QP_MEMSIZE(dim);
 	hpipm_zero_memset(memsize, mem);
 
 	qp->memsize = memsize;

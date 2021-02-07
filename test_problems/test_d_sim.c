@@ -199,14 +199,14 @@ struct d_linear_system
 	double *Bc;
 	int nx;
 	int nu;
-	int memsize;
+	hpipm_size_t memsize;
 	};
 
 
 
-int d_linear_system_memsize(int nx, int nu)
+hpipm_size_t d_linear_system_memsize(int nx, int nu)
 	{
-	int size = 0;
+	hpipm_size_t size = 0;
 	size += (nx*nx+nx*nu)*sizeof(double);
 	return size;
 	}
@@ -388,7 +388,7 @@ int main()
 	d_print_mat(nx, nx, Ac, nx);
 	d_print_mat(nx, nu, Bc, nx);
 
-	int ls_memsize = d_linear_system_memsize(nx, nu);
+	hpipm_size_t ls_memsize = d_linear_system_memsize(nx, nu);
 	printf("\nls memsize = %d\n", ls_memsize);
 	void *ls_memory = malloc(ls_memsize);
 
@@ -491,7 +491,7 @@ int main()
 #endif
 //	printf("\n%d %s\n", ns, rk_method);
 
-	int size_rk_data = d_sim_rk_data_memsize(ns);
+	hpipm_size_t size_rk_data = d_sim_rk_data_memsize(ns);
 	printf("\nmemsize rk data %d\n", size_rk_data);
 	void *mem_rk_data = malloc(size_rk_data);
 
@@ -503,7 +503,7 @@ int main()
 //	d_print_mat(ns, ns, rk_data.A_rk, ns);
 
 	
-	int size_erk_arg = d_sim_erk_arg_memsize();
+	hpipm_size_t size_erk_arg = d_sim_erk_arg_memsize();
 	printf("\nmemsize erk arg %d\n", size_erk_arg);
 	void *mem_erk_arg = malloc(size_erk_arg);
 
@@ -515,7 +515,7 @@ int main()
 
 	int nf_max = nu+nx;
 	int na_max = 0;
-	int size_erk_ws = d_sim_erk_ws_memsize(&erk_arg, nx, nu, nf_max, na_max);
+	hpipm_size_t size_erk_ws = d_sim_erk_ws_memsize(&erk_arg, nx, nu, nf_max, na_max);
 	printf("\nmemsize erk ws %d\n", size_erk_ws);
 	void *mem_erk_ws = malloc(size_erk_ws);
 
@@ -580,7 +580,7 @@ int main()
 	int nf = nx+nu;
 	int np = nu;
 
-	int memsize_erk_int = d_memsize_erk_int(&rk_data, nx, nf, np);
+	hpipm_size_t memsize_erk_int = d_memsize_erk_int(&rk_data, nx, nf, np);
 	printf("\nmemsize erk int %d\n", memsize_erk_int);
 	void *memory_erk = malloc(memsize_erk_int);
 
@@ -644,7 +644,7 @@ int main()
 * implicit integrator
 ************************************************/	
 	
-	int memsize_irk_int = d_memsize_irk_int(&rk_data, nx, nf, np);
+	hpipm_size_t memsize_irk_int = d_memsize_irk_int(&rk_data, nx, nf, np);
 	printf("\nmemsize irk int %d\n", memsize_irk_int);
 	void *memory_irk = malloc(memsize_irk_int);
 

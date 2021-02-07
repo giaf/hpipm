@@ -47,7 +47,7 @@ struct s_sim_erk_arg
 	int steps; // number of steps
 //	int for_sens; // compute adjoint sensitivities
 //	int adj_sens; // compute adjoint sensitivities
-	int memsize;
+    hpipm_size_t memsize;
 	};
 
 
@@ -73,20 +73,20 @@ struct s_sim_erk_ws
 	int na; // number of adjoint sensitivities
 	int nf_max; // max number of forward sensitivities
 	int na_max; // max number of adjoint sensitivities
-	int memsize;
+    hpipm_size_t memsize;
 	};
 
 
 
 //
-int s_sim_erk_arg_memsize();
+hpipm_size_t s_sim_erk_arg_memsize();
 //
 void s_sim_erk_arg_create(struct s_sim_erk_arg *erk_arg, void *mem);
 //
 void s_sim_erk_arg_set_all(struct s_sim_rk_data *rk_data, float h, int steps, struct s_sim_erk_arg *erk_arg);
 
 //
-int s_sim_erk_ws_memsize(struct s_sim_erk_arg *erk_arg, int nx, int np, int nf_max, int na_max);
+hpipm_size_t s_sim_erk_ws_memsize(struct s_sim_erk_arg *erk_arg, int nx, int np, int nf_max, int na_max);
 //
 void s_sim_erk_ws_create(struct s_sim_erk_arg *erk_arg, int nx, int np, int nf_max, int na_max, struct s_sim_erk_ws *work, void *memory);
 //

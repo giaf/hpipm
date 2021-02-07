@@ -36,7 +36,7 @@
 #ifndef HPIPM_S_DENSE_QP_DIM_H_
 #define HPIPM_S_DENSE_QP_DIM_H_
 
-
+#include "hpipm_common.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -53,13 +53,13 @@ struct s_dense_qp_dim
 	int nsb; // number of softened box constraints
 	int nsg; // number of softened general constraints
 	int ns;  // number of softened constraints (nsb+nsg)
-	int memsize;
+    hpipm_size_t memsize;
 	};
 
 
 
 //
-int s_dense_qp_dim_memsize();
+hpipm_size_t s_dense_qp_dim_memsize();
 //
 void s_dense_qp_dim_create(struct s_dense_qp_dim *qp_dim, void *memory);
 //

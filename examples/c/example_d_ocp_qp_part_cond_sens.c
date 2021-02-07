@@ -114,7 +114,7 @@ int main()
 * ocp qp dim
 ************************************************/
 
-	int dim_size = d_ocp_qp_dim_memsize(N);
+	hpipm_size_t dim_size = d_ocp_qp_dim_memsize(N);
 	void *dim_mem = malloc(dim_size);
 
 	struct d_ocp_qp_dim dim;
@@ -129,7 +129,7 @@ int main()
 	// horizon length of partially condensed OCP QP
 	int N2 = 2;
 
-	int dim_size2 = d_ocp_qp_dim_memsize(N2);
+	hpipm_size_t dim_size2 = d_ocp_qp_dim_memsize(N2);
 	void *dim_mem2 = malloc(dim_size2);
 
 	struct d_ocp_qp_dim dim2;
@@ -148,7 +148,7 @@ int main()
 * ocp qp
 ************************************************/
 
-	int qp_size = d_ocp_qp_memsize(&dim);
+	hpipm_size_t qp_size = d_ocp_qp_memsize(&dim);
 	void *qp_mem = malloc(qp_size);
 
 	struct d_ocp_qp qp;
@@ -160,7 +160,7 @@ int main()
 * ocp qp part cond
 ************************************************/
 
-	int qp_size2 = d_ocp_qp_memsize(&dim2);
+	hpipm_size_t qp_size2 = d_ocp_qp_memsize(&dim2);
 	void *qp_mem2 = malloc(qp_size2);
 
 	struct d_ocp_qp qp2;
@@ -170,7 +170,7 @@ int main()
 * ocp qp sol
 ************************************************/
 
-	int qp_sol_size = d_ocp_qp_sol_memsize(&dim);
+	hpipm_size_t qp_sol_size = d_ocp_qp_sol_memsize(&dim);
 	void *qp_sol_mem = malloc(qp_sol_size);
 
 	struct d_ocp_qp_sol qp_sol;
@@ -180,7 +180,7 @@ int main()
 * ocp qp sol part cond
 ************************************************/
 
-	int qp_sol_size2 = d_ocp_qp_sol_memsize(&dim2);
+	hpipm_size_t qp_sol_size2 = d_ocp_qp_sol_memsize(&dim2);
 	void *qp_sol_mem2 = malloc(qp_sol_size2);
 
 	struct d_ocp_qp_sol qp_sol2;
@@ -190,7 +190,7 @@ int main()
 * part cond arg
 ************************************************/
 
-	int part_cond_arg_size = d_part_cond_qp_arg_memsize(dim2.N);
+	hpipm_size_t part_cond_arg_size = d_part_cond_qp_arg_memsize(dim2.N);
 	void *part_cond_arg_mem = malloc(part_cond_arg_size);
 
 	struct d_part_cond_qp_arg part_cond_arg;
@@ -205,7 +205,7 @@ int main()
 * ipm arg
 ************************************************/
 
-	int ipm_arg_size = d_ocp_qp_ipm_arg_memsize(&dim);
+	hpipm_size_t ipm_arg_size = d_ocp_qp_ipm_arg_memsize(&dim);
 	void *ipm_arg_mem = malloc(ipm_arg_size);
 
 	struct d_ocp_qp_ipm_arg arg;
@@ -227,7 +227,7 @@ int main()
 * part cond workspace
 ************************************************/
 
-	int part_cond_size = d_part_cond_qp_ws_memsize(&dim, block_size, &dim2, &part_cond_arg);
+	hpipm_size_t part_cond_size = d_part_cond_qp_ws_memsize(&dim, block_size, &dim2, &part_cond_arg);
 	void *part_cond_mem = malloc(part_cond_size);
 
 	struct d_part_cond_qp_ws part_cond_ws;
@@ -237,7 +237,7 @@ int main()
 * ipm workspace
 ************************************************/
 
-	int ipm_size = d_ocp_qp_ipm_ws_memsize(&dim2, &arg);
+	hpipm_size_t ipm_size = d_ocp_qp_ipm_ws_memsize(&dim2, &arg);
 	void *ipm_mem = malloc(ipm_size);
 
 	struct d_ocp_qp_ipm_ws workspace;
@@ -391,12 +391,12 @@ int main()
 * residuals of original QP
 ************************************************/
 	
-	int res_size = d_ocp_qp_res_memsize(&dim);
+	hpipm_size_t res_size = d_ocp_qp_res_memsize(&dim);
 	void *res_mem = malloc(res_size);
 	struct d_ocp_qp_res res;
 	d_ocp_qp_res_create(&dim, &res, res_mem);
 
-	int res_ws_size = d_ocp_qp_res_ws_memsize(&dim);
+	hpipm_size_t res_ws_size = d_ocp_qp_res_ws_memsize(&dim);
 	void *res_ws_mem = malloc(res_ws_size);
 	struct d_ocp_qp_res_ws res_ws;
 	d_ocp_qp_res_ws_create(&dim, &res_ws, res_ws_mem);

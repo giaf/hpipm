@@ -53,7 +53,7 @@ struct d_elim_x0_workspace
 	struct blasfeo_dvec *b0;
 	struct blasfeo_dvec *ux0;
 	int nx0;
-	int memsize;
+	hpipm_size_t memsize;
 	};
 
 
@@ -65,7 +65,7 @@ void MEMSIZE_ELIM_X0(struct OCP_QP *qp)
 	int *nx = qp->nx;
 	int *nu = qp->nu;
 
-	int size = 0;
+	hpipm_size_t size = 0;
 
 	size += 1*sizeof(struct STRMAT); // BAbt0_i
 	size += 2*sizeof(struct STRVEC); // b0 x0

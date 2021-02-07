@@ -66,13 +66,13 @@ struct s_tree_ocp_qp
 	int **idxb; // index of box constraints // Nn
 //	int **idxs; // index of soft constraints
 	int **idxs_rev; // index of soft constraints
-	int memsize; // memory size in bytes
+    hpipm_size_t memsize; // memory size in bytes
 	};
 
 
 
 //
-int s_tree_ocp_qp_memsize(struct s_tree_ocp_qp_dim *dim);
+hpipm_size_t s_tree_ocp_qp_memsize(struct s_tree_ocp_qp_dim *dim);
 //
 void s_tree_ocp_qp_create(struct s_tree_ocp_qp_dim *dim, struct s_tree_ocp_qp *qp, void *memory);
 //

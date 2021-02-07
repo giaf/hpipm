@@ -35,7 +35,7 @@
 
 
 
-int DENSE_QCQP_RES_MEMSIZE(struct DENSE_QCQP_DIM *dim)
+hpipm_size_t DENSE_QCQP_RES_MEMSIZE(struct DENSE_QCQP_DIM *dim)
 	{
 
 	// loop index
@@ -49,7 +49,7 @@ int DENSE_QCQP_RES_MEMSIZE(struct DENSE_QCQP_DIM *dim)
 	int nq = dim->nq;
 	int ns = dim->ns;
 
-	int size = 0;
+	hpipm_size_t size = 0;
 
 	size += 4*sizeof(struct STRVEC); // res_g res_b res_d res_m
 
@@ -73,7 +73,7 @@ void DENSE_QCQP_RES_CREATE(struct DENSE_QCQP_DIM *dim, struct DENSE_QCQP_RES *re
 	int ii;
 
 	// zero memory (to avoid corrupted memory like e.g. NaN)
-	int memsize = DENSE_QCQP_RES_MEMSIZE(dim);
+	hpipm_size_t memsize = DENSE_QCQP_RES_MEMSIZE(dim);
 	hpipm_zero_memset(memsize, mem);
 
 	// extract ocp qp size
@@ -138,7 +138,7 @@ void DENSE_QCQP_RES_CREATE(struct DENSE_QCQP_DIM *dim, struct DENSE_QCQP_RES *re
 
 
 
-int DENSE_QCQP_RES_WS_MEMSIZE(struct DENSE_QCQP_DIM *dim)
+hpipm_size_t DENSE_QCQP_RES_WS_MEMSIZE(struct DENSE_QCQP_DIM *dim)
 	{
 
 	// loop index
@@ -152,7 +152,7 @@ int DENSE_QCQP_RES_WS_MEMSIZE(struct DENSE_QCQP_DIM *dim)
 	int nq = dim->nq;
 	int ns = dim->ns;
 
-	int size = 0;
+	hpipm_size_t size = 0;
 
 	size += 7*sizeof(struct STRVEC); // 2*tmp_nv 2*tmp_nbgq tmp_ns q_fun q_adj
 
@@ -177,7 +177,7 @@ void DENSE_QCQP_RES_WS_CREATE(struct DENSE_QCQP_DIM *dim, struct DENSE_QCQP_RES_
 	int ii;
 
 	// zero memory (to avoid corrupted memory like e.g. NaN)
-	int memsize = DENSE_QCQP_RES_WS_MEMSIZE(dim);
+	hpipm_size_t memsize = DENSE_QCQP_RES_WS_MEMSIZE(dim);
 	hpipm_zero_memset(memsize, mem);
 
 	// extract ocp qp size

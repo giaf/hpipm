@@ -35,7 +35,7 @@
 
 
 
-int DENSE_QCQP_MEMSIZE(struct DENSE_QCQP_DIM *dim)
+hpipm_size_t DENSE_QCQP_MEMSIZE(struct DENSE_QCQP_DIM *dim)
 	{
 
 	int nv = dim->nv;
@@ -45,7 +45,7 @@ int DENSE_QCQP_MEMSIZE(struct DENSE_QCQP_DIM *dim)
 	int nq = dim->nq;
 	int ns = dim->ns;
 
-	int size = 0;
+	hpipm_size_t size = 0;
 
 	size += 6*sizeof(struct STRVEC); // gz b d m Z d_mask
 	size += (nq+3)*sizeof(struct STRMAT); // Hv A Ct Hq
@@ -78,7 +78,7 @@ void DENSE_QCQP_CREATE(struct DENSE_QCQP_DIM *dim, struct DENSE_QCQP *qp, void *
 	int ii;
 
 	// zero memory (to avoid corrupted memory like e.g. NaN)
-	int memsize = DENSE_QCQP_MEMSIZE(dim);
+	hpipm_size_t memsize = DENSE_QCQP_MEMSIZE(dim);
 	hpipm_zero_memset(memsize, mem);
 
 	// extract dim

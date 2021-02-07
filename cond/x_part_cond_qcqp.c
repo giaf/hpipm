@@ -189,12 +189,12 @@ void PART_COND_QCQP_COMPUTE_DIM(struct OCP_QCQP_DIM *ocp_dim, int *block_size, s
 
 
 
-int PART_COND_QCQP_ARG_MEMSIZE(int N2)
+hpipm_size_t PART_COND_QCQP_ARG_MEMSIZE(int N2)
 	{
 
 	int ii;
 
-	int size = 0;
+	hpipm_size_t size = 0;
 
 	size += (N2+1)*sizeof(struct COND_QCQP_ARG);
 
@@ -297,7 +297,7 @@ void PART_COND_QCQP_ARG_SET_RIC_ALG(int ric_alg, struct PART_COND_QCQP_ARG *part
 
 
 
-int PART_COND_QCQP_WS_MEMSIZE(struct OCP_QCQP_DIM *ocp_dim, int *block_size, struct OCP_QCQP_DIM *part_dense_dim, struct PART_COND_QCQP_ARG *part_cond_arg)
+hpipm_size_t PART_COND_QCQP_WS_MEMSIZE(struct OCP_QCQP_DIM *ocp_dim, int *block_size, struct OCP_QCQP_DIM *part_dense_dim, struct PART_COND_QCQP_ARG *part_cond_arg)
 	{
 
 	struct OCP_QCQP_DIM tmp_ocp_qcqp_dim;
@@ -308,7 +308,7 @@ int PART_COND_QCQP_WS_MEMSIZE(struct OCP_QCQP_DIM *ocp_dim, int *block_size, str
 	int N = ocp_dim->N;
 	int N2 = part_dense_dim->N;
 
-	int size = 0;
+	hpipm_size_t size = 0;
 
 	size += (N2+1)*sizeof(struct COND_QCQP_ARG_WS);
 

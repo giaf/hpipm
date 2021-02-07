@@ -88,7 +88,7 @@ struct d_dense_qp_ipm_arg
 	int split_step; // use different steps for primal and dual variables
 	int t_lam_min; // clip t and lam: 0 no, 1 in Gamma computation, 2 in solution
 	int mode;
-	int memsize;
+    hpipm_size_t memsize;
 	};
 
 
@@ -154,13 +154,13 @@ struct d_dense_qp_ipm_ws
 	int mask_constr; // use constr mask
 	int ne_li; // number of linearly independent equality constraints
 	int ne_bkp; // ne backup
-	int memsize; // memory size (in bytes) of workspace
+    hpipm_size_t memsize; // memory size (in bytes) of workspace
 	};
 
 
 
 //
-int d_dense_qp_ipm_arg_memsize(struct d_dense_qp_dim *dim);
+hpipm_size_t d_dense_qp_ipm_arg_memsize(struct d_dense_qp_dim *dim);
 //
 void d_dense_qp_ipm_arg_create(struct d_dense_qp_dim *dim, struct d_dense_qp_ipm_arg *arg, void *mem);
 //
@@ -214,7 +214,7 @@ void d_dense_qp_ipm_arg_set_t_lam_min(int *value, struct d_dense_qp_ipm_arg *arg
 void d_dense_qp_ipm_arg_set_split_step(int *value, struct d_dense_qp_ipm_arg *arg);
 
 //
-int d_dense_qp_ipm_ws_memsize(struct d_dense_qp_dim *qp_dim, struct d_dense_qp_ipm_arg *arg);
+hpipm_size_t d_dense_qp_ipm_ws_memsize(struct d_dense_qp_dim *qp_dim, struct d_dense_qp_ipm_arg *arg);
 //
 void d_dense_qp_ipm_ws_create(struct d_dense_qp_dim *qp_dim, struct d_dense_qp_ipm_arg *arg, struct d_dense_qp_ipm_ws *ws, void *mem);
 //

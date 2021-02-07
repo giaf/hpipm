@@ -35,17 +35,17 @@
 
 
 
-int OCP_QCQP_IPM_ARG_STRSIZE()
+hpipm_size_t OCP_QCQP_IPM_ARG_STRSIZE()
 	{
 	return sizeof(struct OCP_QCQP_IPM_ARG);
 	}
 
 
 
-int OCP_QCQP_IPM_ARG_MEMSIZE(struct OCP_QCQP_DIM *dim)
+hpipm_size_t OCP_QCQP_IPM_ARG_MEMSIZE(struct OCP_QCQP_DIM *dim)
 	{
 
-	int size = 0;
+	hpipm_size_t size = 0;
 
 	size += 1*sizeof(struct OCP_QP_IPM_ARG);
 	size += 1*OCP_QP_IPM_ARG_MEMSIZE(dim->qp_dim);
@@ -67,7 +67,7 @@ void OCP_QCQP_IPM_ARG_CREATE(struct OCP_QCQP_DIM *dim, struct OCP_QCQP_IPM_ARG *
 	int ii;
 
 	// zero memory (to avoid corrupted memory like e.g. NaN)
-	int memsize = OCP_QCQP_IPM_ARG_MEMSIZE(dim);
+	hpipm_size_t memsize = OCP_QCQP_IPM_ARG_MEMSIZE(dim);
 	hpipm_zero_memset(memsize, mem);
 
 	// qp_dim struct
@@ -505,14 +505,14 @@ void OCP_QCQP_IPM_ARG_SET_T_LAM_MIN(int *value, struct OCP_QCQP_IPM_ARG *arg)
 
 
 
-int OCP_QCQP_IPM_WS_STRSIZE()
+hpipm_size_t OCP_QCQP_IPM_WS_STRSIZE()
 	{
 	return sizeof(struct OCP_QCQP_IPM_WS);
 	}
 
 
 
-int OCP_QCQP_IPM_WS_MEMSIZE(struct OCP_QCQP_DIM *dim, struct OCP_QCQP_IPM_ARG *arg)
+hpipm_size_t OCP_QCQP_IPM_WS_MEMSIZE(struct OCP_QCQP_DIM *dim, struct OCP_QCQP_IPM_ARG *arg)
 	{
 
 	int N = dim->N;
@@ -529,7 +529,7 @@ int OCP_QCQP_IPM_WS_MEMSIZE(struct OCP_QCQP_DIM *dim, struct OCP_QCQP_IPM_ARG *a
 		nxM = nx[ii]>nxM ? nx[ii] : nxM;
 		}
 
-	int size = 0;
+	hpipm_size_t size = 0;
 
 	size += 1*sizeof(struct OCP_QP_IPM_WS);
 	size += 1*OCP_QP_IPM_WS_MEMSIZE(dim->qp_dim, arg->qp_arg);
@@ -565,7 +565,7 @@ void OCP_QCQP_IPM_WS_CREATE(struct OCP_QCQP_DIM *dim, struct OCP_QCQP_IPM_ARG *a
 	int ii;
 
 	// zero memory (to avoid corrupted memory like e.g. NaN)
-	int memsize = OCP_QCQP_IPM_WS_MEMSIZE(dim, arg);
+	hpipm_size_t memsize = OCP_QCQP_IPM_WS_MEMSIZE(dim, arg);
 	hpipm_zero_memset(memsize, mem);
 
 	int N = dim->N;

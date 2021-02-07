@@ -35,14 +35,14 @@
 
 
 
-int TREE_OCP_QCQP_STRSIZE()
+hpipm_size_t TREE_OCP_QCQP_STRSIZE()
 	{
 	return sizeof(struct TREE_OCP_QCQP);
 	}
 
 
 
-int TREE_OCP_QCQP_MEMSIZE(struct TREE_OCP_QCQP_DIM *dim)
+hpipm_size_t TREE_OCP_QCQP_MEMSIZE(struct TREE_OCP_QCQP_DIM *dim)
 	{
 
 	// extract dim
@@ -74,7 +74,7 @@ int TREE_OCP_QCQP_MEMSIZE(struct TREE_OCP_QCQP_DIM *dim)
 		net += nx[idx];
 		}
 
-	int size = 0;
+	hpipm_size_t size = 0;
 
 	size += Nn*sizeof(struct STRMAT *); // Hq
 
@@ -118,7 +118,7 @@ void TREE_OCP_QCQP_CREATE(struct TREE_OCP_QCQP_DIM *dim, struct TREE_OCP_QCQP *q
 	{
 
 	// zero memory (to avoid corrupted memory like e.g. NaN)
-	int memsize = TREE_OCP_QCQP_MEMSIZE(dim);
+	hpipm_size_t memsize = TREE_OCP_QCQP_MEMSIZE(dim);
 	hpipm_zero_memset(memsize, mem);
 
 	// extract dim

@@ -62,7 +62,7 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
 
 	/* dim */
 
-	int dim_size = sizeof(struct d_ocp_qp_dim) + d_ocp_qp_dim_memsize(N);
+	hpipm_size_t dim_size = sizeof(struct d_ocp_qp_dim) + d_ocp_qp_dim_memsize(N);
 	void *dim_mem = malloc(dim_size);
 
 	c_ptr = dim_mem;

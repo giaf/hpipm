@@ -83,7 +83,7 @@ struct s_tree_ocp_qcqp_ipm_arg
 	int split_step; // use different step for primal and dual variables
 	int t_lam_min; // clip t and lam: 0 no, 1 in Gamma computation, 2 in solution
 	int mode;
-	int memsize;
+    hpipm_size_t memsize;
 	};
 
 
@@ -98,15 +98,15 @@ struct s_tree_ocp_qcqp_ipm_ws
 	struct blasfeo_svec *tmp_nuxM;
 	int iter; // iteration number
 	int status;
-	int memsize;
+    hpipm_size_t memsize;
 	};
 
 
 
 //
-int s_tree_ocp_qcqp_ipm_arg_strseize();
+hpipm_size_t s_tree_ocp_qcqp_ipm_arg_strsize();
 //
-int s_tree_ocp_qcqp_ipm_arg_memsize(struct s_tree_ocp_qcqp_dim *ocp_dim);
+hpipm_size_t s_tree_ocp_qcqp_ipm_arg_memsize(struct s_tree_ocp_qcqp_dim *ocp_dim);
 //
 void s_tree_ocp_qcqp_ipm_arg_create(struct s_tree_ocp_qcqp_dim *ocp_dim, struct s_tree_ocp_qcqp_ipm_arg *arg, void *mem);
 //
@@ -151,9 +151,9 @@ void s_tree_ocp_qcqp_ipm_arg_set_split_step(int *value, struct s_tree_ocp_qcqp_i
 void s_tree_ocp_qcqp_ipm_arg_set_t_lam_min(int *value, struct s_tree_ocp_qcqp_ipm_arg *arg);
 
 //
-int s_tree_ocp_qcqp_ipm_ws_strsize();
+hpipm_size_t s_tree_ocp_qcqp_ipm_ws_strsize();
 //
-int s_tree_ocp_qcqp_ipm_ws_memsize(struct s_tree_ocp_qcqp_dim *ocp_dim, struct s_tree_ocp_qcqp_ipm_arg *arg);
+hpipm_size_t s_tree_ocp_qcqp_ipm_ws_memsize(struct s_tree_ocp_qcqp_dim *ocp_dim, struct s_tree_ocp_qcqp_ipm_arg *arg);
 //
 void s_tree_ocp_qcqp_ipm_ws_create(struct s_tree_ocp_qcqp_dim *ocp_dim, struct s_tree_ocp_qcqp_ipm_arg *arg, struct s_tree_ocp_qcqp_ipm_ws *ws, void *mem);
 //

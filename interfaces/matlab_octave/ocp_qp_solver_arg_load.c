@@ -69,7 +69,7 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
 
 	/* arg */
 
-	int arg_size = sizeof(struct d_ocp_qp_ipm_arg) + d_ocp_qp_ipm_arg_memsize(dim);
+	hpipm_size_t arg_size = sizeof(struct d_ocp_qp_ipm_arg) + d_ocp_qp_ipm_arg_memsize(dim);
 	void *arg_mem = malloc(arg_size);
 
 	c_ptr = arg_mem;

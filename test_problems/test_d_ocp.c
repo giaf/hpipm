@@ -787,7 +787,7 @@ int main()
 * ocp qp dim
 ************************************************/
 
-	int dim_size = d_ocp_qp_dim_memsize(N);
+	hpipm_size_t dim_size = d_ocp_qp_dim_memsize(N);
 #if PRINT
 	printf("\ndim size = %d\n", dim_size);
 #endif
@@ -808,7 +808,7 @@ int main()
 * ocp qp
 ************************************************/
 
-	int qp_size = d_ocp_qp_memsize(&dim);
+	hpipm_size_t qp_size = d_ocp_qp_memsize(&dim);
 #if PRINT
 	printf("\nqp size = %d\n", qp_size);
 #endif
@@ -875,7 +875,7 @@ int main()
 
 #else // keep x0
 
-	int dim_size2 = d_ocp_qp_dim_memsize(N);
+	hpipm_size_t dim_size2 = d_ocp_qp_dim_memsize(N);
 #if PRINT
 	printf("\ndim size = %d\n", dim_size2);
 #endif
@@ -891,7 +891,7 @@ int main()
 #endif
 
 
-	int qp_size2 = d_ocp_qp_memsize(&dim2);
+	hpipm_size_t qp_size2 = d_ocp_qp_memsize(&dim2);
 #if PRINT
 	printf("\nqp size = %d\n", qp_size2);
 #endif
@@ -903,7 +903,7 @@ int main()
 //	d_ocp_qp_print(qp2.dim, &qp2);
 
 
-	int qp_red_arg_size = d_ocp_qp_reduce_eq_dof_arg_memsize();
+	hpipm_size_t qp_red_arg_size = d_ocp_qp_reduce_eq_dof_arg_memsize();
 #if PRINT
 	printf("\nqp red arg size = %d\n", qp_red_arg_size);
 #endif
@@ -918,7 +918,7 @@ int main()
 	d_ocp_qp_reduce_eq_dof_arg_set_comp_dual_sol_ineq(&qp_red_arg, 1);
 
 
-	int qp_red_work_size = d_ocp_qp_reduce_eq_dof_ws_memsize(&dim);
+	hpipm_size_t qp_red_work_size = d_ocp_qp_reduce_eq_dof_ws_memsize(&dim);
 #if PRINT
 	printf("\nqp red work size = %d\n", qp_red_work_size);
 #endif
@@ -947,7 +947,7 @@ int main()
 * ocp qp sol
 ************************************************/
 
-	int qp_sol_size = d_ocp_qp_sol_memsize(&dim);
+	hpipm_size_t qp_sol_size = d_ocp_qp_sol_memsize(&dim);
 #if PRINT
 	printf("\nqp sol size = %d\n", qp_sol_size);
 #endif
@@ -962,7 +962,7 @@ int main()
 
 #else // keep x0
 
-	int qp_sol_size2 = d_ocp_qp_sol_memsize(&dim2);
+	hpipm_size_t qp_sol_size2 = d_ocp_qp_sol_memsize(&dim2);
 #if PRINT
 	printf("\nqp sol size = %d\n", qp_sol_size2);
 #endif
@@ -977,7 +977,7 @@ int main()
 * ipm arg
 ************************************************/
 
-	int ipm_arg_size = d_ocp_qp_ipm_arg_memsize(&dim2);
+	hpipm_size_t ipm_arg_size = d_ocp_qp_ipm_arg_memsize(&dim2);
 	void *ipm_arg_mem = malloc(ipm_arg_size);
 
 	struct d_ocp_qp_ipm_arg arg;
@@ -1024,7 +1024,7 @@ int main()
 * ipm
 ************************************************/
 
-	int ipm_size = d_ocp_qp_ipm_ws_memsize(&dim2, &arg);
+	hpipm_size_t ipm_size = d_ocp_qp_ipm_ws_memsize(&dim2, &arg);
 #if PRINT
 	printf("\nipm size = %d\n", ipm_size);
 #endif

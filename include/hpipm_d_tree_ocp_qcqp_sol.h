@@ -57,13 +57,13 @@ struct d_tree_ocp_qcqp_sol
 	struct blasfeo_dvec *lam;
 	struct blasfeo_dvec *t;
 	void *misc;
-	int memsize; // memory size in bytes
+    hpipm_size_t memsize; // memory size in bytes
 	};
 
 
 
 //
-int d_tree_ocp_qcqp_sol_memsize(struct d_tree_ocp_qcqp_dim *dim);
+hpipm_size_t d_tree_ocp_qcqp_sol_memsize(struct d_tree_ocp_qcqp_dim *dim);
 //
 void d_tree_ocp_qcqp_sol_create(struct d_tree_ocp_qcqp_dim *dim, struct d_tree_ocp_qcqp_sol *qp_sol, void *memory);
 //

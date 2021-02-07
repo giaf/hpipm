@@ -35,10 +35,10 @@
 
 
 
-int MEMSIZE_CORE_QP_IPM(int nv, int ne, int nc)
+hpipm_size_t MEMSIZE_CORE_QP_IPM(int nv, int ne, int nc)
 	{
 
-	int size;
+	hpipm_size_t size;
 
 	int nv0 = nv;
 	int ne0 = ne;

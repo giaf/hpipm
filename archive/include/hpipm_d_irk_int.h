@@ -52,7 +52,7 @@ struct d_irk_workspace
 	int nx; // number of states
 	int nf; // number of forward sensitivities
 	int np; // number of parameters
-	int memsize; // TODO
+	hpipm_size_t memsize; // TODO
 	};
 
 
@@ -67,7 +67,7 @@ struct d_irk_args
 
 
 //
-int d_memsize_irk_int(struct d_rk_data *rk_data, int nx, int nf, int np);
+hpipm_size_t d_memsize_irk_int(struct d_rk_data *rk_data, int nx, int nf, int np);
 //
 void d_create_irk_int(struct d_rk_data *rk_data, int nx, int nf, int np, struct d_irk_workspace *workspace, void *memory);
 //

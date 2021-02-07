@@ -108,11 +108,11 @@ struct benchmark_to_hpipm
     double *d_ug0;
   };
 
-int d_memsize_benchmark_qp(int nv, int ne, int nc);
+hpipm_size_t d_memsize_benchmark_qp(int nv, int ne, int nc);
 
 void d_create_benchmark_qp(int nv, int ne, int nc, struct benchmark_qp *qp, void *mem);
 
-int d_memsize_benchmark_to_hpipm(int nv, int ne, int nc);
+hpipm_size_t d_memsize_benchmark_to_hpipm(int nv, int ne, int nc);
 
 void d_create_benchmark_to_hpipm(int nv, int ne, int nc, struct benchmark_to_hpipm *tran_space, void *mem);
 

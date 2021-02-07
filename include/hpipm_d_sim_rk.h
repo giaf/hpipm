@@ -36,6 +36,8 @@
 #ifndef HPIPM_D_SIM_RK_H_
 #define HPIPM_D_SIM_RK_H_
 
+#include "hpipm_common.h"
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -47,13 +49,13 @@ struct d_sim_rk_data
 	double *C_rk; // c in butcher tableau
 	int expl; // erk vs irk
 	int ns; // number of stages
-	int memsize;
+    hpipm_size_t memsize;
 	};
 
 
 
 //
-int d_sim_rk_data_memsize(int ns);
+hpipm_size_t d_sim_rk_data_memsize(int ns);
 //
 void d_sim_rk_data_create(int ns, struct d_sim_rk_data *rk_data, void *memory);
 //

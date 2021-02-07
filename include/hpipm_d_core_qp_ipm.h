@@ -36,6 +36,8 @@
 #ifndef HPIPM_D_CORE_QP_IPM_
 #define HPIPM_D_CORE_QP_IPM_
 
+#include "hpipm_common.h"
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -80,13 +82,13 @@ struct d_core_qp_ipm_workspace
 	int nc_mask; // total number of ineq constr after masking
 	int split_step; // use different step for primal and dual variables
 	int t_lam_min; // clip t and lam also in solution, or only in Gamma computation
-	int memsize; // memory size (in bytes) of workspace
+    hpipm_size_t memsize; // memory size (in bytes) of workspace
 	};
 
 
 
 //
-int d_memsize_core_qp_ipm(int nv, int ne, int nc);
+hpipm_size_t d_memsize_core_qp_ipm(int nv, int ne, int nc);
 //
 void d_create_core_qp_ipm(int nv, int ne, int nc, struct d_core_qp_ipm_workspace *workspace, void *mem);
 //

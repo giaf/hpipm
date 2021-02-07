@@ -67,12 +67,12 @@ static int sctree_node_number(int md, int Nr, int Nh)
 
 
 
-int sctree_memsize(int md, int Nr, int Nh)
+hpipm_size_t sctree_memsize(int md, int Nr, int Nh)
 	{
 
 	int Nn = sctree_node_number(md, Nr, Nh);
 
-	int size = 0;
+	hpipm_size_t size = 0;
 
 	size += Nn*sizeof(struct node); // root
 	size += Nn*sizeof(int); // kids

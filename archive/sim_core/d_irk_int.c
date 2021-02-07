@@ -45,14 +45,14 @@
 
 
 
-int d_memsize_irk_int(struct d_rk_data *rk_data, int nx, int nf, int np)
+hpipm_size_t d_memsize_irk_int(struct d_rk_data *rk_data, int nx, int nf, int np)
 	{
 
 	int ns = rk_data->ns;
 
 	int nX = nx*(1+nf);
 
-	int size = 0;
+	hpipm_size_t size = 0;
 
 	size += 3*sizeof(struct blasfeo_dmat); // JG rG K
 

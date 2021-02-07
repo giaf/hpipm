@@ -52,7 +52,7 @@
 
 
 
-int m_memsize_ipm_hard_ocp_qp(struct d_ocp_qp *qp, struct s_ocp_qp *s_qp, struct m_ipm_hard_ocp_qp_arg *arg)
+hpipm_size_t m_memsize_ipm_hard_ocp_qp(struct d_ocp_qp *qp, struct s_ocp_qp *s_qp, struct m_ipm_hard_ocp_qp_arg *arg)
 	{
 
 	// loop index
@@ -90,7 +90,7 @@ int m_memsize_ipm_hard_ocp_qp(struct d_ocp_qp *qp, struct s_ocp_qp *s_qp, struct
 	nbM = nb[ii]>nbM ? nb[ii] : nbM;
 	ngM = ng[ii]>ngM ? ng[ii] : ngM;
 
-	int size = 0;
+	hpipm_size_t size = 0;
 
 	size += (4+(N+1)*18)*sizeof(struct blasfeo_dvec); // dux dpi dt_lb dt_lg res_g res_b res_d res_d_lb res_d_ub res_d_lg res_d_ug res_m res_m_lb res_m_ub res_m_lg res_m_ug Qx_lb Qx_lg qx_lb qx_lg tmp_nbM tmp_ngM
 	size += (1+(N+1)*11)*sizeof(struct blasfeo_svec); // sdux sdpi sres_g sres_b sQx_lb sQx_lg, sqx_lb, sqx_lg tmp_nxM Pb sSx sSi

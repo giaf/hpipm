@@ -84,7 +84,7 @@ struct s_dense_qcqp_ipm_arg
 	int split_step; // use different step for primal and dual variables
 	int t_lam_min; // clip t and lam: 0 no, 1 in Gamma computation, 2 in solution
 	int mode;
-	int memsize;
+    hpipm_size_t memsize;
 	};
 
 
@@ -107,13 +107,13 @@ struct s_dense_qcqp_ipm_ws
 //	int scale;
 //	int use_hess_fact;
 	int status;
-	int memsize; // memory size (in bytes) of workspace
+    hpipm_size_t memsize; // memory size (in bytes) of workspace
 	};
 
 
 
 //
-int s_dense_qcqp_ipm_arg_memsize(struct s_dense_qcqp_dim *dim);
+hpipm_size_t s_dense_qcqp_ipm_arg_memsize(struct s_dense_qcqp_dim *dim);
 //
 void s_dense_qcqp_ipm_arg_create(struct s_dense_qcqp_dim *dim, struct s_dense_qcqp_ipm_arg *arg, void *mem);
 //
@@ -158,7 +158,7 @@ void s_dense_qcqp_ipm_arg_set_split_step(int *value, struct s_dense_qcqp_ipm_arg
 void s_dense_qcqp_ipm_arg_set_t_lam_min(int *value, struct s_dense_qcqp_ipm_arg *arg);
 
 //
-int s_dense_qcqp_ipm_ws_memsize(struct s_dense_qcqp_dim *qp_dim, struct s_dense_qcqp_ipm_arg *arg);
+hpipm_size_t s_dense_qcqp_ipm_ws_memsize(struct s_dense_qcqp_dim *qp_dim, struct s_dense_qcqp_ipm_arg *arg);
 //
 void s_dense_qcqp_ipm_ws_create(struct s_dense_qcqp_dim *qp_dim, struct s_dense_qcqp_ipm_arg *arg, struct s_dense_qcqp_ipm_ws *ws, void *mem);
 //

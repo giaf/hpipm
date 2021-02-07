@@ -35,7 +35,7 @@
 
 
 
-int TREE_OCP_QCQP_SOL_MEMSIZE(struct TREE_OCP_QCQP_DIM *dim)
+hpipm_size_t TREE_OCP_QCQP_SOL_MEMSIZE(struct TREE_OCP_QCQP_DIM *dim)
 	{
 
 	// extract dim
@@ -64,7 +64,7 @@ int TREE_OCP_QCQP_SOL_MEMSIZE(struct TREE_OCP_QCQP_DIM *dim)
 		net += nx[idx];
 		}
 
-	int size = 0;
+	hpipm_size_t size = 0;
 
 	size += 3*Nn*sizeof(struct STRVEC); // ux lam t
 	size += 1*(Nn-1)*sizeof(struct STRVEC); // pi
@@ -86,7 +86,7 @@ void TREE_OCP_QCQP_SOL_CREATE(struct TREE_OCP_QCQP_DIM *dim, struct TREE_OCP_QCQ
 	{
 
 	// zero memory (to avoid corrupted memory like e.g. NaN)
-	int memsize = TREE_OCP_QCQP_SOL_MEMSIZE(dim);
+	hpipm_size_t memsize = TREE_OCP_QCQP_SOL_MEMSIZE(dim);
 	hpipm_zero_memset(memsize, mem);
 
 	// extract dim

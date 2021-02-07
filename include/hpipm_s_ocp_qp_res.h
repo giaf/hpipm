@@ -63,7 +63,7 @@ struct s_ocp_qp_res
 	struct blasfeo_svec *res_m; // m-residuals
 	float res_max[4]; // max of residuals
 	float res_mu; // mu-residual
-	int memsize;
+    hpipm_size_t memsize;
 	};
 
 
@@ -72,17 +72,17 @@ struct s_ocp_qp_res_ws
 	{
 	struct blasfeo_svec *tmp_nbgM; // work space of size nbM+ngM
 	struct blasfeo_svec *tmp_nsM; // work space of size nsM
-	int memsize;
+    hpipm_size_t memsize;
 	};
 
 
 
 //
-int s_ocp_qp_res_memsize(struct s_ocp_qp_dim *ocp_dim);
+hpipm_size_t s_ocp_qp_res_memsize(struct s_ocp_qp_dim *ocp_dim);
 //
 void s_ocp_qp_res_create(struct s_ocp_qp_dim *ocp_dim, struct s_ocp_qp_res *res, void *mem);
 //
-int s_ocp_qp_res_ws_memsize(struct s_ocp_qp_dim *ocp_dim);
+hpipm_size_t s_ocp_qp_res_ws_memsize(struct s_ocp_qp_dim *ocp_dim);
 //
 void s_ocp_qp_res_ws_create(struct s_ocp_qp_dim *ocp_dim, struct s_ocp_qp_res_ws *workspace, void *mem);
 //

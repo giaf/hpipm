@@ -35,7 +35,7 @@
 
 
 
-int OCP_QP_RES_MEMSIZE(struct OCP_QP_DIM *dim)
+hpipm_size_t OCP_QP_RES_MEMSIZE(struct OCP_QP_DIM *dim)
 	{
 
 	// loop index
@@ -62,7 +62,7 @@ int OCP_QP_RES_MEMSIZE(struct OCP_QP_DIM *dim)
 	nvt += nx[ii]+nu[ii]+2*ns[ii];
 	nct += 2*nb[ii]+2*ng[ii]+2*ns[ii];
 
-	int size = 0;
+	hpipm_size_t size = 0;
 
 	size += 3*(N+1)*sizeof(struct STRVEC); // res_g res_d res_m
 	size += 3*N*sizeof(struct STRVEC); // res_b
@@ -87,7 +87,7 @@ void OCP_QP_RES_CREATE(struct OCP_QP_DIM *dim, struct OCP_QP_RES *res, void *mem
 	int ii;
 
 	// zero memory (to avoid corrupted memory like e.g. NaN)
-	int memsize = OCP_QP_RES_MEMSIZE(dim);
+	hpipm_size_t memsize = OCP_QP_RES_MEMSIZE(dim);
 	hpipm_zero_memset(memsize, mem);
 
 	// extract ocp qp size
@@ -210,7 +210,7 @@ void OCP_QP_RES_CREATE(struct OCP_QP_DIM *dim, struct OCP_QP_RES *res, void *mem
 
 
 
-int OCP_QP_RES_WS_MEMSIZE(struct OCP_QP_DIM *dim)
+hpipm_size_t OCP_QP_RES_WS_MEMSIZE(struct OCP_QP_DIM *dim)
 	{
 
 	// loop index
@@ -238,7 +238,7 @@ int OCP_QP_RES_WS_MEMSIZE(struct OCP_QP_DIM *dim)
 	ngM = ng[ii]>ngM ? ng[ii] : ngM;
 	nsM = ns[ii]>nsM ? ns[ii] : nsM;
 
-	int size = 0;
+	hpipm_size_t size = 0;
 
 	size += 3*sizeof(struct STRVEC); // 2*tmp_nbgM tmp_nsM
 
@@ -261,7 +261,7 @@ void OCP_QP_RES_WS_CREATE(struct OCP_QP_DIM *dim, struct OCP_QP_RES_WS *ws, void
 	int ii;
 
 	// zero memory (to avoid corrupted memory like e.g. NaN)
-	int memsize = OCP_QP_RES_WS_MEMSIZE(dim);
+	hpipm_size_t memsize = OCP_QP_RES_WS_MEMSIZE(dim);
 	hpipm_zero_memset(memsize, mem);
 
 	// extract ocp qp size

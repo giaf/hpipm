@@ -69,7 +69,7 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
 
 	/* qp */
 
-	int qp_size = sizeof(struct d_ocp_qp) + d_ocp_qp_memsize(dim);
+	hpipm_size_t qp_size = sizeof(struct d_ocp_qp) + d_ocp_qp_memsize(dim);
 	void *qp_mem = malloc(qp_size);
 
 	c_ptr = qp_mem;

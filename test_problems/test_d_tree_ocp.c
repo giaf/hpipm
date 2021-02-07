@@ -617,7 +617,7 @@ int main()
 * create scenario tree
 ************************************************/
 
-	int tree_memsize = sctree_memsize(md, Nr, Nh);
+	hpipm_size_t tree_memsize = sctree_memsize(md, Nr, Nh);
 #if PRINT
 	printf("\ntree memsize = %d\n", tree_memsize);
 #endif
@@ -868,7 +868,7 @@ int main()
 * create tree ocp qp dim
 ************************************************/
 
-	int dim_size = d_tree_ocp_qp_dim_memsize(Nn);
+	hpipm_size_t dim_size = d_tree_ocp_qp_dim_memsize(Nn);
 #if PRINT
 	printf("\ndim size = %d\n", dim_size);
 #endif
@@ -882,7 +882,7 @@ int main()
 * create tree ocp qp
 ************************************************/
 
-	int tree_ocp_qp_memsize = d_tree_ocp_qp_memsize(&dim);
+	hpipm_size_t tree_ocp_qp_memsize = d_tree_ocp_qp_memsize(&dim);
 #if PRINT
 	printf("\ntree ocp qp memsize = %d\n", tree_ocp_qp_memsize);
 #endif
@@ -931,7 +931,7 @@ exit(1);
 * ocp qp sol
 ************************************************/
 
-	int tree_ocp_qp_sol_size = d_tree_ocp_qp_sol_memsize(&dim);
+	hpipm_size_t tree_ocp_qp_sol_size = d_tree_ocp_qp_sol_memsize(&dim);
 #if PRINT
 	printf("\ntree ocp qp sol memsize = %d\n", tree_ocp_qp_sol_size);
 #endif
@@ -944,7 +944,7 @@ exit(1);
 * ipm arg
 ************************************************/
 
-	int ipm_arg_size = d_tree_ocp_qp_ipm_arg_memsize(&dim);
+	hpipm_size_t ipm_arg_size = d_tree_ocp_qp_ipm_arg_memsize(&dim);
 #if PRINT
 	printf("\nipm arg size = %d\n", ipm_arg_size);
 #endif
@@ -972,7 +972,7 @@ exit(1);
 * ipm
 ************************************************/
 
-	int ipm_size = d_tree_ocp_qp_ipm_ws_memsize(&dim, &arg);
+	hpipm_size_t ipm_size = d_tree_ocp_qp_ipm_ws_memsize(&dim, &arg);
 #if PRINT
 	printf("\nipm size = %d\n", ipm_size);
 #endif

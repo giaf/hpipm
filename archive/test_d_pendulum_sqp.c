@@ -188,7 +188,7 @@ int main()
 #endif
 
 	// erk data structure
-	int memsize_rk_data = d_memsize_rk_data(nsta);
+	hpipm_size_t memsize_rk_data = d_memsize_rk_data(nsta);
 	printf("\nmemsize rk data %d\n", memsize_rk_data);
 	void *memory_rk_data = malloc(memsize_rk_data);
 
@@ -529,7 +529,7 @@ int main()
 * ocp nlp
 ************************************************/	
 	
-	int nlp_size = d_memsize_ocp_nlp(N, nx, nu, nb, ng, ns);
+	hpipm_size_t nlp_size = d_memsize_ocp_nlp(N, nx, nu, nb, ng, ns);
 	printf("\nnlpsize = %d\n", nlp_size);
 	void *nlp_mem = malloc(nlp_size);
 
@@ -542,7 +542,7 @@ int main()
 * ocp nlp sol
 ************************************************/	
 	
-	int nlp_sol_size = d_memsize_ocp_nlp_sol(N, nx, nu, nb, ng, ns);
+	hpipm_size_t nlp_sol_size = d_memsize_ocp_nlp_sol(N, nx, nu, nb, ng, ns);
 	printf("\nnlp sol size = %d\n", nlp_sol_size);
 	void *nlp_sol_mem = malloc(nlp_sol_size);
 
@@ -553,7 +553,7 @@ int main()
 * ocp nlp sqp arg
 ************************************************/	
 
-	int sqp_arg_size = d_memsize_ocp_nlp_sqp_arg(&nlp);
+	hpipm_size_t sqp_arg_size = d_memsize_ocp_nlp_sqp_arg(&nlp);
 	printf("\nipm arg size = %d\n", sqp_arg_size);
 	void *sqp_arg_mem = malloc(sqp_arg_size);
 
@@ -594,7 +594,7 @@ int main()
 * ocp nlp sqp ws
 ************************************************/	
 
-	int nlp_ws_size = d_memsize_ocp_nlp_sqp(&nlp, &sqp_arg);
+	hpipm_size_t nlp_ws_size = d_memsize_ocp_nlp_sqp(&nlp, &sqp_arg);
 	printf("\nnlp ws size = %d\n", nlp_ws_size);
 	void *nlp_ws_mem = malloc(nlp_ws_size);
 	

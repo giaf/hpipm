@@ -61,7 +61,7 @@
 
 
 
-int MEMSIZE_OCP_NLP(int N, int *nx, int *nu, int *nb, int *ng, int *ns)
+hpipm_size_t MEMSIZE_OCP_NLP(int N, int *nx, int *nu, int *nb, int *ng, int *ns)
 	{
 
 	int ii;
@@ -72,7 +72,7 @@ int MEMSIZE_OCP_NLP(int N, int *nx, int *nu, int *nb, int *ng, int *ns)
 		nuxM = nu[ii]+nx[ii]>nuxM ? nu[ii]+nx[ii] : nuxM;
 		}
 
-	int size = 0;
+	hpipm_size_t size = 0;
 
 	size += 5*(N+1)*sizeof(int); // nx nu nb ng ns
 	size += 2*(N+1)*sizeof(int *); // idxb idxs

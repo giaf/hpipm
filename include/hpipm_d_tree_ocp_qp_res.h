@@ -63,7 +63,7 @@ struct d_tree_ocp_qp_res
 	struct blasfeo_dvec *res_m; // m-residuals
 	double res_max[4]; // max of residuals
 	double res_mu; // mu-residual
-	int memsize;
+    hpipm_size_t memsize;
 	};
 
 
@@ -72,17 +72,17 @@ struct d_tree_ocp_qp_res_ws
 	{
 	struct blasfeo_dvec *tmp_nbgM; // work space of size nbM+ngM
 	struct blasfeo_dvec *tmp_nsM; // work space of size nsM
-	int memsize;
+    hpipm_size_t memsize;
 	};
 
 
 
 //
-int d_tree_ocp_qp_res_memsize(struct d_tree_ocp_qp_dim *ocp_dim);
+hpipm_size_t d_tree_ocp_qp_res_memsize(struct d_tree_ocp_qp_dim *ocp_dim);
 //
 void d_tree_ocp_qp_res_create(struct d_tree_ocp_qp_dim *ocp_dim, struct d_tree_ocp_qp_res *res, void *mem);
 //
-int d_tree_ocp_qp_res_ws_memsize(struct d_tree_ocp_qp_dim *ocp_dim);
+hpipm_size_t d_tree_ocp_qp_res_ws_memsize(struct d_tree_ocp_qp_dim *ocp_dim);
 //
 void d_tree_ocp_qp_res_ws_create(struct d_tree_ocp_qp_dim *ocp_dim, struct d_tree_ocp_qp_res_ws *ws, void *mem);
 //

@@ -67,13 +67,13 @@ struct d_dense_qp
 	struct blasfeo_dvec *Z; // (diagonal) hessian of slacks
 	int *idxb; // index of box constraints
 	int *idxs_rev; // index of soft constraints (reverse storage)
-	int memsize; // memory size in bytes
+    hpipm_size_t memsize; // memory size in bytes
 	};
 
 
 
 //
-int d_dense_qp_memsize(struct d_dense_qp_dim *dim);
+hpipm_size_t d_dense_qp_memsize(struct d_dense_qp_dim *dim);
 //
 void d_dense_qp_create(struct d_dense_qp_dim *dim, struct d_dense_qp *qp, void *memory);
 

@@ -41,6 +41,7 @@
 #include <blasfeo_target.h>
 #include <blasfeo_common.h>
 
+#include "hpipm_common.h"
 #include "hpipm_d_tree_ocp_qcqp_dim.h"
 
 
@@ -66,13 +67,13 @@ struct d_tree_ocp_qcqp
 	struct blasfeo_dvec *Z; // Nn
 	int **idxb; // index of box constraints // Nn
 	int **idxs_rev; // index of soft constraints
-	int memsize; // memory size in bytes
+    hpipm_size_t memsize; // memory size in bytes
 	};
 
 
 
 //
-int d_tree_ocp_qcqp_memsize(struct d_tree_ocp_qcqp_dim *dim);
+hpipm_size_t d_tree_ocp_qcqp_memsize(struct d_tree_ocp_qcqp_dim *dim);
 //
 void d_tree_ocp_qcqp_create(struct d_tree_ocp_qcqp_dim *dim, struct d_tree_ocp_qcqp *qp, void *memory);
 //

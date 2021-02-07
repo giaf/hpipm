@@ -398,7 +398,7 @@ void mexFunction( int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
 	// Partial condensing horizon
 //	int N2 = N;
 
-//	int work_space_size = hpmpc_d_ip_ocp_hard_tv_work_space_size_bytes(N, nx_v, nu_v, nb_v, hidxb, ng_v, N2);
+//	hpipm_size_t work_space_size = hpmpc_d_ip_ocp_hard_tv_work_space_size_bytes(N, nx_v, nu_v, nb_v, hidxb, ng_v, N2);
 //	void *work = malloc( work_space_size );
 
 
@@ -410,7 +410,7 @@ void mexFunction( int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
 
 
 	// qp dim
-	int dim_size = d_memsize_ocp_qp_dim(N);
+	hpipm_size_t dim_size = d_memsize_ocp_qp_dim(N);
 	void *dim_mem = malloc(dim_size);
 
 	struct d_ocp_qp_dim dim;
@@ -422,7 +422,7 @@ void mexFunction( int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
 
 
 	// qp
-	int qp_size = d_memsize_ocp_qp(&dim);
+	hpipm_size_t qp_size = d_memsize_ocp_qp(&dim);
 	void *qp_mem = malloc(qp_size);
 	struct d_ocp_qp qp;
 	d_create_ocp_qp(&dim, &qp, qp_mem);
@@ -430,14 +430,14 @@ void mexFunction( int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
 
 
 	// qp sol
-	int qp_sol_size = d_memsize_ocp_qp_sol(&dim);
+	hpipm_size_t qp_sol_size = d_memsize_ocp_qp_sol(&dim);
 	void *qp_sol_mem = malloc(qp_sol_size);
 	struct d_ocp_qp_sol qp_sol;
 	d_create_ocp_qp_sol(&dim, &qp_sol, qp_sol_mem);
 
 
 	// ipm arg
-	int ipm_arg_size = d_memsize_ocp_qp_ipm_arg(&dim);
+	hpipm_size_t ipm_arg_size = d_memsize_ocp_qp_ipm_arg(&dim);
 	void *ipm_arg_mem = malloc(ipm_arg_size);
 
 	struct d_ocp_qp_ipm_arg arg;
@@ -460,7 +460,7 @@ void mexFunction( int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
 
 
 	// ipm
-	int ipm_size = d_memsize_ocp_qp_ipm(&dim, &arg);
+	hpipm_size_t ipm_size = d_memsize_ocp_qp_ipm(&dim, &arg);
 	void *ipm_mem = malloc(ipm_size);
 
 	struct d_ocp_qp_ipm_workspace workspace;

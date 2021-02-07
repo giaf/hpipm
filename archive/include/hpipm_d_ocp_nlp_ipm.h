@@ -49,7 +49,7 @@ struct d_ocp_nlp_ipm_arg
 	int nlp_iter_max; // exit cond in iter number
 	int stat_max; // iterations saved in stat
 	int pred_corr; // use Mehrotra's predictor-corrector IPM algirthm
-	int memsize;
+	hpipm_size_t memsize;
 	};
 
 
@@ -65,20 +65,20 @@ struct d_ocp_nlp_ipm_workspace
 	double nlp_res_d; // exit inf norm of residuals
 	double nlp_res_m; // exit inf norm of residuals
 	int iter; // iteration number
-	int memsize;
+	hpipm_size_t memsize;
 	};
 
 
 
 //
-int d_memsize_ocp_nlp_ipm_arg(struct d_ocp_nlp *nlp);
+hpipm_size_t d_memsize_ocp_nlp_ipm_arg(struct d_ocp_nlp *nlp);
 //
 void d_create_ocp_nlp_ipm_arg(struct d_ocp_nlp *nlp, struct d_ocp_nlp_ipm_arg *arg, void *mem);
 //
 void d_set_default_ocp_nlp_ipm_arg(struct d_ocp_nlp_ipm_arg *arg);
 
 //
-int d_memsize_ocp_nlp_ipm(struct d_ocp_nlp *nlp, struct d_ocp_nlp_ipm_arg *arg);
+hpipm_size_t d_memsize_ocp_nlp_ipm(struct d_ocp_nlp *nlp, struct d_ocp_nlp_ipm_arg *arg);
 //
 void d_create_ocp_nlp_ipm(struct d_ocp_nlp *nlp, struct d_ocp_nlp_ipm_arg *arg, struct d_ocp_nlp_ipm_workspace *ws, void *mem);
 //

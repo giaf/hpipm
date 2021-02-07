@@ -83,7 +83,7 @@ struct d_tree_ocp_qp_ipm_arg
 	int split_step; // use different steps for primal and dual variables
 	int t_lam_min; // clip t and lam: 0 no, 1 in Gamma computation, 2 in solution
 	int mode;
-	int memsize;
+    hpipm_size_t memsize;
 	};
 
 
@@ -121,13 +121,13 @@ struct d_tree_ocp_qp_ipm_ws
 	int status; // solver status
 	int lq_fact; // cache from arg
 	int mask_constr; // use constr mask
-	int memsize;
+    hpipm_size_t memsize;
 	};
 
 
 
 //
-int d_tree_ocp_qp_ipm_arg_memsize(struct d_tree_ocp_qp_dim *dim);
+hpipm_size_t d_tree_ocp_qp_ipm_arg_memsize(struct d_tree_ocp_qp_dim *dim);
 //
 void d_tree_ocp_qp_ipm_arg_create(struct d_tree_ocp_qp_dim *dim, struct d_tree_ocp_qp_ipm_arg *arg, void *mem);
 //
@@ -170,7 +170,7 @@ void d_tree_ocp_qp_ipm_arg_set_split_step(int *value, struct d_tree_ocp_qp_ipm_a
 void d_tree_ocp_qp_ipm_arg_set_t_lam_min(int *value, struct d_tree_ocp_qp_ipm_arg *arg);
 
 //
-int d_tree_ocp_qp_ipm_ws_memsize(struct d_tree_ocp_qp_dim *dim, struct d_tree_ocp_qp_ipm_arg *arg);
+hpipm_size_t d_tree_ocp_qp_ipm_ws_memsize(struct d_tree_ocp_qp_dim *dim, struct d_tree_ocp_qp_ipm_arg *arg);
 //
 void d_tree_ocp_qp_ipm_ws_create(struct d_tree_ocp_qp_dim *dim, struct d_tree_ocp_qp_ipm_arg *arg, struct d_tree_ocp_qp_ipm_ws *ws, void *mem);
 //

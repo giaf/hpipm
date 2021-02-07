@@ -29,7 +29,7 @@
 
 
 
-int MEMSIZE_OCP_NLP_SOL(int N, int *nx, int *nu, int *nb, int *ng, int *ns)
+hpipm_size_t MEMSIZE_OCP_NLP_SOL(int N, int *nx, int *nu, int *nb, int *ng, int *ns)
 	{
 
 	int ii;
@@ -46,7 +46,7 @@ int MEMSIZE_OCP_NLP_SOL(int N, int *nx, int *nu, int *nb, int *ng, int *ns)
 	nvt += nu[ii]+nx[ii]+2*ns[ii];
 	nct += nb[ii]+ng[ii]+ns[ii];
 
-	int size = 0;
+	hpipm_size_t size = 0;
 
 	size += 3*(N+1)*sizeof(struct STRVEC); // ux lam t
 	size += 1*N*sizeof(struct STRVEC); // pi

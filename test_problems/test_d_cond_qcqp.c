@@ -635,7 +635,7 @@ int main()
 * ocp qp dim
 ************************************************/
 
-	int ocp_dim_size = d_ocp_qcqp_dim_memsize(N);
+	hpipm_size_t ocp_dim_size = d_ocp_qcqp_dim_memsize(N);
 #if PRINT
 	printf("\ndim size = %d\n", ocp_dim_size);
 #endif
@@ -667,7 +667,7 @@ int main()
 * ocp qp
 ************************************************/
 
-	int ocp_qp_size = d_ocp_qcqp_memsize(&ocp_dim);
+	hpipm_size_t ocp_qp_size = d_ocp_qcqp_memsize(&ocp_dim);
 #if PRINT
 	printf("\nqp size = %d\n", ocp_qp_size);
 #endif
@@ -790,7 +790,7 @@ int main()
 * dense qp dim
 ************************************************/
 
-	int dense_dim_size = d_dense_qcqp_dim_memsize();
+	hpipm_size_t dense_dim_size = d_dense_qcqp_dim_memsize();
 #if PRINT
 	printf("\ndense dim size = %d\n", dense_dim_size);
 #endif
@@ -810,7 +810,7 @@ int main()
 ************************************************/
 
 	// qp
-	int dense_qp_size = d_dense_qcqp_memsize(&dense_dim);
+	hpipm_size_t dense_qp_size = d_dense_qcqp_memsize(&dense_dim);
 #if PRINT
 	printf("\nqp size = %d\n", dense_qp_size);
 #endif
@@ -820,7 +820,7 @@ int main()
 	d_dense_qcqp_create(&dense_dim, &dense_qp, dense_qp_mem);
 
 	// arg
-	int cond_arg_size = d_cond_qcqp_arg_memsize();
+	hpipm_size_t cond_arg_size = d_cond_qcqp_arg_memsize();
 #if PRINT
 	printf("\ncond_arg size = %d\n", cond_arg_size);
 #endif
@@ -831,7 +831,7 @@ int main()
 	d_cond_qcqp_arg_set_default(&cond_arg);
 
 	// ws
-	int cond_size = d_cond_qcqp_ws_memsize(&ocp_dim, &cond_arg);
+	hpipm_size_t cond_size = d_cond_qcqp_ws_memsize(&ocp_dim, &cond_arg);
 #if PRINT
 	printf("\ncond size = %d\n", cond_size);
 #endif
@@ -894,7 +894,7 @@ int main()
 * dense qp sol
 ************************************************/
 
-	int dense_qp_sol_size = d_dense_qcqp_sol_memsize(&dense_dim);
+	hpipm_size_t dense_qp_sol_size = d_dense_qcqp_sol_memsize(&dense_dim);
 #if PRINT
 	printf("\ndense qp sol size = %d\n", dense_qp_sol_size);
 #endif
@@ -907,7 +907,7 @@ int main()
 * ipm arg
 ************************************************/
 
-	int ipm_arg_size = d_dense_qcqp_ipm_arg_memsize(&dense_dim);
+	hpipm_size_t ipm_arg_size = d_dense_qcqp_ipm_arg_memsize(&dense_dim);
 #if PRINT
 	printf("\nipm arg size = %d\n", ipm_arg_size);
 #endif
@@ -935,7 +935,7 @@ int main()
 * ipm
 ************************************************/
 
-	int dense_ipm_size = d_dense_qcqp_ipm_ws_memsize(&dense_dim, &dense_arg);
+	hpipm_size_t dense_ipm_size = d_dense_qcqp_ipm_ws_memsize(&dense_dim, &dense_arg);
 #if PRINT
 	printf("\ndense ipm size = %d\n", dense_ipm_size);
 #endif
@@ -993,7 +993,7 @@ int main()
 * ocp qp sol
 ************************************************/
 
-	int ocp_qp_sol_size = d_ocp_qcqp_sol_memsize(&ocp_dim);
+	hpipm_size_t ocp_qp_sol_size = d_ocp_qcqp_sol_memsize(&ocp_dim);
 #if PRINT
 	printf("\nocp qp sol size = %d\n", ocp_qp_sol_size);
 #endif

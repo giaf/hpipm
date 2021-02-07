@@ -76,7 +76,7 @@ void OCP_QP_DIM_REDUCE_EQ_DOF(struct OCP_QP_DIM *dim, struct OCP_QP_DIM *dim_red
 
 
 
-int OCP_QP_REDUCE_EQ_DOF_ARG_MEMSIZE()
+hpipm_size_t OCP_QP_REDUCE_EQ_DOF_ARG_MEMSIZE()
 	{
 
 	return 0;
@@ -156,7 +156,7 @@ void OCP_QP_REDUCE_EQ_DOF_ARG_SET_COMP_DUAL_SOL_INEQ(struct OCP_QP_REDUCE_EQ_DOF
 
 
 
-int OCP_QP_REDUCE_EQ_DOF_WS_MEMSIZE(struct OCP_QP_DIM *dim)
+hpipm_size_t OCP_QP_REDUCE_EQ_DOF_WS_MEMSIZE(struct OCP_QP_DIM *dim)
 	{
 
 	int ii;
@@ -176,7 +176,7 @@ int OCP_QP_REDUCE_EQ_DOF_WS_MEMSIZE(struct OCP_QP_DIM *dim)
 		nbgM = nb[ii]+ng[ii]>nbgM ? nb[ii]+ng[ii] : nbgM;
 		}
 
-	int size = 0;
+	hpipm_size_t size = 0;
 
 	size += nuxM*sizeof(int); // e_imask_ux
 	size += nbgM*sizeof(int); // e_imask_d
@@ -201,7 +201,7 @@ void OCP_QP_REDUCE_EQ_DOF_WS_CREATE(struct OCP_QP_DIM *dim, struct OCP_QP_REDUCE
 	int ii;
 
 	// zero memory (to avoid corrupted memory like e.g. NaN)
-	int memsize = OCP_QP_REDUCE_EQ_DOF_WS_MEMSIZE(dim);
+	hpipm_size_t memsize = OCP_QP_REDUCE_EQ_DOF_WS_MEMSIZE(dim);
 	hpipm_zero_memset(memsize, mem);
 
 	// extract dim

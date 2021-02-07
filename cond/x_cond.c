@@ -89,10 +89,10 @@ void COND_QP_COMPUTE_DIM(struct OCP_QP_DIM *ocp_dim, struct DENSE_QP_DIM *dense_
 
 
 
-int COND_QP_ARG_MEMSIZE()
+hpipm_size_t COND_QP_ARG_MEMSIZE()
 	{
 
-	int size = 0;
+	hpipm_size_t size = 0;
 
 	return size;
 
@@ -193,7 +193,7 @@ void COND_QP_ARG_SET_COMP_DUAL_SOL_INEQ(int value, struct COND_QP_ARG *cond_arg)
 
 
 
-int COND_QP_WS_MEMSIZE(struct OCP_QP_DIM *ocp_dim, struct COND_QP_ARG *cond_arg)
+hpipm_size_t COND_QP_WS_MEMSIZE(struct OCP_QP_DIM *ocp_dim, struct COND_QP_ARG *cond_arg)
 	{
 
 	int ii;
@@ -235,7 +235,7 @@ int COND_QP_WS_MEMSIZE(struct OCP_QP_DIM *ocp_dim, struct COND_QP_ARG *cond_arg)
 	nbM = nb[ii]>nbM ? nb[ii] : nbM;
 	ngM = ng[ii]>ngM ? ng[ii] : ngM;
 
-	int size = 0;
+	hpipm_size_t size = 0;
 
 	size += 1*N*sizeof(struct STRMAT); // Gamma
 	size += 1*N*sizeof(struct STRVEC); // Gammab
@@ -299,7 +299,7 @@ void COND_QP_WS_CREATE(struct OCP_QP_DIM *ocp_dim, struct COND_QP_ARG *cond_arg,
 	size_t s_ptr;
 
 	// zero memory (to avoid corrupted memory like e.g. NaN)
-	int memsize = COND_QP_WS_MEMSIZE(ocp_dim, cond_arg);
+	hpipm_size_t memsize = COND_QP_WS_MEMSIZE(ocp_dim, cond_arg);
 	hpipm_zero_memset(memsize, mem);
 
 	int N = ocp_dim->N;

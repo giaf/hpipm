@@ -35,14 +35,14 @@
 
 
 
-int OCP_QP_SOL_STRSIZE()
+hpipm_size_t OCP_QP_SOL_STRSIZE()
 	{
 	return sizeof(struct OCP_QP_SOL);
 	}
 
 
 
-int OCP_QP_SOL_MEMSIZE(struct OCP_QP_DIM *dim)
+hpipm_size_t OCP_QP_SOL_MEMSIZE(struct OCP_QP_DIM *dim)
 	{
 
 	// extract dim
@@ -68,7 +68,7 @@ int OCP_QP_SOL_MEMSIZE(struct OCP_QP_DIM *dim)
 	nvt += nu[ii]+nx[ii]+2*ns[ii];
 	nct += 2*nb[ii]+2*ng[ii]+2*ns[ii];
 
-	int size = 0;
+	hpipm_size_t size = 0;
 
 	size += 3*(N+1)*sizeof(struct STRVEC); // ux lam t
 	size += 1*N*sizeof(struct STRVEC); // pi
@@ -93,7 +93,7 @@ void OCP_QP_SOL_CREATE(struct OCP_QP_DIM *dim, struct OCP_QP_SOL *qp_sol, void *
 	int ii;
 
 	// zero memory (to avoid corrupted memory like e.g. NaN)
-	int memsize = OCP_QP_SOL_MEMSIZE(dim);
+	hpipm_size_t memsize = OCP_QP_SOL_MEMSIZE(dim);
 	hpipm_zero_memset(memsize, mem);
 
 	// extract dim

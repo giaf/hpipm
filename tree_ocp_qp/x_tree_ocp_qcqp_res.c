@@ -35,7 +35,7 @@
 
 
 
-int TREE_OCP_QCQP_RES_MEMSIZE(struct TREE_OCP_QCQP_DIM *dim)
+hpipm_size_t TREE_OCP_QCQP_RES_MEMSIZE(struct TREE_OCP_QCQP_DIM *dim)
 	{
 
 	// loop index
@@ -65,7 +65,7 @@ int TREE_OCP_QCQP_RES_MEMSIZE(struct TREE_OCP_QCQP_DIM *dim)
 		net += nx[idx];
 		}
 
-	int size = 0;
+	hpipm_size_t size = 0;
 
 	size += 3*Nn*sizeof(struct STRVEC); // res_g res_d res_m
 	size += 3*(Nn-1)*sizeof(struct STRVEC); // res_b
@@ -90,7 +90,7 @@ void TREE_OCP_QCQP_RES_CREATE(struct TREE_OCP_QCQP_DIM *dim, struct TREE_OCP_QCQ
 	int ii, idx;
 
 	// zero memory (to avoid corrupted memory like e.g. NaN)
-	int memsize = TREE_OCP_QCQP_RES_MEMSIZE(dim);
+	hpipm_size_t memsize = TREE_OCP_QCQP_RES_MEMSIZE(dim);
 	hpipm_zero_memset(memsize, mem);
 
 	// extract ocp qp size
@@ -221,7 +221,7 @@ void TREE_OCP_QCQP_RES_CREATE(struct TREE_OCP_QCQP_DIM *dim, struct TREE_OCP_QCQ
 
 
 
-int TREE_OCP_QCQP_RES_WS_MEMSIZE(struct TREE_OCP_QCQP_DIM *dim)
+hpipm_size_t TREE_OCP_QCQP_RES_WS_MEMSIZE(struct TREE_OCP_QCQP_DIM *dim)
 	{
 
 	// loop index
@@ -253,7 +253,7 @@ int TREE_OCP_QCQP_RES_WS_MEMSIZE(struct TREE_OCP_QCQP_DIM *dim)
 		nsM = ns[ii]>nsM ? ns[ii] : nsM;
 		}
 
-	int size = 0;
+	hpipm_size_t size = 0;
 
 	size += (5+2*Nn)*sizeof(struct STRVEC); // 2*tmp_nuxM 2*tmp_nbgqM tmp_nsM q_fun q_adj
 
@@ -282,7 +282,7 @@ void TREE_OCP_QCQP_RES_WS_CREATE(struct TREE_OCP_QCQP_DIM *dim, struct TREE_OCP_
 	int ii, idx;
 
 	// zero memory (to avoid corrupted memory like e.g. NaN)
-	int memsize = TREE_OCP_QCQP_RES_WS_MEMSIZE(dim);
+	hpipm_size_t memsize = TREE_OCP_QCQP_RES_WS_MEMSIZE(dim);
 	hpipm_zero_memset(memsize, mem);
 
 	// extract ocp qp size

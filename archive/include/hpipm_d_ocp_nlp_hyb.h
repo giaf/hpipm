@@ -55,7 +55,7 @@ struct d_ocp_nlp_hyb_arg
 	int stat_max; // iterations saved in stat
 	int N2; // horizon of partially condensed QP
 	int pred_corr; // use Mehrotra's predictor-corrector IPM algirthm
-	int memsize;
+	hpipm_size_t memsize;
 	};
 
 
@@ -76,20 +76,20 @@ struct d_ocp_nlp_hyb_workspace
 	double nlp_res_m; // exit inf norm of residuals
 	int iter_qp; // qp ipm iteration number
 	int iter_nlp; // nlp ipm iteration number
-	int memsize;
+	hpipm_size_t memsize;
 	};
 
 
 
 //
-int d_memsize_ocp_nlp_hyb_arg(struct d_ocp_nlp *nlp);
+hpipm_size_t d_memsize_ocp_nlp_hyb_arg(struct d_ocp_nlp *nlp);
 //
 void d_create_ocp_nlp_hyb_arg(struct d_ocp_nlp *nlp, struct d_ocp_nlp_hyb_arg *arg, void *mem);
 //
 void d_set_default_ocp_nlp_hyb_arg(struct d_ocp_nlp_hyb_arg *arg);
 
 //
-int d_memsize_ocp_nlp_hyb(struct d_ocp_nlp *nlp, struct d_ocp_nlp_hyb_arg *arg);
+hpipm_size_t d_memsize_ocp_nlp_hyb(struct d_ocp_nlp *nlp, struct d_ocp_nlp_hyb_arg *arg);
 //
 void d_create_ocp_nlp_hyb(struct d_ocp_nlp *nlp, struct d_ocp_nlp_hyb_arg *arg, struct d_ocp_nlp_hyb_workspace *ws, void *mem);
 //

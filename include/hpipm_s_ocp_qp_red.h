@@ -61,7 +61,7 @@ struct s_ocp_qp_reduce_eq_dof_arg
 	int comp_prim_sol; // primal solution (v)
 	int comp_dual_sol_eq; // dual solution equality constr (pi)
 	int comp_dual_sol_ineq; // dual solution inequality constr (lam t)
-	int memsize; // memory size in bytes
+    hpipm_size_t memsize; // memory size in bytes
 	};
 
 
@@ -72,7 +72,7 @@ struct s_ocp_qp_reduce_eq_dof_ws
 	struct blasfeo_svec *tmp_nbgM;
 	int *e_imask_ux;
 	int *e_imask_d;
-	int memsize; // memory size in bytes
+    hpipm_size_t memsize; // memory size in bytes
 	};
 
 
@@ -80,7 +80,7 @@ struct s_ocp_qp_reduce_eq_dof_ws
 //
 void s_ocp_qp_dim_reduce_eq_dof(struct s_ocp_qp_dim *dim, struct s_ocp_qp_dim *dim_red);
 //
-int s_ocp_qp_reduce_eq_dof_arg_memsize();
+hpipm_size_t s_ocp_qp_reduce_eq_dof_arg_memsize();
 //
 void s_ocp_qp_reduce_eq_dof_arg_create(struct s_ocp_qp_reduce_eq_dof_arg *arg, void *mem);
 //
@@ -94,7 +94,7 @@ void s_ocp_qp_reduce_eq_dof_arg_set_comp_dual_sol_eq(struct s_ocp_qp_reduce_eq_d
 //
 void s_ocp_qp_reduce_eq_dof_arg_set_comp_dual_sol_ineq(struct s_ocp_qp_reduce_eq_dof_arg *arg, int value);
 //
-int s_ocp_qp_reduce_eq_dof_ws_memsize(struct s_ocp_qp_dim *dim);
+hpipm_size_t s_ocp_qp_reduce_eq_dof_ws_memsize(struct s_ocp_qp_dim *dim);
 //
 void s_ocp_qp_reduce_eq_dof_ws_create(struct s_ocp_qp_dim *dim, struct s_ocp_qp_reduce_eq_dof_ws *work, void *mem);
 //
