@@ -61,7 +61,7 @@ struct d_ocp_qp_reduce_eq_dof_arg
 	int comp_prim_sol; // primal solution (v)
 	int comp_dual_sol_eq; // dual solution equality constr (pi)
 	int comp_dual_sol_ineq; // dual solution inequality constr (lam t)
-    hpipm_size_t memsize; // memory size in bytes
+	hpipm_size_t memsize; // memory size in bytes
 	};
 
 
@@ -72,7 +72,7 @@ struct d_ocp_qp_reduce_eq_dof_ws
 	struct blasfeo_dvec *tmp_nbgM;
 	int *e_imask_ux;
 	int *e_imask_d;
-    hpipm_size_t memsize; // memory size in bytes
+	hpipm_size_t memsize; // memory size in bytes
 	};
 
 

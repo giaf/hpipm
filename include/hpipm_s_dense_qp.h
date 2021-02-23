@@ -67,7 +67,7 @@ struct s_dense_qp
 	struct blasfeo_svec *Z; // (diagonal) hessian of slacks
 	int *idxb; // index of box constraints
 	int *idxs_rev; // index of soft constraints (reverse storage)
-    hpipm_size_t memsize; // memory size in bytes
+	hpipm_size_t memsize; // memory size in bytes
 	};
 
 

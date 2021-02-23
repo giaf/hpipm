@@ -84,7 +84,7 @@ struct d_ocp_qp_ipm_arg
 	int var_init_scheme; // variables initialization scheme
 	int t_lam_min; // clip t and lam: 0 no, 1 in Gamma computation, 2 in solution
 	int mode;
-    hpipm_size_t memsize;
+	hpipm_size_t memsize;
 	};
 
 
@@ -130,7 +130,7 @@ struct d_ocp_qp_ipm_ws
 	int mask_constr; // use constr mask
 	int valid_ric_vec; // meaningful riccati vectors
 	int valid_ric_p; // form of riccati p: 0 p*inv(L), 1 p
-    hpipm_size_t memsize;
+	hpipm_size_t memsize;
 	};
 
 

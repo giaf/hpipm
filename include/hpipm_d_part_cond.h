@@ -57,7 +57,7 @@ struct d_part_cond_qp_arg
 	{
 	struct d_cond_qp_arg *cond_arg;
 	int N2;
-    hpipm_size_t memsize;
+	hpipm_size_t memsize;
 	};
 
 
@@ -65,7 +65,7 @@ struct d_part_cond_qp_arg
 struct d_part_cond_qp_ws
 	{
 	struct d_cond_qp_ws *cond_workspace;
-    hpipm_size_t memsize;
+	hpipm_size_t memsize;
 	};
 
 

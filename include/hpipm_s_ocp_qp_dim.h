@@ -60,7 +60,7 @@ struct s_ocp_qp_dim
 	int *nbue; // number of input box constraints which are equality
 	int *nge; // number of general constraints which are equality
 	int N; // horizon length
-    hpipm_size_t memsize;
+	hpipm_size_t memsize;
 	};
 
 

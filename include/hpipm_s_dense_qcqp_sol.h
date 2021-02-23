@@ -61,7 +61,7 @@ struct s_dense_qcqp_sol
 	struct blasfeo_svec *lam;
 	struct blasfeo_svec *t;
 	void *misc;
-    hpipm_size_t memsize;
+	hpipm_size_t memsize;
 	};
 
 

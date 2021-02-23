@@ -63,7 +63,7 @@ struct s_ocp_qp_res
 	struct blasfeo_svec *res_m; // m-residuals
 	float res_max[4]; // max of residuals
 	float res_mu; // mu-residual
-    hpipm_size_t memsize;
+	hpipm_size_t memsize;
 	};
 
 
@@ -72,7 +72,7 @@ struct s_ocp_qp_res_ws
 	{
 	struct blasfeo_svec *tmp_nbgM; // work space of size nbM+ngM
 	struct blasfeo_svec *tmp_nsM; // work space of size nsM
-    hpipm_size_t memsize;
+	hpipm_size_t memsize;
 	};
 
 

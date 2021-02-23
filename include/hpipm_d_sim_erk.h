@@ -49,7 +49,7 @@ struct d_sim_erk_arg
 	int steps; // number of steps
 //	int for_sens; // compute adjoint sensitivities
 //	int adj_sens; // compute adjoint sensitivities
-    hpipm_size_t memsize;
+	hpipm_size_t memsize;
 	};
 
 
@@ -75,7 +75,7 @@ struct d_sim_erk_ws
 	int na; // number of adjoint sensitivities
 	int nf_max; // max number of forward sensitivities
 	int na_max; // max number of adjoint sensitivities
-    hpipm_size_t memsize;
+	hpipm_size_t memsize;
 	};
 
 

@@ -60,7 +60,7 @@ struct d_ocp_qcqp_dim
 	int *nsg; // number of (two-sided) soft general constraints
 	int *nsq; // number of (upper) soft quadratic constraints
 	int N; // horizon length
-    hpipm_size_t memsize;
+	hpipm_size_t memsize;
 	};
 
 

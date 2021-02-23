@@ -53,7 +53,7 @@ struct d_dense_qp_dim
 	int nsb; // number of softened box constraints
 	int nsg; // number of softened general constraints
 	int ns;  // number of softened constraints (nsb+nsg)
-    hpipm_size_t memsize;
+	hpipm_size_t memsize;
 	};
 
 

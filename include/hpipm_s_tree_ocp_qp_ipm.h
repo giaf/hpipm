@@ -84,7 +84,7 @@ struct s_tree_ocp_qp_ipm_arg
 	int split_step; // use different steps for primal and dual variables
 	int t_lam_min; // clip t and lam: 0 no, 1 in Gamma computation, 2 in solution
 	int mode;
-    hpipm_size_t memsize;
+	hpipm_size_t memsize;
 	};
 
 
@@ -122,7 +122,7 @@ struct s_tree_ocp_qp_ipm_ws
 	int status; // solver status
 	int lq_fact; // cache from arg
 	int mask_constr; // use constr mask
-    hpipm_size_t memsize;
+	hpipm_size_t memsize;
 	};
 
 

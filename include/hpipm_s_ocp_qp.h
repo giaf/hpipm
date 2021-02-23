@@ -67,7 +67,7 @@ struct s_ocp_qp
 	int **idxs_rev; // index of soft constraints (reverse storage)
 	int **idxe; // index of equality constraints
 	int *diag_H_flag; // flag the fact that Hessian is diagonal
-    hpipm_size_t memsize; // memory size in bytes
+	hpipm_size_t memsize; // memory size in bytes
 	};
 
 

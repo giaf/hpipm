@@ -82,7 +82,7 @@ struct s_core_qp_ipm_workspace
 	int nc_mask; // total number of ineq constr after masking
 	int split_step; // use different step for primal and dual variables
 	int t_lam_min; // clip t and lam also in solution, or only in Gamma computation
-    hpipm_size_t memsize; // memory size (in bytes) of workspace
+	hpipm_size_t memsize; // memory size (in bytes) of workspace
 	};
 
 

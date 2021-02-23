@@ -84,7 +84,7 @@ struct d_dense_qcqp_ipm_arg
 	int split_step; // use different step for primal and dual variables
 	int t_lam_min; // clip t and lam: 0 no, 1 in Gamma computation, 2 in solution
 	int mode;
-    hpipm_size_t memsize;
+	hpipm_size_t memsize;
 	};
 
 
@@ -99,7 +99,7 @@ struct d_dense_qcqp_ipm_ws
 	struct blasfeo_dvec *tmp_nv;
 	int iter; // iteration number
 	int status;
-    hpipm_size_t memsize; // memory size (in bytes) of workspace
+	hpipm_size_t memsize; // memory size (in bytes) of workspace
 	};
 
 

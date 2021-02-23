@@ -63,7 +63,7 @@ struct s_dense_qp_sol
 	void *misc;
 	float obj;
 	int valid_obj;
-    hpipm_size_t memsize;
+	hpipm_size_t memsize;
 	};
 
 

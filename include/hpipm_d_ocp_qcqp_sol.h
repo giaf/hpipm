@@ -58,7 +58,7 @@ struct d_ocp_qcqp_sol
 	struct blasfeo_dvec *pi;
 	struct blasfeo_dvec *lam;
 	struct blasfeo_dvec *t;
-    hpipm_size_t memsize; // memory size in bytes
+	hpipm_size_t memsize; // memory size in bytes
 	};
 
 

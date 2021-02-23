@@ -63,7 +63,7 @@ struct s_ocp_qcqp_res
 	struct blasfeo_svec *res_m; // m-residuals
 	float res_max[4]; // max of residuals
 	float res_mu; // mu-residual
-    hpipm_size_t memsize;
+	hpipm_size_t memsize;
 	};
 
 
@@ -77,7 +77,7 @@ struct s_ocp_qcqp_res_ws
 	struct blasfeo_svec *q_adj; // value for adjoint of quadr constr
 	int use_q_fun; // reuse cached value for evaluation of quadr constr
 	int use_q_adj; // reuse cached value for adjoint of quadr constr
-    hpipm_size_t memsize;
+	hpipm_size_t memsize;
 	};
 
 

@@ -67,7 +67,7 @@ struct d_ocp_qcqp
 	int **idxb; // index of box constraints
 	int **idxs_rev; // index of soft constraints (reverse storage)
 	int **Hq_nzero; // for each int, the last 3 bits ...abc, {a,b,c}=0 => {R,S,Q}=0
-    hpipm_size_t memsize; // memory size in bytes
+	hpipm_size_t memsize; // memory size in bytes
 	};
 
 

@@ -66,7 +66,7 @@ struct d_tree_ocp_qp
 	int **idxb; // index of box constraints // Nn
 //	int **idxs; // index of soft constraints
 	int **idxs_rev; // index of soft constraints
-    hpipm_size_t memsize; // memory size in bytes
+	hpipm_size_t memsize; // memory size in bytes
 	};
 
 

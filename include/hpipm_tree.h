@@ -64,7 +64,7 @@ struct tree
 	struct node *root; // pointer to root
 	int *kids; // pointer to array of kids
 	int Nn; // numer of nodes
-    hpipm_size_t memsize;
+	hpipm_size_t memsize;
 	};
 
 

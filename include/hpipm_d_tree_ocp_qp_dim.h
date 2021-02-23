@@ -58,7 +58,7 @@ struct d_tree_ocp_qp_dim
 	int *nsbu; // number of soft input box constraints
 	int *nsg; // number of soft general constraints
 	int Nn; // number of nodes
-    hpipm_size_t memsize;
+	hpipm_size_t memsize;
 	};
 
 

@@ -103,7 +103,7 @@ void COND_QCQP_COMPUTE_DIM(struct OCP_QCQP_DIM *ocp_dim, struct DENSE_QCQP_DIM *
 hpipm_size_t COND_QCQP_ARG_MEMSIZE()
 	{
 
-        hpipm_size_t size = 0;
+	hpipm_size_t size = 0;
 
 	size += 1*sizeof(struct COND_QP_ARG);
 	size += 1*COND_QP_ARG_MEMSIZE();

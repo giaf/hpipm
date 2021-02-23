@@ -56,7 +56,7 @@ struct d_part_cond_qcqp_arg
 	{
 	struct d_cond_qcqp_arg *cond_arg;
 	int N2;
-    hpipm_size_t memsize;
+	hpipm_size_t memsize;
 	};
 
 
@@ -64,7 +64,7 @@ struct d_part_cond_qcqp_arg
 struct d_part_cond_qcqp_ws
 	{
 	struct d_cond_qcqp_ws *cond_ws;
-    hpipm_size_t memsize;
+	hpipm_size_t memsize;
 	};
 
 

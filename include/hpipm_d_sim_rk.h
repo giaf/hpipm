@@ -49,7 +49,7 @@ struct d_sim_rk_data
 	double *C_rk; // c in butcher tableau
 	int expl; // erk vs irk
 	int ns; // number of stages
-    hpipm_size_t memsize;
+	hpipm_size_t memsize;
 	};
 
 

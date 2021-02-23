@@ -66,7 +66,7 @@ struct s_tree_ocp_qcqp
 	struct blasfeo_svec *Z; // Nn
 	int **idxb; // index of box constraints // Nn
 	int **idxs_rev; // index of soft constraints
-    hpipm_size_t memsize; // memory size in bytes
+	hpipm_size_t memsize; // memory size in bytes
 	};
 
 

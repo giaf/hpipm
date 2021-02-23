@@ -56,7 +56,7 @@ struct s_dense_qcqp_dim
 	int nsg; // number of softened general constraints
 	int nsq; // number of softened quadratic constraints
 	int ns;  // number of softened constraints (nsb+nsg+nsq) TODO number of slacks
-    hpipm_size_t memsize;
+	hpipm_size_t memsize;
 	};
 
 

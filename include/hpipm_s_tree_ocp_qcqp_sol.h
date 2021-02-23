@@ -57,7 +57,7 @@ struct s_tree_ocp_qcqp_sol
 	struct blasfeo_svec *lam;
 	struct blasfeo_svec *t;
 	void *misc;
-    hpipm_size_t memsize; // memory size in bytes
+	hpipm_size_t memsize; // memory size in bytes
 	};
 
 

@@ -64,7 +64,7 @@ struct d_cond_qcqp_arg
 	int comp_dual_sol_eq; // dual solution equality constr (pi)
 	int comp_dual_sol_ineq; // dual solution equality constr (lam t)
 	int square_root_alg; // square root algorithm (faster but requires RSQ>0)
-    hpipm_size_t memsize;
+	hpipm_size_t memsize;
 	};
 
 
@@ -83,7 +83,7 @@ struct d_cond_qcqp_ws
 	struct blasfeo_dmat *tmp_nuM_nxM;
 //	struct blasfeo_dvec *d_qp;
 //	struct blasfeo_dvec *d_mask_qp;
-    hpipm_size_t memsize;
+	hpipm_size_t memsize;
 	};
 
 
