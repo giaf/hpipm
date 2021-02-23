@@ -36,6 +36,8 @@
 #ifndef HPIPM_D_SIM_ERK_H_
 #define HPIPM_D_SIM_ERK_H_
 
+#include "hpipm_common.h"
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -47,7 +49,7 @@ struct d_sim_erk_arg
 	int steps; // number of steps
 //	int for_sens; // compute adjoint sensitivities
 //	int adj_sens; // compute adjoint sensitivities
-	int memsize;
+	hpipm_size_t memsize;
 	};
 
 
@@ -73,20 +75,20 @@ struct d_sim_erk_ws
 	int na; // number of adjoint sensitivities
 	int nf_max; // max number of forward sensitivities
 	int na_max; // max number of adjoint sensitivities
-	int memsize;
+	hpipm_size_t memsize;
 	};
 
 
 
 //
-int d_sim_erk_arg_memsize();
+hpipm_size_t d_sim_erk_arg_memsize();
 //
 void d_sim_erk_arg_create(struct d_sim_erk_arg *erk_arg, void *mem);
 //
 void d_sim_erk_arg_set_all(struct d_sim_rk_data *rk_data, double h, int steps, struct d_sim_erk_arg *erk_arg);
 
 //
-int d_sim_erk_ws_memsize(struct d_sim_erk_arg *erk_arg, int nx, int np, int nf_max, int na_max);
+hpipm_size_t d_sim_erk_ws_memsize(struct d_sim_erk_arg *erk_arg, int nx, int np, int nf_max, int na_max);
 //
 void d_sim_erk_ws_create(struct d_sim_erk_arg *erk_arg, int nx, int np, int nf_max, int na_max, struct d_sim_erk_ws *work, void *memory);
 //

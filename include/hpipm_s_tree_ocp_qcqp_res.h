@@ -63,7 +63,7 @@ struct s_tree_ocp_qcqp_res
 	struct blasfeo_svec *res_m; // m-residuals
 	float res_max[4]; // max of residuals
 	float res_mu; // mu-residual
-	int memsize;
+	hpipm_size_t memsize;
 	};
 
 
@@ -77,17 +77,17 @@ struct s_tree_ocp_qcqp_res_ws
 	struct blasfeo_svec *q_adj; // value for adjoint of quadr constr
 	int use_q_fun; // reuse cached value for evaluation of quadr constr
 	int use_q_adj; // reuse cached value for adjoint of quadr constr
-	int memsize;
+	hpipm_size_t memsize;
 	};
 
 
 
 //
-int s_tree_ocp_qcqp_res_memsize(struct s_tree_ocp_qcqp_dim *ocp_dim);
+hpipm_size_t s_tree_ocp_qcqp_res_memsize(struct s_tree_ocp_qcqp_dim *ocp_dim);
 //
 void s_tree_ocp_qcqp_res_create(struct s_tree_ocp_qcqp_dim *ocp_dim, struct s_tree_ocp_qcqp_res *res, void *mem);
 //
-int s_tree_ocp_qcqp_res_ws_memsize(struct s_tree_ocp_qcqp_dim *ocp_dim);
+hpipm_size_t s_tree_ocp_qcqp_res_ws_memsize(struct s_tree_ocp_qcqp_dim *ocp_dim);
 //
 void s_tree_ocp_qcqp_res_ws_create(struct s_tree_ocp_qcqp_dim *ocp_dim, struct s_tree_ocp_qcqp_res_ws *ws, void *mem);
 //

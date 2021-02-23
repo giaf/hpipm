@@ -62,7 +62,7 @@ struct d_dense_qp_res
 	struct blasfeo_dvec *res_m; // m-residuals
 	double res_max[4]; // max of residuals
 	double res_mu; // mu-residual
-	int memsize;
+	hpipm_size_t memsize;
 	};
 
 
@@ -71,17 +71,17 @@ struct d_dense_qp_res_ws
 	{
 	struct blasfeo_dvec *tmp_nbg; // work space of size nbM+ngM
 	struct blasfeo_dvec *tmp_ns; // work space of size nsM
-	int memsize;
+	hpipm_size_t memsize;
 	};
 
 
 
 //
-int d_dense_qp_res_memsize(struct d_dense_qp_dim *dim);
+hpipm_size_t d_dense_qp_res_memsize(struct d_dense_qp_dim *dim);
 //
 void d_dense_qp_res_create(struct d_dense_qp_dim *dim, struct d_dense_qp_res *res, void *mem);
 //
-int d_dense_qp_res_ws_memsize(struct d_dense_qp_dim *dim);
+hpipm_size_t d_dense_qp_res_ws_memsize(struct d_dense_qp_dim *dim);
 //
 void d_dense_qp_res_ws_create(struct d_dense_qp_dim *dim, struct d_dense_qp_res_ws *workspace, void *mem);
 //

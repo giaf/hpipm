@@ -99,12 +99,12 @@
 
 
 
-int d_memsize_ocp_nlp_hyb_arg(struct OCP_NLP *nlp)
+hpipm_size_t d_memsize_ocp_nlp_hyb_arg(struct OCP_NLP *nlp)
 	{
 
 	int N = nlp->N;
 
-	int size;
+	hpipm_size_t size;
 
 	size = 0;
 
@@ -207,7 +207,7 @@ void d_set_default_ocp_nlp_hyb_arg(struct OCP_NLP_HYB_ARG *arg)
 
 
 // TODO eliminate x0 in QP !!!
-int MEMSIZE_OCP_NLP_HYB(struct OCP_NLP *nlp, struct OCP_NLP_HYB_ARG *arg)
+hpipm_size_t MEMSIZE_OCP_NLP_HYB(struct OCP_NLP *nlp, struct OCP_NLP_HYB_ARG *arg)
 	{
 
 	int ii;
@@ -241,7 +241,7 @@ int MEMSIZE_OCP_NLP_HYB(struct OCP_NLP *nlp, struct OCP_NLP_HYB_ARG *arg)
 
 	int *i_ptr;
 
-	int size = 0;
+	hpipm_size_t size = 0;
 
 	size += 1*sizeof(struct OCP_QP);
 	size += 1*sizeof(struct OCP_QP_SOL);

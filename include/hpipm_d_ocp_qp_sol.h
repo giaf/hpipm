@@ -59,15 +59,15 @@ struct d_ocp_qp_sol
 	struct blasfeo_dvec *lam;
 	struct blasfeo_dvec *t;
 	void *misc;
-	int memsize; // memory size in bytes
+	hpipm_size_t memsize; // memory size in bytes
 	};
 
 
 
 //
-int d_ocp_qp_sol_strsize();
+hpipm_size_t d_ocp_qp_sol_strsize();
 //
-int d_ocp_qp_sol_memsize(struct d_ocp_qp_dim *dim);
+hpipm_size_t d_ocp_qp_sol_memsize(struct d_ocp_qp_dim *dim);
 //
 void d_ocp_qp_sol_create(struct d_ocp_qp_dim *dim, struct d_ocp_qp_sol *qp_sol, void *memory);
 //

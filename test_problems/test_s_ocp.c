@@ -509,7 +509,7 @@ int main()
 * ocp qp
 ************************************************/	
 	
-	int qp_size = s_memsize_ocp_qp(N, nx, nu, nb, ng);
+	hpipm_size_t qp_size = s_memsize_ocp_qp(N, nx, nu, nb, ng);
 	printf("\nqp size = %d\n", qp_size);
 	void *qp_mem = malloc(qp_size);
 
@@ -545,7 +545,7 @@ int main()
 * ocp qp
 ************************************************/	
 	
-	int qp_sol_size = s_memsize_ocp_qp_sol(N, nx, nu, nb, ng);
+	hpipm_size_t qp_sol_size = s_memsize_ocp_qp_sol(N, nx, nu, nb, ng);
 	printf("\nqp sol size = %d\n", qp_sol_size);
 	void *qp_sol_mem = malloc(qp_sol_size);
 
@@ -562,7 +562,7 @@ int main()
 	arg.iter_max = 20;
 	arg.mu0 = 2.0;
 
-	int ipm_size = s_memsize_ipm_hard_ocp_qp(&qp, &arg);
+	hpipm_size_t ipm_size = s_memsize_ipm_hard_ocp_qp(&qp, &arg);
 	printf("\nipm size = %d\n", ipm_size);
 	void *ipm_mem = malloc(ipm_size);
 

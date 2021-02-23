@@ -35,10 +35,10 @@
 
 
 
-int DENSE_QCQP_IPM_ARG_MEMSIZE(struct DENSE_QCQP_DIM *dim)
+hpipm_size_t DENSE_QCQP_IPM_ARG_MEMSIZE(struct DENSE_QCQP_DIM *dim)
 	{
 
-	int size = 0;
+	hpipm_size_t size = 0;
 
 	size += 1*sizeof(struct DENSE_QP_IPM_ARG);
 	size += 1*DENSE_QP_IPM_ARG_MEMSIZE(dim->qp_dim);
@@ -59,7 +59,7 @@ void DENSE_QCQP_IPM_ARG_CREATE(struct DENSE_QCQP_DIM *dim, struct DENSE_QCQP_IPM
 	int ii;
 
 	// zero memory (to avoid corrupted memory like e.g. NaN)
-	int memsize = DENSE_QCQP_IPM_ARG_MEMSIZE(dim);
+	hpipm_size_t memsize = DENSE_QCQP_IPM_ARG_MEMSIZE(dim);
 	hpipm_zero_memset(memsize, mem);
 
 	// qp_dim struct
@@ -498,12 +498,12 @@ void DENSE_QCQP_IPM_ARG_SET_T_LAM_MIN(int *value, struct DENSE_QCQP_IPM_ARG *arg
 
 
 
-int DENSE_QCQP_IPM_WS_MEMSIZE(struct DENSE_QCQP_DIM *dim, struct DENSE_QCQP_IPM_ARG *arg)
+hpipm_size_t DENSE_QCQP_IPM_WS_MEMSIZE(struct DENSE_QCQP_DIM *dim, struct DENSE_QCQP_IPM_ARG *arg)
 	{
 
 	int nv = dim->nv;
 
-	int size = 0;
+	hpipm_size_t size = 0;
 
 	size += 1*sizeof(struct DENSE_QP_IPM_WS);
 	size += 1*DENSE_QP_IPM_WS_MEMSIZE(dim->qp_dim, arg->qp_arg);
@@ -538,7 +538,7 @@ void DENSE_QCQP_IPM_WS_CREATE(struct DENSE_QCQP_DIM *dim, struct DENSE_QCQP_IPM_
 	int ii;
 
 	// zero memory (to avoid corrupted memory like e.g. NaN)
-	int memsize = DENSE_QCQP_IPM_WS_MEMSIZE(dim, arg);
+	hpipm_size_t memsize = DENSE_QCQP_IPM_WS_MEMSIZE(dim, arg);
 	hpipm_zero_memset(memsize, mem);
 
 	int nv = dim->nv;

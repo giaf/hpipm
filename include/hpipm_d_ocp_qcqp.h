@@ -67,15 +67,15 @@ struct d_ocp_qcqp
 	int **idxb; // index of box constraints
 	int **idxs_rev; // index of soft constraints (reverse storage)
 	int **Hq_nzero; // for each int, the last 3 bits ...abc, {a,b,c}=0 => {R,S,Q}=0
-	int memsize; // memory size in bytes
+	hpipm_size_t memsize; // memory size in bytes
 	};
 
 
 
 //
-int d_ocp_qcqp_strsize();
+hpipm_size_t d_ocp_qcqp_strsize();
 //
-int d_ocp_qcqp_memsize(struct d_ocp_qcqp_dim *dim);
+hpipm_size_t d_ocp_qcqp_memsize(struct d_ocp_qcqp_dim *dim);
 //
 void d_ocp_qcqp_create(struct d_ocp_qcqp_dim *dim, struct d_ocp_qcqp *qp, void *memory);
 //

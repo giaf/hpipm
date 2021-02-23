@@ -35,7 +35,7 @@
 
 
 
-int SIM_ERK_ARG_MEMSIZE()
+hpipm_size_t SIM_ERK_ARG_MEMSIZE()
 	{
 	return 0;
 	}
@@ -46,7 +46,7 @@ void SIM_ERK_ARG_CREATE(struct SIM_ERK_ARG *erk_arg, void *mem)
 	{
 
 	// zero memory (to avoid corrupted memory like e.g. NaN)
-	int memsize = SIM_ERK_ARG_MEMSIZE();
+	hpipm_size_t memsize = SIM_ERK_ARG_MEMSIZE();
 	hpipm_zero_memset(memsize, mem);
 
 	erk_arg->memsize = memsize;
@@ -72,7 +72,7 @@ void SIM_ERK_ARG_SET_ALL(struct SIM_RK_DATA *rk_data, REAL h, int steps, struct 
 
 
 
-int SIM_ERK_WS_MEMSIZE(struct SIM_ERK_ARG *erk_arg, int nx, int np, int nf_max, int na_max)
+hpipm_size_t SIM_ERK_WS_MEMSIZE(struct SIM_ERK_ARG *erk_arg, int nx, int np, int nf_max, int na_max)
 	{
 
 	int ns = erk_arg->rk_data->ns;
@@ -81,7 +81,7 @@ int SIM_ERK_WS_MEMSIZE(struct SIM_ERK_ARG *erk_arg, int nx, int np, int nf_max, 
 
 	int steps = erk_arg->steps;
 
-	int size = 0;
+	hpipm_size_t size = 0;
 
 	size += 1*np*sizeof(REAL); // p
 	size += 1*nX*sizeof(REAL); // x_for
@@ -108,7 +108,7 @@ void SIM_ERK_WS_CREATE(struct SIM_ERK_ARG *erk_arg, int nx, int np, int nf_max, 
 	{
 
 	// zero memory (to avoid corrupted memory like e.g. NaN)
-	int memsize = SIM_ERK_WS_MEMSIZE(erk_arg, nx, np, nf_max, na_max);
+	hpipm_size_t memsize = SIM_ERK_WS_MEMSIZE(erk_arg, nx, np, nf_max, na_max);
 	hpipm_zero_memset(memsize, mem);
 
 	work->erk_arg = erk_arg;

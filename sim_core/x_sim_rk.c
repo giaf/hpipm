@@ -35,10 +35,10 @@
 
 
 
-int SIM_RK_DATA_MEMSIZE(int ns)
+hpipm_size_t SIM_RK_DATA_MEMSIZE(int ns)
 	{
 
-	int size = 0;
+	hpipm_size_t size = 0;
 
 	size += 1*ns*ns*sizeof(REAL); // A
 	size += 2*ns*sizeof(REAL); // B C

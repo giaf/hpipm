@@ -67,15 +67,15 @@ struct d_ocp_qp
 	int **idxs_rev; // index of soft constraints (reverse storage)
 	int **idxe; // index of equality constraints
 	int *diag_H_flag; // flag the fact that Hessian is diagonal
-	int memsize; // memory size in bytes
+	hpipm_size_t memsize; // memory size in bytes
 	};
 
 
 
 //
-int d_ocp_qp_strsize();
+hpipm_size_t d_ocp_qp_strsize();
 //
-int d_ocp_qp_memsize(struct d_ocp_qp_dim *dim);
+hpipm_size_t d_ocp_qp_memsize(struct d_ocp_qp_dim *dim);
 //
 void d_ocp_qp_create(struct d_ocp_qp_dim *dim, struct d_ocp_qp *qp, void *memory);
 //

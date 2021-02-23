@@ -63,13 +63,13 @@ struct d_dense_qp_sol
 	void *misc;
 	double obj;
 	int valid_obj;
-	int memsize;
+	hpipm_size_t memsize;
 	};
 
 
 
 //
-int d_dense_qp_sol_memsize(struct d_dense_qp_dim *dim);
+hpipm_size_t d_dense_qp_sol_memsize(struct d_dense_qp_dim *dim);
 //
 void d_dense_qp_sol_create(struct d_dense_qp_dim *dim, struct d_dense_qp_sol *qp_sol, void *memory);
 //

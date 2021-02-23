@@ -35,7 +35,7 @@
 
 
 
-int DENSE_QP_IPM_ARG_MEMSIZE(struct DENSE_QP_DIM *dim)
+hpipm_size_t DENSE_QP_IPM_ARG_MEMSIZE(struct DENSE_QP_DIM *dim)
 	{
 
 	return 0;
@@ -48,7 +48,7 @@ void DENSE_QP_IPM_ARG_CREATE(struct DENSE_QP_DIM *dim, struct DENSE_QP_IPM_ARG *
 	{
 
 	// zero memory (to avoid corrupted memory like e.g. NaN)
-//	int memsize = DENSE_QP_IPM_ARG_MEMSIZE(dim);
+//	hpipm_size_t memsize = DENSE_QP_IPM_ARG_MEMSIZE(dim);
 //	hpipm_zero_memset(memsize, mem);
 
 	arg->memsize = 0;
@@ -508,7 +508,7 @@ void DENSE_QP_IPM_ARG_SET_T_LAM_MIN(int *value, struct DENSE_QP_IPM_ARG *arg)
 
 
 
-int DENSE_QP_IPM_WS_MEMSIZE(struct DENSE_QP_DIM *dim, struct DENSE_QP_IPM_ARG *arg)
+hpipm_size_t DENSE_QP_IPM_WS_MEMSIZE(struct DENSE_QP_DIM *dim, struct DENSE_QP_IPM_ARG *arg)
 	{
 
 	int nv = dim->nv;
@@ -517,7 +517,7 @@ int DENSE_QP_IPM_WS_MEMSIZE(struct DENSE_QP_DIM *dim, struct DENSE_QP_IPM_ARG *a
 	int ng = dim->ng;
 	int ns = dim->ns;
 
-	int size = 0;
+	hpipm_size_t size = 0;
 
 	size += 1*sizeof(struct CORE_QP_IPM_WORKSPACE);
 	size += 1*MEMSIZE_CORE_QP_IPM(nv+2*ns, ne, 2*nb+2*ng+2*ns);
@@ -639,7 +639,7 @@ void DENSE_QP_IPM_WS_CREATE(struct DENSE_QP_DIM *dim, struct DENSE_QP_IPM_ARG *a
 	{
 
 	// zero memory (to avoid corrupted memory like e.g. NaN)
-	int memsize = DENSE_QP_IPM_WS_MEMSIZE(dim, arg);
+	hpipm_size_t memsize = DENSE_QP_IPM_WS_MEMSIZE(dim, arg);
 	hpipm_zero_memset(memsize, mem);
 
 	int nv = dim->nv;

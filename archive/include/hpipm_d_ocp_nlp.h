@@ -65,13 +65,13 @@ struct d_ocp_nlp
 	int *ns; // number of soft constraints
 	int **idxs; // index of soft constraints
 	int N; // hotizon lenght
-	int memsize; // memory size in bytes
+	hpipm_size_t memsize; // memory size in bytes
 	};
 
 
 
 //
-int d_memsize_ocp_nlp(int N, int *nx, int *nu, int *nb, int *ng, int *ns);
+hpipm_size_t d_memsize_ocp_nlp(int N, int *nx, int *nu, int *nb, int *ng, int *ns);
 //
 void d_create_ocp_nlp(int N, int *nx, int *nu, int *nb, int *ng, int *ns, struct d_ocp_nlp *nlp, void *memory);
 //

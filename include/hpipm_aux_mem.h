@@ -36,11 +36,13 @@
 #ifndef HPIPM_AUX_MEM_H_
 #define HPIPM_AUX_MEM_H_
 
+#include "hpipm_common.h"
+
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-void hpipm_zero_memset(int memsize, void *mem);
+void hpipm_zero_memset(hpipm_size_t memsize, void *mem);
 
 #ifdef __cplusplus
 } /* extern "C" */

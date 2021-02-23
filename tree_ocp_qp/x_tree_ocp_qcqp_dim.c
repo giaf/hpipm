@@ -35,10 +35,10 @@
 
 
 
-int TREE_OCP_QCQP_DIM_STRSIZE()
+hpipm_size_t TREE_OCP_QCQP_DIM_STRSIZE()
 	{
 
-	int size = 0;
+	hpipm_size_t size = 0;
 
 	size += sizeof(struct TREE_OCP_QCQP_DIM);
 
@@ -48,10 +48,10 @@ int TREE_OCP_QCQP_DIM_STRSIZE()
 
 
 
-int TREE_OCP_QCQP_DIM_MEMSIZE(int Nn)
+hpipm_size_t TREE_OCP_QCQP_DIM_MEMSIZE(int Nn)
 	{
 
-	int size = 0;
+	hpipm_size_t size = 0;
 
 	size += 12*Nn*sizeof(int);
 
@@ -74,7 +74,7 @@ void TREE_OCP_QCQP_DIM_CREATE(int Nn, struct TREE_OCP_QCQP_DIM *dim, void *memor
 	int ii;
 
 	// zero memory (to avoid corrupted memory like e.g. NaN)
-	int memsize = TREE_OCP_QCQP_DIM_MEMSIZE(Nn);
+	hpipm_size_t memsize = TREE_OCP_QCQP_DIM_MEMSIZE(Nn);
 	hpipm_zero_memset(memsize, memory);
 
 	// qp_dim struct

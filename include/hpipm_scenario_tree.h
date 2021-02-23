@@ -50,13 +50,13 @@ struct sctree
 	int md; // number of realizations
 	int Nr; // robust horizion
 	int Nh; // control horizion
-	int memsize;
+	hpipm_size_t memsize;
 	};
 
 
 
 //
-int sctree_memsize(int md, int Nr, int Nh);
+hpipm_size_t sctree_memsize(int md, int Nr, int Nh);
 //
 void sctree_create(int md, int Nr, int Nh, struct sctree *st, void *memory);
 //

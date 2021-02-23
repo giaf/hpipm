@@ -114,8 +114,8 @@ void CAST_QCQP_COND(struct OCP_QCQP *ocp_qp, struct DENSE_QCQP *dense_qp)
 	int *ng = ocp_qp->dim->ng;
 	int *nq = ocp_qp->dim->nq;
 
-	int nvc = dense_qp->dim->nv;
-	int nec = dense_qp->dim->ne;
+//	int nvc = dense_qp->dim->nv;
+//	int nec = dense_qp->dim->ne;
 	int nbc = dense_qp->dim->nb;
 	int ngc = dense_qp->dim->ng;
 	int nqc = dense_qp->dim->nq;

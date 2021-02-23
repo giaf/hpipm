@@ -35,14 +35,14 @@
 
 
 
-int OCP_QP_IPM_ARG_STRSIZE()
+hpipm_size_t OCP_QP_IPM_ARG_STRSIZE()
 	{
 	return sizeof(struct OCP_QP_IPM_ARG);
 	}
 
 
 
-int OCP_QP_IPM_ARG_MEMSIZE(struct OCP_QP_DIM *dim)
+hpipm_size_t OCP_QP_IPM_ARG_MEMSIZE(struct OCP_QP_DIM *dim)
 	{
 
 	return 0;
@@ -55,7 +55,7 @@ void OCP_QP_IPM_ARG_CREATE(struct OCP_QP_DIM *dim, struct OCP_QP_IPM_ARG *arg, v
 	{
 
 	// zero memory (to avoid corrupted memory like e.g. NaN)
-//	int memsize = OCP_QP_IPM_ARG_MEMSIZE(dim);
+//	hpipm_size_t memsize = OCP_QP_IPM_ARG_MEMSIZE(dim);
 //	hpipm_zero_memset(memsize, mem);
 
 	arg->memsize = 0;
@@ -495,14 +495,14 @@ void OCP_QP_IPM_ARG_SET_T_LAM_MIN(int *value, struct OCP_QP_IPM_ARG *arg)
 
 
 
-int OCP_QP_IPM_WS_STRSIZE()
+hpipm_size_t OCP_QP_IPM_WS_STRSIZE()
 	{
 	return sizeof(struct OCP_QP_IPM_WS);
 	}
 
 
 
-int OCP_QP_IPM_WS_MEMSIZE(struct OCP_QP_DIM *dim, struct OCP_QP_IPM_ARG *arg)
+hpipm_size_t OCP_QP_IPM_WS_MEMSIZE(struct OCP_QP_DIM *dim, struct OCP_QP_IPM_ARG *arg)
 	{
 
 	// stat_max is at least as big as iter_max
@@ -548,7 +548,7 @@ int OCP_QP_IPM_WS_MEMSIZE(struct OCP_QP_DIM *dim, struct OCP_QP_IPM_ARG *arg)
 	ngM = ng[ii]>ngM ? ng[ii] : ngM;
 	nsM = ns[ii]>nsM ? ns[ii] : nsM;
 
-	int size = 0;
+	hpipm_size_t size = 0;
 
 	size += 1*sizeof(struct CORE_QP_IPM_WORKSPACE);
 	size += 1*MEMSIZE_CORE_QP_IPM(nvt, net, nct);
@@ -635,7 +635,7 @@ void OCP_QP_IPM_WS_CREATE(struct OCP_QP_DIM *dim, struct OCP_QP_IPM_ARG *arg, st
 	int ii;
 
 	// zero memory (to avoid corrupted memory like e.g. NaN)
-	int memsize = OCP_QP_IPM_WS_MEMSIZE(dim, arg);
+	hpipm_size_t memsize = OCP_QP_IPM_WS_MEMSIZE(dim, arg);
 	hpipm_zero_memset(memsize, mem);
 
 	// extract ocp qp size

@@ -494,7 +494,7 @@ int main()
 * create scenario tree
 ************************************************/	
 
-	int tree_memsize = memsize_sctree(md, Nr, Nh);
+	hpipm_size_t tree_memsize = memsize_sctree(md, Nr, Nh);
 	printf("\ntree memsize = %d\n", tree_memsize);
 	void *tree_memory = malloc(tree_memsize);
 
@@ -687,7 +687,7 @@ int main()
 * create tree ocp qp
 ************************************************/	
 
-	int tree_ocp_qp_memsize = s_memsize_tree_ocp_qp(&ttree, nxt, nut, nbt, ngt);
+	hpipm_size_t tree_ocp_qp_memsize = s_memsize_tree_ocp_qp(&ttree, nxt, nut, nbt, ngt);
 	printf("\ntree ocp qp memsize = %d\n", tree_ocp_qp_memsize);
 	void *tree_ocp_qp_memory = malloc(tree_ocp_qp_memsize);
 
@@ -748,7 +748,7 @@ int main()
 * ocp qp sol
 ************************************************/	
 	
-	int tree_ocp_qp_sol_size = s_memsize_tree_ocp_qp_sol(&ttree, nxt, nut, nbt, ngt);
+	hpipm_size_t tree_ocp_qp_sol_size = s_memsize_tree_ocp_qp_sol(&ttree, nxt, nut, nbt, ngt);
 	printf("\ntree ocp qp sol memsize = %d\n", tree_ocp_qp_sol_size);
 	void *tree_ocp_qp_sol_memory = malloc(tree_ocp_qp_sol_size);
 
@@ -765,7 +765,7 @@ int main()
 	arg.iter_max = 20;
 	arg.mu0 = 2.0;
 
-	int ipm_size = s_memsize_ipm_hard_tree_ocp_qp(&qp, &arg);
+	hpipm_size_t ipm_size = s_memsize_ipm_hard_tree_ocp_qp(&qp, &arg);
 	printf("\nipm size = %d\n", ipm_size);
 	void *ipm_memory = malloc(ipm_size);
 

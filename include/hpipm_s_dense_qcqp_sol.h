@@ -61,13 +61,13 @@ struct s_dense_qcqp_sol
 	struct blasfeo_svec *lam;
 	struct blasfeo_svec *t;
 	void *misc;
-	int memsize;
+	hpipm_size_t memsize;
 	};
 
 
 
 //
-int s_dense_qcqp_sol_memsize(struct s_dense_qcqp_dim *dim);
+hpipm_size_t s_dense_qcqp_sol_memsize(struct s_dense_qcqp_dim *dim);
 //
 void s_dense_qcqp_sol_create(struct s_dense_qcqp_dim *dim, struct s_dense_qcqp_sol *qp_sol, void *memory);
 //

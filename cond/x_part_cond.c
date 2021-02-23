@@ -86,8 +86,8 @@ void PART_COND_QP_COMPUTE_DIM(struct OCP_QP_DIM *ocp_dim, int *block_size, struc
 
 	int ii, jj;
 
-	int nbb; // box constr that remain box constr
-	int nbg; // box constr that becomes general constr
+//	int nbb; // box constr that remain box constr
+//	int nbg; // box constr that becomes general constr
 	int N_tmp = 0; // temporary sum of block size
 	// first stages
 	for(ii=0; ii<N2; ii++)
@@ -151,12 +151,12 @@ void PART_COND_QP_COMPUTE_DIM(struct OCP_QP_DIM *ocp_dim, int *block_size, struc
 
 
 
-int PART_COND_QP_ARG_MEMSIZE(int N2)
+hpipm_size_t PART_COND_QP_ARG_MEMSIZE(int N2)
 	{
 
 	int ii;
 
-	int size = 0;
+	hpipm_size_t size = 0;
 
 	size += (N2+1)*sizeof(struct COND_QP_ARG);
 
@@ -313,7 +313,7 @@ void PART_COND_QP_ARG_SET_COMP_DUAL_SOL_INEQ(int value, struct PART_COND_QP_ARG 
 
 
 
-int PART_COND_QP_WS_MEMSIZE(struct OCP_QP_DIM *ocp_dim, int *block_size, struct OCP_QP_DIM *part_dense_dim, struct PART_COND_QP_ARG *part_cond_arg)
+hpipm_size_t PART_COND_QP_WS_MEMSIZE(struct OCP_QP_DIM *ocp_dim, int *block_size, struct OCP_QP_DIM *part_dense_dim, struct PART_COND_QP_ARG *part_cond_arg)
 	{
 
 	struct OCP_QP_DIM tmp_ocp_dim;
@@ -323,7 +323,7 @@ int PART_COND_QP_WS_MEMSIZE(struct OCP_QP_DIM *ocp_dim, int *block_size, struct 
 	int N = ocp_dim->N;
 	int N2 = part_dense_dim->N;
 
-	int size = 0;
+	hpipm_size_t size = 0;
 
 	size += (N2+1)*sizeof(struct COND_QP_ARG_WS);
 

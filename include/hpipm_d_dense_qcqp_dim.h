@@ -36,7 +36,7 @@
 #ifndef HPIPM_D_DENSE_QCQP_DIM_H_
 #define HPIPM_D_DENSE_QCQP_DIM_H_
 
-
+#include "hpipm_common.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -56,13 +56,13 @@ struct d_dense_qcqp_dim
 	int nsg; // number of softened general constraints
 	int nsq; // number of softened quadratic constraints
 	int ns;  // number of softened constraints (nsb+nsg+nsq) TODO number of slacks
-	int memsize;
+	hpipm_size_t memsize;
 	};
 
 
 
 //
-int d_dense_qcqp_dim_memsize();
+hpipm_size_t d_dense_qcqp_dim_memsize();
 //
 void d_dense_qcqp_dim_create(struct d_dense_qcqp_dim *dim, void *memory);
 //

@@ -43,13 +43,13 @@ struct s_ocp_nlp_sol
 	struct blasfeo_svec *lam;
 	struct blasfeo_svec *t;
 	struct blasfeo_svec *eta0;
-	int memsize; // memory size in bytes
+	hpipm_size_t memsize; // memory size in bytes
 	};
 
 
 
 //
-int s_memsize_ocp_nlp_sol(int N, int *nx, int *nu, int *nb, int *ng, int *ns, int ne0);
+hpipm_size_t s_memsize_ocp_nlp_sol(int N, int *nx, int *nu, int *nb, int *ng, int *ns, int ne0);
 //
 void s_create_ocp_nlp_sol(int N, int *nx, int *nu, int *nb, int *ng, int *ns, int ne0, struct s_ocp_nlp_sol *qp_sol, void *memory);
 //

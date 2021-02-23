@@ -100,10 +100,10 @@ void COND_QCQP_COMPUTE_DIM(struct OCP_QCQP_DIM *ocp_dim, struct DENSE_QCQP_DIM *
 
 
 
-int COND_QCQP_ARG_MEMSIZE()
+hpipm_size_t COND_QCQP_ARG_MEMSIZE()
 	{
 
-	int size = 0;
+	hpipm_size_t size = 0;
 
 	size += 1*sizeof(struct COND_QP_ARG);
 	size += 1*COND_QP_ARG_MEMSIZE();
@@ -124,7 +124,7 @@ void COND_QCQP_ARG_CREATE(struct COND_QCQP_ARG *cond_arg, void *mem)
 	int ii;
 
 	// zero memory (to avoid corrupted memory like e.g. NaN)
-	int memsize = COND_QCQP_ARG_MEMSIZE();
+	hpipm_size_t memsize = COND_QCQP_ARG_MEMSIZE();
 	hpipm_zero_memset(memsize, mem);
 
 	struct COND_QP_ARG *arg_ptr = mem;
@@ -209,10 +209,10 @@ void COND_QCQP_ARG_SET_COND_LAST_STAGE(int cond_last_stage, struct COND_QCQP_ARG
 
 
 
-int COND_QCQP_WS_MEMSIZE(struct OCP_QCQP_DIM *ocp_dim, struct COND_QCQP_ARG *cond_arg)
+hpipm_size_t COND_QCQP_WS_MEMSIZE(struct OCP_QCQP_DIM *ocp_dim, struct COND_QCQP_ARG *cond_arg)
 	{
 
-	int size = 0;
+	hpipm_size_t size = 0;
 
 	size += 1*sizeof(struct COND_QP_WS);
 	size += 1*COND_QP_WS_MEMSIZE(ocp_dim->qp_dim, cond_arg->qp_arg);
@@ -298,7 +298,7 @@ void COND_QCQP_WS_CREATE(struct OCP_QCQP_DIM *ocp_dim, struct COND_QCQP_ARG *con
 	int ii;
 
 	// zero memory (to avoid corrupted memory like e.g. NaN)
-	int memsize = COND_QCQP_WS_MEMSIZE(ocp_dim, cond_arg);
+	hpipm_size_t memsize = COND_QCQP_WS_MEMSIZE(ocp_dim, cond_arg);
 	hpipm_zero_memset(memsize, mem);
 
 	int N = ocp_dim->N;

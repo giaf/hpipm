@@ -63,7 +63,7 @@ struct d_cond_qp_arg
 	int comp_dual_sol_eq; // dual solution equality constr (pi)
 	int comp_dual_sol_ineq; // dual solution inequality constr (lam t)
 	int square_root_alg; // square root algorithm (faster but requires RSQ>0)
-	int memsize;
+	hpipm_size_t memsize;
 	};
 
 
@@ -80,13 +80,13 @@ struct d_cond_qp_ws
 	struct blasfeo_dvec *tmp_nbgM;
 	struct blasfeo_dvec *tmp_nuxM;
 	int bs; // block size
-	int memsize;
+	hpipm_size_t memsize;
 	};
 
 
 
 //
-int d_cond_qp_arg_memsize();
+hpipm_size_t d_cond_qp_arg_memsize();
 //
 void d_cond_qp_arg_create(struct d_cond_qp_arg *cond_arg, void *mem);
 //
@@ -107,7 +107,7 @@ void d_cond_qp_arg_set_comp_dual_sol_ineq(int value, struct d_cond_qp_arg *cond_
 //
 void d_cond_qp_compute_dim(struct d_ocp_qp_dim *ocp_dim, struct d_dense_qp_dim *dense_dim);
 //
-int d_cond_qp_ws_memsize(struct d_ocp_qp_dim *ocp_dim, struct d_cond_qp_arg *cond_arg);
+hpipm_size_t d_cond_qp_ws_memsize(struct d_ocp_qp_dim *ocp_dim, struct d_cond_qp_arg *cond_arg);
 //
 void d_cond_qp_ws_create(struct d_ocp_qp_dim *ocp_dim, struct d_cond_qp_arg *cond_arg, struct d_cond_qp_ws *cond_ws, void *mem);
 //

@@ -102,7 +102,7 @@ struct m_ipm_hard_ocp_qp_arg
 
 
 //
-int m_memsize_ipm_hard_ocp_qp(struct d_ocp_qp *d_qp, struct s_ocp_qp *s_qp, struct m_ipm_hard_ocp_qp_arg *arg);
+hpipm_size_t m_memsize_ipm_hard_ocp_qp(struct d_ocp_qp *d_qp, struct s_ocp_qp *s_qp, struct m_ipm_hard_ocp_qp_arg *arg);
 //
 void m_create_ipm_hard_ocp_qp(struct d_ocp_qp *d_qp, struct s_ocp_qp *s_qp, struct m_ipm_hard_ocp_qp_arg *arg, struct m_ipm_hard_ocp_qp_workspace *ws, void *mem);
 //

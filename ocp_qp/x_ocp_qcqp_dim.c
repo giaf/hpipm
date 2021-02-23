@@ -35,10 +35,10 @@
 
 
 
-int OCP_QCQP_DIM_STRSIZE()
+hpipm_size_t OCP_QCQP_DIM_STRSIZE()
 	{
 
-	int size = 0;
+	hpipm_size_t size = 0;
 
 	size += sizeof(struct OCP_QCQP_DIM);
 
@@ -48,10 +48,10 @@ int OCP_QCQP_DIM_STRSIZE()
 
 
 
-int OCP_QCQP_DIM_MEMSIZE(int N)
+hpipm_size_t OCP_QCQP_DIM_MEMSIZE(int N)
 	{
 
-	int size = 0;
+	hpipm_size_t size = 0;
 
 	size += 12*(N+1)*sizeof(int);
 
@@ -74,7 +74,7 @@ void OCP_QCQP_DIM_CREATE(int N, struct OCP_QCQP_DIM *dim, void *mem)
 	int ii;
 
 	// zero memory (to avoid corrupted memory like e.g. NaN)
-	int memsize = OCP_QCQP_DIM_MEMSIZE(N);
+	hpipm_size_t memsize = OCP_QCQP_DIM_MEMSIZE(N);
 	hpipm_zero_memset(memsize, mem);
 
 	// qp_dim struct

@@ -61,15 +61,15 @@ struct s_tree_ocp_qcqp_dim
 	int *nsg; // number of soft general constraints
 	int *nsq; // number of (upper) soft quadratic constraints
 	int Nn; // number of nodes
-	int memsize;
+	hpipm_size_t memsize;
 	};
 
 
 
 //
-int s_tree_ocp_qcqp_dim_strsize();
+hpipm_size_t s_tree_ocp_qcqp_dim_strsize();
 //
-int s_tree_ocp_qcqp_dim_memsize(int Nn);
+hpipm_size_t s_tree_ocp_qcqp_dim_memsize(int Nn);
 //
 void s_tree_ocp_qcqp_dim_create(int Nn, struct s_tree_ocp_qcqp_dim *qp_dim, void *memory);
 //

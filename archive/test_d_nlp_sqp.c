@@ -96,14 +96,14 @@ struct d_linear_system
 	double *Bc;
 	int nx;
 	int nu;
-	int memsize;
+	hpipm_size_t memsize;
 	};
 
 
 
-int d_memsize_linear_system(int nx, int nu)
+hpipm_size_t d_memsize_linear_system(int nx, int nu)
 	{
-	int size = 0;
+	hpipm_size_t size = 0;
 	size += (nx*nx+nx*nu)*sizeof(double);
 	return size;
 	}
@@ -250,7 +250,7 @@ int main()
 	d_print_mat(nx_, nx_, Ac, nx_);
 	d_print_mat(nx_, nu_, Bc, nx_);
 
-	int lin_sys_memsize = d_memsize_linear_system(nx_, nu_);
+	hpipm_size_t lin_sys_memsize = d_memsize_linear_system(nx_, nu_);
 	printf("\nlin_sys memsize = %d\n", lin_sys_memsize);
 	void *lin_sys_memory = malloc(lin_sys_memsize);
 
@@ -349,7 +349,7 @@ int main()
 #endif
 
 	// erk data structure
-	int memsize_rk_data = d_memsize_rk_data(nsta);
+	hpipm_size_t memsize_rk_data = d_memsize_rk_data(nsta);
 	printf("\nmemsize rk data %d\n", memsize_rk_data);
 	void *memory_rk_data = malloc(memsize_rk_data);
 
@@ -679,7 +679,7 @@ int main()
 * ocp nlp
 ************************************************/	
 	
-	int nlp_size = d_memsize_ocp_nlp(N, nx, nu, nb, ng, ns);
+	hpipm_size_t nlp_size = d_memsize_ocp_nlp(N, nx, nu, nb, ng, ns);
 	printf("\nnlpsize = %d\n", nlp_size);
 	void *nlp_mem = malloc(nlp_size);
 
@@ -692,7 +692,7 @@ int main()
 * ocp nlp sol
 ************************************************/	
 	
-	int nlp_sol_size = d_memsize_ocp_nlp_sol(N, nx, nu, nb, ng, ns);
+	hpipm_size_t nlp_sol_size = d_memsize_ocp_nlp_sol(N, nx, nu, nb, ng, ns);
 	printf("\nnlp sol size = %d\n", nlp_sol_size);
 	void *nlp_sol_mem = malloc(nlp_sol_size);
 
@@ -722,7 +722,7 @@ int main()
 * ocp nlp sqp ws
 ************************************************/	
 
-	int nlp_ws_size = d_memsize_ocp_nlp_sqp(&nlp, &sqp_arg);
+	hpipm_size_t nlp_ws_size = d_memsize_ocp_nlp_sqp(&nlp, &sqp_arg);
 	printf("\nnlp ws size = %d\n", nlp_ws_size);
 	void *nlp_ws_mem = malloc(nlp_ws_size);
 	

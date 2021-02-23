@@ -709,7 +709,7 @@ int main()
 * ocp qcqp dim
 ************************************************/
 
-	int dim_size = d_ocp_qcqp_dim_memsize(N);
+	hpipm_size_t dim_size = d_ocp_qcqp_dim_memsize(N);
 	printf("\ndim size = %d\n", dim_size);
 	void *dim_mem = malloc(dim_size);
 
@@ -732,7 +732,7 @@ int main()
 * ocp qp
 ************************************************/
 
-	int qcqp_size = d_ocp_qcqp_memsize(&dim);
+	hpipm_size_t qcqp_size = d_ocp_qcqp_memsize(&dim);
 	printf("\nqp size = %d\n", qcqp_size);
 	void *qcqp_mem = malloc(qcqp_size);
 
@@ -824,7 +824,7 @@ int main()
 * dense qp dim
 ************************************************/
 
-	int dense_dim_size = d_dense_qcqp_dim_memsize();
+	hpipm_size_t dense_dim_size = d_dense_qcqp_dim_memsize();
 	printf("\ndense dim size = %d\n", dense_dim_size);
 	void *dense_dim_mem = malloc(dense_dim_size);
 
@@ -840,7 +840,7 @@ int main()
 ************************************************/
 
 	// qp
-	int dense_qp_size = d_dense_qcqp_memsize(&dense_dim);
+	hpipm_size_t dense_qp_size = d_dense_qcqp_memsize(&dense_dim);
 	printf("\nqp size = %d\n", dense_qp_size);
 	void *dense_qp_mem = malloc(dense_qp_size);
 
@@ -855,7 +855,7 @@ int main()
 * dense qp sol
 ************************************************/
 
-	int dense_qp_sol_size = d_dense_qcqp_sol_memsize(&dense_dim);
+	hpipm_size_t dense_qp_sol_size = d_dense_qcqp_sol_memsize(&dense_dim);
 	printf("\ndense qp sol size = %d\n", dense_qp_sol_size);
 	void *dense_qp_sol_mem = malloc(dense_qp_sol_size);
 
@@ -866,7 +866,7 @@ int main()
 * ipm arg
 ************************************************/
 
-	int ipm_arg_size = d_dense_qcqp_ipm_arg_memsize(&dense_dim);
+	hpipm_size_t ipm_arg_size = d_dense_qcqp_ipm_arg_memsize(&dense_dim);
 	printf("\nipm arg size = %d\n", ipm_arg_size);
 	void *ipm_arg_mem = malloc(ipm_arg_size);
 
@@ -888,7 +888,7 @@ int main()
 * ipm
 ************************************************/
 
-	int dense_ipm_size = d_dense_qcqp_ipm_ws_memsize(&dense_dim, &dense_arg);
+	hpipm_size_t dense_ipm_size = d_dense_qcqp_ipm_ws_memsize(&dense_dim, &dense_arg);
 	printf("\ndense ipm size = %d\n", dense_ipm_size);
 	void *dense_ipm_mem = malloc(dense_ipm_size);
 

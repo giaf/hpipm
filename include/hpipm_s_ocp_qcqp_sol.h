@@ -58,15 +58,15 @@ struct s_ocp_qcqp_sol
 	struct blasfeo_svec *pi;
 	struct blasfeo_svec *lam;
 	struct blasfeo_svec *t;
-	int memsize; // memory size in bytes
+	hpipm_size_t memsize; // memory size in bytes
 	};
 
 
 
 //
-int s_ocp_qcqp_sol_strsize();
+hpipm_size_t s_ocp_qcqp_sol_strsize();
 //
-int s_ocp_qcqp_sol_memsize(struct s_ocp_qcqp_dim *dim);
+hpipm_size_t s_ocp_qcqp_sol_memsize(struct s_ocp_qcqp_dim *dim);
 //
 void s_ocp_qcqp_sol_create(struct s_ocp_qcqp_dim *dim, struct s_ocp_qcqp_sol *qp_sol, void *memory);
 //

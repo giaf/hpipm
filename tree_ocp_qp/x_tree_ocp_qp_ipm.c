@@ -37,7 +37,7 @@
 
 
 
-int TREE_OCP_QP_IPM_ARG_MEMSIZE(struct TREE_OCP_QP_DIM *dim)
+hpipm_size_t TREE_OCP_QP_IPM_ARG_MEMSIZE(struct TREE_OCP_QP_DIM *dim)
 	{
 
 	return 0;
@@ -366,7 +366,7 @@ void TREE_OCP_QP_IPM_ARG_SET_T_LAM_MIN(int *value, struct TREE_OCP_QP_IPM_ARG *a
 
 
 
-int TREE_OCP_QP_IPM_WS_MEMSIZE(struct TREE_OCP_QP_DIM *dim, struct TREE_OCP_QP_IPM_ARG *arg)
+hpipm_size_t TREE_OCP_QP_IPM_WS_MEMSIZE(struct TREE_OCP_QP_DIM *dim, struct TREE_OCP_QP_IPM_ARG *arg)
 	{
 
 	// stat_max is at least as big as iter_max
@@ -412,7 +412,7 @@ int TREE_OCP_QP_IPM_WS_MEMSIZE(struct TREE_OCP_QP_DIM *dim, struct TREE_OCP_QP_I
 	ngM = ng[ii]>ngM ? ng[ii] : ngM;
 	nsM = ns[ii]>nsM ? ns[ii] : nsM;
 
-	int size = 0;
+	hpipm_size_t size = 0;
 
 	size += 1*sizeof(struct CORE_QP_IPM_WORKSPACE);
 	size += 1*MEMSIZE_CORE_QP_IPM(nvt, net, nct);
@@ -475,7 +475,7 @@ void TREE_OCP_QP_IPM_WS_CREATE(struct TREE_OCP_QP_DIM *dim, struct TREE_OCP_QP_I
 	int ii;
 
 	// zero memory (to avoid corrupted memory like e.g. NaN)
-	int memsize = TREE_OCP_QP_IPM_WS_MEMSIZE(dim, arg);
+	hpipm_size_t memsize = TREE_OCP_QP_IPM_WS_MEMSIZE(dim, arg);
 	hpipm_zero_memset(memsize, mem);
 
 	// extract ocp qp size

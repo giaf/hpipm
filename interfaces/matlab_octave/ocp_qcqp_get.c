@@ -87,7 +87,7 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
 		{
 		if(nrhs==4)
 			{
-			int size_sum = 0;
+			hpipm_size_t size_sum = 0;
 			for(ii=stage0; ii<=stage1; ii++)
 				{
 				size_sum += nx[ii]*nx[ii+1];

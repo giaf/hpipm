@@ -84,7 +84,7 @@ struct s_ocp_qp_ipm_arg
 	int var_init_scheme; // variables initialization scheme
 	int t_lam_min; // clip t and lam: 0 no, 1 in Gamma computation, 2 in solution
 	int mode;
-	int memsize;
+	hpipm_size_t memsize;
 	};
 
 
@@ -130,15 +130,15 @@ struct s_ocp_qp_ipm_ws
 	int mask_constr; // use constr mask
 	int valid_ric_vec; // meaningful riccati vectors
 	int valid_ric_p; // form of riccati p: 0 p*inv(L), 1 p
-	int memsize;
+	hpipm_size_t memsize;
 	};
 
 
 
 //
-int s_ocp_qp_ipm_arg_strsize();
+hpipm_size_t s_ocp_qp_ipm_arg_strsize();
 //
-int s_ocp_qp_ipm_arg_memsize(struct s_ocp_qp_dim *ocp_dim);
+hpipm_size_t s_ocp_qp_ipm_arg_memsize(struct s_ocp_qp_dim *ocp_dim);
 //
 void s_ocp_qp_ipm_arg_create(struct s_ocp_qp_dim *ocp_dim, struct s_ocp_qp_ipm_arg *arg, void *mem);
 //
@@ -189,9 +189,9 @@ void s_ocp_qp_ipm_arg_set_var_init_scheme(int *value, struct s_ocp_qp_ipm_arg *a
 void s_ocp_qp_ipm_arg_set_t_lam_min(int *value, struct s_ocp_qp_ipm_arg *arg);
 
 //
-int s_ocp_qp_ipm_ws_strsize();
+hpipm_size_t s_ocp_qp_ipm_ws_strsize();
 //
-int s_ocp_qp_ipm_ws_memsize(struct s_ocp_qp_dim *ocp_dim, struct s_ocp_qp_ipm_arg *arg);
+hpipm_size_t s_ocp_qp_ipm_ws_memsize(struct s_ocp_qp_dim *ocp_dim, struct s_ocp_qp_ipm_arg *arg);
 //
 void s_ocp_qp_ipm_ws_create(struct s_ocp_qp_dim *ocp_dim, struct s_ocp_qp_ipm_arg *arg, struct s_ocp_qp_ipm_ws *ws, void *mem);
 //

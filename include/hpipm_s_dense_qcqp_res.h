@@ -62,7 +62,7 @@ struct s_dense_qcqp_res
 	struct blasfeo_svec *res_m; // m-residuals
 	float res_max[4]; // infinity norm of residuals
 	float res_mu; // mu-residual
-	int memsize;
+	hpipm_size_t memsize;
 	};
 
 
@@ -76,17 +76,17 @@ struct s_dense_qcqp_res_ws
 	struct blasfeo_svec *q_adj; // value for adjoint of quadr constr
 	int use_q_fun; // reuse cached value for evaluation of quadr constr
 	int use_q_adj; // reuse cached value for adjoint of quadr constr
-	int memsize;
+	hpipm_size_t memsize;
 	};
 
 
 
 //
-int s_dense_qcqp_res_memsize(struct s_dense_qcqp_dim *dim);
+hpipm_size_t s_dense_qcqp_res_memsize(struct s_dense_qcqp_dim *dim);
 //
 void s_dense_qcqp_res_create(struct s_dense_qcqp_dim *dim, struct s_dense_qcqp_res *res, void *mem);
 //
-int s_dense_qcqp_res_ws_memsize(struct s_dense_qcqp_dim *dim);
+hpipm_size_t s_dense_qcqp_res_ws_memsize(struct s_dense_qcqp_dim *dim);
 //
 void s_dense_qcqp_res_ws_create(struct s_dense_qcqp_dim *dim, struct s_dense_qcqp_res_ws *workspace, void *mem);
 //

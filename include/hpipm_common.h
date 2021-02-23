@@ -38,13 +38,13 @@
 #ifndef HPIPM_COMMON_H_
 #define HPIPM_COMMON_H_
 
-
+#include <stddef.h>
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-
+typedef size_t hpipm_size_t;
 
 enum hpipm_mode
 	{

@@ -65,7 +65,7 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
 
 	/* body */
 
-	int ws_size = sizeof(struct d_ocp_qp_ipm_ws) + d_ocp_qp_ipm_ws_memsize(dim, arg);
+	hpipm_size_t ws_size = sizeof(struct d_ocp_qp_ipm_ws) + d_ocp_qp_ipm_ws_memsize(dim, arg);
 	void *ws_mem = malloc(ws_size);
 
 	c_ptr = ws_mem;
