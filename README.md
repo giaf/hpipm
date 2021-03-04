@@ -22,6 +22,7 @@ In order to run the C examples in `/hpipm/examples/C/` follow the steps below:
 4) In a terminal, navigate to /hpipm/examples/c/ and run getting_started.out to solve a simple OCP-structured QP.
 
 ### MATLAB and Octave
+#### Linux
 The interface for Matlab and Octave is based on mex files.
 1) Clone BLASFEO on your machine: `git clone https://github.com/giaf/blasfeo.git`
 2) From the BLASFEO root folder, run `make shared_library -j4 && sudo make install_shared`
@@ -33,6 +34,30 @@ Compile the interface by running `make all -j 4` (for Octave), or `make compile_
 Set the needed environment flags by running `source env.sh` (you may need to change the `BLASFEO_MAIN_FOLDER`, or to make it equal to the `BLASFEO_PATH`) in that folder.
 Run an instance of Matlab or Octave from the same terminal.
 Get started by running the examples in that folder.
+
+#### MATLAB on Windows
+The interface for Matlab and Octave is based on mex files.
+1) Clone BLASFEO on your machine: `git clone https://github.com/giaf/blasfeo.git`
+2) Install [Microsoft Visual C++](https://visualstudio.microsoft.com/downloads/)
+3) From the BLASFEO root folder, run
+```
+mkdir build
+cd build
+cmake ..
+cmake --build .
+```
+4) From the HPIPM root folder, run
+```
+mkdir build
+cd build
+cmake ..
+cmake --build .
+```
+5) Open Matlab and navigate to the folder `hpipm/interfaces/matlab_octave`.
+Set the needed environment flags by running `env.m` (you may need to change the `BLASFEO_MAIN_FOLDER`, or to make it equal to the `BLASFEO_PATH`) in that folder.
+Compile the interface by running `compile_mex_with_matlab.m`.
+6) In Matlab, navigate to the folder `hpipm/examples/matlab_octave`.
+Get started by running the examples in that folder. You may need to add folder `hpipm/interfaces/matlab_octave` to the Matlab path.
 
 ### Simulink
 The QP model is read from the file `qp_data.c`, which can be generated using the C, matlab/octave or python interfaces.

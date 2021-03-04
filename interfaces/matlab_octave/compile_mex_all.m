@@ -155,6 +155,6 @@ for ii=1:length(mex_files)
 %		mkoctfile -p CFLAGS
 		mex(hpipm_include, blasfeo_include, hpipm_lib, blasfeo_lib, '-lhpipm', '-lblasfeo', mex_files{ii});
 	else
-		mex(mex_flags, 'CFLAGS=\$CFLAGS -std=c99', hpipm_include, blasfeo_include, hpipm_lib, blasfeo_lib, '-lhpipm', '-lblasfeo', mex_files{ii});
+		mex(mex_flags, 'CFLAGS=$CFLAGS -std=c99', hpipm_include, blasfeo_include, hpipm_lib, blasfeo_lib, '-lhpipm', '-lblasfeo', mex_files{ii});
 	end
 end
