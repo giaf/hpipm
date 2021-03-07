@@ -46,6 +46,8 @@ cd build
 cmake ..
 cmake --build .
 ```
+Copy `blasfeo.lib` from `build/Debug/` to `lib/`.
+
 4) From the HPIPM root folder, run
 ```
 mkdir build
@@ -53,6 +55,8 @@ cd build
 cmake ..
 cmake --build .
 ```
+Copy `hpipm.lib` from `build/Debug/` to `lib/`.
+
 5) Open Matlab and navigate to the folder `hpipm/interfaces/matlab_octave`.
 Set the needed environment flags by running `env.m` (you may need to change the `BLASFEO_MAIN_FOLDER`, or to make it equal to the `BLASFEO_PATH`) in that folder.
 Compile the interface by running `compile_mex_with_matlab.m`.
