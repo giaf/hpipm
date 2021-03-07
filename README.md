@@ -25,8 +25,8 @@ In order to run the C examples in `/hpipm/examples/C/` follow the steps below:
 #### Linux
 The interface for Matlab and Octave is based on mex files.
 1) Clone BLASFEO on your machine: `git clone https://github.com/giaf/blasfeo.git`
-2) From the BLASFEO root folder, run `make shared_library -j4 && sudo make install_shared`
-3) From the HPIPM root folder, run `make shared_library -j4 && sudo make install_shared`
+2) From the BLASFEO root folder, run `make shared_library -j 4 && sudo make install_shared`
+3) From the HPIPM root folder, run `make shared_library -j 4 && sudo make install_shared`
 4) In a terminal, navigate to the folder `hpipm/interfaces/matlab_octave`.
 Set the needed environment flags by running `source env.sh` (you may need to change the `BLASFEO_MAIN_FOLDER`, or to make it equal to the `BLASFEO_PATH`) in that folder.
 Compile the interface by running `make all -j 4` (for Octave), or `make compile_mex_with_matlab` (for Matlab).
@@ -59,7 +59,7 @@ Copy `hpipm.lib` from `build/Debug/` to `lib/`.
 
 5) Open Matlab and navigate to the folder `hpipm/interfaces/matlab_octave`.
 Set the needed environment flags by running `env.m` (you may need to change the `BLASFEO_MAIN_FOLDER`, or to make it equal to the `BLASFEO_PATH`) in that folder.
-Compile the interface by running `compile_mex_with_matlab.m`.
+Compile the interface by running `compile_mex_all.m`.
 6) In Matlab, navigate to the folder `hpipm/examples/matlab_octave`.
 Get started by running the examples in that folder. You may need to add folder `hpipm/interfaces/matlab_octave` to the Matlab path.
 
