@@ -63,9 +63,9 @@ struct s_ocp_qp
 	struct blasfeo_svec *d_mask; // inequality constraints mask vector
 	struct blasfeo_svec *m; // rhs of complementarity condition
 	struct blasfeo_svec *Z; // (diagonal) hessian of slacks
-	int **idxb; // index of box constraints
+	int **idxb; // indices of box constrained variables within [u; x]
 	int **idxs_rev; // index of soft constraints (reverse storage)
-	int **idxe; // index of equality constraints
+	int **idxe; // indices of constraints within [bu, bx, g] that are equalities, subset of [0, ..., nbu+nbx+ng-1]
 	int *diag_H_flag; // flag the fact that Hessian is diagonal
 	int memsize; // memory size in bytes
 	};
