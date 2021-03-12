@@ -64,7 +64,7 @@ struct s_tree_ocp_qcqp
 	struct blasfeo_svec *d_mask; // Nn
 	struct blasfeo_svec *m; // Nn
 	struct blasfeo_svec *Z; // Nn
-	int **idxb; // index of box constraints // Nn
+	int **idxb; // indices of box constrained variables within [u; x] // Nn
 	int **idxs_rev; // index of soft constraints
 	hpipm_size_t memsize; // memory size in bytes
 	};
