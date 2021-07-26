@@ -120,9 +120,9 @@ void TREE_OCP_QP_FACT_SOLVE_KKT_UNCONSTR(struct TREE_OCP_QP *qp, struct TREE_OCP
 
 		GEMV_T(nu[idx]+nx[idx], nx[idxkid], 1.0, BAbt+idxkid-1, 0, 0, ux+idx, 0, 1.0, b+idxkid-1, 0, ux+idxkid, nu[idxkid]);
 		ROWEX(nx[idxkid], 1.0, L+idxkid, nu[idxkid]+nx[idxkid], nu[idxkid], tmp_nxM, 0);
-		TRMV_LTN(nx[idxkid], nx[idxkid], L+idxkid, nu[idxkid], nu[idxkid], ux+idxkid, nu[idxkid], pi+idxkid-1, 0);
+		TRMV_LTN(nx[idxkid], L+idxkid, nu[idxkid], nu[idxkid], ux+idxkid, nu[idxkid], pi+idxkid-1, 0);
 		AXPY(nx[idxkid], 1.0, tmp_nxM, 0, pi+idxkid-1, 0, pi+idxkid-1, 0);
-		TRMV_LNN(nx[idxkid], nx[idxkid], L+idxkid, nu[idxkid], nu[idxkid], pi+idxkid-1, 0, pi+idxkid-1, 0);
+		TRMV_LNN(nx[idxkid], L+idxkid, nu[idxkid], nu[idxkid], pi+idxkid-1, 0, pi+idxkid-1, 0);
 
 		}
 
@@ -143,9 +143,9 @@ void TREE_OCP_QP_FACT_SOLVE_KKT_UNCONSTR(struct TREE_OCP_QP *qp, struct TREE_OCP
 
 			GEMV_T(nu[idx]+nx[idx], nx[idxkid], 1.0, BAbt+idxkid-1, 0, 0, ux+idx, 0, 1.0, b+idxkid-1, 0, ux+idxkid, nu[idxkid]);
 			ROWEX(nx[idxkid], 1.0, L+idxkid, nu[idxkid]+nx[idxkid], nu[idxkid], tmp_nxM, 0);
-			TRMV_LTN(nx[idxkid], nx[idxkid], L+idxkid, nu[idxkid], nu[idxkid], ux+idxkid, nu[idxkid], pi+idxkid-1, 0);
+			TRMV_LTN(nx[idxkid], L+idxkid, nu[idxkid], nu[idxkid], ux+idxkid, nu[idxkid], pi+idxkid-1, 0);
 			AXPY(nx[idxkid], 1.0, tmp_nxM, 0, pi+idxkid-1, 0, pi+idxkid-1, 0);
-			TRMV_LNN(nx[idxkid], nx[idxkid], L+idxkid, nu[idxkid], nu[idxkid], pi+idxkid-1, 0, pi+idxkid-1, 0);
+			TRMV_LNN(nx[idxkid], L+idxkid, nu[idxkid], nu[idxkid], pi+idxkid-1, 0, pi+idxkid-1, 0);
 
 			}
 
@@ -465,7 +465,7 @@ void TREE_OCP_QP_FACT_SOLVE_KKT_STEP(struct TREE_OCP_QP *qp, struct TREE_OCP_QP_
 			ROWIN(nx[idxkid], 1.0, res_b+idxkid-1, 0, AL, nu[idx]+nx[idx], 0);
 			TRMM_RLNN(nu[idx]+nx[idx]+1, nx[idxkid], 1.0, L+idxkid, nu[idxkid], nu[idxkid], AL, 0, 0, AL, 0, 0);
 			ROWEX(nx[idxkid], 1.0, AL, nu[idx]+nx[idx], 0, tmp_nxM, 0);
-			TRMV_LNN(nx[idxkid], nx[idxkid], L+idxkid, nu[idxkid], nu[idxkid], tmp_nxM, 0, Pb+idxkid-1, 0);
+			TRMV_LNN(nx[idxkid], L+idxkid, nu[idxkid], nu[idxkid], tmp_nxM, 0, Pb+idxkid-1, 0);
 			GEAD(1, nx[idxkid], 1.0, L+idxkid, nu[idxkid]+nx[idxkid], nu[idxkid], AL, nu[idx]+nx[idx], 0);
 
 			SYRK_LN_MN(nu[idx]+nx[idx]+1, nu[idx]+nx[idx], nx[idxkid], 1.0, AL, 0, 0, AL, 0, 0, 1.0, L+idx, 0, 0, L+idx, 0, 0);
@@ -528,9 +528,9 @@ void TREE_OCP_QP_FACT_SOLVE_KKT_STEP(struct TREE_OCP_QP *qp, struct TREE_OCP_QP_
 			if(arg->comp_dual_sol_eq)
 				{
 				ROWEX(nx[idxkid], 1.0, L+idxkid, nu[idxkid]+nx[idxkid], nu[idxkid], tmp_nxM, 0);
-				TRMV_LTN(nx[idxkid], nx[idxkid], L+idxkid, nu[idxkid], nu[idxkid], dux+idxkid, nu[idxkid], dpi+idxkid-1, 0);
+				TRMV_LTN(nx[idxkid], L+idxkid, nu[idxkid], nu[idxkid], dux+idxkid, nu[idxkid], dpi+idxkid-1, 0);
 				AXPY(nx[idxkid], 1.0, tmp_nxM, 0, dpi+idxkid-1, 0, dpi+idxkid-1, 0);
-				TRMV_LNN(nx[idxkid], nx[idxkid], L+idxkid, nu[idxkid], nu[idxkid], dpi+idxkid-1, 0, dpi+idxkid-1, 0);
+				TRMV_LNN(nx[idxkid], L+idxkid, nu[idxkid], nu[idxkid], dpi+idxkid-1, 0, dpi+idxkid-1, 0);
 				}
 
 			}
@@ -707,8 +707,8 @@ void TREE_OCP_QP_FACT_LQ_SOLVE_KKT_STEP(struct TREE_OCP_QP *qp, struct TREE_OCP_
 					COLSC(nu[idx]+nx[idx]-ii, -1.0, L+idx, ii, ii);
 #endif
 
-			TRMV_LTN(nx[idxkid], nx[idxkid], L+idxkid, nu[idxkid], nu[idxkid], res_b+idxkid-1, 0, Pb+idxkid-1, 0);
-			TRMV_LNN(nx[idxkid], nx[idxkid], L+idxkid, nu[idxkid], nu[idxkid], Pb+idxkid-1, 0, Pb+idxkid-1, 0);
+			TRMV_LTN(nx[idxkid], L+idxkid, nu[idxkid], nu[idxkid], res_b+idxkid-1, 0, Pb+idxkid-1, 0);
+			TRMV_LNN(nx[idxkid], L+idxkid, nu[idxkid], nu[idxkid], Pb+idxkid-1, 0, Pb+idxkid-1, 0);
 			AXPY(nx[idxkid], 1.0, dux+idxkid, nu[idxkid], Pb+idxkid-1, 0, tmp_nxM, 0);
 			GEMV_N(nu[idx]+nx[idx], nx[idxkid], 1.0, BAbt+idxkid-1, 0, 0, tmp_nxM, 0, 1.0, dux+idx, 0, dux+idx, 0);
 
@@ -755,8 +755,8 @@ void TREE_OCP_QP_FACT_LQ_SOLVE_KKT_STEP(struct TREE_OCP_QP *qp, struct TREE_OCP_
 			VECCP(nx[idxkid], dux+idxkid, nu[idxkid], dpi+idxkid-1, 0);
 			GEMV_T(nu[idx]+nx[idx], nx[idxkid], 1.0, BAbt+idxkid-1, 0, 0, dux+idx, 0, 1.0, res_b+idxkid-1, 0, dux+idxkid, nu[idxkid]);
 			VECCP(nx[idxkid], dux+idxkid, nu[idxkid], tmp_nxM, 0);
-			TRMV_LTN(nx[idxkid], nx[idxkid], L+idxkid, nu[idxkid], nu[idxkid], tmp_nxM, 0, tmp_nxM, 0);
-			TRMV_LNN(nx[idxkid], nx[idxkid], L+idxkid, nu[idxkid], nu[idxkid], tmp_nxM, 0, tmp_nxM, 0);
+			TRMV_LTN(nx[idxkid], L+idxkid, nu[idxkid], nu[idxkid], tmp_nxM, 0, tmp_nxM, 0);
+			TRMV_LNN(nx[idxkid], L+idxkid, nu[idxkid], nu[idxkid], tmp_nxM, 0, tmp_nxM, 0);
 			AXPY(nx[idxkid], 1.0, tmp_nxM, 0, dpi+idxkid-1, 0, dpi+idxkid-1, 0);
 
 			}
@@ -855,8 +855,8 @@ void TREE_OCP_QP_SOLVE_KKT_STEP(struct TREE_OCP_QP *qp, struct TREE_OCP_QP_SOL *
 				}
 			else
 				{
-				TRMV_LTN(nx[idxkid], nx[idxkid], L+idxkid, nu[idxkid], nu[idxkid], res_b+idxkid-1, 0, tmp_nxM, 0);
-				TRMV_LNN(nx[idxkid], nx[idxkid], L+idxkid, nu[idxkid], nu[idxkid], tmp_nxM, 0, tmp_nxM, 0);
+				TRMV_LTN(nx[idxkid], L+idxkid, nu[idxkid], nu[idxkid], res_b+idxkid-1, 0, tmp_nxM, 0);
+				TRMV_LNN(nx[idxkid], L+idxkid, nu[idxkid], nu[idxkid], tmp_nxM, 0, tmp_nxM, 0);
 				AXPY(nx[idxkid], 1.0, dux+idxkid, nu[idxkid], tmp_nxM, 0, tmp_nxM, 0);
 				}
 			GEMV_N(nu[idx]+nx[idx], nx[idxkid], 1.0, BAbt+idxkid-1, 0, 0, tmp_nxM, 0, 1.0, dux+idx, 0, dux+idx, 0);
@@ -925,8 +925,8 @@ void TREE_OCP_QP_SOLVE_KKT_STEP(struct TREE_OCP_QP *qp, struct TREE_OCP_QP_SOL *
 			if(arg->comp_dual_sol_eq)
 				{
 				VECCP(nx[idxkid], dux+idxkid, nu[idxkid], tmp_nxM, 0);
-				TRMV_LTN(nx[idxkid], nx[idxkid], L+idxkid, nu[idxkid], nu[idxkid], tmp_nxM, 0, tmp_nxM, 0);
-				TRMV_LNN(nx[idxkid], nx[idxkid], L+idxkid, nu[idxkid], nu[idxkid], tmp_nxM, 0, tmp_nxM, 0);
+				TRMV_LTN(nx[idxkid], L+idxkid, nu[idxkid], nu[idxkid], tmp_nxM, 0, tmp_nxM, 0);
+				TRMV_LNN(nx[idxkid], L+idxkid, nu[idxkid], nu[idxkid], tmp_nxM, 0, tmp_nxM, 0);
 				AXPY(nx[idxkid], 1.0, tmp_nxM, 0, dpi+idxkid-1, 0, dpi+idxkid-1, 0);
 				}
 
