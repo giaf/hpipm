@@ -258,7 +258,7 @@ void mass_spring_system(double Ts, int nx, int nu, double *A, double *B, double 
 int main()
 	{
 
-	int rep, nrep=1000; //000;
+	int rep, nrep=1000;
 
 	hpipm_timer timer0;
 

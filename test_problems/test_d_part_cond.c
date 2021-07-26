@@ -895,7 +895,7 @@ int main()
 	double time_cond_lhs = (tv1.tv_sec-tv0.tv_sec)/(nrep+0.0)+(tv1.tv_usec-tv0.tv_usec)/(nrep*1e6);
 
 #if PRINT
-	printf("\npart cond rhs data\n\n");
+	printf("\npart cond lhs data\n\n");
 	d_ocp_qp_print(&dim2, &part_dense_qp);
 #endif
 
