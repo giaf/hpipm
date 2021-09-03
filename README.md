@@ -79,7 +79,7 @@ If you would like to try out the Python interface, check out the examples in `/h
 5) In a terminal, navigate to `/hpipm/examples/python`.
 Set the needed environment flags by running `source env.sh` (you may need to change the `BLASFEO_MAIN_FOLDER`, or to make it equal to the `BLASFEO_PATH`) in that folder.
 Alternatively you can make sure yourself that the location of the installed shared libraries is known to the system e.g. by running `export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/opt/blasfeo/lib:/opt/hpipm/lib` (possibly after updating it to the chosen installation directories).
-Finally, run `python getting_started.py` or `python3 getting_started.py` (depending on your python version) to solve a simple OCP-structured QP.
+Finally, run `python example_qp_getting_started.py` or `python3 example_qp_getting_started.py` (depending on your python version) to solve a simple OCP-structured QP.
 
 --------------------------------------------------
 
