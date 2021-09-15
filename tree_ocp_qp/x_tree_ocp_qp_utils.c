@@ -268,6 +268,9 @@ void TREE_OCP_QP_IPM_ARG_PRINT(struct TREE_OCP_QP_DIM *qp_dim, struct TREE_OCP_Q
 	// ric_alg
 //	printf("/* ric_alg */\n");
 //	printf("int ric_alg = %d;\n", arg->square_root_alg);
+	// split_step
+	printf("/* split_step */\n");
+	printf("int split_step = %d;\n", arg->split_step);
 
 	return;
 	}

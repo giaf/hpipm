@@ -99,6 +99,7 @@ extern double reg_prim;
 extern int warm_start;
 extern int pred_corr;
 extern int ric_alg;
+extern int split_step;
 
 
 
@@ -172,6 +173,7 @@ int main()
 	d_ocp_qp_ipm_arg_set_warm_start(&warm_start, &arg);
 	d_ocp_qp_ipm_arg_set_pred_corr(&pred_corr, &arg);
 	d_ocp_qp_ipm_arg_set_ric_alg(&ric_alg, &arg);
+	d_ocp_qp_ipm_arg_set_split_step(&split_step, &arg);
 
 /************************************************
 * ipm workspace

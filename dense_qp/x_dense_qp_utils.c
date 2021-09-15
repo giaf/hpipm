@@ -199,6 +199,9 @@ void DENSE_QP_IPM_ARG_PRINT(struct DENSE_QP_DIM *qp_dim, struct DENSE_QP_IPM_ARG
 	// pred_corr
 	printf("/* pred_corr */\n");
 	printf("int pred_corr = %d;\n", arg->pred_corr);
+	// split_step
+	printf("/* split_step */\n");
+	printf("int split_step = %d;\n", arg->split_step);
 
 	return;
 	}

@@ -1492,6 +1492,9 @@ void OCP_QCQP_IPM_ARG_CODEGEN(char *file_name, char *mode, struct OCP_QCQP_DIM *
 	// ric_alg
 	fprintf(file, "/* ric_alg */\n");
 	fprintf(file, "int ric_alg = %d;\n", arg->square_root_alg);
+	// split_step
+	fprintf(file, "/* split_step */\n");
+	fprintf(file, "int split_step = %d;\n", arg->split_step);
 
 	fclose(file);
 

@@ -296,3 +296,5 @@ int warm_start = 0;
 int pred_corr = 1;
 /* ric_alg */
 int ric_alg = 1;
+/* split_step */
+int split_step = 1;

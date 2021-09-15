@@ -214,4 +214,5 @@ double reg_prim = 1e-12;
 int warm_start = 0;
 int pred_corr = 1;
 int ric_alg = 0;
+int split_step = 1;
 
