@@ -617,7 +617,7 @@ void OCP_QP_FACT_SOLVE_KKT_STEP(struct OCP_QP *qp, struct OCP_QP_SOL *qp_sol, st
 		GECP(nx[ss]+1, nu[ss], L+ss, nu[ss], 0, Ls, 0, 0);
 		SYRK_LN_MN(nx[ss]+1, nx[ss], nu[ss], -1.0, Ls, 0, 0, Ls, 0, 0, 1.0, L+ss, nu[ss], nu[ss], P+ss, 0, 0);
 		TRTR_L(nx[ss], P+ss, 0, 0, P+ss, 0, 0);
-		
+
 		// middle stages
 		for(nn=0; nn<N-1; nn++)
 			{
@@ -832,8 +832,11 @@ void OCP_QP_FACT_LQ_SOLVE_KKT_STEP(struct OCP_QP *qp, struct OCP_QP_SOL *qp_sol,
 
 	VECCP(nu[ss]+nx[ss], res_g+ss, 0, dux+ss, 0);
 
-//	GESE(nu[ss]+nx[ss], 2*nu[ss]+2*nx[ss]+ng[ss], 0.0, lq0, 0, 0);
+#if defined(LA_HIGH_PERFORMANCE) | defined(LA_REFERENCE)
 	GESE(nu[ss]+nx[ss], nu[ss]+nx[ss]+ng[ss], 0.0, lq0, 0, nu[ss]+nx[ss]);
+#else
+	GESE(nu[ss]+nx[ss], 2*nu[ss]+2*nx[ss]+ng[ss], 0.0, lq0, 0, 0);
+#endif
 
 	if(ns[ss]>0)
 		{
@@ -877,6 +880,7 @@ void OCP_QP_FACT_LQ_SOLVE_KKT_STEP(struct OCP_QP *qp, struct OCP_QP_SOL *qp_sol,
 	DIARE(nu[ss]+nx[ss], arg->reg_prim, lq0, 0, nu[ss]+nx[ss]);
 #if defined(LA_HIGH_PERFORMANCE) | defined(LA_REFERENCE)
 	TRCP_L(nu[ss]+nx[ss], Lh+ss, 0, 0, L+ss, 0, 0);
+//	GELQF_PD(nu[ss]+nx[ss], 2*nu[ss]+2*nx[ss]+ng[ss], lq0, 0, 0, lq0, 0, 0, lq_work0);
 	GELQF_PD_LLA(nu[ss]+nx[ss], ng[ss], L+ss, 0, 0, lq0, 0, nu[ss]+nx[ss], lq0, 0, 2*nu[ss]+2*nx[ss], lq_work0); // TODO reduce lq1 size !!!
 #else
 	TRCP_L(nu[ss]+nx[ss], Lh+ss, 0, 0, lq0, 0, 0);
@@ -895,8 +899,11 @@ void OCP_QP_FACT_LQ_SOLVE_KKT_STEP(struct OCP_QP *qp, struct OCP_QP_SOL *qp_sol,
 		{
 		ss = N-nn-1;
 
-//		GESE(nu[ss]+nx[ss], 2*nu[ss]+2*nx[ss]+nx[ss+1]+ng[ss], 0.0, lq0, 0, 0);
+#if defined(LA_HIGH_PERFORMANCE) | defined(LA_REFERENCE)
 		GESE(nu[ss]+nx[ss], nu[ss]+nx[ss]+ng[ss], 0.0, lq0, 0, nu[ss]+nx[ss]);
+#else
+		GESE(nu[ss]+nx[ss], 2*nu[ss]+2*nx[ss]+nx[ss+1]+ng[ss], 0.0, lq0, 0, 0);
+#endif
 
 		TRMM_RLNN(nu[ss]+nx[ss], nx[ss+1], 1.0, L+ss+1, nu[ss+1], nu[ss+1], BAbt+ss, 0, 0, lq0, 0, 2*nu[ss]+2*nx[ss]+ng[ss]);
 		TRMV_LTN(nx[ss+1], L+ss+1, nu[ss+1], nu[ss+1], res_b+ss, 0, Pb+ss, 0);
@@ -948,6 +955,8 @@ void OCP_QP_FACT_LQ_SOLVE_KKT_STEP(struct OCP_QP *qp, struct OCP_QP_SOL *qp_sol,
 		DIARE(nu[ss]+nx[ss], arg->reg_prim, lq0, 0, nu[ss]+nx[ss]);
 #if defined(LA_HIGH_PERFORMANCE) | defined(LA_REFERENCE)
 		TRCP_L(nu[ss]+nx[ss], Lh+ss, 0, 0, L+ss, 0, 0);
+//		GELQF_PD(nu[ss]+nx[ss], 2*nu[ss]+2*nx[ss]+nx[ss+1]+ng[ss], lq0, 0, 0, lq0, 0, 0, lq_work0);
+//		GELQF_PD_LA(nu[ss]+nx[ss], nu[ss]+nx[ss]+nx[ss+1]+ng[ss], L+ss, 0, 0, lq0, 0, nu[ss]+nx[ss], lq_work0); // TODO reduce lq1 size !!!
 		GELQF_PD_LLA(nu[ss]+nx[ss], nx[ss+1]+ng[ss], L+ss, 0, 0, lq0, 0, nu[ss]+nx[ss], lq0, 0, 2*nu[ss]+2*nx[ss], lq_work0); // TODO reduce lq1 size !!!
 #else
 		TRCP_L(nu[ss]+nx[ss], Lh+ss, 0, 0, lq0, 0, 0);
@@ -966,8 +975,11 @@ void OCP_QP_FACT_LQ_SOLVE_KKT_STEP(struct OCP_QP *qp, struct OCP_QP_SOL *qp_sol,
 	nn = N-1;
 	ss = N-nn-1;
 
-//	GESE(nu[ss]+nx[ss], 2*nu[ss]+2*nx[ss]+nx[ss+1]+ng[ss], 0.0, lq0, 0, 0);
+#if defined(LA_HIGH_PERFORMANCE) | defined(LA_REFERENCE)
 	GESE(nu[ss]+nx[ss], nu[ss]+nx[ss]+ng[ss], 0.0, lq0, 0, nu[ss]+nx[ss]);
+#else
+	GESE(nu[ss]+nx[ss], 2*nu[ss]+2*nx[ss]+nx[ss+1]+ng[ss], 0.0, lq0, 0, 0);
+#endif
 
 	TRMM_RLNN(nu[ss]+nx[ss], nx[ss+1], 1.0, L+ss+1, nu[ss+1], nu[ss+1], BAbt+ss, 0, 0, lq0, 0, 2*nu[ss]+2*nx[ss]+ng[ss]);
 	TRMV_LTN(nx[ss+1], L+ss+1, nu[ss+1], nu[ss+1], res_b+ss, 0, Pb+ss, 0);
@@ -1019,6 +1031,7 @@ void OCP_QP_FACT_LQ_SOLVE_KKT_STEP(struct OCP_QP *qp, struct OCP_QP_SOL *qp_sol,
 	DIARE(nu[ss]+nx[ss], arg->reg_prim, lq0, 0, nu[ss]+nx[ss]);
 #if defined(LA_HIGH_PERFORMANCE) | defined(LA_REFERENCE)
 	TRCP_L(nu[ss]+nx[ss], Lh+ss, 0, 0, L+ss, 0, 0);
+//	GELQF_PD(nu[ss]+nx[ss], 2*nu[ss]+2*nx[ss]+nx[ss+1]+ng[ss], lq0, 0, 0, lq0, 0, 0, lq_work0);
 	GELQF_PD_LLA(nu[ss]+nx[ss], nx[ss+1]+ng[ss], L+ss, 0, 0, lq0, 0, nu[ss]+nx[ss], lq0, 0, 2*nu[ss]+2*nx[ss], lq_work0); // TODO reduce lq1 size !!!
 #else
 	TRCP_L(nu[ss]+nx[ss], Lh+ss, 0, 0, lq0, 0, 0);

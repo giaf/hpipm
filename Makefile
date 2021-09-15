@@ -256,6 +256,9 @@ test_problems:
 run_test_problems:
 	./test_problems/test.out
 
+sde_run_test_problems:
+	~/sde/sde64 -- ./test_problems/test.out
+
 examples:
 	cp libhpipm.a ./examples/c/libhpipm.a
 	( cd examples/c; $(MAKE) obj )
@@ -265,6 +268,9 @@ examples:
 
 run_examples:
 	./examples/c/example.out
+
+sde_run_examples:
+	~/sde/sde64 -- ./examples/c/example.out
 
 benchmarks:
 	( cd benchmark; $(MAKE) )
