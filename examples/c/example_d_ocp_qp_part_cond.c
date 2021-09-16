@@ -67,6 +67,9 @@ extern int *ng;
 extern int *nsbx;
 extern int *nsbu;
 extern int *nsg;
+extern int *nbue;
+extern int *nbxe;
+extern int *nge;
 extern double **hA;
 extern double **hB;
 extern double **hb;
@@ -92,6 +95,7 @@ extern double **hzu;
 extern int **hidxs;
 extern double **hlls;
 extern double **hlus;
+extern int **hidxe;
 // arg
 extern int mode;
 extern int iter_max;
@@ -133,6 +137,8 @@ int main()
 
 	d_ocp_qp_dim_set_all(nx, nu, nbx, nbu, ng, nsbx, nsbu, nsg, &dim);
 
+//	d_ocp_qp_dim_codegen("examples/c/data/test_d_ocp_data.c", "w", &dim);
+
 /************************************************
 * ocp qp dim part cond
 ************************************************/
@@ -166,6 +172,8 @@ int main()
 	d_ocp_qp_create(&dim, &qp, qp_mem);
 
 	d_ocp_qp_set_all(hA, hB, hb, hQ, hS, hR, hq, hr, hidxbx, hlbx, hubx, hidxbu, hlbu, hubu, hC, hD, hlg, hug, hZl, hZu, hzl, hzu, hidxs, hlls, hlus, &qp);
+
+//	d_ocp_qp_codegen("examples/c/data/test_d_ocp_data.c", "a", &dim, &qp);
 
 /************************************************
 * ocp qp part cond
@@ -236,6 +244,8 @@ int main()
 	d_ocp_qp_ipm_arg_set_pred_corr(&pred_corr, &arg);
 	d_ocp_qp_ipm_arg_set_ric_alg(&ric_alg, &arg);
 	d_ocp_qp_ipm_arg_set_split_step(&split_step, &arg);
+
+//	d_ocp_qp_ipm_arg_codegen("examples/c/data/test_d_ocp_data.c", "a", &dim, &arg);
 
 /************************************************
 * part cond workspace

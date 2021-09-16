@@ -57,6 +57,12 @@ static int nnsbx[6] = {0, 0, 0, 0, 0, 0};
 static int nnsbu[6] = {0, 0, 0, 0, 0, 0};
 // number of softed constraints on general constraints
 static int nnsg[6] = {0, 0, 0, 0, 0, 0};
+// number of input box constraints considered as equality
+static int nnbue[6] = {0, 0, 0, 0, 0, 0};
+// number of states box constraints considered as equality
+static int nnbxe[6] = {0, 0, 0, 0, 0, 0};
+// number of general constraints considered as equality
+static int nnge[6] = {0, 0, 0, 0, 0, 0};
 
 
 // QP data
@@ -147,6 +153,8 @@ static int *iidxs[6] = {};
 static double *llls[6] = {};
 //
 static double *llus[6] = {};
+//
+static double *iidxe[6] = {};
 
 //
 static double *uu_guess[6] = {u_guess, u_guess, u_guess, u_guess, u_guess, u_guess};
@@ -169,6 +177,9 @@ int *ng = nng;
 int *nsbx = nnsbx;
 int *nsbu = nnsbu;
 int *nsg = nnsg;
+int *nbue = nnbue;
+int *nbxe = nnbxe;
+int *nge = nnge;
 
 double **hA = AA;
 double **hB = BB;
@@ -195,6 +206,7 @@ double **hzu = zzu;
 int **hidxs = iidxs;
 double **hlls = llls;
 double **hlus = llus;
+double **hidxe = iidxe;
 
 double **hu_guess = uu_guess;
 double **hx_guess = xx_guess;

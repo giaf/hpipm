@@ -69,6 +69,9 @@ extern int *ng;
 extern int *nsbx;
 extern int *nsbu;
 extern int *nsg;
+extern int *nbue;
+extern int *nbxe;
+extern int *nge;
 extern double **hA;
 extern double **hB;
 extern double **hb;
@@ -94,6 +97,7 @@ extern double **hzu;
 extern int **hidxs;
 extern double **hlls;
 extern double **hlus;
+extern double **hidxe;
 // arg
 extern int mode;
 extern int iter_max;
@@ -136,7 +140,10 @@ int main()
 	d_ocp_qp_dim_set_all(nx, nu, nbx, nbu, ng, nsbx, nsbu, nsg, &dim);
 
 	// set number of inequality constr to be considered as equality constr
-	d_ocp_qp_dim_set_nbxe(0, nx[0], &dim);
+//	d_ocp_qp_dim_set_nbxe(0, nx[0], &dim);
+	d_ocp_qp_dim_set_nbxe(0, nbxe[0], &dim);
+
+//	d_ocp_qp_dim_codegen("examples/c/data/test_d_ocp_data.c", "w", &dim);
 
 /************************************************
 * ocp qp dim red eq dof (reduce equation dof, i.e. x0 elimination)
@@ -185,10 +192,13 @@ int main()
 	d_ocp_qp_set_all(hA, hB, hb, hQ, hS, hR, hq, hr, hidxbx, hlbx, hubx, hidxbu, hlbu, hubu, hC, hD, hlg, hug, hZl, hZu, hzl, hzu, hidxs, hlls, hlus, &qp);
 
 	// mark the inequality constr on x0 as an equality constr
-	int *idxbxe0 = (int *) malloc(nx[0]*sizeof(int));
-	for(ii=0; ii<=nx[0]; ii++)
-		idxbxe0[ii] = ii;
-	d_ocp_qp_set_idxbxe(0, idxbxe0, &qp);
+//	int *idxbxe0 = (int *) malloc(nx[0]*sizeof(int));
+//	for(ii=0; ii<=nx[0]; ii++)
+//		idxbxe0[ii] = ii;
+//	d_ocp_qp_set_idxbxe(0, idxbxe0, &qp);
+	d_ocp_qp_set_idxe(0, hidxe[0], &qp);
+
+//	d_ocp_qp_codegen("examples/c/data/test_d_ocp_data.c", "a", &dim, &qp);
 
 /************************************************
 * ocp qp red eq dof
@@ -294,6 +304,8 @@ int main()
 	d_ocp_qp_ipm_arg_set_pred_corr(&pred_corr, &arg);
 	d_ocp_qp_ipm_arg_set_ric_alg(&ric_alg, &arg);
 	d_ocp_qp_ipm_arg_set_split_step(&split_step, &arg);
+
+//	d_ocp_qp_ipm_arg_codegen("examples/c/data/test_d_ocp_data.c", "a", &dim, &arg);
 
 /************************************************
 * red eq dof workspace
@@ -495,7 +507,7 @@ int main()
 	free(qp_sol_mem);
 	free(qp_sol_mem2);
 	free(qp_sol_mem3);
-	free(idxbxe0);
+//	free(idxbxe0);
     free(qp_red_arg_mem);
     free(qp_red_work_mem);
 	free(part_cond_arg_mem);
