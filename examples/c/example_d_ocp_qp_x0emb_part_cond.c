@@ -97,7 +97,7 @@ extern double **hzu;
 extern int **hidxs;
 extern double **hlls;
 extern double **hlus;
-extern double **hidxe;
+extern int **hidxe;
 // arg
 extern int mode;
 extern int iter_max;
@@ -172,8 +172,7 @@ int main()
 
 	int *block_size = malloc((N+1)*sizeof(int));
 	d_part_cond_qp_compute_block_size(N, N2, block_size);
-//	block_size[0] = 1;
-//	block_size[1] = 1;
+//	int block_size[] = {20, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8};
 //	printf("\nblock_size\n");
 //	int_print_mat(1, N2+1, block_size, 1);
 
@@ -497,13 +496,13 @@ int main()
 * free memory and return
 ************************************************/
 
-    free(dim_mem);
-    free(dim_mem2);
-    free(dim_mem3);
-    free(block_size);
-    free(qp_mem);
-    free(qp_mem2);
-    free(qp_mem3);
+	free(dim_mem);
+	free(dim_mem2);
+	free(dim_mem3);
+	free(block_size);
+	free(qp_mem);
+	free(qp_mem2);
+	free(qp_mem3);
 	free(qp_sol_mem);
 	free(qp_sol_mem2);
 	free(qp_sol_mem3);
