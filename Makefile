@@ -38,20 +38,28 @@ include ./Makefile.rule
 
 OBJS = 
 
-ifeq ($(TARGET), GENERIC)
+ifeq ($(TARGET), AVX512)
 # ipm core
 # double
-OBJS += ipm_core/d_core_qp_ipm_aux.o 
+OBJS += ipm_core/d_core_qp_ipm_aux_avx512.o
 # single
-OBJS += ipm_core/s_core_qp_ipm_aux.o 
+OBJS += ipm_core/s_core_qp_ipm_aux_avx512.o
 endif
 
 ifeq ($(TARGET), AVX)
 # ipm core
 # double
-OBJS += ipm_core/d_core_qp_ipm_aux_avx.o 
+OBJS += ipm_core/d_core_qp_ipm_aux_avx.o
 # single
-OBJS += ipm_core/s_core_qp_ipm_aux_avx.o 
+OBJS += ipm_core/s_core_qp_ipm_aux_avx.o
+endif
+
+ifeq ($(TARGET), GENERIC)
+# ipm core
+# double
+OBJS += ipm_core/d_core_qp_ipm_aux.o
+# single
+OBJS += ipm_core/s_core_qp_ipm_aux.o
 endif
 
 # cond
@@ -227,6 +235,16 @@ shared_library: target
 
 target:
 	touch ./include/hpipm_target.h
+ifeq ($(TARGET), AVX512)
+	echo "#ifndef TARGET_AVX512" > ./include/hpipm_target.h
+	echo "#define TARGET_AVX512" >> ./include/hpipm_target.h
+	echo "#endif" >> ./include/hpipm_target.h
+endif
+ifeq ($(TARGET), AVX)
+	echo "#ifndef TARGET_AVX" > ./include/hpipm_target.h
+	echo "#define TARGET_AVX" >> ./include/hpipm_target.h
+	echo "#endif" >> ./include/hpipm_target.h
+endif
 ifeq ($(TARGET), GENERIC)
 	echo "#ifndef TARGET_GENERIC" > ./include/hpipm_target.h
 	echo "#define TARGET_GENERIC" >> ./include/hpipm_target.h
