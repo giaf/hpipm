@@ -95,7 +95,7 @@ void DENSE_QCQP_SOL_CREATE(struct DENSE_QCQP_DIM *dim, struct DENSE_QCQP_SOL *qp
 
 
 	// align to typical cache line size
-	long long l_ptr = (long long) sv_ptr;
+	size_t l_ptr = (size_t) sv_ptr;
 	l_ptr = (l_ptr+63)/64*64;
 
 
@@ -127,7 +127,7 @@ void DENSE_QCQP_SOL_CREATE(struct DENSE_QCQP_DIM *dim, struct DENSE_QCQP_SOL *qp
 #if defined(RUNTIME_CHECKS)
 	if(c_ptr > ((char *) mem) + qp_sol->memsize)
 		{
-		printf("\nCreate_ocp_qp_sol: outsize memory bounds!\n\n");
+		printf("\nCreate_dense_qp_sol: outsize memory bounds!\n\n");
 		exit(1);
 		}
 #endif

@@ -133,7 +133,7 @@ void OCP_QCQP_SOL_CREATE(struct OCP_QCQP_DIM *dim, struct OCP_QCQP_SOL *qp_sol, 
 
 
 	// align to typical cache line size
-	long long l_ptr = (long long) sv_ptr;
+	size_t l_ptr = (size_t) sv_ptr;
 	l_ptr = (l_ptr+63)/64*64;
 
 

@@ -247,7 +247,7 @@ void OCP_QP_CREATE(struct OCP_QP_DIM *dim, struct OCP_QP *qp, void *mem)
 
 
 	// align to typical cache line size
-	long long l_ptr = (long long) i_ptr;
+	size_t l_ptr = (size_t) i_ptr;
 	l_ptr = (l_ptr+63)/64*64;
 
 
