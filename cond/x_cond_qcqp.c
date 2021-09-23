@@ -133,7 +133,7 @@ void COND_QCQP_ARG_CREATE(struct COND_QCQP_ARG *cond_arg, void *mem)
 	arg_ptr += 1;
 
 	// align to typical cache line size
-	size_t s_ptr = (size_t) arg_ptr;
+	hpipm_size_t s_ptr = (hpipm_size_t) arg_ptr;
 	s_ptr = (s_ptr+63)/64*64;
 
 	// void
@@ -374,8 +374,8 @@ void COND_QCQP_WS_CREATE(struct OCP_QCQP_DIM *ocp_dim, struct COND_QCQP_ARG *con
 	cond_ws->tmp_nuxM = sv_ptr;
 	sv_ptr += 1;
 
-	// align to typicl cache line size
-	size_t s_ptr = (size_t) sv_ptr;
+	// align to typical cache line size
+	hpipm_size_t s_ptr = (hpipm_size_t) sv_ptr;
 	s_ptr = (s_ptr+63)/64*64;
 
 	// void stuf

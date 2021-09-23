@@ -107,8 +107,8 @@ void CREATE_ELIM_X0(struct OCP_QP *qp, struct ELIM_X0_WORKSPACE *ws, void *mem)
 	ws->x0 = sv_ptr;
 	sv_ptr += 1;
 
-	// align to typicl cache line size
-	size_t s_ptr = (size_t) sv_ptr;
+	// align to typical cache line size
+	hpipm_size_t s_ptr = (hpipm_size_t) sv_ptr;
 	s_ptr = (s_ptr+63)/64*64;
 
 	// void stuff

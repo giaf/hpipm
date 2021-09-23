@@ -131,8 +131,8 @@ void TREE_OCP_QCQP_RES_CREATE(struct TREE_OCP_QCQP_DIM *dim, struct TREE_OCP_QCQ
 	sv_ptr += Nn;
 
 
-	// align to typicl cache line size
-	size_t s_ptr = (size_t) sv_ptr;
+	// align to typical cache line size
+	hpipm_size_t s_ptr = (hpipm_size_t) sv_ptr;
 	s_ptr = (s_ptr+63)/64*64;
 
 
@@ -328,8 +328,8 @@ void TREE_OCP_QCQP_RES_WS_CREATE(struct TREE_OCP_QCQP_DIM *dim, struct TREE_OCP_
 	sv_ptr += Nn;
 
 
-	// align to typicl cache line size
-	size_t s_ptr = (size_t) sv_ptr;
+	// align to typical cache line size
+	hpipm_size_t s_ptr = (hpipm_size_t) sv_ptr;
 	s_ptr = (s_ptr+63)/64*64;
 
 

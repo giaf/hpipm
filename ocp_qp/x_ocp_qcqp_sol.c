@@ -133,7 +133,7 @@ void OCP_QCQP_SOL_CREATE(struct OCP_QCQP_DIM *dim, struct OCP_QCQP_SOL *qp_sol, 
 
 
 	// align to typical cache line size
-	long long l_ptr = (long long) sv_ptr;
+	hpipm_size_t l_ptr = (hpipm_size_t) sv_ptr;
 	l_ptr = (l_ptr+63)/64*64;
 
 
@@ -205,7 +205,7 @@ void OCP_QCQP_SOL_CREATE(struct OCP_QCQP_DIM *dim, struct OCP_QCQP_SOL *qp_sol, 
 #if defined(RUNTIME_CHECKS)
 	if(c_ptr > ((char *) mem) + qp_sol->memsize)
 		{
-		printf("\nCreate_ocp_qp_sol: outsize memory bounds!\n\n");
+		printf("\nCreate_ocp_qcqp_sol: outsize memory bounds!\n\n");
 		exit(1);
 		}
 #endif

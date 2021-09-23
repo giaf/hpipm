@@ -127,8 +127,8 @@ void OCP_QCQP_RES_CREATE(struct OCP_QCQP_DIM *dim, struct OCP_QCQP_RES *res, voi
 	sv_ptr += N+1;
 
 
-	// align to typicl cache line size
-	size_t s_ptr = (size_t) sv_ptr;
+	// align to typical cache line size
+	hpipm_size_t s_ptr = (hpipm_size_t) sv_ptr;
 	s_ptr = (s_ptr+63)/64*64;
 
 
@@ -204,7 +204,7 @@ void OCP_QCQP_RES_CREATE(struct OCP_QCQP_DIM *dim, struct OCP_QCQP_RES *res, voi
 #if defined(RUNTIME_CHECKS)
 	if(c_ptr > ((char *) mem) + res->memsize)
 		{
-		printf("\ncreate_ocp_qp_res: outside memory bounds!\n\n");
+		printf("\ncreate_ocp_qcqp_res: outside memory bounds!\n\n");
 		exit(1);
 		}
 #endif
@@ -323,8 +323,8 @@ void OCP_QCQP_RES_WS_CREATE(struct OCP_QCQP_DIM *dim, struct OCP_QCQP_RES_WS *ws
 	sv_ptr += N+1;
 
 
-	// align to typicl cache line size
-	size_t s_ptr = (size_t) sv_ptr;
+	// align to typical cache line size
+	hpipm_size_t s_ptr = (hpipm_size_t) sv_ptr;
 	s_ptr = (s_ptr+63)/64*64;
 
 
@@ -366,7 +366,7 @@ void OCP_QCQP_RES_WS_CREATE(struct OCP_QCQP_DIM *dim, struct OCP_QCQP_RES_WS *ws
 #if defined(RUNTIME_CHECKS)
 	if(c_ptr > ((char *) mem) + ws->memsize)
 		{
-		printf("\ncreate_ocp_qp_res_workspace: outside memory bounds!\n\n");
+		printf("\ncreate_ocp_qcqp_res_workspace: outside memory bounds!\n\n");
 		exit(1);
 		}
 #endif

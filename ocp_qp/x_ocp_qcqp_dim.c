@@ -84,7 +84,7 @@ void OCP_QCQP_DIM_CREATE(int N, struct OCP_QCQP_DIM *dim, void *mem)
 	dim_ptr += 1;
 
 	// align to typical cache line size
-	size_t s_ptr = (size_t) dim_ptr;
+	hpipm_size_t s_ptr = (hpipm_size_t) dim_ptr;
 	s_ptr = (s_ptr+63)/64*64;
 
 	// void

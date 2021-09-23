@@ -241,7 +241,7 @@ void OCP_QP_REDUCE_EQ_DOF_WS_CREATE(struct OCP_QP_DIM *dim, struct OCP_QP_REDUCE
 	i_ptr += nbgM;
 
 	// align to typical cache line size
-	long long l_ptr = (long long) i_ptr;
+	hpipm_size_t l_ptr = (hpipm_size_t) i_ptr;
 	l_ptr = (l_ptr+63)/64*64;
 
 	// floating point stuff
