@@ -204,7 +204,7 @@ void OCP_QCQP_RES_CREATE(struct OCP_QCQP_DIM *dim, struct OCP_QCQP_RES *res, voi
 #if defined(RUNTIME_CHECKS)
 	if(c_ptr > ((char *) mem) + res->memsize)
 		{
-		printf("\ncreate_ocp_qp_res: outside memory bounds!\n\n");
+		printf("\ncreate_ocp_qcqp_res: outside memory bounds!\n\n");
 		exit(1);
 		}
 #endif
@@ -366,7 +366,7 @@ void OCP_QCQP_RES_WS_CREATE(struct OCP_QCQP_DIM *dim, struct OCP_QCQP_RES_WS *ws
 #if defined(RUNTIME_CHECKS)
 	if(c_ptr > ((char *) mem) + ws->memsize)
 		{
-		printf("\ncreate_ocp_qp_res_workspace: outside memory bounds!\n\n");
+		printf("\ncreate_ocp_qcqp_res_workspace: outside memory bounds!\n\n");
 		exit(1);
 		}
 #endif

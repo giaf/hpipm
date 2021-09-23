@@ -205,7 +205,7 @@ void OCP_QCQP_SOL_CREATE(struct OCP_QCQP_DIM *dim, struct OCP_QCQP_SOL *qp_sol, 
 #if defined(RUNTIME_CHECKS)
 	if(c_ptr > ((char *) mem) + qp_sol->memsize)
 		{
-		printf("\nCreate_ocp_qp_sol: outsize memory bounds!\n\n");
+		printf("\nCreate_ocp_qcqp_sol: outsize memory bounds!\n\n");
 		exit(1);
 		}
 #endif
