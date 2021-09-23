@@ -801,7 +801,7 @@ void OCP_QP_IPM_WS_CREATE(struct OCP_QP_DIM *dim, struct OCP_QP_IPM_ARG *arg, st
 	workspace->use_hess_fact = i_ptr;
 	i_ptr += N+1;
 
-	// align to typicl cache line size
+	// align to typical cache line size
 	size_t s_ptr = (size_t) i_ptr;
 	s_ptr = (s_ptr+63)/64*64;
 

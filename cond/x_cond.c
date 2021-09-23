@@ -339,7 +339,7 @@ void COND_QP_WS_CREATE(struct OCP_QP_DIM *ocp_dim, struct COND_QP_ARG *cond_arg,
 	ngM = ng[ii]>ngM ? ng[ii] : ngM;
 
 
-	// align to typicl cache line size
+	// align to typical cache line size
 	s_ptr = (size_t) mem;
 	s_ptr = (s_ptr+7)/8*8;
 
@@ -381,7 +381,7 @@ void COND_QP_WS_CREATE(struct OCP_QP_DIM *ocp_dim, struct COND_QP_ARG *cond_arg,
 		}
 
 
-	// align to typicl cache line size
+	// align to typical cache line size
 	s_ptr = (size_t) sv_ptr;
 	s_ptr = (s_ptr+63)/64*64;
 

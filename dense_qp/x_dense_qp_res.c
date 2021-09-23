@@ -96,7 +96,7 @@ void DENSE_QP_RES_CREATE(struct DENSE_QP_DIM *dim, struct DENSE_QP_RES *res, voi
 	sv_ptr += 1;
 
 
-	// align to typicl cache line size
+	// align to typical cache line size
 	size_t s_ptr = (size_t) sv_ptr;
 	s_ptr = (s_ptr+63)/64*64;
 
@@ -216,7 +216,7 @@ void DENSE_QP_RES_WS_CREATE(struct DENSE_QP_DIM *dim, struct DENSE_QP_RES_WS *ws
 	sv_ptr += 1;
 
 
-	// align to typicl cache line size
+	// align to typical cache line size
 	size_t s_ptr = (size_t) sv_ptr;
 	s_ptr = (s_ptr+63)/64*64;
 
