@@ -95,7 +95,7 @@ void DENSE_QCQP_SOL_CREATE(struct DENSE_QCQP_DIM *dim, struct DENSE_QCQP_SOL *qp
 
 
 	// align to typical cache line size
-	size_t l_ptr = (size_t) sv_ptr;
+	hpipm_size_t l_ptr = (hpipm_size_t) sv_ptr;
 	l_ptr = (l_ptr+63)/64*64;
 
 

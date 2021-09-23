@@ -802,7 +802,7 @@ void OCP_QP_IPM_WS_CREATE(struct OCP_QP_DIM *dim, struct OCP_QP_IPM_ARG *arg, st
 	i_ptr += N+1;
 
 	// align to typical cache line size
-	size_t s_ptr = (size_t) i_ptr;
+	hpipm_size_t s_ptr = (hpipm_size_t) i_ptr;
 	s_ptr = (s_ptr+63)/64*64;
 
 

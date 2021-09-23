@@ -128,7 +128,7 @@ void OCP_QCQP_RES_CREATE(struct OCP_QCQP_DIM *dim, struct OCP_QCQP_RES *res, voi
 
 
 	// align to typical cache line size
-	size_t s_ptr = (size_t) sv_ptr;
+	hpipm_size_t s_ptr = (hpipm_size_t) sv_ptr;
 	s_ptr = (s_ptr+63)/64*64;
 
 
@@ -324,7 +324,7 @@ void OCP_QCQP_RES_WS_CREATE(struct OCP_QCQP_DIM *dim, struct OCP_QCQP_RES_WS *ws
 
 
 	// align to typical cache line size
-	size_t s_ptr = (size_t) sv_ptr;
+	hpipm_size_t s_ptr = (hpipm_size_t) sv_ptr;
 	s_ptr = (s_ptr+63)/64*64;
 
 

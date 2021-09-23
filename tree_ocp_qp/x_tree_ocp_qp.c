@@ -238,7 +238,7 @@ void TREE_OCP_QP_CREATE(struct TREE_OCP_QP_DIM *dim, struct TREE_OCP_QP *qp, voi
 
 
 	// align to typical cache line size
-	size_t l_ptr = (size_t) i_ptr;
+	hpipm_size_t l_ptr = (hpipm_size_t) i_ptr;
 	l_ptr = (l_ptr+63)/64*64;
 
 

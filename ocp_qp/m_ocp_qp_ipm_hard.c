@@ -260,7 +260,7 @@ void m_create_ipm_hard_ocp_qp(struct d_ocp_qp *qp, struct s_ocp_qp *s_qp, struct
 
 
 	// align to typical cache line size
-	size_t s_ptr = (size_t) sv_ptr;
+	hpipm_size_t s_ptr = (hpipm_size_t) sv_ptr;
 	s_ptr = (s_ptr+63)/64*64;
 
 

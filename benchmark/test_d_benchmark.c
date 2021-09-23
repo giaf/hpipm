@@ -137,7 +137,7 @@ void d_create_benchmark_to_hpipm(int nv, int ne, int nc, struct benchmark_to_hpi
 	i_ptr += nv;
 
 	// align data
-	size_t s_ptr = (size_t) i_ptr;
+	hpipm_size_t s_ptr = (hpipm_size_t) i_ptr;
 	s_ptr = (s_ptr+7)/8*8;
 
 	// char pointer

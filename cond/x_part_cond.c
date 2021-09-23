@@ -187,7 +187,7 @@ void PART_COND_QP_ARG_CREATE(int N2, struct PART_COND_QP_ARG *part_cond_arg, voi
 	cws_ptr += N2+1;
 
 	// align to typical cache line size
-	size_t s_ptr = (size_t) cws_ptr;
+	hpipm_size_t s_ptr = (hpipm_size_t) cws_ptr;
 	s_ptr = (s_ptr+63)/64*64;
 
 	char *c_ptr = (char *) s_ptr;
@@ -375,7 +375,7 @@ void PART_COND_QP_WS_CREATE(struct OCP_QP_DIM *ocp_dim, int *block_size, struct 
 	cws_ptr += N2+1;
 
 	// align to typical cache line size
-	size_t s_ptr = (size_t) cws_ptr;
+	hpipm_size_t s_ptr = (hpipm_size_t) cws_ptr;
 	s_ptr = (s_ptr+63)/64*64;
 
 	char *c_ptr = (char *) s_ptr;
