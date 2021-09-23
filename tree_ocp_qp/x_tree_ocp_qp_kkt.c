@@ -633,7 +633,9 @@ void TREE_OCP_QP_FACT_LQ_SOLVE_KKT_STEP(struct TREE_OCP_QP *qp, struct TREE_OCP_
 		//
 		if(ws->use_hess_fact[idx]==0)
 			{
-			POTRF_L(nu[idx]+nx[idx], RSQrq+idx, 0, 0, Lh+idx, 0, 0);
+			TRCP_L(nu[idx]+nx[idx], RSQrq+idx, 0, 0, Lh+idx, 0, 0);
+			DIARE(nu[idx]+nx[idx], arg->reg_prim, Lh+idx, 0, 0);
+			POTRF_L(nu[idx]+nx[idx], Lh+idx, 0, 0, Lh+idx, 0, 0);
 			ws->use_hess_fact[idx]=1;
 			}
 #if defined(LA_HIGH_PERFORMANCE) | defined(LA_REFERENCE)
@@ -677,7 +679,6 @@ void TREE_OCP_QP_FACT_LQ_SOLVE_KKT_STEP(struct TREE_OCP_QP *qp, struct TREE_OCP_
 			GEMV_N(nu[idx]+nx[idx], ng[idx], 1.0, DCt+idx, 0, 0, tmp_nbgM+1, nb[idx], 1.0, dux+idx, 0, dux+idx, 0);
 			}
 
-		DIARE(nu[idx]+nx[idx], arg->reg_prim, lq0, 0, nu[idx]+nx[idx]);
 #if defined(LA_HIGH_PERFORMANCE) | defined(LA_REFERENCE)
 		GELQF_PD_LLA(nu[idx]+nx[idx], ng[idx], L+idx, 0, 0, lq0, 0, nu[idx]+nx[idx], lq0, 0, 2*nu[idx]+2*nx[idx], lq_work0); // TODO reduce lq1 size !!!
 #else

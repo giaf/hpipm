@@ -873,11 +873,12 @@ void OCP_QP_FACT_LQ_SOLVE_KKT_STEP(struct OCP_QP *qp, struct OCP_QP_SOL *qp_sol,
 
 	if(ws->use_hess_fact[ss]==0)
 		{
-		POTRF_L(nu[ss]+nx[ss], RSQrq+ss, 0, 0, Lh+ss, 0, 0);
+		TRCP_L(nu[ss]+nx[ss], RSQrq+ss, 0, 0, Lh+ss, 0, 0);
+		DIARE(nu[ss]+nx[ss], arg->reg_prim, Lh+ss, 0, 0);
+		POTRF_L(nu[ss]+nx[ss], Lh+ss, 0, 0, Lh+ss, 0, 0);
 		ws->use_hess_fact[ss]=1;
 		}
 
-	DIARE(nu[ss]+nx[ss], arg->reg_prim, lq0, 0, nu[ss]+nx[ss]);
 #if defined(LA_HIGH_PERFORMANCE) | defined(LA_REFERENCE)
 	TRCP_L(nu[ss]+nx[ss], Lh+ss, 0, 0, L+ss, 0, 0);
 //	GELQF_PD(nu[ss]+nx[ss], 2*nu[ss]+2*nx[ss]+ng[ss], lq0, 0, 0, lq0, 0, 0, lq_work0);
@@ -948,11 +949,12 @@ void OCP_QP_FACT_LQ_SOLVE_KKT_STEP(struct OCP_QP *qp, struct OCP_QP_SOL *qp_sol,
 
 		if(ws->use_hess_fact[ss]==0)
 			{
-			POTRF_L(nu[ss]+nx[ss], RSQrq+ss, 0, 0, Lh+ss, 0, 0);
+			TRCP_L(nu[ss]+nx[ss], RSQrq+ss, 0, 0, Lh+ss, 0, 0);
+			DIARE(nu[ss]+nx[ss], arg->reg_prim, Lh+ss, 0, 0);
+			POTRF_L(nu[ss]+nx[ss], Lh+ss, 0, 0, Lh+ss, 0, 0);
 			ws->use_hess_fact[ss]=1;
 			}
 
-		DIARE(nu[ss]+nx[ss], arg->reg_prim, lq0, 0, nu[ss]+nx[ss]);
 #if defined(LA_HIGH_PERFORMANCE) | defined(LA_REFERENCE)
 		TRCP_L(nu[ss]+nx[ss], Lh+ss, 0, 0, L+ss, 0, 0);
 //		GELQF_PD(nu[ss]+nx[ss], 2*nu[ss]+2*nx[ss]+nx[ss+1]+ng[ss], lq0, 0, 0, lq0, 0, 0, lq_work0);
@@ -1024,11 +1026,12 @@ void OCP_QP_FACT_LQ_SOLVE_KKT_STEP(struct OCP_QP *qp, struct OCP_QP_SOL *qp_sol,
 
 	if(ws->use_hess_fact[ss]==0)
 		{
-		POTRF_L(nu[ss]+nx[ss], RSQrq+ss, 0, 0, Lh+ss, 0, 0);
+		TRCP_L(nu[ss]+nx[ss], RSQrq+ss, 0, 0, Lh+ss, 0, 0);
+		DIARE(nu[ss]+nx[ss], arg->reg_prim, Lh+ss, 0, 0);
+		POTRF_L(nu[ss]+nx[ss], Lh+ss, 0, 0, Lh+ss, 0, 0);
 		ws->use_hess_fact[ss]=1;
 		}
 
-	DIARE(nu[ss]+nx[ss], arg->reg_prim, lq0, 0, nu[ss]+nx[ss]);
 #if defined(LA_HIGH_PERFORMANCE) | defined(LA_REFERENCE)
 	TRCP_L(nu[ss]+nx[ss], Lh+ss, 0, 0, L+ss, 0, 0);
 //	GELQF_PD(nu[ss]+nx[ss], 2*nu[ss]+2*nx[ss]+nx[ss+1]+ng[ss], lq0, 0, 0, lq0, 0, 0, lq_work0);

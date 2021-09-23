@@ -965,7 +965,9 @@ void FACT_LQ_SOLVE_KKT_STEP_DENSE_QP(struct DENSE_QP *qp, struct DENSE_QP_SOL *q
 
 			if(ws->use_hess_fact==0)
 				{
-				POTRF_L(nv, Hg, 0, 0, Lv+1, 0, 0);
+				TRCP_L(nv, Hg, 0, 0, Lv+1, 0, 0);
+				DIARE(nv, arg->reg_prim, Lv+1, 0, 0);
+				POTRF_L(nv, Lv+1, 0, 0, Lv+1, 0, 0);
 				ws->use_hess_fact=1;
 				}
 	//int pd = 1;
@@ -1009,7 +1011,7 @@ void FACT_LQ_SOLVE_KKT_STEP_DENSE_QP(struct DENSE_QP *qp, struct DENSE_QP_SOL *q
 				GEMV_N(nv, ng, 1.0, Ct, 0, 0, tmp_nbg+1, nb, 1.0, lv, 0, lv, 0);
 				}
 
-			DIARE(nv, arg->reg_prim, lq1, 0, nv);
+//		DIARE(nv, arg->reg_prim, lq1, 0, nv);
 
 	//blasfeo_print_dmat(nv, nv, lq1, 0, 0);
 	//blasfeo_print_dmat(nv, nv, lq1, 0, nv);
@@ -1093,7 +1095,9 @@ void FACT_LQ_SOLVE_KKT_STEP_DENSE_QP(struct DENSE_QP *qp, struct DENSE_QP_SOL *q
 
 		if(ws->use_hess_fact==0)
 			{
-			POTRF_L(nv, Hg, 0, 0, Lv+1, 0, 0);
+			TRCP_L(nv, Hg, 0, 0, Lv+1, 0, 0);
+			DIARE(nv, arg->reg_prim, Lv+1, 0, 0);
+			POTRF_L(nv, Lv+1, 0, 0, Lv+1, 0, 0);
 			ws->use_hess_fact=1;
 			}
 
@@ -1132,7 +1136,7 @@ void FACT_LQ_SOLVE_KKT_STEP_DENSE_QP(struct DENSE_QP *qp, struct DENSE_QP_SOL *q
 			GEMV_N(nv, ng, 1.0, Ct, 0, 0, tmp_nbg+1, nb, 1.0, lv, 0, lv, 0);
 			}
 
-		DIARE(nv, arg->reg_prim, lq1, 0, nv);
+//		DIARE(nv, arg->reg_prim, lq1, 0, nv);
 
 #if defined(LA_HIGH_PERFORMANCE)
 //		TRCP_L(nv, Lv+1, 0, 0, lq1, 0, 0);
