@@ -320,11 +320,11 @@ int main()
 * part cond workspace
 ************************************************/
 
-	hpipm_size_t part_cond_size = d_part_cond_qp_ws_memsize(&dim, block_size, &dim2, &part_cond_arg);
+	hpipm_size_t part_cond_size = d_part_cond_qp_ws_memsize(&dim3, block_size, &dim2, &part_cond_arg);
 	void *part_cond_mem = malloc(part_cond_size);
 
 	struct d_part_cond_qp_ws part_cond_ws;
-	d_part_cond_qp_ws_create(&dim, block_size, &dim2, &part_cond_arg, &part_cond_ws, part_cond_mem);
+	d_part_cond_qp_ws_create(&dim3, block_size, &dim2, &part_cond_arg, &part_cond_ws, part_cond_mem);
 
 /************************************************
 * ipm workspace
