@@ -50,6 +50,7 @@
 #include <hpipm_d_ocp_qp_dim.h>
 #include <hpipm_d_ocp_qp.h>
 #include <hpipm_d_ocp_qp_sol.h>
+#include <hpipm_d_ocp_qp_utils.h>
 #include <hpipm_timing.h>
 
 
@@ -306,6 +307,8 @@ int main()
 	double **lam_us1 = malloc((N+1)*sizeof(double *)); for(ii=0; ii<=N; ii++) d_zeros(lam_us1+ii, nsbu[ii]+nsbx[ii]+nsg[ii], 1);
 
 	d_ocp_qp_sol_get_all(&qp_sol, u1, x1, ls1, us1, pi1, lam_lb1, lam_ub1, lam_lg1, lam_ug1, lam_ls1, lam_us1);
+
+//	d_ocp_qp_sol_print(&dim, &qp_sol);
 
 /************************************************
 * print ipm statistics

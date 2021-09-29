@@ -52,6 +52,7 @@
 #include <hpipm_d_ocp_qp_dim.h>
 #include <hpipm_d_ocp_qp.h>
 #include <hpipm_d_ocp_qp_sol.h>
+#include <hpipm_d_ocp_qp_utils.h>
 #include <hpipm_d_part_cond.h>
 #include <hpipm_timing.h>
 
@@ -217,7 +218,7 @@ int main()
 
 	d_part_cond_qp_arg_set_default(&part_cond_arg);
 
-//	d_part_cond_qp_arg_set_ric_alg(0, &part_cond_arg);
+	d_part_cond_qp_arg_set_ric_alg(0, &part_cond_arg);
 
 /************************************************
 * ipm arg
@@ -370,6 +371,8 @@ int main()
 		d_ocp_qp_sol_get_x(ii, &qp_sol, x);
 		d_print_mat(1, nx[ii], x, 1);
 		}
+
+//	d_ocp_qp_sol_print(&dim, &qp_sol);
 
 /************************************************
 * print ipm statistics
