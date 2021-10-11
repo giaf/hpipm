@@ -53,6 +53,10 @@ hpipm_size_t OCP_QCQP_MEMSIZE(struct OCP_QCQP_DIM *dim)
 	int *ng = dim->ng;
 	int *nq = dim->nq;
 	int *ns = dim->ns;
+	int *nbue = dim->nbue;
+	int *nbxe = dim->nbxe;
+	int *nge = dim->nge;
+	int *nqe = dim->nqe;
 
 	// loop index
 	int ii;
@@ -78,7 +82,7 @@ hpipm_size_t OCP_QCQP_MEMSIZE(struct OCP_QCQP_DIM *dim)
 	size += (N+1)*sizeof(struct STRMAT *); // Hq
 
 //	size += 5*(N+1)*sizeof(int); // nx nu nb ng ns
-	size += 3*(N+1)*sizeof(int *); // idxb idxs_rev Hq_nzero
+	size += 4*(N+1)*sizeof(int *); // idxb idxs_rev idxe Hq_nzero
 	size += (2*(N+1)+nqt)*sizeof(struct STRMAT); // RSqrq DCt Hq
 	size += 1*N*sizeof(struct STRMAT); // BAbt
 	size += 5*(N+1)*sizeof(struct STRVEC); // rqz d m Z d_mask
@@ -88,6 +92,7 @@ hpipm_size_t OCP_QCQP_MEMSIZE(struct OCP_QCQP_DIM *dim)
 		{
 		size += nb[ii]*sizeof(int); // idxb
 		size += (nb[ii]+ng[ii]+nq[ii])*sizeof(int); // idxs_rev
+		size += (nbue[ii]+nbxe[ii]+nge[ii]+nqe[ii])*sizeof(int); // idxe
 		size += nq[ii]*sizeof(int); // Hq_nzero
 		size += SIZE_STRMAT(nu[ii]+nx[ii]+1, nx[ii+1]); // BAbt
 		size += SIZE_STRMAT(nu[ii]+nx[ii]+1, nu[ii]+nx[ii]); // RSQrq
@@ -99,6 +104,7 @@ hpipm_size_t OCP_QCQP_MEMSIZE(struct OCP_QCQP_DIM *dim)
 	size += nb[ii]*sizeof(int); // idxb
 	size += nq[ii]*sizeof(int); // Hq_nzero
 	size += (nb[ii]+ng[ii]+nq[ii])*sizeof(int); // idxs_rev
+	size += (nbue[ii]+nbxe[ii]+nge[ii]+nqe[ii])*sizeof(int); // idxe
 	size += SIZE_STRMAT(nu[ii]+nx[ii]+1, nu[ii]+nx[ii]); // RSQrq
 	size += SIZE_STRMAT(nu[ii]+nx[ii], ng[ii]+nq[ii]); // DCt
 	size += SIZE_STRVEC(2*ns[ii]); // Z
@@ -135,6 +141,10 @@ void OCP_QCQP_CREATE(struct OCP_QCQP_DIM *dim, struct OCP_QCQP *qp, void *mem)
 	int *ng = dim->ng;
 	int *nq = dim->nq;
 	int *ns = dim->ns;
+	int *nbxe = dim->nbxe;
+	int *nbue = dim->nbue;
+	int *nge = dim->nge;
+	int *nqe = dim->nqe;
 
 	// compute core qp size
 	int nvt = 0;
@@ -160,6 +170,9 @@ void OCP_QCQP_CREATE(struct OCP_QCQP_DIM *dim, struct OCP_QCQP *qp, void *mem)
 	ip_ptr += N+1;
 	// idxs_rev
 	qp->idxs_rev = ip_ptr;
+	ip_ptr += N+1;
+	// idxe
+	qp->idxe = ip_ptr;
 	ip_ptr += N+1;
 	// Hq_nzero
 	qp->Hq_nzero = ip_ptr;
@@ -236,6 +249,12 @@ void OCP_QCQP_CREATE(struct OCP_QCQP_DIM *dim, struct OCP_QCQP *qp, void *mem)
 		i_ptr += nb[ii]+ng[ii]+nq[ii];
 		for(jj=0; jj<nb[ii]+ng[ii]+nq[ii]; jj++)
 			qp->idxs_rev[ii][jj] = -1;
+		}
+	// idxe
+	for(ii=0; ii<=N; ii++)
+		{
+		(qp->idxe)[ii] = i_ptr;
+		i_ptr += nbue[ii]+nbxe[ii]+nge[ii]+nqe[ii];
 		}
 	// Hq_nzero
 	for(ii=0; ii<=N; ii++)
@@ -399,6 +418,10 @@ void OCP_QCQP_COPY_ALL(struct OCP_QCQP *qp_orig, struct OCP_QCQP *qp_dest)
 	int *ng = qp_orig->dim->ng;
 	int *nq = qp_orig->dim->nq;
 	int *ns = qp_orig->dim->ns;
+	int *nbxe = qp_orig->dim->nbxe;
+	int *nbue = qp_orig->dim->nbue;
+	int *nge = qp_orig->dim->nge;
+	int *nqe = qp_orig->dim->nqe;
 
 	int ii, jj;
 
@@ -428,6 +451,8 @@ void OCP_QCQP_COPY_ALL(struct OCP_QCQP *qp_orig, struct OCP_QCQP *qp_dest)
 			qp_dest->idxs_rev[ii][jj] = qp_orig->idxs_rev[ii][jj];
 		for(jj=0; jj<nq[ii]; jj++)
 			qp_dest->Hq_nzero[ii][jj] = qp_orig->Hq_nzero[ii][jj];
+		for(jj=0; jj<nbue[ii]+nbxe[ii]+nge[ii]+nqe[ii]; jj++)
+			qp_dest->idxe[ii][jj] = qp_orig->idxe[ii][jj];
 		}
 
 	return;
@@ -449,6 +474,10 @@ void OCP_QCQP_SET_ALL_ZERO(struct OCP_QCQP *qp)
 	int *ng = qp->dim->ng;
 	int *nq = qp->dim->nq;
 	int *ns = qp->dim->ns;
+	int *nbxe = qp->dim->nbxe;
+	int *nbue = qp->dim->nbue;
+	int *nge = qp->dim->nge;
+	int *nqe = qp->dim->nqe;
 
 	int ii, jj;
 
@@ -475,6 +504,8 @@ void OCP_QCQP_SET_ALL_ZERO(struct OCP_QCQP *qp)
 			qp->idxs_rev[ii][jj] = -1;
 		for(jj=0; jj<nq[ii]; jj++)
 			qp->Hq_nzero[ii][jj] = 0;
+		for(jj=0; jj<nbue[ii]+nbxe[ii]+nge[ii]+nqe[ii]; jj++)
+			qp->idxe[ii][jj] = 0;
 		}
 
 	return;
@@ -732,6 +763,42 @@ void OCP_QCQP_SET(char *field, int stage, void *value, struct OCP_QCQP *qp)
 	else if(hpipm_strcmp(field, "Jsq"))
 		{
 		OCP_QCQP_SET_JSQ(stage, value, qp);
+		}
+	else if(hpipm_strcmp(field, "idxe"))
+		{
+		OCP_QCQP_SET_IDXE(stage, value, qp);
+		}
+	else if(hpipm_strcmp(field, "idxbue"))
+		{
+		OCP_QCQP_SET_IDXBUE(stage, value, qp);
+		}
+	else if(hpipm_strcmp(field, "idxbxe"))
+		{
+		OCP_QCQP_SET_IDXBXE(stage, value, qp);
+		}
+	else if(hpipm_strcmp(field, "idxge"))
+		{
+		OCP_QCQP_SET_IDXGE(stage, value, qp);
+		}
+	else if(hpipm_strcmp(field, "idxqe"))
+		{
+		OCP_QCQP_SET_IDXQE(stage, value, qp);
+		}
+	else if(hpipm_strcmp(field, "Jbue"))
+		{
+		OCP_QCQP_SET_JBUE(stage, value, qp);
+		}
+	else if(hpipm_strcmp(field, "Jbxe"))
+		{
+		OCP_QCQP_SET_JBXE(stage, value, qp);
+		}
+	else if(hpipm_strcmp(field, "Jge"))
+		{
+		OCP_QCQP_SET_JGE(stage, value, qp);
+		}
+	else if(hpipm_strcmp(field, "Jqe"))
+		{
+		OCP_QCQP_SET_JQE(stage, value, qp);
 		}
 	else
 		{
@@ -1672,6 +1739,193 @@ void OCP_QCQP_SET_LUS_MASK(int stage, REAL *lus_mask, struct OCP_QCQP *qp)
 
 	PACK_VEC(ns[stage], lus_mask, 1, qp->d_mask+stage, 2*nb[stage]+2*ng[stage]+2*nq[stage]+ns[stage]);
 
+	return;
+	}
+
+
+
+void OCP_QCQP_SET_IDXE(int stage, int *idxe, struct OCP_QCQP *qp)
+	{
+	// extract dim
+	int *nbxe = qp->dim->nbxe;
+	int *nbue = qp->dim->nbue;
+	int *nge = qp->dim->nge;
+	int *nqe = qp->dim->nqe;
+
+	int ii;
+	for(ii=0; ii<nbxe[stage]+nbue[stage]+nge[stage]+nqe[stage]; ii++)
+		qp->idxe[stage][ii] = idxe[ii];
+
+	return;
+	}
+
+
+
+void OCP_QCQP_SET_IDXBUE(int stage, int *idxbue, struct OCP_QCQP *qp)
+	{
+	// extract dim
+	int *nbxe = qp->dim->nbxe;
+	int *nbue = qp->dim->nbue;
+	int *nge = qp->dim->nge;
+	int *nqe = qp->dim->nqe;
+
+	int ii;
+	for(ii=0; ii<nbue[stage]; ii++)
+		qp->idxe[stage][ii] = idxbue[ii];
+
+	return;
+	}
+
+
+
+void OCP_QCQP_SET_IDXBXE(int stage, int *idxbxe, struct OCP_QCQP *qp)
+	{
+	// extract dim
+	int *nbu = qp->dim->nbu;
+	int *nbxe = qp->dim->nbxe;
+	int *nbue = qp->dim->nbue;
+	int *nge = qp->dim->nge;
+	int *nqe = qp->dim->nqe;
+
+	int ii;
+	for(ii=0; ii<nbxe[stage]; ii++)
+		qp->idxe[stage][nbue[stage]+ii] = nbu[stage] + idxbxe[ii];
+
+	return;
+	}
+
+
+
+void OCP_QCQP_SET_IDXGE(int stage, int *idxge, struct OCP_QCQP *qp)
+	{
+	// extract dim
+	int *nbu = qp->dim->nbu;
+	int *nbx = qp->dim->nbx;
+	int *nbxe = qp->dim->nbxe;
+	int *nbue = qp->dim->nbue;
+	int *nge = qp->dim->nge;
+	int *nqe = qp->dim->nqe;
+
+	int ii;
+	for(ii=0; ii<nge[stage]; ii++)
+		qp->idxe[stage][nbue[stage]+nbxe[stage]+ii] = nbu[stage] + nbx[stage] + idxge[ii];
+
+	return;
+	}
+
+
+
+void OCP_QCQP_SET_IDXQE(int stage, int *idxqe, struct OCP_QCQP *qp)
+	{
+	// extract dim
+	int *nbu = qp->dim->nbu;
+	int *nbx = qp->dim->nbx;
+	int *ng = qp->dim->ng;
+	int *nbxe = qp->dim->nbxe;
+	int *nbue = qp->dim->nbue;
+	int *nge = qp->dim->nge;
+	int *nqe = qp->dim->nqe;
+
+	int ii;
+	for(ii=0; ii<nqe[stage]; ii++)
+		qp->idxe[stage][nbue[stage]+nbxe[stage]+nge[stage]+ii] = nbu[stage] + nbx[stage] + ng[stage] + idxqe[ii];
+
+	return;
+	}
+
+
+
+void OCP_QCQP_SET_JBUE(int stage, REAL *Jbue, struct OCP_QCQP *qp)
+	{
+	// extract dim
+	int *nbu = qp->dim->nbu;
+	int *nbue = qp->dim->nbue;
+
+	int ii, idx;
+	idx = 0;
+	for(ii=0; ii<nbu[stage]; ii++)
+		{
+		if(idx<nbue[stage] | Jbue[ii]!=0.0)
+			{
+			qp->idxe[stage][idx] = ii;
+			idx++;
+			}
+		}
+	return;
+	}
+
+
+
+void OCP_QCQP_SET_JBXE(int stage, REAL *Jbxe, struct OCP_QCQP *qp)
+	{
+	// extract dim
+	int *nbu = qp->dim->nbu;
+	int *nbx = qp->dim->nbx;
+	int *nbue = qp->dim->nbue;
+	int *nbxe = qp->dim->nbxe;
+
+	int ii, idx;
+	idx = 0;
+	for(ii=0; ii<nbx[stage]; ii++)
+		{
+		if(idx<nbxe[stage] | Jbxe[ii]!=0.0)
+			{
+			qp->idxe[stage][nbue[stage]+idx] = nbu[stage] + ii;
+			idx++;
+			}
+		}
+	return;
+	}
+
+
+
+void OCP_QCQP_SET_JGE(int stage, REAL *Jge, struct OCP_QCQP *qp)
+	{
+	// extract dim
+	int *nbu = qp->dim->nbu;
+	int *nbx = qp->dim->nbx;
+	int *ng = qp->dim->ng;
+	int *nbue = qp->dim->nbue;
+	int *nbxe = qp->dim->nbxe;
+	int *nge = qp->dim->nge;
+
+	int ii, idx;
+	idx = 0;
+	for(ii=0; ii<ng[stage]; ii++)
+		{
+		if(idx<nge[stage] | Jge[ii]!=0.0)
+			{
+			qp->idxe[stage][nbue[stage]+nbxe[stage]+idx] = nbu[stage] + nbx[stage] + ii;
+			idx++;
+			}
+		}
+	return;
+	}
+
+
+
+void OCP_QCQP_SET_JQE(int stage, REAL *Jqe, struct OCP_QCQP *qp)
+	{
+	// extract dim
+	int *nbu = qp->dim->nbu;
+	int *nbx = qp->dim->nbx;
+	int *ng = qp->dim->ng;
+	int *nq = qp->dim->nq;
+	int *nbue = qp->dim->nbue;
+	int *nbxe = qp->dim->nbxe;
+	int *nge = qp->dim->nge;
+	int *nqe = qp->dim->nqe;
+
+	int ii, idx;
+	idx = 0;
+	for(ii=0; ii<nq[stage]; ii++)
+		{
+		if(idx<nqe[stage] | Jqe[ii]!=0.0)
+			{
+			qp->idxe[stage][nbue[stage]+nbxe[stage]+nge[stage]+idx] = nbu[stage] + nbx[stage] + ng[stage] + ii;
+			idx++;
+			}
+		}
 	return;
 	}
 

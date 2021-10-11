@@ -137,6 +137,15 @@
 #define OCP_QCQP_SET_LLS_MASK s_ocp_qcqp_set_lls_mask
 #define OCP_QCQP_SET_LUS s_ocp_qcqp_set_lus
 #define OCP_QCQP_SET_LUS_MASK s_ocp_qcqp_set_lus_mask
+#define OCP_QCQP_SET_IDXE s_ocp_qcqp_set_idxe
+#define OCP_QCQP_SET_IDXBXE s_ocp_qcqp_set_idxbxe
+#define OCP_QCQP_SET_IDXBUE s_ocp_qcqp_set_idxbue
+#define OCP_QCQP_SET_IDXGE s_ocp_qcqp_set_idxge
+#define OCP_QCQP_SET_IDXQE s_ocp_qcqp_set_idxqe
+#define OCP_QCQP_SET_JBXE s_ocp_qcqp_set_Jbue
+#define OCP_QCQP_SET_JBUE s_ocp_qcqp_set_Jbxe
+#define OCP_QCQP_SET_JGE s_ocp_qcqp_set_Jge
+#define OCP_QCQP_SET_JQE s_ocp_qcqp_set_Jqe
 // getters
 #define OCP_QCQP_GET s_ocp_qcqp_get
 #define OCP_QCQP_GET_A s_ocp_qcqp_get_A

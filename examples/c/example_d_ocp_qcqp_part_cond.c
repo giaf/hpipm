@@ -104,6 +104,7 @@ extern double reg_prim;
 extern int warm_start;
 extern int pred_corr;
 extern int ric_alg;
+extern int split_step;
 
 
 
@@ -150,7 +151,7 @@ int main()
 ************************************************/
 
 	// horizon length of partially condensed OCP QP
-	int N2 = 1;
+	int N2 = N; //1;
 
 	hpipm_size_t dim_size2 = d_ocp_qcqp_dim_memsize(N2);
 	void *dim_mem2 = malloc(dim_size2);
@@ -292,7 +293,9 @@ int main()
 	d_ocp_qcqp_ipm_arg_set_tol_comp(&tol_comp, &arg);
 	d_ocp_qcqp_ipm_arg_set_reg_prim(&reg_prim, &arg);
 	d_ocp_qcqp_ipm_arg_set_warm_start(&warm_start, &arg);
-//	d_ocp_qcqp_ipm_arg_set_ric_alg(&ric_alg, &arg);
+	d_ocp_qcqp_ipm_arg_set_pred_corr(&pred_corr, &arg);
+	d_ocp_qcqp_ipm_arg_set_ric_alg(&ric_alg, &arg);
+	d_ocp_qcqp_ipm_arg_set_split_step(&split_step, &arg);
 
 /************************************************
 * part cond workspace
@@ -423,6 +426,9 @@ int main()
 		d_ocp_qcqp_sol_get_x(ii, &qp_sol, x);
 		d_print_mat(1, nx[ii], x, 1);
 		}
+	
+	d_ocp_qcqp_print(&dim, &qp);
+	d_ocp_qcqp_sol_print(&dim, &qp_sol);
 
 /************************************************
 * print ipm statistics

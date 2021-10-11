@@ -33,10 +33,19 @@
 *                                                                                                 *
 **************************************************************************************************/
 
-#ifndef HPIPM_S_OCP_QCQP_DIM_H_
-#define HPIPM_S_OCP_QCQP_DIM_H_
+#ifndef HPIPM_S_OCP_QCQP_RED_H_
+#define HPIPM_S_OCP_QCQP_RED_H_
 
-#include "hpipm_common.h"
+
+
+#include <blasfeo_target.h>
+#include <blasfeo_common.h>
+
+#include <hpipm_s_ocp_qcqp_dim.h>
+#include <hpipm_s_ocp_qp.h>
+#include <hpipm_s_ocp_qcqp_sol.h>
+
+
 
 #ifdef __cplusplus
 extern "C" {
@@ -44,79 +53,58 @@ extern "C" {
 
 
 
-struct s_ocp_qcqp_dim
+struct s_ocp_qcqp_reduce_eq_dof_arg
 	{
-	struct s_ocp_qp_dim *qp_dim; // dim of qp approximation
-	int *nx; // number of states
-	int *nu; // number of inputs
-	int *nb; // number of box constraints
-	int *nbx; // number of (two-sided) state box constraints
-	int *nbu; // number of (two-sided) input box constraints
-	int *ng; // number of (two-sided) general constraints
-	int *nq; // number of (upper) quadratic constraints
-	int *ns; // number of soft constraints
-	int *nsbx; // number of soft state box constraints
-	int *nsbu; // number of soft input box constraints
-	int *nsg; // number of soft general constraints
-	int *nsq; // number of soft quadratic constraints
-	int *nbxe; // number of state box constraints which are equality
-	int *nbue; // number of input box constraints which are equality
-	int *nge; // number of general constraints which are equality
-	int *nqe; // number of quadratic constraints which are equality
-	int N; // horizon length
-	hpipm_size_t memsize;
+	float lam_min;
+	float t_min;
+	int alias_unchanged; // do not keep copy unchanged stage
+	int comp_prim_sol; // primal solution (v)
+	int comp_dual_sol_eq; // dual solution equality constr (pi)
+	int comp_dual_sol_ineq; // dual solution inequality constr (lam t)
+	hpipm_size_t memsize; // memory size in bytes
+	};
+
+
+
+struct s_ocp_qcqp_reduce_eq_dof_ws
+	{
+	struct blasfeo_svec *tmp_nuxM;
+	struct blasfeo_svec *tmp_nbgqM;
+	int *e_imask_ux;
+	int *e_imask_d;
+	hpipm_size_t memsize; // memory size in bytes
 	};
 
 
 
 //
-hpipm_size_t s_ocp_qcqp_dim_strsize();
+void s_ocp_qcqp_dim_reduce_eq_dof(struct s_ocp_qcqp_dim *dim, struct s_ocp_qcqp_dim *dim_red);
 //
-hpipm_size_t s_ocp_qcqp_dim_memsize(int N);
+hpipm_size_t s_ocp_qcqp_reduce_eq_dof_arg_memsize();
 //
-void s_ocp_qcqp_dim_create(int N, struct s_ocp_qcqp_dim *qp_dim, void *memory);
+void s_ocp_qcqp_reduce_eq_dof_arg_create(struct s_ocp_qcqp_reduce_eq_dof_arg *arg, void *mem);
 //
-void s_ocp_qcqp_dim_copy_all(struct s_ocp_qcqp_dim *dim_orig, struct s_ocp_qcqp_dim *dim_dest);
+void s_ocp_qcqp_reduce_eq_dof_arg_set_default(struct s_ocp_qcqp_reduce_eq_dof_arg *arg);
 //
-void s_ocp_qcqp_dim_set(char *field, int stage, int value, struct s_ocp_qcqp_dim *dim);
+void s_ocp_qcqp_reduce_eq_dof_arg_set_alias_unchanged(struct s_ocp_qcqp_reduce_eq_dof_arg *arg, int value);
 //
-void s_ocp_qcqp_dim_set_nx(int stage, int value, struct s_ocp_qcqp_dim *dim);
+void s_ocp_qcqp_reduce_eq_dof_arg_set_comp_prim_sol(struct s_ocp_qcqp_reduce_eq_dof_arg *arg, int value);
 //
-void s_ocp_qcqp_dim_set_nu(int stage, int value, struct s_ocp_qcqp_dim *dim);
+void s_ocp_qcqp_reduce_eq_dof_arg_set_comp_dual_sol_eq(struct s_ocp_qcqp_reduce_eq_dof_arg *arg, int value);
 //
-void s_ocp_qcqp_dim_set_nbx(int stage, int value, struct s_ocp_qcqp_dim *dim);
+void s_ocp_qcqp_reduce_eq_dof_arg_set_comp_dual_sol_ineq(struct s_ocp_qcqp_reduce_eq_dof_arg *arg, int value);
 //
-void s_ocp_qcqp_dim_set_nbu(int stage, int value, struct s_ocp_qcqp_dim *dim);
+hpipm_size_t s_ocp_qcqp_reduce_eq_dof_ws_memsize(struct s_ocp_qcqp_dim *dim);
 //
-void s_ocp_qcqp_dim_set_ng(int stage, int value, struct s_ocp_qcqp_dim *dim);
+void s_ocp_qcqp_reduce_eq_dof_ws_create(struct s_ocp_qcqp_dim *dim, struct s_ocp_qcqp_reduce_eq_dof_ws *work, void *mem);
 //
-void s_ocp_qcqp_dim_set_nq(int stage, int value, struct s_ocp_qcqp_dim *dim);
+void s_ocp_qcqp_reduce_eq_dof(struct s_ocp_qcqp *qp, struct s_ocp_qcqp *qp_red, struct s_ocp_qcqp_reduce_eq_dof_arg *arg, struct s_ocp_qcqp_reduce_eq_dof_ws *work);
 //
-void s_ocp_qcqp_dim_set_ns(int stage, int value, struct s_ocp_qcqp_dim *dim);
+void s_ocp_qcqp_reduce_eq_dof_lhs(struct s_ocp_qcqp *qp, struct s_ocp_qcqp *qp_red, struct s_ocp_qcqp_reduce_eq_dof_arg *arg, struct s_ocp_qcqp_reduce_eq_dof_ws *work);
 //
-void s_ocp_qcqp_dim_set_nsbx(int stage, int value, struct s_ocp_qcqp_dim *dim);
+void s_ocp_qcqp_reduce_eq_dof_rhs(struct s_ocp_qcqp *qp, struct s_ocp_qcqp *qp_red, struct s_ocp_qcqp_reduce_eq_dof_arg *arg, struct s_ocp_qcqp_reduce_eq_dof_ws *work);
 //
-void s_ocp_qcqp_dim_set_nsbu(int stage, int value, struct s_ocp_qcqp_dim *dim);
-//
-void s_ocp_qcqp_dim_set_nsg(int stage, int value, struct s_ocp_qcqp_dim *dim);
-//
-void s_ocp_qcqp_dim_set_nsq(int stage, int value, struct s_ocp_qcqp_dim *dim);
-//
-void s_ocp_qcqp_dim_get(struct s_ocp_qcqp_dim *dim, char *field, int stage, int *value);
-//
-void s_ocp_qcqp_dim_set_nbxe(int stage, int value, struct s_ocp_qcqp_dim *dim);
-//
-void s_ocp_qcqp_dim_set_nbue(int stage, int value, struct s_ocp_qcqp_dim *dim);
-//
-void s_ocp_qcqp_dim_set_nge(int stage, int value, struct s_ocp_qcqp_dim *dim);
-//
-void s_ocp_qcqp_dim_set_nqe(int stage, int value, struct s_ocp_qcqp_dim *dim);
-//
-void s_ocp_qcqp_dim_get_N(struct s_ocp_qcqp_dim *dim, int *value);
-//
-void s_ocp_qcqp_dim_get_nx(struct s_ocp_qcqp_dim *dim, int stage, int *value);
-//
-void s_ocp_qcqp_dim_get_nu(struct s_ocp_qcqp_dim *dim, int stage, int *value);
+void s_ocp_qcqp_restore_eq_dof(struct s_ocp_qcqp *qp, struct s_ocp_qcqp_sol *qp_sol_red, struct s_ocp_qcqp_sol *qp_sol, struct s_ocp_qcqp_reduce_eq_dof_arg *arg, struct s_ocp_qcqp_reduce_eq_dof_ws *work);
 
 
 
@@ -126,6 +114,6 @@ void s_ocp_qcqp_dim_get_nu(struct s_ocp_qcqp_dim *dim, int stage, int *value);
 
 
 
-#endif // HPIPM_S_OCP_QCQP_DIM_H_
+#endif // HPIPM_S_OCP_QCQP_RED_H_
 
 

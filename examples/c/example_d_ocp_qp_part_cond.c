@@ -224,11 +224,11 @@ int main()
 * ipm arg
 ************************************************/
 
-	hpipm_size_t ipm_arg_size = d_ocp_qp_ipm_arg_memsize(&dim);
+	hpipm_size_t ipm_arg_size = d_ocp_qp_ipm_arg_memsize(&dim2);
 	void *ipm_arg_mem = malloc(ipm_arg_size);
 
 	struct d_ocp_qp_ipm_arg arg;
-	d_ocp_qp_ipm_arg_create(&dim, &arg, ipm_arg_mem);
+	d_ocp_qp_ipm_arg_create(&dim2, &arg, ipm_arg_mem);
 
 	d_ocp_qp_ipm_arg_set_default(mode, &arg);
 
@@ -246,7 +246,7 @@ int main()
 	d_ocp_qp_ipm_arg_set_ric_alg(&ric_alg, &arg);
 	d_ocp_qp_ipm_arg_set_split_step(&split_step, &arg);
 
-//	d_ocp_qp_ipm_arg_codegen("examples/c/data/test_d_ocp_data.c", "a", &dim, &arg);
+//	d_ocp_qp_ipm_arg_codegen("examples/c/data/test_d_ocp_data.c", "a", &dim2, &arg);
 
 /************************************************
 * part cond workspace

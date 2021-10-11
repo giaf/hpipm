@@ -53,7 +53,7 @@ hpipm_size_t OCP_QCQP_DIM_MEMSIZE(int N)
 
 	hpipm_size_t size = 0;
 
-	size += 12*(N+1)*sizeof(int);
+	size += 16*(N+1)*sizeof(int);
 
 	size += 1*sizeof(struct OCP_QP_DIM);
 	size += 1*OCP_QP_DIM_MEMSIZE(N);
@@ -129,36 +129,24 @@ void OCP_QCQP_DIM_CREATE(int N, struct OCP_QCQP_DIM *dim, void *mem)
 	// nsq
 	dim->nsq = (int *) c_ptr;
 	c_ptr += (N+1)*sizeof(int);
+	// nbxe
+	dim->nbxe = (int *) c_ptr;
+	c_ptr += (N+1)*sizeof(int);
+	// nbue
+	dim->nbue = (int *) c_ptr;
+	c_ptr += (N+1)*sizeof(int);
+	// nge
+	dim->nge = (int *) c_ptr;
+	c_ptr += (N+1)*sizeof(int);
+	// nqe
+	dim->nqe = (int *) c_ptr;
+	c_ptr += (N+1)*sizeof(int);
 
 	// N
 	dim->N = N;
 
 	// initialize dims to zero by default
 	// XXX already zero-initialized while zeroing all memory
-//	for(ii=0; ii<=N; ii++)
-//		dim->nx[ii] = 0;
-//	for(ii=0; ii<=N; ii++)
-//		dim->nu[ii] = 0;
-//	for(ii=0; ii<=N; ii++)
-//		dim->nb[ii] = 0;
-//	for(ii=0; ii<=N; ii++)
-//		dim->nbx[ii] = 0;
-//	for(ii=0; ii<=N; ii++)
-//		dim->nbu[ii] = 0;
-//	for(ii=0; ii<=N; ii++)
-//		dim->ng[ii] = 0;
-//	for(ii=0; ii<=N; ii++)
-//		dim->nq[ii] = 0;
-//	for(ii=0; ii<=N; ii++)
-//		dim->ns[ii] = 0;
-//	for(ii=0; ii<=N; ii++)
-//		dim->nsbx[ii] = 0;
-//	for(ii=0; ii<=N; ii++)
-//		dim->nsbu[ii] = 0;
-//	for(ii=0; ii<=N; ii++)
-//		dim->nsg[ii] = 0;
-//	for(ii=0; ii<=N; ii++)
-//		dim->nsq[ii] = 0;
 
 	dim->memsize = memsize; //OCP_QCQP_DIM_MEMSIZE(N);
 
@@ -209,6 +197,14 @@ void OCP_QCQP_DIM_COPY_ALL(struct OCP_QCQP_DIM *dim_orig, struct OCP_QCQP_DIM *d
 		dim_dest->nsg[ii] = dim_orig->nsg[ii];
 	for(ii=0; ii<=N; ii++)
 		dim_dest->nsq[ii] = dim_orig->nsq[ii];
+	for(ii=0; ii<=N; ii++)
+		dim_dest->nbxe[ii] = dim_orig->nbxe[ii];
+	for(ii=0; ii<=N; ii++)
+		dim_dest->nbue[ii] = dim_orig->nbue[ii];
+	for(ii=0; ii<=N; ii++)
+		dim_dest->nge[ii] = dim_orig->nge[ii];
+	for(ii=0; ii<=N; ii++)
+		dim_dest->nqe[ii] = dim_orig->nqe[ii];
 
 	return;
 
@@ -261,6 +257,22 @@ void OCP_QCQP_DIM_SET(char *field_name, int stage, int value, struct OCP_QCQP_DI
 	else if(hpipm_strcmp(field_name, "nsq"))
 		{
 		OCP_QCQP_DIM_SET_NSQ(stage, value, dim);
+		}
+	else if(hpipm_strcmp(field_name, "nbxe"))
+		{
+		OCP_QCQP_DIM_SET_NBXE(stage, value, dim);
+		}
+	else if(hpipm_strcmp(field_name, "nbue"))
+		{
+		OCP_QCQP_DIM_SET_NBUE(stage, value, dim);
+		}
+	else if(hpipm_strcmp(field_name, "nge"))
+		{
+		OCP_QCQP_DIM_SET_NGE(stage, value, dim);
+		}
+	else if(hpipm_strcmp(field_name, "nqe"))
+		{
+		OCP_QCQP_DIM_SET_NQE(stage, value, dim);
 		}
 	else 
 		{
@@ -372,6 +384,42 @@ void OCP_QCQP_DIM_SET_NSQ(int stage, int value, struct OCP_QCQP_DIM *dim)
 	dim->nsq[stage] = value;
 	dim->ns[stage] = dim->nsbx[stage] + dim->nsbu[stage] + dim->nsg[stage] + dim->nsq[stage];
 	OCP_QP_DIM_SET_NSG(stage, dim->nsg[stage]+dim->nsq[stage], dim->qp_dim);
+	return;
+	}
+
+
+
+void OCP_QCQP_DIM_SET_NBXE(int stage, int value, struct OCP_QCQP_DIM *dim)
+	{
+	dim->nbxe[stage] = value;
+	OCP_QP_DIM_SET_NBXE(stage, dim->nbxe[stage], dim->qp_dim);
+	return;
+	}
+
+
+
+void OCP_QCQP_DIM_SET_NBUE(int stage, int value, struct OCP_QCQP_DIM *dim)
+	{
+	dim->nbue[stage] = value;
+	OCP_QP_DIM_SET_NBUE(stage, dim->nbue[stage], dim->qp_dim);
+	return;
+	}
+
+
+
+void OCP_QCQP_DIM_SET_NGE(int stage, int value, struct OCP_QCQP_DIM *dim)
+	{
+	dim->nge[stage] = value;
+	OCP_QP_DIM_SET_NGE(stage, dim->nge[stage]+dim->nqe[stage], dim->qp_dim);
+	return;
+	}
+
+
+
+void OCP_QCQP_DIM_SET_NQE(int stage, int value, struct OCP_QCQP_DIM *dim)
+	{
+	dim->nqe[stage] = value;
+	OCP_QP_DIM_SET_NGE(stage, dim->nge[stage]+dim->nqe[stage], dim->qp_dim);
 	return;
 	}
 

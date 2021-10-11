@@ -92,6 +92,8 @@ void PART_COND_QCQP_COMPUTE_DIM(struct OCP_QCQP_DIM *ocp_dim, int *block_size, s
 
 	int ii, jj;
 
+	// TODO equality constraints !!!!!!!!!
+
 	int nbb; // box constr that remain box constr
 	int nbg; // box constr that becomes general constr
 	int N_tmp = 0; // temporary sum of block size
@@ -473,6 +475,7 @@ void PART_COND_QCQP_COND(struct OCP_QCQP *ocp_qp, struct OCP_QCQP *part_dense_qp
 		tmp_ocp_dim.nsbu = ocp_qp->dim->qp_dim->nsbu+N_tmp;
 		tmp_ocp_dim.nsg = ocp_qp->dim->qp_dim->nsg+N_tmp;
 		tmp_ocp_dim.ns = ocp_qp->dim->qp_dim->ns+N_tmp;
+		// TODO equality constraints !!!!!!!!!!!!!!!!!!!!!!!!!!!
 
 		// alias ocp_qp
 		tmp_ocp_qp.dim = &tmp_ocp_dim;

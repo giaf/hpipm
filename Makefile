@@ -139,6 +139,7 @@ OBJS += ocp_qp/d_ocp_qcqp_sol.o
 OBJS += ocp_qp/d_ocp_qcqp_res.o
 OBJS += ocp_qp/d_ocp_qcqp_ipm.o
 OBJS += ocp_qp/d_ocp_qcqp_utils.o
+OBJS += ocp_qp/d_ocp_qcqp_red.o
 # single
 OBJS += ocp_qp/s_ocp_qp_dim.o
 OBJS += ocp_qp/s_ocp_qp.o
@@ -154,6 +155,7 @@ OBJS += ocp_qp/s_ocp_qcqp_sol.o
 OBJS += ocp_qp/s_ocp_qcqp_res.o
 OBJS += ocp_qp/s_ocp_qcqp_ipm.o
 OBJS += ocp_qp/s_ocp_qcqp_utils.o
+OBJS += ocp_qp/s_ocp_qcqp_red.o
 # mixed
 #OBJS += ocp_qp/m_ocp_qp.o                       ocp_qp/m_ocp_qp_kkt.o ocp_qp/m_ocp_qp_ipm.o
 

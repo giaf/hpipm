@@ -86,6 +86,8 @@ void PART_COND_QP_COMPUTE_DIM(struct OCP_QP_DIM *ocp_dim, int *block_size, struc
 
 	int ii, jj;
 
+	// TODO equality constraints !!!!!!!!!
+
 //	int nbb; // box constr that remain box constr
 //	int nbg; // box constr that becomes general constr
 	int N_tmp = 0; // temporary sum of block size
@@ -396,6 +398,7 @@ void PART_COND_QP_WS_CREATE(struct OCP_QP_DIM *ocp_dim, int *block_size, struct 
 		tmp_ocp_dim.nsbu = ocp_dim->nsbu+N_tmp;
 		tmp_ocp_dim.nsg = ocp_dim->nsg+N_tmp;
 		tmp_ocp_dim.ns = ocp_dim->ns+N_tmp;
+		// TODO equality constraints !!!!!!!!!!!!!!!!!!!!!!!!!!!
 
 		COND_QP_WS_CREATE(&tmp_ocp_dim, part_cond_arg->cond_arg+ii, part_cond_ws->cond_workspace+ii, c_ptr);
 		c_ptr += (part_cond_ws->cond_workspace+ii)->memsize;

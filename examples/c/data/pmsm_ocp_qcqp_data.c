@@ -36,6 +36,18 @@ int *nsg = nnsg;
 /* nsq */
 static int nnsq[] = {0, 0, 0, 0, };
 int *nsq = nnsq;
+/* nbxe */
+static int nnbxe[] = {2, 0, 0, 0, };
+int *nbxe = nnbxe;
+/* nbue */
+static int nnbue[] = {0, 0, 0, 0, };
+int *nbue = nnbue;
+/* nbxe */
+static int nnge[] = {0, 0, 0, 0, };
+int *nge = nnge;
+/* nbxe */
+static int nnqe[] = {0, 0, 0, 0, };
+int *nqe = nnqe;
 /***************
 * qp
 ***************/
@@ -254,22 +266,68 @@ static double uq_mask3[] = {};
 static double *uuq_mask[] = {uq_mask0, uq_mask1, uq_mask2, uq_mask3, };
 double **huq_mask = uuq_mask;
 /* Zl */
-double **hZl;
+static double Zl0[] = {};
+static double Zl1[] = {};
+static double Zl2[] = {};
+static double Zl3[] = {};
+static double *ZZl[] = {Zl0, Zl1, Zl2, Zl3, };
+double **hZl = ZZl;
 /* Zu */
-double **hZu;
+static double Zu0[] = {};
+static double Zu1[] = {};
+static double Zu2[] = {};
+static double Zu3[] = {};
+static double *ZZu[] = {Zu0, Zu1, Zu2, Zu3, };
+double **hZu = ZZu;
 /* zl */
-double **hzl;
+static double zl0[] = {};
+static double zl1[] = {};
+static double zl2[] = {};
+static double zl3[] = {};
+static double *zzl[] = {zl0, zl1, zl2, zl3, };
+double **hzl = zzl;
 /* zu */
-double **hzu;
+static double zu0[] = {};
+static double zu1[] = {};
+static double zu2[] = {};
+static double zu3[] = {};
+static double *zzu[] = {zu0, zu1, zu2, zu3, };
+double **hzu = zzu;
 /* idxs_rev */
-int **hidxs_rev;
+static int idxs_rev0[] = {-1, -1, };
+static int idxs_rev1[] = {};
+static int idxs_rev2[] = {};
+static int idxs_rev3[] = {};
+static int *iidxs_rev[] = {idxs_rev0, idxs_rev1, idxs_rev2, idxs_rev3, };
+int **hidxs_rev = iidxs_rev;
 /* idxs */
-int **hidxs;
+static int idxs0[] = {};
+static int idxs1[] = {};
+static int idxs2[] = {};
+static int idxs3[] = {};
+static int *iidxs[] = {idxs0, idxs1, idxs2, idxs3, };
+int **hidxs = iidxs;
 /* lls */
-double **hlls;
+static double lls0[] = {};
+static double lls1[] = {};
+static double lls2[] = {};
+static double lls3[] = {};
+static double *llls[] = {lls0, lls1, lls2, lls3, };
+double **hlls = llls;
 /* lus */
-double **hlus;
-/***************
+static double lus0[] = {};
+static double lus1[] = {};
+static double lus2[] = {};
+static double lus3[] = {};
+static double *llus[] = {lus0, lus1, lus2, lus3, };
+double **hlus = llus;
+/* idxe */
+static int idxe0[] = {0, 1, };
+static int idxe1[] = {};
+static int idxe2[] = {};
+static int idxe3[] = {};
+static int *iidxe[] = {idxe0, idxe1, idxe2, idxe3, };
+int **hidxe = iidxe;/***************
 * arg
 ***************/
 /* mode */
@@ -279,7 +337,7 @@ int iter_max = 40;
 /* alpha_min */
 double alpha_min = 1.000000000000000e-12;
 /* mu0 */
-double mu0 = 1.000000000000000e+01;
+double mu0 = 1.000000000000000e+06;
 /* tol_stat */
 double tol_stat = 1.000000000000000e-08;
 /* tol_eq */
@@ -297,4 +355,4 @@ int pred_corr = 1;
 /* ric_alg */
 int ric_alg = 1;
 /* split_step */
-int split_step = 1;
+int split_step = 0;

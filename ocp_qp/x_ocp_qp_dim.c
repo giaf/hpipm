@@ -72,71 +72,48 @@ void OCP_QP_DIM_CREATE(int N, struct OCP_QP_DIM *dim, void *mem)
 	// nx
 	dim->nx = (int *) c_ptr;
 	c_ptr += (N+1)*sizeof(int);
-	for(ii=0; ii<=N; ii++)
-		dim->nx[ii] = 0;
 	// nu
 	dim->nu = (int *) c_ptr;
 	c_ptr += (N+1)*sizeof(int);
-	for(ii=0; ii<=N; ii++)
-		dim->nu[ii] = 0;
 	// nb
 	dim->nb = (int *) c_ptr;
 	c_ptr += (N+1)*sizeof(int);
-	for(ii=0; ii<=N; ii++)
-		dim->nb[ii] = 0;
 	// nbx
 	dim->nbx = (int *) c_ptr;
 	c_ptr += (N+1)*sizeof(int);
-	for(ii=0; ii<=N; ii++)
-		dim->nbx[ii] = 0;
 	// nbu
 	dim->nbu = (int *) c_ptr;
 	c_ptr += (N+1)*sizeof(int);
-	for(ii=0; ii<=N; ii++)
-		dim->nbu[ii] = 0;
 	// ng
 	dim->ng = (int *) c_ptr;
 	c_ptr += (N+1)*sizeof(int);
-	for(ii=0; ii<=N; ii++)
-		dim->ng[ii] = 0;
 	// ns
 	dim->ns = (int *) c_ptr;
 	c_ptr += (N+1)*sizeof(int);
-	for(ii=0; ii<=N; ii++)
-		dim->ns[ii] = 0;
 	// nsbx
 	dim->nsbx = (int *) c_ptr;
 	c_ptr += (N+1)*sizeof(int);
-	for(ii=0; ii<=N; ii++)
-		dim->nsbx[ii] = 0;
 	// nsbu
 	dim->nsbu = (int *) c_ptr;
 	c_ptr += (N+1)*sizeof(int);
-	for(ii=0; ii<=N; ii++)
-		dim->nsbu[ii] = 0;
 	// nsg
 	dim->nsg = (int *) c_ptr;
 	c_ptr += (N+1)*sizeof(int);
-	for(ii=0; ii<=N; ii++)
-		dim->nsg[ii] = 0;
 	// nbxe
 	dim->nbxe = (int *) c_ptr;
 	c_ptr += (N+1)*sizeof(int);
-	for(ii=0; ii<=N; ii++)
-		dim->nbxe[ii] = 0;
 	// nbue
 	dim->nbue = (int *) c_ptr;
 	c_ptr += (N+1)*sizeof(int);
-	for(ii=0; ii<=N; ii++)
-		dim->nbue[ii] = 0;
 	// nge
 	dim->nge = (int *) c_ptr;
 	c_ptr += (N+1)*sizeof(int);
-	for(ii=0; ii<=N; ii++)
-		dim->nge[ii] = 0;
 
 	// N
 	dim->N = N;
+
+	// initialize dims to zero by default
+	// XXX already zero-initialized while zeroing all memory
 
 	dim->memsize = OCP_QP_DIM_MEMSIZE(N);
 
