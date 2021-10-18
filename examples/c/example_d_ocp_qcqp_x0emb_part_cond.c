@@ -180,7 +180,8 @@ int main()
 ************************************************/
 
 	// horizon length of partially condensed OCP QP
-	int N2 = 2;
+	int N2 = N/2;
+	N2 = N2<1 ? 1 : N2;
 
 	hpipm_size_t dim_size2 = d_ocp_qcqp_dim_memsize(N2);
 	void *dim_mem2 = malloc(dim_size2);
@@ -575,10 +576,12 @@ int main()
 	printf("\nalpha_aff\tmu_aff\t\tsigma\t\talpha_prim\talpha_dual\tmu\t\tres_stat\tres_eq\t\tres_ineq\tres_comp\tlq fact\t\titref pred\titref corr\tlin res stat\tlin res eq\tlin res ineq\tlin res comp\n");
 	d_print_exp_tran_mat(stat_m, iter+1, stat, stat_m);
 
+	printf("\nred eq for time = %e [s]\n\n", time_red_eq_dof);
 	printf("\npart cond time = %e [s]\n\n", time_cond);
 	printf("\nocp ipm time = %e [s]\n\n", time_ipm);
 	printf("\npart expa time = %e [s]\n\n", time_expa);
-	printf("\ntotal time = %e [s]\n\n", time_cond+time_ipm+time_expa);
+	printf("\nres eq for time = %e [s]\n\n", time_res_eq_dof);
+	printf("\ntotal time = %e [s]\n\n", time_red_eq_dof+time_cond+time_ipm+time_expa+time_res_eq_dof);
 
 /************************************************
 * free memory and return

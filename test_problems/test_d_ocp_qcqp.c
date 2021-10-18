@@ -50,17 +50,21 @@
 #include <hpipm_d_ocp_qcqp_sol.h>
 #include <hpipm_d_ocp_qcqp_ipm.h>
 #include <hpipm_d_ocp_qcqp_utils.h>
+#include <hpipm_d_ocp_qcqp_red.h>
+#include <hpipm_timing.h>
 
 #include "d_tools.h"
 
 
 
-#define KEEP_X0 0
-
 // printing
 #ifndef PRINT
 #define PRINT 0
 #endif
+
+
+// remove initial state x0 from optimization variables
+#define REMOVE_X0 1
 
 
 
@@ -262,9 +266,15 @@ int main()
 
 	int ii, jj, kk, ll;
 
+	int hpipm_status; // 0 normal; 1 max iter; 2 min alpha; 3 NaN
 
+	int rep, nrep=1000;
 
-	// problem size
+	hpipm_timer timer;
+
+/************************************************
+* problem size
+************************************************/
 
 	int nx_ = 2; // number of states (it has to be even for the mass-spring system test problem)
 	int nu_ = 1; // number of inputs (controllers) (it has to be at least 1 and at most nx/2 for the mass-spring system test problem)
@@ -275,12 +285,7 @@ int main()
 	// stage-wise variant size
 
 	int nx[N+1];
-#if KEEP_X0
-	nx[0] = nx_;
-#else
-	nx[0] = 0;
-#endif
-	for(ii=1; ii<=N; ii++)
+	for(ii=0; ii<=N; ii++)
 		nx[ii] = nx_;
 //	nx[N] = 0;
 
@@ -295,21 +300,26 @@ int main()
 	nbu[N] = 0;
 
 	int nbx[N+1];
-#if KEEP_X0
 	nbx[0] = nx[0];//[0]/2;
-#else
-	nbx[0] = 0;
-#endif
 	for(ii=1; ii<=N; ii++)
 		nbx[ii] = 0;//nx[ii]/2;
+
+	// mark initial state bounds as equalities to be removed
+	int nbxe[N+1];
+#if REMOVE_X0
+	nbxe[0] = nbx[0]; // remove all states at stage 0
+#else
+	nbxe[0] = 0; // do not remove anything
+#endif
+	for(ii=1; ii<=N; ii++)
+		nbx[ii] = 0;
 
 	int nb[N+1];
 	for (ii=0; ii<=N; ii++)
 		nb[ii] = nbu[ii]+nbx[ii];
 
 	int ng[N+1];
-	ng[0] = 0;
-	for(ii=1; ii<N; ii++)
+	for(ii=0; ii<N; ii++)
 		ng[ii] = 0;
 	ng[N] = 0;
 
@@ -365,16 +375,11 @@ int main()
 	x0[0] = 2.5;
 	x0[1] = 2.5;
 
-	double *b0; d_zeros(&b0, nx_, 1);
-	dgemv_n_3l(nx_, nx_, A, nx_, x0, b0);
-	daxpy_3l(nx_, 1.0, b, b0);
-
 #if PRINT
 	d_print_mat(nx_, nx_, A, nx_);
 	d_print_mat(nx_, nu_, B, nu_);
 	d_print_mat(1, nx_, b, 1);
 	d_print_mat(1, nx_, x0, 1);
-	d_print_mat(1, nx_, b0, 1);
 #endif
 
 /************************************************
@@ -395,10 +400,6 @@ int main()
 	double *r; d_zeros(&r, nu_, 1);
 	for(ii=0; ii<nu_; ii++) r[ii] = 0.0;
 
-	double *r0; d_zeros(&r0, nu_, 1);
-	dgemv_n_3l(nu_, nx_, S, nu_, x0, r0);
-	daxpy_3l(nu_, 1.0, r, r0);
-
 #if 0
 	double *QN; d_zeros(&QN, nx_, nx_);
 	for(ii=0; ii<2; ii++) QN[ii*(nx_+1)] = 1e15;
@@ -416,7 +417,6 @@ int main()
 	d_print_mat(nu_, nx_, S, nu_);
 	d_print_mat(1, nx_, q, 1);
 	d_print_mat(1, nu_, r, 1);
-	d_print_mat(1, nu_, r0, 1);
 //	d_print_mat(nx_, nx_, QN, nx_);
 //	d_print_mat(1, nx_, qN, 1);
 #endif
@@ -425,38 +425,19 @@ int main()
 * box & general constraints
 ************************************************/
 
-	int *idxbx0; int_zeros(&idxbx0, nbx[0], 1);
-	double *lbx0; d_zeros(&lbx0, nbx[0], 1);
-	double *ubx0; d_zeros(&ubx0, nbx[0], 1);
-	int *idxbu0; int_zeros(&idxbu0, nbu[0], 1);
-	double *lbu0; d_zeros(&lbu0, nbu[0], 1);
-	double *ubu0; d_zeros(&ubu0, nbu[0], 1);
-	double *lg0; d_zeros(&lg0, ng[0], 1);
-	double *ug0; d_zeros(&ug0, ng[0], 1);
-	for(ii=0; ii<nbu[0]; ii++)
+	// initial state
+	int *idxbx0; int_zeros(&idxbx0, nx[0], 1);
+	double *lbx0; d_zeros(&lbx0, nx[0], 1);
+	double *ubx0; d_zeros(&ubx0, nx[0], 1);
+	int *idxbxe0; int_zeros(&idxbxe0, nx[0], 1);
+	for(ii=0; ii<nx[0]; ii++)
 		{
-		lbu0[ii] = - 0.5; // umin
-		ubu0[ii] =   0.5; // umax
-		idxbu0[ii] = ii;
-		}
-	for(ii=0; ii<nbx[0]; ii++)
-		{
-		lbx0[ii] = - 4.0; // xmin
-		ubx0[ii] =   4.0; // xmax
+		lbx0[ii] = x0[ii]; // xmin
+		ubx0[ii] = x0[ii]; // xmax
 		idxbx0[ii] = ii;
-		}
-	for(ii=0; ii<ng[0]; ii++)
-		{
-		if(ii<nu[0]-nb[0]) // input
-			{
-			lg0[ii] = - 0.5; // umin
-			ug0[ii] =   0.5; // umax
-			}
-		else // state
-			{
-			lg0[ii] = - 4.0; // xmin
-			ug0[ii] =   4.0; // xmax
-			}
+#if REMOVE_X0
+		idxbxe0[ii] = ii; // mark state bounds as equalities to be removed
+#endif
 		}
 
 	int *idxbx1; int_zeros(&idxbx1, nbx[1], 1);
@@ -534,12 +515,9 @@ int main()
 
 #if PRINT
 	// box constraints
-	int_print_mat(1, nbx[0], idxbx0, 1);
-	d_print_mat(1, nbx[0], lbx0, 1);
-	d_print_mat(1, nbx[0], ubx0, 1);
-	int_print_mat(1, nbu[0], idxbu0, 1);
-	d_print_mat(1, nbu[0], lbu0, 1);
-	d_print_mat(1, nbu[0], ubu0, 1);
+	int_print_mat(1, nx[0], idxbx0, 1);
+	d_print_mat(1, nx[0], lbx0, 1);
+	d_print_mat(1, nx[0], ubx0, 1);
 	int_print_mat(1, nbx[1], idxbx1, 1);
 	d_print_mat(1, nbx[1], lbx1, 1);
 	d_print_mat(1, nbx[1], ubx1, 1);
@@ -550,10 +528,6 @@ int main()
 	d_print_mat(1, nbx[N], lbxN, 1);
 	d_print_mat(1, nbx[N], ubxN, 1);
 	// general constraints
-	d_print_mat(1, ng[0], lg0, 1);
-	d_print_mat(1, ng[0], ug0, 1);
-	d_print_mat(ng[0], nu[0], D0, ng[0]);
-	d_print_mat(ng[0], nx[0], C0, ng[0]);
 	d_print_mat(1, ng[1], lg1, 1);
 	d_print_mat(1, ng[1], ug1, 1);
 	d_print_mat(ng[1], nu[1], D1, ng[1]);
@@ -737,7 +711,7 @@ int main()
 
 	hpipm_size_t dim_size = d_ocp_qcqp_dim_memsize(N);
 #if PRINT
-	printf("\ndim size = %d\n", dim_size);
+	printf("\ndim size = %d\n", (int) dim_size);
 #endif
 	void *dim_mem = malloc(dim_size);
 
@@ -752,10 +726,34 @@ int main()
 		d_ocp_qcqp_dim_set_nbu(ii, nbu[ii], &dim);
 		d_ocp_qcqp_dim_set_ng(ii, ng[ii], &dim);
 		d_ocp_qcqp_dim_set_nq(ii, nq[ii], &dim);
+		d_ocp_qcqp_dim_set_nbxe(ii, nbxe[ii], &dim);
 		}
 	
 #if PRINT
 	d_ocp_qcqp_dim_print(&dim);
+#endif
+
+/************************************************
+* ocp qp dim red eq dof (reduce equation dof, i.e. x0 elimination)
+************************************************/
+
+	hpipm_size_t dim_size2 = d_ocp_qcqp_dim_memsize(N);
+#if PRINT
+	printf("\ndim size red = %d\n", (int) dim_size2);
+#endif
+	void *dim_mem2 = malloc(dim_size2);
+
+	struct d_ocp_qcqp_dim dim2;
+	d_ocp_qcqp_dim_create(N, &dim2, dim_mem2);
+
+#if REMOVE_X0
+	d_ocp_qcqp_dim_reduce_eq_dof(&dim, &dim2);
+#else
+	d_ocp_qcqp_dim_copy_all(&dim, &dim2);
+#endif
+
+#if PRINT
+	d_ocp_qcqp_dim_print(&dim2);
 #endif
 
 /************************************************
@@ -764,7 +762,7 @@ int main()
 
 	hpipm_size_t qcqp_size = d_ocp_qcqp_memsize(&dim);
 #if PRINT
-	printf("\nqp size = %d\n", qcqp_size);
+	printf("\nqp size = %d\n", (int) qcqp_size);
 #endif
 	void *qcqp_mem = malloc(qcqp_size);
 
@@ -773,15 +771,7 @@ int main()
 
 	// dynamics
 	ii = 0;
-#if KEEP_X0
-	d_ocp_qcqp_set_A(ii, A, &qcqp);
-	d_ocp_qcqp_set_B(ii, B, &qcqp);
-	d_ocp_qcqp_set_b(ii, b, &qcqp);
-#else
-	d_ocp_qcqp_set_B(ii, B, &qcqp);
-	d_ocp_qcqp_set_b(ii, b0, &qcqp);
-#endif
-	for(ii=1; ii<N; ii++)
+	for(ii=0; ii<N; ii++)
 		{
 		d_ocp_qcqp_set_A(ii, A, &qcqp);
 		d_ocp_qcqp_set_B(ii, B, &qcqp);
@@ -790,17 +780,7 @@ int main()
 	
 	// cost
 	ii = 0;
-#if KEEP_X0
-	d_ocp_qcqp_set_Q(ii, Q, &qcqp);
-	d_ocp_qcqp_set_S(ii, S, &qcqp);
-	d_ocp_qcqp_set_R(ii, R, &qcqp);
-	d_ocp_qcqp_set_q(ii, q, &qcqp);
-	d_ocp_qcqp_set_r(ii, r, &qcqp);
-#else
-	d_ocp_qcqp_set_R(ii, R, &qcqp);
-	d_ocp_qcqp_set_r(ii, r0, &qcqp);
-#endif
-	for(ii=1; ii<N; ii++)
+	for(ii=0; ii<N; ii++)
 		{
 		d_ocp_qcqp_set_Q(ii, Q, &qcqp);
 		d_ocp_qcqp_set_S(ii, S, &qcqp);
@@ -814,21 +794,17 @@ int main()
 	
 	// constraints
 	ii = 0;
-	d_ocp_qcqp_set_idxbx(ii, idxbx0, &qcqp);
-#if KEEP_X0
-	d_ocp_qcqp_set_lbx(ii, x0, &qcqp);
-	d_ocp_qcqp_set_ubx(ii, x0, &qcqp);
-#else
-	d_ocp_qcqp_set_lbx(ii, lbx0, &qcqp);
-	d_ocp_qcqp_set_ubx(ii, ubx0, &qcqp);
-#endif
-	d_ocp_qcqp_set_idxbu(ii, idxbu0, &qcqp);
-	d_ocp_qcqp_set_lbu(ii, lbu0, &qcqp);
-	d_ocp_qcqp_set_ubu(ii, ubu0, &qcqp);
-	d_ocp_qcqp_set_C(ii, C0, &qcqp);
-	d_ocp_qcqp_set_D(ii, D0, &qcqp);
-	d_ocp_qcqp_set_lg(ii, lg0, &qcqp);
-	d_ocp_qcqp_set_ug(ii, ug0, &qcqp);
+	d_ocp_qcqp_set_idxbx(ii, idxbx0, &qcqp); // initial state
+	d_ocp_qcqp_set_lbx(ii, lbx0, &qcqp); // initial state
+	d_ocp_qcqp_set_ubx(ii, ubx0, &qcqp); // initial state
+	d_ocp_qcqp_set_idxbxe(ii, idxbxe0, &qcqp); // initial state
+	d_ocp_qcqp_set_idxbu(ii, idxbu1, &qcqp);
+	d_ocp_qcqp_set_lbu(ii, lbu1, &qcqp);
+	d_ocp_qcqp_set_ubu(ii, ubu1, &qcqp);
+	d_ocp_qcqp_set_C(ii, C1, &qcqp);
+	d_ocp_qcqp_set_D(ii, D1, &qcqp);
+	d_ocp_qcqp_set_lg(ii, lg1, &qcqp);
+	d_ocp_qcqp_set_ug(ii, ug1, &qcqp);
 	d_ocp_qcqp_set_Rq(ii, Rq1, &qcqp);
 	d_ocp_qcqp_set_uq(ii, uq1, &qcqp);
 	d_ocp_qcqp_set_uq_mask(ii, uq1_mask, &qcqp);
@@ -883,12 +859,25 @@ int main()
 #endif
 
 /************************************************
+* ocp qp red eq dof
+************************************************/
+
+	hpipm_size_t qcqp_size2 = d_ocp_qcqp_memsize(&dim2);
+#if PRINT
+	printf("\nqp size red = %d\n", (int) qcqp_size2);
+#endif
+	void *qcqp_mem2 = malloc(qcqp_size2);
+
+	struct d_ocp_qcqp qcqp2;
+	d_ocp_qcqp_create(&dim2, &qcqp2, qcqp_mem2);
+
+/************************************************
 * ocp qp sol
 ************************************************/
 
 	hpipm_size_t qcqp_sol_size = d_ocp_qcqp_sol_memsize(&dim);
 #if PRINT
-	printf("\nqcqp sol size = %d\n", qcqp_sol_size);
+	printf("\nqcqp sol size = %d\n", (int) qcqp_sol_size);
 #endif
 	void *qcqp_sol_mem = malloc(qcqp_sol_size);
 
@@ -896,20 +885,48 @@ int main()
 	d_ocp_qcqp_sol_create(&dim, &qcqp_sol, qcqp_sol_mem);
 
 /************************************************
+* ocp qp sol red eq dof
+************************************************/
+
+	hpipm_size_t qcqp_sol_size2 = d_ocp_qcqp_sol_memsize(&dim2);
+#if PRINT
+	printf("\nqcqp sol size red = %d\n", (int) qcqp_sol_size2);
+#endif
+	void *qcqp_sol_mem2 = malloc(qcqp_sol_size2);
+
+	struct d_ocp_qcqp_sol qcqp_sol2;
+	d_ocp_qcqp_sol_create(&dim2, &qcqp_sol2, qcqp_sol_mem2);
+
+/************************************************
+* red eq dof arg
+************************************************/
+
+	hpipm_size_t qp_red_arg_size = d_ocp_qcqp_reduce_eq_dof_arg_memsize();
+	void *qp_red_arg_mem = malloc(qp_red_arg_size);
+
+	struct d_ocp_qcqp_reduce_eq_dof_arg qp_red_arg;
+	d_ocp_qcqp_reduce_eq_dof_arg_create(&qp_red_arg, qp_red_arg_mem);
+
+	d_ocp_qcqp_reduce_eq_dof_arg_set_default(&qp_red_arg);
+	d_ocp_qcqp_reduce_eq_dof_arg_set_alias_unchanged(&qp_red_arg, 1);
+	d_ocp_qcqp_reduce_eq_dof_arg_set_comp_dual_sol_eq(&qp_red_arg, 1);
+	d_ocp_qcqp_reduce_eq_dof_arg_set_comp_dual_sol_ineq(&qp_red_arg, 1);
+
+/************************************************
 * ipm arg
 ************************************************/
 
-	hpipm_size_t ipm_arg_size = d_ocp_qcqp_ipm_arg_memsize(&dim);
+	hpipm_size_t ipm_arg_size = d_ocp_qcqp_ipm_arg_memsize(&dim2);
 	void *ipm_arg_mem = malloc(ipm_arg_size);
 
-	struct d_ocp_qcqp_ipm_arg arg;
-	d_ocp_qcqp_ipm_arg_create(&dim, &arg, ipm_arg_mem);
+	struct d_ocp_qcqp_ipm_arg ipm_arg;
+	d_ocp_qcqp_ipm_arg_create(&dim2, &ipm_arg, ipm_arg_mem);
 
 //	enum hpipm_mode mode = SPEED_ABS;
 	enum hpipm_mode mode = SPEED;
 //	enum hpipm_mode mode = BALANCE;
 //	enum hpipm_mode mode = ROBUST;
-	d_ocp_qcqp_ipm_arg_set_default(mode, &arg);
+	d_ocp_qcqp_ipm_arg_set_default(mode, &ipm_arg);
 
 	double mu0 = 1e1;
 	int iter_max = 30;
@@ -924,49 +941,97 @@ int main()
 	int ric_alg = 1;
 	int comp_res_exit = 1;
 
-	d_ocp_qcqp_ipm_arg_set_mu0(&mu0, &arg);
-	d_ocp_qcqp_ipm_arg_set_iter_max(&iter_max, &arg);
-	d_ocp_qcqp_ipm_arg_set_alpha_min(&alpha_min, &arg);
-	d_ocp_qcqp_ipm_arg_set_tol_stat(&tol_stat, &arg);
-	d_ocp_qcqp_ipm_arg_set_tol_eq(&tol_eq, &arg);
-	d_ocp_qcqp_ipm_arg_set_tol_ineq(&tol_ineq, &arg);
-	d_ocp_qcqp_ipm_arg_set_tol_comp(&tol_comp, &arg);
-	d_ocp_qcqp_ipm_arg_set_reg_prim(&reg_prim, &arg);
-	d_ocp_qcqp_ipm_arg_set_warm_start(&warm_start, &arg);
-	d_ocp_qcqp_ipm_arg_set_pred_corr(&pred_corr, &arg);
-	d_ocp_qcqp_ipm_arg_set_ric_alg(&ric_alg, &arg);
-	d_ocp_qcqp_ipm_arg_set_comp_res_exit(&comp_res_exit, &arg);
+	d_ocp_qcqp_ipm_arg_set_mu0(&mu0, &ipm_arg);
+	d_ocp_qcqp_ipm_arg_set_iter_max(&iter_max, &ipm_arg);
+	d_ocp_qcqp_ipm_arg_set_alpha_min(&alpha_min, &ipm_arg);
+	d_ocp_qcqp_ipm_arg_set_tol_stat(&tol_stat, &ipm_arg);
+	d_ocp_qcqp_ipm_arg_set_tol_eq(&tol_eq, &ipm_arg);
+	d_ocp_qcqp_ipm_arg_set_tol_ineq(&tol_ineq, &ipm_arg);
+	d_ocp_qcqp_ipm_arg_set_tol_comp(&tol_comp, &ipm_arg);
+	d_ocp_qcqp_ipm_arg_set_reg_prim(&reg_prim, &ipm_arg);
+	d_ocp_qcqp_ipm_arg_set_warm_start(&warm_start, &ipm_arg);
+	d_ocp_qcqp_ipm_arg_set_pred_corr(&pred_corr, &ipm_arg);
+	d_ocp_qcqp_ipm_arg_set_ric_alg(&ric_alg, &ipm_arg);
+	d_ocp_qcqp_ipm_arg_set_comp_res_exit(&comp_res_exit, &ipm_arg);
 
 /************************************************
-* ipm
+* red eq dof workspace
 ************************************************/
 
-	hpipm_size_t ipm_size = d_ocp_qcqp_ipm_ws_memsize(&dim, &arg);
+	hpipm_size_t qp_red_work_size = d_ocp_qcqp_reduce_eq_dof_ws_memsize(&dim);
+	void *qp_red_work_mem = malloc(qp_red_work_size);
+
+	struct d_ocp_qcqp_reduce_eq_dof_ws qp_red_work;
+	d_ocp_qcqp_reduce_eq_dof_ws_create(&dim, &qp_red_work, qp_red_work_mem);
+
+/************************************************
+* ipm workspace
+************************************************/
+
+	hpipm_size_t ipm_size = d_ocp_qcqp_ipm_ws_memsize(&dim2, &ipm_arg);
 #if PRINT
-	printf("\nipm size = %d\n", ipm_size);
+	printf("\nipm size = %d\n", (int) ipm_size);
 #endif
 	void *ipm_mem = malloc(ipm_size);
 
-	struct d_ocp_qcqp_ipm_ws workspace;
-	d_ocp_qcqp_ipm_ws_create(&dim, &arg, &workspace, ipm_mem);
+	struct d_ocp_qcqp_ipm_ws ipm_work;
+	d_ocp_qcqp_ipm_ws_create(&dim2, &ipm_arg, &ipm_work, ipm_mem);
 
-	int hpipm_status; // 0 normal; 1 max iter
+/************************************************
+* reduce equation dof (i.e. x0 elimination)
+************************************************/
 
-	int rep, nrep=1000;
-
-	struct timeval tv0, tv1;
-
-	gettimeofday(&tv0, NULL); // start
+#if REMOVE_X0
+	hpipm_tic(&timer);
 
 	for(rep=0; rep<nrep; rep++)
 		{
-		d_ocp_qcqp_ipm_solve(&qcqp, &qcqp_sol, &arg, &workspace);
-		d_ocp_qcqp_ipm_get_status(&workspace, &hpipm_status);
+		d_ocp_qcqp_reduce_eq_dof(&qcqp, &qcqp2, &qp_red_arg, &qp_red_work);
 		}
 
-	gettimeofday(&tv1, NULL); // stop
+	double time_red_eq_dof = hpipm_toc(&timer) / nrep;
+#else
+	d_ocp_qcqp_copy_all(&qcqp, &qcqp2);
 
-	double time_ocp_ipm = (tv1.tv_sec-tv0.tv_sec)/(nrep+0.0)+(tv1.tv_usec-tv0.tv_usec)/(nrep*1e6);
+	double time_red_eq_dof = 0.0;
+#endif
+
+//	d_ocp_qcqp_print(&dim3, &qp3);
+
+/************************************************
+* ipm solution
+************************************************/
+
+	hpipm_tic(&timer);
+
+	for(rep=0; rep<nrep; rep++)
+		{
+		d_ocp_qcqp_ipm_solve(&qcqp2, &qcqp_sol2, &ipm_arg, &ipm_work);
+		d_ocp_qcqp_ipm_get_status(&ipm_work, &hpipm_status);
+		}
+
+	double time_ipm = hpipm_toc(&timer) / nrep;
+
+/************************************************
+* restore equation dof
+************************************************/
+
+#if REMOVE_X0
+	hpipm_tic(&timer);
+
+	for(rep=0; rep<nrep; rep++)
+		{
+		d_ocp_qcqp_restore_eq_dof(&qcqp, &qcqp_sol2, &qcqp_sol, &qp_red_arg, &qp_red_work);
+		}
+
+	double time_res_eq_dof = hpipm_toc(&timer) / nrep;
+#else
+	d_ocp_qcqp_sol_copy_all(&qcqp_sol2, &qcqp_sol);
+
+	double time_res_eq_dof = 0.0;
+#endif
+
+//	d_ocp_qcqp_sol_print(&dim, &qp_sol);
 
 /************************************************
 * print solution
@@ -1011,7 +1076,6 @@ int main()
 			}
 		}
 #endif
-	
 
 	d_free(tmp_nx);
 	d_free(tmp_nux);
@@ -1021,20 +1085,20 @@ int main()
 ************************************************/
 	
 #if PRINT
-	d_ocp_qcqp_res_print(&dim, workspace.qcqp_res);
+	d_ocp_qcqp_res_print(&dim, ipm_work.qcqp_res);
 #endif
 
 /************************************************
 * print ipm statistics
 ************************************************/
 
-	int iter; d_ocp_qcqp_ipm_get_iter(&workspace, &iter);
-	double res_stat; d_ocp_qcqp_ipm_get_max_res_stat(&workspace, &res_stat);
-	double res_eq; d_ocp_qcqp_ipm_get_max_res_eq(&workspace, &res_eq);
-	double res_ineq; d_ocp_qcqp_ipm_get_max_res_ineq(&workspace, &res_ineq);
-	double res_comp; d_ocp_qcqp_ipm_get_max_res_comp(&workspace, &res_comp);
-	double *stat; d_ocp_qcqp_ipm_get_stat(&workspace, &stat);
-	int stat_m; d_ocp_qcqp_ipm_get_stat_m(&workspace, &stat_m);
+	int iter; d_ocp_qcqp_ipm_get_iter(&ipm_work, &iter);
+	double res_stat; d_ocp_qcqp_ipm_get_max_res_stat(&ipm_work, &res_stat);
+	double res_eq; d_ocp_qcqp_ipm_get_max_res_eq(&ipm_work, &res_eq);
+	double res_ineq; d_ocp_qcqp_ipm_get_max_res_ineq(&ipm_work, &res_ineq);
+	double res_comp; d_ocp_qcqp_ipm_get_max_res_comp(&ipm_work, &res_comp);
+	double *stat; d_ocp_qcqp_ipm_get_stat(&ipm_work, &stat);
+	int stat_m; d_ocp_qcqp_ipm_get_stat_m(&ipm_work, &stat_m);
 
 #if PRINT
 	printf("\nipm return = %d\n", hpipm_status);
@@ -1044,7 +1108,11 @@ int main()
 	printf("\nalpha_aff\tmu_aff\t\tsigma\t\talpha_prim\talpha_dual\tmu\t\tres_stat\tres_eq\t\tres_ineq\tres_comp\tlq fact\t\titref pred\titref corr\tlin res stat\tlin res eq\tlin res ineq\tlin res comp\n");
 	d_print_exp_tran_mat(stat_m, iter+1, stat, stat_m);
 
-	printf("\nocp ipm time = %e [s]\n\n", time_ocp_ipm);
+	printf("\nred eq for time =\t%e [s]\n", time_red_eq_dof);
+	printf("\nocp ipm time =\t\t%e [s]\n", time_ipm);
+	printf("\nres eq for time =\t%e [s]\n", time_res_eq_dof);
+	printf("\ntotal time =\t\t%e [s]\n", time_red_eq_dof+time_ipm+time_res_eq_dof);
+	printf("\n");
 #endif
 
 /************************************************
@@ -1062,13 +1130,10 @@ int main()
 	d_free(q);
 //	d_free(qN);
 	d_free(r);
-	d_free(r0);
 	int_free(idxbx0);
 	d_free(lbx0);
 	d_free(ubx0);
-	int_free(idxbu0);
-	d_free(lbu0);
-	d_free(ubu0);
+	int_free(idxbxe0);
 	int_free(idxbx1);
 	d_free(lbx1);
 	d_free(ubx1);
@@ -1078,10 +1143,6 @@ int main()
 	int_free(idxbxN);
 	d_free(lbxN);
 	d_free(ubxN);
-	d_free(C0);
-	d_free(D0);
-	d_free(lg0);
-	d_free(ug0);
 	d_free(C1);
 	d_free(D1);
 	d_free(lg1);
@@ -1134,6 +1195,12 @@ int main()
 	free(qcqp_sol_mem);
 	free(ipm_arg_mem);
 	free(ipm_mem);
+
+	free(dim_mem2);
+	free(qcqp_mem2);
+	free(qcqp_sol_mem2);
+	free(qp_red_arg_mem);
+	free(qp_red_work_mem);
 
 /************************************************
 * return
