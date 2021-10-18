@@ -174,37 +174,33 @@ void OCP_QCQP_DIM_COPY_ALL(struct OCP_QCQP_DIM *dim_orig, struct OCP_QCQP_DIM *d
 
 	// copy qp dim
 	for(ii=0; ii<=N; ii++)
-		dim_dest->nx[ii] = dim_orig->nx[ii];
+		OCP_QCQP_DIM_SET_NX(ii, dim_orig->nx[ii], dim_dest);
 	for(ii=0; ii<=N; ii++)
-		dim_dest->nu[ii] = dim_orig->nu[ii];
+		OCP_QCQP_DIM_SET_NU(ii, dim_orig->nu[ii], dim_dest);
 	for(ii=0; ii<=N; ii++)
-		dim_dest->nb[ii] = dim_orig->nb[ii];
+		OCP_QCQP_DIM_SET_NBX(ii, dim_orig->nbx[ii], dim_dest);
 	for(ii=0; ii<=N; ii++)
-		dim_dest->nbx[ii] = dim_orig->nbx[ii];
+		OCP_QCQP_DIM_SET_NBU(ii, dim_orig->nbu[ii], dim_dest);
 	for(ii=0; ii<=N; ii++)
-		dim_dest->nbu[ii] = dim_orig->nbu[ii];
+		OCP_QCQP_DIM_SET_NQ(ii, dim_orig->nq[ii], dim_dest);
 	for(ii=0; ii<=N; ii++)
-		dim_dest->nq[ii] = dim_orig->nq[ii];
+		OCP_QCQP_DIM_SET_NG(ii, dim_orig->ng[ii], dim_dest);
 	for(ii=0; ii<=N; ii++)
-		dim_dest->ng[ii] = dim_orig->ng[ii];
+		OCP_QCQP_DIM_SET_NSBX(ii, dim_orig->nsbx[ii], dim_dest);
 	for(ii=0; ii<=N; ii++)
-		dim_dest->ns[ii] = dim_orig->ns[ii];
+		OCP_QCQP_DIM_SET_NSBU(ii, dim_orig->nsbu[ii], dim_dest);
 	for(ii=0; ii<=N; ii++)
-		dim_dest->nsbx[ii] = dim_orig->nsbx[ii];
+		OCP_QCQP_DIM_SET_NSG(ii, dim_orig->nsg[ii], dim_dest);
 	for(ii=0; ii<=N; ii++)
-		dim_dest->nsbu[ii] = dim_orig->nsbu[ii];
+		OCP_QCQP_DIM_SET_NSQ(ii, dim_orig->nsq[ii], dim_dest);
 	for(ii=0; ii<=N; ii++)
-		dim_dest->nsg[ii] = dim_orig->nsg[ii];
+		OCP_QCQP_DIM_SET_NBXE(ii, dim_orig->nbxe[ii], dim_dest);
 	for(ii=0; ii<=N; ii++)
-		dim_dest->nsq[ii] = dim_orig->nsq[ii];
+		OCP_QCQP_DIM_SET_NBUE(ii, dim_orig->nbue[ii], dim_dest);
 	for(ii=0; ii<=N; ii++)
-		dim_dest->nbxe[ii] = dim_orig->nbxe[ii];
+		OCP_QCQP_DIM_SET_NGE(ii, dim_orig->nge[ii], dim_dest);
 	for(ii=0; ii<=N; ii++)
-		dim_dest->nbue[ii] = dim_orig->nbue[ii];
-	for(ii=0; ii<=N; ii++)
-		dim_dest->nge[ii] = dim_orig->nge[ii];
-	for(ii=0; ii<=N; ii++)
-		dim_dest->nqe[ii] = dim_orig->nqe[ii];
+		OCP_QCQP_DIM_SET_NQE(ii, dim_orig->nqe[ii], dim_dest);
 
 	return;
 
@@ -466,4 +462,6 @@ void OCP_QCQP_DIM_GET_NU(struct OCP_QCQP_DIM *dim, int stage, int *value)
 	*value = dim->nu[stage];
 	return;
 	}
+
+
 
