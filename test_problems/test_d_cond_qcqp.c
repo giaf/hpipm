@@ -678,7 +678,7 @@ int main()
 		}
 	
 	// cost
-	for(ii=1; ii<N; ii++)
+	for(ii=0; ii<N; ii++)
 		{
 		d_ocp_qcqp_set_Q(ii, Q, &ocp_qp);
 		d_ocp_qcqp_set_S(ii, S, &ocp_qp);
@@ -976,7 +976,9 @@ int main()
 	double time_red_eq_dof_lhs = 0.0;
 #endif
 
-//	d_ocp_qcqp_print(&ocp_dim2, &ocp_qp2);
+#if PRINT
+	d_ocp_qcqp_print(&ocp_dim2, &ocp_qp2);
+#endif
 
 /************************************************
 * cond

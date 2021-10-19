@@ -353,7 +353,7 @@ void OCP_QCQP_PRINT(struct OCP_QCQP_DIM *dim, struct OCP_QCQP *qp)
 
 	printf("idxs_rev = \n");
 	for (ii = 0; ii <= N; ii++)
-		int_print_mat(1, nb[ii]+ng[ii], qp->idxs_rev[ii], 1);
+		int_print_mat(1, nb[ii]+ng[ii]+nq[ii], qp->idxs_rev[ii], 1);
 
 	printf("m =\n");
 	for (ii = 0; ii <= N; ii++)
