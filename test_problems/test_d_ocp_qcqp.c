@@ -273,7 +273,7 @@ int main()
 * problem size
 ************************************************/
 
-	int nx_ = 2; // number of states (it has to be even for the mass-spring system test problem)
+	int nx_ = 4; // number of states (it has to be even for the mass-spring system test problem)
 	int nu_ = 1; // number of inputs (controllers) (it has to be at least 1 and at most nx/2 for the mass-spring system test problem)
 	int N  = 15; // horizon lenght
 
@@ -284,7 +284,6 @@ int main()
 	int nx[N+1];
 	for(ii=0; ii<=N; ii++)
 		nx[ii] = nx_;
-//	nx[N] = 0;
 
 	int nu[N+1];
 	for(ii=0; ii<N; ii++)
@@ -292,14 +291,13 @@ int main()
 	nu[N] = 0;
 
 	int nbu[N+1];
-	for (ii=0; ii<N; ii++)
+	for (ii=0; ii<=N; ii++)
 		nbu[ii] = 0;//nu[ii];
-	nbu[N] = 0;
 
 	int nbx[N+1];
-	nbx[0] = nx[0];//[0]/2;
+	nbx[0] = nx[0];
 	for(ii=1; ii<=N; ii++)
-		nbx[ii] = 0;//nx[ii]/2;
+		nbx[ii] = 0;
 
 	// mark initial state bounds as equalities to be removed
 	int nbxe[N+1];
@@ -309,7 +307,7 @@ int main()
 	nbxe[0] = 0; // do not remove anything
 #endif
 	for(ii=1; ii<=N; ii++)
-		nbx[ii] = 0;
+		nbxe[ii] = 0;
 
 	int nb[N+1];
 	for (ii=0; ii<=N; ii++)
@@ -321,17 +319,13 @@ int main()
 	ng[N] = 0;
 
 	int nq[N+1];
-	nq[0] = 1;//0;
-	for(ii=1; ii<N; ii++)
-		nq[ii] = 1;//0;//2;
-//	nq[N-1] = 1;
+	for(ii=0; ii<N; ii++)
+		nq[ii] = 1;
 	nq[N] = 1;
 
 	int nsbx[N+1];
-	nsbx[0] = 0;
-	for(ii=1; ii<N; ii++)
-		nsbx[ii] = 0;//nx[ii]/2;
-	nsbx[N] = 0;//nx[N]/2;
+	for(ii=0; ii<=N; ii++)
+		nsbx[ii] = 0;
 
 	int nsbu[N+1];
 	for(ii=0; ii<=N; ii++)
@@ -342,9 +336,9 @@ int main()
 		nsg[ii] = 0;
 
 	int nsq[N+1];
-	nsq[0] = 0;
-	for(ii=1; ii<=N; ii++)
+	for(ii=0; ii<N; ii++)
 		nsq[ii] = 0;
+	nsq[N] = 1;
 
 	int ns[N+1];
 	for(ii=0; ii<=N; ii++)
@@ -564,8 +558,8 @@ int main()
 //	uq1[1] =  4.0;
 
 	double *uq1_mask; d_zeros(&uq1_mask, nq[1], 1);
-	if(nq[1]>0)
-		uq1_mask[0] = 1.0;
+//	if(nq[1]>0)
+//		uq1_mask[0] = 1.0;
 //	uq1_mask[1] = 1.0;
 
 
@@ -647,29 +641,29 @@ int main()
 	double *d_us1; d_zeros(&d_us1, ns[1], 1);
 	for(ii=0; ii<ns[1]; ii++)
 		d_us1[ii] = 0.0;
+#endif
 
 	double *ZlN; d_zeros(&ZlN, ns[N], 1);
 	for(ii=0; ii<ns[N]; ii++)
-		ZlN[ii] = 0e3;
+		ZlN[ii] = 1e2;
 	double *ZuN; d_zeros(&ZuN, ns[N], 1);
 	for(ii=0; ii<ns[N]; ii++)
-		ZuN[ii] = 0e3;
+		ZuN[ii] = 1e2;
 	double *zlN; d_zeros(&zlN, ns[N], 1);
 	for(ii=0; ii<ns[N]; ii++)
-		zlN[ii] = 1e2;
+		zlN[ii] = 0e2;
 	double *zuN; d_zeros(&zuN, ns[N], 1);
 	for(ii=0; ii<ns[N]; ii++)
-		zuN[ii] = 1e2;
+		zuN[ii] = 0e2;
 	int *idxsN; int_zeros(&idxsN, ns[N], 1);
 	for(ii=0; ii<ns[N]; ii++)
-		idxsN[ii] = nu[N]+ii;
-	double *d_lsN; d_zeros(&d_lsN, ns[N], 1);
+		idxsN[ii] = nb[N]+ng[N]+ii; // softed quadratic constr
+	double *llsN; d_zeros(&llsN, ns[N], 1);
 	for(ii=0; ii<ns[N]; ii++)
-		d_lsN[ii] = 0.0; //-1.0;
-	double *d_usN; d_zeros(&d_usN, ns[N], 1);
+		llsN[ii] = 0.0; //-1.0;
+	double *lusN; d_zeros(&lusN, ns[N], 1);
 	for(ii=0; ii<ns[N]; ii++)
-		d_usN[ii] = 0.0;
-#endif
+		lusN[ii] = 0.0;
 
 #if 0
 	// soft constraints
@@ -692,8 +686,8 @@ int main()
 	d_print_mat(1, ns[N], ZuN, 1);
 	d_print_mat(1, ns[N], zlN, 1);
 	d_print_mat(1, ns[N], zuN, 1);
-	d_print_mat(1, ns[N], d_lsN, 1);
-	d_print_mat(1, ns[N], d_usN, 1);
+	d_print_mat(1, ns[N], llsN, 1);
+	d_print_mat(1, ns[N], lusN, 1);
 #endif
 
 /************************************************
@@ -717,6 +711,7 @@ int main()
 		d_ocp_qcqp_dim_set_nbu(ii, nbu[ii], &dim);
 		d_ocp_qcqp_dim_set_ng(ii, ng[ii], &dim);
 		d_ocp_qcqp_dim_set_nq(ii, nq[ii], &dim);
+		d_ocp_qcqp_dim_set_nsq(ii, nsq[ii], &dim);
 		d_ocp_qcqp_dim_set_nbxe(ii, nbxe[ii], &dim); // state bounds to be removed
 		}
 	
@@ -796,7 +791,7 @@ int main()
 	d_ocp_qcqp_set_ug(ii, ug1, &qcqp);
 	d_ocp_qcqp_set_Rq(ii, Rq1, &qcqp);
 	d_ocp_qcqp_set_uq(ii, uq1, &qcqp);
-	d_ocp_qcqp_set_uq_mask(ii, uq1_mask, &qcqp);
+//	d_ocp_qcqp_set_uq_mask(ii, uq1_mask, &qcqp);
 	for(ii=1; ii<N; ii++)
 		{
 		d_ocp_qcqp_set_idxbx(ii, idxbx1, &qcqp);
@@ -813,7 +808,7 @@ int main()
 		d_ocp_qcqp_set_Qq(ii, Qq1, &qcqp);
 		d_ocp_qcqp_set_qq(ii, qq1, &qcqp);
 		d_ocp_qcqp_set_uq(ii, uq1, &qcqp);
-		d_ocp_qcqp_set_uq_mask(ii, uq1_mask, &qcqp);
+//		d_ocp_qcqp_set_uq_mask(ii, uq1_mask, &qcqp);
 		}
 //if(2<N)
 //	d_ocp_qcqp_set_Rq(2, Rq2, &qcqp);
@@ -832,6 +827,14 @@ int main()
 	d_ocp_qcqp_set_qq(ii, qqN, &qcqp);
 	d_ocp_qcqp_set_uq(ii, uqN, &qcqp);
 	d_ocp_qcqp_set_uq_mask(ii, uqN_mask, &qcqp);
+	// soft constraints
+	d_ocp_qcqp_set_Zl(ii, ZlN, &qcqp);
+	d_ocp_qcqp_set_Zu(ii, ZuN, &qcqp);
+	d_ocp_qcqp_set_zl(ii, zlN, &qcqp);
+	d_ocp_qcqp_set_zu(ii, zuN, &qcqp);
+	d_ocp_qcqp_set_lls(ii, llsN, &qcqp);
+	d_ocp_qcqp_set_lus(ii, lusN, &qcqp);
+	d_ocp_qcqp_set_idxs(ii, idxsN, &qcqp);
 
 	// dynamic constraints removal
 	double *lbu_mask; d_zeros(&lbu_mask, nbu[0], 1);
@@ -1169,14 +1172,14 @@ int main()
 	int_free(idxs1);
 	d_free(d_ls1);
 	d_free(d_us1);
+#endif
 	d_free(ZlN);
 	d_free(ZuN);
 	d_free(zlN);
 	d_free(zuN);
 	int_free(idxsN);
-	d_free(d_lsN);
-	d_free(d_usN);
-#endif
+	d_free(llsN);
+	d_free(lusN);
 
 	free(dim_mem);
 	free(qcqp_mem);

@@ -178,7 +178,7 @@ int main()
 * problem size
 ************************************************/
 
-	int nx_ = 2; // number of states (it has to be even for the mass-spring system test problem)
+	int nx_ = 4; // number of states (it has to be even for the mass-spring system test problem)
 	int nu_ = 1; // number of inputs (controllers) (it has to be at least 1 and at most nx/2 for the mass-spring system test problem)
 	int N  = 15; // horizon lenght
 
@@ -189,7 +189,6 @@ int main()
 	int nx[N+1];
 	for(ii=0; ii<=N; ii++)
 		nx[ii] = nx_;
-//	nx[N] = 0;
 
 	int nu[N+1];
 	for(ii=0; ii<N; ii++)
@@ -197,14 +196,13 @@ int main()
 	nu[N] = 0;
 
 	int nbu[N+1];
-	for (ii=0; ii<N; ii++)
+	for (ii=0; ii<=N; ii++)
 		nbu[ii] = 0;//nu[ii];
-	nbu[N] = 0;
 
 	int nbx[N+1];
-	nbx[0] = nx[0];//[0]/2;
+	nbx[0] = nx[0];
 	for(ii=1; ii<=N; ii++)
-		nbx[ii] = 0;//nx[ii]/2;
+		nbx[ii] = 0;
 
 	// mark initial state bounds as equalities to be removed
 	int nbxe[N+1];
@@ -226,17 +224,13 @@ int main()
 	ng[N] = 0;
 
 	int nq[N+1];
-	nq[0] = 1;//0;
-	for(ii=1; ii<N; ii++)
-		nq[ii] = 1;//0;//2;
-//	nq[N-1] = 1;
+	for(ii=0; ii<N; ii++)
+		nq[ii] = 1;
 	nq[N] = 1;
 
 	int nsbx[N+1];
-	nsbx[0] = 0;
-	for(ii=1; ii<N; ii++)
-		nsbx[ii] = 0;//nx[ii]/2;
-	nsbx[N] = 0;//nx[N]/2;
+	for(ii=0; ii<=N; ii++)
+		nsbx[ii] = 0;
 
 	int nsbu[N+1];
 	for(ii=0; ii<=N; ii++)
@@ -247,9 +241,9 @@ int main()
 		nsg[ii] = 0;
 
 	int nsq[N+1];
-	nsq[0] = 0;
-	for(ii=1; ii<=N; ii++)
+	for(ii=0; ii<N; ii++)
 		nsq[ii] = 0;
+	nsq[N] = 1;
 
 	int ns[N+1];
 	for(ii=0; ii<=N; ii++)
@@ -309,14 +303,6 @@ int main()
 	d_print_mat(1, nx_, q, 1);
 	d_print_mat(1, nu_, r, 1);
 #endif
-
-	// maximum element in cost functions
-	double mu0;
-	if(ns[1]>0 | ns[N]>0)
-		mu0 = 1000.0;
-	else
-		mu0 = 10.0;
-
 
 /************************************************
 * box & general constraints
@@ -546,30 +532,31 @@ int main()
 	double *d_us1; d_zeros(&d_us1, ns[1], 1);
 	for(ii=0; ii<ns[1]; ii++)
 		d_us1[ii] = 0.0;
+#endif
 
 	double *ZlN; d_zeros(&ZlN, ns[N], 1);
 	for(ii=0; ii<ns[N]; ii++)
-		ZlN[ii] = 0e3;
+		ZlN[ii] = 1e2;
 	double *ZuN; d_zeros(&ZuN, ns[N], 1);
 	for(ii=0; ii<ns[N]; ii++)
-		ZuN[ii] = 0e3;
+		ZuN[ii] = 1e2;
 	double *zlN; d_zeros(&zlN, ns[N], 1);
 	for(ii=0; ii<ns[N]; ii++)
-		zlN[ii] = 1e2;
+		zlN[ii] = 0e2;
 	double *zuN; d_zeros(&zuN, ns[N], 1);
 	for(ii=0; ii<ns[N]; ii++)
-		zuN[ii] = 1e2;
+		zuN[ii] = 0e2;
 	int *idxsN; int_zeros(&idxsN, ns[N], 1);
 	for(ii=0; ii<ns[N]; ii++)
-		idxsN[ii] = nu[N]+ii;
-	double *d_lsN; d_zeros(&d_lsN, ns[N], 1);
+		idxsN[ii] = nb[N]+ng[N]+ii; // softed quadratic constr
+	double *llsN; d_zeros(&llsN, ns[N], 1);
 	for(ii=0; ii<ns[N]; ii++)
-		d_lsN[ii] = 0.0; //-1.0;
-	double *d_usN; d_zeros(&d_usN, ns[N], 1);
+		llsN[ii] = 0.0; //-1.0;
+	double *lusN; d_zeros(&lusN, ns[N], 1);
 	for(ii=0; ii<ns[N]; ii++)
-		d_usN[ii] = 0.0;
+		lusN[ii] = 0.0;
 
-#if PRINT
+#if 0
 	// soft constraints
 	int_print_mat(1, ns[0], idxs0, 1);
 	d_print_mat(1, ns[0], Zl0, 1);
@@ -590,9 +577,8 @@ int main()
 	d_print_mat(1, ns[N], ZuN, 1);
 	d_print_mat(1, ns[N], zlN, 1);
 	d_print_mat(1, ns[N], zuN, 1);
-	d_print_mat(1, ns[N], d_lsN, 1);
-	d_print_mat(1, ns[N], d_usN, 1);
-#endif
+	d_print_mat(1, ns[N], llsN, 1);
+	d_print_mat(1, ns[N], lusN, 1);
 #endif
 
 /************************************************
@@ -754,6 +740,14 @@ int main()
 	d_ocp_qcqp_set_qq(ii, qqN, &ocp_qp);
 	d_ocp_qcqp_set_uq(ii, uqN, &ocp_qp);
 	d_ocp_qcqp_set_uq_mask(ii, uqN_mask, &ocp_qp);
+	// soft constraints
+	d_ocp_qcqp_set_Zl(ii, ZlN, &ocp_qp);
+	d_ocp_qcqp_set_Zu(ii, ZuN, &ocp_qp);
+	d_ocp_qcqp_set_zl(ii, zlN, &ocp_qp);
+	d_ocp_qcqp_set_zu(ii, zuN, &ocp_qp);
+	d_ocp_qcqp_set_lls(ii, llsN, &ocp_qp);
+	d_ocp_qcqp_set_lus(ii, lusN, &ocp_qp);
+	d_ocp_qcqp_set_idxs(ii, idxsN, &ocp_qp);
 
 	// dynamic constraints removal
 	double *lbu_mask; d_zeros(&lbu_mask, nbu[0], 1);
@@ -1191,14 +1185,14 @@ int main()
 	int_free(idxs1);
 	d_free(d_ls1);
 	d_free(d_us1);
+#endif
 	d_free(ZlN);
 	d_free(ZuN);
 	d_free(zlN);
 	d_free(zuN);
 	int_free(idxsN);
-	d_free(d_lsN);
-	d_free(d_usN);
-#endif
+	d_free(llsN);
+	d_free(lusN);
 
 	free(ocp_dim_mem);
 	free(ocp_qp_mem);
