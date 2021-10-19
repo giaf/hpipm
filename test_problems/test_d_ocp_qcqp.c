@@ -261,9 +261,6 @@ void mass_spring_system(double Ts, int nx, int nu, double *A, double *B, double 
 int main()
 	{
 
-
-	// local variables
-
 	int ii, jj, kk, ll;
 
 	int hpipm_status; // 0 normal; 1 max iter; 2 min alpha; 3 NaN
@@ -333,8 +330,8 @@ int main()
 	int nsbx[N+1];
 	nsbx[0] = 0;
 	for(ii=1; ii<N; ii++)
-		nsbx[ii] = nx[ii]/2;
-	nsbx[N] = nx[N]/2;
+		nsbx[ii] = 0;//nx[ii]/2;
+	nsbx[N] = 0;//nx[N]/2;
 
 	int nsbu[N+1];
 	for(ii=0; ii<=N; ii++)
@@ -492,13 +489,6 @@ int main()
 		ugN[ii] =   4.0; // dmax
 		}
 
-	double *C0; d_zeros(&C0, ng[0], nx[0]);
-	double *D0; d_zeros(&D0, ng[0], nu[0]);
-	for(ii=0; ii<nu[0]-nb[0] & ii<ng[0]; ii++)
-		D0[ii+(nb[0]+ii)*ng[0]] = 1.0;
-	for(; ii<ng[0]; ii++)
-		C0[ii+(nb[0]+ii-nu[0])*ng[0]] = 1.0;
-
 	double *C1; d_zeros(&C1, ng[1], nx[1]);
 	double *D1; d_zeros(&D1, ng[1], nu[1]);
 	for(ii=0; ii<nu[1]-nb[1] & ii<ng[1]; ii++)
@@ -518,6 +508,7 @@ int main()
 	int_print_mat(1, nx[0], idxbx0, 1);
 	d_print_mat(1, nx[0], lbx0, 1);
 	d_print_mat(1, nx[0], ubx0, 1);
+	int_print_mat(1, nx[0], idxbxe0, 1);
 	int_print_mat(1, nbx[1], idxbx1, 1);
 	d_print_mat(1, nbx[1], lbx1, 1);
 	d_print_mat(1, nbx[1], ubx1, 1);
@@ -726,7 +717,7 @@ int main()
 		d_ocp_qcqp_dim_set_nbu(ii, nbu[ii], &dim);
 		d_ocp_qcqp_dim_set_ng(ii, ng[ii], &dim);
 		d_ocp_qcqp_dim_set_nq(ii, nq[ii], &dim);
-		d_ocp_qcqp_dim_set_nbxe(ii, nbxe[ii], &dim);
+		d_ocp_qcqp_dim_set_nbxe(ii, nbxe[ii], &dim); // state bounds to be removed
 		}
 	
 #if PRINT
@@ -770,7 +761,6 @@ int main()
 	d_ocp_qcqp_create(&dim, &qcqp, qcqp_mem);
 
 	// dynamics
-	ii = 0;
 	for(ii=0; ii<N; ii++)
 		{
 		d_ocp_qcqp_set_A(ii, A, &qcqp);
@@ -779,7 +769,6 @@ int main()
 		}
 	
 	// cost
-	ii = 0;
 	for(ii=0; ii<N; ii++)
 		{
 		d_ocp_qcqp_set_Q(ii, Q, &qcqp);
@@ -1108,11 +1097,10 @@ int main()
 	printf("\nalpha_aff\tmu_aff\t\tsigma\t\talpha_prim\talpha_dual\tmu\t\tres_stat\tres_eq\t\tres_ineq\tres_comp\tlq fact\t\titref pred\titref corr\tlin res stat\tlin res eq\tlin res ineq\tlin res comp\n");
 	d_print_exp_tran_mat(stat_m, iter+1, stat, stat_m);
 
-	printf("\nred eq for time =\t%e [s]\n", time_red_eq_dof);
-	printf("\nocp ipm time =\t\t%e [s]\n", time_ipm);
-	printf("\nres eq for time =\t%e [s]\n", time_res_eq_dof);
-	printf("\ntotal time =\t\t%e [s]\n", time_red_eq_dof+time_ipm+time_res_eq_dof);
-	printf("\n");
+	printf("\nred eq for time     = %e [s]\n", time_red_eq_dof);
+	printf("\nocp ipm time        = %e [s]\n", time_ipm);
+	printf("\nres eq for time     = %e [s]\n\n", time_res_eq_dof);
+	printf("\ntotal solution time = %e [s]\n\n", time_red_eq_dof+time_ipm+time_res_eq_dof);
 #endif
 
 /************************************************
