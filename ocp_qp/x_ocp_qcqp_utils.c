@@ -1567,7 +1567,7 @@ void OCP_QCQP_CODEGEN(char *file_name, char *mode, struct OCP_QCQP_DIM *dim, str
 #endif
 		for(jj=0; jj<ns[nn]; jj++)
 			{
-			fprintf(file, "%18.15e, ", BLASFEO_DVECEL(qp->d+nn, 2*nb[nn]+2*ng[nn]+jj));
+			fprintf(file, "%18.15e, ", BLASFEO_DVECEL(qp->d+nn, 2*nb[nn]+2*ng[nn]+2*nq[nn]+jj));
 			}
 		fprintf(file, "};\n");
 		}
@@ -1596,7 +1596,7 @@ void OCP_QCQP_CODEGEN(char *file_name, char *mode, struct OCP_QCQP_DIM *dim, str
 #endif
 		for(jj=0; jj<ns[nn]; jj++)
 			{
-			fprintf(file, "%18.15e, ", BLASFEO_DVECEL(qp->d+nn, 2*nb[nn]+2*ng[nn]+ns[nn]+jj));
+			fprintf(file, "%18.15e, ", BLASFEO_DVECEL(qp->d+nn, 2*nb[nn]+2*ng[nn]+2*nq[nn]+ns[nn]+jj));
 			}
 		fprintf(file, "};\n");
 		}
