@@ -719,6 +719,8 @@ int main()
 	d_ocp_qcqp_dim_print(&dim);
 #endif
 
+//	d_ocp_qcqp_dim_codegen("mass_spring_qcqp_data.c", "w", &dim);
+
 /************************************************
 * ocp qp dim red eq dof (reduce equation dof, i.e. x0 elimination)
 ************************************************/
@@ -850,6 +852,8 @@ int main()
 	d_ocp_qcqp_print(&dim, &qcqp);
 #endif
 
+//	d_ocp_qcqp_codegen("mass_spring_qcqp_data.c", "a", &dim, &qcqp);
+
 /************************************************
 * ocp qp red eq dof
 ************************************************/
@@ -920,7 +924,7 @@ int main()
 //	enum hpipm_mode mode = ROBUST;
 	d_ocp_qcqp_ipm_arg_set_default(mode, &ipm_arg);
 
-	double mu0 = 1e1;
+	double mu0 = 1e2;
 	int iter_max = 30;
 	double alpha_min = 1e-8;
 	double tol_stat = 1e-8;
@@ -932,6 +936,7 @@ int main()
 	int pred_corr = 1;
 	int ric_alg = 1;
 	int comp_res_exit = 1;
+	int split_step = 0;
 
 	d_ocp_qcqp_ipm_arg_set_mu0(&mu0, &ipm_arg);
 	d_ocp_qcqp_ipm_arg_set_iter_max(&iter_max, &ipm_arg);
@@ -945,6 +950,9 @@ int main()
 	d_ocp_qcqp_ipm_arg_set_pred_corr(&pred_corr, &ipm_arg);
 	d_ocp_qcqp_ipm_arg_set_ric_alg(&ric_alg, &ipm_arg);
 	d_ocp_qcqp_ipm_arg_set_comp_res_exit(&comp_res_exit, &ipm_arg);
+	d_ocp_qcqp_ipm_arg_set_split_step(&split_step, &ipm_arg);
+
+//	d_ocp_qcqp_ipm_arg_codegen("mass_spring_qcqp_data.c", "a", &dim, &ipm_arg);
 
 /************************************************
 * red eq dof workspace

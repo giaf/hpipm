@@ -867,23 +867,19 @@ int main()
 #endif
 	void *ipm_arg_mem = malloc(ipm_arg_size);
 
-	struct d_dense_qcqp_ipm_arg dense_arg;
-	d_dense_qcqp_ipm_arg_create(&dense_dim, &dense_arg, ipm_arg_mem);
+	struct d_dense_qcqp_ipm_arg ipm_arg;
+	d_dense_qcqp_ipm_arg_create(&dense_dim, &ipm_arg, ipm_arg_mem);
 //	enum hpipm_mode mode = SPEED_ABS;
 	enum hpipm_mode mode = SPEED;
 //	enum hpipm_mode mode = BALANCE;
 //	enum hpipm_mode mode = ROBUST;
-	d_dense_qcqp_ipm_arg_set_default(mode, &dense_arg);
+	d_dense_qcqp_ipm_arg_set_default(mode, &ipm_arg);
 
-//	arg.alpha_min = 1e-8;
-//	arg.res_g_max = 1e-8;
-//	arg.res_b_max = 1e-8;
-//	arg.res_d_max = 1e-12;
-//	arg.res_m_max = 1e-12;
-//	dense_arg.mu0 = mu0;
-//	arg.iter_max = 20;
-//	arg.stat_max = 100;
-//	arg.pred_corr = 1;
+	double mu0 = 1e2;
+	int split_step = 0;
+
+	d_dense_qcqp_ipm_arg_set_mu0(&mu0, &ipm_arg);
+	d_dense_qcqp_ipm_arg_set_split_step(&split_step, &ipm_arg);
 
 /************************************************
 * red eq dof workspace
@@ -912,14 +908,14 @@ int main()
 * ipm workspace
 ************************************************/
 
-	hpipm_size_t dense_ipm_size = d_dense_qcqp_ipm_ws_memsize(&dense_dim, &dense_arg);
+	hpipm_size_t dense_ipm_size = d_dense_qcqp_ipm_ws_memsize(&dense_dim, &ipm_arg);
 #if PRINT
 	printf("\ndense ipm size = %d\n", (int) dense_ipm_size);
 #endif
-	void *dense_ipm_mem = malloc(dense_ipm_size);
+	void *ipm_work_mem = malloc(dense_ipm_size);
 
-	struct d_dense_qcqp_ipm_ws dense_workspace;
-	d_dense_qcqp_ipm_ws_create(&dense_dim, &dense_arg, &dense_workspace, dense_ipm_mem);
+	struct d_dense_qcqp_ipm_ws ipm_work;
+	d_dense_qcqp_ipm_ws_create(&dense_dim, &ipm_arg, &ipm_work, ipm_work_mem);
 
 /************************************************
 * reduce equation dof (i.e. x0 elimination)
@@ -1038,8 +1034,8 @@ int main()
 
 	for(rep=0; rep<nrep; rep++)
 		{
-		d_dense_qcqp_ipm_solve(&dense_qp, &dense_qp_sol, &dense_arg, &dense_workspace);
-		d_dense_qcqp_ipm_get_status(&dense_workspace, &hpipm_status);
+		d_dense_qcqp_ipm_solve(&dense_qp, &dense_qp_sol, &ipm_arg, &ipm_work);
+		d_dense_qcqp_ipm_get_status(&ipm_work, &hpipm_status);
 		}
 
 	double time_dense_ipm = hpipm_toc(&timer) / nrep;
@@ -1092,14 +1088,14 @@ int main()
 * print ipm statistics
 ************************************************/
 
-	int iter; d_dense_qcqp_ipm_get_iter(&dense_workspace, &iter);
+	int iter; d_dense_qcqp_ipm_get_iter(&ipm_work, &iter);
 
-	double max_res_stat; d_dense_qcqp_ipm_get_max_res_stat(&dense_workspace, &max_res_stat);
-	double max_res_eq  ; d_dense_qcqp_ipm_get_max_res_eq(&dense_workspace, &max_res_eq);
-	double max_res_ineq; d_dense_qcqp_ipm_get_max_res_ineq(&dense_workspace, &max_res_ineq);
-	double max_res_comp; d_dense_qcqp_ipm_get_max_res_comp(&dense_workspace, &max_res_comp);
-	double *stat; d_dense_qcqp_ipm_get_stat(&dense_workspace, &stat);
-	int stat_m;  d_dense_qcqp_ipm_get_stat_m(&dense_workspace, &stat_m);
+	double max_res_stat; d_dense_qcqp_ipm_get_max_res_stat(&ipm_work, &max_res_stat);
+	double max_res_eq  ; d_dense_qcqp_ipm_get_max_res_eq(&ipm_work, &max_res_eq);
+	double max_res_ineq; d_dense_qcqp_ipm_get_max_res_ineq(&ipm_work, &max_res_ineq);
+	double max_res_comp; d_dense_qcqp_ipm_get_max_res_comp(&ipm_work, &max_res_comp);
+	double *stat; d_dense_qcqp_ipm_get_stat(&ipm_work, &stat);
+	int stat_m;  d_dense_qcqp_ipm_get_stat_m(&ipm_work, &stat_m);
 
 #if PRINT
 	printf("\nipm return = %d\n", hpipm_status);
@@ -1204,7 +1200,8 @@ int main()
 	free(dense_qp_sol_mem);
 	free(cond_mem);
 	free(cond_arg_mem);
-	free(dense_ipm_mem);
+	free(ipm_arg_mem);
+	free(ipm_work_mem);
 
 	free(ocp_dim_mem2);
 	free(ocp_qp_mem2);
