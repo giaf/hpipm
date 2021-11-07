@@ -41,27 +41,31 @@ LIBS = $(TOP)/lib/libhpipm.a $(BLASFEO_PATH)/lib/libblasfeo.a $(LIBS_EXTERNAL_BL
 
 ### select data file ###
 
-OCP_QP_DATA = data/getting_started_data.o
+#OCP_QP_DATA = data/getting_started_data.o
 #OCP_QP_DATA = data/ocp_qp_data.o 
 #OCP_QP_DATA = ../matlab_octave/ocp_qp_data.o
 #OCP_QP_DATA = ../python/ocp_qp_data.o
-OCP_QCQP_DATA = data/pmsm_ocp_qcqp_data.o
+OCP_QP_DATA = data/mass_spring_qp_data.o
+#OCP_QCQP_DATA = data/pmsm_ocp_qcqp_data.o
 #OCP_QCQP_DATA = data/ocp_qcqp_data.o 
+#OCP_QCQP_DATA = data/mass_spring_qcqp_data.o
 
 
 ### select one single example ###
 
 #OBJS_EXMP = $(OCP_QP_DATA) example_d_ocp_qp_unconstr.o
-OBJS_EXMP = $(OCP_QP_DATA) example_d_ocp_qp.o
-#OBJS_EXMP = $(OCP_QP_DATA) example_d_ocp_qp_x0emb.o
+#OBJS_EXMP = $(OCP_QP_DATA) example_d_ocp_qp.o
+OBJS_EXMP = $(OCP_QP_DATA) example_d_ocp_qp_x0emb.o
+#OBJS_EXMP = $(OCP_QP_DATA) example_d_ocp_qp_x0emb_cond.o
 #OBJS_EXMP = $(OCP_QP_DATA) example_d_ocp_qp_part_cond.o
 #OBJS_EXMP = $(OCP_QP_DATA) example_d_ocp_qp_x0emb_part_cond.o
 #OBJS_EXMP = $(OCP_QCQP_DATA) example_d_ocp_qcqp_part_cond.o
+#OBJS_EXMP = $(OCP_QCQP_DATA) example_d_ocp_qcqp_x0emb_part_cond.o
 #OBJS_EXMP = $(OCP_QP_DATA) example_d_ocp_qp_sens.o
 #OBJS_EXMP = $(OCP_QP_DATA) example_d_ocp_qp_part_cond_sens.o
 
 obj: $(OBJS_EXMP)
-	$(CC) -o  example.out $(OBJS_EXMP) $(LIBS)
+	$(CC) -o example.out $(OBJS_EXMP) $(LIBS)
 
 
 ### all individual tests ###
