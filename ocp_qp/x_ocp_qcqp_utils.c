@@ -1523,7 +1523,7 @@ void OCP_QCQP_CODEGEN(char *file_name, char *mode, struct OCP_QCQP_DIM *dim, str
 	for(nn=0; nn<=N; nn++)
 		{
 		fprintf(file, "static int idxs_rev%d[] = {", nn);
-		for(jj=0; jj<nb[nn]+ng[nn]; jj++)
+		for(jj=0; jj<nb[nn]+ng[nn]+nq[nn]; jj++)
 			{
 			fprintf(file, "%d, ", qp->idxs_rev[nn][jj]);
 			}
@@ -1540,7 +1540,7 @@ void OCP_QCQP_CODEGEN(char *file_name, char *mode, struct OCP_QCQP_DIM *dim, str
 	for(nn=0; nn<=N; nn++)
 		{
 		fprintf(file, "static int idxs%d[] = {", nn);
-		for(jj=0; jj<nb[nn]+ng[nn]; jj++)
+		for(jj=0; jj<nb[nn]+ng[nn]+nq[nn]; jj++)
 			{
 			idx_tmp = qp->idxs_rev[nn][jj];
 			if(idx_tmp!=-1)
