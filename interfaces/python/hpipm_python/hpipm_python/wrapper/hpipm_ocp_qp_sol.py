@@ -34,7 +34,7 @@
 ###################################################################################################
 
 from ctypes import *
-import ctypes.util 
+import ctypes.util
 import numpy as np
 
 
@@ -85,7 +85,6 @@ class hpipm_ocp_qp_sol:
 		}
 
 	def get(self, field, idx_start, idx_end=None):
-		'''Returns solution field in shape D x N'''
 		if field not in self.__getters:
 			raise NameError('hpipm_ocp_qp_sol.get: wrong field')
 		else:
@@ -104,14 +103,12 @@ class hpipm_ocp_qp_sol:
 			tmp_ptr = cast(n_var.ctypes.data, POINTER(c_int))
 			getter['n_var'](self.dim.dim_struct, i, tmp_ptr)
 
-			var.append(np.zeros(n_var[0,0]))
+			var.append(np.zeros((n_var[0,0], 1)))
 			tmp_ptr = cast(var[-1].ctypes.data, POINTER(c_double))
 			getter['var'](i, self.qp_sol_struct, tmp_ptr)
-		return np.array(var).T
+
+		return var if len(var) > 1 else var[0]
 
 	def print_C_struct(self):
 		self.__hpipm.d_ocp_qp_sol_print(self.dim.dim_struct, self.qp_sol_struct)
-		return 
-
-
-
+		return

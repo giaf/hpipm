@@ -34,7 +34,7 @@
 ###################################################################################################
 
 from ctypes import *
-import ctypes.util 
+import ctypes.util
 import numpy as np
 
 
@@ -92,7 +92,7 @@ class hpipm_ocp_qcqp_sol:
 				tmp_ptr = cast(nu.ctypes.data, POINTER(c_int))
 				self.__hpipm.d_ocp_qcqp_dim_get_nu(self.dim.dim_struct, i, tmp_ptr)
 				u.append(np.zeros((nu[0,0], 1)))
-				tmp_ptr = cast(u[i].ctypes.data, POINTER(c_double))
+				tmp_ptr = cast(u[-1].ctypes.data, POINTER(c_double))
 				self.__hpipm.d_ocp_qcqp_sol_get_u(i, self.qp_sol_struct, tmp_ptr)
 		return u
 
@@ -114,15 +114,11 @@ class hpipm_ocp_qcqp_sol:
 				tmp_ptr = cast(nx.ctypes.data, POINTER(c_int))
 				self.__hpipm.d_ocp_qcqp_dim_get_nx(self.dim.dim_struct, i, tmp_ptr)
 				x.append(np.zeros((nx[0,0], 1)))
-				tmp_ptr = cast(x[i].ctypes.data, POINTER(c_double))
+				tmp_ptr = cast(x[-1].ctypes.data, POINTER(c_double))
 				self.__hpipm.d_ocp_qcqp_sol_get_x(i, self.qp_sol_struct, tmp_ptr)
 		return x
 
 
 	def print_C_struct(self):
 		self.__hpipm.d_ocp_qcqp_sol_print(self.dim.dim_struct, self.qp_sol_struct)
-		return 
-
-
-
-
+		return
