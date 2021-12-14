@@ -253,13 +253,6 @@ static void COND_SLACKS_FACT_SOLVE(int ss, struct OCP_QP *qp, struct OCP_QP_SOL 
 	REAL *ptr_tmp2 = (tmp_nbgM+2)->pa;
 	REAL *ptr_tmp3 = (tmp_nbgM+3)->pa;
 
-	REAL tmp0, tmp1;
-
-	VECCP(nb0+ng0, Gamma, 0, tmp_nbgM+0, 0);
-	VECCP(nb0+ng0, Gamma, nb0+ng0, tmp_nbgM+1, 0);
-	VECCP(nb0+ng0, gamma, 0, tmp_nbgM+2, 0);
-	VECCP(nb0+ng0, gamma, nb0+ng0, tmp_nbgM+3, 0);
-
 	// idxs_rev
 	for(ii=0; ii<nb0+ng0; ii++)
 		{
@@ -274,12 +267,10 @@ static void COND_SLACKS_FACT_SOLVE(int ss, struct OCP_QP *qp, struct OCP_QP_SOL 
 			ptr_dux[nu0+nx0+ns0+idx]  = ptr_res_g[nu0+nx0+ns0+idx] + ptr_gamma[nb0+ng0+ii] + ptr_gamma[2*nb0+2*ng0+ns0+idx];
 			ptr_Zs_inv[0+idx]   = 1.0/ptr_Zs_inv[0+idx];
 			ptr_Zs_inv[ns0+idx] = 1.0/ptr_Zs_inv[ns0+idx];
-			tmp0 = ptr_dux[nu0+nx0+idx]*ptr_Zs_inv[0+idx];
-			tmp1 = ptr_dux[nu0+nx0+ns0+idx]*ptr_Zs_inv[ns0+idx];
-			ptr_tmp0[ii] = ptr_tmp0[ii] - ptr_tmp0[ii]*ptr_Zs_inv[0+idx]*ptr_tmp0[ii];
-			ptr_tmp1[ii] = ptr_tmp1[ii] - ptr_tmp1[ii]*ptr_Zs_inv[ns0+idx]*ptr_tmp1[ii];
-			ptr_tmp2[ii] = ptr_tmp2[ii] - ptr_Gamma[0+ii]*tmp0;
-			ptr_tmp3[ii] = ptr_tmp3[ii] - ptr_Gamma[nb0+ng0+ii]*tmp1;
+			ptr_tmp0[ii] = ptr_Gamma[0+ii]       - ptr_Gamma[0+ii]      *ptr_Zs_inv[0+idx]  *ptr_Gamma[0+ii];
+			ptr_tmp1[ii] = ptr_Gamma[nb0+ng0+ii] - ptr_Gamma[nb0+ng0+ii]*ptr_Zs_inv[ns0+idx]*ptr_Gamma[nb0+ng0+ii];
+			ptr_tmp2[ii] = ptr_gamma[0+ii]       - ptr_Gamma[0+ii]      *ptr_Zs_inv[0+idx]  *ptr_dux[nu0+nx0+idx];
+			ptr_tmp3[ii] = ptr_gamma[nb0+ng0+ii] - ptr_Gamma[nb0+ng0+ii]*ptr_Zs_inv[ns0+idx]*ptr_dux[nu0+nx0+ns0+idx]; // + ???
 			}
 		}
 
@@ -324,11 +315,6 @@ static void COND_SLACKS_SOLVE(int ss, struct OCP_QP *qp, struct OCP_QP_SOL *qp_s
 	REAL *ptr_tmp2 = (tmp_nbgM+2)->pa;
 	REAL *ptr_tmp3 = (tmp_nbgM+3)->pa;
 
-	REAL tmp0, tmp1;
-
-	VECCP(nb0+ng0, gamma, 0, tmp_nbgM+2, 0);
-	VECCP(nb0+ng0, gamma, nb0+ng0, tmp_nbgM+3, 0);
-
 	// idxs_rev
 	for(ii=0; ii<nb0+ng0; ii++)
 		{
@@ -339,10 +325,8 @@ static void COND_SLACKS_SOLVE(int ss, struct OCP_QP *qp, struct OCP_QP_SOL *qp_s
 			// idx <= slack index
 			ptr_dux[nu0+nx0+idx]      = ptr_res_g[nu0+nx0+idx]     + ptr_gamma[0+ii]       + ptr_gamma[2*nb0+2*ng0+idx];
 			ptr_dux[nu0+nx0+ns0+idx]  = ptr_res_g[nu0+nx0+ns0+idx] + ptr_gamma[nb0+ng0+ii] + ptr_gamma[2*nb0+2*ng0+ns0+idx];
-			tmp0 = ptr_dux[nu0+nx0+idx]*ptr_Zs_inv[0+idx];
-			tmp1 = ptr_dux[nu0+nx0+ns0+idx]*ptr_Zs_inv[ns0+idx];
-			ptr_tmp2[ii] = ptr_tmp2[ii] - ptr_Gamma[0+ii]*tmp0;
-			ptr_tmp3[ii] = ptr_tmp3[ii] - ptr_Gamma[nb0+ng0+ii]*tmp1;
+			ptr_tmp2[ii] = ptr_gamma[0+ii]       - ptr_Gamma[0+ii]      *ptr_Zs_inv[0+idx]  *ptr_dux[nu0+nx0+idx];
+			ptr_tmp3[ii] = ptr_gamma[nb0+ng0+ii] - ptr_Gamma[nb0+ng0+ii]*ptr_Zs_inv[ns0+idx]*ptr_dux[nu0+nx0+ns0+idx]; // + ???
 			}
 		}
 
@@ -386,11 +370,11 @@ static void EXPAND_SLACKS(int ss, struct OCP_QP *qp, struct OCP_QP_SOL *qp_sol, 
 			{
 			// ii  <= constr index
 			// idx <= slack index
-			ptr_dux[nu0+nx0+idx]     = - ptr_Zs_inv[0+idx]   * (ptr_dux[nu0+nx0+idx]     + ptr_dt[ii]*ptr_Gamma[ii]);
-			ptr_dux[nu0+nx0+ns0+idx] = - ptr_Zs_inv[ns0+idx] * (ptr_dux[nu0+nx0+ns0+idx] + ptr_dt[nb0+ng0+ii]*ptr_Gamma[nb0+ng0+ii]);
+			ptr_dux[nu0+nx0+idx]     = - ptr_Zs_inv[0+idx]   * (ptr_dux[nu0+nx0+idx]     + ptr_Gamma[0+ii]      *ptr_dt[0+ii]);
+			ptr_dux[nu0+nx0+ns0+idx] = - ptr_Zs_inv[ns0+idx] * (ptr_dux[nu0+nx0+ns0+idx] + ptr_Gamma[nb0+ng0+ii]*ptr_dt[nb0+ng0+ii]);
 			ptr_dt[2*nb0+2*ng0+idx]     = ptr_dux[nu0+nx0+idx];
 			ptr_dt[2*nb0+2*ng0+ns0+idx] = ptr_dux[nu0+nx0+ns0+idx];
-			ptr_dt[0+ii]       = ptr_dt[0+ii]   + ptr_dux[nu0+nx0+idx];
+			ptr_dt[0+ii]       = ptr_dt[0+ii]       + ptr_dux[nu0+nx0+idx];
 			ptr_dt[nb0+ng0+ii] = ptr_dt[nb0+ng0+ii] + ptr_dux[nu0+nx0+ns0+idx];
 			}
 		}

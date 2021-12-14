@@ -428,10 +428,10 @@ void OCP_QP_RES_COMPUTE(struct OCP_QP *qp, struct OCP_QP_SOL *qp_sol, struct OCP
 				idx = idxs_rev[ii][jj];
 				if(idx!=-1)
 					{
-					BLASFEO_VECEL(res_g+ii, nu0+nx0+idx) -= BLASFEO_VECEL(lam+ii, jj);
+					BLASFEO_VECEL(res_g+ii, nu0+nx0+idx)     -= BLASFEO_VECEL(lam+ii, jj);
 					BLASFEO_VECEL(res_g+ii, nu0+nx0+ns0+idx) -= BLASFEO_VECEL(lam+ii, nb0+ng0+jj);
 					// res_d
-					BLASFEO_VECEL(res_d+ii, jj) -= BLASFEO_VECEL(ux+ii, nu0+nx0+idx);
+					BLASFEO_VECEL(res_d+ii, jj)         -= BLASFEO_VECEL(ux+ii, nu0+nx0+idx);
 					BLASFEO_VECEL(res_d+ii, nb0+ng0+jj) -= BLASFEO_VECEL(ux+ii, nu0+nx0+ns0+idx);
 					}
 				}
