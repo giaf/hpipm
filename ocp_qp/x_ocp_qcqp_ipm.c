@@ -1296,7 +1296,8 @@ void OCP_QCQP_UPDATE_QP_ABS_STEP(struct OCP_QCQP *qcqp, struct OCP_QCQP_SOL *qcq
 
 		for(jj=0; jj<nq[ii]; jj++)
 			{
-			tmp = - BLASFEO_VECEL(qcqp_sol->lam+ii, nb[ii]+ng[ii]+jj) + BLASFEO_VECEL(qcqp_sol->lam+ii, 2*nb[ii]+2*ng[ii]+nq[ii]+jj);
+//			tmp = - BLASFEO_VECEL(qcqp_sol->lam+ii, nb[ii]+ng[ii]+jj) + BLASFEO_VECEL(qcqp_sol->lam+ii, 2*nb[ii]+2*ng[ii]+nq[ii]+jj);
+			tmp = + BLASFEO_VECEL(qcqp_sol->lam+ii, 2*nb[ii]+2*ng[ii]+nq[ii]+jj);
 			GEAD(nu[ii]+nx[ii], nu[ii]+nx[ii], tmp, &qcqp->Hq[ii][jj], 0, 0, qp->RSQrq+ii, 0, 0);
 
 			SYMV_L(nu[ii]+nx[ii], 1.0, &qcqp->Hq[ii][jj], 0, 0, qcqp_sol->ux+ii, 0, 0.0, ws->tmp_nuxM+0, 0, ws->tmp_nuxM+0, 0);
