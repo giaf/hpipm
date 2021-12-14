@@ -34,7 +34,7 @@
 ###################################################################################################
 
 from ctypes import *
-import ctypes.util 
+import ctypes.util
 import numpy as np
 
 
@@ -64,64 +64,51 @@ class hpipm_ocp_qp_sol:
 		# create C qp
 		__hpipm.d_ocp_qp_sol_create(dim.dim_struct, qp_sol_struct, qp_sol_mem)
 
+		# getter functions for controls, states and slacks
+		self.__getters = {
+			'u': {
+				'n_var': __hpipm.d_ocp_qp_dim_get_nu,
+				'var': __hpipm.d_ocp_qp_sol_get_u
+			},
+			'x': {
+				'n_var': __hpipm.d_ocp_qp_dim_get_nx,
+				'var': __hpipm.d_ocp_qp_sol_get_x
+			},
+			'sl': {
+				'n_var': __hpipm.d_ocp_qp_dim_get_ns,
+				'var': __hpipm.d_ocp_qp_sol_get_sl
+			},
+			'su': {
+				'n_var': __hpipm.d_ocp_qp_dim_get_ns,
+				'var': __hpipm.d_ocp_qp_sol_get_su
+			}
+		}
 
 	def get(self, field, idx_start, idx_end=None):
-		if(field=='u'):
-			vec = self.__get_u(idx_start, idx_end)
-		elif(field=='x'):
-			vec = self.__get_x(idx_start, idx_end)
-		else:
+		if field not in self.__getters:
 			raise NameError('hpipm_ocp_qp_sol.get: wrong field')
-		return vec
-
-
-	def __get_u(self, idx_start, idx_end=None):
-		# nu
-		nu = np.zeros((1,1), dtype=int);
-		if idx_end==None:
-			# get nu at stage
-			tmp_ptr = cast(nu.ctypes.data, POINTER(c_int))
-			self.__hpipm.d_ocp_qp_dim_get_nu(self.dim.dim_struct, idx_start, tmp_ptr)
-			u = np.zeros((nu[0,0], 1))
-			tmp_ptr = cast(u.ctypes.data, POINTER(c_double))
-			self.__hpipm.d_ocp_qp_sol_get_u(idx_start, self.qp_sol_struct, tmp_ptr)
 		else:
-			u = []
-			for i in range(idx_start, idx_end+1):
-				# get nu at stage
-				tmp_ptr = cast(nu.ctypes.data, POINTER(c_int))
-				self.__hpipm.d_ocp_qp_dim_get_nu(self.dim.dim_struct, i, tmp_ptr)
-				u.append(np.zeros((nu[0,0], 1)))
-				tmp_ptr = cast(u[i].ctypes.data, POINTER(c_double))
-				self.__hpipm.d_ocp_qp_sol_get_u(i, self.qp_sol_struct, tmp_ptr)
-		return u
+			return self.__get(self.__getters[field], idx_start, idx_end)
 
+	def __get(self, getter, idx_start, idx_end=None):
+		# number of variables
+		n_var = np.zeros((1,1), dtype=int)
 
-	def __get_x(self, idx_start, idx_end=None):
-		# nx
-		nx = np.zeros((1,1), dtype=int);
-		if idx_end==None:
-			# get nx at stage
-			tmp_ptr = cast(nx.ctypes.data, POINTER(c_int))
-			self.__hpipm.d_ocp_qp_dim_get_nx(self.dim.dim_struct, idx_start, tmp_ptr)
-			x = np.zeros((nx[0,0], 1))
-			tmp_ptr = cast(x.ctypes.data, POINTER(c_double))
-			self.__hpipm.d_ocp_qp_sol_get_x(idx_start, self.qp_sol_struct, tmp_ptr)
-		else:
-			x = []
-			for i in range(idx_start, idx_end+1):
-				# get nx at stage
-				tmp_ptr = cast(nx.ctypes.data, POINTER(c_int))
-				self.__hpipm.d_ocp_qp_dim_get_nx(self.dim.dim_struct, i, tmp_ptr)
-				x.append(np.zeros((nx[0,0], 1)))
-				tmp_ptr = cast(x[i].ctypes.data, POINTER(c_double))
-				self.__hpipm.d_ocp_qp_sol_get_x(i, self.qp_sol_struct, tmp_ptr)
-		return x
+		if idx_end is None:
+			idx_end = idx_start
 
+		var = []
+		for i in range(idx_start, idx_end + 1):
+			# get number of variables at stage
+			tmp_ptr = cast(n_var.ctypes.data, POINTER(c_int))
+			getter['n_var'](self.dim.dim_struct, i, tmp_ptr)
+
+			var.append(np.zeros((n_var[0,0], 1)))
+			tmp_ptr = cast(var[-1].ctypes.data, POINTER(c_double))
+			getter['var'](i, self.qp_sol_struct, tmp_ptr)
+
+		return var if len(var) > 1 else var[0]
 
 	def print_C_struct(self):
 		self.__hpipm.d_ocp_qp_sol_print(self.dim.dim_struct, self.qp_sol_struct)
-		return 
-
-
-
+		return
