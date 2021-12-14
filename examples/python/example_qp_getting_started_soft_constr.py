@@ -59,22 +59,24 @@ codegen_data = 1; # export qp data in the file ocp_qp_data.c for use from C exam
 
 
 # dim
-N = 5
+N = 1
 nx = 2
 nu = 1
 
 nbx = nx
+nbu = nu
 #ng = nx
-#ns = nx
+ns = nx
 
 dim = hpipm_ocp_qp_dim(N)
 
 dim.set('nx', nx, 0, N) # number of states
 dim.set('nu', nu, 0, N-1) # number of inputs
 dim.set('nbx', nbx, 0) # number of state bounds
+dim.set('nbu', nbu, 0, N-1) # number of input bounds
 #dim.set('ng', nx, 0)
 dim.set('nbx', nbx, N)
-#dim.set('ns', nx, N)
+dim.set('ns', ns, N)
 
 # print to shell
 #dim.print_C_struct()
@@ -100,16 +102,19 @@ B = np.array([0, 1]).reshape(nx,nu)
 Q = np.array([1, 0, 0, 1]).reshape(nx,nx)
 S = np.array([0, 0]).reshape(nu,nx)
 R = np.array([1]).reshape(nu,nu)
-q = np.array([1, 1]).reshape(nx,1)
+#q = np.array([1, 1]).reshape(nx,1)
 #r = np.array([0]).reshape(nu,1)
 
 Jx = np.array([1, 0, 0, 1]).reshape(nbx,nx)
 x0 = np.array([1, 1]).reshape(nx,1)
-#Jsx = np.array([1, 0, 0, 1]).reshape(nbx,ns)
-#Zl = np.array([1e5, 0, 0, 1e5]).reshape(ns,ns)
-#Zu = np.array([1e5, 0, 0, 1e5]).reshape(ns,ns)
-#zl = np.array([1e5, 1e5]).reshape(ns,1)
-#zu = np.array([1e5, 1e5]).reshape(ns,1)
+Jsx = np.array([1, 0, 0, 1]).reshape(nbx,ns)
+Zl = np.array([0e2, 0, 0, 0e2]).reshape(ns,ns)
+Zu = np.array([0e2, 0, 0, 0e2]).reshape(ns,ns)
+zl = np.array([1e2, 1e2]).reshape(ns,1)
+zu = np.array([1e2, 1e2]).reshape(ns,1)
+Ju = np.array([1]).reshape(nbu,nu)
+lbu = np.array([-1.0]).reshape(nbu,1)
+ubu = np.array([1.0]).reshape(nbu,1)
 
 
 
@@ -122,7 +127,7 @@ qp.set('B', B, 0, N-1)
 qp.set('Q', Q, 0, N)
 qp.set('S', S, 0, N-1)
 qp.set('R', R, 0, N-1)
-qp.set('q', q, 0, N)
+#qp.set('q', q, 0, N)
 #qp.set('r', r, 0, N-1)
 qp.set('Jx', Jx, 0)
 qp.set('lx', x0, 0)
@@ -131,11 +136,14 @@ qp.set('ux', x0, 0)
 #qp.set('lg', x0, 0)
 #qp.set('ug', x0, 0)
 qp.set('Jx', Jx, N)
-#qp.set('Jsx', Jsx, N)
-#qp.set('Zl', Zl, N)
-#qp.set('Zu', Zu, N)
-#qp.set('zl', zl, N)
-#qp.set('zu', zu, N)
+qp.set('Jsx', Jsx, N)
+qp.set('Zl', Zl, N)
+qp.set('Zu', Zu, N)
+qp.set('zl', zl, N)
+qp.set('zu', zu, N)
+qp.set('Ju', Ju, 0, N-1)
+qp.set('lbu', lbu, 0, N-1)
+qp.set('ubu', ubu, 0, N-1)
 
 # print to shell
 #qp.print_C_struct()
@@ -150,9 +158,9 @@ qp_sol = hpipm_ocp_qp_sol(dim)
 
 # set up solver arg
 #mode = 'speed_abs'
-mode = 'speed'
+#mode = 'speed'
 #mode = 'balance'
-#mode = 'robust'
+mode = 'robust'
 # create and set default arg based on mode
 arg = hpipm_ocp_qp_solver_arg(dim, mode)
 
@@ -185,20 +193,37 @@ if(travis_run!='true'):
 	qp_sol.print_C_struct()
 
 # extract and print sol
+# inputs
 if(travis_run!='true'):
 	print('u =')
-#u = qp_sol.get_u()
 u = qp_sol.get('u', 0, N)
 for i in range(N+1):
 	if(travis_run!='true'):
 		print(u[i])
 
+# states
 if(travis_run!='true'):
 	print('x =')
 for i in range(N+1):
 	tmp = qp_sol.get('x', i)
 	if(travis_run!='true'):
 		print(tmp)
+
+# slack of lower constraints
+if(travis_run!='true'):
+	print('sl =')
+sl = qp_sol.get('sl', 0, N)
+for i in range(N+1):
+	if(travis_run!='true'):
+		print(sl[i])
+
+# slack of upper constraints
+if(travis_run!='true'):
+	print('su =')
+su = qp_sol.get('su', 0, N)
+for i in range(N+1):
+	if(travis_run!='true'):
+		print(su[i])
 
 
 # get solver statistics
