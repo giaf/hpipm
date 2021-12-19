@@ -272,6 +272,13 @@ static void COND_SLACKS_FACT_SOLVE(int ss, struct OCP_QP *qp, struct OCP_QP_SOL 
 			ptr_tmp2[ii] = ptr_gamma[0+ii]       - ptr_Gamma[0+ii]      *ptr_Zs_inv[0+idx]  *ptr_dux[nu0+nx0+idx];
 			ptr_tmp3[ii] = ptr_gamma[nb0+ng0+ii] - ptr_Gamma[nb0+ng0+ii]*ptr_Zs_inv[ns0+idx]*ptr_dux[nu0+nx0+ns0+idx]; // + ???
 			}
+		else
+			{
+			ptr_tmp0[ii] = ptr_Gamma[0+ii];
+			ptr_tmp1[ii] = ptr_Gamma[nb0+ng0+ii];
+			ptr_tmp2[ii] = ptr_gamma[0+ii];
+			ptr_tmp3[ii] = ptr_gamma[nb0+ng0+ii];
+			}
 		}
 
 	AXPY(nb0+ng0,  1.0, tmp_nbgM+1, 0, tmp_nbgM+0, 0, tmp_nbgM+0, 0);
@@ -327,6 +334,11 @@ static void COND_SLACKS_SOLVE(int ss, struct OCP_QP *qp, struct OCP_QP_SOL *qp_s
 			ptr_dux[nu0+nx0+ns0+idx]  = ptr_res_g[nu0+nx0+ns0+idx] + ptr_gamma[nb0+ng0+ii] + ptr_gamma[2*nb0+2*ng0+ns0+idx];
 			ptr_tmp2[ii] = ptr_gamma[0+ii]       - ptr_Gamma[0+ii]      *ptr_Zs_inv[0+idx]  *ptr_dux[nu0+nx0+idx];
 			ptr_tmp3[ii] = ptr_gamma[nb0+ng0+ii] - ptr_Gamma[nb0+ng0+ii]*ptr_Zs_inv[ns0+idx]*ptr_dux[nu0+nx0+ns0+idx]; // + ???
+			}
+		else
+			{
+			ptr_tmp2[ii] = ptr_gamma[0+ii];
+			ptr_tmp3[ii] = ptr_gamma[nb0+ng0+ii];
 			}
 		}
 
