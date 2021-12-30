@@ -52,7 +52,6 @@ travis_run = os.getenv('TRAVIS_RUN')
 #travis_run = 'true'
 
 
-
 x0_elim = True
 #x0_elim = False
 
@@ -62,6 +61,7 @@ x0_elim = True
 codegen_data = 1; # export qp data in the file ocp_qp_data.c for use from C examples
 
 
+bigM = 1e2
 
 # dim
 N = 1
@@ -79,13 +79,19 @@ dim.set('nx', nx, 1, N) # number of states
 if not x0_elim:
 	dim.set('nx', nx, 0)    # number of states
 	dim.set('nbx', nbx, 0)  # number of state bounds
-dim.set('nu', nu, 0, N-1) # number of inputs
-dim.set('nbu', nbu, 0, N-1) # number of input bounds
-#dim.set('ng', nx, 0)
-dim.set('nbx', nbx, N)
-dim.set('nsbx', ns, N)
+dim.set('nu', nu, 0)    # number of inputs
+dim.set('nbu', nbu, 0)  # number of input bounds
+
+dim.set('nu', 2*ns, N)  
+dim.set('nbu', 2*ns, N) 
+#dim.set('nbx', nbx, N)
+
+dim.set('ng', 2*ns, N)  # number of inequality constraints
+
+
 
 # print to shell
+print("HPIPM print C dims")
 dim.print_C_struct()
 # codegen
 if codegen_data:
@@ -112,22 +118,27 @@ R = np.array([1]).reshape(nu,nu)
 #q = np.array([1, 1]).reshape(nx,1)
 #r = np.array([0]).reshape(nu,1)
 
+C = np.vstack([np.eye(nx), -np.eye(nx)])
+D = np.block([[np.eye(nx), 0*np.eye(nx)],
+			  [0*np.eye(nx), np.eye(nx)]])
+
 Jx = np.array([1, 0, 0, 1]).reshape(nbx,nx)
 x0 = np.array([1, 1]).reshape(nx,1)
-xN = np.array([0, 0]).reshape(nx,1)
+# Jsx = np.array([1, 0, 0, 1]).reshape(nbx,ns)
 if x0_elim:
 	b0 = A @ x0 + b
 
-Jsx = np.array([1, 0, 0, 1]).reshape(nbx,ns)
-Zl = 0 * np.array([1e2, 1e2]).reshape(ns,1)
-Zu = 0 * np.array([1e2, 1e2]).reshape(ns,1)
-zl = 1 * np.array([1e2, 1e2]).reshape(ns,1)
-zu = 1 * np.array([1e2, 1e2]).reshape(ns,1)
+Zl = 0 * np.array([1e2, 1e2]).reshape(2,1)
+Zu = 0 * np.array([1e2, 1e2]).reshape(2,1)
+zl = 1 * np.array([1e2, 1e2]).reshape(2,1)
+zu = 1 * np.array([1e2, 1e2]).reshape(2,1)
 
 Ju = np.array([1]).reshape(nbu,nu)
 lbu = np.array([-1.0]).reshape(nbu,1)
 ubu = np.array([1.0]).reshape(nbu,1)
 
+# lbs = np.array([0, 0]).reshape(ns,1)
+# ubs = np.array([1.0]).reshape(nbu,1)
 
 
 # qp
@@ -144,34 +155,41 @@ if N>1:
 	qp.set('b', b, 1, N-1)
 
 qp.set('Q', Q, 0, N)
-qp.set('S', S, 0, N-1)
-qp.set('R', R, 0, N-1)
-#qp.set('q', q, 0, N)
-#qp.set('r', r, 0, N-1)
+qp.set('R', R, 0)
 
 if not x0_elim:
 	qp.set('Jx', Jx, 0)
 	qp.set('lx', x0, 0)
 	qp.set('ux', x0, 0)
 
-#qp.set('C', Jx, 0)
-#qp.set('lg', x0, 0)
-#qp.set('ug', x0, 0)
-qp.set('Jx', Jx, N)
-qp.set('lx', xN, N)
-qp.set('ux', xN, N)
+qp.set('Ju', Ju, 0)
+qp.set('lbu', lbu, 0)
+qp.set('ubu', ubu, 0)
 
-qp.set('Jsx', Jsx, N)
-qp.set('Zl', Zl, N)
-qp.set('Zu', Zu, N)
-qp.set('zl', zl, N)
-qp.set('zu', zu, N)
+# Time instant 1
+qp.set('R', np.diag(np.concatenate([Zl.squeeze(), Zu.squeeze()])), N)
+qp.set('r', np.concatenate([zl, zu]), N)
 
-qp.set('Ju', Ju, 0, N-1)
-qp.set('lbu', lbu, 0, N-1)
-qp.set('ubu', ubu, 0, N-1)
+#qp.set('Jx', Jx, N)
+#qp.set('lx', -bigM, N)
+#qp.set('ux', bigM, N)
+
+qp.set('Ju', np.eye(2*ns), N)
+qp.set('lbu', np.zeros((2*ns,1)), N)
+qp.set('ubu', bigM*np.ones((2*ns,1)), N)
+qp.set('ubu_mask', 0*np.ones((2*ns,1)), N)
+
+qp.set('C', C, N)
+qp.set('D', D, N)
+#qp.set('lg', np.array([0, 0, -bigM, -bigM]).reshape(2*nx, 1), N)
+#qp.set('ug', np.array([bigM, bigM, 0, 0]).reshape(2*nx, 1), N)
+qp.set('lg', np.array([0, 0, 0, 0]).reshape(2*ns, 1), N)
+qp.set('ug', np.array([bigM, bigM, bigM, bigM]).reshape(2*ns, 1), N)
+qp.set('ug_mask', 0*np.ones((2*ns, 1)), N)
+
 
 # print to shell
+print("QP formulation HPIPM C print")
 qp.print_C_struct()
 # codegen
 if codegen_data:
@@ -213,42 +231,32 @@ solver.solve(qp, qp_sol)
 end_time = time.time()
 if(travis_run!='true'):
 	print('solve time {:e}'.format(end_time-start_time))
-
-
-if(travis_run!='true'):
+	print("HPIPM solution C print:")
 	qp_sol.print_C_struct()
 
-# extract and print sol
-# inputs
-if(travis_run!='true'):
+	# extract and print sol
+	# inputs
 	print('u =')
-u = qp_sol.get('u', 0, N)
-for i in range(N+1):
-	if(travis_run!='true'):
+	u = qp_sol.get('u', 0, N)
+	for i in range(N+1):
 		print(u[i])
 
-# states
-if(travis_run!='true'):
+	# states
 	print('x =')
-for i in range(N+1):
-	tmp = qp_sol.get('x', i)
-	if(travis_run!='true'):
+	for i in range(N+1):
+		tmp = qp_sol.get('x', i)
 		print(tmp)
 
-# slack of lower constraints
-if(travis_run!='true'):
+	# slack of lower constraints
 	print('sl =')
-sl = qp_sol.get('sl', 0, N)
-for i in range(N+1):
-	if(travis_run!='true'):
+	sl = qp_sol.get('sl', 0, N)
+	for i in range(N+1):
 		print(sl[i])
 
-# slack of upper constraints
-if(travis_run!='true'):
+	# slack of upper constraints
 	print('su =')
-su = qp_sol.get('su', 0, N)
-for i in range(N+1):
-	if(travis_run!='true'):
+	su = qp_sol.get('su', 0, N)
+	for i in range(N+1):
 		print(su[i])
 
 
@@ -274,13 +282,11 @@ if(travis_run!='true'):
 		print('\t{:d}\t{:e}\t{:e}\t{:e}\t{:e}\t{:e}\t{:e}\t{:e}\t{:e}\t{:e}\t{:e}'.format(ii, stat[ii][0], stat[ii][1], stat[ii][2], stat[ii][3], stat[ii][4], stat[ii][5], stat[ii][6], stat[ii][7], stat[ii][8], stat[ii][9]))
 	print('')
 
-
-
 if status==0:
 	print('\nsuccess!\n')
 else:
 	print('\nSolution failed, solver returned status {0:1d}\n'.format(status))
 
-
+# import pdb; pdb.set_trace()
 
 sys.exit(int(status))
