@@ -75,10 +75,10 @@ ns = nx
 
 dim = hpipm_ocp_qp_dim(N)
 
-dim.set('nx', nx, 1, N) # number of states
 if not x0_elim:
 	dim.set('nx', nx, 0)    # number of states
 	dim.set('nbx', nbx, 0)  # number of state bounds
+dim.set('nx', nx, 1, N) # number of states
 dim.set('nu', nu, 0, N-1) # number of inputs
 dim.set('nbu', nbu, 0, N-1) # number of input bounds
 #dim.set('ng', nx, 0)
@@ -139,12 +139,14 @@ if x0_elim:
 else:
 	qp.set('A', A, 0)
 	qp.set('b', b, 0)
-if N>1:
-	qp.set('A', A, 1, N-1)
-	qp.set('b', b, 1, N-1)
+qp.set('A', A, 1, N-1)
+qp.set('b', b, 1, N-1)
 
-qp.set('Q', Q, 0, N)
-qp.set('S', S, 0, N-1)
+if not x0_elim:
+	qp.set('Q', Q, 0)
+	qp.set('S', S, 0)
+qp.set('Q', Q, 1, N)
+qp.set('S', S, 1, N-1)
 qp.set('R', R, 0, N-1)
 #qp.set('q', q, 0, N)
 #qp.set('r', r, 0, N-1)
