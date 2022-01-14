@@ -60,6 +60,11 @@
 
 
 
+#define BLASFEO_MATEL BLASFEO_SMATEL
+#define BLASFEO_VECEL BLASFEO_SVECEL
+
+
+
 #define AXPY blasfeo_saxpy
 #define BACKUP_RES_M s_backup_res_m
 #define BLAS_TRSM blasfeo_strsm

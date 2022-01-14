@@ -1587,7 +1587,24 @@ void TREE_OCP_QCQP_IPM_SOLVE(struct TREE_OCP_QCQP *qcqp, struct TREE_OCP_QCQP_SO
 			}
 		// save info before return
 		qcqp_ws->iter = 0;
-		qcqp_ws->status = 0;
+#ifdef USE_C99_MATH
+		if(isnan(BLASFEO_VECEL(qcqp_sol->ux+0, 0)))
+			{
+			// NaN in the solution
+			qcqp_ws->status = NAN_SOL;
+			}
+#else
+		if(BLASFEO_VECEL(qcqp_sol->ux+0, 0)!=BLASFEO_VECEL(qcqp_sol->ux+0, 0))
+			{
+			// NaN in the solution
+			qcqp_ws->status = NAN_SOL;
+			}
+#endif
+		else
+			{
+			// normal return
+			qcqp_ws->status = SUCCESS;
+			}
 		return;
 		}
 	

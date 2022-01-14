@@ -1974,9 +1974,9 @@ void OCP_QP_IPM_DELTA_STEP(int kk, struct OCP_QP *qp, struct OCP_QP_SOL *qp_sol,
 		// inaccurate factorization: switch to lq
 		if(
 #ifdef USE_C99_MATH
-			( itref_qp_norm[0]==0.0 & isnan(BLASFEO_DVECEL(ws->res_itref->res_g+0, 0)) ) |
+			( itref_qp_norm[0]==0.0 & isnan(BLASFEO_VECEL(ws->res_itref->res_g+0, 0)) ) |
 #else
-			( itref_qp_norm[0]==0.0 & BLASFEO_DVECEL(ws->res_itref->res_g+0, 0)!=BLASFEO_DVECEL(ws->res_itref->res_g+0, 0) ) |
+			( itref_qp_norm[0]==0.0 & BLASFEO_VECEL(ws->res_itref->res_g+0, 0)!=BLASFEO_VECEL(ws->res_itref->res_g+0, 0) ) |
 #endif
 			itref_qp_norm[0]>1e-5 |
 			itref_qp_norm[1]>1e-5 |
@@ -2475,7 +2475,24 @@ void OCP_QP_IPM_SOLVE(struct OCP_QP *qp, struct OCP_QP_SOL *qp_sol, struct OCP_Q
 			cws->mu = ws->res->res_mu;
 			}
 		ws->iter = 0;
-		ws->status = 0;
+#ifdef USE_C99_MATH
+		if(isnan(BLASFEO_VECEL(qp_sol->ux+0, 0)))
+			{
+			// NaN in the solution
+			ws->status = NAN_SOL;
+			}
+#else
+		if(BLASFEO_VECEL(qp_sol->ux+0, 0)!=BLASFEO_VECEL(qp_sol->ux+0, 0))
+			{
+			// NaN in the solution
+			ws->status = NAN_SOL;
+			}
+#endif
+		else
+			{
+			// normal return
+			ws->status = SUCCESS;
+			}
 		return;
 		}
 
@@ -2644,6 +2661,7 @@ set_status:
 	// save info before return
 	ws->iter = kk;
 
+printf("\nnan %f\n", BLASFEO_VECEL(qp_sol->ux+0, 0));
 	if(kk == arg->iter_max)
 		{
 		// max iteration number reached
@@ -2661,7 +2679,7 @@ set_status:
 		ws->status = NAN_SOL;
 		}
 #else
-	else if(cws->mu != cws->mu)
+	else if((cws->mu!=cws->mu))
 		{
 		// NaN in the solution
 		ws->status = NAN_SOL;

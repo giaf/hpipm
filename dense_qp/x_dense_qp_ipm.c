@@ -1538,9 +1538,9 @@ void DENSE_QP_IPM_DELTA_STEP(int kk, struct DENSE_QP *qp, struct DENSE_QP_SOL *q
 		// inaccurate factorization: switch to lq
 		if(
 #ifdef USE_C99_MATH
-			( itref_qp_norm[0]==0.0 & isnan(BLASFEO_DVECEL(ws->res_itref->res_g, 0)) ) |
+			( itref_qp_norm[0]==0.0 & isnan(BLASFEO_VECEL(ws->res_itref->res_g, 0)) ) |
 #else
-			( itref_qp_norm[0]==0.0 & BLASFEO_DVECEL(ws->res_itref->res_g, 0)!=BLASFEO_DVECEL(ws->res_itref->res_g, 0) ) |
+			( itref_qp_norm[0]==0.0 & BLASFEO_VECEL(ws->res_itref->res_g, 0)!=BLASFEO_VECEL(ws->res_itref->res_g, 0) ) |
 #endif
 			itref_qp_norm[0]>1e-5 |
 			itref_qp_norm[1]>1e-5 |
@@ -2072,7 +2072,24 @@ exit(1);
 			}
 		// save info before return
 		ws->iter = 0;
-		ws->status = SUCCESS;
+#ifdef USE_C99_MATH
+		if(isnan(BLASFEO_VECEL(qp_sol->v, 0)))
+			{
+			// NaN in the solution
+			ws->status = NAN_SOL;
+			}
+#else
+		if(BLASFEO_VECEL(qp_sol->v, 0)!=BLASFEO_VECEL(qp_sol->v, 0))
+			{
+			// NaN in the solution
+			ws->status = NAN_SOL;
+			}
+#endif
+		else
+			{
+			// normal return
+			ws->status = SUCCESS;
+			}
 		goto call_return;
 		}
 	
@@ -2563,19 +2580,11 @@ void DENSE_QP_COMPUTE_STEP_LENGTH(struct DENSE_QP *qp, struct DENSE_QP_SOL *qp_s
 			idx = idxs_rev[ii];
 			if(idx!=-1)
 				{
-#ifdef DOUBLE_PRECISION
-				BLASFEO_DVECEL(step_res_g_d, nv+idx) -= BLASFEO_DVECEL(dlam, ii);
-				BLASFEO_DVECEL(step_res_g_d, nv+ns+idx) -= BLASFEO_DVECEL(dlam, nb+ng+ii);
+				BLASFEO_VECEL(step_res_g_d, nv+idx) -= BLASFEO_VECEL(dlam, ii);
+				BLASFEO_VECEL(step_res_g_d, nv+ns+idx) -= BLASFEO_VECEL(dlam, nb+ng+ii);
 				// res_d
-				BLASFEO_DVECEL(step_res_d, ii) -= BLASFEO_DVECEL(dv+ii, nv+idx);
-				BLASFEO_DVECEL(step_res_d, nb+ng+ii) -= BLASFEO_DVECEL(dv+ii, nv+ns+idx);
-#else
-				BLASFEO_SVECEL(step_res_g_d, nv+idx) -= BLASFEO_SVECEL(dlam, ii);
-				BLASFEO_SVECEL(step_res_g_d, nv+ns+idx) -= BLASFEO_SVECEL(dlam, nb+ng+ii);
-				// res_d
-				BLASFEO_SVECEL(step_res_d, ii) -= BLASFEO_SVECEL(dv+ii, nv+idx);
-				BLASFEO_SVECEL(step_res_d, nb+ng+ii) -= BLASFEO_SVECEL(dv+ii, nv+ns+idx);
-#endif
+				BLASFEO_VECEL(step_res_d, ii) -= BLASFEO_VECEL(dv+ii, nv+idx);
+				BLASFEO_VECEL(step_res_d, nb+ng+ii) -= BLASFEO_VECEL(dv+ii, nv+ns+idx);
 				}
 			}
 		// res_d

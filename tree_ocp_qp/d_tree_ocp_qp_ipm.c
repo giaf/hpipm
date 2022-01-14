@@ -55,6 +55,11 @@
 
 
 
+#define BLASFEO_MATEL BLASFEO_DMATEL
+#define BLASFEO_VECEL BLASFEO_DVECEL
+
+
+
 #define AXPY blasfeo_daxpy
 #define BACKUP_RES_M d_backup_res_m
 #define COMPUTE_ALPHA_QP d_compute_alpha_qp
