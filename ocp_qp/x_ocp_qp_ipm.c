@@ -2661,7 +2661,6 @@ set_status:
 	// save info before return
 	ws->iter = kk;
 
-printf("\nnan %f\n", BLASFEO_VECEL(qp_sol->ux+0, 0));
 	if(kk == arg->iter_max)
 		{
 		// max iteration number reached
