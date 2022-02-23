@@ -75,7 +75,7 @@ If you would like to try out the Python interface, check out the examples in `/h
 1) Clone BLASFEO on your machine: `git clone https://github.com/giaf/blasfeo.git`
 2) From the BLASFEO root folder, run `make shared_library -j4 && sudo make install_shared`
 3) From the HPIPM root folder, run `make shared_library -j4 && sudo make install_shared`
-4) In a terminal, navigate to `/hpipm/interfaces/python/hpipm_python` and run `pip install` or  `pip3 install` (depending on your python version).
+4) In a terminal, navigate to `/hpipm/interfaces/python/hpipm_python` and run `pip install .` or  `pip3 install .` (depending on your python version).
 5) In a terminal, navigate to `/hpipm/examples/python`.
 Set the needed environment flags by running `source env.sh` (you may need to change the `BLASFEO_MAIN_FOLDER`, or to make it equal to the `BLASFEO_PATH`) in that folder.
 Alternatively you can make sure yourself that the location of the installed shared libraries is known to the system e.g. by running `export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/opt/blasfeo/lib:/opt/hpipm/lib` (possibly after updating it to the chosen installation directories).
