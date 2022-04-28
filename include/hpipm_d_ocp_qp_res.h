@@ -63,6 +63,7 @@ struct d_ocp_qp_res
 	struct blasfeo_dvec *res_m; // m-residuals
 	double res_max[4]; // max of residuals
 	double res_mu; // mu-residual
+	double obj; // (primal) objective
 	hpipm_size_t memsize;
 	};
 
@@ -70,7 +71,7 @@ struct d_ocp_qp_res
 
 struct d_ocp_qp_res_ws
 	{
-	struct blasfeo_dvec *tmp_nbgM; // work space of size nbM+ngM
+	struct blasfeo_dvec *tmp_nbgM; // work space of size nbgM
 	struct blasfeo_dvec *tmp_nsM; // work space of size nsM
 	hpipm_size_t memsize;
 	};
