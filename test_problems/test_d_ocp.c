@@ -283,7 +283,6 @@ int main()
 	nx[0] = nx_;
 	for(ii=1; ii<=N; ii++)
 		nx[ii] = nx_;
-//	nx[N] = 0;
 
 	int *nu = (int *) malloc((N+1)*sizeof(int));
 	for(ii=0; ii<N; ii++)
@@ -306,15 +305,13 @@ int main()
 
 	int *ng = (int *) malloc((N+1)*sizeof(int));
 	ng[0] = 0;
-	for(ii=1; ii<N; ii++)
+	for(ii=1; ii<=N; ii++)
 		ng[ii] = 0;
-	ng[N] = 0;
 
 	int *nsbx = (int *) malloc((N+1)*sizeof(int));
 	nsbx[0] = 0;
-	for(ii=1; ii<N; ii++)
-		nsbx[ii] = nx[ii]/2;
-	nsbx[N] = nx[N]/2;
+	for(ii=1; ii<=N; ii++)
+		nsbx[ii] = nbx[ii];
 
 	int *nsbu = (int *) malloc((N+1)*sizeof(int));
 	for(ii=0; ii<=N; ii++)
@@ -635,10 +632,10 @@ int main()
 
 	double *ZlN; d_zeros(&ZlN, ns[N], 1);
 	for(ii=0; ii<ns[N]; ii++)
-		ZlN[ii] = 0e3;
+		ZlN[ii] = 0e2;
 	double *ZuN; d_zeros(&ZuN, ns[N], 1);
 	for(ii=0; ii<ns[N]; ii++)
-		ZuN[ii] = 0e3;
+		ZuN[ii] = 0e2;
 	double *zlN; d_zeros(&zlN, ns[N], 1);
 	for(ii=0; ii<ns[N]; ii++)
 		zlN[ii] = 1e2;
@@ -821,8 +818,8 @@ int main()
 	// dynamic constraints removal
 	double *d_lbu_mask; d_zeros(&d_lbu_mask, nbu[0], 1);
 	double *d_ubu_mask; d_zeros(&d_ubu_mask, nbu[0], 1);
-	double *d_lbx_mask; d_zeros(&d_lbx_mask, nbx[0], 1);
-	double *d_ubx_mask; d_zeros(&d_ubx_mask, nbx[0], 1);
+	double *d_lbx_mask; d_zeros(&d_lbx_mask, nbx[N], 1);
+	double *d_ubx_mask; d_zeros(&d_ubx_mask, nbx[N], 1);
 //	d_ocp_qp_set("lbu_mask", 0, d_lbu_mask, &qp);
 //	d_ocp_qp_set("ubu_mask", 0, d_ubu_mask, &qp);
 //	d_ocp_qp_set("lbx_mask", N, d_lbx_mask, &qp);
@@ -872,6 +869,8 @@ int main()
 
 	struct d_ocp_qp_dim dim2 = dim;
 	struct d_ocp_qp qp2 = qp;
+
+	double time_red_eq_dof = 0.0;
 
 #else // keep x0
 
@@ -989,6 +988,7 @@ int main()
 //	enum hpipm_mode mode = ROBUST;
 	d_ocp_qp_ipm_arg_set_default(mode, &arg);
 
+	mu0 = 1e2;
 	int iter_max = 30;
 	double alpha_min = 1e-8;
 	double tol_stat = 1e-6;
@@ -1043,7 +1043,7 @@ int main()
 		d_ocp_qp_ipm_get_status(&workspace, &hpipm_status);
 		}
 
-	double time_ocp_ipm = hpipm_toc(&timer0) / nrep;
+	double time_ipm = hpipm_toc(&timer0) / nrep;
 
 #if PRINT
 	d_ocp_qp_sol_print(&dim2, &qp_sol2);
@@ -1054,6 +1054,8 @@ int main()
 ************************************************/
 
 #if KEEP_X0
+
+	double time_res_eq_dof = 0.0;
 
 #else // keep x0
 
@@ -1243,23 +1245,23 @@ int main()
 	double res_eq; d_ocp_qp_ipm_get_max_res_eq(&workspace, &res_eq);
 	double res_ineq; d_ocp_qp_ipm_get_max_res_ineq(&workspace, &res_ineq);
 	double res_comp; d_ocp_qp_ipm_get_max_res_comp(&workspace, &res_comp);
+	double obj; d_ocp_qp_ipm_get_obj(&workspace, &obj);
 	double *stat; d_ocp_qp_ipm_get_stat(&workspace, &stat);
 	int stat_m; d_ocp_qp_ipm_get_stat_m(&workspace, &stat_m);
 
 #if PRINT
 	printf("\nipm return = %d\n", hpipm_status);
 	printf("\nipm residuals max: res_g = %e, res_b = %e, res_d = %e, res_m = %e\n", res_stat, res_eq, res_ineq, res_comp);
+	printf("\nipm objective = %e\n", obj);
 
 	printf("\nipm iter = %d\n", iter);
-	printf("\nalpha_aff\tmu_aff\t\tsigma\t\talpha_prim\talpha_dual\tmu\t\tres_stat\tres_eq\t\tres_ineq\tres_comp\tlq fact\t\titref pred\titref corr\tlin res stat\tlin res eq\tlin res ineq\tlin res comp\n");
+	printf("\nalpha_aff\tmu_aff\t\tsigma\t\talpha_prim\talpha_dual\tmu\t\tres_stat\tres_eq\t\tres_ineq\tres_comp\tobj\t\tlq fact\t\titref pred\titref corr\tlin res stat\tlin res eq\tlin res ineq\tlin res comp\n");
 	d_print_exp_tran_mat(stat_m, iter+1, stat, stat_m);
 
-	printf("\nocp ipm time = %e [s]\n\n", time_ocp_ipm);
-#if KEEP_X0
-#else // keep x0
-	printf("\nreduce eq dof time = %e [s]\n\n", time_red_eq_dof);
-	printf("\nrestore eq dof time = %e [s]\n\n", time_res_eq_dof);
-#endif // keep x0
+	printf("\nred eq for time     = %e [s]\n", time_red_eq_dof);
+	printf("\nocp ipm time        = %e [s]\n", time_ipm);
+	printf("\nres eq for time     = %e [s]\n\n", time_res_eq_dof);
+	printf("\ntotal solution time = %e [s]\n\n", time_red_eq_dof+time_ipm+time_res_eq_dof);
 #endif
 
 /************************************************

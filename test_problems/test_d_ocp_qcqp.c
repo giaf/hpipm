@@ -292,7 +292,8 @@ int main()
 
 	int nbu[N+1];
 	for (ii=0; ii<=N; ii++)
-		nbu[ii] = 0;//nu[ii];
+		nbu[ii] = 0;
+//		nbu[ii] = nu[ii];
 
 	int nbx[N+1];
 	nbx[0] = nx[0];
@@ -711,6 +712,7 @@ int main()
 		d_ocp_qcqp_dim_set_nbu(ii, nbu[ii], &dim);
 		d_ocp_qcqp_dim_set_ng(ii, ng[ii], &dim);
 		d_ocp_qcqp_dim_set_nq(ii, nq[ii], &dim);
+		d_ocp_qcqp_dim_set_nsbx(ii, nsbx[ii], &dim);
 		d_ocp_qcqp_dim_set_nsq(ii, nsq[ii], &dim);
 		d_ocp_qcqp_dim_set_nbxe(ii, nbxe[ii], &dim); // state bounds to be removed
 		}
@@ -1105,7 +1107,7 @@ int main()
 	printf("\nipm residuals max: res_g = %e, res_b = %e, res_d = %e, res_m = %e\n", res_stat, res_eq, res_ineq, res_comp);
 
 	printf("\nipm iter = %d\n", iter);
-	printf("\nalpha_aff\tmu_aff\t\tsigma\t\talpha_prim\talpha_dual\tmu\t\tres_stat\tres_eq\t\tres_ineq\tres_comp\tlq fact\t\titref pred\titref corr\tlin res stat\tlin res eq\tlin res ineq\tlin res comp\n");
+	printf("\nalpha_aff\tmu_aff\t\tsigma\t\talpha_prim\talpha_dual\tmu\t\tres_stat\tres_eq\t\tres_ineq\tres_comp\tobj\t\tlq fact\t\titref pred\titref corr\tlin res stat\tlin res eq\tlin res ineq\tlin res comp\n");
 	d_print_exp_tran_mat(stat_m, iter+1, stat, stat_m);
 
 	printf("\nred eq for time     = %e [s]\n", time_red_eq_dof);
