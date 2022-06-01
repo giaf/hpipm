@@ -71,7 +71,7 @@ struct s_ocp_qp_res
 
 struct s_ocp_qp_res_ws
 	{
-	struct blasfeo_svec *tmp_nbgM; // work space of size nbgM
+	struct blasfeo_svec *tmp_nbgM; // work space of size nbM+ngM
 	struct blasfeo_svec *tmp_nsM; // work space of size nsM
 	hpipm_size_t memsize;
 	};

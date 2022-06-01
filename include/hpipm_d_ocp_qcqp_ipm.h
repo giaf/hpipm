@@ -171,6 +171,8 @@ void d_ocp_qcqp_ipm_get_max_res_ineq(struct d_ocp_qcqp_ipm_ws *ws, double *res_i
 //
 void d_ocp_qcqp_ipm_get_max_res_comp(struct d_ocp_qcqp_ipm_ws *ws, double *res_comp);
 //
+void d_ocp_qcqp_ipm_get_obj(struct d_ocp_qcqp_ipm_ws *ws, double *obj);
+//
 void d_ocp_qcqp_ipm_get_stat(struct d_ocp_qcqp_ipm_ws *ws, double **stat);
 //
 void d_ocp_qcqp_ipm_get_stat_m(struct d_ocp_qcqp_ipm_ws *ws, int *stat_m);
