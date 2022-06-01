@@ -71,6 +71,7 @@
 #define GEMV_T blasfeo_sgemv_t
 #define OCP_QP s_ocp_qp
 #define OCP_QP_SOL s_ocp_qp_sol
+#define POTRF_L blasfeo_spotrf_l
 #define POTRF_L_MN blasfeo_spotrf_l_mn
 #define PRINT_MAT blasfeo_print_smat
 #define REAL float

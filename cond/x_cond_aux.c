@@ -539,9 +539,9 @@ void COND_RSQ(struct OCP_QP *ocp_qp, struct STRMAT *RSQrq2, struct COND_QP_ARG *
 #if defined(LA_HIGH_PERFORMANCE)
 				GECP(nx[N-nn], nx[N-nn], &L[N-nn], nu[N-nn], nu[N-nn], Lx, 0, 0);
 
-				POTRF_L_MN(nx[N-nn], nx[N-nn], Lx, 0, 0, Lx, 0, 0);
+				POTRF_L(nx[N-nn], Lx, 0, 0, Lx, 0, 0);
 #else
-				POTRF_L_MN(nx[N-nn], nx[N-nn], &L[N-nn], nu[N-nn], nu[N-nn], Lx, 0, 0);
+				POTRF_L(nx[N-nn], &L[N-nn], nu[N-nn], nu[N-nn], Lx, 0, 0);
 #endif
 				TRMM_RLNN(nu[N-nn-1]+nx[N-nn-1], nx[N-nn], 1.0, Lx, 0, 0, &BAbt[N-nn-1], 0, 0, AL, 0, 0);
 
@@ -562,9 +562,9 @@ void COND_RSQ(struct OCP_QP *ocp_qp, struct STRMAT *RSQrq2, struct COND_QP_ARG *
 #if defined(LA_HIGH_PERFORMANCE)
 			GECP(nx[N-nn], nx[N-nn], &L[N-nn], nu[N-nn], nu[N-nn], Lx, 0, 0);
 
-			POTRF_L_MN(nx[N-nn], nx[N-nn], Lx, 0, 0, Lx, 0, 0);
+			POTRF_L(nx[N-nn], Lx, 0, 0, Lx, 0, 0);
 #else
-			POTRF_L_MN(nx[N-nn], nx[N-nn], &L[N-nn], nu[N-nn], nu[N-nn], Lx, 0, 0);
+			POTRF_L(nx[N-nn], &L[N-nn], nu[N-nn], nu[N-nn], Lx, 0, 0);
 #endif
 			TRMM_RLNN(nu[N-nn-1]+nx[N-nn-1]+1, nx[N-nn], 1.0, Lx, 0, 0, &BAbt[N-nn-1], 0, 0, AL, 0, 0);
 
