@@ -682,6 +682,10 @@ void TREE_OCP_QCQP_IPM_GET(char *field, struct TREE_OCP_QCQP_IPM_WS *ws, void *v
 		{ 
 		TREE_OCP_QCQP_IPM_GET_MAX_RES_COMP(ws, value);
 		}
+	else if(hpipm_strcmp(field, "obj"))
+		{ 
+		TREE_OCP_QCQP_IPM_GET_OBJ(ws, value);
+		}
 	else if(hpipm_strcmp(field, "stat"))
 		{ 
 		TREE_OCP_QCQP_IPM_GET_STAT(ws, value);
@@ -743,6 +747,14 @@ void TREE_OCP_QCQP_IPM_GET_MAX_RES_INEQ(struct TREE_OCP_QCQP_IPM_WS *ws, REAL *r
 void TREE_OCP_QCQP_IPM_GET_MAX_RES_COMP(struct TREE_OCP_QCQP_IPM_WS *ws, REAL *res_comp)
 	{
 	*res_comp = ws->qcqp_res->res_max[3];
+	return;
+	}
+
+
+
+void TREE_OCP_QCQP_IPM_GET_OBJ(struct TREE_OCP_QCQP_IPM_WS *ws, REAL *obj)
+	{
+	*obj = ws->qcqp_res->obj;
 	return;
 	}
 
@@ -1582,6 +1594,7 @@ void TREE_OCP_QCQP_IPM_SOLVE(struct TREE_OCP_QCQP *qcqp, struct TREE_OCP_QCQP_SO
 				stat[7] = qcqp_res_max[1];
 				stat[8] = qcqp_res_max[2];
 				stat[9] = qcqp_res_max[3];
+				stat[10] = qcqp_res->obj;
 				}
 			cws->mu = qcqp_res->res_mu;
 			}
@@ -1687,6 +1700,7 @@ void TREE_OCP_QCQP_IPM_SOLVE(struct TREE_OCP_QCQP *qcqp, struct TREE_OCP_QCQP_SO
 				stat[stat_m*(kk+0)+7] = qcqp_res_max[1];
 				stat[stat_m*(kk+0)+8] = qcqp_res_max[2];
 				stat[stat_m*(kk+0)+9] = qcqp_res_max[3];
+				stat[stat_m*(kk+0)+10] = qcqp_res->obj;
 				}
 			}
 
@@ -1715,6 +1729,7 @@ void TREE_OCP_QCQP_IPM_SOLVE(struct TREE_OCP_QCQP *qcqp, struct TREE_OCP_QCQP_SO
 		stat[stat_m*(0)+7] = qcqp_res_max[1];
 		stat[stat_m*(0)+8] = qcqp_res_max[2];
 		stat[stat_m*(0)+9] = qcqp_res_max[3];
+		stat[stat_m*(0)+10] = qcqp_res->obj;
 		}
 
 
@@ -1768,6 +1783,7 @@ void TREE_OCP_QCQP_IPM_SOLVE(struct TREE_OCP_QCQP *qcqp, struct TREE_OCP_QCQP_SO
 			stat[stat_m*(kk+1)+7] = qcqp_res_max[1];
 			stat[stat_m*(kk+1)+8] = qcqp_res_max[2];
 			stat[stat_m*(kk+1)+9] = qcqp_res_max[3];
+			stat[stat_m*(kk+1)+10] = qcqp_res->obj;
 			}
 
 		}
