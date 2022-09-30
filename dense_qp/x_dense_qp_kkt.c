@@ -509,7 +509,7 @@ printf("\nA_LQ * A_Q - A max err %e\n", max_err);
 
 			TRCP_L(nv, Hg, 0, 0, Lv, 0, 0);
 //			GECP(nv, nv, Hg, 0, 0, Lv, 0, 0);
-//			DIARE(nv, arg->reg_prim, Lv, 0, 0);
+//			DIARE(nv, arg->reg_prim, Lv, 0, 0); // XXX leave out ???
 
 			VECCP(nv, res_g, 0, lv, 0);
 
@@ -538,7 +538,7 @@ printf("\nA_LQ * A_Q - A max err %e\n", max_err);
 
 			GEMM_NT(nv-ne, nv, nv, 1.0, Zt, 0, 0, Lv, 0, 0, 0.0, ZtH, 0, 0, ZtH, 0, 0);
 			SYRK_LN(nv-ne, nv, 1.0, ZtH, 0, 0, Zt, 0, 0, 0.0, ZtHZ, 0, 0, ZtHZ, 0, 0);
-			DIARE(nv-ne, arg->reg_prim, ZtHZ, 0, 0);
+			DIARE(nv-ne, arg->reg_prim, ZtHZ, 0, 0); // XXX leave in ???
 			POTRF_L(nv-ne, ZtHZ, 0, 0, ZtHZ, 0, 0);
 
 			TRSV_LNN(ne, A_LQ, 0, 0, res_b, 0, xy, 0);
@@ -629,7 +629,7 @@ printf("\nA_LQ * A_Q - A max err %e\n", max_err);
 
 				GEMM_L_DIAG(ne, ne, 1.0, se, 0, Le, 0, 0, 0.0, Le, 0, 0, Le, 0, 0);
 				GEMM_R_DIAG(ne, ne, 1.0, Le, 0, 0, se, 0, 0.0, Le, 0, 0, Le, 0, 0);
-				DIARE(ne, arg->reg_prim, Le, 0, 0);
+				DIARE(ne, arg->reg_dual, Le, 0, 0);
 				POTRF_L(ne, Le, 0, 0, Le, 0, 0);
 
 				GEMV_N(ne, nv, 1.0, AL, 0, 0, lv, 0, 1.0, res_b, 0, dpi, 0);
@@ -652,6 +652,7 @@ printf("\nA_LQ * A_Q - A max err %e\n", max_err);
 
 	//			TRCP_L(nv, Hg, 0, 0, Lv, 0, 0);
 				GECP(nv, nv, Hg, 0, 0, Lv, 0, 0);
+				DIARE(nv, arg->reg_prim, Lv, 0, 0);
 
 				VECCP(nv, res_g, 0, lv, 0);
 
@@ -694,6 +695,7 @@ printf("\nA_LQ * A_Q - A max err %e\n", max_err);
 				GEMV_N(ne, nv, 1.0, AL, 0, 0, lv, 0, 1.0, res_b, 0, dpi, 0);
 
 				GESE(ne, ne, 0.0, Le, 0, 0);
+				DIARE(ne, arg->reg_dual, Le, 0, 0);
 				SYRK_POTRF_LN(ne, nv, AL, 0, 0, AL, 0, 0, Le, 0, 0, Le, 0, 0);
 
 				TRSV_LNN(ne, Le, 0, 0, dpi, 0, dpi, 0);
@@ -768,6 +770,7 @@ printf("\nA_LQ * A_Q - A max err %e\n", max_err);
 	//		TRCP_L(nv, Hg, 0, 0, Lv, 0, 0);
 			GECP(nv, nv, Hg, 0, 0, Lv, 0, 0);
 			ROWIN(nv, 1.0, res_g, 0, Lv, nv, 0);
+			DIARE(nv, arg->reg_prim, Lv, 0, 0);
 
 			if(ns>0)
 				{

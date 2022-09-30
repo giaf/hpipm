@@ -1988,7 +1988,7 @@ exit(1);
 	ws->qp_step->b = ws->res->res_b;
 	ws->qp_step->d = ws->res->res_d;
 	ws->qp_step->m = ws->res->res_m;
-//	ws->qp_step->d_mask = qp->d_mask; // XXX
+	ws->qp_step->d_mask = qp->d_mask; // XXX
 
 	// alias members of qp_itref
 	ws->qp_itref->dim = qp->dim;
@@ -2002,7 +2002,7 @@ exit(1);
 	ws->qp_itref->b = ws->res_itref->res_b;
 	ws->qp_itref->d = ws->res_itref->res_d;
 	ws->qp_itref->m = ws->res_itref->res_m;
-//	ws->qp_itref->d_mask = qp->d_mask; // XXX
+	ws->qp_itref->d_mask = qp->d_mask; // XXX
 
 	REAL *qp_res_max = ws->res->res_max;
 	qp_res_max[0] = 0;
@@ -2104,6 +2104,7 @@ exit(1);
 		ws->qp_step->b = qp->b;
 		ws->qp_step->d = qp->d;
 		ws->qp_step->m = ws->tmp_m;
+		ws->qp_step->d_mask = qp->d_mask; // XXX
 
 		// alias core workspace
 		cws->res_m = ws->qp_step->m->pa;
