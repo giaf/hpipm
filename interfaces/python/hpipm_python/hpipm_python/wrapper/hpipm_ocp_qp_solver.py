@@ -64,10 +64,74 @@ class hpipm_ocp_qp_solver:
 		self.arg = arg
 		self.dim_struct = qp_dims.dim_struct
 		
+		# getter functions for feedback matrices
+		self.__getters = {
+			'ric_Lr': {
+				'n_row': __hpipm.d_ocp_qp_dim_get_nu,
+				'n_col': __hpipm.d_ocp_qp_dim_get_nu,
+				'var': __hpipm.d_ocp_qp_ipm_get_ric_Lr
+			},
+			'ric_Ls': {
+				'n_row': __hpipm.d_ocp_qp_dim_get_nx,
+				'n_col': __hpipm.d_ocp_qp_dim_get_nu,
+				'var': __hpipm.d_ocp_qp_ipm_get_ric_Ls
+			},
+			'ric_P': {
+				'n_row': __hpipm.d_ocp_qp_dim_get_nx,
+				'n_col': __hpipm.d_ocp_qp_dim_get_nx,
+				'var': __hpipm.d_ocp_qp_ipm_get_ric_P
+			},
+			'ric_lr': {
+				'n_row': __hpipm.d_ocp_qp_dim_get_nu,
+				'var': __hpipm.d_ocp_qp_ipm_get_ric_lr
+			},
+			'ric_p': {
+				'n_row': __hpipm.d_ocp_qp_dim_get_nx,
+				'var': __hpipm.d_ocp_qp_ipm_get_ric_p
+			},
+			'ric_K': {
+				'n_row': __hpipm.d_ocp_qp_dim_get_nu,
+				'n_col': __hpipm.d_ocp_qp_dim_get_nx,
+				'var': __hpipm.d_ocp_qp_ipm_get_ric_K
+			},
+			'ric_k': {
+				'n_row': __hpipm.d_ocp_qp_dim_get_nu,
+				'var': __hpipm.d_ocp_qp_ipm_get_ric_k
+			},
+
+		}
 
 	def solve(self, qp, qp_sol):
 		self.__hpipm.d_ocp_qp_ipm_solve(qp.qp_struct, qp_sol.qp_sol_struct, self.arg.arg_struct, self.ipm_ws_struct)
 
+	def get_feedback(self, qp, field, idx_start, idx_end=None):
+		if field not in self.__getters:
+			raise NameError('hpipm_ocp_qp_solver.get: wrong field')
+		else:
+			if idx_end is None:
+				idx_end = idx_start
+			return self.__get_feedback(self.__getters[field], qp, idx_start, idx_end)
+
+	def __get_feedback(self, getter, qp, idx_start, idx_end):
+
+		n_row = np.zeros(1, dtype=int)
+		n_row_ptr = cast(n_row.ctypes.data, POINTER(c_int))
+		n_col = np.zeros(1, dtype=int)
+		n_col_ptr = cast(n_col.ctypes.data, POINTER(c_int))
+		var = []
+		for i in range(idx_start, idx_end + 1):
+			# get dimension of feedback matrix at stage
+			getter['n_row'](self.dim_struct, i, n_row_ptr)
+			if 'n_col' in getter:
+				getter['n_col'](self.dim_struct, i, n_col_ptr)
+			else:
+				n_col[0] = 1
+
+			var.append(np.zeros((n_row[0], n_col[0]), dtype=np.float))
+			tmp_ptr = cast(var[-1].ctypes.data, POINTER(c_double))
+			getter['var'](qp.qp_struct, self.arg.arg_struct, self.ipm_ws_struct, i, tmp_ptr)
+
+		return var if len(var) > 1 else var[0]
 
 	def get(self, field):
 		if((field=='stat')):

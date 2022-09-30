@@ -104,7 +104,7 @@ int main()
 
 	hpipm_size_t dense_qcqp_dim_size = d_dense_qcqp_dim_memsize();
 #if PRINT
-	printf("\nqp dim size = %d\n", dense_qcqp_dim_size);
+	printf("\nqp dim size = %ld\n", dense_qcqp_dim_size);
 #endif
 	void *qp_dim_mem = malloc(dense_qcqp_dim_size);
 
@@ -130,7 +130,7 @@ int main()
 
 	hpipm_size_t qp_size = d_dense_qcqp_memsize(&qcqp_dim);
 #if PRINT
-	printf("\nqp size = %d\n", qp_size);
+	printf("\nqp size = %ld\n", qp_size);
 #endif
 	void *qp_mem = malloc(qp_size);
 
@@ -168,7 +168,7 @@ int main()
 
 	hpipm_size_t qp_sol_size = d_dense_qcqp_sol_memsize(&qcqp_dim);
 #if PRINT
-	printf("\nqp sol size = %d\n", qp_sol_size);
+	printf("\nqp sol size = %ld\n", qp_sol_size);
 #endif
 	void *qp_sol_mem = malloc(qp_sol_size);
 
@@ -186,7 +186,7 @@ int main()
 
 	hpipm_size_t ipm_arg_size = d_dense_qcqp_ipm_arg_memsize(&qcqp_dim);
 #if PRINT
-	printf("\nipm arg size = %d\n", ipm_arg_size);
+	printf("\nipm arg size = %ld\n", ipm_arg_size);
 #endif
 	void *ipm_arg_mem = malloc(ipm_arg_size);
 
@@ -234,7 +234,7 @@ int main()
 
 	hpipm_size_t ipm_size = d_dense_qcqp_ipm_ws_memsize(&qcqp_dim, &arg);
 #if PRINT
-	printf("\nipm size = %d\n", ipm_size);
+	printf("\nipm size = %ld\n", ipm_size);
 #endif
 	void *ipm_mem = malloc(ipm_size);
 
@@ -290,7 +290,7 @@ int main()
 	printf("\nipm iter = %d\n", iter);
 	printf("\nipm max res: stat = %e, eq =  %e, ineq =  %e, comp = %e\n", max_res_stat, max_res_eq, max_res_ineq, max_res_comp);
 
-	printf("\nalpha_aff\tmu_aff\t\tsigma\t\talpha_p\t\talpha_d\t\tmu\t\tres_stat\tres_eq\t\tres_ineq\tres_comp\tlq fact\t\titref pred\titref corr\tlin res stat\tlin res eq\tlin res ineq\tlin res comp\n");
+	printf("\nalpha_aff\tmu_aff\t\tsigma\t\talpha_p\t\talpha_d\t\tmu\t\tres_stat\tres_eq\t\tres_ineq\tres_comp\tobj\t\tlq fact\t\titref pred\titref corr\tlin res stat\tlin res eq\tlin res ineq\tlin res comp\n");
 	d_print_exp_tran_mat(stat_m, iter+1, stat, stat_m);
 
 	printf("\ndense ipm time = %e [s]\n\n", time_dense_ipm);

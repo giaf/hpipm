@@ -443,6 +443,7 @@ void TREE_OCP_QCQP_RES_COMPUTE(struct TREE_OCP_QCQP *qp, struct TREE_OCP_QCQP_SO
 	//
 	REAL tmp;
 	REAL mu = 0.0;
+	res->obj = 0.0;
 
 	// loop over nodes
 	for(ii=0; ii<Nn; ii++)
@@ -455,7 +456,10 @@ void TREE_OCP_QCQP_RES_COMPUTE(struct TREE_OCP_QCQP *qp, struct TREE_OCP_QCQP_SO
 		nq0 = nq[ii];
 		ns0 = ns[ii];
 
-		SYMV_L(nu0+nx0, 1.0, RSQrq+ii, 0, 0, ux+ii, 0, 1.0, rqz+ii, 0, res_g+ii, 0);
+//		SYMV_L(nu0+nx0, 1.0, RSQrq+ii, 0, 0, ux+ii, 0, 1.0, rqz+ii, 0, res_g+ii, 0);
+		SYMV_L(nu0+nx0, 1.0, RSQrq+ii, 0, 0, ux+ii, 0, 2.0, rqz+ii, 0, res_g+ii, 0);
+		res->obj += 0.5*DOT(nu0+nx0, res_g+ii, 0, ux+ii, 0);
+		AXPY(nu0+nx0, -1.0, rqz+ii, 0, res_g+ii, 0, res_g+ii, 0);
 
 		// if not root
 		if(ii>0)
@@ -507,7 +511,11 @@ void TREE_OCP_QCQP_RES_COMPUTE(struct TREE_OCP_QCQP *qp, struct TREE_OCP_QCQP_SO
 		if(ns0>0)
 			{
 			// res_g
-			GEMV_DIAG(2*ns0, 1.0, Z+ii, 0, ux+ii, nu0+nx0, 1.0, rqz+ii, nu0+nx0, res_g+ii, nu0+nx0);
+//			GEMV_DIAG(2*ns0, 1.0, Z+ii, 0, ux+ii, nu0+nx0, 1.0, rqz+ii, nu0+nx0, res_g+ii, nu0+nx0);
+			GEMV_DIAG(2*ns0, 1.0, Z+ii, 0, ux+ii, nu0+nx0, 2.0, rqz+ii, nu0+nx0, res_g+ii, nu0+nx0);
+			res->obj += 0.5*DOT(2*ns0, res_g+ii, nu0+nx0, ux+ii, nu0+nx0);
+			AXPY(2*ns0, -1.0, rqz+ii, nu0+nx0, res_g+ii, nu0+nx0, res_g+ii, nu0+nx0);
+
 			AXPY(2*ns0, -1.0, lam+ii, 2*nb0+2*ng0+2*nq0, res_g+ii, nu0+nx0, res_g+ii, nu0+nx0);
 			for(jj=0; jj<nb0+ng0+nq0; jj++)
 				{

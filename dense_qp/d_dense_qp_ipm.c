@@ -60,6 +60,11 @@
 
 
 
+#define BLASFEO_MATEL BLASFEO_DMATEL
+#define BLASFEO_VECEL BLASFEO_DVECEL
+
+
+
 #define AXPY blasfeo_daxpy
 #define BACKUP_RES_M d_backup_res_m
 #define COMPUTE_ALPHA_QP d_compute_alpha_qp
@@ -163,6 +168,7 @@
 #define DENSE_QP_IPM_GET_MAX_RES_EQ d_dense_qp_ipm_get_max_res_eq
 #define DENSE_QP_IPM_GET_MAX_RES_INEQ d_dense_qp_ipm_get_max_res_ineq
 #define DENSE_QP_IPM_GET_MAX_RES_COMP d_dense_qp_ipm_get_max_res_comp
+#define DENSE_QP_IPM_GET_OBJ d_dense_qp_ipm_get_obj
 #define DENSE_QP_IPM_GET_STAT d_dense_qp_ipm_get_stat
 #define DENSE_QP_IPM_GET_STAT_M d_dense_qp_ipm_get_stat_m
 #define DENSE_QP_INIT_VAR d_dense_qp_init_var

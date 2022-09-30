@@ -709,7 +709,7 @@ int main()
 
 	hpipm_size_t tree_memsize = sctree_memsize(md, Nr, Nh);
 #if PRINT
-	printf("\ntree memsize = %d\n", tree_memsize);
+	printf("\ntree memsize = %ld\n", tree_memsize);
 #endif
 	void *tree_memory = malloc(tree_memsize);
 
@@ -940,7 +940,7 @@ int main()
 
 	hpipm_size_t dim_size = d_tree_ocp_qcqp_dim_memsize(Nn);
 #if PRINT
-	printf("\ndim size = %d\n", dim_size);
+	printf("\ndim size = %ld\n", dim_size);
 #endif
 	void *dim_mem = malloc(dim_size);
 
@@ -975,7 +975,7 @@ int main()
 
 	hpipm_size_t tree_ocp_qp_memsize = d_tree_ocp_qcqp_memsize(&dim);
 #if PRINT
-	printf("\ntree ocp qp memsize = %d\n", tree_ocp_qp_memsize);
+	printf("\ntree ocp qp memsize = %ld\n", tree_ocp_qp_memsize);
 #endif
 	void *tree_ocp_qp_memory = malloc(tree_ocp_qp_memsize);
 
@@ -1041,7 +1041,7 @@ int main()
 
 	hpipm_size_t tree_ocp_qp_sol_size = d_tree_ocp_qcqp_sol_memsize(&dim);
 #if PRINT
-	printf("\ntree ocp qp sol memsize = %d\n", tree_ocp_qp_sol_size);
+	printf("\ntree ocp qp sol memsize = %ld\n", tree_ocp_qp_sol_size);
 #endif
 	void *tree_ocp_qp_sol_memory = malloc(tree_ocp_qp_sol_size);
 
@@ -1054,7 +1054,7 @@ int main()
 
 	hpipm_size_t ipm_arg_size = d_tree_ocp_qcqp_ipm_arg_memsize(&dim);
 #if PRINT
-	printf("\nipm arg size = %d\n", ipm_arg_size);
+	printf("\nipm arg size = %ld\n", ipm_arg_size);
 #endif
 	void *ipm_arg_mem = malloc(ipm_arg_size);
 
@@ -1082,7 +1082,7 @@ int main()
 
 	hpipm_size_t ipm_size = d_tree_ocp_qcqp_ipm_ws_memsize(&dim, &arg);
 #if PRINT
-	printf("\nipm size = %d\n", ipm_size);
+	printf("\nipm size = %ld\n", ipm_size);
 #endif
 	void *ipm_memory = malloc(ipm_size);
 
@@ -1244,7 +1244,7 @@ int main()
 	printf("\nipm residuals max: res_g = %e, res_b = %e, res_d = %e, res_m = %e\n", res_stat, res_eq, res_ineq, res_comp);
 
 	printf("\nipm iter = %d\n", iter);
-	printf("\nalpha_aff\tmu_aff\t\tsigma\t\talpha_prim\talpha_dual\tmu\t\tres_stat\tres_eq\t\tres_ineq\tres_comp\tlq fact\t\titref pred\titref corr\tlin res stat\tlin res eq\tlin res ineq\tlin res comp\n");
+	printf("\nalpha_aff\tmu_aff\t\tsigma\t\talpha_prim\talpha_dual\tmu\t\tres_stat\tres_eq\t\tres_ineq\tres_comp\tobj\t\tlq fact\t\titref pred\titref corr\tlin res stat\tlin res eq\tlin res ineq\tlin res comp\n");
 	d_print_exp_tran_mat(stat_m, iter+1, stat, stat_m);
 
 	printf("\nocp ipm time = %e [s]\n\n", time_ocp_ipm);

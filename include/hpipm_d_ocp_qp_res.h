@@ -63,6 +63,7 @@ struct d_ocp_qp_res
 	struct blasfeo_dvec *res_m; // m-residuals
 	double res_max[4]; // max of residuals
 	double res_mu; // mu-residual
+	double obj; // (primal) objective
 	hpipm_size_t memsize;
 	};
 

@@ -55,6 +55,7 @@
 
 #define AXPY blasfeo_daxpy
 #define CREATE_STRVEC blasfeo_create_dvec
+#define DOT blasfeo_ddot
 #define UNPACK_VEC blasfeo_unpack_dvec
 #define GEMV_DIAG blasfeo_dgemv_d
 #define GEMV_NT blasfeo_dgemv_nt

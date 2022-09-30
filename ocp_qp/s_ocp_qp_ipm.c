@@ -60,6 +60,11 @@
 
 
 
+#define BLASFEO_MATEL BLASFEO_SMATEL
+#define BLASFEO_VECEL BLASFEO_SVECEL
+
+
+
 #define AXPY blasfeo_saxpy
 #define BACKUP_RES_M s_backup_res_m
 #define BLAS_TRSM blasfeo_strsm
@@ -168,6 +173,7 @@
 #define OCP_QP_IPM_GET_MAX_RES_EQ s_ocp_qp_ipm_get_max_res_eq
 #define OCP_QP_IPM_GET_MAX_RES_INEQ s_ocp_qp_ipm_get_max_res_ineq
 #define OCP_QP_IPM_GET_MAX_RES_COMP s_ocp_qp_ipm_get_max_res_comp
+#define OCP_QP_IPM_GET_OBJ s_ocp_qp_ipm_get_obj
 #define OCP_QP_IPM_GET_STAT s_ocp_qp_ipm_get_stat
 #define OCP_QP_IPM_GET_STAT_M s_ocp_qp_ipm_get_stat_m
 #define OCP_QP_IPM_GET_RIC_LR s_ocp_qp_ipm_get_ric_Lr

@@ -682,6 +682,10 @@ void OCP_QCQP_IPM_GET(char *field, struct OCP_QCQP_IPM_WS *ws, void *value)
 		{ 
 		OCP_QCQP_IPM_GET_MAX_RES_COMP(ws, value);
 		}
+	else if(hpipm_strcmp(field, "obj"))
+		{ 
+		OCP_QCQP_IPM_GET_OBJ(ws, value);
+		}
 	else if(hpipm_strcmp(field, "stat"))
 		{ 
 		OCP_QCQP_IPM_GET_STAT(ws, value);
@@ -743,6 +747,14 @@ void OCP_QCQP_IPM_GET_MAX_RES_INEQ(struct OCP_QCQP_IPM_WS *ws, REAL *res_ineq)
 void OCP_QCQP_IPM_GET_MAX_RES_COMP(struct OCP_QCQP_IPM_WS *ws, REAL *res_comp)
 	{
 	*res_comp = ws->qcqp_res->res_max[3];
+	return;
+	}
+
+
+
+void OCP_QCQP_IPM_GET_OBJ(struct OCP_QCQP_IPM_WS *ws, REAL *obj)
+	{
+	*obj = ws->qcqp_res->obj;
 	return;
 	}
 
@@ -1579,12 +1591,30 @@ void OCP_QCQP_IPM_SOLVE(struct OCP_QCQP *qcqp, struct OCP_QCQP_SOL *qcqp_sol, st
 				stat[7] = qcqp_res_max[1];
 				stat[8] = qcqp_res_max[2];
 				stat[9] = qcqp_res_max[3];
+				stat[10] = qcqp_res->obj;
 				}
 			cws->mu = qcqp_res->res_mu;
 			}
 		// save info before return
 		qcqp_ws->iter = 0;
-		qcqp_ws->status = 0;
+#ifdef USE_C99_MATH
+		if(isnan(BLASFEO_VECEL(qcqp_sol->ux+0, 0)))
+			{
+			// NaN in the solution
+			qcqp_ws->status = NAN_SOL;
+			}
+#else
+		if(BLASFEO_VECEL(qcqp_sol->ux+0, 0)!=BLASFEO_VECEL(qcqp_sol->ux+0, 0))
+			{
+			// NaN in the solution
+			qcqp_ws->status = NAN_SOL;
+			}
+#endif
+		else
+			{
+			// normal return
+			qcqp_ws->status = SUCCESS;
+			}
 		return;
 		}
 	
@@ -1667,6 +1697,7 @@ void OCP_QCQP_IPM_SOLVE(struct OCP_QCQP *qcqp, struct OCP_QCQP_SOL *qcqp_sol, st
 				stat[stat_m*(kk+0)+7] = qcqp_res_max[1];
 				stat[stat_m*(kk+0)+8] = qcqp_res_max[2];
 				stat[stat_m*(kk+0)+9] = qcqp_res_max[3];
+				stat[stat_m*(kk+0)+10] = qcqp_res->obj;
 				}
 			}
 
@@ -1695,6 +1726,7 @@ void OCP_QCQP_IPM_SOLVE(struct OCP_QCQP *qcqp, struct OCP_QCQP_SOL *qcqp_sol, st
 		stat[stat_m*(0)+7] = qcqp_res_max[1];
 		stat[stat_m*(0)+8] = qcqp_res_max[2];
 		stat[stat_m*(0)+9] = qcqp_res_max[3];
+		stat[stat_m*(0)+10] = qcqp_res->obj;
 		}
 
 
@@ -1748,6 +1780,7 @@ void OCP_QCQP_IPM_SOLVE(struct OCP_QCQP *qcqp, struct OCP_QCQP_SOL *qcqp_sol, st
 			stat[stat_m*(kk+1)+7] = qcqp_res_max[1];
 			stat[stat_m*(kk+1)+8] = qcqp_res_max[2];
 			stat[stat_m*(kk+1)+9] = qcqp_res_max[3];
+			stat[stat_m*(kk+1)+10] = qcqp_res->obj;
 			}
 
 		}

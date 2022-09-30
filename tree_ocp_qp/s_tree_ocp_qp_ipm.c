@@ -55,6 +55,11 @@
 
 
 
+#define BLASFEO_MATEL BLASFEO_SMATEL
+#define BLASFEO_VECEL BLASFEO_SVECEL
+
+
+
 #define AXPY blasfeo_saxpy
 #define BACKUP_RES_M s_backup_res_m
 #define COMPUTE_ALPHA_QP s_compute_alpha_qp
@@ -132,6 +137,7 @@
 #define TREE_OCP_QP_IPM_GET_MAX_RES_EQ s_tree_ocp_qp_ipm_get_max_res_eq
 #define TREE_OCP_QP_IPM_GET_MAX_RES_INEQ s_tree_ocp_qp_ipm_get_max_res_ineq
 #define TREE_OCP_QP_IPM_GET_MAX_RES_COMP s_tree_ocp_qp_ipm_get_max_res_comp
+#define TREE_OCP_QP_IPM_GET_OBJ s_tree_ocp_qp_ipm_get_obj
 #define TREE_OCP_QP_IPM_GET_STAT s_tree_ocp_qp_ipm_get_stat
 #define TREE_OCP_QP_IPM_GET_STAT_M s_tree_ocp_qp_ipm_get_stat_m
 #define TREE_OCP_QP_INIT_VAR s_tree_ocp_qp_init_var

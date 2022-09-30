@@ -62,6 +62,7 @@ struct s_dense_qp_res
 	struct blasfeo_svec *res_m; // m-residuals
 	float res_max[4]; // max of residuals
 	float res_mu; // mu-residual
+	float obj; // (primal) objective
 	hpipm_size_t memsize;
 	};
 

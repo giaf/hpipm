@@ -195,7 +195,8 @@ int main()
 
 	int nbu[N+1];
 	for (ii=0; ii<=N; ii++)
-		nbu[ii] = 0;//nu[ii];
+		nbu[ii] = 0;
+//		nbu[ii] = nu[ii];
 
 	int nbx[N+1];
 	nbx[0] = nx[0];
@@ -885,9 +886,17 @@ int main()
 	d_ocp_qcqp_ipm_arg_set_default(mode, &ipm_arg);
 
 	double mu0 = 1e2;
+	double tol_stat = 1e-8;
+	double tol_eq = 1e-8;
+	double tol_ineq = 1e-8;
+	double tol_comp = 1e-8;
 	int split_step = 0;
 
 	d_ocp_qcqp_ipm_arg_set_mu0(&mu0, &ipm_arg);
+	d_ocp_qcqp_ipm_arg_set_tol_stat(&tol_stat, &ipm_arg);
+	d_ocp_qcqp_ipm_arg_set_tol_eq(&tol_eq, &ipm_arg);
+	d_ocp_qcqp_ipm_arg_set_tol_ineq(&tol_ineq, &ipm_arg);
+	d_ocp_qcqp_ipm_arg_set_tol_comp(&tol_comp, &ipm_arg);
 	d_ocp_qcqp_ipm_arg_set_split_step(&split_step, &ipm_arg);
 
 /************************************************
@@ -1111,7 +1120,7 @@ int main()
 	printf("\nipm iter = %d\n", iter);
 	printf("\nipm max res: stat = %e, eq =  %e, ineq =  %e, comp = %e\n", max_res_stat, max_res_eq, max_res_ineq, max_res_comp);
 
-	printf("\nalpha_aff\tmu_aff\t\tsigma\t\talpha_prim\talpha_dual\tmu\t\tres_stat\tres_eq\t\tres_ineq\tres_comp\tlq fact\t\titref pred\titref corr\tlin res stat\tlin res eq\tlin res ineq\tlin res comp\n");
+	printf("\nalpha_aff\tmu_aff\t\tsigma\t\talpha_prim\talpha_dual\tmu\t\tres_stat\tres_eq\t\tres_ineq\tres_comp\tobj\t\tlq fact\t\titref pred\titref corr\tlin res stat\tlin res eq\tlin res ineq\tlin res comp\n");
 	d_print_exp_tran_mat(stat_m, iter+1, stat, stat_m);
 
 	printf("\nred eq dof all time = %e [s]\n", time_red_eq_dof_all);

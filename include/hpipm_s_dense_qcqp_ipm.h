@@ -176,6 +176,8 @@ void s_dense_qcqp_ipm_get_max_res_ineq(struct s_dense_qcqp_ipm_ws *ws, float *re
 //
 void s_dense_qcqp_ipm_get_max_res_comp(struct s_dense_qcqp_ipm_ws *ws, float *res_comp);
 //
+void s_dense_qcqp_ipm_get_obj(struct s_dense_qcqp_ipm_ws *ws, float *obj);
+//
 void s_dense_qcqp_ipm_get_stat(struct s_dense_qcqp_ipm_ws *ws, float **stat);
 //
 void s_dense_qcqp_ipm_get_stat_m(struct s_dense_qcqp_ipm_ws *ws, int *stat_m);

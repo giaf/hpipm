@@ -643,6 +643,10 @@ void DENSE_QCQP_IPM_GET(char *field, struct DENSE_QCQP_IPM_WS *ws, void *value)
 		{ 
 		DENSE_QCQP_IPM_GET_MAX_RES_COMP(ws, value);
 		}
+	else if(hpipm_strcmp(field, "obj"))
+		{ 
+		DENSE_QCQP_IPM_GET_OBJ(ws, value);
+		}
 	else if(hpipm_strcmp(field, "stat"))
 		{ 
 		DENSE_QCQP_IPM_GET_STAT(ws, value);
@@ -704,6 +708,14 @@ void DENSE_QCQP_IPM_GET_MAX_RES_INEQ(struct DENSE_QCQP_IPM_WS *ws, REAL *res_ine
 void DENSE_QCQP_IPM_GET_MAX_RES_COMP(struct DENSE_QCQP_IPM_WS *ws, REAL *res_comp)
 	{
 	*res_comp = ws->qcqp_res->res_max[3];
+	return;
+	}
+
+
+
+void DENSE_QCQP_IPM_GET_OBJ(struct DENSE_QCQP_IPM_WS *ws, REAL *obj)
+	{
+	*obj = ws->qcqp_res->obj;
 	return;
 	}
 
@@ -913,11 +925,7 @@ void DENSE_QCQP_APPROX_QP(struct DENSE_QCQP *qcqp, struct DENSE_QCQP_SOL *qcqp_s
 
 	for(ii=0; ii<nq; ii++)
 		{
-#ifdef DOUBLE_PRECISION
-		tmp = - BLASFEO_DVECEL(qcqp_sol->lam, nb+ng+ii) + BLASFEO_DVECEL(qcqp_sol->lam, 2*nb+2*ng+nq+ii);
-#else
-		tmp = - BLASFEO_SVECEL(qcqp_sol->lam, nb+ng+ii) + BLASFEO_SVECEL(qcqp_sol->lam, 2*nb+2*ng+nq+ii);
-#endif
+		tmp = - BLASFEO_VECEL(qcqp_sol->lam, nb+ng+ii) + BLASFEO_VECEL(qcqp_sol->lam, 2*nb+2*ng+nq+ii);
 		GEAD(nv, nv, tmp, qcqp->Hq+ii, 0, 0, qp->Hv, 0, 0);
 
 		SYMV_L(nv, 1.0, qcqp->Hq+ii, 0, 0, qcqp_sol->v, 0, 0.0, ws->tmp_nv+0, 0, ws->tmp_nv+0, 0);
@@ -929,16 +937,10 @@ void DENSE_QCQP_APPROX_QP(struct DENSE_QCQP *qcqp, struct DENSE_QCQP_SOL *qcqp_s
 		COLEX(nv, qcqp->Ct, 0, ng+ii, ws->tmp_nv+1, 0);
 		AXPY(nv, 0.5, ws->tmp_nv+0, 0, ws->tmp_nv+1, 0, ws->tmp_nv+1, 0);
 		tmp = DOT(nv, ws->tmp_nv+1, 0, qcqp_sol->v, 0);
-#ifdef DOUBLE_PRECISION
 		// TODO maybe swap signs?
-		BLASFEO_DVECEL(qp->d, nb+ng+ii) += - tmp;
-		BLASFEO_DVECEL(qp->d, 2*nb+2*ng+nq+ii) += + tmp;
-		BLASFEO_DVECEL(ws->qcqp_res_ws->q_fun, ii) = tmp;
-#else
-		BLASFEO_SVECEL(qp->d, nb+ng+ii) += - tmp;
-		BLASFEO_SVECEL(qp->d, 2*nb+2*ng+nq+ii) += + tmp;
-		BLASFEO_SVECEL(ws->qcqp_res_ws->q_fun, ii) = tmp;
-#endif
+		BLASFEO_VECEL(qp->d, nb+ng+ii) += - tmp;
+		BLASFEO_VECEL(qp->d, 2*nb+2*ng+nq+ii) += + tmp;
+		BLASFEO_VECEL(ws->qcqp_res_ws->q_fun, ii) = tmp;
 		}
 
 	VECCP(2*nb+2*ng+2*nq+2*ns, qcqp->d_mask, 0, qp->d_mask, 0);
@@ -990,11 +992,7 @@ void DENSE_QCQP_UPDATE_QP(struct DENSE_QCQP *qcqp, struct DENSE_QCQP_SOL *qcqp_s
 
 	for(ii=0; ii<nq; ii++)
 		{
-#ifdef DOUBLE_PRECISION
-		tmp = - BLASFEO_DVECEL(qcqp_sol->lam, nb+ng+ii) + BLASFEO_DVECEL(qcqp_sol->lam, 2*nb+2*ng+nq+ii);
-#else
-		tmp = - BLASFEO_SVECEL(qcqp_sol->lam, nb+ng+ii) + BLASFEO_SVECEL(qcqp_sol->lam, 2*nb+2*ng+nq+ii);
-#endif
+		tmp = - BLASFEO_VECEL(qcqp_sol->lam, nb+ng+ii) + BLASFEO_VECEL(qcqp_sol->lam, 2*nb+2*ng+nq+ii);
 		GEAD(nv, nv, tmp, qcqp->Hq+ii, 0, 0, qp->Hv, 0, 0);
 
 		SYMV_L(nv, 1.0, qcqp->Hq+ii, 0, 0, qcqp_sol->v, 0, 0.0, ws->tmp_nv+0, 0, ws->tmp_nv+0, 0);
@@ -1006,16 +1004,10 @@ void DENSE_QCQP_UPDATE_QP(struct DENSE_QCQP *qcqp, struct DENSE_QCQP_SOL *qcqp_s
 		COLEX(nv, qcqp->Ct, 0, ng+ii, ws->tmp_nv+1, 0);
 		AXPY(nv, 0.5, ws->tmp_nv+0, 0, ws->tmp_nv+1, 0, ws->tmp_nv+1, 0);
 		tmp = DOT(nv, ws->tmp_nv+1, 0, qcqp_sol->v, 0);
-#ifdef DOUBLE_PRECISION
 		// TODO maybe swap signs?
-		BLASFEO_DVECEL(qp->d, nb+ng+ii) += - tmp;
-		BLASFEO_DVECEL(qp->d, 2*nb+2*ng+nq+ii) += + tmp;
-		BLASFEO_DVECEL(ws->qcqp_res_ws->q_fun, ii) = tmp;
-#else
-		BLASFEO_SVECEL(qp->d, nb+ng+ii) += - tmp;
-		BLASFEO_SVECEL(qp->d, 2*nb+2*ng+nq+ii) += + tmp;
-		BLASFEO_DVECEL(ws->qcqp_res_ws->q_fun, ii) = tmp;
-#endif
+		BLASFEO_VECEL(qp->d, nb+ng+ii) += - tmp;
+		BLASFEO_VECEL(qp->d, 2*nb+2*ng+nq+ii) += + tmp;
+		BLASFEO_VECEL(ws->qcqp_res_ws->q_fun, ii) = tmp;
 		}
 
 	// TODO needed ?????
@@ -1049,11 +1041,7 @@ void DENSE_QCQP_UPDATE_QP_ABS_STEP(struct DENSE_QCQP *qcqp, struct DENSE_QCQP_SO
 
 	for(ii=0; ii<nq; ii++)
 		{
-#ifdef DOUBLE_PRECISION
-		tmp = - BLASFEO_DVECEL(qcqp_sol->lam, nb+ng+ii) + BLASFEO_DVECEL(qcqp_sol->lam, 2*nb+2*ng+nq+ii);
-#else
-		tmp = - BLASFEO_SVECEL(qcqp_sol->lam, nb+ng+ii) + BLASFEO_SVECEL(qcqp_sol->lam, 2*nb+2*ng+nq+ii);
-#endif
+		tmp = - BLASFEO_VECEL(qcqp_sol->lam, nb+ng+ii) + BLASFEO_VECEL(qcqp_sol->lam, 2*nb+2*ng+nq+ii);
 		GEAD(nv, nv, tmp, qcqp->Hq+ii, 0, 0, qp->Hv, 0, 0);
 
 		SYMV_L(nv, 1.0, qcqp->Hq+ii, 0, 0, qcqp_sol->v, 0, 0.0, ws->tmp_nv+0, 0, ws->tmp_nv+0, 0);
@@ -1069,16 +1057,10 @@ void DENSE_QCQP_UPDATE_QP_ABS_STEP(struct DENSE_QCQP *qcqp, struct DENSE_QCQP_SO
 		COLEX(nv, qcqp->Ct, 0, ng+ii, ws->tmp_nv+0, 0);
 		AXPY(nv, 1.0, ws->tmp_nv+0, 0, ws->tmp_nv+1, 0, ws->tmp_nv+1, 0);
 		tmp = DOT(nv, ws->tmp_nv+1, 0, qcqp_sol->v, 0);
-#ifdef DOUBLE_PRECISION
 		// TODO maybe swap signs?
-		BLASFEO_DVECEL(qp->d, nb+ng+ii) += - tmp;
-		BLASFEO_DVECEL(qp->d, 2*nb+2*ng+nq+ii) += + tmp;
-		BLASFEO_DVECEL(ws->qcqp_res_ws->q_fun, ii) = tmp;
-#else
-		BLASFEO_SVECEL(qp->d, nb+ng+ii) += - tmp;
-		BLASFEO_SVECEL(qp->d, 2*nb+2*ng+nq+ii) += + tmp;
-		BLASFEO_SVECEL(ws->qcqp_res_ws->q_fun, ii) = tmp;
-#endif
+		BLASFEO_VECEL(qp->d, nb+ng+ii) += - tmp;
+		BLASFEO_VECEL(qp->d, 2*nb+2*ng+nq+ii) += + tmp;
+		BLASFEO_VECEL(ws->qcqp_res_ws->q_fun, ii) = tmp;
 		}
 
 	VECCP(2*nb+2*ng+2*nq+2*ns, qcqp->m, 0, qp->m, 0);
@@ -1256,11 +1238,7 @@ void DENSE_QCQP_IPM_SOLVE(struct DENSE_QCQP *qcqp, struct DENSE_QCQP_SOL *qcqp_s
 		idx = qcqp->idxs_rev[nb+ng+ii];
 		if(idx!=-1)
 			{
-#ifdef DOUBLE_PRECISION
-			BLASFEO_DVECEL(qcqp->d_mask, 2*nb+2*ng+2*nq+idx) = 0.0;
-#else
-			BLASFEO_DVECEL(qcqp->d_mask, 2*nb+2*ng+2*nq+idx) = 0.0;
-#endif
+			BLASFEO_VECEL(qcqp->d_mask, 2*nb+2*ng+2*nq+idx) = 0.0;
 			}
 		}
 
@@ -1315,12 +1293,30 @@ void DENSE_QCQP_IPM_SOLVE(struct DENSE_QCQP *qcqp, struct DENSE_QCQP_SOL *qcqp_s
 				stat[7] = qcqp_res_max[1];
 				stat[8] = qcqp_res_max[2];
 				stat[9] = qcqp_res_max[3];
+				stat[10] = qcqp_res->obj;
 				}
 			cws->mu = qcqp_res->res_mu;
 			}
 		// save info before return
 		qcqp_ws->iter = 0;
-		qcqp_ws->status = 0;
+#ifdef USE_C99_MATH
+		if(isnan(BLASFEO_VECEL(qcqp_sol->v, 0)))
+			{
+			// NaN in the solution
+			qcqp_ws->status = NAN_SOL;
+			}
+#else
+		if(BLASFEO_VECEL(qcqp_sol->v, 0)!=BLASFEO_VECEL(qcqp_sol->v, 0))
+			{
+			// NaN in the solution
+			qcqp_ws->status = NAN_SOL;
+			}
+#endif
+		else
+			{
+			// normal return
+			qcqp_ws->status = SUCCESS;
+			}
 		return;
 		}
 	
@@ -1400,6 +1396,7 @@ void DENSE_QCQP_IPM_SOLVE(struct DENSE_QCQP *qcqp, struct DENSE_QCQP_SOL *qcqp_s
 				stat[stat_m*(kk+0)+7] = qcqp_res_max[1];
 				stat[stat_m*(kk+0)+8] = qcqp_res_max[2];
 				stat[stat_m*(kk+0)+9] = qcqp_res_max[3];
+				stat[stat_m*(kk+0)+10] = qcqp_res->obj;
 				}
 			}
 
@@ -1427,6 +1424,7 @@ void DENSE_QCQP_IPM_SOLVE(struct DENSE_QCQP *qcqp, struct DENSE_QCQP_SOL *qcqp_s
 		stat[stat_m*(0)+7] = qcqp_res_max[1];
 		stat[stat_m*(0)+8] = qcqp_res_max[2];
 		stat[stat_m*(0)+9] = qcqp_res_max[3];
+		stat[stat_m*(0)+10] = qcqp_res->obj;
 		}
 
 
@@ -1477,6 +1475,7 @@ void DENSE_QCQP_IPM_SOLVE(struct DENSE_QCQP *qcqp, struct DENSE_QCQP_SOL *qcqp_s
 			stat[stat_m*(kk+1)+7] = qcqp_res_max[1];
 			stat[stat_m*(kk+1)+8] = qcqp_res_max[2];
 			stat[stat_m*(kk+1)+9] = qcqp_res_max[3];
+			stat[stat_m*(kk+1)+10] = qcqp_res->obj;
 			}
 
 		}

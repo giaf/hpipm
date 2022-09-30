@@ -203,6 +203,7 @@
 #define OCP_QCQP_IPM_GET_MAX_RES_EQ s_ocp_qcqp_ipm_get_max_res_eq
 #define OCP_QCQP_IPM_GET_MAX_RES_INEQ s_ocp_qcqp_ipm_get_max_res_ineq
 #define OCP_QCQP_IPM_GET_MAX_RES_COMP s_ocp_qcqp_ipm_get_max_res_comp
+#define OCP_QCQP_IPM_GET_OBJ s_ocp_qcqp_ipm_get_obj
 #define OCP_QCQP_IPM_GET_STAT s_ocp_qcqp_ipm_get_stat
 #define OCP_QCQP_IPM_GET_STAT_M s_ocp_qcqp_ipm_get_stat_m
 #define OCP_QCQP_INIT_VAR s_ocp_qcqp_init_var

@@ -67,6 +67,8 @@
 
 
 #define DOUBLE_PRECISION
+#define BLASFEO_MATEL BLASFEO_DMATEL
+#define BLASFEO_VECEL BLASFEO_DVECEL
 
 
 
@@ -198,6 +200,7 @@
 #define DENSE_QCQP_IPM_GET_MAX_RES_EQ d_dense_qcqp_ipm_get_max_res_eq
 #define DENSE_QCQP_IPM_GET_MAX_RES_INEQ d_dense_qcqp_ipm_get_max_res_ineq
 #define DENSE_QCQP_IPM_GET_MAX_RES_COMP d_dense_qcqp_ipm_get_max_res_comp
+#define DENSE_QCQP_IPM_GET_OBJ d_dense_qcqp_ipm_get_obj
 #define DENSE_QCQP_IPM_GET_STAT d_dense_qcqp_ipm_get_stat
 #define DENSE_QCQP_IPM_GET_STAT_M d_dense_qcqp_ipm_get_stat_m
 #define DENSE_QCQP_INIT_VAR d_dense_qcqp_init_var
