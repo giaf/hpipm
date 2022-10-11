@@ -139,6 +139,22 @@ void DENSE_QCQP_SOL_CREATE(struct DENSE_QCQP_DIM *dim, struct DENSE_QCQP_SOL *qp
 
 
 
+void DENSE_QCQP_SOL_GET(char *field, struct DENSE_QCQP_SOL *qp_sol, void *value)
+	{
+	if(hpipm_strcmp(field, "v")) 
+		{
+		DENSE_QCQP_SOL_GET_V(qp_sol, value);
+		}
+	else
+		{
+		printf("error: DENSE_QCQP_SOL_GET: wrong field name '%s'. Exiting.\n", field);
+		exit(1);	
+		}
+	return;
+	}
+
+
+
 void DENSE_QCQP_SOL_GET_V(struct DENSE_QCQP_SOL *qp_sol, REAL *v)
 	{
 	int nv = qp_sol->dim->nv;

@@ -176,11 +176,11 @@ void DENSE_QP_SOL_GET_ALL(struct DENSE_QP_SOL *qp_sol, REAL *v, REAL *ls, REAL *
 
 
 
-void DENSE_QP_SOL_GET(char *field, struct DENSE_QP_SOL *qp, void *value)
+void DENSE_QP_SOL_GET(char *field, struct DENSE_QP_SOL *qp_sol, void *value)
 	{
 	if(hpipm_strcmp(field, "v")) 
 		{
-		DENSE_QP_SOL_GET_V(qp, value);
+		DENSE_QP_SOL_GET_V(qp_sol, value);
 		}
 	else
 		{

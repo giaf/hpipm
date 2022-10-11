@@ -32,42 +32,69 @@
 * Author: Gianluca Frison, gianluca.frison (at) imtek.uni-freiburg.de                             *
 *                                                                                                 *
 **************************************************************************************************/
-
-
-
+// system
 #include <stdlib.h>
 #include <stdio.h>
-
-#include <blasfeo_target.h>
-#include <blasfeo_common.h>
-#include <blasfeo_s_aux.h>
-
-#include <hpipm_s_dense_qcqp_dim.h>
-#include <hpipm_s_dense_qcqp.h>
-#include <hpipm_s_dense_qcqp_sol.h>
-#include <hpipm_aux_string.h>
-#include <hpipm_aux_mem.h>
+#include <string.h>
+// hpipm
+#include "hpipm_timing.h"
+#include "hpipm_d_dense_qcqp_dim.h"
+#include "hpipm_d_dense_qcqp_ipm.h"
+// mex
+#include "mex.h"
 
 
 
-#define CREATE_STRVEC blasfeo_create_svec
-#define UNPACK_VEC blasfeo_unpack_svec
-#define DENSE_QCQP s_dense_qcqp
-#define DENSE_QCQP_DIM s_dense_qcqp_dim
-#define DENSE_QCQP_SOL s_dense_qcqp_sol
-#define REAL float
-#define STRVEC blasfeo_svec
-#define SIZE_STRVEC blasfeo_memsize_svec
-#define VECCP_LIBSTR blasfeo_sveccp
+void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
+	{
 
-#define DENSE_QCQP_SOL_MEMSIZE s_dense_qcqp_sol_memsize
-#define DENSE_QCQP_SOL_CREATE s_dense_qcqp_sol_create
-#define DENSE_QCQP_SOL_GET s_dense_qcqp_sol_get
-#define DENSE_QCQP_SOL_GET_V s_dense_qcqp_sol_get_v
+//	printf("\nin dense_solver_create\n");
+
+	mxArray *tmp_mat;
+	long long *l_ptr;
+	char *c_ptr;
+
+	/* RHS */
+
+	// qp
+	l_ptr = mxGetData( prhs[0] );
+	struct d_dense_qcqp *qp = (struct d_dense_qcqp *) *l_ptr;
+
+	// qp_sol
+	l_ptr = mxGetData( prhs[1] );
+	struct d_dense_qcqp_sol *qp_sol = (struct d_dense_qcqp_sol *) *l_ptr;
+
+	// arg
+	l_ptr = mxGetData( prhs[2] );
+	struct d_dense_qcqp_ipm_arg *arg = (struct d_dense_qcqp_ipm_arg *) *l_ptr;
+
+	// ws
+	l_ptr = mxGetData( prhs[3] );
+	struct d_dense_qcqp_ipm_ws *ws = (struct d_dense_qcqp_ipm_ws *) *l_ptr;
+
+	/* RHS */
+
+	// time_ext
+	plhs[0] = mxCreateNumericMatrix(1, 1, mxDOUBLE_CLASS, mxREAL);
+	double *mat_ptr = mxGetPr( plhs[0] );
+
+	/* body */
+
+	hpipm_timer timer;
+	hpipm_tic(&timer);
+
+	d_dense_qcqp_ipm_solve(qp, qp_sol, arg, ws);
+
+	double time_ext = hpipm_toc(&timer);
+	*mat_ptr = time_ext;
+
+	return;
+
+	}
 
 
 
-#include "x_dense_qcqp_sol.c"
+
 
 
 

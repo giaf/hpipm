@@ -33,41 +33,86 @@
 *                                                                                                 *
 **************************************************************************************************/
 
-
-
+// system
 #include <stdlib.h>
 #include <stdio.h>
-
-#include <blasfeo_target.h>
-#include <blasfeo_common.h>
-#include <blasfeo_s_aux.h>
-
-#include <hpipm_s_dense_qcqp_dim.h>
-#include <hpipm_s_dense_qcqp.h>
-#include <hpipm_s_dense_qcqp_sol.h>
-#include <hpipm_aux_string.h>
-#include <hpipm_aux_mem.h>
+#include <string.h>
+// hpipm
+#include "hpipm_d_dense_qcqp_dim.h"
+#include "hpipm_d_dense_qcqp_ipm.h"
+// mex
+#include "mex.h"
 
 
 
-#define CREATE_STRVEC blasfeo_create_svec
-#define UNPACK_VEC blasfeo_unpack_svec
-#define DENSE_QCQP s_dense_qcqp
-#define DENSE_QCQP_DIM s_dense_qcqp_dim
-#define DENSE_QCQP_SOL s_dense_qcqp_sol
-#define REAL float
-#define STRVEC blasfeo_svec
-#define SIZE_STRVEC blasfeo_memsize_svec
-#define VECCP_LIBSTR blasfeo_sveccp
+void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
+	{
 
-#define DENSE_QCQP_SOL_MEMSIZE s_dense_qcqp_sol_memsize
-#define DENSE_QCQP_SOL_CREATE s_dense_qcqp_sol_create
-#define DENSE_QCQP_SOL_GET s_dense_qcqp_sol_get
-#define DENSE_QCQP_SOL_GET_V s_dense_qcqp_sol_get_v
+//	printf("\nin dense_solver_arg_create\n");
+
+	mxArray *tmp_mat;
+	long long *l_ptr;
+	char *c_ptr;
+
+	/* RHS */
+
+	// dim
+	l_ptr = mxGetData( prhs[0] );
+	struct d_dense_qcqp_dim *dim = (struct d_dense_qcqp_dim *) *l_ptr;
+
+	// mode
+	char *str_mode = mxArrayToString( prhs[1] );
+
+	int mode;
+	if(!strcmp(str_mode, "speed_abs"))
+		{
+		mode = SPEED_ABS;
+		}
+	else if(!strcmp(str_mode, "speed"))
+		{
+		mode = SPEED;
+		}
+	else if(!strcmp(str_mode, "balance"))
+		{
+		mode = BALANCE;
+		}
+	else if(!strcmp(str_mode, "robust"))
+		{
+		mode = ROBUST;
+		}
+	else
+		{
+		mode = SPEED;
+		mexPrintf("\ndense_qcqp_solver_arg_create: mode not supported: %s; speed mode used instead\n", str_mode);
+		}
+
+	/* body */
+
+	hpipm_size_t arg_size = sizeof(struct d_dense_qcqp_ipm_arg) + d_dense_qcqp_ipm_arg_memsize(dim);
+	void *arg_mem = malloc(arg_size);
+
+	c_ptr = arg_mem;
+
+	struct d_dense_qcqp_ipm_arg *arg = (struct d_dense_qcqp_ipm_arg *) c_ptr;
+	c_ptr += sizeof(struct d_dense_qcqp_ipm_arg);
+
+	d_dense_qcqp_ipm_arg_create(dim, arg, c_ptr);
+	c_ptr += d_dense_qcqp_ipm_arg_memsize(dim);
+
+	d_dense_qcqp_ipm_arg_set_default(mode, arg);
+
+	/* LHS */
+
+	tmp_mat = mxCreateNumericMatrix(1, 1, mxINT64_CLASS, mxREAL);
+	l_ptr = mxGetData(tmp_mat);
+	l_ptr[0] = (long long) arg_mem;
+	plhs[0] = tmp_mat;
+
+	return;
+
+	}
 
 
-
-#include "x_dense_qcqp_sol.c"
 
 
 

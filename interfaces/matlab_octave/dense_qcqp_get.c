@@ -32,42 +32,61 @@
 * Author: Gianluca Frison, gianluca.frison (at) imtek.uni-freiburg.de                             *
 *                                                                                                 *
 **************************************************************************************************/
-
-
-
+// system
 #include <stdlib.h>
 #include <stdio.h>
-
-#include <blasfeo_target.h>
-#include <blasfeo_common.h>
-#include <blasfeo_s_aux.h>
-
-#include <hpipm_s_dense_qcqp_dim.h>
-#include <hpipm_s_dense_qcqp.h>
-#include <hpipm_s_dense_qcqp_sol.h>
-#include <hpipm_aux_string.h>
-#include <hpipm_aux_mem.h>
+#include <string.h>
+// hpipm
+#include "hpipm_d_dense_qcqp_dim.h"
+#include "hpipm_d_dense_qcqp.h"
+// mex
+#include "mex.h"
 
 
 
-#define CREATE_STRVEC blasfeo_create_svec
-#define UNPACK_VEC blasfeo_unpack_svec
-#define DENSE_QCQP s_dense_qcqp
-#define DENSE_QCQP_DIM s_dense_qcqp_dim
-#define DENSE_QCQP_SOL s_dense_qcqp_sol
-#define REAL float
-#define STRVEC blasfeo_svec
-#define SIZE_STRVEC blasfeo_memsize_svec
-#define VECCP_LIBSTR blasfeo_sveccp
+void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
+	{
 
-#define DENSE_QCQP_SOL_MEMSIZE s_dense_qcqp_sol_memsize
-#define DENSE_QCQP_SOL_CREATE s_dense_qcqp_sol_create
-#define DENSE_QCQP_SOL_GET s_dense_qcqp_sol_get
-#define DENSE_QCQP_SOL_GET_V s_dense_qcqp_sol_get_v
+//	mexPrintf("\nin dense_qcqp_get\n");
+
+	long long *l_ptr;
+
+	int ii;
+
+	/* RHS */
+
+	// qp
+	l_ptr = mxGetData( prhs[0] );
+	struct d_dense_qcqp *qp = (struct d_dense_qcqp *) *l_ptr;
+
+	// dim
+	struct d_dense_qcqp_dim *dim = qp->dim;
+	int nv = dim->nv;
+
+	// field
+	char *field = mxArrayToString( prhs[1] );
+
+	/* body */
+
+	// H
+	if( !strcmp(field, "H") )
+		{
+		plhs[0] = mxCreateNumericMatrix(nv, nv, mxDOUBLE_CLASS, mxREAL);
+		double *mat = mxGetPr( plhs[0] );
+		d_dense_qcqp_get(field, qp, mat);
+		}
+	else
+		{
+		mexPrintf("\ndense_qcqp_get: field not supported: %s\n", field);
+		return;
+		}
+
+	return;
+
+	}
 
 
 
-#include "x_dense_qcqp_sol.c"
 
 
 

@@ -54,81 +54,68 @@ travis_run = getenv('TRAVIS_RUN');
 
 
 if (~strcmp(travis_run, 'true'))
-	fprintf('\nHPIPM matlab interface: getting started dense QP example\n');
+	fprintf('\nHPIPM matlab interface: getting started dense QCQP example\n');
 end
 
 
 
 % define flags
-%codegen_data = 1; % export qp data in the file dense_qp_data.c for use from C examples XXX not implemented yet !!!!!
-constr_type = 0; % 0 box, 1 general
+%codegen_data = 1; % export qp data in the file dense_qcqp_data.c for use from C examples XXX not implemented yet !!!!!
 
 
 
 %%% data %%%
 nv = 2;
-ne = 1;
+nq = 1;
 
-A = [2, -1];
+H = [1, 0; 0, 1];
+g = [0; 0];
 
-H = 100*[1, 0; 0, 1];
-
-Jb = [1, 0; 0, 1];
-lb = [1; 1];
-ub = [3; 3];
+Hq = [2, 0; 0, 2];
+gq = [-2; -2];
+uq = -1;
 
 
 
 %%% dim %%%
-dim = hpipm_dense_qp_dim();
+dim = hpipm_dense_qcqp_dim();
 
 %% Note:
 % The setters follow the following convention:
 % obj.set('field', value);
 
 dim.set('nv', nv);
-dim.set('ne', ne);
-if(constr_type==0)
-	dim.set('nb', nv);
-else
-	dim.set('ng', nv);
-end
+dim.set('nq', nq);
 
 % print to shell
 dim.print_C_struct();
 % codegen
 %if codegen_data
-%	dim.codegen('dense_qp_data.c', 'w');
+%	dim.codegen('dense_qcqp_data.c', 'w');
 %end
 
 
 %%% qp %%%
-qp = hpipm_dense_qp(dim);
+qp = hpipm_dense_qcqp(dim);
 
 qp.set('H', H);
-qp.set('A', A);
-if(constr_type==0)
-	qp.set('Jb', Jb);
-	qp.set('lb', lb);
-	qp.set('ub', ub);
-else
-	qp.set('C', Jb);
-	qp.set('lg', lb);
-	qp.set('ug', ub);
-end
+qp.set('g', g);
+qp.set('Hq', Hq);
+qp.set('gq', gq);
+qp.set('uq', uq);
 
 % print to shell
 qp.print_C_struct();
 % codegen
 %if codegen_data
-%	qp.codegen('dense_qp_data.c', 'a');
+%	qp.codegen('dense_qcqp_data.c', 'a');
 %end
 
 
 
 
 %%% sol %%%
-sol = hpipm_dense_qp_sol(dim);
+sol = hpipm_dense_qcqp_sol(dim);
 
 
 
@@ -138,7 +125,7 @@ mode = 'speed';
 %mode = 'balance';
 %mode = 'robust';
 % create and set default arg based on mode
-arg = hpipm_dense_qp_solver_arg(dim, mode);
+arg = hpipm_dense_qcqp_solver_arg(dim, mode);
 
 % overwrite default argument values
 arg.set('mu0', 1e4);
@@ -151,20 +138,20 @@ arg.set('reg_prim', 1e-12);
 
 % codegen
 %if codegen_data
-%	arg.codegen('dense_qp_data.c', 'a');
+%	arg.codegen('dense_qcqp_data.c', 'a');
 %end
 
 
 
 %%% solver %%%
-solver = hpipm_dense_qp_solver(dim, arg);
+solver = hpipm_dense_qcqp_solver(dim, arg);
 
 % arg which are allowed to be changed
 solver.set('iter_max', 30);
-solver.set('tol_stat', 1e-8);
-solver.set('tol_eq', 1e-8);
-solver.set('tol_ineq', 1e-8);
-solver.set('tol_comp', 1e-8);
+%solver.set('tol_stat', 1e-4);
+%soler.set('tol_eq', 1e-4);
+%soler.set('tol_ineq', 1e-4);
+%soler.set('tol_comp', 1e-4);
 
 % solve qp
 nrep = 100;

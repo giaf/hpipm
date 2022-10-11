@@ -237,7 +237,7 @@ void DENSE_QCQP_SET(char *field, void *value, struct DENSE_QCQP *qp)
 		{
 		DENSE_QCQP_SET_C(value, qp);
 		}
-	else if(hpipm_strcmp(field, "HQ")) 
+	else if(hpipm_strcmp(field, "Hq")) 
 		{
 		DENSE_QCQP_SET_HQ(value, qp);
 		}
