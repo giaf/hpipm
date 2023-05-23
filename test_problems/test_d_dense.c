@@ -36,7 +36,6 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <math.h>
-#include <sys/time.h>
 
 #include <blasfeo_target.h>
 #include <blasfeo_common.h>
@@ -50,6 +49,7 @@
 #include <hpipm_d_dense_qp_sol.h>
 #include <hpipm_d_dense_qp_res.h>
 #include <hpipm_d_dense_qp_ipm.h>
+#include <hpipm_timing.h>
 
 
 
@@ -437,9 +437,9 @@ int main()
 
 	int hpipm_return; // 0 normal; 1 max iter
 
-	struct timeval tv0, tv1;
+	hpipm_timer timer0;
 
-	gettimeofday(&tv0, NULL); // start
+	hpipm_tic(&timer0);
 
 	for(rep=0; rep<nrep; rep++)
 		{
@@ -447,9 +447,7 @@ int main()
 		d_dense_qp_ipm_get_status(&workspace, &hpipm_return);
 		}
 
-	gettimeofday(&tv1, NULL); // stop
-
-	double time_dense_ipm = (tv1.tv_sec-tv0.tv_sec)/(nrep+0.0)+(tv1.tv_usec-tv0.tv_usec)/(nrep*1e6);
+	double time_dense_ipm = hpipm_toc(&timer0) / nrep;
 
 #if PRINT
 	printf("\nsolution\n\n");

@@ -36,7 +36,6 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <math.h>
-#include <sys/time.h>
 
 #include <blasfeo_target.h>
 #include <blasfeo_common.h>
@@ -52,6 +51,7 @@
 #include <hpipm_d_ocp_qp_ipm.h>
 #include <hpipm_d_ocp_qp_utils.h>
 #include <hpipm_d_part_cond.h>
+#include <hpipm_timing.h>
 
 #include "d_tools.h"
 
@@ -164,7 +164,7 @@ int main()
 
 	int rep, nrep=1000;
 
-	struct timeval tv0, tv1;
+	hpipm_timer timer0;
 
 
 
@@ -841,16 +841,14 @@ int main()
 
 	/* part cond */
 
-	gettimeofday(&tv0, NULL); // start
+	hpipm_tic(&timer0);
 
 	for(rep=0; rep<nrep; rep++)
 		{
 		d_part_cond_qp_cond(&ocp_qp, &part_dense_qp, &part_cond_arg, &part_cond_ws);
 		}
 
-	gettimeofday(&tv1, NULL); // stop
-
-	double time_cond = (tv1.tv_sec-tv0.tv_sec)/(nrep+0.0)+(tv1.tv_usec-tv0.tv_usec)/(nrep*1e6);
+	double time_cond = hpipm_toc(&timer0) / nrep;
 
 #if PRINT
 	printf("\npart cond data\n\n");
@@ -865,16 +863,14 @@ int main()
 		idxc[ii] = 0;
 	idxc[0] = 1;
 
-	gettimeofday(&tv0, NULL); // start
+	hpipm_tic(&timer0);
 
 	for(rep=0; rep<nrep; rep++)
 		{
 		d_part_cond_qp_update(idxc, &ocp_qp, &part_dense_qp, &part_cond_arg, &part_cond_ws);
 		}
 
-	gettimeofday(&tv1, NULL); // stop
-
-	double time_update_cond = (tv1.tv_sec-tv0.tv_sec)/(nrep+0.0)+(tv1.tv_usec-tv0.tv_usec)/(nrep*1e6);
+	double time_update_cond = hpipm_toc(&timer0) / nrep;
 
 #if PRINT
 	printf("\nupdate part cond data\n\n");
@@ -883,16 +879,14 @@ int main()
 
 	/* cond lhs */
 
-	gettimeofday(&tv0, NULL); // start
+	hpipm_tic(&timer0);
 
 	for(rep=0; rep<nrep; rep++)
 		{
 		d_part_cond_qp_cond_lhs(&ocp_qp, &part_dense_qp, &part_cond_arg, &part_cond_ws);
 		}
 
-	gettimeofday(&tv1, NULL); // stop
-
-	double time_cond_lhs = (tv1.tv_sec-tv0.tv_sec)/(nrep+0.0)+(tv1.tv_usec-tv0.tv_usec)/(nrep*1e6);
+	double time_cond_lhs = hpipm_toc(&timer0) / nrep;
 
 #if PRINT
 	printf("\npart cond lhs data\n\n");
@@ -901,16 +895,14 @@ int main()
 
 	/* cond rhs */
 
-	gettimeofday(&tv0, NULL); // start
+	hpipm_tic(&timer0);
 
 	for(rep=0; rep<nrep; rep++)
 		{
 		d_part_cond_qp_cond_rhs(&ocp_qp, &part_dense_qp, &part_cond_arg, &part_cond_ws);
 		}
 
-	gettimeofday(&tv1, NULL); // stop
-
-	double time_cond_rhs = (tv1.tv_sec-tv0.tv_sec)/(nrep+0.0)+(tv1.tv_usec-tv0.tv_usec)/(nrep*1e6);
+	double time_cond_rhs = hpipm_toc(&timer0) / nrep;
 
 #if PRINT
 	printf("\npart cond rhs data\n\n");
@@ -993,7 +985,7 @@ int main()
 
 	int hpipm_status; // 0 normal; 1 max iter
 
-	gettimeofday(&tv0, NULL); // start
+	hpipm_tic(&timer0);
 
 	for(rep=0; rep<nrep; rep++)
 		{
@@ -1001,9 +993,7 @@ int main()
 		d_ocp_qp_ipm_get_status(&workspace, &hpipm_status);
 		}
 
-	gettimeofday(&tv1, NULL); // stop
-
-	double time_ocp_ipm = (tv1.tv_sec-tv0.tv_sec)/(nrep+0.0)+(tv1.tv_usec-tv0.tv_usec)/(nrep*1e6);
+	double time_ocp_ipm = hpipm_toc(&timer0) / nrep;
 
 /************************************************
 * extract and print part cond solution

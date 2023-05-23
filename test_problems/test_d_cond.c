@@ -36,7 +36,6 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <math.h>
-#include <sys/time.h>
 
 #include <blasfeo_target.h>
 #include <blasfeo_common.h>
@@ -55,6 +54,7 @@
 #include <hpipm_d_dense_qp_ipm.h>
 #include <hpipm_d_dense_qp_utils.h>
 #include <hpipm_d_cond.h>
+#include <hpipm_timing.h>
 
 #include "d_tools.h"
 
@@ -167,7 +167,7 @@ int main()
 
 	int rep, nrep=1000;
 
-	struct timeval tv0, tv1;
+	hpipm_timer timer0;
 
 
 
@@ -802,16 +802,14 @@ int main()
 
 	/* cond */
 
-	gettimeofday(&tv0, NULL); // start
+	hpipm_tic(&timer0);
 
 	for(rep=0; rep<nrep; rep++)
 		{
 		d_cond_qp_cond(&ocp_qp, &dense_qp, &cond_arg, &cond_ws);
 		}
 
-	gettimeofday(&tv1, NULL); // stop
-
-	double time_cond = (tv1.tv_sec-tv0.tv_sec)/(nrep+0.0)+(tv1.tv_usec-tv0.tv_usec)/(nrep*1e6);
+	double time_cond = hpipm_toc(&timer0) / nrep;
 
 #if PRINT
 	printf("\ncond data\n\n");
@@ -828,16 +826,14 @@ int main()
 
 //	blasfeo_dgese(nvc+1, nvc, 0.0, dense_qp.Hv, 0, 0);
 
-	gettimeofday(&tv0, NULL); // start
+	hpipm_tic(&timer0);
 
 	for(rep=0; rep<nrep; rep++)
 		{
 		d_cond_qp_update(idxc, &ocp_qp, &dense_qp, &cond_arg, &cond_ws);
 		}
 
-	gettimeofday(&tv1, NULL); // stop
-
-	double time_update_cond = (tv1.tv_sec-tv0.tv_sec)/(nrep+0.0)+(tv1.tv_usec-tv0.tv_usec)/(nrep*1e6);
+	double time_update_cond = hpipm_toc(&timer0) / nrep;
 
 #if PRINT
 	printf("\nupdate cond data\n\n");
@@ -847,16 +843,14 @@ int main()
 
 	/* cond lhs */
 
-	gettimeofday(&tv0, NULL); // start
+	hpipm_tic(&timer0);
 
 	for(rep=0; rep<nrep; rep++)
 		{
 		d_cond_qp_cond_lhs(&ocp_qp, &dense_qp, &cond_arg, &cond_ws);
 		}
 
-	gettimeofday(&tv1, NULL); // stop
-
-	double time_cond_lhs = (tv1.tv_sec-tv0.tv_sec)/(nrep+0.0)+(tv1.tv_usec-tv0.tv_usec)/(nrep*1e6);
+	double time_cond_lhs = hpipm_toc(&timer0) / nrep;
 
 #if PRINT
 	printf("\ncond lhs data\n\n");
@@ -865,16 +859,14 @@ int main()
 
 	/* cond rhs */
 
-	gettimeofday(&tv0, NULL); // start
+	hpipm_tic(&timer0);
 
 	for(rep=0; rep<nrep; rep++)
 		{
 		d_cond_qp_cond_rhs(&ocp_qp, &dense_qp, &cond_arg, &cond_ws);
 		}
 
-	gettimeofday(&tv1, NULL); // stop
-
-	double time_cond_rhs = (tv1.tv_sec-tv0.tv_sec)/(nrep+0.0)+(tv1.tv_usec-tv0.tv_usec)/(nrep*1e6);
+	double time_cond_rhs = hpipm_toc(&timer0) / nrep;
 
 #if PRINT
 	printf("\ncond rhs data\n\n");
@@ -946,7 +938,7 @@ int main()
 
 	int hpipm_return; // 0 normal; 1 max iter
 
-	gettimeofday(&tv0, NULL); // start
+	hpipm_tic(&timer0);
 
 	for(rep=0; rep<nrep; rep++)
 		{
@@ -954,9 +946,7 @@ int main()
 		d_dense_qp_ipm_get_status(&dense_workspace, &hpipm_return);
 		}
 
-	gettimeofday(&tv1, NULL); // stop
-
-	double time_dense_ipm = (tv1.tv_sec-tv0.tv_sec)/(nrep+0.0)+(tv1.tv_usec-tv0.tv_usec)/(nrep*1e6);
+	double time_dense_ipm = hpipm_toc(&timer0) / nrep;
 
 
 #if PRINT
