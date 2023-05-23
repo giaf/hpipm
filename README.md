@@ -55,6 +55,7 @@ cd build
 cmake ..
 cmake --build .
 ```
+(you may need to change the `BLASFEO_PATH` to the actual value matching your BLASFEO installation, e.g. by replacing the second last line above with `cmake -DBLASFEO_PATH=/path/to/your/blasfeo/installation/folder ..`).
 Copy `hpipm.lib` from `build/Debug/` to `lib/`.
 
 5) Open Matlab and navigate to the folder `hpipm/interfaces/matlab_octave`.
