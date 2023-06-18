@@ -50,20 +50,24 @@ void hpipm_zero_memset(hpipm_size_t memsize, void *mem)
 	hpipm_size_t memsize_m8 = memsize/8; // sizeof(double) is 8
 	hpipm_size_t memsize_r8 = memsize%8;
 	double *double_ptr = mem;
+	ii = 0;
 #ifdef TARGET_AVX
 	__m256d
 		y_zeros;
 	
 	y_zeros = _mm256_setzero_pd();
 	if(memsize_m8>7)
-		for(ii=0; ii<memsize_m8-7; ii+=8)
+		{
+		for(; ii<memsize_m8-7; ii+=8)
 			{
 			_mm256_storeu_pd( double_ptr+ii+0, y_zeros );
 			_mm256_storeu_pd( double_ptr+ii+4, y_zeros );
 			}
+		}
 #else
 	if(memsize_m8>7)
-		for(ii=0; ii<memsize_m8-7; ii+=8)
+		{
+		for(; ii<memsize_m8-7; ii+=8)
 			{
 			double_ptr[ii+0] = 0.0;
 			double_ptr[ii+1] = 0.0;
@@ -74,6 +78,7 @@ void hpipm_zero_memset(hpipm_size_t memsize, void *mem)
 			double_ptr[ii+6] = 0.0;
 			double_ptr[ii+7] = 0.0;
 			}
+		}
 #endif
 	for(; ii<memsize_m8; ii++)
 		{
