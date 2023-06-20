@@ -619,8 +619,9 @@ hpipm_size_t OCP_QP_IPM_WS_MEMSIZE(struct OCP_QP_DIM *dim, struct OCP_QP_IPM_ARG
 
 	size += (N+1)*sizeof(int); // use_hess_fact
 
-	size = (size+63)/64*64; // make multiple of typical cache line size
 	size += 1*64; // align once to typical cache line size
+	size += 1*8; // align once to 8-byte boundary
+	size = (size+63)/64*64; // make multiple of typical cache line size
 
 	return size;
 
@@ -788,12 +789,18 @@ void OCP_QP_IPM_WS_CREATE(struct OCP_QP_DIM *dim, struct OCP_QP_IPM_ARG *arg, st
 	sv_ptr += N+1;
 
 
+	// align to 8-byte boundary
+	hpipm_size_t s_ptr = (hpipm_size_t) sv_ptr;
+	s_ptr = (s_ptr+7)/8*8;
+
+
 	// double/float stuff
-	REAL *d_ptr = (REAL *) sv_ptr;
+	REAL *d_ptr = (REAL *) s_ptr;
 
 	workspace->stat = d_ptr;
 	int stat_m = 18;
 	d_ptr += stat_m*(1+arg->stat_max);
+
 
 	// int stuff
 	int *i_ptr = (int *) d_ptr;
@@ -801,8 +808,9 @@ void OCP_QP_IPM_WS_CREATE(struct OCP_QP_DIM *dim, struct OCP_QP_IPM_ARG *arg, st
 	workspace->use_hess_fact = i_ptr;
 	i_ptr += N+1;
 
+
 	// align to typical cache line size
-	hpipm_size_t s_ptr = (hpipm_size_t) i_ptr;
+	s_ptr = (hpipm_size_t) i_ptr;
 	s_ptr = (s_ptr+63)/64*64;
 
 
