@@ -786,7 +786,7 @@ int main()
 
 	hpipm_size_t dim_size = d_ocp_qp_dim_memsize(N);
 #if PRINT
-	printf("\ndim size = %d\n", dim_size);
+	printf("\ndim size = %ld\n", dim_size);
 #endif
 	void *dim_mem = malloc(dim_size);
 
@@ -807,7 +807,7 @@ int main()
 
 	hpipm_size_t qp_size = d_ocp_qp_memsize(&dim);
 #if PRINT
-	printf("\nqp size = %d\n", qp_size);
+	printf("\nqp size = %ld\n", qp_size);
 #endif
 	void *qp_mem = malloc(qp_size);
 
@@ -876,7 +876,7 @@ int main()
 
 	hpipm_size_t dim_size2 = d_ocp_qp_dim_memsize(N);
 #if PRINT
-	printf("\ndim size = %d\n", dim_size2);
+	printf("\ndim size = %ld\n", dim_size2);
 #endif
 	void *dim_mem2 = malloc(dim_size2);
 
@@ -892,7 +892,7 @@ int main()
 
 	hpipm_size_t qp_size2 = d_ocp_qp_memsize(&dim2);
 #if PRINT
-	printf("\nqp size = %d\n", qp_size2);
+	printf("\nqp size = %ld\n", qp_size2);
 #endif
 	void *qp_mem2 = malloc(qp_size2);
 
@@ -904,7 +904,7 @@ int main()
 
 	hpipm_size_t qp_red_arg_size = d_ocp_qp_reduce_eq_dof_arg_memsize();
 #if PRINT
-	printf("\nqp red arg size = %d\n", qp_red_arg_size);
+	printf("\nqp red arg size = %ld\n", qp_red_arg_size);
 #endif
 	void *qp_red_arg_mem = malloc(qp_red_arg_size);
 
@@ -919,7 +919,7 @@ int main()
 
 	hpipm_size_t qp_red_work_size = d_ocp_qp_reduce_eq_dof_ws_memsize(&dim);
 #if PRINT
-	printf("\nqp red work size = %d\n", qp_red_work_size);
+	printf("\nqp red work size = %ld\n", qp_red_work_size);
 #endif
 	void *qp_red_work_mem = malloc(qp_red_work_size);
 
@@ -948,7 +948,7 @@ int main()
 
 	hpipm_size_t qp_sol_size = d_ocp_qp_sol_memsize(&dim);
 #if PRINT
-	printf("\nqp sol size = %d\n", qp_sol_size);
+	printf("\nqp sol size = %ld\n", qp_sol_size);
 #endif
 	void *qp_sol_mem = malloc(qp_sol_size);
 
@@ -963,7 +963,7 @@ int main()
 
 	hpipm_size_t qp_sol_size2 = d_ocp_qp_sol_memsize(&dim2);
 #if PRINT
-	printf("\nqp sol size = %d\n", qp_sol_size2);
+	printf("\nqp sol size = %ld\n", qp_sol_size2);
 #endif
 	void *qp_sol_mem2 = malloc(qp_sol_size2);
 
@@ -1026,7 +1026,7 @@ int main()
 
 	hpipm_size_t ipm_size = d_ocp_qp_ipm_ws_memsize(&dim2, &arg);
 #if PRINT
-	printf("\nipm size = %d\n", ipm_size);
+	printf("\nipm size = %ld\n", ipm_size);
 #endif
 	void *ipm_mem = malloc(ipm_size);
 
