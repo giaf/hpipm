@@ -40,6 +40,13 @@
 
 
 
+#include <hpipm_common.h>
+#include <hpipm_s_dense_qp.h>
+#include <hpipm_s_dense_qp_sol.h>
+#include <hpipm_s_dense_qp_ipm.h>
+
+
+
 #ifdef __cplusplus
 extern "C" {
 #endif

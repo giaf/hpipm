@@ -36,9 +36,12 @@
 #ifndef HPIPM_D_OCP_QP_KKT_H_
 #define HPIPM_D_OCP_QP_KKT_H_
 
+
+
 #include <hpipm_common.h>
 #include <hpipm_d_ocp_qp.h>
 #include <hpipm_d_ocp_qp_sol.h>
+#include <hpipm_d_ocp_qp_ipm.h>
 
 
 
