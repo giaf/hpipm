@@ -44,6 +44,9 @@ set(CMAKE_VERBOSE_MAKEFILE ON)
 
 # Options
 
+# Use CMake to find blasfeo
+set(HPIPM_FIND_BLASFEO OFF CACHE BOOL "Use CMake to find BLASFEO.")
+
 # Target architecture
 set(TARGET AVX CACHE STRING "Set CPU architecture target")
 #set(TARGET GENERIC CACHE STRING "Set CPU architecture target")
@@ -88,6 +91,11 @@ set(BUILD_SHARED_LIBS OFF CACHE STRING "Build shared libraries")
 if(NOT ${CMAKE_PROJECT_NAME} STREQUAL hpipm)
 	set(HPIPM_ALLOWED_TARGETS ${ALLOWED_TARGETS} PARENT_SCOPE)
 	set(HPIPM_ALLOWED_REF_BLAS ${ALLOWED_REF_BLAS} PARENT_SCOPE)
+endif()
+
+# Try to find blasfeo using CMake (also sets BLASFEO_PATH and BLASFEO_INCLUDE_DIR if found)
+if(HPIPM_FIND_BLASFEO)
+	find_package(blasfeo REQUIRED)
 endif()
 
 # BLASFEO Option
