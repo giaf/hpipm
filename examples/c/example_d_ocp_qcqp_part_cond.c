@@ -35,7 +35,6 @@
 
 #include <stdlib.h>
 #include <stdio.h>
-#include <sys/time.h>
 
 #include <blasfeo_d_aux_ext_dep.h>
 
@@ -45,6 +44,7 @@
 #include <hpipm_d_ocp_qcqp_sol.h>
 #include <hpipm_d_ocp_qcqp_utils.h>
 #include <hpipm_d_part_cond_qcqp.h>
+#include <hpipm_timing.h>
 
 
 
@@ -118,7 +118,7 @@ int main()
 
 	int rep, nrep=10;
 
-	struct timeval tv0, tv1;
+	hpipm_timer timer;
 
 /************************************************
 * ocp qp dim
@@ -151,7 +151,8 @@ int main()
 ************************************************/
 
 	// horizon length of partially condensed OCP QP
-	int N2 = N; //1;
+	int N2 = N/2;
+	N2 = N2<1 ? 1 : N2;
 
 	hpipm_size_t dim_size2 = d_ocp_qcqp_dim_memsize(N2);
 	void *dim_mem2 = malloc(dim_size2);
@@ -321,22 +322,20 @@ int main()
 * part cond
 ************************************************/
 
-	gettimeofday(&tv0, NULL); // start
+	hpipm_tic(&timer);
 
 	for(rep=0; rep<nrep; rep++)
 		{
 		d_part_cond_qcqp_cond(&qp, &qp2, &part_cond_arg, &part_cond_ws);
 		}
 
-	gettimeofday(&tv1, NULL); // stop
-
-	double time_cond = (tv1.tv_sec-tv0.tv_sec)/(nrep+0.0)+(tv1.tv_usec-tv0.tv_usec)/(nrep*1e6);
+	double time_cond = hpipm_toc(&timer) / nrep;
 
 /************************************************
 * ipm solver
 ************************************************/
 
-	gettimeofday(&tv0, NULL); // start
+	hpipm_tic(&timer);
 
 	for(rep=0; rep<nrep; rep++)
 		{
@@ -344,24 +343,20 @@ int main()
 		d_ocp_qcqp_ipm_get_status(&workspace, &hpipm_status);
 		}
 
-	gettimeofday(&tv1, NULL); // stop
-
-	double time_ipm = (tv1.tv_sec-tv0.tv_sec)/(nrep+0.0)+(tv1.tv_usec-tv0.tv_usec)/(nrep*1e6);
+	double time_ipm = hpipm_toc(&timer) / nrep;
 
 /************************************************
 * part expand
 ************************************************/
 
-	gettimeofday(&tv0, NULL); // start
+	hpipm_tic(&timer);
 
 	for(rep=0; rep<nrep; rep++)
 		{
 		d_part_cond_qcqp_expand_sol(&qp, &qp2, &qp_sol2, &qp_sol, &part_cond_arg, &part_cond_ws);
 		}
 
-	gettimeofday(&tv1, NULL); // stop
-
-	double time_expa = (tv1.tv_sec-tv0.tv_sec)/(nrep+0.0)+(tv1.tv_usec-tv0.tv_usec)/(nrep*1e6);
+	double time_expa = hpipm_toc(&timer) / nrep;
 
 /************************************************
 * print solution info

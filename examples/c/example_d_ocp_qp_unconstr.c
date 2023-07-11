@@ -35,7 +35,6 @@
 
 #include <stdlib.h>
 #include <stdio.h>
-#include <sys/time.h>
 
 #include <blasfeo_d_aux_ext_dep.h>
 
@@ -43,6 +42,7 @@
 #include <hpipm_d_ocp_qp_dim.h>
 #include <hpipm_d_ocp_qp.h>
 #include <hpipm_d_ocp_qp_sol.h>
+#include <hpipm_timing.h>
 
 
 
@@ -111,7 +111,7 @@ int main()
 
 	int rep, nrep=10;
 
-	struct timeval tv0, tv1;
+	hpipm_timer timer;
 
 /************************************************
 * new first stage data
@@ -255,7 +255,7 @@ int main()
 * ipm solver
 ************************************************/
 
-	gettimeofday(&tv0, NULL); // start
+	hpipm_tic(&timer);
 
 	for(rep=0; rep<nrep; rep++)
 		{
@@ -274,9 +274,7 @@ int main()
 		d_ocp_qp_ipm_get_status(&workspace, &hpipm_status);
 		}
 
-	gettimeofday(&tv1, NULL); // stop
-
-	double time_ipm = (tv1.tv_sec-tv0.tv_sec)/(nrep+0.0)+(tv1.tv_usec-tv0.tv_usec)/(nrep*1e6);
+	double time_ipm = hpipm_toc(&timer) / nrep;
 
 /************************************************
 * print solution info

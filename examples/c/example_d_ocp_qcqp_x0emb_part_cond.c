@@ -35,7 +35,6 @@
 
 #include <stdlib.h>
 #include <stdio.h>
-#include <sys/time.h>
 
 #include <blasfeo_d_aux_ext_dep.h>
 

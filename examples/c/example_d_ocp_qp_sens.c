@@ -35,7 +35,6 @@
 
 #include <stdlib.h>
 #include <stdio.h>
-#include <sys/time.h>
 
 #include <blasfeo_common.h>
 #include <blasfeo_d_aux_ext_dep.h>
@@ -114,7 +113,7 @@ int main()
 
 	int rep, nrep=10;
 
-	struct timeval tv0, tv1;
+	hpipm_timer timer;
 
 /************************************************
 * ocp qp dim
@@ -186,8 +185,6 @@ int main()
 * ipm solver
 ************************************************/
 
-//	gettimeofday(&tv0, NULL); // start
-	hpipm_timer timer;
 	hpipm_tic(&timer);
 
 	for(rep=0; rep<nrep; rep++)
@@ -207,12 +204,7 @@ int main()
 		d_ocp_qp_ipm_get_status(&workspace, &hpipm_status);
 		}
 
-//	gettimeofday(&tv1, NULL); // stop
-//	double time_ipm = (tv1.tv_sec-tv0.tv_sec)/(nrep+0.0)+(tv1.tv_usec-tv0.tv_usec)/(nrep*1e6);
 	double time_ipm = hpipm_toc(&timer) / nrep;
-
-// XXX
-//exit(1);
 
 /************************************************
 * print solution info
