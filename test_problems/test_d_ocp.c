@@ -786,7 +786,7 @@ int main()
 
 	hpipm_size_t dim_size = d_ocp_qp_dim_memsize(N);
 #if PRINT
-	printf("\ndim size = %d\n", dim_size);
+	printf("\ndim size = %ld\n", dim_size);
 #endif
 	void *dim_mem = malloc(dim_size);
 
@@ -807,7 +807,7 @@ int main()
 
 	hpipm_size_t qp_size = d_ocp_qp_memsize(&dim);
 #if PRINT
-	printf("\nqp size = %d\n", qp_size);
+	printf("\nqp size = %ld\n", qp_size);
 #endif
 	void *qp_mem = malloc(qp_size);
 
@@ -876,7 +876,7 @@ int main()
 
 	hpipm_size_t dim_size2 = d_ocp_qp_dim_memsize(N);
 #if PRINT
-	printf("\ndim size = %d\n", dim_size2);
+	printf("\ndim size = %ld\n", dim_size2);
 #endif
 	void *dim_mem2 = malloc(dim_size2);
 
@@ -892,7 +892,7 @@ int main()
 
 	hpipm_size_t qp_size2 = d_ocp_qp_memsize(&dim2);
 #if PRINT
-	printf("\nqp size = %d\n", qp_size2);
+	printf("\nqp size = %ld\n", qp_size2);
 #endif
 	void *qp_mem2 = malloc(qp_size2);
 
@@ -904,7 +904,7 @@ int main()
 
 	hpipm_size_t qp_red_arg_size = d_ocp_qp_reduce_eq_dof_arg_memsize();
 #if PRINT
-	printf("\nqp red arg size = %d\n", qp_red_arg_size);
+	printf("\nqp red arg size = %ld\n", qp_red_arg_size);
 #endif
 	void *qp_red_arg_mem = malloc(qp_red_arg_size);
 
@@ -919,7 +919,7 @@ int main()
 
 	hpipm_size_t qp_red_work_size = d_ocp_qp_reduce_eq_dof_ws_memsize(&dim);
 #if PRINT
-	printf("\nqp red work size = %d\n", qp_red_work_size);
+	printf("\nqp red work size = %ld\n", qp_red_work_size);
 #endif
 	void *qp_red_work_mem = malloc(qp_red_work_size);
 
@@ -948,7 +948,7 @@ int main()
 
 	hpipm_size_t qp_sol_size = d_ocp_qp_sol_memsize(&dim);
 #if PRINT
-	printf("\nqp sol size = %d\n", qp_sol_size);
+	printf("\nqp sol size = %ld\n", qp_sol_size);
 #endif
 	void *qp_sol_mem = malloc(qp_sol_size);
 
@@ -963,7 +963,7 @@ int main()
 
 	hpipm_size_t qp_sol_size2 = d_ocp_qp_sol_memsize(&dim2);
 #if PRINT
-	printf("\nqp sol size = %d\n", qp_sol_size2);
+	printf("\nqp sol size = %ld\n", qp_sol_size2);
 #endif
 	void *qp_sol_mem2 = malloc(qp_sol_size2);
 
@@ -1026,7 +1026,7 @@ int main()
 
 	hpipm_size_t ipm_size = d_ocp_qp_ipm_ws_memsize(&dim2, &arg);
 #if PRINT
-	printf("\nipm size = %d\n", ipm_size);
+	printf("\nipm size = %ld\n", ipm_size);
 #endif
 	void *ipm_mem = malloc(ipm_size);
 
@@ -1080,18 +1080,30 @@ int main()
 * extract and print solution
 ************************************************/
 	
-#if 0
-	double *u[N+1]; for(ii=0; ii<=N; ii++) d_zeros(u+ii, nu[ii], 1);
-	double *x[N+1]; for(ii=0; ii<=N; ii++) d_zeros(x+ii, nx[ii], 1);
-	double *ls[N+1]; for(ii=0; ii<=N; ii++) d_zeros(ls+ii, ns[ii], 1);
-	double *us[N+1]; for(ii=0; ii<=N; ii++) d_zeros(us+ii, ns[ii], 1);
-	double *pi[N]; for(ii=0; ii<N; ii++) d_zeros(pi+ii, nx[ii+1], 1);
-	double *lam_lb[N+1]; for(ii=0; ii<=N; ii++) d_zeros(lam_lb+ii, nb[ii], 1);
-	double *lam_ub[N+1]; for(ii=0; ii<=N; ii++) d_zeros(lam_ub+ii, nb[ii], 1);
-	double *lam_lg[N+1]; for(ii=0; ii<=N; ii++) d_zeros(lam_lg+ii, ng[ii], 1);
-	double *lam_ug[N+1]; for(ii=0; ii<=N; ii++) d_zeros(lam_ug+ii, ng[ii], 1);
-	double *lam_ls[N+1]; for(ii=0; ii<=N; ii++) d_zeros(lam_ls+ii, ns[ii], 1);
-	double *lam_us[N+1]; for(ii=0; ii<=N; ii++) d_zeros(lam_us+ii, ns[ii], 1);
+#if 1
+	double **u = (double **) malloc((N+1)*sizeof(double *));
+	double **x = (double **) malloc((N+1)*sizeof(double *));
+	double **ls = (double **) malloc((N+1)*sizeof(double *));
+	double **us = (double **) malloc((N+1)*sizeof(double *));
+	double **pi = (double **) malloc(N*sizeof(double *));
+	double **lam_lb = (double **) malloc((N+1)*sizeof(double *));
+	double **lam_ub = (double **) malloc((N+1)*sizeof(double *));
+	double **lam_lg = (double **) malloc((N+1)*sizeof(double *));
+	double **lam_ug = (double **) malloc((N+1)*sizeof(double *));
+	double **lam_ls = (double **) malloc((N+1)*sizeof(double *));
+	double **lam_us = (double **) malloc((N+1)*sizeof(double *));
+
+	for(ii=0; ii<=N; ii++) d_zeros(u+ii, nu[ii], 1);
+	for(ii=0; ii<=N; ii++) d_zeros(x+ii, nx[ii], 1);
+	for(ii=0; ii<=N; ii++) d_zeros(ls+ii, ns[ii], 1);
+	for(ii=0; ii<=N; ii++) d_zeros(us+ii, ns[ii], 1);
+	for(ii=0; ii<N; ii++) d_zeros(pi+ii, nx[ii+1], 1);
+	for(ii=0; ii<=N; ii++) d_zeros(lam_lb+ii, nb[ii], 1);
+	for(ii=0; ii<=N; ii++) d_zeros(lam_ub+ii, nb[ii], 1);
+	for(ii=0; ii<=N; ii++) d_zeros(lam_lg+ii, ng[ii], 1);
+	for(ii=0; ii<=N; ii++) d_zeros(lam_ug+ii, ng[ii], 1);
+	for(ii=0; ii<=N; ii++) d_zeros(lam_ls+ii, ns[ii], 1);
+	for(ii=0; ii<=N; ii++) d_zeros(lam_us+ii, ns[ii], 1);
 
 	d_ocp_qp_sol_get_all(&qp_sol, u, x, ls, us, pi, lam_lb, lam_ub, lam_lg, lam_ug, lam_ls, lam_us);
 #endif
@@ -1159,24 +1171,42 @@ int main()
 * extract and print residuals
 ************************************************/
 
-#if 0
-	double *res_r[N+1]; for(ii=0; ii<=N; ii++) d_zeros(res_r+ii, nu[ii], 1);
-	double *res_q[N+1]; for(ii=0; ii<=N; ii++) d_zeros(res_q+ii, nx[ii], 1);
-	double *res_ls[N+1]; for(ii=0; ii<=N; ii++) d_zeros(res_ls+ii, ns[ii], 1);
-	double *res_us[N+1]; for(ii=0; ii<=N; ii++) d_zeros(res_us+ii, ns[ii], 1);
-	double *res_b[N]; for(ii=0; ii<N; ii++) d_zeros(res_b+ii, nx[ii+1], 1);
-	double *res_d_lb[N+1]; for(ii=0; ii<=N; ii++) d_zeros(res_d_lb+ii, nb[ii], 1);
-	double *res_d_ub[N+1]; for(ii=0; ii<=N; ii++) d_zeros(res_d_ub+ii, nb[ii], 1);
-	double *res_d_lg[N+1]; for(ii=0; ii<=N; ii++) d_zeros(res_d_lg+ii, ng[ii], 1);
-	double *res_d_ug[N+1]; for(ii=0; ii<=N; ii++) d_zeros(res_d_ug+ii, ng[ii], 1);
-	double *res_d_ls[N+1]; for(ii=0; ii<=N; ii++) d_zeros(res_d_ls+ii, ns[ii], 1);
-	double *res_d_us[N+1]; for(ii=0; ii<=N; ii++) d_zeros(res_d_us+ii, ns[ii], 1);
-	double *res_m_lb[N+1]; for(ii=0; ii<=N; ii++) d_zeros(res_m_lb+ii, nb[ii], 1);
-	double *res_m_ub[N+1]; for(ii=0; ii<=N; ii++) d_zeros(res_m_ub+ii, nb[ii], 1);
-	double *res_m_lg[N+1]; for(ii=0; ii<=N; ii++) d_zeros(res_m_lg+ii, ng[ii], 1);
-	double *res_m_ug[N+1]; for(ii=0; ii<=N; ii++) d_zeros(res_m_ug+ii, ng[ii], 1);
-	double *res_m_ls[N+1]; for(ii=0; ii<=N; ii++) d_zeros(res_m_ls+ii, ns[ii], 1);
-	double *res_m_us[N+1]; for(ii=0; ii<=N; ii++) d_zeros(res_m_us+ii, ns[ii], 1);
+#if 1
+	double **res_r = (double **) malloc((N+1)*sizeof(double *));
+	double **res_q = (double **) malloc((N+1)*sizeof(double *));
+	double **res_ls = (double **) malloc((N+1)*sizeof(double *));
+	double **res_us = (double **) malloc((N+1)*sizeof(double *));
+	double **res_b = (double **) malloc(N*sizeof(double *));
+	double **res_d_lb = (double **) malloc((N+1)*sizeof(double *));
+	double **res_d_ub = (double **) malloc((N+1)*sizeof(double *));
+	double **res_d_lg = (double **) malloc((N+1)*sizeof(double *));
+	double **res_d_ug = (double **) malloc((N+1)*sizeof(double *));
+	double **res_d_ls = (double **) malloc((N+1)*sizeof(double *));
+	double **res_d_us = (double **) malloc((N+1)*sizeof(double *));
+	double **res_m_lb = (double **) malloc((N+1)*sizeof(double *));
+	double **res_m_ub = (double **) malloc((N+1)*sizeof(double *));
+	double **res_m_lg = (double **) malloc((N+1)*sizeof(double *));
+	double **res_m_ug = (double **) malloc((N+1)*sizeof(double *));
+	double **res_m_ls = (double **) malloc((N+1)*sizeof(double *));
+	double **res_m_us = (double **) malloc((N+1)*sizeof(double *));
+
+	for(ii=0; ii<=N; ii++) d_zeros(res_r+ii, nu[ii], 1);
+	for(ii=0; ii<=N; ii++) d_zeros(res_q+ii, nx[ii], 1);
+	for(ii=0; ii<=N; ii++) d_zeros(res_ls+ii, ns[ii], 1);
+	for(ii=0; ii<=N; ii++) d_zeros(res_us+ii, ns[ii], 1);
+	for(ii=0; ii<N; ii++) d_zeros(res_b+ii, nx[ii+1], 1);
+	for(ii=0; ii<=N; ii++) d_zeros(res_d_lb+ii, nb[ii], 1);
+	for(ii=0; ii<=N; ii++) d_zeros(res_d_ub+ii, nb[ii], 1);
+	for(ii=0; ii<=N; ii++) d_zeros(res_d_lg+ii, ng[ii], 1);
+	for(ii=0; ii<=N; ii++) d_zeros(res_d_ug+ii, ng[ii], 1);
+	for(ii=0; ii<=N; ii++) d_zeros(res_d_ls+ii, ns[ii], 1);
+	for(ii=0; ii<=N; ii++) d_zeros(res_d_us+ii, ns[ii], 1);
+	for(ii=0; ii<=N; ii++) d_zeros(res_m_lb+ii, nb[ii], 1);
+	for(ii=0; ii<=N; ii++) d_zeros(res_m_ub+ii, nb[ii], 1);
+	for(ii=0; ii<=N; ii++) d_zeros(res_m_lg+ii, ng[ii], 1);
+	for(ii=0; ii<=N; ii++) d_zeros(res_m_ug+ii, ng[ii], 1);
+	for(ii=0; ii<=N; ii++) d_zeros(res_m_ls+ii, ns[ii], 1);
+	for(ii=0; ii<=N; ii++) d_zeros(res_m_us+ii, ns[ii], 1);
 
 	d_ocp_qp_res_get_all(workspace.res, res_r, res_q, res_ls, res_us, res_b, res_d_lb, res_d_ub, res_d_lg, res_d_ug, res_d_ls, res_d_us, res_m_lb, res_m_ub, res_m_lg, res_m_ug, res_m_ls, res_m_us);
 
@@ -1277,6 +1307,17 @@ int main()
 ************************************************/
 
 	// TODO update the frees
+	free(nx);
+	free(nu);
+	free(nbu);
+	free(nbx);
+	free(nb);
+	free(ng);
+	free(nsbx);
+	free(nsbu);
+	free(nsg);
+	free(ns);
+	free(nbxe);
 
 	d_free(A);
 	d_free(B);
@@ -1342,6 +1383,56 @@ int main()
 	int_free(idxsN);
 	d_free(d_lsN);
 	d_free(d_usN);
+
+	free(hA);
+	free(hB);
+	free(hb);
+	free(hQ);
+	free(hS);
+	free(hR);
+	free(hq);
+	free(hr);
+	free(hidxbx);
+	free(hd_lbx);
+	free(hd_ubx);
+	free(hidxbu);
+	free(hd_lbu);
+	free(hd_ubu);
+	free(hC);
+	free(hD);
+	free(hd_lg);
+	free(hd_ug);
+	free(hZl);
+	free(hZu);
+	free(hzl);
+	free(hzu);
+	free(hidxs);
+	free(hd_ls);
+	free(hd_us);
+
+	for(ii=0; ii<=N; ii++) d_free(u[ii]);
+	for(ii=0; ii<=N; ii++) d_free(x[ii]);
+	for(ii=0; ii<=N; ii++) d_free(ls[ii]);
+	for(ii=0; ii<=N; ii++) d_free(us[ii]);
+	for(ii=0; ii<N; ii++) d_free(pi[ii]);
+	for(ii=0; ii<=N; ii++) d_free(lam_lb[ii]);
+	for(ii=0; ii<=N; ii++) d_free(lam_ub[ii]);
+	for(ii=0; ii<=N; ii++) d_free(lam_lg[ii]);
+	for(ii=0; ii<=N; ii++) d_free(lam_ug[ii]);
+	for(ii=0; ii<=N; ii++) d_free(lam_ls[ii]);
+	for(ii=0; ii<=N; ii++) d_free(lam_us[ii]);
+
+	free(u);
+	free(x);
+	free(ls);
+	free(us);
+	free(pi);
+	free(lam_lb);
+	free(lam_ub);
+	free(lam_lg);
+	free(lam_ug);
+	free(lam_ls);
+	free(lam_us);
 
 #if 0
 	for(ii=0; ii<N; ii++)

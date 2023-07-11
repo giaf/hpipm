@@ -181,7 +181,7 @@ int main()
 
 	// stage-wise variant size
 
-	int nx[N+1];
+	int *nx = (int *) malloc((N+1)*sizeof(int));
 #if KEEP_X0
 	nx[0] = nx_;
 #else
@@ -191,17 +191,17 @@ int main()
 		nx[ii] = nx_;
 //	nx[N] = 0;
 
-	int nu[N+1];
+	int *nu = (int *) malloc((N+1)*sizeof(int));
 	for(ii=0; ii<N; ii++)
 		nu[ii] = nu_;
 	nu[N] = 0;
 
-	int nbu[N+1];
+	int *nbu = (int *) malloc((N+1)*sizeof(int));
 	for (ii=0; ii<=N; ii++)
 		nbu[ii] = nu[ii];
 
 #if 1
-	int nbx[N+1];
+	int *nbx = (int *) malloc((N+1)*sizeof(int));
 #if KEEP_X0
 	nbx[0] = nx[0]/2;
 #else
@@ -210,31 +210,31 @@ int main()
 	for(ii=1; ii<=N; ii++)
 		nbx[ii] = nx[ii]/2;
 
-	int nb[N+1];
+	int *nb = (int *) malloc((N+1)*sizeof(int));
 	for (ii=0; ii<=N; ii++)
 		nb[ii] = nbu[ii]+nbx[ii];
 
-	int ng[N+1];
+	int *ng = (int *) malloc((N+1)*sizeof(int));
 	ng[0] = 0;
 	for(ii=1; ii<N; ii++)
 		ng[ii] = 0;
 	ng[N] = 0;
 
-	int nsbx[N+1];
+	int *nsbx = (int *) malloc((N+1)*sizeof(int));
 	nsbx[0] = 0;
 	for(ii=1; ii<N; ii++)
 		nsbx[ii] = nx[ii]/2;
 	nsbx[N] = nx[N]/2;
 
-	int nsbu[N+1];
+	int *nsbu = (int *) malloc((N+1)*sizeof(int));
 	for(ii=0; ii<=N; ii++)
 		nsbu[ii] = 0;
 
-	int nsg[N+1];
+	int *nsg = (int *) malloc((N+1)*sizeof(int));
 	for(ii=0; ii<=N; ii++)
 		nsg[ii] = 0;
 
-	int ns[N+1];
+	int *ns = (int *) malloc((N+1)*sizeof(int));
 	for(ii=0; ii<=N; ii++)
 		ns[ii] = nsbx[ii] + nsbu[ii] + nsg[ii];
 
@@ -587,31 +587,31 @@ int main()
 * array of matrices
 ************************************************/
 
-	double *hA[N];
-	double *hB[N];
-	double *hb[N];
-	double *hQ[N+1];
-	double *hS[N+1];
-	double *hR[N+1];
-	double *hq[N+1];
-	double *hr[N+1];
-	int *hidxbx[N+1];
-	double *hd_lbx[N+1];
-	double *hd_ubx[N+1];
-	int *hidxbu[N+1];
-	double *hd_lbu[N+1];
-	double *hd_ubu[N+1];
-	double *hC[N+1];
-	double *hD[N+1];
-	double *hd_lg[N+1];
-	double *hd_ug[N+1];
-	double *hZl[N+1];
-	double *hZu[N+1];
-	double *hzl[N+1];
-	double *hzu[N+1];
-	int *hidxs[N+1]; // XXX
-	double *hd_ls[N+1];
-	double *hd_us[N+1];
+	double **hA = (double **) malloc((N)*sizeof(double *));
+	double **hB = (double **) malloc((N)*sizeof(double *));
+	double **hb = (double **) malloc((N)*sizeof(double *));
+	double **hQ = (double **) malloc((N+1)*sizeof(double *));
+	double **hS = (double **) malloc((N+1)*sizeof(double *));
+	double **hR = (double **) malloc((N+1)*sizeof(double *));
+	double **hq = (double **) malloc((N+1)*sizeof(double *));
+	double **hr = (double **) malloc((N+1)*sizeof(double *));
+	int **hidxbx = (int **) malloc((N+1)*sizeof(int *));
+	double **hd_lbx = (double **) malloc((N+1)*sizeof(double *));
+	double **hd_ubx = (double **) malloc((N+1)*sizeof(double *));
+	int **hidxbu = (int **) malloc((N+1)*sizeof(int *));
+	double **hd_lbu = (double **) malloc((N+1)*sizeof(double *));
+	double **hd_ubu = (double **) malloc((N+1)*sizeof(double *));
+	double **hC = (double **) malloc((N+1)*sizeof(double *));
+	double **hD = (double **) malloc((N+1)*sizeof(double *));
+	double **hd_lg = (double **) malloc((N+1)*sizeof(double *));
+	double **hd_ug = (double **) malloc((N+1)*sizeof(double *));
+	double **hZl = (double **) malloc((N+1)*sizeof(double *));
+	double **hZu = (double **) malloc((N+1)*sizeof(double *));
+	double **hzl = (double **) malloc((N+1)*sizeof(double *));
+	double **hzu = (double **) malloc((N+1)*sizeof(double *));
+	int **hidxs = (int **) malloc((N+1)*sizeof(int *));
+	double **hd_ls = (double **) malloc((N+1)*sizeof(double *));
+	double **hd_us = (double **) malloc((N+1)*sizeof(double *));
 
 	hA[0] = A;
 	hB[0] = B;
@@ -819,7 +819,7 @@ int main()
 	/* update cond */
 
 	// index of updated dynamics
-	int idxc[N];
+	int *idxc = (int *) malloc(N*sizeof(int));
 	for(ii=0; ii<N; ii++)
 		idxc[ii] = 0;
 	idxc[0] = 1;
@@ -1042,17 +1042,29 @@ int main()
 
 	d_cond_qp_expand_sol(&ocp_qp, &dense_qp_sol, &ocp_qp_sol, &cond_arg, &cond_ws);
 
-	double *u[N+1]; for(ii=0; ii<=N; ii++) d_zeros(u+ii, nu[ii], 1);
-	double *x[N+1]; for(ii=0; ii<=N; ii++) d_zeros(x+ii, nx[ii], 1);
-	double *ls[N+1]; for(ii=0; ii<=N; ii++) d_zeros(ls+ii, ns[ii], 1);
-	double *us[N+1]; for(ii=0; ii<=N; ii++) d_zeros(us+ii, ns[ii], 1);
-	double *pi[N]; for(ii=0; ii<N; ii++) d_zeros(pi+ii, nx[ii+1], 1);
-	double *lam_lb[N+1]; for(ii=0; ii<=N; ii++) d_zeros(lam_lb+ii, nb[ii], 1);
-	double *lam_ub[N+1]; for(ii=0; ii<=N; ii++) d_zeros(lam_ub+ii, nb[ii], 1);
-	double *lam_lg[N+1]; for(ii=0; ii<=N; ii++) d_zeros(lam_lg+ii, ng[ii], 1);
-	double *lam_ug[N+1]; for(ii=0; ii<=N; ii++) d_zeros(lam_ug+ii, ng[ii], 1);
-	double *lam_ls[N+1]; for(ii=0; ii<=N; ii++) d_zeros(lam_ls+ii, ns[ii], 1);
-	double *lam_us[N+1]; for(ii=0; ii<=N; ii++) d_zeros(lam_us+ii, ns[ii], 1);
+	double **u = (double **) malloc((N+1)*sizeof(double *));
+	double **x = (double **) malloc((N+1)*sizeof(double *));
+	double **ls = (double **) malloc((N+1)*sizeof(double *));
+	double **us = (double **) malloc((N+1)*sizeof(double *));
+	double **pi = (double **) malloc(N*sizeof(double *));
+	double **lam_lb = (double **) malloc((N+1)*sizeof(double *));
+	double **lam_ub = (double **) malloc((N+1)*sizeof(double *));
+	double **lam_lg = (double **) malloc((N+1)*sizeof(double *));
+	double **lam_ug = (double **) malloc((N+1)*sizeof(double *));
+	double **lam_ls = (double **) malloc((N+1)*sizeof(double *));
+	double **lam_us = (double **) malloc((N+1)*sizeof(double *));
+
+	for(ii=0; ii<=N; ii++) d_zeros(u+ii, nu[ii], 1);
+	for(ii=0; ii<=N; ii++) d_zeros(x+ii, nx[ii], 1);
+	for(ii=0; ii<=N; ii++) d_zeros(ls+ii, ns[ii], 1);
+	for(ii=0; ii<=N; ii++) d_zeros(us+ii, ns[ii], 1);
+	for(ii=0; ii<N; ii++) d_zeros(pi+ii, nx[ii+1], 1);
+	for(ii=0; ii<=N; ii++) d_zeros(lam_lb+ii, nb[ii], 1);
+	for(ii=0; ii<=N; ii++) d_zeros(lam_ub+ii, nb[ii], 1);
+	for(ii=0; ii<=N; ii++) d_zeros(lam_lg+ii, ng[ii], 1);
+	for(ii=0; ii<=N; ii++) d_zeros(lam_ug+ii, ng[ii], 1);
+	for(ii=0; ii<=N; ii++) d_zeros(lam_ls+ii, ns[ii], 1);
+	for(ii=0; ii<=N; ii++) d_zeros(lam_us+ii, ns[ii], 1);
 
 	d_ocp_qp_sol_get_all(&ocp_qp_sol, u, x, ls, us, pi, lam_lb, lam_ub, lam_lg, lam_ug, lam_ls, lam_us);
 
@@ -1116,6 +1128,19 @@ int main()
 * free memory
 ************************************************/
 
+	free(nx);
+	free(nu);
+	free(nbu);
+	free(nbx);
+	free(nb);
+	free(ng);
+	free(nsbx);
+	free(nsbu);
+	free(nsg);
+	free(ns);
+
+	free(idxc);
+
 	d_free(A);
 	d_free(B);
 	d_free(b);
@@ -1175,6 +1200,56 @@ int main()
 	int_free(idxsN);
 	d_free(d_lsN);
 	d_free(d_usN);
+
+	free(hA);
+	free(hB);
+	free(hb);
+	free(hQ);
+	free(hS);
+	free(hR);
+	free(hq);
+	free(hr);
+	free(hidxbx);
+	free(hd_lbx);
+	free(hd_ubx);
+	free(hidxbu);
+	free(hd_lbu);
+	free(hd_ubu);
+	free(hC);
+	free(hD);
+	free(hd_lg);
+	free(hd_ug);
+	free(hZl);
+	free(hZu);
+	free(hzl);
+	free(hzu);
+	free(hidxs);
+	free(hd_ls);
+	free(hd_us);
+
+	for(ii=0; ii<=N; ii++) d_free(u[ii]);
+	for(ii=0; ii<=N; ii++) d_free(x[ii]);
+	for(ii=0; ii<=N; ii++) d_free(ls[ii]);
+	for(ii=0; ii<=N; ii++) d_free(us[ii]);
+	for(ii=0; ii<N; ii++) d_free(pi[ii]);
+	for(ii=0; ii<=N; ii++) d_free(lam_lb[ii]);
+	for(ii=0; ii<=N; ii++) d_free(lam_ub[ii]);
+	for(ii=0; ii<=N; ii++) d_free(lam_lg[ii]);
+	for(ii=0; ii<=N; ii++) d_free(lam_ug[ii]);
+	for(ii=0; ii<=N; ii++) d_free(lam_ls[ii]);
+	for(ii=0; ii<=N; ii++) d_free(lam_us[ii]);
+
+	free(u);
+	free(x);
+	free(ls);
+	free(us);
+	free(pi);
+	free(lam_lb);
+	free(lam_ub);
+	free(lam_lg);
+	free(lam_ug);
+	free(lam_ls);
+	free(lam_us);
 
 	free(ocp_qp_mem);
 	free(ocp_qp_sol_mem);

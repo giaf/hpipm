@@ -48,6 +48,7 @@
 #include <hpipm_d_dense_qp.h>
 #include <hpipm_d_dense_qp_sol.h>
 #include <hpipm_d_dense_qp_res.h>
+#include <hpipm_d_dense_qp_kkt.h>
 #include <hpipm_d_dense_qp_ipm.h>
 #include <hpipm_timing.h>
 

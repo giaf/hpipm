@@ -34,6 +34,18 @@
 **************************************************************************************************/
 
 
+#ifndef HPIPM_S_TREE_OCP_QP_KKT_H_
+#define HPIPM_S_TREE_OCP_QP_KKT_H_
+
+
+
+#include <hpipm_common.h>
+#include <hpipm_s_tree_ocp_qp.h>
+#include <hpipm_s_tree_ocp_qp_sol.h>
+#include <hpipm_d_tree_ocp_qp_ipm.h>
+
+
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -52,3 +64,6 @@ void s_tree_ocp_qp_solve_kkt_step(struct s_tree_ocp_qp *qp, struct s_tree_ocp_qp
 } /* extern "C" */
 #endif
 
+
+
+#endif // HPIPM_S_TREE_OCP_QP_KKT_H_

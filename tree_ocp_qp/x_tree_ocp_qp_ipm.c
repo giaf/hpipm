@@ -459,8 +459,9 @@ hpipm_size_t TREE_OCP_QP_IPM_WS_MEMSIZE(struct TREE_OCP_QP_DIM *dim, struct TREE
 
 	size += Nn*sizeof(int); // use_hess_fact
 
-	size = (size+63)/64*64; // make multiple of typical cache line size
 	size += 1*64; // align once to typical cache line size
+	size += 1*8; // align once to 8-byte boundary
+	size = (size+63)/64*64; // make multiple of typical cache line size
 
 	return size;
 
@@ -617,8 +618,13 @@ void TREE_OCP_QP_IPM_WS_CREATE(struct TREE_OCP_QP_DIM *dim, struct TREE_OCP_QP_I
 	sv_ptr += 1;
 
 
+	// align to 8-byte boundary
+	hpipm_size_t s_ptr = (hpipm_size_t) sv_ptr;
+	s_ptr = (s_ptr+7)/8*8;
+
+
 	// double/float stuff
-	REAL *d_ptr = (REAL *) sv_ptr;
+	REAL *d_ptr = (REAL *) s_ptr;
 
 	workspace->stat = d_ptr;
 	int stat_m = 18;
@@ -632,7 +638,7 @@ void TREE_OCP_QP_IPM_WS_CREATE(struct TREE_OCP_QP_DIM *dim, struct TREE_OCP_QP_I
 
 
 	// align to typical cache line size
-	hpipm_size_t s_ptr = (hpipm_size_t) i_ptr;
+	s_ptr = (hpipm_size_t) i_ptr;
 	s_ptr = (s_ptr+63)/64*64;
 
 

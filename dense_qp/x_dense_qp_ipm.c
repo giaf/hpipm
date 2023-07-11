@@ -626,8 +626,9 @@ hpipm_size_t DENSE_QP_IPM_WS_MEMSIZE(struct DENSE_QP_DIM *dim, struct DENSE_QP_I
 	size += nv*sizeof(int); // ipiv_v
 	size += 2*ne*sizeof(int); // ipiv_e ipiv_e1
 
-	size = (size+63)/64*64; // make multiple of typical cache line size
 	size += 1*64; // align once to typical cache line size
+	size += 1*8; // align once to 8-byte boundary
+	size = (size+63)/64*64; // make multiple of typical cache line size
 
 	return size;
 
@@ -806,8 +807,13 @@ void DENSE_QP_IPM_WS_CREATE(struct DENSE_QP_DIM *dim, struct DENSE_QP_IPM_ARG *a
 		}
 
 
+	// align to 8-byte boundary
+	hpipm_size_t s_ptr = (hpipm_size_t) sv_ptr;
+	s_ptr = (s_ptr+7)/8*8;
+
+
 	// double/float stuff
-	REAL *d_ptr = (REAL *) sv_ptr;
+	REAL *d_ptr = (REAL *) s_ptr;
 	
 	workspace->stat = d_ptr;
 	int stat_m = 18;
@@ -828,7 +834,7 @@ void DENSE_QP_IPM_WS_CREATE(struct DENSE_QP_DIM *dim, struct DENSE_QP_IPM_ARG *a
 
 
 	// align to typical cache line size
-	hpipm_size_t s_ptr = (hpipm_size_t) i_ptr;
+	s_ptr = (hpipm_size_t) i_ptr;
 	s_ptr = (s_ptr+63)/64*64;
 
 
