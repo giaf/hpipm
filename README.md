@@ -61,6 +61,10 @@ Copy `hpipm.lib` from `build/Debug/` to `lib/`.
 5) Open Matlab and navigate to the folder `hpipm/interfaces/matlab_octave`.
 Set the needed environment flags by running `env.m` (you may need to change the `BLASFEO_MAIN_FOLDER`, or to make it equal to the `BLASFEO_PATH`) in that folder.
 Compile the interface by running `compile_mex_all.m`.
+
+(Make sure that Matlab is configured to compile mex files with the same compiler as used in point 2), as sometimes by default it makes use of MinGW64 instead.
+If the HPIPM and BLASFEO libraries and the mex files are not all compiled with visual studio, or all compiled with MinGW64, errors about missing dependences from the runtime library happen.)
+
 6) In Matlab, navigate to the folder `hpipm/examples/matlab_octave`.
 Get started by running the examples in that folder. You may need to add folder `hpipm/interfaces/matlab_octave` to the Matlab path.
 
