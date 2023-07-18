@@ -198,7 +198,7 @@ int main()
 
 	// mark the inequality constr on x0 as an equality constr
 //	int *idxbxe0 = (int *) malloc(nx[0]*sizeof(int));
-//	for(ii=0; ii<=nx[0]; ii++)
+//	for(ii=0; ii<nx[0]; ii++)
 //		idxbxe0[ii] = ii;
 //	d_ocp_qp_set_idxbxe(0, idxbxe0, &qp);
 	for(ii=0; ii<=N; ii++)
