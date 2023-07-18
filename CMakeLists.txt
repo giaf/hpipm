@@ -44,9 +44,6 @@ set(CMAKE_VERBOSE_MAKEFILE ON)
 
 # Options
 
-# Use CMake to find blasfeo
-set(HPIPM_FIND_BLASFEO OFF CACHE BOOL "Use CMake to find BLASFEO.")
-
 # Target architecture
 set(TARGET AVX CACHE STRING "Set CPU architecture target")
 #set(TARGET GENERIC CACHE STRING "Set CPU architecture target")
@@ -93,20 +90,25 @@ if(NOT ${CMAKE_PROJECT_NAME} STREQUAL hpipm)
 	set(HPIPM_ALLOWED_REF_BLAS ${ALLOWED_REF_BLAS} PARENT_SCOPE)
 endif()
 
+# Use CMake to automatically find BLASFEO (OFF by default -- only for use in other software packages ATM)
+set(HPIPM_FIND_BLASFEO OFF CACHE BOOL "Use CMake to find BLASFEO.")
+
 # Try to find blasfeo using CMake (also sets BLASFEO_PATH and BLASFEO_INCLUDE_DIR if found)
 if(HPIPM_FIND_BLASFEO)
 	find_package(blasfeo REQUIRED)
 endif()
 
-# BLASFEO Option
+# BLASFEO option
 if(NOT TARGET blasfeo)
+	# manually set BLASFEO installation path
 	set(BLASFEO_PATH "/opt/blasfeo" CACHE STRING "BLASFEO installation path")
+	# match BLASFEO library type with HPIPM library type
 	if(BUILD_SHARED_LIBS MATCHES OFF)
 		set(HPIPM_BLASFEO_LIB "Static" CACHE STRING "BLASFEO library link type")
 	else()
 		set(HPIPM_BLASFEO_LIB "Shared" CACHE STRING "BLASFEO library link type")
 	endif()
-
+	# select correct name for BLASFEO library
 	if(HPIPM_BLASFEO_LIB STREQUAL "Static")
 		add_library(blasfeo STATIC IMPORTED)
 		if(CMAKE_C_COMPILER_ID MATCHES MSVC)
