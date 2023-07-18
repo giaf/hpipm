@@ -33,16 +33,61 @@
 #                                                                                                 #
 ###################################################################################################
 
+# select data set for QP and QCQP examples
+set(QP_DATA_SET data/getting_started_data.c)
+#set(QP_DATA_SET ../matlab_octave/ocp_qp_data.c)
+#set(QP_DATA_SET ../python/ocp_qp_data.c)
 
-#add_executable(example_d_ocp_qp example_d_ocp_qp.c data/tmp_data.c)
-add_executable(example_d_ocp_qp example_d_ocp_qp.c data/getting_started_data.c)
+set(QCQP_DATA_SET data/pmsm_ocp_qcqp_data.c)
+#set(QCQP_DATA_SET data/mass_spring_qcqp_data.c)
 
+add_executable(example_d_ocp_qp_unconstr example_d_ocp_qp_unconstr.c ${QP_DATA_SET})
+add_executable(example_d_ocp_qp example_d_ocp_qp.c ${QP_DATA_SET})
+add_executable(example_d_ocp_qp_x0emb example_d_ocp_qp_x0emb.c ${QP_DATA_SET})
+add_executable(example_d_ocp_qp_x0emb_cond example_d_ocp_qp_x0emb_cond.c ${QP_DATA_SET})
+add_executable(example_d_ocp_qp_part_cond example_d_ocp_qp_part_cond.c ${QP_DATA_SET})
+add_executable(example_d_ocp_qp_x0emb_part_cond example_d_ocp_qp_x0emb_part_cond.c ${QP_DATA_SET})
+add_executable(example_d_ocp_qp_sens example_d_ocp_qp_sens.c ${QP_DATA_SET})
+add_executable(example_d_ocp_qp_part_cond_sens example_d_ocp_qp_part_cond_sens.c ${QP_DATA_SET})
 
+add_executable(example_d_ocp_qcqp_part_cond example_d_ocp_qp_part_cond.c ${QCQP_DATA_SET})
+add_executable(example_d_ocp_qcqp_x0emb_part_cond example_d_ocp_qp_x0emb_part_cond.c ${QCQP_DATA_SET})
+
+target_include_directories(example_d_ocp_qp_unconstr PRIVATE "${HPIPM_INCLUDE_DIR}" "${BLASFEO_INCLUDE_DIR}")
 target_include_directories(example_d_ocp_qp PRIVATE "${HPIPM_INCLUDE_DIR}" "${BLASFEO_INCLUDE_DIR}")
+target_include_directories(example_d_ocp_qp_x0emb PRIVATE "${HPIPM_INCLUDE_DIR}" "${BLASFEO_INCLUDE_DIR}")
+target_include_directories(example_d_ocp_qp_x0emb_cond PRIVATE "${HPIPM_INCLUDE_DIR}" "${BLASFEO_INCLUDE_DIR}")
+target_include_directories(example_d_ocp_qp_part_cond PRIVATE "${HPIPM_INCLUDE_DIR}" "${BLASFEO_INCLUDE_DIR}")
+target_include_directories(example_d_ocp_qp_x0emb_part_cond PRIVATE "${HPIPM_INCLUDE_DIR}" "${BLASFEO_INCLUDE_DIR}")
+target_include_directories(example_d_ocp_qp_sens PRIVATE "${HPIPM_INCLUDE_DIR}" "${BLASFEO_INCLUDE_DIR}")
+target_include_directories(example_d_ocp_qp_part_cond_sens PRIVATE "${HPIPM_INCLUDE_DIR}" "${BLASFEO_INCLUDE_DIR}")
+
+target_include_directories(example_d_ocp_qcqp_part_cond PRIVATE "${HPIPM_INCLUDE_DIR}" "${BLASFEO_INCLUDE_DIR}")
+target_include_directories(example_d_ocp_qcqp_x0emb_part_cond PRIVATE "${HPIPM_INCLUDE_DIR}" "${BLASFEO_INCLUDE_DIR}")
 
 if(CMAKE_C_COMPILER_ID MATCHES MSVC) # no explicit math library
+	target_link_libraries(example_d_ocp_qp_unconstr hpipm blasfeo)
 	target_link_libraries(example_d_ocp_qp hpipm blasfeo)
+	target_link_libraries(example_d_ocp_qp_x0emb hpipm blasfeo)
+	target_link_libraries(example_d_ocp_qp_x0emb_cond hpipm blasfeo)
+	target_link_libraries(example_d_ocp_qp_part_cond hpipm blasfeo)
+	target_link_libraries(example_d_ocp_qp_x0emb_part_cond hpipm blasfeo)
+	target_link_libraries(example_d_ocp_qp_sens hpipm blasfeo)
+	target_link_libraries(example_d_ocp_qp_part_cond_sens hpipm blasfeo)
+
+	target_link_libraries(example_d_ocp_qcqp_part_cond hpipm blasfeo)
+	target_link_libraries(example_d_ocp_qcqp_x0emb_part_cond hpipm blasfeo)
 else() # add explicit math library
+	target_link_libraries(example_d_ocp_qp_unconstr hpipm blasfeo m)
 	target_link_libraries(example_d_ocp_qp hpipm blasfeo m)
+	target_link_libraries(example_d_ocp_qp_x0emb hpipm blasfeo m)
+	target_link_libraries(example_d_ocp_qp_x0emb_cond hpipm blasfeo m)
+	target_link_libraries(example_d_ocp_qp_part_cond hpipm blasfeo m)
+	target_link_libraries(example_d_ocp_qp_x0emb_part_cond hpipm blasfeo m)
+	target_link_libraries(example_d_ocp_qp_sens hpipm blasfeo m)
+	target_link_libraries(example_d_ocp_qp_part_cond_sens hpipm blasfeo m)
+
+	target_link_libraries(example_d_ocp_qcqp_part_cond hpipm blasfeo m)
+	target_link_libraries(example_d_ocp_qcqp_x0emb_part_cond hpipm blasfeo m)
 endif()
 

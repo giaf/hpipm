@@ -45,7 +45,6 @@
 
 #include <stdlib.h>
 #include <stdio.h>
-#include <sys/time.h>
 
 #include <blasfeo_d_aux_ext_dep.h>
 
@@ -168,7 +167,8 @@ int main()
 ************************************************/
 
 	// horizon length of partially condensed OCP QP
-	int N2 = 10;
+	int N2 = N/2;
+	N2 = N2<1 ? 1 : N2;
 
 	hpipm_size_t dim_size2 = d_ocp_qp_dim_memsize(N2);
 	void *dim_mem2 = malloc(dim_size2);
