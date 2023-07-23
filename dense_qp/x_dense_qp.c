@@ -34,6 +34,11 @@
 **************************************************************************************************/
 
 
+hpipm_size_t DENSE_QP_STRSIZE()
+	{
+	return sizeof(struct DENSE_QP);
+	}
+
 
 hpipm_size_t DENSE_QP_MEMSIZE(struct DENSE_QP_DIM *dim)
 	{

@@ -73,6 +73,8 @@ struct d_dense_qp
 
 
 //
+hpipm_size_t d_dense_qp_strsize();
+//
 hpipm_size_t d_dense_qp_memsize(struct d_dense_qp_dim *dim);
 //
 void d_dense_qp_create(struct d_dense_qp_dim *dim, struct d_dense_qp *qp, void *memory);

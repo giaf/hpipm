@@ -69,6 +69,8 @@ struct s_dense_qp_sol
 
 
 //
+hpipm_size_t s_dense_qp_sol_strsize();
+//
 hpipm_size_t s_dense_qp_sol_memsize(struct s_dense_qp_dim *dim);
 //
 void s_dense_qp_sol_create(struct s_dense_qp_dim *dim, struct s_dense_qp_sol *qp_sol, void *memory);
@@ -78,6 +80,16 @@ void s_dense_qp_sol_get_all(struct s_dense_qp_sol *qp_sol, float *v, float *ls, 
 void s_dense_qp_sol_get(char *field, struct s_dense_qp_sol *sol, void *value);
 //
 void s_dense_qp_sol_get_v(struct s_dense_qp_sol *sol, float *v);
+//
+void s_dense_qp_sol_get_pi(struct s_dense_qp_sol *sol, float *pi);
+//
+void s_dense_qp_sol_get_lam_lb(struct s_dense_qp_sol *sol, float *lam_lb);
+//
+void s_dense_qp_sol_get_lam_ub(struct s_dense_qp_sol *sol, float *lam_ub);
+//
+void s_dense_qp_sol_get_lam_lg(struct s_dense_qp_sol *sol, float *lam_lg);
+//
+void s_dense_qp_sol_get_lam_ug(struct s_dense_qp_sol *sol, float *lam_ug);
 //
 void s_dense_qp_sol_get_valid_obj(struct s_dense_qp_sol *sol, int *valid_obj);
 //

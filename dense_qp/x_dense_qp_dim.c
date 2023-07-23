@@ -34,6 +34,18 @@
 **************************************************************************************************/
 
 
+hpipm_size_t DENSE_QP_DIM_STRSIZE()
+	{
+
+	hpipm_size_t size = 0;
+
+	size += sizeof(struct DENSE_QP_DIM);
+
+	return size;
+
+	}
+
+
 
 hpipm_size_t DENSE_QP_DIM_MEMSIZE()
 	{
@@ -193,3 +205,37 @@ void DENSE_QP_DIM_SET_NS(int value, struct DENSE_QP_DIM *dim)
 	}
 
 
+
+void DENSE_QP_DIM_GET_NV(struct DENSE_QP_DIM *dim, int *value)
+	{
+	*value = dim->nv;
+
+	return;
+	}
+
+
+
+void DENSE_QP_DIM_GET_NE(struct DENSE_QP_DIM *dim, int *value)
+	{
+	*value = dim->ne;
+
+	return;
+	}
+
+
+
+void DENSE_QP_DIM_GET_NB(struct DENSE_QP_DIM *dim, int *value)
+	{
+	*value = dim->nb;
+
+	return;
+	}
+
+
+
+void DENSE_QP_DIM_GET_NG(struct DENSE_QP_DIM *dim, int *value)
+	{
+	*value = dim->ng;
+
+	return;
+	}

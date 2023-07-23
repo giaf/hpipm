@@ -132,6 +132,7 @@
 
 
 // arg
+#define DENSE_QP_IPM_ARG_STRSIZE d_dense_qp_ipm_arg_strsize
 #define DENSE_QP_IPM_ARG_MEMSIZE d_dense_qp_ipm_arg_memsize
 #define DENSE_QP_IPM_ARG_CREATE d_dense_qp_ipm_arg_create
 #define DENSE_QP_IPM_ARG_SET_DEFAULT d_dense_qp_ipm_arg_set_default
@@ -159,6 +160,7 @@
 #define DENSE_QP_IPM_ARG_SET_SPLIT_STEP d_dense_qp_ipm_arg_set_split_step
 #define DENSE_QP_IPM_ARG_SET_T_LAM_MIN d_dense_qp_ipm_arg_set_t_lam_min
 // ipm
+#define DENSE_QP_IPM_WS_STRSIZE d_dense_qp_ipm_ws_strsize
 #define DENSE_QP_IPM_WS_MEMSIZE d_dense_qp_ipm_ws_memsize
 #define DENSE_QP_IPM_WS_CREATE d_dense_qp_ipm_ws_create
 #define DENSE_QP_IPM_GET d_dense_qp_ipm_get

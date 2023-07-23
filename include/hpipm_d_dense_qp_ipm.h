@@ -158,7 +158,8 @@ struct d_dense_qp_ipm_ws
 	};
 
 
-
+//
+hpipm_size_t d_dense_qp_ipm_arg_strsize();
 //
 hpipm_size_t d_dense_qp_ipm_arg_memsize(struct d_dense_qp_dim *dim);
 //
@@ -213,6 +214,8 @@ void d_dense_qp_ipm_arg_set_t_lam_min(int *value, struct d_dense_qp_ipm_arg *arg
 //
 void d_dense_qp_ipm_arg_set_split_step(int *value, struct d_dense_qp_ipm_arg *arg);
 
+//
+hpipm_size_t d_dense_qp_ipm_ws_strsize();
 //
 hpipm_size_t d_dense_qp_ipm_ws_memsize(struct d_dense_qp_dim *qp_dim, struct d_dense_qp_ipm_arg *arg);
 //

@@ -60,11 +60,17 @@
 #define SIZE_STRVEC blasfeo_memsize_dvec
 #define VECCP_LIBSTR blasfeo_dveccp
 
+#define DENSE_QP_SOL_STRSIZE d_dense_qp_sol_strsize
 #define DENSE_QP_SOL_MEMSIZE d_dense_qp_sol_memsize
 #define DENSE_QP_SOL_CREATE d_dense_qp_sol_create
 #define DENSE_QP_SOL_GET_ALL d_dense_qp_sol_get_all
 #define DENSE_QP_SOL_GET d_dense_qp_sol_get
 #define DENSE_QP_SOL_GET_V d_dense_qp_sol_get_v
+#define DENSE_QP_SOL_GET_PI d_dense_qp_sol_get_pi
+#define DENSE_QP_SOL_GET_LAM_LB d_dense_qp_sol_get_lam_lb
+#define DENSE_QP_SOL_GET_LAM_UB d_dense_qp_sol_get_lam_ub
+#define DENSE_QP_SOL_GET_LAM_LG d_dense_qp_sol_get_lam_lg
+#define DENSE_QP_SOL_GET_LAM_UG d_dense_qp_sol_get_lam_ug
 #define DENSE_QP_SOL_GET_VALID_OBJ d_dense_qp_sol_get_valid_obj
 #define DENSE_QP_SOL_GET_OBJ d_dense_qp_sol_get_obj
 

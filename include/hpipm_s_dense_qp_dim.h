@@ -59,6 +59,8 @@ struct s_dense_qp_dim
 
 
 //
+hpipm_size_t s_dense_qp_dim_strsize();
+//
 hpipm_size_t s_dense_qp_dim_memsize();
 //
 void s_dense_qp_dim_create(struct s_dense_qp_dim *qp_dim, void *memory);
@@ -81,6 +83,15 @@ void s_dense_qp_dim_set_nsg(int value, struct s_dense_qp_dim *dim);
 //
 void s_dense_qp_dim_set_ns(int value, struct s_dense_qp_dim *dim);
 
+// getters
+//
+void s_dense_qp_dim_get_nv(struct s_dense_qp_dim *dim, int *value);
+//
+void s_dense_qp_dim_get_ne(struct s_dense_qp_dim *dim, int *value);
+//
+void s_dense_qp_dim_get_nb(struct s_dense_qp_dim *dim, int *value);
+//
+void s_dense_qp_dim_get_ng(struct s_dense_qp_dim *dim, int *value);
 
 
 #ifdef __cplusplus
