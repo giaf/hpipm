@@ -33,14 +33,11 @@
 #                                                                                                 #
 ###################################################################################################
 from ctypes import *
-import ctypes.util 
+import ctypes.util
 import numpy as np
 
 
-
 class hpipm_dense_qp_solver_arg:
-
-
 	def __init__(self, dim, mode):
 
 		c_mode = 0
@@ -77,7 +74,6 @@ class hpipm_dense_qp_solver_arg:
 
 		# initialize default arguments
 		__hpipm.d_dense_qp_ipm_arg_set_default(c_mode, arg_struct) # mode==SPEED
-	
 
 	def set(self, field, value):
 		if((field=='mu0') | (field=='tol_stat') | (field=='tol_eq') | (field=='tol_ineq') | (field=='tol_comp') | (field=='reg_prim')):
@@ -93,11 +89,3 @@ class hpipm_dense_qp_solver_arg:
 		field_name_b = field.encode('utf-8')
 		self.__hpipm.d_dense_qp_ipm_arg_set(c_char_p(field_name_b), tmp, self.arg_struct)
 		return
-
-
-	def codegen(self, file_name, mode):
-		file_name_b = file_name.encode('utf-8')
-		mode_b = mode.encode('utf-8')
-		self.__hpipm.d_dense_qp_ipm_arg_codegen(c_char_p(file_name_b), c_char_p(mode_b), self.dim.dim_struct, self.arg_struct)
-		return 
-

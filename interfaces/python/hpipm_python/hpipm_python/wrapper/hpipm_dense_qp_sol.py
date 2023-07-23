@@ -38,10 +38,7 @@ import ctypes.util
 import numpy as np
 
 
-
 class hpipm_dense_qp_sol:
-
-
 	def __init__(self, dim):
 
 		# save dim internally

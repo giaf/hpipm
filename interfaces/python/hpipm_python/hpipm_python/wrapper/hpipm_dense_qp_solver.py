@@ -34,14 +34,11 @@
 ###################################################################################################
 
 from ctypes import *
-import ctypes.util 
+import ctypes.util
 import numpy as np
 
 
-
 class hpipm_dense_qp_solver:
-
-
 	def __init__(self, qp_dims, arg):
 
 		# load hpipm shared library
@@ -53,7 +50,7 @@ class hpipm_dense_qp_solver:
 		ipm_ws_struct = cast(create_string_buffer(sizeof_d_dense_qp_ipm_workspace), c_void_p)
 		self.ipm_ws_struct = ipm_ws_struct
 
-		# allocate memory for ipm workspace 
+		# allocate memory for ipm workspace
 		ipm_size = __hpipm.d_dense_qp_ipm_ws_memsize(qp_dims.dim_struct, arg.arg_struct)
 		ipm_ws_mem = cast(create_string_buffer(ipm_size), c_void_p)
 		self.ipm_ws_mem = ipm_ws_mem
@@ -98,6 +95,3 @@ class hpipm_dense_qp_solver:
 		field_name_b = field.encode('utf-8')
 		self.__hpipm.d_dense_qp_ipm_get(c_char_p(field_name_b), self.ipm_ws_struct, tmp)
 		return res[0][0]
-
-
-
