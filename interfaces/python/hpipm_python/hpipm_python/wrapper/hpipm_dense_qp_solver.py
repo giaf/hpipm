@@ -39,6 +39,7 @@ import numpy as np
 
 
 class hpipm_dense_qp_solver:
+
 	def __init__(self, qp_dims, arg):
 
 		# load hpipm shared library
