@@ -52,6 +52,10 @@ travis_run = os.getenv('TRAVIS_RUN')
 #travis_run = 'true'
 
 
+# define flags
+codegen_data = 1; # export qp data in the file dense_qp_data.c for use from C examples
+
+
 # dim
 nv = 3  # number of variables
 ne = 1  # number of equality constraints
@@ -59,6 +63,9 @@ nb = 0  # number of box constraints
 ng = 3  # number of general (inequality) constraints
 
 dim = hpipm_dense_qp_dim()
+# codegen
+if codegen_data:
+	dim.codegen('dense_qp_data.c', 'w')
 
 dim.set('nv', nv)
 dim.set('nb', nb)
@@ -94,6 +101,9 @@ qp.set('b', b)
 
 # print to shell
 # qp.print_C_struct()
+# codegen
+if codegen_data:
+	qp.codegen('dense_qp_data.c', 'a')
 
 # qp sol
 qp_sol = hpipm_dense_qp_sol(dim)
@@ -114,6 +124,10 @@ arg.set('tol_eq', 1e-5)
 arg.set('tol_ineq', 1e-5)
 arg.set('tol_comp', 1e-5)
 arg.set('reg_prim', 1e-12)
+
+# codegen
+if codegen_data:
+	arg.codegen('dense_qp_data.c', 'a')
 
 # set up solver
 solver = hpipm_dense_qp_solver(dim, arg)

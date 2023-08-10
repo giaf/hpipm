@@ -40,6 +40,7 @@ import numpy as np
 
 class hpipm_dense_qp:
 
+
 	def __init__(self, dim):
 
 		# save dim internally
@@ -62,6 +63,7 @@ class hpipm_dense_qp:
 		# create C qp
 		__hpipm.d_dense_qp_create(dim.dim_struct, qp_struct, qp_mem)
 
+
 	def set(self, field, value):
 		# cast to np array
 		if type(value) is not np.ndarray:
@@ -81,5 +83,14 @@ class hpipm_dense_qp:
 		self.__hpipm.d_dense_qp_set(c_char_p(field_name_b), tmp, self.qp_struct)
 		return
 
+
 	def print_C_struct(self):
 		self.__hpipm.d_dense_qp_print(self.dim.dim_struct, self.qp_struct)
+
+
+	def codegen(self, file_name, mode):
+		file_name_b = file_name.encode('utf-8')
+		mode_b = mode.encode('utf-8')
+		self.__hpipm.d_dense_qp_codegen(c_char_p(file_name_b), c_char_p(mode_b), self.dim.dim_struct, self.qp_struct)
+		return
+

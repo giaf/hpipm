@@ -40,6 +40,7 @@ import numpy as np
 
 class hpipm_dense_qp_solver:
 
+
 	def __init__(self, qp_dims, arg):
 
 		# load hpipm shared library
@@ -62,8 +63,10 @@ class hpipm_dense_qp_solver:
 		self.arg = arg
 		self.dim_struct = qp_dims.dim_struct
 
+
 	def solve(self, qp, qp_sol):
 		self.__hpipm.d_dense_qp_ipm_solve(qp.qp_struct, qp_sol.qp_sol_struct, self.arg.arg_struct, self.ipm_ws_struct)
+
 
 	def get(self, field):
 		if((field=='stat')):

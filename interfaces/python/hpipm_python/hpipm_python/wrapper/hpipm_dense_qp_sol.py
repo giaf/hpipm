@@ -40,6 +40,7 @@ import numpy as np
 
 class hpipm_dense_qp_sol:
 
+
 	def __init__(self, dim):
 
 		# save dim internally
@@ -90,11 +91,13 @@ class hpipm_dense_qp_sol:
 			}
 		}
 
+
 	def get(self, field):
 		if field not in self.__getters:
 			raise NameError('hpipm_dense_qp_sol.get: wrong field')
 		else:
 			return self.__get(self.__getters[field])
+
 
 	def __get(self, getter):
 		# number of variables
@@ -108,6 +111,7 @@ class hpipm_dense_qp_sol:
 		getter['var'](self.qp_sol_struct, tmp_ptr)
 
 		return var
+
 
 	def print_C_struct(self):
 		self.__hpipm.d_dense_qp_sol_print(self.dim.dim_struct, self.qp_sol_struct)
