@@ -50,6 +50,7 @@
 #include <hpipm_d_dense_qp_res.h>
 #include <hpipm_d_dense_qp_kkt.h>
 #include <hpipm_d_dense_qp_ipm.h>
+#include <hpipm_d_dense_qp_utils.h>
 #include <hpipm_timing.h>
 
 
@@ -520,6 +521,14 @@ int main()
 
 	printf("\ndense ipm time = %e [s]\n\n", time_dense_ipm);
 #endif
+
+/************************************************
+* codegen QP data
+************************************************/
+
+//	d_dense_qp_dim_codegen("examples/c/data/test_d_dense_data.c", "w", &qp_dim);
+//	d_dense_qp_codegen("examples/c/data/test_d_dense_data.c", "a", &qp_dim, &qp);
+//	d_dense_qp_ipm_arg_codegen("examples/c/data/test_d_dense_data.c", "a", &qp_dim, &arg);
 
 /************************************************
 * free memory

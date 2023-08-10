@@ -57,15 +57,15 @@ extern "C" {
 //
 void s_dense_qp_dim_print(struct s_dense_qp_dim *qp_dim);
 //
-//void s_dense_qp_dim_codegen(char *file_name, char *mode, struct s_dense_qp_dim *qp_dim);
+void s_dense_qp_dim_codegen(char *file_name, char *mode, struct s_dense_qp_dim *qp_dim);
 //
 void s_dense_qp_print(struct s_dense_qp_dim *qp_dim, struct s_dense_qp *qp);
 //
-//void s_dense_qp_codegen(char *file_name, char *mode, struct s_dense_qp_dim *qp_dim, struct s_dense_qp *qp);
+void s_dense_qp_codegen(char *file_name, char *mode, struct s_dense_qp_dim *qp_dim, struct s_dense_qp *qp);
 //
 void s_dense_qp_sol_print(struct s_dense_qp_dim *qp_dim, struct s_dense_qp_sol *dense_qp_sol);
 //
-//void s_dense_qp_ipm_arg_codegen(char *file_name, char *mode, struct s_dense_qp_dim *qp_dim, struct s_dense_qp_ipm_arg *arg);
+void s_dense_qp_ipm_arg_codegen(char *file_name, char *mode, struct s_dense_qp_dim *qp_dim, struct s_dense_qp_ipm_arg *arg);
 //
 void s_dense_qp_res_print(struct s_dense_qp_dim *qp_dim, struct s_dense_qp_res *dense_qp_res);
 //

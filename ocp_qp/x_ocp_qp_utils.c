@@ -1361,7 +1361,7 @@ void OCP_QP_IPM_ARG_PRINT(struct OCP_QP_DIM *qp_dim, struct OCP_QP_IPM_ARG *arg)
 	{
 	int ii;
 
-	// iter_max
+	// mode
 	printf("/* mode */\n");
 	printf("int mode = %d;\n", arg->mode);
 	// iter_max
@@ -1414,7 +1414,7 @@ void OCP_QP_IPM_ARG_CODEGEN(char *file_name, char *mode, struct OCP_QP_DIM *qp_d
 
 	fprintf(file, "/***************\n* arg\n***************/\n");
 
-	// iter_max
+	// mode
 	fprintf(file, "/* mode */\n");
 	fprintf(file, "int mode = %d;\n", arg->mode);
 	// iter_max
