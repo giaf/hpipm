@@ -319,8 +319,8 @@ int main()
 	d_dense_qp_set_zl(zl, &qp);
 	d_dense_qp_set_zu(zu, &qp);
 	d_dense_qp_set_idxs(idxs, &qp);
-	d_dense_qp_set_ls(d_ls, &qp);
-	d_dense_qp_set_us(d_us, &qp);
+	d_dense_qp_set_lls(d_ls, &qp);
+	d_dense_qp_set_lus(d_us, &qp);
 #else
 	d_dense_qp_set_all(H, g, A, b, idxb, d_lb, d_ub, C, d_lg, d_ug, Zl, Zu, zl, zu, idxs, d_ls, d_us, &qp);
 #endif

@@ -131,13 +131,13 @@ void s_dense_qp_set_zl(float *zl, struct s_dense_qp *qp);
 //
 void s_dense_qp_set_zu(float *zu, struct s_dense_qp *qp);
 //
-void s_dense_qp_set_ls(float *ls, struct s_dense_qp *qp);
+void s_dense_qp_set_lls(float *ls, struct s_dense_qp *qp);
 //
-void s_dense_qp_set_ls_mask(float *ls, struct s_dense_qp *qp);
+void s_dense_qp_set_lls_mask(float *ls, struct s_dense_qp *qp);
 //
-void s_dense_qp_set_us(float *us, struct s_dense_qp *qp);
+void s_dense_qp_set_lus(float *us, struct s_dense_qp *qp);
 //
-void s_dense_qp_set_us_mask(float *us, struct s_dense_qp *qp);
+void s_dense_qp_set_lus_mask(float *us, struct s_dense_qp *qp);
 
 // getters - colmaj
 //

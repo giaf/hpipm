@@ -104,10 +104,10 @@
 #define DENSE_QP_SET_ZZU d_dense_qp_set_Zu
 #define DENSE_QP_SET_ZL d_dense_qp_set_zl
 #define DENSE_QP_SET_ZU d_dense_qp_set_zu
-#define DENSE_QP_SET_LS d_dense_qp_set_ls
-#define DENSE_QP_SET_LS_MASK d_dense_qp_set_ls_mask
-#define DENSE_QP_SET_US d_dense_qp_set_us
-#define DENSE_QP_SET_US_MASK d_dense_qp_set_us_mask
+#define DENSE_QP_SET_LLS d_dense_qp_set_lls
+#define DENSE_QP_SET_LLS_MASK d_dense_qp_set_lls_mask
+#define DENSE_QP_SET_LUS d_dense_qp_set_lus
+#define DENSE_QP_SET_LUS_MASK d_dense_qp_set_lus_mask
 #define DENSE_QP_GET_H d_dense_qp_get_H
 #define DENSE_QP_GET_G d_dense_qp_get_g
 #define DENSE_QP_GET_A d_dense_qp_get_A

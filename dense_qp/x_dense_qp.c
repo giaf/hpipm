@@ -394,19 +394,19 @@ void DENSE_QP_SET(char *field, void *value, struct DENSE_QP *qp)
 		}
 	else if(hpipm_strcmp(field, "lls")) 
 		{
-		DENSE_QP_SET_LS(value, qp);
+		DENSE_QP_SET_LLS(value, qp);
 		}
 	else if(hpipm_strcmp(field, "lls_mask")) 
 		{
-		DENSE_QP_SET_LS_MASK(value, qp);
+		DENSE_QP_SET_LLS_MASK(value, qp);
 		}
 	else if(hpipm_strcmp(field, "lus")) 
 		{
-		DENSE_QP_SET_US(value, qp);
+		DENSE_QP_SET_LUS(value, qp);
 		}
 	else if(hpipm_strcmp(field, "lus_mask")) 
 		{
-		DENSE_QP_SET_US_MASK(value, qp);
+		DENSE_QP_SET_LUS_MASK(value, qp);
 		}
 	// int
 	else if(hpipm_strcmp(field, "idxb"))
@@ -558,13 +558,13 @@ void DENSE_QP_SET_LB_MASK(REAL *lb_mask, struct DENSE_QP *qp)
 	for(ii=0; ii<nb; ii++)
 		if(lb_mask[ii]==0.0)
 #ifdef DOUBLE_PRECISION
-			BLASFEO_DVECEL(qp->d_mask, ii) = 0;
+			BLASFEO_DVECEL(qp->d_mask, ii) = 0.0;
 		else
-			BLASFEO_DVECEL(qp->d_mask, ii) = 1;
+			BLASFEO_DVECEL(qp->d_mask, ii) = 1.0;
 #else
-			BLASFEO_SVECEL(qp->d_mask, ii) = 0;
+			BLASFEO_SVECEL(qp->d_mask, ii) = 0.0;
 		else
-			BLASFEO_SVECEL(qp->d_mask, ii) = 1;
+			BLASFEO_SVECEL(qp->d_mask, ii) = 1.0;
 #endif
 
 	return;
@@ -600,13 +600,13 @@ void DENSE_QP_SET_UB_MASK(REAL *ub_mask, struct DENSE_QP *qp)
 	for(ii=0; ii<nb; ii++)
 		if(ub_mask[ii]==0.0)
 #ifdef DOUBLE_PRECISION
-			BLASFEO_DVECEL(qp->d_mask, nb+ng+ii) = 0;
+			BLASFEO_DVECEL(qp->d_mask, nb+ng+ii) = 0.0;
 		else
-			BLASFEO_DVECEL(qp->d_mask, nb+ng+ii) = 1;
+			BLASFEO_DVECEL(qp->d_mask, nb+ng+ii) = 1.0;
 #else
-			BLASFEO_SVECEL(qp->d_mask, nb+ng+ii) = 0;
+			BLASFEO_SVECEL(qp->d_mask, nb+ng+ii) = 0.0;
 		else
-			BLASFEO_SVECEL(qp->d_mask, nb+ng+ii) = 1;
+			BLASFEO_SVECEL(qp->d_mask, nb+ng+ii) = 1.0;
 #endif
 
 	return;
@@ -655,13 +655,13 @@ void DENSE_QP_SET_LG_MASK(REAL *lg_mask, struct DENSE_QP *qp)
 	for(ii=0; ii<ng; ii++)
 		if(lg_mask[ii]==0.0)
 #ifdef DOUBLE_PRECISION
-			BLASFEO_DVECEL(qp->d_mask, nb+ii) = 0;
+			BLASFEO_DVECEL(qp->d_mask, nb+ii) = 0.0;
 		else
-			BLASFEO_DVECEL(qp->d_mask, nb+ii) = 1;
+			BLASFEO_DVECEL(qp->d_mask, nb+ii) = 1.0;
 #else
-			BLASFEO_SVECEL(qp->d_mask, nb+ii) = 0;
+			BLASFEO_SVECEL(qp->d_mask, nb+ii) = 0.0;
 		else
-			BLASFEO_SVECEL(qp->d_mask, nb+ii) = 1;
+			BLASFEO_SVECEL(qp->d_mask, nb+ii) = 1.0;
 #endif
 
 	return;
@@ -697,13 +697,13 @@ void DENSE_QP_SET_UG_MASK(REAL *ug_mask, struct DENSE_QP *qp)
 	for(ii=0; ii<ng; ii++)
 		if(ug_mask[ii]==0.0)
 #ifdef DOUBLE_PRECISION
-			BLASFEO_DVECEL(qp->d_mask, 2*nb+ng+ii) = 0;
+			BLASFEO_DVECEL(qp->d_mask, 2*nb+ng+ii) = 0.0;
 		else
-			BLASFEO_DVECEL(qp->d_mask, 2*nb+ng+ii) = 1;
+			BLASFEO_DVECEL(qp->d_mask, 2*nb+ng+ii) = 1.0;
 #else
-			BLASFEO_SVECEL(qp->d_mask, 2*nb+ng+ii) = 0;
+			BLASFEO_SVECEL(qp->d_mask, 2*nb+ng+ii) = 0.0;
 		else
-			BLASFEO_SVECEL(qp->d_mask, 2*nb+ng+ii) = 1;
+			BLASFEO_SVECEL(qp->d_mask, 2*nb+ng+ii) = 1.0;
 #endif
 
 	return;
@@ -855,7 +855,7 @@ void DENSE_QP_SET_ZU(REAL *zu, struct DENSE_QP *qp)
 	}
 
 
-void DENSE_QP_SET_LS(REAL *ls, struct DENSE_QP *qp)
+void DENSE_QP_SET_LLS(REAL *ls, struct DENSE_QP *qp)
 	{
 
 	int ns = qp->dim->ns;
@@ -871,7 +871,7 @@ void DENSE_QP_SET_LS(REAL *ls, struct DENSE_QP *qp)
 
 
 
-void DENSE_QP_SET_LS_MASK(REAL *ls_mask, struct DENSE_QP *qp)
+void DENSE_QP_SET_LLS_MASK(REAL *ls_mask, struct DENSE_QP *qp)
 	{
 
 	int nb = qp->dim->nb;
@@ -883,13 +883,13 @@ void DENSE_QP_SET_LS_MASK(REAL *ls_mask, struct DENSE_QP *qp)
 	for(ii=0; ii<ns; ii++)
 		if(ls_mask[ii]==0.0)
 #ifdef DOUBLE_PRECISION
-			BLASFEO_DVECEL(qp->d_mask, 2*nb+2*ng+ii) = 0;
+			BLASFEO_DVECEL(qp->d_mask, 2*nb+2*ng+ii) = 0.0;
 		else
-			BLASFEO_DVECEL(qp->d_mask, 2*nb+2*ng+ii) = 1;
+			BLASFEO_DVECEL(qp->d_mask, 2*nb+2*ng+ii) = 1.0;
 #else
-			BLASFEO_SVECEL(qp->d_mask, 2*nb+2*ng+ii) = 0;
+			BLASFEO_SVECEL(qp->d_mask, 2*nb+2*ng+ii) = 0.0;
 		else
-			BLASFEO_SVECEL(qp->d_mask, 2*nb+2*ng+ii) = 1;
+			BLASFEO_SVECEL(qp->d_mask, 2*nb+2*ng+ii) = 1.0;
 #endif
 
 	return;
@@ -898,7 +898,7 @@ void DENSE_QP_SET_LS_MASK(REAL *ls_mask, struct DENSE_QP *qp)
 
 
 
-void DENSE_QP_SET_US(REAL *us, struct DENSE_QP *qp)
+void DENSE_QP_SET_LUS(REAL *us, struct DENSE_QP *qp)
 	{
 
 	int ns = qp->dim->ns;
@@ -914,7 +914,7 @@ void DENSE_QP_SET_US(REAL *us, struct DENSE_QP *qp)
 
 
 
-void DENSE_QP_SET_US_MASK(REAL *us_mask, struct DENSE_QP *qp)
+void DENSE_QP_SET_LUS_MASK(REAL *us_mask, struct DENSE_QP *qp)
 	{
 
 	int nb = qp->dim->nb;
@@ -926,13 +926,13 @@ void DENSE_QP_SET_US_MASK(REAL *us_mask, struct DENSE_QP *qp)
 	for(ii=0; ii<ns; ii++)
 		if(us_mask[ii]==0.0)
 #ifdef DOUBLE_PRECISION
-			BLASFEO_DVECEL(qp->d_mask, 2*nb+2*ng+ns+ii) = 0;
+			BLASFEO_DVECEL(qp->d_mask, 2*nb+2*ng+ns+ii) = 0.0;
 		else
-			BLASFEO_DVECEL(qp->d_mask, 2*nb+2*ng+ns+ii) = 1;
+			BLASFEO_DVECEL(qp->d_mask, 2*nb+2*ng+ns+ii) = 1.0;
 #else
-			BLASFEO_SVECEL(qp->d_mask, 2*nb+2*ng+ns+ii) = 0;
+			BLASFEO_SVECEL(qp->d_mask, 2*nb+2*ng+ns+ii) = 0.0;
 		else
-			BLASFEO_SVECEL(qp->d_mask, 2*nb+2*ng+ns+ii) = 1;
+			BLASFEO_SVECEL(qp->d_mask, 2*nb+2*ng+ns+ii) = 1.0;
 #endif
 
 	return;
