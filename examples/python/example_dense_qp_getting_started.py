@@ -54,6 +54,7 @@ travis_run = os.getenv('TRAVIS_RUN')
 
 # define flags
 codegen_data = 1; # export qp data in the file dense_qp_data.c for use from C examples
+warm_start = 0; # set to 1 to warm-start the primal variable
 
 
 # dim
@@ -124,6 +125,10 @@ arg.set('tol_eq', 1e-5)
 arg.set('tol_ineq', 1e-5)
 arg.set('tol_comp', 1e-5)
 arg.set('reg_prim', 1e-12)
+
+# if warm_start=1, then the primal variable is initialized from qp_sol
+arg.set('warm_start', warm_start)
+qp_sol.set('v', np.array([0.30769244, -0.6923054, 1.38461296]))
 
 # codegen
 if codegen_data:
