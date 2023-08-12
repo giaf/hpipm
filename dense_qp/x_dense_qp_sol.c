@@ -279,3 +279,11 @@ void DENSE_QP_SOL_GET_OBJ(struct DENSE_QP_SOL *qp_sol, REAL *obj)
 	{
 	*obj = qp_sol->obj;
 	}
+
+
+
+void DENSE_QP_SOL_SET_V(REAL *v, struct DENSE_QP_SOL *qp_sol)
+	{
+	int nv = qp_sol->dim->nv;
+	PACK_VEC(nv, v, 1, qp_sol->v, 0);
+	}

@@ -52,6 +52,7 @@
 
 #define CREATE_STRVEC blasfeo_create_dvec
 #define UNPACK_VEC blasfeo_unpack_dvec
+#define PACK_VEC blasfeo_pack_dvec
 #define DENSE_QP d_dense_qp
 #define DENSE_QP_DIM d_dense_qp_dim
 #define DENSE_QP_SOL d_dense_qp_sol
@@ -73,6 +74,7 @@
 #define DENSE_QP_SOL_GET_LAM_UG d_dense_qp_sol_get_lam_ug
 #define DENSE_QP_SOL_GET_VALID_OBJ d_dense_qp_sol_get_valid_obj
 #define DENSE_QP_SOL_GET_OBJ d_dense_qp_sol_get_obj
+#define DENSE_QP_SOL_SET_V d_dense_qp_sol_set_v
 
 
 

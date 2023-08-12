@@ -95,6 +95,8 @@ void s_dense_qp_sol_get_valid_obj(struct s_dense_qp_sol *sol, int *valid_obj);
 //
 void s_dense_qp_sol_get_obj(struct s_dense_qp_sol *sol, float *obj);
 
+//
+void s_dense_qp_sol_set_v(float *v, struct s_dense_qp_sol *sol);
 
 
 #ifdef __cplusplus
