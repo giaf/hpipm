@@ -500,6 +500,11 @@ void DENSE_QCQP_IPM_ARG_SET_T_LAM_MIN(int *value, struct DENSE_QCQP_IPM_ARG *arg
 	return;
 	}
 
+hpipm_size_t DENSE_QCQP_IPM_WS_STRSIZE()
+	{
+	return sizeof(struct DENSE_QCQP_IPM_WS);
+	}
+
 
 
 hpipm_size_t DENSE_QCQP_IPM_WS_MEMSIZE(struct DENSE_QCQP_DIM *dim, struct DENSE_QCQP_IPM_ARG *arg)
