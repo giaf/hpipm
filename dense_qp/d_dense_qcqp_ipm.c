@@ -168,6 +168,8 @@
 
 
 // arg
+#define DENSE_QCQP_IPM_ARG_STRSIZE d_dense_qcqp_ipm_arg_strsize
+#define DENSE_QCQP_IPM_ARG_STRSIZE d_dense_qcqp_ipm_arg_strsize
 #define DENSE_QCQP_IPM_ARG_MEMSIZE d_dense_qcqp_ipm_arg_memsize
 #define DENSE_QCQP_IPM_ARG_CREATE d_dense_qcqp_ipm_arg_create
 #define DENSE_QCQP_IPM_ARG_SET_DEFAULT d_dense_qcqp_ipm_arg_set_default

@@ -60,10 +60,18 @@
 #define SIZE_STRVEC blasfeo_memsize_dvec
 #define VECCP_LIBSTR blasfeo_dveccp
 
+#define DENSE_QCQP_SOL_STRSIZE s_dense_qcqp_sol_strsize
 #define DENSE_QCQP_SOL_MEMSIZE d_dense_qcqp_sol_memsize
 #define DENSE_QCQP_SOL_CREATE d_dense_qcqp_sol_create
 #define DENSE_QCQP_SOL_GET d_dense_qcqp_sol_get
 #define DENSE_QCQP_SOL_GET_V d_dense_qcqp_sol_get_v
+#define DENSE_QCQP_SOL_GET_PI d_dense_qcqp_sol_get_pi
+#define DENSE_QCQP_SOL_GET_LAM_LB d_dense_qcqp_sol_get_lam_lb
+#define DENSE_QCQP_SOL_GET_LAM_UB d_dense_qcqp_sol_get_lam_ub
+#define DENSE_QCQP_SOL_GET_LAM_LG d_dense_qcqp_sol_get_lam_lg
+#define DENSE_QCQP_SOL_GET_LAM_UG d_dense_qcqp_sol_get_lam_ug
+
+#define DENSE_QCQP_SOL_SET_V d_dense_qcqp_sol_set_v
 
 
 

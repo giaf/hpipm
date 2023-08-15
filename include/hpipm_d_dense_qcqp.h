@@ -73,7 +73,8 @@ struct d_dense_qcqp
 	};
 
 
-
+//
+hpipm_size_t d_dense_qcqp_strsize();
 //
 hpipm_size_t d_dense_qcqp_memsize(struct d_dense_qcqp_dim *dim);
 //

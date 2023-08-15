@@ -34,6 +34,11 @@
 **************************************************************************************************/
 
 
+hpipm_size_t DENSE_QCQP_SOL_STRSIZE()
+	{
+	return sizeof(struct DENSE_QCQP_SOL);
+	}
+
 
 hpipm_size_t DENSE_QCQP_SOL_MEMSIZE(struct DENSE_QCQP_DIM *dim)
 	{
@@ -145,6 +150,26 @@ void DENSE_QCQP_SOL_GET(char *field, struct DENSE_QCQP_SOL *qp_sol, void *value)
 		{
 		DENSE_QCQP_SOL_GET_V(qp_sol, value);
 		}
+	else if(hpipm_strcmp(field, "pi"))
+		{
+		DENSE_QCQP_SOL_GET_PI(qp_sol, value);
+		}
+	else if(hpipm_strcmp(field, "lam_lb"))
+		{
+		DENSE_QCQP_SOL_GET_LAM_LB(qp_sol, value);
+		}
+	else if(hpipm_strcmp(field, "lam_ub"))
+		{
+		DENSE_QCQP_SOL_GET_LAM_UB(qp_sol, value);
+		}
+	else if(hpipm_strcmp(field, "lam_lg"))
+		{
+		DENSE_QCQP_SOL_GET_LAM_LG(qp_sol, value);
+		}
+	else if(hpipm_strcmp(field, "lam_ug"))
+		{
+		DENSE_QCQP_SOL_GET_LAM_UG(qp_sol, value);
+		}
 	else
 		{
 		printf("error: DENSE_QCQP_SOL_GET: wrong field name '%s'. Exiting.\n", field);
@@ -161,6 +186,52 @@ void DENSE_QCQP_SOL_GET_V(struct DENSE_QCQP_SOL *qp_sol, REAL *v)
 	UNPACK_VEC(nv, qp_sol->v, 0, v, 1);
 	}
 
+void DENSE_QCQP_SOL_GET_PI(struct DENSE_QCQP_SOL *qp_sol, REAL *pi)
+	{
+	int ne = qp_sol->dim->ne;
+	UNPACK_VEC(ne, qp_sol->pi, 0, pi, 1);
+	}
+
+
+
+void DENSE_QCQP_SOL_GET_LAM_LB(struct DENSE_QCQP_SOL *qp_sol, REAL *lam_lb)
+	{
+	int nb = qp_sol->dim->nb;
+	UNPACK_VEC(nb, qp_sol->lam, 0, lam_lb, 1);
+	}
+
+
+
+void DENSE_QCQP_SOL_GET_LAM_UB(struct DENSE_QCQP_SOL *qp_sol, REAL *lam_ub)
+	{
+	int nb = qp_sol->dim->nb;
+	int ng = qp_sol->dim->ng;
+	UNPACK_VEC(nb, qp_sol->lam, nb+ng, lam_ub, 1);
+	}
+
+
+
+void DENSE_QCQP_SOL_GET_LAM_LG(struct DENSE_QCQP_SOL *qp_sol, REAL *lam_lg)
+	{
+	int nb = qp_sol->dim->nb;
+	int ng = qp_sol->dim->ng;
+	UNPACK_VEC(ng, qp_sol->lam, nb, lam_lg, 1);
+	}
+
+
+
+void DENSE_QCQP_SOL_GET_LAM_UG(struct DENSE_QCQP_SOL *qp_sol, REAL *lam_ug)
+	{
+	int nb = qp_sol->dim->nb;
+	int ng = qp_sol->dim->ng;
+	UNPACK_VEC(ng, qp_sol->lam, 2*nb+ng, lam_ug, 1);
+	}
+	
+void DENSE_QCQP_SOL_SET_V(REAL *v, struct DENSE_QCQP_SOL *qp_sol)
+	{
+	int nv = qp_sol->dim->nv;
+	PACK_VEC(nv, v, 1, qp_sol->v, 0);
+	}
 
 
 

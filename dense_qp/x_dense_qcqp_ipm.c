@@ -33,6 +33,10 @@
 *                                                                                                 *
 **************************************************************************************************/
 
+hpipm_size_t  DENSE_QCQP_IPM_ARG_STRSIZE()
+	{
+	return sizeof(struct DENSE_QCQP_IPM_ARG);
+	}
 
 
 hpipm_size_t DENSE_QCQP_IPM_ARG_MEMSIZE(struct DENSE_QCQP_DIM *dim)

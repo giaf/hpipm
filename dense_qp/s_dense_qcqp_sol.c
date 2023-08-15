@@ -60,6 +60,7 @@
 #define SIZE_STRVEC blasfeo_memsize_svec
 #define VECCP_LIBSTR blasfeo_sveccp
 
+#define DENSE_QCQP_SOL_STRSIZE s_dense_qcqp_sol_strsize
 #define DENSE_QCQP_SOL_MEMSIZE s_dense_qcqp_sol_memsize
 #define DENSE_QCQP_SOL_CREATE s_dense_qcqp_sol_create
 #define DENSE_QCQP_SOL_GET s_dense_qcqp_sol_get
