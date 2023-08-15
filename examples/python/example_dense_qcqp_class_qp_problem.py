@@ -57,36 +57,43 @@ warm_start = 0; # set to 1 to warm-start the primal variable
 
 
 # dim
-nv = 2  # number of variables
-nq = 1  # number of quadratic inequality constraints
-
+nv = 3  # number of variables
+ne = 1  # number of equality constraints
+nb = 0  # number of box constraints
+ng = 3  # number of general (inequality) constraints
 
 dim = hpipm_dense_qcqp_dim()
 
 dim.set('nv', nv)
-dim.set('nq', nq)
+dim.set('nb', nb)
+dim.set('ne', ne)
+dim.set('ng', ng)
 
 # print to shell
 # dim.print_C_struct()
 
 # this data is taken the from qpsolvers example
 # <https://github.com/qpsolvers/qpsolvers/blob/6f33bbc4ed797d92be1b88aa493a4398a8d8f73f/examples/quadratic_program.py>
+M = np.array([[1.0, 2.0, 0.0], [-8.0, 3.0, 2.0], [0.0, 1.0, 1.0]])
+H = np.dot(M.T, M)
+g = np.dot(np.array([3.0, 2.0, 3.0]), M)
 
-H = np.array([[1,0],
-              [0,1]])
-g = np.array([[0],[0]])
-Hq = np.array([[2,0],[0,2]])
-gq = np.array([[-2],[-2]])
-uq = -1
+C = np.array([[1.0, 2.0, 1.0], [2.0, 0.0, 1.0], [-1.0, 2.0, -1.0]])
+d = np.array([3.0, 2.0, -2.0])
+A = np.array([[1.0, 1.0, 1.0]])
+b = np.array([1.0])
 
 # qp
 qcqp = hpipm_dense_qcqp(dim)
 # data
 qcqp.set('H', H)
 qcqp.set('g', g)
-qcqp.set('Hq', Hq)
-qcqp.set('gq', gq)
-qcqp.set('uq', uq)  # arbitrary
+qcqp.set('C', C)
+qcqp.set('ug', d)
+qcqp.set('lg', d)  # arbitrary
+qcqp.set('lg_mask', np.zeros(3))  # disable lower bound
+qcqp.set('A', A)
+qcqp.set('b', b)
 
 # print to shell
 # qp.print_C_struct()
