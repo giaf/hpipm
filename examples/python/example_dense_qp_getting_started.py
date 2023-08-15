@@ -64,9 +64,6 @@ nb = 0  # number of box constraints
 ng = 3  # number of general (inequality) constraints
 
 dim = hpipm_dense_qp_dim()
-# codegen
-if codegen_data:
-	dim.codegen('dense_qp_data.c', 'w')
 
 dim.set('nv', nv)
 dim.set('nb', nb)
@@ -75,6 +72,9 @@ dim.set('ng', ng)
 
 # print to shell
 # dim.print_C_struct()
+# codegen
+if codegen_data:
+	dim.codegen('dense_qp_data.c', 'w')
 
 # this data is taken the from qpsolvers example
 # <https://github.com/qpsolvers/qpsolvers/blob/6f33bbc4ed797d92be1b88aa493a4398a8d8f73f/examples/quadratic_program.py>
