@@ -52,8 +52,8 @@ from .wrapper.hpipm_dense_qp_dim import *
 from .wrapper.hpipm_dense_qp_solver import *
 from .wrapper.hpipm_dense_qp_solver_arg import *
 # dense qcqp
-from .wrapper.hpipm_dense_qqcp import *
-from .wrapper.hpipm_dense_qqcp_sol import *
-from .wrapper.hpipm_dense_qqcp_dim import *
-from .wrapper.hpipm_dense_qqcp_solver import *
-from .wrapper.hpipm_dense_qqcp_solver_arg import *
+from .wrapper.hpipm_dense_qcqp import *
+from .wrapper.hpipm_dense_qcqp_sol import *
+from .wrapper.hpipm_dense_qcqp_dim import *
+from .wrapper.hpipm_dense_qcqp_solver import *
+from .wrapper.hpipm_dense_qcqp_solver_arg import *

@@ -79,7 +79,7 @@ void d_dense_qcqp_sol_get_pi(struct d_dense_qcqp_sol *qp_sol, double *pi);
 //
 void d_dense_qcqp_sol_get_lam_lb(struct d_dense_qcqp_sol *qp_sol, double *lam_lb);
 //
-void d_dense_qcqp_sol_get_lam_ub(struct d_dense_qcqp_sol *sol, double *lam_ub);
+void d_dense_qcqp_sol_get_lam_ub(struct d_dense_qcqp_sol *qp_sol, double *lam_ub);
 //
 void d_dense_qcqp_sol_get_lam_lg(struct d_dense_qcqp_sol *qp_sol, double *lam_lg);
 //
@@ -87,7 +87,7 @@ void d_dense_qcqp_sol_get_lam_ug(struct d_dense_qcqp_sol *qp_sol, double *lam_ug
 //
 void d_dense_qcqp_sol_get_lam_ug(struct d_dense_qcqp_sol *qp_sol, double *lam_ug);
 //
-void d_dense_qcqp_sol_set_v(double *v, struct d_dense_qp_sol *sol);
+void d_dense_qcqp_sol_set_v(double *v, struct d_dense_qcqp_sol *qp_sol);
 
 
 #ifdef __cplusplus
