@@ -67,7 +67,7 @@ class hpipm_dense_qcqp_solver_arg:
 		self.arg_struct = arg_struct
 
 		# C qcqp internal memory
-		arg_mem_size = __hpipm.d_dense_qp_ipm_arg_memsize(dim.dim_struct)
+		arg_mem_size = __hpipm.d_dense_qcqp_ipm_arg_memsize(dim.dim_struct)
 		arg_mem = cast(create_string_buffer(arg_mem_size), c_void_p)
 		self.arg_mem = arg_mem
 

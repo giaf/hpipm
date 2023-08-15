@@ -45,33 +45,23 @@ class hpipm_dense_qcqp_solver:
 	def __init__(self, qcqp_dims, arg):
 
 		# load hpipm shared library
-		print("line 48 hpipm_dense_qcqp_solver.py")
 		__hpipm   = CDLL('libhpipm.so')
 		self.__hpipm = __hpipm
-		print("line 51 hpipm_dense_qcqp_solver.py")
 		# set up ipm workspace struct
 		sizeof_d_dense_qcqp_ipm_workspace = __hpipm.d_dense_qcqp_ipm_ws_strsize()
-		print("line 54 hpipm_dense_qcqp_solver.py")
 		ipm_ws_struct = cast(create_string_buffer(sizeof_d_dense_qcqp_ipm_workspace), c_void_p)
-		print("line 56 hpipm_dense_qcqp_solver.py")
 		self.ipm_ws_struct = ipm_ws_struct
-		print("line 58 hpipm_dense_qcqp_solver.py")
 		# allocate memory for ipm workspace
 		ipm_size = __hpipm.d_dense_qcqp_ipm_ws_memsize(qcqp_dims.dim_struct, arg.arg_struct)
 		ipm_ws_mem = cast(create_string_buffer(ipm_size), c_void_p)
 		self.ipm_ws_mem = ipm_ws_mem
-		print("line 63 hpipm_dense_qcqp_solver.py")
 		# create C ws
 		__hpipm.d_dense_qcqp_ipm_ws_create(qcqp_dims.dim_struct, arg.arg_struct, ipm_ws_struct, ipm_ws_mem)
-		print("line 66 hpipm_dense_qcqp_solver.py")
 		self.arg = arg
 		self.dim_struct = qcqp_dims.dim_struct
-		print("line 69 hpipm_dense_qcqp_solver.py")
 
 	def solve(self, qcqp, qcqp_sol):
-		print("line 72 hpipm_dense_qcqp_solver.py")
 		self.__hpipm.d_dense_qcqp_ipm_solve(qcqp.qcqp_struct, qcqp_sol.qcqp_sol_struct, self.arg.arg_struct, self.ipm_ws_struct)
-		print("line 74 hpipm_dense_qcqp_solver.py")
 
 	def get(self, field):
 		if((field=='stat')):

@@ -187,7 +187,6 @@ else:
 	print('\nSolution failed, solver returned status {0:1d}\n'.format(status))
 
 print("line 189 #########")
-print(type(status)," " ,status)
+
 sys.exit(int(status))
 
-print("line 193 #########")

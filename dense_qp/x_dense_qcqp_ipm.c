@@ -58,7 +58,6 @@ hpipm_size_t DENSE_QCQP_IPM_ARG_MEMSIZE(struct DENSE_QCQP_DIM *dim)
 
 void DENSE_QCQP_IPM_ARG_CREATE(struct DENSE_QCQP_DIM *dim, struct DENSE_QCQP_IPM_ARG *arg, void *mem)
 	{
-
 	// loop index
 	int ii;
 
