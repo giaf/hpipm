@@ -41,15 +41,16 @@ LIBS = $(TOP)/lib/libhpipm.a $(BLASFEO_PATH)/lib/libblasfeo.a $(LIBS_EXTERNAL_BL
 
 ### select data file ###
 
-#OCP_QP_DATA = data/getting_started_data.o
+OCP_QP_DATA = data/getting_started_data.o
 #OCP_QP_DATA = data/ocp_qp_data.o 
 #OCP_QP_DATA = ../matlab_octave/ocp_qp_data.o
 #OCP_QP_DATA = ../python/ocp_qp_data.o
-OCP_QP_DATA = data/mass_spring_qp_data.o
+#OCP_QP_DATA = data/mass_spring_qp_data.o
 #OCP_QCQP_DATA = data/pmsm_ocp_qcqp_data.o
 #OCP_QCQP_DATA = data/ocp_qcqp_data.o 
 #OCP_QCQP_DATA = data/mass_spring_qcqp_data.o
 #DENSE_QP_DATA = data/getting_started_dense_qp_data.o
+#DENSE_QP_DATA = ../python/dense_qp_data.o
 
 ### select one single example ###
 
