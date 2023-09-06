@@ -242,7 +242,7 @@ void DENSE_QCQP_SOL_GET_LAM_UQ(struct DENSE_QCQP_SOL *qp_sol, REAL *lam_uq)
 	int nb = qp_sol->dim->nb;
 	int ng = qp_sol->dim->ng;
 	int nq = qp_sol->dim->nq;
-	UNPACK_VEC(ng, qp_sol->lam, 2*nb+2*ng+nq, lam_uq, 1);
+	UNPACK_VEC(nq, qp_sol->lam, 2*nb+2*ng+nq, lam_uq, 1);
 	}
 
 

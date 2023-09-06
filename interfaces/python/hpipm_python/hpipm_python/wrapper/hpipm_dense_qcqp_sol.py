@@ -88,6 +88,10 @@ class hpipm_dense_qcqp_sol:
 			'lam_ug': {
 				'n_var': __hpipm.d_dense_qcqp_dim_get_ng,
 				'var': __hpipm.d_dense_qcqp_sol_get_lam_ug
+			},
+			'lam_uq': {
+				'n_var': __hpipm.d_dense_qcqp_dim_get_nq,
+				'var': __hpipm.d_dense_qcqp_sol_get_lam_uq
 			}
 		}
 

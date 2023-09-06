@@ -69,9 +69,6 @@ dim.set('nq', nq)
 # print to shell
 # dim.print_C_struct()
 
-# this data is taken the from qpsolvers example
-# <https://github.com/qpsolvers/qpsolvers/blob/6f33bbc4ed797d92be1b88aa493a4398a8d8f73f/examples/quadratic_program.py>
-
 H = np.array([[1,0],
               [0,1]])
 g = np.array([[0],[0]])
@@ -86,7 +83,7 @@ qcqp.set('H', H)
 qcqp.set('g', g)
 qcqp.set('Hq', Hq)
 qcqp.set('gq', gq)
-qcqp.set('uq', uq)  # arbitrary
+qcqp.set('uq', uq)
 
 # print to shell
 # qp.print_C_struct()
@@ -103,7 +100,7 @@ arg = hpipm_dense_qcqp_solver_arg(dim, mode)
 # create and set default arg based on mode
 arg.set('mu0', 1e4)
 arg.set('iter_max', 30)
-arg.set('tol_stat', 1e-4)
+arg.set('tol_stat', 1e-5)
 arg.set('tol_eq', 1e-5)
 arg.set('tol_ineq', 1e-5)
 arg.set('tol_comp', 1e-5)
@@ -111,7 +108,7 @@ arg.set('reg_prim', 1e-12)
 
 # if warm_start=1, then the primal variable is initialized from qp_sol
 arg.set('warm_start', warm_start)
-qcqp_sol.set('v', np.array([0.30769244, -0.6923054, 1.38461296]))
+qcqp_sol.set('v', np.array([0.2929, 0.2929]))
 
 # set up solver
 solver = hpipm_dense_qcqp_solver(dim, arg)
@@ -127,12 +124,15 @@ lam_lb = qcqp_sol.get('lam_lb')
 lam_ub = qcqp_sol.get('lam_ub')
 lam_lg = qcqp_sol.get('lam_lg')
 lam_ug = qcqp_sol.get('lam_ug')
+lam_uq = qcqp_sol.get('lam_uq')
 print('v      = {}'.format(v.flatten()))
 print('pi     = {}'.format(pi.flatten()))
 print('lam_lb = {}'.format(lam_lb.flatten()))
 print('lam_ub = {}'.format(lam_ub.flatten()))
 print('lam_lg = {}'.format(lam_lg.flatten()))
 print('lam_ug = {}'.format(lam_ug.flatten()))
+print('lam_uq = {}'.format(lam_uq.flatten()))
+#qcqp_sol.print_C_struct()
 
 # get solver statistics
 status = solver.get('status')
