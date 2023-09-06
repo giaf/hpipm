@@ -75,6 +75,8 @@ struct s_dense_qcqp
 
 
 //
+hpipm_size_t s_dense_qcqp_strsize();
+//
 hpipm_size_t s_dense_qcqp_memsize(struct s_dense_qcqp_dim *dim);
 //
 void s_dense_qcqp_create(struct s_dense_qcqp_dim *dim, struct s_dense_qcqp *qp, void *memory);

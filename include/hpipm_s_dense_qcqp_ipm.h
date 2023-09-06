@@ -98,20 +98,15 @@ struct s_dense_qcqp_ipm_ws
 	struct s_dense_qcqp_res_ws *qcqp_res_ws;
 	struct s_dense_qcqp_res *qcqp_res;
 	struct blasfeo_svec *tmp_nv;
-//	float *stat; // convergence statistics
-//	void *lq_work0;
-//	void *lq_work1;
 	int iter; // iteration number
-//	int stat_max; // iterations saved in stat
-//	int stat_m; // numer of recorded stat per ipm iter
-//	int scale;
-//	int use_hess_fact;
 	int status;
 	hpipm_size_t memsize; // memory size (in bytes) of workspace
 	};
 
 
 
+//
+hpipm_size_t s_dense_qcqp_ipm_arg_strsize();
 //
 hpipm_size_t s_dense_qcqp_ipm_arg_memsize(struct s_dense_qcqp_dim *dim);
 //
@@ -157,6 +152,8 @@ void s_dense_qcqp_ipm_arg_set_split_step(int *value, struct s_dense_qcqp_ipm_arg
 //
 void s_dense_qcqp_ipm_arg_set_t_lam_min(int *value, struct s_dense_qcqp_ipm_arg *arg);
 
+//
+hpipm_size_t s_dense_qcqp_ipm_ws_strsize();
 //
 hpipm_size_t s_dense_qcqp_ipm_ws_memsize(struct s_dense_qcqp_dim *qp_dim, struct s_dense_qcqp_ipm_arg *arg);
 //

@@ -103,6 +103,7 @@ struct d_dense_qcqp_ipm_ws
 	};
 
 
+
 //
 hpipm_size_t d_dense_qcqp_ipm_arg_strsize();
 //
