@@ -52,6 +52,7 @@
 
 #define CREATE_STRVEC blasfeo_create_svec
 #define UNPACK_VEC blasfeo_unpack_svec
+#define PACK_VEC blasfeo_pack_svec
 #define DENSE_QCQP s_dense_qcqp
 #define DENSE_QCQP_DIM s_dense_qcqp_dim
 #define DENSE_QCQP_SOL s_dense_qcqp_sol
@@ -60,6 +61,7 @@
 #define SIZE_STRVEC blasfeo_memsize_svec
 #define VECCP_LIBSTR blasfeo_sveccp
 
+#define DENSE_QCQP_SOL_STRSIZE s_dense_qcqp_sol_strsize
 #define DENSE_QCQP_SOL_MEMSIZE s_dense_qcqp_sol_memsize
 #define DENSE_QCQP_SOL_CREATE s_dense_qcqp_sol_create
 #define DENSE_QCQP_SOL_GET s_dense_qcqp_sol_get

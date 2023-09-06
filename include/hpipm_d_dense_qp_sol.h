@@ -94,7 +94,6 @@ void d_dense_qp_sol_get_lam_ug(struct d_dense_qp_sol *sol, double *lam_ug);
 void d_dense_qp_sol_get_valid_obj(struct d_dense_qp_sol *sol, int *valid_obj);
 //
 void d_dense_qp_sol_get_obj(struct d_dense_qp_sol *sol, double *obj);
-
 //
 void d_dense_qp_sol_set_v(double *v, struct d_dense_qp_sol *sol);
 

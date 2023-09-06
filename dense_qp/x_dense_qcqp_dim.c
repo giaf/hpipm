@@ -34,6 +34,17 @@
 **************************************************************************************************/
 
 
+hpipm_size_t DENSE_QCQP_DIM_STRSIZE()
+	{
+
+	hpipm_size_t size = 0;
+
+	size += sizeof(struct DENSE_QCQP_DIM);
+
+	return size;
+
+	}
+
 
 hpipm_size_t DENSE_QCQP_DIM_MEMSIZE()
 	{
@@ -254,3 +265,43 @@ void DENSE_QCQP_DIM_SET_NS(int value, struct DENSE_QCQP_DIM *dim)
 	return;
 	}
 
+void DENSE_QCQP_DIM_GET_NV(struct DENSE_QCQP_DIM *dim, int *value)
+	{
+	*value = dim->nv;
+
+	return;
+	}
+
+
+
+void DENSE_QCQP_DIM_GET_NE(struct DENSE_QCQP_DIM *dim, int *value)
+	{
+	*value = dim->ne;
+
+	return;
+	}
+
+
+
+void DENSE_QCQP_DIM_GET_NB(struct DENSE_QCQP_DIM *dim, int *value)
+	{
+	*value = dim->nb;
+
+	return;
+	}
+
+
+
+void DENSE_QCQP_DIM_GET_NG(struct DENSE_QCQP_DIM *dim, int *value)
+	{
+	*value = dim->ng;
+
+	return;
+	}
+	
+void DENSE_QCQP_DIM_GET_NQ(struct DENSE_QCQP_DIM *dim, int *value)
+	{
+	*value = dim->nq;
+
+	return;
+	}

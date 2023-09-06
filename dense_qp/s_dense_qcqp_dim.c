@@ -48,6 +48,7 @@
 #define DENSE_QCQP_DIM s_dense_qcqp_dim
 #define DENSE_QP_DIM s_dense_qp_dim
 #define DENSE_QP_DIM_CREATE s_dense_qp_dim_create
+#define DENSE_QP_DIM_STRSIZE s_dense_qp_dim_strsize
 #define DENSE_QP_DIM_MEMSIZE s_dense_qp_dim_memsize
 #define DENSE_QP_DIM_SET s_dense_qp_dim_set
 #define DENSE_QP_DIM_SET_NV s_dense_qp_dim_set_nv
@@ -58,6 +59,7 @@
 #define DENSE_QP_DIM_SET_NSG s_dense_qp_dim_set_nsg
 #define DENSE_QP_DIM_SET_NS s_dense_qp_dim_set_ns
 
+#define DENSE_QCQP_DIM_STRSIZE s_dense_qcqp_dim_strsize
 #define DENSE_QCQP_DIM_MEMSIZE s_dense_qcqp_dim_memsize
 #define DENSE_QCQP_DIM_CREATE s_dense_qcqp_dim_create
 #define DENSE_QCQP_DIM_SET s_dense_qcqp_dim_set

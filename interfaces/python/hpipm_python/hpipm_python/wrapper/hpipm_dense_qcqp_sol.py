@@ -33,27 +33,94 @@
 #                                                                                                 #
 ###################################################################################################
 
-# ocp qp
-from .wrapper.hpipm_ocp_qp import *
-from .wrapper.hpipm_ocp_qp_sol import *
-from .wrapper.hpipm_ocp_qp_dim import *
-from .wrapper.hpipm_ocp_qp_solver import *
-from .wrapper.hpipm_ocp_qp_solver_arg import *
-# ocp qcqp
-from .wrapper.hpipm_ocp_qcqp import *
-from .wrapper.hpipm_ocp_qcqp_sol import *
-from .wrapper.hpipm_ocp_qcqp_dim import *
-from .wrapper.hpipm_ocp_qcqp_solver import *
-from .wrapper.hpipm_ocp_qcqp_solver_arg import *
-# dense qp
-from .wrapper.hpipm_dense_qp import *
-from .wrapper.hpipm_dense_qp_sol import *
-from .wrapper.hpipm_dense_qp_dim import *
-from .wrapper.hpipm_dense_qp_solver import *
-from .wrapper.hpipm_dense_qp_solver_arg import *
-# dense qcqp
-from .wrapper.hpipm_dense_qcqp import *
-from .wrapper.hpipm_dense_qcqp_sol import *
-from .wrapper.hpipm_dense_qcqp_dim import *
-from .wrapper.hpipm_dense_qcqp_solver import *
-from .wrapper.hpipm_dense_qcqp_solver_arg import *
+from ctypes import *
+import ctypes.util
+import numpy as np
+
+
+class hpipm_dense_qcqp_sol:
+
+
+	def __init__(self, dim):
+
+		# save dim internally
+		self.dim = dim
+
+		# load hpipm shared library
+		__hpipm   = CDLL('libhpipm.so')
+		self.__hpipm = __hpipm
+
+		# C qcqp struct
+		qcqp_sol_struct_size = __hpipm.d_dense_qcqp_sol_strsize()
+		qcqp_sol_struct = cast(create_string_buffer(qcqp_sol_struct_size), c_void_p)
+		self.qcqp_sol_struct = qcqp_sol_struct
+
+		# C qp internal memory
+		qcqp_sol_mem_size = __hpipm.d_dense_qcqp_sol_memsize(dim.dim_struct)
+		qcqp_sol_mem = cast(create_string_buffer(qcqp_sol_mem_size), c_void_p)
+		self.qcqp_sol_mem = qcqp_sol_mem
+
+		# create C qcqp
+		__hpipm.d_dense_qcqp_sol_create(dim.dim_struct, qcqp_sol_struct, qcqp_sol_mem)
+
+		# getter functions for primals, duals, and slacks
+		self.__getters = {
+			'v': {
+				'n_var': __hpipm.d_dense_qcqp_dim_get_nv,
+				'var': __hpipm.d_dense_qcqp_sol_get_v
+			},
+			'pi': {
+				'n_var': __hpipm.d_dense_qcqp_dim_get_ne,
+				'var': __hpipm.d_dense_qcqp_sol_get_pi
+			},
+			'lam_lb': {
+				'n_var': __hpipm.d_dense_qcqp_dim_get_nb,
+				'var': __hpipm.d_dense_qcqp_sol_get_lam_lb
+			},
+			'lam_ub': {
+				'n_var': __hpipm.d_dense_qcqp_dim_get_nb,
+				'var': __hpipm.d_dense_qcqp_sol_get_lam_ub
+			},
+			'lam_lg': {
+				'n_var': __hpipm.d_dense_qcqp_dim_get_ng,
+				'var': __hpipm.d_dense_qcqp_sol_get_lam_lg
+			},
+			'lam_ug': {
+				'n_var': __hpipm.d_dense_qcqp_dim_get_ng,
+				'var': __hpipm.d_dense_qcqp_sol_get_lam_ug
+			}
+		}
+
+
+	def get(self, field):
+		if field not in self.__getters:
+			raise NameError('hpipm_dense_qcqp_sol.get: wrong field')
+		else:
+			return self.__get(self.__getters[field])
+
+
+	def __get(self, getter):
+		# number of variables
+		n_var = np.zeros((1,1), dtype=int)
+
+		tmp_ptr = cast(n_var.ctypes.data, POINTER(c_int))
+		getter['n_var'](self.dim.dim_struct, tmp_ptr)
+
+		var = np.zeros((n_var[0,0], 1))
+		tmp_ptr = cast(var.ctypes.data, POINTER(c_double))
+		getter['var'](self.qcqp_sol_struct, tmp_ptr)
+
+		return var
+
+	def set(self, field, value):
+		if((field=='v')):
+			value = np.ascontiguousarray(value, dtype=np.float64)
+			tmp = cast(value.ctypes.data, POINTER(c_double))
+			self.__hpipm.d_dense_qcqp_sol_set_v(tmp, self.qcqp_sol_struct)
+		else:
+			raise NameError('hpipm_dense_qcqp_sol.set: wrong field')
+		return
+
+	def print_C_struct(self):
+		self.__hpipm.d_dense_qcqp_sol_print(self.dim.dim_struct, self.qcqp_sol_struct)
+		return

@@ -33,6 +33,10 @@
 *                                                                                                 *
 **************************************************************************************************/
 
+hpipm_size_t  DENSE_QCQP_IPM_ARG_STRSIZE()
+	{
+	return sizeof(struct DENSE_QCQP_IPM_ARG);
+	}
 
 
 hpipm_size_t DENSE_QCQP_IPM_ARG_MEMSIZE(struct DENSE_QCQP_DIM *dim)
@@ -54,7 +58,6 @@ hpipm_size_t DENSE_QCQP_IPM_ARG_MEMSIZE(struct DENSE_QCQP_DIM *dim)
 
 void DENSE_QCQP_IPM_ARG_CREATE(struct DENSE_QCQP_DIM *dim, struct DENSE_QCQP_IPM_ARG *arg, void *mem)
 	{
-
 	// loop index
 	int ii;
 
@@ -494,6 +497,11 @@ void DENSE_QCQP_IPM_ARG_SET_T_LAM_MIN(int *value, struct DENSE_QCQP_IPM_ARG *arg
 	arg->t_lam_min = *value;
 	DENSE_QP_IPM_ARG_SET_T_LAM_MIN(value, arg->qp_arg);
 	return;
+	}
+
+hpipm_size_t DENSE_QCQP_IPM_WS_STRSIZE()
+	{
+	return sizeof(struct DENSE_QCQP_IPM_WS);
 	}
 
 

@@ -70,6 +70,7 @@
 #define VECSC blasfeo_dvecsc
 #define VECSE blasfeo_dvecse
 
+#define DENSE_QCQP_STRSIZE d_dense_qcqp_strsize
 #define DENSE_QCQP_MEMSIZE d_dense_qcqp_memsize
 #define DENSE_QCQP_CREATE d_dense_qcqp_create
 #define DENSE_QCQP_SET_ALL d_dense_qcqp_set_all
