@@ -298,7 +298,9 @@ void DENSE_QCQP_DIM_GET_NG(struct DENSE_QCQP_DIM *dim, int *value)
 
 	return;
 	}
-	
+
+
+
 void DENSE_QCQP_DIM_GET_NQ(struct DENSE_QCQP_DIM *dim, int *value)
 	{
 	*value = dim->nq;

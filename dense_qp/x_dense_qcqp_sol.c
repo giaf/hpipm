@@ -170,6 +170,10 @@ void DENSE_QCQP_SOL_GET(char *field, struct DENSE_QCQP_SOL *qp_sol, void *value)
 		{
 		DENSE_QCQP_SOL_GET_LAM_UG(qp_sol, value);
 		}
+	else if(hpipm_strcmp(field, "lam_uq"))
+		{
+		DENSE_QCQP_SOL_GET_LAM_UG(qp_sol, value);
+		}
 	else
 		{
 		printf("error: DENSE_QCQP_SOL_GET: wrong field name '%s'. Exiting.\n", field);
@@ -185,6 +189,8 @@ void DENSE_QCQP_SOL_GET_V(struct DENSE_QCQP_SOL *qp_sol, REAL *v)
 	int nv = qp_sol->dim->nv;
 	UNPACK_VEC(nv, qp_sol->v, 0, v, 1);
 	}
+
+
 
 void DENSE_QCQP_SOL_GET_PI(struct DENSE_QCQP_SOL *qp_sol, REAL *pi)
 	{
@@ -206,7 +212,8 @@ void DENSE_QCQP_SOL_GET_LAM_UB(struct DENSE_QCQP_SOL *qp_sol, REAL *lam_ub)
 	{
 	int nb = qp_sol->dim->nb;
 	int ng = qp_sol->dim->ng;
-	UNPACK_VEC(nb, qp_sol->lam, nb+ng, lam_ub, 1);
+	int nq = qp_sol->dim->nq;
+	UNPACK_VEC(nb, qp_sol->lam, nb+ng+nq, lam_ub, 1);
 	}
 
 
@@ -224,9 +231,22 @@ void DENSE_QCQP_SOL_GET_LAM_UG(struct DENSE_QCQP_SOL *qp_sol, REAL *lam_ug)
 	{
 	int nb = qp_sol->dim->nb;
 	int ng = qp_sol->dim->ng;
-	UNPACK_VEC(ng, qp_sol->lam, 2*nb+ng, lam_ug, 1);
+	int nq = qp_sol->dim->nq;
+	UNPACK_VEC(ng, qp_sol->lam, 2*nb+ng+nq, lam_ug, 1);
 	}
-	
+
+
+
+void DENSE_QCQP_SOL_GET_LAM_UQ(struct DENSE_QCQP_SOL *qp_sol, REAL *lam_uq)
+	{
+	int nb = qp_sol->dim->nb;
+	int ng = qp_sol->dim->ng;
+	int nq = qp_sol->dim->nq;
+	UNPACK_VEC(ng, qp_sol->lam, 2*nb+2*ng+nq, lam_uq, 1);
+	}
+
+
+
 void DENSE_QCQP_SOL_SET_V(REAL *v, struct DENSE_QCQP_SOL *qp_sol)
 	{
 	int nv = qp_sol->dim->nv;

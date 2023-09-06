@@ -66,6 +66,13 @@
 #define DENSE_QCQP_SOL_CREATE s_dense_qcqp_sol_create
 #define DENSE_QCQP_SOL_GET s_dense_qcqp_sol_get
 #define DENSE_QCQP_SOL_GET_V s_dense_qcqp_sol_get_v
+#define DENSE_QCQP_SOL_GET_PI s_dense_qcqp_sol_get_pi
+#define DENSE_QCQP_SOL_GET_LAM_LB s_dense_qcqp_sol_get_lam_lb
+#define DENSE_QCQP_SOL_GET_LAM_UB s_dense_qcqp_sol_get_lam_ub
+#define DENSE_QCQP_SOL_GET_LAM_LG s_dense_qcqp_sol_get_lam_lg
+#define DENSE_QCQP_SOL_GET_LAM_UG s_dense_qcqp_sol_get_lam_ug
+#define DENSE_QCQP_SOL_GET_LAM_UQ s_dense_qcqp_sol_get_lam_uq
+#define DENSE_QCQP_SOL_SET_V s_dense_qcqp_sol_set_v
 
 
 

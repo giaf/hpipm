@@ -71,7 +71,7 @@
 #define DENSE_QCQP_SOL_GET_LAM_UB d_dense_qcqp_sol_get_lam_ub
 #define DENSE_QCQP_SOL_GET_LAM_LG d_dense_qcqp_sol_get_lam_lg
 #define DENSE_QCQP_SOL_GET_LAM_UG d_dense_qcqp_sol_get_lam_ug
-
+#define DENSE_QCQP_SOL_GET_LAM_UQ d_dense_qcqp_sol_get_lam_uq
 #define DENSE_QCQP_SOL_SET_V d_dense_qcqp_sol_set_v
 
 
