@@ -34,12 +34,11 @@
 ###################################################################################################
 
 from ctypes import *
-import ctypes.util 
 import numpy as np
+from .hpipm_solver import hpipm_solver
 
 
-
-class hpipm_ocp_qcqp_solver:
+class hpipm_ocp_qcqp_solver(hpipm_solver):
 
 
 	def __init__(self, qp_dims, arg):
@@ -53,7 +52,7 @@ class hpipm_ocp_qcqp_solver:
 		ipm_ws_struct = cast(create_string_buffer(sizeof_d_ocp_qcqp_ipm_workspace), c_void_p)
 		self.ipm_ws_struct = ipm_ws_struct
 
-		# allocate memory for ipm workspace 
+		# allocate memory for ipm workspace
 		ipm_size = __hpipm.d_ocp_qcqp_ipm_ws_memsize(qp_dims.dim_struct, arg.arg_struct)
 		ipm_ws_mem = cast(create_string_buffer(ipm_size), c_void_p)
 		self.ipm_ws_mem = ipm_ws_mem
@@ -63,7 +62,7 @@ class hpipm_ocp_qcqp_solver:
 
 		self.arg = arg
 		self.dim_struct = qp_dims.dim_struct
-		
+
 
 	def solve(self, qp, qp_sol):
 		self.__hpipm.d_ocp_qcqp_ipm_solve(qp.qp_struct, qp_sol.qp_sol_struct, self.arg.arg_struct, self.ipm_ws_struct)
