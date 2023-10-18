@@ -34,11 +34,11 @@
 ###################################################################################################
 
 from ctypes import *
-import ctypes.util
 import numpy as np
+from .hpipm_solver import hpipm_solver
 
 
-class hpipm_dense_qp_solver:
+class hpipm_dense_qp_solver(hpipm_solver):
 
 
 	def __init__(self, qp_dims, arg):
