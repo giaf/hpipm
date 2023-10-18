@@ -82,8 +82,8 @@ dim.set('nx', nx, 1, N) # number of states
 dim.set('nu', nu, 0)    # number of inputs
 dim.set('nbu', nbu, 0)  # number of input bounds
 
-dim.set('nu', 2*ns, N)  
-dim.set('nbu', 2*ns, N) 
+dim.set('nu', 2*ns, N)
+dim.set('nbu', 2*ns, N)
 #dim.set('nbx', nbx, N)
 
 dim.set('ng', 2*ns, N)  # number of inequality constraints
@@ -268,26 +268,13 @@ res_eq = solver.get('max_res_eq')
 res_ineq = solver.get('max_res_ineq')
 res_comp = solver.get('max_res_comp')
 iters = solver.get('iter')
-stat = solver.get('stat')
+
 if(travis_run!='true'):
-	print('\nsolver statistics:\n')
-	print('ipm return = {0:1d}\n'.format(status))
-	print('ipm max res stat = {:e}\n'.format(res_stat))
-	print('ipm max res eq   = {:e}\n'.format(res_eq))
-	print('ipm max res ineq = {:e}\n'.format(res_ineq))
-	print('ipm max res comp = {:e}\n'.format(res_comp))
-	print('ipm iter = {0:1d}\n'.format(iters))
-	print('stat =')
-	print('\titer\talpha_aff\tmu_aff\t\tsigma\t\talpha_prim\talpha_dual\tmu\t\tres_stat\tres_eq\t\tres_ineq\tres_comp')
-	for ii in range(iters+1):
-		print('\t{:d}\t{:e}\t{:e}\t{:e}\t{:e}\t{:e}\t{:e}\t{:e}\t{:e}\t{:e}\t{:e}'.format(ii, stat[ii][0], stat[ii][1], stat[ii][2], stat[ii][3], stat[ii][4], stat[ii][5], stat[ii][6], stat[ii][7], stat[ii][8], stat[ii][9]))
-	print('')
+	solver.print_stats()
 
 if status==0:
 	print('\nsuccess!\n')
 else:
 	print('\nSolution failed, solver returned status {0:1d}\n'.format(status))
-
-# import pdb; pdb.set_trace()
 
 sys.exit(int(status))
