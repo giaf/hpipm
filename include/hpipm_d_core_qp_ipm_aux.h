@@ -33,8 +33,8 @@
 *                                                                                                 *
 **************************************************************************************************/
 
-#ifndef HPIPM_S_CORE_QP_IPM_AUX_
-#define HPIPM_S_CORE_QP_IPM_AUX_
+#ifndef HPIPM_D_CORE_QP_IPM_AUX_
+#define HPIPM_D_CORE_QP_IPM_AUX_
 
 #ifdef __cplusplus
 extern "C" {
@@ -65,4 +65,4 @@ void d_compute_tau_min_qp(struct d_core_qp_ipm_workspace *rws);
 } /* extern "C" */
 #endif
 
-#endif // HPIPM_S_CORE_QP_IPM_AUX_
+#endif // HPIPM_D_CORE_QP_IPM_AUX_
