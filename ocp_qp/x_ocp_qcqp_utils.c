@@ -1277,7 +1277,7 @@ void OCP_QCQP_CODEGEN(char *file_name, char *mode, struct OCP_QCQP_DIM *dim, str
 #else
 		fprintf(file, "static float qq%d[] = {", nn);
 #endif
-		for(kk=0; jj<nq[nn]; kk++)
+		for(kk=0; kk<nq[nn]; kk++)
 			{
 			for(jj=0; jj<nx[nn]; jj++)
 				{
@@ -1315,7 +1315,7 @@ void OCP_QCQP_CODEGEN(char *file_name, char *mode, struct OCP_QCQP_DIM *dim, str
 #else
 		fprintf(file, "static float rq%d[] = {", nn);
 #endif
-		for(kk=0; jj<nq[nn]; kk++)
+		for(kk=0; kk<nq[nn]; kk++)
 			{
 			for(jj=0; jj<nu[nn]; jj++)
 				{
