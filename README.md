@@ -63,7 +63,7 @@ Set the needed environment flags by running `env.m` (you may need to change the 
 Compile the interface by running `compile_mex_all.m`.
 
 (Make sure that Matlab is configured to compile mex files with the same compiler as used in point 2), as sometimes by default it makes use of MinGW64 instead.
-If the HPIPM and BLASFEO libraries and the mex files are not all compiled with visual studio, or all compiled with MinGW64, errors about missing dependences from the runtime library happen.)
+If the HPIPM and BLASFEO libraries and the mex files are not all compiled with visual studio, or all compiled with MinGW64, errors about missing dependencies from the runtime library happen.)
 
 6) In Matlab, navigate to the folder `hpipm/examples/matlab_octave`.
 Get started by running the examples in that folder. You may need to add folder `hpipm/interfaces/matlab_octave` to the Matlab path.
@@ -117,4 +117,4 @@ ACM Transactions on Mathematical Software (TOMS) (2018)
 
 - HPIPM relies on the high-performance linear algebra library BLASFEO.
 BLASFEO provides several implementations optimized for different computer architectures, and it makes heavy use of assembly code.
-If you get the error `Illegal instruciton` at run time, you are probably using a BLASFEO version (`TARGET`) unsupported by your CPU.
+If you get the error `Illegal instruction` at run time, you are probably using a BLASFEO version (`TARGET`) unsupported by your CPU.
