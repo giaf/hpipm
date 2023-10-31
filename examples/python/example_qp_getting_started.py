@@ -40,198 +40,177 @@ import sys
 import os
 
 
+def main():
+	# check that env.sh has been run
+	env_run = os.getenv('ENV_RUN')
+	if env_run != 'true':
+		print('ERROR: env.sh has not been sourced! Before executing this example, run:')
+		print('source env.sh')
+		sys.exit(1)
 
-# check that env.sh has been run
-env_run = os.getenv('ENV_RUN')
-if env_run!='true':
-	print('ERROR: env.sh has not been sourced! Before executing this example, run:')
-	print('source env.sh')
-	sys.exit(1)
+	travis_run = os.getenv('TRAVIS_RUN')
 
-travis_run = os.getenv('TRAVIS_RUN')
-#travis_run = 'true'
+	# define flags
+	codegen_data = 1 # export qp data in the file ocp_qp_data.c for use from C examples
+	print_structs = 0
 
+	reduce_eq_dof = 0 # eliminates e.g. equality constraint on x0
 
+	if reduce_eq_dof:
+		codegen_data = 0 # not supported yet
 
-# define flags
-codegen_data = 0 # export qp data in the file ocp_qp_data.c for use from C examples
-reduce_eq_dof = 0 # eliminates e.g. equality constraint on x0
+	# dim
+	N = 5
+	nx = 2
+	nu = 1
 
-if reduce_eq_dof:
-	codegen_data = 0 # not supported yet
+	nbx = nx
 
+	dim = hpipm_ocp_qp_dim(N)
 
-# dim
-N = 5
-nx = 2
-nu = 1
+	dim.set('nx', nx, 0, N) # number of states
+	dim.set('nu', nu, 0, N-1) # number of inputs
+	dim.set('nbx', nbx, 0) # number of state bounds
+	dim.set('nbx', nbx, N)
+	dim.set('nbxe', nx, 0)
 
-nbx = nx
-#ng = nx
-#ns = nx
+	# data
+	if 0:
+		# data as a contiguous array (interpreted as row-major)
+		A = np.array([1, 1, 0, 1]).reshape(nx,nx)
+	else:
+		# data as a matrix
+		A = np.zeros((2,2))
+		A[0][0] = 1.0
+		A[0][1] = 1.0
+		A[1][1] = 1.0
+	B = np.array([0, 1]).reshape(nx,nu)
+	# b = np.array([0, 0]).reshape(nx,1)
 
-dim = hpipm_ocp_qp_dim(N)
+	Q = np.array([1, 0, 0, 1]).reshape(nx,nx)
+	S = np.array([0, 0]).reshape(nu,nx)
+	R = np.array([1]).reshape(nu,nu)
+	q = np.array([1, 1]).reshape(nx,1)
+	# r = np.array([0]).reshape(nu,1)
 
-dim.set('nx', nx, 0, N) # number of states
-dim.set('nu', nu, 0, N-1) # number of inputs
-dim.set('nbx', nbx, 0) # number of state bounds
-#dim.set('ng', nx, 0)
-dim.set('nbx', nbx, N)
-#dim.set('ns', nx, N)
-dim.set('nbxe', nx, 0)
+	Jx = np.array([1, 0, 0, 1]).reshape(nbx,nx)
+	x0 = np.array([1, 1]).reshape(nx,1)
+	# Jsx = np.array([1, 0, 0, 1]).reshape(nbx,ns)
+	# Zl = np.array([1e5, 1e5]).reshape(ns,1)
+	# Zu = np.array([1e5, 1e5]).reshape(ns,1)
+	# zl = np.array([1e5, 1e5]).reshape(ns,1)
+	# zu = np.array([1e5, 1e5]).reshape(ns,1)
 
-# print to shell
-#dim.print_C_struct()
-# codegen
-if codegen_data:
-	dim.codegen('ocp_qp_data.c', 'w')
+	# qp
+	qp = hpipm_ocp_qp(dim)
 
+	qp.set('A', A, 0, N-1)
+	qp.set('B', B, 0, N-1)
+	#qp.set('b', [b, b, b, b, b])
+	qp.set('Q', Q, 0, N)
+	qp.set('S', S, 0, N-1)
+	qp.set('R', R, 0, N-1)
+	qp.set('q', q, 0, N)
+	#qp.set('r', r, 0, N-1)
+	qp.set('Jx', Jx, 0)
+	qp.set('lx', x0, 0)
+	qp.set('ux', x0, 0)
+	#qp.set('C', Jx, 0)
+	#qp.set('lg', x0, 0)
+	#qp.set('ug', x0, 0)
+	qp.set('Jx', Jx, N)
+	#qp.set('Jsx', Jsx, N)
+	#qp.set('Zl', Zl, N)
+	#qp.set('Zu', Zu, N)
+	#qp.set('zl', zl, N)
+	#qp.set('zu', zu, N)
 
+	if reduce_eq_dof:
+		Jbxe = np.array([1, 1]).reshape(nbx, 1)
+		qp.set('Jbxe', Jbxe, 0)
 
-# data
-if 0:
-	# data as a contiguous array (interpreted as row-major)
-	A = np.array([1, 1, 0, 1]).reshape(nx,nx)
-else:
-	# data as a matrix
-	A = np.zeros((2,2))
-	A[0][0] = 1.0
-	A[0][1] = 1.0
-	A[1][1] = 1.0
-B = np.array([0, 1]).reshape(nx,nu)
-#b = np.array([0, 0]).reshape(nx,1)
+	# qp sol
+	qp_sol = hpipm_ocp_qp_sol(dim)
 
-Q = np.array([1, 0, 0, 1]).reshape(nx,nx)
-S = np.array([0, 0]).reshape(nu,nx)
-R = np.array([1]).reshape(nu,nu)
-q = np.array([1, 1]).reshape(nx,1)
-#r = np.array([0]).reshape(nu,1)
+	# set up solver arg
+	# mode = 'speed_abs'
+	mode = 'speed'
+	# mode = 'balance'
+	# mode = 'robust'
 
-Jx = np.array([1, 0, 0, 1]).reshape(nbx,nx)
-x0 = np.array([1, 1]).reshape(nx,1)
-#Jsx = np.array([1, 0, 0, 1]).reshape(nbx,ns)
-#Zl = np.array([1e5, 1e5]).reshape(ns,1)
-#Zu = np.array([1e5, 1e5]).reshape(ns,1)
-#zl = np.array([1e5, 1e5]).reshape(ns,1)
-#zu = np.array([1e5, 1e5]).reshape(ns,1)
+	# create and set default arg based on mode
+	if reduce_eq_dof:
+		arg = hpipm_ocp_qp_solver_arg2(dim, mode)
+		arg.set('reduce_eq_dof', 1)
+	else:
+		arg = hpipm_ocp_qp_solver_arg(dim, mode)
 
-if reduce_eq_dof:
-	Jbxe = np.array([1, 1]).reshape(nbx,1)
+	arg.set('mu0', 1e4)
+	arg.set('iter_max', 30)
+	arg.set('tol_stat', 1e-4)
+	arg.set('tol_eq', 1e-5)
+	arg.set('tol_ineq', 1e-5)
+	arg.set('tol_comp', 1e-5)
+	arg.set('reg_prim', 1e-12)
 
+	# set up solver
+	if reduce_eq_dof:
+		solver = hpipm_ocp_qp_solver2(dim, arg)
+	else:
+		solver = hpipm_ocp_qp_solver(dim, arg)
 
-# qp
-qp = hpipm_ocp_qp(dim)
+	# solve qp
+	start_time = time.time()
+	solver.solve(qp, qp_sol)
+	end_time = time.time()
 
-qp.set('A', A, 0, N-1)
-qp.set('B', B, 0, N-1)
-#qp.set('b', [b, b, b, b, b])
-qp.set('Q', Q, 0, N)
-qp.set('S', S, 0, N-1)
-qp.set('R', R, 0, N-1)
-qp.set('q', q, 0, N)
-#qp.set('r', r, 0, N-1)
-qp.set('Jx', Jx, 0)
-qp.set('lx', x0, 0)
-qp.set('ux', x0, 0)
-#qp.set('C', Jx, 0)
-#qp.set('lg', x0, 0)
-#qp.set('ug', x0, 0)
-qp.set('Jx', Jx, N)
-#qp.set('Jsx', Jsx, N)
-#qp.set('Zl', Zl, N)
-#qp.set('Zu', Zu, N)
-#qp.set('zl', zl, N)
-#qp.set('zu', zu, N)
-if reduce_eq_dof:
-	qp.set('Jbxe', Jbxe, 0)
+	if travis_run != 'true':
+		print('solve time {:e}'.format(end_time-start_time))
 
-# print to shell
-#qp.print_C_struct()
-# codegen
-if codegen_data:
-	qp.codegen('ocp_qp_data.c', 'a')
+	# extract and print sol
+	u = qp_sol.get('u', 0, N)
+	x = qp_sol.get('x', 0, N+1)
 
+	if travis_run != 'true':
 
-# qp sol
-qp_sol = hpipm_ocp_qp_sol(dim)
+		for n in range(N):
+			print(f'\nu_{n} =')
+			print(u[n])
 
+		for n in range(N+1):
+			print(f'\nx_{n} =')
+			print(x[n])
 
-# set up solver arg
-#mode = 'speed_abs'
-mode = 'speed'
-#mode = 'balance'
-#mode = 'robust'
-# create and set default arg based on mode
-if reduce_eq_dof:
-	arg = hpipm_ocp_qp_solver_arg2(dim, mode)
-else:
-	arg = hpipm_ocp_qp_solver_arg(dim, mode)
+	# get solver statistics
+	status = solver.get('status')
+	# res_stat = solver.get('max_res_stat')
+	# res_eq = solver.get('max_res_eq')
+	# res_ineq = solver.get('max_res_ineq')
+	# res_comp = solver.get('max_res_comp')
+	# iters = solver.get('iter')
 
-# create and set default arg based on mode
-arg.set('mu0', 1e4)
-arg.set('iter_max', 30)
-arg.set('tol_stat', 1e-4)
-arg.set('tol_eq', 1e-5)
-arg.set('tol_ineq', 1e-5)
-arg.set('tol_comp', 1e-5)
-arg.set('reg_prim', 1e-12)
+	if status == 0:
+		print('\nsuccess!\n')
+	else:
+		print('\nSolution failed, solver returned status {0:1d}\n'.format(status))
 
-if reduce_eq_dof:
-	arg.set('reduce_eq_dof', 1)
+	if travis_run != 'true':
+		solver.print_stats()
 
-# codegen
-if codegen_data:
-	arg.codegen('ocp_qp_data.c', 'a')
+	if travis_run != 'true' and print_structs:
+		dim.print_C_struct()
+		qp.print_C_struct()
+		qp_sol.print_C_struct()
 
-# set up solver
-if reduce_eq_dof:
-	solver = hpipm_ocp_qp_solver2(dim, arg)
-else:
-	solver = hpipm_ocp_qp_solver(dim, arg)
+	# codegen
+	if codegen_data:
+		dim.codegen('ocp_qp_data.c', 'w')
+		qp.codegen('ocp_qp_data.c', 'a')
+		arg.codegen('ocp_qp_data.c', 'a')
 
-
-# solve qp
-start_time = time.time()
-solver.solve(qp, qp_sol)
-end_time = time.time()
-if(travis_run!='true'):
-	print('solve time {:e}'.format(end_time-start_time))
-
-
-if(travis_run!='true'):
-	qp_sol.print_C_struct()
-
-# extract and print sol
-if(travis_run!='true'):
-	print('u =')
-#u = qp_sol.get_u()
-u = qp_sol.get('u', 0, N)
-for i in range(N+1):
-	if(travis_run!='true'):
-		print(u[i])
-
-if(travis_run!='true'):
-	print('x =')
-for i in range(N+1):
-	tmp = qp_sol.get('x', i)
-	if(travis_run!='true'):
-		print(tmp)
+	return status
 
 
-# get solver statistics
-status = solver.get('status')
-res_stat = solver.get('max_res_stat')
-res_eq = solver.get('max_res_eq')
-res_ineq = solver.get('max_res_ineq')
-res_comp = solver.get('max_res_comp')
-iters = solver.get('iter')
-
-if(travis_run!='true'):
-	solver.print_stats()
-
-if status==0:
-	print('\nsuccess!\n')
-else:
-	print('\nSolution failed, solver returned status {0:1d}\n'.format(status))
-
-sys.exit(int(status))
+if __name__ == '__main__':
+	status = main()
+	sys.exit(int(status))
