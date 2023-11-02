@@ -70,9 +70,8 @@ def main():
 
 	dim.set('nx', nx, 0, N) # number of states
 	dim.set('nu', nu, 0, N-1) # number of inputs
-	dim.set('nbx', nbx, 0) # number of state bounds
-	dim.set('nbx', nbx, N)
 	dim.set('nbxe', nx, 0)
+	dim.set('nbx', nbx, N)
 
 	# data
 	if 0:
@@ -93,13 +92,8 @@ def main():
 	q = np.array([1, 1]).reshape(nx,1)
 	# r = np.array([0]).reshape(nu,1)
 
-	Jx = np.array([1, 0, 0, 1]).reshape(nbx,nx)
+	Jx = np.array([1, 0, 0, 1]).reshape(nbx, nx)
 	x0 = np.array([1, 1]).reshape(nx,1)
-	# Jsx = np.array([1, 0, 0, 1]).reshape(nbx,ns)
-	# Zl = np.array([1e5, 1e5]).reshape(ns,1)
-	# Zu = np.array([1e5, 1e5]).reshape(ns,1)
-	# zl = np.array([1e5, 1e5]).reshape(ns,1)
-	# zu = np.array([1e5, 1e5]).reshape(ns,1)
 
 	# qp
 	qp = hpipm_ocp_qp(dim)
@@ -115,15 +109,8 @@ def main():
 	qp.set('Jx', Jx, 0)
 	qp.set('lx', x0, 0)
 	qp.set('ux', x0, 0)
-	#qp.set('C', Jx, 0)
-	#qp.set('lg', x0, 0)
-	#qp.set('ug', x0, 0)
+
 	qp.set('Jx', Jx, N)
-	#qp.set('Jsx', Jsx, N)
-	#qp.set('Zl', Zl, N)
-	#qp.set('Zu', Zu, N)
-	#qp.set('zl', zl, N)
-	#qp.set('zu', zu, N)
 
 	if reduce_eq_dof:
 		Jbxe = np.array([1, 1]).reshape(nbx, 1)
@@ -168,18 +155,18 @@ def main():
 		print('solve time {:e}'.format(end_time-start_time))
 
 	# extract and print sol
-	u = qp_sol.get('u', 0, N)
-	x = qp_sol.get('x', 0, N+1)
+	u = qp_sol.get('u', 0, N-1)
+	x = qp_sol.get('x', 0, N)
 
 	if travis_run != 'true':
 
 		for n in range(N):
 			print(f'\nu_{n} =')
-			print(u[n])
+			print(u[n].flatten())
 
 		for n in range(N+1):
 			print(f'\nx_{n} =')
-			print(x[n])
+			print(x[n].flatten())
 
 	# get solver statistics
 	status = solver.get('status')
