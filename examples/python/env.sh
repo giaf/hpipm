@@ -25,7 +25,7 @@ export BLASFEO_MAIN_FOLDER
 echo
 echo "BLASFEO_MAIN_FOLDER=$BLASFEO_MAIN_FOLDER"
 
-# export LD_LIBRARY_PATH
+# automatically export LD_LIBRARY_PATH or DYLD_LIBRARY_PATH in linux or macos
 UNAME_S=$(uname -s)
 echo $UNAME_S
 if [ "$UNAME_S" = "Linux" ]
@@ -33,11 +33,17 @@ then
 	export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$HPIPM_MAIN_FOLDER/lib:$BLASFEO_MAIN_FOLDER/lib
 	echo
 	echo "LD_LIBRARY_PATH=$LD_LIBRARY_PATH"
+else
+	if [ "$UNAME_S" = "Darwin" ]
+	then
+		export DYLD_LIBRARY_PATH=$DYLD_LIBRARY_PATH:$HPIPM_MAIN_FOLDER/lib:$BLASFEO_MAIN_FOLDER/lib
+		echo
+		echo "DYLD_LIBRARY_PATH=$DYLD_LIBRARY_PATH"
+	else
+		echo "LD_LIBRARY_PATH not set automatically for this OS. Try to it by hand in the correct way for your OS."
+	fi
 fi
-if [ "$UNAME_S" = "Darwin" ]
-then
-	export DYLD_LIBRARY_PATH=$DYLD_LIBRARY_PATH:$HPIPM_MAIN_FOLDER/lib:$BLASFEO_MAIN_FOLDER/lib
-	echo
-	echo "DYLD_LIBRARY_PATH=$DYLD_LIBRARY_PATH"
-fi
+#export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$HPIPM_MAIN_FOLDER/lib:$BLASFEO_MAIN_FOLDER/lib
+#echo
+#echo "LD_LIBRARY_PATH=$LD_LIBRARY_PATH"
 
