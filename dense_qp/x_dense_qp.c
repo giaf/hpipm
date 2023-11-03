@@ -520,9 +520,9 @@ void DENSE_QP_SET_JB(REAL *Jb, struct DENSE_QP *qp)
 	for(ii=0; ii<nb; ii++)
 		{
 		jj0 = -1;
-		for(jj=0; jj<nv; jj++)
+		for(jj=0; jj<nv & jj0==-1; jj++)
 			{
-			if(jj0==-1 & Jb[ii+jj*nb]!=0.0)
+			if(Jb[ii+jj*nb]!=0.0)
 				{
 				jj0 = jj;
 				qp->idxb[ii] = jj;
@@ -760,9 +760,9 @@ void DENSE_QP_SET_JSB(REAL *Jsb, struct DENSE_QP *qp)
 	for(ii=0; ii<nb; ii++)
 		{
 		jj0 = -1;
-		for(jj=0; jj<ns; jj++)
+		for(jj=0; jj<ns & jj0==-1; jj++)
 			{
-			if(jj0==-1 & Jsb[ii+jj*nb]!=0.0)
+			if(Jsb[ii+jj*nb]!=0.0)
 				{
 				jj0 = jj;
 				qp->idxs_rev[0+ii] = jj;
@@ -787,9 +787,9 @@ void DENSE_QP_SET_JSG(REAL *Jsg, struct DENSE_QP *qp)
 	for(ii=0; ii<ng; ii++)
 		{
 		jj0 = -1;
-		for(jj=0; jj<ns; jj++)
+		for(jj=0; jj<ns & jj0==-1; jj++)
 			{
-			if(jj0==-1 & Jsg[ii+jj*ng]!=0.0)
+			if(Jsg[ii+jj*ng]!=0.0)
 				{
 				jj0 = jj;
 				qp->idxs_rev[nb+ii] = jj;

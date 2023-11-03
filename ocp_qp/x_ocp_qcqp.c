@@ -1179,9 +1179,9 @@ void OCP_QCQP_SET_JBX(int stage, REAL *Jbx, struct OCP_QCQP *qp)
 	for(ii=0; ii<nbx[stage]; ii++)
 		{
 		jj0 = -1;
-		for(jj=0; jj<nx[stage]; jj++)
+		for(jj=0; jj<nx[stage] & jj0==-1; jj++)
 			{
-			if(jj0==-1 & Jbx[ii+jj*nbx[stage]]!=0.0)
+			if(Jbx[ii+jj*nbx[stage]]!=0.0)
 				{
 				jj0 = jj;
 				qp->idxb[stage][nbu[stage]+ii] = nu[stage]+jj;
@@ -1219,9 +1219,9 @@ void OCP_QCQP_SET_JBU(int stage, REAL *Jbu, struct OCP_QCQP *qp)
 	for(ii=0; ii<nbu[stage]; ii++)
 		{
 		jj0 = -1;
-		for(jj=0; jj<nu[stage]; jj++)
+		for(jj=0; jj<nu[stage] & jj0==-1; jj++)
 			{
-			if(jj0==-1 & Jbu[ii+jj*nbu[stage]]!=0.0)
+			if(Jbu[ii+jj*nbu[stage]]!=0.0)
 				{
 				jj0 = jj;
 				qp->idxb[stage][ii] = jj;
@@ -1579,9 +1579,9 @@ void OCP_QCQP_SET_JSBU(int stage, REAL *Jsbu, struct OCP_QCQP *qp)
 	for(ii=0; ii<nbu[stage]; ii++)
 		{
 		jj0 = -1;
-		for(jj=0; jj<ns[stage]; jj++)
+		for(jj=0; jj<ns[stage] & jj0==-1; jj++)
 			{
-			if(jj0==-1 & Jsbu[ii+jj*nbu[stage]]!=0.0)
+			if(Jsbu[ii+jj*nbu[stage]]!=0.0)
 				{
 				jj0 = jj;
 				qp->idxs_rev[stage][0+ii] = jj;
@@ -1609,9 +1609,9 @@ void OCP_QCQP_SET_JSBX(int stage, REAL *Jsbx, struct OCP_QCQP *qp)
 	for(ii=0; ii<nbx[stage]; ii++)
 		{
 		jj0 = -1;
-		for(jj=0; jj<ns[stage]; jj++)
+		for(jj=0; jj<ns[stage] & jj0==-1; jj++)
 			{
-			if(jj0==-1 & Jsbx[ii+jj*nbx[stage]]!=0.0)
+			if(Jsbx[ii+jj*nbx[stage]]!=0.0)
 				{
 				jj0 = jj;
 				qp->idxs_rev[stage][nbu[stage]+ii] = jj;
@@ -1635,13 +1635,13 @@ void OCP_QCQP_SET_JSG(int stage, REAL *Jsg, struct OCP_QCQP *qp)
 	int *ns = qp->dim->ns;
 
 	int ii, jj, jj0, idx_tmp;
-	// compute nbx part of idxs_rev
+	// compute ng part of idxs_rev
 	for(ii=0; ii<ng[stage]; ii++)
 		{
 		jj0 = -1;
-		for(jj=0; jj<ns[stage]; jj++)
+		for(jj=0; jj<ns[stage] & jj0==-1; jj++)
 			{
-			if(jj0==-1 & Jsg[ii+jj*ng[stage]]!=0.0)
+			if(Jsg[ii+jj*ng[stage]]!=0.0)
 				{
 				jj0 = jj;
 				qp->idxs_rev[stage][nb[stage]+ii] = jj;
@@ -1666,13 +1666,13 @@ void OCP_QCQP_SET_JSQ(int stage, REAL *Jsq, struct OCP_QCQP *qp)
 	int *ns = qp->dim->ns;
 
 	int ii, jj, jj0, idx_tmp;
-	// compute nbx part of idxs_rev
+	// compute nq part of idxs_rev
 	for(ii=0; ii<nq[stage]; ii++)
 		{
 		jj0 = -1;
-		for(jj=0; jj<ns[stage]; jj++)
+		for(jj=0; jj<ns[stage] & jj0==-1; jj++)
 			{
-			if(jj0==-1 & Jsq[ii+jj*nq[stage]]!=0.0)
+			if(Jsq[ii+jj*nq[stage]]!=0.0)
 				{
 				jj0 = jj;
 				qp->idxs_rev[stage][nb[stage]+ng[stage]+ii] = jj;

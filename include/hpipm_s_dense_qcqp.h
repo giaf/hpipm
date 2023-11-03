@@ -94,6 +94,8 @@ void s_dense_qcqp_set_b(float *b, struct s_dense_qcqp *qp);
 //
 void s_dense_qcqp_set_idxb(int *idxb, struct s_dense_qcqp *qp);
 //
+void s_dense_qcqp_set_Jb(float *Jb, struct s_dense_qcqp *qp);
+//
 void s_dense_qcqp_set_lb(float *lb, struct s_dense_qcqp *qp);
 //
 void s_dense_qcqp_set_lb_mask(float *lb, struct s_dense_qcqp *qp);
@@ -123,6 +125,12 @@ void s_dense_qcqp_set_uq_mask(float *uq, struct s_dense_qcqp *qp);
 void s_dense_qcqp_set_idxs(int *idxs, struct s_dense_qcqp *qp);
 //
 void s_dense_qcqp_set_idxs_rev(int *idxs_rev, struct s_dense_qcqp *qp);
+//
+void s_dense_qcqp_set_Jsb(float *Jsb, struct s_dense_qcqp *qp);
+//
+void s_dense_qcqp_set_Jsg(float *Jsg, struct s_dense_qcqp *qp);
+//
+void s_dense_qcqp_set_Jsq(float *Jsq, struct s_dense_qcqp *qp);
 //
 void s_dense_qcqp_set_Zl(float *Zl, struct s_dense_qcqp *qp);
 //

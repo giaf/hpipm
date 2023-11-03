@@ -1000,9 +1000,9 @@ void TREE_OCP_QP_SET_JBX(int node, REAL *Jbx, struct TREE_OCP_QP *qp)
 	for(ii=0; ii<nbx[node]; ii++)
 		{
 		jj0 = -1;
-		for(jj=0; jj<nx[node]; jj++)
+		for(jj=0; jj<nx[node] & jj0==-1; jj++)
 			{
-			if(jj0==-1 & Jbx[ii+jj*nbx[node]]!=0.0)
+			if(Jbx[ii+jj*nbx[node]]!=0.0)
 				{
 				jj0 = jj;
 				qp->idxb[node][nbu[node]+ii] = nu[node]+jj;
@@ -1040,9 +1040,9 @@ void TREE_OCP_QP_SET_JBU(int node, REAL *Jbu, struct TREE_OCP_QP *qp)
 	for(ii=0; ii<nbu[node]; ii++)
 		{
 		jj0 = -1;
-		for(jj=0; jj<nu[node]; jj++)
+		for(jj=0; jj<nu[node] & jj0==-1; jj++)
 			{
-			if(jj0==-1 & Jbu[ii+jj*nbu[node]]!=0.0)
+			if(Jbu[ii+jj*nbu[node]]!=0.0)
 				{
 				jj0 = jj;
 				qp->idxb[node][ii] = jj;
@@ -1237,9 +1237,9 @@ void TREE_OCP_QP_SET_JSBU(int node, REAL *Jsbu, struct TREE_OCP_QP *qp)
 	for(ii=0; ii<nbu[node]; ii++)
 		{
 		jj0 = -1;
-		for(jj=0; jj<ns[node]; jj++)
+		for(jj=0; jj<ns[node] & jj0==-1; jj++)
 			{
-			if(jj0==-1 & Jsbu[ii+jj*nbu[node]]!=0.0)
+			if(Jsbu[ii+jj*nbu[node]]!=0.0)
 				{
 				jj0 = jj;
 				qp->idxs_rev[node][0+ii] = jj;
@@ -1267,9 +1267,9 @@ void TREE_OCP_QP_SET_JSBX(int node, REAL *Jsbx, struct TREE_OCP_QP *qp)
 	for(ii=0; ii<nbx[node]; ii++)
 		{
 		jj0 = -1;
-		for(jj=0; jj<ns[node]; jj++)
+		for(jj=0; jj<ns[node] & jj0==-1; jj++)
 			{
-			if(jj0==-1 & Jsbx[ii+jj*nbx[node]]!=0.0)
+			if(Jsbx[ii+jj*nbx[node]]!=0.0)
 				{
 				jj0 = jj;
 				qp->idxs_rev[node][nbu[node]+ii] = jj;
@@ -1297,9 +1297,9 @@ void TREE_OCP_QP_SET_JSG(int node, REAL *Jsg, struct TREE_OCP_QP *qp)
 	for(ii=0; ii<ng[node]; ii++)
 		{
 		jj0 = -1;
-		for(jj=0; jj<ns[node]; jj++)
+		for(jj=0; jj<ns[node] & jj0==-1; jj++)
 			{
-			if(jj0==-1 & Jsg[ii+jj*ng[node]]!=0.0)
+			if(Jsg[ii+jj*ng[node]]!=0.0)
 				{
 				jj0 = jj;
 				qp->idxs_rev[node][nb[node]+ii] = jj;

@@ -514,6 +514,7 @@ void COND_QCQP_QC(struct OCP_QCQP *ocp_qp, struct STRMAT *Hq2, int *Hq_nzero2, s
 				// XXX make Q full or use SYMM
 				// hessian
 				if(ocp_qp->Hq_nzero[kk][jj]%2==1)
+				//if((ocp_qp->Hq_nzero[kk][jj]&0x1)!=0) // faster ???
 					{
 //					TRTR_L(nx[kk], ocp_qp->Hq[kk]+jj, nu[kk], nu[kk], ocp_qp->Hq[kk]+jj, nu[kk], nu[kk]); // buggy ???
 					TRTR_L(nu[kk]+nx[kk], ocp_qp->Hq[kk]+jj, 0, 0, ocp_qp->Hq[kk]+jj, 0, 0);
@@ -528,11 +529,13 @@ void COND_QCQP_QC(struct OCP_QCQP *ocp_qp, struct STRMAT *Hq2, int *Hq_nzero2, s
 						Hq_nzero2[nq_tmp] |= 4;
 					}
 				if((ocp_qp->Hq_nzero[kk][jj]>>2)%2==1)
+				//if((ocp_qp->Hq_nzero[kk][jj]&0x4)!=0) // faster ???
 					{
 					GEAD(nu[kk], nu[kk], 1.0, ocp_qp->Hq[kk]+jj, 0, 0, Hq2+nq_tmp, nu_tot_tmp, nu_tot_tmp);
 					Hq_nzero2[nq_tmp] |= 4;
 					}
 				if((ocp_qp->Hq_nzero[kk][jj]>>1)%2==1)
+				//if((ocp_qp->Hq_nzero[kk][jj]&0x2)!=0) // faster ???
 					{
 					GEMM_NN(nu_tmp+nx[0]+1, nu[kk], nx[kk], 1.0, cond_ws->qp_ws->Gamma+kk-1, 0, 0, ocp_qp->Hq[kk]+jj, nu[kk], 0, 1.0, Hq2+nq_tmp, nu_tot_tmp+nu[kk], nu_tot_tmp, Hq2+nq_tmp, nu_tot_tmp+nu[kk], nu_tot_tmp);
 					if(nx[0]>0)
