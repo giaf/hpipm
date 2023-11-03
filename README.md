@@ -88,6 +88,26 @@ Finally, run `python example_qp_getting_started.py` or `python3 example_qp_getti
 
 --------------------------------------------------
 
+## Common mistakes:
+
+### Matrix format
+For performance reasons, HPIPM uses an internal matrix (and vector) format based on BLASFEO own matrix (and vector) structs.
+The exact layout of the matrix elements in memory is implementation- and architecture-dependent, so it can't be just inspected directly.
+
+However, in the C interface there are setter and getter routines to correctly populate these internal matrix (and vector) representations.
+By default these setter and getter routines expect matrices to be passed in column-major order, that is the default order in e.g. Matlab and optimized linear algebra libraries such as BLAS and LAPACK.
+There is also a versions of a few setter and getter routines that expect matrices to be passed in row-major order, and these routines are clearly marked using the wording `_rowmaj` at the end of the routine name.
+These routines are basically identical to the default (aka column-major) ones with the only difference that the input matrix is transposed while being packed in / unpacked from the internal format.
+
+Notice that the memory layout of the elements in the column-major matrix order corresponds to the layout of the transposed of the same matrix in the row-major matrix order, and the other way around.
+
+Also notice that in C a matrix represented as an array of arrays is stored in row-major order.
+Similarly, in Python a matrix represented using numpy as an array of arrays is also stored in row-major order.
+On the other hand, in Matlab a dense matrix is stored in column-major order.
+This can be source of confusion.
+
+--------------------------------------------------
+
 ## References:
 
 - G. Frison, M. Diehl.
