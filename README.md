@@ -118,7 +118,7 @@ This can be source of confusion.
 - G. Frison, J. Frey, F. Messerer, A. Zanelli, M. Diehl.
 *Introducing the quadratically-constrained quadratic programming framework in HPIPM*.
 (2022)
-(arXic preprint <https://arxiv.org/abs/2112.11872>)
+(arXiv preprint <https://arxiv.org/abs/2112.11872>)
 
 - G. Frison, H.H. B. Sørensen, B. Dammann, and J.B. Jørgensen.
 *High-performance small-scale solvers for linear model predictive control*.
@@ -137,4 +137,4 @@ ACM Transactions on Mathematical Software (TOMS) (2018)
 
 - HPIPM relies on the high-performance linear algebra library BLASFEO.
 BLASFEO provides several implementations optimized for different computer architectures, and it makes heavy use of assembly code.
-If you get the error `Illegal instruciton` at run time, you are probably using a BLASFEO version (`TARGET`) unsupported by your CPU.
+If you get the error `Illegal instruction` at run time, you are probably using a BLASFEO version (`TARGET`) unsupported by your CPU.
