@@ -33,7 +33,7 @@
 #                                                                                                 #
 ###################################################################################################
 from ctypes import *
-import ctypes.util 
+import ctypes.util
 import numpy as np
 
 
@@ -77,14 +77,14 @@ class hpipm_ocp_qp_solver_arg:
 
 		# initialize default arguments
 		__hpipm.d_ocp_qp_ipm_arg_set_default(c_mode, arg_struct) # mode==SPEED
-	
+
 
 	def set(self, field, value):
 		if((field=='mu0') | (field=='alpha_min') | (field=='tol_stat') | (field=='tol_eq') | (field=='tol_ineq') | (field=='tol_comp') | (field=='reg_prim')):
 			tmp_in = np.zeros((1,1))
 			tmp_in[0][0] = value
 			tmp = cast(tmp_in.ctypes.data, POINTER(c_double))
-		elif((field=='iter_max') | (field=='pred_corr') | (field=='split_step')):
+		elif((field=='iter_max') | (field=='pred_corr') | (field=='split_step') | (field=='ric_alg') | (field == 'var_init_scheme')):
 			tmp_in = np.zeros((1,1), dtype=int)
 			tmp_in[0][0] = value
 			tmp = cast(tmp_in.ctypes.data, POINTER(c_int))
