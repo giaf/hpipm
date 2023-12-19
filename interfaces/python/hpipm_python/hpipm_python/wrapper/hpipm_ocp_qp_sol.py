@@ -81,6 +81,26 @@ class hpipm_ocp_qp_sol:
 			'su': {
 				'n_var': __hpipm.d_ocp_qp_dim_get_ns,
 				'var': __hpipm.d_ocp_qp_sol_get_su
+			},
+			'pi': {
+				'n_var': __hpipm.d_ocp_qp_dim_get_nx,
+				'var': __hpipm.d_ocp_qp_sol_get_pi
+			},
+			'lam_lb': {
+				'n_var': __hpipm.d_ocp_qp_dim_get_nbx,
+				'var': __hpipm.d_ocp_qp_sol_get_lam_lb
+			},
+			'lam_ub': {
+				'n_var': __hpipm.d_ocp_qp_dim_get_nbx,
+				'var': __hpipm.d_ocp_qp_sol_get_lam_ub
+			},
+			'lam_lbx': {
+				'n_var': __hpipm.d_ocp_qp_dim_get_nbx,
+				'var': __hpipm.d_ocp_qp_sol_get_lam_lbx
+			},
+			'lam_ubx': {
+				'n_var': __hpipm.d_ocp_qp_dim_get_nbx,
+				'var': __hpipm.d_ocp_qp_sol_get_lam_ubx
 			}
 		}
 
