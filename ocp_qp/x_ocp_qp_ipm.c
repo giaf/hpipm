@@ -495,6 +495,41 @@ void OCP_QP_IPM_ARG_SET_T_LAM_MIN(int *value, struct OCP_QP_IPM_ARG *arg)
 
 
 
+void OCP_QP_IPM_ARG_DEEPCOPY(struct OCP_QP_IPM_ARG *arg_s, struct OCP_QP_IPM_ARG *arg_d)
+	{
+	arg_d->mu0 = arg_s->mu0;
+	arg_d->alpha_min = arg_s->alpha_min;
+	arg_d->res_g_max = arg_s->res_g_max;
+	arg_d->res_b_max = arg_s->res_b_max;
+	arg_d->res_d_max = arg_s->res_d_max;
+	arg_d->res_m_max = arg_s->res_m_max;
+	arg_d->reg_prim = arg_s->reg_prim;
+	arg_d->lam_min = arg_s->lam_min;
+	arg_d->t_min = arg_s->t_min;
+	arg_d->tau_min = arg_s->tau_min;
+	arg_d->iter_max = arg_s->iter_max;
+	arg_d->stat_max = arg_s->stat_max;
+	arg_d->pred_corr = arg_s->pred_corr;
+	arg_d->cond_pred_corr = arg_s->cond_pred_corr;
+	arg_d->itref_pred_max = arg_s->itref_pred_max;
+	arg_d->itref_corr_max = arg_s->itref_corr_max;
+	arg_d->warm_start = arg_s->warm_start;
+	arg_d->square_root_alg = arg_s->square_root_alg;
+	arg_d->lq_fact = arg_s->lq_fact;
+	arg_d->abs_form = arg_s->abs_form;
+	arg_d->comp_dual_sol_eq = arg_s->comp_dual_sol_eq;
+	arg_d->comp_res_exit = arg_s->comp_res_exit;
+	arg_d->comp_res_pred = arg_s->comp_res_pred;
+	arg_d->split_step = arg_s->split_step;
+	arg_d->var_init_scheme = arg_s->var_init_scheme;
+	arg_d->t_lam_min = arg_s->t_lam_min;
+	arg_d->mode = arg_s->mode;
+	// TODO keep updated !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+	return;
+	}
+
+
+
 hpipm_size_t OCP_QP_IPM_WS_STRSIZE()
 	{
 	return sizeof(struct OCP_QP_IPM_WS);

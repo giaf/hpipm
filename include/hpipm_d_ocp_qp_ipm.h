@@ -187,6 +187,8 @@ void d_ocp_qp_ipm_arg_set_split_step(int *value, struct d_ocp_qp_ipm_arg *arg);
 void d_ocp_qp_ipm_arg_set_var_init_scheme(int *value, struct d_ocp_qp_ipm_arg *arg);
 // clip t and lam: 0 no, 1 in Gamma computation, 2 in solution
 void d_ocp_qp_ipm_arg_set_t_lam_min(int *value, struct d_ocp_qp_ipm_arg *arg);
+//
+void d_ocp_qp_ipm_arg_deepcopy(struct d_ocp_qp_ipm_arg *arg_s, struct d_ocp_qp_ipm_arg *arg_d);
 
 //
 hpipm_size_t d_ocp_qp_ipm_ws_strsize();

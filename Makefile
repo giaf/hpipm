@@ -205,6 +205,10 @@ OBJS += auxiliary/aux_string.o
 OBJS += auxiliary/aux_mem.o
 OBJS += auxiliary/timing.o
 
+# interface
+# double
+OBJS += interfaces/c/d_ocp_qp_solver.o
+
 all: clean static_library
 
 static_library: target
@@ -215,6 +219,7 @@ static_library: target
 	( cd tree_ocp_qp; $(MAKE) obj TOP=$(TOP) )
 	( cd auxiliary; $(MAKE) obj TOP=$(TOP) )
 	( cd sim_core; $(MAKE) obj TOP=$(TOP) )
+	( cd interfaces/c; $(MAKE) obj TOP=$(TOP) )
 	ar rcs libhpipm.a $(OBJS) 
 	cp libhpipm.a ./lib/
 	@echo
@@ -229,6 +234,7 @@ shared_library: target
 	( cd tree_ocp_qp; $(MAKE) obj TOP=$(TOP) )
 	( cd auxiliary; $(MAKE) obj TOP=$(TOP) )
 	( cd sim_core; $(MAKE) obj TOP=$(TOP) )
+	( cd interfaces/c; $(MAKE) obj TOP=$(TOP) )
 	$(CC) -L$(BLASFEO_PATH)/lib -shared -o libhpipm.so $(OBJS) -lblasfeo -lm
 	cp libhpipm.so ./lib/
 	@echo
@@ -318,4 +324,5 @@ clean:
 	make -C test_problems clean
 	make -C examples/c clean
 	make -C benchmark clean
+	make -C interfaces/c clean
 
