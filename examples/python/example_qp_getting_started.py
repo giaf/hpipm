@@ -37,22 +37,14 @@ from hpipm_python.common import *
 import numpy as np
 import time
 import sys
-import os
+from utils import check_env, is_travis_run
 
 
-def main():
-	# check that env.sh has been run
-	env_run = os.getenv('ENV_RUN')
-	if env_run != 'true':
-		print('ERROR: env.sh has not been sourced! Before executing this example, run:')
-		print('source env.sh')
-		sys.exit(1)
-
-	travis_run = os.getenv('TRAVIS_RUN')
+def main(travis_run):
 
 	# define flags
 	codegen_data = 1 # export qp data in the file ocp_qp_data.c for use from C examples
-	print_structs = 0
+	print_structs = 1
 
 	reduce_eq_dof = 0 # eliminates e.g. equality constraint on x0
 
@@ -63,7 +55,6 @@ def main():
 	N = 5
 	nx = 2
 	nu = 1
-
 	nbx = nx
 
 	dim = hpipm_ocp_qp_dim(N)
@@ -80,9 +71,10 @@ def main():
 	else:
 		# data as a matrix
 		A = np.zeros((2,2))
-		A[0][0] = 1.0
-		A[0][1] = 1.0
-		A[1][1] = 1.0
+		A[0, 0] = 1.0
+		A[0, 1] = 1.0
+		A[1, 1] = 1.0
+
 	B = np.array([0, 1]).reshape(nx,nu)
 	# b = np.array([0, 0]).reshape(nx,1)
 
@@ -92,7 +84,7 @@ def main():
 	q = np.array([1, 1]).reshape(nx,1)
 	# r = np.array([0]).reshape(nu,1)
 
-	Jx = np.array([1, 0, 0, 1]).reshape(nbx, nx)
+	Jx = np.eye(nx)
 	x0 = np.array([1, 1]).reshape(nx,1)
 
 	# qp
@@ -106,6 +98,7 @@ def main():
 	qp.set('R', R, 0, N-1)
 	qp.set('q', q, 0, N)
 	#qp.set('r', r, 0, N-1)
+
 	qp.set('Jx', Jx, 0)
 	qp.set('lx', x0, 0)
 	qp.set('ux', x0, 0)
@@ -151,14 +144,12 @@ def main():
 	solver.solve(qp, qp_sol)
 	end_time = time.time()
 
-	if travis_run != 'true':
-		print('solve time {:e}'.format(end_time-start_time))
-
 	# extract and print sol
 	u = qp_sol.get('u', 0, N-1)
 	x = qp_sol.get('x', 0, N)
 
-	if travis_run != 'true':
+	if not travis_run:
+		print('solve time {:e}'.format(end_time-start_time))
 
 		for n in range(N):
 			print(f'\nu_{n} =')
@@ -181,10 +172,10 @@ def main():
 	else:
 		print('\nSolution failed, solver returned status {0:1d}\n'.format(status))
 
-	if travis_run != 'true':
+	if not travis_run:
 		solver.print_stats()
 
-	if travis_run != 'true' and print_structs:
+	if not travis_run and print_structs:
 		dim.print_C_struct()
 		qp.print_C_struct()
 		qp_sol.print_C_struct()
@@ -199,5 +190,10 @@ def main():
 
 
 if __name__ == '__main__':
-	status = main()
+
+	check_env()
+	travis_run = is_travis_run()
+
+	status = main(travis_run)
+
 	sys.exit(int(status))
