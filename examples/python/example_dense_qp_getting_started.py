@@ -37,19 +37,10 @@ from hpipm_python.common import *
 import numpy as np
 import time
 import sys
-import os
+from utils import check_env, is_travis_run
 
 
-def main():
-
-	# check that env.sh has been run
-	env_run = os.getenv('ENV_RUN')
-	if env_run != 'true':
-		print('ERROR: env.sh has not been sourced! Before executing this example, run:')
-		print('source env.sh')
-		sys.exit(1)
-
-	travis_run = os.getenv('TRAVIS_RUN')
+def main(travis_run: bool):
 
 	# flags
 	codegen_data = 1 # export qp data in the file dense_qp_data.c for use from C examples
@@ -123,9 +114,6 @@ def main():
 	solver.solve(qp, qp_sol)
 	end_time = time.time()
 
-	if travis_run != 'true':
-		print('solve time {:e}'.format(end_time-start_time))
-
 	v = qp_sol.get('v')
 	pi = qp_sol.get('pi')
 	lam_lb = qp_sol.get('lam_lb')
@@ -148,10 +136,11 @@ def main():
 	# res_comp = solver.get('max_res_comp')
 	# iters = solver.get('iter')
 
-	if travis_run != 'true':
+	if not travis_run:
+		print('solve time {:e}'.format(end_time-start_time))
 		solver.print_stats()
 
-	if status==0:
+	if status == 0:
 		print('\nsuccess!\n')
 	else:
 		print('\nSolution failed, solver returned status {0:1d}\n'.format(status))
@@ -169,5 +158,10 @@ def main():
 
 
 if __name__ == '__main__':
-	status = main()
+
+	check_env()
+	travis_run = is_travis_run()
+
+	status = main(travis_run)
+
 	sys.exit(int(status))

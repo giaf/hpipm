@@ -38,174 +38,150 @@ from hpipm_python.common import *
 import numpy as np
 import time
 import sys
-import os
+from utils import check_env, is_travis_run
 
 
+def main(travis_run: bool):
 
-# check that env.sh has been run
-env_run = os.getenv('ENV_RUN')
-if env_run!='true':
-	print('ERROR: env.sh has not been sourced! Before executing this example, run:')
-	print('source env.sh')
-	sys.exit(1)
+	# define flags
+	codegen_data = 1; # export qp data in the file ocp_qcqp_data.c for use from C examples
 
-travis_run = os.getenv('TRAVIS_RUN')
-#travis_run = 'true'
+	# dim
+	N = 5
+	nx = 2
+	nu = 1
 
+	nbx = nx
+	nq = 1
 
+	dim = hpipm_ocp_qcqp_dim(N)
 
-# define flags
-codegen_data = 1; # export qp data in the file ocp_qcqp_data.c for use from C examples
+	dim.set('nx', nx, 0, N) # number of states
+	dim.set('nu', nu, 0, N-1) # number of inputs
+	dim.set('nbx', nbx, 0) # number of state bounds
+	dim.set('nq', nq, N)
 
+	# print to shell
+	# dim.print_C_struct()
 
+	# data
+	A = np.array([1, 1, 0, 1]).reshape(nx,nx)
+	B = np.array([0, 1]).reshape(nx,nu)
 
-# dim
-N = 5
-nx = 2
-nu = 1
+	Q = np.array([1, 0, 0, 1]).reshape(nx,nx)
+	R = np.array([1]).reshape(nu,nu)
+	q = np.array([1, 1]).reshape(nx,1)
 
-nbx = nx
-nq = 1
+	Jx = np.array([1, 0, 0, 1]).reshape(nbx,nx)
+	x0 = np.array([1, 1]).reshape(nx,1)
 
-dim = hpipm_ocp_qcqp_dim(N)
+	Qq = 2*np.eye(nx)
+	uq = np.array([0.1])
 
-dim.set('nx', nx, 0, N) # number of states
-dim.set('nu', nu, 0, N-1) # number of inputs
-dim.set('nbx', nbx, 0) # number of state bounds
-dim.set('nq', nq, N)
+	# qp
+	qp = hpipm_ocp_qcqp(dim)
 
-# print to shell
-#dim.print_C_struct()
-# codegen
-if codegen_data:
-	dim.codegen('ocp_qcqp_data.c', 'w')
+	qp.set('A', A, 0, N-1)
+	qp.set('B', B, 0, N-1)
+	qp.set('Q', Q, 0, N)
+	qp.set('R', R, 0, N-1)
+	qp.set('q', q, 0, N)
+	qp.set('Jx', Jx, 0)
+	qp.set('lx', x0, 0)
+	qp.set('ux', x0, 0)
+	qp.set('Qq', Qq, N)
+	qp.set('uq', uq, N)
 
+	# print to shell
+	# qp.print_C_struct()
 
+	# qp sol
+	qp_sol = hpipm_ocp_qcqp_sol(dim)
 
-# data
-A = np.array([1, 1, 0, 1]).reshape(nx,nx)
-B = np.array([0, 1]).reshape(nx,nu)
+	# set up solver arg
+	# mode = 'speed_abs'
+	mode = 'speed'
+	# mode = 'balance'
+	# mode = 'robust'
 
-Q = np.array([1, 0, 0, 1]).reshape(nx,nx)
-R = np.array([1]).reshape(nu,nu)
-q = np.array([1, 1]).reshape(nx,1)
+	# create and set default arg based on mode
+	arg = hpipm_ocp_qcqp_solver_arg(dim, mode)
 
-Jx = np.array([1, 0, 0, 1]).reshape(nbx,nx)
-x0 = np.array([1, 1]).reshape(nx,1)
+	arg.set('mu0', 1e1)
+	arg.set('iter_max', 30)
+	arg.set('tol_stat', 1e-4)
+	arg.set('tol_eq', 1e-5)
+	arg.set('tol_ineq', 1e-5)
+	arg.set('tol_comp', 1e-5)
+	arg.set('reg_prim', 1e-12)
 
-Qq = 2*np.eye(nx)
-uq = np.array([0.1])
+	# codegen
+	if codegen_data:
+		dim.codegen('ocp_qcqp_data.c', 'w')
+		arg.codegen('ocp_qcqp_data.c', 'a')
+		qp.codegen('ocp_qcqp_data.c', 'a')
 
+	# set up solver
+	solver = hpipm_ocp_qcqp_solver(dim, arg)
 
+	# solve qp
+	start_time = time.time()
+	solver.solve(qp, qp_sol)
+	end_time = time.time()
 
-# qp
-qp = hpipm_ocp_qcqp(dim)
+	if not travis_run:
+		print('solve time {:e}'.format(end_time-start_time))
+		qp_sol.print_C_struct()
 
-qp.set('A', A, 0, N-1)
-qp.set('B', B, 0, N-1)
-qp.set('Q', Q, 0, N)
-qp.set('R', R, 0, N-1)
-qp.set('q', q, 0, N)
-qp.set('Jx', Jx, 0)
-qp.set('lx', x0, 0)
-qp.set('ux', x0, 0)
-qp.set('Qq', Qq, N)
-qp.set('uq', uq, N)
+	# extract and print sol
+	u_traj = qp_sol.get('u', 0, N)
+	x_traj = qp_sol.get('x', 0, N)
 
-# print to shell
-#qp.print_C_struct()
-# codegen
-if codegen_data:
-	qp.codegen('ocp_qcqp_data.c', 'a')
+	xN = x_traj[-1]
 
+	if not travis_run:
+		print('u =')
+		for u in u_traj:
+				print(u)
+		print('x =')
+		for x in x_traj:
+				print(x)
 
-# qp sol
-qp_sol = hpipm_ocp_qcqp_sol(dim)
+	# get solver statistics
+	status = solver.get('status')
+	res_stat = solver.get('max_res_stat')
+	res_eq = solver.get('max_res_eq')
+	res_ineq = solver.get('max_res_ineq')
+	res_comp = solver.get('max_res_comp')
+	iters = solver.get('iter')
 
+	if not travis_run:
 
-# set up solver arg
-#mode = 'speed_abs'
-mode = 'speed'
-#mode = 'balance'
-#mode = 'robust'
-# create and set default arg based on mode
-arg = hpipm_ocp_qcqp_solver_arg(dim, mode)
+		print('quadratic constr')
+		print(0.5*np.dot(xN.transpose(),np.dot(Qq,xN)))
 
-# create and set default arg based on mode
-arg.set('mu0', 1e1)
-arg.set('iter_max', 30)
-arg.set('tol_stat', 1e-4)
-arg.set('tol_eq', 1e-5)
-arg.set('tol_ineq', 1e-5)
-arg.set('tol_comp', 1e-5)
-arg.set('reg_prim', 1e-12)
+		print('ipm return = {0:1d}\n'.format(status))
+		print('ipm max res stat = {:e}\n'.format(res_stat))
+		print('ipm max res eq   = {:e}\n'.format(res_eq))
+		print('ipm max res ineq = {:e}\n'.format(res_ineq))
+		print('ipm max res comp = {:e}\n'.format(res_comp))
+		print('ipm iter = {0:1d}\n'.format(iters))
 
-# codegen
-if codegen_data:
-	arg.codegen('ocp_qcqp_data.c', 'a')
+		solver.print_stats()
 
-# set up solver
-solver = hpipm_ocp_qcqp_solver(dim, arg)
+	if status == 0:
+		print('\nsuccess!\n')
+	else:
+		print('\nSolution failed, solver returned status {0:1d}\n'.format(status))
 
-
-# solve qp
-start_time = time.time()
-solver.solve(qp, qp_sol)
-end_time = time.time()
-if(travis_run!='true'):
-	print('solve time {:e}'.format(end_time-start_time))
-
-
-if(travis_run!='true'):
-	qp_sol.print_C_struct()
-
-# extract and print sol
-if(travis_run!='true'):
-	print('u =')
-#u = qp_sol.get_u()
-u = qp_sol.get('u', 0, N)
-for i in range(N+1):
-	if(travis_run!='true'):
-		print(u[i])
-
-if(travis_run!='true'):
-	print('x =')
-for i in range(N+1):
-	tmp = qp_sol.get('x', i)
-	if(travis_run!='true'):
-		print(tmp)
-
-xN = qp_sol.get('x', N)
-if(travis_run!='true'):
-	print('quadratic constr')
-	print(0.5*np.dot(xN.transpose(),np.dot(Qq,xN)))
-
-# get solver statistics
-status = solver.get('status')
-res_stat = solver.get('max_res_stat')
-res_eq = solver.get('max_res_eq')
-res_ineq = solver.get('max_res_ineq')
-res_comp = solver.get('max_res_comp')
-iters = solver.get('iter')
-stat = solver.get('stat')
-
-if(travis_run!='true'):
-
-	print('ipm return = {0:1d}\n'.format(status))
-	print('ipm max res stat = {:e}\n'.format(res_stat))
-	print('ipm max res eq   = {:e}\n'.format(res_eq))
-	print('ipm max res ineq = {:e}\n'.format(res_ineq))
-	print('ipm max res comp = {:e}\n'.format(res_comp))
-	print('ipm iter = {0:1d}\n'.format(iters))
-
-	solver.print_stats()
-
-if status==0:
-	print('\nsuccess!\n')
-else:
-	print('\nSolution failed, solver returned status {0:1d}\n'.format(status))
+	return status
 
 
+if __name__ == '__main__':
 
-sys.exit(int(status))
+	check_env()
+	travis_run = is_travis_run()
 
+	status = main(travis_run)
+
+	sys.exit(int(status))
