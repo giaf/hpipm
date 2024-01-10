@@ -66,9 +66,9 @@ class hpipm_ocp_qcqp_sol:
 
 
 	def get(self, field, idx_start, idx_end=None):
-		if(field=='u'):
+		if field == 'u':
 			vec = self.__get_u(idx_start, idx_end)
-		elif(field=='x'):
+		elif field == 'x':
 			vec = self.__get_x(idx_start, idx_end)
 		else:
 			raise NameError('hpipm_ocp_qcqp_sol.get: wrong field')
@@ -77,8 +77,8 @@ class hpipm_ocp_qcqp_sol:
 
 	def __get_u(self, idx_start, idx_end=None):
 		# nu
-		nu = np.zeros((1,1), dtype=int);
-		if idx_end==None:
+		nu = np.zeros((1,1), dtype=int)
+		if idx_end is None:
 			# get nu at stage
 			tmp_ptr = cast(nu.ctypes.data, POINTER(c_int))
 			self.__hpipm.d_ocp_qcqp_dim_get_nu(self.dim.dim_struct, idx_start, tmp_ptr)
@@ -99,8 +99,8 @@ class hpipm_ocp_qcqp_sol:
 
 	def __get_x(self, idx_start, idx_end=None):
 		# nx
-		nx = np.zeros((1,1), dtype=int);
-		if idx_end==None:
+		nx = np.zeros((1,1), dtype=int)
+		if idx_end is None:
 			# get nx at stage
 			tmp_ptr = cast(nx.ctypes.data, POINTER(c_int))
 			self.__hpipm.d_ocp_qcqp_dim_get_nx(self.dim.dim_struct, idx_start, tmp_ptr)

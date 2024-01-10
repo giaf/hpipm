@@ -87,11 +87,11 @@ class hpipm_dense_qp_solver_arg:
 	def set(self, field, value):
 		if field in self.__settable_fields_float:
 			tmp_in = np.zeros((1,1))
-			tmp_in[0][0] = value
+			tmp_in[0, 0] = value
 			tmp = cast(tmp_in.ctypes.data, POINTER(c_double))
 		elif field in self.__settable_fields_int:
 			tmp_in = np.zeros((1,1), dtype=int)
-			tmp_in[0][0] = value
+			tmp_in[0, 0] = value
 			tmp = cast(tmp_in.ctypes.data, POINTER(c_int))
 		else:
 			raise NameError('hpipm_dense_qp_solver_arg.set: wrong field')
