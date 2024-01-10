@@ -42,13 +42,13 @@ class hpipm_dense_qcqp_solver_arg:
 	def __init__(self, dim, mode):
 
 		c_mode = 0
-		if(mode=='speed_abs'):
+		if mode  == 'speed_abs':
 			c_mode = 0
-		elif(mode=='speed'):
+		elif mode  == 'speed':
 			c_mode = 1
-		elif(mode=='balance'):
+		elif mode  == 'balance':
 			c_mode = 2
-		elif(mode=='robust'):
+		elif mode  == 'robust':
 			c_mode = 3
 		else:
 			raise NameError('hpipm_dense_qcqp_solver_arg: wrong mode')
@@ -76,18 +76,25 @@ class hpipm_dense_qcqp_solver_arg:
 		# initialize default arguments
 		__hpipm.d_dense_qcqp_ipm_arg_set_default(c_mode, arg_struct) # mode==SPEED
 
+		# settable options of type int
+		self.__settable_fields_int = ('iter_max', 'pred_corr', 'split_step', 'warm_start')
+
+		# settable options of type float
+		self.__settable_fields_float = ('mu0', 'tol_stat', 'tol_eq', 'tol_ineq', 'tol_comp', 'reg_prim', 'reg_dual')
+
 
 	def set(self, field, value):
-		if((field=='mu0') | (field=='tol_stat') | (field=='tol_eq') | (field=='tol_ineq') | (field=='tol_comp') | (field=='reg_prim') | (field=='reg_dual')):
+		if field in self.__settable_fields_float:
 			tmp_in = np.zeros((1,1))
-			tmp_in[0][0] = value
+			tmp_in[0, 0] = value
 			tmp = cast(tmp_in.ctypes.data, POINTER(c_double))
-		elif((field=='iter_max') | (field=='pred_corr') | (field=='split_step') | (field=='warm_start')):
+		elif field in self.__settable_fields_int:
 			tmp_in = np.zeros((1,1), dtype=int)
-			tmp_in[0][0] = value
+			tmp_in[0, 0] = value
 			tmp = cast(tmp_in.ctypes.data, POINTER(c_int))
 		else:
 			raise NameError('hpipm_dense_qcqp_solver_arg.set: wrong field')
+
 		field_name_b = field.encode('utf-8')
 		self.__hpipm.d_dense_qcqp_ipm_arg_set(c_char_p(field_name_b), tmp, self.arg_struct)
 		return
