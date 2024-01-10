@@ -59,9 +59,10 @@ class hpipm_dense_qcqp_solver(hpipm_solver):
 
 	def solve(self, qcqp, qcqp_sol):
 		self.__hpipm.d_dense_qcqp_ipm_solve(qcqp.qcqp_struct, qcqp_sol.qcqp_sol_struct, self.arg.arg_struct, self.ipm_ws_struct)
+		return
 
 	def get(self, field):
-		if((field=='stat')):
+		if field == 'stat':
 			# get iters
 			iters = np.zeros((1,1), dtype=int)
 			tmp = cast(iters.ctypes.data, POINTER(c_int))
@@ -80,10 +81,10 @@ class hpipm_dense_qcqp_solver(hpipm_solver):
 					res[ii][jj] = tmp[jj+ii*stat_m[0][0]]
 					res[ii][jj] = tmp[jj+ii*stat_m[0][0]]
 			return res
-		elif((field=='status') | (field=='iter')):
+		elif field=='status' or field=='iter':
 			res = np.zeros((1,1), dtype=int)
 			tmp = cast(res.ctypes.data, POINTER(c_int))
-		elif((field=='max_res_stat') | (field=='max_res_eq') | (field=='max_res_ineq') | (field=='max_res_comp')):
+		elif field=='max_res_stat' or field=='max_res_eq' or field=='max_res_ineq' or field=='max_res_comp':
 			res = np.zeros((1,1))
 			tmp = cast(res.ctypes.data, POINTER(c_double))
 		else:

@@ -38,8 +38,6 @@ from abc import ABC, abstractmethod
 
 class hpipm_solver(ABC):
 
-    # def __init__(self, qp_dims, arg):
-    #         super().__init__()
 
     @abstractmethod
     def solve(self, qp, qp_sol):

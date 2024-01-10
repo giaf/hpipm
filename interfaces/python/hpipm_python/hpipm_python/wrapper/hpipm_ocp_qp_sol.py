@@ -34,15 +34,14 @@
 ###################################################################################################
 
 from ctypes import *
-import ctypes.util
 import numpy as np
-
+from .hpipm_ocp_qp_dim import hpipm_ocp_qp_dim
 
 
 class hpipm_ocp_qp_sol:
 
 
-	def __init__(self, dim):
+	def __init__(self, dim: hpipm_ocp_qp_dim):
 
 		# save dim internally
 		self.dim = dim

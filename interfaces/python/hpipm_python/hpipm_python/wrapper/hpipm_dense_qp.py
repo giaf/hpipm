@@ -73,7 +73,7 @@ class hpipm_dense_qp:
 				value[0] = value_
 		# convert into column-major
 		value_cm = np.ravel(value, 'F')
-		if(field=='idxb' or field=='idxs' or field=='idxs_rev'):
+		if field=='idxb' or field=='idxs' or field=='idxs_rev':
 			value_cm = np.ascontiguousarray(value_cm, dtype=np.int32)
 			tmp = cast(value_cm.ctypes.data, POINTER(c_int))
 		else:

@@ -116,7 +116,7 @@ class hpipm_dense_qcqp_sol:
 		return var
 
 	def set(self, field, value):
-		if((field=='v')):
+		if field == 'v':
 			value = np.ascontiguousarray(value, dtype=np.float64)
 			tmp = cast(value.ctypes.data, POINTER(c_double))
 			self.__hpipm.d_dense_qcqp_sol_set_v(tmp, self.qcqp_sol_struct)
