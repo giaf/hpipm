@@ -129,10 +129,6 @@ def main(travis_run: bool):
 	solver.solve(qp, qp_sol)
 	end_time = time.time()
 
-	if not travis_run:
-		print('solve time {:e}'.format(end_time-start_time))
-		qp_sol.print_C_struct()
-
 	# extract and print sol
 	u_traj = qp_sol.get('u', 0, N)
 	x_traj = qp_sol.get('x', 0, N)
@@ -140,12 +136,12 @@ def main(travis_run: bool):
 	xN = x_traj[-1]
 
 	if not travis_run:
-		print('u =')
+		print('\nu =')
 		for u in u_traj:
-				print(u)
-		print('x =')
+				print(u.ravel())
+		print('\nx =')
 		for x in x_traj:
-				print(x)
+				print(x.ravel())
 
 	# get solver statistics
 	status = solver.get('status')
@@ -156,9 +152,10 @@ def main(travis_run: bool):
 	iters = solver.get('iter')
 
 	if not travis_run:
+		qp_sol.print_C_struct()
 
-		print('quadratic constr')
-		print(0.5*np.dot(xN.transpose(),np.dot(Qq,xN)))
+		print('\nsolve time {:e}'.format(end_time-start_time))
+		print('\nquadratic constraint:', (0.5*xN.T @ Qq @ xN).item(), '\n')
 
 		print('ipm return = {0:1d}\n'.format(status))
 		print('ipm max res stat = {:e}\n'.format(res_stat))

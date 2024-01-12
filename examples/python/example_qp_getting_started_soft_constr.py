@@ -66,8 +66,8 @@ def main(travis_run):
 		dim.set('nx', nx, 0)    # number of states
 		dim.set('nbx', nbx, 0)  # number of state bounds
 
-	dim.set('nx', nx, 1, N) # number of states
-	dim.set('nu', nu, 0, N-1) # number of inputs
+	dim.set('nx', nx, 1, N)     # number of states
+	dim.set('nu', nu, 0, N-1)   # number of inputs
 	dim.set('nbu', nbu, 0, N-1) # number of input bounds
 	# dim.set('ng', nx, 0)
 	dim.set('nbx', nbx, N)
