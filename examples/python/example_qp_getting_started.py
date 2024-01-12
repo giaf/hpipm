@@ -92,12 +92,12 @@ def main(travis_run):
 
 	qp.set('A', A, 0, N-1)
 	qp.set('B', B, 0, N-1)
-	#qp.set('b', [b, b, b, b, b])
+	# qp.set('b', [b, b, b, b, b])
 	qp.set('Q', Q, 0, N)
 	qp.set('S', S, 0, N-1)
 	qp.set('R', R, 0, N-1)
 	qp.set('q', q, 0, N)
-	#qp.set('r', r, 0, N-1)
+	# qp.set('r', r, 0, N-1)
 
 	qp.set('Jx', Jx, 0)
 	qp.set('lx', x0, 0)
@@ -145,19 +145,25 @@ def main(travis_run):
 	end_time = time.time()
 
 	# extract and print sol
-	u = qp_sol.get('u', 0, N-1)
-	x = qp_sol.get('x', 0, N)
+	u_traj = qp_sol.get('u', 0, N-1)
+	x_traj = qp_sol.get('x', 0, N)
+
+	K_traj = solver.get_feedback(qp, 'ric_K', 0, N-1)
 
 	if not travis_run:
 		print('solve time {:e}'.format(end_time-start_time))
 
 		for n in range(N):
 			print(f'\nu_{n} =')
-			print(u[n].flatten())
+			print(u_traj[n].flatten())
+
+		for n in range(N):
+			print(f'\nK_{n} =')
+			print(K_traj[n].flatten())
 
 		for n in range(N+1):
 			print(f'\nx_{n} =')
-			print(x[n].flatten())
+			print(x_traj[n].flatten())
 
 	# get solver statistics
 	status = solver.get('status')
