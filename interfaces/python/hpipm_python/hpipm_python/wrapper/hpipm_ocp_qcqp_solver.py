@@ -98,7 +98,7 @@ class hpipm_ocp_qcqp_solver(hpipm_solver):
 			raise NameError('hpipm_ocp_qcqp_solver.get: wrong field')
 		field_name_b = field.encode('utf-8')
 		self.__hpipm.d_ocp_qcqp_ipm_get(c_char_p(field_name_b), self.ipm_ws_struct, tmp)
-		return res[0][0]
+		return res[0, 0]
 
 
 
