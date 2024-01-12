@@ -34,15 +34,16 @@
 ###################################################################################################
 
 from ctypes import *
-import ctypes.util
 import numpy as np
+from .hpipm_ocp_qp_dim import hpipm_ocp_qp_dim
+from typing import Union, Optional
 
 
 
 class hpipm_ocp_qcqp_sol:
 
 
-	def __init__(self, dim):
+	def __init__(self, dim: hpipm_ocp_qp_dim):
 
 		# save dim internally
 		self.dim = dim
@@ -64,59 +65,49 @@ class hpipm_ocp_qcqp_sol:
 		# create C qp
 		__hpipm.d_ocp_qcqp_sol_create(dim.dim_struct, qp_sol_struct, qp_sol_mem)
 
+		# getter functions for controls, states
+		self.__getters = {
+			'u': {
+				'n_var': __hpipm.d_ocp_qcqp_dim_get_nu,
+				'var': __hpipm.d_ocp_qcqp_sol_get_u
+			},
+			'x': {
+				'n_var': __hpipm.d_ocp_qcqp_dim_get_nx,
+				'var': __hpipm.d_ocp_qcqp_sol_get_x
+			},
+		}
 
-	def get(self, field, idx_start, idx_end=None):
-		if field == 'u':
-			vec = self.__get_u(idx_start, idx_end)
-		elif field == 'x':
-			vec = self.__get_x(idx_start, idx_end)
+
+	def get(self, field: str, idx_start: int, idx_end: Optional[int] = None)-> Union[np.ndarray, list[np.ndarray]]:
+		'''
+		Getter for value of `field` at stage `idx_start` or at stages `idx_start` to `idx_end`.
+		Returns a single np.ndarray if only `idx_start` is given.
+		Returns a list of np.ndarray if also `idx_end` is given.
+		'''
+		if field not in self.__getters:
+			raise NameError('hpipm_ocp_qcqp_sol.get: wrong field. Available fields are:', *self.__getters.keys())
 		else:
-			raise NameError('hpipm_ocp_qcqp_sol.get: wrong field')
-		return vec
+			return self.__get(self.__getters[field], idx_start, idx_end)
 
 
-	def __get_u(self, idx_start, idx_end=None):
-		# nu
-		nu = np.zeros((1,1), dtype=int)
+	def __get(self, getter, idx_start: int, idx_end: Optional[int]=None) -> Union[np.ndarray, list[np.ndarray]]:
+		n_var = np.zeros((1,), dtype=int)
+
 		if idx_end is None:
-			# get nu at stage
-			tmp_ptr = cast(nu.ctypes.data, POINTER(c_int))
-			self.__hpipm.d_ocp_qcqp_dim_get_nu(self.dim.dim_struct, idx_start, tmp_ptr)
-			u = np.zeros((nu[0,0], 1))
-			tmp_ptr = cast(u.ctypes.data, POINTER(c_double))
-			self.__hpipm.d_ocp_qcqp_sol_get_u(idx_start, self.qp_sol_struct, tmp_ptr)
+			idx_end_ = idx_start
 		else:
-			u = []
-			for i in range(idx_start, idx_end+1):
-				# get nu at stage
-				tmp_ptr = cast(nu.ctypes.data, POINTER(c_int))
-				self.__hpipm.d_ocp_qcqp_dim_get_nu(self.dim.dim_struct, i, tmp_ptr)
-				u.append(np.zeros((nu[0,0], 1)))
-				tmp_ptr = cast(u[-1].ctypes.data, POINTER(c_double))
-				self.__hpipm.d_ocp_qcqp_sol_get_u(i, self.qp_sol_struct, tmp_ptr)
-		return u
+			idx_end_ = idx_end
 
+		var = []
+		for i in range(idx_start, idx_end_ + 1):
+			tmp_ptr = cast(n_var.ctypes.data, POINTER(c_int))
+			getter['n_var'](self.dim.dim_struct, i, tmp_ptr)
 
-	def __get_x(self, idx_start, idx_end=None):
-		# nx
-		nx = np.zeros((1,1), dtype=int)
-		if idx_end is None:
-			# get nx at stage
-			tmp_ptr = cast(nx.ctypes.data, POINTER(c_int))
-			self.__hpipm.d_ocp_qcqp_dim_get_nx(self.dim.dim_struct, idx_start, tmp_ptr)
-			x = np.zeros((nx[0,0], 1))
-			tmp_ptr = cast(x.ctypes.data, POINTER(c_double))
-			self.__hpipm.d_ocp_qcqp_sol_get_x(idx_start, self.qp_sol_struct, tmp_ptr)
-		else:
-			x = []
-			for i in range(idx_start, idx_end+1):
-				# get nx at stage
-				tmp_ptr = cast(nx.ctypes.data, POINTER(c_int))
-				self.__hpipm.d_ocp_qcqp_dim_get_nx(self.dim.dim_struct, i, tmp_ptr)
-				x.append(np.zeros((nx[0,0], 1)))
-				tmp_ptr = cast(x[-1].ctypes.data, POINTER(c_double))
-				self.__hpipm.d_ocp_qcqp_sol_get_x(i, self.qp_sol_struct, tmp_ptr)
-		return x
+			var.append(np.zeros((n_var[0], 1)))
+			tmp_ptr = cast(var[-1].ctypes.data, POINTER(c_double))
+			getter['var'](i, self.qp_sol_struct, tmp_ptr)
+
+		return var if idx_end is not None else var[0]
 
 
 	def print_C_struct(self):
