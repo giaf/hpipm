@@ -55,8 +55,16 @@
 #define OCP_QP_IPM_ARG_DEEPCOPY d_ocp_qp_ipm_arg_deepcopy
 #define OCP_QP_IPM_ARG_MEMSIZE d_ocp_qp_ipm_arg_memsize
 #define OCP_QP_IPM_ARG_SET d_ocp_qp_ipm_arg_set
+#define OCP_QP_IPM_ARG_SET_ALPHA_MIN d_ocp_qp_ipm_arg_set_alpha_min
 #define OCP_QP_IPM_ARG_SET_DEFAULT d_ocp_qp_ipm_arg_set_default
+#define OCP_QP_IPM_ARG_SET_ITER_MAX d_ocp_qp_ipm_arg_set_iter_max
+#define OCP_QP_IPM_ARG_SET_MU0 d_ocp_qp_ipm_arg_set_mu0
+#define OCP_QP_IPM_ARG_SET_TOL_COMP d_ocp_qp_ipm_arg_set_tol_comp
+#define OCP_QP_IPM_ARG_SET_TOL_EQ d_ocp_qp_ipm_arg_set_tol_eq
+#define OCP_QP_IPM_ARG_SET_TOL_INEQ d_ocp_qp_ipm_arg_set_tol_ineq
+#define OCP_QP_IPM_ARG_SET_TOL_STAT d_ocp_qp_ipm_arg_set_tol_stat
 #define OCP_QP_IPM_GET d_ocp_qp_ipm_get
+#define OCP_QP_IPM_GET_STATUS d_ocp_qp_ipm_get_status
 #define OCP_QP_IPM_SOLVE d_ocp_qp_ipm_solve
 #define OCP_QP_IPM_WS d_ocp_qp_ipm_ws
 #define OCP_QP_IPM_WS_CREATE d_ocp_qp_ipm_ws_create
@@ -64,6 +72,7 @@
 #define OCP_QP_SOL d_ocp_qp_sol
 #define OCP_QP_SOLVER_ARG d_ocp_qp_solver_arg
 #define OCP_QP_SOLVER_WS d_ocp_qp_solver_ws
+#define REAL double
 
 
 
@@ -79,7 +88,15 @@
 #define OCP_QP_SOLVER_WS_MEMSIZE d_ocp_qp_solver_ws_memsize
 #define OCP_QP_SOLVER_WS_CREATE d_ocp_qp_solver_ws_create
 #define OCP_QP_SOLVER_GET d_ocp_qp_solver_get
+#define OCP_QP_SOLVER_GET_STATUS d_ocp_qp_solver_get_status
 #define OCP_QP_SOLVER_SET d_ocp_qp_solver_set
+#define OCP_QP_SOLVER_SET_ITER_MAX d_ocp_qp_solver_set_iter_max
+#define OCP_QP_SOLVER_SET_ALPHA_MIN d_ocp_qp_solver_set_alpha_min
+#define OCP_QP_SOLVER_SET_MU0 d_ocp_qp_solver_set_mu0
+#define OCP_QP_SOLVER_SET_TOL_STAT d_ocp_qp_solver_set_tol_stat
+#define OCP_QP_SOLVER_SET_TOL_EQ d_ocp_qp_solver_set_tol_eq
+#define OCP_QP_SOLVER_SET_TOL_INEQ d_ocp_qp_solver_set_tol_ineq
+#define OCP_QP_SOLVER_SET_TOL_COMP d_ocp_qp_solver_set_tol_comp
 #define OCP_QP_SOLVER_SOLVE d_ocp_qp_solver_solve
 
 

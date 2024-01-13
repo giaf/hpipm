@@ -183,7 +183,21 @@ void OCP_QP_SOLVER_WS_CREATE(struct OCP_QP_DIM *ocp_dim, struct OCP_QP_SOLVER_AR
 
 void OCP_QP_SOLVER_GET(char *field, struct OCP_QP_SOLVER_WS *ws, void *value)
 	{
-	OCP_QP_IPM_GET(field, ws->ipm_ws, value);
+	if(hpipm_strcmp(field, "status"))
+		{
+		OCP_QP_SOLVER_GET_STATUS(ws, value);
+		}
+	else
+		{
+		OCP_QP_IPM_GET(field, ws->ipm_ws, value);
+		}
+	return;
+	}
+
+
+void OCP_QP_SOLVER_GET_STATUS(struct OCP_QP_SOLVER_WS *ws, int *value)
+	{
+	OCP_QP_IPM_GET_STATUS(ws->ipm_ws, value);
 	return;
 	}
 
@@ -192,15 +206,95 @@ void OCP_QP_SOLVER_GET(char *field, struct OCP_QP_SOLVER_WS *ws, void *value)
 void OCP_QP_SOLVER_SET(char *field, void *value, struct OCP_QP_SOLVER_WS *ws)
 	{
 	// TODO
-	if(hpipm_strcmp(field, "iter_max") | hpipm_strcmp(field, "alpha_min") | hpipm_strcmp(field, "mu0") | hpipm_strcmp(field, "tol_stat") | hpipm_strcmp(field, "tol_eq") | hpipm_strcmp(field, "tol_ineq") | hpipm_strcmp(field, "tol_comp"))
+	if(hpipm_strcmp(field, "iter_max"))
 		{
-		OCP_QP_IPM_ARG_SET(field, value, ws->arg->ipm_arg);
+		OCP_QP_SOLVER_SET_ITER_MAX(value, ws);
+		}
+	else if(hpipm_strcmp(field, "alpha_min"))
+		{
+		OCP_QP_SOLVER_SET_ALPHA_MIN(value, ws);
+		}
+	else if(hpipm_strcmp(field, "mu0"))
+		{
+		OCP_QP_SOLVER_SET_MU0(value, ws);
+		}
+	else if(hpipm_strcmp(field, "tol_stat"))
+		{
+		OCP_QP_SOLVER_SET_TOL_STAT(value, ws);
+		}
+	else if(hpipm_strcmp(field, "tol_eq"))
+		{
+		OCP_QP_SOLVER_SET_TOL_EQ(value, ws);
+		}
+	else if(hpipm_strcmp(field, "tol_ineq"))
+		{
+		OCP_QP_SOLVER_SET_TOL_INEQ(value, ws);
+		}
+	else if(hpipm_strcmp(field, "tol_comp"))
+		{
+		OCP_QP_SOLVER_SET_TOL_COMP(value, ws);
 		}
 	else
 		{
 		printf("error: OCP_QP_SOLVER_ARG_SET: wrong field %s\n", field);
 		exit(1);	
 		}
+	return;
+	}
+
+
+
+void OCP_QP_SOLVER_SET_ITER_MAX(int *value, struct OCP_QP_SOLVER_WS *ws)
+	{
+	OCP_QP_IPM_ARG_SET_ITER_MAX(value, ws->arg->ipm_arg);
+	return;
+	}
+
+
+
+void OCP_QP_SOLVER_SET_ALPHA_MIN(REAL *value, struct OCP_QP_SOLVER_WS *ws)
+	{
+	OCP_QP_IPM_ARG_SET_ALPHA_MIN(value, ws->arg->ipm_arg);
+	return;
+	}
+
+
+
+void OCP_QP_SOLVER_SET_MU0(REAL *value, struct OCP_QP_SOLVER_WS *ws)
+	{
+	OCP_QP_IPM_ARG_SET_MU0(value, ws->arg->ipm_arg);
+	return;
+	}
+
+
+
+void OCP_QP_SOLVER_SET_TOL_STAT(REAL *value, struct OCP_QP_SOLVER_WS *ws)
+	{
+	OCP_QP_IPM_ARG_SET_TOL_STAT(value, ws->arg->ipm_arg);
+	return;
+	}
+
+
+
+void OCP_QP_SOLVER_SET_TOL_EQ(REAL *value, struct OCP_QP_SOLVER_WS *ws)
+	{
+	OCP_QP_IPM_ARG_SET_TOL_EQ(value, ws->arg->ipm_arg);
+	return;
+	}
+
+
+
+void OCP_QP_SOLVER_SET_TOL_INEQ(REAL *value, struct OCP_QP_SOLVER_WS *ws)
+	{
+	OCP_QP_IPM_ARG_SET_TOL_INEQ(value, ws->arg->ipm_arg);
+	return;
+	}
+
+
+
+void OCP_QP_SOLVER_SET_TOL_COMP(REAL *value, struct OCP_QP_SOLVER_WS *ws)
+	{
+	OCP_QP_IPM_ARG_SET_TOL_COMP(value, ws->arg->ipm_arg);
 	return;
 	}
 

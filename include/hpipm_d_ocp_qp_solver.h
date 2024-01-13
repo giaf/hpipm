@@ -96,7 +96,23 @@ void d_ocp_qp_solver_ws_create(struct d_ocp_qp_dim *ocp_dim, struct d_ocp_qp_sol
 //
 void d_ocp_qp_solver_get(char *field, struct d_ocp_qp_solver_ws *ws, void *value);
 //
+void d_ocp_qp_solver_get_status(struct d_ocp_qp_solver_ws *ws, int *value);
+//
 void d_ocp_qp_solver_set(char *field, void *value, struct d_ocp_qp_solver_ws *ws); // XXX set selected args that can safely change
+//
+void d_ocp_qp_solver_set_iter_max(int *value, struct d_ocp_qp_solver_ws *ws);
+//
+void d_ocp_qp_solver_set_alpha_min(double *value, struct d_ocp_qp_solver_ws *ws);
+//
+void d_ocp_qp_solver_set_mu0(double *value, struct d_ocp_qp_solver_ws *ws);
+//
+void d_ocp_qp_solver_set_tol_stat(double *value, struct d_ocp_qp_solver_ws *ws);
+//
+void d_ocp_qp_solver_set_tol_eq(double *value, struct d_ocp_qp_solver_ws *ws);
+//
+void d_ocp_qp_solver_set_tol_ineq(double *value, struct d_ocp_qp_solver_ws *ws);
+//
+void d_ocp_qp_solver_set_tol_comp(double *value, struct d_ocp_qp_solver_ws *ws);
 //
 void d_ocp_qp_solver_solve(struct d_ocp_qp *qp, struct d_ocp_qp_sol *qp_sol, struct d_ocp_qp_solver_ws *ws); // XXX no arg
 
