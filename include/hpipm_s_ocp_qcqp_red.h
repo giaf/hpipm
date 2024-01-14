@@ -86,13 +86,13 @@ void s_ocp_qcqp_reduce_eq_dof_arg_create(struct s_ocp_qcqp_reduce_eq_dof_arg *ar
 //
 void s_ocp_qcqp_reduce_eq_dof_arg_set_default(struct s_ocp_qcqp_reduce_eq_dof_arg *arg);
 //
-void s_ocp_qcqp_reduce_eq_dof_arg_set_alias_unchanged(struct s_ocp_qcqp_reduce_eq_dof_arg *arg, int value);
+void s_ocp_qcqp_reduce_eq_dof_arg_set_alias_unchanged(int *value, struct s_ocp_qcqp_reduce_eq_dof_arg *arg);
 //
-void s_ocp_qcqp_reduce_eq_dof_arg_set_comp_prim_sol(struct s_ocp_qcqp_reduce_eq_dof_arg *arg, int value);
+void s_ocp_qcqp_reduce_eq_dof_arg_set_comp_prim_sol(int *value, struct s_ocp_qcqp_reduce_eq_dof_arg *arg);
 //
-void s_ocp_qcqp_reduce_eq_dof_arg_set_comp_dual_sol_eq(struct s_ocp_qcqp_reduce_eq_dof_arg *arg, int value);
+void s_ocp_qcqp_reduce_eq_dof_arg_set_comp_dual_sol_eq(int *value, struct s_ocp_qcqp_reduce_eq_dof_arg *arg);
 //
-void s_ocp_qcqp_reduce_eq_dof_arg_set_comp_dual_sol_ineq(struct s_ocp_qcqp_reduce_eq_dof_arg *arg, int value);
+void s_ocp_qcqp_reduce_eq_dof_arg_set_comp_dual_sol_ineq(int *value, struct s_ocp_qcqp_reduce_eq_dof_arg *arg);
 //
 hpipm_size_t s_ocp_qcqp_reduce_eq_dof_ws_memsize(struct s_ocp_qcqp_dim *dim);
 //

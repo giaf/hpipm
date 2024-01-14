@@ -848,10 +848,11 @@ int main()
 	struct d_ocp_qcqp_reduce_eq_dof_arg ocp_qp_red_arg;
 	d_ocp_qcqp_reduce_eq_dof_arg_create(&ocp_qp_red_arg, ocp_qp_red_arg_mem);
 
+	int tmp_i1 = 1;
 	d_ocp_qcqp_reduce_eq_dof_arg_set_default(&ocp_qp_red_arg);
-	d_ocp_qcqp_reduce_eq_dof_arg_set_alias_unchanged(&ocp_qp_red_arg, 1);
-	d_ocp_qcqp_reduce_eq_dof_arg_set_comp_dual_sol_eq(&ocp_qp_red_arg, 1);
-	d_ocp_qcqp_reduce_eq_dof_arg_set_comp_dual_sol_ineq(&ocp_qp_red_arg, 1);
+	d_ocp_qcqp_reduce_eq_dof_arg_set_alias_unchanged(&tmp_i1, &ocp_qp_red_arg);
+	d_ocp_qcqp_reduce_eq_dof_arg_set_comp_dual_sol_eq(&tmp_i1, &ocp_qp_red_arg);
+	d_ocp_qcqp_reduce_eq_dof_arg_set_comp_dual_sol_ineq(&tmp_i1, &ocp_qp_red_arg);
 
 /************************************************
 * cond arguments

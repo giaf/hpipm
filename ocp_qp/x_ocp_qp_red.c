@@ -112,10 +112,10 @@ void OCP_QP_REDUCE_EQ_DOF_ARG_SET_DEFAULT(struct OCP_QP_REDUCE_EQ_DOF_ARG *arg)
 
 
 
-void OCP_QP_REDUCE_EQ_DOF_ARG_SET_ALIAS_UNCHANGED(struct OCP_QP_REDUCE_EQ_DOF_ARG *arg, int value)
+void OCP_QP_REDUCE_EQ_DOF_ARG_SET_ALIAS_UNCHANGED(int *value, struct OCP_QP_REDUCE_EQ_DOF_ARG *arg)
 	{
 
-	arg->alias_unchanged = value;
+	arg->alias_unchanged = *value;
 
 	return;
 
@@ -123,10 +123,10 @@ void OCP_QP_REDUCE_EQ_DOF_ARG_SET_ALIAS_UNCHANGED(struct OCP_QP_REDUCE_EQ_DOF_AR
 
 
 
-void OCP_QP_REDUCE_EQ_DOF_ARG_SET_COMP_PRIM_SOL(struct OCP_QP_REDUCE_EQ_DOF_ARG *arg, int value)
+void OCP_QP_REDUCE_EQ_DOF_ARG_SET_COMP_PRIM_SOL(int *value, struct OCP_QP_REDUCE_EQ_DOF_ARG *arg)
 	{
 
-	arg->comp_prim_sol = value;
+	arg->comp_prim_sol = *value;
 
 	return;
 
@@ -134,10 +134,10 @@ void OCP_QP_REDUCE_EQ_DOF_ARG_SET_COMP_PRIM_SOL(struct OCP_QP_REDUCE_EQ_DOF_ARG 
 
 
 
-void OCP_QP_REDUCE_EQ_DOF_ARG_SET_COMP_DUAL_SOL_EQ(struct OCP_QP_REDUCE_EQ_DOF_ARG *arg, int value)
+void OCP_QP_REDUCE_EQ_DOF_ARG_SET_COMP_DUAL_SOL_EQ(int *value, struct OCP_QP_REDUCE_EQ_DOF_ARG *arg)
 	{
 
-	arg->comp_dual_sol_eq = value;
+	arg->comp_dual_sol_eq = *value;
 
 	return;
 
@@ -145,10 +145,10 @@ void OCP_QP_REDUCE_EQ_DOF_ARG_SET_COMP_DUAL_SOL_EQ(struct OCP_QP_REDUCE_EQ_DOF_A
 
 
 
-void OCP_QP_REDUCE_EQ_DOF_ARG_SET_COMP_DUAL_SOL_INEQ(struct OCP_QP_REDUCE_EQ_DOF_ARG *arg, int value)
+void OCP_QP_REDUCE_EQ_DOF_ARG_SET_COMP_DUAL_SOL_INEQ(int *value, struct OCP_QP_REDUCE_EQ_DOF_ARG *arg)
 	{
 
-	arg->comp_dual_sol_ineq = value;
+	arg->comp_dual_sol_ineq = *value;
 
 	return;
 

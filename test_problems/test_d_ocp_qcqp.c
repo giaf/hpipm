@@ -905,10 +905,11 @@ int main()
 	struct d_ocp_qcqp_reduce_eq_dof_arg qp_red_arg;
 	d_ocp_qcqp_reduce_eq_dof_arg_create(&qp_red_arg, qp_red_arg_mem);
 
+	int tmp_i1 = 1;
 	d_ocp_qcqp_reduce_eq_dof_arg_set_default(&qp_red_arg);
-	d_ocp_qcqp_reduce_eq_dof_arg_set_alias_unchanged(&qp_red_arg, 1);
-	d_ocp_qcqp_reduce_eq_dof_arg_set_comp_dual_sol_eq(&qp_red_arg, 1);
-	d_ocp_qcqp_reduce_eq_dof_arg_set_comp_dual_sol_ineq(&qp_red_arg, 1);
+	d_ocp_qcqp_reduce_eq_dof_arg_set_alias_unchanged(&tmp_i1, &qp_red_arg);
+	d_ocp_qcqp_reduce_eq_dof_arg_set_comp_dual_sol_eq(&tmp_i1, &qp_red_arg);
+	d_ocp_qcqp_reduce_eq_dof_arg_set_comp_dual_sol_ineq(&tmp_i1, &qp_red_arg);
 
 /************************************************
 * ipm arg
