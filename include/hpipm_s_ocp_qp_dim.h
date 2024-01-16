@@ -102,6 +102,8 @@ void s_ocp_qp_dim_set_nbue(int stage, int value, struct s_ocp_qp_dim *dim);
 //
 void s_ocp_qp_dim_set_nge(int stage, int value, struct s_ocp_qp_dim *dim);
 //
+void s_ocp_qp_dim_deepcopy(struct s_ocp_qp_dim *dim_s, struct s_ocp_qp_dim *dim_d);
+//
 void s_ocp_qp_dim_get(struct s_ocp_qp_dim *dim, char *field, int stage, int *value);
 //
 void s_ocp_qp_dim_get_N(struct s_ocp_qp_dim *dim, int *value);

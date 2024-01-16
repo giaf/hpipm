@@ -94,6 +94,8 @@ void d_ocp_qp_reduce_eq_dof_arg_set_comp_dual_sol_eq(int *value, struct d_ocp_qp
 //
 void d_ocp_qp_reduce_eq_dof_arg_set_comp_dual_sol_ineq(int *value, struct d_ocp_qp_reduce_eq_dof_arg *arg);
 //
+void d_ocp_qp_reduce_eq_dof_arg_deepcopy(struct d_ocp_qp_reduce_eq_dof_arg *arg_s, struct d_ocp_qp_reduce_eq_dof_arg *arg_d);
+//
 hpipm_size_t d_ocp_qp_reduce_eq_dof_ws_memsize(struct d_ocp_qp_dim *dim);
 //
 void d_ocp_qp_reduce_eq_dof_ws_create(struct d_ocp_qp_dim *dim, struct d_ocp_qp_reduce_eq_dof_ws *work, void *mem);

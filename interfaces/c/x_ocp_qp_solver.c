@@ -41,7 +41,7 @@
 hpipm_size_t OCP_QP_SOLVER_ARG_STRSIZE()
 	{
 	hpipm_size_t size = 0;
-	size += sizeof(struct d_ocp_qp_solver_arg);
+	size += sizeof(struct OCP_QP_SOLVER_ARG);
 	return size;
 	}
 
@@ -52,7 +52,13 @@ hpipm_size_t OCP_QP_SOLVER_ARG_MEMSIZE(struct d_ocp_qp_dim *ocp_dim)
 	hpipm_size_t size = 0;
 
 	size += sizeof(struct OCP_QP_IPM_ARG);
-	size += 1*OCP_QP_IPM_ARG_MEMSIZE(ocp_dim);
+	size += 1*OCP_QP_IPM_ARG_MEMSIZE(NULL); // XXX dim is not used in there
+
+	size += sizeof(struct OCP_QP_REDUCE_EQ_DOF_ARG);
+	size += 1*OCP_QP_REDUCE_EQ_DOF_ARG_MEMSIZE();
+
+	size += sizeof(struct OCP_QP_DIM);
+	size += 1*OCP_QP_DIM_MEMSIZE(ocp_dim->N);
 
 	size += 1*64; // align once to typical cache line size
 	size = (size+63)/64*64; // make multiple of typical cache line size
@@ -72,16 +78,31 @@ void OCP_QP_SOLVER_ARG_CREATE(struct OCP_QP_DIM *ocp_dim, struct OCP_QP_SOLVER_A
 	struct OCP_QP_IPM_ARG *ipm_arg_ptr = mem;
 	arg->ipm_arg = ipm_arg_ptr;
 	ipm_arg_ptr += 1;
+	// red arg struct
+	struct OCP_QP_REDUCE_EQ_DOF_ARG *red_arg_ptr = (struct OCP_QP_REDUCE_EQ_DOF_ARG *) ipm_arg_ptr;
+	arg->red_arg = red_arg_ptr;
+	red_arg_ptr += 1;
+	// dim struct
+	struct OCP_QP_DIM *red_dim_ptr = (struct OCP_QP_DIM *) red_arg_ptr;
+	arg->red_dim = red_dim_ptr;
+	red_dim_ptr += 1;
 
 	// align to typical cache line size
-	hpipm_size_t s_ptr = (hpipm_size_t) ipm_arg_ptr;
+	hpipm_size_t s_ptr = (hpipm_size_t) red_dim_ptr;
 	s_ptr = (s_ptr+63)/64*64;
 
 	// void stuff
 	char *c_ptr = (char *) s_ptr;
 
-	OCP_QP_IPM_ARG_CREATE(ocp_dim, arg->ipm_arg, c_ptr);
+	//
+	OCP_QP_IPM_ARG_CREATE(NULL, arg->ipm_arg, c_ptr); // XXX dim is not used in there
 	c_ptr += arg->ipm_arg->memsize;
+	//
+	OCP_QP_REDUCE_EQ_DOF_ARG_CREATE(arg->red_arg, c_ptr);
+	c_ptr += arg->red_arg->memsize;
+	//
+	OCP_QP_DIM_CREATE(ocp_dim->N, arg->red_dim, c_ptr);
+	c_ptr += arg->red_dim->memsize;
 
 	arg->memsize = memsize;
 
@@ -93,6 +114,9 @@ void OCP_QP_SOLVER_ARG_CREATE(struct OCP_QP_DIM *ocp_dim, struct OCP_QP_SOLVER_A
 void OCP_QP_SOLVER_ARG_SET_DEFAULT(enum hpipm_mode mode, struct OCP_QP_DIM *ocp_dim, struct OCP_QP_SOLVER_ARG *arg)
 	{
 	OCP_QP_IPM_ARG_SET_DEFAULT(mode, arg->ipm_arg);
+	OCP_QP_REDUCE_EQ_DOF_ARG_SET_DEFAULT(arg->red_arg);
+	int alias_unchanged = 1;
+	OCP_QP_REDUCE_EQ_DOF_ARG_SET_ALIAS_UNCHANGED(&alias_unchanged, arg->red_arg);
 	return;
 	}
 
@@ -101,6 +125,7 @@ void OCP_QP_SOLVER_ARG_SET_DEFAULT(enum hpipm_mode mode, struct OCP_QP_DIM *ocp_
 void OCP_QP_SOLVER_ARG_SET(char *field, void *value, struct OCP_QP_SOLVER_ARG *arg)
 	{
 	OCP_QP_IPM_ARG_SET(field, value, arg->ipm_arg);
+	// TODO common setters for common stuff like dual solution computation
 	return;
 	}
 
@@ -109,6 +134,7 @@ void OCP_QP_SOLVER_ARG_SET(char *field, void *value, struct OCP_QP_SOLVER_ARG *a
 void OCP_QP_SOLVER_ARG_DEEPCOPY(struct OCP_QP_SOLVER_ARG *arg_s, struct OCP_QP_SOLVER_ARG *arg_d)
 	{
 	OCP_QP_IPM_ARG_DEEPCOPY(arg_s->ipm_arg, arg_d->ipm_arg);
+	OCP_QP_REDUCE_EQ_DOF_ARG_DEEPCOPY(arg_s->red_arg, arg_d->red_arg);
 	return;
 	}
 
@@ -174,7 +200,7 @@ void OCP_QP_SOLVER_WS_CREATE(struct OCP_QP_DIM *ocp_dim, struct OCP_QP_SOLVER_AR
 	// deep copy of arg
 	OCP_QP_SOLVER_ARG_DEEPCOPY(arg, ws->arg);
 
-	arg->memsize = memsize;
+	ws->memsize = memsize;
 
 	return;
 	}

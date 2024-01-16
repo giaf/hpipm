@@ -66,6 +66,7 @@
 #define OCP_QP_DIM_SET_NBXE d_ocp_qp_dim_set_nbxe
 #define OCP_QP_DIM_SET_NBUE d_ocp_qp_dim_set_nbue
 #define OCP_QP_DIM_SET_NGE d_ocp_qp_dim_set_nge
+#define OCP_QP_DIM_DEEPCOPY d_ocp_qp_dim_deepcopy
 #define OCP_QP_DIM_GET d_ocp_qp_dim_get
 #define OCP_QP_DIM_GET_N d_ocp_qp_dim_get_N
 #define OCP_QP_DIM_GET_NX d_ocp_qp_dim_get_nx

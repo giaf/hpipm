@@ -372,6 +372,43 @@ void OCP_QP_DIM_SET_NGE(int stage, int value, struct OCP_QP_DIM *dim)
 
 
 
+void OCP_QP_DIM_DEEPCOPY(struct OCP_QP_DIM *dim_s, struct OCP_QP_DIM *dim_d)
+	{
+	int ii;
+	int N = dim_s->N;
+	dim_d->N = N;
+	for(ii=0; ii<=N; ii++)
+		dim_d->nx[ii] = dim_s->nx[ii];
+	for(ii=0; ii<=N; ii++)
+		dim_d->nu[ii] = dim_s->nu[ii];
+	for(ii=0; ii<=N; ii++)
+		dim_d->nb[ii] = dim_s->nb[ii];
+	for(ii=0; ii<=N; ii++)
+		dim_d->nbx[ii] = dim_s->nbx[ii];
+	for(ii=0; ii<=N; ii++)
+		dim_d->nbu[ii] = dim_s->nbu[ii];
+	for(ii=0; ii<=N; ii++)
+		dim_d->ng[ii] = dim_s->ng[ii];
+	for(ii=0; ii<=N; ii++)
+		dim_d->ns[ii] = dim_s->ns[ii];
+	for(ii=0; ii<=N; ii++)
+		dim_d->nsbx[ii] = dim_s->nsbx[ii];
+	for(ii=0; ii<=N; ii++)
+		dim_d->nsbu[ii] = dim_s->nsbu[ii];
+	for(ii=0; ii<=N; ii++)
+		dim_d->nsg[ii] = dim_s->nsg[ii];
+	for(ii=0; ii<=N; ii++)
+		dim_d->nbxe[ii] = dim_s->nbxe[ii];
+	for(ii=0; ii<=N; ii++)
+		dim_d->nbue[ii] = dim_s->nbue[ii];
+	for(ii=0; ii<=N; ii++)
+		dim_d->nge[ii] = dim_s->nge[ii];
+	// TODO keep updated !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+	return;
+	}
+
+
+
 void OCP_QP_DIM_GET(struct OCP_QP_DIM *dim, char *field_name, int stage, int *value)
 	{
 	if(hpipm_strcmp(field_name, "nx"))

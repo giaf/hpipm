@@ -60,6 +60,8 @@ struct d_ocp_qp_solver_arg
 	{
 	struct d_ocp_qp_ipm_arg *ipm_arg;
 	// dof removal
+	struct d_ocp_qp_reduce_eq_dof_arg *red_arg;
+	struct d_ocp_qp_dim *red_dim;
 	// full condensing
 	// partial condensing
 	hpipm_size_t memsize;

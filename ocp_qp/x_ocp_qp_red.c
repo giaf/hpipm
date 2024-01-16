@@ -156,6 +156,20 @@ void OCP_QP_REDUCE_EQ_DOF_ARG_SET_COMP_DUAL_SOL_INEQ(int *value, struct OCP_QP_R
 
 
 
+void OCP_QP_REDUCE_EQ_DOF_ARG_DEEPCOPY(struct OCP_QP_REDUCE_EQ_DOF_ARG *arg_s, struct OCP_QP_REDUCE_EQ_DOF_ARG *arg_d)
+	{
+	arg_d->lam_min = arg_s->lam_min;
+	arg_d->t_min = arg_s->t_min;
+	arg_d->alias_unchanged = arg_s->alias_unchanged;
+	arg_d->comp_prim_sol = arg_s->comp_prim_sol;
+	arg_d->comp_dual_sol_eq = arg_s->comp_dual_sol_eq;
+	arg_d->comp_dual_sol_ineq = arg_s->comp_dual_sol_ineq;
+	// TODO keep updated !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+	return;
+	}
+
+
+
 hpipm_size_t OCP_QP_REDUCE_EQ_DOF_WS_MEMSIZE(struct OCP_QP_DIM *dim)
 	{
 
