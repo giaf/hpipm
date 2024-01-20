@@ -47,6 +47,7 @@
 #include <hpipm_d_ocp_qp_res.h>
 #include <hpipm_d_ocp_qp_sol.h>
 #include <hpipm_d_ocp_qp_ipm.h>
+#include <hpipm_d_ocp_qp_red.h>
 
 
 
@@ -64,6 +65,8 @@ struct d_ocp_qp_solver_arg
 	struct d_ocp_qp_dim *red_dim;
 	// full condensing
 	// partial condensing
+	int reduce_eq_dof;
+	int valid_red_dim;
 	hpipm_size_t memsize;
 	};
 
@@ -73,6 +76,9 @@ struct d_ocp_qp_solver_ws
 	{
 	struct d_ocp_qp_ipm_ws *ipm_ws;
 	struct d_ocp_qp_solver_arg *arg; // args to avoid on the fly changes to arbitrary fields
+	struct d_ocp_qp_reduce_eq_dof_ws *red_ws;
+	struct d_ocp_qp *red_qp;
+	struct d_ocp_qp_sol *red_sol;
 	hpipm_size_t memsize;
 	};
 

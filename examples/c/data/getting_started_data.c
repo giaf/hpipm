@@ -60,7 +60,7 @@ static int nnsg[6] = {0, 0, 0, 0, 0, 0};
 // number of input box constraints considered as equality
 static int nnbue[6] = {0, 0, 0, 0, 0, 0};
 // number of states box constraints considered as equality
-static int nnbxe[6] = {0, 0, 0, 0, 0, 0};
+static int nnbxe[6] = {2, 0, 0, 0, 0, 0};
 // number of general constraints considered as equality
 static int nnge[6] = {0, 0, 0, 0, 0, 0};
 
@@ -91,6 +91,9 @@ static double lbx0[] = {1, 1};
 static double ubx0[] = {1, 1};
 //
 static int idxbx0[] = {0, 1};
+
+//
+static int idxe0[] = {0, 1};
 
 //
 static double u_guess[] = {0};
@@ -154,7 +157,7 @@ static double *llls[6] = {};
 //
 static double *llus[6] = {};
 //
-static double *iidxe[6] = {};
+static int *iidxe[6] = {idxe0, NULL, NULL, NULL, NULL, NULL};
 
 //
 static double *uu_guess[6] = {u_guess, u_guess, u_guess, u_guess, u_guess, u_guess};
@@ -206,7 +209,7 @@ double **hzu = zzu;
 int **hidxs = iidxs;
 double **hlls = llls;
 double **hlus = llus;
-double **hidxe = iidxe;
+int **hidxe = iidxe;
 
 double **hu_guess = uu_guess;
 double **hx_guess = xx_guess;

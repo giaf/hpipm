@@ -132,7 +132,10 @@ int main()
 	struct d_ocp_qp_dim dim;
 	d_ocp_qp_dim_create(N, &dim, dim_mem);
 
+	// global setter
 	d_ocp_qp_dim_set_all(nx, nu, nbx, nbu, ng, nsbx, nsbu, nsg, &dim);
+	// individual setters
+	d_ocp_qp_dim_set_nbxe(0, nbxe[0], &dim);
 
 //	d_ocp_qp_dim_codegen("examples/c/data/test_d_ocp_data.c", "w", &dim);
 
@@ -146,7 +149,10 @@ int main()
 	struct d_ocp_qp qp;
 	d_ocp_qp_create(&dim, &qp, qp_mem);
 
+	// global setter
 	d_ocp_qp_set_all(hA, hB, hb, hQ, hS, hR, hq, hr, hidxbx, hlbx, hubx, hidxbu, hlbu, hubu, hC, hD, hlg, hug, hZl, hZu, hzl, hzu, hidxs, hlls, hlus, &qp);
+	// individual setters
+	d_ocp_qp_set_idxe(0, hidxe[0], &qp);
 
 //	d_ocp_qp_codegen("examples/c/data/test_d_ocp_data.c", "a", &dim, &qp);
 
@@ -196,6 +202,9 @@ int main()
 	d_ocp_qp_solver_arg_set("ric_alg", &ric_alg, &arg);
 	//d_ocp_qp_solver_arg_set_split_step(&split_step, &arg);
 	d_ocp_qp_solver_arg_set("split_step", &split_step, &arg);
+
+	int reduce_eq_dof = 1;
+	d_ocp_qp_solver_arg_set("reduce_eq_dof", &reduce_eq_dof, &arg);
 
 //	d_ocp_qp_ipm_arg_codegen("examples/c/data/test_d_ocp_data.c", "a", &dim, &arg);
 

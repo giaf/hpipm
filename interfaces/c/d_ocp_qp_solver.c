@@ -51,9 +51,12 @@
 
 
 #define OCP_QP d_ocp_qp
+#define OCP_QP_CREATE d_ocp_qp_create
 #define OCP_QP_DIM d_ocp_qp_dim
 #define OCP_QP_DIM_CREATE d_ocp_qp_dim_create
+#define OCP_QP_DIM_DEEPCOPY d_ocp_qp_dim_deepcopy
 #define OCP_QP_DIM_MEMSIZE d_ocp_qp_dim_memsize
+#define OCP_QP_DIM_REDUCE_EQ_DOF d_ocp_qp_dim_reduce_eq_dof
 #define OCP_QP_IPM_ARG d_ocp_qp_ipm_arg
 #define OCP_QP_IPM_ARG_CREATE d_ocp_qp_ipm_arg_create
 #define OCP_QP_IPM_ARG_DEEPCOPY d_ocp_qp_ipm_arg_deepcopy
@@ -73,13 +76,21 @@
 #define OCP_QP_IPM_WS d_ocp_qp_ipm_ws
 #define OCP_QP_IPM_WS_CREATE d_ocp_qp_ipm_ws_create
 #define OCP_QP_IPM_WS_MEMSIZE d_ocp_qp_ipm_ws_memsize
+#define OCP_QP_MEMSIZE d_ocp_qp_memsize
+#define OCP_QP_REDUCE_EQ_DOF d_ocp_qp_reduce_eq_dof
 #define OCP_QP_REDUCE_EQ_DOF_ARG d_ocp_qp_reduce_eq_dof_arg
 #define OCP_QP_REDUCE_EQ_DOF_ARG_CREATE d_ocp_qp_reduce_eq_dof_arg_create
 #define OCP_QP_REDUCE_EQ_DOF_ARG_DEEPCOPY d_ocp_qp_reduce_eq_dof_arg_deepcopy
 #define OCP_QP_REDUCE_EQ_DOF_ARG_MEMSIZE d_ocp_qp_reduce_eq_dof_arg_memsize
 #define OCP_QP_REDUCE_EQ_DOF_ARG_SET_ALIAS_UNCHANGED d_ocp_qp_reduce_eq_dof_arg_set_alias_unchanged
 #define OCP_QP_REDUCE_EQ_DOF_ARG_SET_DEFAULT d_ocp_qp_reduce_eq_dof_arg_set_default
+#define OCP_QP_REDUCE_EQ_DOF_WS d_ocp_qp_reduce_eq_dof_ws
+#define OCP_QP_REDUCE_EQ_DOF_WS_CREATE d_ocp_qp_reduce_eq_dof_ws_create
+#define OCP_QP_REDUCE_EQ_DOF_WS_MEMSIZE d_ocp_qp_reduce_eq_dof_ws_memsize
+#define OCP_QP_RESTORE_EQ_DOF d_ocp_qp_restore_eq_dof
 #define OCP_QP_SOL d_ocp_qp_sol
+#define OCP_QP_SOL_CREATE d_ocp_qp_sol_create
+#define OCP_QP_SOL_MEMSIZE d_ocp_qp_sol_memsize
 #define OCP_QP_SOLVER_ARG d_ocp_qp_solver_arg
 #define OCP_QP_SOLVER_WS d_ocp_qp_solver_ws
 #define REAL double
