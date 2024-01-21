@@ -122,6 +122,12 @@ void d_ocp_qp_solver_set_tol_ineq(double *value, struct d_ocp_qp_solver_ws *ws);
 //
 void d_ocp_qp_solver_set_tol_comp(double *value, struct d_ocp_qp_solver_ws *ws);
 //
+void d_ocp_qp_solver_set_pred_corr(int *value, struct d_ocp_qp_solver_ws *ws);
+//
+void d_ocp_qp_solver_set_split_step(int *value, struct d_ocp_qp_solver_ws *ws);
+//
+void d_ocp_qp_solver_set_reg_prim(double *value, struct d_ocp_qp_solver_ws *ws);
+//
 void d_ocp_qp_solver_solve(struct d_ocp_qp *qp, struct d_ocp_qp_sol *qp_sol, struct d_ocp_qp_solver_ws *ws); // XXX no arg
 
 

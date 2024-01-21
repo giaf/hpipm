@@ -346,6 +346,18 @@ void OCP_QP_SOLVER_SET(char *field, void *value, struct OCP_QP_SOLVER_WS *ws)
 		{
 		OCP_QP_SOLVER_SET_TOL_COMP(value, ws);
 		}
+	else if(hpipm_strcmp(field, "pred_corr"))
+		{
+		OCP_QP_SOLVER_SET_PRED_CORR(value, ws);
+		}
+	else if(hpipm_strcmp(field, "split_step"))
+		{
+		OCP_QP_SOLVER_SET_SPLIT_STEP(value, ws);
+		}
+	else if(hpipm_strcmp(field, "reg_prim"))
+		{
+		OCP_QP_SOLVER_SET_REG_PRIM(value, ws);
+		}
 	else
 		{
 		printf("error: OCP_QP_SOLVER_ARG_SET: wrong field %s\n", field);
@@ -407,6 +419,30 @@ void OCP_QP_SOLVER_SET_TOL_INEQ(REAL *value, struct OCP_QP_SOLVER_WS *ws)
 void OCP_QP_SOLVER_SET_TOL_COMP(REAL *value, struct OCP_QP_SOLVER_WS *ws)
 	{
 	OCP_QP_IPM_ARG_SET_TOL_COMP(value, ws->arg->ipm_arg);
+	return;
+	}
+
+
+
+void OCP_QP_SOLVER_SET_PRED_CORR(int *value, struct OCP_QP_SOLVER_WS *ws)
+	{
+	OCP_QP_IPM_ARG_SET_PRED_CORR(value, ws->arg->ipm_arg);
+	return;
+	}
+
+
+
+void OCP_QP_SOLVER_SET_SPLIT_STEP(int *value, struct OCP_QP_SOLVER_WS *ws)
+	{
+	OCP_QP_IPM_ARG_SET_SPLIT_STEP(value, ws->arg->ipm_arg);
+	return;
+	}
+
+
+
+void OCP_QP_SOLVER_SET_REG_PRIM(REAL *value, struct OCP_QP_SOLVER_WS *ws)
+	{
+	OCP_QP_IPM_ARG_SET_REG_PRIM(value, ws->arg->ipm_arg);
 	return;
 	}
 

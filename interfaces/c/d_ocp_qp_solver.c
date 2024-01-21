@@ -66,6 +66,9 @@
 #define OCP_QP_IPM_ARG_SET_DEFAULT d_ocp_qp_ipm_arg_set_default
 #define OCP_QP_IPM_ARG_SET_ITER_MAX d_ocp_qp_ipm_arg_set_iter_max
 #define OCP_QP_IPM_ARG_SET_MU0 d_ocp_qp_ipm_arg_set_mu0
+#define OCP_QP_IPM_ARG_SET_PRED_CORR d_ocp_qp_ipm_arg_set_pred_corr
+#define OCP_QP_IPM_ARG_SET_REG_PRIM d_ocp_qp_ipm_arg_set_reg_prim
+#define OCP_QP_IPM_ARG_SET_SPLIT_STEP d_ocp_qp_ipm_arg_set_split_step
 #define OCP_QP_IPM_ARG_SET_TOL_COMP d_ocp_qp_ipm_arg_set_tol_comp
 #define OCP_QP_IPM_ARG_SET_TOL_EQ d_ocp_qp_ipm_arg_set_tol_eq
 #define OCP_QP_IPM_ARG_SET_TOL_INEQ d_ocp_qp_ipm_arg_set_tol_ineq
@@ -118,6 +121,9 @@
 #define OCP_QP_SOLVER_SET_TOL_EQ d_ocp_qp_solver_set_tol_eq
 #define OCP_QP_SOLVER_SET_TOL_INEQ d_ocp_qp_solver_set_tol_ineq
 #define OCP_QP_SOLVER_SET_TOL_COMP d_ocp_qp_solver_set_tol_comp
+#define OCP_QP_SOLVER_SET_PRED_CORR d_ocp_qp_solver_set_pred_corr
+#define OCP_QP_SOLVER_SET_SPLIT_STEP d_ocp_qp_solver_set_split_step
+#define OCP_QP_SOLVER_SET_REG_PRIM d_ocp_qp_solver_set_reg_prim
 #define OCP_QP_SOLVER_SOLVE d_ocp_qp_solver_solve
 
 
