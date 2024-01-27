@@ -36,6 +36,8 @@
 #ifndef HPIPM_SCENARIO_TREE_H_
 #define HPIPM_SCENARIO_TREE_H_
 
+#include "hpipm_tree.h"
+
 #ifdef __cplusplus
 extern "C" {
 #endif
