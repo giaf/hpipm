@@ -94,6 +94,12 @@ void d_ocp_qp_solver_arg_create(struct d_ocp_qp_dim *ocp_dim, struct d_ocp_qp_so
 void d_ocp_qp_solver_arg_set_default(enum hpipm_mode mode, struct d_ocp_qp_dim *ocp_dim, struct d_ocp_qp_solver_arg *arg);
 //
 void d_ocp_qp_solver_arg_set(char *field, void *value, struct d_ocp_qp_solver_arg *arg);
+//
+void d_ocp_qp_solver_arg_set_reduce_eq_dof(int *value, struct d_ocp_qp_solver_arg *arg);
+//
+void d_ocp_qp_solver_arg_deepcopy(struct d_ocp_qp_solver_arg *arg_s, struct d_ocp_qp_solver_arg *arg_d);
+//
+void d_ocp_qp_solver_arg_get_reduce_eq_dof(struct d_ocp_qp_solver_arg *arg, int *value);
 
 //
 hpipm_size_t d_ocp_qp_solver_ws_strsize();
@@ -101,10 +107,6 @@ hpipm_size_t d_ocp_qp_solver_ws_strsize();
 hpipm_size_t d_ocp_qp_solver_ws_memsize(struct d_ocp_qp_dim *ocp_dim, struct d_ocp_qp_solver_arg *arg);
 //
 void d_ocp_qp_solver_ws_create(struct d_ocp_qp_dim *ocp_dim, struct d_ocp_qp_solver_arg *arg, struct d_ocp_qp_solver_ws *ws, void *mem);
-//
-void d_ocp_qp_solver_get(char *field, struct d_ocp_qp_solver_ws *ws, void *value);
-//
-void d_ocp_qp_solver_get_status(struct d_ocp_qp_solver_ws *ws, int *value);
 //
 void d_ocp_qp_solver_set(char *field, void *value, struct d_ocp_qp_solver_ws *ws); // XXX set selected args that can safely change
 //
@@ -127,6 +129,18 @@ void d_ocp_qp_solver_set_pred_corr(int *value, struct d_ocp_qp_solver_ws *ws);
 void d_ocp_qp_solver_set_split_step(int *value, struct d_ocp_qp_solver_ws *ws);
 //
 void d_ocp_qp_solver_set_reg_prim(double *value, struct d_ocp_qp_solver_ws *ws);
+//
+void d_ocp_qp_solver_get(char *field, struct d_ocp_qp_solver_ws *ws, void *value);
+//
+void d_ocp_qp_solver_get_status(struct d_ocp_qp_solver_ws *ws, int *value);
+//
+void d_ocp_qp_solver_get_iter(struct d_ocp_qp_solver_ws *ws, int *value);
+//
+void d_ocp_qp_solver_get_stat_m(struct d_ocp_qp_solver_ws *ws, int *value);
+//
+void d_ocp_qp_solver_get_stat(struct d_ocp_qp_solver_ws *ws, double **value);
+//
+void d_ocp_qp_solver_get_reduce_eq_dof(struct d_ocp_qp_solver_ws *ws, int *value);
 //
 void d_ocp_qp_solver_solve(struct d_ocp_qp *qp, struct d_ocp_qp_sol *qp_sol, struct d_ocp_qp_solver_ws *ws); // XXX no arg
 

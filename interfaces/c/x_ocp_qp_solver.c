@@ -129,13 +129,21 @@ void OCP_QP_SOLVER_ARG_SET(char *field, void *value, struct OCP_QP_SOLVER_ARG *a
 	{
 	if(hpipm_strcmp(field, "reduce_eq_dof"))
 		{
-		arg->reduce_eq_dof = * (int *) value;
+		OCP_QP_SOLVER_ARG_SET_REDUCE_EQ_DOF(value, arg);
 		}
 	else
 		{
 		OCP_QP_IPM_ARG_SET(field, value, arg->ipm_arg);
 		}
 	// TODO common setters for common stuff like dual solution computation
+	return;
+	}
+
+
+
+void OCP_QP_SOLVER_ARG_SET_REDUCE_EQ_DOF(int *value, struct OCP_QP_SOLVER_ARG *arg)
+	{
+	arg->reduce_eq_dof = *value;
 	return;
 	}
 
@@ -150,6 +158,14 @@ void OCP_QP_SOLVER_ARG_DEEPCOPY(struct OCP_QP_SOLVER_ARG *arg_s, struct OCP_QP_S
 		OCP_QP_DIM_DEEPCOPY(arg_s->red_dim, arg_d->red_dim);
 		}
 	arg_d->reduce_eq_dof = arg_s->reduce_eq_dof;
+	return;
+	}
+
+
+
+void OCP_QP_SOLVER_ARG_GET_REDUCE_EQ_DOF(struct OCP_QP_SOLVER_ARG *arg, int *value)
+	{
+	*value = arg->reduce_eq_dof;
 	return;
 	}
 
@@ -293,27 +309,6 @@ void OCP_QP_SOLVER_WS_CREATE(struct OCP_QP_DIM *ocp_dim, struct OCP_QP_SOLVER_AR
 
 
 
-void OCP_QP_SOLVER_GET(char *field, struct OCP_QP_SOLVER_WS *ws, void *value)
-	{
-	if(hpipm_strcmp(field, "status"))
-		{
-		OCP_QP_SOLVER_GET_STATUS(ws, value);
-		}
-	else
-		{
-		OCP_QP_IPM_GET(field, ws->ipm_ws, value);
-		}
-	return;
-	}
-
-
-void OCP_QP_SOLVER_GET_STATUS(struct OCP_QP_SOLVER_WS *ws, int *value)
-	{
-	OCP_QP_IPM_GET_STATUS(ws->ipm_ws, value);
-	return;
-	}
-
-
 // XXX set selected args that can safely change
 void OCP_QP_SOLVER_SET(char *field, void *value, struct OCP_QP_SOLVER_WS *ws)
 	{
@@ -446,6 +441,71 @@ void OCP_QP_SOLVER_SET_REG_PRIM(REAL *value, struct OCP_QP_SOLVER_WS *ws)
 	return;
 	}
 
+
+
+void OCP_QP_SOLVER_GET(char *field, struct OCP_QP_SOLVER_WS *ws, void *value)
+	{
+	if(hpipm_strcmp(field, "status"))
+		{
+		OCP_QP_SOLVER_GET_STATUS(ws, value);
+		}
+	else if(hpipm_strcmp(field, "iter"))
+		{
+		OCP_QP_SOLVER_GET_ITER(ws, value);
+		}
+	else if(hpipm_strcmp(field, "stat_m"))
+		{
+		OCP_QP_SOLVER_GET_STAT_M(ws, value);
+		}
+	else if(hpipm_strcmp(field, "stat"))
+		{
+		OCP_QP_SOLVER_GET_STAT(ws, value);
+		}
+	else if(hpipm_strcmp(field, "reduce_eq_dof"))
+		{
+		OCP_QP_SOLVER_GET_REDUCE_EQ_DOF(ws, value);
+		}
+	else
+		{
+		OCP_QP_IPM_GET(field, ws->ipm_ws, value);
+		}
+	return;
+	}
+
+
+void OCP_QP_SOLVER_GET_STATUS(struct OCP_QP_SOLVER_WS *ws, int *value)
+	{
+	OCP_QP_IPM_GET_STATUS(ws->ipm_ws, value);
+	return;
+	}
+
+
+void OCP_QP_SOLVER_GET_ITER(struct OCP_QP_SOLVER_WS *ws, int *value)
+	{
+	OCP_QP_IPM_GET_ITER(ws->ipm_ws, value);
+	return;
+	}
+
+
+void OCP_QP_SOLVER_GET_STAT_M(struct OCP_QP_SOLVER_WS *ws, int *value)
+	{
+	OCP_QP_IPM_GET_STAT_M(ws->ipm_ws, value);
+	return;
+	}
+
+
+void OCP_QP_SOLVER_GET_STAT(struct OCP_QP_SOLVER_WS *ws, REAL **value)
+	{
+	OCP_QP_IPM_GET_STAT(ws->ipm_ws, value);
+	return;
+	}
+
+
+void OCP_QP_SOLVER_GET_REDUCE_EQ_DOF(struct OCP_QP_SOLVER_WS *ws, int *value)
+	{
+	OCP_QP_SOLVER_ARG_GET_REDUCE_EQ_DOF(ws->arg, value);
+	return;
+	}
 
 
 // XXX no arg

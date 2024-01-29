@@ -39,6 +39,8 @@ from .hpipm_ocp_qp_sol import *
 from .hpipm_ocp_qp_dim import *
 from .hpipm_ocp_qp_solver import *
 from .hpipm_ocp_qp_solver_arg import *
+from .hpipm_ocp_qp_solver2 import *
+from .hpipm_ocp_qp_solver_arg2 import *
 # ocp qcqp
 from .hpipm_ocp_qcqp import *
 from .hpipm_ocp_qcqp_sol import *
@@ -51,3 +53,9 @@ from .hpipm_dense_qp_sol import *
 from .hpipm_dense_qp_dim import *
 from .hpipm_dense_qp_solver import *
 from .hpipm_dense_qp_solver_arg import *
+# dense qcqp
+from .hpipm_dense_qcqp import *
+from .hpipm_dense_qcqp_sol import *
+from .hpipm_dense_qcqp_dim import *
+from .hpipm_dense_qcqp_solver import *
+from .hpipm_dense_qcqp_solver_arg import *

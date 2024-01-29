@@ -54,34 +54,39 @@ travis_run = os.getenv('TRAVIS_RUN')
 
 
 # define flags
-codegen_data = 0 # export qp data in the file ocp_qp_data.c for use from C examples
-reduce_eq_dof = 0 # eliminates e.g. equality constraint on x0
+codegen_data = 1; # export qp data in the file ocp_qp_data.c for use from C examples
 
-if reduce_eq_dof:
-	codegen_data = 0 # not supported yet
 
+bigM = 1e3
 
 # dim
-N = 5
+N = 1
 nx = 2
 nu = 1
 
 nbx = nx
+nbu = nu
 #ng = nx
-#ns = nx
+ns = nx
 
 dim = hpipm_ocp_qp_dim(N)
 
 dim.set('nx', nx, 0, N) # number of states
-dim.set('nu', nu, 0, N-1) # number of inputs
-dim.set('nbx', nbx, 0) # number of state bounds
-#dim.set('ng', nx, 0)
-dim.set('nbx', nbx, N)
-#dim.set('ns', nx, N)
-dim.set('nbxe', nx, 0)
+dim.set('nu', nu, 0)    # number of inputs
+dim.set('nbx', nbx, 0)  # number of state bounds
+dim.set('nbu', nbu, 0)  # number of input bounds
+
+dim.set('nu', 2*ns, N)  
+dim.set('nbu', 2*ns, N) 
+#dim.set('nbx', nbx, N)
+
+dim.set('ng', 2*nx, N)  # number of inequality constraints
+
+
 
 # print to shell
-#dim.print_C_struct()
+print("HPIPM print C dims")
+dim.print_C_struct()
 # codegen
 if codegen_data:
 	dim.codegen('ocp_qp_data.c', 'w')
@@ -104,49 +109,68 @@ B = np.array([0, 1]).reshape(nx,nu)
 Q = np.array([1, 0, 0, 1]).reshape(nx,nx)
 S = np.array([0, 0]).reshape(nu,nx)
 R = np.array([1]).reshape(nu,nu)
-q = np.array([1, 1]).reshape(nx,1)
+#q = np.array([1, 1]).reshape(nx,1)
 #r = np.array([0]).reshape(nu,1)
+
+C = np.vstack([np.eye(nx), np.eye(nx)])
+D = np.block([[np.eye(nx), 0*np.eye(nx)],
+			  [0*np.eye(nx), -np.eye(nx)]])
 
 Jx = np.array([1, 0, 0, 1]).reshape(nbx,nx)
 x0 = np.array([1, 1]).reshape(nx,1)
-#Jsx = np.array([1, 0, 0, 1]).reshape(nbx,ns)
-#Zl = np.array([1e5, 1e5]).reshape(ns,1)
-#Zu = np.array([1e5, 1e5]).reshape(ns,1)
-#zl = np.array([1e5, 1e5]).reshape(ns,1)
-#zu = np.array([1e5, 1e5]).reshape(ns,1)
+# Jsx = np.array([1, 0, 0, 1]).reshape(nbx,ns)
 
-if reduce_eq_dof:
-	Jbxe = np.array([1, 1]).reshape(nbx,1)
+Zl = 1 * np.array([1e2, 1e2]).reshape(2,1)
+Zu = 1 * np.array([1e2, 1e2]).reshape(2,1)
+zl = 0 * np.array([1e2, 1e2]).reshape(2,1)
+zu = 0 * np.array([1e2, 1e2]).reshape(2,1)
+
+Ju = np.array([1]).reshape(nbu,nu)
+lbu = np.array([-1.0]).reshape(nbu,1)
+ubu = np.array([1.0]).reshape(nbu,1)
+
+# lbs = np.array([0, 0]).reshape(ns,1)
+# ubs = np.array([1.0]).reshape(nbu,1)
 
 
 # qp
 qp = hpipm_ocp_qp(dim)
 
+# Time instant 0
 qp.set('A', A, 0, N-1)
 qp.set('B', B, 0, N-1)
-#qp.set('b', [b, b, b, b, b])
+
 qp.set('Q', Q, 0, N)
-qp.set('S', S, 0, N-1)
-qp.set('R', R, 0, N-1)
-qp.set('q', q, 0, N)
-#qp.set('r', r, 0, N-1)
+qp.set('R', R, 0)
+
 qp.set('Jx', Jx, 0)
 qp.set('lx', x0, 0)
 qp.set('ux', x0, 0)
-#qp.set('C', Jx, 0)
-#qp.set('lg', x0, 0)
-#qp.set('ug', x0, 0)
-qp.set('Jx', Jx, N)
-#qp.set('Jsx', Jsx, N)
-#qp.set('Zl', Zl, N)
-#qp.set('Zu', Zu, N)
-#qp.set('zl', zl, N)
-#qp.set('zu', zu, N)
-if reduce_eq_dof:
-	qp.set('Jbxe', Jbxe, 0)
+
+qp.set('Ju', Ju, 0)
+qp.set('lbu', lbu, 0)
+qp.set('ubu', ubu, 0)
+
+# Time instant 1
+qp.set('R', np.diag(np.concatenate([Zl.squeeze(), Zu.squeeze()])), N)
+
+#qp.set('Jx', Jx, N)
+#qp.set('lx', -bigM, N)
+#qp.set('ux', bigM, N)
+
+qp.set('Ju', np.eye(2*ns), N)
+qp.set('lbu', np.zeros((2*ns,1)), N)
+qp.set('ubu', bigM*np.ones((2*ns,1)), N)
+
+qp.set('C', C, N)
+qp.set('D', D, N)
+qp.set('lg', np.array([0, 0, -bigM, -bigM]).reshape(2*nx, 1), N)
+qp.set('ug', np.array([bigM, bigM, 0, 0]).reshape(2*nx, 1), N)
+
 
 # print to shell
-#qp.print_C_struct()
+print("QP formulation HPIPM C print")
+qp.print_C_struct()
 # codegen
 if codegen_data:
 	qp.codegen('ocp_qp_data.c', 'a')
@@ -158,14 +182,11 @@ qp_sol = hpipm_ocp_qp_sol(dim)
 
 # set up solver arg
 #mode = 'speed_abs'
-mode = 'speed'
+#mode = 'speed'
 #mode = 'balance'
-#mode = 'robust'
+mode = 'robust'
 # create and set default arg based on mode
-if reduce_eq_dof:
-	arg = hpipm_ocp_qp_solver_arg2(dim, mode)
-else:
-	arg = hpipm_ocp_qp_solver_arg(dim, mode)
+arg = hpipm_ocp_qp_solver_arg(dim, mode)
 
 # create and set default arg based on mode
 arg.set('mu0', 1e4)
@@ -176,18 +197,12 @@ arg.set('tol_ineq', 1e-5)
 arg.set('tol_comp', 1e-5)
 arg.set('reg_prim', 1e-12)
 
-if reduce_eq_dof:
-	arg.set('reduce_eq_dof', 1)
-
 # codegen
 if codegen_data:
 	arg.codegen('ocp_qp_data.c', 'a')
 
 # set up solver
-if reduce_eq_dof:
-	solver = hpipm_ocp_qp_solver2(dim, arg)
-else:
-	solver = hpipm_ocp_qp_solver(dim, arg)
+solver = hpipm_ocp_qp_solver(dim, arg)
 
 
 # solve qp
@@ -196,26 +211,33 @@ solver.solve(qp, qp_sol)
 end_time = time.time()
 if(travis_run!='true'):
 	print('solve time {:e}'.format(end_time-start_time))
-
-
-if(travis_run!='true'):
+	print("HPIPM solution C print:")
 	qp_sol.print_C_struct()
 
-# extract and print sol
-if(travis_run!='true'):
+	# extract and print sol
+	# inputs
 	print('u =')
-#u = qp_sol.get_u()
-u = qp_sol.get('u', 0, N)
-for i in range(N+1):
-	if(travis_run!='true'):
+	u = qp_sol.get('u', 0, N)
+	for i in range(N+1):
 		print(u[i])
 
-if(travis_run!='true'):
+	# states
 	print('x =')
-for i in range(N+1):
-	tmp = qp_sol.get('x', i)
-	if(travis_run!='true'):
+	for i in range(N+1):
+		tmp = qp_sol.get('x', i)
 		print(tmp)
+
+	# slack of lower constraints
+	print('sl =')
+	sl = qp_sol.get('sl', 0, N)
+	for i in range(N+1):
+		print(sl[i])
+
+	# slack of upper constraints
+	print('su =')
+	su = qp_sol.get('su', 0, N)
+	for i in range(N+1):
+		print(su[i])
 
 
 # get solver statistics
@@ -240,13 +262,11 @@ if(travis_run!='true'):
 		print('\t{:d}\t{:e}\t{:e}\t{:e}\t{:e}\t{:e}\t{:e}\t{:e}\t{:e}\t{:e}\t{:e}'.format(ii, stat[ii][0], stat[ii][1], stat[ii][2], stat[ii][3], stat[ii][4], stat[ii][5], stat[ii][6], stat[ii][7], stat[ii][8], stat[ii][9]))
 	print('')
 
-
-
 if status==0:
 	print('\nsuccess!\n')
 else:
 	print('\nSolution failed, solver returned status {0:1d}\n'.format(status))
 
-
+import pdb; pdb.set_trace()
 
 sys.exit(int(status))

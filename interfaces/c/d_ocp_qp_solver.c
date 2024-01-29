@@ -74,7 +74,10 @@
 #define OCP_QP_IPM_ARG_SET_TOL_INEQ d_ocp_qp_ipm_arg_set_tol_ineq
 #define OCP_QP_IPM_ARG_SET_TOL_STAT d_ocp_qp_ipm_arg_set_tol_stat
 #define OCP_QP_IPM_GET d_ocp_qp_ipm_get
+#define OCP_QP_IPM_GET_ITER d_ocp_qp_ipm_get_iter
 #define OCP_QP_IPM_GET_STATUS d_ocp_qp_ipm_get_status
+#define OCP_QP_IPM_GET_STAT_M d_ocp_qp_ipm_get_stat_m
+#define OCP_QP_IPM_GET_STAT d_ocp_qp_ipm_get_stat
 #define OCP_QP_IPM_SOLVE d_ocp_qp_ipm_solve
 #define OCP_QP_IPM_WS d_ocp_qp_ipm_ws
 #define OCP_QP_IPM_WS_CREATE d_ocp_qp_ipm_ws_create
@@ -106,13 +109,13 @@
 #define OCP_QP_SOLVER_ARG_CREATE d_ocp_qp_solver_arg_create
 #define OCP_QP_SOLVER_ARG_SET_DEFAULT d_ocp_qp_solver_arg_set_default
 #define OCP_QP_SOLVER_ARG_SET d_ocp_qp_solver_arg_set
+#define OCP_QP_SOLVER_ARG_SET_REDUCE_EQ_DOF d_ocp_qp_solver_arg_set_reduce_eq_dof
 #define OCP_QP_SOLVER_ARG_DEEPCOPY d_ocp_qp_solver_arg_deepcopy
+#define OCP_QP_SOLVER_ARG_GET_REDUCE_EQ_DOF d_ocp_qp_solver_arg_get_reduce_eq_dof
 // ws
 #define OCP_QP_SOLVER_WS_STRSIZE d_ocp_qp_solver_ws_strsize
 #define OCP_QP_SOLVER_WS_MEMSIZE d_ocp_qp_solver_ws_memsize
 #define OCP_QP_SOLVER_WS_CREATE d_ocp_qp_solver_ws_create
-#define OCP_QP_SOLVER_GET d_ocp_qp_solver_get
-#define OCP_QP_SOLVER_GET_STATUS d_ocp_qp_solver_get_status
 #define OCP_QP_SOLVER_SET d_ocp_qp_solver_set
 #define OCP_QP_SOLVER_SET_ITER_MAX d_ocp_qp_solver_set_iter_max
 #define OCP_QP_SOLVER_SET_ALPHA_MIN d_ocp_qp_solver_set_alpha_min
@@ -124,6 +127,12 @@
 #define OCP_QP_SOLVER_SET_PRED_CORR d_ocp_qp_solver_set_pred_corr
 #define OCP_QP_SOLVER_SET_SPLIT_STEP d_ocp_qp_solver_set_split_step
 #define OCP_QP_SOLVER_SET_REG_PRIM d_ocp_qp_solver_set_reg_prim
+#define OCP_QP_SOLVER_GET d_ocp_qp_solver_get
+#define OCP_QP_SOLVER_GET_STATUS d_ocp_qp_solver_get_status
+#define OCP_QP_SOLVER_GET_ITER d_ocp_qp_solver_get_iter
+#define OCP_QP_SOLVER_GET_STAT_M d_ocp_qp_solver_get_stat_m
+#define OCP_QP_SOLVER_GET_STAT d_ocp_qp_solver_get_stat
+#define OCP_QP_SOLVER_GET_REDUCE_EQ_DOF d_ocp_qp_solver_get_reduce_eq_dof
 #define OCP_QP_SOLVER_SOLVE d_ocp_qp_solver_solve
 
 
