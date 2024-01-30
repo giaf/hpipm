@@ -44,7 +44,7 @@ def main(travis_run):
 
 	# define flags
 	codegen_data = 1 # export qp data in the file ocp_qp_data.c for use from C examples
-	print_structs = 1
+	print_structs = 0
 
 	reduce_eq_dof = 0 # eliminates e.g. equality constraint on x0
 
@@ -148,7 +148,8 @@ def main(travis_run):
 	u_traj = qp_sol.get('u', 0, N-1)
 	x_traj = qp_sol.get('x', 0, N)
 
-	K_traj = solver.get_feedback(qp, 'ric_K', 0, N-1)
+	if not reduce_eq_dof:
+		K_traj = solver.get_feedback(qp, 'ric_K', 0, N-1)
 
 	if not travis_run:
 		print('solve time {:e}'.format(end_time-start_time))
@@ -157,14 +158,14 @@ def main(travis_run):
 			print(f'\nu_{n} =')
 			print(u_traj[n].flatten())
 
-		for n in range(N):
-			print(f'\nK_{n} =')
-			print(K_traj[n].flatten())
-
 		for n in range(N+1):
 			print(f'\nx_{n} =')
 			print(x_traj[n].flatten())
 
+		if not reduce_eq_dof:
+			for n in range(N):
+				print(f'\nK_{n} =')
+				print(K_traj[n].flatten())
 	# get solver statistics
 	status = solver.get('status')
 	# res_stat = solver.get('max_res_stat')
