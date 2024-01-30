@@ -708,143 +708,143 @@ void OCP_QP_SET(char *field, int stage, void *value, struct OCP_QP *qp)
 	{
 	REAL *r_ptr;
 	int *i_ptr;
-    
+
 	// matrices
-	if(hpipm_strcmp(field, "A")) 
+	if(hpipm_strcmp(field, "A"))
 		{
 		OCP_QP_SET_A(stage, value, qp);
 		}
-	else if(hpipm_strcmp(field, "B")) 
+	else if(hpipm_strcmp(field, "B"))
 		{
 		OCP_QP_SET_B(stage, value, qp);
 		}
-	else if(hpipm_strcmp(field, "Q")) 
+	else if(hpipm_strcmp(field, "Q"))
 		{
 		OCP_QP_SET_Q(stage, value, qp);
 		}
-	else if(hpipm_strcmp(field, "S")) 
+	else if(hpipm_strcmp(field, "S"))
 		{
 		OCP_QP_SET_S(stage, value, qp);
 		}
-	else if(hpipm_strcmp(field, "R")) 
+	else if(hpipm_strcmp(field, "R"))
 		{
 		OCP_QP_SET_R(stage, value, qp);
 		}
-	else if(hpipm_strcmp(field, "C")) 
+	else if(hpipm_strcmp(field, "C"))
 		{
 		OCP_QP_SET_C(stage, value, qp);
 		}
-	else if(hpipm_strcmp(field, "D")) 
+	else if(hpipm_strcmp(field, "D"))
 		{
 		OCP_QP_SET_D(stage, value, qp);
 		}
 	// vectors
 	else if(hpipm_strcmp(field, "b"))
-		{ 
+		{
 		OCP_QP_SET_BVEC(stage, value, qp);
 		}
 	else if(hpipm_strcmp(field, "q"))
-		{ 
+		{
 		OCP_QP_SET_QVEC(stage, value, qp);
 		}
 	else if(hpipm_strcmp(field, "r"))
-		{ 
+		{
 		OCP_QP_SET_RVEC(stage, value, qp);
 		}
 	else if(hpipm_strcmp(field, "lb"))
-		{ 
+		{
 		OCP_QP_SET_LB(stage, value, qp);
 		}
 	else if(hpipm_strcmp(field, "lb_mask"))
-		{ 
+		{
 		OCP_QP_SET_LB_MASK(stage, value, qp);
 		}
 	else if(hpipm_strcmp(field, "lbu") | hpipm_strcmp(field, "lu"))
-		{ 
+		{
 		OCP_QP_SET_LBU(stage, value, qp);
 		}
 	else if(hpipm_strcmp(field, "lbu_mask"))
-		{ 
+		{
 		OCP_QP_SET_LBU_MASK(stage, value, qp);
 		}
 	else if(hpipm_strcmp(field, "lbx") | hpipm_strcmp(field, "lx"))
-		{ 
+		{
 		OCP_QP_SET_LBX(stage, value, qp);
 		}
 	else if(hpipm_strcmp(field, "lbx_mask"))
-		{ 
+		{
 		OCP_QP_SET_LBX_MASK(stage, value, qp);
 		}
 	else if(hpipm_strcmp(field, "ub"))
-		{ 
+		{
 		OCP_QP_SET_UB(stage, value, qp);
 		}
 	else if(hpipm_strcmp(field, "ub_mask"))
-		{ 
+		{
 		OCP_QP_SET_UB_MASK(stage, value, qp);
 		}
 	else if(hpipm_strcmp(field, "ubu") | hpipm_strcmp(field, "uu"))
-		{ 
+		{
 		OCP_QP_SET_UBU(stage, value, qp);
 		}
 	else if(hpipm_strcmp(field, "ubu_mask"))
-		{ 
+		{
 		OCP_QP_SET_UBU_MASK(stage, value, qp);
 		}
 	else if(hpipm_strcmp(field, "ubx") | hpipm_strcmp(field, "ux"))
-		{ 
+		{
 		OCP_QP_SET_UBX(stage, value, qp);
 		}
 	else if(hpipm_strcmp(field, "ubx_mask"))
-		{ 
+		{
 		OCP_QP_SET_UBX_MASK(stage, value, qp);
 		}
 	else if(hpipm_strcmp(field, "lg"))
-		{ 
+		{
 		OCP_QP_SET_LG(stage, value, qp);
 		}
 	else if(hpipm_strcmp(field, "lg_mask"))
-		{ 
+		{
 		OCP_QP_SET_LG_MASK(stage, value, qp);
 		}
 	else if(hpipm_strcmp(field, "ug"))
-		{ 
+		{
 		OCP_QP_SET_UG(stage, value, qp);
 		}
 	else if(hpipm_strcmp(field, "ug_mask"))
-		{ 
+		{
 		OCP_QP_SET_UG_MASK(stage, value, qp);
 		}
 	else if(hpipm_strcmp(field, "Zl"))
-		{ 
+		{
 		OCP_QP_SET_ZL(stage, value, qp);
 		}
 	else if(hpipm_strcmp(field, "Zu"))
-		{ 
+		{
 		OCP_QP_SET_ZU(stage, value, qp);
 		}
 	else if(hpipm_strcmp(field, "zl"))
-		{ 
+		{
 		OCP_QP_SET_ZLVEC(stage, value, qp);
 		}
 	else if(hpipm_strcmp(field, "zu"))
-		{ 
+		{
 		OCP_QP_SET_ZUVEC(stage, value, qp);
 		}
 	else if(hpipm_strcmp(field, "lls"))
-		{ 
+		{
 		OCP_QP_SET_LLS(stage, value, qp);
 		}
 	else if(hpipm_strcmp(field, "lls_mask"))
-		{ 
+		{
 		OCP_QP_SET_LLS_MASK(stage, value, qp);
 		}
 	else if(hpipm_strcmp(field, "lus"))
-		{ 
+		{
 		OCP_QP_SET_LUS(stage, value, qp);
 		}
 	else if(hpipm_strcmp(field, "lus_mask"))
-		{ 
+		{
 		OCP_QP_SET_LUS_MASK(stage, value, qp);
 		}
 	// int
