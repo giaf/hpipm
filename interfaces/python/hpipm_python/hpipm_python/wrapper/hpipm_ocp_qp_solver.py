@@ -90,8 +90,8 @@ class hpipm_ocp_qp_solver(hpipm_solver):
 				'var': __hpipm.d_ocp_qp_ipm_get_ric_p
 			},
 			'ric_K': {
-				'n_row': __hpipm.d_ocp_qp_dim_get_nu,
-				'n_col': __hpipm.d_ocp_qp_dim_get_nx,
+				'n_row': __hpipm.d_ocp_qp_dim_get_nx,
+				'n_col': __hpipm.d_ocp_qp_dim_get_nu,
 				'var': __hpipm.d_ocp_qp_ipm_get_ric_K
 			},
 			'ric_k': {
@@ -118,7 +118,7 @@ class hpipm_ocp_qp_solver(hpipm_solver):
 		n_row_ptr = cast(n_row.ctypes.data, POINTER(c_int))
 		n_col = np.zeros(1, dtype=int)
 		n_col_ptr = cast(n_col.ctypes.data, POINTER(c_int))
-		var = []
+		var_list = []
 
 		if idx_end is None:
 			idx_end_ = idx_start
@@ -126,18 +126,24 @@ class hpipm_ocp_qp_solver(hpipm_solver):
 			idx_end_ = idx_end
 
 		for i in range(idx_start, idx_end_ + 1):
-			# get dimension of feedback matrix at stage
+
 			getter['n_row'](self.dim_struct, i, n_row_ptr)
 			if 'n_col' in getter:
 				getter['n_col'](self.dim_struct, i, n_col_ptr)
 			else:
 				n_col[0] = 1
 
-			var.append(np.zeros((n_row[0], n_col[0]), dtype=float))
-			tmp_ptr = cast(var[-1].ctypes.data, POINTER(c_double))
-			getter['var'](qp.qp_struct, self.arg.arg_struct, self.ipm_ws_struct, i, tmp_ptr)
+			var = np.zeros((n_row[0], n_col[0]), dtype=float)
+			var_ptr = cast(var.ctypes.data, POINTER(c_double))
+			getter['var'](qp.qp_struct, self.arg.arg_struct, self.ipm_ws_struct, i, var_ptr)
 
-		return var if idx_end is not None else var[0]
+			if not 'n_col' in getter:
+				var_list.append(var)
+			else:
+				var_list.append(var.T) # transpose such that the gain K is of dimension (nu, nx)
+
+		return var_list if idx_end is not None else var_list[0]
+
 
 	def get(self, field):
 		if field == 'stat':
@@ -150,14 +156,14 @@ class hpipm_ocp_qp_solver(hpipm_solver):
 			tmp = cast(stat_m.ctypes.data, POINTER(c_int))
 			self.__hpipm.d_ocp_qp_ipm_get_stat_m(self.ipm_ws_struct, tmp)
 			# get stat pointer
-			res = np.zeros((iters[0][0]+1, stat_m[0][0]))
+			res = np.zeros((iters[0, 0]+1, stat_m[0, 0]))
 			ptr = c_void_p()
 			self.__hpipm.d_ocp_qp_ipm_get_stat(self.ipm_ws_struct, byref(ptr))
 			tmp = cast(ptr, POINTER(c_double))
-			for ii in range(iters[0][0]+1):
-				for jj in range(stat_m[0][0]):
-					res[ii][jj] = tmp[jj+ii*stat_m[0][0]]
-					res[ii][jj] = tmp[jj+ii*stat_m[0][0]]
+			for ii in range(iters[0, 0]+1):
+				for jj in range(stat_m[0, 0]):
+					res[ii, jj] = tmp[jj+ii*stat_m[0, 0]]
+					res[ii, jj] = tmp[jj+ii*stat_m[0, 0]]
 			return res
 		elif field == 'status' or field == 'iter':
 			res = np.zeros((1,1), dtype=int)
