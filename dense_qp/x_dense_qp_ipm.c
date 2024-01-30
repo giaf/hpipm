@@ -214,7 +214,7 @@ void DENSE_QP_IPM_ARG_SET_DEFAULT(enum HPIPM_MODE mode, struct DENSE_QP_IPM_ARG 
 	arg->itref_pred_max = itref_pred_max;
 	arg->itref_corr_max = itref_corr_max;
 	DENSE_QP_IPM_ARG_SET_REG_PRIM(&reg_prim, arg);
-	DENSE_QP_IPM_ARG_SET_REG_DUAL(&reg_prim, arg);
+	DENSE_QP_IPM_ARG_SET_REG_DUAL(&reg_dual, arg);
 	arg->lq_fact = lq_fact;
 	arg->scale = scale;
 	DENSE_QP_IPM_ARG_SET_LAM_MIN(&lam_min, arg);
