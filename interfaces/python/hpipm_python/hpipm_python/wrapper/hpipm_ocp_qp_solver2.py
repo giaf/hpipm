@@ -34,12 +34,11 @@
 ###################################################################################################
 
 from ctypes import *
-import ctypes.util 
 import numpy as np
+from .hpipm_solver import hpipm_solver
 
 
-
-class hpipm_ocp_qp_solver2:
+class hpipm_ocp_qp_solver2(hpipm_solver):
 
 
 	def __init__(self, qp_dims, arg):
