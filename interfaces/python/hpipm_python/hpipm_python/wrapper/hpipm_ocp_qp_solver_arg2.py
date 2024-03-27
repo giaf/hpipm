@@ -33,7 +33,6 @@
 #                                                                                                 #
 ###################################################################################################
 from ctypes import *
-import ctypes.util 
 import numpy as np
 
 
@@ -44,13 +43,13 @@ class hpipm_ocp_qp_solver_arg2:
 	def __init__(self, dim, mode):
 
 		c_mode = 0
-		if(mode=='speed_abs'):
+		if mode == 'speed_abs':
 			c_mode = 0
-		elif(mode=='speed'):
+		elif mode == 'speed':
 			c_mode = 1
-		elif(mode=='balance'):
+		elif mode == 'balance':
 			c_mode = 2
-		elif(mode=='robust'):
+		elif mode == 'robust':
 			c_mode = 3
 		else:
 			raise NameError('hpipm_ocp_qp_solver_arg2: wrong mode')
@@ -77,16 +76,22 @@ class hpipm_ocp_qp_solver_arg2:
 
 		# initialize default arguments
 		__hpipm.d_ocp_qp_solver_arg_set_default(c_mode, dim.dim_struct, arg_struct)
-	
+
+		# settable options of type int
+		self.__settable_fields_int = ('iter_max', 'pred_corr', 'split_step', 'reduce_eq_dof')
+
+		# settable options of type float
+		self.__settable_fields_float = ('mu0', 'alpha_min', 'tol_stat', 'tol_eq', 'tol_ineq', 'tol_comp', 'reg_prim')
+
 
 	def set(self, field, value):
-		if((field=='mu0') | (field=='alpha_min') | (field=='tol_stat') | (field=='tol_eq') | (field=='tol_ineq') | (field=='tol_comp') | (field=='reg_prim')):
+		if field in self.__settable_fields_float:
 			tmp_in = np.zeros((1,1))
-			tmp_in[0][0] = value
+			tmp_in[0, 0] = value
 			tmp = cast(tmp_in.ctypes.data, POINTER(c_double))
-		elif((field=='iter_max') | (field=='pred_corr') | (field=='split_step') | (field=='reduce_eq_dof')):
+		elif field in self.__settable_fields_int:
 			tmp_in = np.zeros((1,1), dtype=int)
-			tmp_in[0][0] = value
+			tmp_in[0, 0] = value
 			tmp = cast(tmp_in.ctypes.data, POINTER(c_int))
 		else:
 			raise NameError('hpipm_ocp_qp_solver_arg2.set: wrong field')
