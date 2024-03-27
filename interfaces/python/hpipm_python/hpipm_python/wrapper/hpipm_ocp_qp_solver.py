@@ -36,7 +36,7 @@
 from ctypes import *
 import numpy as np
 from .hpipm_solver import hpipm_solver
-from typing import Union, Optional
+from typing import Union, Optional, List
 
 
 class hpipm_ocp_qp_solver(hpipm_solver):
@@ -105,7 +105,7 @@ class hpipm_ocp_qp_solver(hpipm_solver):
 		self.__hpipm.d_ocp_qp_ipm_solve(qp.qp_struct, qp_sol.qp_sol_struct, self.arg.arg_struct, self.ipm_ws_struct)
 
 
-	def get_feedback(self, qp, field: str, idx_start: int, idx_end: Optional[int] = None)-> Union[np.ndarray, list[np.ndarray]]:
+	def get_feedback(self, qp, field: str, idx_start: int, idx_end: Optional[int] = None)-> Union[np.ndarray, List[np.ndarray]]:
 		if field not in self.__getters:
 			raise NameError('hpipm_ocp_qp_solver.get_feedback: Wrong field. Available fields are:', *self.__getters.keys())
 		else:
@@ -142,7 +142,7 @@ class hpipm_ocp_qp_solver(hpipm_solver):
 			else:
 				var_list.append(var.T) # transpose such that the gain K is of dimension (nu, nx)
 
-		return var_list if idx_end is not None else var_list[0]
+		return var_list if idx_end is not None else var_List[0]
 
 
 	def get(self, field):
