@@ -36,7 +36,7 @@
 from ctypes import *
 import numpy as np
 from .hpipm_ocp_qp_dim import hpipm_ocp_qp_dim
-from typing import Union, Optional
+from typing import Union, Optional, List
 
 
 
@@ -78,7 +78,7 @@ class hpipm_ocp_qcqp_sol:
 		}
 
 
-	def get(self, field: str, idx_start: int, idx_end: Optional[int] = None)-> Union[np.ndarray, list[np.ndarray]]:
+	def get(self, field: str, idx_start: int, idx_end: Optional[int] = None)-> Union[np.ndarray, List[np.ndarray]]:
 		'''
 		Getter for value of `field` at stage `idx_start` or at stages `idx_start` to `idx_end`.
 		Returns a single np.ndarray if only `idx_start` is given.
@@ -90,7 +90,7 @@ class hpipm_ocp_qcqp_sol:
 			return self.__get(self.__getters[field], idx_start, idx_end)
 
 
-	def __get(self, getter, idx_start: int, idx_end: Optional[int]=None) -> Union[np.ndarray, list[np.ndarray]]:
+	def __get(self, getter, idx_start: int, idx_end: Optional[int]=None) -> Union[np.ndarray, List[np.ndarray]]:
 		n_var = np.zeros((1,), dtype=int)
 
 		if idx_end is None:
