@@ -152,10 +152,10 @@ void OCP_QCQP_DIM_CODEGEN(char *file_name, char *mode, struct OCP_QCQP_DIM *qp_d
 	int *ng = qp_dim->ng;
 	int *nq = qp_dim->nq;
 	int *ns = qp_dim->ns;
-	int *nsbx = qp_dim->nsbx;
-	int *nsbu = qp_dim->nsbu;
-	int *nsg = qp_dim->nsg;
-	int *nsq = qp_dim->nsq;
+	int *nsbx = qp_dim->nsbx; // TODO remove ???
+	int *nsbu = qp_dim->nsbu; // TODO remove ???
+	int *nsg = qp_dim->nsg; // TODO remove ???
+	int *nsq = qp_dim->nsq; // TODO remove ???
 	int *nbxe = qp_dim->nbxe;
 	int *nbue = qp_dim->nbue;
 	int *nge = qp_dim->nge;

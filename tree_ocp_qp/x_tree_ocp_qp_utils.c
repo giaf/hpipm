@@ -45,6 +45,7 @@ void TREE_OCP_QP_DIM_PRINT(struct TREE_OCP_QP_DIM *qp_dim)
 	int *nbx = qp_dim->nbx;
 	int *nbu = qp_dim->nbu;
 	int *ng = qp_dim->ng;
+	int *ns = qp_dim->ns;
 	int *nsbx = qp_dim->nsbx;
 	int *nsbu = qp_dim->nsbu;
 	int *nsg = qp_dim->nsg;
@@ -77,6 +78,11 @@ void TREE_OCP_QP_DIM_PRINT(struct TREE_OCP_QP_DIM *qp_dim)
 	printf("ng =\n");
 	for (ii = 0; ii<Nn; ii++)
 		printf("\t%d", ng[ii]);
+	printf("\n\n");
+
+	printf("ns =\n");
+	for (ii = 0; ii<Nn; ii++)
+		printf("\t%d", ns[ii]);
 	printf("\n\n");
 
 	printf("nsbx =\n");

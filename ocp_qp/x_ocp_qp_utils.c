@@ -45,6 +45,7 @@ void OCP_QP_DIM_PRINT(struct OCP_QP_DIM *qp_dim)
 	int *nbx = qp_dim->nbx;
 	int *nbu = qp_dim->nbu;
 	int *ng = qp_dim->ng;
+	int *ns = qp_dim->ns;
 	int *nsbx = qp_dim->nsbx;
 	int *nsbu = qp_dim->nsbu;
 	int *nsg = qp_dim->nsg;
@@ -77,6 +78,11 @@ void OCP_QP_DIM_PRINT(struct OCP_QP_DIM *qp_dim)
 	printf("ng =\n");
 	for (ii = 0; ii <= N; ii++)
 		printf("\t%d", ng[ii]);
+	printf("\n\n");
+
+	printf("ns =\n");
+	for (ii = 0; ii <= N; ii++)
+		printf("\t%d", ns[ii]);
 	printf("\n\n");
 
 	printf("nsbx =\n");
@@ -126,9 +132,10 @@ void OCP_QP_DIM_CODEGEN(char *file_name, char *mode, struct OCP_QP_DIM *qp_dim)
 	int *nbx = qp_dim->nbx;
 	int *nbu = qp_dim->nbu;
 	int *ng = qp_dim->ng;
-	int *nsbx = qp_dim->nsbx;
-	int *nsbu = qp_dim->nsbu;
-	int *nsg = qp_dim->nsg;
+	int *ns = qp_dim->ns;
+	int *nsbx = qp_dim->nsbx; // TODO remove ???
+	int *nsbu = qp_dim->nsbu; // TODO remove ???
+	int *nsg = qp_dim->nsg; // TODO remove ???
 	int *nbxe = qp_dim->nbxe;
 	int *nbue = qp_dim->nbue;
 	int *nge = qp_dim->nge;
@@ -166,6 +173,13 @@ void OCP_QP_DIM_CODEGEN(char *file_name, char *mode, struct OCP_QP_DIM *qp_dim)
 		fprintf(file, "%d, ", nbu[ii]);
 	fprintf(file, "};\n");
 	fprintf(file, "int *nbu = nnbu;\n");
+	// ns
+	fprintf(file, "/* ns */\n");
+	fprintf(file, "static int nns[] = {");
+	for(ii=0; ii<=N; ii++)
+		fprintf(file, "%d, ", ns[ii]);
+	fprintf(file, "};\n");
+	fprintf(file, "int *ns = nns;\n");
 	// ng
 	fprintf(file, "/* ng */\n");
 	fprintf(file, "static int nng[] = {");
