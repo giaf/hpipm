@@ -39,6 +39,7 @@ import time
 import sys
 from utils import check_env, is_travis_run
 
+TOL = 1e-12
 
 def main(travis_run):
 
@@ -52,15 +53,14 @@ def main(travis_run):
     dim.set('nu', nu, 0, N-1) # number of inputs
     dim.set('nbx', nx, 0)
 
-    A = np.eye(nx)
-    B = np.ones((nx, nu))
+    A = np.diag([1., -0.9, 2])
+    B = np.arange(nx*nu).reshape((nx, nu))
 
     Q = np.eye(nx)
     S = np.zeros((nu, nx))
     R = 0.1*np.eye(nu)
     q = -0.001*np.ones((nx,1))
 
-    Jx = np.eye(nx)
     x0 = 5*np.ones((nx, 1))
 
     # QP data
@@ -110,6 +110,7 @@ def main(travis_run):
 
     Lr_traj = solver.get_feedback(qp, 'ric_Lr', 0, N-1)
     lr_traj = solver.get_feedback(qp, 'ric_lr', 0, N-1)
+
     P_traj = solver.get_feedback(qp, 'ric_P', 0, N)
     p_traj = solver.get_feedback(qp, 'ric_p', 0, N)
 
@@ -118,7 +119,7 @@ def main(travis_run):
         diff_u = k_traj[n] + K_traj[n] @ x_traj[n] - u_traj[n]
         max_diff_u = np.linalg.norm(diff_u, ord=np.inf)
         print(max_diff_u)
-        assert max_diff_u <= 1e-12
+        assert max_diff_u <= TOL
 
     print("\ncheck multiplier")
     # NOTE the first multiplier is a bit off,
@@ -132,7 +133,7 @@ def main(travis_run):
         diff_multiplier = p_traj[n] + P_traj[n] @ x_traj[n] - pi_traj[n-1]
         max_diff_multiplier = np.linalg.norm(diff_multiplier, ord=np.inf)
         print(max_diff_multiplier)
-        assert max_diff_multiplier <= 1e-12
+        assert max_diff_multiplier <= TOL
 
 
     if not travis_run:
@@ -160,7 +161,6 @@ if __name__ == '__main__':
 
     check_env()
     travis_run = is_travis_run()
-
     status = main(travis_run)
 
     sys.exit(int(status))
