@@ -90,8 +90,8 @@ class hpipm_ocp_qp_solver(hpipm_solver):
 				'var': __hpipm.d_ocp_qp_ipm_get_ric_p
 			},
 			'ric_K': {
-				'n_row': __hpipm.d_ocp_qp_dim_get_nx,
-				'n_col': __hpipm.d_ocp_qp_dim_get_nu,
+				'n_row': __hpipm.d_ocp_qp_dim_get_nu,
+				'n_col': __hpipm.d_ocp_qp_dim_get_nx,
 				'var': __hpipm.d_ocp_qp_ipm_get_ric_K
 			},
 			'ric_k': {
@@ -133,19 +133,16 @@ class hpipm_ocp_qp_solver(hpipm_solver):
 			else:
 				n_col[0] = 1
 
-			var = np.zeros((n_row[0], n_col[0]), dtype=float)
+			var = np.zeros((n_row[0], n_col[0]), dtype=float, order='F')
 			var_ptr = cast(var.ctypes.data, POINTER(c_double))
 			getter['var'](qp.qp_struct, self.arg.arg_struct, self.ipm_ws_struct, i, var_ptr)
 
-			if not 'n_col' in getter:
-				var_list.append(var)
-			else:
-				var_list.append(var.T) # transpose such that the gain K is of dimension (nu, nx)
+			var_list.append(var)
 
-		return var_list if idx_end is not None else var_List[0]
+		return var_list if idx_end is not None else var_list[0]
 
 
-	def get(self, field):
+	def get(self, field: str):
 		if field == 'stat':
 			# get iters
 			iters = np.zeros((1,1), dtype=int)
