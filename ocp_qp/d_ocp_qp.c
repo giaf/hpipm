@@ -146,6 +146,7 @@
 #define OCP_QP_GET_Q d_ocp_qp_get_Q
 #define OCP_QP_GET_S d_ocp_qp_get_S
 #define OCP_QP_GET_R d_ocp_qp_get_R
+#define OCP_QP_GET_H d_ocp_qp_get_H
 #define OCP_QP_GET_QVEC d_ocp_qp_get_q
 #define OCP_QP_GET_RVEC d_ocp_qp_get_r
 #define OCP_QP_GET_LBX d_ocp_qp_get_lbx

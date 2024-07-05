@@ -1905,6 +1905,17 @@ void OCP_QP_GET_R(int stage, struct OCP_QP *qp, REAL *R)
 	}
 
 
+void OCP_QP_GET_H(int stage, struct OCP_QP *qp, REAL *H)
+	{
+	// extract dim
+	int *nx = qp->dim->nx;
+	int *nu = qp->dim->nu;
+
+	CVT_STRMAT2MAT(nu[stage]+nx[stage], nu[stage]+nx[stage], qp->RSQrq+stage, 0, 0, H, nu[stage]+nx[stage]);
+
+	return;
+	}
+
 
 void OCP_QP_GET_QVEC(int stage, struct OCP_QP *qp, REAL *q)
 	{

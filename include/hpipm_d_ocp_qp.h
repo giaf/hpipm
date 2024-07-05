@@ -219,6 +219,8 @@ void d_ocp_qp_get_S(int stage, struct d_ocp_qp *qp, double *mat);
 //
 void d_ocp_qp_get_R(int stage, struct d_ocp_qp *qp, double *mat);
 //
+void d_ocp_qp_get_H(int stage, struct d_ocp_qp *qp, double *mat);
+//
 void d_ocp_qp_get_q(int stage, struct d_ocp_qp *qp, double *vec);
 //
 void d_ocp_qp_get_r(int stage, struct d_ocp_qp *qp, double *vec);
