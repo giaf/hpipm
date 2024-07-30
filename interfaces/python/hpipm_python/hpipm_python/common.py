@@ -33,6 +33,9 @@
 #                                                                                                 #
 ###################################################################################################
 
+# base class
+from .wrapper.hpipm_solver import *
+
 # ocp qp
 from .wrapper.hpipm_ocp_qp import *
 from .wrapper.hpipm_ocp_qp_sol import *

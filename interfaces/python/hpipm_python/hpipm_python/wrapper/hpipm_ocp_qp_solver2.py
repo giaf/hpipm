@@ -34,12 +34,11 @@
 ###################################################################################################
 
 from ctypes import *
-import ctypes.util 
 import numpy as np
+from .hpipm_solver import hpipm_solver
 
 
-
-class hpipm_ocp_qp_solver2:
+class hpipm_ocp_qp_solver2(hpipm_solver):
 
 
 	def __init__(self, qp_dims, arg):
@@ -53,7 +52,7 @@ class hpipm_ocp_qp_solver2:
 		ipm_ws_struct = cast(create_string_buffer(sizeof_d_ocp_qp_ipm_workspace), c_void_p)
 		self.ipm_ws_struct = ipm_ws_struct
 
-		# allocate memory for ipm workspace 
+		# allocate memory for ipm workspace
 		ipm_size = __hpipm.d_ocp_qp_solver_ws_memsize(qp_dims.dim_struct, arg.arg_struct)
 		ipm_ws_mem = cast(create_string_buffer(ipm_size), c_void_p)
 		self.ipm_ws_mem = ipm_ws_mem
@@ -63,7 +62,7 @@ class hpipm_ocp_qp_solver2:
 
 		#self.arg = arg
 		self.dim_struct = qp_dims.dim_struct
-		
+
 		# getter functions for feedback matrices
 		#self.__getters = {
 		#	'ric_Lr': {
@@ -133,17 +132,17 @@ class hpipm_ocp_qp_solver2:
 	#	return var if len(var) > 1 else var[0]
 
 	def get(self, field):
-		if((field=='stat')):
+		if field=='stat':
 			# get iters
-			iters = np.zeros((1,1), dtype=int);
+			iters = np.zeros((1,1), dtype=int)
 			tmp = cast(iters.ctypes.data, POINTER(c_int))
 			self.__hpipm.d_ocp_qp_solver_get_iter(self.ipm_ws_struct, tmp)
 			# get stat_m
-			stat_m = np.zeros((1,1), dtype=int);
+			stat_m = np.zeros((1,1), dtype=int)
 			tmp = cast(stat_m.ctypes.data, POINTER(c_int))
 			self.__hpipm.d_ocp_qp_solver_get_stat_m(self.ipm_ws_struct, tmp)
 			# get stat pointer
-			res = np.zeros((iters[0][0]+1, stat_m[0][0]));
+			res = np.zeros((iters[0][0]+1, stat_m[0][0]))
 			ptr = c_void_p()
 			self.__hpipm.d_ocp_qp_solver_get_stat(self.ipm_ws_struct, byref(ptr))
 			tmp = cast(ptr, POINTER(c_double))
@@ -152,11 +151,11 @@ class hpipm_ocp_qp_solver2:
 					res[ii][jj] = tmp[jj+ii*stat_m[0][0]]
 					res[ii][jj] = tmp[jj+ii*stat_m[0][0]]
 			return res
-		elif((field=='status') | (field=='iter')):
-			res = np.zeros((1,1), dtype=int);
+		elif field=='status' or field=='iter':
+			res = np.zeros((1,1), dtype=int)
 			tmp = cast(res.ctypes.data, POINTER(c_int))
-		elif((field=='max_res_stat') | (field=='max_res_eq') | (field=='max_res_ineq') | (field=='max_res_comp')):
-			res = np.zeros((1,1));
+		elif field=='max_res_stat' or field=='max_res_eq' or field=='max_res_ineq' or field=='max_res_comp':
+			res = np.zeros((1,1))
 			tmp = cast(res.ctypes.data, POINTER(c_double))
 		else:
 			raise NameError('hpipm_ocp_qp_solver.get: wrong field')
