@@ -1056,7 +1056,7 @@ void DENSE_QP_IPM_WS_CREATE(struct DENSE_QP_DIM *dim, struct DENSE_QP_IPM_ARG *a
 	workspace->stat_max = arg->stat_max;
 	workspace->stat_m = stat_m;
 
-	//
+	// initialize flags
 	workspace->use_hess_fact = 0;
 	workspace->use_A_fact = 0;
 
@@ -2037,6 +2037,7 @@ exit(1);
 	qp_res_max[2] = 0;
 	qp_res_max[3] = 0;
 
+	// reset flags in workspace
 	ws->use_hess_fact = 0;
 	ws->use_A_fact = 0;
 

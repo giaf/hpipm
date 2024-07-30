@@ -836,6 +836,7 @@ void TREE_OCP_QP_IPM_WS_CREATE(struct TREE_OCP_QP_DIM *dim, struct TREE_OCP_QP_I
 	workspace->stat_max = arg->stat_max;
 	workspace->stat_m = stat_m;
 
+	// initialize flags
 	for(ii=0; ii<Nn; ii++)
 		workspace->use_hess_fact[ii] = 0;
 
@@ -1816,6 +1817,10 @@ void TREE_OCP_QP_IPM_SOLVE(struct TREE_OCP_QP *qp, struct TREE_OCP_QP_SOL *qp_so
 	qp_res_max[2] = 0;
 	qp_res_max[3] = 0;
 
+	// reset flags in workspace
+	for(ii=0; ii<Nn; ii++)
+		ws->use_hess_fact[ii] = 0;
+	ws->use_Pb = 0;
 //	ws->valid_ric_vec = 0;
 
 

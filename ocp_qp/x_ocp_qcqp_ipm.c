@@ -1516,6 +1516,16 @@ void OCP_QCQP_IPM_SOLVE(struct OCP_QCQP *qcqp, struct OCP_QCQP_SOL *qcqp_sol, st
 	qp_ws->qp_itref->d_mask = qp->d_mask;
 
 	REAL *qcqp_res_max = qcqp_res->res_max;
+	qcqp_res_max[0] = 0;
+	qcqp_res_max[1] = 0;
+	qcqp_res_max[2] = 0;
+	qcqp_res_max[3] = 0;
+
+	// reset flags in workspace
+	for(ii=0; ii<=N; ii++)
+		qp_ws->use_hess_fact[ii] = 0;
+	qp_ws->use_Pb = 0;
+	qp_ws->valid_ric_vec = 0;
 
 
 	// cache q_fun & q_adj from approx/update for res

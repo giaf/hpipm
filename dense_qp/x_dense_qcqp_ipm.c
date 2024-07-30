@@ -1230,7 +1230,13 @@ void DENSE_QCQP_IPM_SOLVE(struct DENSE_QCQP *qcqp, struct DENSE_QCQP_SOL *qcqp_s
 	qp_ws->qp_itref->d_mask = qp->d_mask;
 
 	REAL *qcqp_res_max = qcqp_res->res_max;
+	qcqp_res_max[0] = 0;
+	qcqp_res_max[1] = 0;
+	qcqp_res_max[2] = 0;
+	qcqp_res_max[3] = 0;
 
+	// reset flags in workspace
+	qp_ws->use_hess_fact = 0;
 	qp_ws->use_A_fact = 0;
 
 	// cache q_fun & q_adj from approx/update for res
