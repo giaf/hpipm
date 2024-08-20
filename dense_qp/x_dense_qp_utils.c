@@ -663,6 +663,216 @@ void DENSE_QP_CODEGEN(char *file_name, char *mode, struct DENSE_QP_DIM *qp_dim, 
 
 
 
+void DENSE_QP_CODEGEN_MATLAB(char *file_name, char *mode, struct DENSE_QP_DIM *qp_dim, struct DENSE_QP *qp)
+	{
+	int ii, jj;
+
+	int nv = qp_dim->nv;
+	int ne = qp_dim->ne;
+	int nb = qp_dim->nb;
+	int ng = qp_dim->ng;
+	int ns = qp_dim->ns;
+
+	if(ns>0)
+		{
+		printf("\nNot yet supported codegen to matlab format with ns>0\n");
+		return;
+		}
+
+	FILE *file = fopen(file_name, mode);
+
+	// H
+	fprintf(file, "H = [\n");
+	for(ii=0; ii<nv; ii++)
+		{
+		jj = 0;
+		for(; jj<=ii; jj++)
+			{
+#ifdef DOUBLE_PRECISION
+			fprintf(file, "%18.15e ", BLASFEO_DMATEL(qp->Hv, ii, jj));
+#else
+			fprintf(file, "%11.8e ", BLASFEO_SMATEL(qp->Hv, ii, jj));
+#endif
+			}
+		for(; jj<nv; jj++)
+			{
+#ifdef DOUBLE_PRECISION
+			fprintf(file, "%18.15e ", BLASFEO_DMATEL(qp->Hv, jj, ii));
+#else
+			fprintf(file, "%11.8e ", BLASFEO_SMATEL(qp->Hv, jj, ii));
+#endif
+			}
+		fprintf(file, "\n");
+		}
+	fprintf(file, "];\n");
+
+	// A
+	fprintf(file, "A = [\n");
+	for(ii=0; ii<ne; ii++)
+		{
+		for(jj=0; jj<nv; jj++)
+			{
+#ifdef DOUBLE_PRECISION
+			fprintf(file, "%18.15e ", BLASFEO_DMATEL(qp->A, ii, jj));
+#else
+			fprintf(file, "%11.8e ", BLASFEO_SMATEL(qp->A, ii, jj));
+#endif
+			}
+		fprintf(file, "\n");
+		}
+	fprintf(file, "];\n");
+
+	// C
+	fprintf(file, "C = [\n");
+	for(ii=0; ii<ng; ii++)
+		{
+		for(jj=0; jj<nv; jj++)
+			{
+#ifdef DOUBLE_PRECISION
+			fprintf(file, "%18.15e ", BLASFEO_DMATEL(qp->Ct, jj, ii));
+#else
+			fprintf(file, "%11.8e ", BLASFEO_SMATEL(qp->Ct, jj, ii));
+#endif
+			}
+		fprintf(file, "\n");
+		}
+	fprintf(file, "];\n");
+
+	// g
+	fprintf(file, "g = [\n");
+	for(ii=0; ii<nv; ii++)
+		{
+#ifdef DOUBLE_PRECISION
+		fprintf(file, "%18.15e ", BLASFEO_DVECEL(qp->gz, ii));
+#else
+		fprintf(file, "%11.8e ", BLASFEO_SVECEL(qp->gz, ii));
+#endif
+		}
+	fprintf(file, "]';\n");
+
+	// b
+	fprintf(file, "b = [\n");
+	for(ii=0; ii<ne; ii++)
+		{
+#ifdef DOUBLE_PRECISION
+		fprintf(file, "%18.15e ", BLASFEO_DVECEL(qp->b, ii));
+#else
+		fprintf(file, "%11.8e ", BLASFEO_SVECEL(qp->b, ii));
+#endif
+		}
+	fprintf(file, "]';\n");
+
+	// lb
+	fprintf(file, "lb = [\n");
+	for(ii=0; ii<nv; ii++)
+		{
+		int idx = -1;
+		for(jj=0; jj<nb; jj++)
+			{
+			if(qp->idxb[jj]==ii)
+				{
+				idx = jj;
+				break;
+				}
+			}
+		if(idx==-1)
+			{
+			fprintf(file, "-Inf ");
+			}
+		else
+			{
+#ifdef DOUBLE_PRECISION
+			if(BLASFEO_DVECEL(qp->d_mask, nb+idx)==0.0)
+				fprintf(file, "-Inf ");
+			else
+				fprintf(file, "%18.15e ", BLASFEO_DVECEL(qp->d, idx));
+#else
+			if(BLASFEO_SVECEL(qp->d_mask, nb+idx)==0.0)
+				fprintf(file, "-Inf ");
+			else
+				fprintf(file, "%11.8e ", BLASFEO_SVECEL(qp->d, idx));
+#endif
+			}
+		}
+	fprintf(file, "]';\n");
+
+	// ub
+	fprintf(file, "ub = [\n");
+	for(ii=0; ii<nv; ii++)
+		{
+		int idx = -1;
+		for(jj=0; jj<nb; jj++)
+			{
+			if(qp->idxb[jj]==ii)
+				{
+				idx = jj;
+				break;
+				}
+			}
+		if(idx==-1)
+			{
+			fprintf(file, "Inf ");
+			}
+		else
+			{
+#ifdef DOUBLE_PRECISION
+			if(BLASFEO_DVECEL(qp->d_mask, nb+idx)==0.0)
+				fprintf(file, "Inf ");
+			else
+				fprintf(file, "%18.15e ", - BLASFEO_DVECEL(qp->d, nb+ng+idx));
+#else
+			if(BLASFEO_SVECEL(qp->d_mask, nb+idx)==0.0)
+				fprintf(file, "Inf ");
+			else
+				fprintf(file, "%11.8e ", BLASFEO_SVECEL(qp->d, nb+ng+idx));
+#endif
+			}
+		}
+	fprintf(file, "]';\n");
+
+	// ld
+	fprintf(file, "ld = [\n");
+	for(ii=0; ii<ng; ii++)
+		{
+#ifdef DOUBLE_PRECISION
+		if(BLASFEO_DVECEL(qp->d_mask, nb+ii)==0.0)
+			fprintf(file, "-Inf ");
+		else
+			fprintf(file, "%18.15e ", BLASFEO_DVECEL(qp->d, nb+ii));
+#else
+		if(BLASFEO_SVECEL(qp->d_mask, nb+ii)==0.0)
+			fprintf(file, "-Inf ");
+		else
+			fprintf(file, "%11.8e ", BLASFEO_SVECEL(qp->d, nb+ii));
+#endif
+		}
+	fprintf(file, "]';\n");
+
+	// ud
+	fprintf(file, "ud = [\n");
+	for(ii=0; ii<ng; ii++)
+		{
+#ifdef DOUBLE_PRECISION
+		if(BLASFEO_DVECEL(qp->d_mask, 2*nb+ng+ii)==0.0)
+			fprintf(file, "-Inf ");
+		else
+			fprintf(file, "%18.15e ", - BLASFEO_DVECEL(qp->d, 2*nb+ng+ii));
+#else
+		if(BLASFEO_SVECEL(qp->d_mask, 2*nb+ng+ii)==0.0)
+			fprintf(file, "-Inf ");
+		else
+			fprintf(file, "%11.8e ", - BLASFEO_SVECEL(qp->d, 2*nb+ng+ii));
+#endif
+		}
+	fprintf(file, "]';\n");
+
+	fclose(file);
+
+	return;
+	}
+
+
+
 void DENSE_QP_SOL_PRINT(struct DENSE_QP_DIM *qp_dim, struct DENSE_QP_SOL *qp_sol)
 	{
 	int ii;

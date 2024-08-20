@@ -69,6 +69,7 @@
 #define DENSE_QP_DIM_CODEGEN d_dense_qp_dim_codegen
 #define DENSE_QP_PRINT d_dense_qp_print
 #define DENSE_QP_CODEGEN d_dense_qp_codegen
+#define DENSE_QP_CODEGEN_MATLAB d_dense_qp_codegen_matlab
 #define DENSE_QP_SOL_PRINT d_dense_qp_sol_print
 #define DENSE_QP_RES_PRINT d_dense_qp_res_print
 #define DENSE_QP_IPM_ARG_PRINT d_dense_qp_ipm_arg_print
