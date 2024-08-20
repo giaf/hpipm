@@ -85,14 +85,20 @@ extern double **hq;
 extern double **hr;
 extern int **hidxbx;
 extern double **hlbx;
+extern double **hlbx_mask;
 extern double **hubx;
+extern double **hubx_mask;
 extern int **hidxbu;
 extern double **hlbu;
+extern double **hlbu_mask;
 extern double **hubu;
+extern double **hubu_mask;
 extern double **hC;
 extern double **hD;
 extern double **hlg;
+extern double **hlg_mask;
 extern double **hug;
+extern double **hug_mask;
 extern double **hZl;
 extern double **hZu;
 extern double **hzl;
@@ -100,6 +106,7 @@ extern double **hzu;
 extern int **hidxs;
 extern double **hlls;
 extern double **hlus;
+// TODO mask soft constraints
 extern int **hidxe;
 // arg
 extern int mode;
@@ -197,6 +204,17 @@ int main()
 	for(ii=0; ii<=N; ii++)
 		{
 		d_ocp_qp_set_idxe(ii, hidxe[ii], &qp);
+		}
+
+	// set inequality constraints mask
+	for(ii=0; ii<=N; ii++)
+		{
+		d_ocp_qp_set_lbu_mask(ii, hlbu_mask[ii], &qp);
+		d_ocp_qp_set_ubu_mask(ii, hubu_mask[ii], &qp);
+		d_ocp_qp_set_lbx_mask(ii, hlbx_mask[ii], &qp);
+		d_ocp_qp_set_ubx_mask(ii, hubx_mask[ii], &qp);
+		d_ocp_qp_set_lg_mask(ii, hlg_mask[ii], &qp);
+		d_ocp_qp_set_ug_mask(ii, hug_mask[ii], &qp);
 		}
 
 //	d_ocp_qp_codegen("examples/c/data/test_d_ocp_data.c", "a", &dim, &qp);
@@ -363,6 +381,8 @@ int main()
 		}
 
 	double time_cond = hpipm_toc(&timer) / nrep;
+
+	//d_dense_qp_codegen_matlab("examples/c/data/ocp_data.m", "w", qp2.dim, &qp2);
 
 /************************************************
 * ipm solver
