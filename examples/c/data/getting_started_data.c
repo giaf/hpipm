@@ -88,7 +88,11 @@ static double r[] = {0};
 //
 static double lbx0[] = {1, 1};
 //
+static double lbx0_mask[] = {1.0, 1.0};
+//
 static double ubx0[] = {1, 1};
+//
+static double ubx0_mask[] = {1.0, 1.0};
 //
 static int idxbx0[] = {0, 1};
 
@@ -127,13 +131,21 @@ static int *iidxbx[6] = {idxbx0, NULL, NULL, NULL, NULL, NULL};
 //
 static double *llbx[6] = {lbx0, NULL, NULL, NULL, NULL, NULL};
 //
+static double *llbx_mask[6] = {lbx0_mask, NULL, NULL, NULL, NULL, NULL};
+//
 static double *uubx[6] = {ubx0, NULL, NULL, NULL, NULL, NULL};
+//
+static double *uubx_mask[6] = {ubx0_mask, NULL, NULL, NULL, NULL, NULL};
 //
 static int *iidxbu[6] = {};
 //
 static double *llbu[6] = {};
 //
+static double *llbu_mask[6] = {};
+//
 static double *uubu[6] = {};
+//
+static double *uubu_mask[6] = {};
 //
 static double *CC[6] = {};
 //
@@ -141,7 +153,11 @@ static double *DD[6] = {};
 //
 static double *llg[6] = {};
 //
+static double *llg_mask[6] = {};
+//
 static double *uug[6] = {};
+//
+static double *uug_mask[6] = {};
 //
 static double *ZZl[6] = {};
 //
@@ -194,14 +210,20 @@ double **hq = qq;
 double **hr = rr;
 int **hidxbx = iidxbx;
 double **hlbx = llbx;
+double **hlbx_mask = llbx_mask;
 double **hubx = uubx;
+double **hubx_mask = uubx_mask;
 int **hidxbu = iidxbu;
 double **hlbu = llbu;
+double **hlbu_mask = llbu_mask;
 double **hubu = uubu;
+double **hubu_mask = uubu_mask;
 double **hC = CC;
 double **hD = DD;
 double **hlg = llg;
+double **hlg_mask = llg_mask;
 double **hug = uug;
+double **hug_mask = uug_mask;
 double **hZl = ZZl;
 double **hZu = ZZu;
 double **hzl = zzl;
