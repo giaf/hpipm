@@ -181,7 +181,9 @@ void TREE_OCP_QP_IPM_ARG_SET_DEFAULT(enum HPIPM_MODE mode, struct TREE_OCP_QP_IP
 		}
 	else
 		{
+#ifdef EXT_DEP
 		printf("\nerror: OCP_QP_IPM_ARG_SET_DEFAULT: wrong set default mode\n");
+#endif
 		exit(1);
 		}
 
@@ -850,7 +852,9 @@ void TREE_OCP_QP_IPM_WS_CREATE(struct TREE_OCP_QP_DIM *dim, struct TREE_OCP_QP_I
 #if defined(RUNTIME_CHECKS)
 	if(c_ptr > ((char *) mem) + workspace->memsize)
 		{
+#ifdef EXT_DEP
 		printf("\nCreate_tree_ocp_qp_ipm: outsize memory bounds!\n\n");
+#endif
 		exit(1);
 		}
 #endif

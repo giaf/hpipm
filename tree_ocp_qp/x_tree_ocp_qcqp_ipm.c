@@ -92,7 +92,9 @@ void TREE_OCP_QCQP_IPM_ARG_CREATE(struct TREE_OCP_QCQP_DIM *dim, struct TREE_OCP
 #if defined(RUNTIME_CHECKS)
 	if(c_ptr > ((char *) mem) + arg->memsize)
 		{
+#ifdef EXT_DEP
 		printf("\nerror: TREE_OCP_QCQP_IPM_ARG_CREATE: outside memory bounds!\n\n");
+#endif
 		exit(1);
 		}
 #endif
@@ -221,7 +223,9 @@ void TREE_OCP_QCQP_IPM_ARG_SET_DEFAULT(enum HPIPM_MODE mode, struct TREE_OCP_QCQ
 		}
 	else
 		{
+#ifdef EXT_DEP
 		printf("\nerror: TREE_OCP_QCQP_IPM_ARG_SET_DEFAULT: wrong set default mode\n");
+#endif
 		exit(1);
 		}
 
@@ -333,7 +337,9 @@ void TREE_OCP_QCQP_IPM_ARG_SET(char *field, void *value, struct TREE_OCP_QCQP_IP
 		}
 	else
 		{
+#ifdef EXT_DEP
 		printf("error: TREE_OCP_QCQP_IPM_ARG_SET: wrong field %s\n", field);
+#endif
 		exit(1);	
 		}
 	return;
@@ -644,7 +650,9 @@ void TREE_OCP_QCQP_IPM_WS_CREATE(struct TREE_OCP_QCQP_DIM *dim, struct TREE_OCP_
 #if defined(RUNTIME_CHECKS)
 	if(c_ptr > ((char *) mem) + workspace->memsize)
 		{
+#ifdef EXT_DEP
 		printf("\nCreate_dense_qp_ipm: outside memory bounds!\n\n");
+#endif
 		exit(1);
 		}
 #endif
@@ -696,7 +704,9 @@ void TREE_OCP_QCQP_IPM_GET(char *field, struct TREE_OCP_QCQP_IPM_WS *ws, void *v
 		}
 	else 
 		{
+#ifdef EXT_DEP
 		printf("error: TREE_OCP_QCQP_IPM_GET: wrong field %s\n", field);
+#endif
 		exit(1);
 		}
 	return;

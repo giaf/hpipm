@@ -37,6 +37,7 @@
 
 void DENSE_QCQP_DIM_PRINT(struct DENSE_QCQP_DIM *qp_dim)
 	{
+#ifdef EXT_DEP
 	int ii;
 
 	int nv = qp_dim->nv;
@@ -59,6 +60,7 @@ void DENSE_QCQP_DIM_PRINT(struct DENSE_QCQP_DIM *qp_dim)
 	printf("nsq = %d\n\n", nsq);
 	printf("ns = %d\n\n", ns);
 
+#endif
 	return;
 	}
 
@@ -66,6 +68,7 @@ void DENSE_QCQP_DIM_PRINT(struct DENSE_QCQP_DIM *qp_dim)
 
 void DENSE_QCQP_PRINT(struct DENSE_QCQP_DIM *qp_dim, struct DENSE_QCQP *qp)
 	{
+#ifdef EXT_DEP
 	int ii;
 
 	int nv = qp_dim->nv;
@@ -119,6 +122,7 @@ void DENSE_QCQP_PRINT(struct DENSE_QCQP_DIM *qp_dim, struct DENSE_QCQP *qp)
 	printf("idxs_rev = \n");
 	int_print_mat(1, nb+ng+nq, qp->idxs_rev, 1);
 
+#endif
 	return;
 	}
 
@@ -126,6 +130,7 @@ void DENSE_QCQP_PRINT(struct DENSE_QCQP_DIM *qp_dim, struct DENSE_QCQP *qp)
 
 void DENSE_QCQP_SOL_PRINT(struct DENSE_QCQP_DIM *qp_dim, struct DENSE_QCQP_SOL *qp_sol)
 	{
+#ifdef EXT_DEP
 	int ii;
 
 	int nv = qp_dim->nv;
@@ -147,6 +152,7 @@ void DENSE_QCQP_SOL_PRINT(struct DENSE_QCQP_DIM *qp_dim, struct DENSE_QCQP_SOL *
 	printf("t = \n");
 	BLASFEO_PRINT_TRAN_VEC(2*nb+2*ng+2*nq+2*ns, qp_sol->t, 0);
 
+#endif
 	return;
 	}
 
@@ -154,6 +160,7 @@ void DENSE_QCQP_SOL_PRINT(struct DENSE_QCQP_DIM *qp_dim, struct DENSE_QCQP_SOL *
 
 void DENSE_QCQP_RES_PRINT(struct DENSE_QCQP_DIM *qp_dim, struct DENSE_QCQP_RES *qp_res)
 	{
+#ifdef EXT_DEP
 	int ii;
 
 	int nv = qp_dim->nv;
@@ -175,6 +182,7 @@ void DENSE_QCQP_RES_PRINT(struct DENSE_QCQP_DIM *qp_dim, struct DENSE_QCQP_RES *
 	printf("res_m = \n");
 	BLASFEO_PRINT_TRAN_VEC(2*nb+2*ng+2*nq+2*ns, qp_res->res_m, 0);
 
+#endif
 	return;
 	}
 

@@ -348,7 +348,9 @@ void TREE_OCP_QP_CREATE(struct TREE_OCP_QP_DIM *dim, struct TREE_OCP_QP *qp, voi
 #if defined(RUNTIME_CHECKS)
 	if(c_ptr > ((char *) mem) + qp->memsize)
 		{
+#ifdef EXT_DEP
 		printf("\nCreate_tree_ocp_qp: outside memory bounds!\n\n");
+#endif
 		exit(1);
 		}
 #endif
@@ -668,7 +670,9 @@ void TREE_OCP_QP_SET(char *field, int node_edge, void *value, struct TREE_OCP_QP
 //		}
 	else
 		{
+#ifdef EXT_DEP
 		printf("error: TREE_OCP_QP_SET: wrong field name '%s'. Exiting.\n", field);
+#endif
 		exit(1);	
 		}
 	return;

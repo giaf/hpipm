@@ -37,6 +37,7 @@
 
 void DENSE_QP_DIM_PRINT(struct DENSE_QP_DIM *qp_dim)
 	{
+#ifdef EXT_DEP
 	int ii;
 
 	int nv = qp_dim->nv;
@@ -55,6 +56,7 @@ void DENSE_QP_DIM_PRINT(struct DENSE_QP_DIM *qp_dim)
 	printf("nsg = %d\n\n", nsg);
 	printf("ns = %d\n\n", ns);
 
+#endif
 	return;
 	}
 
@@ -62,6 +64,7 @@ void DENSE_QP_DIM_PRINT(struct DENSE_QP_DIM *qp_dim)
 
 void DENSE_QP_DIM_CODEGEN(char *file_name, char *mode, struct DENSE_QP_DIM *qp_dim)
 	{
+#ifdef EXT_DEP
 	int ii;
 
 	FILE *file = fopen(file_name, mode);
@@ -100,6 +103,7 @@ void DENSE_QP_DIM_CODEGEN(char *file_name, char *mode, struct DENSE_QP_DIM *qp_d
 
 	fclose(file);
 
+#endif
 	return;
 	}
 
@@ -107,6 +111,7 @@ void DENSE_QP_DIM_CODEGEN(char *file_name, char *mode, struct DENSE_QP_DIM *qp_d
 
 void DENSE_QP_PRINT(struct DENSE_QP_DIM *qp_dim, struct DENSE_QP *qp)
 	{
+#ifdef EXT_DEP
 	int ii;
 
 	int nv = qp_dim->nv;
@@ -148,6 +153,7 @@ void DENSE_QP_PRINT(struct DENSE_QP_DIM *qp_dim, struct DENSE_QP *qp)
 	printf("idxs_rev = \n");
 	int_print_mat(1, nb+ng, qp->idxs_rev, 1);
 
+#endif
 	return;
 	}
 
@@ -155,6 +161,7 @@ void DENSE_QP_PRINT(struct DENSE_QP_DIM *qp_dim, struct DENSE_QP *qp)
 
 void DENSE_QP_CODEGEN(char *file_name, char *mode, struct DENSE_QP_DIM *qp_dim, struct DENSE_QP *qp)
 	{
+#ifdef EXT_DEP
 	int ii, jj;
 
 	FILE *file = fopen(file_name, mode);
@@ -658,6 +665,7 @@ void DENSE_QP_CODEGEN(char *file_name, char *mode, struct DENSE_QP_DIM *qp_dim, 
 
 	fclose(file);
 
+#endif
 	return;
 	}
 
@@ -665,6 +673,7 @@ void DENSE_QP_CODEGEN(char *file_name, char *mode, struct DENSE_QP_DIM *qp_dim, 
 
 void DENSE_QP_CODEGEN_MATLAB(char *file_name, char *mode, struct DENSE_QP_DIM *qp_dim, struct DENSE_QP *qp)
 	{
+#ifdef EXT_DEP
 	int ii, jj;
 
 	int nv = qp_dim->nv;
@@ -868,6 +877,7 @@ void DENSE_QP_CODEGEN_MATLAB(char *file_name, char *mode, struct DENSE_QP_DIM *q
 
 	fclose(file);
 
+#endif
 	return;
 	}
 
@@ -875,6 +885,7 @@ void DENSE_QP_CODEGEN_MATLAB(char *file_name, char *mode, struct DENSE_QP_DIM *q
 
 void DENSE_QP_SOL_PRINT(struct DENSE_QP_DIM *qp_dim, struct DENSE_QP_SOL *qp_sol)
 	{
+#ifdef EXT_DEP
 	int ii;
 
 	int nv = qp_dim->nv;
@@ -895,6 +906,7 @@ void DENSE_QP_SOL_PRINT(struct DENSE_QP_DIM *qp_dim, struct DENSE_QP_SOL *qp_sol
 	printf("t = \n");
 	BLASFEO_PRINT_TRAN_VEC(2*nb+2*ng+2*ns, qp_sol->t, 0);
 
+#endif
 	return;
 	}
 
@@ -902,6 +914,7 @@ void DENSE_QP_SOL_PRINT(struct DENSE_QP_DIM *qp_dim, struct DENSE_QP_SOL *qp_sol
 
 void DENSE_QP_RES_PRINT(struct DENSE_QP_DIM *qp_dim, struct DENSE_QP_RES *qp_res)
 	{
+#ifdef EXT_DEP
 	int ii;
 
 	int nv = qp_dim->nv;
@@ -922,6 +935,7 @@ void DENSE_QP_RES_PRINT(struct DENSE_QP_DIM *qp_dim, struct DENSE_QP_RES *qp_res
 	printf("res_m = \n");
 	BLASFEO_PRINT_TRAN_VEC(2*nb+2*ng+2*ns, qp_res->res_m, 0);
 
+#endif
 	return;
 	}
 
@@ -929,6 +943,7 @@ void DENSE_QP_RES_PRINT(struct DENSE_QP_DIM *qp_dim, struct DENSE_QP_RES *qp_res
 
 void DENSE_QP_IPM_ARG_PRINT(struct DENSE_QP_DIM *qp_dim, struct DENSE_QP_IPM_ARG *arg)
 	{
+#ifdef EXT_DEP
 	int ii;
 
 	// mode
@@ -971,6 +986,7 @@ void DENSE_QP_IPM_ARG_PRINT(struct DENSE_QP_DIM *qp_dim, struct DENSE_QP_IPM_ARG
 	printf("/* split_step */\n");
 	printf("int split_step = %d;\n", arg->split_step);
 
+#endif
 	return;
 	}
 
@@ -978,6 +994,7 @@ void DENSE_QP_IPM_ARG_PRINT(struct DENSE_QP_DIM *qp_dim, struct DENSE_QP_IPM_ARG
 
 void DENSE_QP_IPM_ARG_CODEGEN(char *file_name, char *mode, struct DENSE_QP_DIM *qp_dim, struct DENSE_QP_IPM_ARG *arg)
 	{
+#ifdef EXT_DEP
 	int ii;
 
 	FILE *file = fopen(file_name, mode);
@@ -1026,6 +1043,7 @@ void DENSE_QP_IPM_ARG_CODEGEN(char *file_name, char *mode, struct DENSE_QP_DIM *
 
 	fclose(file);
 
+#endif
 	return;
 	}
 

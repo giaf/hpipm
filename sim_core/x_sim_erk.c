@@ -177,7 +177,9 @@ void SIM_ERK_WS_CREATE(struct SIM_ERK_ARG *erk_arg, int nx, int np, int nf_max, 
 #if defined(RUNTIME_CHECKS)
 	if(c_ptr > ((char *) mem) + work->memsize)
 		{
+#ifdef EXT_DEP
 		printf("\nSIM_ERK_WS_CREATE: outsize memory bounds! %p %p\n\n", c_ptr, ((char *) mem) + work->memsize);
+#endif
 		exit(1);
 		}
 #endif
@@ -197,12 +199,16 @@ void SIM_ERK_WS_SET_ALL(int nf, int na, REAL *x, REAL *fs, REAL *bs, REAL *p, vo
 	// TODO check against nf_max and na_max
 	if(nf>work->nf_max)
 		{
+#ifdef EXT_DEP
 		printf("\nerror: SIM_ERK_WS_SET_ALL: nf>nf_max: %d > %d\n", nf, work->nf_max);
+#endif
 		exit(1);
 		}
 	if(nf>work->nf_max | na>work->na_max)
 		{
+#ifdef EXT_DEP
 		printf("\nerror: SIM_ERK_WS_SET_ALL: na>na_max: %d > %d\n", na, work->na_max);
+#endif
 		exit(1);
 		}
 
@@ -433,7 +439,9 @@ void SIM_ERK_SOLVE(struct SIM_ERK_ARG *erk_arg, struct SIM_ERK_WS *work)
 
 	if(na>0)
 		{
+#ifdef EXT_DEP
 		printf("\nSIM_ERK_SOLVE: na>0 not implemented yet!\n");
+#endif
 		exit(1);
 		}
 

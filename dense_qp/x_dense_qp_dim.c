@@ -133,7 +133,9 @@ void DENSE_QP_DIM_SET(char *field_name, int value, struct DENSE_QP_DIM *dim)
 		}
 	else 
 		{
+#ifdef EXT_DEP
 		printf("error: SET_OCP_QP_DIM: wrong field %s\n", field_name);
+#endif
 		exit(1);
 		}
 	return;

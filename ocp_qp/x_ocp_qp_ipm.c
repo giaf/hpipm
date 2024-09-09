@@ -190,7 +190,9 @@ void OCP_QP_IPM_ARG_SET_DEFAULT(enum HPIPM_MODE mode, struct OCP_QP_IPM_ARG *arg
 		}
 	else
 		{
+#ifdef EXT_DEP
 		printf("\nerror: OCP_QP_IPM_ARG_SET_DEFAULT: wrong set default mode\n");
+#endif
 		exit(1);
 		}
 
@@ -317,7 +319,9 @@ void OCP_QP_IPM_ARG_SET(char *field, void *value, struct OCP_QP_IPM_ARG *arg)
 		}
 	else
 		{
+#ifdef EXT_DEP
 		printf("error: OCP_QP_IPM_ARG_SET: wrong field %s\n", field);
+#endif
 		exit(1);	
 		}
 	return;
@@ -1085,7 +1089,9 @@ void OCP_QP_IPM_WS_CREATE(struct OCP_QP_DIM *dim, struct OCP_QP_IPM_ARG *arg, st
 #if defined(RUNTIME_CHECKS)
 	if(c_ptr > ((char *) mem) + workspace->memsize)
 		{
+#ifdef EXT_DEP
 		printf("\nCreate_ocp_qp_ipm: outside memory bounds!\n\n");
+#endif
 		exit(1);
 		}
 #endif
@@ -1135,7 +1141,9 @@ void OCP_QP_IPM_GET(char *field, struct OCP_QP_IPM_WS *ws, void *value)
 		}
 	else 
 		{
+#ifdef EXT_DEP
 		printf("error: OCP_QP_IPM_GET: wrong field %s\n", field);
+#endif
 		exit(1);
 		}
 	return;

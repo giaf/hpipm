@@ -440,7 +440,9 @@ void COND_QP_WS_CREATE(struct OCP_QP_DIM *ocp_dim, struct COND_QP_ARG *cond_arg,
 #if defined(RUNTIME_CHECKS)
 	if(c_ptr > ((char *) mem) + cond_ws->memsize)
 		{
+#ifdef EXT_DEP
 		printf("\nCreate_cond_qp_ocp2dense: outsize memory bounds!\n\n");
+#endif
 		exit(1);
 		}
 #endif

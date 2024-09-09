@@ -132,7 +132,9 @@ void DENSE_QCQP_SOL_CREATE(struct DENSE_QCQP_DIM *dim, struct DENSE_QCQP_SOL *qp
 #if defined(RUNTIME_CHECKS)
 	if(c_ptr > ((char *) mem) + qp_sol->memsize)
 		{
+#ifdef EXT_DEP
 		printf("\nCreate_dense_qp_sol: outsize memory bounds!\n\n");
+#endif
 		exit(1);
 		}
 #endif
@@ -176,7 +178,9 @@ void DENSE_QCQP_SOL_GET(char *field, struct DENSE_QCQP_SOL *qp_sol, void *value)
 		}
 	else
 		{
+#ifdef EXT_DEP
 		printf("error: DENSE_QCQP_SOL_GET: wrong field name '%s'. Exiting.\n", field);
+#endif
 		exit(1);	
 		}
 	return;

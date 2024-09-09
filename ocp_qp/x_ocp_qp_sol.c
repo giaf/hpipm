@@ -199,7 +199,9 @@ void OCP_QP_SOL_CREATE(struct OCP_QP_DIM *dim, struct OCP_QP_SOL *qp_sol, void *
 #if defined(RUNTIME_CHECKS)
 	if(c_ptr > ((char *) mem) + qp_sol->memsize)
 		{
+#ifdef EXT_DEP
 		printf("\nCreate_ocp_qp_sol: outsize memory bounds!\n\n");
+#endif
 		exit(1);
 		}
 #endif
@@ -400,7 +402,9 @@ void OCP_QP_SOL_GET(char *field, int stage, struct OCP_QP_SOL *qp_sol, REAL *vec
 		}
 	else 
 		{
+#ifdef EXT_DEP
 		printf("error [OCP_QP_DIM_GET]: unknown field name '%s'. Exiting.\n", field);
+#endif
 		exit(1);
 		}
 	return;
@@ -547,7 +551,9 @@ void OCP_QP_SOL_SET(char *field, int stage, REAL *vec, struct OCP_QP_SOL *qp_sol
 		}
 	else 
 		{
+#ifdef EXT_DEP
 		printf("error [OCP_QP_DIM_SET]: unknown field name '%s'. Exiting.\n", field);
+#endif
 		exit(1);
 		}
 	return;

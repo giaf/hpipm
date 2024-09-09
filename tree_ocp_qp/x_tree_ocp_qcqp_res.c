@@ -209,7 +209,9 @@ void TREE_OCP_QCQP_RES_CREATE(struct TREE_OCP_QCQP_DIM *dim, struct TREE_OCP_QCQ
 #if defined(RUNTIME_CHECKS)
 	if(c_ptr > ((char *) mem) + res->memsize)
 		{
+#ifdef EXT_DEP
 		printf("\ncreate_tree_ocp_qp_res: outside memory bounds!\n\n");
+#endif
 		exit(1);
 		}
 #endif
@@ -371,7 +373,9 @@ void TREE_OCP_QCQP_RES_WS_CREATE(struct TREE_OCP_QCQP_DIM *dim, struct TREE_OCP_
 #if defined(RUNTIME_CHECKS)
 	if(c_ptr > ((char *) mem) + ws->memsize)
 		{
+#ifdef EXT_DEP
 		printf("\ncreate_tree_ocp_qp_res_workspace: outside memory bounds!\n\n");
+#endif
 		exit(1);
 		}
 #endif

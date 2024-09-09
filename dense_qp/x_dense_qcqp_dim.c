@@ -92,7 +92,9 @@ void DENSE_QCQP_DIM_CREATE(struct DENSE_QCQP_DIM *dim, void *mem)
 #if defined(RUNTIME_CHECKS)
 	if(c_ptr > ((char *) mem) + dim->memsize)
 		{
+#ifdef EXT_DEP
 		printf("\nerror: DENSE_QCQP_DIM_CREATE: outside memory bounds!\n\n");
+#endif
 		exit(1);
 		}
 #endif
@@ -154,7 +156,9 @@ void DENSE_QCQP_DIM_SET(char *field_name, int value, struct DENSE_QCQP_DIM *dim)
 		}
 	else 
 		{
+#ifdef EXT_DEP
 		printf("error: SET_OCP_QCQP_DIM: wrong field %s\n", field_name);
+#endif
 		exit(1);
 		}
 	return;

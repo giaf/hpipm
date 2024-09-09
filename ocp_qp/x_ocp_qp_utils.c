@@ -37,6 +37,7 @@
 
 void OCP_QP_DIM_PRINT(struct OCP_QP_DIM *qp_dim)
 	{
+#ifdef EXT_DEP
 	int ii;
 
 	int N   = qp_dim->N;
@@ -115,6 +116,7 @@ void OCP_QP_DIM_PRINT(struct OCP_QP_DIM *qp_dim)
 		printf("\t%d", nge[ii]);
 	printf("\n\n");
 
+#endif
 	return;
 	}
 
@@ -122,6 +124,7 @@ void OCP_QP_DIM_PRINT(struct OCP_QP_DIM *qp_dim)
 
 void OCP_QP_DIM_CODEGEN(char *file_name, char *mode, struct OCP_QP_DIM *qp_dim)
 	{
+#ifdef EXT_DEP
 	int ii;
 
 	FILE *file = fopen(file_name, mode);
@@ -232,6 +235,7 @@ void OCP_QP_DIM_CODEGEN(char *file_name, char *mode, struct OCP_QP_DIM *qp_dim)
 
 	fclose(file);
 
+#endif
 	return;
 	}
 
@@ -239,6 +243,7 @@ void OCP_QP_DIM_CODEGEN(char *file_name, char *mode, struct OCP_QP_DIM *qp_dim)
 
 void OCP_QP_PRINT(struct OCP_QP_DIM *dim, struct OCP_QP *qp)
 	{
+#ifdef EXT_DEP
 	int ii;
 
 	int N   = dim->N;
@@ -299,6 +304,7 @@ void OCP_QP_PRINT(struct OCP_QP_DIM *dim, struct OCP_QP *qp)
 	for (ii = 0; ii <= N; ii++)
 		int_print_mat(1, nbue[ii]+nbxe[ii]+nge[ii], qp->idxe[ii], 1);
 
+#endif
 	return;
 	}
 
@@ -306,6 +312,7 @@ void OCP_QP_PRINT(struct OCP_QP_DIM *dim, struct OCP_QP *qp)
 
 void OCP_QP_CODEGEN(char *file_name, char *mode, struct OCP_QP_DIM *dim, struct OCP_QP *qp)
 	{
+#ifdef EXT_DEP
 	int nn, ii, jj, idx_tmp;
 
 	FILE *file = fopen(file_name, mode);
@@ -1334,6 +1341,7 @@ void OCP_QP_CODEGEN(char *file_name, char *mode, struct OCP_QP_DIM *dim, struct 
 
 	fclose(file);
 
+#endif
 	return;
 	}
 
@@ -1341,6 +1349,7 @@ void OCP_QP_CODEGEN(char *file_name, char *mode, struct OCP_QP_DIM *dim, struct 
 
 void OCP_QP_SOL_PRINT(struct OCP_QP_DIM *qp_dim, struct OCP_QP_SOL *qp_sol)
 	{
+#ifdef EXT_DEP
 	int ii;
 
 	int N   = qp_dim->N;
@@ -1366,6 +1375,7 @@ void OCP_QP_SOL_PRINT(struct OCP_QP_DIM *qp_dim, struct OCP_QP_SOL *qp_sol)
 	for (ii = 0; ii <= N; ii++)
 		BLASFEO_PRINT_TRAN_VEC(2*nb[ii]+2*ng[ii]+2*ns[ii], &qp_sol->t[ii], 0);
 
+#endif
 	return;
 	}
 
@@ -1373,6 +1383,7 @@ void OCP_QP_SOL_PRINT(struct OCP_QP_DIM *qp_dim, struct OCP_QP_SOL *qp_sol)
 
 void OCP_QP_IPM_ARG_PRINT(struct OCP_QP_DIM *qp_dim, struct OCP_QP_IPM_ARG *arg)
 	{
+#ifdef EXT_DEP
 	int ii;
 
 	// mode
@@ -1415,6 +1426,7 @@ void OCP_QP_IPM_ARG_PRINT(struct OCP_QP_DIM *qp_dim, struct OCP_QP_IPM_ARG *arg)
 	printf("/* split_step */\n");
 	printf("int split_step = %d;\n", arg->split_step);
 
+#endif
 	return;
 	}
 
@@ -1422,6 +1434,7 @@ void OCP_QP_IPM_ARG_PRINT(struct OCP_QP_DIM *qp_dim, struct OCP_QP_IPM_ARG *arg)
 
 void OCP_QP_IPM_ARG_CODEGEN(char *file_name, char *mode, struct OCP_QP_DIM *qp_dim, struct OCP_QP_IPM_ARG *arg)
 	{
+#ifdef EXT_DEP
 	int ii;
 
 	FILE *file = fopen(file_name, mode);
@@ -1470,6 +1483,7 @@ void OCP_QP_IPM_ARG_CODEGEN(char *file_name, char *mode, struct OCP_QP_DIM *qp_d
 
 	fclose(file);
 
+#endif
 	return;
 	}
 
@@ -1477,6 +1491,7 @@ void OCP_QP_IPM_ARG_CODEGEN(char *file_name, char *mode, struct OCP_QP_DIM *qp_d
 
 void OCP_QP_RES_PRINT(struct OCP_QP_DIM *qp_dim, struct OCP_QP_RES *qp_res)
 	{
+#ifdef EXT_DEP
 	int ii;
 
 	int N   = qp_dim->N;
@@ -1502,6 +1517,7 @@ void OCP_QP_RES_PRINT(struct OCP_QP_DIM *qp_dim, struct OCP_QP_RES *qp_res)
 	for (ii = 0; ii <= N; ii++)
 		BLASFEO_PRINT_TRAN_VEC(2*nb[ii]+2*ng[ii]+2*ns[ii], &qp_res->res_m[ii], 0);
 
+#endif
 	return;
 	}
 

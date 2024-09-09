@@ -58,7 +58,11 @@ set_property(CACHE TARGET PROPERTY STRINGS ${ALLOWED_TARGETS})
 # Use C99 extension to math library
 set(USE_C99_MATH ON CACHE STRING "Use C99 extension to math library")
 
-# BLAS and LAPACK version (for LA=BLAS in BLASFEO)
+# Compile auxiliary functions with external dependencies
+# (for memory allocation and printing)
+set(EXT_DEP ON CACHE BOOL "Compile external dependencies in BLASFEO")
+
+# BLAS and LAPACK version (only used for LA=BLAS in BLASFEO)
 set(REF_BLAS 0 CACHE STRING "Set CPU architecture target")
 # set(REF_BLAS OPENBLAS CACHE STRING "Set CPU architecture target")
 # set(REF_BLAS NETLIB   CACHE STRING "Set CPU architecture target")

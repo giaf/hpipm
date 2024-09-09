@@ -148,7 +148,9 @@ void COND_QCQP_ARG_CREATE(struct COND_QCQP_ARG *cond_arg, void *mem)
 #if defined(RUNTIME_CHECKS)
 	if(c_ptr > ((char *) mem) + cond_arg->memsize)
 		{
+#ifdef EXT_DEP
 		printf("\nerror: COND_QCQP_ARG_CREATE: outside memory bounds!\n\n");
+#endif
 		exit(1);
 		}
 #endif
@@ -417,7 +419,9 @@ void COND_QCQP_WS_CREATE(struct OCP_QCQP_DIM *ocp_dim, struct COND_QCQP_ARG *con
 #if defined(RUNTIME_CHECKS)
 	if(c_ptr > ((char *) mem) + cond_ws->memsize)
 		{
+#ifdef EXT_DEP
 		printf("\nerror: COND_QCQP_WS_CREATE: outside memory bounds!\n\n");
+#endif
 		exit(1);
 		}
 #endif

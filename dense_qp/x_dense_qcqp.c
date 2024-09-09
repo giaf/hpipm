@@ -210,7 +210,9 @@ void DENSE_QCQP_CREATE(struct DENSE_QCQP_DIM *dim, struct DENSE_QCQP *qp, void *
 #if defined(RUNTIME_CHECKS)
 	if(c_ptr > ((char *) mem) + qp->memsize)
 		{
+#ifdef EXT_DEP
 		printf("\ndense_qcqp_create: outside memory bounds!\n\n");
+#endif
 		exit(1);
 		}
 #endif
@@ -360,7 +362,9 @@ void DENSE_QCQP_SET(char *field, void *value, struct DENSE_QCQP *qp)
 		}
 	else
 		{
+#ifdef EXT_DEP
 		printf("error: DENSE_QCQP_SET: wrong field name '%s'. Exiting.\n", field);
+#endif
 		exit(1);	
 		}
 	return;

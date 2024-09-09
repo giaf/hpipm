@@ -76,7 +76,9 @@ void SIM_RK_DATA_CREATE(int ns, struct SIM_RK_DATA *rk_data, void *mem)
 #if defined(RUNTIME_CHECKS)
 	if(c_ptr > ((char *) mem) + rk_data->memsize)
 		{
+#ifdef EXT_DEP
 		printf("\nSIM_RK_DATA_CREATE: outsize memory bounds!\n\n");
+#endif
 		exit(1);
 		}
 #endif
@@ -130,7 +132,9 @@ void SIM_RK_DATA_INIT_DEFAULT(char *field, struct SIM_RK_DATA *rk_data)
 			}
 		else
 			{
+#ifdef EXT_DEP
 			printf("error: SIM_RK_DATA_INIT_DEFAULT: rk_data->ns=%d != 4. Exiting.\n", rk_data->ns);
+#endif
 			exit(1);
 			}
 		}
@@ -158,13 +162,17 @@ void SIM_RK_DATA_INIT_DEFAULT(char *field, struct SIM_RK_DATA *rk_data)
 			}
 		else
 			{
+#ifdef EXT_DEP
 			printf("error: SIM_RK_DATA_INIT_DEFAULT: rk_data->ns=%d != 4. Exiting.\n", rk_data->ns);
+#endif
 			exit(1);
 			}
 		}
 	else
 		{
+#ifdef EXT_DEP
 		printf("error: SIM_RK_DATA_INIT_DEFAULT: wrong field name '%s'. Exiting.\n", field);
+#endif
 		exit(1);	
 		}
 	return;

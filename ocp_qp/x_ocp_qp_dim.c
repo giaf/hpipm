@@ -128,7 +128,9 @@ void OCP_QP_DIM_COPY_ALL(struct OCP_QP_DIM *dim_orig, struct OCP_QP_DIM *dim_des
 #if defined(RUNTIME_CHECKS)
 	if(dim_orig->N!=dim_dest->N)
 		{
+#ifdef EXT_DEP
 		printf("\nerror: OCP_QP_DIM_COPY_ALL: dim_orig->N != dim_dest->N\n");
+#endif
 		exit(1);
 		}
 #endif
@@ -263,7 +265,9 @@ void OCP_QP_DIM_SET(char *field_name, int stage, int value, struct OCP_QP_DIM *d
 		}
 	else 
 		{
+#ifdef EXT_DEP
 		printf("error: OCP_QP_DIM_SET: wrong field %s\n", field_name);
+#endif
 		exit(1);
 		}
 	return;
@@ -461,7 +465,9 @@ void OCP_QP_DIM_GET(struct OCP_QP_DIM *dim, char *field_name, int stage, int *va
 		}
 	else
 		{
+#ifdef EXT_DEP
 		printf("error: OCP_QP_DIM_GET: wrong field %s\n", field_name);
+#endif
 		exit(1);
 		}
 	return;

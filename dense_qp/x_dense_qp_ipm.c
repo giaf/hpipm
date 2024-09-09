@@ -196,7 +196,9 @@ void DENSE_QP_IPM_ARG_SET_DEFAULT(enum HPIPM_MODE mode, struct DENSE_QP_IPM_ARG 
 		}
 	else
 		{
+#ifdef EXT_DEP
 		printf("\nerror: DENSE_QP_IPM_ARG_SET_DEFAULT: wrong set default mode\n");
+#endif
 		exit(1);
 		}
 
@@ -329,7 +331,9 @@ void DENSE_QP_IPM_ARG_SET(char *field, void *value, struct DENSE_QP_IPM_ARG *arg
 		}
 	else
 		{
+#ifdef EXT_DEP
 		printf("error: DENSE_QP_IPM_ARG_SET: wrong field %s\n", field);
+#endif
 		exit(1);	
 		}
 	return;
@@ -1070,7 +1074,9 @@ void DENSE_QP_IPM_WS_CREATE(struct DENSE_QP_DIM *dim, struct DENSE_QP_IPM_ARG *a
 #if defined(RUNTIME_CHECKS)
 	if(c_ptr > ((char *) mem) + workspace->memsize)
 		{
+#ifdef EXT_DEP
 		printf("\nCreate_dense_qp_ipm: outside memory bounds!\n\n");
+#endif
 		exit(1);
 		}
 #endif
@@ -1121,7 +1127,9 @@ void DENSE_QP_IPM_GET(char *field, struct DENSE_QP_IPM_WS *ws, void *value)
 		}
 	else 
 		{
+#ifdef EXT_DEP
 		printf("error: DENSE_QP_IPM_GET: wrong field %s\n", field);
+#endif
 		exit(1);
 		}
 	return;

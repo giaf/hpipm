@@ -126,7 +126,9 @@ void DENSE_QCQP_RES_CREATE(struct DENSE_QCQP_DIM *dim, struct DENSE_QCQP_RES *re
 #if defined(RUNTIME_CHECKS)
 	if(c_ptr > ((char *) mem) + res->memsize)
 		{
+#ifdef EXT_DEP
 		printf("\ncreate_dense_qcpp_res: outsize memory bounds!\n\n");
+#endif
 		exit(1);
 		}
 #endif
@@ -243,7 +245,9 @@ void DENSE_QCQP_RES_WS_CREATE(struct DENSE_QCQP_DIM *dim, struct DENSE_QCQP_RES_
 #if defined(RUNTIME_CHECKS)
 	if(c_ptr > ((char *) mem) + ws->memsize)
 		{
+#ifdef EXT_DEP
 		printf("\ncreate_dense_qp_res_workspace: outsize memory bounds!\n\n");
+#endif
 		exit(1);
 		}
 #endif

@@ -37,6 +37,7 @@
 
 void TREE_OCP_QP_DIM_PRINT(struct TREE_OCP_QP_DIM *qp_dim)
 	{
+#ifdef EXT_DEP
 	int ii;
 
 	int Nn  = qp_dim->Nn;
@@ -115,6 +116,7 @@ void TREE_OCP_QP_DIM_PRINT(struct TREE_OCP_QP_DIM *qp_dim)
 //		printf("\t%d", nge[ii]);
 //	printf("\n\n");
 
+#endif
 	return;
 	}
 
@@ -122,6 +124,7 @@ void TREE_OCP_QP_DIM_PRINT(struct TREE_OCP_QP_DIM *qp_dim)
 
 void TREE_OCP_QP_PRINT(struct TREE_OCP_QP_DIM *dim, struct TREE_OCP_QP *qp)
 	{
+#ifdef EXT_DEP
 	int ii;
 
 	struct tree *ttree = dim->ttree;
@@ -192,6 +195,7 @@ void TREE_OCP_QP_PRINT(struct TREE_OCP_QP_DIM *dim, struct TREE_OCP_QP *qp)
 //	for (ii = 0; ii<Nn; ii++)
 //		int_print_mat(1, nbue[ii]+nbxe[ii]+nge[ii], qp->idxe[ii], 1);
 
+#endif
 	return;
 	}
 
@@ -199,6 +203,7 @@ void TREE_OCP_QP_PRINT(struct TREE_OCP_QP_DIM *dim, struct TREE_OCP_QP *qp)
 
 void TREE_OCP_QP_SOL_PRINT(struct TREE_OCP_QP_DIM *qp_dim, struct TREE_OCP_QP_SOL *qp_sol)
 	{
+#ifdef EXT_DEP
 	int ii;
 
 	int Nn  = qp_dim->Nn;
@@ -229,6 +234,7 @@ void TREE_OCP_QP_SOL_PRINT(struct TREE_OCP_QP_DIM *qp_dim, struct TREE_OCP_QP_SO
 	for (ii = 0; ii<Nn; ii++)
 		BLASFEO_PRINT_TRAN_VEC(2*nb[ii]+2*ng[ii]+2*ns[ii], &qp_sol->t[ii], 0);
 
+#endif
 	return;
 	}
 
@@ -236,6 +242,7 @@ void TREE_OCP_QP_SOL_PRINT(struct TREE_OCP_QP_DIM *qp_dim, struct TREE_OCP_QP_SO
 
 void TREE_OCP_QP_IPM_ARG_PRINT(struct TREE_OCP_QP_DIM *qp_dim, struct TREE_OCP_QP_IPM_ARG *arg)
 	{
+#ifdef EXT_DEP
 	int ii;
 
 	// iter_max
@@ -278,6 +285,7 @@ void TREE_OCP_QP_IPM_ARG_PRINT(struct TREE_OCP_QP_DIM *qp_dim, struct TREE_OCP_Q
 	printf("/* split_step */\n");
 	printf("int split_step = %d;\n", arg->split_step);
 
+#endif
 	return;
 	}
 
@@ -285,6 +293,7 @@ void TREE_OCP_QP_IPM_ARG_PRINT(struct TREE_OCP_QP_DIM *qp_dim, struct TREE_OCP_Q
 
 void TREE_OCP_QP_RES_PRINT(struct TREE_OCP_QP_DIM *qp_dim, struct TREE_OCP_QP_RES *qp_res)
 	{
+#ifdef EXT_DEP
 	int ii;
 
 	int Nn  = qp_dim->Nn;
@@ -315,6 +324,7 @@ void TREE_OCP_QP_RES_PRINT(struct TREE_OCP_QP_DIM *qp_dim, struct TREE_OCP_QP_RE
 	for (ii = 0; ii<Nn; ii++)
 		BLASFEO_PRINT_TRAN_VEC(2*nb[ii]+2*ng[ii]+2*ns[ii], &qp_res->res_m[ii], 0);
 
+#endif
 	return;
 	}
 

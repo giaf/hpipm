@@ -324,17 +324,17 @@ int main()
 
 	// all solution components at once
 
-	double **u1 = malloc((N+1)*sizeof(double *)); for(ii=0; ii<=N; ii++) d_zeros(u1+ii, nu[ii], 1);
-	double **x1 = malloc((N+1)*sizeof(double *)); for(ii=0; ii<=N; ii++) d_zeros(x1+ii, nx[ii], 1);
-	double **ls1 = malloc((N+1)*sizeof(double *)); for(ii=0; ii<=N; ii++) d_zeros(ls1+ii, nsbu[ii]+nsbx[ii]+nsg[ii], 1);
-	double **us1 = malloc((N+1)*sizeof(double *)); for(ii=0; ii<=N; ii++) d_zeros(us1+ii, nsbu[ii]+nsbx[ii]+nsg[ii], 1);
-	double **pi1 = malloc((N)*sizeof(double *)); for(ii=0; ii<N; ii++) d_zeros(pi1+ii, nx[ii+1], 1);
-	double **lam_lb1 = malloc((N+1)*sizeof(double *)); for(ii=0; ii<=N; ii++) d_zeros(lam_lb1+ii, nbu[ii]+nbx[ii], 1);
-	double **lam_ub1 = malloc((N+1)*sizeof(double *)); for(ii=0; ii<=N; ii++) d_zeros(lam_ub1+ii, nbu[ii]+nbx[ii], 1);
-	double **lam_lg1 = malloc((N+1)*sizeof(double *)); for(ii=0; ii<=N; ii++) d_zeros(lam_lg1+ii, ng[ii], 1);
-	double **lam_ug1 = malloc((N+1)*sizeof(double *)); for(ii=0; ii<=N; ii++) d_zeros(lam_ug1+ii, ng[ii], 1);
-	double **lam_ls1 = malloc((N+1)*sizeof(double *)); for(ii=0; ii<=N; ii++) d_zeros(lam_ls1+ii, nsbu[ii]+nsbx[ii]+nsg[ii], 1);
-	double **lam_us1 = malloc((N+1)*sizeof(double *)); for(ii=0; ii<=N; ii++) d_zeros(lam_us1+ii, nsbu[ii]+nsbx[ii]+nsg[ii], 1);
+	double **u1 = malloc((N+1)*sizeof(double *)); for(ii=0; ii<=N; ii++) u1[ii] = malloc((nu[ii])*sizeof(double));
+	double **x1 = malloc((N+1)*sizeof(double *)); for(ii=0; ii<=N; ii++) x1[ii] = malloc((nx[ii])*sizeof(double));
+	double **ls1 = malloc((N+1)*sizeof(double *)); for(ii=0; ii<=N; ii++) ls1[ii] = malloc((nsbu[ii]+nsbx[ii]+nsg[ii])*sizeof(double));
+	double **us1 = malloc((N+1)*sizeof(double *)); for(ii=0; ii<=N; ii++) us1[ii] = malloc((nsbu[ii]+nsbx[ii]+nsg[ii])*sizeof(double));
+	double **pi1 = malloc((N)*sizeof(double *)); for(ii=0; ii<N; ii++) pi1[ii] = malloc((nx[ii+1])*sizeof(double));
+	double **lam_lb1 = malloc((N+1)*sizeof(double *)); for(ii=0; ii<=N; ii++) lam_lb1[ii] = malloc((nbu[ii]+nbx[ii])*sizeof(double));
+	double **lam_ub1 = malloc((N+1)*sizeof(double *)); for(ii=0; ii<=N; ii++) lam_ub1[ii] = malloc((nbu[ii]+nbx[ii])*sizeof(double));
+	double **lam_lg1 = malloc((N+1)*sizeof(double *)); for(ii=0; ii<=N; ii++) lam_lg1[ii] = malloc((ng[ii])*sizeof(double));
+	double **lam_ug1 = malloc((N+1)*sizeof(double *)); for(ii=0; ii<=N; ii++) lam_ug1[ii] = malloc((ng[ii])*sizeof(double));
+	double **lam_ls1 = malloc((N+1)*sizeof(double *)); for(ii=0; ii<=N; ii++) lam_ls1[ii] = malloc((nsbu[ii]+nsbx[ii]+nsg[ii])*sizeof(double));
+	double **lam_us1 = malloc((N+1)*sizeof(double *)); for(ii=0; ii<=N; ii++) lam_us1[ii] = malloc((nsbu[ii]+nsbx[ii]+nsg[ii])*sizeof(double));
 
 	d_ocp_qp_sol_get_all(&qp_sol, u1, x1, ls1, us1, pi1, lam_lb1, lam_ub1, lam_lg1, lam_ug1, lam_ls1, lam_us1);
 
@@ -483,28 +483,28 @@ int main()
 
 	for(ii=0; ii<N; ii++)
 		{
-		d_free(u1[ii]);
-		d_free(x1[ii]);
-		d_free(ls1[ii]);
-		d_free(us1[ii]);
-		d_free(pi1[ii]);
-		d_free(lam_lb1[ii]);
-		d_free(lam_ub1[ii]);
-		d_free(lam_lg1[ii]);
-		d_free(lam_ug1[ii]);
-		d_free(lam_ls1[ii]);
-		d_free(lam_us1[ii]);
+		free(u1[ii]);
+		free(x1[ii]);
+		free(ls1[ii]);
+		free(us1[ii]);
+		free(pi1[ii]);
+		free(lam_lb1[ii]);
+		free(lam_ub1[ii]);
+		free(lam_lg1[ii]);
+		free(lam_ug1[ii]);
+		free(lam_ls1[ii]);
+		free(lam_us1[ii]);
 		}
-	d_free(u1[ii]);
-	d_free(x1[ii]);
-	d_free(ls1[ii]);
-	d_free(us1[ii]);
-	d_free(lam_lb1[ii]);
-	d_free(lam_ub1[ii]);
-	d_free(lam_lg1[ii]);
-	d_free(lam_ug1[ii]);
-	d_free(lam_ls1[ii]);
-	d_free(lam_us1[ii]);
+	free(u1[ii]);
+	free(x1[ii]);
+	free(ls1[ii]);
+	free(us1[ii]);
+	free(lam_lb1[ii]);
+	free(lam_ub1[ii]);
+	free(lam_lg1[ii]);
+	free(lam_ug1[ii]);
+	free(lam_ls1[ii]);
+	free(lam_us1[ii]);
 
 	free(u1);
 	free(x1);

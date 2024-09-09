@@ -231,7 +231,9 @@ void TREE_OCP_QP_DIM_SET(char *field_name, int node, int value, struct TREE_OCP_
 //		}
 	else 
 		{
+#ifdef EXT_DEP
 		printf("error: TREE_OCP_QP_DIM_SET: wrong field %s\n", field_name);
+#endif
 		exit(1);
 		}
 	return;

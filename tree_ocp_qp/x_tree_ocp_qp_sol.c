@@ -190,7 +190,9 @@ void TREE_OCP_QP_SOL_CREATE(struct TREE_OCP_QP_DIM *dim, struct TREE_OCP_QP_SOL 
 #if defined(RUNTIME_CHECKS)
 	if(c_ptr > ((char *) mem) + qp_sol->memsize)
 		{
+#ifdef EXT_DEP
 		printf("\nCreate_tree_ocp_qp_sol: outsize memory bounds!\n\n");
+#endif
 		exit(1);
 		}
 #endif
@@ -288,7 +290,9 @@ void TREE_OCP_QP_SOL_GET(char *field, int node_edge, struct TREE_OCP_QP_SOL *qp_
 		}
 	else 
 		{
+#ifdef EXT_DEP
 		printf("error [TREE_OCP_QP_DIM_GET]: unknown field name '%s'. Exiting.\n", field);
+#endif
 		exit(1);
 		}
 	return;

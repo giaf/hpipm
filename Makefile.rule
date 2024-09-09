@@ -58,7 +58,12 @@ TARGET = AVX
 # USE_C99_MATH = 0
 USE_C99_MATH = 1
 
-# BLAS and LAPACK version (for LA=BLAS in BLASFEO)
+# Compile auxiliary functions with external dependencies (for memory allocation, printing and timing)
+#
+# EXT_DEP = 0
+EXT_DEP = 1
+
+# BLAS and LAPACK version (only used for LA=BLAS in BLASFEO)
 REF_BLAS = 0
 #REF_BLAS = OPENBLAS
 #REF_BLAS = NETLIB
@@ -107,7 +112,7 @@ CFLAGS  =
 CFLAGS += -O2 -fPIC
 
 # debugging flags
-CFLAGS  += #-g #-Wall -pedantic -Wfloat-equal #-pg
+CFLAGS  += #-g #-Werror=vla -Wall -pedantic -Wfloat-equal #-pg
 
 # search directories
 CFLAGS += -I$(BLASFEO_PATH)/include -I$(TOP)/include #-I$(TOP)/../../include
@@ -125,6 +130,10 @@ CFLAGS += -I$(BLASFEO_PATH)/include -I$(TOP)/include #-I$(TOP)/../../include
 
 ifeq ($(USE_C99_MATH), 1)
 CFLAGS += -DUSE_C99_MATH
+endif
+
+ifeq ($(EXT_DEP), 1)
+CFLAGS += -DEXT_DEP
 endif
 
 ifeq ($(REF_BLAS), 0)

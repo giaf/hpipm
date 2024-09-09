@@ -363,7 +363,9 @@ void OCP_QP_CREATE(struct OCP_QP_DIM *dim, struct OCP_QP *qp, void *mem)
 #if defined(RUNTIME_CHECKS)
 	if(c_ptr > ((char *) mem) + qp->memsize)
 		{
+#ifdef EXT_DEP
 		printf("\nerror: OCP_QP_CREATE: outside memory bounds!\n\n");
+#endif
 		exit(1);
 		}
 #endif
@@ -922,7 +924,9 @@ void OCP_QP_SET(char *field, int stage, void *value, struct OCP_QP *qp)
 		}
 	else
 		{
+#ifdef EXT_DEP
 		printf("error: OCP_QP_SET: wrong field name '%s'. Exiting.\n", field);
+#endif
 		exit(1);	
 		}
 	return;
@@ -946,7 +950,9 @@ void OCP_QP_SET_EL(char *field, int stage, int index, void *elem, struct OCP_QP 
 		}
 	else
 		{
+#ifdef EXT_DEP
 		printf("error: OCP_QP_SET_EL: wrong field%s\n", field);
+#endif
 		exit(1);	
 		}
 	return;
@@ -1821,7 +1827,9 @@ void OCP_QP_GET(char *field, int stage, struct OCP_QP *qp, void *value)
 	// int
 	else
 		{
+#ifdef EXT_DEP
 		printf("error: OCP_QP_GET: wrong field %s\n", field);
+#endif
 		exit(1);	
 		}
 	return;

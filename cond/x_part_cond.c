@@ -209,7 +209,9 @@ void PART_COND_QP_ARG_CREATE(int N2, struct PART_COND_QP_ARG *part_cond_arg, voi
 #if defined(RUNTIME_CHECKS)
 	if(c_ptr > ((char *) mem) + part_cond_arg->memsize)
 		{
+#ifdef EXT_DEP
 		printf("\nCreate_cond_qp_ocp2ocp_arg: outside memory bounds!\n\n");
+#endif
 		exit(1);
 		}
 #endif
@@ -412,7 +414,9 @@ void PART_COND_QP_WS_CREATE(struct OCP_QP_DIM *ocp_dim, int *block_size, struct 
 #if defined(RUNTIME_CHECKS)
 	if(c_ptr > ((char *) mem) + part_cond_ws->memsize)
 		{
+#ifdef EXT_DEP
 		printf("\nCreate_cond_qp_ocp2ocp: outside memory bounds!\n\n");
+#endif
 		exit(1);
 		}
 #endif
