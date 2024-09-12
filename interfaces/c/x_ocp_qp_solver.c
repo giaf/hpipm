@@ -355,7 +355,9 @@ void OCP_QP_SOLVER_SET(char *field, void *value, struct OCP_QP_SOLVER_WS *ws)
 		}
 	else
 		{
+#ifdef EXT_DEP
 		printf("error: OCP_QP_SOLVER_ARG_SET: wrong field %s\n", field);
+#endif
 		exit(1);	
 		}
 	return;
