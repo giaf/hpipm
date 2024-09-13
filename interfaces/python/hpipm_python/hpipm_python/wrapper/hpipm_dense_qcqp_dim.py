@@ -34,9 +34,6 @@
 ###################################################################################################
 
 from ctypes import *
-import ctypes.util
-import numpy as np
-
 
 class hpipm_dense_qcqp_dim:
 

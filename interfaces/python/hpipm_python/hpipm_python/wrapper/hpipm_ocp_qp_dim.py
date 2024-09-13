@@ -34,14 +34,17 @@
 ###################################################################################################
 
 from ctypes import *
-import ctypes.util 
-import numpy as np
 
 
 class hpipm_ocp_qp_dim:
 
 
-	def __init__(self, N):
+	def __init__(self, N: int):
+		'''
+		N: number of shooting intervals
+		'''
+
+		self.N_horizon = N
 
 		# load hpipm shared library
 		__hpipm   = CDLL('libhpipm.so')
@@ -62,19 +65,21 @@ class hpipm_ocp_qp_dim:
 
 
 	def set(self, field, value, idx_start, idx_end=None):
+
+		if idx_end is None:
+			idx_end = idx_start
+
 		self.__hpipm.d_ocp_qp_dim_set.argtypes = [c_char_p, c_int, c_int, c_void_p]
 		field_name_b = field.encode('utf-8')
-		if idx_end==None:
-			self.__hpipm.d_ocp_qp_dim_set(c_char_p(field_name_b), idx_start, value, self.dim_struct)
-		else:
-			for i in range(idx_start, idx_end+1):
-				self.__hpipm.d_ocp_qp_dim_set(c_char_p(field_name_b), i, value, self.dim_struct)
+
+		for i in range(idx_start, idx_end+1):
+			self.__hpipm.d_ocp_qp_dim_set(c_char_p(field_name_b), i, value, self.dim_struct)
 		return
 
 
 	def print_C_struct(self):
 		self.__hpipm.d_ocp_qp_dim_print(self.dim_struct)
-		return 
+		return
 
 
 	def codegen(self, file_name, mode):

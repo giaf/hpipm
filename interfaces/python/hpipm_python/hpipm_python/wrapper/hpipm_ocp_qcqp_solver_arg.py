@@ -34,7 +34,6 @@
 ###################################################################################################
 
 from ctypes import *
-import ctypes.util 
 import numpy as np
 
 
@@ -45,13 +44,13 @@ class hpipm_ocp_qcqp_solver_arg:
 	def __init__(self, dim, mode):
 
 		c_mode = 0
-		if(mode=='speed_abs'):
+		if mode == 'speed_abs':
 			c_mode = 0
-		elif(mode=='speed'):
+		elif mode == 'speed':
 			c_mode = 1
-		elif(mode=='balance'):
+		elif mode == 'balance':
 			c_mode = 2
-		elif(mode=='robust'):
+		elif mode == 'robust':
 			c_mode = 3
 		else:
 			raise NameError('hpipm_ocp_qcqp_solver_arg: wrong mode')
@@ -77,17 +76,23 @@ class hpipm_ocp_qcqp_solver_arg:
 		__hpipm.d_ocp_qcqp_ipm_arg_create(dim.dim_struct, arg_struct, arg_mem)
 
 		# initialize default arguments
-		__hpipm.d_ocp_qcqp_ipm_arg_set_default(c_mode, arg_struct) # mode==SPEED
-	
+		__hpipm.d_ocp_qcqp_ipm_arg_set_default(c_mode, arg_struct)
+
+		# settable options of type int
+		self.__settable_fields_int = ('iter_max', 'pred_corr', 'split_step', 'warm_start', 'ric_alg')
+
+		# settable options of type float
+		self.__settable_fields_float = ('mu0', 'tol_stat', 'tol_eq', 'tol_ineq', 'tol_comp', 'reg_prim')
+
 
 	def set(self, field, value):
-		if((field=='mu0') | (field=='tol_stat') | (field=='tol_eq') | (field=='tol_ineq') | (field=='tol_comp') | (field=='reg_prim')):
+		if field in self.__settable_fields_float:
 			tmp_in = np.zeros((1,1))
-			tmp_in[0][0] = value
+			tmp_in[0, 0] = value
 			tmp = cast(tmp_in.ctypes.data, POINTER(c_double))
-		elif(field=='iter_max'):
+		elif field in self.__settable_fields_int:
 			tmp_in = np.zeros((1,1), dtype=int)
-			tmp_in[0][0] = value
+			tmp_in[0, 0] = value
 			tmp = cast(tmp_in.ctypes.data, POINTER(c_int))
 		else:
 			raise NameError('hpipm_ocp_qcqp_solver_arg.set: wrong field')
@@ -101,6 +106,6 @@ class hpipm_ocp_qcqp_solver_arg:
 		file_name_b = file_name.encode('utf-8')
 		mode_b = mode.encode('utf-8')
 		self.__hpipm.d_ocp_qcqp_ipm_arg_codegen(c_char_p(file_name_b), c_char_p(mode_b), self.dim.dim_struct, self.arg_struct)
-		return 
+		return
 
 

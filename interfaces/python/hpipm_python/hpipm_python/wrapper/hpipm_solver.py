@@ -33,69 +33,29 @@
 #                                                                                                 #
 ###################################################################################################
 
-from ctypes import *
-import numpy as np
+from abc import ABC, abstractmethod
 
 
-class hpipm_ocp_qp:
+class hpipm_solver(ABC):
 
 
-	def __init__(self, dim):
+    @abstractmethod
+    def solve(self, qp, qp_sol):
+        pass
 
-		# save dim internally
-		self.dim = dim
+    @abstractmethod
+    def get(self, field):
+        pass
 
-		# load hpipm shared library
-		__hpipm   = CDLL('libhpipm.so')
-		self.__hpipm = __hpipm
+    def print_stats(self,):
+        stat = self.get('stat')
+        iters = self.get('iter')
+        status = self.get('status')
 
-		# C qp struct
-		qp_struct_size = __hpipm.d_ocp_qp_strsize()
-		qp_struct = cast(create_string_buffer(qp_struct_size), c_void_p)
-		self.qp_struct = qp_struct
+        print('\n- Solver Statistics -\n')
 
-		# C qp internal memory
-		qp_mem_size = __hpipm.d_ocp_qp_memsize(dim.dim_struct)
-		qp_mem = cast(create_string_buffer(qp_mem_size), c_void_p)
-		self.qp_mem = qp_mem
+        print('  iter\talpha_aff\tmu_aff\t\tsigma\t\talpha_prim\talpha_dual\tmu\t\tres_stat\tres_eq\t\tres_ineq\tres_comp')
+        for ii in range(iters+1):
+            print('  {:d}\t{:.2e}\t{:.2e}\t{:.2e}\t{:.2e}\t{:.2e}\t{:.2e}\t{:.2e}\t{:.2e}\t{:.2e}\t{:.2e}'.format(ii, stat[ii][0], stat[ii][1], stat[ii][2], stat[ii][3], stat[ii][4], stat[ii][5], stat[ii][6], stat[ii][7], stat[ii][8], stat[ii][9]))
 
-		# create C qp
-		__hpipm.d_ocp_qp_create(dim.dim_struct, qp_struct, qp_mem)
-
-
-	def set(self, field, value, idx_start, idx_end=None):
-		# cast to np array
-		if type(value) is not np.ndarray:
-			if type(value) is int or type(value) is float:
-				value_ = value
-				value = np.array((1,))
-				value[0] = value_
-		# convert into column-major
-		value_cm = np.ravel(value, 'F')
-#		if(issubclass(value.dtype.type, np.integer)):
-		if field == 'idxbx' or field == 'idxbu' or field == 'idxb' or field == 'idxs' or field == 'idxs_rev' or field == 'idxe' or field == 'idxbue' or field == 'idxbxe' or field == 'idxge':
-			value_cm = np.ascontiguousarray(value_cm, dtype=np.int32)
-			tmp = cast(value_cm.ctypes.data, POINTER(c_int))
-		else:
-			value_cm = np.ascontiguousarray(value_cm, dtype=np.float64)
-			tmp = cast(value_cm.ctypes.data, POINTER(c_double))
-		field_name_b = field.encode('utf-8')
-
-		if idx_end is None:
-			idx_end = idx_start
-
-		for i in range(idx_start, idx_end+1):
-			self.__hpipm.d_ocp_qp_set(c_char_p(field_name_b), i, tmp, self.qp_struct)
-		return
-
-
-	def print_C_struct(self):
-		self.__hpipm.d_ocp_qp_print(self.dim.dim_struct, self.qp_struct)
-		return
-
-
-	def codegen(self, file_name, mode):
-		file_name_b = file_name.encode('utf-8')
-		mode_b = mode.encode('utf-8')
-		self.__hpipm.d_ocp_qp_codegen(c_char_p(file_name_b), c_char_p(mode_b), self.dim.dim_struct, self.qp_struct)
-		return
+        print(f'\n  solver status {status}\n')

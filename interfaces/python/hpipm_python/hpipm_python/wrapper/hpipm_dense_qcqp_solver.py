@@ -34,12 +34,9 @@
 ###################################################################################################
 
 from ctypes import *
-import ctypes.util
 import numpy as np
-
-#print("above class")
-
-class hpipm_dense_qcqp_solver:
+from .hpipm_solver import hpipm_solver
+class hpipm_dense_qcqp_solver(hpipm_solver):
 
 
 	def __init__(self, qcqp_dims, arg):
@@ -62,19 +59,20 @@ class hpipm_dense_qcqp_solver:
 
 	def solve(self, qcqp, qcqp_sol):
 		self.__hpipm.d_dense_qcqp_ipm_solve(qcqp.qcqp_struct, qcqp_sol.qcqp_sol_struct, self.arg.arg_struct, self.ipm_ws_struct)
+		return
 
 	def get(self, field):
-		if((field=='stat')):
+		if field == 'stat':
 			# get iters
-			iters = np.zeros((1,1), dtype=int);
+			iters = np.zeros((1,1), dtype=int)
 			tmp = cast(iters.ctypes.data, POINTER(c_int))
 			self.__hpipm.d_dense_qcqp_ipm_get_iter(self.ipm_ws_struct, tmp)
 			# get stat_m
-			stat_m = np.zeros((1,1), dtype=int);
+			stat_m = np.zeros((1,1), dtype=int)
 			tmp = cast(stat_m.ctypes.data, POINTER(c_int))
 			self.__hpipm.d_dense_qcqp_ipm_get_stat_m(self.ipm_ws_struct, tmp)
 			# get stat pointer
-			res = np.zeros((iters[0][0]+1, stat_m[0][0]));
+			res = np.zeros((iters[0][0]+1, stat_m[0][0]))
 			ptr = c_void_p()
 			self.__hpipm.d_dense_qcqp_ipm_get_stat(self.ipm_ws_struct, byref(ptr))
 			tmp = cast(ptr, POINTER(c_double))
@@ -83,14 +81,15 @@ class hpipm_dense_qcqp_solver:
 					res[ii][jj] = tmp[jj+ii*stat_m[0][0]]
 					res[ii][jj] = tmp[jj+ii*stat_m[0][0]]
 			return res
-		elif((field=='status') | (field=='iter')):
-			res = np.zeros((1,1), dtype=int);
+		elif field=='status' or field=='iter':
+			res = np.zeros((1,1), dtype=int)
 			tmp = cast(res.ctypes.data, POINTER(c_int))
-		elif((field=='max_res_stat') | (field=='max_res_eq') | (field=='max_res_ineq') | (field=='max_res_comp')):
-			res = np.zeros((1,1));
+		elif field=='max_res_stat' or field=='max_res_eq' or field=='max_res_ineq' or field=='max_res_comp':
+			res = np.zeros((1,1))
 			tmp = cast(res.ctypes.data, POINTER(c_double))
 		else:
 			raise NameError('hpipm_dense_qcqp_solver.get: wrong field')
 		field_name_b = field.encode('utf-8')
 		self.__hpipm.d_dense_qcqp_ipm_get(c_char_p(field_name_b), self.ipm_ws_struct, tmp)
 		return res[0][0]
+

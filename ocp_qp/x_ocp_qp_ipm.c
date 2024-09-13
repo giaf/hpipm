@@ -1388,7 +1388,7 @@ void OCP_QP_IPM_GET_RIC_K(struct OCP_QP *qp, struct OCP_QP_IPM_ARG *arg, struct 
 
 	// XXX when implemented in HP, better copy-to-align first
 	TRSM_RLNN(nx0, nu0, -1.0, ws->L+stage, 0, 0, ws->L+stage, nu0, 0, ws->Ls, 0, 0);
-	
+
 	UNPACK_TRAN_MAT(nx0, nu0, ws->Ls, 0, 0, K, nu0);
 
 	return;
@@ -1452,7 +1452,7 @@ void OCP_QP_INIT_VAR(struct OCP_QP *qp, struct OCP_QP_SOL *qp_sol, struct OCP_QP
 	{
 
 //	struct CORE_QP_IPM_WORKSPACE *cws = ws->core_workspace;
-	
+
 	// loop index
 	int ii, jj;
 
