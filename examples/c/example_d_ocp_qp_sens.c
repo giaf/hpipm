@@ -68,21 +68,29 @@ extern double **hq;
 extern double **hr;
 extern int **hidxbx;
 extern double **hlbx;
+extern double **hlbx_mask;
 extern double **hubx;
+extern double **hubx_mask;
 extern int **hidxbu;
 extern double **hlbu;
+extern double **hlbu_mask;
 extern double **hubu;
+extern double **hubu_mask;
 extern double **hC;
 extern double **hD;
 extern double **hlg;
+extern double **hlg_mask;
 extern double **hug;
+extern double **hug_mask;
 extern double **hZl;
 extern double **hZu;
 extern double **hzl;
 extern double **hzu;
 extern int **hidxs;
 extern double **hlls;
+extern double **hlls_mask;
 extern double **hlus;
+extern double **hlus_mask;
 //extern double **hu_guess;
 //extern double **hx_guess;
 //extern double **hsl_guess;
@@ -138,6 +146,19 @@ int main()
 	d_ocp_qp_create(&dim, &qp, qp_mem);
 
 	d_ocp_qp_set_all(hA, hB, hb, hQ, hS, hR, hq, hr, hidxbx, hlbx, hubx, hidxbu, hlbu, hubu, hC, hD, hlg, hug, hZl, hZu, hzl, hzu, hidxs, hlls, hlus, &qp);
+
+	// set inequality constraints mask
+	for(ii=0; ii<=N; ii++)
+		{
+		d_ocp_qp_set_lbu_mask(ii, hlbu_mask[ii], &qp);
+		d_ocp_qp_set_ubu_mask(ii, hubu_mask[ii], &qp);
+		d_ocp_qp_set_lbx_mask(ii, hlbx_mask[ii], &qp);
+		d_ocp_qp_set_ubx_mask(ii, hubx_mask[ii], &qp);
+		d_ocp_qp_set_lg_mask(ii, hlg_mask[ii], &qp);
+		d_ocp_qp_set_ug_mask(ii, hug_mask[ii], &qp);
+		d_ocp_qp_set_lls_mask(ii, hlls_mask[ii], &qp);
+		d_ocp_qp_set_lus_mask(ii, hlus_mask[ii], &qp);
+		}
 
 /************************************************
 * ocp qp sol

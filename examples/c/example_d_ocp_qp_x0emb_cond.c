@@ -105,8 +105,9 @@ extern double **hzl;
 extern double **hzu;
 extern int **hidxs;
 extern double **hlls;
+extern double **hlls_mask;
 extern double **hlus;
-// TODO mask soft constraints
+extern double **hlus_mask;
 extern int **hidxe;
 // arg
 extern int mode;
@@ -215,6 +216,8 @@ int main()
 		d_ocp_qp_set_ubx_mask(ii, hubx_mask[ii], &qp);
 		d_ocp_qp_set_lg_mask(ii, hlg_mask[ii], &qp);
 		d_ocp_qp_set_ug_mask(ii, hug_mask[ii], &qp);
+		d_ocp_qp_set_lls_mask(ii, hlls_mask[ii], &qp);
+		d_ocp_qp_set_lus_mask(ii, hlus_mask[ii], &qp);
 		}
 
 //	d_ocp_qp_codegen("examples/c/data/test_d_ocp_data.c", "a", &dim, &qp);

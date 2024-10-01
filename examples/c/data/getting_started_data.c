@@ -171,7 +171,11 @@ static int *iidxs[6] = {};
 //
 static double *llls[6] = {};
 //
+static double *llls_mask[6] = {};
+//
 static double *llus[6] = {};
+//
+static double *llus_mask[6] = {};
 //
 static int *iidxe[6] = {idxe0, NULL, NULL, NULL, NULL, NULL};
 
@@ -230,7 +234,9 @@ double **hzl = zzl;
 double **hzu = zzu;
 int **hidxs = iidxs;
 double **hlls = llls;
+double **hlls_mask = llls_mask;
 double **hlus = llus;
+double **hlus_mask = llus_mask;
 int **hidxe = iidxe;
 
 double **hu_guess = uu_guess;
