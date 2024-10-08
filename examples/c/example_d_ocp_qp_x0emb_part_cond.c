@@ -145,10 +145,10 @@ int main()
 	struct d_ocp_qp_dim dim;
 	d_ocp_qp_dim_create(N, &dim, dim_mem);
 
+	// unified setter
 	d_ocp_qp_dim_set_all(nx, nu, nbx, nbu, ng, nsbx, nsbu, nsg, &dim);
 
 	// set number of inequality constr to be considered as equality constr
-//	d_ocp_qp_dim_set_nbxe(0, nx[0], &dim);
 	for(ii=0; ii<=N; ii++)
 		{
 		d_ocp_qp_dim_set_nbxe(ii, nbxe[ii], &dim);
@@ -202,13 +202,12 @@ int main()
 	struct d_ocp_qp qp;
 	d_ocp_qp_create(&dim, &qp, qp_mem);
 
+	// unified setter
 	d_ocp_qp_set_all(hA, hB, hb, hQ, hS, hR, hq, hr, hidxbx, hlbx, hubx, hidxbu, hlbu, hubu, hC, hD, hlg, hug, hZl, hZu, hzl, hzu, hidxs, hlls, hlus, &qp);
 
-	// mark the inequality constr on x0 as an equality constr
-//	int *idxbxe0 = (int *) malloc(nx[0]*sizeof(int));
-//	for(ii=0; ii<nx[0]; ii++)
-//		idxbxe0[ii] = ii;
-//	d_ocp_qp_set_idxbxe(0, idxbxe0, &qp);
+	// additional single setters
+
+	// mark the inequality constr to be considered as equality constr
 	for(ii=0; ii<=N; ii++)
 		{
 		d_ocp_qp_set_idxe(ii, hidxe[ii], &qp);

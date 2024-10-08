@@ -56,6 +56,10 @@ extern int *ng;
 extern int *nsbx;
 extern int *nsbu;
 extern int *nsg;
+extern int *nbue;
+extern int *nbxe;
+extern int *nge;
+extern double **hA;
 extern double **hA;
 extern double **hB;
 extern double **hb;
@@ -89,6 +93,7 @@ extern double **hlls;
 extern double **hlls_mask;
 extern double **hlus;
 extern double **hlus_mask;
+extern int **hidxe;
 //extern double **hu_guess;
 //extern double **hx_guess;
 //extern double **hsl_guess;
@@ -203,7 +208,19 @@ int main()
 	struct d_ocp_qp_dim dim;
 	d_ocp_qp_dim_create(N, &dim, dim_mem);
 
+	// unified setter
 	d_ocp_qp_dim_set_all(nx, nu, nbx, nbu, ng, nsbx, nsbu, nsg, &dim);
+
+	// additional single setters
+
+	// set number of inequality constr to be considered as equality constr
+	// (ignored in this example)
+	//for(ii=0; ii<=N; ii++)
+	//	{
+	//	d_ocp_qp_dim_set_nbxe(ii, nbxe[ii], &dim);
+	//	d_ocp_qp_dim_set_nbue(ii, nbue[ii], &dim);
+	//	d_ocp_qp_dim_set_nge(ii, nge[ii], &dim);
+	//	}
 
 /************************************************
 * ocp qp
@@ -215,7 +232,17 @@ int main()
 	struct d_ocp_qp qp;
 	d_ocp_qp_create(&dim, &qp, qp_mem);
 
+	// unified setter
 	d_ocp_qp_set_all(hA, hB, hb, hQ, hS, hR, hq, hr, hidxbx, hlbx, hubx, hidxbu, hlbu, hubu, hC, hD, hlg, hug, hZl, hZu, hzl, hzu, hidxs, hlls, hlus, &qp);
+
+	// additional single setters
+
+	// mark the inequality constr to be considered as equality constr
+	// (ignored in this example)
+	//for(ii=0; ii<=N; ii++)
+	//	{
+	//	d_ocp_qp_set_idxe(ii, hidxe[ii], &qp);
+	//	}
 
 	// set inequality constraints mask
 	for(ii=0; ii<=N; ii++)

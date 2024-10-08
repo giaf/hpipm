@@ -140,10 +140,18 @@ int main()
 	struct d_ocp_qp_dim dim;
 	d_ocp_qp_dim_create(N, &dim, dim_mem);
 
-	// global setter
+	// unified setter
 	d_ocp_qp_dim_set_all(nx, nu, nbx, nbu, ng, nsbx, nsbu, nsg, &dim);
-	// individual setters
-	d_ocp_qp_dim_set_nbxe(0, nbxe[0], &dim);
+
+	// additional single setters
+
+	// set number of inequality constr to be considered as equality constr
+	for(ii=0; ii<=N; ii++)
+		{
+		d_ocp_qp_dim_set_nbxe(ii, nbxe[ii], &dim);
+		d_ocp_qp_dim_set_nbue(ii, nbue[ii], &dim);
+		d_ocp_qp_dim_set_nge(ii, nge[ii], &dim);
+		}
 
 //	d_ocp_qp_dim_codegen("examples/c/data/test_d_ocp_data.c", "w", &dim);
 
@@ -157,10 +165,16 @@ int main()
 	struct d_ocp_qp qp;
 	d_ocp_qp_create(&dim, &qp, qp_mem);
 
-	// global setter
+	// unified setter
 	d_ocp_qp_set_all(hA, hB, hb, hQ, hS, hR, hq, hr, hidxbx, hlbx, hubx, hidxbu, hlbu, hubu, hC, hD, hlg, hug, hZl, hZu, hzl, hzu, hidxs, hlls, hlus, &qp);
-	// individual setters
-	d_ocp_qp_set_idxe(0, hidxe[0], &qp);
+
+	// additional single setters
+
+	// mark the inequality constr to be considered as equality constr
+	for(ii=0; ii<=N; ii++)
+		{
+		d_ocp_qp_set_idxe(ii, hidxe[ii], &qp);
+		}
 
 	// set inequality constraints mask
 	for(ii=0; ii<=N; ii++)
