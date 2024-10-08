@@ -1389,7 +1389,7 @@ void OCP_QCQP_CODEGEN(char *file_name, char *mode, struct OCP_QCQP_DIM *dim, str
 #else
 		fprintf(file, "static float uq_mask%d[] = {", nn);
 #endif
-		for(jj=0; jj<ng[nn]; jj++)
+		for(jj=0; jj<nq[nn]; jj++)
 			{
 			fprintf(file, "%18.15e, ", BLASFEO_DVECEL(qp->d_mask+nn, 2*nb[nn]+2*ng[nn]+nq[nn]+jj));
 			}
@@ -1592,6 +1592,35 @@ void OCP_QCQP_CODEGEN(char *file_name, char *mode, struct OCP_QCQP_DIM *dim, str
 	fprintf(file, "float **hlls = llls;\n");
 #endif
 
+	// lls_mask
+	fprintf(file, "/* lls_mask */\n");
+	for(nn=0; nn<=N; nn++)
+		{
+#ifdef DOUBLE_PRECISION
+		fprintf(file, "static double lls_mask%d[] = {", nn);
+#else
+		fprintf(file, "static float lls_mask%d[] = {", nn);
+#endif
+		for(jj=0; jj<ns[nn]; jj++)
+			{
+			fprintf(file, "%18.15e, ", BLASFEO_DVECEL(qp->d_mask+nn, 2*nb[nn]+2*ng[nn]+2*nq[nn]+jj));
+			}
+		fprintf(file, "};\n");
+		}
+#ifdef DOUBLE_PRECISION
+	fprintf(file, "static double *llls_mask[] = {");
+#else
+	fprintf(file, "static float *llls_mask[] = {");
+#endif
+	for(nn=0; nn<=N; nn++)
+		fprintf(file, "lls_mask%d, ", nn);
+	fprintf(file, "};\n");
+#ifdef DOUBLE_PRECISION
+	fprintf(file, "double **hlls_mask = llls_mask;\n");
+#else
+	fprintf(file, "float **hlls_mask = llls_mask;\n");
+#endif
+
 	// lus
 	fprintf(file, "/* lus */\n");
 	for(nn=0; nn<=N; nn++)
@@ -1621,12 +1650,41 @@ void OCP_QCQP_CODEGEN(char *file_name, char *mode, struct OCP_QCQP_DIM *dim, str
 	fprintf(file, "float **hlus = llus;\n");
 #endif
 
+	// lus_mask
+	fprintf(file, "/* lus_mask */\n");
+	for(nn=0; nn<=N; nn++)
+		{
+#ifdef DOUBLE_PRECISION
+		fprintf(file, "static double lus_mask%d[] = {", nn);
+#else
+		fprintf(file, "static float lus_mask%d[] = {", nn);
+#endif
+		for(jj=0; jj<ns[nn]; jj++)
+			{
+			fprintf(file, "%18.15e, ", BLASFEO_DVECEL(qp->d_mask+nn, 2*nb[nn]+2*ng[nn]+2*nq[nn]+ns[nn]+jj));
+			}
+		fprintf(file, "};\n");
+		}
+#ifdef DOUBLE_PRECISION
+	fprintf(file, "static double *llus_mask[] = {");
+#else
+	fprintf(file, "static float *llus_mask[] = {");
+#endif
+	for(nn=0; nn<=N; nn++)
+		fprintf(file, "lus_mask%d, ", nn);
+	fprintf(file, "};\n");
+#ifdef DOUBLE_PRECISION
+	fprintf(file, "double **hlus_mask = llus_mask;\n");
+#else
+	fprintf(file, "float **hlus_mask = llus_mask;\n");
+#endif
+
 	// idxe
 	fprintf(file, "/* idxe */\n");
 	for(nn=0; nn<=N; nn++)
 		{
 		fprintf(file, "static int idxe%d[] = {", nn);
-		for(jj=0; jj<nbue[nn]+nbxe[nn]+nge[nn]; jj++)
+		for(jj=0; jj<nbue[nn]+nbxe[nn]+nge[nn]+nqe[nn]; jj++)
 			{
 			fprintf(file, "%d, ", qp->idxe[nn][jj]);
 			}

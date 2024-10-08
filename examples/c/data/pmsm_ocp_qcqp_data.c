@@ -259,9 +259,9 @@ static double uq3[] = {};
 static double *uuq[] = {uq0, uq1, uq2, uq3, };
 double **huq = uuq;
 /* uq_mask */
-static double uq_mask0[] = {};
-static double uq_mask1[] = {};
-static double uq_mask2[] = {};
+static double uq_mask0[] = {1.000000000000000e+00, };
+static double uq_mask1[] = {1.000000000000000e+00, };
+static double uq_mask2[] = {1.000000000000000e+00, };
 static double uq_mask3[] = {};
 static double *uuq_mask[] = {uq_mask0, uq_mask1, uq_mask2, uq_mask3, };
 double **huq_mask = uuq_mask;
@@ -294,9 +294,9 @@ static double zu3[] = {};
 static double *zzu[] = {zu0, zu1, zu2, zu3, };
 double **hzu = zzu;
 /* idxs_rev */
-static int idxs_rev0[] = {-1, -1, };
-static int idxs_rev1[] = {};
-static int idxs_rev2[] = {};
+static int idxs_rev0[] = {-1, -1, -1, };
+static int idxs_rev1[] = {-1, };
+static int idxs_rev2[] = {-1, };
 static int idxs_rev3[] = {};
 static int *iidxs_rev[] = {idxs_rev0, idxs_rev1, idxs_rev2, idxs_rev3, };
 int **hidxs_rev = iidxs_rev;
@@ -314,6 +314,13 @@ static double lls2[] = {};
 static double lls3[] = {};
 static double *llls[] = {lls0, lls1, lls2, lls3, };
 double **hlls = llls;
+/* lls */
+static double lls_mask0[] = {};
+static double lls_mask1[] = {};
+static double lls_mask2[] = {};
+static double lls_mask3[] = {};
+static double *llls_mask[] = {lls_mask0, lls_mask1, lls_mask2, lls_mask3, };
+double **hlls_mask = llls_mask;
 /* lus */
 static double lus0[] = {};
 static double lus1[] = {};
@@ -321,6 +328,13 @@ static double lus2[] = {};
 static double lus3[] = {};
 static double *llus[] = {lus0, lus1, lus2, lus3, };
 double **hlus = llus;
+/* lus_mask */
+static double lus_mask0[] = {};
+static double lus_mask1[] = {};
+static double lus_mask2[] = {};
+static double lus_mask3[] = {};
+static double *llus_mask[] = {lus_mask0, lus_mask1, lus_mask2, lus_mask3, };
+double **hlus_mask = llus_mask;
 /* idxe */
 static int idxe0[] = {0, 1, };
 static int idxe1[] = {};

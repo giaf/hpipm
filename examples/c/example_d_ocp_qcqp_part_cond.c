@@ -60,6 +60,10 @@ extern int *nsbx;
 extern int *nsbu;
 extern int *nsg;
 extern int *nsq;
+extern int *nbue;
+extern int *nbxe;
+extern int *nge;
+extern int *nqe;
 extern double **hA;
 extern double **hB;
 extern double **hb;
@@ -70,27 +74,37 @@ extern double **hq;
 extern double **hr;
 extern int **hidxbx;
 extern double **hlbx;
+extern double **hlbx_mask;
 extern double **hubx;
+extern double **hubx_mask;
 extern int **hidxbu;
 extern double **hlbu;
+extern double **hlbu_mask;
 extern double **hubu;
+extern double **hubu_mask;
 extern double **hC;
 extern double **hD;
 extern double **hlg;
+extern double **hlg_mask;
 extern double **hug;
+extern double **hug_mask;
 extern double **hQq;
 extern double **hRq;
 extern double **hSq;
 extern double **hqq;
 extern double **hrq;
 extern double **huq;
+extern double **huq_mask;
 extern double **hZl;
 extern double **hZu;
 extern double **hzl;
 extern double **hzu;
 extern int **hidxs;
 extern double **hlls;
+extern double **hlls_mask;
 extern double **hlus;
+extern double **hlus_mask;
+extern int **hidxe;
 // arg
 extern int mode;
 extern int iter_max;
@@ -142,6 +156,10 @@ int main()
 		d_ocp_qcqp_dim_set_nsbu(ii, nsbu[ii], &dim);
 		d_ocp_qcqp_dim_set_nsg(ii, nsg[ii], &dim);
 		d_ocp_qcqp_dim_set_nsq(ii, nsq[ii], &dim);
+		d_ocp_qcqp_dim_set_nbxe(ii, nbxe[ii], &dim);
+		d_ocp_qcqp_dim_set_nbue(ii, nbue[ii], &dim);
+		d_ocp_qcqp_dim_set_nge(ii, nge[ii], &dim);
+		d_ocp_qcqp_dim_set_nqe(ii, nqe[ii], &dim);
 		}
 
 	d_ocp_qcqp_dim_print(&dim);
@@ -197,10 +215,10 @@ int main()
 		d_ocp_qcqp_set_R(ii, hR[ii], &qp);
 		d_ocp_qcqp_set_q(ii, hq[ii], &qp);
 		d_ocp_qcqp_set_r(ii, hr[ii], &qp);
-//		d_ocp_qcqp_set_Zl(ii, hZl[ii], &qp);
-//		d_ocp_qcqp_set_Zu(ii, hZu[ii], &qp);
-//		d_ocp_qcqp_set_zl(ii, hzl[ii], &qp);
-//		d_ocp_qcqp_set_zu(ii, hzu[ii], &qp);
+		d_ocp_qcqp_set_Zl(ii, hZl[ii], &qp);
+		d_ocp_qcqp_set_Zu(ii, hZu[ii], &qp);
+		d_ocp_qcqp_set_zl(ii, hzl[ii], &qp);
+		d_ocp_qcqp_set_zu(ii, hzu[ii], &qp);
 		}
 	
 	// constraints
@@ -209,23 +227,33 @@ int main()
 		{
 		d_ocp_qcqp_set_idxbx(ii, hidxbx[ii], &qp);
 		d_ocp_qcqp_set_lbx(ii, hlbx[ii], &qp);
+		d_ocp_qcqp_set_lbx_mask(ii, hlbx_mask[ii], &qp);
 		d_ocp_qcqp_set_ubx(ii, hubx[ii], &qp);
+		d_ocp_qcqp_set_ubx_mask(ii, hubx_mask[ii], &qp);
 		d_ocp_qcqp_set_idxbu(ii, hidxbu[ii], &qp);
 		d_ocp_qcqp_set_lbu(ii, hlbu[ii], &qp);
+		d_ocp_qcqp_set_lbu_mask(ii, hlbu_mask[ii], &qp);
 		d_ocp_qcqp_set_ubu(ii, hubu[ii], &qp);
+		d_ocp_qcqp_set_ubu_mask(ii, hubu_mask[ii], &qp);
 		d_ocp_qcqp_set_C(ii, hC[ii], &qp);
 		d_ocp_qcqp_set_D(ii, hD[ii], &qp);
 		d_ocp_qcqp_set_lg(ii, hlg[ii], &qp);
+		d_ocp_qcqp_set_lg_mask(ii, hlg_mask[ii], &qp);
 		d_ocp_qcqp_set_ug(ii, hug[ii], &qp);
+		d_ocp_qcqp_set_ug_mask(ii, hug_mask[ii], &qp);
 		d_ocp_qcqp_set_Rq(ii, hRq[ii], &qp);
 		d_ocp_qcqp_set_Sq(ii, hSq[ii], &qp);
 		d_ocp_qcqp_set_Qq(ii, hQq[ii], &qp);
 		d_ocp_qcqp_set_rq(ii, hrq[ii], &qp);
 		d_ocp_qcqp_set_qq(ii, hqq[ii], &qp);
 		d_ocp_qcqp_set_uq(ii, huq[ii], &qp);
-//		d_ocp_qcqp_set_idxs(ii, hidxs[ii], &qp);
-//		d_ocp_qcqp_set_lls(ii, hlls[ii], &qp);
-//		d_ocp_qcqp_set_lus(ii, hlus[ii], &qp);
+		d_ocp_qcqp_set_uq_mask(ii, huq_mask[ii], &qp);
+		d_ocp_qcqp_set_idxs(ii, hidxs[ii], &qp);
+		d_ocp_qcqp_set_lls(ii, hlls[ii], &qp);
+		d_ocp_qcqp_set_lls_mask(ii, hlls_mask[ii], &qp);
+		d_ocp_qcqp_set_lus(ii, hlus[ii], &qp);
+		d_ocp_qcqp_set_lus_mask(ii, hlus_mask[ii], &qp);
+		d_ocp_qcqp_set_idxe(ii, hidxe[ii], &qp);
 		}
 	
 	d_ocp_qcqp_print(&dim, &qp);
