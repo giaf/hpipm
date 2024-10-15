@@ -64,7 +64,7 @@ struct d_ocp_qp_res
 	double res_max[4]; // max of residuals
 	double res_mu; // mu-residual
 	double obj; // (primal) objective
-	double dual_meas; // duality measure
+	double dual_gap; // duality gap
 	hpipm_size_t memsize;
 	};
 

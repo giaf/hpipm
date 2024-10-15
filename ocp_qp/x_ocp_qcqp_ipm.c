@@ -1611,7 +1611,8 @@ void OCP_QCQP_IPM_SOLVE(struct OCP_QCQP *qcqp, struct OCP_QCQP_SOL *qcqp_sol, st
 				stat[7] = qcqp_res_max[1];
 				stat[8] = qcqp_res_max[2];
 				stat[9] = qcqp_res_max[3];
-				stat[10] = qcqp_res->obj;
+				stat[10] = qcqp_res->dual_gap;
+				stat[11] = qcqp_res->obj;
 				}
 			cws->mu = qcqp_res->res_mu;
 			}
@@ -1717,7 +1718,8 @@ void OCP_QCQP_IPM_SOLVE(struct OCP_QCQP *qcqp, struct OCP_QCQP_SOL *qcqp_sol, st
 				stat[stat_m*(kk+0)+7] = qcqp_res_max[1];
 				stat[stat_m*(kk+0)+8] = qcqp_res_max[2];
 				stat[stat_m*(kk+0)+9] = qcqp_res_max[3];
-				stat[stat_m*(kk+0)+10] = qcqp_res->obj;
+				stat[stat_m*(kk+0)+10] = qcqp_res->dual_gap;
+				stat[stat_m*(kk+0)+11] = qcqp_res->obj;
 				}
 			}
 
@@ -1746,7 +1748,8 @@ void OCP_QCQP_IPM_SOLVE(struct OCP_QCQP *qcqp, struct OCP_QCQP_SOL *qcqp_sol, st
 		stat[stat_m*(0)+7] = qcqp_res_max[1];
 		stat[stat_m*(0)+8] = qcqp_res_max[2];
 		stat[stat_m*(0)+9] = qcqp_res_max[3];
-		stat[stat_m*(0)+10] = qcqp_res->obj;
+		stat[stat_m*(0)+10] = qcqp_res->dual_gap;
+		stat[stat_m*(0)+11] = qcqp_res->obj;
 		}
 
 
@@ -1800,7 +1803,8 @@ void OCP_QCQP_IPM_SOLVE(struct OCP_QCQP *qcqp, struct OCP_QCQP_SOL *qcqp_sol, st
 			stat[stat_m*(kk+1)+7] = qcqp_res_max[1];
 			stat[stat_m*(kk+1)+8] = qcqp_res_max[2];
 			stat[stat_m*(kk+1)+9] = qcqp_res_max[3];
-			stat[stat_m*(kk+1)+10] = qcqp_res->obj;
+			stat[stat_m*(kk+1)+10] = qcqp_res->dual_gap;
+			stat[stat_m*(kk+1)+11] = qcqp_res->obj;
 			}
 
 		}
