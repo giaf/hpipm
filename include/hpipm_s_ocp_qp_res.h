@@ -64,6 +64,7 @@ struct s_ocp_qp_res
 	float res_max[4]; // max of residuals
 	float res_mu; // mu-residual
 	float obj; // (primal) objective
+	float dual_meas; // duality measure
 	hpipm_size_t memsize;
 	};
 

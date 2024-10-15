@@ -2764,8 +2764,6 @@ set_status:
 
 call_return:
 
-	// TODO compute objective
-
 	// return
 	return;
 
