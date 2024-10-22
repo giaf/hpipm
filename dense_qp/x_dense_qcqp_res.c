@@ -305,13 +305,18 @@ void DENSE_QCQP_RES_COMPUTE(struct DENSE_QCQP *qp, struct DENSE_QCQP_SOL *qp_sol
 	struct STRVEC *tmp_ns = ws->tmp_ns;
 
 	REAL mu, tmp;
-	res->obj = 0.0;
+	REAL *obj = &res->obj;
+	REAL *dual_gap = &res->dual_gap;
+
+	*obj = 0.0;
+	*dual_gap = 0.0;
 
 	// res g
 //	SYMV_L(nv, 1.0, Hg, 0, 0, v, 0, 1.0, gz, 0, res_g, 0);
 	SYMV_L(nv, 1.0, Hg, 0, 0, v, 0, 2.0, gz, 0, res_g, 0);
-	res->obj += 0.5*DOT(nv, res_g, 0, v, 0);
+	*obj += 0.5*DOT(nv, res_g, 0, v, 0);
 	AXPY(nv, -1.0, gz, 0, res_g, 0, res_g, 0);
+	*dual_gap += DOT(nv, res_g, 0, v, 0);
 
 	if(nb+ng+nq>0)
 		{
@@ -344,21 +349,13 @@ void DENSE_QCQP_RES_COMPUTE(struct DENSE_QCQP *qp, struct DENSE_QCQP_SOL *qp_sol
 				for(ii=0; ii<nq; ii++)
 					{
 					SYMV_L(nv, 1.0, Hq+ii, 0, 0, v, 0, 0.0, tmp_nv+0, 0, tmp_nv+0, 0);
-#ifdef DOUBLE_PRECISION
-					tmp = BLASFEO_DVECEL(tmp_nbgq+0, nb+ng+ii);
-#else
-					tmp = BLASFEO_SVECEL(tmp_nbgq+0, nb+ng+ii);
-#endif
+					tmp = BLASFEO_VECEL(tmp_nbgq+0, nb+ng+ii);
 					AXPY(nv, tmp, tmp_nv+0, 0, res_g, 0, res_g, 0);
 					COLEX(nv, Ct, 0, ng+ii, tmp_nv+1, 0);
 					AXPY(nv, tmp, tmp_nv+1, 0, res_g, 0, res_g, 0);
 					AXPY(nv, 0.5, tmp_nv+0, 0, tmp_nv+1, 0, tmp_nv+0, 0);
 					tmp = DOT(nv, tmp_nv+0, 0, v, 0);
-#ifdef DOUBLE_PRECISION
-					BLASFEO_DVECEL(tmp_nbgq+1, nb+ng+ii) = tmp;
-#else
-					BLASFEO_SVECEL(tmp_nbgq+1, nb+ng+ii) = tmp;
-#endif
+					BLASFEO_VECEL(tmp_nbgq+1, nb+ng+ii) = tmp;
 					}
 				}
 			}
@@ -370,8 +367,9 @@ void DENSE_QCQP_RES_COMPUTE(struct DENSE_QCQP *qp, struct DENSE_QCQP_SOL *qp_sol
 		// res_g
 //		GEMV_DIAG(2*ns, 1.0, Z, 0, v, nv, 1.0, gz, nv, res_g, nv);
 		GEMV_DIAG(2*ns, 1.0, Z, 0, v, nv, 2.0, gz, nv, res_g, nv);
-		res->obj += 0.5*DOT(2*ns, res_g, nv, v, nv);
+		*obj += 0.5*DOT(2*ns, res_g, nv, v, nv);
 		AXPY(2*ns, -1.0, gz, nv, res_g, nv, res_g, nv);
+		*dual_gap += DOT(2*ns, res_g, nv, v, nv);
 
 		AXPY(2*ns, -1.0, lam, 2*nb+2*ng+2*nq, res_g, nv, res_g, nv);
 		for(ii=0; ii<nb+ng+nq; ii++)
@@ -379,19 +377,11 @@ void DENSE_QCQP_RES_COMPUTE(struct DENSE_QCQP *qp, struct DENSE_QCQP_SOL *qp_sol
 			idx = idxs_rev[ii];
 			if(idx!=-1)
 				{
-#ifdef DOUBLE_PRECISION
-				BLASFEO_DVECEL(res_g, nv+idx) -= BLASFEO_DVECEL(lam, ii);
-				BLASFEO_DVECEL(res_g, nv+ns+idx) -= BLASFEO_DVECEL(lam, nb+ng+nq+ii);
+				BLASFEO_VECEL(res_g, nv+idx) -= BLASFEO_VECEL(lam, ii);
+				BLASFEO_VECEL(res_g, nv+ns+idx) -= BLASFEO_VECEL(lam, nb+ng+nq+ii);
 				// res_d
-				BLASFEO_DVECEL(res_d, ii) -= BLASFEO_DVECEL(v, nv+idx);
-				BLASFEO_DVECEL(res_d, nb+ng+nq+ii) -= BLASFEO_DVECEL(v, nv+ns+idx);
-#else
-				BLASFEO_SVECEL(res_g, nv+idx) -= BLASFEO_SVECEL(lam, ii);
-				BLASFEO_SVECEL(res_g, nv+ns+idx) -= BLASFEO_SVECEL(lam, nb+ng+nq+ii);
-				// res_d
-				BLASFEO_SVECEL(res_d, ii) -= BLASFEO_SVECEL(v, nv+idx);
-				BLASFEO_SVECEL(res_d, nb+ng+nq+ii) -= BLASFEO_SVECEL(v, nv+ns+idx);
-#endif
+				BLASFEO_VECEL(res_d, ii) -= BLASFEO_VECEL(v, nv+idx);
+				BLASFEO_VECEL(res_d, nb+ng+nq+ii) -= BLASFEO_VECEL(v, nv+ns+idx);
 				}
 			}
 		// res_d
@@ -399,14 +389,26 @@ void DENSE_QCQP_RES_COMPUTE(struct DENSE_QCQP *qp, struct DENSE_QCQP_SOL *qp_sol
 		AXPY(2*ns, 1.0, d, 2*nb+2*ng+2*nq, res_d, 2*nb+2*ng+2*nq, res_d, 2*nb+2*ng+2*nq);
 		}
 	
+	//*dual_gap -= DOT(nct, d, 0, lam, 0);
+	*dual_gap -= DOT(nb+ng, d, 0, lam, 0);
+	*dual_gap -= DOT(nb+ng+nq, d, nb+ng+nq, lam, nb+ng+nq);
+	*dual_gap -= DOT(2*ns, d, 2*nb+2*ng+2*nq, lam, 2*nb+2*ng+2*nq);
+
 	// res b, res g
 	if(ne>0)
+		{
 		GEMV_NT(ne, nv, -1.0, -1.0, A, 0, 0, v, 0, pi, 0, 1.0, 1.0, b, 0, res_g, 0, res_b, 0, res_g, 0);
+		*dual_gap -= DOT(ne, b, 0, pi, 0);
+		}
 
 	// res_m res_mu
 	mu = VECMULDOT(nct, lam, 0, t, 0, res_m, 0);
 	AXPY(nct, -1.0, m, 0, res_m, 0, res_m, 0);
 	res->res_mu = mu*nct_inv;
+
+	// temporarely disable incorrect duality gap computation
+	// TODO fix it
+	*dual_gap = 0.0;
 
 	return;
 

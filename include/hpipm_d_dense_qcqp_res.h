@@ -63,6 +63,7 @@ struct d_dense_qcqp_res
 	double res_max[4]; // infinity norm of residuals
 	double res_mu; // mu-residual
 	double obj; // (primal) objective
+	double dual_gap; // duality gap
 	hpipm_size_t memsize;
 	};
 

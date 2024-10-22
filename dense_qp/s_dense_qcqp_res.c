@@ -51,7 +51,7 @@
 
 
 
-#define SINGLE_PRECISION
+#define BLASFEO_VECEL BLASFEO_SVECEL
 
 
 
@@ -67,7 +67,7 @@
 #define DOT blasfeo_sdot
 #define GEMV_DIAG blasfeo_sgemv_d
 #define GEMV_NT blasfeo_sgemv_nt
-#define REAL double
+#define REAL float
 #define SIZE_STRVEC blasfeo_memsize_svec
 #define STRMAT blasfeo_smat
 #define STRVEC blasfeo_svec

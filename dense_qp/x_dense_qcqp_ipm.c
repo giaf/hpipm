@@ -1420,7 +1420,8 @@ void DENSE_QCQP_IPM_SOLVE(struct DENSE_QCQP *qcqp, struct DENSE_QCQP_SOL *qcqp_s
 				stat[stat_m*(kk+0)+7] = qcqp_res_max[1];
 				stat[stat_m*(kk+0)+8] = qcqp_res_max[2];
 				stat[stat_m*(kk+0)+9] = qcqp_res_max[3];
-				stat[stat_m*(kk+0)+10] = qcqp_res->obj;
+				stat[stat_m*(kk+0)+10] = qcqp_res->dual_gap;
+				stat[stat_m*(kk+0)+11] = qcqp_res->obj;
 				}
 			}
 
@@ -1448,7 +1449,8 @@ void DENSE_QCQP_IPM_SOLVE(struct DENSE_QCQP *qcqp, struct DENSE_QCQP_SOL *qcqp_s
 		stat[stat_m*(0)+7] = qcqp_res_max[1];
 		stat[stat_m*(0)+8] = qcqp_res_max[2];
 		stat[stat_m*(0)+9] = qcqp_res_max[3];
-		stat[stat_m*(0)+10] = qcqp_res->obj;
+		stat[stat_m*(0)+10] = qcqp_res->dual_gap;
+		stat[stat_m*(0)+11] = qcqp_res->obj;
 		}
 
 
@@ -1499,7 +1501,8 @@ void DENSE_QCQP_IPM_SOLVE(struct DENSE_QCQP *qcqp, struct DENSE_QCQP_SOL *qcqp_s
 			stat[stat_m*(kk+1)+7] = qcqp_res_max[1];
 			stat[stat_m*(kk+1)+8] = qcqp_res_max[2];
 			stat[stat_m*(kk+1)+9] = qcqp_res_max[3];
-			stat[stat_m*(kk+1)+10] = qcqp_res->obj;
+			stat[stat_m*(kk+1)+10] = qcqp_res->dual_gap;
+			stat[stat_m*(kk+1)+11] = qcqp_res->obj;
 			}
 
 		}
