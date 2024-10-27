@@ -64,6 +64,7 @@ struct s_tree_ocp_qcqp_res
 	float res_max[4]; // max of residuals
 	float res_mu; // mu-residual
 	float obj; // (primal) objective
+	float dual_gap; // duality gap
 	hpipm_size_t memsize;
 	};
 

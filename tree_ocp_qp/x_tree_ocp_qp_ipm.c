@@ -60,7 +60,7 @@ void TREE_OCP_QP_IPM_ARG_CREATE(struct TREE_OCP_QP_DIM *dim, struct TREE_OCP_QP_
 void TREE_OCP_QP_IPM_ARG_SET_DEFAULT(enum HPIPM_MODE mode, struct TREE_OCP_QP_IPM_ARG *arg)
 	{
 
-	REAL mu0, alpha_min, res_g_max, res_b_max, res_d_max, res_m_max, reg_prim, lam_min, t_min, tau_min;
+	REAL mu0, alpha_min, res_g_max, res_b_max, res_d_max, res_m_max, dual_gap_max, reg_prim, lam_min, t_min, tau_min;
 	int iter_max, stat_max, pred_corr, cond_pred_corr, itref_pred_max, itref_corr_max, lq_fact, warm_start, abs_form, comp_res_exit, comp_res_pred, square_root_alg, comp_dual_sol_eq, split_step, var_init_scheme, t_lam_min;
 
 	if(mode==SPEED_ABS)
@@ -71,6 +71,7 @@ void TREE_OCP_QP_IPM_ARG_SET_DEFAULT(enum HPIPM_MODE mode, struct TREE_OCP_QP_IP
 		res_b_max = 1e0; // not used
 		res_d_max = 1e0; // not used
 		res_m_max = 1e-8;
+		dual_gap_max = 1e0;
 		iter_max = 15;
 		stat_max = 15;
 		pred_corr = 1;
@@ -100,6 +101,7 @@ void TREE_OCP_QP_IPM_ARG_SET_DEFAULT(enum HPIPM_MODE mode, struct TREE_OCP_QP_IP
 		res_b_max = 1e-8;
 		res_d_max = 1e-8;
 		res_m_max = 1e-8;
+		dual_gap_max = 1e0;
 		iter_max = 15;
 		stat_max = 15;
 		pred_corr = 1;
@@ -129,6 +131,7 @@ void TREE_OCP_QP_IPM_ARG_SET_DEFAULT(enum HPIPM_MODE mode, struct TREE_OCP_QP_IP
 		res_b_max = 1e-8;
 		res_d_max = 1e-8;
 		res_m_max = 1e-8;
+		dual_gap_max = 1e0;
 		iter_max = 30;
 		stat_max = 30;
 		pred_corr = 1;
@@ -158,6 +161,7 @@ void TREE_OCP_QP_IPM_ARG_SET_DEFAULT(enum HPIPM_MODE mode, struct TREE_OCP_QP_IP
 		res_b_max = 1e-8;
 		res_d_max = 1e-8;
 		res_m_max = 1e-8;
+		dual_gap_max = 1e0;
 		iter_max = 100;
 		stat_max = 100;
 		pred_corr = 1;
@@ -194,6 +198,7 @@ void TREE_OCP_QP_IPM_ARG_SET_DEFAULT(enum HPIPM_MODE mode, struct TREE_OCP_QP_IP
 	TREE_OCP_QP_IPM_ARG_SET_TOL_EQ(&res_b_max, arg);
 	TREE_OCP_QP_IPM_ARG_SET_TOL_INEQ(&res_d_max, arg);
 	TREE_OCP_QP_IPM_ARG_SET_TOL_COMP(&res_m_max, arg);
+	TREE_OCP_QP_IPM_ARG_SET_TOL_DUAL_GAP(&dual_gap_max, arg);
 	TREE_OCP_QP_IPM_ARG_SET_ITER_MAX(&iter_max, arg);
 	arg->stat_max = stat_max;
 	TREE_OCP_QP_IPM_ARG_SET_PRED_CORR(&pred_corr, arg);
@@ -273,6 +278,14 @@ void TREE_OCP_QP_IPM_ARG_SET_TOL_INEQ(REAL *tol_ineq, struct TREE_OCP_QP_IPM_ARG
 void TREE_OCP_QP_IPM_ARG_SET_TOL_COMP(REAL *tol_comp, struct TREE_OCP_QP_IPM_ARG *arg)
 	{
 	arg->res_m_max = *tol_comp;
+	return;
+	}
+
+
+
+void TREE_OCP_QP_IPM_ARG_SET_TOL_DUAL_GAP(REAL *tol_dual_gap, struct TREE_OCP_QP_IPM_ARG *arg)
+	{
+	arg->dual_gap_max = *tol_dual_gap;
 	return;
 	}
 
@@ -456,7 +469,7 @@ hpipm_size_t TREE_OCP_QP_IPM_WS_MEMSIZE(struct TREE_OCP_QP_DIM *dim, struct TREE
 	if(arg->lq_fact>0)
 		size += 1*GELQF_WORKSIZE(nuM+nxM, 2*nuM+3*nxM+ngM); // lq_work0
 
-	int stat_m = 18;
+	int stat_m = 19;
 	size += stat_m*(1+arg->stat_max)*sizeof(REAL); // stat
 
 	size += Nn*sizeof(int); // use_hess_fact
@@ -629,7 +642,7 @@ void TREE_OCP_QP_IPM_WS_CREATE(struct TREE_OCP_QP_DIM *dim, struct TREE_OCP_QP_I
 	REAL *d_ptr = (REAL *) s_ptr;
 
 	workspace->stat = d_ptr;
-	int stat_m = 18;
+	int stat_m = 19;
 	d_ptr += stat_m*(1+arg->stat_max);
 
 	// int stuff
@@ -1335,7 +1348,7 @@ void TREE_OCP_QP_IPM_DELTA_STEP(int kk, struct TREE_OCP_QP *qp, struct TREE_OCP_
 			VECMUL(cws->nc, qp->d_mask, 0, ws->sol_step->lam, 0, ws->sol_step->lam, 0);
 			}
 		if(kk+1<ws->stat_max)
-			stat[stat_m*(kk+1)+11] = 0;
+			stat[stat_m*(kk+1)+12] = 0;
 		}
 	else if(ws->lq_fact==1 & force_lq==0)
 		{
@@ -1368,7 +1381,7 @@ void TREE_OCP_QP_IPM_DELTA_STEP(int kk, struct TREE_OCP_QP *qp, struct TREE_OCP_
 		itref_qp_norm[3] = ws->res_itref->res_max[3];
 
 		if(kk+1<ws->stat_max)
-			stat[stat_m*(kk+1)+11] = 0;
+			stat[stat_m*(kk+1)+12] = 0;
 
 		// inaccurate factorization: switch to lq
 		if(
@@ -1398,7 +1411,7 @@ void TREE_OCP_QP_IPM_DELTA_STEP(int kk, struct TREE_OCP_QP *qp, struct TREE_OCP_
 			force_lq = 1;
 
 			if(kk+1<ws->stat_max)
-				stat[stat_m*(kk+1)+11] = 1;
+				stat[stat_m*(kk+1)+12] = 1;
 
 			}
 
@@ -1416,7 +1429,7 @@ void TREE_OCP_QP_IPM_DELTA_STEP(int kk, struct TREE_OCP_QP *qp, struct TREE_OCP_
 			VECMUL(cws->nc, qp->d_mask, 0, ws->sol_step->lam, 0, ws->sol_step->lam, 0);
 			}
 		if(kk+1<ws->stat_max)
-			stat[stat_m*(kk+1)+11] = 1;
+			stat[stat_m*(kk+1)+12] = 1;
 
 		}
 
@@ -1425,10 +1438,10 @@ void TREE_OCP_QP_IPM_DELTA_STEP(int kk, struct TREE_OCP_QP *qp, struct TREE_OCP_
 		{
 		if(kk+1<ws->stat_max)
 			{
-			stat[stat_m*(kk+1)+14] = 0.0;
 			stat[stat_m*(kk+1)+15] = 0.0;
 			stat[stat_m*(kk+1)+16] = 0.0;
 			stat[stat_m*(kk+1)+17] = 0.0;
+			stat[stat_m*(kk+1)+18] = 0.0;
 			}
 		}
 	else
@@ -1452,10 +1465,10 @@ void TREE_OCP_QP_IPM_DELTA_STEP(int kk, struct TREE_OCP_QP *qp, struct TREE_OCP_
 			itref_qp_norm[3] = ws->res_itref->res_max[3];
 			if(kk+1<ws->stat_max)
 				{
-				stat[stat_m*(kk+1)+14] = itref_qp_norm[0];
-				stat[stat_m*(kk+1)+15] = itref_qp_norm[1];
-				stat[stat_m*(kk+1)+16] = itref_qp_norm[2];
-				stat[stat_m*(kk+1)+17] = itref_qp_norm[3];
+				stat[stat_m*(kk+1)+15] = itref_qp_norm[0];
+				stat[stat_m*(kk+1)+16] = itref_qp_norm[1];
+				stat[stat_m*(kk+1)+17] = itref_qp_norm[2];
+				stat[stat_m*(kk+1)+18] = itref_qp_norm[3];
 				}
 
 			if(itref0==0)
@@ -1514,16 +1527,16 @@ void TREE_OCP_QP_IPM_DELTA_STEP(int kk, struct TREE_OCP_QP *qp, struct TREE_OCP_
 			itref_qp_norm[3] = ws->res_itref->res_max[3];
 			if(kk+1<ws->stat_max)
 				{
-				stat[stat_m*(kk+1)+14] = itref_qp_norm[0];
-				stat[stat_m*(kk+1)+15] = itref_qp_norm[1];
-				stat[stat_m*(kk+1)+16] = itref_qp_norm[2];
-				stat[stat_m*(kk+1)+17] = itref_qp_norm[3];
+				stat[stat_m*(kk+1)+15] = itref_qp_norm[0];
+				stat[stat_m*(kk+1)+16] = itref_qp_norm[1];
+				stat[stat_m*(kk+1)+17] = itref_qp_norm[2];
+				stat[stat_m*(kk+1)+18] = itref_qp_norm[3];
 				}
 			}
 		}
 
 	if(kk+1<ws->stat_max)
-		stat[stat_m*(kk+1)+12] = itref0;
+		stat[stat_m*(kk+1)+13] = itref0;
 
 	// alpha
 	COMPUTE_ALPHA_QP(cws);
@@ -1638,10 +1651,10 @@ void TREE_OCP_QP_IPM_DELTA_STEP(int kk, struct TREE_OCP_QP *qp, struct TREE_OCP_
 				itref_qp_norm[3] = ws->res_itref->res_max[3];
 				if(kk+1<ws->stat_max)
 					{
-					stat[stat_m*(kk+1)+14] = itref_qp_norm[0];
-					stat[stat_m*(kk+1)+15] = itref_qp_norm[1];
-					stat[stat_m*(kk+1)+16] = itref_qp_norm[2];
-					stat[stat_m*(kk+1)+17] = itref_qp_norm[3];
+					stat[stat_m*(kk+1)+15] = itref_qp_norm[0];
+					stat[stat_m*(kk+1)+16] = itref_qp_norm[1];
+					stat[stat_m*(kk+1)+17] = itref_qp_norm[2];
+					stat[stat_m*(kk+1)+18] = itref_qp_norm[3];
 					}
 
 				if(itref1==0)
@@ -1701,10 +1714,10 @@ void TREE_OCP_QP_IPM_DELTA_STEP(int kk, struct TREE_OCP_QP *qp, struct TREE_OCP_
 				itref_qp_norm[3] = ws->res_itref->res_max[3];
 				if(kk+1<ws->stat_max)
 					{
-					stat[stat_m*(kk+1)+14] = itref_qp_norm[0];
-					stat[stat_m*(kk+1)+15] = itref_qp_norm[1];
-					stat[stat_m*(kk+1)+16] = itref_qp_norm[2];
-					stat[stat_m*(kk+1)+17] = itref_qp_norm[3];
+					stat[stat_m*(kk+1)+15] = itref_qp_norm[0];
+					stat[stat_m*(kk+1)+16] = itref_qp_norm[1];
+					stat[stat_m*(kk+1)+17] = itref_qp_norm[2];
+					stat[stat_m*(kk+1)+18] = itref_qp_norm[3];
 					}
 				}
 			}
@@ -1725,14 +1738,14 @@ void TREE_OCP_QP_IPM_DELTA_STEP(int kk, struct TREE_OCP_QP *qp, struct TREE_OCP_
 		{
 		if(kk+1<ws->stat_max)
 			{
-			stat[stat_m*(kk+1)+14] = 0.0;
 			stat[stat_m*(kk+1)+15] = 0.0;
 			stat[stat_m*(kk+1)+16] = 0.0;
 			stat[stat_m*(kk+1)+17] = 0.0;
+			stat[stat_m*(kk+1)+18] = 0.0;
 			}
 		}
 	if(kk+1<ws->stat_max)
-		stat[stat_m*(kk+1)+13] = itref1;
+		stat[stat_m*(kk+1)+14] = itref1;
 
 	// TODO step length computation
 
@@ -1988,7 +2001,8 @@ void TREE_OCP_QP_IPM_SOLVE(struct TREE_OCP_QP *qp, struct TREE_OCP_QP_SOL *qp_so
 				stat[stat_m*(kk+0)+7] = qp_res_max[1];
 				stat[stat_m*(kk+0)+8] = qp_res_max[2];
 				stat[stat_m*(kk+0)+9] = qp_res_max[3];
-				stat[stat_m*(kk+0)+10] = ws->res->obj;
+				stat[stat_m*(kk+0)+10] = ws->res->dual_gap;
+				stat[stat_m*(kk+0)+11] = ws->res->obj;
 				}
 			}
 
@@ -2017,7 +2031,8 @@ void TREE_OCP_QP_IPM_SOLVE(struct TREE_OCP_QP *qp, struct TREE_OCP_QP_SOL *qp_so
 		stat[stat_m*(0)+7] = qp_res_max[1];
 		stat[stat_m*(0)+8] = qp_res_max[2];
 		stat[stat_m*(0)+9] = qp_res_max[3];
-		stat[stat_m*(0)+10] = ws->res->obj;
+		stat[stat_m*(0)+10] = ws->res->dual_gap;
+		stat[stat_m*(0)+11] = ws->res->obj;
 		}
 
 
@@ -2031,7 +2046,8 @@ void TREE_OCP_QP_IPM_SOLVE(struct TREE_OCP_QP *qp, struct TREE_OCP_QP_SOL *qp_so
 			(qp_res_max[0]>arg->res_g_max | \
 			qp_res_max[1]>arg->res_b_max | \
 			qp_res_max[2]>arg->res_d_max | \
-			fabs(qp_res_max[3]-tau_min) > arg->res_m_max) \
+			fabs(qp_res_max[3]-tau_min) > arg->res_m_max | \
+			ws->res->dual_gap>arg->dual_gap_max) \
 			; kk++)
 		{
 
@@ -2058,7 +2074,8 @@ void TREE_OCP_QP_IPM_SOLVE(struct TREE_OCP_QP *qp, struct TREE_OCP_QP_SOL *qp_so
 			stat[stat_m*(kk+1)+7] = qp_res_max[1];
 			stat[stat_m*(kk+1)+8] = qp_res_max[2];
 			stat[stat_m*(kk+1)+9] = qp_res_max[3];
-			stat[stat_m*(kk+1)+10] = ws->res->obj;
+			stat[stat_m*(kk+1)+10] = ws->res->dual_gap;
+			stat[stat_m*(kk+1)+11] = ws->res->obj;
 			}
 
 		}
