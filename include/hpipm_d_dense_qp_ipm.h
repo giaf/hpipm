@@ -65,6 +65,7 @@ struct d_dense_qp_ipm_arg
 	double res_b_max; // exit cond on inf norm of residuals
 	double res_d_max; // exit cond on inf norm of residuals
 	double res_m_max; // exit cond on inf norm of residuals
+	double dual_gap_max; // exit cond on duality gap
 	double reg_prim; // reg of primal hessian
 	double reg_dual; // reg of dual hessian
 	double lam_min; // min value in lam vector
@@ -182,6 +183,8 @@ void d_dense_qp_ipm_arg_set_tol_eq(double *tol_eq, struct d_dense_qp_ipm_arg *ar
 void d_dense_qp_ipm_arg_set_tol_ineq(double *tol_ineq, struct d_dense_qp_ipm_arg *arg);
 //
 void d_dense_qp_ipm_arg_set_tol_comp(double *tol_comp, struct d_dense_qp_ipm_arg *arg);
+//
+void d_dense_qp_ipm_arg_set_tol_dual_gap(double *tol_dual_gap, struct d_dense_qp_ipm_arg *arg);
 //
 void d_dense_qp_ipm_arg_set_reg_prim(double *reg, struct d_dense_qp_ipm_arg *arg);
 //
