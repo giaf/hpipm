@@ -69,7 +69,7 @@ void OCP_QP_IPM_ARG_CREATE(struct OCP_QP_DIM *dim, struct OCP_QP_IPM_ARG *arg, v
 void OCP_QP_IPM_ARG_SET_DEFAULT(enum HPIPM_MODE mode, struct OCP_QP_IPM_ARG *arg)
 	{
 
-	REAL mu0, alpha_min, res_g_max, res_b_max, res_d_max, res_m_max, reg_prim, lam_min, t_min, tau_min;
+	REAL mu0, alpha_min, res_g_max, res_b_max, res_d_max, res_m_max, dual_gap_max, reg_prim, lam_min, t_min, tau_min;
 	int iter_max, stat_max, pred_corr, cond_pred_corr, itref_pred_max, itref_corr_max, lq_fact, warm_start, abs_form, comp_res_exit, comp_res_pred, square_root_alg, comp_dual_sol_eq, split_step, var_init_scheme, t_lam_min;
 
 	if(mode==SPEED_ABS)
@@ -80,6 +80,7 @@ void OCP_QP_IPM_ARG_SET_DEFAULT(enum HPIPM_MODE mode, struct OCP_QP_IPM_ARG *arg
 		res_b_max = 1e0; // not used
 		res_d_max = 1e0; // not used
 		res_m_max = 1e-8;
+		dual_gap_max = 1e0;
 		iter_max = 15;
 		stat_max = 15;
 		pred_corr = 1;
@@ -109,6 +110,7 @@ void OCP_QP_IPM_ARG_SET_DEFAULT(enum HPIPM_MODE mode, struct OCP_QP_IPM_ARG *arg
 		res_b_max = 1e-8;
 		res_d_max = 1e-8;
 		res_m_max = 1e-8;
+		dual_gap_max = 1e0;
 		iter_max = 15;
 		stat_max = 15;
 		pred_corr = 1;
@@ -138,6 +140,7 @@ void OCP_QP_IPM_ARG_SET_DEFAULT(enum HPIPM_MODE mode, struct OCP_QP_IPM_ARG *arg
 		res_b_max = 1e-8;
 		res_d_max = 1e-8;
 		res_m_max = 1e-8;
+		dual_gap_max = 1e0;
 		iter_max = 30;
 		stat_max = 30;
 		pred_corr = 1;
@@ -167,6 +170,7 @@ void OCP_QP_IPM_ARG_SET_DEFAULT(enum HPIPM_MODE mode, struct OCP_QP_IPM_ARG *arg
 		res_b_max = 1e-8;
 		res_d_max = 1e-8;
 		res_m_max = 1e-8;
+		dual_gap_max = 1e0;
 		iter_max = 100;
 		stat_max = 100;
 		pred_corr = 1;
@@ -203,6 +207,7 @@ void OCP_QP_IPM_ARG_SET_DEFAULT(enum HPIPM_MODE mode, struct OCP_QP_IPM_ARG *arg
 	OCP_QP_IPM_ARG_SET_TOL_EQ(&res_b_max, arg);
 	OCP_QP_IPM_ARG_SET_TOL_INEQ(&res_d_max, arg);
 	OCP_QP_IPM_ARG_SET_TOL_COMP(&res_m_max, arg);
+	OCP_QP_IPM_ARG_SET_TOL_DUAL_GAP(&dual_gap_max, arg);
 	OCP_QP_IPM_ARG_SET_ITER_MAX(&iter_max, arg);
 	arg->stat_max = stat_max;
 	OCP_QP_IPM_ARG_SET_PRED_CORR(&pred_corr, arg);
@@ -233,87 +238,91 @@ void OCP_QP_IPM_ARG_SET_DEFAULT(enum HPIPM_MODE mode, struct OCP_QP_IPM_ARG *arg
 
 void OCP_QP_IPM_ARG_SET(char *field, void *value, struct OCP_QP_IPM_ARG *arg)
 	{
-	if(hpipm_strcmp(field, "iter_max")) 
+	if(hpipm_strcmp(field, "iter_max"))
 		{
 		OCP_QP_IPM_ARG_SET_ITER_MAX(value, arg);
 		}
-	else if(hpipm_strcmp(field, "alpha_min")) 
+	else if(hpipm_strcmp(field, "alpha_min"))
 		{
 		OCP_QP_IPM_ARG_SET_ALPHA_MIN(value, arg);
 		}
-	else if(hpipm_strcmp(field, "mu0")) 
+	else if(hpipm_strcmp(field, "mu0"))
 		{
 		OCP_QP_IPM_ARG_SET_MU0(value, arg);
 		}
-	else if(hpipm_strcmp(field, "tol_stat")) 
+	else if(hpipm_strcmp(field, "tol_stat"))
 		{
 		OCP_QP_IPM_ARG_SET_TOL_STAT(value, arg);
 		}
-	else if(hpipm_strcmp(field, "tol_eq")) 
+	else if(hpipm_strcmp(field, "tol_eq"))
 		{
 		OCP_QP_IPM_ARG_SET_TOL_EQ(value, arg);
 		}
-	else if(hpipm_strcmp(field, "tol_ineq")) 
+	else if(hpipm_strcmp(field, "tol_ineq"))
 		{
 		OCP_QP_IPM_ARG_SET_TOL_INEQ(value, arg);
 		}
-	else if(hpipm_strcmp(field, "tol_comp")) 
+	else if(hpipm_strcmp(field, "tol_comp"))
 		{
 		OCP_QP_IPM_ARG_SET_TOL_COMP(value, arg);
 		}
-	else if(hpipm_strcmp(field, "reg_prim")) 
+	else if(hpipm_strcmp(field, "tol_dual_gap"))
+		{
+		OCP_QP_IPM_ARG_SET_TOL_DUAL_GAP(value, arg);
+		}
+	else if(hpipm_strcmp(field, "reg_prim"))
 		{
 		OCP_QP_IPM_ARG_SET_REG_PRIM(value, arg);
 		}
-	else if(hpipm_strcmp(field, "warm_start")) 
+	else if(hpipm_strcmp(field, "warm_start"))
 		{
 		OCP_QP_IPM_ARG_SET_WARM_START(value, arg);
 		}
-	else if(hpipm_strcmp(field, "pred_corr")) 
+	else if(hpipm_strcmp(field, "pred_corr"))
 		{
 		OCP_QP_IPM_ARG_SET_PRED_CORR(value, arg);
 		}
-	else if(hpipm_strcmp(field, "cond_pred_corr")) 
+	else if(hpipm_strcmp(field, "cond_pred_corr"))
 		{
 		OCP_QP_IPM_ARG_SET_COND_PRED_CORR(value, arg);
 		}
-	else if(hpipm_strcmp(field, "ric_alg")) 
+	else if(hpipm_strcmp(field, "ric_alg"))
 		{
 		OCP_QP_IPM_ARG_SET_RIC_ALG(value, arg);
 		}
-	else if(hpipm_strcmp(field, "comp_dual_sol_eq")) 
+	else if(hpipm_strcmp(field, "comp_dual_sol_eq"))
 		{
 		OCP_QP_IPM_ARG_SET_COMP_DUAL_SOL_EQ(value, arg);
 		}
-	else if(hpipm_strcmp(field, "comp_res_exit")) 
+	else if(hpipm_strcmp(field, "comp_res_exit"))
 		{
 		OCP_QP_IPM_ARG_SET_COMP_RES_EXIT(value, arg);
 		}
-	else if(hpipm_strcmp(field, "comp_res_pred")) 
+	else if(hpipm_strcmp(field, "comp_res_pred"))
 		{
 		OCP_QP_IPM_ARG_SET_COMP_RES_PRED(value, arg);
 		}
-	else if(hpipm_strcmp(field, "lam_min")) 
+	else if(hpipm_strcmp(field, "lam_min"))
 		{
 		OCP_QP_IPM_ARG_SET_LAM_MIN(value, arg);
 		}
-	else if(hpipm_strcmp(field, "t_min")) 
+	else if(hpipm_strcmp(field, "t_min"))
 		{
 		OCP_QP_IPM_ARG_SET_T_MIN(value, arg);
 		}
-	else if(hpipm_strcmp(field, "tau_min")) 
+	else if(hpipm_strcmp(field, "tau_min"))
 		{
 		OCP_QP_IPM_ARG_SET_TAU_MIN(value, arg);
 		}
-	else if(hpipm_strcmp(field, "split_step")) 
+	else if(hpipm_strcmp(field, "split_step"))
 		{
 		OCP_QP_IPM_ARG_SET_SPLIT_STEP(value, arg);
 		}
-	else if(hpipm_strcmp(field, "var_init_scheme")) 
+	else if(hpipm_strcmp(field, "var_init_scheme"))
 		{
 		OCP_QP_IPM_ARG_SET_VAR_INIT_SCHEME(value, arg);
 		}
-	else if(hpipm_strcmp(field, "t_lam_min")) 
+	else if(hpipm_strcmp(field, "t_lam_min"))
 		{
 		OCP_QP_IPM_ARG_SET_T_LAM_MIN(value, arg);
 		}
@@ -380,6 +389,14 @@ void OCP_QP_IPM_ARG_SET_TOL_INEQ(REAL *tol_ineq, struct OCP_QP_IPM_ARG *arg)
 void OCP_QP_IPM_ARG_SET_TOL_COMP(REAL *tol_comp, struct OCP_QP_IPM_ARG *arg)
 	{
 	arg->res_m_max = *tol_comp;
+	return;
+	}
+
+
+
+void OCP_QP_IPM_ARG_SET_TOL_DUAL_GAP(REAL *tol_dual_gap, struct OCP_QP_IPM_ARG *arg)
+	{
+	arg->dual_gap_max = *tol_dual_gap;
 	return;
 	}
 
@@ -507,6 +524,7 @@ void OCP_QP_IPM_ARG_DEEPCOPY(struct OCP_QP_IPM_ARG *arg_s, struct OCP_QP_IPM_ARG
 	arg_d->res_b_max = arg_s->res_b_max;
 	arg_d->res_d_max = arg_s->res_d_max;
 	arg_d->res_m_max = arg_s->res_m_max;
+	arg_d->dual_gap_max = arg_s->dual_gap_max;
 	arg_d->reg_prim = arg_s->reg_prim;
 	arg_d->lam_min = arg_s->lam_min;
 	arg_d->t_min = arg_s->t_min;
@@ -2699,7 +2717,8 @@ void OCP_QP_IPM_SOLVE(struct OCP_QP *qp, struct OCP_QP_SOL *qp_sol, struct OCP_Q
 			(qp_res_max[0]>arg->res_g_max | \
 			qp_res_max[1]>arg->res_b_max | \
 			qp_res_max[2]>arg->res_d_max | \
-			fabs(qp_res_max[3]-tau_min) > arg->res_m_max) \
+			fabs(qp_res_max[3]-tau_min) > arg->res_m_max | \
+			ws->res->dual_gap>arg->dual_gap_max) \
 			; kk++)
 		{
 

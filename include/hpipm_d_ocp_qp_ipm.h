@@ -63,6 +63,7 @@ struct d_ocp_qp_ipm_arg
 	double res_b_max; // exit cond on inf norm of residuals
 	double res_d_max; // exit cond on inf norm of residuals
 	double res_m_max; // exit cond on inf norm of residuals
+	double dual_gap_max; // exit cond on duality gap
 	double reg_prim; // reg of primal hessian
 	double lam_min; // min value in lam vector
 	double t_min; // min value in t vector
@@ -159,8 +160,10 @@ void d_ocp_qp_ipm_arg_set_tol_eq(double *tol_eq, struct d_ocp_qp_ipm_arg *arg);
 void d_ocp_qp_ipm_arg_set_tol_ineq(double *tol_ineq, struct d_ocp_qp_ipm_arg *arg);
 // set exit tolerance on complementarity condition
 void d_ocp_qp_ipm_arg_set_tol_comp(double *tol_comp, struct d_ocp_qp_ipm_arg *arg);
+// set exit tolerance on dual gap
+void d_ocp_qp_ipm_arg_set_tol_dual_gap(double *tol_dual_gap, struct d_ocp_qp_ipm_arg *arg);
 // set regularization of primal variables
-void d_ocp_qp_ipm_arg_set_reg_prim(double *tol_comp, struct d_ocp_qp_ipm_arg *arg);
+void d_ocp_qp_ipm_arg_set_reg_prim(double *reg_prim, struct d_ocp_qp_ipm_arg *arg);
 // set warm start: 0 no warm start, 1 primal var
 void d_ocp_qp_ipm_arg_set_warm_start(int *warm_start, struct d_ocp_qp_ipm_arg *arg);
 // Mehrotra's predictor-corrector IPM algorithm: 0 no predictor-corrector, 1 use predictor-corrector
