@@ -65,6 +65,7 @@ struct d_tree_ocp_qp_ipm_arg
 	double res_b_max; // exit cond on inf norm of residuals
 	double res_d_max; // exit cond on inf norm of residuals
 	double res_m_max; // exit cond on inf norm of residuals
+	double dual_gap_max; // exit cond on duality gap
 	double reg_prim; // reg of primal hessian
 	double lam_min; // min value in lam vector
 	double t_min; // min value in t vector
@@ -146,6 +147,8 @@ void d_tree_ocp_qp_ipm_arg_set_tol_eq(double *tol_eq, struct d_tree_ocp_qp_ipm_a
 void d_tree_ocp_qp_ipm_arg_set_tol_ineq(double *tol_ineq, struct d_tree_ocp_qp_ipm_arg *arg);
 //
 void d_tree_ocp_qp_ipm_arg_set_tol_comp(double *tol_comp, struct d_tree_ocp_qp_ipm_arg *arg);
+//
+void d_tree_ocp_qp_ipm_arg_set_tol_dual_gap(double *tol_dual_gap, struct d_tree_ocp_qp_ipm_arg *arg);
 //
 void d_tree_ocp_qp_ipm_arg_set_reg_prim(double *reg, struct d_tree_ocp_qp_ipm_arg *arg);
 //
