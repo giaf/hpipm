@@ -163,6 +163,7 @@ int main()
 		}
 
 	d_ocp_qcqp_dim_print(&dim);
+//	d_ocp_qcqp_dim_codegen("tmp.c", "w", &dim);
 
 /************************************************
 * ocp qp dim part cond
@@ -257,6 +258,7 @@ int main()
 		}
 	
 	d_ocp_qcqp_print(&dim, &qp);
+//	d_ocp_qcqp_codegen("tmp.c", "a", &dim, &qp);
 
 /************************************************
 * ocp qp part cond
