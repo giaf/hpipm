@@ -62,6 +62,7 @@
 #define DOT blasfeo_sdot
 #define GEMV_DIAG blasfeo_sgemv_d
 #define GEMV_NT blasfeo_sgemv_nt
+#define GEMV_T blasfeo_sgemv_t
 #define TREE_OCP_QCQP s_tree_ocp_qcqp
 #define TREE_OCP_QCQP_DIM s_tree_ocp_qcqp_dim
 #define TREE_OCP_QCQP_RES s_tree_ocp_qcqp_res

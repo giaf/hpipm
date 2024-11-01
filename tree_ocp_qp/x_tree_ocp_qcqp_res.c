@@ -497,12 +497,19 @@ void TREE_OCP_QCQP_RES_COMPUTE(struct TREE_OCP_QCQP *qp, struct TREE_OCP_QCQP_SO
 					{
 					VECCP(nq0, ws->q_fun+ii, 0, tmp_nbgqM+1, nb0+ng0);
 					AXPY(nu0+nx0, 1.0, ws->q_adj+ii, 0, res_g+ii, 0, res_g+ii, 0);
+					GEMV_T(nu0+nx0, nq0, -1.0, DCt+ii, 0, ng0, ux+ii, 0, 1.0, ws->q_fun+ii, 0, tmp_nbgqM+0, nb0+ng0);
+					for(jj=0; jj<nq0; jj++)
+						{
+						tmp = BLASFEO_VECEL(tmp_nbgqM+0, nb0+ng0+jj);
+						*dual_gap += BLASFEO_VECEL(lam+ii, 2*nb0+2*ng0+nq0+jj)*tmp;
+						}
 					}
 				else
 					{
 					for(jj=0; jj<nq0; jj++)
 						{
 						SYMV_L(nu0+nx0, 1.0, &Hq[ii][jj], 0, 0, ux+ii, 0, 0.0, tmp_nuxM, 0, tmp_nuxM, 0);
+						*dual_gap += 0.5*BLASFEO_VECEL(lam+ii, 2*nb0+2*ng0+nq0+jj)*DOT(nu0+nx0, tmp_nuxM, 0, ux+ii, 0);
 						tmp = BLASFEO_VECEL(tmp_nbgqM+0, nb0+ng0+jj);
 						AXPY(nu0+nx0, tmp, tmp_nuxM, 0, res_g+ii, 0, res_g+ii, 0);
 						COLEX(nu0+nx0, DCt+ii, 0, ng0+jj, tmp_nuxM+1, 0);
@@ -571,10 +578,6 @@ void TREE_OCP_QCQP_RES_COMPUTE(struct TREE_OCP_QCQP *qp, struct TREE_OCP_QCQP_SO
 		}
 
 	res->res_mu = mu*nct_inv;
-
-	// temporarely disable incorrect duality gap computation
-	// TODO fix it
-	*dual_gap = 0.0;
 
 	return;
 
