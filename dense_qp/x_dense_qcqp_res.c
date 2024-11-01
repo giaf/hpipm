@@ -343,12 +343,19 @@ void DENSE_QCQP_RES_COMPUTE(struct DENSE_QCQP *qp, struct DENSE_QCQP_SOL *qp_sol
 				{
 				VECCP(nq, ws->q_fun, 0, tmp_nbgq+1, nb+ng);
 				AXPY(nv, 1.0, ws->q_adj, 0, res_g, 0, res_g, 0);
+				GEMV_T(nv, nq, -1.0, Ct, 0, ng, v, 0, 1.0, ws->q_fun, 0, tmp_nbgq+0, nb+ng);
+				for(ii=0; ii<nq; ii++)
+					{
+					tmp = BLASFEO_VECEL(tmp_nbgq+0, nb+ng+ii);
+					*dual_gap += BLASFEO_VECEL(lam, 2*nb+2*ng+nq+ii)*tmp;
+					}
 				}
 			else
 				{
 				for(ii=0; ii<nq; ii++)
 					{
 					SYMV_L(nv, 1.0, Hq+ii, 0, 0, v, 0, 0.0, tmp_nv+0, 0, tmp_nv+0, 0);
+					*dual_gap += 0.5*BLASFEO_VECEL(lam, 2*nb+2*ng+nq+ii)*DOT(nv, tmp_nv, 0, v, 0);
 					tmp = BLASFEO_VECEL(tmp_nbgq+0, nb+ng+ii);
 					AXPY(nv, tmp, tmp_nv+0, 0, res_g, 0, res_g, 0);
 					COLEX(nv, Ct, 0, ng+ii, tmp_nv+1, 0);
@@ -405,10 +412,6 @@ void DENSE_QCQP_RES_COMPUTE(struct DENSE_QCQP *qp, struct DENSE_QCQP_SOL *qp_sol
 	mu = VECMULDOT(nct, lam, 0, t, 0, res_m, 0);
 	AXPY(nct, -1.0, m, 0, res_m, 0, res_m, 0);
 	res->res_mu = mu*nct_inv;
-
-	// temporarely disable incorrect duality gap computation
-	// TODO fix it
-	*dual_gap = 0.0;
 
 	return;
 

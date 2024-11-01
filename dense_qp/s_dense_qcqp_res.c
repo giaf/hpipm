@@ -67,6 +67,7 @@
 #define DOT blasfeo_sdot
 #define GEMV_DIAG blasfeo_sgemv_d
 #define GEMV_NT blasfeo_sgemv_nt
+#define GEMV_T blasfeo_sgemv_t
 #define REAL float
 #define SIZE_STRVEC blasfeo_memsize_svec
 #define STRMAT blasfeo_smat
