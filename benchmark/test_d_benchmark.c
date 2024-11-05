@@ -816,7 +816,7 @@ int main()
 		free(benchmark_mem);
 		free(tran_mem);
 		free(qp_mem);
-		free(H_fact_mem);
+		v_free_align(H_fact_mem);
 		free(qp_sol_mem);
 		free(ipm_mem);
 		free(ipm_arg_mem);
