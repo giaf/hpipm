@@ -84,7 +84,7 @@ class hpipm_ocp_qp_solver_arg:
 			tmp_in = np.zeros((1,1))
 			tmp_in[0][0] = value
 			tmp = cast(tmp_in.ctypes.data, POINTER(c_double))
-		elif((field=='iter_max') | (field=='pred_corr') | (field=='split_step')):
+		elif((field=='iter_max') | (field=='pred_corr') | (field=='split_step') | (field=='warm_start')):
 			tmp_in = np.zeros((1,1), dtype=int)
 			tmp_in[0][0] = value
 			tmp = cast(tmp_in.ctypes.data, POINTER(c_int))

@@ -56,6 +56,7 @@ travis_run = os.getenv('TRAVIS_RUN')
 
 # define flags
 codegen_data = 1; # export qp data in the file ocp_qcqp_data.c for use from C examples
+warm_start = 0 # set to 1 to warm-start the primal variable
 
 
 
@@ -139,6 +140,16 @@ arg.set('tol_eq', 1e-5)
 arg.set('tol_ineq', 1e-5)
 arg.set('tol_comp', 1e-5)
 arg.set('reg_prim', 1e-12)
+
+# if warm_start=1, then the primal variable is initialized from qp_sol
+arg.set('warm_start', warm_start)
+if warm_start:
+	x_guess  = np.array([[1., 1.], [ 2., -1.04201383], [ 0.95798617, -0.89413254], [ 0.06385362, -0.36646102], [-0.3026074, 0.00481863], [-0.29778877, -0.10640653]])
+	u_guess  = np.array([[-2.04201383], [0.14788129], [0.52767152], [0.37127965], [-0.11122516]])
+	for i in range(N+1):
+		qp_sol.set('x', i, x_guess[i])
+	for i in range(N):
+		qp_sol.set('u', i, u_guess[i])
 
 # codegen
 if codegen_data:
