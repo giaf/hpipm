@@ -68,6 +68,7 @@ struct d_tree_ocp_qcqp_ipm_arg
 	double reg_prim; // reg of primal hessian
 	double lam_min; // min value in lam vector
 	double t_min; // min value in t vector
+	double tau_min; // min value of barrier parameter
 	int iter_max; // exit cond in iter number
 	int stat_max; // iterations saved in stat
 	int pred_corr; // use Mehrotra's predictor-corrector IPM algirthm
@@ -148,6 +149,8 @@ void d_tree_ocp_qcqp_ipm_arg_set_comp_res_exit(int *value, struct d_tree_ocp_qcq
 void d_tree_ocp_qcqp_ipm_arg_set_lam_min(double *value, struct d_tree_ocp_qcqp_ipm_arg *arg);
 // min value of t in the solution
 void d_tree_ocp_qcqp_ipm_arg_set_t_min(double *value, struct d_tree_ocp_qcqp_ipm_arg *arg);
+// min value of barrier parameter
+void d_tree_ocp_qcqp_ipm_arg_set_tau_min(double *value, struct d_tree_ocp_qcqp_ipm_arg *arg);
 // use different step for primal and dual variables
 void d_tree_ocp_qcqp_ipm_arg_set_split_step(int *value, struct d_tree_ocp_qcqp_ipm_arg *arg);
 // clip t and lam: 0 no, 1 in Gamma computation, 2 in solution

@@ -70,6 +70,7 @@ struct s_dense_qcqp_ipm_arg
 	float reg_dual; // reg of dual hessian
 	float lam_min; // min value in lam vector
 	float t_min; // min value in t vector
+	float tau_min; // min value of barrier parameter
 	int iter_max; // exit cond in iter number
 	int stat_max; // iterations saved in stat
 	int pred_corr; // Mehrotra's predictor-corrector IPM algirthm
@@ -150,6 +151,8 @@ void s_dense_qcqp_ipm_arg_set_comp_res_exit(int *comp_res_exit, struct s_dense_q
 void s_dense_qcqp_ipm_arg_set_lam_min(float *value, struct s_dense_qcqp_ipm_arg *arg);
 //
 void s_dense_qcqp_ipm_arg_set_t_min(float *value, struct s_dense_qcqp_ipm_arg *arg);
+//
+void s_dense_qcqp_ipm_arg_set_tau_min(float *value, struct s_dense_qcqp_ipm_arg *arg);
 //
 void s_dense_qcqp_ipm_arg_set_split_step(int *value, struct s_dense_qcqp_ipm_arg *arg);
 //

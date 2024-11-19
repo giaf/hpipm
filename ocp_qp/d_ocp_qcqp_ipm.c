@@ -139,6 +139,7 @@
 #define OCP_QP_IPM_ARG_SET_RIC_ALG d_ocp_qp_ipm_arg_set_ric_alg
 #define OCP_QP_IPM_ARG_SET_LAM_MIN d_ocp_qp_ipm_arg_set_lam_min
 #define OCP_QP_IPM_ARG_SET_T_MIN d_ocp_qp_ipm_arg_set_t_min
+#define OCP_QP_IPM_ARG_SET_TAU_MIN d_ocp_qp_ipm_arg_set_tau_min
 #define OCP_QP_IPM_ARG_SET_SPLIT_STEP d_ocp_qp_ipm_arg_set_split_step
 #define OCP_QP_IPM_ARG_SET_T_LAM_MIN d_ocp_qp_ipm_arg_set_t_lam_min
 #define OCP_QP_IPM_ABS_STEP d_ocp_qp_ipm_abs_step
@@ -192,6 +193,7 @@
 #define OCP_QCQP_IPM_ARG_SET_RIC_ALG d_ocp_qcqp_ipm_arg_set_ric_alg
 #define OCP_QCQP_IPM_ARG_SET_LAM_MIN d_ocp_qcqp_ipm_arg_set_lam_min
 #define OCP_QCQP_IPM_ARG_SET_T_MIN d_ocp_qcqp_ipm_arg_set_t_min
+#define OCP_QCQP_IPM_ARG_SET_TAU_MIN d_ocp_qcqp_ipm_arg_set_tau_min
 #define OCP_QCQP_IPM_ARG_SET_SPLIT_STEP d_ocp_qcqp_ipm_arg_set_split_step
 #define OCP_QCQP_IPM_ARG_SET_T_LAM_MIN d_ocp_qcqp_ipm_arg_set_t_lam_min
 // ipm
