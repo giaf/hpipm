@@ -64,6 +64,7 @@ struct d_ocp_qcqp_ipm_arg
 	double res_b_max; // exit cond on inf norm of residuals
 	double res_d_max; // exit cond on inf norm of residuals
 	double res_m_max; // exit cond on inf norm of residuals
+	double dual_gap_max; // exit cond on duality gap
 	double reg_prim; // reg of primal hessian
 	double lam_min; // min value in lam vector
 	double t_min; // min value in t vector
@@ -127,6 +128,8 @@ void d_ocp_qcqp_ipm_arg_set_tol_eq(double *value, struct d_ocp_qcqp_ipm_arg *arg
 void d_ocp_qcqp_ipm_arg_set_tol_ineq(double *value, struct d_ocp_qcqp_ipm_arg *arg);
 // set exit tolerance on complementarity condition
 void d_ocp_qcqp_ipm_arg_set_tol_comp(double *value, struct d_ocp_qcqp_ipm_arg *arg);
+// set exit tolerance on dual gap
+void d_ocp_qcqp_ipm_arg_set_tol_dual_gap(double *tol_dual_gap, struct d_ocp_qcqp_ipm_arg *arg);
 // set regularization of primal variables
 void d_ocp_qcqp_ipm_arg_set_reg_prim(double *value, struct d_ocp_qcqp_ipm_arg *arg);
 // set warm start: 0 no warm start, 1 primal var
@@ -170,6 +173,8 @@ void d_ocp_qcqp_ipm_get_max_res_eq(struct d_ocp_qcqp_ipm_ws *ws, double *res_eq)
 void d_ocp_qcqp_ipm_get_max_res_ineq(struct d_ocp_qcqp_ipm_ws *ws, double *res_ineq);
 //
 void d_ocp_qcqp_ipm_get_max_res_comp(struct d_ocp_qcqp_ipm_ws *ws, double *res_comp);
+//
+void d_ocp_qcqp_ipm_get_dual_gap(struct d_ocp_qcqp_ipm_ws *ws, double *dual_gap);
 //
 void d_ocp_qcqp_ipm_get_obj(struct d_ocp_qcqp_ipm_ws *ws, double *obj);
 //

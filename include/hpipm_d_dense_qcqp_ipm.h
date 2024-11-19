@@ -65,6 +65,7 @@ struct d_dense_qcqp_ipm_arg
 	double res_b_max; // exit cond on inf norm of residuals
 	double res_d_max; // exit cond on inf norm of residuals
 	double res_m_max; // exit cond on inf norm of residuals
+	double dual_gap_max; // exit cond on duality gap
 	double reg_prim; // reg of primal hessian
 	double reg_dual; // reg of dual hessian
 	double lam_min; // min value in lam vector
@@ -129,6 +130,8 @@ void d_dense_qcqp_ipm_arg_set_tol_ineq(double *tol_ineq, struct d_dense_qcqp_ipm
 //
 void d_dense_qcqp_ipm_arg_set_tol_comp(double *tol_comp, struct d_dense_qcqp_ipm_arg *arg);
 //
+void d_dense_qcqp_ipm_arg_set_tol_dual_gap(double *tol_dual_gap, struct d_dense_qcqp_ipm_arg *arg);
+//
 void d_dense_qcqp_ipm_arg_set_reg_prim(double *reg, struct d_dense_qcqp_ipm_arg *arg);
 //
 void d_dense_qcqp_ipm_arg_set_reg_dual(double *reg, struct d_dense_qcqp_ipm_arg *arg);
@@ -172,6 +175,8 @@ void d_dense_qcqp_ipm_get_max_res_eq(struct d_dense_qcqp_ipm_ws *ws, double *res
 void d_dense_qcqp_ipm_get_max_res_ineq(struct d_dense_qcqp_ipm_ws *ws, double *res_ineq);
 //
 void d_dense_qcqp_ipm_get_max_res_comp(struct d_dense_qcqp_ipm_ws *ws, double *res_comp);
+//
+void d_dense_qcqp_ipm_get_dual_gap(struct d_dense_qcqp_ipm_ws *ws, double *dual_gap);
 //
 void d_dense_qcqp_ipm_get_obj(struct d_dense_qcqp_ipm_ws *ws, double *obj);
 //

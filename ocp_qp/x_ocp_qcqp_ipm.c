@@ -110,7 +110,7 @@ void OCP_QCQP_IPM_ARG_SET_DEFAULT(enum HPIPM_MODE mode, struct OCP_QCQP_IPM_ARG 
 
 	OCP_QP_IPM_ARG_SET_DEFAULT(mode, arg->qp_arg);
 
-	REAL mu0, alpha_min, res_g_max, res_b_max, res_d_max, res_m_max, reg_prim, lam_min, t_min;
+	REAL mu0, alpha_min, res_g_max, res_b_max, res_d_max, res_m_max, dual_gap_max, reg_prim, lam_min, t_min;
 	int iter_max, stat_max, pred_corr, cond_pred_corr, itref_pred_max, itref_corr_max, lq_fact, warm_start, abs_form, comp_res_exit, comp_res_pred, square_root_alg, comp_dual_sol_eq, split_step, t_lam_min;
 
 	if(mode==SPEED_ABS)
@@ -121,6 +121,7 @@ void OCP_QCQP_IPM_ARG_SET_DEFAULT(enum HPIPM_MODE mode, struct OCP_QCQP_IPM_ARG 
 		res_b_max = 1e0; // not used
 		res_d_max = 1e0; // not used
 		res_m_max = 1e-8;
+		dual_gap_max = 1e0;
 		iter_max = 15;
 		stat_max = 15;
 		pred_corr = 1;
@@ -148,6 +149,7 @@ void OCP_QCQP_IPM_ARG_SET_DEFAULT(enum HPIPM_MODE mode, struct OCP_QCQP_IPM_ARG 
 		res_b_max = 1e-8;
 		res_d_max = 1e-8;
 		res_m_max = 1e-8;
+		dual_gap_max = 1e0;
 		iter_max = 15;
 		stat_max = 15;
 		pred_corr = 1;
@@ -175,6 +177,7 @@ void OCP_QCQP_IPM_ARG_SET_DEFAULT(enum HPIPM_MODE mode, struct OCP_QCQP_IPM_ARG 
 		res_b_max = 1e-8;
 		res_d_max = 1e-8;
 		res_m_max = 1e-8;
+		dual_gap_max = 1e0;
 		iter_max = 30;
 		stat_max = 30;
 		pred_corr = 1;
@@ -202,6 +205,7 @@ void OCP_QCQP_IPM_ARG_SET_DEFAULT(enum HPIPM_MODE mode, struct OCP_QCQP_IPM_ARG 
 		res_b_max = 1e-8;
 		res_d_max = 1e-8;
 		res_m_max = 1e-8;
+		dual_gap_max = 1e0;
 		iter_max = 100;
 		stat_max = 100;
 		pred_corr = 1;
@@ -236,6 +240,7 @@ void OCP_QCQP_IPM_ARG_SET_DEFAULT(enum HPIPM_MODE mode, struct OCP_QCQP_IPM_ARG 
 	OCP_QCQP_IPM_ARG_SET_TOL_EQ(&res_b_max, arg);
 	OCP_QCQP_IPM_ARG_SET_TOL_INEQ(&res_d_max, arg);
 	OCP_QCQP_IPM_ARG_SET_TOL_COMP(&res_m_max, arg);
+	OCP_QCQP_IPM_ARG_SET_TOL_DUAL_GAP(&dual_gap_max, arg);
 	OCP_QCQP_IPM_ARG_SET_ITER_MAX(&iter_max, arg);
 	arg->stat_max = stat_max;
 	OCP_QCQP_IPM_ARG_SET_PRED_CORR(&pred_corr, arg);
@@ -290,6 +295,10 @@ void OCP_QCQP_IPM_ARG_SET(char *field, void *value, struct OCP_QCQP_IPM_ARG *arg
 	else if(hpipm_strcmp(field, "tol_comp")) 
 		{
 		OCP_QCQP_IPM_ARG_SET_TOL_COMP(value, arg);
+		}
+	else if(hpipm_strcmp(field, "tol_dual_gap"))
+		{
+		OCP_QCQP_IPM_ARG_SET_TOL_DUAL_GAP(value, arg);
 		}
 	else if(hpipm_strcmp(field, "reg_prim")) 
 		{
@@ -405,6 +414,15 @@ void OCP_QCQP_IPM_ARG_SET_TOL_COMP(REAL *value, struct OCP_QCQP_IPM_ARG *arg)
 	{
 	arg->res_m_max = *value;
 	OCP_QP_IPM_ARG_SET_TOL_COMP(value, arg->qp_arg);
+	return;
+	}
+
+
+
+void OCP_QCQP_IPM_ARG_SET_TOL_DUAL_GAP(REAL *value, struct OCP_QCQP_IPM_ARG *arg)
+	{
+	arg->dual_gap_max = *value;
+	OCP_QP_IPM_ARG_SET_TOL_DUAL_GAP(value, arg->qp_arg);
 	return;
 	}
 
@@ -690,6 +708,10 @@ void OCP_QCQP_IPM_GET(char *field, struct OCP_QCQP_IPM_WS *ws, void *value)
 		{ 
 		OCP_QCQP_IPM_GET_MAX_RES_COMP(ws, value);
 		}
+	else if(hpipm_strcmp(field, "dual_gap"))
+		{ 
+		OCP_QCQP_IPM_GET_DUAL_GAP(ws, value);
+		}
 	else if(hpipm_strcmp(field, "obj"))
 		{ 
 		OCP_QCQP_IPM_GET_OBJ(ws, value);
@@ -757,6 +779,14 @@ void OCP_QCQP_IPM_GET_MAX_RES_INEQ(struct OCP_QCQP_IPM_WS *ws, REAL *res_ineq)
 void OCP_QCQP_IPM_GET_MAX_RES_COMP(struct OCP_QCQP_IPM_WS *ws, REAL *res_comp)
 	{
 	*res_comp = ws->qcqp_res->res_max[3];
+	return;
+	}
+
+
+
+void OCP_QCQP_IPM_GET_DUAL_GAP(struct OCP_QCQP_IPM_WS *ws, REAL *dual_gap)
+	{
+	*dual_gap = ws->qcqp_res->dual_gap;
 	return;
 	}
 
@@ -1760,7 +1790,9 @@ void OCP_QCQP_IPM_SOLVE(struct OCP_QCQP *qcqp, struct OCP_QCQP_SOL *qcqp_sol, st
 			(qcqp_res_max[0] > qcqp_arg->res_g_max | \
 			qcqp_res_max[1] > qcqp_arg->res_b_max | \
 			qcqp_res_max[2] > qcqp_arg->res_d_max | \
-			qcqp_res_max[3] > qcqp_arg->res_m_max); kk++)
+			qcqp_res_max[3] > qcqp_arg->res_m_max | \
+			qcqp_res->dual_gap > qcqp_arg->dual_gap_max) \
+			; kk++)
 		{
 
 		// hessian is updated with quad constr: can not reuse hessian factorization !!!

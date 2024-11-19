@@ -2712,13 +2712,14 @@ void OCP_QP_IPM_SOLVE(struct OCP_QP *qp, struct OCP_QP_SOL *qp_sol, struct OCP_Q
 	// relative (delta) IPM formulation
 
 	// IPM loop
-	for(kk=0; kk<arg->iter_max & \
-			cws->alpha>arg->alpha_min & \
-			(qp_res_max[0]>arg->res_g_max | \
-			qp_res_max[1]>arg->res_b_max | \
-			qp_res_max[2]>arg->res_d_max | \
+	for(kk=0; \
+			kk < arg->iter_max & \
+			cws->alpha > arg->alpha_min & \
+			(qp_res_max[0] > arg->res_g_max | \
+			qp_res_max[1] > arg->res_b_max | \
+			qp_res_max[2] > arg->res_d_max | \
 			fabs(qp_res_max[3]-tau_min) > arg->res_m_max | \
-			ws->res->dual_gap>arg->dual_gap_max) \
+			ws->res->dual_gap > arg->dual_gap_max) \
 			; kk++)
 		{
 
