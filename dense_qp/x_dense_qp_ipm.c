@@ -1107,39 +1107,43 @@ void DENSE_QP_IPM_WS_CREATE(struct DENSE_QP_DIM *dim, struct DENSE_QP_IPM_ARG *a
 void DENSE_QP_IPM_GET(char *field, struct DENSE_QP_IPM_WS *ws, void *value)
 	{
 	if(hpipm_strcmp(field, "status"))
-		{ 
+		{
 		DENSE_QP_IPM_GET_STATUS(ws, value);
 		}
 	else if(hpipm_strcmp(field, "iter"))
-		{ 
+		{
 		DENSE_QP_IPM_GET_ITER(ws, value);
 		}
 	else if(hpipm_strcmp(field, "max_res_stat"))
-		{ 
+		{
 		DENSE_QP_IPM_GET_MAX_RES_STAT(ws, value);
 		}
 	else if(hpipm_strcmp(field, "max_res_eq"))
-		{ 
+		{
 		DENSE_QP_IPM_GET_MAX_RES_EQ(ws, value);
 		}
 	else if(hpipm_strcmp(field, "max_res_ineq"))
-		{ 
+		{
 		DENSE_QP_IPM_GET_MAX_RES_INEQ(ws, value);
 		}
 	else if(hpipm_strcmp(field, "max_res_comp"))
-		{ 
+		{
 		DENSE_QP_IPM_GET_MAX_RES_COMP(ws, value);
 		}
+	else if(hpipm_strcmp(field, "dual_gap"))
+		{
+		DENSE_QP_IPM_GET_DUAL_GAP(ws, value);
+		}
 	else if(hpipm_strcmp(field, "obj"))
-		{ 
+		{
 		DENSE_QP_IPM_GET_OBJ(ws, value);
 		}
 	else if(hpipm_strcmp(field, "stat"))
-		{ 
+		{
 		DENSE_QP_IPM_GET_STAT(ws, value);
 		}
 	else if(hpipm_strcmp(field, "stat_m"))
-		{ 
+		{
 		DENSE_QP_IPM_GET_STAT_M(ws, value);
 		}
 	else 
@@ -1197,6 +1201,14 @@ void DENSE_QP_IPM_GET_MAX_RES_INEQ(struct DENSE_QP_IPM_WS *ws, REAL *res_ineq)
 void DENSE_QP_IPM_GET_MAX_RES_COMP(struct DENSE_QP_IPM_WS *ws, REAL *res_comp)
 	{
 	*res_comp = ws->res->res_max[3];
+	return;
+	}
+
+
+
+void DENSE_QP_IPM_GET_DUAL_GAP(struct DENSE_QP_IPM_WS *ws, REAL *dual_gap)
+	{
+	*dual_gap = ws->res->dual_gap;
 	return;
 	}
 

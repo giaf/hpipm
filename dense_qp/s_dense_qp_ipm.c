@@ -169,6 +169,7 @@
 #define DENSE_QP_IPM_GET_MAX_RES_EQ s_dense_qp_ipm_get_max_res_eq
 #define DENSE_QP_IPM_GET_MAX_RES_INEQ s_dense_qp_ipm_get_max_res_ineq
 #define DENSE_QP_IPM_GET_MAX_RES_COMP s_dense_qp_ipm_get_max_res_comp
+#define DENSE_QP_IPM_GET_DUAL_GAP s_dense_qp_ipm_get_dual_gap
 #define DENSE_QP_IPM_GET_OBJ s_dense_qp_ipm_get_obj
 #define DENSE_QP_IPM_GET_STAT s_dense_qp_ipm_get_stat
 #define DENSE_QP_IPM_GET_STAT_M s_dense_qp_ipm_get_stat_m

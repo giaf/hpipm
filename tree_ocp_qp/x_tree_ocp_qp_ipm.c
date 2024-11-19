@@ -927,6 +927,14 @@ void TREE_OCP_QP_IPM_GET_MAX_RES_COMP(struct TREE_OCP_QP_IPM_WS *ws, REAL *res_c
 
 
 
+void TREE_OCP_QP_IPM_GET_DUAL_GAP(struct TREE_OCP_QP_IPM_WS *ws, REAL *dual_gap)
+	{
+	*dual_gap = ws->res->dual_gap;
+	return;
+	}
+
+
+
 void TREE_OCP_QP_IPM_GET_OBJ(struct TREE_OCP_QP_IPM_WS *ws, REAL *obj)
 	{
 	*obj = ws->res->obj;

@@ -190,6 +190,8 @@ void s_tree_ocp_qp_ipm_get_max_res_ineq(struct s_tree_ocp_qp_ipm_ws *ws, float *
 //
 void s_tree_ocp_qp_ipm_get_max_res_comp(struct s_tree_ocp_qp_ipm_ws *ws, float *res_comp);
 //
+void s_tree_ocp_qp_ipm_get_dual_gap(struct s_tree_ocp_qp_ipm_ws *ws, float *dual_gap);
+//
 void s_tree_ocp_qp_ipm_get_obj(struct s_tree_ocp_qp_ipm_ws *ws, float *obj);
 //
 void s_tree_ocp_qp_ipm_get_stat(struct s_tree_ocp_qp_ipm_ws *ws, float **stat);
