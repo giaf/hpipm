@@ -56,6 +56,7 @@ travis_run = os.getenv('TRAVIS_RUN')
 # define flags
 codegen_data = 0 # export qp data in the file ocp_qp_data.c for use from C examples
 reduce_eq_dof = 0 # eliminates e.g. equality constraint on x0
+warm_start = 0 # set to 1 to warm-start the primal variable
 
 if reduce_eq_dof:
 	codegen_data = 0 # not supported yet
@@ -178,6 +179,16 @@ arg.set('reg_prim', 1e-12)
 
 if reduce_eq_dof:
 	arg.set('reduce_eq_dof', 1)
+
+# if warm_start=1, then the primal variable is initialized from qp_sol
+arg.set('warm_start', warm_start)
+if warm_start:
+	x_guess  = np.array([[1.0, 1.0],[2., -1.025], [ 0.975, -0.85 ], [ 0.125, -0.275], [-0.15, 0.15], [0.0, 0.0]])
+	u_guess  = np.array([[-2.025], [0.175], [0.575], [0.425], [-0.15]])
+	for i in range(N+1):
+		qp_sol.set('x', i, x_guess[i])
+	for i in range(N):
+		qp_sol.set('u', i, u_guess[i])
 
 # codegen
 if codegen_data:

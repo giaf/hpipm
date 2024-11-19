@@ -118,6 +118,26 @@ class hpipm_ocp_qcqp_sol:
 				self.__hpipm.d_ocp_qcqp_sol_get_x(i, self.qp_sol_struct, tmp_ptr)
 		return x
 
+	def set(self, field, stage, value):
+		if((field=='x')):
+			value = np.ascontiguousarray(value, dtype=np.float64)
+			tmp = cast(value.ctypes.data, POINTER(c_double))
+			self.__hpipm.d_ocp_qcqp_sol_set_x(stage, tmp, self.qp_sol_struct)
+		elif((field=='u')):
+			value = np.ascontiguousarray(value, dtype=np.float64)
+			tmp = cast(value.ctypes.data, POINTER(c_double))
+			self.__hpipm.d_ocp_qcqp_sol_set_u(stage, tmp, self.qp_sol_struct)
+		elif((field=='sl')):
+			value = np.ascontiguousarray(value, dtype=np.float64)
+			tmp = cast(value.ctypes.data, POINTER(c_double))
+			self.__hpipm.d_ocp_qcqp_sol_set_sl(stage, tmp, self.qp_sol_struct)
+		elif((field=='su')):
+			value = np.ascontiguousarray(value, dtype=np.float64)
+			tmp = cast(value.ctypes.data, POINTER(c_double))
+			self.__hpipm.d_ocp_qcqp_sol_set_su(stage, tmp, self.qp_sol_struct)
+		else:
+			raise NameError('hpipm_ocp_qcqp_sol.set: wrong field')
+		return
 
 	def print_C_struct(self):
 		self.__hpipm.d_ocp_qcqp_sol_print(self.dim.dim_struct, self.qp_sol_struct)
