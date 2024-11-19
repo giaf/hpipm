@@ -110,7 +110,7 @@ void TREE_OCP_QCQP_IPM_ARG_SET_DEFAULT(enum HPIPM_MODE mode, struct TREE_OCP_QCQ
 
 	TREE_OCP_QP_IPM_ARG_SET_DEFAULT(mode, arg->qp_arg);
 
-	REAL mu0, alpha_min, res_g_max, res_b_max, res_d_max, res_m_max, reg_prim, lam_min, t_min;
+	REAL mu0, alpha_min, res_g_max, res_b_max, res_d_max, res_m_max, dual_gap_max, reg_prim, lam_min, t_min;
 	int iter_max, stat_max, pred_corr, cond_pred_corr, itref_pred_max, itref_corr_max, lq_fact, warm_start, abs_form, comp_res_exit, comp_res_pred, square_root_alg, comp_dual_sol_eq, split_step, t_lam_min;
 
 	if(mode==SPEED_ABS)
@@ -121,6 +121,7 @@ void TREE_OCP_QCQP_IPM_ARG_SET_DEFAULT(enum HPIPM_MODE mode, struct TREE_OCP_QCQ
 		res_b_max = 1e0; // not used
 		res_d_max = 1e0; // not used
 		res_m_max = 1e-8;
+		dual_gap_max = 1e0;
 		iter_max = 15;
 		stat_max = 15;
 		pred_corr = 1;
@@ -148,6 +149,7 @@ void TREE_OCP_QCQP_IPM_ARG_SET_DEFAULT(enum HPIPM_MODE mode, struct TREE_OCP_QCQ
 		res_b_max = 1e-8;
 		res_d_max = 1e-8;
 		res_m_max = 1e-8;
+		dual_gap_max = 1e0;
 		iter_max = 15;
 		stat_max = 15;
 		pred_corr = 1;
@@ -175,6 +177,7 @@ void TREE_OCP_QCQP_IPM_ARG_SET_DEFAULT(enum HPIPM_MODE mode, struct TREE_OCP_QCQ
 		res_b_max = 1e-8;
 		res_d_max = 1e-8;
 		res_m_max = 1e-8;
+		dual_gap_max = 1e0;
 		iter_max = 30;
 		stat_max = 30;
 		pred_corr = 1;
@@ -202,6 +205,7 @@ void TREE_OCP_QCQP_IPM_ARG_SET_DEFAULT(enum HPIPM_MODE mode, struct TREE_OCP_QCQ
 		res_b_max = 1e-8;
 		res_d_max = 1e-8;
 		res_m_max = 1e-8;
+		dual_gap_max = 1e0;
 		iter_max = 100;
 		stat_max = 100;
 		pred_corr = 1;
@@ -236,6 +240,7 @@ void TREE_OCP_QCQP_IPM_ARG_SET_DEFAULT(enum HPIPM_MODE mode, struct TREE_OCP_QCQ
 	TREE_OCP_QCQP_IPM_ARG_SET_TOL_EQ(&res_b_max, arg);
 	TREE_OCP_QCQP_IPM_ARG_SET_TOL_INEQ(&res_d_max, arg);
 	TREE_OCP_QCQP_IPM_ARG_SET_TOL_COMP(&res_m_max, arg);
+	TREE_OCP_QCQP_IPM_ARG_SET_TOL_DUAL_GAP(&dual_gap_max, arg);
 	TREE_OCP_QCQP_IPM_ARG_SET_ITER_MAX(&iter_max, arg);
 	arg->stat_max = stat_max;
 	TREE_OCP_QCQP_IPM_ARG_SET_PRED_CORR(&pred_corr, arg);
@@ -263,51 +268,55 @@ void TREE_OCP_QCQP_IPM_ARG_SET_DEFAULT(enum HPIPM_MODE mode, struct TREE_OCP_QCQ
 
 void TREE_OCP_QCQP_IPM_ARG_SET(char *field, void *value, struct TREE_OCP_QCQP_IPM_ARG *arg)
 	{
-	if(hpipm_strcmp(field, "iter_max")) 
+	if(hpipm_strcmp(field, "iter_max"))
 		{
 		TREE_OCP_QCQP_IPM_ARG_SET_ITER_MAX(value, arg);
 		}
-	else if(hpipm_strcmp(field, "alpha_min")) 
+	else if(hpipm_strcmp(field, "alpha_min"))
 		{
 		TREE_OCP_QCQP_IPM_ARG_SET_ALPHA_MIN(value, arg);
 		}
-	else if(hpipm_strcmp(field, "mu0")) 
+	else if(hpipm_strcmp(field, "mu0"))
 		{
 		TREE_OCP_QCQP_IPM_ARG_SET_MU0(value, arg);
 		}
-	else if(hpipm_strcmp(field, "tol_stat")) 
+	else if(hpipm_strcmp(field, "tol_stat"))
 		{
 		TREE_OCP_QCQP_IPM_ARG_SET_TOL_STAT(value, arg);
 		}
-	else if(hpipm_strcmp(field, "tol_eq")) 
+	else if(hpipm_strcmp(field, "tol_eq"))
 		{
 		TREE_OCP_QCQP_IPM_ARG_SET_TOL_EQ(value, arg);
 		}
-	else if(hpipm_strcmp(field, "tol_ineq")) 
+	else if(hpipm_strcmp(field, "tol_ineq"))
 		{
 		TREE_OCP_QCQP_IPM_ARG_SET_TOL_INEQ(value, arg);
 		}
-	else if(hpipm_strcmp(field, "tol_comp")) 
+	else if(hpipm_strcmp(field, "tol_comp"))
 		{
 		TREE_OCP_QCQP_IPM_ARG_SET_TOL_COMP(value, arg);
 		}
-	else if(hpipm_strcmp(field, "reg_prim")) 
+	else if(hpipm_strcmp(field, "tol_dual_gap"))
+		{
+		TREE_OCP_QCQP_IPM_ARG_SET_TOL_DUAL_GAP(value, arg);
+		}
+	else if(hpipm_strcmp(field, "reg_prim"))
 		{
 		TREE_OCP_QCQP_IPM_ARG_SET_REG_PRIM(value, arg);
 		}
-	else if(hpipm_strcmp(field, "warm_start")) 
+	else if(hpipm_strcmp(field, "warm_start"))
 		{
 		TREE_OCP_QCQP_IPM_ARG_SET_WARM_START(value, arg);
 		}
-	else if(hpipm_strcmp(field, "pred_corr")) 
+	else if(hpipm_strcmp(field, "pred_corr"))
 		{
 		TREE_OCP_QCQP_IPM_ARG_SET_PRED_CORR(value, arg);
 		}
-	else if(hpipm_strcmp(field, "cond_pred_corr")) 
+	else if(hpipm_strcmp(field, "cond_pred_corr"))
 		{
 		TREE_OCP_QCQP_IPM_ARG_SET_COND_PRED_CORR(value, arg);
 		}
-//	else if(hpipm_strcmp(field, "ric_alg")) 
+//	else if(hpipm_strcmp(field, "ric_alg"))
 //		{
 //		TREE_OCP_QCQP_IPM_ARG_SET_RIC_ALG(value, arg);
 //		}
@@ -315,23 +324,23 @@ void TREE_OCP_QCQP_IPM_ARG_SET(char *field, void *value, struct TREE_OCP_QCQP_IP
 		{
 		TREE_OCP_QCQP_IPM_ARG_SET_COMP_RES_EXIT(value, arg);
 		}
-//	else if(hpipm_strcmp(field, "comp_res_pred")) 
+//	else if(hpipm_strcmp(field, "comp_res_pred"))
 //		{
 //		TREE_OCP_QCQP_IPM_ARG_SET_COMP_RES_PRED(value, arg);
 //		}
-	else if(hpipm_strcmp(field, "lam_min")) 
+	else if(hpipm_strcmp(field, "lam_min"))
 		{
 		TREE_OCP_QCQP_IPM_ARG_SET_LAM_MIN(value, arg);
 		}
-	else if(hpipm_strcmp(field, "t_min")) 
+	else if(hpipm_strcmp(field, "t_min"))
 		{
 		TREE_OCP_QCQP_IPM_ARG_SET_T_MIN(value, arg);
 		}
-	else if(hpipm_strcmp(field, "split_step")) 
+	else if(hpipm_strcmp(field, "split_step"))
 		{
 		TREE_OCP_QCQP_IPM_ARG_SET_SPLIT_STEP(value, arg);
 		}
-	else if(hpipm_strcmp(field, "t_lam_min")) 
+	else if(hpipm_strcmp(field, "t_lam_min"))
 		{
 		TREE_OCP_QCQP_IPM_ARG_SET_T_LAM_MIN(value, arg);
 		}
@@ -405,6 +414,15 @@ void TREE_OCP_QCQP_IPM_ARG_SET_TOL_COMP(REAL *value, struct TREE_OCP_QCQP_IPM_AR
 	{
 	arg->res_m_max = *value;
 	TREE_OCP_QP_IPM_ARG_SET_TOL_COMP(value, arg->qp_arg);
+	return;
+	}
+
+
+
+void TREE_OCP_QCQP_IPM_ARG_SET_TOL_DUAL_GAP(REAL *value, struct TREE_OCP_QCQP_IPM_ARG *arg)
+	{
+	arg->dual_gap_max = *value;
+	TREE_OCP_QP_IPM_ARG_SET_TOL_DUAL_GAP(value, arg->qp_arg);
 	return;
 	}
 
@@ -667,39 +685,43 @@ void TREE_OCP_QCQP_IPM_WS_CREATE(struct TREE_OCP_QCQP_DIM *dim, struct TREE_OCP_
 void TREE_OCP_QCQP_IPM_GET(char *field, struct TREE_OCP_QCQP_IPM_WS *ws, void *value)
 	{
 	if(hpipm_strcmp(field, "status"))
-		{ 
+		{
 		TREE_OCP_QCQP_IPM_GET_STATUS(ws, value);
 		}
 	else if(hpipm_strcmp(field, "iter"))
-		{ 
+		{
 		TREE_OCP_QCQP_IPM_GET_ITER(ws, value);
 		}
 	else if(hpipm_strcmp(field, "max_res_stat"))
-		{ 
+		{
 		TREE_OCP_QCQP_IPM_GET_MAX_RES_STAT(ws, value);
 		}
 	else if(hpipm_strcmp(field, "max_res_eq"))
-		{ 
+		{
 		TREE_OCP_QCQP_IPM_GET_MAX_RES_EQ(ws, value);
 		}
 	else if(hpipm_strcmp(field, "max_res_ineq"))
-		{ 
+		{
 		TREE_OCP_QCQP_IPM_GET_MAX_RES_INEQ(ws, value);
 		}
 	else if(hpipm_strcmp(field, "max_res_comp"))
-		{ 
+		{
 		TREE_OCP_QCQP_IPM_GET_MAX_RES_COMP(ws, value);
 		}
+	else if(hpipm_strcmp(field, "dual_gap"))
+		{
+		TREE_OCP_QCQP_IPM_GET_DUAL_GAP(ws, value);
+		}
 	else if(hpipm_strcmp(field, "obj"))
-		{ 
+		{
 		TREE_OCP_QCQP_IPM_GET_OBJ(ws, value);
 		}
 	else if(hpipm_strcmp(field, "stat"))
-		{ 
+		{
 		TREE_OCP_QCQP_IPM_GET_STAT(ws, value);
 		}
 	else if(hpipm_strcmp(field, "stat_m"))
-		{ 
+		{
 		TREE_OCP_QCQP_IPM_GET_STAT_M(ws, value);
 		}
 	else 
@@ -757,6 +779,14 @@ void TREE_OCP_QCQP_IPM_GET_MAX_RES_INEQ(struct TREE_OCP_QCQP_IPM_WS *ws, REAL *r
 void TREE_OCP_QCQP_IPM_GET_MAX_RES_COMP(struct TREE_OCP_QCQP_IPM_WS *ws, REAL *res_comp)
 	{
 	*res_comp = ws->qcqp_res->res_max[3];
+	return;
+	}
+
+
+
+void TREE_OCP_QCQP_IPM_GET_DUAL_GAP(struct TREE_OCP_QCQP_IPM_WS *ws, REAL *dual_gap)
+	{
+	*dual_gap = ws->qcqp_res->dual_gap;
 	return;
 	}
 
@@ -1762,7 +1792,9 @@ void TREE_OCP_QCQP_IPM_SOLVE(struct TREE_OCP_QCQP *qcqp, struct TREE_OCP_QCQP_SO
 			(qcqp_res_max[0] > qcqp_arg->res_g_max | \
 			qcqp_res_max[1] > qcqp_arg->res_b_max | \
 			qcqp_res_max[2] > qcqp_arg->res_d_max | \
-			qcqp_res_max[3] > qcqp_arg->res_m_max); kk++)
+			qcqp_res_max[3] > qcqp_arg->res_m_max | \
+			qcqp_res->dual_gap > qcqp_arg->dual_gap_max) \
+			; kk++)
 		{
 
 		// hessian is updated with quad constr: can not reuse hessian factorization !!!

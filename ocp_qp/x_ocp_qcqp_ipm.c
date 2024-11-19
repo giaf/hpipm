@@ -685,43 +685,43 @@ void OCP_QCQP_IPM_WS_CREATE(struct OCP_QCQP_DIM *dim, struct OCP_QCQP_IPM_ARG *a
 void OCP_QCQP_IPM_GET(char *field, struct OCP_QCQP_IPM_WS *ws, void *value)
 	{
 	if(hpipm_strcmp(field, "status"))
-		{ 
+		{
 		OCP_QCQP_IPM_GET_STATUS(ws, value);
 		}
 	else if(hpipm_strcmp(field, "iter"))
-		{ 
+		{
 		OCP_QCQP_IPM_GET_ITER(ws, value);
 		}
 	else if(hpipm_strcmp(field, "max_res_stat"))
-		{ 
+		{
 		OCP_QCQP_IPM_GET_MAX_RES_STAT(ws, value);
 		}
 	else if(hpipm_strcmp(field, "max_res_eq"))
-		{ 
+		{
 		OCP_QCQP_IPM_GET_MAX_RES_EQ(ws, value);
 		}
 	else if(hpipm_strcmp(field, "max_res_ineq"))
-		{ 
+		{
 		OCP_QCQP_IPM_GET_MAX_RES_INEQ(ws, value);
 		}
 	else if(hpipm_strcmp(field, "max_res_comp"))
-		{ 
+		{
 		OCP_QCQP_IPM_GET_MAX_RES_COMP(ws, value);
 		}
 	else if(hpipm_strcmp(field, "dual_gap"))
-		{ 
+		{
 		OCP_QCQP_IPM_GET_DUAL_GAP(ws, value);
 		}
 	else if(hpipm_strcmp(field, "obj"))
-		{ 
+		{
 		OCP_QCQP_IPM_GET_OBJ(ws, value);
 		}
 	else if(hpipm_strcmp(field, "stat"))
-		{ 
+		{
 		OCP_QCQP_IPM_GET_STAT(ws, value);
 		}
 	else if(hpipm_strcmp(field, "stat_m"))
-		{ 
+		{
 		OCP_QCQP_IPM_GET_STAT_M(ws, value);
 		}
 	else 
