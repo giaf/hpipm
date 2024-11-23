@@ -1889,6 +1889,8 @@ void TREE_OCP_QP_IPM_SOLVE(struct TREE_OCP_QP *qp, struct TREE_OCP_QP_SOL *qp_so
 			TREE_OCP_QP_RES_COMPUTE(qp, qp_sol, ws->res, ws->res_workspace);
 			// XXX no constraints, so no mask
 			TREE_OCP_QP_RES_COMPUTE_INF_NORM(ws->res);
+			ws->res->res_mu = ws->res->res_mu_sum * cws->nc_mask_inv;
+			cws->mu = ws->res->res_mu;
 			if(0<ws->stat_max)
 				{
 				stat[6] = qp_res_max[0];
@@ -1897,7 +1899,6 @@ void TREE_OCP_QP_IPM_SOLVE(struct TREE_OCP_QP *qp, struct TREE_OCP_QP_SOL *qp_so
 				stat[9] = qp_res_max[3];
 				stat[10] = ws->res->obj;
 				}
-			cws->mu = ws->res->res_mu;
 			}
 		ws->iter = 0;
 #ifdef USE_C99_MATH
@@ -2030,6 +2031,7 @@ void TREE_OCP_QP_IPM_SOLVE(struct TREE_OCP_QP *qp, struct TREE_OCP_QP_SOL *qp_so
 		VECMUL(cws->nc, qp->d_mask, 0, ws->res->res_d, 0, ws->res->res_d, 0);
 		VECMUL(cws->nc, qp->d_mask, 0, ws->res->res_m, 0, ws->res->res_m, 0);
 		}
+	ws->res->res_mu = ws->res->res_mu_sum * cws->nc_mask_inv;
 	cws->mu = ws->res->res_mu;
 	TREE_OCP_QP_RES_COMPUTE_INF_NORM(ws->res);
 	// save infinity norm of residuals
@@ -2072,6 +2074,7 @@ void TREE_OCP_QP_IPM_SOLVE(struct TREE_OCP_QP *qp, struct TREE_OCP_QP_SOL *qp_so
 			VECMUL(cws->nc, qp->d_mask, 0, ws->res->res_d, 0, ws->res->res_d, 0);
 			VECMUL(cws->nc, qp->d_mask, 0, ws->res->res_m, 0, ws->res->res_m, 0);
 			}
+		ws->res->res_mu = ws->res->res_mu_sum * cws->nc_mask_inv;
 		cws->mu = ws->res->res_mu;
 		TREE_OCP_QP_RES_COMPUTE_INF_NORM(ws->res);
 		// save infinity norm of residuals

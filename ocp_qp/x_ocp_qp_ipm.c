@@ -2563,6 +2563,8 @@ void OCP_QP_IPM_SOLVE(struct OCP_QP *qp, struct OCP_QP_SOL *qp_sol, struct OCP_Q
 			OCP_QP_RES_COMPUTE(qp, qp_sol, ws->res, ws->res_workspace);
 			// XXX no constraints, so no mask
 			OCP_QP_RES_COMPUTE_INF_NORM(ws->res);
+			ws->res->res_mu = ws->res->res_mu_sum * cws->nc_mask_inv;
+			cws->mu = ws->res->res_mu;
 			if(0<ws->stat_max)
 				{
 				stat[6] = qp_res_max[0];
@@ -2572,7 +2574,6 @@ void OCP_QP_IPM_SOLVE(struct OCP_QP *qp, struct OCP_QP_SOL *qp_sol, struct OCP_Q
 				stat[10] = ws->res->dual_gap;
 				stat[11] = ws->res->obj;
 				}
-			cws->mu = ws->res->res_mu;
 			}
 		ws->iter = 0;
 #ifdef USE_C99_MATH
@@ -2705,6 +2706,7 @@ void OCP_QP_IPM_SOLVE(struct OCP_QP *qp, struct OCP_QP_SOL *qp_sol, struct OCP_Q
 		VECMUL(cws->nc, qp->d_mask, 0, ws->res->res_d, 0, ws->res->res_d, 0);
 		VECMUL(cws->nc, qp->d_mask, 0, ws->res->res_m, 0, ws->res->res_m, 0);
 		}
+	ws->res->res_mu = ws->res->res_mu_sum * cws->nc_mask_inv;
 	cws->mu = ws->res->res_mu;
 	OCP_QP_RES_COMPUTE_INF_NORM(ws->res);
 	// save infinity norm of residuals
@@ -2748,6 +2750,7 @@ void OCP_QP_IPM_SOLVE(struct OCP_QP *qp, struct OCP_QP_SOL *qp_sol, struct OCP_Q
 			VECMUL(cws->nc, qp->d_mask, 0, ws->res->res_d, 0, ws->res->res_d, 0);
 			VECMUL(cws->nc, qp->d_mask, 0, ws->res->res_m, 0, ws->res->res_m, 0);
 			}
+		ws->res->res_mu = ws->res->res_mu_sum * cws->nc_mask_inv;
 		cws->mu = ws->res->res_mu;
 		OCP_QP_RES_COMPUTE_INF_NORM(ws->res);
 		// save infinity norm of residuals

@@ -62,7 +62,8 @@ struct s_tree_ocp_qp_res
 	struct blasfeo_svec *res_d; // d-residuals
 	struct blasfeo_svec *res_m; // m-residuals
 	float res_max[4]; // max of residuals
-	float res_mu; // mu-residual
+	float res_mu_sum; // sum of res_m
+	float res_mu; // mu-residual = res_mu_sum / #constr
 	float obj; // (primal) objective
 	float dual_gap; // duality gap
 	hpipm_size_t memsize;

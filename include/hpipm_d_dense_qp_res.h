@@ -61,7 +61,8 @@ struct d_dense_qp_res
 	struct blasfeo_dvec *res_d; // d-residuals
 	struct blasfeo_dvec *res_m; // m-residuals
 	double res_max[4]; // max of residuals
-	double res_mu; // mu-residual
+	double res_mu_sum; // sum of res_m
+	double res_mu; // mu-residual = res_mu_sum / #constr
 	double obj; // (primal) objective
 	double dual_gap; // duality gap
 	hpipm_size_t memsize;

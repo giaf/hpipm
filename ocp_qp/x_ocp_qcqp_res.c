@@ -397,11 +397,11 @@ void OCP_QCQP_RES_COMPUTE(struct OCP_QCQP *qp, struct OCP_QCQP_SOL *qp_sol, stru
 	int *nq = qp->dim->nq;
 	int *ns = qp->dim->ns;
 
-	int nct = 0;
-	for(ii=0; ii<=N; ii++)
-		nct += 2*nb[ii]+2*ng[ii]+2*nq[ii]+2*ns[ii];
+	//int nct = 0;
+	//for(ii=0; ii<=N; ii++)
+	//	nct += 2*nb[ii]+2*ng[ii]+2*nq[ii]+2*ns[ii];
 
-	REAL nct_inv = 1.0/nct;
+	//REAL nct_inv = 1.0/nct;
 
 	struct STRMAT *BAbt = qp->BAbt;
 	struct STRMAT *RSQrq = qp->RSQrq;
@@ -562,7 +562,8 @@ void OCP_QCQP_RES_COMPUTE(struct OCP_QCQP *qp, struct OCP_QCQP_SOL *qp_sol, stru
 
 		}
 
-	res->res_mu = mu*nct_inv;
+	//res->res_mu = mu*nct_inv;
+	res->res_mu_sum = mu;
 
 	return;
 

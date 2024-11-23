@@ -1654,6 +1654,8 @@ void OCP_QCQP_IPM_SOLVE(struct OCP_QCQP *qcqp, struct OCP_QCQP_SOL *qcqp_sol, st
 			OCP_QCQP_RES_COMPUTE(qcqp, qcqp_sol, qcqp_res, qcqp_res_ws);
 			// XXX no constraints, so no mask
 			OCP_QCQP_RES_COMPUTE_INF_NORM(qcqp_res);
+			qcqp_res->res_mu = qcqp_res->res_mu_sum * cws->nc_mask_inv;
+			cws->mu = qcqp_res->res_mu;
 			// save infinity norm of residuals
 			if(0<stat_max)
 				{
@@ -1664,7 +1666,6 @@ void OCP_QCQP_IPM_SOLVE(struct OCP_QCQP *qcqp, struct OCP_QCQP_SOL *qcqp_sol, st
 				stat[10] = qcqp_res->dual_gap;
 				stat[11] = qcqp_res->obj;
 				}
-			cws->mu = qcqp_res->res_mu;
 			}
 		// save info before return
 		qcqp_ws->iter = 0;
@@ -1790,8 +1791,9 @@ void OCP_QCQP_IPM_SOLVE(struct OCP_QCQP *qcqp, struct OCP_QCQP_SOL *qcqp_sol, st
 		VECMUL(cws->nc, qp->d_mask, 0, qcqp_res->res_m, 0, qcqp_res->res_m, 0);
 		}
 	OCP_QCQP_RES_COMPUTE_INF_NORM(qcqp_res);
-	OCP_QCQP_RES_CONV_QP_RES(qcqp_res, qp_ws->res);
+	qcqp_res->res_mu = qcqp_res->res_mu_sum * cws->nc_mask_inv;
 	cws->mu = qcqp_res->res_mu;
+	OCP_QCQP_RES_CONV_QP_RES(qcqp_res, qp_ws->res);
 	// save infinity norm of residuals
 	if(0<stat_max)
 		{
@@ -1846,8 +1848,9 @@ void OCP_QCQP_IPM_SOLVE(struct OCP_QCQP *qcqp, struct OCP_QCQP_SOL *qcqp_sol, st
 			VECMUL(cws->nc, qp->d_mask, 0, qcqp_res->res_m, 0, qcqp_res->res_m, 0);
 			}
 		OCP_QCQP_RES_COMPUTE_INF_NORM(qcqp_res);
-		OCP_QCQP_RES_CONV_QP_RES(qcqp_res, qp_ws->res);
+		qcqp_res->res_mu = qcqp_res->res_mu_sum * cws->nc_mask_inv;
 		cws->mu = qcqp_res->res_mu;
+		OCP_QCQP_RES_CONV_QP_RES(qcqp_res, qp_ws->res);
 		// save infinity norm of residuals
 		if(kk+1<stat_max)
 			{

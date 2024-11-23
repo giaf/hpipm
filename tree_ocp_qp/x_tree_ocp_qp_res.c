@@ -415,11 +415,11 @@ void TREE_OCP_QP_RES_COMPUTE(struct TREE_OCP_QP *qp, struct TREE_OCP_QP_SOL *qp_
 	int *ng = qp->dim->ng;
 	int *ns = qp->dim->ns;
 
-	int nct = 0;
-	for(ii=0; ii<Nn; ii++)
-		nct += 2*nb[ii]+2*ng[ii]+2*ns[ii];
+	//int nct = 0;
+	//for(ii=0; ii<Nn; ii++)
+	//	nct += 2*nb[ii]+2*ng[ii]+2*ns[ii];
 
-	REAL nct_inv = 1.0/nct;
+	//REAL nct_inv = 1.0/nct;
 
 
 	struct STRMAT *BAbt = qp->BAbt;
@@ -545,7 +545,8 @@ void TREE_OCP_QP_RES_COMPUTE(struct TREE_OCP_QP *qp, struct TREE_OCP_QP_SOL *qp_
 
 		}
 
-	res->res_mu = mu*nct_inv;
+	//res->res_mu = mu*nct_inv;
+	res->res_mu_sum = mu;
 
 	return;
 

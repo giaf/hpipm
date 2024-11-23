@@ -2125,6 +2125,8 @@ exit(1);
 			DENSE_QP_RES_COMPUTE(qp, qp_sol, ws->res, ws->res_ws);
 			// XXX no constraints, so no mask
 			DENSE_QP_RES_COMPUTE_INF_NORM(ws->res);
+			ws->res->res_mu = ws->res->res_mu_sum * cws->nc_mask_inv;
+			cws->mu = ws->res->res_mu;
 			// save infinity norm of residuals
 			if(0<ws->stat_max)
 				{
@@ -2134,7 +2136,6 @@ exit(1);
 				stat[9] = qp_res_max[3];
 				stat[10] = ws->res->obj;
 				}
-			cws->mu = ws->res->res_mu;
 			}
 		// save info before return
 		ws->iter = 0;
@@ -2210,7 +2211,8 @@ exit(1);
 
 			// compute mu
 			mu = VECMULDOT(cws->nc, qp_sol->lam, 0, qp_sol->t, 0, ws->tmp_m, 0);
-			mu /= cws->nc;
+			//mu /= cws->nc;
+			mu *= cws->nc_mask_inv;
 			cws->mu = mu;
 			if(kk+1<ws->stat_max)
 				stat[stat_m*(kk+1)+5] = mu;
@@ -2257,6 +2259,7 @@ exit(1);
 		VECMUL(cws->nc, qp->d_mask, 0, ws->res->res_m, 0, ws->res->res_m, 0);
 		}
 	DENSE_QP_RES_COMPUTE_INF_NORM(ws->res);
+	ws->res->res_mu = ws->res->res_mu_sum * cws->nc_mask_inv;
 	cws->mu = ws->res->res_mu;
 	// save infinity norm of residuals
 	if(0<ws->stat_max)
@@ -2298,6 +2301,7 @@ exit(1);
 			VECMUL(cws->nc, qp->d_mask, 0, ws->res->res_m, 0, ws->res->res_m, 0);
 			}
 		DENSE_QP_RES_COMPUTE_INF_NORM(ws->res);
+		ws->res->res_mu = ws->res->res_mu_sum * cws->nc_mask_inv;
 		cws->mu = ws->res->res_mu;
 		// save infinity norm of residuals
 		if(kk+1<ws->stat_max)
@@ -2566,7 +2570,7 @@ void DENSE_QP_COMPUTE_STEP_LENGTH(struct DENSE_QP *qp, struct DENSE_QP_SOL *qp_s
 	int nct = 2*nb+2*ng+2*ns;
 
 	// TODO use nc_mask_inv from cws if available !!!!!
-	REAL nct_inv = 1.0/nct;
+	//REAL nct_inv = 1.0/nct;
 
 	struct CORE_QP_IPM_WORKSPACE *cws = ws->core_workspace;
 	struct DENSE_QP_SOL *qp_sol_step = ws->sol_step;

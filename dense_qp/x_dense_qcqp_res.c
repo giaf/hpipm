@@ -275,7 +275,7 @@ void DENSE_QCQP_RES_COMPUTE(struct DENSE_QCQP *qp, struct DENSE_QCQP_SOL *qp_sol
 	int net = ne;
 	int nct = 2*nb+2*ng+2*nq+2*ns;
 
-	REAL nct_inv = 1.0/nct;
+	//REAL nct_inv = 1.0/nct;
 
 	struct STRMAT *Hg = qp->Hv;
 	struct STRMAT *A = qp->A;
@@ -411,7 +411,8 @@ void DENSE_QCQP_RES_COMPUTE(struct DENSE_QCQP *qp, struct DENSE_QCQP_SOL *qp_sol
 	// res_m res_mu
 	mu = VECMULDOT(nct, lam, 0, t, 0, res_m, 0);
 	AXPY(nct, -1.0, m, 0, res_m, 0, res_m, 0);
-	res->res_mu = mu*nct_inv;
+	//res->res_mu = mu*nct_inv;
+	res->res_mu_sum = mu;
 
 	return;
 

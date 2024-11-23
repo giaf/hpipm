@@ -272,7 +272,7 @@ void DENSE_QP_RES_COMPUTE(struct DENSE_QP *qp, struct DENSE_QP_SOL *qp_sol, stru
 	int nct = 2*nb+2*ng+2*ns;
 
 	// TODO use nc_mask_inv from cws if available !!!!!
-	REAL nct_inv = 1.0/nct;
+	//REAL nct_inv = 1.0/nct;
 
 	struct STRMAT *Hg = qp->Hv;
 	struct STRMAT *A = qp->A;
@@ -368,11 +368,12 @@ void DENSE_QP_RES_COMPUTE(struct DENSE_QP *qp, struct DENSE_QP_SOL *qp_sol, stru
 		*dual_gap -= DOT(ne, b, 0, pi, 0);
 		}
 
-	// res_m res_mu
+	// res_m res_mu_sum
 	mu = VECMULDOT(nct, lam, 0, t, 0, res_m, 0);
 	AXPY(nct, -1.0, m, 0, res_m, 0, res_m, 0);
 	// TODO use nc_mask_inv from cws if available !!!!!
-	res->res_mu = mu*nct_inv;
+	//res->res_mu = mu*nct_inv;
+	res->res_mu_sum = mu;
 
 	return;
 
@@ -394,7 +395,7 @@ void DENSE_QP_RES_COMPUTE_LIN(struct DENSE_QP *qp, struct DENSE_QP_SOL *qp_sol, 
 	int net = ne;
 	int nct = 2*nb+2*ng+2*ns;
 
-	REAL nct_inv = 1.0/nct;
+	//REAL nct_inv = 1.0/nct;
 
 	struct STRMAT *Hg = qp->Hv;
 	struct STRMAT *A = qp->A;
