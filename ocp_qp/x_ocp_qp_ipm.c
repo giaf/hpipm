@@ -1153,6 +1153,10 @@ void OCP_QP_IPM_GET(char *field, struct OCP_QP_IPM_WS *ws, void *value)
 		{
 		OCP_QP_IPM_GET_OBJ(ws, value);
 		}
+	else if(hpipm_strcmp(field, "tau_iter"))
+		{
+		OCP_QP_IPM_GET_TAU_ITER(ws, value);
+		}
 	else if(hpipm_strcmp(field, "stat"))
 		{
 		OCP_QP_IPM_GET_STAT(ws, value);
@@ -1232,6 +1236,14 @@ void OCP_QP_IPM_GET_DUAL_GAP(struct OCP_QP_IPM_WS *ws, REAL *dual_gap)
 void OCP_QP_IPM_GET_OBJ(struct OCP_QP_IPM_WS *ws, REAL *obj)
 	{
 	*obj = ws->res->obj;
+	return;
+	}
+
+
+
+void OCP_QP_IPM_GET_TAU_ITER(struct OCP_QP_IPM_WS *ws, REAL *tau_iter)
+	{
+	*tau_iter = ws->core_workspace->tau_iter;
 	return;
 	}
 

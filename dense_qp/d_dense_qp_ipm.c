@@ -173,6 +173,7 @@
 #define DENSE_QP_IPM_GET_MAX_RES_COMP d_dense_qp_ipm_get_max_res_comp
 #define DENSE_QP_IPM_GET_DUAL_GAP d_dense_qp_ipm_get_dual_gap
 #define DENSE_QP_IPM_GET_OBJ d_dense_qp_ipm_get_obj
+#define DENSE_QP_IPM_GET_TAU_ITER d_dense_qp_ipm_get_tau_iter
 #define DENSE_QP_IPM_GET_STAT d_dense_qp_ipm_get_stat
 #define DENSE_QP_IPM_GET_STAT_M d_dense_qp_ipm_get_stat_m
 #define DENSE_QP_INIT_VAR d_dense_qp_init_var

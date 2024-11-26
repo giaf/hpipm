@@ -177,6 +177,7 @@
 #define OCP_QP_IPM_GET_MAX_RES_COMP s_ocp_qp_ipm_get_max_res_comp
 #define OCP_QP_IPM_GET_DUAL_GAP s_ocp_qp_ipm_get_dual_gap
 #define OCP_QP_IPM_GET_OBJ s_ocp_qp_ipm_get_obj
+#define OCP_QP_IPM_GET_TAU_ITER s_ocp_qp_ipm_get_tau_iter
 #define OCP_QP_IPM_GET_STAT s_ocp_qp_ipm_get_stat
 #define OCP_QP_IPM_GET_STAT_M s_ocp_qp_ipm_get_stat_m
 #define OCP_QP_IPM_GET_RIC_LR s_ocp_qp_ipm_get_ric_Lr

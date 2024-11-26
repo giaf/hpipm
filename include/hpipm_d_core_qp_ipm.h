@@ -76,6 +76,7 @@ struct d_core_qp_ipm_workspace
 	double t_min; // min value in t vector
 	double t_min_inv; // inverse of min value in t vector
 	double tau_min; // min value of barrier parameter
+	double tau_iter; // target value of barrier parameter at last iteration
 	int nv; // number of primal variables
 	int ne; // number of equality constraints
 	int nc; // (twice the) number of (two-sided) inequality constraints

@@ -238,6 +238,8 @@ void s_dense_qp_ipm_get_dual_gap(struct s_dense_qp_ipm_ws *ws, float *dual_gap);
 //
 void s_dense_qp_ipm_get_obj(struct s_dense_qp_ipm_ws *ws, float *obj);
 //
+void s_dense_qp_ipm_get_tau_iter(struct s_dense_qp_ipm_ws *ws, float *tau_iter);
+//
 void s_dense_qp_ipm_get_stat(struct s_dense_qp_ipm_ws *ws, float **stat);
 //
 void s_dense_qp_ipm_get_stat_m(struct s_dense_qp_ipm_ws *ws, int *stat_m);

@@ -1138,6 +1138,10 @@ void DENSE_QP_IPM_GET(char *field, struct DENSE_QP_IPM_WS *ws, void *value)
 		{
 		DENSE_QP_IPM_GET_OBJ(ws, value);
 		}
+	else if(hpipm_strcmp(field, "tau_iter"))
+		{
+		DENSE_QP_IPM_GET_TAU_ITER(ws, value);
+		}
 	else if(hpipm_strcmp(field, "stat"))
 		{
 		DENSE_QP_IPM_GET_STAT(ws, value);
@@ -1217,6 +1221,13 @@ void DENSE_QP_IPM_GET_DUAL_GAP(struct DENSE_QP_IPM_WS *ws, REAL *dual_gap)
 void DENSE_QP_IPM_GET_OBJ(struct DENSE_QP_IPM_WS *ws, REAL *obj)
 	{
 	*obj = ws->res->obj;
+	}
+
+
+
+void DENSE_QP_IPM_GET_TAU_ITER(struct DENSE_QP_IPM_WS *ws, REAL *tau_iter)
+	{
+	*tau_iter = ws->core_workspace->tau_iter;
 	}
 
 
