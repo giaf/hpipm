@@ -78,7 +78,7 @@ void DENSE_QP_IPM_ARG_SET_DEFAULT(enum HPIPM_MODE mode, struct DENSE_QP_IPM_ARG 
 		res_b = 1e0;
 		res_d = 1e0;
 		res_m = 1e-8;
-		dual_gap = 1e0;
+		dual_gap = 1e15;
 		iter_max = 15;
 		stat_max = 15;
 		pred_corr = 1;
@@ -110,7 +110,7 @@ void DENSE_QP_IPM_ARG_SET_DEFAULT(enum HPIPM_MODE mode, struct DENSE_QP_IPM_ARG 
 		res_b = 1e-8;
 		res_d = 1e-8;
 		res_m = 1e-8;
-		dual_gap = 1e0;
+		dual_gap = 1e15;
 		iter_max = 15;
 		stat_max = 15;
 		pred_corr = 1;
@@ -142,7 +142,7 @@ void DENSE_QP_IPM_ARG_SET_DEFAULT(enum HPIPM_MODE mode, struct DENSE_QP_IPM_ARG 
 		res_b = 1e-8;
 		res_d = 1e-8;
 		res_m = 1e-8;
-		dual_gap = 1e0;
+		dual_gap = 1e15;
 		iter_max = 30;
 		stat_max = 30;
 		pred_corr = 1;
@@ -174,7 +174,7 @@ void DENSE_QP_IPM_ARG_SET_DEFAULT(enum HPIPM_MODE mode, struct DENSE_QP_IPM_ARG 
 		res_b = 1e-8;
 		res_d = 1e-8;
 		res_m = 1e-8;
-		dual_gap = 1e0;
+		dual_gap = 1e15;
 		iter_max = 100;
 		stat_max = 100;
 		pred_corr = 1;
@@ -1401,6 +1401,11 @@ void DENSE_QP_IPM_ABS_STEP(int kk, struct DENSE_QP *qp, struct DENSE_QP_SOL *qp_
 
 	// tau_min as barrier parameter for affine step
 	COMPUTE_TAU_MIN_QP(cws);
+	if(ws->mask_constr)
+		{
+		// mask out disregarded constraints
+		VECMUL(cws->nc, qp->d_mask, 0, ws->res->res_m, 0, ws->res->res_m, 0);
+		}
 
 	// fact solve
 	FACT_SOLVE_KKT_STEP_DENSE_QP(ws->qp_step, ws->sol_step, arg, ws);
@@ -1561,6 +1566,11 @@ void DENSE_QP_IPM_DELTA_STEP(int kk, struct DENSE_QP *qp, struct DENSE_QP_SOL *q
 
 	// tau_min as barrier parameter for affine step
 	COMPUTE_TAU_MIN_QP(cws);
+	if(ws->mask_constr)
+		{
+		// mask out disregarded constraints
+		VECMUL(cws->nc, qp->d_mask, 0, ws->res->res_m, 0, ws->res->res_m, 0);
+		}
 
 	// fact and solve kkt
 	if(ws->lq_fact==0)
@@ -2125,7 +2135,6 @@ exit(1);
 		cws->nc_mask_inv = 1.0/nc_mask;
 		}
 
-
 	// no constraints
 	if(cws->nc==0 | mask_unconstr==1)
 		{
@@ -2295,9 +2304,10 @@ exit(1);
 			qp_res_max[1] > arg->res_b_max | \
 			qp_res_max[2] > arg->res_d_max | \
 			fabs(qp_res_max[3]-tau_min) > arg->res_m_max | \
-			ws->res->dual_gap>arg->dual_gap_max) \
+			ws->res->dual_gap > arg->dual_gap_max) \
 			; kk++)
 		{
+		//printf("\nexit conditions 0 %e %e 1 %e %e 2 %e %e 3 %e %e %e dg %e %e\n", qp_res_max[0], arg->res_g_max, qp_res_max[1], arg->res_b_max, qp_res_max[2], arg->res_d_max, qp_res_max[3], fabs(qp_res_max[3]-tau_min), arg->res_m_max, ws->res->dual_gap, arg->dual_gap_max);
 
 		// compute delta step
 		DENSE_QP_IPM_DELTA_STEP(kk, qp, qp_sol, arg, ws);

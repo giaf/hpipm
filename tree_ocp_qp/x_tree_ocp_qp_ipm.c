@@ -71,7 +71,7 @@ void TREE_OCP_QP_IPM_ARG_SET_DEFAULT(enum HPIPM_MODE mode, struct TREE_OCP_QP_IP
 		res_b_max = 1e0; // not used
 		res_d_max = 1e0; // not used
 		res_m_max = 1e-8;
-		dual_gap_max = 1e0;
+		dual_gap_max = 1e15;
 		iter_max = 15;
 		stat_max = 15;
 		pred_corr = 1;
@@ -101,7 +101,7 @@ void TREE_OCP_QP_IPM_ARG_SET_DEFAULT(enum HPIPM_MODE mode, struct TREE_OCP_QP_IP
 		res_b_max = 1e-8;
 		res_d_max = 1e-8;
 		res_m_max = 1e-8;
-		dual_gap_max = 1e0;
+		dual_gap_max = 1e15;
 		iter_max = 15;
 		stat_max = 15;
 		pred_corr = 1;
@@ -131,7 +131,7 @@ void TREE_OCP_QP_IPM_ARG_SET_DEFAULT(enum HPIPM_MODE mode, struct TREE_OCP_QP_IP
 		res_b_max = 1e-8;
 		res_d_max = 1e-8;
 		res_m_max = 1e-8;
-		dual_gap_max = 1e0;
+		dual_gap_max = 1e15;
 		iter_max = 30;
 		stat_max = 30;
 		pred_corr = 1;
@@ -161,7 +161,7 @@ void TREE_OCP_QP_IPM_ARG_SET_DEFAULT(enum HPIPM_MODE mode, struct TREE_OCP_QP_IP
 		res_b_max = 1e-8;
 		res_d_max = 1e-8;
 		res_m_max = 1e-8;
-		dual_gap_max = 1e0;
+		dual_gap_max = 1e15;
 		iter_max = 100;
 		stat_max = 100;
 		pred_corr = 1;
@@ -1166,6 +1166,11 @@ void TREE_OCP_QP_IPM_ABS_STEP(int kk, struct TREE_OCP_QP *qp, struct TREE_OCP_QP
 
 	// tau_min as barrier parameter for affine step
 	COMPUTE_TAU_MIN_QP(cws);
+	if(ws->mask_constr)
+		{
+		// mask out disregarded constraints
+		VECMUL(cws->nc, qp->d_mask, 0, ws->res->res_m, 0, ws->res->res_m, 0);
+		}
 
 	// fact solve
 //d_ocp_qp_print(ws->qp_step->dim, ws->qp_step);
@@ -1340,6 +1345,11 @@ void TREE_OCP_QP_IPM_DELTA_STEP(int kk, struct TREE_OCP_QP *qp, struct TREE_OCP_
 
 	// tau_min as barrier parameter for affine step
 	COMPUTE_TAU_MIN_QP(cws);
+	if(ws->mask_constr)
+		{
+		// mask out disregarded constraints
+		VECMUL(cws->nc, qp->d_mask, 0, ws->res->res_m, 0, ws->res->res_m, 0);
+		}
 
 	// fact and solve kkt
 	if(ws->lq_fact==0)
