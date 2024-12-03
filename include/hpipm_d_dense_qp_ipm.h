@@ -88,6 +88,7 @@ struct d_dense_qp_ipm_arg
 	int compute_obj; // compute obj on exit
 	int split_step; // use different steps for primal and dual variables
 	int t_lam_min; // clip t and lam: 0 no, 1 in Gamma computation, 2 in solution
+	int t0_init; // 0 sqrt(mu0), 1 1.0, 2 euristic for primal feas
 	int mode;
 	hpipm_size_t memsize;
 	};
@@ -212,10 +213,11 @@ void d_dense_qp_ipm_arg_set_remove_lin_dep_eq(int *value, struct d_dense_qp_ipm_
 //
 void d_dense_qp_ipm_arg_set_compute_obj(int *value, struct d_dense_qp_ipm_arg *arg);
 //
-void d_dense_qp_ipm_arg_set_t_lam_min(int *value, struct d_dense_qp_ipm_arg *arg);
-
-//
 void d_dense_qp_ipm_arg_set_split_step(int *value, struct d_dense_qp_ipm_arg *arg);
+//
+void d_dense_qp_ipm_arg_set_t_lam_min(int *value, struct d_dense_qp_ipm_arg *arg);
+//
+void d_dense_qp_ipm_arg_set_t0_init(int *value, struct d_dense_qp_ipm_arg *arg);
 
 //
 hpipm_size_t d_dense_qp_ipm_ws_strsize();

@@ -160,6 +160,7 @@
 #define DENSE_QP_IPM_ARG_SET_COMPUTE_OBJ d_dense_qp_ipm_arg_set_compute_obj
 #define DENSE_QP_IPM_ARG_SET_SPLIT_STEP d_dense_qp_ipm_arg_set_split_step
 #define DENSE_QP_IPM_ARG_SET_T_LAM_MIN d_dense_qp_ipm_arg_set_t_lam_min
+#define DENSE_QP_IPM_ARG_SET_T0_INIT d_dense_qp_ipm_arg_set_t0_init
 // ipm
 #define DENSE_QP_IPM_WS_STRSIZE d_dense_qp_ipm_ws_strsize
 #define DENSE_QP_IPM_WS_MEMSIZE d_dense_qp_ipm_ws_memsize
