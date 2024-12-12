@@ -64,20 +64,23 @@
 #define UNPACK_VEC blasfeo_unpack_svec
 #define DENSE_QP s_dense_qp
 #define DENSE_QP_DIM s_dense_qp_dim
-#define GECP_LIBSTR blasfeo_sgecp
-#define GETR_LIBSTR blasfeo_sgetr
+#define GECP blasfeo_sgecp
+#define GESE blasfeo_sgese
 #define REAL float
 #define ROWIN_LIBSTR blasfeo_srowin
 #define SIZE_STRMAT blasfeo_memsize_smat
 #define SIZE_STRVEC blasfeo_memsize_svec
 #define STRMAT blasfeo_smat
 #define STRVEC blasfeo_svec
-#define VECCP_LIBSTR blasfeo_sveccp
-#define VECSC_LIBSTR blasfeo_svecsc
+#define VECCP blasfeo_sveccp
+#define VECSC blasfeo_svecsc
 #define VECSE blasfeo_svecse
 
 #define DENSE_QP_MEMSIZE s_dense_qp_memsize
 #define DENSE_QP_CREATE s_dense_qp_create
+#define DENSE_QP_COPY_ALL s_dense_qp_copy_all
+#define DENSE_QP_SET_ALL_ZERO s_dense_qp_set_all_zero
+#define DENSE_QP_SET_RHS_ZERO s_dense_qp_set_rhs_zero
 #define DENSE_QP_SET_ALL s_dense_qp_set_all
 #define DENSE_QP_GET_ALL s_dense_qp_get_all
 #define DENSE_QP_SET s_dense_qp_set

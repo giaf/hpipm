@@ -489,7 +489,7 @@ void OCP_QP_SET_RHS_ZERO(struct OCP_QP *qp)
 	int *ng = qp->dim->ng;
 	int *ns = qp->dim->ns;
 
-	int ii, jj;
+	int ii;
 
 	for(ii=0; ii<N; ii++)
 		{
@@ -498,10 +498,9 @@ void OCP_QP_SET_RHS_ZERO(struct OCP_QP *qp)
 
 	for(ii=0; ii<=N; ii++)
 		{
-		VECSE(2*ns[ii], 0.0, qp->Z+ii, 0);
 		VECSE(nu[ii]+nx[ii]+2*ns[ii], 0.0, qp->rqz+ii, 0);
 		VECSE(2*nb[ii]+2*ng[ii]+2*ns[ii], 0.0, qp->d+ii, 0);
-		VECSE(2*nb[ii]+2*ng[ii]+2*ns[ii], 1.0, qp->d_mask+ii, 0);
+		//VECSE(2*nb[ii]+2*ng[ii]+2*ns[ii], 1.0, qp->d_mask+ii, 0);
 		VECSE(2*nb[ii]+2*ng[ii]+2*ns[ii], 0.0, qp->m+ii, 0);
 		}
 

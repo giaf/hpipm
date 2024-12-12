@@ -78,6 +78,12 @@ hpipm_size_t d_dense_qp_strsize();
 hpipm_size_t d_dense_qp_memsize(struct d_dense_qp_dim *dim);
 //
 void d_dense_qp_create(struct d_dense_qp_dim *dim, struct d_dense_qp *qp, void *memory);
+//
+void d_dense_qp_copy_all(struct d_dense_qp *qp_orig, struct d_dense_qp *qp_dest);
+//
+void d_dense_qp_set_all_zero(struct d_dense_qp *qp);
+//
+void d_dense_qp_set_rhs_zero(struct d_dense_qp *qp);
 
 // setters - colmaj
 //
