@@ -980,7 +980,11 @@ void TREE_OCP_QP_INIT_VAR(struct TREE_OCP_QP *qp, struct TREE_OCP_QP_SOL *qp_sol
 
 	REAL thr0 = 0.1;
 
-
+	// hot start: keep initial solution as it is
+	if(arg->warm_start>=3)
+		{
+		return;
+		}
 
 	// primal and dual variables
 	if(arg->warm_start==2)
@@ -1004,8 +1008,6 @@ void TREE_OCP_QP_INIT_VAR(struct TREE_OCP_QP *qp, struct TREE_OCP_QP_SOL *qp_sol
 
 		return;
 		}
-
-
 
 	// ux
 	if(arg->warm_start==0)

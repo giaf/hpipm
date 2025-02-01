@@ -1515,6 +1515,11 @@ void OCP_QP_INIT_VAR(struct OCP_QP *qp, struct OCP_QP_SOL *qp_sol, struct OCP_QP
 
 	REAL thr0 = 1e-1;
 
+	// hot start: keep initial solution as it is
+	if(arg->warm_start>=3)
+		{
+		return;
+		}
 
 	// primal and dual variables
 	if(arg->warm_start==2)
@@ -1538,7 +1543,6 @@ void OCP_QP_INIT_VAR(struct OCP_QP *qp, struct OCP_QP_SOL *qp_sol, struct OCP_QP
 
 		return;
 		}
-
 
 	// ux
 	if(arg->warm_start==0)
@@ -1818,7 +1822,6 @@ void OCP_QP_INIT_VAR(struct OCP_QP *qp, struct OCP_QP_SOL *qp_sol, struct OCP_QP
 			}
 
 		}
-
 
 	return;
 

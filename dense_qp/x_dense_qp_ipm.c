@@ -1289,6 +1289,11 @@ void DENSE_QP_INIT_VAR(struct DENSE_QP *qp, struct DENSE_QP_SOL *qp_sol, struct 
 	int idxb0;
 	REAL thr0 = 0.5;
 
+	// hot start: keep initial solution as it is
+	if(arg->warm_start>=3)
+		{
+		return;
+		}
 
 	// primal and dual variables
 	if(arg->warm_start==2)
@@ -1308,7 +1313,6 @@ void DENSE_QP_INIT_VAR(struct DENSE_QP *qp, struct DENSE_QP_SOL *qp_sol, struct 
 		return;
 
 		}
-
 
 	// primal variables
 	if(arg->warm_start==0)
