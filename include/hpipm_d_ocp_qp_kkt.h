@@ -53,6 +53,8 @@ extern "C" {
 //
 void d_ocp_qp_fact_solve_kkt_unconstr(struct d_ocp_qp *qp, struct d_ocp_qp_sol *qp_sol, struct d_ocp_qp_ipm_arg *arg, struct d_ocp_qp_ipm_ws *ws);
 //
+void d_ocp_qp_fact_kkt_step(struct d_ocp_qp *qp, struct d_ocp_qp_ipm_arg *arg, struct d_ocp_qp_ipm_ws *ws);
+//
 void d_ocp_qp_fact_solve_kkt_step(struct d_ocp_qp *qp, struct d_ocp_qp_sol *qp_sol, struct d_ocp_qp_ipm_arg *arg, struct d_ocp_qp_ipm_ws *ws);
 //
 void d_ocp_qp_fact_lq_solve_kkt_step(struct d_ocp_qp *qp, struct d_ocp_qp_sol *qp_sol, struct d_ocp_qp_ipm_arg *arg, struct d_ocp_qp_ipm_ws *ws);

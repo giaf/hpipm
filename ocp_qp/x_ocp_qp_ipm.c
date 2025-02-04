@@ -70,7 +70,7 @@ void OCP_QP_IPM_ARG_SET_DEFAULT(enum HPIPM_MODE mode, struct OCP_QP_IPM_ARG *arg
 	{
 
 	REAL mu0, alpha_min, res_g_max, res_b_max, res_d_max, res_m_max, dual_gap_max, reg_prim, lam_min, t_min, tau_min;
-	int iter_max, stat_max, pred_corr, cond_pred_corr, itref_pred_max, itref_corr_max, lq_fact, warm_start, abs_form, comp_res_exit, comp_res_pred, square_root_alg, comp_dual_sol_eq, split_step, var_init_scheme, t_lam_min;
+	int iter_max, stat_max, pred_corr, cond_pred_corr, itref_pred_max, itref_corr_max, lq_fact, warm_start, abs_form, comp_res_exit, comp_res_pred, square_root_alg, comp_dual_sol_eq, split_step, var_init_scheme, t_lam_min, update_fact_exit;
 
 	if(mode==SPEED_ABS)
 		{
@@ -101,6 +101,7 @@ void OCP_QP_IPM_ARG_SET_DEFAULT(enum HPIPM_MODE mode, struct OCP_QP_IPM_ARG *arg
 		split_step = 1;
 		var_init_scheme = 0;
 		t_lam_min = 2;
+		update_fact_exit = 1;
 		}
 	else if(mode==SPEED)
 		{
@@ -131,6 +132,7 @@ void OCP_QP_IPM_ARG_SET_DEFAULT(enum HPIPM_MODE mode, struct OCP_QP_IPM_ARG *arg
 		split_step = 1;
 		var_init_scheme = 0;
 		t_lam_min = 2;
+		update_fact_exit = 1;
 		}
 	else if(mode==BALANCE)
 		{
@@ -161,6 +163,7 @@ void OCP_QP_IPM_ARG_SET_DEFAULT(enum HPIPM_MODE mode, struct OCP_QP_IPM_ARG *arg
 		split_step = 0;
 		var_init_scheme = 0;
 		t_lam_min = 2;
+		update_fact_exit = 1;
 		}
 	else if(mode==ROBUST)
 		{
@@ -191,6 +194,7 @@ void OCP_QP_IPM_ARG_SET_DEFAULT(enum HPIPM_MODE mode, struct OCP_QP_IPM_ARG *arg
 		split_step = 0;
 		var_init_scheme = 0;
 		t_lam_min = 2;
+		update_fact_exit = 1;
 		}
 	else
 		{
@@ -228,6 +232,7 @@ void OCP_QP_IPM_ARG_SET_DEFAULT(enum HPIPM_MODE mode, struct OCP_QP_IPM_ARG *arg
 	OCP_QP_IPM_ARG_SET_SPLIT_STEP(&split_step, arg);
 	OCP_QP_IPM_ARG_SET_VAR_INIT_SCHEME(&var_init_scheme, arg);
 	OCP_QP_IPM_ARG_SET_T_LAM_MIN(&t_lam_min, arg);
+	OCP_QP_IPM_ARG_SET_UPDATE_FACT_EXIT(&update_fact_exit, arg);
 	arg->mode = mode;
 
 	return;
@@ -325,6 +330,10 @@ void OCP_QP_IPM_ARG_SET(char *field, void *value, struct OCP_QP_IPM_ARG *arg)
 	else if(hpipm_strcmp(field, "t_lam_min"))
 		{
 		OCP_QP_IPM_ARG_SET_T_LAM_MIN(value, arg);
+		}
+	else if(hpipm_strcmp(field, "update_fact_exit"))
+		{
+		OCP_QP_IPM_ARG_SET_UPDATE_FACT_EXIT(value, arg);
 		}
 	else
 		{
@@ -516,6 +525,14 @@ void OCP_QP_IPM_ARG_SET_T_LAM_MIN(int *value, struct OCP_QP_IPM_ARG *arg)
 
 
 
+void OCP_QP_IPM_ARG_SET_UPDATE_FACT_EXIT(int *value, struct OCP_QP_IPM_ARG *arg)
+	{
+	arg->update_fact_exit = *value;
+	return;
+	}
+
+
+
 void OCP_QP_IPM_ARG_DEEPCOPY(struct OCP_QP_IPM_ARG *arg_s, struct OCP_QP_IPM_ARG *arg_d)
 	{
 	arg_d->mu0 = arg_s->mu0;
@@ -545,6 +562,7 @@ void OCP_QP_IPM_ARG_DEEPCOPY(struct OCP_QP_IPM_ARG *arg_s, struct OCP_QP_IPM_ARG
 	arg_d->split_step = arg_s->split_step;
 	arg_d->var_init_scheme = arg_s->var_init_scheme;
 	arg_d->t_lam_min = arg_s->t_lam_min;
+	arg_d->update_fact_exit = arg_s->update_fact_exit;
 	arg_d->mode = arg_s->mode;
 	// TODO keep updated !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 	return;
@@ -1518,6 +1536,19 @@ void OCP_QP_INIT_VAR(struct OCP_QP *qp, struct OCP_QP_SOL *qp_sol, struct OCP_QP
 	// hot start: keep initial solution as it is
 	if(arg->warm_start>=3)
 		{
+		lam_lb = qp_sol->lam[ii].pa+0;
+		t_lb = qp_sol->t[ii].pa+0;
+
+		REAL lam_min = arg->lam_min;
+		REAL t_min = arg->t_min;
+
+		for(jj=0; jj<2*nb[ii]+2*ng[ii]+2*ns[ii]; jj++)
+			{
+			if(lam_lb[jj]<lam_min)
+				lam_lb[jj] = lam_min;
+			if(t_lb[jj]<t_min)
+				t_lb[jj] = t_min;
+			}
 		return;
 		}
 
@@ -2548,6 +2579,8 @@ void OCP_QP_IPM_SOLVE(struct OCP_QP *qp, struct OCP_QP_SOL *qp_sol, struct OCP_Q
 	ws->use_Pb = 0;
 	ws->valid_ric_vec = 0;
 
+	// set local flags
+	int updated_fact = 0; // flag whether the factorization is updated with the current solution iterate
 
 	// detect constr mask
 	int mask_unconstr;
@@ -2584,6 +2617,7 @@ void OCP_QP_IPM_SOLVE(struct OCP_QP *qp, struct OCP_QP_SOL *qp_sol, struct OCP_Q
 		{
 		ws->valid_ric_vec = 1;
 		OCP_QP_FACT_SOLVE_KKT_UNCONSTR(qp, qp_sol, arg, ws);
+		updated_fact = 1;
 		if(arg->comp_res_exit)
 			{
 			OCP_QP_RES_COMPUTE(qp, qp_sol, ws->res, ws->res_workspace);
@@ -2659,9 +2693,6 @@ void OCP_QP_IPM_SOLVE(struct OCP_QP *qp, struct OCP_QP_SOL *qp_sol, struct OCP_Q
 		ws->qp_step->d_mask = qp->d_mask;
 		ws->qp_step->m = ws->tmp_m;
 
-//d_ocp_qp_dim_print(ws->qp_step->dim);
-//d_ocp_qp_print(ws->qp_step->dim, ws->qp_step);
-//exit(1);
 		// alias core workspace
 		cws->res_m = ws->qp_step->m->pa;
 		cws->res_m_bkp = ws->qp_step->m->pa; // TODO remove (as in dense qp) ???
@@ -2684,6 +2715,7 @@ void OCP_QP_IPM_SOLVE(struct OCP_QP *qp, struct OCP_QP_SOL *qp_sol, struct OCP_Q
 
 			// compute delta step
 			OCP_QP_IPM_ABS_STEP(kk, qp, qp_sol, arg, ws);
+			updated_fact = 1;
 
 			// compute mu
 			mu = VECMULDOT(cws->nc, qp_sol->lam, 0, qp_sol->t, 0, ws->tmp_m, 0);
@@ -2770,6 +2802,7 @@ void OCP_QP_IPM_SOLVE(struct OCP_QP *qp, struct OCP_QP_SOL *qp_sol, struct OCP_Q
 
 		// compute delta step
 		OCP_QP_IPM_DELTA_STEP(kk, qp, qp_sol, arg, ws);
+		updated_fact = 1;
 
 		// compute residuals
 		OCP_QP_RES_COMPUTE(qp, qp_sol, ws->res, ws->res_workspace);
@@ -2799,6 +2832,12 @@ void OCP_QP_IPM_SOLVE(struct OCP_QP *qp, struct OCP_QP_SOL *qp_sol, struct OCP_Q
 		}
 
 set_status:
+
+	if(arg->update_fact_exit==1 & updated_fact==0)
+		{
+		// compute fresh factorization at current solution iterate
+		OCP_QP_FACT_KKT_STEP(qp, arg, ws);
+		}
 
 	// save info before return
 	ws->iter = kk;

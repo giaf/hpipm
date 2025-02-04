@@ -97,6 +97,7 @@
 #define STRVEC blasfeo_dvec
 #define SYRK_LN blasfeo_dsyrk_ln
 #define SYRK_LN_MN blasfeo_dsyrk_ln_mn
+#define SYRK_POTRF_LN blasfeo_dsyrk_dpotrf_ln
 #define SYRK_POTRF_LN_MN blasfeo_dsyrk_dpotrf_ln_mn
 #define TRCP_L blasfeo_dtrcp_l
 #define TRMM_RLNN blasfeo_dtrmm_rlnn
@@ -116,6 +117,7 @@
 
 
 #define OCP_QP_FACT_SOLVE_KKT_UNCONSTR d_ocp_qp_fact_solve_kkt_unconstr
+#define OCP_QP_FACT_KKT_STEP d_ocp_qp_fact_kkt_step
 #define OCP_QP_FACT_SOLVE_KKT_STEP d_ocp_qp_fact_solve_kkt_step
 #define OCP_QP_FACT_LQ_SOLVE_KKT_STEP d_ocp_qp_fact_lq_solve_kkt_step
 #define OCP_QP_SOLVE_KKT_STEP d_ocp_qp_solve_kkt_step

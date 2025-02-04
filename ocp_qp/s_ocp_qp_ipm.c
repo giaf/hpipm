@@ -86,6 +86,7 @@
 #define OCP_QP s_ocp_qp
 #define OCP_QP_DIM s_ocp_qp_dim
 #define OCP_QP_DIM_PRINT s_ocp_qp_dim_print
+#define OCP_QP_FACT_KKT_STEP s_ocp_qp_fact_kkt_step
 #define OCP_QP_FACT_SOLVE_KKT_STEP s_ocp_qp_fact_solve_kkt_step
 #define OCP_QP_FACT_LQ_SOLVE_KKT_STEP s_ocp_qp_fact_lq_solve_kkt_step
 #define OCP_QP_FACT_SOLVE_KKT_UNCONSTR s_ocp_qp_fact_solve_kkt_unconstr
@@ -164,6 +165,7 @@
 #define OCP_QP_IPM_ARG_SET_SPLIT_STEP s_ocp_qp_ipm_arg_set_split_step
 #define OCP_QP_IPM_ARG_SET_VAR_INIT_SCHEME s_ocp_qp_ipm_arg_set_var_init_scheme
 #define OCP_QP_IPM_ARG_SET_T_LAM_MIN s_ocp_qp_ipm_arg_set_t_lam_min
+#define OCP_QP_IPM_ARG_SET_UPDATE_FACT_EXIT s_ocp_qp_ipm_arg_set_update_fact_exit
 #define OCP_QP_IPM_ARG_DEEPCOPY s_ocp_qp_ipm_arg_deepcopy
 // ipm
 #define OCP_QP_IPM_WS_STRSIZE s_ocp_qp_ipm_ws_strsize

@@ -290,6 +290,62 @@ static void COND_SLACKS_FACT_SOLVE(int ss, struct OCP_QP *qp, struct OCP_QP_SOL 
 
 
 
+static void COND_SLACKS_FACT(int ss, struct OCP_QP *qp, struct OCP_QP_IPM_ARG *arg, struct OCP_QP_IPM_WS *ws)
+	{
+
+	int ii, idx;
+
+	int nx0 = qp->dim->nx[ss];
+	int nu0 = qp->dim->nu[ss];
+	int nb0 = qp->dim->nb[ss];
+	int ng0 = qp->dim->ng[ss];
+	int ns0 = qp->dim->ns[ss];
+
+	struct STRVEC *Z = qp->Z+ss;
+	int *idxs_rev0 = qp->idxs_rev[ss];
+
+	struct STRVEC *Gamma = ws->Gamma+ss;
+	struct STRVEC *Zs_inv = ws->Zs_inv+ss;
+	struct STRVEC *tmp_nbgM = ws->tmp_nbgM;
+
+	REAL *ptr_Gamma = Gamma->pa;
+	REAL *ptr_Z = Z->pa;
+	REAL *ptr_Zs_inv = Zs_inv->pa;
+	REAL *ptr_tmp0 = (tmp_nbgM+0)->pa;
+	REAL *ptr_tmp1 = (tmp_nbgM+1)->pa;
+	REAL *ptr_tmp2 = (tmp_nbgM+2)->pa;
+	REAL *ptr_tmp3 = (tmp_nbgM+3)->pa;
+
+	// idxs_rev
+	for(ii=0; ii<nb0+ng0; ii++)
+		{
+		idx = idxs_rev0[ii];
+		if(idx!=-1)
+			{
+			// ii   constr index
+			// idx <= slack index
+			ptr_Zs_inv[0+idx]   = ptr_Z[0+idx]   + arg->reg_prim + ptr_Gamma[0+ii]       + ptr_Gamma[2*nb0+2*ng0+idx];
+			ptr_Zs_inv[ns0+idx] = ptr_Z[ns0+idx] + arg->reg_prim + ptr_Gamma[nb0+ng0+ii] + ptr_Gamma[2*nb0+2*ng0+ns0+idx];
+			ptr_Zs_inv[0+idx]   = 1.0/ptr_Zs_inv[0+idx];
+			ptr_Zs_inv[ns0+idx] = 1.0/ptr_Zs_inv[ns0+idx];
+			ptr_tmp0[ii] = ptr_Gamma[0+ii]       - ptr_Gamma[0+ii]      *ptr_Zs_inv[0+idx]  *ptr_Gamma[0+ii];
+			ptr_tmp1[ii] = ptr_Gamma[nb0+ng0+ii] - ptr_Gamma[nb0+ng0+ii]*ptr_Zs_inv[ns0+idx]*ptr_Gamma[nb0+ng0+ii];
+			}
+		else
+			{
+			ptr_tmp0[ii] = ptr_Gamma[0+ii];
+			ptr_tmp1[ii] = ptr_Gamma[nb0+ng0+ii];
+			}
+		}
+
+	AXPY(nb0+ng0,  1.0, tmp_nbgM+1, 0, tmp_nbgM+0, 0, tmp_nbgM+0, 0);
+
+	return;
+
+	}
+
+
+
 static void COND_SLACKS_SOLVE(int ss, struct OCP_QP *qp, struct OCP_QP_SOL *qp_sol, struct OCP_QP_IPM_WS *ws)
 	{
 
@@ -398,6 +454,240 @@ static void EXPAND_SLACKS(int ss, struct OCP_QP *qp, struct OCP_QP_SOL *qp_sol, 
 
 
 // backward Riccati recursion
+void OCP_QP_FACT_KKT_STEP(struct OCP_QP *qp, struct OCP_QP_IPM_ARG *arg, struct OCP_QP_IPM_WS *ws)
+	{
+
+	int N = qp->dim->N;
+	int *nx = qp->dim->nx;
+	int *nu = qp->dim->nu;
+	int *nb = qp->dim->nb;
+	int *ng = qp->dim->ng;
+	int *ns = qp->dim->ns;
+
+	struct STRMAT *BAbt = qp->BAbt;
+	struct STRMAT *RSQrq = qp->RSQrq;
+	struct STRMAT *DCt = qp->DCt;
+	struct STRVEC *Z = qp->Z;
+	struct STRVEC *res_g = qp->rqz;
+	struct STRVEC *res_b = qp->b;
+	struct STRVEC *res_d = qp->d;
+	struct STRVEC *res_m = qp->m;
+	int **idxb = qp->idxb;
+
+	struct STRMAT *L = ws->L;
+	struct STRVEC *l = ws->l;
+	struct STRMAT *AL = ws->AL;
+	struct STRVEC *Gamma = ws->Gamma;
+	struct STRVEC *gamma = ws->gamma;
+	struct STRVEC *Pb = ws->Pb;
+	struct STRVEC *Zs_inv = ws->Zs_inv;
+	struct STRVEC *tmp_nuxM = ws->tmp_nuxM;
+	struct STRVEC *tmp_nbgM = ws->tmp_nbgM;
+
+	REAL *ptr0, *ptr1, *ptr2, *ptr3;
+
+	//
+	int ii, nn, ss, idx;
+
+	struct CORE_QP_IPM_WORKSPACE *cws = ws->core_workspace;
+
+	COMPUTE_GAMMA_GAMMA_QP(res_d[0].pa, res_m[0].pa, cws); // TODO LHS only
+
+	if(ws->square_root_alg)
+		{
+		ws->valid_ric_p = 0; // no RHS
+
+		// backward factorization
+
+		// last stage
+		ss = N;
+#if defined(DOUBLE_PRECISION)
+		TRCP_L(nu[ss]+nx[ss], RSQrq+ss, 0, 0, L+ss, 0, 0); // TODO blasfeo_dtrcp_l with m and n, for m>=n
+#else
+		GECP(nu[ss]+nx[ss], nu[ss]+nx[ss], RSQrq+ss, 0, 0, L+ss, 0, 0); // TODO blasfeo_dtrcp_l with m and n, for m>=n
+#endif
+		DIARE(nu[ss]+nx[ss], arg->reg_prim, L+ss, 0, 0);
+
+		if(ns[ss]>0)
+			{
+			COND_SLACKS_FACT(ss, qp, arg, ws);
+			}
+		else if(nb[ss]+ng[ss]>0)
+			{
+			AXPY(nb[ss]+ng[ss],  1.0, Gamma+ss, nb[ss]+ng[ss], Gamma+ss, 0, tmp_nbgM+0, 0);
+			}
+		if(nb[ss]>0)
+			{
+			DIAAD_SP(nb[ss], 1.0, tmp_nbgM+0, 0, idxb[ss], L+ss, 0, 0);
+			}
+		if(ng[ss]>0)
+			{
+			GEMM_R_DIAG(nu[ss]+nx[ss], ng[ss], 1.0, DCt+ss, 0, 0, tmp_nbgM+0, nb[ss], 0.0, AL+0, 0, 0, AL+0, 0, 0);
+			SYRK_POTRF_LN(nu[ss]+nx[ss], ng[ss], AL+0, 0, 0, DCt+ss, 0, 0, L+ss, 0, 0, L+ss, 0, 0);
+			}
+		else
+			{
+			POTRF_L(nu[ss]+nx[ss], L+ss, 0, 0, L+ss, 0, 0);
+			}
+
+		// middle stages
+		for(nn=0; nn<N; nn++)
+			{
+			ss = N-nn-1;
+			TRMM_RLNN(nu[ss]+nx[ss], nx[ss+1], 1.0, L+ss+1, nu[ss+1], nu[ss+1], BAbt+ss, 0, 0, AL, 0, 0);
+
+#if defined(DOUBLE_PRECISION)
+			TRCP_L(nu[ss]+nx[ss], RSQrq+ss, 0, 0, L+ss, 0, 0);
+#else
+			GECP(nu[ss]+nx[ss], nu[ss]+nx[ss], RSQrq+ss, 0, 0, L+ss, 0, 0);
+#endif
+			DIARE(nu[ss]+nx[ss], arg->reg_prim, L+ss, 0, 0);
+
+			if(ns[ss]>0)
+				{
+				COND_SLACKS_FACT(ss, qp, arg, ws);
+				}
+			else if(nb[ss]+ng[ss]>0)
+				{
+				AXPY(nb[ss]+ng[ss],  1.0, Gamma+ss, nb[ss]+ng[ss], Gamma+ss, 0, tmp_nbgM+0, 0);
+				}
+			if(nb[ss]>0)
+				{
+				DIAAD_SP(nb[ss], 1.0, tmp_nbgM+0, 0, idxb[ss], L+ss, 0, 0);
+				}
+			if(ng[ss]>0)
+				{
+				GEMM_R_DIAG(nu[ss]+nx[ss], ng[ss], 1.0, DCt+ss, 0, 0, tmp_nbgM+0, nb[ss], 0.0, AL+0, 0, nx[ss+1], AL+0, 0, nx[ss+1]);
+				GECP(nu[ss]+nx[ss], nx[ss+1], AL+0, 0, 0, AL+1, 0, 0);
+				GECP(nu[ss]+nx[ss], ng[ss], DCt+ss, 0, 0, AL+1, 0, nx[ss+1]);
+				SYRK_POTRF_LN(nu[ss]+nx[ss], nx[ss+1]+ng[ss], AL+0, 0, 0, AL+1, 0, 0, L+ss, 0, 0, L+ss, 0, 0);
+				}
+			else
+				{
+				SYRK_POTRF_LN(nu[ss]+nx[ss], nx[ss+1], AL, 0, 0, AL, 0, 0, L+ss, 0, 0, L+ss, 0, 0);
+				}
+
+			}
+
+		}
+	else // classical algorithm
+		{
+		ws->valid_ric_p = 0; // no RHS
+
+		struct STRMAT *P = ws->P;
+		struct STRMAT *Ls = ws->Ls;
+
+		// factorization and backward substitution
+
+		// last stage
+		ss = N;
+#if defined(DOUBLE_PRECISION)
+		TRCP_L(nu[ss]+nx[ss], RSQrq+ss, 0, 0, L+ss, 0, 0); // TODO blasfeo_dtrcp_l with m and n, for m>=n
+#else
+		GECP(nu[ss]+nx[ss], nu[ss]+nx[ss], RSQrq+ss, 0, 0, L+ss, 0, 0); // TODO blasfeo_dtrcp_l with m and n, for m>=n
+#endif
+		DIARE(nu[ss]+nx[ss], arg->reg_prim, L+ss, 0, 0);
+
+		if(ns[ss]>0)
+			{
+			COND_SLACKS_FACT(ss, qp, arg, ws);
+			}
+		else if(nb[ss]+ng[ss]>0)
+			{
+			AXPY(nb[ss]+ng[ss],  1.0, Gamma+ss, nb[ss]+ng[ss], Gamma+ss, 0, tmp_nbgM+0, 0);
+			}
+		if(nb[ss]>0)
+			{
+			DIAAD_SP(nb[ss], 1.0, tmp_nbgM+0, 0, idxb[ss], L+ss, 0, 0);
+			}
+		if(ng[ss]>0)
+			{
+			GEMM_R_DIAG(nu[ss]+nx[ss], ng[ss], 1.0, DCt+ss, 0, 0, tmp_nbgM+0, nb[ss], 0.0, AL+0, 0, 0, AL+0, 0, 0);
+			SYRK_LN(nu[ss]+nx[ss], ng[ss], 1.0, AL+0, 0, 0, DCt+ss, 0, 0, 1.0, L+ss, 0, 0, L+ss, 0, 0);
+			}
+		POTRF_L_MN(nu[ss]+nx[ss], nu[ss], L+ss, 0, 0, L+ss, 0, 0);
+		GECP(nx[ss], nu[ss], L+ss, nu[ss], 0, Ls, 0, 0);
+		SYRK_LN(nx[ss], nu[ss], -1.0, Ls, 0, 0, Ls, 0, 0, 1.0, L+ss, nu[ss], nu[ss], P+ss, 0, 0);
+		TRTR_L(nx[ss], P+ss, 0, 0, P+ss, 0, 0);
+
+		// middle stages
+		for(nn=0; nn<N-1; nn++)
+			{
+			ss = N-nn-1;
+			GEMM_NT(nu[ss]+nx[ss], nx[ss+1], nx[ss+1], 1.0, BAbt+ss, 0, 0, P+ss+1, 0, 0, 0.0, AL, 0, 0, AL, 0, 0); // TODO symm
+
+#if defined(DOUBLE_PRECISION)
+			TRCP_L(nu[ss]+nx[ss], RSQrq+ss, 0, 0, L+ss, 0, 0);
+#else
+			GECP(nu[ss]+nx[ss], nu[ss]+nx[ss], RSQrq+ss, 0, 0, L+ss, 0, 0);
+#endif
+			DIARE(nu[ss]+nx[ss], arg->reg_prim, L+ss, 0, 0);
+
+			if(ns[ss]>0)
+				{
+				COND_SLACKS_FACT(ss, qp, arg, ws);
+				}
+			else if(nb[ss]+ng[ss]>0)
+				{
+				AXPY(nb[ss]+ng[ss],  1.0, Gamma+ss, nb[ss]+ng[ss], Gamma+ss, 0, tmp_nbgM+0, 0);
+				}
+			if(nb[ss]>0)
+				{
+				DIAAD_SP(nb[ss], 1.0, tmp_nbgM+0, 0, idxb[ss], L+ss, 0, 0);
+				}
+			if(ng[ss]>0)
+				{
+				GEMM_R_DIAG(nu[ss]+nx[ss], ng[ss], 1.0, DCt+ss, 0, 0, tmp_nbgM+0, nb[ss], 0.0, AL+0, 0, nx[ss+1], AL+0, 0, nx[ss+1]);
+				SYRK_LN(nu[ss]+nx[ss], ng[ss], 1.0, AL+0, 0, nx[ss+1], DCt+ss, 0, 0, 1.0, L+ss, 0, 0, L+ss, 0, 0);
+				}
+			SYRK_LN(nu[ss]+nx[ss], nx[ss+1], 1.0, AL, 0, 0, BAbt+ss, 0, 0, 1.0, L+ss, 0, 0, L+ss, 0, 0);
+			POTRF_L_MN(nu[ss]+nx[ss], nu[ss], L+ss, 0, 0, L+ss, 0, 0);
+			GECP(nx[ss], nu[ss], L+ss, nu[ss], 0, Ls, 0, 0);
+			SYRK_LN(nx[ss], nu[ss], -1.0, Ls, 0, 0, Ls, 0, 0, 1.0, L+ss, nu[ss], nu[ss], P+ss, 0, 0);
+			TRTR_L(nx[ss], P+ss, 0, 0, P+ss, 0, 0);
+			}
+
+		// first stage: factorize P in L too
+		if(N>0)
+			{
+			ss = N-nn-1;
+			GEMM_NT(nu[ss]+nx[ss], nx[ss+1], nx[ss+1], 1.0, BAbt+ss, 0, 0, P+ss+1, 0, 0, 0.0, AL, 0, 0, AL, 0, 0); // TODO symm
+
+#if defined(DOUBLE_PRECISION)
+			TRCP_L(nu[ss]+nx[ss], RSQrq+ss, 0, 0, L+ss, 0, 0);
+#else
+			GECP(nu[ss]+nx[ss], nu[ss]+nx[ss], RSQrq+ss, 0, 0, L+ss, 0, 0);
+#endif
+			DIARE(nu[ss]+nx[ss], arg->reg_prim, L+ss, 0, 0);
+
+			if(ns[ss]>0)
+				{
+				COND_SLACKS_FACT(ss, qp, arg, ws);
+				}
+			else if(nb[ss]+ng[ss]>0)
+				{
+				AXPY(nb[ss]+ng[ss],  1.0, Gamma+ss, nb[ss]+ng[ss], Gamma+ss, 0, tmp_nbgM+0, 0);
+				}
+			if(nb[ss]>0)
+				{
+				DIAAD_SP(nb[ss], 1.0, tmp_nbgM+0, 0, idxb[ss], L+ss, 0, 0);
+				}
+			if(ng[ss]>0)
+				{
+				GEMM_R_DIAG(nu[ss]+nx[ss], ng[ss], 1.0, DCt+ss, 0, 0, tmp_nbgM+0, nb[ss], 0.0, AL+0, 0, nx[ss+1], AL+0, 0, nx[ss+1]);
+				SYRK_LN(nu[ss]+nx[ss], ng[ss], 1.0, AL+0, 0, nx[ss+1], DCt+ss, 0, 0, 1.0, L+ss, 0, 0, L+ss, 0, 0);
+				}
+			SYRK_POTRF_LN(nu[ss]+nx[ss], nx[ss+1], AL, 0, 0, BAbt+ss, 0, 0, L+ss, 0, 0, L+ss, 0, 0);
+			}
+
+		}
+
+	return;
+
+	}
+
+
+
 void OCP_QP_FACT_SOLVE_KKT_STEP(struct OCP_QP *qp, struct OCP_QP_SOL *qp_sol, struct OCP_QP_IPM_ARG *arg, struct OCP_QP_IPM_WS *ws)
 	{
 
