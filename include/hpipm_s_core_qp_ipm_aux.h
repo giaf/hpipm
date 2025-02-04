@@ -51,6 +51,8 @@ void s_compute_alpha_qp(struct s_core_qp_ipm_workspace *rws);
 //
 void s_update_var_qp(struct s_core_qp_ipm_workspace *rws);
 //
+void s_backup_var_qp(struct s_core_qp_ipm_workspace *rws);
+//
 void s_compute_mu_aff_qp(struct s_core_qp_ipm_workspace *rws);
 //
 void s_backup_res_m(struct s_core_qp_ipm_workspace *rws);

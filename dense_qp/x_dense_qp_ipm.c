@@ -1559,6 +1559,7 @@ void DENSE_QP_IPM_ABS_STEP(int kk, struct DENSE_QP *qp, struct DENSE_QP_SOL *qp_
 	if(ws->mask_constr)
 		{
 		// mask out disregarded constraints
+		//VECMUL(cws->nc, qp->d_mask, 0, qp_sol->t, 0, qp_sol->t, 0); // XXX keep for all components t>0
 		VECMUL(cws->nc, qp->d_mask, 0, qp_sol->lam, 0, qp_sol->lam, 0);
 		}
 
@@ -2220,8 +2221,11 @@ exit(1);
 	if(ws->mask_constr)
 		{
 		// mask out disregarded constraints
+		//VECMUL(cws->nc, qp->d_mask, 0, qp_sol->t, 0, qp_sol->t, 0); // XXX keep for all components t>0
 		VECMUL(cws->nc, qp->d_mask, 0, qp_sol->lam, 0, qp_sol->lam, 0);
 		}
+	// backup initial guess in core, for use in case it is already optimal
+	BACKUP_VAR_QP(cws);
 
 	cws->alpha = 1.0;
 
@@ -2249,7 +2253,8 @@ exit(1);
 //		cws->res_m_bkp = ws->qp_step->m->pa;
 
 		mu = VECMULDOT(cws->nc, qp_sol->lam, 0, qp_sol->t, 0, ws->tmp_m, 0);
-		mu /= cws->nc;
+		//mu /= cws->nc;
+		mu *= cws->nc_mask_inv;
 		cws->mu = mu;
 
 		// IPM loop (absolute formulation)

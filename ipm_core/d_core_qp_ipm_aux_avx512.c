@@ -616,6 +616,94 @@ void d_update_var_qp(struct d_core_qp_ipm_workspace *cws)
 
 
 
+void d_backup_var_qp(struct d_core_qp_ipm_workspace *cws)
+	{
+	
+	// extract workspace members
+	int nv = cws->nv;
+	int ne = cws->ne;
+	int nc = cws->nc;
+
+	double *v = cws->v;
+	double *pi = cws->pi;
+	double *lam = cws->lam;
+	double *t = cws->t;
+	double *v_bkp = cws->v_bkp;
+	double *pi_bkp = cws->pi_bkp;
+	double *lam_bkp = cws->lam_bkp;
+	double *t_bkp = cws->t_bkp;
+
+	__m512d
+		z_tmp2, z_tmp3;
+	
+	__m256d
+		y_tmp2, y_tmp3;
+
+	// local variables
+	int ii;
+
+	// backup v
+	ii = 0;
+	for(; ii<nv-7; ii+=8)
+		{
+		z_tmp2 = _mm512_loadu_pd( &v[ii] );
+		_mm512_storeu_pd( &v_bkp[ii], z_tmp2 );
+		}
+	for(; ii<nv-3; ii+=4)
+		{
+		y_tmp2 = _mm256_loadu_pd( &v[ii] );
+		_mm256_storeu_pd( &v_bkp[ii], y_tmp2 );
+		}
+	for(; ii<nv; ii++)
+		{
+		v_bkp[ii] = v[ii];
+		}
+
+	// backup pi
+	ii = 0;
+	for(; ii<ne-7; ii+=8)
+		{
+		z_tmp2 = _mm512_loadu_pd( &pi[ii] );
+		_mm512_storeu_pd( &pi_bkp[ii], z_tmp2 );
+		}
+	for(; ii<ne-3; ii+=4)
+		{
+		y_tmp2 = _mm256_loadu_pd( &pi[ii] );
+		_mm256_storeu_pd( &pi_bkp[ii], y_tmp2 );
+		}
+	for(; ii<ne; ii++)
+		{
+		pi_bkp[ii] = pi[ii];
+		}
+
+	// backup lam and t
+	ii = 0;
+	for(; ii<nc-7; ii+=8)
+		{
+		z_tmp2 = _mm512_loadu_pd( &lam[ii] );
+		z_tmp3 = _mm512_loadu_pd( &t[ii] );
+		_mm512_storeu_pd( &lam_bkp[ii], z_tmp2 );
+		_mm512_storeu_pd( &t_bkp[ii], z_tmp3 );
+		}
+	for(; ii<nc-3; ii+=4)
+		{
+		y_tmp2 = _mm256_loadu_pd( &lam[ii] );
+		y_tmp3 = _mm256_loadu_pd( &t[ii] );
+		_mm256_storeu_pd( &lam_bkp[ii], y_tmp2 );
+		_mm256_storeu_pd( &t_bkp[ii], y_tmp3 );
+		}
+	for(; ii<nc; ii++)
+		{
+		lam_bkp[ii] = lam[ii];
+		t_bkp[ii] = t[ii];
+		}
+
+	return;
+
+	}
+
+
+
 void d_compute_mu_aff_qp(struct d_core_qp_ipm_workspace *cws)
 	{
 

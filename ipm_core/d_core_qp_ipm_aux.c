@@ -45,6 +45,7 @@
 #define COMPUTE_LAM_T_QP d_compute_lam_t_qp
 #define COMPUTE_ALPHA_QP d_compute_alpha_qp
 #define UPDATE_VAR_QP d_update_var_qp
+#define BACKUP_VAR_QP d_backup_var_qp
 #define COMPUTE_MU_AFF_QP d_compute_mu_aff_qp
 #define BACKUP_RES_M d_backup_res_m
 #define COMPUTE_CENTERING_CORRECTION_QP d_compute_centering_correction_qp

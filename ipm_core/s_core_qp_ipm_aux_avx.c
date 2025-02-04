@@ -325,6 +325,56 @@ void s_update_var_qp(struct s_core_qp_ipm_workspace *cws)
 
 
 
+void s_backup_var_qp(struct s_core_qp_ipm_workspace *cws)
+	{
+	
+	// extract workspace members
+	int nv = cws->nv;
+	int ne = cws->ne;
+	int nc = cws->nc;
+
+	float *v = cws->v;
+	float *pi = cws->pi;
+	float *lam = cws->lam;
+	float *t = cws->t;
+	float *v_bkp = cws->v_bkp;
+	float *pi_bkp = cws->pi_bkp;
+	float *lam_bkp = cws->lam_bkp;
+	float *t_bkp = cws->t_bkp;
+
+	// local variables
+	int ii;
+
+	// backup v
+	for(ii=0; ii<nv; ii++)
+		{
+		v_bkp[ii] = v[ii];
+		}
+
+	// backup pi
+	for(ii=0; ii<ne; ii++)
+		{
+		pi_bkp[ii] = pi[ii];
+		}
+
+	// backup lam
+	for(ii=0; ii<nc; ii++)
+		{
+		lam_bkp[ii] = lam[ii];
+		}
+
+	// backup t
+	for(ii=0; ii<nc; ii++)
+		{
+		t_bkp[ii] = t[ii];
+		}
+
+	return;
+
+	}
+
+
+
 void s_compute_mu_aff_qp(struct s_core_qp_ipm_workspace *cws)
 	{
 

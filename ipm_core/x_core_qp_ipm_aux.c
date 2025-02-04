@@ -326,6 +326,56 @@ void UPDATE_VAR_QP(struct CORE_QP_IPM_WORKSPACE *cws)
 
 
 
+void BACKUP_VAR_QP(struct CORE_QP_IPM_WORKSPACE *cws)
+	{
+	
+	// extract workspace members
+	int nv = cws->nv;
+	int ne = cws->ne;
+	int nc = cws->nc;
+
+	REAL *v = cws->v;
+	REAL *pi = cws->pi;
+	REAL *lam = cws->lam;
+	REAL *t = cws->t;
+	REAL *v_bkp = cws->v_bkp;
+	REAL *pi_bkp = cws->pi_bkp;
+	REAL *lam_bkp = cws->lam_bkp;
+	REAL *t_bkp = cws->t_bkp;
+
+	// local variables
+	int ii;
+
+	// backup v
+	for(ii=0; ii<nv; ii++)
+		{
+		v_bkp[ii] = v[ii];
+		}
+
+	// backup pi
+	for(ii=0; ii<ne; ii++)
+		{
+		pi_bkp[ii] = pi[ii];
+		}
+
+	// backup lam
+	for(ii=0; ii<nc; ii++)
+		{
+		lam_bkp[ii] = lam[ii];
+		}
+
+	// backup t
+	for(ii=0; ii<nc; ii++)
+		{
+		t_bkp[ii] = t[ii];
+		}
+
+	return;
+
+	}
+
+
+
 void COMPUTE_MU_AFF_QP(struct CORE_QP_IPM_WORKSPACE *cws)
 	{
 

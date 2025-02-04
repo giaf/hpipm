@@ -67,6 +67,7 @@
 
 #define AXPY blasfeo_daxpy
 #define BACKUP_RES_M d_backup_res_m
+#define BACKUP_VAR_QP d_backup_var_qp
 #define BLAS_TRSM blasfeo_dtrsm
 #define COMPUTE_ALPHA_QP d_compute_alpha_qp
 #define COMPUTE_CENTERING_CORRECTION_QP d_compute_centering_correction_qp

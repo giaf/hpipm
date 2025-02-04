@@ -51,6 +51,8 @@ void d_compute_alpha_qp(struct d_core_qp_ipm_workspace *rws);
 //
 void d_update_var_qp(struct d_core_qp_ipm_workspace *rws);
 //
+void d_backup_var_qp(struct d_core_qp_ipm_workspace *rws);
+//
 void d_compute_mu_aff_qp(struct d_core_qp_ipm_workspace *rws);
 //
 void d_backup_res_m(struct d_core_qp_ipm_workspace *rws);

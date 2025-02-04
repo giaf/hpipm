@@ -1303,6 +1303,7 @@ void TREE_OCP_QP_IPM_ABS_STEP(int kk, struct TREE_OCP_QP *qp, struct TREE_OCP_QP
 	if(ws->mask_constr)
 		{
 		// mask out disregarded constraints
+		//VECMUL(cws->nc, qp->d_mask, 0, qp_sol->t, 0, qp_sol->t, 0); // XXX keep for all components t>0
 		VECMUL(cws->nc, qp->d_mask, 0, qp_sol->lam, 0, qp_sol->lam, 0);
 		}
 
@@ -1940,8 +1941,11 @@ void TREE_OCP_QP_IPM_SOLVE(struct TREE_OCP_QP *qp, struct TREE_OCP_QP_SOL *qp_so
 	if(ws->mask_constr)
 		{
 		// mask out disregarded constraints
+		//VECMUL(cws->nc, qp->d_mask, 0, qp_sol->t, 0, qp_sol->t, 0); // XXX keep for all components t>0
 		VECMUL(cws->nc, qp->d_mask, 0, qp_sol->lam, 0, qp_sol->lam, 0);
 		}
+	// backup initial guess in core, for use in case it is already optimal
+	BACKUP_VAR_QP(cws);
 
 	cws->alpha = 1.0;
 
@@ -1978,7 +1982,8 @@ void TREE_OCP_QP_IPM_SOLVE(struct TREE_OCP_QP *qp, struct TREE_OCP_QP_SOL *qp_so
 
 
 		mu = VECMULDOT(cws->nc, qp_sol->lam, 0, qp_sol->t, 0, ws->tmp_m, 0);
-		mu /= cws->nc;
+		//mu /= cws->nc;
+		mu *= cws->nc_mask_inv;
 		cws->mu = mu;
 
 		// IPM loop (absolute formulation)
@@ -1994,7 +1999,8 @@ void TREE_OCP_QP_IPM_SOLVE(struct TREE_OCP_QP *qp, struct TREE_OCP_QP_SOL *qp_so
 
 			// compute mu
 			mu = VECMULDOT(cws->nc, qp_sol->lam, 0, qp_sol->t, 0, ws->tmp_m, 0);
-			mu /= cws->nc;
+			//mu /= cws->nc;
+			mu *= cws->nc_mask_inv;
 			cws->mu = mu;
 			if(kk+1<ws->stat_max)
 				stat[stat_m*(kk+1)+5] = mu;
