@@ -1536,18 +1536,20 @@ void OCP_QP_INIT_VAR(struct OCP_QP *qp, struct OCP_QP_SOL *qp_sol, struct OCP_QP
 	// hot start: keep initial solution as it is
 	if(arg->warm_start>=3)
 		{
-		lam_lb = qp_sol->lam[ii].pa+0;
-		t_lb = qp_sol->t[ii].pa+0;
-
 		REAL lam_min = arg->lam_min;
 		REAL t_min = arg->t_min;
 
-		for(jj=0; jj<2*nb[ii]+2*ng[ii]+2*ns[ii]; jj++)
+		for(ii=0; ii<=N; ii++)
 			{
-			if(lam_lb[jj]<lam_min)
-				lam_lb[jj] = lam_min;
-			if(t_lb[jj]<t_min)
-				t_lb[jj] = t_min;
+			lam_lb = qp_sol->lam[ii].pa+0;
+			t_lb = qp_sol->t[ii].pa+0;
+			for(jj=0; jj<2*nb[ii]+2*ng[ii]+2*ns[ii]; jj++)
+				{
+				if(lam_lb[jj]<lam_min)
+					lam_lb[jj] = lam_min;
+				if(t_lb[jj]<t_min)
+					t_lb[jj] = t_min;
+				}
 			}
 		return;
 		}
