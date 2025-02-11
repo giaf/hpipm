@@ -313,8 +313,6 @@ static void COND_SLACKS_FACT(int ss, struct OCP_QP *qp, struct OCP_QP_IPM_ARG *a
 	REAL *ptr_Zs_inv = Zs_inv->pa;
 	REAL *ptr_tmp0 = (tmp_nbgM+0)->pa;
 	REAL *ptr_tmp1 = (tmp_nbgM+1)->pa;
-	REAL *ptr_tmp2 = (tmp_nbgM+2)->pa;
-	REAL *ptr_tmp3 = (tmp_nbgM+3)->pa;
 
 	// idxs_rev
 	for(ii=0; ii<nb0+ng0; ii++)
@@ -468,20 +466,20 @@ void OCP_QP_FACT_KKT_STEP(struct OCP_QP *qp, struct OCP_QP_IPM_ARG *arg, struct 
 	struct STRMAT *RSQrq = qp->RSQrq;
 	struct STRMAT *DCt = qp->DCt;
 	struct STRVEC *Z = qp->Z;
-	struct STRVEC *res_g = qp->rqz;
-	struct STRVEC *res_b = qp->b;
-	struct STRVEC *res_d = qp->d;
-	struct STRVEC *res_m = qp->m;
+	//struct STRVEC *res_g = qp->rqz;
+	//struct STRVEC *res_b = qp->b;
+	//struct STRVEC *res_d = qp->d;
+	//struct STRVEC *res_m = qp->m;
 	int **idxb = qp->idxb;
 
 	struct STRMAT *L = ws->L;
-	struct STRVEC *l = ws->l;
+	//struct STRVEC *l = ws->l;
 	struct STRMAT *AL = ws->AL;
 	struct STRVEC *Gamma = ws->Gamma;
-	struct STRVEC *gamma = ws->gamma;
-	struct STRVEC *Pb = ws->Pb;
+	//struct STRVEC *gamma = ws->gamma;
+	//struct STRVEC *Pb = ws->Pb;
 	struct STRVEC *Zs_inv = ws->Zs_inv;
-	struct STRVEC *tmp_nuxM = ws->tmp_nuxM;
+	//struct STRVEC *tmp_nuxM = ws->tmp_nuxM;
 	struct STRVEC *tmp_nbgM = ws->tmp_nbgM;
 
 	REAL *ptr0, *ptr1, *ptr2, *ptr3;
@@ -491,7 +489,7 @@ void OCP_QP_FACT_KKT_STEP(struct OCP_QP *qp, struct OCP_QP_IPM_ARG *arg, struct 
 
 	struct CORE_QP_IPM_WORKSPACE *cws = ws->core_workspace;
 
-	COMPUTE_GAMMA_GAMMA_QP(res_d[0].pa, res_m[0].pa, cws); // TODO LHS only
+	COMPUTE_GGAMMA_QP(cws);
 
 	if(ws->square_root_alg)
 		{

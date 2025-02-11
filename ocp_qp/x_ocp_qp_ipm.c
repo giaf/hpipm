@@ -2739,8 +2739,6 @@ void OCP_QP_IPM_SOLVE(struct OCP_QP *qp, struct OCP_QP_SOL *qp_sol, struct OCP_Q
 		//VECMUL(cws->nc, qp->d_mask, 0, qp_sol->t, 0, qp_sol->t, 0); // XXX keep for all components t>0
 		VECMUL(cws->nc, qp->d_mask, 0, qp_sol->lam, 0, qp_sol->lam, 0);
 		}
-	// backup initial guess in core, for use in case it is already optimal
-	BACKUP_VAR_QP(cws);
 
 	cws->alpha = 1.0;
 
@@ -2910,6 +2908,8 @@ set_status:
 		{
 		// compute fresh factorization at current solution iterate
 		OCP_QP_FACT_KKT_STEP(qp, arg, ws);
+		// backup initial guess in core, for use in case it is already optimal
+		BACKUP_VAR_QP(cws);
 		}
 
 	// save info before return

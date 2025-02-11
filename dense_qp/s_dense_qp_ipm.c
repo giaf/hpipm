@@ -81,6 +81,7 @@
 #define DENSE_QP_COMPUTE_OBJ s_dense_qp_compute_obj
 #define DENSE_QP_DIM s_dense_qp_dim
 #define DENSE_QP_DIM_PRINT s_dense_qp_dim_print
+#define DENSE_QP_FACT_KKT_STEP s_dense_qp_fact_kkt_step
 #define DENSE_QP_IPM_ARG s_dense_qp_ipm_arg
 #define DENSE_QP_IPM_ARG_PRINT s_dense_qp_ipm_arg_print
 #define DENSE_QP_IPM_WS s_dense_qp_ipm_ws
@@ -99,10 +100,10 @@
 #define DENSE_QP_SOL_MEMSIZE s_dense_qp_sol_memsize
 #define DENSE_QP_SOL_PRINT s_dense_qp_sol_print
 #define DOT blasfeo_sdot
-#define FACT_LQ_SOLVE_KKT_STEP_DENSE_QP s_fact_lq_solve_kkt_step_dense_qp
-#define FACT_SOLVE_LU_KKT_STEP_DENSE_QP s_fact_solve_lu_kkt_step_dense_qp
-#define FACT_SOLVE_KKT_STEP_DENSE_QP s_fact_solve_kkt_step_dense_qp
-#define FACT_SOLVE_KKT_UNCONSTR_DENSE_QP s_fact_solve_kkt_unconstr_dense_qp
+#define FACT_LQ_SOLVE_KKT_STEP_DENSE_QP s_dense_qp_fact_lq_solve_kkt_step
+#define FACT_SOLVE_LU_KKT_STEP_DENSE_QP s_dense_qp_fact_solve_lu_kkt_step
+#define FACT_SOLVE_KKT_STEP_DENSE_QP s_dense_qp_fact_solve_kkt_step
+#define FACT_SOLVE_KKT_UNCONSTR_DENSE_QP s_dense_qp_fact_solve_kkt_unconstr
 #define GELQF_WORKSIZE blasfeo_sgelqf_worksize
 #define GEMV_DIAG blasfeo_sgemv_d
 #define GEMV_NT blasfeo_sgemv_nt
@@ -114,7 +115,7 @@
 #define REAL float
 #define SIZE_STRMAT blasfeo_memsize_smat
 #define SIZE_STRVEC blasfeo_memsize_svec
-#define SOLVE_KKT_STEP_DENSE_QP s_solve_kkt_step_dense_qp
+#define SOLVE_KKT_STEP_DENSE_QP s_dense_qp_solve_kkt_step
 #define STRMAT blasfeo_smat
 #define STRVEC blasfeo_svec
 #define SYMV_L blasfeo_ssymv_l
@@ -166,6 +167,7 @@
 #define DENSE_QP_IPM_ARG_GET s_dense_qp_ipm_arg_get
 #define DENSE_QP_IPM_ARG_GET_LAM0_MIN s_dense_qp_ipm_arg_get_lam0_min
 #define DENSE_QP_IPM_ARG_GET_T0_MIN s_dense_qp_ipm_arg_get_t0_min
+#define DENSE_QP_IPM_ARG_SET_UPDATE_FACT_EXIT s_dense_qp_ipm_arg_set_update_fact_exit
 // ipm
 #define DENSE_QP_IPM_WS_MEMSIZE s_dense_qp_ipm_ws_memsize
 #define DENSE_QP_IPM_WS_CREATE s_dense_qp_ipm_ws_create

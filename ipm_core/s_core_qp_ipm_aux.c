@@ -41,6 +41,7 @@
 #define REAL float
 
 #define COMPUTE_GAMMA_GAMMA_QP s_compute_Gamma_gamma_qp
+#define COMPUTE_GGAMMA_QP s_compute_Gamma_qp
 #define COMPUTE_GAMMA_QP s_compute_gamma_qp
 #define COMPUTE_LAM_T_QP s_compute_lam_t_qp
 #define COMPUTE_ALPHA_QP s_compute_alpha_qp

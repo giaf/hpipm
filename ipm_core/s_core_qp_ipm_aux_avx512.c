@@ -88,6 +88,52 @@ void s_compute_Gamma_gamma_qp(float *res_d, float *res_m, struct s_core_qp_ipm_w
 
 
 
+void s_compute_Gamma_qp(struct s_core_qp_ipm_workspace *cws)
+	{
+
+	int nc = cws->nc;
+
+	float *lam = cws->lam;
+	float *t = cws->t;
+	float *t_inv = cws->t_inv;
+	float *Gamma = cws->Gamma;
+	float lam_min = cws->lam_min;
+	float t_min = cws->t_min;
+	float t_min_inv = cws->t_min_inv;
+	float lam0, t0, t_inv_tmp, lam_tmp;
+
+	// local variables
+	int ii;
+
+	if(cws->t_lam_min==1)
+		{
+		for(ii=0; ii<nc; ii++)
+			{
+			lam0 = lam[ii];
+			t0 = t[ii];
+			t_inv[ii] = 1.0/t0;
+			t_inv_tmp = t0<t_min ? t_min_inv : t_inv[ii];
+			lam_tmp = lam0<lam_min ? lam_min : lam0;
+			Gamma[ii] = t_inv_tmp*lam_tmp;
+			}
+		}
+	else
+		{
+		for(ii=0; ii<nc; ii++)
+			{
+			lam0 = lam[ii];
+			t0 = t[ii];
+			t_inv[ii] = 1.0/t0;
+			Gamma[ii] = t_inv[ii]*lam0;
+			}
+		}
+
+	return;
+
+	}
+
+
+
 void s_compute_gamma_qp(float *res_d, float *res_m, struct s_core_qp_ipm_workspace *cws)
 	{
 

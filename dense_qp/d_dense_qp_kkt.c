@@ -62,6 +62,7 @@
 #define COLSC blasfeo_dcolsc
 #define COMPUTE_LAM_T_QP d_compute_lam_t_qp
 #define COMPUTE_GAMMA_GAMMA_QP d_compute_Gamma_gamma_qp
+#define COMPUTE_GGAMMA_QP d_compute_Gamma_qp
 #define COMPUTE_GAMMA_QP d_compute_gamma_qp
 #define CORE_QP_IPM_WORKSPACE d_core_qp_ipm_workspace
 #define DENSE_QP d_dense_qp
@@ -128,10 +129,11 @@
 #define VECPE blasfeo_dvecpe
 #define VECPEI blasfeo_dvecpei
 
-#define FACT_SOLVE_KKT_UNCONSTR_DENSE_QP d_fact_solve_kkt_unconstr_dense_qp
-#define FACT_LQ_SOLVE_KKT_STEP_DENSE_QP d_fact_lq_solve_kkt_step_dense_qp
-#define FACT_SOLVE_KKT_STEP_DENSE_QP d_fact_solve_kkt_step_dense_qp
-#define SOLVE_KKT_STEP_DENSE_QP d_solve_kkt_step_dense_qp
+#define DENSE_QP_FACT_SOLVE_KKT_UNCONSTR d_dense_qp_fact_solve_kkt_unconstr
+#define DENSE_QP_FACT_LQ_SOLVE_KKT_STEP d_dense_qp_fact_lq_solve_kkt_step
+#define DENSE_QP_FACT_KKT_STEP d_dense_qp_fact_kkt_step
+#define DENSE_QP_FACT_SOLVE_KKT_STEP d_dense_qp_fact_solve_kkt_step
+#define DENSE_QP_SOLVE_KKT_STEP d_dense_qp_solve_kkt_step
 #define DENSE_QP_REMOVE_LIN_DEP_EQ d_dense_qp_remove_lin_dep_eq
 #define DENSE_QP_RESTORE_LIN_DEP_EQ d_dense_qp_restore_lin_dep_eq
 #define DENSE_QP_COMPUTE_OBJ d_dense_qp_compute_obj

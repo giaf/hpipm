@@ -68,7 +68,7 @@ void DENSE_QP_IPM_ARG_SET_DEFAULT(enum HPIPM_MODE mode, struct DENSE_QP_IPM_ARG 
 	{
 
 	REAL mu0, alpha_min, res_g, res_b, res_d, res_m, dual_gap, reg_prim, reg_dual, lam_min, t_min, tau_min, lam0_min, t0_min;
-	int iter_max, stat_max, pred_corr, cond_pred_corr, itref_pred_max, itref_corr_max, lq_fact, scale, warm_start, abs_form, comp_res_exit, comp_res_pred, kkt_fact_alg, remove_lin_dep_eq, compute_obj, split_step, t_lam_min, t0_init;
+	int iter_max, stat_max, pred_corr, cond_pred_corr, itref_pred_max, itref_corr_max, lq_fact, scale, warm_start, abs_form, comp_res_exit, comp_res_pred, kkt_fact_alg, remove_lin_dep_eq, compute_obj, split_step, t_lam_min, t0_init, update_fact_exit;
 
 	if(mode==SPEED_ABS)
 		{
@@ -104,6 +104,7 @@ void DENSE_QP_IPM_ARG_SET_DEFAULT(enum HPIPM_MODE mode, struct DENSE_QP_IPM_ARG 
 		split_step = 1;
 		t_lam_min = 2;
 		t0_init = 2;
+		update_fact_exit = 1;
 		}
 	else if(mode==SPEED)
 		{
@@ -139,6 +140,7 @@ void DENSE_QP_IPM_ARG_SET_DEFAULT(enum HPIPM_MODE mode, struct DENSE_QP_IPM_ARG 
 		split_step = 1;
 		t_lam_min = 2;
 		t0_init = 2;
+		update_fact_exit = 1;
 		}
 	else if(mode==BALANCE)
 		{
@@ -174,6 +176,7 @@ void DENSE_QP_IPM_ARG_SET_DEFAULT(enum HPIPM_MODE mode, struct DENSE_QP_IPM_ARG 
 		split_step = 0;
 		t_lam_min = 2;
 		t0_init = 2;
+		update_fact_exit = 1;
 		}
 	else if(mode==ROBUST)
 		{
@@ -209,6 +212,7 @@ void DENSE_QP_IPM_ARG_SET_DEFAULT(enum HPIPM_MODE mode, struct DENSE_QP_IPM_ARG 
 		split_step = 0;
 		t_lam_min = 2;
 		t0_init = 2;
+		update_fact_exit = 1;
 		}
 	else
 		{
@@ -252,6 +256,7 @@ void DENSE_QP_IPM_ARG_SET_DEFAULT(enum HPIPM_MODE mode, struct DENSE_QP_IPM_ARG 
 	DENSE_QP_IPM_ARG_SET_SPLIT_STEP(&split_step, arg);
 	DENSE_QP_IPM_ARG_SET_T_LAM_MIN(&t_lam_min, arg);
 	DENSE_QP_IPM_ARG_SET_T0_INIT(&t0_init, arg);
+	DENSE_QP_IPM_ARG_SET_UPDATE_FACT_EXIT(&update_fact_exit, arg);
 
 	return;
 
@@ -364,6 +369,10 @@ void DENSE_QP_IPM_ARG_SET(char *field, void *value, struct DENSE_QP_IPM_ARG *arg
 	else if(hpipm_strcmp(field, "t0_init"))
 		{
 		DENSE_QP_IPM_ARG_SET_T0_INIT(value, arg);
+		}
+	else if(hpipm_strcmp(field, "update_fact_exit"))
+		{
+		DENSE_QP_IPM_ARG_SET_UPDATE_FACT_EXIT(value, arg);
 		}
 	else
 		{
@@ -581,6 +590,14 @@ void DENSE_QP_IPM_ARG_SET_T0_INIT(int *value, struct DENSE_QP_IPM_ARG *arg)
 	arg->t0_init = *value;
 	return;
 	}
+
+
+void DENSE_QP_IPM_ARG_SET_UPDATE_FACT_EXIT(int *value, struct DENSE_QP_IPM_ARG *arg)
+	{
+	arg->update_fact_exit = *value;
+	return;
+	}
+
 
 
 void DENSE_QP_IPM_ARG_GET(char *field, struct DENSE_QP_IPM_ARG *arg, void *value)
@@ -2211,12 +2228,8 @@ exit(1);
 	ws->use_hess_fact = 0;
 	ws->use_A_fact = 0;
 
-//	for(ii=0; ii<cws->nc; ii++)
-//		{
-//		qp->m[0].pa[ii] = 1e-2;
-//		}
-//d_dense_qp_print(qp->dim, qp);
-//exit(1);
+	// set local flags
+	int updated_fact = 0; // flag whether the factorization is updated with the current solution iterate
 
 	// detect constr mask
 	int mask_unconstr;
@@ -2251,6 +2264,7 @@ exit(1);
 	if(cws->nc==0 | mask_unconstr==1)
 		{
 		FACT_SOLVE_KKT_UNCONSTR_DENSE_QP(qp, qp_sol, arg, ws);
+		updated_fact = 1;
 		if(arg->comp_res_exit)
 			{
 			// compute residuals
@@ -2301,8 +2315,6 @@ exit(1);
 		//VECMUL(cws->nc, qp->d_mask, 0, qp_sol->t, 0, qp_sol->t, 0); // XXX keep for all components t>0
 		VECMUL(cws->nc, qp->d_mask, 0, qp_sol->lam, 0, qp_sol->lam, 0);
 		}
-	// backup initial guess in core, for use in case it is already optimal
-	BACKUP_VAR_QP(cws);
 
 	cws->alpha = 1.0;
 
@@ -2344,6 +2356,7 @@ exit(1);
 
 			// compute delta step
 			DENSE_QP_IPM_ABS_STEP(kk, qp, qp_sol, arg, ws);
+			updated_fact = 1;
 
 			// compute mu
 			mu = VECMULDOT(cws->nc, qp_sol->lam, 0, qp_sol->t, 0, ws->tmp_m, 0);
@@ -2427,6 +2440,7 @@ exit(1);
 
 		// compute delta step
 		DENSE_QP_IPM_DELTA_STEP(kk, qp, qp_sol, arg, ws);
+		updated_fact = 1;
 
 		// compute residuals
 		DENSE_QP_RES_COMPUTE(qp, qp_sol, ws->res, ws->res_ws);
@@ -2455,6 +2469,14 @@ exit(1);
 		}
 
 set_status:
+
+	if(arg->update_fact_exit==1 & updated_fact==0)
+		{
+		// compute fresh factorization at current solution iterate
+		DENSE_QP_FACT_KKT_STEP(qp, arg, ws);
+		// backup initial guess in core, for use in case it is already optimal
+		BACKUP_VAR_QP(cws);
+		}
 
 	// save info before return
 	ws->iter = kk;

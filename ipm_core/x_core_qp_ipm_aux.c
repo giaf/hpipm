@@ -87,6 +87,53 @@ void COMPUTE_GAMMA_GAMMA_QP(REAL *res_d, REAL *res_m, struct CORE_QP_IPM_WORKSPA
 
 
 
+void COMPUTE_GGAMMA_QP(struct CORE_QP_IPM_WORKSPACE *cws)
+	{
+
+	int nc = cws->nc;
+
+	REAL *lam = cws->lam;
+	REAL *t = cws->t;
+	REAL *t_inv = cws->t_inv;
+	REAL *Gamma = cws->Gamma;
+	REAL lam_min = cws->lam_min;
+	REAL t_min = cws->t_min;
+	REAL t_min_inv = cws->t_min_inv;
+	REAL lam0, t0, t_inv_tmp, lam_tmp;
+
+	// local variables
+	int ii;
+
+//printf("\nGamma\n");
+	if(cws->t_lam_min==1)
+		{
+		for(ii=0; ii<nc; ii++)
+			{
+			lam0 = lam[ii];
+			t0 = t[ii];
+			t_inv[ii] = 1.0/t0;
+			t_inv_tmp = t0<t_min ? t_min_inv : t_inv[ii];
+			lam_tmp = lam0<lam_min ? lam_min : lam0;
+			Gamma[ii] = t_inv_tmp*lam_tmp;
+			}
+		}
+	else
+		{
+		for(ii=0; ii<nc; ii++)
+			{
+			lam0 = lam[ii];
+			t0 = t[ii];
+			t_inv[ii] = 1.0/t0;
+			Gamma[ii] = t_inv[ii]*lam0;
+			}
+		}
+
+	return;
+
+	}
+
+
+
 void COMPUTE_GAMMA_QP(REAL *res_d, REAL *res_m, struct CORE_QP_IPM_WORKSPACE *cws)
 	{
 

@@ -36,7 +36,7 @@
 
 
 // range-space (Schur complement) method
-void FACT_SOLVE_KKT_UNCONSTR_DENSE_QP(struct DENSE_QP *qp, struct DENSE_QP_SOL *qp_sol, struct DENSE_QP_IPM_ARG *arg, struct DENSE_QP_IPM_WS *ws)
+void DENSE_QP_FACT_SOLVE_KKT_UNCONSTR(struct DENSE_QP *qp, struct DENSE_QP_SOL *qp_sol, struct DENSE_QP_IPM_ARG *arg, struct DENSE_QP_IPM_WS *ws)
 	{
 
 	int ii, jj;
@@ -297,6 +297,59 @@ static void COND_SLACKS_FACT_SOLVE(struct DENSE_QP *qp, struct DENSE_QP_SOL *qp_
 
 
 
+static void COND_SLACKS_FACT(struct DENSE_QP *qp, struct DENSE_QP_IPM_ARG *arg, struct DENSE_QP_IPM_WS *ws)
+	{
+
+	int ii, idx;
+
+	int nv = qp->dim->nv;
+	int nb = qp->dim->nb;
+	int ng = qp->dim->ng;
+	int ns = qp->dim->ns;
+
+	struct STRVEC *Z = qp->Z;
+	int *idxs_rev = qp->idxs_rev;
+
+	struct STRVEC *Gamma = ws->Gamma;
+	struct STRVEC *Zs_inv = ws->Zs_inv;
+	struct STRVEC *tmp_nbg = ws->tmp_nbg;
+
+	REAL *ptr_Gamma = Gamma->pa;
+	REAL *ptr_Z = Z->pa;
+	REAL *ptr_Zs_inv = Zs_inv->pa;
+	REAL *ptr_tmp0 = (tmp_nbg+0)->pa;
+	REAL *ptr_tmp1 = (tmp_nbg+1)->pa;
+
+	REAL tmp0, tmp1;
+
+	VECCP(nb+ng, Gamma, 0, tmp_nbg+0, 0);
+	VECCP(nb+ng, Gamma, nb+ng, tmp_nbg+1, 0);
+
+	// idxs_rev
+	for(ii=0; ii<nb+ng; ii++)
+		{
+		idx = idxs_rev[ii];
+		if(idx!=-1)
+			{
+			// ii  <= constr index
+			// idx <= slack index
+			ptr_Zs_inv[0+idx]  = ptr_Z[0+idx]  + arg->reg_prim + ptr_Gamma[0+ii]     + ptr_Gamma[2*nb+2*ng+idx];
+			ptr_Zs_inv[ns+idx] = ptr_Z[ns+idx] + arg->reg_prim + ptr_Gamma[nb+ng+ii] + ptr_Gamma[2*nb+2*ng+ns+idx];
+			ptr_Zs_inv[0+idx]  = 1.0/ptr_Zs_inv[0+idx];
+			ptr_Zs_inv[ns+idx] = 1.0/ptr_Zs_inv[ns+idx];
+			ptr_tmp0[ii] = ptr_tmp0[ii] - ptr_tmp0[ii]*ptr_Zs_inv[0+idx]*ptr_tmp0[ii];
+			ptr_tmp1[ii] = ptr_tmp1[ii] - ptr_tmp1[ii]*ptr_Zs_inv[ns+idx]*ptr_tmp1[ii];
+			}
+		}
+
+	AXPY(nb+ng,  1.0, tmp_nbg+1, 0, tmp_nbg+0, 0, tmp_nbg+0, 0);
+
+	return;
+
+	}
+
+
+
 static void COND_SLACKS_SOLVE(struct DENSE_QP *qp, struct DENSE_QP_SOL *qp_sol, struct DENSE_QP_IPM_WS *ws)
 	{
 
@@ -404,8 +457,300 @@ static void EXPAND_SLACKS(struct DENSE_QP *qp, struct DENSE_QP_SOL *qp_sol, stru
 
 
 
-// range-space (Schur complement) method
-void FACT_SOLVE_KKT_STEP_DENSE_QP(struct DENSE_QP *qp, struct DENSE_QP_SOL *qp_sol, struct DENSE_QP_IPM_ARG *arg, struct DENSE_QP_IPM_WS *ws)
+void DENSE_QP_FACT_KKT_STEP(struct DENSE_QP *qp, struct DENSE_QP_IPM_ARG *arg, struct DENSE_QP_IPM_WS *ws)
+	{
+
+	int ii, jj;
+
+	int nv = qp->dim->nv;
+	int ne = qp->dim->ne;
+	int nb = qp->dim->nb;
+	int ng = qp->dim->ng;
+	int ns = qp->dim->ns;
+
+	struct STRMAT *Hg = qp->Hv;
+	struct STRMAT *A = qp->A;
+	struct STRMAT *Ct = qp->Ct;
+	int *idxb = qp->idxb;
+
+	//struct STRVEC *res_g = qp->gz;
+	//struct STRVEC *res_b = qp->b;
+
+	//struct STRVEC *dv = qp_sol->v;
+	//struct STRVEC *dpi = qp_sol->pi;
+	//struct STRVEC *dt = qp_sol->t;
+
+	struct STRMAT *Lv = ws->Lv;
+	struct STRMAT *Le = ws->Le;
+	struct STRMAT *Ctx = ws->Ctx;
+	struct STRMAT *AL = ws->AL;
+	//struct STRVEC *lv = ws->lv;
+	struct STRVEC *sv = ws->sv;
+	struct STRVEC *se = ws->se;
+	struct STRVEC *Gamma = ws->Gamma;
+	//struct STRVEC *gamma = ws->gamma;
+	struct STRVEC *tmp_nbg = ws->tmp_nbg;
+
+	// null space
+	struct STRMAT *A_LQ = ws->A_LQ;
+	struct STRMAT *A_Q = ws->A_Q;
+	struct STRMAT *Zt = ws->Zt;
+	struct STRMAT *ZtH = ws->ZtH;
+	struct STRMAT *ZtHZ = ws->ZtHZ;
+	//struct STRVEC *xy = ws->xy;
+	//struct STRVEC *Yxy = ws->Yxy;
+	//struct STRVEC *xz = ws->xz;
+	//struct STRVEC *tmp_nv = ws->tmp_nv;
+	void *lq_work_null = ws->lq_work_null;
+	void *orglq_work_null = ws->orglq_work_null;
+
+	REAL tmp;
+
+	struct CORE_QP_IPM_WORKSPACE *cws = ws->core_workspace;
+
+	if(nb+ng+ns>0)
+		{
+		COMPUTE_GGAMMA_QP(cws);
+		}
+
+	if(ne>0)
+		{
+
+		if(arg->kkt_fact_alg==0) // null space method
+			{
+
+			if(ws->use_A_fact==0)
+				{
+				GELQF(ne, nv, A, 0, 0, A_LQ, 0, 0, lq_work_null);
+
+				// TODO cache dA containing tau into another vector !!!!!
+
+				// TODO change dorglq API to pass tau explicitly as a vector !!!!!
+				// TODO allocate its dedicated workspace !!!!!
+				ORGLQ(nv, nv, ne, A_LQ, 0, 0, A_Q, 0, 0, orglq_work_null);
+
+				GECP(nv-ne, nv, A_Q, ne, 0, Zt, 0, 0);
+
+				ws->use_A_fact=1;
+				}
+
+
+			TRCP_L(nv, Hg, 0, 0, Lv, 0, 0);
+//			GECP(nv, nv, Hg, 0, 0, Lv, 0, 0);
+//			DIARE(nv, arg->reg_prim, Lv, 0, 0); // XXX leave out ???
+
+			if(ns>0)
+				{
+				COND_SLACKS_FACT(qp, arg, ws);
+				}
+			else if(nb+ng>0)
+				{
+				AXPY(nb+ng,  1.0, Gamma, nb+ng, Gamma, 0, tmp_nbg+0, 0);
+				}
+			if(nb>0)
+				{
+				DIAAD_SP(nb, 1.0, tmp_nbg+0, 0, idxb, Lv, 0, 0);
+				}
+			if(ng>0)
+				{
+				GEMM_R_DIAG(nv, ng, 1.0, Ct, 0, 0, tmp_nbg+0, nb, 0.0, Ctx, 0, 0, Ctx, 0, 0);
+				SYRK_LN(nv, ng, 1.0, Ctx, 0, 0, Ct, 0, 0, 1.0, Lv, 0, 0, Lv, 0, 0);
+				}
+
+			TRTR_L(nv, Lv, 0, 0, Lv, 0, 0);
+
+			GEMM_NT(nv-ne, nv, nv, 1.0, Zt, 0, 0, Lv, 0, 0, 0.0, ZtH, 0, 0, ZtH, 0, 0);
+			SYRK_LN(nv-ne, nv, 1.0, ZtH, 0, 0, Zt, 0, 0, 0.0, ZtHZ, 0, 0, ZtHZ, 0, 0);
+			DIARE(nv-ne, arg->reg_prim, ZtHZ, 0, 0); // XXX leave in ???
+			POTRF_L(nv-ne, ZtHZ, 0, 0, ZtHZ, 0, 0);
+
+			}
+		else // schur-complement method
+			{
+
+			if(arg->scale)
+				{
+
+	//			TRCP_L(nv, Hg, 0, 0, Lv, 0, 0);
+				GECP(nv, nv, Hg, 0, 0, Lv, 0, 0);
+
+				if(ns>0)
+					{
+					COND_SLACKS_FACT(qp, arg, ws);
+					}
+				else if(nb+ng>0)
+					{
+					AXPY(nb+ng,  1.0, Gamma, nb+ng, Gamma, 0, tmp_nbg+0, 0);
+					}
+				if(nb>0)
+					{
+					DIAAD_SP(nb, 1.0, tmp_nbg+0, 0, idxb, Lv, 0, 0);
+					}
+				if(ng>0)
+					{
+					GEMM_R_DIAG(nv, ng, 1.0, Ct, 0, 0, tmp_nbg+0, nb, 0.0, Ctx, 0, 0, Ctx, 0, 0);
+					SYRK_LN(nv, ng, 1.0, Ctx, 0, 0, Ct, 0, 0, 1.0, Lv, 0, 0, Lv, 0, 0);
+					}
+
+				DIAEX(nv, 1.0, Lv, 0, 0, sv, 0);
+				for(ii=0; ii<nv; ii++)
+					{
+					tmp = sqrt(sv->pa[ii]);
+	//				tmp = sqrt(tmp);
+	//				tmp = sqrt(sv->pa[ii]+tmp);
+	//				tmp = 1.0;
+					sv->pa[ii] = tmp==0 ? 1.0 : 1.0/tmp;
+					}
+
+				GEMM_L_DIAG(nv, nv, 1.0, sv, 0, Lv, 0, 0, 0.0, Lv, 0, 0, Lv, 0, 0);
+				GEMM_R_DIAG(nv, nv, 1.0, Lv, 0, 0, sv, 0, 0.0, Lv, 0, 0, Lv, 0, 0);
+				DIARE(nv, arg->reg_prim, Lv, 0, 0);
+				POTRF_L(nv, Lv, 0, 0, Lv, 0, 0);
+
+				GECP(ne, nv, A, 0, 0, AL, 0, 0);
+				GEMM_R_DIAG(ne, nv, 1.0, AL, 0, 0, sv, 0, 0.0, AL, 0, 0, AL, 0, 0);
+				TRSM_RLTN(ne, nv, 1.0, Lv, 0, 0, AL, 0, 0, AL, 0, 0);
+
+				GESE(ne, ne, 0.0, Le, 0, 0);
+				SYRK_LN(ne, nv, 1.0, AL, 0, 0, AL, 0, 0, 1.0, Le, 0, 0, Le, 0, 0);
+
+				DIAEX(ne, 1.0, Le, 0, 0, se, 0);
+				for(ii=0; ii<ne; ii++)
+					{
+					tmp = sqrt(se->pa[ii]);
+	//				tmp = sqrt(tmp);
+	//				tmp = sqrt(se->pa[ii]+tmp);
+	//				tmp = 1.0;
+					se->pa[ii] = tmp==0 ? 1.0 : 1.0/tmp;
+					}
+
+				GEMM_L_DIAG(ne, ne, 1.0, se, 0, Le, 0, 0, 0.0, Le, 0, 0, Le, 0, 0);
+				GEMM_R_DIAG(ne, ne, 1.0, Le, 0, 0, se, 0, 0.0, Le, 0, 0, Le, 0, 0);
+				DIARE(ne, arg->reg_dual, Le, 0, 0);
+				POTRF_L(ne, Le, 0, 0, Le, 0, 0);
+
+				}
+			else // no scale
+				{
+
+	//			TRCP_L(nv, Hg, 0, 0, Lv, 0, 0);
+				GECP(nv, nv, Hg, 0, 0, Lv, 0, 0);
+				DIARE(nv, arg->reg_prim, Lv, 0, 0);
+
+				if(ns>0)
+					{
+					COND_SLACKS_FACT(qp, arg, ws);
+					}
+				else if(nb+ng>0)
+					{
+					AXPY(nb+ng,  1.0, Gamma, nb+ng, Gamma, 0, tmp_nbg+0, 0);
+					}
+				if(nb>0)
+					{
+					DIAAD_SP(nb, 1.0, tmp_nbg+0, 0, idxb, Lv, 0, 0);
+					}
+				if(ng>0)
+					{
+					GEMM_R_DIAG(nv, ng, 1.0, Ct, 0, 0, tmp_nbg+0, nb, 0.0, Ctx, 0, 0, Ctx, 0, 0);
+					SYRK_POTRF_LN(nv, ng, Ctx, 0, 0, Ct, 0, 0, Lv, 0, 0, Lv, 0, 0);
+					}
+				else
+					{
+					POTRF_L(nv, Lv, 0, 0, Lv, 0, 0);
+					}
+
+				TRSM_RLTN(ne, nv, 1.0, Lv, 0, 0, A, 0, 0, AL, 0, 0);
+
+				GESE(ne, ne, 0.0, Le, 0, 0);
+				DIARE(ne, arg->reg_dual, Le, 0, 0);
+				SYRK_POTRF_LN(ne, nv, AL, 0, 0, AL, 0, 0, Le, 0, 0, Le, 0, 0);
+
+				} // scale
+
+			}
+
+		}
+	else // ne==0
+		{
+
+		if(arg->scale)
+			{
+
+			TRCP_L(nv, Hg, 0, 0, Lv, 0, 0);
+
+			if(ns>0)
+				{
+				COND_SLACKS_FACT(qp, arg, ws);
+				}
+			else if(nb+ng>0)
+				{
+				AXPY(nb+ng,  1.0, Gamma, nb+ng, Gamma, 0, tmp_nbg+0, 0);
+				}
+			if(nb>0)
+				{
+				DIAAD_SP(nb, 1.0, tmp_nbg+0, 0, idxb, Lv, 0, 0);
+				}
+			if(ng>0)
+				{
+				GEMM_R_DIAG(nv, ng, 1.0, Ct, 0, 0, tmp_nbg+0, nb, 0.0, Ctx, 0, 0, Ctx, 0, 0);
+				SYRK_LN(nv, ng, 1.0, Ctx, 0, 0, Ct, 0, 0, 1.0, Lv, 0, 0, Lv, 0, 0);
+				}
+
+			DIAEX(nv, 1.0, Lv, 0, 0, sv, 0);
+			for(ii=0; ii<nv; ii++)
+				{
+				tmp = sqrt(sv->pa[ii]);
+//				tmp = sqrt(tmp);
+//				tmp = sqrt(sv->pa[ii]+tmp);
+//				tmp = 1.0;
+				sv->pa[ii] = tmp==0 ? 1.0 : 1.0/tmp;
+				}
+
+			GEMM_L_DIAG(nv, nv, 1.0, sv, 0, Lv, 0, 0, 0.0, Lv, 0, 0, Lv, 0, 0);
+			GEMM_R_DIAG(nv, nv, 1.0, Lv, 0, 0, sv, 0, 0.0, Lv, 0, 0, Lv, 0, 0);
+			DIARE(nv, arg->reg_prim, Lv, 0, 0);
+			POTRF_L_MN(nv, nv, Lv, 0, 0, Lv, 0, 0);
+
+			}
+		else // no scale
+			{
+	//		TRCP_L(nv, Hg, 0, 0, Lv, 0, 0);
+			GECP(nv, nv, Hg, 0, 0, Lv, 0, 0);
+			DIARE(nv, arg->reg_prim, Lv, 0, 0);
+
+			if(ns>0)
+				{
+				COND_SLACKS_FACT(qp, arg, ws);
+				}
+			else if(nb+ng>0)
+				{
+				AXPY(nb+ng,  1.0, Gamma, nb+ng, Gamma, 0, tmp_nbg+0, 0);
+				}
+			if(nb>0)
+				{
+				DIAAD_SP(nb, 1.0, tmp_nbg+0, 0, idxb, Lv, 0, 0);
+				}
+			if(ng>0)
+				{
+				GEMM_R_DIAG(nv, ng, 1.0, Ct, 0, 0, tmp_nbg+0, nb, 0.0, Ctx, 0, 0, Ctx, 0, 0);
+				SYRK_POTRF_LN(nv, ng, Ctx, 0, 0, Ct, 0, 0, Lv, 0, 0, Lv, 0, 0);
+				}
+			else
+				{
+				POTRF_L(nv, Lv, 0, 0, Lv, 0, 0);
+				}
+
+			} // scale
+
+		} // ne>0
+
+	return;
+
+	}
+
+
+
+void DENSE_QP_FACT_SOLVE_KKT_STEP(struct DENSE_QP *qp, struct DENSE_QP_SOL *qp_sol, struct DENSE_QP_IPM_ARG *arg, struct DENSE_QP_IPM_WS *ws)
 	{
 
 	int ii, jj;
@@ -456,7 +801,7 @@ void FACT_SOLVE_KKT_STEP_DENSE_QP(struct DENSE_QP *qp, struct DENSE_QP_SOL *qp_s
 
 	struct CORE_QP_IPM_WORKSPACE *cws = ws->core_workspace;
 
-	if(nb+ng>0)
+	if(nb+ng+ns>0)
 		{
 		COMPUTE_GAMMA_GAMMA_QP(qp->d->pa, qp->m->pa, cws);
 		}
@@ -807,7 +1152,7 @@ printf("\nA_LQ * A_Q - A max err %e\n", max_err);
 //blasfeo_print_tran_dvec(nv, dv, 0);
 //blasfeo_print_tran_dvec(ne, dpi, 0);
 //exit(1);
-	if(nb+ng>0)
+	if(nb+ng+ns>0)
 		{
 		if(nb>0)
 			VECEX_SP(nb, 1.0, idxb, dv, 0, dt, 0);
@@ -830,7 +1175,7 @@ printf("\nA_LQ * A_Q - A max err %e\n", max_err);
 
 
 
-void FACT_LQ_SOLVE_KKT_STEP_DENSE_QP(struct DENSE_QP *qp, struct DENSE_QP_SOL *qp_sol, struct DENSE_QP_IPM_ARG *arg, struct DENSE_QP_IPM_WS *ws)
+void DENSE_QP_FACT_LQ_SOLVE_KKT_STEP(struct DENSE_QP *qp, struct DENSE_QP_SOL *qp_sol, struct DENSE_QP_IPM_ARG *arg, struct DENSE_QP_IPM_WS *ws)
 	{
 
 	int ii;
@@ -1208,7 +1553,7 @@ exit(1);
 
 
 #if 0
-void FACT_SOLVE_LU_KKT_STEP_DENSE_QP(struct DENSE_QP *qp, struct DENSE_QP_SOL *qp_sol, struct DENSE_QP_IPM_ARG *arg, struct DENSE_QP_IPM_WS *ws)
+void DENSE_QP_FACT_SOLVE_LU_KKT_STEP(struct DENSE_QP *qp, struct DENSE_QP_SOL *qp_sol, struct DENSE_QP_IPM_ARG *arg, struct DENSE_QP_IPM_WS *ws)
 	{
 
 	int ii;
@@ -1529,8 +1874,7 @@ void FACT_SOLVE_LU_KKT_STEP_DENSE_QP(struct DENSE_QP *qp, struct DENSE_QP_SOL *q
 
 
 
-// range-space (Schur complement) method
-void SOLVE_KKT_STEP_DENSE_QP(struct DENSE_QP *qp, struct DENSE_QP_SOL *qp_sol, struct DENSE_QP_IPM_ARG *arg, struct DENSE_QP_IPM_WS *ws)
+void DENSE_QP_SOLVE_KKT_STEP(struct DENSE_QP *qp, struct DENSE_QP_SOL *qp_sol, struct DENSE_QP_IPM_ARG *arg, struct DENSE_QP_IPM_WS *ws)
 	{
 
 	int nv = qp->dim->nv;
@@ -1575,7 +1919,7 @@ void SOLVE_KKT_STEP_DENSE_QP(struct DENSE_QP *qp, struct DENSE_QP_SOL *qp_sol, s
 
 	struct CORE_QP_IPM_WORKSPACE *cws = ws->core_workspace;
 
-	if(nb>0 | ng>0)
+	if(nb+ng+ns>0)
 		{
 		COMPUTE_GAMMA_QP(qp->d->pa, qp->m->pa, cws);
 		}
@@ -1696,7 +2040,7 @@ void SOLVE_KKT_STEP_DENSE_QP(struct DENSE_QP *qp, struct DENSE_QP_SOL *qp_sol, s
 
 		} // ne>0
 
-	if(nb+ng>0)
+	if(nb+ng+ns>0)
 		{
 		if(nb>0)
 			VECEX_SP(nb, 1.0, idxb, dv, 0, dt, 0);
