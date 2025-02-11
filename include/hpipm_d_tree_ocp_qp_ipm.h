@@ -70,6 +70,8 @@ struct d_tree_ocp_qp_ipm_arg
 	double lam_min; // min value in lam vector
 	double t_min; // min value in t vector
 	double tau_min; // min value of barrier parameter
+	double lam0_min; // min value in lam vector at hot start initialization
+	double t0_min; // min value in t vector at hot start initialization
 	int iter_max; // exit cond in iter number
 	int stat_max; // iterations saved in stat
 	int pred_corr; // use Mehrotra's predictor-corrector IPM algirthm
@@ -167,10 +169,20 @@ void d_tree_ocp_qp_ipm_arg_set_lam_min(double *value, struct d_tree_ocp_qp_ipm_a
 void d_tree_ocp_qp_ipm_arg_set_t_min(double *value, struct d_tree_ocp_qp_ipm_arg *arg);
 //
 void d_tree_ocp_qp_ipm_arg_set_tau_min(double *value, struct d_tree_ocp_qp_ipm_arg *arg);
+// min value of lam in the hot start initialization
+void d_tree_ocp_qp_ipm_arg_set_lam0_min(double *value, struct d_tree_ocp_qp_ipm_arg *arg);
+// min value of t in the hot start initialization
+void d_tree_ocp_qp_ipm_arg_set_t0_min(double *value, struct d_tree_ocp_qp_ipm_arg *arg);
 //
 void d_tree_ocp_qp_ipm_arg_set_split_step(int *value, struct d_tree_ocp_qp_ipm_arg *arg);
 //
 void d_tree_ocp_qp_ipm_arg_set_t_lam_min(int *value, struct d_tree_ocp_qp_ipm_arg *arg);
+//
+void d_tree_ocp_qp_ipm_arg_get(char *field, struct d_tree_ocp_qp_ipm_arg *arg, void *value);
+//
+void d_tree_ocp_qp_ipm_arg_get_lam0_min(struct d_tree_ocp_qp_ipm_arg *arg, double *value);
+//
+void d_tree_ocp_qp_ipm_arg_get_t0_min(struct d_tree_ocp_qp_ipm_arg *arg, double *value);
 
 //
 hpipm_size_t d_tree_ocp_qp_ipm_ws_memsize(struct d_tree_ocp_qp_dim *dim, struct d_tree_ocp_qp_ipm_arg *arg);

@@ -60,7 +60,7 @@ void TREE_OCP_QP_IPM_ARG_CREATE(struct TREE_OCP_QP_DIM *dim, struct TREE_OCP_QP_
 void TREE_OCP_QP_IPM_ARG_SET_DEFAULT(enum HPIPM_MODE mode, struct TREE_OCP_QP_IPM_ARG *arg)
 	{
 
-	REAL mu0, alpha_min, res_g_max, res_b_max, res_d_max, res_m_max, dual_gap_max, reg_prim, lam_min, t_min, tau_min;
+	REAL mu0, alpha_min, res_g_max, res_b_max, res_d_max, res_m_max, dual_gap_max, reg_prim, lam_min, t_min, tau_min, lam0_min, t0_min;
 	int iter_max, stat_max, pred_corr, cond_pred_corr, itref_pred_max, itref_corr_max, lq_fact, warm_start, abs_form, comp_res_exit, comp_res_pred, square_root_alg, comp_dual_sol_eq, split_step, var_init_scheme, t_lam_min;
 
 	if(mode==SPEED_ABS)
@@ -84,6 +84,8 @@ void TREE_OCP_QP_IPM_ARG_SET_DEFAULT(enum HPIPM_MODE mode, struct TREE_OCP_QP_IP
 		lam_min = 1e-16;
 		t_min = 1e-16;
 		tau_min = 1e-16;
+		lam0_min = 1e-9;
+		t0_min = 1e-9;
 		warm_start = 0;
 		abs_form = 1;
 		comp_dual_sol_eq = 0;
@@ -114,6 +116,8 @@ void TREE_OCP_QP_IPM_ARG_SET_DEFAULT(enum HPIPM_MODE mode, struct TREE_OCP_QP_IP
 		lam_min = 1e-16;
 		t_min = 1e-16;
 		tau_min = 1e-16;
+		lam0_min = 1e-9;
+		t0_min = 1e-9;
 		warm_start = 0;
 		abs_form = 0;
 		comp_dual_sol_eq = 1;
@@ -144,6 +148,8 @@ void TREE_OCP_QP_IPM_ARG_SET_DEFAULT(enum HPIPM_MODE mode, struct TREE_OCP_QP_IP
 		lam_min = 1e-16;
 		t_min = 1e-16;
 		tau_min = 1e-16;
+		lam0_min = 1e-9;
+		t0_min = 1e-9;
 		warm_start = 0;
 		abs_form = 0;
 		comp_dual_sol_eq = 1;
@@ -173,6 +179,8 @@ void TREE_OCP_QP_IPM_ARG_SET_DEFAULT(enum HPIPM_MODE mode, struct TREE_OCP_QP_IP
 		lq_fact = 2;
 		lam_min = 1e-16;
 		t_min = 1e-16;
+		lam0_min = 1e-9;
+		t0_min = 1e-9;
 		tau_min = 1e-16;
 		warm_start = 0;
 		abs_form = 0;
@@ -211,6 +219,8 @@ void TREE_OCP_QP_IPM_ARG_SET_DEFAULT(enum HPIPM_MODE mode, struct TREE_OCP_QP_IP
 	TREE_OCP_QP_IPM_ARG_SET_LAM_MIN(&lam_min, arg);
 	TREE_OCP_QP_IPM_ARG_SET_T_MIN(&t_min, arg);
 	TREE_OCP_QP_IPM_ARG_SET_TAU_MIN(&tau_min, arg);
+	TREE_OCP_QP_IPM_ARG_SET_LAM0_MIN(&lam0_min, arg);
+	TREE_OCP_QP_IPM_ARG_SET_T0_MIN(&t0_min, arg);
 	TREE_OCP_QP_IPM_ARG_SET_WARM_START(&warm_start, arg);
 	arg->abs_form = abs_form;
 	TREE_OCP_QP_IPM_ARG_SET_COMP_DUAL_SOL_EQ(&comp_dual_sol_eq, arg);
@@ -365,6 +375,22 @@ void TREE_OCP_QP_IPM_ARG_SET_TAU_MIN(REAL *value, struct TREE_OCP_QP_IPM_ARG *ar
 
 
 
+void TREE_OCP_QP_IPM_ARG_SET_LAM0_MIN(REAL *value, struct TREE_OCP_QP_IPM_ARG *arg)
+	{
+	arg->lam0_min = *value;
+	return;
+	}
+
+
+
+void TREE_OCP_QP_IPM_ARG_SET_T0_MIN(REAL *value, struct TREE_OCP_QP_IPM_ARG *arg)
+	{
+	arg->t0_min = *value;
+	return;
+	}
+
+
+
 void TREE_OCP_QP_IPM_ARG_SET_SPLIT_STEP(int *value, struct TREE_OCP_QP_IPM_ARG *arg)
 	{
 	arg->split_step = *value;
@@ -376,6 +402,44 @@ void TREE_OCP_QP_IPM_ARG_SET_SPLIT_STEP(int *value, struct TREE_OCP_QP_IPM_ARG *
 void TREE_OCP_QP_IPM_ARG_SET_T_LAM_MIN(int *value, struct TREE_OCP_QP_IPM_ARG *arg)
 	{
 	arg->t_lam_min = *value;
+	return;
+	}
+
+
+
+void TREE_OCP_QP_IPM_ARG_GET(char *field, struct TREE_OCP_QP_IPM_ARG *arg, void *value)
+	{
+	if(hpipm_strcmp(field, "lam0_min"))
+		{
+		TREE_OCP_QP_IPM_ARG_GET_LAM0_MIN(arg, value);
+		}
+	else if(hpipm_strcmp(field, "t0_min"))
+		{
+		TREE_OCP_QP_IPM_ARG_GET_T0_MIN(arg, value);
+		}
+	else 
+		{
+#ifdef EXT_DEP
+		printf("error: TREE_OCP_QP_IPM_ARG_GET: wrong field %s\n", field);
+#endif
+		exit(1);
+		}
+	return;
+	}
+
+
+
+void TREE_OCP_QP_IPM_ARG_GET_LAM0_MIN(struct TREE_OCP_QP_IPM_ARG *arg, REAL *value)
+	{
+	*value = arg->lam0_min;
+	return;
+	}
+
+
+
+void TREE_OCP_QP_IPM_ARG_GET_T0_MIN(struct TREE_OCP_QP_IPM_ARG *arg, REAL *value)
+	{
+	*value = arg->t0_min;
 	return;
 	}
 
@@ -983,15 +1047,29 @@ void TREE_OCP_QP_INIT_VAR(struct TREE_OCP_QP *qp, struct TREE_OCP_QP_SOL *qp_sol
 	// hot start: keep initial solution as it is
 	if(arg->warm_start>=3)
 		{
+		REAL lam0_min = arg->lam0_min;
+		REAL t0_min = arg->t0_min;
+		for(ii=0; ii<Nn; ii++)
+			{
+			lam_lb = qp_sol->lam[ii].pa+0;
+			t_lb = qp_sol->t[ii].pa+0;
+
+			for(jj=0; jj<2*nb[ii]+2*ng[ii]+2*ns[ii]; jj++)
+				{
+				if(lam_lb[jj]<lam0_min)
+					lam_lb[jj] = lam0_min;
+				if(t_lb[jj]<t0_min)
+					t_lb[jj] = t0_min;
+				}
+			}
 		return;
 		}
 
 	// primal and dual variables
 	if(arg->warm_start==2)
 		{
-
+		// TODO lam and t on relaxed central path instead of clipping
 		thr0 = 1e-1;
-
 		for(ii=0; ii<Nn; ii++)
 			{
 			lam_lb = qp_sol->lam[ii].pa+0;
@@ -1005,7 +1083,6 @@ void TREE_OCP_QP_INIT_VAR(struct TREE_OCP_QP *qp, struct TREE_OCP_QP_SOL *qp_sol
 					t_lb[jj] = thr0;
 				}
 			}
-
 		return;
 		}
 
@@ -1971,9 +2048,6 @@ void TREE_OCP_QP_IPM_SOLVE(struct TREE_OCP_QP *qp, struct TREE_OCP_QP_SOL *qp_so
 		ws->qp_step->d_mask = qp->d_mask;
 		ws->qp_step->m = ws->tmp_m;
 
-//d_ocp_qp_dim_print(ws->qp_step->dim);
-//d_ocp_qp_print(ws->qp_step->dim, ws->qp_step);
-//exit(1);
 		// alias core workspace
 		cws->res_m = ws->qp_step->m->pa;
 		cws->res_m_bkp = ws->qp_step->m->pa; // TODO remove (as in dense qp) ???

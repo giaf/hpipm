@@ -67,7 +67,7 @@ void DENSE_QP_IPM_ARG_CREATE(struct DENSE_QP_DIM *dim, struct DENSE_QP_IPM_ARG *
 void DENSE_QP_IPM_ARG_SET_DEFAULT(enum HPIPM_MODE mode, struct DENSE_QP_IPM_ARG *arg)
 	{
 
-	REAL mu0, alpha_min, res_g, res_b, res_d, res_m, dual_gap, reg_prim, reg_dual, lam_min, t_min, tau_min;
+	REAL mu0, alpha_min, res_g, res_b, res_d, res_m, dual_gap, reg_prim, reg_dual, lam_min, t_min, tau_min, lam0_min, t0_min;
 	int iter_max, stat_max, pred_corr, cond_pred_corr, itref_pred_max, itref_corr_max, lq_fact, scale, warm_start, abs_form, comp_res_exit, comp_res_pred, kkt_fact_alg, remove_lin_dep_eq, compute_obj, split_step, t_lam_min, t0_init;
 
 	if(mode==SPEED_ABS)
@@ -92,6 +92,8 @@ void DENSE_QP_IPM_ARG_SET_DEFAULT(enum HPIPM_MODE mode, struct DENSE_QP_IPM_ARG 
 		lam_min = 1e-16;
 		t_min = 1e-16;
 		tau_min = 1e-16;
+		lam0_min = 1e-9;
+		t0_min = 1e-9;
 		warm_start = 0;
 		abs_form = 1;
 		comp_res_exit = 0;
@@ -125,6 +127,8 @@ void DENSE_QP_IPM_ARG_SET_DEFAULT(enum HPIPM_MODE mode, struct DENSE_QP_IPM_ARG 
 		lam_min = 1e-16;
 		t_min = 1e-16;
 		tau_min = 1e-16;
+		lam0_min = 1e-9;
+		t0_min = 1e-9;
 		warm_start = 0;
 		abs_form = 0;
 		comp_res_exit = 1;
@@ -158,6 +162,8 @@ void DENSE_QP_IPM_ARG_SET_DEFAULT(enum HPIPM_MODE mode, struct DENSE_QP_IPM_ARG 
 		lam_min = 1e-16;
 		t_min = 1e-16;
 		tau_min = 1e-16;
+		lam0_min = 1e-9;
+		t0_min = 1e-9;
 		warm_start = 0;
 		abs_form = 0;
 		comp_res_exit = 1;
@@ -191,6 +197,8 @@ void DENSE_QP_IPM_ARG_SET_DEFAULT(enum HPIPM_MODE mode, struct DENSE_QP_IPM_ARG 
 		lam_min = 1e-16;
 		t_min = 1e-16;
 		tau_min = 1e-16;
+		lam0_min = 1e-9;
+		t0_min = 1e-9;
 		warm_start = 0;
 		abs_form = 0;
 		comp_res_exit = 1;
@@ -231,6 +239,8 @@ void DENSE_QP_IPM_ARG_SET_DEFAULT(enum HPIPM_MODE mode, struct DENSE_QP_IPM_ARG 
 	DENSE_QP_IPM_ARG_SET_LAM_MIN(&lam_min, arg);
 	DENSE_QP_IPM_ARG_SET_T_MIN(&t_min, arg);
 	DENSE_QP_IPM_ARG_SET_TAU_MIN(&tau_min, arg);
+	DENSE_QP_IPM_ARG_SET_LAM0_MIN(&lam0_min, arg);
+	DENSE_QP_IPM_ARG_SET_T0_MIN(&t0_min, arg);
 	DENSE_QP_IPM_ARG_SET_WARM_START(&warm_start, arg);
 	arg->abs_form = abs_form;
 	DENSE_QP_IPM_ARG_SET_COMP_RES_EXIT(&comp_res_exit, arg);
@@ -322,6 +332,14 @@ void DENSE_QP_IPM_ARG_SET(char *field, void *value, struct DENSE_QP_IPM_ARG *arg
 	else if(hpipm_strcmp(field, "tau_min"))
 		{
 		DENSE_QP_IPM_ARG_SET_TAU_MIN(value, arg);
+		}
+	else if(hpipm_strcmp(field, "lam0_min"))
+		{
+		DENSE_QP_IPM_ARG_SET_LAM0_MIN(value, arg);
+		}
+	else if(hpipm_strcmp(field, "t0_min"))
+		{
+		DENSE_QP_IPM_ARG_SET_T0_MIN(value, arg);
 		}
 	else if(hpipm_strcmp(field, "kkt_fact_alg"))
 		{
@@ -503,6 +521,22 @@ void DENSE_QP_IPM_ARG_SET_TAU_MIN(REAL *value, struct DENSE_QP_IPM_ARG *arg)
 
 
 
+void DENSE_QP_IPM_ARG_SET_LAM0_MIN(REAL *value, struct DENSE_QP_IPM_ARG *arg)
+	{
+	arg->lam0_min = *value;
+	return;
+	}
+
+
+
+void DENSE_QP_IPM_ARG_SET_T0_MIN(REAL *value, struct DENSE_QP_IPM_ARG *arg)
+	{
+	arg->t0_min = *value;
+	return;
+	}
+
+
+
 void DENSE_QP_IPM_ARG_SET_KKT_FACT_ALG(int *value, struct DENSE_QP_IPM_ARG *arg)
 	{
 	arg->kkt_fact_alg = *value;
@@ -547,6 +581,44 @@ void DENSE_QP_IPM_ARG_SET_T0_INIT(int *value, struct DENSE_QP_IPM_ARG *arg)
 	arg->t0_init = *value;
 	return;
 	}
+
+
+void DENSE_QP_IPM_ARG_GET(char *field, struct DENSE_QP_IPM_ARG *arg, void *value)
+	{
+	if(hpipm_strcmp(field, "lam0_min"))
+		{
+		DENSE_QP_IPM_ARG_GET_LAM0_MIN(arg, value);
+		}
+	else if(hpipm_strcmp(field, "t0_min"))
+		{
+		DENSE_QP_IPM_ARG_GET_T0_MIN(arg, value);
+		}
+	else 
+		{
+#ifdef EXT_DEP
+		printf("error: DENSE_QP_IPM_ARG_GET: wrong field %s\n", field);
+#endif
+		exit(1);
+		}
+	return;
+	}
+
+
+
+void DENSE_QP_IPM_ARG_GET_LAM0_MIN(struct DENSE_QP_IPM_ARG *arg, REAL *value)
+	{
+	*value = arg->lam0_min;
+	return;
+	}
+
+
+
+void DENSE_QP_IPM_ARG_GET_T0_MIN(struct DENSE_QP_IPM_ARG *arg, REAL *value)
+	{
+	*value = arg->t0_min;
+	return;
+	}
+
 
 
 hpipm_size_t DENSE_QP_IPM_WS_STRSIZE()
@@ -1292,15 +1364,23 @@ void DENSE_QP_INIT_VAR(struct DENSE_QP *qp, struct DENSE_QP_SOL *qp_sol, struct 
 	// hot start: keep initial solution as it is
 	if(arg->warm_start>=3)
 		{
+		REAL lam0_min = arg->lam0_min;
+		REAL t0_min = arg->t0_min;
+		for(ii=0; ii<2*nb+2*ng+2*ns; ii++)
+			{
+			if(lam[ii]<lam0_min)
+				lam[ii] = lam0_min;
+			if(t[ii]<t0_min)
+				t[ii] = t0_min;
+			}
 		return;
 		}
 
 	// primal and dual variables
 	if(arg->warm_start==2)
 		{
-
+		// TODO lam and t on relaxed central path instead of clipping
 		thr0 = 1e-1;
-
 		for(ii=0; ii<2*nb+2*ng+2*ns; ii++)
 			{
 			if(lam[ii]<thr0)
@@ -1308,10 +1388,7 @@ void DENSE_QP_INIT_VAR(struct DENSE_QP *qp, struct DENSE_QP_SOL *qp_sol, struct 
 			if(t[ii]<thr0)
 				t[ii] = thr0;
 			}
-
-
 		return;
-
 		}
 
 	// primal variables
@@ -2245,8 +2322,8 @@ exit(1);
 		ws->qp_step->gz = qp->gz;
 		ws->qp_step->b = qp->b;
 		ws->qp_step->d = qp->d;
+		ws->qp_step->d_mask = qp->d_mask;
 		ws->qp_step->m = ws->tmp_m;
-		ws->qp_step->d_mask = qp->d_mask; // XXX
 
 		// alias core workspace
 		cws->res_m = ws->qp_step->m->pa;
