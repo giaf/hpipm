@@ -86,6 +86,7 @@ struct d_ocp_qp_ipm_arg
 	int split_step; // use different steps for primal and dual variables
 	int var_init_scheme; // variables initialization scheme
 	int t_lam_min; // clip t and lam: 0 no, 1 in Gamma computation, 2 in solution
+	int t0_init; // 0 sqrt(mu0), 1 1.0, 2 euristic for primal feas
 	int update_fact_exit; // provide an updated factorization on exit (e.g. for use in sensitivity and feedback computation)
 	int mode;
 	hpipm_size_t memsize;
@@ -197,6 +198,8 @@ void d_ocp_qp_ipm_arg_set_split_step(int *value, struct d_ocp_qp_ipm_arg *arg);
 void d_ocp_qp_ipm_arg_set_var_init_scheme(int *value, struct d_ocp_qp_ipm_arg *arg);
 // clip t and lam: 0 no, 1 in Gamma computation, 2 in solution
 void d_ocp_qp_ipm_arg_set_t_lam_min(int *value, struct d_ocp_qp_ipm_arg *arg);
+// 0 sqrt(mu0), 1 1.0, 2 euristic for primal feas
+void d_ocp_qp_ipm_arg_set_t0_init(int *value, struct d_ocp_qp_ipm_arg *arg);
 // provide an updated factorization on exit (e.g. for use in sensitivity and feedback computation)
 void d_ocp_qp_ipm_arg_set_update_fact_exit(int *value, struct d_ocp_qp_ipm_arg *arg);
 //
