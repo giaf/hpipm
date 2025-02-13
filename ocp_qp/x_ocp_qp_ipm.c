@@ -1730,7 +1730,7 @@ void OCP_QP_INIT_VAR(struct OCP_QP *qp, struct OCP_QP_SOL *qp_sol, struct OCP_QP
 				}
 			}
 		}
-	else // euristic for primal feas
+	else //heuristic for primal feasibility
 		{
 
 		// TODO mask !!!!!!!!!

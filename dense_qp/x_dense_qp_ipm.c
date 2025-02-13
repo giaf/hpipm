@@ -1441,7 +1441,7 @@ void DENSE_QP_INIT_VAR(struct DENSE_QP *qp, struct DENSE_QP_SOL *qp_sol, struct 
 			lam[ii] = mu0;
 			}
 		}
-	else // euristic for primal feas
+	else //heuristic for primal feasibility
 		{
 
 		// TODO mask !!!!!!!!!
