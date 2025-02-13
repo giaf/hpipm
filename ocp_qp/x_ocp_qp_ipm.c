@@ -2911,7 +2911,8 @@ void OCP_QP_IPM_SOLVE(struct OCP_QP *qp, struct OCP_QP_SOL *qp_sol, struct OCP_Q
 	REAL res_d_tau = 0.0;
 	for(int ii=0; ii<cws->nc; ii++)
 		{
-		res_d_tau += BLASFEO_VECEL(qp->d_mask, ii)*fabs(BLASFEO_VECEL(ws->res->res_m, ii)-tau_min);
+		REAL tmp = BLASFEO_VECEL(qp->d_mask, ii)*fabs(BLASFEO_VECEL(ws->res->res_m, ii)-tau_min);
+		res_d_tau = tmp>res_d_tau ? tmp : res_d_tau;
 		}
 
 	// IPM loop
@@ -2959,7 +2960,8 @@ void OCP_QP_IPM_SOLVE(struct OCP_QP *qp, struct OCP_QP_SOL *qp_sol, struct OCP_Q
 		res_d_tau = 0.0;
 		for(int ii=0; ii<cws->nc; ii++)
 			{
-			res_d_tau += BLASFEO_VECEL(qp->d_mask, ii)*fabs(BLASFEO_VECEL(ws->res->res_m, ii)-tau_min);
+			REAL tmp = BLASFEO_VECEL(qp->d_mask, ii)*fabs(BLASFEO_VECEL(ws->res->res_m, ii)-tau_min);
+			res_d_tau = tmp>res_d_tau ? tmp : res_d_tau;
 			}
 
 		}
