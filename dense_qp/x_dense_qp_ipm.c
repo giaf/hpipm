@@ -1441,7 +1441,7 @@ void DENSE_QP_INIT_VAR(struct DENSE_QP *qp, struct DENSE_QP_SOL *qp_sol, struct 
 			lam[ii] = mu0;
 			}
 		}
-	else // euristic for primal feas
+	else //heuristic for primal feasibility
 		{
 
 		// TODO mask !!!!!!!!!
@@ -2425,6 +2425,13 @@ exit(1);
 
 	// relative (delta) IPM formulation
 
+	REAL res_d_tau = 0.0;
+	for(int ii=0; ii<cws->nc; ii++)
+		{
+			REAL tmp = BLASFEO_VECEL(qp->d_mask, ii)*fabs(BLASFEO_VECEL(ws->res->res_m, ii)-tau_min);
+			res_d_tau = tmp>res_d_tau ? tmp : res_d_tau;
+		}
+
 	// IPM loop
 	for(kk=0; \
 			kk < arg->iter_max & \
@@ -2432,7 +2439,8 @@ exit(1);
 			(qp_res_max[0] > arg->res_g_max | \
 			qp_res_max[1] > arg->res_b_max | \
 			qp_res_max[2] > arg->res_d_max | \
-			fabs(qp_res_max[3]-tau_min) > arg->res_m_max | \
+			/*fabs(qp_res_max[3]-tau_min) > arg->res_m_max | \ */
+			res_d_tau > arg->res_m_max | \
 			ws->res->dual_gap > arg->dual_gap_max) \
 			; kk++)
 		{
@@ -2466,6 +2474,12 @@ exit(1);
 			stat[stat_m*(kk+1)+11] = ws->res->obj;
 			}
 
+		res_d_tau = 0.0;
+		for(int ii=0; ii<cws->nc; ii++)
+			{
+			REAL tmp = BLASFEO_VECEL(qp->d_mask, ii)*fabs(BLASFEO_VECEL(ws->res->res_m, ii)-tau_min);
+			res_d_tau = tmp>res_d_tau ? tmp : res_d_tau;
+			}
 		}
 
 set_status:
