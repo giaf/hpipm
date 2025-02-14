@@ -90,7 +90,7 @@ struct s_dense_qp_ipm_arg
 	int compute_obj; // compute obj on exit
 	int split_step; // use different steps for primal and dual variables
 	int t_lam_min; // clip t and lam: 0 no, 1 in Gamma computation, 2 in solution
-	int t0_init; // initialization scheme of lambda and t slacks: 0 sqrt(mu0), 1 1.0, 2 heuristic for primal feasibility
+	int t0_init; // initialization scheme of slacks t (with corresponding multiplier lam=mu0/t): 0 sqrt(mu0), 1 1.0, 2 heuristic for primal feasibility
 	int update_fact_exit; // provide an updated factorization on exit (e.g. for use in sensitivity and feedback computation)
 	int mode;
 	hpipm_size_t memsize;
