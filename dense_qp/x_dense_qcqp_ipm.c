@@ -1512,13 +1512,18 @@ void DENSE_QCQP_IPM_SOLVE(struct DENSE_QCQP *qcqp, struct DENSE_QCQP_SOL *qcqp_s
 
 
 	// relative (delta) IPM formulation
+
+	REAL res_m_tau = 0.0;
+	AXPY(cws->nc, -tau_min, qp->d_mask, 0, qcqp_res->res_m, 0, qp_ws->tmp_m, 0);
+	VECNRM_INF(cws->nc, qp_ws->tmp_m, 0, &res_m_tau);
+
 	for(kk=0; \
 			kk < qcqp_arg->iter_max & \
 			cws->alpha > qcqp_arg->alpha_min & \
 			(qcqp_res_max[0] > qcqp_arg->res_g_max | \
 			qcqp_res_max[1] > qcqp_arg->res_b_max | \
 			qcqp_res_max[2] > qcqp_arg->res_d_max | \
-			fabs(qcqp_res_max[3]-tau_min) > qcqp_arg->res_m_max | \
+			res_m_tau > qcqp_arg->res_m_max | \
 			qcqp_res->dual_gap > qcqp_arg->dual_gap_max) \
 			; kk++)
 		{
@@ -1564,6 +1569,9 @@ void DENSE_QCQP_IPM_SOLVE(struct DENSE_QCQP *qcqp, struct DENSE_QCQP_SOL *qcqp_s
 			stat[stat_m*(kk+1)+10] = qcqp_res->dual_gap;
 			stat[stat_m*(kk+1)+11] = qcqp_res->obj;
 			}
+
+		AXPY(cws->nc, -tau_min, qp->d_mask, 0, qcqp_res->res_m, 0, qp_ws->tmp_m, 0);
+		VECNRM_INF(cws->nc, qp_ws->tmp_m, 0, &res_m_tau);
 
 		}
 

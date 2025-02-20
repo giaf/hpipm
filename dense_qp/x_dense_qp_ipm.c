@@ -2425,12 +2425,9 @@ exit(1);
 
 	// relative (delta) IPM formulation
 
-	REAL res_d_tau = 0.0;
-	for(int ii=0; ii<cws->nc; ii++)
-		{
-			REAL tmp = BLASFEO_VECEL(qp->d_mask, ii)*fabs(BLASFEO_VECEL(ws->res->res_m, ii)-tau_min);
-			res_d_tau = tmp>res_d_tau ? tmp : res_d_tau;
-		}
+	REAL res_m_tau = 0.0;
+	AXPY(cws->nc, -tau_min, qp->d_mask, 0, ws->res->res_m, 0, ws->tmp_m, 0);
+	VECNRM_INF(cws->nc, ws->tmp_m, 0, &res_m_tau);
 
 	// IPM loop
 	for(kk=0; \
@@ -2440,7 +2437,7 @@ exit(1);
 			qp_res_max[1] > arg->res_b_max | \
 			qp_res_max[2] > arg->res_d_max | \
 			/*fabs(qp_res_max[3]-tau_min) > arg->res_m_max | \ */
-			res_d_tau > arg->res_m_max | \
+			res_m_tau > arg->res_m_max | \
 			ws->res->dual_gap > arg->dual_gap_max) \
 			; kk++)
 		{
@@ -2474,12 +2471,9 @@ exit(1);
 			stat[stat_m*(kk+1)+11] = ws->res->obj;
 			}
 
-		res_d_tau = 0.0;
-		for(int ii=0; ii<cws->nc; ii++)
-			{
-			REAL tmp = BLASFEO_VECEL(qp->d_mask, ii)*fabs(BLASFEO_VECEL(ws->res->res_m, ii)-tau_min);
-			res_d_tau = tmp>res_d_tau ? tmp : res_d_tau;
-			}
+		AXPY(cws->nc, -tau_min, qp->d_mask, 0, ws->res->res_m, 0, ws->tmp_m, 0);
+		VECNRM_INF(cws->nc, ws->tmp_m, 0, &res_m_tau);
+
 		}
 
 set_status:

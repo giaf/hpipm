@@ -2142,13 +2142,17 @@ void TREE_OCP_QP_IPM_SOLVE(struct TREE_OCP_QP *qp, struct TREE_OCP_QP_SOL *qp_so
 
 	// relative (delta) IPM formulation
 
+	REAL res_m_tau = 0.0;
+	AXPY(cws->nc, -tau_min, qp->d_mask, 0, ws->res->res_m, 0, ws->tmp_m, 0);
+	VECNRM_INF(cws->nc, ws->tmp_m, 0, &res_m_tau);
+
 	// IPM loop
 	for(kk=0; kk<arg->iter_max & \
 			cws->alpha>arg->alpha_min & \
 			(qp_res_max[0]>arg->res_g_max | \
 			qp_res_max[1]>arg->res_b_max | \
 			qp_res_max[2]>arg->res_d_max | \
-			fabs(qp_res_max[3]-tau_min) > arg->res_m_max | \
+			res_m_tau > arg->res_m_max | \
 			ws->res->dual_gap>arg->dual_gap_max) \
 			; kk++)
 		{
@@ -2180,6 +2184,9 @@ void TREE_OCP_QP_IPM_SOLVE(struct TREE_OCP_QP *qp, struct TREE_OCP_QP_SOL *qp_so
 			stat[stat_m*(kk+1)+10] = ws->res->dual_gap;
 			stat[stat_m*(kk+1)+11] = ws->res->obj;
 			}
+
+		AXPY(cws->nc, -tau_min, qp->d_mask, 0, ws->res->res_m, 0, ws->tmp_m, 0);
+		VECNRM_INF(cws->nc, ws->tmp_m, 0, &res_m_tau);
 
 		}
 
