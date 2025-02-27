@@ -3249,19 +3249,31 @@ void OCP_QP_IPM_SENS_ADJ(struct OCP_QP *qp, struct OCP_QP_SOL *qp_sol, struct OC
 	for(ii=0; ii<cws->nc; ii++)
 		cws->t[ii] = cws->t_bkp[ii];
 
-	// scale m
+	// backup and scale m
 	REAL *m = qp->m->pa;
+	REAL *tmp_m = ws->tmp_m->pa;
 	for(ii=0; ii<cws->nc; ii++)
+		{
+		tmp_m[ii] = m[ii];
 		m[ii] *= cws->t[ii];
+		}
 
 	// solve kkt
 	ws->use_Pb = 0;
 	OCP_QP_SOLVE_KKT_STEP(qp, qp_sol, arg, ws);
 
-	// scale t
+	// scale t and back-scale m
 	REAL *t = qp_sol->t->pa;
 	for(ii=0; ii<cws->nc; ii++)
+		{
 		t[ii] *= cws->t_inv[ii];
+		}
+
+	// restore m
+	for(ii=0; ii<cws->nc; ii++)
+		{
+		m[ii] = tmp_m[ii];
+		}
 
 	return;
 
