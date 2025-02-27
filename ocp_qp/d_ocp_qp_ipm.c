@@ -202,6 +202,7 @@
 #define OCP_QP_IPM_SOLVE d_ocp_qp_ipm_solve
 #define OCP_QP_IPM_PREDICT d_ocp_qp_ipm_predict
 #define OCP_QP_IPM_SENS d_ocp_qp_ipm_sens
+#define OCP_QP_IPM_SENS_ADJ d_ocp_qp_ipm_sens_adj
 
 
 

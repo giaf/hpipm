@@ -2694,26 +2694,59 @@ void DENSE_QP_IPM_SENS(struct DENSE_QP *qp, struct DENSE_QP_SOL *qp_sol, struct 
 	// solve kkt
 	SOLVE_KKT_STEP_DENSE_QP(qp, qp_sol, arg, ws);
 
+	return;
+
+	}
+
+
+
+void DENSE_QP_IPM_SENS_ADJ(struct DENSE_QP *qp, struct DENSE_QP_SOL *qp_sol, struct DENSE_QP_IPM_ARG *arg, struct DENSE_QP_IPM_WS *ws)
+	{
+
 #if 0
-	// alpha TODO fix alpha=1 !!!!!
-//	COMPUTE_ALPHA_QP(cws->dlam, cws->dt, cws);
-	cws->alpha = 1.0;
-
-	//
-	UPDATE_VAR_QP(cws);
-
-	if(arg->comp_res_pred)
-		{
-		// compute residuals in exit
-		DENSE_QP_RES_COMPUTE(qp, qp_sol, ws->res, ws->res_ws);
-		}
+	DENSE_QP_DIM_PRINT(qp->dim);
+	DENSE_QP_PRINT(qp->dim, qp);
 #endif
 
-//printf("\npredict\t%e\t%e\t%e\t%e\n", qp_res[0], qp_res[1], qp_res[2], qp_res[3]);
+	int ii;
 
-	// TODO
+	struct CORE_QP_IPM_WORKSPACE *cws = ws->core_workspace;
 
-	// do not change status
+	// arg to core workspace
+	cws->lam_min = arg->lam_min;
+	cws->t_min = arg->t_min;
+	cws->t_min_inv = arg->t_min>0.0 ? 1.0/arg->t_min : 1e30;
+	cws->tau_min = arg->tau_min;
+	cws->t_lam_min = arg->t_lam_min;
+
+	// alias qp vectors into qp_sol
+	cws->v = qp_sol->v->pa;
+	cws->pi = qp_sol->pi->pa;
+	cws->lam = qp_sol->lam->pa;
+	cws->t = qp_sol->t->pa;
+
+	// load sol from bkp
+	for(ii=0; ii<cws->nv; ii++)
+		cws->v[ii] = cws->v_bkp[ii];
+	for(ii=0; ii<cws->ne; ii++)
+		cws->pi[ii] = cws->pi_bkp[ii];
+	for(ii=0; ii<cws->nc; ii++)
+		cws->lam[ii] = cws->lam_bkp[ii];
+	for(ii=0; ii<cws->nc; ii++)
+		cws->t[ii] = cws->t_bkp[ii];
+
+	// scale m
+	REAL *m = qp->m->pa;
+	for(ii=0; ii<cws->nc; ii++)
+		m[ii] *= cws->t[ii];
+
+	// solve kkt
+	SOLVE_KKT_STEP_DENSE_QP(qp, qp_sol, arg, ws);
+
+	// scale t
+	REAL *t = qp_sol->t->pa;
+	for(ii=0; ii<cws->nc; ii++)
+		t[ii] *= cws->t_inv[ii];
 
 	return;
 

@@ -43,6 +43,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 
+#include <blasfeo_d_aux.h>
 #include <blasfeo_d_aux_ext_dep.h>
 
 #include <hpipm_d_dense_qp_ipm.h>
@@ -270,11 +271,13 @@ int main()
 
 	double *v = malloc(nv*sizeof(double));
 
+	#if 0
 	printf("\nv = \n");
 	d_dense_qp_sol_get_v(&qp_sol, v);
 	d_print_mat(1, nv, v, 1);
+	#endif
 
-//	d_dense_qp_sol_print(&dim, &qp_sol);
+	d_dense_qp_sol_print(&dim, &qp_sol);
 
 /************************************************
 * print ipm statistics
@@ -296,6 +299,115 @@ int main()
 	d_print_exp_tran_mat(stat_m, iter+1, stat, stat_m);
 
 	printf("\ndense ipm time = %e [s]\n\n", time_ipm);
+
+/************************************************
+* sensitivity of solution of QP
+************************************************/
+
+	#if 0
+
+	void *qp2_mem = malloc(qp_size);
+	struct d_dense_qp qp2;
+	d_dense_qp_create(&dim, &qp2, qp2_mem);
+
+	// new sol struct
+	void *qp_sol2_mem = malloc(qp_sol_size);
+	struct d_dense_qp_sol qp_sol2;
+	d_dense_qp_sol_create(&dim, &qp_sol2, qp_sol2_mem);
+
+	int nvt = dim.nv+2*dim.ns;
+	int net = dim.ne;
+	int nct = 2*dim.nb+2*dim.ng+2*dim.ns;
+	int nt = nvt+net+2*nct;
+	double *kkt = malloc(nt*nt*sizeof(double));
+	for(int ii=0; ii<nt*nt; ii++)
+		kkt[ii] = 0.0;
+
+	// set I to param at RHS
+	d_dense_qp_copy_all(&qp, &qp2);
+
+	d_dense_qp_set_rhs_zero(&qp2);
+
+
+	int kk=0;
+
+	for(jj=0; jj<nvt; jj++, kk++)
+		{
+		BLASFEO_DVECEL(qp2.gz, jj) = 1.0;
+		d_dense_qp_ipm_sens(&qp2, &qp_sol2, &arg, &workspace);
+		//d_dense_qp_ipm_sens_adj(&qp2, &qp_sol2, &arg, &workspace);
+		BLASFEO_DVECEL(qp2.gz, jj) = 0.0;
+		int offset = 0;
+		blasfeo_unpack_dvec(nvt, qp_sol2.v, 0, kkt+offset+kk*nt, 1);
+		offset += nvt;
+		blasfeo_unpack_dvec(net, qp_sol2.pi, 0, kkt+offset+kk*nt, 1);
+		offset += net;
+		blasfeo_unpack_dvec(nct, qp_sol2.lam, 0, kkt+offset+kk*nt, 1);
+		offset += nct;
+		blasfeo_unpack_dvec(nct, qp_sol2.t, 0, kkt+offset+kk*nt, 1);
+		offset += nct;
+		}
+
+	for(jj=0; jj<net; jj++, kk++)
+		{
+		BLASFEO_DVECEL(qp2.b, jj) = 1.0;
+		d_dense_qp_ipm_sens(&qp2, &qp_sol2, &arg, &workspace);
+		//d_dense_qp_ipm_sens_adj(&qp2, &qp_sol2, &arg, &workspace);
+		BLASFEO_DVECEL(qp2.b, jj) = 0.0;
+		int offset = 0;
+		blasfeo_unpack_dvec(nvt, qp_sol2.v, 0, kkt+offset+kk*nt, 1);
+		offset += nvt;
+		blasfeo_unpack_dvec(net, qp_sol2.pi, 0, kkt+offset+kk*nt, 1);
+		offset += net;
+		blasfeo_unpack_dvec(nct, qp_sol2.lam, 0, kkt+offset+kk*nt, 1);
+		offset += nct;
+		blasfeo_unpack_dvec(nct, qp_sol2.t, 0, kkt+offset+kk*nt, 1);
+		offset += nct;
+		}
+
+	for(jj=0; jj<nct; jj++, kk++)
+		{
+		BLASFEO_DVECEL(qp2.d, jj) = 1.0;
+		d_dense_qp_ipm_sens(&qp2, &qp_sol2, &arg, &workspace);
+		//d_dense_qp_ipm_sens_adj(&qp2, &qp_sol2, &arg, &workspace);
+		BLASFEO_DVECEL(qp2.d, jj) = 0.0;
+		int offset = 0;
+		blasfeo_unpack_dvec(nvt, qp_sol2.v, 0, kkt+offset+kk*nt, 1);
+		offset += nvt;
+		blasfeo_unpack_dvec(net, qp_sol2.pi, 0, kkt+offset+kk*nt, 1);
+		offset += net;
+		blasfeo_unpack_dvec(nct, qp_sol2.lam, 0, kkt+offset+kk*nt, 1);
+		offset += nct;
+		blasfeo_unpack_dvec(nct, qp_sol2.t, 0, kkt+offset+kk*nt, 1);
+		offset += nct;
+		}
+
+	for(jj=0; jj<nct; jj++, kk++)
+		{
+		BLASFEO_DVECEL(qp2.m, jj) = 1.0;
+		d_dense_qp_ipm_sens(&qp2, &qp_sol2, &arg, &workspace);
+		//d_dense_qp_ipm_sens_adj(&qp2, &qp_sol2, &arg, &workspace);
+		BLASFEO_DVECEL(qp2.m, jj) = 0.0;
+		int offset = 0;
+		blasfeo_unpack_dvec(nvt, qp_sol2.v, 0, kkt+offset+kk*nt, 1);
+		offset += nvt;
+		blasfeo_unpack_dvec(net, qp_sol2.pi, 0, kkt+offset+kk*nt, 1);
+		offset += net;
+		blasfeo_unpack_dvec(nct, qp_sol2.lam, 0, kkt+offset+kk*nt, 1);
+		offset += nct;
+		blasfeo_unpack_dvec(nct, qp_sol2.t, 0, kkt+offset+kk*nt, 1);
+		offset += nct;
+		}
+
+	printf("\nkkt inv\n");
+	d_print_mat(nt, nt, kkt, nt);
+	//d_print_tran_mat(nt, nt, kkt, nt);
+
+    free(qp2_mem);
+	free(qp_sol2_mem);
+	free(kkt);
+
+	#endif
 
 /************************************************
 * free memory and return

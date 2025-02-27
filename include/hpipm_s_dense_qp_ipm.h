@@ -274,6 +274,8 @@ void s_dense_qp_ipm_predict(struct s_dense_qp *qp, struct s_dense_qp_sol *qp_sol
 //
 void s_dense_qp_ipm_sens(struct s_dense_qp *qp, struct s_dense_qp_sol *qp_sol, struct s_dense_qp_ipm_arg *arg, struct s_dense_qp_ipm_ws *ws);
 //
+void s_dense_qp_ipm_sens_adj(struct s_dense_qp *qp, struct s_dense_qp_sol *qp_sol, struct s_dense_qp_ipm_arg *arg, struct s_dense_qp_ipm_ws *ws);
+//
 void s_dense_qp_compute_step_length(struct s_dense_qp *qp, struct s_dense_qp_sol *qp_sol, struct s_dense_qp_ipm_arg *arg, struct s_dense_qp_ipm_ws *ws);
 
 

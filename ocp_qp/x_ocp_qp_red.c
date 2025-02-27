@@ -39,6 +39,8 @@ void OCP_QP_DIM_REDUCE_EQ_DOF(struct OCP_QP_DIM *dim, struct OCP_QP_DIM *dim_red
 	{
 	int ii;
 
+	// TODO remove slack variables of soft constraints (also DOF)
+
 	// first stage: DOF: inputs and states
 	dim_red->nu[0] = dim->nu[0] - dim->nbue[0];
 	dim_red->nx[0] = dim->nx[0] - dim->nbxe[0];
@@ -305,6 +307,8 @@ void OCP_QP_REDUCE_EQ_DOF(struct OCP_QP *qp, struct OCP_QP *qp_red, struct OCP_Q
 	int *ns_red = dim_red->ns;
 
 	// TODO handle case of softed equalities !!!!!!!!!!!!!!!!
+
+	// TODO for the non-reduced constraints, copy the lower inequality to both upper and lower inequalities? In this way only the lower one is ever considered also in case the constraint is not reduced.
 
 	int ne_thr;
 
