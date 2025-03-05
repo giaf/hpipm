@@ -76,6 +76,7 @@
 #define COND_QP_WS s_cond_qp_ws
 #define COND_QP_WS_MEMSIZE s_cond_qp_ws_memsize
 #define COND_QP_WS_CREATE s_cond_qp_ws_create
+#define COND_SOL s_cond_sol
 #define CREATE_STRMAT blasfeo_create_smat
 #define CREATE_STRVEC blasfeo_create_svec
 #define DENSE_QCQP s_dense_qcqp
@@ -132,6 +133,7 @@
 #define COND_QCQP_COND s_cond_qcqp_cond
 #define COND_QCQP_COND_LHS s_cond_qcqp_cond_lhs
 #define COND_QCQP_COND_RHS s_cond_qcqp_cond_rhs
+#define COND_QCQP_COND_SOL s_cond_qcqp_cond_sol
 #define COND_QCQP_EXPAND_SOL s_cond_qcqp_expand_sol
 
 

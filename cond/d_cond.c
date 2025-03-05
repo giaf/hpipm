@@ -63,6 +63,7 @@
 #define COND_RSQRQ d_cond_RSQrq
 #define COND_QP_ARG d_cond_qp_arg
 #define COND_QP_WS d_cond_qp_ws
+#define COND_SOL d_cond_sol
 #define CREATE_STRMAT blasfeo_create_dmat
 #define CREATE_STRVEC blasfeo_create_dvec
 #define DENSE_QP d_dense_qp
@@ -96,6 +97,7 @@
 #define COND_QP_COND d_cond_qp_cond
 #define COND_QP_COND_LHS d_cond_qp_cond_lhs
 #define COND_QP_COND_RHS d_cond_qp_cond_rhs
+#define COND_QP_COND_SOL d_cond_qp_cond_sol
 #define COND_QP_EXPAND_SOL d_cond_qp_expand_sol
 #define COND_QP_UPDATE d_cond_qp_update
 

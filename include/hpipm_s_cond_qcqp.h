@@ -117,6 +117,8 @@ void s_cond_qcqp_cond_rhs(struct s_ocp_qcqp *ocp_qp, struct s_dense_qcqp *dense_
 //
 void s_cond_qcqp_cond_lhs(struct s_ocp_qcqp *ocp_qp, struct s_dense_qcqp *dense_qp, struct s_cond_qcqp_arg *cond_arg, struct s_cond_qcqp_ws *cond_ws);
 //
+void s_cond_qcqp_cond_sol(struct s_ocp_qcqp *ocp_qp, struct s_ocp_qcqp_sol *ocp_qp_sol, struct s_dense_qcqp_sol *dense_qp_sol, struct s_cond_qcqp_arg *cond_arg, struct s_cond_qcqp_ws *cond_ws);
+//
 void s_cond_qcqp_expand_sol(struct s_ocp_qcqp *ocp_qp, struct s_dense_qcqp_sol *dense_qp_sol, struct s_ocp_qcqp_sol *ocp_qp_sol, struct s_cond_qcqp_arg *cond_arg, struct s_cond_qcqp_ws *cond_ws);
 
 

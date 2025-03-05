@@ -498,6 +498,17 @@ void COND_QP_COND_RHS(struct OCP_QP *ocp_qp, struct DENSE_QP *dense_qp, struct C
 
 
 
+void COND_QP_COND_SOL(struct OCP_QP *ocp_qp, struct OCP_QP_SOL *ocp_qp_sol, struct DENSE_QP_SOL *dense_qp_sol, struct COND_QP_ARG *cond_arg, struct COND_QP_WS *cond_ws)
+	{
+
+	COND_SOL(ocp_qp, ocp_qp_sol, dense_qp_sol, cond_arg, cond_ws);
+
+	return;
+
+	}
+
+
+
 void COND_QP_EXPAND_SOL(struct OCP_QP *ocp_qp, struct DENSE_QP_SOL *dense_qp_sol, struct OCP_QP_SOL *ocp_qp_sol, struct COND_QP_ARG *cond_arg, struct COND_QP_WS *cond_ws)
 	{
 

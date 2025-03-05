@@ -1817,6 +1817,355 @@ void COND_D(struct OCP_QP *ocp_qp, struct STRVEC *d2, struct STRVEC *d_mask2, st
 
 
 
+void COND_SOL(struct OCP_QP *ocp_qp, struct OCP_QP_SOL *ocp_qp_sol, struct DENSE_QP_SOL *dense_qp_sol, struct COND_QP_ARG *cond_arg, struct COND_QP_WS *cond_ws)
+	{
+
+	int N = ocp_qp->dim->N;
+	int Np = N;
+	if(cond_arg->cond_last_stage==0)
+		N -= 1;
+
+	int ii, jj, idx;
+
+	int *nu = ocp_qp->dim->nu;
+	int *nx = ocp_qp->dim->nx;
+	int *nb = ocp_qp->dim->nb;
+	int *ng = ocp_qp->dim->ng;
+	int *ns = ocp_qp->dim->ns;
+
+	int **idxb = ocp_qp->idxb;
+	int **idxs_rev = ocp_qp->idxs_rev;
+
+	struct STRVEC *vc = dense_qp_sol->v;
+	struct STRVEC *pic = dense_qp_sol->pi;
+	struct STRVEC *lamc = dense_qp_sol->lam;
+	struct STRVEC *tc = dense_qp_sol->t;
+
+	struct STRVEC *ux = ocp_qp_sol->ux;
+	struct STRVEC *pi = ocp_qp_sol->pi;
+	struct STRVEC *lam = ocp_qp_sol->lam;
+	struct STRVEC *t = ocp_qp_sol->t;
+
+	// early return
+	if(N==0 & cond_arg->cond_last_stage==1)
+		{
+		// primal solution
+		if(cond_arg->comp_prim_sol!=0)
+			{
+			VECCP(nu[0]+nx[0]+2*ns[0], ocp_qp_sol->ux, 0, dense_qp_sol->v, 0);
+			}
+		// dual solution
+		if(cond_arg->comp_dual_sol_ineq!=0)
+			{
+			VECCP(2*nb[N]+2*ng[N]+2*ns[N], ocp_qp_sol->lam, 0, dense_qp_sol->lam, 0);
+			VECCP(2*nb[N]+2*ng[N]+2*ns[N], ocp_qp_sol->t, 0, dense_qp_sol->t, 0);
+			}
+		return;
+		}
+
+	// problem size
+
+	int nbb = nb[0]; // box that remain box constraints
+	int nbg = 0; // box that becomes general constraints
+	for(ii=1; ii<=N; ii++)
+		for(jj=0; jj<nb[ii]; jj++)
+			if(idxb[ii][jj]<nu[ii])
+				nbb++;
+			else
+				nbg++;
+	
+	int nx2 = nx[0];
+	int nu2 = nu[0];
+	int ngg = ng[0];
+	int ns2 = ns[0];
+	for(ii=1; ii<=N; ii++)
+		{
+		nu2 += nu[ii];
+		ngg += ng[ii];
+		ns2 += ns[ii];
+		}
+	int ng2 = nbg + ngg;
+	int nb2 = nbb;
+	int nt2 = nb2 + ng2;
+
+	REAL *ptr_ux;
+	REAL *ptr_vc = vc->pa;
+	int is = 0;
+	int nx0, nu0, nb0, ng0, ns0;
+	int idxb0;
+
+	// primal solution
+prim_sol:
+
+	if(cond_arg->comp_prim_sol==0)
+		{
+		goto dual_sol_ineq;
+		}
+
+	// inputs & initial states
+	int nu_tmp = 0;
+	// final stages: copy only input
+	for(ii=0; ii<N; ii++)
+		{
+		VECCP(nu[N-ii], ux+(N-ii), 0, vc, nu_tmp);
+		nu_tmp += nu[N-ii];
+		}
+	// first stage: copy input and state
+	VECCP(nu[0]+nx[0], ux+0, 0, vc, nu_tmp);
+
+//	if(cond_arg->comp_dual_sol_ineq==0)
+//		{
+	// slack variables
+	is = 0;
+	// all box first XXX this keeps the same order as in cond !!!
+	for(ii=0; ii<=N; ii++)
+		{
+		ns0 = ns[N-ii];
+		if(ns0>0)
+			{
+			nx0 = nx[N-ii];
+			nu0 = nu[N-ii];
+			nb0 = nb[N-ii];
+			ng0 = ng[N-ii];
+			ptr_ux = (ux+N-ii)->pa;
+			for(jj=0; jj<nb0; jj++)
+				{
+				idx = idxs_rev[N-ii][jj];
+				if(idx>=0)
+					{
+					ptr_vc[nu2+nx2+is] = ptr_ux[nu0+nx0+idx];
+					ptr_vc[nu2+nx2+ns2+is] = ptr_ux[nu0+nx0+ns0+idx];
+					is++;
+					}
+				}
+			}
+		}
+	// all general after XXX this keeps the same order as in cond !!!
+	for(ii=0; ii<=N; ii++)
+		{
+		ns0 = ns[N-ii];
+		if(ns0>0)
+			{
+			nx0 = nx[N-ii];
+			nu0 = nu[N-ii];
+			nb0 = nb[N-ii];
+			ng0 = ng[N-ii];
+			ptr_ux = (ux+N-ii)->pa;
+			for(jj=nb0; jj<nb0+ng0; jj++)
+				{
+				idx = idxs_rev[N-ii][jj];
+				if(idx>=0)
+					{
+					ptr_vc[nu2+nx2+is] = ptr_ux[nu0+nx0+idx];
+					ptr_vc[nu2+nx2+ns2+is] = ptr_ux[nu0+nx0+ns0+idx];
+					is++;
+					}
+				}
+			}
+		}
+
+//		goto dual_sol_eq;
+//		}
+
+
+	// dual variables + slacks
+dual_sol_ineq:
+
+	if(cond_arg->comp_dual_sol_ineq==0)
+		{
+		goto dual_sol_eq;
+		}
+
+	// slack variables and ineq lagrange multipliers
+	nbb = 0;
+	nbg = 0;
+	ngg = 0;
+	REAL *ptr_lam;
+	REAL *ptr_lam_lb;
+	REAL *ptr_lam_ub;
+	REAL *ptr_lam_lg;
+	REAL *ptr_lam_ug;
+	REAL *ptr_t;
+	REAL *ptr_t_lb;
+	REAL *ptr_t_ub;
+	REAL *ptr_t_lg;
+	REAL *ptr_t_ug;
+	REAL *ptr_lamc = lamc->pa;
+	REAL *ptr_lam_lbc = lamc->pa+0;
+	REAL *ptr_lam_ubc = lamc->pa+nb2+ng2;
+	REAL *ptr_lam_lgc = lamc->pa+nb2;
+	REAL *ptr_lam_ugc = lamc->pa+2*nb2+ng2;
+	REAL *ptr_tc = tc->pa;
+	REAL *ptr_t_lbc = tc->pa+0;
+	REAL *ptr_t_ubc = tc->pa+nb2+ng2;
+	REAL *ptr_t_lgc = tc->pa+nb2;
+	REAL *ptr_t_ugc = tc->pa+2*nb2+ng2;
+
+	// box constraints
+	// final stages
+	for(ii=0; ii<N; ii++)
+		{
+		nx0 = nx[N-ii];
+		nu0 = nu[N-ii];
+		nb0 = nb[N-ii];
+		ng0 = ng[N-ii];
+		ptr_lam_lb = (lam+N-ii)->pa+0;
+		ptr_lam_ub = (lam+N-ii)->pa+nb0+ng0;
+		ptr_t_lb = (t+N-ii)->pa+0;
+		ptr_t_ub = (t+N-ii)->pa+nb0+ng0;
+		for(jj=0; jj<nb0; jj++)
+			{
+			idxb0 = idxb[N-ii][jj];
+			if(idxb0<nu0)
+				{
+				// box as box
+				ptr_lam_lbc[nbb] = ptr_lam_lb[jj];
+				ptr_lam_ubc[nbb] = ptr_lam_ub[jj];
+				ptr_t_lbc[nbb] = ptr_t_lb[jj];
+				ptr_t_ubc[nbb] = ptr_t_ub[jj];
+				nbb++;
+				}
+			else
+				{
+				// box as general XXX change when decide where nbg are placed wrt ng
+				ptr_lam_lgc[nbg] = ptr_lam_lb[jj];
+				ptr_lam_ugc[nbg] = ptr_lam_ub[jj];
+				ptr_t_lgc[nbg] = ptr_t_lb[jj];
+				ptr_t_ugc[nbg] = ptr_t_ub[jj];
+				nbg++;
+				}
+			}
+		}
+	// first stage
+	// all box as box
+	nx0 = nx[0];
+	nu0 = nu[0];
+	nb0 = nb[0];
+	ng0 = ng[0];
+	VECCP(nb0, lam+0, 0, lamc, 0+nbb);
+	VECCP(nb0, lam+0, nb0+ng0, lamc, nb2+ng2+nbb);
+	VECCP(nb0, t+0, 0, tc, 0+nbb);
+	VECCP(nb0, t+0, nb0+ng0, tc, nb2+ng2+nbb);
+	nbb += nb0;
+
+	// general constraints
+	// final stages
+	// TODO process as vectors ???
+	// XXX change when decide when nbg are placed wrt ng
+	for(ii=0; ii<N; ii++)
+		{
+		nx0 = nx[N-ii];
+		nu0 = nu[N-ii];
+		nb0 = nb[N-ii];
+		ng0 = ng[N-ii];
+		ptr_lam_lg = (lam+(N-ii))->pa+nb0;
+		ptr_lam_ug = (lam+(N-ii))->pa+2*nb0+ng0;
+		ptr_t_lg = (t+(N-ii))->pa+nb0;
+		ptr_t_ug = (t+(N-ii))->pa+2*nb0+ng0;
+		for(jj=0; jj<ng0; jj++)
+			{
+			// genenral as general
+			ptr_lam_lgc[nbg+ngg] = ptr_lam_lg[jj];
+			ptr_lam_ugc[nbg+ngg] = ptr_lam_ug[jj];
+			ptr_t_lgc[nbg+ngg] = ptr_t_lg[jj];
+			ptr_t_ugc[nbg+ngg] = ptr_t_ug[jj];
+			ngg++;
+			}
+		}
+	// first stage
+	// all general as general
+	nx0 = nx[0];
+	nu0 = nu[0];
+	nb0 = nb[0];
+	ng0 = ng[0];
+	VECCP(ng[0], lam+0, nb0, lamc, nb2+nbg+ngg);
+	VECCP(ng[0], lam+0, 2*nb0+ng0, lamc, 2*nb2+ng2+nbg+ngg);
+	VECCP(ng[0], t+0, nb0, tc, nb2+nbg+ngg);
+	VECCP(ng[0], t+0, 2*nb0+ng0, tc, 2*nb2+ng2+nbg+ngg);
+	ngg += ng0;
+	
+	// soft constraints
+	is = 0;
+	// all box first XXX this keeps the same order as in cond !!!
+	for(ii=0; ii<=N; ii++)
+		{
+		ns0 = ns[N-ii];
+		if(ns0>0)
+			{
+	//		nx0 = nx[N-ii];
+	//		nu0 = nu[N-ii];
+			nb0 = nb[N-ii];
+			ng0 = ng[N-ii];
+			ptr_ux = (ux+N-ii)->pa;
+			ptr_lam = (lam+N-ii)->pa;
+			ptr_t = (t+N-ii)->pa;
+			for(jj=0; jj<nb0; jj++)
+				{
+				idx = idxs_rev[N-ii][jj];
+				if(idx>=0)
+					{
+					ptr_lamc[2*nb2+2*ng2+is]     = ptr_lam[2*nb0+2*ng0+idx];
+					ptr_lamc[2*nb2+2*ng2+ns2+is] = ptr_lam[2*nb0+2*ng0+ns0+idx];
+					ptr_tc[2*nb2+2*ng2+is]     = ptr_t[2*nb0+2*ng0+idx];
+					ptr_tc[2*nb2+2*ng2+ns2+is] = ptr_t[2*nb0+2*ng0+ns0+idx];
+	//				ptr_vc[nu2+nx2+is] = ptr_ux[nu0+nx0+idx];
+	//				ptr_vc[nu2+nx2+ns2+is] = ptr_ux[nu0+nx0+ns0+idx];
+					is++;
+					}
+				}
+			}
+		}
+	// all general after XXX this keeps the same order as in cond !!!
+	for(ii=0; ii<=N; ii++)
+		{
+		ns0 = ns[N-ii];
+		if(ns0>0)
+			{
+	//		nx0 = nx[N-ii];
+	//		nu0 = nu[N-ii];
+			nb0 = nb[N-ii];
+			ng0 = ng[N-ii];
+			ptr_ux = (ux+N-ii)->pa;
+			ptr_lam = (lam+N-ii)->pa;
+			ptr_t = (t+N-ii)->pa;
+			for(jj=nb0; jj<nb0+ng0; jj++)
+				{
+				idx = idxs_rev[N-ii][jj];
+				if(idx>=0)
+					{
+					ptr_lamc[2*nb2+2*ng2+is]     = ptr_lam[2*nb0+2*ng0+idx];
+					ptr_lamc[2*nb2+2*ng2+ns2+is] = ptr_lam[2*nb0+2*ng0+ns0+idx];
+					ptr_tc[2*nb2+2*ng2+is]     = ptr_t[2*nb0+2*ng0+idx];
+					ptr_tc[2*nb2+2*ng2+ns2+is] = ptr_t[2*nb0+2*ng0+ns0+idx];
+	//				ptr_vc[nu2+nx2+is] = ptr_ux[nu0+nx0+idx];
+	//				ptr_vc[nu2+nx2+ns2+is] = ptr_ux[nu0+nx0+ns0+idx];
+					is++;
+					}
+				}
+			}
+		}
+
+	// lagrange multipliers of equality constraints
+dual_sol_eq:
+
+	if(cond_arg->comp_dual_sol_eq==0)
+		{
+		goto end;
+		}
+
+	// last stage
+	if(cond_arg->cond_last_stage==0)
+		{
+		VECCP(nx[Np], pi+Np-1, 0, pic, 0); // XXX is the size nx[Np] correct ? is pic of that size ???
+		}
+end:
+
+	return;
+
+	}
+
+
+
 void EXPAND_SOL(struct OCP_QP *ocp_qp, struct DENSE_QP_SOL *dense_qp_sol, struct OCP_QP_SOL *ocp_qp_sol, struct COND_QP_ARG *cond_arg, struct COND_QP_WS *cond_ws)
 	{
 
@@ -2063,6 +2412,7 @@ dual_sol_ineq:
 	nbb += nb0;
 
 	// general constraints
+	// final stages
 	// TODO process as vectors ???
 	// XXX change when decide when nbg are placed wrt ng
 	for(ii=0; ii<N; ii++)

@@ -905,6 +905,63 @@ void COND_QCQP_COND_RHS(struct OCP_QCQP *ocp_qp, struct DENSE_QCQP *dense_qp, st
 
 
 
+void COND_QCQP_COND_SOL(struct OCP_QCQP *ocp_qp, struct OCP_QCQP_SOL *ocp_qp_sol, struct DENSE_QCQP_SOL *dense_qp_sol, struct COND_QCQP_ARG *cond_arg, struct COND_QCQP_WS *cond_ws)
+	{
+
+	int ii, jj;
+
+	// extract dim
+	int N = ocp_qp->dim->N;
+	int *nu = ocp_qp->dim->nu;
+	int *nx = ocp_qp->dim->nx;
+	int *ng = ocp_qp->dim->ng;
+	int *nq = ocp_qp->dim->nq;
+
+	// create tmp QP
+	struct OCP_QP tmp_ocp_qp;
+
+	// alias
+	tmp_ocp_qp.dim = ocp_qp->dim->qp_dim;
+	tmp_ocp_qp.idxb = ocp_qp->idxb;
+	//tmp_ocp_qp.BAbt = ocp_qp->BAbt;
+	//tmp_ocp_qp.b = ocp_qp->b;
+	//tmp_ocp_qp.RSQrq = ocp_qp->RSQrq;
+	//tmp_ocp_qp.rqz = ocp_qp->rqz;
+	//tmp_ocp_qp.DCt = ocp_qp->DCt;
+	//tmp_ocp_qp.d = ocp_qp->d;
+	//tmp_ocp_qp.d_mask = ocp_qp->d_mask;
+	//tmp_ocp_qp.Z = ocp_qp->Z;
+	tmp_ocp_qp.idxs_rev = ocp_qp->idxs_rev;
+
+
+	// create tmp QP
+	struct OCP_QP_SOL tmp_ocp_qp_sol;
+
+	// alias
+	tmp_ocp_qp_sol.dim = ocp_qp_sol->dim->qp_dim;
+	tmp_ocp_qp_sol.ux = ocp_qp_sol->ux;
+	tmp_ocp_qp_sol.pi = ocp_qp_sol->pi;
+	tmp_ocp_qp_sol.lam = ocp_qp_sol->lam;
+	tmp_ocp_qp_sol.t = ocp_qp_sol->t;
+
+
+	// create tmp QP
+	struct DENSE_QP_SOL tmp_dense_qp_sol;
+
+	// alias
+	tmp_dense_qp_sol.dim = dense_qp_sol->dim->qp_dim;
+	tmp_dense_qp_sol.v = dense_qp_sol->v;
+	tmp_dense_qp_sol.pi = dense_qp_sol->pi;
+	tmp_dense_qp_sol.lam = dense_qp_sol->lam;
+	tmp_dense_qp_sol.t = dense_qp_sol->t;
+
+	COND_SOL(&tmp_ocp_qp, &tmp_ocp_qp_sol, &tmp_dense_qp_sol, cond_arg->qp_arg, cond_ws->qp_ws);
+
+	return;
+
+	}
+
+
 void COND_QCQP_EXPAND_SOL(struct OCP_QCQP *ocp_qp, struct DENSE_QCQP_SOL *dense_qp_sol, struct OCP_QCQP_SOL *ocp_qp_sol, struct COND_QCQP_ARG *cond_arg, struct COND_QCQP_WS *cond_ws)
 	{
 
@@ -932,7 +989,6 @@ void COND_QCQP_EXPAND_SOL(struct OCP_QCQP *ocp_qp, struct DENSE_QCQP_SOL *dense_
 	tmp_ocp_qp.d_mask = ocp_qp->d_mask;
 	tmp_ocp_qp.Z = ocp_qp->Z;
 	tmp_ocp_qp.idxs_rev = ocp_qp->idxs_rev;
-	// TODO d_mask ????????
 
 
 	// create tmp QP
