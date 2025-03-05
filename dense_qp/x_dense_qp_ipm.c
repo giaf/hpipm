@@ -2747,7 +2747,7 @@ void DENSE_QP_IPM_SENS_ADJ(struct DENSE_QP *qp, struct DENSE_QP_SOL *qp_sol, str
 	// solve kkt
 	SOLVE_KKT_STEP_DENSE_QP(qp, qp_sol, arg, ws);
 
-	// scale t and back-scale m
+	// scale t
 	REAL *t = qp_sol->t->pa;
 	for(ii=0; ii<cws->nc; ii++)
 		{

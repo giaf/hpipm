@@ -69,7 +69,6 @@
 #define DENSE_QP_DIM d_dense_qp_dim
 #define DENSE_QP_SOL d_dense_qp_sol
 #define EXPAND_SOL d_expand_sol
-#define EXPAND_PRIMAL_SOL d_expand_primal_sol
 #define OCP_QP d_ocp_qp
 #define OCP_QP_DIM d_ocp_qp_dim
 #define OCP_QP_SOL d_ocp_qp_sol
@@ -98,7 +97,6 @@
 #define COND_QP_COND_LHS d_cond_qp_cond_lhs
 #define COND_QP_COND_RHS d_cond_qp_cond_rhs
 #define COND_QP_EXPAND_SOL d_cond_qp_expand_sol
-#define COND_QP_EXPAND_PRIMAL_SOL d_cond_qp_expand_primal_sol
 #define COND_QP_UPDATE d_cond_qp_update
 
 

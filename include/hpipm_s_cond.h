@@ -120,8 +120,6 @@ void s_cond_qp_cond_lhs(struct s_ocp_qp *ocp_qp, struct s_dense_qp *dense_qp, st
 void s_cond_qp_cond_rhs(struct s_ocp_qp *ocp_qp, struct s_dense_qp *dense_qp, struct s_cond_qp_arg *cond_arg, struct s_cond_qp_ws *cond_ws);
 //
 void s_cond_qp_expand_sol(struct s_ocp_qp *ocp_qp, struct s_dense_qp_sol *dense_qp_sol, struct s_ocp_qp_sol *ocp_qp_sol, struct s_cond_qp_arg *cond_arg, struct s_cond_qp_ws *cond_ws);
-// TODO remove
-void s_cond_qp_expand_primal_sol(struct s_ocp_qp *ocp_qp, struct s_dense_qp_sol *dense_qp_sol, struct s_ocp_qp_sol *ocp_qp_sol, struct s_cond_qp_arg *cond_arg, struct s_cond_qp_ws *cond_ws);
 
 //
 void s_cond_qp_update(int *idxc, struct s_ocp_qp *ocp_qp, struct s_dense_qp *dense_qp, struct s_cond_qp_arg *cond_arg, struct s_cond_qp_ws *cond_ws);

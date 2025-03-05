@@ -141,6 +141,13 @@ set(HPIPM_HEADERS_INSTALLATION_DIRECTORY "include" CACHE STRING "Headers local i
 set(RUNTIME_CHECKS ON)
 #set(RUNTIME_CHECKS OFF)
 
+# C Compiler
+# set(CMAKE_C_COMPILER gcc CACHE STRING "compiler")
+# set(CMAKE_C_COMPILER clang)
+# set(CMAKE_C_COMPILER x86_64-w64-mingw32-gcc)
+# set(CMAKE_C_COMPILER arm-linux-gnueabihf-gcc)
+#set(CMAKE_C_COMPILER aarch64-linux-gnu-gcc)
+
 ## compiler flags
 #set(CMAKE_C_FLAGS "")
 #

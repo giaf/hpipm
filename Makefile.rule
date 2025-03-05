@@ -90,8 +90,10 @@ TOP = $(CURRENT_DIR)
 
 # C Compiler
 CC = gcc
-#CC = clang
-#CC = x86_64-w64-mingw32-gcc
+# CC = clang
+# CC = x86_64-w64-mingw32-gcc   # win64
+# CC = arm-linux-gnueabihf-gcc   # armv7
+# CC = aarch64-linux-gnu-gcc   # aarch64
 
 # Installation directory
 PREFIX = /opt

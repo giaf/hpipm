@@ -71,8 +71,6 @@ void d_cond_DCt(struct d_ocp_qp *ocp_qp, int *idxb2, struct blasfeo_dmat *DCt2, 
 void d_cond_d(struct d_ocp_qp *ocp_qp, struct blasfeo_dvec *d2, struct blasfeo_dvec *d_mask2, struct blasfeo_dvec *z, struct d_cond_qp_arg *cond_arg, struct d_cond_qp_ws *cond_ws);
 //
 void d_expand_sol(struct d_ocp_qp *ocp_qp, struct d_dense_qp_sol *dense_qp_sol, struct d_ocp_qp_sol *ocp_qp_so, struct d_cond_qp_arg *cond_arg, struct d_cond_qp_ws *cond_ws);
-//
-void d_expand_primal_sol(struct d_ocp_qp *ocp_qp, struct d_dense_qp_sol *dense_qp_sol, struct d_ocp_qp_sol *ocp_qp_so, struct d_cond_qp_arg *cond_arg, struct d_cond_qp_ws *cond_ws);
 
 //
 void d_update_cond_BAbt(int *idxc, struct d_ocp_qp *ocp_qp, struct blasfeo_dmat *BAbt2, struct blasfeo_dvec *b, struct d_cond_qp_arg *cond_arg, struct d_cond_qp_ws *cond_ws);

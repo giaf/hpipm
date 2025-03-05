@@ -2957,6 +2957,7 @@ void OCP_QP_IPM_SOLVE(struct OCP_QP *qp, struct OCP_QP_SOL *qp_sol, struct OCP_Q
 		VECNRM_INF(cws->nc, ws->tmp_m, 0, &res_m_tau);
 
 		}
+		//d_ocp_qp_res_print(qp->dim, ws->res);
 
 set_status:
 
@@ -3262,7 +3263,7 @@ void OCP_QP_IPM_SENS_ADJ(struct OCP_QP *qp, struct OCP_QP_SOL *qp_sol, struct OC
 	ws->use_Pb = 0;
 	OCP_QP_SOLVE_KKT_STEP(qp, qp_sol, arg, ws);
 
-	// scale t and back-scale m
+	// scale t
 	REAL *t = qp_sol->t->pa;
 	for(ii=0; ii<cws->nc; ii++)
 		{
