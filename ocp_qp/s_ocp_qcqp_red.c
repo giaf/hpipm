@@ -107,6 +107,7 @@
 #define OCP_QCQP_REDUCE_EQ_DOF_LHS s_ocp_qcqp_reduce_eq_dof_lhs
 #define OCP_QCQP_REDUCE_EQ_DOF_RHS s_ocp_qcqp_reduce_eq_dof_rhs
 #define OCP_QCQP_RESTORE_EQ_DOF s_ocp_qcqp_restore_eq_dof
+#define OCP_QCQP_REDUCE_EQ_DOF_SOL s_ocp_qcqp_reduce_eq_dof_sol
 
 
 

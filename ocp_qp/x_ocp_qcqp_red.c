@@ -883,7 +883,7 @@ void OCP_QCQP_RESTORE_EQ_DOF(struct OCP_QCQP *qp, struct OCP_QCQP_SOL *qp_sol_re
 	int *nq_red = dim_red->nq;
 
 	int ne_thr;
-	
+
 	REAL tmp;
 
 	for(ii=0; ii<=N; ii++)
@@ -1005,6 +1005,127 @@ void OCP_QCQP_RESTORE_EQ_DOF(struct OCP_QCQP *qp, struct OCP_QCQP_SOL *qp_sol_re
 				VECCP(2*nb[ii]+2*ng[ii]+2*nq[ii]+2*ns[ii], qp_sol_red->lam+ii, 0, qp_sol->lam+ii, 0);
 				// t
 				VECCP(2*nb[ii]+2*ng[ii]+2*nq[ii]+2*ns[ii], qp_sol_red->t+ii, 0, qp_sol->t+ii, 0);
+				}
+			}
+		}
+
+	return;
+
+	}
+
+
+
+void OCP_QCQP_REDUCE_EQ_DOF_SOL(struct OCP_QCQP *qp, struct OCP_QCQP_SOL *qp_sol, struct OCP_QCQP_SOL *qp_sol_red, struct OCP_QCQP_REDUCE_EQ_DOF_ARG *arg, struct OCP_QCQP_REDUCE_EQ_DOF_WS *work)
+	{
+
+	int ii, jj, idx0;
+
+	struct OCP_QCQP_DIM *dim = qp->dim;
+	int N = dim->N;
+	int *nx = dim->nx;
+	int *nu = dim->nu;
+	int *nb = dim->nb;
+	int *nbx = dim->nbx;
+	int *nbu = dim->nbu;
+	int *ng = dim->ng;
+	int *nq = dim->nq;
+	int *ns = dim->ns;
+	int *nbue = dim->nbue;
+	int *nbxe = dim->nbxe;
+	int *nge = dim->nge;
+	int *nqe = dim->nqe;
+
+	struct OCP_QCQP_DIM *dim_red = qp_sol_red->dim;
+	int *nx_red = dim_red->nx;
+	int *nu_red = dim_red->nu;
+	int *nb_red = dim_red->nb;
+	int *ng_red = dim_red->ng;
+	int *nq_red = dim_red->nq;
+
+	int ne_thr;
+
+	REAL tmp;
+
+	for(ii=0; ii<=N; ii++)
+		{
+		if(ii==0)
+			ne_thr = nbue[ii]+nbxe[ii];
+		else
+			ne_thr = nbue[ii];
+		if(ne_thr>0) // restore inputs and/or states
+			{
+			VECSE(nu[ii]+nx[ii], 0.0, work->tmp_nuxM+0, 0);
+			for(jj=0; jj<nu[ii]+nx[ii]; jj++)
+				work->e_imask_ux[jj] = 0;
+			for(jj=0; jj<nb[ii]; jj++)
+				work->e_imask_d[jj] = 0;
+			for(jj=0; jj<ne_thr; jj++) // set 1s for both inputs and states
+				{
+				work->e_imask_ux[qp->idxb[ii][qp->idxe[ii][jj]]] = 1;
+				work->e_imask_d[qp->idxe[ii][jj]] = 1;
+				}
+			// ux
+			if(arg->comp_prim_sol)
+				{
+				idx0 = 0;
+				for(jj=0; jj<nu[ii]+nx[ii]; jj++)
+					{
+					if(work->e_imask_ux[jj]==0)
+						{
+						VECEL(qp_sol_red->ux+ii, idx0) = VECEL(qp_sol->ux+ii, jj);
+						idx0++;
+						}
+					}
+				// TODO update based on choices on reduce !!!!!!!!!!!!!
+				VECCP(2*ns[ii], qp_sol->ux+ii, nu[ii]+nx[ii], qp_sol_red->ux+ii, nu_red[ii]+nx_red[ii]);
+				}
+			if(arg->comp_dual_sol_eq)
+				{
+				// pi
+				if(ii<N)
+					VECCP(nx[ii+1], qp_sol->pi+ii, 0, qp_sol_red->pi+ii, 0);
+				}
+			if(arg->comp_dual_sol_ineq)
+				{
+				// lam t
+				idx0 = 0;
+				for(jj=0; jj<nb[ii]; jj++)
+					{
+					if(work->e_imask_d[jj]==0)
+						{
+						VECEL(qp_sol_red->lam+ii, idx0) = VECEL(qp_sol->lam+ii, jj);
+						VECEL(qp_sol_red->lam+ii, nb_red[ii]+ng_red[ii]+nq_red[ii]+idx0) = VECEL(qp_sol->lam+ii, nb[ii]+ng[ii]+nq[ii]+jj);
+						VECEL(qp_sol_red->t+ii, idx0) = VECEL(qp_sol->t+ii, jj);
+						VECEL(qp_sol_red->t+ii, nb_red[ii]+ng_red[ii]+nq_red[ii]+idx0) = VECEL(qp_sol->t+ii, nb[ii]+ng[ii]+nq[ii]+jj);
+						idx0++;
+						}
+					}
+				// TODO update based on choices on reduce !!!!!!!!!!!!!
+				VECCP(ng[ii]+nq[ii], qp_sol->lam+ii, nb[ii], qp_sol_red->lam+ii, nb_red[ii]);
+				VECCP(ng[ii]+nq[ii]+2*ns[ii], qp_sol->lam+ii, 2*nb[ii]+ng[ii]+nq[ii], qp_sol_red->lam+ii, 2*nb_red[ii]+ng_red[ii]+nq_red[ii]);
+				VECCP(ng[ii]+nq[ii], qp_sol->t+ii, nb[ii], qp_sol_red->t+ii, nb_red[ii]);
+				VECCP(ng[ii]+nq[ii]+2*ns[ii], qp_sol->t+ii, 2*nb[ii]+ng[ii]+nq[ii], qp_sol_red->t+ii, 2*nb_red[ii]+ng_red[ii]+nq_red[ii]);
+				}
+			}
+		else // copy
+			{
+			if(arg->comp_prim_sol)
+				{
+				// ux
+				VECCP(nu[ii]+nx[ii]+2*ns[ii], qp_sol->ux+ii, 0, qp_sol_red->ux+ii, 0);
+				}
+			if(arg->comp_dual_sol_eq)
+				{
+				// pi
+				if(ii<N)
+					VECCP(nx[ii+1], qp_sol->pi+ii, 0, qp_sol_red->pi+ii, 0);
+				}
+			if(arg->comp_dual_sol_ineq)
+				{
+				// lam
+				VECCP(2*nb[ii]+2*ng[ii]+2*nq[ii]+2*ns[ii], qp_sol->lam+ii, 0, qp_sol_red->lam+ii, 0);
+				// t
+				VECCP(2*nb[ii]+2*ng[ii]+2*nq[ii]+2*ns[ii], qp_sol->t+ii, 0, qp_sol_red->t+ii, 0);
 				}
 			}
 		}

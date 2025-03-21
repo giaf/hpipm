@@ -105,6 +105,8 @@ void d_ocp_qcqp_reduce_eq_dof_lhs(struct d_ocp_qcqp *qp, struct d_ocp_qcqp *qp_r
 void d_ocp_qcqp_reduce_eq_dof_rhs(struct d_ocp_qcqp *qp, struct d_ocp_qcqp *qp_red, struct d_ocp_qcqp_reduce_eq_dof_arg *arg, struct d_ocp_qcqp_reduce_eq_dof_ws *work);
 //
 void d_ocp_qcqp_restore_eq_dof(struct d_ocp_qcqp *qp, struct d_ocp_qcqp_sol *qp_sol_red, struct d_ocp_qcqp_sol *qp_sol, struct d_ocp_qcqp_reduce_eq_dof_arg *arg, struct d_ocp_qcqp_reduce_eq_dof_ws *work);
+//
+void d_ocp_qcqp_reduce_eq_dof_sol(struct d_ocp_qcqp *qp, struct d_ocp_qcqp_sol *qp_sol, struct d_ocp_qcqp_sol *qp_sol_red, struct d_ocp_qcqp_reduce_eq_dof_arg *arg, struct d_ocp_qcqp_reduce_eq_dof_ws *work);
 
 
 
