@@ -38,6 +38,12 @@ void PART_COND_QP_COMPUTE_BLOCK_SIZE(int N, int N2, int *block_size)
 
 	int ii;
 
+	if (N2 == 0 && N == 0)
+		{
+		block_size[0] = 0;
+		return;
+		}
+
 	int bs0 = N/N2; // (floor) size of small blocks
 
 	// the first blocks have size bs0+1
