@@ -1754,7 +1754,8 @@ void COND_D(struct OCP_QP *ocp_qp, struct STRVEC *d2, struct STRVEC *d_mask2, st
 			GEMV_T(nx0, ng0, 1.0, &DCt[N-ii], nu0, 0, &Gammab[N-ii-1], 0, 0.0, tmp_nbgM, 0, tmp_nbgM, 0);
 
 			AXPY(ng0, -1.0, tmp_nbgM, 0, d2, nb2+nbg+ng_tmp, d2, nb2+nbg+ng_tmp);
-			AXPY(ng0, -1.0, tmp_nbgM, 0, d2, 2*nb2+ng2+nbg+ng_tmp, d2, 2*nb2+ng2+nbg+ng_tmp);
+			//AXPY(ng0, -1.0, tmp_nbgM, 0, d2, 2*nb2+ng2+nbg+ng_tmp, d2, 2*nb2+ng2+nbg+ng_tmp);
+			AXPY(ng0,  1.0, tmp_nbgM, 0, d2, 2*nb2+ng2+nbg+ng_tmp, d2, 2*nb2+ng2+nbg+ng_tmp); // XXX
 
 			ng_tmp += ng0;
 			
