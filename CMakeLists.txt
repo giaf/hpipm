@@ -54,6 +54,7 @@ set(ALLOWED_TARGETS
 		GENERIC
 		)
 set_property(CACHE TARGET PROPERTY STRINGS ${ALLOWED_TARGETS})
+message(STATUS "HPIPM Target is ${TARGET}")
 
 # Use C99 extension to math library
 set(USE_C99_MATH ON CACHE STRING "Use C99 extension to math library")
@@ -165,6 +166,8 @@ if(${TARGET} MATCHES AVX)
 	endif()
 elseif(${TARGET} MATCHES GENERIC)
 	set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -DTARGET_GENERIC")
+else()
+	message(WARNING "Unknown target ${TARGET}.")
 endif()
 
 #
