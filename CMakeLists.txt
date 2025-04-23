@@ -167,7 +167,7 @@ if(${TARGET} MATCHES AVX)
 elseif(${TARGET} MATCHES GENERIC)
 	set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -DTARGET_GENERIC")
 else()
-	message(WARNING "Unknown target ${TARGET}.")
+	message(WARNING "Unknown target ${TARGET}. GENERIC code will be used instead.")
 endif()
 
 #
