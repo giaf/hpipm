@@ -79,6 +79,8 @@ void d_ocp_qp_sol_get_all_rowmaj(struct d_ocp_qp_sol *qp_sol, double **u, double
 //
 void d_ocp_qp_sol_set_all(double **u, double **x, double **ls, double **us, double **pi, double **lam_lb, double **lam_ub, double **lam_lg, double **lam_ug, double **lam_ls, double **lam_us, struct d_ocp_qp_sol *qp_sol);
 //
+void d_ocp_qp_sol_set_zero(struct d_ocp_qp_sol *qp_sol);
+//
 void d_ocp_qp_sol_get(char *field, int stage, struct d_ocp_qp_sol *qp_sol, double *vec);
 //
 void d_ocp_qp_sol_get_u(int stage, struct d_ocp_qp_sol *qp_sol, double *vec);
@@ -107,6 +109,10 @@ void d_ocp_qp_sol_get_lam_lg(int stage, struct d_ocp_qp_sol *qp_sol, double *vec
 //
 void d_ocp_qp_sol_get_lam_ug(int stage, struct d_ocp_qp_sol *qp_sol, double *vec);
 //
+void d_ocp_qp_sol_get_lam_ls(int stage, struct d_ocp_qp_sol *qp_sol, double *vec);
+//
+void d_ocp_qp_sol_get_lam_us(int stage, struct d_ocp_qp_sol *qp_sol, double *vec);
+//
 void d_ocp_qp_sol_set(char *field, int stage, double *vec, struct d_ocp_qp_sol *qp_sol);
 //
 void d_ocp_qp_sol_set_u(int stage, double *vec, struct d_ocp_qp_sol *qp_sol);
@@ -116,6 +122,28 @@ void d_ocp_qp_sol_set_x(int stage, double *vec, struct d_ocp_qp_sol *qp_sol);
 void d_ocp_qp_sol_set_sl(int stage, double *vec, struct d_ocp_qp_sol *qp_sol);
 //
 void d_ocp_qp_sol_set_su(int stage, double *vec, struct d_ocp_qp_sol *qp_sol);
+//
+void d_ocp_qp_sol_set_pi(int stage, double *vec, struct d_ocp_qp_sol *qp_sol);
+//
+void d_ocp_qp_sol_set_lam_lb(int stage, double *vec, struct d_ocp_qp_sol *qp_sol);
+//
+void d_ocp_qp_sol_set_lam_lbu(int stage, double *vec, struct d_ocp_qp_sol *qp_sol);
+//
+void d_ocp_qp_sol_set_lam_lbx(int stage, double *vec, struct d_ocp_qp_sol *qp_sol);
+//
+void d_ocp_qp_sol_set_lam_ub(int stage, double *vec, struct d_ocp_qp_sol *qp_sol);
+//
+void d_ocp_qp_sol_set_lam_ubu(int stage, double *vec, struct d_ocp_qp_sol *qp_sol);
+//
+void d_ocp_qp_sol_set_lam_ubx(int stage, double *vec, struct d_ocp_qp_sol *qp_sol);
+//
+void d_ocp_qp_sol_set_lam_lg(int stage, double *vec, struct d_ocp_qp_sol *qp_sol);
+//
+void d_ocp_qp_sol_set_lam_ug(int stage, double *vec, struct d_ocp_qp_sol *qp_sol);
+//
+void d_ocp_qp_sol_set_lam_ls(int stage, double *vec, struct d_ocp_qp_sol *qp_sol);
+//
+void d_ocp_qp_sol_set_lam_us(int stage, double *vec, struct d_ocp_qp_sol *qp_sol);
 
 
 
