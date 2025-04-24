@@ -453,8 +453,8 @@ int main()
 	d_ocp_qp_sol_set_lam_lbx(stage, seed_x0, &seed);
 	d_ocp_qp_sol_set_lam_ubx(stage, seed_x0, &seed);
 
-	// sensitivity solution
-	d_ocp_qp_ipm_sens(&qp, &seed, &sens, &arg, &workspace);
+	// forward sensitivity of solution
+	d_ocp_qp_ipm_sens_for(&qp, &seed, &sens, &arg, &workspace);
 
 	// u
 	printf("\nu_sens = \n");
@@ -551,6 +551,7 @@ int main()
 	//free(qp_sol2_mem);
 	free(seed_mem);
 	free(sens_mem);
+	free(seed_x0);
 	free(ipm_arg_mem);
 	free(ipm_mem);
 
