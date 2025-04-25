@@ -3172,7 +3172,8 @@ void OCP_QP_IPM_PREDICT(struct OCP_QP *qp, struct OCP_QP_SOL *qp_sol, struct OCP
 
 
 
-void OCP_QP_IPM_SENS_FOR(struct OCP_QP *qp, struct OCP_QP_SOL *seed, struct OCP_QP_SOL *sens, struct OCP_QP_IPM_ARG *arg, struct OCP_QP_IPM_WS *ws)
+// forward solution sensitivities
+void OCP_QP_IPM_SENS_FRW(struct OCP_QP *qp, struct OCP_QP_SOL *seed, struct OCP_QP_SOL *sens, struct OCP_QP_IPM_ARG *arg, struct OCP_QP_IPM_WS *ws)
 	{
 
 #if 0
@@ -3199,7 +3200,7 @@ void OCP_QP_IPM_SENS_FOR(struct OCP_QP *qp, struct OCP_QP_SOL *seed, struct OCP_
 	cws->t_min_inv = arg->t_min>0 ? 1.0/arg->t_min : 1e30;
 	cws->t_lam_min = arg->t_lam_min;
 
-	// alias qp vectors into qp_sol
+	// alias qp vectors into sens
 	cws->v = sens->ux->pa;
 	cws->pi = sens->pi->pa;
 	cws->lam = sens->lam->pa;
@@ -3275,15 +3276,25 @@ void OCP_QP_IPM_SENS_FOR(struct OCP_QP *qp, struct OCP_QP_SOL *seed, struct OCP_
 
 
 
-void OCP_QP_IPM_SENS_ADJ(struct OCP_QP *qp, struct OCP_QP_SOL *qp_sol, struct OCP_QP_IPM_ARG *arg, struct OCP_QP_IPM_WS *ws)
+// adjoint solution sensitivities
+void OCP_QP_IPM_SENS_ADJ(struct OCP_QP *qp, struct OCP_QP_SOL *seed, struct OCP_QP_SOL *sens, struct OCP_QP_IPM_ARG *arg, struct OCP_QP_IPM_WS *ws)
 	{
 
 #if 0
 	OCP_QP_DIM_PRINT(qp->dim);
 	OCP_QP_PRINT(qp->dim, qp);
+	OCP_QP_SOL_PRINT(qp->dim, seed);
 #endif
 
 	int ii;
+
+	// dim
+	int N = qp->dim->N;
+	int *nx = qp->dim->nx;
+	int *nu = qp->dim->nu;
+	int *nb = qp->dim->nb;
+	int *ng = qp->dim->ng;
+	int *ns = qp->dim->ns;
 
 	struct CORE_QP_IPM_WORKSPACE *cws = ws->core_workspace;
 
@@ -3293,11 +3304,11 @@ void OCP_QP_IPM_SENS_ADJ(struct OCP_QP *qp, struct OCP_QP_SOL *qp_sol, struct OC
 	cws->t_min_inv = arg->t_min>0 ? 1.0/arg->t_min : 1e30;
 	cws->t_lam_min = arg->t_lam_min;
 
-	// alias qp vectors into qp_sol
-	cws->v = qp_sol->ux->pa;
-	cws->pi = qp_sol->pi->pa;
-	cws->lam = qp_sol->lam->pa;
-	cws->t = qp_sol->t->pa;
+	// alias qp vectors into sens
+	cws->v = sens->ux->pa;
+	cws->pi = sens->pi->pa;
+	cws->lam = sens->lam->pa;
+	cws->t = sens->t->pa;
 
 	// load sol from bkp
 	for(ii=0; ii<cws->nv; ii++)
@@ -3308,6 +3319,31 @@ void OCP_QP_IPM_SENS_ADJ(struct OCP_QP *qp, struct OCP_QP_SOL *qp_sol, struct OC
 		cws->lam[ii] = cws->lam_bkp[ii];
 	for(ii=0; ii<cws->nc; ii++)
 		cws->t[ii] = cws->t_bkp[ii];
+
+	// flip sign of seed lam
+	for(ii=0; ii<=N; ii++)
+		VECSC(nb[ii]+ng[ii], -1.0, seed->lam+ii, nb[ii]+ng[ii]);
+
+	// swap qp rhs with seed
+	{
+	struct STRVEC *tmp;
+	//
+	tmp = qp->rqz;
+	qp->rqz = seed->ux;
+	seed->ux = tmp;
+	//
+	tmp = qp->b;
+	qp->b = seed->pi;
+	seed->pi = tmp;
+	//
+	tmp = qp->d;
+	qp->d = seed->lam;
+	seed->lam = tmp;
+	//
+	tmp = qp->m;
+	qp->m = seed->t;
+	seed->t = tmp;
+	}
 
 	// backup and scale m
 	REAL *m = qp->m->pa;
@@ -3320,20 +3356,45 @@ void OCP_QP_IPM_SENS_ADJ(struct OCP_QP *qp, struct OCP_QP_SOL *qp_sol, struct OC
 
 	// solve kkt
 	ws->use_Pb = 0;
-	OCP_QP_SOLVE_KKT_STEP(qp, qp_sol, arg, ws);
+	OCP_QP_SOLVE_KKT_STEP(qp, sens, arg, ws);
 
 	// scale t
-	REAL *t = qp_sol->t->pa;
+	REAL *t = sens->t->pa;
 	for(ii=0; ii<cws->nc; ii++)
 		{
 		t[ii] *= cws->t_inv[ii];
 		}
 
-	// restore m
+	// restore m XXX not needed if seed can be destructed
 	for(ii=0; ii<cws->nc; ii++)
 		{
 		m[ii] = tmp_m[ii];
 		}
+
+	// swap qp rhs with seed
+	{
+	struct STRVEC *tmp;
+	//
+	tmp = qp->rqz;
+	qp->rqz = seed->ux;
+	seed->ux = tmp;
+	//
+	tmp = qp->b;
+	qp->b = seed->pi;
+	seed->pi = tmp;
+	//
+	tmp = qp->d;
+	qp->d = seed->lam;
+	seed->lam = tmp;
+	//
+	tmp = qp->m;
+	qp->m = seed->t;
+	seed->t = tmp;
+	}
+
+	// restore sign of seed lam XXX not needed if seed can be destructed
+	for(ii=0; ii<=N; ii++)
+		VECSC(nb[ii]+ng[ii], -1.0, seed->lam+ii, nb[ii]+ng[ii]);
 
 	return;
 

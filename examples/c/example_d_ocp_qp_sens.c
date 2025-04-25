@@ -429,8 +429,6 @@ int main()
 * sensitivity of solution of QP
 ************************************************/
 
-	#if 1
-
 	// new sol struct
 	void *seed_mem = malloc(qp_sol_size);
 	struct d_ocp_qp_sol seed;
@@ -453,8 +451,13 @@ int main()
 	d_ocp_qp_sol_set_lam_lbx(stage, seed_x0, &seed);
 	d_ocp_qp_sol_set_lam_ubx(stage, seed_x0, &seed);
 
+	// print seeds
+	//d_ocp_qp_sol_print(seed.dim, &seed);
+
 	// forward sensitivity of solution
-	d_ocp_qp_ipm_sens_for(&qp, &seed, &sens, &arg, &workspace);
+	d_ocp_qp_ipm_sens_frw(&qp, &seed, &sens, &arg, &workspace);
+	// adjoint sensitivity of solution
+	//d_ocp_qp_ipm_sens_adj(&qp, &seed, &sens, &arg, &workspace);
 
 	// u
 	printf("\nu_sens = \n");
@@ -480,63 +483,8 @@ int main()
 		d_print_mat(1, nx[ii+1], pi, 1);
 		}
 
-	#else
-
-	void *qp2_mem = malloc(qp_size);
-	struct d_ocp_qp qp2;
-	d_ocp_qp_create(&dim, &qp2, qp2_mem);
-
-	// new sol struct
-	void *qp_sol2_mem = malloc(qp_sol_size);
-	struct d_ocp_qp_sol qp_sol2;
-	d_ocp_qp_sol_create(&dim, &qp_sol2, qp_sol2_mem);
-
-	// set I to param at RHS
-	d_ocp_qp_copy_all(&qp, &qp2);
-
-	d_ocp_qp_set_rhs_zero(&qp2);
-
-	double one = 1.0;
-	int index = 0;
-//	d_ocp_qp_set_el_lbx(0, index, &one, &qp2);
-//	d_ocp_qp_set_el_ubx(0, index, &one, &qp2);
-	d_ocp_qp_set_el("lbx", 0, index, &one, &qp2);
-	d_ocp_qp_set_el("ubx", 0, index, &one, &qp2);
-
-//	d_ocp_qp_print(&dim, &qp2);
-//	exit(1);
-
-	// sensitivity solution
-//	int comp_res_pred = 0;
-//	d_ocp_qp_ipm_arg_set_comp_res_pred(&comp_res_pred, &arg);
-
-	d_ocp_qp_ipm_sens(&qp2, &qp_sol2, &arg, &workspace);
-
-	// u
-	printf("\nu_sens = \n");
-	for(ii=0; ii<=N; ii++)
-		{
-		d_ocp_qp_sol_get_u(ii, &qp_sol2, u);
-		d_print_mat(1, nu[ii], u, 1);
-		}
-
-	// x
-	printf("\nx_sens = \n");
-	for(ii=0; ii<=N; ii++)
-		{
-		d_ocp_qp_sol_get_x(ii, &qp_sol2, x);
-		d_print_mat(1, nx[ii], x, 1);
-		}
-
-	// pi
-	printf("\npi_sens = \n");
-	for(ii=0; ii<N; ii++)
-		{
-		d_ocp_qp_sol_get_pi(ii, &qp_sol2, pi);
-		d_print_mat(1, nx[ii+1], pi, 1);
-		}
-
-	#endif
+	// print solution sensitivities
+	//d_ocp_qp_sol_print(sens.dim, &sens);
 
 /************************************************
 * free memory and return
@@ -545,10 +493,8 @@ int main()
 	free(dim_mem);
 	free(qp_mem);
 	free(qp1_mem);
-	//free(qp2_mem);
 	free(qp_sol_mem);
 	free(qp_sol1_mem);
-	//free(qp_sol2_mem);
 	free(seed_mem);
 	free(sens_mem);
 	free(seed_x0);

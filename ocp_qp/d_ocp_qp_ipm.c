@@ -201,7 +201,7 @@
 #define OCP_QP_IPM_DELTA_STEP d_ocp_qp_ipm_delta_step
 #define OCP_QP_IPM_SOLVE d_ocp_qp_ipm_solve
 #define OCP_QP_IPM_PREDICT d_ocp_qp_ipm_predict
-#define OCP_QP_IPM_SENS_FOR d_ocp_qp_ipm_sens_for
+#define OCP_QP_IPM_SENS_FRW d_ocp_qp_ipm_sens_frw
 #define OCP_QP_IPM_SENS_ADJ d_ocp_qp_ipm_sens_adj
 
 
