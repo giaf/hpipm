@@ -65,6 +65,7 @@ OBJS_EXMP = $(OCP_QP_DATA) example_d_ocp_qp_x0emb.o
 #OBJS_EXMP = $(OCP_QCQP_DATA) example_d_ocp_qcqp_x0emb_cond.o
 #OBJS_EXMP = $(OCP_QP_DATA) example_d_ocp_qp_sens.o
 #OBJS_EXMP = $(OCP_QP_DATA) example_d_ocp_qp_part_cond_sens.o
+#OBJS_EXMP = $(OCP_QP_DATA) example_d_ocp_qp_cond_sens.o
 #OBJS_EXMP = $(DENSE_QP_DATA) example_d_dense_qp.o
 #OBJS_EXMP = $(OCP_QP_DATA) example_d_ocp_qp_solver.o
 
@@ -80,6 +81,7 @@ example_d_ocp_qp \
 example_d_ocp_qp_part_cond \
 example_d_ocp_qp_sens \
 example_d_ocp_qp_part_cond_sens \
+example_d_ocp_qp_cond_sens \
 : %: $(OCP_QP_DATA) %.o
 	$(CC) -o $@.out $^ $(LIBS)
 	./$@.out
