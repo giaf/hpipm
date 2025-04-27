@@ -45,9 +45,11 @@
 
 #include "hpipm_d_dense_qp.h"
 #include "hpipm_d_dense_qp_sol.h"
+#include "hpipm_d_dense_qp_res.h"
 #include "hpipm_d_ocp_qp.h"
 #include "hpipm_d_ocp_qp_dim.h"
 #include "hpipm_d_ocp_qp_sol.h"
+#include "hpipm_d_ocp_qp_res.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -116,6 +118,8 @@ void d_cond_qp_cond(struct d_ocp_qp *ocp_qp, struct d_dense_qp *dense_qp, struct
 void d_cond_qp_cond_lhs(struct d_ocp_qp *ocp_qp, struct d_dense_qp *dense_qp, struct d_cond_qp_arg *cond_arg, struct d_cond_qp_ws *cond_ws);
 //
 void d_cond_qp_cond_rhs(struct d_ocp_qp *ocp_qp, struct d_dense_qp *dense_qp, struct d_cond_qp_arg *cond_arg, struct d_cond_qp_ws *cond_ws);
+//
+void d_cond_qp_cond_res(struct d_ocp_qp *ocp_qp, struct d_ocp_qp_res *ocp_qp_res, struct d_dense_qp_res *dense_qp_res, struct d_cond_qp_arg *cond_arg, struct d_cond_qp_ws *cond_ws);
 //
 void d_cond_qp_cond_sol(struct d_ocp_qp *ocp_qp, struct d_ocp_qp_sol *ocp_qp_sol, struct d_dense_qp_sol *dense_qp_sol, struct d_cond_qp_arg *cond_arg, struct d_cond_qp_ws *cond_ws);
 //

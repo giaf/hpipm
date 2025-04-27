@@ -44,8 +44,10 @@
 #include <hpipm_d_ocp_qp_dim.h>
 #include <hpipm_d_ocp_qp.h>
 #include <hpipm_d_ocp_qp_sol.h>
+#include <hpipm_d_ocp_qp_res.h>
 #include <hpipm_d_dense_qp.h>
 #include <hpipm_d_dense_qp_sol.h>
+#include <hpipm_d_dense_qp_res.h>
 #include <hpipm_d_cond.h>
 #include <hpipm_d_cond_aux.h>
 #include <hpipm_aux_mem.h>
@@ -69,9 +71,11 @@
 #define DENSE_QP d_dense_qp
 #define DENSE_QP_DIM d_dense_qp_dim
 #define DENSE_QP_SOL d_dense_qp_sol
+#define DENSE_QP_RES d_dense_qp_res
 #define EXPAND_SOL d_expand_sol
 #define OCP_QP d_ocp_qp
 #define OCP_QP_DIM d_ocp_qp_dim
+#define OCP_QP_RES d_ocp_qp_res
 #define OCP_QP_SOL d_ocp_qp_sol
 #define REAL double
 #define SIZE_STRMAT blasfeo_memsize_dmat
@@ -81,6 +85,7 @@
 #define UPDATE_COND_DCTD d_update_cond_DCtd
 #define UPDATE_COND_BABT d_update_cond_BAbt
 #define UPDATE_COND_RSQRQ_N2NX3 d_update_cond_RSQrq_N2nx3
+#define VECSC blasfeo_dvecsc
 
 #define COND_QP_COMPUTE_DIM d_cond_qp_compute_dim
 #define COND_QP_ARG_MEMSIZE d_cond_qp_arg_memsize
@@ -97,6 +102,7 @@
 #define COND_QP_COND d_cond_qp_cond
 #define COND_QP_COND_LHS d_cond_qp_cond_lhs
 #define COND_QP_COND_RHS d_cond_qp_cond_rhs
+#define COND_QP_COND_RES d_cond_qp_cond_res
 #define COND_QP_COND_SOL d_cond_qp_cond_sol
 #define COND_QP_EXPAND_SOL d_cond_qp_expand_sol
 #define COND_QP_UPDATE d_cond_qp_update

@@ -640,6 +640,7 @@ void PART_COND_QP_COND_RHS(struct OCP_QP *ocp_qp, struct OCP_QP *part_dense_qp, 
 
 		COND_RQ(&tmp_ocp_qp, part_dense_qp->rqz+ii, part_cond_arg->cond_arg+ii, part_cond_ws->cond_workspace+ii);
 
+		// TODO cond m !!!!!!!!!!!
 		COND_D(&tmp_ocp_qp, part_dense_qp->d+ii, part_dense_qp->d_mask+ii, part_dense_qp->rqz+ii, part_cond_arg->cond_arg+ii, part_cond_ws->cond_workspace+ii);
 
 		N_tmp += bs;

@@ -490,7 +490,60 @@ void COND_QP_COND_RHS(struct OCP_QP *ocp_qp, struct DENSE_QP *dense_qp, struct C
 
 	COND_RQ(ocp_qp, dense_qp->gz, cond_arg, cond_ws);
 
+	// TODO cond m !!!!!!!!!!!
 	COND_D(ocp_qp, dense_qp->d, dense_qp->d_mask, dense_qp->gz, cond_arg, cond_ws);
+
+	return;
+
+	}
+
+
+
+void COND_QP_COND_RES(struct OCP_QP *ocp_qp, struct OCP_QP_RES *ocp_qp_res, struct DENSE_QP_RES *dense_qp_res, struct COND_QP_ARG *cond_arg, struct COND_QP_WS *cond_ws)
+	{
+
+	struct OCP_QP tmp_ocp_qp;
+
+	int ii;
+
+	int N = ocp_qp->dim->N;
+	int *nb = ocp_qp->dim->nb;
+	int *ng = ocp_qp->dim->ng;
+
+	int nb2 = dense_qp_res->dim->nb;
+	int ng2 = dense_qp_res->dim->ng;
+
+	// alias ocp_qp
+	tmp_ocp_qp.dim = ocp_qp->dim;
+	tmp_ocp_qp.idxb = ocp_qp->idxb;
+	tmp_ocp_qp.BAbt = ocp_qp->BAbt;
+	tmp_ocp_qp.b = ocp_qp_res->res_b; // XXX
+	tmp_ocp_qp.RSQrq = ocp_qp->RSQrq;
+	tmp_ocp_qp.rqz = ocp_qp_res->res_g; // XXX
+	tmp_ocp_qp.DCt = ocp_qp->DCt;
+	tmp_ocp_qp.d = ocp_qp_res->res_d; // XXX
+	tmp_ocp_qp.d_mask = ocp_qp->d_mask;
+	tmp_ocp_qp.Z = ocp_qp->Z;
+	tmp_ocp_qp.idxs_rev = ocp_qp->idxs_rev;
+	tmp_ocp_qp.diag_H_flag = ocp_qp->diag_H_flag;
+	// TODO cond m !!!!!!!!!!!
+
+	// flip sign of upper constraints in ocp_qp_res
+	for(ii=0; ii<=N; ii++)
+		VECSC(nb[ii]+ng[ii], -1.0, tmp_ocp_qp.d+ii, nb[ii]+ng[ii]);
+
+	COND_B(&tmp_ocp_qp, dense_qp_res->res_b, cond_arg, cond_ws);
+
+	COND_RQ(&tmp_ocp_qp, dense_qp_res->res_g, cond_arg, cond_ws);
+
+	COND_D(&tmp_ocp_qp, dense_qp_res->res_d, NULL, dense_qp_res->res_g, cond_arg, cond_ws);
+
+	// restore sign of upper constraints in ocp_qp_res
+	for(ii=0; ii<=N; ii++)
+		VECSC(nb[ii]+ng[ii], -1.0, tmp_ocp_qp.d+ii, nb[ii]+ng[ii]);
+
+	// flip sign of upper constraints in dense_qp_res
+	VECSC(nb2+ng2, -1.0, dense_qp_res->res_d, nb2+ng2);
 
 	return;
 

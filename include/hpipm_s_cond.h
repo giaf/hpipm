@@ -45,9 +45,11 @@
 
 #include "hpipm_s_dense_qp.h"
 #include "hpipm_s_dense_qp_sol.h"
+#include "hpipm_s_dense_qp_res.h"
 #include "hpipm_s_ocp_qp.h"
 #include "hpipm_s_ocp_qp_dim.h"
 #include "hpipm_s_ocp_qp_sol.h"
+#include "hpipm_s_ocp_qp_res.h"
 
 
 
@@ -118,6 +120,8 @@ void s_cond_qp_cond(struct s_ocp_qp *ocp_qp, struct s_dense_qp *dense_qp, struct
 void s_cond_qp_cond_lhs(struct s_ocp_qp *ocp_qp, struct s_dense_qp *dense_qp, struct s_cond_qp_arg *cond_arg, struct s_cond_qp_ws *cond_ws);
 //
 void s_cond_qp_cond_rhs(struct s_ocp_qp *ocp_qp, struct s_dense_qp *dense_qp, struct s_cond_qp_arg *cond_arg, struct s_cond_qp_ws *cond_ws);
+//
+void s_cond_qp_cond_res(struct s_ocp_qp *ocp_qp, struct s_ocp_qp_res *ocp_qp_res, struct s_dense_qp_res *dense_qp_res, struct s_cond_qp_arg *cond_arg, struct s_cond_qp_ws *cond_ws);
 //
 void s_cond_qp_cond_sol(struct s_ocp_qp *ocp_qp, struct s_ocp_qp_sol *ocp_qp_sol, struct s_dense_qp_sol *dense_qp_sol, struct s_cond_qp_arg *cond_arg, struct s_cond_qp_ws *cond_ws);
 //
