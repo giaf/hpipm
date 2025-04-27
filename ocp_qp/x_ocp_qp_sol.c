@@ -663,7 +663,7 @@ void OCP_QP_SOL_SET(char *field, int stage, REAL *vec, struct OCP_QP_SOL *qp_sol
 	else 
 		{
 #ifdef EXT_DEP
-		printf("error [OCP_QP_DIM_SET]: unknown field name '%s'. Exiting.\n", field);
+		printf("error [OCP_QP_SOL_SET]: unknown field name '%s'. Exiting.\n", field);
 #endif
 		exit(1);
 		}

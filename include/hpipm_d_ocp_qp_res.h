@@ -104,6 +104,41 @@ void d_ocp_qp_res_get_max_res_eq(struct d_ocp_qp_res *res, double *value);
 void d_ocp_qp_res_get_max_res_ineq(struct d_ocp_qp_res *res, double *value);
 //
 void d_ocp_qp_res_get_max_res_comp(struct d_ocp_qp_res *res, double *value);
+//
+void d_ocp_qp_res_set_zero(struct d_ocp_qp_res *res);
+//
+void d_ocp_qp_res_set(char *field, int stage, double *vec, struct d_ocp_qp_res *qp_res);
+//
+void d_ocp_qp_res_set_res_r(int stage, double *vec, struct d_ocp_qp_res *qp_res);
+//
+void d_ocp_qp_res_set_res_q(int stage, double *vec, struct d_ocp_qp_res *qp_res);
+//
+void d_ocp_qp_res_set_res_zl(int stage, double *vec, struct d_ocp_qp_res *qp_res);
+//
+void d_ocp_qp_res_set_res_zu(int stage, double *vec, struct d_ocp_qp_res *qp_res);
+//
+void d_ocp_qp_res_set_res_b(int stage, double *vec, struct d_ocp_qp_res *qp_res);
+//
+void d_ocp_qp_res_set_res_lb(int stage, double *vec, struct d_ocp_qp_res *qp_res);
+//
+void d_ocp_qp_res_set_res_lbu(int stage, double *vec, struct d_ocp_qp_res *qp_res);
+//
+void d_ocp_qp_res_set_res_lbx(int stage, double *vec, struct d_ocp_qp_res *qp_res);
+//
+void d_ocp_qp_res_set_res_ub(int stage, double *vec, struct d_ocp_qp_res *qp_res);
+//
+void d_ocp_qp_res_set_res_ubu(int stage, double *vec, struct d_ocp_qp_res *qp_res);
+//
+void d_ocp_qp_res_set_res_ubx(int stage, double *vec, struct d_ocp_qp_res *qp_res);
+//
+void d_ocp_qp_res_set_res_lg(int stage, double *vec, struct d_ocp_qp_res *qp_res);
+//
+void d_ocp_qp_res_set_res_ug(int stage, double *vec, struct d_ocp_qp_res *qp_res);
+//
+void d_ocp_qp_res_set_res_ls(int stage, double *vec, struct d_ocp_qp_res *qp_res);
+//
+void d_ocp_qp_res_set_res_us(int stage, double *vec, struct d_ocp_qp_res *qp_res);
+
 
 
 

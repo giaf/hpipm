@@ -45,6 +45,7 @@
 
 #include <hpipm_d_ocp_qp_dim.h>
 #include <hpipm_d_ocp_qp_res.h>
+#include <hpipm_aux_string.h>
 #include <hpipm_aux_mem.h>
 
 
@@ -56,7 +57,6 @@
 #define AXPY blasfeo_daxpy
 #define CREATE_STRVEC blasfeo_create_dvec
 #define DOT blasfeo_ddot
-#define UNPACK_VEC blasfeo_unpack_dvec
 #define GEMV_DIAG blasfeo_dgemv_d
 #define GEMV_NT blasfeo_dgemv_nt
 #define OCP_QP d_ocp_qp
@@ -64,17 +64,20 @@
 #define OCP_QP_RES d_ocp_qp_res
 #define OCP_QP_RES_WS d_ocp_qp_res_ws
 #define OCP_QP_SOL d_ocp_qp_sol
+#define PACK_VEC blasfeo_pack_dvec
 #define REAL double
 #define SIZE_STRVEC blasfeo_memsize_dvec
 #define STRMAT blasfeo_dmat
 #define STRVEC blasfeo_dvec
 #define SYMV_L blasfeo_dsymv_l
+#define UNPACK_VEC blasfeo_unpack_dvec
 #define VECAD_SP blasfeo_dvecad_sp
 #define VECCP blasfeo_dveccp
 #define VECEX_SP blasfeo_dvecex_sp
 #define VECMULACC blasfeo_dvecmulacc
 #define VECMULDOT blasfeo_dvecmuldot
 #define VECNRM_INF blasfeo_dvecnrm_inf
+#define VECSE blasfeo_dvecse
 
 
 
@@ -90,6 +93,23 @@
 #define OCP_QP_RES_GET_MAX_RES_EQ d_ocp_qp_res_get_max_res_eq
 #define OCP_QP_RES_GET_MAX_RES_INEQ d_ocp_qp_res_get_max_res_ineq
 #define OCP_QP_RES_GET_MAX_RES_COMP d_ocp_qp_res_get_max_res_comp
+#define OCP_QP_RES_SET_ZERO d_ocp_qp_res_set_zero
+#define OCP_QP_RES_SET d_ocp_qp_res_set
+#define OCP_QP_RES_SET_RES_R d_ocp_qp_res_set_res_r
+#define OCP_QP_RES_SET_RES_Q d_ocp_qp_res_set_res_q
+#define OCP_QP_RES_SET_RES_ZL d_ocp_qp_res_set_res_zl
+#define OCP_QP_RES_SET_RES_ZU d_ocp_qp_res_set_res_zu
+#define OCP_QP_RES_SET_RES_B d_ocp_qp_res_set_res_b
+#define OCP_QP_RES_SET_RES_LB d_ocp_qp_res_set_res_lb
+#define OCP_QP_RES_SET_RES_LBU d_ocp_qp_res_set_res_lbu
+#define OCP_QP_RES_SET_RES_LBX d_ocp_qp_res_set_res_lbx
+#define OCP_QP_RES_SET_RES_UB d_ocp_qp_res_set_res_ub
+#define OCP_QP_RES_SET_RES_UBU d_ocp_qp_res_set_res_ubu
+#define OCP_QP_RES_SET_RES_UBX d_ocp_qp_res_set_res_ubx
+#define OCP_QP_RES_SET_RES_LG d_ocp_qp_res_set_res_lg
+#define OCP_QP_RES_SET_RES_UG d_ocp_qp_res_set_res_ug
+#define OCP_QP_RES_SET_RES_LS d_ocp_qp_res_set_res_ls
+#define OCP_QP_RES_SET_RES_US d_ocp_qp_res_set_res_us
 
 
 

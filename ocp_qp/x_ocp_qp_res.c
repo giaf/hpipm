@@ -788,3 +788,261 @@ void OCP_QP_RES_GET_MAX_RES_COMP(struct OCP_QP_RES *res, REAL *value)
 	return;
 
 	}
+
+
+
+void OCP_QP_RES_SET_ZERO(struct OCP_QP_RES *res)
+	{
+
+	int N = res->dim->N;
+	int *nx = res->dim->nx;
+	int *nu = res->dim->nu;
+	int *nb = res->dim->nb;
+	int *ng = res->dim->ng;
+	int *ns = res->dim->ns;
+
+	int ii;
+
+	// res_g
+	for(ii=0; ii<=N; ii++)
+		{
+		VECSE(nu[ii]+nx[ii]+2*ns[ii], 0.0, res->res_g+ii, 0);
+		}
+	// res_b
+	for(ii=0; ii<N; ii++)
+		{
+		VECSE(nx[ii+1], 0.0, res->res_b+ii, 0);
+		}
+	// res_d
+	for(ii=0; ii<=N; ii++)
+		{
+		VECSE(2*nb[ii]+2*ng[ii]+2*ns[ii], 0.0, res->res_d+ii, 0);
+		}
+	// res_m
+	for(ii=0; ii<=N; ii++)
+		{
+		VECSE(2*nb[ii]+2*ng[ii]+2*ns[ii], 0.0, res->res_m+ii, 0);
+		}
+
+	return;
+
+	}
+
+
+
+void OCP_QP_RES_SET(char *field, int stage, REAL *vec, struct OCP_QP_RES *res)
+	{
+	if(hpipm_strcmp(field, "res_r"))
+		{
+		OCP_QP_RES_SET_RES_R(stage, vec, res);
+		}
+	else if(hpipm_strcmp(field, "res_q"))
+		{
+		OCP_QP_RES_SET_RES_Q(stage, vec, res);
+		}
+	else if(hpipm_strcmp(field, "res_zl"))
+		{
+		OCP_QP_RES_SET_RES_ZL(stage, vec, res);
+		}
+	else if(hpipm_strcmp(field, "res_zu"))
+		{
+		OCP_QP_RES_SET_RES_ZU(stage, vec, res);
+		}
+	else if(hpipm_strcmp(field, "res_b"))
+		{
+		OCP_QP_RES_SET_RES_B(stage, vec, res);
+		}
+	else if(hpipm_strcmp(field, "res_lb"))
+		{
+		OCP_QP_RES_SET_RES_LB(stage, vec, res);
+		}
+	else if(hpipm_strcmp(field, "res_lbu"))
+		{
+		OCP_QP_RES_SET_RES_LBU(stage, vec, res);
+		}
+	else if(hpipm_strcmp(field, "res_lbx"))
+		{
+		OCP_QP_RES_SET_RES_LBX(stage, vec, res);
+		}
+	else if(hpipm_strcmp(field, "res_ub"))
+		{
+		OCP_QP_RES_SET_RES_UB(stage, vec, res);
+		}
+	else if(hpipm_strcmp(field, "res_ubu"))
+		{
+		OCP_QP_RES_SET_RES_UBU(stage, vec, res);
+		}
+	else if(hpipm_strcmp(field, "res_ubx"))
+		{
+		OCP_QP_RES_SET_RES_UBX(stage, vec, res);
+		}
+	else if(hpipm_strcmp(field, "res_lg"))
+		{
+		OCP_QP_RES_SET_RES_LG(stage, vec, res);
+		}
+	else if(hpipm_strcmp(field, "res_ug"))
+		{
+		OCP_QP_RES_SET_RES_UG(stage, vec, res);
+		}
+	else if(hpipm_strcmp(field, "res_ls"))
+		{
+		OCP_QP_RES_SET_RES_LS(stage, vec, res);
+		}
+	else if(hpipm_strcmp(field, "res_us"))
+		{
+		OCP_QP_RES_SET_RES_US(stage, vec, res);
+		}
+	else
+		{
+#ifdef EXT_DEP
+		printf("error [OCP_QP_RES_SET]: unknown field name '%s'. Exiting.\n", field);
+#endif
+		exit(1);
+		}
+	return;
+	}
+
+
+
+void OCP_QP_RES_SET_RES_R(int stage, REAL *vec, struct OCP_QP_RES *res)
+	{
+	int *nu = res->dim->nu;
+	PACK_VEC(nu[stage], vec, 1, res->res_g+stage, 0);
+	return;
+	}
+
+
+
+void OCP_QP_RES_SET_RES_Q(int stage, REAL *vec, struct OCP_QP_RES *res)
+	{
+	int *nu = res->dim->nu;
+	int *nx = res->dim->nx;
+	PACK_VEC(nx[stage], vec, 1, res->res_g+stage, nu[stage]);
+	return;
+	}
+
+
+
+void OCP_QP_RES_SET_RES_ZL(int stage, REAL *vec, struct OCP_QP_RES *res)
+	{
+	int *nu = res->dim->nu;
+	int *nx = res->dim->nx;
+	int *ns = res->dim->ns;
+	PACK_VEC(ns[stage], vec, 1, res->res_g+stage, nu[stage]+nx[stage]);
+	return;
+	}
+
+
+
+void OCP_QP_RES_SET_RES_ZU(int stage, REAL *vec, struct OCP_QP_RES *res)
+	{
+	int *nu = res->dim->nu;
+	int *nx = res->dim->nx;
+	int *ns = res->dim->ns;
+	PACK_VEC(ns[stage], vec, 1, res->res_g+stage, nu[stage]+nx[stage]+ns[stage]);
+	return;
+	}
+
+
+
+void OCP_QP_RES_SET_RES_B(int stage, REAL *vec, struct OCP_QP_RES *res)
+	{
+	int *nx = res->dim->nx;
+	PACK_VEC(nx[stage+1], vec, 1, res->res_b+stage, 0);
+	}
+
+
+
+void OCP_QP_RES_SET_RES_LB(int stage, REAL *vec, struct OCP_QP_RES *res)
+	{
+	int *nb = res->dim->nb;
+	PACK_VEC(nb[stage], vec, 1, res->res_d+stage, 0);
+	}
+
+
+
+void OCP_QP_RES_SET_RES_LBU(int stage, REAL *vec, struct OCP_QP_RES *res)
+	{
+	int *nbu = res->dim->nbu;
+	PACK_VEC(nbu[stage], vec, 1, res->res_d+stage, 0);
+	}
+
+
+
+void OCP_QP_RES_SET_RES_LBX(int stage, REAL *vec, struct OCP_QP_RES *res)
+	{
+	int *nbu = res->dim->nbu;
+	int *nbx = res->dim->nbx;
+	PACK_VEC(nbx[stage], vec, 1, res->res_d+stage, nbu[stage]);
+	}
+
+
+
+void OCP_QP_RES_SET_RES_UB(int stage, REAL *vec, struct OCP_QP_RES *res)
+	{
+	int *nb = res->dim->nb;
+	int *ng = res->dim->ng;
+	PACK_VEC(nb[stage], vec, 1, res->res_d+stage, nb[stage]+ng[stage]);
+	}
+
+
+
+void OCP_QP_RES_SET_RES_UBU(int stage, REAL *vec, struct OCP_QP_RES *res)
+	{
+	int *nb = res->dim->nb;
+	int *nbu = res->dim->nbu;
+	int *ng = res->dim->ng;
+	PACK_VEC(nbu[stage], vec, 1, res->res_d+stage, nb[stage]+ng[stage]);
+	}
+
+
+
+void OCP_QP_RES_SET_RES_UBX(int stage, REAL *vec, struct OCP_QP_RES *res)
+	{
+	int *nb = res->dim->nb;
+	int *nbu = res->dim->nbu;
+	int *nbx = res->dim->nbx;
+	int *ng = res->dim->ng;
+	PACK_VEC(nbx[stage], vec, 1, res->res_d+stage, nb[stage]+ng[stage]+nbu[stage]);
+	}
+
+
+
+void OCP_QP_RES_SET_RES_LG(int stage, REAL *vec, struct OCP_QP_RES *res)
+	{
+	int *nb = res->dim->nb;
+	int *ng = res->dim->ng;
+	PACK_VEC(ng[stage], vec, 1, res->res_d+stage, nb[stage]);
+	}
+
+
+
+void OCP_QP_RES_SET_RES_UG(int stage, REAL *vec, struct OCP_QP_RES *res)
+	{
+	int *nb = res->dim->nb;
+	int *ng = res->dim->ng;
+	PACK_VEC(ng[stage], vec, 1, res->res_d+stage, 2*nb[stage]+ng[stage]);
+	}
+
+
+
+void OCP_QP_RES_SET_RES_LS(int stage, REAL *vec, struct OCP_QP_RES *res)
+	{
+	int *nb = res->dim->nb;
+	int *ng = res->dim->ng;
+	int *ns = res->dim->ns;
+	PACK_VEC(ns[stage], vec, 1, res->res_d+stage, 2*nb[stage]+2*ng[stage]);
+	}
+
+
+
+void OCP_QP_RES_SET_RES_US(int stage, REAL *vec, struct OCP_QP_RES *res)
+	{
+	int *nb = res->dim->nb;
+	int *ng = res->dim->ng;
+	int *ns = res->dim->ns;
+	PACK_VEC(ns[stage], vec, 1, res->res_d+stage, 2*nb[stage]+2*ng[stage]+ns[stage]);
+	}
+
+
+

@@ -3173,7 +3173,7 @@ void OCP_QP_IPM_PREDICT(struct OCP_QP *qp, struct OCP_QP_SOL *qp_sol, struct OCP
 
 
 // forward solution sensitivities
-void OCP_QP_IPM_SENS_FRW(struct OCP_QP *qp, struct OCP_QP_SOL *seed, struct OCP_QP_SOL *sens, struct OCP_QP_IPM_ARG *arg, struct OCP_QP_IPM_WS *ws)
+void OCP_QP_IPM_SENS_FRW(struct OCP_QP *qp, struct OCP_QP_RES *seed, struct OCP_QP_SOL *sens, struct OCP_QP_IPM_ARG *arg, struct OCP_QP_IPM_WS *ws)
 	{
 
 #if 0
@@ -3216,29 +3216,30 @@ void OCP_QP_IPM_SENS_FRW(struct OCP_QP *qp, struct OCP_QP_SOL *seed, struct OCP_
 	for(ii=0; ii<cws->nc; ii++)
 		cws->t[ii] = cws->t_bkp[ii];
 
-	// flip sign of seed lam
+	// flip sign of seed res_d
 	for(ii=0; ii<=N; ii++)
-		VECSC(nb[ii]+ng[ii], -1.0, seed->lam+ii, nb[ii]+ng[ii]);
+		VECSC(nb[ii]+ng[ii], -1.0, seed->res_d+ii, nb[ii]+ng[ii]);
 
 	// swap qp rhs with seed
+	// TODO instead, create temporary qp struct and use seed as rhs !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 	{
 	struct STRVEC *tmp;
 	//
 	tmp = qp->rqz;
-	qp->rqz = seed->ux;
-	seed->ux = tmp;
+	qp->rqz = seed->res_g;
+	seed->res_g = tmp;
 	//
 	tmp = qp->b;
-	qp->b = seed->pi;
-	seed->pi = tmp;
+	qp->b = seed->res_b;
+	seed->res_b = tmp;
 	//
 	tmp = qp->d;
-	qp->d = seed->lam;
-	seed->lam = tmp;
+	qp->d = seed->res_d;
+	seed->res_d = tmp;
 	//
 	tmp = qp->m;
-	qp->m = seed->t;
-	seed->t = tmp;
+	qp->m = seed->res_m;
+	seed->res_m = tmp;
 	}
 
 	// solve kkt
@@ -3250,25 +3251,25 @@ void OCP_QP_IPM_SENS_FRW(struct OCP_QP *qp, struct OCP_QP_SOL *seed, struct OCP_
 	struct STRVEC *tmp;
 	//
 	tmp = qp->rqz;
-	qp->rqz = seed->ux;
-	seed->ux = tmp;
+	qp->rqz = seed->res_g;
+	seed->res_g = tmp;
 	//
 	tmp = qp->b;
-	qp->b = seed->pi;
-	seed->pi = tmp;
+	qp->b = seed->res_b;
+	seed->res_b = tmp;
 	//
 	tmp = qp->d;
-	qp->d = seed->lam;
-	seed->lam = tmp;
+	qp->d = seed->res_d;
+	seed->res_d = tmp;
 	//
 	tmp = qp->m;
-	qp->m = seed->t;
-	seed->t = tmp;
+	qp->m = seed->res_m;
+	seed->res_m = tmp;
 	}
 
-	// restore sign of seed lam
+	// restore sign of seed res_d
 	for(ii=0; ii<=N; ii++)
-		VECSC(nb[ii]+ng[ii], -1.0, seed->lam+ii, nb[ii]+ng[ii]);
+		VECSC(nb[ii]+ng[ii], -1.0, seed->res_d+ii, nb[ii]+ng[ii]);
 
 	return;
 
@@ -3277,7 +3278,7 @@ void OCP_QP_IPM_SENS_FRW(struct OCP_QP *qp, struct OCP_QP_SOL *seed, struct OCP_
 
 
 // adjoint solution sensitivities
-void OCP_QP_IPM_SENS_ADJ(struct OCP_QP *qp, struct OCP_QP_SOL *seed, struct OCP_QP_SOL *sens, struct OCP_QP_IPM_ARG *arg, struct OCP_QP_IPM_WS *ws)
+void OCP_QP_IPM_SENS_ADJ(struct OCP_QP *qp, struct OCP_QP_RES *seed, struct OCP_QP_SOL *sens, struct OCP_QP_IPM_ARG *arg, struct OCP_QP_IPM_WS *ws)
 	{
 
 #if 0
@@ -3322,27 +3323,28 @@ void OCP_QP_IPM_SENS_ADJ(struct OCP_QP *qp, struct OCP_QP_SOL *seed, struct OCP_
 
 	// flip sign of seed lam
 	for(ii=0; ii<=N; ii++)
-		VECSC(nb[ii]+ng[ii], -1.0, seed->lam+ii, nb[ii]+ng[ii]);
+		VECSC(nb[ii]+ng[ii], -1.0, seed->res_d+ii, nb[ii]+ng[ii]);
 
 	// swap qp rhs with seed
+	// TODO instead, create temporary qp struct and use seed as rhs !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 	{
 	struct STRVEC *tmp;
 	//
 	tmp = qp->rqz;
-	qp->rqz = seed->ux;
-	seed->ux = tmp;
+	qp->rqz = seed->res_g;
+	seed->res_g = tmp;
 	//
 	tmp = qp->b;
-	qp->b = seed->pi;
-	seed->pi = tmp;
+	qp->b = seed->res_b;
+	seed->res_b = tmp;
 	//
 	tmp = qp->d;
-	qp->d = seed->lam;
-	seed->lam = tmp;
+	qp->d = seed->res_d;
+	seed->res_d = tmp;
 	//
 	tmp = qp->m;
-	qp->m = seed->t;
-	seed->t = tmp;
+	qp->m = seed->res_m;
+	seed->res_m = tmp;
 	}
 
 	// backup and scale m
@@ -3376,25 +3378,25 @@ void OCP_QP_IPM_SENS_ADJ(struct OCP_QP *qp, struct OCP_QP_SOL *seed, struct OCP_
 	struct STRVEC *tmp;
 	//
 	tmp = qp->rqz;
-	qp->rqz = seed->ux;
-	seed->ux = tmp;
+	qp->rqz = seed->res_g;
+	seed->res_g = tmp;
 	//
 	tmp = qp->b;
-	qp->b = seed->pi;
-	seed->pi = tmp;
+	qp->b = seed->res_b;
+	seed->res_b = tmp;
 	//
 	tmp = qp->d;
-	qp->d = seed->lam;
-	seed->lam = tmp;
+	qp->d = seed->res_d;
+	seed->res_d = tmp;
 	//
 	tmp = qp->m;
-	qp->m = seed->t;
-	seed->t = tmp;
+	qp->m = seed->res_m;
+	seed->res_m = tmp;
 	}
 
-	// restore sign of seed lam XXX not needed if seed can be destructed
+	// restore sign of seed res_d
 	for(ii=0; ii<=N; ii++)
-		VECSC(nb[ii]+ng[ii], -1.0, seed->lam+ii, nb[ii]+ng[ii]);
+		VECSC(nb[ii]+ng[ii], -1.0, seed->res_d+ii, nb[ii]+ng[ii]);
 
 	return;
 
