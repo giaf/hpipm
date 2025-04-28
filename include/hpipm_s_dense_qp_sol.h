@@ -81,6 +81,10 @@ void s_dense_qp_sol_get(char *field, struct s_dense_qp_sol *sol, void *value);
 //
 void s_dense_qp_sol_get_v(struct s_dense_qp_sol *sol, float *v);
 //
+void s_dense_qp_sol_get_sl(struct s_dense_qp_sol *sol, float *sl);
+//
+void s_dense_qp_sol_get_su(struct s_dense_qp_sol *sol, float *su);
+//
 void s_dense_qp_sol_get_pi(struct s_dense_qp_sol *sol, float *pi);
 //
 void s_dense_qp_sol_get_lam_lb(struct s_dense_qp_sol *sol, float *lam_lb);
@@ -91,12 +95,35 @@ void s_dense_qp_sol_get_lam_lg(struct s_dense_qp_sol *sol, float *lam_lg);
 //
 void s_dense_qp_sol_get_lam_ug(struct s_dense_qp_sol *sol, float *lam_ug);
 //
+void s_dense_qp_sol_get_lam_ls(struct s_dense_qp_sol *sol, float *lam_ls);
+//
+void s_dense_qp_sol_get_lam_us(struct s_dense_qp_sol *sol, float *lam_us);
+//
 void s_dense_qp_sol_get_valid_obj(struct s_dense_qp_sol *sol, int *valid_obj);
 //
 void s_dense_qp_sol_get_obj(struct s_dense_qp_sol *sol, float *obj);
-
+//
+void s_dense_qp_sol_set(char *field, void *value, struct s_dense_qp_sol *qp_sol);
 //
 void s_dense_qp_sol_set_v(float *v, struct s_dense_qp_sol *sol);
+//
+void s_dense_qp_sol_set_sl(float *sl, struct s_dense_qp_sol *sol);
+//
+void s_dense_qp_sol_set_su(float *su, struct s_dense_qp_sol *sol);
+//
+void s_dense_qp_sol_set_pi(float *pi, struct s_dense_qp_sol *sol);
+//
+void s_dense_qp_sol_set_lam_lb(float *lam_lb, struct s_dense_qp_sol *sol);
+//
+void s_dense_qp_sol_set_lam_ub(float *lam_ub, struct s_dense_qp_sol *sol);
+//
+void s_dense_qp_sol_set_lam_lg(float *lam_lg, struct s_dense_qp_sol *sol);
+//
+void s_dense_qp_sol_set_lam_ug(float *lam_ug, struct s_dense_qp_sol *sol);
+//
+void s_dense_qp_sol_set_lam_ls(float *lam_ls, struct s_dense_qp_sol *sol);
+//
+void s_dense_qp_sol_set_lam_us(float *lam_us, struct s_dense_qp_sol *sol);
 
 
 #ifdef __cplusplus

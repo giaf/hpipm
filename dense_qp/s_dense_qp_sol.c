@@ -67,14 +67,28 @@
 #define DENSE_QP_SOL_GET_ALL s_dense_qp_sol_get_all
 #define DENSE_QP_SOL_GET s_dense_qp_sol_get
 #define DENSE_QP_SOL_GET_V s_dense_qp_sol_get_v
+#define DENSE_QP_SOL_GET_SL s_dense_qp_sol_get_sl
+#define DENSE_QP_SOL_GET_SU s_dense_qp_sol_get_su
 #define DENSE_QP_SOL_GET_PI s_dense_qp_sol_get_pi
 #define DENSE_QP_SOL_GET_LAM_LB s_dense_qp_sol_get_lam_lb
 #define DENSE_QP_SOL_GET_LAM_UB s_dense_qp_sol_get_lam_ub
 #define DENSE_QP_SOL_GET_LAM_LG s_dense_qp_sol_get_lam_lg
 #define DENSE_QP_SOL_GET_LAM_UG s_dense_qp_sol_get_lam_ug
+#define DENSE_QP_SOL_GET_LAM_LS s_dense_qp_sol_get_lam_ls
+#define DENSE_QP_SOL_GET_LAM_US s_dense_qp_sol_get_lam_us
 #define DENSE_QP_SOL_GET_VALID_OBJ s_dense_qp_sol_get_valid_obj
 #define DENSE_QP_SOL_GET_OBJ s_dense_qp_sol_get_obj
+#define DENSE_QP_SOL_SET s_dense_qp_sol_set
 #define DENSE_QP_SOL_SET_V s_dense_qp_sol_set_v
+#define DENSE_QP_SOL_SET_SL s_dense_qp_sol_set_sl
+#define DENSE_QP_SOL_SET_SU s_dense_qp_sol_set_su
+#define DENSE_QP_SOL_SET_PI s_dense_qp_sol_set_pi
+#define DENSE_QP_SOL_SET_LAM_LB s_dense_qp_sol_set_lam_lb
+#define DENSE_QP_SOL_SET_LAM_UB s_dense_qp_sol_set_lam_ub
+#define DENSE_QP_SOL_SET_LAM_LG s_dense_qp_sol_set_lam_lg
+#define DENSE_QP_SOL_SET_LAM_UG s_dense_qp_sol_set_lam_ug
+#define DENSE_QP_SOL_SET_LAM_LS s_dense_qp_sol_set_lam_ls
+#define DENSE_QP_SOL_SET_LAM_US s_dense_qp_sol_set_lam_us
 
 
 

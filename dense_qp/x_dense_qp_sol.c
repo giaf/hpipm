@@ -189,6 +189,14 @@ void DENSE_QP_SOL_GET(char *field, struct DENSE_QP_SOL *qp_sol, void *value)
 		{
 		DENSE_QP_SOL_GET_V(qp_sol, value);
 		}
+	else if(hpipm_strcmp(field, "sl"))
+		{
+		DENSE_QP_SOL_GET_SL(qp_sol, value);
+		}
+	else if(hpipm_strcmp(field, "su"))
+		{
+		DENSE_QP_SOL_GET_SU(qp_sol, value);
+		}
 	else if(hpipm_strcmp(field, "pi"))
 		{
 		DENSE_QP_SOL_GET_PI(qp_sol, value);
@@ -209,6 +217,14 @@ void DENSE_QP_SOL_GET(char *field, struct DENSE_QP_SOL *qp_sol, void *value)
 		{
 		DENSE_QP_SOL_GET_LAM_UG(qp_sol, value);
 		}
+	else if(hpipm_strcmp(field, "lam_ls"))
+		{
+		DENSE_QP_SOL_GET_LAM_LS(qp_sol, value);
+		}
+	else if(hpipm_strcmp(field, "lam_us"))
+		{
+		DENSE_QP_SOL_GET_LAM_US(qp_sol, value);
+		}
 	else
 		{
 #ifdef EXT_DEP
@@ -225,6 +241,24 @@ void DENSE_QP_SOL_GET_V(struct DENSE_QP_SOL *qp_sol, REAL *v)
 	{
 	int nv = qp_sol->dim->nv;
 	UNPACK_VEC(nv, qp_sol->v, 0, v, 1);
+	}
+
+
+
+void DENSE_QP_SOL_GET_SL(struct DENSE_QP_SOL *qp_sol, REAL *sl)
+	{
+	int nv = qp_sol->dim->nv;
+	int ns = qp_sol->dim->ns;
+	UNPACK_VEC(ns, qp_sol->v, nv, sl, 1);
+	}
+
+
+
+void DENSE_QP_SOL_GET_SU(struct DENSE_QP_SOL *qp_sol, REAL *su)
+	{
+	int nv = qp_sol->dim->nv;
+	int ns = qp_sol->dim->ns;
+	UNPACK_VEC(ns, qp_sol->v, nv+ns, su, 1);
 	}
 
 
@@ -272,6 +306,26 @@ void DENSE_QP_SOL_GET_LAM_UG(struct DENSE_QP_SOL *qp_sol, REAL *lam_ug)
 
 
 
+void DENSE_QP_SOL_GET_LAM_LS(struct DENSE_QP_SOL *qp_sol, REAL *lam_ls)
+	{
+	int nb = qp_sol->dim->nb;
+	int ng = qp_sol->dim->ng;
+	int ns = qp_sol->dim->ns;
+	UNPACK_VEC(ns, qp_sol->lam, 2*nb+2*ng, lam_ls, 1);
+	}
+
+
+
+void DENSE_QP_SOL_GET_LAM_US(struct DENSE_QP_SOL *qp_sol, REAL *lam_us)
+	{
+	int nb = qp_sol->dim->nb;
+	int ng = qp_sol->dim->ng;
+	int ns = qp_sol->dim->ns;
+	UNPACK_VEC(ns, qp_sol->lam, 2*nb+2*ng+ns, lam_us, 1);
+	}
+
+
+
 void DENSE_QP_SOL_GET_VALID_OBJ(struct DENSE_QP_SOL *qp_sol, int *valid_obj)
 	{
 	*valid_obj = qp_sol->valid_obj;
@@ -286,8 +340,143 @@ void DENSE_QP_SOL_GET_OBJ(struct DENSE_QP_SOL *qp_sol, REAL *obj)
 
 
 
+void DENSE_QP_SOL_SET(char *field, void *value, struct DENSE_QP_SOL *qp_sol)
+	{
+	if(hpipm_strcmp(field, "v")) 
+		{
+		DENSE_QP_SOL_SET_V(value, qp_sol);
+		}
+	else if(hpipm_strcmp(field, "sl"))
+		{ 
+		DENSE_QP_SOL_SET_SL(value, qp_sol);
+		}
+	else if(hpipm_strcmp(field, "su"))
+		{ 
+		DENSE_QP_SOL_SET_SU(value, qp_sol);
+		}
+	else if(hpipm_strcmp(field, "pi"))
+		{
+		DENSE_QP_SOL_SET_PI(value, qp_sol);
+		}
+	else if(hpipm_strcmp(field, "lam_lb"))
+		{
+		DENSE_QP_SOL_SET_LAM_LB(value, qp_sol);
+		}
+	else if(hpipm_strcmp(field, "lam_ub"))
+		{
+		DENSE_QP_SOL_SET_LAM_UB(value, qp_sol);
+		}
+	else if(hpipm_strcmp(field, "lam_lg"))
+		{
+		DENSE_QP_SOL_SET_LAM_LG(value, qp_sol);
+		}
+	else if(hpipm_strcmp(field, "lam_ug"))
+		{
+		DENSE_QP_SOL_SET_LAM_UG(value, qp_sol);
+		}
+	else if(hpipm_strcmp(field, "lam_ls"))
+		{ 
+		DENSE_QP_SOL_SET_LAM_LS(value, qp_sol);
+		}
+	else if(hpipm_strcmp(field, "lam_us"))
+		{ 
+		DENSE_QP_SOL_SET_LAM_US(value, qp_sol);
+		}
+	else
+		{
+#ifdef EXT_DEP
+		printf("error: DENSE_QP_SOL_SET: wrong field name '%s'. Exiting.\n", field);
+#endif
+		exit(1);	
+		}
+	return;
+	}
+
+
+
 void DENSE_QP_SOL_SET_V(REAL *v, struct DENSE_QP_SOL *qp_sol)
 	{
 	int nv = qp_sol->dim->nv;
 	PACK_VEC(nv, v, 1, qp_sol->v, 0);
+	}
+
+
+
+void DENSE_QP_SOL_SET_SL(REAL *sl, struct DENSE_QP_SOL *qp_sol)
+	{
+	int nv = qp_sol->dim->nv;
+	int ns = qp_sol->dim->ns;
+	PACK_VEC(ns, sl, 1, qp_sol->v, nv);
+	}
+
+
+
+void DENSE_QP_SOL_SET_SU(REAL *su, struct DENSE_QP_SOL *qp_sol)
+	{
+	int nv = qp_sol->dim->nv;
+	int ns = qp_sol->dim->ns;
+	PACK_VEC(ns, su, 1, qp_sol->v, nv+ns);
+	}
+
+
+
+void DENSE_QP_SOL_SET_PI(REAL *pi, struct DENSE_QP_SOL *qp_sol)
+	{
+	int ne = qp_sol->dim->ne;
+	PACK_VEC(ne, pi, 1, qp_sol->pi, 0);
+	}
+
+
+
+void DENSE_QP_SOL_SET_LAM_LB(REAL *lam_lb, struct DENSE_QP_SOL *qp_sol)
+	{
+	int nb = qp_sol->dim->nb;
+	PACK_VEC(nb, lam_lb, 1, qp_sol->lam, 0);
+	}
+
+
+
+void DENSE_QP_SOL_SET_LAM_UB(REAL *lam_ub, struct DENSE_QP_SOL *qp_sol)
+	{
+	int nb = qp_sol->dim->nb;
+	int ng = qp_sol->dim->ng;
+	PACK_VEC(nb, lam_ub, 1, qp_sol->lam, nb+ng);
+	}
+
+
+
+void DENSE_QP_SOL_SET_LAM_LG(REAL *lam_lg, struct DENSE_QP_SOL *qp_sol)
+	{
+	int nb = qp_sol->dim->nb;
+	int ng = qp_sol->dim->ng;
+	PACK_VEC(ng, lam_lg, 1, qp_sol->lam, nb);
+	}
+
+
+
+void DENSE_QP_SOL_SET_LAM_UG(REAL *lam_ug, struct DENSE_QP_SOL *qp_sol)
+	{
+	int nb = qp_sol->dim->nb;
+	int ng = qp_sol->dim->ng;
+	PACK_VEC(ng, lam_ug, 1, qp_sol->lam, 2*nb+ng);
+	}
+
+
+
+void DENSE_QP_SOL_SET_LAM_LS(REAL *lam_ls, struct DENSE_QP_SOL *qp_sol)
+	{
+	int nb = qp_sol->dim->nb;
+	int ng = qp_sol->dim->ng;
+	int ns = qp_sol->dim->ns;
+	PACK_VEC(ns, lam_ls, 1, qp_sol->lam, 2*nb+2*ng);
+	}
+
+
+
+void DENSE_QP_SOL_SET_LAM_US(REAL *lam_us, struct DENSE_QP_SOL *qp_sol)
+	{
+	int nb = qp_sol->dim->nb;
+	int ng = qp_sol->dim->ng;
+	int ns = qp_sol->dim->ns;
+	PACK_VEC(ns, lam_us, 1, qp_sol->lam, 2*nb+2*ng+ns);
 	}
