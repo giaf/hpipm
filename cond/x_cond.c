@@ -513,6 +513,10 @@ void COND_QP_COND_RES(struct OCP_QP *ocp_qp, struct OCP_QP_RES *ocp_qp_res, stru
 	int nb2 = dense_qp_res->dim->nb;
 	int ng2 = dense_qp_res->dim->ng;
 
+	// flip sign of upper constraints in ocp_qp_res
+	for(ii=0; ii<=N; ii++)
+		VECSC(nb[ii]+ng[ii], -1.0, ocp_qp_res->res_d+ii, nb[ii]+ng[ii]);
+
 	// alias ocp_qp
 	tmp_ocp_qp.dim = ocp_qp->dim;
 	tmp_ocp_qp.idxb = ocp_qp->idxb;
@@ -528,22 +532,18 @@ void COND_QP_COND_RES(struct OCP_QP *ocp_qp, struct OCP_QP_RES *ocp_qp_res, stru
 	tmp_ocp_qp.diag_H_flag = ocp_qp->diag_H_flag;
 	// TODO cond m !!!!!!!!!!!
 
-	// flip sign of upper constraints in ocp_qp_res
-	for(ii=0; ii<=N; ii++)
-		VECSC(nb[ii]+ng[ii], -1.0, tmp_ocp_qp.d+ii, nb[ii]+ng[ii]);
-
 	COND_B(&tmp_ocp_qp, dense_qp_res->res_b, cond_arg, cond_ws);
 
 	COND_RQ(&tmp_ocp_qp, dense_qp_res->res_g, cond_arg, cond_ws);
 
 	COND_D(&tmp_ocp_qp, dense_qp_res->res_d, NULL, dense_qp_res->res_g, cond_arg, cond_ws);
 
-	// restore sign of upper constraints in ocp_qp_res
-	for(ii=0; ii<=N; ii++)
-		VECSC(nb[ii]+ng[ii], -1.0, tmp_ocp_qp.d+ii, nb[ii]+ng[ii]);
-
 	// flip sign of upper constraints in dense_qp_res
 	VECSC(nb2+ng2, -1.0, dense_qp_res->res_d, nb2+ng2);
+
+	// restore sign of upper constraints in ocp_qp_res
+	for(ii=0; ii<=N; ii++)
+		VECSC(nb[ii]+ng[ii], -1.0, ocp_qp_res->res_d+ii, nb[ii]+ng[ii]);
 
 	return;
 

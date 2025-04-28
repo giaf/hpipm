@@ -430,10 +430,8 @@ int main()
 ************************************************/
 
 	// res struct
-	hpipm_size_t qp_res_size = d_ocp_qp_res_memsize(&dim);
-	void *qp_res_mem = malloc(qp_res_size);
-
-	void *seed_mem = malloc(qp_res_size);
+	hpipm_size_t seed_size = d_ocp_qp_res_memsize(&dim);
+	void *seed_mem = malloc(seed_size);
 	struct d_ocp_qp_res seed;
 	d_ocp_qp_res_create(&dim, &seed, seed_mem);
 
@@ -456,7 +454,7 @@ int main()
 	d_ocp_qp_res_set_res_ubx(stage, seed_x0, &seed);
 
 	// print seeds
-	//d_ocp_qp_sol_print(seed.dim, &seed);
+	//d_ocp_qp_res_print(seed.dim, &seed);
 
 	// forward sensitivity of solution
 	d_ocp_qp_ipm_sens_frw(&qp, &seed, &sens, &arg, &workspace);
