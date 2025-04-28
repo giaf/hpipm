@@ -3179,7 +3179,7 @@ void OCP_QP_IPM_SENS_FRW(struct OCP_QP *qp, struct OCP_QP_RES *seed, struct OCP_
 #if 0
 	OCP_QP_DIM_PRINT(qp->dim);
 	OCP_QP_PRINT(qp->dim, qp);
-	OCP_QP_SOL_PRINT(qp->dim, seed);
+	OCP_QP_RES_PRINT(qp->dim, seed);
 #endif
 
 	int ii;
@@ -3198,6 +3198,7 @@ void OCP_QP_IPM_SENS_FRW(struct OCP_QP *qp, struct OCP_QP_RES *seed, struct OCP_
 	cws->lam_min = arg->lam_min;
 	cws->t_min = arg->t_min;
 	cws->t_min_inv = arg->t_min>0 ? 1.0/arg->t_min : 1e30;
+	cws->tau_min = arg->tau_min;
 	cws->t_lam_min = arg->t_lam_min;
 
 	// alias qp vectors into sens
@@ -3220,54 +3221,28 @@ void OCP_QP_IPM_SENS_FRW(struct OCP_QP *qp, struct OCP_QP_RES *seed, struct OCP_
 	for(ii=0; ii<=N; ii++)
 		VECSC(nb[ii]+ng[ii], -1.0, seed->res_d+ii, nb[ii]+ng[ii]);
 
-	// swap qp rhs with seed
-	// TODO instead, create temporary qp struct and use seed as rhs !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-	{
-	struct STRVEC *tmp;
-	//
-	tmp = qp->rqz;
-	qp->rqz = seed->res_g;
-	seed->res_g = tmp;
-	//
-	tmp = qp->b;
-	qp->b = seed->res_b;
-	seed->res_b = tmp;
-	//
-	tmp = qp->d;
-	qp->d = seed->res_d;
-	seed->res_d = tmp;
-	//
-	tmp = qp->m;
-	qp->m = seed->res_m;
-	seed->res_m = tmp;
-	}
+	// use seeds as qp rhs
+	struct OCP_QP tmp_qp;
+	// alias qp
+	tmp_qp.dim = qp->dim;
+	tmp_qp.idxb = qp->idxb;
+	tmp_qp.BAbt = qp->BAbt;
+	tmp_qp.b = seed->res_b; // XXX
+	tmp_qp.RSQrq = qp->RSQrq;
+	tmp_qp.rqz = seed->res_g; // XXX
+	tmp_qp.DCt = qp->DCt;
+	tmp_qp.d = seed->res_d; // XXX
+	tmp_qp.d_mask = qp->d_mask;
+	tmp_qp.Z = qp->Z;
+	tmp_qp.idxs_rev = qp->idxs_rev;
+	tmp_qp.diag_H_flag = qp->diag_H_flag;
+	tmp_qp.m = seed->res_m; // XXX
 
 	// solve kkt
 	ws->use_Pb = 0;
-	OCP_QP_SOLVE_KKT_STEP(qp, sens, arg, ws);
+	OCP_QP_SOLVE_KKT_STEP(&tmp_qp, sens, arg, ws);
 
-	// swap qp rhs with seed
-	{
-	struct STRVEC *tmp;
-	//
-	tmp = qp->rqz;
-	qp->rqz = seed->res_g;
-	seed->res_g = tmp;
-	//
-	tmp = qp->b;
-	qp->b = seed->res_b;
-	seed->res_b = tmp;
-	//
-	tmp = qp->d;
-	qp->d = seed->res_d;
-	seed->res_d = tmp;
-	//
-	tmp = qp->m;
-	qp->m = seed->res_m;
-	seed->res_m = tmp;
-	}
-
-	// restore sign of seed res_d
+	// restore sign of seed res_d XXX not needed if seed can be destructed
 	for(ii=0; ii<=N; ii++)
 		VECSC(nb[ii]+ng[ii], -1.0, seed->res_d+ii, nb[ii]+ng[ii]);
 
@@ -3303,6 +3278,7 @@ void OCP_QP_IPM_SENS_ADJ(struct OCP_QP *qp, struct OCP_QP_RES *seed, struct OCP_
 	cws->lam_min = arg->lam_min;
 	cws->t_min = arg->t_min;
 	cws->t_min_inv = arg->t_min>0 ? 1.0/arg->t_min : 1e30;
+	cws->tau_min = arg->tau_min;
 	cws->t_lam_min = arg->t_lam_min;
 
 	// alias qp vectors into sens
@@ -3321,44 +3297,39 @@ void OCP_QP_IPM_SENS_ADJ(struct OCP_QP *qp, struct OCP_QP_RES *seed, struct OCP_
 	for(ii=0; ii<cws->nc; ii++)
 		cws->t[ii] = cws->t_bkp[ii];
 
-	// flip sign of seed lam
-	for(ii=0; ii<=N; ii++)
-		VECSC(nb[ii]+ng[ii], -1.0, seed->res_d+ii, nb[ii]+ng[ii]);
-
-	// swap qp rhs with seed
-	// TODO instead, create temporary qp struct and use seed as rhs !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-	{
-	struct STRVEC *tmp;
-	//
-	tmp = qp->rqz;
-	qp->rqz = seed->res_g;
-	seed->res_g = tmp;
-	//
-	tmp = qp->b;
-	qp->b = seed->res_b;
-	seed->res_b = tmp;
-	//
-	tmp = qp->d;
-	qp->d = seed->res_d;
-	seed->res_d = tmp;
-	//
-	tmp = qp->m;
-	qp->m = seed->res_m;
-	seed->res_m = tmp;
-	}
-
 	// backup and scale m
-	REAL *m = qp->m->pa;
+	REAL *res_m = seed->res_m->pa;
 	REAL *tmp_m = ws->tmp_m->pa;
 	for(ii=0; ii<cws->nc; ii++)
 		{
-		tmp_m[ii] = m[ii];
-		m[ii] *= cws->t[ii];
+		tmp_m[ii] = res_m[ii];
+		res_m[ii] *= cws->t[ii];
 		}
+
+	// flip sign of seed res_d
+	for(ii=0; ii<=N; ii++)
+		VECSC(nb[ii]+ng[ii], -1.0, seed->res_d+ii, nb[ii]+ng[ii]);
+
+	// use seeds as qp rhs
+	struct OCP_QP tmp_qp;
+	// alias qp
+	tmp_qp.dim = qp->dim;
+	tmp_qp.idxb = qp->idxb;
+	tmp_qp.BAbt = qp->BAbt;
+	tmp_qp.b = seed->res_b; // XXX
+	tmp_qp.RSQrq = qp->RSQrq;
+	tmp_qp.rqz = seed->res_g; // XXX
+	tmp_qp.DCt = qp->DCt;
+	tmp_qp.d = seed->res_d; // XXX
+	tmp_qp.d_mask = qp->d_mask;
+	tmp_qp.Z = qp->Z;
+	tmp_qp.idxs_rev = qp->idxs_rev;
+	tmp_qp.diag_H_flag = qp->diag_H_flag;
+	tmp_qp.m = seed->res_m; // XXX
 
 	// solve kkt
 	ws->use_Pb = 0;
-	OCP_QP_SOLVE_KKT_STEP(qp, sens, arg, ws);
+	OCP_QP_SOLVE_KKT_STEP(&tmp_qp, sens, arg, ws);
 
 	// scale t
 	REAL *t = sens->t->pa;
@@ -3367,34 +3338,13 @@ void OCP_QP_IPM_SENS_ADJ(struct OCP_QP *qp, struct OCP_QP_RES *seed, struct OCP_
 		t[ii] *= cws->t_inv[ii];
 		}
 
-	// restore m XXX not needed if seed can be destructed
+	// restore res_m XXX not needed if seed can be destructed
 	for(ii=0; ii<cws->nc; ii++)
 		{
-		m[ii] = tmp_m[ii];
+		res_m[ii] = tmp_m[ii];
 		}
 
-	// swap qp rhs with seed
-	{
-	struct STRVEC *tmp;
-	//
-	tmp = qp->rqz;
-	qp->rqz = seed->res_g;
-	seed->res_g = tmp;
-	//
-	tmp = qp->b;
-	qp->b = seed->res_b;
-	seed->res_b = tmp;
-	//
-	tmp = qp->d;
-	qp->d = seed->res_d;
-	seed->res_d = tmp;
-	//
-	tmp = qp->m;
-	qp->m = seed->res_m;
-	seed->res_m = tmp;
-	}
-
-	// restore sign of seed res_d
+	// restore sign of seed res_d XXX not needed if seed can be destructed
 	for(ii=0; ii<=N; ii++)
 		VECSC(nb[ii]+ng[ii], -1.0, seed->res_d+ii, nb[ii]+ng[ii]);
 

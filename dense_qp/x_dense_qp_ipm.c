@@ -2656,15 +2656,21 @@ printf("\npredict\t%e\t%e\t%e\t%e\n", qp_res[0], qp_res[1], qp_res[2], qp_res[3]
 
 
 
-void DENSE_QP_IPM_SENS(struct DENSE_QP *qp, struct DENSE_QP_SOL *qp_sol, struct DENSE_QP_IPM_ARG *arg, struct DENSE_QP_IPM_WS *ws)
+// forward solution sensitivities
+void DENSE_QP_IPM_SENS_FRW(struct DENSE_QP *qp, struct DENSE_QP_RES *seed, struct DENSE_QP_SOL *sens, struct DENSE_QP_IPM_ARG *arg, struct DENSE_QP_IPM_WS *ws)
 	{
 
 #if 0
 	DENSE_QP_DIM_PRINT(qp->dim);
 	DENSE_QP_PRINT(qp->dim, qp);
+	DENSE_QP_RES_PRINT(qp->dim, seed);
 #endif
 
 	int ii;
+
+	// dim
+	int nb = qp->dim->nb;
+	int ng = qp->dim->ng;
 
 	struct CORE_QP_IPM_WORKSPACE *cws = ws->core_workspace;
 
@@ -2675,11 +2681,11 @@ void DENSE_QP_IPM_SENS(struct DENSE_QP *qp, struct DENSE_QP_SOL *qp_sol, struct 
 	cws->tau_min = arg->tau_min;
 	cws->t_lam_min = arg->t_lam_min;
 
-	// alias qp vectors into qp_sol
-	cws->v = qp_sol->v->pa;
-	cws->pi = qp_sol->pi->pa;
-	cws->lam = qp_sol->lam->pa;
-	cws->t = qp_sol->t->pa;
+	// alias qp vectors into sens
+	cws->v = sens->v->pa;
+	cws->pi = sens->pi->pa;
+	cws->lam = sens->lam->pa;
+	cws->t = sens->t->pa;
 
 	// load sol from bkp
 	for(ii=0; ii<cws->nv; ii++)
@@ -2691,8 +2697,31 @@ void DENSE_QP_IPM_SENS(struct DENSE_QP *qp, struct DENSE_QP_SOL *qp_sol, struct 
 	for(ii=0; ii<cws->nc; ii++)
 		cws->t[ii] = cws->t_bkp[ii];
 
+	// flip sign of seed res_d
+	VECSC(nb+ng, -1.0, seed->res_d, nb+ng);
+
+	// use seeds as qp rhs
+	struct DENSE_QP tmp_qp;
+	// alias qp
+	tmp_qp.dim = qp->dim;
+	tmp_qp.idxb = qp->idxb;
+	tmp_qp.A = qp->A;
+	tmp_qp.b = seed->res_b; // XXX
+	tmp_qp.Hv = qp->Hv;
+	tmp_qp.gz = seed->res_g; // XXX
+	tmp_qp.Ct = qp->Ct;
+	tmp_qp.d = seed->res_d; // XXX
+	tmp_qp.d_mask = qp->d_mask;
+	tmp_qp.Z = qp->Z;
+	tmp_qp.idxs_rev = qp->idxs_rev;
+	//tmp_qp.diag_H_flag = qp->diag_H_flag;
+	tmp_qp.m = seed->res_m; // XXX
+
 	// solve kkt
-	SOLVE_KKT_STEP_DENSE_QP(qp, qp_sol, arg, ws);
+	SOLVE_KKT_STEP_DENSE_QP(&tmp_qp, sens, arg, ws);
+
+	// restore sign of seed res_d XXX not needed if seed can be destructed
+	VECSC(nb+ng, -1.0, seed->res_d, nb+ng);
 
 	return;
 
@@ -2700,15 +2729,20 @@ void DENSE_QP_IPM_SENS(struct DENSE_QP *qp, struct DENSE_QP_SOL *qp_sol, struct 
 
 
 
-void DENSE_QP_IPM_SENS_ADJ(struct DENSE_QP *qp, struct DENSE_QP_SOL *qp_sol, struct DENSE_QP_IPM_ARG *arg, struct DENSE_QP_IPM_WS *ws)
+void DENSE_QP_IPM_SENS_ADJ(struct DENSE_QP *qp, struct DENSE_QP_RES *seed, struct DENSE_QP_SOL *sens, struct DENSE_QP_IPM_ARG *arg, struct DENSE_QP_IPM_WS *ws)
 	{
 
 #if 0
 	DENSE_QP_DIM_PRINT(qp->dim);
 	DENSE_QP_PRINT(qp->dim, qp);
+	DENSE_QP_RES_PRINT(qp->dim, seed);
 #endif
 
 	int ii;
+
+	// dim
+	int nb = qp->dim->nb;
+	int ng = qp->dim->ng;
 
 	struct CORE_QP_IPM_WORKSPACE *cws = ws->core_workspace;
 
@@ -2719,11 +2753,11 @@ void DENSE_QP_IPM_SENS_ADJ(struct DENSE_QP *qp, struct DENSE_QP_SOL *qp_sol, str
 	cws->tau_min = arg->tau_min;
 	cws->t_lam_min = arg->t_lam_min;
 
-	// alias qp vectors into qp_sol
-	cws->v = qp_sol->v->pa;
-	cws->pi = qp_sol->pi->pa;
-	cws->lam = qp_sol->lam->pa;
-	cws->t = qp_sol->t->pa;
+	// alias qp vectors into sens
+	cws->v = sens->v->pa;
+	cws->pi = sens->pi->pa;
+	cws->lam = sens->lam->pa;
+	cws->t = sens->t->pa;
 
 	// load sol from bkp
 	for(ii=0; ii<cws->nv; ii++)
@@ -2736,29 +2770,52 @@ void DENSE_QP_IPM_SENS_ADJ(struct DENSE_QP *qp, struct DENSE_QP_SOL *qp_sol, str
 		cws->t[ii] = cws->t_bkp[ii];
 
 	// backup and scale m
-	REAL *m = qp->m->pa;
+	REAL *res_m = seed->res_m->pa;
 	REAL *tmp_m = ws->tmp_m->pa;
 	for(ii=0; ii<cws->nc; ii++)
 		{
-		tmp_m[ii] = m[ii];
-		m[ii] *= cws->t[ii];
+		tmp_m[ii] = res_m[ii];
+		res_m[ii] *= cws->t[ii];
 		}
 
+	// flip sign of seed res_d
+	VECSC(nb+ng, -1.0, seed->res_d, nb+ng);
+
+	// use seeds as qp rhs
+	struct DENSE_QP tmp_qp;
+	// alias qp
+	tmp_qp.dim = qp->dim;
+	tmp_qp.idxb = qp->idxb;
+	tmp_qp.A = qp->A;
+	tmp_qp.b = seed->res_b; // XXX
+	tmp_qp.Hv = qp->Hv;
+	tmp_qp.gz = seed->res_g; // XXX
+	tmp_qp.Ct = qp->Ct;
+	tmp_qp.d = seed->res_d; // XXX
+	tmp_qp.d_mask = qp->d_mask;
+	tmp_qp.Z = qp->Z;
+	tmp_qp.idxs_rev = qp->idxs_rev;
+	//tmp_qp.diag_H_flag = qp->diag_H_flag;
+	tmp_qp.m = seed->res_m; // XXX
+
 	// solve kkt
-	SOLVE_KKT_STEP_DENSE_QP(qp, qp_sol, arg, ws);
+	SOLVE_KKT_STEP_DENSE_QP(&tmp_qp, sens, arg, ws);
 
 	// scale t
-	REAL *t = qp_sol->t->pa;
+	REAL *t = sens->t->pa;
 	for(ii=0; ii<cws->nc; ii++)
 		{
 		t[ii] *= cws->t_inv[ii];
 		}
 
-	// restore m
+	// restore m XXX not needed if seed can be destructed
 	for(ii=0; ii<cws->nc; ii++)
 		{
-		m[ii] = tmp_m[ii];
+		res_m[ii] = tmp_m[ii];
 		}
+
+	// restore sign of seed res_d XXX not needed if seed can be destructed
+	VECSC(nb+ng, -1.0, seed->res_d, nb+ng);
 
 	return;
 

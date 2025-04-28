@@ -42,11 +42,11 @@
 #include <hpipm_d_dense_qp_dim.h>
 #include <hpipm_d_dense_qp.h>
 #include <hpipm_d_dense_qp_sol.h>
-//#include <hpipm_d_ocp_qp_ipm.h>
 #include <hpipm_d_ocp_qp_dim.h>
 #include <hpipm_d_ocp_qp.h>
 #include <hpipm_d_ocp_qp_sol.h>
 #include <hpipm_d_ocp_qp_res.h>
+#include <hpipm_d_ocp_qp_utils.h>
 #include <hpipm_d_cond.h>
 #include <hpipm_timing.h>
 
@@ -155,11 +155,11 @@ int main()
 * dense qp dim cond
 ************************************************/
 
-	hpipm_size_t dim_size2 = d_dense_qp_dim_memsize();
-	void *dim_mem2 = malloc(dim_size2);
+	hpipm_size_t dim2_size = d_dense_qp_dim_memsize();
+	void *dim2_mem = malloc(dim2_size);
 
 	struct d_dense_qp_dim dim2;
-	d_dense_qp_dim_create(&dim2, dim_mem2);
+	d_dense_qp_dim_create(&dim2, dim2_mem);
 
 	d_cond_qp_compute_dim(&dim, &dim2);
 
@@ -202,11 +202,11 @@ int main()
 * dense qp cond
 ************************************************/
 
-	hpipm_size_t qp_size2 = d_dense_qp_memsize(&dim2);
-	void *qp_mem2 = malloc(qp_size2);
+	hpipm_size_t qp2_size = d_dense_qp_memsize(&dim2);
+	void *qp2_mem = malloc(qp2_size);
 
 	struct d_dense_qp qp2;
-	d_dense_qp_create(&dim2, &qp2, qp_mem2);
+	d_dense_qp_create(&dim2, &qp2, qp2_mem);
 
 /************************************************
 * ocp qp sol
@@ -222,11 +222,11 @@ int main()
 * dense qp sol cond
 ************************************************/
 
-	hpipm_size_t qp_sol_size2 = d_dense_qp_sol_memsize(&dim2);
-	void *qp_sol_mem2 = malloc(qp_sol_size2);
+	hpipm_size_t qp_sol2_size = d_dense_qp_sol_memsize(&dim2);
+	void *qp_sol2_mem = malloc(qp_sol2_size);
 
 	struct d_dense_qp_sol qp_sol2;
-	d_dense_qp_sol_create(&dim2, &qp_sol2, qp_sol_mem2);
+	d_dense_qp_sol_create(&dim2, &qp_sol2, qp_sol2_mem);
 
 /************************************************
 * cond arg
@@ -526,47 +526,58 @@ int main()
 * sensitivity of solution of QP
 ************************************************/
 
-	void *qp3_mem = malloc(qp_size);
-	struct d_ocp_qp qp3;
-	d_ocp_qp_create(&dim, &qp3, qp1_mem);
+	// res struct
+	hpipm_size_t seed_size = d_ocp_qp_res_memsize(&dim);
+	void *seed_mem = malloc(seed_size);
+	struct d_ocp_qp_res seed;
+	d_ocp_qp_res_create(&dim, &seed, seed_mem);
 
-	void *qp_sol3_mem = malloc(qp_sol_size);
-	struct d_ocp_qp_sol qp_sol3;
-	d_ocp_qp_sol_create(&dim, &qp_sol3, qp_sol3_mem);
+	hpipm_size_t seed2_size = d_dense_qp_res_memsize(&dim2);
+	void *seed2_mem = malloc(seed2_size);
+	struct d_dense_qp_res seed2;
+	d_dense_qp_res_create(&dim2, &seed2, seed2_mem);
 
-	// set I to param at RHS
-	d_ocp_qp_copy_all(&qp, &qp3);
+	// new sol struct
+	void *sens_mem = malloc(qp_sol_size);
+	struct d_ocp_qp_sol sens;
+	d_ocp_qp_sol_create(&dim, &sens, sens_mem);
 
-	d_ocp_qp_set_rhs_zero(&qp3);
+	void *sens2_mem = malloc(qp_sol2_size);
+	struct d_dense_qp_sol sens2;
+	d_dense_qp_sol_create(&dim2, &sens2, sens2_mem);
 
-	double one = 1.0;
+	// set seeds to zero
+	d_ocp_qp_res_set_zero(&seed);
+
+	// set I to param
+	double *seed_x0 = malloc(nx[0]*sizeof(double));
+	for(ii=0; ii<nx[0]; ii++)
+		seed_x0[ii] = 0.0;
 	int index = 0;
-//	d_ocp_qp_set_el_lbx(0, index, &one, &qp3);
-//	d_ocp_qp_set_el_ubx(0, index, &one, &qp3);
-	d_ocp_qp_set_el("lbx", 0, index, &one, &qp3);
-	d_ocp_qp_set_el("ubx", 0, index, &one, &qp3);
+	seed_x0[index] = 1.0;
+	int stage = 0;
+	d_ocp_qp_res_set_res_lbx(stage, seed_x0, &seed);
+	d_ocp_qp_res_set_res_ubx(stage, seed_x0, &seed);
 
-//	d_ocp_qp_print(&dim, &qp3);
-//	exit(1);
-
-	// sensitivity solution
-//	int comp_res_pred = 0;
-//	d_ocp_qp_ipm_arg_set_comp_res_pred(&comp_res_pred, &arg);
+	// print seeds
+	//d_ocp_qp_res_print(seed.dim, &seed);
 
 	// cond RHS
-	d_cond_qp_cond_rhs(&qp3, &qp2, &cond_arg, &cond_ws);
+	d_cond_qp_cond_res(&qp, &seed, &seed2, &cond_arg, &cond_ws);
 
-	// comp sens
-	d_dense_qp_ipm_sens(&qp2, &qp_sol2, &arg, &workspace);
+	// forward sensitivity of solution
+	d_dense_qp_ipm_sens_frw(&qp2, &seed2, &sens2, &arg, &workspace);
+	// forward sensitivity of solution
+	//d_dense_qp_ipm_sens_adj(&qp2, &seed2, &sens2, &arg, &workspace);
 
 	// expand sens
-	d_cond_qp_expand_sol(&qp3, &qp_sol2, &qp_sol3, &cond_arg, &cond_ws);
+	d_cond_qp_expand_sol(&qp, &sens2, &sens, &cond_arg, &cond_ws);
 
 	// u
 	printf("\nu_sens = \n");
 	for(ii=0; ii<=N; ii++)
 		{
-		d_ocp_qp_sol_get_u(ii, &qp_sol3, u);
+		d_ocp_qp_sol_get_u(ii, &sens, u);
 		d_print_mat(1, nu[ii], u, 1);
 		}
 
@@ -574,7 +585,7 @@ int main()
 	printf("\nx_sens = \n");
 	for(ii=0; ii<=N; ii++)
 		{
-		d_ocp_qp_sol_get_x(ii, &qp_sol3, x);
+		d_ocp_qp_sol_get_x(ii, &sens, x);
 		d_print_mat(1, nx[ii], x, 1);
 		}
 
@@ -582,24 +593,28 @@ int main()
 	printf("\npi_sens = \n");
 	for(ii=0; ii<N; ii++)
 		{
-		d_ocp_qp_sol_get_pi(ii, &qp_sol3, pi);
+		d_ocp_qp_sol_get_pi(ii, &sens, pi);
 		d_print_mat(1, nx[ii+1], pi, 1);
 		}
+
+	// print solution sensitivities
+	//d_ocp_qp_sol_print(sens.dim, &sens);
 
 /************************************************
 * free memory and return
 ************************************************/
 
     free(dim_mem);
-    free(dim_mem2);
+    free(dim2_mem);
     free(qp_mem);
     free(qp1_mem);
-    free(qp_mem2);
-    free(qp3_mem);
+    free(qp2_mem);
 	free(qp_sol_mem);
-	free(qp_sol_mem2);
-	free(qp_sol1_mem);
-	free(qp_sol3_mem);
+	free(qp_sol2_mem);
+	free(seed_mem);
+	free(seed2_mem);
+	free(sens_mem);
+	free(sens2_mem);
 	free(cond_arg_mem);
 	free(ipm_arg_mem);
 	free(cond_mem);

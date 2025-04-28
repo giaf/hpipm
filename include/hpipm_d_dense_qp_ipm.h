@@ -275,9 +275,9 @@ void d_dense_qp_ipm_solve(struct d_dense_qp *qp, struct d_dense_qp_sol *qp_sol, 
 //
 void d_dense_qp_ipm_predict(struct d_dense_qp *qp, struct d_dense_qp_sol *qp_sol, struct d_dense_qp_ipm_arg *arg, struct d_dense_qp_ipm_ws *ws);
 //
-void d_dense_qp_ipm_sens(struct d_dense_qp *qp, struct d_dense_qp_sol *qp_sol, struct d_dense_qp_ipm_arg *arg, struct d_dense_qp_ipm_ws *ws);
+void d_dense_qp_ipm_sens_frw(struct d_dense_qp *qp, struct d_dense_qp_res *seed, struct d_dense_qp_sol *sens, struct d_dense_qp_ipm_arg *arg, struct d_dense_qp_ipm_ws *ws);
 //
-void d_dense_qp_ipm_sens_adj(struct d_dense_qp *qp, struct d_dense_qp_sol *qp_sol, struct d_dense_qp_ipm_arg *arg, struct d_dense_qp_ipm_ws *ws);
+void d_dense_qp_ipm_sens_adj(struct d_dense_qp *qp, struct d_dense_qp_res *seed, struct d_dense_qp_sol *sens, struct d_dense_qp_ipm_arg *arg, struct d_dense_qp_ipm_ws *ws);
 //
 void d_dense_qp_compute_step_length(struct d_dense_qp *qp, struct d_dense_qp_sol *qp_sol, struct d_dense_qp_ipm_arg *arg, struct d_dense_qp_ipm_ws *ws);
 

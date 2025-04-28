@@ -155,11 +155,11 @@ int main()
 	int N2 = N/2;
 	N2 = N2<1 ? 1 : N2;
 
-	hpipm_size_t dim_size2 = d_ocp_qp_dim_memsize(N2);
-	void *dim_mem2 = malloc(dim_size2);
+	hpipm_size_t dim2_size = d_ocp_qp_dim_memsize(N2);
+	void *dim2_mem = malloc(dim2_size);
 
 	struct d_ocp_qp_dim dim2;
-	d_ocp_qp_dim_create(N2, &dim2, dim_mem2);
+	d_ocp_qp_dim_create(N2, &dim2, dim2_mem);
 
 	int *block_size = malloc((N+1)*sizeof(int));
 	d_part_cond_qp_compute_block_size(N, N2, block_size);
@@ -613,7 +613,7 @@ int main()
 ************************************************/
 
     free(dim_mem);
-    free(dim_mem2);
+    free(dim2_mem);
     free(block_size);
     free(qp_mem);
     free(qp1_mem);

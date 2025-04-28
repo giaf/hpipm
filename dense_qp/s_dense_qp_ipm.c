@@ -188,7 +188,7 @@
 #define DENSE_QP_IPM_DELTA_STEP s_dense_qp_ipm_delta_step
 #define DENSE_QP_IPM_SOLVE s_dense_qp_ipm_solve
 #define DENSE_QP_IPM_PREDICT s_dense_qp_ipm_predict
-#define DENSE_QP_IPM_SENS s_dense_qp_ipm_sens
+#define DENSE_QP_IPM_SENS_FRW s_dense_qp_ipm_sens_frw
 #define DENSE_QP_IPM_SENS_ADJ s_dense_qp_ipm_sens_adj
 #define DENSE_QP_COMPUTE_STEP_LENGTH s_dense_qp_compute_step_length
 
