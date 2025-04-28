@@ -738,6 +738,131 @@ void OCP_QP_REDUCE_EQ_DOF_RHS(struct OCP_QP *qp, struct OCP_QP *qp_red, struct O
 
 
 
+void OCP_QP_REDUCE_EQ_DOF_RES(struct OCP_QP *qp, struct OCP_QP_RES *qp_res, struct OCP_QP_RES *qp_res_red, struct OCP_QP_REDUCE_EQ_DOF_ARG *arg, struct OCP_QP_REDUCE_EQ_DOF_WS *work)
+	{
+
+	int ii, jj, kk, idx0, idx1;
+
+	struct OCP_QP_DIM *dim = qp->dim;
+	int N = dim->N;
+	int *nx = dim->nx;
+	int *nu = dim->nu;
+	int *nb = dim->nb;
+	int *nbx = dim->nbx;
+	int *nbu = dim->nbu;
+	int *ng = dim->ng;
+	int *ns = dim->ns;
+	int *nbue = dim->nbue;
+	int *nbxe = dim->nbxe;
+	int *nge = dim->nge;
+
+	struct OCP_QP_DIM *dim_red = qp_res_red->dim;
+	int *nx_red = dim_red->nx;
+	int *nu_red = dim_red->nu;
+	int *nb_red = dim_red->nb;
+	int *ng_red = dim_red->ng;
+	int *ns_red = dim_red->ns;
+
+	// TODO handle case of softed equalities !!!!!!!!!!!!!!!!
+
+	// XXX flip sign of upper constraints in ocp_qp_res
+	for(ii=0; ii<=N; ii++)
+		VECSC(nb[ii]+ng[ii], -1.0, qp_res->res_d+ii, nb[ii]+ng[ii]);
+
+	int ne_thr;
+
+	for(ii=0; ii<=N; ii++)
+		{
+		if(ii==0)
+			ne_thr = nbue[ii]+nbxe[ii];
+		else
+			ne_thr = nbue[ii];
+		if(ne_thr>0) // reduce inputs and/or states
+			{
+			VECSE(nu[ii]+nx[ii], 0.0, work->tmp_nuxM+0, 0);
+			for(jj=0; jj<nu[ii]+nx[ii]; jj++)
+				work->e_imask_ux[jj] = 0;
+			for(jj=0; jj<nbu[ii]+nbx[ii]; jj++)
+				work->e_imask_d[jj] = 0;
+			for(jj=0; jj<ne_thr; jj++) // set 1s for both inputs and states
+				{
+				VECEL(work->tmp_nuxM+0, qp->idxb[ii][qp->idxe[ii][jj]]) = VECEL(qp_res->res_d+ii, qp->idxe[ii][jj]);
+				work->e_imask_ux[qp->idxb[ii][qp->idxe[ii][jj]]] = 1;
+				work->e_imask_d[qp->idxe[ii][jj]] = 1;
+				}
+			// TODO check first and last non-zero in e_mask and only multiply between them
+			if(ii<N)
+				{
+				// b
+				GEMV_T(nu[ii]+nx[ii], nx[ii+1], 1.0, qp->BAbt+ii, 0, 0, work->tmp_nuxM+0, 0, 1.0, qp_res->res_b+ii, 0, qp_res_red->res_b+ii, 0);
+				}
+			// rq
+			SYMV_L(nu[ii]+nx[ii], 1.0, qp->RSQrq+ii, 0, 0, work->tmp_nuxM+0, 0, 1.0, qp_res->res_g+ii, 0, work->tmp_nuxM+1, 0);
+			idx0 = 0;
+			for(jj=0; jj<nu[ii]+nx[ii]; jj++)
+				{
+				if(work->e_imask_ux[jj]==0)
+					{
+					VECEL(qp_res_red->res_g+ii, idx0) = VECEL(work->tmp_nuxM+1, jj);
+					idx0++;
+					}
+				}
+			// d (d_mask) m
+			idx0 = 0;
+			for(jj=0; jj<nb[ii]; jj++)
+				{
+				if(work->e_imask_d[jj]==0)
+					{
+					VECEL(qp_res_red->res_d+ii, idx0) = VECEL(qp_res->res_d+ii, jj);
+					VECEL(qp_res_red->res_d+ii, nb_red[ii]+ng_red[ii]+idx0) = VECEL(qp_res->res_d+ii, nb[ii]+ng[ii]+jj);
+					//VECEL(qp_res_red->d_mask+ii, idx0) = VECEL(qp->d_mask+ii, jj);
+					//VECEL(qp_res_red->d_mask+ii, nb_red[ii]+ng_red[ii]+idx0) = VECEL(qp->d_mask+ii, nb[ii]+ng[ii]+jj);
+					VECEL(qp_res_red->res_m+ii, idx0) = VECEL(qp_res->res_m+ii, jj);
+					VECEL(qp_res_red->res_m+ii, nb_red[ii]+ng_red[ii]+idx0) = VECEL(qp_res->res_m+ii, nb[ii]+ng[ii]+jj);
+					idx0++;
+					}
+				}
+			VECCP(ng[ii], qp_res->res_d+ii, nb[ii], qp_res_red->res_d+ii, nb_red[ii]);
+			VECCP(ng[ii]+2*ns[ii], qp_res->res_d+ii, 2*nb[ii]+ng[ii], qp_res_red->res_d+ii, 2*nb_red[ii]+ng_red[ii]);
+			//VECCP(ng[ii], qp->d_mask+ii, nb[ii], qp_red->d_mask+ii, nb_red[ii]);
+			//VECCP(ng[ii]+2*ns[ii], qp->d_mask+ii, 2*nb[ii]+ng[ii], qp_red->d_mask+ii, 2*nb_red[ii]+ng_red[ii]);
+			VECCP(ng[ii], qp_res->res_m+ii, nb[ii], qp_res_red->res_m+ii, nb_red[ii]);
+			VECCP(ng[ii]+2*ns[ii], qp_res->res_m+ii, 2*nb[ii]+ng[ii], qp_res_red->res_m+ii, 2*nb_red[ii]+ng_red[ii]);
+			GEMV_T(nu[ii]+nx[ii], ng[ii], 1.0, qp->DCt+ii, 0, 0, work->tmp_nuxM+0, 0, 0.0, work->tmp_nbgM, 0, work->tmp_nbgM, 0);
+			AXPY(ng[ii], -1.0, work->tmp_nbgM, 0, qp_res->res_d+ii, nb[ii], qp_res_red->res_d+ii, nb_red[ii]); // XXX sign flip !!!!
+			AXPY(ng[ii], 1.0, work->tmp_nbgM, 0, qp_res->res_d+ii, 2*nb[ii]+ng[ii], qp_res_red->res_d+ii, 2*nb_red[ii]+ng_red[ii]); // XXX sign flip !!!!
+			// soft constraints
+			VECCP(2*ns[ii], qp_res->res_g+ii, nu[ii]+nx[ii], qp_res_red->res_g+ii, nu_red[ii]+nx_red[ii]);
+			// TODO idxe !!!!!!!!!!!!!!!
+			}
+		else // copy everything
+			{
+			// copy vectors which are contiguous in the QP (e.g. to alias to res)
+			if(ii<N)
+				{
+				VECCP(nx[ii+1], qp_res->res_b+ii, 0, qp_res_red->res_b+ii, 0);
+				}
+			VECCP(nu[ii]+nx[ii]+2*ns[ii], qp_res->res_g+ii, 0, qp_res_red->res_g+ii, 0);
+			VECCP(2*nb[ii]+2*ng[ii]+2*ns[ii], qp_res->res_d+ii, 0, qp_res_red->res_d+ii, 0);
+			//VECCP(2*nb[ii]+2*ng[ii]+2*ns[ii], qp->d_mask+ii, 0, qp_red->d_mask+ii, 0);
+			VECCP(2*nb[ii]+2*ng[ii]+2*ns[ii], qp_res->res_m+ii, 0, qp_res_red->res_m+ii, 0);
+			}
+		}
+
+	// XXX restore sign of upper constraints in ocp_qp_res
+	for(ii=0; ii<=N; ii++)
+		VECSC(nb[ii]+ng[ii], -1.0, qp_res->res_d+ii, nb[ii]+ng[ii]);
+
+	// flip sign of upper constraints in part_dense_qp_res
+	for(ii=0; ii<=N; ii++)
+		VECSC(nb_red[ii]+ng_red[ii], -1.0, qp_res_red->res_d+ii, nb_red[ii]+ng_red[ii]);
+
+	return;
+
+	}
+
+
+
 void OCP_QP_RESTORE_EQ_DOF(struct OCP_QP *qp, struct OCP_QP_SOL *qp_sol_red, struct OCP_QP_SOL *qp_sol, struct OCP_QP_REDUCE_EQ_DOF_ARG *arg, struct OCP_QP_REDUCE_EQ_DOF_WS *work)
 	{
 
