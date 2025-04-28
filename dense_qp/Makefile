@@ -50,6 +50,7 @@ OBJS += d_dense_qp_res.o
 OBJS += d_dense_qp_kkt.o 
 OBJS += d_dense_qp_ipm.o
 OBJS += d_dense_qp_utils.o
+OBJS += d_dense_qp_seed.o
 OBJS += d_dense_qcqp_dim.o 
 OBJS += d_dense_qcqp.o 
 OBJS += d_dense_qcqp_sol.o 
@@ -64,6 +65,7 @@ OBJS += s_dense_qp_res.o
 OBJS += s_dense_qp_kkt.o 
 OBJS += s_dense_qp_ipm.o
 OBJS += s_dense_qp_utils.o
+OBJS += s_dense_qp_seed.o
 OBJS += s_dense_qcqp_dim.o 
 OBJS += s_dense_qcqp.o 
 OBJS += s_dense_qcqp_sol.o 
@@ -94,6 +96,8 @@ d_dense_qp_ipm.o: d_dense_qp_ipm.c x_dense_qp_ipm.c
 s_dense_qp_ipm.o: s_dense_qp_ipm.c x_dense_qp_ipm.c
 d_dense_qp_utils.o: d_dense_qp_utils.c x_dense_qp_utils.c
 s_dense_qp_utils.o: s_dense_qp_utils.c x_dense_qp_utils.c
+d_dense_qp_seed.o: d_dense_qp_seed.c x_dense_qp_seed.c
+s_dense_qp_seed.o: s_dense_qp_seed.c x_dense_qp_seed.c
 d_dense_qcqp_dim.o: d_dense_qcqp_dim.c x_dense_qcqp_dim.c
 s_dense_qcqp_dim.o: s_dense_qcqp_dim.c x_dense_qcqp_dim.c
 d_dense_qcqp.o: d_dense_qcqp.c x_dense_qcqp.c
