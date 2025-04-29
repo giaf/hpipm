@@ -601,7 +601,7 @@ int main()
 	d_part_cond_qp_expand_sol(&qp3, &qp2, &sens2, &sens3, &part_cond_arg, &part_cond_ws);
 
 	// restore eq dof sens
-	d_ocp_qp_restore_eq_dof(&qp, &sens3, &sens, &qp_red_arg, &qp_red_work);
+	d_ocp_qp_restore_eq_dof_seed(&qp, &seed, &sens3, &sens, &qp_red_arg, &qp_red_work);
 
 	// u
 	printf("\nu_sens = \n");

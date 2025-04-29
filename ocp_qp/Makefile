@@ -51,6 +51,7 @@ OBJS += d_ocp_qp_kkt.o
 OBJS += d_ocp_qp_ipm.o
 OBJS += d_ocp_qp_utils.o
 OBJS += d_ocp_qp_red.o
+OBJS += d_ocp_qp_seed.o
 OBJS += d_ocp_qcqp_dim.o
 OBJS += d_ocp_qcqp.o
 OBJS += d_ocp_qcqp_sol.o
@@ -67,6 +68,7 @@ OBJS += s_ocp_qp_kkt.o
 OBJS += s_ocp_qp_ipm.o
 OBJS += s_ocp_qp_utils.o
 OBJS += s_ocp_qp_red.o
+OBJS += s_ocp_qp_seed.o
 OBJS += s_ocp_qcqp_dim.o
 OBJS += s_ocp_qcqp.o
 OBJS += s_ocp_qcqp_sol.o
@@ -99,6 +101,8 @@ d_ocp_qp_utils.o: d_ocp_qp_utils.c x_ocp_qp_utils.c
 s_ocp_qp_utils.o: s_ocp_qp_utils.c x_ocp_qp_utils.c
 d_ocp_qp_red.o: d_ocp_qp_red.c x_ocp_qp_red.c
 s_ocp_qp_red.o: s_ocp_qp_red.c x_ocp_qp_red.c
+d_ocp_qp_seed.o: d_ocp_qp_seed.c x_ocp_qp_seed.c
+s_ocp_qp_seed.o: s_ocp_qp_seed.c x_ocp_qp_seed.c
 d_ocp_qcqp_dim.o: d_ocp_qcqp_dim.c x_ocp_qcqp_dim.c
 s_ocp_qcqp_dim.o: s_ocp_qcqp_dim.c x_ocp_qcqp_dim.c
 d_ocp_qcqp.o: d_ocp_qcqp.c x_ocp_qcqp.c

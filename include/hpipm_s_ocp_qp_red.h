@@ -111,6 +111,8 @@ void s_ocp_qp_reduce_eq_dof_seed(struct s_ocp_qp *qp, struct s_ocp_qp_seed *qp_s
 //
 void s_ocp_qp_restore_eq_dof(struct s_ocp_qp *qp, struct s_ocp_qp_sol *qp_sol_red, struct s_ocp_qp_sol *qp_sol, struct s_ocp_qp_reduce_eq_dof_arg *arg, struct s_ocp_qp_reduce_eq_dof_ws *work);
 //
+void s_ocp_qp_restore_eq_dof_seed(struct s_ocp_qp *qp, struct s_ocp_qp_seed *qp_seed, struct s_ocp_qp_sol *qp_sol_red, struct s_ocp_qp_sol *qp_sol, struct s_ocp_qp_reduce_eq_dof_arg *arg, struct s_ocp_qp_reduce_eq_dof_ws *work);
+//
 void s_ocp_qp_reduce_eq_dof_sol(struct s_ocp_qp *qp, struct s_ocp_qp_sol *qp_sol, struct s_ocp_qp_sol *qp_sol_red, struct s_ocp_qp_reduce_eq_dof_arg *arg, struct s_ocp_qp_reduce_eq_dof_ws *work);
 
 
