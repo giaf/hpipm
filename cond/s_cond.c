@@ -105,6 +105,7 @@
 #define COND_QP_COND_SEED s_cond_qp_cond_seed
 #define COND_QP_COND_SOL s_cond_qp_cond_sol
 #define COND_QP_EXPAND_SOL s_cond_qp_expand_sol
+#define COND_QP_EXPAND_SOL_SEED s_cond_qp_expand_sol_seed
 #define COND_QP_UPDATE s_cond_qp_update
 
 

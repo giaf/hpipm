@@ -404,6 +404,7 @@ void OCP_QP_SEED_SET_SEED_UB(int stage, REAL *vec, struct OCP_QP_SEED *seed)
 	int *nb = seed->dim->nb;
 	int *ng = seed->dim->ng;
 	PACK_VEC(nb[stage], vec, 1, seed->seed_d+stage, nb[stage]+ng[stage]);
+	VECSC(nb[stage], -1.0, seed->seed_d+stage, nb[stage]+ng[stage]);
 	}
 
 
@@ -414,6 +415,7 @@ void OCP_QP_SEED_SET_SEED_UBU(int stage, REAL *vec, struct OCP_QP_SEED *seed)
 	int *nbu = seed->dim->nbu;
 	int *ng = seed->dim->ng;
 	PACK_VEC(nbu[stage], vec, 1, seed->seed_d+stage, nb[stage]+ng[stage]);
+	VECSC(nbu[stage], -1.0, seed->seed_d+stage, nb[stage]+ng[stage]);
 	}
 
 
@@ -425,6 +427,7 @@ void OCP_QP_SEED_SET_SEED_UBX(int stage, REAL *vec, struct OCP_QP_SEED *seed)
 	int *nbx = seed->dim->nbx;
 	int *ng = seed->dim->ng;
 	PACK_VEC(nbx[stage], vec, 1, seed->seed_d+stage, nb[stage]+ng[stage]+nbu[stage]);
+	VECSC(nbx[stage], -1.0, seed->seed_d+stage, nb[stage]+ng[stage]+nbu[stage]);
 	}
 
 
@@ -443,6 +446,7 @@ void OCP_QP_SEED_SET_SEED_UG(int stage, REAL *vec, struct OCP_QP_SEED *seed)
 	int *nb = seed->dim->nb;
 	int *ng = seed->dim->ng;
 	PACK_VEC(ng[stage], vec, 1, seed->seed_d+stage, 2*nb[stage]+ng[stage]);
+	VECSC(ng[stage], -1.0, seed->seed_d+stage, 2*nb[stage]+ng[stage]);
 	}
 
 

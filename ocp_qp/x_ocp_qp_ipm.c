@@ -3217,10 +3217,6 @@ void OCP_QP_IPM_SENS_FRW(struct OCP_QP *qp, struct OCP_QP_SEED *seed, struct OCP
 	for(ii=0; ii<cws->nc; ii++)
 		cws->t[ii] = cws->t_bkp[ii];
 
-	// flip sign of seed seed_d
-	for(ii=0; ii<=N; ii++)
-		VECSC(nb[ii]+ng[ii], -1.0, seed->seed_d+ii, nb[ii]+ng[ii]);
-
 	// use seeds as qp rhs
 	struct OCP_QP tmp_qp;
 	// alias qp
@@ -3241,10 +3237,6 @@ void OCP_QP_IPM_SENS_FRW(struct OCP_QP *qp, struct OCP_QP_SEED *seed, struct OCP
 	// solve kkt
 	ws->use_Pb = 0;
 	OCP_QP_SOLVE_KKT_STEP(&tmp_qp, sens, arg, ws);
-
-	// restore sign of seed seed_d XXX not needed if seed can be destructed
-	for(ii=0; ii<=N; ii++)
-		VECSC(nb[ii]+ng[ii], -1.0, seed->seed_d+ii, nb[ii]+ng[ii]);
 
 	return;
 
@@ -3306,10 +3298,6 @@ void OCP_QP_IPM_SENS_ADJ(struct OCP_QP *qp, struct OCP_QP_SEED *seed, struct OCP
 		seed_m[ii] *= cws->t[ii];
 		}
 
-	// flip sign of seed seed_d
-	for(ii=0; ii<=N; ii++)
-		VECSC(nb[ii]+ng[ii], -1.0, seed->seed_d+ii, nb[ii]+ng[ii]);
-
 	// use seeds as qp rhs
 	struct OCP_QP tmp_qp;
 	// alias qp
@@ -3343,10 +3331,6 @@ void OCP_QP_IPM_SENS_ADJ(struct OCP_QP *qp, struct OCP_QP_SEED *seed, struct OCP
 		{
 		seed_m[ii] = tmp_m[ii];
 		}
-
-	// restore sign of seed seed_d XXX not needed if seed can be destructed
-	for(ii=0; ii<=N; ii++)
-		VECSC(nb[ii]+ng[ii], -1.0, seed->seed_d+ii, nb[ii]+ng[ii]);
 
 	return;
 

@@ -765,10 +765,6 @@ void OCP_QP_REDUCE_EQ_DOF_SEED(struct OCP_QP *qp, struct OCP_QP_SEED *qp_seed, s
 
 	// TODO handle case of softed equalities !!!!!!!!!!!!!!!!
 
-	// XXX flip sign of upper constraints in ocp_qp_seed
-	for(ii=0; ii<=N; ii++)
-		VECSC(nb[ii]+ng[ii], -1.0, qp_seed->seed_d+ii, nb[ii]+ng[ii]);
-
 	int ne_thr;
 
 	for(ii=0; ii<=N; ii++)
@@ -848,14 +844,6 @@ void OCP_QP_REDUCE_EQ_DOF_SEED(struct OCP_QP *qp, struct OCP_QP_SEED *qp_seed, s
 			VECCP(2*nb[ii]+2*ng[ii]+2*ns[ii], qp_seed->seed_m+ii, 0, qp_seed_red->seed_m+ii, 0);
 			}
 		}
-
-	// XXX restore sign of upper constraints in ocp_qp_seed
-	for(ii=0; ii<=N; ii++)
-		VECSC(nb[ii]+ng[ii], -1.0, qp_seed->seed_d+ii, nb[ii]+ng[ii]);
-
-	// flip sign of upper constraints in part_dense_qp_seed
-	for(ii=0; ii<=N; ii++)
-		VECSC(nb_red[ii]+ng_red[ii], -1.0, qp_seed_red->seed_d+ii, nb_red[ii]+ng_red[ii]);
 
 	return;
 

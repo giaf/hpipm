@@ -110,6 +110,7 @@
 #define PART_COND_QP_COND_SEED s_part_cond_qp_cond_seed
 #define PART_COND_QP_COND_SOL s_part_cond_qp_cond_sol
 #define PART_COND_QP_EXPAND_SOL s_part_cond_qp_expand_sol
+#define PART_COND_QP_EXPAND_SOL_SEED s_part_cond_qp_expand_sol_seed
 #define PART_COND_QP_UPDATE s_part_cond_qp_update
 
 

@@ -2697,9 +2697,6 @@ void DENSE_QP_IPM_SENS_FRW(struct DENSE_QP *qp, struct DENSE_QP_SEED *seed, stru
 	for(ii=0; ii<cws->nc; ii++)
 		cws->t[ii] = cws->t_bkp[ii];
 
-	// flip sign of seed seed_d
-	VECSC(nb+ng, -1.0, seed->seed_d, nb+ng);
-
 	// use seeds as qp rhs
 	struct DENSE_QP tmp_qp;
 	// alias qp
@@ -2719,9 +2716,6 @@ void DENSE_QP_IPM_SENS_FRW(struct DENSE_QP *qp, struct DENSE_QP_SEED *seed, stru
 
 	// solve kkt
 	SOLVE_KKT_STEP_DENSE_QP(&tmp_qp, sens, arg, ws);
-
-	// restore sign of seed seed_d XXX not needed if seed can be destructed
-	VECSC(nb+ng, -1.0, seed->seed_d, nb+ng);
 
 	return;
 
@@ -2778,9 +2772,6 @@ void DENSE_QP_IPM_SENS_ADJ(struct DENSE_QP *qp, struct DENSE_QP_SEED *seed, stru
 		seed_m[ii] *= cws->t[ii];
 		}
 
-	// flip sign of seed seed_d
-	VECSC(nb+ng, -1.0, seed->seed_d, nb+ng);
-
 	// use seeds as qp rhs
 	struct DENSE_QP tmp_qp;
 	// alias qp
@@ -2813,9 +2804,6 @@ void DENSE_QP_IPM_SENS_ADJ(struct DENSE_QP *qp, struct DENSE_QP_SEED *seed, stru
 		{
 		seed_m[ii] = tmp_m[ii];
 		}
-
-	// restore sign of seed seed_d XXX not needed if seed can be destructed
-	VECSC(nb+ng, -1.0, seed->seed_d, nb+ng);
 
 	return;
 

@@ -455,7 +455,7 @@ int main()
 	d_ocp_qp_seed_set_seed_ubx(stage, seed_x0, &seed);
 
 	// print seeds
-	//d_ocp_qp_res_print(seed.dim, &seed);
+	//d_ocp_qp_seed_print(seed.dim, &seed);
 
 	// forward sensitivity of solution
 	d_ocp_qp_ipm_sens_frw(&qp, &seed, &sens, &arg, &workspace);

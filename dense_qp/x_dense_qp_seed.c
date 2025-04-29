@@ -239,6 +239,7 @@ void DENSE_QP_SEED_SET_SEED_UB(REAL *ub, struct DENSE_QP_SEED *qp_seed)
 	int nb = qp_seed->dim->nb;
 	int ng = qp_seed->dim->ng;
 	PACK_VEC(nb, ub, 1, qp_seed->seed_d, nb+ng);
+	VECSC(nb, -1.0, qp_seed->seed_d, nb+ng);
 	}
 
 
@@ -257,6 +258,7 @@ void DENSE_QP_SEED_SET_SEED_UG(REAL *ug, struct DENSE_QP_SEED *qp_seed)
 	int nb = qp_seed->dim->nb;
 	int ng = qp_seed->dim->ng;
 	PACK_VEC(ng, ug, 1, qp_seed->seed_d, 2*nb+ng);
+	VECSC(ng, -1.0, qp_seed->seed_d, 2*nb+ng);
 	}
 
 

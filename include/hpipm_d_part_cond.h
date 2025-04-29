@@ -105,6 +105,8 @@ void d_part_cond_qp_cond_seed(struct d_ocp_qp *ocp_qp, struct d_ocp_qp_seed *ocp
 void d_part_cond_qp_cond_sol(struct d_ocp_qp *ocp_qp, struct d_ocp_qp *part_dense_qp, struct d_ocp_qp_sol *ocp_qp_sol, struct d_ocp_qp_sol *part_dense_qp_sol, struct d_part_cond_qp_arg *cond_arg, struct d_part_cond_qp_ws *cond_ws);
 //
 void d_part_cond_qp_expand_sol(struct d_ocp_qp *ocp_qp, struct d_ocp_qp *part_dense_qp, struct d_ocp_qp_sol *part_dense_qp_sol, struct d_ocp_qp_sol *ocp_qp_sol, struct d_part_cond_qp_arg *cond_arg, struct d_part_cond_qp_ws *cond_ws);
+//
+void d_part_cond_qp_expand_sol_seed(struct d_ocp_qp *ocp_qp, struct d_ocp_qp_seed *ocp_qp_seed, struct d_ocp_qp *part_dense_qp, struct d_ocp_qp_sol *part_dense_qp_sol, struct d_ocp_qp_sol *ocp_qp_sol, struct d_part_cond_qp_arg *cond_arg, struct d_part_cond_qp_ws *cond_ws);
 
 //
 void d_part_cond_qp_update(int *idxc, struct d_ocp_qp *ocp_qp, struct d_ocp_qp *part_dense_qp, struct d_part_cond_qp_arg *cond_arg, struct d_part_cond_qp_ws *cond_ws);

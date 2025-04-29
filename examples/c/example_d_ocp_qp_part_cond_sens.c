@@ -569,7 +569,7 @@ int main()
 	d_ocp_qp_seed_set_seed_ubx(stage, seed_x0, &seed);
 
 	// print seeds
-	d_ocp_qp_seed_print(seed.dim, &seed);
+	//d_ocp_qp_seed_print(seed.dim, &seed);
 
 	// cond RHS
 	d_part_cond_qp_cond_seed(&qp, &seed, &seed2, &part_cond_arg, &part_cond_ws);
