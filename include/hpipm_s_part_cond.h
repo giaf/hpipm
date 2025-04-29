@@ -100,7 +100,7 @@ void s_part_cond_qp_cond_lhs(struct s_ocp_qp *ocp_qp, struct s_ocp_qp *part_dens
 //
 void s_part_cond_qp_cond_rhs(struct s_ocp_qp *ocp_qp, struct s_ocp_qp *part_dense_qp, struct s_part_cond_qp_arg *cond_arg, struct s_part_cond_qp_ws *cond_ws);
 //
-void s_part_cond_qp_cond_res(struct s_ocp_qp *ocp_qp, struct s_ocp_qp_res *ocp_qp_res, struct s_ocp_qp_res *part_dense_qp_res, struct s_part_cond_qp_arg *cond_arg, struct s_part_cond_qp_ws *cond_ws);
+void s_part_cond_qp_cond_seed(struct s_ocp_qp *ocp_qp, struct s_ocp_qp_seed *ocp_qp_seed, struct s_ocp_qp_seed *part_dense_qp_seed, struct s_part_cond_qp_arg *cond_arg, struct s_part_cond_qp_ws *cond_ws);
 //
 void s_part_cond_qp_cond_sol(struct s_ocp_qp *ocp_qp, struct s_ocp_qp *part_dense_qp, struct s_ocp_qp_sol *ocp_qp_sol, struct s_ocp_qp_sol *part_dense_qp_sol, struct s_part_cond_qp_arg *cond_arg, struct s_part_cond_qp_ws *cond_ws);
 //

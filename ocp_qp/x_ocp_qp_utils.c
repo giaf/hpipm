@@ -1581,4 +1581,38 @@ void OCP_QP_RES_PRINT(struct OCP_QP_DIM *qp_dim, struct OCP_QP_RES *qp_res)
 
 
 
+void OCP_QP_SEED_PRINT(struct OCP_QP_DIM *qp_dim, struct OCP_QP_SEED *qp_seed)
+	{
+#ifdef EXT_DEP
+	int ii;
+
+	int N   = qp_dim->N;
+	int *nx = qp_dim->nx;
+	int *nu = qp_dim->nu;
+	int *nb = qp_dim->nb;
+	int *ng = qp_dim->ng;
+	int *ns = qp_dim->ns;
+
+	printf("seed_g =\n");
+	for (ii = 0; ii <= N; ii++)
+		BLASFEO_PRINT_TRAN_VEC(nu[ii]+nx[ii]+2*ns[ii], &qp_seed->seed_g[ii], 0);
+
+	printf("seed_b =\n");
+	for (ii = 0; ii < N; ii++)
+		BLASFEO_PRINT_TRAN_VEC(nx[ii+1], &qp_seed->seed_b[ii], 0);
+
+	printf("seed_d =\n");
+	for (ii = 0; ii <= N; ii++)
+		BLASFEO_PRINT_TRAN_VEC(2*nb[ii]+2*ng[ii]+2*ns[ii], &qp_seed->seed_d[ii], 0);
+
+	printf("seed_m =\n");
+	for (ii = 0; ii <= N; ii++)
+		BLASFEO_PRINT_TRAN_VEC(2*nb[ii]+2*ng[ii]+2*ns[ii], &qp_seed->seed_m[ii], 0);
+
+#endif
+	return;
+	}
+
+
+
 

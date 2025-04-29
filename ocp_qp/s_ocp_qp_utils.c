@@ -46,6 +46,7 @@
 #include <hpipm_s_ocp_qp.h>
 #include <hpipm_s_ocp_qp_sol.h>
 #include "hpipm_s_ocp_qp_ipm.h"
+#include "hpipm_s_ocp_qp_seed.h"
 
 
 
@@ -56,10 +57,11 @@
 #define BLASFEO_PRINT_MAT blasfeo_print_smat
 #define BLASFEO_PRINT_TRAN_VEC blasfeo_print_tran_svec
 #define OCP_QP s_ocp_qp
-#define OCP_QP_SOL s_ocp_qp_sol
+#define OCP_QP_DIM s_ocp_qp_dim
 #define OCP_QP_IPM_ARG s_ocp_qp_ipm_arg
 #define OCP_QP_RES s_ocp_qp_res
-#define OCP_QP_DIM s_ocp_qp_dim
+#define OCP_QP_SEED s_ocp_qp_seed
+#define OCP_QP_SOL s_ocp_qp_sol
 
 
 
@@ -71,6 +73,7 @@
 #define OCP_QP_IPM_ARG_PRINT s_ocp_qp_ipm_arg_print
 #define OCP_QP_IPM_ARG_CODEGEN s_ocp_qp_ipm_arg_codegen
 #define OCP_QP_RES_PRINT s_ocp_qp_res_print
+#define OCP_QP_SEED_PRINT s_ocp_qp_seed_print
 
 
 

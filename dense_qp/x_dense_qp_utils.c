@@ -941,6 +941,35 @@ void DENSE_QP_RES_PRINT(struct DENSE_QP_DIM *qp_dim, struct DENSE_QP_RES *qp_res
 
 
 
+void DENSE_QP_SEED_PRINT(struct DENSE_QP_DIM *qp_dim, struct DENSE_QP_SEED *qp_seed)
+	{
+#ifdef EXT_DEP
+	int ii;
+
+	int nv = qp_dim->nv;
+	int ne = qp_dim->ne;
+	int nb = qp_dim->nb;
+	int ng = qp_dim->ng;
+	int ns = qp_dim->ns;
+
+	printf("seed_g = \n");
+	BLASFEO_PRINT_TRAN_VEC(nv+2*ns, qp_seed->seed_g, 0);
+
+	printf("seed_b = \n");
+	BLASFEO_PRINT_TRAN_VEC(ne, qp_seed->seed_b, 0);
+
+	printf("seed_d = \n");
+	BLASFEO_PRINT_TRAN_VEC(2*nb+2*ng+2*ns, qp_seed->seed_d, 0);
+
+	printf("seed_m = \n");
+	BLASFEO_PRINT_TRAN_VEC(2*nb+2*ng+2*ns, qp_seed->seed_m, 0);
+
+#endif
+	return;
+	}
+
+
+
 void DENSE_QP_IPM_ARG_PRINT(struct DENSE_QP_DIM *qp_dim, struct DENSE_QP_IPM_ARG *arg)
 	{
 #ifdef EXT_DEP

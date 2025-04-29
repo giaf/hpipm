@@ -47,7 +47,7 @@
 #include <hpipm_s_ocp_qp.h>
 #include <hpipm_s_ocp_qp_sol.h>
 #include <hpipm_s_ocp_qp_red.h>
-#include <hpipm_s_ocp_qp_res.h>
+#include <hpipm_s_ocp_qp_seed.h>
 #include <hpipm_aux_string.h>
 #include <hpipm_aux_mem.h>
 
@@ -66,7 +66,7 @@
 #define OCP_QP_DIM s_ocp_qp_dim
 #define OCP_QP_REDUCE_EQ_DOF_ARG s_ocp_qp_reduce_eq_dof_arg
 #define OCP_QP_REDUCE_EQ_DOF_WS s_ocp_qp_reduce_eq_dof_ws
-#define OCP_QP_RES s_ocp_qp_res
+#define OCP_QP_SEED s_ocp_qp_seed
 #define OCP_QP_SOL s_ocp_qp_sol
 #define MATEL BLASFEO_SMATEL
 #define REAL float
@@ -93,7 +93,7 @@
 #define OCP_QP_REDUCE_EQ_DOF s_ocp_qp_reduce_eq_dof
 #define OCP_QP_REDUCE_EQ_DOF_LHS s_ocp_qp_reduce_eq_dof_lhs
 #define OCP_QP_REDUCE_EQ_DOF_RHS s_ocp_qp_reduce_eq_dof_rhs
-#define OCP_QP_REDUCE_EQ_DOF_RES s_ocp_qp_reduce_eq_dof_res
+#define OCP_QP_REDUCE_EQ_DOF_SEED s_ocp_qp_reduce_eq_dof_seed
 #define OCP_QP_RESTORE_EQ_DOF s_ocp_qp_restore_eq_dof
 #define OCP_QP_REDUCE_EQ_DOF_SOL s_ocp_qp_reduce_eq_dof_sol
 

@@ -45,6 +45,7 @@
 #include "hpipm_d_dense_qp.h"
 #include "hpipm_d_dense_qp_sol.h"
 #include "hpipm_d_dense_qp_ipm.h"
+#include "hpipm_d_dense_qp_seed.h"
 
 
 
@@ -70,6 +71,8 @@ void d_dense_qp_sol_print(struct d_dense_qp_dim *qp_dim, struct d_dense_qp_sol *
 void d_dense_qp_ipm_arg_codegen(char *file_name, char *mode, struct d_dense_qp_dim *qp_dim, struct d_dense_qp_ipm_arg *arg);
 //
 void d_dense_qp_res_print(struct d_dense_qp_dim *qp_dim, struct d_dense_qp_res *dense_qp_res);
+//
+void d_dense_qp_seed_print(struct d_dense_qp_dim *qp_dim, struct d_dense_qp_seed *dense_qp_seed);
 //
 void d_dense_qp_arg_print(struct d_dense_qp_dim *qp_dim, struct d_dense_qp_ipm_arg *qp_ipm_arg);
 

@@ -666,7 +666,7 @@ void PART_COND_QP_COND_RHS(struct OCP_QP *ocp_qp, struct OCP_QP *part_dense_qp, 
 
 
 
-void PART_COND_QP_COND_RES(struct OCP_QP *ocp_qp, struct OCP_QP_RES *ocp_qp_res, struct OCP_QP_RES *part_dense_qp_res, struct PART_COND_QP_ARG *part_cond_arg, struct PART_COND_QP_WS *part_cond_ws)
+void PART_COND_QP_COND_SEED(struct OCP_QP *ocp_qp, struct OCP_QP_SEED *ocp_qp_seed, struct OCP_QP_SEED *part_dense_qp_seed, struct PART_COND_QP_ARG *part_cond_arg, struct PART_COND_QP_WS *part_cond_ws)
 	{
 
 	struct OCP_QP_DIM tmp_ocp_dim;
@@ -678,15 +678,15 @@ void PART_COND_QP_COND_RES(struct OCP_QP *ocp_qp, struct OCP_QP_RES *ocp_qp_res,
 	int *nb = ocp_qp->dim->nb;
 	int *ng = ocp_qp->dim->ng;
 
-	int N2 = part_dense_qp_res->dim->N;
-	int *nb2 = part_dense_qp_res->dim->nb;
-	int *ng2 = part_dense_qp_res->dim->ng;
+	int N2 = part_dense_qp_seed->dim->N;
+	int *nb2 = part_dense_qp_seed->dim->nb;
+	int *ng2 = part_dense_qp_seed->dim->ng;
 
 	int bs; // horizon of current block
 
-	// flip sign of upper constraints in ocp_qp_res
+	// flip sign of upper constraints in ocp_qp_seed
 	for(ii=0; ii<=N; ii++)
-		VECSC(nb[ii]+ng[ii], -1.0, ocp_qp_res->res_d+ii, nb[ii]+ng[ii]);
+		VECSC(nb[ii]+ng[ii], -1.0, ocp_qp_seed->seed_d+ii, nb[ii]+ng[ii]);
 
 	int N_tmp = 0; // temporary sum of horizons
 	for(ii=0; ii<=N2; ii++)
@@ -711,33 +711,33 @@ void PART_COND_QP_COND_RES(struct OCP_QP *ocp_qp, struct OCP_QP_RES *ocp_qp_res,
 		tmp_ocp_qp.dim = &tmp_ocp_dim;
 		tmp_ocp_qp.idxb = ocp_qp->idxb+N_tmp;
 		tmp_ocp_qp.BAbt = ocp_qp->BAbt+N_tmp;
-		tmp_ocp_qp.b = ocp_qp_res->res_b+N_tmp; // XXX
+		tmp_ocp_qp.b = ocp_qp_seed->seed_b+N_tmp; // XXX
 		tmp_ocp_qp.RSQrq = ocp_qp->RSQrq+N_tmp;
-		tmp_ocp_qp.rqz = ocp_qp_res->res_g+N_tmp; //XXX
+		tmp_ocp_qp.rqz = ocp_qp_seed->seed_g+N_tmp; //XXX
 		tmp_ocp_qp.DCt = ocp_qp->DCt+N_tmp;
-		tmp_ocp_qp.d = ocp_qp_res->res_d+N_tmp; // XXX
+		tmp_ocp_qp.d = ocp_qp_seed->seed_d+N_tmp; // XXX
 		tmp_ocp_qp.d_mask = ocp_qp->d_mask+N_tmp;
 		tmp_ocp_qp.Z = ocp_qp->Z+N_tmp;
 		tmp_ocp_qp.idxs_rev = ocp_qp->idxs_rev+N_tmp;
 		tmp_ocp_qp.diag_H_flag = ocp_qp->diag_H_flag+N_tmp;
 		// TODO cond m !!!!!!!!!!!
 
-		COND_B(&tmp_ocp_qp, part_dense_qp_res->res_b+ii, part_cond_arg->cond_arg+ii, part_cond_ws->cond_workspace+ii);
+		COND_B(&tmp_ocp_qp, part_dense_qp_seed->seed_b+ii, part_cond_arg->cond_arg+ii, part_cond_ws->cond_workspace+ii);
 
-		COND_RQ(&tmp_ocp_qp, part_dense_qp_res->res_g+ii, part_cond_arg->cond_arg+ii, part_cond_ws->cond_workspace+ii);
+		COND_RQ(&tmp_ocp_qp, part_dense_qp_seed->seed_g+ii, part_cond_arg->cond_arg+ii, part_cond_ws->cond_workspace+ii);
 
-		COND_D(&tmp_ocp_qp, part_dense_qp_res->res_d+ii, NULL, part_dense_qp_res->res_g+ii, part_cond_arg->cond_arg+ii, part_cond_ws->cond_workspace+ii);
+		COND_D(&tmp_ocp_qp, part_dense_qp_seed->seed_d+ii, NULL, part_dense_qp_seed->seed_g+ii, part_cond_arg->cond_arg+ii, part_cond_ws->cond_workspace+ii);
 
-		// flip sign of upper constraints in part_dense_qp_res
-		VECSC(nb2[ii]+ng2[ii], -1.0, part_dense_qp_res->res_d+ii, nb2[ii]+ng2[ii]);
+		// flip sign of upper constraints in part_dense_qp_seed
+		VECSC(nb2[ii]+ng2[ii], -1.0, part_dense_qp_seed->seed_d+ii, nb2[ii]+ng2[ii]);
 
 		N_tmp += bs;
 
 		}
 
-	// restore sign of upper constraints in ocp_qp_res
+	// restore sign of upper constraints in ocp_qp_seed
 	for(ii=0; ii<=N; ii++)
-		VECSC(nb[ii]+ng[ii], -1.0, ocp_qp_res->res_d+ii, nb[ii]+ng[ii]);
+		VECSC(nb[ii]+ng[ii], -1.0, ocp_qp_seed->seed_d+ii, nb[ii]+ng[ii]);
 
 	return;
 

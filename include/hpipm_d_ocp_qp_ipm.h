@@ -46,6 +46,7 @@
 #include <hpipm_d_ocp_qp.h>
 #include <hpipm_d_ocp_qp_res.h>
 #include <hpipm_d_ocp_qp_sol.h>
+#include <hpipm_d_ocp_qp_seed.h>
 
 
 
@@ -266,9 +267,9 @@ void d_ocp_qp_ipm_solve(struct d_ocp_qp *qp, struct d_ocp_qp_sol *qp_sol, struct
 //
 void d_ocp_qp_ipm_predict(struct d_ocp_qp *qp, struct d_ocp_qp_sol *qp_sol, struct d_ocp_qp_ipm_arg *arg, struct d_ocp_qp_ipm_ws *ws);
 // forward solution sensitivities
-void d_ocp_qp_ipm_sens_frw(struct d_ocp_qp *qp, struct d_ocp_qp_res *seed, struct d_ocp_qp_sol *sens, struct d_ocp_qp_ipm_arg *arg, struct d_ocp_qp_ipm_ws *ws);
+void d_ocp_qp_ipm_sens_frw(struct d_ocp_qp *qp, struct d_ocp_qp_seed *seed, struct d_ocp_qp_sol *sens, struct d_ocp_qp_ipm_arg *arg, struct d_ocp_qp_ipm_ws *ws);
 // adjoint solution sensitivities
-void d_ocp_qp_ipm_sens_adj(struct d_ocp_qp *qp, struct d_ocp_qp_res *seed, struct d_ocp_qp_sol *sens, struct d_ocp_qp_ipm_arg *arg, struct d_ocp_qp_ipm_ws *ws);
+void d_ocp_qp_ipm_sens_adj(struct d_ocp_qp *qp, struct d_ocp_qp_seed *seed, struct d_ocp_qp_sol *sens, struct d_ocp_qp_ipm_arg *arg, struct d_ocp_qp_ipm_ws *ws);
 
 
 

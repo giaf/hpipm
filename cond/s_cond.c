@@ -44,10 +44,10 @@
 #include <hpipm_s_ocp_qp_dim.h>
 #include <hpipm_s_ocp_qp.h>
 #include <hpipm_s_ocp_qp_sol.h>
-#include <hpipm_s_ocp_qp_res.h>
+#include <hpipm_s_ocp_qp_seed.h>
 #include <hpipm_s_dense_qp.h>
 #include <hpipm_s_dense_qp_sol.h>
-#include <hpipm_s_dense_qp_res.h>
+#include <hpipm_s_dense_qp_seed.h>
 #include <hpipm_s_cond.h>
 #include <hpipm_s_cond_aux.h>
 #include <hpipm_aux_mem.h>
@@ -71,11 +71,11 @@
 #define DENSE_QP s_dense_qp
 #define DENSE_QP_DIM s_dense_qp_dim
 #define DENSE_QP_SOL s_dense_qp_sol
-#define DENSE_QP_RES s_dense_qp_res
+#define DENSE_QP_SEED s_dense_qp_seed
 #define EXPAND_SOL s_expand_sol
 #define OCP_QP s_ocp_qp
 #define OCP_QP_DIM s_ocp_qp_dim
-#define OCP_QP_RES s_ocp_qp_res
+#define OCP_QP_SEED s_ocp_qp_seed
 #define OCP_QP_SOL s_ocp_qp_sol
 #define REAL float
 #define SIZE_STRMAT blasfeo_memsize_smat
@@ -102,7 +102,7 @@
 #define COND_QP_COND s_cond_qp_cond
 #define COND_QP_COND_LHS s_cond_qp_cond_lhs
 #define COND_QP_COND_RHS s_cond_qp_cond_rhs
-#define COND_QP_COND_RES s_cond_qp_cond_res
+#define COND_QP_COND_SEED s_cond_qp_cond_seed
 #define COND_QP_COND_SOL s_cond_qp_cond_sol
 #define COND_QP_EXPAND_SOL s_cond_qp_expand_sol
 #define COND_QP_UPDATE s_cond_qp_update

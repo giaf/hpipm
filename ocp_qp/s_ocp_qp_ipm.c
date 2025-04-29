@@ -55,6 +55,7 @@
 #include <hpipm_s_core_qp_ipm_aux.h>
 #include <hpipm_s_ocp_qp_res.h>
 #include <hpipm_s_ocp_qp_kkt.h>
+#include <hpipm_s_ocp_qp_seed.h>
 #include <hpipm_aux_string.h>
 #include <hpipm_aux_mem.h>
 
@@ -101,6 +102,8 @@
 #define OCP_QP_RES_CREATE s_ocp_qp_res_create
 #define OCP_QP_RES_MEMSIZE s_ocp_qp_res_memsize
 #define OCP_QP_RES_WS s_ocp_qp_res_ws
+#define OCP_QP_SEED s_ocp_qp_seed
+#define OCP_QP_SEED_PRINT s_ocp_qp_seed_print
 #define OCP_QP_SOL_MEMSIZE s_ocp_qp_sol_memsize
 #define OCP_QP_SOL_CREATE s_ocp_qp_sol_create
 #define OCP_QP_SOL s_ocp_qp_sol

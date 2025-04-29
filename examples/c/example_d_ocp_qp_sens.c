@@ -43,6 +43,7 @@
 #include <hpipm_d_ocp_qp_dim.h>
 #include <hpipm_d_ocp_qp.h>
 #include <hpipm_d_ocp_qp_sol.h>
+#include <hpipm_d_ocp_qp_seed.h>
 #include <hpipm_d_ocp_qp_utils.h>
 #include <hpipm_timing.h>
 
@@ -430,10 +431,10 @@ int main()
 ************************************************/
 
 	// res struct
-	hpipm_size_t seed_size = d_ocp_qp_res_memsize(&dim);
+	hpipm_size_t seed_size = d_ocp_qp_seed_memsize(&dim);
 	void *seed_mem = malloc(seed_size);
-	struct d_ocp_qp_res seed;
-	d_ocp_qp_res_create(&dim, &seed, seed_mem);
+	struct d_ocp_qp_seed seed;
+	d_ocp_qp_seed_create(&dim, &seed, seed_mem);
 
 	// new sol struct
 	void *sens_mem = malloc(qp_sol_size);
@@ -441,7 +442,7 @@ int main()
 	d_ocp_qp_sol_create(&dim, &sens, sens_mem);
 
 	// set seeds to zero
-	d_ocp_qp_res_set_zero(&seed);
+	d_ocp_qp_seed_set_zero(&seed);
 
 	// set I to param
 	double *seed_x0 = malloc(nx[0]*sizeof(double));
@@ -450,8 +451,8 @@ int main()
 	int index = 0;
 	seed_x0[index] = 1.0;
 	int stage = 0;
-	d_ocp_qp_res_set_res_lbx(stage, seed_x0, &seed);
-	d_ocp_qp_res_set_res_ubx(stage, seed_x0, &seed);
+	d_ocp_qp_seed_set_seed_lbx(stage, seed_x0, &seed);
+	d_ocp_qp_seed_set_seed_ubx(stage, seed_x0, &seed);
 
 	// print seeds
 	//d_ocp_qp_res_print(seed.dim, &seed);

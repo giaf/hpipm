@@ -46,6 +46,7 @@
 #include <hpipm_s_dense_qp.h>
 #include <hpipm_s_dense_qp_sol.h>
 #include <hpipm_s_dense_qp_res.h>
+#include <hpipm_s_dense_qp_seed.h>
 #include "hpipm_s_dense_qp_ipm.h"
 
 
@@ -61,6 +62,7 @@
 #define DENSE_QP_DIM s_dense_qp_dim
 #define DENSE_QP_IPM_ARG s_dense_qp_ipm_arg
 #define DENSE_QP_RES s_dense_qp_res
+#define DENSE_QP_SEED s_dense_qp_seed
 #define DENSE_QP_SOL s_dense_qp_sol
 
 
@@ -72,6 +74,7 @@
 #define DENSE_QP_CODEGEN_MATLAB s_dense_qp_codegen_matlab
 #define DENSE_QP_SOL_PRINT s_dense_qp_sol_print
 #define DENSE_QP_RES_PRINT s_dense_qp_res_print
+#define DENSE_QP_SEED_PRINT s_dense_qp_seed_print
 #define DENSE_QP_IPM_ARG_PRINT s_dense_qp_ipm_arg_print
 #define DENSE_QP_IPM_ARG_CODEGEN s_dense_qp_ipm_arg_codegen
 

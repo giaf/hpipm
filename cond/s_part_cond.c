@@ -41,15 +41,15 @@
 #include <blasfeo_s_blas.h>
 #include <blasfeo_s_aux.h>
 
-#include "../include/hpipm_s_ocp_qp_dim.h"
-#include "../include/hpipm_s_ocp_qp.h"
-#include "../include/hpipm_s_ocp_qp_sol.h"
-#include "../include/hpipm_s_ocp_qp_sol.h"
-#include "../include/hpipm_s_dense_qp.h"
-#include "../include/hpipm_s_dense_qp_sol.h"
-#include "../include/hpipm_s_cond.h"
-#include "../include/hpipm_s_part_cond.h"
-#include "../include/hpipm_s_cond_aux.h"
+#include <hpipm_s_ocp_qp_dim.h>
+#include <hpipm_s_ocp_qp.h>
+#include <hpipm_s_ocp_qp_sol.h>
+#include <hpipm_s_ocp_qp_seed.h>
+#include <hpipm_s_dense_qp.h>
+#include <hpipm_s_dense_qp_sol.h>
+#include <hpipm_s_cond.h>
+#include <hpipm_s_part_cond.h>
+#include <hpipm_s_cond_aux.h>
 
 
 
@@ -82,7 +82,7 @@
 #define GECP_LIBSTR blasfeo_sgecp
 #define OCP_QP s_ocp_qp
 #define OCP_QP_DIM s_ocp_qp_dim
-#define OCP_QP_RES s_ocp_qp_res
+#define OCP_QP_SEED s_ocp_qp_seed
 #define OCP_QP_SOL s_ocp_qp_sol
 #define PART_COND_QP_ARG s_part_cond_qp_arg
 #define PART_COND_QP_WS s_part_cond_qp_ws
@@ -107,7 +107,7 @@
 #define PART_COND_QP_COND s_part_cond_qp_cond
 #define PART_COND_QP_COND_LHS s_part_cond_qp_cond_lhs
 #define PART_COND_QP_COND_RHS s_part_cond_qp_cond_rhs
-#define PART_COND_QP_COND_RES s_part_cond_qp_cond_res
+#define PART_COND_QP_COND_SEED s_part_cond_qp_cond_seed
 #define PART_COND_QP_COND_SOL s_part_cond_qp_cond_sol
 #define PART_COND_QP_EXPAND_SOL s_part_cond_qp_expand_sol
 #define PART_COND_QP_UPDATE s_part_cond_qp_update
