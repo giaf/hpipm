@@ -95,7 +95,7 @@ void s_part_cond_qcqp_cond_rhs(struct s_ocp_qcqp *ocp_qp, struct s_ocp_qcqp *par
 //
 void s_part_cond_qcqp_cond_sol(struct s_ocp_qcqp *ocp_qp, struct s_ocp_qcqp *part_dense_qp, struct s_ocp_qcqp_sol *ocp_qp_sol, struct s_ocp_qcqp_sol *part_dense_qp_sol, struct s_part_cond_qcqp_arg *cond_arg, struct s_part_cond_qcqp_ws *cond_ws);
 //
-void s_part_cond_qcqp_expand_sol(struct s_ocp_qcqp *ocp_qp, struct s_ocp_qcqp *part_dense_qp, struct s_ocp_qcqp_sol *part_dense_qp_sol, struct s_ocp_qcqp_sol *ocp_qp_sol, struct s_part_cond_qcqp_arg *cond_arg, struct s_part_cond_qcqp_ws *cond_ws);
+void s_part_cond_qcqp_expand_sol(struct s_ocp_qcqp *ocp_qp, struct s_ocp_qcqp_sol *part_dense_qp_sol, struct s_ocp_qcqp_sol *ocp_qp_sol, struct s_part_cond_qcqp_arg *cond_arg, struct s_part_cond_qcqp_ws *cond_ws);
 
 
 #ifdef __cplusplus

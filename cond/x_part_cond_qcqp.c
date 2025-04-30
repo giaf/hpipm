@@ -870,7 +870,7 @@ void PART_COND_QCQP_COND_SOL(struct OCP_QCQP *ocp_qp, struct OCP_QCQP *part_dens
 
 
 
-void PART_COND_QCQP_EXPAND_SOL(struct OCP_QCQP *ocp_qp, struct OCP_QCQP *part_dense_qp, struct OCP_QCQP_SOL *part_dense_qp_sol, struct OCP_QCQP_SOL *ocp_qp_sol, struct PART_COND_QCQP_ARG *part_cond_arg, struct PART_COND_QCQP_WS *part_cond_ws)
+void PART_COND_QCQP_EXPAND_SOL(struct OCP_QCQP *ocp_qp, struct OCP_QCQP_SOL *part_dense_qp_sol, struct OCP_QCQP_SOL *ocp_qp_sol, struct PART_COND_QCQP_ARG *part_cond_arg, struct PART_COND_QCQP_WS *part_cond_ws)
 	{
 
 	struct OCP_QP_DIM tmp_ocp_dim;
@@ -892,7 +892,7 @@ void PART_COND_QCQP_EXPAND_SOL(struct OCP_QCQP *ocp_qp, struct OCP_QCQP *part_de
 	int ii, jj, kk;
 
 	int N = ocp_qp->dim->N;
-	int N2 = part_dense_qp->dim->N;
+	int N2 = part_dense_qp_sol->dim->N;
 	int bs; // horizon of current block
 
 	int N_tmp = 0; // temporary sum of horizons

@@ -1222,7 +1222,7 @@ int main()
 * expand solution
 ************************************************/
 
-	d_part_cond_qp_expand_sol(&ocp_qp, &part_dense_qp, &part_dense_qp_sol, &ocp_qp_sol, &part_cond_arg, &part_cond_ws);
+	d_part_cond_qp_expand_sol(&ocp_qp, &part_dense_qp_sol, &ocp_qp_sol, &part_cond_arg, &part_cond_ws);
 
 	double **u = (double **) malloc((N+1)*sizeof(double *));
 	double **x = (double **) malloc((N+1)*sizeof(double *));

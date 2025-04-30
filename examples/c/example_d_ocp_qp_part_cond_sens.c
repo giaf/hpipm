@@ -328,7 +328,7 @@ int main()
 
 	for(rep=0; rep<nrep; rep++)
 		{
-		d_part_cond_qp_expand_sol(&qp, &qp2, &qp_sol2, &qp_sol, &part_cond_arg, &part_cond_ws);
+		d_part_cond_qp_expand_sol(&qp, &qp_sol2, &qp_sol, &part_cond_arg, &part_cond_ws);
 		}
 
 	double time_expa = hpipm_toc(&timer) / nrep;
@@ -493,7 +493,7 @@ int main()
 	d_ocp_qp_ipm_predict(&qp2, &qp_sol2, &arg, &workspace);
 
 	// expand sol
-	d_part_cond_qp_expand_sol(&qp1, &qp2, &qp_sol2, &qp_sol1, &part_cond_arg, &part_cond_ws);
+	d_part_cond_qp_expand_sol(&qp1, &qp_sol2, &qp_sol1, &part_cond_arg, &part_cond_ws);
 
 	// predicted solution
 
@@ -580,7 +580,7 @@ int main()
 	//d_ocp_qp_ipm_sens_adj(&qp2, &seed2, &sens2, &arg, &workspace);
 
 	// expand sens
-	d_part_cond_qp_expand_sol(&qp, &qp2, &sens2, &sens, &part_cond_arg, &part_cond_ws);
+	d_part_cond_qp_expand_sol(&qp, &sens2, &sens, &part_cond_arg, &part_cond_ws);
 
 	// u
 	printf("\nu_sens = \n");

@@ -1071,7 +1071,7 @@ int main()
 
 	for(rep=0; rep<nrep; rep++)
 		{
-		d_part_cond_qcqp_expand_sol(&ocp_qp2, &ocp_qp3, &ocp_qp_sol3, &ocp_qp_sol2, &part_cond_arg, &part_cond_work);
+		d_part_cond_qcqp_expand_sol(&ocp_qp2, &ocp_qp_sol3, &ocp_qp_sol2, &part_cond_arg, &part_cond_work);
 		}
 
 	double time_part_expa = hpipm_toc(&timer) / nrep;

@@ -417,7 +417,7 @@ int main()
 
 	for(rep=0; rep<nrep; rep++)
 		{
-		d_part_cond_qp_expand_sol(&qp3, &qp2, &qp_sol2, &qp_sol3, &part_cond_arg, &part_cond_ws);
+		d_part_cond_qp_expand_sol(&qp3, &qp_sol2, &qp_sol3, &part_cond_arg, &part_cond_ws);
 		}
 
 	double time_expa = hpipm_toc(&timer) / nrep;
@@ -598,7 +598,7 @@ int main()
 	//d_ocp_qp_ipm_sens_adj(&qp2, &seed2, &sens2, &arg, &workspace);
 
 	// expand sens
-	d_part_cond_qp_expand_sol_seed(&qp3, &seed3, &qp2, &sens2, &sens3, &part_cond_arg, &part_cond_ws);
+	d_part_cond_qp_expand_sol_seed(&qp3, &seed3, &sens2, &sens3, &part_cond_arg, &part_cond_ws);
 
 	// restore eq dof sens
 	d_ocp_qp_restore_eq_dof_seed(&qp, &seed, &sens3, &sens, &qp_red_arg, &qp_red_work);

@@ -386,6 +386,9 @@ int main()
 	d_ocp_qcqp_ipm_arg_set_ric_alg(&ric_alg, &arg);
 	d_ocp_qcqp_ipm_arg_set_split_step(&split_step, &arg);
 
+	//double tau_min = 1e-2;
+	//d_ocp_qcqp_ipm_arg_set_tau_min(&tau_min, &arg);
+
 //	double mu0_tmp = 1e0;
 //	d_ocp_qcqp_ipm_arg_set_mu0(&mu0_tmp, &arg);
 
@@ -486,7 +489,7 @@ int main()
 
 	for(rep=0; rep<nrep; rep++)
 		{
-		d_part_cond_qcqp_expand_sol(&qp3, &qp2, &qp_sol2, &qp_sol3, &part_cond_arg, &part_cond_ws);
+		d_part_cond_qcqp_expand_sol(&qp3, &qp_sol2, &qp_sol3, &part_cond_arg, &part_cond_ws);
 		}
 
 	double time_expa = hpipm_toc(&timer) / nrep;
