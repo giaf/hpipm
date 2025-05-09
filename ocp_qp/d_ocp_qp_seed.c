@@ -65,6 +65,7 @@
 
 
 
+#define OCP_QP_SEED_STRSIZE d_ocp_qp_seed_strsize
 #define OCP_QP_SEED_MEMSIZE d_ocp_qp_seed_memsize
 #define OCP_QP_SEED_CREATE d_ocp_qp_seed_create
 #define OCP_QP_SEED_WS_MEMSIZE d_ocp_qp_seed_ws_memsize

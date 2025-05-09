@@ -65,6 +65,8 @@ struct d_ocp_qp_seed
 
 
 //
+hpipm_size_t d_ocp_qp_seed_strsize();
+//
 hpipm_size_t d_ocp_qp_seed_memsize(struct d_ocp_qp_dim *ocp_dim);
 //
 void d_ocp_qp_seed_create(struct d_ocp_qp_dim *ocp_dim, struct d_ocp_qp_seed *seed, void *mem);

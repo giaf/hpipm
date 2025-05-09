@@ -33,30 +33,72 @@
 #                                                                                                 #
 ###################################################################################################
 
-# ocp qp
-from .wrapper.hpipm_ocp_qp import *
-from .wrapper.hpipm_ocp_qp_sol import *
-from .wrapper.hpipm_ocp_qp_seed import *
-from .wrapper.hpipm_ocp_qp_dim import *
-from .wrapper.hpipm_ocp_qp_solver import *
-from .wrapper.hpipm_ocp_qp_solver_arg import *
-from .wrapper.hpipm_ocp_qp_solver2 import *
-from .wrapper.hpipm_ocp_qp_solver_arg2 import *
-# ocp qcqp
-from .wrapper.hpipm_ocp_qcqp import *
-from .wrapper.hpipm_ocp_qcqp_sol import *
-from .wrapper.hpipm_ocp_qcqp_dim import *
-from .wrapper.hpipm_ocp_qcqp_solver import *
-from .wrapper.hpipm_ocp_qcqp_solver_arg import *
-# dense qp
-from .wrapper.hpipm_dense_qp import *
-from .wrapper.hpipm_dense_qp_sol import *
-from .wrapper.hpipm_dense_qp_dim import *
-from .wrapper.hpipm_dense_qp_solver import *
-from .wrapper.hpipm_dense_qp_solver_arg import *
-# dense qcqp
-from .wrapper.hpipm_dense_qcqp import *
-from .wrapper.hpipm_dense_qcqp_sol import *
-from .wrapper.hpipm_dense_qcqp_dim import *
-from .wrapper.hpipm_dense_qcqp_solver import *
-from .wrapper.hpipm_dense_qcqp_solver_arg import *
+from ctypes import *
+import numpy as np
+
+
+
+class hpipm_ocp_qp_seed:
+
+
+	def __init__(self, dim):
+
+		# save dim internally
+		self.dim = dim
+
+		# load hpipm shared library
+		__hpipm   = CDLL('libhpipm.so')
+		self.__hpipm = __hpipm
+
+		# C qp struct
+		qp_seed_struct_size = __hpipm.d_ocp_qp_seed_strsize()
+		qp_seed_struct = cast(create_string_buffer(qp_seed_struct_size), c_void_p)
+		self.qp_seed_struct = qp_seed_struct
+
+		# C qp internal memory
+		qp_seed_mem_size = __hpipm.d_ocp_qp_seed_memsize(dim.dim_struct)
+		qp_seed_mem = cast(create_string_buffer(qp_seed_mem_size), c_void_p)
+		self.qp_seed_mem = qp_seed_mem
+
+		# create C qp
+		__hpipm.d_ocp_qp_seed_create(dim.dim_struct, qp_seed_struct, qp_seed_mem)
+
+
+	def set(self, field, value, idx_start, idx_end=None):
+		# checks on index
+		NN = np.zeros((1,1), dtype=int)
+		tmp_ptr = cast(NN.ctypes.data, POINTER(c_int))
+		self.__hpipm.d_ocp_qp_dim_get_N(self.dim.dim_struct, tmp_ptr)
+		N = NN[0,0]
+		if idx_start<0:
+			raise IndexError('hpipm_ocp_qp_seed.set: wrong idx_start')
+		if field=='pi':
+			if idx_start>N-1:
+				raise IndexError('hpipm_ocp_qp_seed.set: wrong idx_start')
+		else:
+			if idx_start>N:
+				raise IndexError('hpipm_ocp_qp_seed.set: wrong idx_start')
+		if idx_end is None or idx_end<idx_start:
+			idx_end_ = idx_start
+		else:
+			if field=='pi':
+				if idx_end>N-1:
+					raise IndexError('hpipm_ocp_qp_seed.set: wrong idx_end')
+			else:
+				if idx_end>N:
+					raise IndexError('hpipm_ocp_qp_seed.set: wrong idx_end')
+			idx_end_ = idx_end
+		# value
+		value = np.ascontiguousarray(value, dtype=np.float64)
+		tmp = cast(value.ctypes.data, POINTER(c_double))
+		field_enc = field.encode('utf-8')
+		if idx_end is None:
+			idx_end = idx_start
+		for i in range(idx_start, idx_end+1):
+			self.__hpipm.d_ocp_qp_seed_set(c_char_p(field_enc), i, tmp, self.qp_seed_struct)
+		return
+
+
+	def print_C_struct(self):
+		self.__hpipm.d_ocp_qp_seed_print(self.dim.dim_struct, self.qp_seed_struct)
+		return

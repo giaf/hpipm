@@ -35,6 +35,13 @@
 
 
 
+hpipm_size_t OCP_QP_SEED_STRSIZE()
+	{
+	return sizeof(struct OCP_QP_SEED);
+	}
+
+
+
 hpipm_size_t OCP_QP_SEED_MEMSIZE(struct OCP_QP_DIM *dim)
 	{
 
