@@ -65,7 +65,7 @@ hpipm_size_t OCP_QP_SEED_MEMSIZE(struct OCP_QP_DIM *dim)
 	hpipm_size_t size = 0;
 
 	size += 3*(N+1)*sizeof(struct STRVEC); // seed_g seed_d seed_m
-	size += 3*N*sizeof(struct STRVEC); // seed_b
+	size += 1*N*sizeof(struct STRVEC); // seed_b
 
 	size += 1*SIZE_STRVEC(nvt); // seed_g
 	size += 1*SIZE_STRVEC(net); // seed_b

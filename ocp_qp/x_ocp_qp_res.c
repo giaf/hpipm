@@ -65,7 +65,7 @@ hpipm_size_t OCP_QP_RES_MEMSIZE(struct OCP_QP_DIM *dim)
 	hpipm_size_t size = 0;
 
 	size += 3*(N+1)*sizeof(struct STRVEC); // res_g res_d res_m
-	size += 3*N*sizeof(struct STRVEC); // res_b
+	size += 1*N*sizeof(struct STRVEC); // res_b
 
 	size += 1*SIZE_STRVEC(nvt); // res_g
 	size += 1*SIZE_STRVEC(net); // res_b
