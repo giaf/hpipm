@@ -34,7 +34,6 @@
 ###################################################################################################
 
 from ctypes import *
-import ctypes.util 
 import numpy as np
 
 
@@ -80,12 +79,12 @@ class hpipm_ocp_qp:
 		else:
 			value_cm = np.ascontiguousarray(value_cm, dtype=np.float64)
 			tmp = cast(value_cm.ctypes.data, POINTER(c_double))
-		field_name_b = field.encode('utf-8')
+		field_enc = field.encode('utf-8')
 		if idx_end==None:
-			self.__hpipm.d_ocp_qp_set(c_char_p(field_name_b), idx_start, tmp, self.qp_struct)
+			self.__hpipm.d_ocp_qp_set(c_char_p(field_enc), idx_start, tmp, self.qp_struct)
 		else:
 			for i in range(idx_start, idx_end+1):
-				self.__hpipm.d_ocp_qp_set(c_char_p(field_name_b), i, tmp, self.qp_struct)
+				self.__hpipm.d_ocp_qp_set(c_char_p(field_enc), i, tmp, self.qp_struct)
 		return
 
 

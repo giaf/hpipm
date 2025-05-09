@@ -34,7 +34,6 @@
 ###################################################################################################
 
 from ctypes import *
-import ctypes.util
 import numpy as np
 
 
@@ -81,54 +80,135 @@ class hpipm_ocp_qp_sol:
 			'su': {
 				'n_var': __hpipm.d_ocp_qp_dim_get_ns,
 				'var': __hpipm.d_ocp_qp_sol_get_su
+			},
+			'pi': {
+				'n_var': __hpipm.d_ocp_qp_dim_get_nx,
+				'var': __hpipm.d_ocp_qp_sol_get_pi
+			},
+			'lam_lbu': {
+				'n_var': __hpipm.d_ocp_qp_dim_get_nbu,
+				'var': __hpipm.d_ocp_qp_sol_get_lam_lbu
+			},
+			'lam_ubu': {
+				'n_var': __hpipm.d_ocp_qp_dim_get_nbu,
+				'var': __hpipm.d_ocp_qp_sol_get_lam_ubu
+			},
+			'lam_lbx': {
+				'n_var': __hpipm.d_ocp_qp_dim_get_nbx,
+				'var': __hpipm.d_ocp_qp_sol_get_lam_lbx
+			},
+			'lam_ubx': {
+				'n_var': __hpipm.d_ocp_qp_dim_get_nbx,
+				'var': __hpipm.d_ocp_qp_sol_get_lam_ubx
+			},
+			'lam_lg': {
+				'n_var': __hpipm.d_ocp_qp_dim_get_ng,
+				'var': __hpipm.d_ocp_qp_sol_get_lam_lg
+			},
+			'lam_ug': {
+				'n_var': __hpipm.d_ocp_qp_dim_get_ng,
+				'var': __hpipm.d_ocp_qp_sol_get_lam_ug
+			},
+			'lam_ls': {
+				'n_var': __hpipm.d_ocp_qp_dim_get_ns,
+				'var': __hpipm.d_ocp_qp_sol_get_lam_ls
+			},
+			'lam_us': {
+				'n_var': __hpipm.d_ocp_qp_dim_get_ns,
+				'var': __hpipm.d_ocp_qp_sol_get_lam_us
 			}
 		}
 
+
 	def get(self, field, idx_start, idx_end=None):
+		'''
+		Getter for value of `field` at stage `idx_start` or at stages `idx_start` to `idx_end`.
+		Returns a single np.ndarray if only `idx_start` is given.
+		Returns a list of np.ndarray if also `idx_end` is given.
+		'''
 		if field not in self.__getters:
 			raise NameError('hpipm_ocp_qp_sol.get: wrong field')
 		else:
-			return self.__get(self.__getters[field], idx_start, idx_end)
+			return self.__get(self.__getters[field], field, idx_start, idx_end)
 
-	def __get(self, getter, idx_start, idx_end=None):
+
+	def __get(self, getter, field, idx_start, idx_end=None):
+		# checks on index
+		NN = np.zeros((1,1), dtype=int)
+		tmp_ptr = cast(NN.ctypes.data, POINTER(c_int))
+		self.__hpipm.d_ocp_qp_dim_get_N(self.dim.dim_struct, tmp_ptr)
+		N = NN[0,0]
+		if idx_start<0:
+			raise IndexError('hpipm_ocp_qp_sol.get: wrong idx_start')
+		if field=='pi':
+			if idx_start>N-1:
+				raise IndexError('hpipm_ocp_qp_sol.get: wrong idx_start')
+		else:
+			if idx_start>N:
+				raise IndexError('hpipm_ocp_qp_sol.get: wrong idx_start')
+		if idx_end is None or idx_end<idx_start:
+			idx_end_ = idx_start
+		else:
+			if field=='pi':
+				if idx_end>N-1:
+					raise IndexError('hpipm_ocp_qp_sol.get: wrong idx_end')
+			else:
+				if idx_end>N:
+					raise IndexError('hpipm_ocp_qp_sol.get: wrong idx_end')
+			idx_end_ = idx_end
 		# number of variables
 		n_var = np.zeros((1,1), dtype=int)
-
-		if idx_end is None:
-			idx_end = idx_start
-
 		var = []
-		for i in range(idx_start, idx_end + 1):
+		for i in range(idx_start, idx_end_+1):
 			# get number of variables at stage
 			tmp_ptr = cast(n_var.ctypes.data, POINTER(c_int))
-			getter['n_var'](self.dim.dim_struct, i, tmp_ptr)
-
+			if field=='pi':
+				getter['n_var'](self.dim.dim_struct, i+1, tmp_ptr)
+			else:
+				getter['n_var'](self.dim.dim_struct, i, tmp_ptr)
 			var.append(np.zeros((n_var[0,0], 1)))
 			tmp_ptr = cast(var[-1].ctypes.data, POINTER(c_double))
 			getter['var'](i, self.qp_sol_struct, tmp_ptr)
-
-		return var if len(var) > 1 else var[0]
-
-	def set(self, field, stage, value):
-		if((field=='x')):
-			value = np.ascontiguousarray(value, dtype=np.float64)
-			tmp = cast(value.ctypes.data, POINTER(c_double))
-			self.__hpipm.d_ocp_qp_sol_set_x(stage, tmp, self.qp_sol_struct)
-		elif((field=='u')):
-			value = np.ascontiguousarray(value, dtype=np.float64)
-			tmp = cast(value.ctypes.data, POINTER(c_double))
-			self.__hpipm.d_ocp_qp_sol_set_u(stage, tmp, self.qp_sol_struct)
-		elif((field=='sl')):
-			value = np.ascontiguousarray(value, dtype=np.float64)
-			tmp = cast(value.ctypes.data, POINTER(c_double))
-			self.__hpipm.d_ocp_qp_sol_set_sl(stage, tmp, self.qp_sol_struct)
-		elif((field=='su')):
-			value = np.ascontiguousarray(value, dtype=np.float64)
-			tmp = cast(value.ctypes.data, POINTER(c_double))
-			self.__hpipm.d_ocp_qp_sol_set_su(stage, tmp, self.qp_sol_struct)
+		if idx_end==None:
+			return var[0]
 		else:
-			raise NameError('hpipm_ocp_qp_sol.set: wrong field')
+			return var
+
+
+	def set(self, field, value, idx_start, idx_end=None):
+		# checks on index
+		NN = np.zeros((1,1), dtype=int)
+		tmp_ptr = cast(NN.ctypes.data, POINTER(c_int))
+		self.__hpipm.d_ocp_qp_dim_get_N(self.dim.dim_struct, tmp_ptr)
+		N = NN[0,0]
+		if idx_start<0:
+			raise IndexError('hpipm_ocp_qp_sol.set: wrong idx_start')
+		if field=='pi':
+			if idx_start>N-1:
+				raise IndexError('hpipm_ocp_qp_sol.set: wrong idx_start')
+		else:
+			if idx_start>N:
+				raise IndexError('hpipm_ocp_qp_sol.set: wrong idx_start')
+		if idx_end is None or idx_end<idx_start:
+			idx_end_ = idx_start
+		else:
+			if field=='pi':
+				if idx_end>N-1:
+					raise IndexError('hpipm_ocp_qp_sol.set: wrong idx_end')
+			else:
+				if idx_end>N:
+					raise IndexError('hpipm_ocp_qp_sol.set: wrong idx_end')
+			idx_end_ = idx_end
+		# value
+		value = np.ascontiguousarray(value, dtype=np.float64)
+		tmp = cast(value.ctypes.data, POINTER(c_double))
+		field_enc = field.encode('utf-8')
+		if idx_end is None:
+			idx_end = idx_start
+		for i in range(idx_start, idx_end+1):
+			self.__hpipm.d_ocp_qp_sol_set(c_char_p(field_enc), i, tmp, self.qp_sol_struct)
 		return
+
 
 	def print_C_struct(self):
 		self.__hpipm.d_ocp_qp_sol_print(self.dim.dim_struct, self.qp_sol_struct)

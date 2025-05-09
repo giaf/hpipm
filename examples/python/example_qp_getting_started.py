@@ -215,7 +215,6 @@ if(travis_run!='true'):
 # extract and print sol
 if(travis_run!='true'):
 	print('u =')
-#u = qp_sol.get_u()
 u = qp_sol.get('u', 0, N)
 for i in range(N+1):
 	if(travis_run!='true'):
@@ -225,6 +224,27 @@ if(travis_run!='true'):
 	print('x =')
 for i in range(N+1):
 	tmp = qp_sol.get('x', i)
+	if(travis_run!='true'):
+		print(tmp)
+
+if(travis_run!='true'):
+	print('pi =')
+for i in range(N):
+	tmp = qp_sol.get('pi', i)
+	if(travis_run!='true'):
+		print(tmp)
+
+if(travis_run!='true'):
+	print('lam_lbx =')
+for i in range(N+1):
+	tmp = qp_sol.get('lam_lbx', i)
+	if(travis_run!='true'):
+		print(tmp)
+
+if(travis_run!='true'):
+	print('lam_ubx =')
+for i in range(N+1):
+	tmp = qp_sol.get('lam_ubx', i)
 	if(travis_run!='true'):
 		print(tmp)
 
