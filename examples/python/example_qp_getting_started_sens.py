@@ -55,7 +55,7 @@ travis_run = os.getenv('TRAVIS_RUN')
 
 # define flags
 codegen_data = 0 # export qp data in the file ocp_qp_data.c for use from C examples
-reduce_eq_dof = 0 # eliminates e.g. equality constraint on x0
+reduce_eq_dof = 1 # eliminates e.g. equality constraint on x0
 warm_start = 0 # set to 1 to warm-start the primal variable
 
 if reduce_eq_dof:

@@ -48,6 +48,7 @@
 #include <hpipm_d_ocp_qp_sol.h>
 #include <hpipm_d_ocp_qp_ipm.h>
 #include <hpipm_d_ocp_qp_red.h>
+#include <hpipm_d_ocp_qp_seed.h>
 
 
 
@@ -79,6 +80,8 @@ struct d_ocp_qp_solver_ws
 	struct d_ocp_qp_reduce_eq_dof_ws *red_ws;
 	struct d_ocp_qp *red_qp;
 	struct d_ocp_qp_sol *red_sol;
+	struct d_ocp_qp_sol *red_sens;
+	struct d_ocp_qp_seed *red_seed;
 	hpipm_size_t memsize;
 	};
 
@@ -143,7 +146,8 @@ void d_ocp_qp_solver_get_stat(struct d_ocp_qp_solver_ws *ws, double **value);
 void d_ocp_qp_solver_get_reduce_eq_dof(struct d_ocp_qp_solver_ws *ws, int *value);
 //
 void d_ocp_qp_solver_solve(struct d_ocp_qp *qp, struct d_ocp_qp_sol *qp_sol, struct d_ocp_qp_solver_ws *ws); // XXX no arg
-
+//
+void d_ocp_qp_solver_sens_frw(struct d_ocp_qp *qp, struct d_ocp_qp_seed *qp_seed, struct d_ocp_qp_sol *qp_sens, struct d_ocp_qp_solver_ws *ws);
 
 
 #ifdef __cplusplus

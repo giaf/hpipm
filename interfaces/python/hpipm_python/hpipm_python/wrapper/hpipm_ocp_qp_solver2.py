@@ -103,6 +103,9 @@ class hpipm_ocp_qp_solver2:
 	def solve(self, qp, qp_sol):
 		self.__hpipm.d_ocp_qp_solver_solve(qp.qp_struct, qp_sol.qp_sol_struct, self.ipm_ws_struct)
 
+	def sens_frw(self, qp, qp_seed, qp_sens):
+		self.__hpipm.d_ocp_qp_solver_sens_frw(qp.qp_struct, qp_seed.qp_seed_struct, qp_sens.qp_sol_struct, self.ipm_ws_struct)
+
 	#def get_feedback(self, qp, field, idx_start, idx_end=None):
 	#	if field not in self.__getters:
 	#		raise NameError('hpipm_ocp_qp_solver.get: wrong field')

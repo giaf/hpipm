@@ -212,8 +212,11 @@ hpipm_size_t OCP_QP_SOLVER_WS_MEMSIZE(struct OCP_QP_DIM *ocp_dim, struct OCP_QP_
 		size += sizeof(struct OCP_QP);
 		size += 1*OCP_QP_MEMSIZE(arg->red_dim);
 
-		size += sizeof(struct OCP_QP_SOL);
-		size += 1*OCP_QP_SOL_MEMSIZE(arg->red_dim);
+		size += 2*sizeof(struct OCP_QP_SOL);
+		size += 2*OCP_QP_SOL_MEMSIZE(arg->red_dim);
+
+		size += sizeof(struct OCP_QP_SEED);
+		size += 1*OCP_QP_SEED_MEMSIZE(arg->red_dim);
 		}
 
 	size += 1*64; // align once to typical cache line size
@@ -260,6 +263,13 @@ void OCP_QP_SOLVER_WS_CREATE(struct OCP_QP_DIM *ocp_dim, struct OCP_QP_SOLVER_AR
 		struct OCP_QP_SOL *sol_ptr = (struct OCP_QP_SOL *) qp_ptr;
 		ws->red_sol = sol_ptr;
 		sol_ptr += 1;
+		ws->red_sens = sol_ptr;
+		sol_ptr += 1;
+
+		// seed struct
+		struct OCP_QP_SEED *seed_ptr = (struct OCP_QP_SEED *) sol_ptr;
+		ws->red_seed = seed_ptr;
+		seed_ptr += 1;
 
 		s_ptr = (hpipm_size_t) sol_ptr;
 		}
@@ -300,6 +310,12 @@ void OCP_QP_SOLVER_WS_CREATE(struct OCP_QP_DIM *ocp_dim, struct OCP_QP_SOLVER_AR
 
 		OCP_QP_SOL_CREATE(arg->red_dim, ws->red_sol, c_ptr);
 		c_ptr += ws->red_sol->memsize;
+
+		OCP_QP_SOL_CREATE(arg->red_dim, ws->red_sens, c_ptr);
+		c_ptr += ws->red_sens->memsize;
+
+		OCP_QP_SEED_CREATE(arg->red_dim, ws->red_seed, c_ptr);
+		c_ptr += ws->red_seed->memsize;
 		}
 
 	ws->memsize = memsize;
@@ -522,6 +538,23 @@ void OCP_QP_SOLVER_SOLVE(struct OCP_QP *qp, struct OCP_QP_SOL *qp_sol, struct OC
 	else
 		{
 		OCP_QP_IPM_SOLVE(qp, qp_sol, ws->arg->ipm_arg, ws->ipm_ws);
+		}
+	return;
+	}
+
+
+// XXX no arg
+void OCP_QP_SOLVER_SENS_FRW(struct OCP_QP *qp, struct OCP_QP_SEED *qp_seed, struct OCP_QP_SOL *qp_sens, struct OCP_QP_SOLVER_WS *ws)
+	{
+	if(ws->arg->reduce_eq_dof)
+		{
+		OCP_QP_REDUCE_EQ_DOF_SEED(qp, qp_seed, ws->red_seed, ws->arg->red_arg, ws->red_ws); // red_seed
+		OCP_QP_IPM_SENS_FRW(ws->red_qp, ws->red_seed, ws->red_sens, ws->arg->ipm_arg, ws->ipm_ws); // red_sens
+		OCP_QP_RESTORE_EQ_DOF_SEED(qp, qp_seed, ws->red_sens, qp_sens, ws->arg->red_arg, ws->red_ws);
+		}
+	else
+		{
+		OCP_QP_IPM_SENS_FRW(qp, qp_seed, qp_sens, ws->arg->ipm_arg, ws->ipm_ws);
 		}
 	return;
 	}

@@ -42,8 +42,10 @@
 #endif
 
 #include <hpipm_d_ocp_qp_dim.h>
+#include <hpipm_d_ocp_qp.h>
 #include <hpipm_d_ocp_qp_ipm.h>
 #include <hpipm_d_ocp_qp_red.h>
+#include <hpipm_d_ocp_qp_seed.h>
 #include <hpipm_d_ocp_qp_solver.h>
 #include <hpipm_aux_string.h>
 #include <hpipm_aux_mem.h>
@@ -78,6 +80,7 @@
 #define OCP_QP_IPM_GET_STATUS d_ocp_qp_ipm_get_status
 #define OCP_QP_IPM_GET_STAT_M d_ocp_qp_ipm_get_stat_m
 #define OCP_QP_IPM_GET_STAT d_ocp_qp_ipm_get_stat
+#define OCP_QP_IPM_SENS_FRW d_ocp_qp_ipm_sens_frw
 #define OCP_QP_IPM_SOLVE d_ocp_qp_ipm_solve
 #define OCP_QP_IPM_WS d_ocp_qp_ipm_ws
 #define OCP_QP_IPM_WS_CREATE d_ocp_qp_ipm_ws_create
@@ -90,10 +93,15 @@
 #define OCP_QP_REDUCE_EQ_DOF_ARG_MEMSIZE d_ocp_qp_reduce_eq_dof_arg_memsize
 #define OCP_QP_REDUCE_EQ_DOF_ARG_SET_ALIAS_UNCHANGED d_ocp_qp_reduce_eq_dof_arg_set_alias_unchanged
 #define OCP_QP_REDUCE_EQ_DOF_ARG_SET_DEFAULT d_ocp_qp_reduce_eq_dof_arg_set_default
+#define OCP_QP_REDUCE_EQ_DOF_SEED d_ocp_qp_reduce_eq_dof_seed
 #define OCP_QP_REDUCE_EQ_DOF_WS d_ocp_qp_reduce_eq_dof_ws
 #define OCP_QP_REDUCE_EQ_DOF_WS_CREATE d_ocp_qp_reduce_eq_dof_ws_create
 #define OCP_QP_REDUCE_EQ_DOF_WS_MEMSIZE d_ocp_qp_reduce_eq_dof_ws_memsize
 #define OCP_QP_RESTORE_EQ_DOF d_ocp_qp_restore_eq_dof
+#define OCP_QP_RESTORE_EQ_DOF_SEED d_ocp_qp_restore_eq_dof_seed
+#define OCP_QP_SEED d_ocp_qp_seed
+#define OCP_QP_SEED_CREATE d_ocp_qp_seed_create
+#define OCP_QP_SEED_MEMSIZE d_ocp_qp_seed_memsize
 #define OCP_QP_SOL d_ocp_qp_sol
 #define OCP_QP_SOL_CREATE d_ocp_qp_sol_create
 #define OCP_QP_SOL_MEMSIZE d_ocp_qp_sol_memsize
@@ -134,6 +142,7 @@
 #define OCP_QP_SOLVER_GET_STAT d_ocp_qp_solver_get_stat
 #define OCP_QP_SOLVER_GET_REDUCE_EQ_DOF d_ocp_qp_solver_get_reduce_eq_dof
 #define OCP_QP_SOLVER_SOLVE d_ocp_qp_solver_solve
+#define OCP_QP_SOLVER_SENS_FRW d_ocp_qp_solver_sens_frw
 
 
 
