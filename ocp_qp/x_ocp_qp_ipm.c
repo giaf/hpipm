@@ -719,6 +719,7 @@ hpipm_size_t OCP_QP_IPM_WS_MEMSIZE(struct OCP_QP_DIM *dim, struct OCP_QP_IPM_ARG
 	size += 1*MEMSIZE_CORE_QP_IPM(nvt, net, nct);
 
 	size += 1*sizeof(struct OCP_QP_RES_WS); // res_workspace
+	size += 1*OCP_QP_RES_WS_MEMSIZE(dim); // res_workspace
 
 	size += 2*sizeof(struct OCP_QP); // qp_step qp_itref
 
@@ -730,7 +731,7 @@ hpipm_size_t OCP_QP_IPM_WS_MEMSIZE(struct OCP_QP_DIM *dim, struct OCP_QP_IPM_ARG
 
 	size += 10*(N+1)*sizeof(struct STRVEC); // res_g res_d res_m Gamma gamma Zs_inv sol_step(v,lam,t)  tmp_m
 	size += 3*N*sizeof(struct STRVEC); // res_b Pb sol_step(pi)
-	size += 9*sizeof(struct STRVEC); // tmp_nuxM (4+2)*tmp_nbgM (1+1)*tmp_nsM
+	size += 5*sizeof(struct STRVEC); // tmp_nuxM 4*tmp_nbgM
 	size += 1*(N+1)*sizeof(struct STRVEC); // l
 
 	size += 1*(N+1)*sizeof(struct STRMAT); // L
@@ -751,7 +752,6 @@ hpipm_size_t OCP_QP_IPM_WS_MEMSIZE(struct OCP_QP_DIM *dim, struct OCP_QP_IPM_ARG
 
 	size += 1*SIZE_STRVEC(nuM+nxM); // tmp_nuxM
 	size += 4*SIZE_STRVEC(nbM+ngM); // tmp_nbgM
-	size += 1*SIZE_STRVEC(nsM); // tmp_nsM
 	for(ii=0; ii<N; ii++) size += 1*SIZE_STRVEC(nx[ii+1]); // Pb
 	for(ii=0; ii<=N; ii++) size += 1*SIZE_STRVEC(2*ns[ii]); // Zs_inv
 	for(ii=0; ii<=N; ii++) size += 1*SIZE_STRVEC(nu[ii]+nx[ii]); // l
@@ -944,12 +944,6 @@ void OCP_QP_IPM_WS_CREATE(struct OCP_QP_DIM *dim, struct OCP_QP_IPM_ARG *arg, st
 	sv_ptr += 1;
 	workspace->tmp_nbgM = sv_ptr;
 	sv_ptr += 4;
-	workspace->res_workspace->tmp_nbgM = sv_ptr;
-	sv_ptr += 2;
-	workspace->tmp_nsM = sv_ptr;
-	sv_ptr += 1;
-	workspace->res_workspace->tmp_nsM = sv_ptr;
-	sv_ptr += 1;
 	workspace->tmp_m = sv_ptr;
 	sv_ptr += N+1;
 
@@ -987,6 +981,9 @@ void OCP_QP_IPM_WS_CREATE(struct OCP_QP_DIM *dim, struct OCP_QP_IPM_ARG *arg, st
 
 	OCP_QP_RES_CREATE(dim, workspace->res_itref, c_ptr);
 	c_ptr += workspace->res_itref->memsize;
+
+	OCP_QP_RES_WS_CREATE(dim, workspace->res_workspace, c_ptr);
+	c_ptr += workspace->res_workspace->memsize;
 
 	for(ii=0; ii<=N; ii++)
 		{
@@ -1051,11 +1048,9 @@ void OCP_QP_IPM_WS_CREATE(struct OCP_QP_DIM *dim, struct OCP_QP_IPM_ARG *arg, st
 	c_ptr += workspace->tmp_nuxM->memsize;
 
 	CREATE_STRVEC(nbM+ngM, workspace->tmp_nbgM+0, c_ptr);
-	CREATE_STRVEC(nbM+ngM, workspace->res_workspace->tmp_nbgM+0, c_ptr);
 	c_ptr += (workspace->tmp_nbgM+0)->memsize;
 
 	CREATE_STRVEC(nbM+ngM, workspace->tmp_nbgM+1, c_ptr);
-	CREATE_STRVEC(nbM+ngM, workspace->res_workspace->tmp_nbgM+1, c_ptr);
 	c_ptr += (workspace->tmp_nbgM+1)->memsize;
 
 	CREATE_STRVEC(nbM+ngM, workspace->tmp_nbgM+2, c_ptr);
@@ -1063,10 +1058,6 @@ void OCP_QP_IPM_WS_CREATE(struct OCP_QP_DIM *dim, struct OCP_QP_IPM_ARG *arg, st
 
 	CREATE_STRVEC(nbM+ngM, workspace->tmp_nbgM+3, c_ptr);
 	c_ptr += (workspace->tmp_nbgM+3)->memsize;
-
-	CREATE_STRVEC(nsM, workspace->tmp_nsM+0, c_ptr);
-	CREATE_STRVEC(nsM, workspace->res_workspace->tmp_nsM+0, c_ptr);
-	c_ptr += (workspace->tmp_nsM+0)->memsize;
 
 	for(ii=0; ii<=N; ii++)
 		{
@@ -2671,6 +2662,7 @@ void OCP_QP_IPM_SOLVE(struct OCP_QP *qp, struct OCP_QP_SOL *qp_sol, struct OCP_Q
 	ws->qp_step->Z = qp->Z;
 	ws->qp_step->idxb = qp->idxb;
 	ws->qp_step->idxs_rev = qp->idxs_rev;
+	ws->qp_step->d_mask = qp->d_mask;
 	ws->qp_step->rqz = ws->res->res_g;
 	ws->qp_step->b = ws->res->res_b;
 	ws->qp_step->d = ws->res->res_d;
@@ -2684,6 +2676,7 @@ void OCP_QP_IPM_SOLVE(struct OCP_QP *qp, struct OCP_QP_SOL *qp_sol, struct OCP_Q
 	ws->qp_itref->Z = qp->Z;
 	ws->qp_itref->idxb = qp->idxb;
 	ws->qp_itref->idxs_rev = qp->idxs_rev;
+	ws->qp_step->d_mask = qp->d_mask;
 	ws->qp_itref->rqz = ws->res_itref->res_g;
 	ws->qp_itref->b = ws->res_itref->res_b;
 	ws->qp_itref->d = ws->res_itref->res_d;
@@ -2715,23 +2708,28 @@ void OCP_QP_IPM_SOLVE(struct OCP_QP *qp, struct OCP_QP_SOL *qp_sol, struct OCP_Q
 	if(nc_mask<cws->nc)
 		{
 		ws->mask_constr = 1;
+		ws->res_workspace->mask_constr = 1;
 		}
 	else
 		{
 		ws->mask_constr = 0;
+		ws->res_workspace->mask_constr = 0;
 		}
 	if(nc_mask==0)
 		{
 		mask_unconstr = 1;
 		cws->nc_mask = 0;
 		cws->nc_mask_inv = 0.0;
+		ws->res_workspace->nc_mask_inv = 0.0;
 		}
 	else
 		{
 		mask_unconstr = 0;
 		cws->nc_mask = nc_mask;
 		cws->nc_mask_inv = 1.0/nc_mask;
+		ws->res_workspace->nc_mask_inv = 1.0/nc_mask;
 		}
+	ws->res_workspace->valid_nc_mask = 1; // set to avoid mask_constr and nc_mask_inv recomputation in res
 
 
 	// no constraints
@@ -2745,7 +2743,7 @@ void OCP_QP_IPM_SOLVE(struct OCP_QP *qp, struct OCP_QP_SOL *qp_sol, struct OCP_Q
 			OCP_QP_RES_COMPUTE(qp, qp_sol, ws->res, ws->res_workspace);
 			// XXX no constraints, so no mask
 			OCP_QP_RES_COMPUTE_INF_NORM(ws->res);
-			ws->res->res_mu = ws->res->res_mu_sum * cws->nc_mask_inv;
+			//ws->res->res_mu = ws->res->res_mu_sum * cws->nc_mask_inv;
 			cws->mu = ws->res->res_mu;
 			if(0<ws->stat_max)
 				{
@@ -2851,14 +2849,14 @@ void OCP_QP_IPM_SOLVE(struct OCP_QP *qp, struct OCP_QP_SOL *qp_sol, struct OCP_Q
 			{
 			// compute residuals
 			OCP_QP_RES_COMPUTE(qp, qp_sol, ws->res, ws->res_workspace);
-			if(ws->mask_constr)
-				{
-				// mask out disregarded constraints
-				for(ii=0; ii<=N; ii++)
-					VECMUL(2*ns[ii], qp->d_mask+ii, 2*nb[ii]+2*ng[ii], ws->res->res_g+ii, nu[ii]+nx[ii], ws->res->res_g+ii, nu[ii]+nx[ii]);
-				VECMUL(cws->nc, qp->d_mask, 0, ws->res->res_d, 0, ws->res->res_d, 0);
-				VECMUL(cws->nc, qp->d_mask, 0, ws->res->res_m, 0, ws->res->res_m, 0);
-				}
+			//if(ws->mask_constr)
+			//	{
+			//	// mask out disregarded constraints
+			//	for(ii=0; ii<=N; ii++)
+			//		VECMUL(2*ns[ii], qp->d_mask+ii, 2*nb[ii]+2*ng[ii], ws->res->res_g+ii, nu[ii]+nx[ii], ws->res->res_g+ii, nu[ii]+nx[ii]);
+			//	VECMUL(cws->nc, qp->d_mask, 0, ws->res->res_d, 0, ws->res->res_d, 0);
+			//	VECMUL(cws->nc, qp->d_mask, 0, ws->res->res_m, 0, ws->res->res_m, 0);
+			//	}
 			OCP_QP_RES_COMPUTE_INF_NORM(ws->res);
 			// save infinity norm of residuals
 			// XXX it is already kk+1
@@ -2881,15 +2879,15 @@ void OCP_QP_IPM_SOLVE(struct OCP_QP *qp, struct OCP_QP_SOL *qp_sol, struct OCP_Q
 
 	// compute residuals
 	OCP_QP_RES_COMPUTE(qp, qp_sol, ws->res, ws->res_workspace);
-	if(ws->mask_constr)
-		{
-		// mask out disregarded constraints
-		for(ii=0; ii<=N; ii++)
-			VECMUL(2*ns[ii], qp->d_mask+ii, 2*nb[ii]+2*ng[ii], ws->res->res_g+ii, nu[ii]+nx[ii], ws->res->res_g+ii, nu[ii]+nx[ii]);
-		VECMUL(cws->nc, qp->d_mask, 0, ws->res->res_d, 0, ws->res->res_d, 0);
-		VECMUL(cws->nc, qp->d_mask, 0, ws->res->res_m, 0, ws->res->res_m, 0);
-		}
-	ws->res->res_mu = ws->res->res_mu_sum * cws->nc_mask_inv;
+	//if(ws->mask_constr)
+	//	{
+	//	// mask out disregarded constraints
+	//	for(ii=0; ii<=N; ii++)
+	//		VECMUL(2*ns[ii], qp->d_mask+ii, 2*nb[ii]+2*ng[ii], ws->res->res_g+ii, nu[ii]+nx[ii], ws->res->res_g+ii, nu[ii]+nx[ii]);
+	//	VECMUL(cws->nc, qp->d_mask, 0, ws->res->res_d, 0, ws->res->res_d, 0);
+	//	VECMUL(cws->nc, qp->d_mask, 0, ws->res->res_m, 0, ws->res->res_m, 0);
+	//	}
+	//ws->res->res_mu = ws->res->res_mu_sum * cws->nc_mask_inv;
 	cws->mu = ws->res->res_mu;
 	OCP_QP_RES_COMPUTE_INF_NORM(ws->res);
 	// save infinity norm of residuals
@@ -2930,15 +2928,15 @@ void OCP_QP_IPM_SOLVE(struct OCP_QP *qp, struct OCP_QP_SOL *qp_sol, struct OCP_Q
 
 		// compute residuals
 		OCP_QP_RES_COMPUTE(qp, qp_sol, ws->res, ws->res_workspace);
-		if(ws->mask_constr)
-			{
-			// mask out disregarded constraints
-			for(ii=0; ii<=N; ii++)
-				VECMUL(2*ns[ii], qp->d_mask+ii, 2*nb[ii]+2*ng[ii], ws->res->res_g+ii, nu[ii]+nx[ii], ws->res->res_g+ii, nu[ii]+nx[ii]);
-			VECMUL(cws->nc, qp->d_mask, 0, ws->res->res_d, 0, ws->res->res_d, 0);
-			VECMUL(cws->nc, qp->d_mask, 0, ws->res->res_m, 0, ws->res->res_m, 0);
-			}
-		ws->res->res_mu = ws->res->res_mu_sum * cws->nc_mask_inv;
+		//if(ws->mask_constr)
+		//	{
+		//	// mask out disregarded constraints
+		//	for(ii=0; ii<=N; ii++)
+		//		VECMUL(2*ns[ii], qp->d_mask+ii, 2*nb[ii]+2*ng[ii], ws->res->res_g+ii, nu[ii]+nx[ii], ws->res->res_g+ii, nu[ii]+nx[ii]);
+		//	VECMUL(cws->nc, qp->d_mask, 0, ws->res->res_d, 0, ws->res->res_d, 0);
+		//	VECMUL(cws->nc, qp->d_mask, 0, ws->res->res_m, 0, ws->res->res_m, 0);
+		//	}
+		//ws->res->res_mu = ws->res->res_mu_sum * cws->nc_mask_inv;
 		cws->mu = ws->res->res_mu;
 		OCP_QP_RES_COMPUTE_INF_NORM(ws->res);
 		// save infinity norm of residuals
@@ -2968,6 +2966,9 @@ set_status:
 		// backup initial guess in core, for use in case it is already optimal
 		BACKUP_VAR_QP(cws);
 		}
+
+	// reset to guard against changes in d_mask
+	ws->res_workspace->valid_nc_mask = 0;
 
 	// save info before return
 	ws->iter = kk;

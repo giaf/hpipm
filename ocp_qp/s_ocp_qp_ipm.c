@@ -101,6 +101,8 @@
 #define OCP_QP_RES_COMPUTE_LIN s_ocp_qp_res_compute_lin
 #define OCP_QP_RES_CREATE s_ocp_qp_res_create
 #define OCP_QP_RES_MEMSIZE s_ocp_qp_res_memsize
+#define OCP_QP_RES_WS_CREATE s_ocp_qp_res_ws_create
+#define OCP_QP_RES_WS_MEMSIZE s_ocp_qp_res_ws_memsize
 #define OCP_QP_RES_WS s_ocp_qp_res_ws
 #define OCP_QP_SEED s_ocp_qp_seed
 #define OCP_QP_SEED_PRINT s_ocp_qp_seed_print

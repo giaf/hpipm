@@ -111,7 +111,6 @@ struct d_ocp_qp_ipm_ws
 	struct blasfeo_dvec *gamma; // hessian update
 	struct blasfeo_dvec *tmp_nuxM; // work space of size nxM
 	struct blasfeo_dvec *tmp_nbgM; // work space of size nbM+ngM
-	struct blasfeo_dvec *tmp_nsM; // work space of size nsM
 	struct blasfeo_dvec *Pb; // Pb
 	struct blasfeo_dvec *Zs_inv;
 	struct blasfeo_dvec *tmp_m;

@@ -110,7 +110,6 @@ struct s_ocp_qp_ipm_ws
 	struct blasfeo_svec *gamma; // hessian update
 	struct blasfeo_svec *tmp_nuxM; // work space of size nxM
 	struct blasfeo_svec *tmp_nbgM; // work space of size nbM+ngM
-	struct blasfeo_svec *tmp_nsM; // work space of size nsM
 	struct blasfeo_svec *Pb; // Pb
 	struct blasfeo_svec *Zs_inv;
 	struct blasfeo_svec *tmp_m;

@@ -75,6 +75,10 @@ struct d_ocp_qp_res_ws
 	{
 	struct blasfeo_dvec *tmp_nbgM; // work space of size nbM+ngM
 	struct blasfeo_dvec *tmp_nsM; // work space of size nsM
+	struct blasfeo_dvec *tmp_lam_mask; // workspace of size 2*nbM+2*ngM+2*nsM
+	int valid_nc_mask; // signal that there mask_constr and nc_mask_inv are valid
+	int mask_constr; // signal that there are some masked constraints
+	double nc_mask_inv; // reciprocal of number of non-masked constraints
 	hpipm_size_t memsize;
 	};
 
