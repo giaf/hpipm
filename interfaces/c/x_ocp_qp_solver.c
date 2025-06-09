@@ -271,7 +271,7 @@ void OCP_QP_SOLVER_WS_CREATE(struct OCP_QP_DIM *ocp_dim, struct OCP_QP_SOLVER_AR
 		ws->red_seed = seed_ptr;
 		seed_ptr += 1;
 
-		s_ptr = (hpipm_size_t) sol_ptr;
+		s_ptr = (hpipm_size_t) seed_ptr;
 		}
 	else
 		{
