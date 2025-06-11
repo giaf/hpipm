@@ -35,8 +35,6 @@
 
 from setuptools import setup, find_packages
 
-import hpipm_python
-
 setup(name='hpipm-python',
    version='0.2',
    description='Python interface to HPIPM',
