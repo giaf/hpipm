@@ -2218,14 +2218,14 @@ void OCP_QP_IPM_DELTA_STEP(int kk, struct OCP_QP *qp, struct OCP_QP_SOL *qp_sol,
 
 		// compute res of linear system
 		OCP_QP_RES_COMPUTE_LIN(ws->qp_step, qp_sol, ws->sol_step, ws->res_itref, ws->res_workspace);
-		if(ws->mask_constr)
-			{
-			// mask out disregarded constraints
-			//for(ii=0; ii<=N; ii++)
-			//	VECMUL(2*ns[ii], qp->d_mask+ii, 2*nb[ii]+2*ng[ii], ws->res_itref->res_g+ii, nu[ii]+nx[ii], ws->res_itref->res_g+ii, nu[ii]+nx[ii]);
-			VECMUL(cws->nc, qp->d_mask, 0, ws->res_itref->res_d, 0, ws->res_itref->res_d, 0);
-			VECMUL(cws->nc, qp->d_mask, 0, ws->res_itref->res_m, 0, ws->res_itref->res_m, 0);
-			}
+		//if(ws->mask_constr)
+		//	{
+		//	// mask out disregarded constraints
+		//	//for(ii=0; ii<=N; ii++)
+		//	//	VECMUL(2*ns[ii], qp->d_mask+ii, 2*nb[ii]+2*ng[ii], ws->res_itref->res_g+ii, nu[ii]+nx[ii], ws->res_itref->res_g+ii, nu[ii]+nx[ii]);
+		//	VECMUL(cws->nc, qp->d_mask, 0, ws->res_itref->res_d, 0, ws->res_itref->res_d, 0);
+		//	VECMUL(cws->nc, qp->d_mask, 0, ws->res_itref->res_m, 0, ws->res_itref->res_m, 0);
+		//	}
 		OCP_QP_RES_COMPUTE_INF_NORM(ws->res_itref);
 		itref_qp_norm[0] = ws->res_itref->res_max[0];
 		itref_qp_norm[1] = ws->res_itref->res_max[1];
@@ -2302,14 +2302,14 @@ void OCP_QP_IPM_DELTA_STEP(int kk, struct OCP_QP *qp, struct OCP_QP_SOL *qp_sol,
 			{
 
 			OCP_QP_RES_COMPUTE_LIN(ws->qp_step, qp_sol, ws->sol_step, ws->res_itref, ws->res_workspace);
-			if(ws->mask_constr)
-				{
-				// mask out disregarded constraints
-				//for(ii=0; ii<=N; ii++)
-				//	VECMUL(2*ns[ii], qp->d_mask+ii, 2*nb[ii]+2*ng[ii], ws->res_itref->res_g+ii, nu[ii]+nx[ii], ws->res_itref->res_g+ii, nu[ii]+nx[ii]);
-				VECMUL(cws->nc, qp->d_mask, 0, ws->res_itref->res_d, 0, ws->res_itref->res_d, 0);
-				VECMUL(cws->nc, qp->d_mask, 0, ws->res_itref->res_m, 0, ws->res_itref->res_m, 0);
-				}
+			//if(ws->mask_constr)
+			//	{
+			//	// mask out disregarded constraints
+			//	//for(ii=0; ii<=N; ii++)
+			//	//	VECMUL(2*ns[ii], qp->d_mask+ii, 2*nb[ii]+2*ng[ii], ws->res_itref->res_g+ii, nu[ii]+nx[ii], ws->res_itref->res_g+ii, nu[ii]+nx[ii]);
+			//	VECMUL(cws->nc, qp->d_mask, 0, ws->res_itref->res_d, 0, ws->res_itref->res_d, 0);
+			//	VECMUL(cws->nc, qp->d_mask, 0, ws->res_itref->res_m, 0, ws->res_itref->res_m, 0);
+			//	}
 			OCP_QP_RES_COMPUTE_INF_NORM(ws->res_itref);
 			itref_qp_norm[0] = ws->res_itref->res_max[0];
 			itref_qp_norm[1] = ws->res_itref->res_max[1];
@@ -2364,14 +2364,14 @@ void OCP_QP_IPM_DELTA_STEP(int kk, struct OCP_QP *qp, struct OCP_QP_SOL *qp_sol,
 		if(itref0==arg->itref_pred_max)
 			{
 			OCP_QP_RES_COMPUTE_LIN(ws->qp_step, qp_sol, ws->sol_step, ws->res_itref, ws->res_workspace);
-			if(ws->mask_constr)
-				{
-				// mask out disregarded constraints
-				//for(ii=0; ii<=N; ii++)
-				//	VECMUL(2*ns[ii], qp->d_mask+ii, 2*nb[ii]+2*ng[ii], ws->res_itref->res_g+ii, nu[ii]+nx[ii], ws->res_itref->res_g+ii, nu[ii]+nx[ii]);
-				VECMUL(cws->nc, qp->d_mask, 0, ws->res_itref->res_d, 0, ws->res_itref->res_d, 0);
-				VECMUL(cws->nc, qp->d_mask, 0, ws->res_itref->res_m, 0, ws->res_itref->res_m, 0);
-				}
+			//if(ws->mask_constr)
+			//	{
+			//	// mask out disregarded constraints
+			//	//for(ii=0; ii<=N; ii++)
+			//	//	VECMUL(2*ns[ii], qp->d_mask+ii, 2*nb[ii]+2*ng[ii], ws->res_itref->res_g+ii, nu[ii]+nx[ii], ws->res_itref->res_g+ii, nu[ii]+nx[ii]);
+			//	VECMUL(cws->nc, qp->d_mask, 0, ws->res_itref->res_d, 0, ws->res_itref->res_d, 0);
+			//	VECMUL(cws->nc, qp->d_mask, 0, ws->res_itref->res_m, 0, ws->res_itref->res_m, 0);
+			//	}
 			OCP_QP_RES_COMPUTE_INF_NORM(ws->res_itref);
 			itref_qp_norm[0] = ws->res_itref->res_max[0];
 			itref_qp_norm[1] = ws->res_itref->res_max[1];
@@ -2488,14 +2488,14 @@ void OCP_QP_IPM_DELTA_STEP(int kk, struct OCP_QP *qp, struct OCP_QP_SOL *qp_sol,
 				{
 
 				OCP_QP_RES_COMPUTE_LIN(ws->qp_step, qp_sol, ws->sol_step, ws->res_itref, ws->res_workspace);
-				if(ws->mask_constr)
-					{
-					// mask out disregarded constraints
-					//for(ii=0; ii<=N; ii++)
-					//	VECMUL(2*ns[ii], qp->d_mask+ii, 2*nb[ii]+2*ng[ii], ws->res_itref->res_g+ii, nu[ii]+nx[ii], ws->res_itref->res_g+ii, nu[ii]+nx[ii]);
-					VECMUL(cws->nc, qp->d_mask, 0, ws->res_itref->res_d, 0, ws->res_itref->res_d, 0);
-					VECMUL(cws->nc, qp->d_mask, 0, ws->res_itref->res_m, 0, ws->res_itref->res_m, 0);
-					}
+				//if(ws->mask_constr)
+				//	{
+				//	// mask out disregarded constraints
+				//	//for(ii=0; ii<=N; ii++)
+				//	//	VECMUL(2*ns[ii], qp->d_mask+ii, 2*nb[ii]+2*ng[ii], ws->res_itref->res_g+ii, nu[ii]+nx[ii], ws->res_itref->res_g+ii, nu[ii]+nx[ii]);
+				//	VECMUL(cws->nc, qp->d_mask, 0, ws->res_itref->res_d, 0, ws->res_itref->res_d, 0);
+				//	VECMUL(cws->nc, qp->d_mask, 0, ws->res_itref->res_m, 0, ws->res_itref->res_m, 0);
+				//	}
 				OCP_QP_RES_COMPUTE_INF_NORM(ws->res_itref);
 				itref_qp_norm[0] = ws->res_itref->res_max[0];
 				itref_qp_norm[1] = ws->res_itref->res_max[1];
@@ -2551,14 +2551,14 @@ void OCP_QP_IPM_DELTA_STEP(int kk, struct OCP_QP *qp, struct OCP_QP_SOL *qp_sol,
 			if(itref1==arg->itref_corr_max)
 				{
 				OCP_QP_RES_COMPUTE_LIN(ws->qp_step, qp_sol, ws->sol_step, ws->res_itref, ws->res_workspace);
-				if(ws->mask_constr)
-					{
-					// mask out disregarded constraints
-					//for(ii=0; ii<=N; ii++)
-					//	VECMUL(2*ns[ii], qp->d_mask+ii, 2*nb[ii]+2*ng[ii], ws->res_itref->res_g+ii, nu[ii]+nx[ii], ws->res_itref->res_g+ii, nu[ii]+nx[ii]);
-					VECMUL(cws->nc, qp->d_mask, 0, ws->res_itref->res_d, 0, ws->res_itref->res_d, 0);
-					VECMUL(cws->nc, qp->d_mask, 0, ws->res_itref->res_m, 0, ws->res_itref->res_m, 0);
-					}
+				//if(ws->mask_constr)
+				//	{
+				//	// mask out disregarded constraints
+				//	//for(ii=0; ii<=N; ii++)
+				//	//	VECMUL(2*ns[ii], qp->d_mask+ii, 2*nb[ii]+2*ng[ii], ws->res_itref->res_g+ii, nu[ii]+nx[ii], ws->res_itref->res_g+ii, nu[ii]+nx[ii]);
+				//	VECMUL(cws->nc, qp->d_mask, 0, ws->res_itref->res_d, 0, ws->res_itref->res_d, 0);
+				//	VECMUL(cws->nc, qp->d_mask, 0, ws->res_itref->res_m, 0, ws->res_itref->res_m, 0);
+				//	}
 				OCP_QP_RES_COMPUTE_INF_NORM(ws->res_itref);
 				itref_qp_norm[0] = ws->res_itref->res_max[0];
 				itref_qp_norm[1] = ws->res_itref->res_max[1];

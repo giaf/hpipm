@@ -1721,13 +1721,13 @@ void DENSE_QP_IPM_DELTA_STEP(int kk, struct DENSE_QP *qp, struct DENSE_QP_SOL *q
 		// compute res of linear system
 		DENSE_QP_RES_COMPUTE_LIN(ws->qp_step, qp_sol, ws->sol_step, ws->res_itref, ws->res_ws);
 		// TODO mask
-		if(ws->mask_constr)
-			{
-			// mask out disregarded constraints
-			//VECMUL(2*ns, qp->d_mask, 2*nb+2*ng, ws->res_itref->res_g, nv, ws->res_itref->res_g, nv);
-			VECMUL(cws->nc, qp->d_mask, 0, ws->res_itref->res_d, 0, ws->res_itref->res_d, 0);
-			VECMUL(cws->nc, qp->d_mask, 0, ws->res_itref->res_m, 0, ws->res_itref->res_m, 0);
-			}
+		//if(ws->mask_constr)
+		//	{
+		//	// mask out disregarded constraints
+		//	//VECMUL(2*ns, qp->d_mask, 2*nb+2*ng, ws->res_itref->res_g, nv, ws->res_itref->res_g, nv);
+		//	VECMUL(cws->nc, qp->d_mask, 0, ws->res_itref->res_d, 0, ws->res_itref->res_d, 0);
+		//	VECMUL(cws->nc, qp->d_mask, 0, ws->res_itref->res_m, 0, ws->res_itref->res_m, 0);
+		//	}
 		DENSE_QP_RES_COMPUTE_INF_NORM(ws->res_itref);
 		itref_qp_norm[0] = ws->res_itref->res_max[0];
 		itref_qp_norm[1] = ws->res_itref->res_max[1];
@@ -1802,13 +1802,13 @@ void DENSE_QP_IPM_DELTA_STEP(int kk, struct DENSE_QP *qp, struct DENSE_QP_SOL *q
 			{
 
 			DENSE_QP_RES_COMPUTE_LIN(ws->qp_step, qp_sol, ws->sol_step, ws->res_itref, ws->res_ws);
-			if(ws->mask_constr)
-				{
-				// mask out disregarded constraints
-				//VECMUL(2*ns, qp->d_mask, 2*nb+2*ng, ws->res_itref->res_g, nv, ws->res_itref->res_g, nv);
-				VECMUL(cws->nc, qp->d_mask, 0, ws->res_itref->res_d, 0, ws->res_itref->res_d, 0);
-				VECMUL(cws->nc, qp->d_mask, 0, ws->res_itref->res_m, 0, ws->res_itref->res_m, 0);
-				}
+			//if(ws->mask_constr)
+			//	{
+			//	// mask out disregarded constraints
+			//	//VECMUL(2*ns, qp->d_mask, 2*nb+2*ng, ws->res_itref->res_g, nv, ws->res_itref->res_g, nv);
+			//	VECMUL(cws->nc, qp->d_mask, 0, ws->res_itref->res_d, 0, ws->res_itref->res_d, 0);
+			//	VECMUL(cws->nc, qp->d_mask, 0, ws->res_itref->res_m, 0, ws->res_itref->res_m, 0);
+			//	}
 			DENSE_QP_RES_COMPUTE_INF_NORM(ws->res_itref);
 			itref_qp_norm[0] = ws->res_itref->res_max[0];
 			itref_qp_norm[1] = ws->res_itref->res_max[1];
@@ -1857,13 +1857,13 @@ void DENSE_QP_IPM_DELTA_STEP(int kk, struct DENSE_QP *qp, struct DENSE_QP_SOL *q
 		if(itref0==arg->itref_pred_max)
 			{
 			DENSE_QP_RES_COMPUTE_LIN(ws->qp_step, qp_sol, ws->sol_step, ws->res_itref, ws->res_ws);
-			if(ws->mask_constr)
-				{
-				// mask out disregarded constraints
-				//VECMUL(2*ns, qp->d_mask, 2*nb+2*ng, ws->res_itref->res_g, nv, ws->res_itref->res_g, nv);
-				VECMUL(cws->nc, qp->d_mask, 0, ws->res_itref->res_d, 0, ws->res_itref->res_d, 0);
-				VECMUL(cws->nc, qp->d_mask, 0, ws->res_itref->res_m, 0, ws->res_itref->res_m, 0);
-				}
+			//if(ws->mask_constr)
+			//	{
+			//	// mask out disregarded constraints
+			//	//VECMUL(2*ns, qp->d_mask, 2*nb+2*ng, ws->res_itref->res_g, nv, ws->res_itref->res_g, nv);
+			//	VECMUL(cws->nc, qp->d_mask, 0, ws->res_itref->res_d, 0, ws->res_itref->res_d, 0);
+			//	VECMUL(cws->nc, qp->d_mask, 0, ws->res_itref->res_m, 0, ws->res_itref->res_m, 0);
+			//	}
 			DENSE_QP_RES_COMPUTE_INF_NORM(ws->res_itref);
 			itref_qp_norm[0] = ws->res_itref->res_max[0];
 			itref_qp_norm[1] = ws->res_itref->res_max[1];
@@ -1998,13 +1998,13 @@ void DENSE_QP_IPM_DELTA_STEP(int kk, struct DENSE_QP *qp, struct DENSE_QP_SOL *q
 				{
 
 				DENSE_QP_RES_COMPUTE_LIN(ws->qp_step, qp_sol, ws->sol_step, ws->res_itref, ws->res_ws);
-				if(ws->mask_constr)
-					{
-					// mask out disregarded constraints
-					//VECMUL(2*ns, qp->d_mask, 2*nb+2*ng, ws->res_itref->res_g, nv, ws->res_itref->res_g, nv);
-					VECMUL(cws->nc, qp->d_mask, 0, ws->res_itref->res_d, 0, ws->res_itref->res_d, 0);
-					VECMUL(cws->nc, qp->d_mask, 0, ws->res_itref->res_m, 0, ws->res_itref->res_m, 0);
-					}
+				//if(ws->mask_constr)
+				//	{
+				//	// mask out disregarded constraints
+				//	//VECMUL(2*ns, qp->d_mask, 2*nb+2*ng, ws->res_itref->res_g, nv, ws->res_itref->res_g, nv);
+				//	VECMUL(cws->nc, qp->d_mask, 0, ws->res_itref->res_d, 0, ws->res_itref->res_d, 0);
+				//	VECMUL(cws->nc, qp->d_mask, 0, ws->res_itref->res_m, 0, ws->res_itref->res_m, 0);
+				//	}
 				DENSE_QP_RES_COMPUTE_INF_NORM(ws->res_itref);
 				itref_qp_norm[0] = ws->res_itref->res_max[0];
 				itref_qp_norm[1] = ws->res_itref->res_max[1];
@@ -2054,13 +2054,13 @@ void DENSE_QP_IPM_DELTA_STEP(int kk, struct DENSE_QP *qp, struct DENSE_QP_SOL *q
 			if(itref1==arg->itref_corr_max)
 				{
 				DENSE_QP_RES_COMPUTE_LIN(ws->qp_step, qp_sol, ws->sol_step, ws->res_itref, ws->res_ws);
-				if(ws->mask_constr)
-					{
-					// mask out disregarded constraints
-					//VECMUL(2*ns, qp->d_mask, 2*nb+2*ng, ws->res_itref->res_g, nv, ws->res_itref->res_g, nv);
-					VECMUL(cws->nc, qp->d_mask, 0, ws->res_itref->res_d, 0, ws->res_itref->res_d, 0);
-					VECMUL(cws->nc, qp->d_mask, 0, ws->res_itref->res_m, 0, ws->res_itref->res_m, 0);
-					}
+				//if(ws->mask_constr)
+				//	{
+				//	// mask out disregarded constraints
+				//	//VECMUL(2*ns, qp->d_mask, 2*nb+2*ng, ws->res_itref->res_g, nv, ws->res_itref->res_g, nv);
+				//	VECMUL(cws->nc, qp->d_mask, 0, ws->res_itref->res_d, 0, ws->res_itref->res_d, 0);
+				//	VECMUL(cws->nc, qp->d_mask, 0, ws->res_itref->res_m, 0, ws->res_itref->res_m, 0);
+				//	}
 				DENSE_QP_RES_COMPUTE_INF_NORM(ws->res_itref);
 				itref_qp_norm[0] = ws->res_itref->res_max[0];
 				itref_qp_norm[1] = ws->res_itref->res_max[1];

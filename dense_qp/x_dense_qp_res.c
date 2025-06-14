@@ -415,12 +415,27 @@ void DENSE_QP_RES_COMPUTE_LIN(struct DENSE_QP *qp, struct DENSE_QP_SOL *qp_sol, 
 
 	//REAL nct_inv = 1.0/nct;
 
+	int mask_constr = 0;
+	if(ws->valid_nc_mask==1)
+		{
+		mask_constr = ws->mask_constr;
+		}
+	else
+		{
+		int nc_mask = 0;
+		for(ii=0; ii<nct; ii++)
+			if(qp->d_mask->pa[ii]!=1.0)
+				mask_constr = 1; // at least one masked constraint
+		// do not store these in ws, to guard against changes in d_mask
+		}
+
 	struct STRMAT *Hg = qp->Hv;
 	struct STRMAT *A = qp->A;
 	struct STRMAT *Ct = qp->Ct;
 	struct STRVEC *gz = qp->gz;
 	struct STRVEC *b = qp->b;
 	struct STRVEC *d = qp->d;
+	struct STRVEC *d_mask = qp->d_mask;
 	struct STRVEC *m = qp->m;
 	int *idxb = qp->idxb;
 	struct STRVEC *Z = qp->Z;
@@ -441,15 +456,21 @@ void DENSE_QP_RES_COMPUTE_LIN(struct DENSE_QP *qp, struct DENSE_QP_SOL *qp_sol, 
 
 	struct STRVEC *tmp_nbg = ws->tmp_nbg;
 	struct STRVEC *tmp_ns = ws->tmp_ns;
+	struct STRVEC *tmp_lam_mask = ws->tmp_lam_mask;
 
 	REAL mu, tmp;
 
 	// res g
 	SYMV_L(nv, 1.0, Hg, 0, 0, v, 0, 1.0, gz, 0, res_g, 0);
 
+	if(mask_constr)
+		VECMUL(nct, lam, 0, d_mask, 0, tmp_lam_mask, 0);
+	else
+		VECCP(nct, lam, 0, tmp_lam_mask, 0);
+
 	if(nb+ng>0)
 		{
-		AXPY(nb+ng, -1.0, lam, 0, lam, nb+ng, tmp_nbg+0, 0);
+		AXPY(nb+ng, -1.0, tmp_lam_mask, 0, tmp_lam_mask, nb+ng, tmp_nbg+0, 0);
 //		AXPY(nb+ng,  1.0, d, 0, t, 0, res_d, 0);
 //		AXPY(nb+ng,  1.0, d, nb+ng, t, nb+ng, res_d, nb+ng);
 		AXPY(2*nb+2*ng,  1.0, d, 0, t, 0, res_d, 0);
@@ -471,14 +492,14 @@ void DENSE_QP_RES_COMPUTE_LIN(struct DENSE_QP *qp, struct DENSE_QP_SOL *qp_sol, 
 		{
 		// res_g
 		GEMV_DIAG(2*ns, 1.0, Z, 0, v, nv, 1.0, gz, nv, res_g, nv);
-		AXPY(2*ns, -1.0, lam, 2*nb+2*ng, res_g, nv, res_g, nv);
+		AXPY(2*ns, -1.0, tmp_lam_mask, 2*nb+2*ng, res_g, nv, res_g, nv);
 		for(ii=0; ii<nb+ng; ii++)
 			{
 			idx = idxs_rev[ii];
 			if(idx!=-1)
 				{
-				BLASFEO_VECEL(res_g, nv+idx) -= BLASFEO_VECEL(lam, ii);
-				BLASFEO_VECEL(res_g, nv+ns+idx) -= BLASFEO_VECEL(lam, nb+ng+ii);
+				BLASFEO_VECEL(res_g, nv+idx) -= BLASFEO_VECEL(tmp_lam_mask, ii);
+				BLASFEO_VECEL(res_g, nv+ns+idx) -= BLASFEO_VECEL(tmp_lam_mask, nb+ng+ii);
 				// res_d
 				BLASFEO_VECEL(res_d, ii) -= BLASFEO_VECEL(v, nv+idx);
 				BLASFEO_VECEL(res_d, nb+ng+ii) -= BLASFEO_VECEL(v, nv+ns+idx);
@@ -488,6 +509,8 @@ void DENSE_QP_RES_COMPUTE_LIN(struct DENSE_QP *qp, struct DENSE_QP_SOL *qp_sol, 
 		AXPY(2*ns, -1.0, v, nv, t, 2*nb+2*ng, res_d, 2*nb+2*ng);
 		AXPY(2*ns, 1.0, d, 2*nb+2*ng, res_d, 2*nb+2*ng, res_d, 2*nb+2*ng);
 		}
+	if(mask_constr)
+		VECMUL(nct, d_mask, 0, res_d, 0, res_d, 0);
 	
 	// res b, res g
 	if(ne>0)
@@ -498,11 +521,8 @@ void DENSE_QP_RES_COMPUTE_LIN(struct DENSE_QP *qp, struct DENSE_QP_SOL *qp_sol, 
 	VECCP(nct, m, 0, res_m, 0); // TODO scale by -1 ?????
 	VECMULACC(nct, Lam, 0, t, 0, res_m, 0);
 	VECMULACC(nct, lam, 0, T, 0, res_m, 0);
-//	for(ii=0; ii<nct; ii++) (res_m->pa)[ii] += 1e-3;
-//	mu = VECMULDOT(nct, lam, 0, t, 0, res_m, 0);
-//	AXPY(nct, -1.0, m, 0, res_m, 0, res_m, 0);
-//	res->res_mu = mu*nct_inv;
-	// TODO use nc_mask_inv from cws if available !!!!!
+	if(mask_constr)
+		VECMUL(nct, d_mask, 0, res_m, 0, res_m, 0);
 
 	return;
 
