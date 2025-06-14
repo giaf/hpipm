@@ -38,3 +38,6 @@ PIP = pip3
 
 all:
 	cd hpipm_python ; $(PIP) install . ; cd ..
+
+uninstall:
+	cd hpipm_python ; $(PIP) uninstall hpipm_python ; cd ..
