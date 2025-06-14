@@ -1762,8 +1762,8 @@ void TREE_OCP_QCQP_IPM_SOLVE(struct TREE_OCP_QCQP *qcqp, struct TREE_OCP_QCQP_SO
 			if(qp_ws->mask_constr)
 				{
 				// mask out disregarded constraints
-				for(ii=0; ii<Nn; ii++)
-					VECMUL(2*ns[ii], qp->d_mask+ii, 2*nb[ii]+2*ng[ii]+2*nq[ii], qcqp_res->res_g+ii, nu[ii]+nx[ii], qcqp_res->res_g+ii, nu[ii]+nx[ii]);
+				//for(ii=0; ii<Nn; ii++)
+				//	VECMUL(2*ns[ii], qp->d_mask+ii, 2*nb[ii]+2*ng[ii]+2*nq[ii], qcqp_res->res_g+ii, nu[ii]+nx[ii], qcqp_res->res_g+ii, nu[ii]+nx[ii]);
 				VECMUL(cws->nc, qp->d_mask, 0, qcqp_res->res_d, 0, qcqp_res->res_d, 0);
 				VECMUL(cws->nc, qp->d_mask, 0, qcqp_res->res_m, 0, qcqp_res->res_m, 0);
 				}
@@ -1791,8 +1791,8 @@ void TREE_OCP_QCQP_IPM_SOLVE(struct TREE_OCP_QCQP *qcqp, struct TREE_OCP_QCQP_SO
 	if(qp_ws->mask_constr)
 		{
 		// mask out disregarded constraints
-		for(ii=0; ii<Nn; ii++)
-			VECMUL(2*ns[ii], qp->d_mask+ii, 2*nb[ii]+2*ng[ii]+2*nq[ii], qcqp_res->res_g+ii, nu[ii]+nx[ii], qcqp_res->res_g+ii, nu[ii]+nx[ii]);
+		//for(ii=0; ii<Nn; ii++)
+		//	VECMUL(2*ns[ii], qp->d_mask+ii, 2*nb[ii]+2*ng[ii]+2*nq[ii], qcqp_res->res_g+ii, nu[ii]+nx[ii], qcqp_res->res_g+ii, nu[ii]+nx[ii]);
 		VECMUL(cws->nc, qp->d_mask, 0, qcqp_res->res_d, 0, qcqp_res->res_d, 0);
 		VECMUL(cws->nc, qp->d_mask, 0, qcqp_res->res_m, 0, qcqp_res->res_m, 0);
 		}
@@ -1853,8 +1853,8 @@ void TREE_OCP_QCQP_IPM_SOLVE(struct TREE_OCP_QCQP *qcqp, struct TREE_OCP_QCQP_SO
 		if(qp_ws->mask_constr)
 			{
 			// mask out disregarded constraints
-			for(ii=0; ii<Nn; ii++)
-				VECMUL(2*ns[ii], qp->d_mask+ii, 2*nb[ii]+2*ng[ii]+2*nq[ii], qcqp_res->res_g+ii, nu[ii]+nx[ii], qcqp_res->res_g+ii, nu[ii]+nx[ii]);
+			//for(ii=0; ii<Nn; ii++)
+			//	VECMUL(2*ns[ii], qp->d_mask+ii, 2*nb[ii]+2*ng[ii]+2*nq[ii], qcqp_res->res_g+ii, nu[ii]+nx[ii], qcqp_res->res_g+ii, nu[ii]+nx[ii]);
 			VECMUL(cws->nc, qp->d_mask, 0, qcqp_res->res_d, 0, qcqp_res->res_d, 0);
 			VECMUL(cws->nc, qp->d_mask, 0, qcqp_res->res_m, 0, qcqp_res->res_m, 0);
 			}

@@ -1267,8 +1267,8 @@ void TREE_OCP_QP_IPM_ABS_STEP(int kk, struct TREE_OCP_QP *qp, struct TREE_OCP_QP
 	if(ws->mask_constr)
 		{
 		// mask out disregarded constraints
-		for(ii=0; ii<Nn; ii++)
-			VECMUL(2*ns[ii], qp->d_mask+ii, 2*nb[ii]+2*ng[ii], ws->sol_step->ux+ii, nu[ii]+nx[ii], ws->sol_step->ux+ii, nu[ii]+nx[ii]);
+		//for(ii=0; ii<Nn; ii++)
+		//	VECMUL(2*ns[ii], qp->d_mask+ii, 2*nb[ii]+2*ng[ii], ws->sol_step->ux+ii, nu[ii]+nx[ii], ws->sol_step->ux+ii, nu[ii]+nx[ii]);
 		VECMUL(cws->nc, qp->d_mask, 0, ws->sol_step->t, 0, ws->sol_step->t, 0);
 		VECMUL(cws->nc, qp->d_mask, 0, ws->sol_step->lam, 0, ws->sol_step->lam, 0);
 		}
@@ -1310,8 +1310,8 @@ void TREE_OCP_QP_IPM_ABS_STEP(int kk, struct TREE_OCP_QP *qp, struct TREE_OCP_QP
 		if(ws->mask_constr)
 			{
 			// mask out disregarded constraints
-			for(ii=0; ii<Nn; ii++)
-				VECMUL(2*ns[ii], qp->d_mask+ii, 2*nb[ii]+2*ng[ii], ws->sol_step->ux+ii, nu[ii]+nx[ii], ws->sol_step->ux+ii, nu[ii]+nx[ii]);
+			//for(ii=0; ii<Nn; ii++)
+			//	VECMUL(2*ns[ii], qp->d_mask+ii, 2*nb[ii]+2*ng[ii], ws->sol_step->ux+ii, nu[ii]+nx[ii], ws->sol_step->ux+ii, nu[ii]+nx[ii]);
 			VECMUL(cws->nc, qp->d_mask, 0, ws->sol_step->t, 0, ws->sol_step->t, 0);
 			VECMUL(cws->nc, qp->d_mask, 0, ws->sol_step->lam, 0, ws->sol_step->lam, 0);
 			}
@@ -1356,8 +1356,8 @@ void TREE_OCP_QP_IPM_ABS_STEP(int kk, struct TREE_OCP_QP *qp, struct TREE_OCP_QP
 				if(ws->mask_constr)
 					{
 					// mask out disregarded constraints
-					for(ii=0; ii<Nn; ii++)
-						VECMUL(2*ns[ii], qp->d_mask+ii, 2*nb[ii]+2*ng[ii], ws->sol_step->ux+ii, nu[ii]+nx[ii], ws->sol_step->ux+ii, nu[ii]+nx[ii]);
+					//for(ii=0; ii<Nn; ii++)
+					//	VECMUL(2*ns[ii], qp->d_mask+ii, 2*nb[ii]+2*ng[ii], ws->sol_step->ux+ii, nu[ii]+nx[ii], ws->sol_step->ux+ii, nu[ii]+nx[ii]);
 					VECMUL(cws->nc, qp->d_mask, 0, ws->sol_step->t, 0, ws->sol_step->t, 0);
 					VECMUL(cws->nc, qp->d_mask, 0, ws->sol_step->lam, 0, ws->sol_step->lam, 0);
 					}
@@ -1440,8 +1440,8 @@ void TREE_OCP_QP_IPM_DELTA_STEP(int kk, struct TREE_OCP_QP *qp, struct TREE_OCP_
 		if(ws->mask_constr)
 			{
 			// mask out disregarded constraints
-			for(ii=0; ii<Nn; ii++)
-				VECMUL(2*ns[ii], qp->d_mask+ii, 2*nb[ii]+2*ng[ii], ws->sol_step->ux+ii, nu[ii]+nx[ii], ws->sol_step->ux+ii, nu[ii]+nx[ii]);
+			//for(ii=0; ii<Nn; ii++)
+			//	VECMUL(2*ns[ii], qp->d_mask+ii, 2*nb[ii]+2*ng[ii], ws->sol_step->ux+ii, nu[ii]+nx[ii], ws->sol_step->ux+ii, nu[ii]+nx[ii]);
 			VECMUL(cws->nc, qp->d_mask, 0, ws->sol_step->t, 0, ws->sol_step->t, 0);
 			VECMUL(cws->nc, qp->d_mask, 0, ws->sol_step->lam, 0, ws->sol_step->lam, 0);
 			}
@@ -1456,8 +1456,8 @@ void TREE_OCP_QP_IPM_DELTA_STEP(int kk, struct TREE_OCP_QP *qp, struct TREE_OCP_
 		if(ws->mask_constr)
 			{
 			// mask out disregarded constraints
-			for(ii=0; ii<Nn; ii++)
-				VECMUL(2*ns[ii], qp->d_mask+ii, 2*nb[ii]+2*ng[ii], ws->sol_step->ux+ii, nu[ii]+nx[ii], ws->sol_step->ux+ii, nu[ii]+nx[ii]);
+			//for(ii=0; ii<Nn; ii++)
+			//	VECMUL(2*ns[ii], qp->d_mask+ii, 2*nb[ii]+2*ng[ii], ws->sol_step->ux+ii, nu[ii]+nx[ii], ws->sol_step->ux+ii, nu[ii]+nx[ii]);
 			VECMUL(cws->nc, qp->d_mask, 0, ws->sol_step->t, 0, ws->sol_step->t, 0);
 			VECMUL(cws->nc, qp->d_mask, 0, ws->sol_step->lam, 0, ws->sol_step->lam, 0);
 			}
@@ -1467,8 +1467,8 @@ void TREE_OCP_QP_IPM_DELTA_STEP(int kk, struct TREE_OCP_QP *qp, struct TREE_OCP_
 		if(ws->mask_constr)
 			{
 			// mask out disregarded constraints
-			for(ii=0; ii<Nn; ii++)
-				VECMUL(2*ns[ii], qp->d_mask+ii, 2*nb[ii]+2*ng[ii], ws->res_itref->res_g+ii, nu[ii]+nx[ii], ws->res_itref->res_g+ii, nu[ii]+nx[ii]);
+			//for(ii=0; ii<Nn; ii++)
+			//	VECMUL(2*ns[ii], qp->d_mask+ii, 2*nb[ii]+2*ng[ii], ws->res_itref->res_g+ii, nu[ii]+nx[ii], ws->res_itref->res_g+ii, nu[ii]+nx[ii]);
 			VECMUL(cws->nc, qp->d_mask, 0, ws->res_itref->res_d, 0, ws->res_itref->res_d, 0);
 			VECMUL(cws->nc, qp->d_mask, 0, ws->res_itref->res_m, 0, ws->res_itref->res_m, 0);
 			}
@@ -1499,8 +1499,8 @@ void TREE_OCP_QP_IPM_DELTA_STEP(int kk, struct TREE_OCP_QP *qp, struct TREE_OCP_
 			if(ws->mask_constr)
 				{
 				// mask out disregarded constraints
-				for(ii=0; ii<Nn; ii++)
-					VECMUL(2*ns[ii], qp->d_mask+ii, 2*nb[ii]+2*ng[ii], ws->sol_step->ux+ii, nu[ii]+nx[ii], ws->sol_step->ux+ii, nu[ii]+nx[ii]);
+				//for(ii=0; ii<Nn; ii++)
+				//	VECMUL(2*ns[ii], qp->d_mask+ii, 2*nb[ii]+2*ng[ii], ws->sol_step->ux+ii, nu[ii]+nx[ii], ws->sol_step->ux+ii, nu[ii]+nx[ii]);
 				VECMUL(cws->nc, qp->d_mask, 0, ws->sol_step->t, 0, ws->sol_step->t, 0);
 				VECMUL(cws->nc, qp->d_mask, 0, ws->sol_step->lam, 0, ws->sol_step->lam, 0);
 				}
@@ -1521,8 +1521,8 @@ void TREE_OCP_QP_IPM_DELTA_STEP(int kk, struct TREE_OCP_QP *qp, struct TREE_OCP_
 		if(ws->mask_constr)
 			{
 			// mask out disregarded constraints
-			for(ii=0; ii<Nn; ii++)
-				VECMUL(2*ns[ii], qp->d_mask+ii, 2*nb[ii]+2*ng[ii], ws->sol_step->ux+ii, nu[ii]+nx[ii], ws->sol_step->ux+ii, nu[ii]+nx[ii]);
+			//for(ii=0; ii<Nn; ii++)
+			//	VECMUL(2*ns[ii], qp->d_mask+ii, 2*nb[ii]+2*ng[ii], ws->sol_step->ux+ii, nu[ii]+nx[ii], ws->sol_step->ux+ii, nu[ii]+nx[ii]);
 			VECMUL(cws->nc, qp->d_mask, 0, ws->sol_step->t, 0, ws->sol_step->t, 0);
 			VECMUL(cws->nc, qp->d_mask, 0, ws->sol_step->lam, 0, ws->sol_step->lam, 0);
 			}
@@ -1551,8 +1551,8 @@ void TREE_OCP_QP_IPM_DELTA_STEP(int kk, struct TREE_OCP_QP *qp, struct TREE_OCP_
 			if(ws->mask_constr)
 				{
 				// mask out disregarded constraints
-				for(ii=0; ii<Nn; ii++)
-					VECMUL(2*ns[ii], qp->d_mask+ii, 2*nb[ii]+2*ng[ii], ws->res_itref->res_g+ii, nu[ii]+nx[ii], ws->res_itref->res_g+ii, nu[ii]+nx[ii]);
+				//for(ii=0; ii<Nn; ii++)
+				//	VECMUL(2*ns[ii], qp->d_mask+ii, 2*nb[ii]+2*ng[ii], ws->res_itref->res_g+ii, nu[ii]+nx[ii], ws->res_itref->res_g+ii, nu[ii]+nx[ii]);
 				VECMUL(cws->nc, qp->d_mask, 0, ws->res_itref->res_d, 0, ws->res_itref->res_d, 0);
 				VECMUL(cws->nc, qp->d_mask, 0, ws->res_itref->res_m, 0, ws->res_itref->res_m, 0);
 				}
@@ -1591,8 +1591,8 @@ void TREE_OCP_QP_IPM_DELTA_STEP(int kk, struct TREE_OCP_QP *qp, struct TREE_OCP_
 			if(ws->mask_constr)
 				{
 				// mask out disregarded constraints
-				for(ii=0; ii<Nn; ii++)
-					VECMUL(2*ns[ii], qp->d_mask+ii, 2*nb[ii]+2*ng[ii], ws->sol_step->ux+ii, nu[ii]+nx[ii], ws->sol_step->ux+ii, nu[ii]+nx[ii]);
+				//for(ii=0; ii<Nn; ii++)
+				//	VECMUL(2*ns[ii], qp->d_mask+ii, 2*nb[ii]+2*ng[ii], ws->sol_step->ux+ii, nu[ii]+nx[ii], ws->sol_step->ux+ii, nu[ii]+nx[ii]);
 				VECMUL(cws->nc, qp->d_mask, 0, ws->sol_step->t, 0, ws->sol_step->t, 0);
 				VECMUL(cws->nc, qp->d_mask, 0, ws->sol_step->lam, 0, ws->sol_step->lam, 0);
 				}
@@ -1613,8 +1613,8 @@ void TREE_OCP_QP_IPM_DELTA_STEP(int kk, struct TREE_OCP_QP *qp, struct TREE_OCP_
 			if(ws->mask_constr)
 				{
 				// mask out disregarded constraints
-				for(ii=0; ii<Nn; ii++)
-					VECMUL(2*ns[ii], qp->d_mask+ii, 2*nb[ii]+2*ng[ii], ws->res_itref->res_g+ii, nu[ii]+nx[ii], ws->res_itref->res_g+ii, nu[ii]+nx[ii]);
+				//for(ii=0; ii<Nn; ii++)
+				//	VECMUL(2*ns[ii], qp->d_mask+ii, 2*nb[ii]+2*ng[ii], ws->res_itref->res_g+ii, nu[ii]+nx[ii], ws->res_itref->res_g+ii, nu[ii]+nx[ii]);
 				VECMUL(cws->nc, qp->d_mask, 0, ws->res_itref->res_d, 0, ws->res_itref->res_d, 0);
 				VECMUL(cws->nc, qp->d_mask, 0, ws->res_itref->res_m, 0, ws->res_itref->res_m, 0);
 				}
@@ -1667,8 +1667,8 @@ void TREE_OCP_QP_IPM_DELTA_STEP(int kk, struct TREE_OCP_QP *qp, struct TREE_OCP_
 		if(ws->mask_constr)
 			{
 			// mask out disregarded constraints
-			for(ii=0; ii<Nn; ii++)
-				VECMUL(2*ns[ii], qp->d_mask+ii, 2*nb[ii]+2*ng[ii], ws->sol_step->ux+ii, nu[ii]+nx[ii], ws->sol_step->ux+ii, nu[ii]+nx[ii]);
+			//for(ii=0; ii<Nn; ii++)
+			//	VECMUL(2*ns[ii], qp->d_mask+ii, 2*nb[ii]+2*ng[ii], ws->sol_step->ux+ii, nu[ii]+nx[ii], ws->sol_step->ux+ii, nu[ii]+nx[ii]);
 			VECMUL(cws->nc, qp->d_mask, 0, ws->sol_step->t, 0, ws->sol_step->t, 0);
 			VECMUL(cws->nc, qp->d_mask, 0, ws->sol_step->lam, 0, ws->sol_step->lam, 0);
 			}
@@ -1709,8 +1709,8 @@ void TREE_OCP_QP_IPM_DELTA_STEP(int kk, struct TREE_OCP_QP *qp, struct TREE_OCP_
 				if(ws->mask_constr)
 					{
 					// mask out disregarded constraints
-					for(ii=0; ii<Nn; ii++)
-						VECMUL(2*ns[ii], qp->d_mask+ii, 2*nb[ii]+2*ng[ii], ws->sol_step->ux+ii, nu[ii]+nx[ii], ws->sol_step->ux+ii, nu[ii]+nx[ii]);
+					//for(ii=0; ii<Nn; ii++)
+					//	VECMUL(2*ns[ii], qp->d_mask+ii, 2*nb[ii]+2*ng[ii], ws->sol_step->ux+ii, nu[ii]+nx[ii], ws->sol_step->ux+ii, nu[ii]+nx[ii]);
 					VECMUL(cws->nc, qp->d_mask, 0, ws->sol_step->t, 0, ws->sol_step->t, 0);
 					VECMUL(cws->nc, qp->d_mask, 0, ws->sol_step->lam, 0, ws->sol_step->lam, 0);
 					}
@@ -1737,8 +1737,8 @@ void TREE_OCP_QP_IPM_DELTA_STEP(int kk, struct TREE_OCP_QP *qp, struct TREE_OCP_
 				if(ws->mask_constr)
 					{
 					// mask out disregarded constraints
-					for(ii=0; ii<Nn; ii++)
-						VECMUL(2*ns[ii], qp->d_mask+ii, 2*nb[ii]+2*ng[ii], ws->res_itref->res_g+ii, nu[ii]+nx[ii], ws->res_itref->res_g+ii, nu[ii]+nx[ii]);
+					//for(ii=0; ii<Nn; ii++)
+					//	VECMUL(2*ns[ii], qp->d_mask+ii, 2*nb[ii]+2*ng[ii], ws->res_itref->res_g+ii, nu[ii]+nx[ii], ws->res_itref->res_g+ii, nu[ii]+nx[ii]);
 					VECMUL(cws->nc, qp->d_mask, 0, ws->res_itref->res_d, 0, ws->res_itref->res_d, 0);
 					VECMUL(cws->nc, qp->d_mask, 0, ws->res_itref->res_m, 0, ws->res_itref->res_m, 0);
 					}
@@ -1777,8 +1777,8 @@ void TREE_OCP_QP_IPM_DELTA_STEP(int kk, struct TREE_OCP_QP *qp, struct TREE_OCP_
 				if(ws->mask_constr)
 					{
 					// mask out disregarded constraints
-					for(ii=0; ii<Nn; ii++)
-						VECMUL(2*ns[ii], qp->d_mask+ii, 2*nb[ii]+2*ng[ii], ws->sol_step->ux+ii, nu[ii]+nx[ii], ws->sol_step->ux+ii, nu[ii]+nx[ii]);
+					//for(ii=0; ii<Nn; ii++)
+					//	VECMUL(2*ns[ii], qp->d_mask+ii, 2*nb[ii]+2*ng[ii], ws->sol_step->ux+ii, nu[ii]+nx[ii], ws->sol_step->ux+ii, nu[ii]+nx[ii]);
 					VECMUL(cws->nc, qp->d_mask, 0, ws->sol_step->t, 0, ws->sol_step->t, 0);
 					VECMUL(cws->nc, qp->d_mask, 0, ws->sol_step->lam, 0, ws->sol_step->lam, 0);
 					}
@@ -1800,8 +1800,8 @@ void TREE_OCP_QP_IPM_DELTA_STEP(int kk, struct TREE_OCP_QP *qp, struct TREE_OCP_
 				if(ws->mask_constr)
 					{
 					// mask out disregarded constraints
-					for(ii=0; ii<Nn; ii++)
-						VECMUL(2*ns[ii], qp->d_mask+ii, 2*nb[ii]+2*ng[ii], ws->res_itref->res_g+ii, nu[ii]+nx[ii], ws->res_itref->res_g+ii, nu[ii]+nx[ii]);
+					//for(ii=0; ii<Nn; ii++)
+					//	VECMUL(2*ns[ii], qp->d_mask+ii, 2*nb[ii]+2*ng[ii], ws->res_itref->res_g+ii, nu[ii]+nx[ii], ws->res_itref->res_g+ii, nu[ii]+nx[ii]);
 					VECMUL(cws->nc, qp->d_mask, 0, ws->res_itref->res_d, 0, ws->res_itref->res_d, 0);
 					VECMUL(cws->nc, qp->d_mask, 0, ws->res_itref->res_m, 0, ws->res_itref->res_m, 0);
 					}
@@ -2088,8 +2088,8 @@ void TREE_OCP_QP_IPM_SOLVE(struct TREE_OCP_QP *qp, struct TREE_OCP_QP_SOL *qp_so
 			if(ws->mask_constr)
 				{
 				// mask out disregarded constraints
-				for(ii=0; ii<Nn; ii++)
-					VECMUL(2*ns[ii], qp->d_mask+ii, 2*nb[ii]+2*ng[ii], ws->res->res_g+ii, nu[ii]+nx[ii], ws->res->res_g+ii, nu[ii]+nx[ii]);
+				//for(ii=0; ii<Nn; ii++)
+				//	VECMUL(2*ns[ii], qp->d_mask+ii, 2*nb[ii]+2*ng[ii], ws->res->res_g+ii, nu[ii]+nx[ii], ws->res->res_g+ii, nu[ii]+nx[ii]);
 				VECMUL(cws->nc, qp->d_mask, 0, ws->res->res_d, 0, ws->res->res_d, 0);
 				VECMUL(cws->nc, qp->d_mask, 0, ws->res->res_m, 0, ws->res->res_m, 0);
 				}
@@ -2118,8 +2118,8 @@ void TREE_OCP_QP_IPM_SOLVE(struct TREE_OCP_QP *qp, struct TREE_OCP_QP_SOL *qp_so
 	if(ws->mask_constr)
 		{
 		// mask out disregarded constraints
-		for(ii=0; ii<Nn; ii++)
-			VECMUL(2*ns[ii], qp->d_mask+ii, 2*nb[ii]+2*ng[ii], ws->res->res_g+ii, nu[ii]+nx[ii], ws->res->res_g+ii, nu[ii]+nx[ii]);
+		//for(ii=0; ii<Nn; ii++)
+		//	VECMUL(2*ns[ii], qp->d_mask+ii, 2*nb[ii]+2*ng[ii], ws->res->res_g+ii, nu[ii]+nx[ii], ws->res->res_g+ii, nu[ii]+nx[ii]);
 		VECMUL(cws->nc, qp->d_mask, 0, ws->res->res_d, 0, ws->res->res_d, 0);
 		VECMUL(cws->nc, qp->d_mask, 0, ws->res->res_m, 0, ws->res->res_m, 0);
 		}
@@ -2165,8 +2165,8 @@ void TREE_OCP_QP_IPM_SOLVE(struct TREE_OCP_QP *qp, struct TREE_OCP_QP_SOL *qp_so
 		if(ws->mask_constr)
 			{
 			// mask out disregarded constraints
-			for(ii=0; ii<Nn; ii++)
-				VECMUL(2*ns[ii], qp->d_mask+ii, 2*nb[ii]+2*ng[ii], ws->res->res_g+ii, nu[ii]+nx[ii], ws->res->res_g+ii, nu[ii]+nx[ii]);
+			//for(ii=0; ii<Nn; ii++)
+			//	VECMUL(2*ns[ii], qp->d_mask+ii, 2*nb[ii]+2*ng[ii], ws->res->res_g+ii, nu[ii]+nx[ii], ws->res->res_g+ii, nu[ii]+nx[ii]);
 			VECMUL(cws->nc, qp->d_mask, 0, ws->res->res_d, 0, ws->res->res_d, 0);
 			VECMUL(cws->nc, qp->d_mask, 0, ws->res->res_m, 0, ws->res->res_m, 0);
 			}
