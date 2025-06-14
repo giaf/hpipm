@@ -308,8 +308,6 @@ void OCP_QP_RES_WS_CREATE(struct OCP_QP_DIM *dim, struct OCP_QP_RES_WS *ws, void
 	// void stuf
 	char *c_ptr = (char *) s_ptr;
 
-	char *tmp_ptr;
-
 	CREATE_STRVEC(nbM+ngM, ws->tmp_nbgM+0, c_ptr);
 	c_ptr += (ws->tmp_nbgM+0)->memsize;
 
@@ -376,7 +374,7 @@ void OCP_QP_RES_COMPUTE(struct OCP_QP *qp, struct OCP_QP_SOL *qp_sol, struct OCP
 		int nc_mask = 0;
 		for(ii=0; ii<=N; ii++)
 			for(jj=0; jj<2*nb[ii]+2*ng[ii]+2*ns[ii]; jj++)
-				if(qp->d_mask->pa[ii]==1.0)
+				if((qp->d_mask+ii)->pa[jj]==1.0)
 					nc_mask++;
 				else
 					mask_constr = 1; // at least one masked constraint
@@ -448,7 +446,6 @@ void OCP_QP_RES_COMPUTE(struct OCP_QP *qp, struct OCP_QP_SOL *qp_sol, struct OCP
 
 		if(nb0+ng0>0)
 			{
-			//AXPY(nb0+ng0, -1.0, lam+ii, 0, lam+ii, nb0+ng0, tmp_nbgM+0, 0);
 			AXPY(nb0+ng0, -1.0, tmp_lam_mask, 0, tmp_lam_mask, nb0+ng0, tmp_nbgM+0, 0);
 //			AXPY(nb0+ng0,  1.0, d+ii, 0, t+ii, 0, res_d+ii, 0);
 //			AXPY(nb0+ng0,  1.0, d+ii, nb0+ng0, t+ii, nb0+ng0, res_d+ii, nb0+ng0);
@@ -517,7 +514,7 @@ void OCP_QP_RES_COMPUTE(struct OCP_QP *qp, struct OCP_QP_SOL *qp_sol, struct OCP
 		if(mask_constr)
 			VECMUL(2*nb0+2*ng0+2*ns0, d_mask+ii, 0, res_m+ii, 0, res_m+ii, 0); // TODO not necessary if m is zero
 
-		// TODO mask res_g for the slacks of the soft constraints ???
+		// TODO mask res_g for the slacks of the soft constraints ??? no !!!
 
 		//for(jj=0; jj<2*nb0+2*ng0+2*ns0; jj++)
 		//	{

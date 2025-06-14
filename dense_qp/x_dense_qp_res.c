@@ -153,10 +153,11 @@ hpipm_size_t DENSE_QP_RES_WS_MEMSIZE(struct DENSE_QP_DIM *dim)
 
 	hpipm_size_t size = 0;
 
-	size += 3*sizeof(struct STRVEC); // 2*tmp_nbg tmp_ns
+	size += 4*sizeof(struct STRVEC); // 2*tmp_nbg tmp_ns tmp_lam_mask
 
 	size += 2*SIZE_STRVEC(nb+ng); // tmp_nbg
 	size += 1*SIZE_STRVEC(ns); // tmp_ns
+	size += 1*SIZE_STRVEC(2*nb+2*ng+2*ns); // tmp_lam_mask
 
 	size = (size+63)/64*64; // make multiple of typical cache line size
 	size += 1*64; // align once to typical cache line size
@@ -175,31 +176,7 @@ void DENSE_QP_RES_WS_CREATE(struct DENSE_QP_DIM *dim, struct DENSE_QP_RES_WS *ws
 
 	// zero memory (to avoid corrupted memory like e.g. NaN)
 	hpipm_size_t memsize = DENSE_QP_RES_WS_MEMSIZE(dim);
-	hpipm_size_t memsize_m8 = memsize/8; // sizeof(double) is 8
-//	hpipm_size_t memsize_r8 = memsize - 8*memsize_m8;
-	double *double_ptr = mem;
-	// XXX exploit that it is multiple of 64 bytes !!!!!
-	if(memsize_m8>7)
-	for(ii=0; ii<memsize_m8-7; ii+=8)
-		{
-		double_ptr[ii+0] = 0.0;
-		double_ptr[ii+1] = 0.0;
-		double_ptr[ii+2] = 0.0;
-		double_ptr[ii+3] = 0.0;
-		double_ptr[ii+4] = 0.0;
-		double_ptr[ii+5] = 0.0;
-		double_ptr[ii+6] = 0.0;
-		double_ptr[ii+7] = 0.0;
-		}
-//	for(; ii<memsize_m8; ii++)
-//		{
-//		double_ptr[ii] = 0.0;
-//		}
-//	char *char_ptr = (char *) (&double_ptr[ii]);
-//	for(ii=0; ii<memsize_r8; ii++)
-//		{
-//		char_ptr[ii] = 0;
-//		}
+	hpipm_zero_memset(memsize, mem);
 
 	// extract ocp qp size
 	int nv = dim->nv;
@@ -215,6 +192,8 @@ void DENSE_QP_RES_WS_CREATE(struct DENSE_QP_DIM *dim, struct DENSE_QP_RES_WS *ws
 	ws->tmp_nbg = sv_ptr;
 	sv_ptr += 2;
 	ws->tmp_ns = sv_ptr;
+	sv_ptr += 1;
+	ws->tmp_lam_mask = sv_ptr;
 	sv_ptr += 1;
 
 
@@ -235,6 +214,11 @@ void DENSE_QP_RES_WS_CREATE(struct DENSE_QP_DIM *dim, struct DENSE_QP_RES_WS *ws
 
 	CREATE_STRVEC(ns, ws->tmp_ns+0, c_ptr);
 	c_ptr += (ws->tmp_ns+0)->memsize;
+
+	CREATE_STRVEC(2*nb+2*ng+2*ns, ws->tmp_lam_mask, c_ptr);
+	c_ptr += (ws->tmp_lam_mask)->memsize;
+
+	ws->valid_nc_mask = 0;
 
 	ws->memsize = DENSE_QP_RES_WS_MEMSIZE(dim);
 
@@ -274,12 +258,33 @@ void DENSE_QP_RES_COMPUTE(struct DENSE_QP *qp, struct DENSE_QP_SOL *qp_sol, stru
 	// TODO use nc_mask_inv from cws if available !!!!!
 	//REAL nct_inv = 1.0/nct;
 
+	int mask_constr = 0;
+	REAL nc_mask_inv = 0.0;
+	if(ws->valid_nc_mask==1)
+		{
+		mask_constr = ws->mask_constr;
+		nc_mask_inv = ws->nc_mask_inv;
+		}
+	else
+		{
+		int nc_mask = 0;
+		for(ii=0; ii<nct; ii++)
+			if(qp->d_mask->pa[ii]==1.0)
+				nc_mask++;
+			else
+				mask_constr = 1; // at least one masked constraint
+		if(nc_mask>0)
+			nc_mask_inv = 1.0/nc_mask;
+		// do not store these in ws, to guard against changes in d_mask
+		}
+
 	struct STRMAT *Hg = qp->Hv;
 	struct STRMAT *A = qp->A;
 	struct STRMAT *Ct = qp->Ct;
 	struct STRVEC *gz = qp->gz;
 	struct STRVEC *b = qp->b;
 	struct STRVEC *d = qp->d;
+	struct STRVEC *d_mask = qp->d_mask;
 	struct STRVEC *m = qp->m;
 	int *idxb = qp->idxb;
 	struct STRVEC *Z = qp->Z;
@@ -297,6 +302,7 @@ void DENSE_QP_RES_COMPUTE(struct DENSE_QP *qp, struct DENSE_QP_SOL *qp_sol, stru
 
 	struct STRVEC *tmp_nbg = ws->tmp_nbg;
 	struct STRVEC *tmp_ns = ws->tmp_ns;
+	struct STRVEC *tmp_lam_mask = ws->tmp_lam_mask;
 
 	REAL mu, tmp;
 	REAL *obj = &res->obj;
@@ -312,9 +318,14 @@ void DENSE_QP_RES_COMPUTE(struct DENSE_QP *qp, struct DENSE_QP_SOL *qp_sol, stru
 	AXPY(nv, -1.0, gz, 0, res_g, 0, res_g, 0);
 	*dual_gap += DOT(nv, res_g, 0, v, 0);
 
+	if(mask_constr)
+		VECMUL(nct, lam, 0, d_mask, 0, tmp_lam_mask, 0);
+	else
+		VECCP(nct, lam, 0, tmp_lam_mask, 0);
+
 	if(nb+ng>0)
 		{
-		AXPY(nb+ng, -1.0, lam, 0, lam, nb+ng, tmp_nbg+0, 0);
+		AXPY(nb+ng, -1.0, tmp_lam_mask, 0, tmp_lam_mask, nb+ng, tmp_nbg+0, 0);
 //		AXPY(nb+ng,  1.0, d, 0, t, 0, res_d, 0);
 //		AXPY(nb+ng,  1.0, d, nb+ng, t, nb+ng, res_d, nb+ng);
 		AXPY(2*nb+2*ng,  1.0, d, 0, t, 0, res_d, 0);
@@ -341,14 +352,14 @@ void DENSE_QP_RES_COMPUTE(struct DENSE_QP *qp, struct DENSE_QP_SOL *qp_sol, stru
 		AXPY(2*ns, -1.0, gz, nv, res_g, nv, res_g, nv);
 		*dual_gap += DOT(2*ns, res_g, nv, v, nv);
 
-		AXPY(2*ns, -1.0, lam, 2*nb+2*ng, res_g, nv, res_g, nv);
+		AXPY(2*ns, -1.0, tmp_lam_mask, 2*nb+2*ng, res_g, nv, res_g, nv);
 		for(ii=0; ii<nb+ng; ii++)
 			{
 			idx = idxs_rev[ii];
 			if(idx!=-1)
 				{
-				BLASFEO_VECEL(res_g, nv+idx) -= BLASFEO_VECEL(lam, ii);
-				BLASFEO_VECEL(res_g, nv+ns+idx) -= BLASFEO_VECEL(lam, nb+ng+ii);
+				BLASFEO_VECEL(res_g, nv+idx) -= BLASFEO_VECEL(tmp_lam_mask, ii);
+				BLASFEO_VECEL(res_g, nv+ns+idx) -= BLASFEO_VECEL(tmp_lam_mask, nb+ng+ii);
 				// res_d
 				BLASFEO_VECEL(res_d, ii) -= BLASFEO_VECEL(v, nv+idx);
 				BLASFEO_VECEL(res_d, nb+ng+ii) -= BLASFEO_VECEL(v, nv+ns+idx);
@@ -358,8 +369,10 @@ void DENSE_QP_RES_COMPUTE(struct DENSE_QP *qp, struct DENSE_QP_SOL *qp_sol, stru
 		AXPY(2*ns, -1.0, v, nv, t, 2*nb+2*ng, res_d, 2*nb+2*ng);
 		AXPY(2*ns, 1.0, d, 2*nb+2*ng, res_d, 2*nb+2*ng, res_d, 2*nb+2*ng);
 		}
+	if(mask_constr)
+		VECMUL(nct, d_mask, 0, res_d, 0, res_d, 0);
 	
-	*dual_gap -= DOT(nct, d, 0, lam, 0);
+	*dual_gap -= DOT(nct, d, 0, tmp_lam_mask, 0);
 
 	// res b, res g
 	if(ne>0)
@@ -369,10 +382,15 @@ void DENSE_QP_RES_COMPUTE(struct DENSE_QP *qp, struct DENSE_QP_SOL *qp_sol, stru
 		}
 
 	// res_m res_mu_sum
-	mu = VECMULDOT(nct, lam, 0, t, 0, res_m, 0);
-	AXPY(nct, -1.0, m, 0, res_m, 0, res_m, 0);
-	// TODO use nc_mask_inv from cws if available !!!!!
+	mu = VECMULDOT(nct, tmp_lam_mask, 0, t, 0, res_m, 0);
+	AXPY(nct, -1.0, m, 0, res_m, 0, res_m, 0); // TODO not necessary if m is zero
+	if(mask_constr)
+		VECMUL(nct, d_mask, 0, res_m, 0, res_m, 0); // TODO not necessary if m is zero
+
+	// TODO mask res_g for the slacks of the soft constraints ??? no !!!
+
 	//res->res_mu = mu*nct_inv;
+	res->res_mu = mu*nc_mask_inv;
 	res->res_mu_sum = mu;
 
 	return;

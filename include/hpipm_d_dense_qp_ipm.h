@@ -121,7 +121,6 @@ struct d_dense_qp_ipm_ws
 	struct blasfeo_dvec *sv; // scale for Lv
 	struct blasfeo_dvec *se; // scale for Le
 	struct blasfeo_dvec *tmp_nbg; // work space of size nb+ng
-	struct blasfeo_dvec *tmp_ns; // work space of size ns
 	struct blasfeo_dmat *lq0;
 	struct blasfeo_dmat *lq1;
 	struct blasfeo_dvec *tmp_m;

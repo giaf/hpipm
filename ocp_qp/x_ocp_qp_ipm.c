@@ -2676,7 +2676,7 @@ void OCP_QP_IPM_SOLVE(struct OCP_QP *qp, struct OCP_QP_SOL *qp_sol, struct OCP_Q
 	ws->qp_itref->Z = qp->Z;
 	ws->qp_itref->idxb = qp->idxb;
 	ws->qp_itref->idxs_rev = qp->idxs_rev;
-	ws->qp_step->d_mask = qp->d_mask;
+	ws->qp_itref->d_mask = qp->d_mask;
 	ws->qp_itref->rqz = ws->res_itref->res_g;
 	ws->qp_itref->b = ws->res_itref->res_b;
 	ws->qp_itref->d = ws->res_itref->res_d;

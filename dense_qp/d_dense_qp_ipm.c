@@ -95,6 +95,8 @@
 #define DENSE_QP_RES_CREATE d_dense_qp_res_create
 #define DENSE_QP_RES_MEMSIZE d_dense_qp_res_memsize
 #define DENSE_QP_RES_WS d_dense_qp_res_ws
+#define DENSE_QP_RES_WS_CREATE d_dense_qp_res_ws_create
+#define DENSE_QP_RES_WS_MEMSIZE d_dense_qp_res_ws_memsize
 #define DENSE_QP_RESTORE_LIN_DEP_EQ d_dense_qp_restore_lin_dep_eq
 #define DENSE_QP_SEED d_dense_qp_seed
 #define DENSE_QP_SEED_PRINT d_dense_qp_seed_print

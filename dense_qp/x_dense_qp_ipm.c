@@ -659,6 +659,7 @@ hpipm_size_t DENSE_QP_IPM_WS_MEMSIZE(struct DENSE_QP_DIM *dim, struct DENSE_QP_I
 	size += 1*MEMSIZE_CORE_QP_IPM(nv+2*ns, ne, 2*nb+2*ng+2*ns);
 
 	size += 1*sizeof(struct DENSE_QP_RES_WS); // res_ws
+	size += 1*DENSE_QP_RES_WS_MEMSIZE(dim); // res_ws
 
 	size += 2*sizeof(struct DENSE_QP); // qp_step qp_itref
 
@@ -668,7 +669,7 @@ hpipm_size_t DENSE_QP_IPM_WS_MEMSIZE(struct DENSE_QP_DIM *dim, struct DENSE_QP_I
 	size += 3*sizeof(struct DENSE_QP_RES); // res res_itref res_step
 	size += 2*DENSE_QP_RES_MEMSIZE(dim); // res_itref res_step
 
-	size += 27*sizeof(struct STRVEC); // sol_step(v,pi,lam,t) res_g res_b res_d res_m lv (4+2)*tmp_nbg (1+1)*tmp_ns Gamma gamma Zs_inv sv se tmp_m tmp_nv tmp_2ns tmp_nv2ns
+	size += 23*sizeof(struct STRVEC); // sol_step(v,pi,lam,t) res_g res_b res_d res_m lv 4*tmp_nbg Gamma gamma Zs_inv sv se tmp_m tmp_nv tmp_2ns tmp_nv2ns
 	size += 5*sizeof(struct STRMAT); // 2*Lv AL Le Ctx
 	if(arg->lq_fact>0)
 		{
@@ -690,7 +691,6 @@ hpipm_size_t DENSE_QP_IPM_WS_MEMSIZE(struct DENSE_QP_DIM *dim, struct DENSE_QP_I
 		}
 
 	size += 4*SIZE_STRVEC(nb+ng); // 4*tmp_nbg
-	size += 1*SIZE_STRVEC(ns); // tmp_ns
 	size += 2*SIZE_STRVEC(nv); // lv sv
 	size += 1*SIZE_STRVEC(ne); // se
 	size += 1*SIZE_STRVEC(2*ns); // Zs_inv
@@ -809,7 +809,6 @@ void DENSE_QP_IPM_WS_CREATE(struct DENSE_QP_DIM *dim, struct DENSE_QP_IPM_ARG *a
 
 	// res workspace struct
 	struct DENSE_QP_RES_WS *res_ws_ptr = (struct DENSE_QP_RES_WS *) res_ptr;
-
 	workspace->res_ws = res_ws_ptr;
 	res_ws_ptr += 1;
 
@@ -909,12 +908,6 @@ void DENSE_QP_IPM_WS_CREATE(struct DENSE_QP_DIM *dim, struct DENSE_QP_IPM_ARG *a
 	sv_ptr += 1;
 	workspace->tmp_nbg = sv_ptr;
 	sv_ptr += 4;
-	workspace->res_ws->tmp_nbg = sv_ptr;
-	sv_ptr += 2;
-	workspace->tmp_ns = sv_ptr;
-	sv_ptr += 1;
-	workspace->res_ws->tmp_ns = sv_ptr;
-	sv_ptr += 1;
 	workspace->tmp_m = sv_ptr;
 	sv_ptr += 1;
 	workspace->tmp_nv = sv_ptr;
@@ -985,6 +978,9 @@ void DENSE_QP_IPM_WS_CREATE(struct DENSE_QP_DIM *dim, struct DENSE_QP_IPM_ARG *a
 
 	DENSE_QP_RES_CREATE(dim, workspace->res_step, c_ptr);
 	c_ptr += workspace->res_step->memsize;
+
+	DENSE_QP_RES_WS_CREATE(dim, workspace->res_ws, c_ptr);
+	c_ptr += workspace->res_ws->memsize;
 
 	CREATE_STRMAT(nv+1, nv, workspace->Lv, c_ptr);
 	c_ptr += workspace->Lv->memsize;
@@ -1067,11 +1063,9 @@ void DENSE_QP_IPM_WS_CREATE(struct DENSE_QP_DIM *dim, struct DENSE_QP_IPM_ARG *a
 	c_ptr += workspace->Zs_inv->memsize;
 
 	CREATE_STRVEC(nb+ng, workspace->tmp_nbg+0, c_ptr);
-	CREATE_STRVEC(nb+ng, workspace->res_ws->tmp_nbg+0, c_ptr);
 	c_ptr += (workspace->tmp_nbg+0)->memsize;
 
 	CREATE_STRVEC(nb+ng, workspace->tmp_nbg+1, c_ptr);
-	CREATE_STRVEC(nb+ng, workspace->res_ws->tmp_nbg+1, c_ptr);
 	c_ptr += (workspace->tmp_nbg+1)->memsize;
 
 	CREATE_STRVEC(nb+ng, workspace->tmp_nbg+2, c_ptr);
@@ -1079,10 +1073,6 @@ void DENSE_QP_IPM_WS_CREATE(struct DENSE_QP_DIM *dim, struct DENSE_QP_IPM_ARG *a
 
 	CREATE_STRVEC(nb+ng, workspace->tmp_nbg+3, c_ptr);
 	c_ptr += (workspace->tmp_nbg+3)->memsize;
-
-	CREATE_STRVEC(ns, workspace->tmp_ns+0, c_ptr);
-	CREATE_STRVEC(ns, workspace->res_ws->tmp_ns+0, c_ptr);
-	c_ptr += (workspace->tmp_ns+0)->memsize;
 
 	CREATE_STRVEC(2*nb+2*ng+2*ns, workspace->tmp_m, c_ptr);
 	c_ptr += (workspace->tmp_m)->memsize;
@@ -1545,7 +1535,7 @@ void DENSE_QP_IPM_ABS_STEP(int kk, struct DENSE_QP *qp, struct DENSE_QP_SOL *qp_
 	if(ws->mask_constr)
 		{
 		// mask out disregarded constraints
-		VECMUL(2*ns, qp->d_mask, 2*nb+2*ng, ws->sol_step->v, nv, ws->sol_step->v, nv);
+		//VECMUL(2*ns, qp->d_mask, 2*nb+2*ng, ws->sol_step->v, nv, ws->sol_step->v, nv);
 		VECMUL(cws->nc, qp->d_mask, 0, ws->sol_step->t, 0, ws->sol_step->t, 0);
 		VECMUL(cws->nc, qp->d_mask, 0, ws->sol_step->lam, 0, ws->sol_step->lam, 0);
 		}
@@ -1585,7 +1575,7 @@ void DENSE_QP_IPM_ABS_STEP(int kk, struct DENSE_QP *qp, struct DENSE_QP_SOL *qp_
 		if(ws->mask_constr)
 			{
 			// mask out disregarded constraints
-			VECMUL(2*ns, qp->d_mask, 2*nb+2*ng, ws->sol_step->v, nv, ws->sol_step->v, nv);
+			//VECMUL(2*ns, qp->d_mask, 2*nb+2*ng, ws->sol_step->v, nv, ws->sol_step->v, nv);
 			VECMUL(cws->nc, qp->d_mask, 0, ws->sol_step->t, 0, ws->sol_step->t, 0);
 			VECMUL(cws->nc, qp->d_mask, 0, ws->sol_step->lam, 0, ws->sol_step->lam, 0);
 			}
@@ -1630,7 +1620,7 @@ void DENSE_QP_IPM_ABS_STEP(int kk, struct DENSE_QP *qp, struct DENSE_QP_SOL *qp_
 				if(ws->mask_constr)
 					{
 					// mask out disregarded constraints
-					VECMUL(2*ns, qp->d_mask, 2*nb+2*ng, ws->sol_step->v, nv, ws->sol_step->v, nv);
+					//VECMUL(2*ns, qp->d_mask, 2*nb+2*ng, ws->sol_step->v, nv, ws->sol_step->v, nv);
 					VECMUL(cws->nc, qp->d_mask, 0, ws->sol_step->t, 0, ws->sol_step->t, 0);
 					VECMUL(cws->nc, qp->d_mask, 0, ws->sol_step->lam, 0, ws->sol_step->lam, 0);
 					}
@@ -1709,7 +1699,7 @@ void DENSE_QP_IPM_DELTA_STEP(int kk, struct DENSE_QP *qp, struct DENSE_QP_SOL *q
 		if(ws->mask_constr)
 			{
 			// mask out disregarded constraints
-			VECMUL(2*ns, qp->d_mask, 2*nb+2*ng, ws->sol_step->v, nv, ws->sol_step->v, nv);
+			//VECMUL(2*ns, qp->d_mask, 2*nb+2*ng, ws->sol_step->v, nv, ws->sol_step->v, nv);
 			VECMUL(cws->nc, qp->d_mask, 0, ws->sol_step->t, 0, ws->sol_step->t, 0);
 			VECMUL(cws->nc, qp->d_mask, 0, ws->sol_step->lam, 0, ws->sol_step->lam, 0);
 			}
@@ -1723,7 +1713,7 @@ void DENSE_QP_IPM_DELTA_STEP(int kk, struct DENSE_QP *qp, struct DENSE_QP_SOL *q
 		if(ws->mask_constr)
 			{
 			// mask out disregarded constraints
-			VECMUL(2*ns, qp->d_mask, 2*nb+2*ng, ws->sol_step->v, nv, ws->sol_step->v, nv);
+			//VECMUL(2*ns, qp->d_mask, 2*nb+2*ng, ws->sol_step->v, nv, ws->sol_step->v, nv);
 			VECMUL(cws->nc, qp->d_mask, 0, ws->sol_step->t, 0, ws->sol_step->t, 0);
 			VECMUL(cws->nc, qp->d_mask, 0, ws->sol_step->lam, 0, ws->sol_step->lam, 0);
 			}
@@ -1734,7 +1724,7 @@ void DENSE_QP_IPM_DELTA_STEP(int kk, struct DENSE_QP *qp, struct DENSE_QP_SOL *q
 		if(ws->mask_constr)
 			{
 			// mask out disregarded constraints
-			VECMUL(2*ns, qp->d_mask, 2*nb+2*ng, ws->res_itref->res_g, nv, ws->res_itref->res_g, nv);
+			//VECMUL(2*ns, qp->d_mask, 2*nb+2*ng, ws->res_itref->res_g, nv, ws->res_itref->res_g, nv);
 			VECMUL(cws->nc, qp->d_mask, 0, ws->res_itref->res_d, 0, ws->res_itref->res_d, 0);
 			VECMUL(cws->nc, qp->d_mask, 0, ws->res_itref->res_m, 0, ws->res_itref->res_m, 0);
 			}
@@ -1767,7 +1757,7 @@ void DENSE_QP_IPM_DELTA_STEP(int kk, struct DENSE_QP *qp, struct DENSE_QP_SOL *q
 			if(ws->mask_constr)
 				{
 				// mask out disregarded constraints
-				VECMUL(2*ns, qp->d_mask, 2*nb+2*ng, ws->sol_step->v, nv, ws->sol_step->v, nv);
+				//VECMUL(2*ns, qp->d_mask, 2*nb+2*ng, ws->sol_step->v, nv, ws->sol_step->v, nv);
 				VECMUL(cws->nc, qp->d_mask, 0, ws->sol_step->t, 0, ws->sol_step->t, 0);
 				VECMUL(cws->nc, qp->d_mask, 0, ws->sol_step->lam, 0, ws->sol_step->lam, 0);
 				}
@@ -1787,7 +1777,7 @@ void DENSE_QP_IPM_DELTA_STEP(int kk, struct DENSE_QP *qp, struct DENSE_QP_SOL *q
 		if(ws->mask_constr)
 			{
 			// mask out disregarded constraints
-			VECMUL(2*ns, qp->d_mask, 2*nb+2*ng, ws->sol_step->v, nv, ws->sol_step->v, nv);
+			//VECMUL(2*ns, qp->d_mask, 2*nb+2*ng, ws->sol_step->v, nv, ws->sol_step->v, nv);
 			VECMUL(cws->nc, qp->d_mask, 0, ws->sol_step->t, 0, ws->sol_step->t, 0);
 			VECMUL(cws->nc, qp->d_mask, 0, ws->sol_step->lam, 0, ws->sol_step->lam, 0);
 			}
@@ -1815,7 +1805,7 @@ void DENSE_QP_IPM_DELTA_STEP(int kk, struct DENSE_QP *qp, struct DENSE_QP_SOL *q
 			if(ws->mask_constr)
 				{
 				// mask out disregarded constraints
-				VECMUL(2*ns, qp->d_mask, 2*nb+2*ng, ws->res_itref->res_g, nv, ws->res_itref->res_g, nv);
+				//VECMUL(2*ns, qp->d_mask, 2*nb+2*ng, ws->res_itref->res_g, nv, ws->res_itref->res_g, nv);
 				VECMUL(cws->nc, qp->d_mask, 0, ws->res_itref->res_d, 0, ws->res_itref->res_d, 0);
 				VECMUL(cws->nc, qp->d_mask, 0, ws->res_itref->res_m, 0, ws->res_itref->res_m, 0);
 				}
@@ -1853,7 +1843,7 @@ void DENSE_QP_IPM_DELTA_STEP(int kk, struct DENSE_QP *qp, struct DENSE_QP_SOL *q
 			if(ws->mask_constr)
 				{
 				// mask out disregarded constraints
-				VECMUL(2*ns, qp->d_mask, 2*nb+2*ng, ws->sol_step->v, nv, ws->sol_step->v, nv);
+				//VECMUL(2*ns, qp->d_mask, 2*nb+2*ng, ws->sol_step->v, nv, ws->sol_step->v, nv);
 				VECMUL(cws->nc, qp->d_mask, 0, ws->sol_itref->t, 0, ws->sol_itref->t, 0);
 				VECMUL(cws->nc, qp->d_mask, 0, ws->sol_itref->lam, 0, ws->sol_itref->lam, 0);
 				}
@@ -1870,7 +1860,7 @@ void DENSE_QP_IPM_DELTA_STEP(int kk, struct DENSE_QP *qp, struct DENSE_QP_SOL *q
 			if(ws->mask_constr)
 				{
 				// mask out disregarded constraints
-				VECMUL(2*ns, qp->d_mask, 2*nb+2*ng, ws->res_itref->res_g, nv, ws->res_itref->res_g, nv);
+				//VECMUL(2*ns, qp->d_mask, 2*nb+2*ng, ws->res_itref->res_g, nv, ws->res_itref->res_g, nv);
 				VECMUL(cws->nc, qp->d_mask, 0, ws->res_itref->res_d, 0, ws->res_itref->res_d, 0);
 				VECMUL(cws->nc, qp->d_mask, 0, ws->res_itref->res_m, 0, ws->res_itref->res_m, 0);
 				}
@@ -1944,7 +1934,7 @@ void DENSE_QP_IPM_DELTA_STEP(int kk, struct DENSE_QP *qp, struct DENSE_QP_SOL *q
 		if(ws->mask_constr)
 			{
 			// mask out disregarded constraints
-			VECMUL(2*ns, qp->d_mask, 2*nb+2*ng, ws->sol_step->v, nv, ws->sol_step->v, nv);
+			//VECMUL(2*ns, qp->d_mask, 2*nb+2*ng, ws->sol_step->v, nv, ws->sol_step->v, nv);
 			VECMUL(cws->nc, qp->d_mask, 0, ws->sol_step->t, 0, ws->sol_step->t, 0);
 			VECMUL(cws->nc, qp->d_mask, 0, ws->sol_step->lam, 0, ws->sol_step->lam, 0);
 			}
@@ -1984,7 +1974,7 @@ void DENSE_QP_IPM_DELTA_STEP(int kk, struct DENSE_QP *qp, struct DENSE_QP_SOL *q
 				if(ws->mask_constr)
 					{
 					// mask out disregarded constraints
-					VECMUL(2*ns, qp->d_mask, 2*nb+2*ng, ws->sol_step->v, nv, ws->sol_step->v, nv);
+					//VECMUL(2*ns, qp->d_mask, 2*nb+2*ng, ws->sol_step->v, nv, ws->sol_step->v, nv);
 					VECMUL(cws->nc, qp->d_mask, 0, ws->sol_step->t, 0, ws->sol_step->t, 0);
 					VECMUL(cws->nc, qp->d_mask, 0, ws->sol_step->lam, 0, ws->sol_step->lam, 0);
 					}
@@ -2011,7 +2001,7 @@ void DENSE_QP_IPM_DELTA_STEP(int kk, struct DENSE_QP *qp, struct DENSE_QP_SOL *q
 				if(ws->mask_constr)
 					{
 					// mask out disregarded constraints
-					VECMUL(2*ns, qp->d_mask, 2*nb+2*ng, ws->res_itref->res_g, nv, ws->res_itref->res_g, nv);
+					//VECMUL(2*ns, qp->d_mask, 2*nb+2*ng, ws->res_itref->res_g, nv, ws->res_itref->res_g, nv);
 					VECMUL(cws->nc, qp->d_mask, 0, ws->res_itref->res_d, 0, ws->res_itref->res_d, 0);
 					VECMUL(cws->nc, qp->d_mask, 0, ws->res_itref->res_m, 0, ws->res_itref->res_m, 0);
 					}
@@ -2049,7 +2039,7 @@ void DENSE_QP_IPM_DELTA_STEP(int kk, struct DENSE_QP *qp, struct DENSE_QP_SOL *q
 				if(ws->mask_constr)
 					{
 					// mask out disregarded constraints
-					VECMUL(2*ns, qp->d_mask, 2*nb+2*ng, ws->sol_step->v, nv, ws->sol_step->v, nv);
+					//VECMUL(2*ns, qp->d_mask, 2*nb+2*ng, ws->sol_step->v, nv, ws->sol_step->v, nv);
 					VECMUL(cws->nc, qp->d_mask, 0, ws->sol_itref->t, 0, ws->sol_itref->t, 0);
 					VECMUL(cws->nc, qp->d_mask, 0, ws->sol_itref->lam, 0, ws->sol_itref->lam, 0);
 					}
@@ -2067,7 +2057,7 @@ void DENSE_QP_IPM_DELTA_STEP(int kk, struct DENSE_QP *qp, struct DENSE_QP_SOL *q
 				if(ws->mask_constr)
 					{
 					// mask out disregarded constraints
-					VECMUL(2*ns, qp->d_mask, 2*nb+2*ng, ws->res_itref->res_g, nv, ws->res_itref->res_g, nv);
+					//VECMUL(2*ns, qp->d_mask, 2*nb+2*ng, ws->res_itref->res_g, nv, ws->res_itref->res_g, nv);
 					VECMUL(cws->nc, qp->d_mask, 0, ws->res_itref->res_d, 0, ws->res_itref->res_d, 0);
 					VECMUL(cws->nc, qp->d_mask, 0, ws->res_itref->res_m, 0, ws->res_itref->res_m, 0);
 					}
@@ -2198,11 +2188,11 @@ exit(1);
 	ws->qp_step->Z = qp->Z;
 	ws->qp_step->idxb = qp->idxb;
 	ws->qp_step->idxs_rev = qp->idxs_rev;
+	ws->qp_step->d_mask = qp->d_mask;
 	ws->qp_step->gz = ws->res->res_g;
 	ws->qp_step->b = ws->res->res_b;
 	ws->qp_step->d = ws->res->res_d;
 	ws->qp_step->m = ws->res->res_m;
-	ws->qp_step->d_mask = qp->d_mask; // XXX
 
 	// alias members of qp_itref
 	ws->qp_itref->dim = qp->dim;
@@ -2212,11 +2202,11 @@ exit(1);
 	ws->qp_itref->Z = qp->Z;
 	ws->qp_itref->idxb = qp->idxb;
 	ws->qp_itref->idxs_rev = qp->idxs_rev;
+	ws->qp_itref->d_mask = qp->d_mask;
 	ws->qp_itref->gz = ws->res_itref->res_g;
 	ws->qp_itref->b = ws->res_itref->res_b;
 	ws->qp_itref->d = ws->res_itref->res_d;
 	ws->qp_itref->m = ws->res_itref->res_m;
-	ws->qp_itref->d_mask = qp->d_mask; // XXX
 
 	REAL *qp_res_max = ws->res->res_max;
 	qp_res_max[0] = 0;
@@ -2242,23 +2232,28 @@ exit(1);
 	if(nc_mask<cws->nc)
 		{
 		ws->mask_constr = 1;
+		ws->res_ws->mask_constr = 1;
 		}
 	else
 		{
 		ws->mask_constr = 0;
+		ws->res_ws->mask_constr = 0;
 		}
 	if(nc_mask==0)
 		{
 		mask_unconstr = 1;
 		cws->nc_mask = 0;
 		cws->nc_mask_inv = 0.0;
+		ws->res_ws->nc_mask_inv = 0.0;
 		}
 	else
 		{
 		mask_unconstr = 0;
 		cws->nc_mask = nc_mask;
 		cws->nc_mask_inv = 1.0/nc_mask;
+		ws->res_ws->nc_mask_inv = 1.0/nc_mask;
 		}
+	ws->res_ws->valid_nc_mask = 1; // set to avoid mask_constr and nc_mask_inv recomputation in res
 
 	// no constraints
 	if(cws->nc==0 | mask_unconstr==1)
@@ -2271,7 +2266,7 @@ exit(1);
 			DENSE_QP_RES_COMPUTE(qp, qp_sol, ws->res, ws->res_ws);
 			// XXX no constraints, so no mask
 			DENSE_QP_RES_COMPUTE_INF_NORM(ws->res);
-			ws->res->res_mu = ws->res->res_mu_sum * cws->nc_mask_inv;
+			//ws->res->res_mu = ws->res->res_mu_sum * cws->nc_mask_inv;
 			cws->mu = ws->res->res_mu;
 			// save infinity norm of residuals
 			if(0<ws->stat_max)
@@ -2372,13 +2367,13 @@ exit(1);
 			{
 			// compute residuals
 			DENSE_QP_RES_COMPUTE(qp, qp_sol, ws->res, ws->res_ws);
-			if(ws->mask_constr)
-				{
-				// mask out disregarded constraints
-				VECMUL(2*ns, qp->d_mask, 2*nb+2*ng, ws->res->res_g, nv, ws->res->res_g, nv);
-				VECMUL(cws->nc, qp->d_mask, 0, ws->res->res_d, 0, ws->res->res_d, 0);
-				VECMUL(cws->nc, qp->d_mask, 0, ws->res->res_m, 0, ws->res->res_m, 0);
-				}
+			//if(ws->mask_constr)
+			//	{
+			//	// mask out disregarded constraints
+			//	VECMUL(2*ns, qp->d_mask, 2*nb+2*ng, ws->res->res_g, nv, ws->res->res_g, nv);
+			//	VECMUL(cws->nc, qp->d_mask, 0, ws->res->res_d, 0, ws->res->res_d, 0);
+			//	VECMUL(cws->nc, qp->d_mask, 0, ws->res->res_m, 0, ws->res->res_m, 0);
+			//	}
 			DENSE_QP_RES_COMPUTE_INF_NORM(ws->res);
 			// save infinity norm of residuals
 			// XXX it is already kk+1
@@ -2400,16 +2395,16 @@ exit(1);
 
 	// compute residuals
 	DENSE_QP_RES_COMPUTE(qp, qp_sol, ws->res, ws->res_ws);
-	if(ws->mask_constr)
-		{
-		// mask out disregarded constraints
-		VECMUL(2*ns, qp->d_mask, 2*nb+2*ng, ws->res->res_g, nv, ws->res->res_g, nv);
-		VECMUL(cws->nc, qp->d_mask, 0, ws->res->res_d, 0, ws->res->res_d, 0);
-		VECMUL(cws->nc, qp->d_mask, 0, ws->res->res_m, 0, ws->res->res_m, 0);
-		}
-	DENSE_QP_RES_COMPUTE_INF_NORM(ws->res);
-	ws->res->res_mu = ws->res->res_mu_sum * cws->nc_mask_inv;
+	//if(ws->mask_constr)
+	//	{
+	//	// mask out disregarded constraints
+	//	VECMUL(2*ns, qp->d_mask, 2*nb+2*ng, ws->res->res_g, nv, ws->res->res_g, nv);
+	//	VECMUL(cws->nc, qp->d_mask, 0, ws->res->res_d, 0, ws->res->res_d, 0);
+	//	VECMUL(cws->nc, qp->d_mask, 0, ws->res->res_m, 0, ws->res->res_m, 0);
+	//	}
+	//ws->res->res_mu = ws->res->res_mu_sum * cws->nc_mask_inv;
 	cws->mu = ws->res->res_mu;
+	DENSE_QP_RES_COMPUTE_INF_NORM(ws->res);
 	// save infinity norm of residuals
 	if(0<ws->stat_max)
 		{
@@ -2449,16 +2444,16 @@ exit(1);
 
 		// compute residuals
 		DENSE_QP_RES_COMPUTE(qp, qp_sol, ws->res, ws->res_ws);
-		if(ws->mask_constr)
-			{
-			// mask out disregarded constraints
-			VECMUL(2*ns, qp->d_mask, 2*nb+2*ng, ws->res->res_g, nv, ws->res->res_g, nv);
-			VECMUL(cws->nc, qp->d_mask, 0, ws->res->res_d, 0, ws->res->res_d, 0);
-			VECMUL(cws->nc, qp->d_mask, 0, ws->res->res_m, 0, ws->res->res_m, 0);
-			}
-		DENSE_QP_RES_COMPUTE_INF_NORM(ws->res);
-		ws->res->res_mu = ws->res->res_mu_sum * cws->nc_mask_inv;
+		//if(ws->mask_constr)
+		//	{
+		//	// mask out disregarded constraints
+		//	VECMUL(2*ns, qp->d_mask, 2*nb+2*ng, ws->res->res_g, nv, ws->res->res_g, nv);
+		//	VECMUL(cws->nc, qp->d_mask, 0, ws->res->res_d, 0, ws->res->res_d, 0);
+		//	VECMUL(cws->nc, qp->d_mask, 0, ws->res->res_m, 0, ws->res->res_m, 0);
+		//	}
+		//ws->res->res_mu = ws->res->res_mu_sum * cws->nc_mask_inv;
 		cws->mu = ws->res->res_mu;
+		DENSE_QP_RES_COMPUTE_INF_NORM(ws->res);
 		// save infinity norm of residuals
 		if(kk+1<ws->stat_max)
 			{
@@ -2485,6 +2480,9 @@ set_status:
 		// backup initial guess in core, for use in case it is already optimal
 		BACKUP_VAR_QP(cws);
 		}
+
+	// reset to guard against changes in d_mask
+	ws->res_ws->valid_nc_mask = 0;
 
 	// save info before return
 	ws->iter = kk;
@@ -2867,7 +2865,6 @@ void DENSE_QP_COMPUTE_STEP_LENGTH(struct DENSE_QP *qp, struct DENSE_QP_SOL *qp_s
 	struct STRVEC *step_res_m = res_step->res_m;
 
 	struct STRVEC *tmp_nbg = ws->res_ws->tmp_nbg;
-	struct STRVEC *tmp_ns = ws->res_ws->tmp_ns;
 	struct STRVEC *tmp_nv2ns = ws->tmp_nv2ns+1;
 
 	REAL mu, tmp;
