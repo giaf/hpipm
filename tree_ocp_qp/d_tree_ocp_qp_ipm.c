@@ -94,6 +94,8 @@
 #define TREE_OCP_QP_IPM_WS d_tree_ocp_qp_ipm_ws
 #define TREE_OCP_QP_RES d_tree_ocp_qp_res
 #define TREE_OCP_QP_RES_WS d_tree_ocp_qp_res_ws
+#define TREE_OCP_QP_RES_WS_CREATE d_tree_ocp_qp_res_ws_create
+#define TREE_OCP_QP_RES_WS_MEMSIZE d_tree_ocp_qp_res_ws_memsize
 #define TREE_OCP_QP_RES_COMPUTE d_tree_ocp_qp_res_compute
 #define TREE_OCP_QP_RES_COMPUTE_INF_NORM d_tree_ocp_qp_res_compute_inf_norm
 #define TREE_OCP_QP_RES_COMPUTE_LIN d_tree_ocp_qp_res_compute_lin

@@ -92,6 +92,8 @@
 #define TREE_OCP_QP_IPM_ABS_STEP s_tree_ocp_qp_ipm_abs_step
 #define TREE_OCP_QP_IPM_DELTA_STEP s_tree_ocp_qp_ipm_delta_step
 #define TREE_OCP_QP_IPM_WS s_tree_ocp_qp_ipm_ws
+#define TREE_OCP_QP_RES_WS_CREATE s_tree_ocp_qp_res_ws_create
+#define TREE_OCP_QP_RES_WS_MEMSIZE s_tree_ocp_qp_res_ws_memsize
 #define TREE_OCP_QP_RES s_tree_ocp_qp_res
 #define TREE_OCP_QP_RES_WS s_tree_ocp_qp_res_ws
 #define TREE_OCP_QP_RES_COMPUTE s_tree_ocp_qp_res_compute

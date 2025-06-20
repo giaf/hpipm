@@ -76,9 +76,9 @@ struct s_ocp_qp_res_ws
 	struct blasfeo_svec *tmp_nbgM; // work space of size nbM+ngM
 	struct blasfeo_svec *tmp_nsM; // work space of size nsM
 	struct blasfeo_svec *tmp_lam_mask; // workspace of size 2*nbM+2*ngM+2*nsM
+	float nc_mask_inv; // reciprocal of number of non-masked constraints
 	int valid_nc_mask; // signal that there mask_constr and nc_mask_inv are valid
 	int mask_constr; // signal that there are some masked constraints
-	float nc_mask_inv; // reciprocal of number of non-masked constraints
 	hpipm_size_t memsize;
 	};
 
