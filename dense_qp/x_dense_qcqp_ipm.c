@@ -1342,15 +1342,18 @@ void DENSE_QCQP_IPM_SOLVE(struct DENSE_QCQP *qcqp, struct DENSE_QCQP_SOL *qcqp_s
 		mask_unconstr = 1;
 		cws->nc_mask = 0;
 		cws->nc_mask_inv = 0.0;
+		qcqp_res_ws->nc_mask_inv = 0.0;
 		}
 	else
 		{
 		mask_unconstr = 0;
 		cws->nc_mask = nc_mask;
 		cws->nc_mask_inv = 1.0/nc_mask;
+		qcqp_res_ws->nc_mask_inv = 1.0/nc_mask;
 		}
 	// always mask lower quadratic constr
 	qp_ws->mask_constr = 1;
+	qcqp_res_ws->mask_constr = 1;
 
 
 	// no constraints
@@ -1364,7 +1367,7 @@ void DENSE_QCQP_IPM_SOLVE(struct DENSE_QCQP *qcqp, struct DENSE_QCQP_SOL *qcqp_s
 			DENSE_QCQP_RES_COMPUTE(qcqp, qcqp_sol, qcqp_res, qcqp_res_ws);
 			// XXX no constraints, so no mask
 			DENSE_QCQP_RES_COMPUTE_INF_NORM(qcqp_res);
-			qcqp_res->res_mu = qcqp_res->res_mu_sum * cws->nc_mask_inv;
+			//qcqp_res->res_mu = qcqp_res->res_mu_sum * cws->nc_mask_inv;
 			cws->mu = qcqp_res->res_mu;
 			// save infinity norm of residuals
 			if(0<stat_max)
@@ -1460,13 +1463,13 @@ void DENSE_QCQP_IPM_SOLVE(struct DENSE_QCQP *qcqp, struct DENSE_QCQP_SOL *qcqp_s
 			{
 			// compute residuals
 			DENSE_QCQP_RES_COMPUTE(qcqp, qcqp_sol, qcqp_res, qcqp_res_ws);
-			if(qp_ws->mask_constr)
-				{
-				// mask out disregarded constraints
-				//VECMUL(2*ns, qp->d_mask, 2*nb+2*ng+2*nq, qcqp_res->res_g, nv, qcqp_res->res_g, nv);
-				VECMUL(cws->nc, qp->d_mask, 0, qcqp_res->res_d, 0, qcqp_res->res_d, 0);
-				VECMUL(cws->nc, qp->d_mask, 0, qcqp_res->res_m, 0, qcqp_res->res_m, 0);
-				}
+			//if(qp_ws->mask_constr)
+			//	{
+			//	// mask out disregarded constraints
+			//	//VECMUL(2*ns, qp->d_mask, 2*nb+2*ng+2*nq, qcqp_res->res_g, nv, qcqp_res->res_g, nv);
+			//	VECMUL(cws->nc, qp->d_mask, 0, qcqp_res->res_d, 0, qcqp_res->res_d, 0);
+			//	VECMUL(cws->nc, qp->d_mask, 0, qcqp_res->res_m, 0, qcqp_res->res_m, 0);
+			//	}
 			DENSE_QCQP_RES_COMPUTE_INF_NORM(qcqp_res);
 			// save infinity norm of residuals
 			// XXX it is already kk+1
@@ -1488,15 +1491,15 @@ void DENSE_QCQP_IPM_SOLVE(struct DENSE_QCQP *qcqp, struct DENSE_QCQP_SOL *qcqp_s
 
 	// compute residuals
 	DENSE_QCQP_RES_COMPUTE(qcqp, qcqp_sol, qcqp_res, qcqp_res_ws);
-	if(qp_ws->mask_constr)
-		{
-		// mask out disregarded constraints
-		//VECMUL(2*ns, qp->d_mask, 2*nb+2*ng+2*nq, qcqp_res->res_g, nv, qcqp_res->res_g, nv);
-		VECMUL(cws->nc, qp->d_mask, 0, qcqp_res->res_d, 0, qcqp_res->res_d, 0);
-		VECMUL(cws->nc, qp->d_mask, 0, qcqp_res->res_m, 0, qcqp_res->res_m, 0);
-		}
+	//if(qp_ws->mask_constr)
+	//	{
+	//	// mask out disregarded constraints
+	//	//VECMUL(2*ns, qp->d_mask, 2*nb+2*ng+2*nq, qcqp_res->res_g, nv, qcqp_res->res_g, nv);
+	//	VECMUL(cws->nc, qp->d_mask, 0, qcqp_res->res_d, 0, qcqp_res->res_d, 0);
+	//	VECMUL(cws->nc, qp->d_mask, 0, qcqp_res->res_m, 0, qcqp_res->res_m, 0);
+	//	}
+	//qcqp_res->res_mu = qcqp_res->res_mu_sum * cws->nc_mask_inv;
 	DENSE_QCQP_RES_COMPUTE_INF_NORM(qcqp_res);
-	qcqp_res->res_mu = qcqp_res->res_mu_sum * cws->nc_mask_inv;
 	cws->mu = qcqp_res->res_mu;
 	DENSE_QCQP_RES_CONV_QP_RES(qcqp_res, qp_ws->res);
 	// save infinity norm of residuals
@@ -1547,15 +1550,15 @@ void DENSE_QCQP_IPM_SOLVE(struct DENSE_QCQP *qcqp, struct DENSE_QCQP_SOL *qcqp_s
 
 		// compute residuals
 		DENSE_QCQP_RES_COMPUTE(qcqp, qcqp_sol, qcqp_res, qcqp_res_ws);
-		if(qp_ws->mask_constr)
-			{
-			// mask out disregarded constraints
-			//VECMUL(2*ns, qp->d_mask, 2*nb+2*ng+2*nq, qcqp_res->res_g, nv, qcqp_res->res_g, nv);
-			VECMUL(cws->nc, qp->d_mask, 0, qcqp_res->res_d, 0, qcqp_res->res_d, 0);
-			VECMUL(cws->nc, qp->d_mask, 0, qcqp_res->res_m, 0, qcqp_res->res_m, 0);
-			}
+		//if(qp_ws->mask_constr)
+		//	{
+		//	// mask out disregarded constraints
+		//	//VECMUL(2*ns, qp->d_mask, 2*nb+2*ng+2*nq, qcqp_res->res_g, nv, qcqp_res->res_g, nv);
+		//	VECMUL(cws->nc, qp->d_mask, 0, qcqp_res->res_d, 0, qcqp_res->res_d, 0);
+		//	VECMUL(cws->nc, qp->d_mask, 0, qcqp_res->res_m, 0, qcqp_res->res_m, 0);
+		//	}
+		//qcqp_res->res_mu = qcqp_res->res_mu_sum * cws->nc_mask_inv;
 		DENSE_QCQP_RES_COMPUTE_INF_NORM(qcqp_res);
-		qcqp_res->res_mu = qcqp_res->res_mu_sum * cws->nc_mask_inv;
 		cws->mu = qcqp_res->res_mu;
 		DENSE_QCQP_RES_CONV_QP_RES(qcqp_res, qp_ws->res);
 		// save infinity norm of residuals
@@ -1579,6 +1582,9 @@ set_status:
 
 	// save info before return
 	qcqp_ws->iter = kk;
+
+	// reset to guard against changes in d_mask
+	qcqp_res_ws->valid_nc_mask = 0;
 
 	if(kk == qcqp_arg->iter_max)
 		{

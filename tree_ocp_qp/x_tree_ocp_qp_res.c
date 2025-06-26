@@ -429,27 +429,6 @@ void TREE_OCP_QP_RES_COMPUTE(struct TREE_OCP_QP *qp, struct TREE_OCP_QP_SOL *qp_
 
 	//REAL nct_inv = 1.0/nct;
 
-	int mask_constr = 0;
-	REAL nc_mask_inv = 0.0;
-	if(ws->valid_nc_mask==1)
-		{
-		mask_constr = ws->mask_constr;
-		nc_mask_inv = ws->nc_mask_inv;
-		}
-	else
-		{
-		int nc_mask = 0;
-		for(ii=0; ii<Nn; ii++)
-			for(jj=0; jj<2*nb[ii]+2*ng[ii]+2*ns[ii]; jj++)
-				if((qp->d_mask+ii)->pa[jj]==1.0)
-					nc_mask++;
-				else
-					mask_constr = 1; // at least one masked constraint
-		if(nc_mask>0)
-			nc_mask_inv = 1.0/nc_mask;
-		// do not store these in ws, to guard against changes in d_mask
-		}
-
 	struct STRMAT *BAbt = qp->BAbt;
 	struct STRMAT *RSQrq = qp->RSQrq;
 	struct STRMAT *DCt = qp->DCt;
@@ -480,6 +459,27 @@ void TREE_OCP_QP_RES_COMPUTE(struct TREE_OCP_QP *qp, struct TREE_OCP_QP_SOL *qp_
 
 	REAL *obj = &res->obj;
 	REAL *dual_gap = &res->dual_gap;
+
+	int mask_constr = 0;
+	REAL nc_mask_inv = 0.0;
+	if(ws->valid_nc_mask==1)
+		{
+		mask_constr = ws->mask_constr;
+		nc_mask_inv = ws->nc_mask_inv;
+		}
+	else
+		{
+		int nc_mask = 0;
+		for(ii=0; ii<Nn; ii++)
+			for(jj=0; jj<2*nb[ii]+2*ng[ii]+2*ns[ii]; jj++)
+				if((d_mask+ii)->pa[jj]==1.0)
+					nc_mask++;
+				else
+					mask_constr = 1; // at least one masked constraint
+		if(nc_mask>0)
+			nc_mask_inv = 1.0/nc_mask;
+		// do not store these in ws, to guard against changes in d_mask
+		}
 
 	//
 	REAL mu = 0.0;
@@ -614,20 +614,6 @@ void TREE_OCP_QP_RES_COMPUTE_LIN(struct TREE_OCP_QP *qp, struct TREE_OCP_QP_SOL 
 	int *ng = qp->dim->ng;
 	int *ns = qp->dim->ns;
 
-	int mask_constr = 0;
-	if(ws->valid_nc_mask==1)
-		{
-		mask_constr = ws->mask_constr;
-		}
-	else
-		{
-		for(ii=0; ii<Nn; ii++)
-			for(jj=0; jj<2*nb[ii]+2*ng[ii]+2*ns[ii]; jj++)
-				if((qp->d_mask+ii)->pa[jj]!=1.0)
-					mask_constr = 1; // at least one masked constraint
-		// do not store these in ws, to guard against changes in d_mask
-		}
-
 	struct STRMAT *BAbt = qp->BAbt;
 	struct STRMAT *RSQrq = qp->RSQrq;
 	struct STRMAT *DCt = qp->DCt;
@@ -658,6 +644,20 @@ void TREE_OCP_QP_RES_COMPUTE_LIN(struct TREE_OCP_QP *qp, struct TREE_OCP_QP_SOL 
 	struct STRVEC *tmp_lam_mask = ws->tmp_lam_mask;
 
 	int nx0, nx1, nu0, nu1, nb0, ng0, ns0, idx;
+
+	int mask_constr = 0;
+	if(ws->valid_nc_mask==1)
+		{
+		mask_constr = ws->mask_constr;
+		}
+	else
+		{
+		for(ii=0; ii<Nn; ii++)
+			for(jj=0; jj<2*nb[ii]+2*ng[ii]+2*ns[ii]; jj++)
+				if((qp->d_mask+ii)->pa[jj]!=1.0)
+					mask_constr = 1; // at least one masked constraint
+		// do not store these in ws, to guard against changes in d_mask
+		}
 
 	//
 	REAL mu = 0.0;

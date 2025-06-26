@@ -156,12 +156,13 @@ hpipm_size_t DENSE_QCQP_RES_WS_MEMSIZE(struct DENSE_QCQP_DIM *dim)
 
 	hpipm_size_t size = 0;
 
-	size += 7*sizeof(struct STRVEC); // 2*tmp_nv 2*tmp_nbgq tmp_ns q_fun q_adj
+	size += 8*sizeof(struct STRVEC); // 2*tmp_nv 2*tmp_nbgq tmp_ns tmp_lam_mask q_fun q_adj
 
 	size += 3*SIZE_STRVEC(nv); // 2*tmp_nv q_adj
 	size += 2*SIZE_STRVEC(nb+ng+nq); // 2*tmp_nbgq
 	size += 1*SIZE_STRVEC(ns); // tmp_ns
 	size += 1*SIZE_STRVEC(nq); // q_fun
+	size += 1*SIZE_STRVEC(2*nb+2*ng+2*nq+2*ns); // tmp_lam_mask
 
 	size = (size+63)/64*64; // make multiple of typical cache line size
 	size += 1*64; // align once to typical cache line size
@@ -200,6 +201,8 @@ void DENSE_QCQP_RES_WS_CREATE(struct DENSE_QCQP_DIM *dim, struct DENSE_QCQP_RES_
 	sv_ptr += 2;
 	ws->tmp_ns = sv_ptr;
 	sv_ptr += 1;
+	ws->tmp_lam_mask = sv_ptr;
+	sv_ptr += 1;
 	ws->q_fun = sv_ptr;
 	sv_ptr += 1;
 	ws->q_adj = sv_ptr;
@@ -230,6 +233,9 @@ void DENSE_QCQP_RES_WS_CREATE(struct DENSE_QCQP_DIM *dim, struct DENSE_QCQP_RES_
 	CREATE_STRVEC(ns, ws->tmp_ns+0, c_ptr);
 	c_ptr += (ws->tmp_ns+0)->memsize;
 
+	CREATE_STRVEC(2*nb+2*ng+2*nq+2*ns, ws->tmp_lam_mask, c_ptr);
+	c_ptr += (ws->tmp_lam_mask)->memsize;
+
 	CREATE_STRVEC(nq, ws->q_fun, c_ptr);
 	c_ptr += (ws->q_fun)->memsize;
 
@@ -238,6 +244,8 @@ void DENSE_QCQP_RES_WS_CREATE(struct DENSE_QCQP_DIM *dim, struct DENSE_QCQP_RES_
 
 	ws->use_q_fun = 0;
 	ws->use_q_adj = 0;
+
+	ws->valid_nc_mask = 0;
 
 	ws->memsize = DENSE_QCQP_RES_WS_MEMSIZE(dim);
 
@@ -284,6 +292,7 @@ void DENSE_QCQP_RES_COMPUTE(struct DENSE_QCQP *qp, struct DENSE_QCQP_SOL *qp_sol
 	struct STRVEC *gz = qp->gz;
 	struct STRVEC *b = qp->b;
 	struct STRVEC *d = qp->d;
+	struct STRVEC *d_mask = qp->d_mask;
 //	struct STRVEC *gq = qp->gq;
 	struct STRVEC *m = qp->m;
 	int *idxb = qp->idxb;
@@ -303,10 +312,31 @@ void DENSE_QCQP_RES_COMPUTE(struct DENSE_QCQP *qp, struct DENSE_QCQP_SOL *qp_sol
 	struct STRVEC *tmp_nv = ws->tmp_nv;
 	struct STRVEC *tmp_nbgq = ws->tmp_nbgq;
 	struct STRVEC *tmp_ns = ws->tmp_ns;
+	struct STRVEC *tmp_lam_mask = ws->tmp_lam_mask;
 
 	REAL mu, tmp;
 	REAL *obj = &res->obj;
 	REAL *dual_gap = &res->dual_gap;
+
+	int mask_constr = 0;
+	REAL nc_mask_inv = 0.0;
+	if(ws->valid_nc_mask==1)
+		{
+		mask_constr = ws->mask_constr;
+		nc_mask_inv = ws->nc_mask_inv;
+		}
+	else
+		{
+		int nc_mask = 0;
+		for(ii=0; ii<nct; ii++)
+			if(d_mask->pa[ii]==1.0)
+				nc_mask++;
+			else
+				mask_constr = 1; // at least one masked constraint
+		if(nc_mask>0)
+			nc_mask_inv = 1.0/nc_mask;
+		// do not store these in ws, to guard against changes in d_mask
+		}
 
 	*obj = 0.0;
 	*dual_gap = 0.0;
@@ -318,9 +348,16 @@ void DENSE_QCQP_RES_COMPUTE(struct DENSE_QCQP *qp, struct DENSE_QCQP_SOL *qp_sol
 	AXPY(nv, -1.0, gz, 0, res_g, 0, res_g, 0);
 	*dual_gap += DOT(nv, res_g, 0, v, 0);
 
+	if(mask_constr)
+		VECMUL(nct, lam, 0, d_mask, 0, tmp_lam_mask, 0);
+	else
+		VECCP(nct, lam, 0, tmp_lam_mask, 0);
+	// zero out lower quard contrs, just in case...
+	VECSE(nq, 0.0, tmp_lam_mask, nb+ng);
+
 	if(nb+ng+nq>0)
 		{
-		AXPY(nb+ng+nq, -1.0, lam, 0, lam, nb+ng+nq, tmp_nbgq+0, 0);
+		AXPY(nb+ng+nq, -1.0, tmp_lam_mask, 0, tmp_lam_mask, nb+ng+nq, tmp_nbgq+0, 0);
 //		AXPY(nb+ng,  1.0, d, 0, t, 0, res_d, 0);
 //		AXPY(nb+ng,  1.0, d, nb+ng, t, nb+ng, res_d, nb+ng);
 		AXPY(2*nb+2*ng+2*nq,  1.0, d, 0, t, 0, res_d, 0);
@@ -347,7 +384,7 @@ void DENSE_QCQP_RES_COMPUTE(struct DENSE_QCQP *qp, struct DENSE_QCQP_SOL *qp_sol
 				for(ii=0; ii<nq; ii++)
 					{
 					tmp = BLASFEO_VECEL(tmp_nbgq+0, nb+ng+ii);
-					*dual_gap += BLASFEO_VECEL(lam, 2*nb+2*ng+nq+ii)*tmp;
+					*dual_gap += BLASFEO_VECEL(tmp_lam_mask, 2*nb+2*ng+nq+ii)*tmp;
 					}
 				}
 			else
@@ -355,7 +392,7 @@ void DENSE_QCQP_RES_COMPUTE(struct DENSE_QCQP *qp, struct DENSE_QCQP_SOL *qp_sol
 				for(ii=0; ii<nq; ii++)
 					{
 					SYMV_L(nv, 1.0, Hq+ii, 0, 0, v, 0, 0.0, tmp_nv+0, 0, tmp_nv+0, 0);
-					*dual_gap += 0.5*BLASFEO_VECEL(lam, 2*nb+2*ng+nq+ii)*DOT(nv, tmp_nv, 0, v, 0);
+					*dual_gap += 0.5*BLASFEO_VECEL(tmp_lam_mask, 2*nb+2*ng+nq+ii)*DOT(nv, tmp_nv, 0, v, 0);
 					tmp = BLASFEO_VECEL(tmp_nbgq+0, nb+ng+ii);
 					AXPY(nv, tmp, tmp_nv+0, 0, res_g, 0, res_g, 0);
 					COLEX(nv, Ct, 0, ng+ii, tmp_nv+1, 0);
@@ -378,14 +415,14 @@ void DENSE_QCQP_RES_COMPUTE(struct DENSE_QCQP *qp, struct DENSE_QCQP_SOL *qp_sol
 		AXPY(2*ns, -1.0, gz, nv, res_g, nv, res_g, nv);
 		*dual_gap += DOT(2*ns, res_g, nv, v, nv);
 
-		AXPY(2*ns, -1.0, lam, 2*nb+2*ng+2*nq, res_g, nv, res_g, nv);
+		AXPY(2*ns, -1.0, tmp_lam_mask, 2*nb+2*ng+2*nq, res_g, nv, res_g, nv);
 		for(ii=0; ii<nb+ng+nq; ii++)
 			{
 			idx = idxs_rev[ii];
 			if(idx!=-1)
 				{
-				BLASFEO_VECEL(res_g, nv+idx) -= BLASFEO_VECEL(lam, ii);
-				BLASFEO_VECEL(res_g, nv+ns+idx) -= BLASFEO_VECEL(lam, nb+ng+nq+ii);
+				BLASFEO_VECEL(res_g, nv+idx) -= BLASFEO_VECEL(tmp_lam_mask, ii);
+				BLASFEO_VECEL(res_g, nv+ns+idx) -= BLASFEO_VECEL(tmp_lam_mask, nb+ng+nq+ii);
 				// res_d
 				BLASFEO_VECEL(res_d, ii) -= BLASFEO_VECEL(v, nv+idx);
 				BLASFEO_VECEL(res_d, nb+ng+nq+ii) -= BLASFEO_VECEL(v, nv+ns+idx);
@@ -395,11 +432,11 @@ void DENSE_QCQP_RES_COMPUTE(struct DENSE_QCQP *qp, struct DENSE_QCQP_SOL *qp_sol
 		AXPY(2*ns, -1.0, v, nv, t, 2*nb+2*ng+2*nq, res_d, 2*nb+2*ng+2*nq);
 		AXPY(2*ns, 1.0, d, 2*nb+2*ng+2*nq, res_d, 2*nb+2*ng+2*nq, res_d, 2*nb+2*ng+2*nq);
 		}
+	if(mask_constr)
+		VECMUL(nct, d_mask, 0, res_d, 0, res_d, 0);
 	
-	//*dual_gap -= DOT(nct, d, 0, lam, 0);
-	*dual_gap -= DOT(nb+ng, d, 0, lam, 0);
-	*dual_gap -= DOT(nb+ng+nq, d, nb+ng+nq, lam, nb+ng+nq);
-	*dual_gap -= DOT(2*ns, d, 2*nb+2*ng+2*nq, lam, 2*nb+2*ng+2*nq);
+	// XXX lower quadr constr components are masked out
+	*dual_gap -= DOT(nct, d, 0, tmp_lam_mask, 0);
 
 	// res b, res g
 	if(ne>0)
@@ -409,9 +446,13 @@ void DENSE_QCQP_RES_COMPUTE(struct DENSE_QCQP *qp, struct DENSE_QCQP_SOL *qp_sol
 		}
 
 	// res_m res_mu
-	mu = VECMULDOT(nct, lam, 0, t, 0, res_m, 0);
+	mu = VECMULDOT(nct, tmp_lam_mask, 0, t, 0, res_m, 0);
 	AXPY(nct, -1.0, m, 0, res_m, 0, res_m, 0);
+	if(mask_constr)
+		VECMUL(nct, d_mask, 0, res_m, 0, res_m, 0); // TODO not necessary if m is zero
+
 	//res->res_mu = mu*nct_inv;
+	res->res_mu = mu*nc_mask_inv;
 	res->res_mu_sum = mu;
 
 	return;

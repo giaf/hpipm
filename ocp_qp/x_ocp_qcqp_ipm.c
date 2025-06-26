@@ -1636,15 +1636,18 @@ void OCP_QCQP_IPM_SOLVE(struct OCP_QCQP *qcqp, struct OCP_QCQP_SOL *qcqp_sol, st
 		mask_unconstr = 1;
 		cws->nc_mask = 0;
 		cws->nc_mask_inv = 0.0;
+		qcqp_res_ws->nc_mask_inv = 0.0;
 		}
 	else
 		{
 		mask_unconstr = 0;
 		cws->nc_mask = nc_mask;
 		cws->nc_mask_inv = 1.0/nc_mask;
+		qcqp_res_ws->nc_mask_inv = 1.0/nc_mask;
 		}
 	// always mask lower quadratic constr
 	qp_ws->mask_constr = 1;
+	qcqp_res_ws->mask_constr = 1;
 
 
 	// no constraints
@@ -1658,7 +1661,7 @@ void OCP_QCQP_IPM_SOLVE(struct OCP_QCQP *qcqp, struct OCP_QCQP_SOL *qcqp_sol, st
 			OCP_QCQP_RES_COMPUTE(qcqp, qcqp_sol, qcqp_res, qcqp_res_ws);
 			// XXX no constraints, so no mask
 			OCP_QCQP_RES_COMPUTE_INF_NORM(qcqp_res);
-			qcqp_res->res_mu = qcqp_res->res_mu_sum * cws->nc_mask_inv;
+			//qcqp_res->res_mu = qcqp_res->res_mu_sum * cws->nc_mask_inv;
 			cws->mu = qcqp_res->res_mu;
 			// save infinity norm of residuals
 			if(0<stat_max)
@@ -1757,14 +1760,14 @@ void OCP_QCQP_IPM_SOLVE(struct OCP_QCQP *qcqp, struct OCP_QCQP_SOL *qcqp_sol, st
 			{
 			// compute residuals
 			OCP_QCQP_RES_COMPUTE(qcqp, qcqp_sol, qcqp_res, qcqp_res_ws);
-			if(qp_ws->mask_constr)
-				{
-				// mask out disregarded constraints
-				//for(ii=0; ii<=N; ii++)
-				//	VECMUL(2*ns[ii], qp->d_mask+ii, 2*nb[ii]+2*ng[ii]+2*nq[ii], qcqp_res->res_g+ii, nu[ii]+nx[ii], qcqp_res->res_g+ii, nu[ii]+nx[ii]);
-				VECMUL(cws->nc, qp->d_mask, 0, qcqp_res->res_d, 0, qcqp_res->res_d, 0);
-				VECMUL(cws->nc, qp->d_mask, 0, qcqp_res->res_m, 0, qcqp_res->res_m, 0);
-				}
+			//if(qp_ws->mask_constr)
+			//	{
+			//	// mask out disregarded constraints
+			//	//for(ii=0; ii<=N; ii++)
+			//	//	VECMUL(2*ns[ii], qp->d_mask+ii, 2*nb[ii]+2*ng[ii]+2*nq[ii], qcqp_res->res_g+ii, nu[ii]+nx[ii], qcqp_res->res_g+ii, nu[ii]+nx[ii]);
+			//	VECMUL(cws->nc, qp->d_mask, 0, qcqp_res->res_d, 0, qcqp_res->res_d, 0);
+			//	VECMUL(cws->nc, qp->d_mask, 0, qcqp_res->res_m, 0, qcqp_res->res_m, 0);
+			//	}
 			OCP_QCQP_RES_COMPUTE_INF_NORM(qcqp_res);
 			// save infinity norm of residuals
 			// XXX it is already kk+1
@@ -1786,16 +1789,16 @@ void OCP_QCQP_IPM_SOLVE(struct OCP_QCQP *qcqp, struct OCP_QCQP_SOL *qcqp_sol, st
 
 	// compute residuals
 	OCP_QCQP_RES_COMPUTE(qcqp, qcqp_sol, qcqp_res, qcqp_res_ws);
-	if(qp_ws->mask_constr)
-		{
-		// mask out disregarded constraints
-		//for(ii=0; ii<=N; ii++)
-		//	VECMUL(2*ns[ii], qp->d_mask+ii, 2*nb[ii]+2*ng[ii]+2*nq[ii], qcqp_res->res_g+ii, nu[ii]+nx[ii], qcqp_res->res_g+ii, nu[ii]+nx[ii]);
-		VECMUL(cws->nc, qp->d_mask, 0, qcqp_res->res_d, 0, qcqp_res->res_d, 0);
-		VECMUL(cws->nc, qp->d_mask, 0, qcqp_res->res_m, 0, qcqp_res->res_m, 0);
-		}
+	//if(qp_ws->mask_constr)
+	//	{
+	//	// mask out disregarded constraints
+	//	//for(ii=0; ii<=N; ii++)
+	//	//	VECMUL(2*ns[ii], qp->d_mask+ii, 2*nb[ii]+2*ng[ii]+2*nq[ii], qcqp_res->res_g+ii, nu[ii]+nx[ii], qcqp_res->res_g+ii, nu[ii]+nx[ii]);
+	//	VECMUL(cws->nc, qp->d_mask, 0, qcqp_res->res_d, 0, qcqp_res->res_d, 0);
+	//	VECMUL(cws->nc, qp->d_mask, 0, qcqp_res->res_m, 0, qcqp_res->res_m, 0);
+	//	}
+	//qcqp_res->res_mu = qcqp_res->res_mu_sum * cws->nc_mask_inv;
 	OCP_QCQP_RES_COMPUTE_INF_NORM(qcqp_res);
-	qcqp_res->res_mu = qcqp_res->res_mu_sum * cws->nc_mask_inv;
 	cws->mu = qcqp_res->res_mu;
 	OCP_QCQP_RES_CONV_QP_RES(qcqp_res, qp_ws->res);
 	// save infinity norm of residuals
@@ -1848,16 +1851,16 @@ void OCP_QCQP_IPM_SOLVE(struct OCP_QCQP *qcqp, struct OCP_QCQP_SOL *qcqp_sol, st
 
 		// compute residuals
 		OCP_QCQP_RES_COMPUTE(qcqp, qcqp_sol, qcqp_res, qcqp_res_ws);
-		if(qp_ws->mask_constr)
-			{
-			// mask out disregarded constraints
-			//for(ii=0; ii<=N; ii++)
-			//	VECMUL(2*ns[ii], qp->d_mask+ii, 2*nb[ii]+2*ng[ii]+2*nq[ii], qcqp_res->res_g+ii, nu[ii]+nx[ii], qcqp_res->res_g+ii, nu[ii]+nx[ii]);
-			VECMUL(cws->nc, qp->d_mask, 0, qcqp_res->res_d, 0, qcqp_res->res_d, 0);
-			VECMUL(cws->nc, qp->d_mask, 0, qcqp_res->res_m, 0, qcqp_res->res_m, 0);
-			}
+		//if(qp_ws->mask_constr)
+		//	{
+		//	// mask out disregarded constraints
+		//	//for(ii=0; ii<=N; ii++)
+		//	//	VECMUL(2*ns[ii], qp->d_mask+ii, 2*nb[ii]+2*ng[ii]+2*nq[ii], qcqp_res->res_g+ii, nu[ii]+nx[ii], qcqp_res->res_g+ii, nu[ii]+nx[ii]);
+		//	VECMUL(cws->nc, qp->d_mask, 0, qcqp_res->res_d, 0, qcqp_res->res_d, 0);
+		//	VECMUL(cws->nc, qp->d_mask, 0, qcqp_res->res_m, 0, qcqp_res->res_m, 0);
+		//	}
+		//qcqp_res->res_mu = qcqp_res->res_mu_sum * cws->nc_mask_inv;
 		OCP_QCQP_RES_COMPUTE_INF_NORM(qcqp_res);
-		qcqp_res->res_mu = qcqp_res->res_mu_sum * cws->nc_mask_inv;
 		cws->mu = qcqp_res->res_mu;
 		OCP_QCQP_RES_CONV_QP_RES(qcqp_res, qp_ws->res);
 		// save infinity norm of residuals
@@ -1878,6 +1881,9 @@ void OCP_QCQP_IPM_SOLVE(struct OCP_QCQP *qcqp, struct OCP_QCQP_SOL *qcqp_sol, st
 		}
 
 set_status:
+
+	// reset to guard against changes in d_mask
+	qcqp_res_ws->valid_nc_mask = 0;
 
 	// save info before return
 	qcqp_ws->iter = kk;

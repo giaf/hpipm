@@ -258,26 +258,6 @@ void DENSE_QP_RES_COMPUTE(struct DENSE_QP *qp, struct DENSE_QP_SOL *qp_sol, stru
 	// TODO use nc_mask_inv from cws if available !!!!!
 	//REAL nct_inv = 1.0/nct;
 
-	int mask_constr = 0;
-	REAL nc_mask_inv = 0.0;
-	if(ws->valid_nc_mask==1)
-		{
-		mask_constr = ws->mask_constr;
-		nc_mask_inv = ws->nc_mask_inv;
-		}
-	else
-		{
-		int nc_mask = 0;
-		for(ii=0; ii<nct; ii++)
-			if(qp->d_mask->pa[ii]==1.0)
-				nc_mask++;
-			else
-				mask_constr = 1; // at least one masked constraint
-		if(nc_mask>0)
-			nc_mask_inv = 1.0/nc_mask;
-		// do not store these in ws, to guard against changes in d_mask
-		}
-
 	struct STRMAT *Hg = qp->Hv;
 	struct STRMAT *A = qp->A;
 	struct STRMAT *Ct = qp->Ct;
@@ -307,6 +287,26 @@ void DENSE_QP_RES_COMPUTE(struct DENSE_QP *qp, struct DENSE_QP_SOL *qp_sol, stru
 	REAL mu, tmp;
 	REAL *obj = &res->obj;
 	REAL *dual_gap = &res->dual_gap;
+
+	int mask_constr = 0;
+	REAL nc_mask_inv = 0.0;
+	if(ws->valid_nc_mask==1)
+		{
+		mask_constr = ws->mask_constr;
+		nc_mask_inv = ws->nc_mask_inv;
+		}
+	else
+		{
+		int nc_mask = 0;
+		for(ii=0; ii<nct; ii++)
+			if(d_mask->pa[ii]==1.0)
+				nc_mask++;
+			else
+				mask_constr = 1; // at least one masked constraint
+		if(nc_mask>0)
+			nc_mask_inv = 1.0/nc_mask;
+		// do not store these in ws, to guard against changes in d_mask
+		}
 
 	*obj = 0.0;
 	*dual_gap = 0.0;
@@ -415,20 +415,6 @@ void DENSE_QP_RES_COMPUTE_LIN(struct DENSE_QP *qp, struct DENSE_QP_SOL *qp_sol, 
 
 	//REAL nct_inv = 1.0/nct;
 
-	int mask_constr = 0;
-	if(ws->valid_nc_mask==1)
-		{
-		mask_constr = ws->mask_constr;
-		}
-	else
-		{
-		int nc_mask = 0;
-		for(ii=0; ii<nct; ii++)
-			if(qp->d_mask->pa[ii]!=1.0)
-				mask_constr = 1; // at least one masked constraint
-		// do not store these in ws, to guard against changes in d_mask
-		}
-
 	struct STRMAT *Hg = qp->Hv;
 	struct STRMAT *A = qp->A;
 	struct STRMAT *Ct = qp->Ct;
@@ -459,6 +445,20 @@ void DENSE_QP_RES_COMPUTE_LIN(struct DENSE_QP *qp, struct DENSE_QP_SOL *qp_sol, 
 	struct STRVEC *tmp_lam_mask = ws->tmp_lam_mask;
 
 	REAL mu, tmp;
+
+	int mask_constr = 0;
+	if(ws->valid_nc_mask==1)
+		{
+		mask_constr = ws->mask_constr;
+		}
+	else
+		{
+		int nc_mask = 0;
+		for(ii=0; ii<nct; ii++)
+			if(d_mask->pa[ii]!=1.0)
+				mask_constr = 1; // at least one masked constraint
+		// do not store these in ws, to guard against changes in d_mask
+		}
 
 	// res g
 	SYMV_L(nv, 1.0, Hg, 0, 0, v, 0, 1.0, gz, 0, res_g, 0);

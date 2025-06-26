@@ -76,10 +76,14 @@ struct d_tree_ocp_qcqp_res_ws
 	struct blasfeo_dvec *tmp_nuxM; // work space of size nuM+nxM
 	struct blasfeo_dvec *tmp_nbgqM; // work space of size nbM+ngM+nqM
 	struct blasfeo_dvec *tmp_nsM; // work space of size nsM
+	struct blasfeo_dvec *tmp_lam_mask; // workspace of size 2*nbM+2*ngM+2*nsM
 	struct blasfeo_dvec *q_fun; // value for evaluation of quadr constr
 	struct blasfeo_dvec *q_adj; // value for adjoint of quadr constr
+	double nc_mask_inv; // reciprocal of number of non-masked constraints
 	int use_q_fun; // reuse cached value for evaluation of quadr constr
 	int use_q_adj; // reuse cached value for adjoint of quadr constr
+	int valid_nc_mask; // signal that there mask_constr and nc_mask_inv are valid
+	int mask_constr; // signal that there are some masked constraints
 	hpipm_size_t memsize;
 	};
 

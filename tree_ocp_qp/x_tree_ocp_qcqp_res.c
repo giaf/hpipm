@@ -257,11 +257,12 @@ hpipm_size_t TREE_OCP_QCQP_RES_WS_MEMSIZE(struct TREE_OCP_QCQP_DIM *dim)
 
 	hpipm_size_t size = 0;
 
-	size += (5+2*Nn)*sizeof(struct STRVEC); // 2*tmp_nuxM 2*tmp_nbgqM tmp_nsM q_fun q_adj
+	size += (6+2*Nn)*sizeof(struct STRVEC); // 2*tmp_nuxM 2*tmp_nbgqM tmp_nsM tmp_lam_mask q_fun q_adj
 
 	size += 2*SIZE_STRVEC(nuM+nxM); // 2*tmp_nuxM
 	size += 2*SIZE_STRVEC(nbM+ngM+nqM); // tmp_nbgqM
 	size += 1*SIZE_STRVEC(nsM); // tmp_nsM
+	size += 1*SIZE_STRVEC(2*nbM+2*ngM+2*nqM+2*nsM); // tmp_lam_mask
 	for(ii=0; ii<Nn; ii++)
 		{
 		size += 1*SIZE_STRVEC(nq[ii]); // q_fun
@@ -324,6 +325,8 @@ void TREE_OCP_QCQP_RES_WS_CREATE(struct TREE_OCP_QCQP_DIM *dim, struct TREE_OCP_
 	sv_ptr += 2;
 	ws->tmp_nsM = sv_ptr;
 	sv_ptr += 1;
+	ws->tmp_lam_mask = sv_ptr;
+	sv_ptr += 1;
 	ws->q_fun = sv_ptr;
 	sv_ptr += Nn;
 	ws->q_adj = sv_ptr;
@@ -352,6 +355,9 @@ void TREE_OCP_QCQP_RES_WS_CREATE(struct TREE_OCP_QCQP_DIM *dim, struct TREE_OCP_
 	CREATE_STRVEC(nsM, ws->tmp_nsM+0, c_ptr);
 	c_ptr += (ws->tmp_nsM+0)->memsize;
 
+	CREATE_STRVEC(2*nbM+2*ngM+2*nsM, ws->tmp_lam_mask, c_ptr);
+	c_ptr += (ws->tmp_lam_mask)->memsize;
+
 	for(ii=0; ii<Nn; ii++)
 		{
 		CREATE_STRVEC(nq[ii], ws->q_fun+ii, c_ptr);
@@ -366,6 +372,8 @@ void TREE_OCP_QCQP_RES_WS_CREATE(struct TREE_OCP_QCQP_DIM *dim, struct TREE_OCP_
 
 	ws->use_q_fun = 0;
 	ws->use_q_adj = 0;
+
+	ws->valid_nc_mask = 0;
 
 	ws->memsize = memsize; //MEMSIZE_TREE_OCP_QCQP_RES(dim);
 
@@ -419,6 +427,7 @@ void TREE_OCP_QCQP_RES_COMPUTE(struct TREE_OCP_QCQP *qp, struct TREE_OCP_QCQP_SO
 	struct STRVEC *b = qp->b;
 	struct STRVEC *rqz = qp->rqz;
 	struct STRVEC *d = qp->d;
+	struct STRVEC *d_mask = qp->d_mask;
 	struct STRVEC *m = qp->m;
 	int **idxb = qp->idxb;
 	struct STRVEC *Z = qp->Z;
@@ -438,6 +447,7 @@ void TREE_OCP_QCQP_RES_COMPUTE(struct TREE_OCP_QCQP *qp, struct TREE_OCP_QCQP_SO
 	struct STRVEC *tmp_nuxM = ws->tmp_nuxM;
 	struct STRVEC *tmp_nbgqM = ws->tmp_nbgqM;
 	struct STRVEC *tmp_nsM = ws->tmp_nsM;
+	struct STRVEC *tmp_lam_mask = ws->tmp_lam_mask;
 
 	struct STRVEC *q_fun = ws->q_fun;
 	struct STRVEC *q_adj = ws->q_adj;
@@ -446,6 +456,27 @@ void TREE_OCP_QCQP_RES_COMPUTE(struct TREE_OCP_QCQP *qp, struct TREE_OCP_QCQP_SO
 
 	REAL *obj = &res->obj;
 	REAL *dual_gap = &res->dual_gap;
+
+	int mask_constr = 0;
+	REAL nc_mask_inv = 0.0;
+	if(ws->valid_nc_mask==1)
+		{
+		mask_constr = ws->mask_constr;
+		nc_mask_inv = ws->nc_mask_inv;
+		}
+	else
+		{
+		int nc_mask = 0;
+		for(ii=0; ii<Nn; ii++)
+			for(jj=0; jj<2*nb[ii]+2*ng[ii]+2*ns[ii]; jj++)
+				if((d_mask+ii)->pa[jj]==1.0)
+					nc_mask++;
+				else
+					mask_constr = 1; // at least one masked constraint
+		if(nc_mask>0)
+			nc_mask_inv = 1.0/nc_mask;
+		// do not store these in ws, to guard against changes in d_mask
+		}
 
 	//
 	REAL tmp;
@@ -474,9 +505,16 @@ void TREE_OCP_QCQP_RES_COMPUTE(struct TREE_OCP_QCQP *qp, struct TREE_OCP_QCQP_SO
 		if(ii>0)
 			AXPY(nx0, -1.0, pi+(ii-1), 0, res_g+ii, nu0, res_g+ii, nu0);
 
+		if(mask_constr)
+			VECMUL(2*nb0+2*ng0+2*nq0+2*ns0, lam+ii, 0, d_mask+ii, 0, tmp_lam_mask, 0);
+		else
+			VECCP(2*nb0+2*ng0+2*nq0+2*ns0, lam+ii, 0, tmp_lam_mask, 0);
+		// zero out lower quadr cosntr, just in case...
+		VECSE(nq0, 0.0, tmp_lam_mask, nb0+ng0);
+
 		if(nb0+ng0+nq0>0)
 			{
-			AXPY(nb0+ng0+nq0, -1.0, lam+ii, 0, lam+ii, nb0+ng0+nq0, tmp_nbgqM+0, 0);
+			AXPY(nb0+ng0+nq0, -1.0, tmp_lam_mask, 0, tmp_lam_mask, nb0+ng0+nq0, tmp_nbgqM+0, 0);
 			AXPY(2*nb0+2*ng0+2*nq0,  1.0, d+ii, 0, t+ii, 0, res_d+ii, 0);
 			// box
 			if(nb0>0)
@@ -501,7 +539,7 @@ void TREE_OCP_QCQP_RES_COMPUTE(struct TREE_OCP_QCQP *qp, struct TREE_OCP_QCQP_SO
 					for(jj=0; jj<nq0; jj++)
 						{
 						tmp = BLASFEO_VECEL(tmp_nbgqM+0, nb0+ng0+jj);
-						*dual_gap += BLASFEO_VECEL(lam+ii, 2*nb0+2*ng0+nq0+jj)*tmp;
+						*dual_gap += BLASFEO_VECEL(tmp_lam_mask, 2*nb0+2*ng0+nq0+jj)*tmp;
 						}
 					}
 				else
@@ -509,7 +547,7 @@ void TREE_OCP_QCQP_RES_COMPUTE(struct TREE_OCP_QCQP *qp, struct TREE_OCP_QCQP_SO
 					for(jj=0; jj<nq0; jj++)
 						{
 						SYMV_L(nu0+nx0, 1.0, &Hq[ii][jj], 0, 0, ux+ii, 0, 0.0, tmp_nuxM, 0, tmp_nuxM, 0);
-						*dual_gap += 0.5*BLASFEO_VECEL(lam+ii, 2*nb0+2*ng0+nq0+jj)*DOT(nu0+nx0, tmp_nuxM, 0, ux+ii, 0);
+						*dual_gap += 0.5*BLASFEO_VECEL(tmp_lam_mask, 2*nb0+2*ng0+nq0+jj)*DOT(nu0+nx0, tmp_nuxM, 0, ux+ii, 0);
 						tmp = BLASFEO_VECEL(tmp_nbgqM+0, nb0+ng0+jj);
 						AXPY(nu0+nx0, tmp, tmp_nuxM, 0, res_g+ii, 0, res_g+ii, 0);
 						COLEX(nu0+nx0, DCt+ii, 0, ng0+jj, tmp_nuxM+1, 0);
@@ -533,14 +571,14 @@ void TREE_OCP_QCQP_RES_COMPUTE(struct TREE_OCP_QCQP *qp, struct TREE_OCP_QCQP_SO
 			AXPY(2*ns0, -1.0, rqz+ii, nu0+nx0, res_g+ii, nu0+nx0, res_g+ii, nu0+nx0);
 			*dual_gap += DOT(2*ns0, res_g+ii, nu0+nx0, ux+ii, nu0+nx0);
 
-			AXPY(2*ns0, -1.0, lam+ii, 2*nb0+2*ng0+2*nq0, res_g+ii, nu0+nx0, res_g+ii, nu0+nx0);
+			AXPY(2*ns0, -1.0, tmp_lam_mask, 2*nb0+2*ng0+2*nq0, res_g+ii, nu0+nx0, res_g+ii, nu0+nx0);
 			for(jj=0; jj<nb0+ng0+nq0; jj++)
 				{
 				idx = idxs_rev[ii][jj];
 				if(idx!=-1)
 					{
-					BLASFEO_VECEL(res_g+ii, nu0+nx0+idx) -= BLASFEO_VECEL(lam+ii, jj);
-					BLASFEO_VECEL(res_g+ii, nu0+nx0+ns0+idx) -= BLASFEO_VECEL(lam+ii, nb0+ng0+nq0+jj);
+					BLASFEO_VECEL(res_g+ii, nu0+nx0+idx) -= BLASFEO_VECEL(tmp_lam_mask, jj);
+					BLASFEO_VECEL(res_g+ii, nu0+nx0+ns0+idx) -= BLASFEO_VECEL(tmp_lam_mask, nb0+ng0+nq0+jj);
 					// res_d
 					BLASFEO_VECEL(res_d+ii, jj) -= BLASFEO_VECEL(ux+ii, nu0+nx0+idx);
 					BLASFEO_VECEL(res_d+ii, nb0+ng0+nq0+jj) -= BLASFEO_VECEL(ux+ii, nu0+nx0+ns0+idx);
@@ -549,11 +587,11 @@ void TREE_OCP_QCQP_RES_COMPUTE(struct TREE_OCP_QCQP *qp, struct TREE_OCP_QCQP_SO
 			AXPY(2*ns0, -1.0, ux+ii, nu0+nx0, t+ii, 2*nb0+2*ng0+2*nq0, res_d+ii, 2*nb0+2*ng0+2*nq0);
 			AXPY(2*ns0, 1.0, d+ii, 2*nb0+2*ng0+2*nq0, res_d+ii, 2*nb0+2*ng0+2*nq0, res_d+ii, 2*nb0+2*ng0+2*nq0);
 			}
+		if(mask_constr)
+			VECMUL(2*nb0+2*ng0+2*nq0+2*ns0, d_mask+ii, 0, res_d+ii, 0, res_d+ii, 0);
 
-		//*dual_gap -= DOT(2*nb0+2*ng0+2*nq0+2*ns0, d+ii, 0, lam+ii, 0);
-		*dual_gap -= DOT(nb0+ng0, d+ii, 0, lam+ii, 0);
-		*dual_gap -= DOT(nb0+ng0+nq0, d+ii, nb0+ng0+nq0, lam+ii, nb0+ng0+nq0);
-		*dual_gap -= DOT(2*ns0, d+ii, 2*nb0+2*ng0+2*nq0, lam+ii, 2*nb0+2*ng0+2*nq0);
+		// lower quadr constr components are masked out
+		*dual_gap -= DOT(2*nb0+2*ng0+2*nq0+2*ns0, d+ii, 0, tmp_lam_mask, 0);
 
 		// work on kids
 		nkids = (ttree->root+ii)->nkids;
@@ -572,12 +610,15 @@ void TREE_OCP_QCQP_RES_COMPUTE(struct TREE_OCP_QCQP *qp, struct TREE_OCP_QCQP_SO
 
 			}
 
-		mu += VECMULDOT(2*nb0+2*ng0+2*nq0+2*ns0, lam+ii, 0, t+ii, 0, res_m+ii, 0);
+		mu += VECMULDOT(2*nb0+2*ng0+2*nq0+2*ns0, tmp_lam_mask, 0, t+ii, 0, res_m+ii, 0);
 		AXPY(2*nb0+2*ng0+2*nq0+2*ns0, -1.0, m+ii, 0, res_m+ii, 0, res_m+ii, 0);
+		if(mask_constr)
+			VECMUL(2*nb0+2*ng0+2*nq0+2*ns0, d_mask+ii, 0, res_m+ii, 0, res_m+ii, 0); // TODO not necessary if m is zero
 
 		}
 
 	//res->res_mu = mu*nct_inv;
+	res->res_mu = mu*nc_mask_inv;
 	res->res_mu_sum = mu;
 
 	return;
