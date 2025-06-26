@@ -468,7 +468,7 @@ void TREE_OCP_QCQP_RES_COMPUTE(struct TREE_OCP_QCQP *qp, struct TREE_OCP_QCQP_SO
 		{
 		int nc_mask = 0;
 		for(ii=0; ii<Nn; ii++)
-			for(jj=0; jj<2*nb[ii]+2*ng[ii]+2*ns[ii]; jj++)
+			for(jj=0; jj<2*nb[ii]+2*ng[ii]+2*nq[ii]+2*ns[ii]; jj++)
 				if((d_mask+ii)->pa[jj]==1.0)
 					nc_mask++;
 				else
