@@ -201,8 +201,47 @@ static void COND_SLACKS_FACT_SOLVE(int ss, struct TREE_OCP_QP *qp, struct TREE_O
 	VECCP(nb0+ng0, gamma, 0, tmp_nbgM+2, 0);
 	VECCP(nb0+ng0, gamma, nb0+ng0, tmp_nbgM+3, 0);
 
-#if 1
 	// idxs_rev
+	#if 1
+	// ii   constr index
+	// idx <= slack index
+	for(idx=0; idx<ns0; idx++)
+		{
+		ptr_Zs_inv[0+idx]   = ptr_Z[0+idx]   + arg->reg_prim       + ptr_Gamma[2*nb0+2*ng0+idx];
+		ptr_Zs_inv[ns0+idx] = ptr_Z[ns0+idx] + arg->reg_prim + ptr_Gamma[2*nb0+2*ng0+ns0+idx];
+		ptr_dux[nu0+nx0+idx]      = ptr_res_g[nu0+nx0+idx]     + ptr_gamma[2*nb0+2*ng0+idx];
+		ptr_dux[nu0+nx0+ns0+idx]  = ptr_res_g[nu0+nx0+ns0+idx] + ptr_gamma[2*nb0+2*ng0+ns0+idx];
+		}
+	for(ii=0; ii<nb0+ng0; ii++)
+		{
+		idx = idxs_rev0[ii];
+		if(idx!=-1)
+			{
+			ptr_Zs_inv[0+idx]   += ptr_Gamma[0+ii];
+			ptr_Zs_inv[ns0+idx] += ptr_Gamma[nb0+ng0+ii];
+			ptr_dux[nu0+nx0+idx]      += ptr_gamma[0+ii];
+			ptr_dux[nu0+nx0+ns0+idx]  += ptr_gamma[nb0+ng0+ii];
+			}
+		}
+	for(idx=0; idx<ns0; idx++)
+		{
+		ptr_Zs_inv[0+idx]   = 1.0/ptr_Zs_inv[0+idx];
+		ptr_Zs_inv[ns0+idx] = 1.0/ptr_Zs_inv[ns0+idx];
+		}
+	for(ii=0; ii<nb0+ng0; ii++)
+		{
+		idx = idxs_rev0[ii];
+		if(idx!=-1)
+			{
+			tmp0 = ptr_dux[nu0+nx0+idx]*ptr_Zs_inv[0+idx];
+			tmp1 = ptr_dux[nu0+nx0+ns0+idx]*ptr_Zs_inv[ns0+idx];
+			ptr_tmp0[ii] = ptr_tmp0[ii] - ptr_tmp0[ii]*ptr_Zs_inv[0+idx]*ptr_tmp0[ii];
+			ptr_tmp1[ii] = ptr_tmp1[ii] - ptr_tmp1[ii]*ptr_Zs_inv[ns0+idx]*ptr_tmp1[ii];
+			ptr_tmp2[ii] = ptr_tmp2[ii] - ptr_Gamma[0+ii]*tmp0;
+			ptr_tmp3[ii] = ptr_tmp3[ii] - ptr_Gamma[nb0+ng0+ii]*tmp1;
+			}
+		}
+	#else // old version, not working for a slack entering in multiple constraints
 	for(ii=0; ii<nb0+ng0; ii++)
 		{
 		idx = idxs_rev0[ii];
@@ -224,24 +263,7 @@ static void COND_SLACKS_FACT_SOLVE(int ss, struct TREE_OCP_QP *qp, struct TREE_O
 			ptr_tmp3[ii] = ptr_tmp3[ii] - ptr_Gamma[nb0+ng0+ii]*tmp1;
 			}
 		}
-#else
-	for(ii=0; ii<ns0; ii++)
-		{
-		idx = idxs0[ii];
-		ptr_Zs_inv[0+ii]   = ptr_Z[0+ii]   + arg->reg_prim + ptr_Gamma[0+idx]       + ptr_Gamma[2*nb0+2*ng0+ii];
-		ptr_Zs_inv[ns0+ii] = ptr_Z[ns0+ii] + arg->reg_prim + ptr_Gamma[nb0+ng0+idx] + ptr_Gamma[2*nb0+2*ng0+ns0+ii];
-		ptr_dux[nu0+nx0+ii]      = ptr_res_g[nu0+nx0+ii]     + ptr_gamma[0+idx]   + ptr_gamma[2*nb0+2*ng0+ii];
-		ptr_dux[nu0+nx0+ns0+ii]  = ptr_res_g[nu0+nx0+ns0+ii] + ptr_gamma[nb0+ng0+idx] + ptr_gamma[2*nb0+2*ng0+ns0+ii];
-		ptr_Zs_inv[0+ii]   = 1.0/ptr_Zs_inv[0+ii];
-		ptr_Zs_inv[ns0+ii] = 1.0/ptr_Zs_inv[ns0+ii];
-		tmp0 = ptr_dux[nu0+nx0+ii]*ptr_Zs_inv[0+ii];
-		tmp1 = ptr_dux[nu0+nx0+ns0+ii]*ptr_Zs_inv[ns0+ii];
-		ptr_tmp0[idx] = ptr_tmp0[idx] - ptr_tmp0[idx]*ptr_Zs_inv[0+ii]*ptr_tmp0[idx];
-		ptr_tmp1[idx] = ptr_tmp1[idx] - ptr_tmp1[idx]*ptr_Zs_inv[ns0+ii]*ptr_tmp1[idx];
-		ptr_tmp2[idx] = ptr_tmp2[idx] - ptr_Gamma[0+idx]*tmp0;
-		ptr_tmp3[idx] = ptr_tmp3[idx] - ptr_Gamma[nb0+ng0+idx]*tmp1;
-		}
-#endif
+	#endif
 
 	AXPY(nb0+ng0,  1.0, tmp_nbgM+1, 0, tmp_nbgM+0, 0, tmp_nbgM+0, 0);
 	AXPY(nb0+ng0, -1.0, tmp_nbgM+3, 0, tmp_nbgM+2, 0, tmp_nbgM+1, 0);
@@ -290,8 +312,36 @@ static void COND_SLACKS_SOLVE(int ss, struct TREE_OCP_QP *qp, struct TREE_OCP_QP
 	VECCP(nb0+ng0, gamma, 0, tmp_nbgM+2, 0);
 	VECCP(nb0+ng0, gamma, nb0+ng0, tmp_nbgM+3, 0);
 
-#if 1
 	// idxs_rev
+	#if 1
+	// ii   constr index
+	// idx <= slack index
+	for(idx=0; idx<ns0; idx++)
+		{
+		ptr_dux[nu0+nx0+idx]      = ptr_res_g[nu0+nx0+idx]     + ptr_gamma[2*nb0+2*ng0+idx];
+		ptr_dux[nu0+nx0+ns0+idx]  = ptr_res_g[nu0+nx0+ns0+idx] + ptr_gamma[2*nb0+2*ng0+ns0+idx];
+		}
+	for(ii=0; ii<nb0+ng0; ii++)
+		{
+		idx = idxs_rev0[ii];
+		if(idx!=-1)
+			{
+			ptr_dux[nu0+nx0+idx]      += ptr_gamma[0+ii];
+			ptr_dux[nu0+nx0+ns0+idx]  += ptr_gamma[nb0+ng0+ii];
+			}
+		}
+	for(ii=0; ii<nb0+ng0; ii++)
+		{
+		idx = idxs_rev0[ii];
+		if(idx!=-1)
+			{
+			tmp0 = ptr_dux[nu0+nx0+idx]*ptr_Zs_inv[0+idx];
+			tmp1 = ptr_dux[nu0+nx0+ns0+idx]*ptr_Zs_inv[ns0+idx];
+			ptr_tmp2[ii] = ptr_tmp2[ii] - ptr_Gamma[0+ii]*tmp0;
+			ptr_tmp3[ii] = ptr_tmp3[ii] - ptr_Gamma[nb0+ng0+ii]*tmp1;
+			}
+		}
+	#else // old version, not working for a slack entering in multiple constraints
 	for(ii=0; ii<nb0+ng0; ii++)
 		{
 		idx = idxs_rev0[ii];
@@ -307,18 +357,7 @@ static void COND_SLACKS_SOLVE(int ss, struct TREE_OCP_QP *qp, struct TREE_OCP_QP
 			ptr_tmp3[ii] = ptr_tmp3[ii] - ptr_Gamma[nb0+ng0+ii]*tmp1;
 			}
 		}
-#else
-	for(ii=0; ii<ns0; ii++)
-		{
-		idx = idxs0[ii];
-		ptr_dux[nu0+nx0+ii]      = ptr_res_g[nu0+nx0+ii]     + ptr_gamma[0+idx]       + ptr_gamma[2*nb0+2*ng0+ii];
-		ptr_dux[nu0+nx0+ns0+ii]  = ptr_res_g[nu0+nx0+ns0+ii] + ptr_gamma[nb0+ng0+idx] + ptr_gamma[2*nb0+2*ng0+ns0+ii];
-		tmp0 = ptr_dux[nu0+nx0+ii]*ptr_Zs_inv[0+ii];
-		tmp1 = ptr_dux[nu0+nx0+ns0+ii]*ptr_Zs_inv[ns0+ii];
-		ptr_tmp2[idx] = ptr_tmp2[idx] - ptr_Gamma[0+idx]*tmp0;
-		ptr_tmp3[idx] = ptr_tmp3[idx] - ptr_Gamma[nb0+ng0+idx]*tmp1;
-		}
-#endif
+	#endif
 
 	AXPY(nb0+ng0, -1.0, tmp_nbgM+3, 0, tmp_nbgM+2, 0, tmp_nbgM+1, 0);
 
@@ -353,8 +392,36 @@ static void EXPAND_SLACKS(int ss, struct TREE_OCP_QP *qp, struct TREE_OCP_QP_SOL
 	REAL *ptr_dt = dt->pa;
 	REAL *ptr_Zs_inv = Zs_inv->pa;
 
-#if 1
 	// idxs_rev
+	#if 1
+	// ii  <= constr index
+	// idx <= slack index
+	for(ii=0; ii<nb0+ng0; ii++)
+		{
+		idx = idxs_rev0[ii];
+		if(idx!=-1)
+			{
+			ptr_dux[nu0+nx0+idx]     += ptr_dt[ii]*ptr_Gamma[ii];
+			ptr_dux[nu0+nx0+ns0+idx] += ptr_dt[nb0+ng0+ii]*ptr_Gamma[nb0+ng0+ii];
+			}
+		}
+	for(idx=0; idx<ns0; idx++)
+		{
+		ptr_dux[nu0+nx0+idx]     = - ptr_Zs_inv[0+idx]   * ptr_dux[nu0+nx0+idx];
+		ptr_dux[nu0+nx0+ns0+idx] = - ptr_Zs_inv[ns0+idx] * ptr_dux[nu0+nx0+ns0+idx];
+		ptr_dt[2*nb0+2*ng0+idx]     = ptr_dux[nu0+nx0+idx];
+		ptr_dt[2*nb0+2*ng0+ns0+idx] = ptr_dux[nu0+nx0+ns0+idx];
+		}
+	for(ii=0; ii<nb0+ng0; ii++)
+		{
+		idx = idxs_rev0[ii];
+		if(idx!=-1)
+			{
+			ptr_dt[0+ii]       += ptr_dux[nu0+nx0+idx];
+			ptr_dt[nb0+ng0+ii] += ptr_dux[nu0+nx0+ns0+idx];
+			}
+		}
+	#else // old version, not working for a slack entering in multiple constraints
 	for(ii=0; ii<nb0+ng0; ii++)
 		{
 		idx = idxs_rev0[ii];
@@ -370,18 +437,7 @@ static void EXPAND_SLACKS(int ss, struct TREE_OCP_QP *qp, struct TREE_OCP_QP_SOL
 			ptr_dt[nb0+ng0+ii] = ptr_dt[nb0+ng0+ii] + ptr_dux[nu0+nx0+ns0+idx];
 			}
 		}
-#else
-	for(ii=0; ii<ns0; ii++)
-		{
-		idx = idxs0[ii];
-		ptr_dux[nu0+nx0+ii]     = - ptr_Zs_inv[0+ii]   * (ptr_dux[nu0+nx0+ii]     + ptr_dt[idx]*ptr_Gamma[idx]);
-		ptr_dux[nu0+nx0+ns0+ii] = - ptr_Zs_inv[ns0+ii] * (ptr_dux[nu0+nx0+ns0+ii] + ptr_dt[nb0+ng0+idx]*ptr_Gamma[nb0+ng0+idx]);
-		ptr_dt[2*nb0+2*ng0+ii]     = ptr_dux[nu0+nx0+ii];
-		ptr_dt[2*nb0+2*ng0+ns0+ii] = ptr_dux[nu0+nx0+ns0+ii];
-		ptr_dt[0+idx]       = ptr_dt[0+idx]   + ptr_dux[nu0+nx0+ii];
-		ptr_dt[nb0+ng0+idx] = ptr_dt[nb0+ng0+idx] + ptr_dux[nu0+nx0+ns0+ii];
-		}
-#endif
+	#endif
 
 	return;
 
