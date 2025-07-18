@@ -398,7 +398,7 @@ static void COND_SLACKS_FACT(struct DENSE_QP *qp, struct DENSE_QP_IPM_ARG *arg, 
 			ptr_tmp1[ii] = ptr_tmp1[ii] - ptr_tmp1[ii]*ptr_Zs_inv[ns+idx]*ptr_tmp1[ii];
 			}
 		}
-	#else
+	#else // old version, not working for a slack entering in multiple constraints
 	for(ii=0; ii<nb+ng; ii++)
 		{
 		idx = idxs_rev[ii];

@@ -254,6 +254,51 @@ static void COND_SLACKS_FACT_SOLVE(int ss, struct OCP_QP *qp, struct OCP_QP_SOL 
 	REAL *ptr_tmp3 = (tmp_nbgM+3)->pa;
 
 	// idxs_rev
+	#if 1
+	// ii   constr index
+	// idx <= slack index
+	for(idx=0; idx<ns0; idx++)
+		{
+		ptr_Zs_inv[0+idx]   = ptr_Z[0+idx]   + arg->reg_prim + ptr_Gamma[2*nb0+2*ng0+idx];
+		ptr_Zs_inv[ns0+idx] = ptr_Z[ns0+idx] + arg->reg_prim + ptr_Gamma[2*nb0+2*ng0+ns0+idx];
+		ptr_dux[nu0+nx0+idx]      = ptr_res_g[nu0+nx0+idx]     + ptr_gamma[2*nb0+2*ng0+idx];
+		ptr_dux[nu0+nx0+ns0+idx]  = ptr_res_g[nu0+nx0+ns0+idx] + ptr_gamma[2*nb0+2*ng0+ns0+idx];
+		}
+	for(ii=0; ii<nb0+ng0; ii++)
+		{
+		idx = idxs_rev0[ii];
+		if(idx!=-1)
+			{
+			ptr_Zs_inv[0+idx]   += ptr_Gamma[0+ii];
+			ptr_Zs_inv[ns0+idx] += ptr_Gamma[nb0+ng0+ii];
+			ptr_dux[nu0+nx0+idx]      += ptr_gamma[0+ii];
+			ptr_dux[nu0+nx0+ns0+idx]  += ptr_gamma[nb0+ng0+ii];
+			}
+		}
+	for(idx=0; idx<ns0; idx++)
+		{
+		ptr_Zs_inv[0+idx]   = 1.0/ptr_Zs_inv[0+idx];
+		ptr_Zs_inv[ns0+idx] = 1.0/ptr_Zs_inv[ns0+idx];
+		}
+	for(ii=0; ii<nb0+ng0; ii++)
+		{
+		idx = idxs_rev0[ii];
+		if(idx!=-1)
+			{
+			ptr_tmp0[ii] = ptr_Gamma[0+ii]       - ptr_Gamma[0+ii]      *ptr_Zs_inv[0+idx]  *ptr_Gamma[0+ii];
+			ptr_tmp1[ii] = ptr_Gamma[nb0+ng0+ii] - ptr_Gamma[nb0+ng0+ii]*ptr_Zs_inv[ns0+idx]*ptr_Gamma[nb0+ng0+ii];
+			ptr_tmp2[ii] = ptr_gamma[0+ii]       - ptr_Gamma[0+ii]      *ptr_Zs_inv[0+idx]  *ptr_dux[nu0+nx0+idx];
+			ptr_tmp3[ii] = ptr_gamma[nb0+ng0+ii] - ptr_Gamma[nb0+ng0+ii]*ptr_Zs_inv[ns0+idx]*ptr_dux[nu0+nx0+ns0+idx]; // + ???
+			}
+		else
+			{
+			ptr_tmp0[ii] = ptr_Gamma[0+ii];
+			ptr_tmp1[ii] = ptr_Gamma[nb0+ng0+ii];
+			ptr_tmp2[ii] = ptr_gamma[0+ii];
+			ptr_tmp3[ii] = ptr_gamma[nb0+ng0+ii];
+			}
+		}
+	#else // old version, not working for a slack entering in multiple constraints
 	for(ii=0; ii<nb0+ng0; ii++)
 		{
 		idx = idxs_rev0[ii];
@@ -280,6 +325,7 @@ static void COND_SLACKS_FACT_SOLVE(int ss, struct OCP_QP *qp, struct OCP_QP_SOL 
 			ptr_tmp3[ii] = ptr_gamma[nb0+ng0+ii];
 			}
 		}
+	#endif
 
 	AXPY(nb0+ng0,  1.0, tmp_nbgM+1, 0, tmp_nbgM+0, 0, tmp_nbgM+0, 0);
 	AXPY(nb0+ng0, -1.0, tmp_nbgM+3, 0, tmp_nbgM+2, 0, tmp_nbgM+1, 0);
@@ -315,6 +361,43 @@ static void COND_SLACKS_FACT(int ss, struct OCP_QP *qp, struct OCP_QP_IPM_ARG *a
 	REAL *ptr_tmp1 = (tmp_nbgM+1)->pa;
 
 	// idxs_rev
+	#if 1
+	// ii   constr index
+	// idx <= slack index
+	for(idx=0; idx<ns0; idx++)
+		{
+		ptr_Zs_inv[0+idx]   = ptr_Z[0+idx]   + arg->reg_prim + ptr_Gamma[2*nb0+2*ng0+idx];
+		ptr_Zs_inv[ns0+idx] = ptr_Z[ns0+idx] + arg->reg_prim + ptr_Gamma[2*nb0+2*ng0+ns0+idx];
+		}
+	for(ii=0; ii<nb0+ng0; ii++)
+		{
+		idx = idxs_rev0[ii];
+		if(idx!=-1)
+			{
+			ptr_Zs_inv[0+idx]   += ptr_Gamma[0+ii];
+			ptr_Zs_inv[ns0+idx] += ptr_Gamma[nb0+ng0+ii];
+			}
+		}
+	for(idx=0; idx<ns0; idx++)
+		{
+		ptr_Zs_inv[0+idx]   = 1.0/ptr_Zs_inv[0+idx];
+		ptr_Zs_inv[ns0+idx] = 1.0/ptr_Zs_inv[ns0+idx];
+		}
+	for(ii=0; ii<nb0+ng0; ii++)
+		{
+		idx = idxs_rev0[ii];
+		if(idx!=-1)
+			{
+			ptr_tmp0[ii] = ptr_Gamma[0+ii]       - ptr_Gamma[0+ii]      *ptr_Zs_inv[0+idx]  *ptr_Gamma[0+ii];
+			ptr_tmp1[ii] = ptr_Gamma[nb0+ng0+ii] - ptr_Gamma[nb0+ng0+ii]*ptr_Zs_inv[ns0+idx]*ptr_Gamma[nb0+ng0+ii];
+			}
+		else
+			{
+			ptr_tmp0[ii] = ptr_Gamma[0+ii];
+			ptr_tmp1[ii] = ptr_Gamma[nb0+ng0+ii];
+			}
+		}
+	#else // old version, not working for a slack entering in multiple constraints
 	for(ii=0; ii<nb0+ng0; ii++)
 		{
 		idx = idxs_rev0[ii];
@@ -335,6 +418,7 @@ static void COND_SLACKS_FACT(int ss, struct OCP_QP *qp, struct OCP_QP_IPM_ARG *a
 			ptr_tmp1[ii] = ptr_Gamma[nb0+ng0+ii];
 			}
 		}
+	#endif
 
 	AXPY(nb0+ng0,  1.0, tmp_nbgM+1, 0, tmp_nbgM+0, 0, tmp_nbgM+0, 0);
 
@@ -377,6 +461,38 @@ static void COND_SLACKS_SOLVE(int ss, struct OCP_QP *qp, struct OCP_QP_SOL *qp_s
 	REAL *ptr_tmp3 = (tmp_nbgM+3)->pa;
 
 	// idxs_rev
+	#if 1
+	// ii   constr index
+	// idx <= slack index
+	for(idx=0; idx<ns0; idx++)
+		{
+		ptr_dux[nu0+nx0+idx]      = ptr_res_g[nu0+nx0+idx]     + ptr_gamma[2*nb0+2*ng0+idx];
+		ptr_dux[nu0+nx0+ns0+idx]  = ptr_res_g[nu0+nx0+ns0+idx] + ptr_gamma[2*nb0+2*ng0+ns0+idx];
+		}
+	for(ii=0; ii<nb0+ng0; ii++)
+		{
+		idx = idxs_rev0[ii];
+		if(idx!=-1)
+			{
+			ptr_dux[nu0+nx0+idx]      += ptr_gamma[0+ii];
+			ptr_dux[nu0+nx0+ns0+idx]  += ptr_gamma[nb0+ng0+ii];
+			}
+		}
+	for(ii=0; ii<nb0+ng0; ii++)
+		{
+		idx = idxs_rev0[ii];
+		if(idx!=-1)
+			{
+			ptr_tmp2[ii] = ptr_gamma[0+ii]       - ptr_Gamma[0+ii]      *ptr_Zs_inv[0+idx]  *ptr_dux[nu0+nx0+idx];
+			ptr_tmp3[ii] = ptr_gamma[nb0+ng0+ii] - ptr_Gamma[nb0+ng0+ii]*ptr_Zs_inv[ns0+idx]*ptr_dux[nu0+nx0+ns0+idx]; // + ???
+			}
+		else
+			{
+			ptr_tmp2[ii] = ptr_gamma[0+ii];
+			ptr_tmp3[ii] = ptr_gamma[nb0+ng0+ii];
+			}
+		}
+	#else // old version, not working for a slack entering in multiple constraints
 	for(ii=0; ii<nb0+ng0; ii++)
 		{
 		idx = idxs_rev0[ii];
@@ -395,6 +511,7 @@ static void COND_SLACKS_SOLVE(int ss, struct OCP_QP *qp, struct OCP_QP_SOL *qp_s
 			ptr_tmp3[ii] = ptr_gamma[nb0+ng0+ii];
 			}
 		}
+	#endif
 
 	AXPY(nb0+ng0, -1.0, tmp_nbgM+3, 0, tmp_nbgM+2, 0, tmp_nbgM+1, 0);
 
@@ -429,6 +546,35 @@ static void EXPAND_SLACKS(int ss, struct OCP_QP *qp, struct OCP_QP_SOL *qp_sol, 
 	REAL *ptr_Zs_inv = Zs_inv->pa;
 
 	// idxs_rev
+	#if 1
+	// ii  <= constr index
+	// idx <= slack index
+	for(ii=0; ii<nb0+ng0; ii++)
+		{
+		idx = idxs_rev0[ii];
+		if(idx!=-1)
+			{
+			ptr_dux[nu0+nx0+idx]     += ptr_Gamma[0+ii]      *ptr_dt[0+ii];
+			ptr_dux[nu0+nx0+ns0+idx] += ptr_Gamma[nb0+ng0+ii]*ptr_dt[nb0+ng0+ii];
+			}
+		}
+	for(idx=0; idx<ns0; idx++)
+		{
+		ptr_dux[nu0+nx0+idx]     = - ptr_Zs_inv[0+idx]   * ptr_dux[nu0+nx0+idx];
+		ptr_dux[nu0+nx0+ns0+idx] = - ptr_Zs_inv[ns0+idx] * ptr_dux[nu0+nx0+ns0+idx];
+		ptr_dt[2*nb0+2*ng0+idx]     = ptr_dux[nu0+nx0+idx];
+		ptr_dt[2*nb0+2*ng0+ns0+idx] = ptr_dux[nu0+nx0+ns0+idx];
+		}
+	for(ii=0; ii<nb0+ng0; ii++)
+		{
+		idx = idxs_rev0[ii];
+		if(idx!=-1)
+			{
+			ptr_dt[0+ii]       += ptr_dux[nu0+nx0+idx];
+			ptr_dt[nb0+ng0+ii] += ptr_dux[nu0+nx0+ns0+idx];
+			}
+		}
+	#else // old version, not working for a slack entering in multiple constraints
 	for(ii=0; ii<nb0+ng0; ii++)
 		{
 		idx = idxs_rev0[ii];
@@ -444,6 +590,7 @@ static void EXPAND_SLACKS(int ss, struct OCP_QP *qp, struct OCP_QP_SOL *qp_sol, 
 			ptr_dt[nb0+ng0+ii] = ptr_dt[nb0+ng0+ii] + ptr_dux[nu0+nx0+ns0+idx];
 			}
 		}
+	#endif
 
 	return;
 
