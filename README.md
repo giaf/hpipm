@@ -3,7 +3,6 @@ It provides efficient implementations of dense and structure-exploiting algorith
 
 HPIPM (and BLASFEO, which is a dependency), comes with both `make` and `cmake` build systems.
 The preferred one is `make`, which can be used to compile and run any library, interface and example in any language.
-`make` is also used in the continuous integration `travis` scripts.
 `cmake` can only be used to compile the libraries, while the interested user should compile interfaces and run examples by him/herself by taking inspiration form the commands in the various `Makefile`s.
 
 --------------------------------------------------
@@ -16,10 +15,10 @@ The QP notation used in HPIPM can be found in the `doc` folder.
 
 ### C
 In order to run the C examples in `/hpipm/examples/C/` follow the steps below:
-1) Clone BLASFEO on your machine: `git clone https://github.com/giaf/blasfeo.git` 
+1) Clone BLASFEO on your machine: `git clone https://github.com/giaf/blasfeo.git`
 2) From the BLASFEO root folder, run `make static_library -j 4 && sudo make install_static` (default installation folder: `/opt/blasfeo`; if a different one is chosen, `BLASFEO_PATH` in HPIPM's `Makefile.rule` should be updated accordingly)
 3) From the HPIPM root folder, run `make static_library -j 4 && make examples`
-4) In a terminal, navigate to `/hpipm/examples/c/` and run `getting_started.out` to solve a simple OCP-structured QP.
+4) In a terminal, navigate to `/hpipm/examples/c/` and run `example.out` to solve a simple OCP-structured QP.
 
 ### MATLAB and Octave
 #### Linux
