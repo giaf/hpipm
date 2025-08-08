@@ -776,10 +776,6 @@ int main()
 	int ngt[Nn];
 	int nqt[Nn];
 	int nst[Nn];
-	int nsbxt[Nn];
-	int nsbut[Nn];
-	int nsgt[Nn];
-	int nsqt[Nn];
 
 	for(ii=0; ii<Nn; ii++)
 		{
@@ -792,10 +788,6 @@ int main()
 		ngt[ii] = ng[stage];
 		nqt[ii] = nq[stage];
 		nst[ii] = ns[stage];
-		nsbxt[ii] = nsbx[stage];
-		nsbut[ii] = nsbu[stage];
-		nsgt[ii] = nsg[stage];
-		nsqt[ii] = nsg[stage];
 		}
 
 #if 0
@@ -947,7 +939,7 @@ int main()
 	struct d_tree_ocp_qcqp_dim dim;
 	d_tree_ocp_qcqp_dim_create(Nn, &dim, dim_mem);
 
-//	d_tree_ocp_qcqp_dim_set_all(&ttree, nxt, nut, nbxt, nbut, ngt, nsbxt, nsbut, nsgt, &dim);
+//	d_tree_ocp_qcqp_dim_set_all(&ttree, nxt, nut, nbxt, nbut, ngt, nst, &dim);
 	
 	d_tree_ocp_qcqp_dim_set_tree(&ttree, &dim);
 	for(ii=0; ii<Nn; ii++)
@@ -958,10 +950,7 @@ int main()
 		d_tree_ocp_qcqp_dim_set_nbu(ii, nbut[ii], &dim);
 		d_tree_ocp_qcqp_dim_set_ng(ii, ngt[ii], &dim);
 		d_tree_ocp_qcqp_dim_set_nq(ii, nqt[ii], &dim);
-		d_tree_ocp_qcqp_dim_set_nsbx(ii, nsbxt[ii], &dim);
-		d_tree_ocp_qcqp_dim_set_nsbu(ii, nsbut[ii], &dim);
-		d_tree_ocp_qcqp_dim_set_nsg(ii, nsgt[ii], &dim);
-		d_tree_ocp_qcqp_dim_set_nsq(ii, nsqt[ii], &dim);
+		d_tree_ocp_qcqp_dim_set_ns(ii, nst[ii], &dim);
 		}
 	
 #if PRINT
@@ -982,7 +971,7 @@ int main()
 	struct d_tree_ocp_qcqp qp;
 	d_tree_ocp_qcqp_create(&dim, &qp, tree_ocp_qp_memory);
 
-//	d_tree_ocp_qcqp_set_all(hAt, hBt, hbt, hQt, hSt, hRt, hqt, hrt, hidxbt, hd_lbt, hd_ubt, hCt, hDt, hd_lgt, hd_ugt, hZlt, hZut, hzlt, hzut, hidxst, hd_lst, hd_ust, &qp);
+//	d_tree_ocp_qcqp_set_all(hAt, hBt, hbt, hQt, hSt, hRt, hqt, hrt, hidxbt, hd_lbt, hd_ubt, hCt, hDt, hd_lgt, hd_ugt, hZlt, hZut, hzlt, hzut, hidxst, NULL, hd_lst, hd_ust, &qp);
 	
 	// node-wise data
 

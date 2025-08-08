@@ -53,10 +53,7 @@ struct s_tree_ocp_qp_dim
 	int *nbx; // number of state box constraints // Nn
 	int *nbu; // number of input box constraints // Nn
 	int *ng; // number of general constraints // Nn
-	int *ns; // number of soft constraints // Nn
-	int *nsbx; // number of soft state box constraints
-	int *nsbu; // number of soft input box constraints
-	int *nsg; // number of soft general constraints
+	int *ns; // number of slacks of soft constraints // Nn
 	int Nn; // number of nodes
 	hpipm_size_t memsize;
 	};
@@ -70,7 +67,7 @@ hpipm_size_t s_tree_ocp_qp_dim_memsize(int Nn);
 //
 void s_tree_ocp_qp_dim_create(int Nn, struct s_tree_ocp_qp_dim *qp_dim, void *memory);
 //
-void s_tree_ocp_qp_dim_set_all(struct tree *ttree, int *nx, int *nu, int *nbx, int *nbu, int *ng, int *nsbx, int *nsbu, int *nsg, struct s_tree_ocp_qp_dim *dim);
+void s_tree_ocp_qp_dim_set_all(struct tree *ttree, int *nx, int *nu, int *nbx, int *nbu, int *ng, int *ns, struct s_tree_ocp_qp_dim *dim);
 //
 void s_tree_ocp_qp_dim_set_tree(struct tree *ttree, struct s_tree_ocp_qp_dim *dim);
 //
@@ -87,12 +84,6 @@ void s_tree_ocp_qp_dim_set_nbu(int stage, int value, struct s_tree_ocp_qp_dim *d
 void s_tree_ocp_qp_dim_set_ng(int stage, int value, struct s_tree_ocp_qp_dim *dim);
 //
 void s_tree_ocp_qp_dim_set_ns(int stage, int value, struct s_tree_ocp_qp_dim *dim);
-//
-void s_tree_ocp_qp_dim_set_nsbx(int stage, int value, struct s_tree_ocp_qp_dim *dim);
-//
-void s_tree_ocp_qp_dim_set_nsbu(int stage, int value, struct s_tree_ocp_qp_dim *dim);
-//
-void s_tree_ocp_qp_dim_set_nsg(int stage, int value, struct s_tree_ocp_qp_dim *dim);
 //
 void s_tree_ocp_qp_dim_set_nbxe(int stage, int value, struct s_tree_ocp_qp_dim *dim);
 //

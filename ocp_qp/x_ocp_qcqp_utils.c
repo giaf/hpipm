@@ -48,10 +48,6 @@ void OCP_QCQP_DIM_PRINT(struct OCP_QCQP_DIM *qp_dim)
 	int *ng = qp_dim->ng;
 	int *nq = qp_dim->nq;
 	int *ns = qp_dim->ns;
-	int *nsbx = qp_dim->nsbx;
-	int *nsbu = qp_dim->nsbu;
-	int *nsg = qp_dim->nsg;
-	int *nsq = qp_dim->nsq;
 	int *nbxe = qp_dim->nbxe;
 	int *nbue = qp_dim->nbue;
 	int *nge = qp_dim->nge;
@@ -92,26 +88,6 @@ void OCP_QCQP_DIM_PRINT(struct OCP_QCQP_DIM *qp_dim)
 	printf("ns =\n");
 	for (ii = 0; ii <= N; ii++)
 		printf("\t%d", ns[ii]);
-	printf("\n\n");
-
-	printf("nsbx =\n");
-	for (ii = 0; ii <= N; ii++)
-		printf("\t%d", nsbx[ii]);
-	printf("\n\n");
-
-	printf("nsbu =\n");
-	for (ii = 0; ii <= N; ii++)
-		printf("\t%d", nsbu[ii]);
-	printf("\n\n");
-
-	printf("nsg =\n");
-	for (ii = 0; ii <= N; ii++)
-		printf("\t%d", nsg[ii]);
-	printf("\n\n");
-
-	printf("nsq =\n");
-	for (ii = 0; ii <= N; ii++)
-		printf("\t%d", nsq[ii]);
 	printf("\n\n");
 
 	printf("nbxe =\n");
@@ -155,10 +131,6 @@ void OCP_QCQP_DIM_CODEGEN(char *file_name, char *mode, struct OCP_QCQP_DIM *qp_d
 	int *ng = qp_dim->ng;
 	int *nq = qp_dim->nq;
 	int *ns = qp_dim->ns;
-	int *nsbx = qp_dim->nsbx; // TODO remove ???
-	int *nsbu = qp_dim->nsbu; // TODO remove ???
-	int *nsg = qp_dim->nsg; // TODO remove ???
-	int *nsq = qp_dim->nsq; // TODO remove ???
 	int *nbxe = qp_dim->nbxe;
 	int *nbue = qp_dim->nbue;
 	int *nge = qp_dim->nge;
@@ -218,34 +190,6 @@ void OCP_QCQP_DIM_CODEGEN(char *file_name, char *mode, struct OCP_QCQP_DIM *qp_d
 		fprintf(file, "%d, ", ns[ii]);
 	fprintf(file, "};\n");
 	fprintf(file, "int *ns = nns;\n");
-	// nsbx
-	fprintf(file, "/* nsbx */\n");
-	fprintf(file, "static int nnsbx[] = {");
-	for(ii=0; ii<=N; ii++)
-		fprintf(file, "%d, ", nsbx[ii]);
-	fprintf(file, "};\n");
-	fprintf(file, "int *nsbx = nnsbx;\n");
-	// nsbu
-	fprintf(file, "/* nsbu */\n");
-	fprintf(file, "static int nnsbu[] = {");
-	for(ii=0; ii<=N; ii++)
-		fprintf(file, "%d, ", nsbu[ii]);
-	fprintf(file, "};\n");
-	fprintf(file, "int *nsbu = nnsbu;\n");
-	// nsg
-	fprintf(file, "/* nsg */\n");
-	fprintf(file, "static int nnsg[] = {");
-	for(ii=0; ii<=N; ii++)
-		fprintf(file, "%d, ", nsg[ii]);
-	fprintf(file, "};\n");
-	fprintf(file, "int *nsg = nnsg;\n");
-	// nsq
-	fprintf(file, "/* nsq */\n");
-	fprintf(file, "static int nnsq[] = {");
-	for(ii=0; ii<=N; ii++)
-		fprintf(file, "%d, ", nsq[ii]);
-	fprintf(file, "};\n");
-	fprintf(file, "int *nsq = nnsq;\n");
 	// nbxe
 	fprintf(file, "/* nbxe */\n");
 	fprintf(file, "static int nnbxe[] = {");
@@ -1541,27 +1485,6 @@ void OCP_QCQP_CODEGEN(char *file_name, char *mode, struct OCP_QCQP_DIM *dim, str
 		fprintf(file, "idxs_rev%d, ", nn);
 	fprintf(file, "};\n");
 	fprintf(file, "int **hidxs_rev = iidxs_rev;\n");
-
-	// idxs
-	fprintf(file, "/* idxs */\n");
-	for(nn=0; nn<=N; nn++)
-		{
-		fprintf(file, "static int idxs%d[] = {", nn);
-		for(jj=0; jj<nb[nn]+ng[nn]+nq[nn]; jj++)
-			{
-			idx_tmp = qp->idxs_rev[nn][jj];
-			if(idx_tmp!=-1)
-				{
-				fprintf(file, "%d, ", jj);
-				}
-			}
-		fprintf(file, "};\n");
-		}
-	fprintf(file, "static int *iidxs[] = {");
-	for(nn=0; nn<=N; nn++)
-		fprintf(file, "idxs%d, ", nn);
-	fprintf(file, "};\n");
-	fprintf(file, "int **hidxs = iidxs;\n");
 
 	// lls
 	fprintf(file, "/* lls */\n");

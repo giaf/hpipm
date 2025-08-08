@@ -61,9 +61,7 @@ extern int *nu;
 extern int *nbu;
 extern int *nbx;
 extern int *ng;
-extern int *nsbx;
-extern int *nsbu;
-extern int *nsg;
+extern int *ns;
 extern int *nbue;
 extern int *nbxe;
 extern int *nge;
@@ -95,7 +93,7 @@ extern double **hZl;
 extern double **hZu;
 extern double **hzl;
 extern double **hzu;
-extern int **hidxs;
+extern int **hidxs_rev;
 extern double **hlls;
 extern double **hlls_mask;
 extern double **hlus;
@@ -141,7 +139,7 @@ int main()
 	d_ocp_qp_dim_create(N, &dim, dim_mem);
 
 	// unified setter
-	d_ocp_qp_dim_set_all(nx, nu, nbx, nbu, ng, nsbx, nsbu, nsg, &dim);
+	d_ocp_qp_dim_set_all(nx, nu, nbx, nbu, ng, ns, &dim);
 
 	// additional single setters
 
@@ -166,7 +164,8 @@ int main()
 	d_ocp_qp_create(&dim, &qp, qp_mem);
 
 	// unified setter
-	d_ocp_qp_set_all(hA, hB, hb, hQ, hS, hR, hq, hr, hidxbx, hlbx, hubx, hidxbu, hlbu, hubu, hC, hD, hlg, hug, hZl, hZu, hzl, hzu, hidxs, hlls, hlus, &qp);
+	void *hidxs = NULL; // legacy, deprecated
+	d_ocp_qp_set_all(hA, hB, hb, hQ, hS, hR, hq, hr, hidxbx, hlbx, hubx, hidxbu, hlbu, hubu, hC, hD, hlg, hug, hZl, hZu, hzl, hzu, hidxs, hidxs_rev, hlls, hlus, &qp);
 
 	// additional single setters
 
@@ -361,15 +360,15 @@ int main()
 
 	double **u1 = malloc((N+1)*sizeof(double *)); for(ii=0; ii<=N; ii++) u1[ii] = malloc((nu[ii])*sizeof(double));
 	double **x1 = malloc((N+1)*sizeof(double *)); for(ii=0; ii<=N; ii++) x1[ii] = malloc((nx[ii])*sizeof(double));
-	double **ls1 = malloc((N+1)*sizeof(double *)); for(ii=0; ii<=N; ii++) ls1[ii] = malloc((nsbu[ii]+nsbx[ii]+nsg[ii])*sizeof(double));
-	double **us1 = malloc((N+1)*sizeof(double *)); for(ii=0; ii<=N; ii++) us1[ii] = malloc((nsbu[ii]+nsbx[ii]+nsg[ii])*sizeof(double));
+	double **ls1 = malloc((N+1)*sizeof(double *)); for(ii=0; ii<=N; ii++) ls1[ii] = malloc((ns[ii])*sizeof(double));
+	double **us1 = malloc((N+1)*sizeof(double *)); for(ii=0; ii<=N; ii++) us1[ii] = malloc((ns[ii])*sizeof(double));
 	double **pi1 = malloc((N)*sizeof(double *)); for(ii=0; ii<N; ii++) pi1[ii] = malloc((nx[ii+1])*sizeof(double));
 	double **lam_lb1 = malloc((N+1)*sizeof(double *)); for(ii=0; ii<=N; ii++) lam_lb1[ii] = malloc((nbu[ii]+nbx[ii])*sizeof(double));
 	double **lam_ub1 = malloc((N+1)*sizeof(double *)); for(ii=0; ii<=N; ii++) lam_ub1[ii] = malloc((nbu[ii]+nbx[ii])*sizeof(double));
 	double **lam_lg1 = malloc((N+1)*sizeof(double *)); for(ii=0; ii<=N; ii++) lam_lg1[ii] = malloc((ng[ii])*sizeof(double));
 	double **lam_ug1 = malloc((N+1)*sizeof(double *)); for(ii=0; ii<=N; ii++) lam_ug1[ii] = malloc((ng[ii])*sizeof(double));
-	double **lam_ls1 = malloc((N+1)*sizeof(double *)); for(ii=0; ii<=N; ii++) lam_ls1[ii] = malloc((nsbu[ii]+nsbx[ii]+nsg[ii])*sizeof(double));
-	double **lam_us1 = malloc((N+1)*sizeof(double *)); for(ii=0; ii<=N; ii++) lam_us1[ii] = malloc((nsbu[ii]+nsbx[ii]+nsg[ii])*sizeof(double));
+	double **lam_ls1 = malloc((N+1)*sizeof(double *)); for(ii=0; ii<=N; ii++) lam_ls1[ii] = malloc((ns[ii])*sizeof(double));
+	double **lam_us1 = malloc((N+1)*sizeof(double *)); for(ii=0; ii<=N; ii++) lam_us1[ii] = malloc((ns[ii])*sizeof(double));
 
 	d_ocp_qp_sol_get_all(&qp_sol, u1, x1, ls1, us1, pi1, lam_lb1, lam_ub1, lam_lg1, lam_ug1, lam_ls1, lam_us1);
 

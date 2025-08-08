@@ -605,10 +605,6 @@ int main()
 		d_ocp_qcqp_dim_set_ng(ii, ng[ii], &ocp_dim);
 		d_ocp_qcqp_dim_set_nq(ii, nq[ii], &ocp_dim);
 		d_ocp_qcqp_dim_set_ns(ii, ns[ii], &ocp_dim);
-		d_ocp_qcqp_dim_set_nsbx(ii, nsbx[ii], &ocp_dim);
-		d_ocp_qcqp_dim_set_nsbu(ii, nsbu[ii], &ocp_dim);
-		d_ocp_qcqp_dim_set_nsg(ii, nsg[ii], &ocp_dim);
-		d_ocp_qcqp_dim_set_nsq(ii, nsq[ii], &ocp_dim);
 		d_ocp_qcqp_dim_set_nbxe(ii, nbxe[ii], &ocp_dim); // state bounds to be removed
 		}
 	

@@ -43,9 +43,6 @@ void COND_QP_COMPUTE_DIM(struct OCP_QP_DIM *ocp_dim, struct DENSE_QP_DIM *dense_
 	int *nbu = ocp_dim->nbu;
 	int *ng = ocp_dim->ng;
 	int *ns = ocp_dim->ns;
-	int *nsbx = ocp_dim->nsbx;
-	int *nsbu = ocp_dim->nsbu;
-	int *nsg = ocp_dim->nsg;
 
 	int ii;
 
@@ -54,16 +51,12 @@ void COND_QP_COMPUTE_DIM(struct OCP_QP_DIM *ocp_dim, struct DENSE_QP_DIM *dense_
 	int nbc = 0;
 	int ngc = 0;
 	int nsc = 0;
-	int nsbc = 0;
-	int nsgc = 0;
 
 	// first stage
 	nvc += nx[0]+nu[0];
 	nbc += nbx[0]+nbu[0];
 	ngc += ng[0];
 	nsc += ns[0];
-	nsbc += nsbx[0]+nsbu[0];
-	nsgc += nsg[0];
 	// remaining stages
 	for(ii=1; ii<=N; ii++)
 		{
@@ -71,8 +64,6 @@ void COND_QP_COMPUTE_DIM(struct OCP_QP_DIM *ocp_dim, struct DENSE_QP_DIM *dense_
 		nbc += nbu[ii];
 		ngc += nbx[ii]+ng[ii];
 		nsc += ns[ii];
-		nsbc += nsbu[ii];
-		nsgc += nsbx[ii]+nsg[ii];
 		}
 
 	dense_dim->nv = nvc;
@@ -80,8 +71,6 @@ void COND_QP_COMPUTE_DIM(struct OCP_QP_DIM *ocp_dim, struct DENSE_QP_DIM *dense_
 	dense_dim->nb = nbc;
 	dense_dim->ng = ngc;
 	dense_dim->ns = nsc;
-	dense_dim->nsb = nsbc;
-	dense_dim->nsg = nsgc;
 
 	return;
 

@@ -9,10 +9,6 @@ int ne = 1;
 int nb = 2;
 /* ng */
 int ng = 0;
-/* nsb */
-int nsb = 0;
-/* nsg */
-int nsg = 0;
 /* ns */
 int ns = 0;
 /***************

@@ -64,7 +64,7 @@ struct s_ocp_qp
 	struct blasfeo_svec *m; // rhs of complementarity condition
 	struct blasfeo_svec *Z; // (diagonal) hessian of slacks
 	int **idxb; // indices of box constrained variables within [u; x]
-	int **idxs_rev; // index of soft constraints (reverse storage)
+	int **idxs_rev; // index of slack softening each constraint
 	int **idxe; // indices of constraints within [bu, bx, g] that are equalities, subset of [0, ..., nbu+nbx+ng-1]
 	int *diag_H_flag; // flag the fact that Hessian is diagonal
 	hpipm_size_t memsize; // memory size in bytes
@@ -87,9 +87,9 @@ void s_ocp_qp_set_all_zero(struct s_ocp_qp *qp);
 //
 void s_ocp_qp_set_rhs_zero(struct s_ocp_qp *qp);
 //
-void s_ocp_qp_set_all(float **A, float **B, float **b, float **Q, float **S, float **R, float **q, float **r, int **idxbx, float **lbx, float **ubx, int **idxbu, float **lbu, float **ubu, float **C, float **D, float **lg, float **ug, float **Zl, float **Zu, float **zl, float **zu, int **idxs, float **ls, float **us, struct s_ocp_qp *qp);
+void s_ocp_qp_set_all(float **A, float **B, float **b, float **Q, float **S, float **R, float **q, float **r, int **idxbx, float **lbx, float **ubx, int **idxbu, float **lbu, float **ubu, float **C, float **D, float **lg, float **ug, float **Zl, float **Zu, float **zl, float **zu, int **idxs, int **idxs_rev, float **ls, float **us, struct s_ocp_qp *qp);
 //
-void s_ocp_qp_set_all_rowmaj(float **A, float **B, float **b, float **Q, float **S, float **R, float **q, float **r, int **idxbx, float **lbx, float **ubx, int **idxbu, float **lbu, float **ubu, float **C, float **D, float **lg, float **ug, float **Zl, float **Zu, float **zl, float **zu, int **idxs, float **ls, float **us, struct s_ocp_qp *qp);
+void s_ocp_qp_set_all_rowmaj(float **A, float **B, float **b, float **Q, float **S, float **R, float **q, float **r, int **idxbx, float **lbx, float **ubx, int **idxbu, float **lbu, float **ubu, float **C, float **D, float **lg, float **ug, float **Zl, float **Zu, float **zl, float **zu, int **idxs, int **idxs_rev, float **ls, float **us, struct s_ocp_qp *qp);
 //
 void s_ocp_qp_set(char *fiels_name, int stage, void *value, struct s_ocp_qp *qp);
 //

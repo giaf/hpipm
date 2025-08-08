@@ -60,10 +60,7 @@ extern int *nbu;
 extern int *nbx;
 extern int *ng;
 extern int *nq;
-extern int *nsbx;
-extern int *nsbu;
-extern int *nsg;
-extern int *nsq;
+extern int *ns;
 extern int *nbxe;
 extern int *nbue;
 extern int *nge;
@@ -103,7 +100,7 @@ extern double **hZl;
 extern double **hZu;
 extern double **hzl;
 extern double **hzu;
-extern int **hidxs;
+extern int **hidxs_rev;
 extern double **hlls;
 extern double **hlls_mask;
 extern double **hlus;
@@ -156,10 +153,7 @@ int main()
 		d_ocp_qcqp_dim_set_nbu(ii, nbu[ii], &dim);
 		d_ocp_qcqp_dim_set_ng(ii, ng[ii], &dim);
 		d_ocp_qcqp_dim_set_nq(ii, nq[ii], &dim);
-		d_ocp_qcqp_dim_set_nsbx(ii, nsbx[ii], &dim);
-		d_ocp_qcqp_dim_set_nsbu(ii, nsbu[ii], &dim);
-		d_ocp_qcqp_dim_set_nsg(ii, nsg[ii], &dim);
-		d_ocp_qcqp_dim_set_nsq(ii, nsq[ii], &dim);
+		d_ocp_qcqp_dim_set_ns(ii, ns[ii], &dim);
 		d_ocp_qcqp_dim_set_nbxe(ii, nbxe[ii], &dim);
 		d_ocp_qcqp_dim_set_nbue(ii, nbue[ii], &dim);
 		d_ocp_qcqp_dim_set_nge(ii, nge[ii], &dim);
@@ -263,7 +257,7 @@ int main()
 		d_ocp_qcqp_set_qq(ii, hqq[ii], &qp);
 		d_ocp_qcqp_set_uq(ii, huq[ii], &qp);
 		d_ocp_qcqp_set_uq_mask(ii, huq_mask[ii], &qp);
-		d_ocp_qcqp_set_idxs(ii, hidxs[ii], &qp);
+		d_ocp_qcqp_set_idxs_rev(ii, hidxs_rev[ii], &qp);
 		d_ocp_qcqp_set_lls(ii, hlls[ii], &qp);
 		d_ocp_qcqp_set_lls_mask(ii, hlls_mask[ii], &qp);
 		d_ocp_qcqp_set_lus(ii, hlus[ii], &qp);
@@ -377,6 +371,9 @@ int main()
 	d_dense_qcqp_ipm_arg_set_warm_start(&warm_start, &arg);
 	d_dense_qcqp_ipm_arg_set_pred_corr(&pred_corr, &arg);
 	d_dense_qcqp_ipm_arg_set_split_step(&split_step, &arg);
+
+	//double tau_min = 1e-2;
+	//d_dense_qcqp_ipm_arg_set_tau_min(&tau_min, &arg);
 
 /************************************************
 * red eq dof workspace

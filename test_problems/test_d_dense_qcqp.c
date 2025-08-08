@@ -76,10 +76,7 @@ int main()
 	int nb = 1;
 	int ng = 0;
 	int nq = 1;
-//	int ns = 1;
-	int nsb = 0;
-	int nsg = 0;
-	int nsq = 1;
+	int ns = 1;
 
 	double H[] = {1.0, 0.0, 0.0, 1.0};
 	double g[] = {2.0, 2.0};
@@ -115,7 +112,7 @@ int main()
 	d_dense_qcqp_dim_set_nb(nb, &qcqp_dim);
 	d_dense_qcqp_dim_set_ng(ng, &qcqp_dim);
 	d_dense_qcqp_dim_set_nq(nq, &qcqp_dim);
-	d_dense_qcqp_dim_set_nsq(nsq, &qcqp_dim);
+	d_dense_qcqp_dim_set_ns(ns, &qcqp_dim);
 
 #if PRINT
 	printf("\nqcqp dim\n");

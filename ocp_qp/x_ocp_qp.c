@@ -511,7 +511,7 @@ void OCP_QP_SET_RHS_ZERO(struct OCP_QP *qp)
 
 
 // TODO deprecate and remove ???
-void OCP_QP_SET_ALL(REAL **A, REAL **B, REAL **b, REAL **Q, REAL **S, REAL **R, REAL **q, REAL **r, int **idxbx, REAL **d_lbx, REAL **d_ubx, int **idxbu, REAL **d_lbu, REAL **d_ubu, REAL **C, REAL **D, REAL **d_lg, REAL **d_ug, REAL **Zl, REAL **Zu, REAL **zl, REAL **zu, int **idxs, REAL **d_ls, REAL **d_us, struct OCP_QP *qp)
+void OCP_QP_SET_ALL(REAL **A, REAL **B, REAL **b, REAL **Q, REAL **S, REAL **R, REAL **q, REAL **r, int **idxbx, REAL **d_lbx, REAL **d_ubx, int **idxbu, REAL **d_lbu, REAL **d_ubu, REAL **C, REAL **D, REAL **d_lg, REAL **d_ug, REAL **Zl, REAL **Zu, REAL **zl, REAL **zu, int **idxs, int **idxs_rev, REAL **d_ls, REAL **d_us, struct OCP_QP *qp)
 	{
 
 	// extract dim
@@ -587,9 +587,12 @@ void OCP_QP_SET_ALL(REAL **A, REAL **B, REAL **b, REAL **Q, REAL **S, REAL **R, 
 		{
 		if(ns[ii]>0)
 			{
-			for(jj=0; jj<ns[ii]; jj++)
+			if(idxs!=NULL)
 				{
-				qp->idxs_rev[ii][idxs[ii][jj]] = jj;
+				for(jj=0; jj<ns[ii]; jj++)
+					{
+					qp->idxs_rev[ii][idxs[ii][jj]] = jj;
+					}
 				}
 			PACK_VEC(ns[ii], Zl[ii], 1, qp->Z+ii, 0);
 			PACK_VEC(ns[ii], Zu[ii], 1, qp->Z+ii, ns[ii]);
@@ -602,13 +605,24 @@ void OCP_QP_SET_ALL(REAL **A, REAL **B, REAL **b, REAL **Q, REAL **S, REAL **R, 
 			}
 		}
 
+	if(idxs_rev!=NULL)
+		{
+		for(ii=0; ii<=N; ii++)
+			{
+			for(jj=0; jj<nb[ii]+ng[ii]; jj++)
+				{
+				qp->idxs_rev[ii][jj] = idxs_rev[ii][jj];
+				}
+			}
+		}
+
 	return;
 
 	}
 
 
 
-void OCP_QP_SET_ALL_ROWMAJ(REAL **A, REAL **B, REAL **b, REAL **Q, REAL **S, REAL **R, REAL **q, REAL **r, int **idxbx, REAL **d_lbx, REAL **d_ubx, int **idxbu, REAL **d_lbu, REAL **d_ubu, REAL **C, REAL **D, REAL **d_lg, REAL **d_ug, REAL **Zl, REAL **Zu, REAL **zl, REAL **zu, int **idxs, REAL **d_ls, REAL **d_us, struct OCP_QP *qp)
+void OCP_QP_SET_ALL_ROWMAJ(REAL **A, REAL **B, REAL **b, REAL **Q, REAL **S, REAL **R, REAL **q, REAL **r, int **idxbx, REAL **d_lbx, REAL **d_ubx, int **idxbu, REAL **d_lbu, REAL **d_ubu, REAL **C, REAL **D, REAL **d_lg, REAL **d_ug, REAL **Zl, REAL **Zu, REAL **zl, REAL **zu, int **idxs, int **idxs_rev, REAL **d_ls, REAL **d_us, struct OCP_QP *qp)
 	{
 
 	// extract dim
@@ -684,9 +698,12 @@ void OCP_QP_SET_ALL_ROWMAJ(REAL **A, REAL **B, REAL **b, REAL **Q, REAL **S, REA
 		{
 		if(ns[ii]>0)
 			{
-			for(jj=0; jj<ns[ii]; jj++)
+			if(idxs!=NULL)
 				{
-				qp->idxs_rev[ii][idxs[ii][jj]] = jj;
+				for(jj=0; jj<ns[ii]; jj++)
+					{
+					qp->idxs_rev[ii][idxs[ii][jj]] = jj;
+					}
 				}
 			PACK_VEC(ns[ii], Zl[ii], 1, qp->Z+ii, 0);
 			PACK_VEC(ns[ii], Zu[ii], 1, qp->Z+ii, ns[ii]);
@@ -696,6 +713,17 @@ void OCP_QP_SET_ALL_ROWMAJ(REAL **A, REAL **B, REAL **b, REAL **Q, REAL **S, REA
 			PACK_VEC(ns[ii], d_us[ii], 1, qp->d+ii, 2*nb[ii]+2*ng[ii]+ns[ii]);
 			VECSE(ns[ii], 0.0, qp->m+ii, 2*nb[ii]+2*ng[ii]);
 			VECSE(ns[ii], 0.0, qp->m+ii, 2*nb[ii]+2*ng[ii]+ns[ii]);
+			}
+		}
+
+	if(idxs_rev!=NULL)
+		{
+		for(ii=0; ii<=N; ii++)
+			{
+			for(jj=0; jj<nb[ii]+ng[ii]; jj++)
+				{
+				qp->idxs_rev[ii][jj] = idxs_rev[ii][jj];
+				}
 			}
 		}
 

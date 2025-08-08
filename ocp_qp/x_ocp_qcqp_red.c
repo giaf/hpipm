@@ -48,10 +48,6 @@ void OCP_QCQP_DIM_REDUCE_EQ_DOF(struct OCP_QCQP_DIM *dim, struct OCP_QCQP_DIM *d
 	OCP_QCQP_DIM_SET_NG(0, dim->ng[0], dim_red);
 	OCP_QCQP_DIM_SET_NQ(0, dim->nq[0], dim_red);
 	OCP_QCQP_DIM_SET_NS(0, dim->ns[0], dim_red);
-	OCP_QCQP_DIM_SET_NSBU(0, dim->nsbu[0], dim_red);
-	OCP_QCQP_DIM_SET_NSBX(0, dim->nsbx[0], dim_red);
-	OCP_QCQP_DIM_SET_NSG(0, dim->nsg[0], dim_red);
-	OCP_QCQP_DIM_SET_NSQ(0, dim->nsq[0], dim_red);
 	OCP_QCQP_DIM_SET_NBUE(0, 0, dim_red);
 	OCP_QCQP_DIM_SET_NBXE(0, 0, dim_red);
 	OCP_QCQP_DIM_SET_NGE(0, dim->nge[0], dim_red);
@@ -66,10 +62,6 @@ void OCP_QCQP_DIM_REDUCE_EQ_DOF(struct OCP_QCQP_DIM *dim, struct OCP_QCQP_DIM *d
 		OCP_QCQP_DIM_SET_NG(ii, dim->ng[ii], dim_red);
 		OCP_QCQP_DIM_SET_NQ(ii, dim->nq[ii], dim_red);
 		OCP_QCQP_DIM_SET_NS(ii, dim->ns[ii], dim_red);
-		OCP_QCQP_DIM_SET_NSBU(ii, dim->nsbu[ii], dim_red);
-		OCP_QCQP_DIM_SET_NSBX(ii, dim->nsbx[ii], dim_red);
-		OCP_QCQP_DIM_SET_NSG(ii, dim->nsg[ii], dim_red);
-		OCP_QCQP_DIM_SET_NSQ(ii, dim->nsq[ii], dim_red);
 		OCP_QCQP_DIM_SET_NBUE(ii, 0, dim_red);
 		OCP_QCQP_DIM_SET_NBXE(ii, dim->nbxe[ii], dim_red);
 		OCP_QCQP_DIM_SET_NGE(ii, dim->nge[ii], dim_red);

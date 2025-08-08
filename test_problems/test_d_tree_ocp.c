@@ -699,9 +699,6 @@ int main()
 		nbt[ii] = nb[stage];
 		ngt[ii] = ng[stage];
 		nst[ii] = ns[stage];
-		nsbxt[ii] = nsbx[stage];
-		nsbut[ii] = nsbu[stage];
-		nsgt[ii] = nsg[stage];
 		}
 
 #if 0
@@ -876,7 +873,7 @@ int main()
 
 	struct d_tree_ocp_qp_dim dim;
 	d_tree_ocp_qp_dim_create(Nn, &dim, dim_mem);
-	d_tree_ocp_qp_dim_set_all(&ttree, nxt, nut, nbxt, nbut, ngt, nsbxt, nsbut, nsgt, &dim);
+	d_tree_ocp_qp_dim_set_all(&ttree, nxt, nut, nbxt, nbut, ngt, nst, &dim);
 
 /************************************************
 * create tree ocp qp
@@ -890,7 +887,7 @@ int main()
 
 	struct d_tree_ocp_qp qp;
 	d_tree_ocp_qp_create(&dim, &qp, tree_ocp_qp_memory);
-	d_tree_ocp_qp_set_all(hAt, hBt, hbt, hQt, hSt, hRt, hqt, hrt, hidxbt, hd_lbt, hd_ubt, hCt, hDt, hd_lgt, hd_ugt, hZlt, hZut, hzlt, hzut, hidxst, hd_lst, hd_ust, &qp);
+	d_tree_ocp_qp_set_all(hAt, hBt, hbt, hQt, hSt, hRt, hqt, hrt, hidxbt, hd_lbt, hd_ubt, hCt, hDt, hd_lgt, hd_ugt, hZlt, hZut, hzlt, hzut, hidxst, NULL, hd_lst, hd_ust, &qp);
 
 #if 0
 	struct blasfeo_dmat *tmat;

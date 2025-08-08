@@ -60,9 +60,6 @@
 #define OCP_QP_DIM_SET_NBU s_ocp_qp_dim_set_nbu
 #define OCP_QP_DIM_SET_NG s_ocp_qp_dim_set_ng
 #define OCP_QP_DIM_SET_NS s_ocp_qp_dim_set_ns
-#define OCP_QP_DIM_SET_NSBX s_ocp_qp_dim_set_nsbx
-#define OCP_QP_DIM_SET_NSBU s_ocp_qp_dim_set_nsbu
-#define OCP_QP_DIM_SET_NSG s_ocp_qp_dim_set_nsg
 #define OCP_QP_DIM_SET_NBXE s_ocp_qp_dim_set_nbxe
 #define OCP_QP_DIM_SET_NBUE s_ocp_qp_dim_set_nbue
 #define OCP_QP_DIM_SET_NGE s_ocp_qp_dim_set_nge
@@ -75,9 +72,6 @@
 #define OCP_QP_DIM_GET_NBU s_ocp_qp_dim_get_nbu
 #define OCP_QP_DIM_GET_NG s_ocp_qp_dim_get_ng
 #define OCP_QP_DIM_GET_NS s_ocp_qp_dim_get_ns
-#define OCP_QP_DIM_GET_NSBX s_ocp_qp_dim_get_nsbx
-#define OCP_QP_DIM_GET_NSBU s_ocp_qp_dim_get_nsbu
-#define OCP_QP_DIM_GET_NSG s_ocp_qp_dim_get_nsg
 #define OCP_QP_DIM_GET_NBXE s_ocp_qp_dim_get_nbxe
 #define OCP_QP_DIM_GET_NBUE s_ocp_qp_dim_get_nbue
 #define OCP_QP_DIM_GET_NGE s_ocp_qp_dim_get_nge

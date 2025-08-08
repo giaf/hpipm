@@ -48,10 +48,6 @@ void TREE_OCP_QCQP_DIM_PRINT(struct TREE_OCP_QCQP_DIM *qp_dim)
 	int *ng = qp_dim->ng;
 	int *nq = qp_dim->nq;
 	int *ns = qp_dim->ns;
-	int *nsbx = qp_dim->nsbx;
-	int *nsbu = qp_dim->nsbu;
-	int *nsg = qp_dim->nsg;
-	int *nsq = qp_dim->nsq;
 //	int *nbxe = qp_dim->nbxe;
 //	int *nbue = qp_dim->nbue;
 //	int *nge = qp_dim->nge;
@@ -91,26 +87,6 @@ void TREE_OCP_QCQP_DIM_PRINT(struct TREE_OCP_QCQP_DIM *qp_dim)
 	printf("ns =\n");
 	for (ii = 0; ii<Nn; ii++)
 		printf("\t%d", ns[ii]);
-	printf("\n\n");
-
-	printf("nsbx =\n");
-	for (ii = 0; ii<Nn; ii++)
-		printf("\t%d", nsbx[ii]);
-	printf("\n\n");
-
-	printf("nsbu =\n");
-	for (ii = 0; ii<Nn; ii++)
-		printf("\t%d", nsbu[ii]);
-	printf("\n\n");
-
-	printf("nsg =\n");
-	for (ii = 0; ii<Nn; ii++)
-		printf("\t%d", nsg[ii]);
-	printf("\n\n");
-
-	printf("nsq =\n");
-	for (ii = 0; ii<Nn; ii++)
-		printf("\t%d", nsq[ii]);
 	printf("\n\n");
 
 //	printf("nbxe =\n");

@@ -65,7 +65,7 @@ struct s_tree_ocp_qcqp
 	struct blasfeo_svec *m; // Nn
 	struct blasfeo_svec *Z; // Nn
 	int **idxb; // indices of box constrained variables within [u; x] // Nn
-	int **idxs_rev; // index of soft constraints
+	int **idxs_rev; // index of slack softening each constraint
 	hpipm_size_t memsize; // memory size in bytes
 	};
 
@@ -76,7 +76,7 @@ hpipm_size_t s_tree_ocp_qcqp_memsize(struct s_tree_ocp_qcqp_dim *dim);
 //
 void s_tree_ocp_qcqp_create(struct s_tree_ocp_qcqp_dim *dim, struct s_tree_ocp_qcqp *qp, void *memory);
 //
-void s_tree_ocp_qcqp_set_all(float **A, float **B, float **b, float **Q, float **S, float **R, float **q, float **r, int **idxb, float **d_lb, float **d_ub, float **C, float **D, float **d_lg, float **d_ug, float **Zl, float **Zu, float **zl, float **zu, int **idxs, float **d_ls, float **d_us, struct s_tree_ocp_qcqp *qp);
+void s_tree_ocp_qcqp_set_all(float **A, float **B, float **b, float **Q, float **S, float **R, float **q, float **r, int **idxb, float **d_lb, float **d_ub, float **C, float **D, float **d_lg, float **d_ug, float **Zl, float **Zu, float **zl, float **zu, int **idxs, int **idxs_rev, float **d_ls, float **d_us, struct s_tree_ocp_qcqp *qp);
 //
 void s_tree_ocp_qcqp_set(char *field_name, int node_edge, void *value, struct s_tree_ocp_qcqp *qp);
 //

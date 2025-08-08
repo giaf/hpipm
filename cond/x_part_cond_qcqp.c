@@ -69,10 +69,6 @@ void PART_COND_QCQP_COMPUTE_DIM(struct OCP_QCQP_DIM *ocp_dim, int *block_size, s
 	int *ng = ocp_dim->ng;
 	int *nq = ocp_dim->nq;
 	int *ns = ocp_dim->ns;
-	int *nsbx = ocp_dim->nsbx;
-	int *nsbu = ocp_dim->nsbu;
-	int *nsg = ocp_dim->nsg;
-	int *nsq = ocp_dim->nsq;
 
 	int N2 = part_dense_dim->N;
 //	int *nx2 = part_dense_dim->nx;
@@ -83,12 +79,8 @@ void PART_COND_QCQP_COMPUTE_DIM(struct OCP_QCQP_DIM *ocp_dim, int *block_size, s
 //	int *ng2 = part_dense_dim->ng;
 //	int *nq2 = part_dense_dim->nq;
 //	int *ns2 = part_dense_dim->ns;
-//	int *nsbx2 = part_dense_dim->nsbx;
-//	int *nsbu2 = part_dense_dim->nsbu;
-//	int *nsg2 = part_dense_dim->nsg;
-//	int *nsq2 = part_dense_dim->nsq;
 
-	int nx2, nu2, nb2, nbx2, nbu2, ng2, nq2, ns2, nsbu2, nsbx2, nsg2, nsq2;
+	int nx2, nu2, nb2, nbx2, nbu2, ng2, nq2, ns2;
 
 	int ii, jj;
 
@@ -108,10 +100,6 @@ void PART_COND_QCQP_COMPUTE_DIM(struct OCP_QCQP_DIM *ocp_dim, int *block_size, s
 		ng2 = ng[N_tmp+0];
 		nq2 = nq[N_tmp+0];
 		ns2 = ns[N_tmp+0];
-		nsbx2 = nsbx[N_tmp+0];
-		nsbu2 = nsbu[N_tmp+0];
-		nsg2 = nsg[N_tmp+0];
-		nsq2 = nsq[N_tmp+0];
 		for(jj=1; jj<block_size[ii]; jj++)
 			{
 			nx2 += 0;
@@ -122,10 +110,6 @@ void PART_COND_QCQP_COMPUTE_DIM(struct OCP_QCQP_DIM *ocp_dim, int *block_size, s
 			ng2 += ng[N_tmp+jj] + nbx[N_tmp+jj];
 			nq2 += nq[N_tmp+jj];
 			ns2 += ns[N_tmp+jj];
-			nsbx2 += 0;
-			nsbu2 += nsbu[N_tmp+jj];
-			nsg2 += nsg[N_tmp+jj] + nsbx[N_tmp+jj];
-			nsq2 += nsq[N_tmp+jj];
 			}
 		N_tmp += block_size[ii];
 		// XXX must use setters to correctly set qp ones too !
@@ -136,10 +120,6 @@ void PART_COND_QCQP_COMPUTE_DIM(struct OCP_QCQP_DIM *ocp_dim, int *block_size, s
 		OCP_QCQP_DIM_SET_NG(ii, ng2, part_dense_dim);
 		OCP_QCQP_DIM_SET_NQ(ii, nq2, part_dense_dim);
 		OCP_QCQP_DIM_SET_NS(ii, ns2, part_dense_dim);
-		OCP_QCQP_DIM_SET_NSBX(ii, nsbx2, part_dense_dim);
-		OCP_QCQP_DIM_SET_NSBU(ii, nsbu2, part_dense_dim);
-		OCP_QCQP_DIM_SET_NSG(ii, nsg2, part_dense_dim);
-		OCP_QCQP_DIM_SET_NSQ(ii, nsq2, part_dense_dim);
 		}
 	// last stage: condense also following stage
 	ii = N2;
@@ -151,10 +131,6 @@ void PART_COND_QCQP_COMPUTE_DIM(struct OCP_QCQP_DIM *ocp_dim, int *block_size, s
 	ng2 = ng[N_tmp+0];
 	nq2 = nq[N_tmp+0];
 	ns2 = ns[N_tmp+0];
-	nsbx2 = nsbx[N_tmp+0];
-	nsbu2 = nsbu[N_tmp+0];
-	nsg2 = nsg[N_tmp+0];
-	nsq2 = nsq[N_tmp+0];
 	for(jj=1; jj<block_size[ii]+1; jj++)
 		{
 		nx2 += 0;
@@ -165,12 +141,6 @@ void PART_COND_QCQP_COMPUTE_DIM(struct OCP_QCQP_DIM *ocp_dim, int *block_size, s
 		ng2 += ng[N_tmp+jj] + nbx[N_tmp+jj];
 		nq2 += nq[N_tmp+jj];
 		ns2 += ns[N_tmp+jj];
-		nsbx2 += 0;
-		nsbu2 += nsbu[N_tmp+jj];
-//		nsbx2 = nsbx[N_tmp+0];
-//		nsbu2 = nsbu[N_tmp+0];
-		nsg2 += nsg[N_tmp+jj] + nsbx[N_tmp+jj];
-		nsq2 += nsq[N_tmp+jj];
 		}
 	// XXX must use setters to correctly set qp ones too !
 	OCP_QCQP_DIM_SET_NX(ii, nx2, part_dense_dim);
@@ -180,10 +150,6 @@ void PART_COND_QCQP_COMPUTE_DIM(struct OCP_QCQP_DIM *ocp_dim, int *block_size, s
 	OCP_QCQP_DIM_SET_NG(ii, ng2, part_dense_dim);
 	OCP_QCQP_DIM_SET_NQ(ii, nq2, part_dense_dim);
 	OCP_QCQP_DIM_SET_NS(ii, ns2, part_dense_dim);
-	OCP_QCQP_DIM_SET_NSBX(ii, nsbx2, part_dense_dim);
-	OCP_QCQP_DIM_SET_NSBU(ii, nsbu2, part_dense_dim);
-	OCP_QCQP_DIM_SET_NSG(ii, nsg2, part_dense_dim);
-	OCP_QCQP_DIM_SET_NSQ(ii, nsq2, part_dense_dim);
 
 	return;
 
@@ -329,10 +295,6 @@ hpipm_size_t PART_COND_QCQP_WS_MEMSIZE(struct OCP_QCQP_DIM *ocp_dim, int *block_
 		tmp_ocp_qcqp_dim.nb = ocp_dim->nb+N_tmp;
 		tmp_ocp_qcqp_dim.ng = ocp_dim->ng+N_tmp;
 		tmp_ocp_qcqp_dim.nq = ocp_dim->nq+N_tmp;
-		tmp_ocp_qcqp_dim.nsbx = ocp_dim->nsbx+N_tmp;
-		tmp_ocp_qcqp_dim.nsbu = ocp_dim->nsbu+N_tmp;
-		tmp_ocp_qcqp_dim.nsg = ocp_dim->nsg+N_tmp;
-		tmp_ocp_qcqp_dim.nsq = ocp_dim->nsq+N_tmp;
 		tmp_ocp_qcqp_dim.ns = ocp_dim->ns+N_tmp;
 
 		// alias ocp_qcqp_dim
@@ -343,9 +305,6 @@ hpipm_size_t PART_COND_QCQP_WS_MEMSIZE(struct OCP_QCQP_DIM *ocp_dim, int *block_
 		tmp_ocp_qp_dim.nbu = ocp_dim->qp_dim->nbu+N_tmp;
 		tmp_ocp_qp_dim.nb = ocp_dim->qp_dim->nb+N_tmp;
 		tmp_ocp_qp_dim.ng = ocp_dim->qp_dim->ng+N_tmp;
-		tmp_ocp_qp_dim.nsbx = ocp_dim->qp_dim->nsbx+N_tmp;
-		tmp_ocp_qp_dim.nsbu = ocp_dim->qp_dim->nsbu+N_tmp;
-		tmp_ocp_qp_dim.nsg = ocp_dim->qp_dim->nsg+N_tmp;
 		tmp_ocp_qp_dim.ns = ocp_dim->qp_dim->ns+N_tmp;
 
 		tmp_ocp_qcqp_dim.qp_dim = &tmp_ocp_qp_dim;
@@ -400,10 +359,6 @@ void PART_COND_QCQP_WS_CREATE(struct OCP_QCQP_DIM *ocp_dim, int *block_size, str
 		tmp_ocp_qcqp_dim.nb = ocp_dim->nb+N_tmp;
 		tmp_ocp_qcqp_dim.ng = ocp_dim->ng+N_tmp;
 		tmp_ocp_qcqp_dim.nq = ocp_dim->nq+N_tmp;
-		tmp_ocp_qcqp_dim.nsbx = ocp_dim->nsbx+N_tmp;
-		tmp_ocp_qcqp_dim.nsbu = ocp_dim->nsbu+N_tmp;
-		tmp_ocp_qcqp_dim.nsg = ocp_dim->nsg+N_tmp;
-		tmp_ocp_qcqp_dim.nsq = ocp_dim->nsq+N_tmp;
 		tmp_ocp_qcqp_dim.ns = ocp_dim->ns+N_tmp;
 
 		// alias ocp_qcqp_dim
@@ -414,9 +369,6 @@ void PART_COND_QCQP_WS_CREATE(struct OCP_QCQP_DIM *ocp_dim, int *block_size, str
 		tmp_ocp_qp_dim.nbu = ocp_dim->qp_dim->nbu+N_tmp;
 		tmp_ocp_qp_dim.nb = ocp_dim->qp_dim->nb+N_tmp;
 		tmp_ocp_qp_dim.ng = ocp_dim->qp_dim->ng+N_tmp;
-		tmp_ocp_qp_dim.nsbx = ocp_dim->qp_dim->nsbx+N_tmp;
-		tmp_ocp_qp_dim.nsbu = ocp_dim->qp_dim->nsbu+N_tmp;
-		tmp_ocp_qp_dim.nsg = ocp_dim->qp_dim->nsg+N_tmp;
 		tmp_ocp_qp_dim.ns = ocp_dim->qp_dim->ns+N_tmp;
 
 		tmp_ocp_qcqp_dim.qp_dim = &tmp_ocp_qp_dim;
@@ -475,9 +427,6 @@ void PART_COND_QCQP_COND(struct OCP_QCQP *ocp_qp, struct OCP_QCQP *part_dense_qp
 		tmp_ocp_dim.nbu = ocp_qp->dim->qp_dim->nbu+N_tmp;
 		tmp_ocp_dim.nb = ocp_qp->dim->qp_dim->nb+N_tmp;
 		tmp_ocp_dim.ng = ocp_qp->dim->qp_dim->ng+N_tmp;
-		tmp_ocp_dim.nsbx = ocp_qp->dim->qp_dim->nsbx+N_tmp;
-		tmp_ocp_dim.nsbu = ocp_qp->dim->qp_dim->nsbu+N_tmp;
-		tmp_ocp_dim.nsg = ocp_qp->dim->qp_dim->nsg+N_tmp;
 		tmp_ocp_dim.ns = ocp_qp->dim->qp_dim->ns+N_tmp;
 		// TODO equality constraints !!!!!!!!!!!!!!!!!!!!!!!!!!!
 
@@ -509,10 +458,6 @@ void PART_COND_QCQP_COND(struct OCP_QCQP *ocp_qp, struct OCP_QCQP *part_dense_qp
 		tmp_ocp_qcqp_dim.nb = ocp_qp->dim->nb+N_tmp;
 		tmp_ocp_qcqp_dim.ng = ocp_qp->dim->ng+N_tmp;
 		tmp_ocp_qcqp_dim.nq = ocp_qp->dim->nq+N_tmp;
-		tmp_ocp_qcqp_dim.nsbx = ocp_qp->dim->nsbx+N_tmp;
-		tmp_ocp_qcqp_dim.nsbu = ocp_qp->dim->nsbu+N_tmp;
-		tmp_ocp_qcqp_dim.nsg = ocp_qp->dim->nsg+N_tmp;
-		tmp_ocp_qcqp_dim.nsq = ocp_qp->dim->nsq+N_tmp;
 		tmp_ocp_qcqp_dim.ns = ocp_qp->dim->ns+N_tmp;
 
 		// alias ocp_qp
@@ -589,9 +534,6 @@ void PART_COND_QCQP_COND_LHS(struct OCP_QCQP *ocp_qp, struct OCP_QCQP *part_dens
 		tmp_ocp_dim.nbu = ocp_qp->dim->qp_dim->nbu+N_tmp;
 		tmp_ocp_dim.nb = ocp_qp->dim->qp_dim->nb+N_tmp;
 		tmp_ocp_dim.ng = ocp_qp->dim->qp_dim->ng+N_tmp;
-		tmp_ocp_dim.nsbx = ocp_qp->dim->qp_dim->nsbx+N_tmp;
-		tmp_ocp_dim.nsbu = ocp_qp->dim->qp_dim->nsbu+N_tmp;
-		tmp_ocp_dim.nsg = ocp_qp->dim->qp_dim->nsg+N_tmp;
 		tmp_ocp_dim.ns = ocp_qp->dim->qp_dim->ns+N_tmp;
 
 		// alias ocp_qp
@@ -622,10 +564,6 @@ void PART_COND_QCQP_COND_LHS(struct OCP_QCQP *ocp_qp, struct OCP_QCQP *part_dens
 		tmp_ocp_qcqp_dim.nb = ocp_qp->dim->nb+N_tmp;
 		tmp_ocp_qcqp_dim.ng = ocp_qp->dim->ng+N_tmp;
 		tmp_ocp_qcqp_dim.nq = ocp_qp->dim->nq+N_tmp;
-		tmp_ocp_qcqp_dim.nsbx = ocp_qp->dim->nsbx+N_tmp;
-		tmp_ocp_qcqp_dim.nsbu = ocp_qp->dim->nsbu+N_tmp;
-		tmp_ocp_qcqp_dim.nsg = ocp_qp->dim->nsg+N_tmp;
-		tmp_ocp_qcqp_dim.nsq = ocp_qp->dim->nsq+N_tmp;
 		tmp_ocp_qcqp_dim.ns = ocp_qp->dim->ns+N_tmp;
 
 		// alias ocp_qp
@@ -702,9 +640,6 @@ void PART_COND_QCQP_COND_RHS(struct OCP_QCQP *ocp_qp, struct OCP_QCQP *part_dens
 		tmp_ocp_dim.nbu = ocp_qp->dim->nbu+N_tmp;
 		tmp_ocp_dim.nb = ocp_qp->dim->nb+N_tmp;
 		tmp_ocp_dim.ng = ocp_qp->dim->ng+N_tmp;
-		tmp_ocp_dim.nsbx = ocp_qp->dim->nsbx+N_tmp;
-		tmp_ocp_dim.nsbu = ocp_qp->dim->nsbu+N_tmp;
-		tmp_ocp_dim.nsg = ocp_qp->dim->nsg+N_tmp;
 		tmp_ocp_dim.ns = ocp_qp->dim->ns+N_tmp;
 
 		// alias ocp_qp
@@ -735,10 +670,6 @@ void PART_COND_QCQP_COND_RHS(struct OCP_QCQP *ocp_qp, struct OCP_QCQP *part_dens
 		tmp_ocp_qcqp_dim.nb = ocp_qp->dim->nb+N_tmp;
 		tmp_ocp_qcqp_dim.ng = ocp_qp->dim->ng+N_tmp;
 		tmp_ocp_qcqp_dim.nq = ocp_qp->dim->nq+N_tmp;
-		tmp_ocp_qcqp_dim.nsbx = ocp_qp->dim->nsbx+N_tmp;
-		tmp_ocp_qcqp_dim.nsbu = ocp_qp->dim->nsbu+N_tmp;
-		tmp_ocp_qcqp_dim.nsg = ocp_qp->dim->nsg+N_tmp;
-		tmp_ocp_qcqp_dim.nsq = ocp_qp->dim->nsq+N_tmp;
 		tmp_ocp_qcqp_dim.ns = ocp_qp->dim->ns+N_tmp;
 
 		// alias ocp_qp
@@ -820,9 +751,6 @@ void PART_COND_QCQP_COND_SOL(struct OCP_QCQP *ocp_qp, struct OCP_QCQP *part_dens
 		tmp_ocp_dim.nbu = ocp_qp->dim->qp_dim->nbu+N_tmp;
 		tmp_ocp_dim.nb = ocp_qp->dim->qp_dim->nb+N_tmp;
 		tmp_ocp_dim.ng = ocp_qp->dim->qp_dim->ng+N_tmp;
-		tmp_ocp_dim.nsbx = ocp_qp->dim->qp_dim->nsbx+N_tmp;
-		tmp_ocp_dim.nsbu = ocp_qp->dim->qp_dim->nsbu+N_tmp;
-		tmp_ocp_dim.nsg = ocp_qp->dim->qp_dim->nsg+N_tmp;
 		tmp_ocp_dim.ns = ocp_qp->dim->qp_dim->ns+N_tmp;
 
 		// alias ocp_qp
@@ -909,9 +837,6 @@ void PART_COND_QCQP_EXPAND_SOL(struct OCP_QCQP *ocp_qp, struct OCP_QCQP_SOL *par
 		tmp_ocp_dim.nbu = ocp_qp->dim->qp_dim->nbu+N_tmp;
 		tmp_ocp_dim.nb = ocp_qp->dim->qp_dim->nb+N_tmp;
 		tmp_ocp_dim.ng = ocp_qp->dim->qp_dim->ng+N_tmp;
-		tmp_ocp_dim.nsbx = ocp_qp->dim->qp_dim->nsbx+N_tmp;
-		tmp_ocp_dim.nsbu = ocp_qp->dim->qp_dim->nsbu+N_tmp;
-		tmp_ocp_dim.nsg = ocp_qp->dim->qp_dim->nsg+N_tmp;
 		tmp_ocp_dim.ns = ocp_qp->dim->qp_dim->ns+N_tmp;
 
 		// alias ocp_qp

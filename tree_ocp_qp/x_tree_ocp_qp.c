@@ -362,7 +362,7 @@ void TREE_OCP_QP_CREATE(struct TREE_OCP_QP_DIM *dim, struct TREE_OCP_QP *qp, voi
 
 
 
-void TREE_OCP_QP_SET_ALL(REAL **A, REAL **B, REAL **b, REAL **Q, REAL **S, REAL **R, REAL **q, REAL **r, int **idxb, REAL **d_lb, REAL **d_ub, REAL **C, REAL **D, REAL **d_lg, REAL **d_ug, REAL **Zl, REAL **Zu, REAL **zl, REAL **zu, int **idxs, REAL **d_ls, REAL **d_us, struct TREE_OCP_QP *qp)
+void TREE_OCP_QP_SET_ALL(REAL **A, REAL **B, REAL **b, REAL **Q, REAL **S, REAL **R, REAL **q, REAL **r, int **idxb, REAL **d_lb, REAL **d_ub, REAL **C, REAL **D, REAL **d_lg, REAL **d_ug, REAL **Zl, REAL **Zu, REAL **zl, REAL **zu, int **idxs, int **idxs_rev, REAL **d_ls, REAL **d_us, struct TREE_OCP_QP *qp)
 	{
 
 	int Nn = qp->dim->Nn;
@@ -429,11 +429,12 @@ void TREE_OCP_QP_SET_ALL(REAL **A, REAL **B, REAL **b, REAL **Q, REAL **S, REAL 
 		{
 		if(ns[ii]>0)
 			{
-			// TODO idxs_rev
-			for(jj=0; jj<ns[ii]; jj++)
+			if(idxs!=NULL)
 				{
-//				qp->idxs[ii][jj] = idxs[ii][jj];
-				qp->idxs_rev[ii][idxs[ii][jj]] = jj;
+				for(jj=0; jj<ns[ii]; jj++)
+					{
+					qp->idxs_rev[ii][idxs[ii][jj]] = jj;
+					}
 				}
 			PACK_VEC(ns[ii], Zl[ii], 1, qp->Z+ii, 0);
 			PACK_VEC(ns[ii], Zu[ii], 1, qp->Z+ii, ns[ii]);
@@ -443,6 +444,17 @@ void TREE_OCP_QP_SET_ALL(REAL **A, REAL **B, REAL **b, REAL **Q, REAL **S, REAL 
 			PACK_VEC(ns[ii], d_us[ii], 1, qp->d+ii, 2*nb[ii]+2*ng[ii]+ns[ii]);
 			VECSE(ns[ii], 0.0, qp->m+ii, 2*nb[ii]+2*ng[ii]);
 			VECSE(ns[ii], 0.0, qp->m+ii, 2*nb[ii]+2*ng[ii]+ns[ii]);
+			}
+		}
+
+	if(idxs_rev!=NULL)
+		{
+		for(ii=0; ii<Nn; ii++)
+			{
+			for(jj=0; jj<nb[ii]+ng[ii]; jj++)
+				{
+				qp->idxs_rev[ii][jj] = idxs_rev[ii][jj];
+				}
 			}
 		}
 

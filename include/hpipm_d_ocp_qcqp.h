@@ -65,7 +65,7 @@ struct d_ocp_qcqp
 	struct blasfeo_dvec *m; // rhs of complementarity condition
 	struct blasfeo_dvec *Z; // (diagonal) hessian of slacks
 	int **idxb; // indices of box constrained variables within [u; x]
-	int **idxs_rev; // index of soft constraints (reverse storage)
+	int **idxs_rev; // index of slack softening each constraint
 	int **idxe; // indices of constraints within [bu, bx, g, q] that are equalities, subset of [0, ..., nbu+nbx+ng+nq-1]
 	int **Hq_nzero; // for each int, the last 3 bits ...abc, {a,b,c}=0 => {R,S,Q}=0
 	hpipm_size_t memsize; // memory size in bytes
