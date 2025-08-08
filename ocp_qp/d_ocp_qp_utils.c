@@ -56,6 +56,7 @@
 
 #define BLASFEO_PRINT_MAT blasfeo_print_dmat
 #define BLASFEO_PRINT_TRAN_VEC blasfeo_print_tran_dvec
+#define BLASFEO_PRINT_EXP_TRAN_VEC blasfeo_print_exp_tran_dvec
 #define OCP_QP d_ocp_qp
 #define OCP_QP_DIM d_ocp_qp_dim
 #define OCP_QP_IPM_ARG d_ocp_qp_ipm_arg
@@ -70,6 +71,7 @@
 #define OCP_QP_PRINT d_ocp_qp_print
 #define OCP_QP_CODEGEN d_ocp_qp_codegen
 #define OCP_QP_SOL_PRINT d_ocp_qp_sol_print
+#define OCP_QP_SOL_PRINT_EXP d_ocp_qp_sol_print_exp
 #define OCP_QP_IPM_ARG_PRINT d_ocp_qp_ipm_arg_print
 #define OCP_QP_IPM_ARG_CODEGEN d_ocp_qp_ipm_arg_codegen
 #define OCP_QP_RES_PRINT d_ocp_qp_res_print

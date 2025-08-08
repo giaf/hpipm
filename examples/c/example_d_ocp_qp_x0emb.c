@@ -444,6 +444,7 @@ int main()
 	d_ocp_qp_sol_get_all(&qp_sol, u1, x1, ls1, us1, pi1, lam_lb1, lam_ub1, lam_lg1, lam_ug1, lam_ls1, lam_us1);
 
 	d_ocp_qp_sol_print(&dim, &qp_sol);
+	// d_ocp_qp_sol_print_exp(&dim, &qp_sol);
 
 /************************************************
 * print ipm statistics

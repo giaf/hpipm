@@ -1375,6 +1375,39 @@ void OCP_QP_SOL_PRINT(struct OCP_QP_DIM *qp_dim, struct OCP_QP_SOL *qp_sol)
 	}
 
 
+void OCP_QP_SOL_PRINT_EXP(struct OCP_QP_DIM *qp_dim, struct OCP_QP_SOL *qp_sol)
+	{
+#ifdef EXT_DEP
+	int ii;
+
+	int N   = qp_dim->N;
+	int *nx = qp_dim->nx;
+	int *nu = qp_dim->nu;
+	int *nb = qp_dim->nb;
+	int *ng = qp_dim->ng;
+	int *ns = qp_dim->ns;
+
+	printf("uxs =\n");
+	for (ii = 0; ii <= N; ii++)
+		BLASFEO_PRINT_EXP_TRAN_VEC(nu[ii]+nx[ii]+2*ns[ii], &qp_sol->ux[ii], 0);
+
+	printf("pi =\n");
+	for (ii = 0; ii < N; ii++)
+		BLASFEO_PRINT_EXP_TRAN_VEC(nx[ii+1], &qp_sol->pi[ii], 0);
+
+	printf("lam =\n");
+	for (ii = 0; ii <= N; ii++)
+		BLASFEO_PRINT_EXP_TRAN_VEC(2*nb[ii]+2*ng[ii]+2*ns[ii], &qp_sol->lam[ii], 0);
+
+	printf("t =\n");
+	for (ii = 0; ii <= N; ii++)
+		BLASFEO_PRINT_EXP_TRAN_VEC(2*nb[ii]+2*ng[ii]+2*ns[ii], &qp_sol->t[ii], 0);
+
+#endif
+	return;
+	}
+
+
 
 void OCP_QP_IPM_ARG_PRINT(struct OCP_QP_DIM *qp_dim, struct OCP_QP_IPM_ARG *arg)
 	{
