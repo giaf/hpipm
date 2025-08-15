@@ -1354,6 +1354,7 @@ void DENSE_QP_INIT_VAR(struct DENSE_QP *qp, struct DENSE_QP_SOL *qp_sol, struct 
 	int ns = qp->dim->ns;
 
 	REAL *d = qp->d->pa;
+	REAL *d_mask = qp->d_mask->pa;
 	int *idxb = qp->idxb;
 
 	REAL *v = qp_sol->v->pa;
@@ -1366,7 +1367,6 @@ void DENSE_QP_INIT_VAR(struct DENSE_QP *qp, struct DENSE_QP_SOL *qp_sol, struct 
 	// local variables
 	int ii;
 	int idxb0;
-	REAL thr0 = 0.5;
 
 	// hot start: keep initial solution as it is
 	if(arg->warm_start>=3)
@@ -1387,7 +1387,7 @@ void DENSE_QP_INIT_VAR(struct DENSE_QP *qp, struct DENSE_QP_SOL *qp_sol, struct 
 	if(arg->warm_start==2)
 		{
 		// TODO lam and t on relaxed central path instead of clipping
-		thr0 = 1e-1;
+		REAL thr0 = 1e-1;
 		for(ii=0; ii<2*nb+2*ng+2*ns; ii++)
 			{
 			if(lam[ii]<thr0)
@@ -1398,9 +1398,12 @@ void DENSE_QP_INIT_VAR(struct DENSE_QP *qp, struct DENSE_QP_SOL *qp_sol, struct 
 		return;
 		}
 
+	REAL thr0 = 1e-1;
+
 	// primal variables
 	if(arg->warm_start==0)
 		{
+		thr0 = 1.0; // safer for cold start
 		// cold start
 		for(ii=0; ii<nv+2*ns; ii++)
 			{
@@ -1434,32 +1437,36 @@ void DENSE_QP_INIT_VAR(struct DENSE_QP *qp, struct DENSE_QP_SOL *qp_sol, struct 
 	else //heuristic for primal feasibility
 		{
 
-		// TODO mask !!!!!!!!!
-
 		// box constraints
 		for(ii=0; ii<nb; ii++)
 			{
+			REAL d_lb0 = d[0+ii];
+			REAL d_ub0 = d[nb+ng+ii];
+			if(d_mask[0+ii]==0.0)
+				d_lb0 = v[idxb0] - 1.0;
+			if(d_mask[nb+ng+ii]==0.0)
+				d_ub0 = - v[idxb0] - 1.0;
 			idxb0 = idxb[ii];
-			t[0+ii]     = - d[0+ii]     + v[idxb0];
-			t[nb+ng+ii] = - d[nb+ng+ii] - v[idxb0];
+			t[0+ii]     = - d_lb0 + v[idxb0];
+			t[nb+ng+ii] = - d_ub0 - v[idxb0];
 			if(t[0+ii]<thr0)
 				{
 				if(t[nb+ng+ii]<thr0)
 					{
-					v[idxb0] = 0.5*(d[0+ii] + d[nb+ng+ii]);
+					v[idxb0] = 0.5*(d_lb0 + d_ub0);
 					t[0+ii]     = thr0;
 					t[nb+ng+ii] = thr0;
 					}
 				else
 					{
 					t[0+ii] = thr0;
-					v[idxb0] = d[0+ii] + thr0;
+					v[idxb0] = d_lb0 + thr0;
 					}
 				}
 			else if(t[nb+ng+ii]<thr0)
 				{
 				t[nb+ng+ii] = thr0;
-				v[idxb0] = - d[nb+ng+ii] - thr0;
+				v[idxb0] = - d_ub0 - thr0;
 				}
 			lam[0+ii]     = mu0/t[0+ii];
 			lam[nb+ng+ii] = mu0/t[nb+ng+ii];
@@ -1472,8 +1479,10 @@ void DENSE_QP_INIT_VAR(struct DENSE_QP *qp, struct DENSE_QP_SOL *qp_sol, struct 
 			for(ii=0; ii<ng; ii++)
 				{
 				t[2*nb+ng+ii] = t[nb+ii];
-				t[nb+ii]      -= d[nb+ii];
-				t[2*nb+ng+ii] -= d[2*nb+ng+ii];
+				if(d_mask[nb+ii]!=0.0)
+					t[nb+ii]      -= d[nb+ii];
+				if(d_mask[2*nb+ng+ii]!=0.0)
+					t[2*nb+ng+ii] -= d[2*nb+ng+ii];
 		//		t[nb+ii]      = fmax( thr0, t[nb+ii] );
 		//		t[2*nb+ng+ii] = fmax( thr0, t[2*nb+ng+ii] );
 				t[nb+ii]      = thr0>t[nb+ii]      ? thr0 : t[nb+ii];
