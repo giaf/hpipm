@@ -1368,6 +1368,8 @@ void DENSE_QP_INIT_VAR(struct DENSE_QP *qp, struct DENSE_QP_SOL *qp_sol, struct 
 	int ii;
 	int idxb0;
 
+	REAL thr0 = 1e-1;
+
 	// hot start: keep initial solution as it is
 	if(arg->warm_start>=3)
 		{
@@ -1387,7 +1389,6 @@ void DENSE_QP_INIT_VAR(struct DENSE_QP *qp, struct DENSE_QP_SOL *qp_sol, struct 
 	if(arg->warm_start==2)
 		{
 		// TODO lam and t on relaxed central path instead of clipping
-		REAL thr0 = 1e-1;
 		for(ii=0; ii<2*nb+2*ng+2*ns; ii++)
 			{
 			if(lam[ii]<thr0)
@@ -1398,12 +1399,9 @@ void DENSE_QP_INIT_VAR(struct DENSE_QP *qp, struct DENSE_QP_SOL *qp_sol, struct 
 		return;
 		}
 
-	REAL thr0 = 1e-1;
-
 	// primal variables
 	if(arg->warm_start==0)
 		{
-		thr0 = 1.0; // safer for cold start
 		// cold start
 		for(ii=0; ii<nv+2*ns; ii++)
 			{

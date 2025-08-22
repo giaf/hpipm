@@ -1612,6 +1612,8 @@ void OCP_QP_INIT_VAR(struct OCP_QP *qp, struct OCP_QP_SOL *qp_sol, struct OCP_QP
 	int *idxb, *idxs_rev;
 	int idx;
 
+	REAL thr0 = 1e-1;
+
 	// hot start: keep initial solution as it is
 	if(arg->warm_start>=3)
 		{
@@ -1636,7 +1638,6 @@ void OCP_QP_INIT_VAR(struct OCP_QP *qp, struct OCP_QP_SOL *qp_sol, struct OCP_QP
 	if(arg->warm_start==2)
 		{
 		// TODO lam and t on relaxed central path instead of clipping
-		REAL thr0 = 1e-1;
 		for(ii=0; ii<=N; ii++)
 			{
 			lam_lb = qp_sol->lam[ii].pa+0;
@@ -1652,12 +1653,9 @@ void OCP_QP_INIT_VAR(struct OCP_QP *qp, struct OCP_QP_SOL *qp_sol, struct OCP_QP
 		return;
 		}
 
-	REAL thr0 = 1e-1;
-
 	// ux
 	if(arg->warm_start==0)
 		{
-		thr0 = 1.0; // safer for cold start
 		// cold start
 		for(ii=0; ii<=N; ii++)
 			{
@@ -1751,15 +1749,12 @@ void OCP_QP_INIT_VAR(struct OCP_QP *qp, struct OCP_QP_SOL *qp_sol, struct OCP_QP
 						{
 						d_ub0 = - ux[idxb[jj]] - 1.0;
 						}
-	#if 1
 					t_lb[jj] = - d_lb0 + ux[idxb[jj]];
 					t_ub[jj] = - d_ub0 - ux[idxb[jj]];
-		//			printf("\n%d %f %f\n", jj, t_lb[jj], t_ub[jj]);
 					if(t_lb[jj]<thr0)
 						{
 						if(t_ub[jj]<thr0)
 							{
-		//					ux[idxb[jj]] = 0.5*(d_lb0 + d_ub0);
 							ux[idxb[jj]] = 0.5*(d_lb0 - d_ub0);
 							t_lb[jj] = thr0;
 							t_ub[jj] = thr0;
@@ -1775,10 +1770,6 @@ void OCP_QP_INIT_VAR(struct OCP_QP *qp, struct OCP_QP_SOL *qp_sol, struct OCP_QP
 						t_ub[jj] = thr0;
 						ux[idxb[jj]] = - d_ub0 - thr0;
 						}
-	#else
-					t_lb[jj] = 1.0;
-					t_ub[jj] = 1.0;
-	#endif
 					lam_lb[jj] = mu0/t_lb[jj];
 					lam_ub[jj] = mu0/t_ub[jj];
 					}
@@ -1789,7 +1780,7 @@ void OCP_QP_INIT_VAR(struct OCP_QP *qp, struct OCP_QP_SOL *qp_sol, struct OCP_QP
 		//		blasfeo_print_tran_dvec(nb[ii], qp_sol->t+ii, nb[ii]+ng[ii]);
 		//		exit(1);
 				}
-			
+
 			// general constraints
 			for(ii=0; ii<=N; ii++)
 				{
@@ -1805,7 +1796,6 @@ void OCP_QP_INIT_VAR(struct OCP_QP *qp, struct OCP_QP_SOL *qp_sol, struct OCP_QP
 				GEMV_T(nu[ii]+nx[ii], ng[ii], 1.0, qp->DCt+ii, 0, 0, qp_sol->ux+ii, 0, 0.0, qp_sol->t+ii, nb[ii], qp_sol->t+ii, nb[ii]);
 				for(jj=0; jj<ng[ii]; jj++)
 					{
-	#if 1
 					t_ug[jj] = - t_lg[jj];
 					if(d_lg_mask[jj]!=0.0)
 						t_lg[jj] -= d_lg[jj];
@@ -1815,10 +1805,6 @@ void OCP_QP_INIT_VAR(struct OCP_QP *qp, struct OCP_QP_SOL *qp_sol, struct OCP_QP
 		//			t_ug[jj] = fmax(thr0, t_ug[jj]);
 					t_lg[jj] = thr0>t_lg[jj] ? thr0 : t_lg[jj];
 					t_ug[jj] = thr0>t_ug[jj] ? thr0 : t_ug[jj];
-	#else
-					t_lg[jj] = 1.0;
-					t_ug[jj] = 1.0;
-	#endif
 					lam_lg[jj] = mu0/t_lg[jj];
 					lam_ug[jj] = mu0/t_ug[jj];
 					}
@@ -1985,6 +1971,9 @@ void OCP_QP_INIT_VAR(struct OCP_QP *qp, struct OCP_QP_SOL *qp_sol, struct OCP_QP
 			}
 
 		}
+
+	//d_ocp_qp_sol_print(qp_sol->dim, qp_sol);
+	//exit(1);
 
 	return;
 

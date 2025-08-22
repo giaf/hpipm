@@ -111,7 +111,7 @@ void OCP_QCQP_IPM_ARG_SET_DEFAULT(enum HPIPM_MODE mode, struct OCP_QCQP_IPM_ARG 
 	OCP_QP_IPM_ARG_SET_DEFAULT(mode, arg->qp_arg);
 
 	REAL mu0, alpha_min, res_g_max, res_b_max, res_d_max, res_m_max, dual_gap_max, reg_prim, lam_min, t_min, tau_min, lam0_min, t0_min;
-	int iter_max, stat_max, pred_corr, cond_pred_corr, itref_pred_max, itref_corr_max, lq_fact, warm_start, abs_form, comp_res_exit, comp_res_pred, square_root_alg, comp_dual_sol_eq, split_step, t_lam_min;
+	int iter_max, stat_max, pred_corr, cond_pred_corr, itref_pred_max, itref_corr_max, lq_fact, warm_start, abs_form, comp_res_exit, comp_res_pred, square_root_alg, comp_dual_sol_eq, split_step, t_lam_min, t0_init;
 
 	if(mode==SPEED_ABS)
 		{
@@ -143,6 +143,7 @@ void OCP_QCQP_IPM_ARG_SET_DEFAULT(enum HPIPM_MODE mode, struct OCP_QCQP_IPM_ARG 
 		comp_res_pred = 0;
 		split_step = 1;
 		t_lam_min = 2;
+		t0_init = 2;
 		}
 	else if(mode==SPEED)
 		{
@@ -174,6 +175,7 @@ void OCP_QCQP_IPM_ARG_SET_DEFAULT(enum HPIPM_MODE mode, struct OCP_QCQP_IPM_ARG 
 		comp_res_pred = 1;
 		split_step = 1;
 		t_lam_min = 2;
+		t0_init = 2;
 		}
 	else if(mode==BALANCE)
 		{
@@ -205,6 +207,7 @@ void OCP_QCQP_IPM_ARG_SET_DEFAULT(enum HPIPM_MODE mode, struct OCP_QCQP_IPM_ARG 
 		comp_res_pred = 1;
 		split_step = 0;
 		t_lam_min = 2;
+		t0_init = 2;
 		}
 	else if(mode==ROBUST)
 		{
@@ -236,6 +239,7 @@ void OCP_QCQP_IPM_ARG_SET_DEFAULT(enum HPIPM_MODE mode, struct OCP_QCQP_IPM_ARG 
 		comp_res_pred = 1;
 		split_step = 0;
 		t_lam_min = 2;
+		t0_init = 2;
 		}
 	else
 		{
@@ -273,6 +277,7 @@ void OCP_QCQP_IPM_ARG_SET_DEFAULT(enum HPIPM_MODE mode, struct OCP_QCQP_IPM_ARG 
 	OCP_QCQP_IPM_ARG_SET_COMP_RES_EXIT(&comp_res_pred, arg);
 	OCP_QCQP_IPM_ARG_SET_SPLIT_STEP(&split_step, arg);
 	OCP_QCQP_IPM_ARG_SET_T_LAM_MIN(&t_lam_min, arg);
+	arg->t0_init = t0_init;
 	arg->mode = mode;
 
 	return;
@@ -868,6 +873,8 @@ void OCP_QCQP_INIT_VAR(struct OCP_QCQP *qp, struct OCP_QCQP_SOL *qp_sol, struct 
 	int *idxb, *idxs_rev;
 	int idx;
 
+	REAL thr0 = 1e-1;
+
 	// hot start: keep initial solution as it is
 	if(arg->warm_start>=3)
 		{
@@ -892,7 +899,6 @@ void OCP_QCQP_INIT_VAR(struct OCP_QCQP *qp, struct OCP_QCQP_SOL *qp_sol, struct 
 	if(arg->warm_start==2)
 		{
 		// TODO lam and t on relaxed central path instead of clipping
-		REAL thr0 = 1e-1;
 		for(ii=0; ii<=N; ii++)
 			{
 			lam_lb = qp_sol->lam[ii].pa+0;
@@ -908,12 +914,9 @@ void OCP_QCQP_INIT_VAR(struct OCP_QCQP *qp, struct OCP_QCQP_SOL *qp_sol, struct 
 		return;
 		}
 
-	REAL thr0 = 1e-1;
-
 	// ux
 	if(arg->warm_start==0)
 		{
-		thr0 = 1.0; // safer for cold start
 		// cold start
 		for(ii=0; ii<=N; ii++)
 			{
@@ -1008,7 +1011,6 @@ void OCP_QCQP_INIT_VAR(struct OCP_QCQP *qp, struct OCP_QCQP_SOL *qp_sol, struct 
 					{
 					d_ub0 = - ux[idxb[jj]] - 1.0;
 					}
-	#if 1
 				t_lb[jj] = - d_lb0 + ux[idxb[jj]];
 				t_ub[jj] = - d_ub0 - ux[idxb[jj]];
 	//			printf("\n%d %f %f\n", jj, t_lb[jj], t_ub[jj]);
@@ -1032,10 +1034,6 @@ void OCP_QCQP_INIT_VAR(struct OCP_QCQP *qp, struct OCP_QCQP_SOL *qp_sol, struct 
 					t_ub[jj] = thr0;
 					ux[idxb[jj]] = - d_ub0 - thr0;
 					}
-	#else
-				t_lb[jj] = 1.0;
-				t_ub[jj] = 1.0;
-	#endif
 				lam_lb[jj] = mu0/t_lb[jj];
 				lam_ub[jj] = mu0/t_ub[jj];
 				}
@@ -1059,7 +1057,6 @@ void OCP_QCQP_INIT_VAR(struct OCP_QCQP *qp, struct OCP_QCQP_SOL *qp_sol, struct 
 			GEMV_T(nu[ii]+nx[ii], ng[ii], 1.0, qp->DCt+ii, 0, 0, qp_sol->ux+ii, 0, 0.0, qp_sol->t+ii, nb[ii], qp_sol->t+ii, nb[ii]);
 			for(jj=0; jj<ng[ii]; jj++)
 				{
-	#if 1
 				t_ug[jj] = - t_lg[jj];
 				if(d_lg_mask[jj]!=0.0)
 					t_lg[jj] -= d_lg[jj];
@@ -1069,10 +1066,6 @@ void OCP_QCQP_INIT_VAR(struct OCP_QCQP *qp, struct OCP_QCQP_SOL *qp_sol, struct 
 	//			t_ug[jj] = fmax(thr0, t_ug[jj]);
 				t_lg[jj] = thr0>t_lg[jj] ? thr0 : t_lg[jj];
 				t_ug[jj] = thr0>t_ug[jj] ? thr0 : t_ug[jj];
-	#else
-				t_lg[jj] = 1.0;
-				t_ug[jj] = 1.0;
-	#endif
 				lam_lg[jj] = mu0/t_lg[jj];
 				lam_ug[jj] = mu0/t_ug[jj];
 				}
