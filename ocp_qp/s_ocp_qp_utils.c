@@ -54,15 +54,18 @@
 
 
 
+#define BLASFEO_MATEL BLASFEO_SMATEL
 #define BLASFEO_PRINT_MAT blasfeo_print_smat
 #define BLASFEO_PRINT_TRAN_VEC blasfeo_print_tran_svec
 #define BLASFEO_PRINT_EXP_TRAN_VEC blasfeo_print_exp_tran_svec
+#define BLASFEO_VECEL BLASFEO_SVECEL
 #define OCP_QP s_ocp_qp
 #define OCP_QP_DIM s_ocp_qp_dim
 #define OCP_QP_IPM_ARG s_ocp_qp_ipm_arg
 #define OCP_QP_RES s_ocp_qp_res
 #define OCP_QP_SEED s_ocp_qp_seed
 #define OCP_QP_SOL s_ocp_qp_sol
+#define REAL float
 
 
 
@@ -71,6 +74,7 @@
 #define OCP_QP_PRINT s_ocp_qp_print
 #define OCP_QP_SOL_PRINT_EXP s_ocp_qp_sol_print_exp
 #define OCP_QP_CODEGEN s_ocp_qp_codegen
+#define OCP_QP_CODEGEN_MATLAB s_ocp_qp_codegen_matlab
 #define OCP_QP_SOL_PRINT s_ocp_qp_sol_print
 #define OCP_QP_IPM_ARG_PRINT s_ocp_qp_ipm_arg_print
 #define OCP_QP_IPM_ARG_CODEGEN s_ocp_qp_ipm_arg_codegen
