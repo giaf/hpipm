@@ -1,0 +1,23 @@
+name: Linux C Build
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  linux-amd64-c-build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install dependencies
+        run: sudo apt-get update && sudo apt-get install -y bc
+      - name: Build BLASFEO
+        run: |
+          git clone https://github.com/giaf/blasfeo
+          make -C blasfeo static_library TARGET=X64_INTEL_HASWELL LA=HIGH_PERFORMANCE -j 4
+      - name: Build HPIPM and run C tests
+        run: |
+          make static_library TARGET=AVX BLASFEO_PATH=${{ github.workspace }}/blasfeo -j 4
+          for test in dense dense_qcqp ocp ocp_qcqp cond cond_qcqp part_cond part_cond_qcqp tree_ocp tree_ocp_qcqp; do
+            make -C test_problems test_d_${test} TARGET=AVX BLASFEO_PATH=${{ github.workspace }}/blasfeo PRINT=0
+          done
