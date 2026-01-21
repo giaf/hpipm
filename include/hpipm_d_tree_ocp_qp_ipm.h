@@ -85,6 +85,7 @@ struct d_tree_ocp_qp_ipm_arg
 	int comp_res_exit; // compute residuals on exit (only for abs_form==1 and comp_dual_sol==1)
 	int split_step; // use different steps for primal and dual variables
 	int t_lam_min; // clip t and lam: 0 no, 1 in Gamma computation, 2 in solution
+	int t0_init; // initialization scheme of slacks t (with corresponding multiplier lam=mu0/t): 0 sqrt(mu0), 1 1.0, 2 heuristic for primal feasibility
 	int mode;
 	hpipm_size_t memsize;
 	};

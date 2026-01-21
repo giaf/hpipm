@@ -64,7 +64,7 @@ struct d_ocp_qp
 	struct blasfeo_dvec *m; // rhs of complementarity condition
 	struct blasfeo_dvec *Z; // (diagonal) hessian of slacks
 	int **idxb; // indices of box constrained variables within [u; x]
-	int **idxs_rev; // index of soft constraints (reverse storage)
+	int **idxs_rev; // index of slack softening each constraint
 	int **idxe; // indices of constraints within [bu, bx, g] that are equalities, subset of [0, ..., nbu+nbx+ng-1]
 	int *diag_H_flag; // flag the fact that Hessian is diagonal
 	hpipm_size_t memsize; // memory size in bytes
@@ -87,9 +87,9 @@ void d_ocp_qp_set_all_zero(struct d_ocp_qp *qp);
 //
 void d_ocp_qp_set_rhs_zero(struct d_ocp_qp *qp);
 //
-void d_ocp_qp_set_all(double **A, double **B, double **b, double **Q, double **S, double **R, double **q, double **r, int **idxbx, double **lbx, double **ubx, int **idxbu, double **lbu, double **ubu, double **C, double **D, double **lg, double **ug, double **Zl, double **Zu, double **zl, double **zu, int **idxs, double **ls, double **us, struct d_ocp_qp *qp);
+void d_ocp_qp_set_all(double **A, double **B, double **b, double **Q, double **S, double **R, double **q, double **r, int **idxbx, double **lbx, double **ubx, int **idxbu, double **lbu, double **ubu, double **C, double **D, double **lg, double **ug, double **Zl, double **Zu, double **zl, double **zu, int **idxs, int **idxs_rev, double **ls, double **us, struct d_ocp_qp *qp);
 //
-void d_ocp_qp_set_all_rowmaj(double **A, double **B, double **b, double **Q, double **S, double **R, double **q, double **r, int **idxbx, double **lbx, double **ubx, int **idxbu, double **lbu, double **ubu, double **C, double **D, double **lg, double **ug, double **Zl, double **Zu, double **zl, double **zu, int **idxs, double **ls, double **us, struct d_ocp_qp *qp);
+void d_ocp_qp_set_all_rowmaj(double **A, double **B, double **b, double **Q, double **S, double **R, double **q, double **r, int **idxbx, double **lbx, double **ubx, int **idxbu, double **lbu, double **ubu, double **C, double **D, double **lg, double **ug, double **Zl, double **Zu, double **zl, double **zu, int **idxs, int **idxs_rev, double **ls, double **us, struct d_ocp_qp *qp);
 //
 void d_ocp_qp_set(char *field_name, int stage, void *value, struct d_ocp_qp *qp);
 //

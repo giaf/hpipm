@@ -58,9 +58,6 @@
 #define TREE_OCP_QP_DIM_SET_NBU s_tree_ocp_qp_dim_set_nbu
 #define TREE_OCP_QP_DIM_SET_NG s_tree_ocp_qp_dim_set_ng
 #define TREE_OCP_QP_DIM_SET_NS s_tree_ocp_qp_dim_set_ns
-#define TREE_OCP_QP_DIM_SET_NSBX s_tree_ocp_qp_dim_set_nsbx
-#define TREE_OCP_QP_DIM_SET_NSBU s_tree_ocp_qp_dim_set_nsbu
-#define TREE_OCP_QP_DIM_SET_NSG s_tree_ocp_qp_dim_set_nsg
 
 
 
@@ -77,10 +74,6 @@
 #define TREE_OCP_QCQP_DIM_SET_NG s_tree_ocp_qcqp_dim_set_ng
 #define TREE_OCP_QCQP_DIM_SET_NQ s_tree_ocp_qcqp_dim_set_nq
 #define TREE_OCP_QCQP_DIM_SET_NS s_tree_ocp_qcqp_dim_set_ns
-#define TREE_OCP_QCQP_DIM_SET_NSBX s_tree_ocp_qcqp_dim_set_nsbx
-#define TREE_OCP_QCQP_DIM_SET_NSBU s_tree_ocp_qcqp_dim_set_nsbu
-#define TREE_OCP_QCQP_DIM_SET_NSG s_tree_ocp_qcqp_dim_set_nsg
-#define TREE_OCP_QCQP_DIM_SET_NSQ s_tree_ocp_qcqp_dim_set_nsq
 //#define TREE_OCP_QCQP_DIM_SET_NBXE s_tree_ocp_qcqp_dim_set_nbxe
 //#define TREE_OCP_QCQP_DIM_SET_NBUE s_tree_ocp_qcqp_dim_set_nbue
 //#define TREE_OCP_TREE_QP_DIM_SET_NGE s_tree_ocp_qcqp_dim_set_nge

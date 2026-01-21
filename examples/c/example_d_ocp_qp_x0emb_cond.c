@@ -52,6 +52,7 @@
 #include <hpipm_d_dense_qp_dim.h>
 #include <hpipm_d_dense_qp.h>
 #include <hpipm_d_dense_qp_sol.h>
+#include <hpipm_d_dense_qp_utils.h>
 #include <hpipm_d_ocp_qp_dim.h>
 #include <hpipm_d_ocp_qp.h>
 #include <hpipm_d_ocp_qp_sol.h>
@@ -69,9 +70,7 @@ extern int *nu;
 extern int *nbu;
 extern int *nbx;
 extern int *ng;
-extern int *nsbx;
-extern int *nsbu;
-extern int *nsg;
+extern int *ns;
 extern int *nbue;
 extern int *nbxe;
 extern int *nge;
@@ -103,7 +102,7 @@ extern double **hZl;
 extern double **hZu;
 extern double **hzl;
 extern double **hzu;
-extern int **hidxs;
+extern int **hidxs_rev;
 extern double **hlls;
 extern double **hlls_mask;
 extern double **hlus;
@@ -149,7 +148,7 @@ int main()
 	d_ocp_qp_dim_create(N, &dim, dim_mem);
 
 	// unified setter
-	d_ocp_qp_dim_set_all(nx, nu, nbx, nbu, ng, nsbx, nsbu, nsg, &dim);
+	d_ocp_qp_dim_set_all(nx, nu, nbx, nbu, ng, ns, &dim);
 
 	// additional single setters
 
@@ -162,6 +161,7 @@ int main()
 		}
 
 //	d_ocp_qp_dim_codegen("examples/c/data/test_d_ocp_data.c", "w", &dim);
+	d_ocp_qp_dim_print(&dim);
 
 /************************************************
 * ocp qp dim red eq dof (reduce equation dof, i.e. x0 elimination)
@@ -198,7 +198,8 @@ int main()
 	d_ocp_qp_create(&dim, &qp, qp_mem);
 
 	// unified setter
-	d_ocp_qp_set_all(hA, hB, hb, hQ, hS, hR, hq, hr, hidxbx, hlbx, hubx, hidxbu, hlbu, hubu, hC, hD, hlg, hug, hZl, hZu, hzl, hzu, hidxs, hlls, hlus, &qp);
+	void *hidxs = NULL; // legacy, deprecated
+	d_ocp_qp_set_all(hA, hB, hb, hQ, hS, hR, hq, hr, hidxbx, hlbx, hubx, hidxbu, hlbu, hubu, hC, hD, hlg, hug, hZl, hZu, hzl, hzu, hidxs, hidxs_rev, hlls, hlus, &qp);
 
 	// additional single setters
 
@@ -222,6 +223,7 @@ int main()
 		}
 
 //	d_ocp_qp_codegen("examples/c/data/test_d_ocp_data.c", "a", &dim, &qp);
+	d_ocp_qp_print(&dim, &qp);
 
 /************************************************
 * ocp qp red eq dof
@@ -327,6 +329,9 @@ int main()
 	d_dense_qp_ipm_arg_set_pred_corr(&pred_corr, &arg);
 	d_dense_qp_ipm_arg_set_split_step(&split_step, &arg);
 
+	//double tau_min = 1e-2;
+	//d_dense_qp_ipm_arg_set_tau_min(&tau_min, &arg);
+
 //	d_dense_qp_ipm_arg_codegen("examples/c/data/test_d_ocp_data.c", "a", &dim2, &arg);
 
 /************************************************
@@ -386,6 +391,8 @@ int main()
 	double time_cond = hpipm_toc(&timer) / nrep;
 
 	//d_dense_qp_codegen_matlab("examples/c/data/ocp_data.m", "w", qp2.dim, &qp2);
+	d_dense_qp_dim_print(&dim2);
+	d_dense_qp_print(&dim2, &qp2);
 
 /************************************************
 * ipm solver
@@ -400,6 +407,8 @@ int main()
 		}
 
 	double time_ipm = hpipm_toc(&timer) / nrep;
+
+	//d_dense_qp_sol_print(&dim2, &qp_sol2);
 
 /************************************************
 * expand
@@ -491,7 +500,7 @@ int main()
 		d_print_mat(1, nx[ii], x, 1);
 		}
 
-//	d_ocp_qp_sol_print(&dim, &qp_sol);
+	d_ocp_qp_sol_print(&dim, &qp_sol);
 
 /************************************************
 * print ipm statistics
@@ -518,6 +527,9 @@ int main()
 	printf("\npart expa time = %e [s]\n\n", time_expa);
 	printf("\neq dof res time = %e [s]\n\n", time_res_eq_dof);
 	printf("\ntotal time = %e [s]\n\n", time_red_eq_dof+time_cond+time_ipm+time_expa+time_res_eq_dof);
+
+	double tau_iter; d_dense_qp_ipm_get_tau_iter(&workspace, &tau_iter);
+	printf("\ntau iter %e\n", tau_iter);
 
 /************************************************
 * free memory and return

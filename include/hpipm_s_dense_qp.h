@@ -66,7 +66,7 @@ struct s_dense_qp
 	struct blasfeo_svec *m; // rhs of complementarity condition
 	struct blasfeo_svec *Z; // (diagonal) hessian of slacks
 	int *idxb; // indices of box constrained variables within [u; x]
-	int *idxs_rev; // index of soft constraints (reverse storage)
+	int *idxs_rev; // index of slack softening each constraint
 	hpipm_size_t memsize; // memory size in bytes
 	};
 
@@ -85,9 +85,9 @@ void s_dense_qp_set_rhs_zero(struct s_dense_qp *qp);
 
 // setters - colmaj
 //
-void s_dense_qp_set_all(float *H, float *g, float *A, float *b, int *idxb, float *d_lb, float *d_ub, float *C, float *d_lg, float *d_ug, float *Zl, float *Zu, float *zl, float *zu, int *idxs, float *d_ls, float *d_us, struct s_dense_qp *qp);
+void s_dense_qp_set_all(float *H, float *g, float *A, float *b, int *idxb, float *d_lb, float *d_ub, float *C, float *d_lg, float *d_ug, float *Zl, float *Zu, float *zl, float *zu, int *idxs, int *idxs_rev, float *d_ls, float *d_us, struct s_dense_qp *qp);
 //
-void s_dense_qp_get_all(struct s_dense_qp *qp, float *H, float *g, float *A, float *b, int *idxb, float *d_lb, float *d_ub, float *C, float *d_lg, float *d_ug, float *Zl, float *Zu, float *zl, float *zu, int *idxs, float *d_ls, float *d_us);
+void s_dense_qp_get_all(struct s_dense_qp *qp, float *H, float *g, float *A, float *b, int *idxb, float *d_lb, float *d_ub, float *C, float *d_lg, float *d_ug, float *Zl, float *Zu, float *zl, float *zu, int *idxs, int *idxs_rev, float *d_ls, float *d_us);
 //
 void s_dense_qp_set(char *field, void *value, struct s_dense_qp *qp);
 //
@@ -197,11 +197,11 @@ void s_dense_qp_get_us_mask(struct s_dense_qp *qp, float *us);
 
 // setters - rowmaj
 //
-void s_dense_qp_set_all_rowmaj(float *H, float *g, float *A, float *b, int *idxb, float *d_lb, float *d_ub, float *C, float *d_lg, float *d_ug, float *Zl, float *Zu, float *zl, float *zu, int *idxs, float *d_ls, float *d_us, struct s_dense_qp *qp);
+void s_dense_qp_set_all_rowmaj(float *H, float *g, float *A, float *b, int *idxb, float *d_lb, float *d_ub, float *C, float *d_lg, float *d_ug, float *Zl, float *Zu, float *zl, float *zu, int *idxs, int *idxs_rev, float *d_ls, float *d_us, struct s_dense_qp *qp);
 
 // getters - rowmaj
 //
-void s_dense_qp_get_all_rowmaj(struct s_dense_qp *qp, float *H, float *g, float *A, float *b, int *idxb, float *d_lb, float *d_ub, float *C, float *d_lg, float *d_ug, float *Zl, float *Zu, float *zl, float *zu, int *idxs, float *d_ls, float *d_us);
+void s_dense_qp_get_all_rowmaj(struct s_dense_qp *qp, float *H, float *g, float *A, float *b, int *idxb, float *d_lb, float *d_ub, float *C, float *d_lg, float *d_ug, float *Zl, float *Zu, float *zl, float *zu, int *idxs, int *idxs_rev, float *d_ls, float *d_us);
 
 
 #ifdef __cplusplus

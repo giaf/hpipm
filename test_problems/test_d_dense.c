@@ -138,8 +138,6 @@ int main()
 	int nb = 2; //2;
 	int ng = 0;
 	int ns = 0; //2;
-	int nsb = 0; //2;
-	int nsg = 0;
 
 	double H[] = {4.0, 1.0, 1.0, 2.0};
 	double g[] = {1.0, 1.0};
@@ -166,8 +164,6 @@ int main()
 	int nb = 0; //2;
 	int ng = 0;
 	int ns = 0; //2;
-	int nsb = 0; //2;
-	int nsg = 0;
 
 	double H[] = {6.0, 2.0, 1.0, 2.0, 5.0, 2.0, 1.0, 2.0, 4.0};
 	double g[] = {-8.0, -3.0, -3.0};
@@ -194,8 +190,6 @@ int main()
 	int nb = 0; //2;
 	int ng = 0;
 	int ns = 0; //2;
-	int nsb = 0; //2;
-	int nsg = 0;
 
 	double H[25] = {}; for(ii=0; ii<5; ii++) H[ii*(5+1)] = 1.0;
 	double g[5] = {};
@@ -286,7 +280,7 @@ int main()
 	struct d_dense_qp_dim qp_dim;
 	d_dense_qp_dim_create(&qp_dim, qp_dim_mem);
 
-	d_dense_qp_dim_set_all(nv, ne, nb, ng, nsb, nsg, &qp_dim);
+	d_dense_qp_dim_set_all(nv, ne, nb, ng, ns, &qp_dim);
 
 /************************************************
 * dense qp
@@ -322,7 +316,7 @@ int main()
 	d_dense_qp_set_lls(d_ls, &qp);
 	d_dense_qp_set_lus(d_us, &qp);
 #else
-	d_dense_qp_set_all(H, g, A, b, idxb, d_lb, d_ub, C, d_lg, d_ug, Zl, Zu, zl, zu, idxs, d_ls, d_us, &qp);
+	d_dense_qp_set_all(H, g, A, b, idxb, d_lb, d_ub, C, d_lg, d_ug, Zl, Zu, zl, zu, idxs, NULL, d_ls, d_us, &qp);
 #endif
 
 #if PRINT

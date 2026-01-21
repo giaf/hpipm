@@ -389,7 +389,7 @@ int main()
 	d_print_mat(nx, nu, Bc, nx);
 
 	hpipm_size_t ls_memsize = d_linear_system_memsize(nx, nu);
-	printf("\nls memsize = %d\n", ls_memsize);
+	printf("\nls memsize = %d\n", (int) ls_memsize);
 	void *ls_memory = malloc(ls_memsize);
 
 	struct d_linear_system ls;
@@ -492,7 +492,7 @@ int main()
 //	printf("\n%d %s\n", ns, rk_method);
 
 	hpipm_size_t size_rk_data = d_sim_rk_data_memsize(ns);
-	printf("\nmemsize rk data %d\n", size_rk_data);
+	printf("\nmemsize rk data %d\n", (int) size_rk_data);
 	void *mem_rk_data = malloc(size_rk_data);
 
 	struct d_sim_rk_data rk_data;
@@ -504,7 +504,7 @@ int main()
 
 	
 	hpipm_size_t size_erk_arg = d_sim_erk_arg_memsize();
-	printf("\nmemsize erk arg %d\n", size_erk_arg);
+	printf("\nmemsize erk arg %d\n", (int) size_erk_arg);
 	void *mem_erk_arg = malloc(size_erk_arg);
 
 	struct d_sim_erk_arg erk_arg;
@@ -516,7 +516,7 @@ int main()
 	int nf_max = nu+nx;
 	int na_max = 0;
 	hpipm_size_t size_erk_ws = d_sim_erk_ws_memsize(&erk_arg, nx, nu, nf_max, na_max);
-	printf("\nmemsize erk ws %d\n", size_erk_ws);
+	printf("\nmemsize erk ws %d\n", (int) size_erk_ws);
 	void *mem_erk_ws = malloc(size_erk_ws);
 
 	struct d_sim_erk_ws erk_ws;

@@ -44,10 +44,6 @@ void CAST_QCQP_COMPUTE_DIM(struct OCP_QCQP_DIM *ocp_dim, struct DENSE_QCQP_DIM *
 	int *ng = ocp_dim->ng;
 	int *nq = ocp_dim->nq;
 	int *ns = ocp_dim->ns;
-	int *nsbx = ocp_dim->nsbx;
-	int *nsbu = ocp_dim->nsbu;
-	int *nsg = ocp_dim->nsg;
-	int *nsq = ocp_dim->nsq;
 
 	int ii;
 
@@ -57,9 +53,6 @@ void CAST_QCQP_COMPUTE_DIM(struct OCP_QCQP_DIM *ocp_dim, struct DENSE_QCQP_DIM *
 	int ngc = 0;
 	int nqc = 0;
 	int nsc = 0;
-	int nsbc = 0;
-	int nsgc = 0;
-	int nsqc = 0;
 
 	// first stage
 	nvc += nx[0]+nu[0];
@@ -68,9 +61,6 @@ void CAST_QCQP_COMPUTE_DIM(struct OCP_QCQP_DIM *ocp_dim, struct DENSE_QCQP_DIM *
 	ngc += ng[0];
 	nqc += nq[0];
 	nsc += ns[0];
-	nsbc += nsbx[0]+nsbu[0];
-	nsgc += nsg[0];
-	nsqc += nsq[0];
 	// remaining stages
 	for(ii=1; ii<=N; ii++)
 		{
@@ -80,9 +70,6 @@ void CAST_QCQP_COMPUTE_DIM(struct OCP_QCQP_DIM *ocp_dim, struct DENSE_QCQP_DIM *
 		ngc += ng[ii];
 		nqc += nq[ii];
 		nsc += ns[ii];
-		nsbc += nsbx[ii]+nsbu[ii];
-		nsgc += nsg[ii];
-		nsqc += nsq[ii];
 		}
 
 	// XXX must use setters to correctly set qp ones too !
@@ -92,9 +79,6 @@ void CAST_QCQP_COMPUTE_DIM(struct OCP_QCQP_DIM *ocp_dim, struct DENSE_QCQP_DIM *
 	DENSE_QCQP_DIM_SET_NG(ngc, dense_dim);
 	DENSE_QCQP_DIM_SET_NQ(nqc, dense_dim);
 	DENSE_QCQP_DIM_SET_NS(nsc, dense_dim);
-	DENSE_QCQP_DIM_SET_NSB(nsbc, dense_dim);
-	DENSE_QCQP_DIM_SET_NSG(nsgc, dense_dim);
-	DENSE_QCQP_DIM_SET_NSQ(nsqc, dense_dim);
 
 	return;
 

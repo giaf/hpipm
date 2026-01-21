@@ -66,7 +66,7 @@ struct d_tree_ocp_qcqp
 	struct blasfeo_dvec *m; // Nn
 	struct blasfeo_dvec *Z; // Nn
 	int **idxb; // indices of box constrained variables within [u; x] // Nn
-	int **idxs_rev; // index of soft constraints
+	int **idxs_rev; // index of slack softening each constraint
 	hpipm_size_t memsize; // memory size in bytes
 	};
 
@@ -77,7 +77,7 @@ hpipm_size_t d_tree_ocp_qcqp_memsize(struct d_tree_ocp_qcqp_dim *dim);
 //
 void d_tree_ocp_qcqp_create(struct d_tree_ocp_qcqp_dim *dim, struct d_tree_ocp_qcqp *qp, void *memory);
 //
-void d_tree_ocp_qcqp_set_all(double **A, double **B, double **b, double **Q, double **S, double **R, double **q, double **r, int **idxb, double **d_lb, double **d_ub, double **C, double **D, double **d_lg, double **d_ug, double **Zl, double **Zu, double **zl, double **zu, int **idxs, double **d_ls, double **d_us, struct d_tree_ocp_qcqp *qp);
+void d_tree_ocp_qcqp_set_all(double **A, double **B, double **b, double **Q, double **S, double **R, double **q, double **r, int **idxb, double **d_lb, double **d_ub, double **C, double **D, double **d_lg, double **d_ug, double **Zl, double **Zu, double **zl, double **zu, int **idxs, int **idxs_rev, double **d_ls, double **d_us, struct d_tree_ocp_qcqp *qp);
 //
 void d_tree_ocp_qcqp_set(char *field_name, int node_edge, void *value, struct d_tree_ocp_qcqp *qp);
 //

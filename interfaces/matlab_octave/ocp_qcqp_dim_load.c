@@ -73,7 +73,7 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
 	d_ocp_qcqp_dim_create(N, dim, c_ptr);
 	c_ptr += d_ocp_qcqp_dim_memsize(N);
 
-//	d_ocp_qcqp_dim_set_all(nx, nu, nbx, nbu, ng, nsbx, nsbu, nsg, dim);
+//	d_ocp_qcqp_dim_set_all(nx, nu, nbx, nbu, ng, ns, dim);
 
 	int ii;
 
@@ -85,7 +85,7 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
 		d_ocp_qcqp_dim_set_nbu(ii, nbu[ii], &dim);
 		d_ocp_qcqp_dim_set_ng(ii, ng[ii], &dim);
 		d_ocp_qcqp_dim_set_nq(ii, nq[ii], &dim);
-		// TODO nsbx, nsbu, nsg, nsq
+		// TODO ns
 		}
 
 	/* LHS */

@@ -695,7 +695,7 @@ int main()
 
 	struct d_ocp_qp_dim dim;
 	d_ocp_qp_dim_create(N, &dim, dim_mem);
-	d_ocp_qp_dim_set_all(nx, nu, nbx, nbu, ng, nsbx, nsbu, nsg, &dim);
+	d_ocp_qp_dim_set_all(nx, nu, nbx, nbu, ng, ns, &dim);
 
 /************************************************
 * ocp qp
@@ -709,7 +709,7 @@ int main()
 
 	struct d_ocp_qp ocp_qp;
 	d_ocp_qp_create(&dim, &ocp_qp, ocp_qp_mem);
-	d_ocp_qp_set_all(hA, hB, hb, hQ, hS, hR, hq, hr, hidxbx, hd_lbx, hd_ubx, hidxbu, hd_lbu, hd_ubu, hC, hD, hd_lg, hd_ug, hZl, hZu, hzl, hzu, hidxs, hd_ls, hd_us, &ocp_qp);
+	d_ocp_qp_set_all(hA, hB, hb, hQ, hS, hR, hq, hr, hidxbx, hd_lbx, hd_ubx, hidxbu, hd_lbu, hd_ubu, hC, hD, hd_lg, hd_ug, hZl, hZu, hzl, hzu, hidxs, NULL, hd_ls, hd_us, &ocp_qp);
 
 #if 0
 	printf("\nN = %d\n", ocp_qp.N);
@@ -748,9 +748,6 @@ int main()
 	int *nbu2 = (int *) malloc((N2+1)*sizeof(int));
 	int *ng2 = (int *) malloc((N2+1)*sizeof(int));
 	int *ns2 = (int *) malloc((N2+1)*sizeof(int));
-	int *nsbx2 = (int *) malloc((N2+1)*sizeof(int));
-	int *nsbu2 = (int *) malloc((N2+1)*sizeof(int));
-	int *nsg2 = (int *) malloc((N2+1)*sizeof(int));
 
 	hpipm_size_t dim_size2 = d_ocp_qp_dim_memsize(N2);
 #if PRINT
@@ -760,7 +757,6 @@ int main()
 
 	struct d_ocp_qp_dim dim2;
 	d_ocp_qp_dim_create(N2, &dim2, dim_mem2);
-//	d_ocp_qp_dim_set_all(nx2, nu2, nbx2, nbu2, ng2, nsbx2, nsbu2, nsg2, &dim2);
 
 /************************************************
 * part dense qp
@@ -794,12 +790,6 @@ int main()
 		ng2[ii] = dim2.ng[ii];
 	for(ii=0; ii<=N2; ii++)
 		ns2[ii] = dim2.ns[ii];
-	for(ii=0; ii<=N2; ii++)
-		nsbx2[ii] = dim2.nsbx[ii];
-	for(ii=0; ii<=N2; ii++)
-		nsbu2[ii] = dim2.nsbu[ii];
-	for(ii=0; ii<=N2; ii++)
-		nsg2[ii] = dim2.nsg[ii];
 #if PRINT
 	for(ii=0; ii<=N2; ii++)
 		printf("\n%d %d %d %d\n", nx2[ii], nu2[ii], nb2[ii], ng2[ii]);
@@ -1328,9 +1318,6 @@ int main()
 	free(nbx2);
 	free(nb2);
 	free(ng2);
-	free(nsbx2);
-	free(nsbu2);
-	free(nsg2);
 	free(ns2);
 
 	d_free(A);

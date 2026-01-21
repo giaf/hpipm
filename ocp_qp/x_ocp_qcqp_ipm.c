@@ -110,8 +110,8 @@ void OCP_QCQP_IPM_ARG_SET_DEFAULT(enum HPIPM_MODE mode, struct OCP_QCQP_IPM_ARG 
 
 	OCP_QP_IPM_ARG_SET_DEFAULT(mode, arg->qp_arg);
 
-	REAL mu0, alpha_min, res_g_max, res_b_max, res_d_max, res_m_max, dual_gap_max, reg_prim, lam_min, t_min, tau_min;
-	int iter_max, stat_max, pred_corr, cond_pred_corr, itref_pred_max, itref_corr_max, lq_fact, warm_start, abs_form, comp_res_exit, comp_res_pred, square_root_alg, comp_dual_sol_eq, split_step, t_lam_min;
+	REAL mu0, alpha_min, res_g_max, res_b_max, res_d_max, res_m_max, dual_gap_max, reg_prim, lam_min, t_min, tau_min, lam0_min, t0_min;
+	int iter_max, stat_max, pred_corr, cond_pred_corr, itref_pred_max, itref_corr_max, lq_fact, warm_start, abs_form, comp_res_exit, comp_res_pred, square_root_alg, comp_dual_sol_eq, split_step, t_lam_min, t0_init;
 
 	if(mode==SPEED_ABS)
 		{
@@ -133,6 +133,8 @@ void OCP_QCQP_IPM_ARG_SET_DEFAULT(enum HPIPM_MODE mode, struct OCP_QCQP_IPM_ARG 
 		lq_fact = 0; // not used
 		lam_min = 1e-16;
 		t_min = 1e-16;
+		lam0_min = 1e-9;
+		t0_min = 1e-9;
 		tau_min = 1e-16;
 		warm_start = 0;
 		abs_form = 1;
@@ -141,6 +143,7 @@ void OCP_QCQP_IPM_ARG_SET_DEFAULT(enum HPIPM_MODE mode, struct OCP_QCQP_IPM_ARG 
 		comp_res_pred = 0;
 		split_step = 1;
 		t_lam_min = 2;
+		t0_init = 2;
 		}
 	else if(mode==SPEED)
 		{
@@ -162,6 +165,8 @@ void OCP_QCQP_IPM_ARG_SET_DEFAULT(enum HPIPM_MODE mode, struct OCP_QCQP_IPM_ARG 
 		lq_fact = 0;
 		lam_min = 1e-16;
 		t_min = 1e-16;
+		lam0_min = 1e-9;
+		t0_min = 1e-9;
 		tau_min = 1e-16;
 		warm_start = 0;
 		abs_form = 0;
@@ -170,6 +175,7 @@ void OCP_QCQP_IPM_ARG_SET_DEFAULT(enum HPIPM_MODE mode, struct OCP_QCQP_IPM_ARG 
 		comp_res_pred = 1;
 		split_step = 1;
 		t_lam_min = 2;
+		t0_init = 2;
 		}
 	else if(mode==BALANCE)
 		{
@@ -191,6 +197,8 @@ void OCP_QCQP_IPM_ARG_SET_DEFAULT(enum HPIPM_MODE mode, struct OCP_QCQP_IPM_ARG 
 		lq_fact = 1;
 		lam_min = 1e-16;
 		t_min = 1e-16;
+		lam0_min = 1e-9;
+		t0_min = 1e-9;
 		tau_min = 1e-16;
 		warm_start = 0;
 		abs_form = 0;
@@ -199,6 +207,7 @@ void OCP_QCQP_IPM_ARG_SET_DEFAULT(enum HPIPM_MODE mode, struct OCP_QCQP_IPM_ARG 
 		comp_res_pred = 1;
 		split_step = 0;
 		t_lam_min = 2;
+		t0_init = 2;
 		}
 	else if(mode==ROBUST)
 		{
@@ -220,6 +229,8 @@ void OCP_QCQP_IPM_ARG_SET_DEFAULT(enum HPIPM_MODE mode, struct OCP_QCQP_IPM_ARG 
 		lq_fact = 2;
 		lam_min = 1e-16;
 		t_min = 1e-16;
+		lam0_min = 1e-9;
+		t0_min = 1e-9;
 		tau_min = 1e-16;
 		warm_start = 0;
 		abs_form = 0;
@@ -228,6 +239,7 @@ void OCP_QCQP_IPM_ARG_SET_DEFAULT(enum HPIPM_MODE mode, struct OCP_QCQP_IPM_ARG 
 		comp_res_pred = 1;
 		split_step = 0;
 		t_lam_min = 2;
+		t0_init = 2;
 		}
 	else
 		{
@@ -256,6 +268,8 @@ void OCP_QCQP_IPM_ARG_SET_DEFAULT(enum HPIPM_MODE mode, struct OCP_QCQP_IPM_ARG 
 	arg->lq_fact = lq_fact;
 	OCP_QCQP_IPM_ARG_SET_LAM_MIN(&lam_min, arg);
 	OCP_QCQP_IPM_ARG_SET_T_MIN(&t_min, arg);
+	arg->lam0_min = lam0_min;
+	arg->t0_min = t0_min;
 	OCP_QCQP_IPM_ARG_SET_TAU_MIN(&tau_min, arg);
 	OCP_QCQP_IPM_ARG_SET_WARM_START(&warm_start, arg);
 	arg->abs_form = abs_form;
@@ -263,6 +277,7 @@ void OCP_QCQP_IPM_ARG_SET_DEFAULT(enum HPIPM_MODE mode, struct OCP_QCQP_IPM_ARG 
 	OCP_QCQP_IPM_ARG_SET_COMP_RES_EXIT(&comp_res_pred, arg);
 	OCP_QCQP_IPM_ARG_SET_SPLIT_STEP(&split_step, arg);
 	OCP_QCQP_IPM_ARG_SET_T_LAM_MIN(&t_lam_min, arg);
+	arg->t0_init = t0_init;
 	arg->mode = mode;
 
 	return;
@@ -854,7 +869,7 @@ void OCP_QCQP_INIT_VAR(struct OCP_QCQP *qp, struct OCP_QCQP_SOL *qp_sol, struct 
 	REAL tmp;
 
 	//
-	REAL *ux, *s, *pi, *d_lb, *d_ub, *d_lg, *d_ug, *d_ls, *d_uq, *lam_lb, *lam_ub, *lam_lg, *lam_ug, *lam_ls, *lam_lq, *lam_uq, *t_lb, *t_ub, *t_lg, *t_ug, *t_ls, *t_lq, *t_uq;
+	REAL *ux, *s, *pi, *d_lb, *d_ub, *d_lg, *d_ug, *d_ls, *d_uq, *lam_lb, *lam_ub, *lam_lg, *lam_ug, *lam_ls, *lam_lq, *lam_uq, *t_lb, *t_ub, *t_lg, *t_ug, *t_ls, *t_lq, *t_uq, *d_lb_mask, *d_ub_mask, *d_lg_mask, *d_ug_mask;
 	int *idxb, *idxs_rev;
 	int idx;
 
@@ -863,20 +878,31 @@ void OCP_QCQP_INIT_VAR(struct OCP_QCQP *qp, struct OCP_QCQP_SOL *qp_sol, struct 
 	// hot start: keep initial solution as it is
 	if(arg->warm_start>=3)
 		{
+		REAL lam0_min = arg->lam0_min;
+		REAL t0_min = arg->t0_min;
+		for(ii=0; ii<=N; ii++)
+			{
+			lam_lb = qp_sol->lam[ii].pa+0;
+			t_lb = qp_sol->t[ii].pa+0;
+			for(jj=0; jj<2*nb[ii]+2*ng[ii]+2*nq[ii]+2*ns[ii]; jj++)
+				{
+				if(lam_lb[jj]<lam0_min)
+					lam_lb[jj] = lam0_min;
+				if(t_lb[jj]<t0_min)
+					t_lb[jj] = t0_min;
+				}
+			}
 		return;
 		}
 
 	// primal and dual variables
 	if(arg->warm_start==2)
 		{
-
-		thr0 = 1e-1;
-
+		// TODO lam and t on relaxed central path instead of clipping
 		for(ii=0; ii<=N; ii++)
 			{
 			lam_lb = qp_sol->lam[ii].pa+0;
 			t_lb = qp_sol->t[ii].pa+0;
-
 			for(jj=0; jj<2*nb[ii]+2*ng[ii]+2*nq[ii]+2*ns[ii]; jj++)
 				{
 				if(lam_lb[jj]<thr0)
@@ -885,14 +911,12 @@ void OCP_QCQP_INIT_VAR(struct OCP_QCQP *qp, struct OCP_QCQP_SOL *qp_sol, struct 
 					t_lb[jj] = thr0;
 				}
 			}
-
 		return;
 		}
 
 	// ux
 	if(arg->warm_start==0)
 		{
-
 		// cold start
 		for(ii=0; ii<=N; ii++)
 			{
@@ -902,7 +926,6 @@ void OCP_QCQP_INIT_VAR(struct OCP_QCQP *qp, struct OCP_QCQP_SOL *qp_sol, struct 
 				ux[jj] = 0.0;
 				}
 			}
-
 		}
 //	else
 //		{
@@ -933,133 +956,168 @@ void OCP_QCQP_INIT_VAR(struct OCP_QCQP *qp, struct OCP_QCQP_SOL *qp_sol, struct 
 
 
 
-	// box constraints
-	for(ii=0; ii<=N; ii++)
+	if(arg->t0_init==0) // sqrt(mu0)
 		{
-		ux = qp_sol->ux[ii].pa;
-		d_lb = qp->d[ii].pa+0;
-		d_ub = qp->d[ii].pa+nb[ii]+ng[ii]+nq[ii];
-		lam_lb = qp_sol->lam[ii].pa+0;
-		lam_ub = qp_sol->lam[ii].pa+nb[ii]+ng[ii]+nq[ii];
-		t_lb = qp_sol->t[ii].pa+0;
-		t_ub = qp_sol->t[ii].pa+nb[ii]+ng[ii]+nq[ii];
-		idxb = qp->idxb[ii];
-		for(jj=0; jj<nb[ii]; jj++)
+		REAL sqmu0 = sqrt(mu0);
+		for(ii=0; ii<=N; ii++)
 			{
-#if 1
-			t_lb[jj] = - d_lb[jj] + ux[idxb[jj]];
-			t_ub[jj] = - d_ub[jj] - ux[idxb[jj]];
-//			printf("\n%d %f %f\n", jj, t_lb[jj], t_ub[jj]);
-			if(t_lb[jj]<thr0)
+			lam_lb = qp_sol->lam[ii].pa+0;
+			t_lb = qp_sol->t[ii].pa+0;
+			for(jj=0; jj<2*nb[ii]+2*ng[ii]+2*ns[ii]; jj++)
 				{
-				if(t_ub[jj]<thr0)
+				lam_lb[jj] = sqmu0;
+				t_lb[jj] = sqmu0;
+				}
+			}
+		}
+	else if(arg->t0_init==1) // 1.0
+		{
+		for(ii=0; ii<=N; ii++)
+			{
+			lam_lb = qp_sol->lam[ii].pa+0;
+			t_lb = qp_sol->t[ii].pa+0;
+			for(jj=0; jj<2*nb[ii]+2*ng[ii]+2*ns[ii]; jj++)
+				{
+				lam_lb[jj] = mu0;
+				t_lb[jj] = 1.0;
+				}
+			}
+		}
+	else //heuristic for primal feasibility
+		{
+
+		// box constraints
+		for(ii=0; ii<=N; ii++)
+			{
+			ux = qp_sol->ux[ii].pa;
+			d_lb = qp->d[ii].pa+0;
+			d_ub = qp->d[ii].pa+nb[ii]+ng[ii]+nq[ii];
+			d_lb_mask = qp->d_mask[ii].pa+0;
+			d_ub_mask = qp->d_mask[ii].pa+nb[ii]+ng[ii];
+			lam_lb = qp_sol->lam[ii].pa+0;
+			lam_ub = qp_sol->lam[ii].pa+nb[ii]+ng[ii]+nq[ii];
+			t_lb = qp_sol->t[ii].pa+0;
+			t_ub = qp_sol->t[ii].pa+nb[ii]+ng[ii]+nq[ii];
+			idxb = qp->idxb[ii];
+			for(jj=0; jj<nb[ii]; jj++)
+				{
+				REAL d_lb0 = d_lb[jj];
+				REAL d_ub0 = d_ub[jj];
+				if(d_lb_mask[jj]==0.0)
 					{
-//					ux[idxb[jj]] = 0.5*(d_lb[jj] + d_ub[jj]);
-					ux[idxb[jj]] = 0.5*(d_lb[jj] - d_ub[jj]);
-					t_lb[jj] = thr0;
+					d_lb0 = ux[idxb[jj]] - 1.0;
+					}
+				if(d_ub_mask[jj]==0.0)
+					{
+					d_ub0 = - ux[idxb[jj]] - 1.0;
+					}
+				t_lb[jj] = - d_lb0 + ux[idxb[jj]];
+				t_ub[jj] = - d_ub0 - ux[idxb[jj]];
+	//			printf("\n%d %f %f\n", jj, t_lb[jj], t_ub[jj]);
+				if(t_lb[jj]<thr0)
+					{
+					if(t_ub[jj]<thr0)
+						{
+	//					ux[idxb[jj]] = 0.5*(d_lb0 + d_ub0);
+						ux[idxb[jj]] = 0.5*(d_lb0 - d_ub0);
+						t_lb[jj] = thr0;
+						t_ub[jj] = thr0;
+						}
+					else
+						{
+						t_lb[jj] = thr0;
+						ux[idxb[jj]] = d_lb0 + thr0;
+						}
+					}
+				else if(t_ub[jj]<thr0)
+					{
 					t_ub[jj] = thr0;
+					ux[idxb[jj]] = - d_ub0 - thr0;
 					}
-				else
-					{
-					t_lb[jj] = thr0;
-					ux[idxb[jj]] = d_lb[jj] + thr0;
-					}
+				lam_lb[jj] = mu0/t_lb[jj];
+				lam_ub[jj] = mu0/t_ub[jj];
 				}
-			else if(t_ub[jj]<thr0)
+	//		blasfeo_print_tran_dvec(nb[ii], qp->d+ii, 0);
+	//		blasfeo_print_tran_dvec(nb[ii], qp->d+ii, nb[ii]+ng[ii]);
+	//		blasfeo_print_tran_dvec(nu[ii]+nx[ii], qp_sol->ux+ii, 0);
+	//		blasfeo_print_tran_dvec(nb[ii], qp_sol->t+ii, 0);
+	//		blasfeo_print_tran_dvec(nb[ii], qp_sol->t+ii, nb[ii]+ng[ii]);
+	//		exit(1);
+			}
+		// general constraints
+		for(ii=0; ii<=N; ii++)
+			{
+			t_lg = qp_sol->t[ii].pa+nb[ii];
+			t_ug = qp_sol->t[ii].pa+2*nb[ii]+ng[ii]+nq[ii];
+			lam_lg = qp_sol->lam[ii].pa+nb[ii];
+			lam_ug = qp_sol->lam[ii].pa+2*nb[ii]+ng[ii]+nq[ii];
+			d_lg = qp->d[ii].pa+nb[ii];
+			d_ug = qp->d[ii].pa+2*nb[ii]+ng[ii]+nq[ii];
+			ux = qp_sol->ux[ii].pa;
+			GEMV_T(nu[ii]+nx[ii], ng[ii], 1.0, qp->DCt+ii, 0, 0, qp_sol->ux+ii, 0, 0.0, qp_sol->t+ii, nb[ii], qp_sol->t+ii, nb[ii]);
+			for(jj=0; jj<ng[ii]; jj++)
 				{
-				t_ub[jj] = thr0;
-				ux[idxb[jj]] = - d_ub[jj] - thr0;
+				t_ug[jj] = - t_lg[jj];
+				if(d_lg_mask[jj]!=0.0)
+					t_lg[jj] -= d_lg[jj];
+				if(d_ug_mask[jj]!=0.0)
+					t_ug[jj] -= d_ug[jj];
+	//			t_lg[jj] = fmax(thr0, t_lg[jj]);
+	//			t_ug[jj] = fmax(thr0, t_ug[jj]);
+				t_lg[jj] = thr0>t_lg[jj] ? thr0 : t_lg[jj];
+				t_ug[jj] = thr0>t_ug[jj] ? thr0 : t_ug[jj];
+				lam_lg[jj] = mu0/t_lg[jj];
+				lam_ug[jj] = mu0/t_ug[jj];
 				}
-#else
-			t_lb[jj] = 1.0;
-			t_ub[jj] = 1.0;
-#endif
-			lam_lb[jj] = mu0/t_lb[jj];
-			lam_ub[jj] = mu0/t_ub[jj];
 			}
-//		blasfeo_print_tran_dvec(nb[ii], qp->d+ii, 0);
-//		blasfeo_print_tran_dvec(nb[ii], qp->d+ii, nb[ii]+ng[ii]);
-//		blasfeo_print_tran_dvec(nu[ii]+nx[ii], qp_sol->ux+ii, 0);
-//		blasfeo_print_tran_dvec(nb[ii], qp_sol->t+ii, 0);
-//		blasfeo_print_tran_dvec(nb[ii], qp_sol->t+ii, nb[ii]+ng[ii]);
-//		exit(1);
-		}
-	// general constraints
-	for(ii=0; ii<=N; ii++)
-		{
-		t_lg = qp_sol->t[ii].pa+nb[ii];
-		t_ug = qp_sol->t[ii].pa+2*nb[ii]+ng[ii]+nq[ii];
-		lam_lg = qp_sol->lam[ii].pa+nb[ii];
-		lam_ug = qp_sol->lam[ii].pa+2*nb[ii]+ng[ii]+nq[ii];
-		d_lg = qp->d[ii].pa+nb[ii];
-		d_ug = qp->d[ii].pa+2*nb[ii]+ng[ii]+nq[ii];
-		ux = qp_sol->ux[ii].pa;
-		GEMV_T(nu[ii]+nx[ii], ng[ii], 1.0, qp->DCt+ii, 0, 0, qp_sol->ux+ii, 0, 0.0, qp_sol->t+ii, nb[ii], qp_sol->t+ii, nb[ii]);
-		for(jj=0; jj<ng[ii]; jj++)
+
+		// soft constraints
+		for(ii=0; ii<=N; ii++)
 			{
-#if 1
-			t_ug[jj] = - t_lg[jj];
-			t_lg[jj] -= d_lg[jj];
-			t_ug[jj] -= d_ug[jj];
-//			t_lg[jj] = fmax(thr0, t_lg[jj]);
-//			t_ug[jj] = fmax(thr0, t_ug[jj]);
-			t_lg[jj] = thr0>t_lg[jj] ? thr0 : t_lg[jj];
-			t_ug[jj] = thr0>t_ug[jj] ? thr0 : t_ug[jj];
-#else
-			t_lg[jj] = 1.0;
-			t_ug[jj] = 1.0;
-#endif
-			lam_lg[jj] = mu0/t_lg[jj];
-			lam_ug[jj] = mu0/t_ug[jj];
+			lam_ls = qp_sol->lam[ii].pa+2*nb[ii]+2*ng[ii]+2*nq[ii];
+			t_ls = qp_sol->t[ii].pa+2*nb[ii]+2*ng[ii]+2*nq[ii];
+			for(jj=0; jj<2*ns[ii]; jj++)
+				{
+				t_ls[jj] = 1.0; // thr0;
+	//			t_ls[jj] = sqrt(mu0); // thr0;
+				lam_ls[jj] = mu0/t_ls[jj];
+				}
 			}
-		}
 
-	// soft constraints
-	for(ii=0; ii<=N; ii++)
-		{
-		lam_ls = qp_sol->lam[ii].pa+2*nb[ii]+2*ng[ii]+2*nq[ii];
-		t_ls = qp_sol->t[ii].pa+2*nb[ii]+2*ng[ii]+2*nq[ii];
-		for(jj=0; jj<2*ns[ii]; jj++)
+		//  quadratic constraints
+		REAL sqrt_mu0 = sqrt(mu0);
+		sqrt_mu0 = thr0>sqrt_mu0 ? thr0 : sqrt_mu0;
+		REAL mu0_div_sqrt_mu0 = mu0 / sqrt_mu0;
+
+		for(ii=0; ii<=N; ii++)
 			{
-			t_ls[jj] = 1.0; // thr0;
-//			t_ls[jj] = sqrt(mu0); // thr0;
-			lam_ls[jj] = mu0/t_ls[jj];
+			lam_lq = qp_sol->lam[ii].pa+nb[ii]+ng[ii];
+			t_lq = qp_sol->t[ii].pa+nb[ii]+ng[ii];
+			lam_uq = qp_sol->lam[ii].pa+2*nb[ii]+2*ng[ii]+nq[ii];
+			t_uq = qp_sol->t[ii].pa+2*nb[ii]+2*ng[ii]+nq[ii];
+			d_uq = qp->d[ii].pa+2*nb[ii]+2*ng[ii]+nq[ii];
+			for(jj=0; jj<nq[ii]; jj++)
+				{
+				// disregard lower
+				lam_lq[jj] = 0.0;
+				t_lq[jj]   = 1.0;
+				// upper
+	#if 1
+				t_uq[jj]   = sqrt_mu0;
+				lam_uq[jj] = mu0_div_sqrt_mu0;
+	#else
+		//		t[2*nb+2*ng+nq+jj] = 1.0; // thr0;
+				COLEX(nu[ii]+nx[ii], qp->DCt+ii, 0, ng[ii]+jj, ws->tmp_nuxM, 0);
+				SYMV_L(nu[ii]+nx[ii], 0.5, &qp->Hq[ii][jj], 0, 0, qp_sol->ux+ii, 0, 1.0, ws->tmp_nuxM, 0, ws->tmp_nuxM, 0);
+				tmp = DOT(nu[ii]+nx[ii], ws->tmp_nuxM, 0, qp_sol->ux+ii, 0);
+				tmp = - d_uq[jj] - tmp;
+				t_uq[jj] = thr0>tmp ? thr0 : tmp;
+				lam_uq[jj]  = mu0/t_uq[jj];
+	#endif
+				}
 			}
+
 		}
-
-	//  quadratic constraints
-	REAL sqrt_mu0 = sqrt(mu0);
-	sqrt_mu0 = thr0>sqrt_mu0 ? thr0 : sqrt_mu0;
-	REAL mu0_div_sqrt_mu0 = mu0 / sqrt_mu0;
-
-	for(ii=0; ii<=N; ii++)
-		{
-		lam_lq = qp_sol->lam[ii].pa+nb[ii]+ng[ii];
-		t_lq = qp_sol->t[ii].pa+nb[ii]+ng[ii];
-		lam_uq = qp_sol->lam[ii].pa+2*nb[ii]+2*ng[ii]+nq[ii];
-		t_uq = qp_sol->t[ii].pa+2*nb[ii]+2*ng[ii]+nq[ii];
-		d_uq = qp->d[ii].pa+2*nb[ii]+2*ng[ii]+nq[ii];
-		for(jj=0; jj<nq[ii]; jj++)
-			{
-			// disregard lower
-			lam_lq[jj] = 0.0;
-			t_lq[jj]   = 1.0;
-			// upper
-#if 1
-			t_uq[jj]   = sqrt_mu0;
-			lam_uq[jj] = mu0_div_sqrt_mu0;
-#else
-	//		t[2*nb+2*ng+nq+jj] = 1.0; // thr0;
-			COLEX(nu[ii]+nx[ii], qp->DCt+ii, 0, ng[ii]+jj, ws->tmp_nuxM, 0);
-			SYMV_L(nu[ii]+nx[ii], 0.5, &qp->Hq[ii][jj], 0, 0, qp_sol->ux+ii, 0, 1.0, ws->tmp_nuxM, 0, ws->tmp_nuxM, 0);
-			tmp = DOT(nu[ii]+nx[ii], ws->tmp_nuxM, 0, qp_sol->ux+ii, 0);
-			tmp = - d_uq[jj] - tmp;
-			t_uq[jj] = thr0>tmp ? thr0 : tmp;
-			lam_uq[jj]  = mu0/t_uq[jj];
-#endif
-			}
-		}
-
 
 
 #else // new version

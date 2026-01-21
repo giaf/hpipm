@@ -44,16 +44,12 @@ void DENSE_QP_DIM_PRINT(struct DENSE_QP_DIM *qp_dim)
 	int ne = qp_dim->ne;
 	int nb = qp_dim->nb;
 	int ng = qp_dim->ng;
-	int nsb = qp_dim->nsb;
-	int nsg = qp_dim->nsg;
 	int ns = qp_dim->ns;
 
 	printf("nv = %d\n\n", nv);
 	printf("ne = %d\n\n", ne);
 	printf("nb = %d\n\n", nb);
 	printf("ng = %d\n\n", ng);
-	printf("nsb = %d\n\n", nsb);
-	printf("nsg = %d\n\n", nsg);
 	printf("ns = %d\n\n", ns);
 
 #endif
@@ -73,8 +69,6 @@ void DENSE_QP_DIM_CODEGEN(char *file_name, char *mode, struct DENSE_QP_DIM *qp_d
 	int ne = qp_dim->ne;
 	int nb = qp_dim->nb;
 	int ng = qp_dim->ng;
-	int nsb = qp_dim->nsb;
-	int nsg = qp_dim->nsg;
 	int ns = qp_dim->ns;
 
 	fprintf(file, "/***************\n* dim\n***************/\n");
@@ -91,12 +85,6 @@ void DENSE_QP_DIM_CODEGEN(char *file_name, char *mode, struct DENSE_QP_DIM *qp_d
 	// ng
 	fprintf(file, "/* ng */\n");
 	fprintf(file, "int ng = %d;\n", ng);
-	// nsb
-	fprintf(file, "/* nsb */\n");
-	fprintf(file, "int nsb = %d;\n", nsb);
-	// nsg
-	fprintf(file, "/* nsg */\n");
-	fprintf(file, "int nsg = %d;\n", nsg);
 	// ns
 	fprintf(file, "/* ns */\n");
 	fprintf(file, "int ns = %d;\n", ns);
@@ -776,7 +764,7 @@ void DENSE_QP_CODEGEN_MATLAB(char *file_name, char *mode, struct DENSE_QP_DIM *q
 	for(ii=0; ii<nv; ii++)
 		{
 		int idx = -1;
-		for(jj=0; jj<nb; jj++)
+		for(jj=0; jj<nb; jj++) // TODO old idx + % to avoid O(nb^2)
 			{
 			if(qp->idxb[jj]==ii)
 				{
@@ -791,12 +779,12 @@ void DENSE_QP_CODEGEN_MATLAB(char *file_name, char *mode, struct DENSE_QP_DIM *q
 		else
 			{
 #ifdef DOUBLE_PRECISION
-			if(BLASFEO_DVECEL(qp->d_mask, nb+idx)==0.0)
+			if(BLASFEO_DVECEL(qp->d_mask, idx)==0.0)
 				fprintf(file, "-Inf ");
 			else
 				fprintf(file, "%18.15e ", BLASFEO_DVECEL(qp->d, idx));
 #else
-			if(BLASFEO_SVECEL(qp->d_mask, nb+idx)==0.0)
+			if(BLASFEO_SVECEL(qp->d_mask, idx)==0.0)
 				fprintf(file, "-Inf ");
 			else
 				fprintf(file, "%11.8e ", BLASFEO_SVECEL(qp->d, idx));
@@ -810,7 +798,7 @@ void DENSE_QP_CODEGEN_MATLAB(char *file_name, char *mode, struct DENSE_QP_DIM *q
 	for(ii=0; ii<nv; ii++)
 		{
 		int idx = -1;
-		for(jj=0; jj<nb; jj++)
+		for(jj=0; jj<nb; jj++) // TODO old idx + % to avoid O(nb^2)
 			{
 			if(qp->idxb[jj]==ii)
 				{
@@ -825,15 +813,15 @@ void DENSE_QP_CODEGEN_MATLAB(char *file_name, char *mode, struct DENSE_QP_DIM *q
 		else
 			{
 #ifdef DOUBLE_PRECISION
-			if(BLASFEO_DVECEL(qp->d_mask, nb+idx)==0.0)
+			if(BLASFEO_DVECEL(qp->d_mask, nb+ng+idx)==0.0)
 				fprintf(file, "Inf ");
 			else
 				fprintf(file, "%18.15e ", - BLASFEO_DVECEL(qp->d, nb+ng+idx));
 #else
-			if(BLASFEO_SVECEL(qp->d_mask, nb+idx)==0.0)
+			if(BLASFEO_SVECEL(qp->d_mask, nb+ng+idx)==0.0)
 				fprintf(file, "Inf ");
 			else
-				fprintf(file, "%11.8e ", BLASFEO_SVECEL(qp->d, nb+ng+idx));
+				fprintf(file, "%11.8e ", - BLASFEO_SVECEL(qp->d, nb+ng+idx));
 #endif
 			}
 		}

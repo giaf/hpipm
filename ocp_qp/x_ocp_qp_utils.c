@@ -47,9 +47,6 @@ void OCP_QP_DIM_PRINT(struct OCP_QP_DIM *qp_dim)
 	int *nbu = qp_dim->nbu;
 	int *ng = qp_dim->ng;
 	int *ns = qp_dim->ns;
-	int *nsbx = qp_dim->nsbx;
-	int *nsbu = qp_dim->nsbu;
-	int *nsg = qp_dim->nsg;
 	int *nbxe = qp_dim->nbxe;
 	int *nbue = qp_dim->nbue;
 	int *nge = qp_dim->nge;
@@ -84,21 +81,6 @@ void OCP_QP_DIM_PRINT(struct OCP_QP_DIM *qp_dim)
 	printf("ns =\n");
 	for (ii = 0; ii <= N; ii++)
 		printf("\t%d", ns[ii]);
-	printf("\n\n");
-
-	printf("nsbx =\n");
-	for (ii = 0; ii <= N; ii++)
-		printf("\t%d", nsbx[ii]);
-	printf("\n\n");
-
-	printf("nsbu =\n");
-	for (ii = 0; ii <= N; ii++)
-		printf("\t%d", nsbu[ii]);
-	printf("\n\n");
-
-	printf("nsg =\n");
-	for (ii = 0; ii <= N; ii++)
-		printf("\t%d", nsg[ii]);
 	printf("\n\n");
 
 	printf("nbxe =\n");
@@ -136,9 +118,6 @@ void OCP_QP_DIM_CODEGEN(char *file_name, char *mode, struct OCP_QP_DIM *qp_dim)
 	int *nbu = qp_dim->nbu;
 	int *ng = qp_dim->ng;
 	int *ns = qp_dim->ns;
-	int *nsbx = qp_dim->nsbx; // TODO remove ???
-	int *nsbu = qp_dim->nsbu; // TODO remove ???
-	int *nsg = qp_dim->nsg; // TODO remove ???
 	int *nbxe = qp_dim->nbxe;
 	int *nbue = qp_dim->nbue;
 	int *nge = qp_dim->nge;
@@ -176,13 +155,6 @@ void OCP_QP_DIM_CODEGEN(char *file_name, char *mode, struct OCP_QP_DIM *qp_dim)
 		fprintf(file, "%d, ", nbu[ii]);
 	fprintf(file, "};\n");
 	fprintf(file, "int *nbu = nnbu;\n");
-	// ns
-	fprintf(file, "/* ns */\n");
-	fprintf(file, "static int nns[] = {");
-	for(ii=0; ii<=N; ii++)
-		fprintf(file, "%d, ", ns[ii]);
-	fprintf(file, "};\n");
-	fprintf(file, "int *ns = nns;\n");
 	// ng
 	fprintf(file, "/* ng */\n");
 	fprintf(file, "static int nng[] = {");
@@ -190,27 +162,13 @@ void OCP_QP_DIM_CODEGEN(char *file_name, char *mode, struct OCP_QP_DIM *qp_dim)
 		fprintf(file, "%d, ", ng[ii]);
 	fprintf(file, "};\n");
 	fprintf(file, "int *ng = nng;\n");
-	// nsbx
-	fprintf(file, "/* nsbx */\n");
-	fprintf(file, "static int nnsbx[] = {");
+	// ns
+	fprintf(file, "/* ns */\n");
+	fprintf(file, "static int nns[] = {");
 	for(ii=0; ii<=N; ii++)
-		fprintf(file, "%d, ", nsbx[ii]);
+		fprintf(file, "%d, ", ns[ii]);
 	fprintf(file, "};\n");
-	fprintf(file, "int *nsbx = nnsbx;\n");
-	// nsbu
-	fprintf(file, "/* nsbu */\n");
-	fprintf(file, "static int nnsbu[] = {");
-	for(ii=0; ii<=N; ii++)
-		fprintf(file, "%d, ", nsbu[ii]);
-	fprintf(file, "};\n");
-	fprintf(file, "int *nsbu = nnsbu;\n");
-	// nsg
-	fprintf(file, "/* nsg */\n");
-	fprintf(file, "static int nnsg[] = {");
-	for(ii=0; ii<=N; ii++)
-		fprintf(file, "%d, ", nsg[ii]);
-	fprintf(file, "};\n");
-	fprintf(file, "int *nsg = nnsg;\n");
+	fprintf(file, "int *ns = nns;\n");
 	// nbxe
 	fprintf(file, "/* nbxe */\n");
 	fprintf(file, "static int nnbxe[] = {");
@@ -1225,27 +1183,6 @@ void OCP_QP_CODEGEN(char *file_name, char *mode, struct OCP_QP_DIM *dim, struct 
 	fprintf(file, "};\n");
 	fprintf(file, "int **hidxs_rev = iidxs_rev;\n");
 
-	// idxs
-	fprintf(file, "/* idxs */\n");
-	for(nn=0; nn<=N; nn++)
-		{
-		fprintf(file, "static int idxs%d[] = {", nn);
-		for(jj=0; jj<nb[nn]+ng[nn]; jj++)
-			{
-			idx_tmp = qp->idxs_rev[nn][jj];
-			if(idx_tmp!=-1)
-				{
-				fprintf(file, "%d, ", jj);
-				}
-			}
-		fprintf(file, "};\n");
-		}
-	fprintf(file, "static int *iidxs[] = {");
-	for(nn=0; nn<=N; nn++)
-		fprintf(file, "idxs%d, ", nn);
-	fprintf(file, "};\n");
-	fprintf(file, "int **hidxs = iidxs;\n");
-
 	// lls
 	fprintf(file, "/* lls */\n");
 	for(nn=0; nn<=N; nn++)
@@ -1396,6 +1333,412 @@ void OCP_QP_CODEGEN(char *file_name, char *mode, struct OCP_QP_DIM *dim, struct 
 	// su_guess
 //	fprintf(file, "/* su_guess */\n");
 //	fprintf(file, "double **hsu_guess;\n");
+
+	fclose(file);
+
+#endif
+	return;
+	}
+
+
+
+void OCP_QP_CODEGEN_MATLAB(char *file_name, char *mode, struct OCP_QP_DIM *dim, struct OCP_QP *qp)
+	{
+#ifdef EXT_DEP
+	int nn, ii, jj, idx_tmp;
+
+	int N   = dim->N;
+	int *nx = dim->nx;
+	int *nu = dim->nu;
+	int *nb = dim->nb;
+	int *ng = dim->ng;
+	int *ns = dim->ns; // XXX not handled
+	int *nbxe = dim->nbxe; // XXX ignored
+	int *nbue = dim->nbue; // XXX ignored
+	int *nge = dim->nge; // XXX ignored
+
+	for(ii=0; ii<=N; ii++)
+		{
+		if(ns[ii]>0)
+			{
+			printf("\nNot yet supported codegen to matlab format with ns>0\n");
+			return;
+			}
+		}
+
+	int nvt = 0;
+	for(nn=0; nn<=N; nn++)
+		{
+		nvt += nu[nn]+nx[nn]+2*ns[nn];
+		}
+	int net = 0;
+	for(nn=0; nn<N; nn++)
+		{
+		net += nx[nn+1];
+		}
+	int ngt = 0;
+	for(nn=0; nn<=N; nn++)
+		{
+		ngt += ng[nn];
+		}
+
+	FILE *file = fopen(file_name, mode);
+
+	// H
+	fprintf(file, "H_val = [");
+	for(nn=0; nn<=N; nn++)
+		{
+		for(ii=0; ii<nu[nn]+nx[nn]; ii++)
+			{
+			jj = 0;
+			for(; jj<=ii; jj++)
+				{
+				REAL elem = BLASFEO_MATEL(qp->RSQrq+nn, ii, jj);
+				if(elem!=0.0)
+					{
+#ifdef DOUBLE_PRECISION
+					fprintf(file, "%18.15e ", elem);
+#else
+					fprintf(file, "%11.8e ", elem);
+#endif
+					}
+				}
+			for(; jj<nu[nn]+nx[nn]; jj++)
+				{
+				REAL elem = BLASFEO_MATEL(qp->RSQrq+nn, jj, ii);
+				if(elem!=0.0)
+					{
+#ifdef DOUBLE_PRECISION
+					fprintf(file, "%18.15e ", elem);
+#else
+					fprintf(file, "%11.8e ", elem);
+#endif
+					}
+				}
+			}
+		}
+	fprintf(file, "];\n");
+	fprintf(file, "H_row = [");
+	idx_tmp = 1;
+	for(nn=0; nn<=N; nn++)
+		{
+		for(ii=0; ii<nu[nn]+nx[nn]; ii++)
+			{
+			jj = 0;
+			for(; jj<=ii; jj++)
+				{
+				REAL elem = BLASFEO_MATEL(qp->RSQrq+nn, ii, jj);
+				if(elem!=0.0)
+					{
+					fprintf(file, "%d ", idx_tmp+jj);
+					}
+				}
+			for(; jj<nu[nn]+nx[nn]; jj++)
+				{
+				REAL elem = BLASFEO_MATEL(qp->RSQrq+nn, jj, ii);
+				if(elem!=0.0)
+					{
+					fprintf(file, "%d ", idx_tmp+jj);
+					}
+				}
+			}
+		idx_tmp += nu[nn]+nx[nn];
+		}
+	fprintf(file, "];\n");
+	fprintf(file, "H_col = [");
+	idx_tmp = 1;
+	for(nn=0; nn<=N; nn++)
+		{
+		for(ii=0; ii<nu[nn]+nx[nn]; ii++)
+			{
+			jj = 0;
+			for(; jj<=ii; jj++)
+				{
+				REAL elem = BLASFEO_MATEL(qp->RSQrq+nn, ii, jj);
+				if(elem!=0.0)
+					{
+					fprintf(file, "%d ", idx_tmp+ii);
+					}
+				}
+			for(; jj<nu[nn]+nx[nn]; jj++)
+				{
+				REAL elem = BLASFEO_MATEL(qp->RSQrq+nn, jj, ii);
+				if(elem!=0.0)
+					{
+					fprintf(file, "%d ", idx_tmp+ii);
+					}
+				}
+			}
+		idx_tmp += nu[nn]+nx[nn];
+		}
+	fprintf(file, "];\n");
+	fprintf(file, "H = sparse(H_row, H_col, H_val, %d, %d);\n", nvt, nvt);
+
+	// A
+	fprintf(file, "A_val = [");
+	for(nn=0; nn<N; nn++)
+		{
+		for(ii=0; ii<nu[nn]+nx[nn]; ii++)
+			{
+			for(jj=0; jj<nx[nn+1]; jj++)
+				{
+				REAL elem = BLASFEO_MATEL(qp->BAbt+nn, ii, jj);
+				if(elem!=0.0)
+					{
+#ifdef DOUBLE_PRECISION
+					fprintf(file, "%18.15e ", elem);
+#else
+					fprintf(file, "%11.8e ", elem);
+#endif
+					}
+				}
+			}
+		for(jj=0; jj<nx[nn+1]; jj++)
+			{
+			fprintf(file, "%5.1e ", -1.0);
+			}
+		}
+	fprintf(file, "];\n");
+	fprintf(file, "A_row = [");
+	idx_tmp = 1;
+	for(nn=0; nn<N; nn++)
+		{
+		for(ii=0; ii<nu[nn]+nx[nn]; ii++)
+			{
+			for(jj=0; jj<nx[nn+1]; jj++)
+				{
+				REAL elem = BLASFEO_MATEL(qp->BAbt+nn, ii, jj);
+				if(elem!=0.0)
+					{
+					fprintf(file, "%d ", idx_tmp+jj);
+					}
+				}
+			}
+		for(jj=0; jj<nx[nn+1]; jj++)
+			{
+			fprintf(file, "%d ", idx_tmp+jj);
+			}
+		idx_tmp += nx[nn+1];
+		}
+	fprintf(file, "];\n");
+	fprintf(file, "A_col = [");
+	idx_tmp = 1;
+	for(nn=0; nn<N; nn++)
+		{
+		for(ii=0; ii<nu[nn]+nx[nn]; ii++)
+			{
+			for(jj=0; jj<nx[nn+1]; jj++)
+				{
+				REAL elem = BLASFEO_MATEL(qp->BAbt+nn, ii, jj);
+				if(elem!=0.0)
+					{
+					fprintf(file, "%d ", idx_tmp+ii);
+					}
+				}
+			}
+		idx_tmp += nu[nn]+nx[nn];
+		for(jj=0; jj<nx[nn+1]; jj++)
+			{
+			fprintf(file, "%d ", idx_tmp+nu[nn+1]+jj);
+			}
+		}
+	fprintf(file, "];\n");
+	fprintf(file, "A = sparse(A_row, A_col, A_val, %d, %d);\n", net, nvt);
+
+	// C
+	fprintf(file, "C_val = [\n");
+	for(nn=0; nn<=N; nn++)
+		{
+		for(ii=0; ii<nu[nn]+nx[nn]; ii++)
+			{
+			for(jj=0; jj<ng[nn]; jj++)
+				{
+				REAL elem = BLASFEO_MATEL(qp->DCt+nn, ii, jj);
+				if(elem!=0.0)
+					{
+#ifdef DOUBLE_PRECISION
+					fprintf(file, "%18.15e ", elem);
+#else
+					fprintf(file, "%11.8e ", elem);
+#endif
+					}
+				}
+			}
+		}
+	fprintf(file, "];\n");
+	fprintf(file, "C_row = [");
+	idx_tmp = 1;
+	for(nn=0; nn<=N; nn++)
+		{
+		for(ii=0; ii<nu[nn]+nx[nn]; ii++)
+			{
+			for(jj=0; jj<ng[nn]; jj++)
+				{
+				REAL elem = BLASFEO_MATEL(qp->DCt+nn, ii, jj);
+				if(elem!=0.0)
+					{
+					fprintf(file, "%d ", idx_tmp+jj);
+					}
+				}
+			}
+		idx_tmp += ng[nn];
+		}
+	fprintf(file, "];\n");
+	fprintf(file, "C_col = [");
+	idx_tmp = 1;
+	for(nn=0; nn<=N; nn++)
+		{
+		for(ii=0; ii<nu[nn]+nx[nn]; ii++)
+			{
+			for(jj=0; jj<ng[nn]; jj++)
+				{
+				REAL elem = BLASFEO_MATEL(qp->DCt+nn, ii, jj);
+				if(elem!=0.0)
+					{
+					fprintf(file, "%d ", idx_tmp+ii);
+					}
+				}
+			}
+		idx_tmp += nu[nn]+nx[nn];
+		}
+	fprintf(file, "];\n");
+	fprintf(file, "C = sparse(C_row, C_col, C_val, %d, %d);\n", ngt, nvt);
+
+	// g
+	fprintf(file, "g = [");
+	for(nn=0; nn<=N; nn++)
+		{
+		for(ii=0; ii<nu[nn]+nx[nn]; ii++)
+			{
+#ifdef DOUBLE_PRECISION
+			fprintf(file, "%18.15e ", BLASFEO_VECEL(qp->rqz+nn, ii));
+#else
+			fprintf(file, "%11.8e ", BLASFEO_VECEL(qp->rqz+nn, ii));
+#endif
+			}
+		}
+	fprintf(file, "]';\n");
+
+	// b
+	fprintf(file, "b = [");
+	for(nn=0; nn<N; nn++)
+		{
+		for(ii=0; ii<nx[nn+1]; ii++)
+			{
+#ifdef DOUBLE_PRECISION
+			fprintf(file, "%18.15e ", BLASFEO_VECEL(qp->b+nn, ii));
+#else
+			fprintf(file, "%11.8e ", BLASFEO_VECEL(qp->b+nn, ii));
+#endif
+			}
+		}
+	fprintf(file, "]';\n");
+
+	// lb
+	fprintf(file, "lb = [");
+	for(nn=0; nn<=N; nn++)
+		{
+		for(ii=0; ii<nu[nn]+nx[nn]; ii++)
+			{
+			int idx = -1;
+			for(jj=0; jj<nb[nn]; jj++) // TODO old idx + % to avoid O(nb^2)
+				{
+				if(qp->idxb[nn][jj]==ii)
+					{
+					idx = jj;
+					break;
+					}
+				}
+			if(idx==-1)
+				{
+				fprintf(file, "-Inf ");
+				}
+			else
+				{
+				if(BLASFEO_VECEL(qp->d_mask+nn, idx)==0.0)
+					fprintf(file, "-Inf ");
+				else
+#ifdef DOUBLE_PRECISION
+					fprintf(file, "%18.15e ", BLASFEO_VECEL(qp->d+nn, idx));
+#else
+					fprintf(file, "%11.8e ", BLASFEO_VECEL(qp->d+nn, idx));
+#endif
+				}
+			}
+		}
+	fprintf(file, "]';\n");
+
+	// ub
+	fprintf(file, "ub = [");
+	for(nn=0; nn<=N; nn++)
+		{
+		for(ii=0; ii<nu[nn]+nx[nn]; ii++)
+			{
+			int idx = -1;
+			for(jj=0; jj<nb[nn]; jj++) // TODO old idx + % to avoid O(nb^2)
+				{
+				if(qp->idxb[nn][jj]==ii)
+					{
+					idx = jj;
+					break;
+					}
+				}
+			if(idx==-1)
+				{
+				fprintf(file, "Inf ");
+				}
+			else
+				{
+				if(BLASFEO_VECEL(qp->d_mask+nn, nb[nn]+ng[nn]+idx)==0.0)
+					fprintf(file, "Inf ");
+				else
+#ifdef DOUBLE_PRECISION
+					fprintf(file, "%18.15e ", - BLASFEO_VECEL(qp->d+nn, nb[nn]+ng[nn]+idx));
+#else
+					fprintf(file, "%11.8e ", - BLASFEO_VECEL(qp->d+nn, nb[nn]+ng[nn]+idx));
+#endif
+				}
+			}
+		}
+	fprintf(file, "]';\n");
+
+	// ld
+	fprintf(file, "ld = [\n");
+	for(nn=0; nn<=N; nn++)
+		{
+		for(ii=0; ii<ng[nn]; ii++)
+			{
+			if(BLASFEO_VECEL(qp->d_mask+nn, nb[nn]+ii)==0.0)
+				fprintf(file, "-Inf ");
+			else
+#ifdef DOUBLE_PRECISION
+				fprintf(file, "%18.15e ", BLASFEO_VECEL(qp->d+nn, nb[nn]+ii));
+#else
+				fprintf(file, "%11.8e ", BLASFEO_VECEL(qp->d+nn, nb[nn]+ii));
+#endif
+			}
+		}
+	fprintf(file, "]';\n");
+
+	// ud
+	fprintf(file, "ud = [\n");
+	for(nn=0; nn<=N; nn++)
+		{
+		for(ii=0; ii<ng[nn]; ii++)
+			{
+			if(BLASFEO_VECEL(qp->d_mask+nn, 2*nb[nn]+ng[nn]+ii)==0.0)
+				fprintf(file, "-Inf ");
+			else
+#ifdef DOUBLE_PRECISION
+				fprintf(file, "%18.15e ", - BLASFEO_VECEL(qp->d+nn, 2*nb[nn]+ng[nn]+ii));
+#else
+				fprintf(file, "%11.8e ", - BLASFEO_VECEL(qp->d+nn, 2*nb[nn]+ng[nn]+ii));
+#endif
+			}
+		}
+	fprintf(file, "]';\n");
+
+	// TODO
 
 	fclose(file);
 

@@ -47,14 +47,13 @@ extern "C" {
 
 struct node
 	{
-	int *kids;  // 64 bits
-	int idx;    // 32 bits
-	int dad;    // 32 bits
-	int nkids;  // 32 bits
-	int stage;  // 32 bits
-	int real;   // 32 bits
-	int idxkid; // 32 bits // XXX needed ???
-	// total     256 bits
+	int *kids;
+	int idx;
+	int dad;
+	int nkids;
+	int stage;
+	int real;
+	int idxkid;
 	};
 
 

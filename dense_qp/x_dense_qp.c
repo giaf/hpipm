@@ -292,7 +292,7 @@ void DENSE_QP_SET_RHS_ZERO(struct DENSE_QP *qp)
 
 
 
-void DENSE_QP_SET_ALL(REAL *H, REAL *g, REAL *A, REAL *b, int *idxb, REAL *d_lb, REAL *d_ub, REAL *C, REAL *d_lg, REAL *d_ug, REAL *Zl, REAL *Zu, REAL *zl, REAL *zu, int *idxs, REAL *d_ls, REAL *d_us, struct DENSE_QP *qp)
+void DENSE_QP_SET_ALL(REAL *H, REAL *g, REAL *A, REAL *b, int *idxb, REAL *d_lb, REAL *d_ub, REAL *C, REAL *d_lg, REAL *d_ug, REAL *Zl, REAL *Zu, REAL *zl, REAL *zu, int *idxs, int *idxs_rev, REAL *d_ls, REAL *d_us, struct DENSE_QP *qp)
 	{
 
 	int ii;
@@ -330,9 +330,12 @@ void DENSE_QP_SET_ALL(REAL *H, REAL *g, REAL *A, REAL *b, int *idxb, REAL *d_lb,
 		}
 	if(ns>0)
 		{
-		for(ii=0; ii<ns; ii++)
+		if(idxs!=NULL)
 			{
-			qp->idxs_rev[idxs[ii]] = ii;
+			for(ii=0; ii<ns; ii++)
+				{
+				qp->idxs_rev[idxs[ii]] = ii;
+				}
 			}
 		PACK_VEC(ns, Zl, 1, qp->Z, 0);
 		PACK_VEC(ns, Zu, 1, qp->Z, ns);
@@ -344,13 +347,21 @@ void DENSE_QP_SET_ALL(REAL *H, REAL *g, REAL *A, REAL *b, int *idxb, REAL *d_lb,
 		VECSE(ns, 0.0, qp->m, 2*nb+2*ng+ns);
 		}
 
+	if(idxs_rev!=NULL)
+		{
+		for(ii=0; ii<nb+ng; ii++)
+			{
+			qp->idxs_rev[ii] = idxs_rev[ii];
+			}
+		}
+
 	return;
 
 	}
 
 
 
-void DENSE_QP_GET_ALL(struct DENSE_QP *qp, REAL *H, REAL *g, REAL *A, REAL *b, int *idxb, REAL *d_lb, REAL *d_ub, REAL *C, REAL *d_lg, REAL *d_ug, REAL *Zl, REAL *Zu, REAL *zl, REAL *zu, int *idxs, REAL *d_ls, REAL *d_us)
+void DENSE_QP_GET_ALL(struct DENSE_QP *qp, REAL *H, REAL *g, REAL *A, REAL *b, int *idxb, REAL *d_lb, REAL *d_ub, REAL *C, REAL *d_lg, REAL *d_ug, REAL *Zl, REAL *Zu, REAL *zl, REAL *zu, int *idxs, int *idxs_rev, REAL *d_ls, REAL *d_us)
 	{
 
 	int ii, idx_tmp;
@@ -384,13 +395,16 @@ void DENSE_QP_GET_ALL(struct DENSE_QP *qp, REAL *H, REAL *g, REAL *A, REAL *b, i
 		}
 	if(ns>0)
 		{
-		// TODO only valid if there is one slack variable per soft constraint !!!
-		for(ii=0; ii<nb+ng; ii++)
+		if(idxs!=NULL)
 			{
-			idx_tmp = qp->idxs_rev[ii];
-			if(idx_tmp!=-1)
+			// TODO only valid if there is one slack variable per soft constraint !!!
+			for(ii=0; ii<nb+ng; ii++)
 				{
-				idxs[idx_tmp] = ii;
+				idx_tmp = qp->idxs_rev[ii];
+				if(idx_tmp!=-1)
+					{
+					idxs[idx_tmp] = ii;
+					}
 				}
 			}
 		UNPACK_VEC(ns, qp->Z, 0, Zl, 1);
@@ -399,6 +413,14 @@ void DENSE_QP_GET_ALL(struct DENSE_QP *qp, REAL *H, REAL *g, REAL *A, REAL *b, i
 		UNPACK_VEC(ns, qp->gz, nv+ns, zu, 1);
 		UNPACK_VEC(ns, qp->d, 2*nb+2*ng, d_ls, 1);
 		UNPACK_VEC(ns, qp->d, 2*nb+2*ng+ns, d_us, 1);
+		}
+
+	if(idxs_rev!=NULL)
+		{
+		for(ii=0; ii<nb+ng; ii++)
+			{
+			idxs_rev[ii] = qp->idxs_rev[ii];
+			}
 		}
 
 	return;
@@ -1385,7 +1407,7 @@ void DENSE_QP_GET_US_MASK(struct DENSE_QP *qp, REAL *us_mask)
 
 
 
-void DENSE_QP_SET_ALL_ROWMAJ(REAL *H, REAL *g, REAL *A, REAL *b, int *idxb, REAL *d_lb, REAL *d_ub, REAL *C, REAL *d_lg, REAL *d_ug, REAL *Zl, REAL *Zu, REAL *zl, REAL *zu, int *idxs, REAL *d_ls, REAL *d_us, struct DENSE_QP *qp)
+void DENSE_QP_SET_ALL_ROWMAJ(REAL *H, REAL *g, REAL *A, REAL *b, int *idxb, REAL *d_lb, REAL *d_ub, REAL *C, REAL *d_lg, REAL *d_ug, REAL *Zl, REAL *Zu, REAL *zl, REAL *zu, int *idxs, int *idxs_rev, REAL *d_ls, REAL *d_us, struct DENSE_QP *qp)
 	{
 
 	int ii;
@@ -1423,9 +1445,12 @@ void DENSE_QP_SET_ALL_ROWMAJ(REAL *H, REAL *g, REAL *A, REAL *b, int *idxb, REAL
 		}
 	if(ns>0)
 		{
-		for(ii=0; ii<ns; ii++)
+		if(idxs!=NULL)
 			{
-			qp->idxs_rev[idxs[ii]] = ii;
+			for(ii=0; ii<ns; ii++)
+				{
+				qp->idxs_rev[idxs[ii]] = ii;
+				}
 			}
 		PACK_VEC(ns, Zl, 1, qp->Z, 0);
 		PACK_VEC(ns, Zu, 1, qp->Z, ns);
@@ -1437,13 +1462,21 @@ void DENSE_QP_SET_ALL_ROWMAJ(REAL *H, REAL *g, REAL *A, REAL *b, int *idxb, REAL
 		VECSE(ns, 0.0, qp->m, 2*nb+2*ng+ns);
 		}
 
+	if(idxs_rev!=NULL)
+		{
+		for(ii=0; ii<nb+ng; ii++)
+			{
+			qp->idxs_rev[ii] = idxs_rev[ii];
+			}
+		}
+
 	return;
 
 	}
 
 
 
-void DENSE_QP_GET_ALL_ROWMAJ(struct DENSE_QP *qp, REAL *H, REAL *g, REAL *A, REAL *b, int *idxb, REAL *d_lb, REAL *d_ub, REAL *C, REAL *d_lg, REAL *d_ug, REAL *Zl, REAL *Zu, REAL *zl, REAL *zu, int *idxs, REAL *d_ls, REAL *d_us)
+void DENSE_QP_GET_ALL_ROWMAJ(struct DENSE_QP *qp, REAL *H, REAL *g, REAL *A, REAL *b, int *idxb, REAL *d_lb, REAL *d_ub, REAL *C, REAL *d_lg, REAL *d_ug, REAL *Zl, REAL *Zu, REAL *zl, REAL *zu, int *idxs, int *idxs_rev, REAL *d_ls, REAL *d_us)
 	{
 
 	int ii, idx_tmp;
@@ -1477,13 +1510,16 @@ void DENSE_QP_GET_ALL_ROWMAJ(struct DENSE_QP *qp, REAL *H, REAL *g, REAL *A, REA
 		}
 	if(ns>0)
 		{
-		// TODO only valid if there is one slack variable per soft constraint !!!
-		for(ii=0; ii<nb+ng; ii++)
+		if(idxs!=NULL)
 			{
-			idx_tmp = qp->idxs_rev[ii];
-			if(idx_tmp!=-1)
+			// TODO only valid if there is one slack variable per soft constraint !!!
+			for(ii=0; ii<nb+ng; ii++)
 				{
-				idxs[idx_tmp] = ii;
+				idx_tmp = qp->idxs_rev[ii];
+				if(idx_tmp!=-1)
+					{
+					idxs[idx_tmp] = ii;
+					}
 				}
 			}
 		UNPACK_VEC(ns, qp->Z, 0, Zl, 1);
@@ -1492,6 +1528,14 @@ void DENSE_QP_GET_ALL_ROWMAJ(struct DENSE_QP *qp, REAL *H, REAL *g, REAL *A, REA
 		UNPACK_VEC(ns, qp->gz, nv+ns, zu, 1);
 		UNPACK_VEC(ns, qp->d, 2*nb+2*ng, d_ls, 1);
 		UNPACK_VEC(ns, qp->d, 2*nb+2*ng+ns, d_us, 1);
+		}
+
+	if(idxs_rev!=NULL)
+		{
+		for(ii=0; ii<nb+ng; ii++)
+			{
+			idxs_rev[ii] = qp->idxs_rev[ii];
+			}
 		}
 
 	return;

@@ -698,7 +698,7 @@ int main()
 
 	struct d_ocp_qp_dim dim;
 	d_ocp_qp_dim_create(N, &dim, dim_mem);
-	d_ocp_qp_dim_set_all(nx, nu, nbx, nbu, ng, nsbx, nsbu, nsg, &dim);
+	d_ocp_qp_dim_set_all(nx, nu, nbx, nbu, ng, ns, &dim);
 
 /************************************************
 * ocp qp
@@ -712,7 +712,7 @@ int main()
 
 	struct d_ocp_qp ocp_qp;
 	d_ocp_qp_create(&dim, &ocp_qp, ocp_qp_mem);
-	d_ocp_qp_set_all(hA, hB, hb, hQ, hS, hR, hq, hr, hidxbx, hd_lbx, hd_ubx, hidxbu, hd_lbu, hd_ubu, hC, hD, hd_lg, hd_ug, hZl, hZu, hzl, hzu, hidxs, hd_ls, hd_us, &ocp_qp);
+	d_ocp_qp_set_all(hA, hB, hb, hQ, hS, hR, hq, hr, hidxbx, hd_lbx, hd_ubx, hidxbu, hd_lbu, hd_ubu, hC, hD, hd_lg, hd_ug, hZl, hZu, hzl, hzu, hidxs, NULL, hd_ls, hd_us, &ocp_qp);
 
 #if 0
 	printf("\nN = %d\n", ocp_qp.N);

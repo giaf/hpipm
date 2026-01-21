@@ -70,7 +70,7 @@ extern double **hZl;
 extern double **hZu;
 extern double **hzl;
 extern double **hzu;
-extern int **hidxs;
+extern int **hidxs_rev;
 extern double **hlls;
 extern double **hlus;
 
@@ -172,7 +172,7 @@ static void mdlStart(SimStruct *S)
 	if(dim == NULL) printf("Error allocating memory for dim. Exiting.\n\n");
 	d_ocp_qp_dim_create(N, dim, dim_mem);
 
-	d_ocp_qp_dim_set_all(nx, nu, nbx, nbu, ng, nsbx, nsbu, nsg, dim);
+	d_ocp_qp_dim_set_all(nx, nu, nbx, nbu, ng, ns, dim);
 
 /************************************************
 * ocp qp
@@ -186,7 +186,7 @@ static void mdlStart(SimStruct *S)
 	if(qp == NULL) printf("Error allocating memory for qp. Exiting.\n\n");
 	d_ocp_qp_create(dim, qp, qp_mem);
 
-	d_ocp_qp_set_all(hA, hB, hb, hQ, hS, hR, hq, hr, hidxbx, hlbx, hubx, hidxbu, hlbu, hubu, hC, hD, hlg, hug, hZl, hZu, hzl, hzu, hidxs, hlls, hlus, qp);
+	d_ocp_qp_set_all(hA, hB, hb, hQ, hS, hR, hq, hr, hidxbx, hlbx, hubx, hidxbu, hlbu, hubu, hC, hD, hlg, hug, hZl, hZu, hzl, hzu, NULL, hidxs_rev, hlls, hlus, qp);
 
 /************************************************
 * ocp qp sol

@@ -960,6 +960,7 @@ void COND_DCTD(struct OCP_QP *ocp_qp, int *idxb2, struct STRMAT *DCt2, struct ST
 
 	// middle stages
 	nu_tmp = 0;
+	is = 0;
 	for(ii=0; ii<N; ii++)
 		{
 		nx0 = nx[N-ii];
@@ -967,20 +968,11 @@ void COND_DCTD(struct OCP_QP *ocp_qp, int *idxb2, struct STRMAT *DCt2, struct ST
 		nb0 = nb[N-ii];
 		ng0 = ng[N-ii];
 		ns0 = ns[N-ii];
-		if(ns0>0)
-			{
-			ptr_Z = Z[N-ii].pa;
-			ptr_z = rqz[N-ii].pa+nu0+nx0;
-			}
 		nu_tmp += nu0;
 		ptr_d_lb = d[N-ii].pa+0;
 		ptr_d_ub = d[N-ii].pa+nb0+ng0;
-		ptr_d_ls = d[N-ii].pa+2*nb0+2*ng0;
-		ptr_d_us = d[N-ii].pa+2*nb0+2*ng0+ns0;
 		ptr_d_mask_lb = d_mask[N-ii].pa+0;
 		ptr_d_mask_ub = d_mask[N-ii].pa+nb0+ng0;
-		ptr_d_mask_ls = d_mask[N-ii].pa+2*nb0+2*ng0;
-		ptr_d_mask_us = d_mask[N-ii].pa+2*nb0+2*ng0+ns0;
 		for(jj=0; jj<nb0; jj++)
 			{
 			idxb0 = idxb[N-ii][jj];
@@ -994,16 +986,7 @@ void COND_DCTD(struct OCP_QP *ocp_qp, int *idxb2, struct STRMAT *DCt2, struct ST
 				idx = idxs_rev[N-ii][jj];
 				if(idx>=0)
 					{
-					idxs_rev2[ib] = is;
-					ptr_Z2[0+is]   = ptr_Z[0+idx];
-					ptr_Z2[ns2+is] = ptr_Z[ns0+idx];
-					ptr_z2[0+is]   = ptr_z[0+idx];
-					ptr_z2[ns2+is] = ptr_z[ns0+idx];
-					d_ls3[0+is]    = ptr_d_ls[0+idx];
-					d_us3[0+is]    = ptr_d_us[0+idx];
-					d_mask_ls3[0+is]    = ptr_d_mask_ls[0+idx];
-					d_mask_us3[0+is]    = ptr_d_mask_us[0+idx];
-					is++;
+					idxs_rev2[ib] = is + idx;
 					}
 				ib++;
 				}
@@ -1020,21 +1003,13 @@ void COND_DCTD(struct OCP_QP *ocp_qp, int *idxb2, struct STRMAT *DCt2, struct ST
 				idx = idxs_rev[N-ii][jj];
 				if(idx>=0)
 					{
-					idxs_rev2[nb2+ig] = is;
-					ptr_Z2[0+is]   = ptr_Z[0+idx];
-					ptr_Z2[ns2+is] = ptr_Z[ns0+idx];
-					ptr_z2[0+is]   = ptr_z[0+idx];
-					ptr_z2[ns2+is] = ptr_z[ns0+idx];
-					d_ls3[0+is]    = ptr_d_ls[0+idx];
-					d_us3[0+is]    = ptr_d_us[0+idx];
-					d_mask_ls3[0+is]    = ptr_d_mask_ls[0+idx];
-					d_mask_us3[0+is]    = ptr_d_mask_us[0+idx];
-					is++;
+					idxs_rev2[nb2+ig] = is + idx;
 					}
 				ig++;
 				}
 			}
 		idx_gammab -= nu[N-1-ii];
+		is += ns0;
 		}
 
 	// initial stage: both inputs and states as box constraints
@@ -1043,20 +1018,11 @@ void COND_DCTD(struct OCP_QP *ocp_qp, int *idxb2, struct STRMAT *DCt2, struct ST
 	nb0 = nb[0];
 	ng0 = ng[0];
 	ns0 = ns[0];
-	if(ns0>0)
-		{
-		ptr_Z = Z[0].pa;
-		ptr_z = rqz[0].pa+nu0+nx0;
-		}
 	nu_tmp += nu0;
 	ptr_d_lb = d[0].pa+0;
 	ptr_d_ub = d[0].pa+nb0+ng0;
-	ptr_d_ls = d[0].pa+2*nb0+2*ng0;
-	ptr_d_us = d[0].pa+2*nb0+2*ng0+ns0;
 	ptr_d_mask_lb = d_mask[0].pa+0;
 	ptr_d_mask_ub = d_mask[0].pa+nb0+ng0;
-	ptr_d_mask_ls = d_mask[0].pa+2*nb0+2*ng0;
-	ptr_d_mask_us = d_mask[0].pa+2*nb0+2*ng0+ns0;
 	for(jj=0; jj<nb0; jj++)
 		{
 		idxb0 = idxb[0][jj];
@@ -1068,19 +1034,11 @@ void COND_DCTD(struct OCP_QP *ocp_qp, int *idxb2, struct STRMAT *DCt2, struct ST
 		idx = idxs_rev[0][jj];
 		if(idx>=0)
 			{
-			idxs_rev2[ib] = is;
-			ptr_Z2[0+is]   = ptr_Z[0+idx];
-			ptr_Z2[ns2+is] = ptr_Z[ns0+idx];
-			ptr_z2[0+is]   = ptr_z[0+idx];
-			ptr_z2[ns2+is] = ptr_z[ns0+idx];
-			d_ls3[0+is]    = ptr_d_ls[0+idx];
-			d_us3[0+is]    = ptr_d_us[0+idx];
-			d_mask_ls3[0+is] = ptr_d_mask_ls[0+idx];
-			d_mask_us3[0+is] = ptr_d_mask_us[0+idx];
-			is++;
+			idxs_rev2[ib] = is + idx;
 			}
 		ib++;
 		}
+	is += ns0;
 
 	// XXX for now, just shift after box-to-general constraints
 	// better interleave them, to keep the block lower trianlgular structure !!!
@@ -1091,6 +1049,7 @@ void COND_DCTD(struct OCP_QP *ocp_qp, int *idxb2, struct STRMAT *DCt2, struct ST
 
 	nu_tmp = 0;
 	ng_tmp = 0;
+	is = 0;
 	for(ii=0; ii<N; ii++)
 		{
 
@@ -1099,15 +1058,6 @@ void COND_DCTD(struct OCP_QP *ocp_qp, int *idxb2, struct STRMAT *DCt2, struct ST
 		nb0 = nb[N-ii];
 		ng0 = ng[N-ii];
 		ns0 = ns[N-ii];
-		if(ns0>0)
-			{
-			ptr_Z = Z[N-ii].pa;
-			ptr_z = rqz[N-ii].pa+nu0+nx0;
-			}
-		ptr_d_ls = d[N-ii].pa+2*nb0+2*ng0;
-		ptr_d_us = d[N-ii].pa+2*nb0+2*ng0+ns0;
-		ptr_d_mask_ls = d_mask[N-ii].pa+2*nb0+2*ng0;
-		ptr_d_mask_us = d_mask[N-ii].pa+2*nb0+2*ng0+ns0;
 
 		if(ng0>0)
 			{
@@ -1116,16 +1066,7 @@ void COND_DCTD(struct OCP_QP *ocp_qp, int *idxb2, struct STRMAT *DCt2, struct ST
 				idx = idxs_rev[N-ii][nb0+ig];
 				if(idx>=0)
 					{
-					idxs_rev2[nb2+nbg+ng_tmp+ig] = is;
-					ptr_Z2[0+is]   = ptr_Z[0+idx];
-					ptr_Z2[ns2+is] = ptr_Z[ns0+idx];
-					ptr_z2[0+is]   = ptr_z[0+idx];
-					ptr_z2[ns2+is] = ptr_z[ns0+idx];
-					d_ls3[0+is]    = ptr_d_ls[0+idx];
-					d_us3[0+is]    = ptr_d_us[0+idx];
-					d_mask_ls3[0+is] = ptr_d_mask_ls[0+idx];
-					d_mask_us3[0+is] = ptr_d_mask_us[0+idx];
-					is++;
+					idxs_rev2[nb2+nbg+ng_tmp+ig] = is + idx;
 					}
 				}
 
@@ -1156,6 +1097,7 @@ void COND_DCTD(struct OCP_QP *ocp_qp, int *idxb2, struct STRMAT *DCt2, struct ST
 
 			}
 
+		is += ns0;
 		}
 
 	ii = N;
@@ -1165,15 +1107,6 @@ void COND_DCTD(struct OCP_QP *ocp_qp, int *idxb2, struct STRMAT *DCt2, struct ST
 	nb0 = nb[0];
 	ng0 = ng[0];
 	ns0 = ns[0];
-	if(ns0>0)
-		{
-		ptr_Z = Z[0].pa;
-		ptr_z = rqz[0].pa+nu0+nx0;
-		}
-	ptr_d_ls = d[0].pa+2*nb0+2*ng0;
-	ptr_d_us = d[0].pa+2*nb0+2*ng0+ns0;
-	ptr_d_mask_ls = d_mask[0].pa+2*nb0+2*ng0;
-	ptr_d_mask_us = d_mask[0].pa+2*nb0+2*ng0+ns0;
 
 	if(ng0>0)
 		{
@@ -1182,18 +1115,8 @@ void COND_DCTD(struct OCP_QP *ocp_qp, int *idxb2, struct STRMAT *DCt2, struct ST
 			idx = idxs_rev[0][nb0+ig];
 			if(idx>=0)
 				{
-				idxs_rev2[nb2+nbg+ng_tmp+ig] = is;
-				ptr_Z2[0+is]   = ptr_Z[0+idx];
-				ptr_Z2[ns2+is] = ptr_Z[ns0+idx];
-				ptr_z2[0+is]   = ptr_z[0+idx];
-				ptr_z2[ns2+is] = ptr_z[ns0+idx];
-				d_ls3[0+is]    = ptr_d_ls[0+idx];
-				d_us3[0+is]    = ptr_d_us[0+idx];
-				d_mask_ls3[0+is] = ptr_d_mask_ls[0+idx];
-				d_mask_us3[0+is] = ptr_d_mask_us[0+idx];
-				is++;
+				idxs_rev2[nb2+nbg+ng_tmp+ig] = is + idx;
 				}
-
 			}
 
 		GECP(nu0+nx0, ng0, &DCt[0], 0, 0, DCt2, nu_tmp, nbg+ng_tmp);
@@ -1205,6 +1128,36 @@ void COND_DCTD(struct OCP_QP *ocp_qp, int *idxb2, struct STRMAT *DCt2, struct ST
 
 //		ng_tmp += ng[N-ii];
 
+		}
+	is += ns0;
+
+	// soft constraints
+	is = 0;
+	for(ii=0; ii<=N; ii++)
+		{
+		nx0 = nx[N-ii];
+		nu0 = nu[N-ii];
+		nb0 = nb[N-ii];
+		ng0 = ng[N-ii];
+		ns0 = ns[N-ii];
+		ptr_Z = Z[N-ii].pa;
+		ptr_z = rqz[N-ii].pa+nu0+nx0;
+		ptr_d_ls = d[N-ii].pa+2*nb0+2*ng0;
+		ptr_d_us = d[N-ii].pa+2*nb0+2*ng0+ns0;
+		ptr_d_mask_ls = d_mask[N-ii].pa+2*nb0+2*ng0;
+		ptr_d_mask_us = d_mask[N-ii].pa+2*nb0+2*ng0+ns0;
+		for(jj=0; jj<ns0; jj++)
+			{
+			ptr_Z2[0+is+jj]   = ptr_Z[0+jj];
+			ptr_Z2[ns2+is+jj] = ptr_Z[ns0+jj];
+			ptr_z2[0+is+jj]   = ptr_z[0+jj];
+			ptr_z2[ns2+is+jj] = ptr_z[ns0+jj];
+			d_ls3[0+is+jj]    = ptr_d_ls[0+jj];
+			d_us3[0+is+jj]    = ptr_d_us[0+jj];
+			d_mask_ls3[0+is+jj]    = ptr_d_mask_ls[0+jj];
+			d_mask_us3[0+is+jj]    = ptr_d_mask_us[0+jj];
+			}
+		is += ns0;
 		}
 
 	return;
@@ -2330,59 +2283,22 @@ prim_sol:
 		GEMV_T(nu[ii]+nx[ii], nx[ii+1], 1.0, BAbt+ii, 0, 0, ux+ii, 0, 1.0, b+ii, 0, ux+(ii+1), nu[ii+1]);
 		}
 	
-//	if(cond_arg->comp_dual_sol_ineq==0)
-//		{
-	// slack variables
 	is = 0;
-	// all box first XXX this keeps the same order as in cond !!!
 	for(ii=0; ii<=N; ii++)
 		{
+		nx0 = nx[N-ii];
+		nu0 = nu[N-ii];
+		nb0 = nb[N-ii];
+		ng0 = ng[N-ii];
 		ns0 = ns[N-ii];
-		if(ns0>0)
+		ptr_ux = (ux+N-ii)->pa;
+		for(jj=0; jj<ns0; jj++)
 			{
-			nx0 = nx[N-ii];
-			nu0 = nu[N-ii];
-			nb0 = nb[N-ii];
-			ng0 = ng[N-ii];
-			ptr_ux = (ux+N-ii)->pa;
-			for(jj=0; jj<nb0; jj++)
-				{
-				idx = idxs_rev[N-ii][jj];
-				if(idx>=0)
-					{
-					ptr_ux[nu0+nx0+idx] = ptr_vc[nu2+nx2+is];
-					ptr_ux[nu0+nx0+ns0+idx] = ptr_vc[nu2+nx2+ns2+is];
-					is++;
-					}
-				}
+			ptr_ux[nu0+nx0+jj] = ptr_vc[nu2+nx2+is+jj];
+			ptr_ux[nu0+nx0+ns0+jj] = ptr_vc[nu2+nx2+ns2+is+jj];
 			}
+		is += ns0;
 		}
-	// all general after XXX this keeps the same order as in cond !!!
-	for(ii=0; ii<=N; ii++)
-		{
-		ns0 = ns[N-ii];
-		if(ns0>0)
-			{
-			nx0 = nx[N-ii];
-			nu0 = nu[N-ii];
-			nb0 = nb[N-ii];
-			ng0 = ng[N-ii];
-			ptr_ux = (ux+N-ii)->pa;
-			for(jj=nb0; jj<nb0+ng0; jj++)
-				{
-				idx = idxs_rev[N-ii][jj];
-				if(idx>=0)
-					{
-					ptr_ux[nu0+nx0+idx] = ptr_vc[nu2+nx2+is];
-					ptr_ux[nu0+nx0+ns0+idx] = ptr_vc[nu2+nx2+ns2+is];
-					is++;
-					}
-				}
-			}
-		}
-
-//		goto dual_sol_eq;
-//		}
 
 
 	// dual variables + slacks
@@ -2502,65 +2418,26 @@ dual_sol_ineq:
 	ngg += ng0;
 	
 	// soft constraints
-	is = 0;
-	// all box first XXX this keeps the same order as in cond !!!
-	for(ii=0; ii<=N; ii++)
-		{
-		ns0 = ns[N-ii];
-		if(ns0>0)
+		is = 0;
+		for(ii=0; ii<=N; ii++)
 			{
-	//		nx0 = nx[N-ii];
-	//		nu0 = nu[N-ii];
+			nx0 = nx[N-ii];
+			nu0 = nu[N-ii];
 			nb0 = nb[N-ii];
 			ng0 = ng[N-ii];
+			ns0 = ns[N-ii];
 			ptr_ux = (ux+N-ii)->pa;
 			ptr_lam = (lam+N-ii)->pa;
 			ptr_t = (t+N-ii)->pa;
-			for(jj=0; jj<nb0; jj++)
+			for(jj=0; jj<ns0; jj++)
 				{
-				idx = idxs_rev[N-ii][jj];
-				if(idx>=0)
-					{
-					ptr_lam[2*nb0+2*ng0+idx]     = ptr_lamc[2*nb2+2*ng2+is];
-					ptr_lam[2*nb0+2*ng0+ns0+idx] = ptr_lamc[2*nb2+2*ng2+ns2+is];
-					ptr_t[2*nb0+2*ng0+idx]     = ptr_tc[2*nb2+2*ng2+is];
-					ptr_t[2*nb0+2*ng0+ns0+idx] = ptr_tc[2*nb2+2*ng2+ns2+is];
-	//				ptr_ux[nu0+nx0+idx] = ptr_vc[nu2+nx2+is];
-	//				ptr_ux[nu0+nx0+ns0+idx] = ptr_vc[nu2+nx2+ns2+is];
-					is++;
-					}
+				ptr_lam[2*nb0+2*ng0+jj]     = ptr_lamc[2*nb2+2*ng2+is+jj];
+				ptr_lam[2*nb0+2*ng0+ns0+jj] = ptr_lamc[2*nb2+2*ng2+ns2+is+jj];
+				ptr_t[2*nb0+2*ng0+jj]     = ptr_tc[2*nb2+2*ng2+is+jj];
+				ptr_t[2*nb0+2*ng0+ns0+jj] = ptr_tc[2*nb2+2*ng2+ns2+is+jj];
 				}
+			is += ns0;
 			}
-		}
-	// all general after XXX this keeps the same order as in cond !!!
-	for(ii=0; ii<=N; ii++)
-		{
-		ns0 = ns[N-ii];
-		if(ns0>0)
-			{
-	//		nx0 = nx[N-ii];
-	//		nu0 = nu[N-ii];
-			nb0 = nb[N-ii];
-			ng0 = ng[N-ii];
-			ptr_ux = (ux+N-ii)->pa;
-			ptr_lam = (lam+N-ii)->pa;
-			ptr_t = (t+N-ii)->pa;
-			for(jj=nb0; jj<nb0+ng0; jj++)
-				{
-				idx = idxs_rev[N-ii][jj];
-				if(idx>=0)
-					{
-					ptr_lam[2*nb0+2*ng0+idx]     = ptr_lamc[2*nb2+2*ng2+is];
-					ptr_lam[2*nb0+2*ng0+ns0+idx] = ptr_lamc[2*nb2+2*ng2+ns2+is];
-					ptr_t[2*nb0+2*ng0+idx]     = ptr_tc[2*nb2+2*ng2+is];
-					ptr_t[2*nb0+2*ng0+ns0+idx] = ptr_tc[2*nb2+2*ng2+ns2+is];
-	//				ptr_ux[nu0+nx0+idx] = ptr_vc[nu2+nx2+is];
-	//				ptr_ux[nu0+nx0+ns0+idx] = ptr_vc[nu2+nx2+ns2+is];
-					is++;
-					}
-				}
-			}
-		}
 
 	// lagrange multipliers of equality constraints
 dual_sol_eq:

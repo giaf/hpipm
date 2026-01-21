@@ -1608,7 +1608,7 @@ void OCP_QP_INIT_VAR(struct OCP_QP *qp, struct OCP_QP_SOL *qp_sol, struct OCP_QP
 	REAL mu0 = arg->mu0;
 
 	//
-	REAL *ux, *s, *pi, *d_lb, *d_ub, *d_lg, *d_ug, *d_ls, *lam_lb, *lam_ub, *lam_lg, *lam_ug, *lam_ls, *t_lb, *t_ub, *t_lg, *t_ug, *t_ls;
+	REAL *ux, *s, *pi, *d_lb, *d_ub, *d_lg, *d_ug, *d_ls, *lam_lb, *lam_ub, *lam_lg, *lam_ug, *lam_ls, *t_lb, *t_ub, *t_lg, *t_ug, *t_ls, *d_lb_mask, *d_ub_mask, *d_lg_mask, *d_ug_mask;
 	int *idxb, *idxs_rev;
 	int idx;
 
@@ -1638,7 +1638,6 @@ void OCP_QP_INIT_VAR(struct OCP_QP *qp, struct OCP_QP_SOL *qp_sol, struct OCP_QP
 	if(arg->warm_start==2)
 		{
 		// TODO lam and t on relaxed central path instead of clipping
-		thr0 = 1e-1;
 		for(ii=0; ii<=N; ii++)
 			{
 			lam_lb = qp_sol->lam[ii].pa+0;
@@ -1657,7 +1656,6 @@ void OCP_QP_INIT_VAR(struct OCP_QP *qp, struct OCP_QP_SOL *qp_sol, struct OCP_QP
 	// ux
 	if(arg->warm_start==0)
 		{
-
 		// cold start
 		for(ii=0; ii<=N; ii++)
 			{
@@ -1667,7 +1665,6 @@ void OCP_QP_INIT_VAR(struct OCP_QP *qp, struct OCP_QP_SOL *qp_sol, struct OCP_QP
 				ux[jj] = 0.0;
 				}
 			}
-
 		}
 //	else
 //		{
@@ -1724,8 +1721,6 @@ void OCP_QP_INIT_VAR(struct OCP_QP *qp, struct OCP_QP_SOL *qp_sol, struct OCP_QP
 	else //heuristic for primal feasibility
 		{
 
-		// TODO mask !!!!!!!!!
-
 		if(arg->var_init_scheme==0) // safest scheme, no tailored init for soft constr
 			{
 
@@ -1735,6 +1730,8 @@ void OCP_QP_INIT_VAR(struct OCP_QP *qp, struct OCP_QP_SOL *qp_sol, struct OCP_QP
 				ux = qp_sol->ux[ii].pa;
 				d_lb = qp->d[ii].pa+0;
 				d_ub = qp->d[ii].pa+nb[ii]+ng[ii];
+				d_lb_mask = qp->d_mask[ii].pa+0;
+				d_ub_mask = qp->d_mask[ii].pa+nb[ii]+ng[ii];
 				lam_lb = qp_sol->lam[ii].pa+0;
 				lam_ub = qp_sol->lam[ii].pa+nb[ii]+ng[ii];
 				t_lb = qp_sol->t[ii].pa+0;
@@ -1742,34 +1739,37 @@ void OCP_QP_INIT_VAR(struct OCP_QP *qp, struct OCP_QP_SOL *qp_sol, struct OCP_QP
 				idxb = qp->idxb[ii];
 				for(jj=0; jj<nb[ii]; jj++)
 					{
-	#if 1
-					t_lb[jj] = - d_lb[jj] + ux[idxb[jj]];
-					t_ub[jj] = - d_ub[jj] - ux[idxb[jj]];
-		//			printf("\n%d %f %f\n", jj, t_lb[jj], t_ub[jj]);
+					REAL d_lb0 = d_lb[jj];
+					REAL d_ub0 = d_ub[jj];
+					if(d_lb_mask[jj]==0.0)
+						{
+						d_lb0 = ux[idxb[jj]] - 1.0;
+						}
+					if(d_ub_mask[jj]==0.0)
+						{
+						d_ub0 = - ux[idxb[jj]] - 1.0;
+						}
+					t_lb[jj] = - d_lb0 + ux[idxb[jj]];
+					t_ub[jj] = - d_ub0 - ux[idxb[jj]];
 					if(t_lb[jj]<thr0)
 						{
 						if(t_ub[jj]<thr0)
 							{
-		//					ux[idxb[jj]] = 0.5*(d_lb[jj] + d_ub[jj]);
-							ux[idxb[jj]] = 0.5*(d_lb[jj] - d_ub[jj]);
+							ux[idxb[jj]] = 0.5*(d_lb0 - d_ub0);
 							t_lb[jj] = thr0;
 							t_ub[jj] = thr0;
 							}
 						else
 							{
 							t_lb[jj] = thr0;
-							ux[idxb[jj]] = d_lb[jj] + thr0;
+							ux[idxb[jj]] = d_lb0 + thr0;
 							}
 						}
 					else if(t_ub[jj]<thr0)
 						{
 						t_ub[jj] = thr0;
-						ux[idxb[jj]] = - d_ub[jj] - thr0;
+						ux[idxb[jj]] = - d_ub0 - thr0;
 						}
-	#else
-					t_lb[jj] = 1.0;
-					t_ub[jj] = 1.0;
-	#endif
 					lam_lb[jj] = mu0/t_lb[jj];
 					lam_ub[jj] = mu0/t_ub[jj];
 					}
@@ -1780,7 +1780,7 @@ void OCP_QP_INIT_VAR(struct OCP_QP *qp, struct OCP_QP_SOL *qp_sol, struct OCP_QP
 		//		blasfeo_print_tran_dvec(nb[ii], qp_sol->t+ii, nb[ii]+ng[ii]);
 		//		exit(1);
 				}
-			
+
 			// general constraints
 			for(ii=0; ii<=N; ii++)
 				{
@@ -1790,25 +1790,28 @@ void OCP_QP_INIT_VAR(struct OCP_QP *qp, struct OCP_QP_SOL *qp_sol, struct OCP_QP
 				lam_ug = qp_sol->lam[ii].pa+2*nb[ii]+ng[ii];
 				d_lg = qp->d[ii].pa+nb[ii];
 				d_ug = qp->d[ii].pa+2*nb[ii]+ng[ii];
+				d_lg_mask = qp->d_mask[ii].pa+nb[ii];
+				d_ug_mask = qp->d_mask[ii].pa+2*nb[ii]+ng[ii];
 				ux = qp_sol->ux[ii].pa;
 				GEMV_T(nu[ii]+nx[ii], ng[ii], 1.0, qp->DCt+ii, 0, 0, qp_sol->ux+ii, 0, 0.0, qp_sol->t+ii, nb[ii], qp_sol->t+ii, nb[ii]);
 				for(jj=0; jj<ng[ii]; jj++)
 					{
-	#if 1
 					t_ug[jj] = - t_lg[jj];
-					t_lg[jj] -= d_lg[jj];
-					t_ug[jj] -= d_ug[jj];
+					if(d_lg_mask[jj]!=0.0)
+						t_lg[jj] -= d_lg[jj];
+					if(d_ug_mask[jj]!=0.0)
+						t_ug[jj] -= d_ug[jj];
 		//			t_lg[jj] = fmax(thr0, t_lg[jj]);
 		//			t_ug[jj] = fmax(thr0, t_ug[jj]);
 					t_lg[jj] = thr0>t_lg[jj] ? thr0 : t_lg[jj];
 					t_ug[jj] = thr0>t_ug[jj] ? thr0 : t_ug[jj];
-	#else
-					t_lg[jj] = 1.0;
-					t_ug[jj] = 1.0;
-	#endif
 					lam_lg[jj] = mu0/t_lg[jj];
 					lam_ug[jj] = mu0/t_ug[jj];
 					}
+				//blasfeo_print_tran_dvec(ng[ii], qp_sol->t+ii, nb[ii]);
+				//d_print_mat(1, ng[ii], d_lg, 1);
+				//d_print_mat(1, ng[ii], d_ug, 1);
+				//exit(1);
 				}
 
 			// soft constraints
@@ -1832,6 +1835,8 @@ void OCP_QP_INIT_VAR(struct OCP_QP *qp, struct OCP_QP_SOL *qp_sol, struct OCP_QP
 			}
 		else // alternative scheme for soft constr
 			{
+
+			// TODO mask !!!!!!!!!
 
 			for(ii=0; ii<=N; ii++)
 				{
@@ -1966,6 +1971,9 @@ void OCP_QP_INIT_VAR(struct OCP_QP *qp, struct OCP_QP_SOL *qp_sol, struct OCP_QP
 			}
 
 		}
+
+	//d_ocp_qp_sol_print(qp_sol->dim, qp_sol);
+	//exit(1);
 
 	return;
 

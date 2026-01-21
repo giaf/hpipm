@@ -24,18 +24,6 @@ int *nq = nnq;
 /* ns */
 static int nns[] = {0, 0, 0, 0, };
 int *ns = nns;
-/* nsbx */
-static int nnsbx[] = {0, 0, 0, 0, };
-int *nsbx = nnsbx;
-/* nsbu */
-static int nnsbu[] = {0, 0, 0, 0, };
-int *nsbu = nnsbu;
-/* nsg */
-static int nnsg[] = {0, 0, 0, 0, };
-int *nsg = nnsg;
-/* nsq */
-static int nnsq[] = {0, 0, 0, 0, };
-int *nsq = nnsq;
 /* nbxe */
 static int nnbxe[] = {2, 0, 0, 0, };
 int *nbxe = nnbxe;
@@ -300,13 +288,6 @@ static int idxs_rev2[] = {-1, };
 static int idxs_rev3[] = {};
 static int *iidxs_rev[] = {idxs_rev0, idxs_rev1, idxs_rev2, idxs_rev3, };
 int **hidxs_rev = iidxs_rev;
-/* idxs */
-static int idxs0[] = {};
-static int idxs1[] = {};
-static int idxs2[] = {};
-static int idxs3[] = {};
-static int *iidxs[] = {idxs0, idxs1, idxs2, idxs3, };
-int **hidxs = iidxs;
 /* lls */
 static double lls0[] = {};
 static double lls1[] = {};

@@ -105,8 +105,8 @@ void DENSE_QCQP_IPM_ARG_SET_DEFAULT(enum HPIPM_MODE mode, struct DENSE_QCQP_IPM_
 
 	DENSE_QP_IPM_ARG_SET_DEFAULT(mode, arg->qp_arg);
 
-	REAL mu0, alpha_min, res_g, res_b, res_d, res_m, dual_gap_max, reg_prim, reg_dual, lam_min, t_min, tau_min;
-	int iter_max, stat_max, pred_corr, cond_pred_corr, itref_pred_max, itref_corr_max, lq_fact, scale, warm_start, abs_form, comp_res_exit, comp_res_pred, split_step, t_lam_min;
+	REAL mu0, alpha_min, res_g, res_b, res_d, res_m, dual_gap_max, reg_prim, reg_dual, lam_min, t_min, tau_min, lam0_min, t0_min;
+	int iter_max, stat_max, pred_corr, cond_pred_corr, itref_pred_max, itref_corr_max, lq_fact, scale, warm_start, abs_form, comp_res_exit, comp_res_pred, split_step, t_lam_min, t0_init;
 
 	if(mode==SPEED_ABS)
 		{
@@ -130,12 +130,15 @@ void DENSE_QCQP_IPM_ARG_SET_DEFAULT(enum HPIPM_MODE mode, struct DENSE_QCQP_IPM_
 		lam_min = 1e-16;
 		t_min = 1e-16;
 		tau_min = 1e-16;
+		lam0_min = 1e-9;
+		t0_min = 1e-9;
 		warm_start = 0;
 		abs_form = 1;
 		comp_res_exit = 0;
 		comp_res_pred = 0;
 		split_step = 1;
 		t_lam_min = 2;
+		t0_init = 2;
 		}
 	else if(mode==SPEED)
 		{
@@ -159,12 +162,15 @@ void DENSE_QCQP_IPM_ARG_SET_DEFAULT(enum HPIPM_MODE mode, struct DENSE_QCQP_IPM_
 		lam_min = 1e-16;
 		t_min = 1e-16;
 		tau_min = 1e-16;
+		lam0_min = 1e-9;
+		t0_min = 1e-9;
 		warm_start = 0;
 		abs_form = 0;
 		comp_res_exit = 1;
 		comp_res_pred = 0;
 		split_step = 1;
 		t_lam_min = 2;
+		t0_init = 2;
 		}
 	else if(mode==BALANCE)
 		{
@@ -188,12 +194,15 @@ void DENSE_QCQP_IPM_ARG_SET_DEFAULT(enum HPIPM_MODE mode, struct DENSE_QCQP_IPM_
 		lam_min = 1e-16;
 		t_min = 1e-16;
 		tau_min = 1e-16;
+		lam0_min = 1e-9;
+		t0_min = 1e-9;
 		warm_start = 0;
 		abs_form = 0;
 		comp_res_exit = 1;
 		comp_res_pred = 0;
 		split_step = 0;
 		t_lam_min = 2;
+		t0_init = 2;
 		}
 	else if(mode==ROBUST)
 		{
@@ -217,12 +226,15 @@ void DENSE_QCQP_IPM_ARG_SET_DEFAULT(enum HPIPM_MODE mode, struct DENSE_QCQP_IPM_
 		lam_min = 1e-16;
 		t_min = 1e-16;
 		tau_min = 1e-16;
+		lam0_min = 1e-9;
+		t0_min = 1e-9;
 		warm_start = 0;
 		abs_form = 0;
 		comp_res_exit = 1;
 		comp_res_pred = 0;
 		split_step = 0;
 		t_lam_min = 2;
+		t0_init = 2;
 		}
 	else
 		{
@@ -250,10 +262,10 @@ void DENSE_QCQP_IPM_ARG_SET_DEFAULT(enum HPIPM_MODE mode, struct DENSE_QCQP_IPM_
 	DENSE_QCQP_IPM_ARG_SET_REG_DUAL(&reg_prim, arg);
 	arg->lq_fact = lq_fact;
 	arg->scale = scale;
-	arg->lam_min = lam_min;
-	arg->t_min = t_min;
 	DENSE_QCQP_IPM_ARG_SET_LAM_MIN(&lam_min, arg);
 	DENSE_QCQP_IPM_ARG_SET_T_MIN(&t_min, arg);
+	arg->lam0_min = lam0_min;
+	arg->t0_min = t0_min;
 	DENSE_QCQP_IPM_ARG_SET_TAU_MIN(&tau_min, arg);
 	DENSE_QCQP_IPM_ARG_SET_WARM_START(&warm_start, arg);
 	arg->abs_form = abs_form;
@@ -261,6 +273,7 @@ void DENSE_QCQP_IPM_ARG_SET_DEFAULT(enum HPIPM_MODE mode, struct DENSE_QCQP_IPM_
 	DENSE_QCQP_IPM_ARG_SET_COMP_RES_EXIT(&comp_res_pred, arg);
 	DENSE_QCQP_IPM_ARG_SET_SPLIT_STEP(&split_step, arg);
 	DENSE_QCQP_IPM_ARG_SET_T_LAM_MIN(&t_lam_min, arg);
+	arg->t0_init = t0_init;
 	arg->mode = mode;
 
 	return;
@@ -815,6 +828,7 @@ void DENSE_QCQP_INIT_VAR(struct DENSE_QCQP *qcqp, struct DENSE_QCQP_SOL *qcqp_so
 	int ns = qcqp->dim->ns;
 
 	REAL *d = qcqp->d->pa;
+	REAL *d_mask = qcqp->d_mask->pa;
 	int *idxb = qcqp->idxb;
 
 	REAL *v = qcqp_sol->v->pa;
@@ -829,21 +843,27 @@ void DENSE_QCQP_INIT_VAR(struct DENSE_QCQP *qcqp, struct DENSE_QCQP_SOL *qcqp_so
 	int idxb0;
 	REAL tmp;
 
-	// TODO move to args ???
-	REAL thr0 = 0.5;
+	REAL thr0 = 1e-1;
 
 	// hot start: keep initial solution as it is
 	if(arg->warm_start>=3)
 		{
+		REAL lam0_min = arg->lam0_min;
+		REAL t0_min = arg->t0_min;
+		for(ii=0; ii<2*nb+2*ng+2*nq+2*ns; ii++)
+			{
+			if(lam[ii]<lam0_min)
+				lam[ii] = lam0_min;
+			if(t[ii]<t0_min)
+				t[ii] = t0_min;
+			}
 		return;
 		}
 
 	// primal and dual variables
 	if(arg->warm_start==2)
 		{
-
-		thr0 = 1e-1;
-
+		// TODO lam and t on relaxed central path instead of clipping
 		for(ii=0; ii<2*nb+2*ng+2*nq+2*ns; ii++)
 			{
 			if(lam[ii]<thr0)
@@ -851,10 +871,7 @@ void DENSE_QCQP_INIT_VAR(struct DENSE_QCQP *qcqp, struct DENSE_QCQP_SOL *qcqp_so
 			if(t[ii]<thr0)
 				t[ii] = thr0;
 			}
-
-
 		return;
-
 		}
 
 	// primal variables
@@ -873,95 +890,115 @@ void DENSE_QCQP_INIT_VAR(struct DENSE_QCQP *qcqp, struct DENSE_QCQP_SOL *qcqp_so
 		pi[ii] = 0.0;
 		}
 	
-	// box constraints
-	for(ii=0; ii<nb; ii++)
+	if(arg->t0_init==0) // sqrt(mu0)
 		{
-#if 1
-		idxb0 = idxb[ii];
-		t[0+ii]        = - d[0+ii]        + v[idxb0];
-		t[nb+ng+nq+ii] = - d[nb+ng+nq+ii] - v[idxb0];
-		if(t[0+ii]<thr0)
+		REAL sqmu0 = sqrt(mu0);
+		for(ii=0; ii<2*nb+2*ng+2*nq+2*ns; ii++)
 			{
-			if(t[nb+ng+nq+ii]<thr0)
+			t[ii] = sqmu0;
+			lam[ii] = sqmu0;
+			}
+		}
+	else if(arg->t0_init==1) // 1.0
+		{
+		for(ii=0; ii<2*nb+2*ng+2*nq+2*ns; ii++)
+			{
+			t[ii] = 1.0;
+			lam[ii] = mu0;
+			}
+		}
+	else //heuristic for primal feasibility
+		{
+
+		// box constraints
+		for(ii=0; ii<nb; ii++)
+			{
+			REAL d_lb0 = d[0+ii];
+			REAL d_ub0 = d[nb+ng+nq+ii];
+			if(d_mask[0+ii]==0.0)
+				d_lb0 = v[idxb0] - 1.0;
+			if(d_mask[nb+ng+ii]==0.0)
+				d_ub0 = - v[idxb0] - 1.0;
+			idxb0 = idxb[ii];
+			t[0+ii]        = - d_lb0        + v[idxb0];
+			t[nb+ng+nq+ii] = - d_ub0 - v[idxb0];
+			if(t[0+ii]<thr0)
 				{
-				v[idxb0] = 0.5*(d[0+ii] + d[nb+ng+nq+ii]);
-				t[0+ii]        = thr0;
+				if(t[nb+ng+nq+ii]<thr0)
+					{
+					v[idxb0] = 0.5*(d_lb0 + d_ub0);
+					t[0+ii]        = thr0;
+					t[nb+ng+nq+ii] = thr0;
+					}
+				else
+					{
+					t[0+ii] = thr0;
+					v[idxb0] = d_lb0 + thr0;
+					}
+				}
+			else if(t[nb+ng+nq+ii]<thr0)
+				{
 				t[nb+ng+nq+ii] = thr0;
+				v[idxb0] = - d_ub0 - thr0;
 				}
-			else
+			lam[0+ii]        = mu0/t[0+ii];
+			lam[nb+ng+nq+ii] = mu0/t[nb+ng+nq+ii];
+			}
+
+		// general constraints
+		if(ng>0)
+			{
+			GEMV_T(nv, ng, 1.0, qcqp->Ct, 0, 0, qcqp_sol->v, 0, 0.0, qcqp_sol->t, nb, qcqp_sol->t, nb);
+			for(ii=0; ii<ng; ii++)
 				{
-				t[0+ii] = thr0;
-				v[idxb0] = d[0+ii] + thr0;
+				t[2*nb+ng+nq+ii] = t[nb+ii];
+				if(d_mask[nb+ii]!=0.0)
+					t[nb+ii]         -= d[nb+ii];
+				if(d_mask[2*nb+ng+nq+ii]!=0.0)
+					t[2*nb+ng+nq+ii] -= d[2*nb+ng+nq+ii];
+		//		t[nb+ii]      = fmax( thr0, t[nb+ii] );
+		//		t[2*nb+ng+nq+ii] = fmax( thr0, t[2*nb+ng+nq+ii] );
+				t[nb+ii]         = thr0>t[nb+ii]         ? thr0 : t[nb+ii];
+				t[2*nb+ng+nq+ii] = thr0>t[2*nb+ng+nq+ii] ? thr0 : t[2*nb+ng+nq+ii];
+				lam[nb+ii]         = mu0/t[nb+ii];
+				lam[2*nb+ng+nq+ii] = mu0/t[2*nb+ng+nq+ii];
 				}
 			}
-		else if(t[nb+ng+nq+ii]<thr0)
+
+		// soft constraints
+		for(ii=0; ii<ns; ii++)
 			{
-			t[nb+ng+nq+ii] = thr0;
-			v[idxb0] = - d[nb+ng+nq+ii] - thr0;
+			t[2*nb+2*ng+2*nq+ii]    = 1.0; // thr0;
+			t[2*nb+2*ng+2*nq+ns+ii] = 1.0; // thr0;
+			lam[2*nb+2*ng+2*nq+ii]    = mu0/t[2*nb+2*ng+2*nq+ii];
+			lam[2*nb+2*ng+2*nq+ns+ii] = mu0/t[2*nb+2*ng+2*nq+ns+ii];
 			}
-#else
-		t[0+ii]     = 1.0;
-		t[nb+ng+nq+ii] = 1.0;
-#endif
-		lam[0+ii]        = mu0/t[0+ii];
-		lam[nb+ng+nq+ii] = mu0/t[nb+ng+nq+ii];
-		}
-	
-	// general constraints
-	if(ng>0)
-		{
-		GEMV_T(nv, ng, 1.0, qcqp->Ct, 0, 0, qcqp_sol->v, 0, 0.0, qcqp_sol->t, nb, qcqp_sol->t, nb);
-		for(ii=0; ii<ng; ii++)
+
+		//  quadratic constraints
+		REAL sqrt_mu0 = sqrt(mu0);
+		sqrt_mu0 = thr0>sqrt_mu0 ? thr0 : sqrt_mu0;
+		REAL mu0_div_sqrt_mu0 = mu0 / sqrt_mu0;
+
+		for(ii=0; ii<nq; ii++)
 			{
-#if 1
-			t[2*nb+ng+nq+ii] = t[nb+ii];
-			t[nb+ii]      -= d[nb+ii];
-			t[2*nb+ng+nq+ii] -= d[2*nb+ng+nq+ii];
-	//		t[nb+ii]      = fmax( thr0, t[nb+ii] );
-	//		t[2*nb+ng+nq+ii] = fmax( thr0, t[2*nb+ng+nq+ii] );
-			t[nb+ii]      = thr0>t[nb+ii]      ? thr0 : t[nb+ii];
-			t[2*nb+ng+nq+ii] = thr0>t[2*nb+ng+nq+ii] ? thr0 : t[2*nb+ng+nq+ii];
-#else
-			t[nb+ii]      = 1.0;
-			t[2*nb+ng+nq+ii] = 1.0;
-#endif
-			lam[nb+ii]      = mu0/t[nb+ii];
-			lam[2*nb+ng+nq+ii] = mu0/t[2*nb+ng+nq+ii];
+			// disregard lower
+			lam[nb+ng+ii] = 0.0;
+			t[nb+ng+ii]   = 1.0;
+			// upper
+	#if 1
+			t[2*nb+2*ng+nq+ii]   = sqrt_mu0;
+			lam[2*nb+2*ng+nq+ii] = mu0_div_sqrt_mu0;
+	#else
+	//		t[2*nb+2*ng+nq+ii] = 1.0; // thr0;
+			COLEX(nv, qcqp->Ct, 0, ng+ii, ws->tmp_nv, 0);
+			SYMV_L(nv, 0.5, qcqp->Hq+ii, 0, 0, qcqp_sol->v, 0, 1.0, ws->tmp_nv, 0, ws->tmp_nv, 0);
+			tmp = DOT(nv, ws->tmp_nv, 0, qcqp_sol->v, 0);
+			tmp = - d[2*nb+2*ng+nq+ii] - tmp;
+			t[2*nb+2*ng+nq+ii] = thr0>tmp ? thr0 : tmp;
+			lam[2*nb+2*ng+nq+ii]  = mu0/t[2*nb+2*ng+nq+ii];
+	#endif
 			}
-		}
 
-	// soft constraints
-	for(ii=0; ii<ns; ii++)
-		{
-		t[2*nb+2*ng+2*nq+ii]    = 1.0; // thr0;
-		t[2*nb+2*ng+2*nq+ns+ii] = 1.0; // thr0;
-		lam[2*nb+2*ng+2*nq+ii]    = mu0/t[2*nb+2*ng+2*nq+ii];
-		lam[2*nb+2*ng+2*nq+ns+ii] = mu0/t[2*nb+2*ng+2*nq+ns+ii];
-		}
-
-	//  quadratic constraints
-	REAL sqrt_mu0 = sqrt(mu0);
-	sqrt_mu0 = thr0>sqrt_mu0 ? thr0 : sqrt_mu0;
-	REAL mu0_div_sqrt_mu0 = mu0 / sqrt_mu0;
-
-	for(ii=0; ii<nq; ii++)
-		{
-		// disregard lower
-		lam[nb+ng+ii] = 0.0;
-		t[nb+ng+ii]   = 1.0;
-		// upper
-#if 1
-		t[2*nb+2*ng+nq+ii]   = sqrt_mu0;
-		lam[2*nb+2*ng+nq+ii] = mu0_div_sqrt_mu0;
-#else
-//		t[2*nb+2*ng+nq+ii] = 1.0; // thr0;
-		COLEX(nv, qcqp->Ct, 0, ng+ii, ws->tmp_nv, 0);
-		SYMV_L(nv, 0.5, qcqp->Hq+ii, 0, 0, qcqp_sol->v, 0, 1.0, ws->tmp_nv, 0, ws->tmp_nv, 0);
-		tmp = DOT(nv, ws->tmp_nv, 0, qcqp_sol->v, 0);
-		tmp = - d[2*nb+2*ng+nq+ii] - tmp;
-		t[2*nb+2*ng+nq+ii] = thr0>tmp ? thr0 : tmp;
-		lam[2*nb+2*ng+nq+ii]  = mu0/t[2*nb+2*ng+nq+ii];
-#endif
 		}
 
 	// TODO rewrite all the above taking some pointers to key parts, e.g. lam_lb, lam_ub, and make relative to them

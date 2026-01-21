@@ -18,15 +18,9 @@ int *nbu = nnbu;
 /* ng */
 static int nng[] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, };
 int *ng = nng;
-/* nsbx */
-static int nnsbx[] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 4, };
-int *nsbx = nnsbx;
-/* nsbu */
-static int nnsbu[] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, };
-int *nsbu = nnsbu;
-/* nsg */
-static int nnsg[] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, };
-int *nsg = nnsg;
+/* ns */
+static int nns[] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 4, };
+int *ns = nns;
 /* nbxe */
 static int nnbxe[] = {4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, };
 int *nbxe = nnbxe;
@@ -587,25 +581,6 @@ static int idxs_rev14[] = {-1, };
 static int idxs_rev15[] = {0, 1, 2, 3, };
 static int *iidxs_rev[] = {idxs_rev0, idxs_rev1, idxs_rev2, idxs_rev3, idxs_rev4, idxs_rev5, idxs_rev6, idxs_rev7, idxs_rev8, idxs_rev9, idxs_rev10, idxs_rev11, idxs_rev12, idxs_rev13, idxs_rev14, idxs_rev15, };
 int **hidxs_rev = iidxs_rev;
-/* idxs */
-static int idxs0[] = {};
-static int idxs1[] = {};
-static int idxs2[] = {};
-static int idxs3[] = {};
-static int idxs4[] = {};
-static int idxs5[] = {};
-static int idxs6[] = {};
-static int idxs7[] = {};
-static int idxs8[] = {};
-static int idxs9[] = {};
-static int idxs10[] = {};
-static int idxs11[] = {};
-static int idxs12[] = {};
-static int idxs13[] = {};
-static int idxs14[] = {};
-static int idxs15[] = {0, 1, 2, 3, };
-static int *iidxs[] = {idxs0, idxs1, idxs2, idxs3, idxs4, idxs5, idxs6, idxs7, idxs8, idxs9, idxs10, idxs11, idxs12, idxs13, idxs14, idxs15, };
-int **hidxs = iidxs;
 /* lls */
 static double lls0[] = {};
 static double lls1[] = {};

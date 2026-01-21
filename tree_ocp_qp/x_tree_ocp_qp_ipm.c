@@ -61,7 +61,7 @@ void TREE_OCP_QP_IPM_ARG_SET_DEFAULT(enum HPIPM_MODE mode, struct TREE_OCP_QP_IP
 	{
 
 	REAL mu0, alpha_min, res_g_max, res_b_max, res_d_max, res_m_max, dual_gap_max, reg_prim, lam_min, t_min, tau_min, lam0_min, t0_min;
-	int iter_max, stat_max, pred_corr, cond_pred_corr, itref_pred_max, itref_corr_max, lq_fact, warm_start, abs_form, comp_res_exit, comp_res_pred, square_root_alg, comp_dual_sol_eq, split_step, var_init_scheme, t_lam_min;
+	int iter_max, stat_max, pred_corr, cond_pred_corr, itref_pred_max, itref_corr_max, lq_fact, warm_start, abs_form, comp_res_exit, comp_res_pred, square_root_alg, comp_dual_sol_eq, split_step, var_init_scheme, t_lam_min, t0_init;
 
 	if(mode==SPEED_ABS)
 		{
@@ -94,6 +94,7 @@ void TREE_OCP_QP_IPM_ARG_SET_DEFAULT(enum HPIPM_MODE mode, struct TREE_OCP_QP_IP
 		split_step = 1;
 //		var_init_scheme = 0;
 		t_lam_min = 2;
+		t0_init = 2;
 		}
 	else if(mode==SPEED)
 		{
@@ -126,6 +127,7 @@ void TREE_OCP_QP_IPM_ARG_SET_DEFAULT(enum HPIPM_MODE mode, struct TREE_OCP_QP_IP
 		split_step = 1;
 //		var_init_scheme = 0;
 		t_lam_min = 2;
+		t0_init = 2;
 		}
 	else if(mode==BALANCE)
 		{
@@ -158,6 +160,7 @@ void TREE_OCP_QP_IPM_ARG_SET_DEFAULT(enum HPIPM_MODE mode, struct TREE_OCP_QP_IP
 		split_step = 0;
 //		var_init_scheme = 0;
 		t_lam_min = 2;
+		t0_init = 2;
 		}
 	else if(mode==ROBUST)
 		{
@@ -190,6 +193,7 @@ void TREE_OCP_QP_IPM_ARG_SET_DEFAULT(enum HPIPM_MODE mode, struct TREE_OCP_QP_IP
 		split_step = 0;
 //		var_init_scheme = 0;
 		t_lam_min = 2;
+		t0_init = 2;
 		}
 	else
 		{
@@ -229,6 +233,7 @@ void TREE_OCP_QP_IPM_ARG_SET_DEFAULT(enum HPIPM_MODE mode, struct TREE_OCP_QP_IP
 	TREE_OCP_QP_IPM_ARG_SET_SPLIT_STEP(&split_step, arg);
 //	TREE_OCP_QP_IPM_ARG_SET_VAR_INIT_SCHEME(&var_init_scheme, arg);
 	TREE_OCP_QP_IPM_ARG_SET_T_LAM_MIN(&t_lam_min, arg);
+	arg->t0_init = t0_init;
 	arg->mode = mode;
 
 	return;
@@ -1030,10 +1035,10 @@ void TREE_OCP_QP_INIT_VAR(struct TREE_OCP_QP *qp, struct TREE_OCP_QP_SOL *qp_sol
 	REAL mu0 = arg->mu0;
 
 	//
-	REAL *ux, *pi, *d_lb, *d_ub, *d_lg, *d_ug, *lam_lb, *lam_ub, *lam_lg, *lam_ug, *t_lb, *t_ub, *t_lg, *t_ug;
+	REAL *ux, *pi, *d_lb, *d_ub, *d_lg, *d_ug, *lam_lb, *lam_ub, *lam_lg, *lam_ug, *t_lb, *t_ub, *t_lg, *t_ug, *d_lb_mask, *d_ub_mask, *d_lg_mask, *d_ug_mask;
 	int *idxb;
 
-	REAL thr0 = 0.1;
+	REAL thr0 = 1e-1;
 
 	// hot start: keep initial solution as it is
 	if(arg->warm_start>=3)
@@ -1044,7 +1049,6 @@ void TREE_OCP_QP_INIT_VAR(struct TREE_OCP_QP *qp, struct TREE_OCP_QP_SOL *qp_sol
 			{
 			lam_lb = qp_sol->lam[ii].pa+0;
 			t_lb = qp_sol->t[ii].pa+0;
-
 			for(jj=0; jj<2*nb[ii]+2*ng[ii]+2*ns[ii]; jj++)
 				{
 				if(lam_lb[jj]<lam0_min)
@@ -1060,7 +1064,6 @@ void TREE_OCP_QP_INIT_VAR(struct TREE_OCP_QP *qp, struct TREE_OCP_QP_SOL *qp_sol
 	if(arg->warm_start==2)
 		{
 		// TODO lam and t on relaxed central path instead of clipping
-		thr0 = 1e-1;
 		for(ii=0; ii<Nn; ii++)
 			{
 			lam_lb = qp_sol->lam[ii].pa+0;
@@ -1090,18 +1093,18 @@ void TREE_OCP_QP_INIT_VAR(struct TREE_OCP_QP *qp, struct TREE_OCP_QP_SOL *qp_sol
 				}
 			}
 		}
-	else
-		{
-		// warm start (keep u and x in solution)
-		for(ii=0; ii<Nn; ii++)
-			{
-			ux = qp_sol->ux[ii].pa;
-			for(jj=nu[ii]+nx[ii]; jj<nu[ii]+nx[ii]+2*ns[ii]; jj++)
-				{
-				ux[jj] = 0.0;
-				}
-			}
-		}
+//	else
+//		{
+//		// warm start (keep u and x in solution)
+//		for(ii=0; ii<Nn; ii++)
+//			{
+//			ux = qp_sol->ux[ii].pa;
+//			for(jj=nu[ii]+nx[ii]; jj<nu[ii]+nx[ii]+2*ns[ii]; jj++)
+//				{
+//				ux[jj] = 0.0;
+//				}
+//			}
+//		}
 	
 	// pi
 	for(ii=0; ii<Nn-1; ii++)
@@ -1114,94 +1117,132 @@ void TREE_OCP_QP_INIT_VAR(struct TREE_OCP_QP *qp, struct TREE_OCP_QP_SOL *qp_sol
 			}
 		}
 	
-	// box constraints
-	for(ii=0; ii<Nn; ii++)
+	if(arg->t0_init==0) // sqrt(mu0)
 		{
-		ux = qp_sol->ux[ii].pa;
-		d_lb = qp->d[ii].pa+0;
-		d_ub = qp->d[ii].pa+nb[ii]+ng[ii];
-		lam_lb = qp_sol->lam[ii].pa+0;
-		lam_ub = qp_sol->lam[ii].pa+nb[ii]+ng[ii];
-		t_lb = qp_sol->t[ii].pa+0;
-		t_ub = qp_sol->t[ii].pa+nb[ii]+ng[ii];
-		idxb = qp->idxb[ii];
-		for(jj=0; jj<nb[ii]; jj++)
+		REAL sqmu0 = sqrt(mu0);
+		for(ii=0; ii<Nn; ii++)
 			{
-#if 1
-			t_lb[jj] = - d_lb[jj] + ux[idxb[jj]];
-			t_ub[jj] = - d_ub[jj] - ux[idxb[jj]];
-			if(t_lb[jj]<thr0)
+			lam_lb = qp_sol->lam[ii].pa+0;
+			t_lb = qp_sol->t[ii].pa+0;
+			for(jj=0; jj<2*nb[ii]+2*ng[ii]+2*ns[ii]; jj++)
 				{
-				if(t_ub[jj]<thr0)
-					{
-					ux[idxb[jj]] = 0.5*(d_lb[jj] + d_ub[jj]);
-					t_lb[jj] = thr0;
-					t_ub[jj] = thr0;
-					}
-				else
-					{
-					t_lb[jj] = thr0;
-					ux[idxb[jj]] = d_lb[jj] + thr0;
-					}
+				lam_lb[jj] = sqmu0;
+				t_lb[jj] = sqmu0;
 				}
-			else if(t_ub[jj]<thr0)
-				{
-				t_ub[jj] = thr0;
-				ux[idxb[jj]] = - d_ub[jj] - thr0;
-				}
-#else
-			t_lb[jj] = 1.0;
-			t_ub[jj] = 1.0;
-#endif
-			lam_lb[jj] = mu0/t_lb[jj];
-			lam_ub[jj] = mu0/t_ub[jj];
 			}
 		}
-	
-	// general constraints
-	for(ii=0; ii<Nn; ii++)
+	else if(arg->t0_init==1) // 1.0
 		{
-		t_lg = qp_sol->t[ii].pa+nb[ii];
-		t_ug = qp_sol->t[ii].pa+2*nb[ii]+ng[ii];
-		lam_lg = qp_sol->lam[ii].pa+nb[ii];
-		lam_ug = qp_sol->lam[ii].pa+2*nb[ii]+ng[ii];
-		d_lg = qp->d[ii].pa+nb[ii];
-		d_ug = qp->d[ii].pa+2*nb[ii]+ng[ii];
-		ux = qp_sol->ux[ii].pa;
-		GEMV_T(nu[ii]+nx[ii], ng[ii], 1.0, qp->DCt+ii, 0, 0, qp_sol->ux+ii, 0, 0.0, qp_sol->t+ii, nb[ii], qp_sol->t+ii, nb[ii]);
-		for(jj=0; jj<ng[ii]; jj++)
+		for(ii=0; ii<Nn; ii++)
 			{
-#if 1
-			t_ug[jj] = - t_lg[jj];
-			t_lg[jj] -= d_lg[jj];
-			t_ug[jj] -= d_ug[jj];
-//			t_lg[jj] = fmax(thr0, t_lg[jj]);
-//			t_ug[jj] = fmax(thr0, t_ug[jj]);
-			t_lg[jj] = thr0>t_lg[jj] ? thr0 : t_lg[jj];
-			t_ug[jj] = thr0>t_ug[jj] ? thr0 : t_ug[jj];
-#else
-			t_lg[jj] = 1.0;
-			t_ug[jj] = 1.0;
-#endif
-			lam_lg[jj] = mu0/t_lg[jj];
-			lam_ug[jj] = mu0/t_ug[jj];
+			lam_lb = qp_sol->lam[ii].pa+0;
+			t_lb = qp_sol->t[ii].pa+0;
+			for(jj=0; jj<2*nb[ii]+2*ng[ii]+2*ns[ii]; jj++)
+				{
+				lam_lb[jj] = mu0;
+				t_lb[jj] = 1.0;
+				}
 			}
 		}
+	else //heuristic for primal feasibility
+		{
 
-	// soft constraints
-	for(ii=0; ii<Nn; ii++)
-		{
-		lam_lb = qp_sol->lam[ii].pa+2*nb[ii]+2*ng[ii];
-		lam_ub = qp_sol->lam[ii].pa+2*nb[ii]+2*ng[ii]+ns[ii];
-		t_lb = qp_sol->t[ii].pa+2*nb[ii]+2*ng[ii];
-		t_ub = qp_sol->t[ii].pa+2*nb[ii]+2*ng[ii]+ns[ii];
-		for(jj=0; jj<ns[ii]; jj++)
+		// box constraints
+		for(ii=0; ii<Nn; ii++)
 			{
-			t_lb[jj] = 1.0; // thr0;
-			t_ub[jj] = 1.0; // thr0;
-			lam_lb[jj] = mu0/t_lb[jj];
-			lam_ub[jj] = mu0/t_ub[jj];
+			ux = qp_sol->ux[ii].pa;
+			d_lb = qp->d[ii].pa+0;
+			d_ub = qp->d[ii].pa+nb[ii]+ng[ii];
+			d_lb_mask = qp->d_mask[ii].pa+0;
+			d_ub_mask = qp->d_mask[ii].pa+nb[ii]+ng[ii];
+			lam_lb = qp_sol->lam[ii].pa+0;
+			lam_ub = qp_sol->lam[ii].pa+nb[ii]+ng[ii];
+			t_lb = qp_sol->t[ii].pa+0;
+			t_ub = qp_sol->t[ii].pa+nb[ii]+ng[ii];
+			idxb = qp->idxb[ii];
+			for(jj=0; jj<nb[ii]; jj++)
+				{
+				REAL d_lb0 = d_lb[jj];
+				REAL d_ub0 = d_ub[jj];
+				if(d_lb_mask[jj]==0.0)
+					{
+					d_lb0 = ux[idxb[jj]] - 1.0;
+					}
+				if(d_ub_mask[jj]==0.0)
+					{
+					d_ub0 = - ux[idxb[jj]] - 1.0;
+					}
+				t_lb[jj] = - d_lb0 + ux[idxb[jj]];
+				t_ub[jj] = - d_ub0 - ux[idxb[jj]];
+				if(t_lb[jj]<thr0)
+					{
+					if(t_ub[jj]<thr0)
+						{
+						ux[idxb[jj]] = 0.5*(d_lb0 + d_ub0);
+						t_lb[jj] = thr0;
+						t_ub[jj] = thr0;
+						}
+					else
+						{
+						t_lb[jj] = thr0;
+						ux[idxb[jj]] = d_lb0 + thr0;
+						}
+					}
+				else if(t_ub[jj]<thr0)
+					{
+					t_ub[jj] = thr0;
+					ux[idxb[jj]] = - d_ub0 - thr0;
+					}
+				lam_lb[jj] = mu0/t_lb[jj];
+				lam_ub[jj] = mu0/t_ub[jj];
+				}
 			}
+
+		// general constraints
+		for(ii=0; ii<Nn; ii++)
+			{
+			t_lg = qp_sol->t[ii].pa+nb[ii];
+			t_ug = qp_sol->t[ii].pa+2*nb[ii]+ng[ii];
+			lam_lg = qp_sol->lam[ii].pa+nb[ii];
+			lam_ug = qp_sol->lam[ii].pa+2*nb[ii]+ng[ii];
+			d_lg = qp->d[ii].pa+nb[ii];
+			d_ug = qp->d[ii].pa+2*nb[ii]+ng[ii];
+			d_lg_mask = qp->d_mask[ii].pa+nb[ii];
+			d_ug_mask = qp->d_mask[ii].pa+2*nb[ii]+ng[ii];
+			ux = qp_sol->ux[ii].pa;
+			GEMV_T(nu[ii]+nx[ii], ng[ii], 1.0, qp->DCt+ii, 0, 0, qp_sol->ux+ii, 0, 0.0, qp_sol->t+ii, nb[ii], qp_sol->t+ii, nb[ii]);
+			for(jj=0; jj<ng[ii]; jj++)
+				{
+				t_ug[jj] = - t_lg[jj];
+				if(d_lg_mask[jj]!=0.0)
+					t_lg[jj] -= d_lg[jj];
+				if(d_ug_mask[jj]!=0.0)
+					t_ug[jj] -= d_ug[jj];
+	//			t_lg[jj] = fmax(thr0, t_lg[jj]);
+	//			t_ug[jj] = fmax(thr0, t_ug[jj]);
+				t_lg[jj] = thr0>t_lg[jj] ? thr0 : t_lg[jj];
+				t_ug[jj] = thr0>t_ug[jj] ? thr0 : t_ug[jj];
+				lam_lg[jj] = mu0/t_lg[jj];
+				lam_ug[jj] = mu0/t_ug[jj];
+				}
+			}
+
+		// soft constraints
+		for(ii=0; ii<Nn; ii++)
+			{
+			lam_lb = qp_sol->lam[ii].pa+2*nb[ii]+2*ng[ii];
+			lam_ub = qp_sol->lam[ii].pa+2*nb[ii]+2*ng[ii]+ns[ii];
+			t_lb = qp_sol->t[ii].pa+2*nb[ii]+2*ng[ii];
+			t_ub = qp_sol->t[ii].pa+2*nb[ii]+2*ng[ii]+ns[ii];
+			for(jj=0; jj<ns[ii]; jj++)
+				{
+				t_lb[jj] = 1.0; // thr0;
+				t_ub[jj] = 1.0; // thr0;
+				lam_lb[jj] = mu0/t_lb[jj];
+				lam_ub[jj] = mu0/t_ub[jj];
+				}
+			}
+
 		}
 
 	return;

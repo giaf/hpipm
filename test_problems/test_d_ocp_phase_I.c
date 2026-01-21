@@ -793,24 +793,24 @@ int main()
 ************************************************/
 
 	hpipm_size_t dim_size = d_ocp_qp_dim_memsize(N);
-	printf("\ndim size = %d\n", dim_size);
+	printf("\ndim size = %d\n", (int) dim_size);
 	void *dim_mem = malloc(dim_size);
 
 	struct d_ocp_qp_dim dim;
 	d_ocp_qp_dim_create(N, &dim, dim_mem);
-	d_ocp_qp_dim_set_all(nx, nu, nbx, nbu, ng, nsbx, nsbu, nsg, &dim);
+	d_ocp_qp_dim_set_all(nx, nu, nbx, nbu, ng, ns, &dim);
 
 /************************************************
 * ocp qp
 ************************************************/
 
 	hpipm_size_t qp_size = d_ocp_qp_memsize(&dim);
-	printf("\nqp size = %d\n", qp_size);
+	printf("\nqp size = %d\n", (int) qp_size);
 	void *qp_mem = malloc(qp_size);
 
 	struct d_ocp_qp qp;
 	d_ocp_qp_create(&dim, &qp, qp_mem);
-	d_ocp_qp_set_all(hA, hB, hb, hQ, hS, hR, hq, hr, hidxbx, hd_lbx, hd_ubx, hidxbu, hd_lbu, hd_ubu, hC, hD, hd_lg, hd_ug, hZl, hZu, hzl, hzu, hidxs, hd_ls, hd_us, &qp);
+	d_ocp_qp_set_all(hA, hB, hb, hQ, hS, hR, hq, hr, hidxbx, hd_lbx, hd_ubx, hidxbu, hd_lbu, hd_ubu, hC, hD, hd_lg, hd_ug, hZl, hZu, hzl, hzu, hidxs, NULL, hd_ls, hd_us, &qp);
 
 #if 0
 	printf("\nN = %d\n", qp.dim->N);
@@ -842,7 +842,7 @@ int main()
 ************************************************/
 
 	hpipm_size_t qp_sol_size = d_ocp_qp_sol_memsize(&dim);
-	printf("\nqp sol size = %d\n", qp_sol_size);
+	printf("\nqp sol size = %d\n", (int) qp_sol_size);
 	void *qp_sol_mem = malloc(qp_sol_size);
 
 	struct d_ocp_qp_sol qp_sol;
@@ -892,7 +892,7 @@ int main()
 ************************************************/
 
 	hpipm_size_t ipm_size = d_ocp_qp_ipm_ws_memsize(&dim, &arg);
-	printf("\nipm size = %d\n", ipm_size);
+	printf("\nipm size = %d\n", (int) ipm_size);
 	void *ipm_mem = malloc(ipm_size);
 
 	struct d_ocp_qp_ipm_ws workspace;
@@ -1024,7 +1024,7 @@ int main()
 
 	for(ii=0; ii<nu_; ii++) R[ii*(nu_+1)] = 2.0;
 
-	d_ocp_qp_set_all(hA, hB, hb, hQ, hS, hR, hq, hr, hidxbx, hd_lbx, hd_ubx, hidxbu, hd_lbu, hd_ubu, hC, hD, hd_lg, hd_ug, hZl, hZu, hzl, hzu, hidxs, hd_ls, hd_us, &qp);
+	d_ocp_qp_set_all(hA, hB, hb, hQ, hS, hR, hq, hr, hidxbx, hd_lbx, hd_ubx, hidxbu, hd_lbu, hd_ubu, hC, hD, hd_lg, hd_ug, hZl, hZu, hzl, hzu, hidxs, NULL, hd_ls, hd_us, &qp);
 
 	// war start
 	arg.warm_start = 1;

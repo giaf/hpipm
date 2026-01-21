@@ -51,12 +51,8 @@ static int nnbu[6] = {0, 0, 0, 0, 0, 0};
 static int nnbx[6] = {2, 0, 0, 0, 0, 0};
 // number of general constraints
 static int nng[6] = {0, 0, 0, 0, 0, 0};
-// number of softed constraints on state box constraints
-static int nnsbx[6] = {0, 0, 0, 0, 0, 0};
-// number of softed constraints on input box constraints
-static int nnsbu[6] = {0, 0, 0, 0, 0, 0};
-// number of softed constraints on general constraints
-static int nnsg[6] = {0, 0, 0, 0, 0, 0};
+// number of slacks of soft constraints
+static int nns[6] = {0, 0, 0, 0, 0, 0};
 // number of input box constraints considered as equality
 static int nnbue[6] = {0, 0, 0, 0, 0, 0};
 // number of states box constraints considered as equality
@@ -169,6 +165,14 @@ static double *zzu[6] = {};
 //
 static int *iidxs[6] = {};
 //
+static int idxs_rev0[] = {-1, -1};
+static int idxs_rev1[] = {};
+static int idxs_rev2[] = {};
+static int idxs_rev3[] = {};
+static int idxs_rev4[] = {};
+static int idxs_rev5[] = {};
+static int *iidxs_rev[6] = {idxs_rev0, idxs_rev1, idxs_rev2, idxs_rev3, idxs_rev4, idxs_rev5};
+//
 static double *llls[6] = {};
 //
 static double *llls_mask[6] = {};
@@ -197,9 +201,7 @@ int *nx = nnx;
 int *nbu = nnbu;
 int *nbx = nnbx;
 int *ng = nng;
-int *nsbx = nnsbx;
-int *nsbu = nnsbu;
-int *nsg = nnsg;
+int *ns = nns;
 int *nbue = nnbue;
 int *nbxe = nnbxe;
 int *nge = nnge;
@@ -232,7 +234,7 @@ double **hZl = ZZl;
 double **hZu = ZZu;
 double **hzl = zzl;
 double **hzu = zzu;
-int **hidxs = iidxs;
+int **hidxs_rev = iidxs_rev;
 double **hlls = llls;
 double **hlls_mask = llls_mask;
 double **hlus = llus;

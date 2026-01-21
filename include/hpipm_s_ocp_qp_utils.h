@@ -64,6 +64,8 @@ void s_ocp_qp_print(struct s_ocp_qp_dim *qp_dim, struct s_ocp_qp *qp);
 //
 void s_ocp_qp_codegen(char *file_name, char *mode, struct s_ocp_qp_dim *qp_dim, struct s_ocp_qp *qp);
 //
+void s_ocp_qp_codegen_matlab(char *file_name, char *mode, struct s_ocp_qp_dim *qp_dim, struct s_ocp_qp *qp);
+//
 void s_ocp_qp_sol_print(struct s_ocp_qp_dim *qp_dim, struct s_ocp_qp_sol *ocp_qp_sol);
 //
 void s_ocp_qp_sol_print_exp(struct s_ocp_qp_dim *qp_dim, struct s_ocp_qp_sol *ocp_qp_sol);

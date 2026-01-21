@@ -69,6 +69,8 @@ struct s_ocp_qcqp_ipm_arg
 	float lam_min; // min value in lam vector
 	float t_min; // min value in t vector
 	float tau_min; // min value of barrier parameter
+	float lam0_min; // min value in lam vector at hot start initialization
+	float t0_min; // min value in t vector at hot start initialization
 	int iter_max; // exit cond in iter number
 	int stat_max; // iterations saved in stat
 	int pred_corr; // use Mehrotra's predictor-corrector IPM algirthm
@@ -84,6 +86,7 @@ struct s_ocp_qcqp_ipm_arg
 	int comp_res_pred; // compute residuals of prediction
 	int split_step; // use different step for primal and dual variables
 	int t_lam_min; // clip t and lam: 0 no, 1 in Gamma computation, 2 in solution
+	int t0_init; // initialization scheme of slacks t (with corresponding multiplier lam=mu0/t): 0 sqrt(mu0), 1 1.0, 2 heuristic for primal feasibility
 	int mode;
 	hpipm_size_t memsize;
 	};
