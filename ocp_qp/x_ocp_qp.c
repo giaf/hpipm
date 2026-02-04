@@ -2165,6 +2165,22 @@ void OCP_QP_GET_IDXB(int stage, struct OCP_QP *qp, int *idxb)
 	}
 
 
+void OCP_QP_GET_IDXE(int stage, struct OCP_QP *qp, int *idxe)
+	{
+	// extract dim
+	int *nbxe = qp->dim->nbxe;
+	int *nbue = qp->dim->nbue;
+	int *nge = qp->dim->nge;
+
+	int ii;
+	for(ii=0; ii<nbxe[stage]+nbue[stage]+nge[stage]; ii++)
+		idxe[ii] = qp->idxe[stage][ii];
+
+	return;
+	}
+
+
+
 
 //void OCP_QP_GET_IDXBX(int stage, struct OCP_QP *qp, int *idxb)
 //	{
