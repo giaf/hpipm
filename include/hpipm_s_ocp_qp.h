@@ -314,6 +314,8 @@ void s_ocp_qp_get_idxs_rev(int stage, struct s_ocp_qp *qp, int *vec);
 //void s_ocp_qp_get_Jsbx(int stage, struct s_ocp_qp *qp, float *vec);
 //
 //void s_ocp_qp_get_Jsg(int stage, struct s_ocp_qp *qp, float *vec);
+//
+void s_ocp_qp_get_idxe(int stage, struct s_ocp_qp *qp, int *vec);
 
 
 

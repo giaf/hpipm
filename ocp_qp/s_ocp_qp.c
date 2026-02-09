@@ -194,6 +194,7 @@
 #define OCP_QP_GET_LLS_MASK s_ocp_qp_get_lls_mask
 #define OCP_QP_GET_LUS s_ocp_qp_get_lus
 #define OCP_QP_GET_LUS_MASK s_ocp_qp_get_lus_mask
+#define OCP_QP_GET_IDXE s_ocp_qp_get_idxe
 
 #include "x_ocp_qp.c"
 
