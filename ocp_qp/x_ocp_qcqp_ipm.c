@@ -1594,7 +1594,6 @@ void OCP_QCQP_IPM_SOLVE(struct OCP_QCQP *qcqp, struct OCP_QCQP_SOL *qcqp_sol, st
 //	int qcqp_ne = qcqp->dim->ne;
 //	int qcqp_nc = 2*qcqp->dim->nb + 2*qcqp->dim->ng + qcqp->dim->nq + 2*qcqp->dim->ns;
 
-
 	// qp_arg to core workspace
 	cws->lam_min = qp_arg->lam_min;
 	cws->t_min = qp_arg->t_min;
@@ -1602,6 +1601,9 @@ void OCP_QCQP_IPM_SOLVE(struct OCP_QCQP *qcqp, struct OCP_QCQP_SOL *qcqp_sol, st
 	cws->tau_min = qp_arg->tau_min;
 	cws->split_step = qp_arg->split_step;
 	cws->t_lam_min = qp_arg->t_lam_min;
+
+	// alias qp
+	cws->m = qcqp->m->pa;
 
 	// alias qp vectors into qp_sol
 	cws->v = qp_sol->ux->pa;

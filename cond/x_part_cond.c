@@ -445,6 +445,7 @@ void PART_COND_QP_COND_LHS(struct OCP_QP *ocp_qp, struct OCP_QP *part_dense_qp, 
 		tmp_ocp_qp.DCt = ocp_qp->DCt+N_tmp;
 		tmp_ocp_qp.d = ocp_qp->d+N_tmp;
 		tmp_ocp_qp.d_mask = ocp_qp->d_mask+N_tmp;
+		tmp_ocp_qp.m = ocp_qp->m+N_tmp;
 		tmp_ocp_qp.Z = ocp_qp->Z+N_tmp;
 		tmp_ocp_qp.idxs_rev = ocp_qp->idxs_rev+N_tmp;
 		tmp_ocp_qp.diag_H_flag = ocp_qp->diag_H_flag+N_tmp;
@@ -521,6 +522,7 @@ void PART_COND_QP_COND(struct OCP_QP *ocp_qp, struct OCP_QP *part_dense_qp, stru
 		tmp_ocp_qp.DCt = ocp_qp->DCt+N_tmp;
 		tmp_ocp_qp.d = ocp_qp->d+N_tmp;
 		tmp_ocp_qp.d_mask = ocp_qp->d_mask+N_tmp;
+		tmp_ocp_qp.m = ocp_qp->m+N_tmp;
 		tmp_ocp_qp.Z = ocp_qp->Z+N_tmp;
 		tmp_ocp_qp.idxs_rev = ocp_qp->idxs_rev+N_tmp;
 		tmp_ocp_qp.diag_H_flag = ocp_qp->diag_H_flag+N_tmp;
@@ -529,7 +531,7 @@ void PART_COND_QP_COND(struct OCP_QP *ocp_qp, struct OCP_QP *part_dense_qp, stru
 
 		COND_RSQRQ(&tmp_ocp_qp, part_dense_qp->RSQrq+ii, part_dense_qp->rqz+ii, part_cond_arg->cond_arg+ii, part_cond_ws->cond_workspace+ii);
 
-		COND_DCTD(&tmp_ocp_qp, part_dense_qp->idxb[ii], part_dense_qp->DCt+ii, part_dense_qp->d+ii, part_dense_qp->d_mask+ii, part_dense_qp->idxs_rev[ii], part_dense_qp->Z+ii, part_dense_qp->rqz+ii, part_cond_arg->cond_arg+ii, part_cond_ws->cond_workspace+ii);
+		COND_DCTD(&tmp_ocp_qp, part_dense_qp->idxb[ii], part_dense_qp->DCt+ii, part_dense_qp->d+ii, part_dense_qp->d_mask+ii, part_dense_qp->m+ii, part_dense_qp->idxs_rev[ii], part_dense_qp->Z+ii, part_dense_qp->rqz+ii, part_cond_arg->cond_arg+ii, part_cond_ws->cond_workspace+ii);
 
 		N_tmp += bs;
 
@@ -597,6 +599,7 @@ void PART_COND_QP_COND_RHS(struct OCP_QP *ocp_qp, struct OCP_QP *part_dense_qp, 
 		tmp_ocp_qp.DCt = ocp_qp->DCt+N_tmp;
 		tmp_ocp_qp.d = ocp_qp->d+N_tmp;
 		tmp_ocp_qp.d_mask = ocp_qp->d_mask+N_tmp;
+		tmp_ocp_qp.m = ocp_qp->m+N_tmp;
 		tmp_ocp_qp.Z = ocp_qp->Z+N_tmp;
 		tmp_ocp_qp.idxs_rev = ocp_qp->idxs_rev+N_tmp;
 		tmp_ocp_qp.diag_H_flag = ocp_qp->diag_H_flag+N_tmp;
@@ -675,6 +678,7 @@ void PART_COND_QP_COND_SEED(struct OCP_QP *ocp_qp, struct OCP_QP_SEED *ocp_qp_se
 		tmp_ocp_qp.DCt = ocp_qp->DCt+N_tmp;
 		tmp_ocp_qp.d = ocp_qp_seed->seed_d+N_tmp; // XXX
 		tmp_ocp_qp.d_mask = ocp_qp->d_mask+N_tmp;
+		tmp_ocp_qp.m = ocp_qp_seed->seed_m+N_tmp; // XXX
 		tmp_ocp_qp.Z = ocp_qp->Z+N_tmp;
 		tmp_ocp_qp.idxs_rev = ocp_qp->idxs_rev+N_tmp;
 		tmp_ocp_qp.diag_H_flag = ocp_qp->diag_H_flag+N_tmp;
@@ -823,6 +827,7 @@ void PART_COND_QP_EXPAND_SOL(struct OCP_QP *ocp_qp, struct OCP_QP_SOL *part_dens
 		tmp_ocp_qp.DCt = ocp_qp->DCt+N_tmp;
 		tmp_ocp_qp.d = ocp_qp->d+N_tmp;
 		tmp_ocp_qp.d_mask = ocp_qp->d_mask+N_tmp;
+		tmp_ocp_qp.m = ocp_qp->m+N_tmp;
 		tmp_ocp_qp.Z = ocp_qp->Z+N_tmp;
 		tmp_ocp_qp.idxs_rev = ocp_qp->idxs_rev+N_tmp;
 		tmp_ocp_qp.diag_H_flag = ocp_qp->diag_H_flag+N_tmp;
@@ -904,6 +909,7 @@ void PART_COND_QP_EXPAND_SOL_SEED(struct OCP_QP *ocp_qp, struct OCP_QP_SEED *ocp
 		tmp_ocp_qp.DCt = ocp_qp->DCt+N_tmp;
 		tmp_ocp_qp.d = ocp_qp_seed->seed_d+N_tmp; // XXX
 		tmp_ocp_qp.d_mask = ocp_qp->d_mask+N_tmp;
+		tmp_ocp_qp.m = ocp_qp_seed->seed_m+N_tmp; // XXX
 		tmp_ocp_qp.Z = ocp_qp->Z+N_tmp;
 		tmp_ocp_qp.idxs_rev = ocp_qp->idxs_rev+N_tmp;
 		tmp_ocp_qp.diag_H_flag = ocp_qp->diag_H_flag+N_tmp;
@@ -981,6 +987,7 @@ void PART_COND_QP_UPDATE(int *idxc, struct OCP_QP *ocp_qp, struct OCP_QP *part_d
 		tmp_ocp_qp.DCt = ocp_qp->DCt+N_tmp;
 		tmp_ocp_qp.d = ocp_qp->d+N_tmp;
 		tmp_ocp_qp.d_mask = ocp_qp->d_mask+N_tmp;
+		tmp_ocp_qp.m = ocp_qp->m+N_tmp;
 		tmp_ocp_qp.Z = ocp_qp->Z+N_tmp;
 		tmp_ocp_qp.idxs_rev = ocp_qp->idxs_rev+N_tmp;
 		tmp_ocp_qp.diag_H_flag = ocp_qp->diag_H_flag+N_tmp;

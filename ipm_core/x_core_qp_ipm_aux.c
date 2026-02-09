@@ -304,6 +304,10 @@ void UPDATE_VAR_QP(struct CORE_QP_IPM_WORKSPACE *cws)
 		}
 #endif
 
+	//alpha *= 0.999;
+	//alpha_prim *= 0.999;
+	//alpha_dual *= 0.999;
+
 	// local variables
 	int ii;
 
@@ -431,6 +435,7 @@ void COMPUTE_MU_AFF_QP(struct CORE_QP_IPM_WORKSPACE *cws)
 	// extract workspace members
 	int nc = cws->nc;
 
+	REAL *ptr_m = cws->m;
 	REAL *ptr_lam = cws->lam;
 	REAL *ptr_t = cws->t;
 	REAL *ptr_dlam = cws->dlam;
@@ -443,7 +448,8 @@ void COMPUTE_MU_AFF_QP(struct CORE_QP_IPM_WORKSPACE *cws)
 
 	for(ii=0; ii<nc; ii++)
 		{
-		mu += (ptr_lam[ii+0] + alpha*ptr_dlam[ii+0]) * (ptr_t[ii+0] + alpha*ptr_dt[ii+0]);
+		//mu += (ptr_lam[ii+0] + alpha*ptr_dlam[ii+0]) * (ptr_t[ii+0] + alpha*ptr_dt[ii+0]);
+		mu += fabs(- ptr_m[ii+0] + (ptr_lam[ii+0] + alpha*ptr_dlam[ii+0]) * (ptr_t[ii+0] + alpha*ptr_dt[ii+0]));
 		}
 	
 	cws->mu_aff = mu*cws->nc_mask_inv;
@@ -476,6 +482,7 @@ void BACKUP_RES_M(struct CORE_QP_IPM_WORKSPACE *cws)
 
 
 
+// TODO sigma_mu*d_mask
 void COMPUTE_CENTERING_CORRECTION_QP(struct CORE_QP_IPM_WORKSPACE *cws)
 	{
 
@@ -488,14 +495,30 @@ void COMPUTE_CENTERING_CORRECTION_QP(struct CORE_QP_IPM_WORKSPACE *cws)
 	REAL *ptr_dt = cws->dt;
 	REAL *ptr_res_m = cws->res_m;
 	REAL *ptr_res_m_bkp = cws->res_m_bkp;
+	REAL *weight = cws->weight;
 
 	REAL sigma_mu = cws->sigma*cws->mu;
 	sigma_mu = sigma_mu>cws->tau_min ? sigma_mu : cws->tau_min;
 	cws->tau_iter = sigma_mu;
 
-	for(ii=0; ii<nc; ii++)
+	//printf("dt*dlam:");
+	//for(ii=0; ii<nc; ii++)
+	//	printf(" %e", ptr_dt[ii]*ptr_dlam[ii]);
+	//printf("\n");
+
+	if(cws->use_weight)
 		{
-		ptr_res_m[ii+0] = ptr_res_m_bkp[ii+0] + ptr_dt[ii+0] * ptr_dlam[ii+0] - sigma_mu;
+		for(ii=0; ii<nc; ii++)
+			{
+			ptr_res_m[ii+0] = ptr_res_m_bkp[ii+0] + ptr_dt[ii+0] * ptr_dlam[ii+0] - weight[ii+0]*sigma_mu;
+			}
+		}
+	else
+		{
+		for(ii=0; ii<nc; ii++)
+			{
+			ptr_res_m[ii+0] = ptr_res_m_bkp[ii+0] + ptr_dt[ii+0] * ptr_dlam[ii+0] - sigma_mu;
+			}
 		}
 
 	return;
@@ -504,6 +527,7 @@ void COMPUTE_CENTERING_CORRECTION_QP(struct CORE_QP_IPM_WORKSPACE *cws)
 
 
 
+// TODO sigma_mu*d_mask
 void COMPUTE_CENTERING_QP(struct CORE_QP_IPM_WORKSPACE *cws)
 	{
 
@@ -514,14 +538,26 @@ void COMPUTE_CENTERING_QP(struct CORE_QP_IPM_WORKSPACE *cws)
 
 	REAL *ptr_res_m = cws->res_m;
 	REAL *ptr_res_m_bkp = cws->res_m_bkp;
+	REAL *weight = cws->weight;
+	REAL *m = cws->m;
 
 	REAL sigma_mu = cws->sigma*cws->mu;
 	sigma_mu = sigma_mu>cws->tau_min ? sigma_mu : cws->tau_min;
 	cws->tau_iter = sigma_mu;
 
-	for(ii=0; ii<nc; ii++)
+	if(cws->use_weight)
 		{
-		ptr_res_m[ii+0] = ptr_res_m_bkp[ii+0] - sigma_mu;
+		for(ii=0; ii<nc; ii++)
+			{
+			ptr_res_m[ii+0] = ptr_res_m_bkp[ii+0] - 0*m[ii+0] - weight[ii+0]*sigma_mu;
+			}
+		}
+	else
+		{
+		for(ii=0; ii<nc; ii++)
+			{
+			ptr_res_m[ii+0] = ptr_res_m_bkp[ii+0] - 0*m[ii+0] - sigma_mu;
+			}
 		}
 
 	return;
@@ -530,6 +566,7 @@ void COMPUTE_CENTERING_QP(struct CORE_QP_IPM_WORKSPACE *cws)
 
 
 
+// TODO sigma_mu*d_mask
 void COMPUTE_TAU_MIN_QP(struct CORE_QP_IPM_WORKSPACE *cws)
 	{
 
@@ -540,12 +577,25 @@ void COMPUTE_TAU_MIN_QP(struct CORE_QP_IPM_WORKSPACE *cws)
 
 	REAL *ptr_res_m = cws->res_m;
 	REAL *ptr_res_m_bkp = cws->res_m_bkp;
+	REAL *weight = cws->weight;
+
+	REAL *ptr_m = cws->m;
 
 	REAL tau_min = cws->tau_min;
 
-	for(ii=0; ii<nc; ii++)
+	if(cws->use_weight)
 		{
-		ptr_res_m[ii+0] = ptr_res_m_bkp[ii+0] - tau_min;
+		for(ii=0; ii<nc; ii++)
+			{
+			ptr_res_m[ii+0] = ptr_res_m_bkp[ii+0] - weight[ii+0]*tau_min;
+			}
+		}
+	else
+		{
+		for(ii=0; ii<nc; ii++)
+			{
+			ptr_res_m[ii+0] = ptr_res_m_bkp[ii+0] - tau_min;
+			}
 		}
 
 	return;

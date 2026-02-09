@@ -1271,7 +1271,9 @@ void TREE_OCP_QP_IPM_ABS_STEP(int kk, struct TREE_OCP_QP *qp, struct TREE_OCP_QP
 	REAL *stat = ws->stat;
 	int stat_m = ws->stat_m;
 
-	VECSC(cws->nc, -1.0, ws->tmp_m, 0);
+	// update rhs m for abs ipm form
+	//VECSC(cws->nc, -1.0, ws->tmp_m, 0);
+	AXPBY(cws->nc, -1.0, ws->res->res_m, 0, -2.0, qp->m, 0, ws->res->res_m, 0);
 
 	BACKUP_RES_M(cws);
 
@@ -1926,6 +1928,9 @@ void TREE_OCP_QP_IPM_SOLVE(struct TREE_OCP_QP *qp, struct TREE_OCP_QP_SOL *qp_so
 	cws->split_step = arg->split_step;
 	cws->t_lam_min = arg->t_lam_min;
 
+	// alias qp
+	cws->m = qp->m->pa;
+
 	// alias qp vectors into qp_sol
 	cws->v = qp_sol->ux->pa;
 	cws->pi = qp_sol->pi->pa;
@@ -2085,16 +2090,23 @@ void TREE_OCP_QP_IPM_SOLVE(struct TREE_OCP_QP *qp, struct TREE_OCP_QP_SOL *qp_so
 		ws->qp_step->b = qp->b;
 		ws->qp_step->d = qp->d;
 		ws->qp_step->d_mask = qp->d_mask;
-		ws->qp_step->m = ws->tmp_m;
+		//ws->qp_step->m = ws->tmp_m;
+		ws->qp_step->m = ws->res->res_m;
 
 		// alias core workspace
-		cws->res_m = ws->qp_step->m->pa;
-		cws->res_m_bkp = ws->qp_step->m->pa; // TODO remove (as in dense qp) ???
+		// TODO restore !!!!!!!!!!!!!!!!!!!!!!!!!
+		//cws->res_m = ws->qp_step->m->pa;
+		//cws->res_m_bkp = ws->qp_step->m->pa; // TODO remove (as in dense qp) ???
 
 //		ws->valid_ric_vec = 1;
 
 
-		mu = VECMULDOT(cws->nc, qp_sol->lam, 0, qp_sol->t, 0, ws->tmp_m, 0);
+		//mu = VECMULDOT(cws->nc, qp_sol->lam, 0, qp_sol->t, 0, ws->tmp_m, 0);
+		VECMUL(cws->nc, qp_sol->lam, 0, qp_sol->t, 0, ws->res->res_m, 0);
+		AXPY(cws->nc, -1.0, qp->m, 0, ws->res->res_m, 0, ws->res->res_m, 0); // TODO not necessary if m is zero
+		if(ws->mask_constr)
+			VECMUL(cws->nc, qp->d_mask, 0, ws->res->res_m, 0, ws->res->res_m, 0); // TODO not necessary if m is zero
+		VECNRM_1(cws->nc, ws->res->res_m, 0, &mu);
 		//mu /= cws->nc;
 		mu *= cws->nc_mask_inv;
 		cws->mu = mu;
@@ -2111,7 +2123,12 @@ void TREE_OCP_QP_IPM_SOLVE(struct TREE_OCP_QP *qp, struct TREE_OCP_QP_SOL *qp_so
 			TREE_OCP_QP_IPM_ABS_STEP(kk, qp, qp_sol, arg, ws);
 
 			// compute mu
-			mu = VECMULDOT(cws->nc, qp_sol->lam, 0, qp_sol->t, 0, ws->tmp_m, 0);
+			//mu = VECMULDOT(cws->nc, qp_sol->lam, 0, qp_sol->t, 0, ws->tmp_m, 0);
+			VECMUL(cws->nc, qp_sol->lam, 0, qp_sol->t, 0, ws->res->res_m, 0);
+			AXPY(cws->nc, -1.0, qp->m, 0, ws->res->res_m, 0, ws->res->res_m, 0); // TODO not necessary if m is zero
+			if(ws->mask_constr)
+				VECMUL(cws->nc, qp->d_mask, 0, ws->res->res_m, 0, ws->res->res_m, 0); // TODO not necessary if m is zero
+			VECNRM_1(cws->nc, ws->res->res_m, 0, &mu);
 			//mu /= cws->nc;
 			mu *= cws->nc_mask_inv;
 			cws->mu = mu;

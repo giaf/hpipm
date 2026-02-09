@@ -579,11 +579,15 @@ void TREE_OCP_QP_RES_COMPUTE(struct TREE_OCP_QP *qp, struct TREE_OCP_QP_SOL *qp_
 
 			}
 
-		mu += VECMULDOT(2*nb0+2*ng0+2*ns0, tmp_lam_mask, 0, t+ii, 0, res_m+ii, 0);
+		//mu += VECMULDOT(2*nb0+2*ng0+2*ns0, tmp_lam_mask, 0, t+ii, 0, res_m+ii, 0);
+		VECMUL(2*nb0+2*ng0+2*ns0, tmp_lam_mask, 0, t+ii, 0, res_m+ii, 0);
 		AXPY(2*nb0+2*ng0+2*ns0, -1.0, m+ii, 0, res_m+ii, 0, res_m+ii, 0); // TODO not necessary if m is zero
 		if(mask_constr)
 			VECMUL(2*nb0+2*ng0+2*ns0, d_mask+ii, 0, res_m+ii, 0, res_m+ii, 0); // TODO not necessary if m is zero
 
+		REAL tmu = 0.0;
+		VECNRM_1(2*nb0+2*ng0+2*ns0, res_m+ii, 0, &tmu);
+		mu += tmu;
 		}
 
 	//res->res_mu = mu*nct_inv;

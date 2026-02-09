@@ -138,6 +138,16 @@
 #define OCP_QP_SET_JBUE s_ocp_qp_set_Jbue
 #define OCP_QP_SET_JGE s_ocp_qp_set_Jge
 #define OCP_QP_SET_DIAG_H_FLAG s_ocp_qp_set_diag_H_flag
+#define OCP_QP_SET_M_LB s_ocp_qp_set_m_lb
+#define OCP_QP_SET_M_UB s_ocp_qp_set_m_ub
+#define OCP_QP_SET_M_LBX s_ocp_qp_set_m_lbx
+#define OCP_QP_SET_M_UBX s_ocp_qp_set_m_ubx
+#define OCP_QP_SET_M_LBU s_ocp_qp_set_m_lbu
+#define OCP_QP_SET_M_UBU s_ocp_qp_set_m_ubu
+#define OCP_QP_SET_M_LG s_ocp_qp_set_m_lg
+#define OCP_QP_SET_M_UG s_ocp_qp_set_m_ug
+#define OCP_QP_SET_M_LLS s_ocp_qp_set_m_lls
+#define OCP_QP_SET_M_LUS s_ocp_qp_set_m_lus
 // getters
 #define OCP_QP_GET s_ocp_qp_get
 #define OCP_QP_GET_A s_ocp_qp_get_A

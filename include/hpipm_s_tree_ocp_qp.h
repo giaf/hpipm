@@ -182,6 +182,26 @@ void s_tree_ocp_qp_set_Jsg(int node, float *vec, struct s_tree_ocp_qp *qp);
 //void s_tree_ocp_qp_set_Jge(int node, float *vec, struct s_tree_ocp_qp *qp);
 //
 //void s_tree_ocp_qp_set_diag_H_flag(int node, int *value, struct s_tree_ocp_qp *qp);
+//
+void s_tree_ocp_qp_set_m_lb(int node, float *vec, struct s_tree_ocp_qp *qp);
+//
+void s_tree_ocp_qp_set_m_lbx(int node, float *vec, struct s_tree_ocp_qp *qp);
+//
+void s_tree_ocp_qp_set_m_lbu(int node, float *vec, struct s_tree_ocp_qp *qp);
+//
+void s_tree_ocp_qp_set_m_ub(int node, float *vec, struct s_tree_ocp_qp *qp);
+//
+void s_tree_ocp_qp_set_m_ubx(int node, float *vec, struct s_tree_ocp_qp *qp);
+//
+void s_tree_ocp_qp_set_m_ubu(int node, float *vec, struct s_tree_ocp_qp *qp);
+//
+void s_tree_ocp_qp_set_m_lg(int node, float *vec, struct s_tree_ocp_qp *qp);
+//
+void s_tree_ocp_qp_set_m_ug(int node, float *vec, struct s_tree_ocp_qp *qp);
+//
+void s_tree_ocp_qp_set_m_lls(int node, float *vec, struct s_tree_ocp_qp *qp);
+//
+void s_tree_ocp_qp_set_m_lls(int node, float *vec, struct s_tree_ocp_qp *qp);
 
 
 

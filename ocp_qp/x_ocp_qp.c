@@ -1835,6 +1835,139 @@ void OCP_QP_SET_DIAG_H_FLAG(int stage, int *value, struct OCP_QP *qp)
 
 
 
+void OCP_QP_SET_M_LB(int stage, REAL *lb, struct OCP_QP *qp)
+	{
+	// extract dim
+	int *nb = qp->dim->nb;
+
+	PACK_VEC(nb[stage], lb, 1, qp->m+stage, 0);
+
+	return;
+	}
+
+
+
+void OCP_QP_SET_M_LBX(int stage, REAL *lbx, struct OCP_QP *qp)
+	{
+	// extract dim
+	int *nbu = qp->dim->nbu;
+	int *nbx = qp->dim->nbx;
+
+	PACK_VEC(nbx[stage], lbx, 1, qp->m+stage, nbu[stage]);
+
+	return;
+	}
+
+
+
+void OCP_QP_SET_M_LBU(int stage, REAL *lbu, struct OCP_QP *qp)
+	{
+	// extract dim
+	int *nbu = qp->dim->nbu;
+
+	PACK_VEC(nbu[stage], lbu, 1, qp->m+stage, 0);
+
+	return;
+	}
+
+
+
+void OCP_QP_SET_M_UB(int stage, REAL *ub, struct OCP_QP *qp)
+	{
+	// extract dim
+	int *nb = qp->dim->nb;
+	int *ng = qp->dim->ng;
+
+	PACK_VEC(nb[stage], ub, 1, qp->m+stage, nb[stage]+ng[stage]);
+
+	return;
+	}
+
+
+
+void OCP_QP_SET_M_UBX(int stage, REAL *ubx, struct OCP_QP *qp)
+	{
+	// extract dim
+	int *nb = qp->dim->nb;
+	int *nbx = qp->dim->nbx;
+	int *nbu = qp->dim->nbu;
+	int *ng = qp->dim->ng;
+
+	PACK_VEC(nbx[stage], ubx, 1, qp->m+stage, nb[stage]+ng[stage]+nbu[stage]);
+
+	return;
+	}
+
+
+
+void OCP_QP_SET_M_UBU(int stage, REAL *ubu, struct OCP_QP *qp)
+	{
+	// extract dim
+	int *nb = qp->dim->nb;
+	int *nbu = qp->dim->nbu;
+	int *ng = qp->dim->ng;
+
+	PACK_VEC(nbu[stage], ubu, 1, qp->m+stage, nb[stage]+ng[stage]);
+
+	return;
+	}
+
+
+
+void OCP_QP_SET_M_LG(int stage, REAL *lg, struct OCP_QP *qp)
+	{
+	// extract dim
+	int *nb = qp->dim->nb;
+	int *ng = qp->dim->ng;
+
+	PACK_VEC(ng[stage], lg, 1, qp->m+stage, nb[stage]);
+
+	return;
+	}
+
+
+
+void OCP_QP_SET_M_UG(int stage, REAL *ug, struct OCP_QP *qp)
+	{
+	// extract dim
+	int *nb = qp->dim->nb;
+	int *ng = qp->dim->ng;
+
+	PACK_VEC(ng[stage], ug, 1, qp->m+stage, 2*nb[stage]+ng[stage]);
+
+	return;
+	}
+
+
+
+void OCP_QP_SET_M_LLS(int stage, REAL *ls, struct OCP_QP *qp)
+	{
+	// extract dim
+	int *nb = qp->dim->nb;
+	int *ng = qp->dim->ng;
+	int *ns = qp->dim->ns;
+
+	PACK_VEC(ns[stage], ls, 1, qp->m+stage, 2*nb[stage]+2*ng[stage]);
+
+	return;
+	}
+
+
+
+void OCP_QP_SET_M_LUS(int stage, REAL *us, struct OCP_QP *qp)
+	{
+	// extract dim
+	int *nb = qp->dim->nb;
+	int *ng = qp->dim->ng;
+	int *ns = qp->dim->ns;
+
+	PACK_VEC(ns[stage], us, 1, qp->m+stage, 2*nb[stage]+2*ng[stage]+ns[stage]);
+
+	return;
+	}
+
+
+
 void OCP_QP_GET(char *field, int stage, struct OCP_QP *qp, void *value)
 	{
 	// matrices

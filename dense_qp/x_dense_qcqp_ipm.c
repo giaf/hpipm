@@ -1296,6 +1296,9 @@ void DENSE_QCQP_IPM_SOLVE(struct DENSE_QCQP *qcqp, struct DENSE_QCQP_SOL *qcqp_s
 	cws->split_step = qp_arg->split_step;
 	cws->t_lam_min = qp_arg->t_lam_min;
 
+	// alias qp
+	cws->m = qcqp->m->pa;
+
 	// alias qp vectors into qp_sol
 	cws->v = qp_sol->v->pa;
 	cws->pi = qp_sol->pi->pa;

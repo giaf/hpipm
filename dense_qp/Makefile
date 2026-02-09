@@ -73,8 +73,8 @@ OBJS += s_dense_qcqp_res.o
 OBJS += s_dense_qcqp_ipm.o 
 OBJS += s_dense_qcqp_utils.o 
 # mixed
-OBJS += m_dense_qp_dim.o 
-OBJS += m_dense_qp.o 
+#OBJS += m_dense_qp_dim.o 
+#OBJS += m_dense_qp.o 
 
 obj: $(OBJS)
 

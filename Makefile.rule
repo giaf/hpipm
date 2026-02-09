@@ -163,7 +163,7 @@ endif
 
 # architecture-specific flags
 ifeq ($(TARGET), AVX512)
-CFLAGS  += -mavx512f -mavx512vl -mfma -DTARGET_AVX512
+CFLAGS  += -mavx512f -mavx512vl -mavx512dq -mfma -DTARGET_AVX512
 endif
 ifeq ($(TARGET), AVX)
 CFLAGS  += -mavx -DTARGET_AVX
@@ -172,3 +172,4 @@ ifeq ($(TARGET), GENERIC)
 CFLAGS  += -DTARGET_GENERIC
 endif
 
+CPPFLAGS = $(CFLAGS)

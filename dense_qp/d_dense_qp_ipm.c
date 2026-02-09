@@ -66,6 +66,7 @@
 
 
 
+#define AXPBY blasfeo_daxpby
 #define AXPY blasfeo_daxpy
 #define BACKUP_RES_M d_backup_res_m
 #define BACKUP_VAR_QP d_backup_var_qp
@@ -133,6 +134,7 @@
 #define VECMUL blasfeo_dvecmul
 #define VECMULDOT blasfeo_dvecmuldot
 #define VECNRM_INF blasfeo_dvecnrm_inf
+#define VECNRM_1 blasfeo_dvecnrm_1
 #define VECSC blasfeo_dvecsc
 #define VECSE blasfeo_dvecse
 

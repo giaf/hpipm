@@ -127,6 +127,16 @@
 //#define TREE_OCP_QP_SET_JBUE s_tree_ocp_qp_set_Jbue
 //#define TREE_OCP_QP_SET_JGE s_tree_ocp_qp_set_Jge
 //#define TREE_OCP_QP_SET_DIAG_H_FLAG s_tree_ocp_qp_set_diag_H_flag
+#define TREE_OCP_QP_SET_M_LB s_tree_ocp_qp_set_m_lb
+#define TREE_OCP_QP_SET_M_LBX s_tree_ocp_qp_set_m_lbx
+#define TREE_OCP_QP_SET_M_LBU s_tree_ocp_qp_set_m_lbu
+#define TREE_OCP_QP_SET_M_UB s_tree_ocp_qp_set_m_ub
+#define TREE_OCP_QP_SET_M_UBX s_tree_ocp_qp_set_m_ubx
+#define TREE_OCP_QP_SET_M_UBU s_tree_ocp_qp_set_m_ubu
+#define TREE_OCP_QP_SET_M_LG s_tree_ocp_qp_set_m_lg
+#define TREE_OCP_QP_SET_M_UG s_tree_ocp_qp_set_m_ug
+#define TREE_OCP_QP_SET_M_LLS s_tree_ocp_qp_set_m_lls
+#define TREE_OCP_QP_SET_M_LUS s_tree_ocp_qp_set_m_lus
 
 
 

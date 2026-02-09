@@ -33,6 +33,8 @@
 *                                                                                                 *
 **************************************************************************************************/
 
+#include <math.h>
+
 #include <mmintrin.h>
 #include <xmmintrin.h>  // SSE
 #include <emmintrin.h>  // SSE2
@@ -740,15 +742,20 @@ void d_compute_mu_aff_qp(struct d_core_qp_ipm_workspace *cws)
 	double *dlam = cws->dlam;
 	double *dt = cws->dt;
 	double alpha = cws->alpha;
+	double *m = cws->m;
 	// this affects the minimum value of signa !!!
 //		alpha *= 0.99;
 
 	__m256d
+		y_sign,
 		y_tmp0, y_tmp1,
 		y_alpha, y_mu;
 	
 	__m128d
 		x_mu;
+
+	long long long_sign = 0x8000000000000000;
+	y_sign = _mm256_broadcast_sd( (double *) &long_sign );
 
 	double mu = 0;
 
@@ -764,11 +771,13 @@ void d_compute_mu_aff_qp(struct d_core_qp_ipm_workspace *cws)
 		y_tmp0 = _mm256_add_pd( y_tmp0, _mm256_loadu_pd( &lam[ii] ) );
 		y_tmp1 = _mm256_add_pd( y_tmp1, _mm256_loadu_pd( &t[ii] ) );
 		y_tmp0 = _mm256_mul_pd( y_tmp0, y_tmp1 );
+		y_tmp0 = _mm256_sub_pd( y_tmp0, _mm256_loadu_pd( &m[ii] ) );
+		y_tmp0 = _mm256_andnot_pd( y_sign, y_tmp0 );
 		y_mu = _mm256_add_pd( y_mu, y_tmp0 );
 		}
 	for(; ii<nc; ii++)
 		{
-		mu += (lam[ii] + alpha*dlam[ii]) * (t[ii] + alpha*dt[ii]);
+		mu += fabs( - m[ii] + (lam[ii] + alpha*dlam[ii]) * (t[ii] + alpha*dt[ii]));
 		}
 	
 	x_mu = _mm_add_pd( _mm256_castpd256_pd128( y_mu ), _mm256_extractf128_pd( y_mu, 0x1 ) );
@@ -827,9 +836,10 @@ void d_compute_centering_correction_qp(struct d_core_qp_ipm_workspace *cws)
 	double *dt = cws->dt;
 	double *res_m = cws->res_m;
 	double *res_m_bkp = cws->res_m_bkp;
+	double *weight = cws->weight;
 
 	__m256d
-		y_tmp0,
+		y_tmp0, y_tmp1,
 		y_sigma_mu;
 
 	double sigma_mu = cws->sigma*cws->mu;
@@ -838,17 +848,36 @@ void d_compute_centering_correction_qp(struct d_core_qp_ipm_workspace *cws)
 
 	y_sigma_mu = _mm256_broadcast_sd( &sigma_mu );
 
-	ii = 0;
-	for(; ii<nc-3; ii+=4)
+	if(cws->use_weight)
 		{
-		y_tmp0 = _mm256_mul_pd( _mm256_loadu_pd( &dt[ii] ), _mm256_loadu_pd( &dlam[ii] ) );
-		y_tmp0 = _mm256_add_pd( y_tmp0, _mm256_loadu_pd( &res_m_bkp[ii] ) );
-		y_tmp0 = _mm256_sub_pd( y_tmp0, y_sigma_mu );
-		_mm256_storeu_pd( &res_m[ii], y_tmp0 );
+		ii = 0;
+		for(; ii<nc-3; ii+=4)
+			{
+			y_tmp0 = _mm256_mul_pd( _mm256_loadu_pd( &dt[ii] ), _mm256_loadu_pd( &dlam[ii] ) );
+			y_tmp0 = _mm256_add_pd( y_tmp0, _mm256_loadu_pd( &res_m_bkp[ii] ) );
+			y_tmp1 = _mm256_mul_pd( _mm256_loadu_pd( &weight[ii] ), y_sigma_mu );
+			y_tmp0 = _mm256_sub_pd( y_tmp0, y_tmp1 );
+			_mm256_storeu_pd( &res_m[ii], y_tmp0 );
+			}
+		for(; ii<nc; ii++)
+			{
+			res_m[ii] = res_m_bkp[ii] + dt[ii] * dlam[ii] - weight[ii]*sigma_mu;
+			}
 		}
-	for(; ii<nc; ii++)
+	else
 		{
-		res_m[ii] = res_m_bkp[ii] + dt[ii] * dlam[ii] - sigma_mu;
+		ii = 0;
+		for(; ii<nc-3; ii+=4)
+			{
+			y_tmp0 = _mm256_mul_pd( _mm256_loadu_pd( &dt[ii] ), _mm256_loadu_pd( &dlam[ii] ) );
+			y_tmp0 = _mm256_add_pd( y_tmp0, _mm256_loadu_pd( &res_m_bkp[ii] ) );
+			y_tmp0 = _mm256_sub_pd( y_tmp0, y_sigma_mu );
+			_mm256_storeu_pd( &res_m[ii], y_tmp0 );
+			}
+		for(; ii<nc; ii++)
+			{
+			res_m[ii] = res_m_bkp[ii] + dt[ii] * dlam[ii] - sigma_mu;
+			}
 		}
 
 	return;
@@ -867,6 +896,7 @@ void d_compute_centering_qp(struct d_core_qp_ipm_workspace *cws)
 
 	double *res_m = cws->res_m;
 	double *res_m_bkp = cws->res_m_bkp;
+	double *weight = cws->weight;
 
 	__m256d
 		y_tmp0,
@@ -878,15 +908,32 @@ void d_compute_centering_qp(struct d_core_qp_ipm_workspace *cws)
 
 	y_sigma_mu = _mm256_broadcast_sd( &sigma_mu );
 
-	ii = 0;
-	for(; ii<nc-3; ii+=4)
+	if(cws->use_weight)
 		{
-		y_tmp0 = _mm256_sub_pd( _mm256_loadu_pd( &res_m_bkp[ii] ), y_sigma_mu );
-		_mm256_storeu_pd( &res_m[ii], y_tmp0 );
+		ii = 0;
+		for(; ii<nc-3; ii+=4)
+			{
+			y_tmp0 = _mm256_mul_pd( _mm256_loadu_pd( &weight[ii] ), y_sigma_mu );
+			y_tmp0 = _mm256_sub_pd( _mm256_loadu_pd( &res_m_bkp[ii] ), y_tmp0 );
+			_mm256_storeu_pd( &res_m[ii], y_tmp0 );
+			}
+		for(; ii<nc; ii++)
+			{
+			res_m[ii] = res_m_bkp[ii] - weight[ii]*sigma_mu;
+			}
 		}
-	for(; ii<nc; ii++)
+	else
 		{
-		res_m[ii] = res_m_bkp[ii] - sigma_mu;
+		ii = 0;
+		for(; ii<nc-3; ii+=4)
+			{
+			y_tmp0 = _mm256_sub_pd( _mm256_loadu_pd( &res_m_bkp[ii] ), y_sigma_mu );
+			_mm256_storeu_pd( &res_m[ii], y_tmp0 );
+			}
+		for(; ii<nc; ii++)
+			{
+			res_m[ii] = res_m_bkp[ii] - sigma_mu;
+			}
 		}
 
 	return;
@@ -905,6 +952,7 @@ void d_compute_tau_min_qp(struct d_core_qp_ipm_workspace *cws)
 
 	double *res_m = cws->res_m;
 	double *res_m_bkp = cws->res_m_bkp;
+	double *weight = cws->weight;
 
 	__m256d
 		y_tmp0,
@@ -914,15 +962,32 @@ void d_compute_tau_min_qp(struct d_core_qp_ipm_workspace *cws)
 
 	y_tau_min = _mm256_broadcast_sd( &tau_min );
 
-	ii = 0;
-	for(; ii<nc-3; ii+=4)
+	if(cws->use_weight)
 		{
-		y_tmp0 = _mm256_sub_pd( _mm256_loadu_pd( &res_m_bkp[ii] ), y_tau_min );
-		_mm256_storeu_pd( &res_m[ii], y_tmp0 );
+		ii = 0;
+		for(; ii<nc-3; ii+=4)
+			{
+			y_tmp0 = _mm256_mul_pd( _mm256_loadu_pd( &weight[ii] ), y_tau_min );
+			y_tmp0 = _mm256_sub_pd( _mm256_loadu_pd( &res_m_bkp[ii] ), y_tmp0 );
+			_mm256_storeu_pd( &res_m[ii], y_tmp0 );
+			}
+		for(; ii<nc; ii++)
+			{
+			res_m[ii] = res_m_bkp[ii] - weight[ii]*tau_min;
+			}
 		}
-	for(; ii<nc; ii++)
+	else
 		{
-		res_m[ii] = res_m_bkp[ii] - tau_min;
+		ii = 0;
+		for(; ii<nc-3; ii+=4)
+			{
+			y_tmp0 = _mm256_sub_pd( _mm256_loadu_pd( &res_m_bkp[ii] ), y_tau_min );
+			_mm256_storeu_pd( &res_m[ii], y_tmp0 );
+			}
+		for(; ii<nc; ii++)
+			{
+			res_m[ii] = res_m_bkp[ii] - tau_min;
+			}
 		}
 
 	return;

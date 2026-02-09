@@ -1540,4 +1540,137 @@ void TREE_OCP_QP_SET_DIAG_H_FLAG(int node, int *value, struct TREE_OCP_QP *qp)
 
 
 
+void TREE_OCP_QP_SET_M_LB(int node, REAL *lb, struct TREE_OCP_QP *qp)
+	{
+	// extract dim
+	int *nb = qp->dim->nb;
+
+	PACK_VEC(nb[node], lb, 1, qp->m+node, 0);
+
+	return;
+	}
+
+
+
+void TREE_OCP_QP_SET_M_LBX(int node, REAL *lbx, struct TREE_OCP_QP *qp)
+	{
+	// extract dim
+	int *nbu = qp->dim->nbu;
+	int *nbx = qp->dim->nbx;
+
+	PACK_VEC(nbx[node], lbx, 1, qp->m+node, nbu[node]);
+
+	return;
+	}
+
+
+
+void TREE_OCP_QP_SET_M_LBU(int node, REAL *lbu, struct TREE_OCP_QP *qp)
+	{
+	// extract dim
+	int *nbu = qp->dim->nbu;
+
+	PACK_VEC(nbu[node], lbu, 1, qp->m+node, 0);
+
+	return;
+	}
+
+
+
+void TREE_OCP_QP_SET_M_UB(int node, REAL *ub, struct TREE_OCP_QP *qp)
+	{
+	// extract dim
+	int *nb = qp->dim->nb;
+	int *ng = qp->dim->ng;
+
+	PACK_VEC(nb[node], ub, 1, qp->m+node, nb[node]+ng[node]);
+
+	return;
+	}
+
+
+
+void TREE_OCP_QP_SET_M_UBX(int node, REAL *ubx, struct TREE_OCP_QP *qp)
+	{
+	// extract dim
+	int *nb = qp->dim->nb;
+	int *nbx = qp->dim->nbx;
+	int *nbu = qp->dim->nbu;
+	int *ng = qp->dim->ng;
+
+	PACK_VEC(nbx[node], ubx, 1, qp->m+node, nb[node]+ng[node]+nbu[node]);
+
+	return;
+	}
+
+
+
+void TREE_OCP_QP_SET_M_UBU(int node, REAL *ubu, struct TREE_OCP_QP *qp)
+	{
+	// extract dim
+	int *nb = qp->dim->nb;
+	int *nbu = qp->dim->nbu;
+	int *ng = qp->dim->ng;
+
+	PACK_VEC(nbu[node], ubu, 1, qp->m+node, nb[node]+ng[node]);
+
+	return;
+	}
+
+
+
+void TREE_OCP_QP_SET_M_LG(int node, REAL *lg, struct TREE_OCP_QP *qp)
+	{
+	// extract dim
+	int *nb = qp->dim->nb;
+	int *ng = qp->dim->ng;
+
+	PACK_VEC(ng[node], lg, 1, qp->m+node, nb[node]);
+
+	return;
+	}
+
+
+
+void TREE_OCP_QP_SET_M_UG(int node, REAL *ug, struct TREE_OCP_QP *qp)
+	{
+	// extract dim
+	int *nb = qp->dim->nb;
+	int *ng = qp->dim->ng;
+
+	PACK_VEC(ng[node], ug, 1, qp->m+node, 2*nb[node]+ng[node]);
+
+	return;
+	}
+
+
+
+void TREE_OCP_QP_SET_M_LLS(int node, REAL *ls, struct TREE_OCP_QP *qp)
+	{
+	// extract dim
+	int *nb = qp->dim->nb;
+	int *ng = qp->dim->ng;
+	int *ns = qp->dim->ns;
+
+	PACK_VEC(ns[node], ls, 1, qp->m+node, 2*nb[node]+2*ng[node]);
+
+	return;
+	}
+
+
+
+void TREE_OCP_QP_SET_M_LUS(int node, REAL *us, struct TREE_OCP_QP *qp)
+	{
+	// extract dim
+	int *nb = qp->dim->nb;
+	int *ng = qp->dim->ng;
+	int *ns = qp->dim->ns;
+
+	PACK_VEC(ns[node], us, 1, qp->m+node, 2*nb[node]+2*ng[node]+ns[node]);
+
+	return;
+	}
+
+
+
 

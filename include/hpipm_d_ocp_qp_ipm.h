@@ -58,6 +58,8 @@ extern "C" {
 
 struct d_ocp_qp_ipm_arg
 	{
+	struct d_ocp_qp_dim *dim;
+	struct blasfeo_dvec *weight; // coefficients of weighted IPM
 	double mu0; // initial value for complementarity slackness
 	double alpha_min; // exit cond on step length
 	double res_g_max; // exit cond on inf norm of residuals
@@ -89,6 +91,7 @@ struct d_ocp_qp_ipm_arg
 	int t_lam_min; // clip t and lam: 0 no, 1 in Gamma computation, 2 in solution
 	int t0_init; // initialization scheme of slacks t (with corresponding multiplier lam=mu0/t): 0 sqrt(mu0), 1 1.0, 2 heuristic for primal feasibility
 	int update_fact_exit; // provide an updated factorization on exit (e.g. for use in sensitivity and feedback computation)
+	int use_weight; // whether weight has been set
 	int mode;
 	hpipm_size_t memsize;
 	};
@@ -122,6 +125,8 @@ struct d_ocp_qp_ipm_ws
 	struct blasfeo_dmat *AL;
 	struct blasfeo_dmat *lq0;
 	struct blasfeo_dmat *tmp_nxM_nxM;
+	struct blasfeo_dvec *weight; // coefficients of weighted IPM
+	struct blasfeo_dvec *weight_mask; // weight times d_mask
 	double *stat; // convergence statistics
 	int *use_hess_fact;
 	void *lq_work0;
@@ -202,6 +207,26 @@ void d_ocp_qp_ipm_arg_set_t_lam_min(int *value, struct d_ocp_qp_ipm_arg *arg);
 void d_ocp_qp_ipm_arg_set_t0_init(int *value, struct d_ocp_qp_ipm_arg *arg);
 // provide an updated factorization on exit (e.g. for use in sensitivity and feedback computation)
 void d_ocp_qp_ipm_arg_set_update_fact_exit(int *value, struct d_ocp_qp_ipm_arg *arg);
+//
+void d_ocp_qp_ipm_arg_set_weight_lb(int stage, double *weight, struct d_ocp_qp_ipm_arg *arg);
+//
+void d_ocp_qp_ipm_arg_set_weight_lbx(int stage, double *weight, struct d_ocp_qp_ipm_arg *arg);
+//
+void d_ocp_qp_ipm_arg_set_weight_lbu(int stage, double *weight, struct d_ocp_qp_ipm_arg *arg);
+//
+void d_ocp_qp_ipm_arg_set_weight_ub(int stage, double *weight, struct d_ocp_qp_ipm_arg *arg);
+//
+void d_ocp_qp_ipm_arg_set_weight_ubx(int stage, double *weight, struct d_ocp_qp_ipm_arg *arg);
+//
+void d_ocp_qp_ipm_arg_set_weight_ubu(int stage, double *weight, struct d_ocp_qp_ipm_arg *arg);
+//
+void d_ocp_qp_ipm_arg_set_weight_lg(int stage, double *weight, struct d_ocp_qp_ipm_arg *arg);
+//
+void d_ocp_qp_ipm_arg_set_weight_ug(int stage, double *weight, struct d_ocp_qp_ipm_arg *arg);
+//
+void d_ocp_qp_ipm_arg_set_weight_lls(int stage, double *weight, struct d_ocp_qp_ipm_arg *arg);
+//
+void d_ocp_qp_ipm_arg_set_weight_lus(int stage, double *weight, struct d_ocp_qp_ipm_arg *arg);
 //
 void d_ocp_qp_ipm_arg_get(char *field, struct d_ocp_qp_ipm_arg *arg, void *value);
 //

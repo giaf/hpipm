@@ -66,6 +66,7 @@
 
 
 
+#define AXPBY blasfeo_saxpby
 #define AXPY blasfeo_saxpy
 #define BACKUP_RES_M s_backup_res_m
 #define BACKUP_VAR_QP s_backup_var_qp
@@ -110,6 +111,7 @@
 #define OCP_QP_SOL_CREATE s_ocp_qp_sol_create
 #define OCP_QP_SOL s_ocp_qp_sol
 #define OCP_QP_SOLVE_KKT_STEP s_ocp_qp_solve_kkt_step
+#define PACK_VEC blasfeo_pack_svec
 #define PRINT_E_MAT s_print_exp_mat
 #define PRINT_E_STRVEC blasfeo_print_exp_svec
 #define PRINT_E_TRAN_STRVEC blasfeo_print_exp_tran_svec
@@ -133,12 +135,15 @@
 #define UNPACK_TRAN_MAT blasfeo_unpack_tran_smat
 #define UNPACK_VEC blasfeo_unpack_svec
 #define UPDATE_VAR_QP s_update_var_qp
+#define VECCP blasfeo_sveccp
 #define VECCPSC blasfeo_sveccpsc
 #define VECEX_SP blasfeo_svecex_sp
 #define VECMUL blasfeo_svecmul
 #define VECMULDOT blasfeo_svecmuldot
 #define VECNRM_INF blasfeo_svecnrm_inf
+#define VECNRM_1 blasfeo_svecnrm_1
 #define VECSC blasfeo_svecsc
+#define VECSE blasfeo_svecse
 
 
 
@@ -174,6 +179,16 @@
 #define OCP_QP_IPM_ARG_SET_T_LAM_MIN s_ocp_qp_ipm_arg_set_t_lam_min
 #define OCP_QP_IPM_ARG_SET_T0_INIT s_ocp_qp_ipm_arg_set_t0_init
 #define OCP_QP_IPM_ARG_SET_UPDATE_FACT_EXIT s_ocp_qp_ipm_arg_set_update_fact_exit
+#define OCP_QP_IPM_ARG_SET_WEIGHT_LB s_ocp_qp_ipm_arg_set_weight_lb
+#define OCP_QP_IPM_ARG_SET_WEIGHT_LBX s_ocp_qp_ipm_arg_set_weight_lbx
+#define OCP_QP_IPM_ARG_SET_WEIGHT_LBU s_ocp_qp_ipm_arg_set_weight_lbu
+#define OCP_QP_IPM_ARG_SET_WEIGHT_UB s_ocp_qp_ipm_arg_set_weight_ub
+#define OCP_QP_IPM_ARG_SET_WEIGHT_UBX s_ocp_qp_ipm_arg_set_weight_ubx
+#define OCP_QP_IPM_ARG_SET_WEIGHT_UBU s_ocp_qp_ipm_arg_set_weight_ubu
+#define OCP_QP_IPM_ARG_SET_WEIGHT_LG s_ocp_qp_ipm_arg_set_weight_lg
+#define OCP_QP_IPM_ARG_SET_WEIGHT_UG s_ocp_qp_ipm_arg_set_weight_ug
+#define OCP_QP_IPM_ARG_SET_WEIGHT_LLS s_ocp_qp_ipm_arg_set_weight_lls
+#define OCP_QP_IPM_ARG_SET_WEIGHT_LUS s_ocp_qp_ipm_arg_set_weight_lus
 #define OCP_QP_IPM_ARG_GET s_ocp_qp_ipm_arg_get
 #define OCP_QP_IPM_ARG_GET_LAM0_MIN s_ocp_qp_ipm_arg_get_lam0_min
 #define OCP_QP_IPM_ARG_GET_T0_MIN s_ocp_qp_ipm_arg_get_t0_min

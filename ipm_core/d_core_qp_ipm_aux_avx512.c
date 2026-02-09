@@ -33,6 +33,8 @@
 *                                                                                                 *
 **************************************************************************************************/
 
+#include <math.h>
+
 #include <mmintrin.h>
 #include <xmmintrin.h>  // SSE
 #include <emmintrin.h>  // SSE2
@@ -835,19 +837,26 @@ void d_compute_mu_aff_qp(struct d_core_qp_ipm_workspace *cws)
 	double *dlam = cws->dlam;
 	double *dt = cws->dt;
 	double alpha = cws->alpha;
+	double *m = cws->m;
 	// this affects the minimum value of signa !!!
 //		alpha *= 0.99;
 
 	__m512d
+		z_sign,
 		z_tmp0, z_tmp1,
 		z_alpha, z_mu;
 
 	__m256d
+		y_sign,
 		y_tmp0, y_tmp1,
 		y_alpha, y_mu;
 
 	__m128d
 		x_mu;
+
+	long long long_sign = 0x8000000000000000;
+	y_sign = _mm256_broadcast_sd( (double *) &long_sign );
+	z_sign = _mm512_set1_pd( *((double *) &long_sign) );
 
 	double mu = 0;
 
@@ -862,21 +871,21 @@ void d_compute_mu_aff_qp(struct d_core_qp_ipm_workspace *cws)
 		{
 		z_tmp0 = _mm512_fmadd_pd( z_alpha, _mm512_loadu_pd( &dlam[ii] ), _mm512_loadu_pd( &lam[ii] ) );
 		z_tmp1 = _mm512_fmadd_pd( z_alpha, _mm512_loadu_pd( &dt[ii] ), _mm512_loadu_pd( &t[ii] ) );
-		z_tmp0 = _mm512_mul_pd( z_tmp0, z_tmp1 );
+		z_tmp0 = _mm512_fmsub_pd( z_tmp0, z_tmp1, _mm512_loadu_pd( &m[ii] ) );
+		z_tmp0 = _mm512_andnot_pd( z_sign, z_tmp0 );
 		z_mu = _mm512_add_pd( z_mu, z_tmp0 );
 		}
 	for(; ii<nc-3; ii+=4)
 		{
-		y_tmp0 = _mm256_mul_pd( y_alpha, _mm256_loadu_pd( &dlam[ii] ) );
-		y_tmp1 = _mm256_mul_pd( y_alpha, _mm256_loadu_pd( &dt[ii] ) );
-		y_tmp0 = _mm256_add_pd( y_tmp0, _mm256_loadu_pd( &lam[ii] ) );
-		y_tmp1 = _mm256_add_pd( y_tmp1, _mm256_loadu_pd( &t[ii] ) );
-		y_tmp0 = _mm256_mul_pd( y_tmp0, y_tmp1 );
+		y_tmp0 = _mm256_fmadd_pd( y_alpha, _mm256_loadu_pd( &dlam[ii] ), _mm256_loadu_pd( &lam[ii] )  );
+		y_tmp1 = _mm256_fmadd_pd( y_alpha, _mm256_loadu_pd( &dt[ii] ), _mm256_loadu_pd( &t[ii] )  );
+		y_tmp0 = _mm256_fmsub_pd( y_tmp0, y_tmp1, _mm256_loadu_pd( &m[ii] ) );
+		y_tmp0 = _mm256_andnot_pd( y_sign, y_tmp0 );
 		y_mu = _mm256_add_pd( y_mu, y_tmp0 );
 		}
 	for(; ii<nc; ii++)
 		{
-		mu += (lam[ii] + alpha*dlam[ii]) * (t[ii] + alpha*dt[ii]);
+		mu += fabs( - m[ii] + (lam[ii] + alpha*dlam[ii]) * (t[ii] + alpha*dt[ii]));
 		}
 	
 	y_mu = _mm256_add_pd( y_mu, _mm512_extractf64x4_pd( z_mu, 0x1 ) );
@@ -1078,7 +1087,6 @@ void d_compute_tau_min_qp(struct d_core_qp_ipm_workspace *cws)
 	return;
 
 	}
-
 
 
 

@@ -382,12 +382,15 @@ void DENSE_QP_RES_COMPUTE(struct DENSE_QP *qp, struct DENSE_QP_SOL *qp_sol, stru
 		}
 
 	// res_m res_mu_sum
-	mu = VECMULDOT(nct, tmp_lam_mask, 0, t, 0, res_m, 0);
+	//mu = VECMULDOT(nct, tmp_lam_mask, 0, t, 0, res_m, 0);
+	VECMUL(nct, tmp_lam_mask, 0, t, 0, res_m, 0);
 	AXPY(nct, -1.0, m, 0, res_m, 0, res_m, 0); // TODO not necessary if m is zero
 	if(mask_constr)
 		VECMUL(nct, d_mask, 0, res_m, 0, res_m, 0); // TODO not necessary if m is zero
 
 	// TODO mask res_g for the slacks of the soft constraints ??? no !!!
+
+	VECNRM_1(nct, res_m, 0, &mu);
 
 	//res->res_mu = mu*nct_inv;
 	res->res_mu = mu*nc_mask_inv;

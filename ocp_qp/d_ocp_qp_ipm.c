@@ -66,6 +66,7 @@
 
 
 
+#define AXPBY blasfeo_daxpby
 #define AXPY blasfeo_daxpy
 #define BACKUP_RES_M d_backup_res_m
 #define BACKUP_VAR_QP d_backup_var_qp
@@ -110,6 +111,7 @@
 #define OCP_QP_SOL_CREATE d_ocp_qp_sol_create
 #define OCP_QP_SOL_MEMSIZE d_ocp_qp_sol_memsize
 #define OCP_QP_SOLVE_KKT_STEP d_ocp_qp_solve_kkt_step
+#define PACK_VEC blasfeo_pack_dvec
 #define PRINT_E_MAT d_print_exp_mat
 #define PRINT_E_STRVEC blasfeo_print_exp_dvec
 #define PRINT_E_TRAN_STRVEC blasfeo_print_exp_tran_dvec
@@ -133,12 +135,15 @@
 #define UNPACK_TRAN_MAT blasfeo_unpack_tran_dmat
 #define UNPACK_VEC blasfeo_unpack_dvec
 #define UPDATE_VAR_QP d_update_var_qp
+#define VECCP blasfeo_dveccp
 #define VECCPSC blasfeo_dveccpsc
 #define VECEX_SP blasfeo_dvecex_sp
 #define VECMUL blasfeo_dvecmul
 #define VECMULDOT blasfeo_dvecmuldot
 #define VECNRM_INF blasfeo_dvecnrm_inf
+#define VECNRM_1 blasfeo_dvecnrm_1
 #define VECSC blasfeo_dvecsc
+#define VECSE blasfeo_dvecse
 
 
 
@@ -174,6 +179,16 @@
 #define OCP_QP_IPM_ARG_SET_T_LAM_MIN d_ocp_qp_ipm_arg_set_t_lam_min
 #define OCP_QP_IPM_ARG_SET_T0_INIT d_ocp_qp_ipm_arg_set_t0_init
 #define OCP_QP_IPM_ARG_SET_UPDATE_FACT_EXIT d_ocp_qp_ipm_arg_set_update_fact_exit
+#define OCP_QP_IPM_ARG_SET_WEIGHT_LB d_ocp_qp_ipm_arg_set_weight_lb
+#define OCP_QP_IPM_ARG_SET_WEIGHT_LBX d_ocp_qp_ipm_arg_set_weight_lbx
+#define OCP_QP_IPM_ARG_SET_WEIGHT_LBU d_ocp_qp_ipm_arg_set_weight_lbu
+#define OCP_QP_IPM_ARG_SET_WEIGHT_UB d_ocp_qp_ipm_arg_set_weight_ub
+#define OCP_QP_IPM_ARG_SET_WEIGHT_UBX d_ocp_qp_ipm_arg_set_weight_ubx
+#define OCP_QP_IPM_ARG_SET_WEIGHT_UBU d_ocp_qp_ipm_arg_set_weight_ubu
+#define OCP_QP_IPM_ARG_SET_WEIGHT_LG d_ocp_qp_ipm_arg_set_weight_lg
+#define OCP_QP_IPM_ARG_SET_WEIGHT_UG d_ocp_qp_ipm_arg_set_weight_ug
+#define OCP_QP_IPM_ARG_SET_WEIGHT_LLS d_ocp_qp_ipm_arg_set_weight_lls
+#define OCP_QP_IPM_ARG_SET_WEIGHT_LUS d_ocp_qp_ipm_arg_set_weight_lus
 #define OCP_QP_IPM_ARG_GET d_ocp_qp_ipm_arg_get
 #define OCP_QP_IPM_ARG_GET_LAM0_MIN d_ocp_qp_ipm_arg_get_lam0_min
 #define OCP_QP_IPM_ARG_GET_T0_MIN d_ocp_qp_ipm_arg_get_t0_min

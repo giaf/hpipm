@@ -35,6 +35,7 @@
 
 
 
+#include <math.h>
 #if defined(RUNTIME_CHECKS)
 #include <stdlib.h>
 #include <stdio.h>

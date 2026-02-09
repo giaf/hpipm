@@ -202,6 +202,26 @@ void s_ocp_qp_set_Jbue(int stage, float *vec, struct s_ocp_qp *qp);
 void s_ocp_qp_set_Jge(int stage, float *vec, struct s_ocp_qp *qp);
 //
 void s_ocp_qp_set_diag_H_flag(int stage, int *value, struct s_ocp_qp *qp);
+//
+void s_ocp_qp_set_m_lb(int stage, float *vec, struct s_ocp_qp *qp);
+//
+void s_ocp_qp_set_m_ub(int stage, float *vec, struct s_ocp_qp *qp);
+//
+void s_ocp_qp_set_m_lbx(int stage, float *vec, struct s_ocp_qp *qp);
+//
+void s_ocp_qp_set_m_ubx(int stage, float *vec, struct s_ocp_qp *qp);
+//
+void s_ocp_qp_set_m_lbu(int stage, float *vec, struct s_ocp_qp *qp);
+//
+void s_ocp_qp_set_m_ubu(int stage, float *vec, struct s_ocp_qp *qp);
+//
+void s_ocp_qp_set_m_lg(int stage, float *vec, struct s_ocp_qp *qp);
+//
+void s_ocp_qp_set_m_ug(int stage, float *vec, struct s_ocp_qp *qp);
+//
+void s_ocp_qp_set_m_lls(int stage, float *vec, struct s_ocp_qp *qp);
+//
+void s_ocp_qp_set_m_lus(int stage, float *vec, struct s_ocp_qp *qp);
 
 // getters
 //

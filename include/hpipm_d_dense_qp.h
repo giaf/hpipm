@@ -146,6 +146,18 @@ void d_dense_qp_set_lls_mask(double *ls, struct d_dense_qp *qp);
 void d_dense_qp_set_lus(double *us, struct d_dense_qp *qp);
 //
 void d_dense_qp_set_lus_mask(double *us, struct d_dense_qp *qp);
+//
+void d_dense_qp_set_m_lb(double *lb, struct d_dense_qp *qp);
+//
+void d_dense_qp_set_m_ub(double *ub, struct d_dense_qp *qp);
+//
+void d_dense_qp_set_m_lg(double *lg, struct d_dense_qp *qp);
+//
+void d_dense_qp_set_m_ug(double *ug, struct d_dense_qp *qp);
+//
+void d_dense_qp_set_m_lls(double *ls, struct d_dense_qp *qp);
+//
+void d_dense_qp_set_m_lus(double *us, struct d_dense_qp *qp);
 
 // getters - colmaj
 //

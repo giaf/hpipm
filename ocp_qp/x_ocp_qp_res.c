@@ -199,7 +199,7 @@ void OCP_QP_RES_CREATE(struct OCP_QP_DIM *dim, struct OCP_QP_RES *res, void *mem
 	if(c_ptr > ((char *) mem) + res->memsize)
 		{
 #ifdef EXT_DEP
-		printf("\ncreate_ocp_qp_res: outside memory bounds!\n\n");
+		printf("\nocp_qp_res_create: outside memory bounds!\n\n");
 #endif
 		exit(1);
 		}
@@ -509,17 +509,17 @@ void OCP_QP_RES_COMPUTE(struct OCP_QP *qp, struct OCP_QP_SOL *qp_sol, struct OCP
 
 			}
 
-		mu += VECMULDOT(2*nb0+2*ng0+2*ns0, tmp_lam_mask, 0, t+ii, 0, res_m+ii, 0);
+		//mu += VECMULDOT(2*nb0+2*ng0+2*ns0, tmp_lam_mask, 0, t+ii, 0, res_m+ii, 0);
+		VECMUL(2*nb0+2*ng0+2*ns0, tmp_lam_mask, 0, t+ii, 0, res_m+ii, 0);
 		AXPY(2*nb0+2*ng0+2*ns0, -1.0, m+ii, 0, res_m+ii, 0, res_m+ii, 0); // TODO not necessary if m is zero
 		if(mask_constr)
 			VECMUL(2*nb0+2*ng0+2*ns0, d_mask+ii, 0, res_m+ii, 0, res_m+ii, 0); // TODO not necessary if m is zero
 
 		// TODO mask res_g for the slacks of the soft constraints ??? no !!!
 
-		//for(jj=0; jj<2*nb0+2*ng0+2*ns0; jj++)
-		//	{
-		//	res_m_sum += BLASFEO_VECEL(res_m+ii, jj);
-		//	}
+		REAL tmu = 0.0;
+		VECNRM_1(2*nb0+2*ng0+2*ns0, res_m+ii, 0, &tmu);
+		mu += tmu;
 		}
 
 	//res->res_mu = mu*nct_inv;

@@ -64,10 +64,13 @@ struct s_core_qp_ipm_workspace
 	float *res_m_bkp; // m-residuals
 	float *Gamma; // Hessian update
 	float *gamma; // gradient update
+	float *weight; // coefficients of weighted IPM
+	float *weight_mask; // weight times d_mask
+	float *m; //
 	float alpha_prim; // step length
 	float alpha_dual; // step length
 	float alpha; // step length
-	float sigma; // centering XXX
+	float sigma; // centering
 	float mu; // duality measuere
 	float mu_aff; // affine duality measuere
 	float nc_inv; // 1.0/nc, where nc is the total number of constraints
@@ -83,6 +86,7 @@ struct s_core_qp_ipm_workspace
 	int nc_mask; // total number of ineq constr after masking
 	int split_step; // use different step for primal and dual variables
 	int t_lam_min; // clip t and lam also in solution, or only in Gamma computation
+	int use_weight; // 0 (default) ignore weight; 1 use weight
 	hpipm_size_t memsize; // memory size (in bytes) of workspace
 	};
 

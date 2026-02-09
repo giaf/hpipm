@@ -1520,7 +1520,9 @@ void DENSE_QP_IPM_ABS_STEP(int kk, struct DENSE_QP *qp, struct DENSE_QP_SOL *qp_
 	REAL tmp;
 	REAL mu_aff0; //, mu;
 
-	VECSC(cws->nc, -1.0, ws->tmp_m, 0);
+	// update rhs m for abs ipm form
+	//VECSC(cws->nc, -1.0, ws->tmp_m, 0);
+	AXPBY(cws->nc, -1.0, ws->res->res_m, 0, -2.0, qp->m, 0, ws->res->res_m, 0);
 
 	BACKUP_RES_M(cws);
 
@@ -1910,6 +1912,9 @@ void DENSE_QP_IPM_DELTA_STEP(int kk, struct DENSE_QP *qp, struct DENSE_QP_SOL *q
 		}
 #endif
 
+//printf("\nstep aff\n");
+//d_dense_qp_sol_print(qp->dim, ws->sol_step);
+
 	// alpha
 	COMPUTE_ALPHA_QP(cws);
 	if(kk+1<ws->stat_max)
@@ -1965,7 +1970,9 @@ void DENSE_QP_IPM_DELTA_STEP(int kk, struct DENSE_QP *qp, struct DENSE_QP_SOL *q
 			COMPUTE_MU_AFF_QP(cws);
 
 //				if(cws->mu_aff > 2.0*cws->mu)
+			//printf("cond pred corr %e %e %d\n", cws->mu_aff, mu_aff0, cws->mu_aff > 2.0*mu_aff0);
 			if(cws->mu_aff > 2.0*mu_aff0)
+			//if(1)
 				{
 
 				// centering direction
@@ -2122,6 +2129,8 @@ void DENSE_QP_IPM_DELTA_STEP(int kk, struct DENSE_QP *qp, struct DENSE_QP_SOL *q
 			}
 		}
 
+//printf("\nstep\n");
+//d_dense_qp_sol_print(qp->dim, ws->sol_step);
 	//
 	UPDATE_VAR_QP(cws);
 	if(ws->mask_constr)
@@ -2180,6 +2189,9 @@ exit(1);
 	cws->tau_min = arg->tau_min;
 	cws->split_step = arg->split_step;
 	cws->t_lam_min = arg->t_lam_min;
+
+	// alias qp
+	cws->m = qp->m->pa;
 
 	// alias qp vectors into qp_sol
 	cws->v = qp_sol->v->pa;
@@ -2337,13 +2349,20 @@ exit(1);
 		ws->qp_step->b = qp->b;
 		ws->qp_step->d = qp->d;
 		ws->qp_step->d_mask = qp->d_mask;
-		ws->qp_step->m = ws->tmp_m;
+		//ws->qp_step->m = ws->tmp_m;
+		ws->qp_step->m = ws->res->res_m;
 
 		// alias core workspace
-		cws->res_m = ws->qp_step->m->pa;
-//		cws->res_m_bkp = ws->qp_step->m->pa;
+		// TODO restore !!!!!!!!!!!!!!!!!!!!!!!!!
+		//cws->res_m = ws->qp_step->m->pa;
+		//cws->res_m_bkp = ws->qp_step->m->pa;
 
-		mu = VECMULDOT(cws->nc, qp_sol->lam, 0, qp_sol->t, 0, ws->tmp_m, 0);
+		//mu = VECMULDOT(cws->nc, qp_sol->lam, 0, qp_sol->t, 0, ws->tmp_m, 0);
+		VECMUL(cws->nc, qp_sol->lam, 0, qp_sol->t, 0, ws->res->res_m, 0);
+		AXPY(cws->nc, -1.0, qp->m, 0, ws->res->res_m, 0, ws->res->res_m, 0); // TODO not necessary if m is zero
+		if(ws->mask_constr)
+			VECMUL(cws->nc, qp->d_mask, 0, ws->res->res_m, 0, ws->res->res_m, 0); // TODO not necessary if m is zero
+		VECNRM_1(cws->nc, ws->res->res_m, 0, &mu);
 		//mu /= cws->nc;
 		mu *= cws->nc_mask_inv;
 		cws->mu = mu;
@@ -2361,7 +2380,12 @@ exit(1);
 			updated_fact = 1;
 
 			// compute mu
-			mu = VECMULDOT(cws->nc, qp_sol->lam, 0, qp_sol->t, 0, ws->tmp_m, 0);
+			//mu = VECMULDOT(cws->nc, qp_sol->lam, 0, qp_sol->t, 0, ws->tmp_m, 0);
+			VECMUL(cws->nc, qp_sol->lam, 0, qp_sol->t, 0, ws->res->res_m, 0);
+			AXPY(cws->nc, -1.0, qp->m, 0, ws->res->res_m, 0, ws->res->res_m, 0); // TODO not necessary if m is zero
+			if(ws->mask_constr)
+				VECMUL(cws->nc, qp->d_mask, 0, ws->res->res_m, 0, ws->res->res_m, 0); // TODO not necessary if m is zero
+			VECNRM_1(cws->nc, ws->res->res_m, 0, &mu);
 			//mu /= cws->nc;
 			mu *= cws->nc_mask_inv;
 			cws->mu = mu;
@@ -2445,12 +2469,17 @@ exit(1);
 		{
 		//printf("\nexit conditions 0 %e %e 1 %e %e 2 %e %e 3 %e %e %e dg %e %e\n", qp_res_max[0], arg->res_g_max, qp_res_max[1], arg->res_b_max, qp_res_max[2], arg->res_d_max, qp_res_max[3], fabs(qp_res_max[3]-tau_min), arg->res_m_max, ws->res->dual_gap, arg->dual_gap_max);
 
+		//if(kk==3)
+		//	arg->pred_corr=0;
+
 		// compute delta step
 		DENSE_QP_IPM_DELTA_STEP(kk, qp, qp_sol, arg, ws);
 		updated_fact = 1;
+		//d_dense_qp_sol_print(qp->dim, qp_sol);
 
 		// compute residuals
 		DENSE_QP_RES_COMPUTE(qp, qp_sol, ws->res, ws->res_ws);
+		//d_dense_qp_res_print(qp->dim, ws->res);
 		//if(ws->mask_constr)
 		//	{
 		//	// mask out disregarded constraints

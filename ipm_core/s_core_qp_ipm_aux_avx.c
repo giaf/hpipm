@@ -33,6 +33,8 @@
 *                                                                                                 *
 **************************************************************************************************/
 
+#include <math.h>
+
 #include "../include/hpipm_s_core_qp_ipm.h"
 
 
@@ -429,6 +431,7 @@ void s_compute_mu_aff_qp(struct s_core_qp_ipm_workspace *cws)
 	// extract workspace members
 	int nc = cws->nc;
 
+	float *ptr_m = cws->m;
 	float *ptr_lam = cws->lam;
 	float *ptr_t = cws->t;
 	float *ptr_dlam = cws->dlam;
@@ -441,7 +444,8 @@ void s_compute_mu_aff_qp(struct s_core_qp_ipm_workspace *cws)
 
 	for(ii=0; ii<nc; ii++)
 		{
-		mu += (ptr_lam[ii+0] + alpha*ptr_dlam[ii+0]) * (ptr_t[ii+0] + alpha*ptr_dt[ii+0]);
+		//mu += (ptr_lam[ii+0] + alpha*ptr_dlam[ii+0]) * (ptr_t[ii+0] + alpha*ptr_dt[ii+0]);
+		mu += fabs(- ptr_m[ii+0] + (ptr_lam[ii+0] + alpha*ptr_dlam[ii+0]) * (ptr_t[ii+0] + alpha*ptr_dt[ii+0]));
 		}
 	
 	cws->mu_aff = mu*cws->nc_mask_inv;
