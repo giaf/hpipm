@@ -350,8 +350,12 @@ file(GLOB SIM_SRC
 	${PROJECT_SOURCE_DIR}/sim_core/s_sim_rk.c
 	${PROJECT_SOURCE_DIR}/sim_core/s_sim_erk.c
 	)
+# auxiliary
+file(GLOB INTERFACES_SRC
+	${PROJECT_SOURCE_DIR}/interfaces/c/d_ocp_qp_solver.c
+	)
 
-set(HPIPM_SRC ${COND_SRC} ${DENSE_QP_SRC} ${IPM_CORE_SRC} ${OCP_QP_SRC} ${TREE_OCP_QP_SRC} ${AUXILIARY_SRC})
+set(HPIPM_SRC ${COND_SRC} ${DENSE_QP_SRC} ${IPM_CORE_SRC} ${OCP_QP_SRC} ${TREE_OCP_QP_SRC} ${AUXILIARY_SRC} ${INTERFACES_SRC})
 
 add_library(hpipm ${HPIPM_SRC})
 
