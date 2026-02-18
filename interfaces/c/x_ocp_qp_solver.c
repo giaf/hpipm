@@ -52,7 +52,7 @@ hpipm_size_t OCP_QP_SOLVER_ARG_MEMSIZE(struct d_ocp_qp_dim *ocp_dim)
 	hpipm_size_t size = 0;
 
 	size += sizeof(struct OCP_QP_IPM_ARG);
-	size += 1*OCP_QP_IPM_ARG_MEMSIZE(ocp_dim); // XXX dim is not used in there
+	size += 1*OCP_QP_IPM_ARG_MEMSIZE(ocp_dim);
 
 	size += sizeof(struct OCP_QP_REDUCE_EQ_DOF_ARG);
 	size += 1*OCP_QP_REDUCE_EQ_DOF_ARG_MEMSIZE();
@@ -95,7 +95,7 @@ void OCP_QP_SOLVER_ARG_CREATE(struct OCP_QP_DIM *ocp_dim, struct OCP_QP_SOLVER_A
 	char *c_ptr = (char *) s_ptr;
 
 	//
-	OCP_QP_IPM_ARG_CREATE(ocp_dim, arg->ipm_arg, c_ptr); // XXX dim is not used in there
+	OCP_QP_IPM_ARG_CREATE(ocp_dim, arg->ipm_arg, c_ptr);
 	c_ptr += arg->ipm_arg->memsize;
 	//
 	OCP_QP_REDUCE_EQ_DOF_ARG_CREATE(arg->red_arg, c_ptr);
