@@ -417,99 +417,298 @@ void d_compute_alpha_qp(struct d_core_qp_ipm_workspace *cws)
 	double *dlam = cws->dlam;
 	double *dt = cws->dt;
 
-	double alpha_prim = - 1.0;
-	double alpha_dual = - 1.0;
-	double alpha = - 1.0;
+	int m_zero = cws->m_zero;
 
-	__m512d
-		z_zeros, z_mones,
-		z_tmp0, z_tmp2, z_alpha0, z_alpha2;
-	
-	__mmask8
-		m_mask0, m_mask2;
-
-	__m256d
-		y_zeros, y_mones,
-		y_tmp0, y_tmp2, y_mask0, y_mask2, y_alpha0, y_alpha2;
-
-	__m128d
-		x_alpha0, x_alpha1;
-
-
-	z_mones  = _mm512_set1_pd( -1.0 );
-	z_zeros = _mm512_setzero_pd( );
-	z_alpha0 = _mm512_set1_pd( -1.0 );
-	z_alpha2 = _mm512_set1_pd( -1.0 );
-
-	y_mones  = _mm256_set_pd( -1.0, -1.0, -1.0, -1.0 );
-	y_zeros = _mm256_setzero_pd( );
-	y_alpha0 = _mm256_set_pd( -1.0, -1.0, -1.0, -1.0 );
-	y_alpha2 = _mm256_set_pd( -1.0, -1.0, -1.0, -1.0 );
-
-	// local variables
-	int ii;
-
-	ii = 0;
-	for(; ii<nc-7; ii+=8)
-		{
-		z_tmp0 = _mm512_loadu_pd( &dlam[ii+0] );
-		z_tmp2 = _mm512_loadu_pd( &dt[ii+0] );
-		m_mask0 = _mm512_cmp_pd_mask( z_tmp0, z_zeros, 0x01 );
-		m_mask2 = _mm512_cmp_pd_mask( z_tmp2, z_zeros, 0x01 );
-		z_tmp0 = _mm512_div_pd( _mm512_loadu_pd( &lam[ii+0] ), z_tmp0 );
-		z_tmp2 = _mm512_div_pd( _mm512_loadu_pd( &t[ii+0] ), z_tmp2 );
-		z_tmp0 = _mm512_mask_blend_pd( m_mask0, z_mones, z_tmp0 );
-		z_tmp2 = _mm512_mask_blend_pd( m_mask2, z_mones, z_tmp2 );
-		z_alpha0 = _mm512_max_pd( z_alpha0, z_tmp0 );
-		z_alpha2 = _mm512_max_pd( z_alpha2, z_tmp2 );
-		}
-	for(; ii<nc-3; ii+=4)
-		{
-		y_tmp0 = _mm256_loadu_pd( &dlam[ii+0] );
-		y_tmp2 = _mm256_loadu_pd( &dt[ii+0] );
-		y_mask0 = _mm256_cmp_pd( y_tmp0, y_zeros, 0x01 );
-		y_mask2 = _mm256_cmp_pd( y_tmp2, y_zeros, 0x01 );
-		y_tmp0 = _mm256_div_pd( _mm256_loadu_pd( &lam[ii+0] ), y_tmp0 );
-		y_tmp2 = _mm256_div_pd( _mm256_loadu_pd( &t[ii+0] ), y_tmp2 );
-		y_tmp0 = _mm256_blendv_pd( y_mones, y_tmp0, y_mask0 );
-		y_tmp2 = _mm256_blendv_pd( y_mones, y_tmp2, y_mask2 );
-		y_alpha0 = _mm256_max_pd( y_alpha0, y_tmp0 );
-		y_alpha2 = _mm256_max_pd( y_alpha2, y_tmp2 );
-		}
-	for(; ii<nc; ii++)
+	if(m_zero)
 		{
 
-		if( alpha_dual*dlam[ii]>lam[ii] )
+		double alpha_prim = - 1.0;
+		double alpha_dual = - 1.0;
+		double alpha = - 1.0;
+
+		__m512d
+			z_zeros, z_mones,
+			z_tmp0, z_tmp2, z_alpha0, z_alpha2;
+		
+		__mmask8
+			m_mask0, m_mask2;
+
+		__m256d
+			y_zeros, y_mones,
+			y_tmp0, y_tmp2, y_mask0, y_mask2, y_alpha0, y_alpha2;
+
+		__m128d
+			x_alpha0, x_alpha1;
+
+
+		z_mones  = _mm512_set1_pd( -1.0 );
+		z_zeros = _mm512_setzero_pd( );
+		z_alpha0 = _mm512_set1_pd( -1.0 );
+		z_alpha2 = _mm512_set1_pd( -1.0 );
+
+		y_mones  = _mm256_set_pd( -1.0, -1.0, -1.0, -1.0 );
+		y_zeros = _mm256_setzero_pd( );
+		y_alpha0 = _mm256_set_pd( -1.0, -1.0, -1.0, -1.0 );
+		y_alpha2 = _mm256_set_pd( -1.0, -1.0, -1.0, -1.0 );
+
+		// local variables
+		int ii;
+
+		ii = 0;
+		for(; ii<nc-7; ii+=8)
 			{
-			alpha_dual = lam[ii] / dlam[ii];
+			z_tmp0 = _mm512_loadu_pd( &dlam[ii+0] );
+			z_tmp2 = _mm512_loadu_pd( &dt[ii+0] );
+			m_mask0 = _mm512_cmp_pd_mask( z_tmp0, z_zeros, 0x01 );
+			m_mask2 = _mm512_cmp_pd_mask( z_tmp2, z_zeros, 0x01 );
+			z_tmp0 = _mm512_div_pd( _mm512_loadu_pd( &lam[ii+0] ), z_tmp0 );
+			z_tmp2 = _mm512_div_pd( _mm512_loadu_pd( &t[ii+0] ), z_tmp2 );
+			z_tmp0 = _mm512_mask_blend_pd( m_mask0, z_mones, z_tmp0 );
+			z_tmp2 = _mm512_mask_blend_pd( m_mask2, z_mones, z_tmp2 );
+			z_alpha0 = _mm512_max_pd( z_alpha0, z_tmp0 );
+			z_alpha2 = _mm512_max_pd( z_alpha2, z_tmp2 );
 			}
-		if( alpha_prim*dt[ii]>t[ii] )
+		for(; ii<nc-3; ii+=4)
 			{
-			alpha_prim = t[ii] / dt[ii];
+			y_tmp0 = _mm256_loadu_pd( &dlam[ii+0] );
+			y_tmp2 = _mm256_loadu_pd( &dt[ii+0] );
+			y_mask0 = _mm256_cmp_pd( y_tmp0, y_zeros, 0x01 );
+			y_mask2 = _mm256_cmp_pd( y_tmp2, y_zeros, 0x01 );
+			y_tmp0 = _mm256_div_pd( _mm256_loadu_pd( &lam[ii+0] ), y_tmp0 );
+			y_tmp2 = _mm256_div_pd( _mm256_loadu_pd( &t[ii+0] ), y_tmp2 );
+			y_tmp0 = _mm256_blendv_pd( y_mones, y_tmp0, y_mask0 );
+			y_tmp2 = _mm256_blendv_pd( y_mones, y_tmp2, y_mask2 );
+			y_alpha0 = _mm256_max_pd( y_alpha0, y_tmp0 );
+			y_alpha2 = _mm256_max_pd( y_alpha2, y_tmp2 );
+			}
+		for(; ii<nc; ii++)
+			{
+
+			if( alpha_dual*dlam[ii]>lam[ii] )
+				{
+				alpha_dual = lam[ii] / dlam[ii];
+				}
+			if( alpha_prim*dt[ii]>t[ii] )
+				{
+				alpha_prim = t[ii] / dt[ii];
+				}
+
+			}
+
+		y_alpha0 = _mm256_max_pd( y_alpha0, _mm512_extractf64x4_pd( z_alpha0, 0x1 ) );
+		y_alpha2 = _mm256_max_pd( y_alpha2, _mm512_extractf64x4_pd( z_alpha2, 0x1 ) );
+		y_alpha0 = _mm256_max_pd( y_alpha0, _mm512_castpd512_pd256( z_alpha0 ) );
+		y_alpha2 = _mm256_max_pd( y_alpha2, _mm512_castpd512_pd256( z_alpha2 ) );
+
+		x_alpha0 = _mm_max_pd( _mm256_extractf128_pd( y_alpha0, 0x1 ), _mm256_castpd256_pd128( y_alpha0 ) );
+		x_alpha1 = _mm_max_pd( _mm256_extractf128_pd( y_alpha2, 0x1 ), _mm256_castpd256_pd128( y_alpha2 ) );
+		x_alpha0 = _mm_max_sd( x_alpha0, _mm_permute_pd( x_alpha0, 0x1 ) );
+		x_alpha1 = _mm_max_sd( x_alpha1, _mm_permute_pd( x_alpha1, 0x1 ) );
+		x_alpha0 = _mm_max_sd( x_alpha0, _mm_load_sd( &alpha_dual ) );
+		x_alpha1 = _mm_max_sd( x_alpha1, _mm_load_sd( &alpha_prim ) );
+		_mm_store_sd( &alpha_dual, x_alpha0 );
+		_mm_store_sd( &alpha_prim, x_alpha1 );
+
+		alpha = alpha_prim>alpha_dual ? alpha_prim : alpha_dual;
+
+		// store alpha
+		if(cws->split_step==1)
+			{
+			cws->alpha_prim = - alpha_prim;
+			cws->alpha_dual = - alpha_dual;
+			//cws->alpha = - alpha;
+			}
+		else
+			{
+			cws->alpha_prim = - alpha;
+			cws->alpha_dual = - alpha;
+			//cws->alpha = - alpha;
 			}
 
 		}
+	else
+		{
 
-	y_alpha0 = _mm256_max_pd( y_alpha0, _mm512_extractf64x4_pd( z_alpha0, 0x1 ) );
-	y_alpha2 = _mm256_max_pd( y_alpha2, _mm512_extractf64x4_pd( z_alpha2, 0x1 ) );
-	y_alpha0 = _mm256_max_pd( y_alpha0, _mm512_castpd512_pd256( z_alpha0 ) );
-	y_alpha2 = _mm256_max_pd( y_alpha2, _mm512_castpd512_pd256( z_alpha2 ) );
+		double *m = cws->m;
 
-	x_alpha0 = _mm_max_pd( _mm256_extractf128_pd( y_alpha0, 0x1 ), _mm256_castpd256_pd128( y_alpha0 ) );
-	x_alpha1 = _mm_max_pd( _mm256_extractf128_pd( y_alpha2, 0x1 ), _mm256_castpd256_pd128( y_alpha2 ) );
-	x_alpha0 = _mm_max_sd( x_alpha0, _mm_permute_pd( x_alpha0, 0x1 ) );
-	x_alpha1 = _mm_max_sd( x_alpha1, _mm_permute_pd( x_alpha1, 0x1 ) );
-	x_alpha0 = _mm_max_sd( x_alpha0, _mm_load_sd( &alpha_dual ) );
-	x_alpha1 = _mm_max_sd( x_alpha1, _mm_load_sd( &alpha_prim ) );
-	_mm_store_sd( &alpha_dual, x_alpha0 );
-	_mm_store_sd( &alpha_prim, x_alpha1 );
+		double alpha_prim = 1.0;
+		double alpha_dual = 1.0;
+		double alpha = 1.0;
 
-	alpha = alpha_prim>alpha_dual ? alpha_prim : alpha_dual;
+		double m_safe = cws->m_safe; //0.3; // in [0.0,1.0]
+		m_safe = m_safe>=0.0 ? m_safe : 0.0;
+		m_safe = m_safe<=1.0 ? m_safe : 1.0;
 
-	// store alpha
-	cws->alpha_prim = - alpha_prim;
-	cws->alpha_dual = - alpha_dual;
-	cws->alpha = - alpha;
+		// local variables
+		int ii;
+
+		if(cws->split_step==1)
+			{
+
+			// 1st pass
+			for(ii=0; ii<nc; ii++)
+				{
+
+				double lam1 = lam[ii]+alpha_dual*dlam[ii];
+				double t1 = t[ii]+alpha_prim*dt[ii];
+				if( lam1<0.0 )
+					{
+					alpha_dual = - lam[ii] / dlam[ii];
+					lam1 = lam[ii]+alpha_dual*dlam[ii];
+					}
+				if( t1<0.0 )
+					{
+					alpha_prim = - t[ii] / dt[ii];
+					t1 = t[ii]+alpha_prim*dt[ii];
+					}
+
+				double m1 = m_safe*m[ii];
+
+				if(lam1*t1-m1<-1e-12)
+					{
+					if(dlam[ii]<0)
+						{
+						if(dt[ii]<0)
+							{
+							// ignore for this pass
+							}
+						else
+							{
+							alpha_dual = (m1 - lam[ii]*t1) / (dlam[ii]*t1); // XXX later thighter values of alpha_prim would change this !
+							//alpha_dual = (m1 - lam[ii]*t[ii]) / (dlam[ii]*t[ii]); // be conservative and use t instead (i.e. worst case alpha_prim=0)
+							}
+						}
+					else if(dt[ii]<0)
+						{
+						alpha_prim = (m1 - t[ii]*lam1) / (dt[ii]*lam1); // XXX later thighter values of alpha_dual would change this !
+						//alpha_prim = (m1 - t[ii]*lam[ii]) / (dt[ii]*lam[ii]); // XXX be conservative and use lam instead (i.e. worst case alpha_dual=0)
+						}
+					}
+
+				}
+
+			// 2nd pass, quadratic
+			for(ii=0; ii<nc; ii++)
+				{
+				if(dlam[ii]<0 & dt[ii]<0)
+					{
+					double lam1 = lam[ii]+alpha_dual*dlam[ii];
+					double t1 = t[ii]+alpha_prim*dt[ii];
+					double m1 = m_safe*m[ii];
+
+					if(lam1*t1-m1<-1e-12)
+						{
+						double c = lam[ii]*t[ii] - m1; // >0
+						if(c>0.0)
+							{
+							double adlam = alpha_dual*dlam[ii]; // scaled with current alpha_dual
+							double adt = alpha_prim*dt[ii]; // scaled with current alpha_prim
+							double a = adlam*adt; // >0
+							double b = adlam*t[ii]+lam[ii]*adt; // <0
+							double d = b*b - 4.0*a*c; // <b*b
+							//double r0 = 1.0;
+							double r1 = 1.0;
+							// there must be a solution between 0 (i.e. lam*t>m1) and 1 (i.e. lam1*t1<m1)
+							double sd = sqrt(d); // <b
+							double tmp = 0.5/a; // >0
+							// it always holds 0 < r1 < 1 and r0 > r1
+							//r0 = (- b + sd) * tmp; // >0
+							r1 = (- b - sd) * tmp; // 0<r1<r0
+							r1 = r1>0.0 ? r1 : 0.0; // if lam*t<m from previous iteration, c<0 and r1<0, so setting r1=0 triggers min_step
+								{
+								alpha_dual *= r1;
+								alpha_prim *= r1;
+								}
+							}
+						else // lam*t<m because of initialization or previous step too long: trigger minimum step error
+							{
+							alpha_prim = 0.0;
+							alpha_dual = 0.0;
+							}
+						}
+					}
+				}
+
+			// 3rd pass, decreasing error in m prod
+			for(ii=0; ii<nc; ii++)
+				{
+				double lam1 = lam[ii]+alpha_dual*dlam[ii];
+				double t1 = t[ii]+alpha_prim*dt[ii];
+				double m1 = m_safe*m[ii];
+
+				if(lam1*t1-m1<-1e-12)
+					{
+					if(dlam[ii]<0)
+						{
+						if(dt[ii]<0)
+							{
+							// not blocking in this pass
+							}
+						else
+							{
+							alpha_dual = (m1 - lam[ii]*t1) / (dlam[ii]*t1); // XXX later thighter values of alpha_prim would change this !
+							}
+						}
+					else if(dt[ii]<0)
+						{
+						alpha_prim = (m1 - t[ii]*lam1) / (dt[ii]*lam1); // XXX later thighter values of alpha_dual would change this !
+						}
+					}
+				}
+
+			cws->alpha_prim = alpha_prim;
+			cws->alpha_dual = alpha_dual;
+
+			}
+		else
+			{
+
+			for(ii=0; ii<nc; ii++)
+				{
+
+				double lam1 = lam[ii]+alpha*dlam[ii];
+				double t1 = t[ii]+alpha*dt[ii];
+				if( lam1<0.0 )
+					{
+					alpha = - lam[ii] / dlam[ii];
+					lam1 = lam[ii]+alpha*dlam[ii];
+					}
+				if( t1<0.0 )
+					{
+					alpha = - t[ii] / dt[ii];
+					t1 = t[ii]+alpha*dt[ii];
+					}
+
+				double m1 = m_safe*m[ii];
+
+				if(lam1*t1-m1<-1e-12)
+					{
+					// (dlam<0 & dt<0) | (dlam<0 | dt<0)
+					double c = lam[ii]*t[ii] - m1; // >0 | >0
+					if(c>0.0)
+						{
+						double a = dlam[ii]*dt[ii]; // >0 | <0
+						double b = dlam[ii]*t[ii]+lam[ii]*dt[ii]; // <0 | ?
+						double d = b*b - 4.0*a*c; // <b*b | >b*b
+						double sd = sqrt(d); // <b | >b
+						double tmp = 0.5/a; // >0 | <0
+						//double r0 = (- b + sd) * tmp; // >0 | <0
+						double r1 = (- b - sd) * tmp; // 0<r1<r0 | >0
+						alpha = r1;
+						}
+					else // lam*t<m because of initialization or previous step too long: trigger minimum step error
+						{
+						alpha = 0.0;
+						}
+					}
+				}
+
+			cws->alpha_prim = alpha;
+			cws->alpha_dual = alpha;
+
+			}
+
+		}
 
 	return;
 
@@ -564,23 +763,23 @@ void d_update_var_qp(struct d_core_qp_ipm_workspace *cws)
 		{
 		alpha_prim = alpha_prim * ((1.0-alpha_prim)*0.99 + alpha_prim*0.9999999);
 		alpha_dual = alpha_dual * ((1.0-alpha_dual)*0.99 + alpha_dual*0.9999999);
-		alpha = alpha * ((1.0-alpha)*0.99 + alpha*0.9999999);
+		//alpha = alpha * ((1.0-alpha)*0.99 + alpha*0.9999999);
 		}
 #endif
 
 	// local variables
 	int ii;
 
-	if(cws->split_step==0)
-		{
-		tmp_alpha_prim = alpha;
-		tmp_alpha_dual = alpha;
-		}
-	else
-		{
+	//if(cws->split_step==0)
+	//	{
+	//	tmp_alpha_prim = alpha;
+	//	tmp_alpha_dual = alpha;
+	//	}
+	//else
+	//	{
 		tmp_alpha_prim = alpha_prim;
 		tmp_alpha_dual = alpha_dual;
-		}
+	//	}
 
 	z_alpha_prim = _mm512_set1_pd( tmp_alpha_prim );
 	z_alpha_dual = _mm512_set1_pd( tmp_alpha_dual );

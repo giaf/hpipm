@@ -1039,7 +1039,7 @@ hpipm_size_t OCP_QP_IPM_WS_MEMSIZE(struct OCP_QP_DIM *dim, struct OCP_QP_IPM_ARG
 		size += 1*GELQF_WORKSIZE(nuM+nxM, 2*nuM+3*nxM+ngM); // lq_work0
 		}
 
-	int stat_m = 19;
+	int stat_m = 20;
 	size += stat_m*(1+arg->stat_max)*sizeof(REAL); // stat
 
 	size += (N+1)*sizeof(int); // use_hess_fact
@@ -1221,7 +1221,7 @@ void OCP_QP_IPM_WS_CREATE(struct OCP_QP_DIM *dim, struct OCP_QP_IPM_ARG *arg, st
 	REAL *d_ptr = (REAL *) s_ptr;
 
 	workspace->stat = d_ptr;
-	int stat_m = 19;
+	int stat_m = 20;
 	d_ptr += stat_m*(1+arg->stat_max);
 
 
@@ -2357,7 +2357,10 @@ void OCP_QP_IPM_ABS_STEP(int kk, struct OCP_QP *qp, struct OCP_QP_SOL *qp_sol, s
 	// alpha
 	COMPUTE_ALPHA_QP(cws);
 	if(kk+1<ws->stat_max)
-		stat[stat_m*(kk+1)+0] = cws->alpha;
+		{
+		stat[stat_m*(kk+1)+0] = cws->alpha_prim;
+		stat[stat_m*(kk+1)+1] = cws->alpha_dual;
+		}
 
 	// Mehrotra's predictor-corrector
 	if(arg->pred_corr==1)
@@ -2365,12 +2368,12 @@ void OCP_QP_IPM_ABS_STEP(int kk, struct OCP_QP *qp, struct OCP_QP_SOL *qp_sol, s
 		// mu_aff
 		COMPUTE_MU_AFF_QP(cws);
 		if(kk+1<ws->stat_max)
-			stat[stat_m*(kk+1)+1] = cws->mu_aff;
+			stat[stat_m*(kk+1)+2] = cws->mu_aff;
 
 		tmp = cws->mu_aff/cws->mu;
 		cws->sigma = tmp*tmp*tmp;
 		if(kk+1<ws->stat_max)
-			stat[stat_m*(kk+1)+2] = cws->sigma;
+			stat[stat_m*(kk+1)+3] = cws->sigma;
 
 		COMPUTE_CENTERING_CORRECTION_QP(cws);
 		if(ws->mask_constr)
@@ -2401,8 +2404,8 @@ void OCP_QP_IPM_ABS_STEP(int kk, struct OCP_QP *qp, struct OCP_QP_SOL *qp_sol, s
 		COMPUTE_ALPHA_QP(cws);
 		if(kk+1<ws->stat_max)
 			{
-			stat[stat_m*(kk+1)+3] = cws->alpha_prim;
-			stat[stat_m*(kk+1)+4] = cws->alpha_dual;
+			stat[stat_m*(kk+1)+4] = cws->alpha_prim;
+			stat[stat_m*(kk+1)+5] = cws->alpha_dual;
 			}
 
 		// conditional Mehrotra's predictor-corrector
@@ -2447,8 +2450,8 @@ void OCP_QP_IPM_ABS_STEP(int kk, struct OCP_QP *qp, struct OCP_QP_SOL *qp_sol, s
 				COMPUTE_ALPHA_QP(cws);
 				if(kk+1<ws->stat_max)
 					{
-					stat[stat_m*(kk+1)+3] = cws->alpha_prim;
-					stat[stat_m*(kk+1)+4] = cws->alpha_dual;
+					stat[stat_m*(kk+1)+4] = cws->alpha_prim;
+					stat[stat_m*(kk+1)+5] = cws->alpha_dual;
 					}
 
 				}
@@ -2527,7 +2530,7 @@ void OCP_QP_IPM_DELTA_STEP(int kk, struct OCP_QP *qp, struct OCP_QP_SOL *qp_sol,
 			VECMUL(cws->nc, qp->d_mask, 0, ws->sol_step->lam, 0, ws->sol_step->lam, 0);
 			}
 		if(kk+1<ws->stat_max)
-			stat[stat_m*(kk+1)+12] = 0;
+			stat[stat_m*(kk+1)+13] = 0;
 		}
 	else if(ws->lq_fact==1 & force_lq==0)
 		{
@@ -2560,7 +2563,7 @@ void OCP_QP_IPM_DELTA_STEP(int kk, struct OCP_QP *qp, struct OCP_QP_SOL *qp_sol,
 		itref_qp_norm[3] = ws->res_itref->res_max[3];
 
 		if(kk+1<ws->stat_max)
-			stat[stat_m*(kk+1)+12] = 0;
+			stat[stat_m*(kk+1)+13] = 0;
 
 		// inaccurate factorization: switch to lq
 		if(
@@ -2590,7 +2593,7 @@ void OCP_QP_IPM_DELTA_STEP(int kk, struct OCP_QP *qp, struct OCP_QP_SOL *qp_sol,
 			force_lq = 1;
 
 			if(kk+1<ws->stat_max)
-				stat[stat_m*(kk+1)+12] = 1;
+				stat[stat_m*(kk+1)+13] = 1;
 
 			}
 
@@ -2608,7 +2611,7 @@ void OCP_QP_IPM_DELTA_STEP(int kk, struct OCP_QP *qp, struct OCP_QP_SOL *qp_sol,
 			VECMUL(cws->nc, qp->d_mask, 0, ws->sol_step->lam, 0, ws->sol_step->lam, 0);
 			}
 		if(kk+1<ws->stat_max)
-			stat[stat_m*(kk+1)+12] = 1;
+			stat[stat_m*(kk+1)+13] = 1;
 
 		}
 
@@ -2617,10 +2620,10 @@ void OCP_QP_IPM_DELTA_STEP(int kk, struct OCP_QP *qp, struct OCP_QP_SOL *qp_sol,
 		{
 		if(kk+1<ws->stat_max)
 			{
-			stat[stat_m*(kk+1)+15] = 0.0;
 			stat[stat_m*(kk+1)+16] = 0.0;
 			stat[stat_m*(kk+1)+17] = 0.0;
 			stat[stat_m*(kk+1)+18] = 0.0;
+			stat[stat_m*(kk+1)+19] = 0.0;
 			}
 		}
 	else
@@ -2644,10 +2647,10 @@ void OCP_QP_IPM_DELTA_STEP(int kk, struct OCP_QP *qp, struct OCP_QP_SOL *qp_sol,
 			itref_qp_norm[3] = ws->res_itref->res_max[3];
 			if(kk+1<ws->stat_max)
 				{
-				stat[stat_m*(kk+1)+15] = itref_qp_norm[0];
-				stat[stat_m*(kk+1)+16] = itref_qp_norm[1];
-				stat[stat_m*(kk+1)+17] = itref_qp_norm[2];
-				stat[stat_m*(kk+1)+18] = itref_qp_norm[3];
+				stat[stat_m*(kk+1)+16] = itref_qp_norm[0];
+				stat[stat_m*(kk+1)+17] = itref_qp_norm[1];
+				stat[stat_m*(kk+1)+18] = itref_qp_norm[2];
+				stat[stat_m*(kk+1)+19] = itref_qp_norm[3];
 				}
 
 			if(itref0==0)
@@ -2706,21 +2709,24 @@ void OCP_QP_IPM_DELTA_STEP(int kk, struct OCP_QP *qp, struct OCP_QP_SOL *qp_sol,
 			itref_qp_norm[3] = ws->res_itref->res_max[3];
 			if(kk+1<ws->stat_max)
 				{
-				stat[stat_m*(kk+1)+15] = itref_qp_norm[0];
-				stat[stat_m*(kk+1)+16] = itref_qp_norm[1];
-				stat[stat_m*(kk+1)+17] = itref_qp_norm[2];
-				stat[stat_m*(kk+1)+18] = itref_qp_norm[3];
+				stat[stat_m*(kk+1)+16] = itref_qp_norm[0];
+				stat[stat_m*(kk+1)+17] = itref_qp_norm[1];
+				stat[stat_m*(kk+1)+18] = itref_qp_norm[2];
+				stat[stat_m*(kk+1)+19] = itref_qp_norm[3];
 				}
 			}
 		}
 
 	if(kk+1<ws->stat_max)
-		stat[stat_m*(kk+1)+13] = itref0;
+		stat[stat_m*(kk+1)+14] = itref0;
 
 	// alpha
 	COMPUTE_ALPHA_QP(cws);
 	if(kk+1<ws->stat_max)
-		stat[stat_m*(kk+1)+0] = cws->alpha;
+		{
+		stat[stat_m*(kk+1)+0] = cws->alpha_prim;
+		stat[stat_m*(kk+1)+1] = cws->alpha_dual;
+		}
 
 	// Mehrotra's predictor-corrector
 	if(arg->pred_corr==1)
@@ -2728,12 +2734,13 @@ void OCP_QP_IPM_DELTA_STEP(int kk, struct OCP_QP *qp, struct OCP_QP_SOL *qp_sol,
 		// mu_aff
 		COMPUTE_MU_AFF_QP(cws);
 		if(kk+1<ws->stat_max)
-			stat[stat_m*(kk+1)+1] = cws->mu_aff;
+			stat[stat_m*(kk+1)+2] = cws->mu_aff;
 
 		tmp = cws->mu_aff/cws->mu;
 		cws->sigma = tmp*tmp*tmp;
+		//cws->sigma = tmp*tmp*tmp<1.0 ? tmp*tmp*tmp : 1.0;
 		if(kk+1<ws->stat_max)
-			stat[stat_m*(kk+1)+2] = cws->sigma;
+			stat[stat_m*(kk+1)+3] = cws->sigma;
 
 		COMPUTE_CENTERING_CORRECTION_QP(cws); // TODO restore !!!!!!!!!!!!!
 		//COMPUTE_CENTERING_QP(cws);
@@ -2759,8 +2766,8 @@ void OCP_QP_IPM_DELTA_STEP(int kk, struct OCP_QP *qp, struct OCP_QP_SOL *qp_sol,
 		COMPUTE_ALPHA_QP(cws);
 		if(kk+1<ws->stat_max)
 			{
-			stat[stat_m*(kk+1)+3] = cws->alpha_prim;
-			stat[stat_m*(kk+1)+4] = cws->alpha_dual;
+			stat[stat_m*(kk+1)+4] = cws->alpha_prim;
+			stat[stat_m*(kk+1)+5] = cws->alpha_dual;
 			}
 
 		// conditional Mehrotra's predictor-corrector
@@ -2801,8 +2808,8 @@ void OCP_QP_IPM_DELTA_STEP(int kk, struct OCP_QP *qp, struct OCP_QP_SOL *qp_sol,
 				COMPUTE_ALPHA_QP(cws);
 				if(kk+1<ws->stat_max)
 					{
-					stat[stat_m*(kk+1)+3] = cws->alpha_prim;
-					stat[stat_m*(kk+1)+4] = cws->alpha_dual;
+					stat[stat_m*(kk+1)+4] = cws->alpha_prim;
+					stat[stat_m*(kk+1)+5] = cws->alpha_dual;
 					}
 
 				}
@@ -2831,10 +2838,10 @@ void OCP_QP_IPM_DELTA_STEP(int kk, struct OCP_QP *qp, struct OCP_QP_SOL *qp_sol,
 				itref_qp_norm[3] = ws->res_itref->res_max[3];
 				if(kk+1<ws->stat_max)
 					{
-					stat[stat_m*(kk+1)+15] = itref_qp_norm[0];
-					stat[stat_m*(kk+1)+16] = itref_qp_norm[1];
-					stat[stat_m*(kk+1)+17] = itref_qp_norm[2];
-					stat[stat_m*(kk+1)+18] = itref_qp_norm[3];
+					stat[stat_m*(kk+1)+16] = itref_qp_norm[0];
+					stat[stat_m*(kk+1)+17] = itref_qp_norm[1];
+					stat[stat_m*(kk+1)+18] = itref_qp_norm[2];
+					stat[stat_m*(kk+1)+19] = itref_qp_norm[3];
 					}
 
 				if(itref1==0)
@@ -2894,10 +2901,10 @@ void OCP_QP_IPM_DELTA_STEP(int kk, struct OCP_QP *qp, struct OCP_QP_SOL *qp_sol,
 				itref_qp_norm[3] = ws->res_itref->res_max[3];
 				if(kk+1<ws->stat_max)
 					{
-					stat[stat_m*(kk+1)+15] = itref_qp_norm[0];
-					stat[stat_m*(kk+1)+16] = itref_qp_norm[1];
-					stat[stat_m*(kk+1)+17] = itref_qp_norm[2];
-					stat[stat_m*(kk+1)+18] = itref_qp_norm[3];
+					stat[stat_m*(kk+1)+16] = itref_qp_norm[0];
+					stat[stat_m*(kk+1)+17] = itref_qp_norm[1];
+					stat[stat_m*(kk+1)+18] = itref_qp_norm[2];
+					stat[stat_m*(kk+1)+19] = itref_qp_norm[3];
 					}
 				}
 			}
@@ -2908,8 +2915,8 @@ void OCP_QP_IPM_DELTA_STEP(int kk, struct OCP_QP *qp, struct OCP_QP_SOL *qp_sol,
 			COMPUTE_ALPHA_QP(cws);
 			if(kk+1<ws->stat_max)
 				{
-				stat[stat_m*(kk+1)+3] = cws->alpha_prim;
-				stat[stat_m*(kk+1)+4] = cws->alpha_dual;
+				stat[stat_m*(kk+1)+4] = cws->alpha_prim;
+				stat[stat_m*(kk+1)+5] = cws->alpha_dual;
 				}
 			}
 
@@ -2918,14 +2925,14 @@ void OCP_QP_IPM_DELTA_STEP(int kk, struct OCP_QP *qp, struct OCP_QP_SOL *qp_sol,
 		{
 		if(kk+1<ws->stat_max)
 			{
-			stat[stat_m*(kk+1)+15] = 0.0;
 			stat[stat_m*(kk+1)+16] = 0.0;
 			stat[stat_m*(kk+1)+17] = 0.0;
 			stat[stat_m*(kk+1)+18] = 0.0;
+			stat[stat_m*(kk+1)+19] = 0.0;
 			}
 		}
 	if(kk+1<ws->stat_max)
-		stat[stat_m*(kk+1)+14] = itref1;
+		stat[stat_m*(kk+1)+15] = itref1;
 
 	// TODO step length computation
 
@@ -3128,7 +3135,17 @@ void OCP_QP_IPM_SOLVE(struct OCP_QP *qp, struct OCP_QP_SOL *qp_sol, struct OCP_Q
 		}
 
 	cws->alpha = 1.0;
+	cws->alpha_prim = 1.0;
+	cws->alpha_dual = 1.0;
 
+	{
+	REAL rtmp = 0.0;
+	VECNRM_INF(cws->nc, qp->m, 0, &rtmp);
+	if(rtmp==0.0)
+		cws->m_zero = 1;
+	else
+		cws->m_zero = 0;
+	}
 
 
 	// absolute IPM formulation
@@ -3178,8 +3195,9 @@ void OCP_QP_IPM_SOLVE(struct OCP_QP *qp, struct OCP_QP_SOL *qp_sol, struct OCP_Q
 
 		// IPM loop (absolute formulation)
 		for(kk=0; \
-				kk<arg->iter_max & \
-				cws->alpha>arg->alpha_min & \
+				kk < arg->iter_max & \
+				cws->alpha_prim > arg->alpha_min & \
+				cws->alpha_dual > arg->alpha_min & \
 				fabs(mu-tau_min) > arg->res_m_max \
 				; kk++)
 			{
@@ -3199,7 +3217,7 @@ void OCP_QP_IPM_SOLVE(struct OCP_QP *qp, struct OCP_QP_SOL *qp_sol, struct OCP_Q
 			mu *= cws->nc_mask_inv;
 			cws->mu = mu;
 			if(kk+1<ws->stat_max)
-				stat[stat_m*(kk+1)+5] = mu;
+				stat[stat_m*(kk+1)+6] = mu;
 
 			//for(ii=0; ii<cws->nc; ii++)
 			//	cws->res_m[ii] = ws->tmp_m->pa[ii];
@@ -3224,12 +3242,12 @@ void OCP_QP_IPM_SOLVE(struct OCP_QP *qp, struct OCP_QP_SOL *qp_sol, struct OCP_Q
 			// XXX it is already kk+1
 			if(kk<ws->stat_max)
 				{
-				stat[stat_m*(kk+0)+6] = qp_res_max[0];
-				stat[stat_m*(kk+0)+7] = qp_res_max[1];
-				stat[stat_m*(kk+0)+8] = qp_res_max[2];
-				stat[stat_m*(kk+0)+9] = qp_res_max[3];
-				stat[stat_m*(kk+0)+10] = ws->res->dual_gap;
-				stat[stat_m*(kk+0)+11] = ws->res->obj;
+				stat[stat_m*(kk+0)+7] = qp_res_max[0];
+				stat[stat_m*(kk+0)+8] = qp_res_max[1];
+				stat[stat_m*(kk+0)+9] = qp_res_max[2];
+				stat[stat_m*(kk+0)+10] = qp_res_max[3];
+				stat[stat_m*(kk+0)+11] = ws->res->dual_gap;
+				stat[stat_m*(kk+0)+12] = ws->res->obj;
 				}
 			}
 
@@ -3255,12 +3273,12 @@ void OCP_QP_IPM_SOLVE(struct OCP_QP *qp, struct OCP_QP_SOL *qp_sol, struct OCP_Q
 	// save infinity norm of residuals
 	if(0<ws->stat_max)
 		{
-		stat[stat_m*(0)+6] = qp_res_max[0];
-		stat[stat_m*(0)+7] = qp_res_max[1];
-		stat[stat_m*(0)+8] = qp_res_max[2];
-		stat[stat_m*(0)+9] = qp_res_max[3];
-		stat[stat_m*(0)+10] = ws->res->dual_gap;
-		stat[stat_m*(0)+11] = ws->res->obj;
+		stat[stat_m*(0)+7] = qp_res_max[0];
+		stat[stat_m*(0)+8] = qp_res_max[1];
+		stat[stat_m*(0)+9] = qp_res_max[2];
+		stat[stat_m*(0)+10] = qp_res_max[3];
+		stat[stat_m*(0)+11] = ws->res->dual_gap;
+		stat[stat_m*(0)+12] = ws->res->obj;
 		}
 
 
@@ -3282,7 +3300,8 @@ void OCP_QP_IPM_SOLVE(struct OCP_QP *qp, struct OCP_QP_SOL *qp_sol, struct OCP_Q
 	// IPM loop
 	for(kk=0; \
 			kk < arg->iter_max & \
-			cws->alpha > arg->alpha_min & \
+			cws->alpha_prim > arg->alpha_min & \
+			cws->alpha_dual > arg->alpha_min & \
 			(qp_res_max[0] > arg->res_g_max | \
 			qp_res_max[1] > arg->res_b_max | \
 			qp_res_max[2] > arg->res_d_max | \
@@ -3311,13 +3330,13 @@ void OCP_QP_IPM_SOLVE(struct OCP_QP *qp, struct OCP_QP_SOL *qp_sol, struct OCP_Q
 		// save infinity norm of residuals
 		if(kk+1<ws->stat_max)
 			{
-			stat[stat_m*(kk+1)+5] = ws->res->res_mu;
-			stat[stat_m*(kk+1)+6] = qp_res_max[0];
-			stat[stat_m*(kk+1)+7] = qp_res_max[1];
-			stat[stat_m*(kk+1)+8] = qp_res_max[2];
-			stat[stat_m*(kk+1)+9] = qp_res_max[3];
-			stat[stat_m*(kk+1)+10] = ws->res->dual_gap;
-			stat[stat_m*(kk+1)+11] = ws->res->obj;
+			stat[stat_m*(kk+1)+6] = ws->res->res_mu;
+			stat[stat_m*(kk+1)+7] = qp_res_max[0];
+			stat[stat_m*(kk+1)+8] = qp_res_max[1];
+			stat[stat_m*(kk+1)+9] = qp_res_max[2];
+			stat[stat_m*(kk+1)+10] = qp_res_max[3];
+			stat[stat_m*(kk+1)+11] = ws->res->dual_gap;
+			stat[stat_m*(kk+1)+12] = ws->res->obj;
 			}
 
 		if(cws->use_weight)
@@ -3355,7 +3374,7 @@ set_status:
 		// max iteration number reached
 		ws->status = MAX_ITER;
 		}
-	else if(cws->alpha <= arg->alpha_min)
+	else if(cws->alpha_prim <= arg->alpha_min || cws->alpha_dual <= arg->alpha_min)
 		{
 		// min step lenght
 		ws->status = MIN_STEP;

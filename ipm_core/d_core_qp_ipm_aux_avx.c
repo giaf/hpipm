@@ -349,135 +349,334 @@ void d_compute_alpha_qp(struct d_core_qp_ipm_workspace *cws)
 	double *dlam = cws->dlam;
 	double *dt = cws->dt;
 
-	double alpha_prim = - 1.0;
-	double alpha_dual = - 1.0;
-	double alpha = - 1.0;
+	int m_zero = cws->m_zero;
 
-	__m256d
-		y_alpha0, y_alpha1;
-
-	__m128d
-		x_alpha0, x_alpha1;
-
-	__m256d
-		d_zeros, d_mones,
-		d_tmp0, d_tmp2, d_mask0, d_mask2, d_alpha0, d_alpha2;
-
-	d_mones  = _mm256_set_pd( -1.0, -1.0, -1.0, -1.0 );
-	d_zeros = _mm256_setzero_pd( );
-
-	d_alpha0 = _mm256_set_pd( -1.0, -1.0, -1.0, -1.0 );
-	d_alpha2 = _mm256_set_pd( -1.0, -1.0, -1.0, -1.0 );
-
-#if 0
-	__m128
-		s_zeros, s_mones,
-		s_tmp0, s_tmp2, s_mask0, s_mask2, s_alpha0, s_alpha2,
-		s_tmp1, s_tmp3, s_mask1, s_mask3, s_alpha1, s_alpha3;
-
-	s_mones  = _mm_set_ps( -1.0, -1.0, -1.0, -1.0 );
-	s_zeros = _mm_setzero_ps( );
-
-	s_alpha0 = _mm_set_ps( -1.0, -1.0, -1.0, -1.0 );
-	s_alpha2 = _mm_set_ps( -1.0, -1.0, -1.0, -1.0 );
-#endif
-
-	// local variables
-	int ii;
-
-	ii = 0;
-#if 0
-	s_alpha1 = _mm_set_ps( -1.0, -1.0, -1.0, -1.0 );
-	s_alpha3 = _mm_set_ps( -1.0, -1.0, -1.0, -1.0 );
-	for(; ii<nc-7; ii+=8)
-		{
-		s_tmp0 = _mm256_cvtpd_ps( _mm256_loadu_pd( &dlam[ii+0] ) );
-		s_tmp1 = _mm256_cvtpd_ps( _mm256_loadu_pd( &dlam[ii+4] ) );
-		s_tmp2 = _mm256_cvtpd_ps( _mm256_loadu_pd( &dt[ii+0] ) );
-		s_tmp3 = _mm256_cvtpd_ps( _mm256_loadu_pd( &dt[ii+4] ) );
-		s_mask0 = _mm_cmp_ps( s_tmp0, s_zeros, 0x01 );
-		s_mask1 = _mm_cmp_ps( s_tmp1, s_zeros, 0x01 );
-		s_mask2 = _mm_cmp_ps( s_tmp2, s_zeros, 0x01 );
-		s_mask3 = _mm_cmp_ps( s_tmp3, s_zeros, 0x01 );
-		s_tmp0 = _mm_div_ps( _mm256_cvtpd_ps( _mm256_loadu_pd( &lam[ii+0] ) ), s_tmp0 );
-		s_tmp1 = _mm_div_ps( _mm256_cvtpd_ps( _mm256_loadu_pd( &lam[ii+4] ) ), s_tmp1 );
-		s_tmp2 = _mm_div_ps( _mm256_cvtpd_ps( _mm256_loadu_pd( &t[ii+0] ) ), s_tmp2 );
-		s_tmp3 = _mm_div_ps( _mm256_cvtpd_ps( _mm256_loadu_pd( &t[ii+4] ) ), s_tmp3 );
-		s_tmp0 = _mm_blendv_ps( s_mones, s_tmp0, s_mask0 );
-		s_tmp1 = _mm_blendv_ps( s_mones, s_tmp1, s_mask1 );
-		s_tmp2 = _mm_blendv_ps( s_mones, s_tmp2, s_mask2 );
-		s_tmp3 = _mm_blendv_ps( s_mones, s_tmp3, s_mask3 );
-		s_alpha0 = _mm_max_ps( s_alpha0, s_tmp0 );
-		s_alpha1 = _mm_max_ps( s_alpha1, s_tmp1 );
-		s_alpha2 = _mm_max_ps( s_alpha2, s_tmp2 );
-		s_alpha3 = _mm_max_ps( s_alpha3, s_tmp3 );
-		}
-	s_alpha0 = _mm_max_ps( s_alpha0, s_alpha1 );
-	s_alpha2 = _mm_max_ps( s_alpha2, s_alpha3 );
-#endif
-#if 0
-	for(; ii<nc-3; ii+=4)
-		{
-		s_tmp0 = _mm256_cvtpd_ps( _mm256_loadu_pd( &dlam[ii+0] ) );
-		s_tmp2 = _mm256_cvtpd_ps( _mm256_loadu_pd( &dt[ii+0] ) );
-		s_mask0 = _mm_cmp_ps( s_tmp0, s_zeros, 0x01 );
-		s_mask2 = _mm_cmp_ps( s_tmp2, s_zeros, 0x01 );
-		s_tmp0 = _mm_div_ps( _mm256_cvtpd_ps( _mm256_loadu_pd( &lam[ii+0] ) ), s_tmp0 );
-		s_tmp2 = _mm_div_ps( _mm256_cvtpd_ps( _mm256_loadu_pd( &t[ii+0] ) ), s_tmp2 );
-		s_tmp0 = _mm_blendv_ps( s_mones, s_tmp0, s_mask0 );
-		s_tmp2 = _mm_blendv_ps( s_mones, s_tmp2, s_mask2 );
-		s_alpha0 = _mm_max_ps( s_alpha0, s_tmp0 );
-		s_alpha2 = _mm_max_ps( s_alpha2, s_tmp2 );
-		}
-#endif
-	for(; ii<nc-3; ii+=4)
-		{
-		d_tmp0 = _mm256_loadu_pd( &dlam[ii+0] );
-		d_tmp2 = _mm256_loadu_pd( &dt[ii+0] );
-		d_mask0 = _mm256_cmp_pd( d_tmp0, d_zeros, 0x01 );
-		d_mask2 = _mm256_cmp_pd( d_tmp2, d_zeros, 0x01 );
-		d_tmp0 = _mm256_div_pd( _mm256_loadu_pd( &lam[ii+0] ), d_tmp0 );
-		d_tmp2 = _mm256_div_pd( _mm256_loadu_pd( &t[ii+0] ), d_tmp2 );
-		d_tmp0 = _mm256_blendv_pd( d_mones, d_tmp0, d_mask0 );
-		d_tmp2 = _mm256_blendv_pd( d_mones, d_tmp2, d_mask2 );
-		d_alpha0 = _mm256_max_pd( d_alpha0, d_tmp0 );
-		d_alpha2 = _mm256_max_pd( d_alpha2, d_tmp2 );
-		}
-	for(; ii<nc; ii++)
+	if(m_zero)
 		{
 
-		if( alpha_dual*dlam[ii]>lam[ii] )
+		double alpha_prim = - 1.0;
+		double alpha_dual = - 1.0;
+		double alpha = - 1.0;
+
+		__m256d
+			y_alpha0, y_alpha1;
+
+		__m128d
+			x_alpha0, x_alpha1;
+
+		__m256d
+			d_zeros, d_mones,
+			d_tmp0, d_tmp2, d_mask0, d_mask2, d_alpha0, d_alpha2;
+
+		d_mones  = _mm256_set_pd( -1.0, -1.0, -1.0, -1.0 );
+		d_zeros = _mm256_setzero_pd( );
+
+		d_alpha0 = _mm256_set_pd( -1.0, -1.0, -1.0, -1.0 );
+		d_alpha2 = _mm256_set_pd( -1.0, -1.0, -1.0, -1.0 );
+
+	#if 0
+		__m128
+			s_zeros, s_mones,
+			s_tmp0, s_tmp2, s_mask0, s_mask2, s_alpha0, s_alpha2,
+			s_tmp1, s_tmp3, s_mask1, s_mask3, s_alpha1, s_alpha3;
+
+		s_mones  = _mm_set_ps( -1.0, -1.0, -1.0, -1.0 );
+		s_zeros = _mm_setzero_ps( );
+
+		s_alpha0 = _mm_set_ps( -1.0, -1.0, -1.0, -1.0 );
+		s_alpha2 = _mm_set_ps( -1.0, -1.0, -1.0, -1.0 );
+	#endif
+
+		// local variables
+		int ii;
+
+		ii = 0;
+	#if 0
+		s_alpha1 = _mm_set_ps( -1.0, -1.0, -1.0, -1.0 );
+		s_alpha3 = _mm_set_ps( -1.0, -1.0, -1.0, -1.0 );
+		for(; ii<nc-7; ii+=8)
 			{
-			alpha_dual = lam[ii] / dlam[ii];
+			s_tmp0 = _mm256_cvtpd_ps( _mm256_loadu_pd( &dlam[ii+0] ) );
+			s_tmp1 = _mm256_cvtpd_ps( _mm256_loadu_pd( &dlam[ii+4] ) );
+			s_tmp2 = _mm256_cvtpd_ps( _mm256_loadu_pd( &dt[ii+0] ) );
+			s_tmp3 = _mm256_cvtpd_ps( _mm256_loadu_pd( &dt[ii+4] ) );
+			s_mask0 = _mm_cmp_ps( s_tmp0, s_zeros, 0x01 );
+			s_mask1 = _mm_cmp_ps( s_tmp1, s_zeros, 0x01 );
+			s_mask2 = _mm_cmp_ps( s_tmp2, s_zeros, 0x01 );
+			s_mask3 = _mm_cmp_ps( s_tmp3, s_zeros, 0x01 );
+			s_tmp0 = _mm_div_ps( _mm256_cvtpd_ps( _mm256_loadu_pd( &lam[ii+0] ) ), s_tmp0 );
+			s_tmp1 = _mm_div_ps( _mm256_cvtpd_ps( _mm256_loadu_pd( &lam[ii+4] ) ), s_tmp1 );
+			s_tmp2 = _mm_div_ps( _mm256_cvtpd_ps( _mm256_loadu_pd( &t[ii+0] ) ), s_tmp2 );
+			s_tmp3 = _mm_div_ps( _mm256_cvtpd_ps( _mm256_loadu_pd( &t[ii+4] ) ), s_tmp3 );
+			s_tmp0 = _mm_blendv_ps( s_mones, s_tmp0, s_mask0 );
+			s_tmp1 = _mm_blendv_ps( s_mones, s_tmp1, s_mask1 );
+			s_tmp2 = _mm_blendv_ps( s_mones, s_tmp2, s_mask2 );
+			s_tmp3 = _mm_blendv_ps( s_mones, s_tmp3, s_mask3 );
+			s_alpha0 = _mm_max_ps( s_alpha0, s_tmp0 );
+			s_alpha1 = _mm_max_ps( s_alpha1, s_tmp1 );
+			s_alpha2 = _mm_max_ps( s_alpha2, s_tmp2 );
+			s_alpha3 = _mm_max_ps( s_alpha3, s_tmp3 );
 			}
-		if( alpha_prim*dt[ii]>t[ii] )
+		s_alpha0 = _mm_max_ps( s_alpha0, s_alpha1 );
+		s_alpha2 = _mm_max_ps( s_alpha2, s_alpha3 );
+	#endif
+	#if 0
+		for(; ii<nc-3; ii+=4)
 			{
-			alpha_prim = t[ii] / dt[ii];
+			s_tmp0 = _mm256_cvtpd_ps( _mm256_loadu_pd( &dlam[ii+0] ) );
+			s_tmp2 = _mm256_cvtpd_ps( _mm256_loadu_pd( &dt[ii+0] ) );
+			s_mask0 = _mm_cmp_ps( s_tmp0, s_zeros, 0x01 );
+			s_mask2 = _mm_cmp_ps( s_tmp2, s_zeros, 0x01 );
+			s_tmp0 = _mm_div_ps( _mm256_cvtpd_ps( _mm256_loadu_pd( &lam[ii+0] ) ), s_tmp0 );
+			s_tmp2 = _mm_div_ps( _mm256_cvtpd_ps( _mm256_loadu_pd( &t[ii+0] ) ), s_tmp2 );
+			s_tmp0 = _mm_blendv_ps( s_mones, s_tmp0, s_mask0 );
+			s_tmp2 = _mm_blendv_ps( s_mones, s_tmp2, s_mask2 );
+			s_alpha0 = _mm_max_ps( s_alpha0, s_tmp0 );
+			s_alpha2 = _mm_max_ps( s_alpha2, s_tmp2 );
+			}
+	#endif
+		for(; ii<nc-3; ii+=4)
+			{
+			d_tmp0 = _mm256_loadu_pd( &dlam[ii+0] );
+			d_tmp2 = _mm256_loadu_pd( &dt[ii+0] );
+			d_mask0 = _mm256_cmp_pd( d_tmp0, d_zeros, 0x01 );
+			d_mask2 = _mm256_cmp_pd( d_tmp2, d_zeros, 0x01 );
+			d_tmp0 = _mm256_div_pd( _mm256_loadu_pd( &lam[ii+0] ), d_tmp0 );
+			d_tmp2 = _mm256_div_pd( _mm256_loadu_pd( &t[ii+0] ), d_tmp2 );
+			d_tmp0 = _mm256_blendv_pd( d_mones, d_tmp0, d_mask0 );
+			d_tmp2 = _mm256_blendv_pd( d_mones, d_tmp2, d_mask2 );
+			d_alpha0 = _mm256_max_pd( d_alpha0, d_tmp0 );
+			d_alpha2 = _mm256_max_pd( d_alpha2, d_tmp2 );
+			}
+		for(; ii<nc; ii++)
+			{
+
+			if( alpha_dual*dlam[ii]>lam[ii] )
+				{
+				alpha_dual = lam[ii] / dlam[ii];
+				}
+			if( alpha_prim*dt[ii]>t[ii] )
+				{
+				alpha_prim = t[ii] / dt[ii];
+				}
+
+			}
+
+	#if 0
+		y_alpha0 = _mm256_cvtps_pd( s_alpha0 );
+		y_alpha1 = _mm256_cvtps_pd( s_alpha2 );
+	#endif
+		y_alpha0 = d_alpha0;
+		y_alpha1 = d_alpha2;
+		x_alpha0 = _mm_max_pd( _mm256_extractf128_pd( y_alpha0, 0x1 ), _mm256_castpd256_pd128( y_alpha0 ) );
+		x_alpha1 = _mm_max_pd( _mm256_extractf128_pd( y_alpha1, 0x1 ), _mm256_castpd256_pd128( y_alpha1 ) );
+		x_alpha0 = _mm_max_sd( x_alpha0, _mm_permute_pd( x_alpha0, 0x1 ) );
+		x_alpha1 = _mm_max_sd( x_alpha1, _mm_permute_pd( x_alpha1, 0x1 ) );
+		x_alpha0 = _mm_max_sd( x_alpha0, _mm_load_sd( &alpha_dual ) );
+		x_alpha1 = _mm_max_sd( x_alpha1, _mm_load_sd( &alpha_prim ) );
+		_mm_store_sd( &alpha_dual, x_alpha0 );
+		_mm_store_sd( &alpha_prim, x_alpha1 );
+
+		alpha = alpha_prim>alpha_dual ? alpha_prim : alpha_dual;
+
+		// store alpha
+		if(cws->split_step==1)
+			{
+			cws->alpha_prim = - alpha_prim;
+			cws->alpha_dual = - alpha_dual;
+			//cws->alpha = - alpha;
+			}
+		else
+			{
+			cws->alpha_prim = - alpha;
+			cws->alpha_dual = - alpha;
+			//cws->alpha = - alpha;
 			}
 
 		}
+	else
+		{
 
-#if 0
-	y_alpha0 = _mm256_cvtps_pd( s_alpha0 );
-	y_alpha1 = _mm256_cvtps_pd( s_alpha2 );
-#endif
-	y_alpha0 = d_alpha0;
-	y_alpha1 = d_alpha2;
-	x_alpha0 = _mm_max_pd( _mm256_extractf128_pd( y_alpha0, 0x1 ), _mm256_castpd256_pd128( y_alpha0 ) );
-	x_alpha1 = _mm_max_pd( _mm256_extractf128_pd( y_alpha1, 0x1 ), _mm256_castpd256_pd128( y_alpha1 ) );
-	x_alpha0 = _mm_max_sd( x_alpha0, _mm_permute_pd( x_alpha0, 0x1 ) );
-	x_alpha1 = _mm_max_sd( x_alpha1, _mm_permute_pd( x_alpha1, 0x1 ) );
-	x_alpha0 = _mm_max_sd( x_alpha0, _mm_load_sd( &alpha_dual ) );
-	x_alpha1 = _mm_max_sd( x_alpha1, _mm_load_sd( &alpha_prim ) );
-	_mm_store_sd( &alpha_dual, x_alpha0 );
-	_mm_store_sd( &alpha_prim, x_alpha1 );
+		double *m = cws->m;
 
-	alpha = alpha_prim>alpha_dual ? alpha_prim : alpha_dual;
+		double alpha_prim = 1.0;
+		double alpha_dual = 1.0;
+		double alpha = 1.0;
 
-	// store alpha
-	cws->alpha_prim = - alpha_prim;
-	cws->alpha_dual = - alpha_dual;
-	cws->alpha = - alpha;
+		double m_safe = cws->m_safe; //0.3; // in [0.0,1.0]
+		m_safe = m_safe>=0.0 ? m_safe : 0.0;
+		m_safe = m_safe<=1.0 ? m_safe : 1.0;
+
+		// local variables
+		int ii;
+
+		if(cws->split_step==1)
+			{
+
+			// 1st pass
+			for(ii=0; ii<nc; ii++)
+				{
+
+				double lam1 = lam[ii]+alpha_dual*dlam[ii];
+				double t1 = t[ii]+alpha_prim*dt[ii];
+				if( lam1<0.0 )
+					{
+					alpha_dual = - lam[ii] / dlam[ii];
+					lam1 = lam[ii]+alpha_dual*dlam[ii];
+					}
+				if( t1<0.0 )
+					{
+					alpha_prim = - t[ii] / dt[ii];
+					t1 = t[ii]+alpha_prim*dt[ii];
+					}
+
+				double m1 = m_safe*m[ii];
+
+				if(lam1*t1-m1<-1e-12)
+					{
+					if(dlam[ii]<0)
+						{
+						if(dt[ii]<0)
+							{
+							// ignore for this pass
+							}
+						else
+							{
+							alpha_dual = (m1 - lam[ii]*t1) / (dlam[ii]*t1); // XXX later thighter values of alpha_prim would change this !
+							//alpha_dual = (m1 - lam[ii]*t[ii]) / (dlam[ii]*t[ii]); // be conservative and use t instead (i.e. worst case alpha_prim=0)
+							}
+						}
+					else if(dt[ii]<0)
+						{
+						alpha_prim = (m1 - t[ii]*lam1) / (dt[ii]*lam1); // XXX later thighter values of alpha_dual would change this !
+						//alpha_prim = (m1 - t[ii]*lam[ii]) / (dt[ii]*lam[ii]); // XXX be conservative and use lam instead (i.e. worst case alpha_dual=0)
+						}
+					}
+
+				}
+
+			// 2nd pass, quadratic
+			for(ii=0; ii<nc; ii++)
+				{
+				if(dlam[ii]<0 & dt[ii]<0)
+					{
+					double lam1 = lam[ii]+alpha_dual*dlam[ii];
+					double t1 = t[ii]+alpha_prim*dt[ii];
+					double m1 = m_safe*m[ii];
+
+					if(lam1*t1-m1<-1e-12)
+						{
+						double c = lam[ii]*t[ii] - m1; // >0
+						if(c>0.0)
+							{
+							double adlam = alpha_dual*dlam[ii]; // scaled with current alpha_dual
+							double adt = alpha_prim*dt[ii]; // scaled with current alpha_prim
+							double a = adlam*adt; // >0
+							double b = adlam*t[ii]+lam[ii]*adt; // <0
+							double d = b*b - 4.0*a*c; // <b*b
+							//double r0 = 1.0;
+							double r1 = 1.0;
+							// there must be a solution between 0 (i.e. lam*t>m1) and 1 (i.e. lam1*t1<m1)
+							double sd = sqrt(d); // <b
+							double tmp = 0.5/a; // >0
+							// it always holds 0 < r1 < 1 and r0 > r1
+							//r0 = (- b + sd) * tmp; // >0
+							r1 = (- b - sd) * tmp; // 0<r1<r0
+							r1 = r1>0.0 ? r1 : 0.0; // if lam*t<m from previous iteration, c<0 and r1<0, so setting r1=0 triggers min_step
+								{
+								alpha_dual *= r1;
+								alpha_prim *= r1;
+								}
+							}
+						else // lam*t<m because of initialization or previous step too long: trigger minimum step error
+							{
+							alpha_prim = 0.0;
+							alpha_dual = 0.0;
+							}
+						}
+					}
+				}
+
+			// 3rd pass, decreasing error in m prod
+			for(ii=0; ii<nc; ii++)
+				{
+				double lam1 = lam[ii]+alpha_dual*dlam[ii];
+				double t1 = t[ii]+alpha_prim*dt[ii];
+				double m1 = m_safe*m[ii];
+
+				if(lam1*t1-m1<-1e-12)
+					{
+					if(dlam[ii]<0)
+						{
+						if(dt[ii]<0)
+							{
+							// not blocking in this pass
+							}
+						else
+							{
+							alpha_dual = (m1 - lam[ii]*t1) / (dlam[ii]*t1); // XXX later thighter values of alpha_prim would change this !
+							}
+						}
+					else if(dt[ii]<0)
+						{
+						alpha_prim = (m1 - t[ii]*lam1) / (dt[ii]*lam1); // XXX later thighter values of alpha_dual would change this !
+						}
+					}
+				}
+
+			cws->alpha_prim = alpha_prim;
+			cws->alpha_dual = alpha_dual;
+
+			}
+		else
+			{
+
+			for(ii=0; ii<nc; ii++)
+				{
+
+				double lam1 = lam[ii]+alpha*dlam[ii];
+				double t1 = t[ii]+alpha*dt[ii];
+				if( lam1<0.0 )
+					{
+					alpha = - lam[ii] / dlam[ii];
+					lam1 = lam[ii]+alpha*dlam[ii];
+					}
+				if( t1<0.0 )
+					{
+					alpha = - t[ii] / dt[ii];
+					t1 = t[ii]+alpha*dt[ii];
+					}
+
+				double m1 = m_safe*m[ii];
+
+				if(lam1*t1-m1<-1e-12)
+					{
+					// (dlam<0 & dt<0) | (dlam<0 | dt<0)
+					double c = lam[ii]*t[ii] - m1; // >0 | >0
+					if(c>0.0)
+						{
+						double a = dlam[ii]*dt[ii]; // >0 | <0
+						double b = dlam[ii]*t[ii]+lam[ii]*dt[ii]; // <0 | ?
+						double d = b*b - 4.0*a*c; // <b*b | >b*b
+						double sd = sqrt(d); // <b | >b
+						double tmp = 0.5/a; // >0 | <0
+						//double r0 = (- b + sd) * tmp; // >0 | <0
+						double r1 = (- b - sd) * tmp; // 0<r1<r0 | >0
+						alpha = r1;
+						}
+					else // lam*t<m because of initialization or previous step too long: trigger minimum step error
+						{
+						alpha = 0.0;
+						}
+					}
+				}
+
+			cws->alpha_prim = alpha;
+			cws->alpha_dual = alpha;
+
+			}
+
+		}
 
 	return;
 
@@ -525,23 +724,23 @@ void d_update_var_qp(struct d_core_qp_ipm_workspace *cws)
 		{
 		alpha_prim = alpha_prim * ((1.0-alpha_prim)*0.99 + alpha_prim*0.9999999);
 		alpha_dual = alpha_dual * ((1.0-alpha_dual)*0.99 + alpha_dual*0.9999999);
-		alpha = alpha * ((1.0-alpha)*0.99 + alpha*0.9999999);
+		//alpha = alpha * ((1.0-alpha)*0.99 + alpha*0.9999999);
 		}
 #endif
 
 	// local variables
 	int ii;
 
-	if(cws->split_step==0)
-		{
-		tmp_alpha_prim = alpha;
-		tmp_alpha_dual = alpha;
-		}
-	else
-		{
+	//if(cws->split_step==0)
+	//	{
+	//	tmp_alpha_prim = alpha;
+	//	tmp_alpha_dual = alpha;
+	//	}
+	//else
+	//	{
 		tmp_alpha_prim = alpha_prim;
 		tmp_alpha_dual = alpha_dual;
-		}
+	//	}
 
 	y_alpha_prim = _mm256_broadcast_sd( &tmp_alpha_prim );
 	y_alpha_dual = _mm256_broadcast_sd( &tmp_alpha_dual );

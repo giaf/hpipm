@@ -132,9 +132,9 @@ if (~strcmp(travis_run, 'true'))
 	fprintf('\nprint solver statistics\n');
 	fprintf('average solve time over %d runs: %e [s]\n', nrep, solve_time/nrep);
 	fprintf('solve time of last run (measured in mex interface): %e [s]\n', time_ext);
-	fprintf('iter\talpha_aff\tmu_aff\t\tsigma\t\talpha_prim\talpha_dual\tmu\t\tres_stat\tres_eq\t\tres_ineq\tres_comp\n');
+	fprintf('iter\talpha_prim_aff\talpha_dual_aff\tmu_aff\t\tsigma\t\talpha_prim\talpha_dual\tmu\t\tres_stat\tres_eq\t\tres_ineq\tres_comp\n');
 	for ii=1:iter+1
-		fprintf('%d\t%e\t%e\t%e\t%e\t%e\t%e\t%e\t%e\t%e\t%e\n', stat(ii,1), stat(ii,2), stat(ii,3), stat(ii,4), stat(ii,5), stat(ii,6), stat(ii,7), stat(ii,8), stat(ii,9), stat(ii,10), stat(ii,11));
+		fprintf('%d\t%e\t%e\t%e\t%e\t%e\t%e\t%e\t%e\t%e\t%e\t%e\n', stat(ii,1), stat(ii,2), stat(ii,3), stat(ii,4), stat(ii,5), stat(ii,6), stat(ii,7), stat(ii,8), stat(ii,9), stat(ii,10), stat(ii,11), stat(ii,12));
 	end
 end
 

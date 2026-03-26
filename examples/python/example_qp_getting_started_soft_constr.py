@@ -72,6 +72,7 @@ nbx = nx
 nbu = nu
 #ng = nx
 ns = nx
+#ns = 1
 
 dim = hpipm_ocp_qp_dim(N)
 
@@ -83,7 +84,7 @@ dim.set('nu', nu, 0, N-1) # number of inputs
 dim.set('nbu', nbu, 0, N-1) # number of input bounds
 #dim.set('ng', nx, 0)
 dim.set('nbx', nbx, N)
-dim.set('nsbx', ns, N)
+dim.set('ns', ns, N)
 
 # print to shell
 dim.print_C_struct()
@@ -119,10 +120,15 @@ if x0_elim:
 	b0 = A @ x0 + b
 
 Jsx = np.array([1, 0, 0, 1]).reshape(nbx,ns)
-Zl = 0 * np.array([1e2, 1e2]).reshape(ns,1)
-Zu = 0 * np.array([1e2, 1e2]).reshape(ns,1)
-zl = 1 * np.array([1e2, 1e2]).reshape(ns,1)
-zu = 1 * np.array([1e2, 1e2]).reshape(ns,1)
+Zl = 0 * np.array([1e2, 1e2]).reshape(ns,1) # 10
+Zu = 0 * np.array([1e2, 1e2]).reshape(ns,1) # 10
+zl = 1 * np.array([1e2, 1e2]).reshape(ns,1) # 0
+zu = 1 * np.array([1e2, 1e2]).reshape(ns,1) # 0
+#Jsx = np.array([1, 1]).reshape(nbx,ns)
+#Zl = 0 * np.array([1e2]).reshape(ns,1)
+#Zu = 0 * np.array([1e2]).reshape(ns,1)
+#zl = 1 * np.array([1e2]).reshape(ns,1)
+#zu = 1 * np.array([1e2]).reshape(ns,1)
 
 Ju = np.array([1]).reshape(nbu,nu)
 lbu = np.array([-1.0]).reshape(nbu,1)
@@ -172,6 +178,19 @@ qp.set('zu', zu, N)
 qp.set('Ju', Ju, 0, N-1)
 qp.set('lbu', lbu, 0, N-1)
 qp.set('ubu', ubu, 0, N-1)
+
+##lls = 1 * np.array([-10.0]).reshape(ns,1)
+##qp.set('lls', lls, N)
+#lls_mask = np.array([0.0]).reshape(ns,1)
+#qp.set('lls_mask', lls_mask, N)
+##lus_mask = np.array([0.0]).reshape(ns,1)
+##qp.set('lus_mask', lus_mask, N)
+##lls = np.array([0.0, 1.0]).reshape(ns,1)
+##qp.set('lls', lls, N)
+##lls_mask = np.array([0.0, 0.0]).reshape(ns,1)
+##qp.set('lls_mask', lls_mask, N)
+##lus_mask = np.array([0.0, 0.0]).reshape(ns,1)
+##qp.set('lus_mask', lus_mask, N)
 
 # print to shell
 qp.print_C_struct()
@@ -271,9 +290,9 @@ if(travis_run!='true'):
 	print('ipm max res comp = {:e}\n'.format(res_comp))
 	print('ipm iter = {0:1d}\n'.format(iters))
 	print('stat =')
-	print('\titer\talpha_aff\tmu_aff\t\tsigma\t\talpha_prim\talpha_dual\tmu\t\tres_stat\tres_eq\t\tres_ineq\tres_comp')
+	print('\titer\talpha_prim_aff\talpha_dual_aff\tmu_aff\t\tsigma\t\talpha_prim\talpha_dual\tmu\t\tres_stat\tres_eq\t\tres_ineq\tres_comp')
 	for ii in range(iters+1):
-		print('\t{:d}\t{:e}\t{:e}\t{:e}\t{:e}\t{:e}\t{:e}\t{:e}\t{:e}\t{:e}\t{:e}'.format(ii, stat[ii][0], stat[ii][1], stat[ii][2], stat[ii][3], stat[ii][4], stat[ii][5], stat[ii][6], stat[ii][7], stat[ii][8], stat[ii][9]))
+		print('\t{:d}\t{:e}\t{:e}\t{:e}\t{:e}\t{:e}\t{:e}\t{:e}\t{:e}\t{:e}\t{:e}\t{:e}'.format(ii, stat[ii][0], stat[ii][1], stat[ii][2], stat[ii][3], stat[ii][4], stat[ii][5], stat[ii][6], stat[ii][7], stat[ii][8], stat[ii][9], stat[ii][10]))
 	print('')
 
 

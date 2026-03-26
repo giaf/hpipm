@@ -161,6 +161,8 @@ void CREATE_CORE_QP_IPM(int nv, int ne, int nc, struct CORE_QP_IPM_WORKSPACE *wo
 	workspace->split_step = 0;
 	workspace->t_lam_min = 2;
 	workspace->use_weight = 0;
+	workspace->m_zero = 0; // slower but safer
+	workspace->m_safe = 0.3;
 
 
 	workspace->memsize = MEMSIZE_CORE_QP_IPM(nv, ne, nc);
