@@ -1835,6 +1835,25 @@ void OCP_QP_SET_DIAG_H_FLAG(int stage, int *value, struct OCP_QP *qp)
 
 
 
+void OCP_QP_SET_M_ALL(REAL *m, struct OCP_QP *qp)
+	{
+	// extract dim
+	int N = qp->dim->N;
+	int *nb = qp->dim->nb;
+	int *ng = qp->dim->ng;
+	int *ns = qp->dim->ns;
+
+	int ii;
+	for(ii=0; ii<=N; ii++)
+		{
+		VECSE(2*nb[ii]+2*ng[ii]+2*ns[ii], *m, qp->m+ii, 0);
+		}
+
+	return;
+	}
+
+
+
 void OCP_QP_SET_M_LB(int stage, REAL *lb, struct OCP_QP *qp)
 	{
 	// extract dim

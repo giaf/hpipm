@@ -1540,6 +1540,26 @@ void TREE_OCP_QP_SET_DIAG_H_FLAG(int node, int *value, struct TREE_OCP_QP *qp)
 
 
 
+void TREE_OCP_QP_SET_M_ALL(REAL *m, struct TREE_OCP_QP *qp)
+	{
+	// extract dim
+	int Nn = qp->dim->Nn;
+	int *nb = qp->dim->nb;
+	int *ng = qp->dim->ng;
+	int *ns = qp->dim->ns;
+
+	int ii;
+	for(ii=0; ii<Nn; ii++)
+		{
+		VECSE(2*nb[ii]+2*ng[ii]+2*ns[ii], *m, qp->m+ii, 0);
+		}
+
+
+	return;
+	}
+
+
+
 void TREE_OCP_QP_SET_M_LB(int node, REAL *lb, struct TREE_OCP_QP *qp)
 	{
 	// extract dim

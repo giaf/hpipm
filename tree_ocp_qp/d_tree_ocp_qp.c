@@ -127,6 +127,7 @@
 //#define TREE_OCP_QP_SET_JBUE d_tree_ocp_qp_set_Jbue
 //#define TREE_OCP_QP_SET_JGE d_tree_ocp_qp_set_Jge
 //#define TREE_OCP_QP_SET_DIAG_H_FLAG d_tree_ocp_qp_set_diag_H_flag
+#define TREE_OCP_QP_SET_M_ALL d_tree_ocp_qp_set_m_all
 #define TREE_OCP_QP_SET_M_LB d_tree_ocp_qp_set_m_lb
 #define TREE_OCP_QP_SET_M_LBX d_tree_ocp_qp_set_m_lbx
 #define TREE_OCP_QP_SET_M_LBU d_tree_ocp_qp_set_m_lbu

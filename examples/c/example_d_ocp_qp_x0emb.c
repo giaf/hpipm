@@ -205,6 +205,9 @@ int main()
 		d_ocp_qp_set_lus_mask(ii, hlus_mask[ii], &qp);
 		}
 
+	//double m_relax = 1e-2;
+	//d_ocp_qp_set_m_all(&m_relax, &qp);
+
 //	d_ocp_qp_codegen("examples/c/data/test_d_ocp_data.c", "a", &dim, &qp);
 	d_ocp_qp_print(&dim, &qp);
 

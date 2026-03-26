@@ -111,6 +111,7 @@
 #define DENSE_QP_SET_LLS_MASK d_dense_qp_set_lls_mask
 #define DENSE_QP_SET_LUS d_dense_qp_set_lus
 #define DENSE_QP_SET_LUS_MASK d_dense_qp_set_lus_mask
+#define DENSE_QP_SET_M_ALL d_dense_qp_set_m_all
 #define DENSE_QP_SET_M_LB d_dense_qp_set_m_lb
 #define DENSE_QP_SET_M_UB d_dense_qp_set_m_ub
 #define DENSE_QP_SET_M_LG d_dense_qp_set_m_lg

@@ -138,6 +138,7 @@
 #define OCP_QP_SET_JBUE d_ocp_qp_set_Jbxe
 #define OCP_QP_SET_JGE d_ocp_qp_set_Jge
 #define OCP_QP_SET_DIAG_H_FLAG d_ocp_qp_set_diag_H_flag
+#define OCP_QP_SET_M_ALL d_ocp_qp_set_m_all
 #define OCP_QP_SET_M_LB d_ocp_qp_set_m_lb
 #define OCP_QP_SET_M_UB d_ocp_qp_set_m_ub
 #define OCP_QP_SET_M_LBX d_ocp_qp_set_m_lbx

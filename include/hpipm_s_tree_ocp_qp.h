@@ -183,6 +183,8 @@ void s_tree_ocp_qp_set_Jsg(int node, float *vec, struct s_tree_ocp_qp *qp);
 //
 //void s_tree_ocp_qp_set_diag_H_flag(int node, int *value, struct s_tree_ocp_qp *qp);
 //
+void s_tree_ocp_qp_set_m_all(float *m, struct s_tree_ocp_qp *qp);
+//
 void s_tree_ocp_qp_set_m_lb(int node, float *vec, struct s_tree_ocp_qp *qp);
 //
 void s_tree_ocp_qp_set_m_lbx(int node, float *vec, struct s_tree_ocp_qp *qp);

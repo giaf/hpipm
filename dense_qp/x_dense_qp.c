@@ -1055,6 +1055,21 @@ void DENSE_QP_SET_LUS_MASK(REAL *us_mask, struct DENSE_QP *qp)
 
 
 
+void DENSE_QP_SET_M_ALL(REAL *m, struct DENSE_QP *qp)
+	{
+
+	int nb = qp->dim->nb;
+	int ng = qp->dim->ng;
+	int ns = qp->dim->ns;
+
+	VECSE(2*nb+2*ng+2*ns, *m, qp->m, 0);
+
+	return;
+
+	}
+
+
+
 void DENSE_QP_SET_M_LB(REAL *lb, struct DENSE_QP *qp)
 	{
 

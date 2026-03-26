@@ -203,6 +203,8 @@ void s_ocp_qp_set_Jge(int stage, float *vec, struct s_ocp_qp *qp);
 //
 void s_ocp_qp_set_diag_H_flag(int stage, int *value, struct s_ocp_qp *qp);
 //
+void s_ocp_qp_set_m_all(float *m, struct s_ocp_qp *qp);
+//
 void s_ocp_qp_set_m_lb(int stage, float *vec, struct s_ocp_qp *qp);
 //
 void s_ocp_qp_set_m_ub(int stage, float *vec, struct s_ocp_qp *qp);
