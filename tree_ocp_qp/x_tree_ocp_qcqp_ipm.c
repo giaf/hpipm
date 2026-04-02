@@ -1457,7 +1457,11 @@ void TREE_OCP_QCQP_IPM_SOLVE(struct TREE_OCP_QCQP *qcqp, struct TREE_OCP_QCQP_SO
 	cws->t_lam_min = qp_arg->t_lam_min;
 
 	// alias qp
-	cws->m = qcqp->m->pa;
+	//cws->m = qcqp->m->pa;
+	for(ii=0; ii<cws->nc; ii++)
+		{
+		cws->m[ii] = qp->m->pa[ii]*qcqp->d_mask->pa[ii];
+		}
 
 	// alias qp vectors into qp_sol
 	cws->v = qp_sol->ux->pa;

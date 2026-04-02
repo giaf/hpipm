@@ -203,7 +203,7 @@ void d_tree_ocp_qp_set_m_ug(int node, double *vec, struct d_tree_ocp_qp *qp);
 //
 void d_tree_ocp_qp_set_m_lls(int node, double *vec, struct d_tree_ocp_qp *qp);
 //
-void d_tree_ocp_qp_set_m_lls(int node, double *vec, struct d_tree_ocp_qp *qp);
+void d_tree_ocp_qp_set_m_lus(int node, double *vec, struct d_tree_ocp_qp *qp);
 
 
 

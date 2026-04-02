@@ -50,7 +50,7 @@ hpipm_size_t MEMSIZE_CORE_QP_IPM(int nv, int ne, int nc)
 
 	size += 3*nv0*sizeof(REAL); // v_bkp dv res_g
 	size += 3*ne0*sizeof(REAL); // pi_bkp dpi res_b
-	size += 12*nc0*sizeof(REAL); // lam_bkp t_bkp dlam dt res_d res_m res_m_bkp t_inv Gamma gamma weight weight_mask
+	size += 13*nc0*sizeof(REAL); // lam_bkp t_bkp dlam dt res_d res_m res_m_bkp t_inv Gamma gamma weight weight_mask m
 
 	size = (size+63)/64*64; // make multiple of cache line size
 
@@ -129,6 +129,9 @@ void CREATE_CORE_QP_IPM(int nv, int ne, int nc, struct CORE_QP_IPM_WORKSPACE *wo
 	d_ptr += nc0;
 
 	workspace->weight_mask = d_ptr; // weight_mask
+	d_ptr += nc0;
+
+	workspace->m = d_ptr; // m
 	d_ptr += nc0;
 
 	// by default no constr masking

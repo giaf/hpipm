@@ -949,6 +949,51 @@ void OCP_QP_SET(char *field, int stage, void *value, struct OCP_QP *qp)
 		{
 		OCP_QP_SET_DIAG_H_FLAG(stage, value, qp);
 		}
+	else if(hpipm_strcmp(field, "m_all"))
+		{
+		// XXX ignore stage !!!
+		OCP_QP_SET_M_ALL(value, qp);
+		}
+	else if(hpipm_strcmp(field, "m_lb"))
+		{
+		OCP_QP_SET_M_LB(stage, value, qp);
+		}
+	else if(hpipm_strcmp(field, "m_lbu"))
+		{
+		OCP_QP_SET_M_LBU(stage, value, qp);
+		}
+	else if(hpipm_strcmp(field, "m_lbx"))
+		{
+		OCP_QP_SET_M_LBX(stage, value, qp);
+		}
+	else if(hpipm_strcmp(field, "m_ub"))
+		{
+		OCP_QP_SET_M_UB(stage, value, qp);
+		}
+	else if(hpipm_strcmp(field, "m_ubu"))
+		{
+		OCP_QP_SET_M_UBU(stage, value, qp);
+		}
+	else if(hpipm_strcmp(field, "m_ubx"))
+		{
+		OCP_QP_SET_M_UBX(stage, value, qp);
+		}
+	else if(hpipm_strcmp(field, "m_lg"))
+		{
+		OCP_QP_SET_M_LG(stage, value, qp);
+		}
+	else if(hpipm_strcmp(field, "m_ug"))
+		{
+		OCP_QP_SET_M_UG(stage, value, qp);
+		}
+	else if(hpipm_strcmp(field, "m_lls"))
+		{
+		OCP_QP_SET_M_LLS(stage, value, qp);
+		}
+	else if(hpipm_strcmp(field, "m_lus"))
+		{
+		OCP_QP_SET_M_LUS(stage, value, qp);
+		}
 	else
 		{
 #ifdef EXT_DEP

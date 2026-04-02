@@ -680,6 +680,51 @@ void TREE_OCP_QP_SET(char *field, int node_edge, void *value, struct TREE_OCP_QP
 //		{
 //		TREE_OCP_QP_SET_DIAG_H_FLAG(node_edge, value, qp);
 //		}
+	else if(hpipm_strcmp(field, "m_all"))
+		{
+		// XXX ignore node_edge !!!
+		TREE_OCP_QP_SET_M_ALL(value, qp);
+		}
+	else if(hpipm_strcmp(field, "m_lb"))
+		{
+		TREE_OCP_QP_SET_M_LB(node_edge, value, qp);
+		}
+	else if(hpipm_strcmp(field, "m_lbu"))
+		{
+		TREE_OCP_QP_SET_M_LBU(node_edge, value, qp);
+		}
+	else if(hpipm_strcmp(field, "m_lbx"))
+		{
+		TREE_OCP_QP_SET_M_LBX(node_edge, value, qp);
+		}
+	else if(hpipm_strcmp(field, "m_ub"))
+		{
+		TREE_OCP_QP_SET_M_UB(node_edge, value, qp);
+		}
+	else if(hpipm_strcmp(field, "m_ubu"))
+		{
+		TREE_OCP_QP_SET_M_UBU(node_edge, value, qp);
+		}
+	else if(hpipm_strcmp(field, "m_ubx"))
+		{
+		TREE_OCP_QP_SET_M_UBX(node_edge, value, qp);
+		}
+	else if(hpipm_strcmp(field, "m_lg"))
+		{
+		TREE_OCP_QP_SET_M_LG(node_edge, value, qp);
+		}
+	else if(hpipm_strcmp(field, "m_ug"))
+		{
+		TREE_OCP_QP_SET_M_UG(node_edge, value, qp);
+		}
+	else if(hpipm_strcmp(field, "m_lls"))
+		{
+		TREE_OCP_QP_SET_M_LLS(node_edge, value, qp);
+		}
+	else if(hpipm_strcmp(field, "m_lus"))
+		{
+		TREE_OCP_QP_SET_M_LUS(node_edge, value, qp);
+		}
 	else
 		{
 #ifdef EXT_DEP

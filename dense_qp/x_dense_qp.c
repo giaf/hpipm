@@ -545,6 +545,34 @@ void DENSE_QP_SET(char *field, void *value, struct DENSE_QP *qp)
 		{
 		DENSE_QP_SET_JSG(value, qp);
 		}
+	else if(hpipm_strcmp(field, "m_all"))
+		{
+		DENSE_QP_SET_M_ALL(value, qp);
+		}
+	else if(hpipm_strcmp(field, "m_lb"))
+		{
+		DENSE_QP_SET_M_LB(value, qp);
+		}
+	else if(hpipm_strcmp(field, "m_ub"))
+		{
+		DENSE_QP_SET_M_UB(value, qp);
+		}
+	else if(hpipm_strcmp(field, "m_lg"))
+		{
+		DENSE_QP_SET_M_LG(value, qp);
+		}
+	else if(hpipm_strcmp(field, "m_ug"))
+		{
+		DENSE_QP_SET_M_UG(value, qp);
+		}
+	else if(hpipm_strcmp(field, "m_lls"))
+		{
+		DENSE_QP_SET_M_LLS(value, qp);
+		}
+	else if(hpipm_strcmp(field, "m_lus"))
+		{
+		DENSE_QP_SET_M_LUS(value, qp);
+		}
 	else
 		{
 #ifdef EXT_DEP

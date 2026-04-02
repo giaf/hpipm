@@ -915,11 +915,11 @@ void DENSE_QCQP_INIT_VAR(struct DENSE_QCQP *qcqp, struct DENSE_QCQP_SOL *qcqp_so
 			{
 			REAL d_lb0 = d[0+ii];
 			REAL d_ub0 = d[nb+ng+nq+ii];
+			idxb0 = idxb[ii];
 			if(d_mask[0+ii]==0.0)
 				d_lb0 = v[idxb0] - 1.0;
 			if(d_mask[nb+ng+ii]==0.0)
 				d_ub0 = - v[idxb0] - 1.0;
-			idxb0 = idxb[ii];
 			t[0+ii]        = - d_lb0        + v[idxb0];
 			t[nb+ng+nq+ii] = - d_ub0 - v[idxb0];
 			if(t[0+ii]<thr0)
@@ -1297,7 +1297,11 @@ void DENSE_QCQP_IPM_SOLVE(struct DENSE_QCQP *qcqp, struct DENSE_QCQP_SOL *qcqp_s
 	cws->t_lam_min = qp_arg->t_lam_min;
 
 	// alias qp
-	cws->m = qcqp->m->pa;
+	//cws->m = qcqp->m->pa;
+	for(ii=0; ii<cws->nc; ii++)
+		{
+		cws->m[ii] = qp->m->pa[ii]*qcqp->d_mask->pa[ii];
+		}
 
 	// alias qp vectors into qp_sol
 	cws->v = qp_sol->v->pa;
