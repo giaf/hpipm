@@ -1606,7 +1606,7 @@ void OCP_QCQP_IPM_SOLVE(struct OCP_QCQP *qcqp, struct OCP_QCQP_SOL *qcqp_sol, st
 	//cws->m = qcqp->m->pa;
 	for(ii=0; ii<cws->nc; ii++)
 		{
-		cws->m[ii] = qp->m->pa[ii]*qcqp->d_mask->pa[ii];
+		cws->m[ii] = qcqp->m->pa[ii]*qcqp->d_mask->pa[ii];
 		}
 
 	// alias qp vectors into qp_sol
