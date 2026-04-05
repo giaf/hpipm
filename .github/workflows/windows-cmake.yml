@@ -1,0 +1,31 @@
+name: Windows Cmake Build
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  windows-amd64-cmake-build:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up MSBuild
+        uses: microsoft/setup-msbuild@v2
+      - name: Build BLASFEO
+        run: |
+          git clone https://github.com/giaf/blasfeo
+          mkdir blasfeo/build
+          cd blasfeo/build
+          cmake -DTARGET=GENERIC -DCMAKE_INSTALL_PREFIX=${{ github.workspace }}/blasfeo ..
+          msbuild blasfeo.vcxproj
+          msbuild INSTALL.vcxproj
+      - name: Build HPIPM and run test
+        run: |
+          mkdir build
+          cd build
+          cmake -DTARGET=GENERIC -DBLASFEO_PATH=${{ github.workspace }}/blasfeo ..
+          msbuild hpipm.vcxproj
+          cd test_problems
+          msbuild d_ocp_qp.vcxproj
+          cd Debug
+          ./d_ocp_qp.exe
