@@ -45,35 +45,7 @@ hpipm_size_t OCP_QP_IPM_ARG_STRSIZE()
 hpipm_size_t OCP_QP_IPM_ARG_MEMSIZE(struct OCP_QP_DIM *dim)
 	{
 
-	// loop index
-	int ii;
-
-	// extract ocp qp size
-	int N = dim->N;
-	int *nx = dim->nx;
-	int *nu = dim->nu;
-	int *nb = dim->nb;
-	int *ng = dim->ng;
-	int *ns = dim->ns;
-
-	// compute core qp size
-	int nct = 0;
-	for(ii=0; ii<N; ii++)
-		{
-		nct += 2*nb[ii]+2*ng[ii]+2*ns[ii];
-		}
-	nct += 2*nb[ii]+2*ng[ii]+2*ns[ii];
-
-	hpipm_size_t size = 0;
-
-	size += 1*(N+1)*sizeof(struct STRVEC); // weight
-
-	size += 1*SIZE_STRVEC(nct); // weight
-
-	size = (size+63)/64*64; // make multiple of typical cache line size
-	size += 1*64; // align once to typical cache line size
-
-	return size;
+	return 0;
 
 	}
 
@@ -83,75 +55,10 @@ void OCP_QP_IPM_ARG_CREATE(struct OCP_QP_DIM *dim, struct OCP_QP_IPM_ARG *arg, v
 	{
 
 	// zero memory (to avoid corrupted memory like e.g. NaN)
-	hpipm_size_t memsize = OCP_QP_IPM_ARG_MEMSIZE(dim);
-	hpipm_zero_memset(memsize, mem);
+	//hpipm_size_t memsize = OCP_QP_IPM_ARG_MEMSIZE(dim);
+	//hpipm_zero_memset(memsize, mem);
 
-	// loop index
-	int ii;
-
-	// extract ocp qp size
-	int N = dim->N;
-	int *nx = dim->nx;
-	int *nu = dim->nu;
-	int *nb = dim->nb;
-	int *ng = dim->ng;
-	int *ns = dim->ns;
-
-	// compute core qp size
-	int nct = 0;
-	for(ii=0; ii<N; ii++)
-		{
-		nct += 2*nb[ii]+2*ng[ii]+2*ns[ii];
-		}
-	nct += 2*nb[ii]+2*ng[ii]+2*ns[ii];
-
-
-	// vector struct
-	struct STRVEC *sv_ptr = (struct STRVEC *) mem;
-
-	arg->weight = sv_ptr;
-	sv_ptr += N+1;
-
-
-	// align to typical cache line size
-	hpipm_size_t s_ptr = (hpipm_size_t) sv_ptr;
-	s_ptr = (s_ptr+63)/64*64;
-
-
-	// void stuf
-	char *c_ptr = (char *) s_ptr;
-
-	CREATE_STRVEC(nct, arg->weight, c_ptr);
-	c_ptr += SIZE_STRVEC(nct);
-
-	// alias
-	//
-	c_ptr = (char *) arg->weight->pa;
-	for(ii=0; ii<=N; ii++)
-		{
-		CREATE_STRVEC(2*nb[ii]+2*ng[ii]+2*ns[ii], arg->weight+ii, c_ptr);
-		c_ptr += nb[ii]*sizeof(REAL);
-		c_ptr += ng[ii]*sizeof(REAL);
-		c_ptr += nb[ii]*sizeof(REAL);
-		c_ptr += ng[ii]*sizeof(REAL);
-		c_ptr += ns[ii]*sizeof(REAL);
-		c_ptr += ns[ii]*sizeof(REAL);
-		}
-
-	arg->dim = dim;
-
-	arg->memsize = memsize; //OCP_QP_RES_MEMSIZE(dim);
-
-
-#if defined(RUNTIME_CHECKS)
-	if(c_ptr > ((char *) mem) + arg->memsize)
-		{
-#ifdef EXT_DEP
-		printf("\nocp_qp_ipm_arg_create: outside memory bounds!\n\n");
-#endif
-		exit(1);
-		}
-#endif
+	arg->memsize = 0;
 
 	return;
 
@@ -164,25 +71,6 @@ void OCP_QP_IPM_ARG_SET_DEFAULT(enum HPIPM_MODE mode, struct OCP_QP_IPM_ARG *arg
 
 	REAL mu0, alpha_min, res_g_max, res_b_max, res_d_max, res_m_max, dual_gap_max, reg_prim, lam_min, t_min, tau_min, lam0_min, t0_min;
 	int iter_max, stat_max, pred_corr, cond_pred_corr, itref_pred_max, itref_corr_max, lq_fact, warm_start, abs_form, comp_res_exit, comp_res_pred, square_root_alg, comp_dual_sol_eq, split_step, var_init_scheme, t_lam_min, t0_init, update_fact_exit;
-
-	// loop index
-	int ii;
-
-	// extract ocp qp size
-	int N = arg->dim->N;
-	int *nx = arg->dim->nx;
-	int *nu = arg->dim->nu;
-	int *nb = arg->dim->nb;
-	int *ng = arg->dim->ng;
-	int *ns = arg->dim->ns;
-
-	// compute core qp size
-	int nct = 0;
-	for(ii=0; ii<N; ii++)
-		{
-		nct += 2*nb[ii]+2*ng[ii]+2*ns[ii];
-		}
-	nct += 2*nb[ii]+2*ng[ii]+2*ns[ii];
 
 	if(mode==SPEED_ABS)
 		{
@@ -361,9 +249,6 @@ void OCP_QP_IPM_ARG_SET_DEFAULT(enum HPIPM_MODE mode, struct OCP_QP_IPM_ARG *arg
 	OCP_QP_IPM_ARG_SET_T0_INIT(&t0_init, arg);
 	OCP_QP_IPM_ARG_SET_UPDATE_FACT_EXIT(&update_fact_exit, arg);
 	arg->mode = mode;
-
-	VECSE(nct, 1.0, arg->weight, 0);
-	arg->use_weight = 0;
 
 	return;
 
@@ -690,132 +575,10 @@ void OCP_QP_IPM_ARG_SET_T0_INIT(int *value, struct OCP_QP_IPM_ARG *arg)
 	}
 
 
+
 void OCP_QP_IPM_ARG_SET_UPDATE_FACT_EXIT(int *value, struct OCP_QP_IPM_ARG *arg)
 	{
 	arg->update_fact_exit = *value;
-	return;
-	}
-
-
-
-void OCP_QP_IPM_ARG_SET_WEIGHT_LB(int stage, REAL *weight, struct OCP_QP_IPM_ARG *arg)
-	{
-	// extract dim
-	int *nb = arg->dim->nb;
-	PACK_VEC(nb[stage], weight, 1, arg->weight+stage, 0);
-	arg->use_weight = 1;
-	return;
-	}
-
-
-
-void OCP_QP_IPM_ARG_SET_WEIGHT_LBX(int stage, REAL *weight, struct OCP_QP_IPM_ARG *arg)
-	{
-	// extract dim
-	int *nbx = arg->dim->nbx;
-	int *nbu = arg->dim->nbu;
-	PACK_VEC(nbx[stage], weight, 1, arg->weight+stage, nbu[stage]);
-	arg->use_weight = 1;
-	return;
-	}
-
-
-
-void OCP_QP_IPM_ARG_SET_WEIGHT_LBU(int stage, REAL *weight, struct OCP_QP_IPM_ARG *arg)
-	{
-	// extract dim
-	int *nbu = arg->dim->nbu;
-	PACK_VEC(nbu[stage], weight, 1, arg->weight+stage, 0);
-	arg->use_weight = 1;
-	return;
-	}
-
-
-
-void OCP_QP_IPM_ARG_SET_WEIGHT_UB(int stage, REAL *weight, struct OCP_QP_IPM_ARG *arg)
-	{
-	// extract dim
-	int *nb = arg->dim->nb;
-	int *ng = arg->dim->ng;
-	PACK_VEC(nb[stage], weight, 1, arg->weight+stage, nb[stage]+ng[stage]);
-	arg->use_weight = 1;
-	return;
-	}
-
-
-
-void OCP_QP_IPM_ARG_SET_WEIGHT_UBX(int stage, REAL *weight, struct OCP_QP_IPM_ARG *arg)
-	{
-	// extract dim
-	int *nbx = arg->dim->nbx;
-	int *nbu = arg->dim->nbu;
-	int *nb = arg->dim->nb;
-	int *ng = arg->dim->ng;
-	PACK_VEC(nbx[stage], weight, 1, arg->weight+stage, nb[stage]+ng[stage]+nbu[stage]);
-	arg->use_weight = 1;
-	return;
-	}
-
-
-
-void OCP_QP_IPM_ARG_SET_WEIGHT_UBU(int stage, REAL *weight, struct OCP_QP_IPM_ARG *arg)
-	{
-	// extract dim
-	int *nbu = arg->dim->nbu;
-	int *nb = arg->dim->nb;
-	int *ng = arg->dim->ng;
-	PACK_VEC(nbu[stage], weight, 1, arg->weight+stage, nb[stage]+ng[stage]);
-	arg->use_weight = 1;
-	return;
-	}
-
-
-
-void OCP_QP_IPM_ARG_SET_WEIGHT_LG(int stage, REAL *weight, struct OCP_QP_IPM_ARG *arg)
-	{
-	// extract dim
-	int *nb = arg->dim->nb;
-	int *ng = arg->dim->ng;
-	PACK_VEC(ng[stage], weight, 1, arg->weight+stage, nb[stage]);
-	arg->use_weight = 1;
-	return;
-	}
-
-
-
-void OCP_QP_IPM_ARG_SET_WEIGHT_UG(int stage, REAL *weight, struct OCP_QP_IPM_ARG *arg)
-	{
-	// extract dim
-	int *nb = arg->dim->nb;
-	int *ng = arg->dim->ng;
-	PACK_VEC(ng[stage], weight, 1, arg->weight+stage, 2*nb[stage]+ng[stage]);
-	arg->use_weight = 1;
-	return;
-	}
-
-
-
-void OCP_QP_IPM_ARG_SET_WEIGHT_LLS(int stage, REAL *weight, struct OCP_QP_IPM_ARG *arg)
-	{
-	// extract dim
-	int *nb = arg->dim->nb;
-	int *ng = arg->dim->ng;
-	int *ns = arg->dim->ns;
-	PACK_VEC(ns[stage], weight, 1, arg->weight+stage, 2*nb[stage]+2*ng[stage]);
-	arg->use_weight = 1;
-	return;
-	}
-
-
-
-void OCP_QP_IPM_ARG_SET_WEIGHT_LUS(int stage, REAL *weight, struct OCP_QP_IPM_ARG *arg)
-	{
-	// extract dim
-	int *nb = arg->dim->nb;
-	int *ng = arg->dim->ng;
-	int *ns = arg->dim->ns;
-	PACK_VEC(ns[stage], weight, 1, arg->weight+stage, 2*nb[stage]+2*ng[stage]+ns[stage]);
-	arg->use_weight = 1;
 	return;
 	}
 
@@ -861,26 +624,6 @@ void OCP_QP_IPM_ARG_GET_T0_MIN(struct OCP_QP_IPM_ARG *arg, REAL *value)
 
 void OCP_QP_IPM_ARG_DEEPCOPY(struct OCP_QP_IPM_ARG *arg_s, struct OCP_QP_IPM_ARG *arg_d)
 	{
-	// loop index
-	int ii;
-
-	// extract ocp qp size
-	int N = arg_s->dim->N;
-	int *nx = arg_s->dim->nx;
-	int *nu = arg_s->dim->nu;
-	int *nb = arg_s->dim->nb;
-	int *ng = arg_s->dim->ng;
-	int *ns = arg_s->dim->ns;
-
-	// compute core qp size
-	int nct = 0;
-	for(ii=0; ii<N; ii++)
-		{
-		nct += 2*nb[ii]+2*ng[ii]+2*ns[ii];
-		}
-	nct += 2*nb[ii]+2*ng[ii]+2*ns[ii];
-
-	arg_d->dim = arg_s->dim;
 	arg_d->mu0 = arg_s->mu0;
 	arg_d->alpha_min = arg_s->alpha_min;
 	arg_d->res_g_max = arg_s->res_g_max;
@@ -911,9 +654,7 @@ void OCP_QP_IPM_ARG_DEEPCOPY(struct OCP_QP_IPM_ARG *arg_s, struct OCP_QP_IPM_ARG
 	arg_d->var_init_scheme = arg_s->var_init_scheme;
 	arg_d->t_lam_min = arg_s->t_lam_min;
 	arg_d->update_fact_exit = arg_s->update_fact_exit;
-	arg_d->use_weight = arg_s->use_weight;
 	arg_d->mode = arg_s->mode;
-	VECCP(nct, arg_s->weight, 0, arg_d->weight, 0);
 	// TODO keep updated !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 	return;
 	}
@@ -989,7 +730,7 @@ hpipm_size_t OCP_QP_IPM_WS_MEMSIZE(struct OCP_QP_DIM *dim, struct OCP_QP_IPM_ARG
 	size += 2*sizeof(struct OCP_QP_RES); // res res_itref
 	size += 1*OCP_QP_RES_MEMSIZE(dim); // res_itref
 
-	size += 12*(N+1)*sizeof(struct STRVEC); // res_g res_d res_m Gamma gamma Zs_inv sol_step(v,lam,t)  tmp_m weight weight_mask
+	size += 10*(N+1)*sizeof(struct STRVEC); // res_g res_d res_m Gamma gamma Zs_inv sol_step(v,lam,t)  tmp_m
 	size += 3*N*sizeof(struct STRVEC); // res_b Pb sol_step(pi)
 	size += 5*sizeof(struct STRVEC); // tmp_nuxM 4*tmp_nbgM
 	size += 1*(N+1)*sizeof(struct STRVEC); // l
@@ -1205,10 +946,6 @@ void OCP_QP_IPM_WS_CREATE(struct OCP_QP_DIM *dim, struct OCP_QP_IPM_ARG *arg, st
 	workspace->tmp_nbgM = sv_ptr;
 	sv_ptr += 4;
 	workspace->tmp_m = sv_ptr;
-	sv_ptr += N+1;
-	workspace->weight = sv_ptr;
-	sv_ptr += N+1;
-	workspace->weight_mask = sv_ptr;
 	sv_ptr += N+1;
 
 
@@ -1437,30 +1174,6 @@ void OCP_QP_IPM_WS_CREATE(struct OCP_QP_DIM *dim, struct OCP_QP_IPM_ARG *arg, st
 	for(ii=0; ii<=N; ii++)
 		{
 		CREATE_STRVEC(2*nb[ii]+2*ng[ii]+2*ns[ii], workspace->gamma+ii, c_ptr);
-		c_ptr += nb[ii]*sizeof(REAL);
-		c_ptr += ng[ii]*sizeof(REAL);
-		c_ptr += nb[ii]*sizeof(REAL);
-		c_ptr += ng[ii]*sizeof(REAL);
-		c_ptr += ns[ii]*sizeof(REAL);
-		c_ptr += ns[ii]*sizeof(REAL);
-		}
-	//
-	c_ptr = (char *) cws->weight;
-	for(ii=0; ii<=N; ii++)
-		{
-		CREATE_STRVEC(2*nb[ii]+2*ng[ii]+2*ns[ii], workspace->weight+ii, c_ptr);
-		c_ptr += nb[ii]*sizeof(REAL);
-		c_ptr += ng[ii]*sizeof(REAL);
-		c_ptr += nb[ii]*sizeof(REAL);
-		c_ptr += ng[ii]*sizeof(REAL);
-		c_ptr += ns[ii]*sizeof(REAL);
-		c_ptr += ns[ii]*sizeof(REAL);
-		}
-	//
-	c_ptr = (char *) cws->weight_mask;
-	for(ii=0; ii<=N; ii++)
-		{
-		CREATE_STRVEC(2*nb[ii]+2*ng[ii]+2*ns[ii], workspace->weight_mask+ii, c_ptr);
 		c_ptr += nb[ii]*sizeof(REAL);
 		c_ptr += ng[ii]*sizeof(REAL);
 		c_ptr += nb[ii]*sizeof(REAL);
@@ -3073,15 +2786,6 @@ void OCP_QP_IPM_SOLVE(struct OCP_QP *qp, struct OCP_QP_SOL *qp_sol, struct OCP_Q
 		}
 	ws->res_workspace->valid_nc_mask = 1; // set to avoid mask_constr and nc_mask_inv recomputation in res
 
-	// weight
-	cws->use_weight = arg->use_weight;
-	//cws->use_weight = 1;
-	if(cws->use_weight)
-		{
-		VECCP(cws->nc, arg->weight, 0, ws->weight, 0); // XXX needed ???
-		VECMUL(cws->nc, ws->weight, 0, qp->d_mask, 0, ws->weight_mask, 0);
-		}
-
 
 	// no constraints
 	if(cws->nc==0 | mask_unconstr==1)
@@ -3291,14 +2995,7 @@ void OCP_QP_IPM_SOLVE(struct OCP_QP *qp, struct OCP_QP_SOL *qp_sol, struct OCP_Q
 	// relative (delta) IPM formulation
 
 	REAL res_m_tau = 0.0;
-	if(cws->use_weight)
-		{
-		AXPY(cws->nc, -tau_min, ws->weight_mask, 0, ws->res->res_m, 0, ws->tmp_m, 0);
-		}
-	else
-		{
-		AXPY(cws->nc, -tau_min, qp->d_mask, 0, ws->res->res_m, 0, ws->tmp_m, 0);
-		}
+	AXPY(cws->nc, -tau_min, qp->d_mask, 0, ws->res->res_m, 0, ws->tmp_m, 0);
 	VECNRM_INF(cws->nc, ws->tmp_m, 0, &res_m_tau);
 
 	// IPM loop
@@ -3343,15 +3040,7 @@ void OCP_QP_IPM_SOLVE(struct OCP_QP *qp, struct OCP_QP_SOL *qp_sol, struct OCP_Q
 			stat[stat_m*(kk+1)+12] = ws->res->obj;
 			}
 
-		if(cws->use_weight)
-			{
-			AXPY(cws->nc, -tau_min, ws->weight_mask, 0, ws->res->res_m, 0, ws->tmp_m, 0);
-			//d_print_mat(1, cws->nc, cws->weight_mask, 1);
-			}
-		else
-			{
-			AXPY(cws->nc, -tau_min, qp->d_mask, 0, ws->res->res_m, 0, ws->tmp_m, 0);
-			}
+		AXPY(cws->nc, -tau_min, qp->d_mask, 0, ws->res->res_m, 0, ws->tmp_m, 0);
 		VECNRM_INF(cws->nc, ws->tmp_m, 0, &res_m_tau);
 
 		}

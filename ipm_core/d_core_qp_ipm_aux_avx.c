@@ -1035,7 +1035,6 @@ void d_compute_centering_correction_qp(struct d_core_qp_ipm_workspace *cws)
 	double *dt = cws->dt;
 	double *res_m = cws->res_m;
 	double *res_m_bkp = cws->res_m_bkp;
-	double *weight = cws->weight;
 
 	__m256d
 		y_tmp0, y_tmp1,
@@ -1047,36 +1046,17 @@ void d_compute_centering_correction_qp(struct d_core_qp_ipm_workspace *cws)
 
 	y_sigma_mu = _mm256_broadcast_sd( &sigma_mu );
 
-	if(cws->use_weight)
+	ii = 0;
+	for(; ii<nc-3; ii+=4)
 		{
-		ii = 0;
-		for(; ii<nc-3; ii+=4)
-			{
-			y_tmp0 = _mm256_mul_pd( _mm256_loadu_pd( &dt[ii] ), _mm256_loadu_pd( &dlam[ii] ) );
-			y_tmp0 = _mm256_add_pd( y_tmp0, _mm256_loadu_pd( &res_m_bkp[ii] ) );
-			y_tmp1 = _mm256_mul_pd( _mm256_loadu_pd( &weight[ii] ), y_sigma_mu );
-			y_tmp0 = _mm256_sub_pd( y_tmp0, y_tmp1 );
-			_mm256_storeu_pd( &res_m[ii], y_tmp0 );
-			}
-		for(; ii<nc; ii++)
-			{
-			res_m[ii] = res_m_bkp[ii] + dt[ii] * dlam[ii] - weight[ii]*sigma_mu;
-			}
+		y_tmp0 = _mm256_mul_pd( _mm256_loadu_pd( &dt[ii] ), _mm256_loadu_pd( &dlam[ii] ) );
+		y_tmp0 = _mm256_add_pd( y_tmp0, _mm256_loadu_pd( &res_m_bkp[ii] ) );
+		y_tmp0 = _mm256_sub_pd( y_tmp0, y_sigma_mu );
+		_mm256_storeu_pd( &res_m[ii], y_tmp0 );
 		}
-	else
+	for(; ii<nc; ii++)
 		{
-		ii = 0;
-		for(; ii<nc-3; ii+=4)
-			{
-			y_tmp0 = _mm256_mul_pd( _mm256_loadu_pd( &dt[ii] ), _mm256_loadu_pd( &dlam[ii] ) );
-			y_tmp0 = _mm256_add_pd( y_tmp0, _mm256_loadu_pd( &res_m_bkp[ii] ) );
-			y_tmp0 = _mm256_sub_pd( y_tmp0, y_sigma_mu );
-			_mm256_storeu_pd( &res_m[ii], y_tmp0 );
-			}
-		for(; ii<nc; ii++)
-			{
-			res_m[ii] = res_m_bkp[ii] + dt[ii] * dlam[ii] - sigma_mu;
-			}
+		res_m[ii] = res_m_bkp[ii] + dt[ii] * dlam[ii] - sigma_mu;
 		}
 
 	return;
@@ -1095,7 +1075,6 @@ void d_compute_centering_qp(struct d_core_qp_ipm_workspace *cws)
 
 	double *res_m = cws->res_m;
 	double *res_m_bkp = cws->res_m_bkp;
-	double *weight = cws->weight;
 
 	__m256d
 		y_tmp0,
@@ -1107,32 +1086,15 @@ void d_compute_centering_qp(struct d_core_qp_ipm_workspace *cws)
 
 	y_sigma_mu = _mm256_broadcast_sd( &sigma_mu );
 
-	if(cws->use_weight)
+	ii = 0;
+	for(; ii<nc-3; ii+=4)
 		{
-		ii = 0;
-		for(; ii<nc-3; ii+=4)
-			{
-			y_tmp0 = _mm256_mul_pd( _mm256_loadu_pd( &weight[ii] ), y_sigma_mu );
-			y_tmp0 = _mm256_sub_pd( _mm256_loadu_pd( &res_m_bkp[ii] ), y_tmp0 );
-			_mm256_storeu_pd( &res_m[ii], y_tmp0 );
-			}
-		for(; ii<nc; ii++)
-			{
-			res_m[ii] = res_m_bkp[ii] - weight[ii]*sigma_mu;
-			}
+		y_tmp0 = _mm256_sub_pd( _mm256_loadu_pd( &res_m_bkp[ii] ), y_sigma_mu );
+		_mm256_storeu_pd( &res_m[ii], y_tmp0 );
 		}
-	else
+	for(; ii<nc; ii++)
 		{
-		ii = 0;
-		for(; ii<nc-3; ii+=4)
-			{
-			y_tmp0 = _mm256_sub_pd( _mm256_loadu_pd( &res_m_bkp[ii] ), y_sigma_mu );
-			_mm256_storeu_pd( &res_m[ii], y_tmp0 );
-			}
-		for(; ii<nc; ii++)
-			{
-			res_m[ii] = res_m_bkp[ii] - sigma_mu;
-			}
+		res_m[ii] = res_m_bkp[ii] - sigma_mu;
 		}
 
 	return;
@@ -1151,7 +1113,6 @@ void d_compute_tau_min_qp(struct d_core_qp_ipm_workspace *cws)
 
 	double *res_m = cws->res_m;
 	double *res_m_bkp = cws->res_m_bkp;
-	double *weight = cws->weight;
 
 	__m256d
 		y_tmp0,
@@ -1161,32 +1122,15 @@ void d_compute_tau_min_qp(struct d_core_qp_ipm_workspace *cws)
 
 	y_tau_min = _mm256_broadcast_sd( &tau_min );
 
-	if(cws->use_weight)
+	ii = 0;
+	for(; ii<nc-3; ii+=4)
 		{
-		ii = 0;
-		for(; ii<nc-3; ii+=4)
-			{
-			y_tmp0 = _mm256_mul_pd( _mm256_loadu_pd( &weight[ii] ), y_tau_min );
-			y_tmp0 = _mm256_sub_pd( _mm256_loadu_pd( &res_m_bkp[ii] ), y_tmp0 );
-			_mm256_storeu_pd( &res_m[ii], y_tmp0 );
-			}
-		for(; ii<nc; ii++)
-			{
-			res_m[ii] = res_m_bkp[ii] - weight[ii]*tau_min;
-			}
+		y_tmp0 = _mm256_sub_pd( _mm256_loadu_pd( &res_m_bkp[ii] ), y_tau_min );
+		_mm256_storeu_pd( &res_m[ii], y_tmp0 );
 		}
-	else
+	for(; ii<nc; ii++)
 		{
-		ii = 0;
-		for(; ii<nc-3; ii+=4)
-			{
-			y_tmp0 = _mm256_sub_pd( _mm256_loadu_pd( &res_m_bkp[ii] ), y_tau_min );
-			_mm256_storeu_pd( &res_m[ii], y_tmp0 );
-			}
-		for(; ii<nc; ii++)
-			{
-			res_m[ii] = res_m_bkp[ii] - tau_min;
-			}
+		res_m[ii] = res_m_bkp[ii] - tau_min;
 		}
 
 	return;

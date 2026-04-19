@@ -704,7 +704,6 @@ void COMPUTE_CENTERING_CORRECTION_QP(struct CORE_QP_IPM_WORKSPACE *cws)
 	REAL *ptr_dt = cws->dt;
 	REAL *ptr_res_m = cws->res_m;
 	REAL *ptr_res_m_bkp = cws->res_m_bkp;
-	REAL *weight = cws->weight;
 
 	REAL sigma_mu = cws->sigma*cws->mu;
 	sigma_mu = sigma_mu>cws->tau_min ? sigma_mu : cws->tau_min;
@@ -715,19 +714,9 @@ void COMPUTE_CENTERING_CORRECTION_QP(struct CORE_QP_IPM_WORKSPACE *cws)
 	//	printf(" %e", ptr_dt[ii]*ptr_dlam[ii]);
 	//printf("\n");
 
-	if(cws->use_weight)
+	for(ii=0; ii<nc; ii++)
 		{
-		for(ii=0; ii<nc; ii++)
-			{
-			ptr_res_m[ii+0] = ptr_res_m_bkp[ii+0] + ptr_dt[ii+0] * ptr_dlam[ii+0] - weight[ii+0]*sigma_mu;
-			}
-		}
-	else
-		{
-		for(ii=0; ii<nc; ii++)
-			{
-			ptr_res_m[ii+0] = ptr_res_m_bkp[ii+0] + ptr_dt[ii+0] * ptr_dlam[ii+0] - sigma_mu;
-			}
+		ptr_res_m[ii+0] = ptr_res_m_bkp[ii+0] + ptr_dt[ii+0] * ptr_dlam[ii+0] - sigma_mu;
 		}
 
 	return;
@@ -747,26 +736,15 @@ void COMPUTE_CENTERING_QP(struct CORE_QP_IPM_WORKSPACE *cws)
 
 	REAL *ptr_res_m = cws->res_m;
 	REAL *ptr_res_m_bkp = cws->res_m_bkp;
-	REAL *weight = cws->weight;
 	REAL *m = cws->m;
 
 	REAL sigma_mu = cws->sigma*cws->mu;
 	sigma_mu = sigma_mu>cws->tau_min ? sigma_mu : cws->tau_min;
 	cws->tau_iter = sigma_mu;
 
-	if(cws->use_weight)
+	for(ii=0; ii<nc; ii++)
 		{
-		for(ii=0; ii<nc; ii++)
-			{
-			ptr_res_m[ii+0] = ptr_res_m_bkp[ii+0] - 0*m[ii+0] - weight[ii+0]*sigma_mu;
-			}
-		}
-	else
-		{
-		for(ii=0; ii<nc; ii++)
-			{
-			ptr_res_m[ii+0] = ptr_res_m_bkp[ii+0] - 0*m[ii+0] - sigma_mu;
-			}
+		ptr_res_m[ii+0] = ptr_res_m_bkp[ii+0] - 0*m[ii+0] - sigma_mu;
 		}
 
 	return;
@@ -786,25 +764,14 @@ void COMPUTE_TAU_MIN_QP(struct CORE_QP_IPM_WORKSPACE *cws)
 
 	REAL *ptr_res_m = cws->res_m;
 	REAL *ptr_res_m_bkp = cws->res_m_bkp;
-	REAL *weight = cws->weight;
 
 	REAL *ptr_m = cws->m;
 
 	REAL tau_min = cws->tau_min;
 
-	if(cws->use_weight)
+	for(ii=0; ii<nc; ii++)
 		{
-		for(ii=0; ii<nc; ii++)
-			{
-			ptr_res_m[ii+0] = ptr_res_m_bkp[ii+0] - weight[ii+0]*tau_min;
-			}
-		}
-	else
-		{
-		for(ii=0; ii<nc; ii++)
-			{
-			ptr_res_m[ii+0] = ptr_res_m_bkp[ii+0] - tau_min;
-			}
+		ptr_res_m[ii+0] = ptr_res_m_bkp[ii+0] - tau_min;
 		}
 
 	return;

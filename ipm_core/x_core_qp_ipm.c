@@ -50,7 +50,7 @@ hpipm_size_t MEMSIZE_CORE_QP_IPM(int nv, int ne, int nc)
 
 	size += 3*nv0*sizeof(REAL); // v_bkp dv res_g
 	size += 3*ne0*sizeof(REAL); // pi_bkp dpi res_b
-	size += 13*nc0*sizeof(REAL); // lam_bkp t_bkp dlam dt res_d res_m res_m_bkp t_inv Gamma gamma weight weight_mask m
+	size += 11*nc0*sizeof(REAL); // lam_bkp t_bkp dlam dt res_d res_m res_m_bkp t_inv Gamma gamma
 
 	size = (size+63)/64*64; // make multiple of cache line size
 
@@ -125,12 +125,6 @@ void CREATE_CORE_QP_IPM(int nv, int ne, int nc, struct CORE_QP_IPM_WORKSPACE *wo
 	workspace->gamma = d_ptr; // gamma
 	d_ptr += nc0;
 
-	workspace->weight = d_ptr; // weight
-	d_ptr += nc0;
-
-	workspace->weight_mask = d_ptr; // weight_mask
-	d_ptr += nc0;
-
 	workspace->m = d_ptr; // m
 	d_ptr += nc0;
 
@@ -148,22 +142,12 @@ void CREATE_CORE_QP_IPM(int nv, int ne, int nc, struct CORE_QP_IPM_WORKSPACE *wo
 		workspace->nc_mask_inv = 0.0;
 		}
 
-	for(ii=0; ii<nc0; ii++)
-		{
-		workspace->weight[ii] = 1.0;
-		}
-	for(ii=0; ii<nc0; ii++)
-		{
-		workspace->weight_mask[ii] = 1.0;
-		}
-
 	workspace->lam_min = 0.0;
 	workspace->t_min = 0.0;
 	workspace->t_min_inv = 1e30;
 	workspace->tau_min = 0.0;
 	workspace->split_step = 0;
 	workspace->t_lam_min = 2;
-	workspace->use_weight = 0;
 	workspace->m_zero = 0; // slower but safer
 	workspace->m_safe = 0.3;
 
