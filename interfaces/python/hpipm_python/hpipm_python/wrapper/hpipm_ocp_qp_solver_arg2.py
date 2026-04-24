@@ -80,11 +80,11 @@ class hpipm_ocp_qp_solver_arg2:
 	
 
 	def set(self, field, value):
-		if((field=='mu0') | (field=='alpha_min') | (field=='tol_stat') | (field=='tol_eq') | (field=='tol_ineq') | (field=='tol_comp') | (field=='tol_dual_gap') | (field=='reg_prim')):
+		if((field=='mu0') | (field=='alpha_min') | (field=='tol_stat') | (field=='tol_eq') | (field=='tol_ineq') | (field=='tol_comp') | (field=='tol_dual_gap') | (field=='reg_prim') | (field=='tau_min') | (field=='m_safe')):
 			tmp_in = np.zeros((1,1))
 			tmp_in[0][0] = value
 			tmp = cast(tmp_in.ctypes.data, POINTER(c_double))
-		elif((field=='iter_max') | (field=='pred_corr') | (field=='split_step') | (field=='reduce_eq_dof') | (field=='warm_start')):
+		elif((field=='iter_max') | (field=='pred_corr') | (field=='split_step') | (field=='reduce_eq_dof') | (field=='warm_start') | (field=='t0_init')):
 			tmp_in = np.zeros((1,1), dtype=int)
 			tmp_in[0][0] = value
 			tmp = cast(tmp_in.ctypes.data, POINTER(c_int))

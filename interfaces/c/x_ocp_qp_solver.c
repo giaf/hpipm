@@ -369,6 +369,18 @@ void OCP_QP_SOLVER_SET(char *field, void *value, struct OCP_QP_SOLVER_WS *ws)
 		{
 		OCP_QP_SOLVER_SET_REG_PRIM(value, ws);
 		}
+	else if(hpipm_strcmp(field, "t0_init"))
+		{
+		OCP_QP_SOLVER_SET_T0_INIT(value, ws);
+		}
+	else if(hpipm_strcmp(field, "tau_min"))
+		{
+		OCP_QP_SOLVER_SET_TAU_MIN(value, ws);
+		}
+	else if(hpipm_strcmp(field, "m_safe"))
+		{
+		OCP_QP_SOLVER_SET_M_SAFE(value, ws);
+		}
 	else
 		{
 #ifdef EXT_DEP
@@ -456,6 +468,30 @@ void OCP_QP_SOLVER_SET_SPLIT_STEP(int *value, struct OCP_QP_SOLVER_WS *ws)
 void OCP_QP_SOLVER_SET_REG_PRIM(REAL *value, struct OCP_QP_SOLVER_WS *ws)
 	{
 	OCP_QP_IPM_ARG_SET_REG_PRIM(value, ws->arg->ipm_arg);
+	return;
+	}
+
+
+
+void OCP_QP_SOLVER_SET_T0_INIT(int *value, struct OCP_QP_SOLVER_WS *ws)
+	{
+	OCP_QP_IPM_ARG_SET_T0_INIT(value, ws->arg->ipm_arg);
+	return;
+	}
+
+
+
+void OCP_QP_SOLVER_SET_TAU_MIN(REAL *value, struct OCP_QP_SOLVER_WS *ws)
+	{
+	OCP_QP_IPM_ARG_SET_TAU_MIN(value, ws->arg->ipm_arg);
+	return;
+	}
+
+
+
+void OCP_QP_SOLVER_SET_M_SAFE(REAL *value, struct OCP_QP_SOLVER_WS *ws)
+	{
+	OCP_QP_IPM_ARG_SET_M_SAFE(value, ws->arg->ipm_arg);
 	return;
 	}
 

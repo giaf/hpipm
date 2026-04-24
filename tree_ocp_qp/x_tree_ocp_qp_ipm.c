@@ -60,7 +60,7 @@ void TREE_OCP_QP_IPM_ARG_CREATE(struct TREE_OCP_QP_DIM *dim, struct TREE_OCP_QP_
 void TREE_OCP_QP_IPM_ARG_SET_DEFAULT(enum HPIPM_MODE mode, struct TREE_OCP_QP_IPM_ARG *arg)
 	{
 
-	REAL mu0, alpha_min, res_g_max, res_b_max, res_d_max, res_m_max, dual_gap_max, reg_prim, lam_min, t_min, tau_min, lam0_min, t0_min;
+	REAL mu0, alpha_min, res_g_max, res_b_max, res_d_max, res_m_max, dual_gap_max, reg_prim, lam_min, t_min, tau_min, lam0_min, t0_min, m_safe;
 	int iter_max, stat_max, pred_corr, cond_pred_corr, itref_pred_max, itref_corr_max, lq_fact, warm_start, abs_form, comp_res_exit, comp_res_pred, square_root_alg, comp_dual_sol_eq, split_step, var_init_scheme, t_lam_min, t0_init;
 
 	if(mode==SPEED_ABS)
@@ -92,6 +92,7 @@ void TREE_OCP_QP_IPM_ARG_SET_DEFAULT(enum HPIPM_MODE mode, struct TREE_OCP_QP_IP
 		comp_res_exit = 0;
 //		comp_res_pred = 0;
 		split_step = 1;
+		m_safe = 0.3;
 //		var_init_scheme = 0;
 		t_lam_min = 2;
 		t0_init = 2;
@@ -125,6 +126,7 @@ void TREE_OCP_QP_IPM_ARG_SET_DEFAULT(enum HPIPM_MODE mode, struct TREE_OCP_QP_IP
 		comp_res_exit = 1;
 //		comp_res_pred = 1;
 		split_step = 1;
+		m_safe = 0.3;
 //		var_init_scheme = 0;
 		t_lam_min = 2;
 		t0_init = 2;
@@ -158,6 +160,7 @@ void TREE_OCP_QP_IPM_ARG_SET_DEFAULT(enum HPIPM_MODE mode, struct TREE_OCP_QP_IP
 		comp_res_exit = 1;
 //		comp_res_pred = 1;
 		split_step = 0;
+		m_safe = 0.5;
 //		var_init_scheme = 0;
 		t_lam_min = 2;
 		t0_init = 2;
@@ -191,6 +194,7 @@ void TREE_OCP_QP_IPM_ARG_SET_DEFAULT(enum HPIPM_MODE mode, struct TREE_OCP_QP_IP
 		comp_res_exit = 1;
 //		comp_res_pred = 1;
 		split_step = 0;
+		m_safe = 0.5;
 //		var_init_scheme = 0;
 		t_lam_min = 2;
 		t0_init = 2;
@@ -231,6 +235,7 @@ void TREE_OCP_QP_IPM_ARG_SET_DEFAULT(enum HPIPM_MODE mode, struct TREE_OCP_QP_IP
 //	TREE_OCP_QP_IPM_ARG_SET_COMP_RES_PRED(&comp_res_pred, arg);
 	TREE_OCP_QP_IPM_ARG_SET_COMP_RES_EXIT(&comp_res_pred, arg);
 	TREE_OCP_QP_IPM_ARG_SET_SPLIT_STEP(&split_step, arg);
+	TREE_OCP_QP_IPM_ARG_SET_M_SAFE(&m_safe, arg);
 //	TREE_OCP_QP_IPM_ARG_SET_VAR_INIT_SCHEME(&var_init_scheme, arg);
 	TREE_OCP_QP_IPM_ARG_SET_T_LAM_MIN(&t_lam_min, arg);
 	arg->t0_init = t0_init;
@@ -238,6 +243,104 @@ void TREE_OCP_QP_IPM_ARG_SET_DEFAULT(enum HPIPM_MODE mode, struct TREE_OCP_QP_IP
 
 	return;
 
+	}
+
+
+
+void TREE_OCP_QP_IPM_ARG_SET(char *field, void *value, struct TREE_OCP_QP_IPM_ARG *arg)
+	{
+	if(hpipm_strcmp(field, "iter_max"))
+		{
+		TREE_OCP_QP_IPM_ARG_SET_ITER_MAX(value, arg);
+		}
+	else if(hpipm_strcmp(field, "alpha_min"))
+		{
+		TREE_OCP_QP_IPM_ARG_SET_ALPHA_MIN(value, arg);
+		}
+	else if(hpipm_strcmp(field, "mu0"))
+		{
+		TREE_OCP_QP_IPM_ARG_SET_MU0(value, arg);
+		}
+	else if(hpipm_strcmp(field, "tol_stat"))
+		{
+		TREE_OCP_QP_IPM_ARG_SET_TOL_STAT(value, arg);
+		}
+	else if(hpipm_strcmp(field, "tol_eq"))
+		{
+		TREE_OCP_QP_IPM_ARG_SET_TOL_EQ(value, arg);
+		}
+	else if(hpipm_strcmp(field, "tol_ineq"))
+		{
+		TREE_OCP_QP_IPM_ARG_SET_TOL_INEQ(value, arg);
+		}
+	else if(hpipm_strcmp(field, "tol_comp"))
+		{
+		TREE_OCP_QP_IPM_ARG_SET_TOL_COMP(value, arg);
+		}
+	else if(hpipm_strcmp(field, "tol_dual_gap"))
+		{
+		TREE_OCP_QP_IPM_ARG_SET_TOL_DUAL_GAP(value, arg);
+		}
+	else if(hpipm_strcmp(field, "reg_prim"))
+		{
+		TREE_OCP_QP_IPM_ARG_SET_REG_PRIM(value, arg);
+		}
+	else if(hpipm_strcmp(field, "warm_start"))
+		{
+		TREE_OCP_QP_IPM_ARG_SET_WARM_START(value, arg);
+		}
+	else if(hpipm_strcmp(field, "pred_corr"))
+		{
+		TREE_OCP_QP_IPM_ARG_SET_PRED_CORR(value, arg);
+		}
+	else if(hpipm_strcmp(field, "cond_pred_corr"))
+		{
+		TREE_OCP_QP_IPM_ARG_SET_COND_PRED_CORR(value, arg);
+		}
+//	else if(hpipm_strcmp(field, "ric_alg"))
+//		{
+//		TREE_OCP_QP_IPM_ARG_SET_RIC_ALG(value, arg);
+//		}
+	else if(hpipm_strcmp(field, "comp_res_exit")) 
+		{
+		TREE_OCP_QP_IPM_ARG_SET_COMP_RES_EXIT(value, arg);
+		}
+//	else if(hpipm_strcmp(field, "comp_res_pred"))
+//		{
+//		TREE_OCP_QP_IPM_ARG_SET_COMP_RES_PRED(value, arg);
+//		}
+	else if(hpipm_strcmp(field, "lam_min"))
+		{
+		TREE_OCP_QP_IPM_ARG_SET_LAM_MIN(value, arg);
+		}
+	else if(hpipm_strcmp(field, "t_min"))
+		{
+		TREE_OCP_QP_IPM_ARG_SET_T_MIN(value, arg);
+		}
+	else if(hpipm_strcmp(field, "tau_min"))
+		{
+		TREE_OCP_QP_IPM_ARG_SET_TAU_MIN(value, arg);
+		}
+	else if(hpipm_strcmp(field, "split_step"))
+		{
+		TREE_OCP_QP_IPM_ARG_SET_SPLIT_STEP(value, arg);
+		}
+	else if(hpipm_strcmp(field, "m_safe"))
+		{
+		TREE_OCP_QP_IPM_ARG_SET_M_SAFE(value, arg);
+		}
+	else if(hpipm_strcmp(field, "t_lam_min"))
+		{
+		TREE_OCP_QP_IPM_ARG_SET_T_LAM_MIN(value, arg);
+		}
+	else
+		{
+#ifdef EXT_DEP
+		printf("error: TREE_OCP_QP_IPM_ARG_SET: wrong field %s\n", field);
+#endif
+		exit(1);	
+		}
+	return;
 	}
 
 
@@ -399,6 +502,14 @@ void TREE_OCP_QP_IPM_ARG_SET_T0_MIN(REAL *value, struct TREE_OCP_QP_IPM_ARG *arg
 void TREE_OCP_QP_IPM_ARG_SET_SPLIT_STEP(int *value, struct TREE_OCP_QP_IPM_ARG *arg)
 	{
 	arg->split_step = *value;
+	return;
+	}
+
+
+
+void TREE_OCP_QP_IPM_ARG_SET_M_SAFE(REAL *value, struct TREE_OCP_QP_IPM_ARG *arg)
+	{
+	arg->m_safe = *value;
 	return;
 	}
 
@@ -1932,6 +2043,7 @@ void TREE_OCP_QP_IPM_SOLVE(struct TREE_OCP_QP *qp, struct TREE_OCP_QP_SOL *qp_so
 	cws->t_min_inv = arg->t_min>0 ? 1.0/arg->t_min : 1e30;
 	cws->tau_min = arg->tau_min;
 	cws->split_step = arg->split_step;
+	cws->m_safe = arg->m_safe;
 	cws->t_lam_min = arg->t_lam_min;
 
 	// alias qp

@@ -79,11 +79,11 @@ class hpipm_dense_qcqp_solver_arg:
 
 
 	def set(self, field, value):
-		if((field=='mu0') | (field=='tol_stat') | (field=='tol_eq') | (field=='tol_ineq') | (field=='tol_comp') | (field=='reg_prim') | (field=='reg_dual')):
+		if((field=='mu0') | (field=='tol_stat') | (field=='tol_eq') | (field=='tol_ineq') | (field=='tol_comp') | (field=='tol_dual_gap') | (field=='reg_prim') | (field=='reg_dual') | (field=='tau_min') | (field=='m_safe')):
 			tmp_in = np.zeros((1,1))
 			tmp_in[0][0] = value
 			tmp = cast(tmp_in.ctypes.data, POINTER(c_double))
-		elif((field=='iter_max') | (field=='pred_corr') | (field=='split_step') | (field=='warm_start')):
+		elif((field=='iter_max') | (field=='pred_corr') | (field=='split_step') | (field=='warm_start') | (field=='t0_init')):
 			tmp_in = np.zeros((1,1), dtype=int)
 			tmp_in[0][0] = value
 			tmp = cast(tmp_in.ctypes.data, POINTER(c_int))

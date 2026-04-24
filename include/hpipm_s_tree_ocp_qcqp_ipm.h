@@ -71,6 +71,7 @@ struct s_tree_ocp_qcqp_ipm_arg
 	float tau_min; // min value of barrier parameter
 	float lam0_min; // min value in lam vector at hot start initialization
 	float t0_min; // min value in t vector at hot start initialization
+	float m_safe; // in [0,1], for m>0 it trades off aggressive step sizes with robustness for any starting point
 	int iter_max; // exit cond in iter number
 	int stat_max; // iterations saved in stat
 	int pred_corr; // use Mehrotra's predictor-corrector IPM algirthm
@@ -156,6 +157,8 @@ void s_tree_ocp_qcqp_ipm_arg_set_t_min(float *value, struct s_tree_ocp_qcqp_ipm_
 void s_tree_ocp_qcqp_ipm_arg_set_tau_min(float *value, struct s_tree_ocp_qcqp_ipm_arg *arg);
 // use different step for primal and dual variables
 void s_tree_ocp_qcqp_ipm_arg_set_split_step(int *value, struct s_tree_ocp_qcqp_ipm_arg *arg);
+// in [0,1], for m>0 it trades off aggressive step sizes with robustness for any starting point
+void s_tree_ocp_qcqp_ipm_arg_set_m_safe(float *value, struct s_tree_ocp_qcqp_ipm_arg *arg);
 // clip t and lam: 0 no, 1 in Gamma computation, 2 in solution
 void s_tree_ocp_qcqp_ipm_arg_set_t_lam_min(int *value, struct s_tree_ocp_qcqp_ipm_arg *arg);
 

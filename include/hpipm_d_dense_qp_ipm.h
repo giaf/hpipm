@@ -74,6 +74,7 @@ struct d_dense_qp_ipm_arg
 	double tau_min; // min value of barrier parameter
 	double lam0_min; // min value in lam vector at hot start initialization
 	double t0_min; // min value in t vector at hot start initialization
+	double m_safe; // in [0,1], for m>0 it trades off aggressive step sizes with robustness for any starting point
 	int iter_max; // exit cond in iter number
 	int stat_max; // iterations saved in stat
 	int pred_corr; // Mehrotra's predictor-corrector IPM algirthm
@@ -221,6 +222,8 @@ void d_dense_qp_ipm_arg_set_remove_lin_dep_eq(int *value, struct d_dense_qp_ipm_
 void d_dense_qp_ipm_arg_set_compute_obj(int *value, struct d_dense_qp_ipm_arg *arg);
 //
 void d_dense_qp_ipm_arg_set_split_step(int *value, struct d_dense_qp_ipm_arg *arg);
+//
+void d_dense_qp_ipm_arg_set_m_safe(double *value, struct d_dense_qp_ipm_arg *arg);
 //
 void d_dense_qp_ipm_arg_set_t_lam_min(int *value, struct d_dense_qp_ipm_arg *arg);
 //

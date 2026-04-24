@@ -75,6 +75,9 @@
 #define OCP_QP_IPM_ARG_SET_TOL_EQ d_ocp_qp_ipm_arg_set_tol_eq
 #define OCP_QP_IPM_ARG_SET_TOL_INEQ d_ocp_qp_ipm_arg_set_tol_ineq
 #define OCP_QP_IPM_ARG_SET_TOL_STAT d_ocp_qp_ipm_arg_set_tol_stat
+#define OCP_QP_IPM_ARG_SET_T0_INIT d_ocp_qp_ipm_arg_set_t0_init
+#define OCP_QP_IPM_ARG_SET_TAU_MIN d_ocp_qp_ipm_arg_set_tau_min
+#define OCP_QP_IPM_ARG_SET_M_SAFE d_ocp_qp_ipm_arg_set_m_safe
 #define OCP_QP_IPM_GET d_ocp_qp_ipm_get
 #define OCP_QP_IPM_GET_ITER d_ocp_qp_ipm_get_iter
 #define OCP_QP_IPM_GET_STATUS d_ocp_qp_ipm_get_status
@@ -135,6 +138,9 @@
 #define OCP_QP_SOLVER_SET_PRED_CORR d_ocp_qp_solver_set_pred_corr
 #define OCP_QP_SOLVER_SET_SPLIT_STEP d_ocp_qp_solver_set_split_step
 #define OCP_QP_SOLVER_SET_REG_PRIM d_ocp_qp_solver_set_reg_prim
+#define OCP_QP_SOLVER_SET_T0_INIT d_ocp_qp_solver_set_t0_init
+#define OCP_QP_SOLVER_SET_TAU_MIN d_ocp_qp_solver_set_tau_min
+#define OCP_QP_SOLVER_SET_M_SAFE d_ocp_qp_solver_set_m_safe
 #define OCP_QP_SOLVER_GET d_ocp_qp_solver_get
 #define OCP_QP_SOLVER_GET_STATUS d_ocp_qp_solver_get_status
 #define OCP_QP_SOLVER_GET_ITER d_ocp_qp_solver_get_iter

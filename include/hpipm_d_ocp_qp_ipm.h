@@ -72,6 +72,7 @@ struct d_ocp_qp_ipm_arg
 	double tau_min; // min value of barrier parameter
 	double lam0_min; // min value in lam vector at hot start initialization
 	double t0_min; // min value in t vector at hot start initialization
+	double m_safe; // in [0,1], for m>0 it trades off aggressive step sizes with robustness for any starting point
 	int iter_max; // exit cond in iter number
 	int stat_max; // iterations saved in stat
 	int pred_corr; // use Mehrotra's predictor-corrector IPM algirthm
@@ -195,6 +196,8 @@ void d_ocp_qp_ipm_arg_set_lam0_min(double *value, struct d_ocp_qp_ipm_arg *arg);
 void d_ocp_qp_ipm_arg_set_t0_min(double *value, struct d_ocp_qp_ipm_arg *arg);
 // set split step: 0 same step, 1 different step for primal and dual variables
 void d_ocp_qp_ipm_arg_set_split_step(int *value, struct d_ocp_qp_ipm_arg *arg);
+// in [0,1], for m>0 it trades off aggressive step sizes with robustness for any starting point
+void d_ocp_qp_ipm_arg_set_m_safe(double *value, struct d_ocp_qp_ipm_arg *arg);
 // variables initialization scheme
 void d_ocp_qp_ipm_arg_set_var_init_scheme(int *value, struct d_ocp_qp_ipm_arg *arg);
 // clip t and lam: 0 no, 1 in Gamma computation, 2 in solution

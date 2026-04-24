@@ -133,6 +133,12 @@ void d_ocp_qp_solver_set_split_step(int *value, struct d_ocp_qp_solver_ws *ws);
 //
 void d_ocp_qp_solver_set_reg_prim(double *value, struct d_ocp_qp_solver_ws *ws);
 //
+void d_ocp_qp_solver_set_t0_init(int *value, struct d_ocp_qp_solver_ws *ws);
+//
+void d_ocp_qp_solver_set_tau_min(double *value, struct d_ocp_qp_solver_ws *ws);
+//
+void d_ocp_qp_solver_set_m_safe(double *value, struct d_ocp_qp_solver_ws *ws);
+//
 void d_ocp_qp_solver_get(char *field, struct d_ocp_qp_solver_ws *ws, void *value);
 //
 void d_ocp_qp_solver_get_status(struct d_ocp_qp_solver_ws *ws, int *value);
