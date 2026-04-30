@@ -704,7 +704,7 @@ void d_update_var_qp(struct d_core_qp_ipm_workspace *cws)
 	double *dpi = cws->dpi;
 	double *dlam = cws->dlam;
 	double *dt = cws->dt;
-	double alpha = cws->alpha;
+	//double alpha = cws->alpha;
 	double alpha_prim = cws->alpha_prim;
 	double alpha_dual = cws->alpha_dual;
 
@@ -720,6 +720,7 @@ void d_update_var_qp(struct d_core_qp_ipm_workspace *cws)
 	if(alpha<1.0)
 		alpha *= 0.995;
 #else
+	double alpha = alpha_prim<alpha_dual ? alpha_prim : alpha_dual;
 	if(alpha<1.0)
 		{
 		alpha_prim = alpha_prim * ((1.0-alpha_prim)*0.99 + alpha_prim*0.9999999);
@@ -940,7 +941,9 @@ void d_compute_mu_aff_qp(struct d_core_qp_ipm_workspace *cws)
 	double *t = cws->t;
 	double *dlam = cws->dlam;
 	double *dt = cws->dt;
-	double alpha = cws->alpha;
+	//double alpha = cws->alpha;
+	double alpha_prim = cws->alpha_prim;
+	double alpha_dual = cws->alpha_dual;
 	double *m = cws->m;
 	// this affects the minimum value of signa !!!
 //		alpha *= 0.99;
@@ -948,7 +951,7 @@ void d_compute_mu_aff_qp(struct d_core_qp_ipm_workspace *cws)
 	__m256d
 		y_sign,
 		y_tmp0, y_tmp1,
-		y_alpha, y_mu;
+		y_alpha_prim, y_alpha_dual, y_mu;
 	
 	__m128d
 		x_mu;
@@ -960,13 +963,14 @@ void d_compute_mu_aff_qp(struct d_core_qp_ipm_workspace *cws)
 
 	y_mu = _mm256_setzero_pd( );
 
-	y_alpha = _mm256_broadcast_sd( &alpha );
+	y_alpha_prim = _mm256_broadcast_sd( &alpha_prim );
+	y_alpha_dual = _mm256_broadcast_sd( &alpha_dual );
 
 	ii = 0;
 	for(; ii<nc-3; ii+=4)
 		{
-		y_tmp0 = _mm256_mul_pd( y_alpha, _mm256_loadu_pd( &dlam[ii] ) );
-		y_tmp1 = _mm256_mul_pd( y_alpha, _mm256_loadu_pd( &dt[ii] ) );
+		y_tmp0 = _mm256_mul_pd( y_alpha_dual, _mm256_loadu_pd( &dlam[ii] ) );
+		y_tmp1 = _mm256_mul_pd( y_alpha_prim, _mm256_loadu_pd( &dt[ii] ) );
 		y_tmp0 = _mm256_add_pd( y_tmp0, _mm256_loadu_pd( &lam[ii] ) );
 		y_tmp1 = _mm256_add_pd( y_tmp1, _mm256_loadu_pd( &t[ii] ) );
 		y_tmp0 = _mm256_mul_pd( y_tmp0, y_tmp1 );
@@ -976,7 +980,7 @@ void d_compute_mu_aff_qp(struct d_core_qp_ipm_workspace *cws)
 		}
 	for(; ii<nc; ii++)
 		{
-		mu += fabs( - m[ii] + (lam[ii] + alpha*dlam[ii]) * (t[ii] + alpha*dt[ii]));
+		mu += fabs( - m[ii] + (lam[ii] + alpha_dual*dlam[ii]) * (t[ii] + alpha_prim*dt[ii]));
 		}
 	
 	x_mu = _mm_add_pd( _mm256_castpd256_pd128( y_mu ), _mm256_extractf128_pd( y_mu, 0x1 ) );

@@ -736,7 +736,7 @@ void d_update_var_qp(struct d_core_qp_ipm_workspace *cws)
 	double *dpi = cws->dpi;
 	double *dlam = cws->dlam;
 	double *dt = cws->dt;
-	double alpha = cws->alpha;
+	//double alpha = cws->alpha;
 	double alpha_prim = cws->alpha_prim;
 	double alpha_dual = cws->alpha_dual;
 
@@ -759,6 +759,7 @@ void d_update_var_qp(struct d_core_qp_ipm_workspace *cws)
 	if(alpha<1.0)
 		alpha *= 0.995;
 #else
+	double alpha = alpha_prim<alpha_dual ? alpha_prim : alpha_dual;
 	if(alpha<1.0)
 		{
 		alpha_prim = alpha_prim * ((1.0-alpha_prim)*0.99 + alpha_prim*0.9999999);
@@ -1035,7 +1036,9 @@ void d_compute_mu_aff_qp(struct d_core_qp_ipm_workspace *cws)
 	double *t = cws->t;
 	double *dlam = cws->dlam;
 	double *dt = cws->dt;
-	double alpha = cws->alpha;
+	//double alpha = cws->alpha;
+	double alpha_prim = cws->alpha_prim;
+	double alpha_dual = cws->alpha_dual;
 	double *m = cws->m;
 	// this affects the minimum value of signa !!!
 //		alpha *= 0.99;
@@ -1043,12 +1046,12 @@ void d_compute_mu_aff_qp(struct d_core_qp_ipm_workspace *cws)
 	__m512d
 		z_sign,
 		z_tmp0, z_tmp1,
-		z_alpha, z_mu;
+		z_alpha_prim, z_alpha_dual, z_mu;
 
 	__m256d
 		y_sign,
 		y_tmp0, y_tmp1,
-		y_alpha, y_mu;
+		y_alpha_prim, y_alpha_dual, y_mu;
 
 	__m128d
 		x_mu;
@@ -1062,29 +1065,31 @@ void d_compute_mu_aff_qp(struct d_core_qp_ipm_workspace *cws)
 	z_mu = _mm512_setzero_pd( );
 	y_mu = _mm256_setzero_pd( );
 
-	z_alpha = _mm512_set1_pd( alpha );
-	y_alpha = _mm256_broadcast_sd( &alpha );
+	z_alpha_prim = _mm512_set1_pd( alpha_prim );
+	z_alpha_dual = _mm512_set1_pd( alpha_dual );
+	y_alpha_prim = _mm256_broadcast_sd( &alpha_prim );
+	y_alpha_dual = _mm256_broadcast_sd( &alpha_dual );
 
 	ii = 0;
 	for(; ii<nc-7; ii+=8)
 		{
-		z_tmp0 = _mm512_fmadd_pd( z_alpha, _mm512_loadu_pd( &dlam[ii] ), _mm512_loadu_pd( &lam[ii] ) );
-		z_tmp1 = _mm512_fmadd_pd( z_alpha, _mm512_loadu_pd( &dt[ii] ), _mm512_loadu_pd( &t[ii] ) );
+		z_tmp0 = _mm512_fmadd_pd( z_alpha_dual, _mm512_loadu_pd( &dlam[ii] ), _mm512_loadu_pd( &lam[ii] ) );
+		z_tmp1 = _mm512_fmadd_pd( z_alpha_prim, _mm512_loadu_pd( &dt[ii] ), _mm512_loadu_pd( &t[ii] ) );
 		z_tmp0 = _mm512_fmsub_pd( z_tmp0, z_tmp1, _mm512_loadu_pd( &m[ii] ) );
 		z_tmp0 = _mm512_andnot_pd( z_sign, z_tmp0 );
 		z_mu = _mm512_add_pd( z_mu, z_tmp0 );
 		}
 	for(; ii<nc-3; ii+=4)
 		{
-		y_tmp0 = _mm256_fmadd_pd( y_alpha, _mm256_loadu_pd( &dlam[ii] ), _mm256_loadu_pd( &lam[ii] )  );
-		y_tmp1 = _mm256_fmadd_pd( y_alpha, _mm256_loadu_pd( &dt[ii] ), _mm256_loadu_pd( &t[ii] )  );
+		y_tmp0 = _mm256_fmadd_pd( y_alpha_dual, _mm256_loadu_pd( &dlam[ii] ), _mm256_loadu_pd( &lam[ii] )  );
+		y_tmp1 = _mm256_fmadd_pd( y_alpha_prim, _mm256_loadu_pd( &dt[ii] ), _mm256_loadu_pd( &t[ii] )  );
 		y_tmp0 = _mm256_fmsub_pd( y_tmp0, y_tmp1, _mm256_loadu_pd( &m[ii] ) );
 		y_tmp0 = _mm256_andnot_pd( y_sign, y_tmp0 );
 		y_mu = _mm256_add_pd( y_mu, y_tmp0 );
 		}
 	for(; ii<nc; ii++)
 		{
-		mu += fabs( - m[ii] + (lam[ii] + alpha*dlam[ii]) * (t[ii] + alpha*dt[ii]));
+		mu += fabs( - m[ii] + (lam[ii] + alpha_dual*dlam[ii]) * (t[ii] + alpha_prim*dt[ii]));
 		}
 	
 	y_mu = _mm256_add_pd( y_mu, _mm512_extractf64x4_pd( z_mu, 0x1 ) );

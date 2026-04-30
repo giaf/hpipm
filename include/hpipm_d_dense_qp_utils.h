@@ -74,7 +74,7 @@ void d_dense_qp_res_print(struct d_dense_qp_dim *qp_dim, struct d_dense_qp_res *
 //
 void d_dense_qp_seed_print(struct d_dense_qp_dim *qp_dim, struct d_dense_qp_seed *dense_qp_seed);
 //
-void d_dense_qp_arg_print(struct d_dense_qp_dim *qp_dim, struct d_dense_qp_ipm_arg *qp_ipm_arg);
+void d_dense_qp_ipm_arg_print(struct d_dense_qp_dim *qp_dim, struct d_dense_qp_ipm_arg *qp_ipm_arg);
 
 
 

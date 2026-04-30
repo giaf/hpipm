@@ -490,7 +490,7 @@ void s_update_var_qp(struct s_core_qp_ipm_workspace *cws)
 	float *dpi = cws->dpi;
 	float *dlam = cws->dlam;
 	float *dt = cws->dt;
-	float alpha = cws->alpha;
+	//float alpha = cws->alpha;
 	float alpha_prim = cws->alpha_prim;
 	float alpha_dual = cws->alpha_dual;
 	float lam_min = cws->lam_min;
@@ -502,6 +502,7 @@ void s_update_var_qp(struct s_core_qp_ipm_workspace *cws)
 	if(alpha<1.0)
 		alpha *= 0.995;
 #else
+	float alpha = alpha_prim<alpha_dual ? alpha_prim : alpha_dual;
 	if(alpha<1.0)
 		{
 		alpha_prim = alpha_prim * ((1.0-alpha_prim)*0.99 + alpha_prim*0.9999999);
@@ -642,7 +643,9 @@ void s_compute_mu_aff_qp(struct s_core_qp_ipm_workspace *cws)
 	float *ptr_t = cws->t;
 	float *ptr_dlam = cws->dlam;
 	float *ptr_dt = cws->dt;
-	float alpha = cws->alpha;
+	//float alpha = cws->alpha;
+	float alpha_prim = cws->alpha_prim;
+	float alpha_dual = cws->alpha_dual;
 	// this affects the minimum value of signa !!!
 //		alpha *= 0.99;
 
@@ -651,7 +654,7 @@ void s_compute_mu_aff_qp(struct s_core_qp_ipm_workspace *cws)
 	for(ii=0; ii<nc; ii++)
 		{
 		//mu += (ptr_lam[ii+0] + alpha*ptr_dlam[ii+0]) * (ptr_t[ii+0] + alpha*ptr_dt[ii+0]);
-		mu += fabs(- ptr_m[ii+0] + (ptr_lam[ii+0] + alpha*ptr_dlam[ii+0]) * (ptr_t[ii+0] + alpha*ptr_dt[ii+0]));
+		mu += fabs(- ptr_m[ii+0] + (ptr_lam[ii+0] + alpha_dual*ptr_dlam[ii+0]) * (ptr_t[ii+0] + alpha_prim*ptr_dt[ii+0]));
 		}
 	
 	cws->mu_aff = mu*cws->nc_mask_inv;

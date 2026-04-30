@@ -647,8 +647,8 @@ void COMPUTE_MU_AFF_QP(struct CORE_QP_IPM_WORKSPACE *cws)
 	REAL *ptr_dlam = cws->dlam;
 	REAL *ptr_dt = cws->dt;
 	//REAL alpha = cws->alpha;
-	REAL alpha_dual = cws->alpha_prim;
 	REAL alpha_prim = cws->alpha_prim;
+	REAL alpha_dual = cws->alpha_dual;
 	// this affects the minimum value of signa !!!
 //		alpha *= 0.99;
 
@@ -736,7 +736,6 @@ void COMPUTE_CENTERING_QP(struct CORE_QP_IPM_WORKSPACE *cws)
 
 	REAL *ptr_res_m = cws->res_m;
 	REAL *ptr_res_m_bkp = cws->res_m_bkp;
-	REAL *m = cws->m;
 
 	REAL sigma_mu = cws->sigma*cws->mu;
 	sigma_mu = sigma_mu>cws->tau_min ? sigma_mu : cws->tau_min;
@@ -744,7 +743,7 @@ void COMPUTE_CENTERING_QP(struct CORE_QP_IPM_WORKSPACE *cws)
 
 	for(ii=0; ii<nc; ii++)
 		{
-		ptr_res_m[ii+0] = ptr_res_m_bkp[ii+0] - 0*m[ii+0] - sigma_mu;
+		ptr_res_m[ii+0] = ptr_res_m_bkp[ii+0] - sigma_mu;
 		}
 
 	return;

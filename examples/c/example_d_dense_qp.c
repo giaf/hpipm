@@ -84,6 +84,12 @@ extern double *lus;
 extern double *lls_mask;
 extern double *lus_mask;
 extern int *idxs_rev;
+extern double *m_lb;
+extern double *m_ub;
+extern double *m_lg;
+extern double *m_ug;
+extern double *m_lls;
+extern double *m_lus;
 // arg
 extern int mode;
 extern int iter_max;
@@ -98,6 +104,8 @@ extern double reg_dual;
 extern int warm_start;
 extern int pred_corr;
 extern int split_step;
+extern int t0_init;
+extern double m_safe;
 
 
 
@@ -166,6 +174,15 @@ int main()
 	d_dense_qp_set_lls_mask(lls_mask, &qp);
 	d_dense_qp_set_lus_mask(lus_mask, &qp);
 	d_dense_qp_set_idxs_rev(idxs_rev, &qp);
+	d_dense_qp_set_m_lb(m_lb, &qp);
+	d_dense_qp_set_m_ub(m_ub, &qp);
+	d_dense_qp_set_m_lg(m_lg, &qp);
+	d_dense_qp_set_m_ug(m_ug, &qp);
+	d_dense_qp_set_m_lls(m_lls, &qp);
+	d_dense_qp_set_m_lus(m_lus, &qp);
+
+	//double tau_min = 1e-2;
+	//d_dense_qp_set_m_all(&tau_min, &qp);
 
 //	d_dense_qp_codegen("examples/c/data/test_d_dense_data.c", "a", &dim, &qp);
 
@@ -204,6 +221,8 @@ int main()
 	d_dense_qp_ipm_arg_set_warm_start(&warm_start, &arg);
 	d_dense_qp_ipm_arg_set_pred_corr(&pred_corr, &arg);
 	d_dense_qp_ipm_arg_set_split_step(&split_step, &arg);
+	d_dense_qp_ipm_arg_set_t0_init(&t0_init, &arg);
+	d_dense_qp_ipm_arg_set_m_safe(&m_safe, &arg);
 
 //	d_dense_qp_ipm_arg_codegen("examples/c/data/test_d_dense_data.c", "a", &dim, &arg);
 

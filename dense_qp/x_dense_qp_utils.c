@@ -597,8 +597,6 @@ void DENSE_QP_CODEGEN(char *file_name, char *mode, struct DENSE_QP_DIM *qp_dim, 
 	fprintf(file, "float *lus_mask = llus_mask;\n");
 #endif
 
-	printf("Z = \n");
-	BLASFEO_PRINT_TRAN_VEC(2*ns, qp->Z, 0);
 	// zl
 	fprintf(file, "/* Zl */\n");
 #ifdef DOUBLE_PRECISION
@@ -650,6 +648,138 @@ void DENSE_QP_CODEGEN(char *file_name, char *mode, struct DENSE_QP_DIM *qp_dim, 
 		fprintf(file, "%d, ", qp->idxs_rev[ii]);
 	fprintf(file, "};\n");
 	fprintf(file, "int *idxs_rev = iidxs_rev;\n");
+
+	// m_lb
+	fprintf(file, "/* m_lb */\n");
+#ifdef DOUBLE_PRECISION
+	fprintf(file, "static double m_llb[] = {");
+#else
+	fprintf(file, "static float m_llb[] = {");
+#endif
+	for(ii=0; ii<nb; ii++)
+		{
+#ifdef DOUBLE_PRECISION
+		fprintf(file, "%18.15e, ", BLASFEO_DVECEL(qp->m, ii));
+#else
+		fprintf(file, "%18.15e, ", BLASFEO_SVECEL(qp->m, ii));
+#endif
+		}
+	fprintf(file, "};\n");
+#ifdef DOUBLE_PRECISION
+	fprintf(file, "double *m_lb = m_llb;\n");
+#else
+	fprintf(file, "float *m_lb = m_llb;\n");
+#endif
+
+	// ub
+	fprintf(file, "/* m_ub */\n");
+#ifdef DOUBLE_PRECISION
+	fprintf(file, "static double m_uub[] = {");
+#else
+	fprintf(file, "static float m_uub[] = {");
+#endif
+	for(ii=0; ii<nb; ii++)
+		{
+#ifdef DOUBLE_PRECISION
+		fprintf(file, "%18.15e, ", BLASFEO_DVECEL(qp->m, nb+ng+ii));
+#else
+		fprintf(file, "%18.15e, ", BLASFEO_SVECEL(qp->m, nb+ng+ii));
+#endif
+		}
+	fprintf(file, "};\n");
+#ifdef DOUBLE_PRECISION
+	fprintf(file, "double *m_ub = m_uub;\n");
+#else
+	fprintf(file, "float *m_ub = m_uub;\n");
+#endif
+
+	// lg
+	fprintf(file, "/* m_lg */\n");
+#ifdef DOUBLE_PRECISION
+	fprintf(file, "static double m_llg[] = {");
+#else
+	fprintf(file, "static float m_llg[] = {");
+#endif
+	for(ii=0; ii<ng; ii++)
+		{
+#ifdef DOUBLE_PRECISION
+		fprintf(file, "%18.15e, ", BLASFEO_DVECEL(qp->m, nb+ii));
+#else
+		fprintf(file, "%18.15e, ", BLASFEO_SVECEL(qp->m, nb+ii));
+#endif
+		}
+	fprintf(file, "};\n");
+#ifdef DOUBLE_PRECISION
+	fprintf(file, "double *m_lg = m_llg;\n");
+#else
+	fprintf(file, "float *m_lg = m_llg;\n");
+#endif
+
+	// ug
+	fprintf(file, "/* m_ug */\n");
+#ifdef DOUBLE_PRECISION
+	fprintf(file, "static double m_uug[] = {");
+#else
+	fprintf(file, "static float m_uug[] = {");
+#endif
+	for(ii=0; ii<ng; ii++)
+		{
+#ifdef DOUBLE_PRECISION
+		fprintf(file, "%18.15e, ", BLASFEO_DVECEL(qp->m, 2*nb+ng+ii));
+#else
+		fprintf(file, "%18.15e, ", BLASFEO_SVECEL(qp->m, 2*nb+ng+ii));
+#endif
+		}
+	fprintf(file, "};\n");
+#ifdef DOUBLE_PRECISION
+	fprintf(file, "double *m_ug = m_uug;\n");
+#else
+	fprintf(file, "float *m_ug = m_uug;\n");
+#endif
+
+	// lls
+	fprintf(file, "/* m_lls */\n");
+#ifdef DOUBLE_PRECISION
+	fprintf(file, "static double m_llls[] = {");
+#else
+	fprintf(file, "static float m_llls[] = {");
+#endif
+	for(ii=0; ii<ns; ii++)
+		{
+#ifdef DOUBLE_PRECISION
+		fprintf(file, "%18.15e, ", BLASFEO_DVECEL(qp->m, 2*nb+2*ng+ii));
+#else
+		fprintf(file, "%18.15e, ", BLASFEO_SVECEL(qp->m, 2*nb+2*ng+ii));
+#endif
+		}
+	fprintf(file, "};\n");
+#ifdef DOUBLE_PRECISION
+	fprintf(file, "double *m_lls = m_llls;\n");
+#else
+	fprintf(file, "float *m_lls = m_llls;\n");
+#endif
+
+	// lus
+	fprintf(file, "/* m_lus */\n");
+#ifdef DOUBLE_PRECISION
+	fprintf(file, "static double m_llus[] = {");
+#else
+	fprintf(file, "static float m_llus[] = {");
+#endif
+	for(ii=0; ii<ns; ii++)
+		{
+#ifdef DOUBLE_PRECISION
+		fprintf(file, "%18.15e, ", BLASFEO_DVECEL(qp->m, 2*nb+2*ng+ns+ii));
+#else
+		fprintf(file, "%18.15e, ", BLASFEO_SVECEL(qp->m, 2*nb+2*ng+ns+ii));
+#endif
+		}
+	fprintf(file, "};\n");
+#ifdef DOUBLE_PRECISION
+	fprintf(file, "double *m_lus = m_llus;\n");
+#else
+	fprintf(file, "float *m_lus = m_llus;\n");
+#endif
 
 	fclose(file);
 
@@ -1002,6 +1132,12 @@ void DENSE_QP_IPM_ARG_PRINT(struct DENSE_QP_DIM *qp_dim, struct DENSE_QP_IPM_ARG
 	// split_step
 	printf("/* split_step */\n");
 	printf("int split_step = %d;\n", arg->split_step);
+	// t0_init
+	printf("/* t0_init */\n");
+	printf("int t0_init = %d;\n", arg->t0_init);
+	// m_safe
+	printf("/* m_safe */\n");
+	printf("double m_safe = %18.15e;\n", arg->m_safe);
 
 #endif
 	return;
@@ -1057,6 +1193,12 @@ void DENSE_QP_IPM_ARG_CODEGEN(char *file_name, char *mode, struct DENSE_QP_DIM *
 	// split_step
 	fprintf(file, "/* split_step */\n");
 	fprintf(file, "int split_step = %d;\n", arg->split_step);
+	// t0_init
+	fprintf(file, "/* t0_init */\n");
+	fprintf(file, "int t0_init = %d;\n", arg->t0_init);
+	// m_safe
+	fprintf(file, "/* m_safe */\n");
+	fprintf(file, "double m_safe = %18.15e;\n", arg->m_safe);
 
 	fclose(file);
 

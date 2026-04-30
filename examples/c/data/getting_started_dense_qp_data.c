@@ -83,6 +83,24 @@ double *Zu = ZZu;
 /* idxs_rev */
 static int iidxs_rev[] = {-1, -1, };
 int *idxs_rev = iidxs_rev;
+/* m_lb */
+static double m_llb[] = {0.000000000000000e+00, 0.000000000000000e+00, };
+double *m_lb = m_llb;
+/* m_ub */
+static double m_uub[] = {0.000000000000000e+00, 0.000000000000000e+00, };
+double *m_ub = m_uub;
+/* m_lg */
+static double m_llg[] = {};
+double *m_lg = m_llg;
+/* m_ug */
+static double m_uug[] = {};
+double *m_ug = m_uug;
+/* m_lls */
+static double m_llls[] = {};
+double *m_lls = m_llls;
+/* m_lus */
+static double m_llus[] = {};
+double *m_lus = m_llus;
 /***************
 * arg
 ***************/
@@ -112,3 +130,7 @@ int warm_start = 0;
 int pred_corr = 1;
 /* split_step */
 int split_step = 1;
+/* t0_init */
+int t0_init = 2;
+/* m_safe */
+double m_safe = 3.000000000000000e-01;
