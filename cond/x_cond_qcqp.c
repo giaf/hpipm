@@ -152,7 +152,7 @@ void COND_QCQP_ARG_SET_DEFAULT(struct COND_QCQP_ARG *cond_arg)
 	cond_arg->comp_prim_sol = 1; // compute primal solution (v)
 	cond_arg->comp_dual_sol_eq = 1; // compute dual solution equality constr (pi)
 	cond_arg->comp_dual_sol_ineq = 1; // compute dual solution inequality constr (lam t)
-	cond_arg->square_root_alg = 1; // square root algorithm (faster but requires RSQ>0)
+	cond_arg->square_root_alg = 1; // square root algorithm (faster but requires for RSQ that block Q>0)
 
 	// set arg of qp struct
 	cond_arg->qp_arg->cond_last_stage = cond_arg->cond_last_stage;
