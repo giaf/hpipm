@@ -1825,7 +1825,7 @@ void DENSE_QP_IPM_DELTA_STEP(int kk, struct DENSE_QP *qp, struct DENSE_QP_SOL *q
 		}
 
 	// iterative refinement on prediction step
-	if(arg->itref_pred_max==0 || ws->npd_reg_hess==1) // no iter ref for regularized hessian
+	if(arg->itref_pred_max==0)
 		{
 		if(kk+1<ws->stat_max)
 			{
@@ -1837,37 +1837,34 @@ void DENSE_QP_IPM_DELTA_STEP(int kk, struct DENSE_QP *qp, struct DENSE_QP_SOL *q
 		}
 	else
 		{
+
+		DENSE_QP_RES_COMPUTE_LIN(ws->qp_step, qp_sol, ws->sol_step, ws->res_itref, ws->res_ws);
+		//if(ws->mask_constr)
+		//	{
+		//	// mask out disregarded constraints
+		//	//VECMUL(2*ns, qp->d_mask, 2*nb+2*ng, ws->res_itref->res_g, nv, ws->res_itref->res_g, nv);
+		//	VECMUL(cws->nc, qp->d_mask, 0, ws->res_itref->res_d, 0, ws->res_itref->res_d, 0);
+		//	VECMUL(cws->nc, qp->d_mask, 0, ws->res_itref->res_m, 0, ws->res_itref->res_m, 0);
+		//	}
+		DENSE_QP_RES_COMPUTE_INF_NORM(ws->res_itref);
+		itref_qp_norm[0] = ws->res_itref->res_max[0];
+		itref_qp_norm[1] = ws->res_itref->res_max[1];
+		itref_qp_norm[2] = ws->res_itref->res_max[2];
+		itref_qp_norm[3] = ws->res_itref->res_max[3];
+		if(kk+1<ws->stat_max)
+			{
+			ws->stat[ws->stat_m*(kk+1)+16] = itref_qp_norm[0];
+			ws->stat[ws->stat_m*(kk+1)+17] = itref_qp_norm[1];
+			ws->stat[ws->stat_m*(kk+1)+18] = itref_qp_norm[2];
+			ws->stat[ws->stat_m*(kk+1)+19] = itref_qp_norm[3];
+			}
+
+		REAL max_itref_qp_norm = itref_qp_norm[0]>itref_qp_norm[1] ? itref_qp_norm[0] : itref_qp_norm[1];
+		max_itref_qp_norm = itref_qp_norm[2]>max_itref_qp_norm ? itref_qp_norm[2] : max_itref_qp_norm;
+		max_itref_qp_norm = itref_qp_norm[3]>max_itref_qp_norm ? itref_qp_norm[3] : max_itref_qp_norm;
+
 		for(itref0=0; itref0<arg->itref_pred_max; itref0++)
 			{
-
-			DENSE_QP_RES_COMPUTE_LIN(ws->qp_step, qp_sol, ws->sol_step, ws->res_itref, ws->res_ws);
-			//if(ws->mask_constr)
-			//	{
-			//	// mask out disregarded constraints
-			//	//VECMUL(2*ns, qp->d_mask, 2*nb+2*ng, ws->res_itref->res_g, nv, ws->res_itref->res_g, nv);
-			//	VECMUL(cws->nc, qp->d_mask, 0, ws->res_itref->res_d, 0, ws->res_itref->res_d, 0);
-			//	VECMUL(cws->nc, qp->d_mask, 0, ws->res_itref->res_m, 0, ws->res_itref->res_m, 0);
-			//	}
-			DENSE_QP_RES_COMPUTE_INF_NORM(ws->res_itref);
-			itref_qp_norm[0] = ws->res_itref->res_max[0];
-			itref_qp_norm[1] = ws->res_itref->res_max[1];
-			itref_qp_norm[2] = ws->res_itref->res_max[2];
-			itref_qp_norm[3] = ws->res_itref->res_max[3];
-			if(kk+1<ws->stat_max)
-				{
-				ws->stat[ws->stat_m*(kk+1)+16] = itref_qp_norm[0];
-				ws->stat[ws->stat_m*(kk+1)+17] = itref_qp_norm[1];
-				ws->stat[ws->stat_m*(kk+1)+18] = itref_qp_norm[2];
-				ws->stat[ws->stat_m*(kk+1)+19] = itref_qp_norm[3];
-				}
-
-			if(itref0==0)
-				{
-				itref_qp_norm0[0] = itref_qp_norm[0];
-				itref_qp_norm0[1] = itref_qp_norm[1];
-				itref_qp_norm0[2] = itref_qp_norm[2];
-				itref_qp_norm0[3] = itref_qp_norm[3];
-				}
 
 			if( \
 					(itref_qp_norm[0]<1e0*arg->res_g_max | itref_qp_norm[0]<1e-3*ws->res->res_max[0]) & \
@@ -1892,9 +1889,12 @@ void DENSE_QP_IPM_DELTA_STEP(int kk, struct DENSE_QP *qp, struct DENSE_QP_SOL *q
 			AXPY(2*nb+2*ng+2*ns, 1.0, ws->sol_itref->lam, 0, ws->sol_step->lam, 0, ws->sol_step->lam, 0);
 			AXPY(2*nb+2*ng+2*ns, 1.0, ws->sol_itref->t, 0, ws->sol_step->t, 0, ws->sol_step->t, 0);
 
-			}
-		if(itref0==arg->itref_pred_max)
-			{
+			itref_qp_norm0[0] = itref_qp_norm[0];
+			itref_qp_norm0[1] = itref_qp_norm[1];
+			itref_qp_norm0[2] = itref_qp_norm[2];
+			itref_qp_norm0[3] = itref_qp_norm[3];
+			REAL max_itref_qp_norm0 = max_itref_qp_norm;
+
 			DENSE_QP_RES_COMPUTE_LIN(ws->qp_step, qp_sol, ws->sol_step, ws->res_itref, ws->res_ws);
 			//if(ws->mask_constr)
 			//	{
@@ -1915,6 +1915,33 @@ void DENSE_QP_IPM_DELTA_STEP(int kk, struct DENSE_QP *qp, struct DENSE_QP_SOL *q
 				ws->stat[ws->stat_m*(kk+1)+18] = itref_qp_norm[2];
 				ws->stat[ws->stat_m*(kk+1)+19] = itref_qp_norm[3];
 				}
+
+			max_itref_qp_norm = itref_qp_norm[0]>itref_qp_norm[1] ? itref_qp_norm[0] : itref_qp_norm[1];
+			max_itref_qp_norm = itref_qp_norm[2]>max_itref_qp_norm ? itref_qp_norm[2] : max_itref_qp_norm;
+			max_itref_qp_norm = itref_qp_norm[3]>max_itref_qp_norm ? itref_qp_norm[3] : max_itref_qp_norm;
+
+			if(max_itref_qp_norm>=max_itref_qp_norm0) // last itref step actually made worse
+				{
+				// remove last itref step
+				AXPY(nv+2*ns, -1.0, ws->sol_itref->v, 0, ws->sol_step->v, 0, ws->sol_step->v, 0);
+				AXPY(ne, -1.0, ws->sol_itref->pi, 0, ws->sol_step->pi, 0, ws->sol_step->pi, 0);
+				AXPY(2*nb+2*ng+2*ns, -1.0, ws->sol_itref->lam, 0, ws->sol_step->lam, 0, ws->sol_step->lam, 0);
+				AXPY(2*nb+2*ng+2*ns, -1.0, ws->sol_itref->t, 0, ws->sol_step->t, 0, ws->sol_step->t, 0);
+				// restore norm of lin residuals
+				itref_qp_norm[0] = itref_qp_norm0[0];
+				itref_qp_norm[1] = itref_qp_norm0[1];
+				itref_qp_norm[2] = itref_qp_norm0[2];
+				itref_qp_norm[3] = itref_qp_norm0[3];
+				if(kk+1<ws->stat_max)
+					{
+					ws->stat[ws->stat_m*(kk+1)+16] = itref_qp_norm[0];
+					ws->stat[ws->stat_m*(kk+1)+17] = itref_qp_norm[1];
+					ws->stat[ws->stat_m*(kk+1)+18] = itref_qp_norm[2];
+					ws->stat[ws->stat_m*(kk+1)+19] = itref_qp_norm[3];
+					}
+				break;
+				}
+
 			}
 		}
 
@@ -2043,39 +2070,36 @@ void DENSE_QP_IPM_DELTA_STEP(int kk, struct DENSE_QP *qp, struct DENSE_QP_SOL *q
 			}
 
 		iter_ref_step = 0;
-		if(arg->itref_corr_max>0 && ws->npd_reg_hess==0) // no iter ref for regularized hessian
+		if(arg->itref_corr_max>0)
 			{
+
+			DENSE_QP_RES_COMPUTE_LIN(ws->qp_step, qp_sol, ws->sol_step, ws->res_itref, ws->res_ws);
+			//if(ws->mask_constr)
+			//	{
+			//	// mask out disregarded constraints
+			//	//VECMUL(2*ns, qp->d_mask, 2*nb+2*ng, ws->res_itref->res_g, nv, ws->res_itref->res_g, nv);
+			//	VECMUL(cws->nc, qp->d_mask, 0, ws->res_itref->res_d, 0, ws->res_itref->res_d, 0);
+			//	VECMUL(cws->nc, qp->d_mask, 0, ws->res_itref->res_m, 0, ws->res_itref->res_m, 0);
+			//	}
+			DENSE_QP_RES_COMPUTE_INF_NORM(ws->res_itref);
+			itref_qp_norm[0] = ws->res_itref->res_max[0];
+			itref_qp_norm[1] = ws->res_itref->res_max[1];
+			itref_qp_norm[2] = ws->res_itref->res_max[2];
+			itref_qp_norm[3] = ws->res_itref->res_max[3];
+			if(kk+1<ws->stat_max)
+				{
+				ws->stat[ws->stat_m*(kk+1)+16] = itref_qp_norm[0];
+				ws->stat[ws->stat_m*(kk+1)+17] = itref_qp_norm[1];
+				ws->stat[ws->stat_m*(kk+1)+18] = itref_qp_norm[2];
+				ws->stat[ws->stat_m*(kk+1)+19] = itref_qp_norm[3];
+				}
+
+			REAL max_itref_qp_norm = itref_qp_norm[0]>itref_qp_norm[1] ? itref_qp_norm[0] : itref_qp_norm[1];
+			max_itref_qp_norm = itref_qp_norm[2]>max_itref_qp_norm ? itref_qp_norm[2] : max_itref_qp_norm;
+			max_itref_qp_norm = itref_qp_norm[3]>max_itref_qp_norm ? itref_qp_norm[3] : max_itref_qp_norm;
+
 			for(itref1=0; itref1<arg->itref_corr_max; itref1++)
 				{
-
-				DENSE_QP_RES_COMPUTE_LIN(ws->qp_step, qp_sol, ws->sol_step, ws->res_itref, ws->res_ws);
-				//if(ws->mask_constr)
-				//	{
-				//	// mask out disregarded constraints
-				//	//VECMUL(2*ns, qp->d_mask, 2*nb+2*ng, ws->res_itref->res_g, nv, ws->res_itref->res_g, nv);
-				//	VECMUL(cws->nc, qp->d_mask, 0, ws->res_itref->res_d, 0, ws->res_itref->res_d, 0);
-				//	VECMUL(cws->nc, qp->d_mask, 0, ws->res_itref->res_m, 0, ws->res_itref->res_m, 0);
-				//	}
-				DENSE_QP_RES_COMPUTE_INF_NORM(ws->res_itref);
-				itref_qp_norm[0] = ws->res_itref->res_max[0];
-				itref_qp_norm[1] = ws->res_itref->res_max[1];
-				itref_qp_norm[2] = ws->res_itref->res_max[2];
-				itref_qp_norm[3] = ws->res_itref->res_max[3];
-				if(kk+1<ws->stat_max)
-					{
-					ws->stat[ws->stat_m*(kk+1)+16] = itref_qp_norm[0];
-					ws->stat[ws->stat_m*(kk+1)+17] = itref_qp_norm[1];
-					ws->stat[ws->stat_m*(kk+1)+18] = itref_qp_norm[2];
-					ws->stat[ws->stat_m*(kk+1)+19] = itref_qp_norm[3];
-					}
-
-				if(itref1==0)
-					{
-					itref_qp_norm0[0] = itref_qp_norm[0];
-					itref_qp_norm0[1] = itref_qp_norm[1];
-					itref_qp_norm0[2] = itref_qp_norm[2];
-					itref_qp_norm0[3] = itref_qp_norm[3];
-					}
 
 				if( \
 						(itref_qp_norm[0]<1e0*arg->res_g_max | itref_qp_norm[0]<1e-3*ws->res->res_max[0]) & \
@@ -2101,9 +2125,12 @@ void DENSE_QP_IPM_DELTA_STEP(int kk, struct DENSE_QP *qp, struct DENSE_QP_SOL *q
 				AXPY(2*nb+2*ng+2*ns, 1.0, ws->sol_itref->lam, 0, ws->sol_step->lam, 0, ws->sol_step->lam, 0);
 				AXPY(2*nb+2*ng+2*ns, 1.0, ws->sol_itref->t, 0, ws->sol_step->t, 0, ws->sol_step->t, 0);
 
-				}
-			if(itref1==arg->itref_corr_max)
-				{
+				itref_qp_norm0[0] = itref_qp_norm[0];
+				itref_qp_norm0[1] = itref_qp_norm[1];
+				itref_qp_norm0[2] = itref_qp_norm[2];
+				itref_qp_norm0[3] = itref_qp_norm[3];
+				REAL max_itref_qp_norm0 = max_itref_qp_norm;
+
 				DENSE_QP_RES_COMPUTE_LIN(ws->qp_step, qp_sol, ws->sol_step, ws->res_itref, ws->res_ws);
 				//if(ws->mask_constr)
 				//	{
@@ -2124,7 +2151,35 @@ void DENSE_QP_IPM_DELTA_STEP(int kk, struct DENSE_QP *qp, struct DENSE_QP_SOL *q
 					ws->stat[ws->stat_m*(kk+1)+18] = itref_qp_norm[2];
 					ws->stat[ws->stat_m*(kk+1)+19] = itref_qp_norm[3];
 					}
+
+				max_itref_qp_norm = itref_qp_norm[0]>itref_qp_norm[1] ? itref_qp_norm[0] : itref_qp_norm[1];
+				max_itref_qp_norm = itref_qp_norm[2]>max_itref_qp_norm ? itref_qp_norm[2] : max_itref_qp_norm;
+				max_itref_qp_norm = itref_qp_norm[3]>max_itref_qp_norm ? itref_qp_norm[3] : max_itref_qp_norm;
+
+				if(max_itref_qp_norm>=max_itref_qp_norm0) // last itref step actually made worse
+					{
+					// remove last itref step
+					AXPY(nv+2*ns, -1.0, ws->sol_itref->v, 0, ws->sol_step->v, 0, ws->sol_step->v, 0);
+					AXPY(ne, -1.0, ws->sol_itref->pi, 0, ws->sol_step->pi, 0, ws->sol_step->pi, 0);
+					AXPY(2*nb+2*ng+2*ns, -1.0, ws->sol_itref->lam, 0, ws->sol_step->lam, 0, ws->sol_step->lam, 0);
+					AXPY(2*nb+2*ng+2*ns, -1.0, ws->sol_itref->t, 0, ws->sol_step->t, 0, ws->sol_step->t, 0);
+					// restore norm of lin residuals
+					itref_qp_norm[0] = itref_qp_norm0[0];
+					itref_qp_norm[1] = itref_qp_norm0[1];
+					itref_qp_norm[2] = itref_qp_norm0[2];
+					itref_qp_norm[3] = itref_qp_norm0[3];
+					if(kk+1<ws->stat_max)
+						{
+						ws->stat[ws->stat_m*(kk+1)+16] = itref_qp_norm[0];
+						ws->stat[ws->stat_m*(kk+1)+17] = itref_qp_norm[1];
+						ws->stat[ws->stat_m*(kk+1)+18] = itref_qp_norm[2];
+						ws->stat[ws->stat_m*(kk+1)+19] = itref_qp_norm[3];
+						}
+					break;
+					}
+
 				}
+
 			}
 
 		if(iter_ref_step)
@@ -2139,7 +2194,7 @@ void DENSE_QP_IPM_DELTA_STEP(int kk, struct DENSE_QP *qp, struct DENSE_QP_SOL *q
 			}
 
 		}
-	if(arg->itref_corr_max==0 || ws->npd_reg_hess==1) // no iter ref for regularized hessian
+	if(arg->itref_corr_max==0)
 		{
 		if(kk+1<ws->stat_max)
 			{

@@ -1569,7 +1569,7 @@ printf("\nA_LQ * A_Q - A max err %e\n", max_err);
 				//printf("\ncheck H\n");
 				//blasfeo_print_dmat(nv, nv, Hg, 0, 0);
 
-				#if 1 // potrf+syrk regularization of original hessian
+				#if 0 // potrf+syrk regularization of original hessian
 
 				GESE(nv, nv, 0.0, Lv+1, 0, 0);
 				POTRF_L(nv, Hg, 0, 0, Lv+1, 0, 0);
@@ -2001,7 +2001,7 @@ void DENSE_QP_FACT_LQ_SOLVE_KKT_STEP(struct DENSE_QP *qp, struct DENSE_QP_SOL *q
 			int singular = 0;
 			for(ii=0; ii<nv; ii++)
 				{
-				if(Lv->dA[ii]==0.0)
+				if((Lv+1)->dA[ii]==0.0)
 					{
 					singular = 1;
 					break;
