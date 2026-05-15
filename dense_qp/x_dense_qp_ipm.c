@@ -773,8 +773,10 @@ hpipm_size_t DENSE_QP_IPM_WS_MEMSIZE(struct DENSE_QP_DIM *dim, struct DENSE_QP_I
 	if(arg->stat_max<arg->iter_max)
 		arg->stat_max = arg->iter_max;
 
-	int stat_m = 20;
+	int stat_m = 21;
 	size += stat_m*(1+arg->stat_max)*sizeof(REAL); // stat
+
+	size += nv*(nv+2)*sizeof(REAL); // eig_V eig_d eig_e
 
 	size += nv*sizeof(int); // ipiv_v
 	size += 2*ne*sizeof(int); // ipiv_e ipiv_e1
@@ -962,9 +964,15 @@ void DENSE_QP_IPM_WS_CREATE(struct DENSE_QP_DIM *dim, struct DENSE_QP_IPM_ARG *a
 	REAL *d_ptr = (REAL *) s_ptr;
 	
 	workspace->stat = d_ptr;
-	int stat_m = 20;
+	int stat_m = 21;
 	d_ptr += stat_m*(1+arg->stat_max);
 
+	workspace->eig_V = d_ptr;
+	d_ptr += nv*nv;
+	workspace->eig_d = d_ptr;
+	d_ptr += nv;
+	workspace->eig_e = d_ptr;
+	d_ptr += nv;
 
 	// int suff
 	int *i_ptr = (int *) d_ptr;
@@ -1565,6 +1573,8 @@ void DENSE_QP_IPM_ABS_STEP(int kk, struct DENSE_QP *qp, struct DENSE_QP_SOL *qp_
 		VECMUL(cws->nc, qp->d_mask, 0, ws->sol_step->t, 0, ws->sol_step->t, 0);
 		VECMUL(cws->nc, qp->d_mask, 0, ws->sol_step->lam, 0, ws->sol_step->lam, 0);
 		}
+	if(kk+1<ws->stat_max)
+		ws->stat[ws->stat_m*(kk+1)+20] = ws->npd_reg_hess;
 
 	// alpha
 	COMPUTE_ALPHA_QP(cws);
@@ -1815,7 +1825,7 @@ void DENSE_QP_IPM_DELTA_STEP(int kk, struct DENSE_QP *qp, struct DENSE_QP_SOL *q
 		}
 
 	// iterative refinement on prediction step
-	if(arg->itref_pred_max==0)
+	if(arg->itref_pred_max==0 || ws->npd_reg_hess==1) // no iter ref for regularized hessian
 		{
 		if(kk+1<ws->stat_max)
 			{
@@ -1909,7 +1919,10 @@ void DENSE_QP_IPM_DELTA_STEP(int kk, struct DENSE_QP *qp, struct DENSE_QP_SOL *q
 		}
 
 	if(kk+1<ws->stat_max)
+		{
 		ws->stat[ws->stat_m*(kk+1)+14] = itref0;
+		ws->stat[ws->stat_m*(kk+1)+20] = ws->npd_reg_hess;
+		}
 
 #if 0
 	ndp0 = 0;
@@ -2030,7 +2043,7 @@ void DENSE_QP_IPM_DELTA_STEP(int kk, struct DENSE_QP *qp, struct DENSE_QP_SOL *q
 			}
 
 		iter_ref_step = 0;
-		if(arg->itref_corr_max>0)
+		if(arg->itref_corr_max>0 && ws->npd_reg_hess==0) // no iter ref for regularized hessian
 			{
 			for(itref1=0; itref1<arg->itref_corr_max; itref1++)
 				{
@@ -2126,7 +2139,7 @@ void DENSE_QP_IPM_DELTA_STEP(int kk, struct DENSE_QP *qp, struct DENSE_QP_SOL *q
 			}
 
 		}
-	if(arg->itref_corr_max==0)
+	if(arg->itref_corr_max==0 || ws->npd_reg_hess==1) // no iter ref for regularized hessian
 		{
 		if(kk+1<ws->stat_max)
 			{

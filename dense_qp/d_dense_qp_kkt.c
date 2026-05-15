@@ -55,6 +55,10 @@
 
 
 
+#define MATEL BLASFEO_DMATEL
+
+
+
 #define AXPY blasfeo_daxpy
 #define COLIN blasfeo_dcolin
 #define COLPE blasfeo_dcolpe
@@ -119,6 +123,7 @@
 #define TRSV_UNN blasfeo_dtrsv_unn
 #define TRTR_L blasfeo_dtrtr_l
 #define TRTR_U blasfeo_dtrtr_u
+#define UNPACK_MAT blasfeo_unpack_dmat
 #define VECAD_SP blasfeo_dvecad_sp
 #define VECCP blasfeo_dveccp
 #define VECEX_SP blasfeo_dvecex_sp

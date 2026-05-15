@@ -142,6 +142,9 @@ struct s_dense_qp_ipm_ws
 	struct blasfeo_svec *b_bkp; // pointer to backup b
 	struct blasfeo_smat *Ab_LU;
 	float *stat; // convergence statistics
+	float *eig_V;
+	float *eig_d;
+	float *eig_e;
 	int *ipiv_v;
 	int *ipiv_e;
 	int *ipiv_e1;
@@ -160,6 +163,7 @@ struct s_dense_qp_ipm_ws
 	int mask_constr; // use constr mask
 	int ne_li; // number of linearly independent equality constraints
 	int ne_bkp; // ne backup
+	int npd_reg_hess; // at last iter, hessian has been regularized to get positive (semi) definite
 	hpipm_size_t memsize; // memory size (in bytes) of workspace
 	};
 
