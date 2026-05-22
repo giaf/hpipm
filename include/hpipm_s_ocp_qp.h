@@ -86,9 +86,9 @@ void s_ocp_qp_copy_all(struct s_ocp_qp *qp_orig, struct s_ocp_qp *qp_dest);
 void s_ocp_qp_set_all_zero(struct s_ocp_qp *qp);
 //
 void s_ocp_qp_set_rhs_zero(struct s_ocp_qp *qp);
-//
+// sets the most common fields of a QP; matrices are in the default column-major format
 void s_ocp_qp_set_all(float **A, float **B, float **b, float **Q, float **S, float **R, float **q, float **r, int **idxbx, float **lbx, float **ubx, int **idxbu, float **lbu, float **ubu, float **C, float **D, float **lg, float **ug, float **Zl, float **Zu, float **zl, float **zu, int **idxs, int **idxs_rev, float **ls, float **us, struct s_ocp_qp *qp);
-//
+// sets the most common fields of a QP; matrices are in row-major format
 void s_ocp_qp_set_all_rowmaj(float **A, float **B, float **b, float **Q, float **S, float **R, float **q, float **r, int **idxbx, float **lbx, float **ubx, int **idxbu, float **lbu, float **ubu, float **C, float **D, float **lg, float **ug, float **Zl, float **Zu, float **zl, float **zu, int **idxs, int **idxs_rev, float **ls, float **us, struct s_ocp_qp *qp);
 //
 void s_ocp_qp_set(char *fiels_name, int stage, void *value, struct s_ocp_qp *qp);

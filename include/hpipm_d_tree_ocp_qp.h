@@ -74,7 +74,7 @@ struct d_tree_ocp_qp
 hpipm_size_t d_tree_ocp_qp_memsize(struct d_tree_ocp_qp_dim *dim);
 //
 void d_tree_ocp_qp_create(struct d_tree_ocp_qp_dim *dim, struct d_tree_ocp_qp *qp, void *memory);
-//
+// sets the most common fields of a QP; matrices are in the default column-major format
 void d_tree_ocp_qp_set_all(double **A, double **B, double **b, double **Q, double **S, double **R, double **q, double **r, int **idxb, double **d_lb, double **d_ub, double **C, double **D, double **d_lg, double **d_ug, double **Zl, double **Zu, double **zl, double **zu, int **idxs, int **idxs_rev, double **d_ls, double **d_us, struct d_tree_ocp_qp *qp);
 //
 void d_tree_ocp_qp_set(char *field_name, int node_edge, void *value, struct d_tree_ocp_qp *qp);

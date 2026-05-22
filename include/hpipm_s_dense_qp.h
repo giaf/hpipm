@@ -84,10 +84,8 @@ void s_dense_qp_set_all_zero(struct s_dense_qp *qp);
 void s_dense_qp_set_rhs_zero(struct s_dense_qp *qp);
 
 // setters - colmaj
-//
+// sets the most common fields of a QP; matrices are in the default column-major format
 void s_dense_qp_set_all(float *H, float *g, float *A, float *b, int *idxb, float *d_lb, float *d_ub, float *C, float *d_lg, float *d_ug, float *Zl, float *Zu, float *zl, float *zu, int *idxs, int *idxs_rev, float *d_ls, float *d_us, struct s_dense_qp *qp);
-//
-void s_dense_qp_get_all(struct s_dense_qp *qp, float *H, float *g, float *A, float *b, int *idxb, float *d_lb, float *d_ub, float *C, float *d_lg, float *d_ug, float *Zl, float *Zu, float *zl, float *zu, int *idxs, int *idxs_rev, float *d_ls, float *d_us);
 //
 void s_dense_qp_set(char *field, void *value, struct s_dense_qp *qp);
 //
@@ -160,6 +158,8 @@ void s_dense_qp_set_m_lls(float *ls, struct s_dense_qp *qp);
 void s_dense_qp_set_m_lus(float *us, struct s_dense_qp *qp);
 
 // getters - colmaj
+// gets the most common fields of a QP; matrices are in the default column-major format
+void s_dense_qp_get_all(struct s_dense_qp *qp, float *H, float *g, float *A, float *b, int *idxb, float *d_lb, float *d_ub, float *C, float *d_lg, float *d_ug, float *Zl, float *Zu, float *zl, float *zu, int *idxs, int *idxs_rev, float *d_ls, float *d_us);
 //
 void s_dense_qp_get_H(struct s_dense_qp *qp, float *H);
 //
@@ -210,11 +210,11 @@ void s_dense_qp_get_us(struct s_dense_qp *qp, float *us);
 void s_dense_qp_get_us_mask(struct s_dense_qp *qp, float *us);
 
 // setters - rowmaj
-//
+// sets the most common fields of a QP; matrices are in row-major format
 void s_dense_qp_set_all_rowmaj(float *H, float *g, float *A, float *b, int *idxb, float *d_lb, float *d_ub, float *C, float *d_lg, float *d_ug, float *Zl, float *Zu, float *zl, float *zu, int *idxs, int *idxs_rev, float *d_ls, float *d_us, struct s_dense_qp *qp);
 
 // getters - rowmaj
-//
+// gets the most common fields of a QP; matrices are in row-major format
 void s_dense_qp_get_all_rowmaj(struct s_dense_qp *qp, float *H, float *g, float *A, float *b, int *idxb, float *d_lb, float *d_ub, float *C, float *d_lg, float *d_ug, float *Zl, float *Zu, float *zl, float *zu, int *idxs, int *idxs_rev, float *d_ls, float *d_us);
 
 

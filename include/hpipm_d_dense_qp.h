@@ -86,10 +86,8 @@ void d_dense_qp_set_all_zero(struct d_dense_qp *qp);
 void d_dense_qp_set_rhs_zero(struct d_dense_qp *qp);
 
 // setters - colmaj
-//
+// sets the most common fields of a QP; matrices are in the default column-major format
 void d_dense_qp_set_all(double *H, double *g, double *A, double *b, int *idxb, double *d_lb, double *d_ub, double *C, double *d_lg, double *d_ug, double *Zl, double *Zu, double *zl, double *zu, int *idxs, int *idxs_rev, double *d_ls, double *d_us, struct d_dense_qp *qp);
-//
-void d_dense_qp_get_all(struct d_dense_qp *qp, double *H, double *g, double *A, double *b, int *idxb, double *d_lb, double *d_ub, double *C, double *d_lg, double *d_ug, double *Zl, double *Zu, double *zl, double *zu, int *idxs, int *idxs_rev, double *d_ls, double *d_us);
 //
 void d_dense_qp_set(char *field, void *value, struct d_dense_qp *qp);
 //
@@ -162,6 +160,8 @@ void d_dense_qp_set_m_lls(double *ls, struct d_dense_qp *qp);
 void d_dense_qp_set_m_lus(double *us, struct d_dense_qp *qp);
 
 // getters - colmaj
+// gets the most common fields of a QP; matrices are in the default column-major format
+void d_dense_qp_get_all(struct d_dense_qp *qp, double *H, double *g, double *A, double *b, int *idxb, double *d_lb, double *d_ub, double *C, double *d_lg, double *d_ug, double *Zl, double *Zu, double *zl, double *zu, int *idxs, int *idxs_rev, double *d_ls, double *d_us);
 //
 void d_dense_qp_get_H(struct d_dense_qp *qp, double *H);
 //
@@ -212,11 +212,11 @@ void d_dense_qp_get_us(struct d_dense_qp *qp, double *us);
 void d_dense_qp_get_us_mask(struct d_dense_qp *qp, double *us);
 
 // setters - rowmaj
-//
+// sets the most common fields of a QP; matrices are in row-major format
 void d_dense_qp_set_all_rowmaj(double *H, double *g, double *A, double *b, int *idxb, double *d_lb, double *d_ub, double *C, double *d_lg, double *d_ug, double *Zl, double *Zu, double *zl, double *zu, int *idxs, int *idxs_rev, double *d_ls, double *d_us, struct d_dense_qp *qp);
 
 // getters - rowmaj
-//
+// gets the most common fields of a QP; matrices are in row-major format
 void d_dense_qp_get_all_rowmaj(struct d_dense_qp *qp, double *H, double *g, double *A, double *b, int *idxb, double *d_lb, double *d_ub, double *C, double *d_lg, double *d_ug, double *Zl, double *Zu, double *zl, double *zu, int *idxs, int *idxs_rev, double *d_ls, double *d_us);
 
 
