@@ -88,7 +88,7 @@
 #define GELQF_WORKSIZE blasfeo_sgelqf_worksize
 #define GEMM_L_DIAG blasfeo_sgemm_dn
 #define GEMM_NT blasfeo_sgemm_nt
-#define GEMM_R_DIAG blasfeo_sgemm_nd
+#define GEMM_ND blasfeo_sgemm_nd
 #define GEMV_DIAG blasfeo_sgemv_d
 #define GEMV_N blasfeo_sgemv_n
 #define GEMV_T blasfeo_sgemv_t
@@ -96,6 +96,8 @@
 #define GETR blasfeo_sgetr
 #define GETRF_RP blasfeo_sgetrf_rp
 #define ORGLQ blasfeo_sorglq
+#define PACK_TRAN_MAT blasfeo_pack_tran_smat
+#define PACK_VEC blasfeo_pack_svec
 #define POTRF_L blasfeo_spotrf_l
 #define POTRF_L_MN blasfeo_spotrf_l_mn
 #define PSTRF_L spstrf_l_libstr

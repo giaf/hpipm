@@ -962,7 +962,7 @@ void DENSE_QP_FACT_KKT_STEP(struct DENSE_QP *qp, struct DENSE_QP_IPM_ARG *arg, s
 				}
 			if(ng>0)
 				{
-				GEMM_R_DIAG(nv, ng, 1.0, Ct, 0, 0, tmp_nbg+0, nb, 0.0, Ctx, 0, 0, Ctx, 0, 0);
+				GEMM_ND(nv, ng, 1.0, Ct, 0, 0, tmp_nbg+0, nb, 0.0, Ctx, 0, 0, Ctx, 0, 0);
 				SYRK_LN(nv, ng, 1.0, Ctx, 0, 0, Ct, 0, 0, 1.0, Lv, 0, 0, Lv, 0, 0);
 				}
 
@@ -997,7 +997,7 @@ void DENSE_QP_FACT_KKT_STEP(struct DENSE_QP *qp, struct DENSE_QP_IPM_ARG *arg, s
 					}
 				if(ng>0)
 					{
-					GEMM_R_DIAG(nv, ng, 1.0, Ct, 0, 0, tmp_nbg+0, nb, 0.0, Ctx, 0, 0, Ctx, 0, 0);
+					GEMM_ND(nv, ng, 1.0, Ct, 0, 0, tmp_nbg+0, nb, 0.0, Ctx, 0, 0, Ctx, 0, 0);
 					SYRK_LN(nv, ng, 1.0, Ctx, 0, 0, Ct, 0, 0, 1.0, Lv, 0, 0, Lv, 0, 0);
 					}
 
@@ -1012,12 +1012,12 @@ void DENSE_QP_FACT_KKT_STEP(struct DENSE_QP *qp, struct DENSE_QP_IPM_ARG *arg, s
 					}
 
 				GEMM_L_DIAG(nv, nv, 1.0, sv, 0, Lv, 0, 0, 0.0, Lv, 0, 0, Lv, 0, 0);
-				GEMM_R_DIAG(nv, nv, 1.0, Lv, 0, 0, sv, 0, 0.0, Lv, 0, 0, Lv, 0, 0);
+				GEMM_ND(nv, nv, 1.0, Lv, 0, 0, sv, 0, 0.0, Lv, 0, 0, Lv, 0, 0);
 				DIARE(nv, arg->reg_prim, Lv, 0, 0);
 				POTRF_L(nv, Lv, 0, 0, Lv, 0, 0);
 
 				GECP(ne, nv, A, 0, 0, AL, 0, 0);
-				GEMM_R_DIAG(ne, nv, 1.0, AL, 0, 0, sv, 0, 0.0, AL, 0, 0, AL, 0, 0);
+				GEMM_ND(ne, nv, 1.0, AL, 0, 0, sv, 0, 0.0, AL, 0, 0, AL, 0, 0);
 				TRSM_RLTN(ne, nv, 1.0, Lv, 0, 0, AL, 0, 0, AL, 0, 0);
 
 				GESE(ne, ne, 0.0, Le, 0, 0);
@@ -1034,7 +1034,7 @@ void DENSE_QP_FACT_KKT_STEP(struct DENSE_QP *qp, struct DENSE_QP_IPM_ARG *arg, s
 					}
 
 				GEMM_L_DIAG(ne, ne, 1.0, se, 0, Le, 0, 0, 0.0, Le, 0, 0, Le, 0, 0);
-				GEMM_R_DIAG(ne, ne, 1.0, Le, 0, 0, se, 0, 0.0, Le, 0, 0, Le, 0, 0);
+				GEMM_ND(ne, ne, 1.0, Le, 0, 0, se, 0, 0.0, Le, 0, 0, Le, 0, 0);
 				DIARE(ne, arg->reg_dual, Le, 0, 0);
 				POTRF_L(ne, Le, 0, 0, Le, 0, 0);
 
@@ -1060,7 +1060,7 @@ void DENSE_QP_FACT_KKT_STEP(struct DENSE_QP *qp, struct DENSE_QP_IPM_ARG *arg, s
 					}
 				if(ng>0)
 					{
-					GEMM_R_DIAG(nv, ng, 1.0, Ct, 0, 0, tmp_nbg+0, nb, 0.0, Ctx, 0, 0, Ctx, 0, 0);
+					GEMM_ND(nv, ng, 1.0, Ct, 0, 0, tmp_nbg+0, nb, 0.0, Ctx, 0, 0, Ctx, 0, 0);
 					SYRK_POTRF_LN(nv, ng, Ctx, 0, 0, Ct, 0, 0, Lv, 0, 0, Lv, 0, 0);
 					}
 				else
@@ -1101,7 +1101,7 @@ void DENSE_QP_FACT_KKT_STEP(struct DENSE_QP *qp, struct DENSE_QP_IPM_ARG *arg, s
 				}
 			if(ng>0)
 				{
-				GEMM_R_DIAG(nv, ng, 1.0, Ct, 0, 0, tmp_nbg+0, nb, 0.0, Ctx, 0, 0, Ctx, 0, 0);
+				GEMM_ND(nv, ng, 1.0, Ct, 0, 0, tmp_nbg+0, nb, 0.0, Ctx, 0, 0, Ctx, 0, 0);
 				SYRK_LN(nv, ng, 1.0, Ctx, 0, 0, Ct, 0, 0, 1.0, Lv, 0, 0, Lv, 0, 0);
 				}
 
@@ -1116,7 +1116,7 @@ void DENSE_QP_FACT_KKT_STEP(struct DENSE_QP *qp, struct DENSE_QP_IPM_ARG *arg, s
 				}
 
 			GEMM_L_DIAG(nv, nv, 1.0, sv, 0, Lv, 0, 0, 0.0, Lv, 0, 0, Lv, 0, 0);
-			GEMM_R_DIAG(nv, nv, 1.0, Lv, 0, 0, sv, 0, 0.0, Lv, 0, 0, Lv, 0, 0);
+			GEMM_ND(nv, nv, 1.0, Lv, 0, 0, sv, 0, 0.0, Lv, 0, 0, Lv, 0, 0);
 			DIARE(nv, arg->reg_prim, Lv, 0, 0);
 			POTRF_L_MN(nv, nv, Lv, 0, 0, Lv, 0, 0);
 
@@ -1141,7 +1141,7 @@ void DENSE_QP_FACT_KKT_STEP(struct DENSE_QP *qp, struct DENSE_QP_IPM_ARG *arg, s
 				}
 			if(ng>0)
 				{
-				GEMM_R_DIAG(nv, ng, 1.0, Ct, 0, 0, tmp_nbg+0, nb, 0.0, Ctx, 0, 0, Ctx, 0, 0);
+				GEMM_ND(nv, ng, 1.0, Ct, 0, 0, tmp_nbg+0, nb, 0.0, Ctx, 0, 0, Ctx, 0, 0);
 				SYRK_POTRF_LN(nv, ng, Ctx, 0, 0, Ct, 0, 0, Lv, 0, 0, Lv, 0, 0);
 				}
 			else
@@ -1284,7 +1284,7 @@ printf("\nA_LQ * A_Q - A max err %e\n", max_err);
 			if(ng>0)
 				{
 				GEMV_N(nv, ng, 1.0, Ct, 0, 0, tmp_nbg+1, nb, 1.0, lv, 0, lv, 0);
-				GEMM_R_DIAG(nv, ng, 1.0, Ct, 0, 0, tmp_nbg+0, nb, 0.0, Ctx, 0, 0, Ctx, 0, 0);
+				GEMM_ND(nv, ng, 1.0, Ct, 0, 0, tmp_nbg+0, nb, 0.0, Ctx, 0, 0, Ctx, 0, 0);
 				SYRK_LN(nv, ng, 1.0, Ctx, 0, 0, Ct, 0, 0, 1.0, Lv, 0, 0, Lv, 0, 0);
 				}
 
@@ -1340,7 +1340,7 @@ printf("\nA_LQ * A_Q - A max err %e\n", max_err);
 				if(ng>0)
 					{
 					GEMV_N(nv, ng, 1.0, Ct, 0, 0, tmp_nbg+1, nb, 1.0, lv, 0, lv, 0);
-					GEMM_R_DIAG(nv, ng, 1.0, Ct, 0, 0, tmp_nbg+0, nb, 0.0, Ctx, 0, 0, Ctx, 0, 0);
+					GEMM_ND(nv, ng, 1.0, Ct, 0, 0, tmp_nbg+0, nb, 0.0, Ctx, 0, 0, Ctx, 0, 0);
 					SYRK_LN(nv, ng, 1.0, Ctx, 0, 0, Ct, 0, 0, 1.0, Lv, 0, 0, Lv, 0, 0);
 					}
 
@@ -1355,7 +1355,7 @@ printf("\nA_LQ * A_Q - A max err %e\n", max_err);
 					}
 
 				GEMM_L_DIAG(nv, nv, 1.0, sv, 0, Lv, 0, 0, 0.0, Lv, 0, 0, Lv, 0, 0);
-				GEMM_R_DIAG(nv, nv, 1.0, Lv, 0, 0, sv, 0, 0.0, Lv, 0, 0, Lv, 0, 0);
+				GEMM_ND(nv, nv, 1.0, Lv, 0, 0, sv, 0, 0.0, Lv, 0, 0, Lv, 0, 0);
 				DIARE(nv, arg->reg_prim, Lv, 0, 0);
 				POTRF_L(nv, Lv, 0, 0, Lv, 0, 0);
 
@@ -1363,7 +1363,7 @@ printf("\nA_LQ * A_Q - A max err %e\n", max_err);
 				VECCP(nv, lv, 0, dv, 0);
 
 				GECP(ne, nv, A, 0, 0, AL, 0, 0);
-				GEMM_R_DIAG(ne, nv, 1.0, AL, 0, 0, sv, 0, 0.0, AL, 0, 0, AL, 0, 0);
+				GEMM_ND(ne, nv, 1.0, AL, 0, 0, sv, 0, 0.0, AL, 0, 0, AL, 0, 0);
 				TRSM_RLTN(ne, nv, 1.0, Lv, 0, 0, AL, 0, 0, AL, 0, 0);
 
 				TRSV_LNN(nv, Lv, 0, 0, lv, 0, lv, 0);
@@ -1382,7 +1382,7 @@ printf("\nA_LQ * A_Q - A max err %e\n", max_err);
 					}
 
 				GEMM_L_DIAG(ne, ne, 1.0, se, 0, Le, 0, 0, 0.0, Le, 0, 0, Le, 0, 0);
-				GEMM_R_DIAG(ne, ne, 1.0, Le, 0, 0, se, 0, 0.0, Le, 0, 0, Le, 0, 0);
+				GEMM_ND(ne, ne, 1.0, Le, 0, 0, se, 0, 0.0, Le, 0, 0, Le, 0, 0);
 				DIARE(ne, arg->reg_dual, Le, 0, 0);
 				POTRF_L(ne, Le, 0, 0, Le, 0, 0);
 
@@ -1427,7 +1427,7 @@ printf("\nA_LQ * A_Q - A max err %e\n", max_err);
 				if(ng>0)
 					{
 					GEMV_N(nv, ng, 1.0, Ct, 0, 0, tmp_nbg+1, nb, 1.0, lv, 0, lv, 0);
-					GEMM_R_DIAG(nv, ng, 1.0, Ct, 0, 0, tmp_nbg+0, nb, 0.0, Ctx, 0, 0, Ctx, 0, 0);
+					GEMM_ND(nv, ng, 1.0, Ct, 0, 0, tmp_nbg+0, nb, 0.0, Ctx, 0, 0, Ctx, 0, 0);
 					SYRK_POTRF_LN(nv, ng, Ctx, 0, 0, Ct, 0, 0, Lv, 0, 0, Lv, 0, 0);
 					}
 				else
@@ -1491,7 +1491,7 @@ printf("\nA_LQ * A_Q - A max err %e\n", max_err);
 				}
 			if(ng>0)
 				{
-				GEMM_R_DIAG(nv, ng, 1.0, Ct, 0, 0, tmp_nbg+0, nb, 0.0, Ctx, 0, 0, Ctx, 0, 0);
+				GEMM_ND(nv, ng, 1.0, Ct, 0, 0, tmp_nbg+0, nb, 0.0, Ctx, 0, 0, Ctx, 0, 0);
 				GEMV_N(nv, ng, 1.0, Ct, 0, 0, tmp_nbg+1, nb, 1.0, lv, 0, lv, 0);
 				SYRK_LN(nv, ng, 1.0, Ctx, 0, 0, Ct, 0, 0, 1.0, Lv, 0, 0, Lv, 0, 0);
 				}
@@ -1507,7 +1507,7 @@ printf("\nA_LQ * A_Q - A max err %e\n", max_err);
 				}
 
 			GEMM_L_DIAG(nv, nv, 1.0, sv, 0, Lv, 0, 0, 0.0, Lv, 0, 0, Lv, 0, 0);
-			GEMM_R_DIAG(nv, nv, 1.0, Lv, 0, 0, sv, 0, 0.0, Lv, 0, 0, Lv, 0, 0);
+			GEMM_ND(nv, nv, 1.0, Lv, 0, 0, sv, 0, 0.0, Lv, 0, 0, Lv, 0, 0);
 			DIARE(nv, arg->reg_prim, Lv, 0, 0);
 			POTRF_L_MN(nv, nv, Lv, 0, 0, Lv, 0, 0);
 
@@ -1542,7 +1542,7 @@ printf("\nA_LQ * A_Q - A max err %e\n", max_err);
 				}
 			if(ng>0)
 				{
-				GEMM_R_DIAG(nv, ng, 1.0, Ct, 0, 0, tmp_nbg+0, nb, 0.0, Ctx, 0, 0, Ctx, 0, 0);
+				GEMM_ND(nv, ng, 1.0, Ct, 0, 0, tmp_nbg+0, nb, 0.0, Ctx, 0, 0, Ctx, 0, 0);
 				ROWIN(ng, 1.0, tmp_nbg+1, nb, Ctx, nv, 0);
 				SYRK_POTRF_LN_MN(nv+1, nv, ng, Ctx, 0, 0, Ct, 0, 0, Lv, 0, 0, Lv, 0, 0);
 				}
@@ -1564,6 +1564,8 @@ printf("\nA_LQ * A_Q - A max err %e\n", max_err);
 
 			if(singular)
 				{
+				//d_print_mat(1, nv, Lv->dA, 1);
+
 				ws->npd_reg_hess = 1;
 
 				//printf("\ncheck H\n");
@@ -1584,7 +1586,7 @@ printf("\nA_LQ * A_Q - A max err %e\n", max_err);
 					}
 				if(ng>0)
 					{
-					GEMM_R_DIAG(nv, ng, 1.0, Ct, 0, 0, tmp_nbg+0, nb, 0.0, Ctx, 0, 0, Ctx, 0, 0);
+					GEMM_ND(nv, ng, 1.0, Ct, 0, 0, tmp_nbg+0, nb, 0.0, Ctx, 0, 0, Ctx, 0, 0);
 					ROWIN(ng, 1.0, tmp_nbg+1, nb, Ctx, nv, 0);
 					SYRK_POTRF_LN_MN(nv+1, nv, ng, Ctx, 0, 0, Ct, 0, 0, Lv, 0, 0, Lv, 0, 0);
 					}
@@ -1593,7 +1595,7 @@ printf("\nA_LQ * A_Q - A max err %e\n", max_err);
 					POTRF_L_MN(nv+1, nv, Lv, 0, 0, Lv, 0, 0);
 					}
 
-				#elif 0 // eigen regularization of Hessian+barrier
+				#elif 1 // eigen regularization of Hessian+barrier
 
 				GECP(nv, nv, Hg, 0, 0, Lv, 0, 0);
 				ROWIN(nv, 1.0, res_g, 0, Lv, nv, 0);
@@ -1605,11 +1607,13 @@ printf("\nA_LQ * A_Q - A max err %e\n", max_err);
 					}
 				if(ng>0)
 					{
-					GEMM_R_DIAG(nv, ng, 1.0, Ct, 0, 0, tmp_nbg+0, nb, 0.0, Ctx, 0, 0, Ctx, 0, 0);
+					GEMM_ND(nv, ng, 1.0, Ct, 0, 0, tmp_nbg+0, nb, 0.0, Ctx, 0, 0, Ctx, 0, 0);
 					ROWIN(ng, 1.0, tmp_nbg+1, nb, Ctx, nv, 0);
 					SYRK_LN_MN(nv+1, nv, ng, 1.0, Ctx, 0, 0, Ct, 0, 0, 1.0, Lv, 0, 0, Lv, 0, 0);
 					}
+				TRTR_L(nv, Lv, 0, 0, Lv, 0, 0);
 
+				#if 1
 				UNPACK_MAT(nv, nv, Lv, 0, 0, ws->eig_V, nv);
 				//d_print_mat(nv, nv, ws->eig_V, nv);
 				acados_eigen_decomposition(nv, ws->eig_V, ws->eig_d, ws->eig_e);
@@ -1617,20 +1621,37 @@ printf("\nA_LQ * A_Q - A max err %e\n", max_err);
 				//d_print_mat(1, nv, ws->eig_d, 1);
 				//d_print_mat(1, nv, ws->eig_e, 1);
 
-				#if 0
+				#if 1
 				REAL neig = 0.0;
 				for(int ii=0; ii<nv; ii++)
 					if(ws->eig_d[ii]<neig)
 						neig = ws->eig_d[ii];
-				printf("\nmost negative eig %e\n", neig);
+				//printf("\nmost negative eig %e\n", neig);
 				//neig = - neig + 1e-3; // project I
 				neig = - 2.0*neig + arg->reg_prim; // mirror I
 				DIARE(nv, neig, Lv, 0, 0);
 				#else
+				// mirror/project single eigenvalues
 				for(int ii=0; ii<nv; ii++)
+					{
 					if(ws->eig_d[ii]<0.0)
-						//MATEL(Lv, ii, ii) = MATEL(Lv, ii, ii) - ws->eig_d[ii] + 1e-3; // project one
-						MATEL(Lv, ii, ii) = MATEL(Lv, ii, ii) - 2.0*ws->eig_d[ii] + arg->reg_prim; // mirror one
+						//ws->eig_d[ii] = 1e-3; // project one
+						ws->eig_d[ii] = - ws->eig_d[ii]; // mirror one
+					//ws->eig_d[ii] += arg->reg_prim;
+					ws->eig_d[ii] = sqrt(ws->eig_d[ii]);
+					}
+				//d_print_mat(1, nv, ws->eig_d, 1);
+				PACK_VEC(nv, ws->eig_d, 1, ws->tmp_nv, 0);
+				PACK_TRAN_MAT(nv, nv, ws->eig_V, nv, Lv+0, 0, 0);
+				//blasfeo_print_dmat(nv, nv, Lv+0, 0, 0);
+				GEMM_ND(nv, nv, 1.0, Lv+0, 0, 0, tmp_nv, 0, 0.0, Lv+1, 0, 0, Lv+1, 0, 0);
+				//blasfeo_print_dmat(nv, nv, Lv+1, 0, 0);
+				SYRK_LN(nv, nv, 1.0, Lv+1, 0, 0, Lv+1, 0, 0, 0.0, Lv+0, 0, 0, Lv+0, 0, 0);
+				//GEMM_NT(nv, nv, nv, 1.0, Lv+1, 0, 0, Lv+1, 0, 0, 0.0, Lv+0, 0, 0, Lv+0, 0, 0);
+				DIARE(nv, arg->reg_prim, Lv, 0, 0);
+				//blasfeo_print_dmat(nv, nv, Lv+0, 0, 0);
+				//exit(1);
+				#endif
 				#endif
 
 				#if 0
@@ -1647,8 +1668,15 @@ printf("\nA_LQ * A_Q - A max err %e\n", max_err);
 				#else // eigen regularization of original hessian
 
 				// TODO only do once per IPM solve
-				UNPACK_MAT(nv, nv, Hg, 0, 0, ws->eig_V, nv);
+				GECP(nv, nv, Hg, 0, 0, Lv, 0, 0);
+				TRTR_L(nv, Lv, 0, 0, Lv, 0, 0);
+				UNPACK_MAT(nv, nv, Lv, 0, 0, ws->eig_V, nv);
+				//UNPACK_MAT(nv, nv, Hg, 0, 0, ws->eig_V, nv);
+				//d_print_mat(nv, nv, ws->eig_V, nv);
 				acados_eigen_decomposition(nv, ws->eig_V, ws->eig_d, ws->eig_e);
+				//d_print_mat(nv, nv, ws->eig_V, nv);
+				//d_print_mat(1, nv, ws->eig_d, 1);
+				//d_print_mat(1, nv, ws->eig_e, 1);
 
 				// TODO void recomputing everything again
 				GECP(nv, nv, Hg, 0, 0, Lv, 0, 0);
@@ -1678,7 +1706,7 @@ printf("\nA_LQ * A_Q - A max err %e\n", max_err);
 					}
 				if(ng>0)
 					{
-					GEMM_R_DIAG(nv, ng, 1.0, Ct, 0, 0, tmp_nbg+0, nb, 0.0, Ctx, 0, 0, Ctx, 0, 0);
+					GEMM_ND(nv, ng, 1.0, Ct, 0, 0, tmp_nbg+0, nb, 0.0, Ctx, 0, 0, Ctx, 0, 0);
 					ROWIN(ng, 1.0, tmp_nbg+1, nb, Ctx, nv, 0);
 					SYRK_POTRF_LN_MN(nv+1, nv, ng, Ctx, 0, 0, Ct, 0, 0, Lv, 0, 0, Lv, 0, 0);
 					}
@@ -1830,7 +1858,7 @@ void DENSE_QP_FACT_LQ_SOLVE_KKT_STEP(struct DENSE_QP *qp, struct DENSE_QP_SOL *q
 			if(ng>0)
 				{
 				GEMV_N(nv, ng, 1.0, Ct, 0, 0, tmp_nbg+1, nb, 1.0, lv, 0, lv, 0);
-				GEMM_R_DIAG(nv, ng, 1.0, Ct, 0, 0, tmp_nbg+0, nb, 0.0, Ctx, 0, 0, Ctx, 0, 0);
+				GEMM_ND(nv, ng, 1.0, Ct, 0, 0, tmp_nbg+0, nb, 0.0, Ctx, 0, 0, Ctx, 0, 0);
 				SYRK_LN(nv, ng, 1.0, Ctx, 0, 0, Ct, 0, 0, 1.0, Lv, 0, 0, Lv, 0, 0);
 				}
 
@@ -1905,7 +1933,7 @@ void DENSE_QP_FACT_LQ_SOLVE_KKT_STEP(struct DENSE_QP *qp, struct DENSE_QP_SOL *q
 					tmp = sqrt( tmp );
 					BLASFEO_DVECEL(tmp_nbg+0, nb+ii) = tmp;
 					}
-				GEMM_R_DIAG(nv, ng, 1.0, Ct, 0, 0, tmp_nbg+0, nb, 0.0, lq1, 0, nv+nv, lq1, 0, nv+nv);
+				GEMM_ND(nv, ng, 1.0, Ct, 0, 0, tmp_nbg+0, nb, 0.0, lq1, 0, nv+nv, lq1, 0, nv+nv);
 				GEMV_N(nv, ng, 1.0, Ct, 0, 0, tmp_nbg+1, nb, 1.0, lv, 0, lv, 0);
 				}
 
@@ -2049,7 +2077,7 @@ void DENSE_QP_FACT_LQ_SOLVE_KKT_STEP(struct DENSE_QP *qp, struct DENSE_QP_SOL *q
 				tmp = sqrt( tmp );
 				BLASFEO_DVECEL(tmp_nbg+0, nb+ii) = tmp;
 				}
-			GEMM_R_DIAG(nv, ng, 1.0, Ct, 0, 0, tmp_nbg+0, nb, 0.0, lq1, 0, nv+nv, lq1, 0, nv+nv);
+			GEMM_ND(nv, ng, 1.0, Ct, 0, 0, tmp_nbg+0, nb, 0.0, lq1, 0, nv+nv, lq1, 0, nv+nv);
 			GEMV_N(nv, ng, 1.0, Ct, 0, 0, tmp_nbg+1, nb, 1.0, lv, 0, lv, 0);
 			}
 
@@ -2195,7 +2223,7 @@ void DENSE_QP_FACT_SOLVE_LU_KKT_STEP(struct DENSE_QP *qp, struct DENSE_QP_SOL *q
 			if(ng>0)
 				{
 				GEMV_N(nv, ng, 1.0, Ct, 0, 0, tmp_nbg+1, nb, 1.0, lv, 0, lv, 0);
-				GEMM_R_DIAG(nv, ng, 1.0, Ct, 0, 0, tmp_nbg+0, nb, 0.0, Ctx, 0, 0, Ctx, 0, 0);
+				GEMM_ND(nv, ng, 1.0, Ct, 0, 0, tmp_nbg+0, nb, 0.0, Ctx, 0, 0, Ctx, 0, 0);
 				SYRK_LN(nv, ng, 1.0, Ctx, 0, 0, Ct, 0, 0, 1.0, Lv, 0, 0, Lv, 0, 0);
 				}
 
@@ -2210,7 +2238,7 @@ void DENSE_QP_FACT_SOLVE_LU_KKT_STEP(struct DENSE_QP *qp, struct DENSE_QP_SOL *q
 				}
 
 			GEMM_L_DIAG(nv, nv, 1.0, sv, 0, Lv, 0, 0, 0.0, Lv, 0, 0, Lv, 0, 0);
-			GEMM_R_DIAG(nv, nv, 1.0, Lv, 0, 0, sv, 0, 0.0, Lv, 0, 0, Lv, 0, 0);
+			GEMM_ND(nv, nv, 1.0, Lv, 0, 0, sv, 0, 0.0, Lv, 0, 0, Lv, 0, 0);
 			DIARE(nv, arg->reg_prim, Lv, 0, 0);
 			POTRF_L(nv, Lv, 0, 0, Lv, 0, 0);
 
@@ -2218,7 +2246,7 @@ void DENSE_QP_FACT_SOLVE_LU_KKT_STEP(struct DENSE_QP *qp, struct DENSE_QP_SOL *q
 			VECCP(nv, lv, 0, dv, 0);
 
 			GECP(ne, nv, A, 0, 0, AL, 0, 0);
-			GEMM_R_DIAG(ne, nv, 1.0, AL, 0, 0, sv, 0, 0.0, AL, 0, 0, AL, 0, 0);
+			GEMM_ND(ne, nv, 1.0, AL, 0, 0, sv, 0, 0.0, AL, 0, 0, AL, 0, 0);
 			TRSM_RLTN(ne, nv, 1.0, Lv, 0, 0, AL, 0, 0, AL, 0, 0);
 
 			TRSV_LNN(nv, Lv, 0, 0, lv, 0, lv, 0);
@@ -2237,7 +2265,7 @@ void DENSE_QP_FACT_SOLVE_LU_KKT_STEP(struct DENSE_QP *qp, struct DENSE_QP_SOL *q
 				}
 
 			GEMM_L_DIAG(ne, ne, 1.0, se, 0, Le, 0, 0, 0.0, Le, 0, 0, Le, 0, 0);
-			GEMM_R_DIAG(ne, ne, 1.0, Le, 0, 0, se, 0, 0.0, Le, 0, 0, Le, 0, 0);
+			GEMM_ND(ne, ne, 1.0, Le, 0, 0, se, 0, 0.0, Le, 0, 0, Le, 0, 0);
 			DIARE(ne, arg->reg_prim, Le, 0, 0);
 			POTRF_L(ne, Le, 0, 0, Le, 0, 0);
 
@@ -2281,7 +2309,7 @@ void DENSE_QP_FACT_SOLVE_LU_KKT_STEP(struct DENSE_QP *qp, struct DENSE_QP_SOL *q
 			if(ng>0)
 				{
 				GEMV_N(nv, ng, 1.0, Ct, 0, 0, tmp_nbg+1, nb, 1.0, lv, 0, lv, 0);
-				GEMM_R_DIAG(nv, ng, 1.0, Ct, 0, 0, tmp_nbg+0, nb, 0.0, Ctx, 0, 0, Ctx, 0, 0);
+				GEMM_ND(nv, ng, 1.0, Ct, 0, 0, tmp_nbg+0, nb, 0.0, Ctx, 0, 0, Ctx, 0, 0);
 				SYRK_LN(nv, ng, 1.0, Ctx, 0, 0, Ct, 0, 0, 1.0, Lv, 0, 0, Lv, 0, 0);
 				}
 
@@ -2351,7 +2379,7 @@ void DENSE_QP_FACT_SOLVE_LU_KKT_STEP(struct DENSE_QP *qp, struct DENSE_QP_SOL *q
 				}
 			if(ng>0)
 				{
-				GEMM_R_DIAG(nv, ng, 1.0, Ct, 0, 0, tmp_nbg+0, nb, 0.0, Ctx, 0, 0, Ctx, 0, 0);
+				GEMM_ND(nv, ng, 1.0, Ct, 0, 0, tmp_nbg+0, nb, 0.0, Ctx, 0, 0, Ctx, 0, 0);
 				GEMV_N(nv, ng, 1.0, Ct, 0, 0, tmp_nbg+1, nb, 1.0, lv, 0, lv, 0);
 				SYRK_LN(nv, ng, 1.0, Ctx, 0, 0, Ct, 0, 0, 1.0, Lv, 0, 0, Lv, 0, 0);
 				}
@@ -2367,7 +2395,7 @@ void DENSE_QP_FACT_SOLVE_LU_KKT_STEP(struct DENSE_QP *qp, struct DENSE_QP_SOL *q
 				}
 
 			GEMM_L_DIAG(nv, nv, 1.0, sv, 0, Lv, 0, 0, 0.0, Lv, 0, 0, Lv, 0, 0);
-			GEMM_R_DIAG(nv, nv, 1.0, Lv, 0, 0, sv, 0, 0.0, Lv, 0, 0, Lv, 0, 0);
+			GEMM_ND(nv, nv, 1.0, Lv, 0, 0, sv, 0, 0.0, Lv, 0, 0, Lv, 0, 0);
 			DIARE(nv, arg->reg_prim, Lv, 0, 0);
 			POTRF_L_MN(nv, nv, Lv, 0, 0, Lv, 0, 0);
 
@@ -2401,7 +2429,7 @@ void DENSE_QP_FACT_SOLVE_LU_KKT_STEP(struct DENSE_QP *qp, struct DENSE_QP_SOL *q
 				}
 			if(ng>0)
 				{
-				GEMM_R_DIAG(nv, ng, 1.0, Ct, 0, 0, tmp_nbg+0, nb, 0.0, Ctx, 0, 0, Ctx, 0, 0);
+				GEMM_ND(nv, ng, 1.0, Ct, 0, 0, tmp_nbg+0, nb, 0.0, Ctx, 0, 0, Ctx, 0, 0);
 				ROWIN(ng, 1.0, tmp_nbg+1, nb, Ctx, nv, 0);
 				SYRK_LN_MN(nv+1, nv, ng, 1.0, Ctx, 0, 0, Ct, 0, 0, 1.0, Lv, 0, 0, Lv, 0, 0);
 				}
