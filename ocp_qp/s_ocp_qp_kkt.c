@@ -36,6 +36,7 @@
 
 
 #include <stdlib.h>
+#include <stdio.h>
 #include <math.h>
 
 #include <blasfeo_target.h>
@@ -53,8 +54,8 @@
 
 
 #define SINGLE_PRECISION
-#define BLASFEO_MATEL BLASFEO_SMATEL
-#define BLASFEO_VECEL BLASFEO_SVECEL
+#define MATEL BLASFEO_SMATEL
+#define VECEL BLASFEO_SVECEL
 
 
 
@@ -73,8 +74,9 @@
 #define GELQF_PD blasfeo_sgelqf_pd
 #define GELQF_PD_LA blasfeo_sgelqf_pd_la
 #define GELQF_PD_LLA blasfeo_sgelqf_pd_lla
+#define GEMM_ND blasfeo_sgemm_nd
+#define GEMM_NN blasfeo_sgemm_nn
 #define GEMM_NT blasfeo_sgemm_nt
-#define GEMM_R_DIAG blasfeo_sgemm_nd
 #define GEMV_N blasfeo_sgemv_n
 #define GEMV_T blasfeo_sgemv_t
 #define GESE blasfeo_sgese
@@ -83,6 +85,8 @@
 #define OCP_QP_IPM_WS s_ocp_qp_ipm_ws
 #define OCP_QP_DIM s_ocp_qp_dim
 #define OCP_QP_SOL s_ocp_qp_sol
+#define PACK_TRAN_MAT blasfeo_pack_tran_smat
+#define PACK_VEC blasfeo_pack_svec
 #define POTRF_L blasfeo_spotrf_l
 #define POTRF_L_MN blasfeo_spotrf_l_mn
 #define PRINT_E_MAT s_print_exp_mat
@@ -110,6 +114,7 @@
 #define TRSV_LNN_MN blasfeo_strsv_lnn_mn
 #define TRSV_LTN_MN blasfeo_strsv_ltn_mn
 #define TRTR_L blasfeo_strtr_l
+#define UNPACK_MAT blasfeo_unpack_smat
 #define VECAD_SP blasfeo_svecad_sp
 #define VECCP blasfeo_sveccp
 #define VECCPSC blasfeo_sveccpsc

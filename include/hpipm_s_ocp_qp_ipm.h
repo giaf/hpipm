@@ -122,11 +122,15 @@ struct s_ocp_qp_ipm_ws
 	struct blasfeo_smat *Lh;
 	struct blasfeo_smat *AL;
 	struct blasfeo_smat *lq0;
-	struct blasfeo_smat *tmp_nxM_nxM;
+	struct blasfeo_smat *tmp_nuxM_nuxM;
 	float *stat; // convergence statistics
+	//float *eig_V;
+	//float *eig_d;
+	//float *eig_e;
 	int *use_hess_fact;
 	void *lq_work0;
 	float qp_res[4]; // infinity norm of residuals
+	float preg_last;
 	int iter; // iteration number
 	int stat_max; // iterations saved in stat
 	int stat_m; // number of recorded stat per IPM iter
@@ -137,6 +141,7 @@ struct s_ocp_qp_ipm_ws
 	int mask_constr; // use constr mask
 	int valid_ric_vec; // meaningful riccati vectors
 	int valid_ric_p; // form of riccati p: 0 p*inv(L), 1 p
+	int npd_reg_hess; // at last iter, hessian has been regularized to get positive (semi) definite
 	hpipm_size_t memsize;
 	};
 

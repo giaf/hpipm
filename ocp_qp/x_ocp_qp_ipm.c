@@ -758,7 +758,8 @@ hpipm_size_t OCP_QP_IPM_WS_MEMSIZE(struct OCP_QP_DIM *dim, struct OCP_QP_IPM_ARG
 		{
 		size += 1*(N+1)*sizeof(struct STRMAT); // P
 		}
-	size += 3*sizeof(struct STRMAT); // tmp_nxM_nxM Ls
+	size += 3*sizeof(struct STRMAT); // tmp_nuxM_nuxM Ls
+	//size += 5*sizeof(struct STRMAT); // tmp_nuxM_nuxM Ls reg
 	if(arg->lq_fact>0)
 		{
 		size += 1*(N+1)*sizeof(struct STRMAT); // Lh
@@ -780,8 +781,10 @@ hpipm_size_t OCP_QP_IPM_WS_MEMSIZE(struct OCP_QP_DIM *dim, struct OCP_QP_IPM_ARG
 		{
 		for(ii=0; ii<=N; ii++) size += 1*SIZE_STRMAT(nx[ii]+1, nx[ii]); // P
 		}
-	size += 2*SIZE_STRMAT(nxM, nxM); // tmp_nxM_nxM
+	size += 2*SIZE_STRMAT(nuM+nxM, nuM+nxM); // tmp_nuxM_nuxM
 	size += 1*SIZE_STRMAT(nxM+1, nuM); // Ls
+	//size += 3*SIZE_STRMAT(nuM+nxM, nuM+nxM); // tmp_nuxM_nuxM reg
+	//size += 2*SIZE_STRMAT(nxM+1, nuM); // Ls reg
 	if(arg->lq_fact>0)
 		{
 		for(ii=0; ii<=N; ii++) size += 1*SIZE_STRMAT(nu[ii]+nx[ii]+1, nu[ii]+nx[ii]); // Lh
@@ -798,8 +801,10 @@ hpipm_size_t OCP_QP_IPM_WS_MEMSIZE(struct OCP_QP_DIM *dim, struct OCP_QP_IPM_ARG
 		size += 1*GELQF_WORKSIZE(nuM+nxM, 2*nuM+3*nxM+ngM); // lq_work0
 		}
 
-	int stat_m = 20;
+	int stat_m = 21;
 	size += stat_m*(1+arg->stat_max)*sizeof(REAL); // stat
+
+	//size += (nuM+nxM)*(nuM+nxM+2)*sizeof(REAL); // eig_V eig_d eig_e reg
 
 	size += (N+1)*sizeof(int); // use_hess_fact
 
@@ -912,10 +917,12 @@ void OCP_QP_IPM_WS_CREATE(struct OCP_QP_DIM *dim, struct OCP_QP_IPM_ARG *arg, st
 		workspace->P = sm_ptr;
 		sm_ptr += N+1;
 		}
-	workspace->tmp_nxM_nxM = sm_ptr;
+	workspace->tmp_nuxM_nuxM = sm_ptr;
 	sm_ptr += 2;
+	//sm_ptr += 3; // reg
 	workspace->Ls = sm_ptr;
 	sm_ptr += 1;
+	//sm_ptr += 2; // reg
 	if(arg->lq_fact>0)
 		{
 		workspace->Lh = sm_ptr;
@@ -976,8 +983,16 @@ void OCP_QP_IPM_WS_CREATE(struct OCP_QP_DIM *dim, struct OCP_QP_IPM_ARG *arg, st
 	REAL *d_ptr = (REAL *) s_ptr;
 
 	workspace->stat = d_ptr;
-	int stat_m = 20;
+	int stat_m = 21;
 	d_ptr += stat_m*(1+arg->stat_max);
+
+	// reg
+	//workspace->eig_V = d_ptr;
+	//d_ptr += (nuM+nxM)*(nuM+nxM);
+	//workspace->eig_d = d_ptr;
+	//d_ptr += nuM+nxM;
+	//workspace->eig_e = d_ptr;
+	//d_ptr += nuM+nxM;
 
 
 	// int stuff
@@ -1017,12 +1032,16 @@ void OCP_QP_IPM_WS_CREATE(struct OCP_QP_DIM *dim, struct OCP_QP_IPM_ARG *arg, st
 			c_ptr += (workspace->P+ii)->memsize;
 			}
 		}
-	CREATE_STRMAT(nxM, nxM, workspace->tmp_nxM_nxM+0, c_ptr);
-	c_ptr += (workspace->tmp_nxM_nxM+0)->memsize;
-	CREATE_STRMAT(nxM, nxM, workspace->tmp_nxM_nxM+1, c_ptr);
-	c_ptr += (workspace->tmp_nxM_nxM+1)->memsize;
-	CREATE_STRMAT(nxM+1, nuM, workspace->Ls, c_ptr);
-	c_ptr += (workspace->Ls)->memsize;
+	CREATE_STRMAT(nuM+nxM, nuM+nxM, workspace->tmp_nuxM_nuxM+0, c_ptr);
+	c_ptr += (workspace->tmp_nuxM_nuxM+0)->memsize;
+	CREATE_STRMAT(nuM+nxM, nuM+nxM, workspace->tmp_nuxM_nuxM+1, c_ptr);
+	c_ptr += (workspace->tmp_nuxM_nuxM+1)->memsize;
+	//CREATE_STRMAT(nuM+nxM, nuM+nxM, workspace->tmp_nuxM_nuxM+2, c_ptr); // reg
+	//c_ptr += (workspace->tmp_nuxM_nuxM+2)->memsize; // reg
+	CREATE_STRMAT(nxM+1, nuM, workspace->Ls+0, c_ptr);
+	c_ptr += (workspace->Ls+0)->memsize;
+	//CREATE_STRMAT(nxM+1, nuM, workspace->Ls+1, c_ptr); // reg
+	//c_ptr += (workspace->Ls+1)->memsize; // reg
 
 	if(arg->lq_fact>0)
 		{
@@ -1209,10 +1228,10 @@ void OCP_QP_IPM_WS_CREATE(struct OCP_QP_DIM *dim, struct OCP_QP_IPM_ARG *arg, st
 	// initialize flags
 	for(ii=0; ii<=N; ii++)
 		workspace->use_hess_fact[ii] = 0;
-	
 	workspace->use_Pb = 0;
-
 	workspace->valid_ric_vec = 0;
+
+	workspace->preg_last = 0.0;
 
 	// cache stuff
 	workspace->dim = dim;
@@ -1415,11 +1434,11 @@ void OCP_QP_IPM_GET_RIC_P(struct OCP_QP *qp, struct OCP_QP_IPM_ARG *arg, struct 
 
 	if(ws->square_root_alg==1 | stage==0)
 		{
-		GESE(nx0, nx0, 0.0, ws->tmp_nxM_nxM+0, 0, 0);
-		TRCP_L(nx0, ws->L+stage, nu0, nu0, ws->tmp_nxM_nxM+0, 0, 0);
-		SYRK_LN(nx0, nx0, 1.0, ws->tmp_nxM_nxM+0, 0, 0, ws->tmp_nxM_nxM+0, 0, 0, 0.0, ws->tmp_nxM_nxM+1, 0, 0, ws->tmp_nxM_nxM+1, 0, 0); // TODO lauum
-		TRTR_L(nx0, ws->tmp_nxM_nxM+1, 0, 0, ws->tmp_nxM_nxM+1, 0, 0);
-		UNPACK_MAT(nx0, nx0, ws->tmp_nxM_nxM+1, 0, 0, P, nx0);
+		GESE(nx0, nx0, 0.0, ws->tmp_nuxM_nuxM+0, 0, 0);
+		TRCP_L(nx0, ws->L+stage, nu0, nu0, ws->tmp_nuxM_nuxM+0, 0, 0);
+		SYRK_LN(nx0, nx0, 1.0, ws->tmp_nuxM_nuxM+0, 0, 0, ws->tmp_nuxM_nuxM+0, 0, 0, 0.0, ws->tmp_nuxM_nuxM+1, 0, 0, ws->tmp_nuxM_nuxM+1, 0, 0); // TODO lauum
+		TRTR_L(nx0, ws->tmp_nuxM_nuxM+1, 0, 0, ws->tmp_nuxM_nuxM+1, 0, 0);
+		UNPACK_MAT(nx0, nx0, ws->tmp_nuxM_nuxM+1, 0, 0, P, nx0);
 		}
 	else
 		{
@@ -2085,6 +2104,9 @@ void OCP_QP_IPM_ABS_STEP(int kk, struct OCP_QP *qp, struct OCP_QP_SOL *qp_sol, s
 		VECMUL(cws->nc, qp->d_mask, 0, ws->sol_step->lam, 0, ws->sol_step->lam, 0);
 		}
 
+	if(kk+1<ws->stat_max)
+		stat[stat_m*(kk+1)+20] = ws->npd_reg_hess;
+
 	// alpha
 	COMPUTE_ALPHA_QP(cws);
 	if(kk+1<ws->stat_max)
@@ -2481,7 +2503,10 @@ void OCP_QP_IPM_DELTA_STEP(int kk, struct OCP_QP *qp, struct OCP_QP_SOL *qp_sol,
 		}
 
 	if(kk+1<ws->stat_max)
+		{
 		stat[stat_m*(kk+1)+14] = itref0;
+		stat[stat_m*(kk+1)+20] = ws->npd_reg_hess;
+		}
 
 	// alpha
 	COMPUTE_ALPHA_QP(cws);
@@ -2732,6 +2757,8 @@ void OCP_QP_IPM_DELTA_STEP(int kk, struct OCP_QP *qp, struct OCP_QP_SOL *qp_sol,
 	// TODO step length computation
 
 	//
+	//d_ocp_qp_sol_print(qp_sol->dim, ws->sol_step);
+	//exit(1);
 	UPDATE_VAR_QP(cws);
 	if(ws->mask_constr)
 		{
@@ -2831,6 +2858,9 @@ void OCP_QP_IPM_SOLVE(struct OCP_QP *qp, struct OCP_QP_SOL *qp_sol, struct OCP_Q
 		ws->use_hess_fact[ii] = 0;
 	ws->use_Pb = 0;
 	ws->valid_ric_vec = 0;
+
+	// initialize primal regularization
+	ws->preg_last = arg->reg_prim;
 
 	// set local flags
 	int updated_fact = 0; // flag whether the factorization is updated with the current solution iterate

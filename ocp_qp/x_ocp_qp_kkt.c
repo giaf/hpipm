@@ -35,6 +35,283 @@
 
 
 
+#if 0
+static REAL hypot2(REAL x, REAL y)
+{
+    return sqrt(x*x + y*y);
+}
+
+
+
+/* Symmetric Householder reduction to tridiagonal form. */
+static void tred2(int dim, REAL *V, REAL *d, REAL *e)
+{
+    /* This is derived from the Algol procedures tred2 by
+    Bowdler, Martin, Reinsch, and Wilkinson, Handbook for
+    Auto. Comp., Vol.ii-Linear Algebra, and the corresponding
+    Fortran subroutine in EISPACK. */
+
+    int i, j, k;
+    REAL f, g, h, hh, scale;
+    for (j = 0; j < dim; j++)
+    {
+        d[j] = V[(dim - 1) * dim + j];
+    }
+
+    /* Householder reduction to tridiagonal form. */
+
+    for (i = dim - 1; i > 0; i--)
+    {
+        /* Scale to avoid under/overflow. */
+
+        scale = 0.0;
+        h = 0.0;
+        for (k = 0; k < i; k++)
+        {
+            scale = scale + fabs(d[k]);
+        }
+        if (scale == 0.0)
+        {
+            e[i] = d[i - 1];
+            for (j = 0; j < i; j++)
+            {
+                d[j] = V[(i - 1) * dim + j];
+                V[i * dim + j] = 0.0;
+                V[j * dim + i] = 0.0;
+            }
+        }
+        else
+        {
+            /* Generate Householder vector. */
+
+            for (k = 0; k < i; k++)
+            {
+                d[k] /= scale;
+                h += d[k] * d[k];
+            }
+            f = d[i - 1];
+            g = sqrt(h);
+            if (f > 0)
+            {
+                g = -g;
+            }
+            e[i] = scale * g;
+            h = h - f * g;
+            d[i - 1] = f - g;
+            for (j = 0; j < i; j++)
+            {
+                e[j] = 0.0;
+            }
+
+            /* Apply similarity transformation to remaining columns. */
+
+            for (j = 0; j < i; j++)
+            {
+                f = d[j];
+                V[j * dim + i] = f;
+                g = e[j] + V[j * dim + j] * f;
+                for (k = j + 1; k <= i - 1; k++)
+                {
+                    g += V[k * dim + j] * d[k];
+                    e[k] += V[k * dim + j] * f;
+                }
+                e[j] = g;
+            }
+            f = 0.0;
+            for (j = 0; j < i; j++)
+            {
+                e[j] /= h;
+                f += e[j] * d[j];
+            }
+            hh = f / (h + h);
+            for (j = 0; j < i; j++)
+            {
+                e[j] -= hh * d[j];
+            }
+            for (j = 0; j < i; j++)
+            {
+                f = d[j];
+                g = e[j];
+                for (k = j; k <= i - 1; k++)
+                {
+                    V[k * dim + j] -= (f * e[k] + g * d[k]);
+                }
+                d[j] = V[(i - 1) * dim + j];
+                V[i * dim + j] = 0.0;
+            }
+        }
+        d[i] = h;
+    }
+
+    /* Accumulate transformations. */
+
+    for (i = 0; i < dim - 1; i++)
+    {
+        V[(dim - 1) * dim + i] = V[i * dim + i];
+        V[i * dim + i] = 1.0;
+        h = d[i + 1];
+        if (h != 0.0)
+        {
+            for (k = 0; k <= i; k++)
+            {
+                d[k] = V[k * dim + i + 1] / h;
+            }
+            for (j = 0; j <= i; j++)
+            {
+                g = 0.0;
+                for (k = 0; k <= i; k++)
+                {
+                    g += V[k * dim + i + 1] * V[k * dim + j];
+                }
+                for (k = 0; k <= i; k++)
+                {
+                    V[k * dim + j] -= g * d[k];
+                }
+            }
+        }
+        for (k = 0; k <= i; k++)
+        {
+            V[k * dim + i + 1] = 0.0;
+        }
+    }
+    for (j = 0; j < dim; j++)
+    {
+        d[j] = V[(dim - 1) * dim + j];
+        V[(dim - 1) * dim + j] = 0.0;
+    }
+    if (dim > 0)
+    {
+        V[(dim - 1) * dim + dim - 1] = 1.0;
+        e[0] = 0.0;
+    }
+}
+
+
+
+/* Symmetric tridiagonal QL algorithm. */
+static void tql2(int dim, REAL *V, REAL *d, REAL *e)
+{
+    /*  This is derived from the Algol procedures tql2, by
+    Bowdler, Martin, Reinsch, and Wilkinson, Handbook for
+    Auto. Comp., Vol.ii-Linear Algebra, and the corresponding
+    Fortran subroutine in EISPACK. */
+    // http://www.netlib.org/eispack/tql2.f
+
+    int i, m, l, k;
+    REAL g, p, r, dl1, h, f, tst1, eps;
+    REAL c, c2, c3, el1, s, s2;
+
+    for (i = 1; i < dim; i++)
+    {
+        e[i - 1] = e[i];
+    }
+    e[dim - 1] = 0.0;
+
+    f = 0.0;
+    tst1 = 0.0;
+    eps = pow(2.0, -52.0);
+    for (l = 0; l < dim; l++)
+    {
+        /* Find small subdiagonal element */
+
+        tst1 = fmax(tst1, fabs(d[l]) + fabs(e[l]));
+        m = l;
+        while (m < dim-1)
+        {
+            if (fabs(e[m]) <= eps * tst1)
+            {
+                break;
+            }
+            m++;
+        }
+
+        /* If m == l, d[l] is an eigenvalue,
+        otherwise, iterate. */
+
+        if (m > l)
+        {
+            int iter = 0;
+            do
+            {
+                iter = iter + 1;
+                /* Compute implicit shift */
+
+                g = d[l];
+                p = (d[l + 1] - g) / (2.0 * e[l]);
+                r = hypot2(p, 1.0);
+                if (p < 0)
+                {
+                    r = -r;
+                }
+                d[l] = e[l] / (p + r);
+                d[l + 1] = e[l] * (p + r);
+                dl1 = d[l + 1];
+                h = g - d[l];
+                for (i = l + 2; i < dim; i++)
+                {
+                    d[i] -= h;
+                }
+                f = f + h;
+
+                /* Implicit QL transformation. */
+
+                p = d[m];
+                c = 1.0;
+                c2 = c;
+                c3 = c;
+                el1 = e[l + 1];
+                s = 0.0;
+                s2 = 0.0;
+                for (i = m - 1; i >= l; i--)
+                {
+                    c3 = c2;
+                    c2 = c;
+                    s2 = s;
+                    g = c * e[i];
+                    h = c * p;
+                    r = hypot2(p, e[i]);
+                    e[i + 1] = s * r;
+                    s = e[i] / r;
+                    c = p / r;
+                    p = c * d[i] - s * g;
+                    d[i + 1] = h + s * (c * g + s * d[i]);
+
+                    /* Accumulate transformation. */
+
+                    for (k = 0; k < dim; k++)
+                    {
+                        h = V[k * dim + i + 1];
+                        V[k * dim + i + 1] = s * V[k * dim + i] + c * h;
+                        V[k * dim + i] = c * V[k * dim + i] - s * h;
+                    }
+                }
+                p = -s * s2 * c3 * el1 * e[l] / dl1;
+                e[l] = s * p;
+                d[l] = c * p;
+
+                /* Check for convergence. */
+
+            } while (fabs(e[l]) > eps * tst1 && iter < 20); /* (Check iteration count here.) */
+        }
+        d[l] = d[l] + f;
+        e[l] = 0.0;
+    }
+}
+
+
+
+static void acados_eigen_decomposition(int dim, REAL *V, REAL *d, REAL *e)
+{
+    int i, j;
+
+    tred2(dim, V, d, e);
+    tql2(dim, V, d, e);
+
+    return;
+}
+#endif
+
+
 // backward Riccati recursion
 void OCP_QP_FACT_SOLVE_KKT_UNCONSTR(struct OCP_QP *qp, struct OCP_QP_SOL *qp_sol, struct OCP_QP_IPM_ARG *arg, struct OCP_QP_IPM_WS *ws)
 	{
@@ -667,7 +944,7 @@ void OCP_QP_FACT_KKT_STEP(struct OCP_QP *qp, struct OCP_QP_IPM_ARG *arg, struct 
 			}
 		if(ng[ss]>0)
 			{
-			GEMM_R_DIAG(nu[ss]+nx[ss], ng[ss], 1.0, DCt+ss, 0, 0, tmp_nbgM+0, nb[ss], 0.0, AL+0, 0, 0, AL+0, 0, 0);
+			GEMM_ND(nu[ss]+nx[ss], ng[ss], 1.0, DCt+ss, 0, 0, tmp_nbgM+0, nb[ss], 0.0, AL+0, 0, 0, AL+0, 0, 0);
 			SYRK_POTRF_LN(nu[ss]+nx[ss], ng[ss], AL+0, 0, 0, DCt+ss, 0, 0, L+ss, 0, 0, L+ss, 0, 0);
 			}
 		else
@@ -702,7 +979,7 @@ void OCP_QP_FACT_KKT_STEP(struct OCP_QP *qp, struct OCP_QP_IPM_ARG *arg, struct 
 				}
 			if(ng[ss]>0)
 				{
-				GEMM_R_DIAG(nu[ss]+nx[ss], ng[ss], 1.0, DCt+ss, 0, 0, tmp_nbgM+0, nb[ss], 0.0, AL+0, 0, nx[ss+1], AL+0, 0, nx[ss+1]);
+				GEMM_ND(nu[ss]+nx[ss], ng[ss], 1.0, DCt+ss, 0, 0, tmp_nbgM+0, nb[ss], 0.0, AL+0, 0, nx[ss+1], AL+0, 0, nx[ss+1]);
 				GECP(nu[ss]+nx[ss], nx[ss+1], AL+0, 0, 0, AL+1, 0, 0);
 				GECP(nu[ss]+nx[ss], ng[ss], DCt+ss, 0, 0, AL+1, 0, nx[ss+1]);
 				SYRK_POTRF_LN(nu[ss]+nx[ss], nx[ss+1]+ng[ss], AL+0, 0, 0, AL+1, 0, 0, L+ss, 0, 0, L+ss, 0, 0);
@@ -747,7 +1024,7 @@ void OCP_QP_FACT_KKT_STEP(struct OCP_QP *qp, struct OCP_QP_IPM_ARG *arg, struct 
 			}
 		if(ng[ss]>0)
 			{
-			GEMM_R_DIAG(nu[ss]+nx[ss], ng[ss], 1.0, DCt+ss, 0, 0, tmp_nbgM+0, nb[ss], 0.0, AL+0, 0, 0, AL+0, 0, 0);
+			GEMM_ND(nu[ss]+nx[ss], ng[ss], 1.0, DCt+ss, 0, 0, tmp_nbgM+0, nb[ss], 0.0, AL+0, 0, 0, AL+0, 0, 0);
 			SYRK_LN(nu[ss]+nx[ss], ng[ss], 1.0, AL+0, 0, 0, DCt+ss, 0, 0, 1.0, L+ss, 0, 0, L+ss, 0, 0);
 			}
 		POTRF_L_MN(nu[ss]+nx[ss], nu[ss], L+ss, 0, 0, L+ss, 0, 0);
@@ -782,7 +1059,7 @@ void OCP_QP_FACT_KKT_STEP(struct OCP_QP *qp, struct OCP_QP_IPM_ARG *arg, struct 
 				}
 			if(ng[ss]>0)
 				{
-				GEMM_R_DIAG(nu[ss]+nx[ss], ng[ss], 1.0, DCt+ss, 0, 0, tmp_nbgM+0, nb[ss], 0.0, AL+0, 0, nx[ss+1], AL+0, 0, nx[ss+1]);
+				GEMM_ND(nu[ss]+nx[ss], ng[ss], 1.0, DCt+ss, 0, 0, tmp_nbgM+0, nb[ss], 0.0, AL+0, 0, nx[ss+1], AL+0, 0, nx[ss+1]);
 				SYRK_LN(nu[ss]+nx[ss], ng[ss], 1.0, AL+0, 0, nx[ss+1], DCt+ss, 0, 0, 1.0, L+ss, 0, 0, L+ss, 0, 0);
 				}
 			SYRK_LN(nu[ss]+nx[ss], nx[ss+1], 1.0, AL, 0, 0, BAbt+ss, 0, 0, 1.0, L+ss, 0, 0, L+ss, 0, 0);
@@ -819,7 +1096,7 @@ void OCP_QP_FACT_KKT_STEP(struct OCP_QP *qp, struct OCP_QP_IPM_ARG *arg, struct 
 				}
 			if(ng[ss]>0)
 				{
-				GEMM_R_DIAG(nu[ss]+nx[ss], ng[ss], 1.0, DCt+ss, 0, 0, tmp_nbgM+0, nb[ss], 0.0, AL+0, 0, nx[ss+1], AL+0, 0, nx[ss+1]);
+				GEMM_ND(nu[ss]+nx[ss], ng[ss], 1.0, DCt+ss, 0, 0, tmp_nbgM+0, nb[ss], 0.0, AL+0, 0, nx[ss+1], AL+0, 0, nx[ss+1]);
 				SYRK_LN(nu[ss]+nx[ss], ng[ss], 1.0, AL+0, 0, nx[ss+1], DCt+ss, 0, 0, 1.0, L+ss, 0, 0, L+ss, 0, 0);
 				}
 			SYRK_POTRF_LN(nu[ss]+nx[ss], nx[ss+1], AL, 0, 0, BAbt+ss, 0, 0, L+ss, 0, 0, L+ss, 0, 0);
@@ -867,6 +1144,7 @@ void OCP_QP_FACT_SOLVE_KKT_STEP(struct OCP_QP *qp, struct OCP_QP_SOL *qp_sol, st
 	struct STRVEC *Zs_inv = ws->Zs_inv;
 	struct STRVEC *tmp_nuxM = ws->tmp_nuxM;
 	struct STRVEC *tmp_nbgM = ws->tmp_nbgM;
+	struct STRMAT *tmp_nuxM_nuxM = ws->tmp_nuxM_nuxM;
 
 	REAL *ptr0, *ptr1, *ptr2, *ptr3;
 
@@ -875,7 +1153,55 @@ void OCP_QP_FACT_SOLVE_KKT_STEP(struct OCP_QP *qp, struct OCP_QP_SOL *qp_sol, st
 
 	struct CORE_QP_IPM_WORKSPACE *cws = ws->core_workspace;
 
+	ws->npd_reg_hess = 0;
+
 	COMPUTE_GAMMA_GAMMA_QP(res_d[0].pa, res_m[0].pa, cws);
+
+	REAL preg = arg->reg_prim;
+	int preg_init = 0;
+	int preg_first = 0;
+	//printf("\nreg default %e\n", preg);
+
+	goto main_loop;
+
+compute_preg:
+
+	if(preg_init==0)
+		{
+		preg = ws->preg_last;
+		preg_init = 1;
+		preg_first = 1;
+		//printf("\nreg init %e\n", preg);
+		}
+
+	if(preg_first)
+		{
+		if(ws->preg_last==arg->reg_prim) // no regularizations yet in previous iterations
+			{
+			preg += 1e-4;
+			}
+		else
+			{
+			preg /= 3.0;
+			}
+		}
+	else
+		{
+		if(ws->preg_last==arg->reg_prim) // no regularizations yet in previous iterations
+			{
+			preg *= 100.0;
+			}
+		else
+			{
+			preg *= 8.0;
+			}
+		}
+
+	preg_first = 0;
+
+	//printf("\nreg updated %e\n", preg);
+
+main_loop:
 
 	if(ws->square_root_alg)
 		{
@@ -890,7 +1216,7 @@ void OCP_QP_FACT_SOLVE_KKT_STEP(struct OCP_QP *qp, struct OCP_QP_SOL *qp_sol, st
 #else
 		GECP(nu[ss]+nx[ss], nu[ss]+nx[ss], RSQrq+ss, 0, 0, L+ss, 0, 0); // TODO blasfeo_dtrcp_l with m and n, for m>=n
 #endif
-		DIARE(nu[ss]+nx[ss], arg->reg_prim, L+ss, 0, 0);
+		DIARE(nu[ss]+nx[ss], preg, L+ss, 0, 0);
 		ROWIN(nu[ss]+nx[ss], 1.0, res_g+ss, 0, L+ss, nu[ss]+nx[ss], 0);
 
 		if(ns[ss]>0)
@@ -909,13 +1235,31 @@ void OCP_QP_FACT_SOLVE_KKT_STEP(struct OCP_QP *qp, struct OCP_QP_SOL *qp_sol, st
 			}
 		if(ng[ss]>0)
 			{
-			GEMM_R_DIAG(nu[ss]+nx[ss], ng[ss], 1.0, DCt+ss, 0, 0, tmp_nbgM+0, nb[ss], 0.0, AL+0, 0, 0, AL+0, 0, 0);
+			GEMM_ND(nu[ss]+nx[ss], ng[ss], 1.0, DCt+ss, 0, 0, tmp_nbgM+0, nb[ss], 0.0, AL+0, 0, 0, AL+0, 0, 0);
 			ROWIN(ng[ss], 1.0, tmp_nbgM+1, nb[ss], AL+0, nu[ss]+nx[ss], 0);
 			SYRK_POTRF_LN_MN(nu[ss]+nx[ss]+1, nu[ss]+nx[ss], ng[ss], AL+0, 0, 0, DCt+ss, 0, 0, L+ss, 0, 0, L+ss, 0, 0);
 			}
 		else
 			{
 			POTRF_L_MN(nu[ss]+nx[ss]+1, nu[ss]+nx[ss], L+ss, 0, 0, L+ss, 0, 0);
+			}
+
+		int singular = 0;
+		for(ii=0; ii<nu[ss]+nx[ss]; ii++)
+			{
+			if((L+ss)->dA[ii]==0.0)
+				{
+				singular = 1;
+				break;
+				}
+			}
+		//printf("singular %d at stage %d\n", singular, ss);
+
+		if(singular)
+			{
+			//d_print_mat(1, nu[ss]+nx[ss], (L+ss)->dA, 1);
+			ws->npd_reg_hess = 1;
+			goto compute_preg;
 			}
 
 		// middle stages
@@ -933,7 +1277,7 @@ void OCP_QP_FACT_SOLVE_KKT_STEP(struct OCP_QP *qp, struct OCP_QP_SOL *qp_sol, st
 #else
 			GECP(nu[ss]+nx[ss], nu[ss]+nx[ss], RSQrq+ss, 0, 0, L+ss, 0, 0);
 #endif
-			DIARE(nu[ss]+nx[ss], arg->reg_prim, L+ss, 0, 0);
+			DIARE(nu[ss]+nx[ss], preg, L+ss, 0, 0);
 			ROWIN(nu[ss]+nx[ss], 1.0, res_g+ss, 0, L+ss, nu[ss]+nx[ss], 0);
 
 			if(ns[ss]>0)
@@ -952,7 +1296,7 @@ void OCP_QP_FACT_SOLVE_KKT_STEP(struct OCP_QP *qp, struct OCP_QP_SOL *qp_sol, st
 				}
 			if(ng[ss]>0)
 				{
-				GEMM_R_DIAG(nu[ss]+nx[ss], ng[ss], 1.0, DCt+ss, 0, 0, tmp_nbgM+0, nb[ss], 0.0, AL+0, 0, nx[ss+1], AL+0, 0, nx[ss+1]);
+				GEMM_ND(nu[ss]+nx[ss], ng[ss], 1.0, DCt+ss, 0, 0, tmp_nbgM+0, nb[ss], 0.0, AL+0, 0, nx[ss+1], AL+0, 0, nx[ss+1]);
 				ROWIN(ng[ss], 1.0, tmp_nbgM+1, nb[ss], AL+0, nu[ss]+nx[ss], nx[ss+1]);
 				GECP(nu[ss]+nx[ss], nx[ss+1], AL+0, 0, 0, AL+1, 0, 0);
 				GECP(nu[ss]+nx[ss], ng[ss], DCt+ss, 0, 0, AL+1, 0, nx[ss+1]);
@@ -961,6 +1305,108 @@ void OCP_QP_FACT_SOLVE_KKT_STEP(struct OCP_QP *qp, struct OCP_QP_SOL *qp_sol, st
 			else
 				{
 				SYRK_POTRF_LN_MN(nu[ss]+nx[ss]+1, nu[ss]+nx[ss], nx[ss+1], AL, 0, 0, AL, 0, 0, L+ss, 0, 0, L+ss, 0, 0);
+				}
+
+			singular = 0;
+			for(ii=0; ii<nu[ss]+nx[ss]; ii++)
+				{
+				if((L+ss)->dA[ii]==0.0)
+					{
+					singular = 1;
+					break;
+					}
+				}
+			//printf("singular %d at stage %d\n", singular, ss);
+
+			if(singular)
+				{
+				//d_print_mat(1, nu[ss]+nx[ss], (L+ss)->dA, 1);
+				ws->npd_reg_hess = 1;
+				goto compute_preg;
+
+				#if 0
+#if defined(DOUBLE_PRECISION)
+				TRCP_L(nu[ss]+nx[ss], RSQrq+ss, 0, 0, L+ss, 0, 0);
+#else
+				GECP(nu[ss]+nx[ss], nu[ss]+nx[ss], RSQrq+ss, 0, 0, L+ss, 0, 0);
+#endif
+				//DIARE(nu[ss]+nx[ss], arg->reg_prim, L+ss, 0, 0);
+				ROWIN(nu[ss]+nx[ss], 1.0, res_g+ss, 0, L+ss, nu[ss]+nx[ss], 0);
+
+				if(nb[ss]>0)
+					{
+					DIAAD_SP(nb[ss], 1.0, tmp_nbgM+0, 0, idxb[ss], L+ss, 0, 0);
+					ROWAD_SP(nb[ss], 1.0, tmp_nbgM+1, 0, idxb[ss], L+ss, nu[ss]+nx[ss], 0);
+					}
+				if(ng[ss]>0)
+					{
+					GEMM_ND(nu[ss]+nx[ss], ng[ss], 1.0, DCt+ss, 0, 0, tmp_nbgM+0, nb[ss], 0.0, AL+0, 0, nx[ss+1], AL+0, 0, nx[ss+1]);
+					ROWIN(ng[ss], 1.0, tmp_nbgM+1, nb[ss], AL+0, nu[ss]+nx[ss], nx[ss+1]);
+					GECP(nu[ss]+nx[ss], nx[ss+1], AL+0, 0, 0, AL+1, 0, 0);
+					GECP(nu[ss]+nx[ss], ng[ss], DCt+ss, 0, 0, AL+1, 0, nx[ss+1]);
+					SYRK_LN_MN(nu[ss]+nx[ss]+1, nu[ss]+nx[ss], nx[ss+1]+ng[ss], 1.0, AL+0, 0, 0, AL+1, 0, 0, 1.0, L+ss, 0, 0, L+ss, 0, 0);
+					}
+				else
+					{
+					SYRK_LN_MN(nu[ss]+nx[ss]+1, nu[ss]+nx[ss], nx[ss+1], 1.0, AL, 0, 0, AL, 0, 0, 1.0, L+ss, 0, 0, L+ss, 0, 0);
+					}
+
+				TRCP_L(nu[ss]+nx[ss], L+ss, 0, 0, tmp_nuxM_nuxM, 0, 0);
+				TRTR_L(nu[ss]+nx[ss], tmp_nuxM_nuxM, 0, 0, tmp_nuxM_nuxM, 0, 0);
+				UNPACK_MAT(nu[ss]+nx[ss], nu[ss]+nx[ss], tmp_nuxM_nuxM, 0, 0, ws->eig_V, nu[ss]+nx[ss]);
+				//d_print_mat(nu[ss]+nx[ss], nu[ss]+nx[ss], ws->eig_V, nu[ss]+nx[ss]);
+				acados_eigen_decomposition(nu[ss]+nx[ss], ws->eig_V, ws->eig_d, ws->eig_e);
+				//d_print_mat(nu[ss]+nx[ss], nu[ss]+nx[ss], ws->eig_V, nu[ss]+nx[ss]);
+				//d_print_mat(1, nu[ss]+nx[ss], ws->eig_d, 1);
+				//d_print_mat(1, nu[ss]+nx[ss], ws->eig_e, 1);
+
+				REAL neig = 0.0;
+				REAL peig = 1e30;
+				for(int ii=0; ii<nu[ss]+nx[ss]; ii++)
+					{
+					REAL eig = ws->eig_d[ii];
+					if(eig<neig)
+						neig = eig;
+					if(eig>=0.0 && eig<peig)
+						peig = eig;
+					}
+				REAL meig = -neig<peig ? -neig : peig;
+				//meig = -neig;
+				//meig = meig<1e-3 ? meig : 1e-3;
+				printf("\nmost negative eig %e smallest positive eig %e min %e\n", neig, peig, meig);
+				//neig = - neig + 1e-3; // project I
+				//neig = - 2.0*neig + arg->reg_prim; // mirror I
+				//REAL treg = - neig + 1e-3; // mirror I
+				//REAL treg = - 2.0*neig + arg->reg_prim; // mirror I
+				REAL treg = - neig + meig + arg->reg_prim; // mirror I
+				printf("\nreg old %e new %e\n", preg, treg);
+				if(treg>preg)
+					{
+					//preg = treg;
+					//preg = 0.9*preg+0.1*treg;
+					printf("\nreg updated %e\n", preg);
+					//goto main_loop;
+					}
+
+				//blasfeo_print_dmat(nu[ss]+nx[ss]+1, nu[ss]+nx[ss], L+ss, 0, 0);
+				//DIARE(nu[ss]+nx[ss], neig, L+ss, 0, 0);
+				//DIARE(nu[ss]+nx[ss], preg, L+ss, 0, 0);
+				DIARE(nu[ss]+nx[ss], treg, L+ss, 0, 0);
+				//blasfeo_print_dmat(nu[ss]+nx[ss]+1, nu[ss]+nx[ss], L+ss, 0, 0);
+				POTRF_L_MN(nu[ss]+nx[ss]+1, nu[ss]+nx[ss], L+ss, 0, 0, L+ss, 0, 0);
+				//blasfeo_print_dmat(nu[ss]+nx[ss]+1, nu[ss]+nx[ss], L+ss, 0, 0);
+
+				singular = 0;
+				for(ii=0; ii<nu[ss]+nx[ss]; ii++)
+					{
+					if((L+ss)->dA[ii]==0.0)
+						{
+						singular = 1;
+						break;
+						}
+					}
+				printf("after singular %d at stage %d\n", singular, ss);
+				#endif
 				}
 
 			}
@@ -1021,7 +1467,9 @@ void OCP_QP_FACT_SOLVE_KKT_STEP(struct OCP_QP *qp, struct OCP_QP_SOL *qp_sol, st
 #else
 		GECP(nu[ss]+nx[ss], nu[ss]+nx[ss], RSQrq+ss, 0, 0, L+ss, 0, 0); // TODO blasfeo_dtrcp_l with m and n, for m>=n
 #endif
-		DIARE(nu[ss]+nx[ss], arg->reg_prim, L+ss, 0, 0);
+		//DIARE(nu[ss]+nx[ss], preg, L+ss, 0, 0); // reg all
+		DIARE(nu[ss], preg, L+ss, 0, 0); // reg only controls
+		DIARE(nx[ss], arg->reg_prim, L+ss, nu[ss], nu[ss]);
 		ROWIN(nu[ss]+nx[ss], 1.0, res_g+ss, 0, L+ss, nu[ss]+nx[ss], 0);
 
 		if(ns[ss]>0)
@@ -1040,7 +1488,7 @@ void OCP_QP_FACT_SOLVE_KKT_STEP(struct OCP_QP *qp, struct OCP_QP_SOL *qp_sol, st
 			}
 		if(ng[ss]>0)
 			{
-			GEMM_R_DIAG(nu[ss]+nx[ss], ng[ss], 1.0, DCt+ss, 0, 0, tmp_nbgM+0, nb[ss], 0.0, AL+0, 0, 0, AL+0, 0, 0);
+			GEMM_ND(nu[ss]+nx[ss], ng[ss], 1.0, DCt+ss, 0, 0, tmp_nbgM+0, nb[ss], 0.0, AL+0, 0, 0, AL+0, 0, 0);
 			ROWIN(ng[ss], 1.0, tmp_nbgM+1, nb[ss], AL+0, nu[ss]+nx[ss], 0);
 			SYRK_LN_MN(nu[ss]+nx[ss]+1, nu[ss]+nx[ss], ng[ss], 1.0, AL+0, 0, 0, DCt+ss, 0, 0, 1.0, L+ss, 0, 0, L+ss, 0, 0);
 			}
@@ -1048,6 +1496,24 @@ void OCP_QP_FACT_SOLVE_KKT_STEP(struct OCP_QP *qp, struct OCP_QP_SOL *qp_sol, st
 		GECP(nx[ss]+1, nu[ss], L+ss, nu[ss], 0, Ls, 0, 0);
 		SYRK_LN_MN(nx[ss]+1, nx[ss], nu[ss], -1.0, Ls, 0, 0, Ls, 0, 0, 1.0, L+ss, nu[ss], nu[ss], P+ss, 0, 0);
 		TRTR_L(nx[ss], P+ss, 0, 0, P+ss, 0, 0);
+
+		int singular = 0;
+		for(ii=0; ii<nu[ss]; ii++)
+			{
+			if((L+ss)->dA[ii]==0.0)
+				{
+				singular = 1;
+				break;
+				}
+			}
+		//printf("singular %d at stage %d\n", singular, ss);
+
+		if(singular)
+			{
+			//d_print_mat(1, nu[ss], (L+ss)->dA, 1);
+			ws->npd_reg_hess = 1;
+			goto compute_preg;
+			}
 
 		// middle stages
 		for(nn=0; nn<N-1; nn++)
@@ -1063,7 +1529,9 @@ void OCP_QP_FACT_SOLVE_KKT_STEP(struct OCP_QP *qp, struct OCP_QP_SOL *qp_sol, st
 #else
 			GECP(nu[ss]+nx[ss], nu[ss]+nx[ss], RSQrq+ss, 0, 0, L+ss, 0, 0);
 #endif
-			DIARE(nu[ss]+nx[ss], arg->reg_prim, L+ss, 0, 0);
+			//DIARE(nu[ss]+nx[ss], preg, L+ss, 0, 0); // reg all
+			DIARE(nu[ss], preg, L+ss, 0, 0); // reg only controls
+			DIARE(nx[ss], arg->reg_prim, L+ss, nu[ss], nu[ss]);
 			ROWIN(nu[ss]+nx[ss], 1.0, res_g+ss, 0, L+ss, nu[ss]+nx[ss], 0);
 
 			if(ns[ss]>0)
@@ -1082,15 +1550,139 @@ void OCP_QP_FACT_SOLVE_KKT_STEP(struct OCP_QP *qp, struct OCP_QP_SOL *qp_sol, st
 				}
 			if(ng[ss]>0)
 				{
-				GEMM_R_DIAG(nu[ss]+nx[ss], ng[ss], 1.0, DCt+ss, 0, 0, tmp_nbgM+0, nb[ss], 0.0, AL+0, 0, nx[ss+1], AL+0, 0, nx[ss+1]);
+				GEMM_ND(nu[ss]+nx[ss], ng[ss], 1.0, DCt+ss, 0, 0, tmp_nbgM+0, nb[ss], 0.0, AL+0, 0, nx[ss+1], AL+0, 0, nx[ss+1]);
 				ROWIN(ng[ss], 1.0, tmp_nbgM+1, nb[ss], AL+0, nu[ss]+nx[ss], nx[ss+1]);
 				SYRK_LN_MN(nu[ss]+nx[ss]+1, nu[ss]+nx[ss], ng[ss], 1.0, AL+0, 0, nx[ss+1], DCt+ss, 0, 0, 1.0, L+ss, 0, 0, L+ss, 0, 0);
 				}
 			SYRK_LN_MN(nu[ss]+nx[ss]+1, nu[ss]+nx[ss], nx[ss+1], 1.0, AL, 0, 0, BAbt+ss, 0, 0, 1.0, L+ss, 0, 0, L+ss, 0, 0);
+			//GECP(nu[ss]+nx[ss]+1, nu[ss], L+ss, 0, 0, tmp_nuxM_nuxM, 0, 0);
+			GECP(nu[ss]+nx[ss], nu[ss], L+ss, 0, 0, tmp_nuxM_nuxM, 0, 0);
 			POTRF_L_MN(nu[ss]+nx[ss]+1, nu[ss], L+ss, 0, 0, L+ss, 0, 0);
-			GECP(nx[ss]+1, nu[ss], L+ss, nu[ss], 0, Ls, 0, 0);
-			SYRK_LN_MN(nx[ss]+1, nx[ss], nu[ss], -1.0, Ls, 0, 0, Ls, 0, 0, 1.0, L+ss, nu[ss], nu[ss], P+ss, 0, 0);
-			TRTR_L(nx[ss], P+ss, 0, 0, P+ss, 0, 0);
+
+			singular = 0;
+			for(ii=0; ii<nu[ss]; ii++)
+				{
+				if((L+ss)->dA[ii]==0.0)
+					{
+					singular = 1;
+					break;
+					}
+				}
+			//printf("singular %d at stage %d\n", singular, ss);
+
+			if(singular)
+				{
+				//d_print_mat(1, nu[ss], (L+ss)->dA, 1);
+				ws->npd_reg_hess = 1;
+				goto compute_preg;
+
+				#if 0
+#if defined(DOUBLE_PRECISION)
+				TRCP_L(nu[ss]+nx[ss], RSQrq+ss, 0, 0, L+ss, 0, 0);
+#else
+				GECP(nu[ss]+nx[ss], nu[ss]+nx[ss], RSQrq+ss, 0, 0, L+ss, 0, 0);
+#endif
+				DIARE(nu[ss]+nx[ss], preg, L+ss, 0, 0);
+				ROWIN(nu[ss]+nx[ss], 1.0, res_g+ss, 0, L+ss, nu[ss]+nx[ss], 0);
+				if(nb[ss]>0)
+					{
+					DIAAD_SP(nb[ss], 1.0, tmp_nbgM+0, 0, idxb[ss], L+ss, 0, 0);
+					ROWAD_SP(nb[ss], 1.0, tmp_nbgM+1, 0, idxb[ss], L+ss, nu[ss]+nx[ss], 0);
+					}
+				if(ng[ss]>0)
+					{
+					GEMM_ND(nu[ss]+nx[ss], ng[ss], 1.0, DCt+ss, 0, 0, tmp_nbgM+0, nb[ss], 0.0, AL+0, 0, nx[ss+1], AL+0, 0, nx[ss+1]);
+					ROWIN(ng[ss], 1.0, tmp_nbgM+1, nb[ss], AL+0, nu[ss]+nx[ss], nx[ss+1]);
+					SYRK_LN_MN(nu[ss]+nx[ss]+1, nu[ss]+nx[ss], ng[ss], 1.0, AL+0, 0, nx[ss+1], DCt+ss, 0, 0, 1.0, L+ss, 0, 0, L+ss, 0, 0);
+					}
+				SYRK_LN_MN(nu[ss]+nx[ss]+1, nu[ss]+nx[ss], nx[ss+1], 1.0, AL, 0, 0, BAbt+ss, 0, 0, 1.0, L+ss, 0, 0, L+ss, 0, 0);
+
+				//GECP(nu[ss]+nx[ss]+1, nu[ss], L+ss, 0, 0, tmp_nuxM_nuxM, 0, 0);
+				TRCP_L(nu[ss], L+ss, 0, 0, tmp_nuxM_nuxM, 0, 0);
+				TRTR_L(nu[ss], tmp_nuxM_nuxM, 0, 0, tmp_nuxM_nuxM, 0, 0);
+				UNPACK_MAT(nu[ss], nu[ss], tmp_nuxM_nuxM, 0, 0, ws->eig_V, nu[ss]);
+				//d_print_mat(nu[ss], nu[ss], ws->eig_V, nu[ss]);
+				acados_eigen_decomposition(nu[ss], ws->eig_V, ws->eig_d, ws->eig_e);
+				//d_print_mat(nu[ss], nu[ss], ws->eig_V, nu[ss]);
+				//d_print_mat(1, nu[ss], ws->eig_d, 1);
+				//d_print_mat(1, nu[ss], ws->eig_e, 1);
+
+				REAL neig = 0.0;
+				REAL peig = 1e30;
+				for(int ii=0; ii<nu[ss]; ii++)
+					{
+					REAL eig = ws->eig_d[ii];
+					//REAL eig = ws->eig_d[ii] - preg; // take into account the effect of reg already applied
+					if(eig<neig)
+						neig = eig;
+					if(eig>=0.0 && eig<peig)
+						peig = eig;
+					}
+				REAL meig = -neig<peig ? -neig : peig;
+				//meig = meig<1e0 ? meig : 1e0;
+				printf("\nmost negative eig %e smallest positive eig %e min %e\n", neig, peig, meig);
+				//neig = - neig + 1e-3; // project I
+				//neig = - 2.0*neig; // mirror I // TODO reg_prim ???
+				REAL treg = - 2.0*neig + arg->reg_prim; // mirror I
+				//REAL treg = - neig + meig + arg->reg_prim; // mirror I
+
+				if(treg>preg)
+					{
+					preg = treg;
+					//preg = 0.9*preg+0.1*treg;
+					printf("\nreg updated %e\n", preg);
+					goto main_loop;
+					}
+
+				// update P using original R
+				#if 0
+				PACK_TRAN_MAT(nu[ss], nu[ss], ws->eig_V, nu[ss], tmp_nuxM_nuxM+0, 0, 0);
+				PACK_VEC(nu[ss], ws->eig_d, 1, tmp_nuxM, 0);
+				for(int ii=0; ii<nu[ss]; ii++)
+					{
+					REAL el = VECEL(tmp_nuxM, ii);
+					// TODO set min magnitude
+					VECEL(tmp_nuxM, ii) = 1.0/el;
+					}
+				GEMM_ND(nu[ss], nu[ss], 1.0, tmp_nuxM_nuxM+0, 0, 0, tmp_nuxM, 0, 0.0, tmp_nuxM_nuxM+1, 0, 0, tmp_nuxM_nuxM+1, 0, 0);
+				GEMM_NT(nu[ss], nu[ss], nu[ss], 1.0, tmp_nuxM_nuxM+1, 0, 0, tmp_nuxM_nuxM+0, 0, 0, 0.0, tmp_nuxM_nuxM+2, 0, 0, tmp_nuxM_nuxM+2, 0, 0); // real inverse TODO syrk_ln
+
+				GECP(nx[ss]+1, nu[ss], L+ss, nu[ss], 0, Ls+0, 0, 0);
+				GEMM_NN(nx[ss]+1, nu[ss], nu[ss], 1.0, Ls+0, 0, 0, tmp_nuxM_nuxM+2, 0, 0, 0.0, Ls+1, 0, 0, Ls+1, 0, 0); // TODO symm
+				SYRK_LN_MN(nx[ss]+1, nx[ss], nu[ss], -1.0, Ls+1, 0, 0, Ls+0, 0, 0, 1.0, L+ss, nu[ss], nu[ss], P+ss, 0, 0);
+				#endif
+
+				//GECP(nu[ss]+nx[ss]+1, nu[ss], tmp_nuxM_nuxM, 0, 0, L+ss, 0, 0);
+				//blasfeo_print_dmat(nu[ss]+nx[ss]+1, nu[ss], L+ss, 0, 0);
+				DIARE(nu[ss], treg, L+ss, 0, 0);
+				//DIARE(nu[ss], preg, L+ss, 0, 0);
+				//blasfeo_print_dmat(nu[ss]+nx[ss]+1, nu[ss], L+ss, 0, 0);
+				POTRF_L_MN(nu[ss]+nx[ss]+1, nu[ss], L+ss, 0, 0, L+ss, 0, 0);
+				//blasfeo_print_dmat(nu[ss]+nx[ss]+1, nu[ss], L+ss, 0, 0);
+
+				singular = 0;
+				for(ii=0; ii<nu[ss]; ii++)
+					{
+					if((L+ss)->dA[ii]==0.0)
+						{
+						singular = 1;
+						break;
+						}
+					}
+				printf("after singular %d at stage %d\n\n", singular, ss);
+
+				GECP(nx[ss]+1, nu[ss], L+ss, nu[ss], 0, Ls, 0, 0);
+				SYRK_LN_MN(nx[ss]+1, nx[ss], nu[ss], -1.0, Ls, 0, 0, Ls, 0, 0, 1.0, L+ss, nu[ss], nu[ss], P+ss, 0, 0);
+				TRTR_L(nx[ss], P+ss, 0, 0, P+ss, 0, 0);
+				#endif
+				}
+			else
+				{
+				GECP(nx[ss]+1, nu[ss], L+ss, nu[ss], 0, Ls, 0, 0);
+				SYRK_LN_MN(nx[ss]+1, nx[ss], nu[ss], -1.0, Ls, 0, 0, Ls, 0, 0, 1.0, L+ss, nu[ss], nu[ss], P+ss, 0, 0);
+				TRTR_L(nx[ss], P+ss, 0, 0, P+ss, 0, 0);
+				}
+
 			}
 
 		// first stage: factorize P in L too
@@ -1107,7 +1699,7 @@ void OCP_QP_FACT_SOLVE_KKT_STEP(struct OCP_QP *qp, struct OCP_QP_SOL *qp_sol, st
 #else
 			GECP(nu[ss]+nx[ss], nu[ss]+nx[ss], RSQrq+ss, 0, 0, L+ss, 0, 0);
 #endif
-			DIARE(nu[ss]+nx[ss], arg->reg_prim, L+ss, 0, 0);
+			DIARE(nu[ss]+nx[ss], preg, L+ss, 0, 0); // reg all
 			ROWIN(nu[ss]+nx[ss], 1.0, res_g+ss, 0, L+ss, nu[ss]+nx[ss], 0);
 
 			if(ns[ss]>0)
@@ -1126,11 +1718,104 @@ void OCP_QP_FACT_SOLVE_KKT_STEP(struct OCP_QP *qp, struct OCP_QP_SOL *qp_sol, st
 				}
 			if(ng[ss]>0)
 				{
-				GEMM_R_DIAG(nu[ss]+nx[ss], ng[ss], 1.0, DCt+ss, 0, 0, tmp_nbgM+0, nb[ss], 0.0, AL+0, 0, nx[ss+1], AL+0, 0, nx[ss+1]);
+				GEMM_ND(nu[ss]+nx[ss], ng[ss], 1.0, DCt+ss, 0, 0, tmp_nbgM+0, nb[ss], 0.0, AL+0, 0, nx[ss+1], AL+0, 0, nx[ss+1]);
 				ROWIN(ng[ss], 1.0, tmp_nbgM+1, nb[ss], AL+0, nu[ss]+nx[ss], nx[ss+1]);
 				SYRK_LN_MN(nu[ss]+nx[ss]+1, nu[ss]+nx[ss], ng[ss], 1.0, AL+0, 0, nx[ss+1], DCt+ss, 0, 0, 1.0, L+ss, 0, 0, L+ss, 0, 0);
 				}
 			SYRK_POTRF_LN_MN(nu[ss]+nx[ss]+1, nu[ss]+nx[ss], nx[ss+1], AL, 0, 0, BAbt+ss, 0, 0, L+ss, 0, 0, L+ss, 0, 0);
+
+			singular = 0;
+			for(ii=0; ii<nu[ss]+nx[ss]; ii++)
+				{
+				if((L+ss)->dA[ii]==0.0)
+					{
+					singular = 1;
+					break;
+					}
+				}
+			//printf("singular %d at stage %d\n", singular, ss);
+
+			if(singular)
+				{
+				//d_print_mat(1, nu[ss]+nx[ss], (L+ss)->dA, 1);
+				ws->npd_reg_hess = 1;
+				goto compute_preg;
+
+				#if 0
+#if defined(DOUBLE_PRECISION)
+				TRCP_L(nu[ss]+nx[ss], RSQrq+ss, 0, 0, L+ss, 0, 0);
+#else
+				GECP(nu[ss]+nx[ss], nu[ss]+nx[ss], RSQrq+ss, 0, 0, L+ss, 0, 0);
+#endif
+				//DIARE(nu[ss]+nx[ss], arg->reg_prim, L+ss, 0, 0);
+				ROWIN(nu[ss]+nx[ss], 1.0, res_g+ss, 0, L+ss, nu[ss]+nx[ss], 0);
+				if(nb[ss]>0)
+					{
+					DIAAD_SP(nb[ss], 1.0, tmp_nbgM+0, 0, idxb[ss], L+ss, 0, 0);
+					ROWAD_SP(nb[ss], 1.0, tmp_nbgM+1, 0, idxb[ss], L+ss, nu[ss]+nx[ss], 0);
+					}
+				if(ng[ss]>0)
+					{
+					GEMM_ND(nu[ss]+nx[ss], ng[ss], 1.0, DCt+ss, 0, 0, tmp_nbgM+0, nb[ss], 0.0, AL+0, 0, nx[ss+1], AL+0, 0, nx[ss+1]);
+					ROWIN(ng[ss], 1.0, tmp_nbgM+1, nb[ss], AL+0, nu[ss]+nx[ss], nx[ss+1]);
+					SYRK_LN_MN(nu[ss]+nx[ss]+1, nu[ss]+nx[ss], ng[ss], 1.0, AL+0, 0, nx[ss+1], DCt+ss, 0, 0, 1.0, L+ss, 0, 0, L+ss, 0, 0);
+					}
+				SYRK_LN_MN(nu[ss]+nx[ss]+1, nu[ss]+nx[ss], nx[ss+1], 1.0, AL, 0, 0, BAbt+ss, 0, 0, 1.0, L+ss, 0, 0, L+ss, 0, 0);
+
+				TRCP_L(nu[ss]+nx[ss], L+ss, 0, 0, tmp_nuxM_nuxM, 0, 0);
+				TRTR_L(nu[ss]+nx[ss], tmp_nuxM_nuxM, 0, 0, tmp_nuxM_nuxM, 0, 0);
+				UNPACK_MAT(nu[ss]+nx[ss], nu[ss]+nx[ss], tmp_nuxM_nuxM, 0, 0, ws->eig_V, nu[ss]+nx[ss]);
+				//d_print_mat(nu[ss]+nx[ss], nu[ss]+nx[ss], ws->eig_V, nu[ss]+nx[ss]);
+				acados_eigen_decomposition(nu[ss]+nx[ss], ws->eig_V, ws->eig_d, ws->eig_e);
+				//d_print_mat(nu[ss]+nx[ss], nu[ss]+nx[ss], ws->eig_V, nu[ss]+nx[ss]);
+				//d_print_mat(1, nu[ss]+nx[ss], ws->eig_d, 1);
+				//d_print_mat(1, nu[ss]+nx[ss], ws->eig_e, 1);
+
+				REAL neig = 0.0;
+				REAL peig = 1e30;
+				for(int ii=0; ii<nu[ss]+nx[ss]; ii++)
+					{
+					REAL eig = ws->eig_d[ii];
+					if(eig<neig)
+						neig = eig;
+					if(eig>=0.0 && eig<peig)
+						peig = eig;
+					}
+				REAL meig = -neig<peig ? -neig : peig;
+				//meig = meig<1e0 ? meig : 1e0;
+				printf("\nmost negative eig %e smallest positive eig %e min %e\n", neig, peig, meig);
+				//neig = - neig + 1e-3; // project I
+				REAL treg = - 2.0*neig + arg->reg_prim; // mirror I
+				//REAL treg = - neig + meig + arg->reg_prim; // mirror I
+
+				if(treg>preg)
+					{
+					preg = treg;
+					//preg = 0.9*preg+0.1*treg;
+					printf("\nreg updated %e\n", preg);
+					goto main_loop;
+					}
+
+				//blasfeo_print_dmat(nu[ss]+nx[ss]+1, nu[ss]+nx[ss], L+ss, 0, 0);
+				DIARE(nu[ss]+nx[ss], treg, L+ss, 0, 0);
+				//DIARE(nu[ss]+nx[ss], preg, L+ss, 0, 0);
+				//blasfeo_print_dmat(nu[ss]+nx[ss]+1, nu[ss]+nx[ss], L+ss, 0, 0);
+				POTRF_L_MN(nu[ss]+nx[ss]+1, nu[ss]+nx[ss], L+ss, 0, 0, L+ss, 0, 0);
+				//blasfeo_print_dmat(nu[ss]+nx[ss]+1, nu[ss]+nx[ss], L+ss, 0, 0);
+
+				singular = 0;
+				for(ii=0; ii<nu[ss]+nx[ss]; ii++)
+					{
+					if((L+ss)->dA[ii]==0.0)
+						{
+						singular = 1;
+						break;
+						}
+					}
+				printf("after singular %d at stage %d\n\n", singular, ss);
+				#endif
+				}
+
 			}
 
 		// forward substitution
@@ -1191,6 +1876,12 @@ void OCP_QP_FACT_SOLVE_KKT_STEP(struct OCP_QP *qp, struct OCP_QP_SOL *qp_sol, st
 		}
 
 	COMPUTE_LAM_T_QP(res_d[0].pa, res_m[0].pa, dlam[0].pa, dt[0].pa, cws);
+
+	// save back preg
+	if(preg_init)
+		{
+		ws->preg_last = preg;
+		}
 
 	return;
 
@@ -1282,10 +1973,10 @@ void OCP_QP_FACT_LQ_SOLVE_KKT_STEP(struct OCP_QP *qp, struct OCP_QP_SOL *qp_sol,
 		{
 		for(ii=0; ii<nb[ss]; ii++)
 			{
-			tmp = BLASFEO_VECEL(tmp_nbgM+0, ii);
+			tmp = VECEL(tmp_nbgM+0, ii);
 			tmp = tmp>=0.0 ? tmp : 0.0;
 			tmp = sqrt( tmp );
-			BLASFEO_MATEL(lq0, idxb[ss][ii], nu[ss]+nx[ss]+idxb[ss][ii]) = tmp>0.0 ? tmp : 0.0;
+			MATEL(lq0, idxb[ss][ii], nu[ss]+nx[ss]+idxb[ss][ii]) = tmp>0.0 ? tmp : 0.0;
 			}
 		VECAD_SP(nb[ss], 1.0, tmp_nbgM+1, 0, idxb[ss], dux+ss, 0);
 		}
@@ -1293,12 +1984,12 @@ void OCP_QP_FACT_LQ_SOLVE_KKT_STEP(struct OCP_QP *qp, struct OCP_QP_SOL *qp_sol,
 		{
 		for(ii=0; ii<ng[ss]; ii++)
 			{
-			tmp = BLASFEO_VECEL(tmp_nbgM+0, nb[ss]+ii);
+			tmp = VECEL(tmp_nbgM+0, nb[ss]+ii);
 			tmp = tmp>=0.0 ? tmp : 0.0;
 			tmp = sqrt( tmp );
-			BLASFEO_VECEL(tmp_nbgM+0, nb[ss]+ii) = tmp;
+			VECEL(tmp_nbgM+0, nb[ss]+ii) = tmp;
 			}
-		GEMM_R_DIAG(nu[ss]+nx[ss], ng[ss], 1.0, DCt+ss, 0, 0, tmp_nbgM+0, nb[ss], 0.0, lq0, 0, 2*nu[ss]+2*nx[ss], lq0, 0, 2*nu[ss]+2*nx[ss]);
+		GEMM_ND(nu[ss]+nx[ss], ng[ss], 1.0, DCt+ss, 0, 0, tmp_nbgM+0, nb[ss], 0.0, lq0, 0, 2*nu[ss]+2*nx[ss], lq0, 0, 2*nu[ss]+2*nx[ss]);
 		GEMV_N(nu[ss]+nx[ss], ng[ss], 1.0, DCt+ss, 0, 0, tmp_nbgM+1, nb[ss], 1.0, dux+ss, 0, dux+ss, 0);
 		}
 
@@ -1319,7 +2010,7 @@ void OCP_QP_FACT_LQ_SOLVE_KKT_STEP(struct OCP_QP *qp, struct OCP_QP_SOL *qp_sol,
 	GELQF(nu[ss]+nx[ss], 2*nu[ss]+2*nx[ss]+ng[ss], lq0, 0, 0, lq0, 0, 0, lq_work0);
 	TRCP_L(nu[ss]+nx[ss], lq0, 0, 0, L+ss, 0, 0);
 	for(ii=0; ii<nu[ss]+nx[ss]; ii++)
-		if(BLASFEO_MATEL(L+ss, ii, ii) < 0)
+		if(MATEL(L+ss, ii, ii) < 0)
 			COLSC(nu[ss]+nx[ss]-ii, -1.0, L+ss, ii, ii);
 #endif
 
@@ -1358,10 +2049,10 @@ void OCP_QP_FACT_LQ_SOLVE_KKT_STEP(struct OCP_QP *qp, struct OCP_QP_SOL *qp_sol,
 			{
 			for(ii=0; ii<nb[ss]; ii++)
 				{
-				tmp = BLASFEO_VECEL(tmp_nbgM+0, ii);
+				tmp = VECEL(tmp_nbgM+0, ii);
 				tmp = tmp>=0.0 ? tmp : 0.0;
 				tmp = sqrt( tmp );
-				BLASFEO_MATEL(lq0, idxb[ss][ii], nu[ss]+nx[ss]+idxb[ss][ii]) = tmp>0.0 ? tmp : 0.0;
+				MATEL(lq0, idxb[ss][ii], nu[ss]+nx[ss]+idxb[ss][ii]) = tmp>0.0 ? tmp : 0.0;
 				}
 			VECAD_SP(nb[ss], 1.0, tmp_nbgM+1, 0, idxb[ss], dux+ss, 0);
 			}
@@ -1369,12 +2060,12 @@ void OCP_QP_FACT_LQ_SOLVE_KKT_STEP(struct OCP_QP *qp, struct OCP_QP_SOL *qp_sol,
 			{
 			for(ii=0; ii<ng[ss]; ii++)
 				{
-				tmp = BLASFEO_VECEL(tmp_nbgM+0, nb[ss]+ii);
+				tmp = VECEL(tmp_nbgM+0, nb[ss]+ii);
 				tmp = tmp>=0.0 ? tmp : 0.0;
 				tmp = sqrt( tmp );
-				BLASFEO_VECEL(tmp_nbgM+0, nb[ss]+ii) = tmp;
+				VECEL(tmp_nbgM+0, nb[ss]+ii) = tmp;
 				}
-			GEMM_R_DIAG(nu[ss]+nx[ss], ng[ss], 1.0, DCt+ss, 0, 0, tmp_nbgM+0, nb[ss], 0.0, lq0, 0, 2*nu[ss]+2*nx[ss], lq0, 0, 2*nu[ss]+2*nx[ss]);
+			GEMM_ND(nu[ss]+nx[ss], ng[ss], 1.0, DCt+ss, 0, 0, tmp_nbgM+0, nb[ss], 0.0, lq0, 0, 2*nu[ss]+2*nx[ss], lq0, 0, 2*nu[ss]+2*nx[ss]);
 			GEMV_N(nu[ss]+nx[ss], ng[ss], 1.0, DCt+ss, 0, 0, tmp_nbgM+1, nb[ss], 1.0, dux+ss, 0, dux+ss, 0);
 			}
 
@@ -1396,7 +2087,7 @@ void OCP_QP_FACT_LQ_SOLVE_KKT_STEP(struct OCP_QP *qp, struct OCP_QP_SOL *qp_sol,
 		GELQF(nu[ss]+nx[ss], 2*nu[ss]+2*nx[ss]+nx[ss+1]+ng[ss], lq0, 0, 0, lq0, 0, 0, lq_work0);
 		TRCP_L(nu[ss]+nx[ss], lq0, 0, 0, L+ss, 0, 0);
 		for(ii=0; ii<nu[ss]+nx[ss]; ii++)
-			if(BLASFEO_MATEL(L+ss, ii, ii) < 0)
+			if(MATEL(L+ss, ii, ii) < 0)
 				COLSC(nu[ss]+nx[ss]-ii, -1.0, L+ss, ii, ii);
 #endif
 
@@ -1435,10 +2126,10 @@ void OCP_QP_FACT_LQ_SOLVE_KKT_STEP(struct OCP_QP *qp, struct OCP_QP_SOL *qp_sol,
 		{
 		for(ii=0; ii<nb[ss]; ii++)
 			{
-			tmp = BLASFEO_VECEL(tmp_nbgM+0, ii);
+			tmp = VECEL(tmp_nbgM+0, ii);
 			tmp = tmp>=0.0 ? tmp : 0.0;
 			tmp = sqrt( tmp );
-			BLASFEO_MATEL(lq0, idxb[ss][ii], nu[ss]+nx[ss]+idxb[ss][ii]) = tmp>0.0 ? tmp : 0.0;
+			MATEL(lq0, idxb[ss][ii], nu[ss]+nx[ss]+idxb[ss][ii]) = tmp>0.0 ? tmp : 0.0;
 			}
 		VECAD_SP(nb[ss], 1.0, tmp_nbgM+1, 0, idxb[ss], dux+ss, 0);
 		}
@@ -1446,12 +2137,12 @@ void OCP_QP_FACT_LQ_SOLVE_KKT_STEP(struct OCP_QP *qp, struct OCP_QP_SOL *qp_sol,
 		{
 		for(ii=0; ii<ng[ss]; ii++)
 			{
-			tmp = BLASFEO_VECEL(tmp_nbgM+0, nb[ss]+ii);
+			tmp = VECEL(tmp_nbgM+0, nb[ss]+ii);
 			tmp = tmp>=0.0 ? tmp : 0.0;
 			tmp = sqrt( tmp );
-			BLASFEO_VECEL(tmp_nbgM+0, nb[ss]+ii) = tmp;
+			VECEL(tmp_nbgM+0, nb[ss]+ii) = tmp;
 			}
-		GEMM_R_DIAG(nu[ss]+nx[ss], ng[ss], 1.0, DCt+ss, 0, 0, tmp_nbgM+0, nb[ss], 0.0, lq0, 0, 2*nu[ss]+2*nx[ss], lq0, 0, 2*nu[ss]+2*nx[ss]);
+		GEMM_ND(nu[ss]+nx[ss], ng[ss], 1.0, DCt+ss, 0, 0, tmp_nbgM+0, nb[ss], 0.0, lq0, 0, 2*nu[ss]+2*nx[ss], lq0, 0, 2*nu[ss]+2*nx[ss]);
 		GEMV_N(nu[ss]+nx[ss], ng[ss], 1.0, DCt+ss, 0, 0, tmp_nbgM+1, nb[ss], 1.0, dux+ss, 0, dux+ss, 0);
 		}
 
@@ -1472,7 +2163,7 @@ void OCP_QP_FACT_LQ_SOLVE_KKT_STEP(struct OCP_QP *qp, struct OCP_QP_SOL *qp_sol,
 	GELQF(nu[ss]+nx[ss], 2*nu[ss]+2*nx[ss]+nx[ss+1]+ng[ss], lq0, 0, 0, lq0, 0, 0, lq_work0);
 	TRCP_L(nu[ss]+nx[ss], lq0, 0, 0, L+ss, 0, 0);
 	for(ii=0; ii<nu[ss]+nx[ss]; ii++)
-		if(BLASFEO_MATEL(L+ss, ii, ii) < 0)
+		if(MATEL(L+ss, ii, ii) < 0)
 			COLSC(nu[ss]+nx[ss]-ii, -1.0, L+ss, ii, ii);
 #endif
 

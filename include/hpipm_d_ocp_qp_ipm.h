@@ -100,6 +100,7 @@ struct d_ocp_qp_ipm_arg
 struct d_ocp_qp_ipm_ws
 	{
 	double qp_res[4]; // infinity norm of residuals
+	double preg_last;
 	struct d_core_qp_ipm_workspace *core_workspace;
 	struct d_ocp_qp_dim *dim; // cache dim
 	struct d_ocp_qp_res_ws *res_workspace;
@@ -123,8 +124,11 @@ struct d_ocp_qp_ipm_ws
 	struct blasfeo_dmat *Lh;
 	struct blasfeo_dmat *AL;
 	struct blasfeo_dmat *lq0;
-	struct blasfeo_dmat *tmp_nxM_nxM;
+	struct blasfeo_dmat *tmp_nuxM_nuxM;
 	double *stat; // convergence statistics
+	//double *eig_V;
+	//double *eig_d;
+	//double *eig_e;
 	int *use_hess_fact;
 	void *lq_work0;
 	int iter; // iteration number
@@ -137,6 +141,7 @@ struct d_ocp_qp_ipm_ws
 	int mask_constr; // use constr mask
 	int valid_ric_vec; // meaningful riccati vectors
 	int valid_ric_p; // form of riccati p: 0 p*inv(L), 1 p
+	int npd_reg_hess; // at last iter, hessian has been regularized to get positive (semi) definite
 	hpipm_size_t memsize;
 	};
 
