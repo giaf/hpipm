@@ -1201,6 +1201,10 @@ void DENSE_QP_IPM_WS_CREATE(struct DENSE_QP_DIM *dim, struct DENSE_QP_IPM_ARG *a
 	workspace->use_hess_fact = 0;
 	workspace->use_A_fact = 0;
 
+	workspace->preg_last = 0.0;
+	workspace->npd_hess = 0;
+	workspace->last_lq_fact = 0;
+
 	// cache stuff
 	workspace->lq_fact = arg->lq_fact;
 
@@ -1743,7 +1747,7 @@ void DENSE_QP_IPM_DELTA_STEP(int kk, struct DENSE_QP *qp, struct DENSE_QP_SOL *q
 			VECMUL(cws->nc, qp->d_mask, 0, ws->sol_step->lam, 0, ws->sol_step->lam, 0);
 			}
 		if(kk+1<ws->stat_max)
-			ws->stat[ws->stat_m*(kk+1)+13] = 0;
+			ws->stat[ws->stat_m*(kk+1)+13] = ws->last_lq_fact; //0;
 		}
 	else if(ws->lq_fact==1 & force_lq==0)
 		{
@@ -1774,7 +1778,7 @@ void DENSE_QP_IPM_DELTA_STEP(int kk, struct DENSE_QP *qp, struct DENSE_QP_SOL *q
 		itref_qp_norm[3] = ws->res_itref->res_max[3];
 
 		if(kk+1<ws->stat_max)
-			ws->stat[ws->stat_m*(kk+1)+13] = 0;
+			ws->stat[ws->stat_m*(kk+1)+13] = ws->last_lq_fact; //0;
 
 //printf("\n%e\t%e\t%e\t%e\n", itref_qp_norm[0], itref_qp_norm[1], itref_qp_norm[2], itref_qp_norm[3]);
 
@@ -1805,7 +1809,7 @@ void DENSE_QP_IPM_DELTA_STEP(int kk, struct DENSE_QP *qp, struct DENSE_QP_SOL *q
 			force_lq = 1;
 
 			if(kk+1<ws->stat_max)
-				ws->stat[ws->stat_m*(kk+1)+13] = 1;
+				ws->stat[ws->stat_m*(kk+1)+13] = ws->last_lq_fact; //1;
 
 			}
 		}
@@ -1821,7 +1825,7 @@ void DENSE_QP_IPM_DELTA_STEP(int kk, struct DENSE_QP *qp, struct DENSE_QP_SOL *q
 			VECMUL(cws->nc, qp->d_mask, 0, ws->sol_step->lam, 0, ws->sol_step->lam, 0);
 			}
 		if(kk+1<ws->stat_max)
-			ws->stat[ws->stat_m*(kk+1)+13] = 1;
+			ws->stat[ws->stat_m*(kk+1)+13] = ws->last_lq_fact; //1;
 		}
 
 	// iterative refinement on prediction step
@@ -2334,6 +2338,11 @@ exit(1);
 	// reset flags in workspace
 	ws->use_hess_fact = 0;
 	ws->use_A_fact = 0;
+	ws->npd_hess = 0;
+	ws->last_lq_fact = 0;
+
+	// initialize primal regularization
+	ws->preg_last = arg->reg_prim;
 
 	// set local flags
 	int updated_fact = 0; // flag whether the factorization is updated with the current solution iterate

@@ -1898,7 +1898,6 @@ main_loop:
 void OCP_QP_FACT_LQ_SOLVE_KKT_STEP(struct OCP_QP *qp, struct OCP_QP_SOL *qp_sol, struct OCP_QP_IPM_ARG *arg, struct OCP_QP_IPM_WS *ws)
 	{
 
-	// TODO find something better ???
 	if(!ws->square_root_alg || ws->npd_hess)
 		{
 		int bkp_square_root_alg = ws->square_root_alg;
@@ -1907,7 +1906,7 @@ void OCP_QP_FACT_LQ_SOLVE_KKT_STEP(struct OCP_QP *qp, struct OCP_QP_SOL *qp_sol,
 		ws->square_root_alg = bkp_square_root_alg;
 		return;
 		}
-	
+
 	int N = qp->dim->N;
 	int *nx = qp->dim->nx;
 	int *nu = qp->dim->nu;

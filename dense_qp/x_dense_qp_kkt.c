@@ -350,6 +350,9 @@ void DENSE_QP_FACT_SOLVE_KKT_UNCONSTR(struct DENSE_QP *qp, struct DENSE_QP_SOL *
 
 	if(ne>0)
 		{
+
+		// TODO inertia correction
+
 		if(arg->kkt_fact_alg==0) // null space method
 			{
 			// TODO check to cache LQ across IPM iterations !!!!!
@@ -925,6 +928,8 @@ void DENSE_QP_FACT_KKT_STEP(struct DENSE_QP *qp, struct DENSE_QP_IPM_ARG *arg, s
 	if(ne>0)
 		{
 
+		// TODO inertia correction
+
 		if(arg->kkt_fact_alg==0) // null space method
 			{
 
@@ -1209,6 +1214,8 @@ void DENSE_QP_FACT_SOLVE_KKT_STEP(struct DENSE_QP *qp, struct DENSE_QP_SOL *qp_s
 	REAL tmp;
 
 	struct CORE_QP_IPM_WORKSPACE *cws = ws->core_workspace;
+
+	ws->npd_reg_hess = 0;
 
 	if(nb+ng+ns>0)
 		{
@@ -1518,9 +1525,11 @@ printf("\nA_LQ * A_Q - A max err %e\n", max_err);
 			TRSV_LNN(nv, Lv, 0, 0, dv, 0, dv, 0);
 			TRSV_LTN(nv, Lv, 0, 0, dv, 0, dv, 0);
 			GEMV_DIAG(nv, 1.0, sv, 0, dv, 0, 0.0, dv, 0, dv, 0);
+
 			}
 		else // no scale
 			{
+
 	//		TRCP_L(nv, Hg, 0, 0, Lv, 0, 0);
 			GECP(nv, nv, Hg, 0, 0, Lv, 0, 0);
 			ROWIN(nv, 1.0, res_g, 0, Lv, nv, 0);
@@ -1617,19 +1626,45 @@ printf("\nA_LQ * A_Q - A max err %e\n", max_err);
 				UNPACK_MAT(nv, nv, Lv, 0, 0, ws->eig_V, nv);
 				//d_print_mat(nv, nv, ws->eig_V, nv);
 				acados_eigen_decomposition(nv, ws->eig_V, ws->eig_d, ws->eig_e);
-				//d_print_mat(nv, nv, ws->eig_V, nv);
-				//d_print_mat(1, nv, ws->eig_d, 1);
-				//d_print_mat(1, nv, ws->eig_e, 1);
+				#if 0
+				d_print_mat(nv, nv, ws->eig_V, nv);
+				d_print_mat(1, nv, ws->eig_d, 1);
+				d_print_mat(1, nv, ws->eig_e, 1);
+				struct STRMAT W0; blasfeo_allocate_dmat(nv, nv, &W0);
+				struct STRMAT W1; blasfeo_allocate_dmat(nv, nv, &W1);
+				struct STRMAT W2; blasfeo_allocate_dmat(nv, nv, &W2);
+				struct STRVEC w; blasfeo_allocate_dvec(nv, &w);
+				blasfeo_pack_tran_dmat(nv, nv, ws->eig_V, nv, &W0, 0, 0);
+				blasfeo_print_dmat(nv, nv, &W0, 0, 0);
+				blasfeo_pack_dvec(nv, ws->eig_d, 1, &w, 0);
+				blasfeo_print_dvec(nv, &w, 0);
+				blasfeo_dgemm_nd(nv, nv, 1.0, &W0, 0, 0, &w, 0, 0.0, &W1, 0, 0, &W1, 0, 0);
+				blasfeo_print_dmat(nv, nv, &W1, 0, 0);
+				blasfeo_dgemm_nt(nv, nv, nv, 1.0, &W1, 0, 0, &W0, 0, 0, 0.0, Lv, 0, 0, &W2, 0, 0);
+				blasfeo_print_dmat(nv, nv, &W2, 0, 0);
+				blasfeo_dgemm_nt(nv, nv, nv, 1.0, &W1, 0, 0, &W0, 0, 0, -1.0, Lv, 0, 0, &W2, 0, 0);
+				blasfeo_print_dmat(nv, nv, &W2, 0, 0);
+				exit(1);
+				#endif
 
 				#if 1
 				REAL neig = 0.0;
+				REAL peig = 1e30;
 				for(int ii=0; ii<nv; ii++)
-					if(ws->eig_d[ii]<neig)
-						neig = ws->eig_d[ii];
-				//printf("\nmost negative eig %e\n", neig);
-				//neig = - neig + 1e-3; // project I
-				neig = - 2.0*neig + arg->reg_prim; // mirror I
-				DIARE(nv, neig, Lv, 0, 0);
+					{
+					REAL eig = ws->eig_d[ii];
+					if(eig<neig)
+						neig = eig;
+					if(eig>=0.0 && eig<peig)
+						peig = eig;
+					}
+				REAL meig = -neig<peig ? -neig : peig;
+				//meig = -neig;
+				printf("\nmost negative eig %e smallest positive eig %e min %e\n", neig, peig, meig);
+				//REAL treg = - neig + 1e-3; // project I
+				REAL treg = - 2.0*neig + arg->reg_prim; // mirror I
+				//REAL treg = - neig + meig + arg->reg_prim; // mirror I
+				DIARE(nv, treg, Lv, 0, 0);
 				#else
 				// mirror/project single eigenvalues
 				for(int ii=0; ii<nv; ii++)
@@ -1718,10 +1753,6 @@ printf("\nA_LQ * A_Q - A max err %e\n", max_err);
 				#endif
 
 				}
-			else
-				{
-				ws->npd_reg_hess = 0;
-				}
 
 			ROWEX(nv, -1.0, Lv, nv, 0, dv, 0);
 			TRSV_LTN(nv, Lv, 0, 0, dv, 0, dv, 0);
@@ -1747,6 +1778,8 @@ printf("\nA_LQ * A_Q - A max err %e\n", max_err);
 		COMPUTE_LAM_T_QP(qp->d->pa, qp->m->pa, qp_sol->lam->pa, qp_sol->t->pa, cws);
 		}
 
+	ws->last_lq_fact = 0;
+
 	return;
 
 	}
@@ -1755,6 +1788,12 @@ printf("\nA_LQ * A_Q - A max err %e\n", max_err);
 
 void DENSE_QP_FACT_LQ_SOLVE_KKT_STEP(struct DENSE_QP *qp, struct DENSE_QP_SOL *qp_sol, struct DENSE_QP_IPM_ARG *arg, struct DENSE_QP_IPM_WS *ws)
 	{
+
+	if(ws->npd_hess)
+		{
+		DENSE_QP_FACT_SOLVE_KKT_STEP(qp, qp_sol, arg, ws);
+		return;
+		}
 
 	int ii;
 
@@ -1816,6 +1855,8 @@ void DENSE_QP_FACT_LQ_SOLVE_KKT_STEP(struct DENSE_QP *qp, struct DENSE_QP_SOL *q
 
 	if(ne>0)
 		{
+
+		// TODO check hessian singularity
 
 		if(arg->kkt_fact_alg==0) // null space method
 			{
@@ -2024,7 +2065,6 @@ void DENSE_QP_FACT_LQ_SOLVE_KKT_STEP(struct DENSE_QP *qp, struct DENSE_QP_SOL *q
 			TRCP_L(nv, Hg, 0, 0, Lv+1, 0, 0);
 			DIARE(nv, arg->reg_prim, Lv+1, 0, 0);
 			POTRF_L(nv, Lv+1, 0, 0, Lv+1, 0, 0);
-			ws->use_hess_fact=1;
 			// check for singular
 			int singular = 0;
 			for(ii=0; ii<nv; ii++)
@@ -2038,12 +2078,11 @@ void DENSE_QP_FACT_LQ_SOLVE_KKT_STEP(struct DENSE_QP *qp, struct DENSE_QP_SOL *q
 			//printf("singular %d\n", singular);
 			if(singular)
 				{
-				ws->npd_reg_hess = 1;
+				ws->npd_hess = 1;
+				DENSE_QP_FACT_SOLVE_KKT_STEP(qp, qp_sol, arg, ws);
+				return;
 				}
-			else
-				{
-				ws->npd_reg_hess = 0;
-				}
+			ws->use_hess_fact=1;
 			}
 
 		VECCP(nv, res_g, 0, lv, 0);
@@ -2142,6 +2181,8 @@ exit(1);
 
 		COMPUTE_LAM_T_QP(qp->d->pa, qp->m->pa, qp_sol->lam->pa, qp_sol->t->pa, cws);
 		}
+
+	ws->last_lq_fact = 1;
 
 	return;
 

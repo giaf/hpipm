@@ -102,6 +102,7 @@ struct d_dense_qp_ipm_arg
 
 struct d_dense_qp_ipm_ws
 	{
+	double preg_last;
 	struct d_core_qp_ipm_workspace *core_workspace;
 	struct d_dense_qp_res_ws *res_ws;
 	struct d_dense_qp_sol *sol_step;
@@ -160,10 +161,12 @@ struct d_dense_qp_ipm_ws
 	int use_A_fact;
 	int status;
 	int lq_fact; // cache from arg
+	int last_lq_fact; // actual lq fact at last iter
 	int mask_constr; // use constr mask
 	int ne_li; // number of linearly independent equality constraints
 	int ne_bkp; // ne backup
 	int npd_reg_hess; // at last iter, hessian has been regularized to get positive (semi) definite
+	int npd_hess; // can be used to signal that hessian has been found to be not positive definite
 	hpipm_size_t memsize; // memory size (in bytes) of workspace
 	};
 

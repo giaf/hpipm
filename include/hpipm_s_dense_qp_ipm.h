@@ -152,6 +152,7 @@ struct s_dense_qp_ipm_ws
 	void *lq_work1;
 	void *lq_work_null;
 	void *orglq_work_null;
+	float preg_last;
 	int iter; // iteration number
 	int stat_max; // iterations saved in stat
 	int stat_m; // numer of recorded stat per ipm iter
@@ -160,10 +161,12 @@ struct s_dense_qp_ipm_ws
 	int use_A_fact;
 	int status;
 	int lq_fact; // cache from arg
+	int last_lq_fact; // actual lq fact at last iter
 	int mask_constr; // use constr mask
 	int ne_li; // number of linearly independent equality constraints
 	int ne_bkp; // ne backup
 	int npd_reg_hess; // at last iter, hessian has been regularized to get positive (semi) definite
+	int npd_hess; // can be used to signal that hessian has been found to be not positive definite
 	hpipm_size_t memsize; // memory size (in bytes) of workspace
 	};
 
