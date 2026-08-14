@@ -1157,6 +1157,8 @@ void OCP_QP_FACT_SOLVE_KKT_STEP(struct OCP_QP *qp, struct OCP_QP_SOL *qp_sol, st
 
 	COMPUTE_GAMMA_GAMMA_QP(res_d[0].pa, res_m[0].pa, cws);
 
+	int square_root_alg = ws->square_root_alg;
+
 	REAL preg = arg->reg_prim;
 	int preg_init = 0;
 	int preg_first = 0;
@@ -1165,6 +1167,8 @@ void OCP_QP_FACT_SOLVE_KKT_STEP(struct OCP_QP *qp, struct OCP_QP_SOL *qp_sol, st
 	goto main_loop;
 
 compute_preg:
+
+	square_root_alg = 0; // just use classical algorithm in case of singular hessian
 
 	if(preg_init==0)
 		{
@@ -1203,7 +1207,7 @@ compute_preg:
 
 main_loop:
 
-	if(ws->square_root_alg)
+	if(square_root_alg)
 		{
 		ws->valid_ric_p = 0;
 
@@ -1883,6 +1887,8 @@ main_loop:
 		ws->preg_last = preg;
 		}
 
+	ws->last_lq_fact = 0;
+
 	return;
 
 	}
@@ -1893,9 +1899,12 @@ void OCP_QP_FACT_LQ_SOLVE_KKT_STEP(struct OCP_QP *qp, struct OCP_QP_SOL *qp_sol,
 	{
 
 	// TODO find something better ???
-	if(!ws->square_root_alg)
+	if(!ws->square_root_alg || ws->npd_hess)
 		{
+		int bkp_square_root_alg = ws->square_root_alg;
+		ws->square_root_alg = 0; // force classical algorithm
 		OCP_QP_FACT_SOLVE_KKT_STEP(qp, qp_sol, arg, ws);
+		ws->square_root_alg = bkp_square_root_alg;
 		return;
 		}
 	
@@ -1998,6 +2007,25 @@ void OCP_QP_FACT_LQ_SOLVE_KKT_STEP(struct OCP_QP *qp, struct OCP_QP_SOL *qp_sol,
 		TRCP_L(nu[ss]+nx[ss], RSQrq+ss, 0, 0, Lh+ss, 0, 0);
 		DIARE(nu[ss]+nx[ss], arg->reg_prim, Lh+ss, 0, 0);
 		POTRF_L(nu[ss]+nx[ss], Lh+ss, 0, 0, Lh+ss, 0, 0);
+		int singular = 0;
+		for(ii=0; ii<nu[ss]+nx[ss]; ii++)
+			{
+			if((Lh+ss)->dA[ii]==0.0)
+				{
+				singular = 1;
+				break;
+				}
+			}
+		//printf("singular %d at stage %d\n", singular, ss);
+		if(singular)
+			{
+			ws->npd_hess = 1;
+			int bkp_square_root_alg = ws->square_root_alg;
+			ws->square_root_alg = 0; // force classical algorithm
+			OCP_QP_FACT_SOLVE_KKT_STEP(qp, qp_sol, arg, ws);
+			ws->square_root_alg = bkp_square_root_alg;
+			return;
+			}
 		ws->use_hess_fact[ss]=1;
 		}
 
@@ -2074,6 +2102,25 @@ void OCP_QP_FACT_LQ_SOLVE_KKT_STEP(struct OCP_QP *qp, struct OCP_QP_SOL *qp_sol,
 			TRCP_L(nu[ss]+nx[ss], RSQrq+ss, 0, 0, Lh+ss, 0, 0);
 			DIARE(nu[ss]+nx[ss], arg->reg_prim, Lh+ss, 0, 0);
 			POTRF_L(nu[ss]+nx[ss], Lh+ss, 0, 0, Lh+ss, 0, 0);
+			int singular = 0;
+			for(ii=0; ii<nu[ss]+nx[ss]; ii++)
+				{
+				if((Lh+ss)->dA[ii]==0.0)
+					{
+					singular = 1;
+					break;
+					}
+				}
+			//printf("singular %d at stage %d\n", singular, ss);
+			if(singular)
+				{
+				ws->npd_hess = 1;
+				int bkp_square_root_alg = ws->square_root_alg;
+				ws->square_root_alg = 0; // force classical algorithm
+				OCP_QP_FACT_SOLVE_KKT_STEP(qp, qp_sol, arg, ws);
+				ws->square_root_alg = bkp_square_root_alg;
+				return;
+				}
 			ws->use_hess_fact[ss]=1;
 			}
 
@@ -2151,6 +2198,25 @@ void OCP_QP_FACT_LQ_SOLVE_KKT_STEP(struct OCP_QP *qp, struct OCP_QP_SOL *qp_sol,
 		TRCP_L(nu[ss]+nx[ss], RSQrq+ss, 0, 0, Lh+ss, 0, 0);
 		DIARE(nu[ss]+nx[ss], arg->reg_prim, Lh+ss, 0, 0);
 		POTRF_L(nu[ss]+nx[ss], Lh+ss, 0, 0, Lh+ss, 0, 0);
+		int singular = 0;
+		for(ii=0; ii<nu[ss]+nx[ss]; ii++)
+			{
+			if((Lh+ss)->dA[ii]==0.0)
+				{
+				singular = 1;
+				break;
+				}
+			}
+		//printf("singular %d at stage %d\n", singular, ss);
+		if(singular)
+			{
+			ws->npd_hess = 1;
+			int bkp_square_root_alg = ws->square_root_alg;
+			ws->square_root_alg = 0; // force classical algorithm
+			OCP_QP_FACT_SOLVE_KKT_STEP(qp, qp_sol, arg, ws);
+			ws->square_root_alg = bkp_square_root_alg;
+			return;
+			}
 		ws->use_hess_fact[ss]=1;
 		}
 
@@ -2223,6 +2289,8 @@ void OCP_QP_FACT_LQ_SOLVE_KKT_STEP(struct OCP_QP *qp, struct OCP_QP_SOL *qp_sol,
 		}
 
 	COMPUTE_LAM_T_QP(res_d[0].pa, res_m[0].pa, dlam[0].pa, dt[0].pa, cws);
+
+	ws->last_lq_fact = 1;
 
 	return;
 

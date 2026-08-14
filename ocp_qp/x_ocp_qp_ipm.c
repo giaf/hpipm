@@ -754,10 +754,10 @@ hpipm_size_t OCP_QP_IPM_WS_MEMSIZE(struct OCP_QP_DIM *dim, struct OCP_QP_IPM_ARG
 	size += 1*(N+1)*sizeof(struct STRVEC); // l
 
 	size += 1*(N+1)*sizeof(struct STRMAT); // L
-	if(!arg->square_root_alg)
-		{
+	//if(!arg->square_root_alg)
+	//	{
 		size += 1*(N+1)*sizeof(struct STRMAT); // P
-		}
+	//	}
 	size += 3*sizeof(struct STRMAT); // tmp_nuxM_nuxM Ls
 	//size += 5*sizeof(struct STRMAT); // tmp_nuxM_nuxM Ls reg
 	if(arg->lq_fact>0)
@@ -777,10 +777,10 @@ hpipm_size_t OCP_QP_IPM_WS_MEMSIZE(struct OCP_QP_DIM *dim, struct OCP_QP_IPM_ARG
 	for(ii=0; ii<=N; ii++) size += 1*SIZE_STRVEC(nu[ii]+nx[ii]); // l
 
 	for(ii=0; ii<=N; ii++) size += 1*SIZE_STRMAT(nu[ii]+nx[ii]+1, nu[ii]+nx[ii]); // L
-	if(!arg->square_root_alg)
-		{
+	//if(!arg->square_root_alg)
+	//	{
 		for(ii=0; ii<=N; ii++) size += 1*SIZE_STRMAT(nx[ii]+1, nx[ii]); // P
-		}
+	//	}
 	size += 2*SIZE_STRMAT(nuM+nxM, nuM+nxM); // tmp_nuxM_nuxM
 	size += 1*SIZE_STRMAT(nxM+1, nuM); // Ls
 	//size += 3*SIZE_STRMAT(nuM+nxM, nuM+nxM); // tmp_nuxM_nuxM reg
@@ -912,11 +912,11 @@ void OCP_QP_IPM_WS_CREATE(struct OCP_QP_DIM *dim, struct OCP_QP_IPM_ARG *arg, st
 
 	workspace->L = sm_ptr;
 	sm_ptr += N+1;
-	if(!arg->square_root_alg)
-		{
+	//if(!arg->square_root_alg)
+	//	{
 		workspace->P = sm_ptr;
 		sm_ptr += N+1;
-		}
+	//	}
 	workspace->tmp_nuxM_nuxM = sm_ptr;
 	sm_ptr += 2;
 	//sm_ptr += 3; // reg
@@ -1024,14 +1024,14 @@ void OCP_QP_IPM_WS_CREATE(struct OCP_QP_DIM *dim, struct OCP_QP_IPM_ARG *arg, st
 		CREATE_STRMAT(nu[ii]+nx[ii]+1, nu[ii]+nx[ii], workspace->L+ii, c_ptr);
 		c_ptr += (workspace->L+ii)->memsize;
 		}
-	if(!arg->square_root_alg)
-		{
+	//if(!arg->square_root_alg)
+	//	{
 		for(ii=0; ii<=N; ii++)
 			{
 			CREATE_STRMAT(nx[ii]+1, nx[ii], workspace->P+ii, c_ptr);
 			c_ptr += (workspace->P+ii)->memsize;
 			}
-		}
+	//	}
 	CREATE_STRMAT(nuM+nxM, nuM+nxM, workspace->tmp_nuxM_nuxM+0, c_ptr);
 	c_ptr += (workspace->tmp_nuxM_nuxM+0)->memsize;
 	CREATE_STRMAT(nuM+nxM, nuM+nxM, workspace->tmp_nuxM_nuxM+1, c_ptr);
@@ -1232,6 +1232,8 @@ void OCP_QP_IPM_WS_CREATE(struct OCP_QP_DIM *dim, struct OCP_QP_IPM_ARG *arg, st
 	workspace->valid_ric_vec = 0;
 
 	workspace->preg_last = 0.0;
+	workspace->npd_hess = 0;
+	workspace->last_lq_fact = 0;
 
 	// cache stuff
 	workspace->dim = dim;
@@ -2283,7 +2285,7 @@ void OCP_QP_IPM_DELTA_STEP(int kk, struct OCP_QP *qp, struct OCP_QP_SOL *qp_sol,
 			VECMUL(cws->nc, qp->d_mask, 0, ws->sol_step->lam, 0, ws->sol_step->lam, 0);
 			}
 		if(kk+1<ws->stat_max)
-			stat[stat_m*(kk+1)+13] = 0;
+			stat[stat_m*(kk+1)+13] = ws->last_lq_fact; //0;
 		}
 	else if(ws->lq_fact==1 & force_lq==0)
 		{
@@ -2316,7 +2318,7 @@ void OCP_QP_IPM_DELTA_STEP(int kk, struct OCP_QP *qp, struct OCP_QP_SOL *qp_sol,
 		itref_qp_norm[3] = ws->res_itref->res_max[3];
 
 		if(kk+1<ws->stat_max)
-			stat[stat_m*(kk+1)+13] = 0;
+			stat[stat_m*(kk+1)+13] = ws->last_lq_fact; //0;
 
 		// inaccurate factorization: switch to lq
 		if(
@@ -2346,7 +2348,7 @@ void OCP_QP_IPM_DELTA_STEP(int kk, struct OCP_QP *qp, struct OCP_QP_SOL *qp_sol,
 			force_lq = 1;
 
 			if(kk+1<ws->stat_max)
-				stat[stat_m*(kk+1)+13] = 1;
+				stat[stat_m*(kk+1)+13] = ws->last_lq_fact; //1;
 
 			}
 
@@ -2364,7 +2366,7 @@ void OCP_QP_IPM_DELTA_STEP(int kk, struct OCP_QP *qp, struct OCP_QP_SOL *qp_sol,
 			VECMUL(cws->nc, qp->d_mask, 0, ws->sol_step->lam, 0, ws->sol_step->lam, 0);
 			}
 		if(kk+1<ws->stat_max)
-			stat[stat_m*(kk+1)+13] = 1;
+			stat[stat_m*(kk+1)+13] = ws->last_lq_fact; //1;
 
 		}
 
@@ -2858,6 +2860,8 @@ void OCP_QP_IPM_SOLVE(struct OCP_QP *qp, struct OCP_QP_SOL *qp_sol, struct OCP_Q
 		ws->use_hess_fact[ii] = 0;
 	ws->use_Pb = 0;
 	ws->valid_ric_vec = 0;
+	ws->npd_hess = 0;
+	ws->last_lq_fact = 0;
 
 	// initialize primal regularization
 	ws->preg_last = arg->reg_prim;

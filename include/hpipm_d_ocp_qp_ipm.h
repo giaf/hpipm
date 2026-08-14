@@ -138,10 +138,12 @@ struct d_ocp_qp_ipm_ws
 	int status; // solver status
 	int square_root_alg; // cache from arg
 	int lq_fact; // cache from arg
+	int last_lq_fact; // actual lq fact at last iter
 	int mask_constr; // use constr mask
 	int valid_ric_vec; // meaningful riccati vectors
 	int valid_ric_p; // form of riccati p: 0 p*inv(L), 1 p
 	int npd_reg_hess; // at last iter, hessian has been regularized to get positive (semi) definite
+	int npd_hess; // can be used to signal that hessian has been found to be not positive definite
 	hpipm_size_t memsize;
 	};
 
