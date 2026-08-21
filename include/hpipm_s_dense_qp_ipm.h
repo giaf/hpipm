@@ -153,6 +153,7 @@ struct s_dense_qp_ipm_ws
 	void *lq_work_null;
 	void *orglq_work_null;
 	float preg_last;
+	float dreg_last;
 	int iter; // iteration number
 	int stat_max; // iterations saved in stat
 	int stat_m; // numer of recorded stat per ipm iter

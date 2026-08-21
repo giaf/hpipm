@@ -103,6 +103,7 @@ struct d_dense_qp_ipm_arg
 struct d_dense_qp_ipm_ws
 	{
 	double preg_last;
+	double dreg_last;
 	struct d_core_qp_ipm_workspace *core_workspace;
 	struct d_dense_qp_res_ws *res_ws;
 	struct d_dense_qp_sol *sol_step;

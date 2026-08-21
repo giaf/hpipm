@@ -1202,6 +1202,7 @@ void DENSE_QP_IPM_WS_CREATE(struct DENSE_QP_DIM *dim, struct DENSE_QP_IPM_ARG *a
 	workspace->use_A_fact = 0;
 
 	workspace->preg_last = 0.0;
+	workspace->dreg_last = 0.0;
 	workspace->npd_hess = 0;
 	workspace->last_lq_fact = 0;
 
@@ -2343,6 +2344,7 @@ exit(1);
 
 	// initialize primal regularization
 	ws->preg_last = arg->reg_prim;
+	ws->dreg_last = arg->reg_dual;
 
 	// set local flags
 	int updated_fact = 0; // flag whether the factorization is updated with the current solution iterate

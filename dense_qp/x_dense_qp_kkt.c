@@ -1222,6 +1222,96 @@ void DENSE_QP_FACT_SOLVE_KKT_STEP(struct DENSE_QP *qp, struct DENSE_QP_SOL *qp_s
 		COMPUTE_GAMMA_GAMMA_QP(qp->d->pa, qp->m->pa, cws);
 		}
 
+	REAL preg = arg->reg_prim;
+	int preg_init = 0;
+	int preg_first = 0;
+	//printf("\npreg default %e\n", preg);
+
+	REAL dreg = arg->reg_dual;
+	int dreg_init = 0;
+	int dreg_first = 0;
+	//printf("\ndreg default %e\n", dreg);
+
+	goto main_loop;
+
+compute_preg:
+
+	if(preg_init==0)
+		{
+		preg = ws->preg_last;
+		preg_init = 1;
+		preg_first = 1;
+		//printf("\nreg init %e\n", preg);
+		}
+
+	if(preg_first)
+		{
+		if(ws->preg_last==arg->reg_prim) // no regularizations yet in previous iterations
+			{
+			preg += 1e-4;
+			}
+		else
+			{
+			preg /= 3.0;
+			}
+		}
+	else
+		{
+		if(ws->preg_last==arg->reg_prim) // no regularizations yet in previous iterations
+			{
+			preg *= 100.0;
+			}
+		else
+			{
+			preg *= 8.0;
+			}
+		}
+
+	preg_first = 0;
+
+	//printf("\nreg updated %e\n", preg);
+
+	goto main_loop;
+
+compute_dreg:
+
+	if(dreg_init==0)
+		{
+		dreg = ws->dreg_last;
+		dreg_init = 1;
+		dreg_first = 1;
+		//printf("\nreg init %e\n", dreg);
+		}
+
+	if(dreg_first)
+		{
+		if(ws->dreg_last==arg->reg_prim) // no regularizations yet in previous iterations
+			{
+			dreg += 1e-4;
+			}
+		else
+			{
+			dreg /= 3.0;
+			}
+		}
+	else
+		{
+		if(ws->dreg_last==arg->reg_prim) // no regularizations yet in previous iterations
+			{
+			dreg *= 100.0;
+			}
+		else
+			{
+			dreg *= 8.0;
+			}
+		}
+
+	dreg_first = 0;
+
+	//printf("\nreg updated %e\n", dreg);
+
+main_loop:
+
 	if(ne>0)
 		{
 
@@ -1299,8 +1389,25 @@ printf("\nA_LQ * A_Q - A max err %e\n", max_err);
 
 			GEMM_NT(nv-ne, nv, nv, 1.0, Zt, 0, 0, Lv, 0, 0, 0.0, ZtH, 0, 0, ZtH, 0, 0);
 			SYRK_LN(nv-ne, nv, 1.0, ZtH, 0, 0, Zt, 0, 0, 0.0, ZtHZ, 0, 0, ZtHZ, 0, 0);
-			DIARE(nv-ne, arg->reg_prim, ZtHZ, 0, 0); // XXX leave in ???
+			DIARE(nv-ne, preg, ZtHZ, 0, 0); // XXX leave in ???
 			POTRF_L(nv-ne, ZtHZ, 0, 0, ZtHZ, 0, 0);
+
+			int singular = 0;
+			for(ii=0; ii<nv-ne; ii++)
+				{
+				if(ZtHZ->dA[ii]==0.0)
+					{
+					singular = 1;
+					break;
+					}
+				}
+			//printf("singular %d\n", singular);
+			if(singular)
+				{
+				//d_print_mat(1, nv-ne, ZtHZ->dA, 1);
+				ws->npd_reg_hess = 1;
+				goto compute_preg;
+				}
 
 			TRSV_LNN(ne, A_LQ, 0, 0, res_b, 0, xy, 0);
 //printf("\nxy\n");
@@ -1363,8 +1470,25 @@ printf("\nA_LQ * A_Q - A max err %e\n", max_err);
 
 				GEMM_L_DIAG(nv, nv, 1.0, sv, 0, Lv, 0, 0, 0.0, Lv, 0, 0, Lv, 0, 0);
 				GEMM_ND(nv, nv, 1.0, Lv, 0, 0, sv, 0, 0.0, Lv, 0, 0, Lv, 0, 0);
-				DIARE(nv, arg->reg_prim, Lv, 0, 0);
+				DIARE(nv, preg, Lv, 0, 0);
 				POTRF_L(nv, Lv, 0, 0, Lv, 0, 0);
+
+				int singular = 0;
+				for(ii=0; ii<nv; ii++)
+					{
+					if(Lv->dA[ii]==0.0)
+						{
+						singular = 1;
+						break;
+						}
+					}
+				//printf("singular %d\n", singular);
+				if(singular)
+					{
+					//d_print_mat(1, nv, Lv->dA, 1);
+					ws->npd_reg_hess = 1;
+					goto compute_preg;
+					}
 
 				GEMV_DIAG(nv, 1.0, sv, 0, lv, 0, 0.0, lv, 0, lv, 0);
 				VECCP(nv, lv, 0, dv, 0);
@@ -1390,8 +1514,25 @@ printf("\nA_LQ * A_Q - A max err %e\n", max_err);
 
 				GEMM_L_DIAG(ne, ne, 1.0, se, 0, Le, 0, 0, 0.0, Le, 0, 0, Le, 0, 0);
 				GEMM_ND(ne, ne, 1.0, Le, 0, 0, se, 0, 0.0, Le, 0, 0, Le, 0, 0);
-				DIARE(ne, arg->reg_dual, Le, 0, 0);
+				DIARE(ne, dreg, Le, 0, 0);
 				POTRF_L(ne, Le, 0, 0, Le, 0, 0);
+
+				singular = 0;
+				for(ii=0; ii<ne; ii++)
+					{
+					if(Le->dA[ii]==0.0)
+						{
+						singular = 1;
+						break;
+						}
+					}
+				//printf("singular %d\n", singular);
+				if(singular)
+					{
+					//d_print_mat(1, ne, Le->dA, 1);
+					ws->npd_reg_hess = 1;
+					goto compute_dreg;
+					}
 
 				GEMV_N(ne, nv, 1.0, AL, 0, 0, lv, 0, 1.0, res_b, 0, dpi, 0);
 
@@ -1441,11 +1582,23 @@ printf("\nA_LQ * A_Q - A max err %e\n", max_err);
 					{
 					POTRF_L(nv, Lv, 0, 0, Lv, 0, 0);
 					}
-	//int pd = 1;
-	//for(ii=0; ii<nv; ii++)
-	//	if(Lv->dA[ii]==0.0)
-	//		pd = 0;
-	//printf(" chol pd %d\n", pd);
+
+				int singular = 0;
+				for(ii=0; ii<nv; ii++)
+					{
+					if(Lv->dA[ii]==0.0)
+						{
+						singular = 1;
+						break;
+						}
+					}
+				//printf("singular %d\n", singular);
+				if(singular)
+					{
+					//d_print_mat(1, nv, Lv->dA, 1);
+					ws->npd_reg_hess = 1;
+					goto compute_preg;
+					}
 
 				VECCP(nv, lv, 0, dv, 0);
 
@@ -1456,8 +1609,25 @@ printf("\nA_LQ * A_Q - A max err %e\n", max_err);
 				GEMV_N(ne, nv, 1.0, AL, 0, 0, lv, 0, 1.0, res_b, 0, dpi, 0);
 
 				GESE(ne, ne, 0.0, Le, 0, 0);
-				DIARE(ne, arg->reg_dual, Le, 0, 0);
+				DIARE(ne, dreg, Le, 0, 0);
 				SYRK_POTRF_LN(ne, nv, AL, 0, 0, AL, 0, 0, Le, 0, 0, Le, 0, 0);
+
+				singular = 0;
+				for(ii=0; ii<ne; ii++)
+					{
+					if(Le->dA[ii]==0.0)
+						{
+						singular = 1;
+						break;
+						}
+					}
+				//printf("singular %d\n", singular);
+				if(singular)
+					{
+					//d_print_mat(1, ne, Le->dA, 1);
+					ws->npd_reg_hess = 1;
+					goto compute_dreg;
+					}
 
 				TRSV_LNN(ne, Le, 0, 0, dpi, 0, dpi, 0);
 				TRSV_LTN(ne, Le, 0, 0, dpi, 0, dpi, 0);
@@ -1515,8 +1685,25 @@ printf("\nA_LQ * A_Q - A max err %e\n", max_err);
 
 			GEMM_L_DIAG(nv, nv, 1.0, sv, 0, Lv, 0, 0, 0.0, Lv, 0, 0, Lv, 0, 0);
 			GEMM_ND(nv, nv, 1.0, Lv, 0, 0, sv, 0, 0.0, Lv, 0, 0, Lv, 0, 0);
-			DIARE(nv, arg->reg_prim, Lv, 0, 0);
+			DIARE(nv, preg, Lv, 0, 0);
 			POTRF_L_MN(nv, nv, Lv, 0, 0, Lv, 0, 0);
+
+			int singular = 0;
+			for(ii=0; ii<nv; ii++)
+				{
+				if(Lv->dA[ii]==0.0)
+					{
+					singular = 1;
+					break;
+					}
+				}
+			//printf("singular %d\n", singular);
+			if(singular)
+				{
+				//d_print_mat(1, nv, Lv->dA, 1);
+				ws->npd_reg_hess = 1;
+				goto compute_preg;
+				}
 
 			VECCP(nv, lv, 0, dv, 0);
 			VECSC(nv, -1.0, dv, 0);
@@ -1533,7 +1720,7 @@ printf("\nA_LQ * A_Q - A max err %e\n", max_err);
 	//		TRCP_L(nv, Hg, 0, 0, Lv, 0, 0);
 			GECP(nv, nv, Hg, 0, 0, Lv, 0, 0);
 			ROWIN(nv, 1.0, res_g, 0, Lv, nv, 0);
-			DIARE(nv, arg->reg_prim, Lv, 0, 0);
+			DIARE(nv, preg, Lv, 0, 0);
 
 			if(ns>0)
 				{
@@ -1570,12 +1757,13 @@ printf("\nA_LQ * A_Q - A max err %e\n", max_err);
 					}
 				}
 			//printf("singular %d\n", singular);
-
 			if(singular)
 				{
 				//d_print_mat(1, nv, Lv->dA, 1);
 
 				ws->npd_reg_hess = 1;
+
+				goto compute_preg; // inertia correction
 
 				//printf("\ncheck H\n");
 				//blasfeo_print_dmat(nv, nv, Hg, 0, 0);
@@ -1586,7 +1774,7 @@ printf("\nA_LQ * A_Q - A max err %e\n", max_err);
 				POTRF_L(nv, Hg, 0, 0, Lv+1, 0, 0);
 				SYRK_LN(nv, nv, 1.0, Lv+1, 0, 0, Lv+1, 0, 0, 0.0, Lv, 0, 0, Lv, 0, 0);
 				ROWIN(nv, 1.0, res_g, 0, Lv, nv, 0);
-				DIARE(nv, arg->reg_prim, Lv, 0, 0);
+				DIARE(nv, preg, Lv, 0, 0);
 
 				if(nb>0)
 					{
@@ -1608,7 +1796,7 @@ printf("\nA_LQ * A_Q - A max err %e\n", max_err);
 
 				GECP(nv, nv, Hg, 0, 0, Lv, 0, 0);
 				ROWIN(nv, 1.0, res_g, 0, Lv, nv, 0);
-				//DIARE(nv, arg->reg_prim, Lv, 0, 0);
+				//DIARE(nv, preg, Lv, 0, 0);
 				if(nb>0)
 					{
 					DIAAD_SP(nb, 1.0, tmp_nbg+0, 0, idxb, Lv, 0, 0);
@@ -1660,10 +1848,10 @@ printf("\nA_LQ * A_Q - A max err %e\n", max_err);
 					}
 				REAL meig = -neig<peig ? -neig : peig;
 				//meig = -neig;
-				printf("\nmost negative eig %e smallest positive eig %e min %e\n", neig, peig, meig);
+				//printf("\nmost negative eig %e smallest positive eig %e min %e\n", neig, peig, meig);
 				//REAL treg = - neig + 1e-3; // project I
-				REAL treg = - 2.0*neig + arg->reg_prim; // mirror I
-				//REAL treg = - neig + meig + arg->reg_prim; // mirror I
+				REAL treg = - 2.0*neig + preg; // mirror I
+				//REAL treg = - neig + meig + preg; // mirror I
 				DIARE(nv, treg, Lv, 0, 0);
 				#else
 				// mirror/project single eigenvalues
@@ -1672,7 +1860,7 @@ printf("\nA_LQ * A_Q - A max err %e\n", max_err);
 					if(ws->eig_d[ii]<0.0)
 						//ws->eig_d[ii] = 1e-3; // project one
 						ws->eig_d[ii] = - ws->eig_d[ii]; // mirror one
-					//ws->eig_d[ii] += arg->reg_prim;
+					//ws->eig_d[ii] += preg;
 					ws->eig_d[ii] = sqrt(ws->eig_d[ii]);
 					}
 				//d_print_mat(1, nv, ws->eig_d, 1);
@@ -1683,7 +1871,7 @@ printf("\nA_LQ * A_Q - A max err %e\n", max_err);
 				//blasfeo_print_dmat(nv, nv, Lv+1, 0, 0);
 				SYRK_LN(nv, nv, 1.0, Lv+1, 0, 0, Lv+1, 0, 0, 0.0, Lv+0, 0, 0, Lv+0, 0, 0);
 				//GEMM_NT(nv, nv, nv, 1.0, Lv+1, 0, 0, Lv+1, 0, 0, 0.0, Lv+0, 0, 0, Lv+0, 0, 0);
-				DIARE(nv, arg->reg_prim, Lv, 0, 0);
+				DIARE(nv, preg, Lv, 0, 0);
 				//blasfeo_print_dmat(nv, nv, Lv+0, 0, 0);
 				//exit(1);
 				#endif
@@ -1716,21 +1904,21 @@ printf("\nA_LQ * A_Q - A max err %e\n", max_err);
 				// TODO void recomputing everything again
 				GECP(nv, nv, Hg, 0, 0, Lv, 0, 0);
 				ROWIN(nv, 1.0, res_g, 0, Lv, nv, 0);
-				//DIARE(nv, arg->reg_prim, Lv, 0, 0);
+				//DIARE(nv, preg, Lv, 0, 0);
 				#if 1
 				REAL neig = 0.0;
 				for(int ii=0; ii<nv; ii++)
 					if(ws->eig_d[ii]<neig)
 						neig = ws->eig_d[ii];
 				//printf("\nmost negative eig %e\n", neig);
-				neig = - neig + arg->reg_prim; // project I
-				//neig = - 2.0*neig + arg->reg_prim; // mirror I
+				neig = - neig + preg; // project I
+				//neig = - 2.0*neig + preg; // mirror I
 				DIARE(nv, neig, Lv, 0, 0);
 				#else
 				for(int ii=0; ii<nv; ii++)
 					if(ws->eig_d[ii]<0.0)
-						MATEL(Lv, ii, ii) += - ws->eig_d[ii] + arg->reg_prim; // project one
-						//MATEL(Lv, ii, ii) += - 2.0*ws->eig_d[ii] + arg->reg_prim; // mirror one
+						MATEL(Lv, ii, ii) += - ws->eig_d[ii] + preg; // project one
+						//MATEL(Lv, ii, ii) += - 2.0*ws->eig_d[ii] + preg; // mirror one
 				#endif
 				//blasfeo_print_dmat(nv, nv, Lv, 0, 0);
 
@@ -1776,6 +1964,18 @@ printf("\nA_LQ * A_Q - A max err %e\n", max_err);
 			EXPAND_SLACKS(qp, qp_sol, ws);
 
 		COMPUTE_LAM_T_QP(qp->d->pa, qp->m->pa, qp_sol->lam->pa, qp_sol->t->pa, cws);
+		}
+
+	// save back preg
+	if(preg_init)
+		{
+		ws->preg_last = preg;
+		}
+
+	// save back preg
+	if(dreg_init)
+		{
+		ws->dreg_last = dreg;
 		}
 
 	ws->last_lq_fact = 0;
