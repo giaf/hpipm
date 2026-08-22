@@ -1,0 +1,44 @@
+name: Linux Python Build
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  linux-amd64-python-build:
+    runs-on: ubuntu-22.04
+    env:
+      HPIPM_MAIN_FOLDER: ${{ github.workspace }}
+      BLASFEO_MAIN_FOLDER: ${{ github.workspace }}/blasfeo
+      LD_LIBRARY_PATH: $LD_LIBRARY_PATH:${{ github.workspace }}/lib:${{ github.workspace }}/blasfeo/lib
+      PYTHONPATH: ${{ github.workspace }}/examples/casadi_python/casadi
+      ENV_RUN: true
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.9"
+      - name: Install Python dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install numpy
+          pip install casadi
+      - name: Install dependencies
+        run: sudo apt-get update && sudo apt-get install -y bc
+      - name: Build BLASFEO
+        run: |
+          git clone https://github.com/giaf/blasfeo
+          make -C blasfeo shared_library TARGET=X64_INTEL_HASWELL LA=HIGH_PERFORMANCE -j 4
+      - name: Build HPIPM (Python interface) and run examples
+        run: |
+          make shared_library TARGET=AVX BLASFEO_PATH=${{ github.workspace }}/blasfeo -j 4
+          echo "HPIPM_MAIN_FOLDER=${HPIPM_MAIN_FOLDER}"
+          echo "BLASFEO_MAIN_FOLDER=${BLASFEO_MAIN_FOLDER}"
+          echo "LD_LIBRARY_PATH=${LD_LIBRARY_PATH}"
+          echo "PYTHONPATH=${PYTHONPATH}"
+          echo "ENV_RUN=${ENV_RUN}"
+          make -C interfaces/python all
+          make -C examples/python example_qp_getting_started
+          make -C examples/python example_qcqp_getting_started
+          make -C examples/casadi_python example_PMSM
