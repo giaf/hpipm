@@ -1004,6 +1004,10 @@ void COND_DCTD(struct OCP_QP *ocp_qp, int *idxb2, struct STRMAT *DCt2, struct ST
 					{
 					idxs_rev2[ib] = is + idx;
 					}
+				else
+					{
+					idxs_rev2[ib] = -1;
+					}
 				ib++;
 				}
 			else // state: general constraint
@@ -1022,6 +1026,10 @@ void COND_DCTD(struct OCP_QP *ocp_qp, int *idxb2, struct STRMAT *DCt2, struct ST
 				if(idx>=0)
 					{
 					idxs_rev2[nb2+ig] = is + idx;
+					}
+				else
+					{
+					idxs_rev2[nb2+ig] = -1;
 					}
 				ig++;
 				}
@@ -1058,6 +1066,10 @@ void COND_DCTD(struct OCP_QP *ocp_qp, int *idxb2, struct STRMAT *DCt2, struct ST
 			{
 			idxs_rev2[ib] = is + idx;
 			}
+		else
+			{
+			idxs_rev2[ib] = -1;
+			}
 		ib++;
 		}
 	is += ns0;
@@ -1089,6 +1101,10 @@ void COND_DCTD(struct OCP_QP *ocp_qp, int *idxb2, struct STRMAT *DCt2, struct ST
 				if(idx>=0)
 					{
 					idxs_rev2[nb2+nbg+ng_tmp+ig] = is + idx;
+					}
+				else
+					{
+					idxs_rev2[nb2+nbg+ng_tmp+ig] = -1;
 					}
 				}
 
@@ -1140,6 +1156,10 @@ void COND_DCTD(struct OCP_QP *ocp_qp, int *idxb2, struct STRMAT *DCt2, struct ST
 			if(idx>=0)
 				{
 				idxs_rev2[nb2+nbg+ng_tmp+ig] = is + idx;
+				}
+			else
+				{
+				idxs_rev2[nb2+nbg+ng_tmp+ig] = -1;
 				}
 			}
 
@@ -1323,6 +1343,10 @@ void COND_DCT(struct OCP_QP *ocp_qp, int *idxb2, struct STRMAT *DCt2, int *idxs_
 					ptr_Z2[ns2+is] = ptr_Z[ns0+idx];
 					is++;
 					}
+				else
+					{
+					idxs_rev2[ib] = -1;
+					}
 				ib++;
 				}
 			else // state: general constraint
@@ -1336,6 +1360,10 @@ void COND_DCT(struct OCP_QP *ocp_qp, int *idxb2, struct STRMAT *DCt2, int *idxs_
 					ptr_Z2[0+is]   = ptr_Z[0+idx];
 					ptr_Z2[ns2+is] = ptr_Z[ns0+idx];
 					is++;
+					}
+				else
+					{
+					idxs_rev2[nb2+ig] = -1;
 					}
 				ig++;
 				}
@@ -1365,6 +1393,10 @@ void COND_DCT(struct OCP_QP *ocp_qp, int *idxb2, struct STRMAT *DCt2, int *idxs_
 			ptr_Z2[0+is]   = ptr_Z[0+idx];
 			ptr_Z2[ns2+is] = ptr_Z[ns0+idx];
 			is++;
+			}
+		else
+			{
+			idxs_rev2[ib] = -1;
 			}
 		ib++;
 		}
@@ -1402,6 +1434,10 @@ void COND_DCT(struct OCP_QP *ocp_qp, int *idxb2, struct STRMAT *DCt2, int *idxs_
 					ptr_Z2[0+is]   = ptr_Z[0+idx];
 					ptr_Z2[ns2+is] = ptr_Z[ns0+idx];
 					is++;
+					}
+				else
+					{
+					idxs_rev2[nb2+nbg+ng_tmp+ig] = -1;
 					}
 				}
 
@@ -1446,6 +1482,10 @@ void COND_DCT(struct OCP_QP *ocp_qp, int *idxb2, struct STRMAT *DCt2, int *idxs_
 				ptr_Z2[0+is]   = ptr_Z[0+idx];
 				ptr_Z2[ns2+is] = ptr_Z[ns0+idx];
 				is++;
+				}
+			else
+				{
+				idxs_rev2[nb2+nbg+ng_tmp+ig] = -1;
 				}
 
 			}
@@ -2943,6 +2983,10 @@ void UPDATE_COND_DCTD(int *idxc, struct OCP_QP *ocp_qp, int *idxb2, struct STRMA
 					d_us3[0+is]    = ptr_d_us[0+idx];
 					is++;
 					}
+				else
+					{
+					idxs_rev2[ib] = -1;
+					}
 				ib++;
 				}
 			else // state: general constraint
@@ -2964,6 +3008,10 @@ void UPDATE_COND_DCTD(int *idxc, struct OCP_QP *ocp_qp, int *idxb2, struct STRMA
 					d_ls3[0+is]    = ptr_d_ls[0+idx];
 					d_us3[0+is]    = ptr_d_us[0+idx];
 					is++;
+					}
+				else
+					{
+					idxs_rev2[nb2+ig] = -1;
 					}
 				ig++;
 				}
@@ -3004,6 +3052,10 @@ void UPDATE_COND_DCTD(int *idxc, struct OCP_QP *ocp_qp, int *idxb2, struct STRMA
 			d_ls3[0+is]    = ptr_d_ls[0+idx];
 			d_us3[0+is]    = ptr_d_us[0+idx];
 			is++;
+			}
+		else
+			{
+			idxs_rev2[ib] = -1;
 			}
 		ib++;
 		}
@@ -3048,6 +3100,10 @@ void UPDATE_COND_DCTD(int *idxc, struct OCP_QP *ocp_qp, int *idxb2, struct STRMA
 					d_ls3[0+is]    = ptr_d_ls[0+idx];
 					d_us3[0+is]    = ptr_d_us[0+idx];
 					is++;
+					}
+				else
+					{
+					idxs_rev2[nb2+nbg+ng_tmp+ig] = -1;
 					}
 				}
 
@@ -3108,6 +3164,10 @@ void UPDATE_COND_DCTD(int *idxc, struct OCP_QP *ocp_qp, int *idxb2, struct STRMA
 				d_ls3[0+is]    = ptr_d_ls[0+idx];
 				d_us3[0+is]    = ptr_d_us[0+idx];
 				is++;
+				}
+			else
+				{
+				idxs_rev2[nb2+nbg+ng_tmp+ig] = -1;
 				}
 			}
 
