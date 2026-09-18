@@ -136,7 +136,8 @@ struct s_ocp_qp_ipm_ws
 	int stat_m; // number of recorded stat per IPM iter
 	int use_Pb;
 	int status; // solver status
-	int square_root_alg; // cache from arg
+	//int square_root_alg; // cache from arg XXX not needed any more since ws won't depend on it
+	int last_square_root_alg; // actual square root alg at last iter
 	int lq_fact; // cache from arg
 	int last_lq_fact; // actual lq fact at last iter
 	int mask_constr; // use constr mask

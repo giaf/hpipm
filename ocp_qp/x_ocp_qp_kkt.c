@@ -338,7 +338,7 @@ void OCP_QP_FACT_SOLVE_KKT_UNCONSTR(struct OCP_QP *qp, struct OCP_QP_SOL *qp_sol
 
 	struct STRVEC *tmp_nuxM = ws->tmp_nuxM;
 
-	if(ws->square_root_alg)
+	if(arg->square_root_alg)
 		{
 		ws->valid_ric_p = 0;
 
@@ -487,6 +487,8 @@ void OCP_QP_FACT_SOLVE_KKT_UNCONSTR(struct OCP_QP *qp, struct OCP_QP_SOL *qp_sol
 		TRSV_LTN_MN(nu[ii]+nx[ii], nu[ii], L+ii, 0, 0, ux+ii, 0, ux+ii, 0);
 
 		}
+
+	ws->last_square_root_alg = arg->square_root_alg;
 
 	return;
 
@@ -915,7 +917,7 @@ void OCP_QP_FACT_KKT_STEP(struct OCP_QP *qp, struct OCP_QP_IPM_ARG *arg, struct 
 
 	COMPUTE_GGAMMA_QP(cws);
 
-	if(ws->square_root_alg)
+	if(arg->square_root_alg)
 		{
 		ws->valid_ric_p = 0; // no RHS
 
@@ -1104,6 +1106,8 @@ void OCP_QP_FACT_KKT_STEP(struct OCP_QP *qp, struct OCP_QP_IPM_ARG *arg, struct 
 
 		}
 
+	ws->last_square_root_alg = arg->square_root_alg;
+
 	return;
 
 	}
@@ -1157,7 +1161,7 @@ void OCP_QP_FACT_SOLVE_KKT_STEP(struct OCP_QP *qp, struct OCP_QP_SOL *qp_sol, st
 
 	COMPUTE_GAMMA_GAMMA_QP(res_d[0].pa, res_m[0].pa, cws);
 
-	int square_root_alg = ws->square_root_alg;
+	int square_root_alg = arg->square_root_alg;
 
 	REAL preg = arg->reg_prim;
 	int preg_init = 0;
@@ -1887,6 +1891,7 @@ main_loop:
 		ws->preg_last = preg;
 		}
 
+	ws->last_square_root_alg = square_root_alg;
 	ws->last_lq_fact = 0;
 
 	return;
@@ -1898,12 +1903,12 @@ main_loop:
 void OCP_QP_FACT_LQ_SOLVE_KKT_STEP(struct OCP_QP *qp, struct OCP_QP_SOL *qp_sol, struct OCP_QP_IPM_ARG *arg, struct OCP_QP_IPM_WS *ws)
 	{
 
-	if(!ws->square_root_alg || ws->npd_hess)
+	if(!arg->square_root_alg || ws->npd_hess)
 		{
-		int bkp_square_root_alg = ws->square_root_alg;
-		ws->square_root_alg = 0; // force classical algorithm
+		int bkp_square_root_alg = arg->square_root_alg;
+		arg->square_root_alg = 0; // force classical algorithm
 		OCP_QP_FACT_SOLVE_KKT_STEP(qp, qp_sol, arg, ws);
-		ws->square_root_alg = bkp_square_root_alg;
+		arg->square_root_alg = bkp_square_root_alg;
 		return;
 		}
 
@@ -2019,10 +2024,10 @@ void OCP_QP_FACT_LQ_SOLVE_KKT_STEP(struct OCP_QP *qp, struct OCP_QP_SOL *qp_sol,
 		if(singular)
 			{
 			ws->npd_hess = 1;
-			int bkp_square_root_alg = ws->square_root_alg;
-			ws->square_root_alg = 0; // force classical algorithm
+			int bkp_square_root_alg = arg->square_root_alg;
+			arg->square_root_alg = 0; // force classical algorithm
 			OCP_QP_FACT_SOLVE_KKT_STEP(qp, qp_sol, arg, ws);
-			ws->square_root_alg = bkp_square_root_alg;
+			arg->square_root_alg = bkp_square_root_alg;
 			return;
 			}
 		ws->use_hess_fact[ss]=1;
@@ -2114,10 +2119,10 @@ void OCP_QP_FACT_LQ_SOLVE_KKT_STEP(struct OCP_QP *qp, struct OCP_QP_SOL *qp_sol,
 			if(singular)
 				{
 				ws->npd_hess = 1;
-				int bkp_square_root_alg = ws->square_root_alg;
-				ws->square_root_alg = 0; // force classical algorithm
+				int bkp_square_root_alg = arg->square_root_alg;
+				arg->square_root_alg = 0; // force classical algorithm
 				OCP_QP_FACT_SOLVE_KKT_STEP(qp, qp_sol, arg, ws);
-				ws->square_root_alg = bkp_square_root_alg;
+				arg->square_root_alg = bkp_square_root_alg;
 				return;
 				}
 			ws->use_hess_fact[ss]=1;
@@ -2210,10 +2215,10 @@ void OCP_QP_FACT_LQ_SOLVE_KKT_STEP(struct OCP_QP *qp, struct OCP_QP_SOL *qp_sol,
 		if(singular)
 			{
 			ws->npd_hess = 1;
-			int bkp_square_root_alg = ws->square_root_alg;
-			ws->square_root_alg = 0; // force classical algorithm
+			int bkp_square_root_alg = arg->square_root_alg;
+			arg->square_root_alg = 0; // force classical algorithm
 			OCP_QP_FACT_SOLVE_KKT_STEP(qp, qp_sol, arg, ws);
-			ws->square_root_alg = bkp_square_root_alg;
+			arg->square_root_alg = bkp_square_root_alg;
 			return;
 			}
 		ws->use_hess_fact[ss]=1;
@@ -2329,6 +2334,9 @@ void OCP_QP_SOLVE_KKT_STEP(struct OCP_QP *qp, struct OCP_QP_SOL *qp_sol, struct 
 	struct STRVEC *tmp_nuxM = ws->tmp_nuxM;
 	struct STRVEC *tmp_nbgM = ws->tmp_nbgM;
 
+	// use actual value used in factorization
+	int square_root_alg = ws->last_square_root_alg;
+
 	//
 	int ss, nn, ii;
 
@@ -2337,7 +2345,7 @@ void OCP_QP_SOLVE_KKT_STEP(struct OCP_QP *qp, struct OCP_QP_SOL *qp_sol, struct 
 //printf("\nin solve\n");
 	COMPUTE_GAMMA_QP(res_d[0].pa, res_m[0].pa, cws);
 
-	if(ws->square_root_alg)
+	if(square_root_alg)
 		{
 		ws->valid_ric_p = 1;
 

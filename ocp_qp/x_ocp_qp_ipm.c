@@ -1237,7 +1237,7 @@ void OCP_QP_IPM_WS_CREATE(struct OCP_QP_DIM *dim, struct OCP_QP_IPM_ARG *arg, st
 
 	// cache stuff
 	workspace->dim = dim;
-	workspace->square_root_alg = arg->square_root_alg;
+	//workspace->square_root_alg = arg->square_root_alg; // XXX don't needed any more since ws won't depend on it
 	workspace->lq_fact = arg->lq_fact;
 
 	workspace->memsize = memsize; //OCP_QP_IPM_WS_MEMSIZE(dim, arg);
@@ -1434,7 +1434,7 @@ void OCP_QP_IPM_GET_RIC_P(struct OCP_QP *qp, struct OCP_QP_IPM_ARG *arg, struct 
 	int nu0 = nu[stage];
 	int nx0 = nx[stage];
 
-	if(ws->square_root_alg==1 | stage==0)
+	if(ws->last_square_root_alg==1 | stage==0)
 		{
 		GESE(nx0, nx0, 0.0, ws->tmp_nuxM_nuxM+0, 0, 0);
 		TRCP_L(nx0, ws->L+stage, nu0, nu0, ws->tmp_nuxM_nuxM+0, 0, 0);
