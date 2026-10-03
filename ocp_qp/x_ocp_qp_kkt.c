@@ -1205,6 +1205,12 @@ compute_preg:
 			}
 		}
 
+	if(preg>1e30)
+		{
+		ws->status = FAILED_REG;
+		return;
+		}
+
 	preg_first = 0;
 
 	//printf("\nreg updated %e\n", preg);

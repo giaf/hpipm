@@ -2253,6 +2253,7 @@ void DENSE_QP_IPM_SOLVE(struct DENSE_QP *qp, struct DENSE_QP_SOL *qp_sol, struct
 exit(1);
 #endif
 
+	ws->status = IN_PROGRESS;
 
 	// dim
 	int nv = qp->dim->nv;
@@ -2342,7 +2343,7 @@ exit(1);
 	ws->npd_hess = 0;
 	ws->last_lq_fact = 0;
 
-	// initialize primal regularization
+	// initialize primal and dual regularization
 	ws->preg_last = arg->reg_prim;
 	ws->dreg_last = arg->reg_dual;
 
@@ -2489,6 +2490,7 @@ exit(1);
 
 		// IPM loop (absolute formulation)
 		for(kk=0; \
+				ws->status==IN_PROGRESS & \
 				kk < arg->iter_max & \
 				cws->alpha_prim > arg->alpha_min & \
 				cws->alpha_dual > arg->alpha_min & \
@@ -2578,6 +2580,7 @@ exit(1);
 
 	// IPM loop
 	for(kk=0; \
+			ws->status==IN_PROGRESS & \
 			kk < arg->iter_max & \
 			cws->alpha_prim > arg->alpha_min & \
 			cws->alpha_dual > arg->alpha_min & \
@@ -2646,33 +2649,36 @@ set_status:
 	// save info before return
 	ws->iter = kk;
 
-	if(kk == arg->iter_max)
+	if(ws->status==IN_PROGRESS)
 		{
-		// max iteration number reached
-		ws->status = MAX_ITER;
-		}
-	else if(cws->alpha_prim <= arg->alpha_min || cws->alpha_dual <= arg->alpha_min)
-		{
-		// min step lenght
-		ws->status = MIN_STEP;
-		}
+		if(kk == arg->iter_max)
+			{
+			// max iteration number reached
+			ws->status = MAX_ITER;
+			}
+		else if(cws->alpha_prim <= arg->alpha_min || cws->alpha_dual <= arg->alpha_min)
+			{
+			// min step lenght
+			ws->status = MIN_STEP;
+			}
 #ifdef USE_C99_MATH
-	else if(isnan(cws->mu))
-		{
-		// NaN in the solution
-		ws->status = NAN_SOL;
-		}
+		else if(isnan(cws->mu))
+			{
+			// NaN in the solution
+			ws->status = NAN_SOL;
+			}
 #else
-	else if(cws->mu != cws->mu)
-		{
-		// NaN in the solution
-		ws->status = NAN_SOL;
-		}
+		else if(cws->mu != cws->mu)
+			{
+			// NaN in the solution
+			ws->status = NAN_SOL;
+			}
 #endif
-	else
-		{
-		// normal return
-		ws->status = SUCCESS;
+		else
+			{
+			// normal return
+			ws->status = SUCCESS;
+			}
 		}
 
 call_return:

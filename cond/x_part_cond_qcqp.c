@@ -769,6 +769,7 @@ void PART_COND_QCQP_COND_SOL(struct OCP_QCQP *ocp_qp, struct OCP_QCQP *part_dens
 		//tmp_ocp_qp.DCt = ocp_qp->DCt+N_tmp;
 		//tmp_ocp_qp.d = ocp_qp->d+N_tmp;
 		//tmp_ocp_qp.d_mask = ocp_qp->d_mask+N_tmp;
+		//tmp_ocp_qp.m = ocp_qp->m+N_tmp;
 		//tmp_ocp_qp.Z = ocp_qp->Z+N_tmp;
 		tmp_ocp_qp.idxs_rev = ocp_qp->idxs_rev+N_tmp;
 

@@ -61,6 +61,8 @@ enum hpipm_status
 	MIN_STEP, // minimum step length reached
 	NAN_SOL, // NaN in solution detected
 	INCONS_EQ, // unconsistent equality constraints
+	FAILED_REG, // failed regularization of singular Hessian
+	IN_PROGRESS, // for internal use in the solver
 	};
 
 

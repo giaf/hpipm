@@ -1287,6 +1287,9 @@ void DENSE_QCQP_RES_CONV_QP_RES(struct DENSE_QCQP_RES *qcqp_res, struct DENSE_QP
 void DENSE_QCQP_IPM_SOLVE(struct DENSE_QCQP *qcqp, struct DENSE_QCQP_SOL *qcqp_sol, struct DENSE_QCQP_IPM_ARG *qcqp_arg, struct DENSE_QCQP_IPM_WS *qcqp_ws)
 	{
 
+	qcqp_ws->status = IN_PROGRESS;
+	qcqp_ws->qp_ws->status = IN_PROGRESS;
+
 	int nv = qcqp->dim->nv;
 	int ne = qcqp->dim->ne;
 	int nb = qcqp->dim->nb;
@@ -1379,6 +1382,13 @@ void DENSE_QCQP_IPM_SOLVE(struct DENSE_QCQP *qcqp, struct DENSE_QCQP_SOL *qcqp_s
 	// reset flags in workspace
 	qp_ws->use_hess_fact = 0;
 	qp_ws->use_A_fact = 0;
+	qp_ws->npd_hess = 0;
+	qp_ws->last_lq_fact = 0;
+
+	// initialize primal regularization
+	qp_ws->preg_last = qcqp_arg->reg_prim;
+	qp_ws->dreg_last = qcqp_arg->reg_dual;
+
 
 	// cache q_fun & q_adj from approx/update for res
 	qcqp_ws->qcqp_res_ws->use_q_fun = 1;
@@ -1524,6 +1534,7 @@ void DENSE_QCQP_IPM_SOLVE(struct DENSE_QCQP *qcqp, struct DENSE_QCQP_SOL *qcqp_s
 
 		// IPM loop (absolute formulation)
 		for(kk=0; \
+				qcqp_ws->status==IN_PROGRESS & \
 				kk < qcqp_arg->iter_max & \
 				cws->alpha_prim > qcqp_arg->alpha_min & \
 				cws->alpha_dual > qcqp_arg->alpha_min & \
@@ -1545,6 +1556,8 @@ void DENSE_QCQP_IPM_SOLVE(struct DENSE_QCQP *qcqp, struct DENSE_QCQP_SOL *qcqp_s
 			cws->mu = mu;
 			if(kk+1<stat_max)
 				stat[stat_m*(kk+1)+6] = mu;
+
+			qcqp_ws->status = qp_ws->status;
 
 			}
 
@@ -1610,6 +1623,7 @@ void DENSE_QCQP_IPM_SOLVE(struct DENSE_QCQP *qcqp, struct DENSE_QCQP_SOL *qcqp_s
 	VECNRM_INF(cws->nc, qp_ws->tmp_m, 0, &res_m_tau);
 
 	for(kk=0; \
+			qcqp_ws->status==IN_PROGRESS & \
 			kk < qcqp_arg->iter_max & \
 			cws->alpha_prim > qcqp_arg->alpha_min & \
 			cws->alpha_dual > qcqp_arg->alpha_min & \
@@ -1666,6 +1680,8 @@ void DENSE_QCQP_IPM_SOLVE(struct DENSE_QCQP *qcqp, struct DENSE_QCQP_SOL *qcqp_s
 		AXPY(cws->nc, -tau_min, qp->d_mask, 0, qcqp_res->res_m, 0, qp_ws->tmp_m, 0);
 		VECNRM_INF(cws->nc, qp_ws->tmp_m, 0, &res_m_tau);
 
+		qcqp_ws->status = qp_ws->status;
+
 		}
 
 set_status:
@@ -1676,33 +1692,36 @@ set_status:
 	// reset to guard against changes in d_mask
 	qcqp_res_ws->valid_nc_mask = 0;
 
-	if(kk == qcqp_arg->iter_max)
+	if(qcqp_ws->status==IN_PROGRESS)
 		{
-		// max iteration number reached
-		qcqp_ws->status = MAX_ITER;
-		}
-	else if(cws->alpha_prim <= qcqp_arg->alpha_min || cws->alpha_dual <= qcqp_arg->alpha_min)
-		{
-		// min step lenght
-		qcqp_ws->status = MIN_STEP;
-		}
+		if(kk == qcqp_arg->iter_max)
+			{
+			// max iteration number reached
+			qcqp_ws->status = MAX_ITER;
+			}
+		else if(cws->alpha_prim <= qcqp_arg->alpha_min || cws->alpha_dual <= qcqp_arg->alpha_min)
+			{
+			// min step lenght
+			qcqp_ws->status = MIN_STEP;
+			}
 #ifdef USE_C99_MATH
-	else if(isnan(cws->mu))
-		{
-		// NaN in the solution
-		qcqp_ws->status = NAN_SOL;
-		}
+		else if(isnan(cws->mu))
+			{
+			// NaN in the solution
+			qcqp_ws->status = NAN_SOL;
+			}
 #else
-	else if(cws->mu != cws->mu)
-		{
-		// NaN in the solution
-		qcqp_ws->status = NAN_SOL;
-		}
+		else if(cws->mu != cws->mu)
+			{
+			// NaN in the solution
+			qcqp_ws->status = NAN_SOL;
+			}
 #endif
-	else
-		{
-		// normal return
-		qcqp_ws->status = SUCCESS;
+		else
+			{
+			// normal return
+			qcqp_ws->status = SUCCESS;
+			}
 		}
 
 	return;

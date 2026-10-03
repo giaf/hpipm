@@ -2782,6 +2782,8 @@ void OCP_QP_IPM_SOLVE(struct OCP_QP *qp, struct OCP_QP_SOL *qp_sol, struct OCP_Q
 	OCP_QP_PRINT(qp->dim, qp);
 #endif
 
+	ws->status = IN_PROGRESS;
+
 	// dim
 	int N = qp->dim->N;
 	int *nx = qp->dim->nx;
@@ -3020,6 +3022,7 @@ void OCP_QP_IPM_SOLVE(struct OCP_QP *qp, struct OCP_QP_SOL *qp_sol, struct OCP_Q
 
 		// IPM loop (absolute formulation)
 		for(kk=0; \
+				ws->status==IN_PROGRESS & \
 				kk < arg->iter_max & \
 				cws->alpha_prim > arg->alpha_min & \
 				cws->alpha_dual > arg->alpha_min & \
@@ -3117,6 +3120,7 @@ void OCP_QP_IPM_SOLVE(struct OCP_QP *qp, struct OCP_QP_SOL *qp_sol, struct OCP_Q
 
 	// IPM loop
 	for(kk=0; \
+			ws->status==IN_PROGRESS & \
 			kk < arg->iter_max & \
 			cws->alpha_prim > arg->alpha_min & \
 			cws->alpha_dual > arg->alpha_min & \
@@ -3179,33 +3183,36 @@ set_status:
 	// save info before return
 	ws->iter = kk;
 
-	if(kk == arg->iter_max)
+	if(ws->status==IN_PROGRESS)
 		{
-		// max iteration number reached
-		ws->status = MAX_ITER;
-		}
-	else if(cws->alpha_prim <= arg->alpha_min || cws->alpha_dual <= arg->alpha_min)
-		{
-		// min step lenght
-		ws->status = MIN_STEP;
-		}
+		if(kk == arg->iter_max)
+			{
+			// max iteration number reached
+			ws->status = MAX_ITER;
+			}
+		else if(cws->alpha_prim <= arg->alpha_min || cws->alpha_dual <= arg->alpha_min)
+			{
+			// min step lenght
+			ws->status = MIN_STEP;
+			}
 #ifdef USE_C99_MATH
-	else if(isnan(cws->mu))
-		{
-		// NaN in the solution
-		ws->status = NAN_SOL;
-		}
+		else if(isnan(cws->mu))
+			{
+			// NaN in the solution
+			ws->status = NAN_SOL;
+			}
 #else
-	else if((cws->mu!=cws->mu))
-		{
-		// NaN in the solution
-		ws->status = NAN_SOL;
-		}
+		else if((cws->mu!=cws->mu))
+			{
+			// NaN in the solution
+			ws->status = NAN_SOL;
+			}
 #endif
-	else
-		{
-		// normal return
-		ws->status = SUCCESS;
+		else
+			{
+			// normal return
+			ws->status = SUCCESS;
+			}
 		}
 
 call_return:

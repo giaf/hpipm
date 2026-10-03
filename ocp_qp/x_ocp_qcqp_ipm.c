@@ -994,7 +994,7 @@ void OCP_QCQP_INIT_VAR(struct OCP_QCQP *qp, struct OCP_QCQP_SOL *qp_sol, struct 
 			{
 			lam_lb = qp_sol->lam[ii].pa+0;
 			t_lb = qp_sol->t[ii].pa+0;
-			for(jj=0; jj<2*nb[ii]+2*ng[ii]+2*ns[ii]; jj++)
+			for(jj=0; jj<2*nb[ii]+2*ng[ii]+2*nq[ii]+2*ns[ii]; jj++)
 				{
 				lam_lb[jj] = sqmu0;
 				t_lb[jj] = sqmu0;
@@ -1007,7 +1007,7 @@ void OCP_QCQP_INIT_VAR(struct OCP_QCQP *qp, struct OCP_QCQP_SOL *qp_sol, struct 
 			{
 			lam_lb = qp_sol->lam[ii].pa+0;
 			t_lb = qp_sol->t[ii].pa+0;
-			for(jj=0; jj<2*nb[ii]+2*ng[ii]+2*ns[ii]; jj++)
+			for(jj=0; jj<2*nb[ii]+2*ng[ii]+2*nq[ii]+2*ns[ii]; jj++)
 				{
 				lam_lb[jj] = mu0;
 				t_lb[jj] = 1.0;
@@ -1591,6 +1591,9 @@ void OCP_QCQP_RES_CONV_QP_RES(struct OCP_QCQP_RES *qcqp_res, struct OCP_QP_RES *
 void OCP_QCQP_IPM_SOLVE(struct OCP_QCQP *qcqp, struct OCP_QCQP_SOL *qcqp_sol, struct OCP_QCQP_IPM_ARG *qcqp_arg, struct OCP_QCQP_IPM_WS *qcqp_ws)
 	{
 
+	qcqp_ws->status = IN_PROGRESS;
+	qcqp_ws->qp_ws->status = IN_PROGRESS;
+
 	// dim
 	int N = qcqp->dim->N;
 	int *nx = qcqp->dim->nx;
@@ -1686,7 +1689,11 @@ void OCP_QCQP_IPM_SOLVE(struct OCP_QCQP *qcqp, struct OCP_QCQP_SOL *qcqp_sol, st
 		qp_ws->use_hess_fact[ii] = 0;
 	qp_ws->use_Pb = 0;
 	qp_ws->valid_ric_vec = 0;
+	qp_ws->npd_hess = 0;
+	qp_ws->last_lq_fact = 0;
 
+	// initialize primal regularization
+	qp_ws->preg_last = qcqp_arg->reg_prim;
 
 	// cache q_fun & q_adj from approx/update for res
 	qcqp_ws->qcqp_res_ws->use_q_fun = 1;
@@ -1840,6 +1847,7 @@ void OCP_QCQP_IPM_SOLVE(struct OCP_QCQP *qcqp, struct OCP_QCQP_SOL *qcqp_sol, st
 
 		// IPM loop (absolute formulation)
 		for(kk=0; \
+				qcqp_ws->status==IN_PROGRESS & \
 				kk < qcqp_arg->iter_max & \
 				cws->alpha_prim > qcqp_arg->alpha_min & \
 				cws->alpha_dual > qcqp_arg->alpha_min & \
@@ -1861,6 +1869,8 @@ void OCP_QCQP_IPM_SOLVE(struct OCP_QCQP *qcqp, struct OCP_QCQP_SOL *qcqp_sol, st
 			cws->mu = mu;
 			if(kk+1<stat_max)
 				stat[stat_m*(kk+1)+6] = mu;
+
+			qcqp_ws->status = qp_ws->status;
 
 			}
 
@@ -1928,6 +1938,7 @@ void OCP_QCQP_IPM_SOLVE(struct OCP_QCQP *qcqp, struct OCP_QCQP_SOL *qcqp_sol, st
 	VECNRM_INF(cws->nc, qp_ws->tmp_m, 0, &res_m_tau);
 
 	for(kk=0; \
+			qcqp_ws->status==IN_PROGRESS & \
 			kk < qcqp_arg->iter_max & \
 			cws->alpha_prim > qcqp_arg->alpha_min & \
 			cws->alpha_dual > qcqp_arg->alpha_min & \
@@ -1987,6 +1998,8 @@ void OCP_QCQP_IPM_SOLVE(struct OCP_QCQP *qcqp, struct OCP_QCQP_SOL *qcqp_sol, st
 		AXPY(cws->nc, -tau_min, qp->d_mask, 0, qcqp_res->res_m, 0, qp_ws->tmp_m, 0);
 		VECNRM_INF(cws->nc, qp_ws->tmp_m, 0, &res_m_tau);
 
+		qcqp_ws->status = qp_ws->status;
+
 		}
 
 set_status:
@@ -1997,33 +2010,36 @@ set_status:
 	// save info before return
 	qcqp_ws->iter = kk;
 
-	if(kk == qcqp_arg->iter_max)
+	if(qcqp_ws->status==IN_PROGRESS)
 		{
-		// max iteration number reached
-		qcqp_ws->status = MAX_ITER;
-		}
-	else if(cws->alpha_prim <= qcqp_arg->alpha_min || cws->alpha_dual <= qcqp_arg->alpha_min)
-		{
-		// min step lenght
-		qcqp_ws->status = MIN_STEP;
-		}
+		if(kk == qcqp_arg->iter_max)
+			{
+			// max iteration number reached
+			qcqp_ws->status = MAX_ITER;
+			}
+		else if(cws->alpha_prim <= qcqp_arg->alpha_min || cws->alpha_dual <= qcqp_arg->alpha_min)
+			{
+			// min step lenght
+			qcqp_ws->status = MIN_STEP;
+			}
 #ifdef USE_C99_MATH
-	else if(isnan(cws->mu))
-		{
-		// NaN in the solution
-		qcqp_ws->status = NAN_SOL;
-		}
+		else if(isnan(cws->mu))
+			{
+			// NaN in the solution
+			qcqp_ws->status = NAN_SOL;
+			}
 #else
-	else if(cws->mu != cws->mu)
-		{
-		// NaN in the solution
-		qcqp_ws->status = NAN_SOL;
-		}
+		else if(cws->mu != cws->mu)
+			{
+			// NaN in the solution
+			qcqp_ws->status = NAN_SOL;
+			}
 #endif
-	else
-		{
-		// normal return
-		qcqp_ws->status = SUCCESS;
+		else
+			{
+			// normal return
+			qcqp_ws->status = SUCCESS;
+			}
 		}
 
 	return;
