@@ -321,9 +321,11 @@ void OCP_QP_REDUCE_EQ_DOF(struct OCP_QP *qp, struct OCP_QP *qp_red, struct OCP_Q
 				work->e_imask_d[jj] = 0;
 			for(jj=0; jj<ne_thr; jj++) // set 1s for both inputs and states
 				{
-				VECEL(work->tmp_nuxM+0, qp->idxb[ii][qp->idxe[ii][jj]]) = VECEL(qp->d+ii, qp->idxe[ii][jj]);
-				work->e_imask_ux[qp->idxb[ii][qp->idxe[ii][jj]]] = 1;
-				work->e_imask_d[qp->idxe[ii][jj]] = 1;
+				int tmp_idxe = qp->idxe[ii][jj];
+				int tmp_idxb = qp->idxb[ii][tmp_idxe];
+				VECEL(work->tmp_nuxM+0, tmp_idxb) = VECEL(qp->d+ii, tmp_idxe);
+				work->e_imask_ux[tmp_idxb] = 1;
+				work->e_imask_d[tmp_idxe] = 1;
 				}
 			// TODO check first and last non-zero in e_mask and only multiply between them
 			if(ii<N)

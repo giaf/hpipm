@@ -128,6 +128,7 @@ struct s_ocp_qp_ipm_ws
 	//float *eig_d;
 	//float *eig_e;
 	int *use_hess_fact;
+	int *d_mask_idxe; // encoding original d_mask indexed by idxe: 00 no bound, 01 lower, 10 upper, 11 both
 	void *lq_work0;
 	float qp_res[4]; // infinity norm of residuals
 	float preg_last;

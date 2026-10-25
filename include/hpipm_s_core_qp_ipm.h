@@ -65,6 +65,7 @@ struct s_core_qp_ipm_workspace
 	float *Gamma; // Hessian update
 	float *gamma; // gradient update
 	float *m; //
+	//float *d_mask; //
 	float alpha_prim; // step length
 	float alpha_dual; // step length
 	float alpha; // step length

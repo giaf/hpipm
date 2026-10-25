@@ -703,11 +703,15 @@ hpipm_size_t OCP_QP_IPM_WS_MEMSIZE(struct OCP_QP_DIM *dim, struct OCP_QP_IPM_ARG
 	int *nb = dim->nb;
 	int *ng = dim->ng;
 	int *ns = dim->ns;
+	int *nbxe = dim->nbxe;
+	int *nbue = dim->nbue;
+	int *nge = dim->nge;
 
 	// compute core qp size and max size
 	int nvt = 0;
 	int net = 0;
 	int nct = 0;
+	int niet = 0;
 	int nxM = 0;
 	int nuM = 0;
 	int nbM = 0;
@@ -718,6 +722,7 @@ hpipm_size_t OCP_QP_IPM_WS_MEMSIZE(struct OCP_QP_DIM *dim, struct OCP_QP_IPM_ARG
 		nvt += nx[ii]+nu[ii]+2*ns[ii];
 		net += nx[ii+1];
 		nct += 2*nb[ii]+2*ng[ii]+2*ns[ii];
+		niet += nbxe[ii]+nbue[ii]+nge[ii];
 		nxM = nx[ii]>nxM ? nx[ii] : nxM;
 		nuM = nu[ii]>nuM ? nu[ii] : nuM;
 		nbM = nb[ii]>nbM ? nb[ii] : nbM;
@@ -726,6 +731,7 @@ hpipm_size_t OCP_QP_IPM_WS_MEMSIZE(struct OCP_QP_DIM *dim, struct OCP_QP_IPM_ARG
 		}
 	nvt += nx[ii]+nu[ii]+2*ns[ii];
 	nct += 2*nb[ii]+2*ng[ii]+2*ns[ii];
+	niet += nbxe[ii]+nbue[ii]+nge[ii];
 	nxM = nx[ii]>nxM ? nx[ii] : nxM;
 	nuM = nu[ii]>nuM ? nu[ii] : nuM;
 	nbM = nb[ii]>nbM ? nb[ii] : nbM;
@@ -808,6 +814,8 @@ hpipm_size_t OCP_QP_IPM_WS_MEMSIZE(struct OCP_QP_DIM *dim, struct OCP_QP_IPM_ARG
 
 	size += (N+1)*sizeof(int); // use_hess_fact
 
+	size += niet*sizeof(int); // d_mask_idxe
+
 	size += 1*64; // align once to typical cache line size
 	size += 1*8; // align once to 8-byte boundary
 	size = (size+63)/64*64; // make multiple of typical cache line size
@@ -835,12 +843,15 @@ void OCP_QP_IPM_WS_CREATE(struct OCP_QP_DIM *dim, struct OCP_QP_IPM_ARG *arg, st
 	int *nb = dim->nb;
 	int *ng = dim->ng;
 	int *ns = dim->ns;
-
+	int *nbxe = dim->nbxe;
+	int *nbue = dim->nbue;
+	int *nge = dim->nge;
 
 	// compute core qp size and max size
 	int nvt = 0;
 	int net = 0;
 	int nct = 0;
+	int niet = 0;
 	int nxM = 0;
 	int nuM = 0;
 	int nbM = 0;
@@ -851,6 +862,7 @@ void OCP_QP_IPM_WS_CREATE(struct OCP_QP_DIM *dim, struct OCP_QP_IPM_ARG *arg, st
 		nvt += nx[ii]+nu[ii]+2*ns[ii];
 		net += nx[ii+1];
 		nct += 2*nb[ii]+2*ng[ii]+2*ns[ii];
+		niet += nbxe[ii]+nbue[ii]+nge[ii];
 		nxM = nx[ii]>nxM ? nx[ii] : nxM;
 		nuM = nu[ii]>nuM ? nu[ii] : nuM;
 		nbM = nb[ii]>nbM ? nb[ii] : nbM;
@@ -859,6 +871,7 @@ void OCP_QP_IPM_WS_CREATE(struct OCP_QP_DIM *dim, struct OCP_QP_IPM_ARG *arg, st
 		}
 	nvt += nx[ii]+nu[ii]+2*ns[ii];
 	nct += 2*nb[ii]+2*ng[ii]+2*ns[ii];
+	niet += nbxe[ii]+nbue[ii]+nge[ii];
 	nxM = nx[ii]>nxM ? nx[ii] : nxM;
 	nuM = nu[ii]>nuM ? nu[ii] : nuM;
 	nbM = nb[ii]>nbM ? nb[ii] : nbM;
@@ -1000,6 +1013,9 @@ void OCP_QP_IPM_WS_CREATE(struct OCP_QP_DIM *dim, struct OCP_QP_IPM_ARG *arg, st
 
 	workspace->use_hess_fact = i_ptr;
 	i_ptr += N+1;
+
+	workspace->d_mask_idxe = i_ptr;
+	i_ptr += niet;
 
 
 	// align to typical cache line size
@@ -2570,7 +2586,7 @@ void OCP_QP_IPM_DELTA_STEP(int kk, struct OCP_QP *qp, struct OCP_QP_SOL *qp_sol,
 			// compute mu for predictor-corrector-centering
 			COMPUTE_MU_AFF_QP(cws);
 
-//				if(cws->mu_aff > 2.0*cws->mu)
+//			if(cws->mu_aff > 2.0*cws->mu)
 			if(cws->mu_aff > 2.0*mu_aff0)
 				{
 
@@ -2774,6 +2790,219 @@ void OCP_QP_IPM_DELTA_STEP(int kk, struct OCP_QP *qp, struct OCP_QP_SOL *qp_sol,
 
 
 
+static int OCP_QP_IPM_MASK_IDXE(int kk, struct OCP_QP *qp, struct OCP_QP_SOL *qp_sol, struct OCP_QP_IPM_ARG *arg, struct OCP_QP_IPM_WS *ws)
+	{
+
+	// dim
+	int N = qp->dim->N;
+	int *nx = qp->dim->nx;
+	int *nu = qp->dim->nu;
+	int *nb = qp->dim->nb;
+	int *ng = qp->dim->ng;
+	int *ns = qp->dim->ns;
+	int *nbue = qp->dim->nbue;
+	int *nbxe = qp->dim->nbxe;
+	int *nge = qp->dim->nge;
+
+	struct CORE_QP_IPM_WORKSPACE *cws = ws->core_workspace;
+
+	int newres = 0;
+
+	int ss, jj;
+
+#if 0
+printf("\niter %d t\n", kk);
+for(int ii=0; ii<2*nb[0]+2*ng[0]; ii++)
+	printf(" %e", BLASFEO_DVECEL(&qp_sol->t[0], ii));
+printf("\niter %d lam\n", kk);
+for(int ii=0; ii<2*nb[0]+2*ng[0]; ii++)
+	printf(" %e", BLASFEO_DVECEL(&qp_sol->lam[0], ii));
+printf("\niter %d dlam\n", kk);
+for(int ii=0; ii<nb[0]+ng[0]; ii++)
+	printf(" %e", BLASFEO_DVECEL(&qp_sol->lam[0], ii)-BLASFEO_DVECEL(&qp_sol->lam[0], nb[0]+ng[0]+ii));
+printf("\niter %d res_m\n", kk);
+for(int ii=0; ii<2*nb[0]+2*ng[0]; ii++)
+	printf(" %e", BLASFEO_DVECEL(&ws->res->res_m[0], ii));
+printf("\n");
+#endif
+
+#if 0
+printf("\niter %d t\n", kk);
+for(int ii=0; ii<2*nb[N]+2*ng[N]; ii++)
+	printf(" %e", BLASFEO_DVECEL(&qp_sol->t[N], ii));
+printf("\niter %d lam\n", kk);
+for(int ii=0; ii<2*nb[N]+2*ng[N]; ii++)
+	printf(" %e", BLASFEO_DVECEL(&qp_sol->lam[N], ii));
+printf("\niter %d dlam\n", kk);
+for(int ii=0; ii<nb[N]+ng[N]; ii++)
+	printf(" %e", BLASFEO_DVECEL(&qp_sol->lam[N], ii)-BLASFEO_DVECEL(&qp_sol->lam[N], nb[N]+ng[N]+ii));
+printf("\niter %d res_d\n", kk);
+for(int ii=0; ii<2*nb[N]+2*ng[N]; ii++)
+	printf(" %e", BLASFEO_DVECEL(&ws->res->res_d[N], ii));
+printf("\niter %d res_m\n", kk);
+for(int ii=0; ii<2*nb[N]+2*ng[N]; ii++)
+	printf(" %e", BLASFEO_DVECEL(&ws->res->res_m[N], ii));
+printf("\n");
+#endif
+
+	int *ptr_d_mask_idxe = ws->d_mask_idxe;
+	for(ss=0; ss<=N; ss++)
+		{
+		int nb0 = nb[ss];
+		int ng0 = ng[ss];
+		int nie0 = nbue[ss]+nbxe[ss]+nge[ss];
+		REAL *ptr_d_mask = qp->d_mask[ss].pa;
+		REAL *ptr_m = qp->m[ss].pa;
+		REAL *ptr_lam = qp_sol->lam[ss].pa;
+		REAL *ptr_t = qp_sol->t[ss].pa;
+		REAL *ptr_res_m = ws->res->res_m[ss].pa;
+		REAL *ptr_res_d = ws->res->res_d[ss].pa;
+		for(jj=0; jj<nie0; jj++)
+			{
+			int ll = qp->idxe[ss][jj];
+			if(ptr_d_mask[ll]*ptr_d_mask[nb0+ng0+ll]==1.0)
+				{
+				if(ptr_res_m[ll]<1e-4 && ptr_res_m[nb0+ng0+ll]<1e-4) //if(qp_res_max[3]<1e-4)
+					{
+					newres = 1;
+					REAL dlam = ptr_lam[ll]-ptr_lam[nb0+ng0+ll];
+					if(dlam>0.0) // active at lower, mask upper
+						{
+						// shift upper
+						//BLASFEO_DVECEL(qp->d+ss, nb0+ng[ss]+ll) = BLASFEO_DVECEL(&d_orig, nb0+ng[ss]+ll) + 1e-6;
+						ptr_d_mask[nb0+ng0+ll] = 0.0;
+						ptr_lam[ll] = dlam;
+						ptr_lam[nb0+ng0+ll] = 1e-16;
+						ptr_t[nb0+ng0+ll] = 1e-8; // TODO this has an effect on the code !!!!!!!
+						ptr_res_m[ll] = dlam*ptr_t[ll] - ptr_m[ll];
+						ptr_res_m[nb0+ng0+ll] = 0.0;
+						ptr_res_d[nb0+ng0+ll] = 0.0;
+						}
+					else // active at upper, mask lower
+						{
+						// shift lower
+						//BLASFEO_DVECEL(qp->d+ss, ll) = BLASFEO_DVECEL(&d_orig, ll) - 1e-6;
+						//BLASFEO_DVECEL(qp->d+ss, ll) = BLASFEO_DVECEL(&d_orig, ll) - 1e-6;
+						ptr_d_mask[ll] = 0.0;
+						ptr_lam[ll] = 1e-16;
+						ptr_lam[nb0+ng0+ll] = - dlam;
+						ptr_t[ll] = 1e-8; // TODO this has an effect on the code !!!!!!!
+						ptr_res_m[ll] = 0.0;
+						ptr_res_m[nb0+ng0+ll] = - dlam*ptr_t[nb0+ng0+ll] - ptr_m[nb0+ng0+ll];
+						ptr_res_d[ll] = 0.0;
+						}
+					ws->mask_constr = 1;
+					ws->res_workspace->mask_constr = 1;
+					cws->nc_mask -= 1;
+					REAL nc_mask_inv = 1.0/cws->nc_mask;
+					cws->nc_mask_inv = nc_mask_inv;
+					ws->res_workspace->nc_mask_inv = nc_mask_inv;
+					}
+				}
+			else
+				{
+				if(ptr_d_mask[ll]==0.0) // lower masked out, active at upper
+					{
+					if(ptr_d_mask_idxe[jj]&0x1 && ptr_t[nb0+ng0+ll]>1e-4)
+						{
+						newres = 1;
+						//printf("\nloosening at upper\n");
+						ptr_d_mask[ll] = 1.0; // unmask lower
+						ptr_lam[ll] = 1e-1;
+						ptr_lam[nb0+ng0+ll] += 1e-1;
+
+						REAL dist = ptr_t[nb0+ng0+ll] - ptr_res_d[nb0+ng0+ll];
+
+						ptr_t[ll] = 1e-1; //ptr_t[nb0+ng0+ll];
+						//ptr_t[nb0+ng0+ll] = 1e-1;
+						ptr_res_m[nb0+ng0+ll] = ptr_lam[nb0+ng0+ll]*ptr_t[nb0+ng0+ll] - ptr_m[nb0+ng0+ll];
+						ptr_res_m[ll] = ptr_lam[ll]*ptr_t[ll] - ptr_m[ll];
+						//ptr_res_m[ll] = ptr_res_m[nb0+ng0+ll];
+						//ptr_t[ll] = (ptr_res_m[ll] + ptr_m[ll]) / ptr_lam[ll];
+
+						//ptr_res_d[nb0+ng0+ll] = - dist + ptr_t[nb0+ng0+ll];
+						ptr_res_d[ll] = dist + ptr_t[ll];
+
+						cws->nc_mask += 1;
+						REAL nc_mask_inv = 1.0/cws->nc_mask;
+						cws->nc_mask_inv = nc_mask_inv;
+						ws->res_workspace->nc_mask_inv = nc_mask_inv;
+						}
+					}
+				else // upper masked out, active at lower
+					{
+					if(ptr_d_mask_idxe[jj]&0x2 && ptr_t[ll]>1e-4)
+						{
+						newres = 1;
+						//printf("\nloosening at lower\n");
+						ptr_d_mask[nb0+ng0+ll] = 1.0; // unmask upper
+						ptr_lam[nb0+ng0+ll] = 1e-1;
+						ptr_lam[ll] += 1e-1;
+
+						REAL dist = ptr_res_d[ll] - ptr_t[ll];
+
+						ptr_t[nb0+ng0+ll] = 1e-1; //ptr_t[ll];
+						//ptr_t[ll] = 1e-1;
+						ptr_res_m[ll] = ptr_lam[ll]*ptr_t[ll] - ptr_m[ll];
+						ptr_res_m[nb0+ng0+ll] = ptr_lam[nb0+ng0+ll]*ptr_t[nb0+ng0+ll] - ptr_m[nb0+ng0+ll];
+						//ptr_res_m[nb0+ng0+ll] = ptr_res_m[ll];
+						//ptr_t[nb0+ng0+ll] = (ptr_res_m[nb0+ng0+ll] + ptr_m[nb0+ng0+ll]) / ptr_lam[nb0+ng0+ll];
+
+						//ptr_res_d[ll] = dist + ptr_t[ll];
+						ptr_res_d[nb0+ng0+ll] = - dist + ptr_t[nb0+ng0+ll];
+
+						cws->nc_mask += 1;
+						REAL nc_mask_inv = 1.0/cws->nc_mask;
+						cws->nc_mask_inv = nc_mask_inv;
+						ws->res_workspace->nc_mask_inv = nc_mask_inv;
+						}
+					}
+				}
+			}
+		ptr_d_mask_idxe += nie0;
+		}
+
+#if 0
+printf("\niter %d t\n", kk);
+for(int ii=0; ii<2*nb[0]+2*ng[0]; ii++)
+	printf(" %e", BLASFEO_DVECEL(&qp_sol->t[0], ii));
+printf("\niter %d lam\n", kk);
+for(int ii=0; ii<2*nb[0]+2*ng[0]; ii++)
+	printf(" %e", BLASFEO_DVECEL(&qp_sol->lam[0], ii));
+printf("\niter %d dlam\n", kk);
+for(int ii=0; ii<nb[0]+ng[0]; ii++)
+	printf(" %e", BLASFEO_DVECEL(&qp_sol->lam[0], ii)-BLASFEO_DVECEL(&qp_sol->lam[0], nb[0]+ng[0]+ii));
+printf("\niter %d res_m\n", kk);
+for(int ii=0; ii<2*nb[0]+2*ng[0]; ii++)
+	printf(" %e", BLASFEO_DVECEL(&ws->res->res_m[0], ii));
+printf("\n");
+#endif
+
+#if 0
+printf("\niter %d t\n", kk);
+for(int ii=0; ii<2*nb[N]+2*ng[N]; ii++)
+	printf(" %e", BLASFEO_DVECEL(&qp_sol->t[N], ii));
+printf("\niter %d lam\n", kk);
+for(int ii=0; ii<2*nb[N]+2*ng[N]; ii++)
+	printf(" %e", BLASFEO_DVECEL(&qp_sol->lam[N], ii));
+printf("\niter %d dlam\n", kk);
+for(int ii=0; ii<nb[N]+ng[N]; ii++)
+	printf(" %e", BLASFEO_DVECEL(&qp_sol->lam[N], ii)-BLASFEO_DVECEL(&qp_sol->lam[N], nb[N]+ng[N]+ii));
+printf("\niter %d res_d\n", kk);
+for(int ii=0; ii<2*nb[N]+2*ng[N]; ii++)
+	printf(" %e", BLASFEO_DVECEL(&ws->res->res_d[N], ii));
+printf("\niter %d res_m\n", kk);
+for(int ii=0; ii<2*nb[N]+2*ng[N]; ii++)
+	printf(" %e", BLASFEO_DVECEL(&ws->res->res_m[N], ii));
+printf("\n");
+#endif
+
+	return newres;
+
+	}
+
+
+
 void OCP_QP_IPM_SOLVE(struct OCP_QP *qp, struct OCP_QP_SOL *qp_sol, struct OCP_QP_IPM_ARG *arg, struct OCP_QP_IPM_WS *ws)
 	{
 
@@ -2791,10 +3020,13 @@ void OCP_QP_IPM_SOLVE(struct OCP_QP *qp, struct OCP_QP_SOL *qp_sol, struct OCP_Q
 	int *nb = qp->dim->nb;
 	int *ng = qp->dim->ng;
 	int *ns = qp->dim->ns;
+	int *nbxe = qp->dim->nbxe;
+	int *nbue = qp->dim->nbue;
+	int *nge = qp->dim->nge;
 
 	struct CORE_QP_IPM_WORKSPACE *cws = ws->core_workspace;
 
-	int kk, ii;
+	int kk, ii, ss;
 	REAL mu;
 
 	REAL *stat = ws->stat;
@@ -2822,6 +3054,8 @@ void OCP_QP_IPM_SOLVE(struct OCP_QP *qp, struct OCP_QP_SOL *qp_sol, struct OCP_Q
 	cws->pi = qp_sol->pi->pa;
 	cws->lam = qp_sol->lam->pa;
 	cws->t = qp_sol->t->pa;
+
+	//cws->d_mask = qp->d_mask->pa;
 
 	// alias members of qp_step
 	ws->qp_step->dim = qp->dim;
@@ -2900,10 +3134,36 @@ void OCP_QP_IPM_SOLVE(struct OCP_QP *qp, struct OCP_QP_SOL *qp_sol, struct OCP_Q
 		{
 		mask_unconstr = 0;
 		cws->nc_mask = nc_mask;
-		cws->nc_mask_inv = 1.0/nc_mask;
-		ws->res_workspace->nc_mask_inv = 1.0/nc_mask;
+		REAL nc_mask_inv = 1.0/nc_mask;
+		cws->nc_mask_inv = nc_mask_inv;
+		ws->res_workspace->nc_mask_inv = nc_mask_inv;
 		}
 	ws->res_workspace->valid_nc_mask = 1; // set to avoid mask_constr and nc_mask_inv recomputation in res
+
+	// initialize d_mask_idxe
+	{
+	int *ptr_d_mask_idxe = ws->d_mask_idxe;
+	for(ss=0; ss<=N; ss++)
+		{
+		int nb0 = nb[ss];
+		int ng0 = ng[ss];
+		int nie0 = nbue[ss]+nbxe[ss]+nge[ss];
+		REAL *ptr_d_mask = qp->d_mask[ss].pa;
+		//printf("d_mask_idxe[%d]:", ss);
+		for(ii=0; ii<nie0; ii++)
+			{
+			int jj = qp->idxe[ss][ii];
+			ptr_d_mask_idxe[ii] = 0;
+			if(ptr_d_mask[jj]==1.0)
+				ptr_d_mask_idxe[ii] |= 0x1;
+			if(ptr_d_mask[nb0+ng0+jj]==1.0)
+				ptr_d_mask_idxe[ii] |= 0x2;
+			//printf(" %d", ptr_d_mask_idxe[ii]);
+			}
+		//printf("\n");
+		ptr_d_mask_idxe += nie0;
+		}
+	}
 
 
 	// no constraints
@@ -2915,9 +3175,7 @@ void OCP_QP_IPM_SOLVE(struct OCP_QP *qp, struct OCP_QP_SOL *qp_sol, struct OCP_Q
 		if(arg->comp_res_exit)
 			{
 			OCP_QP_RES_COMPUTE(qp, qp_sol, ws->res, ws->res_workspace);
-			// XXX no constraints, so no mask
 			OCP_QP_RES_COMPUTE_INF_NORM(ws->res);
-			//ws->res->res_mu = ws->res->res_mu_sum * cws->nc_mask_inv;
 			cws->mu = ws->res->res_mu;
 			if(0<ws->stat_max)
 				{
@@ -3045,26 +3303,39 @@ void OCP_QP_IPM_SOLVE(struct OCP_QP *qp, struct OCP_QP_SOL *qp_sol, struct OCP_Q
 			mu *= cws->nc_mask_inv;
 			cws->mu = mu;
 			if(kk+1<ws->stat_max)
+				{
 				stat[stat_m*(kk+1)+6] = mu;
+				}
 
 			//for(ii=0; ii<cws->nc; ii++)
 			//	cws->res_m[ii] = ws->tmp_m->pa[ii];
 			//for(ii=0; ii<cws->nc; ii++)
 			//	cws->res_m_bkp[ii] = ws->tmp_m->pa[ii];
+
+			int newres = OCP_QP_IPM_MASK_IDXE(kk, qp, qp_sol, arg, ws);
+
+			if(newres)
+				{
+				// compute residuals
+				// XXX OCP_QP_IPM_MASK_IDXE recomputes only affected components of residuals
+				//OCP_QP_RES_COMPUTE(qp, qp_sol, ws->res, ws->res_workspace);
+				OCP_QP_RES_COMPUTE_MU(qp, qp_sol, ws->res, ws->res_workspace);
+				cws->mu = ws->res->res_mu;
+				// save infinity norm of residuals
+				if(kk+1<ws->stat_max)
+					{
+					stat[stat_m*(kk+1)+6] = ws->res->res_mu;
+					}
+				mu = cws->mu;
+
+				}
+
 			}
 
 		if(arg->comp_res_exit & arg->comp_dual_sol_eq)
 			{
 			// compute residuals
 			OCP_QP_RES_COMPUTE(qp, qp_sol, ws->res, ws->res_workspace);
-			//if(ws->mask_constr)
-			//	{
-			//	// mask out disregarded constraints
-			//	for(ii=0; ii<=N; ii++)
-			//		VECMUL(2*ns[ii], qp->d_mask+ii, 2*nb[ii]+2*ng[ii], ws->res->res_g+ii, nu[ii]+nx[ii], ws->res->res_g+ii, nu[ii]+nx[ii]);
-			//	VECMUL(cws->nc, qp->d_mask, 0, ws->res->res_d, 0, ws->res->res_d, 0);
-			//	VECMUL(cws->nc, qp->d_mask, 0, ws->res->res_m, 0, ws->res->res_m, 0);
-			//	}
 			OCP_QP_RES_COMPUTE_INF_NORM(ws->res);
 			// save infinity norm of residuals
 			// XXX it is already kk+1
@@ -3087,15 +3358,6 @@ void OCP_QP_IPM_SOLVE(struct OCP_QP *qp, struct OCP_QP_SOL *qp_sol, struct OCP_Q
 
 	// compute residuals
 	OCP_QP_RES_COMPUTE(qp, qp_sol, ws->res, ws->res_workspace);
-	//if(ws->mask_constr)
-	//	{
-	//	// mask out disregarded constraints
-	//	for(ii=0; ii<=N; ii++)
-	//		VECMUL(2*ns[ii], qp->d_mask+ii, 2*nb[ii]+2*ng[ii], ws->res->res_g+ii, nu[ii]+nx[ii], ws->res->res_g+ii, nu[ii]+nx[ii]);
-	//	VECMUL(cws->nc, qp->d_mask, 0, ws->res->res_d, 0, ws->res->res_d, 0);
-	//	VECMUL(cws->nc, qp->d_mask, 0, ws->res->res_m, 0, ws->res->res_m, 0);
-	//	}
-	//ws->res->res_mu = ws->res->res_mu_sum * cws->nc_mask_inv;
 	cws->mu = ws->res->res_mu;
 	OCP_QP_RES_COMPUTE_INF_NORM(ws->res);
 	// save infinity norm of residuals
@@ -3138,15 +3400,6 @@ void OCP_QP_IPM_SOLVE(struct OCP_QP *qp, struct OCP_QP_SOL *qp_sol, struct OCP_Q
 
 		// compute residuals
 		OCP_QP_RES_COMPUTE(qp, qp_sol, ws->res, ws->res_workspace);
-		//if(ws->mask_constr)
-		//	{
-		//	// mask out disregarded constraints
-		//	for(ii=0; ii<=N; ii++)
-		//		VECMUL(2*ns[ii], qp->d_mask+ii, 2*nb[ii]+2*ng[ii], ws->res->res_g+ii, nu[ii]+nx[ii], ws->res->res_g+ii, nu[ii]+nx[ii]);
-		//	VECMUL(cws->nc, qp->d_mask, 0, ws->res->res_d, 0, ws->res->res_d, 0);
-		//	VECMUL(cws->nc, qp->d_mask, 0, ws->res->res_m, 0, ws->res->res_m, 0);
-		//	}
-		//ws->res->res_mu = ws->res->res_mu_sum * cws->nc_mask_inv;
 		cws->mu = ws->res->res_mu;
 		OCP_QP_RES_COMPUTE_INF_NORM(ws->res);
 		// save infinity norm of residuals
@@ -3164,6 +3417,32 @@ void OCP_QP_IPM_SOLVE(struct OCP_QP *qp, struct OCP_QP_SOL *qp_sol, struct OCP_Q
 		AXPY(cws->nc, -tau_min, qp->d_mask, 0, ws->res->res_m, 0, ws->tmp_m, 0);
 		VECNRM_INF(cws->nc, ws->tmp_m, 0, &res_m_tau);
 
+		int newres = OCP_QP_IPM_MASK_IDXE(kk, qp, qp_sol, arg, ws);
+
+		if(newres)
+			{
+			// compute residuals
+			// XXX OCP_QP_IPM_MASK_IDXE recomputes only affected components of residuals
+			//OCP_QP_RES_COMPUTE(qp, qp_sol, ws->res, ws->res_workspace);
+			OCP_QP_RES_COMPUTE_MU(qp, qp_sol, ws->res, ws->res_workspace);
+			cws->mu = ws->res->res_mu;
+			OCP_QP_RES_COMPUTE_INF_NORM(ws->res);
+			// save infinity norm of residuals
+			if(kk+1<ws->stat_max)
+				{
+				stat[stat_m*(kk+1)+6] = ws->res->res_mu;
+				stat[stat_m*(kk+1)+7] = qp_res_max[0];
+				stat[stat_m*(kk+1)+8] = qp_res_max[1];
+				stat[stat_m*(kk+1)+9] = qp_res_max[2];
+				stat[stat_m*(kk+1)+10] = qp_res_max[3];
+				stat[stat_m*(kk+1)+11] = ws->res->dual_gap;
+				stat[stat_m*(kk+1)+12] = ws->res->obj;
+				}
+
+			AXPY(cws->nc, -tau_min, qp->d_mask, 0, ws->res->res_m, 0, ws->tmp_m, 0);
+			VECNRM_INF(cws->nc, ws->tmp_m, 0, &res_m_tau);
+			}
+
 		}
 		//d_ocp_qp_res_print(qp->dim, ws->res);
 
@@ -3179,6 +3458,37 @@ set_status:
 
 	// reset to guard against changes in d_mask
 	ws->res_workspace->valid_nc_mask = 0;
+
+	// reset d_mask
+	{
+	//printf("\nreset d_mask\n");
+	// XXX no need to update nc_mask since it's not valid any more in res and recomputed on entry to ipm solve !!!
+	int *ptr_d_mask_idxe = ws->d_mask_idxe;
+	for(ss=0; ss<=N; ss++)
+		{
+		int nb0 = nb[ss];
+		int ng0 = ng[ss];
+		int nie0 = nbue[ss]+nbxe[ss]+nge[ss];
+		REAL *ptr_d_mask = qp->d_mask[ss].pa;
+		//printf("d_mask_idxe[%d]:", ss);
+		for(ii=0; ii<nie0; ii++)
+			{
+			int jj = qp->idxe[ss][ii];
+			//printf(" %d", ptr_d_mask_idxe[ii]);
+			if(ptr_d_mask_idxe[ii]&0x1)
+				{
+				ptr_d_mask[jj] = 1.0;
+				}
+			if(ptr_d_mask_idxe[ii]&0x2)
+				{
+				ptr_d_mask[nb0+ng0+jj] = 1.0;
+				}
+			}
+		//printf("\n");
+		ptr_d_mask_idxe += nie0;
+		}
+	}
+
 
 	// save info before return
 	ws->iter = kk;
@@ -3289,8 +3599,6 @@ void OCP_QP_IPM_PREDICT(struct OCP_QP *qp, struct OCP_QP_SOL *qp_sol, struct OCP
 			// compute residuals
 			OCP_QP_RES_COMPUTE(qp, qp_sol, ws->res, ws->res_workspace);
 
-			// TODO mask out disregarded constraints ???
-
 			// compute infinity norm of residuals
 			VECNRM_INF(cws->nv, &str_res_g, 0, &qp_res_max[0]);
 			VECNRM_INF(cws->ne, &str_res_b, 0, &qp_res_max[1]);
@@ -3365,8 +3673,6 @@ void OCP_QP_IPM_PREDICT(struct OCP_QP *qp, struct OCP_QP_SOL *qp_sol, struct OCP
 		// compute residuals in exit
 		OCP_QP_RES_COMPUTE(qp, qp_sol, ws->res, ws->res_workspace);
 
-		// TODO mask out disregarded constraints ???
-
 		// compute infinity norm of residuals
 		VECNRM_INF(cws->nv, &str_res_g, 0, &qp_res_max[0]);
 		VECNRM_INF(cws->ne, &str_res_b, 0, &qp_res_max[1]);
@@ -3431,6 +3737,8 @@ void OCP_QP_IPM_SENS_FRW(struct OCP_QP *qp, struct OCP_QP_SEED *seed, struct OCP
 	for(ii=0; ii<cws->nc; ii++)
 		cws->t[ii] = cws->t_bkp[ii];
 
+	//d_ocp_qp_sol_print(sens->dim, sens);
+
 	// use seeds as qp rhs
 	struct OCP_QP tmp_qp;
 	// alias qp
@@ -3447,6 +3755,23 @@ void OCP_QP_IPM_SENS_FRW(struct OCP_QP *qp, struct OCP_QP_SEED *seed, struct OCP
 	tmp_qp.idxs_rev = qp->idxs_rev;
 	tmp_qp.diag_H_flag = qp->diag_H_flag;
 	tmp_qp.m = seed->seed_m; // XXX
+
+	//d_ocp_qp_print(tmp_qp.dim, &tmp_qp);
+	//exit(1);
+
+for(int ii=0; ii<cws->nc; ii++)
+	{
+	if(tmp_qp.d_mask->pa[ii]!=0.0)
+		{
+		cws->t_inv[ii] = 1.0/cws->t[ii];
+		printf("non zero %d\n", ii);
+		}
+	else
+		{
+		cws->t_inv[ii] = 0.0;
+		printf("zero %d\n", ii);
+		}
+	}
 
 	// solve kkt
 	ws->use_Pb = 0;

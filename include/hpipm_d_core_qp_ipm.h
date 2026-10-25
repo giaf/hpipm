@@ -65,6 +65,7 @@ struct d_core_qp_ipm_workspace
 	double *Gamma; // Hessian update
 	double *gamma; // gradient update
 	double *m; //
+	//double *d_mask; //
 	double alpha; // step length
 	double alpha_prim; // step length
 	double alpha_dual; // step length

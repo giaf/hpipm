@@ -95,6 +95,8 @@ void s_ocp_qp_res_ws_create(struct s_ocp_qp_dim *ocp_dim, struct s_ocp_qp_res_ws
 //
 void s_ocp_qp_res_compute(struct s_ocp_qp *qp, struct s_ocp_qp_sol *qp_sol, struct s_ocp_qp_res *res, struct s_ocp_qp_res_ws *ws);
 //
+void s_ocp_qp_res_compute_mu(struct s_ocp_qp *qp, struct s_ocp_qp_sol *qp_sol, struct s_ocp_qp_res *res, struct s_ocp_qp_res_ws *ws);
+//
 void s_ocp_qp_res_compute_lin(struct s_ocp_qp *qp, struct s_ocp_qp_sol *qp_sol, struct s_ocp_qp_sol *qp_step, struct s_ocp_qp_res *res, struct s_ocp_qp_res_ws *ws);
 //
 void s_ocp_qp_res_compute_inf_norm(struct s_ocp_qp_res *res);

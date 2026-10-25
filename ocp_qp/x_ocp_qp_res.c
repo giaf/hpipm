@@ -405,7 +405,7 @@ void OCP_QP_RES_COMPUTE(struct OCP_QP *qp, struct OCP_QP_SOL *qp_sol, struct OCP
 		int nc_mask = 0;
 		for(ii=0; ii<=N; ii++)
 			for(jj=0; jj<2*nb[ii]+2*ng[ii]+2*ns[ii]; jj++)
-				if((d_mask+ii)->pa[jj]==1.0)
+				if((d_mask+ii)->pa[jj]!=0.0)
 					nc_mask++;
 				else
 					mask_constr = 1; // at least one masked constraint
@@ -532,7 +532,66 @@ void OCP_QP_RES_COMPUTE(struct OCP_QP *qp, struct OCP_QP_SOL *qp_sol, struct OCP
 
 
 
-void OCP_QP_RES_COMPUTE_LIN (struct OCP_QP *qp, struct OCP_QP_SOL *qp_sol, struct OCP_QP_SOL *qp_step, struct OCP_QP_RES *res, struct OCP_QP_RES_WS *ws)
+void OCP_QP_RES_COMPUTE_MU(struct OCP_QP *qp, struct OCP_QP_SOL *qp_sol, struct OCP_QP_RES *res, struct OCP_QP_RES_WS *ws)
+	{
+
+	// loop index
+	int ii, jj, idx;
+
+	//
+	int N = qp->dim->N;
+	int *nb = qp->dim->nb;
+	int *ng = qp->dim->ng;
+	int *ns = qp->dim->ns;
+
+	struct STRVEC *d_mask = qp->d_mask;
+
+	struct STRVEC *res_m = res->res_m;
+
+	int mask_constr = 0;
+	REAL nc_mask_inv = 0.0;
+	if(ws->valid_nc_mask==1)
+		{
+		mask_constr = ws->mask_constr;
+		nc_mask_inv = ws->nc_mask_inv;
+		}
+	else
+		{
+		int nc_mask = 0;
+		for(ii=0; ii<=N; ii++)
+			for(jj=0; jj<2*nb[ii]+2*ng[ii]+2*ns[ii]; jj++)
+				if((d_mask+ii)->pa[jj]!=0.0)
+					nc_mask++;
+				else
+					mask_constr = 1; // at least one masked constraint
+		if(nc_mask>0)
+			nc_mask_inv = 1.0/nc_mask;
+		// do not store these in ws, to guard against changes in d_mask
+		}
+
+	//
+	REAL mu = 0.0;
+
+	// loop over stages
+	for(ii=0; ii<=N; ii++)
+		{
+
+		REAL tmu = 0.0;
+		VECNRM_1(2*nb[ii]+2*ng[ii]+2*ns[ii], res_m+ii, 0, &tmu);
+		mu += tmu;
+		}
+
+	//res->res_mu = mu*nct_inv;
+	res->res_mu = mu*nc_mask_inv;
+	res->res_mu_sum = mu;
+
+	return;
+
+	}
+
+
+
+void OCP_QP_RES_COMPUTE_LIN(struct OCP_QP *qp, struct OCP_QP_SOL *qp_sol, struct OCP_QP_SOL *qp_step, struct OCP_QP_RES *res, struct OCP_QP_RES_WS *ws)
 	{
 
 	// loop index
@@ -586,13 +645,10 @@ void OCP_QP_RES_COMPUTE_LIN (struct OCP_QP *qp, struct OCP_QP_SOL *qp_sol, struc
 		{
 		for(ii=0; ii<=N; ii++)
 			for(jj=0; jj<2*nb[ii]+2*ng[ii]+2*ns[ii]; jj++)
-				if((d_mask+ii)->pa[jj]!=1.0)
+				if((d_mask+ii)->pa[jj]==0.0)
 					mask_constr = 1; // at least one masked constraint
 		// do not store these in ws, to guard against changes in d_mask
 		}
-
-	//
-	REAL mu = 0.0;
 
 	// loop over stages
 	for(ii=0; ii<=N; ii++)

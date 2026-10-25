@@ -99,6 +99,7 @@
 #define OCP_QP_RES d_ocp_qp_res
 #define OCP_QP_RES_WS d_ocp_qp_res_ws
 #define OCP_QP_RES_COMPUTE d_ocp_qp_res_compute
+#define OCP_QP_RES_COMPUTE_MU d_ocp_qp_res_compute_mu
 #define OCP_QP_RES_COMPUTE_INF_NORM d_ocp_qp_res_compute_inf_norm
 #define OCP_QP_RES_COMPUTE_LIN d_ocp_qp_res_compute_lin
 #define OCP_QP_RES_CREATE d_ocp_qp_res_create
