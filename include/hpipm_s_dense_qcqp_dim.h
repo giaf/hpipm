@@ -53,6 +53,9 @@ struct s_dense_qcqp_dim
 	int ng;  // number of general constraints
 	int nq;  // number of quadratic constraints
 	int ns;  // number of slacks of soft constraints
+	int nbe;  // number of box constraints which are equality
+	int nge;  // number of general constraints which are equality
+	int nqe;  // number of quadratic constraints which are equality
 	hpipm_size_t memsize;
 	};
 
@@ -78,6 +81,12 @@ void s_dense_qcqp_dim_set_ng(int value, struct s_dense_qcqp_dim *dim);
 void s_dense_qcqp_dim_set_nq(int value, struct s_dense_qcqp_dim *dim);
 //
 void s_dense_qcqp_dim_set_ns(int value, struct s_dense_qcqp_dim *dim);
+//
+void s_dense_qcqp_dim_set_nbe(int value, struct s_dense_qcqp_dim *dim);
+//
+void s_dense_qcqp_dim_set_nge(int value, struct s_dense_qcqp_dim *dim);
+//
+void s_dense_qcqp_dim_set_nqe(int value, struct s_dense_qcqp_dim *dim);
 
 // getters
 //
@@ -92,6 +101,12 @@ void s_dense_qcqp_dim_get_ng(struct s_dense_qcqp_dim *dim, int *value);
 void s_dense_qcqp_dim_get_nq(struct s_dense_qcqp_dim *dim, int *value);
 //
 void s_dense_qcqp_dim_get_ns(struct s_dense_qcqp_dim *dim, int *value);
+//
+void s_dense_qcqp_dim_get_nbe(struct s_dense_qcqp_dim *dim, int *value);
+//
+void s_dense_qcqp_dim_get_nge(struct s_dense_qcqp_dim *dim, int *value);
+//
+void s_dense_qcqp_dim_get_nqe(struct s_dense_qcqp_dim *dim, int *value);
 
 
 

@@ -108,6 +108,10 @@
 #define DENSE_QCQP_SET_LS_MASK d_dense_qcqp_set_ls_mask
 #define DENSE_QCQP_SET_US d_dense_qcqp_set_us
 #define DENSE_QCQP_SET_US_MASK d_dense_qcqp_set_us_mask
+#define DENSE_QCQP_SET_IDXE d_dense_qcqp_set_idxe
+#define DENSE_QCQP_SET_IDXBE d_dense_qcqp_set_idxbe
+#define DENSE_QCQP_SET_IDXGE d_dense_qcqp_set_idxge
+#define DENSE_QCQP_SET_IDXQE d_dense_qcqp_set_idxqe
 #define DENSE_QCQP_GET_H d_dense_qcqp_get_H
 #define DENSE_QCQP_GET_G d_dense_qcqp_get_g
 #define DENSE_QCQP_GET_A d_dense_qcqp_get_A

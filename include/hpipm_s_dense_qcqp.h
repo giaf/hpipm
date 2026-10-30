@@ -68,6 +68,7 @@ struct s_dense_qcqp
 	struct blasfeo_svec *Z; // (diagonal) hessian of slacks
 	int *idxb; // indices of box constrained variables within [u; x]
 	int *idxs_rev; // index of slack softening each constraint
+	int *idxe; // indices of constraints within [b, g, q] that are equalities, subset of [0, ..., nb+ng+nq-1]
 	int *Hq_nzero; // for each int, the last 3 bits ...abc, {a,b,c}=0 => {R,S,Q}=0
 	hpipm_size_t memsize; // memory size in bytes
 	};
@@ -147,6 +148,14 @@ void s_dense_qcqp_set_ls_mask(float *ls, struct s_dense_qcqp *qp);
 void s_dense_qcqp_set_us(float *us, struct s_dense_qcqp *qp);
 //
 void s_dense_qcqp_set_us_mask(float *us, struct s_dense_qcqp *qp);
+//
+void s_dense_qcqp_set_idxe(int *idxb, struct s_dense_qcqp *qp);
+//
+void s_dense_qcqp_set_idxbe(int *idxbe, struct s_dense_qcqp *qp);
+//
+void s_dense_qcqp_set_idxge(int *idxge, struct s_dense_qcqp *qp);
+//
+void s_dense_qcqp_set_idxqe(int *idxqe, struct s_dense_qcqp *qp);
 
 // getters (COLMAJ)
 

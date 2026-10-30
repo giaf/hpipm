@@ -56,6 +56,8 @@
 #define DENSE_QP_DIM_SET_NB s_dense_qp_dim_set_nb
 #define DENSE_QP_DIM_SET_NG s_dense_qp_dim_set_ng
 #define DENSE_QP_DIM_SET_NS s_dense_qp_dim_set_ns
+#define DENSE_QP_DIM_SET_NBE s_dense_qp_dim_set_nbe
+#define DENSE_QP_DIM_SET_NGE s_dense_qp_dim_set_nge
 
 #define DENSE_QCQP_DIM_STRSIZE s_dense_qcqp_dim_strsize
 #define DENSE_QCQP_DIM_MEMSIZE s_dense_qcqp_dim_memsize
@@ -67,12 +69,18 @@
 #define DENSE_QCQP_DIM_SET_NG s_dense_qcqp_dim_set_ng
 #define DENSE_QCQP_DIM_SET_NQ s_dense_qcqp_dim_set_nq
 #define DENSE_QCQP_DIM_SET_NS s_dense_qcqp_dim_set_ns
+#define DENSE_QCQP_DIM_SET_NBE s_dense_qcqp_dim_set_nbe
+#define DENSE_QCQP_DIM_SET_NGE s_dense_qcqp_dim_set_nge
+#define DENSE_QCQP_DIM_SET_NQE s_dense_qcqp_dim_set_nqe
 #define DENSE_QCQP_DIM_GET_NV s_dense_qcqp_dim_get_nv
 #define DENSE_QCQP_DIM_GET_NE s_dense_qcqp_dim_get_ne
 #define DENSE_QCQP_DIM_GET_NB s_dense_qcqp_dim_get_nb
 #define DENSE_QCQP_DIM_GET_NG s_dense_qcqp_dim_get_ng
 #define DENSE_QCQP_DIM_GET_NQ s_dense_qcqp_dim_get_nq
 #define DENSE_QCQP_DIM_GET_NS s_dense_qcqp_dim_get_ns
+#define DENSE_QCQP_DIM_GET_NBE s_dense_qcqp_dim_get_nbe
+#define DENSE_QCQP_DIM_GET_NGE s_dense_qcqp_dim_get_nge
+#define DENSE_QCQP_DIM_GET_NQE s_dense_qcqp_dim_get_nqe
 
 
 #include "x_dense_qcqp_dim.c"

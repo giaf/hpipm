@@ -594,6 +594,14 @@ void DENSE_QP_SET(char *field, void *value, struct DENSE_QP *qp)
 		{
 		DENSE_QP_SET_IDXE(value, qp);
 		}
+	else if(hpipm_strcmp(field, "idxbe"))
+		{
+		DENSE_QP_SET_IDXBE(value, qp);
+		}
+	else if(hpipm_strcmp(field, "idxge"))
+		{
+		DENSE_QP_SET_IDXGE(value, qp);
+		}
 	else
 		{
 #ifdef EXT_DEP
