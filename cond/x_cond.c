@@ -43,6 +43,9 @@ void COND_QP_COMPUTE_DIM(struct OCP_QP_DIM *ocp_dim, struct DENSE_QP_DIM *dense_
 	int *nbu = ocp_dim->nbu;
 	int *ng = ocp_dim->ng;
 	int *ns = ocp_dim->ns;
+	//int *nbxe = ocp_dim->nbxe;
+	//int *nbue = ocp_dim->nbue;
+	//int *nge = ocp_dim->nge;
 
 	int ii;
 
@@ -51,12 +54,16 @@ void COND_QP_COMPUTE_DIM(struct OCP_QP_DIM *ocp_dim, struct DENSE_QP_DIM *dense_
 	int nbc = 0;
 	int ngc = 0;
 	int nsc = 0;
+	//int nbec = 0;
+	//int ngec = 0;
 
 	// first stage
 	nvc += nx[0]+nu[0];
 	nbc += nbx[0]+nbu[0];
 	ngc += ng[0];
 	nsc += ns[0];
+	//nbec += nbxe[0]+nbue[0];
+	//ngec += nge[0];
 	// remaining stages
 	for(ii=1; ii<=N; ii++)
 		{
@@ -64,6 +71,8 @@ void COND_QP_COMPUTE_DIM(struct OCP_QP_DIM *ocp_dim, struct DENSE_QP_DIM *dense_
 		nbc += nbu[ii];
 		ngc += nbx[ii]+ng[ii];
 		nsc += ns[ii];
+		//nbec += nbue[ii];
+		//ngec += nbxe[ii]+nge[ii];
 		}
 
 	dense_dim->nv = nvc;
@@ -71,6 +80,8 @@ void COND_QP_COMPUTE_DIM(struct OCP_QP_DIM *ocp_dim, struct DENSE_QP_DIM *dense_
 	dense_dim->nb = nbc;
 	dense_dim->ng = ngc;
 	dense_dim->ns = nsc;
+	//dense_dim->nbe = nbec;
+	//dense_dim->nge = ngec;
 
 	return;
 
@@ -479,8 +490,8 @@ void COND_QP_COND_RHS(struct OCP_QP *ocp_qp, struct DENSE_QP *dense_qp, struct C
 
 	COND_RQ(ocp_qp, dense_qp->gz, cond_arg, cond_ws);
 
-	// TODO cond m !!!!!!!!!!!
-	COND_D(ocp_qp, dense_qp->d, dense_qp->d_mask, dense_qp->gz, cond_arg, cond_ws);
+	//COND_D(ocp_qp, dense_qp->d, dense_qp->d_mask, dense_qp->m, dense_qp->idxe, dense_qp->gz, cond_arg, cond_ws);
+	COND_D(ocp_qp, dense_qp->d, dense_qp->d_mask, dense_qp->m, dense_qp->gz, cond_arg, cond_ws);
 
 	return;
 
@@ -503,16 +514,19 @@ void COND_QP_COND_SEED(struct OCP_QP *ocp_qp, struct OCP_QP_SEED *ocp_qp_seed, s
 	tmp_ocp_qp.DCt = ocp_qp->DCt;
 	tmp_ocp_qp.d = ocp_qp_seed->seed_d; // XXX
 	tmp_ocp_qp.d_mask = ocp_qp->d_mask;
+	//tmp_ocp_qp.m = ocp_qp->m;
+	tmp_ocp_qp.m = ocp_qp_seed->seed_m; // XXX
+	tmp_ocp_qp.idxe = ocp_qp->idxe;
 	tmp_ocp_qp.Z = ocp_qp->Z;
 	tmp_ocp_qp.idxs_rev = ocp_qp->idxs_rev;
 	tmp_ocp_qp.diag_H_flag = ocp_qp->diag_H_flag;
-	// TODO cond m !!!!!!!!!!!
 
 	COND_B(&tmp_ocp_qp, dense_qp_seed->seed_b, cond_arg, cond_ws);
 
 	COND_RQ(&tmp_ocp_qp, dense_qp_seed->seed_g, cond_arg, cond_ws);
 
-	COND_D(&tmp_ocp_qp, dense_qp_seed->seed_d, NULL, dense_qp_seed->seed_g, cond_arg, cond_ws);
+	//COND_D(&tmp_ocp_qp, dense_qp_seed->seed_d, NULL, dense_qp_seed->seed_m, NULL, dense_qp_seed->seed_g, cond_arg, cond_ws);
+	COND_D(&tmp_ocp_qp, dense_qp_seed->seed_d, NULL, dense_qp_seed->seed_m, dense_qp_seed->seed_g, cond_arg, cond_ws);
 
 	return;
 
@@ -557,10 +571,12 @@ void COND_QP_EXPAND_SOL_SEED(struct OCP_QP *ocp_qp, struct OCP_QP_SEED *ocp_qp_s
 	tmp_ocp_qp.DCt = ocp_qp->DCt;
 	tmp_ocp_qp.d = ocp_qp_seed->seed_d; // XXX
 	tmp_ocp_qp.d_mask = ocp_qp->d_mask;
+	//tmp_ocp_qp.m = ocp_qp->m;
+	tmp_ocp_qp.m = ocp_qp_seed->seed_m; // XXX
+	tmp_ocp_qp.idxe = ocp_qp->idxe;
 	tmp_ocp_qp.Z = ocp_qp->Z;
 	tmp_ocp_qp.idxs_rev = ocp_qp->idxs_rev;
 	tmp_ocp_qp.diag_H_flag = ocp_qp->diag_H_flag;
-	// TODO cond m !!!!!!!!!!!
 
 	EXPAND_SOL(&tmp_ocp_qp, dense_qp_sol, ocp_qp_sol, cond_arg, cond_ws);
 
