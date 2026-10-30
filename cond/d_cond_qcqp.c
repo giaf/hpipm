@@ -84,8 +84,11 @@
 #define DENSE_QCQP_DIM_SET_NV d_dense_qcqp_dim_set_nv
 #define DENSE_QCQP_DIM_SET_NE d_dense_qcqp_dim_set_ne
 #define DENSE_QCQP_DIM_SET_NB d_dense_qcqp_dim_set_nb
+#define DENSE_QCQP_DIM_SET_NBE d_dense_qcqp_dim_set_nbe
 #define DENSE_QCQP_DIM_SET_NG d_dense_qcqp_dim_set_ng
+#define DENSE_QCQP_DIM_SET_NGE d_dense_qcqp_dim_set_nge
 #define DENSE_QCQP_DIM_SET_NQ d_dense_qcqp_dim_set_nq
+#define DENSE_QCQP_DIM_SET_NQE d_dense_qcqp_dim_set_nqe
 #define DENSE_QCQP_DIM_SET_NS d_dense_qcqp_dim_set_ns
 #define DENSE_QCQP_DIM_SET_NSB d_dense_qcqp_dim_set_nsb
 #define DENSE_QCQP_DIM_SET_NSG d_dense_qcqp_dim_set_nsg

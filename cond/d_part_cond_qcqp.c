@@ -95,9 +95,13 @@
 #define OCP_QCQP_DIM_SET_NX d_ocp_qcqp_dim_set_nx
 #define OCP_QCQP_DIM_SET_NU d_ocp_qcqp_dim_set_nu
 #define OCP_QCQP_DIM_SET_NBX d_ocp_qcqp_dim_set_nbx
+#define OCP_QCQP_DIM_SET_NBXE d_ocp_qcqp_dim_set_nbxe
 #define OCP_QCQP_DIM_SET_NBU d_ocp_qcqp_dim_set_nbu
+#define OCP_QCQP_DIM_SET_NBUE d_ocp_qcqp_dim_set_nbue
 #define OCP_QCQP_DIM_SET_NG d_ocp_qcqp_dim_set_ng
+#define OCP_QCQP_DIM_SET_NGE d_ocp_qcqp_dim_set_nge
 #define OCP_QCQP_DIM_SET_NQ d_ocp_qcqp_dim_set_nq
+#define OCP_QCQP_DIM_SET_NQE d_ocp_qcqp_dim_set_nqe
 #define OCP_QCQP_DIM_SET_NSBX d_ocp_qcqp_dim_set_nsbx
 #define OCP_QCQP_DIM_SET_NSBU d_ocp_qcqp_dim_set_nsbu
 #define OCP_QCQP_DIM_SET_NSG d_ocp_qcqp_dim_set_nsg

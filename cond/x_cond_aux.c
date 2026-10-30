@@ -795,7 +795,7 @@ void COND_RQ(struct OCP_QP *ocp_qp, struct STRVEC *rqz2, struct COND_QP_ARG *con
 
 
 
-void COND_DCTD(struct OCP_QP *ocp_qp, int *idxb2, struct STRMAT *DCt2, struct STRVEC *d2, struct STRVEC *d_mask2, struct STRVEC *m2, int *idxs_rev2, struct STRVEC *Z2, struct STRVEC *rqz2, struct COND_QP_ARG *cond_arg, struct COND_QP_WS *cond_ws)
+void COND_DCTD(struct OCP_QP *ocp_qp, int *idxb2, struct STRMAT *DCt2, struct STRVEC *d2, struct STRVEC *d_mask2, int *idxe2, struct STRVEC *m2, int *idxs_rev2, struct STRVEC *Z2, struct STRVEC *rqz2, struct COND_QP_ARG *cond_arg, struct COND_QP_WS *cond_ws)
 	{
 
 	int N = ocp_qp->dim->N;
@@ -814,10 +814,14 @@ void COND_DCTD(struct OCP_QP *ocp_qp, int *idxb2, struct STRMAT *DCt2, struct ST
 	int *nb = ocp_qp->dim->nb;
 	int *ng = ocp_qp->dim->ng;
 	int *ns = ocp_qp->dim->ns;
+	int *nbxe = ocp_qp->dim->nbxe;
+	int *nbue = ocp_qp->dim->nbue;
+	int *nge = ocp_qp->dim->nge;
 
 	int **idxb = ocp_qp->idxb;
 	struct STRVEC *d = ocp_qp->d;
 	struct STRVEC *d_mask = ocp_qp->d_mask;
+	int **idxe = ocp_qp->idxe;
 	struct STRVEC *m = ocp_qp->m;
 	struct STRMAT *DCt = ocp_qp->DCt;
 	int **idxs_rev = ocp_qp->idxs_rev;
@@ -835,6 +839,7 @@ void COND_DCTD(struct OCP_QP *ocp_qp, int *idxb2, struct STRMAT *DCt2, struct ST
 		VECCP(2*ns[0], ocp_qp->Z, 0, Z2, 0);
 		VECCP(2*ns[0], ocp_qp->rqz, nu[0]+nx[0], rqz2, nu[0]+nx[0]); // XXX rqz2 offset
 		for(ii=0; ii<nb[0]+ng[0]; ii++) idxs_rev2[ii] = ocp_qp->idxs_rev[0][ii];
+		for(ii=0; ii<nbxe[0]+nbue[0]+nge[0]; ii++) idxe2[ii] = ocp_qp->idxe[0][ii];
 		return;
 		}
 
@@ -842,6 +847,7 @@ void COND_DCTD(struct OCP_QP *ocp_qp, int *idxb2, struct STRMAT *DCt2, struct ST
 	struct STRMAT *Gamma = cond_ws->Gamma;
 	struct STRVEC *Gammab = cond_ws->Gammab;
 	struct STRVEC *tmp_nbgM = cond_ws->tmp_nbgM;
+	int *idxe_mask = cond_ws->idxe_mask;
 
 
 	REAL *ptr_d_lb;
@@ -859,7 +865,7 @@ void COND_DCTD(struct OCP_QP *ocp_qp, int *idxb2, struct STRMAT *DCt2, struct ST
 
 	int nu_tmp, ng_tmp;
 
-	int nu0, nx0, nb0, ng0, ns0;
+	int nu0, nx0, nb0, ng0, ns0, nbue0, nbxe0, nge0;
 
 	// problem size
 
@@ -885,6 +891,14 @@ void COND_DCTD(struct OCP_QP *ocp_qp, int *idxb2, struct STRMAT *DCt2, struct ST
 	int ng2 = nbg + ngg;
 	int nb2 = nbb;
 	int nt2 = nb2 + ng2;
+
+	int nbe2 = nbue[0]+nbxe[0];
+	int nge2 = nge[0];
+	for(ii=1; ii<=N; ii++)
+		{
+		nbe2 += nbue[ii];
+		nge2 += nbxe[ii] + nge[ii];
+		}
 
 	REAL *d_lb3 = d2->pa+0;
 	REAL *d_ub3 = d2->pa+nb2+ng2;
@@ -917,6 +931,8 @@ void COND_DCTD(struct OCP_QP *ocp_qp, int *idxb2, struct STRMAT *DCt2, struct ST
 	int ib = 0;
 	int ig = 0;
 	int is = 0; // XXX
+	int ibe = 0;
+	int ige = 0;
 
 	int idxb0, idxg0;
 
@@ -938,6 +954,9 @@ void COND_DCTD(struct OCP_QP *ocp_qp, int *idxb2, struct STRMAT *DCt2, struct ST
 		nb0 = nb[N-ii];
 		ng0 = ng[N-ii];
 		ns0 = ns[N-ii];
+		nbue0 = nbue[N-ii];
+		nbxe0 = nbxe[N-ii];
+		nge0 = nge[N-ii];
 		nu_tmp += nu0;
 		ptr_d_lb = d[N-ii].pa+0;
 		ptr_d_ub = d[N-ii].pa+nb0+ng0;
@@ -945,6 +964,17 @@ void COND_DCTD(struct OCP_QP *ocp_qp, int *idxb2, struct STRMAT *DCt2, struct ST
 		ptr_d_mask_ub = d_mask[N-ii].pa+nb0+ng0;
 		ptr_m_lb = m[N-ii].pa+0;
 		ptr_m_ub = m[N-ii].pa+nb0+ng0;
+		if(nb0>0)
+			{
+			// set idxe_mask
+			for(jj=0; jj<nb0+ng0; jj++)
+				idxe_mask[jj] = 0;
+			for(jj=0; jj<nbue0+nbxe0; jj++)
+				{
+				idx = idxe[N-ii][jj];
+				idxe_mask[idx] = 1;
+				}
+			}
 		for(jj=0; jj<nb0; jj++)
 			{
 			idxb0 = idxb[N-ii][jj];
@@ -965,6 +995,11 @@ void COND_DCTD(struct OCP_QP *ocp_qp, int *idxb2, struct STRMAT *DCt2, struct ST
 				else
 					{
 					idxs_rev2[ib] = -1;
+					}
+				if(idxe_mask[jj]==1)
+					{
+					idxe2[ibe] = ib;
+					ibe++;
 					}
 				ib++;
 				}
@@ -989,6 +1024,11 @@ void COND_DCTD(struct OCP_QP *ocp_qp, int *idxb2, struct STRMAT *DCt2, struct ST
 					{
 					idxs_rev2[nb2+ig] = -1;
 					}
+				if(idxe_mask[jj]==1)
+					{
+					idxe2[nbe2+ige] = nb2+ig;
+					ige++;
+					}
 				ig++;
 				}
 			}
@@ -1002,6 +1042,9 @@ void COND_DCTD(struct OCP_QP *ocp_qp, int *idxb2, struct STRMAT *DCt2, struct ST
 	nb0 = nb[0];
 	ng0 = ng[0];
 	ns0 = ns[0];
+	nbue0 = nbue[0];
+	nbxe0 = nbxe[0];
+	nge0 = nge[0];
 	nu_tmp += nu0;
 	ptr_d_lb = d[0].pa+0;
 	ptr_d_ub = d[0].pa+nb0+ng0;
@@ -1009,6 +1052,17 @@ void COND_DCTD(struct OCP_QP *ocp_qp, int *idxb2, struct STRMAT *DCt2, struct ST
 	ptr_d_mask_ub = d_mask[0].pa+nb0+ng0;
 	ptr_m_lb = m[0].pa+0;
 	ptr_m_ub = m[0].pa+nb0+ng0;
+	if(nb0>0)
+		{
+		// set idxe_mask
+		for(jj=0; jj<nb0+ng0; jj++)
+			idxe_mask[jj] = 0;
+		for(jj=0; jj<nbue0+nbxe0; jj++)
+			{
+			idx = idxe[0][jj];
+			idxe_mask[idx] = 1;
+			}
+		}
 	for(jj=0; jj<nb0; jj++)
 		{
 		idxb0 = idxb[0][jj];
@@ -1027,6 +1081,11 @@ void COND_DCTD(struct OCP_QP *ocp_qp, int *idxb2, struct STRMAT *DCt2, struct ST
 		else
 			{
 			idxs_rev2[ib] = -1;
+			}
+		if(idxe_mask[jj]==1)
+			{
+			idxe2[ibe] = ib;
+			ibe++;
 			}
 		ib++;
 		}
@@ -1050,9 +1109,21 @@ void COND_DCTD(struct OCP_QP *ocp_qp, int *idxb2, struct STRMAT *DCt2, struct ST
 		nb0 = nb[N-ii];
 		ng0 = ng[N-ii];
 		ns0 = ns[N-ii];
+		nbue0 = nbue[N-ii];
+		nbxe0 = nbxe[N-ii];
+		nge0 = nge[N-ii];
 
 		if(ng0>0)
 			{
+			// set idxe_mask
+			for(jj=0; jj<nb0+ng0; jj++)
+				idxe_mask[jj] = 0;
+			for(jj=0; jj<nge0; jj++)
+				{
+				idx = idxe[N-ii][nbue0+nbxe0+jj];
+				idxe_mask[idx] = 1;
+				}
+			//
 			for(ig=0; ig<ng0; ig++)
 				{
 				idx = idxs_rev[N-ii][nb0+ig];
@@ -1063,6 +1134,11 @@ void COND_DCTD(struct OCP_QP *ocp_qp, int *idxb2, struct STRMAT *DCt2, struct ST
 				else
 					{
 					idxs_rev2[nb2+nbg+ng_tmp+ig] = -1;
+					}
+				if(idxe_mask[nb0+ig]==1)
+					{
+					idxe2[nbe2+ige] = nb2+nbg+ng_tmp+ig;
+					ige++;
 					}
 				}
 
@@ -1105,9 +1181,21 @@ void COND_DCTD(struct OCP_QP *ocp_qp, int *idxb2, struct STRMAT *DCt2, struct ST
 	nb0 = nb[0];
 	ng0 = ng[0];
 	ns0 = ns[0];
+	nbue0 = nbue[0];
+	nbxe0 = nbxe[0];
+	nge0 = nge[0];
 
 	if(ng0>0)
 		{
+		// set idxe_mask
+		for(jj=0; jj<nb0+ng0; jj++)
+			idxe_mask[jj] = 0;
+		for(jj=0; jj<nge0; jj++)
+			{
+			idx = idxe[0][nbue0+nbxe0+jj];
+			idxe_mask[idx] = 1;
+			}
+		//
 		for(ig=0; ig<ng0; ig++)
 			{
 			idx = idxs_rev[0][nb0+ig];
@@ -1118,6 +1206,11 @@ void COND_DCTD(struct OCP_QP *ocp_qp, int *idxb2, struct STRMAT *DCt2, struct ST
 			else
 				{
 				idxs_rev2[nb2+nbg+ng_tmp+ig] = -1;
+				}
+			if(idxe_mask[nb0+ig]==1)
+				{
+				idxe2[nbe2+ige] = nb2+nbg+ng_tmp+ig;
+				ige++;
 				}
 			}
 

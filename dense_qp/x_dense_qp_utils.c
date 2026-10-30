@@ -45,12 +45,16 @@ void DENSE_QP_DIM_PRINT(struct DENSE_QP_DIM *qp_dim)
 	int nb = qp_dim->nb;
 	int ng = qp_dim->ng;
 	int ns = qp_dim->ns;
+	int nbe = qp_dim->nbe;
+	int nge = qp_dim->nge;
 
 	printf("nv = %d\n\n", nv);
 	printf("ne = %d\n\n", ne);
 	printf("nb = %d\n\n", nb);
 	printf("ng = %d\n\n", ng);
 	printf("ns = %d\n\n", ns);
+	printf("nbe = %d\n\n", nbe);
+	printf("nge = %d\n\n", nge);
 
 #endif
 	return;
@@ -70,6 +74,8 @@ void DENSE_QP_DIM_CODEGEN(char *file_name, char *mode, struct DENSE_QP_DIM *qp_d
 	int nb = qp_dim->nb;
 	int ng = qp_dim->ng;
 	int ns = qp_dim->ns;
+	int nbe = qp_dim->nbe;
+	int nge = qp_dim->nge;
 
 	fprintf(file, "/***************\n* dim\n***************/\n");
 
@@ -88,6 +94,12 @@ void DENSE_QP_DIM_CODEGEN(char *file_name, char *mode, struct DENSE_QP_DIM *qp_d
 	// ns
 	fprintf(file, "/* ns */\n");
 	fprintf(file, "int ns = %d;\n", ns);
+	// nbe
+	fprintf(file, "/* nbe */\n");
+	fprintf(file, "int nbe = %d;\n", nbe);
+	// nge
+	fprintf(file, "/* nge */\n");
+	fprintf(file, "int nge = %d;\n", nge);
 
 	fclose(file);
 
@@ -107,6 +119,8 @@ void DENSE_QP_PRINT(struct DENSE_QP_DIM *qp_dim, struct DENSE_QP *qp)
 	int nb = qp_dim->nb;
 	int ng = qp_dim->ng;
 	int ns = qp_dim->ns;
+	int nbe = qp_dim->nbe;
+	int nge = qp_dim->nge;
 
 	printf("H = \n");
 	BLASFEO_PRINT_MAT(nv, nv, qp->Hv, 0, 0);
@@ -141,6 +155,9 @@ void DENSE_QP_PRINT(struct DENSE_QP_DIM *qp_dim, struct DENSE_QP *qp)
 	printf("idxs_rev = \n");
 	int_print_mat(1, nb+ng, qp->idxs_rev, 1);
 
+	printf("idxe = \n");
+	int_print_mat(1, nbe+nge, qp->idxe, 1);
+
 #endif
 	return;
 	}
@@ -159,6 +176,8 @@ void DENSE_QP_CODEGEN(char *file_name, char *mode, struct DENSE_QP_DIM *qp_dim, 
 	int nb = qp_dim->nb;
 	int ng = qp_dim->ng;
 	int ns = qp_dim->ns;
+	int nbe = qp_dim->nbe;
+	int nge = qp_dim->nge;
 
 	fprintf(file, "/***************\n* qp\n***************/\n");
 
@@ -780,6 +799,14 @@ void DENSE_QP_CODEGEN(char *file_name, char *mode, struct DENSE_QP_DIM *qp_dim, 
 #else
 	fprintf(file, "float *m_lus = m_llus;\n");
 #endif
+
+	// idxe
+	fprintf(file, "/* idxe */\n");
+	fprintf(file, "static int iidxe[] = {");
+	for(ii=0; ii<nbe+nge; ii++)
+		fprintf(file, "%d, ", qp->idxe[ii]);
+	fprintf(file, "};\n");
+	fprintf(file, "int *idxe = iidxe;\n");
 
 	fclose(file);
 

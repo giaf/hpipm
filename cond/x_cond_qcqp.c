@@ -44,6 +44,10 @@ void COND_QCQP_COMPUTE_DIM(struct OCP_QCQP_DIM *ocp_dim, struct DENSE_QCQP_DIM *
 	int *ng = ocp_dim->ng;
 	int *nq = ocp_dim->nq;
 	int *ns = ocp_dim->ns;
+	int *nbxe = ocp_dim->nbxe;
+	int *nbue = ocp_dim->nbue;
+	int *nge = ocp_dim->nge;
+	int *nqe = ocp_dim->nqe;
 
 	int ii;
 
@@ -53,6 +57,9 @@ void COND_QCQP_COMPUTE_DIM(struct OCP_QCQP_DIM *ocp_dim, struct DENSE_QCQP_DIM *
 	int ngc = 0;
 	int nqc = 0;
 	int nsc = 0;
+	int nbec = 0;
+	int ngec = 0;
+	int nqec = 0;
 
 	// first stage
 	nvc += nx[0]+nu[0];
@@ -60,6 +67,9 @@ void COND_QCQP_COMPUTE_DIM(struct OCP_QCQP_DIM *ocp_dim, struct DENSE_QCQP_DIM *
 	ngc += ng[0];
 	nqc += nq[0];
 	nsc += ns[0];
+	nbec += nbxe[0]+nbue[0];
+	ngec += nge[0];
+	nqec += nqe[0];
 	// remaining stages
 	for(ii=1; ii<=N; ii++)
 		{
@@ -68,6 +78,9 @@ void COND_QCQP_COMPUTE_DIM(struct OCP_QCQP_DIM *ocp_dim, struct DENSE_QCQP_DIM *
 		ngc += nbx[ii]+ng[ii];
 		nqc += nq[ii];
 		nsc += ns[ii];
+		nbec += nbue[ii];
+		ngec += nbxe[ii]+nge[ii];
+		ngec += nqe[ii];
 		}
 
 	// XXX must use setters to correctly set qp ones too !
@@ -77,6 +90,9 @@ void COND_QCQP_COMPUTE_DIM(struct OCP_QCQP_DIM *ocp_dim, struct DENSE_QCQP_DIM *
 	DENSE_QCQP_DIM_SET_NG(ngc, dense_dim);
 	DENSE_QCQP_DIM_SET_NQ(nqc, dense_dim);
 	DENSE_QCQP_DIM_SET_NS(nsc, dense_dim);
+	DENSE_QCQP_DIM_SET_NBE(nbec, dense_dim);
+	DENSE_QCQP_DIM_SET_NGE(ngec, dense_dim);
+	DENSE_QCQP_DIM_SET_NQE(nqec, dense_dim);
 
 	return;
 
@@ -814,7 +830,7 @@ void COND_QCQP_COND(struct OCP_QCQP *ocp_qp, struct DENSE_QCQP *dense_qp, struct
 
 	COND_RSQRQ(&tmp_ocp_qp, dense_qp->Hv, dense_qp->gz, cond_arg->qp_arg, cond_ws->qp_ws);
 
-	COND_DCTD(&tmp_ocp_qp, dense_qp->idxb, dense_qp->Ct, dense_qp->d, dense_qp->d_mask, dense_qp->m, dense_qp->idxs_rev, dense_qp->Z, dense_qp->gz, cond_arg->qp_arg, cond_ws->qp_ws);
+	COND_DCTD(&tmp_ocp_qp, dense_qp->idxb, dense_qp->Ct, dense_qp->d, dense_qp->d_mask, dense_qp->idxe, dense_qp->m, dense_qp->idxs_rev, dense_qp->Z, dense_qp->gz, cond_arg->qp_arg, cond_ws->qp_ws);
 
 	COND_QCQP_QC(ocp_qp, dense_qp->Hq, dense_qp->Hq_nzero, dense_qp->Ct, dense_qp->d, cond_arg, cond_ws);
 

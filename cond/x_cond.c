@@ -43,9 +43,9 @@ void COND_QP_COMPUTE_DIM(struct OCP_QP_DIM *ocp_dim, struct DENSE_QP_DIM *dense_
 	int *nbu = ocp_dim->nbu;
 	int *ng = ocp_dim->ng;
 	int *ns = ocp_dim->ns;
-	//int *nbxe = ocp_dim->nbxe;
-	//int *nbue = ocp_dim->nbue;
-	//int *nge = ocp_dim->nge;
+	int *nbxe = ocp_dim->nbxe;
+	int *nbue = ocp_dim->nbue;
+	int *nge = ocp_dim->nge;
 
 	int ii;
 
@@ -54,16 +54,16 @@ void COND_QP_COMPUTE_DIM(struct OCP_QP_DIM *ocp_dim, struct DENSE_QP_DIM *dense_
 	int nbc = 0;
 	int ngc = 0;
 	int nsc = 0;
-	//int nbec = 0;
-	//int ngec = 0;
+	int nbec = 0;
+	int ngec = 0;
 
 	// first stage
 	nvc += nx[0]+nu[0];
 	nbc += nbx[0]+nbu[0];
 	ngc += ng[0];
 	nsc += ns[0];
-	//nbec += nbxe[0]+nbue[0];
-	//ngec += nge[0];
+	nbec += nbxe[0]+nbue[0];
+	ngec += nge[0];
 	// remaining stages
 	for(ii=1; ii<=N; ii++)
 		{
@@ -71,8 +71,8 @@ void COND_QP_COMPUTE_DIM(struct OCP_QP_DIM *ocp_dim, struct DENSE_QP_DIM *dense_
 		nbc += nbu[ii];
 		ngc += nbx[ii]+ng[ii];
 		nsc += ns[ii];
-		//nbec += nbue[ii];
-		//ngec += nbxe[ii]+nge[ii];
+		nbec += nbue[ii];
+		ngec += nbxe[ii]+nge[ii];
 		}
 
 	dense_dim->nv = nvc;
@@ -80,8 +80,9 @@ void COND_QP_COMPUTE_DIM(struct OCP_QP_DIM *ocp_dim, struct DENSE_QP_DIM *dense_
 	dense_dim->nb = nbc;
 	dense_dim->ng = ngc;
 	dense_dim->ns = nsc;
-	//dense_dim->nbe = nbec;
-	//dense_dim->nge = ngec;
+	printf("\nsetting nbe %d nge %d\n", nbec, ngec);
+	dense_dim->nbe = nbec;
+	dense_dim->nge = ngec;
 
 	return;
 
@@ -250,6 +251,7 @@ hpipm_size_t COND_QP_WS_MEMSIZE(struct OCP_QP_DIM *ocp_dim, struct COND_QP_ARG *
 		{
 		size += 1*sizeof(struct STRMAT); // GammaQ
 		}
+	size += 1*(nbM+ngM)*sizeof(int); // idxe_mask
 
 	nu_tmp = 0;
 	for(ii=0; ii<N; ii++)
@@ -381,8 +383,17 @@ void COND_QP_WS_CREATE(struct OCP_QP_DIM *ocp_dim, struct COND_QP_ARG *cond_arg,
 		}
 
 
+	// int stuff
+	int *i_ptr;
+	i_ptr = (int *) sv_ptr;
+
+	// idxe_mask
+	cond_ws->idxe_mask = i_ptr;
+	i_ptr += nbM+ngM;
+
+
 	// align to typical cache line size
-	s_ptr = (size_t) sv_ptr;
+	s_ptr = (size_t) i_ptr;
 	s_ptr = (s_ptr+63)/64*64;
 
 
@@ -460,7 +471,7 @@ void COND_QP_COND(struct OCP_QP *ocp_qp, struct DENSE_QP *dense_qp, struct COND_
 
 	COND_RSQRQ(ocp_qp, dense_qp->Hv, dense_qp->gz, cond_arg, cond_ws);
 
-	COND_DCTD(ocp_qp, dense_qp->idxb, dense_qp->Ct, dense_qp->d, dense_qp->d_mask, dense_qp->m, dense_qp->idxs_rev, dense_qp->Z, dense_qp->gz, cond_arg, cond_ws);
+	COND_DCTD(ocp_qp, dense_qp->idxb, dense_qp->Ct, dense_qp->d, dense_qp->d_mask, dense_qp->idxe, dense_qp->m, dense_qp->idxs_rev, dense_qp->Z, dense_qp->gz, cond_arg, cond_ws);
 
 	return;
 

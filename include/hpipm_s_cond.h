@@ -83,6 +83,7 @@ struct s_cond_qp_ws
 	struct blasfeo_svec *l;
 	struct blasfeo_svec *tmp_nbgM;
 	struct blasfeo_svec *tmp_nuxM;
+	int *idxe_mask;
 	int bs; // block size
 	hpipm_size_t memsize;
 	};

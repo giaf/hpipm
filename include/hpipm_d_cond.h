@@ -81,6 +81,7 @@ struct d_cond_qp_ws
 	struct blasfeo_dvec *l;
 	struct blasfeo_dvec *tmp_nbgM;
 	struct blasfeo_dvec *tmp_nuxM;
+	int *idxe_mask;
 	int bs; // block size
 	hpipm_size_t memsize;
 	};

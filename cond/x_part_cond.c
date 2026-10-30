@@ -74,6 +74,9 @@ void PART_COND_QP_COMPUTE_DIM(struct OCP_QP_DIM *ocp_dim, int *block_size, struc
 	int *nbu = ocp_dim->nbu;
 	int *ng = ocp_dim->ng;
 	int *ns = ocp_dim->ns;
+	int *nbxe = ocp_dim->nbxe;
+	int *nbue = ocp_dim->nbue;
+	int *nge = ocp_dim->nge;
 
 	int N2 = part_dense_dim->N;
 	int *nx2 = part_dense_dim->nx;
@@ -83,10 +86,11 @@ void PART_COND_QP_COMPUTE_DIM(struct OCP_QP_DIM *ocp_dim, int *block_size, struc
 	int *nbu2 = part_dense_dim->nbu;
 	int *ng2 = part_dense_dim->ng;
 	int *ns2 = part_dense_dim->ns;
+	int *nbxe2 = part_dense_dim->nbxe;
+	int *nbue2 = part_dense_dim->nbue;
+	int *nge2 = part_dense_dim->nge;
 
 	int ii, jj;
-
-	// TODO equality constraints !!!!!!!!!
 
 //	int nbb; // box constr that remain box constr
 //	int nbg; // box constr that becomes general constr
@@ -101,6 +105,9 @@ void PART_COND_QP_COMPUTE_DIM(struct OCP_QP_DIM *ocp_dim, int *block_size, struc
 		nb2[ii] = nb[N_tmp+0];
 		ng2[ii] = ng[N_tmp+0];
 		ns2[ii] = ns[N_tmp+0];
+		nbxe2[ii] = nbxe[N_tmp+0];
+		nbue2[ii] = nbue[N_tmp+0];
+		nge2[ii] = nge[N_tmp+0];
 		for(jj=1; jj<block_size[ii]; jj++)
 			{
 			nx2[ii] += 0;
@@ -110,6 +117,9 @@ void PART_COND_QP_COMPUTE_DIM(struct OCP_QP_DIM *ocp_dim, int *block_size, struc
 			nb2[ii] += nbu[N_tmp+jj];
 			ng2[ii] += ng[N_tmp+jj] + nbx[N_tmp+jj];
 			ns2[ii] += ns[N_tmp+jj];
+			nbxe2[ii] += 0;
+			nbue2[ii] += nbue[N_tmp+jj];
+			nge2[ii] += nge[N_tmp+jj] + nbxe[N_tmp+jj];
 			}
 		N_tmp += block_size[ii];
 		}
@@ -122,6 +132,9 @@ void PART_COND_QP_COMPUTE_DIM(struct OCP_QP_DIM *ocp_dim, int *block_size, struc
 	nb2[ii] = nb[N_tmp+0];
 	ng2[ii] = ng[N_tmp+0];
 	ns2[ii] = ns[N_tmp+0];
+	nbxe2[ii] = nbxe[N_tmp+0];
+	nbue2[ii] = nbue[N_tmp+0];
+	nge2[ii] = nge[N_tmp+0];
 	for(jj=1; jj<block_size[ii]+1; jj++)
 		{
 		nx2[ii] += 0;
@@ -131,6 +144,9 @@ void PART_COND_QP_COMPUTE_DIM(struct OCP_QP_DIM *ocp_dim, int *block_size, struc
 		nb2[ii] += nbu[N_tmp+jj];
 		ng2[ii] += ng[N_tmp+jj] + nbx[N_tmp+jj];
 		ns2[ii] += ns[N_tmp+jj];
+		nbxe2[ii] += 0;
+		nbue2[ii] += nbue[N_tmp+jj];
+		nge2[ii] += nge[N_tmp+jj] + nbxe[N_tmp+jj];
 		}
 
 	return;
@@ -511,6 +527,9 @@ void PART_COND_QP_COND(struct OCP_QP *ocp_qp, struct OCP_QP *part_dense_qp, stru
 		tmp_ocp_dim.nb = ocp_qp->dim->nb+N_tmp;
 		tmp_ocp_dim.ng = ocp_qp->dim->ng+N_tmp;
 		tmp_ocp_dim.ns = ocp_qp->dim->ns+N_tmp;
+		tmp_ocp_dim.nbxe = ocp_qp->dim->nbxe+N_tmp; // XXX
+		tmp_ocp_dim.nbue = ocp_qp->dim->nbue+N_tmp; // XXX
+		tmp_ocp_dim.nge = ocp_qp->dim->nge+N_tmp; // XXX
 
 		// alias ocp_qp
 		tmp_ocp_qp.dim = &tmp_ocp_dim;
@@ -526,12 +545,13 @@ void PART_COND_QP_COND(struct OCP_QP *ocp_qp, struct OCP_QP *part_dense_qp, stru
 		tmp_ocp_qp.Z = ocp_qp->Z+N_tmp;
 		tmp_ocp_qp.idxs_rev = ocp_qp->idxs_rev+N_tmp;
 		tmp_ocp_qp.diag_H_flag = ocp_qp->diag_H_flag+N_tmp;
+		tmp_ocp_qp.idxe = ocp_qp->idxe+N_tmp; // XXX
 
 		COND_BABT(&tmp_ocp_qp, part_dense_qp->BAbt+ii, part_dense_qp->b+ii, part_cond_arg->cond_arg+ii, part_cond_ws->cond_workspace+ii);
 
 		COND_RSQRQ(&tmp_ocp_qp, part_dense_qp->RSQrq+ii, part_dense_qp->rqz+ii, part_cond_arg->cond_arg+ii, part_cond_ws->cond_workspace+ii);
 
-		COND_DCTD(&tmp_ocp_qp, part_dense_qp->idxb[ii], part_dense_qp->DCt+ii, part_dense_qp->d+ii, part_dense_qp->d_mask+ii, part_dense_qp->m+ii, part_dense_qp->idxs_rev[ii], part_dense_qp->Z+ii, part_dense_qp->rqz+ii, part_cond_arg->cond_arg+ii, part_cond_ws->cond_workspace+ii);
+		COND_DCTD(&tmp_ocp_qp, part_dense_qp->idxb[ii], part_dense_qp->DCt+ii, part_dense_qp->d+ii, part_dense_qp->d_mask+ii, part_dense_qp->idxe[ii], part_dense_qp->m+ii, part_dense_qp->idxs_rev[ii], part_dense_qp->Z+ii, part_dense_qp->rqz+ii, part_cond_arg->cond_arg+ii, part_cond_ws->cond_workspace+ii);
 
 		N_tmp += bs;
 
