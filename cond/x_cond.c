@@ -80,7 +80,6 @@ void COND_QP_COMPUTE_DIM(struct OCP_QP_DIM *ocp_dim, struct DENSE_QP_DIM *dense_
 	dense_dim->nb = nbc;
 	dense_dim->ng = ngc;
 	dense_dim->ns = nsc;
-	printf("\nsetting nbe %d nge %d\n", nbec, ngec);
 	dense_dim->nbe = nbec;
 	dense_dim->nge = ngec;
 

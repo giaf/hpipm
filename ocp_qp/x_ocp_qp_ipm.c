@@ -3759,6 +3759,7 @@ void OCP_QP_IPM_SENS_FRW(struct OCP_QP *qp, struct OCP_QP_SEED *seed, struct OCP
 	//d_ocp_qp_print(tmp_qp.dim, &tmp_qp);
 	//exit(1);
 
+#if 0
 for(int ii=0; ii<cws->nc; ii++)
 	{
 	if(tmp_qp.d_mask->pa[ii]!=0.0)
@@ -3772,6 +3773,7 @@ for(int ii=0; ii<cws->nc; ii++)
 		printf("zero %d\n", ii);
 		}
 	}
+#endif
 
 	// solve kkt
 	ws->use_Pb = 0;

@@ -148,6 +148,7 @@ struct s_dense_qp_ipm_ws
 	int *ipiv_v;
 	int *ipiv_e;
 	int *ipiv_e1;
+	int *d_mask_idxe; // encoding original d_mask indexed by idxe: 00 no bound, 01 lower, 10 upper, 11 both
 	void *lq_work0;
 	void *lq_work1;
 	void *lq_work_null;

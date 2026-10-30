@@ -299,7 +299,7 @@ void DENSE_QP_RES_COMPUTE(struct DENSE_QP *qp, struct DENSE_QP_SOL *qp_sol, stru
 		{
 		int nc_mask = 0;
 		for(ii=0; ii<nct; ii++)
-			if(d_mask->pa[ii]==1.0)
+			if(d_mask->pa[ii]!=0.0)
 				nc_mask++;
 			else
 				mask_constr = 1; // at least one masked constraint
@@ -401,6 +401,87 @@ void DENSE_QP_RES_COMPUTE(struct DENSE_QP *qp, struct DENSE_QP_SOL *qp_sol, stru
 	}
 
 
+
+void DENSE_QP_RES_COMPUTE_MU(struct DENSE_QP *qp, struct DENSE_QP_SOL *qp_sol, struct DENSE_QP_RES *res, struct DENSE_QP_RES_WS *ws)
+	{
+
+	int ii, idx;
+
+	int nv = qp->dim->nv;
+	int ne = qp->dim->ne;
+	int nb = qp->dim->nb;
+	int ng = qp->dim->ng;
+	int ns = qp->dim->ns;
+
+	int nvt = nv+2*ns;
+	int net = ne;
+	int nct = 2*nb+2*ng+2*ns;
+
+	// TODO use nc_mask_inv from cws if available !!!!!
+	//REAL nct_inv = 1.0/nct;
+
+	struct STRMAT *Hg = qp->Hv;
+	struct STRMAT *A = qp->A;
+	struct STRMAT *Ct = qp->Ct;
+	struct STRVEC *gz = qp->gz;
+	struct STRVEC *b = qp->b;
+	struct STRVEC *d = qp->d;
+	struct STRVEC *d_mask = qp->d_mask;
+	struct STRVEC *m = qp->m;
+	int *idxb = qp->idxb;
+	struct STRVEC *Z = qp->Z;
+	int *idxs_rev = qp->idxs_rev;
+
+	struct STRVEC *v = qp_sol->v;
+	struct STRVEC *pi = qp_sol->pi;
+	struct STRVEC *lam = qp_sol->lam;
+	struct STRVEC *t = qp_sol->t;
+
+	struct STRVEC *res_g = res->res_g;
+	struct STRVEC *res_b = res->res_b;
+	struct STRVEC *res_d = res->res_d;
+	struct STRVEC *res_m = res->res_m;
+
+	struct STRVEC *tmp_nbg = ws->tmp_nbg;
+	struct STRVEC *tmp_ns = ws->tmp_ns;
+	struct STRVEC *tmp_lam_mask = ws->tmp_lam_mask;
+
+	REAL mu, tmp;
+	REAL *obj = &res->obj;
+	REAL *dual_gap = &res->dual_gap;
+
+	int mask_constr = 0;
+	REAL nc_mask_inv = 0.0;
+	if(ws->valid_nc_mask==1)
+		{
+		mask_constr = ws->mask_constr;
+		nc_mask_inv = ws->nc_mask_inv;
+		}
+	else
+		{
+		int nc_mask = 0;
+		for(ii=0; ii<nct; ii++)
+			if(d_mask->pa[ii]!=0.0)
+				nc_mask++;
+			else
+				mask_constr = 1; // at least one masked constraint
+		if(nc_mask>0)
+			nc_mask_inv = 1.0/nc_mask;
+		// do not store these in ws, to guard against changes in d_mask
+		}
+
+	VECNRM_1(nct, res_m, 0, &mu);
+
+	//res->res_mu = mu*nct_inv;
+	res->res_mu = mu*nc_mask_inv;
+	res->res_mu_sum = mu;
+
+	return;
+
+	}
+
+
+
 void DENSE_QP_RES_COMPUTE_LIN(struct DENSE_QP *qp, struct DENSE_QP_SOL *qp_sol, struct DENSE_QP_SOL *qp_step, struct DENSE_QP_RES *res, struct DENSE_QP_RES_WS *ws)
 	{
 
@@ -458,7 +539,7 @@ void DENSE_QP_RES_COMPUTE_LIN(struct DENSE_QP *qp, struct DENSE_QP_SOL *qp_sol, 
 		{
 		int nc_mask = 0;
 		for(ii=0; ii<nct; ii++)
-			if(d_mask->pa[ii]!=1.0)
+			if(d_mask->pa[ii]==0.0)
 				mask_constr = 1; // at least one masked constraint
 		// do not store these in ws, to guard against changes in d_mask
 		}

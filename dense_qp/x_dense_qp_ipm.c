@@ -669,6 +669,8 @@ hpipm_size_t DENSE_QP_IPM_WS_MEMSIZE(struct DENSE_QP_DIM *dim, struct DENSE_QP_I
 	int nb = dim->nb;
 	int ng = dim->ng;
 	int ns = dim->ns;
+	int nbe = dim->nbe;
+	int nge = dim->nge;
 
 	hpipm_size_t size = 0;
 
@@ -769,7 +771,10 @@ hpipm_size_t DENSE_QP_IPM_WS_MEMSIZE(struct DENSE_QP_DIM *dim, struct DENSE_QP_I
 		// TODO
 		}
 
+	size += (nbe+nge)*sizeof(int); // d_mask_idxe
+
 	// cache value of stat_max used for memory allocation
+	// XXX needed ??? in ocp qp there is not !!!
 	if(arg->stat_max<arg->iter_max)
 		arg->stat_max = arg->iter_max;
 
@@ -803,6 +808,8 @@ void DENSE_QP_IPM_WS_CREATE(struct DENSE_QP_DIM *dim, struct DENSE_QP_IPM_ARG *a
 	int nb = dim->nb;
 	int ng = dim->ng;
 	int ns = dim->ns;
+	int nbe = dim->nbe;
+	int nge = dim->nge;
 
 
 	// core struct
@@ -985,6 +992,9 @@ void DENSE_QP_IPM_WS_CREATE(struct DENSE_QP_DIM *dim, struct DENSE_QP_IPM_ARG *a
 
 	workspace->ipiv_e1 = i_ptr;
 	i_ptr += ne;
+
+	workspace->d_mask_idxe = i_ptr;
+	i_ptr += nbe+nge;
 
 
 	// align to typical cache line size
@@ -2243,6 +2253,140 @@ void DENSE_QP_IPM_DELTA_STEP(int kk, struct DENSE_QP *qp, struct DENSE_QP_SOL *q
 
 
 
+static int DENSE_QP_IPM_MASK_IDXE(int kk, struct DENSE_QP *qp, struct DENSE_QP_SOL *qp_sol, struct DENSE_QP_IPM_ARG *arg, struct DENSE_QP_IPM_WS *ws)
+	{
+
+	// dim
+	int nv = qp->dim->nv;
+	int ne = qp->dim->ne;
+	int nb = qp->dim->nb;
+	int ng = qp->dim->ng;
+	int ns = qp->dim->ns;
+	int nbe = qp->dim->nbe;
+	int nge = qp->dim->nge;
+
+	struct CORE_QP_IPM_WORKSPACE *cws = ws->core_workspace;
+
+	int newres = 0;
+
+	int jj;
+
+	int *ptr_d_mask_idxe = ws->d_mask_idxe;
+	REAL *ptr_d_mask = qp->d_mask->pa;
+	REAL *ptr_m = qp->m->pa;
+	REAL *ptr_lam = qp_sol->lam->pa;
+	REAL *ptr_t = qp_sol->t->pa;
+	REAL *ptr_res_m = ws->res->res_m->pa;
+	REAL *ptr_res_d = ws->res->res_d->pa;
+	for(jj=0; jj<nbe+nge; jj++)
+		{
+		int ll = qp->idxe[jj];
+		if(ptr_d_mask[ll]*ptr_d_mask[nb+ng+ll]==1.0)
+			{
+			if(ptr_res_m[ll]<1e-4 && ptr_res_m[nb+ng+ll]<1e-4) //if(qp_res_max[3]<1e-4)
+				{
+				newres = 1;
+				REAL dlam = ptr_lam[ll]-ptr_lam[nb+ng+ll];
+				if(dlam>0.0) // active at lower, mask upper
+					{
+					// shift upper
+					//BLASFEO_DVECEL(qp->d+ss, nb+ng[ss]+ll) = BLASFEO_DVECEL(&d_orig, nb+ng[ss]+ll) + 1e-6;
+					ptr_d_mask[nb+ng+ll] = 0.0;
+					ptr_lam[ll] = dlam;
+					ptr_lam[nb+ng+ll] = 1e-16;
+					ptr_t[nb+ng+ll] = 1e-8; // TODO this has an effect on the code !!!!!!!
+					ptr_res_m[ll] = dlam*ptr_t[ll] - ptr_m[ll];
+					ptr_res_m[nb+ng+ll] = 0.0;
+					ptr_res_d[nb+ng+ll] = 0.0;
+					}
+				else // active at upper, mask lower
+					{
+					// shift lower
+					//BLASFEO_DVECEL(qp->d+ss, ll) = BLASFEO_DVECEL(&d_orig, ll) - 1e-6;
+					//BLASFEO_DVECEL(qp->d+ss, ll) = BLASFEO_DVECEL(&d_orig, ll) - 1e-6;
+					ptr_d_mask[ll] = 0.0;
+					ptr_lam[ll] = 1e-16;
+					ptr_lam[nb+ng+ll] = - dlam;
+					ptr_t[ll] = 1e-8; // TODO this has an effect on the code !!!!!!!
+					ptr_res_m[ll] = 0.0;
+					ptr_res_m[nb+ng+ll] = - dlam*ptr_t[nb+ng+ll] - ptr_m[nb+ng+ll];
+					ptr_res_d[ll] = 0.0;
+					}
+				ws->mask_constr = 1;
+				ws->res_ws->mask_constr = 1;
+				cws->nc_mask -= 1;
+				REAL nc_mask_inv = 1.0/cws->nc_mask;
+				cws->nc_mask_inv = nc_mask_inv;
+				ws->res_ws->nc_mask_inv = nc_mask_inv;
+				}
+			}
+		else
+			{
+			if(ptr_d_mask[ll]==0.0) // lower masked out, active at upper
+				{
+				if(ptr_d_mask_idxe[jj]&0x1 && ptr_t[nb+ng+ll]>1e-4)
+					{
+					newres = 1;
+					//printf("\nloosening at upper\n");
+					ptr_d_mask[ll] = 1.0; // unmask lower
+					ptr_lam[ll] = 1e-1;
+					ptr_lam[nb+ng+ll] += 1e-1;
+
+					REAL dist = ptr_t[nb+ng+ll] - ptr_res_d[nb+ng+ll];
+
+					ptr_t[ll] = 1e-1; //ptr_t[nb+ng+ll];
+					//ptr_t[nb+ng+ll] = 1e-1;
+					ptr_res_m[nb+ng+ll] = ptr_lam[nb+ng+ll]*ptr_t[nb+ng+ll] - ptr_m[nb+ng+ll];
+					ptr_res_m[ll] = ptr_lam[ll]*ptr_t[ll] - ptr_m[ll];
+					//ptr_res_m[ll] = ptr_res_m[nb+ng+ll];
+					//ptr_t[ll] = (ptr_res_m[ll] + ptr_m[ll]) / ptr_lam[ll];
+
+					//ptr_res_d[nb+ng+ll] = - dist + ptr_t[nb+ng+ll];
+					ptr_res_d[ll] = dist + ptr_t[ll];
+
+					cws->nc_mask += 1;
+					REAL nc_mask_inv = 1.0/cws->nc_mask;
+					cws->nc_mask_inv = nc_mask_inv;
+					ws->res_ws->nc_mask_inv = nc_mask_inv;
+					}
+				}
+			else // upper masked out, active at lower
+				{
+				if(ptr_d_mask_idxe[jj]&0x2 && ptr_t[ll]>1e-4)
+					{
+					newres = 1;
+					//printf("\nloosening at lower\n");
+					ptr_d_mask[nb+ng+ll] = 1.0; // unmask upper
+					ptr_lam[nb+ng+ll] = 1e-1;
+					ptr_lam[ll] += 1e-1;
+
+					REAL dist = ptr_res_d[ll] - ptr_t[ll];
+
+					ptr_t[nb+ng+ll] = 1e-1; //ptr_t[ll];
+					//ptr_t[ll] = 1e-1;
+					ptr_res_m[ll] = ptr_lam[ll]*ptr_t[ll] - ptr_m[ll];
+					ptr_res_m[nb+ng+ll] = ptr_lam[nb+ng+ll]*ptr_t[nb+ng+ll] - ptr_m[nb+ng+ll];
+					//ptr_res_m[nb+ng+ll] = ptr_res_m[ll];
+					//ptr_t[nb+ng+ll] = (ptr_res_m[nb+ng+ll] + ptr_m[nb+ng+ll]) / ptr_lam[nb+ng+ll];
+
+					//ptr_res_d[ll] = dist + ptr_t[ll];
+					ptr_res_d[nb+ng+ll] = - dist + ptr_t[nb+ng+ll];
+
+					cws->nc_mask += 1;
+					REAL nc_mask_inv = 1.0/cws->nc_mask;
+					cws->nc_mask_inv = nc_mask_inv;
+					ws->res_ws->nc_mask_inv = nc_mask_inv;
+					}
+				}
+			}
+		}
+
+	return newres;
+
+	}
+
+
+
 void DENSE_QP_IPM_SOLVE(struct DENSE_QP *qp, struct DENSE_QP_SOL *qp_sol, struct DENSE_QP_IPM_ARG *arg, struct DENSE_QP_IPM_WS *ws)
 	{
 
@@ -2261,6 +2405,8 @@ exit(1);
 	int nb = qp->dim->nb;
 	int ng = qp->dim->ng;
 	int ns = qp->dim->ns;
+	int nbe = qp->dim->nbe;
+	int nge = qp->dim->nge;
 
 	struct CORE_QP_IPM_WORKSPACE *cws = ws->core_workspace;
 
@@ -2379,10 +2525,30 @@ exit(1);
 		{
 		mask_unconstr = 0;
 		cws->nc_mask = nc_mask;
-		cws->nc_mask_inv = 1.0/nc_mask;
-		ws->res_ws->nc_mask_inv = 1.0/nc_mask;
+		REAL nc_mask_inv = 1.0/nc_mask;
+		cws->nc_mask_inv = nc_mask_inv;
+		ws->res_ws->nc_mask_inv = nc_mask_inv;
 		}
 	ws->res_ws->valid_nc_mask = 1; // set to avoid mask_constr and nc_mask_inv recomputation in res
+
+	// initialize d_mask_idxe
+	{
+	int *ptr_d_mask_idxe = ws->d_mask_idxe;
+	REAL *ptr_d_mask = qp->d_mask->pa;
+	//printf("d_mask_idxe[%d]:", ss);
+	for(ii=0; ii<nbe+nge; ii++)
+		{
+		int jj = qp->idxe[ii];
+		ptr_d_mask_idxe[ii] = 0;
+		if(ptr_d_mask[jj]==1.0)
+			ptr_d_mask_idxe[ii] |= 0x1;
+		if(ptr_d_mask[nb+ng+jj]==1.0)
+			ptr_d_mask_idxe[ii] |= 0x2;
+		//printf(" %d", ptr_d_mask_idxe[ii]);
+		}
+	//printf("\n");
+	}
+
 
 	// no constraints
 	if(cws->nc==0 | mask_unconstr==1)
@@ -2513,7 +2679,27 @@ exit(1);
 			mu *= cws->nc_mask_inv;
 			cws->mu = mu;
 			if(kk+1<ws->stat_max)
+				{
 				stat[stat_m*(kk+1)+6] = mu;
+				}
+
+			int newres = DENSE_QP_IPM_MASK_IDXE(kk, qp, qp_sol, arg, ws);
+
+			if(newres)
+				{
+				// compute residuals
+				// XXX DENSE_QP_IPM_MASK_IDXE recomputes only affected components of residuals
+				//DENSE_QP_RES_COMPUTE(qp, qp_sol, ws->res, ws->res_ws);
+				DENSE_QP_RES_COMPUTE_MU(qp, qp_sol, ws->res, ws->res_ws);
+				cws->mu = ws->res->res_mu;
+				// save infinity norm of residuals
+				if(kk+1<ws->stat_max)
+					{
+					stat[stat_m*(kk+1)+6] = ws->res->res_mu;
+					}
+				mu = cws->mu;
+
+				}
 
 			}
 
@@ -2521,13 +2707,6 @@ exit(1);
 			{
 			// compute residuals
 			DENSE_QP_RES_COMPUTE(qp, qp_sol, ws->res, ws->res_ws);
-			//if(ws->mask_constr)
-			//	{
-			//	// mask out disregarded constraints
-			//	VECMUL(2*ns, qp->d_mask, 2*nb+2*ng, ws->res->res_g, nv, ws->res->res_g, nv);
-			//	VECMUL(cws->nc, qp->d_mask, 0, ws->res->res_d, 0, ws->res->res_d, 0);
-			//	VECMUL(cws->nc, qp->d_mask, 0, ws->res->res_m, 0, ws->res->res_m, 0);
-			//	}
 			DENSE_QP_RES_COMPUTE_INF_NORM(ws->res);
 			// save infinity norm of residuals
 			// XXX it is already kk+1
@@ -2549,13 +2728,6 @@ exit(1);
 
 	// compute residuals
 	DENSE_QP_RES_COMPUTE(qp, qp_sol, ws->res, ws->res_ws);
-	//if(ws->mask_constr)
-	//	{
-	//	// mask out disregarded constraints
-	//	VECMUL(2*ns, qp->d_mask, 2*nb+2*ng, ws->res->res_g, nv, ws->res->res_g, nv);
-	//	VECMUL(cws->nc, qp->d_mask, 0, ws->res->res_d, 0, ws->res->res_d, 0);
-	//	VECMUL(cws->nc, qp->d_mask, 0, ws->res->res_m, 0, ws->res->res_m, 0);
-	//	}
 	//ws->res->res_mu = ws->res->res_mu_sum * cws->nc_mask_inv;
 	cws->mu = ws->res->res_mu;
 	DENSE_QP_RES_COMPUTE_INF_NORM(ws->res);
@@ -2605,14 +2777,6 @@ exit(1);
 
 		// compute residuals
 		DENSE_QP_RES_COMPUTE(qp, qp_sol, ws->res, ws->res_ws);
-		//d_dense_qp_res_print(qp->dim, ws->res);
-		//if(ws->mask_constr)
-		//	{
-		//	// mask out disregarded constraints
-		//	VECMUL(2*ns, qp->d_mask, 2*nb+2*ng, ws->res->res_g, nv, ws->res->res_g, nv);
-		//	VECMUL(cws->nc, qp->d_mask, 0, ws->res->res_d, 0, ws->res->res_d, 0);
-		//	VECMUL(cws->nc, qp->d_mask, 0, ws->res->res_m, 0, ws->res->res_m, 0);
-		//	}
 		//ws->res->res_mu = ws->res->res_mu_sum * cws->nc_mask_inv;
 		cws->mu = ws->res->res_mu;
 		DENSE_QP_RES_COMPUTE_INF_NORM(ws->res);
@@ -2631,6 +2795,32 @@ exit(1);
 		AXPY(cws->nc, -tau_min, qp->d_mask, 0, ws->res->res_m, 0, ws->tmp_m, 0);
 		VECNRM_INF(cws->nc, ws->tmp_m, 0, &res_m_tau);
 
+		int newres = DENSE_QP_IPM_MASK_IDXE(kk, qp, qp_sol, arg, ws);
+
+		if(newres)
+			{
+			// compute residuals
+			// XXX DENSE_QP_IPM_MASK_IDXE recomputes only affected components of residuals
+			//DENSE_QP_RES_COMPUTE(qp, qp_sol, ws->res, ws->res_ws);
+			DENSE_QP_RES_COMPUTE_MU(qp, qp_sol, ws->res, ws->res_ws);
+			cws->mu = ws->res->res_mu;
+			DENSE_QP_RES_COMPUTE_INF_NORM(ws->res);
+			// save infinity norm of residuals
+			if(kk+1<ws->stat_max)
+				{
+				stat[stat_m*(kk+1)+6] = ws->res->res_mu;
+				stat[stat_m*(kk+1)+7] = qp_res_max[0];
+				stat[stat_m*(kk+1)+8] = qp_res_max[1];
+				stat[stat_m*(kk+1)+9] = qp_res_max[2];
+				stat[stat_m*(kk+1)+10] = qp_res_max[3];
+				stat[stat_m*(kk+1)+11] = ws->res->dual_gap;
+				stat[stat_m*(kk+1)+12] = ws->res->obj;
+				}
+
+			AXPY(cws->nc, -tau_min, qp->d_mask, 0, ws->res->res_m, 0, ws->tmp_m, 0);
+			VECNRM_INF(cws->nc, ws->tmp_m, 0, &res_m_tau);
+			}
+
 		}
 
 set_status:
@@ -2645,6 +2835,29 @@ set_status:
 
 	// reset to guard against changes in d_mask
 	ws->res_ws->valid_nc_mask = 0;
+
+	// reset d_mask
+	{
+	//printf("\nreset d_mask\n");
+	// XXX no need to update nc_mask since it's not valid any more in res and recomputed on entry to ipm solve !!!
+	int *ptr_d_mask_idxe = ws->d_mask_idxe;
+	REAL *ptr_d_mask = qp->d_mask->pa;
+	//printf("d_mask_idxe[%d]:", ss);
+	for(ii=0; ii<nbe+nge; ii++)
+		{
+		int jj = qp->idxe[ii];
+		//printf(" %d", ptr_d_mask_idxe[ii]);
+		if(ptr_d_mask_idxe[ii]&0x1)
+			{
+			ptr_d_mask[jj] = 1.0;
+			}
+		if(ptr_d_mask_idxe[ii]&0x2)
+			{
+			ptr_d_mask[nb+ng+jj] = 1.0;
+			}
+		}
+	//printf("\n");
+	}
 
 	// save info before return
 	ws->iter = kk;

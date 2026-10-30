@@ -94,6 +94,8 @@ void s_dense_qp_res_ws_create(struct s_dense_qp_dim *dim, struct s_dense_qp_res_
 //
 void s_dense_qp_res_compute(struct s_dense_qp *qp, struct s_dense_qp_sol *qp_sol, struct s_dense_qp_res *res, struct s_dense_qp_res_ws *ws);
 //
+void s_dense_qp_res_compute_mu(struct s_dense_qp *qp, struct s_dense_qp_sol *qp_sol, struct s_dense_qp_res *res, struct s_dense_qp_res_ws *ws);
+//
 void s_dense_qp_res_compute_lin(struct s_dense_qp *qp, struct s_dense_qp_sol *qp_sol, struct s_dense_qp_sol *qp_step, struct s_dense_qp_res *res, struct s_dense_qp_res_ws *ws);
 //
 void s_dense_qp_res_compute_inf_norm(struct s_dense_qp_res *res);

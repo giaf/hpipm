@@ -88,6 +88,7 @@
 #define DENSE_QP_RES_WS_MEMSIZE d_dense_qp_res_ws_memsize
 #define DENSE_QP_RES_WS_CREATE d_dense_qp_res_ws_create
 #define DENSE_QP_RES_COMPUTE d_dense_qp_res_compute
+#define DENSE_QP_RES_COMPUTE_MU d_dense_qp_res_compute_mu
 #define DENSE_QP_RES_COMPUTE_LIN d_dense_qp_res_compute_lin
 #define DENSE_QP_RES_COMPUTE_INF_NORM d_dense_qp_res_compute_inf_norm
 #define DENSE_QP_RES_GET_ALL d_dense_qp_res_get_all
