@@ -55,12 +55,16 @@
 #define DENSE_QP_DIM_SET_NB d_dense_qp_dim_set_nb
 #define DENSE_QP_DIM_SET_NG d_dense_qp_dim_set_ng
 #define DENSE_QP_DIM_SET_NS d_dense_qp_dim_set_ns
+#define DENSE_QP_DIM_SET_NBE d_dense_qp_dim_set_nbe
+#define DENSE_QP_DIM_SET_NGE d_dense_qp_dim_set_nge
 
 #define DENSE_QP_DIM_GET_NV d_dense_qp_dim_get_nv
 #define DENSE_QP_DIM_GET_NE d_dense_qp_dim_get_ne
 #define DENSE_QP_DIM_GET_NB d_dense_qp_dim_get_nb
 #define DENSE_QP_DIM_GET_NG d_dense_qp_dim_get_ng
 #define DENSE_QP_DIM_GET_NS d_dense_qp_dim_get_ns
+#define DENSE_QP_DIM_GET_NBE d_dense_qp_dim_get_nbe
+#define DENSE_QP_DIM_GET_NGE d_dense_qp_dim_get_nge
 
 
 #include "x_dense_qp_dim.c"

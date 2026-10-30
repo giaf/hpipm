@@ -121,6 +121,9 @@
 #define DENSE_QP_SET_M_UG s_dense_qp_set_m_ug
 #define DENSE_QP_SET_M_LLS s_dense_qp_set_m_lls
 #define DENSE_QP_SET_M_LUS s_dense_qp_set_m_lus
+#define DENSE_QP_SET_IDXE s_dense_qp_set_idxe
+#define DENSE_QP_SET_IDXBE s_dense_qp_set_idxbe
+#define DENSE_QP_SET_IDXGE s_dense_qp_set_idxge
 #define DENSE_QP_GET_H s_dense_qp_get_H
 #define DENSE_QP_GET_G s_dense_qp_get_g
 #define DENSE_QP_GET_A s_dense_qp_get_A

@@ -51,6 +51,8 @@ struct s_dense_qp_dim
 	int nb;  // number of box constraints
 	int ng;  // number of general constraints
 	int ns;  // number of slacks of softened constraints
+	int nbe; // number of box constraints which are equality
+	int nge; // number of general constraints which are equality
 	hpipm_size_t memsize;
 	};
 
@@ -76,6 +78,10 @@ void s_dense_qp_dim_set_nb(int value, struct s_dense_qp_dim *dim);
 void s_dense_qp_dim_set_ng(int value, struct s_dense_qp_dim *dim);
 //
 void s_dense_qp_dim_set_ns(int value, struct s_dense_qp_dim *dim);
+//
+void s_dense_qp_dim_set_nbe(int value, struct s_dense_qp_dim *dim);
+//
+void s_dense_qp_dim_set_nge(int value, struct s_dense_qp_dim *dim);
 
 // getters
 //
@@ -88,6 +94,10 @@ void s_dense_qp_dim_get_nb(struct s_dense_qp_dim *dim, int *value);
 void s_dense_qp_dim_get_ng(struct s_dense_qp_dim *dim, int *value);
 //
 void s_dense_qp_dim_get_ns(struct s_dense_qp_dim *dim, int *value);
+//
+void s_dense_qp_dim_get_nbe(struct s_dense_qp_dim *dim, int *value);
+//
+void s_dense_qp_dim_get_nge(struct s_dense_qp_dim *dim, int *value);
 
 
 #ifdef __cplusplus

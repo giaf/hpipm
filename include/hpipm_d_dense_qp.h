@@ -67,6 +67,7 @@ struct d_dense_qp
 	struct blasfeo_dvec *Z; // (diagonal) hessian of slacks
 	int *idxb; // indices of box constrained variables within [u; x]
 	int *idxs_rev; // index of slack softening each constraint
+	int *idxe; // indices of constraints within [b, g] that are equalities, subset of [0, ..., nb+ng-1]
 	hpipm_size_t memsize; // memory size in bytes
 	};
 
@@ -158,6 +159,12 @@ void d_dense_qp_set_m_ug(double *ug, struct d_dense_qp *qp);
 void d_dense_qp_set_m_lls(double *ls, struct d_dense_qp *qp);
 //
 void d_dense_qp_set_m_lus(double *us, struct d_dense_qp *qp);
+//
+void d_dense_qp_set_idxe(int *idxe, struct d_dense_qp *qp);
+//
+void d_dense_qp_set_idxbe(int *idxbe, struct d_dense_qp *qp);
+//
+void d_dense_qp_set_idxge(int *idxge, struct d_dense_qp *qp);
 
 // getters - colmaj
 // gets the most common fields of a QP; matrices are in the default column-major format

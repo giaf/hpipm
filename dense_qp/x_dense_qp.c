@@ -48,6 +48,8 @@ hpipm_size_t DENSE_QP_MEMSIZE(struct DENSE_QP_DIM *dim)
 	int nb = dim->nb;
 	int ng = dim->ng;
 	int ns = dim->ns;
+	int nbe = dim->nbe;
+	int nge = dim->nge;
 
 	hpipm_size_t size = 0;
 
@@ -60,6 +62,7 @@ hpipm_size_t DENSE_QP_MEMSIZE(struct DENSE_QP_DIM *dim)
 	size += 1*SIZE_STRVEC(2*ns); // Z
 	size += 1*nb*sizeof(int); // idxb
 	size += 1*(nb+ng)*sizeof(int); // idxs_rev
+	size += 1*(nbe+nge)*sizeof(int); // idxe
 
 	size += 1*SIZE_STRMAT(nv+1, nv); // Hv
 	size += 1*SIZE_STRMAT(ne, nv); // A
@@ -89,6 +92,8 @@ void DENSE_QP_CREATE(struct DENSE_QP_DIM *dim, struct DENSE_QP *qp, void *mem)
 	int nb = dim->nb;
 	int ng = dim->ng;
 	int ns = dim->ns;
+	int nbe = dim->nbe;
+	int nge = dim->nge;
 
 
 	// matrix struct stuff
@@ -139,6 +144,10 @@ void DENSE_QP_CREATE(struct DENSE_QP_DIM *dim, struct DENSE_QP *qp, void *mem)
 	i_ptr += nb+ng;
 	for(ii=0; ii<nb+ng; ii++)
 		qp->idxs_rev[ii] = -1;
+
+	// idxe
+	qp->idxe = i_ptr;
+	i_ptr += nbe+nge;
 
 
 	// align to typical cache line size
@@ -213,6 +222,8 @@ void DENSE_QP_COPY_ALL(struct DENSE_QP *qp_orig, struct DENSE_QP *qp_dest)
 	int nb = qp_orig->dim->nb;
 	int ng = qp_orig->dim->ng;
 	int ns = qp_orig->dim->ns;
+	int nbe = qp_orig->dim->nbe;
+	int nge = qp_orig->dim->nge;
 
 	int ii;
 
@@ -229,6 +240,8 @@ void DENSE_QP_COPY_ALL(struct DENSE_QP *qp_orig, struct DENSE_QP *qp_dest)
 		qp_dest->idxb[ii] = qp_orig->idxb[ii];
 	for(ii=0; ii<nb+ng; ii++)
 		qp_dest->idxs_rev[ii] = qp_orig->idxs_rev[ii];
+	for(ii=0; ii<nbe+nge; ii++)
+		qp_dest->idxe[ii] = qp_orig->idxe[ii];
 
 	return;
 
@@ -245,6 +258,8 @@ void DENSE_QP_SET_ALL_ZERO(struct DENSE_QP *qp)
 	int nb = qp->dim->nb;
 	int ng = qp->dim->ng;
 	int ns = qp->dim->ns;
+	int nbe = qp->dim->nbe;
+	int nge = qp->dim->nge;
 
 	int ii;
 
@@ -261,6 +276,8 @@ void DENSE_QP_SET_ALL_ZERO(struct DENSE_QP *qp)
 		qp->idxb[ii] = 0;
 	for(ii=0; ii<nb+ng; ii++)
 		qp->idxs_rev[ii] = -1;
+	for(ii=0; ii<nbe+nge; ii++)
+		qp->idxe[ii] = 0;
 
 	return;
 
@@ -572,6 +589,10 @@ void DENSE_QP_SET(char *field, void *value, struct DENSE_QP *qp)
 	else if(hpipm_strcmp(field, "m_lus"))
 		{
 		DENSE_QP_SET_M_LUS(value, qp);
+		}
+	else if(hpipm_strcmp(field, "idxe"))
+		{
+		DENSE_QP_SET_IDXE(value, qp);
 		}
 	else
 		{
@@ -1176,6 +1197,51 @@ void DENSE_QP_SET_M_LUS(REAL *us, struct DENSE_QP *qp)
 	int ng = qp->dim->ng;
 
 	PACK_VEC(ns, us, 1, qp->m, 2*nb+2*ng+ns);
+
+	return;
+
+	}
+
+
+
+void DENSE_QP_SET_IDXE(int *idxe, struct DENSE_QP *qp)
+	{
+
+	int ii;
+	int nbe = qp->dim->nbe;
+	int nge = qp->dim->nge;
+
+	for(ii=0; ii<nbe+nge; ii++) qp->idxe[ii] = idxe[ii];
+
+	return;
+
+	}
+
+
+
+void DENSE_QP_SET_IDXBE(int *idxbe, struct DENSE_QP *qp)
+	{
+
+	int ii;
+	int nbe = qp->dim->nbe;
+
+	for(ii=0; ii<nbe; ii++) qp->idxe[ii] = idxbe[ii];
+
+	return;
+
+	}
+
+
+
+void DENSE_QP_SET_IDXGE(int *idxge, struct DENSE_QP *qp)
+	{
+
+	int ii;
+	int nb = qp->dim->nb;
+	int nbe = qp->dim->nbe;
+	int nge = qp->dim->nge;
+
+	for(ii=0; ii<nge; ii++) qp->idxe[nbe+ii] = nb + idxge[ii];
 
 	return;
 
