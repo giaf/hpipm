@@ -65,6 +65,7 @@ struct s_tree_ocp_qp
 	struct blasfeo_svec *Z; // Nn
 	int **idxb; // indices of box constrained variables within [u; x] // Nn
 	int **idxs_rev; // index of slack softening each constraint
+	void *misc;
 	hpipm_size_t memsize; // memory size in bytes
 	};
 

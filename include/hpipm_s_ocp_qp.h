@@ -67,6 +67,7 @@ struct s_ocp_qp
 	int **idxs_rev; // index of slack softening each constraint
 	int **idxe; // indices of constraints within [bu, bx, g] that are equalities, subset of [0, ..., nbu+nbx+ng-1]
 	int *diag_H_flag; // flag the fact that Hessian is diagonal
+	void *misc;
 	hpipm_size_t memsize; // memory size in bytes
 	};
 

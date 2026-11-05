@@ -68,6 +68,7 @@ struct d_dense_qp
 	int *idxb; // indices of box constrained variables within [u; x]
 	int *idxs_rev; // index of slack softening each constraint
 	int *idxe; // indices of constraints within [b, g] that are equalities, subset of [0, ..., nb+ng-1]
+	void *misc;
 	hpipm_size_t memsize; // memory size in bytes
 	};
 

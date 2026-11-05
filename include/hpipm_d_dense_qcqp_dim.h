@@ -47,6 +47,7 @@ extern "C" {
 struct d_dense_qcqp_dim
 	{
 	struct d_dense_qp_dim *qp_dim; // dim of qp approximation
+	void *misc;
 	int nv;  // number of variables
 	int ne;  // number of equality constraints
 	int nb;  // number of box constraints
