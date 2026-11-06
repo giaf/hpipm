@@ -500,8 +500,7 @@ void COND_QP_COND_RHS(struct OCP_QP *ocp_qp, struct DENSE_QP *dense_qp, struct C
 
 	COND_RQ(ocp_qp, dense_qp->gz, cond_arg, cond_ws);
 
-	//COND_D(ocp_qp, dense_qp->d, dense_qp->d_mask, dense_qp->m, dense_qp->idxe, dense_qp->gz, cond_arg, cond_ws);
-	COND_D(ocp_qp, dense_qp->d, dense_qp->d_mask, dense_qp->m, dense_qp->gz, cond_arg, cond_ws);
+	COND_D(ocp_qp, dense_qp->d, dense_qp->d_mask, dense_qp->idxe, dense_qp->m, dense_qp->gz, cond_arg, cond_ws);
 
 	return;
 
@@ -535,8 +534,7 @@ void COND_QP_COND_SEED(struct OCP_QP *ocp_qp, struct OCP_QP_SEED *ocp_qp_seed, s
 
 	COND_RQ(&tmp_ocp_qp, dense_qp_seed->seed_g, cond_arg, cond_ws);
 
-	//COND_D(&tmp_ocp_qp, dense_qp_seed->seed_d, NULL, dense_qp_seed->seed_m, NULL, dense_qp_seed->seed_g, cond_arg, cond_ws);
-	COND_D(&tmp_ocp_qp, dense_qp_seed->seed_d, NULL, dense_qp_seed->seed_m, dense_qp_seed->seed_g, cond_arg, cond_ws);
+	COND_D(&tmp_ocp_qp, dense_qp_seed->seed_d, NULL, NULL, dense_qp_seed->seed_m, dense_qp_seed->seed_g, cond_arg, cond_ws);
 
 	return;
 

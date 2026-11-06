@@ -469,9 +469,9 @@ void PART_COND_QCQP_COND(struct OCP_QCQP *ocp_qp, struct OCP_QCQP *part_dense_qp
 		tmp_ocp_qp.d = ocp_qp->d+N_tmp;
 		tmp_ocp_qp.d_mask = ocp_qp->d_mask+N_tmp;
 		tmp_ocp_qp.m = ocp_qp->m+N_tmp;
+		tmp_ocp_qp.idxe = ocp_qp->idxe+N_tmp; // XXX
 		tmp_ocp_qp.Z = ocp_qp->Z+N_tmp;
 		tmp_ocp_qp.idxs_rev = ocp_qp->idxs_rev+N_tmp;
-		tmp_ocp_qp.idxe = ocp_qp->idxe+N_tmp; // XXX
 
 		COND_BABT(&tmp_ocp_qp, part_dense_qp->BAbt+ii, part_dense_qp->b+ii, part_cond_arg->cond_arg[ii].qp_arg, part_cond_ws->cond_ws[ii].qp_ws);
 
@@ -505,11 +505,11 @@ void PART_COND_QCQP_COND(struct OCP_QCQP *ocp_qp, struct OCP_QCQP *part_dense_qp
 		tmp_ocp_qcqp.d = ocp_qp->d+N_tmp;
 		tmp_ocp_qcqp.d_mask = ocp_qp->d_mask+N_tmp;
 		tmp_ocp_qcqp.m = ocp_qp->m+N_tmp;
+		tmp_ocp_qcqp.idxe = ocp_qp->idxe+N_tmp; // XXX
 		tmp_ocp_qcqp.Z = ocp_qp->Z+N_tmp;
 		tmp_ocp_qcqp.idxs_rev = ocp_qp->idxs_rev+N_tmp;
 		tmp_ocp_qcqp.Hq = ocp_qp->Hq+N_tmp;
 		tmp_ocp_qcqp.Hq_nzero = ocp_qp->Hq_nzero+N_tmp;
-		tmp_ocp_qcqp.idxe = ocp_qp->idxe+N_tmp; // XXX
 
 		COND_QCQP_QC(&tmp_ocp_qcqp, part_dense_qp->Hq[ii], part_dense_qp->Hq_nzero[ii], part_dense_qp->DCt+ii, part_dense_qp->d+ii, part_cond_arg->cond_arg+ii, part_cond_ws->cond_ws+ii);
 
@@ -571,6 +571,9 @@ void PART_COND_QCQP_COND_LHS(struct OCP_QCQP *ocp_qp, struct OCP_QCQP *part_dens
 		tmp_ocp_dim.nb = ocp_qp->dim->qp_dim->nb+N_tmp;
 		tmp_ocp_dim.ng = ocp_qp->dim->qp_dim->ng+N_tmp;
 		tmp_ocp_dim.ns = ocp_qp->dim->qp_dim->ns+N_tmp;
+		tmp_ocp_dim.nbxe = ocp_qp->dim->qp_dim->nbxe+N_tmp; // XXX
+		tmp_ocp_dim.nbue = ocp_qp->dim->qp_dim->nbue+N_tmp; // XXX
+		tmp_ocp_dim.nge = ocp_qp->dim->qp_dim->nge+N_tmp; // XXX
 
 		// alias ocp_qp
 		tmp_ocp_qp.dim = &tmp_ocp_dim;
@@ -583,6 +586,7 @@ void PART_COND_QCQP_COND_LHS(struct OCP_QCQP *ocp_qp, struct OCP_QCQP *part_dens
 		tmp_ocp_qp.d = ocp_qp->d+N_tmp;
 		tmp_ocp_qp.d_mask = ocp_qp->d_mask+N_tmp;
 		tmp_ocp_qp.m = ocp_qp->m+N_tmp;
+		tmp_ocp_qp.idxe = ocp_qp->idxe+N_tmp; // XXX
 		tmp_ocp_qp.Z = ocp_qp->Z+N_tmp;
 		tmp_ocp_qp.idxs_rev = ocp_qp->idxs_rev+N_tmp;
 
@@ -602,6 +606,10 @@ void PART_COND_QCQP_COND_LHS(struct OCP_QCQP *ocp_qp, struct OCP_QCQP *part_dens
 		tmp_ocp_qcqp_dim.ng = ocp_qp->dim->ng+N_tmp;
 		tmp_ocp_qcqp_dim.nq = ocp_qp->dim->nq+N_tmp;
 		tmp_ocp_qcqp_dim.ns = ocp_qp->dim->ns+N_tmp;
+		tmp_ocp_qcqp_dim.nbxe = ocp_qp->dim->nbxe+N_tmp; // XXX
+		tmp_ocp_qcqp_dim.nbue = ocp_qp->dim->nbue+N_tmp; // XXX
+		tmp_ocp_qcqp_dim.nge = ocp_qp->dim->nge+N_tmp; // XXX
+		tmp_ocp_qcqp_dim.nqe = ocp_qp->dim->nqe+N_tmp; // XXX
 
 		// alias ocp_qp
 		tmp_ocp_qcqp.dim = &tmp_ocp_qcqp_dim;
@@ -614,6 +622,7 @@ void PART_COND_QCQP_COND_LHS(struct OCP_QCQP *ocp_qp, struct OCP_QCQP *part_dens
 		tmp_ocp_qcqp.d = ocp_qp->d+N_tmp;
 		tmp_ocp_qcqp.d_mask = ocp_qp->d_mask+N_tmp;
 		tmp_ocp_qcqp.m = ocp_qp->m+N_tmp;
+		tmp_ocp_qcqp.idxe = ocp_qp->idxe+N_tmp; // XXX
 		tmp_ocp_qcqp.Z = ocp_qp->Z+N_tmp;
 		tmp_ocp_qcqp.idxs_rev = ocp_qp->idxs_rev+N_tmp;
 		tmp_ocp_qcqp.Hq = ocp_qp->Hq+N_tmp;
@@ -679,6 +688,9 @@ void PART_COND_QCQP_COND_RHS(struct OCP_QCQP *ocp_qp, struct OCP_QCQP *part_dens
 		tmp_ocp_dim.nb = ocp_qp->dim->nb+N_tmp;
 		tmp_ocp_dim.ng = ocp_qp->dim->ng+N_tmp;
 		tmp_ocp_dim.ns = ocp_qp->dim->ns+N_tmp;
+		tmp_ocp_dim.nbxe = ocp_qp->dim->qp_dim->nbxe+N_tmp; // XXX
+		tmp_ocp_dim.nbue = ocp_qp->dim->qp_dim->nbue+N_tmp; // XXX
+		tmp_ocp_dim.nge = ocp_qp->dim->qp_dim->nge+N_tmp; // XXX
 
 		// alias ocp_qp
 		tmp_ocp_qp.dim = &tmp_ocp_dim;
@@ -691,6 +703,7 @@ void PART_COND_QCQP_COND_RHS(struct OCP_QCQP *ocp_qp, struct OCP_QCQP *part_dens
 		tmp_ocp_qp.d = ocp_qp->d+N_tmp;
 		tmp_ocp_qp.d_mask = ocp_qp->d_mask+N_tmp;
 		tmp_ocp_qp.m = ocp_qp->m+N_tmp;
+		tmp_ocp_qp.idxe = ocp_qp->idxe+N_tmp; // XXX
 		tmp_ocp_qp.Z = ocp_qp->Z+N_tmp;
 		tmp_ocp_qp.idxs_rev = ocp_qp->idxs_rev+N_tmp;
 
@@ -698,7 +711,7 @@ void PART_COND_QCQP_COND_RHS(struct OCP_QCQP *ocp_qp, struct OCP_QCQP *part_dens
 
 		COND_RQ(&tmp_ocp_qp, part_dense_qp->rqz+ii, part_cond_arg->cond_arg[ii].qp_arg, part_cond_ws->cond_ws[ii].qp_ws);
 
-		COND_D(&tmp_ocp_qp, part_dense_qp->d+ii, part_dense_qp->d_mask+ii, part_dense_qp->m+ii, part_dense_qp->rqz+ii, part_cond_arg->cond_arg[ii].qp_arg, part_cond_ws->cond_ws[ii].qp_ws);
+		COND_D(&tmp_ocp_qp, part_dense_qp->d+ii, part_dense_qp->d_mask+ii, part_dense_qp->idxe[ii], part_dense_qp->m+ii, part_dense_qp->rqz+ii, part_cond_arg->cond_arg[ii].qp_arg, part_cond_ws->cond_ws[ii].qp_ws);
 
 		// alias ocp_dim
 		tmp_ocp_qcqp_dim.N = bs;
@@ -710,6 +723,10 @@ void PART_COND_QCQP_COND_RHS(struct OCP_QCQP *ocp_qp, struct OCP_QCQP *part_dens
 		tmp_ocp_qcqp_dim.ng = ocp_qp->dim->ng+N_tmp;
 		tmp_ocp_qcqp_dim.nq = ocp_qp->dim->nq+N_tmp;
 		tmp_ocp_qcqp_dim.ns = ocp_qp->dim->ns+N_tmp;
+		tmp_ocp_qcqp_dim.nbxe = ocp_qp->dim->nbxe+N_tmp; // XXX
+		tmp_ocp_qcqp_dim.nbue = ocp_qp->dim->nbue+N_tmp; // XXX
+		tmp_ocp_qcqp_dim.nge = ocp_qp->dim->nge+N_tmp; // XXX
+		tmp_ocp_qcqp_dim.nqe = ocp_qp->dim->nqe+N_tmp; // XXX
 
 		// alias ocp_qp
 		tmp_ocp_qcqp.dim = &tmp_ocp_qcqp_dim;
@@ -722,6 +739,7 @@ void PART_COND_QCQP_COND_RHS(struct OCP_QCQP *ocp_qp, struct OCP_QCQP *part_dens
 		tmp_ocp_qcqp.d = ocp_qp->d+N_tmp;
 		tmp_ocp_qcqp.d_mask = ocp_qp->d_mask+N_tmp;
 		tmp_ocp_qcqp.m = ocp_qp->m+N_tmp;
+		tmp_ocp_qcqp.idxe = ocp_qp->idxe+N_tmp; // XXX
 		tmp_ocp_qcqp.Z = ocp_qp->Z+N_tmp;
 		tmp_ocp_qcqp.idxs_rev = ocp_qp->idxs_rev+N_tmp;
 		tmp_ocp_qcqp.Hq = ocp_qp->Hq+N_tmp;
