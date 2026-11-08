@@ -261,8 +261,8 @@ void OCP_QCQP_CREATE(struct OCP_QCQP_DIM *dim, struct OCP_QCQP *qp, void *mem)
 		{
 		(qp->Hq_nzero)[ii] = i_ptr;
 		i_ptr += nq[ii];
-		for(jj=0; jj<nq[ii]; jj++)
-			qp->Hq_nzero[ii][jj] = 0;
+		//for(jj=0; jj<nq[ii]; jj++)
+		//	qp->Hq_nzero[ii][jj] = 0; // all memory is already set to zero
 		}
 
 

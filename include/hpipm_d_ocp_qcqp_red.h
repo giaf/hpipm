@@ -72,6 +72,7 @@ struct d_ocp_qcqp_reduce_eq_dof_ws
 	struct blasfeo_dvec *tmp_nbgqM;
 	int *e_imask_ux;
 	int *e_imask_d;
+	int *ux_map;
 	hpipm_size_t memsize; // memory size in bytes
 	};
 
