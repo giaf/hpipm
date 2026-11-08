@@ -188,7 +188,7 @@ hpipm_size_t OCP_QP_REDUCE_EQ_DOF_WS_MEMSIZE(struct OCP_QP_DIM *dim)
 
 	hpipm_size_t size = 0;
 
-	size += nuxM*sizeof(int); // e_imask_ux
+	size += 2*nuxM*sizeof(int); // e_imask_ux ux_map
 	size += nbgM*sizeof(int); // e_imask_d
 
 	size += 3*sizeof(struct STRVEC); // tmp_nuxM(0,1) tmp_nbgM
@@ -249,6 +249,9 @@ void OCP_QP_REDUCE_EQ_DOF_WS_CREATE(struct OCP_QP_DIM *dim, struct OCP_QP_REDUCE
 	// e_imask_d
 	work->e_imask_d = i_ptr;
 	i_ptr += nbgM;
+	// ux_map
+	work->ux_map = i_ptr;
+	i_ptr += nuxM;
 
 	// align to typical cache line size
 	hpipm_size_t l_ptr = (hpipm_size_t) i_ptr;
@@ -278,7 +281,7 @@ void OCP_QP_REDUCE_EQ_DOF_WS_CREATE(struct OCP_QP_DIM *dim, struct OCP_QP_REDUCE
 void OCP_QP_REDUCE_EQ_DOF(struct OCP_QP *qp, struct OCP_QP *qp_red, struct OCP_QP_REDUCE_EQ_DOF_ARG *arg, struct OCP_QP_REDUCE_EQ_DOF_WS *work)
 	{
 
-	int ii, jj, kk, idx0, idx1;
+	int ii, jj, kk, idx0, idx1, idx2;
 
 	struct OCP_QP_DIM *dim = qp->dim;
 	int N = dim->N;
@@ -299,6 +302,11 @@ void OCP_QP_REDUCE_EQ_DOF(struct OCP_QP *qp, struct OCP_QP *qp_red, struct OCP_Q
 	int *nb_red = dim_red->nb;
 	int *ng_red = dim_red->ng;
 	int *ns_red = dim_red->ns;
+	int *nbue_red = dim_red->nbue;
+	int *nbxe_red = dim_red->nbxe;
+	int *nge_red = dim_red->nge;
+
+	// TODO improve performance using pointers to struct members and caching stage sizes
 
 	// TODO handle case of softed equalities !!!!!!!!!!!!!!!!
 
@@ -325,7 +333,25 @@ void OCP_QP_REDUCE_EQ_DOF(struct OCP_QP *qp, struct OCP_QP *qp_red, struct OCP_Q
 				int tmp_idxb = qp->idxb[ii][tmp_idxe];
 				VECEL(work->tmp_nuxM+0, tmp_idxb) = VECEL(qp->d+ii, tmp_idxe);
 				work->e_imask_ux[tmp_idxb] = 1;
-				work->e_imask_d[tmp_idxe] = 1;
+				work->e_imask_d[tmp_idxe] = 1; // equality on degrees of freedom, to be removed
+				}
+			for(jj=ne_thr; jj<nbue[ii]+nbxe[ii]+nge[ii]; jj++)
+				{
+				int tmp_idxe = qp->idxe[ii][jj];
+				work->e_imask_d[tmp_idxe] = 2; // equality on dependend variables, to be kept
+				}
+			idx0 = 0;
+			for(jj=0; jj<nu[ii]+nx[ii]; jj++)
+				{
+				if(work->e_imask_ux[jj]==0) // kept variable
+					{
+					work->ux_map[jj] = idx0;
+					idx0++;
+					}
+				else // removed variable
+					{
+					work->ux_map[jj] = -1;
+					}
 				}
 			// TODO check first and last non-zero in e_mask and only multiply between them
 			if(ii<N)
@@ -375,11 +401,14 @@ void OCP_QP_REDUCE_EQ_DOF(struct OCP_QP *qp, struct OCP_QP *qp_red, struct OCP_Q
 					idx0++;
 					}
 				}
-			// d d_mask m idxb idxs_rev
+			// d d_mask m idxb idxs_rev idxe
 			idx0 = 0;
+			idx1 = 0;
+			idx2 = 0;
 			for(jj=0; jj<nb[ii]; jj++)
 				{
-				if(work->e_imask_d[jj]==0)
+				//if(work->e_imask_d[jj]==0)
+				if(work->e_imask_d[jj]!=1)
 					{
 					VECEL(qp_red->d+ii, idx0) = VECEL(qp->d+ii, jj);
 					VECEL(qp_red->d+ii, nb_red[ii]+ng_red[ii]+idx0) = VECEL(qp->d+ii, nb[ii]+ng[ii]+jj);
@@ -387,11 +416,22 @@ void OCP_QP_REDUCE_EQ_DOF(struct OCP_QP *qp, struct OCP_QP *qp_red, struct OCP_Q
 					VECEL(qp_red->d_mask+ii, nb_red[ii]+ng_red[ii]+idx0) = VECEL(qp->d_mask+ii, nb[ii]+ng[ii]+jj);
 					VECEL(qp_red->m+ii, idx0) = VECEL(qp->m+ii, jj);
 					VECEL(qp_red->m+ii, nb_red[ii]+ng_red[ii]+idx0) = VECEL(qp->m+ii, nb[ii]+ng[ii]+jj);
-					qp_red->idxb[ii][idx0] = qp->idxb[ii][jj];
+					//qp_red->idxb[ii][idx0] = qp->idxb[ii][jj]; // XXX wrong !!!
+					qp_red->idxb[ii][idx0] = work->ux_map[qp->idxb[ii][jj]];
 					qp_red->idxs_rev[ii][idx0] = qp->idxs_rev[ii][jj]; // keep softed inequality constr with same slack
+					if(work->e_imask_d[jj]==2)
+						{
+						qp_red->idxe[ii][idx2] = idx0;
+						idx2++;
+						}
 					idx0++;
 					}
+				else
+					{
+					idx1++;
+					}
 				}
+			// XXX here it must hold idx2==nbue_red[ii]+nbxe_red[ii]
 			VECCP(ng[ii], qp->d+ii, nb[ii], qp_red->d+ii, nb_red[ii]);
 			VECCP(ng[ii]+2*ns[ii], qp->d+ii, 2*nb[ii]+ng[ii], qp_red->d+ii, 2*nb_red[ii]+ng_red[ii]);
 			VECCP(ng[ii], qp->d_mask+ii, nb[ii], qp_red->d_mask+ii, nb_red[ii]);
@@ -401,6 +441,10 @@ void OCP_QP_REDUCE_EQ_DOF(struct OCP_QP *qp, struct OCP_QP *qp_red, struct OCP_Q
 			GEMV_T(nu[ii]+nx[ii], ng[ii], 1.0, qp->DCt+ii, 0, 0, work->tmp_nuxM+0, 0, 0.0, work->tmp_nbgM, 0, work->tmp_nbgM, 0);
 			AXPY(ng[ii], -1.0, work->tmp_nbgM, 0, qp->d+ii, nb[ii], qp_red->d+ii, nb_red[ii]);
 			AXPY(ng[ii], 1.0, work->tmp_nbgM, 0, qp->d+ii, 2*nb[ii]+ng[ii], qp_red->d+ii, 2*nb_red[ii]+ng_red[ii]);
+			for(jj=0; jj<nge[ii]; jj++)
+				{
+				qp_red->idxe[ii][nbue_red[ii]+nbxe_red[ii]+jj] = qp->idxe[ii][nbue[ii]+nbxe[ii]] - nb[ii] + nb_red[ii];
+				}
 			// DCt
 			idx0 = 0;
 			for(jj=0; jj<nu[ii]+nx[ii]; jj++)
@@ -417,7 +461,6 @@ void OCP_QP_REDUCE_EQ_DOF(struct OCP_QP *qp, struct OCP_QP *qp_red, struct OCP_Q
 			VECCP(2*ns[ii], qp->Z+ii, 0, qp_red->Z+ii, 0);
 			VECCP(2*ns[ii], qp->rqz+ii, nu[ii]+nx[ii], qp_red->rqz+ii, nu_red[ii]+nx_red[ii]);
 			qp_red->diag_H_flag[ii] = qp->diag_H_flag[ii];
-			// TODO idxe !!!!!!!!!!!!!!!
 			}
 		else // copy everything
 			{
@@ -493,6 +536,9 @@ void OCP_QP_REDUCE_EQ_DOF_LHS(struct OCP_QP *qp, struct OCP_QP *qp_red, struct O
 	int *nb_red = dim_red->nb;
 	int *ng_red = dim_red->ng;
 	int *ns_red = dim_red->ns;
+	int *nbue_red = dim_red->nbue;
+	int *nbxe_red = dim_red->nbxe;
+	int *nge_red = dim_red->nge;
 
 	// TODO handle case of softed equalities !!!!!!!!!!!!!!!!
 
@@ -513,9 +559,29 @@ void OCP_QP_REDUCE_EQ_DOF_LHS(struct OCP_QP *qp, struct OCP_QP *qp_red, struct O
 				work->e_imask_d[jj] = 0;
 			for(jj=0; jj<ne_thr; jj++) // set 1s for both inputs and states
 				{
-				VECEL(work->tmp_nuxM+0, qp->idxb[ii][qp->idxe[ii][jj]]) = VECEL(qp->d+ii, qp->idxe[ii][jj]);
-				work->e_imask_ux[qp->idxb[ii][qp->idxe[ii][jj]]] = 1;
-				work->e_imask_d[qp->idxe[ii][jj]] = 1;
+				int tmp_idxe = qp->idxe[ii][jj];
+				int tmp_idxb = qp->idxb[ii][tmp_idxe];
+				VECEL(work->tmp_nuxM+0, tmp_idxb) = VECEL(qp->d+ii, tmp_idxe);
+				work->e_imask_ux[tmp_idxb] = 1;
+				work->e_imask_d[tmp_idxe] = 1; // equality on degrees of freedom, to be removed
+				}
+			for(jj=ne_thr; jj<nbue[ii]+nbxe[ii]+nge[ii]; jj++)
+				{
+				int tmp_idxe = qp->idxe[ii][jj];
+				work->e_imask_d[tmp_idxe] = 2; // equality on dependend variables, to be kept
+				}
+			idx0 = 0;
+			for(jj=0; jj<nu[ii]+nx[ii]; jj++)
+				{
+				if(work->e_imask_ux[jj]==0) // kept variable
+					{
+					work->ux_map[jj] = idx0;
+					idx0++;
+					}
+				else // removed variable
+					{
+					work->ux_map[jj] = -1;
+					}
 				}
 			// TODO check first and last non-zero in e_mask and only multiply between them
 			if(ii<N)
@@ -556,9 +622,11 @@ void OCP_QP_REDUCE_EQ_DOF_LHS(struct OCP_QP *qp, struct OCP_QP *qp_red, struct O
 			idx0 = 0;
 			for(jj=0; jj<nb[ii]; jj++)
 				{
-				if(work->e_imask_d[jj]==0)
+				//if(work->e_imask_d[jj]==0)
+				if(work->e_imask_d[jj]!=1)
 					{
-					qp_red->idxb[ii][idx0] = qp->idxb[ii][jj];
+					//qp_red->idxb[ii][idx0] = qp->idxb[ii][jj]; // XXX wrong !!!
+					qp_red->idxb[ii][idx0] = work->ux_map[qp->idxb[ii][jj]];
 					qp_red->idxs_rev[ii][idx0] = qp->idxs_rev[ii][jj]; // keep softed inequality constr with same slack
 					idx0++;
 					}
@@ -578,7 +646,6 @@ void OCP_QP_REDUCE_EQ_DOF_LHS(struct OCP_QP *qp, struct OCP_QP *qp_red, struct O
 				qp_red->idxs_rev[ii][nb_red[ii]+jj] = qp->idxs_rev[ii][nb[ii]+jj]; // keep softed inequality constr with same slack
 			VECCP(2*ns[ii], qp->Z+ii, 0, qp_red->Z+ii, 0);
 			qp_red->diag_H_flag[ii] = qp->diag_H_flag[ii];
-			// TODO idxe !!!!!!!!!!!!!!!
 			}
 		else // copy everything
 			{
@@ -594,7 +661,7 @@ void OCP_QP_REDUCE_EQ_DOF_LHS(struct OCP_QP *qp, struct OCP_QP *qp_red, struct O
 				qp_red->idxb[ii] = qp->idxb[ii];
 				qp_red->DCt[ii] = qp->DCt[ii];
 				qp_red->idxs_rev[ii] = qp->idxs_rev[ii];
-				qp_red->idxe[ii] = qp->idxe[ii];
+				//qp_red->idxe[ii] = qp->idxe[ii];
 				}
 			else
 				{
@@ -609,8 +676,8 @@ void OCP_QP_REDUCE_EQ_DOF_LHS(struct OCP_QP *qp, struct OCP_QP *qp_red, struct O
 				GECP(nu[ii]+nx[ii], ng[ii], qp->DCt+ii, 0, 0, qp_red->DCt+ii, 0, 0);
 				for(jj=0; jj<nb[ii]+ng[ii]; jj++)
 					qp_red->idxs_rev[ii][jj] = qp->idxs_rev[ii][jj];
-				for(jj=0; jj<nbue[ii]+nbxe[ii]+nge[ii]; jj++)
-					qp_red->idxe[ii][jj] = qp->idxe[ii][jj];
+				//for(jj=0; jj<nbue[ii]+nbxe[ii]+nge[ii]; jj++)
+				//	qp_red->idxe[ii][jj] = qp->idxe[ii][jj];
 				}
 			}
 		}
@@ -624,7 +691,7 @@ void OCP_QP_REDUCE_EQ_DOF_LHS(struct OCP_QP *qp, struct OCP_QP *qp_red, struct O
 void OCP_QP_REDUCE_EQ_DOF_RHS(struct OCP_QP *qp, struct OCP_QP *qp_red, struct OCP_QP_REDUCE_EQ_DOF_ARG *arg, struct OCP_QP_REDUCE_EQ_DOF_WS *work)
 	{
 
-	int ii, jj, kk, idx0, idx1;
+	int ii, jj, kk, idx0, idx1, idx2;
 
 	struct OCP_QP_DIM *dim = qp->dim;
 	int N = dim->N;
@@ -645,6 +712,9 @@ void OCP_QP_REDUCE_EQ_DOF_RHS(struct OCP_QP *qp, struct OCP_QP *qp_red, struct O
 	int *nb_red = dim_red->nb;
 	int *ng_red = dim_red->ng;
 	int *ns_red = dim_red->ns;
+	int *nbue_red = dim_red->nbue;
+	int *nbxe_red = dim_red->nbxe;
+	int *nge_red = dim_red->nge;
 
 	// TODO handle case of softed equalities !!!!!!!!!!!!!!!!
 
@@ -665,9 +735,16 @@ void OCP_QP_REDUCE_EQ_DOF_RHS(struct OCP_QP *qp, struct OCP_QP *qp_red, struct O
 				work->e_imask_d[jj] = 0;
 			for(jj=0; jj<ne_thr; jj++) // set 1s for both inputs and states
 				{
-				VECEL(work->tmp_nuxM+0, qp->idxb[ii][qp->idxe[ii][jj]]) = VECEL(qp->d+ii, qp->idxe[ii][jj]);
-				work->e_imask_ux[qp->idxb[ii][qp->idxe[ii][jj]]] = 1;
-				work->e_imask_d[qp->idxe[ii][jj]] = 1;
+				int tmp_idxe = qp->idxe[ii][jj];
+				int tmp_idxb = qp->idxb[ii][tmp_idxe];
+				VECEL(work->tmp_nuxM+0, tmp_idxb) = VECEL(qp->d+ii, tmp_idxe);
+				work->e_imask_ux[tmp_idxb] = 1;
+				work->e_imask_d[tmp_idxe] = 1; // equality on degrees of freedom, to be removed
+				}
+			for(jj=ne_thr; jj<nbue[ii]+nbxe[ii]+nge[ii]; jj++)
+				{
+				int tmp_idxe = qp->idxe[ii][jj];
+				work->e_imask_d[tmp_idxe] = 2; // equality on dependend variables, to be kept
 				}
 			// TODO check first and last non-zero in e_mask and only multiply between them
 			if(ii<N)
@@ -686,11 +763,14 @@ void OCP_QP_REDUCE_EQ_DOF_RHS(struct OCP_QP *qp, struct OCP_QP *qp_red, struct O
 					idx0++;
 					}
 				}
-			// d d_mask m idxb idxs_rev
+			// d d_mask m (idxb idxs_rev) idxe
 			idx0 = 0;
+			idx1 = 0;
+			idx2 = 0;
 			for(jj=0; jj<nb[ii]; jj++)
 				{
-				if(work->e_imask_d[jj]==0)
+				//if(work->e_imask_d[jj]==0)
+				if(work->e_imask_d[jj]!=1)
 					{
 					VECEL(qp_red->d+ii, idx0) = VECEL(qp->d+ii, jj);
 					VECEL(qp_red->d+ii, nb_red[ii]+ng_red[ii]+idx0) = VECEL(qp->d+ii, nb[ii]+ng[ii]+jj);
@@ -698,9 +778,19 @@ void OCP_QP_REDUCE_EQ_DOF_RHS(struct OCP_QP *qp, struct OCP_QP *qp_red, struct O
 					VECEL(qp_red->d_mask+ii, nb_red[ii]+ng_red[ii]+idx0) = VECEL(qp->d_mask+ii, nb[ii]+ng[ii]+jj);
 					VECEL(qp_red->m+ii, idx0) = VECEL(qp->m+ii, jj);
 					VECEL(qp_red->m+ii, nb_red[ii]+ng_red[ii]+idx0) = VECEL(qp->m+ii, nb[ii]+ng[ii]+jj);
+					if(work->e_imask_d[jj]==2)
+						{
+						qp_red->idxe[ii][idx2] = idx0;
+						idx2++;
+						}
 					idx0++;
 					}
+				else
+					{
+					idx1++;
+					}
 				}
+			// XXX here it must hold idx2==nbue_red[ii]+nbxe_red[ii]
 			VECCP(ng[ii], qp->d+ii, nb[ii], qp_red->d+ii, nb_red[ii]);
 			VECCP(ng[ii]+2*ns[ii], qp->d+ii, 2*nb[ii]+ng[ii], qp_red->d+ii, 2*nb_red[ii]+ng_red[ii]);
 			VECCP(ng[ii], qp->d_mask+ii, nb[ii], qp_red->d_mask+ii, nb_red[ii]);
@@ -710,9 +800,12 @@ void OCP_QP_REDUCE_EQ_DOF_RHS(struct OCP_QP *qp, struct OCP_QP *qp_red, struct O
 			GEMV_T(nu[ii]+nx[ii], ng[ii], 1.0, qp->DCt+ii, 0, 0, work->tmp_nuxM+0, 0, 0.0, work->tmp_nbgM, 0, work->tmp_nbgM, 0);
 			AXPY(ng[ii], -1.0, work->tmp_nbgM, 0, qp->d+ii, nb[ii], qp_red->d+ii, nb_red[ii]);
 			AXPY(ng[ii], 1.0, work->tmp_nbgM, 0, qp->d+ii, 2*nb[ii]+ng[ii], qp_red->d+ii, 2*nb_red[ii]+ng_red[ii]);
+			for(jj=0; jj<nge[ii]; jj++)
+				{
+				qp_red->idxe[ii][nbue_red[ii]+nbxe_red[ii]+jj] = qp->idxe[ii][nbue[ii]+nbxe[ii]] - nb[ii] + nb_red[ii];
+				}
 			// soft constraints
 			VECCP(2*ns[ii], qp->rqz+ii, nu[ii]+nx[ii], qp_red->rqz+ii, nu_red[ii]+nx_red[ii]);
-			// TODO idxe !!!!!!!!!!!!!!!
 			}
 		else // copy everything
 			{
@@ -725,6 +818,15 @@ void OCP_QP_REDUCE_EQ_DOF_RHS(struct OCP_QP *qp, struct OCP_QP *qp_red, struct O
 			VECCP(2*nb[ii]+2*ng[ii]+2*ns[ii], qp->d+ii, 0, qp_red->d+ii, 0);
 			VECCP(2*nb[ii]+2*ng[ii]+2*ns[ii], qp->d_mask+ii, 0, qp_red->d_mask+ii, 0);
 			VECCP(2*nb[ii]+2*ng[ii]+2*ns[ii], qp->m+ii, 0, qp_red->m+ii, 0);
+			if(arg->alias_unchanged)
+				{
+				qp_red->idxe[ii] = qp->idxe[ii];
+				}
+			else
+				{
+				for(jj=0; jj<nbue[ii]+nbxe[ii]+nge[ii]; jj++)
+					qp_red->idxe[ii][jj] = qp->idxe[ii][jj];
+				}
 			}
 		}
 
