@@ -77,6 +77,7 @@ struct s_ocp_qp_ipm_arg
 	int stat_max; // iterations saved in stat
 	int pred_corr; // use Mehrotra's predictor-corrector IPM algirthm
 	int cond_pred_corr; // conditional Mehrotra's predictor-corrector
+	int mehr_prob; // use Mehrotra probing: 0 no, 1 at iter with reg hessian, 2 always
 	int itref_pred_max; // max number of iterative refinement steps for predictor step
 	int itref_corr_max; // max number of iterative refinement steps for corrector step
 	int warm_start; // 0 no warm start, 1 warm start primal sol, 2 warm start primal and dual sol, 3 hot start
@@ -185,6 +186,8 @@ void s_ocp_qp_ipm_arg_set_warm_start(int *warm_start, struct s_ocp_qp_ipm_arg *a
 void s_ocp_qp_ipm_arg_set_pred_corr(int *pred_corr, struct s_ocp_qp_ipm_arg *arg);
 // conditional predictor-corrector: 0 no conditinal predictor-corrector, 1 conditional predictor-corrector
 void s_ocp_qp_ipm_arg_set_cond_pred_corr(int *value, struct s_ocp_qp_ipm_arg *arg);
+// Mehrotra probing: 0 no, 1 at iter with regularized hessian, 2 always
+void s_ocp_qp_ipm_arg_set_mehr_prob(int *mehr_prob, struct s_ocp_qp_ipm_arg *arg);
 // set riccati algorithm: 0 classic, 1 square-root
 void s_ocp_qp_ipm_arg_set_ric_alg(int *alg, struct s_ocp_qp_ipm_arg *arg);
 // dual solution of equality constraints (only for abs_form==1)

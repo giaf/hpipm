@@ -68,7 +68,7 @@ void DENSE_QP_IPM_ARG_SET_DEFAULT(enum HPIPM_MODE mode, struct DENSE_QP_IPM_ARG 
 	{
 
 	REAL mu0, alpha_min, res_g, res_b, res_d, res_m, dual_gap, reg_prim, reg_dual, lam_min, t_min, tau_min, lam0_min, t0_min, m_safe;
-	int iter_max, stat_max, pred_corr, cond_pred_corr, itref_pred_max, itref_corr_max, lq_fact, scale, warm_start, abs_form, comp_res_exit, comp_res_pred, kkt_fact_alg, remove_lin_dep_eq, compute_obj, split_step, t_lam_min, t0_init, update_fact_exit;
+	int iter_max, stat_max, pred_corr, cond_pred_corr, mehr_prob, itref_pred_max, itref_corr_max, lq_fact, scale, warm_start, abs_form, comp_res_exit, comp_res_pred, kkt_fact_alg, remove_lin_dep_eq, compute_obj, split_step, t_lam_min, t0_init, update_fact_exit;
 
 	if(mode==SPEED_ABS)
 		{
@@ -83,6 +83,7 @@ void DENSE_QP_IPM_ARG_SET_DEFAULT(enum HPIPM_MODE mode, struct DENSE_QP_IPM_ARG 
 		stat_max = 15;
 		pred_corr = 1;
 		cond_pred_corr = 1;
+		mehr_prob = 1;
 		itref_pred_max = 0;
 		itref_corr_max = 0;
 		reg_prim = 1e-15;
@@ -120,6 +121,7 @@ void DENSE_QP_IPM_ARG_SET_DEFAULT(enum HPIPM_MODE mode, struct DENSE_QP_IPM_ARG 
 		stat_max = 15;
 		pred_corr = 1;
 		cond_pred_corr = 1;
+		mehr_prob = 1;
 		itref_pred_max = 0;
 		itref_corr_max = 0;
 		reg_prim = 1e-15;
@@ -157,6 +159,7 @@ void DENSE_QP_IPM_ARG_SET_DEFAULT(enum HPIPM_MODE mode, struct DENSE_QP_IPM_ARG 
 		stat_max = 30;
 		pred_corr = 1;
 		cond_pred_corr = 1;
+		mehr_prob = 1;
 		itref_pred_max = 0;
 		itref_corr_max = 2;
 		reg_prim = 1e-15;
@@ -194,6 +197,7 @@ void DENSE_QP_IPM_ARG_SET_DEFAULT(enum HPIPM_MODE mode, struct DENSE_QP_IPM_ARG 
 		stat_max = 100;
 		pred_corr = 1;
 		cond_pred_corr = 1;
+		mehr_prob = 1;
 		itref_pred_max = 0;
 		itref_corr_max = 8;
 		reg_prim = 1e-15;
@@ -238,6 +242,7 @@ void DENSE_QP_IPM_ARG_SET_DEFAULT(enum HPIPM_MODE mode, struct DENSE_QP_IPM_ARG 
 	arg->stat_max = stat_max;
 	DENSE_QP_IPM_ARG_SET_PRED_CORR(&pred_corr, arg);
 	DENSE_QP_IPM_ARG_SET_COND_PRED_CORR(&cond_pred_corr, arg);
+	DENSE_QP_IPM_ARG_SET_MEHR_PROB(&mehr_prob, arg);
 	arg->itref_pred_max = itref_pred_max;
 	arg->itref_corr_max = itref_corr_max;
 	DENSE_QP_IPM_ARG_SET_REG_PRIM(&reg_prim, arg);
@@ -322,6 +327,10 @@ void DENSE_QP_IPM_ARG_SET(char *field, void *value, struct DENSE_QP_IPM_ARG *arg
 	else if(hpipm_strcmp(field, "cond_pred_corr"))
 		{
 		DENSE_QP_IPM_ARG_SET_COND_PRED_CORR(value, arg);
+		}
+	else if(hpipm_strcmp(field, "mehr_prob"))
+		{
+		DENSE_QP_IPM_ARG_SET_MEHR_PROB(value, arg);
 		}
 	else if(hpipm_strcmp(field, "comp_res_exit"))
 		{
@@ -494,6 +503,14 @@ void DENSE_QP_IPM_ARG_SET_PRED_CORR(int *pred_corr, struct DENSE_QP_IPM_ARG *arg
 void DENSE_QP_IPM_ARG_SET_COND_PRED_CORR(int *cond_pred_corr, struct DENSE_QP_IPM_ARG *arg)
 	{
 	arg->cond_pred_corr = *cond_pred_corr;
+	return;
+	}
+
+
+
+void DENSE_QP_IPM_ARG_SET_MEHR_PROB(int *mehr_prob, struct DENSE_QP_IPM_ARG *arg)
+	{
+	arg->mehr_prob = *mehr_prob;
 	return;
 	}
 
@@ -1612,82 +1629,124 @@ void DENSE_QP_IPM_ABS_STEP(int kk, struct DENSE_QP *qp, struct DENSE_QP_SOL *qp_
 		if(kk+1<ws->stat_max)
 			ws->stat[ws->stat_m*(kk+1)+3] = cws->sigma;
 
-		COMPUTE_CENTERING_CORRECTION_QP(cws);
-		if(ws->mask_constr)
+		// Mehrotra probing
+		if(arg->mehr_prob==2 || (arg->mehr_prob==1 && ws->npd_reg_hess) )
 			{
-			// mask out disregarded constraints
-			VECMUL(cws->nc, qp->d_mask, 0, ws->res->res_m, 0, ws->res->res_m, 0);
+
+			// centering direction
+			COMPUTE_CENTERING_QP(cws);
+			if(ws->mask_constr)
+				{
+				// mask out disregarded constraints
+				VECMUL(cws->nc, qp->d_mask, 0, ws->res->res_m, 0, ws->res->res_m, 0);
+				}
+
+			// solve kkt
+			SOLVE_KKT_STEP_DENSE_QP(ws->qp_step, ws->sol_step, arg, ws);
+			// compute step
+			AXPY(cws->nv, -1.0, qp_sol->v, 0, ws->sol_step->v, 0, ws->sol_step->v, 0);
+			AXPY(cws->ne, -1.0, qp_sol->pi, 0, ws->sol_step->pi, 0, ws->sol_step->pi, 0);
+			AXPY(cws->nc, -1.0, qp_sol->lam, 0, ws->sol_step->lam, 0, ws->sol_step->lam, 0);
+			AXPY(cws->nc, -1.0, qp_sol->t, 0, ws->sol_step->t, 0, ws->sol_step->t, 0);
+			if(ws->mask_constr)
+				{
+				// mask out disregarded constraints
+				//VECMUL(2*ns, qp->d_mask, 2*nb+2*ng, ws->sol_step->v, nv, ws->sol_step->v, nv);
+				VECMUL(cws->nc, qp->d_mask, 0, ws->sol_step->t, 0, ws->sol_step->t, 0);
+				VECMUL(cws->nc, qp->d_mask, 0, ws->sol_step->lam, 0, ws->sol_step->lam, 0);
+				}
+
+			// alpha
+			COMPUTE_ALPHA_QP(cws);
+			if(kk+1<ws->stat_max)
+				{
+				ws->stat[ws->stat_m*(kk+1)+4] = cws->alpha_prim;
+				ws->stat[ws->stat_m*(kk+1)+5] = cws->alpha_dual;
+				}
+
 			}
-
-		// fact and solve kkt
-		SOLVE_KKT_STEP_DENSE_QP(ws->qp_step, ws->sol_step, arg, ws);
-		// compute step
-		AXPY(cws->nv, -1.0, qp_sol->v, 0, ws->sol_step->v, 0, ws->sol_step->v, 0);
-		AXPY(cws->ne, -1.0, qp_sol->pi, 0, ws->sol_step->pi, 0, ws->sol_step->pi, 0);
-		AXPY(cws->nc, -1.0, qp_sol->lam, 0, ws->sol_step->lam, 0, ws->sol_step->lam, 0);
-		AXPY(cws->nc, -1.0, qp_sol->t, 0, ws->sol_step->t, 0, ws->sol_step->t, 0);
-		if(ws->mask_constr)
-			{
-			// mask out disregarded constraints
-			//VECMUL(2*ns, qp->d_mask, 2*nb+2*ng, ws->sol_step->v, nv, ws->sol_step->v, nv);
-			VECMUL(cws->nc, qp->d_mask, 0, ws->sol_step->t, 0, ws->sol_step->t, 0);
-			VECMUL(cws->nc, qp->d_mask, 0, ws->sol_step->lam, 0, ws->sol_step->lam, 0);
-			}
-
-		// alpha
-		COMPUTE_ALPHA_QP(cws);
-		if(kk+1<ws->stat_max)
-			{
-			ws->stat[ws->stat_m*(kk+1)+4] = cws->alpha_prim;
-			ws->stat[ws->stat_m*(kk+1)+5] = cws->alpha_dual;
-			}
-
-		// conditional Mehrotra's predictor-corrector
-		if(arg->cond_pred_corr==1)
+		else
 			{
 
-			// save mu_aff (from prediction sol_step)
-			mu_aff0 = cws->mu_aff;
+			COMPUTE_CENTERING_CORRECTION_QP(cws);
+			if(ws->mask_constr)
+				{
+				// mask out disregarded constraints
+				VECMUL(cws->nc, qp->d_mask, 0, ws->res->res_m, 0, ws->res->res_m, 0);
+				}
 
-			// compute mu for predictor-corrector-centering
-			COMPUTE_MU_AFF_QP(cws);
+			// fact and solve kkt
+			SOLVE_KKT_STEP_DENSE_QP(ws->qp_step, ws->sol_step, arg, ws);
+			// compute step
+			AXPY(cws->nv, -1.0, qp_sol->v, 0, ws->sol_step->v, 0, ws->sol_step->v, 0);
+			AXPY(cws->ne, -1.0, qp_sol->pi, 0, ws->sol_step->pi, 0, ws->sol_step->pi, 0);
+			AXPY(cws->nc, -1.0, qp_sol->lam, 0, ws->sol_step->lam, 0, ws->sol_step->lam, 0);
+			AXPY(cws->nc, -1.0, qp_sol->t, 0, ws->sol_step->t, 0, ws->sol_step->t, 0);
+			if(ws->mask_constr)
+				{
+				// mask out disregarded constraints
+				//VECMUL(2*ns, qp->d_mask, 2*nb+2*ng, ws->sol_step->v, nv, ws->sol_step->v, nv);
+				VECMUL(cws->nc, qp->d_mask, 0, ws->sol_step->t, 0, ws->sol_step->t, 0);
+				VECMUL(cws->nc, qp->d_mask, 0, ws->sol_step->lam, 0, ws->sol_step->lam, 0);
+				}
 
-//			if(cws->mu_aff > 2.0*cws->mu)
-			if(cws->mu_aff > 2.0*mu_aff0)
+			// alpha
+			COMPUTE_ALPHA_QP(cws);
+			if(kk+1<ws->stat_max)
+				{
+				ws->stat[ws->stat_m*(kk+1)+4] = cws->alpha_prim;
+				ws->stat[ws->stat_m*(kk+1)+5] = cws->alpha_dual;
+				}
+
+			// conditional Mehrotra's predictor-corrector
+			if(arg->cond_pred_corr==1)
 				{
 
-				// centering direction
-				COMPUTE_CENTERING_QP(cws);
-				if(ws->mask_constr)
-					{
-					// mask out disregarded constraints
-					VECMUL(cws->nc, qp->d_mask, 0, ws->res->res_m, 0, ws->res->res_m, 0);
-					}
+				// save mu_aff (from prediction sol_step)
+				mu_aff0 = cws->mu_aff;
 
-				// solve kkt
-				SOLVE_KKT_STEP_DENSE_QP(ws->qp_step, ws->sol_step, arg, ws);
-				// compute step
-				AXPY(cws->nv, -1.0, qp_sol->v, 0, ws->sol_step->v, 0, ws->sol_step->v, 0);
-				AXPY(cws->ne, -1.0, qp_sol->pi, 0, ws->sol_step->pi, 0, ws->sol_step->pi, 0);
-				AXPY(cws->nc, -1.0, qp_sol->lam, 0, ws->sol_step->lam, 0, ws->sol_step->lam, 0);
-				AXPY(cws->nc, -1.0, qp_sol->t, 0, ws->sol_step->t, 0, ws->sol_step->t, 0);
-				if(ws->mask_constr)
-					{
-					// mask out disregarded constraints
-					//VECMUL(2*ns, qp->d_mask, 2*nb+2*ng, ws->sol_step->v, nv, ws->sol_step->v, nv);
-					VECMUL(cws->nc, qp->d_mask, 0, ws->sol_step->t, 0, ws->sol_step->t, 0);
-					VECMUL(cws->nc, qp->d_mask, 0, ws->sol_step->lam, 0, ws->sol_step->lam, 0);
-					}
+				// compute mu for predictor-corrector-centering
+				COMPUTE_MU_AFF_QP(cws);
 
-				// alpha
-				COMPUTE_ALPHA_QP(cws);
-				if(kk+1<ws->stat_max)
+	//			if(cws->mu_aff > 2.0*cws->mu)
+				if(cws->mu_aff > 2.0*mu_aff0)
 					{
-					ws->stat[ws->stat_m*(kk+1)+4] = cws->alpha_prim;
-					ws->stat[ws->stat_m*(kk+1)+5] = cws->alpha_dual;
+
+					// centering direction
+					COMPUTE_CENTERING_QP(cws);
+					if(ws->mask_constr)
+						{
+						// mask out disregarded constraints
+						VECMUL(cws->nc, qp->d_mask, 0, ws->res->res_m, 0, ws->res->res_m, 0);
+						}
+
+					// solve kkt
+					SOLVE_KKT_STEP_DENSE_QP(ws->qp_step, ws->sol_step, arg, ws);
+					// compute step
+					AXPY(cws->nv, -1.0, qp_sol->v, 0, ws->sol_step->v, 0, ws->sol_step->v, 0);
+					AXPY(cws->ne, -1.0, qp_sol->pi, 0, ws->sol_step->pi, 0, ws->sol_step->pi, 0);
+					AXPY(cws->nc, -1.0, qp_sol->lam, 0, ws->sol_step->lam, 0, ws->sol_step->lam, 0);
+					AXPY(cws->nc, -1.0, qp_sol->t, 0, ws->sol_step->t, 0, ws->sol_step->t, 0);
+					if(ws->mask_constr)
+						{
+						// mask out disregarded constraints
+						//VECMUL(2*ns, qp->d_mask, 2*nb+2*ng, ws->sol_step->v, nv, ws->sol_step->v, nv);
+						VECMUL(cws->nc, qp->d_mask, 0, ws->sol_step->t, 0, ws->sol_step->t, 0);
+						VECMUL(cws->nc, qp->d_mask, 0, ws->sol_step->lam, 0, ws->sol_step->lam, 0);
+						}
+
+					// alpha
+					COMPUTE_ALPHA_QP(cws);
+					if(kk+1<ws->stat_max)
+						{
+						ws->stat[ws->stat_m*(kk+1)+4] = cws->alpha_prim;
+						ws->stat[ws->stat_m*(kk+1)+5] = cws->alpha_dual;
+						}
+
 					}
 
 				}
+
 			}
 
 		}
@@ -2013,71 +2072,107 @@ void DENSE_QP_IPM_DELTA_STEP(int kk, struct DENSE_QP *qp, struct DENSE_QP_SOL *q
 		if(kk+1<ws->stat_max)
 			ws->stat[ws->stat_m*(kk+1)+3] = cws->sigma;
 
-		COMPUTE_CENTERING_CORRECTION_QP(cws);
-		if(ws->mask_constr)
+		// Mehrotra probing
+		if(arg->mehr_prob==2 || (arg->mehr_prob==1 && ws->npd_reg_hess) )
 			{
-			// mask out disregarded constraints
-			VECMUL(cws->nc, qp->d_mask, 0, ws->res->res_m, 0, ws->res->res_m, 0);
+
+			// centering direction
+			COMPUTE_CENTERING_QP(cws);
+			if(ws->mask_constr)
+				{
+				// mask out disregarded constraints
+				VECMUL(cws->nc, qp->d_mask, 0, ws->res->res_m, 0, ws->res->res_m, 0);
+				}
+
+			// solve kkt
+			SOLVE_KKT_STEP_DENSE_QP(ws->qp_step, ws->sol_step, arg, ws);
+			if(ws->mask_constr)
+				{
+				// mask out disregarded constraints
+				//VECMUL(2*ns, qp->d_mask, 2*nb+2*ng, ws->sol_step->v, nv, ws->sol_step->v, nv);
+				VECMUL(cws->nc, qp->d_mask, 0, ws->sol_step->t, 0, ws->sol_step->t, 0);
+				VECMUL(cws->nc, qp->d_mask, 0, ws->sol_step->lam, 0, ws->sol_step->lam, 0);
+				}
+
+			// alpha
+			COMPUTE_ALPHA_QP(cws);
+			if(kk+1<ws->stat_max)
+				{
+				ws->stat[ws->stat_m*(kk+1)+4] = cws->alpha_prim;
+				ws->stat[ws->stat_m*(kk+1)+5] = cws->alpha_dual;
+				}
+
 			}
-
-		// solve kkt
-		SOLVE_KKT_STEP_DENSE_QP(ws->qp_step, ws->sol_step, arg, ws);
-		if(ws->mask_constr)
-			{
-			// mask out disregarded constraints
-			//VECMUL(2*ns, qp->d_mask, 2*nb+2*ng, ws->sol_step->v, nv, ws->sol_step->v, nv);
-			VECMUL(cws->nc, qp->d_mask, 0, ws->sol_step->t, 0, ws->sol_step->t, 0);
-			VECMUL(cws->nc, qp->d_mask, 0, ws->sol_step->lam, 0, ws->sol_step->lam, 0);
-			}
-
-		// alpha
-		COMPUTE_ALPHA_QP(cws);
-		if(kk+1<ws->stat_max)
-			{
-			ws->stat[ws->stat_m*(kk+1)+4] = cws->alpha_prim;
-			ws->stat[ws->stat_m*(kk+1)+5] = cws->alpha_dual;
-			}
-
-		// conditional Mehrotra's predictor-corrector
-		if(arg->cond_pred_corr==1)
+		else
 			{
 
-			// save mu_aff (from prediction sol_step)
-			mu_aff0 = cws->mu_aff;
+			COMPUTE_CENTERING_CORRECTION_QP(cws);
+			if(ws->mask_constr)
+				{
+				// mask out disregarded constraints
+				VECMUL(cws->nc, qp->d_mask, 0, ws->res->res_m, 0, ws->res->res_m, 0);
+				}
 
-			// compute mu for predictor-corrector-centering
-			COMPUTE_MU_AFF_QP(cws);
+			// solve kkt
+			SOLVE_KKT_STEP_DENSE_QP(ws->qp_step, ws->sol_step, arg, ws);
+			if(ws->mask_constr)
+				{
+				// mask out disregarded constraints
+				//VECMUL(2*ns, qp->d_mask, 2*nb+2*ng, ws->sol_step->v, nv, ws->sol_step->v, nv);
+				VECMUL(cws->nc, qp->d_mask, 0, ws->sol_step->t, 0, ws->sol_step->t, 0);
+				VECMUL(cws->nc, qp->d_mask, 0, ws->sol_step->lam, 0, ws->sol_step->lam, 0);
+				}
 
-//				if(cws->mu_aff > 2.0*cws->mu)
-			//printf("cond pred corr %e %e %d\n", cws->mu_aff, mu_aff0, cws->mu_aff > 2.0*mu_aff0);
-			if(cws->mu_aff > 2.0*mu_aff0)
-			//if(1)
+			// alpha
+			COMPUTE_ALPHA_QP(cws);
+			if(kk+1<ws->stat_max)
+				{
+				ws->stat[ws->stat_m*(kk+1)+4] = cws->alpha_prim;
+				ws->stat[ws->stat_m*(kk+1)+5] = cws->alpha_dual;
+				}
+
+			// conditional Mehrotra's predictor-corrector
+			if(arg->cond_pred_corr==1)
 				{
 
-				// centering direction
-				COMPUTE_CENTERING_QP(cws);
-				if(ws->mask_constr)
-					{
-					// mask out disregarded constraints
-					VECMUL(cws->nc, qp->d_mask, 0, ws->res->res_m, 0, ws->res->res_m, 0);
-					}
+				// save mu_aff (from prediction sol_step)
+				mu_aff0 = cws->mu_aff;
 
-				// solve kkt
-				SOLVE_KKT_STEP_DENSE_QP(ws->qp_step, ws->sol_step, arg, ws);
-				if(ws->mask_constr)
-					{
-					// mask out disregarded constraints
-					//VECMUL(2*ns, qp->d_mask, 2*nb+2*ng, ws->sol_step->v, nv, ws->sol_step->v, nv);
-					VECMUL(cws->nc, qp->d_mask, 0, ws->sol_step->t, 0, ws->sol_step->t, 0);
-					VECMUL(cws->nc, qp->d_mask, 0, ws->sol_step->lam, 0, ws->sol_step->lam, 0);
-					}
+				// compute mu for predictor-corrector-centering
+				COMPUTE_MU_AFF_QP(cws);
 
-				// alpha
-				COMPUTE_ALPHA_QP(cws);
-				if(kk+1<ws->stat_max)
+	//				if(cws->mu_aff > 2.0*cws->mu)
+				//printf("cond pred corr %e %e %d\n", cws->mu_aff, mu_aff0, cws->mu_aff > 2.0*mu_aff0);
+				if(cws->mu_aff > 2.0*mu_aff0)
+				//if(1)
 					{
-					ws->stat[ws->stat_m*(kk+1)+4] = cws->alpha_prim;
-					ws->stat[ws->stat_m*(kk+1)+5] = cws->alpha_dual;
+
+					// centering direction
+					COMPUTE_CENTERING_QP(cws);
+					if(ws->mask_constr)
+						{
+						// mask out disregarded constraints
+						VECMUL(cws->nc, qp->d_mask, 0, ws->res->res_m, 0, ws->res->res_m, 0);
+						}
+
+					// solve kkt
+					SOLVE_KKT_STEP_DENSE_QP(ws->qp_step, ws->sol_step, arg, ws);
+					if(ws->mask_constr)
+						{
+						// mask out disregarded constraints
+						//VECMUL(2*ns, qp->d_mask, 2*nb+2*ng, ws->sol_step->v, nv, ws->sol_step->v, nv);
+						VECMUL(cws->nc, qp->d_mask, 0, ws->sol_step->t, 0, ws->sol_step->t, 0);
+						VECMUL(cws->nc, qp->d_mask, 0, ws->sol_step->lam, 0, ws->sol_step->lam, 0);
+						}
+
+					// alpha
+					COMPUTE_ALPHA_QP(cws);
+					if(kk+1<ws->stat_max)
+						{
+						ws->stat[ws->stat_m*(kk+1)+4] = cws->alpha_prim;
+						ws->stat[ws->stat_m*(kk+1)+5] = cws->alpha_dual;
+						}
+
 					}
 
 				}

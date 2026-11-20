@@ -79,6 +79,7 @@ struct d_dense_qp_ipm_arg
 	int stat_max; // iterations saved in stat
 	int pred_corr; // Mehrotra's predictor-corrector IPM algirthm
 	int cond_pred_corr; // conditional Mehrotra's predictor-corrector
+	int mehr_prob; // use Mehrotra probing: 0 no, 1 at iter with reg hessian, 2 always
 	int scale; // scale hessian
 	int itref_pred_max; // max number of iterative refinement steps for predictor step
 	int itref_corr_max; // max number of iterative refinement steps for corrector step
@@ -209,6 +210,8 @@ void d_dense_qp_ipm_arg_set_warm_start(int *warm_start, struct d_dense_qp_ipm_ar
 void d_dense_qp_ipm_arg_set_pred_corr(int *pred_corr, struct d_dense_qp_ipm_arg *arg);
 //
 void d_dense_qp_ipm_arg_set_cond_pred_corr(int *cond_pred_corr, struct d_dense_qp_ipm_arg *arg);
+//
+void d_dense_qp_ipm_arg_set_mehr_prob(int *mehr_prob, struct d_dense_qp_ipm_arg *arg);
 //
 void d_dense_qp_ipm_arg_set_comp_res_pred(int *comp_res_pred, struct d_dense_qp_ipm_arg *arg);
 //
