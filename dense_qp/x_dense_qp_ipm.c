@@ -1911,20 +1911,23 @@ void DENSE_QP_IPM_DELTA_STEP(int kk, struct DENSE_QP *qp, struct DENSE_QP_SOL *q
 		}
 	else
 		{
+		if (!(ws->lq_fact == 1 & force_lq == 0)) // skip residual evaluation in case LQ-fallback is active but not triggered.
+			{
+			DENSE_QP_RES_COMPUTE_LIN(ws->qp_step, qp_sol, ws->sol_step, ws->res_itref, ws->res_ws);
+			//if(ws->mask_constr)
+			//	{
+			//	// mask out disregarded constraints
+			//	//VECMUL(2*ns, qp->d_mask, 2*nb+2*ng, ws->res_itref->res_g, nv, ws->res_itref->res_g, nv);
+			//	VECMUL(cws->nc, qp->d_mask, 0, ws->res_itref->res_d, 0, ws->res_itref->res_d, 0);
+			//	VECMUL(cws->nc, qp->d_mask, 0, ws->res_itref->res_m, 0, ws->res_itref->res_m, 0);
+			//	}
+			DENSE_QP_RES_COMPUTE_INF_NORM(ws->res_itref);
+			itref_qp_norm[0] = ws->res_itref->res_max[0];
+			itref_qp_norm[1] = ws->res_itref->res_max[1];
+			itref_qp_norm[2] = ws->res_itref->res_max[2];
+			itref_qp_norm[3] = ws->res_itref->res_max[3];
+			}
 
-		DENSE_QP_RES_COMPUTE_LIN(ws->qp_step, qp_sol, ws->sol_step, ws->res_itref, ws->res_ws);
-		//if(ws->mask_constr)
-		//	{
-		//	// mask out disregarded constraints
-		//	//VECMUL(2*ns, qp->d_mask, 2*nb+2*ng, ws->res_itref->res_g, nv, ws->res_itref->res_g, nv);
-		//	VECMUL(cws->nc, qp->d_mask, 0, ws->res_itref->res_d, 0, ws->res_itref->res_d, 0);
-		//	VECMUL(cws->nc, qp->d_mask, 0, ws->res_itref->res_m, 0, ws->res_itref->res_m, 0);
-		//	}
-		DENSE_QP_RES_COMPUTE_INF_NORM(ws->res_itref);
-		itref_qp_norm[0] = ws->res_itref->res_max[0];
-		itref_qp_norm[1] = ws->res_itref->res_max[1];
-		itref_qp_norm[2] = ws->res_itref->res_max[2];
-		itref_qp_norm[3] = ws->res_itref->res_max[3];
 		if(kk+1<ws->stat_max)
 			{
 			ws->stat[ws->stat_m*(kk+1)+16] = itref_qp_norm[0];
