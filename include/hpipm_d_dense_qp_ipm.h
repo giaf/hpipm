@@ -209,6 +209,10 @@ void d_dense_qp_ipm_arg_set_warm_start(int *warm_start, struct d_dense_qp_ipm_ar
 //
 void d_dense_qp_ipm_arg_set_pred_corr(int *pred_corr, struct d_dense_qp_ipm_arg *arg);
 //
+void d_dense_qp_ipm_arg_set_itref_corr_max(int *itref_corr_max, struct d_dense_qp_ipm_arg *arg);
+//
+void d_dense_qp_ipm_arg_set_lq_fact(int *lq_fact, struct d_dense_qp_ipm_arg *arg);
+//
 void d_dense_qp_ipm_arg_set_cond_pred_corr(int *cond_pred_corr, struct d_dense_qp_ipm_arg *arg);
 //
 void d_dense_qp_ipm_arg_set_mehr_prob(int *mehr_prob, struct d_dense_qp_ipm_arg *arg);

@@ -337,6 +337,14 @@ void DENSE_QCQP_IPM_ARG_SET(char *field, void *value, struct DENSE_QCQP_IPM_ARG 
 		{
 		DENSE_QCQP_IPM_ARG_SET_PRED_CORR(value, arg);
 		}
+	else if(hpipm_strcmp(field, "itref_corr_max"))
+		{
+		DENSE_QP_IPM_ARG_SET_ITREF_CORR_MAX(value, arg->qp_arg);
+		}
+	else if(hpipm_strcmp(field, "lq_fact"))
+		{
+		DENSE_QP_IPM_ARG_SET_LQ_FACT(value, arg->qp_arg);
+		}
 	else if(hpipm_strcmp(field, "cond_pred_corr")) 
 		{
 		DENSE_QCQP_IPM_ARG_SET_COND_PRED_CORR(value, arg);

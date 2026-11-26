@@ -184,6 +184,10 @@ void d_ocp_qp_ipm_arg_set_reg_prim(double *reg_prim, struct d_ocp_qp_ipm_arg *ar
 void d_ocp_qp_ipm_arg_set_warm_start(int *warm_start, struct d_ocp_qp_ipm_arg *arg);
 // Mehrotra's predictor-corrector IPM algorithm: 0 no predictor-corrector, 1 use predictor-corrector
 void d_ocp_qp_ipm_arg_set_pred_corr(int *pred_corr, struct d_ocp_qp_ipm_arg *arg);
+// maximum number of iterative refinement steps for the corrector
+void d_ocp_qp_ipm_arg_set_itref_corr_max(int *itref_corr_max, struct d_ocp_qp_ipm_arg *arg);
+// factorization strategy: 0 syrk+potrf, 1 mixed, 2 LQ
+void d_ocp_qp_ipm_arg_set_lq_fact(int *lq_fact, struct d_ocp_qp_ipm_arg *arg);
 // conditional predictor-corrector: 0 no conditinal predictor-corrector, 1 conditional predictor-corrector
 void d_ocp_qp_ipm_arg_set_cond_pred_corr(int *value, struct d_ocp_qp_ipm_arg *arg);
 // Mehrotra probing: 0 no, 1 at iter with regularized hessian, 2 always

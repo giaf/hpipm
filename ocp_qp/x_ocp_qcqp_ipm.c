@@ -337,6 +337,14 @@ void OCP_QCQP_IPM_ARG_SET(char *field, void *value, struct OCP_QCQP_IPM_ARG *arg
 		{
 		OCP_QCQP_IPM_ARG_SET_PRED_CORR(value, arg);
 		}
+	else if(hpipm_strcmp(field, "itref_corr_max"))
+		{
+		OCP_QP_IPM_ARG_SET_ITREF_CORR_MAX(value, arg->qp_arg);
+		}
+	else if(hpipm_strcmp(field, "lq_fact"))
+		{
+		OCP_QP_IPM_ARG_SET_LQ_FACT(value, arg->qp_arg);
+		}
 	else if(hpipm_strcmp(field, "cond_pred_corr")) 
 		{
 		OCP_QCQP_IPM_ARG_SET_COND_PRED_CORR(value, arg);
