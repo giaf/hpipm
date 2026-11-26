@@ -162,6 +162,10 @@ void d_tree_ocp_qp_ipm_arg_set_warm_start(int *warm_start, struct d_tree_ocp_qp_
 //
 void d_tree_ocp_qp_ipm_arg_set_pred_corr(int *pred_corr, struct d_tree_ocp_qp_ipm_arg *arg);
 //
+void d_tree_ocp_qp_ipm_arg_set_itref_corr_max(int *itref_corr_max, struct d_tree_ocp_qp_ipm_arg *arg);
+//
+void d_tree_ocp_qp_ipm_arg_set_lq_fact(int *lq_fact, struct d_tree_ocp_qp_ipm_arg *arg);
+//
 void d_tree_ocp_qp_ipm_arg_set_cond_pred_corr(int *value, struct d_tree_ocp_qp_ipm_arg *arg);
 //
 void d_tree_ocp_qp_ipm_arg_set_comp_dual_sol_eq(int *value, struct d_tree_ocp_qp_ipm_arg *arg);

@@ -304,6 +304,14 @@ void OCP_QP_IPM_ARG_SET(char *field, void *value, struct OCP_QP_IPM_ARG *arg)
 		{
 		OCP_QP_IPM_ARG_SET_REG_PRIM(value, arg);
 		}
+	else if(hpipm_strcmp(field, "itref_corr_max"))
+		{
+		OCP_QP_IPM_ARG_SET_ITREF_CORR_MAX(value, arg);
+		}
+	else if(hpipm_strcmp(field, "lq_fact"))
+		{
+		OCP_QP_IPM_ARG_SET_LQ_FACT(value, arg);
+		}
 	else if(hpipm_strcmp(field, "warm_start"))
 		{
 		OCP_QP_IPM_ARG_SET_WARM_START(value, arg);
@@ -475,6 +483,22 @@ void OCP_QP_IPM_ARG_SET_WARM_START(int *warm_start, struct OCP_QP_IPM_ARG *arg)
 void OCP_QP_IPM_ARG_SET_PRED_CORR(int *pred_corr, struct OCP_QP_IPM_ARG *arg)
 	{
 	arg->pred_corr = *pred_corr;
+	return;
+	}
+
+
+
+void OCP_QP_IPM_ARG_SET_ITREF_CORR_MAX(int *itref_corr_max, struct OCP_QP_IPM_ARG *arg)
+	{
+	arg->itref_corr_max = *itref_corr_max;
+	return;
+	}
+
+
+
+void OCP_QP_IPM_ARG_SET_LQ_FACT(int *lq_fact, struct OCP_QP_IPM_ARG *arg)
+	{
+	arg->lq_fact = *lq_fact;
 	return;
 	}
 
